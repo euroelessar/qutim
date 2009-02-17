@@ -31,7 +31,7 @@
 #include <QtGlobal>
 #include <QMap>
 
-#include <zlib/zlib.h>
+#include <zlib.h>
 
 class ZipPrivate;
 
