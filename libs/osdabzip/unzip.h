@@ -32,7 +32,7 @@
 #include <QMap>
 #include <QDateTime>
 
-#include <zlib/zlib.h>
+#include <zlib.h>
 
 class UnzipPrivate;
 class QIODevice;
