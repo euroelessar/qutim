@@ -84,8 +84,8 @@ void plugMan::on_installfromfileBtn_clicked()
         qDebug()<<"Not yet implemented";
         QHash<QString, QString> packInfo = plug_parser->parseItem(path);
         downloaderItem item;
-        item.url = packInfo["url"];
-        item.filename = packInfo["name"];
+        item.filename = packInfo["name"] + ".zip"; //FIXME 
+		item.url = packInfo["url"]+item.filename; //FIXME
         connect(plug_loader,SIGNAL(downloadFinished(QString)),plug_install,SLOT(unpackArch(QString)));
         plug_loader->startDownload(item);
         }

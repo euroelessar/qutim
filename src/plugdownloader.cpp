@@ -18,6 +18,7 @@
 #include <QSettings>
 #include <QDebug>
 
+
 plugDownoloader::plugDownoloader(QObject* parent)
         : QObject(parent)
 {
@@ -28,18 +29,22 @@ plugDownoloader::plugDownoloader(QObject* parent)
 void plugDownoloader::startDownload(const downloaderItem &downloadItem)
 {
 
-        QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache", "plugman");
-        outPath = settings.fileName().section("/",0,-2)+"/"+downloadItem.filename;
-        output.setFileName(outPath);
+    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache", "plugman");
+    outPath = settings.fileName().section("/",0,-2);
+	QDir dir;
+	if (!dir.mkpath (outPath))
+		return;
+    output.setFileName(outPath+"/"+downloadItem.filename);
 	if (!output.open(QIODevice::WriteOnly)) {
 // 		lastError = tr("Problem opening save file '%s' for download '%s': %s\n",
 // 				 qPrintable(filename), m_item.url.toEncoded().constData(),
 // 				 qPrintable(output.errorString()));
 		 emit error(lastError);
+		 qDebug() << "Problem opening save file";
 		 return;                 // skip this download
 	}
+    QNetworkRequest request(downloadItem.url);
 	
-        QNetworkRequest request(downloadItem.url);
 	currentDownload = manager.get(request);
 	connect(currentDownload, SIGNAL(downloadProgress(qint64,qint64)),
 		SLOT(downloadProgress(qint64,qint64)));
@@ -49,7 +54,6 @@ void plugDownoloader::startDownload(const downloaderItem &downloadItem)
 		SLOT(downloadReadyRead()));
  
 	// prepare the output
-        progressBar->setStatusTip(tr("Downloading %s...\n", downloadItem.url.toEncoded().constData()));
 	downloadTime.start();
 }
 
@@ -59,6 +63,7 @@ void plugDownoloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 	
 	// calculate the download speed
 	double speed = bytesReceived * 1000.0 / downloadTime.elapsed();
+	qDebug() << speed;
 // 	QString unit;
 // 	if (speed < 1024) {
 // 		unit = "bytes/sec";
@@ -70,22 +75,22 @@ void plugDownoloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 // 		unit = "MB/s";
 // 	}
 	qint8 value = qRound(bytesReceived/bytesTotal*100);
-	progressBar->setValue(value);
-// 	progressBar.setMessage(QString::fromLatin1("%1 %2")
-// 	.arg(speed, 3, 'f', 1).arg(unit));
-// 	progressBar.update();
+	qDebug() << value;
+
 }
 
 void plugDownoloader::downloadFinished()
 {
-	progressBar->reset();
 	output.close();
-        if (currentDownload->error()) {
+	qDebug() << "download finished";
+	
+    if (currentDownload->error()) {
 		// download failed
 		lastError= tr("Failed: %s\n", qPrintable(currentDownload->errorString()));
+		qDebug() << qPrintable(currentDownload->errorString());
 		emit error(lastError);
-        }
-        else emit downloadFinished(output.fileName());
+    }
+    else emit downloadFinished(output.fileName());
 //	currentDownload->deleteLater();
 }
 
