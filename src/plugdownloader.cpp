@@ -16,6 +16,7 @@
 
 #include "plugdownloader.h"
 #include <QSettings>
+#include <QDebug>
 
 plugDownoloader::plugDownoloader(QObject* parent)
         : QObject(parent)

@@ -33,6 +33,7 @@
 
 #include <zlib.h>
 
+
 class ZipPrivate;
 
 class QIODevice;

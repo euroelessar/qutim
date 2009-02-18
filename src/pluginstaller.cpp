@@ -29,19 +29,14 @@ plugInstaller::~plugInstaller() {
 
 }
 
-bool plugInstaller::unpackArch(QString& inPath) {
+void plugInstaller::unpackArch(QString inPath) {
 //
 
     UnZip uz;
     UnZip::ErrorCode ec = uz.openArchive(inPath);
-    if (ec != UnZip::Ok)
-        return false;
 
     uz.extractAll(outPath);
-    if (ec != UnZip::Ok)
-        return false;
     uz.closeArchive(); // Close the zip file and free used resources
-    return true;
 }
 
 bool plugInstaller::registerPackage(QHash< QString, QString >) {

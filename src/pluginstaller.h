@@ -17,9 +17,9 @@
 #ifndef PLUGINSTALLER_H
 #define PLUGINSTALLER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <osdabzip/unzip.h>
-#include <QtCore/QHash>
+#include <QHash>
 
 
 class plugInstaller : public QObject
@@ -33,7 +33,7 @@ public:
 		bool removePackage (QString &type, QString &name); //для имеющих xml
 		bool removePackage (QString &path); //для простых zip архивов
 public slots:
-        bool unpackArch (QString &inPath);
+        void unpackArch (QString inPath);
 };
 
 #endif // PLUGINSTALLER_H
