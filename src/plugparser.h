@@ -28,12 +28,12 @@ public:
         ~plugParser ();
 	QHash<QString, QString> parseItem (const QString &filename);
 	QHash<QString, QString> parseItem (const QUrl &url);
-	QString lastError;
 private:
 	bool parser ();
 	QDomElement *docElem;
 	QDomDocument doc;
 	QHash<QString, QString> packItem;
+	QString lastError;
 };
 
 #endif // PLUGPARSER_H

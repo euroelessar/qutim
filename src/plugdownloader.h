@@ -1,17 +1,17 @@
 /*
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public
-   License version 2 as published by the Free Software Foundation.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Library General Public
+License version 2 as published by the Free Software Foundation.
 
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Library General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public License
-   along with this library; see the file COPYING.LIB.  If not, write to
-   the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.
+You should have received a copy of the GNU Library General Public License
+along with this library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+Boston, MA 02110-1301, USA.
 */
 
 #include <QtNetwork>
@@ -22,26 +22,26 @@
 #ifndef DOWNLOADER_H
 #define DOWNLOADER_H
 
+class plugDownloader: public QObject
+{
+	Q_OBJECT	
+public:
 struct downloaderItem
 {
 	QUrl url; //url, с которой качаем
 	QString filename; //имя файла, под которым сохраняем
 };
-
-class plugDownoloader: public QObject
-{
-	Q_OBJECT	
-public:
-	plugDownoloader (QObject *parent = 0);
-        void startDownload(const downloaderItem &downloadItem);
-        QString lastError;
-        QString outPath; //путь до скачанного файла
+	plugDownloader (QObject *parent = 0);
+	~plugDownloader ();
+	void startDownload(const downloaderItem &downloadItem);
+	QString lastError;
+	QString outPath; //путь до скачанного файла
 signals:
 	void error(QString message);
-        void downloadFinished(QString filename);
+	void downloadFinished(QString filename);
 private slots:
 	void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
-        void downloadFinished();
+	void downloadFinished();
 	void downloadReadyRead();
 		
 private:

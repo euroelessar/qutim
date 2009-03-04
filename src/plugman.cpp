@@ -1,4 +1,6 @@
 #include "plugman.h"
+#include "plugdownloader.h"
+#include "plugparser.h"
 
 bool plugMan::init ( PluginSystemInterface *plugin_system )
 {
@@ -8,11 +10,9 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
     plug_icon = new QIcon ( ":/icons/plugin.png" );
     download_icon = QIcon ( ":/icons/open.png");
     m_plugin_system = plugin_system;
-    plug_action = new QAction(download_icon,tr("Install package from file"),this);
-    m_plugin_system->registerMainMenuAction(plug_action);
-	TreeModelItem contact;
-    plug_loader = new plugDownoloader;
-    plug_parser = new plugParser;
+    TreeModelItem contact;
+    //plug_loader = new plugDownoloader;
+    //plug_parser = new plugParser;
     plug_install = new plugInstaller;
 
     return true;
@@ -38,18 +38,21 @@ QWidget *plugMan::settingsWidget()
 void plugMan::setProfileName ( const QString &profile_name )
 {
 	m_profile_name = profile_name;
+	//как то костыльно, но Elessar сказал так делать (=
+    plug_action = new QAction(download_icon,tr("Install package from file"),this);
+    m_plugin_system->registerMainMenuAction(plug_action);
     connect(plug_action, SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
 	
 }
 
 QString plugMan::name()
 {
-    return "Plugin's manager";
+    return "Plugin manager";
 }
 
 QString plugMan::description()
 {
-    return "x3 (=";
+    return "";
 }
 
 QIcon *plugMan::icon()
@@ -59,7 +62,7 @@ QIcon *plugMan::icon()
 
 QString plugMan::type()
 {
-    return "demo";
+    return "other";
 }
 
 
@@ -78,16 +81,21 @@ void plugMan::on_installfromfileBtn_clicked()
     QString path = QFileDialog::getOpenFileName(0,tr("Install package from file"),".",
                                                   tr("Archives (*.zip);;XML files (*.xml)"));
     if ((path.section(".",-1))=="zip")
-        plug_install->unpackArch(path);
+	{
+        plug_install->installFromFile(path);
+	}
     else if ((path.section(".",-1))=="xml")
         {
-        qDebug()<<"Not yet implemented";
-        QHash<QString, QString> packInfo = plug_parser->parseItem(path);
-        downloaderItem item;
-        item.filename = packInfo["name"] + ".zip"; //FIXME 
-		item.url = packInfo["url"]+item.filename; //FIXME
-        connect(plug_loader,SIGNAL(downloadFinished(QString)),plug_install,SLOT(unpackArch(QString)));
-        plug_loader->startDownload(item);
+		plug_install->installFromXML(path);
+//         qDebug()<<"Not yet implemented";
+// 		plugParser plug_parser;
+// 		plugDownloader *plug_loader = new plugDownloader;
+//         QHash<QString, QString> packInfo = plug_parser.parseItem(path);
+//         plugDownloader::downloaderItem item;
+//         item.url = packInfo["url"];
+//         item.filename = packInfo["name"];
+//         connect(plug_loader,SIGNAL(downloadFinished(QString)),plug_install,SLOT(unpackArch(QString)));
+//         plug_loader->startDownload(item);
         }
 
 }
