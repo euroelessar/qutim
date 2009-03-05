@@ -18,7 +18,6 @@ Boston, MA 02110-1301, USA.
 #define PLUGINSTALLER_H
 
 #include <QObject>
-#include <osdabzip/unzip.h>
 #include <QHash>
 
 

@@ -41,6 +41,6 @@ private:
     TreeModelItem eventitem;
     plugInstaller *plug_install;
 private slots:
-	void on_installfromfileBtn_clicked();
+    void on_installfromfileBtn_clicked();
 };
 #endif
