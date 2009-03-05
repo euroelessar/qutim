@@ -11,6 +11,9 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
     download_icon = QIcon ( ":/icons/open.png");
     m_plugin_system = plugin_system;
     TreeModelItem contact;
+    plug_action = new QAction(download_icon,tr("Install package from file"),this);
+    m_plugin_system->registerMainMenuAction(plug_action);
+    connect(plug_action, SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
     //plug_loader = new plugDownoloader;
     //plug_parser = new plugParser;
     plug_install = new plugInstaller;
@@ -38,11 +41,6 @@ QWidget *plugMan::settingsWidget()
 void plugMan::setProfileName ( const QString &profile_name )
 {
 	m_profile_name = profile_name;
-	//как то костыльно, но Elessar сказал так делать (=
-    plug_action = new QAction(download_icon,tr("Install package from file"),this);
-    m_plugin_system->registerMainMenuAction(plug_action);
-    connect(plug_action, SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
-	
 }
 
 QString plugMan::name()
