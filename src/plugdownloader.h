@@ -24,33 +24,33 @@ Boston, MA 02110-1301, USA.
 
 class plugDownloader: public QObject
 {
-	Q_OBJECT	
+    Q_OBJECT
 public:
-struct downloaderItem
-{
-	QUrl url; //url, с которой качаем
-	QString filename; //имя файла, под которым сохраняем
-};
-	plugDownloader (QObject *parent = 0);
-	~plugDownloader ();
-	void startDownload(const downloaderItem &downloadItem);
-	QString lastError;
-	QString outPath; //путь до скачанного файла
+    struct downloaderItem
+    {
+        QUrl url; //url, с которой качаем
+        QString filename; //имя файла, под которым сохраняем
+    };
+    plugDownloader (QObject *parent = 0);
+    ~plugDownloader ();
+    void startDownload(const downloaderItem &downloadItem);
+    QString lastError;
+    QString outPath; //путь до скачанного файла
 signals:
-	void error(QString message);
-	void downloadFinished(QString filename);
+    void error(QString message);
+    void downloadFinished(QString filename);
 private slots:
-	void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
-	void downloadFinished();
-	void downloadReadyRead();
-		
+    void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void downloadFinished();
+    void downloadReadyRead();
+
 private:
-	QNetworkAccessManager manager;
-	QNetworkReply *currentDownload;
-	QFile output;
-	QTime downloadTime;
-	QProgressBar *progressBar;
-	
+    QNetworkAccessManager manager;
+    QNetworkReply *currentDownload;
+    QFile output;
+    QTime downloadTime;
+    QProgressBar *progressBar;
+
 };
 
 #endif // DOWNLOADER_H

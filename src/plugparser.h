@@ -25,7 +25,7 @@ class plugParser : public QObject
 Q_OBJECT
 public:
 	plugParser (QObject *parent = 0);
-        ~plugParser ();
+    ~plugParser ();
 	QHash<QString, QString> parseItem (const QString &filename);
 	QHash<QString, QString> parseItem (const QUrl &url);
 private:

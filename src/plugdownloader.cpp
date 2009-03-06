@@ -27,37 +27,37 @@ plugDownloader::plugDownloader(QObject* parent)
 void plugDownloader::startDownload(const downloaderItem &downloadItem)
 {
 
-        QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache", "plugman");
-        outPath = settings.fileName().section("/",0,-2)+"/"+downloadItem.filename;
-        output.setFileName(outPath);
-	if (!output.open(QIODevice::WriteOnly)) {
+    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache", "plugman");
+    outPath = settings.fileName().section("/",0,-2)+"/"+downloadItem.filename;
+    output.setFileName(outPath);
+    if (!output.open(QIODevice::WriteOnly)) {
 // 		lastError = tr("Problem opening save file '%s' for download '%s': %s\n",
 // 				 qPrintable(filename), m_item.url.toEncoded().constData(),
 // 				 qPrintable(output.errorString()));
-		 emit error(lastError);
-		 return;                 // skip this download
-	}
-	
-        QNetworkRequest request(downloadItem.url);
-	currentDownload = manager.get(request);
-	connect(currentDownload, SIGNAL(downloadProgress(qint64,qint64)),
-		SLOT(downloadProgress(qint64,qint64)));
-	connect(currentDownload, SIGNAL(finished()),
-		SLOT(downloadFinished()));
-	connect(currentDownload, SIGNAL(readyRead()),
-		SLOT(downloadReadyRead()));
- 
-	// prepare the output
-        progressBar->setStatusTip(tr("Downloading %s...\n", downloadItem.url.toEncoded().constData()));
-	downloadTime.start();
+        emit error(lastError);
+        return;                 // skip this download
+    }
+
+    QNetworkRequest request(downloadItem.url);
+    currentDownload = manager.get(request);
+    connect(currentDownload, SIGNAL(downloadProgress(qint64,qint64)),
+            SLOT(downloadProgress(qint64,qint64)));
+    connect(currentDownload, SIGNAL(finished()),
+            SLOT(downloadFinished()));
+    connect(currentDownload, SIGNAL(readyRead()),
+            SLOT(downloadReadyRead()));
+
+    // prepare the output
+    progressBar->setStatusTip(tr("Downloading %s...\n", downloadItem.url.toEncoded().constData()));
+    downloadTime.start();
 }
 
 void plugDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
 // 	progressBar.setStatus(bytesReceived, bytesTotal);
-	
-	// calculate the download speed
-	double speed = bytesReceived * 1000.0 / downloadTime.elapsed();
+
+    // calculate the download speed
+    double speed = bytesReceived * 1000.0 / downloadTime.elapsed();
 // 	QString unit;
 // 	if (speed < 1024) {
 // 		unit = "bytes/sec";
@@ -68,8 +68,8 @@ void plugDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 // 		speed /= 1024*1024;
 // 		unit = "MB/s";
 // 	}
-	qint8 value = qRound(bytesReceived/bytesTotal*100);
-	progressBar->setValue(value);
+    qint8 value = qRound(bytesReceived/bytesTotal*100);
+    progressBar->setValue(value);
 // 	progressBar.setMessage(QString::fromLatin1("%1 %2")
 // 	.arg(speed, 3, 'f', 1).arg(unit));
 // 	progressBar.update();
@@ -77,21 +77,21 @@ void plugDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 
 void plugDownloader::downloadFinished()
 {
-	progressBar->reset();
-	output.close();
-        if (currentDownload->error()) {
-		// download failed
-		lastError= tr("Failed: %s\n", qPrintable(currentDownload->errorString()));
-		emit error(lastError);
-        }
-        else emit downloadFinished(output.fileName());
-	this->deleteLater();	
+    progressBar->reset();
+    output.close();
+    if (currentDownload->error()) {
+        // download failed
+        lastError= tr("Failed: %s\n", qPrintable(currentDownload->errorString()));
+        emit error(lastError);
+    }
+    else emit downloadFinished(output.fileName());
+    this->deleteLater();
 }
 
 void plugDownloader::downloadReadyRead()
 {
-	output.write(currentDownload->readAll());
+    output.write(currentDownload->readAll());
 }
 plugDownloader::~plugDownloader() {
-	currentDownload->deleteLater();
+    currentDownload->deleteLater();
 }

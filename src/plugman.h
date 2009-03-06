@@ -21,7 +21,7 @@ public:
 
     virtual void processEvent ( PluginEvent &event );
     virtual QWidget *settingsWidget(); //указатель для настройки
-    virtual void setProfileName ( const QString &profile_name ); //установка текущего профиля
+	virtual void setProfileName(const QString& profile_name);
     QString name(); //Функция, возращающая имя плагина
     QString description(); //Функция, возращающая описание
     QString type(); //installer

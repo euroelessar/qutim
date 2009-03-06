@@ -23,20 +23,20 @@ Boston, MA 02110-1301, USA.
 
 class plugInstaller : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-	plugInstaller ();
-	~plugInstaller ();
-	bool installFromFile (QString &inPath);
-	bool installFromXML (QString &inPath);
-	bool registerPackage (QHash<QString, QString>, QStringList &files); //записывает в базу инфу об установленных пакетах
-	bool registerPackage (QString name, QStringList &files);
-	bool removePackage (QString &name,QStringList &files);
-	QString outPath; //папка, куда будут распаковываться архивы
+    plugInstaller ();
+    ~plugInstaller ();
+    bool installFromFile (QString &inPath);
+    bool installFromXML (QString &inPath);
+    bool registerPackage (QHash<QString, QString>, QStringList &files); //записывает в базу инфу об установленных пакетах
+    bool registerPackage (QString name, QStringList &files);
+    bool removePackage (QString name, QStringList& files);
+    QString outPath; //папка, куда будут распаковываться архивы
 public slots:
-	QStringList unpackArch (QString &inPath);
+    QStringList unpackArch (QString &inPath);
 private:
-	QString lastError;
+    QString lastError;
 };
 
 #endif // PLUGINSTALLER_H
