@@ -55,12 +55,12 @@ QStringList plugInstaller::unpackArch(QString& inPath) {
 
 bool plugInstaller::installFromFile(QString& inPath) {
     QStringList files = unpackArch(inPath);
-    registerPackage(inPath.section("/",0,-1),files);
+    registerPackage(inPath.section("/",-1,-2),files);
 	emit finished();
     return true;
 }
 
-bool plugInstaller::installFromXML(QString& inPath) {
+void plugInstaller::installFromXML(QString& inPath) {
 
     qDebug()<<"Not yet implemented";
     plugParser plug_parser;
@@ -69,10 +69,13 @@ bool plugInstaller::installFromXML(QString& inPath) {
     plugDownloader::downloaderItem item;
     item.url = packInfo["url"];
     item.filename = packInfo["name"];
-    connect(plug_loader,SIGNAL(downloadFinished(QString)),this,SLOT(unpackArch(QString)));
+    connect(plug_loader,SIGNAL(downloadFinished(QString)),this,SLOT(readytoInstall(QString)));
     plug_loader->startDownload(item);
+}
+
+void plugInstaller::readytoInstall(QString inPath) {
+	unpackArch(inPath);
 	emit finished();
-	return true;
 }
 
 
@@ -83,7 +86,7 @@ bool plugInstaller::registerPackage(QHash< QString, QString >, QStringList &file
 
 bool plugInstaller::registerPackage(QString name, QStringList &files) {
     //
-	qDebug() << name;
+	qDebug() << "Package name : " << name;
 	return true;
 }
 

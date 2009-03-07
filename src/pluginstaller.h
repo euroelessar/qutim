@@ -28,15 +28,16 @@ public:
     plugInstaller ();
     ~plugInstaller ();
     bool installFromFile (QString &inPath);
-    bool installFromXML (QString &inPath);
+    void installFromXML (QString &inPath);
     bool registerPackage (QHash<QString, QString>, QStringList &files); //записывает в базу инфу об установленных пакетах
     bool registerPackage (QString name, QStringList &files);
     bool removePackage (QString name, QStringList& files);
     QString outPath; //папка, куда будут распаковываться архивы
 public slots:
-    QStringList unpackArch (QString &inPath);
+	void readytoInstall(QString); //готов для установки (то есть скачался)
 private:
     QString lastError;
+    QStringList unpackArch (QString &inPath);
 signals:
 	void finished ();
 };

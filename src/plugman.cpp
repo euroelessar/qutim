@@ -1,5 +1,7 @@
 #include "plugman.h"
-#include "pluginstaller.h"
+#include <QFileDialog>
+#include <QDebug>
+#include <QAction>
 
 bool plugMan::init ( PluginSystemInterface *plugin_system )
 {
@@ -10,30 +12,30 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
     download_icon = QIcon ( ":/icons/open.png");
     m_plugin_system = plugin_system;
     TreeModelItem contact;
+//     plug_loader = new plugDownoloader;
+//     plug_parser = new plugParser;
+//     plug_install = new plugInstaller;
     plug_action = new QAction(download_icon,tr("Install package from file"),this);
     m_plugin_system->registerMainMenuAction(plug_action);
     connect(plug_action, SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
-    //plug_loader = new plugDownoloader;
-    //plug_parser = new plugParser;
-//     plug_install = new plugInstaller;
 
     return true;
 }
 
 void plugMan::release()
 {
-
+//	x3 =)
 }
 
 void plugMan::processEvent ( PluginEvent  &event)
 {
-    eventitem = *(TreeModelItem*)(event.args.at(0));
+	eventitem = *(TreeModelItem*)(event.args.at(0));
 }
 
 QWidget *plugMan::settingsWidget()
 {
-    settingswidget = new plugmanSettings(m_profile_name);
-    connect(settingswidget, SIGNAL(installfromfileclick()), this,  SLOT(on_installfromfileBtn_clicked()));
+	settingswidget = new plugmanSettings(m_profile_name);
+	connect(settingswidget, SIGNAL(installfromfileclick()), this,  SLOT(on_installfromfileBtn_clicked()));
     return settingswidget;
 }
 
@@ -44,12 +46,12 @@ void plugMan::setProfileName ( const QString &profile_name )
 
 QString plugMan::name()
 {
-    return "Plugin manager";
+    return "Plugin's manager";
 }
 
 QString plugMan::description()
 {
-    return "";
+    return "x3 (=";
 }
 
 QIcon *plugMan::icon()
@@ -59,7 +61,7 @@ QIcon *plugMan::icon()
 
 QString plugMan::type()
 {
-    return "other";
+    return "demo";
 }
 
 
@@ -85,8 +87,7 @@ void plugMan::on_installfromfileBtn_clicked()
     else if ((path.section(".",-1))=="xml")
     {
         plug_install->installFromXML(path);
-    }
-
+    }	
 }
 
 Q_EXPORT_PLUGIN2 ( plugman,plugMan );
