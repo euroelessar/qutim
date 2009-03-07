@@ -26,6 +26,7 @@ plugInstaller::plugInstaller() {
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim", "plugman");
     outPath = settings.fileName().section("/",0,-2);
     qDebug() << outPath;
+	connect (this,SIGNAL(finished()),this,SLOT(deleteLater())); // в случае завершения установки обьект может быть удалён
 }
 
 plugInstaller::~plugInstaller() {
@@ -55,6 +56,7 @@ QStringList plugInstaller::unpackArch(QString& inPath) {
 bool plugInstaller::installFromFile(QString& inPath) {
     QStringList files = unpackArch(inPath);
     registerPackage(inPath.section("/",0,-1),files);
+	emit finished();
     return true;
 }
 
@@ -69,19 +71,23 @@ bool plugInstaller::installFromXML(QString& inPath) {
     item.filename = packInfo["name"];
     connect(plug_loader,SIGNAL(downloadFinished(QString)),this,SLOT(unpackArch(QString)));
     plug_loader->startDownload(item);
+	emit finished();
+	return true;
 }
 
 
 bool plugInstaller::registerPackage(QHash< QString, QString >, QStringList &files) {
     //пока ещё не решил, как реализовывать, надеюсь кутишного ini хватит
-
+	return true;
 }
 
 bool plugInstaller::registerPackage(QString name, QStringList &files) {
     //
 	qDebug() << name;
+	return true;
 }
 
 bool plugInstaller::removePackage(QString name, QStringList &files) {
+	return true;
 }
 

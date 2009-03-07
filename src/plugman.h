@@ -21,7 +21,7 @@ public:
 
     virtual void processEvent ( PluginEvent &event );
     virtual QWidget *settingsWidget(); //указатель для настройки
-	virtual void setProfileName(const QString& profile_name);
+    virtual void setProfileName ( const QString &profile_name ); //установка текущего профиля
     QString name(); //Функция, возращающая имя плагина
     QString description(); //Функция, возращающая описание
     QString type(); //installer
@@ -36,11 +36,9 @@ private:
     QString m_profile_name;
     QString m_account_name;
     plugmanSettings *settingswidget;
-    //plugDownoloader *plug_loader;
-    //plugParser *plug_parser;
     TreeModelItem eventitem;
     plugInstaller *plug_install;
 private slots:
-    void on_installfromfileBtn_clicked();
+	void on_installfromfileBtn_clicked();
 };
 #endif

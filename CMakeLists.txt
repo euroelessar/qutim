@@ -37,14 +37,14 @@ INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 		libs
         )
 
-add_subdirectory (libs)
+ add_subdirectory (libs)
 
 SET (QT_HEADERS
 	src/plugman.h
 	src/plugmansettings.h
-	src/plugdownloader.h
-	src/plugparser.h
-	src/pluginstaller.h
+ 	src/plugdownloader.h
+ 	src/plugparser.h
+ 	src/pluginstaller.h
 )
 SET(HEADERS
 ${QT_HEADERS}
@@ -53,9 +53,9 @@ ${QT_HEADERS}
 SET (SOURCES
 	src/plugman.cpp
 	src/plugmansettings.cpp
-	src/plugdownloader.cpp
-	src/plugparser.cpp
-	src/pluginstaller.cpp
+ 	src/plugdownloader.cpp
+ 	src/plugparser.cpp
+ 	src/pluginstaller.cpp
 )
 
 SET (RESOURCES
@@ -75,7 +75,7 @@ ADD_LIBRARY (plugman SHARED ${SOURCES} ${FORMS}  ${RESOURCES})
 TARGET_LINK_LIBRARIES (plugman
         ${QT_LIBRARIES}
         ${PLUGMAN_LIBS}
-		osdabzip
+ 		osdabzip
         )
 
 INSTALL (TARGETS plugman DESTINATION lib/qutim )

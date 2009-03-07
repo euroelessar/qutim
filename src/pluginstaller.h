@@ -37,6 +37,8 @@ public slots:
     QStringList unpackArch (QString &inPath);
 private:
     QString lastError;
+signals:
+	void finished ();
 };
 
 #endif // PLUGINSTALLER_H
