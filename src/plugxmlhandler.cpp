@@ -17,11 +17,13 @@ Boston, MA 02110-1301, USA.
 #include "plugxmlhandler.h"
 #include <QDebug>
 
-packageInfo::packageInfo() {
+
+
+plugXMLHandler::packageInfo::packageInfo() {
 
 }
 
-packageInfo::packageInfo(QString name, QStringList files, QString type, QString description, QString author, QString licence) {
+plugXMLHandler::packageInfo::packageInfo(QString name, QStringList files, QString type, QString description, QString author, QString licence) {
 
 }
 
@@ -58,14 +60,15 @@ QDomDocument plugXMLHandler::createDomFromPackage(packageInfo package_info, int 
 	return doc;
 }
 
-packageInfo plugXMLHandler::createPackageInfoFromDom(QDomDocument& doc, QString id) {
+plugXMLHandler::packageInfo plugXMLHandler::createPackageInfoFromDom(QDomDocument& doc, QString id) {
 // 	if (!QString::isEmpty(id))
 // 		QDomNode n = doc.elementById();
 // 	else
 // 		doc.firstChild();
+	return packageInfo();
 }
 
-packageInfo plugXMLHandler::createPackageInfoFromDom(QDomDocument& doc) {
+plugXMLHandler::packageInfo plugXMLHandler::createPackageInfoFromDom(QDomDocument& doc) {
 	
 	QDomNode n = doc.documentElement().firstChild();
 	qDebug () << "start parser";
@@ -83,15 +86,15 @@ packageInfo plugXMLHandler::createPackageInfoFromDom(QDomDocument& doc) {
 
 
 bool plugXMLHandler::registerPackage(packageInfo package_info) {
-
+	return true;
 }
 
 QStringList plugXMLHandler::removePackage(int package_id) {
-
+	return QStringList();
 }
 
 
-packageInfo plugXMLHandler::getPackageInfo(const QString& filename) {
+plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const QString& filename) {
 	QDomDocument doc;
 	
 	QFile input(filename);
@@ -105,7 +108,8 @@ packageInfo plugXMLHandler::getPackageInfo(const QString& filename) {
 	return createPackageInfoFromDom(doc);
 }
 
-packageInfo plugXMLHandler::getPackageInfo(const QUrl& url) {
+plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const QUrl& url) {
+	
 
 }
 

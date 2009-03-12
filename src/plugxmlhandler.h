@@ -25,66 +25,66 @@
 #include <QHash>
 
 //Обработчик xml для qutIM plugin manager'а
-struct packageInfo {
- 	packageInfo ();
-	packageInfo  (QString name,
-				  QStringList files,
-				  QString type = "other",
-				  QString description = "Unknown package",
-				  QString author = "Unknown author",
-				  QString licence = "Unknown licence"
-				  //недописанный конструктор
-				 );
-	//предварительный вариант необходимой инфы о пакете
-	QHash<QString,QString> properties;
-	QStringList files; //установленные файлы
 
-};
 class QUrl;
 class QFile;
 class plugXMLHandler : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-	plugXMLHandler ();
-	~plugXMLHandler ();
-	bool registerPackage (packageInfo package_info);
-	QStringList removePackage (int package_id);
-	/*!удаляет пакет из базы данных и возращает список файлов для удаления
-	*/
-	packageInfo getPackageInfo (const QString &filename);
-	/*!
-	получаем необходимую инфу установщика из файла
-	*/
-	packageInfo getPackageInfo (const QUrl &url);
-	/*!
-	получаем необходимую инфу установщика из интернета (x3)
-	*/
+    struct packageInfo {
+        packageInfo ();
+        packageInfo  (QString name,
+                      QStringList files,
+                      QString type = "other",
+                      QString description = "Unknown package",
+                      QString author = "Unknown author",
+                      QString licence = "Unknown licence"
+                                        //недописанный конструктор
+                     );
+        //предварительный вариант необходимой инфы о пакете
+        QHash<QString,QString> properties;
+        QStringList files; //установленные файлы
+    };
+    plugXMLHandler ();
+    ~plugXMLHandler ();
+    bool registerPackage (packageInfo package_info);
+    QStringList removePackage (int package_id);
+    /*!удаляет пакет из базы данных и возращает список файлов для удаления
+    */
+    packageInfo getPackageInfo (const QString &filename);
+    /*!
+    получаем необходимую инфу установщика из файла
+    */
+    packageInfo getPackageInfo (const QUrl &url);
+    /*!
+    получаем необходимую инфу установщика из интернета (x3)
+    */
 private:
-	QDomDocument createDomFromPackage (packageInfo package_info, int id = NULL); 
-	/*!создает Dom document, 
-	@param packageInfo - информация о пакете
-	@param id - package id, необходим в том случае, когда инфа о пакете записывается в общую базу данных
-	В том случае, если он NULL то это поле игнорируется
-	*/
-	packageInfo createPackageInfoFromDom (QDomDocument& doc, QString id); 
-	/*!создает struct packageInfo и Dom (обратная операция для createDomFromPackage), 
-	@param doc - x3
-	@param id - ежели берется список с несколькими пакетами то нужный ищется по id
-	*/
-	packageInfo createPackageInfoFromDom (QDomDocument& doc); 
-	/*!создает struct packageInfo и Dom (обратная операция для createDomFromPackage). Самый простой вариант парсера
-	@param doc - x3
-	*/
-	bool updateGlobalCount (bool up); //!увеличиает количество пакетов на 1 при добавлении и уменьшаяет на 1 при удалении
-	bool rebuildGlobalCount (); //!более брутальный способ, применять при ошибках
-	bool updatePackageId (int begin_id = 0); 
-	/*!при удалении пакета, номера вслед за ним идущих должны быть пересчитаны
-	@param begin_id - id, с которого начинать пересчёт, если ничего не вводить, то буит обновлятся вся база
-	*/
-	bool isValid (QDomDocument doc); //! защита от дураков и ССЗБ
+    QDomDocument createDomFromPackage (packageInfo package_info, int id = NULL);
+    /*!создает Dom document,
+    @param packageInfo - информация о пакете
+    @param id - package id, необходим в том случае, когда инфа о пакете записывается в общую базу данных
+    В том случае, если он NULL то это поле игнорируется
+    */
+    packageInfo createPackageInfoFromDom (QDomDocument& doc, QString id);
+    /*!создает struct packageInfo и Dom (обратная операция для createDomFromPackage),
+    @param doc - x3
+    @param id - ежели берется список с несколькими пакетами то нужный ищется по id
+    */
+    packageInfo createPackageInfoFromDom (QDomDocument& doc);
+    /*!создает struct packageInfo и Dom (обратная операция для createDomFromPackage). Самый простой вариант парсера
+    @param doc - x3
+    */
+    bool updateGlobalCount (bool up); //!увеличиает количество пакетов на 1 при добавлении и уменьшаяет на 1 при удалении
+    bool rebuildGlobalCount (); //!более брутальный способ, применять при ошибках
+    bool updatePackageId (int begin_id = 0);
+    /*!при удалении пакета, номера вслед за ним идущих должны быть пересчитаны
+    @param begin_id - id, с которого начинать пересчёт, если ничего не вводить, то буит обновлятся вся база
+    */
+    bool isValid (QDomDocument doc); //! защита от дураков и ССЗБ
 signals:
-	void error (QString); //! в случае ошибки посылается этот сигнал
+    void error (QString); //! в случае ошибки посылается этот сигнал
 };
 
 #endif // PLUGXMLHANDLER_H

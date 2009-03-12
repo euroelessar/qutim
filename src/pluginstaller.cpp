@@ -63,7 +63,7 @@ bool plugInstaller::installFromFile(QString& inPath) {
 void plugInstaller::installFromXML(QString& inPath) {
 	plugXMLHandler plug_handler;
     plugDownloader *plug_loader = new plugDownloader;
-	packageInfo package_info = plug_handler.getPackageInfo(inPath);
+	plugXMLHandler::packageInfo package_info = plug_handler.getPackageInfo(inPath);
     connect(plug_loader,SIGNAL(downloadFinished(QString)),this,SLOT(readytoInstall(QString)));
     plug_loader->startDownload(plugDownloader::downloaderItem(package_info.properties["url"],
 															  package_info.properties["name"]
