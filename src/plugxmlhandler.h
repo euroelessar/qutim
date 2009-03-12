@@ -33,8 +33,7 @@ struct packageInfo {
 				  QString type = "other",
 				  QString description = "Unknown package",
 				  QString author = "Unknown author",
-				  QString licence = "Unknown licence"
-				  /*, QHash<QString,QString> info; */ //более красивый вариант, чуть позже его сделаю
+				  QString licence = "Unknown licence" 
 				 );
 	//предварительный вариант необходимой инфы о пакете
 	QString name; 
@@ -44,6 +43,7 @@ struct packageInfo {
 	QStringList files; //установленные файлы
 	QString author; //автор в формате "Имя, name@mail.ru"
 	QString licence; //полезная фича, пусть буит
+	/* QHash<QString,QString> info; */ //более красивый вариант, чуть позже его сделаю
 };
 public:
 	plugXMLHandler ();
