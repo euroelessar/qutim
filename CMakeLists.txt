@@ -43,7 +43,6 @@ SET (QT_HEADERS
 	src/plugman.h
 	src/plugmansettings.h
 	src/plugdownloader.h
-	src/plugparser.h
 	src/pluginstaller.h
 	src/plugxmlhandler.h
 )
@@ -56,7 +55,6 @@ SET (SOURCES
 	src/plugman.cpp
 	src/plugmansettings.cpp
 	src/plugdownloader.cpp
-	src/plugparser.cpp
 	src/pluginstaller.cpp
 )
 
