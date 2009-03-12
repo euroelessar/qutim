@@ -21,11 +21,11 @@ Boston, MA 02110-1301, USA.
 #include "plugdownloader.h"
 #include "plugparser.h"
 #include "plugxmlhandler.h"
-
 plugInstaller::plugInstaller() {
 
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim", "plugman");
     outPath = settings.fileName().section("/",0,-2);
+		
     qDebug() << outPath;
 	connect (this,SIGNAL(finished()),this,SLOT(deleteLater())); // в случае завершения установки обьект может быть удалён
 }
@@ -56,20 +56,21 @@ QStringList plugInstaller::unpackArch(QString& inPath) {
 
 bool plugInstaller::installFromFile(QString& inPath) {
     QStringList files = unpackArch(inPath);
-    registerPackage(inPath.section("/",-1,-2),files);
+    registerPackage(inPath.section("/",0,-1),files);
 	emit finished();
     return true;
 }
 
 void plugInstaller::installFromXML(QString& inPath) {
-    plugParser plug_parser;
+	plugXMLHandler plug_handler;
     plugDownloader *plug_loader = new plugDownloader;
-    QHash<QString, QString> packInfo = plug_parser.parseItem(inPath);
-    plugDownloader::downloaderItem item;
-    item.url = packInfo["url"];
-    item.filename = packInfo["name"];
+	packageInfo package_info = plug_handler.getPackageInfo(inPath);
     connect(plug_loader,SIGNAL(downloadFinished(QString)),this,SLOT(readytoInstall(QString)));
-    plug_loader->startDownload(item);
+    plug_loader->startDownload(plugDownloader::downloaderItem(package_info.properties["url"],
+															  package_info.properties["name"]
+															  +"-"+package_info.properties["version"]
+															  +".zip")
+															 ); //FIXME
 }
 
 void plugInstaller::readytoInstall(QString inPath) {

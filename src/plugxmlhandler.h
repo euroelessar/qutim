@@ -21,30 +21,30 @@
 #include <QStringList>
 #include <QDomDocument>
 #include <QUrl>
+#include <QFile>
+#include <QHash>
 
 //Обработчик xml для qutIM plugin manager'а
-class QUrl;
-class plugXMLHandler : public QObject
-{
-Q_OBJECT
 struct packageInfo {
+ 	packageInfo ();
 	packageInfo  (QString name,
 				  QStringList files,
 				  QString type = "other",
 				  QString description = "Unknown package",
 				  QString author = "Unknown author",
-				  QString licence = "Unknown licence" 
+				  QString licence = "Unknown licence"
+				  //недописанный конструктор
 				 );
 	//предварительный вариант необходимой инфы о пакете
-	QString name; 
-	QString type; //тип пакета, сделал обычным строковым чтобы проще с ним работать было
-	QString version;
-	QString description;
+	QHash<QString,QString> properties;
 	QStringList files; //установленные файлы
-	QString author; //автор в формате "Имя, name@mail.ru"
-	QString licence; //полезная фича, пусть буит
-	/* QHash<QString,QString> info; */ //более красивый вариант, чуть позже его сделаю
+
 };
+class QUrl;
+class QFile;
+class plugXMLHandler : public QObject
+{
+Q_OBJECT
 public:
 	plugXMLHandler ();
 	~plugXMLHandler ();
@@ -67,10 +67,14 @@ private:
 	@param id - package id, необходим в том случае, когда инфа о пакете записывается в общую базу данных
 	В том случае, если он NULL то это поле игнорируется
 	*/
-	packageInfo createPackageInfoFromDom (QDomDocument &doc, int id = NULL); 
+	packageInfo createPackageInfoFromDom (QDomDocument& doc, QString id); 
 	/*!создает struct packageInfo и Dom (обратная операция для createDomFromPackage), 
 	@param doc - x3
 	@param id - ежели берется список с несколькими пакетами то нужный ищется по id
+	*/
+	packageInfo createPackageInfoFromDom (QDomDocument& doc); 
+	/*!создает struct packageInfo и Dom (обратная операция для createDomFromPackage). Самый простой вариант парсера
+	@param doc - x3
 	*/
 	bool updateGlobalCount (bool up); //!увеличиает количество пакетов на 1 при добавлении и уменьшаяет на 1 при удалении
 	bool rebuildGlobalCount (); //!более брутальный способ, применять при ошибках

@@ -28,6 +28,7 @@ class plugDownloader: public QObject
 public:
     struct downloaderItem
     {
+		downloaderItem (QUrl m_url, QString m_filename) {url=m_url;filename=m_filename;};
         QUrl url; //url, с которой качаем
         QString filename; //имя файла, под которым сохраняем
     };

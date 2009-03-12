@@ -16,11 +16,14 @@
 
 #include "plugdownloader.h"
 #include <QSettings>
-
+#include <QDialog>
+#include <QBoxLayout>
+#include <QDebug>
+#include <QDir>
 plugDownloader::plugDownloader(QObject* parent)
         : QObject(parent)
 {
-
+	progressBar = new QProgressBar (); 
 }
 
 
@@ -28,8 +31,11 @@ void plugDownloader::startDownload(const downloaderItem &downloadItem)
 {
 
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache", "plugman");
-    outPath = settings.fileName().section("/",0,-2)+"/"+downloadItem.filename;
-    output.setFileName(outPath);
+    outPath = settings.fileName().section("/",0,-2)+"/";
+    output.setFileName(outPath+downloadItem.filename);
+	QDir dir;
+	if (!dir.exists(outPath))
+		dir.mkpath(outPath);
     if (!output.open(QIODevice::WriteOnly)) {
 // 		lastError = tr("Problem opening save file '%s' for download '%s': %s\n",
 // 				 qPrintable(filename), m_item.url.toEncoded().constData(),
@@ -58,21 +64,19 @@ void plugDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 
     // calculate the download speed
     double speed = bytesReceived * 1000.0 / downloadTime.elapsed();
-// 	QString unit;
-// 	if (speed < 1024) {
-// 		unit = "bytes/sec";
-// 	} else if (speed < 1024*1024) {
-// 		speed /= 1024;
-// 		unit = "kB/s";
-// 	} else {
-// 		speed /= 1024*1024;
-// 		unit = "MB/s";
-// 	}
+	QString unit;
+	if (speed < 1024) {
+		unit = "bytes/sec";
+	} else if (speed < 1024*1024) {
+		speed /= 1024;
+		unit = "kB/s";
+	} else {
+		speed /= 1024*1024;
+		unit = "MB/s";
+	}
     qint8 value = qRound(bytesReceived/bytesTotal*100);
     progressBar->setValue(value);
-// 	progressBar.setMessage(QString::fromLatin1("%1 %2")
-// 	.arg(speed, 3, 'f', 1).arg(unit));
-// 	progressBar.update();
+	progressBar->update();
 }
 
 void plugDownloader::downloadFinished()
