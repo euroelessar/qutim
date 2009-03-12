@@ -45,12 +45,14 @@ SET (QT_HEADERS
 	src/plugdownloader.h
 	src/plugparser.h
 	src/pluginstaller.h
+	src/plugxmlhandler.h
 )
 SET(HEADERS
 ${QT_HEADERS}
 )
 
-SET (SOURCES
+SET (SOURCES 
+	src/plugxmlhandler.cpp
 	src/plugman.cpp
 	src/plugmansettings.cpp
 	src/plugdownloader.cpp

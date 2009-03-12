@@ -20,6 +20,7 @@ Boston, MA 02110-1301, USA.
 #include <osdabzip/unzip.h>
 #include "plugdownloader.h"
 #include "plugparser.h"
+#include "plugxmlhandler.h"
 
 plugInstaller::plugInstaller() {
 

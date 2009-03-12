@@ -20,6 +20,7 @@
 #include <QtXml>
 #include <QUrl>
 
+//!#warning DEPRECATED
 class plugParser : public QObject
 {
 Q_OBJECT

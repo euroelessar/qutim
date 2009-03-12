@@ -22,7 +22,7 @@ plugParser::plugParser(QObject *parent) {
 }
 
 plugParser::~plugParser() {
-	delete(docElem);
+	//delete(docElem);
 }
 
 QHash<QString, QString> plugParser::parseItem(const QString& filename) {
@@ -46,6 +46,29 @@ QHash<QString, QString> plugParser::parseItem(const QString& filename) {
 
 QHash<QString, QString> plugParser::parseItem(const QUrl& url) {
 	lastError = "Ну не сделано ещё";
+        //временный кусок, как приду домой перенесу в другой класс
+        //растим дерево (=
+        QDomDocument doc;
+        QDomElement package = doc.createElement("package");
+        QDomElement packageName = doc.createElement("name");
+        QDomElement packageDescription = doc.createElement("description");
+        QDomElement packageFiles = doc.createElement("files");
+        doc.appendChild(package);
+        package.appendChild(packageName);
+        package.appendChild(packageDescription);
+        quint16 id;
+        QStringList files;
+        package.attribute("id",QString::number(id));
+        packageName.appendChild(doc.createTextNode("name"));
+        for (int i=0;i++;i<=files.count()) {
+            QDomElement fileName = doc.createElement("name");
+            fileName.appendChild(doc.createTextNode(files.value(i)));
+            packageFiles.appendChild(fileName);
+        }
+        QString file;
+        QTextStream out(&file);
+        doc.save(out, 4);
+
 }
 
 
