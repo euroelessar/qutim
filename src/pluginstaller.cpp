@@ -62,8 +62,6 @@ bool plugInstaller::installFromFile(QString& inPath) {
 }
 
 void plugInstaller::installFromXML(QString& inPath) {
-
-    qDebug()<<"Not yet implemented";
     plugParser plug_parser;
     plugDownloader *plug_loader = new plugDownloader;
     QHash<QString, QString> packInfo = plug_parser.parseItem(inPath);
