@@ -3,7 +3,6 @@
 #include <qutim/plugininterface.h>
 #include "pluginstaller.h"
 #include "plugdownloader.h"
-#include "plugparser.h"
 #include "plugmansettings.h"
 
 
@@ -36,8 +35,6 @@ private:
     QString m_profile_name;
     QString m_account_name;
     plugmanSettings *settingswidget;
-//     plugDownoloader *plug_loader;
-    plugParser *plug_parser;
     TreeModelItem eventitem;
 //     plugInstaller *plug_install;
 private slots:
