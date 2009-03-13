@@ -109,8 +109,7 @@ plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const QString& filena
 }
 
 plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const QUrl& url) {
-	
-
+	return packageInfo();
 }
 
 bool plugXMLHandler::isValid(QDomDocument doc) {
