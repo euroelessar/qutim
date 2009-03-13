@@ -76,7 +76,8 @@ void plugMan::on_installfromfileBtn_clicked()
 {
     QString path = QFileDialog::getOpenFileName(0,tr("Install package from file"),".",
                    tr("Archives (*.zip);;XML files (*.xml)"));
-	plugInstaller *plug_install = new plugInstaller; 
+	plugInstaller *plug_install = new plugInstaller;
+	plug_install->setParent(this);
     if ((path.section(".",-1))=="zip")
     {
         plug_install->installFromFile(path);

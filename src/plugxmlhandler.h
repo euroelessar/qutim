@@ -35,7 +35,7 @@ public:
     struct packageInfo {
         packageInfo ();
         packageInfo  (QString name,
-                      QStringList files,
+                      QStringList packageFiles,
                       QString type = "other",
                       QString description = "Unknown package",
                       QString author = "Unknown author",
@@ -76,13 +76,15 @@ private:
     /*!создает struct packageInfo и Dom (обратная операция для createDomFromPackage). Самый простой вариант парсера
     @param doc - x3
     */
-    bool updateGlobalCount (bool up); //!увеличиает количество пакетов на 1 при добавлении и уменьшаяет на 1 при удалении
+    bool updateGlobalCount (); //!увеличиает количество пакетов на 1 при добавлении и уменьшаяет на 1 при удалении
     bool rebuildGlobalCount (); //!более брутальный способ, применять при ошибках
     bool updatePackageId (int begin_id = 0);
     /*!при удалении пакета, номера вслед за ним идущих должны быть пересчитаны
     @param begin_id - id, с которого начинать пересчёт, если ничего не вводить, то буит обновлятся вся база
     */
     bool isValid (QDomDocument doc); //! защита от дураков и ССЗБ
+	QString package_db_path; //installed package database path
+	int globalCount;
 signals:
     void error (QString); //! в случае ошибки посылается этот сигнал
 };

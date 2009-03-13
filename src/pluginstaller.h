@@ -19,8 +19,8 @@ Boston, MA 02110-1301, USA.
 
 #include <QObject>
 #include <QHash>
-
-
+#include "plugxmlhandler.h"
+class plugxmlhandler;
 class plugInstaller : public QObject
 {
     Q_OBJECT
@@ -38,6 +38,8 @@ public slots:
 private:
     QString lastError;
     QStringList unpackArch (QString &inPath);
+	bool collision_protect;
+	plugXMLHandler::packageInfo package_info; //FIXME
 signals:
 	void finished ();
 };

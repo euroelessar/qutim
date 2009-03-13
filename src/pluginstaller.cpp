@@ -19,18 +19,19 @@ Boston, MA 02110-1301, USA.
 #include <QSettings>
 #include <osdabzip/unzip.h>
 #include "plugdownloader.h"
-#include "plugxmlhandler.h"
+#include "collisionprotect.h"
 plugInstaller::plugInstaller() {
 
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim", "plugman");
+	settings.beginGroup("features");
+	collision_protect = settings.value("collisionprotect",true).toBool();
+	settings.endGroup();
     outPath = settings.fileName().section("/",0,-2);
-		
     qDebug() << outPath;
 	connect (this,SIGNAL(finished()),this,SLOT(deleteLater())); // в случае завершения установки обьект может быть удалён
 }
 
 plugInstaller::~plugInstaller() {
-
 }
 
 QStringList plugInstaller::unpackArch(QString& inPath) {
@@ -43,6 +44,12 @@ QStringList plugInstaller::unpackArch(QString& inPath) {
         return QStringList();
     }
     QStringList packFiles = uz.fileList();
+	if (collision_protect) {
+		CollisionProtect protect;
+		if (!protect.checkPackageFiles(packFiles))
+			return QStringList();
+		}
+	
     uz.extractAll(outPath);
     if (ec != UnZip::Ok) {
         lastError = tr ("Unable to extract archive");
@@ -54,8 +61,10 @@ QStringList plugInstaller::unpackArch(QString& inPath) {
 }
 
 bool plugInstaller::installFromFile(QString& inPath) {
+	//FIXME переписать на регэкспах
     QStringList files = unpackArch(inPath);
-    registerPackage(inPath.section("/",0,-1),files);
+	QString name = inPath.section("/",-1);
+    registerPackage(name.section(".",0,-2),files);
 	emit finished();
     return true;
 }
@@ -63,7 +72,7 @@ bool plugInstaller::installFromFile(QString& inPath) {
 void plugInstaller::installFromXML(QString& inPath) {
 	plugXMLHandler plug_handler;
     plugDownloader *plug_loader = new plugDownloader;
-	plugXMLHandler::packageInfo package_info = plug_handler.getPackageInfo(inPath);
+	package_info = plug_handler.getPackageInfo(inPath);
     connect(plug_loader,SIGNAL(downloadFinished(QString)),this,SLOT(readytoInstall(QString)));
     plug_loader->startDownload(plugDownloader::downloaderItem(package_info.properties["url"],
 															  package_info.properties["name"]
@@ -73,7 +82,10 @@ void plugInstaller::installFromXML(QString& inPath) {
 }
 
 void plugInstaller::readytoInstall(QString inPath) {
-	unpackArch(inPath);
+	//FIXME
+	package_info.files = unpackArch(inPath);
+	plugXMLHandler plug_handler;
+	plug_handler.registerPackage(package_info);
 	emit finished();
 }
 
@@ -86,7 +98,11 @@ bool plugInstaller::registerPackage(QHash< QString, QString >, QStringList &file
 bool plugInstaller::registerPackage(QString name, QStringList &files) {
     //
 	qDebug() << "Package name : " << name;
-	return true;
+	plugXMLHandler::packageInfo package_info = plugXMLHandler::packageInfo (name,
+																			files
+																			);
+	plugXMLHandler plug_handler;
+	return plug_handler.registerPackage(package_info);
 }
 
 bool plugInstaller::removePackage(QString name, QStringList &files) {

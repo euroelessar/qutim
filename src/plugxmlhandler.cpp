@@ -16,20 +16,27 @@ Boston, MA 02110-1301, USA.
 
 #include "plugxmlhandler.h"
 #include <QDebug>
+#include <QSettings>
 
 
+plugXMLHandler::packageInfo::packageInfo(QString name, QStringList packageFiles, QString type, QString description, QString author, QString licence) {
+	properties["name"] = name;
+	files = packageFiles;
+	properties["type"] = type;	
+	properties["description"] = description;
+	properties["author"] = author;	
+}
 
 plugXMLHandler::packageInfo::packageInfo() {
 
 }
 
-plugXMLHandler::packageInfo::packageInfo(QString name, QStringList files, QString type, QString description, QString author, QString licence) {
-
-}
-
-
 plugXMLHandler::plugXMLHandler() {
-
+	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
+    package_db_path = settings.fileName().section("/",0,-2)+"/packages.xml";
+	settings.beginGroup("global");
+	globalCount = settings.value("count","0").toInt();
+	settings.endGroup();
 }
 
 plugXMLHandler::~plugXMLHandler() {
@@ -40,15 +47,16 @@ QDomDocument plugXMLHandler::createDomFromPackage(packageInfo package_info, int 
 	QDomDocument doc;
 
 	QDomElement package = doc.createElement("package"); 
-	package.attribute("id",QString::number(id)); //надеюсь NULL она просто не добавит
+	package.setAttribute("id",QString::number(id)); //надеюсь NULL она просто не добавит
 	doc.appendChild(package);
 	
 	QDomElement package_element;
- 	foreach (QString key, package_info.properties) {
- 		package_element = doc.createElement(key);
- 		package_element.appendChild(doc.createTextNode(package_info.properties[key]));
- 		package.appendChild(package_element);
- 	}
+	QHash<QString,QString>::iterator it = package_info.properties.begin();
+	for (it = package_info.properties.begin(); it!=package_info.properties.end();it++) {
+ 		package_element = doc.createElement(it.key());
+  		package_element.appendChild(doc.createTextNode(it.value()));
+ 		package.appendChild(package_element);		
+	}
 
 	package_element = doc.createElement("files");
 	package.appendChild(package_element);
@@ -86,6 +94,21 @@ plugXMLHandler::packageInfo plugXMLHandler::createPackageInfoFromDom(QDomDocumen
 
 
 bool plugXMLHandler::registerPackage(packageInfo package_info) {
+	QDomDocument doc;
+	QFile input(package_db_path);
+	if (!input.open(QIODevice::Append)) {
+		//x3
+	}
+	if (!doc.setContent(&input)) {
+		// x3
+	}
+	globalCount++;
+	doc.appendChild(createDomFromPackage(package_info, globalCount));
+	updateGlobalCount();
+	qDebug() << package_db_path;
+	qDebug() << doc.toString();
+	QTextStream out(&input);
+	doc.save(out,4);
 	return true;
 }
 
@@ -104,7 +127,7 @@ plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const QString& filena
 	if (!doc.setContent(&input)) {
 		// x3
 	}
-	
+	input.close();
 	return createPackageInfoFromDom(doc);
 }
 
@@ -114,5 +137,12 @@ plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const QUrl& url) {
 
 bool plugXMLHandler::isValid(QDomDocument doc) {
 	return true;
+}
+
+bool plugXMLHandler::updateGlobalCount() {
+	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
+	settings.beginGroup("global");
+	settings.setValue("count",globalCount);
+	settings.endGroup();
 }
 
