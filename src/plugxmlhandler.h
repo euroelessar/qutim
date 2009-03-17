@@ -42,6 +42,7 @@ public:
                       QString licence = "Unknown licence"
                                         //недописанный конструктор
                      );
+		QString toString(); //! x3
         //предварительный вариант необходимой инфы о пакете
         QHash<QString,QString> properties;
         QStringList files; //установленные файлы
@@ -60,6 +61,10 @@ public:
     /*!
     получаем необходимую инфу установщика из интернета (x3)
     */
+	packageInfo getPackageInfo (const int id);
+    /*!
+    получаем из файла package.xml инфу о пакете с id
+    */	
 private:
     QDomDocument createDomFromPackage (packageInfo package_info, int id = NULL);
     /*!создает Dom document,
@@ -72,7 +77,7 @@ private:
     @param doc - x3
     @param id - ежели берется список с несколькими пакетами то нужный ищется по id
     */
-    packageInfo createPackageInfoFromDom (QDomDocument& doc);
+    packageInfo createPackageInfoFromNode(QDomNode n);
     /*!создает struct packageInfo и Dom (обратная операция для createDomFromPackage). Самый простой вариант парсера
     @param doc - x3
     */
@@ -85,6 +90,7 @@ private:
     bool isValid (QDomDocument doc); //! защита от дураков и ССЗБ
 	QString package_db_path; //installed package database path
 	int globalCount;
+	void createPackageDBFile ();
 signals:
     void error (QString); //! в случае ошибки посылается этот сигнал
 };

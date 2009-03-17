@@ -23,7 +23,7 @@
 plugDownloader::plugDownloader(QObject* parent)
         : QObject(parent)
 {
-	progressBar = new QProgressBar (); 
+
 }
 
 
@@ -54,7 +54,7 @@ void plugDownloader::startDownload(const downloaderItem &downloadItem)
             SLOT(downloadReadyRead()));
 
     // prepare the output
-    progressBar->setStatusTip(tr("Downloading %s...\n", downloadItem.url.toEncoded().constData()));
+    m_progressBar->setStatusTip(tr("Downloading %s...\n", downloadItem.url.toEncoded().constData()));
     downloadTime.start();
 }
 
@@ -75,13 +75,13 @@ void plugDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 		unit = "MB/s";
 	}
     qint8 value = qRound(bytesReceived/bytesTotal*100);
-    progressBar->setValue(value);
-	progressBar->update();
+    m_progressBar->setValue(value);
+	m_progressBar->update();
 }
 
 void plugDownloader::downloadFinished()
 {
-    progressBar->reset();
+    m_progressBar->reset();
     output.close();
     if (currentDownload->error()) {
         // download failed
@@ -99,3 +99,7 @@ void plugDownloader::downloadReadyRead()
 plugDownloader::~plugDownloader() {
     currentDownload->deleteLater();
 }
+void plugDownloader::setProgressbar(QProgressBar* progressBar) {
+	m_progressBar = progressBar;
+}
+

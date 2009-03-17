@@ -27,6 +27,11 @@ plugXMLHandler::packageInfo::packageInfo(QString name, QStringList packageFiles,
 	properties["author"] = author;	
 }
 
+QString plugXMLHandler::packageInfo::toString() {
+	return QString();
+}
+
+
 plugXMLHandler::packageInfo::packageInfo() {
 
 }
@@ -34,9 +39,13 @@ plugXMLHandler::packageInfo::packageInfo() {
 plugXMLHandler::plugXMLHandler() {
 	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
     package_db_path = settings.fileName().section("/",0,-2)+"/packages.xml";
+	QFile file(package_db_path);
+	if (!file.exists())
+		createPackageDBFile();
 	settings.beginGroup("global");
 	globalCount = settings.value("count","0").toInt();
 	settings.endGroup();
+// 	qDebug() << getPackageInfo(1).toString();
 }
 
 plugXMLHandler::~plugXMLHandler() {
@@ -76,9 +85,9 @@ plugXMLHandler::packageInfo plugXMLHandler::createPackageInfoFromDom(QDomDocumen
 	return packageInfo();
 }
 
-plugXMLHandler::packageInfo plugXMLHandler::createPackageInfoFromDom(QDomDocument& doc) {
+plugXMLHandler::packageInfo plugXMLHandler::createPackageInfoFromNode(QDomNode n) {
 	
-	QDomNode n = doc.documentElement().firstChild();
+// 	QDomNode n = doc.documentElement().firstChild();
 	qDebug () << "start parser";
 	packageInfo package_info;
 	while (!n.isNull()) {
@@ -96,17 +105,17 @@ plugXMLHandler::packageInfo plugXMLHandler::createPackageInfoFromDom(QDomDocumen
 bool plugXMLHandler::registerPackage(packageInfo package_info) {
 	QDomDocument doc;
 	QFile input(package_db_path);
-	if (!input.open(QIODevice::Append)) {
+	if (!input.open(QIODevice::ReadWrite)) {
 		//x3
 	}
 	if (!doc.setContent(&input)) {
 		// x3
 	}
+// 	if (doc.firstChild().isNull())
+// 		doc.appendChild(doc.createElement("packages"));
 	globalCount++;
-	doc.appendChild(createDomFromPackage(package_info, globalCount));
+	doc.firstChild().appendChild(createDomFromPackage(package_info, globalCount));
 	updateGlobalCount();
-	qDebug() << package_db_path;
-	qDebug() << doc.toString();
 	QTextStream out(&input);
 	doc.save(out,4);
 	return true;
@@ -128,12 +137,27 @@ plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const QString& filena
 		// x3
 	}
 	input.close();
-	return createPackageInfoFromDom(doc);
+	return createPackageInfoFromNode(doc.firstChild());
 }
 
 plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const QUrl& url) {
 	return packageInfo();
 }
+
+plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const int id) {
+	QDomDocument doc;
+	
+	QFile input(package_db_path);
+	if (!input.open(QIODevice::ReadOnly)) {
+		//x3
+	}
+	if (!doc.setContent(&input)) {
+		// x3
+	}
+	input.close();
+	return createPackageInfoFromNode(doc.elementById(QString::number(id)));
+}
+
 
 bool plugXMLHandler::isValid(QDomDocument doc) {
 	return true;
@@ -145,4 +169,27 @@ bool plugXMLHandler::updateGlobalCount() {
 	settings.setValue("count",globalCount);
 	settings.endGroup();
 }
+
+bool plugXMLHandler::rebuildGlobalCount() {
+	return true;
+}
+
+
+void plugXMLHandler::createPackageDBFile() {
+	QDomDocument doc;
+	
+	QFile input(package_db_path);
+	if (!input.open(QIODevice::WriteOnly)) {
+		//x3
+	}
+	if (!doc.setContent(&input)) {
+		// x3
+	}
+	doc.appendChild(doc.createElement("packages"));
+	rebuildGlobalCount();
+	qDebug() << doc.toString();
+	QTextStream out(&input);
+	input.close();
+}
+
 

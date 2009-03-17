@@ -37,6 +37,7 @@ public:
     void startDownload(const downloaderItem &downloadItem);
     QString lastError;
     QString outPath; //путь до скачанного файла
+	void setProgressbar(QProgressBar *progressBar);
 signals:
     void error(QString message);
     void downloadFinished(QString filename);
@@ -50,7 +51,7 @@ private:
     QNetworkReply *currentDownload;
     QFile output;
     QTime downloadTime;
-    QProgressBar *progressBar;
+    QProgressBar *m_progressBar;
 
 };
 
