@@ -27,3 +27,7 @@ bool CollisionProtect::checkPackageFiles(QStringList& files) {
 	QSet<QString> installedFilesSet;
 	return filesSet.intersect(installedFilesSet).isEmpty();
 }
+
+bool CollisionProtect::checkPackageName(QString& name) {
+	return true;
+}

@@ -72,6 +72,7 @@ bool plugInstaller::installFromFile(QString& inPath) {
 void plugInstaller::installFromXML(QString& inPath) {
 	plugXMLHandler plug_handler;
     plugDownloader *plug_loader = new plugDownloader;
+	plug_loader->setProgressbar(new QProgressBar);
 	package_info = plug_handler.getPackageInfo(inPath);
     connect(plug_loader,SIGNAL(downloadFinished(QString)),this,SLOT(readytoInstall(QString)));
     plug_loader->startDownload(plugDownloader::downloaderItem(package_info.properties["url"],

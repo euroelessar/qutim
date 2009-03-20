@@ -15,6 +15,9 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
     plug_action = new QAction(download_icon,tr("Install package from file"),this);
     m_plugin_system->registerMainMenuAction(plug_action);
     connect(plug_action, SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
+	plugXMLHandler plug_handler;
+	plug_handler.getPackageList();
+	plug_handler.removePackage(1);
 
     return true;
 }

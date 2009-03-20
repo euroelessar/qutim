@@ -49,7 +49,7 @@ public:
     };
     plugXMLHandler ();
     ~plugXMLHandler ();
-    bool registerPackage (packageInfo package_info);
+    bool registerPackage (const plugXMLHandler::packageInfo& package_info);
     QStringList removePackage (int package_id);
     /*!удаляет пакет из базы данных и возращает список файлов для удаления
     */
@@ -65,14 +65,18 @@ public:
     /*!
     получаем из файла package.xml инфу о пакете с id
     */	
+	QHash<int, packageInfo> getPackageList ();
+    /*!
+    получаем из файла package.xml инфу обо всех установленных пакетах
+    */		
 private:
-    QDomDocument createDomFromPackage (packageInfo package_info, int id = NULL);
+    QDomElement createElementFromPackage (packageInfo package_info, int id = NULL);
     /*!создает Dom document,
     @param packageInfo - информация о пакете
     @param id - package id, необходим в том случае, когда инфа о пакете записывается в общую базу данных
     В том случае, если он NULL то это поле игнорируется
     */
-    packageInfo createPackageInfoFromDom (QDomDocument& doc, QString id);
+    packageInfo createPackageInfoFromDom (const QDomDocument& doc, QString id);
     /*!создает struct packageInfo и Dom (обратная операция для createDomFromPackage),
     @param doc - x3
     @param id - ежели берется список с несколькими пакетами то нужный ищется по id
@@ -81,6 +85,7 @@ private:
     /*!создает struct packageInfo и Dom (обратная операция для createDomFromPackage). Самый простой вариант парсера
     @param doc - x3
     */
+	QHash<int, packageInfo> createPackageList (const QDomDocument& root); 
     bool updateGlobalCount (); //!увеличиает количество пакетов на 1 при добавлении и уменьшаяет на 1 при удалении
     bool rebuildGlobalCount (); //!более брутальный способ, применять при ошибках
     bool updatePackageId (int begin_id = 0);
@@ -88,9 +93,9 @@ private:
     @param begin_id - id, с которого начинать пересчёт, если ничего не вводить, то буит обновлятся вся база
     */
     bool isValid (QDomDocument doc); //! защита от дураков и ССЗБ
+	QStringList createFilesList (QDomNode n); //!создаем список файлов, принадлежащих пакету
 	QString package_db_path; //installed package database path
 	int globalCount;
-	void createPackageDBFile ();
 signals:
     void error (QString); //! в случае ошибки посылается этот сигнал
 };

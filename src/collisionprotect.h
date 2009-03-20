@@ -26,6 +26,7 @@ Q_OBJECT
 public:
 	CollisionProtect();
 	bool checkPackageFiles(QStringList &files); 
+	bool checkPackageName(QString &name);
  	/*!true - нет столкновений, false - есть столкновения*/
 };
 
