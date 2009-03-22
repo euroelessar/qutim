@@ -9,6 +9,15 @@ SET (QT_USE_QTGUI true)
 SET (QT_USE_QTXML true)
 FIND_PACKAGE (Qt4 REQUIRED)
 
+CONFIGURE_FILE(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+  IMMEDIATE @ONLY)
+
+ADD_CUSTOM_TARGET(uninstall
+  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+
+
 INCLUDE (${CMAKE_ROOT}/Modules/UseQt4.cmake)
 FIND_PATH( QUTIM_INCLUDE_DIRS qutim/protocolinterface.h ../../include )
 if( QUTIM_INCLUDE_DIRS )
@@ -46,6 +55,8 @@ SET (QT_HEADERS
 	src/plugdownloader.h
 	src/pluginstaller.h
 	src/plugxmlhandler.h
+	src/plugpackagemodel.h
+	src/plugpackage.h
 )
 SET(HEADERS
 ${QT_HEADERS}
@@ -58,6 +69,8 @@ SET (SOURCES
 	src/plugmansettings.cpp
 	src/plugdownloader.cpp
 	src/pluginstaller.cpp
+	src/plugpackagemodel.cpp
+	src/plugpackage.cpp
 )
 
 SET (RESOURCES
@@ -79,5 +92,6 @@ TARGET_LINK_LIBRARIES (plugman
         ${PLUGMAN_LIBS}
 		osdabzip
         )
+
 
 INSTALL (TARGETS plugman DESTINATION lib/qutim )

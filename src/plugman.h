@@ -2,9 +2,7 @@
 #define PLUGMAN_H
 #include <qutim/plugininterface.h>
 #include "pluginstaller.h"
-#include "plugdownloader.h"
 #include "plugmansettings.h"
-
 
 //Менеджер тем оформления и плагинов
 

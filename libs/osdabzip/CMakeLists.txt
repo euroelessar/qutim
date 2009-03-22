@@ -12,3 +12,5 @@ TARGET_LINK_LIBRARIES (osdabzip
         ${QT_LIBRARIES}
         ${OSDABZIP_LIBS}
         )
+
+INSTALL (TARGETS osdabzip DESTINATION lib/qutim/plugman )

@@ -23,6 +23,7 @@
 #include <QUrl>
 #include <QFile>
 #include <QHash>
+#include "plugpackage.h"
 
 //Обработчик xml для qutIM plugin manager'а
 
@@ -32,24 +33,24 @@ class plugXMLHandler : public QObject
 {
     Q_OBJECT
 public:
-    struct packageInfo {
-        packageInfo ();
-        packageInfo  (QString name,
-                      QStringList packageFiles,
-                      QString type = "other",
-                      QString description = "Unknown package",
-                      QString author = "Unknown author",
-                      QString licence = "Unknown licence"
-                                        //недописанный конструктор
-                     );
-		QString toString(); //! x3
-        //предварительный вариант необходимой инфы о пакете
-        QHash<QString,QString> properties;
-        QStringList files; //установленные файлы
-    };
+//     struct packageInfo {
+//         packageInfo ();
+//         packageInfo  (QString name,
+//                       QStringList packageFiles,
+//                       QString type = "other",
+//                       QString description = "Unknown package",
+//                       QString author = "Unknown author",
+//                       QString licence = "Unknown licence"
+//                                         //недописанный конструктор
+//                      );
+// 		QString toString(); //! x3
+//         //предварительный вариант необходимой инфы о пакете
+//         QHash<QString,QString> properties;
+//         QStringList files; //установленные файлы
+//     };
     plugXMLHandler ();
     ~plugXMLHandler ();
-    bool registerPackage (const plugXMLHandler::packageInfo& package_info);
+    bool registerPackage (const packageInfo &package_info);
     QStringList removePackage (int package_id);
     /*!удаляет пакет из базы данных и возращает список файлов для удаления
     */
@@ -65,12 +66,13 @@ public:
     /*!
     получаем из файла package.xml инфу о пакете с id
     */	
-	QHash<int, packageInfo> getPackageList ();
+	QHash<quint16, packageInfo> getPackageList ();
     /*!
     получаем из файла package.xml инфу обо всех установленных пакетах
-    */		
+    */
+	QSet<QString> getPackageNames ();
 private:
-    QDomElement createElementFromPackage (packageInfo package_info, int id = NULL);
+    QDomElement createElementFromPackage (const packageInfo &package_info, int id = NULL);
     /*!создает Dom document,
     @param packageInfo - информация о пакете
     @param id - package id, необходим в том случае, когда инфа о пакете записывается в общую базу данных
@@ -85,7 +87,7 @@ private:
     /*!создает struct packageInfo и Dom (обратная операция для createDomFromPackage). Самый простой вариант парсера
     @param doc - x3
     */
-	QHash<int, packageInfo> createPackageList (const QDomDocument& root); 
+	QHash<quint16, packageInfo> createPackageList (const QDomDocument& root);
     bool updateGlobalCount (); //!увеличиает количество пакетов на 1 при добавлении и уменьшаяет на 1 при удалении
     bool rebuildGlobalCount (); //!более брутальный способ, применять при ошибках
     bool updatePackageId (int begin_id = 0);

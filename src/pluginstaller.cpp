@@ -20,18 +20,23 @@ Boston, MA 02110-1301, USA.
 #include <osdabzip/unzip.h>
 #include "plugdownloader.h"
 #include "collisionprotect.h"
-plugInstaller::plugInstaller() {
+#include <QDir>
+#include <QFileDialog>
 
+plugInstaller::plugInstaller() {
+	
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim", "plugman");
 	settings.beginGroup("features");
 	collision_protect = settings.value("collisionprotect",true).toBool();
 	settings.endGroup();
     outPath = settings.fileName().section("/",0,-2);
     qDebug() << outPath;
-	connect (this,SIGNAL(finished()),this,SLOT(deleteLater())); // в случае завершения установки обьект может быть удалён
+// 	connect (this,SIGNAL(finished()),this,SLOT(deleteLater())); // в случае завершения установки обьект может быть удалён
+	connect (this,SIGNAL(error(QString)),this,SLOT(errorHandler(QString))); //в случае ошибки вызывается этот класс
 }
 
 plugInstaller::~plugInstaller() {
+	
 }
 
 QStringList plugInstaller::unpackArch(QString& inPath) {
@@ -57,24 +62,60 @@ QStringList plugInstaller::unpackArch(QString& inPath) {
     }
     uz.closeArchive(); // Close the zip file and free used resources
     qDebug() << "Unpack archive:" << outPath;
+	m_progressBar->setValue(75);
     return packFiles;
 }
 
-bool plugInstaller::installFromFile(QString& inPath) {
+void plugInstaller::installPackage() {
+	QString path = QFileDialog::getOpenFileName(0,tr("Install package from file"),".",
+												tr("Archives (*.zip);;XML files (*.xml)"));
+	if (path.isEmpty())
+		return;
+	m_progressBar->setVisible(true);
+	m_progressBar->setValue(0);
+	if ((path.section(".",-1))=="zip") {
+	    this->installFromFile(path);
+	}
+	else if ((path.section(".",-1))=="xml")
+	{
+	    this->installFromXML(path);
+	}
+}
+
+
+void plugInstaller::installFromFile(QString& inPath) {
 	//FIXME переписать на регэкспах
-    QStringList files = unpackArch(inPath);
-	QString name = inPath.section("/",-1);
-    registerPackage(name.section(".",0,-2),files);
-	emit finished();
-    return true;
+	QString name = inPath.section("/",-1).section(".",0,-2);
+	qDebug() << name;
+	if (collision_protect) {
+		CollisionProtect protect;
+		if (!protect.checkPackageName(name)) {
+			emit error("Exist name");
+			return;
+		}
+	}
+	package_info.properties["name"] = name;
+	install(inPath);
 }
 
 void plugInstaller::installFromXML(QString& inPath) {
 	plugXMLHandler plug_handler;
     plugDownloader *plug_loader = new plugDownloader;
-	plug_loader->setProgressbar(new QProgressBar);
+	plug_loader->setProgressbar(m_progressBar);
 	package_info = plug_handler.getPackageInfo(inPath);
-    connect(plug_loader,SIGNAL(downloadFinished(QString)),this,SLOT(readytoInstall(QString)));
+	if (!isValid(package_info)) {
+		emit error("Invalid package");
+		return;
+	}
+	if (collision_protect) {
+		CollisionProtect protect;
+		if (!protect.checkPackageName(package_info.properties["name"])) {
+			emit error("Exist name");
+			return;
+		}
+	}	
+    connect(plug_loader,SIGNAL(downloadFinished(QString)),this,SLOT(install(QString)));
+	if (!isValid(package_info));
     plug_loader->startDownload(plugDownloader::downloaderItem(package_info.properties["url"],
 															  package_info.properties["name"]
 															  +"-"+package_info.properties["version"]
@@ -82,31 +123,26 @@ void plugInstaller::installFromXML(QString& inPath) {
 															 ); //FIXME
 }
 
-void plugInstaller::readytoInstall(QString inPath) {
+void plugInstaller::install(QString inPath) {
 	//FIXME
+	m_progressBar->setValue(50);
 	package_info.files = unpackArch(inPath);
 	plugXMLHandler plug_handler;
+	m_progressBar->setValue(100);	
 	plug_handler.registerPackage(package_info);
-	emit finished();
+	deleteLater();
 }
 
-
-bool plugInstaller::registerPackage(QHash< QString, QString >, QStringList &files) {
-    //пока ещё не решил, как реализовывать, надеюсь кутишного ini хватит
-	return true;
+bool plugInstaller::isValid(const packageInfo& package_info) {
+	return package_info.properties["url"].section(".",-1)=="zip";
 }
 
-bool plugInstaller::registerPackage(QString name, QStringList &files) {
-    //
-	qDebug() << "Package name : " << name;
-	plugXMLHandler::packageInfo package_info = plugXMLHandler::packageInfo (name,
-																			files
-																			);
-	plugXMLHandler plug_handler;
-	return plug_handler.registerPackage(package_info);
-}
 
 bool plugInstaller::removePackage(QString name, QStringList &files) {
 	return true;
 }
 
+void plugInstaller::errorHandler(const QString& error) {
+	qDebug() << error;
+	deleteLater();
+}

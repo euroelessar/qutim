@@ -3,18 +3,19 @@
 #include "ui_settings.h"
 #include <QSettings>
 
-class plugmanSettings : public QWidget
+class plugmanSettings : public QWidget, Ui::plugmanSettings
 {
 	Q_OBJECT;
 public:
 	plugmanSettings(const QString &profile_name);
 	~plugmanSettings();
+	void getPackageList();	
 private:
-	Ui::plugmanSettings ui;
 	QString m_profile_name;
-
-signals:
-	void installfromfileclick();
+public slots:
+	void updatePackageList();
+private slots:
+	void on_installfromfileBtn_clicked();
 
 };
 #endif

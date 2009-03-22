@@ -19,43 +19,25 @@ Boston, MA 02110-1301, USA.
 #include <QSettings>
 
 
-plugXMLHandler::packageInfo::packageInfo(QString name, QStringList packageFiles, QString type, QString description, QString author, QString licence) {
-	properties["name"] = name;
-	files = packageFiles;
-	properties["type"] = type;	
-	properties["description"] = description;
-	properties["author"] = author;	
-}
-
-QString plugXMLHandler::packageInfo::toString() {
-	return QString();
-}
-
-
-plugXMLHandler::packageInfo::packageInfo() {
-
-}
-
 plugXMLHandler::plugXMLHandler() {
 	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
     package_db_path = settings.fileName().section("/",0,-2)+"/packages.xml";
 	settings.beginGroup("global");
 	globalCount = settings.value("count","0").toInt();
 	settings.endGroup();
-// 	qDebug() << getPackageInfo(1).toString();
 }
 
 plugXMLHandler::~plugXMLHandler() {
 
 }
 
-QDomElement plugXMLHandler::createElementFromPackage(packageInfo package_info, int id) {
+QDomElement plugXMLHandler::createElementFromPackage(const packageInfo& package_info, int id) {
 	QDomDocument doc;
 	QDomElement package = doc.createElement("package"); 
 	package.setAttribute("id",QString::number(id)); //надеюсь NULL она просто не добавит
 
 	QDomElement package_element;
-	QHash<QString,QString>::iterator it = package_info.properties.begin();
+	QHash<QString,QString>::const_iterator it = package_info.properties.begin();
 	for (it = package_info.properties.begin(); it!=package_info.properties.end();it++) {
  		package_element = doc.createElement(it.key());
   		package_element.appendChild(doc.createTextNode(it.value()));
@@ -72,7 +54,7 @@ QDomElement plugXMLHandler::createElementFromPackage(packageInfo package_info, i
 	return package;
 }
 
-plugXMLHandler::packageInfo plugXMLHandler::createPackageInfoFromDom(const QDomDocument& doc, QString id) {
+packageInfo plugXMLHandler::createPackageInfoFromDom(const QDomDocument& doc, QString id) {
 // 	if (!QString::isEmpty(id))
 // 		QDomNode n = doc.elementById();
 // 	else
@@ -80,10 +62,10 @@ plugXMLHandler::packageInfo plugXMLHandler::createPackageInfoFromDom(const QDomD
 	return packageInfo();
 }
 
-plugXMLHandler::packageInfo plugXMLHandler::createPackageInfoFromNode(QDomNode n) {
+packageInfo plugXMLHandler::createPackageInfoFromNode(QDomNode n) {
 	
 // 	QDomNode n = doc.documentElement().firstChild();
-	qDebug () << "start parser";
+// 	qDebug () << "start parser";
 	packageInfo package_info;
 	while (!n.isNull()) {
 	    QDomElement e = n.toElement(); // try to convert the node to an element.
@@ -93,7 +75,7 @@ plugXMLHandler::packageInfo plugXMLHandler::createPackageInfoFromNode(QDomNode n
 			}
 			else {
 				package_info.properties[e.tagName()] =e.text();
-				qDebug() << e.tagName() << " : " << e.text();
+// 				qDebug() << e.tagName() << " : " << e.text();
 			}
 	    }
 	    n = n.nextSibling();
@@ -105,7 +87,7 @@ QStringList plugXMLHandler::createFilesList(QDomNode n) {
 	QStringList files;
 	while (!n.isNull()) {
 		QDomElement e = n.toElement();
- 		qDebug() << e.tagName() << " : " << e.text();
+//  		qDebug() << e.tagName() << " : " << e.text();
 		if (!e.isNull())
 			files.append(e.text());
 		n = n.nextSibling();
@@ -113,15 +95,15 @@ QStringList plugXMLHandler::createFilesList(QDomNode n) {
 	return files;
 }
 
-QHash< int, plugXMLHandler::packageInfo > plugXMLHandler::createPackageList(const QDomDocument& root) {
+QHash< quint16, packageInfo > plugXMLHandler::createPackageList(const QDomDocument& root) {
 
 	QDomElement packages = root.documentElement();
-	QHash< int, plugXMLHandler::packageInfo > packages_list;
+	QHash< quint16, packageInfo > packages_list;
 	QDomNode n = packages.firstChild();
 	while (!n.isNull()) {
 	    QDomElement e = n.toElement(); // try to convert the node to an element.
 	    if (!e.isNull()) {
-			qDebug() << e.tagName() << " : " << e.attribute("id");
+// 			qDebug() << e.tagName() << " : " << e.attribute("id");
 			packages_list[e.attribute("id").toInt()] = createPackageInfoFromNode(n.firstChild());
 	    }
 	    n = n.nextSibling();
@@ -162,7 +144,7 @@ bool plugXMLHandler::registerPackage(const packageInfo &package_info) {
 	output.rename(package_db_path);
 	globalCount++;
 	updateGlobalCount();	
-	qDebug() << doc.toString();
+// 	qDebug() << doc.toString();
 	return true;
 }
 
@@ -184,7 +166,7 @@ QStringList plugXMLHandler::removePackage(int package_id) {
 		qDebug() << e.attribute("id");
 		if (e.attribute("id").toInt()==package_id) {
 			//FIXME переделать красиво
-			qDebug() << "found package by id" << package_id;
+// 			qDebug() << "found package by id" << package_id;
 			QDomNode p = n.firstChild();
 			while (!p.isNull()){
 				e = p.toElement();
@@ -196,12 +178,12 @@ QStringList plugXMLHandler::removePackage(int package_id) {
 		}
 	    n = n.nextSibling();
 	}
-	qDebug() << doc_root.toString();
+// 	qDebug() << doc_root.toString();
 	return files_list;
 }
 
 
-plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const QString& filename) {
+packageInfo plugXMLHandler::getPackageInfo(const QString& filename) {
 	QDomDocument doc;
 	
 	QFile input(filename);
@@ -215,7 +197,7 @@ plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const QString& filena
 	return createPackageInfoFromNode(doc.documentElement().firstChild());
 }
 
-QHash< int, plugXMLHandler::packageInfo > plugXMLHandler::getPackageList() {
+QHash< quint16, packageInfo > plugXMLHandler::getPackageList() {
 	QDomDocument doc_root;
 	QFile input(package_db_path);
 	if (!input.open(QIODevice::ReadOnly)) {
@@ -228,11 +210,11 @@ QHash< int, plugXMLHandler::packageInfo > plugXMLHandler::getPackageList() {
 	return createPackageList(doc_root);
 }
 
-plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const QUrl& url) {
+packageInfo plugXMLHandler::getPackageInfo(const QUrl& url) {
 	return packageInfo();
 }
 
-plugXMLHandler::packageInfo plugXMLHandler::getPackageInfo(const int id) {
+packageInfo plugXMLHandler::getPackageInfo(const int id) {
 	QDomDocument doc;
 	
 	QFile input(package_db_path);
@@ -263,6 +245,27 @@ bool plugXMLHandler::rebuildGlobalCount() {
 	return true;
 }
 
+QSet< QString > plugXMLHandler::getPackageNames() {
+	QFile input(package_db_path);
+	QDomDocument doc_root;
+	if (!input.open(QIODevice::ReadOnly)) {
+		//x3
+	}
+	if (!doc_root.setContent(&input)) {
+		// x3
+	}
+	input.close();
+	QDomElement packages = doc_root.documentElement();
+	QDomNode n = packages.firstChild();
+	QSet<QString> names;
+	while (!n.isNull()) {
+		QDomElement e = n.toElement(); // try to convert the node to an element.
+		qDebug () << e.firstChildElement("name").text();
+		names.insert(e.firstChildElement("name").text());
+		n = n.nextSibling();
+	}	
+	return names;
+}
 
 
 

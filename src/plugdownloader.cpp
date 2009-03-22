@@ -74,9 +74,8 @@ void plugDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 		speed /= 1024*1024;
 		unit = "MB/s";
 	}
-    qint8 value = qRound(bytesReceived/bytesTotal*100);
+    qint8 value = qRound(100*bytesReceived/bytesTotal);
     m_progressBar->setValue(value);
-	m_progressBar->update();
 }
 
 void plugDownloader::downloadFinished()

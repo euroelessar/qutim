@@ -1,7 +1,8 @@
 #include "plugman.h"
-#include <QFileDialog>
 #include <QDebug>
 #include <QAction>
+#include <QDir>
+#include <QProgressBar>
 
 bool plugMan::init ( PluginSystemInterface *plugin_system )
 {
@@ -15,9 +16,13 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
     plug_action = new QAction(download_icon,tr("Install package from file"),this);
     m_plugin_system->registerMainMenuAction(plug_action);
     connect(plug_action, SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
-	plugXMLHandler plug_handler;
-	plug_handler.getPackageList();
-	plug_handler.removePackage(1);
+
+	
+	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman"); //костыль
+    QString outPath = settings.fileName().section("/",0,-2)+"/";
+	QDir dir;
+	if (!dir.exists(outPath))
+		dir.mkpath(outPath);
 
     return true;
 }
@@ -35,7 +40,7 @@ void plugMan::processEvent ( PluginEvent  &event)
 QWidget *plugMan::settingsWidget()
 {
 	settingswidget = new plugmanSettings(m_profile_name);
-	connect(settingswidget, SIGNAL(installfromfileclick()), this,  SLOT(on_installfromfileBtn_clicked()));
+//  connect(settingswidget, SIGNAL(installfromfileclick()), this,  SLOT(on_installfromfileBtn_clicked()));
     return settingswidget;
 }
 
@@ -77,18 +82,10 @@ void plugMan::saveSettings()
 
 void plugMan::on_installfromfileBtn_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(0,tr("Install package from file"),".",
-                   tr("Archives (*.zip);;XML files (*.xml)"));
 	plugInstaller *plug_install = new plugInstaller;
 	plug_install->setParent(this);
-    if ((path.section(".",-1))=="zip")
-    {
-        plug_install->installFromFile(path);
-    }
-    else if ((path.section(".",-1))=="xml")
-    {
-        plug_install->installFromXML(path);
-    }	
+	plug_install->setProgressBar(new QProgressBar);
+	plug_install->installPackage();
 }
 
 Q_EXPORT_PLUGIN2 ( plugman,plugMan );

@@ -15,6 +15,7 @@
 */
 
 #include "collisionprotect.h"
+#include "plugxmlhandler.h"
 #include "QSet"
 
 CollisionProtect::CollisionProtect() {
@@ -29,5 +30,6 @@ bool CollisionProtect::checkPackageFiles(QStringList& files) {
 }
 
 bool CollisionProtect::checkPackageName(QString& name) {
-	return true;
+	plugXMLHandler plug_handler;
+	return !(plug_handler.getPackageNames().contains(name));
 }

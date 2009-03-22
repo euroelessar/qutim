@@ -20,6 +20,7 @@ Boston, MA 02110-1301, USA.
 #include <QObject>
 #include <QHash>
 #include "plugxmlhandler.h"
+#include <QProgressBar>
 class plugxmlhandler;
 class plugInstaller : public QObject
 {
@@ -27,21 +28,26 @@ class plugInstaller : public QObject
 public:
     plugInstaller ();
     ~plugInstaller ();
-    bool installFromFile (QString &inPath);
-    void installFromXML (QString &inPath);
-    bool registerPackage (QHash<QString, QString>, QStringList &files); //записывает в базу инфу об установленных пакетах
-    bool registerPackage (QString name, QStringList &files);
+	void installPackage();
     bool removePackage (QString name, QStringList& files);
     QString outPath; //папка, куда будут распаковываться архивы
+	void setProgressBar (QProgressBar *progressBar) {m_progressBar = progressBar;};
 public slots:
-	void readytoInstall(QString); //готов для установки (то есть скачался)
+	void install(QString); //готов для установки (то есть скачался)
 private:
     QString lastError;
     QStringList unpackArch (QString &inPath);
 	bool collision_protect;
-	plugXMLHandler::packageInfo package_info; //FIXME
+	void installFromFile (QString &inPath);
+	void installFromXML (QString &inPath);
+	packageInfo package_info; //FIXME
+	QProgressBar *m_progressBar;
+	bool isValid (const packageInfo &package_info);
 signals:
 	void finished ();
+	void error(QString);
+public slots:
+	void errorHandler(const QString &error);
 };
 
 #endif // PLUGINSTALLER_H
