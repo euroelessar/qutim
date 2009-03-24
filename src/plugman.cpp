@@ -13,11 +13,6 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
     download_icon = QIcon ( ":/icons/open.png");
     m_plugin_system = plugin_system;
     TreeModelItem contact;
-    plug_action = new QAction(download_icon,tr("Install package from file"),this);
-    m_plugin_system->registerMainMenuAction(plug_action);
-    connect(plug_action, SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
-
-	
 	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman"); //костыль
     QString outPath = settings.fileName().section("/",0,-2)+"/";
 	QDir dir;
@@ -40,12 +35,15 @@ void plugMan::processEvent ( PluginEvent  &event)
 QWidget *plugMan::settingsWidget()
 {
 	settingswidget = new plugmanSettings(m_profile_name);
-//  connect(settingswidget, SIGNAL(installfromfileclick()), this,  SLOT(on_installfromfileBtn_clicked()));
     return settingswidget;
 }
 
 void plugMan::setProfileName ( const QString &profile_name )
 {
+	//FIXME костыль!!!
+	plug_action = new QAction(download_icon,tr("Install package from file"),this);
+	m_plugin_system->registerMainMenuAction(plug_action);
+	connect(plug_action, SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
     m_profile_name = profile_name;
 }
 
@@ -66,7 +64,7 @@ QIcon *plugMan::icon()
 
 QString plugMan::type()
 {
-    return "demo";
+    return "other";
 }
 
 
