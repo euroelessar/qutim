@@ -26,6 +26,7 @@ plugPackageItem::plugPackageItem(packageInfo* item)
 	m_package_info = item;
 }
 
+
 plugPackageItem::~plugPackageItem() {
 	if(m_package_info)
 		delete m_package_info;

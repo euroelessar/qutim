@@ -33,7 +33,7 @@ public:
 	int columnCount(const QModelIndex &parent = QModelIndex()) const { Q_UNUSED(parent); return 1; }
 	bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	void addItem(const packageInfo &item);
+	void addItem(const packageInfo& item);
 	void removeItem(const packageInfo &item);
 	void moveItem(const packageInfo & old_item, const packageInfo & new_item);
 	void setItemName(const packageInfo &item, const QString & name);

@@ -1,9 +1,9 @@
 #include "plugpackagemodel.h"
 
-#define Q_VALID_TYPE(item) (item.m_item_type <= 2)
-#define Q_CHECK_TYPE(item) \
-	if( !Q_VALID_TYPE(item) ) \
-		return
+// #define Q_VALID_TYPE(item) (item.m_item_type <= 2)
+// #define Q_CHECK_TYPE(item) \
+// 	if( !Q_VALID_TYPE(item) ) \
+// 		return
 #define Q_INDEX(item) createIndex(item->childNumber(), 0, item)
 
 PlugPackageModel::PlugPackageModel(QObject* parent) : QAbstractItemModel(parent), m_root_item(new plugPackageItem)
@@ -40,31 +40,31 @@ return QAbstractItemModel::hasChildren(parent);
 }
 
 QVariant PlugPackageModel::data(const QModelIndex& index, int role) const {
-	plugPackageItem *item = getItem(index);
- 	if(!item)
- 		return QVariant();
- 	packageInfo *item = item->getItem();
- 	if(!item)
- 		return QVariant();
- 	switch(role)
- 	{
- 	case Qt::DisplayRole:
- 		return data->name.isEmpty() ? data->item.m_item_name : data->name;
- 	case Qt::DecorationRole:
- 		return QVariant();//FIXME
- 	case Qt::UserRole:
- 		return reinterpret_cast<qptrdiff>(item);
- 	default:
- 		return QVariant();
- 	}
+// 	plugPackageItem *item = getItem(index);
+//  	if(!item)
+//  		return QVariant();
+//  	packageInfo *package_item = item->getItem();
+//  	if(!item)
+//  		return QVariant();
+//  	switch(role)
+//  	{
+//  	case Qt::DisplayRole:
+//  		return data->name.isEmpty() ? data->item.m_item_name : data->name;
+//  	case Qt::DecorationRole:
+//  		return QVariant();//FIXME
+//  	case Qt::UserRole:
+//  		return reinterpret_cast<qptrdiff>(item);
+//  	default:
+//  		return QVariant();
+//  	}
 	return QVariant();
 }
 
 void PlugPackageModel::addItem(const packageInfo& item) {
-	Q_CHECK_TYPE(item);
-	if(getItem(item)) return;
-	plugPackageItem *data_item = new plugPackageItem(item);
-	addItem(item, data_item);
+// // 	Q_CHECK_TYPE(item);
+// 	if(getItem(item)) return;
+// 	plugPackageItem *data_item = new plugPackageItem(item);
+// 	addItem(item, data_item);
 }
 
 void PlugPackageModel::addItem(const packageInfo& item, plugPackageItem* data_item) {
