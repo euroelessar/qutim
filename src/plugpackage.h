@@ -19,6 +19,7 @@ Boston, MA 02110-1301, USA.
 #include <QString>
 #include <QHash>
 #include <QStringList>
+//#include <QIcon>
 
 struct packageInfo {
 	packageInfo ();
@@ -37,4 +38,15 @@ struct packageInfo {
 	QString toString(); //! x3	
 };
 
+enum packageAttribute {
+	isUpgradable,
+	isDowngradable,
+	hasWrongPlatform	
+};
+
+// struct itemData {
+// 	packageInfo item;
+// 	quint32 id;
+// 	QVector<QIcon> icons;
+// };
 #endif // PLUGPACKAGE_H

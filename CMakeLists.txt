@@ -57,6 +57,7 @@ SET (QT_HEADERS
 	src/plugxmlhandler.h
 	src/plugpackagemodel.h
 	src/plugpackage.h
+	src/plugpackageitem.h
 )
 SET(HEADERS
 ${QT_HEADERS}
@@ -71,6 +72,7 @@ SET (SOURCES
 	src/pluginstaller.cpp
 	src/plugpackagemodel.cpp
 	src/plugpackage.cpp
+	src/plugpackageitem.cpp
 )
 
 SET (RESOURCES
