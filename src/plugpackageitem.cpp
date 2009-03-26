@@ -21,15 +21,21 @@ plugPackageItem::plugPackageItem() : m_child_number(0), m_parent(0)
 
 }
 
-plugPackageItem::plugPackageItem(packageInfo* item)
+plugPackageItem::plugPackageItem(const packageInfo& item, const quint32& id) : m_data(new ItemData)
 {
-	m_package_info = item;
+	m_data->item = item;
+	m_data->id = id;
+}
+
+plugPackageItem::plugPackageItem(ItemData* data) : m_data(data)
+{
+
 }
 
 
 plugPackageItem::~plugPackageItem() {
-	if(m_package_info)
-		delete m_package_info;
+	if(m_data)
+		delete m_data;
 	foreach(plugPackageItem *item, m_children_temp)
 		delete item;
 }

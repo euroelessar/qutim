@@ -19,7 +19,7 @@ Boston, MA 02110-1301, USA.
 #include <QString>
 #include <QHash>
 #include <QStringList>
-//#include <QIcon>
+#include <QIcon>
 
 struct packageInfo {
 	packageInfo ();
@@ -33,8 +33,8 @@ struct packageInfo {
 				   );
 	//предварительный вариант необходимой инфы о пакете
 	QHash<QString,QString> properties;
+	QHash<QString,QString> dependencyList; //!new stuff from EuroElessar
 	QStringList files; //установленные файлы
-	quint32 id; //! package id in packages.xml
 	QString toString(); //! x3	
 };
 
@@ -44,9 +44,10 @@ enum packageAttribute {
 	hasWrongPlatform	
 };
 
-// struct itemData {
-// 	packageInfo item;
-// 	quint32 id;
-// 	QVector<QIcon> icons;
-// };
+struct ItemData {
+	packageInfo item;
+	quint32 id; //!package id from packages.xml
+	QIcon icon;
+	quint8 item_type; /*!< item type: 0 - buddy; 1 - group; */
+};
 #endif // PLUGPACKAGE_H

@@ -25,7 +25,7 @@ QModelIndex PlugPackageModel::parent(const QModelIndex& child) const {
 	if(!item)
 		return QModelIndex();
 	item = item->parent();
-	if(!item || !item->getItem())
+	if(!item || !item->getData())
 		return QModelIndex();
 	return Q_INDEX(item);
 }
@@ -40,31 +40,34 @@ return QAbstractItemModel::hasChildren(parent);
 }
 
 QVariant PlugPackageModel::data(const QModelIndex& index, int role) const {
-// 	plugPackageItem *item = getItem(index);
-//  	if(!item)
-//  		return QVariant();
-//  	packageInfo *package_item = item->getItem();
-//  	if(!item)
-//  		return QVariant();
-//  	switch(role)
-//  	{
-//  	case Qt::DisplayRole:
-//  		return data->name.isEmpty() ? data->item.m_item_name : data->name;
-//  	case Qt::DecorationRole:
-//  		return QVariant();//FIXME
-//  	case Qt::UserRole:
-//  		return reinterpret_cast<qptrdiff>(item);
-//  	default:
-//  		return QVariant();
-//  	}
+	plugPackageItem *item = getItem(index);
+	ItemData *data = item->getData();
+	if(!item)
+		return QVariant();
+// 	itemData *data = item->getData();
+	if(!data)
+		return QVariant();
+// 	switch(role)
+// 	{
+// 		case Qt::DisplayRole:
+// 			return data->name.isEmpty() ? data->item.m_item_type == 1 ? "Not in list" : data->item.m_item_name : data->name;
+// 		case Qt::DecorationRole:
+// 			return data->icons.count()==0 ? QVariant() : data->icons[0];
+// 		case Qt::UserRole:
+// 			return reinterpret_cast<qptrdiff>(data);
+// 		case Qt::ToolTipRole:
+// 			return m_plugin_system->getItemToolTip(data->item);
+// 		default:
+// 			return QVariant();
+// 	}
 	return QVariant();
 }
 
-void PlugPackageModel::addItem(const packageInfo& item) {
-// // 	Q_CHECK_TYPE(item);
-// 	if(getItem(item)) return;
-// 	plugPackageItem *data_item = new plugPackageItem(item);
-// 	addItem(item, data_item);
+void PlugPackageModel::addItem(const packageInfo& item,const quint32 &id) {
+ // 	Q_CHECK_TYPE(item);
+	if(getItem(item)) return;
+	plugPackageItem *data_item = new plugPackageItem(item, id);
+	addItem(item, data_item);
 }
 
 void PlugPackageModel::addItem(const packageInfo& item, plugPackageItem* data_item) {
@@ -83,9 +86,10 @@ QStringList PlugPackageModel::getItemChildren(const packageInfo& item) {
 
 }
 
-void PlugPackageModel::moveItem(const packageInfo& old_item, const packageInfo& new_item) {
+const plugPackageItem* PlugPackageModel::getItemData(const packageInfo& item) {
 
 }
+
 
 void PlugPackageModel::removeItem(const packageInfo& item) {
 

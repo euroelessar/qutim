@@ -24,10 +24,11 @@ class plugPackageItem
 {
 public:
 	plugPackageItem();
-	plugPackageItem(packageInfo *item);
+	plugPackageItem(const packageInfo &item,const quint32 &id);
+	plugPackageItem(ItemData *data);
 	virtual ~plugPackageItem();
-	inline packageInfo *getItem() { return m_package_info; }
-	void setData(packageInfo *item) { m_package_info = item; }
+	inline ItemData *getData() { return m_data; }
+	void setData(ItemData *data) { m_data = data; }
 	inline plugPackageItem *getChild(int num) { return m_children_temp.value(num, 0); }
 	inline plugPackageItem *getChild(const QString &id) { return m_children.value(id, 0); }
 	inline int childCount() { return m_children_temp.count(); }
@@ -39,7 +40,7 @@ public:
 private:
 	int m_child_number;
 	plugPackageItem *m_parent;
-	packageInfo *m_package_info;
+	ItemData *m_data;
 	QVector<plugPackageItem *> m_children_temp;
 	QHash<QString, plugPackageItem *> m_children;
 };
