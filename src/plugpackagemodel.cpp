@@ -1,44 +1,47 @@
 #include "plugpackagemodel.h"
 
-// #define Q_VALID_TYPE(item) (item.m_item_type <= 2)
-// #define Q_CHECK_TYPE(item) \
-// 	if( !Q_VALID_TYPE(item) ) \
-// 		return
-#define Q_INDEX(item) createIndex(item->childNumber(), 0, item)
-
-PlugPackageModel::PlugPackageModel(QObject* parent) : QAbstractItemModel(parent), m_root_item(new plugPackageItem)
+plugPackageModel::plugPackageModel(QObject* parent)
+: QAbstractItemModel(parent)
 {
-
+	m_root_node = 0;
 }
 
-QModelIndex PlugPackageModel::index(int row, int column, const QModelIndex& parent) const {
-	Q_UNUSED(column);
-	plugPackageItem *item = getItem(parent);
-	if(!item)
+plugPackageModel::~plugPackageModel() {
+	delete(m_root_node);
+}
+
+void plugPackageModel::setRootNode(plugPackageItem* plug_package_item) {
+	delete(m_root_node);
+	m_root_node = plug_package_item;
+	reset();
+}
+
+QModelIndex plugPackageModel::index(int row, int column, const QModelIndex& parent) const {
+	if (!m_root_node)
 		return QModelIndex();
-	item = item->getChild(row);
-	return item ? Q_INDEX(item) : QModelIndex();
+	return createIndex(	row,
+						column,
+						nodeFromIndex(parent)->getChildData(row));
 }
 
-QModelIndex PlugPackageModel::parent(const QModelIndex& child) const {
-	plugPackageItem *item = getItem(child);
-	if(!item)
-		return QModelIndex();
-	item = item->parent();
-	if(!item || !item->getData())
-		return QModelIndex();
-	return Q_INDEX(item);
+plugPackageItem *plugPackageModel::nodeFromIndex(const QModelIndex& index) const {
+	if (index.isValid())
+		return static_cast<plugPackageItem *>(index.internalPointer());
+	else
+		return m_root_node;
 }
 
-int PlugPackageModel::rowCount(const QModelIndex& parent) const {
-	plugPackageItem *item = getItem(parent);
-	return item ? item->childCount() : 0;	
+int plugPackageModel::rowCount(const QModelIndex& parent) const {
+	plugPackageItem *parentNode = nodeFromIndex(parent);
+	if (!parentNode)
+		return 0;
+	return parentNode->childrenCount();
 }
 
-bool PlugPackageModel::hasChildren(const QModelIndex& parent) const {
-return QAbstractItemModel::hasChildren(parent);
-}
-
+<<<<<<< .mine
+int plugPackageModel::columnCount(const QModelIndex& parent) const {
+	return 2; //from example (=
+=======
 QVariant PlugPackageModel::data(const QModelIndex& index, int role) const {
 	plugPackageItem *item = getItem(index);
 	ItemData *data = item->getData();
@@ -60,15 +63,36 @@ QVariant PlugPackageModel::data(const QModelIndex& index, int role) const {
 // 			return QVariant();
 // 	}
 	return QVariant();
+>>>>>>> .r43
 }
 
-void PlugPackageModel::addItem(const packageInfo& item,const quint32 &id) {
- // 	Q_CHECK_TYPE(item);
-	if(getItem(item)) return;
-	plugPackageItem *data_item = new plugPackageItem(item, id);
-	addItem(item, data_item);
+QModelIndex plugPackageModel::parent(const QModelIndex& child) const {
+	plugPackageItem *node = nodeFromIndex(child);
+	if (!node)
+		return QModelIndex();
+	plugPackageItem *parentNode = node->parent;
+	if (!parentNode)
+		return QModelIndex();
+	plugPackageItem *grandParentNode = parentNode->parent;
+	if (!grandParentNode)
+		return QModelIndex();
+	int row = grandParentNode->indexOf(parentNode);
+	return createIndex(row, child.column(), parentNode);
 }
 
+<<<<<<< .mine
+QVariant plugPackageModel::data(const QModelIndex& index, int role) const {
+	if (role != Qt::DisplayRole)
+		return QVariant();
+	plugPackageItem *node = nodeFromIndex(index);
+	if (index.column()==0)	{
+		return tr("package");
+		}
+	else if (index.column()==1) {
+		return node->item_name;
+	}
+	return QVariant();
+=======
 void PlugPackageModel::addItem(const packageInfo& item, plugPackageItem* data_item) {
  	QHash<QString, plugPackageItem *> &category = m_items[item.properties["type"]];
  	if (category.isEmpty()) {
@@ -118,62 +142,14 @@ void PlugPackageModel::addItem(const packageInfo& item, plugPackageItem* data_it
 // 	beginInsertRows(Q_INDEX(group), group->childCount(), group->childCount());
 // 	group->addChild(item.m_item_name, data_item);
 // 	endInsertRows();
+>>>>>>> .r43
 }
 
-plugPackageItem* PlugPackageModel::getItem(const QModelIndex& index) const {
-
+QVariant plugPackageModel::headerData(int section, Qt::Orientation orientation, int role) const {
+	return QAbstractItemModel::headerData(section, orientation, role);
 }
 
-plugPackageItem* PlugPackageModel::getItem(const packageInfo& item) const {
-
+void plugPackageModel::addItem(const ItemData& item, const QString& name) {
+	plugPackageItem *node = new plugPackageItem (item, name);
 }
-
-QStringList PlugPackageModel::getItemChildren(const packageInfo& item) {
-
-}
-
-const plugPackageItem* PlugPackageModel::getItemData(const packageInfo& item) {
-
-}
-
-
-void PlugPackageModel::removeItem(const packageInfo& item) {
-
-}
-
-void PlugPackageModel::setItemAttribute(const packageInfo& item, packageAttribute type, bool on) {
-
-}
-
-void PlugPackageModel::setItemDescription(const packageInfo& item, const QVector< QVariant >& text) {
-
-}
-
-void PlugPackageModel::setItemIcon(const packageInfo& item, const QIcon& icon, int position) {
-
-}
-
-void PlugPackageModel::setItemName(const packageInfo& item, const QString& name) {
-
-}
-
-void PlugPackageModel::setItemShortDesc(const packageInfo& item, const QString& shortdesc) {
-
-}
-
-void PlugPackageModel::setItemVisibility(const packageInfo& item, int flags) {
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
 

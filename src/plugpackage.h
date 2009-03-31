@@ -35,7 +35,6 @@ struct packageInfo {
 	QHash<QString,QString> properties;
 	QHash<QString,QString> dependencyList; //!new stuff from EuroElessar
 	QStringList files; //установленные файлы
-	quint32 id; //!package id from packages.xml	
 	QString toString(); //! x3	
 };
 

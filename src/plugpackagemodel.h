@@ -21,34 +21,25 @@ Boston, MA 02110-1301, USA.
 #include "plugpackage.h"
 #include "plugpackageitem.h"
 
-class PlugPackageModel : public QAbstractItemModel
+class plugPackageModel : public QAbstractItemModel
 {
-	Q_OBJECT
-
 public:
-	PlugPackageModel(QObject *parent);
-	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-	QModelIndex parent(const QModelIndex &child) const;
-	int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	int columnCount(const QModelIndex &parent = QModelIndex()) const { Q_UNUSED(parent); return 1; }
-	bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
-	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	void addItem(const packageInfo& item, const quint32& id);
-	void removeItem(const packageInfo &item);
-	void setItemName(const packageInfo &item, const QString & name);
-	void setItemIcon(const packageInfo &item, const QIcon &icon, int position);
-	void setItemShortDesc(const packageInfo &item,const QString & shortdesc);
-	void setItemDescription(const packageInfo &item, const QVector<QVariant> &text);
-	void setItemVisibility(const packageInfo &item, int flags);
-	void setItemAttribute(const packageInfo &item, packageAttribute type, bool on);
-	QStringList getItemChildren(const packageInfo &item);
-	const plugPackageItem *getItemData(const packageInfo &item);
+	plugPackageModel(QObject *parent = 0);
+	~plugPackageModel();
+	void setRootNode (plugPackageItem *plug_package_item);
+	QModelIndex index (	int row, int column,
+						const QModelIndex &parent) const;
+	QModelIndex parent (const QModelIndex &child) const;
+	int rowCount(const QModelIndex& parent = QModelIndex()) const;
+	int columnCount(const QModelIndex& parent = QModelIndex()) const;
+	void addItem(const ItemData &item, const QString &name = "");
+	QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
+	QVariant headerData(int section,
+								Qt::Orientation orientation,
+								int role = Qt::DisplayRole) const;
 private:
-	void addItem(const packageInfo &item, plugPackageItem *data_item);
-	inline plugPackageItem *getItem(const QModelIndex &index) const;
-	plugPackageItem *getItem(const packageInfo &item) const;
-	QHash<QString, QHash<QString, plugPackageItem *> > m_items; // items and categories
-	plugPackageItem *m_root_item;
+	plugPackageItem *m_root_node;
+	plugPackageItem *nodeFromIndex(const QModelIndex &index) const;
 };
 
 #endif // PLUGPACKAGEMODEL_H
