@@ -47,7 +47,7 @@ private:
 	void addItem(const packageInfo &item, plugPackageItem *data_item);
 	inline plugPackageItem *getItem(const QModelIndex &index) const;
 	plugPackageItem *getItem(const packageInfo &item) const;
-	QHash<QString, QHash<QString, plugPackageItem *> > m_items; // protocols and accounts
+	QHash<QString, QHash<QString, plugPackageItem *> > m_items; // items and categories
 	plugPackageItem *m_root_item;
 };
 

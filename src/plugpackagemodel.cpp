@@ -44,7 +44,6 @@ QVariant PlugPackageModel::data(const QModelIndex& index, int role) const {
 	ItemData *data = item->getData();
 	if(!item)
 		return QVariant();
-// 	itemData *data = item->getData();
 	if(!data)
 		return QVariant();
 // 	switch(role)
@@ -71,7 +70,54 @@ void PlugPackageModel::addItem(const packageInfo& item,const quint32 &id) {
 }
 
 void PlugPackageModel::addItem(const packageInfo& item, plugPackageItem* data_item) {
-
+ 	QHash<QString, plugPackageItem *> &category = m_items[item.properties["type"]];
+ 	if (category.isEmpty()) {
+		category.insert(item.properties["type"],data_item);
+		beginInsertRows(QModelIndex(), m_root_item->childCount(),m_root_item->childCount());
+		m_root_item->addChild(item.properties["type"],data_item);
+		endInsertRows();
+		return;
+ 	}
+	plugPackageItem *package = category.value(item.id, 0); //блин надо у элессара уточнить как оно работает
+	if (!package)	{
+		delete data_item;
+		return;
+		}
+	beginInsertRows(Q_INDEX(package),package->childCount(),package.childCount());
+	package->addChild(item.id, data_item);
+	endInsertRows();
+// 	return;
+// 	category.insert()
+// 	if(item.m_item_type == 2)
+// 	{
+// 		protocol.insert(item.m_account_name, data_item);
+// 		beginInsertRows(QModelIndex(), m_root_item->childCount(), m_root_item->childCount());
+// 		m_root_item->addChild(item.m_protocol_name+"."+item.m_account_name, data_item);
+// 		endInsertRows();
+// 		return;
+// 	}
+// 	DataItem *account = protocol.value(item.m_account_name, 0);
+// 	if(!account)
+// 	{
+// 		delete data_item;
+// 		return;
+// 	}
+// 	if(item.m_item_type == 1)
+// 	{
+// 		beginInsertRows(Q_INDEX(account), account->childCount(), account->childCount());
+// 		account->addChild(item.m_item_name, data_item);
+// 		endInsertRows();
+// 		return;
+// 	}
+// 	DataItem *group = account->getChild(item.m_parent_name);
+// 	if(!group)
+// 	{
+// 		delete data_item;
+// 		return;
+// 	}
+// 	beginInsertRows(Q_INDEX(group), group->childCount(), group->childCount());
+// 	group->addChild(item.m_item_name, data_item);
+// 	endInsertRows();
 }
 
 plugPackageItem* PlugPackageModel::getItem(const QModelIndex& index) const {
