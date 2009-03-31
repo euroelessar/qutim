@@ -30,10 +30,11 @@ public:
 	void removeChild(const QString &id, int number);
 	inline plugPackageItem *getChildData(const int &number) {return children.value(number, 0);};
 	inline int childrenCount() {return children.count();};
-	inline int indexOf(const plugPackageItem &item) {return children.key(item);};
+	inline int indexOf(plugPackageItem *item) {return children.key(item, 0);};
+	plugPackageItem *getParent () {return parent;};
+	QString item_name;
 private:
 	ItemData item_data;
-	QString item_name;
 	plugPackageItem *parent;
 	QHash<int, plugPackageItem *> children;
 };
