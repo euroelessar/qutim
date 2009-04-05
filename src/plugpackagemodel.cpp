@@ -75,6 +75,21 @@ QVariant plugPackageModel::headerData(int section, Qt::Orientation orientation, 
 }
 
 void plugPackageModel::addItem(const ItemData& item, const QString& name) {
+	if (item.type==group) {
+	}
+	plugPackageItem *category_node = m_category_nodes.value(item.packageItem.properties.value("type"));
+	if (!category_node) {
+		ItemData category_item = ItemData (group);
+		category_node = new plugPackageItem (category_item,
+										item.packageItem.properties.value("type"));
+ 		m_category_nodes.insert(item.packageItem.properties.value("type"),category_node);
+		beginInsertRows(QModelIndex(), m_root_node->childrenCount(),m_root_node->childrenCount());
+		m_root_node->addChild(category_node, rowCount());
+		endInsertRows();
+	}
 	plugPackageItem *node = new plugPackageItem (item, name);
+	beginInsertRows(QModelIndex(),category_node->childrenCount(),category_node->childrenCount());
+	category_node->addChild(node,rowCount());
+	endInsertRows();
 }
 

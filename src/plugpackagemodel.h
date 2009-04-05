@@ -40,6 +40,7 @@ public:
 private:
 	plugPackageItem *m_root_node;
 	plugPackageItem *nodeFromIndex(const QModelIndex &index) const;
+	QHash<QString, plugPackageItem *> m_category_nodes; //! категории пакетов
 };
 
 #endif // PLUGPACKAGEMODEL_H

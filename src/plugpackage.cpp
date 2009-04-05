@@ -16,3 +16,10 @@ packageInfo::packageInfo(QString name, QStringList packageFiles, QString type, Q
 QString packageInfo::toString() {
 	return QString();
 }
+
+ItemData::ItemData(itemType type, quint32 id, QIcon icon, packageInfo packageItem) {
+	this->id = id;
+	this->type = type;
+	this->icon = icon;
+	this->packageItem = packageItem;
+}

@@ -44,10 +44,16 @@ enum packageAttribute {
 	hasWrongPlatform	
 };
 
+enum itemType {
+	buddy,
+	group
+};
+
 struct ItemData {
-	packageInfo item;
+	ItemData(itemType type, quint32 id = 0,  QIcon icon = QIcon(), packageInfo packageItem = packageInfo());
+	packageInfo packageItem;
 	quint32 id; //!package id from packages.xml
 	QIcon icon;
-	quint8 item_type; /*!< item type: 0 - buddy; 1 - group; */
+	itemType type;
 };
 #endif // PLUGPACKAGE_H
