@@ -23,6 +23,8 @@ void plugmanSettings::getPackageList() {
 	QHash<quint16, packageInfo>::iterator it = package_list.begin();
 	for (;it != package_list.end();it++) {
  		QListWidgetItem *listitem = new QListWidgetItem(package_list[it.key()].properties["name"]);
+		listitem->setToolTip(package_list[it.key()].properties.value("shortdesc"));
+
 		listWidget->addItem(listitem);
 		;
 	}

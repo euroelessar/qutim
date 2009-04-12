@@ -16,7 +16,7 @@
 
 #include "collisionprotect.h"
 #include "plugxmlhandler.h"
-#include "QSet"
+#include <QSet>
 
 CollisionProtect::CollisionProtect() {
 

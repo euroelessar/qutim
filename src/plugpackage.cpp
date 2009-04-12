@@ -23,3 +23,7 @@ ItemData::ItemData(itemType type, quint32 id, QIcon icon, packageInfo packageIte
 	this->icon = icon;
 	this->packageItem = packageItem;
 }
+
+ItemData::ItemData() {
+
+}
