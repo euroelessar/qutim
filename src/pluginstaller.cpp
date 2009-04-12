@@ -23,7 +23,9 @@ Boston, MA 02110-1301, USA.
 #include <QDir>
 #include <QFileDialog>
 
-plugInstaller::plugInstaller() {
+plugInstaller::plugInstaller()
+: package_info()
+{
 	
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim", "plugman");
 	settings.beginGroup("features");
@@ -95,6 +97,7 @@ void plugInstaller::installFromFile(QString& inPath) {
 		}
 	}
 	package_info.properties["name"] = name;
+	package_info.properties["type"] = "other";
 	install(inPath);
 }
 

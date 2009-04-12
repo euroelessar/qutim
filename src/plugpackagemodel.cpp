@@ -1,9 +1,9 @@
 #include "plugpackagemodel.h"
+#include <QDebug>
 
 plugPackageModel::plugPackageModel(QObject* parent)
-: QAbstractItemModel(parent)
+: QAbstractItemModel(parent), m_root_node(new plugPackageItem)
 {
-	m_root_node = 0;
 }
 
 plugPackageModel::~plugPackageModel() {
@@ -40,7 +40,7 @@ int plugPackageModel::rowCount(const QModelIndex& parent) const {
 
 int plugPackageModel::columnCount(const QModelIndex& parent) const
 {
-	return 2; //from example (=
+	return 1; //from example (=
 }
 
 QModelIndex plugPackageModel::parent(const QModelIndex& child) const {
@@ -62,34 +62,45 @@ QVariant plugPackageModel::data(const QModelIndex& index, int role) const {
 		return QVariant();
 	plugPackageItem *node = nodeFromIndex(index);
 	if (index.column()==0)	{
-		return tr("package");
+		return node->item_name;
 		}
 	else if (index.column()==1) {
-		return node->item_name;
+		return QVariant();
 	}
 	return QVariant();
 }
 
+bool plugPackageModel::hasChildren(const QModelIndex& parent) const {
+return QAbstractItemModel::hasChildren(parent);
+}
+
+
 QVariant plugPackageModel::headerData(int section, Qt::Orientation orientation, int role) const {
-	return QAbstractItemModel::headerData(section, orientation, role);
+	if (role != Qt::DisplayRole)
+		return QVariant();
+	
+	if (orientation == Qt::Horizontal)
+		return tr("Installed packages");
+	else
+		return QString("Row %1").arg(section);
 }
 
 void plugPackageModel::addItem(const ItemData& item, const QString& name) {
-	if (item.type==group) {
-	}
 	plugPackageItem *category_node = m_category_nodes.value(item.packageItem.properties.value("type"));
 	if (!category_node) {
-		ItemData category_item = ItemData (group);
+		ItemData category_item = ItemData (group,QIcon());
 		category_node = new plugPackageItem (category_item,
 										item.packageItem.properties.value("type"));
  		m_category_nodes.insert(item.packageItem.properties.value("type"),category_node);
-		beginInsertRows(QModelIndex(), m_root_node->childrenCount(),m_root_node->childrenCount());
-		m_root_node->addChild(category_node, rowCount());
+		qDebug() << "root count:" << m_root_node->childrenCount();
+		beginInsertRows(QModelIndex(),m_root_node->childrenCount(),m_root_node->childrenCount());
+		m_root_node->addChild(category_node, m_root_node->childrenCount());
 		endInsertRows();
 	}
 	plugPackageItem *node = new plugPackageItem (item, name);
-	beginInsertRows(QModelIndex(),category_node->childrenCount(),category_node->childrenCount());
-	category_node->addChild(node,rowCount());
+	qDebug () << "category count" << category_node->childrenCount();
+	beginInsertRows(createIndex(category_node->childrenCount(), 0, category_node),category_node->childrenCount(),category_node->childrenCount());
+	category_node->addChild(node,category_node->childrenCount());
 	endInsertRows();
 }
 

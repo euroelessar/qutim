@@ -30,6 +30,7 @@ public:
 	QModelIndex index (	int row, int column,
 						const QModelIndex &parent) const;
 	QModelIndex parent (const QModelIndex &child) const;
+	bool hasChildren(const QModelIndex& parent = QModelIndex()) const;
 	int rowCount(const QModelIndex& parent = QModelIndex()) const;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const;
 	void addItem(const ItemData &item, const QString &name = "");

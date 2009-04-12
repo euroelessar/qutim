@@ -32,8 +32,6 @@ public:
     bool removePackage (QString name, QStringList& files);
     QString outPath; //папка, куда будут распаковываться архивы
 	void setProgressBar (QProgressBar *progressBar) {m_progressBar = progressBar;};
-public slots:
-	void install(QString); //готов для установки (то есть скачался)
 private:
     QString lastError;
     QStringList unpackArch (QString &inPath);
@@ -48,6 +46,7 @@ signals:
 	void error(QString);
 public slots:
 	void errorHandler(const QString &error);
+	void install(QString); //готов для установки (то есть скачался)
 };
 
 #endif // PLUGINSTALLER_H

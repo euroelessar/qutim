@@ -50,7 +50,7 @@ enum itemType {
 };
 
 struct ItemData {
-	ItemData(itemType type, quint32 id = 0,  QIcon icon = QIcon(), packageInfo packageItem = packageInfo());
+	ItemData(itemType type,  QIcon icon = QIcon() ,packageInfo packageItem = packageInfo(), quint32 id = 0);
 	ItemData();
 	packageInfo packageItem;
 	quint32 id; //!package id from packages.xml

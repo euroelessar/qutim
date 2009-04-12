@@ -1,8 +1,7 @@
 #include "plugmansettings.h"
 #include "plugxmlhandler.h"
 #include <QListWidgetItem>
-#include <pluginstaller.h>
-
+#include "pluginstaller.h"
 plugmanSettings::plugmanSettings(const QString &profile_name) 
 {
 	setupUi(this);
@@ -21,14 +20,14 @@ void plugmanSettings::getPackageList() {
 	plugXMLHandler plug_handler;
 	QHash<quint16, packageInfo> package_list= plug_handler.getPackageList();
 	QHash<quint16, packageInfo>::iterator it = package_list.begin();
+	plugPackageModel *model = new plugPackageModel();
+	model->setParent(this);
 	for (;it != package_list.end();it++) {
- 		QListWidgetItem *listitem = new QListWidgetItem(package_list[it.key()].properties["name"]);
-		listitem->setToolTip(package_list[it.key()].properties.value("shortdesc"));
-
-		listWidget->addItem(listitem);
-		;
+		ItemData item(buddy,QIcon(),package_list.value(it.key()),it.key());
+		model->addItem(item,item.packageItem.properties.value("name"));
 	}
-	
+	treeView->setModel(model);
+// 	treeView->update();
 	return;
 }
 
@@ -42,7 +41,6 @@ void plugmanSettings::on_installfromfileBtn_clicked() {
 }
 
 void plugmanSettings::updatePackageList() {
-	listWidget->clear();
 	getPackageList();
  	progressBar->setVisible(false);
 }

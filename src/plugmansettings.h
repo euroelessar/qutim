@@ -2,6 +2,7 @@
 #define PLUGMANSETTINGS_H
 #include "ui_settings.h"
 #include <QSettings>
+#include "plugpackagemodel.h"
 
 class plugmanSettings : public QWidget, Ui::plugmanSettings
 {
@@ -12,6 +13,7 @@ public:
 	void getPackageList();	
 private:
 	QString m_profile_name;
+	plugPackageModel *m_package_model;
 public slots:
 	void updatePackageList();
 private slots:

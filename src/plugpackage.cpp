@@ -17,7 +17,7 @@ QString packageInfo::toString() {
 	return QString();
 }
 
-ItemData::ItemData(itemType type, quint32 id, QIcon icon, packageInfo packageItem) {
+ItemData::ItemData(itemType type,  QIcon icon ,packageInfo packageItem, quint32 id) {
 	this->id = id;
 	this->type = type;
 	this->icon = icon;
@@ -27,3 +27,4 @@ ItemData::ItemData(itemType type, quint32 id, QIcon icon, packageInfo packageIte
 ItemData::ItemData() {
 
 }
+

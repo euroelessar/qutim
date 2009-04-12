@@ -25,9 +25,10 @@ class plugPackageItem
 {
 public:
 	plugPackageItem(const ItemData &data, const QString &name);
+	plugPackageItem();
 	~plugPackageItem();
 	void addChild(plugPackageItem* data, const int& id);
-	void removeChild(const QString &id, int number);
+	void removeChild(const int& id);
 	inline plugPackageItem *getChildData(const int &number) {return children.value(number, 0);};
 	inline int childrenCount() {return children.count();};
 	inline int indexOf(plugPackageItem *item) {return children.key(item, 0);};
