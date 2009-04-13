@@ -44,7 +44,7 @@ plugInstaller::~plugInstaller() {
 
 QStringList plugInstaller::unpackArch(const QString& inPath) {
 //
-
+	//FIXME need SANDBOX!
     UnZip uz;
     UnZip::ErrorCode ec = uz.openArchive(inPath);
     if (ec != UnZip::Ok) {
@@ -91,17 +91,17 @@ void plugInstaller::installFromFile(const QString& inPath) {
 	//FIXME переписать на регэкспах
 	QString name = inPath.section("/",-1).section(".",0,-2);
 // 	qDebug() << name;
-	if (collision_protect) {
-		CollisionProtect protect;
-		if (!protect.checkPackageName(name)) {
-			emit error("Exist name");
-			return;
-		}
-	}
 	if (!hasPackageInfo(inPath)) {
 		package_info.properties["name"] = name;
 		package_info.properties["type"] = "other";
 	}
+	if (collision_protect) {
+		CollisionProtect protect;
+		if (!protect.checkPackageName(package_info.properties["name"])) {
+			emit error("Exist name");
+			return;
+		}
+	}	
 	install(inPath);
 }
 
@@ -115,7 +115,7 @@ bool plugInstaller::hasPackageInfo(const QString& archPath) {
 	QStringList packFiles = uz.fileList();
 	if (!packFiles.contains("Pinfo.xml"))
 		return false;
-	QString tmp_path = outPath + "/plugman/cache/";
+	QString tmp_path = outPath + "/plugman/cache/"; //FIXME need SANDBOX!
 	uz.extractFile("Pinfo.xml",tmp_path);
 	if (ec != UnZip::Ok) {
 		lastError = tr ("Unable to extract archive");
@@ -123,9 +123,8 @@ bool plugInstaller::hasPackageInfo(const QString& archPath) {
 	}
 	plugXMLHandler handler;
 	tmp_path.append("Pinfo.xml");
-// 	qDebug () << tmp_path;
 	package_info = handler.getPackageInfo(tmp_path);
- 	//QFile::remove(tmp_path);
+ 	QFile::remove(tmp_path);
 	uz.closeArchive();
 	return true;
 }

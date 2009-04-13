@@ -7,7 +7,7 @@ plugmanSettings::plugmanSettings(const QString &profile_name)
 {
 	setupUi(this);
 	m_profile_name = profile_name;
-	connect(installfromfileBtn, SIGNAL(clicked()), this, SLOT(on_installfromfileBtn_clicked()));
+// 	connect(installfromfileBtn, SIGNAL(clicked()), this,  SIGNAL(installfromfileclick()));
 	progressBar->setVisible(false);
 	treeView->setModel(m_package_model);
 	getPackageList();
@@ -15,7 +15,7 @@ plugmanSettings::plugmanSettings(const QString &profile_name)
 
 plugmanSettings::~plugmanSettings()
 {
-	
+	delete(m_package_model);
 }
 
 void plugmanSettings::getPackageList() {

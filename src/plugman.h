@@ -34,7 +34,6 @@ private:
     QString m_account_name;
     plugmanSettings *settingswidget;
     TreeModelItem eventitem;
-//     plugInstaller *plug_install;
 private slots:
 	void on_installfromfileBtn_clicked();
 };
