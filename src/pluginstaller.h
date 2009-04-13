@@ -34,10 +34,11 @@ public:
 	void setProgressBar (QProgressBar *progressBar) {m_progressBar = progressBar;};
 private:
     QString lastError;
-    QStringList unpackArch (QString &inPath);
+    QStringList unpackArch (const QString &inPath);
+	bool hasPackageInfo (const QString &archPath);
 	bool collision_protect;
-	void installFromFile (QString &inPath);
-	void installFromXML (QString &inPath);
+	void installFromFile (const QString &inPath);
+	void installFromXML (const QString &inPath);
 	packageInfo package_info; //FIXME
 	QProgressBar *m_progressBar;
 	bool isValid (const packageInfo &package_info);

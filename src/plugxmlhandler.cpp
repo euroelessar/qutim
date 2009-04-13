@@ -188,26 +188,13 @@ packageInfo plugXMLHandler::getPackageInfo(const QString& filename) {
 	
 	QFile input(filename);
 	if (!input.open(QIODevice::ReadOnly)) {
-		//x3
+		qDebug() << "unable to open file";
 	}
 	if (!doc.setContent(&input)) {
-		// x3
+		qDebug() << "unable to set content";
 	}
 	input.close();
 	return createPackageInfoFromNode(doc.documentElement().firstChild());
-}
-
-QHash< quint16, packageInfo > plugXMLHandler::getPackageList() {
-	QDomDocument doc_root;
-	QFile input(package_db_path);
-	if (!input.open(QIODevice::ReadOnly)) {
-		//x3
-	}
-	if (!doc_root.setContent(&input)) {
-		// x3
-	}
-	input.close();
-	return createPackageList(doc_root);
 }
 
 packageInfo plugXMLHandler::getPackageInfo(const QUrl& url) {
@@ -229,6 +216,26 @@ packageInfo plugXMLHandler::getPackageInfo(const int id) {
 	//return createPackageInfoFromNode(doc.elementById(QString::number(id)));
 }
 
+packageInfo plugXMLHandler::getPackageInfo(const QByteArray& content) {
+	QDomDocument root;
+	if (!root.setContent(content)) 
+		return packageInfo();
+	return createPackageInfoFromNode(root.documentElement().firstChild());
+}
+
+
+QHash< quint16, packageInfo > plugXMLHandler::getPackageList() {
+	QDomDocument doc_root;
+	QFile input(package_db_path);
+	if (!input.open(QIODevice::ReadOnly)) {
+		//x3
+	}
+	if (!doc_root.setContent(&input)) {
+		// x3
+	}
+	input.close();
+	return createPackageList(doc_root);
+}
 
 bool plugXMLHandler::isValid(QDomDocument doc) {
 	return true;
@@ -260,7 +267,6 @@ QSet< QString > plugXMLHandler::getPackageNames() {
 	QSet<QString> names;
 	while (!n.isNull()) {
 		QDomElement e = n.toElement(); // try to convert the node to an element.
-		qDebug () << e.firstChildElement("name").text();
 		names.insert(e.firstChildElement("name").text());
 		n = n.nextSibling();
 	}	

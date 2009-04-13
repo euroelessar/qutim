@@ -58,6 +58,10 @@ public:
     /*!
     получаем необходимую инфу установщика из файла
     */
+	packageInfo getPackageInfo (const QByteArray &content);
+	/*!
+	получаем необходимую инфу установщика из QByteArray
+	*/	
     packageInfo getPackageInfo (const QUrl &url);
     /*!
     получаем необходимую инфу установщика из интернета (x3)

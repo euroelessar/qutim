@@ -2,12 +2,14 @@
 #include "plugxmlhandler.h"
 #include <QListWidgetItem>
 #include "pluginstaller.h"
-plugmanSettings::plugmanSettings(const QString &profile_name) 
+plugmanSettings::plugmanSettings(const QString &profile_name)
+: m_package_model(new plugPackageModel)
 {
 	setupUi(this);
 	m_profile_name = profile_name;
-	connect(installfromfileBtn, SIGNAL(clicked()), this,  SIGNAL(installfromfileclick()));
+	connect(installfromfileBtn, SIGNAL(clicked()), this, SLOT(on_installfromfileBtn_clicked()));
 	progressBar->setVisible(false);
+	treeView->setModel(m_package_model);
 	getPackageList();
 }
 
@@ -18,16 +20,13 @@ plugmanSettings::~plugmanSettings()
 
 void plugmanSettings::getPackageList() {
 	plugXMLHandler plug_handler;
+	m_package_model->clear();
 	QHash<quint16, packageInfo> package_list= plug_handler.getPackageList();
 	QHash<quint16, packageInfo>::iterator it = package_list.begin();
-	plugPackageModel *model = new plugPackageModel();
-	model->setParent(this);
 	for (;it != package_list.end();it++) {
 		ItemData item(buddy,QIcon(),package_list.value(it.key()),it.key());
-		model->addItem(item,item.packageItem.properties.value("name"));
+		m_package_model->addItem(item,item.packageItem.properties.value("name"));
 	}
-	treeView->setModel(model);
-// 	treeView->update();
 	return;
 }
 

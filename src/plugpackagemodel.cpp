@@ -10,11 +10,11 @@ plugPackageModel::~plugPackageModel() {
 	delete(m_root_node);
 }
 
-void plugPackageModel::setRootNode(plugPackageItem* plug_package_item) {
-	delete(m_root_node);
-	m_root_node = plug_package_item;
-	reset();
-}
+// void plugPackageModel::setRootNode(plugPackageItem* plug_package_item) {
+// 	reset();
+// 	delete(m_root_node);
+// 	m_root_node = plug_package_item;
+// }
 
 QModelIndex plugPackageModel::index(int row, int column, const QModelIndex& parent) const {
 	if (!m_root_node)
@@ -96,11 +96,20 @@ void plugPackageModel::addItem(const ItemData& item, const QString& name) {
 		beginInsertRows(QModelIndex(),m_root_node->childrenCount(),m_root_node->childrenCount());
 		m_root_node->addChild(category_node, m_root_node->childrenCount());
 		endInsertRows();
+		qDebug() << m_root_node->childrenCount();
 	}
 	plugPackageItem *node = new plugPackageItem (item, name);
 	qDebug () << "category count" << category_node->childrenCount();
 	beginInsertRows(createIndex(category_node->childrenCount(), 0, category_node),category_node->childrenCount(),category_node->childrenCount());
 	category_node->addChild(node,category_node->childrenCount());
 	endInsertRows();
+}
+
+void plugPackageModel::clear() {
+	qDebug () << "clear";
+	reset();
+	delete(m_root_node);
+	m_category_nodes.clear();
+ 	m_root_node = new plugPackageItem;
 }
 

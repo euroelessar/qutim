@@ -32,7 +32,8 @@ plugInstaller::plugInstaller()
 	collision_protect = settings.value("collisionprotect",true).toBool();
 	settings.endGroup();
     outPath = settings.fileName().section("/",0,-2);
-    qDebug() << outPath;
+	QDir dir;
+	dir.mkpath(outPath + "/plugman/cache");
 // 	connect (this,SIGNAL(finished()),this,SLOT(deleteLater())); // в случае завершения установки обьект может быть удалён
 	connect (this,SIGNAL(error(QString)),this,SLOT(errorHandler(QString))); //в случае ошибки вызывается этот класс
 }
@@ -41,7 +42,7 @@ plugInstaller::~plugInstaller() {
 	
 }
 
-QStringList plugInstaller::unpackArch(QString& inPath) {
+QStringList plugInstaller::unpackArch(const QString& inPath) {
 //
 
     UnZip uz;
@@ -63,7 +64,8 @@ QStringList plugInstaller::unpackArch(QString& inPath) {
         return QStringList();
     }
     uz.closeArchive(); // Close the zip file and free used resources
-    qDebug() << "Unpack archive:" << outPath;
+//     qDebug() << "Unpack archive:" << outPath;
+	QFile::remove(outPath+"/Pinfo.xml");
 	m_progressBar->setValue(75);
     return packFiles;
 }
@@ -85,10 +87,10 @@ void plugInstaller::installPackage() {
 }
 
 
-void plugInstaller::installFromFile(QString& inPath) {
+void plugInstaller::installFromFile(const QString& inPath) {
 	//FIXME переписать на регэкспах
 	QString name = inPath.section("/",-1).section(".",0,-2);
-	qDebug() << name;
+// 	qDebug() << name;
 	if (collision_protect) {
 		CollisionProtect protect;
 		if (!protect.checkPackageName(name)) {
@@ -96,12 +98,40 @@ void plugInstaller::installFromFile(QString& inPath) {
 			return;
 		}
 	}
-	package_info.properties["name"] = name;
-	package_info.properties["type"] = "other";
+	if (!hasPackageInfo(inPath)) {
+		package_info.properties["name"] = name;
+		package_info.properties["type"] = "other";
+	}
 	install(inPath);
 }
 
-void plugInstaller::installFromXML(QString& inPath) {
+bool plugInstaller::hasPackageInfo(const QString& archPath) {
+	UnZip uz;
+	UnZip::ErrorCode ec = uz.openArchive(archPath);
+	if (ec != UnZip::Ok) {
+		lastError = tr("Unable to open archive");
+		return false;
+	}
+	QStringList packFiles = uz.fileList();
+	if (!packFiles.contains("Pinfo.xml"))
+		return false;
+	QString tmp_path = outPath + "/plugman/cache/";
+	uz.extractFile("Pinfo.xml",tmp_path);
+	if (ec != UnZip::Ok) {
+		lastError = tr ("Unable to extract archive");
+		return false;
+	}
+	plugXMLHandler handler;
+	tmp_path.append("Pinfo.xml");
+// 	qDebug () << tmp_path;
+	package_info = handler.getPackageInfo(tmp_path);
+ 	//QFile::remove(tmp_path);
+	uz.closeArchive();
+	return true;
+}
+
+
+void plugInstaller::installFromXML(const QString& inPath) {
 	plugXMLHandler plug_handler;
     plugDownloader *plug_loader = new plugDownloader;
 	plug_loader->setProgressbar(m_progressBar);
@@ -116,6 +146,8 @@ void plugInstaller::installFromXML(QString& inPath) {
 			emit error("Exist name");
 			return;
 		}
+		if (!protect.checkPackageFiles(package_info.files))
+			return;
 	}	
     connect(plug_loader,SIGNAL(downloadFinished(QString)),this,SLOT(install(QString)));
 	if (!isValid(package_info));
@@ -131,7 +163,7 @@ void plugInstaller::install(QString inPath) {
 	m_progressBar->setValue(50);
 	package_info.files = unpackArch(inPath);
 	plugXMLHandler plug_handler;
-	m_progressBar->setValue(100);	
+	m_progressBar->setValue(100);
 	plug_handler.registerPackage(package_info);
 	deleteLater();
 }

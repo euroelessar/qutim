@@ -33,9 +33,6 @@ void plugDownloader::startDownload(const downloaderItem &downloadItem)
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache", "plugman");
     outPath = settings.fileName().section("/",0,-2)+"/";
     output.setFileName(outPath+downloadItem.filename);
-	QDir dir;
-	if (!dir.exists(outPath))
-		dir.mkpath(outPath);
     if (!output.open(QIODevice::WriteOnly)) {
 // 		lastError = tr("Problem opening save file '%s' for download '%s': %s\n",
 // 				 qPrintable(filename), m_item.url.toEncoded().constData(),
