@@ -58,14 +58,16 @@ QModelIndex plugPackageModel::parent(const QModelIndex& child) const {
 }
 
 QVariant plugPackageModel::data(const QModelIndex& index, int role) const {
-	if (role != Qt::DisplayRole)
-		return QVariant();
 	plugPackageItem *node = nodeFromIndex(index);
 	if (index.column()==0)	{
-		return node->item_name;
+		switch(role) {
+			case Qt::DisplayRole:
+				return node->item_name;
+			case Qt::DecorationRole:
+				return node->getItemData()->icon;
+			default:
+				return QVariant();
 		}
-	else if (index.column()==1) {
-		return QVariant();
 	}
 	return QVariant();
 }
@@ -80,7 +82,7 @@ QVariant plugPackageModel::headerData(int section, Qt::Orientation orientation, 
 		return QVariant();
 	
 	if (orientation == Qt::Horizontal)
-		return tr("Installed packages");
+		return tr("Packages");
 	else
 		return QString("Row %1").arg(section);
 }
@@ -92,17 +94,18 @@ void plugPackageModel::addItem(const ItemData& item, const QString& name) {
 		category_node = new plugPackageItem (category_item,
 										item.packageItem.properties.value("type"));
  		m_category_nodes.insert(item.packageItem.properties.value("type"),category_node);
-		qDebug() << "root count:" << m_root_node->childrenCount();
+// 		qDebug() << "root count:" << m_root_node->childrenCount();
 		beginInsertRows(QModelIndex(),m_root_node->childrenCount(),m_root_node->childrenCount());
 		m_root_node->addChild(category_node, m_root_node->childrenCount());
 		endInsertRows();
-		qDebug() << m_root_node->childrenCount();
+// 		qDebug() << m_root_node->childrenCount();
 	}
 	plugPackageItem *node = new plugPackageItem (item, name);
-	qDebug () << "category count" << category_node->childrenCount();
+// 	qDebug () << "category count" << category_node->childrenCount();
 	beginInsertRows(createIndex(category_node->childrenCount(), 0, category_node),category_node->childrenCount(),category_node->childrenCount());
 	category_node->addChild(node,category_node->childrenCount());
 	endInsertRows();
+	m_packages.append(node);
 }
 
 void plugPackageModel::clear() {

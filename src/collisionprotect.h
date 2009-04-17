@@ -24,10 +24,12 @@ class CollisionProtect : public QObject
 {
 Q_OBJECT
 public:
-	CollisionProtect();
+	CollisionProtect(const QString &prefix = QString ());
 	bool checkPackageFiles(QStringList &files); 
 	bool checkPackageName(QString &name);
  	/*!true - нет столкновений, false - есть столкновения*/
+private:
+	QString prefix;
 };
 
 #endif // COLLISIONPROTECT_H

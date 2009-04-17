@@ -1,7 +1,12 @@
 <RCC>
   <qresource prefix="/" >
+    <file>icons/hi64-action-package.png</file>
+    <file>icons/hi64-action-configure.png</file>
+    <file>icons/update-all.png</file>
+    <file>icons/revert.png</file>
     <file>icons/plugin.png</file>
-    <file>icons/internet.png</file>
     <file>icons/open.png</file>
+    <file>icons/internet.png</file>
+    <file>icons/find.png</file>
   </qresource>
 </RCC>

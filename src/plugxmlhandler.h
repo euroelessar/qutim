@@ -33,21 +33,6 @@ class plugXMLHandler : public QObject
 {
     Q_OBJECT
 public:
-//     struct packageInfo {
-//         packageInfo ();
-//         packageInfo  (QString name,
-//                       QStringList packageFiles,
-//                       QString type = "other",
-//                       QString description = "Unknown package",
-//                       QString author = "Unknown author",
-//                       QString licence = "Unknown licence"
-//                                         //недописанный конструктор
-//                      );
-// 		QString toString(); //! x3
-//         //предварительный вариант необходимой инфы о пакете
-//         QHash<QString,QString> properties;
-//         QStringList files; //установленные файлы
-//     };
     plugXMLHandler ();
     ~plugXMLHandler ();
     bool registerPackage (const packageInfo &package_info);
@@ -100,6 +85,7 @@ private:
     */
     bool isValid (QDomDocument doc); //! защита от дураков и ССЗБ
 	QStringList createFilesList (QDomNode n); //!создаем список файлов, принадлежащих пакету
+// 	QSet<QString> createFilesSet (const QDomNode &n); 
 	QString package_db_path; //installed package database path
 	int globalCount;
 signals:

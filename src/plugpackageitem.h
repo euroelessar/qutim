@@ -30,6 +30,7 @@ public:
 	void addChild(plugPackageItem* data, const int& id);
 	void removeChild(const int& id);
 	inline plugPackageItem *getChildData(const int &number) {return children.value(number, 0);};
+	inline ItemData *getItemData () {return &item_data;};
 	inline int childrenCount() {return children.count();};
 	inline int indexOf(plugPackageItem *item) {return children.key(item, 0);};
 	plugPackageItem *getParent () {return parent;};

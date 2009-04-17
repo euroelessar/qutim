@@ -95,6 +95,7 @@ QStringList plugXMLHandler::createFilesList(QDomNode n) {
 	return files;
 }
 
+
 QHash< quint16, packageInfo > plugXMLHandler::createPackageList(const QDomDocument& root) {
 
 	QDomElement packages = root.documentElement();
@@ -269,9 +270,10 @@ QSet< QString > plugXMLHandler::getPackageNames() {
 		QDomElement e = n.toElement(); // try to convert the node to an element.
 		names.insert(e.firstChildElement("name").text());
 		n = n.nextSibling();
-	}	
+	}
 	return names;
 }
+
 
 
 

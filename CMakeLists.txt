@@ -49,6 +49,7 @@ INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 add_subdirectory (libs)
 
 SET (QT_HEADERS
+	src/plugitemdelegate.h
 	src/collisionprotect.h
 	src/plugman.h
 	src/plugmansettings.h
@@ -63,7 +64,8 @@ SET(HEADERS
 ${QT_HEADERS}
 )
 
-SET (SOURCES 
+SET (SOURCES
+	src/plugitemdelegate.cpp
 	src/collisionprotect.cpp 
 	src/plugxmlhandler.cpp
 	src/plugman.cpp

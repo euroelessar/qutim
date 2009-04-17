@@ -11,6 +11,7 @@ plugmanSettings::plugmanSettings(const QString &profile_name)
 	progressBar->setVisible(false);
 	treeView->setModel(m_package_model);
 	getPackageList();
+	treeView->expandAll();
 }
 
 plugmanSettings::~plugmanSettings()
@@ -24,7 +25,7 @@ void plugmanSettings::getPackageList() {
 	QHash<quint16, packageInfo> package_list= plug_handler.getPackageList();
 	QHash<quint16, packageInfo>::iterator it = package_list.begin();
 	for (;it != package_list.end();it++) {
-		ItemData item(buddy,QIcon(),package_list.value(it.key()),it.key());
+		ItemData item(buddy,QIcon(":/icons/hi64-action-package.png"),package_list.value(it.key()),it.key());
 		m_package_model->addItem(item,item.packageItem.properties.value("name"));
 	}
 	return;
@@ -34,6 +35,7 @@ void plugmanSettings::on_installfromfileBtn_clicked() {
 	plugInstaller *plug_install = new plugInstaller;
 	plug_install->setParent(this);
 	plug_install->setProgressBar(progressBar);
+// 	progressBar->setFormat(tr("Install package : %p%"));
 	plug_install->installPackage();
 // 	connect(plug_install,SIGNAL(finished()),this,SLOT(updatePackageList()));
 	connect(plug_install,SIGNAL(destroyed(QObject*)),this,SLOT(updatePackageList()));

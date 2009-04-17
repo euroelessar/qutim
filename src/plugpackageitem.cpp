@@ -16,14 +16,14 @@ plugPackageItem::plugPackageItem()
 
 
 plugPackageItem::~plugPackageItem() {
-	qDebug() << "delete :" << this->children;
+// 	qDebug() << "delete :" << this->children;
 	qDeleteAll(children);
 }
 
 void plugPackageItem::addChild(plugPackageItem *data, const int& id) {
 	data->parent = this;
 	children.insert(id,data);
-	qDebug () << "add child:" << children;
+// 	qDebug () << "add child:" << children;
 }
 
 void plugPackageItem::removeChild(const int& id) {

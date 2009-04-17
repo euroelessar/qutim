@@ -31,9 +31,9 @@ plugInstaller::plugInstaller()
 	settings.beginGroup("features");
 	collision_protect = settings.value("collisionprotect",true).toBool();
 	settings.endGroup();
-    outPath = settings.fileName().section("/",0,-2);
+    outPath = settings.fileName().section("/",0,-2) + "/";
 	QDir dir;
-	dir.mkpath(outPath + "/plugman/cache");
+	dir.mkpath(outPath + "plugman/cache");
 // 	connect (this,SIGNAL(finished()),this,SLOT(deleteLater())); // в случае завершения установки обьект может быть удалён
 	connect (this,SIGNAL(error(QString)),this,SLOT(errorHandler(QString))); //в случае ошибки вызывается этот класс
 }
@@ -53,7 +53,7 @@ QStringList plugInstaller::unpackArch(const QString& inPath) {
     }
     QStringList packFiles = uz.fileList();
 	if (collision_protect) {
-		CollisionProtect protect;
+		CollisionProtect protect(outPath);
 		if (!protect.checkPackageFiles(packFiles))
 			return QStringList();
 		}
@@ -65,6 +65,9 @@ QStringList plugInstaller::unpackArch(const QString& inPath) {
     }
     uz.closeArchive(); // Close the zip file and free used resources
 //     qDebug() << "Unpack archive:" << outPath;
+	//FIXME Костыль
+	//TODO дописать в osdabzip возможность удалять файлы прямо из архива.
+	packFiles.removeOne("Pinfo.xml");
 	QFile::remove(outPath+"/Pinfo.xml");
 	m_progressBar->setValue(75);
     return packFiles;
@@ -96,7 +99,7 @@ void plugInstaller::installFromFile(const QString& inPath) {
 		package_info.properties["type"] = "other";
 	}
 	if (collision_protect) {
-		CollisionProtect protect;
+		CollisionProtect protect(outPath);
 		if (!protect.checkPackageName(package_info.properties["name"])) {
 			emit error("Exist name");
 			return;
@@ -140,7 +143,7 @@ void plugInstaller::installFromXML(const QString& inPath) {
 		return;
 	}
 	if (collision_protect) {
-		CollisionProtect protect;
+		CollisionProtect protect(outPath);
 		if (!protect.checkPackageName(package_info.properties["name"])) {
 			emit error("Exist name");
 			return;
@@ -161,9 +164,14 @@ void plugInstaller::install(QString inPath) {
 	//FIXME
 	m_progressBar->setValue(50);
 	package_info.files = unpackArch(inPath);
+	if (package_info.files.isEmpty()) {
+		emit error(tr("Unable to install package"));
+		return;
+	}
 	plugXMLHandler plug_handler;
 	m_progressBar->setValue(100);
 	plug_handler.registerPackage(package_info);
+	m_progressBar->setVisible(false);
 	deleteLater();
 }
 

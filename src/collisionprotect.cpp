@@ -17,16 +17,22 @@
 #include "collisionprotect.h"
 #include "plugxmlhandler.h"
 #include <QSet>
+#include <QFileInfo>
 
-CollisionProtect::CollisionProtect() {
 
+CollisionProtect::CollisionProtect(const QString& prefix) {
+	this->prefix = prefix;
 }
 
 
 bool CollisionProtect::checkPackageFiles(QStringList& files) {
-	QSet<QString> filesSet = files.toSet();
-	QSet<QString> installedFilesSet;
-	return filesSet.intersect(installedFilesSet).isEmpty();
+	foreach (QString value,files) {
+		QString file = prefix + value;
+		QFileInfo info (file);
+		if (!info.isDir()&&info.exists()) 
+			return false;
+	}
+	return true;
 }
 
 bool CollisionProtect::checkPackageName(QString& name) {
