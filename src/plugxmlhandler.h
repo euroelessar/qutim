@@ -77,7 +77,7 @@ private:
     @param doc - x3
     */
 	QHash<quint16, packageInfo> createPackageList (const QDomDocument& root);
-    bool updateGlobalCount (); //!увеличиает количество пакетов на 1 при добавлении и уменьшаяет на 1 при удалении
+    void updateGlobalCount (); //!увеличиает количество пакетов на 1 при добавлении и уменьшаяет на 1 при удалении
     bool rebuildGlobalCount (); //!более брутальный способ, применять при ошибках
     bool updatePackageId (int begin_id = 0);
     /*!при удалении пакета, номера вслед за ним идущих должны быть пересчитаны

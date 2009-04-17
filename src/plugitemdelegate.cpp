@@ -22,7 +22,7 @@ plugItemDelegate::plugItemDelegate(QObject* parent) {
 
 
 QSize plugItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const {
-
+	return QSize();
 }
 
 void plugItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
@@ -30,7 +30,7 @@ void plugItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 }
 
 QWidget* plugItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-
+	return new QWidget;
 }
 
 void plugItemDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const {

@@ -214,7 +214,7 @@ packageInfo plugXMLHandler::getPackageInfo(const int id) {
 	}
 	input.close();
 	
-	//return createPackageInfoFromNode(doc.elementById(QString::number(id)));
+	return packageInfo();
 }
 
 packageInfo plugXMLHandler::getPackageInfo(const QByteArray& content) {
@@ -242,7 +242,7 @@ bool plugXMLHandler::isValid(QDomDocument doc) {
 	return true;
 }
 
-bool plugXMLHandler::updateGlobalCount() {
+void plugXMLHandler::updateGlobalCount() {
 	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
 	settings.beginGroup("global");
 	settings.setValue("count",globalCount);
