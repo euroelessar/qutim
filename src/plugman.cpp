@@ -9,10 +9,9 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
     qRegisterMetaType<TreeModelItem> ( "TreeModelItem" );
 
     PluginInterface::init ( plugin_system );
-    plug_icon = new QIcon ( ":/icons/plugin.png" );
-    download_icon = QIcon ( ":/icons/open.png");
     m_plugin_system = plugin_system;
     TreeModelItem contact;
+	plugManager *m_plug_manager = new plugManager ();	
 	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman"); //костыль
     QString outPath = settings.fileName().section("/",0,-2)+"/";
 	QDir dir;
@@ -34,16 +33,20 @@ void plugMan::processEvent ( PluginEvent  &event)
 
 QWidget *plugMan::settingsWidget()
 {
-	settingswidget = new plugmanSettings(m_profile_name);
+	settingswidget = new plugmanSettings(m_profile_name,m_plug_manager);
     return settingswidget;
 }
 
 void plugMan::setProfileName ( const QString &profile_name )
 {
 	//FIXME костыль!!!
-	plug_action = new QAction(download_icon,tr("Install package from file"),this);
-	m_plugin_system->registerMainMenuAction(plug_action);
-	connect(plug_action, SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
+	m_actions.insert("install", new QAction(QIcon ( ":/icons/open.png" ),tr("Install package from file"),this));
+	m_plugin_system->registerMainMenuAction(m_actions.value("install"));
+	connect(m_actions.value("install"), SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
+	
+// 	m_actions.insert("manager", new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this));
+// 	m_plugin_system->registerMainMenuAction(m_actions.value("manager"));
+// 	connect(m_actions.value("manager"), SIGNAL(triggered()), this, SLOT(on_managerBtn_clicked()));
     m_profile_name = profile_name;
 }
 
@@ -59,7 +62,7 @@ QString plugMan::description()
 
 QIcon *plugMan::icon()
 {
-    return plug_icon;
+	return new QIcon (":/icons/plugin.png");
 }
 
 QString plugMan::type()
@@ -85,6 +88,15 @@ void plugMan::on_installfromfileBtn_clicked()
 	plug_install->setProgressBar(new QProgressBar);
 	plug_install->installPackage();
 }
+
+void plugMan::on_managerBtn_clicked() {
+// 	m_plug_manager->show();
+}
+
+plugMan::~plugMan() {
+
+}
+
 
 Q_EXPORT_PLUGIN2 ( plugman,plugMan );
 

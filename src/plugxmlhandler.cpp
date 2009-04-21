@@ -225,9 +225,11 @@ packageInfo plugXMLHandler::getPackageInfo(const QByteArray& content) {
 }
 
 
-QHash< quint16, packageInfo > plugXMLHandler::getPackageList() {
+QHash< quint16, packageInfo > plugXMLHandler::getPackageList(QString path) {
 	QDomDocument doc_root;
-	QFile input(package_db_path);
+	if (path.isNull())
+		path = package_db_path;
+	QFile input(path);
 	if (!input.open(QIODevice::ReadOnly)) {
 		//x3
 	}

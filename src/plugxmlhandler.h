@@ -55,9 +55,9 @@ public:
     /*!
     получаем из файла package.xml инфу о пакете с id
     */	
-	QHash<quint16, packageInfo> getPackageList ();
+	QHash<quint16, packageInfo> getPackageList (QString path = QString::null);
     /*!
-    получаем из файла package.xml инфу обо всех установленных пакетах
+	получаем из файла инфу обо всех установленных пакетах (по умолчанию package.xml)
     */
 	QSet<QString> getPackageNames ();
 private:

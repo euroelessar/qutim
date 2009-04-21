@@ -3,6 +3,7 @@
 #include <qutim/plugininterface.h>
 #include "pluginstaller.h"
 #include "plugmansettings.h"
+#include "plugmanager.h"
 
 //Менеджер тем оформления и плагинов
 
@@ -15,6 +16,7 @@ class plugMan : public QObject, SimplePluginInterface
 public:
     bool init ( PluginSystemInterface *plugin_system ); //инициализация нашего плагина
     void release();
+	~plugMan();
 
     virtual void processEvent ( PluginEvent &event );
     virtual QWidget *settingsWidget(); //указатель для настройки
@@ -26,15 +28,15 @@ public:
     virtual void removeSettingsWidget();
     virtual void saveSettings();
 private:
-    QIcon *plug_icon;
-    QIcon download_icon;
-    QAction *plug_action;
+	QHash<QString, QAction *> m_actions;
     PluginSystemInterface *m_plugin_system;
+	plugManager *m_plug_manager;
     QString m_profile_name;
     QString m_account_name;
     plugmanSettings *settingswidget;
     TreeModelItem eventitem;
 private slots:
 	void on_installfromfileBtn_clicked();
+	void on_managerBtn_clicked();
 };
 #endif

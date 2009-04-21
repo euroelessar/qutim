@@ -2,16 +2,15 @@
 #include "plugxmlhandler.h"
 #include <QListWidgetItem>
 #include "pluginstaller.h"
-plugmanSettings::plugmanSettings(const QString &profile_name)
+#include <QDebug>
+plugmanSettings::plugmanSettings(const QString &profile_name, plugManager *plug_manager)
 : m_package_model(new plugPackageModel)
 {
+// 	m_plug_manager = plug_manager;
+	m_plug_manager = new plugManager ();
 	setupUi(this);
 	m_profile_name = profile_name;
-// 	connect(installfromfileBtn, SIGNAL(clicked()), this,  SIGNAL(installfromfileclick()));
-	progressBar->setVisible(false);
-	treeView->setModel(m_package_model);
-	getPackageList();
-	treeView->expandAll();
+	PackagesTab->layout()->addWidget(m_plug_manager); 
 }
 
 plugmanSettings::~plugmanSettings()
@@ -31,17 +30,15 @@ void plugmanSettings::getPackageList() {
 	return;
 }
 
-void plugmanSettings::on_installfromfileBtn_clicked() {
-	plugInstaller *plug_install = new plugInstaller;
-	plug_install->setParent(this);
-	plug_install->setProgressBar(progressBar);
-// 	progressBar->setFormat(tr("Install package : %p%"));
-	plug_install->installPackage();
-// 	connect(plug_install,SIGNAL(finished()),this,SLOT(updatePackageList()));
-	connect(plug_install,SIGNAL(destroyed(QObject*)),this,SLOT(updatePackageList()));
-}
-
 void plugmanSettings::updatePackageList() {
 	getPackageList();
- 	progressBar->setVisible(false);
+	m_plug_manager->progressBar->setVisible(false);
+}
+
+plugManager* plugmanSettings::getPlugManager() {
+	return m_plug_manager;
+}
+
+void plugmanSettings::setPlugManager(plugManager* plug_manager) {
+	m_plug_manager = plug_manager;
 }

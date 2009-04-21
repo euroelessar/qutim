@@ -49,6 +49,9 @@ INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 add_subdirectory (libs)
 
 SET (QT_HEADERS
+	src/mirror.h
+	src/plugpackagehandler.h
+	src/plugmanager.h
 	src/plugitemdelegate.h
 	src/collisionprotect.h
 	src/plugman.h
@@ -65,6 +68,9 @@ ${QT_HEADERS}
 )
 
 SET (SOURCES
+	src/mirror.cpp
+	src/plugpackagehandler.cpp
+	src/plugmanager.cpp
 	src/plugitemdelegate.cpp
 	src/collisionprotect.cpp 
 	src/plugxmlhandler.cpp
@@ -83,6 +89,7 @@ SET (RESOURCES
 
 SET (FORMS
 	ui/settings.ui
+	ui/manager.ui
 )
 
 QT4_WRAP_CPP (MOC_SRCS ${QT_HEADERS})
