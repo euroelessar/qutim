@@ -51,7 +51,7 @@ void plugDownloader::startDownload(const downloaderItem &downloadItem)
             SLOT(downloadReadyRead()));
 
     // prepare the output
-    m_progressBar->setStatusTip(tr("Downloading %s...\n", downloadItem.url.toEncoded().constData()));
+    m_progressBar->setFormat(tr("Downloading: %p%"));
     downloadTime.start();
 }
 

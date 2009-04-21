@@ -153,7 +153,7 @@ void plugInstaller::installFromXML(const QString& inPath) {
 	}	
     connect(plug_loader,SIGNAL(downloadFinished(QString)),this,SLOT(install(QString)));
 	if (!isValid(package_info));
-    plug_loader->startDownload(plugDownloader::downloaderItem(package_info.properties["url"],
+    plug_loader->startDownload(downloaderItem(package_info.properties["url"],
 															  package_info.properties["name"]
 															  +"-"+package_info.properties["version"]
 															  +".zip")

@@ -17,6 +17,11 @@ QString packageInfo::toString() {
 	return QString();
 }
 
+bool packageInfo::isValid() {
+	return true;
+}
+
+
 ItemData::ItemData(itemType type,  QIcon icon ,packageInfo packageItem, quint32 id) {
 	this->id = id;
 	this->type = type;

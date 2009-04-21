@@ -25,6 +25,8 @@ plugManager::plugManager(QWidget* parent)
 	progressBar->setVisible(false);
 	treeView->setModel(m_package_model);
 	
+// 	treeView->setItemDelegate();
+	
     QMenu *menu = new QMenu(tr("Actions"),this);
 	m_actions.append(new QAction(QIcon(":/icons/open.png"),tr("Install package from file"),this));
 	connect(m_actions.at(0),SIGNAL(triggered(bool)),this,SLOT(installFromFile()));
@@ -56,6 +58,6 @@ void plugManager::installFromFile() {
 void plugManager::updatePackageList() {
 	m_package_model->clear();
 	plugPackageHandler plug_package_handler (m_package_model);
-	plug_package_handler.getInstalledPackageList();
+	plug_package_handler.getPackageList();
 	progressBar->setVisible(false);
 }

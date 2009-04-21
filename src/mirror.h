@@ -15,6 +15,7 @@
 */
 #include <QString>
 #include <QUrl>
+#include <QProgressBar>
 
 #ifndef MIRROR_H
 #define MIRROR_H
@@ -26,6 +27,20 @@ struct mirrorInfo
 	QString name;
 	QUrl url;
 	QString platform;
+};
+
+class mirrors : public QObject
+{
+Q_OBJECT
+public:
+	mirrors(QProgressBar *progress_bar,QObject *parent);
+	~mirrors();
+	void updatePackagesCache (); //!update packages cache file
+private:
+	QList<mirrorInfo> readMirrorList();
+	QList<mirrorInfo> mirror_list;
+	QString platform; //TODO спросить у Элесара, как её выдернуть из автоопределия платформы Кутима
+	QProgressBar *m_progress_bar;
 };
 
 #endif // MIRROR_H

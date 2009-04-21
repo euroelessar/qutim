@@ -27,7 +27,6 @@ Q_OBJECT
 public:
 	plugPackageHandler(plugPackageModel * plug_package_model,QObject *parent = 0);
 	~plugPackageHandler();
-	void getInstalledPackageList();
 	void getPackageList();
 	void setPlugPackageModel (plugPackageModel * plug_package_model);
 private:

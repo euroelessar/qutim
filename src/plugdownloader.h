@@ -22,16 +22,17 @@ Boston, MA 02110-1301, USA.
 #ifndef DOWNLOADER_H
 #define DOWNLOADER_H
 
+struct downloaderItem
+{
+	downloaderItem (QUrl m_url, QString m_filename) {url=m_url;filename=m_filename;};
+	QUrl url; //url, с которой качаем
+	QString filename; //имя файла, под которым сохраняем
+};
+
 class plugDownloader: public QObject
 {
     Q_OBJECT
 public:
-    struct downloaderItem
-    {
-		downloaderItem (QUrl m_url, QString m_filename) {url=m_url;filename=m_filename;};
-        QUrl url; //url, с которой качаем
-        QString filename; //имя файла, под которым сохраняем
-    };
     plugDownloader (QObject *parent = 0);
     ~plugDownloader ();
     void startDownload(const downloaderItem &downloadItem);

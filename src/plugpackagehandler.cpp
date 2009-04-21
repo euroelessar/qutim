@@ -27,12 +27,14 @@ plugPackageHandler::~plugPackageHandler() {
 
 }
 
-void plugPackageHandler::getInstalledPackageList() {
+void plugPackageHandler::getPackageList() {
 	plugXMLHandler plug_handler;
 	QHash<quint16, packageInfo> package_list= plug_handler.getPackageList();
 	updatePlugPackageModel(package_list);
 	return;
 }
+
+
 
 void plugPackageHandler::setPlugPackageModel(plugPackageModel* plug_package_model) {
 	m_plug_package_model = plug_package_model;

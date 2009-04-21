@@ -31,6 +31,7 @@ struct packageInfo {
 				   QString licence = "Unknown licence"
 				   //недописанный конструктор
 				   );
+	bool isValid();
 	//предварительный вариант необходимой инфы о пакете
 	QHash<QString,QString> properties;
 	QHash<QString,QString> dependencyList; //!new stuff from EuroElessar
