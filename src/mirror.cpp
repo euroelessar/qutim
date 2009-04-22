@@ -33,7 +33,7 @@ mirrors::mirrors(QProgressBar *progress_bar,QObject *parent)
 	m_progress_bar=progress_bar;
 }
 
-QList< mirrorInfo > mirrors::readMirrorList() {
+void mirrors::readMirrorList() {
 	mirror_list.clear();
 	mirror_list.append(mirrorInfo(	"Testing",
 									QUrl ("http://sauron.savel.pp.ru/files/packages.xml"),

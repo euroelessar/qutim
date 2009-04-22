@@ -37,7 +37,7 @@ public:
 	~mirrors();
 	void updatePackagesCache (); //!update packages cache file
 private:
-	QList<mirrorInfo> readMirrorList();
+	void readMirrorList();
 	QList<mirrorInfo> mirror_list;
 	QString platform; //TODO спросить у Элесара, как её выдернуть из автоопределия платформы Кутима
 	QProgressBar *m_progress_bar;
