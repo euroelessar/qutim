@@ -22,7 +22,7 @@
 #include "plugpackagehandler.h"
 #include "pluginstaller.h"
 
-class plugManager : public QDesktopWidget, public Ui::manager
+class plugManager : public QWidget, public Ui::manager
 {
 	Q_OBJECT
 public:
