@@ -18,23 +18,6 @@ plugmanSettings::~plugmanSettings()
 	delete(m_package_model);
 }
 
-void plugmanSettings::getPackageList() {
-	plugXMLHandler plug_handler;
-	m_package_model->clear();
-	QHash<quint16, packageInfo> package_list= plug_handler.getPackageList();
-	QHash<quint16, packageInfo>::iterator it = package_list.begin();
-	for (;it != package_list.end();it++) {
-		ItemData item(buddy,QIcon(":/icons/hi64-action-package.png"),package_list.value(it.key()),it.key());
-		m_package_model->addItem(item,item.packageItem.properties.value("name"));
-	}
-	return;
-}
-
-void plugmanSettings::updatePackageList() {
-	getPackageList();
-	m_plug_manager->progressBar->setVisible(false);
-}
-
 plugManager* plugmanSettings::getPlugManager() {
 	return m_plug_manager;
 }

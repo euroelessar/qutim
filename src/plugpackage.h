@@ -23,20 +23,22 @@ Boston, MA 02110-1301, USA.
 
 struct packageInfo {
 	packageInfo ();
-	packageInfo  (QString name,
-				   QStringList packageFiles,
-				   QString type = "other",
-				   QString description = "Unknown package",
-				   QString author = "Unknown author",
-				   QString licence = "Unknown licence"
-				   //недописанный конструктор
-				   );
+	packageInfo  (	QString name,
+					QStringList packageFiles,
+					QString type = "other",
+					QString description = "Unknown package",
+					QString author = "Unknown author",
+					QString licence = "Unknown licence",
+					quint16 id = 0
+					//недописанный конструктор
+				);
 	bool isValid();
 	//предварительный вариант необходимой инфы о пакете
 	QHash<QString,QString> properties;
 	QHash<QString,QString> dependencyList; //!new stuff from EuroElessar
 	QStringList files; //установленные файлы
 	QString toString(); //! x3	
+	quint16 id;
 };
 
 enum packageAttribute {

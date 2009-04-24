@@ -13,19 +13,30 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#include <QString>
-#include <QUrl>
 
-#ifndef MIRROR_H
-#define MIRROR_H
+#ifndef PLUGPACKAGECACHE_H
+#define PLUGPACKAGECACHE_H
 
-struct mirrorInfo
+#include <QObject>
+#include <QProgressBar>
+#include "mirror.h"
+#include "plugdownloader.h"
+
+class plugPackageCache : public QObject
 {
-	mirrorInfo();
-	mirrorInfo(QString name, QUrl url, QString platform);
-	QString name;
-	QUrl url;
-	QString platform;
+Q_OBJECT
+public:
+	plugPackageCache(QProgressBar *progress_bar,QObject *parent);
+	~plugPackageCache();
+	void updatePackagesCache (); //!update packages cache file
+private:
+	void readMirrorList();
+	QList<mirrorInfo> mirror_list;
+	QString platform; //TODO спросить у Элесара, как её выдернуть из автоопределия платформы Кутима
+	QProgressBar *m_progress_bar;
+	
+private slots:
+	void onDownloadFinished(const QString&);
 };
 
-#endif // MIRROR_H
+#endif // PLUGPACKAGECACHE_H

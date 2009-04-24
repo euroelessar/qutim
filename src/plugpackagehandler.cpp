@@ -29,7 +29,7 @@ plugPackageHandler::~plugPackageHandler() {
 
 void plugPackageHandler::getPackageList() {
 	plugXMLHandler plug_handler;
-	QHash<quint16, packageInfo> package_list= plug_handler.getPackageList();
+	QHash<QString, packageInfo> package_list= plug_handler.getPackageList();
 	updatePlugPackageModel(package_list);
 	return;
 }
@@ -40,11 +40,11 @@ void plugPackageHandler::setPlugPackageModel(plugPackageModel* plug_package_mode
 	m_plug_package_model = plug_package_model;
 }
 
-void plugPackageHandler::updatePlugPackageModel(const QHash< quint16, packageInfo >& package_list) {
-	QHash<quint16, packageInfo>::const_iterator it = package_list.begin();
+void plugPackageHandler::updatePlugPackageModel(const QHash<QString, packageInfo>& package_list) {
+	QHash<QString, packageInfo>::const_iterator it = package_list.begin();
 	for (;it != package_list.end();it++) {
-		ItemData item(buddy,QIcon(":/icons/hi64-action-package.png"),package_list.value(it.key()),it.key());
-		m_plug_package_model->addItem(item,item.packageItem.properties.value("name"));
+		ItemData item(buddy,QIcon(":/icons/hi64-action-package.png"),package_list.value(it.key()),package_list.value(it.key()).id);
+		m_plug_package_model->addItem(item,it.key());
 	}
 	return;
 }

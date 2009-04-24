@@ -55,7 +55,7 @@ public:
     /*!
     получаем из файла package.xml инфу о пакете с id
     */	
-	QHash<quint16, packageInfo> getPackageList (QString path = QString::null);
+	QHash<QString, packageInfo> getPackageList (QString path = QString::null);
     /*!
 	получаем из файла инфу обо всех установленных пакетах (по умолчанию package.xml)
     */
@@ -76,7 +76,7 @@ private:
     /*!создает struct packageInfo и Dom (обратная операция для createDomFromPackage). Самый простой вариант парсера
     @param doc - x3
     */
-	QHash<quint16, packageInfo> createPackageList (const QDomDocument& root);
+	QHash<QString, packageInfo> createPackageList (const QDomDocument& root);
     void updateGlobalCount (); //!увеличиает количество пакетов на 1 при добавлении и уменьшаяет на 1 при удалении
     bool rebuildGlobalCount (); //!более брутальный способ, применять при ошибках
     bool updatePackageId (int begin_id = 0);

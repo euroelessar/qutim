@@ -31,7 +31,7 @@ public:
 	void setPlugPackageModel (plugPackageModel * plug_package_model);
 private:
 	plugPackageModel *m_plug_package_model;
-	void updatePlugPackageModel (const QHash<quint16, packageInfo> &package_list);
+	void updatePlugPackageModel (const QHash<QString, packageInfo> &package_list);
 };
 
 #endif // PLUGPACKAGEHANDLER_H

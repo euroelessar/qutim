@@ -15,7 +15,6 @@
 */
 
 #include "mirror.h"
-#include "plugdownloader.h"
 
 mirrorInfo::mirrorInfo() {
 
@@ -27,34 +26,4 @@ mirrorInfo::mirrorInfo(QString name, QUrl url, QString platform) {
 	this->platform = platform;
 }
 
-mirrors::mirrors(QProgressBar *progress_bar,QObject *parent)
-: QObject(parent)
-{
-	m_progress_bar=progress_bar;
-}
 
-void mirrors::readMirrorList() {
-	mirror_list.clear();
-	mirror_list.append(mirrorInfo(	"Testing",
-									QUrl ("http://sauron.savel.pp.ru/files/packages.xml"),
-									"linux-x86"
-									));
-	
-}
-
-void mirrors::updatePackagesCache() {
-	readMirrorList();
-	foreach (mirrorInfo mirror_info, mirror_list) {
-		if (mirror_info.platform==platform) {
-			plugDownloader *loader = new plugDownloader(this);
-			loader->setProgressbar(m_progress_bar);
-			loader->startDownload(downloaderItem(	mirror_info.url,
-													mirror_info.name + ".xml"
-												));
-		}
-	}
-}
-
-mirrors::~mirrors() {
-
-}

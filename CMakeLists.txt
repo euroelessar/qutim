@@ -49,6 +49,7 @@ INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 add_subdirectory (libs)
 
 SET (QT_HEADERS
+	src/plugpackagecache.h
 	src/mirror.h
 	src/plugpackagehandler.h
 	src/plugmanager.h
@@ -67,7 +68,8 @@ SET(HEADERS
 ${QT_HEADERS}
 )
 
-SET (SOURCES
+SET (SOURCES 
+	src/plugpackagecache.cpp
 	src/mirror.cpp
 	src/plugpackagehandler.cpp
 	src/plugmanager.cpp

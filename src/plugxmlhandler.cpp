@@ -96,16 +96,19 @@ QStringList plugXMLHandler::createFilesList(QDomNode n) {
 }
 
 
-QHash< quint16, packageInfo > plugXMLHandler::createPackageList(const QDomDocument& root) {
+QHash< QString, packageInfo > plugXMLHandler::createPackageList(const QDomDocument& root) {
 
 	QDomElement packages = root.documentElement();
-	QHash< quint16, packageInfo > packages_list;
+	QHash< QString, packageInfo > packages_list;
 	QDomNode n = packages.firstChild();
 	while (!n.isNull()) {
 	    QDomElement e = n.toElement(); // try to convert the node to an element.
 	    if (!e.isNull()) {
 // 			qDebug() << e.tagName() << " : " << e.attribute("id");
-			packages_list[e.attribute("id").toInt()] = createPackageInfoFromNode(n.firstChild());
+			packageInfo package = createPackageInfoFromNode(n.firstChild());
+			package.id = e.attribute("id").toInt();
+			QString key = package.properties.value("type")+"/"+package.properties.value("name");
+			packages_list.insert(key,package);
 	    }
 	    n = n.nextSibling();
 	}
@@ -225,7 +228,7 @@ packageInfo plugXMLHandler::getPackageInfo(const QByteArray& content) {
 }
 
 
-QHash< quint16, packageInfo > plugXMLHandler::getPackageList(QString path) {
+QHash< QString, packageInfo > plugXMLHandler::getPackageList(QString path) {
 	QDomDocument doc_root;
 	if (path.isNull())
 		path = package_db_path;
