@@ -33,6 +33,7 @@ public:
 	inline ItemData *getItemData () {return &item_data;};
 	inline int childrenCount() {return children.count();};
 	inline int indexOf(plugPackageItem *item) {return children.key(item, 0);};
+	void setItem (const ItemData &data, const QString &name);
 	plugPackageItem *getParent () {return parent;};
 	QString item_name;
 private:

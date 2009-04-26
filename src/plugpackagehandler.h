@@ -20,18 +20,28 @@
 #include <QObject>
 #include "plugxmlhandler.h"
 #include "plugpackagemodel.h"
+#include "mirror.h"
+#include "plugdownloader.h"
 
 class plugPackageHandler : public QObject
 {
 Q_OBJECT
 public:
-	plugPackageHandler(plugPackageModel * plug_package_model,QObject *parent = 0);
+	plugPackageHandler(plugPackageModel * plug_package_model,QProgressBar *progress_bar,QObject *parent = 0);
 	~plugPackageHandler();
 	void getPackageList();
 	void setPlugPackageModel (plugPackageModel * plug_package_model);
+	void updatePackagesCache (); //!update packages cache file	
 private:
 	plugPackageModel *m_plug_package_model;
-	void updatePlugPackageModel (const QHash<QString, packageInfo> &package_list);
+	QList<mirrorInfo> mirror_list;
+	QProgressBar *m_progress_bar;
+	QString platform; //TODO спросить у Элесара, как её выдернуть из автоопределия платформы Кутима
+	QString cachePath;
+	void readMirrorList();
+	packageAttribute default_attribute; //TODO реализовать получше
+private slots:
+	void updatePlugPackageModel (const QString& filename = QString::null);
 };
 
 #endif // PLUGPACKAGEHANDLER_H

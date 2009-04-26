@@ -30,3 +30,9 @@ void plugPackageItem::removeChild(const int& id) {
 	//FIXME так работать не буит ^_^
 	children.remove(id);
 }
+
+void plugPackageItem::setItem(const ItemData& data, const QString& name)
+{
+	item_data = data;
+	item_name = name;	
+}

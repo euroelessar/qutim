@@ -23,11 +23,12 @@ bool packageInfo::isValid() {
 }
 
 
-ItemData::ItemData(itemType type,  QIcon icon ,packageInfo packageItem, quint32 id) {
+ItemData::ItemData(itemType type,  QIcon icon ,packageInfo packageItem, packageAttribute attribute, quint32 id) {
 	this->id = id;
 	this->type = type;
 	this->icon = icon;
 	this->packageItem = packageItem;
+	this->attribute = attribute;
 }
 
 ItemData::ItemData() {

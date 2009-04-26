@@ -16,35 +16,78 @@
 
 #include "plugpackagehandler.h"
 
-plugPackageHandler::plugPackageHandler(plugPackageModel* plug_package_model, QObject* parent)
+plugPackageHandler::plugPackageHandler(plugPackageModel* plug_package_model, QProgressBar *progress_bar, QObject* parent)
 : m_plug_package_model(0)
 {
 	setParent(parent);
 	m_plug_package_model = plug_package_model;
+	m_progress_bar = progress_bar;
+	default_attribute = installed;
+	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache/sources", "plugman");
+	cachePath = settings.fileName().section("/",0,-2)+"/";
 }
 
 plugPackageHandler::~plugPackageHandler() {
-
+	qDebug() << "Object deleted : " << this;
 }
 
 void plugPackageHandler::getPackageList() {
-	plugXMLHandler plug_handler;
-	QHash<QString, packageInfo> package_list= plug_handler.getPackageList();
-	updatePlugPackageModel(package_list);
+	default_attribute = installed;
+	updatePlugPackageModel();
+	updatePackagesCache();
+// 	deleteLater();
 	return;
 }
 
 
 
 void plugPackageHandler::setPlugPackageModel(plugPackageModel* plug_package_model) {
+	if (m_plug_package_model!=0) {
+		delete(m_plug_package_model);
+		m_plug_package_model = 0;
+	}
 	m_plug_package_model = plug_package_model;
 }
 
-void plugPackageHandler::updatePlugPackageModel(const QHash<QString, packageInfo>& package_list) {
-	QHash<QString, packageInfo>::const_iterator it = package_list.begin();
-	for (;it != package_list.end();it++) {
-		ItemData item(buddy,QIcon(":/icons/hi64-action-package.png"),package_list.value(it.key()),package_list.value(it.key()).id);
+void plugPackageHandler::updatePlugPackageModel(const QString& filename) {
+	plugXMLHandler plug_handler;
+	QHash<QString,packageInfo> packages_list = plug_handler.getPackageList(filename);
+	QHash<QString, packageInfo>::const_iterator it = packages_list.begin();
+	for (;it != packages_list.end();it++) {
+		ItemData item(	buddy,
+						QIcon(":/icons/hi64-action-package.png"),
+						packages_list.value(it.key()),
+						default_attribute,
+						packages_list.value(it.key()).id
+						);
 		m_plug_package_model->addItem(item,it.key());
 	}
 	return;
+}
+
+void plugPackageHandler::readMirrorList()
+{
+	mirror_list.clear();
+	mirror_list.append(mirrorInfo(	"Testing",
+									QUrl ("http://sauron.savel.pp.ru/files/packages.xml"),
+									""
+									));
+}
+
+void plugPackageHandler::updatePackagesCache()
+{
+	readMirrorList();
+	default_attribute = isInstallable;
+	foreach (mirrorInfo mirror_info, mirror_list) {
+// 		qDebug () << "Download to:" << cachePath << "Mirror" << mirror_info.name;
+		if (mirror_info.platform==platform) {
+			
+			plugDownloader *loader = new plugDownloader(cachePath,this);
+			loader->setProgressbar(m_progress_bar);
+			connect(loader,SIGNAL(downloadFinished(QString)),this,SLOT(updatePlugPackageModel(QString)));
+			loader->startDownload(downloaderItem(	mirror_info.url,
+													mirror_info.name + ".xml"
+													));
+		}
+	}
 }

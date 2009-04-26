@@ -31,6 +31,7 @@ plugManager::plugManager(QWidget* parent)
 	m_actions.append(new QAction(QIcon(":/icons/open.png"),tr("Install package from file"),this));
 	connect(m_actions.at(0),SIGNAL(triggered(bool)),this,SLOT(installFromFile()));
 	m_actions.append(new QAction(QIcon(":/icons/internet.png"),tr("Update packages list"),this));
+	connect(m_actions.at(1),SIGNAL(triggered(bool)),this,SLOT(updatePackageList()));
 // 	connect(m_actions.at(1),SIGNAL(triggered(bool)),this,SLOT(installFromFile()));
 	m_actions.append(new QAction(QIcon(),tr("Upgrade all"),this));
 	menu->addActions(m_actions);
@@ -39,11 +40,12 @@ plugManager::plugManager(QWidget* parent)
 	menu->addAction(m_actions.back());
     actionsButton->setMenu(menu);
 
-	updatePackageList();
+// 	updatePackageList();
 }
 
 plugManager::~plugManager() {
     qDeleteAll(m_actions);
+	delete(m_package_model);
 }
 
 void plugManager::installFromFile() {
@@ -57,7 +59,7 @@ void plugManager::installFromFile() {
 
 void plugManager::updatePackageList() {
 	m_package_model->clear();
-	plugPackageHandler plug_package_handler (m_package_model);
-	plug_package_handler.getPackageList();
+	plugPackageHandler *plug_package_handler = new plugPackageHandler (m_package_model,progressBar);
+	plug_package_handler->getPackageList();
 	progressBar->setVisible(false);
 }

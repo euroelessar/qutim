@@ -62,7 +62,7 @@ QVariant plugPackageModel::data(const QModelIndex& index, int role) const {
 	if (index.column()==0)	{
 		switch(role) {
 			case Qt::DisplayRole:
-				return node->item_name;
+				return node->getItemData()->packageItem.properties.value("name");
 			case Qt::DecorationRole:
 				return node->getItemData()->icon;
 			default:
@@ -91,6 +91,7 @@ void plugPackageModel::addItem(const ItemData& item, const QString& name) {
 	plugPackageItem *category_node = m_category_nodes.value(item.packageItem.properties.value("type"));
 	if (!category_node) {
 		ItemData category_item = ItemData (group,QIcon());
+		category_item.packageItem.properties.insert("name", item.packageItem.properties.value("type"));
 		category_node = new plugPackageItem (category_item,
 										item.packageItem.properties.value("type"));
  		m_category_nodes.insert(item.packageItem.properties.value("type"),category_node);
@@ -100,19 +101,30 @@ void plugPackageModel::addItem(const ItemData& item, const QString& name) {
 		endInsertRows();
 // 		qDebug() << m_root_node->childrenCount();
 	}
-	plugPackageItem *node = new plugPackageItem (item, name);
-// 	qDebug () << "category count" << category_node->childrenCount();
-	beginInsertRows(createIndex(category_node->childrenCount(), 0, category_node),category_node->childrenCount(),category_node->childrenCount());
-	category_node->addChild(node,category_node->childrenCount());
-	endInsertRows();
-	m_packages.append(node);
+	if (m_packages.contains(name)) {
+		qDebug() << "Update item: " << name;
+		if (m_packages.value(name)->getItemData()->attribute == installed)
+			item.attribute == isUpgradable; //FIXME for testing!
+		m_packages.value(name)->setItem(item,name);
+	}
+	else {
+		plugPackageItem *node = new plugPackageItem (item, name);
+		m_packages.insert(name,node);
+		qDebug () << "insert item:" << name;
+		beginInsertRows(createIndex(category_node->childrenCount(), 0, category_node),category_node->childrenCount(),category_node->childrenCount());
+		category_node->addChild(node,category_node->childrenCount());
+		endInsertRows();
+	}
+	return;
 }
 
 void plugPackageModel::clear() {
-	qDebug () << "clear";
 	reset();
 	delete(m_root_node);
 	m_category_nodes.clear();
+	qDebug() << m_packages;
+	m_packages.clear();
  	m_root_node = new plugPackageItem;
+	qDebug () << "clear";	
 }
 

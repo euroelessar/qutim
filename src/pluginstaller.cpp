@@ -32,8 +32,6 @@ plugInstaller::plugInstaller()
 	collision_protect = settings.value("collisionprotect",true).toBool();
 	settings.endGroup();
     outPath = settings.fileName().section("/",0,-2) + "/";
-	QDir dir;
-	dir.mkpath(outPath + "plugman/cache");
 // 	connect (this,SIGNAL(finished()),this,SLOT(deleteLater())); // в случае завершения установки обьект может быть удалён
 	connect (this,SIGNAL(error(QString)),this,SLOT(errorHandler(QString))); //в случае ошибки вызывается этот класс
 }
@@ -135,7 +133,7 @@ bool plugInstaller::hasPackageInfo(const QString& archPath) {
 
 void plugInstaller::installFromXML(const QString& inPath) {
 	plugXMLHandler plug_handler;
-    plugDownloader *plug_loader = new plugDownloader;
+    plugDownloader *plug_loader = new plugDownloader ();
 	plug_loader->setProgressbar(m_progressBar);
 	package_info = plug_handler.getPackageInfo(inPath);
 	if (!isValid(package_info)) {

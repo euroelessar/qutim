@@ -20,11 +20,26 @@ Boston, MA 02110-1301, USA.
 #include <QBoxLayout>
 #include <QDebug>
 #include <QDir>
-plugDownloader::plugDownloader(QObject* parent)
+#warning TODO: переписать через очередь
+
+plugDownloader::plugDownloader(const QString& path, QObject* parent)
 		: QObject(parent)
 {
-	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache", "plugman");
-	outPath = settings.fileName().section("/",0,-2)+"/";
+	if (path.isEmpty()) {
+		QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache", "plugman");
+		outPath = settings.fileName().section("/",0,-2)+"/";
+	}
+	else
+		outPath = path;
+	QDir dir;
+	qDebug() << outPath;
+	if (!dir.exists(outPath))
+		dir.mkdir(outPath);
+}
+
+void plugDownloader::addItem(const downloaderItem& downloadItem)
+{
+	m_download_queue.append(downloadItem);
 }
 
 
