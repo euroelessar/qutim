@@ -42,12 +42,13 @@ private:
 	packageInfo package_info; //FIXME
 	QProgressBar *m_progressBar;
 	bool isValid (const packageInfo &package_info);
+	void install(QString);
 signals:
 	void finished ();
 	void error(QString);
 public slots:
 	void errorHandler(const QString &error);
-	void install(QString); //готов для установки (то есть скачался)
+	void install(QStringList); //готов для установки (то есть скачался)
 };
 
 #endif // PLUGINSTALLER_H

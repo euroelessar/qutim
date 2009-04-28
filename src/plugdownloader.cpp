@@ -20,10 +20,9 @@ Boston, MA 02110-1301, USA.
 #include <QBoxLayout>
 #include <QDebug>
 #include <QDir>
-#warning TODO: переписать через очередь
 
 plugDownloader::plugDownloader(const QString& path, QObject* parent)
-		: QObject(parent)
+		: QObject(parent), downloadedCount(0), totalCount(0)
 {
 	if (path.isEmpty()) {
 		QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache", "plugman");
@@ -32,24 +31,39 @@ plugDownloader::plugDownloader(const QString& path, QObject* parent)
 	else
 		outPath = path;
 	QDir dir;
-	qDebug() << outPath;
-	if (!dir.exists(outPath))
-		dir.mkdir(outPath);
+	dir.mkpath(outPath);
 }
 
 void plugDownloader::addItem(const downloaderItem& downloadItem)
 {
-	m_download_queue.append(downloadItem);
+// 	if (m_download_queue.isEmpty())
+// 		QTimer::singleShot(0, this, SLOT(startNextDownload()));
+	
+	m_download_queue.enqueue(downloadItem);
+	++totalCount;
+
+}
+
+void plugDownloader::startDownload()
+{
+	startNextDownload();
 }
 
 
-void plugDownloader::startDownload(const downloaderItem &downloadItem)
+void plugDownloader::startNextDownload()
 {
+	if (m_download_queue.isEmpty()) {
+		emit downloadFinished(fileList);
+		this->deleteLater();
+		return;
+	}
+	downloaderItem downloadItem = m_download_queue.dequeue();
+
 	output.setFileName(outPath+downloadItem.filename);
 	if (!output.open(QIODevice::WriteOnly)) {
-// 		lastError = tr("Problem opening save file '%s' for download '%s': %s\n",
-// 				 qPrintable(filename), m_item.url.toEncoded().constData(),
-// 				 qPrintable(output.errorString()));
+		// 		lastError = tr("Problem opening save file '%s' for download '%s': %s\n",
+		// 				 qPrintable(filename), m_item.url.toEncoded().constData(),
+		// 				 qPrintable(output.errorString()));
 		emit error(lastError);
 		return;                 // skip this download
 	}
@@ -61,11 +75,11 @@ void plugDownloader::startDownload(const downloaderItem &downloadItem)
 			SLOT(downloadFinished()));
 	connect(currentDownload, SIGNAL(readyRead()),
 			SLOT(downloadReadyRead()));
-
-	// prepare the output
-	m_progressBar->setFormat(tr("Downloading: %p%"));
+							   
+							   // prepare the output
 	downloadTime.start();
 }
+
 
 void plugDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
@@ -96,18 +110,21 @@ void plugDownloader::downloadFinished()
 		lastError= tr("Failed: %s\n", qPrintable(currentDownload->errorString()));
 		emit error(lastError);
 	}
-	else emit downloadFinished(output.fileName());
-	this->deleteLater();
+	else
+		++downloadedCount;
+	currentDownload->deleteLater();
+	startNextDownload();
 }
 
 void plugDownloader::downloadReadyRead()
 {
 	output.write(currentDownload->readAll());
+	fileList.append(output.fileName());
 }
 plugDownloader::~plugDownloader() {
-	currentDownload->deleteLater();
 }
 void plugDownloader::setProgressbar(QProgressBar* progressBar) {
 	m_progressBar = progressBar;
+	m_progressBar->setFormat(tr("Downloading: %p%"));	
 }
 

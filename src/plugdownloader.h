@@ -35,19 +35,19 @@ class plugDownloader: public QObject
 public:
     plugDownloader (const QString &path = QString::null, QObject *parent = 0);
     ~plugDownloader ();
-    void startDownload(const downloaderItem &downloadItem);
+    void startDownload();
 	void addItem (const downloaderItem &downloadItem);
     QString lastError;
     QString outPath; //путь до скачанного файла
 	void setProgressbar(QProgressBar *progressBar);
 signals:
     void error(QString message);
-    void downloadFinished(QString filename);
 	void downloadFinished(const QStringList &fileList);
 private slots:
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void downloadFinished();
     void downloadReadyRead();
+	void startNextDownload();	
 
 private:
     QNetworkAccessManager manager;
@@ -56,7 +56,9 @@ private:
     QTime downloadTime;
     QProgressBar *m_progressBar;
 	QQueue<downloaderItem> m_download_queue;
-
+	int downloadedCount;
+	int totalCount;
+	QStringList fileList;
 };
 
 #endif // DOWNLOADER_H

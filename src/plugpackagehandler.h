@@ -23,6 +23,8 @@
 #include "mirror.h"
 #include "plugdownloader.h"
 
+//WARNING предполагается, что класс используется только для формирования списка пакетов и после выполнения getPackageList(); он удаляется
+
 class plugPackageHandler : public QObject
 {
 Q_OBJECT
@@ -31,7 +33,7 @@ public:
 	~plugPackageHandler();
 	void getPackageList();
 	void setPlugPackageModel (plugPackageModel * plug_package_model);
-	void updatePackagesCache (); //!update packages cache file	
+	void updatePackagesCache (); //!update packages cache file
 private:
 	plugPackageModel *m_plug_package_model;
 	QList<mirrorInfo> mirror_list;
@@ -42,6 +44,7 @@ private:
 	packageAttribute default_attribute; //TODO реализовать получше
 private slots:
 	void updatePlugPackageModel (const QString& filename = QString::null);
+	void updatePlugPackageModel (const QStringList &fileList);
 };
 
 #endif // PLUGPACKAGEHANDLER_H

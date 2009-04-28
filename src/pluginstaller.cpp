@@ -149,13 +149,14 @@ void plugInstaller::installFromXML(const QString& inPath) {
 		if (!protect.checkPackageFiles(package_info.files))
 			return;
 	}	
-    connect(plug_loader,SIGNAL(downloadFinished(QString)),this,SLOT(install(QString)));
+    connect(plug_loader,SIGNAL(downloadFinished(QStringList)),this,SLOT(install(QStringList)));
 	if (!isValid(package_info));
-    plug_loader->startDownload(downloaderItem(package_info.properties["url"],
+    plug_loader->addItem(downloaderItem(package_info.properties["url"],
 															  package_info.properties["name"]
 															  +"-"+package_info.properties["version"]
 															  +".zip")
 															 ); //FIXME
+	plug_loader->startDownload();
 }
 
 void plugInstaller::install(QString inPath) {
@@ -172,6 +173,14 @@ void plugInstaller::install(QString inPath) {
 	m_progressBar->setVisible(false);
 	deleteLater();
 }
+
+void plugInstaller::install(QStringList fileList)
+{
+	foreach (QString filePath,fileList) {
+		install(filePath);
+	}
+}
+
 
 bool plugInstaller::isValid(const packageInfo& package_info) {
 	return package_info.properties["url"].section(".",-1)=="zip";

@@ -15,9 +15,7 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
 	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman"); //костыль
     QString outPath = settings.fileName().section("/",0,-2)+"/";
 	QDir dir;
-	if (!dir.exists(outPath))
-		dir.mkpath(outPath);
-
+	dir.mkpath(outPath);
     return true;
 }
 

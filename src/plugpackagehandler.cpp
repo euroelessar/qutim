@@ -28,14 +28,13 @@ plugPackageHandler::plugPackageHandler(plugPackageModel* plug_package_model, QPr
 }
 
 plugPackageHandler::~plugPackageHandler() {
-	qDebug() << "Object deleted : " << this;
+
 }
 
 void plugPackageHandler::getPackageList() {
 	default_attribute = installed;
 	updatePlugPackageModel();
 	updatePackagesCache();
-// 	deleteLater();
 	return;
 }
 
@@ -65,6 +64,16 @@ void plugPackageHandler::updatePlugPackageModel(const QString& filename) {
 	return;
 }
 
+void plugPackageHandler::updatePlugPackageModel(const QStringList& fileList)
+{
+	foreach (QString filePath,fileList) {
+		updatePlugPackageModel(filePath);
+	}
+	this->deleteLater();
+	return;
+}
+
+
 void plugPackageHandler::readMirrorList()
 {
 	mirror_list.clear();
@@ -78,16 +87,15 @@ void plugPackageHandler::updatePackagesCache()
 {
 	readMirrorList();
 	default_attribute = isInstallable;
+	plugDownloader *loader = new plugDownloader(cachePath,this);
+	loader->setProgressbar(m_progress_bar);
+	connect(loader,SIGNAL(downloadFinished(QStringList)),this,SLOT(updatePlugPackageModel(QStringList)));	
 	foreach (mirrorInfo mirror_info, mirror_list) {
-// 		qDebug () << "Download to:" << cachePath << "Mirror" << mirror_info.name;
-		if (mirror_info.platform==platform) {
-			
-			plugDownloader *loader = new plugDownloader(cachePath,this);
-			loader->setProgressbar(m_progress_bar);
-			connect(loader,SIGNAL(downloadFinished(QString)),this,SLOT(updatePlugPackageModel(QString)));
-			loader->startDownload(downloaderItem(	mirror_info.url,
-													mirror_info.name + ".xml"
-													));
+		if (mirror_info.platform!=platform)
+			continue;
+		loader->addItem(downloaderItem(	mirror_info.url,
+										mirror_info.name + ".xml"
+										)); //FIXME Черевато сегфолтом
 		}
-	}
+	loader->startDownload();
 }
