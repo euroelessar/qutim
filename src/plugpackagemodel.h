@@ -37,8 +37,18 @@ public:
 	void clear();
 	QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 	QVariant headerData(int section,
-								Qt::Orientation orientation,
-								int role = Qt::DisplayRole) const;
+						 Qt::Orientation orientation,
+						 int role = Qt::DisplayRole) const;	
+	enum {
+		NameRole = Qt::UserRole,
+		InstalledRole, //installed, isUpgradable, etc
+		IconRole,
+		IdRole,
+		GroupRole,
+		CheckedRole,
+		SummaryRole,
+		CategoryRole //Категория или пакет?
+	};
 private:
 	plugPackageItem *m_root_node;
 	plugPackageItem *nodeFromIndex(const QModelIndex &index) const;

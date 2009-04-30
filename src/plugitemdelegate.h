@@ -17,20 +17,19 @@
 #ifndef PLUGITEMDELEGATE_H
 #define PLUGITEMDELEGATE_H
 
-#include <qabstractitemdelegate.h>
+#include <QItemDelegate>
 
 
-class plugItemDelegate : public QAbstractItemDelegate
+class plugItemDelegate : public QItemDelegate
 {
 	Q_OBJECT
 public:
 	plugItemDelegate(QObject *parent = 0);
-	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
 	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 	QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const;
-	void setEditorData(QWidget* editor, const QModelIndex& index) const;
-	void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const;
-	void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
+private:
+	int calcItemHeight(const QStyleOptionViewItem &option) const;
 };
 
 #endif // PLUGITEMDELEGATE_H

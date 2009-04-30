@@ -15,6 +15,7 @@
 */
 
 #include "plugmanager.h"
+#include "plugitemdelegate.h"
 #include <QDebug>
 plugManager::plugManager(QWidget* parent)
 : m_package_model(new plugPackageModel)
@@ -25,7 +26,7 @@ plugManager::plugManager(QWidget* parent)
 	progressBar->setVisible(false);
 	treeView->setModel(m_package_model);
 	
-// 	treeView->setItemDelegate();
+ 	treeView->setItemDelegate(new plugItemDelegate(this));
 	
     QMenu *menu = new QMenu(tr("Actions"),this);
 	m_actions.append(new QAction(QIcon(":/icons/open.png"),tr("Install package from file"),this));
@@ -40,7 +41,7 @@ plugManager::plugManager(QWidget* parent)
 	menu->addAction(m_actions.back());
     actionsButton->setMenu(menu);
 
-// 	updatePackageList();
+ 	updatePackageList();
 }
 
 plugManager::~plugManager() {

@@ -65,6 +65,12 @@ QVariant plugPackageModel::data(const QModelIndex& index, int role) const {
 				return node->getItemData()->packageItem.properties.value("name");
 			case Qt::DecorationRole:
 				return node->getItemData()->icon;
+			case InstalledRole:
+				return node->getItemData()->attribute;
+			case CategoryRole:
+				return m_category_nodes.contains(node->item_name);
+			case SummaryRole:
+				return node->getItemData()->packageItem.properties.value("shortdesc");
 			default:
 				return QVariant();
 		}
@@ -90,22 +96,21 @@ QVariant plugPackageModel::headerData(int section, Qt::Orientation orientation, 
 void plugPackageModel::addItem(const ItemData& item, const QString& name) {
 	plugPackageItem *category_node = m_category_nodes.value(item.packageItem.properties.value("type"));
 	if (!category_node) {
-		ItemData category_item = ItemData (group,QIcon());
+		ItemData category_item = ItemData (group,QIcon(":/icons/hi64-action-package.png"));
 		category_item.packageItem.properties.insert("name", item.packageItem.properties.value("type"));
 		category_node = new plugPackageItem (category_item,
 										item.packageItem.properties.value("type"));
  		m_category_nodes.insert(item.packageItem.properties.value("type"),category_node);
-// 		qDebug() << "root count:" << m_root_node->childrenCount();
 		beginInsertRows(QModelIndex(),m_root_node->childrenCount(),m_root_node->childrenCount());
 		m_root_node->addChild(category_node, m_root_node->childrenCount());
 		endInsertRows();
-// 		qDebug() << m_root_node->childrenCount();
 	}
 	if (m_packages.contains(name)) {
-		qDebug() << "Update item: " << name;
-		if (m_packages.value(name)->getItemData()->attribute == installed)
-			item.attribute == isUpgradable; //FIXME for testing!
-		m_packages.value(name)->setItem(item,name);
+		ItemData update_item = item;
+		if (m_packages.value(name)->getItemData()->attribute == installed) {
+			update_item.attribute = isUpgradable; //FIXME for testing!
+		}
+		m_packages.value(name)->setItem(update_item,name);
 	}
 	else {
 		plugPackageItem *node = new plugPackageItem (item, name);
