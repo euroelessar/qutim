@@ -1,4 +1,5 @@
 #include "plugpackagemodel.h"
+#include "utils/plugversion.h"
 #include <QDebug>
 
 plugPackageModel::plugPackageModel(QObject* parent)
@@ -107,10 +108,16 @@ void plugPackageModel::addItem(const ItemData& item, const QString& name) {
 	}
 	if (m_packages.contains(name)) {
 		ItemData update_item = item;
-		if (m_packages.value(name)->getItemData()->attribute == installed) {
-			update_item.attribute = isUpgradable; //FIXME for testing!
+		plugVersion currentVersion (m_packages.value(name)->getItemData()->packageItem.properties.value("version"));
+		plugVersion replaceVersion (item.packageItem.properties.value("version"));
+		if (replaceVersion>currentVersion) {
+			if ((m_packages.value(name)->getItemData()->attribute == installed)) {
+				//FIXME полностью отказаться от использования id в пользу name
+				update_item.attribute = isUpgradable;
+				update_item.packageItem.id = m_packages.value(name)->getItemData()->packageItem.id; //Id имеется только у установленных пакетов
+			}
+			m_packages.value(name)->setItem(update_item,name);
 		}
-		m_packages.value(name)->setItem(update_item,name);
 	}
 	else {
 		plugPackageItem *node = new plugPackageItem (item, name);

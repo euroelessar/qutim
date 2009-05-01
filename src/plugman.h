@@ -30,7 +30,6 @@ public:
 private:
 	QHash<QString, QAction *> m_actions;
     PluginSystemInterface *m_plugin_system;
-	plugManager *m_plug_manager;
     QString m_profile_name;
     QString m_account_name;
     plugmanSettings *settingswidget;

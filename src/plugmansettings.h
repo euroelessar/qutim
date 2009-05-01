@@ -9,7 +9,7 @@ class plugmanSettings : public QWidget, Ui::plugmanSettings
 {
 	Q_OBJECT;
 public:
-	plugmanSettings(const QString& profile_name, plugManager* plug_manager);
+	plugmanSettings(const QString& profile_name);
 	~plugmanSettings();
 	void setPlugManager(plugManager *plug_manager);
 	plugManager *getPlugManager();

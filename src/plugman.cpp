@@ -31,7 +31,7 @@ void plugMan::processEvent ( PluginEvent  &event)
 
 QWidget *plugMan::settingsWidget()
 {
-	settingswidget = new plugmanSettings(m_profile_name,m_plug_manager);
+	settingswidget = new plugmanSettings(m_profile_name);
     return settingswidget;
 }
 
@@ -42,9 +42,9 @@ void plugMan::setProfileName ( const QString &profile_name )
 	m_plugin_system->registerMainMenuAction(m_actions.value("install"));
 	connect(m_actions.value("install"), SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
 	
-// 	m_actions.insert("manager", new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this));
-// 	m_plugin_system->registerMainMenuAction(m_actions.value("manager"));
-// 	connect(m_actions.value("manager"), SIGNAL(triggered()), this, SLOT(on_managerBtn_clicked()));
+ 	m_actions.insert("manager", new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this));
+ 	m_plugin_system->registerMainMenuAction(m_actions.value("manager"));
+ 	connect(m_actions.value("manager"), SIGNAL(triggered()), this, SLOT(on_managerBtn_clicked()));
     m_profile_name = profile_name;
 }
 
