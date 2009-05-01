@@ -42,10 +42,10 @@ void plugMan::setProfileName ( const QString &profile_name )
 	m_plugin_system->registerMainMenuAction(m_actions.value("install"));
 	connect(m_actions.value("install"), SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
 	
- 	m_actions.insert("manager", new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this));
- 	m_plugin_system->registerMainMenuAction(m_actions.value("manager"));
- 	connect(m_actions.value("manager"), SIGNAL(triggered()), this, SLOT(on_managerBtn_clicked()));
-    m_profile_name = profile_name;
+//  	m_actions.insert("manager", new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this));
+//  	m_plugin_system->registerMainMenuAction(m_actions.value("manager"));
+//  	connect(m_actions.value("manager"), SIGNAL(triggered()), this, SLOT(on_managerBtn_clicked()));
+//     m_profile_name = profile_name;
 }
 
 QString plugMan::name()
@@ -88,7 +88,8 @@ void plugMan::on_installfromfileBtn_clicked()
 }
 
 void plugMan::on_managerBtn_clicked() {
-// 	m_plug_manager->show();
+// 	plugManager *manager = new plugManager ();
+// 	manager->show();
 }
 
 plugMan::~plugMan() {
