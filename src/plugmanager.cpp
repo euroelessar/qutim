@@ -52,6 +52,7 @@ plugManager::~plugManager() {
 void plugManager::installFromFile() {
     plugInstaller *plug_install = new plugInstaller;
     plug_install->setParent(this);
+	progressBar->setVisible(true);
     plug_install->setProgressBar(progressBar);
     // 	progressBar->setFormat(tr("Install package : %p%"));
     plug_install->installPackage();

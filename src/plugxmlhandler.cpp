@@ -234,10 +234,10 @@ QHash< QString, packageInfo > plugXMLHandler::getPackageList(QString path) {
 		path = package_db_path;
 	QFile input(path);
 	if (!input.open(QIODevice::ReadOnly)) {
-		//x3
+		qDebug() <<"Unable to open file" << input.error();
 	}
 	if (!doc_root.setContent(&input)) {
-		// x3
+		qDebug() << "Unable to set content";
 	}
 	input.close();
 	return createPackageList(doc_root);

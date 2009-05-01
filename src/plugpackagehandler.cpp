@@ -32,6 +32,7 @@ plugPackageHandler::~plugPackageHandler() {
 }
 
 void plugPackageHandler::getPackageList() {
+	m_progress_bar->setVisible(true);
 	default_attribute = installed;
 	updatePlugPackageModel();
 	updatePackagesCache();
@@ -49,8 +50,8 @@ void plugPackageHandler::setPlugPackageModel(plugPackageModel* plug_package_mode
 }
 
 void plugPackageHandler::updatePlugPackageModel(const QString& filename) {
-	plugXMLHandler plug_handler;
-	QHash<QString,packageInfo> packages_list = plug_handler.getPackageList(filename);
+	plugXMLHandler plug_xml_handler;
+	QHash<QString,packageInfo> packages_list = plug_xml_handler.getPackageList(filename);
 	QHash<QString, packageInfo>::const_iterator it = packages_list.begin();
 	for (;it != packages_list.end();it++) {
 		ItemData item(	buddy,
@@ -66,10 +67,10 @@ void plugPackageHandler::updatePlugPackageModel(const QString& filename) {
 
 void plugPackageHandler::updatePlugPackageModel(const QStringList& fileList)
 {
-	foreach (QString filePath,fileList) {
+	foreach (QString filePath,fileList) 
 		updatePlugPackageModel(filePath);
-	}
 	this->deleteLater();
+	m_progress_bar->setVisible(false);
 	return;
 }
 
@@ -95,7 +96,7 @@ void plugPackageHandler::updatePackagesCache()
 			continue;
 		loader->addItem(downloaderItem(	mirror_info.url,
 										mirror_info.name + ".xml"
-										)); //FIXME Черевато сегфолтом
+										));
 		}
 	loader->startDownload();
 }

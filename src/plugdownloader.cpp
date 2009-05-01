@@ -60,13 +60,6 @@ void plugDownloader::startNextDownload()
 	downloaderItem downloadItem = m_download_queue.dequeue();
 
 	output.setFileName(outPath+downloadItem.filename);
-	if (!output.open(QIODevice::WriteOnly)) {
-		// 		lastError = tr("Problem opening save file '%s' for download '%s': %s\n",
-		// 				 qPrintable(filename), m_item.url.toEncoded().constData(),
-		// 				 qPrintable(output.errorString()));
-		emit error(lastError);
-		return;                 // skip this download
-	}
 	QNetworkRequest request(downloadItem.url);
 	currentDownload = manager.get(request);
 	connect(currentDownload, SIGNAL(downloadProgress(qint64,qint64)),
@@ -106,12 +99,13 @@ void plugDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 void plugDownloader::downloadFinished()
 {
 	m_progressBar->reset();
-	output.close();
 	if (currentDownload->error()) {
 		// download failed
-		lastError= tr("Failed: %s\n", qPrintable(currentDownload->errorString()));
-		emit error(lastError);
-	}
+		lastError= tr("Failed to download: %1").arg(output.fileName());
+		if (output.exists()) 
+			fileList.append(output.fileName()); //в случае неудачного скачивания, но наличия старой версии файла,добавляем её 
+		qDebug() << lastError;
+ 	}
 	else
 		++downloadedCount;
 	currentDownload->deleteLater();
@@ -120,8 +114,13 @@ void plugDownloader::downloadFinished()
 
 void plugDownloader::downloadReadyRead()
 {
+	if (!output.open(QIODevice::WriteOnly)) {
+		qDebug() << "Unable to open file";
+		return;                 // skip this download
+	}
 	output.write(currentDownload->readAll());
 	fileList.append(output.fileName());
+	output.close();
 }
 plugDownloader::~plugDownloader() {
 }
