@@ -136,7 +136,7 @@ void plugInstaller::installFromXML(const QString& inPath) {
     plugDownloader *plug_loader = new plugDownloader ();
 	plug_loader->setProgressbar(m_progressBar);
 	package_info = plug_handler.getPackageInfo(inPath);
-	if (!isValid(package_info)) {
+	if (!package_info.isValid()) {
 		emit error("Invalid package");
 		return;
 	}
@@ -182,13 +182,15 @@ void plugInstaller::install(QStringList fileList)
 }
 
 
-bool plugInstaller::isValid(const packageInfo& package_info) {
-	return package_info.properties["url"].section(".",-1)=="zip";
-}
-
-
-bool plugInstaller::removePackage(QString name, QStringList &files) {
-	return true;
+void plugInstaller::removePackage(const int& id) {
+	plugXMLHandler plug_handler;
+	QStringList fileList = plug_handler.removePackage(id);
+	ushort i = 0;
+	foreach (QString filePath,fileList) {
+		QFile output (filePath);
+		output.remove();
+		m_progressBar->setValue(qRound(i/fileList.count()*100));
+	}
 }
 
 void plugInstaller::errorHandler(const QString& error) {

@@ -1,5 +1,5 @@
 #include "plugpackage.h"
-
+#include "utils/plugversion.h"
 packageInfo::packageInfo() {
 
 }
@@ -19,6 +19,14 @@ QString packageInfo::toString() {
 }
 
 bool packageInfo::isValid() {
+	if (properties.value("name").isEmpty())
+		return false;
+	if (properties.value("type").isEmpty())
+		return false;
+	if (!plugVersion(properties.value("version")).isValid())
+		return false;
+	if (properties["url"].section(".",-1)!="zip")
+		return false;
 	return true;
 }
 

@@ -108,7 +108,8 @@ QHash< QString, packageInfo > plugXMLHandler::createPackageList(const QDomDocume
 			packageInfo package = createPackageInfoFromNode(n.firstChild());
 			package.id = e.attribute("id").toInt();
 			QString key = package.properties.value("type")+"/"+package.properties.value("name");
-			packages_list.insert(key,package);
+			if (package.isValid())
+				packages_list.insert(key,package);
 	    }
 	    n = n.nextSibling();
 	}
@@ -148,7 +149,6 @@ bool plugXMLHandler::registerPackage(const packageInfo &package_info) {
 	output.rename(package_db_path);
 	globalCount++;
 	updateGlobalCount();	
-// 	qDebug() << doc.toString();
 	return true;
 }
 
@@ -169,8 +169,6 @@ QStringList plugXMLHandler::removePackage(int package_id) {
 	    QDomElement e = n.toElement(); // try to convert the node to an element.
 		qDebug() << e.attribute("id");
 		if (e.attribute("id").toInt()==package_id) {
-			//FIXME переделать красиво
-// 			qDebug() << "found package by id" << package_id;
 			QDomNode p = n.firstChild();
 			while (!p.isNull()){
 				e = p.toElement();
@@ -182,7 +180,7 @@ QStringList plugXMLHandler::removePackage(int package_id) {
 		}
 	    n = n.nextSibling();
 	}
-// 	qDebug() << doc_root.toString();
+ 	qDebug() << doc_root.toString();
 	return files_list;
 }
 

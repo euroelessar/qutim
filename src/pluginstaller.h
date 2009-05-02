@@ -29,7 +29,7 @@ public:
     plugInstaller ();
     ~plugInstaller ();
 	void installPackage();
-    bool removePackage (QString name, QStringList& files);
+    void removePackage (const int& id); //TODO replace by package name
     QString outPath; //папка, куда будут распаковываться архивы
 	void setProgressBar (QProgressBar *progressBar) {m_progressBar = progressBar;};
 private:
@@ -41,7 +41,6 @@ private:
 	void installFromXML (const QString &inPath);
 	packageInfo package_info; //FIXME
 	QProgressBar *m_progressBar;
-	bool isValid (const packageInfo &package_info);
 	void install(QString);
 signals:
 	void finished ();
