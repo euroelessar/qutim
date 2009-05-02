@@ -108,8 +108,9 @@ QHash< QString, packageInfo > plugXMLHandler::createPackageList(const QDomDocume
 			packageInfo package = createPackageInfoFromNode(n.firstChild());
 			package.id = e.attribute("id").toInt();
 			QString key = package.properties.value("type")+"/"+package.properties.value("name");
-			if (package.isValid())
-				packages_list.insert(key,package);
+			if (!package.isValid())
+				qDebug() << "package is invalid";
+			packages_list.insert(key,package);
 	    }
 	    n = n.nextSibling();
 	}

@@ -89,12 +89,9 @@ void plugInstaller::installPackage() {
 
 
 void plugInstaller::installFromFile(const QString& inPath) {
-	//FIXME переписать на регэкспах
 	QString name = inPath.section("/",-1).section(".",0,-2);
-// 	qDebug() << name;
 	if (!hasPackageInfo(inPath)) {
-		package_info.properties["name"] = name;
-		package_info.properties["type"] = "other";
+		return;
 	}
 	if (collision_protect) {
 		CollisionProtect protect(outPath);
@@ -146,7 +143,7 @@ void plugInstaller::installFromXML(const QString& inPath) {
 			emit error("Exist name");
 			return;
 		}
-		if (!protect.checkPackageFiles(package_info.files))
+	if (!protect.checkPackageFiles(package_info.files))
 			return;
 	}	
     connect(plug_loader,SIGNAL(downloadFinished(QStringList)),this,SLOT(install(QStringList)));
