@@ -29,17 +29,17 @@ public:
     plugInstaller ();
     ~plugInstaller ();
 	void installPackage();
-    void removePackage (const int& id); //TODO replace by package name
+	void upgradePackage(); //!new unstable stuff
+    void removePackage (const QString& name, const QString& type = "all");
     QString outPath; //папка, куда будут распаковываться архивы
 	void setProgressBar (QProgressBar *progressBar) {m_progressBar = progressBar;};
 private:
     QString lastError;
     QStringList unpackArch (const QString &inPath);
-	bool hasPackageInfo (const QString &archPath);
+	packageInfo getPackageInfo (const QString &archPath);
 	bool collision_protect;
 	void installFromFile (const QString &inPath);
 	void installFromXML (const QString &inPath);
-	packageInfo package_info; //FIXME
 	QProgressBar *m_progressBar;
 	void install(QString);
 signals:

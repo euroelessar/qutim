@@ -20,13 +20,13 @@ QString packageInfo::toString() {
 
 bool packageInfo::isValid() {
 	if (properties.value("name").isEmpty())
-		return false;
+ 		return false;
 	if (properties.value("type").isEmpty())
-		return false;
+ 		return false;
 	if (!plugVersion(properties.value("version")).isValid())
-		return false;
+ 		return false;
 	if (properties["url"].section(".",-1)!="zip")
-		return false;
+ 		return false;
 	return true;
 }
 

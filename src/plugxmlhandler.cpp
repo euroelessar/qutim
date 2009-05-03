@@ -108,8 +108,8 @@ QHash< QString, packageInfo > plugXMLHandler::createPackageList(const QDomDocume
 			packageInfo package = createPackageInfoFromNode(n.firstChild());
 			package.id = e.attribute("id").toInt();
 			QString key = package.properties.value("type")+"/"+package.properties.value("name");
-			if (!package.isValid())
-				qDebug() << "package is invalid";
+			if (package.isValid())
+				qDebug() << QString("package %1 is valid").arg(package.properties.value("name"));
 			packages_list.insert(key,package);
 	    }
 	    n = n.nextSibling();
@@ -153,7 +153,7 @@ bool plugXMLHandler::registerPackage(const packageInfo &package_info) {
 	return true;
 }
 
-QStringList plugXMLHandler::removePackage(int package_id) {
+QStringList plugXMLHandler::removePackage(const QString &name, const QString &type) {
 	//FIXME возможно стоить выделить в отдельную функцию
 	QDomDocument doc_root;
 	QFile input(package_db_path);
@@ -168,20 +168,27 @@ QStringList plugXMLHandler::removePackage(int package_id) {
 	QDomNode n = packages.firstChild();
 	while (!n.isNull()) {
 	    QDomElement e = n.toElement(); // try to convert the node to an element.
-		qDebug() << e.attribute("id");
-		if (e.attribute("id").toInt()==package_id) {
-			QDomNode p = n.firstChild();
-			while (!p.isNull()){
+		QDomNode p = n.firstChild();
+		bool package_found = false;
+		while (!p.isNull()){
 				e = p.toElement();
-				if (e.tagName()=="files")
+				if (e.tagName()=="name"&&e.text()==name) {
+					package_found = true;
+					continue;
+				}
+				if (e.tagName()=="files"&&package_found) {
 					files_list = createFilesList(e.firstChild());
+					break;
+				}
 				p = p.nextSibling();
-			}
+		}
+		if (package_found&&!files_list.isEmpty()) {
 			doc_root.removeChild(n);
+			qDebug() << doc_root.toString();
+			return files_list;
 		}
 	    n = n.nextSibling();
 	}
- 	qDebug() << doc_root.toString();
 	return files_list;
 }
 
@@ -199,33 +206,6 @@ packageInfo plugXMLHandler::getPackageInfo(const QString& filename) {
 	input.close();
 	return createPackageInfoFromNode(doc.documentElement().firstChild());
 }
-
-packageInfo plugXMLHandler::getPackageInfo(const QUrl& url) {
-	return packageInfo();
-}
-
-packageInfo plugXMLHandler::getPackageInfo(const int id) {
-	QDomDocument doc;
-	
-	QFile input(package_db_path);
-	if (!input.open(QIODevice::ReadOnly)) {
-		//x3
-	}
-	if (!doc.setContent(&input)) {
-		// x3
-	}
-	input.close();
-	
-	return packageInfo();
-}
-
-packageInfo plugXMLHandler::getPackageInfo(const QByteArray& content) {
-	QDomDocument root;
-	if (!root.setContent(content)) 
-		return packageInfo();
-	return createPackageInfoFromNode(root.documentElement().firstChild());
-}
-
 
 QHash< QString, packageInfo > plugXMLHandler::getPackageList(QString path) {
 	QDomDocument doc_root;

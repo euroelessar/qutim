@@ -24,7 +24,6 @@ Boston, MA 02110-1301, USA.
 #include <QFileDialog>
 
 plugInstaller::plugInstaller()
-: package_info()
 {
 	
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim", "plugman");
@@ -89,50 +88,41 @@ void plugInstaller::installPackage() {
 
 
 void plugInstaller::installFromFile(const QString& inPath) {
-	QString name = inPath.section("/",-1).section(".",0,-2);
-	if (!hasPackageInfo(inPath)) {
-		return;
-	}
-	if (collision_protect) {
-		CollisionProtect protect(outPath);
-		if (!protect.checkPackageName(package_info.properties["name"])) {
-			emit error("Exist name");
-			return;
-		}
-	}	
 	install(inPath);
+	deleteLater();
 }
 
-bool plugInstaller::hasPackageInfo(const QString& archPath) {
+packageInfo plugInstaller::getPackageInfo(const QString& archPath) {
 	UnZip uz;
 	UnZip::ErrorCode ec = uz.openArchive(archPath);
 	if (ec != UnZip::Ok) {
 		lastError = tr("Unable to open archive");
-		return false;
+		return packageInfo();
 	}
 	QStringList packFiles = uz.fileList();
 	if (!packFiles.contains("Pinfo.xml"))
-		return false;
+		return packageInfo();
 	QString tmp_path = outPath + "/plugman/cache/"; //FIXME need SANDBOX!
 	uz.extractFile("Pinfo.xml",tmp_path);
 	if (ec != UnZip::Ok) {
 		lastError = tr ("Unable to extract archive");
-		return false;
+		return packageInfo();
 	}
 	plugXMLHandler handler;
 	tmp_path.append("Pinfo.xml");
-	package_info = handler.getPackageInfo(tmp_path);
+	packageInfo package_info = handler.getPackageInfo(tmp_path);
  	QFile::remove(tmp_path);
 	uz.closeArchive();
-	return true;
+	return package_info;
 }
 
 
 void plugInstaller::installFromXML(const QString& inPath) {
+	//TODO снести нафиг!
 	plugXMLHandler plug_handler;
     plugDownloader *plug_loader = new plugDownloader ();
 	plug_loader->setProgressbar(m_progressBar);
-	package_info = plug_handler.getPackageInfo(inPath);
+	packageInfo package_info = plug_handler.getPackageInfo(inPath);
 	if (!package_info.isValid()) {
 		emit error("Invalid package");
 		return;
@@ -157,6 +147,16 @@ void plugInstaller::installFromXML(const QString& inPath) {
 
 void plugInstaller::install(QString inPath) {
 	//FIXME
+	packageInfo package_info = getPackageInfo(inPath);
+	if (!package_info.isValid()) 
+		return;
+	if (collision_protect) {
+		CollisionProtect protect(outPath);
+		if (!protect.checkPackageName(package_info.properties["name"])) {
+			emit error("Exist name");
+			return;
+		}
+	}		
 	m_progressBar->setValue(50);
 	package_info.files = unpackArch(inPath);
 	if (package_info.files.isEmpty()) {
@@ -167,7 +167,6 @@ void plugInstaller::install(QString inPath) {
 	m_progressBar->setValue(100);
 	plug_handler.registerPackage(package_info);
 	m_progressBar->setVisible(false);
-	deleteLater();
 }
 
 void plugInstaller::install(QStringList fileList)
@@ -175,12 +174,13 @@ void plugInstaller::install(QStringList fileList)
 	foreach (QString filePath,fileList) {
 		install(filePath);
 	}
+	deleteLater();
 }
 
 
-void plugInstaller::removePackage(const int& id) {
+void plugInstaller::removePackage(const QString &name, const QString &type) {
 	plugXMLHandler plug_handler;
-	QStringList fileList = plug_handler.removePackage(id);
+	QStringList fileList = plug_handler.removePackage(name);
 	ushort i = 0;
 	foreach (QString filePath,fileList) {
 		QFile output (filePath);

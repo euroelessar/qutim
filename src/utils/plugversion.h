@@ -25,7 +25,7 @@ public:
 	plugVersion (const QString &version);
 	void setVersion (const QString &version);
 	void setXYZ (ushort major,ushort minor,ushort maintenance);
-	QString getVersion ();
+	QString toString ();
 	bool isValid ();
 	bool operator == (const plugVersion& plug_version);
 	bool operator != (const plugVersion& plug_version);

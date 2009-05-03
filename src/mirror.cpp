@@ -26,4 +26,8 @@ mirrorInfo::mirrorInfo(QString name, QUrl url, QString platform) {
 	this->platform = platform;
 }
 
+bool mirrorInfo::isValid()
+{
+	return true;
+}
 

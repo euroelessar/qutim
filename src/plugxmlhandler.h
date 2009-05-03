@@ -36,7 +36,7 @@ public:
     plugXMLHandler ();
     ~plugXMLHandler ();
     bool registerPackage (const packageInfo &package_info);
-    QStringList removePackage (int package_id);
+    QStringList removePackage (const QString &name, const QString &type = "all");
     /*!удаляет пакет из базы данных и возращает список файлов для удаления
     */
     packageInfo getPackageInfo (const QString &filename);
@@ -46,15 +46,7 @@ public:
 	packageInfo getPackageInfo (const QByteArray &content);
 	/*!
 	получаем необходимую инфу установщика из QByteArray
-	*/	
-    packageInfo getPackageInfo (const QUrl &url);
-    /*!
-    получаем необходимую инфу установщика из интернета (x3)
-    */
-	packageInfo getPackageInfo (const int id);
-    /*!
-    получаем из файла package.xml инфу о пакете с id
-    */	
+	*/
 	QHash<QString, packageInfo> getPackageList (QString path = QString::null);
     /*!
 	получаем из файла инфу обо всех установленных пакетах (по умолчанию package.xml)

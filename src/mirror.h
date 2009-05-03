@@ -26,6 +26,7 @@ struct mirrorInfo
 	QString name;
 	QUrl url;
 	QString platform;
+	bool isValid();
 };
 
 #endif // MIRROR_H

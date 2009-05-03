@@ -22,7 +22,7 @@ plugVersion::plugVersion(const QString& version)
 	setVersion(version);
 }
 
-QString plugVersion::getVersion()
+QString plugVersion::toString()
 {
 	return QString::number(major).append(".").append(QString::number(minor)).append(".").append(QString::number(maintenance));
 }
@@ -49,7 +49,7 @@ void plugVersion::setXYZ(ushort major, ushort minor, ushort maintenance)
 
 bool plugVersion::isValid()
 {
-	return (major!=0)&&(maintenance!=0)&&(minor!=0); //! если хоть одно из значений не 0, тогда версия имеет право на существование
+	return (major!=0)||(maintenance!=0)||(minor!=0); //! если хоть одно из значений не 0, тогда версия имеет право на существование
 }
 
 bool plugVersion::operator==(const plugVersion &plug_version)

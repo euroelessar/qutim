@@ -92,7 +92,7 @@ void plugPackageHandler::updatePackagesCache()
 	loader->setProgressbar(m_progress_bar);
 	connect(loader,SIGNAL(downloadFinished(QStringList)),this,SLOT(updatePlugPackageModel(QStringList)));	
 	foreach (mirrorInfo mirror_info, mirror_list) {
-		if (mirror_info.platform!=platform)
+		if (!mirror_info.isValid())
 			continue;
 		loader->addItem(downloaderItem(	mirror_info.url,
 										mirror_info.name + ".xml"
