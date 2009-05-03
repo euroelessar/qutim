@@ -72,17 +72,12 @@ QStringList plugInstaller::unpackArch(const QString& inPath) {
 
 void plugInstaller::installPackage() {
 	QString path = QFileDialog::getOpenFileName(0,tr("Install package from file"),".",
-												tr("Archives (*.zip);;XML files (*.xml)"));
+												tr("Archives (*.zip)"));
 	if (path.isEmpty())
 		return;
-	m_progressBar->setVisible(true);
 	m_progressBar->setValue(0);
 	if ((path.section(".",-1))=="zip") {
 	    this->installFromFile(path);
-	}
-	else if ((path.section(".",-1))=="xml")
-	{
-	    this->installFromXML(path);
 	}
 }
 
@@ -117,33 +112,33 @@ packageInfo plugInstaller::getPackageInfo(const QString& archPath) {
 }
 
 
-void plugInstaller::installFromXML(const QString& inPath) {
-	//TODO снести нафиг!
-	plugXMLHandler plug_handler;
-    plugDownloader *plug_loader = new plugDownloader ();
-	plug_loader->setProgressbar(m_progressBar);
-	packageInfo package_info = plug_handler.getPackageInfo(inPath);
-	if (!package_info.isValid()) {
-		emit error("Invalid package");
-		return;
-	}
-	if (collision_protect) {
-		CollisionProtect protect(outPath);
-		if (!protect.checkPackageName(package_info.properties["name"])) {
-			emit error("Exist name");
-			return;
-		}
-	if (!protect.checkPackageFiles(package_info.files))
-			return;
-	}	
-    connect(plug_loader,SIGNAL(downloadFinished(QStringList)),this,SLOT(install(QStringList)));
-    plug_loader->addItem(downloaderItem(package_info.properties["url"],
-															  package_info.properties["name"]
-															  +"-"+package_info.properties["version"]
-															  +".zip")
-															 ); //FIXME
-	plug_loader->startDownload();
-}
+// void plugInstaller::installFromXML(const QString& inPath) {
+// 	//TODO снести нафиг!
+// 	plugXMLHandler plug_handler;
+//     plugDownloader *plug_loader = new plugDownloader ();
+// 	plug_loader->setProgressbar(m_progressBar);
+// 	packageInfo package_info = plug_handler.getPackageInfo(inPath);
+// 	if (!package_info.isValid()) {
+// 		emit error("Invalid package");
+// 		return;
+// 	}
+// 	if (collision_protect) {
+// 		CollisionProtect protect(outPath);
+// 		if (!protect.checkPackageName(package_info.properties["name"])) {
+// 			emit error("Exist name");
+// 			return;
+// 		}
+// 	if (!protect.checkPackageFiles(package_info.files))
+// 			return;
+// 	}	
+//     connect(plug_loader,SIGNAL(downloadFinished(QStringList)),this,SLOT(install(QStringList)));
+//     plug_loader->addItem(downloaderItem(package_info.properties["url"],
+// 															  package_info.properties["name"]
+// 															  +"-"+package_info.properties["version"]
+// 															  +".zip")
+// 															 ); //FIXME
+// 	plug_loader->startDownload();
+// }
 
 void plugInstaller::install(QString inPath) {
 	//FIXME
@@ -175,6 +170,41 @@ void plugInstaller::install(QStringList fileList)
 		install(filePath);
 	}
 	deleteLater();
+}
+
+void plugInstaller::install(packageInfo package_info)
+{
+    plugDownloader *plug_loader = new plugDownloader ();
+	plug_loader->setProgressbar(m_progressBar);
+	if (!package_info.isValid()) {
+		emit error("Invalid package");
+		return;
+	}
+	if (collision_protect) {
+		CollisionProtect protect(outPath);
+		if (!protect.checkPackageName(package_info.properties["name"])) {
+			emit error("Exist name");
+			return;
+		}
+	if (!protect.checkPackageFiles(package_info.files))
+			return;
+	}
+    connect(plug_loader,SIGNAL(downloadFinished(QStringList)),this,SLOT(install(QStringList)));
+    plug_loader->addItem(downloaderItem(package_info.properties["url"],
+															  package_info.properties["name"]
+															  +"-"+package_info.properties["version"]
+															  +".zip")
+															 );
+	plug_loader->startDownload();
+	
+}
+
+
+void plugInstaller::upgradePackage(const packageInfo& package_info)
+{
+	//TODO transaction mechanism with sandbox
+	removePackage(package_info.properties.value("name"));
+	install(package_info);
 }
 
 

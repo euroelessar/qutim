@@ -25,7 +25,7 @@ CollisionProtect::CollisionProtect(const QString& prefix) {
 }
 
 
-bool CollisionProtect::checkPackageFiles(QStringList& files) {
+bool CollisionProtect::checkPackageFiles(const QStringList& files) {
 	foreach (QString value,files) {
 		QString file = prefix + value;
 		QFileInfo info (file);
@@ -35,7 +35,7 @@ bool CollisionProtect::checkPackageFiles(QStringList& files) {
 	return true;
 }
 
-bool CollisionProtect::checkPackageName(QString& name) {
+bool CollisionProtect::checkPackageName(const QString& name) {
 	plugXMLHandler plug_handler;
 	return !(plug_handler.getPackageNames().contains(name));
 }

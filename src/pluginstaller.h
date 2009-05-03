@@ -29,7 +29,7 @@ public:
     plugInstaller ();
     ~plugInstaller ();
 	void installPackage();
-	void upgradePackage(); //!new unstable stuff
+	void upgradePackage(const packageInfo &package_info); //!new unstable stuff
     void removePackage (const QString& name, const QString& type = "all");
     QString outPath; //папка, куда будут распаковываться архивы
 	void setProgressBar (QProgressBar *progressBar) {m_progressBar = progressBar;};
@@ -39,9 +39,10 @@ private:
 	packageInfo getPackageInfo (const QString &archPath);
 	bool collision_protect;
 	void installFromFile (const QString &inPath);
-	void installFromXML (const QString &inPath);
+// 	void installFromXML (const QString &inPath);
 	QProgressBar *m_progressBar;
 	void install(QString);
+	void install(packageInfo package_info);
 signals:
 	void finished ();
 	void error(QString);
