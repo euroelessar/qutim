@@ -20,7 +20,7 @@
 #include <QItemDelegate>
 
 
-class plugItemDelegate : public QItemDelegate
+class plugItemDelegate : public QAbstractItemDelegate
 {
 	Q_OBJECT
 public:

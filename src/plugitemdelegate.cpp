@@ -110,23 +110,26 @@ void plugItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 					width - textInner, itemHeight / 2,
 					Qt::AlignTop | Qt::AlignRight, attribute);
 	}
-// 	if (option.state & QStyle::State_Selected)	{
-// 		p.fillRect(option.rect,foregroundColor);
-// 	}
-
+        QPixmap background_pixmap(option.rect.size());
+        background_pixmap.fill(Qt::transparent);
+ 	if (option.state & QStyle::State_Selected)	{
+            background_pixmap.fill(option.palette.highlight().color());
+ 	}
 	p.end();
 	icon.paint(	painter,
 				leftToRight ? left + UNIVERSAL_PADDING : left + width - UNIVERSAL_PADDING - MAIN_ICON_SIZE,
 				top + UNIVERSAL_PADDING,
 				MAIN_ICON_SIZE, MAIN_ICON_SIZE, Qt::AlignCenter, QIcon::Normal
 				);
-	drawDecoration(painter, option,option.rect, pixmap);
+//        pixmap.setAlphaChannel(background_pixmap);
+        painter->drawPixmap(option.rect,pixmap);
+//	drawDecoration(painter, option,option.rect, pixmap);
 // 	drawBackground(painter,option,index);
 }
 
 QWidget* plugItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-return QItemDelegate::createEditor(parent, option, index);
+return QAbstractItemDelegate::createEditor(parent,option,index);
 }
 
 int plugItemDelegate::calcItemHeight(const QStyleOptionViewItem &option) const
