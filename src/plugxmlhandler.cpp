@@ -160,14 +160,32 @@ QStringList plugXMLHandler::removePackage(const QString &name, const QString &ty
 	QStringList files_list;
 	if (!input.open(QIODevice::ReadWrite)) {
 		//x3
+		input.close();
+		qDebug() << "Can't read database. Check your pesmissions.";
+		return QStringList();
 	}
 	if (!doc_root.setContent(&input)) {
 		// x3
+		input.close();
+		qDebug() << "Broken packet database";
+		return QStringList();
 	}
+
 	QDomElement packages = doc_root.documentElement();
-	QDomNode n = packages.firstChild();
+	foreach (QDomNode package, packages.childNodes())
+	{
+		if (package.firstChildElement("name").text() == name)
+		{
+			files_list = createFilesList(package.firstChildElement("files").firstChild());
+			doc_root.removeChild(package);
+			qDebug() << doc_root.toString();
+			input.write(doc_root.toString().toUtf8());
+			break;
+		}
+	}
+	/*QDomNode n = packages.firstChild();
 	while (!n.isNull()) {
-	    QDomElement e = n.toElement(); // try to convert the node to an element.
+		QDomElement e = n.toElement(); // try to convert the node to an element.
 		QDomNode p = n.firstChild();
 		bool package_found = false;
 		while (!p.isNull()){
@@ -187,8 +205,9 @@ QStringList plugXMLHandler::removePackage(const QString &name, const QString &ty
 			qDebug() << doc_root.toString();
 			return files_list;
 		}
-	    n = n.nextSibling();
-	}
+		 n = n.nextSibling();
+	}*/
+	input.close();
 	return files_list;
 }
 
