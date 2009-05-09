@@ -172,8 +172,11 @@ QStringList plugXMLHandler::removePackage(const QString &name, const QString &ty
 	}
 
 	QDomElement packages = doc_root.documentElement();
-	foreach (QDomNode package, packages.childNodes())
+	QDomNodeList packages_node = packages.childNodes();
+	//foreach (QDomNode package, packages.childNodes())
+	for (int num = 0; num < packages_node.count(); num++)
 	{
+		QDomNode package = packages_node.item(num);
 		if (package.firstChildElement("name").text() == name)
 		{
 			files_list = createFilesList(package.firstChildElement("files").firstChild());
