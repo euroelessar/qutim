@@ -42,18 +42,22 @@ const uchar *skipBlanks (const uchar *s, int *maxLength);
  * skip one record
  * the 'record' is either one full field ( field: val)
  * or one list/object.
- * return ptr to the first non-blank char after the record
+ * return ptr to the first non-blank char after the record (or 0)
  * 'maxLen' will be changed
  */
 const uchar *skipRec (const uchar *s, int *maxLength);
 
 /*
  * parse one simple record (f-v pair)
+ * return ptr to the first non-blank char after the record (or 0)
+ * 'maxLen' will be changed
  */
 const uchar *parseSimple (QString &fname, QVariant &fvalue, const uchar *s, int *maxLength);
 
 /*
  * parse one record (list or object)
+ * return ptr to the first non-blank char after the record (or 0)
+ * 'maxLen' will be changed
  */
 const uchar *parseRec (QVariant &res, const uchar *s, int *maxLength);
 
