@@ -54,40 +54,40 @@
 class ZipPrivate
 {
 public:
-	ZipPrivate();
-	virtual ~ZipPrivate();
+    ZipPrivate();
+    virtual ~ZipPrivate();
 
-	QMap<QString,ZipEntryP*>* headers;
+    QMap<QString,ZipEntryP*>* headers;
 
-	QIODevice* device;
+    QIODevice* device;
 
-	char buffer1[ZIP_READ_BUFFER];
-	char buffer2[ZIP_READ_BUFFER];
+    char buffer1[ZIP_READ_BUFFER];
+    char buffer2[ZIP_READ_BUFFER];
 
-	unsigned char* uBuffer;
+    unsigned char* uBuffer;
 
-	const quint32* crcTable;
+    const quint32* crcTable;
 
-	QString comment;
-	QString password;
+    QString comment;
+    QString password;
 
-	Zip::ErrorCode createArchive(QIODevice* device);
-	Zip::ErrorCode closeArchive();
-	void reset();
+    Zip::ErrorCode createArchive(QIODevice* device);
+    Zip::ErrorCode closeArchive();
+    void reset();
 
-	bool zLibInit();
+    bool zLibInit();
 
-	Zip::ErrorCode createEntry(const QFileInfo& file, const QString& root, Zip::CompressionLevel level);
-	Zip::CompressionLevel detectCompressionByMime(const QString& ext);
+    Zip::ErrorCode createEntry(const QFileInfo& file, const QString& root, Zip::CompressionLevel level);
+    Zip::CompressionLevel detectCompressionByMime(const QString& ext);
 
-	inline void encryptBytes(quint32* keys, char* buffer, qint64 read);
+    inline void encryptBytes(quint32* keys, char* buffer, qint64 read);
 
-	inline void setULong(quint32 v, char* buffer, unsigned int offset);
-	inline void updateKeys(quint32* keys, int c) const;
-	inline void initKeys(quint32* keys) const;
-	inline int decryptByte(quint32 key2) const;
+    inline void setULong(quint32 v, char* buffer, unsigned int offset);
+    inline void updateKeys(quint32* keys, int c) const;
+    inline void initKeys(quint32* keys) const;
+    inline int decryptByte(quint32 key2) const;
 
-	inline QString extractRoot(const QString& p);
+    inline QString extractRoot(const QString& p);
 };
 
 #endif // OSDAB_ZIP_P__H

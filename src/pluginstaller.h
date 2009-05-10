@@ -19,36 +19,35 @@ Boston, MA 02110-1301, USA.
 
 #include <QObject>
 #include <QHash>
-#include "plugxmlhandler.h"
 #include <QProgressBar>
-class plugxmlhandler;
+#include "plugxmlhandler.h"
 class plugInstaller : public QObject
 {
     Q_OBJECT
 public:
     plugInstaller ();
     ~plugInstaller ();
-	void installPackage();
-	void upgradePackage(const packageInfo &package_info); //!new unstable stuff
+    void installPackage();
+    void upgradePackage(const packageInfo &package_info); //!new unstable stuff
     void removePackage (const QString& name, const QString& type = "all");
-    QString outPath; //папка, куда будут распаковываться архивы
-	void setProgressBar (QProgressBar *progressBar) {m_progressBar = progressBar;};
+    QString outPath; //папка, куда будут распаковываться архивы, TODO QStringList paths = plugin_system->getSharePaths(); support
+    void setProgressBar (QProgressBar *progressBar) {m_progressBar = progressBar;};
 private:
     QString lastError;
     QStringList unpackArch (const QString &inPath);
-	packageInfo getPackageInfo (const QString &archPath);
-	bool collision_protect;
-	void installFromFile (const QString &inPath);
-// 	void installFromXML (const QString &inPath);
-	QProgressBar *m_progressBar;
-	void install(QString);
-	void install(packageInfo package_info);
+    packageInfo getPackageInfo (const QString &archPath);
+    bool collision_protect;
+    void installFromFile (const QString &inPath);
+//  void installFromXML (const QString &inPath);
+    QProgressBar *m_progressBar;
+    void install(QString);
+    void install(packageInfo package_info);
 signals:
-	void finished ();
-	void error(QString);
+    void finished ();
+    void error(QString);
 public slots:
-	void errorHandler(const QString &error);
-	void install(QStringList); //готов для установки (то есть скачался)
+    void errorHandler(const QString &error);
+    void install(QStringList); //готов для установки (то есть скачался)
 };
 
 #endif // PLUGINSTALLER_H

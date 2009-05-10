@@ -24,12 +24,18 @@ Boston, MA 02110-1301, USA.
 plugDownloader::plugDownloader(const QString& path, QObject* parent)
 		: QObject(parent), downloadedCount(0), totalCount(0)
 {
+    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache", "plugman");
 	if (path.isEmpty()) {
-		QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache", "plugman");
-		outPath = settings.fileName().section("/",0,-2)+"/";
-	}
-	else
-		outPath = path;
+            QFileInfo config_dir = settings.fileName();
+            QDir current_dir = qApp->applicationDirPath();
+            if( config_dir.canonicalPath().contains( current_dir.canonicalPath() ) )
+                outPath = current_dir.relativeFilePath( config_dir.absolutePath() );
+            else
+                outPath = config_dir.absolutePath();
+            outPath.append("/");
+        }
+        else
+            outPath = path;
 	QDir dir;
 	dir.mkpath(outPath);
 }
@@ -59,7 +65,7 @@ void plugDownloader::startNextDownload()
 	}
 	downloaderItem downloadItem = m_download_queue.dequeue();
 
-	output.setFileName(outPath+downloadItem.filename);
+        output.setFileName(outPath+downloadItem.filename);
 	QNetworkRequest request(downloadItem.url);
 	currentDownload = manager.get(request);
 	connect(currentDownload, SIGNAL(downloadProgress(qint64,qint64)),

@@ -24,7 +24,14 @@ plugPackageHandler::plugPackageHandler(plugPackageModel* plug_package_model, QPr
 	m_progress_bar = progress_bar;
 	default_attribute = installed;
 	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache/sources", "plugman");
-	cachePath = settings.fileName().section("/",0,-2)+"/";
+//	cachePath = settings.fileName().section("/",0,-2)+"/";
+        QFileInfo config_dir = settings.fileName();
+        QDir current_dir = qApp->applicationDirPath();
+        if( config_dir.canonicalPath().contains( current_dir.canonicalPath() ) )
+            cachePath = current_dir.relativeFilePath( config_dir.absolutePath() );
+        else
+            cachePath = config_dir.absolutePath();
+        cachePath.append("/");
 }
 
 plugPackageHandler::~plugPackageHandler() {

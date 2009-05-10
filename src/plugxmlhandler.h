@@ -20,8 +20,6 @@
 #include <QObject>
 #include <QStringList>
 #include <QDomDocument>
-#include <QUrl>
-#include <QFile>
 #include <QHash>
 #include "plugpackage.h"
 
@@ -33,7 +31,7 @@ class plugXMLHandler : public QObject
 {
     Q_OBJECT
 public:
-    plugXMLHandler ();
+    plugXMLHandler (QObject *parent = 0);
     ~plugXMLHandler ();
     bool registerPackage (const packageInfo &package_info);
     QStringList removePackage (const QString &name, const QString &type = "all");
@@ -42,6 +40,10 @@ public:
     packageInfo getPackageInfo (const QString &filename);
     /*!
     получаем необходимую инфу установщика из файла
+    */
+    packageInfo getPackageInfoFromDB (const QString &name, const QString &type = "all");
+    /*!
+    получаем необходимую инфу из базы данных пакетов
     */
 	packageInfo getPackageInfo (const QByteArray &content);
 	/*!
