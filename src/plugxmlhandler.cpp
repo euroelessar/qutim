@@ -24,7 +24,7 @@ Boston, MA 02110-1301, USA.
 #include <QApplication> //FIXME
 
 plugXMLHandler::plugXMLHandler(QObject *parent)
-: QObject(parent)
+    : QObject(parent)
 {
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
     QFileInfo config_dir = settings.fileName();
@@ -87,7 +87,7 @@ packageInfo plugXMLHandler::createPackageInfoFromNode(QDomNode n) {
             }
             else {
                 package_info.properties[e.tagName()] =e.text();
-//                                                qDebug() << e.tagName() << " : " << e.text();
+                //                                                qDebug() << e.tagName() << " : " << e.text();
             }
         }
         n = n.nextSibling();
@@ -120,8 +120,8 @@ QHash< QString, packageInfo > plugXMLHandler::createPackageList(const QDomDocume
             packageInfo package = createPackageInfoFromNode(n.firstChild());
             package.id = e.attribute("id").toInt();
             QString key = package.properties.value("type")+"/"+package.properties.value("name");
-//            if (package.isValid())
-//                qDebug() << QString("package %1 is valid").arg(package.properties.value("name"));
+            //            if (package.isValid())
+            //                qDebug() << QString("package %1 is valid").arg(package.properties.value("name"));
             packages_list.insert(key,package);
         }
         n = n.nextSibling();
@@ -139,7 +139,7 @@ bool plugXMLHandler::registerPackage(const packageInfo &package_info) {
             return false;
         }
         if (!doc.setContent(&input)) {
-            qDebug() << "Unable to open read";
+            qDebug() << "Unable to set content";
             return false;
         }
         input.close();
@@ -170,7 +170,7 @@ QStringList plugXMLHandler::removePackage(const QString &name, const QString &ty
     QDomDocument doc_root;
     QFile input(package_db_path);
     QStringList files_list;
-    if (!input.open(QIODevice::ReadWrite)) {
+    if (!input.open(QIODevice::ReadOnly)) {
         //x3
         input.close();
         qDebug() << "Can't read database. Check your pesmissions.";
@@ -192,10 +192,22 @@ QStringList plugXMLHandler::removePackage(const QString &name, const QString &ty
         if (package.firstChildElement("name").text() == name)
         {
             files_list = createFilesList(package.firstChildElement("files").firstChild());
-            doc_root.removeChild(package.firstChildElement());
+            doc_root.removeChild(package.firstChildElement("name"));
             qDebug() << doc_root.toString();
+            input.close();
+            QFile output(QString(package_db_path+".lock"));
+            if (!output.open(QIODevice::WriteOnly)) {
+                qDebug() << "Unable to write file";
+                return QStringList ();
+            }
+            globalCount--; //obsolete stuff
+            QTextStream out(&output);
+            doc_root.save(out,2,QDomNode::EncodingFromTextStream);
+            output.close();
+            input.remove();
+            output.rename(package_db_path);
             //input.write(doc_root.toString().toUtf8());
-            break;
+            return files_list;
         }
     }
     /*QDomNode n = packages.firstChild();
@@ -297,7 +309,7 @@ packageInfo plugXMLHandler::getPackageInfoFromDB(const QString &name, const QStr
     QDomDocument doc_root;
     QFile input(package_db_path);
     QStringList files_list;
-    if (!input.open(QIODevice::ReadWrite)) {
+    if (!input.open(QIODevice::ReadOnly)) {
         //x3
         input.close();
         qDebug() << "Can't read database. Check your pesmissions.";

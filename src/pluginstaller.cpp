@@ -116,6 +116,7 @@ packageInfo plugInstaller::getPackageInfo(const QString& archPath) {
     packageInfo package_info = handler.getPackageInfo(tmp_path);
     QFile::remove(tmp_path);
     uz.closeArchive();
+    qDebug () << package_info.properties.value("name");
     return package_info;
 }
 
@@ -155,7 +156,6 @@ void plugInstaller::install(QString inPath) {
         return;
     plugXMLHandler plug_handler;
     packageInfo installed_package_info = plug_handler.getPackageInfoFromDB(package_info.properties.value("name"),package_info.properties.value("type"));
-    qDebug () << "installed package : " << package_info.properties.value("name") << installed_package_info.properties.value("name");
     if (installed_package_info.isValid()) {//если он valid, значит он существует ^_^
         qDebug () << "found installed package : " << installed_package_info.properties.value("name");
         if (plugVersion(installed_package_info.properties.value("version"))<plugVersion(package_info.properties.value("version")))
@@ -235,7 +235,7 @@ void plugInstaller::removePackage(const QString &name, const QString &type) {
     QStringList fileList = plug_handler.removePackage(name);
     ushort i = 0;
     foreach (QString filePath,fileList) {
-        QFile output (filePath);
+        QFile output (outPath+filePath);
         output.remove();
         m_progressBar->setValue(qRound(i/fileList.count()*100));
     }
