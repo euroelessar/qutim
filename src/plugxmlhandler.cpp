@@ -170,7 +170,7 @@ QStringList plugXMLHandler::removePackage(const QString &name, const QString &ty
     QDomDocument doc_root;
     QFile input(package_db_path);
     QStringList files_list;
-    if (!input.open(QIODevice::ReadOnly)) {
+    if (!input.open(QIODevice::ReadWrite)) {
         //x3
         input.close();
         qDebug() << "Can't read database. Check your pesmissions.";
@@ -192,7 +192,7 @@ QStringList plugXMLHandler::removePackage(const QString &name, const QString &ty
         if (package.firstChildElement("name").text() == name)
         {
             files_list = createFilesList(package.firstChildElement("files").firstChild());
-            doc_root.removeChild(package.firstChildElement("name"));
+            doc_root.removeChild(package);//вот нихрена не работает, хз почему )=
             qDebug() << doc_root.toString();
             input.close();
             QFile output(QString(package_db_path+".lock"));
@@ -200,13 +200,12 @@ QStringList plugXMLHandler::removePackage(const QString &name, const QString &ty
                 qDebug() << "Unable to write file";
                 return QStringList ();
             }
-            globalCount--; //obsolete stuff
+            //globalCount--; //obsolete stuff
             QTextStream out(&output);
             doc_root.save(out,2,QDomNode::EncodingFromTextStream);
             output.close();
             input.remove();
             output.rename(package_db_path);
-            //input.write(doc_root.toString().toUtf8());
             return files_list;
         }
     }
@@ -333,6 +332,7 @@ packageInfo plugXMLHandler::getPackageInfoFromDB(const QString &name, const QStr
             return createPackageInfoFromNode(package.firstChildElement());
         }
     }
+    return packageInfo();
 }
 
 

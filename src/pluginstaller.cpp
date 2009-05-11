@@ -202,15 +202,15 @@ void plugInstaller::install(packageInfo package_info)
         emit error("Invalid package");
         return;
     }
-    if (collision_protect) {
-        CollisionProtect protect(outPath);
-        if (!protect.checkPackageName(package_info.properties["name"])) {
-            emit error("Exist name");
-            return;
-        }
-        if (!protect.checkPackageFiles(package_info.files))
-            return;
-    }
+//    if (collision_protect) {
+//        CollisionProtect protect(outPath);
+//        if (!protect.checkPackageName(package_info.properties["name"])) {
+//            emit error("Exist name");
+//            return;
+//        }
+//        if (!protect.checkPackageFiles(package_info.files))
+//            return;
+//    }
     connect(plug_loader,SIGNAL(downloadFinished(QStringList)),this,SLOT(install(QStringList)));
     plug_loader->addItem(downloaderItem(package_info.properties["url"],
                                         package_info.properties["name"]
@@ -233,11 +233,10 @@ void plugInstaller::upgradePackage(const packageInfo& package_info)
 void plugInstaller::removePackage(const QString &name, const QString &type) {
     plugXMLHandler plug_handler;
     QStringList fileList = plug_handler.removePackage(name);
-    ushort i = 0;
-    foreach (QString filePath,fileList) {
-        QFile output (outPath+filePath);
+    for (uint i = fileList.count();i>0;i--) {
+        QFile output (outPath+fileList.at(i-1));
         output.remove();
-        m_progressBar->setValue(qRound(i/fileList.count()*100));
+        m_progressBar->setValue(qRound((fileList.count()-i)/fileList.count()*100));
     }
 }
 
