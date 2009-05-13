@@ -192,7 +192,7 @@ QStringList plugXMLHandler::removePackage(const QString &name, const QString &ty
         if (package.firstChildElement("name").text() == name)
         {
             files_list = createFilesList(package.firstChildElement("files").firstChild());
-            doc_root.removeChild(package);//вот нихрена не работает, хз почему )=
+            package.parentNode().removeChild(package);
             qDebug() << doc_root.toString();
             input.close();
             QFile output(QString(package_db_path+".lock"));
