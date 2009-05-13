@@ -40,7 +40,7 @@ plugPackageHandler::~plugPackageHandler() {
 
 void plugPackageHandler::getPackageList() {
 	m_progress_bar->setVisible(true);
-	default_attribute = installed;
+        default_attribute = installed;
 	updatePlugPackageModel();
 	updatePackagesCache();
 	return;
@@ -64,8 +64,7 @@ void plugPackageHandler::updatePlugPackageModel(const QString& filename) {
 		ItemData item(	buddy,
 						QIcon(":/icons/hi64-action-package.png"),
 						packages_list.value(it.key()),
-						default_attribute,
-						packages_list.value(it.key()).id
+                                                default_attribute
 						);
 		m_plug_package_model->addItem(item,it.key());
 	}
@@ -94,7 +93,7 @@ void plugPackageHandler::readMirrorList()
 void plugPackageHandler::updatePackagesCache()
 {
 	readMirrorList();
-	default_attribute = isInstallable;
+        default_attribute = isInstallable;
 	plugDownloader *loader = new plugDownloader(cachePath,this);
 	loader->setProgressbar(m_progress_bar);
 	connect(loader,SIGNAL(downloadFinished(QStringList)),this,SLOT(updatePlugPackageModel(QStringList)));	

@@ -18,50 +18,60 @@
 #include "plugitemdelegate.h"
 #include <QDebug>
 plugManager::plugManager(QWidget* parent)
-: m_package_model(new plugPackageModel)
+    : m_package_model(new plugPackageModel)
 {
-	setupUi(this);
-	setParent(parent);
+    setupUi(this);
+    setParent(parent); 
+    progressBar->setVisible(false);
+    treeView->setModel(m_package_model);
+    treeView->setAnimated(true);
+    treeView->setItemDelegate(new plugItemDelegate(this));
 
-	progressBar->setVisible(false);
-	treeView->setModel(m_package_model);
-	
- 	treeView->setItemDelegate(new plugItemDelegate(this));
-	
     QMenu *menu = new QMenu(tr("Actions"),this);
-	m_actions.append(new QAction(QIcon(":/icons/open.png"),tr("Install package from file"),this));
-	connect(m_actions.at(0),SIGNAL(triggered(bool)),this,SLOT(installFromFile()));
-	m_actions.append(new QAction(QIcon(":/icons/internet.png"),tr("Update packages list"),this));
-	connect(m_actions.at(1),SIGNAL(triggered(bool)),this,SLOT(updatePackageList()));
-// 	connect(m_actions.at(1),SIGNAL(triggered(bool)),this,SLOT(installFromFile()));
-	m_actions.append(new QAction(QIcon(),tr("Upgrade all"),this));
-	menu->addActions(m_actions);
-	menu->addSeparator();
-	m_actions.append(new QAction(QIcon(":/icons/revert.png"),tr("Revert changes"),this));
-	menu->addAction(m_actions.back());
+    m_actions.append(new QAction(QIcon(":/icons/open.png"),tr("Install package from file"),this));
+    connect(m_actions.at(0),SIGNAL(triggered(bool)),this,SLOT(installFromFile()));
+    m_actions.append(new QAction(QIcon(":/icons/internet.png"),tr("Update packages list"),this));
+    connect(m_actions.at(1),SIGNAL(triggered(bool)),this,SLOT(updatePackageList()));
+    m_actions.append(new QAction(QIcon(),tr("Upgrade all"),this));
+    connect(m_actions.at(2),SIGNAL(triggered(bool)),m_package_model,SLOT(upgradeAll()));
+    menu->addActions(m_actions);
+    menu->addSeparator();
+    m_actions.append(new QAction(QIcon(":/icons/revert.png"),tr("Revert changes"),this));
+    connect(m_actions.at(3),SIGNAL(triggered(bool)),m_package_model,SLOT(uncheckAll()));
+    menu->addAction(m_actions.back());
     actionsButton->setMenu(menu);
-
- 	updatePackageList();
+    connect(okButton,SIGNAL(clicked()),this,SLOT(applyChanges()));
+    updatePackageList();
+    //connect (m_package_model,SIGNAL(dataChanged()),this,SLOT(updatePackageList()));
 }
 
 plugManager::~plugManager() {
     qDeleteAll(m_actions);
-	delete(m_package_model);
+    delete(m_package_model);
 }
 
 void plugManager::installFromFile() {
     plugInstaller *plug_install = new plugInstaller;
     plug_install->setParent(this);
-	progressBar->setVisible(true);
+    progressBar->setVisible(true);
     plug_install->setProgressBar(progressBar);
     // 	progressBar->setFormat(tr("Install package : %p%"));
     plug_install->installPackage();
- 	connect(plug_install,SIGNAL(destroyed(QObject*)),this,SLOT(updatePackageList()));
+    connect(plug_install,SIGNAL(destroyed(QObject*)),this,SLOT(updatePackageList()));
 }
 
 void plugManager::updatePackageList() {
-	m_package_model->clear();
-	plugPackageHandler *plug_package_handler = new plugPackageHandler (m_package_model,progressBar);
-	plug_package_handler->getPackageList();
-	progressBar->setVisible(false);
+    m_package_model->clear();
+    plugPackageHandler *plug_package_handler = new plugPackageHandler (m_package_model,progressBar);
+    plug_package_handler->getPackageList();
+    progressBar->setVisible(false);
+    connect(plug_package_handler,SIGNAL(destroyed()),this,SLOT(updatePackageView()));
+}
+
+void plugManager::updatePackageView() {
+    treeView->expandAll();
+}
+
+void plugManager::applyChanges() {
+
 }

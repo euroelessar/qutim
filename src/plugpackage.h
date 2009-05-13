@@ -45,9 +45,6 @@ enum packageAttribute {
 	isUpgradable,
 	isDowngradable,
 	isInstallable,
-	markedForInstall,
-	markedForUpgrade,
-	markedForRemove,
 	installed,
 };
 
@@ -56,13 +53,25 @@ enum itemType {
 	group
 };
 
+enum packageChecked{
+    unchecked,
+    markedForInstall,
+    markedForUpgrade,
+    markedForDowngrade,
+    markedForRemove,
+};
+
 struct ItemData {
-	ItemData(itemType type,  QIcon icon = QIcon() ,packageInfo packageItem = packageInfo(),packageAttribute attribute = installed , quint32 id = 0);
+        ItemData(itemType type,
+                 QIcon icon = QIcon(),
+                 packageInfo packageItem = packageInfo(),
+                 packageAttribute attribute = installed,
+                 packageChecked checked = unchecked);
 	ItemData();
 	packageInfo packageItem;
-	quint32 id; //!package id from packages.xml
 	QIcon icon;
 	itemType type;
 	packageAttribute attribute;
+        packageChecked checked;
 };
 #endif // PLUGPACKAGE_H

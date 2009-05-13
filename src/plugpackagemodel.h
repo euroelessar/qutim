@@ -23,10 +23,21 @@ Boston, MA 02110-1301, USA.
 
 class plugPackageModel : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
 	plugPackageModel(QObject *parent = 0);
 	~plugPackageModel();
 // 	void setRootNode (plugPackageItem *plug_package_item);
+        enum {
+                NameRole = Qt::UserRole,
+                InstalledRole, //installed, isUpgradable, etc
+                IconRole,
+                IdRole,
+                GroupRole,
+                CheckedRole,
+                SummaryRole,
+                CategoryRole //Категория или пакет?
+        };
 	QModelIndex index (	int row, int column,
 						const QModelIndex &parent) const;
 	QModelIndex parent (const QModelIndex &child) const;
@@ -39,22 +50,17 @@ public:
 	QVariant headerData(int section,
 						 Qt::Orientation orientation,
 						 int role = Qt::DisplayRole) const;	
-	enum {
-		NameRole = Qt::UserRole,
-		InstalledRole, //installed, isUpgradable, etc
-		IconRole,
-		IdRole,
-		GroupRole,
-		CheckedRole,
-		SummaryRole,
-		CategoryRole //Категория или пакет?
-	};
+        QHash<QString, plugPackageItem *> getCheckedPackages ();  
+        bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);     
 private:
 	plugPackageItem *m_root_node;
 	plugPackageItem *nodeFromIndex(const QModelIndex &index) const;
 	QHash<QString, plugPackageItem *> m_category_nodes; //! категории пакетов
 	QHash<QString, plugPackageItem *> m_packages; //!список всех пакетов
-	QList<plugPackageItem *> m_checked_packages;
+        QHash<QString, plugPackageItem *> m_checked_packages;
+public slots:
+        void uncheckAll ();
+        void upgradeAll ();
 };
 
 #endif // PLUGPACKAGEMODEL_H

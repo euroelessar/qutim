@@ -335,4 +335,3 @@ packageInfo plugXMLHandler::getPackageInfoFromDB(const QString &name, const QStr
     return packageInfo();
 }
 
-

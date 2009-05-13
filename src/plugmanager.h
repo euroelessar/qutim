@@ -35,6 +35,8 @@ public slots:
 	void updatePackageList();
 private slots:
 	void installFromFile();
+        void updatePackageView();
+        void applyChanges();
 };
 
 #endif // PLUGMANAGER_H

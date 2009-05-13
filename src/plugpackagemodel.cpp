@@ -68,6 +68,8 @@ QVariant plugPackageModel::data(const QModelIndex& index, int role) const {
 				return node->getItemData()->icon;
 			case InstalledRole:
 				return node->getItemData()->attribute;
+                        case CheckedRole:
+                                return node->getItemData()->checked;
 			case CategoryRole:
 				return m_category_nodes.contains(node->item_name);
 			case SummaryRole:
@@ -134,9 +136,64 @@ void plugPackageModel::clear() {
 	reset();
 	delete(m_root_node);
 	m_category_nodes.clear();
-	qDebug() << m_packages;
+        m_checked_packages.clear();
 	m_packages.clear();
  	m_root_node = new plugPackageItem;
-	qDebug () << "clear";	
 }
 
+QHash<QString, plugPackageItem *> plugPackageModel::getCheckedPackages() {
+    return m_checked_packages;
+}
+
+bool plugPackageModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+    if (role != CheckedRole)
+        return false;
+    plugPackageItem *node = nodeFromIndex(index);
+    if (node->getItemData()->type==group)
+        return false;
+    int installedRole = node->getItemData()->attribute;
+    int checkedRole = node->getItemData()->checked;
+    QString name = node->getItemData()->packageItem.properties.value("type") + "/" + node->getItemData()->packageItem.properties.value("name");
+    qDebug() << name;
+    switch (checkedRole) {
+        case unchecked:
+            switch (installedRole) {
+                case isInstallable:
+                    node->getItemData()->checked = markedForInstall;
+                    break;
+                case isUpgradable:
+                    node->getItemData()->checked = markedForUpgrade;
+                    break;
+                case isDowngradable:
+                    node->getItemData()->checked = markedForDowngrade;
+                    break;
+            }
+            m_checked_packages.insert(name,node);
+            break;
+        case markedForInstall:
+            node->getItemData()->checked = unchecked;
+            m_checked_packages.remove(name);
+            break;
+    }
+    emit dataChanged(createIndex(0, 1), createIndex(m_category_nodes.size(), 1));
+    return false;
+}
+ void plugPackageModel::uncheckAll() {
+    qDebug() << m_checked_packages;
+    QHash<QString,plugPackageItem *>::const_iterator it = m_checked_packages.begin();
+    for (it = m_checked_packages.begin(); it!=m_checked_packages.end();it++) {
+        it.value()->getItemData()->checked = unchecked;
+    }
+    m_checked_packages.clear();
+ }
+
+ void plugPackageModel::upgradeAll() {
+    QHash<QString,plugPackageItem *>::const_iterator it = m_packages.begin();
+    for (it = m_packages.begin(); it!=m_packages.end();it++) {
+        if (it.value()->getItemData()->attribute == isUpgradable && !m_checked_packages.contains(it.key())) {
+            m_checked_packages.insert(it.key(),it.value());
+            it.value()->getItemData()->checked == markedForUpgrade;
+
+        }
+    }
+ }

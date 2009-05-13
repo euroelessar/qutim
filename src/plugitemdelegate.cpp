@@ -17,6 +17,8 @@
 #include "plugitemdelegate.h"
 #include "plugpackagemodel.h"
 #include <QPainter>
+#include <QEvent>
+#include <QDebug>
 
 #define UNIVERSAL_PADDING 6
 #define FADE_LENGTH 32
@@ -43,25 +45,44 @@ void plugItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 	int installedRole = index.model()->data(index,plugPackageModel::InstalledRole).toInt();
 	
 	QString attribute;
+        QColor foregroundColor = (option.state.testFlag(QStyle::State_Selected))?
+        option.palette.color(QPalette::HighlightedText):option.palette.color(QPalette::Text);
+        QColor color = foregroundColor;
 	switch (installedRole) {
-		case isUpgradable:
+                case isUpgradable:
 			attribute = tr("isUpgradable");
-			break;
-		case isInstallable:
+                        break;
+                case isInstallable:
 			attribute = tr("isInstallable");
-			break;
-		case installed:
+                        break;
+                case isDowngradable:
+                        attribute = tr("isDowngradable");
+                        break;
+                case installed:
 			attribute = tr("installed");
-			break;
-		default:
-			attribute = tr("Unknown");
-			break;
+                        break;
+                default:
+                        attribute = tr("Unknown");
+                        break;
 	}
-	QIcon icon = index.model()->data(index, Qt::DecorationRole).value<QIcon>();
-	
-	QColor foregroundColor = (option.state.testFlag(QStyle::State_Selected))?
-	option.palette.color(QPalette::HighlightedText):option.palette.color(QPalette::Text);
-	
+        int checkedRole = index.model()->data(index,plugPackageModel::CheckedRole).toInt();
+        switch (checkedRole) {
+                case markedForInstall:
+                        attribute = tr ("Install");
+                        color = Qt::blue;
+                        break;
+                case markedForRemove:
+                        attribute = tr ("Remove");
+                        color = Qt::red;
+                        break;
+                case markedForUpgrade:
+                        attribute = tr ("Upgrade");
+                        color = Qt::green;
+                        break;
+        }
+        QIcon icon = index.model()->data(index, Qt::DecorationRole).value<QIcon>();
+        QIcon::Mode iconMode = QIcon::Normal;
+
 	// Painting main column
 	QStyleOptionViewItem local_option_title(option);
 	QStyleOptionViewItem local_option_normal(option);
@@ -74,24 +95,26 @@ void plugItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 	QPainter p(&pixmap);
 	p.translate(-option.rect.topLeft());
 	
-	QLinearGradient gradient;
 	
 	// Painting
-	
+        if (option.state & QStyle::State_Selected)	{
+            p.fillRect(option.rect,option.palette.highlight());
+        }
+
 	// Text
 	int textInner = 2 * UNIVERSAL_PADDING + MAIN_ICON_SIZE;
 	const int itemHeight = calcItemHeight(option);
 	
 	p.setPen(foregroundColor);
-	if (group) {
-		p.setFont(local_option_title.font);
-		p.drawText(
-					left + (leftToRight ? textInner : 0),
-					top,
-					width - textInner, itemHeight,
-					Qt::AlignVCenter | Qt::AlignLeft, title);
-	}
-	else {
+        if (group) {
+                p.setFont(local_option_title.font);
+                p.drawText(
+                                        left + (leftToRight ? textInner : 0),
+                                        top,
+                                        width - textInner, itemHeight,
+                                        Qt::AlignVCenter | Qt::AlignLeft, title);
+        }
+        else {
 		p.setFont(local_option_title.font);
 		p.drawText(
 					left + (leftToRight ? textInner : 0),
@@ -104,27 +127,22 @@ void plugItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 					top + itemHeight / 2,
 					width - textInner, itemHeight / 2,
 					Qt::AlignTop | Qt::AlignLeft, description);
-		p.drawText(
+                p.setPen(color);
+                p.drawText(
 					left + (leftToRight ? textInner : 0),
 					top + itemHeight/2,
 					width - textInner, itemHeight / 2,
 					Qt::AlignTop | Qt::AlignRight, attribute);
-	}
-        QPixmap background_pixmap(option.rect.size());
-        background_pixmap.fill(Qt::transparent);
- 	if (option.state & QStyle::State_Selected)	{
-            background_pixmap.fill(option.palette.highlight().color());
- 	}
+        }
 	p.end();
-	icon.paint(	painter,
-				leftToRight ? left + UNIVERSAL_PADDING : left + width - UNIVERSAL_PADDING - MAIN_ICON_SIZE,
-				top + UNIVERSAL_PADDING,
-				MAIN_ICON_SIZE, MAIN_ICON_SIZE, Qt::AlignCenter, QIcon::Normal
-				);
-//        pixmap.setAlphaChannel(background_pixmap);
+
         painter->drawPixmap(option.rect,pixmap);
-//	drawDecoration(painter, option,option.rect, pixmap);
-// 	drawBackground(painter,option,index);
+
+        icon.paint(	painter,
+                                leftToRight ? left + UNIVERSAL_PADDING : left + width - UNIVERSAL_PADDING - MAIN_ICON_SIZE,
+                                top + UNIVERSAL_PADDING,
+                                MAIN_ICON_SIZE, MAIN_ICON_SIZE, Qt::AlignCenter, iconMode
+                                );
 }
 
 QWidget* plugItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
@@ -152,4 +170,21 @@ QSize plugItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QMode
 	ret.rheight() += calcItemHeight(option);
 	ret.rwidth()  += width;
 	return ret;
+}
+
+bool plugItemDelegate::editorEvent(QEvent *event,
+                               QAbstractItemModel *model,
+                               const QStyleOptionViewItem &option,
+                               const QModelIndex &index)
+{
+    Q_UNUSED(option)
+//    if (!(index.flags() & Qt::ItemIsUserCheckable)) {
+//        return false;
+//    }
+    if (event->type() == QEvent::MouseButtonPress) {
+        qDebug () << model->data(index, plugPackageModel::CheckedRole).toInt();
+        return model->setData(index, model->data(index, plugPackageModel::CheckedRole), plugPackageModel::CheckedRole);
+    }
+    else
+        return QAbstractItemDelegate::editorEvent(event, model, option, index);
 }
