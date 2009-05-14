@@ -86,14 +86,6 @@ void plugManager::applyChanges() {
                                         );
         else if (package->getItemData()->checked == markedForInstall || package->getItemData()->checked == markedForUpgrade)
             packages_list.append(package->getItemData()->packageItem);
-        //        switch (package->getItemData()->checked) {
-        //            case markedForInstall:
-        //                packages_list.append(package->getItemData()->ItemData);
-        //                break;
-        //            case markedForRemove:
-        //                plug_install->removePackage(package->getItemData()->ItemData.properties.value("name"),package->getItemData()->type);
-        //                break;
-        //        }
     }
     plug_install->installPackages(packages_list);
     connect(plug_install,SIGNAL(destroyed(QObject*)),this,SLOT(updatePackageList()));

@@ -167,10 +167,20 @@ bool plugPackageModel::setData(const QModelIndex &index, const QVariant &value, 
                 case isDowngradable:
                     node->getItemData()->checked = markedForDowngrade;
                     break;
+                case installed:
+                    node->getItemData()->checked = markedForRemove;
+                    break;
             }
             m_checked_packages.insert(name,node);
             break;
         case markedForInstall:
+            node->getItemData()->checked = unchecked;
+            m_checked_packages.remove(name);
+            break;
+        case markedForUpgrade:
+            node->getItemData()->checked = markedForRemove;
+            break;
+        case markedForRemove:
             node->getItemData()->checked = unchecked;
             m_checked_packages.remove(name);
             break;
