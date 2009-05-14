@@ -141,7 +141,7 @@ void plugPackageModel::clear() {
  	m_root_node = new plugPackageItem;
 }
 
-QHash<QString, plugPackageItem *> plugPackageModel::getCheckedPackages() {
+QHash<QString, plugPackageItem *> &plugPackageModel::getCheckedPackages() {
     return m_checked_packages;
 }
 

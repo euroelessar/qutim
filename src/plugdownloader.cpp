@@ -44,7 +44,6 @@ void plugDownloader::addItem(const downloaderItem& downloadItem)
 {
 // 	if (m_download_queue.isEmpty())
 // 		QTimer::singleShot(0, this, SLOT(startNextDownload()));
-	
 	m_download_queue.enqueue(downloadItem);
 	++totalCount;
 
@@ -66,6 +65,11 @@ void plugDownloader::startNextDownload()
 	downloaderItem downloadItem = m_download_queue.dequeue();
 
         output.setFileName(outPath+downloadItem.filename);
+        if (!output.open(QIODevice::WriteOnly)) {
+                qDebug() << "Unable to open file";
+                startNextDownload();
+                return;                 // skip this download
+        }
 	QNetworkRequest request(downloadItem.url);
 	currentDownload = manager.get(request);
 	connect(currentDownload, SIGNAL(downloadProgress(qint64,qint64)),
@@ -104,31 +108,27 @@ void plugDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 
 void plugDownloader::downloadFinished()
 {
+        output.close();
 	m_progressBar->reset();
 	if (currentDownload->error()) {
 		// download failed
 		lastError= tr("Failed to download: %1").arg(output.fileName());
-		if (output.exists()) 
-			fileList.append(output.fileName()); //в случае неудачного скачивания, но наличия старой версии файла,добавляем её 
 		qDebug() << lastError;
  	}
 	else
-		++downloadedCount;
+            ++downloadedCount;
 	currentDownload->deleteLater();
+        if (output.exists())
+            fileList.append(output.fileName()); //в случае неудачного скачивания, но наличия старой версии файла,добавляем её
 	startNextDownload();
 }
 
 void plugDownloader::downloadReadyRead()
 {
-	if (!output.open(QIODevice::WriteOnly)) {
-		qDebug() << "Unable to open file";
-		return;                 // skip this download
-	}
-	output.write(currentDownload->readAll());
-	fileList.append(output.fileName());
-	output.close();
+        output.write(currentDownload->readAll());
 }
 plugDownloader::~plugDownloader() {
+
 }
 void plugDownloader::setProgressbar(QProgressBar* progressBar) {
 	m_progressBar = progressBar;

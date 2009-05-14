@@ -73,5 +73,28 @@ void plugManager::updatePackageView() {
 }
 
 void plugManager::applyChanges() {
-
+    QHash<QString, plugPackageItem *> checked_packages = m_package_model->getCheckedPackages();
+    plugInstaller *plug_install = new plugInstaller;
+    plug_install->setParent(this);
+    progressBar->setVisible(true);
+    plug_install->setProgressBar(progressBar);
+    QList<packageInfo> packages_list;    //this packages marked for install or upgrade
+    foreach (plugPackageItem *package, checked_packages) {
+        if (package->getItemData()->checked == markedForRemove)
+            plug_install->removePackage(package->getItemData()->packageItem.properties.value("name"),
+                                        package->getItemData()->packageItem.properties.value("type")
+                                        );
+        else if (package->getItemData()->checked == markedForInstall || package->getItemData()->checked == markedForUpgrade)
+            packages_list.append(package->getItemData()->packageItem);
+        //        switch (package->getItemData()->checked) {
+        //            case markedForInstall:
+        //                packages_list.append(package->getItemData()->ItemData);
+        //                break;
+        //            case markedForRemove:
+        //                plug_install->removePackage(package->getItemData()->ItemData.properties.value("name"),package->getItemData()->type);
+        //                break;
+        //        }
+    }
+    plug_install->installPackages(packages_list);
+    connect(plug_install,SIGNAL(destroyed(QObject*)),this,SLOT(updatePackageList()));
 }

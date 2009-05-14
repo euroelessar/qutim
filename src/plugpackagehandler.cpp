@@ -73,8 +73,9 @@ void plugPackageHandler::updatePlugPackageModel(const QString& filename) {
 
 void plugPackageHandler::updatePlugPackageModel(const QStringList& fileList)
 {
-	foreach (QString filePath,fileList) 
+        foreach (QString filePath,fileList)  {
 		updatePlugPackageModel(filePath);
+            }
 	this->deleteLater();
 	m_progress_bar->setVisible(false);
 	return;

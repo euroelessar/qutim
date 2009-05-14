@@ -25,8 +25,8 @@ bool packageInfo::isValid() {
  		return false;
 	if (!plugVersion(properties.value("version")).isValid())
  		return false;
-	if (properties["url"].section(".",-1)!="zip")
- 		return false;
+//	if (properties["url"].section(".",-1)!="zip")
+// 		return false;
 	return true;
 }
 

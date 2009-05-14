@@ -50,7 +50,7 @@ public:
 	QVariant headerData(int section,
 						 Qt::Orientation orientation,
 						 int role = Qt::DisplayRole) const;	
-        QHash<QString, plugPackageItem *> getCheckedPackages ();  
+        QHash<QString, plugPackageItem *> &getCheckedPackages ();
         bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);     
 private:
 	plugPackageItem *m_root_node;

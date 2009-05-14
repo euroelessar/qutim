@@ -27,8 +27,8 @@ class plugInstaller : public QObject
 public:
     plugInstaller ();
     ~plugInstaller ();
-    void installPackage();
-    void upgradePackage(const packageInfo &package_info); //!new unstable stuff
+    void installPackage(); //TODO переименовать во что нить более понятное
+    void installPackages(const QList<packageInfo> &packages_list); //Install or upgrade multiply packages
     void removePackage (const QString& name, const QString& type = "all");
     QString outPath; //папка, куда будут распаковываться архивы, TODO QStringList paths = plugin_system->getSharePaths(); support
     void setProgressBar (QProgressBar *progressBar) {m_progressBar = progressBar;};
@@ -41,7 +41,6 @@ private:
 //  void installFromXML (const QString &inPath);
     QProgressBar *m_progressBar;
     void install(QString);
-    void install(packageInfo package_info);
 signals:
     void finished ();
     void error(QString);

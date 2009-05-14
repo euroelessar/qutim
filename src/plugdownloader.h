@@ -24,9 +24,9 @@ Boston, MA 02110-1301, USA.
 
 struct downloaderItem
 {
-	downloaderItem (QUrl m_url, QString m_filename) {url=m_url;filename=m_filename;};
-	QUrl url; //url, с которой качаем
-	QString filename; //имя файла, под которым сохраняем
+    downloaderItem (QUrl m_url, QString m_filename) {url=m_url;filename=m_filename;};
+    QUrl url; //url, с которой качаем
+    QString filename; //имя файла, под которым сохраняем
 };
 
 class plugDownloader: public QObject
@@ -36,18 +36,18 @@ public:
     plugDownloader (const QString &path = QString::null, QObject *parent = 0);
     ~plugDownloader ();
     void startDownload();
-	void addItem (const downloaderItem &downloadItem);
+    void addItem (const downloaderItem &downloadItem);
     QString lastError;
     QString outPath; //путь до скачанного файла
-	void setProgressbar(QProgressBar *progressBar);
+    void setProgressbar(QProgressBar *progressBar);
 signals:
     void error(QString message);
-	void downloadFinished(const QStringList &fileList);
+    void downloadFinished(const QStringList &fileList);
 private slots:
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void downloadFinished();
     void downloadReadyRead();
-	void startNextDownload();	
+    void startNextDownload();
 
 private:
     QNetworkAccessManager manager;
@@ -55,10 +55,10 @@ private:
     QFile output;
     QTime downloadTime;
     QProgressBar *m_progressBar;
-	QQueue<downloaderItem> m_download_queue;
-	int downloadedCount;
-	int totalCount;
-	QStringList fileList;
+    QQueue<downloaderItem> m_download_queue;
+    int downloadedCount;
+    int totalCount;
+    QStringList fileList;
 };
 
 #endif // DOWNLOADER_H
