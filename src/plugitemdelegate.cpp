@@ -23,6 +23,7 @@
 #define UNIVERSAL_PADDING 6
 #define FADE_LENGTH 32
 #define MAIN_ICON_SIZE 48
+#define DESC_TRIM 90
 
 plugItemDelegate::plugItemDelegate(QObject* parent) {
 	
@@ -122,6 +123,7 @@ void plugItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 					width - textInner, itemHeight / 2,
 					Qt::AlignBottom | Qt::AlignLeft, title);
 		p.setFont(local_option_normal.font);
+		description.truncate(DESC_TRIM);
 		p.drawText(
 					left + (leftToRight ? textInner : 0),
 					top + itemHeight / 2,

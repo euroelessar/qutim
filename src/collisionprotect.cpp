@@ -34,8 +34,3 @@ bool CollisionProtect::checkPackageFiles(const QStringList& files) {
 	}
 	return true;
 }
-
-bool CollisionProtect::checkPackageName(const QString& name) {
-	plugXMLHandler plug_handler;
-	return !(plug_handler.getPackageNames().contains(name));
-}

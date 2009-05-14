@@ -26,7 +26,6 @@ Q_OBJECT
 public:
 	CollisionProtect(const QString &prefix = QString ());
 	bool checkPackageFiles(const QStringList &files); 
-	bool checkPackageName(const QString &name);
  	/*!true - нет столкновений, false - есть столкновения*/
 private:
 	QString prefix;

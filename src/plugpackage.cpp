@@ -41,7 +41,8 @@ ItemData::ItemData(itemType type,
 	this->icon = icon;
 	this->packageItem = packageItem;
 	this->attribute = attribute;
-        this->checked = checked;
+	this->checked = checked;
+	this->name = packageItem.properties.value("type")+"/"+packageItem.properties.value("name");
 }
 
 ItemData::ItemData() {

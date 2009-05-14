@@ -1,11 +1,10 @@
 #include "plugpackageitem.h"
 #include <QDebug>
 
-plugPackageItem::plugPackageItem(const ItemData& data, const QString& name)
+plugPackageItem::plugPackageItem(const ItemData& data)
 : parent(0)
 {
 	item_data = data;
-	item_name = name;
 }
 
 plugPackageItem::plugPackageItem()
@@ -31,8 +30,7 @@ void plugPackageItem::removeChild(const int& id) {
 	children.remove(id);
 }
 
-void plugPackageItem::setItem(const ItemData& data, const QString& name)
+void plugPackageItem::setItem(const ItemData& data)
 {
 	item_data = data;
-	item_name = name;	
 }

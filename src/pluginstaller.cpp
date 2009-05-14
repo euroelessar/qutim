@@ -53,7 +53,7 @@ QStringList plugInstaller::unpackArch(const QString& inPath) {
     UnZip uz;
     UnZip::ErrorCode ec = uz.openArchive(inPath);
     if (ec != UnZip::Ok) {
-        lastError = tr("Unable to open archive");
+        emit error(tr("Unable to open archive"));
         return QStringList();
     }
     QStringList packFiles = uz.fileList();
@@ -65,7 +65,7 @@ QStringList plugInstaller::unpackArch(const QString& inPath) {
 
     uz.extractAll(outPath);
     if (ec != UnZip::Ok) {
-        lastError = tr ("Unable to extract archive");
+        emit error (tr ("Unable to extract archive"));
         return QStringList();
     }
     uz.closeArchive(); // Close the zip file and free used resources
@@ -99,7 +99,7 @@ packageInfo plugInstaller::getPackageInfo(const QString& archPath) {
     UnZip uz;
     UnZip::ErrorCode ec = uz.openArchive(archPath);
     if (ec != UnZip::Ok) {
-        lastError = tr("Unable to open archive");
+        emit error(tr("Unable to open archive"));
         return packageInfo();
     }
     QStringList packFiles = uz.fileList();
@@ -108,7 +108,7 @@ packageInfo plugInstaller::getPackageInfo(const QString& archPath) {
     QString tmp_path = outPath + "plugman/cache/"; //FIXME need SANDBOX!
     uz.extractFile("Pinfo.xml",tmp_path);
     if (ec != UnZip::Ok) {
-        lastError = tr ("Unable to extract archive");
+        emit error (tr("Unable to extract archive"));
         return packageInfo();
     }
     plugXMLHandler handler;
@@ -119,35 +119,6 @@ packageInfo plugInstaller::getPackageInfo(const QString& archPath) {
     qDebug () << package_info.properties.value("name");
     return package_info;
 }
-
-
-// void plugInstaller::installFromXML(const QString& inPath) {
-// 	//TODO снести нафиг!
-// 	plugXMLHandler plug_handler;
-//     plugDownloader *plug_loader = new plugDownloader ();
-// 	plug_loader->setProgressbar(m_progressBar);
-// 	packageInfo package_info = plug_handler.getPackageInfo(inPath);
-// 	if (!package_info.isValid()) {
-// 		emit error("Invalid package");
-// 		return;
-// 	}
-// 	if (collision_protect) {
-// 		CollisionProtect protect(outPath);
-// 		if (!protect.checkPackageName(package_info.properties["name"])) {
-// 			emit error("Exist name");
-// 			return;
-// 		}
-// 	if (!protect.checkPackageFiles(package_info.files))
-// 			return;
-// 	}	
-//     connect(plug_loader,SIGNAL(downloadFinished(QStringList)),this,SLOT(install(QStringList)));
-//     plug_loader->addItem(downloaderItem(package_info.properties["url"],
-// 															  package_info.properties["name"]
-// 															  +"-"+package_info.properties["version"]
-// 															  +".zip")
-// 															 ); //FIXME
-// 	plug_loader->startDownload();
-// }
 
 void plugInstaller::install(QString inPath) {
     //FIXME
@@ -161,20 +132,12 @@ void plugInstaller::install(QString inPath) {
         if (plugVersion(installed_package_info.properties.value("version"))<plugVersion(package_info.properties.value("version")))
             removePackage(package_info.properties.value("name"),package_info.properties.value("type"));
         else {
-            qDebug() << "Unable to update package: installed version is later";
+            emit error("Unable to update package: installed version is later");
             return;
         }
 
 
     }
-
-    //	if (collision_protect) {
-    //		CollisionProtect protect(outPath);
-    //		if (!protect.checkPackageName(package_info.properties["name"])) {
-    //			emit error("Exist name");
-    //			return;
-    //		}
-    //	}
     m_progressBar->setValue(50);
     package_info.files = unpackArch(inPath);
     if (package_info.files.isEmpty()) {
@@ -188,11 +151,8 @@ void plugInstaller::install(QString inPath) {
 
 void plugInstaller::install(QStringList fileList)
 {
-    qDebug() << "install packages:";
-    foreach (QString filePath,fileList) {
-        qDebug () << "Install package from" << filePath;
+	foreach (QString filePath,fileList) 
         install(filePath);
-    }
     deleteLater();
 }
 
@@ -205,7 +165,6 @@ void plugInstaller::installPackages(const QList<packageInfo> &packages_list) {
             emit error("Invalid package");
             continue;
         }
-        qDebug () << "Add item :" << package_info.properties["name"];
         plug_loader->addItem(downloaderItem(package_info.properties["url"],
                                             package_info.properties["name"]
                                             +"-"+package_info.properties["version"]

@@ -33,7 +33,6 @@ public:
     QString outPath; //папка, куда будут распаковываться архивы, TODO QStringList paths = plugin_system->getSharePaths(); support
     void setProgressBar (QProgressBar *progressBar) {m_progressBar = progressBar;};
 private:
-    QString lastError;
     QStringList unpackArch (const QString &inPath);
     packageInfo getPackageInfo (const QString &archPath);
     bool collision_protect;

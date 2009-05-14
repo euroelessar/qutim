@@ -64,12 +64,11 @@ void plugManager::updatePackageList() {
     m_package_model->clear();
     plugPackageHandler *plug_package_handler = new plugPackageHandler (m_package_model,progressBar);
     plug_package_handler->getPackageList();
-    progressBar->setVisible(false);
     connect(plug_package_handler,SIGNAL(destroyed()),this,SLOT(updatePackageView()));
 }
 
 void plugManager::updatePackageView() {
-    treeView->expandAll();
+    progressBar->setVisible(false);
 }
 
 void plugManager::applyChanges() {

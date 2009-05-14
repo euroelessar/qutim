@@ -62,16 +62,17 @@ enum packageChecked{
 };
 
 struct ItemData {
-        ItemData(itemType type,
-                 QIcon icon = QIcon(),
-                 packageInfo packageItem = packageInfo(),
-                 packageAttribute attribute = installed,
-                 packageChecked checked = unchecked);
+	ItemData(itemType type,
+            QIcon icon = QIcon(),
+            packageInfo packageItem = packageInfo(),
+            packageAttribute attribute = installed,
+            packageChecked checked = unchecked);
 	ItemData();
+	QString name; //для удобства, состоит из packageitem.type/packageitem.name
 	packageInfo packageItem;
 	QIcon icon;
 	itemType type;
 	packageAttribute attribute;
-        packageChecked checked;
+    packageChecked checked;
 };
 #endif // PLUGPACKAGE_H

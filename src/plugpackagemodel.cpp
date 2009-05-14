@@ -101,8 +101,7 @@ void plugPackageModel::addItem(const ItemData& item, const QString& name) {
 	if (!category_node) {
 		ItemData category_item = ItemData (group,QIcon(":/icons/hi64-action-package.png"));
 		category_item.packageItem.properties.insert("name", item.packageItem.properties.value("type"));
-		category_node = new plugPackageItem (category_item,
-										item.packageItem.properties.value("type"));
+		category_node = new plugPackageItem (category_item);
  		m_category_nodes.insert(item.packageItem.properties.value("type"),category_node);
 		beginInsertRows(QModelIndex(),m_root_node->childrenCount(),m_root_node->childrenCount());
 		m_root_node->addChild(category_node, m_root_node->childrenCount());
@@ -113,16 +112,13 @@ void plugPackageModel::addItem(const ItemData& item, const QString& name) {
 		plugVersion currentVersion (m_packages.value(name)->getItemData()->packageItem.properties.value("version"));
 		plugVersion replaceVersion (item.packageItem.properties.value("version"));
 		if (replaceVersion>currentVersion) {
-			if ((m_packages.value(name)->getItemData()->attribute == installed)) {
-				//FIXME полностью отказаться от использования id в пользу name
+			if ((m_packages.value(name)->getItemData()->attribute == installed)) 
 				update_item.attribute = isUpgradable;
-				update_item.packageItem.id = m_packages.value(name)->getItemData()->packageItem.id; //Id имеется только у установленных пакетов
-			}
-			m_packages.value(name)->setItem(update_item,name);
+			m_packages.value(name)->setItem(update_item);
 		}
 	}
 	else {
-		plugPackageItem *node = new plugPackageItem (item, name);
+		plugPackageItem *node = new plugPackageItem (item);
 		m_packages.insert(name,node);
 		qDebug () << "insert item:" << name;
 		beginInsertRows(createIndex(category_node->childrenCount(), 0, category_node),category_node->childrenCount(),category_node->childrenCount());

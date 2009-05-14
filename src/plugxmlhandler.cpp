@@ -34,19 +34,15 @@ plugXMLHandler::plugXMLHandler(QObject *parent)
     else
         package_db_path = config_dir.absolutePath();
     package_db_path.append("/packages.xml");
-    settings.beginGroup("global");
-    globalCount = settings.value("count","0").toInt();
-    settings.endGroup();
 }
 
 plugXMLHandler::~plugXMLHandler() {
 
 }
 
-QDomElement plugXMLHandler::createElementFromPackage(const packageInfo& package_info, int id) {
+QDomElement plugXMLHandler::createElementFromPackage(const packageInfo& package_info) {
     QDomDocument doc;
     QDomElement package = doc.createElement("package");
-    package.setAttribute("id",QString::number(id)); //надеюсь NULL она просто не добавит
 
     QDomElement package_element;
     QHash<QString,QString>::const_iterator it = package_info.properties.begin();
@@ -66,18 +62,8 @@ QDomElement plugXMLHandler::createElementFromPackage(const packageInfo& package_
     return package;
 }
 
-packageInfo plugXMLHandler::createPackageInfoFromDom(const QDomDocument& doc, QString id) {
-    // 	if (!QString::isEmpty(id))
-    // 		QDomNode n = doc.elementById();
-    // 	else
-    // 		doc.firstChild();
-    return packageInfo();
-}
-
 packageInfo plugXMLHandler::createPackageInfoFromNode(QDomNode n) {
 
-    // 	QDomNode n = doc.documentElement().firstChild();
-    // 	qDebug () << "start parser";
     packageInfo package_info;
     while (!n.isNull()) {
         QDomElement e = n.toElement(); // try to convert the node to an element.
@@ -87,7 +73,6 @@ packageInfo plugXMLHandler::createPackageInfoFromNode(QDomNode n) {
             }
             else {
                 package_info.properties[e.tagName()] =e.text();
-                //                                                qDebug() << e.tagName() << " : " << e.text();
             }
         }
         n = n.nextSibling();
@@ -99,7 +84,6 @@ QStringList plugXMLHandler::createFilesList(QDomNode n) {
     QStringList files;
     while (!n.isNull()) {
         QDomElement e = n.toElement();
-        //  		qDebug() << e.tagName() << " : " << e.text();
         if (!e.isNull())
             files.append(e.text());
         n = n.nextSibling();
@@ -116,12 +100,8 @@ QHash< QString, packageInfo > plugXMLHandler::createPackageList(const QDomDocume
     while (!n.isNull()) {
         QDomElement e = n.toElement(); // try to convert the node to an element.
         if (!e.isNull()) {
-            // 			qDebug() << e.tagName() << " : " << e.attribute("id");
             packageInfo package = createPackageInfoFromNode(n.firstChild());
-            package.id = e.attribute("id").toInt();
             QString key = package.properties.value("type")+"/"+package.properties.value("name");
-            //            if (package.isValid())
-            //                qDebug() << QString("package %1 is valid").arg(package.properties.value("name"));
             packages_list.insert(key,package);
         }
         n = n.nextSibling();
@@ -129,41 +109,38 @@ QHash< QString, packageInfo > plugXMLHandler::createPackageList(const QDomDocume
     return packages_list;
 }
 
-bool plugXMLHandler::registerPackage(const packageInfo &package_info) {
+void plugXMLHandler::registerPackage(const packageInfo &package_info) {
     QDomDocument doc;
-    qDebug () << package_db_path;
     QFile input(package_db_path);
     if (input.exists()) {
         if (!input.open(QIODevice::ReadOnly)) {
-            qDebug() << "Unable to open file";
-            return false;
+            emit error(tr("Unable to open file"));
+            return;
         }
         if (!doc.setContent(&input)) {
-            qDebug() << "Unable to set content";
-            return false;
+            emit error(tr("Unable to set content"));
+            return;
         }
         input.close();
     }
     if (doc.documentElement().isNull()) {
         QDomElement packages = doc.createElement("packages");
-        packages.setAttribute("version","0.1pre");
+        packages.setAttribute("version","0.1");
         doc.appendChild(packages);
 
     }
-    doc.documentElement().appendChild(createElementFromPackage(package_info, globalCount));
+    doc.documentElement().appendChild(createElementFromPackage(package_info));
     QFile output(QString(package_db_path+".lock"));
     if (!output.open(QIODevice::WriteOnly)) {
-        qDebug() << "Unable to write file";
-        return false;
+        emit error(tr("Unable to write file"));
+        return;
     }
     QTextStream out(&output);
     doc.save(out,2,QDomNode::EncodingFromTextStream);
     output.close();
     input.remove();
     output.rename(package_db_path);
-    globalCount++;
-    updateGlobalCount();
-    return true;
+    return;
 }
 
 QStringList plugXMLHandler::removePackage(const QString &name, const QString &type) {
@@ -171,21 +148,18 @@ QStringList plugXMLHandler::removePackage(const QString &name, const QString &ty
     QFile input(package_db_path);
     QStringList files_list;
     if (!input.open(QIODevice::ReadWrite)) {
-        //x3
         input.close();
-        qDebug() << "Can't read database. Check your pesmissions.";
+        emit error(tr("Can't read database. Check your pesmissions."));
         return QStringList();
     }
     if (!doc_root.setContent(&input)) {
-        // x3
         input.close();
-        qDebug() << "Broken package database";
+        emit error(tr("Broken package database"));
         return QStringList();
     }
 
     QDomElement packages = doc_root.documentElement();
     QDomNodeList packages_node = packages.childNodes();
-    //foreach (QDomNode package, packages.childNodes())
     for (int num = 0; num < packages_node.count(); num++)
     {
         QDomNode package = packages_node.item(num);
@@ -197,10 +171,9 @@ QStringList plugXMLHandler::removePackage(const QString &name, const QString &ty
             input.close();
             QFile output(QString(package_db_path+".lock"));
             if (!output.open(QIODevice::WriteOnly)) {
-                qDebug() << "Unable to write file";
+                emit error(tr("Unable to write file"));
                 return QStringList ();
             }
-            //globalCount--; //obsolete stuff
             QTextStream out(&output);
             doc_root.save(out,2,QDomNode::EncodingFromTextStream);
             output.close();
@@ -209,30 +182,6 @@ QStringList plugXMLHandler::removePackage(const QString &name, const QString &ty
             return files_list;
         }
     }
-    /*QDomNode n = packages.firstChild();
-        while (!n.isNull()) {
-                QDomElement e = n.toElement(); // try to convert the node to an element.
-                QDomNode p = n.firstChild();
-                bool package_found = false;
-                while (!p.isNull()){
-                                e = p.toElement();
-                                if (e.tagName()=="name"&&e.text()==name) {
-                                        package_found = true;
-                                        continue;
-                                }
-                                if (e.tagName()=="files"&&package_found) {
-                                        files_list = createFilesList(e.firstChild());
-                                        break;
-                                }
-                                p = p.nextSibling();
-                }
-                if (package_found&&!files_list.isEmpty()) {
-                        doc_root.removeChild(n);
-                        qDebug() << doc_root.toString();
-                        return files_list;
-                }
-                 n = n.nextSibling();
-        }*/
     input.close();
     return files_list;
 }
@@ -243,10 +192,10 @@ packageInfo plugXMLHandler::getPackageInfo(const QString& filename) {
 
     QFile input(filename);
     if (!input.open(QIODevice::ReadOnly)) {
-        qDebug() << "unable to open file";
+        emit error(tr("unable to open file"));
     }
     if (!doc.setContent(&input)) {
-        qDebug() << "unable to set content";
+        emit error(tr("unable to set content"));
     }
     input.close();
     return createPackageInfoFromNode(doc.documentElement().firstChild());
@@ -258,49 +207,15 @@ QHash< QString, packageInfo > plugXMLHandler::getPackageList(QString path) {
         path = package_db_path;
     QFile input(path);
     if (!input.open(QIODevice::ReadOnly)) {
-        qDebug() <<"Unable to open file" << input.error();
+        emit error(tr("Unable to open file"));
+		return QHash< QString, packageInfo > ();
     }
     if (!doc_root.setContent(&input)) {
-        qDebug() << "Unable to set content";
+        emit error(tr("Unable to set content"));
+		return QHash< QString, packageInfo > ();
     }
     input.close();
     return createPackageList(doc_root);
-}
-
-bool plugXMLHandler::isValid(QDomDocument doc) {
-    return true;
-}
-
-void plugXMLHandler::updateGlobalCount() {
-    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
-    settings.beginGroup("global");
-    settings.setValue("count",globalCount);
-    settings.endGroup();
-}
-
-bool plugXMLHandler::rebuildGlobalCount() {
-    return true;
-}
-
-QSet< QString > plugXMLHandler::getPackageNames() {
-    QFile input(package_db_path);
-    QDomDocument doc_root;
-    if (!input.open(QIODevice::ReadOnly)) {
-        //x3
-    }
-    if (!doc_root.setContent(&input)) {
-        // x3
-    }
-    input.close();
-    QDomElement packages = doc_root.documentElement();
-    QDomNode n = packages.firstChild();
-    QSet<QString> names;
-    while (!n.isNull()) {
-        QDomElement e = n.toElement(); // try to convert the node to an element.
-        names.insert(e.firstChildElement("name").text());
-        n = n.nextSibling();
-    }
-    return names;
 }
 
 packageInfo plugXMLHandler::getPackageInfoFromDB(const QString &name, const QString &type)
@@ -311,13 +226,13 @@ packageInfo plugXMLHandler::getPackageInfoFromDB(const QString &name, const QStr
     if (!input.open(QIODevice::ReadOnly)) {
         //x3
         input.close();
-        qDebug() << "Can't read database. Check your pesmissions.";
+        emit error(tr("Can't read database. Check your pesmissions."));
         return packageInfo();
     }
     if (!doc_root.setContent(&input)) {
         // x3
         input.close();
-        qDebug() << "Broken package database";
+        emit error(tr("Broken package database"));
         return packageInfo();
     }
 

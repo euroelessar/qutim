@@ -24,7 +24,7 @@
 class plugPackageItem
 {
 public:
-	plugPackageItem(const ItemData &data, const QString &name);
+	plugPackageItem(const ItemData& data);
 	plugPackageItem();
 	~plugPackageItem();
 	void addChild(plugPackageItem* data, const int& id);
@@ -33,7 +33,7 @@ public:
 	inline ItemData *getItemData () {return &item_data;};
 	inline int childrenCount() {return children.count();};
 	inline int indexOf(plugPackageItem *item) {return children.key(item, 0);};
-	void setItem (const ItemData &data, const QString &name);
+	void setItem (const ItemData& data);
 	plugPackageItem *getParent () {return parent;};
 	QString item_name;
 private:
