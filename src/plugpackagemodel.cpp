@@ -96,7 +96,7 @@ QVariant plugPackageModel::headerData(int section, Qt::Orientation orientation, 
 		return QString("Row %1").arg(section);
 }
 
-void plugPackageModel::addItem(const ItemData& item, const QString& name) {
+void plugPackageModel::addItem(const ItemData& item) {
 	plugPackageItem *category_node = m_category_nodes.value(item.packageItem.properties.value("type"));
 	if (!category_node) {
 		ItemData category_item = ItemData (group,QIcon(":/icons/hi64-action-package.png"));
@@ -107,20 +107,19 @@ void plugPackageModel::addItem(const ItemData& item, const QString& name) {
 		m_root_node->addChild(category_node, m_root_node->childrenCount());
 		endInsertRows();
 	}
-	if (m_packages.contains(name)) {
+	if (m_packages.contains(item.name)) {
 		ItemData update_item = item;
-		plugVersion currentVersion (m_packages.value(name)->getItemData()->packageItem.properties.value("version"));
+		plugVersion currentVersion (m_packages.value(item.name)->getItemData()->packageItem.properties.value("version"));
 		plugVersion replaceVersion (item.packageItem.properties.value("version"));
 		if (replaceVersion>currentVersion) {
-			if ((m_packages.value(name)->getItemData()->attribute == installed)) 
+			if ((m_packages.value(item.name)->getItemData()->attribute == installed))
 				update_item.attribute = isUpgradable;
-			m_packages.value(name)->setItem(update_item);
+			m_packages.value(item.name)->setItem(update_item);
 		}
 	}
 	else {
 		plugPackageItem *node = new plugPackageItem (item);
-		m_packages.insert(name,node);
-		qDebug () << "insert item:" << name;
+		m_packages.insert(item.name,node);
 		beginInsertRows(createIndex(category_node->childrenCount(), 0, category_node),category_node->childrenCount(),category_node->childrenCount());
 		category_node->addChild(node,category_node->childrenCount());
 		endInsertRows();
