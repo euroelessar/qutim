@@ -28,6 +28,7 @@ class plugManager : public QWidget, public Ui::manager
 public:
 	plugManager(QWidget* parent = 0);
 	~plugManager();
+	void closeEvent(QCloseEvent* );
 private:
 	QList<QAction *> m_actions;
 	plugPackageModel *m_package_model;
@@ -37,6 +38,8 @@ private slots:
 	void installFromFile();
         void updatePackageView();
         void applyChanges();
+signals:
+	void closed();
 };
 
 #endif // PLUGMANAGER_H

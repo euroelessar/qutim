@@ -89,3 +89,9 @@ void plugManager::applyChanges() {
     plug_install->installPackages(packages_list);
     connect(plug_install,SIGNAL(destroyed(QObject*)),this,SLOT(updatePackageList()));
 }
+
+void plugManager::closeEvent(QCloseEvent* event)
+{
+	emit closed();
+	QWidget::closeEvent(event);
+}

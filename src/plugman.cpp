@@ -14,14 +14,12 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
 	plugManager *m_plug_manager = new plugManager ();	
 	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman"); //костыль
     QString outPath = settings.fileName().section("/",0,-2)+"/";
-	QDir dir;
-	dir.mkpath(outPath);
+	isPlugManagerOpened = false;
     return true;
 }
 
 void plugMan::release()
 {
-//	x3 =)
 }
 
 void plugMan::processEvent ( PluginEvent  &event)
@@ -40,12 +38,12 @@ void plugMan::setProfileName ( const QString &profile_name )
 	//FIXME костыль!!!
 	m_actions.insert("install", new QAction(QIcon ( ":/icons/open.png" ),tr("Install package from file"),this));
 	m_plugin_system->registerMainMenuAction(m_actions.value("install"));
-	connect(m_actions.value("install"), SIGNAL(triggered()), this, SLOT(on_installfromfileBtn_clicked()));
+	connect(m_actions.value("install"), SIGNAL(triggered()), this, SLOT(onInstallfromfileBtnClicked()));
 	
-//  	m_actions.insert("manager", new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this));
-//  	m_plugin_system->registerMainMenuAction(m_actions.value("manager"));
-//  	connect(m_actions.value("manager"), SIGNAL(triggered()), this, SLOT(on_managerBtn_clicked()));
-//     m_profile_name = profile_name;
+ 	m_actions.insert("manager", new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this));
+ 	m_plugin_system->registerMainMenuAction(m_actions.value("manager"));
+ 	connect(m_actions.value("manager"), SIGNAL(triggered()), this, SLOT(onManagerBtnClicked()));
+
 }
 
 QString plugMan::name()
@@ -71,7 +69,7 @@ QString plugMan::type()
 
 void plugMan::removeSettingsWidget()
 {
-    //X3
+	delete settingswidget;
 }
 
 void plugMan::saveSettings()
@@ -79,7 +77,7 @@ void plugMan::saveSettings()
     //X3
 }
 
-void plugMan::on_installfromfileBtn_clicked()
+void plugMan::onInstallfromfileBtnClicked()
 {
 	plugInstaller *plug_install = new plugInstaller;
 	plug_install->setParent(this);
@@ -87,13 +85,19 @@ void plugMan::on_installfromfileBtn_clicked()
 	plug_install->installPackage();
 }
 
-void plugMan::on_managerBtn_clicked() {
-// 	plugManager *manager = new plugManager ();
-// 	manager->show();
+void plugMan::onManagerBtnClicked() {
+	if (!isPlugManagerOpened) {
+		m_manager = new plugManager ();
+		connect(m_manager,SIGNAL(closed()),SLOT(onManagerClose()));
+		m_manager->show();
+		isPlugManagerOpened = true;
+	}
 }
 
-plugMan::~plugMan() {
-
+void plugMan::onManagerClose()
+{
+	m_manager->deleteLater();
+	isPlugManagerOpened = false;
 }
 
 

@@ -16,7 +16,6 @@ class plugMan : public QObject, SimplePluginInterface
 public:
     bool init ( PluginSystemInterface *plugin_system ); //инициализация нашего плагина
     void release();
-	~plugMan();
 
     virtual void processEvent ( PluginEvent &event );
     virtual QWidget *settingsWidget(); //указатель для настройки
@@ -34,8 +33,11 @@ private:
     QString m_account_name;
     plugmanSettings *settingswidget;
     TreeModelItem eventitem;
+	bool isPlugManagerOpened;
+	plugManager *m_manager;
 private slots:
-	void on_installfromfileBtn_clicked();
-	void on_managerBtn_clicked();
+	void onInstallfromfileBtnClicked();
+	void onManagerBtnClicked();
+	void onManagerClose();
 };
 #endif

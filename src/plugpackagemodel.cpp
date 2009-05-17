@@ -71,7 +71,7 @@ QVariant plugPackageModel::data(const QModelIndex& index, int role) const {
                         case CheckedRole:
                                 return node->getItemData()->checked;
 			case CategoryRole:
-				return m_category_nodes.contains(node->item_name);
+				return node->getItemData()->type;
 			case SummaryRole:
 				return node->getItemData()->packageItem.properties.value("shortdesc");
 			default:
