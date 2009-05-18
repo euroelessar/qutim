@@ -38,7 +38,6 @@ plugPackageHandler::~plugPackageHandler() {
 }
 
 void plugPackageHandler::getPackageList() {
-    m_progress_bar->setVisible(true);
     default_attribute = installed;
     updatePlugPackageModel();
     updatePackagesCache();

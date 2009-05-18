@@ -32,7 +32,6 @@ public:
 private:
 	QList<QAction *> m_actions;
 	plugPackageModel *m_package_model;
-	plugInstaller *m_plug_install;
 public slots:
 	void updatePackageList();
 private slots:

@@ -31,7 +31,7 @@ public:
     void installPackages(const QList<packageInfo> &packages_list); //Install or upgrade multiply packages
     void removePackage (const QString& name, const QString& type = "all");
     QString outPath; //папка, куда будут распаковываться архивы, TODO QStringList paths = plugin_system->getSharePaths(); support
-    void setProgressBar (QProgressBar *progressBar) {m_progressBar = progressBar;};
+    void setProgressBar (QProgressBar *progressBar);
 private:
     QStringList unpackArch (const QString &inPath);
     packageInfo getPackageInfo (const QString &archPath);

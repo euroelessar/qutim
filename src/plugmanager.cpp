@@ -62,6 +62,7 @@ void plugManager::installFromFile() {
 
 void plugManager::updatePackageList() {
     m_package_model->clear();
+	progressBar->setVisible(true);
     plugPackageHandler *plug_package_handler = new plugPackageHandler (m_package_model,progressBar);
     plug_package_handler->getPackageList();
     connect(plug_package_handler,SIGNAL(destroyed()),this,SLOT(updatePackageView()));

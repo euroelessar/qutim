@@ -189,3 +189,9 @@ void plugInstaller::errorHandler(const QString& error) {
     qDebug() << error;
     deleteLater();
 }
+
+void plugInstaller::setProgressBar(QProgressBar* progressBar)
+{
+	m_progressBar = progressBar;
+	connect(m_progressBar,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
+}
