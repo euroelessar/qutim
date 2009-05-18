@@ -134,6 +134,6 @@ plugDownloader::~plugDownloader() {
 void plugDownloader::setProgressbar(QProgressBar* progressBar) {
 	m_progressBar = progressBar;
 	m_progressBar->setFormat(tr("Downloading: %p%"));
-	connect(m_progressBar,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));	
+	setParent(m_progressBar);
 }
 
