@@ -41,7 +41,7 @@ int plugPackageModel::rowCount(const QModelIndex& parent) const {
 
 int plugPackageModel::columnCount(const QModelIndex& parent) const
 {
-	return 1; //from example (=
+	return 1;
 }
 
 QModelIndex plugPackageModel::parent(const QModelIndex& child) const {

@@ -31,7 +31,8 @@ plugItemDelegate::plugItemDelegate(QObject* parent) {
 
 void plugItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
 
-//  	QItemDelegate::paint(painter,option,index);
+	if (index.column() == 1)
+		return;
 
     int left = option.rect.left();
     int top = option.rect.top();

@@ -87,6 +87,7 @@ void plugDownloader::startNextDownload()
 void plugDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
 // 	progressBar.setStatus(bytesReceived, bytesTotal);
+	Q_ASSERT(m_progressBar);
 
 	// calculate the download speed
 	double speed = bytesReceived * 1000.0 / downloadTime.elapsed();
