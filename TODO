@@ -1,5 +1,4 @@
-1. Создание нормального формата пакетов
-2. Показ установленных пакетов в списке с возможностью удаления
-3. Скачивание списка доступных пакетов через интернет 
-4. Возможность обновлять темы
-
+1. Update package install/remove dialog
+2. Error reporting for broken packages
+3. Mirror select
+4. Replace osdabzip with normal stuff
