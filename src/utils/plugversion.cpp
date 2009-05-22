@@ -30,11 +30,11 @@ QString plugVersion::toString()
 void plugVersion::setVersion(const QString& version)
 {
 	QStringList versionList = version.split(".");
-	if (versionList.length()<2)
+	if (versionList.count()<2)
 		return;
 	major = versionList.at(0).toUShort();
 	minor = versionList.at(1).toUShort();
-	if (versionList.length()==2)
+	if (versionList.count()==2)
 		maintenance = 0;
 	else
 		maintenance = versionList.at(2).toUShort();
