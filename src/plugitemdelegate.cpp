@@ -22,8 +22,9 @@
 
 #define UNIVERSAL_PADDING 6
 #define FADE_LENGTH 32
-#define MAIN_ICON_SIZE 48
+#define MAIN_ICON_SIZE 32
 #define DESC_TRIM 90
+#define FAV_ICON_SIZE 24
 
 plugItemDelegate::plugItemDelegate(QObject* parent) {
 
@@ -162,7 +163,7 @@ int plugItemDelegate::calcItemHeight(const QStyleOptionViewItem &option) const
 
 QSize plugItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    int width = index.model()->data(index, Qt::SizeHintRole).toSize().width();
+    int width = (index.column() == 0) ? index.model()->data(index, Qt::SizeHintRole).toSize().width() : FAV_ICON_SIZE + 2 * UNIVERSAL_PADDING;
     QSize ret;
     ret.rheight() += calcItemHeight(option);
     ret.rwidth()  += width;

@@ -11,7 +11,6 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
     PluginInterface::init ( plugin_system );
     m_plugin_system = plugin_system;
     TreeModelItem contact;
-	plugManager *m_plug_manager = new plugManager ();	
 	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman"); //костыль
     QString outPath = settings.fileName().section("/",0,-2)+"/";
 	isPlugManagerOpened = false;
@@ -96,7 +95,6 @@ void plugMan::onManagerBtnClicked() {
 
 void plugMan::onManagerClose()
 {
-	m_manager->deleteLater();
 	isPlugManagerOpened = false;
 }
 

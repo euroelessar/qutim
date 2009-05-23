@@ -46,6 +46,5 @@ ItemData::ItemData(itemType type,
 }
 
 ItemData::ItemData() {
-
 }
 

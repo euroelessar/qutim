@@ -24,22 +24,22 @@
 class plugPackageItem
 {
 public:
-	plugPackageItem(const ItemData& data);
+	plugPackageItem(ItemData* data);
 	plugPackageItem();
 	~plugPackageItem();
-	void addChild(plugPackageItem* data, const int& id);
-	void removeChild(const int& id);
-	inline plugPackageItem *getChildData(const int &number) {return children.value(number, 0);};
-	inline ItemData *getItemData () {return &item_data;};
-	inline int childrenCount() {return children.count();};
-	inline int indexOf(plugPackageItem *item) {return children.key(item, 0);};
-	void setItem (const ItemData& data);
-	plugPackageItem *getParent () {return parent;};
-	QString item_name;
+	void appendChild(plugPackageItem* data);
+	void removeChild(const int& row);
+	plugPackageItem *Child(const int &row);
+	ItemData *getItemData ();
+	int childCount();
+	int indexOf(plugPackageItem *item);
+	int row () const;
+	void setItem (ItemData* data);
+	plugPackageItem *getParent ();
 private:
-	ItemData item_data;
+	ItemData *item_data;
 	plugPackageItem *parent;
-	QHash<int, plugPackageItem *> children;
+	QList<plugPackageItem *> childItems;
 };
 
 #endif // PLUGPACKAGEITEM_H

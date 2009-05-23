@@ -22,7 +22,7 @@ QModelIndex plugPackageModel::index(int row, int column, const QModelIndex& pare
 		return QModelIndex();
 	return createIndex(	row,
 						column,
-						nodeFromIndex(parent)->getChildData(row));
+						nodeFromIndex(parent)->Child(row));
 }
 
 plugPackageItem *plugPackageModel::nodeFromIndex(const QModelIndex& index) const {
@@ -36,7 +36,7 @@ int plugPackageModel::rowCount(const QModelIndex& parent) const {
 	plugPackageItem *parentNode = nodeFromIndex(parent);
 	if (!parentNode)
 		return 0;
-	return parentNode->childrenCount();
+	return parentNode->childCount();
 }
 
 int plugPackageModel::columnCount(const QModelIndex& parent) const
@@ -90,39 +90,43 @@ QVariant plugPackageModel::headerData(int section, Qt::Orientation orientation, 
 	if (role != Qt::DisplayRole)
 		return QVariant();
 	
-	if (orientation == Qt::Horizontal)
-		return tr("Packages");
-	else
+	if (orientation != Qt::Horizontal)
 		return QString("Row %1").arg(section);
+	else
+		if (section==0)
+			return tr("Packages");
+		else
+			return tr("Actions");
 }
 
-void plugPackageModel::addItem(const ItemData& item) {
-	plugPackageItem *category_node = m_category_nodes.value(item.packageItem.properties.value("type"));
+void plugPackageModel::addItem(ItemData *item) {
+	plugPackageItem *category_node = m_category_nodes.value(item->packageItem.properties.value("type"));
 	if (!category_node) {
-		ItemData category_item = ItemData (group,QIcon(":/icons/hi64-action-package.png"));
-		category_item.packageItem.properties.insert("name", item.packageItem.properties.value("type"));
+		ItemData *category_item = new ItemData (group,QIcon(":/icons/hi64-action-package.png"));
+		category_item->packageItem.properties.insert("name", item->packageItem.properties.value("type"));
 		category_node = new plugPackageItem (category_item);
- 		m_category_nodes.insert(item.packageItem.properties.value("type"),category_node);
-		beginInsertRows(QModelIndex(),m_root_node->childrenCount(),m_root_node->childrenCount());
-		m_root_node->addChild(category_node, m_root_node->childrenCount());
+ 		m_category_nodes.insert(item->packageItem.properties.value("type"),category_node);
+		beginInsertRows(QModelIndex(),m_root_node->childCount(),m_root_node->childCount());
+		m_root_node->appendChild(category_node);
 		endInsertRows();
 	}
-	if (m_packages.contains(item.name)) {
-		ItemData update_item = item;
-		plugVersion currentVersion (m_packages.value(item.name)->getItemData()->packageItem.properties.value("version"));
-		plugVersion replaceVersion (item.packageItem.properties.value("version"));
+	if (m_packages.contains(item->name)) {
+		plugVersion currentVersion (m_packages.value(item->name)->getItemData()->packageItem.properties.value("version"));
+		plugVersion replaceVersion (item->packageItem.properties.value("version"));
 		if (replaceVersion>currentVersion) {
-			if ((m_packages.value(item.name)->getItemData()->attribute == installed))
-				update_item.attribute = isUpgradable;
-			m_packages.value(item.name)->setItem(update_item);
+			if ((m_packages.value(item->name)->getItemData()->attribute == installed))
+				item->attribute = isUpgradable;
+			m_packages.value(item->name)->setItem(item);
 		}
 	}
 	else {
 		plugPackageItem *node = new plugPackageItem (item);
-		m_packages.insert(item.name,node);
-		beginInsertRows(createIndex(category_node->childrenCount(), 0, category_node),category_node->childrenCount(),category_node->childrenCount());
-		category_node->addChild(node,category_node->childrenCount());
+		m_packages.insert(item->name,node);
+		qDebug() << m_root_node->childCount() << m_root_node->indexOf(category_node);
+		beginInsertRows(createIndex(m_root_node->indexOf(category_node),0,category_node),category_node->childCount(),category_node->childCount());
+		category_node->appendChild(node);
 		endInsertRows();
+		//emit dataChanged(createIndex(), createIndex());
 	}
 	return;
 }

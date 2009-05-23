@@ -94,5 +94,5 @@ void plugManager::applyChanges() {
 void plugManager::closeEvent(QCloseEvent* event)
 {
 	emit closed();
-	QWidget::closeEvent(event);
+	deleteLater();
 }

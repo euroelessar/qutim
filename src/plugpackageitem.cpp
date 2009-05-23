@@ -1,36 +1,66 @@
 #include "plugpackageitem.h"
 #include <QDebug>
 
-plugPackageItem::plugPackageItem(const ItemData& data)
+plugPackageItem::plugPackageItem(ItemData *data)
 : parent(0)
 {
 	item_data = data;
 }
 
 plugPackageItem::plugPackageItem()
-: parent(0)
+: parent(0), item_data(new ItemData)
 {
-
 }
 
 
 plugPackageItem::~plugPackageItem() {
-// 	qDebug() << "delete :" << this->children;
-	qDeleteAll(children);
+	qDeleteAll(childItems);
+	delete (item_data);
 }
 
-void plugPackageItem::addChild(plugPackageItem *data, const int& id) {
+void plugPackageItem::appendChild(plugPackageItem* data) {
 	data->parent = this;
-	children.insert(id,data);
-// 	qDebug () << "add child:" << children;
+	childItems.append(data);
 }
 
-void plugPackageItem::removeChild(const int& id) {
-	//FIXME так работать не буит ^_^
-	children.remove(id);
+void plugPackageItem::removeChild(const int& row) {
+	childItems.removeAt(row);
 }
 
-void plugPackageItem::setItem(const ItemData& data)
+void plugPackageItem::setItem(ItemData *data)
 {
+	delete(item_data);
 	item_data = data;
+}
+
+plugPackageItem* plugPackageItem::Child(const int& row)
+{
+	return childItems.value(row);
+}
+
+int plugPackageItem::childCount()
+{
+	return childItems.count();
+}
+
+int plugPackageItem::indexOf(plugPackageItem* item)
+{
+	return childItems.indexOf(item);
+}
+
+ItemData* plugPackageItem::getItemData()
+{
+	return item_data;
+}
+
+plugPackageItem* plugPackageItem::getParent()
+{
+	return parent;
+}
+
+int plugPackageItem::row() const
+{
+	if (parent)
+		return parent->childItems.indexOf(const_cast<plugPackageItem*>(this));
+	return 0;
 }

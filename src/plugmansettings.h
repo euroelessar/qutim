@@ -16,6 +16,5 @@ public:
 private:
 	QString m_profile_name;
 	plugPackageModel *m_package_model;
-	plugManager *m_plug_manager;
 };
 #endif
