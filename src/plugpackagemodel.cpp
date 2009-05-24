@@ -93,10 +93,7 @@ QVariant plugPackageModel::headerData(int section, Qt::Orientation orientation, 
 	if (orientation != Qt::Horizontal)
 		return QString("Row %1").arg(section);
 	else
-		if (section==0)
-			return tr("Packages");
-		else
-			return tr("Actions");
+		return tr("Packages");
 }
 
 void plugPackageModel::addItem(ItemData *item) {
@@ -123,10 +120,10 @@ void plugPackageModel::addItem(ItemData *item) {
 		plugPackageItem *node = new plugPackageItem (item);
 		m_packages.insert(item->name,node);
 		qDebug() << m_root_node->childCount() << m_root_node->indexOf(category_node);
-		beginInsertRows(createIndex(m_root_node->indexOf(category_node),0,category_node),category_node->childCount(),category_node->childCount());
+		QModelIndex index = createIndex(m_root_node->indexOf(category_node),0,category_node);
+		beginInsertRows(index,category_node->childCount(),category_node->childCount());
 		category_node->appendChild(node);
 		endInsertRows();
-		//emit dataChanged(createIndex(), createIndex());
 	}
 	return;
 }
@@ -188,7 +185,6 @@ bool plugPackageModel::setData(const QModelIndex &index, const QVariant &value, 
     return false;
 }
  void plugPackageModel::uncheckAll() {
-    qDebug() << m_checked_packages;
     QHash<QString,plugPackageItem *>::const_iterator it = m_checked_packages.begin();
     for (it = m_checked_packages.begin(); it!=m_checked_packages.end();it++) {
         it.value()->getItemData()->checked = unchecked;

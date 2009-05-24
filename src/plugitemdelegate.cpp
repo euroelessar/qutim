@@ -19,6 +19,7 @@
 #include <QPainter>
 #include <QEvent>
 #include <QDebug>
+#include <QApplication>
 
 #define UNIVERSAL_PADDING 6
 #define FADE_LENGTH 32
@@ -32,8 +33,9 @@ plugItemDelegate::plugItemDelegate(QObject* parent) {
 
 void plugItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
 
-	if (index.column() == 1)
-		return;
+	QStyleOptionViewItemV4 opt(option);
+    QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
+    style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
 
     int left = option.rect.left();
     int top = option.rect.top();
@@ -99,12 +101,6 @@ void plugItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
     pixmap.fill(Qt::transparent);
     QPainter p(&pixmap);
     p.translate(-option.rect.topLeft());
-
-
-    // Painting
-    if (option.state & QStyle::State_Selected)	{
-        p.fillRect(option.rect,option.palette.highlight());
-    }
 
     // Text
     int textInner = 2 * UNIVERSAL_PADDING + MAIN_ICON_SIZE;
@@ -179,7 +175,7 @@ bool plugItemDelegate::editorEvent(QEvent *event,
 //    if (!(index.flags() & Qt::ItemIsUserCheckable)) {
 //        return false;
 //    }
-    if (event->type() == QEvent::MouseButtonPress) 
+    if (event->type() == QEvent::MouseButtonPress)
         return model->setData(index, model->data(index, plugPackageModel::CheckedRole), plugPackageModel::CheckedRole);
     else
         return QAbstractItemDelegate::editorEvent(event, model, option, index);

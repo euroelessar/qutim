@@ -12,9 +12,3 @@ plugmanSettings::plugmanSettings(const QString &profile_name)
 plugmanSettings::~plugmanSettings()
 {
 }
-
-plugManager* plugmanSettings::getPlugManager() {
-}
-
-void plugmanSettings::setPlugManager(plugManager* plug_manager) {
-}
