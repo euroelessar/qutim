@@ -18,14 +18,18 @@
 #include "plugitemdelegate.h"
 #include <QDebug>
 plugManager::plugManager(QWidget* parent)
-    : m_package_model(new plugPackageModel)
+        : m_package_model(new plugPackageModel)
 {
     setupUi(this);
-    setParent(parent); 
+    setParent(parent);
     progressBar->setVisible(false);
     treeView->setModel(m_package_model);
     treeView->setAnimated(true);
     treeView->setItemDelegate(new plugItemDelegate(this));
+    findField->setVisible(false);
+    findButton->setVisible(false);
+
+	//m_package_model->isGrouped = true;
 
     QMenu *menu = new QMenu(tr("Actions"),this);
     m_actions.append(new QAction(QIcon(":/icons/open.png"),tr("Install package from file"),this));
@@ -62,7 +66,7 @@ void plugManager::installFromFile() {
 
 void plugManager::updatePackageList() {
     m_package_model->clear();
-	progressBar->setVisible(true);
+    progressBar->setVisible(true);
     plugPackageHandler *plug_package_handler = new plugPackageHandler (m_package_model,progressBar);
     plug_package_handler->getPackageList();
     connect(plug_package_handler,SIGNAL(destroyed()),this,SLOT(updatePackageView()));
@@ -83,7 +87,7 @@ void plugManager::applyChanges() {
         if (package->getItemData()->checked == markedForRemove)
             plug_install->removePackage(package->getItemData()->packageItem.properties.value("name"),
                                         package->getItemData()->packageItem.properties.value("type")
-                                        );
+                                       );
         else if (package->getItemData()->checked == markedForInstall || package->getItemData()->checked == markedForUpgrade)
             packages_list.append(package->getItemData()->packageItem);
     }
@@ -93,6 +97,6 @@ void plugManager::applyChanges() {
 
 void plugManager::closeEvent(QCloseEvent* event)
 {
-	emit closed();
-	deleteLater();
+    emit closed();
+    deleteLater();
 }

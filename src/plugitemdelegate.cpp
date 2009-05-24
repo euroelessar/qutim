@@ -24,7 +24,7 @@
 #define UNIVERSAL_PADDING 6
 #define FADE_LENGTH 32
 #define MAIN_ICON_SIZE 32
-#define DESC_TRIM 90
+#define DESC_TRIM 150
 #define FAV_ICON_SIZE 24
 
 plugItemDelegate::plugItemDelegate(QObject* parent) {

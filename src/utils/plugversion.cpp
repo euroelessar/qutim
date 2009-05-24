@@ -19,68 +19,68 @@
 
 plugVersion::plugVersion(const QString& version)
 {
-	setVersion(version);
+    setVersion(version);
 }
 
 QString plugVersion::toString()
 {
-	return QString::number(major).append(".").append(QString::number(minor)).append(".").append(QString::number(maintenance));
+    return QString::number(major).append(".").append(QString::number(minor)).append(".").append(QString::number(maintenance));
 }
 
 void plugVersion::setVersion(const QString& version)
 {
-	QStringList versionList = version.split(".");
-	if (versionList.count()<2)
-		return;
-	major = versionList.at(0).toUShort();
-	minor = versionList.at(1).toUShort();
-	if (versionList.count()==2)
-		maintenance = 0;
-	else
-		maintenance = versionList.at(2).toUShort();
+    QStringList versionList = version.split(".");
+    if (versionList.count()<2)
+        return;
+    major = versionList.at(0).toUShort();
+    minor = versionList.at(1).toUShort();
+    if (versionList.count()==2)
+        maintenance = 0;
+    else
+        maintenance = versionList.at(2).toUShort();
 }
 
 void plugVersion::setXYZ(ushort major, ushort minor, ushort maintenance)
 {
-	this->major = major;
-	this->minor = minor;
-	this->maintenance = maintenance;
+    this->major = major;
+    this->minor = minor;
+    this->maintenance = maintenance;
 }
 
 bool plugVersion::isValid()
 {
-	return (major!=0)||(maintenance!=0)||(minor!=0); //! если хоть одно из значений не 0, тогда версия имеет право на существование
+    return (major!=0)||(maintenance!=0)||(minor!=0); //! если хоть одно из значений не 0, тогда версия имеет право на существование
 }
 
 bool plugVersion::operator==(const plugVersion &plug_version)
 {
-	return (this->major==plug_version.major)&&(this->minor==plug_version.minor)&&(this->maintenance==plug_version.maintenance);
+    return (this->major==plug_version.major)&&(this->minor==plug_version.minor)&&(this->maintenance==plug_version.maintenance);
 }
 
 bool plugVersion::operator!=(const plugVersion& plug_version)
 {
-	return (this->major!=plug_version.major)||(this->minor!=plug_version.minor)||(this->maintenance!=plug_version.maintenance);
+    return (this->major!=plug_version.major)||(this->minor!=plug_version.minor)||(this->maintenance!=plug_version.maintenance);
 }
 
 bool plugVersion::operator>(const plugVersion& plug_version)
 {
-	if (this->major!=plug_version.major)
-		return this->major>plug_version.major;
-	else
-		if (this->minor!=plug_version.minor)
-			return this->minor>plug_version.minor;
-		else
-			return this->maintenance>plug_version.maintenance;
+    if (this->major!=plug_version.major)
+        return this->major>plug_version.major;
+    else
+        if (this->minor!=plug_version.minor)
+            return this->minor>plug_version.minor;
+        else
+            return this->maintenance>plug_version.maintenance;
 }
 
 bool plugVersion::operator<(const plugVersion& plug_version)
 {
-	if (this->major!=plug_version.major)
-		return this->major<plug_version.major;
-	else
-		if (this->minor!=plug_version.minor)
-			return this->minor<plug_version.minor;
-		else
-			return this->maintenance<plug_version.maintenance;
+    if (this->major!=plug_version.major)
+        return this->major<plug_version.major;
+    else
+        if (this->minor!=plug_version.minor)
+            return this->minor<plug_version.minor;
+        else
+            return this->maintenance<plug_version.maintenance;
 }
 

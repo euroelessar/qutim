@@ -62,12 +62,12 @@ SET (QT_HEADERS
 	src/pluginstaller.h
 	src/plugxmlhandler.h
 	src/plugpackagemodel.h
-	src/plugpackageitem.h
 )
 SET(HEADERS
 ${QT_HEADERS}
 	src/mirror.h
 	src/plugpackage.h	
+	src/plugpackageitem.h
 )
 
 SET (SOURCES

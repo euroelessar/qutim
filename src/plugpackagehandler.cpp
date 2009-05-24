@@ -59,10 +59,10 @@ void plugPackageHandler::updatePlugPackageModel(const QString& filename) {
     QHash<QString,packageInfo> packages_list = plug_xml_handler.getPackageList(filename);
     foreach (packageInfo package_info, packages_list) {
         ItemData *item = new ItemData(	buddy,
-										QIcon(":/icons/hi64-action-package.png"),
-										package_info,
-										default_attribute
-									);
+                                       QIcon(":/icons/hi64-action-package.png"),
+                                       package_info,
+                                       default_attribute
+                                     );
         m_plug_package_model->addItem(item);
     }
     return;

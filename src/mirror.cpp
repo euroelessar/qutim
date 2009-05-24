@@ -21,13 +21,13 @@ mirrorInfo::mirrorInfo() {
 }
 
 mirrorInfo::mirrorInfo(QString name, QUrl url, QString platform) {
-	this->name = name;
-	this->url = url;
-	this->platform = platform;
+    this->name = name;
+    this->url = url;
+    this->platform = platform;
 }
 
 bool mirrorInfo::isValid()
 {
-	return true;
+    return true;
 }
 
