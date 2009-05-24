@@ -25,7 +25,7 @@ class plugPackageModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-	plugPackageModel(QObject *parent = 0);
+	plugPackageModel(bool isGrouped = false, QObject *parent = 0);
 	~plugPackageModel();
 // 	void setRootNode (plugPackageItem *plug_package_item);
         enum {
@@ -52,13 +52,13 @@ public:
 						 int role = Qt::DisplayRole) const;	
         QHash<QString, plugPackageItem *> &getCheckedPackages ();
         bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);     
-	bool isGrouped;
 private:
 	plugPackageItem *m_root_node;
 	plugPackageItem *nodeFromIndex(const QModelIndex &index) const;
 	QHash<QString, plugPackageItem *> m_category_nodes; //! категории пакетов
 	QHash<QString, plugPackageItem *> m_packages; //!список всех пакетов
     QHash<QString, plugPackageItem *> m_checked_packages;
+	bool isGrouped;	
 public slots:
         void uncheckAll ();
         void upgradeAll ();

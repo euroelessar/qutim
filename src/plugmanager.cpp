@@ -17,9 +17,10 @@
 #include "plugmanager.h"
 #include "plugitemdelegate.h"
 #include <QDebug>
+
 plugManager::plugManager(QWidget* parent)
-        : m_package_model(new plugPackageModel)
 {
+	m_package_model = new plugPackageModel (false, this);
     setupUi(this);
     setParent(parent);
     progressBar->setVisible(false);
@@ -29,7 +30,6 @@ plugManager::plugManager(QWidget* parent)
     findField->setVisible(false);
     findButton->setVisible(false);
 
-	//m_package_model->isGrouped = true;
 
     QMenu *menu = new QMenu(tr("Actions"),this);
     m_actions.append(new QAction(QIcon(":/icons/open.png"),tr("Install package from file"),this));

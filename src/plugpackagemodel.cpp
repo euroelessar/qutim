@@ -2,10 +2,10 @@
 #include "utils/plugversion.h"
 #include <QDebug>
 
-plugPackageModel::plugPackageModel(QObject* parent)
+plugPackageModel::plugPackageModel(bool isGrouped, QObject* parent)
 		: QAbstractItemModel(parent), m_root_node(new plugPackageItem)
 {
-	isGrouped = false;
+	this->isGrouped = isGrouped;
 }
 
 plugPackageModel::~plugPackageModel() {
