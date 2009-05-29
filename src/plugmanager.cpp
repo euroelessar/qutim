@@ -25,7 +25,7 @@ plugManager::plugManager(QWidget* parent)
 {
 	
 	//Settings settings = Settings(); ждем элесарушку
-    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim", "plugman"); //FIXME на Элесаровской либе переделать
+    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman"); //FIXME на Элесаровской либе переделать
     settings.beginGroup("interface");
 	bool isGrouped = settings.value("isGrouped", false).toBool();
     settings.endGroup();
