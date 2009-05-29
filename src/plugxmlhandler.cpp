@@ -241,7 +241,6 @@ packageInfo plugXMLHandler::getPackageInfoFromDB(const QString &name, const QStr
     for (int num = 0; num < packages_node.count(); num++)
     {
         QDomNode package = packages_node.item(num);
-        qDebug () << package.firstChildElement("name").text() << name ;
         if (package.firstChildElement("name").text() == name)
         {
             return createPackageInfoFromNode(package.firstChildElement());

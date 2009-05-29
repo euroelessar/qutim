@@ -23,6 +23,9 @@ Boston, MA 02110-1301, USA.
 #include <QDir>
 #include <QFileDialog>
 #include "utils/plugversion.h"
+#include <qutim/plugininterface.h>
+
+using namespace qutim_sdk_0_2;
 
 plugInstaller::plugInstaller()
 {
@@ -53,19 +56,21 @@ QStringList plugInstaller::unpackArch(const QString& inPath) {
     UnZip uz;
     UnZip::ErrorCode ec = uz.openArchive(inPath);
     if (ec != UnZip::Ok) {
-        emit error(tr("Unable to open archive"));
+        emit error(tr("Unable to open archive: %1").arg(inPath));
         return QStringList();
     }
     QStringList packFiles = uz.fileList();
     if (collision_protect) {
         CollisionProtect protect(outPath);
-        if (!protect.checkPackageFiles(packFiles))
+        if (!protect.checkPackageFiles(packFiles)) {
+			emit error(tr("warning: trying to overwrite existing files!"));
             return QStringList();
+		}
     }
 
     uz.extractAll(outPath);
     if (ec != UnZip::Ok) {
-        emit error (tr ("Unable to extract archive"));
+        emit error (tr ("Unable to extract archive: %1").arg(inPath));
         return QStringList();
     }
     uz.closeArchive(); // Close the zip file and free used resources
@@ -99,7 +104,7 @@ packageInfo plugInstaller::getPackageInfo(const QString& archPath) {
     UnZip uz;
     UnZip::ErrorCode ec = uz.openArchive(archPath);
     if (ec != UnZip::Ok) {
-        emit error(tr("Unable to open archive"));
+        emit error(tr("Unable to open archive: %1").arg(archPath));
         return packageInfo();
     }
     QStringList packFiles = uz.fileList();
@@ -108,15 +113,15 @@ packageInfo plugInstaller::getPackageInfo(const QString& archPath) {
     QString tmp_path = outPath + "plugman/cache/"; //FIXME need SANDBOX!
     uz.extractFile("Pinfo.xml",tmp_path);
     if (ec != UnZip::Ok) {
-        emit error (tr("Unable to extract archive"));
+        emit error (tr("Unable to extract archive: %1").arg(archPath));
         return packageInfo();
     }
     plugXMLHandler handler;
+	connect(&handler,SIGNAL(error(QString)),SLOT(errorHandler(QString)));
     tmp_path.append("Pinfo.xml");
     packageInfo package_info = handler.getPackageInfo(tmp_path);
     QFile::remove(tmp_path);
     uz.closeArchive();
-    qDebug () << package_info.properties.value("name");
     return package_info;
 }
 
@@ -126,13 +131,13 @@ void plugInstaller::install(QString inPath) {
     if (!package_info.isValid())
         return;
     plugXMLHandler plug_handler;
+	connect(&plug_handler,SIGNAL(error(QString)),SLOT(errorHandler(QString)));
     packageInfo installed_package_info = plug_handler.getPackageInfoFromDB(package_info.properties.value("name"),package_info.properties.value("type"));
     if (installed_package_info.isValid()) {//если он valid, значит он существует ^_^
-        qDebug () << "found installed package : " << installed_package_info.properties.value("name");
         if (plugVersion(installed_package_info.properties.value("version"))<plugVersion(package_info.properties.value("version")))
             removePackage(package_info.properties.value("name"),package_info.properties.value("type"));
         else {
-            emit error("Unable to update package: installed version is later");
+            emit error(tr("Unable to update package %1: installed version is later").arg(package_info.properties.value("name")));
             return;
         }
 
@@ -141,7 +146,7 @@ void plugInstaller::install(QString inPath) {
     m_progressBar->setValue(50);
     package_info.files = unpackArch(inPath);
     if (package_info.files.isEmpty()) {
-        emit error(tr("Unable to install package"));
+        emit error(tr("Unable to install package: %1").arg(package_info.properties.value("name")));
         return;
     }
     m_progressBar->setValue(100);
@@ -162,7 +167,7 @@ void plugInstaller::installPackages(const QList<packageInfo> &packages_list) {
     plug_loader->setProgressbar(m_progressBar);
     foreach (packageInfo package_info, packages_list) {
         if (!package_info.isValid()) {
-            emit error("Invalid package");
+            emit error(tr("Invalid package: %1").arg(package_info.properties.value("name")));
             continue;
         }
         plug_loader->addItem(downloaderItem(package_info.properties["url"],
@@ -177,6 +182,7 @@ void plugInstaller::installPackages(const QList<packageInfo> &packages_list) {
 
 void plugInstaller::removePackage(const QString &name, const QString &type) {
     plugXMLHandler plug_handler;
+	connect(&plug_handler,SIGNAL(error(QString)),SLOT(errorHandler(QString)));
     QStringList fileList = plug_handler.removePackage(name);
     for (uint i = fileList.count();i>0;i--) {
         QFile output (outPath+fileList.at(i-1));
@@ -186,7 +192,13 @@ void plugInstaller::removePackage(const QString &name, const QString &type) {
 }
 
 void plugInstaller::errorHandler(const QString& error) {
-    qDebug() << error;
+    qDebug() << "Error:" << error;
+	
+	//FIXME костылище! Элесар, когда перепишешь плагинный интерфейс сообщи, я его уберу
+	TreeModelItem item;
+
+	SystemsCity::PluginSystem()->systemNotification(item,error);
+	
     deleteLater();
 }
 

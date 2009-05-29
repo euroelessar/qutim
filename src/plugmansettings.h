@@ -11,6 +11,7 @@ class plugmanSettings : public QWidget, Ui::plugmanSettings
 public:
 	plugmanSettings(const QString& profile_name);
 	~plugmanSettings();
+	void saveSettings();
 private:
 	QString m_profile_name;
 	plugPackageModel *m_package_model;

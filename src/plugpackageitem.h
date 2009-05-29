@@ -20,7 +20,6 @@
 #include <QVector>
 #include <QHash>
 
-//переписываю по простому, потом буду усложнять/ускорять и тд
 class plugPackageItem
 {
 public:

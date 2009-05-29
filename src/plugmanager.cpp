@@ -16,11 +16,21 @@
 
 #include "plugmanager.h"
 #include "plugitemdelegate.h"
+//#include <qutim/settings.h>
 #include <QDebug>
+
+//using namespace qutim_sdk_0_2;
 
 plugManager::plugManager(QWidget* parent)
 {
-	m_package_model = new plugPackageModel (false, this);
+	
+	//Settings settings = Settings(); ждем элесарушку
+    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim", "plugman"); //FIXME на Элесаровской либе переделать
+    settings.beginGroup("interface");
+	bool isGrouped = settings.value("isGrouped", false).toBool();
+    settings.endGroup();
+	
+	m_package_model = new plugPackageModel (isGrouped, this);
     setupUi(this);
     setParent(parent);
     progressBar->setVisible(false);

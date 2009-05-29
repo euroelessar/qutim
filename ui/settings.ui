@@ -44,7 +44,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="GroupedCheckBox">
          <property name="text">
           <string>group packages</string>
          </property>

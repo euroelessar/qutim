@@ -11,7 +11,7 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
 
     PluginInterface::init ( plugin_system );
     m_plugin_system = plugin_system;
-
+	return true;
 }
 
 void plugMan::release()
@@ -70,7 +70,7 @@ void plugMan::removeSettingsWidget()
 
 void plugMan::saveSettings()
 {
-
+	settingswidget->saveSettings();
 }
 
 void plugMan::onInstallfromfileBtnClicked()
