@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>634</width>
-    <height>594</height>
+    <width>632</width>
+    <height>592</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -58,7 +58,7 @@
    <item row="13" column="5">
     <widget class="QPushButton" name="okButton">
      <property name="text">
-      <string>Ok</string>
+      <string>Commit changes</string>
      </property>
     </widget>
    </item>
@@ -93,7 +93,7 @@
       <string>Actions</string>
      </property>
      <property name="icon">
-      <iconset resource="../icons.qrc">
+      <iconset>
        <normaloff>:/icons/internet.png</normaloff>:/icons/internet.png</iconset>
      </property>
      <property name="checkable">
@@ -119,15 +119,13 @@
       <string>find</string>
      </property>
      <property name="icon">
-      <iconset resource="../icons.qrc">
+      <iconset>
        <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

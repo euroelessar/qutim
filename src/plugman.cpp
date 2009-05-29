@@ -3,6 +3,7 @@
 #include <QAction>
 #include <QDir>
 #include <QProgressBar>
+//#include <qutim/settings.h>
 
 bool plugMan::init ( PluginSystemInterface *plugin_system )
 {
@@ -10,11 +11,7 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
 
     PluginInterface::init ( plugin_system );
     m_plugin_system = plugin_system;
-    TreeModelItem contact;
-	QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman"); //костыль
-    QString outPath = settings.fileName().section("/",0,-2)+"/";
-	isPlugManagerOpened = false;
-    return true;
+
 }
 
 void plugMan::release()
@@ -23,26 +20,26 @@ void plugMan::release()
 
 void plugMan::processEvent ( PluginEvent  &event)
 {
-	eventitem = *(TreeModelItem*)(event.args.at(0));
+    eventitem = *(TreeModelItem*)(event.args.at(0));
 }
 
 QWidget *plugMan::settingsWidget()
 {
-	settingswidget = new plugmanSettings(m_profile_name);
+    settingswidget = new plugmanSettings(m_profile_name);
     return settingswidget;
 }
 
 void plugMan::setProfileName ( const QString &profile_name )
 {
-	//FIXME костыль!!!
-	m_actions.insert("install", new QAction(QIcon ( ":/icons/open.png" ),tr("Install package from file"),this));
-	m_plugin_system->registerMainMenuAction(m_actions.value("install"));
-	connect(m_actions.value("install"), SIGNAL(triggered()), this, SLOT(onInstallfromfileBtnClicked()));
-	
- 	m_actions.insert("manager", new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this));
- 	m_plugin_system->registerMainMenuAction(m_actions.value("manager"));
- 	connect(m_actions.value("manager"), SIGNAL(triggered()), this, SLOT(onManagerBtnClicked()));
+    m_actions.insert("install", new QAction(QIcon ( ":/icons/open.png" ),tr("Install package from file"),this));
+    m_plugin_system->registerMainMenuAction(m_actions.value("install"));
+    connect(m_actions.value("install"), SIGNAL(triggered()), this, SLOT(onInstallfromfileBtnClicked()));
 
+    m_actions.insert("manager", new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this));
+    m_plugin_system->registerMainMenuAction(m_actions.value("manager"));
+    connect(m_actions.value("manager"), SIGNAL(triggered()), this, SLOT(onManagerBtnClicked()));
+
+    m_profile_name = profile_name;
 }
 
 QString plugMan::name()
@@ -52,12 +49,12 @@ QString plugMan::name()
 
 QString plugMan::description()
 {
-    return "x3 (=";
+    return "Simple add-ons manager for qutIM";
 }
 
 QIcon *plugMan::icon()
 {
-	return new QIcon (":/icons/plugin.png");
+    return new QIcon (":/icons/plugin.png");
 }
 
 QString plugMan::type()
@@ -68,34 +65,34 @@ QString plugMan::type()
 
 void plugMan::removeSettingsWidget()
 {
-	delete settingswidget;
+    delete settingswidget;
 }
 
 void plugMan::saveSettings()
 {
-    //X3
+
 }
 
 void plugMan::onInstallfromfileBtnClicked()
 {
-	plugInstaller *plug_install = new plugInstaller;
-	plug_install->setParent(this);
-	plug_install->setProgressBar(new QProgressBar);
-	plug_install->installPackage();
+    plugInstaller *plug_install = new plugInstaller;
+    plug_install->setParent(this);
+    plug_install->setProgressBar(new QProgressBar);
+    plug_install->installPackage();
 }
 
 void plugMan::onManagerBtnClicked() {
-	if (!isPlugManagerOpened) {
-		m_manager = new plugManager ();
-		connect(m_manager,SIGNAL(closed()),SLOT(onManagerClose()));
-		m_manager->show();
-		isPlugManagerOpened = true;
-	}
+    if (!isPlugManagerOpened) {
+        m_manager = new plugManager ();
+        connect(m_manager,SIGNAL(closed()),SLOT(onManagerClose()));
+        m_manager->show();
+        isPlugManagerOpened = true;
+    }
 }
 
 void plugMan::onManagerClose()
 {
-	isPlugManagerOpened = false;
+    isPlugManagerOpened = false;
 }
 
 

@@ -201,7 +201,7 @@ bool plugPackageModel::setData(const QModelIndex &index, const QVariant &value, 
 		m_checked_packages.remove(name);
 		break;
 	}
-	emit dataChanged(createIndex(0, 1), createIndex(m_category_nodes.size(), 1));
+	emit dataChanged(createIndex(0, 1), index);
 	return false;
 }
 void plugPackageModel::uncheckAll() {

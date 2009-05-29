@@ -13,8 +13,8 @@ class plugMan : public QObject, SimplePluginInterface
 {
     Q_OBJECT
     Q_INTERFACES ( qutim_sdk_0_2::PluginInterface )
-public:
-    bool init ( PluginSystemInterface *plugin_system ); //инициализация нашего плагина
+        public:
+            bool init ( PluginSystemInterface *plugin_system ); //инициализация нашего плагина
     void release();
 
     virtual void processEvent ( PluginEvent &event );
@@ -27,17 +27,17 @@ public:
     virtual void removeSettingsWidget();
     virtual void saveSettings();
 private:
-	QHash<QString, QAction *> m_actions;
+    QHash<QString, QAction *> m_actions;
     PluginSystemInterface *m_plugin_system;
     QString m_profile_name;
     QString m_account_name;
     plugmanSettings *settingswidget;
     TreeModelItem eventitem;
-	bool isPlugManagerOpened;
-	plugManager *m_manager;
+    bool isPlugManagerOpened;
+    plugManager *m_manager;
 private slots:
-	void onInstallfromfileBtnClicked();
-	void onManagerBtnClicked();
-	void onManagerClose();
+    void onInstallfromfileBtnClicked();
+    void onManagerBtnClicked();
+    void onManagerClose();
 };
 #endif
