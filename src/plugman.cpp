@@ -11,6 +11,7 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
 
     PluginInterface::init ( plugin_system );
     m_plugin_system = plugin_system;
+	isPlugManagerOpened = false;
 	return true;
 }
 
