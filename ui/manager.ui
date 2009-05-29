@@ -58,7 +58,7 @@
    <item row="13" column="5">
     <widget class="QPushButton" name="okButton">
      <property name="text">
-      <string>Commit changes</string>
+      <string>Apply</string>
      </property>
     </widget>
    </item>
