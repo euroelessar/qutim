@@ -10,7 +10,6 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
     qRegisterMetaType<TreeModelItem> ( "TreeModelItem" );
 
     PluginInterface::init ( plugin_system );
-    m_plugin_system = plugin_system;
 	isPlugManagerOpened = false;
 	return true;
 }
@@ -32,13 +31,9 @@ QWidget *plugMan::settingsWidget()
 
 void plugMan::setProfileName ( const QString &profile_name )
 {
-    m_actions.insert("install", new QAction(QIcon ( ":/icons/open.png" ),tr("Install package from file"),this));
-    m_plugin_system->registerMainMenuAction(m_actions.value("install"));
-    connect(m_actions.value("install"), SIGNAL(triggered()), this, SLOT(onInstallfromfileBtnClicked()));
-
-    m_actions.insert("manager", new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this));
-    m_plugin_system->registerMainMenuAction(m_actions.value("manager"));
-    connect(m_actions.value("manager"), SIGNAL(triggered()), this, SLOT(onManagerBtnClicked()));
+    QAction *plugman_action = new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this);
+	SystemsCity::PluginSystem()->registerMainMenuAction(plugman_action);
+    connect(plugman_action, SIGNAL(triggered()), this, SLOT(onManagerBtnClicked()));
 
     m_profile_name = profile_name;
 }
@@ -84,7 +79,7 @@ void plugMan::onInstallfromfileBtnClicked()
 
 void plugMan::onManagerBtnClicked() {
     if (!isPlugManagerOpened) {
-        m_manager = new plugManager ();
+        plugManager *m_manager = new plugManager ();
         connect(m_manager,SIGNAL(closed()),SLOT(onManagerClose()));
         m_manager->show();
         isPlugManagerOpened = true;

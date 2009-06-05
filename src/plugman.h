@@ -27,14 +27,11 @@ class plugMan : public QObject, SimplePluginInterface
     virtual void removeSettingsWidget();
     virtual void saveSettings();
 private:
-    QHash<QString, QAction *> m_actions;
-    PluginSystemInterface *m_plugin_system;
     QString m_profile_name;
     QString m_account_name;
     plugmanSettings *settingswidget;
     TreeModelItem eventitem;
     bool isPlugManagerOpened;
-    plugManager *m_manager;
 private slots:
     void onInstallfromfileBtnClicked();
     void onManagerBtnClicked();

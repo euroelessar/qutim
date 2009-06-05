@@ -34,10 +34,8 @@ public:
                      const QModelIndex &index);
 private:
     int calcItemHeight(const QStyleOptionViewItem &option) const;
-    void paintColMain(QPainter *painter,
-            const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    void paintColFav(QPainter *painter,
-            const QStyleOptionViewItem &option, const QModelIndex &index) const;	
+    void paintCheckIcon(QPainter *painter,
+                      const QStyleOptionViewItem &option, const QModelIndex &index) const;
 };
 
 #endif // PLUGITEMDELEGATE_H

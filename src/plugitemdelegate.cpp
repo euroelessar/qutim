@@ -139,6 +139,10 @@ void plugItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
               );
 }
 
+void plugItemDelegate::paintCheckIcon(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
+
+}
+
 QWidget* plugItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
     return QAbstractItemDelegate::createEditor(parent,option,index);
