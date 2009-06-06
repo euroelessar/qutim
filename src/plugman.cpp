@@ -16,6 +16,7 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
 
 void plugMan::release()
 {
+	delete(settingswidget);
 }
 
 void plugMan::processEvent ( PluginEvent  &event)
