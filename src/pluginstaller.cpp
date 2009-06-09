@@ -17,7 +17,6 @@ Boston, MA 02110-1301, USA.
 #include "pluginstaller.h"
 #include <QDebug>
 #include <QSettings>
-#include <osdabzip/unzip.h>
 #include "plugdownloader.h"
 #include "collisionprotect.h"
 #include <QDir>
