@@ -21,6 +21,7 @@ Boston, MA 02110-1301, USA.
 #include <QHash>
 #include <QProgressBar>
 #include "plugxmlhandler.h"
+#include <QZipReader/qzipreader.h>
 
 class plugInstaller : public QObject
 {
@@ -36,6 +37,7 @@ public:
 private:
     QStringList unpackArch (const QString &inPath);
     packageInfo getPackageInfo (const QString &archPath);
+	QStringList getFileList (const QList<QZipReader::FileInfo> &list);
     bool collision_protect;
     void installFromFile (const QString &inPath);
 //  void installFromXML (const QString &inPath);

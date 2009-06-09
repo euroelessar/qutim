@@ -201,6 +201,15 @@ packageInfo plugXMLHandler::getPackageInfo(const QString& filename) {
     return createPackageInfoFromNode(doc.documentElement().firstChild());
 }
 
+
+packageInfo plugXMLHandler::getPackageInfo(const QByteArray& content)
+{
+	QDomDocument doc;
+	doc.setContent(content);
+	return createPackageInfoFromNode(doc.documentElement().firstChild());
+}
+
+
 QHash< QString, packageInfo > plugXMLHandler::getPackageList(QString path) {
     QDomDocument doc_root;
     if (path.isNull())

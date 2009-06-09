@@ -50,16 +50,25 @@ plugInstaller::~plugInstaller() {
 
 }
 
+
+QStringList plugInstaller::getFileList(const QList< QZipReader::FileInfo >& list)
+{
+	QStringList fileList;
+	foreach (QZipReader::FileInfo info, list)
+		fileList.append(info.filePath);
+	return fileList;
+}
+
+
 QStringList plugInstaller::unpackArch(const QString& inPath) {
     //
     //FIXME need SANDBOX!
-    UnZip uz;
-    UnZip::ErrorCode ec = uz.openArchive(inPath);
-    if (ec != UnZip::Ok) {
+	QZipReader reader(inPath,QIODevice::ReadOnly);
+	if (!reader.isReadable()) {
         emit error(tr("Unable to open archive: %1").arg(inPath));
-        return QStringList();
-    }
-    QStringList packFiles = uz.fileList();
+        return QStringList();		
+	}
+    QStringList packFiles = getFileList(reader.fileInfoList());
     if (collision_protect) {
         CollisionProtect protect(outPath);
         if (!protect.checkPackageFiles(packFiles)) {
@@ -68,12 +77,11 @@ QStringList plugInstaller::unpackArch(const QString& inPath) {
 		}
     }
 
-    uz.extractAll(outPath);
-    if (ec != UnZip::Ok) {
+    if (!reader.extractAll(outPath)) {
         emit error (tr ("Unable to extract archive: %1").arg(inPath));
         return QStringList();
     }
-    uz.closeArchive(); // Close the zip file and free used resources
+    reader.close(); // Close the zip file and free used resources
     //     qDebug() << "Unpack archive:" << outPath;
     //FIXME Костыль
     //TODO дописать в osdabzip возможность удалять файлы прямо из архива.
@@ -101,27 +109,26 @@ void plugInstaller::installFromFile(const QString& inPath) {
 }
 
 packageInfo plugInstaller::getPackageInfo(const QString& archPath) {
-    UnZip uz;
-    UnZip::ErrorCode ec = uz.openArchive(archPath);
-    if (ec != UnZip::Ok) {
+	QZipReader reader (archPath,QIODevice::ReadOnly);
+    if (!reader.isReadable()) {
         emit error(tr("Unable to open archive: %1").arg(archPath));
         return packageInfo();
     }
-    QStringList packFiles = uz.fileList();
-    if (!packFiles.contains("Pinfo.xml"))
+	QByteArray data = reader.fileData("Pinfo.xml");
+    if (data.isEmpty())
         return packageInfo();
-    QString tmp_path = outPath + "plugman/cache/"; //FIXME need SANDBOX!
-    uz.extractFile("Pinfo.xml",tmp_path);
-    if (ec != UnZip::Ok) {
-        emit error (tr("Unable to extract archive: %1").arg(archPath));
-        return packageInfo();
-    }
+//     QString tmp_path = outPath + "plugman/cache/"; //FIXME need SANDBOX!
+//     uz.extractFile("Pinfo.xml",tmp_path);
+//     if (ec != UnZip::Ok) {
+//         emit error (tr("Unable to extract archive"));
+//         return packageInfo();
+//     }
     plugXMLHandler handler;
+//     tmp_path.append("Pinfo.xml");
+//     QFile::remove(tmp_path);
+//     uz.closeArchive();
 	connect(&handler,SIGNAL(error(QString)),SLOT(errorHandler(QString)));
-    tmp_path.append("Pinfo.xml");
-    packageInfo package_info = handler.getPackageInfo(tmp_path);
-    QFile::remove(tmp_path);
-    uz.closeArchive();
+	packageInfo package_info = handler.getPackageInfo(data);
     return package_info;
 }
 

@@ -39,11 +39,10 @@ else( ZLIB_FOUND )
 	MESSAGE( SEND_ERROR "Could NOT find zlib" )
 endif( ZLIB_FOUND  )
 
-INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
-        ${QT_QTCORE_INCLUDE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
+INCLUDE_DIRECTORIES (${QT_INCLUDES}
+    ${CMAKE_CURRENT_BINARY_DIR}
 	${PLUGMAN_INCLUDE_DIR}
-        .
+    .
 		src
 		libs
         )
@@ -105,7 +104,7 @@ ADD_LIBRARY (plugman SHARED ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
 TARGET_LINK_LIBRARIES (plugman
         ${QT_LIBRARIES}
         ${PLUGMAN_LIBS}
-		osdabzip
+		qzipreader
         )
 
 

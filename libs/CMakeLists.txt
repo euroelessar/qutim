@@ -1,1 +1,1 @@
- add_subdirectory (osdabzip)
+add_subdirectory (QZipReader)
