@@ -16,7 +16,7 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
 
 void plugMan::release()
 {
-	delete(settingswidget);
+
 }
 
 void plugMan::processEvent ( PluginEvent  &event)
@@ -63,6 +63,7 @@ QString plugMan::type()
 void plugMan::removeSettingsWidget()
 {
     delete settingswidget;
+    settingswidget = 0;
 }
 
 void plugMan::saveSettings()
