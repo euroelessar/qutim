@@ -76,9 +76,10 @@ void plugManager::installFromFile() {
 
 void plugManager::updatePackageList() {
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman"); //FIXME на Элесаровской либе переделать
-    bool isLocked = settings.value("isLocked", false).toBool();
-    qDebug() << isLocked;
+    bool isLocked = settings.value("locked", false).toBool();
     treeView->setDisabled(isLocked);
+    actionsButton->setDisabled(isLocked);
+    okButton->setDisabled(isLocked);
     m_package_model->clear();
     progressBar->setVisible(true);
     plugPackageHandler *plug_package_handler = new plugPackageHandler (m_package_model,progressBar);

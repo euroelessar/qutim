@@ -14,6 +14,7 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
     isPlugManagerOpened = false;
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
     settings.setValue("needUpdate",false);
+    settings.setValue("locked", false);
     return true;
 }
 

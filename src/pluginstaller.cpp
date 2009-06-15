@@ -52,7 +52,7 @@ plugInstaller::plugInstaller()
     settings.endGroup();
     settings.beginGroup("prefix");
     QString appDir;    
-    appDir = current_dir.relativeFilePath(current_dir.absolutePath());
+    appDir = current_dir.absolutePath() + "/";
     QString libDir = appDir;
     package_prefix.insert("art",settings.value("art",outPath).toString());
     package_prefix.insert("core",settings.value("core",appDir).toString());
@@ -77,7 +77,7 @@ plugInstaller::~plugInstaller() {
         SystemsCity::PluginSystem()->systemNotification(TreeModelItem(),tr("Need restart!"));		
         settings.setValue("needUpdate",true);
 #ifdef Q_OS_WIN
-        settings.setValue("isLocked",true);
+        settings.setValue("locked",true); //костыль для винды
 #endif
     }
 }
