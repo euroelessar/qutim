@@ -3,9 +3,8 @@
 #include <QAction>
 #include <QDir>
 #include <QProgressBar>
-#ifdef Q_OS_WIN
 #include <QProcess>
-#endif
+
 
 bool plugMan::init ( PluginSystemInterface *plugin_system )
 {
@@ -13,26 +12,17 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
 
     PluginInterface::init ( plugin_system );
     isPlugManagerOpened = false;
+    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
+    settings.setValue("needUpdate",false);
     return true;
 }
 
 void plugMan::release()
 {
-#ifdef Q_OS_WIN
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
-    if (settings.value("update", false ).toBool()) {
-        QFileInfo config_dir = settings.fileName();
-        QDir current_dir = qApp->applicationDirPath();
-        QString path;
-        if( config_dir.canonicalPath().contains( current_dir.canonicalPath() ) )
-            path = current_dir.relativeFilePath( config_dir.absolutePath() );
-        else
-            path = config_dir.absolutePath();
-        settings.setValue("update",false);
-        settings.setValue("isLocked",false);
-        QProcess::startDetached("cmd.exe", QStringList() << "/c postinst.bat", path );
+    if (settings.value("needUpdate", false ).toBool()) {
+//       QProcess::startDetached(qAppName());
     }
-#endif
 }
 
 void plugMan::processEvent ( PluginEvent  &event)

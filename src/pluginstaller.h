@@ -34,21 +34,17 @@ public:
     void removePackage (const QString& name, const QString& type = "all");
     void setProgressBar (QProgressBar *progressBar);
 private:
-    QStringList unpackArch (const QString &inPath, const QString &prefix = ""); //default prefix - qutim config dir
+    QStringList unpackArch (const QString &inPath, const QString &prefix);
     packageInfo getPackageInfo (const QString &archPath);
     QStringList getFileList (const QList<QZipReader::FileInfo> &list);
     QString getPackagePrefix(const packageInfo &package_info);
     void installFromFile (const QString &inPath);
     void install(QString);
-    QString outPath; //папка, куда будут распаковываться архивы, TODO QStringList paths = plugin_system->getSharePaths(); support
     bool collision_protect;
     QProgressBar *m_progressBar;
     QHash<QString,QString> package_prefix;
-#ifdef Q_OS_WIN
-    QByteArray postinst;
-    bool hasBinaryPackages;
-#endif
-
+    bool needUpdate;
+ bool backup;
 signals:
     void finished ();
     void error(QString);

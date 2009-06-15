@@ -33,6 +33,7 @@ plugInstaller::plugInstaller()
     //hack
     QFileInfo config_dir = hack_settings.fileName();
     QDir current_dir = qApp->applicationDirPath();
+    QString outPath;
     if( config_dir.canonicalPath().contains( current_dir.canonicalPath() ) )
         outPath = current_dir.relativeFilePath( config_dir.absolutePath() );
     else
@@ -42,20 +43,22 @@ plugInstaller::plugInstaller()
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
     settings.beginGroup("features");
     collision_protect = settings.value("collisionprotect",true).toBool();
+    needUpdate = false;
+#ifdef Q_OS_WIN
+    backup = true; //Винда по другому не может обновлять плагины
+#else
+    backup = settings.value("backup", true).toBool();
+#endif
     settings.endGroup();
     settings.beginGroup("prefix");
-    QString appDir;
-#ifdef Q_OS_WIN
-    hasBinaryPackages = false;
-    package_prefix.insert("update",settings.value("update",outPath + "plugman/updater/").toString());
-    postinst += "ping -n 5 localhost > nul  \r\n"; //Hack, задержка в 5 секунд, ну нету в винде sleep, wait, etc
-#endif
+    QString appDir;    
     appDir = current_dir.relativeFilePath(current_dir.absolutePath());
     QString libDir = appDir;
     package_prefix.insert("art",settings.value("art",outPath).toString());
     package_prefix.insert("core",settings.value("core",appDir).toString());
     package_prefix.insert("lib",settings.value("lib",libDir).toString());
     package_prefix.insert("plugin",settings.value("plugin",outPath).toString());
+    package_prefix.insert("backup",settings.value("backup",outPath + "plugman/backup/").toString());
     settings.endGroup();
 
     connect (this,SIGNAL(error(QString)),this,SLOT(errorHandler(QString))); //в случае ошибки вызывается этот класс
@@ -70,20 +73,13 @@ plugInstaller::~plugInstaller() {
     // 		++it;
     // 	}
     // 	settings.endGroup();
+    if (needUpdate) {
+        SystemsCity::PluginSystem()->systemNotification(TreeModelItem(),tr("Need restart!"));		
+        settings.setValue("needUpdate",true);
 #ifdef Q_OS_WIN
-    if (hasBinaryPackages) {
-        SystemsCity::PluginSystem()->systemNotification(TreeModelItem(),tr("Need restart!"));
-        settings.setValue("update",true);
         settings.setValue("isLocked",true);
-        QFile file(outPath + "plugman/postinst.bat");
-        qDebug() << outPath + "plugman/postinst.bat";
-        if(file.open(QIODevice::WriteOnly))
-        {
-            file.write(postinst);
-            file.close();
-        }
-    }
 #endif
+    }
 }
 
 
@@ -97,7 +93,6 @@ QStringList plugInstaller::getFileList(const QList< QZipReader::FileInfo >& list
 
 
 QStringList plugInstaller::unpackArch(const QString& inPath, const QString& prefix) {
-    QString path = prefix.isEmpty() ? outPath : prefix;
     QZipReader reader(inPath,QIODevice::ReadOnly);
     if (!reader.isReadable()) {
         emit error(tr("Unable to open archive: %1").arg(inPath));
@@ -105,22 +100,20 @@ QStringList plugInstaller::unpackArch(const QString& inPath, const QString& pref
     }
     QStringList packFiles = getFileList(reader.fileInfoList());
     if (collision_protect) {
-        CollisionProtect protect(outPath);
+        CollisionProtect protect(prefix);
         if (!protect.checkPackageFiles(packFiles)) {
             emit error(tr("warning: trying to overwrite existing files!"));
             return QStringList();
         }
     }
-    if (!reader.extractAll(path)) {
-        emit error (tr ("Unable to extract archive: %1 to %2").arg(inPath, path));
+    if (!reader.extractAll(prefix)) {
+        emit error (tr ("Unable to extract archive: %1 to %2").arg(inPath, prefix));
         return QStringList();
     }
-    reader.close(); // Close the zip file and free used resources
-    //     qDebug() << "Unpack archive:" << outPath;
-    //FIXME Костыль
-    //TODO дописать в osdabzip возможность удалять файлы прямо из архива.
+    reader.close();
+    //TODO найти возможность удалять файлы прямо из архива.
     packFiles.removeOne("Pinfo.xml");
-    QFile::remove(outPath+"/Pinfo.xml");
+    QFile::remove(prefix+"/Pinfo.xml");
     m_progressBar->setValue(75);
     return packFiles;
 }
@@ -160,11 +153,7 @@ packageInfo plugInstaller::getPackageInfo(const QString& archPath) {
 
 QString plugInstaller::getPackagePrefix(const packageInfo& package_info)
 {
-    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim", "plugman");
     QString category = package_info.properties.value("category").isEmpty() ? "art" : package_info.properties.value("category");
-#ifdef Q_OS_WIN
-    category = (category=="art") ? category : "update";
-#endif
     return package_prefix.value(category);
 }
 
@@ -196,29 +185,8 @@ void plugInstaller::install(QString inPath) {
     }
     m_progressBar->setValue(100);
     plug_handler.registerPackage(package_info);
-#ifdef Q_OS_WIN
-    if (package_info.properties.value("category")!="art") {
-        hasBinaryPackages = true;
-        foreach (QString filename, package_info.files) {
-            QString from = QString (package_prefix.value("update")).append(filename);
-            QString to = QString (package_prefix.value(package_info.properties.value("category"))).append(filename);
-            QFileInfo info (from);
-            from.replace("/", "\\");
-            to.replace("/", "\\");
-            if (info.isDir()) {
-                postinst += "mkdir ";
-                postinst += to.toLocal8Bit();
-                postinst += " \r\n";
-                continue;
-            }
-            postinst += "move /y ";
-            postinst += from.toLocal8Bit();
-            postinst += " ";
-            postinst += to.toLocal8Bit();
-            postinst += " \r\n";
-        }
-    }
-#endif
+    if (package_info.properties.value("category")!="art")
+        needUpdate = true;
     m_progressBar->setVisible(false);
 }
 
@@ -251,42 +219,35 @@ void plugInstaller::installPackages(const QList<packageInfo> &packages_list) {
 void plugInstaller::removePackage(const QString &name, const QString &type) {
     plugXMLHandler plug_handler;
     connect(&plug_handler,SIGNAL(error(QString)),SLOT(errorHandler(QString)));
-    packageInfo package_info = plug_handler.getPackageInfoFromDB(name);
+    packageInfo package_info = plug_handler.getPackageInfoFromDB(name,type);
     QStringList fileList = plug_handler.removePackage(name);
-#ifdef Q_OS_WIN
-    qDebug() << package_info.properties.value("name");
-    if (package_info.properties.value("category")!="art") {
-        hasBinaryPackages = true;
+    QString path = package_prefix.value(package_info.properties.value("category"));
+    if (backup) {
+        QString backup_path = package_prefix.value("backup");
+        needUpdate = true;
+        QDir dir;
+        dir.mkpath(backup_path);
         for (uint i = fileList.count();i>0;i--) {
-            QString from = QString (package_prefix.value(package_info.properties.value("category"))).append(fileList.at(i-1));
-            QFileInfo info (from);
-            from.replace("/", "\\");
-            if (info.isDir()) {
-                postinst += "rd ";
-                postinst += from.toLocal8Bit();
-                postinst += " \r\n";
-                continue;
-            }
-            postinst += "del /y ";
-            postinst += from.toLocal8Bit();
-            postinst += " \r\n";
+            QFile output (path+fileList.at(i-1));
+            QFile::remove(backup_path+fileList.at(i-1));
+            qDebug() << path << backup_path << fileList.at(i-1);
+            output.rename(backup_path+fileList.at(i-1));
+            m_progressBar->setValue(qRound((fileList.count()-i)/fileList.count()*100));
         }
     }
-#endif
-    for (uint i = fileList.count();i>0;i--) {
-        QFile output (outPath+fileList.at(i-1));
-        output.remove();
-        m_progressBar->setValue(qRound((fileList.count()-i)/fileList.count()*100));
+    else {
+        for (uint i = fileList.count();i>0;i--) {
+            QFile output (path+fileList.at(i-1));
+            output.remove();
+            m_progressBar->setValue(qRound((fileList.count()-i)/fileList.count()*100));
+        }
     }
 }
 
 void plugInstaller::errorHandler(const QString& error) {
     qDebug() << "Error:" << error;
 
-    //FIXME костылище! Элесар, когда перепишешь плагинный интерфейс сообщи, я его уберу
-    TreeModelItem item;
-
-    SystemsCity::PluginSystem()->systemNotification(item,error);
+    SystemsCity::PluginSystem()->systemNotification(TreeModelItem(),error);
 
     deleteLater();
 }
