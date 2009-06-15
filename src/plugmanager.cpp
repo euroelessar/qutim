@@ -23,14 +23,14 @@
 
 plugManager::plugManager(QWidget* parent)
 {
-	
-	//Settings settings = Settings(); ждем элесарушку
+
+    //Settings settings = Settings(); ждем элесарушку
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman"); //FIXME на Элесаровской либе переделать
     settings.beginGroup("interface");
-	bool isGrouped = settings.value("isGrouped", false).toBool();
+    bool isGrouped = settings.value("isGrouped", false).toBool();
     settings.endGroup();
-	
-	m_package_model = new plugPackageModel (isGrouped, this);
+
+    m_package_model = new plugPackageModel (isGrouped, this);
     setupUi(this);
     setParent(parent);
     progressBar->setVisible(false);
@@ -75,6 +75,10 @@ void plugManager::installFromFile() {
 }
 
 void plugManager::updatePackageList() {
+    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman"); //FIXME на Элесаровской либе переделать
+    bool isLocked = settings.value("isLocked", false).toBool();
+    qDebug() << isLocked;
+    treeView->setDisabled(isLocked);
     m_package_model->clear();
     progressBar->setVisible(true);
     plugPackageHandler *plug_package_handler = new plugPackageHandler (m_package_model,progressBar);
@@ -97,7 +101,7 @@ void plugManager::applyChanges() {
         if (package->getItemData()->checked == markedForRemove)
             plug_install->removePackage(package->getItemData()->packageItem.properties.value("name"),
                                         package->getItemData()->packageItem.properties.value("type")
-                                       );
+                                        );
         else if (package->getItemData()->checked == markedForInstall || package->getItemData()->checked == markedForUpgrade)
             packages_list.append(package->getItemData()->packageItem);
     }

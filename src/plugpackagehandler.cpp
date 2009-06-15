@@ -58,6 +58,8 @@ void plugPackageHandler::updatePlugPackageModel(const QString& filename) {
     plugXMLHandler plug_xml_handler;
     QHash<QString,packageInfo> packages_list = plug_xml_handler.getPackageList(filename);
     foreach (packageInfo package_info, packages_list) {
+		if (!package_info.isValid())
+			continue;
         ItemData *item = new ItemData(	buddy,
                                        QIcon(":/icons/hi64-action-package.png"),
                                        package_info,
@@ -71,7 +73,7 @@ void plugPackageHandler::updatePlugPackageModel(const QString& filename) {
 void plugPackageHandler::updatePlugPackageModel(const QStringList& fileList)
 {
     foreach (QString filePath,fileList)
-    updatePlugPackageModel(filePath);
+		updatePlugPackageModel(filePath);
     this->deleteLater();
     m_progress_bar->setVisible(false);
     return;

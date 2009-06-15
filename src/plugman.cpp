@@ -3,20 +3,36 @@
 #include <QAction>
 #include <QDir>
 #include <QProgressBar>
-//#include <qutim/settings.h>
+#ifdef Q_OS_WIN
+#include <QProcess>
+#endif
 
 bool plugMan::init ( PluginSystemInterface *plugin_system )
 {
     qRegisterMetaType<TreeModelItem> ( "TreeModelItem" );
 
     PluginInterface::init ( plugin_system );
-	isPlugManagerOpened = false;
-	return true;
+    isPlugManagerOpened = false;
+    return true;
 }
 
 void plugMan::release()
 {
-
+#ifdef Q_OS_WIN
+    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
+    if (settings.value("update", false ).toBool()) {
+        QFileInfo config_dir = settings.fileName();
+        QDir current_dir = qApp->applicationDirPath();
+        QString path;
+        if( config_dir.canonicalPath().contains( current_dir.canonicalPath() ) )
+            path = current_dir.relativeFilePath( config_dir.absolutePath() );
+        else
+            path = config_dir.absolutePath();
+        settings.setValue("update",false);
+        settings.setValue("isLocked",false);
+        QProcess::startDetached("cmd.exe", QStringList() << "/c postinst.bat", path );
+    }
+#endif
 }
 
 void plugMan::processEvent ( PluginEvent  &event)
@@ -33,7 +49,7 @@ QWidget *plugMan::settingsWidget()
 void plugMan::setProfileName ( const QString &profile_name )
 {
     QAction *plugman_action = new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this);
-	SystemsCity::PluginSystem()->registerMainMenuAction(plugman_action);
+    SystemsCity::PluginSystem()->registerMainMenuAction(plugman_action);
     connect(plugman_action, SIGNAL(triggered()), this, SLOT(onManagerBtnClicked()));
 
     m_profile_name = profile_name;
@@ -68,7 +84,7 @@ void plugMan::removeSettingsWidget()
 
 void plugMan::saveSettings()
 {
-	settingswidget->saveSettings();
+    settingswidget->saveSettings();
 }
 
 void plugMan::onInstallfromfileBtnClicked()

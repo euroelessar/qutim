@@ -1,5 +1,6 @@
 #include "plugpackage.h"
 #include "utils/plugversion.h"
+// #include <QDebug>
 packageInfo::packageInfo() {
 
 }
@@ -19,14 +20,25 @@ QString packageInfo::toString() {
 }
 
 bool packageInfo::isValid() {
-	if (properties.value("name").isEmpty())
+	if (properties.value("name").isEmpty()) {
+		this->ErrorString = QObject::tr("Package name is empty");
  		return false;
-	if (properties.value("type").isEmpty())
+	}
+	if (properties.value("type").isEmpty()) {
+		this->ErrorString = QObject::tr("Package type is empty");
+		return false;
+	}
+	if (!plugVersion(properties.value("version")).isValid()) {
+		this->ErrorString = QObject::tr("Invalid package version");
  		return false;
-	if (!plugVersion(properties.value("version")).isValid())
- 		return false;
-//	if (properties["url"].section(".",-1)!="zip")
-// 		return false;
+	}
+	const QString &platform = properties.value("platform");
+	if (platform.isEmpty()||platform=="all")
+		return true;
+	if (platform != QLatin1String(QT_BUILD_KEY)) {
+		this->ErrorString = QObject::tr("Wrong platform");
+		return false;
+	}
 	return true;
 }
 

@@ -39,6 +39,7 @@ struct packageInfo {
 	QStringList files; //установленные файлы
 	QString toString(); //! x3	
 	quint16 id;
+	QString ErrorString; //текст первой ошибки, которая привела к isValid = false
 };
 
 enum packageAttribute {
