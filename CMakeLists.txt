@@ -48,7 +48,6 @@ INCLUDE_DIRECTORIES (${QT_INCLUDES}
         )
 
 add_subdirectory (libs)
-add_subdirectory(tools)
 
 SET (QT_HEADERS
 	src/utils/plugversion.h

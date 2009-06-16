@@ -22,7 +22,7 @@ void plugMan::release()
 {
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
     if (settings.value("needUpdate", false ).toBool()) {
-//       QProcess::startDetached(qAppName());
+       QProcess::startDetached(qAppName());
     }
 }
 

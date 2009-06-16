@@ -230,8 +230,13 @@ void plugInstaller::removePackage(const QString &name, const QString &type) {
         for (uint i = fileList.count();i>0;i--) {
             QFile output (path+fileList.at(i-1));
             QFile::remove(backup_path+fileList.at(i-1));
-            qDebug() << path << backup_path << fileList.at(i-1);
             output.rename(backup_path+fileList.at(i-1));
+//            if (output.error()) {
+//                emit error((tr("Unable to remove package %1 : %2").arg(package_info.properties.value("name")), output.errorString()));
+//                package_info.properties["name"].append("(possibly broken)");
+//                plug_handler.registerPackage(package_info); //откатываем на место дабы была возможность обновится
+//                return;
+//            }
             m_progressBar->setValue(qRound((fileList.count()-i)/fileList.count()*100));
         }
     }
