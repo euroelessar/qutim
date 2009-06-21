@@ -146,7 +146,7 @@ static void testReaderAll () {
     //int ofs = sj-fmap;
     //fprintf(stderr, "0x%08x  %i\n", ofs, cnt);
     sj = K8JSON::skipBlanks(sj, &len);
-    if (len < 2 || sj && *sj == qch) break;
+    if (len < 2 || (sj && *sj == qch)) break;
     if ((cnt && *sj != ',') || (!cnt && *sj == ',')) {
       fprintf(stderr, "ERROR: invalid JSON file (delimiter)!\n");
       break;

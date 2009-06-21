@@ -461,6 +461,7 @@ static const uchar *parseId (QString &str, const uchar *s, int *maxLength) {
 /*
  * parse number
  */
+//TODO: parse 0x...
 static const uchar *parseNumber (QVariant &num, const uchar *s, int *maxLength) {
   if (!s) return 0;
   int maxLen = *maxLength;
@@ -567,10 +568,50 @@ const uchar *parseSimple (QString &fname, QVariant &fvalue, const uchar *s, int 
   // field value
   if (!(s = skipBlanks(s, maxLength))) return 0;
   if (*maxLength < 1) return 0;
-  ch = *s;
-  if (ch == '-' || (ch >= '0' && ch <= '9')) {
-    // number
-    if (!(s = parseNumber(fvalue, s, maxLength))) return 0;
+  //ch = *s;
+  switch (*s) {
+    case '-':
+    case '0': case '1': case '2': case '3': case '4':
+    case '5': case '6': case '7': case '8': case '9':
+      // number
+      if (!(s = parseNumber(fvalue, s, maxLength))) return 0;
+      break;
+    case 't': // true?
+      if (*maxLength < 4) return 0;
+      if (s[1] != 'r' || s[2] != 'u' || s[3] != 'e') return 0;
+      if (*maxLength > 4 && isValidIdChar(s[4])) return 0;
+      s += 4; (*maxLength) -= 4;
+      fvalue = true;
+      break;
+    case 'f': // false?
+      if (*maxLength < 5) return 0;
+      if (s[1] != 'a' || s[2] != 'l' || s[3] != 's' || s[4] != 'e') return 0;
+      if (*maxLength > 5 && isValidIdChar(s[5])) return 0;
+      s += 5; (*maxLength) -= 5;
+      fvalue = false;
+      break;
+    case 'n': // null?
+      if (*maxLength < 4) return 0;
+      if (s[1] != 'u' || s[2] != 'l' || s[3] != 'l') return 0;
+      if (*maxLength > 4 && isValidIdChar(s[4])) return 0;
+      s += 4; (*maxLength) -= 4;
+      // fvalue is null already
+      break;
+    case '"': case '\x27': {
+      // string
+      QString tmp;
+      if (!(s = parseString(tmp, s, maxLength))) return 0;
+      fvalue = tmp;
+      }
+      break;
+    case '{': case '[':
+      // object or list
+      if (!(s = parseRec(fvalue, s, maxLength))) return 0;
+      break;
+    default: // unknown
+      return 0;
+  }
+/*
   } else if (isValidIdChar(ch)) {
     // identifier (true/false/null)
     QString tmp;
@@ -590,6 +631,7 @@ const uchar *parseSimple (QString &fname, QVariant &fvalue, const uchar *s, int 
     // object or list
     if (!(s = parseRec(fvalue, s, maxLength))) return 0;
   } else return 0; // unknown
+*/
   if (!(s = skipBlanks(s, maxLength))) return 0;
   return s;
 }
