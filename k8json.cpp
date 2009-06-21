@@ -404,12 +404,12 @@ static const uchar *parseId (QString &str, const uchar *s, int *maxLength) {
   int strLen = 0, tmpLen = maxLen;
   const uchar *tmpS = s;
   while (tmpLen > 0) {
-    ch = *tmpS++; tmpLen--;
+    ch = *tmpS++;
     if (!isValidIdChar(ch)) {
       if (!strLen) return 0;
       break;
     }
-    strLen++;
+    tmpLen--; strLen++;
     // ascii or utf-8
     quint8 t = utf8Length[ch];
     if (t&0x08) return 0; // invalid utf-8 sequence
