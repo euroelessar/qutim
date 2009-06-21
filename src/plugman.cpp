@@ -90,6 +90,7 @@ void plugMan::onManagerBtnClicked() {
     if (!isPlugManagerOpened) {
         plugManager *m_manager = new plugManager ();
         connect(m_manager,SIGNAL(closed()),SLOT(onManagerClose()));
+        SystemsCity::PluginSystem()->centerizeWidget(m_manager);
         m_manager->show();
         isPlugManagerOpened = true;
     }
