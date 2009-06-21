@@ -124,7 +124,7 @@ const uchar *skipBlanks (const uchar *s, int *maxLength) {
 
 
 //FIXME: table?
-static inline bool isValidIdChar (uchar ch) {
+static inline bool isValidIdChar (const uchar ch) {
   return (
     ch == '$' || ch == '_' || ch >= 128 ||
     (ch >= '0' && ch <= '9') ||
@@ -219,6 +219,7 @@ const uchar *skipRec (const uchar *s, int *maxLength) {
         if (isValidIdChar(ch)) {
           // good token, skip it
           again = true; // just a token, skip it and go on
+          // check for valid utf8?
           while (*s && maxLen > 0) {
             ch = *s++; maxLen--;
             if (ch != '.' && !isValidIdChar(ch)) {
@@ -406,6 +407,7 @@ static const uchar *parseId (QString &str, const uchar *s, int *maxLength) {
     ch = *tmpS++; tmpLen--;
     if (!isValidIdChar(ch)) {
       if (!strLen) return 0;
+      break;
     }
     strLen++;
     // ascii or utf-8
@@ -421,6 +423,11 @@ static const uchar *parseId (QString &str, const uchar *s, int *maxLength) {
     }
     continue;
   }
+/*
+  str = "true";
+  while (isValidIdChar(*s)) { s++; (*maxLength)--; }
+  return s;
+*/
   //
   str.reserve(str.length()+strLen+1);
   ch = 0;
@@ -567,6 +574,9 @@ const uchar *parseSimple (QString &fname, QVariant &fvalue, const uchar *s, int 
   } else if (isValidIdChar(ch)) {
     // identifier (true/false/null)
     QString tmp;
+    //s--; (*maxLength)++;
+    //while (isValidIdChar(*s)) { s++; (*maxLength)--; }
+    //tmp = "true";
     if (!(s = parseId(tmp, s, maxLength))) return 0;
     if (tmp == sTrue) fvalue = true;
     else if (tmp == sFalse) fvalue = false;
