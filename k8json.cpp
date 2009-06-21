@@ -272,24 +272,25 @@ static const uchar *parseString (QString &str, const uchar *s, int *maxLength) {
       continue;
     }
     // escape sequence
-    ch = *tmpS++; tmpLen--; strLen++;
+    ch = *tmpS++; tmpLen--; //!strLen++;
     if (tmpLen < 2) return 0;
     int hlen = 0;
     switch (ch) {
       case 'u': hlen = 4;
       case 'x':
         if (!hlen) hlen = 2;
-        if (maxLen < hlen+1) return 0;
+        if (tmpLen < hlen+1) return 0;
         while (hlen-- > 0) {
-          ch = *s++; maxLen--;
+          ch = *tmpS++; tmpLen--;
           if (ch >= 'a') ch -= 32;
           if (!(ch >= '0' && ch <= '9') && !(ch >= 'A' && ch <= 'F')) return 0;
         }
+        hlen = 0;
         break;
       case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': // octal char
-        if (maxLen < 3) return 0;
+        if (tmpLen < 3) return 0;
         for (hlen = 2; hlen > 0; hlen--) {
-          ch = *s++; maxLen--;
+          ch = *tmpS++; tmpLen--;
           if (ch < '0' || ch > '7') return 0;
         }
         break;
@@ -301,8 +302,10 @@ static const uchar *parseString (QString &str, const uchar *s, int *maxLength) {
   //
   str.reserve(str.length()+strLen+1);
   ch = 0;
+  //fprintf(stderr, "\n");
   while (maxLen > 0) {
     ch = *s++; maxLen--;
+    //fprintf(stderr, "[%c] %i\n", ch, maxLen);
     if (ch == qch) break;
     if (ch != '\\') {
       // ascii or utf-8
@@ -328,16 +331,22 @@ static const uchar *parseString (QString &str, const uchar *s, int *maxLength) {
     int uu = 0; int escCLen = 0;
     switch (ch) {
       case 'u': // unicode char, 4 hex digits
+        //fprintf(stderr, "escape U\n");
         escCLen = 4;
         // fallthru
       case 'x': { // ascii char, 2 hex digits
-        if (!escCLen) escCLen = 2;
+        if (!escCLen) {
+          //fprintf(stderr, "escape X\n");
+          escCLen = 2;
+        }
+        //fprintf(stderr, "escape #%i\n", escCLen);
         while (escCLen-- > 0) {
           ch = *s++; maxLen--;
           if (ch >= 'a') ch -= 32;
           uu = uu*16+ch-'0';
-          if (ch >= 'A' && ch <= 'F') uu -= 7;
+          if (ch >= 'A'/* && ch <= 'F'*/) uu -= 7;
         }
+        //fprintf(stderr, " code: %04x\n", uu);
         if (uu > 0x10ffff) uu &= 0xffff;
         if ((uu >= 0xd800 && uu <= 0xdfff) || // utf16/utf32 surrogates
             (uu >= 0xfdd0 && uu <= 0xfdef) || // just for fun
@@ -348,6 +357,7 @@ static const uchar *parseString (QString &str, const uchar *s, int *maxLength) {
         }
         } break;
       case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': { // octal char
+        //fprintf(stderr, "escape O\n");
         s--; maxLen++;
         uu = 0;
         for (int f = 3; f > 0; f--) {
@@ -364,13 +374,17 @@ static const uchar *parseString (QString &str, const uchar *s, int *maxLength) {
       case 'n': str.append('\n'); break;
       case 'r': str.append('\r'); break;
       case 't': str.append('\t'); break;
-      case '"': case '\x27': str.append(ch); ch = 0; break;
+      case '"': case '\x27': str.append(ch); /*ch = 0;*/ break;
       default:
         // non-standard!
-        if (ch != '\t' && ch != '\r' && ch != '\n') return 0; // all other chars are BAD
+        if (ch != '\t' && ch != '\r' && ch != '\n') {
+          //fprintf(stderr, "escape BAD [%c]\n", ch);
+          return 0; // all other chars are BAD
+        }
         str.append(ch);
     }
   }
+  //fprintf(stderr, "[%c] [%c]\n", ch, qch);
   if (ch != qch) return 0;
   *maxLength = maxLen;
   return s;
