@@ -456,6 +456,7 @@ static const uchar *parseNumber (QVariant &num, const uchar *s, int *maxLength) 
   uchar ch = *s++; maxLen--;
   // check for negative number
   bool negative = false, fr = false;
+  double fnum = 0.0;
   switch (ch) {
     case '-':
       if (maxLen < 1) return 0;
@@ -468,8 +469,27 @@ static const uchar *parseNumber (QVariant &num, const uchar *s, int *maxLength) 
       break;
     default: ;
   }
-  if (ch < '0' || ch > '9') return 0; // invalid integer part
-  double fnum = 0.0;
+  if (ch != '.' && (ch < '0' || ch > '9')) return 0; // invalid integer part, no fraction part
+  if (ch == '0' && *maxLength > 0 && *s == 'x') {
+    // hex number
+    s++; (*maxLength)--; // skip 'x'
+    bool wasDigit = false;
+    for (;;) {
+      if (*maxLength < 1) break;
+      uchar ch = *s++; (*maxLength)--;
+      //if (ch >= 'a' && ch <= 'f') ch -= 32;
+      if (ch >= '0' && ch <= '9') {
+        fnum *= 16; fnum += ch-'0';
+      } else if (ch >= 'A' && ch <= 'F') {
+        fnum *= 16; fnum += ch-'A'+10;
+      } else if (ch >= 'a' && ch <= 'f') {
+        fnum *= 16; fnum += ch-'a'+10;
+      } else break;
+      wasDigit = true;
+    }
+    if (!wasDigit) return 0;
+    goto backanddone;
+  }
   // parse integer part
   while (ch >= '0' && ch <= '9') {
     ch -= '0';
@@ -518,6 +538,7 @@ static const uchar *parseNumber (QVariant &num, const uchar *s, int *maxLength) 
       if (fnum > 2147483647.0 || ((qint64)fnum)*1.0 != fnum) fr = true;
     }
   }
+backanddone:
   s--; maxLen++;
 done:
   if (!fr && fnum > 2147483647.0) fr = true;
@@ -543,7 +564,7 @@ const uchar *parseValue (QVariant &fvalue, const uchar *s, int *maxLength) {
   if (!(s = skipBlanks(s, maxLength))) return 0;
   if (*maxLength < 1) return 0;
   switch (*s) {
-    case '-': case '+': // '+' is not in specs!
+    case '-': case '+': case '.': // '+' and '.' are not in specs!
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
       // number
@@ -663,8 +684,8 @@ const uchar *parseRecord (QVariant &res, const uchar *s, int *maxLength) {
             *s++; (*maxLength)--;
             wasComma = true;
           }
-          if (wasComma) continue;
           if (ch == ech) break; // end of the object/list
+          if (wasComma) continue;
           // else error
         }
         // error
