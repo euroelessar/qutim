@@ -1,4 +1,4 @@
-/* coded by Ketmar // Avalon Group (ketmar@ketmar.no-ip.org)
+/* coded by Ketmar // Vampire Avalon (ketmar@ketmar.no-ip.org)
  *
  * This program is free software. It comes without any warranty, to
  * the extent permitted by applicable law. You can redistribute it
