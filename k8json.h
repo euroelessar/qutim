@@ -48,18 +48,26 @@ const uchar *skipBlanks (const uchar *s, int *maxLength);
 const uchar *skipRec (const uchar *s, int *maxLength);
 
 /*
- * parse one simple record (f-v pair)
+ * parse field value
+ * return ptr to the first non-blank char after the value (or 0)
+ * 'maxLen' will be changed
+ */
+const uchar *parseValue (QVariant &fvalue, const uchar *s, int *maxLength);
+
+
+/*
+ * parse one field (f-v pair)
  * return ptr to the first non-blank char after the record (or 0)
  * 'maxLen' will be changed
  */
-const uchar *parseSimple (QString &fname, QVariant &fvalue, const uchar *s, int *maxLength);
+const uchar *parseField (QString &fname, QVariant &fvalue, const uchar *s, int *maxLength);
 
 /*
  * parse one record (list or object)
  * return ptr to the first non-blank char after the record (or 0)
  * 'maxLen' will be changed
  */
-const uchar *parseRec (QVariant &res, const uchar *s, int *maxLength);
+const uchar *parseRecord (QVariant &res, const uchar *s, int *maxLength);
 
 
 #ifdef K8JSON_INCLUDE_GENERATOR

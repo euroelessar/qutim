@@ -91,7 +91,7 @@ static void testReader () {
     //fprintf(stderr, "0x%08x  %i\n", ofs, cnt);
     if (!(sj = K8JSON::skipBlanks(sj, &len))) break;
     val.clear();
-    sj = K8JSON::parseRec(val, sj, &len);
+    sj = K8JSON::parseRecord(val, sj, &len);
     if (!sj) {
       //fprintf(stderr, "ERROR: invalid JSON file!\n");
       break;
@@ -153,7 +153,7 @@ static void testReaderAll () {
     }
     if (*sj == ',') { sj++; len--; }
     val.clear();
-    sj = K8JSON::parseRec(val, sj, &len);
+    sj = K8JSON::parseRecord(val, sj, &len);
     if (!sj) {
       fprintf(stderr, "ERROR: invalid JSON file!\n");
       break;
@@ -195,7 +195,7 @@ static void testReaderAll2 () {
   st.start();
 
   QVariant val;
-  sj = K8JSON::parseRec(val, sj, &len);
+  sj = K8JSON::parseRecord(val, sj, &len);
   if (!sj) {
     fprintf(stderr, "ERROR: invalid JSON file!\n");
     break;

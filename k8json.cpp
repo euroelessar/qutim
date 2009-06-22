@@ -241,7 +241,7 @@ const uchar *skipRec (const uchar *s, int *maxLength) {
 
 
 /*
- * parse json-quoted string. a little relaxed parsing, it allows "'"-quoted strings,
+ * parse json-quoted string. a relaxed parser, it allows "'"-quoted strings,
  * whereas json standard does not. also \x and \nnn are allowed.
  * return position after the string or 0
  * 's' should point to the quote char on entry
@@ -303,10 +303,8 @@ static const uchar *parseString (QString &str, const uchar *s, int *maxLength) {
   //
   str.reserve(str.length()+strLen+1);
   ch = 0;
-  //fprintf(stderr, "\n");
   while (maxLen > 0) {
     ch = *s++; maxLen--;
-    //fprintf(stderr, "[%c] %i\n", ch, maxLen);
     if (ch == qch) break;
     if (ch != '\\') {
       // ascii or utf-8
@@ -332,22 +330,16 @@ static const uchar *parseString (QString &str, const uchar *s, int *maxLength) {
     int uu = 0; int escCLen = 0;
     switch (ch) {
       case 'u': // unicode char, 4 hex digits
-        //fprintf(stderr, "escape U\n");
         escCLen = 4;
         // fallthru
       case 'x': { // ascii char, 2 hex digits
-        if (!escCLen) {
-          //fprintf(stderr, "escape X\n");
-          escCLen = 2;
-        }
-        //fprintf(stderr, "escape #%i\n", escCLen);
+        if (!escCLen) escCLen = 2;
         while (escCLen-- > 0) {
           ch = *s++; maxLen--;
           if (ch >= 'a') ch -= 32;
           uu = uu*16+ch-'0';
           if (ch >= 'A'/* && ch <= 'F'*/) uu -= 7;
         }
-        //fprintf(stderr, " code: %04x\n", uu);
         if (uu > 0x10ffff) uu &= 0xffff;
         if ((uu >= 0xd800 && uu <= 0xdfff) || // utf16/utf32 surrogates
             (uu >= 0xfdd0 && uu <= 0xfdef) || // just for fun
@@ -358,7 +350,6 @@ static const uchar *parseString (QString &str, const uchar *s, int *maxLength) {
         }
         } break;
       case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': { // octal char
-        //fprintf(stderr, "escape O\n");
         s--; maxLen++;
         uu = 0;
         for (int f = 3; f > 0; f--) {
@@ -375,17 +366,13 @@ static const uchar *parseString (QString &str, const uchar *s, int *maxLength) {
       case 'n': str.append('\n'); break;
       case 'r': str.append('\r'); break;
       case 't': str.append('\t'); break;
-      case '"': case '\x27': str.append(ch); /*ch = 0;*/ break;
+      case '"': case '\x27': str.append(ch); break;
       default:
         // non-standard!
-        if (ch != '\t' && ch != '\r' && ch != '\n') {
-          //fprintf(stderr, "escape BAD [%c]\n", ch);
-          return 0; // all other chars are BAD
-        }
+        if (ch != '\t' && ch != '\r' && ch != '\n') return 0; // all other chars are BAD
         str.append(ch);
     }
   }
-  //fprintf(stderr, "[%c] [%c]\n", ch, qch);
   if (ch != qch) return 0;
   *maxLength = maxLen;
   return s;
@@ -469,10 +456,17 @@ static const uchar *parseNumber (QVariant &num, const uchar *s, int *maxLength) 
   uchar ch = *s++; maxLen--;
   // check for negative number
   bool negative = false, fr = false;
-  if (ch == '-') {
-    if (maxLen < 1) return 0;
-    ch = *s++; maxLen--;
-    negative = true;
+  switch (ch) {
+    case '-':
+      if (maxLen < 1) return 0;
+      ch = *s++; maxLen--;
+      negative = true;
+      break;
+    case '+':
+      if (maxLen < 1) return 0;
+      ch = *s++; maxLen--;
+      break;
+    default: ;
   }
   if (ch < '0' || ch > '9') return 0; // invalid integer part
   double fnum = 0.0;
@@ -540,37 +534,16 @@ static const QString sNull("null");
 
 
 /*
- * parse one simple record (f-v pair)
- * return ptr to the first non-blank char after the record (or 0)
+ * parse field value
+ * return ptr to the first non-blank char after the value (or 0)
  * 'maxLen' will be changed
  */
-const uchar *parseSimple (QString &fname, QVariant &fvalue, const uchar *s, int *maxLength) {
-  if (!s) return 0;
-  //int maxLen = *maxLength;
-  fname.clear();
+const uchar *parseValue (QVariant &fvalue, const uchar *s, int *maxLength) {
   fvalue.clear();
   if (!(s = skipBlanks(s, maxLength))) return 0;
   if (*maxLength < 1) return 0;
-  uchar ch = *s;
-  // field name
-  if (isValidIdChar(ch)) {
-    // id
-    if (!(s = parseId(fname, s, maxLength))) return 0;
-  } else if (ch == '"' || ch == '\x27') {
-    // string
-    if (!(s = parseString(fname, s, maxLength))) return 0;
-    //if (fname.isEmpty()) return 0;
-  }
-  // ':'
-  if (!(s = skipBlanks(s, maxLength))) return 0;
-  if (*maxLength < 2 || *s != ':') return 0;
-  s++; (*maxLength)--;
-  // field value
-  if (!(s = skipBlanks(s, maxLength))) return 0;
-  if (*maxLength < 1) return 0;
-  //ch = *s;
   switch (*s) {
-    case '-':
+    case '-': case '+': // '+' is not in specs!
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
       // number
@@ -606,34 +579,43 @@ const uchar *parseSimple (QString &fname, QVariant &fvalue, const uchar *s, int 
       break;
     case '{': case '[':
       // object or list
-      if (!(s = parseRec(fvalue, s, maxLength))) return 0;
+      if (!(s = parseRecord(fvalue, s, maxLength))) return 0;
       break;
     default: // unknown
       return 0;
   }
-/*
-  } else if (isValidIdChar(ch)) {
-    // identifier (true/false/null)
-    QString tmp;
-    //s--; (*maxLength)++;
-    //while (isValidIdChar(*s)) { s++; (*maxLength)--; }
-    //tmp = "true";
-    if (!(s = parseId(tmp, s, maxLength))) return 0;
-    if (tmp == sTrue) fvalue = true;
-    else if (tmp == sFalse) fvalue = false;
-    else if (tmp != sNull) return 0; // invalid id
-  } else if (ch == '"' || ch == '\x27') {
-    // string
-    QString tmp;
-    if (!(s = parseString(tmp, s, maxLength))) return 0;
-    fvalue = tmp;
-  } else if (ch == '{' || ch == '[') {
-    // object or list
-    if (!(s = parseRec(fvalue, s, maxLength))) return 0;
-  } else return 0; // unknown
-*/
   if (!(s = skipBlanks(s, maxLength))) return 0;
   return s;
+}
+
+
+/*
+ * parse one field (f-v pair)
+ * return ptr to the first non-blank char after the record (or 0)
+ * 'maxLen' will be changed
+ */
+const uchar *parseField (QString &fname, QVariant &fvalue, const uchar *s, int *maxLength) {
+  if (!s) return 0;
+  //int maxLen = *maxLength;
+  fname.clear();
+  fvalue.clear();
+  if (!(s = skipBlanks(s, maxLength))) return 0;
+  if (*maxLength < 1) return 0;
+  uchar ch = *s;
+  // field name
+  if (isValidIdChar(ch)) {
+    // id
+    if (!(s = parseId(fname, s, maxLength))) return 0;
+  } else if (ch == '"' || ch == '\x27') {
+    // string
+    if (!(s = parseString(fname, s, maxLength))) return 0;
+  }
+  // ':'
+  if (!(s = skipBlanks(s, maxLength))) return 0;
+  if (*maxLength < 2 || *s != ':') return 0;
+  s++; (*maxLength)--;
+  // field value
+  return parseValue(fvalue, s, maxLength);
 }
 
 
@@ -642,101 +624,59 @@ const uchar *parseSimple (QString &fname, QVariant &fvalue, const uchar *s, int 
  * return ptr to the first non-blank char after the record (or 0)
  * 'maxLen' will be changed
  */
-const uchar *parseRec (QVariant &res, const uchar *s, int *maxLength) {
+const uchar *parseRecord (QVariant &res, const uchar *s, int *maxLength) {
   if (!s) return 0;
   //int maxLen = *maxLength;
   res.clear();
   if (!(s = skipBlanks(s, maxLength))) return 0;
   if (*maxLength < 1) return 0;
-  QString str;
-  QVariant val;
   // field name or list/object start
+  QString str; QVariant val;
   uchar ch = *s;
+  bool isList = false;
   switch (ch) {
+    case '[': isList = true; // list, fallthru
     case '{': { // object
       if (*maxLength < 2) return 0;
+      uchar ech = isList ? ']' : '}';
       s++; (*maxLength)--;
-      QVariantMap obj;
+      QVariantMap obj; QVariantList lst;
       for (;;) {
-        str.clear();
-        if (!(s = parseSimple(str, val, s, maxLength))) return 0;
-        obj[str] = val;
+        if (isList) {
+          // list, only values
+          if (!(s = parseValue(val, s, maxLength))) return 0;
+          lst << val;
+        } else {
+          // object, full fields
+          if (!(s = parseField(str, val, s, maxLength))) return 0;
+          obj[str] = val;
+        }
         if (*maxLength > 0) {
-          ch = *s++; (*maxLength)--;
-          if (ch == ',') continue; // next field/value pair
-          if (ch == '}') break; // end of the object
+          bool wasComma = false;
+          // skip commas
+          while (true) {
+            if (!(s = skipBlanks(s, maxLength))) return 0;
+            if (*maxLength < 1) { ch = '\0'; wasComma = false; break; }
+            ch = *s;
+            if (ch == ech) { *s++; (*maxLength)--; break; }
+            if (ch != ',') break;
+            *s++; (*maxLength)--;
+            wasComma = true;
+          }
+          if (wasComma) continue;
+          if (ch == ech) break; // end of the object/list
+          // else error
         }
         // error
         s = 0;
         break;
       }
-      res = obj;
+      if (isList) res = lst; else res = obj;
       return s;
       } // it will never comes here
-    case '[': { // list
-      if (*maxLength < 2) return 0;
-      s++; (*maxLength)--;
-      QVariantList lst;
-      for (;;) {
-        if (!(s = skipBlanks(s, maxLength))) return 0;
-        if (*maxLength > 0) {
-          // value
-          bool err = false;
-          ch = *s;
-          if (ch == '[' || ch == '{') {
-            // list/object
-            const uchar *tmp = s;
-            if (!(s = parseRec(val, s, maxLength))) {
-              QString st(QByteArray((const char *)tmp, 64));
-              err = true;
-            } else lst << val;
-          } else if (isValidIdChar(ch)) {
-            // identifier
-            str.clear();
-            if (!(s = parseId(str, s, maxLength))) {
-              err = true;
-            } else {
-              if (str == sTrue) lst << true;
-              else if (str == sFalse) lst << false;
-              else if (str == sNull) lst << QVariant();
-              else {
-                err = true;
-              }
-            }
-          } else if (ch == '"' || ch == '\x27') {
-            // string
-            str.clear();
-            if (!(s = parseString(str, s, maxLength))) {
-              err = true;
-            } else lst << str;
-          } else if (ch == '-' || (ch >= '0' && ch <= '9')) {
-            // number
-            if (!(s = parseNumber(val, s, maxLength))) {
-              err = true;
-            } else lst << val;
-          } else {
-            err = true;
-          }
-          //
-          if (!err) {
-            if ((s = skipBlanks(s, maxLength))) {
-              if (*maxLength > 0) {
-                ch = *s++; (*maxLength)--;
-                if (ch == ',') continue; // next value
-                if (ch == ']') break; // end of the list
-              }
-            }
-          }
-        }
-        // error
-        s = 0;
-        break;
-      }
-      res = lst;
-      return s;
-      } // it will never comes here
+    default: ;
   }
-  if (!(s = parseSimple(str, val, s, maxLength))) return 0;
+  if (!(s = parseField(str, val, s, maxLength))) return 0;
   QVariantMap obj;
   obj[str] = val;
   res = obj;
