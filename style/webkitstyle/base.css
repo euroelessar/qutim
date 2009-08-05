@@ -1,0 +1,215 @@
+body {
+  background: url('images/background.png') repeat;
+  margin: 0;
+}
+
+#Chat
+{
+	margin: 0;
+	padding: 0;
+}
+
+p
+{
+	margin: 0;
+}
+
+img
+{
+	vertical-align: middle;
+}
+
+hr {
+width: 95%;
+border: 0 solid white;
+border-bottom: 1px dashed #b5bac5;
+}
+
+	.outgoing_row, .incoming_row {
+  height: 20px;
+  color: #fff;
+  font-family: Tahoma;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 20px;
+  padding-left: 6px;
+  overflow: hidden;
+  }
+  
+.message_outgoing
+{
+border-left: 1px solid #dadada;
+border-right: 1px solid #dadada;
+margin-left: 8px;
+margin-right: 8px;
+background-color: white;
+padding-bottom: 0px;
+}
+
+.mcontainer_bottom {
+margin-left: 22px;
+margin-right: 22px;
+padding-bottom: 4px;
+background: red;
+height: 14px;
+background: url('images/container_bot.png') repeat-x left;
+padding-top: -10px;
+padding-bottom: 8px;
+margin-top: -10px;
+}
+
+.mcontainer_bottom #bottom {
+background: red;
+height: 14px;
+float:left;
+width: auto;
+margin-left: auto;
+margin-right: auto;
+
+}
+
+.mcontainer_bottom #left {
+background: url('images/container_left_bot.png') no-repeat left;
+width: 14px;
+height: 14px;
+float:left;
+margin-left: -14px;
+margin-top: 4px;
+}
+
+.mcontainer_bottom #right {
+
+background: url('images/container_right_bot.png') no-repeat right;
+width: 14px;
+height: 14px;
+float:right;
+margin-right: -14px;
+margin-top: 4px;
+}
+
+.message_row{
+
+padding-bottom: 5px;
+padding-top: 5px;
+overflow: hidden;
+
+}
+
+.message_row_out, .message_row_in{
+
+padding-bottom: 5px;
+padding-top: 5px;
+overflow: hidden;
+padding-right: 80px;
+}
+
+ .next_message  {
+width: 100%;
+position:relative;
+
+ }
+
+.message_row #cursor, .m_sending{
+min-height: 14px;
+width: 14px;
+
+float: left;
+margin-left: -20px;
+}
+
+.message_row_out #cursor, .message_row_in #cursor, .m_sending {
+min-height: 14px;
+width: 14px;
+margin-left: -20px;
+float: left;
+
+}
+
+.m_sending {
+background: url('images/incoming_cursor.png');
+}
+
+.m_sended {
+min-height: 14px;
+width: 14px;
+margin-left: -20px;
+float: left;
+background: url('images/outgoing_cursor.png');
+}
+
+.message_row #message{
+position:relative;
+float: left;
+padding-left: 25px;
+padding-right: 5px;
+font-family: Tahoma;
+font-size: 10px;
+color: #3e4549;
+line-height: 14px;
+
+right: 40px;
+}
+
+.message_row_out #message, .message_row_in #message {
+position:relative;
+float: left;
+font-family: Tahoma;
+font-size: 10px;
+color: #3e4549;
+line-height: 14px;
+padding-left: 25px;
+padding-right: 5px;
+width: 100%;
+}
+
+.message_row #msg_date {
+position: relative;
+top:0;
+right: 0;
+float: right;
+margin-right: 5px;
+font-family: Tahoma;
+font-size: 10px;
+color: #3e4549;
+line-height: 14px;
+
+}
+
+.message_row_out #msg_date, .message_row_in #msg_date {
+position: relative;
+top:0;
+right: 0;
+float: right;
+margin-right: -75px;
+font-family: Tahoma;
+font-size: 10px;
+color: #3e4549;
+line-height: 14px;
+}
+
+.status_row {
+font-family: Tahoma;
+font-size: 10px;
+color: #123d5c;
+text-align: left;
+font-weight: normal;
+overflow: hidden;
+background-color: white;
+border-top: 1px solid #dadada;
+border-bottom: 1px solid #dadada;
+margin-top: 4px;
+padding-left: 10px;
+margin-bottom: 4px;
+min-height: 22px;
+line-height: 22px;
+}
+
+.timestamp
+{
+float:right;
+font-weight: normal;
+font-family: Tahoma;
+font-size: 10px;
+color: #123d5c;
+padding-right: 10px;
+}
