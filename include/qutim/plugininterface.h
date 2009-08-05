@@ -41,12 +41,6 @@ class QDir;
 #define Q_REGISTER_EVENT(ARG, ID) \
 		static const quint16 ARG = ::qutim_sdk_0_2::SystemsCity::PluginSystem()->registerEventHandler( ID )
 
-namespace qutim_sdk_0_3 {
-	struct Event;
-	struct TreeModelItem;
-	struct HistoryItem;
-}
-
 namespace qutim_sdk_0_2 {
 
 class PluginSystemInterface;
@@ -190,8 +184,6 @@ struct TreeModelItem
 	QString m_parent_name; /*!< Parent item name */
 	quint8 m_item_type; /*!< item type: 0 - buddy; 1 - group; 2 - account item */
 	QString m_item_history;
-	inline operator qutim_sdk_0_3::TreeModelItem &();
-	inline operator const qutim_sdk_0_3::TreeModelItem &() const;
 };
 /*!
  * @brief item of the history
@@ -207,8 +199,6 @@ struct HistoryItem
 	QString m_from; /*!< Deprecated */
 	bool m_in;  /*!< FlagIncoming (true) or outgoing (false) message */
 	qint8 m_type; /*!< 0 - system; 1Private; */
-	inline operator qutim_sdk_0_3::HistoryItem &();
-	inline operator const qutim_sdk_0_3::HistoryItem &() const;
 };
 
 /*
@@ -334,8 +324,6 @@ struct Event
 	inline void append(void *arg) { args.append(arg); }
 	inline int size() { return args.size(); }
 	inline bool send();
-	inline operator qutim_sdk_0_3::Event &();
-	inline operator const qutim_sdk_0_3::Event &() const;
 	quint16 id;             /*!< Event type id */
 	QVector<void *> args;   /*!< List with pointers to event's arguments */
 };
@@ -1510,286 +1498,6 @@ inline static QString tr2qtr( const char *source_text, const char *comment = 0 )
 	qWarning( "tr2qtr: SystemsCity has no pointer to PluginSystemInterface" );
 	return QString::fromUtf8( source_text );
 }
-
-/*!
- * @brief Namespace, that will be used in the recent future
- *
- * It's main featureFully compatibility with last namespace,
- * easy ways for migration, more comfortable and flexible coding
- */
-namespace qutim_sdk_0_3 {
-
-typedef qutim_sdk_0_2::LocalizedString LocalizedString;
-
-//class SystemsCity
-//{
-//public:
-//	/**
-//	* @brief Get pointer to PluginSystem
-//	*
-//	* @return Pointer to PluginSystem
-//	*/
-//	inline static PluginSystemInterface *PluginSystem() { return instance().m_plugin_system; }
-//	/**
-//	* @brief Get pointer to IconManager
-//	*
-//	* @return Pointer to IconManager
-//	*/
-//	inline static IconManagerInterface *IconManager() { return instance().m_icon_manager; }
-//	inline static TranslatorInterface *Translator() { return instance().m_translator; }
-//	/**
-//	* @brief Get profile name
-//	*
-//	* @return Profile name
-//	*/
-//	inline static const QString &ProfileName() { return instance().m_profile_name; }
-//protected:
-//	inline static SystemsCity &instance()
-//	{
-//		static SystemsCity city;
-//		return city;
-//	}
-//	inline SystemsCity() : m_plugin_system(0), m_icon_manager(0), m_translator(0) { m_layers.fill( 0, InvalidLayer ); }
-//	inline ~SystemsCity() {}
-//	PluginSystemInterface *m_plugin_system;
-//	IconManagerInterface *m_icon_manager;
-//	TranslatorInterface *m_translator;
-//	QString m_profile_name;
-//	QVector<LayerInterface *> m_layers;
-//};
-
-/*!
- * @brief Event structure
- *
- * It is used for communicating between plugins and core
- */
-struct Event
-{
-	inline Event(quint16 event_id = 0xffff) : id(event_id)  {}
-	// auto-generated code
-	inline Event(const QString &event_id);
-	template< typename T1 >
-	inline Event(quint16 event_id, const T1 &t1);
-	template< typename T1 >
-	inline Event(const QString &event_id, const T1 &t1);
-	template< typename T1 , typename T2 >
-	inline Event(quint16 event_id, const T1 &t1, const T2 &t2);
-	template< typename T1 , typename T2 >
-	inline Event(const QString &event_id, const T1 &t1, const T2 &t2);
-	template< typename T1 , typename T2 , typename T3 >
-	inline Event(quint16 event_id, const T1 &t1, const T2 &t2, const T3 &t3);
-	template< typename T1 , typename T2 , typename T3 >
-	inline Event(const QString &event_id, const T1 &t1, const T2 &t2, const T3 &t3);
-	template< typename T1 , typename T2 , typename T3 , typename T4 >
-	inline Event(quint16 event_id, const T1 &t1, const T2 &t2, const T3 &t3, const T4 &t4);
-	template< typename T1 , typename T2 , typename T3 , typename T4 >
-	inline Event(const QString &event_id, const T1 &t1, const T2 &t2, const T3 &t3, const T4 &t4);
-	template< typename T1 , typename T2 , typename T3 , typename T4 , typename T5 >
-	inline Event(quint16 event_id, const T1 &t1, const T2 &t2, const T3 &t3, const T4 &t4, const T5 &t5);
-	template< typename T1 , typename T2 , typename T3 , typename T4 , typename T5 >
-	inline Event(const QString &event_id, const T1 &t1, const T2 &t2, const T3 &t3, const T4 &t4, const T5 &t5);
-	template< typename T1 , typename T2 , typename T3 , typename T4 , typename T5 , typename T6 >
-	inline Event(quint16 event_id, const T1 &t1, const T2 &t2, const T3 &t3, const T4 &t4, const T5 &t5, const T6 &t6);
-	template< typename T1 , typename T2 , typename T3 , typename T4 , typename T5 , typename T6 >
-	inline Event(const QString &event_id, const T1 &t1, const T2 &t2, const T3 &t3, const T4 &t4, const T5 &t5, const T6 &t6);
-	// end of auto-generation
-
-	template< typename T >
-	inline const T &at(int i) const { return *reinterpret_cast<const T *>(args.at(i)); } // usually you don't need it
-	template< typename T >
-	inline T &at(int i) { return *reinterpret_cast<T *>(args[i]); }
-	template< typename T >
-	inline void append( const T &t ) { args.append(const_cast<T *>(&t)); }
-	inline int size() { return args.size(); }
-	inline bool send();
-	inline operator qutim_sdk_0_2::Event &();
-	inline operator const qutim_sdk_0_2::Event &() const;
-	quint16 id;           /*!< Event type id */
-	QVector<void *> args; /*!< List with pointers to event's arguments */
-};
-
-inline bool Event::send()
-{
-	return qutim_sdk_0_2::SystemsCity::PluginSystem()->sendEvent( *this );
-}
-
-struct AuthorInfo
-{
-	LocalizedString name;
-	LocalizedString task;
-	QString email_address;
-	QString web_address;
-};
-
-struct PluginInfo
-{
-	// Localized authors
-	QList<AuthorInfo> authors;
-	// Localized name
-	LocalizedString name;
-	// Localized html description
-	LocalizedString description;
-	// Can be accessed by Icon( name, IconInfo::Plugin );
-	QIcon icon;
-	// Format is w[.x[.y[.z]]]
-	QString version;
-};
-
-/*!
- * @brief item of the TreeModel, used to represent contact, message or somewhat
- */
-struct TreeModelItem
-{
-    enum Type
-    {
-        Buddy = 0,
-        Group,
-        Account,
-        Conference = 32,
-        ConferenceItem
-	};
-	inline TreeModelItem() : type(0) {}
-    QString protocol; /*!< Protocol name */
-    QString account; /*!< Account name */
-	QString name; /*!< Item name */
-    QString parent; /*!< Parent item name */
-	quint8  type; /*!< Item type. Enum is not used because of it's different size at different compilators and platforms */
-	QString history;
-	inline operator qutim_sdk_0_2::TreeModelItem &();
-	inline operator const qutim_sdk_0_2::TreeModelItem &() const;
-};
-/*!
- * @brief item of the history
- *
- * In a few words - one separate message
- * HistoryItem structure is not fully understood by me, look at m_user and m_from
- */
-struct HistoryItem
-{
-	inline HistoryItem() : in(true), type(0) {}
-	QString message; /*!< Message */
-	QDateTime time; /*!< Time of sending */
-	TreeModelItem user; /*!< Contact's item */
-	QString _unused; /*!< Deprecated */
-	bool in;  /*!< FlagIncoming (true) or outgoing (false) message */
-	qint8 type; /*!< 0 - system; 1Private; */
-	inline operator qutim_sdk_0_2::HistoryItem &();
-	inline operator const qutim_sdk_0_2::HistoryItem &() const;
-};
-
-// auto-generated code
-inline Event::Event(const QString &event_id) : id(qutim_sdk_0_2::SystemsCity::PluginSystem()->registerEventHandler(event_id)) {}
-template< typename T1 >
-inline Event::Event(quint16 event_id, const T1 &t1) : id(event_id)
-{
-	args.reserve(1);
-	args << const_cast<T1 *>( &t1 );
-}
-template< typename T1 >
-inline Event::Event(const QString &event_id, const T1 &t1) : id(qutim_sdk_0_2::SystemsCity::PluginSystem()->registerEventHandler(event_id))
-{
-	args.reserve(1);
-	args << const_cast<T1 *>( &t1 );
-}
-template< typename T1 , typename T2 >
-inline Event::Event(quint16 event_id, const T1 &t1, const T2 &t2) : id(event_id)
-{
-	args.reserve(2);
-	args << const_cast<T1 *>( &t1 ) << const_cast<T2 *>( &t2 );
-}
-template< typename T1 , typename T2 >
-inline Event::Event(const QString &event_id, const T1 &t1, const T2 &t2) : id(qutim_sdk_0_2::SystemsCity::PluginSystem()->registerEventHandler(event_id))
-{
-	args.reserve(2);
-	args << const_cast<T1 *>( &t1 ) << const_cast<T2 *>( &t2 );
-}
-template< typename T1 , typename T2 , typename T3 >
-inline Event::Event(quint16 event_id, const T1 &t1, const T2 &t2, const T3 &t3) : id(event_id)
-{
-	args.reserve(3);
-	args << const_cast<T1 *>( &t1 ) << const_cast<T2 *>( &t2 ) << const_cast<T3 *>( &t3 );
-}
-template< typename T1 , typename T2 , typename T3 >
-inline Event::Event(const QString &event_id, const T1 &t1, const T2 &t2, const T3 &t3) : id(qutim_sdk_0_2::SystemsCity::PluginSystem()->registerEventHandler(event_id))
-{
-	args.reserve(3);
-	args << const_cast<T1 *>( &t1 ) << const_cast<T2 *>( &t2 ) << const_cast<T3 *>( &t3 );
-}
-template< typename T1 , typename T2 , typename T3 , typename T4 >
-inline Event::Event(quint16 event_id, const T1 &t1, const T2 &t2, const T3 &t3, const T4 &t4) : id(event_id)
-{
-	args.reserve(4);
-	args << const_cast<T1 *>( &t1 ) << const_cast<T2 *>( &t2 ) << const_cast<T3 *>( &t3 ) << const_cast<T4 *>( &t4 );
-}
-template< typename T1 , typename T2 , typename T3 , typename T4 >
-inline Event::Event(const QString &event_id, const T1 &t1, const T2 &t2, const T3 &t3, const T4 &t4) : id(qutim_sdk_0_2::SystemsCity::PluginSystem()->registerEventHandler(event_id))
-{
-	args.reserve(4);
-	args << const_cast<T1 *>( &t1 ) << const_cast<T2 *>( &t2 ) << const_cast<T3 *>( &t3 ) << const_cast<T4 *>( &t4 );
-}
-template< typename T1 , typename T2 , typename T3 , typename T4 , typename T5 >
-inline Event::Event(quint16 event_id, const T1 &t1, const T2 &t2, const T3 &t3, const T4 &t4, const T5 &t5) : id(event_id)
-{
-	args.reserve(5);
-	args << const_cast<T1 *>( &t1 ) << const_cast<T2 *>( &t2 ) << const_cast<T3 *>( &t3 ) << const_cast<T4 *>( &t4 ) << const_cast<T5 *>( &t5 );
-}
-template< typename T1 , typename T2 , typename T3 , typename T4 , typename T5 >
-inline Event::Event(const QString &event_id, const T1 &t1, const T2 &t2, const T3 &t3, const T4 &t4, const T5 &t5) : id(qutim_sdk_0_2::SystemsCity::PluginSystem()->registerEventHandler(event_id))
-{
-	args.reserve(5);
-	args << const_cast<T1 *>( &t1 ) << const_cast<T2 *>( &t2 ) << const_cast<T3 *>( &t3 ) << const_cast<T4 *>( &t4 ) << const_cast<T5 *>( &t5 );
-}
-template< typename T1 , typename T2 , typename T3 , typename T4 , typename T5 , typename T6 >
-inline Event::Event(quint16 event_id, const T1 &t1, const T2 &t2, const T3 &t3, const T4 &t4, const T5 &t5, const T6 &t6) : id(event_id)
-{
-	args.reserve(6);
-	args << const_cast<T1 *>( &t1 ) << const_cast<T2 *>( &t2 ) << const_cast<T3 *>( &t3 ) << const_cast<T4 *>( &t4 ) << const_cast<T5 *>( &t5 ) << const_cast<T6 *>( &t6 );
-}
-template< typename T1 , typename T2 , typename T3 , typename T4 , typename T5 , typename T6 >
-inline Event::Event(const QString &event_id, const T1 &t1, const T2 &t2, const T3 &t3, const T4 &t4, const T5 &t5, const T6 &t6) : id(qutim_sdk_0_2::SystemsCity::PluginSystem()->registerEventHandler(event_id))
-{
-	args.reserve(6);
-	args << const_cast<T1 *>( &t1 ) << const_cast<T2 *>( &t2 ) << const_cast<T3 *>( &t3 ) << const_cast<T4 *>( &t4 ) << const_cast<T5 *>( &t5 ) << const_cast<T6 *>( &t6 );
-}
-// end of auto-generation
-
-}//end namespace qutim_sdk_0_3
-
-inline qutim_sdk_0_2::Event::operator qutim_sdk_0_3::Event &()
-{ return *reinterpret_cast<qutim_sdk_0_3::Event *>( this ); }
-
-inline qutim_sdk_0_2::Event::operator const qutim_sdk_0_3::Event &() const
-{ return *reinterpret_cast<const qutim_sdk_0_3::Event *>( this ); }
-
-inline qutim_sdk_0_3::Event::operator qutim_sdk_0_2::Event &()
-{ return *reinterpret_cast<qutim_sdk_0_2::Event *>( this ); }
-
-inline qutim_sdk_0_3::Event::operator const qutim_sdk_0_2::Event &() const
-{ return *reinterpret_cast<const qutim_sdk_0_2::Event *>( this ); }
-
-inline qutim_sdk_0_2::TreeModelItem::operator qutim_sdk_0_3::TreeModelItem &()
-{ return *reinterpret_cast<qutim_sdk_0_3::TreeModelItem *>( this ); }
-
-inline qutim_sdk_0_2::TreeModelItem::operator const qutim_sdk_0_3::TreeModelItem &() const
-{ return *reinterpret_cast<const qutim_sdk_0_3::TreeModelItem *>( this ); }
-
-inline qutim_sdk_0_3::TreeModelItem::operator qutim_sdk_0_2::TreeModelItem &()
-{ return *reinterpret_cast<qutim_sdk_0_2::TreeModelItem *>( this ); }
-
-inline qutim_sdk_0_3::TreeModelItem::operator const qutim_sdk_0_2::TreeModelItem &() const
-{ return *reinterpret_cast<const qutim_sdk_0_2::TreeModelItem *>( this ); }
-
-inline qutim_sdk_0_2::HistoryItem::operator qutim_sdk_0_3::HistoryItem &()
-{ return *reinterpret_cast<qutim_sdk_0_3::HistoryItem *>( this ); }
-
-inline qutim_sdk_0_2::HistoryItem::operator const qutim_sdk_0_3::HistoryItem &() const
-{ return *reinterpret_cast<const qutim_sdk_0_3::HistoryItem *>( this ); }
-
-inline qutim_sdk_0_3::HistoryItem::operator qutim_sdk_0_2::HistoryItem &()
-{ return *reinterpret_cast<qutim_sdk_0_2::HistoryItem *>( this ); }
-
-inline qutim_sdk_0_3::HistoryItem::operator const qutim_sdk_0_2::HistoryItem &() const
-{ return *reinterpret_cast<const qutim_sdk_0_2::HistoryItem *>( this ); }
 
 /*
  * qutIM defines the current namespace
