@@ -17,6 +17,7 @@
 //
 //	class LIBQUTIM_EXPORT AbstractLayer : public QObject
 //	{
+//		Q_OBJECT
 //	public:
 //		AbstractLayer();
 //	};

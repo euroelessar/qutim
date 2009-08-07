@@ -17,7 +17,7 @@ namespace qutim_sdk_0_3
 		SettingsProtocol
 	};
 
-	class SettingsItem
+	class LIBQUTIM_EXPORT SettingsItem
 	{
 		Q_DISABLE_COPY(SettingsItem);
 	public:
@@ -36,7 +36,7 @@ namespace qutim_sdk_0_3
 		mutable QPointer<QWidget> m_widget;
 	};
 
-	class SettingsLayer : public QObject
+	class LIBQUTIM_EXPORT SettingsLayer : public QObject
 	{
 		Q_OBJECT
 	public:

@@ -26,7 +26,7 @@
 #include <QDebug>
 #include <QDomDocument>
 #include "pluginsystem.h"
-#include "systeminfo.h"
+#include "libqutim/systeminfo.h"
 #include "abstractlayer.h"
 #include "abstractcontextlayer.h"
 #include "console.h"
@@ -2172,7 +2172,10 @@ bool PluginSystem::sendEvent(Event &event)
 
 void PluginSystem::getSystemInfo(QString &version, QString &timezone, int &timezone_offset)
 {
-	SystemInfo::instance().getSystemInfo(version, timezone, timezone_offset);
+	const qutim_sdk_0_3::SystemInfo &info = qutim_sdk_0_3::SystemInfo::instance();
+	version = info.osFull();
+	timezone = info.timezone();
+	timezone_offset = info.timezoneOffset();
 }
 
 IconManagerInterface *PluginSystem::getIconManager()

@@ -15,7 +15,10 @@ SOURCES += tcpsocket.cpp \
     settingslayer.cpp \
     modulemanager.cpp \
     plugin.cpp \
-    deprecatedplugin.cpp
+    deprecatedplugin.cpp \
+    systeminfo.cpp \
+    protocol.cpp \
+    cryptoservice.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
     libqutim_p.h \
@@ -24,5 +27,8 @@ HEADERS += tcpsocket.h \
     settingslayer.h \
     modulemanager.h \
     plugin.h \
-    deprecatedplugin_p.h
-include(jdns/jdns.pri)
+    deprecatedplugin_p.h \
+    systeminfo.h \
+    protocol.h \
+    cryptoservice.h
+include(../3rdparty/jdns/jdns.pri)

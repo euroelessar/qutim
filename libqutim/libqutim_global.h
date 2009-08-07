@@ -10,9 +10,13 @@
 #  define LIBQUTIM_EXPORT Q_DECL_IMPORT
 #endif
 
+#define QUTIM_VERSION_STR "0.2.60.0"
+#define QUTIM_VERSION 0x00023c00
+#define QUTIM_VERSION_CHECK(major, minor, secminor, patch) ((major<<24)|(minor<<16)|(secminor<<8)|(patch))
+
 namespace qutim_sdk_0_3
 {
-	struct MetaLayerInfo;
+	LIBQUTIM_EXPORT const char *qutimVersion();
 }
 
 #endif // LIBQUTIM_GLOBAL_H

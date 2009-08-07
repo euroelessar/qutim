@@ -2,7 +2,7 @@
 	System Info
 
 	Copyright (c) 2007-2008 by Remko Tronçon
-						2008 by Nigmatullin Ruslan <euroelessar@gmail.com>
+				  2008-2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
 
  ***************************************************************************
  *                                                                         *
@@ -17,25 +17,29 @@
 #ifndef SYSTEMINFO_H
 #define SYSTEMINFO_H
 
-#include <QString>
+#include "libqutim_global.h"
+#include <QPointer>
 
-class SystemInfo
+namespace qutim_sdk_0_3
 {
-public:
-	static SystemInfo &instance();
-	const QString& os() const { return m_os_str; }
-	int timezoneOffset() const { return m_timezone_offset; }
-	const QString& timezoneString() const { return m_timezone_str; }
-	void getSystemInfo(QString &os, QString &timezone, int &timezone_offset);
-	inline void getSystemInfo(QString &name, QString &version) { name = m_name; version = m_version; }
+	struct SystemInfoPrivate;
 
-private:
-	SystemInfo();
-	int m_timezone_offset;
-	QString m_timezone_str;
-	QString m_os_str;
-	QString m_name;
-	QString m_version;
-};
+	class LIBQUTIM_EXPORT SystemInfo : public QObject
+	{
+		Q_OBJECT
+	public:
+		static const SystemInfo &instance();
+		QString osFull() const;
+		QString osName() const;
+		QString osVersion() const;
+		QString timezone() const;
+		int timezoneOffset() const;
+	private:
+		SystemInfo();
+		virtual ~SystemInfo();
+		static QPointer<SystemInfo> self;
+		SystemInfoPrivate *p;
+	};
+}
 
-#endif
+#endif // SYSTEMINFO_H

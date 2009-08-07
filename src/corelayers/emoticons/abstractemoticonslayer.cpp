@@ -52,6 +52,7 @@ void AbstractEmoticonsLayer::setEmoticonPath(const QString &path)
 	m_dir_path = dirPath;
 	QDir dir ( dirPath );
 	QStringList fileList = dir.entryList(QDir::Files);
+	qDebug() << __LINE__;
 	if (file.exists() && file.open(QIODevice::ReadOnly) )
 	{
 		QDomDocument doc;
@@ -135,6 +136,7 @@ bool inline compareEmoticon(const QChar *c, const QString &smile)
 void AbstractEmoticonsLayer::checkMessageForEmoticons(QString &message)
 {
 	HtmlState state = OutsideHtml;
+	bool at_amp = false;
 	const QChar *chars = message.constData();
 	QChar cur;
 	QString result;
@@ -168,15 +170,17 @@ void AbstractEmoticonsLayer::checkMessageForEmoticons(QString &message)
 				break;
 			}
 		}
-		else if(state != TagText && cur == '&')
+		else if(state != TagText && at_amp)
 		{
 			do result += *(chars++);
 			while(!chars->isNull() && *chars != ';');
 			cur = *chars;
+			at_amp = false;
 		}
 		else if(state != TagText)
 		{
 			bool found = false;
+			at_amp = cur == '&';
 			it = m_emoticons.constBegin();
 			for( ; it != m_emoticons.constEnd(); it++ )
 			{

@@ -65,14 +65,17 @@ IF( Phonon )
 	ENDIF(PHONON_FOUND)
 ENDIF( Phonon )
 
+
 SET (QUTIM_PLUGINS_DEST "lib/qutim/")
 FIND_PACKAGE (Qt4 REQUIRED)
+FIND_PACKAGE (QCA2 REQUIRED)
 
 INCLUDE (UseQt4)
 INCLUDE (MacroEnsureVersion)
 INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 	${QT_QTCORE_INCLUDE_DIR}
 	${QT_QTXML_INCLUDE_DIR}
+	${QCA2_INCLUDE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	.
 		src
@@ -121,7 +124,7 @@ SET (HEADERS
 	src/profilelogindialog.h
 	src/qutim.h
 	src/qutimsettings.h
-	src/systeminfo.h
+	src/cryptoserviceimpl.h
 	)
 if( Qt4_HAS_4_5 )
 	LIST( APPEND HEADERS src/proxyfactory.h ) 
@@ -153,7 +156,7 @@ SET (SOURCES
 	src/proxyfactory.cpp
 	src/qutim.cpp
 	src/qutimsettings.cpp
-	src/systeminfo.cpp
+	src/cryptoserviceimpl.cpp
 	)
 
 SET (RESOURCES
@@ -398,7 +401,7 @@ IF (WIN32)
 		
 if (MINGW)
 exec_program(windres
-ARGS "-i qutim.rc -o qutim_res.o --include-dir=${CMAKE_CURRENT_SOURCE_DIR}")
+ARGS "-i ${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc -o qutim_res.o ")
 LIST (APPEND SOURCES qutim_res.o)
 else(MINGW)
 LIST (APPEND SOURCES qutim.rc)
@@ -437,9 +440,13 @@ else( APPLE )
 	ADD_EXECUTABLE (qutim WIN32 ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
 endif( APPLE )
 
+find_library(QUTIM_LIBRARY NAMES qutim PATHS ${CMAKE_CURRENT_SOURCE_DIR}/libqutim)
+
 TARGET_LINK_LIBRARIES (qutim
 	${QT_LIBRARIES}
+	${QCA2_LIBRARIES}
 	${QUTIM_LIBS}
+	${QUTIM_LIBRARY}
 	)
 
 SET (module_install_dir "${CMAKE_ROOT}/Modules")

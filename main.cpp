@@ -15,6 +15,7 @@
 */
 
 #include <QApplication>
+#include <QtCrypto>
 #include <QStyleFactory>
 #include <qtlocalpeer.h>
 
@@ -77,6 +78,7 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
+	QCA::Initializer init;
 
 	QObjectList plugins	= PluginSystem::instance().loadPlugins( argc, argv );
 	// May be some of plugins deleted QApplication? Who knows..

@@ -727,7 +727,7 @@ void DefaultContactList::reloadCLWindowStyle(const QSettings &settings)
 			flags = Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint;
 		else
 			flags = Qt::FramelessWindowHint;
-		m_custom->start(settings.value("gui/borders", "").toString());
+		m_custom->start(settings.value("gui/borders", ":/style/border").toString());
 //		AbstractThemeEngine::instance().reloadContent();
 //		AbstractThemeEngine::instance().setCLBorder( this );
 		break;
