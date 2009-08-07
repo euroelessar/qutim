@@ -12,7 +12,7 @@ namespace Core
 	{
 		Q_OBJECT
 	public:
-		CryptoServiceImpl();
+		Q_INVOKABLE CryptoServiceImpl();
 	protected:
 		virtual QByteArray cryptImpl(const QByteArray &value) const;
 		virtual QByteArray decryptImpl(const QByteArray &value) const;
@@ -24,5 +24,6 @@ namespace Core
 		QCA::Cipher *m_cipher_dec;
 	};
 }
+using namespace Core;
 
 #endif // CRYPTOSERVICEIMPL_H

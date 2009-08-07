@@ -37,6 +37,8 @@ Q_IMPORT_PLUGIN(qjpeg)
 Q_IMPORT_PLUGIN(qgif)
 #endif
 
+#include "src/cryptoserviceimpl.h"
+
 int main(int argc, char *argv[])
 {
     #if defined(Q_OS_UNIX)
