@@ -18,13 +18,11 @@ namespace qutim_sdk_0_3
 	protected:
 		virtual QByteArray cryptImpl(const QByteArray &value) const = 0;
 		virtual QByteArray decryptImpl(const QByteArray &value) const = 0;
-		CryptoService();
 		virtual void setPassword(const QString &password) = 0;
+		CryptoService();
 		virtual ~CryptoService();
 	private:
-	public:
 		static QPointer<CryptoService> self;
-	private:
 		friend class ModuleManager;
 	};
 }

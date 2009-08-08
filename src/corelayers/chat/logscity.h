@@ -65,6 +65,7 @@ public slots:
 	bool zoomImage( const QVariant &text );
 	void helperCleared();
 	void appendNick( const QVariant &nick );
+	void contextMenu( const QVariant &nick );
 private:
 	LogWidgetHome *m_home;
 };

@@ -1,12 +1,16 @@
 #include "modulemanager.h"
 #include "plugin.h"
 #include "deprecatedplugin_p.h"
+#include "cryptoservice.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
 #include <QApplication>
 #include <QSet>
 #include <QPointer>
+#include <QMetaMethod>
+#include <QDebug>
+#include <QVarLengthArray>
 
 namespace qutim_sdk_0_3
 {
@@ -26,6 +30,7 @@ namespace qutim_sdk_0_3
 	ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 	{
 		Q_ASSERT_X(!self, "ModuleManager", "Only one instance of ModuleManager can be created");
+		p = new ModuleManagerPrivate;
 		self = this;
 		qApp->setApplicationName("qutIM");
 		qApp->setApplicationVersion(qutimVersion());
@@ -103,12 +108,22 @@ namespace qutim_sdk_0_3
 		QMultiMap<Plugin *, ExtensionInfo> result;
 		if(!service_meta)
 			return result;
-		for(int i = 0; i < p->plugins.size(); i++)
+		for(int i = -1; i < p->plugins.size(); i++)
 		{
-			Plugin *plugin = p->plugins.at(i);
-			if(!plugin)
-				continue;
-			QList<ExtensionInfo> extensions = plugin->avaiableExtensions();
+			Plugin *plugin;
+			QList<ExtensionInfo> extensions;
+			if(i < 0)
+			{
+				plugin = 0;
+				extensions = self->coreExtensions();
+			}
+			else
+			{
+				plugin = p->plugins.at(i);
+				if(!plugin)
+					continue;
+				extensions = plugin->avaiableExtensions();
+			}
 			for(int j = 0; j < extensions.size(); j++)
 			{
 				const QMetaObject *meta = extensions.at(j).meta();
@@ -118,5 +133,55 @@ namespace qutim_sdk_0_3
 			}
 		}
 		return result;
+	}
+
+	QObject *ModuleManager::initExtension(const QMetaObject *service_meta)
+	{
+		QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(service_meta);
+		QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
+		for(; it != exts.end(); it++)
+		{
+			const QMetaObject *meta = it.value().meta();
+#if QT_VERSION < QT_VERSION_CHECK(4, 5, 3)
+			QByteArray constructorName = meta->className();
+			{
+				int idx = constructorName.lastIndexOf(':');
+				if (idx != -1)
+					constructorName.remove(0, idx+1); // remove qualified part
+			}
+			constructorName.append("()\0", 3);
+			int idx = meta->indexOfConstructor(constructorName.constData());
+			if(idx < 0)
+			{
+				qWarning("%s doesn't have invokable constructor", meta->className());
+				continue;
+			}
+			QVariant ret(QMetaType::QObjectStar, (void*)0);
+			void *param[] = {ret.data(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+			if (meta->static_metacall(QMetaObject::CreateInstance, idx, param) >= 0)
+			{
+				qWarning("%s doesn't have invokable constructor", meta->className());
+				continue;
+			}
+			qDebug("Found %s for %s", meta->className(), service_meta->className());
+			return *reinterpret_cast<QObject**>(param[0]);
+#else
+			if(QObject *obj = meta->newInstance())
+			{
+				qDebug("Found %s for %s", meta->className(), service_meta->className());
+				return obj;
+			}
+			else
+				qWarning("%s doesn't have invokable constructor", meta->className());
+#endif
+		}
+		qWarning("%s extension isn't found", service_meta->className());
+		return 0;
+	}
+
+	void ModuleManager::initExtensions()
+	{
+		CryptoService::self = initExtension<CryptoService>();
 	}
 }

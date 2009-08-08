@@ -193,6 +193,7 @@ namespace qutim_sdk_0_3
 //		QDateTime tmp_datetime = QDateTime::currentDateTime().toLocalTime();
 //		p->timezone_offset = tmp_datetime.utcOffset();
 		// Initialize
+		p = new SystemInfoPrivate;
 		p->timezone_offset = 0;
 		p->timezone_str = "N/A";
 		p->os_full = "Unknown";

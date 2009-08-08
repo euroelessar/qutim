@@ -4,6 +4,10 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/QObject>
 
+#if QT_VERSION < QT_VERSION_CHECK(4, 5, 0)
+# error Incompatible Qt library, need 4.5.0 at least
+#endif
+
 #if defined(LIBQUTIM_LIBRARY)
 #  define LIBQUTIM_EXPORT Q_DECL_EXPORT
 #else

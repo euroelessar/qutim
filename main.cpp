@@ -19,7 +19,15 @@
 #include <QStyleFactory>
 #include <qtlocalpeer.h>
 
-#include "src/qutim.h"
+#define NEW_QUTIM
+
+#ifdef NEW_QUTIM
+# include "src/modulemanagerimpl.h"
+# include "libqutim/cryptoservice.h"
+#else
+# include "src/pluginsystem.h"
+# include "src/qutim.h"
+#endif
 #include <QString>
 #include <QByteArray>
 
@@ -37,11 +45,21 @@ Q_IMPORT_PLUGIN(qjpeg)
 Q_IMPORT_PLUGIN(qgif)
 #endif
 
-#include "src/cryptoserviceimpl.h"
 
 int main(int argc, char *argv[])
 {
-    #if defined(Q_OS_UNIX)
+#ifdef NEW_QUTIM
+	QApplication app(argc, argv);
+	QCA::Initializer init;
+	Core::ModuleManagerImpl module_manager;
+	module_manager.initExtensions();
+//	QList<ExtensionInfo> core_exts = module_manager.coreExtensions();
+//	foreach(const ExtensionInfo &info, core_exts)
+//		qDebug() << info.meta()->className() << info.name() << info.description();
+	return 0;
+//	module_manager.loadPlugins();
+#else
+	#if defined(Q_OS_UNIX)
     signal(SIGINT,sig_quit);
     signal(SIGHUP,sig_quit);
 	#endif
@@ -116,6 +134,7 @@ int main(int argc, char *argv[])
 
 	delete qApp;				// Clean up resources
 	return result;
+#endif
 }
 
 #ifdef Q_WS_WIN

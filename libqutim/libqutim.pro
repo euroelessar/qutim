@@ -18,7 +18,9 @@ SOURCES += tcpsocket.cpp \
     deprecatedplugin.cpp \
     systeminfo.cpp \
     protocol.cpp \
-    cryptoservice.cpp
+    cryptoservice.cpp \
+    abstractwizardpage.cpp \
+    profilecreatorpage.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
     libqutim_p.h \
@@ -30,5 +32,7 @@ HEADERS += tcpsocket.h \
     deprecatedplugin_p.h \
     systeminfo.h \
     protocol.h \
-    cryptoservice.h
+    cryptoservice.h \
+    abstractwizardpage.h \
+    profilecreatorpage.h
 include(../3rdparty/jdns/jdns.pri)

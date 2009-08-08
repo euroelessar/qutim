@@ -70,6 +70,17 @@ void LogJSHelper::appendNick( const QVariant &nick )
 	}
 }
 
+void LogJSHelper::contextMenu( const QVariant &nick )
+{
+	TreeModelItem item = m_home->m_item;
+	QPoint point = QCursor::pos();
+	TempGlobalInstance::instance().conferenceItemContextMenu(
+			m_home->m_item.m_protocol_name,
+			m_home->m_item.m_item_name,
+			m_home->m_item.m_account_name,
+			nick.toString(), point);
+}
+
 LogWidgetHome::LogWidgetHome(bool am_i_webkit, bool am_i_conference, const QString &webkit_style, const QString &webkit_variant)
 {
 	m_i_am_webkit_unit = am_i_webkit;
@@ -239,14 +250,16 @@ void LogWidgetHome::addMessage(const QString &message,const QDateTime &date, boo
 
 			in = (from == m_onwer_nickname);
 			QString escaped_from = Qt::escape(from);
-			QString from_color = "<span onclick='client.appendNick(\"";
+			QString from_color = "<span oncontextmenu='client.contextMenu(\"";
+			from_color += escaped_from;
+			from_color += "\");return false;' onclick='client.appendNick(\"";
 			from_color += escaped_from;
 			from_color += "\");'";
 			if ( m_colorize_nicknames && from != m_onwer_nickname)
 			{
 				from_color += " style='color:";
 				from_color += m_color_names.value(from);
-				from_color += " !important;'";
+				from_color += " !important;cursor:pointer;'";
 			}
 			from_color += ">";
 			from_color += escaped_from;

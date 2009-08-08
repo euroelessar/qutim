@@ -1,8 +1,14 @@
 #include "cryptoserviceimpl.h"
+#include "src/modulemanagerimpl.h"
 #include <QCryptographicHash>
 
 namespace Core
 {
+	static CoreModuleHelper<CryptoServiceImpl> crypto_static(
+			QT_TRANSLATE_NOOP("Plugin", "AES crypto"),
+			QT_TRANSLATE_NOOP("Plugin", "Default qutIM crypto realization. Based on algorithm aes256")
+			);
+
 	CryptoServiceImpl::CryptoServiceImpl()
 	{
 		// We use AES-256, so we need vector with length 32
