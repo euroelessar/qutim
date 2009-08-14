@@ -54,8 +54,11 @@ namespace Core
 
 	void CryptoServiceImpl::setPassword(const QString &password)
 	{
-		QByteArray key = QCA::Hash("sha256").hash(password.toUtf8()).toByteArray();
-		m_key = key;
+		// Pass in utf-8
+		QByteArray pass = password.toUtf8();
+		// 64 bit sault
+		pass += QByteArray::fromHex("5b225931d924bb30");
+		m_key = QCA::Hash("sha256").hash(pass).toByteArray();
 		m_cipher_enc = new QCA::Cipher(QString("aes256"),QCA::Cipher::CBC,
 									   QCA::Cipher::DefaultPadding,
 									   QCA::Encode, m_key, m_iv);

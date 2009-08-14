@@ -5,6 +5,7 @@
 #include "plugin.h"
 #include <QStringList>
 #include <QMultiMap>
+#include "event.h"
 
 namespace qutim_sdk_0_3
 {
@@ -13,6 +14,8 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT ModuleManager : public QObject
 	{
 		Q_OBJECT
+	public:
+		void processEvent(Event &event) { Q_UNUSED(event); }
 	protected:
 		ModuleManager(QObject *parent = 0);
 		void loadPlugins(const QStringList &additional_paths = QStringList());

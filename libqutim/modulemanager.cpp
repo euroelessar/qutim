@@ -36,6 +36,7 @@ namespace qutim_sdk_0_3
 		qApp->setApplicationVersion(qutimVersion());
 		qApp->setOrganizationDomain("qutim.org");
 		qApp->setOrganizationName("qutIM");
+		EventManager::registerEventHandler(this, &ModuleManager::processEvent, "Core/NewID");
 	}
 
 	void ModuleManager::loadPlugins(const QStringList &additional_paths)

@@ -254,14 +254,14 @@ void LogWidgetHome::addMessage(const QString &message,const QDateTime &date, boo
 			from_color += escaped_from;
 			from_color += "\");return false;' onclick='client.appendNick(\"";
 			from_color += escaped_from;
-			from_color += "\");'";
+			from_color += "\");' style='";
 			if ( m_colorize_nicknames && from != m_onwer_nickname)
 			{
-				from_color += " style='color:";
+				from_color += "color:";
 				from_color += m_color_names.value(from);
-				from_color += " !important;cursor:pointer;'";
+				from_color += " !important;";
 			}
-			from_color += ">";
+			from_color += "cursor:pointer;'>";
 			from_color += escaped_from;
 			from_color += "</span>";
 			if(message.startsWith("/me "))
@@ -704,6 +704,12 @@ bool LogsCity::addMessage(const TreeModelItem &item, const QString &message,
 
 			LogWidgetHome *tmp_home = m_city_map.value(identification);
 			new_temp_message = findUrls( new_temp_message,tmp_home->m_i_am_webkit_unit );
+			if(!in)
+			{
+				TreeModelItem tmp_item = item;
+				Q_REGISTER_EVENT(event_send_1_5, "Core/ChatWindow/SendLevel1.5");
+				Event(event_send_1_5, 2, &tmp_item, &new_temp_message).send();
+			}
 			tmp_icon_pos = tmp_home->getSendIconPos();
 			if ( in )
 			TempGlobalInstance::instance().receivingMessageBeforeShowing(item,new_temp_message);

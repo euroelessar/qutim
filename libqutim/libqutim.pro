@@ -9,6 +9,7 @@ QT += network
 TARGET = qutim
 TEMPLATE = lib
 DEFINES += LIBQUTIM_LIBRARY
+INCLUDEPATH += ../
 SOURCES += tcpsocket.cpp \
     domaininfo.cpp \
     abstractlayer.cpp \
@@ -20,7 +21,11 @@ SOURCES += tcpsocket.cpp \
     protocol.cpp \
     cryptoservice.cpp \
     abstractwizardpage.cpp \
-    profilecreatorpage.cpp
+    profilecreatorpage.cpp \
+    jsonfile.cpp \
+    configbase.cpp \
+    configbackend.cpp \
+    event.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
     libqutim_p.h \
@@ -34,5 +39,11 @@ HEADERS += tcpsocket.h \
     protocol.h \
     cryptoservice.h \
     abstractwizardpage.h \
-    profilecreatorpage.h
+    profilecreatorpage.h \
+    jsonfile.h \
+    configbase.h \
+    configbase_p.h \
+    configbackend.h \
+    event.h
 include(../3rdparty/jdns/jdns.pri)
+include(../3rdparty/k8json/k8json.pri)

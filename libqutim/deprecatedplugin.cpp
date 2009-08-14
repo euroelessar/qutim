@@ -1,5 +1,5 @@
 #include "deprecatedplugin_p.h"
-#include <qutim/plugininterface.h>
+#include "include/qutim/plugininterface.h"
 
 namespace qutim_sdk_0_3
 {
