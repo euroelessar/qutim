@@ -24,6 +24,7 @@
 #ifdef NEW_QUTIM
 # include "src/modulemanagerimpl.h"
 # include "libqutim/cryptoservice.h"
+# include "libqutim/configbase.h"
 #else
 # include "src/pluginsystem.h"
 # include "src/qutim.h"
@@ -56,6 +57,9 @@ int main(int argc, char *argv[])
 //	QList<ExtensionInfo> core_exts = module_manager.coreExtensions();
 //	foreach(const ExtensionInfo &info, core_exts)
 //		qDebug() << info.meta()->className() << info.name() << info.description();
+	ConfigGroup profiles_group = Config("/home/elessar/.config/qutim/settings.json").group("profiles");
+	qDebug() << profiles_group.readEntry("list", QStringList());
+	qDebug() << profiles_group.readEntry("current", -1);
 	return 0;
 //	module_manager.loadPlugins();
 #else

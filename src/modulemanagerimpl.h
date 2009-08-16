@@ -18,7 +18,11 @@ namespace Core
 		virtual QList<ExtensionInfo> coreExtensions() const;
 		virtual void initExtensions();
 	private:
-		static QList<ExtensionInfo> extensions;
+		inline static QList<ExtensionInfo> &extensions()
+		{
+			static QList<ExtensionInfo> exts;
+			return exts;
+		}
 		template<typename T> friend class CoreModuleHelper;
 	};
 
@@ -28,7 +32,7 @@ namespace Core
 	public:
 		inline CoreModuleHelper(const char *name, const char *description)
 		{
-			ModuleManagerImpl::extensions << ExtensionInfo(name, description, &T::staticMetaObject);
+			ModuleManagerImpl::extensions() << ExtensionInfo(name, description, &T::staticMetaObject);
 		}
 	};
 }

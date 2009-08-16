@@ -8,8 +8,6 @@
 
 namespace Core
 {
-	QList<ExtensionInfo> ModuleManagerImpl::extensions = QList<ExtensionInfo>();
-
 	ModuleManagerImpl::ModuleManagerImpl()
 	{
 //		QVariantMap map;
@@ -31,16 +29,16 @@ namespace Core
 //		file.save(object);
 //		file.load(object);
 //		qDebug() << object.toMap()["profiles"].toMap()["list"].toStringList();
-		QScriptEngine engine;
-		QFile file("/home/elessar/.config/qutim/settings.json");
-		file.open(QIODevice::ReadOnly);
-		QScriptValue object = engine.evaluate(QString::fromUtf8(file.readAll()));
-		qDebug() << object.toString();
+//		QScriptEngine engine;
+//		QFile file("/home/elessar/.config/qutim/settings.json");
+//		file.open(QIODevice::ReadOnly);
+//		QScriptValue object = engine.evaluate(QString::fromUtf8(file.readAll()));
+//		qDebug() << object.toString();
 	}
 
 	QList<ExtensionInfo> ModuleManagerImpl::coreExtensions() const
 	{
-		return extensions;
+		return extensions();
 	}
 
 	void ModuleManagerImpl::initExtensions()

@@ -15,7 +15,6 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 	public:
-		void processEvent(Event &event) { Q_UNUSED(event); }
 	protected:
 		ModuleManager(QObject *parent = 0);
 		void loadPlugins(const QStringList &additional_paths = QStringList());

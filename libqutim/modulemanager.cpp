@@ -2,6 +2,7 @@
 #include "plugin.h"
 #include "deprecatedplugin_p.h"
 #include "cryptoservice.h"
+#include "configbase_p.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
@@ -36,7 +37,6 @@ namespace qutim_sdk_0_3
 		qApp->setApplicationVersion(qutimVersion());
 		qApp->setOrganizationDomain("qutim.org");
 		qApp->setOrganizationName("qutIM");
-		EventManager::registerEventHandler(this, &ModuleManager::processEvent, "Core/NewID");
 	}
 
 	void ModuleManager::loadPlugins(const QStringList &additional_paths)
@@ -136,6 +136,42 @@ namespace qutim_sdk_0_3
 		return result;
 	}
 
+	inline QObject *create_instance_helper(const QMetaObject *meta)
+	{
+#if QT_VERSION < QT_VERSION_CHECK(4, 5, 3)
+		QByteArray constructorName = meta->className();
+		{
+			int idx = constructorName.lastIndexOf(':');
+			if (idx != -1)
+				constructorName.remove(0, idx+1); // remove qualified part
+		}
+		constructorName.append("()\0", 3);
+		int idx = meta->indexOfConstructor(constructorName.constData());
+		if(idx < 0)
+			qWarning("%s doesn't have invokable constructor", meta->className());
+		QVariant ret(QMetaType::QObjectStar, (void*)0);
+		void *param[] = {ret.data(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+		if (meta->static_metacall(QMetaObject::CreateInstance, idx, param) >= 0)
+			return 0;
+		return *reinterpret_cast<QObject**>(param[0]);
+#else
+		return meta->newInstance();
+#endif
+	}
+
+	template<typename T>
+	inline T *create_instance(const QMetaObject *meta)
+	{
+		if(T *result = qobject_cast<T *>(create_instance_helper(meta)))
+		{
+			qDebug("Found %s for %s", meta->className(), T::staticMetaObject.className());
+			return result;
+		}
+		qWarning("%s doesn't have invokable constructor", meta->className());
+		return 0;
+	}
+
 	QObject *ModuleManager::initExtension(const QMetaObject *service_meta)
 	{
 		QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(service_meta);
@@ -143,39 +179,16 @@ namespace qutim_sdk_0_3
 		for(; it != exts.end(); it++)
 		{
 			const QMetaObject *meta = it.value().meta();
-#if QT_VERSION < QT_VERSION_CHECK(4, 5, 3)
-			QByteArray constructorName = meta->className();
-			{
-				int idx = constructorName.lastIndexOf(':');
-				if (idx != -1)
-					constructorName.remove(0, idx+1); // remove qualified part
-			}
-			constructorName.append("()\0", 3);
-			int idx = meta->indexOfConstructor(constructorName.constData());
-			if(idx < 0)
-			{
-				qWarning("%s doesn't have invokable constructor", meta->className());
-				continue;
-			}
-			QVariant ret(QMetaType::QObjectStar, (void*)0);
-			void *param[] = {ret.data(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-			if (meta->static_metacall(QMetaObject::CreateInstance, idx, param) >= 0)
-			{
-				qWarning("%s doesn't have invokable constructor", meta->className());
-				continue;
-			}
-			qDebug("Found %s for %s", meta->className(), service_meta->className());
-			return *reinterpret_cast<QObject**>(param[0]);
-#else
-			if(QObject *obj = meta->newInstance())
+			if(QObject *obj = create_instance_helper(meta))
 			{
 				qDebug("Found %s for %s", meta->className(), service_meta->className());
 				return obj;
 			}
 			else
+			{
 				qWarning("%s doesn't have invokable constructor", meta->className());
-#endif
+				continue;
+			}
 		}
 		qWarning("%s extension isn't found", service_meta->className());
 		return 0;
@@ -184,5 +197,30 @@ namespace qutim_sdk_0_3
 	void ModuleManager::initExtensions()
 	{
 		CryptoService::self = initExtension<CryptoService>();
+		{
+			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions<ConfigBackend>();
+			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
+			for(; it != exts.end(); it++)
+			{
+				const QMetaObject *meta = it.value().meta();
+				QByteArray name;
+				for(int i = 0; i < meta->classInfoCount(); i++)
+				{
+					QMetaClassInfo info = meta->classInfo(i);
+					if(!qstrcmp(info.name(), "Extension"))
+					{
+						name = info.value();
+						break;
+					}
+				}
+				if(name.isEmpty())
+				{
+					qWarning("%s has no 'Extension' class info", meta->className());
+					continue;
+				}
+				if(ConfigBackend *object = create_instance<ConfigBackend>(it.value().meta()))
+					ConfigPrivate::config_backends << qMakePair(name, object);
+			}
+		}
 	}
 }

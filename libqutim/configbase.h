@@ -14,16 +14,18 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT ConfigBase
 	{
 	public:
-		virtual QStringList groupList() const = 0;
-		virtual bool hasGroup(const QString &group) const = 0;
-		virtual ConfigGroup group(const QString &group) = 0;
-		virtual const ConfigGroup group(const QString &group) const = 0;
-		virtual void removeGroup(const QString &name) = 0;
+		QStringList groupList() const;
+		bool hasGroup(const QString &group) const;
+		ConfigGroup group(const QString &group);
+		const ConfigGroup group(const QString &group) const;
+		inline  const ConfigGroup constGroup(const QString &group) const;
+		void removeGroup(const QString &name);
 
 		virtual void sync() = 0;
 	protected:
 		ConfigBase();
 		virtual ~ConfigBase();
+		bool isGroup() const;
 		virtual void virtual_hook(int, void*) {}
 	};
 
@@ -36,35 +38,32 @@ namespace qutim_sdk_0_3
 		Q_DECLARE_FLAGS(OpenFlags, OpenFlag)
 		// If file is empty, then profile settings are loaded
 		Config(const QString &file = QString(), OpenFlags flags = IncludeGlobals, const QString &backend = QString());
-
-		QString name() const;
-
+		virtual ~Config();
+#ifdef DOC
 		QStringList groupList() const;
 		bool hasGroup(const QString &name) const;
 		const ConfigGroup group(const QString &name) const;
 		ConfigGroup group(const QString &name);
 		void removeGroup(const QString &name);
-
+#endif
 		void sync();
 	private:
+		friend class ModuleManager;
 		friend class ConfigGroup;
+		friend class ConfigBase;
 		QExplicitlySharedDataPointer<ConfigPrivate> p;
 	};
 
 	class LIBQUTIM_EXPORT ConfigGroup : public ConfigBase
 	{
 	public:
+		ConfigGroup(const ConfigGroup &other);
+		virtual ~ConfigGroup();
 		QString name() const;
 		bool isValid() const;
 		bool isMap() const;
 		bool isArray() const;
 		bool isValue() const;
-
-		QStringList groupList() const;
-		bool hasGroup(const QString &name) const;
-		const ConfigGroup group(const QString &name) const;
-		ConfigGroup group(const QString &name);
-		void removeGroup(const QString &name);
 
 		int arraySize() const;
 		const ConfigGroup at(int index) const;
@@ -86,8 +85,14 @@ namespace qutim_sdk_0_3
 	private:
 		ConfigGroup();
 		friend class Config;
+		friend class ConfigBase;
 		QExplicitlySharedDataPointer<ConfigGroupPrivate> p;
 	};
+
+	inline const ConfigGroup ConfigBase::constGroup(const QString &group) const
+	{
+		return const_cast<const ConfigBase *>(this)->group(group);
+	}
 
 	template<typename T>
 	Q_INLINE_TEMPLATE T ConfigGroup::readEntry(const QString &key, const T &def, Config::ValueFlag type) const

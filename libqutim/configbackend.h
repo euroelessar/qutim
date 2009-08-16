@@ -17,10 +17,11 @@ namespace qutim_sdk_0_3
 		typedef QVector<ConfigEntry::Ptr>      EntryArray;
 		enum Type { Invalid = 0x00, Root = 0x01, Map = 0x02,
 					Array = 0x04, AnyGroup = Map | Array, Value = 0x08 };
+		Q_DECLARE_FLAGS(Flags, Type)
 		inline ConfigEntry() : type(AnyGroup), deleted(false), dirty(false) {}
 		inline ~ConfigEntry() { remove(); }
 		bool remove();
-		Type type;
+		Flags type;
 		bool deleted;
 		bool dirty;
 		QAtomicInt ref;

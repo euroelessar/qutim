@@ -127,6 +127,7 @@ SET (HEADERS
 	src/qutimsettings.h
 	src/cryptoserviceimpl.h
 	src/modulemanagerimpl.h
+	src/jsonconfigbackend.h
 	)
 if( Qt4_HAS_4_5 )
 	LIST( APPEND HEADERS src/proxyfactory.h ) 
@@ -160,6 +161,7 @@ SET (SOURCES
 	src/qutimsettings.cpp
 	src/cryptoserviceimpl.cpp
 	src/modulemanagerimpl.cpp
+	src/jsonconfigbackend.cpp
 	)
 
 SET (RESOURCES
