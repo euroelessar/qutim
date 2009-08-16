@@ -101,6 +101,7 @@ IF (UNIX)
 	ENDIF( XSS_FOUND )
 ENDIF (UNIX)
 
+
 SET (HEADERS
 	include/qutim/plugininterface.h
 	include/qutim/protocolinterface.h
@@ -434,6 +435,9 @@ ENDIF (WIN32)
 set( QUTIM_DO_NOT_FIND "true" )
 include( FindQutIM )
 
+find_library(QUTIM_LIBRARY NAMES qutim PATHS ${CMAKE_CURRENT_SOURCE_DIR}/libqutim)
+add_subdirectory(src/corelayers)
+
 QT4_WRAP_CPP (MOC_SRCS ${HEADERS})
 QT4_WRAP_UI (UIS_H ${FORMS})
 QT4_ADD_RESOURCES (RCC ${RESOURCES})
@@ -445,14 +449,13 @@ else( APPLE )
 	ADD_EXECUTABLE (qutim WIN32 ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
 endif( APPLE )
 
-find_library(QUTIM_LIBRARY NAMES qutim PATHS ${CMAKE_CURRENT_SOURCE_DIR}/libqutim)
-
 TARGET_LINK_LIBRARIES (qutim
 	${QT_LIBRARIES}
 	${QCA2_LIBRARIES}
 	${QUTIM_LIBS}
 	${QUTIM_LIBRARY}
 	)
+
 
 SET (module_install_dir "${CMAKE_ROOT}/Modules")
 
