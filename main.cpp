@@ -57,9 +57,20 @@ int main(int argc, char *argv[])
 //	QList<ExtensionInfo> core_exts = module_manager.coreExtensions();
 //	foreach(const ExtensionInfo &info, core_exts)
 //		qDebug() << info.meta()->className() << info.name() << info.description();
+
+//	Config config("/home/elessar/.config/qutim/settings.json");
+//	qDebug() << config.groupList();
+//	Config config2 = config;
+//	qDebug() << config2.groupList();
+
 	ConfigGroup profiles_group = Config("/home/elessar/.config/qutim/settings.json").group("profiles");
 	qDebug() << profiles_group.readEntry("list", QStringList());
 	qDebug() << profiles_group.readEntry("current", -1);
+	profiles_group.sync();
+	profiles_group.writeEntry("current", 333);
+	profiles_group.sync();
+	profiles_group.writeEntry("current2", 1);
+	profiles_group.sync();
 	return 0;
 //	module_manager.loadPlugins();
 #else

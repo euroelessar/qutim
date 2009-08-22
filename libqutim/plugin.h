@@ -2,9 +2,10 @@
 #define PLUGIN_H
 
 #include "libqutim_global.h"
-#include <QObject>
-#include <QIcon>
-#include <QSharedDataPointer>
+#include <QtCore/QtPlugin>
+#include <QtCore/QObject>
+#include <QtCore/QSharedDataPointer>
+#include <QtGui/QIcon>
 
 #define PLUGIN_VERSION QUTIM_VERSION_CHECK
 
@@ -164,6 +165,16 @@ namespace qutim_sdk_0_3
 		PluginInfo m_info;
 		QList<ExtensionInfo> m_extensions;
 	};
+
+	#define QUTIM_EXPORT_PLUGIN(Plugin) \
+	Q_EXPORT_PLUGIN(Plugin) \
+	static const char *qutim_plugin_verification_data = \
+			"pattern=""QUTIM_PLUGIN_VERIFICATION_DATA""\n" \
+			"libqutim="QUTIM_VERSION_STR"\0"; \
+	Q_EXTERN_C Q_DECL_EXPORT \
+	const char * Q_STANDARD_CALL qutim_plugin_query_verification_data() \
+	{ return qutim_plugin_verification_data; }
 }
+
 
 #endif // PLUGIN_H

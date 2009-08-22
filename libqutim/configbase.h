@@ -8,6 +8,7 @@
 namespace qutim_sdk_0_3
 {
 	class ConfigGroup;
+	class ConfigBasePrivate;
 	class ConfigGroupPrivate;
 	class ConfigPrivate;
 
@@ -27,6 +28,8 @@ namespace qutim_sdk_0_3
 		virtual ~ConfigBase();
 		bool isGroup() const;
 		virtual void virtual_hook(int, void*) {}
+	private:
+		QExplicitlySharedDataPointer<ConfigBasePrivate> get_p() const;
 	};
 
 	class LIBQUTIM_EXPORT Config : public ConfigBase
@@ -38,6 +41,7 @@ namespace qutim_sdk_0_3
 		Q_DECLARE_FLAGS(OpenFlags, OpenFlag)
 		// If file is empty, then profile settings are loaded
 		Config(const QString &file = QString(), OpenFlags flags = IncludeGlobals, const QString &backend = QString());
+		Config(const Config &other);
 		virtual ~Config();
 #ifdef DOC
 		QStringList groupList() const;

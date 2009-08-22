@@ -40,7 +40,10 @@ namespace Core
 		if (entry->type == ConfigEntry::Value) {
 		}
 
-		QVariant map;
+		QVariant map = genetateQVariant(entry);
+		if(map.isNull() || !map.isValid())
+			map = QVariantMap();
+//		qDebug() << map;
 		jsonFile.save(map);
 	}
 
@@ -53,13 +56,50 @@ namespace Core
 		return generateConfigEntry(map);
 	}
 
+	inline QVariant variantFromString(const QString &s)
+	{
+//		if (s.startsWith(QLatin1Char('@'))) {
+//			if (s.endsWith(")")) {
+//				if (s.startsWith(QLatin1String("@ByteArray("))) {
+//					return QVariant(s.toLatin1().mid(11, s.size() - 12));
+//				} else if (s.startsWith(QLatin1String("@Variant("))) {
+//					QByteArray a(s.toLatin1().mid(9));
+//					QDataStream stream(&a, QIODevice::ReadOnly);
+//					stream.setVersion(QDataStream::Qt_4_5);
+//					QVariant result;
+//					stream >> result;
+//					return result;
+//				} else if (s.startsWith(QLatin1String("@Rect("))) {
+//					QStringList args = QSettingsPrivate::splitArgs(s, 5);
+//					if (args.size() == 4)
+//						return QVariant(QRect(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()));
+//				} else if (s.startsWith(QLatin1String("@Size("))) {
+//					QStringList args = QSettingsPrivate::splitArgs(s, 5);
+//					if (args.size() == 2)
+//						return QVariant(QSize(args[0].toInt(), args[1].toInt()));
+//				} else if (s.startsWith(QLatin1String("@Point("))) {
+//					QStringList args = QSettingsPrivate::splitArgs(s, 6);
+//					if (args.size() == 2)
+//						return QVariant(QPoint(args[0].toInt(), args[1].toInt()));
+//				} else if (s == QLatin1String("@Invalid()")) {
+//					return QVariant();
+//				}
+//
+//			}
+//			if (s.startsWith(QLatin1String("@@")))
+//				return QVariant(s.mid(1));
+//		}
+		return QVariant(s);
+	}
+
 	ConfigEntry::Ptr JsonConfigBackend::generateConfigEntry (const QVariant &val)
 	{
 		ConfigEntry::Ptr entry(new ConfigEntry);
+		entry->type = ConfigEntry::Invalid;
 		switch (val.type()) {
 			case QVariant::Invalid:
 				entry->type = ConfigEntry::Invalid;
-				break;
+				return entry;
 			case QVariant::Map: {
 				QVariantMap m(val.toMap());
 				QVariantMap::const_iterator i;
@@ -71,65 +111,66 @@ namespace Core
 			}
 			case QVariant::StringList:
 			case QVariant::List: {
-				 QVariantList m(val.toList());
-				 entry->type = ConfigEntry::Array;
-				 foreach (const QVariant &v, m) {
-					 entry->array.append(generateConfigEntry(v));
-					 }
-				 break;
+				QVariantList m(val.toList());
+				entry->type = ConfigEntry::Array;
+				foreach (const QVariant &v, m) {
+					entry->array.append(generateConfigEntry(v));
+				}
+				break;
 			}
-					//    case QVariant::StringList: //x3
-					//        QStringList m(val.toStringList());
-					//        entry->type == ConfigEntry::Array;
-					//        foreach (const QString &v, m) {
-					//            entry->array.append(generateConfigEntry(QVariant(v)));
-					//        }
-					//        break;
-//			default: {
-//					 entry->value = val;
-//					 entry->type = ConfigEntry::Value;
-//					 break;
-//			}
 		}
 		entry->type |= ConfigEntry::Value;
-		entry->value = val;
+		if(val.type() == QVariant::String)
+			entry->value = variantFromString(val.toString());
+		else
+			entry->value = val;
 		return entry;
+	}
+
+	inline QVariant variantToString(const QVariant &val)
+	{
+		return val;
+//		QString str;
+//		switch(val.type())
+//		{
+//		case QVariant::StringList:
+//		case QVariant::List:
+//		case QVariant::Map:
+//			return val;
+//		case QVariant::Rect:
+//		case QVariant::Rect:
+//		case QVariant::Rect:
+//		}
+//		return str.isEmpty() ? val : QVariant(str);
 	}
 
 	QVariant JsonConfigBackend::genetateQVariant(const ConfigEntry::Ptr& entry)
 	{
 		QVariant val;
-
-		switch (entry->type) {
-	//        case ConfigEntry::Invalid: //moved to default
-	//                break;
-	//        case ConfigEntry::deleted:
-	//                break;
-	//        case ConfigEntry::dirty:
-	//                break;
-			case ConfigEntry::Map: {
-				QVariantMap m; //TODO need optimization!!
-				ConfigEntry::EntryMap::const_iterator i;
-				for (i = entry->map.constBegin(); i != entry->map.constEnd(); ++i) {
-					m.insert(i.key(),genetateQVariant(i.value()));
-				}
-				val = QVariant(m);
-				break;
+		if(entry->type & ConfigEntry::Map)
+		{
+			QVariantMap m; //TODO need optimization!!
+			ConfigEntry::EntryMap::const_iterator i;
+			for (i = entry->map.constBegin(); i != entry->map.constEnd(); ++i) {
+				QVariant val = genetateQVariant(i.value());
+				if(val.isValid() && !val.isNull())
+					m.insert(i.key(),val);
 			}
-			case ConfigEntry::Array: {
-				QVariantList l;
-				foreach (const ConfigEntry::Ptr& e, entry->array) {
-					l.append(genetateQVariant(e));
-				}
-				val = QVariant(l);
-				break;
+			val = m.isEmpty() ? QVariant() : QVariant(m);
+		}
+		else if(entry->type & ConfigEntry::Array)
+		{
+			QVariantList l;
+			foreach (const ConfigEntry::Ptr& e, entry->array) {
+				QVariant val = genetateQVariant(e);
+				if(val.isValid() && !val.isNull())
+					l.append(val);
 			}
-			case ConfigEntry::Value: {
-				val = entry->value;
-				break;
-			}
-			default:
-				break;
+			val = l.isEmpty() ? QVariant() : QVariant(l);
+		}
+		else if(entry->type & ConfigEntry::Value)
+		{
+			val = variantToString(entry->value);
 		}
 		return val;
 	}

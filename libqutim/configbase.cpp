@@ -10,12 +10,32 @@ namespace qutim_sdk_0_3
 {
 	QList<ConfigBackendInfo> ConfigPrivate::config_backends = QList<ConfigBackendInfo>();
 
+//	ConfigStrongEntryList ConfigBase::getEntries() const
+//	{
+//		ConfigStrongEntryList result;
+//		ConfigEntryList entries;
+//		if(const ConfigGroup *group = dynamic_cast<const ConfigGroup *>(this))
+//			entries = group->p->entries;
+//		if(const Config *config = dynamic_cast<const Config *>(this))
+//			entries = config->p->entries;
+//		return result;
+//	}
+
 	ConfigBase::ConfigBase()
 	{
 	}
 
 	ConfigBase::~ConfigBase()
 	{
+	}
+
+	QExplicitlySharedDataPointer<ConfigBasePrivate> ConfigBase::get_p() const
+	{
+		if(const ConfigGroup *group = dynamic_cast<const ConfigGroup *>(this))
+			return group->p;
+		if(const Config *config = dynamic_cast<const Config *>(this))
+			return config->p;
+		return QExplicitlySharedDataPointer<ConfigBasePrivate>();
 	}
 
 	bool ConfigBase::isGroup() const
@@ -25,15 +45,16 @@ namespace qutim_sdk_0_3
 
 	QStringList ConfigBase::groupList() const
 	{
-		ConfigEntryList entries;
-		if(const ConfigGroup *group = dynamic_cast<const ConfigGroup *>(this))
-			entries = group->p->entries;
-		else
-			entries = static_cast<const Config *>(this)->p->entries;
+//		ConfigEntryList entries;
+//		if(const ConfigGroup *group = dynamic_cast<const ConfigGroup *>(this))
+//			entries = group->p->entries;
+//		else
+//			entries = static_cast<const Config *>(this)->p->entries;
+		ConfigBasePrivatePtr p = get_p();
 		QSet<QString> groups;
-		for(int i = 0; i < entries.size(); i++)
+		for(int i = 0; i < p->entries.size(); i++)
 		{
-			ConfigEntry::Ptr entry = entries.at(i);
+			ConfigEntry::Ptr entry = p->entries.at(i);
 			if(entry->type & ConfigEntry::Map)
 			{
 				QStringList keys = entry->map.keys();
@@ -46,14 +67,15 @@ namespace qutim_sdk_0_3
 
 	bool ConfigBase::hasGroup(const QString &name) const
 	{
-		ConfigEntryList entries;
-		if(const ConfigGroup *group = dynamic_cast<const ConfigGroup *>(this))
-			entries = group->p->entries;
-		else
-			entries = static_cast<const Config *>(this)->p->entries;
-		for(int i = 0; i < entries.size(); i++)
+//		ConfigEntryList entries;
+//		if(const ConfigGroup *group = dynamic_cast<const ConfigGroup *>(this))
+//			entries = group->p->entries;
+//		else
+//			entries = static_cast<const Config *>(this)->p->entries;
+		ConfigBasePrivatePtr p = get_p();
+		for(int i = 0; i < p->entries.size(); i++)
 		{
-			ConfigEntry::Ptr entry = entries.at(i);
+			ConfigEntry::Ptr entry = p->entries.at(i);
 			if((entry->type & ConfigEntry::Map) && entry->map.contains(name))
 				return true;
 		}
@@ -62,11 +84,12 @@ namespace qutim_sdk_0_3
 
 	const ConfigGroup ConfigBase::group(const QString &name) const
 	{
-		ConfigEntryList entries;
-		if(const ConfigGroup *group = dynamic_cast<const ConfigGroup *>(this))
-			entries = group->p->entries;
-		else
-			entries = static_cast<const Config *>(this)->p->entries;
+//		ConfigEntryList entries;
+//		if(const ConfigGroup *group = dynamic_cast<const ConfigGroup *>(this))
+//			entries = group->p->entries;
+//		else
+//			entries = static_cast<const Config *>(this)->p->entries;
+		ConfigBasePrivatePtr p = get_p();
 		if(name.contains('/'))
 		{
 			QStringList names = name.split('/', QString::SkipEmptyParts);
@@ -84,24 +107,36 @@ namespace qutim_sdk_0_3
 		ConfigGroup group;
 		group.p = new ConfigGroupPrivate;
 		group.p->name = name;
-		for(int i = 0; i < entries.size(); i++)
-			if(entries.at(i)->type & ConfigEntry::Map)
+		for(int i = 0; i < p->entries.size(); i++)
+			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Map))
 			{
-				ConfigEntry::Ptr entry = entries.at(i);
+				ConfigEntry::Ptr entry = p->entries.at(i);
 				ConfigEntry::EntryMap::const_iterator it = entry->map.find(name);
 				if(it != entry->map.end())
 					group.p->entries.append(*it);
 			}
+		if(const ConfigGroup *me = dynamic_cast<const ConfigGroup *>(this))
+		{
+			group.p->parent = me->p;
+			group.p->config = me->p->config;
+		}
+		else
+		{
+			const Config *me = static_cast<const Config *>(this);
+			group.p->parent.reset();
+			group.p->config = me->p;
+		}
 		return group;
 	}
 
 	ConfigGroup ConfigBase::group(const QString &name)
 	{
-		ConfigEntryList entries;
-		if(const ConfigGroup *group = dynamic_cast<const ConfigGroup *>(this))
-			entries = group->p->entries;
-		else
-			entries = static_cast<const Config *>(this)->p->entries;
+//		ConfigEntryList entries;
+//		if(const ConfigGroup *group = dynamic_cast<const ConfigGroup *>(this))
+//			entries = group->p->entries;
+//		else
+//			entries = static_cast<const Config *>(this)->p->entries;
+		ConfigBasePrivatePtr p = get_p();
 		if(name.contains('/'))
 		{
 			//TODO: Optimize, split is too slow for this situation, use indexOf instead
@@ -121,7 +156,7 @@ namespace qutim_sdk_0_3
 		group.p = new ConfigGroupPrivate;
 		group.p->name = name;
 		{
-			ConfigEntry::Ptr entry = entries[0];
+			ConfigEntry::Ptr entry = p->entries[0];
 			ConfigEntry::EntryMap::const_iterator it;
 			if((entry->type & ConfigEntry::Map) && ((it = entry->map.constFind(name)) != entry->map.constEnd()))
 				group.p->entries.append(*it);
@@ -138,32 +173,47 @@ namespace qutim_sdk_0_3
 				group.p->entries.append(new_entry);
 			}
 		}
-		for(int i = 1; i < entries.size(); i++)
-			if(entries.at(i)->type & ConfigEntry::Map)
+		for(int i = 1; i < p->entries.size(); i++)
+			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Map))
 			{
-				ConfigEntry::Ptr entry = entries.at(i);
+				ConfigEntry::Ptr entry = p->entries.at(i);
 				ConfigEntry::EntryMap::const_iterator it = entry->map.constFind(name);
 				if(it != entry->map.end())
 					group.p->entries.append(*it);
 			}
+		if(const ConfigGroup *me = dynamic_cast<const ConfigGroup *>(this))
+		{
+			group.p->parent = me->p;
+			group.p->config = me->p->config;
+		}
+		else
+		{
+			const Config *me = static_cast<const Config *>(this);
+			group.p->parent.reset();
+			group.p->config = me->p;
+		}
 		return group;
 	}
 
 	void ConfigBase::removeGroup(const QString &name)
 	{
-		ConfigEntryList entries;
-		if(const ConfigGroup *group = dynamic_cast<const ConfigGroup *>(this))
-			entries = group->p->entries;
-		else
-			entries = static_cast<const Config *>(this)->p->entries;
+//		ConfigEntryList entries;
+//		if(const ConfigGroup *group = dynamic_cast<const ConfigGroup *>(this))
+//			entries = group->p->entries;
+//		else
+//			entries = static_cast<const Config *>(this)->p->entries;
+		ConfigBasePrivatePtr p = get_p();
 		ConfigEntry::Ptr entry;
-		if(entries.size() && (entry = entries.at(0)))
+		if(p->entries.size() && (entry = p->entries.at(0)))
 			entry->map.remove(name);
 	}
 
 	Config::Config(const QString &file, OpenFlags flags, const QString &backend_)
 	{
+		if(file.isEmpty())
+			return;
 		ConfigEntry::Ptr entry;
+		ConfigBackend *backend_ptr = 0;
 		{
 			QString backend = backend_;
 			if(backend.isEmpty())
@@ -174,16 +224,24 @@ namespace qutim_sdk_0_3
 			for(int i = 0; i < ConfigPrivate::config_backends.size(); i++)
 			{
 				if(ConfigPrivate::config_backends.at(i).first == backend)
-					entry = ConfigPrivate::config_backends.at(i).second->parse(file);
+					entry = (backend_ptr = ConfigPrivate::config_backends.at(i).second)->parse(file);
 			}
 			if(entry.isNull())
 			{
-				entry = ConfigPrivate::config_backends.at(0).second->parse(file);
+				entry = (backend_ptr = ConfigPrivate::config_backends.at(0).second)->parse(file);
 			}
 		}
 		p = new ConfigPrivate;
-		p->entries << entry;
+		if(!backend_ptr)
+			return;
+		ConfigEntryInfo info = { entry, file, backend_ptr };
+		p->root_entries << info;
+		p->entries << entry.toWeakRef();
 		p->file = file;
+	}
+		
+	Config::Config(const Config &other) : p(other.p)
+	{
 	}
 
 	Config::~Config()
@@ -192,6 +250,12 @@ namespace qutim_sdk_0_3
 
 	void Config::sync()
 	{
+		foreach(const ConfigEntryInfo &info, p->root_entries)
+			if(info.backend && !info.file.isEmpty())
+			{
+				qDebug() << "sync" << info.file;
+				info.backend->generate(info.file, info.root);
+			}
 	}
 
 	ConfigGroup::ConfigGroup()
@@ -219,7 +283,7 @@ namespace qutim_sdk_0_3
 	bool ConfigGroup::isMap() const
 	{
 		for(int i = 0; i < p->entries.size(); i++)
-			if(p->entries.at(i)->type & ConfigEntry::Map)
+			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Map))
 				return true;
 		return false;
 	}
@@ -227,7 +291,7 @@ namespace qutim_sdk_0_3
 	bool ConfigGroup::isArray() const
 	{
 		for(int i = 0; i < p->entries.size(); i++)
-			if(p->entries.at(i)->type & ConfigEntry::Array)
+			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Array))
 				return true;
 		return false;
 	}
@@ -235,7 +299,7 @@ namespace qutim_sdk_0_3
 	bool ConfigGroup::isValue() const
 	{
 		for(int i = 0; i < p->entries.size(); i++)
-			if(p->entries.at(i)->type & ConfigEntry::Value)
+			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Value))
 				return true;
 		return false;
 	}
@@ -243,8 +307,8 @@ namespace qutim_sdk_0_3
 	int ConfigGroup::arraySize() const
 	{
 		for(int i = 0; i < p->entries.size(); i++)
-			if(p->entries.at(i)->type & ConfigEntry::Array)
-				return p->entries.at(i)->array.size();
+			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Array))
+				return p->entries.at(i).toStrongRef()->array.size();
 		return 0;
 	}
 
@@ -252,7 +316,7 @@ namespace qutim_sdk_0_3
 	{
 		ConfigGroup group;
 		for(int i = 0; i < p->entries.size(); i++)
-			if(p->entries.at(i)->type & ConfigEntry::Array)
+			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Array))
 			{
 				ConfigEntry::Ptr entry = p->entries.at(i);
 				if(index < 0 || index >= entry->array.size())
@@ -295,7 +359,7 @@ namespace qutim_sdk_0_3
 		else
 			return group;
 		for(int i = 1; i < p->entries.size(); i++)
-			if(p->entries.at(i) && (p->entries.at(i)->type & ConfigEntry::Array))
+			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Array))
 			{
 				ConfigEntry::Ptr entry = p->entries.at(i);
 				if(index < 0 || index >= entry->array.size())
@@ -348,7 +412,7 @@ namespace qutim_sdk_0_3
 	{
 		QVariant result;
 		for(int i = 0; i < p->entries.size(); i++)
-			if(p->entries.at(i) && (p->entries.at(i)->type & ConfigEntry::Map))
+			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Map))
 			{
 				ConfigEntry::Ptr entry = p->entries.at(i);
 				ConfigEntry::EntryMap::const_iterator it = entry->map.constFind(key);
@@ -372,12 +436,19 @@ namespace qutim_sdk_0_3
 			return;
 		if(ConfigEntry::Ptr entry = group.p->entries.at(0))
 		{
-			entry->type = ConfigEntry::Map;
-			ConfigEntry::Ptr new_entry(new ConfigEntry);
-			new_entry->dirty = true;
-			new_entry->value = (type & Config::Crypted) ? CryptoService::crypt(value) : value;
-			entry->map.insert(key, new_entry);
+			entry->type = ConfigEntry::Value;
+			entry->value = (type & Config::Crypted) ? CryptoService::crypt(value) : value;
+			entry->dirty = true;
 		}
+//		if(ConfigEntry::Ptr entry = group.p->entries.at(0))
+//		{
+//			entry->type = ConfigEntry::Map;
+//			ConfigEntry::Ptr new_entry(new ConfigEntry);
+//			new_entry->dirty = true;
+//			new_entry->value = (type & Config::Crypted) ? CryptoService::crypt(value) : value;
+//			new_entry->type = ConfigEntry::Value;
+//			entry->map.insert(key, new_entry);
+//		}
 	}
 
 	void ConfigGroup::sync()

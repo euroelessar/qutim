@@ -23,7 +23,7 @@ SOURCES += tcpsocket.cpp \
     abstractwizardpage.cpp \
     profilecreatorpage.cpp \
     jsonfile.cpp \
-    #configbase.cpp \
+	configbase.cpp \
     configbackend.cpp \
     event.cpp
 HEADERS += tcpsocket.h \
