@@ -6,7 +6,6 @@
 namespace qutim_sdk_0_3
 {
 	class Contact;
-	class MetaContact;
 	class Account;
 
 	class Protocol : public QObject

@@ -87,14 +87,16 @@ namespace qutim_sdk_0_3
 				if(plugin_paths_list.contains(filename) || !QLibrary::isLibrary(filename) || !files[i].isFile())
 					continue;
 				plugin_paths_list << filename;
-				qDebug("%s", qPrintable(filename));
 				QPluginLoader *loader = new QPluginLoader(filename);
 				QObject *object = loader->instance();
 				Plugin *plugin = qobject_cast<Plugin *>(object);
-				if(!plugin)
-					plugin = createDeprecatedPlugin(object);
+//				if(!plugin)
+//					plugin = createDeprecatedPlugin(object);
 				if(plugin)
+				{
+					qDebug("%s", qPrintable(filename));
 					p->plugins.append(plugin);
+				}
 				else
 				{
 					delete object;

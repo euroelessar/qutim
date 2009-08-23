@@ -34,6 +34,7 @@ namespace Core
 //		file.open(QIODevice::ReadOnly);
 //		QScriptValue object = engine.evaluate(QString::fromUtf8(file.readAll()));
 //		qDebug() << object.toString();
+		loadPlugins();
 	}
 
 	QList<ExtensionInfo> ModuleManagerImpl::coreExtensions() const

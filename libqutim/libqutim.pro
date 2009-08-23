@@ -23,12 +23,15 @@ SOURCES += tcpsocket.cpp \
     abstractwizardpage.cpp \
     profilecreatorpage.cpp \
     jsonfile.cpp \
-	configbase.cpp \
+    configbase.cpp \
     configbackend.cpp \
-    event.cpp
+    event.cpp \
+    localizedstring.cpp \
+	metacontact.cpp \
+	account.cpp \
+	contact.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
-    libqutim_p.h \
     domaininfo.h \
     abstractlayer.h \
     settingslayer.h \
@@ -44,6 +47,10 @@ HEADERS += tcpsocket.h \
     configbase.h \
     configbase_p.h \
     configbackend.h \
-    event.h
+    event.h \
+    localizedstring.h \
+	metacontact.h \
+	account.h \
+	contact.h
 include(../3rdparty/jdns/jdns.pri)
 include(../3rdparty/k8json/k8json.pri)

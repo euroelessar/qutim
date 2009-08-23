@@ -40,8 +40,9 @@ namespace qutim_sdk_0_3
 		enum OpenFlag { IncludeGlobals = 0x01, SimpleConfig = 0x00 };
 		Q_DECLARE_FLAGS(OpenFlags, OpenFlag)
 		// If file is empty, then profile settings are loaded
-		Config(const QString &file = QString(), OpenFlags flags = IncludeGlobals, const QString &backend = QString());
+		explicit Config(const QString &file = QString(), OpenFlags flags = IncludeGlobals, const QString &backend = QString());
 		Config(const Config &other);
+		Config(const QExplicitlySharedDataPointer<ConfigPrivate> &other);
 		virtual ~Config();
 #ifdef DOC
 		QStringList groupList() const;
@@ -62,6 +63,7 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		ConfigGroup(const ConfigGroup &other);
+		ConfigGroup(const QExplicitlySharedDataPointer<ConfigGroupPrivate> &other);
 		virtual ~ConfigGroup();
 		QString name() const;
 		bool isValid() const;

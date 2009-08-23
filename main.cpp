@@ -22,6 +22,7 @@
 #define NEW_QUTIM
 
 #ifdef NEW_QUTIM
+# include <QTextCodec>
 # include "src/modulemanagerimpl.h"
 # include "libqutim/cryptoservice.h"
 # include "libqutim/configbase.h"
@@ -31,6 +32,8 @@
 #endif
 #include <QString>
 #include <QByteArray>
+#include <QTime>
+#include <QSettings>
 
 #if defined(Q_OS_UNIX)
 #include <signal.h>
@@ -46,31 +49,89 @@ Q_IMPORT_PLUGIN(qjpeg)
 Q_IMPORT_PLUGIN(qgif)
 #endif
 
+void test_config(int totalnum)
+{
+	QString filename = "/home/elessar/test3.json";
+	if(QFile::exists(filename))
+		QFile::remove(filename);
+	int a[3];
+	QTime time;
+	time.start();
+	{
+		Config config(filename);
+		ConfigGroup group = config.group("123");
+		for(int i = 0; i < totalnum; i++)
+		{
+			QString num = QString::number(i);
+			group.writeEntry(num, num);
+		}
+		a[0] = time.elapsed();
+		time.start();
+		group.sync();
+	}
+	a[1] = time.elapsed();
+	time.start();
+	{
+		Config config(filename);
+		ConfigGroup group = config.group("123");
+		for(int i = 0; i < totalnum; i++)
+		{
+			QString num = QString::number(i);
+			group.readEntry(num, num);
+		}
+	}
+	a[2] = time.elapsed();
+	qDebug("%8d\t%8d\t%8d\t%8d", totalnum, a[0], a[1], a[2]);
+}
+
+void test_settings(int totalnum)
+{
+	QString filename = "/home/elessar/test3.ini";
+	if(QFile::exists(filename))
+		QFile::remove(filename);
+	int a[3];
+	QTime time;
+	time.start();
+	{
+		QSettings settings(filename, QSettings::IniFormat);
+		settings.beginGroup("123");
+		for(int i = 0; i < totalnum; i++)
+		{
+			QString num = QString::number(i);
+			settings.setValue(num, num);
+		}
+		a[0] = time.elapsed();
+		time.start();
+		settings.sync();
+	}
+	a[1] = time.elapsed();
+	time.start();
+	{
+		QSettings settings(filename, QSettings::IniFormat);
+		settings.beginGroup("123");
+		for(int i = 0; i < totalnum; i++)
+		{
+			QString num = QString::number(i);
+			settings.value(num, num);
+		}
+	}
+	a[2] = time.elapsed();
+	qDebug("%8d\t%8d\t%8d\t%8d", totalnum, a[0], a[1], a[2]);
+}
 
 int main(int argc, char *argv[])
 {
 #ifdef NEW_QUTIM
 	QApplication app(argc, argv);
+	QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
 	QCA::Initializer init;
 	Core::ModuleManagerImpl module_manager;
 	module_manager.initExtensions();
-//	QList<ExtensionInfo> core_exts = module_manager.coreExtensions();
-//	foreach(const ExtensionInfo &info, core_exts)
-//		qDebug() << info.meta()->className() << info.name() << info.description();
-
-//	Config config("/home/elessar/.config/qutim/settings.json");
-//	qDebug() << config.groupList();
-//	Config config2 = config;
-//	qDebug() << config2.groupList();
-
-	ConfigGroup profiles_group = Config("/home/elessar/.config/qutim/settings.json").group("profiles");
-	qDebug() << profiles_group.readEntry("list", QStringList());
-	qDebug() << profiles_group.readEntry("current", -1);
-	profiles_group.sync();
-	profiles_group.writeEntry("current", 333);
-	profiles_group.sync();
-	profiles_group.writeEntry("current2", 1);
-	profiles_group.sync();
+//	qDebug("%8s\t%8s\t%8s\t%8s", "num", "create", "write", "read");
+//	for(int i = 10; i < 10000000; i *= 10)
+//		test_config(i);
+//	for(int i = 10; i < 10000000; i *= 10)
+//		test_settings(i);
 	return 0;
 //	module_manager.loadPlugins();
 #else

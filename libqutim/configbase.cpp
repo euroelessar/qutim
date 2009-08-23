@@ -208,39 +208,54 @@ namespace qutim_sdk_0_3
 			entry->map.remove(name);
 	}
 
+	void config_add_file(QExplicitlySharedDataPointer<ConfigPrivate> &config, const QString &file)
+	{
+//		QFileInfo info(file);
+		Q_UNUSED(config);
+		Q_UNUSED(file);
+	}
+
 	Config::Config(const QString &file, OpenFlags flags, const QString &backend_)
 	{
 		if(file.isEmpty())
 			return;
-		ConfigEntry::Ptr entry;
-		ConfigBackend *backend_ptr = 0;
+		QFileInfo info(file);
+		if(info.isAbsolute())
 		{
-			QString backend = backend_;
-			if(backend.isEmpty())
+			ConfigEntry::Ptr entry;
+			ConfigBackend *backend_ptr = 0;
 			{
-				QFileInfo info(file);
-				backend = info.suffix();
+				QString backend = backend_;
+				if(backend.isEmpty())
+					backend = info.suffix();
+				for(int i = 0; i < ConfigPrivate::config_backends.size(); i++)
+				{
+					if(ConfigPrivate::config_backends.at(i).first == backend)
+						entry = (backend_ptr = ConfigPrivate::config_backends.at(i).second)->parse(file);
+				}
+				if(entry.isNull())
+				{
+					entry = (backend_ptr = ConfigPrivate::config_backends.at(0).second)->parse(file);
+				}
 			}
-			for(int i = 0; i < ConfigPrivate::config_backends.size(); i++)
-			{
-				if(ConfigPrivate::config_backends.at(i).first == backend)
-					entry = (backend_ptr = ConfigPrivate::config_backends.at(i).second)->parse(file);
-			}
-			if(entry.isNull())
-			{
-				entry = (backend_ptr = ConfigPrivate::config_backends.at(0).second)->parse(file);
-			}
+			if(!backend_ptr)
+				return;
+			p = new ConfigPrivate;
+			ConfigEntryInfo entry_info = { entry, file, backend_ptr };
+			p->root_entries << entry_info;
+			p->entries << entry.toWeakRef();
+			p->file = file;
 		}
-		p = new ConfigPrivate;
-		if(!backend_ptr)
-			return;
-		ConfigEntryInfo info = { entry, file, backend_ptr };
-		p->root_entries << info;
-		p->entries << entry.toWeakRef();
-		p->file = file;
+		else
+		{
+		}
 	}
 		
 	Config::Config(const Config &other) : p(other.p)
+	{
+	}
+
+	Config::Config(const QExplicitlySharedDataPointer<ConfigPrivate> &other) : p(other)
 	{
 	}
 
@@ -253,7 +268,7 @@ namespace qutim_sdk_0_3
 		foreach(const ConfigEntryInfo &info, p->root_entries)
 			if(info.backend && !info.file.isEmpty())
 			{
-				qDebug() << "sync" << info.file;
+//				qDebug() << "sync" << info.file;
 				info.backend->generate(info.file, info.root);
 			}
 	}
@@ -263,6 +278,10 @@ namespace qutim_sdk_0_3
 	}
 
 	ConfigGroup::ConfigGroup(const ConfigGroup &other) : p(other.p)
+	{
+	}
+
+	ConfigGroup::ConfigGroup(const QExplicitlySharedDataPointer<ConfigGroupPrivate> &other) : p(other)
 	{
 	}
 

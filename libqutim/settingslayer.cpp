@@ -1,6 +1,5 @@
 #include "settingslayer.h"
 #include <QtGui/QApplication>
-#include "libqutim_p.h"
 
 namespace qutim_sdk_0_3
 {
