@@ -11,6 +11,7 @@
 #define K8JSON_H
 
 //#define K8JSON_INCLUDE_GENERATOR
+//#define K8JSON_INCLUDE_COMPLEX_GENERATOR
 
 
 #include <QHash>
@@ -30,6 +31,13 @@ namespace K8JSON {
  * quote string to JSON-friendly format, add '"'
  */
 QString quote (const QString &str);
+
+/*
+ * check if given (const uchar *) represents valid UTF-8 sequence
+ * NULL (or empty) s is not valid
+ * sequence ends on '\0' if zeroInvalid==false
+ */
+bool isValidUtf8 (const uchar *s, int maxLen, bool zeroInvalid=false);
 
 
 /*
@@ -72,7 +80,39 @@ const uchar *parseRecord (QVariant &res, const uchar *s, int *maxLength);
 
 
 #ifdef K8JSON_INCLUDE_GENERATOR
+/*
+ * generate JSON text from variant
+ * 'err' must be empty (generateEx() will not clear it)
+ * return false on error
+ */
+bool generateEx (QString &err, QByteArray &res, const QVariant &val, int indent=0);
+
+/*
+ * same as above, but without error message
+ */
 bool generate (QByteArray &res, const QVariant &val, int indent=0);
+#endif
+
+
+#ifdef K8JSON_INCLUDE_COMPLEX_GENERATOR
+/*
+ * callback for unknown variant type
+ * return false and set 'err' on error
+ * or return true and *add* converted value (valid sequence of utf-8 bytes) to res
+ */
+typedef bool (*generatorCB) (void *udata, QString &err, QByteArray &res, const QVariant &val, int indent);
+
+/*
+ * generate JSON text from variant
+ * 'err' must be empty (generateEx() will not clear it)
+ * return false on error
+ */
+bool generateExCB (void *udata, generatorCB cb, QString &err, QByteArray &res, const QVariant &val, int indent=0);
+
+/*
+ * same as above, but without error message
+ */
+bool generateCB (void *udata, generatorCB cb, QByteArray &res, const QVariant &val, int indent=0);
 #endif
 
 
