@@ -9,7 +9,7 @@
  */
 //#include <QtDebug>
 
-#ifdef K8JSON_INCLUDE_GENERATOR
+#if defined(K8JSON_INCLUDE_COMPLEX_GENERATOR) || defined(K8JSON_INCLUDE_GENERATOR)
 # include <QStringList>
 #endif
 
@@ -739,93 +739,23 @@ const uchar *parseRecord (QVariant &res, const uchar *s, int *maxLength) {
 
 
 #ifdef K8JSON_INCLUDE_GENERATOR
-bool generateEx (QString &err, QByteArray &res, const QVariant &val, int indent) {
-  switch (val.type()) {
-    case QVariant::Invalid: res += "null"; break;
-    case QVariant::Bool: res += (val.toBool() ? "true" : "false"); break;
-    case QVariant::Char: res += quote(QString(val.toChar())).toUtf8(); break;
-    case QVariant::Double: res += QString::number(val.toDouble()).toAscii(); break; //CHECKME: is '.' always '.'?
-    case QVariant::Int: res += QString::number(val.toInt()).toAscii(); break;
-    case QVariant::LongLong: res += QString::number(val.toLongLong()).toAscii(); break;
-    case QVariant::UInt: res += QString::number(val.toUInt()).toAscii(); break;
-    case QVariant::ULongLong: res += QString::number(val.toULongLong()).toAscii(); break;
-    case QVariant::String: res += quote(val.toString()).toUtf8(); break;
-    case QVariant::Map: {
-      //for (int c = indent; c > 0; c--) res += ' ';
-      res += "{";
-      indent++; bool comma = false;
-      QVariantMap m(val.toMap());
-      QVariantMap::const_iterator i;
-      for (i = m.constBegin(); i != m.constEnd(); ++i) {
-        if (comma) res += ",\n"; else { res += '\n'; comma = true; }
-        for (int c = indent; c > 0; c--) res += ' ';
-        res += quote(i.key()).toUtf8();
-        res += ": ";
-        if (!generateEx(err, res, i.value(), indent)) return false;
-      }
-      indent--;
-      if (comma) {
-        res += '\n';
-        for (int c = indent; c > 0; c--) res += ' ';
-      }
-      res += '}';
-      indent--;
-      } break;
-    case QVariant::List: {
-      //for (int c = indent; c > 0; c--) res += ' ';
-      res += "[";
-      indent++; bool comma = false;
-      QVariantList m(val.toList());
-      foreach (const QVariant &v, m) {
-        if (comma) res += ",\n"; else { res += '\n'; comma = true; }
-        for (int c = indent; c > 0; c--) res += ' ';
-        if (!generateEx(err, res, v, indent)) return false;
-      }
-      indent--;
-      if (comma) {
-        res += '\n';
-        for (int c = indent; c > 0; c--) res += ' ';
-      }
-      res += ']';
-      indent--;
-      } break;
-    case QVariant::StringList: {
-      //for (int c = indent; c > 0; c--) res += ' ';
-      res += "[";
-      indent++; bool comma = false;
-      QStringList m(val.toStringList());
-      foreach (const QString &v, m) {
-        if (comma) res += ",\n"; else { res += '\n'; comma = true; }
-        for (int c = indent; c > 0; c--) res += ' ';
-        res += quote(v).toUtf8();
-      }
-      indent--;
-      if (comma) {
-        res += '\n';
-        for (int c = indent; c > 0; c--) res += ' ';
-      }
-      res += ']';
-      indent--;
-      } break;
-    default:
-      err = QString("invalid variant type: %1").arg(val.typeName());
-      return false;
-  }
-  return true;
-}
-
-
-bool generate (QByteArray &res, const QVariant &val, int indent) {
-  QString err;
-  return generateEx(err, res, val, indent);
-}
+# ifndef K8JSON_INCLUDE_COMPLEX_GENERATOR
+#  define _K8_JSON_COMPLEX_WORD  static
+# else
+#  define _K8_JSON_COMPLEX_WORD
+# endif
+#else
+# ifdef K8JSON_INCLUDE_COMPLEX_GENERATOR
+#  define _K8_JSON_COMPLEX_WORD
+# endif
 #endif
 
+#if defined(K8JSON_INCLUDE_COMPLEX_GENERATOR) || defined(K8JSON_INCLUDE_GENERATOR)
+# ifndef K8JSON_INCLUDE_COMPLEX_GENERATOR
+typedef bool (*generatorCB) (void *udata, QString &err, QByteArray &res, const QVariant &val, int indent);
+# endif
 
-#ifdef K8JSON_INCLUDE_COMPLEX_GENERATOR
-//typedef bool (*generatorCB) (void *udata, QString &err, QByteArray &res, const QVariant &val, int indent);
-
-bool generateExCB (void *udata, generatorCB cb, QString &err, QByteArray &res, const QVariant &val, int indent) {
+_K8_JSON_COMPLEX_WORD bool generateExCB (void *udata, generatorCB cb, QString &err, QByteArray &res, const QVariant &val, int indent) {
   switch (val.type()) {
     case QVariant::Invalid: res += "null"; break;
     case QVariant::Bool: res += (val.toBool() ? "true" : "false"); break;
@@ -902,9 +832,22 @@ bool generateExCB (void *udata, generatorCB cb, QString &err, QByteArray &res, c
 }
 
 
-bool generateCB (void *udata, generatorCB cb, QByteArray &res, const QVariant &val, int indent) {
+_K8_JSON_COMPLEX_WORD bool generateCB (void *udata, generatorCB cb, QByteArray &res, const QVariant &val, int indent) {
   QString err;
   return generateExCB(udata, cb, err, res, val, indent);
+}
+#endif
+
+
+#ifdef K8JSON_INCLUDE_GENERATOR
+bool generateEx (QString &err, QByteArray &res, const QVariant &val, int indent) {
+  return generateExCB(0, 0, err, res, val, indent);
+}
+
+
+bool generate (QByteArray &res, const QVariant &val, int indent) {
+  QString err;
+  return generateExCB(0, 0, err, res, val, indent);
 }
 #endif
 

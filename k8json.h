@@ -20,7 +20,7 @@
 #include <QString>
 #include <QVariant>
 
-#ifdef K8JSON_INCLUDE_GENERATOR
+#if defined(K8JSON_INCLUDE_COMPLEX_GENERATOR) || defined(K8JSON_INCLUDE_GENERATOR)
 # include <QByteArray>
 #endif
 
