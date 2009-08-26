@@ -3,7 +3,7 @@
 
 namespace qutim_sdk_0_3
 {
-	SettingsItem::SettingsItem() : m_type(SettingsInvalid), m_text(0)
+	SettingsItem::SettingsItem() : m_type(SettingsInvalid), m_text("Settings", 0)
 	{
 	}
 
@@ -25,9 +25,9 @@ namespace qutim_sdk_0_3
 		return m_icon;
 	}
 
-	QString SettingsItem::text() const
+	LocalizedString SettingsItem::text() const
 	{
-		return qApp->translate("Settings", m_text, 0, QApplication::UnicodeUTF8);
+		return m_text;
 	}
 
 	QWidget *SettingsItem::widget() const

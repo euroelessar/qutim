@@ -95,6 +95,7 @@ namespace qutim_sdk_0_3
 				if(plugin)
 				{
 					qDebug("%s", qPrintable(filename));
+					plugin->init();
 					p->plugins.append(plugin);
 				}
 				else
