@@ -787,6 +787,27 @@ _K8_JSON_COMPLEX_WORD bool generateExCB (void *udata, generatorCB cb, QString &e
       res += '}';
       indent--;
       } break;
+    case QVariant::Hash: {
+      //for (int c = indent; c > 0; c--) res += ' ';
+      res += "{";
+      indent++; bool comma = false;
+      QVariantHash m(val.toHash());
+      QVariantHash::const_iterator i;
+      for (i = m.constBegin(); i != m.constEnd(); ++i) {
+        if (comma) res += ",\n"; else { res += '\n'; comma = true; }
+        for (int c = indent; c > 0; c--) res += ' ';
+        res += quote(i.key()).toUtf8();
+        res += ": ";
+        if (!generateExCB(udata, cb, err, res, i.value(), indent)) return false;
+      }
+      indent--;
+      if (comma) {
+        res += '\n';
+        for (int c = indent; c > 0; c--) res += ' ';
+      }
+      res += '}';
+      indent--;
+      } break;
     case QVariant::List: {
       //for (int c = indent; c > 0; c--) res += ' ';
       res += "[";
