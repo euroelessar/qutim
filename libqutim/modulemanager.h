@@ -10,11 +10,18 @@
 namespace qutim_sdk_0_3
 {
 	class ModuleManagerPrivate;
+	typedef QList<ExtensionInfo> ExtensionList;
 
 	class LIBQUTIM_EXPORT ModuleManager : public QObject
 	{
 		Q_OBJECT
 	public:
+		template<typename T, typename M>
+		static void registerModule(ModuleInit method)
+		{
+//			ExtensionList list;
+//			T::M(list);
+		}
 	protected:
 		ModuleManager(QObject *parent = 0);
 		void loadPlugins(const QStringList &additional_paths = QStringList());
@@ -31,6 +38,16 @@ namespace qutim_sdk_0_3
 	private:
 		static ModuleManager *self;
 		ModuleManagerPrivate *p;
+	};
+
+	template<typename T, typename M>
+	class ModuleRegisterHelper
+	{
+	public:
+		inline ModuleRegisterHelper(M method)
+		{
+			ModuleManager::registerModule<T>(static_cast<ModuleInit>(method));
+		}
 	};
 }
 

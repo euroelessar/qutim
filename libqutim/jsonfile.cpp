@@ -122,7 +122,7 @@ namespace qutim_sdk_0_3
 		if (!p->file.open(QIODevice::WriteOnly | QIODevice::Text))
 			return false;
 		QTextStream stream(&p->file);
-		stream.setCodec("ISO-8859-1");
+		stream.setCodec("utf-8");
 		bool result = json_file_generate(stream, variant, 0);
 		stream.flush();
 		p->file.close();

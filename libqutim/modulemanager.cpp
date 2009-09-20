@@ -30,6 +30,7 @@ namespace qutim_sdk_0_3
 
 	ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 	{
+		qDebug() << QIcon::themeSearchPaths();
 		Q_ASSERT_X(!self, "ModuleManager", "Only one instance of ModuleManager can be created");
 		p = new ModuleManagerPrivate;
 		self = this;
@@ -88,6 +89,7 @@ namespace qutim_sdk_0_3
 					continue;
 				plugin_paths_list << filename;
 				QPluginLoader *loader = new QPluginLoader(filename);
+				loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
 				QObject *object = loader->instance();
 				Plugin *plugin = qobject_cast<Plugin *>(object);
 //				if(!plugin)
@@ -130,16 +132,14 @@ namespace qutim_sdk_0_3
 			}
 			for(int j = 0; j < extensions.size(); j++)
 			{
-				const QMetaObject *meta = extensions.at(j).meta();
-				while(meta && (meta = meta->superClass()) != service_meta);
-				if(meta == service_meta)
+				if(extensions.at(j).generator()->extends(service_meta))
 					result.insert(plugin, extensions.at(j));
 			}
 		}
 		return result;
 	}
 
-	inline QObject *create_instance_helper(const QMetaObject *meta)
+/*	inline QObject *create_instance_helper(const QMetaObject *meta)
 	{
 #if QT_VERSION < QT_VERSION_CHECK(4, 5, 3)
 		QByteArray constructorName = meta->className();
@@ -173,7 +173,7 @@ namespace qutim_sdk_0_3
 		}
 		qWarning("%s doesn't have invokable constructor", meta->className());
 		return 0;
-	}
+	}*/
 
 	QObject *ModuleManager::initExtension(const QMetaObject *service_meta)
 	{
@@ -181,17 +181,9 @@ namespace qutim_sdk_0_3
 		QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
 		for(; it != exts.end(); it++)
 		{
-			const QMetaObject *meta = it.value().meta();
-			if(QObject *obj = create_instance_helper(meta))
-			{
-				qDebug("Found %s for %s", meta->className(), service_meta->className());
-				return obj;
-			}
-			else
-			{
-				qWarning("%s doesn't have invokable constructor", meta->className());
-				continue;
-			}
+			QObject *obj = it.value().generator()->generate();
+			qDebug("Found %s for %s", it.value().generator()->metaObject()->className(), service_meta->className());
+			return obj;
 		}
 		qWarning("%s extension isn't found", service_meta->className());
 		return 0;
@@ -199,13 +191,29 @@ namespace qutim_sdk_0_3
 
 	void ModuleManager::initExtensions()
 	{
+//		struct ModuleInfo
+//		{
+//			const QMetaObject *meta;
+//			ModuleInit init;
+//		} infos [] = {
+//			{ &CryptoService::staticMetaObject, &CryptoService::init }
+//		};
+//		for(unsigned i = 0; i < sizeof(infos) / sizeof(ModuleInfo); i++)
+//		{
+//			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(infos[i].meta);
+//			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.constBegin();
+//			ExtensionList list;
+//			for(;it != exts.constEnd(); it++)
+//				list << it.value();
+//			(*infos[i].init)(list);
+//		}
 		CryptoService::self = initExtension<CryptoService>();
 		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions<ConfigBackend>();
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
 			for(; it != exts.end(); it++)
 			{
-				const QMetaObject *meta = it.value().meta();
+				const QMetaObject *meta = it.value().generator()->metaObject();
 				QByteArray name;
 				for(int i = 0; i < meta->classInfoCount(); i++)
 				{
@@ -221,8 +229,7 @@ namespace qutim_sdk_0_3
 					qWarning("%s has no 'Extension' class info", meta->className());
 					continue;
 				}
-				if(ConfigBackend *object = create_instance<ConfigBackend>(it.value().meta()))
-					ConfigPrivate::config_backends << qMakePair(name, object);
+				ConfigPrivate::config_backends << qMakePair(name, it.value().generator()->generate<ConfigBackend>());
 			}
 		}
 	}

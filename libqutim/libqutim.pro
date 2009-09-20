@@ -27,9 +27,11 @@ SOURCES += tcpsocket.cpp \
     configbackend.cpp \
     event.cpp \
     localizedstring.cpp \
-	metacontact.cpp \
-	account.cpp \
-	contact.cpp
+    metacontact.cpp \
+    account.cpp \
+    contact.cpp \
+    objectgenerator.cpp \
+	icon.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
     domaininfo.h \
@@ -49,8 +51,10 @@ HEADERS += tcpsocket.h \
     configbackend.h \
     event.h \
     localizedstring.h \
-	metacontact.h \
-	account.h \
-	contact.h
+    metacontact.h \
+    account.h \
+    contact.h \
+    objectgenerator.h \
+	icon.h
 include(../3rdparty/jdns/jdns.pri)
 include(../3rdparty/k8json/k8json.pri)

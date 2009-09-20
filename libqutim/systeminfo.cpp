@@ -24,6 +24,7 @@
 #include <QProcess>
 #include <QTextStream>
 #include <QDateTime>
+#include <QVector>
 
 #if defined(Q_WS_X11) || defined(Q_WS_MAC)
 #include <time.h>
@@ -44,15 +45,25 @@
 
 namespace qutim_sdk_0_3
 {
-	QPointer<SystemInfo> SystemInfo::self = 0;
+	SystemInfoPrivate *SystemInfo::p = 0;
 
 	struct SystemInfoPrivate
 	{
+		inline SystemInfoPrivate() : dirs(SystemInfo::HistoryDir + 1) {}
 		QString os_full;
 		QString os_name;
 		QString os_version;
+		quint8 os_type_id;
+		quint32 os_version_id;
 		QString timezone_str;
 		int timezone_offset;
+		QVector<QDir> dirs;
+	};
+
+	enum WinFlag
+	{
+		SuitePersonal   = 0x01,
+		SuiteHomeServer = 0x02
 	};
 
 	#if defined(Q_WS_X11)
@@ -186,10 +197,17 @@ namespace qutim_sdk_0_3
 	}
 	#endif
 
-
-
 	SystemInfo::SystemInfo()
 	{
+	}
+
+	SystemInfo::~SystemInfo()
+	{
+	}
+
+	void system_info_ensure_private_helper(SystemInfoPrivate * &p)
+	{
+		if(p) return;
 //		QDateTime tmp_datetime = QDateTime::currentDateTime().toLocalTime();
 //		p->timezone_offset = tmp_datetime.utcOffset();
 		// Initialize
@@ -197,9 +215,24 @@ namespace qutim_sdk_0_3
 		p->timezone_offset = 0;
 		p->timezone_str = "N/A";
 		p->os_full = "Unknown";
+#if defined(Q_OS_WINCE)
+		p->os_type_id = 'c';
+#elif defined(Q_OS_WIN32)
+		p->os_type_id = 'w';
+#elif defined(Q_OS_LINUX)
+		p->os_type_id = 'l';
+#elif defined(Q_OS_MAC)
+		p->os_type_id = 'm';
+#elif defined(Q_OS_SYMBIAN)
+		p->os_type_id = 's';
+#elif defined(Q_OS_UNIX)
+		p->os_type_id = 'u';
+#else
+		p->os_type_id = '\0';
+#endif
 
 		// Detect
-	#if defined(Q_WS_X11) || defined(Q_WS_MAC)
+#if defined(Q_WS_X11) || defined(Q_WS_MAC)
 		time_t x;
 		time(&x);
 		char str[256];
@@ -229,8 +262,8 @@ namespace qutim_sdk_0_3
 		strftime(str, 256, fmt, localtime(&x));
 		if(strcmp(fmt, str))
 			p->timezone_str = str;
-	#endif
-	#if defined(Q_WS_X11)
+#endif
+#if defined(Q_WS_X11)
 		// attempt to get LSB version before trying the distro-specific approach
 
 		p->os_full = lsbRelease(QStringList() << "--description" << "--short");
@@ -243,19 +276,20 @@ namespace qutim_sdk_0_3
 			p->os_version = lsbRelease(QStringList() << "--description" << "--codename");;
 		}
 
-	#elif defined(Q_WS_MAC)
+#elif defined(Q_WS_MAC)
 		long minor_version, major_version, bug_fix;
 		Gestalt(gestaltSystemVersionMajor, &major_version);
 		Gestalt(gestaltSystemVersionMinor, &minor_version);
 		Gestalt(gestaltSystemVersionBugFix, &bug_fix);
+		p->os_version_id = (quint8(major_version) << 24) | (quint8(minor_version) << 16) | (quint8(bug_fix) << 8);
 		p->os_name = "MacOS X";
 		p->os_version = QString("%1.%2.%3").arg(major_version, minor_version, bug_fix);
 		p->os_full = p->os_name;
 		p->os_full += " ";
 		p->os_full += p->os_version;
-	#endif
+#endif
 
-	#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN)
 		TIME_ZONE_INFORMATION i;
 		//GetTimeZoneInformation(&i);
 		//p->timezone_offset = (-i.Bias) / 60;
@@ -285,149 +319,155 @@ namespace qutim_sdk_0_3
 			if (! GetVersionEx ( (OSVERSIONINFO *) &osvi) )
 				return;
 		}
-
-		switch (osvi.dwPlatformId)
-		{
-			// Check fo family Windows NT.
-			case VER_PLATFORM_WIN32_NT:{
-
-			// Check product version
-
-			if ( osvi.dwMajorVersion <= 4 )
-				p->os_full.append(" NT");
-
-			if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0 )
-				p->os_full.append(" 2000");
-
-
-			if( bOsVersionInfoEx )  // Use information from GetVersionEx.
-			{
-			// Check workstation's type
-				if ( osvi.wProductType == VER_NT_WORKSTATION )
-				{
-					if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1 )
-					{
-						p->os_full.append(" XP");
-						if( osvi.wSuiteMask & VER_SUITE_PERSONAL )
-							p->os_full.append(" Home Edition" );
-						else
-							p->os_full.append(" Professional" );
-					}
-					else if ( osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0 )
-					{
-						p->os_full.append(" Vista");
-						if( osvi.wSuiteMask & VER_SUITE_PERSONAL )
-							p->os_full.append(" Home" );
-					}
-					else if ( osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 1 )
-					{
-						p->os_full.append(" 7 beta");
-					}
-					else if ( osvi.dwMajorVersion == 7 && osvi.dwMinorVersion == 0 )
-					{
-						p->os_full.append(" 7");
-					}
-					else
-						p->os_full.append(QString(" NT %1.%2").arg(osvi.dwMajorVersion).arg(osvi.dwMinorVersion));
-				}
-
-			// Check server version
-				else if ( osvi.wProductType == VER_NT_SERVER )
-				{
-					if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1 )
-						p->os_full.append(" 2003");
-					else if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2 )
-						p->os_full.append(" 2003 R2");
-					else if ( osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0 )
-						p->os_full.append(" 2008");
-					else
-						p->os_full.append(QString(" NT %1.%2").arg(osvi.dwMajorVersion).arg(osvi.dwMinorVersion));
-					if( osvi.wSuiteMask & VER_SUITE_DATACENTER )
-						p->os_full.append(" DataCenter Server" );
-					else if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
-					{
-						if( osvi.dwMajorVersion == 4 )
-							p->os_full.append(" Advanced Server" );
-						else
-							p->os_full.append(" Enterprise Server" );
-					}
-					else if ( osvi.wSuiteMask == VER_SUITE_BLADE )
-						p->os_full.append(" Web Server" );
-					else
-						p->os_full.append(" Server" );
-				}
-				else
-					p->os_full = QString(" Unknown Shit %1.%2").arg(osvi.dwMajorVersion).arg(osvi.dwMinorVersion);
-			}
-			else	// Use register for earlier versions of Windows NT
-				p->os_full.append(" NT");
-
-			if ( osvi.dwMajorVersion <= 4 )
-				p->os_full.append(QString(" %1.%2").arg(osvi.dwMajorVersion).arg(osvi.dwMinorVersion));
-
-			break;}
-
-		// Check for family Windows 95.
-		case VER_PLATFORM_WIN32_WINDOWS:
-
-			if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)
-			{
-				 p->os_full.append(" 95");
-				 if ( osvi.szCSDVersion[1] == 'C' || osvi.szCSDVersion[1] == 'B' )
-					 p->os_full.append(" OSR2" );
-			}
-			else if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10)
-			{
-				 p->os_full.append(" 98");
-				 if ( osvi.szCSDVersion[1] == 'A' )
-					 p->os_full.append(" SE" );
-			}
-			else if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90)
-			{
-				 p->os_full.append(" Millennium Edition");
-			}
-			else
-				p->os_full.append(" 9x/Me");
-			break;
-		}
-		p->os_version = p->os_full.mid(1);
-		p->os_full = p->os_full.prepend("Windows");
-	#endif
+		quint8 special_info = 0;
+		if(osvi.wSuiteMask & VER_SUITE_PERSONAL)
+			special_info |= SuitePersonal;
+		if(osvi.wSuiteMask & VER_SUITE_WH_SERVER)
+			special_info |= SuiteHomeServer;
+		p->os_version_id = (quint8(osvi.dwMajorVersion) << 24) | (quint8(osvi.dwMinorVersion) << 16)
+						   | (quint8(osvi.wProductType) << 8)  | special_info;
+#endif
 	}
 
-	SystemInfo::~SystemInfo()
-	{
-	}
+	inline void system_info_ensure_private(SystemInfoPrivate * &p)
+	{ if(!p) system_info_ensure_private_helper(p); }
 
-	const SystemInfo &SystemInfo::instance()
+	QString SystemInfo::getFullName()
 	{
-		if(self.isNull())
-			self = new SystemInfo;
-		return *self;
-	}
-
-	QString SystemInfo::osFull() const
-	{
+		system_info_ensure_private(p);
 		return p->os_full;
 	}
 
-	QString SystemInfo::osName() const
+	QString SystemInfo::getName()
 	{
+		system_info_ensure_private(p);
 		return p->os_name;
 	}
 
-	QString SystemInfo::osVersion() const
+	QString SystemInfo::getVersion()
 	{
-		return p->os_version;
+		system_info_ensure_private(p);
+		return p->os_version.isEmpty() ? (p->os_version = systemID2String(p->os_type_id, p->os_version_id)) : p->os_version;
+//		return p->os_version;
 	}
 
-	QString SystemInfo::timezone() const
+	quint32 SystemInfo::getSystemVersionID()
 	{
+		system_info_ensure_private(p);
+		return p->os_version_id;
+	}
+
+	quint8 SystemInfo::getSystemTypeID()
+	{
+		system_info_ensure_private(p);
+		return p->os_type_id;
+	}
+
+	QString SystemInfo::systemID2String(quint8 type, quint32 id)
+	{
+		system_info_ensure_private(p);
+		QString str;
+		quint8 VER_NT_WORKSTATION = 0x01;
+		switch(type)
+		{
+		case 'm':
+			if(id)
+			{
+				quint8 major, minor, bugfix;
+				major = (id >> 24) & 0xff;
+				minor = (id >> 16) & 0xff;
+				bugfix = (id >> 8) & 0xff;
+				str = QString("MacOS X %1.%2.%3").arg(QString::number(major), QString::number(minor), QString::number(bugfix));
+			}
+			else
+				str += "MacOS X";
+			break;
+		case 'c':
+			str += "Windows CE";
+			break;
+		case 'l':
+			str += "Linux";
+			break;
+		case 's':
+			str += "Symbian";
+			break;
+		case 'u':
+			str += "*nix";
+			break;
+		case 'w': {
+			str = "Windows";
+			quint16 version = (id >> 16) & 0xffff;
+			quint8 product  = (id >> 8) & 0xff;
+			quint8 winflag  = id & 0xff;
+			switch(version)
+			{
+			case 0x0500:
+				str += " 2000";
+			case 0x0501:
+				str += " XP";
+				if(winflag & 0x01)
+					str += " Home Edition";
+				else
+					str += " Professional";
+				break;
+			case 0x0502:
+				if(winflag & 0x02)
+					str += " Home Server";
+				else
+					str += " Server 200";
+			case 0x0600:
+				if(product == VER_NT_WORKSTATION)
+				{
+					str += " Vista";
+					if(winflag & 0x01)
+						str += " Home";
+				}
+				else
+					str += " Server 2008";
+			case 0x0601:
+				if(product == VER_NT_WORKSTATION)
+					str += " 7";
+				else
+					str += " Server 2008 R2";
+				break;
+			default:
+				str += " NT ";
+				str += QString::number(version >> 8);
+				str += ".";
+				str += QString::number(version & 0xff);
+			case 0x0000:
+				break;
+			}
+			break; }
+		default:
+			str = "Unknown";
+		}
+		return str;
+	}
+
+	QString SystemInfo::getTimezone()
+	{
+		system_info_ensure_private(p);
 		return p->timezone_str;
 	}
 
-	int SystemInfo::timezoneOffset() const
+	int SystemInfo::getTimezoneOffset()
 	{
+		system_info_ensure_private(p);
 		return p->timezone_offset;
+	}
+
+	QDir SystemInfo::getDir(DirType type)
+	{
+		system_info_ensure_private(p);
+		if(type > HistoryDir)
+			return QDir();
+		return p->dirs.at(type);
+	}
+
+	QString SystemInfo::getPath(DirType type)
+	{
+		system_info_ensure_private(p);
+		return getDir(type).absolutePath();
 	}
 }

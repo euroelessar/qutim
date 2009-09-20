@@ -13,6 +13,7 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 	public:
 		Protocol();
+	private:
 	};
 }
 

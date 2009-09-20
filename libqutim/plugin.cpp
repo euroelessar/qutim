@@ -72,22 +72,22 @@ namespace qutim_sdk_0_3
 		return qApp->translate("Plugin", d->description);
 	}
 
-	ExtensionInfoData::ExtensionInfoData() : name(0), description(0), meta(0)
+	ExtensionInfoData::ExtensionInfoData() : name(0), description(0), gen(0)
 	{
 	}
 
 	ExtensionInfoData::ExtensionInfoData(const ExtensionInfoData &other)
 			: QSharedData(other), name(other.name), description(other.description),
-			meta(other.meta), icon(other.icon)
+			gen(other.gen), icon(other.icon)
 	{
 	}
 
-	ExtensionInfo::ExtensionInfo(const char *name, const char *description, const QMetaObject *meta, QIcon icon)
+	ExtensionInfo::ExtensionInfo(const char *name, const char *description, const ObjectGenerator *generator, QIcon icon)
 	{
 		d = new ExtensionInfoData;
 		setName(name);
 		setDescription(description);
-		setMeta(meta);
+		setGenerator(generator);
 		setIcon(icon);
 	}
 

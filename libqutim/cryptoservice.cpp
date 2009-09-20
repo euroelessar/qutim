@@ -1,4 +1,5 @@
 #include "cryptoservice.h"
+#include "modulemanager.h"
 #include <QDataStream>
 #include <QBuffer>
 
@@ -55,4 +56,10 @@ namespace qutim_sdk_0_3
 		}
 		return result;
 	}
+
+//	void CryptoService::init()
+//	{
+//		foreach(ExtensionInfo info, exts)
+//			qDebug("%s", qPrintable(info.name()));
+//	}
 }

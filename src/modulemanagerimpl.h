@@ -32,7 +32,7 @@ namespace Core
 	public:
 		inline CoreModuleHelper(const char *name, const char *description)
 		{
-			ModuleManagerImpl::extensions() << ExtensionInfo(name, description, &T::staticMetaObject);
+			ModuleManagerImpl::extensions() << ExtensionInfo(name, description, new GeneralGenerator<T>());
 		}
 	};
 }

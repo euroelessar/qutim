@@ -2172,10 +2172,9 @@ bool PluginSystem::sendEvent(Event &event)
 
 void PluginSystem::getSystemInfo(QString &version, QString &timezone, int &timezone_offset)
 {
-	const qutim_sdk_0_3::SystemInfo &info = qutim_sdk_0_3::SystemInfo::instance();
-	version = info.osFull();
-	timezone = info.timezone();
-	timezone_offset = info.timezoneOffset();
+	version = qutim_sdk_0_3::SystemInfo::getFullName();
+	timezone = qutim_sdk_0_3::SystemInfo::getTimezone();
+	timezone_offset = qutim_sdk_0_3::SystemInfo::getTimezoneOffset();
 }
 
 IconManagerInterface *PluginSystem::getIconManager()

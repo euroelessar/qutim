@@ -18,7 +18,7 @@
 #define SYSTEMINFO_H
 
 #include "libqutim_global.h"
-#include <QPointer>
+#include <QDir>
 
 namespace qutim_sdk_0_3
 {
@@ -28,17 +28,21 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 	public:
-		static const SystemInfo &instance();
-		QString osFull() const;
-		QString osName() const;
-		QString osVersion() const;
-		QString timezone() const;
-		int timezoneOffset() const;
+		enum DirType { ConfigDir, HistoryDir };
+		static QString getFullName();
+		static QString getName();
+		static QString getVersion();
+		static QString getTimezone();
+		static int getTimezoneOffset();
+		static QDir getDir(DirType type);
+		static QString getPath(DirType type);
+		static quint32 getSystemVersionID();
+		static quint8 getSystemTypeID();
+		static QString systemID2String(quint8 type, quint32 id);
 	private:
 		SystemInfo();
 		virtual ~SystemInfo();
-		static QPointer<SystemInfo> self;
-		SystemInfoPrivate *p;
+		static SystemInfoPrivate *p;
 	};
 }
 

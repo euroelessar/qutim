@@ -1,7 +1,7 @@
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
-#include "libqutim_global.h"
+#include "objectgenerator.h"
 #include <QtCore/QtPlugin>
 #include <QtCore/QObject>
 #include <QtCore/QSharedDataPointer>
@@ -116,7 +116,7 @@ namespace qutim_sdk_0_3
 		ExtensionInfoData(const ExtensionInfoData &other);
 		const char *name;
 		const char *description;
-		const QMetaObject *meta;
+		const ObjectGenerator *gen;
 		QIcon icon;
 	};
 
@@ -124,15 +124,15 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		ExtensionInfo(const char *name = 0, const char *description = 0,
-					  const QMetaObject *meta = 0, QIcon icon = QIcon());
+					  const ObjectGenerator *generator = 0, QIcon icon = QIcon());
 		inline ExtensionInfo(const ExtensionInfo &other) : d(other.d) {}
 		inline ExtensionInfo &setName(const char *name) { d->name = name; return *this; }
 		inline ExtensionInfo &setDescription(const char *description) { d->description = description; return *this; }
 		inline ExtensionInfo &setIcon(const QIcon &icon) { d->icon = icon; return *this; }
-		inline ExtensionInfo &setMeta(const QMetaObject *meta) { d->meta = meta; return *this; }
+		inline ExtensionInfo &setGenerator(const ObjectGenerator *generator) { d->gen = generator; return *this; }
 		QString name() const;
 		QString description() const;
-		inline const QMetaObject *meta() const { return d->meta; }
+		inline const ObjectGenerator *generator() const { return d->gen; }
 		inline QIcon icon() const { return d->icon; }
 	private:
 		QSharedDataPointer<ExtensionInfoData> d;
@@ -150,6 +150,8 @@ namespace qutim_sdk_0_3
 //		const QMetaObject *meta;
 //	};
 
+	typedef void ( /*QObject::*/ *ModuleInit)();
+
 	class LIBQUTIM_EXPORT Plugin : public QObject
 	{
 		Q_OBJECT
@@ -157,6 +159,7 @@ namespace qutim_sdk_0_3
 		Plugin();
 		inline const PluginInfo &info() const { return m_info; }
 		const QList<ExtensionInfo> &avaiableExtensions() const { return m_extensions; }
+		const QList<ModuleInit> &moduleInitMethods() const { return m_inits; }
 		virtual void init() = 0;
 		virtual bool load() = 0;
 		virtual bool unload() = 0;
@@ -164,6 +167,7 @@ namespace qutim_sdk_0_3
 		// Should be filled at init
 		PluginInfo m_info;
 		QList<ExtensionInfo> m_extensions;
+		QList<ModuleInit> m_inits;
 	};
 
 	#define QUTIM_EXPORT_PLUGIN(Plugin) \

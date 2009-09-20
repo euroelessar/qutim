@@ -472,15 +472,15 @@ inline void finishStr(QString &str, const WeekDate &week_date, const QDate &date
 		// I don't understand the difference
 	case L'z':
 		if(length < 4)
-			str += qutim_sdk_0_3::SystemInfo::instance().timezone();
+			str += qutim_sdk_0_3::SystemInfo::getTimezone();
 		else
 			// There should be localized name, but I don't know how get it
-			str += qutim_sdk_0_3::SystemInfo::instance().timezone();
+			str += qutim_sdk_0_3::SystemInfo::getTimezone();
 		break;
 	case L'Z':{
 			if(length == 4)
 				str += "GMT";
-			int offset = qutim_sdk_0_3::SystemInfo::instance().timezoneOffset();
+			int offset = qutim_sdk_0_3::SystemInfo::getTimezoneOffset();
 			if(offset < 0)
 				str += '+';
 			else
@@ -577,10 +577,10 @@ QString ChatWindowStyle::convertTimeDate(const QString &mac_format, const QDateT
 					break;
 				case L'Z':
 					// It should be localized, isn't it?..
-					appendStr(str, qutim_sdk_0_3::SystemInfo::instance().timezone(), length);
+					appendStr(str, qutim_sdk_0_3::SystemInfo::getTimezone(), length);
 					break;
 				case L'z':{
-					int offset = qutim_sdk_0_3::SystemInfo::instance().timezoneOffset();
+					int offset = qutim_sdk_0_3::SystemInfo::getTimezoneOffset();
 					appendInt(str, (offset/60)*100 + offset%60, length > 0 ? length : 4);
 					break;}
 				default:

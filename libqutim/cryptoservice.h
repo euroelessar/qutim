@@ -8,6 +8,7 @@
 namespace qutim_sdk_0_3
 {
 	class ModuleManager;
+	class ExtensionInfo;
 
 	class LIBQUTIM_EXPORT CryptoService : public QObject
 	{
@@ -24,6 +25,7 @@ namespace qutim_sdk_0_3
 		virtual ~CryptoService();
 	private:
 	public:
+//		static void init(const QList<ExtensionInfo> &exts);
 		static QPointer<CryptoService> self;
 		friend class ModuleManager;
 	};
