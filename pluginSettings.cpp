@@ -13,35 +13,22 @@
  ***************************************************************************
 */
 
-#ifndef W7IWTASKBAR_H
-#define W7IWTASKBAR_H
+#include "pluginSettings.h"
 
-#include <shobjidl.h>
-
-#include "wIcon.h"
-
-class w7itaskbar
+w7isettings::w7isettings( QString profileName ) : m_profile_name( profileName )
 {
-public:
-	w7itaskbar();
-	~w7itaskbar();
+	ui.setupUi(this);
 
-	bool init();
-	void setHWND( HWND id, int type );
-	void tabAlert( TreeModelItem *item, bool state );
-	void setVisibleStatus( int type, bool status );
-	void registerTab( HWND id );
+	QSettings settings( QSettings::defaultFormat(), QSettings::UserScope, "qutim/qutim."+m_profile_name, "w7isettings" );
+	ui.showCLBox->setChecked( settings.value( "main/showcl", true ).toBool() );
+}
 
-private:
-	void setOverlayIcon( HWND wid, QString icon = QString() );
+w7isettings::~w7isettings()
+{
+}
 
-	ITaskbarList3 *m_taskBarList;
-
-	QHash<int, HWND> windowsId;
-	QHash<int, int> alerts;
-
-	QList<QString> activeAlerts;
-
-	int tabWindowType;
-};
-#endif
+void w7isettings::saveSettings()
+{
+	QSettings settings( QSettings::defaultFormat(), QSettings::UserScope, "qutim/qutim."+m_profile_name, "w7isettings" );
+	settings.setValue( "main/showcl", ui.showCLBox->isChecked() );
+}

@@ -25,6 +25,7 @@
 #include <qutim/plugininterface.h>
 using namespace qutim_sdk_0_2;
 
+#include "pluginSettings.h"
 #include "wTaskBar.h"
 #include "wIcon.h"
 
@@ -49,20 +50,27 @@ public:
 	virtual void removeSettingsWidget();
 
 private:
+	void loadSettings();
+
 	PluginSystemInterface *m_plugin_system;
 	QString m_profile_name;
 	QString m_account_name;
 	QIcon *m_icon;
+	
+	w7isettings *m_settings;
+	bool s_showcl;
 
-	qint16 m_event_tabbed_common_window_created,
-			m_event_tabbed_common_window_deleted,
-			m_event_tabbed_chats_window_created,
-			m_event_tabbed_chats_window_deleted,
-			m_event_tabbed_confs_window_created,
-			m_event_tabbed_confs_window_deleted,
+	qint16 event_layers_init,
+			event_tabbed_common_window_created,
+			event_tabbed_common_window_deleted,
+			event_tabbed_chats_window_created,
+			event_tabbed_chats_window_deleted,
+			event_tabbed_confs_window_created,
+			event_tabbed_confs_window_deleted,
 			event_tab_alert,
 			event_tab_activated_by_user,
-			event_tab_closed;
+			event_tab_closed,
+			event_cl_loaded;
 
 	HWND m_tabbed_common_window_id,
 			m_tabbed_chats_window_id,

@@ -20,10 +20,17 @@
 w7itaskbar::w7itaskbar()
 {
 	m_taskBarList = 0;
+
+	tabWindowType = 0;
 }
 
 w7itaskbar::~w7itaskbar()
 {
+	if ( !m_taskBarList )
+		return;
+
+	m_taskBarList->Release();
+	m_taskBarList = 0;
 }
 
 bool w7itaskbar::init()
@@ -84,9 +91,26 @@ void w7itaskbar::tabAlert( TreeModelItem *item, bool state )
 			alerts.insert( type, alerts.value( type, 0 )-1 );
 			activeAlerts.removeAll( iname );
 		}
-		if ( alerts.value( type, 0 ) <= 0 )
+		if ( alerts.value( type, 0 ) == 0 )
 			setOverlayIcon( windowsId.value( type, 0 ) );
 	}
+}
+
+void w7itaskbar::setVisibleStatus( int type, bool status )
+{
+	HWND id = windowsId.value( type, 0 );
+
+	if ( !m_taskBarList || id == 0 )
+		return;
+
+	if ( status )
+		m_taskBarList->AddTab( id );
+	else
+		m_taskBarList->DeleteTab( id );
+}
+
+void w7itaskbar::registerTab( HWND /* id */ )
+{
 }
 
 void w7itaskbar::setOverlayIcon( HWND wid, QString name )

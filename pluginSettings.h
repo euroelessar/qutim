@@ -13,35 +13,28 @@
  ***************************************************************************
 */
 
-#ifndef W7IWTASKBAR_H
-#define W7IWTASKBAR_H
+#ifndef W7IPLUGINSETTINGS_H
+#define W7IPLUGINSETTINGS_H
 
-#include <shobjidl.h>
+#include <QSettings>
 
-#include "wIcon.h"
+#include "ui_settings.h"
 
-class w7itaskbar
+class w7isettings  : public QWidget
 {
+	Q_OBJECT;
+
 public:
-	w7itaskbar();
-	~w7itaskbar();
+	w7isettings( QString profileName );
+	virtual ~w7isettings();
+	void saveSettings();
 
-	bool init();
-	void setHWND( HWND id, int type );
-	void tabAlert( TreeModelItem *item, bool state );
-	void setVisibleStatus( int type, bool status );
-	void registerTab( HWND id );
-
+//private slots:
+	
 private:
-	void setOverlayIcon( HWND wid, QString icon = QString() );
+	Ui::w7isettingsClass ui;
+	QString m_profile_name;
 
-	ITaskbarList3 *m_taskBarList;
-
-	QHash<int, HWND> windowsId;
-	QHash<int, int> alerts;
-
-	QList<QString> activeAlerts;
-
-	int tabWindowType;
 };
+
 #endif

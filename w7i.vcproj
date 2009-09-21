@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm200 -w34100 -w34189 -w34100 -w34189"
 				Optimization="4"
-				AdditionalIncludeDirectories=".;$(QTDIR)\include;\usr\include;$(QTDIR)\include\ActiveQt;.\debug;$(QTDIR)\mkspecs\win32-msvc2008;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(ConfigurationName)"
+				AdditionalIncludeDirectories=".;$(QTDIR)\include;\usr\include;$(QTDIR)\include\ActiveQt;.\debug;$(QTDIR)\mkspecs\win32-msvc2008;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(ConfigurationName);.\GeneratedFiles"
 				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_DLL,QT_PLUGIN,QT_THREAD_SUPPORT,QT_CORE_LIB,QT_GUI_LIB"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
@@ -139,7 +139,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm200 -w34100 -w34189 -w34100 -w34189"
 				Optimization="4"
-				AdditionalIncludeDirectories=".;$(QTDIR)\include;\usr\include;$(QTDIR)\include\ActiveQt;.\debug;$(QTDIR)\mkspecs\win32-msvc2008;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(ConfigurationName)"
+				AdditionalIncludeDirectories=".;$(QTDIR)\include;\usr\include;$(QTDIR)\include\ActiveQt;.\debug;$(QTDIR)\mkspecs\win32-msvc2008;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(ConfigurationName);.\GeneratedFiles"
 				PreprocessorDefinitions="_WINDOWS,QT_DLL,QT_LARGEFILE_SUPPORT,QT_PLUGIN,QT_THREAD_SUPPORT,UNICODE,WIN32,QT_CORE_LIB,QT_GUI_LIB"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
@@ -230,7 +230,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm200 -w34100 -w34189 -w34100 -w34189"
 				Optimization="2"
-				AdditionalIncludeDirectories=".;$(QTDIR)\include;\usr\include;$(QTDIR)\include\ActiveQt;.\release;$(QTDIR)\mkspecs\win32-msvc2008;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(ConfigurationName)"
+				AdditionalIncludeDirectories=".;$(QTDIR)\include;\usr\include;$(QTDIR)\include\ActiveQt;.\release;$(QTDIR)\mkspecs\win32-msvc2008;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(ConfigurationName);.\GeneratedFiles"
 				PreprocessorDefinitions="QT_NO_DEBUG,NDEBUG,_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_DLL,QT_NO_DEBUG,QT_PLUGIN,QT_THREAD_SUPPORT,NDEBUG,QT_CORE_LIB,QT_GUI_LIB"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
@@ -322,7 +322,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm200 -w34100 -w34189 -w34100 -w34189"
 				Optimization="2"
-				AdditionalIncludeDirectories="$(QTDIR)\include;\usr\include;$(QTDIR)\include\ActiveQt;.\release;$(QTDIR)\mkspecs\win32-msvc2008;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(ConfigurationName)"
+				AdditionalIncludeDirectories="$(QTDIR)\include;\usr\include;$(QTDIR)\include\ActiveQt;.\release;$(QTDIR)\mkspecs\win32-msvc2008;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(ConfigurationName);.\GeneratedFiles"
 				PreprocessorDefinitions="_WINDOWS,NDEBUG,NDEBUG,QT_DLL,QT_LARGEFILE_SUPPORT,QT_NO_DEBUG,QT_NO_DEBUG,QT_PLUGIN,QT_THREAD_SUPPORT,UNICODE,WIN32,QT_CORE_LIB,QT_GUI_LIB"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
@@ -398,6 +398,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pluginSettings.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\wIcon.cpp"
 				>
 			</File>
@@ -420,7 +424,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot; -I$(include)  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_PLUGIN -DQT_THREAD_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB -D_WINDLL  -I&quot;.\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;\usr\include\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\debug\.&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2008\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(ConfigurationName)\.&quot; &quot;pluginLayer.h&quot; -o &quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot; -I$(include)  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_PLUGIN -DQT_THREAD_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB -D_WINDLL  -I&quot;.\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;\usr\include\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\debug\.&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2008\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(ConfigurationName)\.&quot; -I&quot;.\GeneratedFiles\.&quot; &quot;pluginLayer.h&quot; -o &quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -431,7 +435,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot; -I$(include)  -D_WINDOWS -DQT_DLL -DQT_LARGEFILE_SUPPORT -DQT_PLUGIN -DQT_THREAD_SUPPORT -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -D_WINDLL  -I&quot;.\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;\usr\include\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\debug\.&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2008\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(ConfigurationName)\.&quot; &quot;pluginLayer.h&quot; -o &quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot; -I$(include)  -D_WINDOWS -DQT_DLL -DQT_LARGEFILE_SUPPORT -DQT_PLUGIN -DQT_THREAD_SUPPORT -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -D_WINDLL  -I&quot;.\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;\usr\include\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\debug\.&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2008\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(ConfigurationName)\.&quot; -I&quot;.\GeneratedFiles\.&quot; &quot;pluginLayer.h&quot; -o &quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -442,7 +446,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot; -I$(include)  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_PLUGIN -DQT_THREAD_SUPPORT -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -D_WINDLL  -I&quot;.\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;\usr\include\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\release\.&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2008\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(ConfigurationName)\.&quot; &quot;pluginLayer.h&quot; -o &quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot; -I$(include)  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_PLUGIN -DQT_THREAD_SUPPORT -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -D_WINDLL  -I&quot;.\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;\usr\include\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\release\.&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2008\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(ConfigurationName)\.&quot; -I&quot;.\GeneratedFiles\.&quot; &quot;pluginLayer.h&quot; -o &quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -453,7 +457,55 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot; -I$(include)  -D_WINDOWS -DNDEBUG -DNDEBUG -DQT_DLL -DQT_LARGEFILE_SUPPORT -DQT_NO_DEBUG -DQT_NO_DEBUG -DQT_PLUGIN -DQT_THREAD_SUPPORT -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -D_WINDLL  -I&quot;$(QTDIR)\include\.&quot; -I&quot;\usr\include\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\release\.&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2008\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(ConfigurationName)\.&quot; &quot;pluginLayer.h&quot; -o &quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot; -I$(include)  -D_WINDOWS -DNDEBUG -DNDEBUG -DQT_DLL -DQT_LARGEFILE_SUPPORT -DQT_NO_DEBUG -DQT_NO_DEBUG -DQT_PLUGIN -DQT_THREAD_SUPPORT -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -D_WINDLL  -I&quot;$(QTDIR)\include\.&quot; -I&quot;\usr\include\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\release\.&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2008\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(ConfigurationName)\.&quot; -I&quot;.\GeneratedFiles\.&quot; &quot;pluginLayer.h&quot; -o &quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
+						Outputs="&quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\pluginSettings.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot; -I$(include)  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_PLUGIN -DQT_THREAD_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB -D_WINDLL  -I&quot;.\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;\usr\include\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\debug\.&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2008\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(ConfigurationName)\.&quot; -I&quot;.\GeneratedFiles\.&quot; &quot;.\pluginSettings.h&quot; -o &quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
+						Outputs="&quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot; -I$(include)  -D_WINDOWS -DQT_DLL -DQT_LARGEFILE_SUPPORT -DQT_PLUGIN -DQT_THREAD_SUPPORT -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -D_WINDLL  -I&quot;.\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;\usr\include\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\debug\.&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2008\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(ConfigurationName)\.&quot; -I&quot;.\GeneratedFiles\.&quot; &quot;.\pluginSettings.h&quot; -o &quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
+						Outputs="&quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot; -I$(include)  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_PLUGIN -DQT_THREAD_SUPPORT -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -D_WINDLL  -I&quot;.\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;\usr\include\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\release\.&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2008\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(ConfigurationName)\.&quot; -I&quot;.\GeneratedFiles\.&quot; &quot;.\pluginSettings.h&quot; -o &quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
+						Outputs="&quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot; -I$(include)  -D_WINDOWS -DNDEBUG -DNDEBUG -DQT_DLL -DQT_LARGEFILE_SUPPORT -DQT_NO_DEBUG -DQT_NO_DEBUG -DQT_PLUGIN -DQT_THREAD_SUPPORT -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -D_WINDLL  -I&quot;$(QTDIR)\include\.&quot; -I&quot;\usr\include\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\release\.&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2008\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(ConfigurationName)\.&quot; -I&quot;.\GeneratedFiles\.&quot; &quot;.\pluginSettings.h&quot; -o &quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -518,6 +570,40 @@
 			UniqueIdentifier="{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}"
 			>
 			<File
+				RelativePath=".\Debug\moc_pluginLayer.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\Release\moc_pluginLayer.cpp"
 				>
 				<FileConfiguration
@@ -552,7 +638,41 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Debug\moc_pluginLayer.cpp"
+				RelativePath=".\Release\moc_pluginSettings.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\Debug\moc_pluginSettings.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -585,12 +705,161 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\GeneratedFiles\qrc_w7i.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\GeneratedFiles\ui_settings.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Form Files"
+			Filter="ui"
+			UniqueIdentifier="{99349809-55BA-4b9d-BF79-8FDBB0286EB3}"
+			>
+			<File
+				RelativePath=".\settings.ui"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Uic&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\uic.exe&quot; -o &quot;.\GeneratedFiles\ui_$(InputName).h&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe"
+						Outputs="&quot;.\GeneratedFiles\ui_$(InputName).h&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Uic&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\uic.exe&quot; -o &quot;.\GeneratedFiles\ui_$(InputName).h&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe"
+						Outputs="&quot;.\GeneratedFiles\ui_$(InputName).h&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Uic&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\uic.exe&quot; -o &quot;.\GeneratedFiles\ui_$(InputName).h&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe"
+						Outputs="&quot;.\GeneratedFiles\ui_$(InputName).h&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Uic&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\uic.exe&quot; -o &quot;.\GeneratedFiles\ui_$(InputName).h&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe"
+						Outputs="&quot;.\GeneratedFiles\ui_$(InputName).h&quot;"
+					/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="qrc;*"
+			UniqueIdentifier="{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}"
+			ParseFiles="false"
+			>
+			<File
+				RelativePath=".\w7i.qrc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Rcc&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\rcc.exe&quot; -name &quot;$(InputName)&quot; -no-compress &quot;$(InputPath)&quot; -o .\GeneratedFiles\qrc_$(InputName).cpp&#x0D;&#x0A;"
+						AdditionalDependencies="$(InputPath);.\icons\away.png;.\icons\chat.png;.\icons\chatty.png;.\icons\clients\bombusng.png;.\icons\clients\talkonaut.png;.\icons\clients\qipinf.png;.\icons\clients\bombusp.png;.\icons\clients\mcabber.png;.\icons\clients\tkabber.png;.\icons\clients\bitlbee.png;.\icons\clients\kopete.png;.\icons\clients\sim.png;.\icons\clients\miranda.png;.\icons\clients\apple.png;.\icons\clients\pidgin.png;.\icons\clients\bombus.png;.\icons\clients\mchat.png;.\icons\clients\unknown.png;.\icons\clients\implus.png;.\icons\clients\psi.png;.\icons\clients\google.png;.\icons\clients\colibry.png;.\icons\clients\siejc.png;.\icons\clients\centerim.png;.\icons\clients\jabbim.png;.\icons\clients\jajc.png;.\icons\clients\yachat.png;.\icons\clients\qutim.png;.\icons\clients\gajim.png;.\icons\clients\bombuspl.png;.\icons\clients\coccinella.png;.\icons\clients\hi16-apps-kopete.png;.\icons\clients\exodus.png;.\icons\clients\bombusmod.png;.\icons\connecting.png;.\icons\dnd.png;.\icons\invisible.png;.\icons\core\moods\tired.png;.\icons\core\moods\thankful.png;.\icons\core\moods\guilty.png;.\icons\core\moods\sleepy.png;.\icons\core\moods\worried.png;.\icons\core\moods\cautious.png;.\icons\core\moods\invincible.png;.\icons\core\moods\humbled.png;.\icons\core\moods\strong.png;.\icons\core\moods\jealous.png;.\icons\core\moods\proud.png;.\icons\core\moods\disappointed.png;.\icons\core\moods\outraged.png;.\icons\core\moods\lost.png;.\icons\core\moods\distracted.png;.\icons\core\moods\sad.png;.\icons\core\moods\frustrated.png;.\icons\core\moods\weak.png;.\icons\core\moods\dismayed.png;.\icons\core\moods\mean.png;.\icons\core\moods\afraid.png;.\icons\core\moods\contemplative.png;.\icons\core\moods\satisfied.png;.\icons\core\moods\offended.png;.\icons\core\moods\ashamed.png;.\icons\core\moods\grieving.png;.\icons\core\moods\lucky.png;.\icons\core\moods\bored.png;.\icons\core\moods\sarcastic.png;.\icons\core\moods\neutral.png;.\icons\core\moods\remorseful.png;.\icons\core\moods\amazed.png;.\icons\core\moods\crazy.png;.\icons\core\moods\dejected.png;.\icons\core\moods\creative.png;.\icons\core\moods\hungry.png;.\icons\core\moods\annoyed.png;.\icons\core\moods\embarrassed.png;.\icons\core\moods\relieved.png;.\icons\core\moods\indignant.png;.\icons\core\moods\cold.png;.\icons\core\moods\spontaneous.png;.\icons\core\moods\playful.png;.\icons\core\moods\confused.png;.\icons\core\moods\contented.png;.\icons\core\moods\excited.png;.\icons\core\moods\in_love.png;.\icons\core\moods\moody.png;.\icons\core\moods\envious.png;.\icons\core\moods\anxious.png;.\icons\core\moods\sick.png;.\icons\core\moods\cranky.png;.\icons\core\moods\amorous.png;.\icons\core\moods\hot.png;.\icons\core\moods\interested.png;.\icons\core\moods\undefined.png;.\icons\core\moods\confident.png;.\icons\core\moods\relaxed.png;.\icons\core\moods\brave.png;.\icons\core\moods\serious.png;.\icons\core\moods\grumpy.png;.\icons\core\moods\shy.png;.\icons\core\moods\stressed.png;.\icons\core\moods\nervous.png;.\icons\core\moods\hopeful.png;.\icons\core\moods\calm.png;.\icons\core\moods\in_awe.png;.\icons\core\moods\aroused.png;.\icons\core\moods\hurt.png;.\icons\core\moods\surprised.png;.\icons\core\moods\curious.png;.\icons\core\moods\lonely.png;.\icons\core\moods\grateful.png;.\icons\core\moods\disgusted.png;.\icons\core\moods\restless.png;.\icons\core\moods\thirsty.png;.\icons\core\moods\happy.png;.\icons\core\moods\humiliated.png;.\icons\core\moods\intoxicated.png;.\icons\core\moods\shocked.png;.\icons\core\moods\impressed.png;.\icons\core\moods\angry.png;.\icons\core\moods\flirtatious.png;.\icons\core\moods\depressed.png;.\icons\core\activity\working\in_a_meeting.png;.\icons\core\activity\working\writing.png;.\icons\core\activity\working\studying.png;.\icons\core\activity\working\coding.png;.\icons\core\activity\working\category.png;.\icons\core\activity\inactive\hiding.png;.\icons\core\activity\inactive\scheduled_holiday.png;.\icons\core\activity\inactive\hanging_out.png;.\icons\core\activity\inactive\thinking.png;.\icons\core\activity\inactive\sleeping.png;.\icons\core\activity\inactive\praying.png;.\icons\core\activity\inactive\category.png;.\icons\core\activity\inactive\day_off.png;.\icons\core\activity\inactive\on_vacation.png;.\icons\core\activity\talking\on_video_phone.png;.\icons\core\activity\talking\in_real_life.png;.\icons\core\activity\talking\on_the_phone.png;.\icons\core\activity\talking\category.png;.\icons\core\activity\grooming\brushing_teeth.png;.\icons\core\activity\grooming\getting_a_haircut.png;.\icons\core\activity\grooming\taking_a_shower.png;.\icons\core\activity\grooming\at_the_spa.png;.\icons\core\activity\grooming\category.png;.\icons\core\activity\grooming\shaving.png;.\icons\core\activity\grooming\taking_a_bath.png;.\icons\core\activity\exercising\hiking.png;.\icons\core\activity\exercising\running.png;.\icons\core\activity\exercising\swimming.png;.\icons\core\activity\exercising\playing_sports.png;.\icons\core\activity\exercising\skiing.png;.\icons\core\activity\exercising\cycling.png;.\icons\core\activity\exercising\working_out.png;.\icons\core\activity\exercising\jogging.png;.\icons\core\activity\exercising\category.png;.\icons\core\activity\exercising\dancing.png;.\icons\core\activity\doing_chores\buying_groceries.png;.\icons\core\activity\doing_chores\doing_maintenance.png;.\icons\core\activity\doing_chores\cooking.png;.\icons\core\activity\doing_chores\running_an_errand.png;.\icons\core\activity\doing_chores\gardening.png;.\icons\core\activity\doing_chores\walking_the_dog.png;.\icons\core\activity\doing_chores\cleaning.png;.\icons\core\activity\doing_chores\doing_the_laundry.png;.\icons\core\activity\doing_chores\category.png;.\icons\core\activity\doing_chores\doing_the_dishes.png;.\icons\core\activity\unknown\category.png;.\icons\core\activity\having_appointment\category.png;.\icons\core\activity\drinking\having_tea.png;.\icons\core\activity\drinking\having_a_beer.png;.\icons\core\activity\drinking\having_coffee.png;.\icons\core\activity\drinking\category.png;.\icons\core\activity\relaxing\going_out.png;.\icons\core\activity\relaxing\smoking.png;.\icons\core\activity\relaxing\watching_tv.png;.\icons\core\activity\relaxing\socializing.png;.\icons\core\activity\relaxing\watching_a_movie.png;.\icons\core\activity\relaxing\fishing.png;.\icons\core\activity\relaxing\shopping.png;.\icons\core\activity\relaxing\gaming.png;.\icons\core\activity\relaxing\sunbathing.png;.\icons\core\activity\relaxing\reading.png;.\icons\core\activity\relaxing\partying.png;.\icons\core\activity\relaxing\category.png;.\icons\core\activity\relaxing\rehearsing.png;.\icons\core\activity\traveling\walking.png;.\icons\core\activity\traveling\on_a_bus.png;.\icons\core\activity\traveling\on_a_plane.png;.\icons\core\activity\traveling\on_a_train.png;.\icons\core\activity\traveling\on_a_trip.png;.\icons\core\activity\traveling\in_a_car.png;.\icons\core\activity\traveling\cycling.png;.\icons\core\activity\traveling\driving.png;.\icons\core\activity\traveling\commuting.png;.\icons\core\activity\traveling\category.png;.\icons\core\activity\eating\having_dinner.png;.\icons\core\activity\eating\having_lunch.png;.\icons\core\activity\eating\having_breakfast.png;.\icons\core\activity\eating\having_a_snack.png;.\icons\core\activity\eating\category.png;.\icons\offline.png;.\icons\online.png;.\icons\protocol.png;.\icons\unknown.png;.\icons\xa.png;.\icons\clients\mirandahotcoffee.png;.\icons\clients\jabber.el.png"
+						Outputs=".\GeneratedFiles\qrc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Rcc&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\rcc.exe&quot; -name &quot;$(InputName)&quot; -no-compress &quot;$(InputPath)&quot; -o .\GeneratedFiles\qrc_$(InputName).cpp&#x0D;&#x0A;"
+						AdditionalDependencies="$(InputPath);.\icons\away.png;.\icons\chat.png;.\icons\chatty.png;.\icons\clients\bombusng.png;.\icons\clients\talkonaut.png;.\icons\clients\qipinf.png;.\icons\clients\bombusp.png;.\icons\clients\mcabber.png;.\icons\clients\tkabber.png;.\icons\clients\bitlbee.png;.\icons\clients\kopete.png;.\icons\clients\sim.png;.\icons\clients\miranda.png;.\icons\clients\apple.png;.\icons\clients\pidgin.png;.\icons\clients\bombus.png;.\icons\clients\mchat.png;.\icons\clients\unknown.png;.\icons\clients\implus.png;.\icons\clients\psi.png;.\icons\clients\google.png;.\icons\clients\colibry.png;.\icons\clients\siejc.png;.\icons\clients\centerim.png;.\icons\clients\jabbim.png;.\icons\clients\jajc.png;.\icons\clients\yachat.png;.\icons\clients\qutim.png;.\icons\clients\gajim.png;.\icons\clients\bombuspl.png;.\icons\clients\coccinella.png;.\icons\clients\hi16-apps-kopete.png;.\icons\clients\exodus.png;.\icons\clients\bombusmod.png;.\icons\connecting.png;.\icons\dnd.png;.\icons\invisible.png;.\icons\core\moods\tired.png;.\icons\core\moods\thankful.png;.\icons\core\moods\guilty.png;.\icons\core\moods\sleepy.png;.\icons\core\moods\worried.png;.\icons\core\moods\cautious.png;.\icons\core\moods\invincible.png;.\icons\core\moods\humbled.png;.\icons\core\moods\strong.png;.\icons\core\moods\jealous.png;.\icons\core\moods\proud.png;.\icons\core\moods\disappointed.png;.\icons\core\moods\outraged.png;.\icons\core\moods\lost.png;.\icons\core\moods\distracted.png;.\icons\core\moods\sad.png;.\icons\core\moods\frustrated.png;.\icons\core\moods\weak.png;.\icons\core\moods\dismayed.png;.\icons\core\moods\mean.png;.\icons\core\moods\afraid.png;.\icons\core\moods\contemplative.png;.\icons\core\moods\satisfied.png;.\icons\core\moods\offended.png;.\icons\core\moods\ashamed.png;.\icons\core\moods\grieving.png;.\icons\core\moods\lucky.png;.\icons\core\moods\bored.png;.\icons\core\moods\sarcastic.png;.\icons\core\moods\neutral.png;.\icons\core\moods\remorseful.png;.\icons\core\moods\amazed.png;.\icons\core\moods\crazy.png;.\icons\core\moods\dejected.png;.\icons\core\moods\creative.png;.\icons\core\moods\hungry.png;.\icons\core\moods\annoyed.png;.\icons\core\moods\embarrassed.png;.\icons\core\moods\relieved.png;.\icons\core\moods\indignant.png;.\icons\core\moods\cold.png;.\icons\core\moods\spontaneous.png;.\icons\core\moods\playful.png;.\icons\core\moods\confused.png;.\icons\core\moods\contented.png;.\icons\core\moods\excited.png;.\icons\core\moods\in_love.png;.\icons\core\moods\moody.png;.\icons\core\moods\envious.png;.\icons\core\moods\anxious.png;.\icons\core\moods\sick.png;.\icons\core\moods\cranky.png;.\icons\core\moods\amorous.png;.\icons\core\moods\hot.png;.\icons\core\moods\interested.png;.\icons\core\moods\undefined.png;.\icons\core\moods\confident.png;.\icons\core\moods\relaxed.png;.\icons\core\moods\brave.png;.\icons\core\moods\serious.png;.\icons\core\moods\grumpy.png;.\icons\core\moods\shy.png;.\icons\core\moods\stressed.png;.\icons\core\moods\nervous.png;.\icons\core\moods\hopeful.png;.\icons\core\moods\calm.png;.\icons\core\moods\in_awe.png;.\icons\core\moods\aroused.png;.\icons\core\moods\hurt.png;.\icons\core\moods\surprised.png;.\icons\core\moods\curious.png;.\icons\core\moods\lonely.png;.\icons\core\moods\grateful.png;.\icons\core\moods\disgusted.png;.\icons\core\moods\restless.png;.\icons\core\moods\thirsty.png;.\icons\core\moods\happy.png;.\icons\core\moods\humiliated.png;.\icons\core\moods\intoxicated.png;.\icons\core\moods\shocked.png;.\icons\core\moods\impressed.png;.\icons\core\moods\angry.png;.\icons\core\moods\flirtatious.png;.\icons\core\moods\depressed.png;.\icons\core\activity\working\in_a_meeting.png;.\icons\core\activity\working\writing.png;.\icons\core\activity\working\studying.png;.\icons\core\activity\working\coding.png;.\icons\core\activity\working\category.png;.\icons\core\activity\inactive\hiding.png;.\icons\core\activity\inactive\scheduled_holiday.png;.\icons\core\activity\inactive\hanging_out.png;.\icons\core\activity\inactive\thinking.png;.\icons\core\activity\inactive\sleeping.png;.\icons\core\activity\inactive\praying.png;.\icons\core\activity\inactive\category.png;.\icons\core\activity\inactive\day_off.png;.\icons\core\activity\inactive\on_vacation.png;.\icons\core\activity\talking\on_video_phone.png;.\icons\core\activity\talking\in_real_life.png;.\icons\core\activity\talking\on_the_phone.png;.\icons\core\activity\talking\category.png;.\icons\core\activity\grooming\brushing_teeth.png;.\icons\core\activity\grooming\getting_a_haircut.png;.\icons\core\activity\grooming\taking_a_shower.png;.\icons\core\activity\grooming\at_the_spa.png;.\icons\core\activity\grooming\category.png;.\icons\core\activity\grooming\shaving.png;.\icons\core\activity\grooming\taking_a_bath.png;.\icons\core\activity\exercising\hiking.png;.\icons\core\activity\exercising\running.png;.\icons\core\activity\exercising\swimming.png;.\icons\core\activity\exercising\playing_sports.png;.\icons\core\activity\exercising\skiing.png;.\icons\core\activity\exercising\cycling.png;.\icons\core\activity\exercising\working_out.png;.\icons\core\activity\exercising\jogging.png;.\icons\core\activity\exercising\category.png;.\icons\core\activity\exercising\dancing.png;.\icons\core\activity\doing_chores\buying_groceries.png;.\icons\core\activity\doing_chores\doing_maintenance.png;.\icons\core\activity\doing_chores\cooking.png;.\icons\core\activity\doing_chores\running_an_errand.png;.\icons\core\activity\doing_chores\gardening.png;.\icons\core\activity\doing_chores\walking_the_dog.png;.\icons\core\activity\doing_chores\cleaning.png;.\icons\core\activity\doing_chores\doing_the_laundry.png;.\icons\core\activity\doing_chores\category.png;.\icons\core\activity\doing_chores\doing_the_dishes.png;.\icons\core\activity\unknown\category.png;.\icons\core\activity\having_appointment\category.png;.\icons\core\activity\drinking\having_tea.png;.\icons\core\activity\drinking\having_a_beer.png;.\icons\core\activity\drinking\having_coffee.png;.\icons\core\activity\drinking\category.png;.\icons\core\activity\relaxing\going_out.png;.\icons\core\activity\relaxing\smoking.png;.\icons\core\activity\relaxing\watching_tv.png;.\icons\core\activity\relaxing\socializing.png;.\icons\core\activity\relaxing\watching_a_movie.png;.\icons\core\activity\relaxing\fishing.png;.\icons\core\activity\relaxing\shopping.png;.\icons\core\activity\relaxing\gaming.png;.\icons\core\activity\relaxing\sunbathing.png;.\icons\core\activity\relaxing\reading.png;.\icons\core\activity\relaxing\partying.png;.\icons\core\activity\relaxing\category.png;.\icons\core\activity\relaxing\rehearsing.png;.\icons\core\activity\traveling\walking.png;.\icons\core\activity\traveling\on_a_bus.png;.\icons\core\activity\traveling\on_a_plane.png;.\icons\core\activity\traveling\on_a_train.png;.\icons\core\activity\traveling\on_a_trip.png;.\icons\core\activity\traveling\in_a_car.png;.\icons\core\activity\traveling\cycling.png;.\icons\core\activity\traveling\driving.png;.\icons\core\activity\traveling\commuting.png;.\icons\core\activity\traveling\category.png;.\icons\core\activity\eating\having_dinner.png;.\icons\core\activity\eating\having_lunch.png;.\icons\core\activity\eating\having_breakfast.png;.\icons\core\activity\eating\having_a_snack.png;.\icons\core\activity\eating\category.png;.\icons\offline.png;.\icons\online.png;.\icons\protocol.png;.\icons\unknown.png;.\icons\xa.png;.\icons\clients\mirandahotcoffee.png;.\icons\clients\jabber.el.png"
+						Outputs=".\GeneratedFiles\qrc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Rcc&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\rcc.exe&quot; -name &quot;$(InputName)&quot; -no-compress &quot;$(InputPath)&quot; -o .\GeneratedFiles\qrc_$(InputName).cpp&#x0D;&#x0A;"
+						AdditionalDependencies="$(InputPath);.\icons\away.png;.\icons\chat.png;.\icons\chatty.png;.\icons\clients\bombusng.png;.\icons\clients\talkonaut.png;.\icons\clients\qipinf.png;.\icons\clients\bombusp.png;.\icons\clients\mcabber.png;.\icons\clients\tkabber.png;.\icons\clients\bitlbee.png;.\icons\clients\kopete.png;.\icons\clients\sim.png;.\icons\clients\miranda.png;.\icons\clients\apple.png;.\icons\clients\pidgin.png;.\icons\clients\bombus.png;.\icons\clients\mchat.png;.\icons\clients\unknown.png;.\icons\clients\implus.png;.\icons\clients\psi.png;.\icons\clients\google.png;.\icons\clients\colibry.png;.\icons\clients\siejc.png;.\icons\clients\centerim.png;.\icons\clients\jabbim.png;.\icons\clients\jajc.png;.\icons\clients\yachat.png;.\icons\clients\qutim.png;.\icons\clients\gajim.png;.\icons\clients\bombuspl.png;.\icons\clients\coccinella.png;.\icons\clients\hi16-apps-kopete.png;.\icons\clients\exodus.png;.\icons\clients\bombusmod.png;.\icons\connecting.png;.\icons\dnd.png;.\icons\invisible.png;.\icons\core\moods\tired.png;.\icons\core\moods\thankful.png;.\icons\core\moods\guilty.png;.\icons\core\moods\sleepy.png;.\icons\core\moods\worried.png;.\icons\core\moods\cautious.png;.\icons\core\moods\invincible.png;.\icons\core\moods\humbled.png;.\icons\core\moods\strong.png;.\icons\core\moods\jealous.png;.\icons\core\moods\proud.png;.\icons\core\moods\disappointed.png;.\icons\core\moods\outraged.png;.\icons\core\moods\lost.png;.\icons\core\moods\distracted.png;.\icons\core\moods\sad.png;.\icons\core\moods\frustrated.png;.\icons\core\moods\weak.png;.\icons\core\moods\dismayed.png;.\icons\core\moods\mean.png;.\icons\core\moods\afraid.png;.\icons\core\moods\contemplative.png;.\icons\core\moods\satisfied.png;.\icons\core\moods\offended.png;.\icons\core\moods\ashamed.png;.\icons\core\moods\grieving.png;.\icons\core\moods\lucky.png;.\icons\core\moods\bored.png;.\icons\core\moods\sarcastic.png;.\icons\core\moods\neutral.png;.\icons\core\moods\remorseful.png;.\icons\core\moods\amazed.png;.\icons\core\moods\crazy.png;.\icons\core\moods\dejected.png;.\icons\core\moods\creative.png;.\icons\core\moods\hungry.png;.\icons\core\moods\annoyed.png;.\icons\core\moods\embarrassed.png;.\icons\core\moods\relieved.png;.\icons\core\moods\indignant.png;.\icons\core\moods\cold.png;.\icons\core\moods\spontaneous.png;.\icons\core\moods\playful.png;.\icons\core\moods\confused.png;.\icons\core\moods\contented.png;.\icons\core\moods\excited.png;.\icons\core\moods\in_love.png;.\icons\core\moods\moody.png;.\icons\core\moods\envious.png;.\icons\core\moods\anxious.png;.\icons\core\moods\sick.png;.\icons\core\moods\cranky.png;.\icons\core\moods\amorous.png;.\icons\core\moods\hot.png;.\icons\core\moods\interested.png;.\icons\core\moods\undefined.png;.\icons\core\moods\confident.png;.\icons\core\moods\relaxed.png;.\icons\core\moods\brave.png;.\icons\core\moods\serious.png;.\icons\core\moods\grumpy.png;.\icons\core\moods\shy.png;.\icons\core\moods\stressed.png;.\icons\core\moods\nervous.png;.\icons\core\moods\hopeful.png;.\icons\core\moods\calm.png;.\icons\core\moods\in_awe.png;.\icons\core\moods\aroused.png;.\icons\core\moods\hurt.png;.\icons\core\moods\surprised.png;.\icons\core\moods\curious.png;.\icons\core\moods\lonely.png;.\icons\core\moods\grateful.png;.\icons\core\moods\disgusted.png;.\icons\core\moods\restless.png;.\icons\core\moods\thirsty.png;.\icons\core\moods\happy.png;.\icons\core\moods\humiliated.png;.\icons\core\moods\intoxicated.png;.\icons\core\moods\shocked.png;.\icons\core\moods\impressed.png;.\icons\core\moods\angry.png;.\icons\core\moods\flirtatious.png;.\icons\core\moods\depressed.png;.\icons\core\activity\working\in_a_meeting.png;.\icons\core\activity\working\writing.png;.\icons\core\activity\working\studying.png;.\icons\core\activity\working\coding.png;.\icons\core\activity\working\category.png;.\icons\core\activity\inactive\hiding.png;.\icons\core\activity\inactive\scheduled_holiday.png;.\icons\core\activity\inactive\hanging_out.png;.\icons\core\activity\inactive\thinking.png;.\icons\core\activity\inactive\sleeping.png;.\icons\core\activity\inactive\praying.png;.\icons\core\activity\inactive\category.png;.\icons\core\activity\inactive\day_off.png;.\icons\core\activity\inactive\on_vacation.png;.\icons\core\activity\talking\on_video_phone.png;.\icons\core\activity\talking\in_real_life.png;.\icons\core\activity\talking\on_the_phone.png;.\icons\core\activity\talking\category.png;.\icons\core\activity\grooming\brushing_teeth.png;.\icons\core\activity\grooming\getting_a_haircut.png;.\icons\core\activity\grooming\taking_a_shower.png;.\icons\core\activity\grooming\at_the_spa.png;.\icons\core\activity\grooming\category.png;.\icons\core\activity\grooming\shaving.png;.\icons\core\activity\grooming\taking_a_bath.png;.\icons\core\activity\exercising\hiking.png;.\icons\core\activity\exercising\running.png;.\icons\core\activity\exercising\swimming.png;.\icons\core\activity\exercising\playing_sports.png;.\icons\core\activity\exercising\skiing.png;.\icons\core\activity\exercising\cycling.png;.\icons\core\activity\exercising\working_out.png;.\icons\core\activity\exercising\jogging.png;.\icons\core\activity\exercising\category.png;.\icons\core\activity\exercising\dancing.png;.\icons\core\activity\doing_chores\buying_groceries.png;.\icons\core\activity\doing_chores\doing_maintenance.png;.\icons\core\activity\doing_chores\cooking.png;.\icons\core\activity\doing_chores\running_an_errand.png;.\icons\core\activity\doing_chores\gardening.png;.\icons\core\activity\doing_chores\walking_the_dog.png;.\icons\core\activity\doing_chores\cleaning.png;.\icons\core\activity\doing_chores\doing_the_laundry.png;.\icons\core\activity\doing_chores\category.png;.\icons\core\activity\doing_chores\doing_the_dishes.png;.\icons\core\activity\unknown\category.png;.\icons\core\activity\having_appointment\category.png;.\icons\core\activity\drinking\having_tea.png;.\icons\core\activity\drinking\having_a_beer.png;.\icons\core\activity\drinking\having_coffee.png;.\icons\core\activity\drinking\category.png;.\icons\core\activity\relaxing\going_out.png;.\icons\core\activity\relaxing\smoking.png;.\icons\core\activity\relaxing\watching_tv.png;.\icons\core\activity\relaxing\socializing.png;.\icons\core\activity\relaxing\watching_a_movie.png;.\icons\core\activity\relaxing\fishing.png;.\icons\core\activity\relaxing\shopping.png;.\icons\core\activity\relaxing\gaming.png;.\icons\core\activity\relaxing\sunbathing.png;.\icons\core\activity\relaxing\reading.png;.\icons\core\activity\relaxing\partying.png;.\icons\core\activity\relaxing\category.png;.\icons\core\activity\relaxing\rehearsing.png;.\icons\core\activity\traveling\walking.png;.\icons\core\activity\traveling\on_a_bus.png;.\icons\core\activity\traveling\on_a_plane.png;.\icons\core\activity\traveling\on_a_train.png;.\icons\core\activity\traveling\on_a_trip.png;.\icons\core\activity\traveling\in_a_car.png;.\icons\core\activity\traveling\cycling.png;.\icons\core\activity\traveling\driving.png;.\icons\core\activity\traveling\commuting.png;.\icons\core\activity\traveling\category.png;.\icons\core\activity\eating\having_dinner.png;.\icons\core\activity\eating\having_lunch.png;.\icons\core\activity\eating\having_breakfast.png;.\icons\core\activity\eating\having_a_snack.png;.\icons\core\activity\eating\category.png;.\icons\offline.png;.\icons\online.png;.\icons\protocol.png;.\icons\unknown.png;.\icons\xa.png;.\icons\clients\mirandahotcoffee.png;.\icons\clients\jabber.el.png"
+						Outputs=".\GeneratedFiles\qrc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Rcc&apos;ing $(InputFileName)..."
+						CommandLine="&quot;$(QTDIR)\bin\rcc.exe&quot; -name &quot;$(InputName)&quot; -no-compress &quot;$(InputPath)&quot; -o .\GeneratedFiles\qrc_$(InputName).cpp&#x0D;&#x0A;"
+						AdditionalDependencies="$(InputPath);.\icons\away.png;.\icons\chat.png;.\icons\chatty.png;.\icons\clients\bombusng.png;.\icons\clients\talkonaut.png;.\icons\clients\qipinf.png;.\icons\clients\bombusp.png;.\icons\clients\mcabber.png;.\icons\clients\tkabber.png;.\icons\clients\bitlbee.png;.\icons\clients\kopete.png;.\icons\clients\sim.png;.\icons\clients\miranda.png;.\icons\clients\apple.png;.\icons\clients\pidgin.png;.\icons\clients\bombus.png;.\icons\clients\mchat.png;.\icons\clients\unknown.png;.\icons\clients\implus.png;.\icons\clients\psi.png;.\icons\clients\google.png;.\icons\clients\colibry.png;.\icons\clients\siejc.png;.\icons\clients\centerim.png;.\icons\clients\jabbim.png;.\icons\clients\jajc.png;.\icons\clients\yachat.png;.\icons\clients\qutim.png;.\icons\clients\gajim.png;.\icons\clients\bombuspl.png;.\icons\clients\coccinella.png;.\icons\clients\hi16-apps-kopete.png;.\icons\clients\exodus.png;.\icons\clients\bombusmod.png;.\icons\connecting.png;.\icons\dnd.png;.\icons\invisible.png;.\icons\core\moods\tired.png;.\icons\core\moods\thankful.png;.\icons\core\moods\guilty.png;.\icons\core\moods\sleepy.png;.\icons\core\moods\worried.png;.\icons\core\moods\cautious.png;.\icons\core\moods\invincible.png;.\icons\core\moods\humbled.png;.\icons\core\moods\strong.png;.\icons\core\moods\jealous.png;.\icons\core\moods\proud.png;.\icons\core\moods\disappointed.png;.\icons\core\moods\outraged.png;.\icons\core\moods\lost.png;.\icons\core\moods\distracted.png;.\icons\core\moods\sad.png;.\icons\core\moods\frustrated.png;.\icons\core\moods\weak.png;.\icons\core\moods\dismayed.png;.\icons\core\moods\mean.png;.\icons\core\moods\afraid.png;.\icons\core\moods\contemplative.png;.\icons\core\moods\satisfied.png;.\icons\core\moods\offended.png;.\icons\core\moods\ashamed.png;.\icons\core\moods\grieving.png;.\icons\core\moods\lucky.png;.\icons\core\moods\bored.png;.\icons\core\moods\sarcastic.png;.\icons\core\moods\neutral.png;.\icons\core\moods\remorseful.png;.\icons\core\moods\amazed.png;.\icons\core\moods\crazy.png;.\icons\core\moods\dejected.png;.\icons\core\moods\creative.png;.\icons\core\moods\hungry.png;.\icons\core\moods\annoyed.png;.\icons\core\moods\embarrassed.png;.\icons\core\moods\relieved.png;.\icons\core\moods\indignant.png;.\icons\core\moods\cold.png;.\icons\core\moods\spontaneous.png;.\icons\core\moods\playful.png;.\icons\core\moods\confused.png;.\icons\core\moods\contented.png;.\icons\core\moods\excited.png;.\icons\core\moods\in_love.png;.\icons\core\moods\moody.png;.\icons\core\moods\envious.png;.\icons\core\moods\anxious.png;.\icons\core\moods\sick.png;.\icons\core\moods\cranky.png;.\icons\core\moods\amorous.png;.\icons\core\moods\hot.png;.\icons\core\moods\interested.png;.\icons\core\moods\undefined.png;.\icons\core\moods\confident.png;.\icons\core\moods\relaxed.png;.\icons\core\moods\brave.png;.\icons\core\moods\serious.png;.\icons\core\moods\grumpy.png;.\icons\core\moods\shy.png;.\icons\core\moods\stressed.png;.\icons\core\moods\nervous.png;.\icons\core\moods\hopeful.png;.\icons\core\moods\calm.png;.\icons\core\moods\in_awe.png;.\icons\core\moods\aroused.png;.\icons\core\moods\hurt.png;.\icons\core\moods\surprised.png;.\icons\core\moods\curious.png;.\icons\core\moods\lonely.png;.\icons\core\moods\grateful.png;.\icons\core\moods\disgusted.png;.\icons\core\moods\restless.png;.\icons\core\moods\thirsty.png;.\icons\core\moods\happy.png;.\icons\core\moods\humiliated.png;.\icons\core\moods\intoxicated.png;.\icons\core\moods\shocked.png;.\icons\core\moods\impressed.png;.\icons\core\moods\angry.png;.\icons\core\moods\flirtatious.png;.\icons\core\moods\depressed.png;.\icons\core\activity\working\in_a_meeting.png;.\icons\core\activity\working\writing.png;.\icons\core\activity\working\studying.png;.\icons\core\activity\working\coding.png;.\icons\core\activity\working\category.png;.\icons\core\activity\inactive\hiding.png;.\icons\core\activity\inactive\scheduled_holiday.png;.\icons\core\activity\inactive\hanging_out.png;.\icons\core\activity\inactive\thinking.png;.\icons\core\activity\inactive\sleeping.png;.\icons\core\activity\inactive\praying.png;.\icons\core\activity\inactive\category.png;.\icons\core\activity\inactive\day_off.png;.\icons\core\activity\inactive\on_vacation.png;.\icons\core\activity\talking\on_video_phone.png;.\icons\core\activity\talking\in_real_life.png;.\icons\core\activity\talking\on_the_phone.png;.\icons\core\activity\talking\category.png;.\icons\core\activity\grooming\brushing_teeth.png;.\icons\core\activity\grooming\getting_a_haircut.png;.\icons\core\activity\grooming\taking_a_shower.png;.\icons\core\activity\grooming\at_the_spa.png;.\icons\core\activity\grooming\category.png;.\icons\core\activity\grooming\shaving.png;.\icons\core\activity\grooming\taking_a_bath.png;.\icons\core\activity\exercising\hiking.png;.\icons\core\activity\exercising\running.png;.\icons\core\activity\exercising\swimming.png;.\icons\core\activity\exercising\playing_sports.png;.\icons\core\activity\exercising\skiing.png;.\icons\core\activity\exercising\cycling.png;.\icons\core\activity\exercising\working_out.png;.\icons\core\activity\exercising\jogging.png;.\icons\core\activity\exercising\category.png;.\icons\core\activity\exercising\dancing.png;.\icons\core\activity\doing_chores\buying_groceries.png;.\icons\core\activity\doing_chores\doing_maintenance.png;.\icons\core\activity\doing_chores\cooking.png;.\icons\core\activity\doing_chores\running_an_errand.png;.\icons\core\activity\doing_chores\gardening.png;.\icons\core\activity\doing_chores\walking_the_dog.png;.\icons\core\activity\doing_chores\cleaning.png;.\icons\core\activity\doing_chores\doing_the_laundry.png;.\icons\core\activity\doing_chores\category.png;.\icons\core\activity\doing_chores\doing_the_dishes.png;.\icons\core\activity\unknown\category.png;.\icons\core\activity\having_appointment\category.png;.\icons\core\activity\drinking\having_tea.png;.\icons\core\activity\drinking\having_a_beer.png;.\icons\core\activity\drinking\having_coffee.png;.\icons\core\activity\drinking\category.png;.\icons\core\activity\relaxing\going_out.png;.\icons\core\activity\relaxing\smoking.png;.\icons\core\activity\relaxing\watching_tv.png;.\icons\core\activity\relaxing\socializing.png;.\icons\core\activity\relaxing\watching_a_movie.png;.\icons\core\activity\relaxing\fishing.png;.\icons\core\activity\relaxing\shopping.png;.\icons\core\activity\relaxing\gaming.png;.\icons\core\activity\relaxing\sunbathing.png;.\icons\core\activity\relaxing\reading.png;.\icons\core\activity\relaxing\partying.png;.\icons\core\activity\relaxing\category.png;.\icons\core\activity\relaxing\rehearsing.png;.\icons\core\activity\traveling\walking.png;.\icons\core\activity\traveling\on_a_bus.png;.\icons\core\activity\traveling\on_a_plane.png;.\icons\core\activity\traveling\on_a_train.png;.\icons\core\activity\traveling\on_a_trip.png;.\icons\core\activity\traveling\in_a_car.png;.\icons\core\activity\traveling\cycling.png;.\icons\core\activity\traveling\driving.png;.\icons\core\activity\traveling\commuting.png;.\icons\core\activity\traveling\category.png;.\icons\core\activity\eating\having_dinner.png;.\icons\core\activity\eating\having_lunch.png;.\icons\core\activity\eating\having_breakfast.png;.\icons\core\activity\eating\having_a_snack.png;.\icons\core\activity\eating\category.png;.\icons\offline.png;.\icons\online.png;.\icons\protocol.png;.\icons\unknown.png;.\icons\xa.png;.\icons\clients\mirandahotcoffee.png;.\icons\clients\jabber.el.png"
+						Outputs=".\GeneratedFiles\qrc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
 		<Global
 			Name="QtVersion"
-			Value="4.5.2"
+			Value="4.5.2-x64"
 		/>
 		<Global
 			Name="QtVersion Win32"

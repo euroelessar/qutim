@@ -23,24 +23,28 @@ bool w7ilayer::init( PluginSystemInterface *plugin_system )
 
 	PluginInterface::init( plugin_system );
 	m_plugin_system = plugin_system;
-	m_icon = new QIcon();
+	m_icon = new QIcon( ":/icons/logo" );
 
 	m_taskbar = new w7itaskbar();
 	if ( !m_taskbar->init() )
 		return false;
 
-	m_event_tabbed_common_window_created = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabbedCommonWindowCreated", this );
-	m_event_tabbed_common_window_deleted = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabbedCommonWindowDeleted", this );
+	event_layers_init = m_plugin_system->registerEventHandler( "Core/Layers/Initialized", this );
 
-	m_event_tabbed_chats_window_created = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabbedChatsWindowCreated", this );
-	m_event_tabbed_chats_window_deleted = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabbedChatsWindowDeleted", this );
+	event_tabbed_common_window_created = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabbedCommonWindowCreated", this );
+	event_tabbed_common_window_deleted = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabbedCommonWindowDeleted", this );
 
-	m_event_tabbed_confs_window_created = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabbedConfsWindowCreated", this );
-	m_event_tabbed_confs_window_deleted = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabbedConfsWindowDeleted", this );
+	event_tabbed_chats_window_created = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabbedChatsWindowCreated", this );
+	event_tabbed_chats_window_deleted = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabbedChatsWindowDeleted", this );
+
+	event_tabbed_confs_window_created = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabbedConfsWindowCreated", this );
+	event_tabbed_confs_window_deleted = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabbedConfsWindowDeleted", this );
 
 	event_tab_alert = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabAlert", this );
 	event_tab_activated_by_user = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabActivatedByUser", this );
 	event_tab_closed = m_plugin_system->registerEventHandler( "Core/ChatWindow/TabClosed", this );
+
+	event_cl_loaded = m_plugin_system->registerEventHandler( "Core/ContactList/Loaded", this );
 
 	m_tabbed_common_window_id = 0;
 	m_tabbed_chats_window_id = 0;
@@ -50,36 +54,50 @@ bool w7ilayer::init( PluginSystemInterface *plugin_system )
 }
 void w7ilayer::release()
 {
+	delete m_taskbar;
+}
+
+void w7ilayer::loadSettings()
+{
+	QSettings settings( QSettings::defaultFormat(), QSettings::UserScope, "qutim/qutim."+m_profile_name, "w7isettings" );
+
+	s_showcl = settings.value( "main/showcl", true ).toBool();
+
+	m_taskbar->setVisibleStatus( -1, s_showcl );
 }
 
 void w7ilayer::processEvent( Event &event )
 {
-	if ( event.id == m_event_tabbed_common_window_created )
+	if ( event.id == event_layers_init )
+	{
+		loadSettings();
+	}
+	else if ( event.id == event_tabbed_common_window_created )
 	{
 		m_tabbed_common_window_id = ((QWidget*)event.args.at(0))->winId();
 		m_taskbar->setHWND( m_tabbed_common_window_id, 1 );
 	}
-	else if ( event.id == m_event_tabbed_common_window_deleted )
+	else if ( event.id == event_tabbed_common_window_deleted )
 	{
 		m_tabbed_common_window_id = 0;
 		m_taskbar->setHWND( 0, 1 );
 	}
-	else if ( event.id == m_event_tabbed_chats_window_created )
+	else if ( event.id == event_tabbed_chats_window_created )
 	{
 		m_tabbed_chats_window_id = ((QWidget*)event.args.at(0))->winId();
 		m_taskbar->setHWND( m_tabbed_chats_window_id, 2 );
 	}
-	else if ( event.id == m_event_tabbed_chats_window_deleted )
+	else if ( event.id == event_tabbed_chats_window_deleted )
 	{
 		m_tabbed_chats_window_id = 0;
 		m_taskbar->setHWND( 0, 2 );
 	}
-	else if ( event.id == m_event_tabbed_confs_window_created )
+	else if ( event.id == event_tabbed_confs_window_created )
 	{
 		m_tabbed_confs_window_id = ((QWidget*)event.args.at(0))->winId();
 		m_taskbar->setHWND( m_tabbed_chats_window_id, 3 );
 	}
-	else if ( event.id == m_event_tabbed_confs_window_deleted )
+	else if ( event.id == event_tabbed_confs_window_deleted )
 	{
 		m_tabbed_confs_window_id = 0;
 		m_taskbar->setHWND( 0, 3 );
@@ -88,13 +106,13 @@ void w7ilayer::processEvent( Event &event )
 	{
 		m_taskbar->tabAlert( (TreeModelItem*)event.args.at(0), true );
 	}
-	else if ( event.id == event_tab_activated_by_user )
+	else if ( event.id == event_tab_activated_by_user || event.id == event_tab_closed )
 	{
 		m_taskbar->tabAlert( (TreeModelItem*)event.args.at(0), false );
 	}
-	else if ( event.id == event_tab_closed )
+	else if ( event.id == event_cl_loaded )
 	{
-		m_taskbar->tabAlert( (TreeModelItem*)event.args.at(0), false );
+		m_taskbar->setHWND( (HWND)event.args.at(0), -1 );
 	}
 }
 
@@ -125,18 +143,19 @@ QString w7ilayer::type()
 
 void w7ilayer::saveSettings()
 {
-//	settingswidget->saveSettings();
+	m_settings->saveSettings();
+	loadSettings();
 }
 
 QWidget *w7ilayer::settingsWidget()
 {
-	QWidget *settingswidget = new QWidget;
-	return settingswidget;
+	m_settings = new w7isettings( m_profile_name );
+	return m_settings;
 }
 
 void w7ilayer::removeSettingsWidget()
 {
-//	delete settingswidget;
+	delete m_settings;
 }
 
 Q_EXPORT_PLUGIN2( w7ilayer, w7ilayer );
