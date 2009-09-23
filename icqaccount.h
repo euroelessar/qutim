@@ -5,10 +5,17 @@
 
 using namespace qutim_sdk_0_3;
 
+struct IcqAccountPrivate;
+
 class IcqAccount : public Account
 {
+	Q_OBJECT
 public:
-    IcqAccount();
+	IcqAccount(const QString &uin);
+	virtual ~IcqAccount();
+	virtual void setStatus(Status status);
+private:
+	QScopedPointer<IcqAccountPrivate> p;
 };
 
 #endif // ICQACCOUNT_H

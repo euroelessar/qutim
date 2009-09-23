@@ -1,5 +1,6 @@
 #include "md5login.h"
 #include "tlv.h"
+#include "icqaccount.h"
 #include <QCryptographicHash>
 #include <QUrl>
 
@@ -16,11 +17,12 @@ void Md5Login::handleSNAC(OscarConnection *conn, const SNAC &sn)
 		const ClientInfo &client = conn->clientInfo();
 		SNAC snac(AuthorizationFamily, SignonLoginRequest);
 		snac.setId(qrand());
-		snac.appendTLV(0x0001, QByteArray("UIN"));
+		snac.appendTLV<QByteArray>(0x0001, conn->account()->id().toUtf8());
 		{
 			quint32 length = qFromBigEndian<quint32>((uchar *)sn.data().constData());
 			QByteArray key = sn.data().mid(2, length);
-			key += QCryptographicHash::hash("PASSWORD", QCryptographicHash::Md5);;
+			QString password = conn->account()->config().group("general").value("passwd", QString(), Config::Crypted);
+			key += QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Md5);;
 			key += "AOL Instant Messenger (SM)";
 			snac.appendTLV(0x0025, QCryptographicHash::hash(key, QCryptographicHash::Md5));
 		}

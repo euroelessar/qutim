@@ -37,8 +37,7 @@ SOURCES += capabilty.cpp \
            dataunit.cpp \
            flap.cpp \
            icqaccount.cpp \
-           icqprotocol.cpp \
-           main.cpp \
+		   icqprotocol.cpp \
            md5login.cpp \
            oscarconnection.cpp \
            protocolnegotiation.cpp \

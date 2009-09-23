@@ -1,6 +1,8 @@
 #ifndef ICQ_GLOBAL_H
 #define ICQ_GLOBAL_H
 
+#include <qutim/libqutim_global.h>
+
 enum SnacFamily
 {
 	ServiceFamily		    = 0x0001,
@@ -184,5 +186,27 @@ enum SsiItemType
 
 const quint16 max_message_snac_size = 8000;
 const quint16 client_rate_limit     = 0;
+
+enum IcqStatusF
+{
+// Status FLAGS (used to determine status of other users)
+	IcqFlagOnline         = 0x0000,
+	IcqFlagAway           = 0x0001,
+	IcqFlagDND            = 0x0002,
+	IcqFlagNA             = 0x0004,
+	IcqFlagOccupied       = 0x0010,
+	IcqFlagFFC            = 0x0020,
+	IcqFlagInvisible      = 0x0100,
+
+// QIP Extended Status flags
+	IcqFlagEvil           = 0x3000,
+	IcqFlagDepress        = 0x4000,
+	IcqFlagHome           = 0x5000,
+	IcqFlagWork           = 0x6000,
+	IcqFlagLunch          = 0x2001
+};
+
+//extern quint16 qutimStatusToICQ(qutim_sdk_0_3::Status status);
+extern qutim_sdk_0_3::Status icqStatusToQutim(quint16 status);
 
 #endif // ICQ_GLOBAL_H

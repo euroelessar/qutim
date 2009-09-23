@@ -5,6 +5,7 @@
 #include "md5login.h"
 #include "protocolnegotiation.h"
 #include "roster.h"
+#include "icqaccount.h"
 #include <QHostInfo>
 #include <QBuffer>
 
@@ -15,8 +16,9 @@ quint16 generate_flap_sequence()
 	return ((((0 - s) ^ (quint8)n) & 7) ^ n) + 2;
 }
 
-OscarConnection::OscarConnection()
+OscarConnection::OscarConnection(IcqAccount *parent) : QObject(parent)
 {
+	m_account = parent;
 	{
 		ClientInfo info = { "ICQ Client", 0x011a, 6, 5, 10, 104, 0x00007537, "ru", "ru" };
 		m_client_info = info;
@@ -25,6 +27,9 @@ OscarConnection::OscarConnection()
 		DirectConnectionInfo info = { QHostAddress(quint32(0)), 0, 0x04, 0x08, 0, 0x50, 0x03, 0, 0, 0 };
 		m_dc_info = info;
 	}
+	m_status_enum = Offline;
+	m_status = 0x0000;
+	m_status_flags = 0x0000;
 	m_socket = new QTcpSocket(this);
 	connect(m_socket, SIGNAL(readyRead()), SLOT(readData()));
 	connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
@@ -112,7 +117,7 @@ void OscarConnection::connectToBOSS(const QByteArray &host, int port, const QByt
 void OscarConnection::md5Login()
 {
 	SNAC snac(AuthorizationFamily, 0x0006);
-	snac.appendTLV<QByteArray>(0x0001, "UIN");
+	snac.appendTLV<QByteArray>(0x0001, m_account->id().toLatin1());
 	send(snac);
 }
 
@@ -219,7 +224,7 @@ void OscarConnection::finishLogin()
 	sendUserInfo();
 	m_is_idle = true;
 	setIdle(false);
-	setStatus();
+	sendStatus();
 	SNAC snac(ServiceFamily, 0x02);
 	// imitate ICQ 6 behaviour
 	snac.appendData(QByteArray::fromHex(
@@ -235,6 +240,7 @@ void OscarConnection::finishLogin()
 			"000a 0001 0110 164f"
 			"000b 0001 0110 164f"));
 	send(snac);
+	m_state = Connected;
 }
 
 void OscarConnection::sendUserInfo()
@@ -309,10 +315,49 @@ void OscarConnection::sendUserInfo()
 	send(snac);
 }
 
-static int m_status = 0x0000; // online
-static int m_status_flags = 0x0008; // birthday
+quint16 qutimStatusToICQ(Status status)
+{
+	switch(status)
+	{
+	default:
+	case Online:
+		return 0x0000;
+	case Away:
+		return 0x0001;
+	case DND:
+		return 0x0013;
+	case NA:
+		return 0x0005;
+	case Occupied:
+		return 0x0011;
+	case FreeChat:
+		return 0x0002;
+	case Evil:
+		return 0x3000;
+	case Depression:
+		return 0x4000;
+	case Invisible:
+		return 0x0100;
+	case AtHome:
+		return 0x5000;
+	case AtWork:
+		return 0x6000;
+	case OutToLunch:
+		return 0x2001;
+	}
+}
 
-void OscarConnection::setStatus()
+void OscarConnection::setStatus(Status status)
+{
+	if(status < Online || status > OnThePhone || m_status_enum == status)
+		return;
+	m_status_enum = status;
+	m_status = qutimStatusToICQ(status);
+	if(m_state == Connected)
+		sendStatus();
+}
+
+void OscarConnection::sendStatus()
 {
 	SNAC snac(ServiceFamily, 0x1e);
 	snac.appendTLV<quint32>(0x06, (m_status_flags << 16) | m_status); // Status mode and security flags

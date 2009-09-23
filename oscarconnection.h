@@ -4,10 +4,14 @@
 #include <QTcpSocket>
 #include <QMap>
 #include <QHostAddress>
+#include <qutim/libqutim_global.h>
 #include "flap.h"
+
+using namespace qutim_sdk_0_3;
 
 class SNACHandler;
 class SNAC;
+class IcqAccount;
 
 struct ClientInfo
 {
@@ -40,8 +44,8 @@ class OscarConnection : public QObject
 {
 	Q_OBJECT
 public:
-	enum ConnectState { LoginServer, HaveBOSS, BOSS };
-    OscarConnection();
+	enum ConnectState { LoginServer, HaveBOSS, BOSS, Connected };
+	OscarConnection(IcqAccount *parent);
 	void connectToLoginServer();
 	void connectToBOSS(const QByteArray &host, int port, const QByteArray &cookie);
 	void approveConnection();
@@ -57,9 +61,12 @@ public:
 	inline ConnectState connectState() const { return m_state; }
 	inline const ClientInfo &clientInfo() const { return m_client_info; }
 	inline const DirectConnectionInfo &dcInfo() const { return m_dc_info; }
+	IcqAccount *account() { return m_account; }
+	const IcqAccount *account() const { return m_account; }
 	void finishLogin();
 	void sendUserInfo();
-	void setStatus();
+	void setStatus(Status status);
+	void sendStatus();
 	void setIdle(bool allow);
 	void setExternalIP(const QHostAddress &ip) { m_ext_ip = ip; }
 	const QHostAddress &externalIP() const { return m_ext_ip; }
@@ -71,8 +78,12 @@ private:
 	void processNewConnection();
 	void processSnac();
 	void processCloseConnection();
+	IcqAccount *m_account;
 	QTcpSocket *m_socket;
 	ConnectState m_state;
+	Status m_status_enum;
+	quint16 m_status;
+	quint16 m_status_flags;
 	FLAP m_flap;
 	quint16 m_seqnum;
 	quint32 m_id;

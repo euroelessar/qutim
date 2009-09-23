@@ -12,6 +12,7 @@ public:
 		LittleEndian = QSysInfo::LittleEndian
 	};
 	inline DataUnit() { m_state = 0; }
+	inline DataUnit(const DataUnit &unit) { m_data = unit.m_data; m_state = 0; }
 	inline DataUnit(const TLV &tlv) { m_data = tlv.value(); m_state = 0; }
 	inline DataUnit(const QByteArray &data) { m_data = data; m_state = 0; }
 	inline const QByteArray &data() const { return m_data; }

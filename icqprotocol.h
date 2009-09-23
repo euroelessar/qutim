@@ -5,12 +5,20 @@
 
 using namespace qutim_sdk_0_3;
 
+struct IcqProtocolPrivate;
+
 class IcqProtocol : public Protocol
 {
+	Q_OBJECT
+	Q_CLASSINFO("Protocol", "ICQ")
 public:
     IcqProtocol();
-	static IcqProtocol *instance() { return self; }
+	virtual ~IcqProtocol();
+	static inline IcqProtocol *instance() { if(!self) qWarning("IcqProtocol isn't created"); return self; }
+protected:
+	void loadAccounts();
 private:
+	QScopedPointer<IcqProtocolPrivate> p;
 	static IcqProtocol *self;
 };
 
