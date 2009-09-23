@@ -31,7 +31,8 @@ SOURCES += tcpsocket.cpp \
     account.cpp \
     contact.cpp \
     objectgenerator.cpp \
-	icon.cpp
+    icon.cpp \
+    event_test.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
     domaininfo.h \
@@ -55,6 +56,7 @@ HEADERS += tcpsocket.h \
     account.h \
     contact.h \
     objectgenerator.h \
-	icon.h
+    icon.h \
+    event_test_p.h
 include(../3rdparty/jdns/jdns.pri)
 include(../3rdparty/k8json/k8json.pri)

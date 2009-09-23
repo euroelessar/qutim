@@ -25,6 +25,9 @@
 #include <QTextStream>
 #include <QDateTime>
 #include <QVector>
+#include <QStringBuilder>
+#include <QDesktopServices>
+#include <QDebug>
 
 #if defined(Q_WS_X11) || defined(Q_WS_MAC)
 #include <time.h>
@@ -49,7 +52,7 @@ namespace qutim_sdk_0_3
 
 	struct SystemInfoPrivate
 	{
-		inline SystemInfoPrivate() : dirs(SystemInfo::HistoryDir + 1) {}
+		inline SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1) {}
 		QString os_full;
 		QString os_name;
 		QString os_version;
@@ -211,7 +214,13 @@ namespace qutim_sdk_0_3
 //		QDateTime tmp_datetime = QDateTime::currentDateTime().toLocalTime();
 //		p->timezone_offset = tmp_datetime.utcOffset();
 		// Initialize
+		qDebug() << QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 		p = new SystemInfoPrivate;
+		p->dirs[SystemInfo::ConfigDir]         = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/config");
+		p->dirs[SystemInfo::HistoryDir]        = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/history");
+		p->dirs[SystemInfo::ShareDir]          = QDir::homePath() % QLatin1Literal("/.qutim/share");
+		p->dirs[SystemInfo::SystemConfigDir]   = QLatin1String("/etc/qutim");
+		p->dirs[SystemInfo::SystemShareDir]    = QDir::currentPath() % QLatin1Literal("/../share");
 		p->timezone_offset = 0;
 		p->timezone_str = "N/A";
 		p->os_full = "Unknown";
@@ -460,7 +469,7 @@ namespace qutim_sdk_0_3
 	QDir SystemInfo::getDir(DirType type)
 	{
 		system_info_ensure_private(p);
-		if(type > HistoryDir)
+		if(type >= p->dirs.size())
 			return QDir();
 		return p->dirs.at(type);
 	}
@@ -468,6 +477,8 @@ namespace qutim_sdk_0_3
 	QString SystemInfo::getPath(DirType type)
 	{
 		system_info_ensure_private(p);
-		return getDir(type).absolutePath();
+		if(type >= p->dirs.size())
+			return QString();
+		return p->dirs.at(type).absolutePath();
 	}
 }

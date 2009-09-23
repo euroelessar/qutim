@@ -28,7 +28,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 	public:
-		enum DirType { ConfigDir, HistoryDir };
+		enum DirType { ConfigDir, HistoryDir, ShareDir, SystemConfigDir, SystemShareDir };
 		static QString getFullName();
 		static QString getName();
 		static QString getVersion();

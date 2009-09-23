@@ -1,8 +1,10 @@
 #include "configbase_p.h"
 #include "cryptoservice.h"
+#include "systeminfo.h"
 #include <QStringList>
 #include <QSet>
 #include <QFileInfo>
+#include <QStringBuilder>
 
 #include <QDebug>
 
@@ -215,39 +217,112 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(file);
 	}
 
-	Config::Config(const QString &file, OpenFlags flags, const QString &backend_)
+	inline ConfigBackend *choose_backend(const QList<ConfigBackendInfo> &backends, const QString &backend = QString())
 	{
-		if(file.isEmpty())
+		for(int i = 0; i < backends.size(); i++)
+			if(backends.at(i).first == backend)
+				return backends.at(i).second;
+		return backends.at(0).second;
+	}
+
+	Config::Config(const QString &filename, OpenFlags flags, const QString &backend)
+	{
+		if(ConfigPrivate::config_backends.isEmpty())
 			return;
-		QFileInfo info(file);
+		QFileInfo info(filename);
+		ConfigBackend *backend_ptr = 0;
+		QString filepath;
 		if(info.isAbsolute())
 		{
-			ConfigEntry::Ptr entry;
-			ConfigBackend *backend_ptr = 0;
-			{
-				QString backend = backend_;
-				if(backend.isEmpty())
-					backend = info.suffix();
-				for(int i = 0; i < ConfigPrivate::config_backends.size(); i++)
-				{
-					if(ConfigPrivate::config_backends.at(i).first == backend)
-						entry = (backend_ptr = ConfigPrivate::config_backends.at(i).second)->parse(file);
-				}
-				if(entry.isNull())
-				{
-					entry = (backend_ptr = ConfigPrivate::config_backends.at(0).second)->parse(file);
-				}
-			}
-			if(!backend_ptr)
-				return;
-			p = new ConfigPrivate;
-			ConfigEntryInfo entry_info = { entry, file, backend_ptr };
-			p->root_entries << entry_info;
-			p->entries << entry.toWeakRef();
-			p->file = file;
+			backend_ptr = choose_backend(ConfigPrivate::config_backends,
+														backend.isEmpty() ? info.suffix() : backend);
+			filepath = filename;
+		}
+		else if(filename.isEmpty())
+		{
+			backend_ptr = ConfigPrivate::config_backends.at(0).second;
+			filepath = SystemInfo::getPath(SystemInfo::ConfigDir)
+					   % QLatin1Char('/')
+					   % QLatin1Literal("profile.")
+					   % QLatin1String(ConfigPrivate::config_backends.at(0).first.constData());
 		}
 		else
 		{
+			backend_ptr = ConfigPrivate::config_backends.at(0).second;
+			filepath = SystemInfo::getPath(SystemInfo::ConfigDir)
+					   % QLatin1Char('/')
+					   % filename.toLower()
+					   % QLatin1Char('.')
+					   % QLatin1String(ConfigPrivate::config_backends.at(0).first.constData());
+		}
+		ConfigEntry::Ptr entry = backend_ptr->parse(filepath);
+		if(entry.isNull())
+			return;
+		p = new ConfigPrivate;
+		p->file = filename;
+		ConfigEntryInfo entry_info = { entry, filename, backend_ptr };
+		p->root_entries << entry_info;
+		p->entries << entry.toWeakRef();
+	}
+
+	Config::Config(const QStringList &files_, OpenFlags flags, const QString &backend)
+	{
+		if(ConfigPrivate::config_backends.isEmpty())
+			return;
+		QStringList files = files_;
+		QSet<QString> check;
+		bool first = true;
+		for(int i = 0; i < files.size(); i++)
+		{
+			QString filename = files.at(i);
+			QFileInfo info(filename);
+			ConfigBackend *backend_ptr = 0;
+			QString filepath;
+			if(info.isAbsolute())
+			{
+				backend_ptr = choose_backend(ConfigPrivate::config_backends,
+															backend.isEmpty() ? info.suffix() : backend);
+				filepath = filename;
+			}
+			else if(filename.isEmpty())
+			{
+				backend_ptr = ConfigPrivate::config_backends.at(0).second;
+				QString postfix = QLatin1Char('/')
+								  % QLatin1Literal("profile.")
+								  % QLatin1String(ConfigPrivate::config_backends.at(0).first.constData());
+				filepath = SystemInfo::getPath(SystemInfo::ConfigDir) + postfix;
+				if(flags & IncludeGlobals)
+					files += SystemInfo::getPath(SystemInfo::SystemConfigDir) + postfix;
+			}
+			else
+			{
+				backend_ptr = ConfigPrivate::config_backends.at(0).second;
+				QString postfix = QLatin1Char('/')
+								  % filename.toLower()
+								  % QLatin1Char('.')
+								  % QLatin1String(ConfigPrivate::config_backends.at(0).first.constData());
+				filepath = SystemInfo::getPath(SystemInfo::ConfigDir) + postfix;
+				if(flags & IncludeGlobals)
+					files += SystemInfo::getPath(SystemInfo::SystemConfigDir) + postfix;
+			}
+			if(check.contains(filepath))
+				continue;
+			else
+				check |= filepath;
+			ConfigEntry::Ptr entry = backend_ptr->parse(filepath);
+			if(first)
+			{
+				if(entry.isNull())
+					return;
+				p = new ConfigPrivate;
+				p->file = filepath;
+				first = false;
+			}
+			if(entry.isNull())
+				continue;
+			ConfigEntryInfo entry_info = { entry, filepath, backend_ptr };
+			p->root_entries << entry_info;
+			p->entries << entry.toWeakRef();
 		}
 	}
 		
@@ -291,16 +366,18 @@ namespace qutim_sdk_0_3
 
 	QString ConfigGroup::name() const
 	{
-		return p->name;
+		return isValid() ? p->name : QString();
 	}
 
 	bool ConfigGroup::isValid() const
 	{
-		return p.constData() && p->entries.size();
+		return p && !p->entries.isEmpty();
 	}
 
 	bool ConfigGroup::isMap() const
 	{
+		if(!isValid())
+			return false;
 		for(int i = 0; i < p->entries.size(); i++)
 			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Map))
 				return true;
@@ -309,6 +386,8 @@ namespace qutim_sdk_0_3
 
 	bool ConfigGroup::isArray() const
 	{
+		if(!isValid())
+			return false;
 		for(int i = 0; i < p->entries.size(); i++)
 			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Array))
 				return true;
@@ -317,6 +396,8 @@ namespace qutim_sdk_0_3
 
 	bool ConfigGroup::isValue() const
 	{
+		if(!isValid())
+			return false;
 		for(int i = 0; i < p->entries.size(); i++)
 			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Value))
 				return true;
@@ -325,6 +406,8 @@ namespace qutim_sdk_0_3
 
 	int ConfigGroup::arraySize() const
 	{
+		if(!isValid())
+			return 0;
 		for(int i = 0; i < p->entries.size(); i++)
 			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Array))
 				return p->entries.at(i).toStrongRef()->array.size();
@@ -334,6 +417,8 @@ namespace qutim_sdk_0_3
 	const ConfigGroup ConfigGroup::at(int index) const
 	{
 		ConfigGroup group;
+		if(!isValid())
+			return group;
 		for(int i = 0; i < p->entries.size(); i++)
 			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Array))
 			{
@@ -355,6 +440,8 @@ namespace qutim_sdk_0_3
 	ConfigGroup ConfigGroup::at(int index)
 	{
 		ConfigGroup group;
+		if(!isValid())
+			return group;
 		group.p = new ConfigGroupPrivate;
 		group.p->index = index;
 		group.p->parent = p;
@@ -394,6 +481,8 @@ namespace qutim_sdk_0_3
 
 	void ConfigGroup::removeAt(int index)
 	{
+		if(!isValid())
+			return;
 		if(ConfigEntry::Ptr entry = p->entries.at(0))
 			if((entry->type & ConfigEntry::Array) && index >= 0 && index < entry->array.size())
 				entry->array.remove(index);
@@ -402,6 +491,8 @@ namespace qutim_sdk_0_3
 	ConfigGroup ConfigGroup::parent()
 	{
 		ConfigGroup group;
+		if(!isValid())
+			return group;
 		group.p = p->parent;
 		return group;
 	}
@@ -409,6 +500,8 @@ namespace qutim_sdk_0_3
 	const ConfigGroup ConfigGroup::parent() const
 	{
 		ConfigGroup group;
+		if(!isValid())
+			return group;
 		group.p = p->parent;
 		return group;
 	}
@@ -416,6 +509,8 @@ namespace qutim_sdk_0_3
 	Config ConfigGroup::config()
 	{
 		Config config;
+		if(!isValid())
+			return config;
 		config.p = p->config;
 		return config;
 	}
@@ -423,19 +518,23 @@ namespace qutim_sdk_0_3
 	const Config ConfigGroup::config() const
 	{
 		Config config;
+		if(!isValid())
+			return config;
 		config.p = p->config;
 		return config;
 	}
 
-	QVariant ConfigGroup::readEntry(const QString &key, const QVariant &def, Config::ValueFlag type) const
+	QVariant ConfigGroup::value(const QString &key, const QVariant &def, Config::ValueFlags type) const
 	{
 		QVariant result;
+		if(!isValid())
+			return result;
 		for(int i = 0; i < p->entries.size(); i++)
 			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Map))
 			{
 				ConfigEntry::Ptr entry = p->entries.at(i);
 				ConfigEntry::EntryMap::const_iterator it = entry->map.constFind(key);
-				if(it != entry->map.end() && ((*it)->type & ConfigEntry::Value))
+				if((it != entry->map.end()) && (*it) && ((*it)->type & ConfigEntry::Value))
 				{
 					result = (*it)->value;
 					break;
@@ -448,8 +547,10 @@ namespace qutim_sdk_0_3
 		return result;
 	}
 
-	void ConfigGroup::writeEntry(const QString &key, const QVariant &value, Config::ValueFlag type)
+	void ConfigGroup::setValue(const QString &key, const QVariant &value, Config::ValueFlags type)
 	{
+		if(!isValid())
+			return;
 		ConfigGroup group = this->group(key);
 		if(!group.isValid())
 			return;
@@ -472,6 +573,8 @@ namespace qutim_sdk_0_3
 
 	void ConfigGroup::sync()
 	{
+		if(!isValid())
+			return;
 		config().sync();
 	}
 }

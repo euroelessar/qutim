@@ -4,7 +4,33 @@
 
 namespace qutim_sdk_0_3
 {
-	Protocol::Protocol()
+	struct ProtocolPrivate
 	{
+		QString id;
+	};
+
+	Protocol::Protocol() : p(new ProtocolPrivate)
+	{
+	}
+
+	Protocol::~Protocol()
+	{
+	}
+
+	Config Protocol::config()
+	{
+		return Config(id());
+	}
+
+	ConfigGroup Protocol::config(const QString &group)
+	{
+		return config().group(group);
+	}
+
+	QString Protocol::id()
+	{
+		if(p->id.isNull())
+			p->id = QString::fromUtf8(metaInfo(metaObject(), "Protocol"));
+		return p->id;
 	}
 }

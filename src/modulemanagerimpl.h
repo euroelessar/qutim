@@ -16,6 +16,7 @@ namespace Core
 	public:
 		ModuleManagerImpl();
 		virtual QList<ExtensionInfo> coreExtensions() const;
+	private slots:
 		virtual void initExtensions();
 	private:
 		inline static QList<ExtensionInfo> &extensions()

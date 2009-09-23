@@ -41,6 +41,7 @@ namespace qutim_sdk_0_3
 		Q_DECLARE_FLAGS(OpenFlags, OpenFlag)
 		// If file is empty, then profile settings are loaded
 		explicit Config(const QString &file = QString(), OpenFlags flags = IncludeGlobals, const QString &backend = QString());
+		explicit Config(const QStringList &files, OpenFlags flags = IncludeGlobals, const QString &backend = QString());
 		Config(const Config &other);
 		Config(const QExplicitlySharedDataPointer<ConfigPrivate> &other);
 		virtual ~Config();
@@ -83,9 +84,9 @@ namespace qutim_sdk_0_3
 		const Config config() const;
 
 		template<typename T>
-		T readEntry(const QString &key, const T &def, Config::ValueFlag type = Config::Normal) const;
-		QVariant readEntry(const QString &key, const QVariant &def, Config::ValueFlag type = Config::Normal) const;
-		void writeEntry(const QString &key, const QVariant &value, Config::ValueFlag type = Config::Normal);
+		T value(const QString &key, const T &def, Config::ValueFlags type = Config::Normal) const;
+		QVariant value(const QString &key, const QVariant &def, Config::ValueFlags type = Config::Normal) const;
+		void setValue(const QString &key, const QVariant &value, Config::ValueFlags type = Config::Normal);
 
 		void sync();
 	private:
@@ -101,9 +102,9 @@ namespace qutim_sdk_0_3
 	}
 
 	template<typename T>
-	Q_INLINE_TEMPLATE T ConfigGroup::readEntry(const QString &key, const T &def, Config::ValueFlag type) const
+	Q_INLINE_TEMPLATE T ConfigGroup::value(const QString &key, const T &def, Config::ValueFlags type) const
 	{
-		return readEntry(key, QVariant(def), type).value<T>();
+		return value(key, QVariant(def), type).value<T>();
 	}
 }
 

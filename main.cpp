@@ -26,6 +26,8 @@
 # include "src/modulemanagerimpl.h"
 # include "libqutim/cryptoservice.h"
 # include "libqutim/configbase.h"
+# include "libqutim/protocol.h"
+# include "libqutim/event_test_p.h"
 #else
 # include "src/pluginsystem.h"
 # include "src/qutim.h"
@@ -63,7 +65,7 @@ void test_config(int totalnum)
 		for(int i = 0; i < totalnum; i++)
 		{
 			QString num = QString::number(i);
-			group.writeEntry(num, num);
+			group.setValue(num, num);
 		}
 		a[0] = time.elapsed();
 		time.start();
@@ -77,7 +79,7 @@ void test_config(int totalnum)
 		for(int i = 0; i < totalnum; i++)
 		{
 			QString num = QString::number(i);
-			group.readEntry(num, num);
+			group.value(num, num);
 		}
 	}
 	a[2] = time.elapsed();
@@ -119,21 +121,30 @@ void test_settings(int totalnum)
 	qDebug("%8d\t%8d\t%8d\t%8d", totalnum, a[0], a[1], a[2]);
 }
 
+// Uncomment it for speed tests
+#define SPEED_TEST 0
+
 int main(int argc, char *argv[])
 {
 #ifdef NEW_QUTIM
 	QApplication app(argc, argv);
 	QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
-	QCA::Initializer init;
-	Core::ModuleManagerImpl module_manager;
-	module_manager.initExtensions();
-//	qDebug("%8s\t%8s\t%8s\t%8s", "num", "create", "write", "read");
-//	for(int i = 10; i < 10000000; i *= 10)
-//		test_config(i);
-//	for(int i = 10; i < 10000000; i *= 10)
-//		test_settings(i);
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf-8"));
+	QCA::Initializer qca_init;
+	Core::ModuleManagerImpl core_init;
+#if 0
+	qDebug("%8s\t%8s\t%8s\t%8s", "num", "create", "write", "read");
+	for(int i = 10; i < 10000000; i *= 10)
+		test_config(i);
+	for(int i = 10; i < 10000000; i *= 10)
+		test_settings(i);
+#endif
+#if SPEED_TEST
+	testEventSystemSpeed();
 	return 0;
-//	module_manager.loadPlugins();
+#endif
+
+	return app.exec();
 #else
 	#if defined(Q_OS_UNIX)
     signal(SIGINT,sig_quit);

@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QScriptValue>
 #include <QScriptEngine>
+#include <QTimer>
+#include "libqutim/protocol.h"
 
 namespace Core
 {
@@ -35,6 +37,7 @@ namespace Core
 //		QScriptValue object = engine.evaluate(QString::fromUtf8(file.readAll()));
 //		qDebug() << object.toString();
 		loadPlugins();
+		QTimer::singleShot(0, this, SLOT(initExtensions()));
 	}
 
 	QList<ExtensionInfo> ModuleManagerImpl::coreExtensions() const

@@ -7,7 +7,7 @@
 #include <QtCore/QSharedDataPointer>
 #include <QtGui/QIcon>
 
-#define PLUGIN_VERSION QUTIM_VERSION_CHECK
+#define PLUGIN_VERSION(major, minor, secminor, patch) QUTIM_VERSION_CHECK(major, minor, secminor, patch)
 
 namespace qutim_sdk_0_3
 {

@@ -28,6 +28,7 @@ namespace qutim_sdk_0_3
 			if(event_ids[i] == id)
 				return i;
 		event_ids.append(id);
+		event_tracks.resize(event_ids.size());
 		return event_ids.size() - 1;
 	}
 
@@ -63,6 +64,8 @@ namespace qutim_sdk_0_3
 	{
 		Q_ASSERT_X(obj, "EventManager::register_helper", "Object is invalid");
 		quint16 id = eventId(text_id);
+		if(id == 0xffff)
+			return id;
 		EventHandlerInfo info = qMakePair(priority, EventTrack::Ptr(new EventTrack(obj, method)));
 		int position = qUpperBound(event_tracks[id], info) - event_tracks[id].constBegin();
 		event_tracks[id].insert(position, info);

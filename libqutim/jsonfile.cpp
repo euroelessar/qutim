@@ -3,6 +3,9 @@
 #include <QFile>
 #include <QTextStream>
 #include <QStringList>
+#include <QDebug>
+#include <QFileInfo>
+#include <QDir>
 
 namespace qutim_sdk_0_3
 {
@@ -119,6 +122,11 @@ namespace qutim_sdk_0_3
 
 	bool JsonFile::save(const QVariant &variant)
 	{
+		{
+			QDir dir = QFileInfo(p->file).absoluteDir();
+			if(!dir.exists())
+				dir.mkpath(dir.absolutePath());
+		}
 		if (!p->file.open(QIODevice::WriteOnly | QIODevice::Text))
 			return false;
 		QTextStream stream(&p->file);
