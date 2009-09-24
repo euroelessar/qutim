@@ -34,6 +34,7 @@ namespace qutim_sdk_0_3
 	{
 		const int NUM = 50000;
 		QScopedPointer<EventTest> test(new EventTest(0));
+		test->test();
 		QObject::connect(test.data(), SIGNAL(signal()), test.data(), SLOT(test()));
 		EventManager::registerEventHandler("TestSystem", test.data(), &EventTest::testE);
 		Event event("TestSystem");
@@ -44,7 +45,7 @@ namespace qutim_sdk_0_3
 		{
 			t.start();
 			for(volatile int i = 0; i < NUM; i++)
-				test->signal();
+				test->test();
 			qDebug() << "by direct access" << t.elapsed() << "ms";
 		}
 		{
