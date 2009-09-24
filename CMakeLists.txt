@@ -305,29 +305,6 @@ IF(NOT NO_HISTORY)
 ELSE(NOT NO_HISTORY)
 	ADD_DEFINITIONS( -DNO_CORE_HISTORY )
 ENDIF(NOT NO_HISTORY)
-IF(NOT NO_NOTIFICATION)
-	LIST (APPEND HEADERS
-		src/corelayers/notification/defaultnotificationlayer.h
-		src/corelayers/notification/notificationslayersettings.h
-		src/corelayers/notification/popuptextbrowser.h
-		src/corelayers/notification/popupwindow.h
-		src/corelayers/notification/soundlayersettings.h
-		)
-	LIST (APPEND SOURCES
-		src/corelayers/notification/defaultnotificationlayer.cpp
-		src/corelayers/notification/notificationslayersettings.cpp
-		src/corelayers/notification/popuptextbrowser.cpp
-		src/corelayers/notification/popupwindow.cpp
-		src/corelayers/notification/soundlayersettings.cpp
-		)
-	LIST (APPEND FORMS
-		src/corelayers/notification/notificationslayersettings.ui
-		src/corelayers/notification/popupwindow.ui
-		src/corelayers/notification/soundlayersettings.ui
-		)
-ELSE(NOT NO_NOTIFICATION)
-	ADD_DEFINITIONS( -DNO_CORE_NOTIFICATION )
-ENDIF(NOT NO_NOTIFICATION)
 IF(NOT NO_SETTINGS)
 	LIST (APPEND HEADERS
 		src/corelayers/settings/qsettingslayer.h
