@@ -34,7 +34,7 @@ namespace Core
 		virtual ConfigEntry::Ptr parse(const QString& file);
 		virtual void generate(const QString& file, const qutim_sdk_0_3::ConfigEntry::Ptr& entry);
         private:
-                QVariant genetateQVariant (const qutim_sdk_0_3::ConfigEntry::Ptr& entry); //recursive
+                QVariant generateQVariant (const qutim_sdk_0_3::ConfigEntry::Ptr& entry); //recursive
                 qutim_sdk_0_3::ConfigEntry::Ptr generateConfigEntry ( const QVariant &val);
         };
 

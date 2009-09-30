@@ -75,18 +75,28 @@ ConfigEntry::Ptr PListConfigBackend::generateConfigEntry(const QDomNode& val)
 				value->type = ConfigEntry::Value;
 			}
             else if (element.nodeName()=="dict") {
+				qDebug() << "begin dict:";
 				value = generateConfigEntry(node);
 			}
 			entry->map.insert(key,value);
+			qDebug() << key << ":" << value->value << value->type;
         }
     }
     return entry;
 }
 
 
-QVariant PListConfigBackend::genetateQVariant(const qutim_sdk_0_3::ConfigEntry::Ptr& entry)
+QDomNode PListConfigBackend::generateQDomNode(const qutim_sdk_0_3::ConfigEntry::Ptr& entry)
 {
-
+	QDomNode node;
+	QDomElement element;
+	if(entry->type & ConfigEntry::Map) {
+	}
+		else if(entry->type & ConfigEntry::Value)
+		{
+			//val = variantToString(entry->value);
+		}
+	return node;
 }
 
 
@@ -94,15 +104,14 @@ ConfigEntry::Ptr PListConfigBackend::parse(const QString& file)
 {
     QDomDocument plist;
     QFile input (file);
-    bool isValid = input.open(QIODevice::ReadOnly) && plist.setContent(&input);
+    bool isValid = input.open(QIODevice::ReadOnly) && plist.setContent(&input); //some black magic
     input.close();
-    QDomElement root = plist.documentElement();
-
     if (!isValid) {
 		ConfigEntry::Ptr entry(new ConfigEntry);
 		entry.data()->type = ConfigEntry::Invalid;
         return entry;
     }
+    QDomElement root = plist.documentElement();
     return generateConfigEntry(root.firstChild());
 }
 

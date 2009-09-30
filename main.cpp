@@ -28,6 +28,7 @@
 # include "libqutim/configbase.h"
 # include "libqutim/protocol.h"
 # include "libqutim/event_test_p.h"
+#include "src/plistconfigbackend.h"
 #else
 # include "src/pluginsystem.h"
 # include "src/qutim.h"
@@ -121,6 +122,13 @@ void test_settings(int totalnum)
 	qDebug("%8d\t%8d\t%8d\t%8d", totalnum, a[0], a[1], a[2]);
 }
 
+void testPListSettings()
+{
+	QString filename = "/home/sauron/develop/temporary/test.plist";
+	PListConfigBackend backend;
+	ConfigEntry::Ptr entry = backend.parse(filename);
+}
+
 // Uncomment it for speed tests
 #define SPEED_TEST 0
 
@@ -140,7 +148,8 @@ int main(int argc, char *argv[])
 		test_settings(i);
 #endif
 #if SPEED_TEST
-	testEventSystemSpeed();
+	//testEventSystemSpeed();
+	testPListSettings();
 	return 0;
 #endif
 

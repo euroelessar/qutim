@@ -91,7 +91,7 @@ qutim_sdk_0_3::ConfigEntry::Ptr Core::JsonConfigBackend::generateConfigEntry (co
     return entry;
 }
 
-QVariant Core::JsonConfigBackend::genetateQVariant(const qutim_sdk_0_3::ConfigEntry::Ptr& entry)
+QVariant Core::JsonConfigBackend::generateQVariant(const qutim_sdk_0_3::ConfigEntry::Ptr& entry)
 {
     QVariant val;
 
@@ -106,7 +106,7 @@ QVariant Core::JsonConfigBackend::genetateQVariant(const qutim_sdk_0_3::ConfigEn
             QVariantMap m; //TODO need optimization!!
             ConfigEntry::EntryMap::const_iterator i;
             for (i = entry.data()->map.constBegin(); i != entry.data()->map.constEnd(); ++i) {
-                m.insert(i.key(),genetateQVariant(i.value()));
+                m.insert(i.key(),generateQVariant(i.value()));
             }
             val = QVariant(m);
             break;
@@ -114,7 +114,7 @@ QVariant Core::JsonConfigBackend::genetateQVariant(const qutim_sdk_0_3::ConfigEn
         case ConfigEntry::Array: {
             QVariantList l;
             foreach (const qutim_sdk_0_3::ConfigEntry::Ptr& e, entry.data()->array) {
-                l.append(genetateQVariant(e));
+                l.append(generateQVariant(e));
             }
             val = QVariant(l);
             break;

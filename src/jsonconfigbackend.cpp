@@ -40,7 +40,7 @@ namespace Core
 		if (entry->type == ConfigEntry::Value) {
 		}
 
-		QVariant map = genetateQVariant(entry);
+		QVariant map = generateQVariant(entry);
 		if(map.isNull() || !map.isValid())
 			map = QVariantMap();
 //		qDebug() << map;
@@ -242,7 +242,7 @@ namespace Core
 		return QVariant(result);
 	}
 
-	QVariant JsonConfigBackend::genetateQVariant(const ConfigEntry::Ptr& entry)
+	QVariant JsonConfigBackend::generateQVariant(const ConfigEntry::Ptr& entry)
 	{
 		QVariant val;
 		if(entry->type & ConfigEntry::Map)
@@ -250,7 +250,7 @@ namespace Core
 			QVariantMap m; //TODO need optimization!!
 			ConfigEntry::EntryMap::const_iterator i;
 			for (i = entry->map.constBegin(); i != entry->map.constEnd(); ++i) {
-				QVariant val = genetateQVariant(i.value());
+				QVariant val = generateQVariant(i.value());
 				if(val.isValid() && !val.isNull())
 					m.insert(i.key(),val);
 			}
@@ -260,7 +260,7 @@ namespace Core
 		{
 			QVariantList l;
 			foreach (const ConfigEntry::Ptr& e, entry->array) {
-				QVariant val = genetateQVariant(e);
+				QVariant val = generateQVariant(e);
 				if(val.isValid() && !val.isNull())
 					l.append(val);
 			}

@@ -30,14 +30,14 @@ namespace Core
 	class PListConfigBackend : public ConfigBackend
 	{
 		Q_OBJECT
-		Q_CLASSINFO("Extension", "json")
+		Q_CLASSINFO("Extension", "plist")
 	public:
 		Q_INVOKABLE PListConfigBackend() {}
 		virtual ConfigEntry::Ptr parse(const QString &file);
 		virtual void generate(const QString &file, const ConfigEntry::Ptr &entry);
 	protected:
 		ConfigEntry::Ptr generateConfigEntry (const QDomNode& val);
-		QVariant genetateQVariant(const ConfigEntry::Ptr& entry);
+		QDomNode generateQDomNode(const ConfigEntry::Ptr& entry);
 	};
 }
 using namespace Core;

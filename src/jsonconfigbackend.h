@@ -36,7 +36,7 @@ namespace Core
 		virtual void generate(const QString &file, const ConfigEntry::Ptr &entry);
 	protected:
 		ConfigEntry::Ptr generateConfigEntry (const QVariant &val);
-		QVariant genetateQVariant(const ConfigEntry::Ptr& entry);
+		QVariant generateQVariant(const ConfigEntry::Ptr& entry);
 	};
 }
 using namespace Core;
