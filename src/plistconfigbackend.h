@@ -1,5 +1,5 @@
 /*
-	json backend for qutIM
+	plist backend for qutIM
 	Copyright (C) <2009>  <Sidorov Aleksey sauron@citadelspb.com>
 
 	This program is free software: you can redistribute it and/or modify
@@ -17,28 +17,29 @@
 
 */
 
-#ifndef JSONCONFIGBACKEND_H
-#define JSONCONFIGBACKEND_H
+#ifndef PLISTCONFIGBACKEND_H
+#define PLISTCONFIGBACKEND_H
 
 #include "libqutim/configbackend.h"
 
+class QDomNode;
 using namespace qutim_sdk_0_3;
 
 namespace Core
 {
-	class JsonConfigBackend : public ConfigBackend
+	class PListConfigBackend : public ConfigBackend
 	{
 		Q_OBJECT
 		Q_CLASSINFO("Extension", "json")
 	public:
-		Q_INVOKABLE JsonConfigBackend() {}
+		Q_INVOKABLE PListConfigBackend() {}
 		virtual ConfigEntry::Ptr parse(const QString &file);
 		virtual void generate(const QString &file, const ConfigEntry::Ptr &entry);
 	protected:
-		ConfigEntry::Ptr generateConfigEntry (const QVariant &val);
+		ConfigEntry::Ptr generateConfigEntry (const QDomNode& val);
 		QVariant genetateQVariant(const ConfigEntry::Ptr& entry);
 	};
 }
 using namespace Core;
 
-#endif // JSONCONFIGBACKEND_H
+#endif // PLISTCONFIGBACKEND_H

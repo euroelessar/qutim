@@ -3,7 +3,7 @@ IF (COMMAND cmake_policy)
 	cmake_policy (SET CMP0003 NEW)
 ENDIF (COMMAND cmake_policy)
 PROJECT (qutim)
-SET(QT_MIN_VERSION "4.4.0") 
+SET(QT_MIN_VERSION "4.4.0")
 
 ADD_DEFINITIONS ( -DBUILD_QUTIM )
 
@@ -15,7 +15,7 @@ if( UNIX )
 	endif( BSD )
 endif( UNIX )
 
-if(NOT REVISION ) 
+if(NOT REVISION )
     find_path(REVISION_ENTRY "entries" "${CMAKE_CURRENT_SOURCE_DIR}/.svn")
     if( REVISION_ENTRY )
 	file(STRINGS "${REVISION_ENTRY}/entries"
@@ -129,9 +129,10 @@ SET (HEADERS
 	src/cryptoserviceimpl.h
 	src/modulemanagerimpl.h
 	src/jsonconfigbackend.h
+	src/plistconfigbackend.h
 	)
 if( Qt4_HAS_4_5 )
-	LIST( APPEND HEADERS src/proxyfactory.h ) 
+	LIST( APPEND HEADERS src/proxyfactory.h )
 endif( Qt4_HAS_4_5 )
 
 SET (SOURCES
@@ -163,6 +164,7 @@ SET (SOURCES
 	src/cryptoserviceimpl.cpp
 	src/modulemanagerimpl.cpp
 	src/jsonconfigbackend.cpp
+	src/plistconfigbackend.cpp
 	)
 
 SET (RESOURCES
@@ -383,7 +385,7 @@ IF (WIN32)
 #	LIST (APPEND HEADERS
 #		src/ex/exsystrayicon.h
 #		)
-		
+
 if (MINGW)
 exec_program(windres
 ARGS "-i ${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc -o qutim_res.o ")
@@ -391,7 +393,7 @@ LIST (APPEND SOURCES qutim_res.o)
 else(MINGW)
 LIST (APPEND SOURCES qutim.rc)
 endif(MINGW)
- 
+
 ENDIF (WIN32)
 
 #IF (APPLE)
