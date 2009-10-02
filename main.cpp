@@ -127,10 +127,11 @@ void testPListSettings()
 	QString filename = "/home/sauron/develop/temporary/test.plist";
 	PListConfigBackend backend;
 	ConfigEntry::Ptr entry = backend.parse(filename);
+	backend.generate("",entry);
 }
 
 // Uncomment it for speed tests
-#define SPEED_TEST 0
+#define SPEED_TEST 1
 
 int main(int argc, char *argv[])
 {

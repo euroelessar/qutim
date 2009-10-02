@@ -22,7 +22,9 @@
 
 #include "libqutim/configbackend.h"
 
+class QDomDocument;
 class QDomNode;
+class QDomElement;
 using namespace qutim_sdk_0_3;
 
 namespace Core
@@ -37,7 +39,7 @@ namespace Core
 		virtual void generate(const QString &file, const ConfigEntry::Ptr &entry);
 	protected:
 		ConfigEntry::Ptr generateConfigEntry (const QDomNode& val);
-		QDomNode generateQDomNode(const ConfigEntry::Ptr& entry);
+		QDomElement generateQDomElement (const ConfigEntry::Ptr& entry, QDomDocument &root);
 	};
 }
 using namespace Core;
