@@ -160,8 +160,8 @@ namespace Core
 			entry->type = ConfigEntry::Value;
 		}
 		else if (element.nodeName()=="data") {
-			//TODO
 			entry->type = ConfigEntry::Value;
+			entry->value = QVariant(QByteArray::fromBase64(element.text().toLatin1()));
 		}
 		else if (element.nodeName()=="date") {
 			//TODO
@@ -238,12 +238,19 @@ namespace Core
 
 	void PListConfigBackend::generate(const QString& file, const qutim_sdk_0_3::ConfigEntry::Ptr& entry)
 	{
-		QDomDocument root;
+		QDomDocument root ();
 		QDomElement plist = root.createElement("plist");
 		plist.setAttribute("version","1.0");
 		plist.appendChild(generateQDomElement(entry,root));
 		root.appendChild(plist);
-		qDebug() << root.toString();
+		QFile output (file);
+	    if (!output.open(QIODevice::WriteOnly)) {
+			qWarning() << tr("Cannot write to file %1").arg(file);
+			return;
+		}
+		QTextStream out(&output);
+		root.save(out,2,QDomNode::EncodingFromDocument);
+		output.close();
 	}
 
 }
