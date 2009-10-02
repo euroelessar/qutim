@@ -245,8 +245,10 @@ namespace qutim_sdk_0_3
 		if(ConfigPrivate::config_backends.isEmpty())
 			return;
 		QFileInfo info(filename);
+
 		ConfigBackend *backend_ptr = 0;
 		QString filepath;
+		qDebug() << "test";
 		if(info.isAbsolute())
 		{
 			backend_ptr = choose_backend(ConfigPrivate::config_backends,
@@ -272,7 +274,7 @@ namespace qutim_sdk_0_3
 		}
 		ConfigEntry::Ptr entry = backend_ptr->parse(filepath);
 		if(entry.isNull())
-			return;
+			entry = ConfigEntry::Ptr(new ConfigEntry);
 		p = new ConfigPrivate;
 		p->file = filename;
 		ConfigEntryInfo entry_info = { entry, filename, backend_ptr };
@@ -328,7 +330,7 @@ namespace qutim_sdk_0_3
 			if(first)
 			{
 				if(entry.isNull())
-					return;
+					entry = ConfigEntry::Ptr(new ConfigEntry);
 				p = new ConfigPrivate;
 				p->file = filepath;
 				first = false;
@@ -340,7 +342,7 @@ namespace qutim_sdk_0_3
 			p->entries << entry.toWeakRef();
 		}
 	}
-		
+
 	Config::Config(const Config &other) : p(other.p)
 	{
 	}

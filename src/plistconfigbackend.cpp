@@ -238,7 +238,12 @@ namespace Core
 
 	void PListConfigBackend::generate(const QString& file, const qutim_sdk_0_3::ConfigEntry::Ptr& entry)
 	{
-		QDomDocument root ();
+		QDomImplementation dom_impl;
+		QDomDocumentType type = dom_impl.createDocumentType(QLatin1String("plist"),
+															QLatin1String("-//Apple Computer//DTD PLIST 1.0//EN"),
+															QLatin1String("http://www.apple.com/DTDs/PropertyList-1.0.dtd")
+															);
+		QDomDocument root (type);
 		QDomElement plist = root.createElement("plist");
 		plist.setAttribute("version","1.0");
 		plist.appendChild(generateQDomElement(entry,root));
@@ -249,6 +254,7 @@ namespace Core
 			return;
 		}
 		QTextStream out(&output);
+		out << QLatin1String("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //hack
 		root.save(out,2,QDomNode::EncodingFromDocument);
 		output.close();
 	}

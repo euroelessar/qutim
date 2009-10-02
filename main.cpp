@@ -52,9 +52,8 @@ Q_IMPORT_PLUGIN(qjpeg)
 Q_IMPORT_PLUGIN(qgif)
 #endif
 
-void test_config(int totalnum)
+void test_config(QString filename, int totalnum)
 {
-	QString filename = "/home/elessar/test3.json";
 	if(QFile::exists(filename))
 		QFile::remove(filename);
 	int a[3];
@@ -62,7 +61,7 @@ void test_config(int totalnum)
 	time.start();
 	{
 		Config config(filename);
-		ConfigGroup group = config.group("123");
+		ConfigGroup group = config.group ("123");
 		for(int i = 0; i < totalnum; i++)
 		{
 			QString num = QString::number(i);
@@ -89,7 +88,7 @@ void test_config(int totalnum)
 
 void test_settings(int totalnum)
 {
-	QString filename = "/home/elessar/test3.ini";
+	QString filename = "/home/sauron/develop/temporary/test.ini";
 	if(QFile::exists(filename))
 		QFile::remove(filename);
 	int a[3];
@@ -131,7 +130,7 @@ void testPListSettings()
 }
 
 // Uncomment it for speed tests
-#define SPEED_TEST 1
+#define SPEED_TEST 0
 
 int main(int argc, char *argv[])
 {
@@ -150,7 +149,12 @@ int main(int argc, char *argv[])
 #endif
 #if SPEED_TEST
 	//testEventSystemSpeed();
-	testPListSettings();
+	qDebug() << "json:";
+	test_config("/home/sauron/develop/temporary/text.json",10000000);
+	qDebug() << "plist:";
+	test_config("/home/sauron/develop/temporary/text.plist",10000000);
+	qDebug() << "qsettings/ini:";
+	test_settings(10000000);
 	return 0;
 #endif
 
