@@ -33,7 +33,8 @@ SOURCES += tcpsocket.cpp \
     objectgenerator.cpp \
     icon.cpp \
     event_test.cpp \
-    notificationslayer.cpp
+    notificationslayer.cpp \
+    iconbackend.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
     domaininfo.h \
@@ -59,6 +60,7 @@ HEADERS += tcpsocket.h \
     objectgenerator.h \
     icon.h \
     event_test_p.h \
-    notificationslayer.h
+    notificationslayer.h \
+    iconbackend_p.h
 include(../3rdparty/jdns/jdns.pri)
 include(../3rdparty/k8json/k8json.pri)

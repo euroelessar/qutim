@@ -14,7 +14,12 @@
 *****************************************************************************/
 
 #include "icon.h"
+#include "iconbackend_p.h"
 
-Icon::Icon()
+Icon::Icon(const QString &name) : QIcon(new IconBackend(name))
+{
+}
+
+Icon::Icon(const QIcon &icon) : QIcon(icon)
 {
 }

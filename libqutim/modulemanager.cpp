@@ -59,6 +59,8 @@ namespace qutim_sdk_0_3
 			QHash<QString, QPointer<Protocol> > *protocols_hash;
 			QHash<QString, Protocol *> *protocols;
 		};
+		QSet<QByteArray> interface_modules;
+		QSet<const QMetaObject *> meta_modules;
 	};
 
 	bool isCoreInited()
@@ -72,6 +74,19 @@ namespace qutim_sdk_0_3
 		if(isCoreInited())
 		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = ModuleManager::self->getExtensions(module);
+			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.constBegin();
+			for(; it != exts.constEnd(); it++)
+				list << it.value().generator();
+		}
+		return list;
+	}
+
+	GeneratorList moduleGenerators(const char *iid)
+	{
+		GeneratorList list;
+		if(isCoreInited())
+		{
+			QMultiMap<Plugin *, ExtensionInfo> exts = ModuleManager::self->getExtensions(iid);
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.constBegin();
 			for(; it != exts.constEnd(); it++)
 				list << it.value().generator();
@@ -196,18 +211,23 @@ namespace qutim_sdk_0_3
 				QPluginLoader *loader = new QPluginLoader(filename);
 				loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
 				QObject *object = loader->instance();
-				Plugin *plugin = qobject_cast<Plugin *>(object);
-//				if(!plugin)
-//					plugin = createDeprecatedPlugin(object);
-				if(plugin)
+				if(Plugin *plugin = qobject_cast<Plugin *>(object))
 				{
-					qDebug("%s", qPrintable(filename));
 					plugin->init();
 					p->plugins.append(plugin);
+					QList<ExtensionInfo> exts = plugin->avaiableExtensions();
+					for(int j = 0; j < exts.size(); j++)
+					{
+						if(const char *id = exts.at(i).generator()->iid())
+							p->interface_modules.insert(QByteArray(id));
+					}
 				}
 				else
 				{
-					delete object;
+					if(object)
+						delete object;
+					else
+						qWarning("%s", qPrintable(loader->errorString()));
 					loader->unload();
 				}
 			}
@@ -216,6 +236,7 @@ namespace qutim_sdk_0_3
 
 	QMultiMap<Plugin *, ExtensionInfo> ModuleManager::getExtensions(const QMetaObject *service_meta) const
 	{
+		p->meta_modules.insert(service_meta);
 		QMultiMap<Plugin *, ExtensionInfo> result;
 		if(!service_meta)
 			return result;
@@ -231,16 +252,43 @@ namespace qutim_sdk_0_3
 			else
 			{
 				plugin = p->plugins.at(i);
-				qDebug() << plugin;
 				if(!plugin)
 					continue;
-				qDebug() << plugin->metaObject()->className();
 				extensions = plugin->avaiableExtensions();
 			}
 			for(int j = 0; j < extensions.size(); j++)
 			{
-				qDebug() << extensions.at(j).generator()->metaObject()->className() << extensions.at(j).generator()->extends(service_meta);
 				if(extensions.at(j).generator()->extends(service_meta))
+					result.insert(plugin, extensions.at(j));
+			}
+		}
+		return result;
+	}
+
+	QMultiMap<Plugin *, ExtensionInfo> ModuleManager::getExtensions(const char *interface_id) const
+	{
+		QMultiMap<Plugin *, ExtensionInfo> result;
+		if(!interface_id)
+			return result;
+		for(int i = -1; i < p->plugins.size(); i++)
+		{
+			Plugin *plugin;
+			QList<ExtensionInfo> extensions;
+			if(i < 0)
+			{
+				plugin = 0;
+				extensions = self->coreExtensions();
+			}
+			else
+			{
+				plugin = p->plugins.at(i);
+				if(!plugin)
+					continue;
+				extensions = plugin->avaiableExtensions();
+			}
+			for(int j = 0; j < extensions.size(); j++)
+			{
+				if(extensions.at(j).generator()->extends(interface_id))
 					result.insert(plugin, extensions.at(j));
 			}
 		}
@@ -291,6 +339,8 @@ namespace qutim_sdk_0_3
 					qWarning("%s has no 'Protocol' class info", meta->className());
 					continue;
 				}
+				else
+					qDebug("Found protocol '%s'", name.constData());
 				Protocol *protocol = it.value().generator()->generate<Protocol>();
 				p->protocols_hash->insert(protocol->id(), protocol);
 			}

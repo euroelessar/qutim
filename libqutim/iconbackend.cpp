@@ -1,0 +1,63 @@
+#include "iconbackend_p.h"
+
+IconBackend::IconBackend(const QString &name) : m_name(name)
+{
+	m_theme_icon = QIcon::fromTheme(name);
+}
+
+void IconBackend::paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state)
+{
+	QIconEngineV2 *engine = currentIconEngine();
+	engine->paint(painter, rect, mode, state);
+}
+
+QSize IconBackend::actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state)
+{
+	QIconEngineV2 *engine = currentIconEngine();
+	return engine->actualSize(size, mode, state);
+}
+
+QPixmap IconBackend::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state)
+{
+	QIconEngineV2 *engine = currentIconEngine();
+	return engine->pixmap(size, mode, state);
+}
+
+void IconBackend::addPixmap(const QPixmap &, QIcon::Mode, QIcon::State)
+{
+}
+
+void IconBackend::addFile(const QString &, const QSize &, QIcon::Mode, QIcon::State)
+{
+}
+
+QString IconBackend::key() const
+{
+	return QLatin1String("qutIM");
+}
+
+QIconEngineV2 *IconBackend::clone() const
+{
+	IconBackend *icon = new IconBackend;
+	icon->m_name = m_name;
+	icon->m_theme_icon = m_theme_icon;
+	return icon;
+}
+
+bool IconBackend::read(QDataStream &in)
+{
+	in >> m_name;
+	return true;
+}
+
+bool IconBackend::write(QDataStream &out) const
+{
+	out << m_name;
+	return true;
+}
+
+void IconBackend::virtual_hook(int id, void *data)
+{
+	QIconEngineV2 *engine = currentIconEngine();
+	return engine->virtual_hook(id, data);
+}

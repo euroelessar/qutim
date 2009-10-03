@@ -42,6 +42,7 @@ namespace qutim_sdk_0_3
 		virtual ~ModuleManager();
 		void loadPlugins(const QStringList &additional_paths = QStringList());
 		QMultiMap<Plugin *, ExtensionInfo> getExtensions(const QMetaObject *service_meta) const;
+		QMultiMap<Plugin *, ExtensionInfo> getExtensions(const char *interface_id) const;
 		template<typename T>
 		inline QMultiMap<Plugin *, ExtensionInfo> getExtensions()
 		{ return getExtensions(&T::staticMetaObject); }
@@ -53,7 +54,8 @@ namespace qutim_sdk_0_3
 		{ return static_cast<T *>(initExtension(&T::staticMetaObject)); }
 	private:
 		friend bool isCoreInited();
-		friend GeneratorList moduleGenerators(const QMetaObject *module);
+		friend GeneratorList moduleGenerators(const QMetaObject *);
+		friend GeneratorList moduleGenerators(const char *);
 		friend ProtocolMap allProtocols();
 		static ModuleManager *self;
 		ModuleManagerPrivate *p;

@@ -67,6 +67,13 @@ namespace qutim_sdk_0_3
 	LIBQUTIM_EXPORT const char *metaInfo(const QMetaObject *meta, const char *name);
 	LIBQUTIM_EXPORT bool isCoreInited();
 	LIBQUTIM_EXPORT GeneratorList moduleGenerators(const QMetaObject *module);
+	LIBQUTIM_EXPORT GeneratorList moduleGenerators(const char *iid);
+	template<typename T> inline GeneratorList moduleGenerators_helper(const QObject *)
+	{ return moduleGenerators(&T::staticMetaObject); }
+	template<typename T> inline GeneratorList moduleGenerators_helper(const void *)
+	{ return moduleGenerators(qobject_interface_iid<T *>()); }
+	template<typename T> inline GeneratorList moduleGenerators()
+	{ return moduleGenerators_helper<T>(reinterpret_cast<T *>(0)); }
 	LIBQUTIM_EXPORT ProtocolMap allProtocols();
 	LIBQUTIM_EXPORT QString statusToString(Status status, bool translate = true);
 }

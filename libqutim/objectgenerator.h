@@ -32,21 +32,28 @@ namespace qutim_sdk_0_3
 		{ return extends<T>() ? qobject_cast<T *>(generateHelper()) : 0; }
 		inline QObject *generate(const QMetaObject *super) const
 		{ return extends(super) ? generateHelper() : 0; }
+		inline QObject *generate(const char *id) const
+		{ return extends(id) ? generateHelper() : 0; }
 		virtual const QMetaObject *metaObject() const = 0;
+		virtual const char *iid() const = 0;
 		inline bool extends(const QMetaObject *super) const
 		{
 			const QMetaObject *meta = metaObject();
 			while(meta && ((meta = meta->superClass()) != super));
-			return meta == super;
+			return super && meta == super;
 		}
+		inline bool extends(const char *id) const
+		{ return id && !qstrcmp(id, iid()); }
 		template<typename T>
 		inline bool extends() const
-		{
-			const QMetaObject *meta = metaObject();
-			while(meta && ((meta = meta->superClass()) != &T::staticMetaObject));
-			return meta == &T::staticMetaObject;
-		}
+		{ return extends_helper<T>(reinterpret_cast<T *>(0)); }
 	protected:
+		template<typename T>
+		inline bool extends_helper(const QObject *) const
+		{ return extends(&T::staticMetaObject); }
+		template<typename T>
+		inline bool extends_helper(const void *) const
+		{ return extends(qobject_interface_iid<T *>()); }
 		virtual QObject *generateHelper() const = 0;
 		inline ObjectGenerator() {}
 		mutable QPointer<QObject> m_object;
@@ -68,6 +75,33 @@ namespace qutim_sdk_0_3
 		virtual const QMetaObject *metaObject() const
 		{
 			return &T::staticMetaObject;
+		}
+		virtual const char *iid() const
+		{
+			return 0;
+		}
+	};
+
+	template<typename T, typename Interface>
+	class LIBQUTIM_EXPORT InterfaceGenerator : public ObjectGenerator
+	{
+		Q_DISABLE_COPY(InterfaceGenerator)
+	public:
+		inline InterfaceGenerator() {}
+	protected:
+		virtual QObject *generateHelper() const
+		{
+			if(m_object.isNull())
+				m_object = new T();
+			return m_object.data();
+		}
+		virtual const QMetaObject *metaObject() const
+		{
+			return 0;
+		}
+		virtual const char *iid() const
+		{
+			return qobject_interface_iid<Interface *>();
 		}
 	};
 }

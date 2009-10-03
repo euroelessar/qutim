@@ -1,7 +1,7 @@
 #ifndef NOTIFICATIONSLAYER_H
 #define NOTIFICATIONSLAYER_H
 
-#include <QObject>
+#include "libqutim_global.h"
 #include <QPointer>
 
 namespace qutim_sdk_0_3
@@ -13,8 +13,10 @@ namespace qutim_sdk_0_3
 	};
 
 	struct NotificationsLayerPrivate;
-	class PopupBackend : public QObject
+	class LIBQUTIM_EXPORT PopupBackend : public QObject
 	{
+		Q_OBJECT
+	public:
 		virtual void show(NotificationType type,
 						  QObject *sender,
 						  const QString &title,
@@ -22,16 +24,16 @@ namespace qutim_sdk_0_3
 						  ) = 0;
 	};
 
-	class SoundBackend : public QObject
+	class LIBQUTIM_EXPORT SoundBackend : public QObject
 	{
 		Q_OBJECT
 	public:
 		virtual void playSound (const QString &filename) = 0;
 	protected:
-		virtual void virtual_hook(int type, void *data());
+		virtual void virtual_hook(int type, void *data);
 	};
 
-	class SoundThemeBackend : public QObject
+	class LIBQUTIM_EXPORT SoundThemeBackend : public QObject
 	{
 		//TODO
 		Q_OBJECT
@@ -39,7 +41,7 @@ namespace qutim_sdk_0_3
 		virtual bool loadTheme(const QString &path) = 0;
 	};
 
-	class SoundThemeProvider : public QObject
+	class LIBQUTIM_EXPORT SoundThemeProvider : public QObject
 	{
 		Q_OBJECT
 	public:
@@ -48,7 +50,7 @@ namespace qutim_sdk_0_3
 		virtual QString sound(NotificationType sound) = 0;
 	};
 
-	class NotificationsLayer : public QObject
+	class LIBQUTIM_EXPORT NotificationsLayer : public QObject
 	{
 		Q_OBJECT
 	public:

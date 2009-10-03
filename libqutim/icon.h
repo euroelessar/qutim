@@ -27,7 +27,13 @@ public:
 	// so we create our own imlp of icon engine, which has wrapper
 	// around QIcon::fromTheme
 	enum Type { System, Status };
-    Icon();
+
+	// There is also another way: i.e. give names for icons
+	// like "user-online-jabber", "user-online-icq" and so on
+	// names for clients should be like "miranda" or "qutim"
+	Icon(const QString &name);
+
+	Icon(const QIcon &icon);
 };
 
 #endif // ICON_H
