@@ -43,18 +43,15 @@ void Md5Login::handleSNAC(OscarConnection *conn, const SNAC &sn)
 	}
 	else if(sn.subtype() == SignonLoginReply)
 	{
-		TLVMap tlvs = TLV::parseByteArray(sn.data());
+		TLVMap tlvs = sn.readTLVChain();
 		if(tlvs.contains(0x01) && tlvs.contains(0x05) && tlvs.contains(0x06))
 		{
-			TLV &boss = tlvs[0x05];
-			TLV &cookie = tlvs[0x06];
-			QList<QByteArray> list = boss.value().split(':');
-			conn->connectToBOSS(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, cookie.value());
+			QList<QByteArray> list = tlvs.value(0x05).value().split(':');
+			conn->connectToBOSS(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, tlvs.value(0x06).value());
 		}
 		else
 		{
-			const TLV &error = tlvs[0x08];
-			qDebug() << Util::connectionErrorText(qFromBigEndian<quint16>((const uchar *)error.value().constData()));
+			qDebug() << Util::connectionErrorText(qFromBigEndian<quint16>((const uchar *)tlvs.value(0x08).value().constData()));
 		}
 	}
 }

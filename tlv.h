@@ -10,8 +10,7 @@
 
 class QDataStream;
 class TLV;
-
-typedef QMap<quint16, TLV> TLVMap;
+class TLVMap;
 
 class TLV
 {
@@ -37,8 +36,7 @@ public:
 	{ return fromByteArray(data.constData(), data.size(), bo); }
 	static TLV fromByteArray(const char *data, int length, ByteOrder bo = BigEndian);
 	static TLVMap parseByteArray(const char *data, int length, ByteOrder bo = BigEndian);
-	static inline TLVMap parseByteArray(const QByteArray &data, ByteOrder bo = BigEndian)
-	{ return parseByteArray(data.constData(), data.size(), bo); }
+	static inline TLVMap parseByteArray(const QByteArray &data, ByteOrder bo = BigEndian);
 	static TLV fromTypeValue(quint16 type, const QByteArray &value);
 	static TLV fromTypeValue(quint16 type, const QString &value);
 	template<typename T>
@@ -48,6 +46,36 @@ private:
 	quint16 m_type;
 	QByteArray m_value;
 };
+
+class TLVMap : public QMultiMap<quint16, TLV>
+{
+public:
+	enum ByteOrder {
+		BigEndian = QSysInfo::BigEndian,
+		LittleEndian = QSysInfo::LittleEndian
+	};
+	inline TLVMap() {}
+	inline TLVMap(const QMap<quint16, TLV> &other) : QMultiMap<quint16, TLV>(other) {}
+
+//	TLVMap(const QByteArray &data, ByteOrder bo = BigEndian);
+
+	inline TLV value(int key)
+	{ return QMultiMap<quint16, TLV>::value(key); }
+	inline TLV value(int key) const
+	{ return QMultiMap<quint16, TLV>::value(key); }
+
+	template<typename T>
+	T value(quint16 type, const T &def = T()) const
+	{
+		TLVMap::const_iterator it = find(type);
+		return it == constEnd() ? def : it->value<T>();
+	}
+};
+
+TLVMap TLV::parseByteArray(const QByteArray &data, ByteOrder bo)
+{
+	return parseByteArray(data.constData(), data.size(), bo);
+}
 
 template<>
 Q_INLINE_TEMPLATE QByteArray TLV::value<QByteArray>() const

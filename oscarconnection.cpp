@@ -6,8 +6,10 @@
 #include "protocolnegotiation.h"
 #include "roster.h"
 #include "icqaccount.h"
+#include <qutim/objectgenerator.h>
 #include <QHostInfo>
 #include <QBuffer>
+#include <QTimer>
 
 quint16 generate_flap_sequence()
 {
@@ -36,8 +38,9 @@ OscarConnection::OscarConnection(IcqAccount *parent) : QObject(parent)
 	connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
 	registerHandler(new Md5Login);
 	registerHandler(new ProtocolNegotiation);
-	registerHandler(new Roster);
 	m_is_idle = false;
+	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
+		registerHandler(gen->generate<SNACHandler>());
 }
 
 void OscarConnection::send(FLAP &flap)
@@ -104,6 +107,12 @@ void OscarConnection::approveConnection()
 	// It's some strange unknown shit, but ICQ 6.5 sends it
 	flap.appendTLV<quint32>(0x8003, 0x00100000);
 	send(flap);
+}
+
+void OscarConnection::disconnectFromHost(bool force)
+{
+	Q_UNUSED(force);
+	m_socket->disconnectFromHost();
 }
 
 void OscarConnection::connectToBOSS(const QByteArray &host, int port, const QByteArray &cookie)
@@ -185,38 +194,38 @@ void OscarConnection::processCloseConnection()
 
 void OscarConnection::readData()
 {
-	do
+	if(m_flap.readData(m_socket))
 	{
-		if(m_flap.readData(m_socket))
+		if(m_flap.isFinished())
 		{
-			if(m_flap.isFinished())
+			switch(m_flap.channel())
 			{
-				switch(m_flap.channel())
-				{
-				case 0x01:
-					processNewConnection();
-					break;
-				case 0x02:
-					processSnac();
-					break;
-				case 0x04:
-					processCloseConnection();
-					break;
-				default:
-					qDebug("Unknown shac channel: 0x%04X", (int)m_flap.channel());
-				case 0x03:
-				case 0x05:
-					break;
-				}
-				m_flap.clear();
+			case 0x01:
+				processNewConnection();
+				break;
+			case 0x02:
+				processSnac();
+				break;
+			case 0x04:
+				processCloseConnection();
+				break;
+			default:
+				qDebug("Unknown shac channel: 0x%04X", (int)m_flap.channel());
+			case 0x03:
+			case 0x05:
+				break;
 			}
+			m_flap.clear();
 		}
-		else
-		{
-			qCritical("Strange situation at %s: %d", Q_FUNC_INFO, __LINE__);
-			m_socket->close();
-		}
-	} while(m_socket->bytesAvailable());
+		// Just give a chance to other parts of qutIM to do something if needed
+		if(m_socket->bytesAvailable())
+			QTimer::singleShot(0, this, SLOT(readData()));
+	}
+	else
+	{
+		qCritical("Strange situation at %s: %d", Q_FUNC_INFO, __LINE__);
+		m_socket->close();
+	}
 }
 
 void OscarConnection::finishLogin()

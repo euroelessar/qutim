@@ -41,7 +41,6 @@ void ProtocolNegotiation::handleSNAC(OscarConnection *conn, const SNAC &sn)
 		// Skip uin
 		Q_UNUSED(sn.readData<quint8>());
 		sn.skipData(4);
-		QByteArray tlv_data = sn.readAll();
 		// Login
 		qDebug() << (m_login_reqinfo == sn.id());
 		if(m_login_reqinfo == sn.id())
@@ -56,7 +55,7 @@ void ProtocolNegotiation::handleSNAC(OscarConnection *conn, const SNAC &sn)
 			// TLV(x1E) Unknown: empty.
 			// TLV(x05) Member of ICQ since.
 			// TLV(x14) Unknown
-			TLVMap tlvs = TLV::parseByteArray(tlv_data);
+			TLVMap tlvs = sn.readTLVChain();
 			quint32 ip = tlvs.value(0x0a).value<quint32>();
 			conn->setExternalIP(QHostAddress(ip));
 			qDebug() << conn->externalIP();

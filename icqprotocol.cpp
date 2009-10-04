@@ -55,6 +55,11 @@ IcqProtocol::~IcqProtocol()
 	self = 0;
 }
 
+AccountCreationWizard *IcqProtocol::accountCreationWizard()
+{
+	return 0;
+}
+
 void IcqProtocol::loadAccounts()
 {
 	QStringList accounts = config("general").value("accounts", QStringList());

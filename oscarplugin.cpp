@@ -11,7 +11,7 @@ void OscarPlugin::init()
 	qDebug("%s", Q_FUNC_INFO);
 	m_info = PluginInfo(QT_TRANSLATE_NOOP("Plugin", "Oscar"),
 						QT_TRANSLATE_NOOP("Plugin", "Module-based realization of Oscar protocol"),
-						QUTIM_VERSION_CHECK(0, 0, 1, 0));
+						PLUGIN_VERSION(0, 0, 1, 0));
 	m_info.addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 					 QT_TRANSLATE_NOOP("Task", "Author"),
 					 QLatin1String("euroelessar@gmail.com"));

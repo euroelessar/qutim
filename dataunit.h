@@ -29,14 +29,16 @@ public:
 	template<typename T>
 	T readSimple(ByteOrder bo = BigEndian) const;
 	template<typename L>
-	QByteArray readData() const;
+	QByteArray readData(ByteOrder bo = BigEndian) const;
+	inline QByteArray readData(uint size) const;
 	template<typename L>
-	QString readString() const;
+	QString readString(ByteOrder bo = BigEndian) const;
 	inline void skipData(uint num) const { m_state = qMin<uint>(m_state + num, m_data.size()); }
 	inline QByteArray readAll() const;
 	TLV readTLV(ByteOrder bo = BigEndian) const;
 	template<typename L>
 	TLVMap readTLVChain(ByteOrder bo = BigEndian) const;
+	inline TLVMap readTLVChain(ByteOrder bo = BigEndian) const;
 protected:
 	QByteArray m_data;
 private:
@@ -111,24 +113,28 @@ Q_INLINE_TEMPLATE T DataUnit::readSimple(ByteOrder bo) const
 }
 
 template<typename L>
-Q_INLINE_TEMPLATE QByteArray DataUnit::readData() const
+Q_INLINE_TEMPLATE QByteArray DataUnit::readData(ByteOrder bo) const
+{
+	return readData(readSimple<L>(bo));
+}
+
+QByteArray DataUnit::readData(uint size) const
 {
 	QByteArray str;
-	L len = readSimple<L>();
-	if(dataSize() < len)
+	if(dataSize() < size)
 	{
 		m_state = m_data.size();
 		return str;
 	}
-	str = QByteArray::fromRawData(m_data.constData() + m_state, len);
-	m_state += len;
+	str = QByteArray::fromRawData(m_data.constData() + m_state, size);
+	m_state += size;
 	return str;
 }
 
 template<typename L>
-Q_INLINE_TEMPLATE QString DataUnit::readString() const
+Q_INLINE_TEMPLATE QString DataUnit::readString(ByteOrder bo) const
 {
-	return QString::fromUtf8(readData<L>());
+	return QString::fromUtf8(readData<L>(bo));
 }
 
 QByteArray DataUnit::readAll() const
@@ -144,6 +150,19 @@ Q_INLINE_TEMPLATE TLVMap DataUnit::readTLVChain(ByteOrder bo) const
 	TLVMap tlvs;
 	L count = readSimple<L>();
 	for(L i = 0; i < count; i++)
+	{
+		TLV tlv = readTLV(bo);
+		if(tlv.type() == 0xffff)
+			return tlvs;
+		tlvs.insert(tlv.type(), tlv);
+	}
+	return tlvs;
+}
+
+TLVMap DataUnit::readTLVChain(ByteOrder bo) const
+{
+	TLVMap tlvs;
+	forever
 	{
 		TLV tlv = readTLV(bo);
 		if(tlv.type() == 0xffff)

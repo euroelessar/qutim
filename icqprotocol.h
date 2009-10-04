@@ -15,6 +15,7 @@ public:
     IcqProtocol();
 	virtual ~IcqProtocol();
 	static inline IcqProtocol *instance() { if(!self) qWarning("IcqProtocol isn't created"); return self; }
+	virtual AccountCreationWizard *accountCreationWizard();
 protected:
 	void loadAccounts();
 private:

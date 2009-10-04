@@ -7,6 +7,7 @@ using namespace qutim_sdk_0_3;
 
 class OscarPlugin : public Plugin
 {
+	Q_OBJECT
 public:
     OscarPlugin();
 	void init();

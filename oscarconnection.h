@@ -49,6 +49,7 @@ public:
 	void connectToLoginServer();
 	void connectToBOSS(const QByteArray &host, int port, const QByteArray &cookie);
 	void approveConnection();
+	void disconnectFromHost(bool force = true);
 	void md5Login();
 	void setSeqNum(quint16 seqnum);
 	// max value is 0x7fff, min is 0

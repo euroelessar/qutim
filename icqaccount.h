@@ -6,6 +6,7 @@
 using namespace qutim_sdk_0_3;
 
 struct IcqAccountPrivate;
+class Roster;
 
 class IcqAccount : public Account
 {
@@ -14,6 +15,7 @@ public:
 	IcqAccount(const QString &uin);
 	virtual ~IcqAccount();
 	virtual void setStatus(Status status);
+	Roster *roster();
 private:
 	QScopedPointer<IcqAccountPrivate> p;
 };
