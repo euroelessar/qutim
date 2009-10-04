@@ -14,7 +14,6 @@
 *****************************************************************************/
 
 #include "contactlistitemdelegate.h"
-#include "proxymodelitem.h"
 #include <QDir>
 #include <QFile>
 #include <QScrollBar>
@@ -54,7 +53,7 @@ void ContactListItemDelegate::setSettings(QList<bool> show_icons, double opacity
 }
 void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option2, const QModelIndex &index) const
 {
-	ProxyModelItem *item = static_cast<ProxyModelItem*>(index.internalPointer());
+//	ProxyModelItem *item = static_cast<ProxyModelItem*>(index.internalPointer());
 	QStyleOptionViewItem option = option2;
 
 	QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
@@ -98,9 +97,9 @@ void ContactListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
                 background_painter->setBrush(QBrush(QColor(255,255,255,0)));
                 switch(type)
                 {
-                case 0:{
-                        if(item->childNumber()==item->parent()->childCount()-1)
-                                rect_type=2;
+				case 0:{
+//                        if(item->childNumber()==item->parent()->childCount()-1)
+//                                rect_type=2;
                         QString type = index.data(Qt::UserRole+3).toString();
                         alpha = getAlphaMask(painter,rect,rect_type);
                         font = m_style_fonts.value("contact",font);

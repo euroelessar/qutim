@@ -31,42 +31,42 @@
 #include "abstractcontextlayer.h"
 #include "console.h"
 #include "iconmanager.h"
-#ifndef NO_CORE_ANTISPAM
-#  include "corelayers/antispam/abstractantispamlayer.h"
-#endif
-#ifndef NO_CORE_CHAT
-#  include "corelayers/chat/chatlayerclass.h"
-#endif
-#ifndef NO_CORE_CONTACTLIST
-#  include "corelayers/contactlist/defaultcontactlist.h"
-#endif
-#ifndef NO_CORE_EMOTICONS
-#  include "corelayers/emoticons/abstractemoticonslayer.h"
-#endif
-#ifndef NO_CORE_HISTORY
-#  include "corelayers/history/historylayer.h"
-#endif
-#ifndef NO_CORE_NOTIFICATION
-#  include "corelayers/notification/defaultnotificationlayer.h"
-#endif
-#ifndef NO_CORE_SETTINGS
-#  include "corelayers/settings/qsettingslayer.h"
-#endif
-#ifndef NO_CORE_SOUNDENGINE
-#  include "corelayers/soundengine/defaultsoundenginelayer.h"
-#endif
-#ifndef NO_CORE_SPELLER
-#  include "corelayers/speller/spellerlayerclass.h"
-#endif
-#ifndef NO_CORE_STATUS
-#  include "corelayers/status/defaultstatuslayer.h"
-#endif
-#ifndef NO_CORE_TRAY
-#  include "corelayers/tray/defaulttraylayer.h"
-#endif
-#ifndef NO_CORE_VIDEOENGINE
-//#  include "corelayers/videoengine/defaultvideoenginelayer.h"
-#endif
+//#ifndef NO_CORE_ANTISPAM
+//#  include "corelayers/antispam/abstractantispamlayer.h"
+//#endif
+//#ifndef NO_CORE_CHAT
+//#  include "corelayers/chat/chatlayerclass.h"
+//#endif
+//#ifndef NO_CORE_CONTACTLIST
+////#  include "corelayers/contactlist/defaultcontactlist.h"
+//#endif
+//#ifndef NO_CORE_EMOTICONS
+//#  include "corelayers/emoticons/abstractemoticonslayer.h"
+//#endif
+//#ifndef NO_CORE_HISTORY
+//#  include "corelayers/history/historylayer.h"
+//#endif
+//#ifndef NO_CORE_NOTIFICATION
+////#  include "corelayers/notification/defaultnotificationlayer.h"
+//#endif
+//#ifndef NO_CORE_SETTINGS
+//#  include "corelayers/settings/qsettingslayer.h"
+//#endif
+//#ifndef NO_CORE_SOUNDENGINE
+//#  include "corelayers/soundengine/defaultsoundenginelayer.h"
+//#endif
+//#ifndef NO_CORE_SPELLER
+//#  include "corelayers/speller/spellerlayerclass.h"
+//#endif
+//#ifndef NO_CORE_STATUS
+//#  include "corelayers/status/defaultstatuslayer.h"
+//#endif
+//#ifndef NO_CORE_TRAY
+//#  include "corelayers/tray/defaulttraylayer.h"
+//#endif
+//#ifndef NO_CORE_VIDEOENGINE
+////#  include "corelayers/videoengine/defaultvideoenginelayer.h"
+//#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream>
@@ -555,14 +555,14 @@ void PluginSystem::initPlugins( QObjectList plugins )
 	foreach(QObject *plugin, plugins)
 		loadPlugin(plugin);
 
-#ifndef NO_CORE_SETTINGS
-	if( !m_layer_interfaces.contains( SettingsLayer ) )
-	{
-		LayerInterface *layer_interface = new QSettingsLayer();
-		layer_interface->init(this);
-		m_layer_interfaces.insert(SettingsLayer, layer_interface);
-	}
-#endif
+//#ifndef NO_CORE_SETTINGS
+//	if( !m_layer_interfaces.contains( SettingsLayer ) )
+//	{
+//		LayerInterface *layer_interface = new QSettingsLayer();
+//		layer_interface->init(this);
+//		m_layer_interfaces.insert(SettingsLayer, layer_interface);
+//	}
+//#endif
 	m_settings = static_cast<SettingsLayerInterface *>( m_layer_interfaces.value( SettingsLayer ) );
 }
 
@@ -632,94 +632,94 @@ LayerInterface *PluginSystem::getLayerInterface(LayerType type)
 
 void PluginSystem::initiateLayers(const QString &profile_name)
 {
-#ifndef NO_CORE_ANTISPAM
-	if(!m_layer_interfaces.contains(AntiSpamLayer))
-	{
-		LayerInterface *layer_interface = new AbstractAntiSpamLayer();
-		layer_interface->init(this);
-		m_layer_interfaces.insert(AntiSpamLayer, layer_interface);
-	}
-#endif
-#ifndef NO_CORE_CHAT
-	if(!m_layer_interfaces.contains(ChatLayer))
-	{
-		LayerInterface *layer_interface = new ChatLayerClass();
-		layer_interface->init(this);
-		m_layer_interfaces.insert(ChatLayer, layer_interface);
-	}
-#endif
-#ifndef NO_CORE_CONTACTLIST
-	if(!m_layer_interfaces.contains(ContactListLayer))
-	{
-		LayerInterface *layer_interface = new DefaultContactList();
-		layer_interface->init(this);
-		m_layer_interfaces.insert(ContactListLayer, layer_interface);
-	}
-#endif
-#ifndef NO_CORE_EMOTICONS
-	if(!m_layer_interfaces.contains(EmoticonsLayer))
-	{
-		LayerInterface *layer_interface = new CoreEmoticons::AbstractEmoticonsLayer();
-		layer_interface->init(this);
-		m_layer_interfaces.insert(EmoticonsLayer, layer_interface);
-	}
-#endif
-#ifndef NO_CORE_HISTORY
-	if(!m_layer_interfaces.contains(HistoryLayer))
-	{
-		LayerInterface *layer_interface = new AbstractHistoryLayer();
-		layer_interface->init(this);
-		m_layer_interfaces.insert(HistoryLayer, layer_interface);
-	}
-#endif
-#ifndef NO_CORE_NOTIFICATION
-	if(!m_layer_interfaces.contains(NotificationLayer))
-	{
-		LayerInterface *layer_interface = new DefaultNotificationLayer();
-		layer_interface->init(this);
-		m_layer_interfaces.insert(NotificationLayer, layer_interface);
-	}
-#endif
-#ifndef NO_CORE_SOUNDENGINE
-	if(!m_layer_interfaces.contains(SoundEngineLayer))
-	{
-		LayerInterface *layer_interface = new DefaultSoundEngineLayer();
-		layer_interface->init(this);
-		m_layer_interfaces.insert(SoundEngineLayer, layer_interface);
-	}
-#endif
-#ifndef NO_CORE_VIDEOENGINE
-//	if(!m_layer_interfaces.contains(VideoEngineLayer))
+//#ifndef NO_CORE_ANTISPAM
+//	if(!m_layer_interfaces.contains(AntiSpamLayer))
 //	{
-//		LayerInterface *layer_interface = new DefaultVideoEngineLayer();
+//		LayerInterface *layer_interface = new AbstractAntiSpamLayer();
 //		layer_interface->init(this);
-//		m_layer_interfaces.insert(SoundVideoLayer, layer_interface);
+//		m_layer_interfaces.insert(AntiSpamLayer, layer_interface);
 //	}
-#endif
-#ifndef NO_CORE_SPELLER
-	if(!m_layer_interfaces.contains(SpellerLayer))
-	{
-		LayerInterface *layer_interface = new SpellerLayerClass();
-		layer_interface->init(this);
-		m_layer_interfaces.insert(SpellerLayer, layer_interface);
-	}
-#endif
-#ifndef NO_CORE_STATUS
-	if(!m_layer_interfaces.contains(StatusLayer))
-	{
-		LayerInterface *layer_interface = new DefaultStatusLayer();
-		layer_interface->init(this);
-		m_layer_interfaces.insert(StatusLayer, layer_interface);
-	}
-#endif
-#ifndef NO_CORE_TRAY
-	if(!m_layer_interfaces.contains(TrayLayer))
-	{
-		LayerInterface *layer_interface = new DefaultTrayLayer();
-		layer_interface->init(this);
-		m_layer_interfaces.insert(TrayLayer, layer_interface);
-	}
-#endif
+//#endif
+//#ifndef NO_CORE_CHAT
+//	if(!m_layer_interfaces.contains(ChatLayer))
+//	{
+//		LayerInterface *layer_interface = new ChatLayerClass();
+//		layer_interface->init(this);
+//		m_layer_interfaces.insert(ChatLayer, layer_interface);
+//	}
+//#endif
+//#ifndef NO_CORE_CONTACTLIST
+//	if(!m_layer_interfaces.contains(ContactListLayer))
+//	{
+//		LayerInterface *layer_interface = new DefaultContactList();
+//		layer_interface->init(this);
+//		m_layer_interfaces.insert(ContactListLayer, layer_interface);
+//	}
+//#endif
+//#ifndef NO_CORE_EMOTICONS
+//	if(!m_layer_interfaces.contains(EmoticonsLayer))
+//	{
+//		LayerInterface *layer_interface = new CoreEmoticons::AbstractEmoticonsLayer();
+//		layer_interface->init(this);
+//		m_layer_interfaces.insert(EmoticonsLayer, layer_interface);
+//	}
+//#endif
+//#ifndef NO_CORE_HISTORY
+//	if(!m_layer_interfaces.contains(HistoryLayer))
+//	{
+//		LayerInterface *layer_interface = new AbstractHistoryLayer();
+//		layer_interface->init(this);
+//		m_layer_interfaces.insert(HistoryLayer, layer_interface);
+//	}
+//#endif
+//#ifndef NO_CORE_NOTIFICATION
+//	if(!m_layer_interfaces.contains(NotificationLayer))
+//	{
+//		LayerInterface *layer_interface = new DefaultNotificationLayer();
+//		layer_interface->init(this);
+//		m_layer_interfaces.insert(NotificationLayer, layer_interface);
+//	}
+//#endif
+//#ifndef NO_CORE_SOUNDENGINE
+//	if(!m_layer_interfaces.contains(SoundEngineLayer))
+//	{
+//		LayerInterface *layer_interface = new DefaultSoundEngineLayer();
+//		layer_interface->init(this);
+//		m_layer_interfaces.insert(SoundEngineLayer, layer_interface);
+//	}
+//#endif
+//#ifndef NO_CORE_VIDEOENGINE
+////	if(!m_layer_interfaces.contains(VideoEngineLayer))
+////	{
+////		LayerInterface *layer_interface = new DefaultVideoEngineLayer();
+////		layer_interface->init(this);
+////		m_layer_interfaces.insert(SoundVideoLayer, layer_interface);
+////	}
+//#endif
+//#ifndef NO_CORE_SPELLER
+//	if(!m_layer_interfaces.contains(SpellerLayer))
+//	{
+//		LayerInterface *layer_interface = new SpellerLayerClass();
+//		layer_interface->init(this);
+//		m_layer_interfaces.insert(SpellerLayer, layer_interface);
+//	}
+//#endif
+//#ifndef NO_CORE_STATUS
+//	if(!m_layer_interfaces.contains(StatusLayer))
+//	{
+//		LayerInterface *layer_interface = new DefaultStatusLayer();
+//		layer_interface->init(this);
+//		m_layer_interfaces.insert(StatusLayer, layer_interface);
+//	}
+//#endif
+//#ifndef NO_CORE_TRAY
+//	if(!m_layer_interfaces.contains(TrayLayer))
+//	{
+//		LayerInterface *layer_interface = new DefaultTrayLayer();
+//		layer_interface->init(this);
+//		m_layer_interfaces.insert(TrayLayer, layer_interface);
+//	}
+//#endif
 
 
 

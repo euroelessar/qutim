@@ -38,6 +38,7 @@ class QHash;
 
 namespace qutim_sdk_0_3
 {
+	Q_ENUMS(Status)
 	enum Status
 	{
 		Offline = 0,
@@ -77,5 +78,8 @@ namespace qutim_sdk_0_3
 	LIBQUTIM_EXPORT ProtocolMap allProtocols();
 	LIBQUTIM_EXPORT QString statusToString(Status status, bool translate = true);
 }
+
+class QDebug;
+LIBQUTIM_EXPORT QDebug operator<<(QDebug debug, qutim_sdk_0_3::Status status);
 
 #endif // LIBQUTIM_GLOBAL_H

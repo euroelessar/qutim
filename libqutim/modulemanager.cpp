@@ -19,6 +19,8 @@
 #include "cryptoservice.h"
 #include "configbase_p.h"
 #include "protocol.h"
+#include "contactlist.h"
+#include "notificationslayer.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
@@ -104,40 +106,39 @@ namespace qutim_sdk_0_3
 
 	QString statusToString(Status status, bool translate)
 	{
-		const char *str;
 		switch(status)
 		{
 		default:
 			if(status >= Connecting)
-				return translate ? QCoreApplication::translate("Status", "Connecting") : QLatin1String("Connecting");
+				return translate ? QCoreApplication::translate("Status", "is connecting") : QLatin1String("Connecting");
 		case Online:
-			return translate ? QCoreApplication::translate("Status", "Online") : QLatin1String("Online");
+			return translate ? QCoreApplication::translate("Status", "is online") : QLatin1String("Online");
 		case Offline:
-			return translate ? QCoreApplication::translate("Status", "Offline") : QLatin1String("Offline");
+			return translate ? QCoreApplication::translate("Status", "is offline") : QLatin1String("Offline");
 		case Away:
-			return translate ? QCoreApplication::translate("Status", "Away") : QLatin1String("Away");
+			return translate ? QCoreApplication::translate("Status", "is away") : QLatin1String("Away");
 		case DND:
-			return translate ? QCoreApplication::translate("Status", "Don't disturb") : QLatin1String("DND");
+			return translate ? QCoreApplication::translate("Status", "is busy") : QLatin1String("DND");
 		case NA:
-			return translate ? QCoreApplication::translate("Status", "Not avaiable") : QLatin1String("NA");
+			return translate ? QCoreApplication::translate("Status", "is not avaiable") : QLatin1String("NA");
 		case Occupied:
-			return translate ? QCoreApplication::translate("Status", "Occupied") : QLatin1String("Occupied");
+			return translate ? QCoreApplication::translate("Status", "is occupied") : QLatin1String("Occupied");
 		case FreeChat:
-			return translate ? QCoreApplication::translate("Status", "Free for chat") : QLatin1String("FreeChat");
+			return translate ? QCoreApplication::translate("Status", "is free for chat") : QLatin1String("FreeChat");
 		case Evil:
-			return translate ? QCoreApplication::translate("Status", "Evil") : QLatin1String("Evil");
+			return translate ? QCoreApplication::translate("Status", "is evil") : QLatin1String("Evil");
 		case Depression:
-			return translate ? QCoreApplication::translate("Status", "Depression") : QLatin1String("Depression");
+			return translate ? QCoreApplication::translate("Status", "is depression") : QLatin1String("Depression");
 		case Invisible:
-			return translate ? QCoreApplication::translate("Status", "Invisible") : QLatin1String("Invisible");
+			return translate ? QCoreApplication::translate("Status", "is invisible") : QLatin1String("Invisible");
 		case AtHome:
-			return translate ? QCoreApplication::translate("Status", "At home") : QLatin1String("AtHome");
+			return translate ? QCoreApplication::translate("Status", "is at home") : QLatin1String("AtHome");
 		case AtWork:
-			return translate ? QCoreApplication::translate("Status", "At work") : QLatin1String("AtWork");
+			return translate ? QCoreApplication::translate("Status", "is at work") : QLatin1String("AtWork");
 		case OnThePhone:
-			return translate ? QCoreApplication::translate("Status", "On the phone") : QLatin1String("OnThePhone");
+			return translate ? QCoreApplication::translate("Status", "is on the phone") : QLatin1String("OnThePhone");
 		case OutToLunch:
-			return translate ? QCoreApplication::translate("Status", "Out to lunch") : QLatin1String("OutToLunch");
+			return translate ? QCoreApplication::translate("Status", "is out to lunch") : QLatin1String("OutToLunch");
 		}
 	}
 
@@ -218,7 +219,7 @@ namespace qutim_sdk_0_3
 					QList<ExtensionInfo> exts = plugin->avaiableExtensions();
 					for(int j = 0; j < exts.size(); j++)
 					{
-						if(const char *id = exts.at(i).generator()->iid())
+						if(const char *id = exts.at(j).generator()->iid())
 							p->interface_modules.insert(QByteArray(id));
 					}
 				}
@@ -346,7 +347,15 @@ namespace qutim_sdk_0_3
 			}
 		}
 		p->is_inited = true;
+		Notifications::sendNotification(NotifyStartup, 0);
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();
+		Q_UNUSED(ContactList::instance());
 	}
+}
+
+QDebug operator<<(QDebug debug, qutim_sdk_0_3::Status status)
+{
+	debug << "Status(" << qPrintable(qutim_sdk_0_3::statusToString(status, false)) << ')';
+	return debug;
 }

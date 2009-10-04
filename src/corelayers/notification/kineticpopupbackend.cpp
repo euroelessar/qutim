@@ -1,20 +1,34 @@
 #include "kineticpopupbackend.h"
 #include "kineticpopup.h"
 #include "kineticpopupsmanager.h"
+#include "src/modulemanagerimpl.h"
 #include <QVariant>
 #include <QTime>
+#include <QDebug>
 
+static Core::CoreModuleHelper<KineticPopupBackend> kinetic_popup_static(
+		QT_TRANSLATE_NOOP("Plugin", "Kinetic popups"),
+		QT_TRANSLATE_NOOP("Plugin", "Default qutIM popup realization. Powered by Kinetic")
+		);
 
 void KineticPopupBackend::show(NotificationType type, QObject* sender, const QString& body, const QString& customTitle)
 {
 	KineticPopupsManager *manager =  KineticPopupsManager::self();
+	qDebug() << sender << int(manager->showFlags) << type << (!(manager->showFlags & type));
 	if (!(manager->showFlags & type))
 	{
 		return;
 	}
-	QString popup_id = (sender==0) ? getCurrentTime() : sender->property("id").toString();
-	QString title = getTitle(type,popup_id,sender->property("name").toString());
-	QString image_path = (sender==0) ? QString() : sender->property("imagepath").toString();
+	static int id_counter = 0;
+	QString sender_id = sender ? sender->property("id").toString() : QString();
+	QString sender_name = sender ? sender->property("name").toString() : QString();
+	if(sender_name.isEmpty())
+		sender_name = sender_id;
+	QString popup_id = sender_id.isEmpty() ? QString::number(id_counter++) : sender_id;
+	QString title = getTitle(type, popup_id, sender_name);
+	QString image_path = sender ? sender->property("imagepath").toString() : QString();
+	if(image_path.isEmpty())
+		image_path = QLatin1String(":/icons/qutim_64");
 	KineticPopup *popup = manager->getById(popup_id);
 	if (popup != 0)
 	{
@@ -24,7 +38,7 @@ void KineticPopupBackend::show(NotificationType type, QObject* sender, const QSt
 		}
 		else if (sender!=0)
 		{
-			popup_id.append("."+getCurrentTime());
+			popup_id.append("." + QString::number(id_counter++));
 		}
 	}
 	popup  = new KineticPopup ();
@@ -46,7 +60,7 @@ QString KineticPopupBackend::getTitle(NotificationType type, QString& id,const Q
 		append_id = "SystemMessage";
 		break;
 	case NotifyStatusChange:
-		title = tr("%1 was changed status").arg(sender);
+		title = tr("%1 changed status").arg(sender);
 		append_id = "NotifyStatusChange";
 		break;
 	case NotifyMessageGet:
@@ -96,10 +110,4 @@ QString KineticPopupBackend::getTitle(NotificationType type, QString& id,const Q
 void KineticPopupBackend::setActions(QObject* sender, NotificationType type, KineticPopup* popup)
 {
 
-}
-
-
-QString KineticPopupBackend::getCurrentTime()
-{
-	return QString::number(QDateTime::currentDateTime().toTime_t());
 }

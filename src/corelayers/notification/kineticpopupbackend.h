@@ -14,7 +14,6 @@ public:
 private:
 	QString getTitle(NotificationType type, QString& id, const QString& sender = QString()) const;//also modify notify id
 	void setActions(QObject* sender, NotificationType type, KineticPopup *popup);
-	QString getCurrentTime();
 };
 
 #endif //KINETICPOPUPBACKEND_H

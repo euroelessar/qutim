@@ -24,7 +24,7 @@ namespace qutim_sdk_0_3
 {
 	enum NotificationType
 	{
-		NotifyOnline = 0,
+		NotifyOnline = 1,
 		NotifyOffline,
 		NotifyStatusChange,
 		NotifyBirthday,
@@ -46,15 +46,16 @@ namespace qutim_sdk_0_3
 		virtual void show(NotificationType type,
 						  QObject *sender,
 						  const QString &body,
-						  const QString &customTitle
-						  ) = 0;
+						  const QString &customTitle) = 0;
+	protected:
+		virtual void virtual_hook(int type, void *data);
 	};
 
 	class LIBQUTIM_EXPORT SoundBackend : public QObject
 	{
 		Q_OBJECT
 	public:
-		virtual void playSound (const QString &filename) = 0;
+		virtual void playSound(const QString &filename) = 0;
 	protected:
 		virtual void virtual_hook(int type, void *data);
 	};
@@ -65,6 +66,8 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 	public:
 		virtual bool loadTheme(const QString &path) = 0;
+	protected:
+		virtual void virtual_hook(int type, void *data);
 	};
 
 	class LIBQUTIM_EXPORT SoundThemeProvider : public QObject
@@ -74,25 +77,18 @@ namespace qutim_sdk_0_3
 		virtual bool init(const QString &path) = 0;
 		virtual void setSound(NotificationType sound, const QString &file) = 0;
 		virtual QString sound(NotificationType sound) = 0;
+	protected:
+		virtual void virtual_hook(int type, void *data);
 	};
 
-	class LIBQUTIM_EXPORT NotificationsLayer : public QObject
+	namespace Notifications
 	{
-		Q_OBJECT
-	public:
 		//note: title is set on type and sender, customTitle override this
-		void sendNotification(const QString &body,const QString &customTitle = QString());
-		void sendNotification(NotificationType type,
-									QObject *sender,
-									const QString &body = QString(),
-									const QString &customTitle = QString()
-									);
-	protected:
-		NotificationsLayer();
-		~NotificationsLayer();
-	private:
-		NotificationsLayerPrivate *p;
-	};
+		LIBQUTIM_EXPORT void sendNotification(const QString &body,const QString &custom_title = QString());
+		LIBQUTIM_EXPORT void sendNotification(NotificationType type, QObject *sender,
+											  const QString &body = QString(),
+											  const QString &custom_title = QString());
+	}
 
 }
 

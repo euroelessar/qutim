@@ -34,7 +34,8 @@ SOURCES += tcpsocket.cpp \
     icon.cpp \
     event_test.cpp \
     notificationslayer.cpp \
-    iconbackend.cpp
+    iconbackend.cpp \
+    contactlist.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
     domaininfo.h \
@@ -61,6 +62,7 @@ HEADERS += tcpsocket.h \
     icon.h \
     event_test_p.h \
     notificationslayer.h \
-    iconbackend_p.h
+    iconbackend_p.h \
+    contactlist.h
 include(../3rdparty/jdns/jdns.pri)
 include(../3rdparty/k8json/k8json.pri)

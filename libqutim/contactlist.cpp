@@ -1,5 +1,5 @@
 /****************************************************************************
- *  protocol.cpp
+ *  contactlist.cpp
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,47 +13,34 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "protocol.h"
-#include "account.h"
+#include "contactlist.h"
 #include "contact.h"
+#include "account.h"
+#include "objectgenerator.h"
+#include <QPointer>
 
 namespace qutim_sdk_0_3
 {
-	AccountCreationWizard::AccountCreationWizard(Protocol *protocol) : QObject(protocol)
+	ContactList *ContactList::instance()
+	{
+		static QPointer<ContactList> self;
+		if(self.isNull() && isCoreInited())
+		{
+			GeneratorList exts = moduleGenerators<ContactList>();
+			self = exts.first()->generate<ContactList>();
+		}
+		return self;
+	}
+
+	ContactList::ContactList()
 	{
 	}
 
-	AccountCreationWizard::~AccountCreationWizard()
+	ContactList::~ContactList()
 	{
 	}
 
-	struct ProtocolPrivate
+	void ContactList::virtual_hook(int id, void *data)
 	{
-		QString id;
-	};
-
-	Protocol::Protocol() : p(new ProtocolPrivate)
-	{
-	}
-
-	Protocol::~Protocol()
-	{
-	}
-
-	Config Protocol::config()
-	{
-		return Config(id());
-	}
-
-	ConfigGroup Protocol::config(const QString &group)
-	{
-		return config().group(group);
-	}
-
-	QString Protocol::id()
-	{
-		if(p->id.isNull())
-			p->id = QString::fromUtf8(metaInfo(metaObject(), "Protocol"));
-		return p->id;
 	}
 }

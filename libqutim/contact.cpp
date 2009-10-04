@@ -15,6 +15,7 @@
 
 #include "contact.h"
 #include "account.h"
+#include <libqutim/icon.h>
 
 namespace qutim_sdk_0_3
 {
@@ -23,8 +24,47 @@ namespace qutim_sdk_0_3
 	{
 	}
 
+	QSet<QString> Contact::tags() const
+	{
+		return QSet<QString>();
+	}
+
 	QString Contact::name() const
 	{
 		return id();
+	}
+
+	Status Contact::status() const
+	{
+		return Online;
+	}
+
+	QIcon Contact::statusIcon() const
+	{
+		switch(status())
+		{
+		default:
+			if(status() >= Connecting)
+				return Icon("network-connect");
+		case Online:
+		case AtHome:
+		case FreeChat:
+		case Invisible:
+			return Icon("user-online");
+		case Offline:
+			return Icon("user-offline");
+		case Away:
+		case OutToLunch:
+			return Icon("user-away");
+		case DND:
+		case Evil:
+		case Depression:
+		case Occupied:
+		case AtWork:
+		case OnThePhone:
+			return Icon("user-busy");
+		case NA:
+			return Icon("user-away-extended");
+		}
 	}
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
- *  protocol.h
+ *  contactlist.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,48 +13,30 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#ifndef CONTACTLIST_H
+#define CONTACTLIST_H
 
-#include "configbase.h"
-
-class QWizardPage;
+#include "libqutim_global.h"
 
 namespace qutim_sdk_0_3
 {
 	class Contact;
 	class Account;
-	struct ProtocolPrivate;
 
-	class LIBQUTIM_EXPORT AccountCreationWizard : public QObject
+	class LIBQUTIM_EXPORT ContactList : public QObject
 	{
 		Q_OBJECT
 	public:
-		AccountCreationWizard(Protocol *protocol);
-		virtual ~AccountCreationWizard();
-		virtual QList<QWizardPage *> createPages(QWidget *parent) = 0;
+		static ContactList *instance();
 	public slots:
-		virtual void registrationFinished() = 0;
-	signals:
-		void registrationCanceled();
-	};
-
-	class LIBQUTIM_EXPORT Protocol : public QObject
-	{
-		Q_OBJECT
-		Q_PROPERTY(QString id READ id)
-	public:
-		Protocol();
-		virtual ~Protocol();
-		Config config();
-		ConfigGroup config(const QString &group);
-		QString id();
-		virtual AccountCreationWizard *accountCreationWizard() = 0;
-	private:
-		virtual void loadAccounts() = 0;
-		friend class ModuleManager;
-		QScopedPointer<ProtocolPrivate> p;
+		virtual void addContact(Contact *contact) = 0;
+		virtual void removeContact(Contact *contact) = 0;
+		virtual void removeAccount(Account *account) = 0;
+	protected:
+		ContactList();
+		virtual ~ContactList();
+		virtual void virtual_hook(int id, void *data);
 	};
 }
 
-#endif // PROTOCOL_H
+#endif // CONTACTLIST_H

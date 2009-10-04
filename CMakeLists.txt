@@ -250,25 +250,19 @@ ENDIF(NOT NO_CHAT)
 IF(NOT NO_CONTACTLIST)
 	LIST (APPEND HEADERS
 		src/corelayers/contactlist/contactlistitemdelegate.h
-		src/corelayers/contactlist/contactlistproxymodel.h
-		src/corelayers/contactlist/contactlistsettings.h
-		src/corelayers/contactlist/defaultcontactlist.h
-		src/corelayers/contactlist/proxymodelitem.h
-		src/corelayers/contactlist/treecontactlistmodel.h
-		src/corelayers/contactlist/treeitem.h
+		src/corelayers/contactlist/simplecontactlist.h
+                src/corelayers/contactlist/simplecontactlistview.h
+                src/corelayers/contactlist/simplecontactlistmodel.h
+                src/corelayers/contactlist/simplecontactlistitem.h
 		)
 	LIST (APPEND SOURCES
 		src/corelayers/contactlist/contactlistitemdelegate.cpp
-		src/corelayers/contactlist/contactlistproxymodel.cpp
-		src/corelayers/contactlist/contactlistsettings.cpp
-		src/corelayers/contactlist/defaultcontactlist.cpp
-		src/corelayers/contactlist/proxymodelitem.cpp
-		src/corelayers/contactlist/treecontactlistmodel.cpp
-		src/corelayers/contactlist/treeitem.cpp
+		src/corelayers/contactlist/simplecontactlist.cpp
+                src/corelayers/contactlist/simplecontactlistview.cpp
+                src/corelayers/contactlist/simplecontactlistmodel.cpp
+                src/corelayers/contactlist/simplecontactlistitem.cpp
 		)
 	LIST (APPEND FORMS
-		src/corelayers/contactlist/contactlistsettings.ui
-		src/corelayers/contactlist/defaultcontactlist.ui
 		)
 ELSE(NOT NO_CONTACTLIST)
 	IF(NOT NO_CHAT)
@@ -375,7 +369,22 @@ ELSE(NOT NO_TRAY)
 	ADD_DEFINITIONS( -DNO_CORE_TRAY )
 ENDIF(NOT NO_TRAY)
 
-ADD_DEFINITIONS(-DNO_CORE_NOTIFICATION) #new layer isn't ready
+IF(NOT NO_NOTIFICATION)
+        LIST (APPEND HEADERS
+		src/corelayers/notification/kineticpopupwidget.h
+		src/corelayers/notification/kineticpopupsmanager.h
+		src/corelayers/notification/kineticpopup.h
+		src/corelayers/notification/kineticpopupbackend.h
+                )
+        LIST (APPEND SOURCES
+		src/corelayers/notification/kineticpopupwidget.cpp
+		src/corelayers/notification/kineticpopupsmanager.cpp
+		src/corelayers/notification/kineticpopup.cpp
+		src/corelayers/notification/kineticpopupbackend.cpp
+                )
+ELSE(NOT NO_NOTIFICATION)
+        ADD_DEFINITIONS( -DNO_CORE_NOTIFICATION )
+ENDIF(NOT NO_NOTIFICATION)
 
 IF (WIN32)
 #	LIST (APPEND SOURCES
@@ -417,7 +426,7 @@ set( QUTIM_DO_NOT_FIND "true" )
 include( FindQutIM )
 
 find_library(QUTIM_LIBRARY NAMES qutim PATHS ${CMAKE_CURRENT_SOURCE_DIR}/libqutim)
-add_subdirectory(src/corelayers)
+# add_subdirectory(src/corelayers)
 
 QT4_WRAP_CPP (MOC_SRCS ${HEADERS})
 QT4_WRAP_UI (UIS_H ${FORMS})
