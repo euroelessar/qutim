@@ -21,13 +21,16 @@
 #include <QStateMachine>
 #include <QRect>
 
-class NotificationWidget;
-class KineticNotification : public QObject
+class KineticPopupWidget;
+class KineticPopup : public QObject
 {
     Q_OBJECT
 public:
-    KineticNotification(const QString &id, uint timeOut = 0); //0 - persistant
-    virtual ~KineticNotification();
+    KineticPopup(const QString &id, uint timeOut = 0); //0 - persistant
+    KineticPopup(QObject* parent = 0);
+    virtual ~KineticPopup();
+	void setId(const QString &id);
+	void setTimeOut(uint timeOut);
     void setMessage(const QString &title, const QString &body = NULL, const QString &imagePath = NULL);
     void appendMessage(const QString &message);
     void setActionsText(const QString &action1,const QString &action2);
@@ -43,18 +46,19 @@ signals:
     void action1Activated();
     void action2Activated();
 private:
-    NotificationWidget *notification_widget;
+    KineticPopupWidget *notification_widget;
     void updateGeometry(const QRect &newGeometry);
     QString title;
     QString body;
     QString id;
     QString image_path;
-    uint timeOut;
+    uint timeout;
     QRect show_geometry; //Don't use direct, change by UpdateGeometry!
     QStateMachine machine;
     QState *show_state;
     QState *hide_state;
     virtual void timerEvent ( QTimerEvent* );
+	int timer_id;
 };
 
 #endif // KINETICNOTIFICATION_H

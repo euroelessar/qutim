@@ -1,12 +1,13 @@
-#include "notificationwidget.h"
+#include "kineticpopupwidget.h"
 #include <QVBoxLayout>
-#include "notificationsmanager.h"
+#include "kineticpopupsmanager.h"
 #include <QMouseEvent>
 #include <QDebug>
 #include <QLabel>
 #include <QPainter>
+#include <QDesktopWidget>
 
-NotificationWidget::NotificationWidget ( const QString &styleSheet, const QString &content )
+KineticPopupWidget::KineticPopupWidget ( const QString &styleSheet, const QString &content )
 {
     setTheme ( styleSheet,content );
     //init browser
@@ -14,9 +15,9 @@ NotificationWidget::NotificationWidget ( const QString &styleSheet, const QStrin
     this->setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
     this->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
     this->setFrameShape ( QFrame::NoFrame );
-    this->setWindowFlags(NotificationsManager::self()->widgetFlags);
+    this->setWindowFlags(KineticPopupsManager::self()->widgetFlags);
     //this->resize(NotificationsManager::self()->defaultSize);
-    
+
     //init transparent
     this->setAttribute(Qt::WA_TranslucentBackground);
     this->setAttribute(Qt::WA_NoSystemBackground, false);
@@ -25,36 +26,36 @@ NotificationWidget::NotificationWidget ( const QString &styleSheet, const QStrin
 }
 
 
-QSize NotificationWidget::setData ( const QString& title, const QString& body, const QString& imagePath )
+QSize KineticPopupWidget::setData ( const QString& title, const QString& body, const QString& imagePath )
 {
     QString data = content;
     data.replace ( "{title}", title );
     data.replace ( "{body}", body );
     data.replace ( "{imagepath}",Qt::escape ( imagePath ) );
     this->document()->setHtml(data);
-    this->document()->setTextWidth(NotificationsManager::self()->defaultSize.width());    
-    int width = NotificationsManager::self()->defaultSize.width();
+    this->document()->setTextWidth(KineticPopupsManager::self()->defaultSize.width());
+    int width = KineticPopupsManager::self()->defaultSize.width();
     int height = this->document()->size().height();
 
     return QSize(width,height);
-    
-    
+
+
 }
 
 
-void NotificationWidget::setTheme ( const QString& styleSheet, const QString& content )
+void KineticPopupWidget::setTheme ( const QString& styleSheet, const QString& content )
 {
     this->content = content;
     this->setStyleSheet ( styleSheet );
 }
 
 
-void NotificationWidget::mouseReleaseEvent ( QMouseEvent* ev )
+void KineticPopupWidget::mouseReleaseEvent ( QMouseEvent* ev )
 {
-    if (ev->button() == NotificationsManager::self()->action1Trigger) {
+    if (ev->button() == KineticPopupsManager::self()->action1Trigger) {
         emit action1Activated();
     }
-    else if (ev->button() == NotificationsManager::self()->action2Trigger)
+    else if (ev->button() == KineticPopupsManager::self()->action2Trigger)
         emit action2Activated();
     else
         return;

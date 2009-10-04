@@ -20,18 +20,21 @@
 #include <QString>
 #include <QSize>
 #include <QEasingCurve>
+#include "kineticpopupbackend.h"
 class QRect;
-class KineticNotification;
-class NotificationsManager
+class KineticPopup;
+class QDir;
+class KineticPopupsManager
 {
+	Q_DECLARE_FLAGS(NotificationTypes, NotificationType)
 public:
-    NotificationsManager();
-    KineticNotification *getById (const QString &id) const;
-    KineticNotification *getByNumber (const int &number) const;
-    QRect insert (KineticNotification *notification);
+    KineticPopupsManager();
+    KineticPopup *getById (const QString &id) const;
+    KineticPopup *getByNumber (const int &number) const;
+    QRect insert (KineticPopup *notification);
     void remove (const QString &id);
     void updateGeometry();
-    static NotificationsManager *self();
+    static KineticPopupsManager *self();
     int animationDuration;
     QString styleSheet;
     QString content;
@@ -44,11 +47,15 @@ public:
     Qt::WindowFlags widgetFlags;
     Qt::MouseButton action1Trigger;
     Qt::MouseButton action2Trigger;
+	NotificationTypes showFlags;
+	uint timeout;
+	bool appendMode;
 private:
-    QList<KineticNotification *> active_notifications;
-    static NotificationsManager *instance;
-    virtual void loadSettings();
+    QList<KineticPopup *> active_notifications;
+    static KineticPopupsManager *instance;
+	void loadSettings();
     QString loadContent (const QString &path);
+	QString getThemePath(QDir shareDir, const QString& themeName);
     int getNumber(const QString &id) const;
 };
 

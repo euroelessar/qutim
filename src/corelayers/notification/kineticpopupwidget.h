@@ -14,18 +14,17 @@
 //   the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 //   Boston, MA 02110-1301, USA.
 
-#ifndef NOTIFICATIONWIDGET_H
-#define NOTIFICATIONWIDGET_H
+#ifndef KINETICPOPUPWIDGET_H
+#define KINETICPOPUPWIDGET_H
 
-#include <QDesktopWidget>
 #include <QTextBrowser>
 
 class QTextBrowser;
-class NotificationWidget : public QTextBrowser
+class KineticPopupWidget : public QTextBrowser
 {
     Q_OBJECT
 public:
-    NotificationWidget(const QString &styleSheet, const QString &content);
+    KineticPopupWidget(const QString &styleSheet, const QString &content);
     QSize setData(const QString& title, const QString& body, const QString &imagePath); //size of textbrowser
     void setTheme(const QString &styleSheet, const QString &content);
     virtual void mouseReleaseEvent ( QMouseEvent* ev );
@@ -37,4 +36,4 @@ signals:
     void action2Activated();
 };
 
-#endif // NOTIFICATIONWIDGET_H
+#endif // KINETICPOPUPWIDGET_H

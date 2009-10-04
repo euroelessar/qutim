@@ -1,3 +1,19 @@
+/****************************************************************************
+ *  notificationslayer.h
+ *
+ *  Copyright (c) 2009 by Sidorov Aleksey <sauron@citadelspb.com>
+ *  and Nigmatullin Ruslan <euroelessar@gmail.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include "notificationslayer.h"
 #include "libqutim_global.h"
 #include "objectgenerator.h"
@@ -42,8 +58,8 @@ namespace qutim_sdk_0_3 {
 
 	}
 
-	
-	void NotificationsLayer::sendNotification ( NotificationType type, QObject* sender, const QString& title, const QString& body )
+
+	void NotificationsLayer::sendNotification ( NotificationType type, QObject* sender, const QString& body, const QString& customTitle)
 	{
 		ensure_notifications_private();
 		//TODO add checks
@@ -65,18 +81,16 @@ namespace qutim_sdk_0_3 {
 			p->sound_backend = p->sound_gen->generate<SoundBackend>();
 
 		if(p->popup_backend)
-			p->popup_backend->show(type,sender,title,body);
+			p->popup_backend->show(type,sender,body,customTitle);
 	}
 
 
-	void NotificationsLayer::sendSimpleNotification ( const QString& title, const QString& body )
+	void NotificationsLayer::sendNotification(const QString& body, const QString& customTitle)
 	{
-		sendNotification(System,
-						 0,
-						 title,
-						 body);
+		sendNotification(NotifySystem,0,body,customTitle);
 	}
 
-	
-	
+
+
+
 }

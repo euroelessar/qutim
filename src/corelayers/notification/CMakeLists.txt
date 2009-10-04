@@ -1,15 +1,17 @@
 project (KineticNotification)
 
 SET(HEADERS
-	kineticnotification.h 
-    notificationsmanager.h 
-    notificationwidget.h 
+	kineticpopup.h
+    kineticpopupsmanager.h
+    kineticpopupwidget.h
+	kineticpopupbackend.h
 )
 
 SET(SOURCES
-	kineticnotification.cpp
-    notificationsmanager.cpp
-    notificationwidget.cpp
+	kineticpopup.cpp
+    kineticpopupsmanager.cpp
+    kineticpopupwidget.cpp
+	kineticpopupbackend.cpp
 )
 
 

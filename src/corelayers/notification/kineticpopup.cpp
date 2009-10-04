@@ -1,6 +1,6 @@
-#include "kineticnotification.h"
-#include "notificationwidget.h"
-#include "notificationsmanager.h"
+#include "kineticpopup.h"
+#include "kineticpopupwidget.h"
+#include "kineticpopupsmanager.h"
 #include <QPropertyAnimation>
 #include <QApplication>
 #include <QTimer>
@@ -8,50 +8,65 @@
 #include <QState>
 #include <QDebug>
 
-KineticNotification::KineticNotification ( const QString& id, uint timeOut )
-        :	id ( id ), timeOut ( timeOut )
+KineticPopup::KineticPopup ( const QString& id, uint timeOut )
+        :	id ( id ), timeout ( timeOut )
 {
 
 }
 
-
-KineticNotification::~KineticNotification()
+KineticPopup::KineticPopup(QObject* parent): QObject(parent)
 {
-    NotificationsManager::self()->remove (id);
-    NotificationsManager::self()->updateGeometry();    
+
+}
+
+void KineticPopup::setId(const QString& id)
+{
+	this->id = id;
+}
+
+void KineticPopup::setTimeOut(uint timeOut)
+{
+	this->timeout = timeOut;
+}
+
+KineticPopup::~KineticPopup()
+{
+    KineticPopupsManager::self()->remove (id);
+    KineticPopupsManager::self()->updateGeometry();
     notification_widget->deleteLater();
 }
 
-
-void KineticNotification::setMessage ( const QString& title, const QString& body, const QString &imagePath )
+void KineticPopup::setMessage ( const QString& title, const QString& body, const QString &imagePath )
 {
     this->title = title;
     this->body = body;
     this->image_path = imagePath;
 }
 
-
-void KineticNotification::appendMessage ( const QString& message )
+void KineticPopup::appendMessage ( const QString& message )
 {
     this->body += "<br />" + message;
     QSize newSize = notification_widget->setData(title,body,image_path);
     show_geometry.setSize(newSize);
     updateGeometry(show_geometry);
-    NotificationsManager::self()->updateGeometry();
+    KineticPopupsManager::self()->updateGeometry();
     show_state->assignProperty(notification_widget,"geometry",show_geometry);
+    if (timeout > 0) {
+		killTimer(timer_id);
+        timer_id = startTimer(timeout);
+	}
 }
 
-
-QString KineticNotification::getId() const
+QString KineticPopup::getId() const
 {
     return id;
 }
 
-void KineticNotification::send()
+void KineticPopup::send()
 {
-    NotificationsManager *manager = NotificationsManager::self();
+    KineticPopupsManager *manager = KineticPopupsManager::self();
 
-    notification_widget = new NotificationWidget ( title,body );
+    notification_widget = new KineticPopupWidget ( title,body );
     notification_widget->setTheme ( manager->styleSheet,manager->content );
     QSize notify_size = notification_widget->setData ( title,body,image_path );
     connect (notification_widget,SIGNAL(action1Activated()),SIGNAL(action1Activated()));
@@ -81,8 +96,8 @@ void KineticNotification::send()
     hide_state->addTransition(hide_state,SIGNAL(polished()),final_state);
     show_state->addTransition(this,SIGNAL(updated()),show_state); //Black magic
 
-    if (timeOut > 0) {
-        startTimer(timeOut);
+    if (timeout > 0) {
+        timer_id = startTimer(timeout);
         show_state->addTransition(this,SIGNAL(timeoutReached()),hide_state);
     }
 
@@ -103,26 +118,26 @@ void KineticNotification::send()
     notification_widget->show();
 }
 
-void KineticNotification::update(QRect geom)
+void KineticPopup::update(QRect geom)
 {
     show_state->assignProperty(notification_widget,"geometry",geom);
     updateGeometry(geom);
-    geom.moveRight(geom.right() + notification_widget->width() + NotificationsManager::self()->margin);
+    geom.moveRight(geom.right() + notification_widget->width() + KineticPopupsManager::self()->margin);
     hide_state->assignProperty(notification_widget,"geometry",geom);
 }
 
-QRect KineticNotification::geometry() const
+QRect KineticPopup::geometry() const
 {
     return show_geometry;
 }
 
-void KineticNotification::updateGeometry(const QRect &newGeometry)
+void KineticPopup::updateGeometry(const QRect &newGeometry)
 {
-    show_geometry = newGeometry;    
+    show_geometry = newGeometry;
     emit updated();
 }
 
-void KineticNotification::timerEvent ( QTimerEvent* ev)
+void KineticPopup::timerEvent ( QTimerEvent* ev)
 {
     emit timeoutReached();
     QObject::timerEvent(ev);

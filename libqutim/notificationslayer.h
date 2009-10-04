@@ -1,3 +1,19 @@
+/****************************************************************************
+ *  notificationslayer.h
+ *
+ *  Copyright (c) 2009 by Sidorov Aleksey <sauron@citadelspb.com>
+ *  and Nigmatullin Ruslan <euroelessar@gmail.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #ifndef NOTIFICATIONSLAYER_H
 #define NOTIFICATIONSLAYER_H
 
@@ -8,8 +24,18 @@ namespace qutim_sdk_0_3
 {
 	enum NotificationType
 	{
-		//TODO
-		System,
+		NotifyOnline = 0,
+		NotifyOffline,
+		NotifyStatusChange,
+		NotifyBirthday,
+		NotifyStartup,
+		NotifyMessageGet,
+		NotifyMessageSend,
+		NotifySystem,
+		NotifyTyping,
+		NotifyBlockedMessage,
+		NotifyCustom,
+		NotifyCount
 	};
 
 	struct NotificationsLayerPrivate;
@@ -19,8 +45,8 @@ namespace qutim_sdk_0_3
 	public:
 		virtual void show(NotificationType type,
 						  QObject *sender,
-						  const QString &title,
-						  const QString &body
+						  const QString &body,
+						  const QString &customTitle
 						  ) = 0;
 	};
 
@@ -54,15 +80,16 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 	public:
-		virtual void sendSimpleNotification(const QString &title,const QString &body = QString());
-		virtual void sendNotification(NotificationType type,
+		//note: title is set on type and sender, customTitle override this
+		void sendNotification(const QString &body,const QString &customTitle = QString());
+		void sendNotification(NotificationType type,
 									QObject *sender,
-									const QString &title,
-									const QString &body = QString()
+									const QString &body = QString(),
+									const QString &customTitle = QString()
 									);
 	protected:
 		NotificationsLayer();
-		virtual ~NotificationsLayer();
+		~NotificationsLayer();
 	private:
 		NotificationsLayerPrivate *p;
 	};

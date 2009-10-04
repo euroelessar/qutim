@@ -417,7 +417,7 @@ set( QUTIM_DO_NOT_FIND "true" )
 include( FindQutIM )
 
 find_library(QUTIM_LIBRARY NAMES qutim PATHS ${CMAKE_CURRENT_SOURCE_DIR}/libqutim)
-# add_subdirectory(src/corelayers)
+add_subdirectory(src/corelayers)
 
 QT4_WRAP_CPP (MOC_SRCS ${HEADERS})
 QT4_WRAP_UI (UIS_H ${FORMS})
