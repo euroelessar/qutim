@@ -96,8 +96,10 @@ namespace Core
 					ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
 					switch(role)
 					{
-					case Qt::DisplayRole:
-						return item->data->contact->name();
+					case Qt::DisplayRole: {
+						QString name = item->data->contact->name();
+						return name.isEmpty() ? item->data->contact->id() : name;
+					}
 					case Qt::DecorationRole:
 						return item->data->contact->statusIcon();
 					case ItemDataType:

@@ -30,6 +30,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 		Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+		Q_PROPERTY(QString id READ id)
 		Q_PROPERTY(QSet<QString> tags READ tags WRITE setTags NOTIFY tagsChanged)
 		Q_PROPERTY(Status status READ status NOTIFY statusChanged)
 		Q_PROPERTY(QIcon statusIcon READ statusIcon NOTIFY statusIconChanged)

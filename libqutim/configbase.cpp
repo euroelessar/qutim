@@ -275,7 +275,7 @@ namespace qutim_sdk_0_3
 			entry = ConfigEntry::Ptr(new ConfigEntry());
 		p = new ConfigPrivate;
 		p->file = filename;
-		ConfigEntryInfo entry_info = { entry, filename, backend_ptr };
+		ConfigEntryInfo entry_info = { entry, filepath, backend_ptr };
 		p->root_entries << entry_info;
 		p->entries << entry.toWeakRef();
 	}
@@ -330,7 +330,7 @@ namespace qutim_sdk_0_3
 				if(entry.isNull())
 					entry = ConfigEntry::Ptr(new ConfigEntry());
 				p = new ConfigPrivate;
-				p->file = filepath;
+				p->file = filename;
 				first = false;
 			}
 			if(entry.isNull())

@@ -281,8 +281,8 @@ namespace qutim_sdk_0_3
 			p->os_full = unixHeuristicDetect();
 		}
 		else {
-			p->os_name = lsbRelease(QStringList() << "--description" << "--id");
-			p->os_version = lsbRelease(QStringList() << "--description" << "--codename");;
+			p->os_name = lsbRelease(QStringList() << "--short" << "--id");
+			p->os_version = lsbRelease(QStringList() << "--short" << "--release");;
 		}
 
 #elif defined(Q_WS_MAC)

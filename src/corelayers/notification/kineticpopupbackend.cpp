@@ -14,7 +14,6 @@ static Core::CoreModuleHelper<KineticPopupBackend> kinetic_popup_static(
 void KineticPopupBackend::show(NotificationType type, QObject* sender, const QString& body, const QString& customTitle)
 {
 	KineticPopupsManager *manager =  KineticPopupsManager::self();
-	qDebug() << sender << int(manager->showFlags) << type << (!(manager->showFlags & type));
 	if (!(manager->showFlags & type))
 	{
 		return;
