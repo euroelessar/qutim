@@ -7,15 +7,15 @@
 #include <QPainter>
 #include <QDesktopWidget>
 
-KineticPopupWidget::KineticPopupWidget ( const QString &styleSheet, const QString &content )
+KineticPopupWidget::KineticPopupWidget (const KineticPopupThemeHelper::PopupSettings &popupSettings)
 {
-    setTheme ( styleSheet,content );
+	popup_settings = popupSettings;
     //init browser
     this->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
     this->setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
     this->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
     this->setFrameShape ( QFrame::NoFrame );
-    this->setWindowFlags(KineticPopupsManager::self()->widgetFlags);
+    this->setWindowFlags(popup_settings.widgetFlags);
     //this->resize(NotificationsManager::self()->defaultSize);
 
     //init transparent
@@ -23,18 +23,20 @@ KineticPopupWidget::KineticPopupWidget ( const QString &styleSheet, const QStrin
     this->setAttribute(Qt::WA_NoSystemBackground, false);
     this->ensurePolished(); // workaround Oxygen filling the background
     this->setAttribute(Qt::WA_StyledBackground, false);
+
+	this->setStyleSheet(popup_settings.styleSheet);
 }
 
 
 QSize KineticPopupWidget::setData ( const QString& title, const QString& body, const QString& imagePath )
 {
-    QString data = content;
+    QString data = popup_settings.content;
     data.replace ( "{title}", title );
     data.replace ( "{body}", body );
     data.replace ( "{imagepath}",Qt::escape ( imagePath ) );
     this->document()->setHtml(data);
-    this->document()->setTextWidth(KineticPopupsManager::self()->defaultSize.width());
-    int width = KineticPopupsManager::self()->defaultSize.width();
+    this->document()->setTextWidth(popup_settings.defaultSize.width());
+    int width = popup_settings.defaultSize.width();
     int height = this->document()->size().height();
 
     return QSize(width,height);
@@ -43,10 +45,10 @@ QSize KineticPopupWidget::setData ( const QString& title, const QString& body, c
 }
 
 
-void KineticPopupWidget::setTheme ( const QString& styleSheet, const QString& content )
+void KineticPopupWidget::setTheme (const KineticPopupThemeHelper::PopupSettings &popupSettings )
 {
-    this->content = content;
-    this->setStyleSheet ( styleSheet );
+    popup_settings = popupSettings;
+    this->setStyleSheet (popup_settings.styleSheet);
 }
 
 

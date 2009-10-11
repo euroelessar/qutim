@@ -22,28 +22,37 @@
 
 namespace qutim_sdk_0_3
 {
-	enum NotificationType
-	{
-		NotifyOnline = 1,
-		NotifyOffline,
-		NotifyStatusChange,
-		NotifyBirthday,
-		NotifyStartup,
-		NotifyMessageGet,
-		NotifyMessageSend,
-		NotifySystem,
-		NotifyTyping,
-		NotifyBlockedMessage,
-		NotifyCustom,
-		NotifyCount
-	};
 
 	struct NotificationsLayerPrivate;
+
+	namespace Notifications
+	{
+		//note: title is set on type and sender, customTitle override this
+		enum Type
+		{
+			Online = 0,
+			Offline = 1,
+			StatusChange = 2,
+			Birthday =3,
+			Startup = 4,
+			MessageGet = 5,
+			MessageSend = 6,
+			System = 7,
+			Typing = 8,
+			BlockedMessage = 9,
+			Count = 10
+		};
+		LIBQUTIM_EXPORT void sendNotification(const QString &body,const QString &custom_title = QString());
+		LIBQUTIM_EXPORT void sendNotification(Type type, QObject *sender,
+											  const QString &body = QString(),
+											  const QString &custom_title = QString());
+	}
+
 	class LIBQUTIM_EXPORT PopupBackend : public QObject
 	{
 		Q_OBJECT
 	public:
-		virtual void show(NotificationType type,
+		virtual void show(Notifications::Type type,
 						  QObject *sender,
 						  const QString &body,
 						  const QString &customTitle) = 0;
@@ -75,20 +84,11 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 	public:
 		virtual bool init(const QString &path) = 0;
-		virtual void setSound(NotificationType sound, const QString &file) = 0;
-		virtual QString sound(NotificationType sound) = 0;
+		virtual void setSound(Notifications::Type sound, const QString &file) = 0;
+		virtual QString sound(Notifications::Type sound) = 0;
 	protected:
 		virtual void virtual_hook(int type, void *data);
 	};
-
-	namespace Notifications
-	{
-		//note: title is set on type and sender, customTitle override this
-		LIBQUTIM_EXPORT void sendNotification(const QString &body,const QString &custom_title = QString());
-		LIBQUTIM_EXPORT void sendNotification(NotificationType type, QObject *sender,
-											  const QString &body = QString(),
-											  const QString &custom_title = QString());
-	}
 
 }
 

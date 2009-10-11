@@ -11,7 +11,7 @@ static Core::CoreModuleHelper<KineticPopupBackend> kinetic_popup_static(
 		QT_TRANSLATE_NOOP("Plugin", "Default qutIM popup realization. Powered by Kinetic")
 		);
 
-void KineticPopupBackend::show(NotificationType type, QObject* sender, const QString& body, const QString& customTitle)
+void KineticPopupBackend::show(Notifications::Type type, QObject* sender, const QString& body, const QString& customTitle)
 {
 	KineticPopupsManager *manager =  KineticPopupsManager::self();
 	if (!(manager->showFlags & type))
@@ -27,7 +27,7 @@ void KineticPopupBackend::show(NotificationType type, QObject* sender, const QSt
 	QString title = getTitle(type, popup_id, sender_name);
 	QString image_path = sender ? sender->property("imagepath").toString() : QString();
 	if(image_path.isEmpty())
-		image_path = QLatin1String(":/icons/qutim_64");
+		image_path = QLatin1String(":/icons/qutim_64");	
 	KineticPopup *popup = manager->getById(popup_id);
 	if (popup != 0)
 	{
@@ -48,55 +48,51 @@ void KineticPopupBackend::show(NotificationType type, QObject* sender, const QSt
 	popup->send();
 }
 
-QString KineticPopupBackend::getTitle(NotificationType type, QString& id,const QString& sender) const
+QString KineticPopupBackend::getTitle(Notifications::Type type, QString& id,const QString& sender) const
 {
 	QString title;
 	QString append_id;
 	switch ( type )
 	{
-	case NotifySystem:
+	case Notifications::System:
 		title = tr("System message from %1:").arg(sender.isEmpty() ? "qutIM" : sender);
 		append_id = "SystemMessage";
 		break;
-	case NotifyStatusChange:
+	case Notifications::StatusChange:
 		title = tr("%1 changed status").arg(sender);
-		append_id = "NotifyStatusChange";
+		append_id = "StatusChange";
 		break;
-	case NotifyMessageGet:
+	case Notifications::MessageGet:
 		title = tr("Message from %1:").arg(sender);
-		append_id = "NotifyMessageGet";
+		append_id = "MessageGet";
 		break;
-	case NotifyTyping:
+	case Notifications::Typing:
 		title = tr("%1 is typing").arg(sender);
-		append_id = "NotifyTyping";
+		append_id = "Typing";
 		break;
-	case NotifyBlockedMessage:
+	case Notifications::BlockedMessage:
 		title = tr("Blocked message from %1").arg(sender);
-		append_id = "NotifyBlockedMessage";
+		append_id = "BlockedMessage";
 		break;
-	case NotifyBirthday:
+	case Notifications::Birthday:
 		title = tr("%1 has birthday today!!").arg(sender);
-		append_id = "NotifyBirthday";
+		append_id = "Birthday";
 		break;
-	case NotifyCustom:
-		title = tr("Custom message for %1").arg(sender);
-		append_id = "NotifyCustom";
-		break;
-	case NotifyOnline:
+	case Notifications::Online:
 		title = tr("%1 is online").arg(sender);
-		append_id = "NotifyOnline";
+		append_id = "Online";
 		break;
-	case NotifyOffline:
+	case Notifications::Offline:
 		title = tr("%1 is offline").arg(sender);
-		append_id = "NotifyOffline";
+		append_id = "Offline";
 		break;
-	case NotifyStartup:
+	case Notifications::Startup:
 		title = tr("qutIM launched");
-		append_id = "NotifyStartup";
+		append_id = "Startup";
 		break;
-	case NotifyCount:
+	case Notifications::Count:
 		title = tr("Count");
-		append_id = "NotifyCount";
+		append_id = "Count";
 		break;
 	default:
 		return title;
@@ -106,7 +102,7 @@ QString KineticPopupBackend::getTitle(NotificationType type, QString& id,const Q
 }
 
 
-void KineticPopupBackend::setActions(QObject* sender, NotificationType type, KineticPopup* popup)
+void KineticPopupBackend::setActions(QObject* sender, Notifications::Type type, KineticPopup* popup)
 {
 
 }

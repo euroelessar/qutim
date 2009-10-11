@@ -347,7 +347,7 @@ namespace qutim_sdk_0_3
 			}
 		}
 		p->is_inited = true;
-		Notifications::sendNotification(NotifyStartup, 0);
+                Notifications::sendNotification(Notifications::Startup, 0);
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();
 		Q_UNUSED(ContactList::instance());

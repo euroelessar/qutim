@@ -372,15 +372,19 @@ ENDIF(NOT NO_TRAY)
 IF(NOT NO_NOTIFICATION)
         LIST (APPEND HEADERS
 		src/corelayers/notification/kineticpopupwidget.h
+		src/corelayers/notification/kineticpopupthemehelper.h
 		src/corelayers/notification/kineticpopupsmanager.h
 		src/corelayers/notification/kineticpopup.h
 		src/corelayers/notification/kineticpopupbackend.h
+		src/corelayers/notification/kineticpopupsettings.h
                 )
         LIST (APPEND SOURCES
 		src/corelayers/notification/kineticpopupwidget.cpp
 		src/corelayers/notification/kineticpopupsmanager.cpp
 		src/corelayers/notification/kineticpopup.cpp
 		src/corelayers/notification/kineticpopupbackend.cpp
+		src/corelayers/notification/kineticpopupsettings.cpp
+		src/corelayers/notification/kineticpopupthemehelper.cpp
                 )
 ELSE(NOT NO_NOTIFICATION)
         ADD_DEFINITIONS( -DNO_CORE_NOTIFICATION )

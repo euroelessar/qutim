@@ -21,12 +21,13 @@
 #include <QSize>
 #include <QEasingCurve>
 #include "kineticpopupbackend.h"
+#include "kineticpopupthemehelper.h"
 class QRect;
 class KineticPopup;
 class QDir;
 class KineticPopupsManager
 {
-	Q_DECLARE_FLAGS(NotificationTypes, NotificationType)
+	Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
 public:
     KineticPopupsManager();
     KineticPopup *getById (const QString &id) const;
@@ -36,25 +37,19 @@ public:
     void updateGeometry();
     static KineticPopupsManager *self();
     int animationDuration;
-    QString styleSheet;
-    QString content;
-    QString themePath;
-    QSize defaultSize;
     QEasingCurve easingCurve;
-    int margin;
     bool updatePosition;
     bool animation;
-    Qt::WindowFlags widgetFlags;
     Qt::MouseButton action1Trigger;
     Qt::MouseButton action2Trigger;
 	NotificationTypes showFlags;
 	uint timeout;
 	bool appendMode;
+	KineticPopupThemeHelper::PopupSettings popupSettings;
 private:
     QList<KineticPopup *> active_notifications;
     static KineticPopupsManager *instance;
 	void loadSettings();
-    QString loadContent (const QString &path);
 	QString getThemePath(QDir shareDir, const QString& themeName);
     int getNumber(const QString &id) const;
 };

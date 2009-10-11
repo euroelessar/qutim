@@ -187,13 +187,13 @@ namespace Core
 				QModelIndex index = createIndex(item->index(), 0, item);
 				dataChanged(index, index);
 			}
-			NotificationType notify;
+			Notifications::Type notify;
 			if(status == Offline)
-				notify = NotifyOffline;
+				notify = Notifications::Offline;
 			else if(item_data->status == Offline)
-				notify = NotifyOnline;
+				notify = Notifications::Online;
 			else
-				notify = NotifyStatusChange;
+				notify = Notifications::StatusChange;
 			Notifications::sendNotification(notify, contact);
 		}
 

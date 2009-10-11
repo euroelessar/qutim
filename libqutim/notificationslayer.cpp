@@ -70,7 +70,7 @@ namespace qutim_sdk_0_3
 		{ if(!p) ensure_notifications_private_helper(); }
 
 
-		void sendNotification(NotificationType type, QObject *sender,
+                void sendNotification(Type type, QObject *sender,
 												  const QString &body, const QString &custom_title)
 		{
 			ensure_notifications_private();
@@ -99,7 +99,7 @@ namespace qutim_sdk_0_3
 
 		void sendNotification(const QString &body, const QString &custom_title)
 		{
-			sendNotification(NotifySystem, 0, body, custom_title);
+                        sendNotification(System, 0, body, custom_title);
 		}
 	}
 }

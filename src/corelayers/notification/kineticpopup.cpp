@@ -7,6 +7,7 @@
 #include <QFinalState>
 #include <QState>
 #include <QDebug>
+#include <QStateMachine>
 
 KineticPopup::KineticPopup ( const QString& id, uint timeOut )
         :	id ( id ), timeout ( timeOut )
@@ -65,9 +66,10 @@ QString KineticPopup::getId() const
 void KineticPopup::send()
 {
     KineticPopupsManager *manager = KineticPopupsManager::self();
+	machine = new QStateMachine(this);
 
-    notification_widget = new KineticPopupWidget ( title,body );
-    notification_widget->setTheme ( manager->styleSheet,manager->content );
+    notification_widget = new KineticPopupWidget (manager->popupSettings);
+    notification_widget->setData(title,body,image_path);
     QSize notify_size = notification_widget->setData ( title,body,image_path );
     connect (notification_widget,SIGNAL(action1Activated()),SIGNAL(action1Activated()));
     connect (notification_widget,SIGNAL(action2Activated()),SIGNAL(action2Activated()));
@@ -81,8 +83,8 @@ void KineticPopup::send()
     hide_state = new QState();
     QFinalState *final_state = new QFinalState();
 
-    int x = manager->margin + geom.width();
-    int y = manager->margin + geom.height();
+    int x = manager->popupSettings.margin + geom.width();
+    int y = manager->popupSettings.margin + geom.height();
     geom.moveTop(geom.y() - y);
 
     show_state->assignProperty(notification_widget,"geometry",geom);
@@ -101,20 +103,20 @@ void KineticPopup::send()
         show_state->addTransition(this,SIGNAL(timeoutReached()),hide_state);
     }
 
-    machine.addState(show_state);
-    machine.addState(hide_state);
-    machine.addState(final_state);
-    machine.setInitialState (show_state);
+    machine->addState(show_state);
+    machine->addState(hide_state);
+    machine->addState(final_state);
+    machine->setInitialState (show_state);
 
     QPropertyAnimation *animation = new QPropertyAnimation ( notification_widget,"geometry" );
     if (manager->animation) {
-        machine.addDefaultAnimation (animation);
+        machine->addDefaultAnimation (animation);
         animation->setDuration ( manager->animationDuration);
         animation->setEasingCurve (manager->easingCurve);
     }
 
-    connect(&machine,SIGNAL(finished()),SLOT(deleteLater()));
-    machine.start();
+    connect(machine,SIGNAL(finished()),SLOT(deleteLater()));
+    machine->start();
     notification_widget->show();
 }
 
@@ -122,7 +124,7 @@ void KineticPopup::update(QRect geom)
 {
     show_state->assignProperty(notification_widget,"geometry",geom);
     updateGeometry(geom);
-    geom.moveRight(geom.right() + notification_widget->width() + KineticPopupsManager::self()->margin);
+    geom.moveRight(geom.right() + notification_widget->width() + KineticPopupsManager::self()->popupSettings.margin);
     hide_state->assignProperty(notification_widget,"geometry",geom);
 }
 

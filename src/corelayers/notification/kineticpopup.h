@@ -18,10 +18,11 @@
 #define KINETICNOTIFICATION_H
 
 #include <QObject>
-#include <QStateMachine>
 #include <QRect>
 
 class KineticPopupWidget;
+class QState;
+class QStateMachine;
 class KineticPopup : public QObject
 {
     Q_OBJECT
@@ -54,7 +55,7 @@ private:
     QString image_path;
     uint timeout;
     QRect show_geometry; //Don't use direct, change by UpdateGeometry!
-    QStateMachine machine;
+    QStateMachine *machine;
     QState *show_state;
     QState *hide_state;
     virtual void timerEvent ( QTimerEvent* );

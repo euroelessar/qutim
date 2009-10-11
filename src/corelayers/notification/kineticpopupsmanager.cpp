@@ -8,6 +8,7 @@
 #include <QDesktopWidget>
 #include "libqutim/systeminfo.h"
 #include "libqutim/configbase.h"
+#include "kineticpopupsettings.h"
 
 // the universe's only Notification manager
 KineticPopupsManager *KineticPopupsManager::instance = 0;
@@ -52,7 +53,7 @@ QRect KineticPopupsManager::insert ( KineticPopup* notification )
 	if (number == 0) {
 		QRect geom = QApplication::desktop()->availableGeometry(QCursor::pos());
 		geom = QRect(geom.bottomRight(),notification->geometry().size());
-		geom.moveLeft(geom.x() - margin - notification->geometry().width());
+		geom.moveLeft(geom.x() - popupSettings.margin - notification->geometry().width());
 		return geom;
 	}
 	else
@@ -72,9 +73,9 @@ void KineticPopupsManager::updateGeometry()
 	if (updatePosition) {
 		QRect geom = QApplication::desktop()->availableGeometry(QCursor::pos());
 		int y = geom.bottom();
-		geom.moveLeft(geom.right() - margin - defaultSize.width());
+		geom.moveLeft(geom.right() - popupSettings.margin - popupSettings.defaultSize.width());
 		for (int i=0;i!=active_notifications.count();i++) {
-			y -= margin + active_notifications.value(i)->geometry().height();
+			y -= popupSettings.margin + active_notifications.value(i)->geometry().height();
 			geom.moveTop(y);
 			geom.setSize(active_notifications.value(i)->geometry().size());
 			active_notifications.value(i)->update(geom);
@@ -99,44 +100,16 @@ void KineticPopupsManager::loadSettings()
 	animationDuration = general.value("animationDuration",1000);
 	QString theme_name = general.value<QString>("themeName","default");
 	*reinterpret_cast<int *>(&showFlags) = general.value("showFlags", 0xfffffff);
-	themePath = getThemePath(SystemInfo::getDir(SystemInfo::ShareDir),theme_name);
-	if (themePath.isEmpty())
-	{
-		themePath = getThemePath(SystemInfo::getDir(SystemInfo::SystemShareDir),theme_name);
-	}
-	defaultSize = QSize(250,150);
-	margin = 10;
-	styleSheet = loadContent(themePath + "/content.css");
-	content = loadContent(themePath + "/content.html");
-	updatePosition = true;
-	animation = true;
-	easingCurve = QEasingCurve::OutSine;
-	widgetFlags = Qt::ToolTip | Qt::FramelessWindowHint;
+	updatePosition = general.value<bool>("updatePosition",true);
+	animation = general.value<bool>("animated",true);
+	timeout = general.value<int>("timeout",0);
+	appendMode = general.value<bool>("appendMode",true);
+	easingCurve.setType(static_cast<QEasingCurve::Type>(general.value<int>("easingCurve",QEasingCurve::OutSine)));
+
+	QString theme_path = KineticPopupThemeHelper::getThemePath(theme_name);
+	popupSettings = KineticPopupThemeHelper::loadThemeSetting(theme_path);
 	action1Trigger = Qt::LeftButton;
 	action2Trigger = Qt::RightButton;
-	timeout = 0;
-	appendMode = true;
-}
-
-
-QString KineticPopupsManager::loadContent ( const QString& path )
-{
-	QFile content (path);
-	QString output;
-	if (content.open(QIODevice::ReadOnly)) {
-		output = content.readAll();
-		output.replace("{themepath}",Qt::escape(themePath));
-		content.close();
-	}
-	return output;
-}
-
-
-QString KineticPopupsManager::getThemePath(QDir shareDir, const QString &themeName)
-{
-	shareDir.cd("kineticpopups");
-	if (shareDir.cd(themeName))
-		return shareDir.absolutePath();
-	else
-		return QString();
+	KineticPopupSettings *settings = new KineticPopupSettings();
+	settings->show();
 }

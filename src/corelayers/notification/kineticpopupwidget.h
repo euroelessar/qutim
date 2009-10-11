@@ -18,19 +18,21 @@
 #define KINETICPOPUPWIDGET_H
 
 #include <QTextBrowser>
+#include "kineticpopupthemehelper.h"
 
 class QTextBrowser;
 class KineticPopupWidget : public QTextBrowser
 {
     Q_OBJECT
 public:
-    KineticPopupWidget(const QString &styleSheet, const QString &content);
-    QSize setData(const QString& title, const QString& body, const QString &imagePath); //size of textbrowser
-    void setTheme(const QString &styleSheet, const QString &content);
+    KineticPopupWidget(const KineticPopupThemeHelper::PopupSettings &popupSettings);
+    QSize setData(const QString& title,
+				  const QString& body,
+				  const QString &imagePath); //size of textbrowser
+    void setTheme(const KineticPopupThemeHelper::PopupSettings &popupSettings);
     virtual void mouseReleaseEvent ( QMouseEvent* ev );
 private:
-    //QString style_sheet;
-    QString content;
+	KineticPopupThemeHelper::PopupSettings popup_settings;
 signals:
     void action1Activated();
     void action2Activated();
