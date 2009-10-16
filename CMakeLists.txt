@@ -301,16 +301,6 @@ IF(NOT NO_HISTORY)
 ELSE(NOT NO_HISTORY)
 	ADD_DEFINITIONS( -DNO_CORE_HISTORY )
 ENDIF(NOT NO_HISTORY)
-IF(NOT NO_SETTINGS)
-	LIST (APPEND HEADERS
-		src/corelayers/settings/qsettingslayer.h
-		)
-	LIST (APPEND SOURCES
-		src/corelayers/settings/qsettingslayer.cpp
-		)
-ELSE(NOT NO_SETTINGS)
-	ADD_DEFINITIONS( -DNO_CORE_SETTINGS )
-ENDIF(NOT NO_SETTINGS)
 IF(NOT NO_SOUNDENGINE)
 	LIST (APPEND HEADERS
 		src/corelayers/soundengine/defaultsoundenginelayer.h
@@ -356,6 +346,19 @@ IF(NOT NO_STATUS)
 ELSE(NOT NO_STATUS)
 	ADD_DEFINITIONS( -DNO_CORE_STATUS )
 ENDIF(NOT NO_STATUS)
+IF(NOT NO_SETTINGSDIALOG)
+	LIST (APPEND HEADERS
+		src/corelayers/settingsdialog/xsettingsdialog.h
+		)
+	LIST (APPEND SOURCES
+		src/corelayers/settingsdialog/xsettingsdialog.cpp
+		)
+	LIST (APPEND FORMS
+		src/corelayers/settingsdialog/xsettingsdialog.ui
+		)
+ELSE(NOT NO_SETTINGSDIALOG)
+	ADD_DEFINITIONS( -DNO_CORE_SETTINGSDIALOG )
+ENDIF(NOT NO_SETTINGSDIALOG)
 IF(NOT NO_TRAY)
 	LIST (APPEND HEADERS
 		src/corelayers/tray/defaulttraylayer.h

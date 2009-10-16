@@ -27,7 +27,7 @@ namespace qutim_sdk_0_3
 	class SettingsWidget : public QWidget
 	{
 		Q_OBJECT
-		Q_PROPERTY(bool modified READ isModified NOTIFY modifiedChanged)
+                Q_PROPERTY(bool modified) // READ isModified NOTIFY modifiedChanged) //fail in moc(((
 	public:
 		SettingsWidget();
 		virtual ~SettingsWidget();

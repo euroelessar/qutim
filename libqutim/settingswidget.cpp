@@ -175,7 +175,7 @@ namespace qutim_sdk_0_3
 	{
 		if(index < 0 || index >= p->infos.size() || p->sleep)
 			return;
-		const WidgetInfo &info = p->infos.at(index);
+                WidgetInfo info = p->infos.at(index);
 		QVariant value = info.obj->property(info.property);
 		bool equal = info.value == value;
 		if(equal && info.is_changed)
