@@ -30,6 +30,7 @@
 #include <QMetaMethod>
 #include <QDebug>
 #include <QVarLengthArray>
+#include <QLibrary>
 
 namespace qutim_sdk_0_3
 {
@@ -209,6 +210,21 @@ namespace qutim_sdk_0_3
 				if(plugin_paths_list.contains(filename) || !QLibrary::isLibrary(filename) || !files[i].isFile())
 					continue;
 				plugin_paths_list << filename;
+				// Just don't load old plugins
+				{
+#ifdef Q_CC_BOR
+					typedef const char * __stdcall (*QutimPluginVerificationFunction)();
+#else
+					typedef const char * (*QutimPluginVerificationFunction)();
+#endif
+					QutimPluginVerificationFunction verificationFunction = NULL;
+					QScopedPointer<QLibrary> lib(new QLibrary(filename));
+					lib->load();
+					verificationFunction = (QutimPluginVerificationFunction)lib->resolve("qutim_plugin_query_verification_data");
+					lib->unload();
+					if(!verificationFunction)
+						continue;
+				}
 				QPluginLoader *loader = new QPluginLoader(filename);
 				loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
 				QObject *object = loader->instance();

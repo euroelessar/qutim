@@ -18,6 +18,7 @@
 
 #include "configbase.h"
 #include "configbackend.h"
+#include <QDateTime>
 
 namespace qutim_sdk_0_3
 {
@@ -58,6 +59,7 @@ namespace qutim_sdk_0_3
 		ConfigEntry::Ptr root;
 		QString file;
 		ConfigBackend *backend;
+		QDateTime last_change;
 	};
 	typedef QList<ConfigEntryInfo> ConfigEntryInfoList;
 

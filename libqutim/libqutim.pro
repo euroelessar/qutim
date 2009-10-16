@@ -12,7 +12,6 @@ DEFINES += LIBQUTIM_LIBRARY
 INCLUDEPATH += ../
 SOURCES += tcpsocket.cpp \
     domaininfo.cpp \
-    abstractlayer.cpp \
     settingslayer.cpp \
     modulemanager.cpp \
     plugin.cpp \
@@ -36,11 +35,12 @@ SOURCES += tcpsocket.cpp \
     notificationslayer.cpp \
     iconbackend.cpp \
     contactlist.cpp \
-    message.cpp
+    message.cpp \
+    abstractcontact.cpp \
+    settingswidget.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
     domaininfo.h \
-    abstractlayer.h \
     settingslayer.h \
     modulemanager.h \
     plugin.h \
@@ -65,6 +65,8 @@ HEADERS += tcpsocket.h \
     notificationslayer.h \
     iconbackend_p.h \
     contactlist.h \
-    message.h
+    message.h \
+    abstractcontact.h \
+    settingswidget.h
 include(../3rdparty/jdns/jdns.pri)
 include(../3rdparty/k8json/k8json.pri)

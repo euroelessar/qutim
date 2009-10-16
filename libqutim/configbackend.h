@@ -45,15 +45,22 @@ namespace qutim_sdk_0_3
 		QVariant value;
 	};
 
+	struct ConfigBackendPrivate;
+
 	class LIBQUTIM_EXPORT ConfigBackend : public QObject
 	{
 		Q_OBJECT
 	public:
+		ConfigBackend();
+		virtual ~ConfigBackend();
 		virtual ConfigEntry::Ptr parse(const QString &file) = 0;
 		virtual void generate(const QString &file, const ConfigEntry::Ptr &entry) = 0;
+		QByteArray backendName() const;
 	protected:
 		QIODevice *openDefault(const QString &file, QIODevice::OpenMode mode);
-		ConfigBackend();
+		virtual void virtual_hook(int id, void *data);
+	private:
+		QScopedPointer<ConfigBackendPrivate> p;
 	};
 }
 

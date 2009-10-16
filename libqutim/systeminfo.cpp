@@ -286,7 +286,7 @@ namespace qutim_sdk_0_3
 		}
 
 #elif defined(Q_WS_MAC)
-		long minor_version, major_version, bug_fix;
+		SInt32 minor_version, major_version, bug_fix;
 		Gestalt(gestaltSystemVersionMajor, &major_version);
 		Gestalt(gestaltSystemVersionMinor, &minor_version);
 		Gestalt(gestaltSystemVersionBugFix, &bug_fix);

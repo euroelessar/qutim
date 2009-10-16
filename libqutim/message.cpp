@@ -1,3 +1,18 @@
+/****************************************************************************
+ *  message.cpp
+ *
+ *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include "message.h"
 #include <QDateTime>
 
@@ -60,7 +75,7 @@ namespace qutim_sdk_0_3
 
 	QVariant Message::property(const char *name) const
 	{
-		QByteArray prop = name;
+		QByteArray prop = QByteArray::fromRawData(name, strlen(name));
 		int id = CompiledProperty::names.indexOf(prop);
 		if(id < 0)
 		{
@@ -74,7 +89,7 @@ namespace qutim_sdk_0_3
 
 	void Message::setProperty(const char *name, const QVariant &value)
 	{
-		QByteArray prop = name;
+		QByteArray prop = QByteArray::fromRawData(name, strlen(name));
 		int id = CompiledProperty::names.indexOf(prop);
 		if(id < 0)
 		{
@@ -90,6 +105,7 @@ namespace qutim_sdk_0_3
 			{
 				if(id < 0)
 				{
+					prop.detach();
 					p->names.append(prop);
 					p->values.append(value);
 				}

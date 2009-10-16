@@ -20,12 +20,46 @@
 #include <QSet>
 #include <QFileInfo>
 #include <QStringBuilder>
+#include <QCache>
 
 #include <QDebug>
 
 namespace qutim_sdk_0_3
 {
 	QList<ConfigBackendInfo> ConfigPrivate::config_backends = QList<ConfigBackendInfo>();
+
+	static QCache<QString, ConfigEntryInfo> *cached_entries = 0;
+
+	static const ConfigEntryInfo &parseConfigEntry(const QString &filepath, ConfigBackend *backend)
+	{
+		if(!cached_entries)
+		{
+			cached_entries = new QCache<QString, ConfigEntryInfo>();
+			cached_entries->setMaxCost(10); // But it's strange...
+		}
+		QFileInfo info(filepath);
+		QString id = backend->backendName() % QLatin1Char('\0')
+//					 % QString::number(info.lastModified().toTime_t())
+//					 % QLatin1Char('\0')
+					 % filepath;
+		ConfigEntryInfo *entry_info = cached_entries->object(id);
+		if(entry_info && entry_info->last_change >= info.lastModified())
+		{
+			qDebug("%s from cache", qPrintable(filepath));
+			return *entry_info;
+		}
+		entry_info = new ConfigEntryInfo;
+		entry_info->root = backend->parse(filepath);
+		entry_info->file = filepath;
+		entry_info->backend = backend;
+		entry_info->last_change = info.lastModified();
+//		ConfigEntryInfo entry_info = { backend->parse(filepath), filepath, backend, info.lastModified() };
+		qDebug("%s parsed", qPrintable(filepath));
+		if(entry_info->root.isNull())
+			entry_info->root = ConfigEntry::Ptr(new ConfigEntry());
+		cached_entries->insert(id, entry_info);
+		return *entry_info;
+	}
 
 //	ConfigStrongEntryList ConfigBase::getEntries() const
 //	{
@@ -270,14 +304,15 @@ namespace qutim_sdk_0_3
 					   % QLatin1Char('.')
 					   % QLatin1String(ConfigPrivate::config_backends.at(0).first.constData());
 		}
-		ConfigEntry::Ptr entry = backend_ptr->parse(filepath);
-		if(entry.isNull())
-			entry = ConfigEntry::Ptr(new ConfigEntry());
+		const ConfigEntryInfo &entry_info = parseConfigEntry(filepath, backend_ptr);
+//		ConfigEntry::Ptr entry = backend_ptr->parse(filepath);
+//		if(entry.isNull())
+//			entry = ConfigEntry::Ptr(new ConfigEntry());
 		p = new ConfigPrivate;
 		p->file = filename;
-		ConfigEntryInfo entry_info = { entry, filepath, backend_ptr };
+//		ConfigEntryInfo entry_info = { entry, filepath, backend_ptr };
 		p->root_entries << entry_info;
-		p->entries << entry.toWeakRef();
+		p->entries << entry_info.root.toWeakRef();
 	}
 
 	Config::Config(const QStringList &files_, OpenFlags flags, const QString &backend)
@@ -324,20 +359,21 @@ namespace qutim_sdk_0_3
 				continue;
 			else
 				check |= filepath;
-			ConfigEntry::Ptr entry = backend_ptr->parse(filepath);
+			const ConfigEntryInfo &entry_info = parseConfigEntry(filepath, backend_ptr);
+//			ConfigEntry::Ptr entry = backend_ptr->parse(filepath);
 			if(first)
 			{
-				if(entry.isNull())
-					entry = ConfigEntry::Ptr(new ConfigEntry());
+//				if(entry.isNull())
+//					entry = ConfigEntry::Ptr(new ConfigEntry());
 				p = new ConfigPrivate;
 				p->file = filename;
 				first = false;
 			}
-			if(entry.isNull())
-				continue;
-			ConfigEntryInfo entry_info = { entry, filepath, backend_ptr };
+//			if(entry.isNull())
+//				continue;
+//			ConfigEntryInfo entry_info = { entry, filepath, backend_ptr };
 			p->root_entries << entry_info;
-			p->entries << entry.toWeakRef();
+			p->entries << entry_info.root.toWeakRef();
 		}
 	}
 		

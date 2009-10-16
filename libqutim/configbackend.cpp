@@ -59,8 +59,24 @@ namespace qutim_sdk_0_3
 //		return result;
 	}
 
-	ConfigBackend::ConfigBackend()
+	struct ConfigBackendPrivate
 	{
+		QByteArray extension;
+	};
+
+	ConfigBackend::ConfigBackend() : p(new ConfigBackendPrivate)
+	{
+	}
+
+	ConfigBackend::~ConfigBackend()
+	{
+	}
+
+	QByteArray ConfigBackend::backendName() const
+	{
+		if(p->extension.isNull())
+			p->extension = metaInfo(metaObject(), "Extension");
+		return p->extension;
 	}
 
 	QIODevice *ConfigBackend::openDefault(const QString &file, QIODevice::OpenMode mode)
@@ -73,5 +89,11 @@ namespace qutim_sdk_0_3
 			return 0;
 		}
 		return device;
+	}
+
+	void ConfigBackend::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
 	}
 }

@@ -19,10 +19,6 @@
 
 namespace qutim_sdk_0_3
 {
-	SettingsItem::SettingsItem() : m_type(SettingsInvalid), m_text("Settings", 0)
-	{
-	}
-
 	SettingsItem::~SettingsItem()
 	{
 		clearWidget();

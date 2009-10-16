@@ -43,11 +43,12 @@ namespace qutim_sdk_0_3
 	{
 		Q_DISABLE_COPY(SettingsItem);
 	public:
-		SettingsItem();
+		SettingsItem()
+				: m_gen(0), m_type(SettingsInvalid), m_text("Settings", 0) {}
 		SettingsItem(SettingsType type, const QIcon &icon, const char *text)
-			: m_gen(0), m_type(type), m_icon(icon), m_text("Settings", text) {}
+				: m_gen(0), m_type(type), m_icon(icon), m_text("Settings", text) {}
 		SettingsItem(SettingsType type, const char *text)
-			: m_gen(0), m_type(type), m_text("Settings", text) {}
+				: m_gen(0), m_type(type), m_text("Settings", text) {}
 		virtual ~SettingsItem();
 		SettingsType type() const;
 		QIcon icon() const;
@@ -64,7 +65,7 @@ namespace qutim_sdk_0_3
 	};
 
 	template<typename T>
-	class LIBQUTIM_EXPORT SettingsWidget : public SettingsItem
+	class LIBQUTIM_EXPORT GeneralSettingsItem : public SettingsItem
 	{
 	protected:
 		virtual const ObjectGenerator *generator() const
