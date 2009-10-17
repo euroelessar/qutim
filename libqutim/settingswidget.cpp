@@ -87,6 +87,11 @@ namespace qutim_sdk_0_3
 	{
 	}
 
+	bool SettingsWidget::isModified() const
+	{
+		return p->changed_num > 0;
+	}
+
 	void SettingsWidget::load()
 	{
 		p->sleep = true;
@@ -175,7 +180,7 @@ namespace qutim_sdk_0_3
 	{
 		if(index < 0 || index >= p->infos.size() || p->sleep)
 			return;
-                WidgetInfo info = p->infos.at(index);
+		WidgetInfo &info = p->infos[index];
 		QVariant value = info.obj->property(info.property);
 		bool equal = info.value == value;
 		if(equal && info.is_changed)

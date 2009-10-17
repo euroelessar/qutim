@@ -31,6 +31,7 @@ namespace qutim_sdk_0_3
 	public:
 		SettingsWidget();
 		virtual ~SettingsWidget();
+		bool isModified() const;
 	public slots:
 		void load();
 		void save();
