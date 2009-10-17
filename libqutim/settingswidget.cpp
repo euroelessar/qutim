@@ -108,6 +108,21 @@ namespace qutim_sdk_0_3
 		p->sleep = false;
 	}
 
+	void SettingsWidget::cancel()
+	{
+		p->sleep = true;
+		for(int i = 0, size = p->infos.size(); i < size; i++)
+		{
+			WidgetInfo &info = p->infos[i];
+			if(info.obj && info.is_changed)
+				 info.obj->setProperty(info.property, info.value);
+			info.is_changed = false;
+		}
+		cancelImpl();
+		p->changed_num = 0;
+		p->sleep = false;
+	}
+
 	void SettingsWidget::listenChildrenStates(const QWidgetList &exceptions)
 	{
 		QWidgetList widgets;
@@ -191,8 +206,8 @@ namespace qutim_sdk_0_3
 			return;
 		info.is_changed = !equal;
 		if(p->changed_num == 0 && equal)
-			emit changesStateChanged(false);
+			emit modifiedChanged(false);
 		else if(p->changed_num == 1 && !equal)
-			emit changesStateChanged(true);
+			emit modifiedChanged(true);
 	}
 }

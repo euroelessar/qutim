@@ -27,7 +27,7 @@ namespace qutim_sdk_0_3
 	class SettingsWidget : public QWidget
 	{
 		Q_OBJECT
-                Q_PROPERTY(bool modified) // READ isModified NOTIFY modifiedChanged) //fail in moc(((
+		Q_PROPERTY(bool modified READ isModified NOTIFY modifiedChanged)
 	public:
 		SettingsWidget();
 		virtual ~SettingsWidget();
@@ -35,11 +35,13 @@ namespace qutim_sdk_0_3
 	public slots:
 		void load();
 		void save();
+		void cancel();
 	signals:
-		void changesStateChanged(bool have_changes);
+		void modifiedChanged(bool have_changes);
 	protected:
 		virtual void loadImpl() = 0;
 		virtual void saveImpl() = 0;
+		virtual void cancelImpl() = 0;
 		void listenChildrenStates(const QWidgetList &exceptions = QWidgetList());
 		bool lookForWidgetState(QWidget *widget, const char *property = 0, const char *signal = 0);
 	private slots:
