@@ -17,12 +17,17 @@
 #ifndef KINETICPOPUPSETTINGS_H
 #define KINETICPOPUPSETTINGS_H
 #include <QWidget>
+#include "kineticpopupbackend.h"
+#include "libqutim/settingswidget.h"
 
-class KineticPopupSettings : public QWidget
+class KineticPopupSettings : public SettingsWidget
 {
 	Q_OBJECT
 public:
-    KineticPopupSettings ( QWidget* parent = 0, Qt::WindowFlags f = 0 );
+    KineticPopupSettings();
+	virtual void loadImpl();
+    virtual void cancelImpl();
+    virtual void saveImpl();
 };
 
 #endif // KINETICPOPUPSETTINGS_H

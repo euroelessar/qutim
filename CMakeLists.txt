@@ -348,13 +348,20 @@ ELSE(NOT NO_STATUS)
 ENDIF(NOT NO_STATUS)
 IF(NOT NO_SETTINGSDIALOG)
 	LIST (APPEND HEADERS
-		src/corelayers/settingsdialog/xsettingsdialog.h
+		src/corelayers/xsettingsdialog/xsettingsdialog.h
+		src/corelayers/xsettingsdialog/xtoolbar.h
+		src/corelayers/xsettingsdialog/xsettingslayerimpl.h
+		src/corelayers/xsettingsdialog/xsettingsgroup.h
 		)
 	LIST (APPEND SOURCES
-		src/corelayers/settingsdialog/xsettingsdialog.cpp
+		src/corelayers/xsettingsdialog/xsettingsdialog.cpp
+		src/corelayers/xsettingsdialog/xtoolbar.cpp
+		src/corelayers/xsettingsdialog/xsettingslayerimpl.cpp
+		src/corelayers/xsettingsdialog/xsettingsgroup.cpp
 		)
 	LIST (APPEND FORMS
-		src/corelayers/settingsdialog/xsettingsdialog.ui
+		src/corelayers/xsettingsdialog/xsettingsdialog.ui
+		src/corelayers/xsettingsdialog/xsettingsgroup.ui
 		)
 ELSE(NOT NO_SETTINGSDIALOG)
 	ADD_DEFINITIONS( -DNO_CORE_SETTINGSDIALOG )

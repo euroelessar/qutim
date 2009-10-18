@@ -24,33 +24,41 @@
 
 namespace qutim_sdk_0_3
 {
-	enum SettingsType
+	class SettingsItem;
+	namespace Settings
 	{
-		SettingsInvalid,
-		SettingsGeneral,
-		SettingsAppearance,
-		SettingsPlugin,
-		SettingsProtocol
-	};
+		enum Type
+		{
+			Invalid,
+			General,
+			Appearance,
+			Plugin,
+			Protocol
+		};
 
-	// Exmample of usage:
-	// Settings::registerItem(new SettingsWidget<MyCoolPopupSettings>(
-	//                        SettingsAppearance,
-	//                        QIcon(":/icons/mycoolicon"),
-	//                        QT_TRANSLATE_NOOP_UTF8("Settings", "Popup theme")));
+		// Exmample of usage:
+		// Settings::registerItem(new SettingsWidget<MyCoolPopupSettings>(
+		//                        Settings::Appearance,
+		//                        QIcon(":/icons/mycoolicon"),
+		//                        QT_TRANSLATE_NOOP_UTF8("Settings", "Popup theme")));
 
+		LIBQUTIM_EXPORT void registerItem(SettingsItem *item);
+		LIBQUTIM_EXPORT void showWidget();
+		LIBQUTIM_EXPORT void closeWidget();
+	}
+	
 	class LIBQUTIM_EXPORT SettingsItem
 	{
 		Q_DISABLE_COPY(SettingsItem);
 	public:
 		SettingsItem()
-				: m_gen(0), m_type(SettingsInvalid), m_text("Settings", 0) {}
-		SettingsItem(SettingsType type, const QIcon &icon, const char *text)
+				: m_gen(0), m_type(Settings::Invalid), m_text("Settings", 0) {}
+		SettingsItem(Settings::Type type, const QIcon &icon, const char *text)
 				: m_gen(0), m_type(type), m_icon(icon), m_text("Settings", text) {}
-		SettingsItem(SettingsType type, const char *text)
+		SettingsItem(Settings::Type type, const char *text)
 				: m_gen(0), m_type(type), m_text("Settings", text) {}
 		virtual ~SettingsItem();
-		SettingsType type() const;
+		Settings::Type type() const;
 		QIcon icon() const;
 		LocalizedString text() const;
 		QWidget *widget() const;
@@ -58,7 +66,7 @@ namespace qutim_sdk_0_3
 	protected:
 		virtual const ObjectGenerator *generator() const = 0;
 		mutable const ObjectGenerator *m_gen;
-		SettingsType m_type;
+		Settings::Type m_type;
 		QIcon m_icon;
 		LocalizedString m_text; // should be inserted by QT_TRANSLATE_NOOP_UTF8("Settings", "Contact list")
 		mutable QPointer<QWidget> m_widget;
@@ -67,6 +75,11 @@ namespace qutim_sdk_0_3
 	template<typename T>
 	class LIBQUTIM_EXPORT GeneralSettingsItem : public SettingsItem
 	{
+	public:
+		GeneralSettingsItem(Settings::Type type, const QIcon &icon, const char *text)
+				: SettingsItem(type,icon,text) {}
+		GeneralSettingsItem(Settings::Type type, const char *text)
+				: SettingsItem(type,text) {}
 	protected:
 		virtual const ObjectGenerator *generator() const
 		{
@@ -77,13 +90,6 @@ namespace qutim_sdk_0_3
 	};
 
 	typedef QList<SettingsItem *> SettingsItemList;
-
-	namespace Settings
-	{
-		LIBQUTIM_EXPORT void registerItem(SettingsItem *item);
-		LIBQUTIM_EXPORT void showWidget();
-		LIBQUTIM_EXPORT void closeWidget();
-	}
 
 	class LIBQUTIM_EXPORT SettingsLayer : public QObject
 	{

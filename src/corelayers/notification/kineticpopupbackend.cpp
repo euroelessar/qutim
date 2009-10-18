@@ -5,11 +5,22 @@
 #include <QVariant>
 #include <QTime>
 #include <QDebug>
+#include "libqutim/settingslayer.h"
+#include "kineticpopupwidget.h"
+#include "kineticpopupsettings.h"
 
 static Core::CoreModuleHelper<KineticPopupBackend> kinetic_popup_static(
 		QT_TRANSLATE_NOOP("Plugin", "Kinetic popups"),
 		QT_TRANSLATE_NOOP("Plugin", "Default qutIM popup realization. Powered by Kinetic")
 		);
+
+
+KineticPopupBackend::KineticPopupBackend ()
+{
+	GeneralSettingsItem<KineticPopupSettings> *item = new GeneralSettingsItem<KineticPopupSettings>(Settings::Appearance,QT_TRANSLATE_NOOP("Settings","Popups"));
+	Settings::registerItem(item);
+	Settings::showWidget();
+}
 
 void KineticPopupBackend::show(Notifications::Type type, QObject* sender, const QString& body, const QString& customTitle)
 {

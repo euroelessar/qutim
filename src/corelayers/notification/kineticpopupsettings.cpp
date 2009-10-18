@@ -20,7 +20,8 @@
 #include "kineticpopupwidget.h"
 #include <QLayout>
 
-KineticPopupSettings::KineticPopupSettings ( QWidget* parent, Qt::WindowFlags f ) : QWidget ( parent, f )
+
+KineticPopupSettings::KineticPopupSettings ()
 {
 	QList<KineticPopupThemeHelper::PopupSettings> theme_list = KineticPopupThemeHelper::getThemes();
 	QGridLayout *layout = new QGridLayout(this);
@@ -30,4 +31,22 @@ KineticPopupSettings::KineticPopupSettings ( QWidget* parent, Qt::WindowFlags f 
 		popup_widget->setData("Title", "Message", QLatin1String(":/icons/qutim_64"));
  		layout->addWidget(popup_widget);
 	}
+
+}
+
+
+void KineticPopupSettings::loadImpl()
+{
+
+}
+
+
+void KineticPopupSettings::saveImpl()
+{
+
+}
+
+void KineticPopupSettings::cancelImpl()
+{
+
 }

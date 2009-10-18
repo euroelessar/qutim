@@ -110,6 +110,4 @@ void KineticPopupsManager::loadSettings()
 	popupSettings = KineticPopupThemeHelper::loadThemeSetting(theme_path);
 	action1Trigger = Qt::LeftButton;
 	action2Trigger = Qt::RightButton;
-	KineticPopupSettings *settings = new KineticPopupSettings();
-	settings->show();
 }

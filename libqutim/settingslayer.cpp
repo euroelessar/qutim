@@ -24,10 +24,10 @@ namespace qutim_sdk_0_3
 		clearWidget();
 	}
 
-	SettingsType SettingsItem::type() const
+	Settings::Type SettingsItem::type() const
 	{
-		if(m_type < SettingsGeneral || m_type > SettingsProtocol)
-			return SettingsInvalid;
+		if(m_type < Settings::General || m_type > Settings::Protocol)
+			return Settings::Invalid;
 		return m_type;
 	}
 

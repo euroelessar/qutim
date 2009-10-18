@@ -11,6 +11,7 @@ class KineticPopupBackend : public PopupBackend
 	Q_OBJECT
 public:
     virtual void show(Notifications::Type type, QObject* sender, const QString& body, const QString& customTitle);
+    KineticPopupBackend ();
 private:
 	QString getTitle(Notifications::Type type, QString& id, const QString& sender = QString()) const;//also modify notify id
 	void setActions(QObject* sender, Notifications::Type type, KineticPopup *popup);
