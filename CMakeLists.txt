@@ -396,6 +396,9 @@ IF(NOT NO_NOTIFICATION)
 		src/corelayers/notification/kineticpopupsettings.cpp
 		src/corelayers/notification/kineticpopupthemehelper.cpp
                 )
+		LIST (APPEND FORMS
+		src/corelayers/notification/kineticpopupsettings.ui
+		)
 ELSE(NOT NO_NOTIFICATION)
         ADD_DEFINITIONS( -DNO_CORE_NOTIFICATION )
 ENDIF(NOT NO_NOTIFICATION)

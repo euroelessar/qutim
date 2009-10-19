@@ -20,14 +20,22 @@
 #include "kineticpopupbackend.h"
 #include "libqutim/settingswidget.h"
 
+namespace Ui
+{
+	class AppearanceSettings;
+}
+
 class KineticPopupSettings : public SettingsWidget
 {
 	Q_OBJECT
 public:
     KineticPopupSettings();
+    virtual ~KineticPopupSettings();
 	virtual void loadImpl();
     virtual void cancelImpl();
     virtual void saveImpl();
+private:
+	Ui::AppearanceSettings *ui;
 };
 
 #endif // KINETICPOPUPSETTINGS_H

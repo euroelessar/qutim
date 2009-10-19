@@ -13,6 +13,7 @@ class XSettingsGroup : public QWidget
 	Q_OBJECT
 public:
     XSettingsGroup (const SettingsItemList &settings,QWidget* parent = 0);
+    virtual ~XSettingsGroup();
 private:
 	SettingsItemList m_setting_list;
 	Ui::XSettingsGroup *ui;

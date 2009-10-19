@@ -28,3 +28,10 @@ void XSettingsGroup::currentRowChanged ( int index)
 		ui->stackedWidget->addWidget(widget);
 	ui->stackedWidget->setCurrentWidget(widget);
 }
+
+
+XSettingsGroup::~XSettingsGroup()
+{
+	delete ui;
+}
+

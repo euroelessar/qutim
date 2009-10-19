@@ -19,20 +19,28 @@
 #include <QLayout>
 #include "kineticpopupwidget.h"
 #include <QLayout>
-
+#include "ui_kineticpopupsettings.h"
 
 KineticPopupSettings::KineticPopupSettings ()
+:    ui(new Ui::AppearanceSettings)
 {
-	QList<KineticPopupThemeHelper::PopupSettings> theme_list = KineticPopupThemeHelper::getThemes();
-	QGridLayout *layout = new QGridLayout(this);
-	foreach (KineticPopupThemeHelper::PopupSettings theme, theme_list)
-	{
-		KineticPopupWidget *popup_widget = new KineticPopupWidget(theme);
-		popup_widget->setData("Title", "Message", QLatin1String(":/icons/qutim_64"));
- 		layout->addWidget(popup_widget);
-	}
+	ui->setupUi(this);
+// 	QList<KineticPopupThemeHelper::PopupSettings> theme_list = KineticPopupThemeHelper::getThemes();
+// 	QGridLayout *layout = new QGridLayout(this);
+// 	foreach (KineticPopupThemeHelper::PopupSettings theme, theme_list)
+// 	{
+// 		KineticPopupWidget *popup_widget = new KineticPopupWidget(theme);
+// 		popup_widget->setData("Title", "Message", QLatin1String(":/icons/qutim_64"));
+//  		layout->addWidget(popup_widget);
+// 	}
 
 }
+
+KineticPopupSettings::~KineticPopupSettings()
+{
+	delete ui;
+}
+
 
 
 void KineticPopupSettings::loadImpl()
