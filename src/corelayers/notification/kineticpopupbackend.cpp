@@ -8,6 +8,7 @@
 #include "libqutim/settingslayer.h"
 #include "kineticpopupwidget.h"
 #include "kineticpopupsettings.h"
+#include "libqutim/icon.h"
 
 static Core::CoreModuleHelper<KineticPopupBackend> kinetic_popup_static(
 		QT_TRANSLATE_NOOP("Plugin", "Kinetic popups"),
@@ -17,7 +18,7 @@ static Core::CoreModuleHelper<KineticPopupBackend> kinetic_popup_static(
 
 KineticPopupBackend::KineticPopupBackend ()
 {
-	GeneralSettingsItem<KineticPopupSettings> *item = new GeneralSettingsItem<KineticPopupSettings>(Settings::Appearance,QT_TRANSLATE_NOOP("Settings","Popups"));
+	GeneralSettingsItem<KineticPopupSettings> *item = new GeneralSettingsItem<KineticPopupSettings>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
 	Settings::registerItem(item);
 	Settings::showWidget();
 }

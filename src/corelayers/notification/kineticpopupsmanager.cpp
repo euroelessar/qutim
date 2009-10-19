@@ -108,6 +108,7 @@ void KineticPopupsManager::loadSettings()
 
 	QString theme_path = KineticPopupThemeHelper::getThemePath(theme_name);
 	popupSettings = KineticPopupThemeHelper::loadThemeSetting(theme_path);
+	//TODO need global actions handler
 	action1Trigger = Qt::LeftButton;
 	action2Trigger = Qt::RightButton;
 }

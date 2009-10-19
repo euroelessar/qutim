@@ -37,6 +37,8 @@ private:
 	QState *m_show_state;
 	QVector<SettingsItemList> m_settings_items;
 	QList<XSettingsGroup *> m_group_widgets;
+	//configuration
+	bool animated;
 };
 
 #endif // XSETTINGSDIALOG_H

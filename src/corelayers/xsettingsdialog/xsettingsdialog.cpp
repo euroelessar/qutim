@@ -7,14 +7,20 @@
 #include <QDebug>
 #include <libqutim/icon.h>
 #include "xsettingsgroup.h"
+#include <libqutim/configbase.h>
 
 XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* parent) :
         QDialog(parent),    ui(new Ui::XSettingsDialog)
 {
-	ui->setupUi(this);
+	//load settings
+	ConfigGroup general_group = Config("appearence/xsettings").group("general");
+	uint icon_size = general_group.value<uint>("iconSize",32);
+	Qt::ToolButtonStyle tool_button_style = static_cast<Qt::ToolButtonStyle>(general_group.value<int>("toolButtonStyle",Qt::ToolButtonTextUnderIcon));
+	animated = general_group.value<bool>("animated", true);
 	//init toolbar
-	ui->xtoolBar->setIconSize(QSize(32,32));
-	ui->xtoolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	ui->setupUi(this);
+	ui->xtoolBar->setIconSize(QSize(icon_size,icon_size));
+	ui->xtoolBar->setToolButtonStyle(tool_button_style);
 	connect(ui->xtoolBar,SIGNAL(actionTriggered(QAction*)),SLOT(onActionTriggered(QAction*)));
 
 	//init actions
@@ -46,7 +52,8 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 		m_settings_items[item->type()].append(settings);
 	}
 	general->trigger();
-	initAnimation();
+	if (animated)
+		initAnimation();
 }
 
 XSettingsDialog::~XSettingsDialog()
@@ -66,10 +73,11 @@ void XSettingsDialog::addAction (QAction* action, Settings::Type type)
 void XSettingsDialog::initAnimation()
 {
 	//init state machine
+	ConfigGroup animation_group = Config("appearence/xsettings").group("animation");	
 	m_machine = new QStateMachine(this);
 	QPropertyAnimation *animation = new QPropertyAnimation (ui->xtoolBar,"geometry",this);
-	animation->setDuration(500);
-	animation->setEasingCurve(QEasingCurve::OutCurve);
+	animation->setDuration(animation_group.value<int>("duration",500));
+	animation->setEasingCurve(static_cast<QEasingCurve::Type>(animation_group.value<int>("easingCurve",QEasingCurve::OutSine)));
 	m_machine->addDefaultAnimation(animation);
 	//init states
 	m_hide_state = new QState(m_machine);
@@ -77,7 +85,7 @@ void XSettingsDialog::initAnimation()
 
 	m_hide_state->assignProperty(ui->xtoolBar,
 								 "geometry",
-								 QRect(0,0,width(),0)
+								 QRect(0,-ui->xtoolBar->sizeHint().height(),width(),ui->xtoolBar->sizeHint().height())
 								 );
 
 	m_show_state->assignProperty(ui->xtoolBar,
@@ -108,8 +116,11 @@ void XSettingsDialog::changeEvent(QEvent *e)
 
 void XSettingsDialog::showEvent(QShowEvent* e)
 {
-	layout()->setEnabled(false);
-	ui->xtoolBar->setGeometry(0,0,width(),0);
+	if (animated)
+	{
+		layout()->setEnabled(false);
+		ui->xtoolBar->setGeometry(0,-ui->xtoolBar->sizeHint().height(),width(),ui->xtoolBar->sizeHint().height());
+	}
     QDialog::showEvent(e);
 	emit showed();
 }
@@ -117,7 +128,8 @@ void XSettingsDialog::showEvent(QShowEvent* e)
 
 void XSettingsDialog::hideEvent(QHideEvent* e)
 {
-	layout()->setEnabled(false);
+	if (animated)
+		layout()->setEnabled(false);
     QWidget::hideEvent(e);
 	emit hided();
 }
@@ -125,7 +137,8 @@ void XSettingsDialog::hideEvent(QHideEvent* e)
 
 void XSettingsDialog::showState()
 {
-	layout()->setEnabled(true);
+	if (animated)
+		layout()->setEnabled(true);
 }
 
 void XSettingsDialog::onActionTriggered ( QAction* action )

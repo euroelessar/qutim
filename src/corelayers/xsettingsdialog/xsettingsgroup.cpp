@@ -13,6 +13,7 @@ XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings
 														  settings_item->text(),
 														  ui->listWidget
 														  );
+		//list_item->setToolTip(settings_item->description()); //TODO need short description!
 	}
 	connect(ui->listWidget,SIGNAL(currentRowChanged(int)),SLOT(currentRowChanged(int)));
 	ui->listWidget->setCurrentRow(0);
