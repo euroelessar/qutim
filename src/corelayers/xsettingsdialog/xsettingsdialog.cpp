@@ -14,13 +14,9 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 {
 	//load settings
 	ConfigGroup general_group = Config("appearence/xsettings").group("general");
-	uint icon_size = general_group.value<uint>("iconSize",32);
-	Qt::ToolButtonStyle tool_button_style = static_cast<Qt::ToolButtonStyle>(general_group.value<int>("toolButtonStyle",Qt::ToolButtonTextUnderIcon));
 	animated = general_group.value<bool>("animated", true);
 	//init toolbar
 	ui->setupUi(this);
-	ui->xtoolBar->setIconSize(QSize(icon_size,icon_size));
-	ui->xtoolBar->setToolButtonStyle(tool_button_style);
 	connect(ui->xtoolBar,SIGNAL(actionTriggered(QAction*)),SLOT(onActionTriggered(QAction*)));
 
 	//init actions
@@ -73,7 +69,7 @@ void XSettingsDialog::addAction (QAction* action, Settings::Type type)
 void XSettingsDialog::initAnimation()
 {
 	//init state machine
-	ConfigGroup animation_group = Config("appearence/xsettings").group("animation");	
+	ConfigGroup animation_group = Config("appearence/xsettings").group("animation");
 	m_machine = new QStateMachine(this);
 	QPropertyAnimation *animation = new QPropertyAnimation (ui->xtoolBar,"geometry",this);
 	animation->setDuration(animation_group.value<int>("duration",500));

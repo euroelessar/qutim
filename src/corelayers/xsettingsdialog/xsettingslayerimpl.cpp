@@ -12,7 +12,6 @@ XSettingsLayerImpl::XSettingsLayerImpl()
 {
 	//GeneralSettingsItem<XSettingsProperies> *item = new GeneralSettingsItem<XSettingsProperies>(Settings::General, Icon("preferences-other"), QT_TRANSLATE_NOOP("Settings","X Settings"));
 	//Settings::registerItem(item);
-	Settings::showWidget();
 }
 
 
