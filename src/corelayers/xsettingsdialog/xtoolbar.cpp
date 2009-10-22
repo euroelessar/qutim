@@ -9,13 +9,13 @@
 XToolBar::XToolBar ( QWidget* parent ) : QToolBar ( parent )
 {
 	//load config
-	ConfigGroup toolbar_group = Config("appearence/xsettings").group("toolbar");
+	ConfigGroup toolbar_group = Config("appearance/xsettings").group("toolbar");
 	uint icon_size = toolbar_group.value<uint>("iconSize",32);
 	Qt::ToolButtonStyle tool_button_style = static_cast<Qt::ToolButtonStyle>(toolbar_group.value<int>("toolButtonStyle",Qt::ToolButtonTextUnderIcon));
 	setIconSize(QSize(icon_size,icon_size));
 	setToolButtonStyle(tool_button_style);
 	//init context menu
-	m_context_menu = new QMenu(tr("XBar appearence"));
+	m_context_menu = new QMenu(tr("XBar appearance"));
 	//init size menu
 	QAction *smallSize = new QAction(tr("Small (16x16)"),m_context_menu);
 	smallSize->setCheckable(true);
@@ -87,7 +87,7 @@ XToolBar::XToolBar ( QWidget* parent ) : QToolBar ( parent )
 	connect(toolButtonStyleGroup,SIGNAL(triggered(QAction*)),SLOT(onToolButtonStyleActionTriggered(QAction*)));
 
 	QAction *animated = new QAction(tr("Animated"),m_context_menu);
-	ConfigGroup general_group = Config("appearence/xsettings").group("general");
+	ConfigGroup general_group = Config("appearance/xsettings").group("general");
 	animated->setCheckable(true);
 	animated->setChecked(general_group.value<bool>("animated",true));
 	connect(animated,SIGNAL(triggered(bool)),SLOT(onAnimationActionTriggered(bool)));
@@ -119,8 +119,9 @@ void XToolBar::contextMenuEvent(QContextMenuEvent* e)
 
 void XToolBar::onAnimationActionTriggered(bool checked)
 {
-	ConfigGroup toolbar_group = Config("appearence/xsettings").group("toolbar");
-	toolbar_group.setValue("animated",checked);
+	ConfigGroup general_group = Config("appearance/xsettings").group("general");
+	general_group.setValue("animated",checked);
+	general_group.sync();
 }
 
 
@@ -149,8 +150,9 @@ void XToolBar::onSizeActionTriggered(QAction* action)
 {
 	int iconSize = action->property("iconSize").toInt();
 	setIconSize(QSize(iconSize,iconSize));
-	ConfigGroup toolbar_group = Config("appearence/xsettings").group("toolbar");
+	ConfigGroup toolbar_group = Config("appearance/xsettings").group("toolbar");
 	toolbar_group.setValue("iconSize",iconSize);
+	toolbar_group.sync();
 }
 
 
@@ -158,6 +160,7 @@ void XToolBar::onToolButtonStyleActionTriggered(QAction* action)
 {
 	Qt::ToolButtonStyle style = static_cast<Qt::ToolButtonStyle>(action->property("toolButtonStyle").toInt());
 	setToolButtonStyle(style);
-	ConfigGroup toolbar_group = Config("appearence/xsettings").group("toolbar");
+	ConfigGroup toolbar_group = Config("appearance/xsettings").group("toolbar");
 	toolbar_group.setValue("toolButtonStyle",style);
+	toolbar_group.sync();	
 }
