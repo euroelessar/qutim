@@ -16,6 +16,7 @@
 #include "settingslayer.h"
 #include "objectgenerator.h"
 #include <QtGui/QApplication>
+#include "settingswidget.h"
 
 namespace qutim_sdk_0_3
 {
@@ -42,12 +43,12 @@ namespace qutim_sdk_0_3
 		return m_text;
 	}
 
-	QWidget *SettingsItem::widget() const
+	SettingsWidget *SettingsItem::widget() const
 	{
 		if(!m_gen)
 			m_gen = generator();
 		if(m_gen && m_widget.isNull())
-			m_widget = m_gen->generate<QWidget>();
+			m_widget = m_gen->generate<SettingsWidget>();
 		return m_widget;
 	}
 

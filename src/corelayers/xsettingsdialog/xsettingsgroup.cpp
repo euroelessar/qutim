@@ -1,5 +1,6 @@
 #include "xsettingsgroup.h"
 #include "ui_xsettingsgroup.h"
+#include <libqutim/settingswidget.h>
 
 XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings, QWidget* parent )
 : QWidget (parent ), ui (new Ui::XSettingsGroup)
@@ -22,9 +23,10 @@ XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings
 
 void XSettingsGroup::currentRowChanged ( int index)
 {
-	QWidget *widget = m_setting_list.at(index)->widget();
+	SettingsWidget *widget = m_setting_list.at(index)->widget();
 	if (widget == 0)
 		return;
+	widget->load();
 	if (ui->stackedWidget->indexOf(widget) == -1)
 		ui->stackedWidget->addWidget(widget);
 	ui->stackedWidget->setCurrentWidget(widget);

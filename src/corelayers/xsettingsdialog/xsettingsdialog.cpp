@@ -8,6 +8,7 @@
 #include <libqutim/icon.h>
 #include "xsettingsgroup.h"
 #include <libqutim/configbase.h>
+#include <libqutim/settingswidget.h>
 
 XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* parent) :
         QDialog(parent),    ui(new Ui::XSettingsDialog)
@@ -146,9 +147,10 @@ void XSettingsDialog::onActionTriggered ( QAction* action )
 	{
 		if (setting_items.count() == 0)
 			return;
-		QWidget *widget = setting_items.at(0)->widget();
+		SettingsWidget *widget = setting_items.at(0)->widget();
 		if (widget == 0)
 			return;
+		widget->load();
 		if (ui->settingsStackedWidget->indexOf(widget) == -1)
 			ui->settingsStackedWidget->addWidget(widget);
 		ui->settingsStackedWidget->setCurrentWidget(widget);

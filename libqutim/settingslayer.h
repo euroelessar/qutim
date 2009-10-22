@@ -24,6 +24,7 @@
 
 namespace qutim_sdk_0_3
 {
+	class SettingsWidget;
 	class SettingsItem;
 	namespace Settings
 	{
@@ -61,7 +62,7 @@ namespace qutim_sdk_0_3
 		Settings::Type type() const;
 		QIcon icon() const;
 		LocalizedString text() const;
-		QWidget *widget() const;
+		SettingsWidget *widget() const;
 		void clearWidget();
 	protected:
 		virtual const ObjectGenerator *generator() const = 0;
@@ -69,7 +70,7 @@ namespace qutim_sdk_0_3
 		Settings::Type m_type;
 		QIcon m_icon;
 		LocalizedString m_text; // should be inserted by QT_TRANSLATE_NOOP_UTF8("Settings", "Contact list")
-		mutable QPointer<QWidget> m_widget;
+		mutable QPointer<SettingsWidget> m_widget;
 	};
 
 	template<typename T>
