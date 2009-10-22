@@ -9,9 +9,9 @@ static Core::CoreModuleHelper<XSettingsLayerImpl> xsettings_layer_static(
 		);
 
 XSettingsLayerImpl::XSettingsLayerImpl()
+:	m_dialog(0)
 {
-	//GeneralSettingsItem<XSettingsProperies> *item = new GeneralSettingsItem<XSettingsProperies>(Settings::General, Icon("preferences-other"), QT_TRANSLATE_NOOP("Settings","X Settings"));
-	//Settings::registerItem(item);
+
 }
 
 
@@ -23,7 +23,8 @@ XSettingsLayerImpl::~XSettingsLayerImpl()
 
 void XSettingsLayerImpl::show (const SettingsItemList& settings )
 {
-	m_dialog =  new XSettingsDialog(settings);
+	if (m_dialog == 0)
+		m_dialog =  new XSettingsDialog(settings);
 	m_dialog->show();
 }
 

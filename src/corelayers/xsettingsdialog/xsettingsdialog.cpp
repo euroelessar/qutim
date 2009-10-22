@@ -12,6 +12,7 @@
 XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* parent) :
         QDialog(parent),    ui(new Ui::XSettingsDialog)
 {
+	setAttribute(Qt::WA_DeleteOnClose);
 	//load settings
 	ConfigGroup general_group = Config("appearence/xsettings").group("general");
 	animated = general_group.value<bool>("animated", true);
@@ -90,7 +91,6 @@ void XSettingsDialog::initAnimation()
 								 );
 	//init transitions
 	m_hide_state->addTransition(this,SIGNAL(showed()),m_show_state);
-	m_show_state->addTransition(this,SIGNAL(hided()),m_hide_state);
 	connect(m_show_state,SIGNAL(polished()),SLOT(showState()));
 	//start machine
 	m_machine->setInitialState(m_show_state);
@@ -120,16 +120,6 @@ void XSettingsDialog::showEvent(QShowEvent* e)
     QDialog::showEvent(e);
 	emit showed();
 }
-
-
-void XSettingsDialog::hideEvent(QHideEvent* e)
-{
-	if (animated)
-		layout()->setEnabled(false);
-    QWidget::hideEvent(e);
-	emit hided();
-}
-
 
 void XSettingsDialog::showState()
 {

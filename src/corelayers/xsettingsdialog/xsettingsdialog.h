@@ -21,10 +21,8 @@ public:
 protected:
     void changeEvent(QEvent *e);
 	virtual void showEvent(QShowEvent* );
-    virtual void hideEvent(QHideEvent* );
 signals:
 	void showed();
-	void hided();
 protected slots:
 	void showState();
 	void onActionTriggered(QAction *action);
