@@ -18,7 +18,7 @@
 
 //namespace qutim_sdk_0_3
 //{
-Icon::Icon(const QString &name) : QIcon(new IconBackend(name))
+Icon::Icon(const QString &name) : QIcon(QIcon::fromTheme(name)) //QIcon(new IconBackend(name))
 {
 }
 
