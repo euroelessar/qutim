@@ -16,6 +16,8 @@
 #include "icon.h"
 #include "iconbackend_p.h"
 
+//namespace qutim_sdk_0_3
+//{
 Icon::Icon(const QString &name) : QIcon(new IconBackend(name))
 {
 }
@@ -23,3 +25,4 @@ Icon::Icon(const QString &name) : QIcon(new IconBackend(name))
 Icon::Icon(const QIcon &icon) : QIcon(icon)
 {
 }
+//}

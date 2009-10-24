@@ -9,7 +9,6 @@ static Core::CoreModuleHelper<XSettingsLayerImpl> xsettings_layer_static(
 		);
 
 XSettingsLayerImpl::XSettingsLayerImpl()
-:	m_dialog(0)
 {
 
 }
@@ -23,7 +22,7 @@ XSettingsLayerImpl::~XSettingsLayerImpl()
 
 void XSettingsLayerImpl::show (const SettingsItemList& settings )
 {
-	if (m_dialog == 0)
+	if (m_dialog.isNull())
 		m_dialog =  new XSettingsDialog(settings);
 	m_dialog->show();
 }

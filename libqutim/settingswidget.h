@@ -23,6 +23,7 @@
 namespace qutim_sdk_0_3
 {
 	struct SettingsWidgetPrivate;
+	class AutoSettingsGenerator;
 
 	class SettingsWidget : public QWidget
 	{
@@ -43,10 +44,11 @@ namespace qutim_sdk_0_3
 		virtual void saveImpl() = 0;
 		virtual void cancelImpl() = 0;
 		void listenChildrenStates(const QWidgetList &exceptions = QWidgetList());
-		bool lookForWidgetState(QWidget *widget, const char *property = 0, const char *signal = 0);
+		const char *lookForWidgetState(QWidget *widget, const char *property = 0, const char *signal = 0);
 	private slots:
 		void onStateChanged(int index);
 	private:
+		friend class AutoSettingsGenerator;
 		QScopedPointer<SettingsWidgetPrivate> p;
 	};
 }

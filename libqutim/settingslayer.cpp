@@ -13,10 +13,12 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "settingslayer.h"
+#include "settingslayer_p.h"
 #include "objectgenerator.h"
 #include <QtGui/QApplication>
 #include "settingswidget.h"
+#include <QVariant>
+#include "configbase.h"
 
 namespace qutim_sdk_0_3
 {
@@ -56,6 +58,135 @@ namespace qutim_sdk_0_3
 	{
 		if(!m_widget.isNull())
 			delete m_widget.data();
+	}
+
+	AutoSettingsWidget::AutoSettingsWidget(AutoSettingsItemPrivate *pr) : p(pr), g(new AutoSettingsWidgetPrivate)
+	{
+		QFormLayout *layout = new QFormLayout(this);
+		setLayout(layout);
+		foreach(AutoSettingsItem::Entry *entry, p->entries)
+		{
+			QWidget *widget = entry->widget(this);
+			const char *prop;
+			if(!widget || !(prop = lookForWidgetState(widget)))
+			{
+				delete widget;
+				continue;
+			}
+			widget->setObjectName(entry->name());
+			layout->addRow(new QLabel(entry->text(), this), widget);
+			g->entries.append(qMakePair(widget, QByteArray(prop)));
+		}
+	}
+
+	AutoSettingsWidget::~AutoSettingsWidget()
+	{
+	}
+
+	void AutoSettingsWidget::loadImpl()
+	{
+		ConfigGroup group = Config(p->config).group(p->group);
+		foreach(const AutoSettingsEntryInfo &entry, g->entries)
+			entry.first->setProperty(entry.second, group.value(entry.first->objectName(), QVariant()));
+	}
+
+	void AutoSettingsWidget::saveImpl()
+	{
+		ConfigGroup group = Config(p->config).group(p->group);
+		foreach(const AutoSettingsEntryInfo &entry, g->entries)
+			group.setValue(entry.first->objectName(), entry.first->property(entry.second));
+		group.sync();
+	}
+
+	void AutoSettingsWidget::cancelImpl()
+	{
+	}
+
+	AutoSettingsItem::Entry::Entry(const char *text, const ObjectGenerator *gen) : p(new EntryPrivate)
+	{
+		p->text = LocalizedString("Settings", text);
+		p->gen = gen;
+	}
+
+	AutoSettingsItem::Entry::~Entry()
+	{
+	}
+
+	AutoSettingsItem::Entry *AutoSettingsItem::Entry::setProperty(const char *name, QVariant value)
+	{
+		if(name && *name)
+			p->properties << qMakePair(QByteArray(name), value);
+		return this;
+	}
+
+	AutoSettingsItem::Entry *AutoSettingsItem::Entry::setName(const QString &name)
+	{
+		p->name = name;
+		return this;
+	}
+
+	const LocalizedString &AutoSettingsItem::Entry::text() const
+	{
+		return p->text;
+	}
+
+	const ObjectGenerator *AutoSettingsItem::Entry::generator() const
+	{
+		return p->gen;
+	}
+
+	QWidget *AutoSettingsItem::Entry::widget(QWidget *parent) const
+	{
+		if(QWidget *widget = p->gen->generate<QWidget>())
+		{
+			widget->setParent(parent);
+			typedef QPair<QByteArray, QVariant> Prop;
+			foreach(const Prop &prop, p->properties)
+				widget->setProperty(prop.first, prop.second);
+			return widget;
+		}
+		return 0;
+	}
+
+	const QString &AutoSettingsItem::Entry::name() const
+	{
+		return p->name;
+	}
+
+	AutoSettingsItem::AutoSettingsItem(Settings::Type type, const QIcon &icon, const char *text)
+			: SettingsItem(type, icon, text), p(new AutoSettingsItemPrivate)
+	{
+		p->gen = new AutoSettingsGenerator(p.data());
+	}
+
+	AutoSettingsItem::AutoSettingsItem(Settings::Type type, const char *text)
+			: SettingsItem(type, text), p(new AutoSettingsItemPrivate)
+	{
+		p->gen = new AutoSettingsGenerator(p.data());
+	}
+
+	AutoSettingsItem::~AutoSettingsItem()
+	{
+	}
+
+	void AutoSettingsItem::setConfig(const QString &config, const QString &group)
+	{
+		p->config = config;
+		p->group = group;
+	}
+
+	AutoSettingsItem::Entry *AutoSettingsItem::addEntry(const char *text, const ObjectGenerator *gen)
+	{
+		if(!gen->extends<QWidget>())
+			return 0;
+		Entry *entry = new Entry(text, gen);
+		p->entries.append(entry);
+		return entry;
+	}
+
+	const ObjectGenerator *AutoSettingsItem::generator() const
+	{
+		return p->gen;
 	}
 
 	SettingsLayer::SettingsLayer()

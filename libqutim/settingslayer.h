@@ -21,6 +21,7 @@
 #include <QPointer>
 #include <QWidget>
 #include <QIcon>
+#include <QComboBox>
 
 namespace qutim_sdk_0_3
 {
@@ -78,15 +79,74 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		GeneralSettingsItem(Settings::Type type, const QIcon &icon, const char *text)
-				: SettingsItem(type,icon,text) {}
+				: SettingsItem(type, icon, text) {}
 		GeneralSettingsItem(Settings::Type type, const char *text)
-				: SettingsItem(type,text) {}
+				: SettingsItem(type, text) {}
+		virtual ~GeneralSettingsItem() {}
 	protected:
 		virtual const ObjectGenerator *generator() const
 		{
-			// T must be based on QWidget
-			register QWidget *widget = reinterpret_cast<T *>(0);
+			// T must be based on SettingsWidget
+			register SettingsWidget *widget = reinterpret_cast<T *>(0);
+			Q_UNUSED(widget);
 			return new GeneralGenerator<T>();
+		}
+	};
+
+	struct AutoSettingsItemPrivate;
+
+	class AutoSettingsItem : public SettingsItem
+	{
+	public:
+		struct EntryPrivate;
+		class Entry
+		{
+		public:
+			Entry(const char *text, const ObjectGenerator *gen);
+			virtual ~Entry();
+			Entry *setProperty(const char *name, QVariant value);
+			Entry *setName(const QString &name);
+			const LocalizedString &text() const;
+			const ObjectGenerator *generator() const;
+			QWidget *widget(QWidget *parent = 0) const;
+			const QString &name() const;
+		private:
+			QScopedPointer<EntryPrivate> p;
+		};
+		AutoSettingsItem(Settings::Type type, const QIcon &icon, const char *text);
+		AutoSettingsItem(Settings::Type type, const char *text);
+		virtual ~AutoSettingsItem();
+		void setConfig(const QString &config, const QString &group);
+		Entry *addEntry(const char *text, const ObjectGenerator *gen);
+		template <typename T>
+		Entry *addEntry(const char *text)
+		{
+			register QWidget *widget = reinterpret_cast<T *>(0);
+			Q_UNUSED(widget);
+			return addEntry(text, new GeneralGenerator<T>());
+		}
+	private:
+		virtual const ObjectGenerator *generator() const;
+		QScopedPointer<AutoSettingsItemPrivate> p;
+	};
+
+	class AutoSettingsComboBox : public QComboBox
+	{
+		Q_PROPERTY(QStringList items READ items WRITE setItems)
+		Q_OBJECT
+	public:
+		inline AutoSettingsComboBox() {}
+		QStringList items() const
+		{
+			QStringList ls;
+			for(int i = 0, size = count(); i < size; i++)
+				ls << itemText(i);
+			return ls;
+		}
+		void setItems(const QStringList &ls)
+		{
+			clear();
+			addItems(ls);
 		}
 	};
 

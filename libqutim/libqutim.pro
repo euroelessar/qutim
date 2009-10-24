@@ -67,6 +67,8 @@ HEADERS += tcpsocket.h \
     contactlist.h \
     message.h \
     abstractcontact.h \
-    settingswidget.h
+    settingswidget.h \
+    settingslayer_p.h
 include(../3rdparty/jdns/jdns.pri)
 include(../3rdparty/k8json/k8json.pri)
+include(../3rdparty/qticonloader/qticonloader.pri)

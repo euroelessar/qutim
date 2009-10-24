@@ -45,7 +45,7 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 
 	foreach (SettingsItem *item, settings)
 	{
-		if (item->type() > m_settings_items.size())
+		if (item->type() >= m_settings_items.size())
 			m_settings_items.resize(item->type() + 1);
 		m_settings_items[item->type()].append(settings);
 	}

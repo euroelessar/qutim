@@ -140,7 +140,7 @@ namespace qutim_sdk_0_3
 			lookForWidgetState(widget);
 	}
 
-	bool SettingsWidget::lookForWidgetState(QWidget *widget, const char *property, const char *signal)
+	const char *SettingsWidget::lookForWidgetState(QWidget *widget, const char *property, const char *signal)
 	{
 		const QMetaObject *meta = widget->metaObject();
 		WidgetInfo info = { widget, NULL, QVariant(), false };
@@ -188,7 +188,7 @@ namespace qutim_sdk_0_3
 		}
 		if(free_signal)
 			qFree((void *)signal);
-		return result;
+		return result ? info.property : 0;
 	}
 
 	void SettingsWidget::onStateChanged(int index)

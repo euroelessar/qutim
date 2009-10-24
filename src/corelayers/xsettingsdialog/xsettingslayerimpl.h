@@ -15,7 +15,7 @@ public:
 	virtual void close();
     virtual void show ( const SettingsItemList& settings );
 private:
-	XSettingsDialog *m_dialog;
+	QPointer<XSettingsDialog> m_dialog;
 };
 
 #endif // XSETTINGSLAYERIMPL_H

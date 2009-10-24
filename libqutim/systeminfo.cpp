@@ -111,29 +111,7 @@ namespace qutim_sdk_0_3
 
 		struct utsname u;
 		uname(&u);
-		ret.sprintf("%s", u.sysname);
-
-		// get description about os
-		enum LinuxName {
-			LinuxNone = 0,
-
-			LinuxMandrake,
-			LinuxDebian,
-			LinuxRedHat,
-			LinuxGentoo,
-			LinuxSlackware,
-			LinuxSuSE,
-			LinuxConectiva,
-			LinuxCaldera,
-			LinuxLFS,
-
-			LinuxASP, // Russian Linux distros
-			LinuxALT,
-
-			LinuxPLD, // Polish Linux distros
-			LinuxAurox,
-			LinuxArch
-		};
+    ret.sprintf("%s", u.sysname);
 
 		enum OsFlags {
 			OsUseName = 0,
@@ -141,44 +119,43 @@ namespace qutim_sdk_0_3
 			OsAppendFile
 		};
 
-		struct OsInfo {
-			LinuxName id;
+    struct OsInfo {
 			OsFlags flags;
 			QString file;
 			QString name;
 		} osInfo[] = {
-			{ LinuxALT,			OsUseFile,		"/etc/altlinux-release",	"Alt Linux"			},
-			{ LinuxMandrake,	OsUseFile,		"/etc/mandrake-release",	"Mandrake Linux"	},
-			{ LinuxDebian,		OsAppendFile,	"/etc/debian_version",		"Debian GNU/Linux"	},
-			{ LinuxGentoo,		OsUseFile,		"/etc/gentoo-release",		"Gentoo Linux"		},
-			{ LinuxSlackware,	OsAppendFile,	"/etc/slackware-version",	"Slackware Linux"	},
-			{ LinuxPLD,			OsUseFile,		"/etc/pld-release",			"PLD Linux"			},
-			{ LinuxAurox,		OsUseName,		"/etc/aurox-release",		"Aurox Linux"		},
-			{ LinuxArch,		OsUseFile,		"/etc/arch-release",		"Arch Linux"		},
-			{ LinuxLFS,			OsAppendFile,	"/etc/lfs-release",			"LFS Linux"			},
+      { OsUseFile,		"/etc/altlinux-release",	"Alt Linux"			},
+      { OsUseFile,		"/etc/mandrake-release",	"Mandrake Linux"	},
+      { OsAppendFile,	"/etc/debian_version",		"Debian GNU/Linux"	},
+      { OsUseFile,		"/etc/gentoo-release",		"Gentoo Linux"		},
+      { OsAppendFile,	"/etc/mopslinux-version",	"MOPSLinux"},
+      { OsAppendFile,	"/etc/slackware-version",	"Slackware Linux"	},
+	  { OsUseFile,		"/etc/pld-release",			"PLD Linux"			},
+	  { OsUseName,		"/etc/aurox-release",		"Aurox Linux"		},
+	  { OsUseFile,		"/etc/arch-release",		"Arch Linux"		},
+	  { OsAppendFile,	"/etc/lfs-release",			"LFS Linux"			},
 
 			// untested
-			{ LinuxSuSE,		OsUseFile,		"/etc/SuSE-release",		"SuSE Linux"		},
-			{ LinuxConectiva,	OsUseFile,		"/etc/conectiva-release",	"Conectiva Linux"	},
-			{ LinuxCaldera,		OsUseFile,		"/etc/.installed",			"Caldera Linux"		},
+	  { OsUseFile,		"/etc/SuSE-release",		"SuSE Linux"		},
+      { OsUseFile,		"/etc/conectiva-release",	"Conectiva Linux"	},
+	  { OsUseFile,		"/etc/.installed",			"Caldera Linux"		},
 
 			// many distros use the /etc/redhat-release for compatibility, so RedHat will be the last :)
-			{ LinuxRedHat,		OsUseFile,		"/etc/redhat-release",		"RedHat Linux"		},
-
-			{ LinuxNone,		OsUseName,		"",							""					}
+	  { OsUseFile,		"/etc/redhat-release",		"RedHat Linux"		}
 		};
 
-		for (int i = 0; osInfo[i].id != LinuxNone; i++) {
+    for (int i = 0, size = sizeof(osInfo)/sizeof(OsInfo); i < size; i++) {
 			QFileInfo fi( osInfo[i].file );
 			if ( fi.exists() ) {
 				char buffer[128];
 
 				QFile f( osInfo[i].file );
-				f.open( QIODevice::ReadOnly );
-				f.readLine( buffer, 128 );
-				QString desc(buffer);
+        if(!f.open( QIODevice::ReadOnly ))
+          continue;
 
-				desc = desc.simplified ();//stripWhiteSpace ();
+        f.readLine( buffer, 128 );
+
+        QString desc = QString::fromUtf8(buffer).simplified ();//stripWhiteSpace ();
 
 				switch ( osInfo[i].flags ) {
 					case OsUseFile:

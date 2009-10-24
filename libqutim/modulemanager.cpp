@@ -32,6 +32,15 @@
 #include <QVarLengthArray>
 #include <QLibrary>
 
+#define TEST
+
+#ifdef TEST
+# include "settingslayer.h"
+# include <QTextEdit>
+# include <QComboBox>
+# include <QCheckBox>
+#endif
+
 namespace qutim_sdk_0_3
 {
 	const char *qutimVersion()
@@ -363,10 +372,20 @@ namespace qutim_sdk_0_3
 			}
 		}
 		p->is_inited = true;
-                Notifications::sendNotification(Notifications::Startup, 0);
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();
 		Q_UNUSED(ContactList::instance());
+#ifdef TEST
+		{
+			AutoSettingsItem *item = new AutoSettingsItem(Settings::General, QT_TRANSLATE_NOOP("Settings", "Test settings"));
+			item->setConfig(QString(), "test");
+			item->addEntry<QTextEdit>(QT_TRANSLATE_NOOP("Settings", "Text"))->setName("text")->setProperty("acceptRichText", false);
+			item->addEntry<AutoSettingsComboBox>(QT_TRANSLATE_NOOP("Settings", "Combo"))->setName("combo")->setProperty("items", QStringList() << "First" << "Second" << "Third");
+			item->addEntry<QCheckBox>(QT_TRANSLATE_NOOP("Settings", "Check"))->setName("check");
+			Settings::registerItem(item);
+		}
+#endif
+		Notifications::sendNotification(Notifications::Startup, 0);
 	}
 }
 

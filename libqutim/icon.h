@@ -16,8 +16,11 @@
 #ifndef ICON_H
 #define ICON_H
 
+#include "libqutim_global.h"
 #include <QIcon>
 
+//namespace qutim_sdk_0_3
+//{
 class Icon : public QIcon
 {
 public:
@@ -35,5 +38,6 @@ public:
 
 	Icon(const QIcon &icon);
 };
+//}
 
 #endif // ICON_H
