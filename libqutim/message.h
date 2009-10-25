@@ -35,8 +35,8 @@ namespace qutim_sdk_0_3
 		void setText(const QString &text);
 		const QDateTime &time() const;
 		void setTime(const QDateTime &time);
-		bool in() const;
-		void setIn(bool input);
+		void setIncoming(bool input);
+		bool isIncoming() const;  
 		QVariant property(const char *name) const;
 		void setProperty(const char *name, const QVariant &value);
 		QList<QByteArray> dynamicPropertyNames() const;

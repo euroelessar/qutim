@@ -142,12 +142,12 @@ namespace qutim_sdk_0_3
 		p->time = time;
 	}
 
-	bool Message::in() const
+	bool Message::isIncoming() const
 	{
 		return p->in;
 	}
 
-	void Message::setIn(bool input)
+	void Message::setIncoming(bool input)
 	{
 		p->in = input;
 	}

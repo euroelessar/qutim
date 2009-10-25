@@ -5,11 +5,10 @@
 #include <QTextCodec>
 #include <libqutim/configbase.h>
 #include <QDebug>
+#include "chatlayerimpl.h"
 
 namespace AdiumChat
 {
-	using namespace qutim_sdk_0_3;
-	
 	bool ChatStyle::isValid()
 	{
 	if (this->headerHtml.isEmpty() || this->footerHtml.isEmpty() || (!this->backgroundColor.isValid()) || this->baseHref.isEmpty())
@@ -19,6 +18,8 @@ namespace AdiumChat
 	if (this->incomingHtml.isEmpty() || this->mainCSS.isEmpty() || this->nextIncomingHistoryHtml.isEmpty() || this->nextIncomingHtml.isEmpty())
 		return false;
 	if (this->nextOutgoingHistoryHtml.isEmpty() || this->nextOutgoingHtml.isEmpty() || this->statusHtml.isEmpty() || this->styleName.isEmpty())
+		return false;
+	if (variants.isEmpty())
 		return false;
 	return true;
 	};
@@ -106,7 +107,7 @@ namespace AdiumChat
 		d->style.baseHref = styleDir.canonicalPath() + QDir::separator();
 		styleDir.cdUp();
 		qDebug() << styleDir.filePath("Info.plist");
-		ConfigGroup settings = Config(styleDir.filePath("Info.plist")).group("");
+		Config settings = Config(styleDir.filePath("Info.plist"));
 		QRgb color = settings.value<int>("DefaultBackgroundColor", 0xffffff);
 		d->style.backgroundColor = QColor(color);
 		d->style.backgroundIsTransparent = settings.value<bool>("DefaultBackgroundIsTransparent", false);
