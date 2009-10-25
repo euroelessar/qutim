@@ -23,13 +23,13 @@ namespace qutim_sdk_0_3
 	public:
 		MessagePrivate() : in(false) {}
 		MessagePrivate(const MessagePrivate &o)
-				: QSharedData(o), message(o.message), time(o.time), names(o.names), values(o.values) {}
+				: QSharedData(o), text(o.text), time(o.time), names(o.names), values(o.values) {}
 		~MessagePrivate() {}
-		QString message;
+		QString text;
 		QDateTime time;
 		bool in;
-		QVariant getMessage() const { return message; }
-		void setMessage(const QVariant &val) { message = val.toString(); }
+		QVariant getText() const { return text; }
+		void setText(const QVariant &val) { text = val.toString(); }
 		QVariant getTime() const { return time; }
 		void setTime(const QVariant &val) { time = val.toDateTime(); }
 		QVariant getIn() const { return in;}
@@ -43,15 +43,15 @@ namespace qutim_sdk_0_3
 		typedef QVariant (MessagePrivate::*Getter)() const;
 		typedef void (MessagePrivate::*Setter)(const QVariant &variant);
 		static QList<QByteArray> names = QList<QByteArray>()
-										 << "message"
+										 << "text"
 										 << "time"
 										 << "in";
 		static QList<Getter> getters   = QList<Getter>()
-										 << &MessagePrivate::getMessage
+										 << &MessagePrivate::getText
 										 << &MessagePrivate::getTime
 										 << &MessagePrivate::getIn;
 		static QList<Setter> setters   = QList<Setter>()
-										 << &MessagePrivate::setMessage
+										 << &MessagePrivate::setText
 										 << &MessagePrivate::setTime
 										 << &MessagePrivate::setIn;
 	}
@@ -60,9 +60,9 @@ namespace qutim_sdk_0_3
 	{
 	}
 
-	Message::Message(const QString &message) : p(new MessagePrivate)
+	Message::Message(const QString &text) : p(new MessagePrivate)
 	{
-		p->message = message;
+		p->text = text;
 	}
 
 	Message::Message(const Message &other) : p(other.p)
@@ -122,14 +122,14 @@ namespace qutim_sdk_0_3
 		return p->names;
 	}
 
-	const QString &Message::message() const
+	const QString &Message::text() const
 	{
-		return p->message;
+		return p->text;
 	}
 
-	void Message::setMessage(const QString &message)
+	void Message::setText(const QString &text)
 	{
-		p->message = message;
+		p->text = text;
 	}
 
 	const QDateTime &Message::time() const

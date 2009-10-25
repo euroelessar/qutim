@@ -59,6 +59,14 @@ namespace qutim_sdk_0_3
 		ConnectingStart = Connecting,
 		ConnectingStop  = 1000
 	};
+	enum ChatState
+	{
+		ChatStateActive = 0,    // User is actively participating in the chat session.
+		ChatStateInActive,      // User has not been actively participating in the chat session.
+		ChatStateGone,          // User has effectively ended their participation in the chat session.
+		ChatStateComposing,     // User is composing a message.
+		ChateStatePaused        // User had been composing but now has stopped.
+	};
 	class ObjectGenerator;
 	class Protocol;
 	class ModuleManager;

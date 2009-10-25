@@ -17,6 +17,7 @@
 #define ACCOUNT_H
 
 #include "configbase.h"
+#include <QMetaType>
 
 namespace qutim_sdk_0_3
 {
@@ -41,5 +42,7 @@ namespace qutim_sdk_0_3
 		QScopedPointer<AccountPrivate> p;
 	};
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::Account*)
 
 #endif // ACCOUNT_H

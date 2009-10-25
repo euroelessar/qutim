@@ -19,6 +19,7 @@
 #include "libqutim_global.h"
 #include <QSet>
 #include <QIcon>
+#include <QMetaType>
 
 namespace qutim_sdk_0_3
 {
@@ -29,6 +30,7 @@ namespace qutim_sdk_0_3
 	class Contact : public QObject
 	{
 		Q_OBJECT
+		Q_PROPERTY(Account* account READ account)
 		Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 		Q_PROPERTY(QString id READ id)
 		Q_PROPERTY(QSet<QString> tags READ tags WRITE setTags NOTIFY tagsChanged)
@@ -61,5 +63,7 @@ namespace qutim_sdk_0_3
 		MetaContact *m_metacontact;
 	};
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::Contact*)
 
 #endif // CONTACT_H

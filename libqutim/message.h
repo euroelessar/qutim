@@ -28,11 +28,11 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		Message();
-		Message(const QString &message);
+		Message(const QString &text);
 		Message(const Message &other);
 		virtual ~Message();
-		const QString &message() const;
-		void setMessage(const QString &message);
+		const QString &text() const;
+		void setText(const QString &text);
 		const QDateTime &time() const;
 		void setTime(const QDateTime &time);
 		bool in() const;

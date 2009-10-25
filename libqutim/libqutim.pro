@@ -37,7 +37,8 @@ SOURCES += tcpsocket.cpp \
     contactlist.cpp \
     message.cpp \
     abstractcontact.cpp \
-    settingswidget.cpp
+    settingswidget.cpp \
+    messagesession.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
     domaininfo.h \
@@ -68,7 +69,8 @@ HEADERS += tcpsocket.h \
     message.h \
     abstractcontact.h \
     settingswidget.h \
-    settingslayer_p.h
+    settingslayer_p.h \
+    messagesession.h
 include(../3rdparty/jdns/jdns.pri)
 include(../3rdparty/k8json/k8json.pri)
 include(../3rdparty/qticonloader/qticonloader.pri)
