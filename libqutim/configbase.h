@@ -30,12 +30,22 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT ConfigBase
 	{
 	public:
+		enum ValueFlag { Normal = 0x00, Crypted = 0x01 };
+		Q_DECLARE_FLAGS(ValueFlags, ValueFlag)
+
+		bool isValid() const;
+
 		QStringList groupList() const;
 		bool hasGroup(const QString &group) const;
 		ConfigGroup group(const QString &group);
 		const ConfigGroup group(const QString &group) const;
 		inline  const ConfigGroup constGroup(const QString &group) const;
 		void removeGroup(const QString &name);
+
+		template<typename T>
+		T value(const QString &key, const T &def, ValueFlags type = Normal) const;
+		QVariant value(const QString &key, const QVariant &def, ValueFlags type = Normal) const;
+		void setValue(const QString &key, const QVariant &value, ValueFlags type = Normal);
 
 		virtual void sync() = 0;
 	protected:
@@ -50,8 +60,8 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT Config : public ConfigBase
 	{
 	public:
-		enum ValueFlag { Normal = 0x00, Crypted = 0x01 };
-		Q_DECLARE_FLAGS(ValueFlags, ValueFlag)
+		typedef ConfigBase::ValueFlag ValueFlag;
+		typedef ConfigBase::ValueFlags ValueFlags;
 		enum OpenFlag { IncludeGlobals = 0x01, SimpleConfig = 0x00 };
 		Q_DECLARE_FLAGS(OpenFlags, OpenFlag)
 		// If file is empty, then profile settings are loaded
@@ -82,7 +92,6 @@ namespace qutim_sdk_0_3
 		ConfigGroup(const QExplicitlySharedDataPointer<ConfigGroupPrivate> &other);
 		virtual ~ConfigGroup();
 		QString name() const;
-		bool isValid() const;
 		bool isMap() const;
 		bool isArray() const;
 		bool isValue() const;
@@ -98,11 +107,6 @@ namespace qutim_sdk_0_3
 		Config config();
 		const Config config() const;
 
-		template<typename T>
-		T value(const QString &key, const T &def, Config::ValueFlags type = Config::Normal) const;
-		QVariant value(const QString &key, const QVariant &def, Config::ValueFlags type = Config::Normal) const;
-		void setValue(const QString &key, const QVariant &value, Config::ValueFlags type = Config::Normal);
-
 		void sync();
 	private:
 		ConfigGroup();
@@ -117,7 +121,7 @@ namespace qutim_sdk_0_3
 	}
 
 	template<typename T>
-	Q_INLINE_TEMPLATE T ConfigGroup::value(const QString &key, const T &def, Config::ValueFlags type) const
+	Q_INLINE_TEMPLATE T ConfigBase::value(const QString &key, const T &def, Config::ValueFlags type) const
 	{
 		return value(key, QVariant(def), type).value<T>();
 	}

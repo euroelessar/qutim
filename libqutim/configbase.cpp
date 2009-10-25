@@ -276,6 +276,7 @@ namespace qutim_sdk_0_3
 
 	Config::Config(const QString &filename, OpenFlags flags, const QString &backend)
 	{
+		Q_UNUSED(flags);
 		if(ConfigPrivate::config_backends.isEmpty())
 			return;
 		QFileInfo info(filename);
@@ -420,8 +421,9 @@ namespace qutim_sdk_0_3
 		return isValid() ? p->name : QString();
 	}
 
-	bool ConfigGroup::isValid() const
+	bool ConfigBase::isValid() const
 	{
+		ConfigBasePrivatePtr p = get_p();
 		return p && !p->entries.isEmpty();
 	}
 
@@ -575,8 +577,9 @@ namespace qutim_sdk_0_3
 		return config;
 	}
 
-	QVariant ConfigGroup::value(const QString &key, const QVariant &def, Config::ValueFlags type) const
+	QVariant ConfigBase::value(const QString &key, const QVariant &def, Config::ValueFlags type) const
 	{
+		ConfigBasePrivatePtr p = get_p();
 		QVariant result;
 		if(!isValid())
 			return result;
@@ -598,8 +601,9 @@ namespace qutim_sdk_0_3
 		return result;
 	}
 
-	void ConfigGroup::setValue(const QString &key, const QVariant &value, Config::ValueFlags type)
+	void ConfigBase::setValue(const QString &key, const QVariant &value, Config::ValueFlags type)
 	{
+		ConfigBasePrivatePtr p = get_p();
 		if(!isValid())
 			return;
 		ConfigGroup group = this->group(key);
