@@ -26,6 +26,7 @@ signals:
 protected slots:
 	void showState();
 	void onActionTriggered(QAction *action);
+	void onWidgetModifiedChanged (bool haveChanges);
 private:
 	inline void initAnimation();
 	inline void addAction(QAction* action, Settings::Type type);
@@ -35,6 +36,7 @@ private:
 	QState *m_show_state;
 	QVector<SettingsItemList> m_settings_items;
 	QList<XSettingsGroup *> m_group_widgets;
+	QList<SettingsWidget *> m_modified_widgets;
 	//configuration
 	bool animated;
 };

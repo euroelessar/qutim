@@ -26,9 +26,12 @@ void XSettingsGroup::currentRowChanged ( int index)
 	SettingsWidget *widget = m_setting_list.at(index)->widget();
 	if (widget == 0)
 		return;
-	widget->load();
 	if (ui->stackedWidget->indexOf(widget) == -1)
+	{
+		widget->load();
 		ui->stackedWidget->addWidget(widget);
+		connect(widget,SIGNAL(modifiedChanged(bool)),SIGNAL(modifiedChanged(bool)));
+	}
 	ui->stackedWidget->setCurrentWidget(widget);
 }
 

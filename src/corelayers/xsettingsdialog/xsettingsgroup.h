@@ -14,6 +14,8 @@ class XSettingsGroup : public QWidget
 public:
 	XSettingsGroup (const SettingsItemList &settings,QWidget* parent = 0);
 	virtual ~XSettingsGroup();
+signals:
+	void modifiedChanged(bool haveChanges);
 private:
 	SettingsItemList m_setting_list;
 	Ui::XSettingsGroup *ui;

@@ -56,6 +56,11 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 
 XSettingsDialog::~XSettingsDialog()
 {
+	foreach (SettingsWidget *widget, m_modified_widgets)
+	{
+		widget->save();
+		qDebug() << "Saved config for:" << widget->objectName();
+	}
     delete ui;
 }
 
@@ -156,9 +161,26 @@ if (setting_items.count()>1) // ==0 or >=0 need for testing, for normally usage 
 		SettingsWidget *widget = setting_items.at(0)->widget();
 		if (widget == 0)
 			return;
-		widget->load();
 		if (ui->settingsStackedWidget->indexOf(widget) == -1)
+		{
+			widget->load();
+			connect(widget,SIGNAL(modifiedChanged(bool)),SLOT(onWidgetModifiedChanged(bool)));
 			ui->settingsStackedWidget->addWidget(widget);
+		}
 		ui->settingsStackedWidget->setCurrentWidget(widget);
 	}
 }
+
+
+void XSettingsDialog::onWidgetModifiedChanged ( bool haveChanges )
+{
+	qDebug() << "modified";
+	SettingsWidget *widget = qobject_cast< SettingsWidget* >(sender());
+	if (!widget)
+		return;
+	if (haveChanges)
+		m_modified_widgets.append(widget);
+	else
+		m_modified_widgets.removeOne(widget);
+}
+
