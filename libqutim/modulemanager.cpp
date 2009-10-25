@@ -36,7 +36,8 @@
 
 #ifdef TEST
 # include "settingslayer.h"
-# include <QTextEdit>
+# include <QPlainTextEdit>
+# include <QLineEdit>
 # include <QComboBox>
 # include <QCheckBox>
 #endif
@@ -379,7 +380,7 @@ namespace qutim_sdk_0_3
 		{
 			AutoSettingsItem *item = new AutoSettingsItem(Settings::General, QT_TRANSLATE_NOOP("Settings", "Test settings"));
 			item->setConfig(QString(), "test");
-			item->addEntry<QTextEdit>(QT_TRANSLATE_NOOP("Settings", "Text"))->setName("text")->setProperty("acceptRichText", false);
+			item->addEntry<QLineEdit>(QT_TRANSLATE_NOOP("Settings", "Text"))->setName("text")->setProperty("acceptRichText", false);
 			item->addEntry<AutoSettingsComboBox>(QT_TRANSLATE_NOOP("Settings", "Combo"))->setName("combo")->setProperty("items", QStringList() << "First" << "Second" << "Third");
 			item->addEntry<QCheckBox>(QT_TRANSLATE_NOOP("Settings", "Check"))->setName("check");
 			Settings::registerItem(item);

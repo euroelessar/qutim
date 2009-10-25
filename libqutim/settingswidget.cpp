@@ -102,6 +102,8 @@ namespace qutim_sdk_0_3
 
 	void SettingsWidget::save()
 	{
+		if(!isModified())
+			return;
 		p->sleep = true;
 		saveImpl();
 		p->clearValues();
@@ -110,6 +112,8 @@ namespace qutim_sdk_0_3
 
 	void SettingsWidget::cancel()
 	{
+		if(!isModified())
+			return;
 		p->sleep = true;
 		for(int i = 0, size = p->infos.size(); i < size; i++)
 		{
@@ -184,6 +188,7 @@ namespace qutim_sdk_0_3
 		if(result)
 		{
 			p->mapper->setMapping(widget, p->infos.size());
+			connect(widget, signal, p->mapper, SLOT(map()));
 			p->infos << info;
 		}
 		if(free_signal)

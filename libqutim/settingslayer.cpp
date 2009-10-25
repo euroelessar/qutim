@@ -18,6 +18,8 @@
 #include <QtGui/QApplication>
 #include "settingswidget.h"
 #include <QVariant>
+#include <QCheckBox>
+#include <QRadioButton>
 #include "configbase.h"
 
 namespace qutim_sdk_0_3
@@ -74,7 +76,13 @@ namespace qutim_sdk_0_3
 				continue;
 			}
 			widget->setObjectName(entry->name());
-			layout->addRow(new QLabel(entry->text(), this), widget);
+			if(QAbstractButton *button = qobject_cast<QAbstractButton *>(widget))
+			{
+				button->setText(entry->text());
+				layout->addRow(QString(), widget);
+			}
+			else
+				layout->addRow(entry->text(), widget);
 			g->entries.append(qMakePair(widget, QByteArray(prop)));
 		}
 	}
