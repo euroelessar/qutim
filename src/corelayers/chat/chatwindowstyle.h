@@ -4,6 +4,7 @@
 #include <QHash>
 #include <QDateTime>
 
+class QFile;
 class QWebPage;
 
 namespace AdiumMessageStyle {
@@ -111,7 +112,10 @@ private:
 	 * Read style HTML files from disk
 	 */
 	void readStyleFiles();
-
+	/**
+	 * Read style HTML files from disk
+	 */
+	inline QString readStyleFile(const QString &filePath, QFile *fileAccess);
 	/**
 	 * Init this class
 	 */

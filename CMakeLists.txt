@@ -135,7 +135,7 @@ if( Qt4_HAS_4_5 )
 	LIST( APPEND HEADERS src/proxyfactory.h )
 endif( Qt4_HAS_4_5 )
 
-SET (SOURCES
+SET (SOURCES 
 	main.cpp
 	solutions/qtcustomwidget.cpp
 	src/3rdparty/qtsolutions/qtlocalpeer.cpp
@@ -219,6 +219,8 @@ IF(NOT NO_CHAT)
 		src/corelayers/chat/settings/chatlayersettings.h
 		src/corelayers/chat/tabbedchats.h
 		src/corelayers/chat/tempglobalinstance.h
+		#new
+		src/corelayers/adiumchat/chatstyle.h
 		)
 	LIST (APPEND SOURCES
 		src/corelayers/chat/chatemoticonmenu.cpp
@@ -238,6 +240,8 @@ IF(NOT NO_CHAT)
 		src/corelayers/chat/settings/chatlayersettings.cpp
 		src/corelayers/chat/tabbedchats.cpp
 		src/corelayers/chat/tempglobalinstance.cpp
+		#new
+		src/corelayers/adiumchat/chatstyle.cpp
 		)
 	LIST (APPEND FORMS
 		src/corelayers/chat/chatforms/chatform.ui

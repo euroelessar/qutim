@@ -651,6 +651,22 @@ QString ChatWindowStyle::convertTimeDate(const QString &mac_format, const QDateT
 	return str;
 }
 
+
+QString ChatWindowStyle::readStyleFile ( const QString& filePath, QFile* fileAccess )
+{
+	if( QFile::exists(filePath) )
+	{
+		fileAccess->setFileName(filePath);
+		fileAccess->open(QIODevice::ReadOnly);
+		QTextStream templateStream(fileAccess);
+		templateStream.setCodec(QTextCodec::codecForName("UTF-8"));
+		fileAccess->close();
+		return templateStream.readAll();
+	}
+	return QString();
+}
+
+
 void ChatWindowStyle::readStyleFiles()
 {
 	QString templateFile = d->baseHref + QString("Template.html");
@@ -671,55 +687,13 @@ void ChatWindowStyle::readStyleFiles()
 
 	QFile fileAccess;
 	// First load template file.
-	if( QFile::exists(templateFile) )
-	{
-		fileAccess.setFileName(templateFile);
-		fileAccess.open(QIODevice::ReadOnly);
-		QTextStream templateStream(&fileAccess);
-		templateStream.setCodec(QTextCodec::codecForName("UTF-8"));
-		d->templateHtml = templateStream.readAll();
-		fileAccess.close();
-
-
-	}
-	else
-	{
-					QResource resourceAccess("style/webkitstyle/Template.html");
-		d->templateHtml = QString::fromUtf8((char*)resourceAccess.data(),resourceAccess.size());
-	}
-	// Load header file.
-	if( QFile::exists(headerFile) )
-	{
-		fileAccess.setFileName(headerFile);
-		fileAccess.open(QIODevice::ReadOnly);
-		QTextStream headerStream(&fileAccess);
-		headerStream.setCodec(QTextCodec::codecForName("UTF-8"));
-		d->headerHtml = headerStream.readAll();
-		//qDebug() << "Header HTML: " << d->headerHtml;
-		fileAccess.close();
-	}
+	d->templateHtml = readStyleFile(templateFile,&fileAccess);
+	// Load header file.	
+	d->templateHtml = readStyleFile(headerFile,&fileAccess);
 	// Load Footer file
-	if( QFile::exists(footerFile) )
-	{
-		fileAccess.setFileName(footerFile);
-		fileAccess.open(QIODevice::ReadOnly);
-		QTextStream headerStream(&fileAccess);
-		headerStream.setCodec(QTextCodec::codecForName("UTF-8"));
-		d->footerHtml = headerStream.readAll();
-		//qDebug() << "Footer HTML: " << d->footerHtml;
-		fileAccess.close();
-	}
+	d->templateHtml = readStyleFile(footerFile,&fileAccess);
 	// Load incoming file
-	if( QFile::exists(incomingFile) )
-	{
-		fileAccess.setFileName(incomingFile);
-		fileAccess.open(QIODevice::ReadOnly);
-		QTextStream headerStream(&fileAccess);
-		headerStream.setCodec(QTextCodec::codecForName("UTF-8"));
-		d->incomingHtml = headerStream.readAll();
-//			qDebug() << "Incoming HTML: " << d->incomingHtml;
-		fileAccess.close();
-	}
+	d->templateHtml = readStyleFile(incomingFile,&fileAccess);
 	// Load next Incoming file
 	if( QFile::exists(nextIncomingFile) )
 	{

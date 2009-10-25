@@ -38,7 +38,8 @@ SOURCES += tcpsocket.cpp \
     message.cpp \
     abstractcontact.cpp \
     settingswidget.cpp \
-    messagesession.cpp
+    messagesession.cpp \
+	utils.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
     domaininfo.h \

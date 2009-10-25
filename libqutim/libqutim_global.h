@@ -35,6 +35,7 @@
 
 template <typename Key, typename T>
 class QHash;
+class QDateTime;
 
 namespace qutim_sdk_0_3
 {
@@ -85,6 +86,7 @@ namespace qutim_sdk_0_3
 	{ return moduleGenerators_helper<T>(reinterpret_cast<T *>(0)); }
 	LIBQUTIM_EXPORT ProtocolMap allProtocols();
 	LIBQUTIM_EXPORT QString statusToString(Status status, bool translate = true);
+	LIBQUTIM_EXPORT QString convertTimeDate(const QString &mac_format, const QDateTime &datetime);
 }
 
 class QDebug;
