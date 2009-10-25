@@ -10,10 +10,10 @@ class XSettingsLayerImpl : public SettingsLayer
 {
 	Q_OBJECT
 public:
-    XSettingsLayerImpl();
-    virtual ~XSettingsLayerImpl();
+	XSettingsLayerImpl();
+	virtual ~XSettingsLayerImpl();
 	virtual void close();
-    virtual void show ( const SettingsItemList& settings );
+	virtual void show ( const SettingsItemList& settings );
 private:
 	QPointer<XSettingsDialog> m_dialog;
 };

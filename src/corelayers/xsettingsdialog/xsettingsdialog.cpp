@@ -46,8 +46,8 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	foreach (SettingsItem *item, settings)
 	{
 		if (item->type() >= m_settings_items.size())
-			m_settings_items.resize(item->type() + 1);
-		m_settings_items[item->type()].append(settings);
+			m_settings_items.resize(item->type()+1);
+		m_settings_items[item->type()].append(item);
 	}
 	general->trigger();
 	if (animated)
@@ -125,14 +125,17 @@ void XSettingsDialog::showEvent(QShowEvent* e)
 void XSettingsDialog::showState()
 {
 	if (animated)
+	{
 		layout()->setEnabled(true);
+		updateGeometry();
+	}
 }
 
 void XSettingsDialog::onActionTriggered ( QAction* action )
 {
 	Settings::Type type = static_cast<Settings::Type>(action->property("category").toInt());
 	SettingsItemList setting_items = m_settings_items.value(type);
-	if (setting_items.count()>=0) // ==0 or >=0 need for testing, for normally usage use >1
+if (setting_items.count()>1) // ==0 or >=0 need for testing, for normally usage use >1
 	{
 		//TODO need way to add custom group
 		XSettingsGroup *group = m_group_widgets.value(type);
@@ -146,7 +149,10 @@ void XSettingsDialog::onActionTriggered ( QAction* action )
 	else
 	{
 		if (setting_items.count() == 0)
+		{
+			ui->settingsStackedWidget->setCurrentIndex(0);
 			return;
+		}
 		SettingsWidget *widget = setting_items.at(0)->widget();
 		if (widget == 0)
 			return;

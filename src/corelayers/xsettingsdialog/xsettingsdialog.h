@@ -9,17 +9,17 @@ class QStateMachine;
 class QState;
 class XToolBar;
 namespace Ui {
-    class XSettingsDialog;
+	class XSettingsDialog;
 }
 
 class XSettingsDialog : public QDialog {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    XSettingsDialog(const SettingsItemList &settings,QWidget *parent = 0);
-    ~XSettingsDialog();
+	XSettingsDialog(const SettingsItemList &settings,QWidget *parent = 0);
+	~XSettingsDialog();
 	//void setSettingsList(const SettingsItemList &settings);//TODO
 protected:
-    void changeEvent(QEvent *e);
+	void changeEvent(QEvent *e);
 	virtual void showEvent(QShowEvent* );
 signals:
 	void showed();
@@ -29,7 +29,7 @@ protected slots:
 private:
 	inline void initAnimation();
 	inline void addAction(QAction* action, Settings::Type type);
-    Ui::XSettingsDialog *ui;
+	Ui::XSettingsDialog *ui;
 	QStateMachine *m_machine;
 	QState *m_hide_state;
 	QState *m_show_state;
