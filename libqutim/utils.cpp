@@ -220,7 +220,7 @@ namespace qutim_sdk_0_3
 		}
 	}
 
-	QString convertTimeDate(const QString &mac_format, const QDateTime &datetime)
+	QString convertTimeDate(const QString& mac_format, const QDateTime& datetime)
 	{
 		QDate date = datetime.date();
 		QTime time = datetime.time();

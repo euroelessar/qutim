@@ -9,21 +9,6 @@
 
 namespace AdiumChat
 {
-	bool ChatStyle::isValid()
-	{
-	if (this->headerHtml.isEmpty() || this->footerHtml.isEmpty() || (!this->backgroundColor.isValid()) || this->baseHref.isEmpty())
-		return false;
-	if (this->currentVariantPath.isEmpty() || this->incomingActionHtml.isEmpty() || this->incomingHistoryHtml.isEmpty())
-		return false;
-	if (this->incomingHtml.isEmpty() || this->mainCSS.isEmpty() || this->nextIncomingHistoryHtml.isEmpty() || this->nextIncomingHtml.isEmpty())
-		return false;
-	if (this->nextOutgoingHistoryHtml.isEmpty() || this->nextOutgoingHtml.isEmpty() || this->statusHtml.isEmpty() || this->styleName.isEmpty())
-		return false;
-	if (variants.isEmpty())
-		return false;
-	return true;
-	};
-
 	struct ChatStyleGeneratorPrivate
 	{
 		void readStyleFiles()
@@ -96,9 +81,25 @@ namespace AdiumChat
 			return QString();
 		};
 		ChatStyle style;
-	};
+	};	
 	
+	bool ChatStyle::isValid()
+	{
+	if (this->headerHtml.isEmpty() || this->footerHtml.isEmpty() || (!this->backgroundColor.isValid()) || this->baseHref.isEmpty())
+		return false;
+	if (this->currentVariantPath.isEmpty() || this->incomingActionHtml.isEmpty() || this->incomingHistoryHtml.isEmpty())
+		return false;
+	if (this->incomingHtml.isEmpty() || this->mainCSS.isEmpty() || this->nextIncomingHistoryHtml.isEmpty() || this->nextIncomingHtml.isEmpty())
+		return false;
+	if (this->nextOutgoingHistoryHtml.isEmpty() || this->nextOutgoingHtml.isEmpty() || this->statusHtml.isEmpty() || this->styleName.isEmpty())
+		return false;
+	if (variants.isEmpty())
+		return false;
+	return true;
+	};
+
 	ChatStyleGenerator::ChatStyleGenerator ( const QString& stylePath, const QString& variant )
+	:	d(new ChatStyleGeneratorPrivate)
 	{
 		QDir styleDir = stylePath;
 		if(stylePath.isEmpty() || !styleDir.exists())
@@ -119,7 +120,7 @@ namespace AdiumChat
 			d->listVariants();
 		else
 		{
-			//TODO
+			d->style.variants.insert(variant,"Variants/" + variant + ".css"); //TODO need check
 		}
 	}
 
@@ -135,5 +136,12 @@ namespace AdiumChat
 	{
 		return d->style;
 	}
+
+	
+	ChatStyleGenerator::~ChatStyleGenerator()
+	{
+
+	}
+
 
 }

@@ -38,6 +38,7 @@ namespace AdiumChat
 	{
 	public:
 		ChatStyleGenerator (const QString &stylePath, const QString &variant = QString());
+		~ChatStyleGenerator();
 		ChatStyle getChatStyle () const;
 		void reload();
 	private:

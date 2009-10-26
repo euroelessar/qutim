@@ -223,6 +223,7 @@ IF(NOT NO_CHAT)
 		src/corelayers/adiumchat/chatstyle.h
 		src/corelayers/adiumchat/chatlayerimpl.h
 		src/corelayers/adiumchat/chatsessionimpl.h
+		src/corelayers/adiumchat/chatstyleoutput.h
 		)
 	LIST (APPEND SOURCES
 		src/corelayers/chat/chatemoticonmenu.cpp
@@ -246,6 +247,7 @@ IF(NOT NO_CHAT)
 		src/corelayers/adiumchat/chatstyle.cpp
 		src/corelayers/adiumchat/chatlayerimpl.cpp
 		src/corelayers/adiumchat/chatsessionimpl.cpp
+		src/corelayers/adiumchat/chatstyleoutput.cpp
 		)
 	LIST (APPEND FORMS
 		src/corelayers/chat/chatforms/chatform.ui

@@ -1,5 +1,5 @@
-#ifndef CHATSESSION_H
-#define CHATSESSION_H
+#ifndef CHATSESSIONIMPL_H
+#define CHATSESSIONIMPL_H
 #include <libqutim/messagesession.h>
 #include "chatlayerimpl.h"
 
@@ -15,4 +15,4 @@ namespace AdiumChat
 		virtual void removeContact ( Contact* c );
 	};
 }
-#endif // CHATSESSION_H
+#endif // CHATSESSIONIMPL_H
