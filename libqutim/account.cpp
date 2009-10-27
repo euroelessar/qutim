@@ -38,7 +38,7 @@ namespace qutim_sdk_0_3
 	{
 	}
 
-	QString Account::id()
+	QString Account::id() const
 	{
 		return p->id;
 	}
@@ -53,7 +53,7 @@ namespace qutim_sdk_0_3
 		return config().group(group);
 	}
 		
-	Status Account::status()
+	Status Account::status() const
 	{
 		return p->status;
 	}

@@ -33,10 +33,10 @@ namespace qutim_sdk_0_3
 	public:
 		Account(const QString &id, Protocol *protocol);
 		virtual ~Account();
-		QString id();
+		QString id() const;
 		Config config();
 		ConfigGroup config(const QString &group);
-		Status status();
+		Status status() const;
 		virtual void setStatus(Status status);
 	private:
 		QScopedPointer<AccountPrivate> p;
