@@ -124,14 +124,6 @@ namespace AdiumChat
 		}
 	}
 
-	void ChatStyleGenerator::reload()
-	{
-		d->style.variants.clear();
-		d->listVariants();
-		d->readStyleFiles();
-	}
-
-	
 	ChatStyle ChatStyleGenerator::getChatStyle () const
 	{
 		return d->style;

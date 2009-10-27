@@ -6,17 +6,31 @@
 #include <libqutim/libqutim_global.h>
 #include "chatsessionimpl.h"
 #include <QDateTime>
+#include <libqutim/configbase.h>
 
 namespace AdiumChat
 {
 	
-	ChatStyleOutput::ChatStyleOutput ( const QString& _styleName, const QString& _variantName )
+	ChatStyleOutput::ChatStyleOutput ()
 	{
- 		ChatStyleGenerator generator (_styleName,_variantName);
+		loadSettings();
+ 		ChatStyleGenerator generator (m_current_style_path,m_current_variant);
  		m_current_style = generator.getChatStyle();
-		variantUsedName = _variantName;
 	}
-	
+
+	void ChatStyleOutput::loadSettings()
+	{
+		ConfigGroup adium_chat = Config("appearance").group("adiumChat/style");
+		m_current_style_path = getThemePath(adium_chat.value<QString>("name","default"),
+											"webkitstyle");
+		m_current_variant = adium_chat.value<QString>("variant","default");
+		m_current_datetime_format = adium_chat.value<QString>("datetimeFormat","hh:mm:ss dd/MM/yyyy");
+	}
+
+	void ChatStyleOutput::reloadStyle()
+	{
+	}
+
 	ChatStyleOutput::~ChatStyleOutput()
 	{
 
@@ -34,8 +48,8 @@ namespace AdiumChat
 
 	QString ChatStyleOutput::getVariantCSS()
 	{
-	if(!variantUsedName.isEmpty())
-		return "Variants/" + variantUsedName + ".css";
+	if(!m_current_variant.isEmpty())
+		return "Variants/" + m_current_variant + ".css";
 	else
 		return QString();
 	}
@@ -109,13 +123,12 @@ namespace AdiumChat
 
 	void ChatStyleOutput::setVariant ( const QString& _variantName )
 	{
-		variantUsedName = _variantName;
+		m_current_variant = _variantName;
 	}
 
 	QString ChatStyleOutput::makeMessage ( const QString& _name, const QString& _message,
 										   const bool& _direction, const QDateTime& datetime,
-										   const QString& _time, const QString& _avatarPath,
-										   const bool& _aligment, const QString& _senderID,
+										   const QString& _avatarPath, const bool& _aligment, const QString& _senderID,
 										   const QString& _service, const bool& _sameSender, bool _history )
 	{
 		// prepare values, so they could be inserted to html code
@@ -136,13 +149,14 @@ namespace AdiumChat
 				html = _sameSender ? m_current_style.nextIncomingHtml : m_current_style.incomingHtml;
 		}
 
-		QString avatarPath = _avatarPath;
+		QString avatarPath = _avatarPath.isEmpty() ? QLatin1String(":/icons/qutim_64") : avatarPath; //FIXME set buddy icon
 
 		// Replace %sender% to name
 		html = html.replace("%sender%", _name);
 		// Replace %senderScreenName% to name
 		html = html.replace("%senderScreenName%", Qt::escape(_senderID));
-		// Replace %time% to time
+		// Replace %time% to time //FIXME
+		QString _time = datetime.toString(m_current_datetime_format); //HACK something fucking unknown !
 		html = html.replace("%time%", Qt::escape(_time));
 		// Replace %time{X}%
 		static QRegExp timeRegExp("%time\\{([^}]*)\\}%");

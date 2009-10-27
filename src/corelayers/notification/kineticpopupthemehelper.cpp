@@ -36,26 +36,6 @@ namespace KineticPopupThemeHelper
 		return output;
 	}
 
-	QString getThemePath(QDir shareDir, const QString &themeName)
-	{
-		shareDir.cd("kineticpopups");
-		if (shareDir.cd(themeName))
-			return shareDir.absolutePath();
-		else
-			return QString();
-	}
-	
-	QString getThemePath ( const QString& themeName )
-	{
-		QString themePath = getThemePath(SystemInfo::getDir(SystemInfo::ShareDir),themeName);
-		if (themePath.isEmpty())
-		{
-			themePath = getThemePath(SystemInfo::getDir(SystemInfo::SystemShareDir),themeName);
-		}
-		return themePath;
-	}
-
-
 	PopupSettings loadThemeSetting ( const QString& themePath )
 	{
 		PopupSettings popup_settings;
@@ -83,8 +63,8 @@ namespace KineticPopupThemeHelper
 		qDebug() << theme_list;
 		foreach (QString theme_name, theme_list)
 		{
-			popup_settings_list.append(loadThemeSetting(getThemePath(theme_name)));
-			qDebug() << getThemePath(theme_name);
+			popup_settings_list.append(loadThemeSetting(getThemePath(theme_name,"kineticpopups")));
+			qDebug() << getThemePath(theme_name,"kineticpopups");
 		}
 		return popup_settings_list;
 	}

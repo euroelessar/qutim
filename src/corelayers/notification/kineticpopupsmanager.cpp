@@ -96,7 +96,7 @@ KineticPopupsManager* KineticPopupsManager::self()
 
 void KineticPopupsManager::loadSettings()
 {
-	ConfigGroup general = Config("appearence/kineticpopups").group("general");
+	ConfigGroup general = Config("appearance").group("kineticpopups/general");
 	animationDuration = general.value("animationDuration",1000);
 	QString theme_name = general.value<QString>("themeName","default");
 	*reinterpret_cast<int *>(&showFlags) = general.value("showFlags", 0xfffffff);
@@ -106,7 +106,7 @@ void KineticPopupsManager::loadSettings()
 	appendMode = general.value<bool>("appendMode",true);
 	easingCurve.setType(static_cast<QEasingCurve::Type>(general.value<int>("easingCurve",QEasingCurve::OutSine)));
 
-	QString theme_path = KineticPopupThemeHelper::getThemePath(theme_name);
+	QString theme_path = getThemePath(theme_name,"kineticpopups");
 	popupSettings = KineticPopupThemeHelper::loadThemeSetting(theme_path);
 	//TODO need global actions handler
 	action1Trigger = Qt::LeftButton;

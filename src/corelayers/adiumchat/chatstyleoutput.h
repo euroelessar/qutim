@@ -14,7 +14,7 @@ namespace AdiumChat
 		constructor, _styleName - name of the style to use, it have to be same to directory name
 		_variantName - name of the CSS file to use, don't write .css
 		*/
-		ChatStyleOutput(const QString &_styleName, const QString &_variantName);
+		ChatStyleOutput();
 		~ChatStyleOutput();
 
 		/*
@@ -60,7 +60,7 @@ namespace AdiumChat
 		_history - if message was sent to offline, or gotten from history
 		*/
 		QString makeMessage(const QString &_name, const QString &_message,
-							const bool &_direction, const QDateTime &datetime, const QString &_time, const QString &_avatarPath,
+							const bool &_direction, const QDateTime &datetime,const QString &_avatarPath,
 							const bool &_aligment, const QString &_senderID, const QString &_service,
 							const bool &_sameSender, bool _history);
 		/*
@@ -92,6 +92,7 @@ namespace AdiumChat
 		QString getMainCSS();
 		QString getVariantCSS();
 		void preparePage(QWebPage *page) const;
+		void reloadStyle();
 	private:
 		/*
 		makes html code from plaint text //TODO rewrite on javascript
@@ -100,6 +101,7 @@ namespace AdiumChat
 		QString findWebAddress(const QString &_sourceHTML);
 
 	private:
+		void loadSettings();
 		/*
 		style used for output generation
 		*/
@@ -108,7 +110,9 @@ namespace AdiumChat
 		/*
 		remembers current variant name
 		*/
-		QString variantUsedName;
+		QString m_current_variant;
+		QString m_current_style_path;
+		QString m_current_datetime_format;
 	};
 }
 

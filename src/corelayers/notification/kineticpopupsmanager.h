@@ -50,7 +50,6 @@ private:
     QList<KineticPopup *> active_notifications;
     static KineticPopupsManager *instance;
 	void loadSettings();
-	QString getThemePath(QDir shareDir, const QString& themeName);
     int getNumber(const QString &id) const;
 };
 

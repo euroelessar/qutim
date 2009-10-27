@@ -376,4 +376,29 @@ namespace qutim_sdk_0_3
 		}
 		return str;
 	}
+	
+	QString getThemePath(QDir shareDir, const QString &themeName , const QString &category )
+	{
+		shareDir.cd(category);
+		if (shareDir.cd(themeName))
+			return shareDir.absolutePath();
+		else
+			return QString();
+	}	
+
+	QString getThemePath ( const QString& themeName, const QString &category )
+	{
+		QString themePath = getThemePath(SystemInfo::getDir(SystemInfo::ShareDir),themeName,category);
+		if (themePath.isEmpty())
+		{
+			themePath = getThemePath(SystemInfo::getDir(SystemInfo::SystemShareDir),themeName,category);
+		}
+		return themePath;
+	}
+	
+	QString &validateCpp(QString &text )
+	{
+		text.replace( "\"", "\\\"" ).replace( "\n", "\\n" ).replace( "\t", "\\t" );
+		return text;
+	}
 }

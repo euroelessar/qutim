@@ -15,7 +15,7 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	//load settings
-	ConfigGroup general_group = Config("appearance/xsettings").group("general");
+	ConfigGroup general_group = Config("appearance").group("xsettings/general");
 	animated = general_group.value<bool>("animated", true);
 	//init toolbar
 	ui->setupUi(this);
@@ -76,7 +76,7 @@ void XSettingsDialog::addAction (QAction* action, Settings::Type type)
 void XSettingsDialog::initAnimation()
 {
 	//init state machine
-	ConfigGroup animation_group = Config("appearance/xsettings").group("animation");
+	ConfigGroup animation_group = Config("appearance").group("xsettings/animation");
 	m_machine = new QStateMachine(this);
 	QPropertyAnimation *animation = new QPropertyAnimation (ui->xtoolBar,"geometry",this);
 	animation->setDuration(animation_group.value<int>("duration",500));
@@ -174,7 +174,6 @@ if (setting_items.count()>1) // ==0 or >=0 need for testing, for normally usage 
 
 void XSettingsDialog::onWidgetModifiedChanged ( bool haveChanges )
 {
-	qDebug() << "modified";
 	SettingsWidget *widget = qobject_cast< SettingsWidget* >(sender());
 	if (!widget)
 		return;

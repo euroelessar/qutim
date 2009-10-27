@@ -87,6 +87,8 @@ namespace qutim_sdk_0_3
 	LIBQUTIM_EXPORT ProtocolMap allProtocols();
 	LIBQUTIM_EXPORT QString statusToString(Status status, bool translate = true);
 	LIBQUTIM_EXPORT QString convertTimeDate(const QString &mac_format, const QDateTime &datetime);
+	LIBQUTIM_EXPORT QString &validateCpp(QString &text );
+	LIBQUTIM_EXPORT QString getThemePath (const QString& themeName, const QString &category ); //search theme in user and share dir
 }
 
 class QDebug;

@@ -15,6 +15,7 @@
 
 #include "message.h"
 #include <QDateTime>
+#include "contact.h"
 
 namespace qutim_sdk_0_3
 {
@@ -23,7 +24,7 @@ namespace qutim_sdk_0_3
 	public:
 		MessagePrivate() : in(false) {}
 		MessagePrivate(const MessagePrivate &o)
-				: QSharedData(o), text(o.text), time(o.time), names(o.names), values(o.values) {}
+				: QSharedData(o), text(o.text), time(o.time), names(o.names), values(o.values),contact(o.contact) {}
 		~MessagePrivate() {}
 		QString text;
 		QDateTime time;
@@ -34,8 +35,11 @@ namespace qutim_sdk_0_3
 		void setTime(const QVariant &val) { time = val.toDateTime(); }
 		QVariant getIn() const { return in;}
 		void setIn(const QVariant &input) { in = input.toBool(); }
+		void setContact (const QVariant &val) {contact = val.value<Contact *>();};
+		QVariant getContact() const {return QVariant::fromValue(contact);};
 		QList<QByteArray> names;
 		QList<QVariant> values;
+		Contact *contact;
 	};
 
 	namespace CompiledProperty
@@ -45,15 +49,18 @@ namespace qutim_sdk_0_3
 		static QList<QByteArray> names = QList<QByteArray>()
 										 << "text"
 										 << "time"
-										 << "in";
+										 << "in"
+										 << "contact";
 		static QList<Getter> getters   = QList<Getter>()
 										 << &MessagePrivate::getText
 										 << &MessagePrivate::getTime
-										 << &MessagePrivate::getIn;
+										 << &MessagePrivate::getIn
+										 << &MessagePrivate::getContact;
 		static QList<Setter> setters   = QList<Setter>()
 										 << &MessagePrivate::setText
 										 << &MessagePrivate::setTime
-										 << &MessagePrivate::setIn;
+										 << &MessagePrivate::setIn
+										 << &MessagePrivate::setContact;
 	}
 
 	Message::Message() : p(new MessagePrivate)
@@ -151,4 +158,18 @@ namespace qutim_sdk_0_3
 	{
 		p->in = input;
 	}
+
+	
+	const Contact* Message::contact() const
+	{
+		return p->contact;
+	}
+
+	
+	void Message::setContact ( Contact* contact )
+	{
+		p->contact = contact;
+	}
+
+
 }
