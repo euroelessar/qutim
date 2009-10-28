@@ -21,6 +21,10 @@ namespace AdiumChat
 	private:
 		QPointer<QWebPage> m_web_page;
 		QScopedPointer<ChatStyleOutput> m_chat_style_output;
+		//additional info and flags
+		bool m_history_loaded;
+		QString m_previous_sender; //me or nme (not me) //FIXME need refactoring in future
+		int m_message_count;
 	};
 }
 #endif // CHATSESSIONIMPL_H

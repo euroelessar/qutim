@@ -45,7 +45,7 @@ namespace AdiumChat
 		*/
 		QString makeSkeleton(const QString &_chatName, const QString &_ownerName,
 							const QString &_partnerName, const QString &_ownerIconPath,
-							const QString &_partnerIconPath, const QDateTime &datetime, const QString &_time);
+							const QString &_partnerIconPath, const QDateTime &datetime);
 		/*
 		changes keywords to message atributes in html
 		_name - sender's nickname
@@ -75,7 +75,7 @@ namespace AdiumChat
 		_servese - protocol used to send a message
 		*/
 		QString makeAction(const QString &_name, const QString &_message,
-							const bool &_direction, const QDateTime &datetime, const QString &_time, const QString &_avatarPath,
+							const bool &_direction, const QDateTime &datetime, const QString &_avatarPath,
 							const bool &_aligment, const QString &_senderID, const QString &_service);
 
 		/*
@@ -91,7 +91,7 @@ namespace AdiumChat
 		*/
 		QString getMainCSS();
 		QString getVariantCSS();
-		void preparePage(QWebPage *page) const;
+		void preparePage(QWebPage *page);
 		void reloadStyle();
 	private:
 		/*

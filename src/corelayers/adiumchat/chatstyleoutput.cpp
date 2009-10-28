@@ -7,6 +7,9 @@
 #include "chatsessionimpl.h"
 #include <QDateTime>
 #include <libqutim/configbase.h>
+#include <libqutim/account.h>
+#include <QWebFrame>
+#include <QWebPage>
 
 namespace AdiumChat
 {
@@ -54,9 +57,31 @@ namespace AdiumChat
 		return QString();
 	}
 
-	void ChatStyleOutput::preparePage ( QWebPage* page ) const
+	void ChatStyleOutput::preparePage ( QWebPage* page )
 	{
-		//FIXME
+		QPalette palette = page->palette();
+		if(m_current_style.backgroundIsTransparent)
+		{
+			palette.setBrush(QPalette::Base, Qt::transparent);
+			if(page->view())
+				page->view()->setAttribute(Qt::WA_OpaquePaintEvent, false);
+		}
+		else
+		{
+			palette.setBrush(QPalette::Base, m_current_style.backgroundColor);
+		}
+		page->setPalette(palette);
+		Contact *contact; //TODO need global info about session
+		QString html = makeSkeleton(contact->id(),
+				contact->account()->id(),
+				contact->name(),
+				contact->property("imagepath").toString(),
+				contact->account()->property("imagepath").toString(),
+				QDateTime::currentDateTime());
+		QString head; //TODO
+		static const QRegExp regexp( "(\\<\\s*\\/\\s*head\\s*\\>)", Qt::CaseInsensitive );
+		html.replace( regexp, head );
+		page->mainFrame()->setHtml(html);
 	}
 
 	QStringList ChatStyleOutput::getPaths()
@@ -74,8 +99,8 @@ namespace AdiumChat
 
 	QString ChatStyleOutput::makeSkeleton ( const QString& _chatName, const QString& _ownerName,
 											const QString& _partnerName, const QString& _ownerIconPath,
-											const QString& _partnerIconPath, const QDateTime& datetime,
-											const QString& _time)
+											const QString& _partnerIconPath, const QDateTime& datetime
+											)
 	{
 		QString headerHTML = m_current_style.headerHtml;
 		QString footerHTML = m_current_style.footerHtml;
@@ -94,6 +119,7 @@ namespace AdiumChat
 		generalSkeleton = generalSkeleton.replace("%chatName%", Qt::escape(_chatName));
 		generalSkeleton = generalSkeleton.replace("%sourceName%", Qt::escape(_ownerName));
 		generalSkeleton = generalSkeleton.replace("%destinationName%", Qt::escape(_partnerName));
+		QString _time = datetime.toString(m_current_datetime_format); //HACK something fucking unknown !
 		generalSkeleton = generalSkeleton.replace("%timeOpened%", Qt::escape(_time));
 
 		static QRegExp timeRegExp("%timeOpened\\{([^}]*)\\}%");
@@ -201,7 +227,7 @@ namespace AdiumChat
 	
 	QString ChatStyleOutput::makeAction ( const QString& _name, const QString& _message,
 									  const bool& _direction, const QDateTime& datetime,
-									  const QString& _time, const QString& _avatarPath,
+									  const QString& _avatarPath,
 									  const bool& _aligment, const QString& _senderID, const QString& _service )
 	{
 		QString html = _direction ? m_current_style.outgoingActionHtml:m_current_style.incomingActionHtml;
@@ -213,6 +239,7 @@ namespace AdiumChat
 		// Replace %senderScreenName% to name
 		html = html.replace("%senderScreenName%", Qt::escape(_senderID));
 		// Replace %time% to time
+		QString _time = datetime.toString(m_current_datetime_format); //HACK something fucking unknown !
 		html = html.replace("%time%", Qt::escape(_time));
 		// Replace %time{X}%
 		static QRegExp timeRegExp("%time\\{([^}]*)\\}%");
