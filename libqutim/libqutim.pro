@@ -9,6 +9,7 @@ QT += network
 TARGET = qutim
 TEMPLATE = lib
 DEFINES += LIBQUTIM_LIBRARY
+LIBS += -framework CoreServices
 INCLUDEPATH += ../
 SOURCES += tcpsocket.cpp \
     domaininfo.cpp \
