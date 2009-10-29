@@ -57,7 +57,7 @@ namespace AdiumChat
 		return QString();
 	}
 
-	void ChatStyleOutput::preparePage ( QWebPage* page )
+	void ChatStyleOutput::preparePage ( QWebPage* page, Contact *contact )
 	{
 		QPalette palette = page->palette();
 		if(m_current_style.backgroundIsTransparent)
@@ -71,7 +71,6 @@ namespace AdiumChat
 			palette.setBrush(QPalette::Base, m_current_style.backgroundColor);
 		}
 		page->setPalette(palette);
-		Contact *contact; //TODO need global info about session
 		QString html = makeSkeleton(contact->id(),
 				contact->account()->id(),
 				contact->name(),
@@ -119,13 +118,7 @@ namespace AdiumChat
 		generalSkeleton = generalSkeleton.replace("%chatName%", Qt::escape(_chatName));
 		generalSkeleton = generalSkeleton.replace("%sourceName%", Qt::escape(_ownerName));
 		generalSkeleton = generalSkeleton.replace("%destinationName%", Qt::escape(_partnerName));
-		QString _time = datetime.toString(m_current_datetime_format); //HACK something fucking unknown !
-		generalSkeleton = generalSkeleton.replace("%timeOpened%", Qt::escape(_time));
-
-		static QRegExp timeRegExp("%timeOpened\\{([^}]*)\\}%");
-		int pos=0;
-		while((pos=timeRegExp.indexIn(generalSkeleton, pos)) != -1)
-			generalSkeleton.replace(pos, timeRegExp.cap(0).length(), Qt::escape(convertTimeDate(timeRegExp.cap(1), datetime)));
+		makeTime(generalSkeleton,datetime,"%timeOpened\\{([^}]*)\\}%");
 
 		if(_ownerIconPath == "")
 			generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", "outgoing_icon.png");
@@ -181,14 +174,7 @@ namespace AdiumChat
 		html = html.replace("%sender%", _name);
 		// Replace %senderScreenName% to name
 		html = html.replace("%senderScreenName%", Qt::escape(_senderID));
-		// Replace %time% to time //FIXME
-		QString _time = datetime.toString(m_current_datetime_format); //HACK something fucking unknown !
-		html = html.replace("%time%", Qt::escape(_time));
-		// Replace %time{X}%
-		static QRegExp timeRegExp("%time\\{([^}]*)\\}%");
-		int pos=0;
-		while((pos=timeRegExp.indexIn(html, pos)) != -1)
-			html.replace(pos, timeRegExp.cap(0).length(), Qt::escape(convertTimeDate(timeRegExp.cap(1), datetime)));
+		makeTime(html,datetime);
 		// Replace %service% to protocol name
 		// TODO: have to get protocol global value somehow
 		html = html.replace("%service%", _service);
@@ -238,14 +224,7 @@ namespace AdiumChat
 		html = html.replace("%sender%", _name);
 		// Replace %senderScreenName% to name
 		html = html.replace("%senderScreenName%", Qt::escape(_senderID));
-		// Replace %time% to time
-		QString _time = datetime.toString(m_current_datetime_format); //HACK something fucking unknown !
-		html = html.replace("%time%", Qt::escape(_time));
-		// Replace %time{X}%
-		static QRegExp timeRegExp("%time\\{([^}]*)\\}%");
-		int pos=0;
-		while((pos=timeRegExp.indexIn(html, pos)) != -1)
-			html.replace(pos, timeRegExp.cap(0).length(), Qt::escape(convertTimeDate(timeRegExp.cap(1), datetime)));
+		makeTime(html,datetime);
 		// Replace %service% to protocol name
 		// TODO: have to get protocol global value somehow
 		html = html.replace("%service%", _service);
@@ -282,19 +261,25 @@ namespace AdiumChat
 		return html;
 	}
 
-	QString ChatStyleOutput::makeStatus ( const QString& _message, const QDateTime& datetime, const QString& _time )
+	QString ChatStyleOutput::makeStatus ( const QString& _message, const QDateTime& datetime)
 	{
 		QString html = m_current_style.statusHtml;
-		// Replace %time% to time
-		html = html.replace("%time%", Qt::escape(_time));
-		// Replace %time{X}%
-		static QRegExp timeRegExp("%time\\{([^}]*)\\}%");
-		int pos=0;
-		while((pos=timeRegExp.indexIn(html, pos)) != -1)
-			html.replace(pos, timeRegExp.cap(0).length(), Qt::escape(convertTimeDate(timeRegExp.cap(1), datetime)));
-		// Replace %message%'s, replacing last to avoid errors if messages contains tags
+		makeTime(html,datetime);
 		html = html.replace("%message%", Qt::escape(_message).replace("\\","\\\\").remove('\r').replace("%","&#37;").replace("\n","<br/>")+"&nbsp;");
 		return html;
+	}
+
+	void ChatStyleOutput::makeTime(QString &input, const QDateTime& datetime, const QString &regexp)
+	{
+		QString time = datetime.toString(m_current_datetime_format);
+		// Replace %time% to time
+		input.replace("%time%", Qt::escape(time));
+		// Replace %time{X}%
+		static QRegExp timeRegExp(regexp);
+		int pos=0;
+		while((pos=timeRegExp.indexIn(input, pos)) != -1)
+			input.replace(pos, timeRegExp.cap(0).length(), Qt::escape(convertTimeDate(timeRegExp.cap(1), datetime)));
+		// Replace %message%'s, replacing last to avoid errors if messages contains tags
 	}
 
 	QString ChatStyleOutput::findEmail ( const QString& _sourceHTML )

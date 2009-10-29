@@ -42,7 +42,7 @@ namespace qutim_sdk_0_3
 		void messageSended(const Message &message);
 		void contactAdded();
 	protected:
-		ChatSession(ChatLayer *chat);
+		ChatSession(Contact *starter, ChatLayer *chat);
 		virtual ~ChatSession();
 	private:
 		QScopedPointer<ChatSessionPrivate> p;

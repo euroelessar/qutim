@@ -9,10 +9,10 @@ namespace AdiumChat
 
 {
 	
-	ChatSessionImpl::ChatSessionImpl ( ChatLayer* chat )
-	: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage)
+	ChatSessionImpl::ChatSessionImpl (Contact *starter, ChatLayer* chat )
+	: ChatSession (starter, chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage), m_session_starter(starter)
 	{
-		m_chat_style_output->preparePage(m_web_page);
+		m_chat_style_output->preparePage(m_web_page,m_session_starter);
 		m_message_count = 0;
 	}
 
@@ -31,12 +31,13 @@ namespace AdiumChat
 
 	void ChatSessionImpl::appendMessage ( const Message& message )
 	{
-		//TODO
+		//TODO add normal check if contact is null
+		if (!message.contact())
+			return;
 		bool same_from = false;
 		bool isHistory = message.property("isHistory").toBool();
-		if ( isHistory  && !m_history_loaded )
+		if (isHistory)
 		{
-			m_history_loaded = true;
 			m_previous_sender="";
 		}
 		QString item;

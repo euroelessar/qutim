@@ -12,7 +12,7 @@ namespace AdiumChat
 	{
 		Q_OBJECT
 	public:
-		ChatSessionImpl ( ChatLayer* chat );
+		ChatSessionImpl (Contact *starter, ChatLayer* chat );
 		virtual ~ChatSessionImpl();
 		virtual void addContact ( Contact* c );
 		virtual void appendMessage ( const Message& message );
@@ -21,8 +21,8 @@ namespace AdiumChat
 	private:
 		QPointer<QWebPage> m_web_page;
 		QScopedPointer<ChatStyleOutput> m_chat_style_output;
+		Contact *m_session_starter;
 		//additional info and flags
-		bool m_history_loaded;
 		QString m_previous_sender; //me or nme (not me) //FIXME need refactoring in future
 		int m_message_count;
 	};

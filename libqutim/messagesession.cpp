@@ -31,8 +31,9 @@ namespace qutim_sdk_0_3
 
 	static ChatLayerPrivate *p = new ChatLayerPrivate;
 
-	ChatSession::ChatSession(ChatLayer *chat) : QObject(chat), p(new ChatSessionPrivate)
+	ChatSession::ChatSession(Contact *starter, ChatLayer *chat) : QObject(chat), p(new ChatSessionPrivate)
 	{
+		Q_UNUSED(starter);
 	}
 
 	ChatSession::~ChatSession()

@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include "chatstyle.h"
+#include "chatsessionimpl.h"
+#include <libqutim/contact.h>
 class QWebPage;
 class QDateTime;
 namespace AdiumChat
@@ -84,14 +86,14 @@ namespace AdiumChat
 		_message - message by it self to be shown
 		_time - timestamp
 		*/
-		QString makeStatus(const QString &_message, const QDateTime &datetime, const QString &_time);
+		QString makeStatus(const QString &_message, const QDateTime &datetime);
 
 		/*
 		for degubing purpose, must be deleted before release
 		*/
 		QString getMainCSS();
 		QString getVariantCSS();
-		void preparePage(QWebPage *page);
+		void preparePage(QWebPage *page,Contact *contact);
 		void reloadStyle();
 	private:
 		/*
@@ -101,6 +103,7 @@ namespace AdiumChat
 		QString findWebAddress(const QString &_sourceHTML);
 
 	private:
+		inline void makeTime (QString &input, const QDateTime& datetime,const QString &regexp = "%time\\{([^}]*)\\}%");
 		void loadSettings();
 		/*
 		style used for output generation

@@ -51,10 +51,8 @@ LIST (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 SET (QT_USE_QTNETWORK true)
 SET (QT_USE_QTXML true)
 SET (QT_USE_QTSCRIPT true)
-IF(NOT NO_CHAT)
-	SET (QT_USE_QTWEBKIT true)
-	SET (QT_USE_QTUITOOLS true)
-ENDIF(NOT NO_CHAT)
+SET (QT_USE_QTWEBKIT true)
+
 SET (QUTIM_LIBS "")
 
 IF( Phonon )
@@ -185,74 +183,20 @@ SET (FORMS
 	src/qutimsettings.ui
 	)
 
-IF(NOT NO_ANTISPAM)
-	LIST (APPEND HEADERS
-		src/corelayers/antispam/abstractantispamlayer.h
-		src/corelayers/antispam/antispamlayersettings.h
-		)
-	LIST (APPEND SOURCES
-		src/corelayers/antispam/abstractantispamlayer.cpp
-		src/corelayers/antispam/antispamlayersettings.cpp
-		)
-	LIST (APPEND FORMS
-		src/corelayers/antispam/antispamlayersettings.ui
-		)
-ELSE(NOT NO_ANTISPAM)
-	ADD_DEFINITIONS( -DNO_CORE_ANTISPAM )
-ENDIF(NOT NO_ANTISPAM)
 IF(NOT NO_CHAT)
 	LIST (APPEND HEADERS
-		src/corelayers/chat/chatemoticonmenu.h
-		src/corelayers/chat/chatforms/chatwindow.h
-		src/corelayers/chat/chatforms/conferencewindow.h
-		src/corelayers/chat/chatlayerclass.h
-		src/corelayers/chat/chatwindowstyle.h
-		src/corelayers/chat/chatwindowstyleoutput.h
-		src/corelayers/chat/confcontactlist.h
-		src/corelayers/chat/conferenceitem.h
-		src/corelayers/chat/conferenceitemmodel.h
-		src/corelayers/chat/conferencetabcompletion.h
-		src/corelayers/chat/generalwindow.h
-		src/corelayers/chat/logscity.h
-		src/corelayers/chat/movielabel.h
-		src/corelayers/chat/separatechats.h
-		src/corelayers/chat/settings/chatlayersettings.h
-		src/corelayers/chat/tabbedchats.h
-		src/corelayers/chat/tempglobalinstance.h
-		#new
 		src/corelayers/adiumchat/chatstyle.h
 		src/corelayers/adiumchat/chatlayerimpl.h
 		src/corelayers/adiumchat/chatsessionimpl.h
 		src/corelayers/adiumchat/chatstyleoutput.h
 		)
 	LIST (APPEND SOURCES
-		src/corelayers/chat/chatemoticonmenu.cpp
-		src/corelayers/chat/chatforms/chatwindow.cpp
-		src/corelayers/chat/chatforms/conferencewindow.cpp
-		src/corelayers/chat/chatlayerclass.cpp
-		src/corelayers/chat/chatwindowstyle.cpp
-		src/corelayers/chat/chatwindowstyleoutput.cpp
-		src/corelayers/chat/confcontactlist.cpp
-		src/corelayers/chat/conferenceitem.cpp
-		src/corelayers/chat/conferenceitemmodel.cpp
-		src/corelayers/chat/conferencetabcompletion.cpp
-		src/corelayers/chat/generalwindow.cpp
-		src/corelayers/chat/logscity.cpp
-		src/corelayers/chat/movielabel.cpp
-		src/corelayers/chat/separatechats.cpp
-		src/corelayers/chat/settings/chatlayersettings.cpp
-		src/corelayers/chat/tabbedchats.cpp
-		src/corelayers/chat/tempglobalinstance.cpp
-		#new
 		src/corelayers/adiumchat/chatstyle.cpp
 		src/corelayers/adiumchat/chatlayerimpl.cpp
 		src/corelayers/adiumchat/chatsessionimpl.cpp
 		src/corelayers/adiumchat/chatstyleoutput.cpp
 		)
 	LIST (APPEND FORMS
-		src/corelayers/chat/chatforms/chatform.ui
-		src/corelayers/chat/chatforms/conferenceform.ui
-		src/corelayers/chat/settings/chatlayersettings.ui
 		)
 ELSE(NOT NO_CHAT)
 	ADD_DEFINITIONS( -DNO_CORE_CHAT )
@@ -281,81 +225,7 @@ ELSE(NOT NO_CONTACTLIST)
 	ENDIF(NOT NO_CHAT)
 	ADD_DEFINITIONS( -DNO_CORE_CONTACTLIST )
 ENDIF(NOT NO_CONTACTLIST)
-IF(NOT NO_EMOTICONS)
-	LIST (APPEND HEADERS
-		src/corelayers/emoticons/abstractemoticonslayer.h
-		)
-	LIST (APPEND SOURCES
-		src/corelayers/emoticons/abstractemoticonslayer.cpp
-		)
-ELSE(NOT NO_EMOTICONS)
-	ADD_DEFINITIONS( -DNO_CORE_EMOTICONS )
-ENDIF(NOT NO_EMOTICONS)
-IF(NOT NO_HISTORY)
-	LIST (APPEND HEADERS
-		src/corelayers/history/historyengine.h
-		src/corelayers/history/historylayer.h
-		src/corelayers/history/historysettings.h
-		src/corelayers/history/historywindow.h
-		)
-	LIST (APPEND SOURCES
-		src/corelayers/history/historyengine.cpp
-		src/corelayers/history/historylayer.cpp
-		src/corelayers/history/historysettings.cpp
-		src/corelayers/history/historywindow.cpp
-		)
-	LIST (APPEND FORMS
-		src/corelayers/history/historysettings.ui
-		src/corelayers/history/historywindow.ui
-		)
-ELSE(NOT NO_HISTORY)
-	ADD_DEFINITIONS( -DNO_CORE_HISTORY )
-ENDIF(NOT NO_HISTORY)
-IF(NOT NO_SOUNDENGINE)
-	LIST (APPEND HEADERS
-		src/corelayers/soundengine/defaultsoundenginelayer.h
-		src/corelayers/soundengine/soundenginesettings.h
-		)
-	LIST (APPEND SOURCES
-		src/corelayers/soundengine/defaultsoundenginelayer.cpp
-		src/corelayers/soundengine/soundenginesettings.cpp
-		)
-	LIST (APPEND FORMS
-		src/corelayers/soundengine/soundenginesettings.ui
-		)
-ELSE(NOT NO_SOUNDENGINE)
-	ADD_DEFINITIONS( -DNO_CORE_SOUNDENGINE )
-ENDIF(NOT NO_SOUNDENGINE)
-IF(NOT NO_SPELLER)
-	LIST (APPEND HEADERS
-		src/corelayers/speller/spellerhighlighter.h
-		src/corelayers/speller/spellerlayerclass.h
-		)
-	LIST (APPEND SOURCES
-		src/corelayers/speller/spellerhighlighter.cpp
-		src/corelayers/speller/spellerlayerclass.cpp
-		)
-ELSE(NOT NO_SPELLER)
-	ADD_DEFINITIONS( -DNO_CORE_SPELLER )
-ENDIF(NOT NO_SPELLER)
-IF(NOT NO_STATUS)
-	LIST (APPEND HEADERS
-		src/corelayers/status/defaultstatuslayer.h
-		src/corelayers/status/statusdialog.h
-		src/corelayers/status/statuspresetcaption.h
-		)
-	LIST (APPEND SOURCES
-		src/corelayers/status/defaultstatuslayer.cpp
-		src/corelayers/status/statusdialog.cpp
-		src/corelayers/status/statuspresetcaption.cpp
-		)
-	LIST (APPEND FORMS
-		src/corelayers/status/statusdialogvisual.ui
-		src/corelayers/status/statuspresetcaption.ui
-		)
-ELSE(NOT NO_STATUS)
-	ADD_DEFINITIONS( -DNO_CORE_STATUS )
-ENDIF(NOT NO_STATUS)
+
 IF(NOT NO_SETTINGSDIALOG)
 	LIST (APPEND HEADERS
 		src/corelayers/xsettingsdialog/xsettingsdialog.h
@@ -376,18 +246,6 @@ IF(NOT NO_SETTINGSDIALOG)
 ELSE(NOT NO_SETTINGSDIALOG)
 	ADD_DEFINITIONS( -DNO_CORE_SETTINGSDIALOG )
 ENDIF(NOT NO_SETTINGSDIALOG)
-IF(NOT NO_TRAY)
-	LIST (APPEND HEADERS
-		src/corelayers/tray/defaulttraylayer.h
-		src/corelayers/tray/exsystrayicon.h
-		)
-	LIST (APPEND SOURCES
-		src/corelayers/tray/defaulttraylayer.cpp
-		src/corelayers/tray/exsystrayicon.cpp
-		)
-ELSE(NOT NO_TRAY)
-	ADD_DEFINITIONS( -DNO_CORE_TRAY )
-ENDIF(NOT NO_TRAY)
 
 IF(NOT NO_NOTIFICATION)
         LIST (APPEND HEADERS
@@ -413,40 +271,14 @@ ELSE(NOT NO_NOTIFICATION)
         ADD_DEFINITIONS( -DNO_CORE_NOTIFICATION )
 ENDIF(NOT NO_NOTIFICATION)
 
-IF (WIN32)
-#	LIST (APPEND SOURCES
-#		src/ex/exsystrayicon.cpp
-#		 src/idle/idle_win.cpp
-#		)
-#	LIST (APPEND HEADERS
-#		src/ex/exsystrayicon.h
-#		)
-
-if (MINGW)
-exec_program(windres
-ARGS "-i ${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc -o qutim_res.o ")
-LIST (APPEND SOURCES qutim_res.o)
-else(MINGW)
-LIST (APPEND SOURCES qutim.rc)
-endif(MINGW)
-
-ENDIF (WIN32)
-
-#IF (APPLE)
-#    LIST (APPEND SOURCES
-#		src/ex/exsystrayicon.cpp
-#	src/idle/idle_mac.cpp
-#		)
-#    LIST (APPEND HEADERS
-#		src/ex/exsystrayicon.h
-#		)
-#	SET (MACOSX_BUNDLE_ICON_FILE icons/qutim.icns)
-#
-#ELSEIF (UNIX)
-#	LIST (APPEND SOURCES
-#		src/idle/idle_x11.cpp
-#		)
-#ENDIF ()
+#TODO fix in future
+#if (MINGW)
+#exec_program(windres
+#ARGS "-i ${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc -o qutim_res.o ")
+#LIST (APPEND SOURCES qutim_res.o)
+#else(MINGW)
+#LIST (APPEND SOURCES qutim.rc)
+#endif(MINGW)
 
 
 set( QUTIM_DO_NOT_FIND "true" )
@@ -459,12 +291,15 @@ QT4_WRAP_CPP (MOC_SRCS ${HEADERS})
 QT4_WRAP_UI (UIS_H ${FORMS})
 QT4_ADD_RESOURCES (RCC ${RESOURCES})
 
-if( APPLE )
-	SET (MACOSX_BUNDLE_ICON_FILE icons/qutim.icns)
-	ADD_EXECUTABLE (qutim MACOSX_BUNDLE ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
-else( APPLE )
-	ADD_EXECUTABLE (qutim WIN32 ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
-endif( APPLE )
+# comment for easy development on os X
+#if( APPLE )
+#	SET (MACOSX_BUNDLE_ICON_FILE icons/qutim.icns)
+#	ADD_EXECUTABLE (qutim MACOSX_BUNDLE ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
+#else( APPLE )
+#	ADD_EXECUTABLE (qutim WIN32 ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
+#endif( APPLE )
+
+ADD_EXECUTABLE (qutim WIN32 ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
 
 TARGET_LINK_LIBRARIES (qutim
 	${QT_LIBRARIES}
@@ -481,12 +316,7 @@ SET (CMAKE_MODULES
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/qutimuic.cmake"
 )
 SET (DEV_HEADERS
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/qutim/iconmanagerinterface.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/qutim/layerinterface.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/qutim/layerscity.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/qutim/plugininterface.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/qutim/protocolinterface.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/qutim/settings.h"
+#TODO
 )
 INSTALL (FILES ${CMAKE_MODULES} DESTINATION ${module_install_dir})
 INSTALL (FILES ${DEV_HEADERS} DESTINATION "include/qutim")

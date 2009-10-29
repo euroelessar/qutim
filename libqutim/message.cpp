@@ -16,6 +16,8 @@
 #include "message.h"
 #include <QDateTime>
 #include "contact.h"
+#include "account.h"
+#include "protocol.h"
 
 namespace qutim_sdk_0_3
 {
@@ -163,6 +165,15 @@ namespace qutim_sdk_0_3
 	const Contact* Message::contact() const
 	{
 		return p->contact;
+//		TODO need fake contact
+//		if (p->contact)
+//			return p->contact;
+//		Protocol *p = new Protocol();
+//		Account *a = new Account(tr("unknown"),p);
+//		Contact *c = new Contact(a);
+//		c->setName(tr("Hidden"));
+//		p->contact = c;
+//		return c;
 	}
 
 	

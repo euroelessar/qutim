@@ -66,6 +66,7 @@ namespace qutim_sdk_0_3
 	public:
 		AutoSettingsGenerator(AutoSettingsItemPrivate *pr) : p(pr) {}
 	protected:
+		virtual ~AutoSettingsGenerator() {};
 		virtual QObject *generateHelper() const
 		{
 			qDebug("%s", Q_FUNC_INFO);
