@@ -183,93 +183,32 @@ SET (FORMS
 	src/qutimsettings.ui
 	)
 
-IF(NOT NO_CHAT)
-	LIST (APPEND HEADERS
-		src/corelayers/adiumchat/chatstyle.h
-		src/corelayers/adiumchat/chatlayerimpl.h
-		src/corelayers/adiumchat/chatsessionimpl.h
-		src/corelayers/adiumchat/chatstyleoutput.h
-		)
-	LIST (APPEND SOURCES
-		src/corelayers/adiumchat/chatstyle.cpp
-		src/corelayers/adiumchat/chatlayerimpl.cpp
-		src/corelayers/adiumchat/chatsessionimpl.cpp
-		src/corelayers/adiumchat/chatstyleoutput.cpp
-		)
-	LIST (APPEND FORMS
-		)
-ELSE(NOT NO_CHAT)
-	ADD_DEFINITIONS( -DNO_CORE_CHAT )
-ENDIF(NOT NO_CHAT)
-IF(NOT NO_CONTACTLIST)
-	LIST (APPEND HEADERS
-		src/corelayers/contactlist/contactlistitemdelegate.h
-		src/corelayers/contactlist/simplecontactlist.h
-                src/corelayers/contactlist/simplecontactlistview.h
-                src/corelayers/contactlist/simplecontactlistmodel.h
-                src/corelayers/contactlist/simplecontactlistitem.h
-		)
-	LIST (APPEND SOURCES
-		src/corelayers/contactlist/contactlistitemdelegate.cpp
-		src/corelayers/contactlist/simplecontactlist.cpp
-                src/corelayers/contactlist/simplecontactlistview.cpp
-                src/corelayers/contactlist/simplecontactlistmodel.cpp
-                src/corelayers/contactlist/simplecontactlistitem.cpp
-		)
-	LIST (APPEND FORMS
-		)
-ELSE(NOT NO_CONTACTLIST)
-	IF(NOT NO_CHAT)
-		LIST (APPEND HEADERS src/corelayers/contactlist/contactlistitemdelegate.h)
-		LIST (APPEND SOURCES src/corelayers/contactlist/contactlistitemdelegate.cpp)
-	ENDIF(NOT NO_CHAT)
-	ADD_DEFINITIONS( -DNO_CORE_CONTACTLIST )
-ENDIF(NOT NO_CONTACTLIST)
+# Enum elements in corelayers directory
+FILE( GLOB CORELAYERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/*" )
+LIST( REMOVE_ITEM CORELAYERS .svn _svn )
 
-IF(NOT NO_SETTINGSDIALOG)
-	LIST (APPEND HEADERS
-		src/corelayers/xsettingsdialog/xsettingsdialog.h
-		src/corelayers/xsettingsdialog/xtoolbar.h
-		src/corelayers/xsettingsdialog/xsettingslayerimpl.h
-		src/corelayers/xsettingsdialog/xsettingsgroup.h
-		)
-	LIST (APPEND SOURCES
-		src/corelayers/xsettingsdialog/xsettingsdialog.cpp
-		src/corelayers/xsettingsdialog/xtoolbar.cpp
-		src/corelayers/xsettingsdialog/xsettingslayerimpl.cpp
-		src/corelayers/xsettingsdialog/xsettingsgroup.cpp
-		)
-	LIST (APPEND FORMS
-		src/corelayers/xsettingsdialog/xsettingsdialog.ui
-		src/corelayers/xsettingsdialog/xsettingsgroup.ui
-		)
-ELSE(NOT NO_SETTINGSDIALOG)
-	ADD_DEFINITIONS( -DNO_CORE_SETTINGSDIALOG )
-ENDIF(NOT NO_SETTINGSDIALOG)
+#FixMe:
+# This removes configbackend regardles of command line arguments
+# Should be removed when configbackend is fixed.
+LIST( REMOVE_ITEM CORELAYERS configbackend )
 
-IF(NOT NO_NOTIFICATION)
-        LIST (APPEND HEADERS
-		src/corelayers/notification/kineticpopupwidget.h
-		src/corelayers/notification/kineticpopupthemehelper.h
-		src/corelayers/notification/kineticpopupsmanager.h
-		src/corelayers/notification/kineticpopup.h
-		src/corelayers/notification/kineticpopupbackend.h
-		src/corelayers/notification/kineticpopupsettings.h
-                )
-        LIST (APPEND SOURCES
-		src/corelayers/notification/kineticpopupwidget.cpp
-		src/corelayers/notification/kineticpopupsmanager.cpp
-		src/corelayers/notification/kineticpopup.cpp
-		src/corelayers/notification/kineticpopupbackend.cpp
-		src/corelayers/notification/kineticpopupsettings.cpp
-		src/corelayers/notification/kineticpopupthemehelper.cpp
-                )
-		LIST (APPEND FORMS
-		src/corelayers/notification/kineticpopupsettings.ui
-		)
-ELSE(NOT NO_NOTIFICATION)
-        ADD_DEFINITIONS( -DNO_CORE_NOTIFICATION )
-ENDIF(NOT NO_NOTIFICATION)
+FOREACH( LAYER ${CORELAYERS} )
+    IF( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}" )
+        STRING( TOUPPER ${LAYER} LAYER_NAME)
+        IF( NOT DEFINED "NO_${LAYER_NAME}" )
+            MESSAGE( "+ layer ${LAYER_NAME} added to build" )
+            FILE( GLOB_RECURSE LAYER_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}/*.h")
+            FILE( GLOB_RECURSE LAYER_SOURCES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}/*.cpp")
+            FILE( GLOB_RECURSE LAYER_FORMS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}/*.ui")
+            LIST( APPEND HEADERS ${LAYER_HEADERS} )
+            LIST( APPEND SOURCES ${LAYER_SOURCES} )
+            LIST( APPEND FORMS ${LAYER_FORMS} )
+        ELSE( NOT DEFINED "NO_${LAYER_NAME}" )
+            MESSAGE( "- layer ${LAYER_NAME} will be skipped" )
+            ADD_DEFINITIONS( "-DNO_CORE_${LAYER_NAME}" )
+        ENDIF( NOT DEFINED "NO_${LAYER_NAME}" )
+    ENDIF( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}" )
+ENDFOREACH( LAYER )
 
 #TODO fix in future
 #if (MINGW)
