@@ -57,7 +57,7 @@ namespace AdiumChat
 		return QString();
 	}
 
-	void ChatStyleOutput::preparePage ( QWebPage* page, Contact *contact )
+	void ChatStyleOutput::preparePage ( QWebPage* page, Account* acc, const QString& id )
 	{
 		QPalette palette = page->palette();
 		if(m_current_style.backgroundIsTransparent)
@@ -71,11 +71,12 @@ namespace AdiumChat
 			palette.setBrush(QPalette::Base, m_current_style.backgroundColor);
 		}
 		page->setPalette(palette);
-		QString html = makeSkeleton(contact->id(),
-				contact->account()->id(),
-				contact->name(),
-				contact->property("imagepath").toString(),
-				contact->account()->property("imagepath").toString(),
+		//TODO 
+		QString html = makeSkeleton(QObject::tr("Chat with %1").arg(id),
+				acc->id(),
+				id,
+				acc->property("imagepath").toString(),
+				acc->property("imagepath").toString(),
 				QDateTime::currentDateTime());
 		QString head; //TODO
 		static const QRegExp regexp( "(\\<\\s*\\/\\s*head\\s*\\>)", Qt::CaseInsensitive );

@@ -12,16 +12,18 @@ namespace AdiumChat
 	{
 		Q_OBJECT
 	public:
-		ChatSessionImpl (Contact *starter, ChatLayer* chat );
+		ChatSessionImpl ( Account* acc, const QString& id, ChatLayer* chat );
 		virtual ~ChatSessionImpl();
 		virtual void addContact ( Contact* c );
 		virtual void appendMessage ( const Message& message );
 		virtual void chatStateChanged ( Contact* c, ChatState state );
 		virtual void removeContact ( Contact* c );
+		QWebPage *getPage() const; 
 	private:
 		QPointer<QWebPage> m_web_page;
 		QScopedPointer<ChatStyleOutput> m_chat_style_output;
-		Contact *m_session_starter;
+		Account *m_account;
+		QString m_session_id;
 		//additional info and flags
 		QString m_previous_sender; //me or nme (not me) //FIXME need refactoring in future
 		int m_message_count;

@@ -93,7 +93,7 @@ namespace AdiumChat
 		*/
 		QString getMainCSS();
 		QString getVariantCSS();
-		void preparePage(QWebPage *page,Contact *contact);
+		void preparePage(QWebPage *page, Account* acc, const QString& id);
 		void reloadStyle();
 	private:
 		/*

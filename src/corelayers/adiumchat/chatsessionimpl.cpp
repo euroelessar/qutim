@@ -9,10 +9,12 @@ namespace AdiumChat
 
 {
 	
-	ChatSessionImpl::ChatSessionImpl (Contact *starter, ChatLayer* chat )
-	: ChatSession (starter, chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage), m_session_starter(starter)
+	ChatSessionImpl::ChatSessionImpl ( Account* acc, const QString& id, ChatLayer* chat)
+	: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage)
 	{
-		m_chat_style_output->preparePage(m_web_page,m_session_starter);
+		m_account = acc;
+		m_session_id = id;
+		m_chat_style_output->preparePage(m_web_page,m_account,m_session_id);
 		m_message_count = 0;
 	}
 
@@ -88,6 +90,13 @@ namespace AdiumChat
 	{
 
 	}
+
+	
+	QWebPage* ChatSessionImpl::getPage() const
+	{
+		return m_web_page;
+	}
+
 
 
 }

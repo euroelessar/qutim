@@ -1,4 +1,5 @@
 #include "chatlayerimpl.h"
+#include <libqutim/account.h>
 
 namespace AdiumChat
 
@@ -18,7 +19,15 @@ namespace AdiumChat
 
 	QList<ChatSession* > ChatLayerImpl::sessions()
 	{
-
+		QList<ChatSession* >  list;
+		foreach (ChatSessionHash hash, m_chat_sessions)
+		{
+			foreach (ChatSession *item, hash )
+			{
+				list.append(item);
+			}
+		}
+		return list;
 	}
 
 }
