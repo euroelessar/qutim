@@ -3,13 +3,15 @@
 #include <libqutim/messagesession.h>
 #include <QPointer>
 
-class ChatWidget;
 using namespace qutim_sdk_0_3;
 
 namespace AdiumChat
 {
 
+	class ChatWidget;
+	class ChatSessionImpl;
 	typedef QHash<QString,  ChatSession *> ChatSessionHash;
+	typedef QList<ChatSessionImpl *> ChatSessionList;
 	class ChatLayerImpl : public ChatLayer
 	{
 		Q_OBJECT
@@ -21,6 +23,9 @@ namespace AdiumChat
 		//QHash<Account * , QPair<QPointer<Account>, ChatSessionHash> >  m_chat_sessions;//TODO more safe
 		QHash<Account * , ChatSessionHash >  m_chat_sessions;
 		QList<ChatWidget *> m_chatwidget_list;
+	private slots:
+		void onAccountDestroyed(QObject *object);
+		void onSessionRemoved(Account *acc, const QString &id);
 	};
 
 }

@@ -82,6 +82,8 @@ INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 		src/plugins
 		src/idle
 		include
+		sdk02
+		sdk02/include
 	)
 
 macro_ensure_version( "4.5.0" ${QTVERSION} Qt4_HAS_4_5 )
@@ -101,13 +103,12 @@ ENDIF (UNIX)
 
 
 SET (HEADERS
-	include/qutim/plugininterface.h
-	include/qutim/protocolinterface.h
+	sdk02/include/qutim/plugininterface.h
+	sdk02/include/qutim/protocolinterface.h
 	solutions/qtcustomwidget.h
 	solutions/qtcustomwidget_p.h
 	src/3rdparty/qtsolutions/qtlocalpeer.h
 	src/aboutinfo.h
-	src/abstractcontextlayer.h
 	src/abstractlayer.h
 	src/accountmanagement.h
 	src/addaccountwizard.h
@@ -126,8 +127,6 @@ SET (HEADERS
 	src/qutimsettings.h
 	src/cryptoserviceimpl.h
 	src/modulemanagerimpl.h
-	src/jsonconfigbackend.h
-	src/plistconfigbackend.h
 	)
 if( Qt4_HAS_4_5 )
 	LIST( APPEND HEADERS src/proxyfactory.h )
@@ -161,8 +160,6 @@ SET (SOURCES
 	src/qutimsettings.cpp
 	src/cryptoserviceimpl.cpp
 	src/modulemanagerimpl.cpp
-	src/jsonconfigbackend.cpp
-	src/plistconfigbackend.cpp
 	)
 
 SET (RESOURCES
@@ -238,7 +235,7 @@ QT4_ADD_RESOURCES (RCC ${RESOURCES})
 #	ADD_EXECUTABLE (qutim WIN32 ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
 #endif( APPLE )
 
-ADD_EXECUTABLE (qutim WIN32 ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
+ADD_EXECUTABLE (qutim ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
 
 TARGET_LINK_LIBRARIES (qutim
 	${QT_LIBRARIES}

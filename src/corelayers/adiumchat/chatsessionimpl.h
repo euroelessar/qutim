@@ -18,7 +18,9 @@ namespace AdiumChat
 		virtual void appendMessage ( const Message& message );
 		virtual void chatStateChanged ( Contact* c, ChatState state );
 		virtual void removeContact ( Contact* c );
-		QWebPage *getPage() const; 
+		QWebPage *getPage() const;
+		Account *getAccount() const;
+		QString getId() const;
 	private:
 		QPointer<QWebPage> m_web_page;
 		QScopedPointer<ChatStyleOutput> m_chat_style_output;
@@ -27,6 +29,8 @@ namespace AdiumChat
 		//additional info and flags
 		QString m_previous_sender; //me or nme (not me) //FIXME need refactoring in future
 		int m_message_count;
+	signals:
+		void removed(Account *,const QString &);
 	};
 }
 #endif // CHATSESSIONIMPL_H

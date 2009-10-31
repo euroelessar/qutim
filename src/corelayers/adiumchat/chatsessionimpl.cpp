@@ -24,6 +24,7 @@ namespace AdiumChat
 		{
 			m_web_page->deleteLater();
 		}
+		emit removed(m_account,m_session_id);
 	}
 
 	void ChatSessionImpl::addContact ( Contact* c )
@@ -97,6 +98,15 @@ namespace AdiumChat
 		return m_web_page;
 	}
 
+	Account* ChatSessionImpl::getAccount() const
+	{
+		return m_account;
+	}
+
+	QString ChatSessionImpl::getId() const
+	{
+		return m_session_id;
+	}
 
 
 }

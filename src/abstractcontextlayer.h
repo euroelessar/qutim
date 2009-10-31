@@ -29,32 +29,6 @@ public:
 	void registerContactMenuAction(QAction *plugin_action);
 	void createActions();
 	void processEvent(Event &event);
-private slots:
-	void openChatWindowAction();
-	void openHistoryAction();
-	void openInformationAction();
-	void openConferenceChatWindowAction();
-//	void openConferenceHistoryAction();
-	void openConferenceInformationAction();
-
-private:
-	AbstractContextLayer();
-	virtual ~AbstractContextLayer();
-	QAction *m_open_chat_action;
-	QAction *m_open_hisory_action;
-	QAction *m_open_info_action;
-	QAction *m_open_conference_chat_action;
-//	QAction *m_open_conference_hisory_action;
-	QAction *m_open_conference_info_action;
-	QList<QAction*> m_actions_list;
-	QList<QAction*> m_conference_actions_list;
-	TreeModelItem m_current_item;
-	QString m_current_protocol;
-	QString m_current_conference;
-	QString m_current_account;
-        QString m_current_nickname;
-        quint16 m_contact_menu;
-        quint16 m_conference_menu;
 };
 
 #endif /*ABSTRACTCONTEXTLAYER_H_*/

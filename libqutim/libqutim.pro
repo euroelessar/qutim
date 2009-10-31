@@ -10,7 +10,8 @@ TARGET = qutim
 TEMPLATE = lib
 DEFINES += LIBQUTIM_LIBRARY
 mac:LIBS += -framework CoreServices
-INCLUDEPATH += ../
+INCLUDEPATH += ../ \
+			../sdk02/
 SOURCES += tcpsocket.cpp \
     domaininfo.cpp \
     settingslayer.cpp \

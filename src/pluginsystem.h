@@ -25,9 +25,9 @@
 #include <QMenu>
 #include <QDateTime>
 #include <QAction>
-#include "../include/qutim/plugininterface.h"
-#include "../include/qutim/protocolinterface.h"
-#include "../include/qutim/layerinterface.h"
+#include "qutim/plugininterface.h"
+#include "qutim/protocolinterface.h"
+#include "qutim/layerinterface.h"
 #include "pluginpointer.h"
 
 using namespace qutim_sdk_0_2;
