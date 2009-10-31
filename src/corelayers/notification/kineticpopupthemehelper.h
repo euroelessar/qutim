@@ -19,18 +19,21 @@
 #include <QString>
 #include <QSize>
 
-namespace KineticPopupThemeHelper
+namespace KineticPopups
 {
-	struct PopupSettings {
-		QString styleSheet;
-		QString content;
-		QString themePath;
-		QSize defaultSize;
-		int margin;
-		Qt::WindowFlags widgetFlags;
-	};
-	PopupSettings loadThemeSetting(const QString &themePath);
-	QList<PopupSettings> getThemes();
+	namespace ThemeHelper
+	{
+		struct PopupSettings {
+			QString styleSheet;
+			QString content;
+			QString themePath;
+			QSize defaultSize;
+			int margin;
+			Qt::WindowFlags widgetFlags;
+		};
+		PopupSettings loadThemeSetting(const QString &themePath);
+		QList<PopupSettings> getThemes();
+	}
 };
 
 #endif // KINETICPOPUPTHEMEHELPER_H

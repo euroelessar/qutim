@@ -51,12 +51,11 @@ namespace AdiumChat
 
 	void ChatLayerImpl::onAccountDestroyed(QObject* object)
 	{
-		//TODO 
-// 		Account acc = qobject_cast<Account>(object);
-// 		if (!acc && !m_chat_sessions.contains(acc))
-// 			return;
-// 		qDeleteAll (m_chat_sessions[acc]);
-// 		m_chat_sessions.remove(acc);
+		Account *acc = qobject_cast<Account *>(object);
+ 		if (!acc && !m_chat_sessions.contains(acc))
+ 			return;
+ 		qDeleteAll (m_chat_sessions[acc]);
+ 		m_chat_sessions.remove(acc);
 	}
 
 	void ChatLayerImpl::onSessionRemoved(Account* acc, const QString& id)

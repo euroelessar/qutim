@@ -20,46 +20,50 @@
 #include <QObject>
 #include <QRect>
 
-class KineticPopupWidget;
+
 class QState;
 class QStateMachine;
-class KineticPopup : public QObject
+namespace KineticPopups
 {
-    Q_OBJECT
-public:
-    KineticPopup(const QString &id, uint timeOut = 0); //0 - persistant
-    KineticPopup(QObject* parent = 0);
-    virtual ~KineticPopup();
-	void setId(const QString &id);
-	void setTimeOut(uint timeOut);
-    void setMessage(const QString &title, const QString &body = NULL, const QString &imagePath = NULL);
-    void appendMessage(const QString &message);
-    void setActionsText(const QString &action1,const QString &action2);
-    //for short message you can use only title
-    void send();
-    void update(QRect geom);
-    QString getId() const;
-    QRect geometry() const; //Show state geometry
-signals:
-    void finished(const QString &id);
-    void updated();
-    void timeoutReached();
-    void action1Activated();
-    void action2Activated();
-private:
-    KineticPopupWidget *notification_widget;
-    void updateGeometry(const QRect &newGeometry);
-    QString title;
-    QString body;
-    QString id;
-    QString image_path;
-    uint timeout;
-    QRect show_geometry; //Don't use direct, change by UpdateGeometry!
-    QStateMachine *machine;
-    QState *show_state;
-    QState *hide_state;
-    virtual void timerEvent ( QTimerEvent* );
-	int timer_id;
-};
+	class PopupWidget;
+	class Popup : public QObject
+	{
+		Q_OBJECT
+	public:
+		Popup(const QString &id, uint timeOut = 0); //0 - persistant
+		Popup(QObject* parent = 0);
+		virtual ~Popup();
+		void setId(const QString &id);
+		void setTimeOut(uint timeOut);
+		void setMessage(const QString &title, const QString &body = NULL, const QString &imagePath = NULL);
+		void appendMessage(const QString &message);
+		void setActionsText(const QString &action1,const QString &action2);
+		//for short message you can use only title
+		void send();
+		void update(QRect geom);
+		QString getId() const;
+		QRect geometry() const; //Show state geometry
+	signals:
+		void finished(const QString &id);
+		void updated();
+		void timeoutReached();
+		void action1Activated();
+		void action2Activated();
+	private:
+		PopupWidget *notification_widget;
+		void updateGeometry(const QRect &newGeometry);
+		QString title;
+		QString body;
+		QString id;
+		QString image_path;
+		uint timeout;
+		QRect show_geometry; //Don't use direct, change by UpdateGeometry!
+		QStateMachine *machine;
+		QState *show_state;
+		QState *hide_state;
+		virtual void timerEvent ( QTimerEvent* );
+		int timer_id;
+	};
+}
 
 #endif // KINETICNOTIFICATION_H

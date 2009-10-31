@@ -1,8 +1,8 @@
 /*
     main.cpp
 
-    Copyright (c) 2008 by Rustam Chakin <qutim.develop@gmail.com>
-                  2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+    Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+                  2009 by Aleksey Sidorov <sauron@citadelspb.com>
 
  ***************************************************************************
  *                                                                         *

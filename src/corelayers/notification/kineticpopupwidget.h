@@ -21,21 +21,23 @@
 #include "kineticpopupthemehelper.h"
 
 class QTextBrowser;
-class KineticPopupWidget : public QTextBrowser
+namespace KineticPopups
 {
-    Q_OBJECT
-public:
-    KineticPopupWidget(const KineticPopupThemeHelper::PopupSettings &popupSettings);
-    QSize setData(const QString& title,
-				  const QString& body,
-				  const QString &imagePath); //size of textbrowser
-    void setTheme(const KineticPopupThemeHelper::PopupSettings &popupSettings);
-    virtual void mouseReleaseEvent ( QMouseEvent* ev );
-private:
-	KineticPopupThemeHelper::PopupSettings popup_settings;
-signals:
-    void action1Activated();
-    void action2Activated();
-};
-
+	class PopupWidget : public QTextBrowser
+	{
+		Q_OBJECT
+	public:
+		PopupWidget(const ThemeHelper::PopupSettings &popupSettings);
+		QSize setData(const QString& title,
+					const QString& body,
+					const QString &imagePath); //size of textbrowser
+		void setTheme(const ThemeHelper::PopupSettings &popupSettings);
+		virtual void mouseReleaseEvent ( QMouseEvent* ev );
+	private:
+		ThemeHelper::PopupSettings popup_settings;
+	signals:
+		void action1Activated();
+		void action2Activated();
+	};
+}
 #endif // KINETICPOPUPWIDGET_H

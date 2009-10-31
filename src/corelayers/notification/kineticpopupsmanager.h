@@ -23,34 +23,37 @@
 #include "kineticpopupbackend.h"
 #include "kineticpopupthemehelper.h"
 class QRect;
-class KineticPopup;
 class QDir;
-class KineticPopupsManager
+namespace KineticPopups
 {
-	Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
-public:
-    KineticPopupsManager();
-    KineticPopup *getById (const QString &id) const;
-    KineticPopup *getByNumber (const int &number) const;
-    QRect insert (KineticPopup *notification);
-    void remove (const QString &id);
-    void updateGeometry();
-    static KineticPopupsManager *self();
-    int animationDuration;
-    QEasingCurve easingCurve;
-    bool updatePosition;
-    bool animation;
-    Qt::MouseButton action1Trigger;
-    Qt::MouseButton action2Trigger;
-	NotificationTypes showFlags;
-	uint timeout;
-	bool appendMode;
-	KineticPopupThemeHelper::PopupSettings popupSettings;
-private:
-    QList<KineticPopup *> active_notifications;
-    static KineticPopupsManager *instance;
-	void loadSettings();
-    int getNumber(const QString &id) const;
-};
+	class Popup;
+	class Manager
+	{
+		Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
+	public:
+		Manager();
+		Popup *getById (const QString &id) const;
+		Popup *getByNumber (const int &number) const;
+		QRect insert (Popup *notification);
+		void remove (const QString &id);
+		void updateGeometry();
+		static Manager *self();
+		int animationDuration;
+		QEasingCurve easingCurve;
+		bool updatePosition;
+		bool animation;
+		Qt::MouseButton action1Trigger;
+		Qt::MouseButton action2Trigger;
+		NotificationTypes showFlags;
+		uint timeout;
+		bool appendMode;
+		ThemeHelper::PopupSettings popupSettings;
+	private:
+		QList<Popup *> active_notifications;
+		static Manager *instance;
+		void loadSettings();
+		int getNumber(const QString &id) const;
+	};
+}
 
 #endif // NOTIFICATIONSMANAGER_H

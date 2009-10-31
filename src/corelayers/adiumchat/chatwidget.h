@@ -10,22 +10,31 @@ namespace Ui
 }
 namespace AdiumChat
 {
+	enum ChatFlag
+	{
+		RemoveSessionOnClose	=	0x1, //remove session, when widget or tab was closed
+	};
 	class ChatSessionImpl;
 	class ChatWidget : public QWidget
 	{
 		Q_OBJECT
 	public:
-		ChatWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
+		ChatWidget(ChatFlag chatFlag = RemoveSessionOnClose);
 		void clear();//remove all sessions
+		ChatSessionList getSessionList() const;
+		virtual ~ChatWidget();
 	public slots:
 		void addSession(ChatSessionImpl *session);
+		void addSession(ChatSessionList *sessions);
 		void removeSession(ChatSessionImpl *session);
 	private:
 		ChatSessionList m_sessions;
 		Ui::AdiumChatForm *ui;
+		ChatFlag m_chat_flags;
 	private slots:
-		void currentIndexChanged (int);
-		void onSessionRemoved(); 
+		void currentIndexChanged (int index);
+		void onCloseRequested(int index);
+		void onSessionRemoved();
 	};
 
 }
