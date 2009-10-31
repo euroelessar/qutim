@@ -11,7 +11,7 @@ TEMPLATE = lib
 DEFINES += LIBQUTIM_LIBRARY
 mac:LIBS += -framework CoreServices
 INCLUDEPATH += ../ \
-			../sdk02/
+    ../sdk02/
 SOURCES += tcpsocket.cpp \
     domaininfo.cpp \
     settingslayer.cpp \
