@@ -20,8 +20,10 @@
 #include <QVector>
 #include <QHash>
 
-class plugPackageItem
+struct downloaderItem;
+class plugPackageItem : public QObject
 {
+    Q_OBJECT
 public:
 	plugPackageItem(ItemData* data);
 	plugPackageItem();
@@ -39,6 +41,8 @@ private:
 	ItemData *item_data;
 	plugPackageItem *parent;
 	QList<plugPackageItem *> childItems;
+public slots:
+	void iconDownloaded (const QList< downloaderItem >& items);
 };
 
 #endif // PLUGPACKAGEITEM_H

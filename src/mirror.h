@@ -21,12 +21,11 @@
 
 struct mirrorInfo
 {
-	mirrorInfo();
-	mirrorInfo(QString name, QUrl url, QString platform);
 	QString name;
 	QUrl url;
-	QString platform;
+	QString description;
 	bool isValid();
+	QString toJSON(); //new expiremental stuff
 };
 
 #endif // MIRROR_H

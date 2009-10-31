@@ -24,22 +24,22 @@
 
 class plugManager : public QWidget, public Ui::manager
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	plugManager(QWidget* parent = 0);
-	~plugManager();
-	void closeEvent(QCloseEvent* );
+    plugManager(QWidget* parent = 0);
+    ~plugManager();
+    void closeEvent(QCloseEvent* );
 private:
-	QList<QAction *> m_actions;
-	plugPackageModel *m_package_model;
+    QList<QAction *> m_actions;
+    plugPackageModel *m_package_model;
 public slots:
-	void updatePackageList();
+    void updatePackageList();
+    void updateProgressBar(const uint &completed, const uint &total, const QString &format);
 private slots:
-	void installFromFile();
-        void updatePackageView();
-        void applyChanges();
+    void updatePackageView();
+    void applyChanges();
 signals:
-	void closed();
+    void closed();
 };
 
 #endif // PLUGMANAGER_H

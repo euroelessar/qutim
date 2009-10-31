@@ -27,24 +27,27 @@
 
 class plugPackageHandler : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-	plugPackageHandler(plugPackageModel * plug_package_model,QProgressBar *progress_bar,QObject *parent = 0);
-	~plugPackageHandler();
-	void getPackageList();
-	void setPlugPackageModel (plugPackageModel * plug_package_model);
-	void updatePackagesCache (); //!update packages cache file
+    plugPackageHandler(plugPackageModel * plug_package_model,QObject *parent = 0);
+    plugPackageHandler();
+    ~plugPackageHandler();
+    void getPackageList();
+    void setPlugPackageModel (plugPackageModel * plug_package_model);
+    void updatePackagesCache (); //!update packages cache file
+    QList<mirrorInfo> getMirrorList(); //hack
 private:
-	plugPackageModel *m_plug_package_model;
-	QList<mirrorInfo> mirror_list;
-	QProgressBar *m_progress_bar;
-	QString platform; //TODO спросить у Элесара, как её выдернуть из автоопределия платформы Кутима
-	QString cachePath;
-	void readMirrorList();
-	packageAttribute default_attribute; //TODO реализовать получше
+    plugPackageModel *m_plug_package_model;
+    QList<mirrorInfo> mirror_list;
+    QProgressBar *m_progress_bar;
+    QString cachePath;
+    void readMirrorList();
+    packageAttribute default_attribute; //TODO реализовать получше
 private slots:
-	void updatePlugPackageModel (const QString& filename = QString::null);
-	void updatePlugPackageModel (const QStringList &fileList);
+    void updatePlugPackageModel (const QString& filename = QString::null);
+	void updatePlugPackageModel (const QList<downloaderItem> &items);
+signals:
+    void updateProgressBar(const uint &completed, const uint &total, const QString &format);
 };
 
 #endif // PLUGPACKAGEHANDLER_H

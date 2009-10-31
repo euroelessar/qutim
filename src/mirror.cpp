@@ -16,18 +16,21 @@
 
 #include "mirror.h"
 
-mirrorInfo::mirrorInfo() {
-
-}
-
-mirrorInfo::mirrorInfo(QString name, QUrl url, QString platform) {
-    this->name = name;
-    this->url = url;
-    this->platform = platform;
-}
-
 bool mirrorInfo::isValid()
 {
-    return true;
+	if (this->name.isEmpty())
+		return false;
+	return this->url.isValid();
 }
 
+
+QString mirrorInfo::toJSON()
+{
+	//simple and fast method, but dirty
+	QString json;
+	json += QString("  \"name\": \"%1\" , \n").arg(this->name);
+	json += QString("  \"url\": \"%1\" , \n").arg(this->url.toString());
+	json += QString("  \"description\": \"%1\" \n").arg(this->description);
+	json = QString("{\n%1}").arg(json);
+	return json;
+}

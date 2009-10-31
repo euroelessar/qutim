@@ -26,16 +26,14 @@ class plugItemDelegate : public QStyledItemDelegate
 public:
     plugItemDelegate(QObject *parent = 0);
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
-    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const;
     QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
     bool editorEvent(QEvent *event,
                      QAbstractItemModel *model,
                      const QStyleOptionViewItem &option,
-                     const QModelIndex &index);
+                     const QModelIndex &index); 
 private:
     int calcItemHeight(const QStyleOptionViewItem &option) const;
-    void paintCheckIcon(QPainter *painter,
-                      const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    int mainIconSize;
 };
 
 #endif // PLUGITEMDELEGATE_H

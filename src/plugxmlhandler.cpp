@@ -22,6 +22,7 @@ Boston, MA 02110-1301, USA.
 #include <QUrl>
 #include <QFile>
 #include <QApplication> //FIXME
+#include <k8json/k8json.h>
 
 plugXMLHandler::plugXMLHandler(QObject *parent)
     : QObject(parent)
@@ -211,6 +212,10 @@ packageInfo plugXMLHandler::getPackageInfo(const QByteArray& content)
 
 
 QHash< QString, packageInfo > plugXMLHandler::getPackageList(QString path) {
+	if(path.endsWith(".json"))
+	{
+		return getPackageListJSon(path);
+	}
     QDomDocument doc_root;
     if (path.isNull())
         path = package_db_path;
@@ -227,11 +232,56 @@ QHash< QString, packageInfo > plugXMLHandler::getPackageList(QString path) {
     return createPackageList(doc_root);
 }
 
+QHash<QString, packageInfo> plugXMLHandler::getPackageListJSon(const QString &path)
+{
+	QFile file(path);
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		emit error(tr("Unable to open file"));
+		return QHash< QString, packageInfo > ();
+	}
+	QVariant res;
+	int len = file.size();
+	QByteArray array;
+	const uchar *fmap = file.map(0, file.size());
+	if(!fmap)
+	{
+		array = file.readAll();
+		fmap = (uchar *)array.constData();
+	}
+	const uchar *s = K8JSON::skipBlanks(fmap, &len);
+	K8JSON::parseRec(res, s, &len);
+	QVariantList list = res.toList();
+	QHash<QString, packageInfo> packages;
+	foreach(const QVariant &package_var, list)
+	{
+		QVariantMap map = package_var.toMap();
+		packageInfo package_info;
+		QVariantMap::const_iterator it = map.constBegin();
+		for(; it != map.constEnd(); it++)
+		{
+			if(it.key() == "files")
+			{
+				QVariantList files = it.value().toList();
+				foreach(const QVariant &file, files)
+					package_info.files << file.toString();
+			}
+			else
+				package_info.properties[it.key()] = it.value().toString();
+		}
+		QString key = package_info.properties.value("type") + "/" + package_info.properties.value("name");
+		packages.insert(key, package_info);
+	}
+	return packages;
+}
+
 packageInfo plugXMLHandler::getPackageInfoFromDB(const QString &name, const QString &type)
 {
     QDomDocument doc_root;
     QFile input(package_db_path);
     QStringList files_list;
+    if (!input.exists()) {
+        return packageInfo();
+    }
     if (!input.open(QIODevice::ReadOnly)) {
         //x3
         input.close();

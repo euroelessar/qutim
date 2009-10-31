@@ -14,27 +14,30 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <QString>
 #ifndef PLUGVERSION_H
 #define PLUGVERSION_H
+
+#include <QString>
+#include <QVector>
 
 class plugVersion
 {
 	//! WARNING version format is x.y.z where x is major version string, y - minor, z - maintenance
 public:
 	plugVersion (const QString &version);
+	plugVersion (ushort ver1 = 0, ushort ver2 = 0, ushort ver3 = 0, ushort ver4 = 0, ushort ver5 = 0, ushort ver6 = 0);
 	void setVersion (const QString &version);
-	void setXYZ (ushort major,ushort minor,ushort maintenance);
-	QString toString ();
-	bool isValid ();
-	bool operator == (const plugVersion& plug_version);
-	bool operator != (const plugVersion& plug_version);
-	bool operator >  (const plugVersion& plug_version);
-	bool operator <  (const plugVersion& plug_version);
+	void setVersion (ushort ver1, ushort ver2 = 0, ushort ver3 = 0, ushort ver4 = 0, ushort ver5 = 0, ushort ver6 = 0);
+	QString toString() const;
+	bool isValid() const;
+	bool operator == (const plugVersion& plug_version) const;
+	bool operator != (const plugVersion& plug_version) const;
+	bool operator >  (const plugVersion& plug_version) const;
+	bool operator <  (const plugVersion& plug_version) const;
 private:
-	ushort major;
-	ushort minor;
-	ushort maintenance;
+	void standartize();
+	inline ushort value(int index) const { return m_version.size() > index ? m_version.at(index) : 0; }
+	QVector<ushort> m_version;
 };
 
 #endif // PLUGVERSION_H

@@ -25,43 +25,43 @@ class plugPackageModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-	plugPackageModel(bool isGrouped = false, QObject *parent = 0);
-	~plugPackageModel();
+    plugPackageModel(bool isGrouped = false, QObject *parent = 0);
+    ~plugPackageModel();
 // 	void setRootNode (plugPackageItem *plug_package_item);
-        enum {
-                NameRole = Qt::UserRole,
-                InstalledRole, //installed, isUpgradable, etc
-                IconRole,
-                IdRole,
-                GroupRole,
-                CheckedRole,
-                SummaryRole,
-                CategoryRole //Категория или пакет?
-        };
-	QModelIndex index (	int row, int column,
-						const QModelIndex &parent) const;
-	QModelIndex parent (const QModelIndex &child) const;
-	bool hasChildren(const QModelIndex& parent = QModelIndex()) const;
-	int rowCount(const QModelIndex& parent = QModelIndex()) const;
-	int columnCount(const QModelIndex& parent = QModelIndex()) const;
-	void addItem(ItemData* item);
-	void clear();
-	QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-	QVariant headerData(int section,
-						 Qt::Orientation orientation,
-						 int role = Qt::DisplayRole) const;	
-        QHash<QString, plugPackageItem *> &getCheckedPackages ();
-        bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);     
+    enum {
+        NameRole = Qt::UserRole,
+        InstalledRole, //installed, isUpgradable, etc
+        IconRole,
+        IdRole,
+        GroupRole,
+        CheckedRole,
+        SummaryRole,
+        CategoryRole //Категория или пакет?
+    };
+    QModelIndex index (	int row, int column,
+                        const QModelIndex &parent) const;
+    QModelIndex parent (const QModelIndex &child) const;
+    bool hasChildren(const QModelIndex& parent = QModelIndex()) const;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const;
+    void addItem(ItemData* item);
+    void clear();
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const;
+    QHash<QString, plugPackageItem *> &getCheckedPackages ();
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 private:
-	plugPackageItem *m_root_node;
-	plugPackageItem *nodeFromIndex(const QModelIndex &index) const;
-	QHash<QString, plugPackageItem *> m_category_nodes; //! категории пакетов
-	QHash<QString, plugPackageItem *> m_packages; //!список всех пакетов
+    plugPackageItem *m_root_node;
+    plugPackageItem *nodeFromIndex(const QModelIndex &index) const;
+    QHash<QString, plugPackageItem *> m_category_nodes; //! категории пакетов
+    QHash<QString, plugPackageItem *> m_packages; //!список всех пакетов
     QHash<QString, plugPackageItem *> m_checked_packages;
-	bool isGrouped;	
+    bool isGrouped;
 public slots:
-        void uncheckAll ();
-        void upgradeAll ();
+    void uncheckAll ();
+    void upgradeAll ();
 };
 
 #endif // PLUGPACKAGEMODEL_H

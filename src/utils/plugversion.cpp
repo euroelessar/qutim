@@ -22,65 +22,88 @@ plugVersion::plugVersion(const QString& version)
     setVersion(version);
 }
 
-QString plugVersion::toString()
+plugVersion::plugVersion(ushort ver1, ushort ver2, ushort ver3, ushort ver4, ushort ver5, ushort ver6)
 {
-    return QString::number(major).append(".").append(QString::number(minor)).append(".").append(QString::number(maintenance));
+	m_version << ver1 << ver2 << ver3 << ver4 << ver5 << ver6;
+	standartize();
+}
+
+QString plugVersion::toString() const
+{
+	if(m_version.isEmpty())
+		return "0.0.0";
+	QString version;
+	for(int i = 0; i < m_version.size(); i++)
+	{
+		version += QString::number(m_version.at(i));
+		if(i + 1 < m_version.size())
+			version += ".";
+	}
+	if(m_version.size() < 2)
+		version += ".0";
+	if(m_version.size() < 3)
+		version += ".0";
+	return version;
 }
 
 void plugVersion::setVersion(const QString& version)
 {
     QStringList versionList = version.split(".");
-    if (versionList.count()<2)
-        return;
-    major = versionList.at(0).toUShort();
-    minor = versionList.at(1).toUShort();
-    if (versionList.count()==2)
-        maintenance = 0;
-    else
-        maintenance = versionList.at(2).toUShort();
+	m_version.clear();
+	for(int i = 0; i < versionList.size(); i++)
+		m_version << versionList.at(i).toUShort();
+	standartize();
 }
 
-void plugVersion::setXYZ(ushort major, ushort minor, ushort maintenance)
+void plugVersion::setVersion (ushort ver1, ushort ver2, ushort ver3, ushort ver4, ushort ver5, ushort ver6)
 {
-    this->major = major;
-    this->minor = minor;
-    this->maintenance = maintenance;
+	m_version.clear();
+	m_version << ver1 << ver2 << ver3 << ver4 << ver5 << ver6;
+	standartize();
 }
 
-bool plugVersion::isValid()
+void plugVersion::standartize()
 {
-    return (major!=0)||(maintenance!=0)||(minor!=0); //! если хоть одно из значений не 0, тогда версия имеет право на существование
+	for(int i = m_version.size() - 1; i >= 0; i--)
+	{
+		if(m_version[i] == 0)
+			m_version.remove(i);
+		else
+			return;
+	}
 }
 
-bool plugVersion::operator==(const plugVersion &plug_version)
+bool plugVersion::isValid() const
 {
-    return (this->major==plug_version.major)&&(this->minor==plug_version.minor)&&(this->maintenance==plug_version.maintenance);
+	return !m_version.isEmpty();
 }
 
-bool plugVersion::operator!=(const plugVersion& plug_version)
+bool plugVersion::operator==(const plugVersion &that) const
 {
-    return (this->major!=plug_version.major)||(this->minor!=plug_version.minor)||(this->maintenance!=plug_version.maintenance);
+	for(int i = 0; i < qMax(m_version.size(), that.m_version.size()); i++)
+		if(value(i) != that.value(i))
+			return false;
+	return true;
 }
 
-bool plugVersion::operator>(const plugVersion& plug_version)
+bool plugVersion::operator!=(const plugVersion& that) const
 {
-    if (this->major!=plug_version.major)
-        return this->major>plug_version.major;
-    else
-        if (this->minor!=plug_version.minor)
-            return this->minor>plug_version.minor;
-        else
-            return this->maintenance>plug_version.maintenance;
+	return !operator ==(that);
 }
 
-bool plugVersion::operator<(const plugVersion& plug_version)
+bool plugVersion::operator>(const plugVersion& that) const
 {
-    if (this->major!=plug_version.major)
-        return this->major<plug_version.major;
-    else
-        if (this->minor!=plug_version.minor)
-            return this->minor<plug_version.minor;
-        else
-            return this->maintenance<plug_version.maintenance;
+	for(int i = 0; i < qMax(m_version.size(), that.m_version.size()); i++)
+		if(value(i) != that.value(i))
+			return value(i) > that.value(i);
+	return false;
+}
+
+bool plugVersion::operator<(const plugVersion& that) const
+{
+	for(int i = 0; i < qMax(m_version.size(), that.m_version.size()); i++)
+		if(value(i) != that.value(i))
+			return value(i) < that.value(i);
+	return false;
 }
 

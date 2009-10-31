@@ -16,9 +16,7 @@
 
 #include "collisionprotect.h"
 #include "plugxmlhandler.h"
-#include <QSet>
 #include <QFileInfo>
-
 
 CollisionProtect::CollisionProtect(const QString& prefix) {
 	this->prefix = prefix;

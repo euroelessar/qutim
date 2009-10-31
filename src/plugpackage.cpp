@@ -1,5 +1,7 @@
 #include "plugpackage.h"
-#include "utils/plugversion.h"
+#include "plugxmlhandler.h"
+#include <QTextCodec>
+#include <QTextStream>
 // #include <QDebug>
 packageInfo::packageInfo() {
 
@@ -16,7 +18,16 @@ packageInfo::packageInfo(QString name, QStringList packageFiles, QString type, Q
 }
 
 QString packageInfo::toString() {
-	return QString();
+	QDomElement element = plugXMLHandler::createElementFromPackage(*this);
+
+	static QTextCodec *utf = QTextCodec::codecForName( "utf-8" );
+	QString xml;
+	{
+		QTextStream stream(&xml, QIODevice::WriteOnly);
+		stream.setCodec( utf );
+		element.save( stream, 0, QDomNode::EncodingFromTextStream );
+	}
+	return xml;
 }
 
 bool packageInfo::isValid() {

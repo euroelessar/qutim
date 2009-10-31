@@ -21,12 +21,14 @@ Boston, MA 02110-1301, USA.
 
 #ifndef DOWNLOADER_H
 #define DOWNLOADER_H
+#include "plugpackage.h"
 
 struct downloaderItem
 {
-    downloaderItem (QUrl m_url, QString m_filename) {url=m_url;filename=m_filename;};
+//    downloaderItem (QUrl m_url, QString m_filename);
     QUrl url; //url, с которой качаем
     QString filename; //имя файла, под которым сохраняем
+	packageInfo *info; //FIXME костыль
 };
 
 class plugDownloader: public QObject
@@ -39,10 +41,10 @@ public:
     void addItem (const downloaderItem &downloadItem);
     QString lastError;
     QString outPath; //путь до скачанного файла
-    void setProgressbar(QProgressBar *progressBar);
 signals:
     void error(QString message);
-    void downloadFinished(const QStringList &fileList);
+	void downloadFinished(const QList<downloaderItem> &items);
+    void updateProgressBar(const uint &completed, const uint &total, const QString &format);
 private slots:
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void downloadFinished();
@@ -52,13 +54,14 @@ private slots:
 private:
     QNetworkAccessManager manager;
     QNetworkReply *currentDownload;
-    QFile output;
+    QFile currentOutput;
     QTime downloadTime;
     QProgressBar *m_progressBar;
     QQueue<downloaderItem> m_download_queue;
     int downloadedCount;
     int totalCount;
-    QStringList fileList;
+	QList<downloaderItem> itemList;
+	downloaderItem currentItem;
 };
 
 #endif // DOWNLOADER_H

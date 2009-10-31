@@ -33,7 +33,6 @@ private:
     TreeModelItem eventitem;
     bool isPlugManagerOpened;
 private slots:
-    void onInstallfromfileBtnClicked();
     void onManagerBtnClicked();
     void onManagerClose();
 };

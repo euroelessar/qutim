@@ -16,10 +16,11 @@
 
 #include "plugmanager.h"
 #include "plugitemdelegate.h"
+#include <qutim/iconmanagerinterface.h>
 //#include <qutim/settings.h>
 #include <QDebug>
 
-//using namespace qutim_sdk_0_2;
+using namespace qutim_sdk_0_2;
 
 plugManager::plugManager(QWidget* parent)
 {
@@ -42,18 +43,18 @@ plugManager::plugManager(QWidget* parent)
 
 
     QMenu *menu = new QMenu(tr("Actions"),this);
-    m_actions.append(new QAction(QIcon(":/icons/open.png"),tr("Install package from file"),this));
-    connect(m_actions.at(0),SIGNAL(triggered(bool)),this,SLOT(installFromFile()));
-    m_actions.append(new QAction(QIcon(":/icons/internet.png"),tr("Update packages list"),this));
-    connect(m_actions.at(1),SIGNAL(triggered(bool)),this,SLOT(updatePackageList()));
-    m_actions.append(new QAction(QIcon(),tr("Upgrade all"),this));
-    connect(m_actions.at(2),SIGNAL(triggered(bool)),m_package_model,SLOT(upgradeAll()));
+    m_actions.append(new QAction(SystemsCity::IconManager()->getIcon("network"),tr("Update packages list"),this));
+    connect(m_actions.at(0),SIGNAL(triggered(bool)),this,SLOT(updatePackageList()));
+	m_actions.append(new QAction(SystemsCity::IconManager()->getIcon("up"),tr("Upgrade all"),this));
+    connect(m_actions.at(1),SIGNAL(triggered(bool)),m_package_model,SLOT(upgradeAll()));
     menu->addActions(m_actions);
     menu->addSeparator();
-    m_actions.append(new QAction(QIcon(":/icons/revert.png"),tr("Revert changes"),this));
-    connect(m_actions.at(3),SIGNAL(triggered(bool)),m_package_model,SLOT(uncheckAll()));
+	m_actions.append(new QAction(SystemsCity::IconManager()->getIcon("remove"),tr("Revert changes"),this));
+    connect(m_actions.at(2),SIGNAL(triggered(bool)),m_package_model,SLOT(uncheckAll()));
     menu->addAction(m_actions.back());
     actionsButton->setMenu(menu);
+	actionsButton->setIcon(SystemsCity::IconManager()->getIcon("network"));
+	findButton->setIcon(SystemsCity::IconManager()->getIcon("find"));
     connect(okButton,SIGNAL(clicked()),this,SLOT(applyChanges()));
     updatePackageList();
     //connect (m_package_model,SIGNAL(dataChanged()),this,SLOT(updatePackageList()));
@@ -64,16 +65,6 @@ plugManager::~plugManager() {
     delete(m_package_model);
 }
 
-void plugManager::installFromFile() {
-    plugInstaller *plug_install = new plugInstaller;
-    plug_install->setParent(this);
-    progressBar->setVisible(true);
-    plug_install->setProgressBar(progressBar);
-    // 	progressBar->setFormat(tr("Install package : %p%"));
-    plug_install->installPackage();
-    connect(plug_install,SIGNAL(destroyed(QObject*)),this,SLOT(updatePackageList()));
-}
-
 void plugManager::updatePackageList() {
     QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman"); //FIXME на Элесаровской либе переделать
     bool isLocked = settings.value("locked", false).toBool();
@@ -82,7 +73,8 @@ void plugManager::updatePackageList() {
     okButton->setDisabled(isLocked);
     m_package_model->clear();
     progressBar->setVisible(true);
-    plugPackageHandler *plug_package_handler = new plugPackageHandler (m_package_model,progressBar);
+    plugPackageHandler *plug_package_handler = new plugPackageHandler (m_package_model,this);
+    connect(plug_package_handler,SIGNAL(updateProgressBar(uint,uint,QString)),SLOT(updateProgressBar(uint,uint,QString)));
     plug_package_handler->getPackageList();
     connect(plug_package_handler,SIGNAL(destroyed()),this,SLOT(updatePackageView()));
 }
@@ -93,25 +85,33 @@ void plugManager::updatePackageView() {
 
 void plugManager::applyChanges() {
     QHash<QString, plugPackageItem *> checked_packages = m_package_model->getCheckedPackages();
+	if (checked_packages.count()==0)
+		return;
     plugInstaller *plug_install = new plugInstaller;
     plug_install->setParent(this);
     progressBar->setVisible(true);
-    plug_install->setProgressBar(progressBar);
-    QList<packageInfo> packages_list;    //this packages marked for install or upgrade
+    connect(plug_install,SIGNAL(updateProgressBar(uint,uint,QString)),SLOT(updateProgressBar(uint,uint,QString)));
+    QList<packageInfo *> packages_list;    //this packages marked for install or upgrade
     foreach (plugPackageItem *package, checked_packages) {
         if (package->getItemData()->checked == markedForRemove)
-            plug_install->removePackage(package->getItemData()->packageItem.properties.value("name"),
-                                        package->getItemData()->packageItem.properties.value("type")
-                                        );
+			plug_install->removePackage(package->getItemData()->packageItem.properties.value("name"));
         else if (package->getItemData()->checked == markedForInstall || package->getItemData()->checked == markedForUpgrade)
-            packages_list.append(package->getItemData()->packageItem);
+			plug_install->installPackage(new packageInfo (package->getItemData()->packageItem));
     }
-    plug_install->installPackages(packages_list);
     connect(plug_install,SIGNAL(destroyed(QObject*)),this,SLOT(updatePackageList()));
+	plug_install->commit();
 }
 
 void plugManager::closeEvent(QCloseEvent* event)
 {
     emit closed();
     deleteLater();
+}
+
+
+void plugManager::updateProgressBar(const uint& completed, const uint& total, const QString& format)
+{
+	progressBar->setMaximum(total);
+	progressBar->setValue(completed);
+        progressBar->setFormat(format);
 }

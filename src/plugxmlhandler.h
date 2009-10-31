@@ -50,11 +50,15 @@ public:
 	получаем необходимую инфу установщика из QByteArray
 	*/
 	QHash<QString, packageInfo> getPackageList (QString path = QString::null);
+	/*!
+		JSon variant
+	*/
+	QHash<QString, packageInfo> getPackageListJSon(const QString &path);
     /*!
 	получаем из файла инфу обо всех установленных пакетах (по умолчанию package.xml)
     */
+	static QDomElement createElementFromPackage (const packageInfo &package_info);
 private:
-    QDomElement createElementFromPackage (const packageInfo &package_info);
     /*!создает Dom document,
     @param packageInfo - информация о пакете
     @param id - package id, необходим в том случае, когда инфа о пакете записывается в общую базу данных

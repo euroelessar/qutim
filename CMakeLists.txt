@@ -47,9 +47,8 @@ INCLUDE_DIRECTORIES (${QT_INCLUDES}
 		libs
         )
 
-add_subdirectory (libs)
-
 SET (QT_HEADERS
+	src/mirrorshandler.h
 	src/utils/plugversion.h
 	src/plugpackagehandler.h
 	src/plugmanager.h
@@ -61,15 +60,19 @@ SET (QT_HEADERS
 	src/pluginstaller.h
 	src/plugxmlhandler.h
 	src/plugpackagemodel.h
+	src/plugpackageitem.h
 )
 SET(HEADERS
 ${QT_HEADERS}
 	src/mirror.h
-	src/plugpackage.h	
-	src/plugpackageitem.h
+	src/plugpackage.h
+	libs/k8json/k8json.h
+	src/hacks/plughacks.h
 )
 
 SET (SOURCES
+	src/hacks/plughacks.cpp
+	src/mirrorshandler.cpp
 	src/utils/plugversion.cpp
 	src/mirror.cpp
 	src/plugpackagehandler.cpp
@@ -84,6 +87,7 @@ SET (SOURCES
 	src/plugpackagemodel.cpp
 	src/plugpackage.cpp
 	src/plugpackageitem.cpp
+	libs/k8json/k8json.cpp
 )
 
 SET (RESOURCES
@@ -94,6 +98,13 @@ SET (FORMS
 	ui/settings.ui
 	ui/manager.ui
 )
+
+
+add_subdirectory (libs)
+
+IF (TOOLS)
+	add_subdirectory (tools) #simple tools for maintaince
+ENDIF (TOOLS)
 
 QT4_WRAP_CPP (MOC_SRCS ${QT_HEADERS})
 QT4_WRAP_UI (UIS_H ${FORMS})
@@ -106,6 +117,16 @@ TARGET_LINK_LIBRARIES (plugman
         ${PLUGMAN_LIBS}
 		qzipreader
         )
+
+IF (TOOLS)
+	ADD_LIBRARY (plugman_static STATIC ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
+
+	TARGET_LINK_LIBRARIES (plugman_static
+        ${QT_LIBRARIES}
+        ${PLUGMAN_LIBS}
+ 		qzipreader
+        )
+ENDIF (TOOLS)
 
 
 INSTALL (TARGETS plugman DESTINATION lib/qutim )

@@ -4,7 +4,7 @@
 #include <QDir>
 #include <QProgressBar>
 #include <QProcess>
-
+#include <qutim/iconmanagerinterface.h>
 
 bool plugMan::init ( PluginSystemInterface *plugin_system )
 {
@@ -12,9 +12,7 @@ bool plugMan::init ( PluginSystemInterface *plugin_system )
 
     PluginInterface::init ( plugin_system );
     isPlugManagerOpened = false;
-    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman", "plugman");
-    settings.setValue("needUpdate",false);
-    settings.setValue("locked", false);
+
     return true;
 }
 
@@ -24,6 +22,8 @@ void plugMan::release()
     if (settings.value("needUpdate", false ).toBool()) {
        QProcess::startDetached(qAppName());
     }
+    settings.setValue("needUpdate",false);
+    settings.setValue("locked", false);
 }
 
 void plugMan::processEvent ( PluginEvent  &event)
@@ -39,10 +39,9 @@ QWidget *plugMan::settingsWidget()
 
 void plugMan::setProfileName ( const QString &profile_name )
 {
-    QAction *plugman_action = new QAction(QIcon ( ":/icons/internet.png" ),tr("Manage packages"),this);
+    QAction *plugman_action = new QAction(SystemsCity::IconManager()->getIcon("network"),tr("Manage packages"),this);
     SystemsCity::PluginSystem()->registerMainMenuAction(plugman_action);
     connect(plugman_action, SIGNAL(triggered()), this, SLOT(onManagerBtnClicked()));
-
     m_profile_name = profile_name;
 }
 
@@ -58,7 +57,8 @@ QString plugMan::description()
 
 QIcon *plugMan::icon()
 {
-    return new QIcon (":/icons/plugin.png");
+	QIcon *icon = new QIcon (SystemsCity::IconManager()->getIconPath("package")); //FIXME КОСТЫЛЬ
+	return icon;
 }
 
 QString plugMan::type()
@@ -78,13 +78,6 @@ void plugMan::saveSettings()
     settingswidget->saveSettings();
 }
 
-void plugMan::onInstallfromfileBtnClicked()
-{
-    plugInstaller *plug_install = new plugInstaller;
-    plug_install->setParent(this);
-    plug_install->setProgressBar(new QProgressBar);
-    plug_install->installPackage();
-}
 
 void plugMan::onManagerBtnClicked() {
     if (!isPlugManagerOpened) {
@@ -100,6 +93,8 @@ void plugMan::onManagerClose()
 {
     isPlugManagerOpened = false;
 }
+
+
 
 
 Q_EXPORT_PLUGIN2 ( plugman,plugMan );

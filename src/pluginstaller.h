@@ -22,6 +22,7 @@ Boston, MA 02110-1301, USA.
 #include <QProgressBar>
 #include "plugxmlhandler.h"
 #include <QZipReader/qzipreader.h>
+#include "plugdownloader.h"
 
 class plugInstaller : public QObject
 {
@@ -29,28 +30,28 @@ class plugInstaller : public QObject
 public:
     plugInstaller ();
     ~plugInstaller ();
-    void installPackage(); //TODO переименовать во что нить более понятное
-    void installPackages(const QList<packageInfo> &packages_list); //Install or upgrade multiply packages
-    void removePackage (const QString& name, const QString& type = "all");
-    void setProgressBar (QProgressBar *progressBar);
+	void installPackage(packageInfo *info);
+    void removePackage (const QString& name);
+	void commit();
 private:
     QStringList unpackArch (const QString &inPath, const QString &prefix);
-    packageInfo getPackageInfo (const QString &archPath);
-    QStringList getFileList (const QList<QZipReader::FileInfo> &list);
-    QString getPackagePrefix(const packageInfo &package_info);
-    void installFromFile (const QString &inPath);
-    void install(QString);
+    QStringList getFileList (const QString& list);
+    QString getPackagePrefix(const packageInfo *package_info);
+	void install();
+	void remove();
     bool collision_protect;
-    QProgressBar *m_progressBar;
     QHash<QString,QString> package_prefix;
     bool needUpdate;
- bool backup;
+    bool backup;
+	QList<packageInfo *> installPackagesList;
+	QStringList removePackagesList;
 signals:
     void finished ();
     void error(QString);
+    void updateProgressBar(const uint &completed, const uint &total, const QString &format);
 public slots:
     void errorHandler(const QString &error);
-    void install(QStringList); //готов для установки (то есть скачался)
+	void install(const QList< downloaderItem >& items); //готов для установки (то есть скачался)
 };
 
 #endif // PLUGINSTALLER_H

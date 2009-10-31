@@ -20,120 +20,115 @@ Boston, MA 02110-1301, USA.
 #include <QBoxLayout>
 #include <QDebug>
 #include <QDir>
+#include "hacks/plughacks.h"
+#include <qutim/plugininterface.h>
+
+//downloaderItem::downloaderItem(QUrl m_url, QString m_filename) {
+//	url=m_url;
+//	filename=m_filename;
+//}
+//
+
 
 plugDownloader::plugDownloader(const QString& path, QObject* parent)
-		: QObject(parent), downloadedCount(0), totalCount(0)
+        : QObject(parent), downloadedCount(0), totalCount(0)
 {
-    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, "qutim/plugman/cache", "plugman");
-	if (path.isEmpty()) {
-            QFileInfo config_dir = settings.fileName();
-            QDir current_dir = qApp->applicationDirPath();
-            if( config_dir.canonicalPath().contains( current_dir.canonicalPath() ) )
-                outPath = current_dir.relativeFilePath( config_dir.absolutePath() );
-            else
-                outPath = config_dir.absolutePath();
-            outPath.append("/");
-        }
-        else
-            outPath = path;
-	QDir dir;
-	dir.mkpath(outPath);
+    outPath = path.isEmpty() ? plugPathes::getCachePath() : path;
+    qDebug()<< outPath;
+    QDir dir;
+    dir.mkpath(outPath);
 }
 
 void plugDownloader::addItem(const downloaderItem& downloadItem)
 {
-// 	if (m_download_queue.isEmpty())
-// 		QTimer::singleShot(0, this, SLOT(startNextDownload()));
-	m_download_queue.enqueue(downloadItem);
-	++totalCount;
+    // 	if (m_download_queue.isEmpty())
+    // 		QTimer::singleShot(0, this, SLOT(startNextDownload()));
+    m_download_queue.enqueue(downloadItem);
+    ++totalCount;
 
 }
 
 void plugDownloader::startDownload()
 {
-	startNextDownload();
+    startNextDownload();
 }
 
 
 void plugDownloader::startNextDownload()
 {
-	if (m_download_queue.isEmpty()) {
-		emit downloadFinished(fileList);
-		this->deleteLater();
-		return;
-	}
-	downloaderItem downloadItem = m_download_queue.dequeue();
+    if (m_download_queue.isEmpty()) {
+        emit downloadFinished(itemList);
+        this->deleteLater();
+        return;
+    }
+    currentItem =  m_download_queue.dequeue();
 
-        output.setFileName(outPath+downloadItem.filename);
-        if (!output.open(QIODevice::WriteOnly)) {
-                qDebug() << "Unable to open file";
-                startNextDownload();
-                return;                 // skip this download
-        }
-	QNetworkRequest request(downloadItem.url);
-	currentDownload = manager.get(request);
-	connect(currentDownload, SIGNAL(downloadProgress(qint64,qint64)),
-			SLOT(downloadProgress(qint64,qint64)));
-	connect(currentDownload, SIGNAL(finished()),
-			SLOT(downloadFinished()));
-	connect(currentDownload, SIGNAL(readyRead()),
-			SLOT(downloadReadyRead()));
-							   
-							   // prepare the output
-	downloadTime.start();
+    currentOutput.setFileName(outPath+currentItem.filename);
+    if (!currentOutput.open(QIODevice::WriteOnly)) {
+        qDebug() << "Unable to open file";
+        startNextDownload();
+        return;                 // skip this download
+    }
+    QNetworkRequest request(currentItem.url);
+    currentDownload = manager.get(request);
+    connect(currentDownload, SIGNAL(downloadProgress(qint64,qint64)),
+            SLOT(downloadProgress(qint64,qint64)));
+    connect(currentDownload, SIGNAL(finished()),
+            SLOT(downloadFinished()));
+    connect(currentDownload, SIGNAL(readyRead()),
+            SLOT(downloadReadyRead()));
+
+    // prepare the output
+    downloadTime.start();
 }
 
 
 void plugDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-// 	progressBar.setStatus(bytesReceived, bytesTotal);
-	Q_ASSERT(m_progressBar);
-
-	// calculate the download speed
-	double speed = bytesReceived * 1000.0 / downloadTime.elapsed();
-	QString unit;
-	if (speed < 1024) {
-		unit = "bytes/sec";
-	} else if (speed < 1024*1024) {
-		speed /= 1024;
-		unit = "kB/s";
-	} else {
-		speed /= 1024*1024;
-		unit = "MB/s";
-	}
-	if (bytesTotal==0)
-		return; //!hack
-	qint8 value = qRound(100*bytesReceived/bytesTotal);
-	m_progressBar->setValue(value);
+    // calculate the download speed
+    double speed = bytesReceived * 1000.0 / downloadTime.elapsed();
+    QString unit;
+    if (speed < 1024) {
+        unit = tr("bytes/sec");
+    } else if (speed < 1024*1024) {
+        speed /= 1024;
+        unit = tr("kB/s");
+    } else {
+        speed /= 1024*1024;
+        unit = tr("MB/s");
+    }
+    if (bytesTotal==0)
+        return; //!hack
+    qint8 value = qRound(100*bytesReceived/bytesTotal);
+    emit updateProgressBar(bytesReceived,bytesTotal,tr("Downloading: %1%, speed: %2 %3").arg(value).arg(speed).arg(unit));
 }
 
 void plugDownloader::downloadFinished()
 {
-        output.close();
-	m_progressBar->reset();
-	if (currentDownload->error()) {
-		// download failed
-		lastError= tr("Failed to download: %1").arg(output.fileName());
-		qDebug() << lastError;
- 	}
-	else
-            ++downloadedCount;
-	currentDownload->deleteLater();
-        if (output.exists())
-            fileList.append(output.fileName()); //в случае неудачного скачивания, но наличия старой версии файла,добавляем её
-	startNextDownload();
+    currentOutput.close();
+    if (currentDownload->error()) {
+        // download failed
+        qDebug() << currentDownload->errorString();
+        qutim_sdk_0_2::TreeModelItem item;
+        //TODO может стоит сделать локализацию
+        qutim_sdk_0_2::SystemsCity::PluginSystem()->systemNotification(item, currentDownload->errorString());
+    }
+    else {
+        ++downloadedCount;
+	}
+    currentDownload->deleteLater();
+    if (currentOutput.exists()) {
+		currentItem.filename = currentOutput.fileName();
+		itemList.append(currentItem);
+        //fileList.append(currentOutput.fileName()); //в случае неудачного скачивания, но наличия старой версии файла,добавляем её
+    }
+    startNextDownload();
 }
 
 void plugDownloader::downloadReadyRead()
 {
-        output.write(currentDownload->readAll());
+    currentOutput.write(currentDownload->readAll());
 }
 plugDownloader::~plugDownloader() {
 
 }
-void plugDownloader::setProgressbar(QProgressBar* progressBar) {
-	m_progressBar = progressBar;
-	m_progressBar->setFormat(tr("Downloading: %p%"));
-	setParent(m_progressBar);
-}
-
