@@ -1,5 +1,1 @@
-TODO 
-написать намана
-используются 
-сторонняя либа osdabzip
-и куски kpackagekit
+This lib use QZipReader from Qt4 and k8json written by Mirage (Ketmar)
