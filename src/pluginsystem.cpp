@@ -94,17 +94,7 @@ static Console *debug_console = 0;
 
 void globalHandleDebug(QtMsgType type, const char *msg)
 {
-	switch( type )
-	{
-		DEBUG_MESSAGE(Debug)
-		DEBUG_MESSAGE(Warning)
-		DEBUG_MESSAGE(Critical)
-		DEBUG_MESSAGE(Fatal)
-	}
-	if( debug_type & DebugFile )
-		debug_out.flush() ;
-	if( (debug_type & DebugWindow) && debug_console )
-		debug_console->appendMsg( QString::fromLocal8Bit( msg, qstrlen( msg ) ), type );
+
 }
 
 QSettings::SettingsMap parseDict(const QDomNode & root_element)
@@ -211,73 +201,7 @@ PluginSystem::PluginSystem()
 
 void PluginSystem::init()
 {
-	qRegisterMetaType<QTextCursor>("QTextCursor");
-	if(debug_type & DebugWindow)
-		debug_console = new Console();
-	QCoreApplication::setApplicationName("qutIM");
-	QCoreApplication::setApplicationVersion("0.2 beta");
-	QCoreApplication::setOrganizationDomain("qutim.org");
-	m_plist_format = QSettings::registerFormat("plist",plistReadFunc,plistWriteFunc);
-	m_events = new EventId;
-	m_events->contact_context = registerEventHandler("Core/ContactList/ContactContext");
-	m_events->item_added = registerEventHandler("Core/ContactList/ItemAdded");
-	m_events->item_removed = registerEventHandler("Core/ContactList/ItemRemoved");
-	m_events->item_moved = registerEventHandler("Core/ContactList/ItemMoved");
-	m_events->item_icon_changed = registerEventHandler("Core/ContactList/ItemIconChanged");
-	m_events->item_changed_name = registerEventHandler("Core/ContactList/ItemChangedName");
-	m_events->item_changed_status = registerEventHandler("Core/ContactList/ItemChangedStatus");
-	m_events->account_is_online = registerEventHandler("Core/Protocol/AccountIsOnline");
-	m_events->sending_message_before_showing = registerEventHandler("Core/ChatWindow/SendLevel1");
-	m_events->sending_message_after_showing = registerEventHandler("Core/ChatWindow/SendLevel2");
-	m_events->senging_message_after_showing_last_output = registerEventHandler("Core/ChatWindow/SendLevel3");
-	m_events->pointers_are_initialized = registerEventHandler("Core/Layers/Initialized");
-	m_events->system_notification = registerEventHandler("Core/Notification/System");
-	m_events->user_notification = registerEventHandler("Core/Notification/User");
-	m_events->receiving_message_first_level = registerEventHandler("Core/ChatWindow/ReceiveLevel1");
-	m_events->receiving_message_second_level = registerEventHandler("Core/ChatWindow/ReceiveLevel2");
-	m_events->receiving_message_third_level = registerEventHandler("Core/ChatWindow/ReceiveLevel3");
-	m_events->receiving_message_fourth_level = registerEventHandler("Core/ChatWindow/ReceiveLevel4");
-	m_events->item_typing_notification = registerEventHandler("Core/Notification/Typing");
-	m_events->item_ask_tooltip = registerEventHandler("Core/ContactList/AskTooltip");
-	m_events->item_ask_additional_info = registerEventHandler("Core/ContactList/AskItemAdditionalInfo");
-	m_events->all_plugins_loaded = registerEventHandler("Core/AllPluginsLoaded");
 
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim", "qutimsettings");
-
-	QDir dir = qApp->applicationDirPath();
-	QDir::setCurrent( qApp->applicationDirPath() );
-	QDir current_dir = QDir::current();
-	QString path = dir.absolutePath();
-	// 1. Windows, ./
-	m_share_paths << current_dir.relativeFilePath( path );
-	// 2. MacOS X, ../Resources
-	dir.cdUp();
-#if defined(Q_WS_MAC)
-	path = dir.absolutePath();
-	path += QDir::separator();
-	path += "Resources";
-	m_share_paths << current_dir.relativeFilePath( path );
-#endif
-	// 3. Unix, ../share/qutim
-	path = dir.absolutePath();
-	path += QDir::separator();
-	path += "share";
-	path += QDir::separator();
-	path += "qutim";
-	m_share_paths << current_dir.relativeFilePath( path );
-	// 4. Safe way, ~/.config/qutim
-	QFileInfo config_dir = settings.fileName();
-	dir = qApp->applicationDirPath();
-	if( config_dir.canonicalPath().contains( dir.canonicalPath() ) )
-		m_share_paths << current_dir.relativeFilePath( config_dir.absolutePath() );
-	else
-		m_share_paths << config_dir.absolutePath();
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 5, 0))
-	m_share_paths.removeDuplicates();
-#else
-	m_share_paths = QSet<QString>().fromList(m_share_paths).toList();
-#endif
-	qDebug() << m_share_paths;
 }
 
 PluginSystem::~PluginSystem()

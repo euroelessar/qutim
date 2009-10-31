@@ -3,7 +3,7 @@ IF (COMMAND cmake_policy)
 	cmake_policy (SET CMP0003 NEW)
 ENDIF (COMMAND cmake_policy)
 PROJECT (qutim)
-SET(QT_MIN_VERSION "4.4.0")
+SET(QT_MIN_VERSION "4.6.0")
 
 ADD_DEFINITIONS ( -DBUILD_QUTIM )
 
@@ -86,7 +86,6 @@ INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 		sdk02/include
 	)
 
-macro_ensure_version( "4.5.0" ${QTVERSION} Qt4_HAS_4_5 )
 
 IF (UNIX)
 	include( FindPkgConfig )
@@ -105,59 +104,21 @@ ENDIF (UNIX)
 SET (HEADERS
 	sdk02/include/qutim/plugininterface.h
 	sdk02/include/qutim/protocolinterface.h
-	solutions/qtcustomwidget.h
-	solutions/qtcustomwidget_p.h
-	src/3rdparty/qtsolutions/qtlocalpeer.h
-	src/aboutinfo.h
 	src/abstractlayer.h
-	src/accountmanagement.h
-	src/addaccountwizard.h
-	src/console.h
-	src/globalsettings/abstractglobalsettings.h
-	src/globalsettings/globalproxysettings.h
-	src/guisettingswindow.h
 	src/iconmanager.h
-	src/idle/idle.h
-	src/logindialog.h
-	src/mainsettings.h
-	src/pluginsettings.h
 	src/pluginsystem.h
-	src/profilelogindialog.h
-	src/qutim.h
-	src/qutimsettings.h
+	#new
 	src/cryptoserviceimpl.h
 	src/modulemanagerimpl.h
 	)
-if( Qt4_HAS_4_5 )
-	LIST( APPEND HEADERS src/proxyfactory.h )
-endif( Qt4_HAS_4_5 )
 
 SET (SOURCES 
 	main.cpp
-	solutions/qtcustomwidget.cpp
-	src/3rdparty/qtsolutions/qtlocalpeer.cpp
-	src/aboutinfo.cpp
 	src/abstractcontextlayer.cpp
 	src/abstractlayer.cpp
-	src/accountmanagement.cpp
-	src/addaccountwizard.cpp
-	src/console.cpp
-	src/globalsettings/abstractglobalsettings.cpp
-	src/globalsettings/globalproxysettings.cpp
-	src/guisettingswindow.cpp
 	src/iconmanager.cpp
-	src/idle/idle.cpp
-	src/idle/idle_mac.cpp
-	src/idle/idle_win.cpp
-	src/idle/idle_x11.cpp
-	src/logindialog.cpp
-	src/mainsettings.cpp
-	src/pluginsettings.cpp
 	src/pluginsystem.cpp
-	src/profilelogindialog.cpp
-	src/proxyfactory.cpp
-	src/qutim.cpp
-	src/qutimsettings.cpp
+	#new
 	src/cryptoserviceimpl.cpp
 	src/modulemanagerimpl.cpp
 	)
@@ -167,17 +128,7 @@ SET (RESOURCES
 	)
 
 SET (FORMS
-	src/aboutinfo.ui
-	src/accountmanagement.ui
-	src/console.ui
-	src/globalsettings/globalproxysettings.ui
-	src/guisettingswindow.ui
-	src/logindialog.ui
-	src/mainsettings.ui
-	src/pluginsettings.ui
-	src/profilelogindialog.ui
-	src/qutim.ui
-	src/qutimsettings.ui
+
 	)
 
 # Enum elements in corelayers directory
