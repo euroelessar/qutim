@@ -29,7 +29,6 @@ SOURCES += vlayer.cpp \
     core/vaccount.cpp \
     core/vpluginsystem.cpp \
     core/vstatusobject.cpp \
-    qtc-gdbmacros/gdbmacros.cpp \
     protocol/vprotocolwrap.cpp \
     core/vcontactlist.cpp \
     core/vavatarmanagement.cpp
