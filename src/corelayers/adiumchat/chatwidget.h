@@ -34,6 +34,7 @@ namespace AdiumChat
 	private slots:
 		void currentIndexChanged (int index);
 		void onCloseRequested(int index);
+		void onTabMoved(int from,int to);
 		void onSessionRemoved();
 	};
 

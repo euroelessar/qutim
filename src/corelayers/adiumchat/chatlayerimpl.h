@@ -19,13 +19,15 @@ namespace AdiumChat
 		virtual ChatSession* getSession ( Account* acc, const QString& id, bool create = true );
 		virtual QList<ChatSession* > sessions();
 		ChatLayerImpl();
+		virtual ~ChatLayerImpl();
 	private slots:
 		void onAccountDestroyed(QObject *object);
 		void onSessionRemoved(Account *acc, const QString &id);
 	private:
+		inline QString getWidgetId (Account* acc, const QString& id) const;
 		//QHash<Account * , QPair<QPointer<Account>, ChatSessionHash> >  m_chat_sessions;//TODO more safe
 		QHash<Account * , ChatSessionHash >  m_chat_sessions;
-		QList<ChatWidget *> m_chatwidget_list;
+		QHash<QString, ChatWidget *> m_chatwidget_list;
 	};
 
 }

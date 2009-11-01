@@ -23,7 +23,6 @@ namespace KineticPopups
 	{
 		GeneralSettingsItem<KineticPopupSettings> *item = new GeneralSettingsItem<KineticPopupSettings>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
 		Settings::registerItem(item);
-		Settings::showWidget();
 	}
 
 	void Backend::show(Notifications::Type type, QObject* sender, const QString& body, const QString& customTitle)

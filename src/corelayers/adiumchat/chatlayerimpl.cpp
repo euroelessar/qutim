@@ -28,8 +28,14 @@ namespace AdiumChat
 			connect(acc,SIGNAL(destroyed(QObject*)),SLOT(onAccountDestroyed(QObject*)));
 		m_chat_sessions[acc].insert(id,session);
 		//init or update chat widget(s)
-		//simple variant
-		ChatWidget *widget = new ChatWidget();
+		QString key = getWidgetId(acc,id);
+		ChatWidget *widget = m_chatwidget_list.value(key);
+		if (!widget)
+		{
+			m_chatwidget_list.insert(key,widget);//FIXME need testing
+			ChatWidget *widget = new ChatWidget();
+		}
+		widget->addSession(session);
 		
 		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved(Account*,QString)));		
 		return session;
@@ -61,6 +67,18 @@ namespace AdiumChat
 	void ChatLayerImpl::onSessionRemoved(Account* acc, const QString& id)
 	{
 		m_chat_sessions[acc].remove(id);
+	}
+	
+	ChatLayerImpl::~ChatLayerImpl()
+	{
+		
+	}
+	
+	QString ChatLayerImpl::getWidgetId(Account* acc, const QString& id) const
+	{
+		QString key = acc->id() + "/" + id; //simple variant
+		//key = "adiumchat"; //all session in one window
+		return key;
 	}
 
 }

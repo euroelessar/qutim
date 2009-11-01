@@ -12,8 +12,10 @@ namespace AdiumChat
 		ui->setupUi(this);
 		ui->tabBar->setVisible(false);
 		ui->tabBar->setTabsClosable(true);
+		ui->tabBar->setMovable(true);
 		setAttribute(Qt::WA_DeleteOnClose);
 		connect(ui->tabBar,SIGNAL(currentChanged(int)),SLOT(currentIndexChanged(int)));
+		connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 		connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 	}
 	
@@ -83,6 +85,11 @@ namespace AdiumChat
 	void ChatWidget::onCloseRequested(int index)
 	{
 		removeSession(m_sessions.at(index));
+	}
+
+	void ChatWidget::onTabMoved(int from, int to)
+	{
+		m_sessions.move(from,to);
 	}
 
 }
