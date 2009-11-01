@@ -15,10 +15,14 @@
 
 #include "icon.h"
 #include "iconbackend_p.h"
+#include "iconloader.h"
 
 //namespace qutim_sdk_0_3
 //{
-Icon::Icon(const QString &name) : QIcon(QIcon::fromTheme(name)) //QIcon(new IconBackend(name))
+using namespace qutim_sdk_0_3;
+
+Icon::Icon(const QString &name)
+		: QIcon(IconLoader::instance() ? IconLoader::instance()->loadIcon(name) : QIcon()) // QIcon(QIcon::fromTheme(name)) //QIcon(new IconBackend(name))
 {
 }
 

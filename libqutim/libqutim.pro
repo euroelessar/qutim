@@ -41,7 +41,8 @@ SOURCES += tcpsocket.cpp \
     abstractcontact.cpp \
     settingswidget.cpp \
     messagesession.cpp \
-	utils.cpp
+    iconloader.cpp \
+    utils.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
     domaininfo.h \
@@ -73,7 +74,8 @@ HEADERS += tcpsocket.h \
     abstractcontact.h \
     settingswidget.h \
     settingslayer_p.h \
-    messagesession.h
+    messagesession.h \
+    iconloader.h
 include(../3rdparty/jdns/jdns.pri)
 include(../3rdparty/k8json/k8json.pri)
 include(../3rdparty/qticonloader/qticonloader.pri)

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/" >
+        <!--
         <file>icons/clients/RQ.png</file>
         <file>icons/clients/adiumX.png</file>
         <file>icons/clients/agile.png</file>
@@ -411,5 +412,6 @@
         <file>icons/protocol/jabber.png</file>
         <file>icons/protocol/icq.png</file>
         <file>icons/protocol/aim.png</file>
+        -->
     </qresource>
 </RCC>

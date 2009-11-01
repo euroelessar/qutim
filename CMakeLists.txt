@@ -102,11 +102,6 @@ ENDIF (UNIX)
 
 
 SET (HEADERS
-	sdk02/include/qutim/plugininterface.h
-	sdk02/include/qutim/protocolinterface.h
-	src/abstractlayer.h
-	src/iconmanager.h
-	src/pluginsystem.h
 	#new
 	src/cryptoserviceimpl.h
 	src/modulemanagerimpl.h
@@ -114,10 +109,6 @@ SET (HEADERS
 
 SET (SOURCES 
 	main.cpp
-	src/abstractcontextlayer.cpp
-	src/abstractlayer.cpp
-	src/iconmanager.cpp
-	src/pluginsystem.cpp
 	#new
 	src/cryptoserviceimpl.cpp
 	src/modulemanagerimpl.cpp

@@ -61,6 +61,11 @@ namespace qutim_sdk_0_3
 		return 0;
 	}
 
+	enum ModuleFlag
+	{
+	};
+	Q_DECLARE_FLAGS(ModuleFlags, ModuleFlag)
+
 	class ModuleManagerPrivate
 	{
 	public:
@@ -72,6 +77,7 @@ namespace qutim_sdk_0_3
 			QHash<QString, QPointer<Protocol> > *protocols_hash;
 			QHash<QString, Protocol *> *protocols;
 		};
+		QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
 		QSet<QByteArray> interface_modules;
 		QSet<const QMetaObject *> meta_modules;
 	};
@@ -233,7 +239,10 @@ namespace qutim_sdk_0_3
 					verificationFunction = (QutimPluginVerificationFunction)lib->resolve("qutim_plugin_query_verification_data");
 					lib->unload();
 					if(!verificationFunction)
+					{
+						qDebug("'%s' has no valid verification data", qPrintable(filename));
 						continue;
+					}
 				}
 				QPluginLoader *loader = new QPluginLoader(filename);
 				loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
