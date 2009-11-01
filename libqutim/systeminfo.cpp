@@ -38,6 +38,22 @@
 
 #ifdef Q_WS_WIN
 #include <windows.h>
+
+// Nasty hack for VER_SUITE_PERSONAL =)
+#ifndef VER_SUITE_PERSONAL
+#define VER_SUITE_PERSONAL 0x00000200
+#endif
+
+// Nasty hack for VER_SUITE_WH_SERVER =)
+#ifndef VER_SUITE_WH_SERVER
+#define VER_SUITE_WH_SERVER 0x00008000
+#endif
+
+// Nasty hack for VER_NT_WORKSTATION =)
+#ifndef VER_NT_WORKSTATION
+#define VER_NT_WORKSTATION 0x0000001
+#endif
+
 #endif
 
 #ifdef Q_WS_MAC
@@ -353,7 +369,6 @@ namespace qutim_sdk_0_3
 	{
 		system_info_ensure_private(p);
 		QString str;
-		quint8 VER_NT_WORKSTATION = 0x01;
 		switch(type)
 		{
 		case 'm':
