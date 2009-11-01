@@ -14,30 +14,46 @@
 //   the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 //   Boston, MA 02110-1301, USA.
 
-#ifndef KINETICPOPUPWIDGET_H
-#define KINETICPOPUPWIDGET_H
-
-#include <QTextBrowser>
-#include "kineticpopupthemehelper.h"
-
-class QTextBrowser;
+#ifndef MANAGER_H
+#define MANAGER_H
+#include <QHash>
+#include <QString>
+#include <QSize>
+#include <QEasingCurve>
+#include "backend.h"
+#include "themehelper.h"
+class QRect;
+class QDir;
 namespace KineticPopups
 {
-	class PopupWidget : public QTextBrowser
+	class Popup;
+	class Manager
 	{
-		Q_OBJECT
+		Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
 	public:
-		PopupWidget(const ThemeHelper::PopupSettings &popupSettings);
-		QSize setData(const QString& title,
-					const QString& body,
-					const QString &imagePath); //size of textbrowser
-		void setTheme(const ThemeHelper::PopupSettings &popupSettings);
-		virtual void mouseReleaseEvent ( QMouseEvent* ev );
+		Manager();
+		Popup *getById (const QString &id) const;
+		Popup *getByNumber (const int &number) const;
+		QRect insert (Popup *notification);
+		void remove (const QString &id);
+		void updateGeometry();
+		static Manager *self();
+		int animationDuration;
+		QEasingCurve easingCurve;
+		bool updatePosition;
+		bool animation;
+		Qt::MouseButton action1Trigger;
+		Qt::MouseButton action2Trigger;
+		NotificationTypes showFlags;
+		uint timeout;
+		bool appendMode;
+		ThemeHelper::PopupSettings popupSettings;
 	private:
-		ThemeHelper::PopupSettings popup_settings;
-	signals:
-		void action1Activated();
-		void action2Activated();
+		QList<Popup *> active_notifications;
+		static Manager *instance;
+		void loadSettings();
+		int getNumber(const QString &id) const;
 	};
 }
-#endif // KINETICPOPUPWIDGET_H
+
+#endif // MANAGER_H

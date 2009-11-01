@@ -1,6 +1,6 @@
-#include "kineticpopupwidget.h"
+#include "popupwidget.h"
 #include <QVBoxLayout>
-#include "kineticpopupsmanager.h"
+#include "manager.h"
 #include <QMouseEvent>
 #include <QDebug>
 #include <QLabel>

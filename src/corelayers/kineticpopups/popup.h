@@ -14,8 +14,8 @@
 //   the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 //   Boston, MA 02110-1301, USA.
 
-#ifndef KINETICNOTIFICATION_H
-#define KINETICNOTIFICATION_H
+#ifndef POPUP_H
+#define POPUP_H
 
 #include <QObject>
 #include <QRect>
@@ -66,4 +66,4 @@ namespace KineticPopups
 	};
 }
 
-#endif // KINETICNOTIFICATION_H
+#endif // POPUP_H

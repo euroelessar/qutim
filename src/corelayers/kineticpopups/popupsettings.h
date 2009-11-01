@@ -14,26 +14,31 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef KINETICPOPUPTHEMEHELPER_H
-#define KINETICPOPUPTHEMEHELPER_H
-#include <QString>
-#include <QSize>
+#ifndef POPUPSETTINGS_H
+#define POPUPSETTINGS_H
+#include <QWidget>
+#include "backend.h"
+#include "libqutim/settingswidget.h"
+namespace Ui
+{
+  class AppearanceSettings;
+}
 
 namespace KineticPopups
 {
-	namespace ThemeHelper
-	{
-		struct PopupSettings {
-			QString styleSheet;
-			QString content;
-			QString themePath;
-			QSize defaultSize;
-			int margin;
-			Qt::WindowFlags widgetFlags;
-		};
-		PopupSettings loadThemeSetting(const QString &themePath);
-		QList<PopupSettings> getThemes();
-	}
-};
+ 
+  class PopupSettings : public SettingsWidget
+  {
+	  Q_OBJECT
+  public:
+	  PopupSettings();
+	  virtual ~PopupSettings();
+	  virtual void loadImpl();
+	  virtual void cancelImpl();
+	  virtual void saveImpl();
+  private:
+	  Ui::AppearanceSettings *ui;
+  };
 
-#endif // KINETICPOPUPTHEMEHELPER_H
+}
+#endif // POPUPSETTINGS_H

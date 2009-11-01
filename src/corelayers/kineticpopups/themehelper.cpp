@@ -14,10 +14,10 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include "kineticpopupthemehelper.h"
+#include "themehelper.h"
 #include <QTextDocument>
 #include <QFile>
-#include "kineticpopupbackend.h"
+#include "backend.h"
 #include "libqutim/systeminfo.h"
 #include "libqutim/configbase.h"
 #include <QDebug>

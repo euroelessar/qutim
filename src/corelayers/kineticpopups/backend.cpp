@@ -1,13 +1,13 @@
-#include "kineticpopupbackend.h"
-#include "kineticpopup.h"
-#include "kineticpopupsmanager.h"
+#include "backend.h"
+#include "popup.h"
+#include "manager.h"
 #include "modulemanagerimpl.h"
 #include <QVariant>
 #include <QTime>
 #include <QDebug>
 #include "libqutim/settingslayer.h"
-#include "kineticpopupwidget.h"
-#include "kineticpopupsettings.h"
+#include "popupwidget.h"
+#include "popupsettings.h"
 #include "libqutim/icon.h"
 
 namespace KineticPopups
@@ -21,7 +21,7 @@ namespace KineticPopups
 
 	Backend::Backend ()
 	{
-		GeneralSettingsItem<KineticPopupSettings> *item = new GeneralSettingsItem<KineticPopupSettings>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
+		GeneralSettingsItem<PopupSettings> *item = new GeneralSettingsItem<PopupSettings>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
 		Settings::registerItem(item);
 	}
 

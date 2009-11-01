@@ -1,6 +1,6 @@
-#include "kineticpopup.h"
-#include "kineticpopupwidget.h"
-#include "kineticpopupsmanager.h"
+#include "popup.h"
+#include "popupwidget.h"
+#include "manager.h"
 #include <QPropertyAnimation>
 #include <QApplication>
 #include <QTimer>

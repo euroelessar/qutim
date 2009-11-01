@@ -1,5 +1,5 @@
-#ifndef KINETICPOPUPBACKEND_H
-#define KINETICPOPUPBACKEND_H
+#ifndef BACKEND_H
+#define BACKEND_H
 
 #include <libqutim/notificationslayer.h>
 
@@ -21,4 +21,4 @@ namespace KineticPopups
 
 }
 
-#endif //KINETICPOPUPBACKEND_H
+#endif //BACKEND_H

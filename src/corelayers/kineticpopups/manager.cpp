@@ -1,5 +1,5 @@
-#include "kineticpopupsmanager.h"
-#include "kineticpopup.h"
+#include "manager.h"
+#include "popup.h"
 #include <QDebug>
 #include <QFile>
 #include <QTextDocument>
@@ -8,7 +8,7 @@
 #include <QDesktopWidget>
 #include "libqutim/systeminfo.h"
 #include "libqutim/configbase.h"
-#include "kineticpopupsettings.h"
+#include "popupsettings.h"
 
 namespace KineticPopups
 {
