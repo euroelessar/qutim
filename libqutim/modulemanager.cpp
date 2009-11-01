@@ -73,7 +73,7 @@ namespace qutim_sdk_0_3
 		inline ~ModuleManagerPrivate() { delete protocols_hash; }
 		QList<QPointer<Plugin> > plugins;
 		bool is_inited;
-		union {
+		union { // This union is intended to be used as reinterpret_cast =)
 			QHash<QString, QPointer<Protocol> > *protocols_hash;
 			QHash<QString, Protocol *> *protocols;
 		};
@@ -235,10 +235,14 @@ namespace qutim_sdk_0_3
 #endif
 					QutimPluginVerificationFunction verificationFunction = NULL;
 					QScopedPointer<QLibrary> lib(new QLibrary(filename));
-					lib->load();
-					verificationFunction = (QutimPluginVerificationFunction)lib->resolve("qutim_plugin_query_verification_data");
-					lib->unload();
-					if(!verificationFunction)
+					if(true == lib->load())
+					{
+						verificationFunction = (QutimPluginVerificationFunction)lib->resolve("qutim_plugin_query_verification_data");
+						lib->unload();
+						if(!verificationFunction)
+							continue;
+					}
+					else
 					{
 						qDebug("'%s' has no valid verification data", qPrintable(filename));
 						continue;

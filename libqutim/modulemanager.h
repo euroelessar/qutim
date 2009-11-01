@@ -38,25 +38,43 @@ namespace qutim_sdk_0_3
 //			T::M(list);
 		}
 	protected:
+		// Constructor
 		ModuleManager(QObject *parent = 0);
+		// Destructor
 		virtual ~ModuleManager();
-		void loadPlugins(const QStringList &additional_paths = QStringList());
+
+		// Fields
 		QMultiMap<Plugin *, ExtensionInfo> getExtensions(const QMetaObject *service_meta) const;
 		QMultiMap<Plugin *, ExtensionInfo> getExtensions(const char *interface_id) const;
-		template<typename T>
-		inline QMultiMap<Plugin *, ExtensionInfo> getExtensions()
-		{ return getExtensions(&T::staticMetaObject); }
+
+		// Methods
+		void loadPlugins(const QStringList &additional_paths = QStringList());
+		QObject *initExtension(const QMetaObject *service_meta);
+
+		// Virtual Methods
 		virtual QList<ExtensionInfo> coreExtensions() const = 0;
 		virtual void initExtensions();
-		QObject *initExtension(const QMetaObject *service_meta);
+
+		// Inline Methods
+		template<typename T>
+		inline QMultiMap<Plugin *, ExtensionInfo> getExtensions()
+		{
+			return getExtensions(&T::staticMetaObject);
+		}
+
 		template<typename T>
 		inline T *initExtension()
-		{ return static_cast<T *>(initExtension(&T::staticMetaObject)); }
+		{
+			return static_cast<T *>(initExtension(&T::staticMetaObject));
+		}
 	private:
+		// Friend functions
 		friend bool isCoreInited();
 		friend GeneratorList moduleGenerators(const QMetaObject *);
 		friend GeneratorList moduleGenerators(const char *);
 		friend ProtocolMap allProtocols();
+
+		// Static Fields
 		static ModuleManager *self;
 		ModuleManagerPrivate *p;
 	};

@@ -57,7 +57,7 @@ namespace qutim_sdk_0_3
 		QSignalMapper *mapper;
 		QList<WidgetInfo> infos;
 		uint changed_num;
-		bool sleep;
+		bool sleep; // Used to block signal sending on widget changing it's status
 		void clearValues();
 	};
 
