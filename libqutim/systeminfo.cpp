@@ -49,11 +49,12 @@
 #define VER_SUITE_WH_SERVER 0x00008000
 #endif
 
-// Nasty hack for VER_NT_WORKSTATION =)
-#ifndef VER_NT_WORKSTATION
-#define VER_NT_WORKSTATION 0x0000001
 #endif
 
+// Nasty hack for VER_NT_WORKSTATION.
+//TODO: It is used even for *nix
+#ifndef VER_NT_WORKSTATION
+#define VER_NT_WORKSTATION 0x0000001
 #endif
 
 #ifdef Q_WS_MAC

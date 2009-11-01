@@ -126,11 +126,6 @@ SET (FORMS
 FILE( GLOB CORELAYERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/*" )
 LIST( REMOVE_ITEM CORELAYERS .svn _svn )
 
-#FixMe:
-# This removes configbackend regardles of command line arguments
-# Should be removed when configbackend is fixed.
-LIST( REMOVE_ITEM CORELAYERS configbackend )
-
 FOREACH( LAYER ${CORELAYERS} )
     IF( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}" )
         STRING( TOUPPER ${LAYER} LAYER_NAME)
@@ -160,10 +155,11 @@ ENDFOREACH( LAYER )
 
 
 set( QUTIM_DO_NOT_FIND "true" )
-include( FindQutIM )
+#include( FindQutIM )
 
-find_library(QUTIM_LIBRARY NAMES qutim PATHS ${CMAKE_CURRENT_SOURCE_DIR}/libqutim)
+#find_library(QUTIM_LIBRARY NAMES qutim PATHS ${CMAKE_CURRENT_SOURCE_DIR}/libqutim)
 # add_subdirectory(src/corelayers)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libqutim/" "${CMAKE_CURRENT_BINARY_DIR}/libqutim")
 
 QT4_WRAP_CPP (MOC_SRCS ${HEADERS})
 QT4_WRAP_UI (UIS_H ${FORMS})
@@ -183,7 +179,8 @@ TARGET_LINK_LIBRARIES (qutim
 	${QT_LIBRARIES}
 	${QCA2_LIBRARIES}
 	${QUTIM_LIBS}
-	${QUTIM_LIBRARY}
+#	${QUTIM_LIBRARY}
+    libqutim
 	)
 
 
