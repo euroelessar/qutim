@@ -1,5 +1,5 @@
 /*
-    VavatarManagement
+    VcontactList
 
     Copyright (c) 2009 by Alexander Kazarin <boiler@co.ru>
 
@@ -353,6 +353,7 @@ void VcontactList::activitiesArrived(QList<Activity> &activities)
 	    statusText.replace("&quot;", "\"", Qt::CaseInsensitive);
 	    statusText.replace("&lt;", "<", Qt::CaseInsensitive);
 	    statusText.replace("&gt;", ">", Qt::CaseInsensitive);
+	    statusText.replace("&#39;", "'", Qt::CaseInsensitive);
 	    statusText.replace("&amp;", "&", Qt::CaseInsensitive); // last ;)
 	    status.append("    " + statusText);
 	    m_plugin_system.setContactItemRow(item, status, 0);

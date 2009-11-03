@@ -1,5 +1,5 @@
 /*
-    VavatarManagement
+    VcontactList
 
     Copyright (c) 2009 by Alexander Kazarin <boiler@co.ru>
 
