@@ -332,6 +332,17 @@ void VcontactList::avatarArrived(const QString &buddy_id, const QByteArray &avat
     }
 }
 
+void replaceImproperChars(QString &txt)
+{
+    txt.replace("&quot;", "\"", Qt::CaseInsensitive);
+    txt.replace("&lt;", "<", Qt::CaseInsensitive);
+    txt.replace("&gt;", ">", Qt::CaseInsensitive);
+    txt.replace("&#39;", "'", Qt::CaseInsensitive);
+    txt.replace("<br>", "\n", Qt::CaseInsensitive);
+    // add here
+
+    txt.replace("&amp;", "&", Qt::CaseInsensitive); // last
+}
 
 void VcontactList::activitiesArrived(QList<Activity> &activities)
 {
@@ -350,11 +361,7 @@ void VcontactList::activitiesArrived(QList<Activity> &activities)
 		    return;
 	    QList<QVariant> status;
 	    QString statusText = QString(tmp_act.m_activity);
-	    statusText.replace("&quot;", "\"", Qt::CaseInsensitive);
-	    statusText.replace("&lt;", "<", Qt::CaseInsensitive);
-	    statusText.replace("&gt;", ">", Qt::CaseInsensitive);
-	    statusText.replace("&#39;", "'", Qt::CaseInsensitive);
-	    statusText.replace("&amp;", "&", Qt::CaseInsensitive); // last ;)
+	    replaceImproperChars(statusText);
 	    status.append("    " + statusText);
 	    m_plugin_system.setContactItemRow(item, status, 0);
 	}
@@ -406,6 +413,8 @@ void VcontactList::getNewMessages(QList<Message> &messages)
 		item.m_parent_name = getParentForId(item.m_item_name);
 	    item.m_item_name = tmp_mess.m_sender_id;
 	    item.m_item_type = 0;
+
+	    replaceImproperChars(tmp_mess.m_message);
 
 
 	    m_plugin_system.addMessageFromContact(item,tmp_mess.m_message, tmp_mess.m_time);
