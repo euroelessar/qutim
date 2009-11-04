@@ -7,6 +7,12 @@
 #include <libqutim/contact.h>
 class QWebPage;
 class QDateTime;
+
+namespace qutim_sdk_0_3
+{
+	class ChatSession;
+}
+
 namespace AdiumChat
 {
 	class ChatStyleOutput
@@ -61,10 +67,7 @@ namespace AdiumChat
 		_sameSender - "true" - same sender, "false" - message is send by another person
 		_history - if message was sent to offline, or gotten from history
 		*/
-		QString makeMessage(const QString &_name, const QString &_message,
-							const bool &_direction, const QDateTime &datetime,const QString &_avatarPath,
-							const bool &_aligment, const QString &_senderID, const QString &_service,
-							const bool &_sameSender, bool _history);
+		QString makeMessage(const ChatSessionImpl *session, const Message &mes, bool _aligment, bool _sameSender);
 		/*
 		changes keywords to action atributes in html like "Bob is writing on the desk"
 		_name - sender's nickname

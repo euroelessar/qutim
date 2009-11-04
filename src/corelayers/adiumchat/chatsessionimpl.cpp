@@ -65,17 +65,8 @@ namespace AdiumChat
 		else
 		{
 			same_from = (m_previous_sender == (message.isIncoming()?"nme":"me"));
-			item = m_chat_style_output->makeMessage(message.contact()->name(),
-															message.text(),
-															message.isIncoming(),
-															message.time(),
-															message.contact()->property("imagepath").toString(),
-															true, //FIXME
-															message.contact()->id(),
-															message.contact()->account()->id(),
-															same_from,
-															isHistory
-															);
+			item = m_chat_style_output->makeMessage(this, message, true, //FIXME
+															same_from );
 			m_previous_sender = (message.isIncoming()?"nme":"me");
 		}
 

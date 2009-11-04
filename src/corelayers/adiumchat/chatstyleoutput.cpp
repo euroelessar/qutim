@@ -8,12 +8,62 @@
 #include <QDateTime>
 #include <libqutim/configbase.h>
 #include <libqutim/account.h>
+#include <libqutim/protocol.h>
 #include <QWebFrame>
 #include <QWebPage>
 #include <QFileInfo>
+#include <QStringBuilder>
+#include "messagemodifier.h"
+#include "libqutim/objectgenerator.h"
+#include "chatsessionimpl.h"
 
 namespace AdiumChat
 {
+	struct MessageModifierTrack
+	{
+		inline MessageModifierTrack(const QRegExp &r, const QString &n, MessageModifier *m)
+				: regexp(r), name(n), modifier(m) {}
+		QRegExp regexp;
+		QString name;
+		MessageModifier *modifier;
+	};
+
+	void processMessage(QString &html, const ChatSession *session, const Message &message)
+	{
+		// TODO: add cleanup
+		static QList<MessageModifier *> modifiers;
+		static QList<MessageModifierTrack> list;
+		static bool is_inited = false;
+		if(!is_inited)
+		{
+			is_inited = true;
+			GeneratorList generators = moduleGenerators<MessageModifier>();
+			foreach(const ObjectGenerator *gen, generators)
+			{
+				MessageModifier *modifier = gen->generate<MessageModifier>();
+				modifiers << modifier;
+				foreach(const QString &name, modifier->supportedNames())
+				{
+					if(name.isEmpty() || name == QLatin1String("message"))
+						continue;
+					QString escaped = QRegExp::escape(name);
+					QRegExp regexp(QLatin1Literal("%") % escaped % QLatin1Literal("\\{(.*)\\}%")
+								   % QLatin1Literal("|%") % escaped % QLatin1Literal("()%"));
+					list << MessageModifierTrack(regexp, name, modifier);
+				}
+			}
+		}
+		QList<MessageModifierTrack>::iterator it = list.begin();
+		for(; it != list.end(); it++)
+		{
+			int pos=0;
+			while((pos = it->regexp.indexIn(html, pos)) != -1)
+			{
+				QString modified = it->modifier->getValue(session, message, it->name, it->regexp.cap(1));
+				html.replace(pos, it->regexp.cap(0).length(), modified);
+			}
+		}
+	}
 	
 	ChatStyleOutput::ChatStyleOutput ()
 	{
@@ -82,9 +132,6 @@ namespace AdiumChat
 									acc->property("imagepath").toString(),
 									acc->property("imagepath").toString(),
 									QDateTime::currentDateTime());
-		QString head; //TODO
-		static const QRegExp regexp( "(\\<\\s*\\/\\s*head\\s*\\>)", Qt::CaseInsensitive );
-		html.replace( regexp, head );
 		page->mainFrame()->setHtml(html);
 		reloadStyle(page);
 	}
@@ -104,7 +151,7 @@ namespace AdiumChat
 
 	QString ChatStyleOutput::makeSkeleton ( const QString& _chatName, const QString& _ownerName,
 											const QString& _partnerName, const QString& _ownerIconPath,
-											const QString& _partnerIconPath, const QDateTime& datetime
+											const QString& _partnerIconPath, const QDateTime& _dateTime
 											)
 	{
 		QString headerHTML = m_current_style.headerHtml;
@@ -124,7 +171,7 @@ namespace AdiumChat
 		generalSkeleton = generalSkeleton.replace("%chatName%", Qt::escape(_chatName));
 		generalSkeleton = generalSkeleton.replace("%sourceName%", Qt::escape(_ownerName));
 		generalSkeleton = generalSkeleton.replace("%destinationName%", Qt::escape(_partnerName));
-		makeTime(generalSkeleton,datetime,"%timeOpened\\{([^}]*)\\}%");
+		makeTime(generalSkeleton,_dateTime,"%timeOpened\\{([^}]*)\\}%");
 
 		if(_ownerIconPath == "")
 			generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", "outgoing_icon.png");
@@ -151,50 +198,50 @@ namespace AdiumChat
 		m_current_variant = _variantName;
 	}
 
-	QString ChatStyleOutput::makeMessage ( const QString& _name, const QString& _message,
-										   const bool& _direction, const QDateTime& datetime,
-										   const QString& _avatarPath, const bool& _aligment, const QString& _senderID,
-										   const QString& _service, const bool& _sameSender, bool _history )
+	QString ChatStyleOutput::makeMessage(const ChatSessionImpl *session, const Message &mes, bool _aligment, bool sameSender)
 	{
 		// prepare values, so they could be inserted to html code
 		QString html;
 
-		if(_history)
+		if(mes.time().isValid())
 		{
-			if ( _direction )
-				html = _sameSender ? m_current_style.nextOutgoingHistoryHtml : m_current_style.outgoingHistoryHtml;
+			if ( mes.isIncoming() )
+				html = sameSender ? m_current_style.nextOutgoingHistoryHtml : m_current_style.outgoingHistoryHtml;
 			else
-				html = _sameSender ? m_current_style.nextIncomingHistoryHtml : m_current_style.incomingHistoryHtml;
+				html = sameSender ? m_current_style.nextIncomingHistoryHtml : m_current_style.incomingHistoryHtml;
 		}
 		else
 		{
-			if ( _direction )
-				html = _sameSender ? m_current_style.nextOutgoingHtml : m_current_style.outgoingHtml;
+			if ( mes.isIncoming() )
+				html = sameSender ? m_current_style.nextOutgoingHtml : m_current_style.outgoingHtml;
 			else
-				html = _sameSender ? m_current_style.nextIncomingHtml : m_current_style.incomingHtml;
+				html = sameSender ? m_current_style.nextIncomingHtml : m_current_style.incomingHtml;
 		}
 
-		QString avatarPath = _avatarPath.isEmpty() ? QLatin1String(":/icons/qutim_64") : avatarPath; //FIXME set buddy icon
+		processMessage(html, session, mes);
+
+		QString avatarPath = mes.contact()->property("imagepath").toString(); //FIXME set buddy icon
 
 		// Replace %sender% to name
-		html = html.replace("%sender%", _name);
+		html = html.replace("%sender%", Qt::escape(mes.contact()->name()));
 		// Replace %senderScreenName% to name
-		html = html.replace("%senderScreenName%", Qt::escape(_senderID));
-		makeTime(html,datetime);
+		html = html.replace("%senderScreenName%", Qt::escape(mes.contact()->id()));
+		makeTime(html,mes.time());
 		// Replace %service% to protocol name
 		// TODO: have to get protocol global value somehow
-		html = html.replace("%service%", _service);
+		html = html.replace("%service%", Qt::escape(mes.contact()->account()->protocol()->id()));
 		// Replace %protocolIcon% to sender statusIcon path
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
 		// Replace userIconPath
-		if(avatarPath == "")
+		if(avatarPath.isEmpty())
 		{
-			if(_direction)
+			if(mes.isIncoming())
 				avatarPath = (m_current_style.baseHref + "Outgoing/buddy_icon.png");
 			else
 				avatarPath = (m_current_style.baseHref + "Incoming/buddy_icon.png");
-
+			if(!QFileInfo(avatarPath).exists())
+				avatarPath = QLatin1String(":/icons/qutim_64");
 		}
 		html = html.replace("%userIconPath%", avatarPath);
 
@@ -211,11 +258,11 @@ namespace AdiumChat
 		html = html.replace("%messageDirection%", _aligment ? "ltr" : "rtl" );
 
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
-		QString message = _message;
+		QString message = mes.text();
 		html = html.replace("%message%", message.replace("\\","\\\\").remove('\r').replace("%","&#37;")+"&nbsp;");
 		return html;
 	}
-	
+
 	QString ChatStyleOutput::makeAction ( const QString& _name, const QString& _message,
 										  const bool& _direction, const QDateTime& datetime,
 										  const QString& _avatarPath,
@@ -229,7 +276,7 @@ namespace AdiumChat
 		html = html.replace("%sender%", _name);
 		// Replace %senderScreenName% to name
 		html = html.replace("%senderScreenName%", Qt::escape(_senderID));
-		makeTime(html,datetime);
+		makeTime(html, datetime);
 		// Replace %service% to protocol name
 		// TODO: have to get protocol global value somehow
 		html = html.replace("%service%", _service);
@@ -266,11 +313,11 @@ namespace AdiumChat
 		return html;
 	}
 
-	QString ChatStyleOutput::makeStatus ( const QString& _message, const QDateTime& datetime)
+	QString ChatStyleOutput::makeStatus ( const QString& text, const QDateTime& datetime)
 	{
 		QString html = m_current_style.statusHtml;
-		makeTime(html,datetime);
-		html = html.replace("%message%", Qt::escape(_message).replace("\\","\\\\").remove('\r').replace("%","&#37;").replace("\n","<br/>")+"&nbsp;");
+		makeTime(html, datetime);
+		html = html.replace("%message%", Qt::escape(text).replace("\\","\\\\").remove('\r').replace("%","&#37;").replace("\n","<br/>")+"&nbsp;");
 		return html;
 	}
 

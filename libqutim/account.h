@@ -37,6 +37,8 @@ namespace qutim_sdk_0_3
 		Config config();
 		ConfigGroup config(const QString &group);
 		Status status() const;
+		Protocol *protocol();
+		const Protocol *protocol() const;
 		virtual void setStatus(Status status);
 	private:
 		QScopedPointer<AccountPrivate> p;

@@ -48,7 +48,7 @@ namespace qutim_sdk_0_3
 		virtual ~Protocol();
 		Config config();
 		ConfigGroup config(const QString &group);
-		QString id();
+		QString id() const;
 		virtual AccountCreationWizard *accountCreationWizard() = 0;
 	private:
 		virtual void loadAccounts() = 0;

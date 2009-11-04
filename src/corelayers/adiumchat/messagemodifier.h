@@ -1,19 +1,24 @@
-#ifndef MESSAGEMODIFIER_H
+#ifndef ADIUMMESSAGEMODIFIER_H
 #define MESSAGEMODIFIER_H
 
 #include <QObject>
 
+namespace qutim_sdk_0_3
+{
+	class ChatSession;
+	class Message;
+}
+
 namespace AdiumChat
 {
-	class Session;
-	class Message;
-	class MessageModifier : public QObject
+	class MessageModifier
 	{
-		Q_OBJECT
 	public:
-		virtual QString getValue(const Session *session, const Message &message, const QString &name, const QString &value) = 0;
+		virtual QString getValue(const ChatSession *session, const Message &message, const QString &name, const QString &value) = 0;
 		virtual QStringList supportedNames() const = 0;
 	};
-
 }
-#endif // MESSAGEMODIFIER_H
+
+Q_DECLARE_INTERFACE(AdiumChat::MessageModifier, "org.qutim.AdiumChat.MessageModifier")
+
+#endif // ADIUMMESSAGEMODIFIER_H

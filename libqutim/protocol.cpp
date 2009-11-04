@@ -29,7 +29,7 @@ namespace qutim_sdk_0_3
 
 	struct ProtocolPrivate
 	{
-		QString id;
+		mutable QString id;
 	};
 
 	Protocol::Protocol() : p(new ProtocolPrivate)
@@ -50,7 +50,7 @@ namespace qutim_sdk_0_3
 		return config().group(group);
 	}
 
-	QString Protocol::id()
+	QString Protocol::id() const
 	{
 		if(p->id.isNull())
 			p->id = QString::fromUtf8(metaInfo(metaObject(), "Protocol"));

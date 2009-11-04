@@ -61,6 +61,16 @@ namespace qutim_sdk_0_3
 	{
 		return p->status;
 	}
+
+	Protocol *Account::protocol()
+	{
+		return p->protocol;
+	}
+
+	const Protocol *Account::protocol() const
+	{
+		return p->protocol;
+	}
 		
 	void Account::setStatus(Status status)
 	{
