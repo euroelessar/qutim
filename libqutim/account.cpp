@@ -36,6 +36,10 @@ namespace qutim_sdk_0_3
 
 	Account::~Account()
 	{
+//		ConfigGroup data = config("properties");
+//		foreach(const QByteArray &name, dynamicPropertyNames())
+//			data.setValue(name, property(name));
+//		data.sync();
 	}
 
 	QString Account::id() const

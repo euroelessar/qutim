@@ -24,6 +24,17 @@ namespace qutim_sdk_0_3
 	{
 	}
 
+//	Contact::~Contact()
+//	{
+////		if(Account *account = qobject_cast<Account *>(parent()))
+////		{
+////			ConfigGroup data = account->config("contacts").group(id()).group("data");
+////			foreach(const QByteArray &name, dynamicPropertyNames())
+////				data.setValue(name, property(name));
+////			data.sync();
+////		}
+//	}
+
 	QSet<QString> Contact::tags() const
 	{
 		return QSet<QString>();

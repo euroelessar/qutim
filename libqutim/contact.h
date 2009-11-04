@@ -39,6 +39,7 @@ namespace qutim_sdk_0_3
 	public:
 		enum Type { Meta, Simple, Sub };
 		Contact(Account *account);
+//		virtual ~Contact();
 		Type type() const { return m_type; }
 		virtual QSet<QString> tags() const;
 		virtual QString id() const = 0;

@@ -9,7 +9,8 @@ QT += network
 TARGET = qutim
 TEMPLATE = lib
 DEFINES += LIBQUTIM_LIBRARY
-mac:LIBS += -framework CoreServices
+mac:LIBS += -framework \
+    CoreServices
 INCLUDEPATH += ../ \
     ../sdk02/
 SOURCES += tcpsocket.cpp \
@@ -42,7 +43,8 @@ SOURCES += tcpsocket.cpp \
     settingswidget.cpp \
     messagesession.cpp \
     iconloader.cpp \
-    utils.cpp
+    utils.cpp \
+    emoticons.cpp
 HEADERS += tcpsocket.h \
     libqutim_global.h \
     domaininfo.h \
@@ -75,7 +77,8 @@ HEADERS += tcpsocket.h \
     settingswidget.h \
     settingslayer_p.h \
     messagesession.h \
-    iconloader.h
+    iconloader.h \
+    emoticons.h
 include(../3rdparty/jdns/jdns.pri)
 include(../3rdparty/k8json/k8json.pri)
 include(../3rdparty/qticonloader/qticonloader.pri)

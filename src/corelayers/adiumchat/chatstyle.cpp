@@ -5,6 +5,8 @@
 #include <QTextCodec>
 #include <libqutim/configbase.h>
 #include <QDebug>
+#include <QUrl>
+#include <QStringBuilder>
 #include "chatlayerimpl.h"
 
 namespace AdiumChat
@@ -13,21 +15,21 @@ namespace AdiumChat
 	{
 		void readStyleFiles()
 		{
-			QString templateFile = style.baseHref + QString("Template.html");
-			QString headerFile = style.baseHref + QString("Header.html");
-			QString footerFile = style.baseHref + QString("Footer.html");
-			QString incomingFile = style.baseHref + QString("Incoming/Content.html");
-			QString nextIncomingFile = style.baseHref + QString("Incoming/NextContent.html");
-			QString outgoingFile = style.baseHref + QString("Outgoing/Content.html");
-			QString nextOutgoingFile = style.baseHref + QString("Outgoing/NextContent.html");
-			QString incomingHistoryFile = style.baseHref + QString("Incoming/Context.html");
-			QString nextIncomingHistoryFile = style.baseHref + QString("Incoming/NextContext.html");
-			QString outgoingHistoryFile = style.baseHref + QString("Outgoing/Context.html");
-			QString nextOutgoingHistoryFile = style.baseHref + QString("Outgoing/NextContext.html");
-			QString incomingActionFile = style.baseHref + QString("Incoming/Action.html");
-			QString outgoingActionFile = style.baseHref + QString("Outgoing/Action.html");
-			QString statusFile = style.baseHref + QString("Status.html");
-			QString mainCSSFile = style.baseHref + QString("main.css");
+			QString templateFile = style.basePath + QString("Template.html");
+			QString headerFile = style.basePath + QString("Header.html");
+			QString footerFile = style.basePath + QString("Footer.html");
+			QString incomingFile = style.basePath + QString("Incoming/Content.html");
+			QString nextIncomingFile = style.basePath + QString("Incoming/NextContent.html");
+			QString outgoingFile = style.basePath + QString("Outgoing/Content.html");
+			QString nextOutgoingFile = style.basePath + QString("Outgoing/NextContent.html");
+			QString incomingHistoryFile = style.basePath + QString("Incoming/Context.html");
+			QString nextIncomingHistoryFile = style.basePath + QString("Incoming/NextContext.html");
+			QString outgoingHistoryFile = style.basePath + QString("Outgoing/Context.html");
+			QString nextOutgoingHistoryFile = style.basePath + QString("Outgoing/NextContext.html");
+			QString incomingActionFile = style.basePath + QString("Incoming/Action.html");
+			QString outgoingActionFile = style.basePath + QString("Outgoing/Action.html");
+			QString statusFile = style.basePath + QString("Status.html");
+			QString mainCSSFile = style.basePath + QString("main.css");
 
 			QFile fileAccess;
 
@@ -51,7 +53,7 @@ namespace AdiumChat
 		}
 		void listVariants()
 		{
-			QString path =  style.baseHref + QString::fromUtf8("Variants/");
+			QString path =  style.basePath + QLatin1String("Variants/");
 			QDir variantDir(path);
 			variantDir.makeAbsolute();
 
@@ -62,7 +64,7 @@ namespace AdiumChat
 				QString name = *it, path;
 				// Retrieve only the file name.
 				name = name.left(name.lastIndexOf("."));
-				// variantPath is relative to baseHref.
+				// variantPath is relative to basePath.
 				path = QString("Variants/%1").arg(*it);
 				style.variants.insert(name, path);
 			}
@@ -87,50 +89,57 @@ namespace AdiumChat
 	
 	bool ChatStyle::isValid()
 	{
-	if (this->headerHtml.isEmpty() || this->footerHtml.isEmpty() || (!this->backgroundColor.isValid()) || this->baseHref.isEmpty())
-		return false;
-	if (this->currentVariantPath.isEmpty() || this->incomingActionHtml.isEmpty() || this->incomingHistoryHtml.isEmpty())
-		return false;
-	if (this->incomingHtml.isEmpty() || this->mainCSS.isEmpty() || this->nextIncomingHistoryHtml.isEmpty() || this->nextIncomingHtml.isEmpty())
-		return false;
-	if (this->nextOutgoingHistoryHtml.isEmpty() || this->nextOutgoingHtml.isEmpty() || this->statusHtml.isEmpty() || this->styleName.isEmpty())
-		return false;
-	if (variants.isEmpty())
-		return false;
-	return true;
-	};
+		if (this->headerHtml.isEmpty() || this->footerHtml.isEmpty() || (!this->backgroundColor.isValid()) || this->basePath.isEmpty())
+			return false;
+		if (this->currentVariantPath.isEmpty() || this->incomingActionHtml.isEmpty() || this->incomingHistoryHtml.isEmpty())
+			return false;
+		if (this->incomingHtml.isEmpty() || this->mainCSS.isEmpty() || this->nextIncomingHistoryHtml.isEmpty() || this->nextIncomingHtml.isEmpty())
+			return false;
+		if (this->nextOutgoingHistoryHtml.isEmpty() || this->nextOutgoingHtml.isEmpty() || this->statusHtml.isEmpty() || this->styleName.isEmpty())
+			return false;
+		if (variants.isEmpty())
+			return false;
+		return true;
+	}
 
-	ChatStyleGenerator::ChatStyleGenerator ( const QString& stylePath, const QString& variant )
-	:	d(new ChatStyleGeneratorPrivate)
+	ChatStyleGenerator::ChatStyleGenerator(const QString &stylePath, const QString &variant_)
+			:	d(new ChatStyleGeneratorPrivate)
 	{
+		QString variant = variant_;
 		QDir styleDir = stylePath;
 		if(stylePath.isEmpty() || !styleDir.exists())
 			return;
 		styleDir.cd("Contents/Resources");
 
-		d->style.baseHref = styleDir.canonicalPath() + QDir::separator();
+		QUrl hrefUrl(styleDir.canonicalPath());
+		hrefUrl.setScheme("file");
+		d->style.basePath = styleDir.absolutePath() + QDir::separator();
+		d->style.baseHref = hrefUrl.toString() + QDir::separator();
 		styleDir.cdUp();
-		qDebug() << styleDir.filePath("Info.plist");
 		Config settings = Config(styleDir.filePath("Info.plist"));
 		QRgb color = settings.value<int>("DefaultBackgroundColor", 0xffffff);
 		d->style.backgroundColor = QColor(color);
 		d->style.backgroundIsTransparent = settings.value<bool>("DefaultBackgroundIsTransparent", false);
 		styleDir.cdUp();
-		d->style.styleName = QFileInfo( styleDir.canonicalPath() ).completeBaseName();
-		if (variant.isEmpty())
-			d->listVariants();
-		else
+		d->style.styleName = settings.value("CFBundleName", QString());
+		if(d->style.styleName.isEmpty()) // For stupid styles, TODO: check kopete styles, if them ok - remove!
+			d->style.styleName = QFileInfo( styleDir.canonicalPath() ).completeBaseName();
+		d->listVariants();
+
+		QString path = variant.isEmpty() ? QString() : d->style.basePath % QLatin1Literal("Variants/") % variant % QLatin1Literal(".css");
+		QFileInfo info(path);
+		if (variant.isEmpty() || !info.exists())
 		{
-			QString path = stylePath+"Variants/"+variant+".css";
-			QFileInfo info (path);
-			if (info.exists())
-				d->style.variants.insert(variant,"Variants/" + variant + ".css"); //TODO need check
+			variant = settings.value("DefaultVariant", QString());
+			path = d->style.basePath % QLatin1Literal("Variants/") % variant % QLatin1Literal(".css");
+			info.setFile(path);
+			if(info.exists())
+				d->style.defaultVariant = path;
 			else
-			{
-				d->listVariants();
-				d->style.variants.insert(variant, d->style.variants.begin().value()); //make default variant
-			}
+				d->style.defaultVariant = QString();
 		}
+		else
+			d->style.defaultVariant = path;
 	}
 
 	ChatStyle ChatStyleGenerator::getChatStyle () const

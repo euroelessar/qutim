@@ -40,7 +40,7 @@ namespace AdiumChat
 		if (!message.contact())
 			return;
 		bool same_from = false;
-		bool isHistory = message.property("isHistory").toBool();
+		bool isHistory = message.time().isValid();
 		if (isHistory)
 		{
 			m_previous_sender="";
@@ -117,5 +117,10 @@ namespace AdiumChat
 		return m_session_id;
 	}
 
-
+	QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
+	{
+		if(m_web_page.isNull())
+			return QVariant();
+		return m_web_page->mainFrame()->evaluateJavaScript(scriptSource);
+	}
 }

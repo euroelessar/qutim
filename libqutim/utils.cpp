@@ -379,8 +379,7 @@ namespace qutim_sdk_0_3
 	
 	QString getThemePath(QDir shareDir, const QString &themeName , const QString &category )
 	{
-		shareDir.cd(category);
-		if (shareDir.cd(themeName))
+		if(shareDir.cd(category) && shareDir.cd(themeName))
 			return shareDir.absolutePath();
 		else
 			return QString();

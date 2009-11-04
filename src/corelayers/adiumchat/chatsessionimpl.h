@@ -21,6 +21,8 @@ namespace AdiumChat
 		QWebPage *getPage() const;
 		Account *getAccount() const;
 		QString getId() const;
+	public slots:
+		QVariant evaluateJavaScript(const QString &scriptSource);
 	private:
 		QPointer<QWebPage> m_web_page;
 		QScopedPointer<ChatStyleOutput> m_chat_style_output;

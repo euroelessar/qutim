@@ -18,8 +18,8 @@ namespace AdiumChat
 	ChatStyleOutput::ChatStyleOutput ()
 	{
 		loadSettings();
- 		ChatStyleGenerator generator (m_current_style_path,m_current_variant);
- 		m_current_style = generator.getChatStyle();
+		ChatStyleGenerator generator (m_current_style_path,m_current_variant);
+		m_current_style = generator.getChatStyle();
 	}
 
 	void ChatStyleOutput::loadSettings()
@@ -27,9 +27,8 @@ namespace AdiumChat
 		ConfigGroup adium_chat = Config("appearance").group("adiumChat/style");
 		m_current_style_path = getThemePath(adium_chat.value<QString>("name","default"),
 											"webkitstyle");
-		m_current_variant = adium_chat.value<QString>("variant","default");
+		m_current_variant = adium_chat.value<QString>("variant", QString());
 		m_current_datetime_format = adium_chat.value<QString>("datetimeFormat","hh:mm:ss dd/MM/yyyy");
-		qDebug() << m_current_style_path << m_current_variant << m_current_datetime_format;
 	}
 
 	void ChatStyleOutput::reloadStyle(QWebPage* page)
@@ -59,8 +58,7 @@ namespace AdiumChat
 
 	QString ChatStyleOutput::getVariantCSS()
 	{
-		//FIXME
-		return m_current_style.variants.value(m_current_variant);
+		return m_current_style.variants.value(m_current_variant, m_current_style.defaultVariant);
 	}
 
 	void ChatStyleOutput::preparePage ( QWebPage* page, Account* acc, const QString& id )
@@ -79,11 +77,11 @@ namespace AdiumChat
 		page->setPalette(palette);
 		//TODO 
 		QString html = makeSkeleton(QObject::tr("Chat with %1").arg(id),
-				acc->id(),
-				id,
-				acc->property("imagepath").toString(),
-				acc->property("imagepath").toString(),
-				QDateTime::currentDateTime());
+									acc->id(),
+									id,
+									acc->property("imagepath").toString(),
+									acc->property("imagepath").toString(),
+									QDateTime::currentDateTime());
 		QString head; //TODO
 		static const QRegExp regexp( "(\\<\\s*\\/\\s*head\\s*\\>)", Qt::CaseInsensitive );
 		html.replace( regexp, head );
@@ -94,12 +92,12 @@ namespace AdiumChat
 	QStringList ChatStyleOutput::getPaths()
 	{
 		QStringList paths;
-		paths << m_current_style.baseHref;
-		paths << m_current_style.baseHref + "Variants/";
-		paths << m_current_style.baseHref + "Images/";
-		paths << m_current_style.baseHref + "Incoming/";
-		paths << m_current_style.baseHref + "Outgoing/";
-		paths << m_current_style.baseHref + "styles/";
+		paths << m_current_style.basePath;
+		paths << m_current_style.basePath + "Variants/";
+		paths << m_current_style.basePath + "Images/";
+		paths << m_current_style.basePath + "Incoming/";
+		paths << m_current_style.basePath + "Outgoing/";
+		paths << m_current_style.basePath + "styles/";
 
 		return paths;
 	}
@@ -119,9 +117,9 @@ namespace AdiumChat
 		generalSkeleton.replace(generalSkeleton.lastIndexOf("%@"),2,getVariantCSS());
 		if(generalSkeleton.contains("%@"))
 			generalSkeleton.replace(generalSkeleton.indexOf("%@"),2,"@import url( \"main.css\" );");
-	//	generalSkeleton.replace("%rep2%", "main.css");
-	//	generalSkeleton.replace("%rep3%", "Variants/" + variantUsedName + ".css");
-	//	generalSkeleton.replace("%rep4%", headerHTML);
+		//	generalSkeleton.replace("%rep2%", "main.css");
+		//	generalSkeleton.replace("%rep3%", "Variants/" + variantUsedName + ".css");
+		//	generalSkeleton.replace("%rep4%", headerHTML);
 
 		generalSkeleton = generalSkeleton.replace("%chatName%", Qt::escape(_chatName));
 		generalSkeleton = generalSkeleton.replace("%sourceName%", Qt::escape(_ownerName));
@@ -131,20 +129,20 @@ namespace AdiumChat
 		if(_ownerIconPath == "")
 			generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", "outgoing_icon.png");
 		else
-	#if defined(Q_OS_WIN32) //TODO FIXME remove hacks!
+#if defined(Q_OS_WIN32) //TODO FIXME remove hacks!
 			generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", _ownerIconPath);
-	#else
-			generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", "file://" + _ownerIconPath);
-	#endif
+#else
+		generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", "file://" + _ownerIconPath);
+#endif
 
 		if(_partnerIconPath == "")
 			generalSkeleton = generalSkeleton.replace("%incomingIconPath%", "incoming_icon.png");
 		else
-	#if defined(Q_OS_WIN32)
+#if defined(Q_OS_WIN32)
 			generalSkeleton = generalSkeleton.replace("%incomingIconPath%", _partnerIconPath);
-	#else
-			generalSkeleton = generalSkeleton.replace("%incomingIconPath%", "file://" + _partnerIconPath);
-	#endif
+#else
+		generalSkeleton = generalSkeleton.replace("%incomingIconPath%", "file://" + _partnerIconPath);
+#endif
 		return generalSkeleton;
 	}
 
@@ -219,9 +217,9 @@ namespace AdiumChat
 	}
 	
 	QString ChatStyleOutput::makeAction ( const QString& _name, const QString& _message,
-									  const bool& _direction, const QDateTime& datetime,
-									  const QString& _avatarPath,
-									  const bool& _aligment, const QString& _senderID, const QString& _service )
+										  const bool& _direction, const QDateTime& datetime,
+										  const QString& _avatarPath,
+										  const bool& _aligment, const QString& _senderID, const QString& _service )
 	{
 		QString html = _direction ? m_current_style.outgoingActionHtml:m_current_style.incomingActionHtml;
 

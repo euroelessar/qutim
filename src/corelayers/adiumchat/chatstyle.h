@@ -11,6 +11,7 @@ namespace AdiumChat
 	{
 		QString styleName;
 		QString baseHref;
+		QString basePath;
 		QString currentVariantPath;
 		QString templateHtml;
 		QString headerHtml;
@@ -28,6 +29,7 @@ namespace AdiumChat
 		QString statusHtml;
 		QString mainCSS;
 		QColor backgroundColor;
+		QString defaultVariant;
 		StyleVariants variants;
 		bool backgroundIsTransparent;
 		bool isValid();
