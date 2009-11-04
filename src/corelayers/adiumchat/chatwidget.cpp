@@ -39,8 +39,8 @@ namespace AdiumChat
 	
 	void ChatWidget::addSession(const ChatSessionList &sessions)
 	{
-		for (int i;i!=sessions->count();i++)
-			addSession(sessions->at(i));
+		for (int i;i!=sessions.count();i++)
+			addSession(sessions.at(i));
 	}
 	
 	void ChatWidget::currentIndexChanged(int index)
