@@ -66,7 +66,7 @@ namespace AdiumChat
 				path = QString("Variants/%1").arg(*it);
 				style.variants.insert(name, path);
 			}
-		};
+		}
 		QString readStyleFile ( const QString& filePath, QFile* fileAccess )
 		{
 			if( QFile::exists(filePath) )
@@ -79,7 +79,7 @@ namespace AdiumChat
 				return templateStream.readAll();
 			}
 			return QString();
-		};
+		}
 		ChatStyle style;
 	};	
 	

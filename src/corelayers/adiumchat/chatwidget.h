@@ -25,7 +25,7 @@ namespace AdiumChat
 		virtual ~ChatWidget();
 	public slots:
 		void addSession(ChatSessionImpl *session);
-		void addSession(ChatSessionList *sessions);
+		void addSession(const ChatSessionList &sessions);
 		void removeSession(ChatSessionImpl *session);
 	private:
 		ChatSessionList m_sessions;

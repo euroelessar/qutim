@@ -26,6 +26,8 @@ namespace AdiumChat
 
 	void ChatWidget::addSession(ChatSessionImpl* session)
 	{
+		if(m_sessions.contains(session))
+			return;
 		m_sessions.append(session);
 		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved()));
 		QString imagePath = session->getAccount()->property("imagepath").toString();
@@ -35,7 +37,7 @@ namespace AdiumChat
 			ui->tabBar->setVisible(true);
 	}
 	
-	void ChatWidget::addSession(ChatSessionList* sessions)
+	void ChatWidget::addSession(const ChatSessionList &sessions)
 	{
 		for (int i;i!=sessions->count();i++)
 			addSession(sessions->at(i));

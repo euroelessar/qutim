@@ -32,8 +32,9 @@ namespace AdiumChat
 		ChatWidget *widget = m_chatwidget_list.value(key);
 		if (!widget)
 		{
+			widget = new ChatWidget();
+			widget->show();
 			m_chatwidget_list.insert(key,widget);//FIXME need testing
-			ChatWidget *widget = new ChatWidget();
 		}
 		widget->addSession(session);
 		

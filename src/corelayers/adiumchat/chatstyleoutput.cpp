@@ -29,6 +29,7 @@ namespace AdiumChat
 											"webkitstyle");
 		m_current_variant = adium_chat.value<QString>("variant","default");
 		m_current_datetime_format = adium_chat.value<QString>("datetimeFormat","hh:mm:ss dd/MM/yyyy");
+		qDebug() << m_current_style_path << m_current_variant << m_current_datetime_format;
 	}
 
 	void ChatStyleOutput::reloadStyle()
@@ -55,7 +56,10 @@ namespace AdiumChat
 		QString variant = m_current_variant.isEmpty() ? "default" : m_current_variant;
 		QFileInfo info (m_current_style_path + "Variants/" + variant + ".css");
 		if (!info.exists())
-			variant = m_current_style.variants.begin().value();
+		{
+			if(!m_current_style.variants.isEmpty())
+				variant = m_current_style.variants.begin().value();
+		}
 		return "Variants/" + variant + ".css";
 	}
 
