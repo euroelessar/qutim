@@ -4,6 +4,7 @@
 #include <QWebFrame>
 #include <libqutim/account.h>
 #include <QTextDocument>
+#include <QDateTime>
 
 namespace AdiumChat
 
@@ -54,6 +55,11 @@ namespace AdiumChat
 					true, message.contact()->id(), message.contact()->account()->id());
 			m_previous_sender = "";
 		}
+		else if (message.property("service").toBool())
+		{
+			item = m_chat_style_output->makeStatus(item, QDateTime::currentDateTime());
+			m_previous_sender = "";
+		}
 		else
 		{
 			same_from = (m_previous_sender == (message.isIncoming()?"nme":"me"));
@@ -78,7 +84,7 @@ namespace AdiumChat
 				result.isEmpty() ? item :
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
-		if (!result.isEmpty())
+		if (result.isEmpty()) //TODO I'm not sure that it works well
 			m_message_count++;
 	}
 

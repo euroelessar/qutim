@@ -10,6 +10,7 @@
 #include <libqutim/account.h>
 #include <QWebFrame>
 #include <QWebPage>
+#include <QFileInfo>
 
 namespace AdiumChat
 {
@@ -51,10 +52,11 @@ namespace AdiumChat
 
 	QString ChatStyleOutput::getVariantCSS()
 	{
-	if(!m_current_variant.isEmpty())
-		return "Variants/" + m_current_variant + ".css";
-	else
-		return QString();
+		QString variant = m_current_variant.isEmpty() ? "default" : m_current_variant;
+		QFileInfo info (m_current_style_path + "Variants/" + variant + ".css");
+		if (!info.exists())
+			variant = m_current_style.variants.begin().value();
+		return "Variants/" + variant + ".css";
 	}
 
 	void ChatStyleOutput::preparePage ( QWebPage* page, Account* acc, const QString& id )
