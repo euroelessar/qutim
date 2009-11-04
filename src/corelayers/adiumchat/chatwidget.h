@@ -13,6 +13,7 @@ namespace AdiumChat
 	enum ChatFlag
 	{
 		RemoveSessionOnClose	=	0x1, //remove session, when widget or tab was closed
+		AeroThemeIntegeation	=	0x2, 
 	};
 	class ChatSessionImpl;
 	class ChatWidget : public QWidget

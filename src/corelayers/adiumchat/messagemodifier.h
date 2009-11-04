@@ -2,6 +2,7 @@
 #define MESSAGEMODIFIER_H
 
 #include <QObject>
+#include "chatsessionimpl.h"
 
 namespace qutim_sdk_0_3
 {
