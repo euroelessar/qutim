@@ -20,7 +20,7 @@
 
 namespace qutim_sdk_0_3
 {
-	class MetaContact : public Contact
+	class LIBQUTIM_EXPORT MetaContact : public Contact
 	{
 		Q_OBJECT
 	public:

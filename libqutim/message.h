@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3
 	class Contact;
 	class MessagePrivate;
 
-	class Message
+	class LIBQUTIM_EXPORT Message
 	{
 	public:
 		Message();

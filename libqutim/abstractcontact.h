@@ -26,7 +26,7 @@ namespace qutim_sdk_0_3
 	class MetaContact;
 	class Message;
 
-	class AbstractContact : public QObject
+	class LIBQUTIM_EXPORT AbstractContact : public QObject
 	{
 		Q_OBJECT
 		Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)

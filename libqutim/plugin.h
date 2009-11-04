@@ -124,7 +124,7 @@ namespace qutim_sdk_0_3
 //		quint32 version;
 //	};
 
-	class ExtensionInfoData : public QSharedData
+	class LIBQUTIM_EXPORT ExtensionInfoData : public QSharedData
 	{
 	public:
 		ExtensionInfoData();
@@ -135,7 +135,7 @@ namespace qutim_sdk_0_3
 		QIcon icon;
 	};
 
-	class ExtensionInfo
+	class LIBQUTIM_EXPORT ExtensionInfo
 	{
 	public:
 		ExtensionInfo(const char *name = 0, const char *description = 0,

@@ -21,7 +21,7 @@
 
 //namespace qutim_sdk_0_3
 //{
-class Icon : public QIcon
+class LIBQUTIM_EXPORT Icon : public QIcon
 {
 public:
 	// Qt 4.6 has ability for getting icons from system themes

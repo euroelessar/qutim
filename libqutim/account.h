@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3
 	class Protocol;
 	struct AccountPrivate;
 
-	class Account : public QObject
+	class LIBQUTIM_EXPORT Account : public QObject
 	{
 		Q_OBJECT
 		Q_PROPERTY(QString id READ id)

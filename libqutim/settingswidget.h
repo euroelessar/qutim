@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3
 	struct SettingsWidgetPrivate;
 	class AutoSettingsGenerator;
 
-	class SettingsWidget : public QWidget
+	class LIBQUTIM_EXPORT SettingsWidget : public QWidget
 	{
 		Q_OBJECT
 		Q_PROPERTY(bool modified READ isModified NOTIFY modifiedChanged)

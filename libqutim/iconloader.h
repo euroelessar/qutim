@@ -8,7 +8,7 @@ class QMovie;
 
 namespace qutim_sdk_0_3
 {
-	class IconLoader : public QObject
+	class LIBQUTIM_EXPORT IconLoader : public QObject
 	{
 		Q_OBJECT
 	public:

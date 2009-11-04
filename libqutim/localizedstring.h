@@ -20,7 +20,7 @@
 
 namespace qutim_sdk_0_3
 {
-	class LocalizedString
+	class LIBQUTIM_EXPORT LocalizedString
 	{
 	public:
 		LocalizedString() {}

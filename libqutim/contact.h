@@ -27,7 +27,7 @@ namespace qutim_sdk_0_3
 	class MetaContact;
 	class Message;
 
-	class Contact : public QObject
+	class LIBQUTIM_EXPORT Contact : public QObject
 	{
 		Q_OBJECT
 		Q_PROPERTY(Account* account READ account)
