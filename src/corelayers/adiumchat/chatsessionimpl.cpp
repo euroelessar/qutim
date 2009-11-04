@@ -102,7 +102,6 @@ namespace AdiumChat
 	
 	QWebPage* ChatSessionImpl::getPage() const
 	{
-		qDebug() << "get Page" << m_web_page->currentFrame()->toHtml();
 		return m_web_page;
 	}
 

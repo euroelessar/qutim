@@ -40,6 +40,7 @@ namespace AdiumChat
 		ChatStyleGenerator (const QString &stylePath, const QString &variant = QString());
 		~ChatStyleGenerator();
 		ChatStyle getChatStyle () const;
+		StyleVariants getVariants() const;
 	private:
 		QScopedPointer<ChatStyleGeneratorPrivate> d;
 	};

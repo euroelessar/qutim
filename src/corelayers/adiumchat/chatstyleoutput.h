@@ -94,7 +94,7 @@ namespace AdiumChat
 		QString getMainCSS();
 		QString getVariantCSS();
 		void preparePage(QWebPage *page, Account* acc, const QString& id);
-		void reloadStyle();
+		void reloadStyle(QWebPage* page);
 	private:
 		/*
 		makes html code from plaint text //TODO rewrite on javascript

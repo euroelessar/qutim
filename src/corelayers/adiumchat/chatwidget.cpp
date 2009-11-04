@@ -50,7 +50,7 @@ namespace AdiumChat
 		if (index == -1)
 			return;
 		ui->chatView->setPage(m_sessions.at(index)->getPage());
-		qDebug() << m_sessions.at(index)->getPage()->currentFrame()->toHtml();
+		//ui->chatView->page()->currentFrame()->toHtml();
 	}
 
 	void ChatWidget::clear()

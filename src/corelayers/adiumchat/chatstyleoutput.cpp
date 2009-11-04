@@ -32,8 +32,14 @@ namespace AdiumChat
 		qDebug() << m_current_style_path << m_current_variant << m_current_datetime_format;
 	}
 
-	void ChatStyleOutput::reloadStyle()
+	void ChatStyleOutput::reloadStyle(QWebPage* page)
 	{
+		QString js;
+		js += "setStylesheet(\"mainStyle\",\"";
+		js += getVariantCSS();
+		js += "\");";
+		qDebug() << js;
+		page->currentFrame()->evaluateJavaScript(js);
 	}
 
 	ChatStyleOutput::~ChatStyleOutput()
@@ -54,14 +60,7 @@ namespace AdiumChat
 	QString ChatStyleOutput::getVariantCSS()
 	{
 		//FIXME
-		QString variant = m_current_variant.isEmpty() ? "default" : m_current_variant;
-		QFileInfo info (m_current_style_path + "Variants/" + variant + ".css");
-		if (!info.exists())
-		{
-			if(!m_current_style.variants.isEmpty())
-				variant = m_current_style.variants.begin().value();
-		}
-		return "Variants/" + variant + ".css";
+		return m_current_style.variants.value(m_current_variant);
 	}
 
 	void ChatStyleOutput::preparePage ( QWebPage* page, Account* acc, const QString& id )
@@ -90,6 +89,7 @@ namespace AdiumChat
 		static const QRegExp regexp( "(\\<\\s*\\/\\s*head\\s*\\>)", Qt::CaseInsensitive );
 		html.replace( regexp, head );
 		page->mainFrame()->setHtml(html);
+		reloadStyle(page);
 	}
 
 	QStringList ChatStyleOutput::getPaths()

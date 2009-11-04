@@ -117,18 +117,25 @@ namespace AdiumChat
 		d->style.backgroundIsTransparent = settings.value<bool>("DefaultBackgroundIsTransparent", false);
 		styleDir.cdUp();
 		d->style.styleName = QFileInfo( styleDir.canonicalPath() ).completeBaseName();
-
-		d->readStyleFiles();
 		if (variant.isEmpty())
 			d->listVariants();
 		else
 		{
-			d->style.variants.insert(variant,"Variants/" + variant + ".css"); //TODO need check
+			QString path = stylePath+"Variants/"+variant+".css";
+			QFileInfo info (path);
+			if (info.exists())
+				d->style.variants.insert(variant,"Variants/" + variant + ".css"); //TODO need check
+			else
+			{
+				d->listVariants();
+				d->style.variants.insert(variant, d->style.variants.begin().value()); //make default variant
+			}
 		}
 	}
 
 	ChatStyle ChatStyleGenerator::getChatStyle () const
 	{
+		d->readStyleFiles();
 		return d->style;
 	}
 
@@ -136,6 +143,12 @@ namespace AdiumChat
 	ChatStyleGenerator::~ChatStyleGenerator()
 	{
 
+	}
+	
+	StyleVariants ChatStyleGenerator::getVariants() const
+	{
+		d->listVariants();
+		return d->style.variants;
 	}
 
 
