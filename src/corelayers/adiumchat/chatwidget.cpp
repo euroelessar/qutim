@@ -3,6 +3,8 @@
 #include "ui_chatwidget.h"
 #include <libqutim/account.h>
 #include <libqutim/icon.h>
+#include <QWebFrame>
+#include <QDebug>
 
 namespace AdiumChat
 {
@@ -45,7 +47,10 @@ namespace AdiumChat
 	
 	void ChatWidget::currentIndexChanged(int index)
 	{
+		if (index == -1)
+			return;
 		ui->chatView->setPage(m_sessions.at(index)->getPage());
+		qDebug() << m_sessions.at(index)->getPage()->currentFrame()->toHtml();
 	}
 
 	void ChatWidget::clear()
@@ -68,6 +73,7 @@ namespace AdiumChat
 		m_sessions.removeAt(index);
 		if (ui->tabBar->count() == 1)
 			ui->tabBar->setVisible(false);
+		currentIndexChanged(ui->tabBar->currentIndex());
 		if (m_chat_flags & RemoveSessionOnClose)
 			session->deleteLater();
 	}

@@ -53,6 +53,7 @@ namespace AdiumChat
 
 	QString ChatStyleOutput::getVariantCSS()
 	{
+		//FIXME
 		QString variant = m_current_variant.isEmpty() ? "default" : m_current_variant;
 		QFileInfo info (m_current_style_path + "Variants/" + variant + ".css");
 		if (!info.exists())
@@ -85,6 +86,7 @@ namespace AdiumChat
 				acc->property("imagepath").toString(),
 				QDateTime::currentDateTime());
 		QString head; //TODO
+		qDebug() <<html;
 		static const QRegExp regexp( "(\\<\\s*\\/\\s*head\\s*\\>)", Qt::CaseInsensitive );
 		html.replace( regexp, head );
 		page->mainFrame()->setHtml(html);
@@ -214,7 +216,6 @@ namespace AdiumChat
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
 		QString message = _message;
 		html = html.replace("%message%", message.replace("\\","\\\\").remove('\r').replace("%","&#37;")+"&nbsp;");
-
 		return html;
 	}
 	

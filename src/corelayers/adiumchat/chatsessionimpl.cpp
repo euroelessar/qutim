@@ -5,6 +5,7 @@
 #include <libqutim/account.h>
 #include <QTextDocument>
 #include <QDateTime>
+#include <QDebug>
 
 namespace AdiumChat
 
@@ -101,6 +102,7 @@ namespace AdiumChat
 	
 	QWebPage* ChatSessionImpl::getPage() const
 	{
+		qDebug() << "get Page" << m_web_page->currentFrame()->toHtml();
 		return m_web_page;
 	}
 

@@ -69,16 +69,18 @@ namespace AdiumChat
 		}
 		QString readStyleFile ( const QString& filePath, QFile* fileAccess )
 		{
+			qDebug() << filePath << QFile::exists(filePath);
+			QString out;
 			if( QFile::exists(filePath) )
 			{
 				fileAccess->setFileName(filePath);
 				fileAccess->open(QIODevice::ReadOnly);
 				QTextStream templateStream(fileAccess);
 				templateStream.setCodec(QTextCodec::codecForName("UTF-8"));
+				out = templateStream.readAll();
 				fileAccess->close();
-				return templateStream.readAll();
 			}
-			return QString();
+			return out;
 		}
 		ChatStyle style;
 	};	
@@ -104,6 +106,7 @@ namespace AdiumChat
 		QDir styleDir = stylePath;
 		if(stylePath.isEmpty() || !styleDir.exists())
 			return;
+		styleDir.cd("Contents/Resources");
 
 		d->style.baseHref = styleDir.canonicalPath() + QDir::separator();
 		styleDir.cdUp();

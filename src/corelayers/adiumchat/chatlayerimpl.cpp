@@ -3,7 +3,6 @@
 #include "chatsessionimpl.h"
 #include "chatwidget.h"
 #include "modulemanagerimpl.h"
-#include <libqutim/settingslayer.h>
 
 namespace AdiumChat
 
@@ -15,6 +14,7 @@ namespace AdiumChat
 		
 	ChatLayerImpl::ChatLayerImpl()
 	{
+
 	}
 
 
