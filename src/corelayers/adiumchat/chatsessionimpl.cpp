@@ -64,7 +64,7 @@ namespace AdiumChat
 		else
 		{
 			same_from = (m_previous_sender == (message.isIncoming()?"nme":"me"));
-			QString item = m_chat_style_output->makeMessage(message.contact()->name(),
+			item = m_chat_style_output->makeMessage(message.contact()->name(),
 															message.text(),
 															message.isIncoming(),
 															message.time(),
@@ -84,6 +84,7 @@ namespace AdiumChat
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
+		qDebug() << jsTask << item;
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
 		if (result.isEmpty()) //TODO I'm not sure that it works well
 			m_message_count++;

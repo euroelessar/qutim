@@ -54,7 +54,7 @@ namespace AdiumChat
 
 	QString ChatStyleOutput::getMainCSS()
 	{
-		return m_current_style.mainCSS;
+		return  m_current_style.mainCSS;
 	}
 
 	QString ChatStyleOutput::getVariantCSS()
@@ -85,7 +85,6 @@ namespace AdiumChat
 				acc->property("imagepath").toString(),
 				QDateTime::currentDateTime());
 		QString head; //TODO
-		qDebug() <<html;
 		static const QRegExp regexp( "(\\<\\s*\\/\\s*head\\s*\\>)", Qt::CaseInsensitive );
 		html.replace( regexp, head );
 		page->mainFrame()->setHtml(html);

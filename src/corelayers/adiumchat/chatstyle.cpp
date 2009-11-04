@@ -69,7 +69,7 @@ namespace AdiumChat
 		}
 		QString readStyleFile ( const QString& filePath, QFile* fileAccess )
 		{
-			qDebug() << filePath << QFile::exists(filePath);
+			//qDebug() << filePath << QFile::exists(filePath);
 			QString out;
 			if( QFile::exists(filePath) )
 			{

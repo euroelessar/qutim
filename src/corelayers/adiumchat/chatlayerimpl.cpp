@@ -3,6 +3,7 @@
 #include "chatsessionimpl.h"
 #include "chatwidget.h"
 #include "modulemanagerimpl.h"
+#include <QDebug>
 
 namespace AdiumChat
 
@@ -20,6 +21,7 @@ namespace AdiumChat
 
 	ChatSession* ChatLayerImpl::getSession ( Account* acc, const QString& id, bool create )
 	{
+		create = false;
 		//find or create session
 		if (m_chat_sessions.value(acc).contains(id) && !create)
 			return m_chat_sessions.value(acc).value(id);
@@ -77,8 +79,9 @@ namespace AdiumChat
 	
 	QString ChatLayerImpl::getWidgetId(Account* acc, const QString& id) const
 	{
-		QString key = acc->id() + "/" + id; //simple variant
-		//key = "adiumchat"; //all session in one window
+		QString key;
+		//QString key = acc->id() + "/" + id; //simple variant
+		key = "adiumchat"; //all session in one window
 		return key;
 	}
 
