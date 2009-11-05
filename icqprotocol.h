@@ -10,7 +10,7 @@ struct IcqProtocolPrivate;
 class IcqProtocol : public Protocol
 {
 	Q_OBJECT
-	Q_CLASSINFO("Protocol", "ICQ")
+	Q_CLASSINFO("Protocol", "icq")
 public:
     IcqProtocol();
 	virtual ~IcqProtocol();
