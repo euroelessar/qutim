@@ -49,13 +49,7 @@ namespace AdiumChat
 		QString item;
 		if(message.text().startsWith("/me "))
 		{
-			QString tmp_msg = message.text().mid(3);
-			qDebug() << tmp_msg;
-			item = m_chat_style_output->makeAction(
-					Qt::escape(message.contact()->name()),
-					tmp_msg, !message.isIncoming(), message.time(),
-					message.contact()->property("imagepath").toString(),
-					true, message.contact()->id(), message.contact()->account()->id());
+			item = m_chat_style_output->makeAction(this,message,true);
 			m_previous_sender = "";
 		}
 		else if (message.property("service").toBool())

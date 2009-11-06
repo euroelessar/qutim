@@ -263,30 +263,30 @@ namespace AdiumChat
 		return html;
 	}
 
-	QString ChatStyleOutput::makeAction ( const QString& _name, const QString& _message,
-										  const bool& _direction, const QDateTime& datetime,
-										  const QString& _avatarPath,
-										  const bool& _aligment, const QString& _senderID, const QString& _service )
+	QString ChatStyleOutput::makeAction (const ChatSessionImpl *session, const Message &mes, 
+										 const bool& _aligment)
 	{
-		QString html = _direction ? m_current_style.outgoingActionHtml:m_current_style.incomingActionHtml;
+		QString html = mes.isIncoming() ? m_current_style.outgoingActionHtml:m_current_style.incomingActionHtml;
 
-		QString avatarPath = _avatarPath;
+		QString avatarPath = mes.property("imagepath").toString();
+
+		processMessage(html,session,mes);
 
 		// Replace %sender% to name
-		html = html.replace("%sender%", _name);
+		html = html.replace("%sender%", Qt::escape(mes.contact()->name()));
 		// Replace %senderScreenName% to name
-		html = html.replace("%senderScreenName%", Qt::escape(_senderID));
-		makeTime(html, datetime);
+		html = html.replace("%senderScreenName%", Qt::escape(mes.contact()->id()));
+		makeTime(html, mes.time());
 		// Replace %service% to protocol name
 		// TODO: have to get protocol global value somehow
-		html = html.replace("%service%", _service);
+		html = html.replace("%service%", Qt::escape(mes.contact()->account()->protocol()->id()));
 		// Replace %protocolIcon% to sender statusIcon path
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
 		// Replace userIconPath
 		if(avatarPath == "")
 		{
-			if(_direction)
+			if(mes.isIncoming())
 				avatarPath = (m_current_style.baseHref + "Outgoing/buddy_icon.png");
 			else
 				avatarPath = (m_current_style.baseHref + "Incoming/buddy_icon.png");
@@ -307,7 +307,10 @@ namespace AdiumChat
 		html = html.replace("%messageDirection%", _aligment ? "ltr" : "rtl" );
 
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
-		QString message = _message;
+		QString message = mes.text();
+		//FIXME temporary
+		if(message.startsWith("/me "))
+			message = message.mid(3);
 		html = html.replace("%message%", message.replace("\\","\\\\").remove('\r').replace("%","&#37;")+"&nbsp;");
 
 		return html;

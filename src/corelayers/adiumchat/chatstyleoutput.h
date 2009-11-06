@@ -77,11 +77,9 @@ namespace AdiumChat
 		_avatarPath - path to avatar, if "" uses style provided picture
 		_aligment - "true" if left-to-right, "false" if right-to-left
 		_senderID - sender's ID
-		_servese - protocol used to send a message
+		_servise - protocol used to send a message
 		*/
-		QString makeAction(const QString &_name, const QString &_message,
-							const bool &_direction, const QDateTime &datetime, const QString &_avatarPath,
-							const bool &_aligment, const QString &_senderID, const QString &_service);
+		QString makeAction(const ChatSessionImpl *session, const Message &mes, const bool& _aligment);
 
 		/*
 		It is used for displaying system and user messages like "user gone offline",

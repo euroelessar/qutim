@@ -41,7 +41,7 @@ namespace AdiumChat
 		}
 		widget->addSession(session);
 		
-		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved(Account*,QString)));		
+		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved(Account*,QString)));
 		return session;
 	}
 
