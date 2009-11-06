@@ -1,6 +1,6 @@
 #ifndef FINDEMAIL_H
 #define FINDEMAIL_H
-#include <corelayers/adiumchat/messagemodifier.h> //TODO
+#include "../messagemodifier.h"
 #include "../chatsessionimpl.h"
 
 namespace AdiumChat

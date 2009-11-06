@@ -23,6 +23,7 @@ namespace AdiumChat
 	private slots:
 		void onAccountDestroyed(QObject *object);
 		void onSessionRemoved(Account *acc, const QString &id);
+		void onChatWidgetDestroyed(QObject *object);
 	private:
 		inline QString getWidgetId (Account* acc, const QString& id) const;
 		//QHash<Account * , QPair<QPointer<Account>, ChatSessionHash> >  m_chat_sessions;//TODO more safe

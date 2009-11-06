@@ -31,12 +31,13 @@ namespace AdiumChat
 		m_chat_sessions[acc].insert(id,session);
 		//init or update chat widget(s)
 		QString key = getWidgetId(acc,id);
-		ChatWidget *widget = m_chatwidget_list.value(key);
+		ChatWidget *widget = m_chatwidget_list.value(key,0);
 		if (!widget)
 		{
 			widget = new ChatWidget();
 			widget->show();
-			m_chatwidget_list.insert(key,widget);//FIXME need testing
+			m_chatwidget_list.insert(key,widget);
+			connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
 		}
 		widget->addSession(session);
 		
@@ -60,16 +61,25 @@ namespace AdiumChat
 
 	void ChatLayerImpl::onAccountDestroyed(QObject* object)
 	{
-		Account *acc = qobject_cast<Account *>(object);
+		Account *acc = reinterpret_cast<Account *>(object);
  		if (!acc && !m_chat_sessions.contains(acc))
  			return;
  		qDeleteAll (m_chat_sessions[acc]);
  		m_chat_sessions.remove(acc);
 	}
+	
+	void ChatLayerImpl::onChatWidgetDestroyed(QObject* object)
+	{
+		ChatWidget *widget = reinterpret_cast< ChatWidget* >(object);
+		QString key = m_chatwidget_list.key(widget);
+		m_chatwidget_list.remove(key);
+	}
 
 	void ChatLayerImpl::onSessionRemoved(Account* acc, const QString& id)
 	{
 		m_chat_sessions[acc].remove(id);
+		if (m_chat_sessions.value(acc).count() == 0)
+			m_chat_sessions.remove(acc);
 	}
 	
 	ChatLayerImpl::~ChatLayerImpl()

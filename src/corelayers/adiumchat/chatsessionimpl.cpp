@@ -27,6 +27,7 @@ namespace AdiumChat
 			m_web_page->deleteLater();
 		}
 		emit removed(m_account,m_session_id);
+		qDebug() << "Session removed:" << m_account->id() << m_session_id;
 	}
 
 	void ChatSessionImpl::addContact ( Contact* c )
