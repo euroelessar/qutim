@@ -6,6 +6,7 @@
 #include <QTextDocument>
 #include <QDateTime>
 #include <QDebug>
+#include <libqutim/notificationslayer.h> //for testing
 
 namespace AdiumChat
 
@@ -71,7 +72,7 @@ namespace AdiumChat
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
-		qDebug() << jsTask << item;
+		Notifications::sendNotification(Notifications::MessageGet, const_cast<Contact *>(message.contact()), message.text()); //for testing
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
 		if (result.isEmpty()) //TODO I'm not sure that it works well
 			m_message_count++;

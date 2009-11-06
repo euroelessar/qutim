@@ -32,7 +32,7 @@ namespace AdiumChat
 		QString m_previous_sender; //me or nme (not me) //FIXME need refactoring in future
 		int m_message_count;
 	signals:
-		void removed(Account *,const QString &);
+		void removed(Account *,const QString &);//may be removed in future
 	};
 }
 #endif // CHATSESSIONIMPL_H

@@ -5,6 +5,7 @@
 #include <libqutim/icon.h>
 #include <QWebFrame>
 #include <QDebug>
+#include <QTime>
 
 namespace AdiumChat
 {
@@ -19,6 +20,7 @@ namespace AdiumChat
 		connect(ui->tabBar,SIGNAL(currentChanged(int)),SLOT(currentIndexChanged(int)));
 		connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 		connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
+		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
 	}
 	
 	ChatWidget::~ChatWidget()
@@ -98,6 +100,24 @@ namespace AdiumChat
 	void ChatWidget::onTabMoved(int from, int to)
 	{
 		m_sessions.move(from,to);
+	}
+	
+	void ChatWidget::raise(AdiumChat::ChatSessionImpl* session)
+	{
+		//TODO customize support
+		activateWindow();
+		setFocus();
+		ui->tabBar->setCurrentIndex(m_sessions.indexOf(session));
+	}
+
+	void ChatWidget::onSendButtonClicked()
+	{
+		ChatSessionImpl *session = m_sessions.at(ui->tabBar->currentIndex());
+		Message message (ui->chatEdit->toPlainText());
+		message.setIncoming(false);
+		message.setTime(QDateTime::currentDateTime());
+		//session->appendMessage(message); //for testing
+		ui->chatEdit->clear();
 	}
 
 }
