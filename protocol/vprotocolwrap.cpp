@@ -59,7 +59,6 @@ VprotocolWrap::~VprotocolWrap()
 void VprotocolWrap::loadSettings()
 {
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+m_profile_name+"/vkontakte."+m_account_name, "accountsettings");
-    m_keep_alive_every = settings.value("main/keep", 900).toUInt();
     m_refresh_friend_list = settings.value("main/friends", 60).toUInt();
     m_check_for_messages_every = settings.value("main/checkmess", 60).toUInt();
     m_check_for_news_every = settings.value("main/checknews", 300).toUInt();
@@ -258,6 +257,7 @@ void VprotocolWrap::sendRequestForFriendList()
 				      .arg(QString::fromUtf8(m_mine_id))
 				      .arg(QString::fromUtf8(m_mine_sid))));
 	m_network_handler->get(m_network_request);
+
 	askForFriendsActivity();
 
 	// Bookmarks request

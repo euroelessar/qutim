@@ -46,44 +46,11 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Keep-alive every:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="keepBox">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="suffix">
-            <string> s</string>
-           </property>
-           <property name="maximum">
-            <number>3600</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QCheckBox" name="statusesBox">
+         <property name="text">
+          <string>Show status text in contact list</string>
+         </property>
+        </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -167,9 +134,6 @@
         </spacer>
        </item>
       </layout>
-      <zorder>label</zorder>
-      <zorder>autoBox</zorder>
-      <zorder>passEdit</zorder>
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">

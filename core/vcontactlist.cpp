@@ -436,7 +436,7 @@ QStringList VcontactList::getInfoAboutBuddy(const QString &buddy_id)
 
 void VcontactList::loadSettings()
 {
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+m_profile_name, "vkontaktesettings");
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+m_profile_name+"/vkontakte."+m_account_name, "accountsettings");
  	m_show_statustext = settings.value("roster/statustext", true).toBool();
 }
 

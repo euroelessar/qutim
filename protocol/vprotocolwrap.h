@@ -89,7 +89,6 @@ private:
     QString m_profile_name;
     CurrentConnectionState m_current_state;
     QByteArray m_mine_sid;
-    quint32 m_keep_alive_every;
     QByteArray m_mine_id;
     QByteArray m_remixpassword;
 	QHash<QString, QString> m_friend_names;

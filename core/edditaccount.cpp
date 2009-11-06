@@ -64,7 +64,7 @@ void EdditAccount::loadSettings()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+m_profile_name+"/vkontakte."+m_account_name, "accountsettings");
     m_ui->passEdit->setText(settings.value("main/password","").toString());
     m_ui->autoBox->setChecked(settings.value("main/autoconnect",false).toBool());
-    m_ui->keepBox->setValue(settings.value("main/keep", 900).toUInt());
+    m_ui->statusesBox->setChecked(settings.value("roster/statustext", true).toBool());
     m_ui->friendBox->setValue(settings.value("main/friends", 60).toUInt());
     m_ui->messageBox->setValue(settings.value("main/checkmess", 60).toUInt());
 	m_ui->newsBox->setValue(settings.value("main/checknews", 300).toUInt());
@@ -78,7 +78,7 @@ void EdditAccount::saveSettings()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+m_profile_name+"/vkontakte."+m_account_name, "accountsettings");
     settings.setValue("main/password",m_ui->passEdit->text());
     settings.setValue("main/autoconnect",m_ui->autoBox->isChecked());
-    settings.setValue("main/keep",m_ui->keepBox->value());
+    settings.setValue("roster/statustext",m_ui->statusesBox->isChecked());
     settings.setValue("main/friends",m_ui->friendBox->value());
     settings.setValue("main/checkmess", m_ui->messageBox->value());
 	settings.setValue("main/checknews", m_ui->newsBox->value());

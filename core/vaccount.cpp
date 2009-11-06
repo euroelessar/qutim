@@ -63,6 +63,7 @@ void Vaccount::editAccountSettings()
 void Vaccount::editAccountSettingsClosed(QObject*){
     m_edit_dialog_opened = false;
     m_protocol_wrapper->loadSettings();
+    m_cl_object->loadSettings();
 }
 
 QIcon Vaccount::getCurrentStatusIcon()
