@@ -1,3 +1,18 @@
+/****************************************************************************
+ *  chatwidget.cpp
+ *
+ *  Copyright (c) 2009 by Sidorov Aleksey <sauron@citadelspb.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include "chatwidget.h"
 #include "chatsessionimpl.h"
 #include "ui_chatwidget.h"
@@ -116,6 +131,7 @@ namespace AdiumChat
 		Message message (ui->chatEdit->toPlainText());
 		message.setIncoming(false);
 		message.setTime(QDateTime::currentDateTime());
+		session->getUnit()->sendMessage(message);
 		//session->appendMessage(message); //for testing
 		ui->chatEdit->clear();
 	}

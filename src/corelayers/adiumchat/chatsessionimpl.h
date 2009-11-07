@@ -1,3 +1,18 @@
+/****************************************************************************
+ *  chatsessionimpl.h
+ *
+ *  Copyright (c) 2009 by Sidorov Aleksey <sauron@citadelspb.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #ifndef CHATSESSIONIMPL_H
 #define CHATSESSIONIMPL_H
 #include <libqutim/messagesession.h>
@@ -21,6 +36,7 @@ namespace AdiumChat
 		QWebPage *getPage() const;
 		Account *getAccount() const;
 		QString getId() const;
+		ChatUnit *getUnit(bool create = false) const;
 	public slots:
 		QVariant evaluateJavaScript(const QString &scriptSource);
 	private:

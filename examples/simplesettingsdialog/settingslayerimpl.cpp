@@ -1,7 +1,7 @@
 #include "settingslayerimpl.h"
 #include "settingsdialog.h"
 #include "modulemanagerimpl.h"
-#include <libqutim/icon.h>
+#include <qutim/icon.h>
 
 static Core::CoreModuleHelper<SettingsLayerImpl> settings_layer_static( //при помощи данной функции мы сообщаем менеджеру модулей о том, что перед ним лежит модуль
 		QT_TRANSLATE_NOOP("Plugin", "Simple Settings dialog"), //описание, макрос QT_TRANSLATE_NOOP позволяет делать его переводимым на разные языки

@@ -1,7 +1,7 @@
 #ifndef SETTINGSLAYERIMPL_H
 #define SETTINGSLAYERIMPL_H
 
-#include "libqutim/settingslayer.h"
+#include <qutim/settingslayer.h>
 
 using namespace qutim_sdk_0_3;
 class SettingsDialog;

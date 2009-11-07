@@ -1,3 +1,18 @@
+/****************************************************************************
+ *  chatlayerimpl.cpp
+ *
+ *  Copyright (c) 2009 by Sidorov Aleksey <sauron@citadelspb.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include "chatlayerimpl.h"
 #include <libqutim/account.h>
 #include "chatsessionimpl.h"
@@ -44,7 +59,11 @@ namespace AdiumChat
 		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved(Account*,QString)));
 		return session;
 	}
-
+	
+	ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
+	{
+		return getSession(unit->account(),unit->id(),create);
+	}
 
 	QList<ChatSession* > ChatLayerImpl::sessions()
 	{

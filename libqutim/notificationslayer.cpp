@@ -17,6 +17,8 @@
 #include "notificationslayer.h"
 #include "libqutim_global.h"
 #include "objectgenerator.h"
+#include "contact.h"
+#include "message.h"
 
 namespace qutim_sdk_0_3
 {
@@ -99,7 +101,14 @@ namespace qutim_sdk_0_3
 
 		void sendNotification(const QString &body, const QString &custom_title)
 		{
-                        sendNotification(System, 0, body, custom_title);
+			sendNotification(System, 0, body, custom_title);
 		}
+
+		
+		void sendNotification(const Message& message)
+		{
+			sendNotification(message.isIncoming() ? MessageGet : MessageSend, const_cast<Contact *>(message.contact()), message.text());
+		}
+
 	}
 }

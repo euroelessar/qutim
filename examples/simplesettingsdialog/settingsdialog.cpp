@@ -1,6 +1,6 @@
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
-#include <libqutim/settingswidget.h>
+#include <qutim/settingswidget.h>
 
 SettingsDialog::SettingsDialog ( const qutim_sdk_0_3::SettingsItemList& settings)
 : ui (new Ui::SettingsDialog)

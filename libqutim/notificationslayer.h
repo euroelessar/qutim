@@ -22,7 +22,7 @@
 
 namespace qutim_sdk_0_3
 {
-
+	class Message;
 	struct NotificationsLayerPrivate;
 
 	namespace Notifications
@@ -46,6 +46,7 @@ namespace qutim_sdk_0_3
 		LIBQUTIM_EXPORT void sendNotification(Type type, QObject *sender,
 											  const QString &body = QString(),
 											  const QString &custom_title = QString());
+		LIBQUTIM_EXPORT void sendNotification(const Message &message);
 	}
 
 	class LIBQUTIM_EXPORT PopupBackend : public QObject

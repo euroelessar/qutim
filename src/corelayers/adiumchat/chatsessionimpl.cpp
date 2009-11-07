@@ -1,3 +1,18 @@
+/****************************************************************************
+ *  chatsessionimpl.cpp
+ *
+ *  Copyright (c) 2009 by Sidorov Aleksey <sauron@citadelspb.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include "chatsessionimpl.h"
 #include "chatstyleoutput.h"
 #include <QWebPage>
@@ -72,7 +87,8 @@ namespace AdiumChat
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
-		Notifications::sendNotification(Notifications::MessageGet, const_cast<Contact *>(message.contact()), message.text()); //for testing
+		if (!isHistory)
+			Notifications::sendNotification(message);
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
 		if (result.isEmpty()) //TODO I'm not sure that it works well
 			m_message_count++;
@@ -102,6 +118,12 @@ namespace AdiumChat
 	QString ChatSessionImpl::getId() const
 	{
 		return m_session_id;
+	}
+
+	
+	ChatUnit* ChatSessionImpl::getUnit(bool create) const
+	{
+		return m_account->getUnit(m_session_id,create);
 	}
 
 	QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)

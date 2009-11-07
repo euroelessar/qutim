@@ -1,3 +1,18 @@
+/****************************************************************************
+ *  chatlayerimpl.h
+ *
+ *  Copyright (c) 2009 by Sidorov Aleksey <sauron@citadelspb.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #ifndef CHATLAYERIMPL_H
 #define CHATLAYERIMPL_H
 #include <libqutim/messagesession.h>
@@ -20,6 +35,7 @@ namespace AdiumChat
 		virtual QList<ChatSession* > sessions();
 		ChatLayerImpl();
 		virtual ~ChatLayerImpl();
+		virtual ChatSession* getSession(ChatUnit* unit, bool create = true);
 	private slots:
 		void onAccountDestroyed(QObject *object);
 		void onSessionRemoved(Account *acc, const QString &id);
