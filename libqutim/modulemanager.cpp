@@ -235,16 +235,19 @@ namespace qutim_sdk_0_3
 #endif
 					QutimPluginVerificationFunction verificationFunction = NULL;
 					QScopedPointer<QLibrary> lib(new QLibrary(filename));
-					if(true == lib->load())
+					if(lib->load())
 					{
 						verificationFunction = (QutimPluginVerificationFunction)lib->resolve("qutim_plugin_query_verification_data");
 						lib->unload();
 						if(!verificationFunction)
+						{
+//							qDebug("'%s' has no valid verification data", qPrintable(filename));
 							continue;
+						}
 					}
 					else
 					{
-						qDebug("'%s' has no valid verification data", qPrintable(filename));
+						qDebug("%s", qPrintable(lib->errorString()));
 						continue;
 					}
 				}

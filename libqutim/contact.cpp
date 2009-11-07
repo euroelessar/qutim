@@ -14,26 +14,30 @@
 *****************************************************************************/
 
 #include "contact.h"
+#include "chatunit_p.h"
 #include "account.h"
 #include <libqutim/icon.h>
 
 namespace qutim_sdk_0_3
 {
-	Contact::Contact(Account *account)
-			: QObject(account), m_type(Simple), m_account(account)
+	struct ContactPrivate : public ChatUnitPrivate
+	{
+	};
+
+	Contact::Contact(Account *account) : ChatUnit(account, new ContactPrivate)
 	{
 	}
 
-//	Contact::~Contact()
-//	{
-////		if(Account *account = qobject_cast<Account *>(parent()))
-////		{
-////			ConfigGroup data = account->config("contacts").group(id()).group("data");
-////			foreach(const QByteArray &name, dynamicPropertyNames())
-////				data.setValue(name, property(name));
-////			data.sync();
-////		}
-//	}
+	Contact::~Contact()
+	{
+//		if(Account *account = qobject_cast<Account *>(parent()))
+//		{
+//			ConfigGroup data = account->config("contacts").group(id()).group("data");
+//			foreach(const QByteArray &name, dynamicPropertyNames())
+//				data.setValue(name, property(name));
+//			data.sync();
+//		}
+	}
 
 	QSet<QString> Contact::tags() const
 	{

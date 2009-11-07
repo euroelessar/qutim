@@ -42,7 +42,7 @@ namespace qutim_sdk_0_3
 		void messageSended(const Message &message);
 		void contactAdded();
 	protected:
-                ChatSession(ChatLayer *chat);
+		ChatSession(ChatLayer *chat);
 		virtual ~ChatSession();
 	private:
 		QScopedPointer<ChatSessionPrivate> p;
@@ -53,16 +53,17 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 	public:
 		static ChatLayer *instance();
-		inline ChatSession *getSession(Contact *c, bool create = true)
-		{ return getSession(c->account(), c->id(), create); }
-		inline ChatSession *getSession(Account *acc, QObject *obj, bool create = true)
-		{ return getSession(acc, obj->property("id").toString(), create); }
+
+		ChatSession *getSession(Account *acc, QObject *obj, bool create = true);
 		ChatSession *getSession(QObject *obj, bool create = true);
-		virtual ChatSession *getSession(Account *acc, const QString &id, bool create = true) = 0;
+		ChatSession *getSession(Account *acc, const QString &id, bool create = true);
+		virtual ChatSession *getSession(ChatUnit *unit, bool create = true) = 0;
+
 		virtual QList<ChatSession*> sessions() = 0;
 	signals:
 		void sessionCreated(ChatSession *session);
 	protected:
+		ChatUnit *getUnitForSession(ChatUnit *unit) const;
 		ChatLayer();
 		virtual ~ChatLayer();
 	};

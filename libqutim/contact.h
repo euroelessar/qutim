@@ -16,7 +16,7 @@
 #ifndef CONTACT_H
 #define CONTACT_H
 
-#include "libqutim_global.h"
+#include "chatunit.h"
 #include <QSet>
 #include <QIcon>
 #include <QMetaType>
@@ -27,29 +27,20 @@ namespace qutim_sdk_0_3
 	class MetaContact;
 	class Message;
 
-	class LIBQUTIM_EXPORT Contact : public QObject
+	class LIBQUTIM_EXPORT Contact : public ChatUnit
 	{
 		Q_OBJECT
-		Q_PROPERTY(Account* account READ account)
 		Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-		Q_PROPERTY(QString id READ id)
 		Q_PROPERTY(QSet<QString> tags READ tags WRITE setTags NOTIFY tagsChanged)
 		Q_PROPERTY(Status status READ status NOTIFY statusChanged)
 		Q_PROPERTY(QIcon statusIcon READ statusIcon NOTIFY statusIconChanged)
 	public:
-		enum Type { Meta, Simple, Sub };
 		Contact(Account *account);
-//		virtual ~Contact();
-		Type type() const { return m_type; }
+		virtual ~Contact();
 		virtual QSet<QString> tags() const;
-		virtual QString id() const = 0;
 		virtual QString name() const;
 		virtual Status status() const;
 		virtual QIcon statusIcon() const;
-		Account *account() { return m_account; }
-		const Account *account() const { return m_account; }
-		MetaContact *metaContact() { return m_metacontact; }
-		const MetaContact *metaContact() const { return m_metacontact; }
 		virtual void sendMessage(const Message &message) = 0;
 		virtual void setName(const QString &name) = 0;
 		virtual void setTags(const QSet<QString> &tags) = 0;
@@ -58,10 +49,6 @@ namespace qutim_sdk_0_3
 		void statusIconChanged(const QIcon &statusIcon);
 		void nameChanged(const QString &name);
 		void tagsChanged(const QSet<QString> &tags);
-	protected:
-		Type m_type;
-		Account *m_account;
-		MetaContact *m_metacontact;
 	};
 }
 

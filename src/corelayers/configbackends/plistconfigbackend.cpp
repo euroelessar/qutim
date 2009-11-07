@@ -24,6 +24,7 @@
 #include <QDomDocument>
 #include <QFile>
 #include <QTime>
+#include <QTextCodec>
 
 namespace Core
 {
@@ -254,6 +255,8 @@ namespace Core
 			return;
 		}
 		QTextStream out(&output);
+		static QTextCodec *utf8 = QTextCodec::codecForName("utf-8");
+		out.setCodec(utf8);
 		out << QLatin1String("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //hack
 		root.save(out,2,QDomNode::EncodingFromDocument);
 		output.close();

@@ -61,12 +61,27 @@ namespace qutim_sdk_0_3
 		return p->self;
 	}
 
+	ChatSession *ChatLayer::getSession(Account *acc, QObject *obj, bool create)
+	{
+		QString id = (acc && obj) ? obj->property("id").toString() : QString();
+		return id.isEmpty() ? 0 : getSession(acc->getUnit(id, create));
+	}
+
 	ChatSession *ChatLayer::getSession(QObject *obj, bool create)
 	{
-		QVariant acc = obj->property("account");
-		QVariant id = obj->property("id");
-		if(!acc.isValid() || !id.isValid())
-			return NULL;
-		return getSession(acc.value<Account *>(), id.toString(), create);
+		Account *acc = obj->property("account").value<Account *>();
+		QString id = obj->property("id").toString();
+		return getSession(acc, id, create);
+	}
+
+	ChatSession *ChatLayer::getSession(Account *acc, const QString &id, bool create)
+	{
+		return (acc && !id.isEmpty()) ? getSession(acc->getUnit(id, create)) : 0;
+	}
+
+	ChatUnit *ChatLayer::getUnitForSession(ChatUnit *unit) const
+	{
+		Account *acc = unit ? unit->account() : 0;
+		return acc ? acc->getUnitForSession(unit) : unit;
 	}
 }

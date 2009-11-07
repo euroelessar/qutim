@@ -31,8 +31,8 @@ namespace qutim_sdk_0_3
 	public:
 		PersonInfoData();
 		PersonInfoData(const PersonInfoData &other);
-		const char *name;
-		const char *task;
+		QByteArray name;
+		QByteArray task;
 		QString email;
 		QString web;
 	};

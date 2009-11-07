@@ -30,13 +30,6 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT ModuleManager : public QObject
 	{
 		Q_OBJECT
-	public:
-		template<typename T, typename M>
-		static void registerModule(ModuleInit method)
-		{
-//			ExtensionList list;
-//			T::M(list);
-		}
 	protected:
 		// Constructor
 		ModuleManager(QObject *parent = 0);
@@ -79,15 +72,42 @@ namespace qutim_sdk_0_3
 		ModuleManagerPrivate *p;
 	};
 
-	template<typename T, typename M>
-	class ModuleRegisterHelper
-	{
-	public:
-		inline ModuleRegisterHelper(M method)
-		{
-			ModuleManager::registerModule<T>(static_cast<ModuleInit>(method));
-		}
-	};
+//	LIBQUTIM_EXPORT void registerModule(const char *name, const char *description, const char *face, const QMetaObject *meta, int min = 0, int max = -1);
+//	inline void registerModule(const char *name, const char *description, const char *face, int min = 0, int max = -1)
+//	{ registerModule(name, description, face, NULL, min, max); }
+//	inline void registerModule(const char *name, const char *description, const QMetaObject *meta, int min = 0, int max = -1)
+//	{ registerModule(name, description, NULL, meta, min, max); }
+//
+//	template<typename T, int Min, int Max>
+//	class ModuleHelper
+//	{
+//	public:
+//		inline ModuleHelper(const char *name, const char *description)
+//		{
+//			registerModule(name, description, qobject_interface_iid<T *>(), meta_helper<T>(reinterpret_cast<T *>(0)), Min, Max);
+//		}
+//	private:
+//		template <typename F>
+//		inline const QMetaObject *meta_helper(const QObject *obj)
+//		{ return &F::staticMetaObject; }
+//		template <typename F>
+//		inline const QMetaObject *meta_helper(const void *obj)
+//		{ return NULL; }
+//	};
+//
+//	template <typename T>
+//	class SingleModuleHelper : public ModuleHelper<T, 1, 1>
+//	{
+//	public:
+//		inline SingleModuleHelper(const char *name, const char *description) : ModuleHelper<T, 1, 1>(name, description) {}
+//	};
+//
+//	template <typename T>
+//	class MultiModuleHelper : public ModuleHelper<T, 0, -1>
+//	{
+//	public:
+//		inline MultiModuleHelper(const char *name, const char *description) : ModuleHelper<T, 0, -1>(name, description) {}
+//	};
 }
 
 #endif // MODULEMANAGER_H
