@@ -24,8 +24,8 @@ namespace qutim_sdk_0_3
 		Account *account();
 		const Account *account() const;
 		virtual void sendMessage(const Message &message) = 0;
-		virtual ChatUnitList lowerUnits() = 0;
-		virtual ChatUnit *upperUnit() = 0;
+		virtual ChatUnitList lowerUnits();
+		virtual ChatUnit *upperUnit();
 	protected:
 		QScopedPointer<ChatUnitPrivate> p;
 	};
