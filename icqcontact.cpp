@@ -27,7 +27,7 @@ IcqContact::IcqContact(const QString &uin, IcqAccount *account) : Contact(accoun
 QSet<QString> IcqContact::tags() const
 {
 	QSet<QString> group;
-	QString group_name = group == 0xffff ? QString() : p->account->roster()->groupId2Name(p->group_id);
+	QString group_name = p->group_id == 0xffff ? QString() : p->account->roster()->groupId2Name(p->group_id);
 	if(!group_name.isNull())
 		group.insert(group_name);
 	return group;
