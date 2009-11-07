@@ -27,7 +27,7 @@ IcqContact::IcqContact(const QString &uin, IcqAccount *account) : Contact(accoun
 QSet<QString> IcqContact::tags() const
 {
 	QSet<QString> group;
-	QString group_name = p->account->roster()->groupId2Name(p->group_id);
+	QString group_name = group == 0xffff ? QString() : p->account->roster()->groupId2Name(p->group_id);
 	if(!group_name.isNull())
 		group.insert(group_name);
 	return group;
@@ -48,6 +48,11 @@ Status IcqContact::status() const
 	return p->status;
 }
 
+bool IcqContact::isInList() const
+{
+	return p->group_id == 0xffff;
+}
+
 // TODO: Impl this fucked things)
 
 void IcqContact::sendMessage(const Message &message)
@@ -59,5 +64,9 @@ void IcqContact::setName(const QString &name)
 }
 
 void IcqContact::setTags(const QSet<QString> &tags)
+{
+}
+
+void IcqContact::setInList(bool inList)
 {
 }

@@ -36,6 +36,8 @@ public:
 	virtual void sendMessage(const Message &message);
 	virtual void setName(const QString &name);
 	virtual void setTags(const QSet<QString> &tags);
+	virtual bool isInList() const;
+	virtual void setInList(bool inList);
 private:
 	friend class Roster;
 	QScopedPointer<IcqContactPrivate> p;
