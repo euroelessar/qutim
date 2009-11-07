@@ -153,12 +153,6 @@ ENDFOREACH( LAYER )
 #LIST (APPEND SOURCES qutim.rc)
 #endif(MINGW)
 
-
-set( QUTIM_DO_NOT_FIND "true" )
-#include( FindQutIM )
-
-#find_library(QUTIM_LIBRARY NAMES qutim PATHS ${CMAKE_CURRENT_SOURCE_DIR}/libqutim)
-# add_subdirectory(src/corelayers)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libqutim/" "${CMAKE_CURRENT_BINARY_DIR}/libqutim")
 
 QT4_WRAP_CPP (MOC_SRCS ${HEADERS})
@@ -179,7 +173,6 @@ TARGET_LINK_LIBRARIES (qutim
 	${QT_LIBRARIES}
 	${QCA2_LIBRARIES}
 	${QUTIM_LIBS}
-#	${QUTIM_LIBRARY}
     libqutim
 	)
 
@@ -188,14 +181,15 @@ SET (module_install_dir "${CMAKE_ROOT}/Modules")
 
 SET (CMAKE_MODULES
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindQutIM.cmake"
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/qutimuic.cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/qutimuic.cmake"
+#    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/QutimPlugin.cmake"
 )
 SET (DEV_HEADERS
 #TODO
 )
+
+#TODO: Fix installation of cmake modules. Now those placed directly to /usr (absolute path)
 INSTALL (FILES ${CMAKE_MODULES} DESTINATION ${module_install_dir})
 INSTALL (FILES ${DEV_HEADERS} DESTINATION "include/qutim")
 INSTALL (TARGETS qutim DESTINATION "bin")
-INSTALL (FILES "${CMAKE_CURRENT_SOURCE_DIR}/share/qutim.desktop" DESTINATION "share/applications")
-INSTALL (FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/qutim_64.png" DESTINATION "share/icons/hicolor/64x64/apps" RENAME "qutim.png")
-INSTALL (FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/qutim.xpm" DESTINATION "share/pixmaps")
+INSTALL( DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/share" DESTINATION "share/" PATTERN ".svn" EXCLUDE PATTERN "_svn" EXCLUDE )

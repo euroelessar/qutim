@@ -55,3 +55,6 @@ SET_TARGET_PROPERTIES ( libqutim PROPERTIES PREFIX "")
 
 # Link with QT
 TARGET_LINK_LIBRARIES( libqutim libjdns ${QT_LIBRARIES} )
+
+
+INSTALL (TARGETS libqutim DESTINATION "lib")
