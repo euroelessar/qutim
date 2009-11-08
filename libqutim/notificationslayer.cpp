@@ -107,7 +107,7 @@ namespace qutim_sdk_0_3
 		
 		void sendNotification(const Message& message)
 		{
-			sendNotification(message.isIncoming() ? MessageGet : MessageSend, const_cast<Contact *>(message.contact()), message.text());
+			sendNotification(message.isIncoming() ? MessageGet : MessageSend, const_cast<ChatUnit *>(message.chatUnit()), message.text());
 		}
 
 	}

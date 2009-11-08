@@ -151,19 +151,6 @@ namespace AdiumChat
 		reloadStyle(page);
 	}
 
-	QStringList ChatStyleOutput::getPaths()
-	{
-		QStringList paths;
-		paths << m_current_style.basePath;
-		paths << m_current_style.basePath + "Variants/";
-		paths << m_current_style.basePath + "Images/";
-		paths << m_current_style.basePath + "Incoming/";
-		paths << m_current_style.basePath + "Outgoing/";
-		paths << m_current_style.basePath + "styles/";
-
-		return paths;
-	}
-
 	QString ChatStyleOutput::makeSkeleton ( const QString& _chatName, const QString& _ownerName,
 											const QString& _partnerName, const QString& _ownerIconPath,
 											const QString& _partnerIconPath, const QDateTime& _dateTime
@@ -235,16 +222,16 @@ namespace AdiumChat
 
 		processMessage(html, session, mes);
 
-		QString avatarPath = mes.contact()->property("imagepath").toString(); //FIXME set buddy icon
+		QString avatarPath = mes.chatUnit()->property("imagepath").toString(); //FIXME set buddy icon
 
 		// Replace %sender% to name
-		html = html.replace("%sender%", Qt::escape(mes.contact()->name()));
+		html = html.replace("%sender%", Qt::escape(mes.chatUnit()->property("name").toString()));
 		// Replace %senderScreenName% to name
-		html = html.replace("%senderScreenName%", Qt::escape(mes.contact()->id()));
+		html = html.replace("%senderScreenName%", Qt::escape(mes.chatUnit()->id()));
 		makeTime(html,mes.time());
 		// Replace %service% to protocol name
 		// TODO: have to get protocol global value somehow
-		html = html.replace("%service%", Qt::escape(mes.contact()->account()->protocol()->id()));
+		html = html.replace("%service%", Qt::escape(mes.chatUnit()->account()->protocol()->id()));
 		// Replace %protocolIcon% to sender statusIcon path
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
@@ -288,13 +275,13 @@ namespace AdiumChat
 		processMessage(html,session,mes);
 
 		// Replace %sender% to name
-		html = html.replace("%sender%", Qt::escape(mes.contact()->name()));
+		html = html.replace("%sender%", Qt::escape(mes.chatUnit()->property("name").toString()));
 		// Replace %senderScreenName% to name
-		html = html.replace("%senderScreenName%", Qt::escape(mes.contact()->id()));
+		html = html.replace("%senderScreenName%", Qt::escape(mes.chatUnit()->id()));
 		makeTime(html, mes.time());
 		// Replace %service% to protocol name
 		// TODO: have to get protocol global value somehow
-		html = html.replace("%service%", Qt::escape(mes.contact()->account()->protocol()->id()));
+		html = html.replace("%service%", Qt::escape(mes.chatUnit()->account()->protocol()->id()));
 		// Replace %protocolIcon% to sender statusIcon path
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
@@ -323,9 +310,6 @@ namespace AdiumChat
 
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
 		QString message = mes.text();
-		//FIXME temporary
-		if(message.startsWith("/me "))
-			message = message.mid(3);
 		html = html.replace("%message%", message.replace("\\","\\\\").remove('\r').replace("%","&#37;")+"&nbsp;");
 
 		return html;

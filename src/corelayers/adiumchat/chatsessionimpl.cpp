@@ -53,32 +53,37 @@ namespace AdiumChat
 
 	void ChatSessionImpl::appendMessage ( const Message& message )
 	{
+		Message tmp_message = message;
 		//TODO add normal check if contact is null
-		if (!message.contact())
-			return;
+		if (!tmp_message.chatUnit())
+		{
+			//TODO create fake chat unit for unknown messages
+			tmp_message.setChatUnit(getUnit());
+		}
 		bool same_from = false;
-		bool isHistory = message.time().isValid();
+		bool isHistory = tmp_message.time().isValid();
 		if (isHistory)
 		{
 			m_previous_sender="";
 		}
 		QString item;
-		if(message.text().startsWith("/me "))
+		if(tmp_message.text().startsWith("/me "))
 		{
-			item = m_chat_style_output->makeAction(this,message,true);
+			tmp_message.setText(tmp_message.text().mid(3));
+			item = m_chat_style_output->makeAction(this,tmp_message,true);
 			m_previous_sender = "";
 		}
-		else if (message.property("service").toBool())
+		else if (tmp_message.property("service").toBool())
 		{
 			item = m_chat_style_output->makeStatus(item, QDateTime::currentDateTime());
 			m_previous_sender = "";
 		}
 		else
 		{
-			same_from = (m_previous_sender == (message.isIncoming()?"nme":"me"));
-			item = m_chat_style_output->makeMessage(this, message, true, //FIXME
+			same_from = (m_previous_sender == (tmp_message.isIncoming()?"nme":"me"));
+			item = m_chat_style_output->makeMessage(this, tmp_message, true, //FIXME
 															same_from );
-			m_previous_sender = (message.isIncoming()?"nme":"me");
+			m_previous_sender = (tmp_message.isIncoming()?"nme":"me");
 		}
 
 		QString result = m_web_page->mainFrame()->evaluateJavaScript(QString("getEditedHtml(\"%1\", \"%2\");")
@@ -88,7 +93,7 @@ namespace AdiumChat
 				result.isEmpty() ? item :
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
 		if (!isHistory)
-			Notifications::sendNotification(message);
+			Notifications::sendNotification(tmp_message);
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
 		if (result.isEmpty()) //TODO I'm not sure that it works well
 			m_message_count++;

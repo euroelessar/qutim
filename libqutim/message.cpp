@@ -15,7 +15,7 @@
 
 #include "message.h"
 #include <QDateTime>
-#include "contact.h"
+#include "chatunit.h"
 #include "account.h"
 #include "protocol.h"
 
@@ -26,7 +26,7 @@ namespace qutim_sdk_0_3
 	public:
 		MessagePrivate() : in(false) {}
 		MessagePrivate(const MessagePrivate &o)
-				: QSharedData(o), text(o.text), time(o.time), names(o.names), values(o.values),contact(o.contact) {}
+				: QSharedData(o), text(o.text), time(o.time), names(o.names), values(o.values),chatUnit(o.chatUnit) {}
 		~MessagePrivate() {}
 		QString text;
 		QDateTime time;
@@ -37,11 +37,11 @@ namespace qutim_sdk_0_3
 		void setTime(const QVariant &val) { time = val.toDateTime(); }
 		QVariant getIn() const { return in;}
 		void setIn(const QVariant &input) { in = input.toBool(); }
-		void setContact (const QVariant &val) {contact = val.value<Contact *>();};
-		QVariant getContact() const {return QVariant::fromValue(contact);};
+		void setChatUnit (const QVariant &val) {chatUnit = val.value<ChatUnit *>();};
+		QVariant getChatUnit() const {return QVariant::fromValue(chatUnit);};
 		QList<QByteArray> names;
 		QList<QVariant> values;
-		Contact *contact;
+		ChatUnit *chatUnit;
 	};
 
 	namespace CompiledProperty
@@ -52,17 +52,17 @@ namespace qutim_sdk_0_3
 										 << "text"
 										 << "time"
 										 << "in"
-										 << "contact";
+										 << "chatUnit";
 		static QList<Getter> getters   = QList<Getter>()
 										 << &MessagePrivate::getText
 										 << &MessagePrivate::getTime
 										 << &MessagePrivate::getIn
-										 << &MessagePrivate::getContact;
+										 << &MessagePrivate::getChatUnit;
 		static QList<Setter> setters   = QList<Setter>()
 										 << &MessagePrivate::setText
 										 << &MessagePrivate::setTime
 										 << &MessagePrivate::setIn
-										 << &MessagePrivate::setContact;
+										 << &MessagePrivate::setChatUnit;
 	}
 
 	Message::Message() : p(new MessagePrivate)
@@ -162,24 +162,15 @@ namespace qutim_sdk_0_3
 	}
 
 	
-	const Contact* Message::contact() const
+	const ChatUnit* Message::chatUnit() const
 	{
-		return p->contact;
-//		TODO need fake contact
-//		if (p->contact)
-//			return p->contact;
-//		Protocol *p = new Protocol();
-//		Account *a = new Account(tr("unknown"),p);
-//		Contact *c = new Contact(a);
-//		c->setName(tr("Hidden"));
-//		p->contact = c;
-//		return c;
+		return p->chatUnit;
 	}
 
 	
-	void Message::setContact ( Contact* contact )
+	void Message::setChatUnit ( ChatUnit* chatUnit )
 	{
-		p->contact = contact;
+		p->chatUnit = chatUnit;
 	}
 
 

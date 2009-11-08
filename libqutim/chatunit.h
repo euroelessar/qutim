@@ -17,6 +17,7 @@
 #define CHATUNIT_H
 
 #include "libqutim_global.h"
+#include <QMetaType>
 
 namespace qutim_sdk_0_3
 {
@@ -26,7 +27,7 @@ namespace qutim_sdk_0_3
 	class ChatUnitPrivate;
 	typedef QList<ChatUnit *> ChatUnitList;
 
-	class ChatUnit : public QObject
+	class LIBQUTIM_EXPORT ChatUnit : public QObject
 	{
 		Q_OBJECT
 		Q_PROPERTY(QString id READ id)
@@ -45,5 +46,7 @@ namespace qutim_sdk_0_3
 		QScopedPointer<ChatUnitPrivate> p;
 	};
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::ChatUnit*)
 
 #endif // CHATUNIT_H

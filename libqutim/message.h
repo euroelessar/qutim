@@ -22,7 +22,7 @@
 
 namespace qutim_sdk_0_3
 {
-	class Contact;
+	class ChatUnit;
 	class MessagePrivate;
 
 	class LIBQUTIM_EXPORT Message
@@ -38,8 +38,8 @@ namespace qutim_sdk_0_3
 		void setTime(const QDateTime &time);
 		void setIncoming(bool input);
 		bool isIncoming() const;
-		void setContact (Contact *contact);
-		const Contact *contact() const;
+		void setChatUnit (ChatUnit *chatUnit);
+		const ChatUnit *chatUnit() const;
 		QVariant property(const char *name) const;
 		void setProperty(const char *name, const QVariant &value);
 		QList<QByteArray> dynamicPropertyNames() const;

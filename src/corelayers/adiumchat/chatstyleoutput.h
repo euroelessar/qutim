@@ -49,39 +49,14 @@ namespace AdiumChat
 		sets variant to use, it's used for setting
 		*/
 		void setVariant(const QString &_variantName);
-
-		/*
-		list paths, where html linked data can be found
-		*/
-		QStringList getPaths();
-
 		/*
 		creats a html skeleton. Future messages will be added to it
 		skeleton consist of styles, header and footer
 		it has a mark as well. before this mark new messages should be added
-		_chatName - name of chat, example "Weekends plans"
-		_ownerName - name or nickname of program owner
-		_partnerName - name or nicname of chating partner
-		_ownerIconPath & _partnerIconPath - path to image files representing ppl,
-											"" uses style provided pictures
-		_time - it's time when the chat has started
 		*/
 		QString makeSkeleton(const QString &_chatName, const QString &_ownerName,
 							const QString &_partnerName, const QString &_ownerIconPath,
 							const QString &_partnerIconPath, const QDateTime &datetime);
-		/*
-		changes keywords to message atributes in html
-		_name - sender's nickname
-		_message - message text
-		_direction - "true" if it was send, "false" if it was recived
-		_time - time at witch message was send
-		_avatarPath - path to avatar, if "" uses style provided picture
-		_aligment - "true" if left-to-right, "false" if right-to-left
-		_senderID - sender's ID
-		_servese - protocol used to send a message
-		_sameSender - "true" - same sender, "false" - message is send by another person
-		_history - if message was sent to offline, or gotten from history
-		*/
 		QString makeMessage(const ChatSessionImpl *session, const Message &mes, bool _aligment, bool _sameSender);
 		/*
 		changes keywords to action atributes in html like "Bob is writing on the desk"
