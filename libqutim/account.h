@@ -41,7 +41,7 @@ namespace qutim_sdk_0_3
 		Protocol *protocol();
 		const Protocol *protocol() const;
 		virtual void setStatus(Status status);
-		virtual ChatUnit *getUnitForSession(ChatUnit *unit) = 0;
+		virtual ChatUnit *getUnitForSession(ChatUnit *unit);
 		virtual ChatUnit *getUnit(const QString &unitId, bool create = false) = 0;
 	private:
 		QScopedPointer<AccountPrivate> p;

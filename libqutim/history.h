@@ -1,5 +1,5 @@
 /****************************************************************************
- *  message.h
+ *  history.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,41 +13,30 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef LIBQUTIM_MESSAGE_H
-#define LIBQUTIM_MESSAGE_H
+#ifndef HISTORY_H
+#define HISTORY_H
 
-#include "libqutim_global.h"
-#include <QSharedData>
-#include <QVariant>
+#include "message.h"
+#include <QDateTime>
 
 namespace qutim_sdk_0_3
 {
 	class ChatUnit;
-	class MessagePrivate;
 
-	class LIBQUTIM_EXPORT Message
+	class LIBQUTIM_EXPORT History : public QObject
 	{
+		Q_OBJECT
 	public:
-		Message();
-		Message(const QString &text);
-		Message(const Message &other);
-		virtual ~Message();
-		const QString &text() const;
-		void setText(const QString &text);
-		const QDateTime &time() const;
-		void setTime(const QDateTime &time);
-		void setIncoming(bool input);
-		bool isIncoming() const;
-		void setChatUnit (ChatUnit *chatUnit);
-		const ChatUnit *chatUnit() const;
-		QVariant property(const char *name) const;
-		void setProperty(const char *name, const QVariant &value);
-		QList<QByteArray> dynamicPropertyNames() const;
-	private:
-		QSharedDataPointer<MessagePrivate> p;
+		History();
+		virtual ~History();
+		static History *instance();
+		virtual void store(const Message &message);
+		virtual MessageList read(const ChatUnit *unit, const QDateTime &from, const QDateTime &to, int max_num);
+		MessageList read(const ChatUnit *unit, const QDateTime &to, int max_num) { return read(unit, QDateTime(), to, max_num); }
+		MessageList read(const ChatUnit *unit, int max_num) { return read(unit, QDateTime(), QDateTime::currentDateTime(), max_num); }
+	public slots:
+		virtual void showHistory();
 	};
-
-	typedef QList<Message> MessageList;
 }
 
-#endif // LIBQUTIM_MESSAGE_H
+#endif // HISTORY_H

@@ -28,11 +28,6 @@
 
 namespace Core
 {
-	static CoreModuleHelper<PListConfigBackend> z_plist_config_static(
-		QT_TRANSLATE_NOOP("Plugin", "PList config"),
-		QT_TRANSLATE_NOOP("Plugin", "Additional qutIM config realization for Apple plists")
-	);
-
 	inline QDomElement variantToDomElement (const QVariant &v, QDomDocument &root) {
 		QString result;
 		QString type = QLatin1String("string");

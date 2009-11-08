@@ -9,6 +9,8 @@ namespace Core
 {
 	template<typename T>
 	class CoreModuleHelper;
+	template <typename T, typename V>
+	class CoreModuleHelper2;
 
 	class ModuleManagerImpl : public ModuleManager
 	{
@@ -25,15 +27,28 @@ namespace Core
 			return exts;
 		}
 		template<typename T> friend class CoreModuleHelper;
+		template<typename T, typename V> friend class CoreModuleHelper2;
 	};
 
-	template<typename T>
+	template <typename T>
 	class CoreModuleHelper
 	{
 	public:
 		inline CoreModuleHelper(const char *name, const char *description)
 		{
 			ModuleManagerImpl::extensions() << ExtensionInfo(name, description, new GeneralGenerator<T>());
+		}
+	};
+
+	template <typename T, typename V>
+	class CoreModuleHelper2
+	{
+	public:
+		inline CoreModuleHelper2(const char *nameT, const char *descriptionT, const char *nameV, const char *descriptionV)
+		{
+			ModuleManagerImpl::extensions()
+					<< ExtensionInfo(nameT, descriptionT, new GeneralGenerator<T>())
+					<< ExtensionInfo(nameV, descriptionV, new GeneralGenerator<V>());
 		}
 	};
 }

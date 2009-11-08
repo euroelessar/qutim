@@ -34,6 +34,7 @@ namespace qutim_sdk_0_3
 		Q_PROPERTY(QSet<QString> tags READ tags WRITE setTags NOTIFY tagsChanged)
 		Q_PROPERTY(Status status READ status NOTIFY statusChanged)
 		Q_PROPERTY(QIcon statusIcon READ statusIcon NOTIFY statusIconChanged)
+		Q_PROPERTY(bool inList READ isInList WRITE setInList NOTIFY inListChanged)
 	public:
 		Contact(Account *account);
 		virtual ~Contact();
@@ -44,11 +45,16 @@ namespace qutim_sdk_0_3
 		virtual void sendMessage(const Message &message) = 0;
 		virtual void setName(const QString &name) = 0;
 		virtual void setTags(const QSet<QString> &tags) = 0;
+		virtual bool isInList() const = 0;
+		virtual void setInList(bool inList) = 0;
+		void addToList() { setInList(true); }
+		void removeFromList() { setInList(false); }
 	signals:
 		void statusChanged(Status status);
 		void statusIconChanged(const QIcon &statusIcon);
 		void nameChanged(const QString &name);
 		void tagsChanged(const QSet<QString> &tags);
+		void inListChanged(bool inList);
 	};
 }
 

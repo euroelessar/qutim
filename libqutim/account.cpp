@@ -76,4 +76,9 @@ namespace qutim_sdk_0_3
 	{
 		p->status = status;
 	}
+
+	ChatUnit *Account::getUnitForSession(ChatUnit *unit)
+	{
+		return unit;
+	}
 }

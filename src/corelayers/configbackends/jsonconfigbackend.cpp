@@ -18,15 +18,18 @@
 */
 
 #include "jsonconfigbackend.h"
+#include "plistconfigbackend.h"
 #include "libqutim/jsonfile.h"
 #include "modulemanagerimpl.h"
 #include <QDebug>
 
 namespace Core
 {
-	static CoreModuleHelper<JsonConfigBackend> z_json_config_static(
+	static CoreModuleHelper2<JsonConfigBackend, PListConfigBackend> z_config_static(
 			QT_TRANSLATE_NOOP("Plugin", "JSON config"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM config realization. Based on JSON.")
+			QT_TRANSLATE_NOOP("Plugin", "Default qutIM config realization. Based on JSON."),
+			QT_TRANSLATE_NOOP("Plugin", "PList config"),
+			QT_TRANSLATE_NOOP("Plugin", "Additional qutIM config realization for Apple plists")
 			);
 
 	void JsonConfigBackend::generate(const QString& file, const ConfigEntry::Ptr& entry)
