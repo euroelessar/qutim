@@ -24,9 +24,19 @@ namespace qutim_sdk_0_3
 	class MessagePrivate : public QSharedData
 	{
 	public:
-		MessagePrivate() : in(false), chatUnit(0) {}
+		MessagePrivate() : in(false), chatUnit(0) { text.clear(); }
 		MessagePrivate(const MessagePrivate &o)
-				: QSharedData(o), text(o.text), time(o.time), names(o.names), values(o.values),chatUnit(o.chatUnit) {}
+				: QSharedData(o), text(o.text), time(o.time), in(o.in), chatUnit(o.chatUnit), names(o.names), values(o.values) {}
+		MessagePrivate &operator =(const MessagePrivate &o)
+		{
+			text = o.text;
+			time = o.time;
+			in = o.in;
+			chatUnit = o.chatUnit;
+			names = o.names;
+			values = o.values;
+			return *this;
+		}
 		~MessagePrivate() {}
 		QString text;
 		QDateTime time;
@@ -80,6 +90,12 @@ namespace qutim_sdk_0_3
 
 	Message::~Message()
 	{
+	}
+
+	Message &Message::operator =(const Message &other)
+	{
+		p = other.p;
+		return *this;
 	}
 
 	QVariant Message::property(const char *name) const

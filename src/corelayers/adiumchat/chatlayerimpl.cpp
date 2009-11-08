@@ -21,7 +21,6 @@
 #include <QDebug>
 
 namespace AdiumChat
-
 {
 	static Core::CoreModuleHelper<ChatLayerImpl> chat_layer_static(
 		QT_TRANSLATE_NOOP("Plugin", "Webkit chat layer"),

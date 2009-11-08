@@ -30,11 +30,13 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 		Q_PROPERTY(QString id READ id)
-		Q_PROPERTY(Status status READ status WRITE setStatus)
+		Q_PROPERTY(Status status READ status WRITE setStatus NOTIFY statusChanges)
+		Q_PROPERTY(QString name READ name NOTIFY nameChanged)
 	public:
 		Account(const QString &id, Protocol *protocol);
 		virtual ~Account();
 		QString id() const;
+		virtual QString name() const;
 		Config config();
 		ConfigGroup config(const QString &group);
 		Status status() const;
@@ -43,6 +45,9 @@ namespace qutim_sdk_0_3
 		virtual void setStatus(Status status);
 		virtual ChatUnit *getUnitForSession(ChatUnit *unit);
 		virtual ChatUnit *getUnit(const QString &unitId, bool create = false) = 0;
+	signals:
+		void nameChanged(const QString &name);
+		void statusChanged(Status status);
 	private:
 		QScopedPointer<AccountPrivate> p;
 	};

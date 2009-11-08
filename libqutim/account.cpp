@@ -47,6 +47,11 @@ namespace qutim_sdk_0_3
 		return p->id;
 	}
 
+	QString Account::name() const
+	{
+		return p->id;
+	}
+
 	Config Account::config()
 	{
 		return Config(p->protocol->id() + QLatin1Char('.') + p->id + QLatin1String("/account"));

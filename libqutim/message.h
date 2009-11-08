@@ -32,6 +32,7 @@ namespace qutim_sdk_0_3
 		Message(const QString &text);
 		Message(const Message &other);
 		virtual ~Message();
+		Message &operator =(const Message &other);
 		const QString &text() const;
 		void setText(const QString &text);
 		const QDateTime &time() const;

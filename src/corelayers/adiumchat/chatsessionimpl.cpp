@@ -21,6 +21,7 @@
 #include <QTextDocument>
 #include <QDateTime>
 #include <QDebug>
+#include "libqutim/history.h"
 #include <libqutim/notificationslayer.h> //for testing
 
 namespace AdiumChat
@@ -60,6 +61,7 @@ namespace AdiumChat
 			//TODO create fake chat unit for unknown messages
 			tmp_message.setChatUnit(getUnit());
 		}
+		History::instance()->store(tmp_message);
 		bool same_from = false;
 		bool isHistory = tmp_message.time().isValid();
 		if (isHistory)
