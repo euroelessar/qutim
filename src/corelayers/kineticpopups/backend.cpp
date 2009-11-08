@@ -96,6 +96,10 @@ namespace KineticPopups
 			title = tr("Message from %1:").arg(sender);
 			append_id = "MessageGet";
 			break;
+		case Notifications::MessageSend:
+			title = tr("Message to %1:").arg(sender);
+			append_id = "MessageSend";
+			break;			
 		case Notifications::Typing:
 			title = tr("%1 is typing").arg(sender);
 			append_id = "Typing";

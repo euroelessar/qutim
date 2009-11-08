@@ -63,7 +63,7 @@ namespace AdiumChat
 		}
 		History::instance()->store(tmp_message);
 		bool same_from = false;
-		bool isHistory = tmp_message.time().isValid();
+		bool isHistory = tmp_message.isIncoming() && tmp_message.time().isValid();
 		if (isHistory)
 		{
 			m_previous_sender="";
@@ -83,7 +83,7 @@ namespace AdiumChat
 		else
 		{
 			same_from = (m_previous_sender == (tmp_message.isIncoming()?"nme":"me"));
-			item = m_chat_style_output->makeMessage(this, tmp_message, true, //FIXME
+			item = m_chat_style_output->makeMessage(this, tmp_message, true,
 															same_from );
 			m_previous_sender = (tmp_message.isIncoming()?"nme":"me");
 		}
@@ -97,7 +97,7 @@ namespace AdiumChat
 		if (!isHistory)
 			Notifications::sendNotification(tmp_message);
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
-		if (result.isEmpty()) //TODO I'm not sure that it works well
+		if (result.isEmpty()) //TODO I'm not sure that it works well //FIXME
 			m_message_count++;
 	}
 

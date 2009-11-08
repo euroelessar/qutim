@@ -156,6 +156,7 @@ namespace AdiumChat
 											const QString& _partnerIconPath, const QDateTime& _dateTime
 											)
 	{
+		//TODO 
 		QString headerHTML = m_current_style.headerHtml;
 		QString footerHTML = m_current_style.footerHtml;
 
@@ -173,7 +174,6 @@ namespace AdiumChat
 		generalSkeleton = generalSkeleton.replace("%chatName%", Qt::escape(_chatName));
 		generalSkeleton = generalSkeleton.replace("%sourceName%", Qt::escape(_ownerName));
 		generalSkeleton = generalSkeleton.replace("%destinationName%", Qt::escape(_partnerName));
-		makeTime(generalSkeleton,_dateTime,"%timeOpened\\{([^}]*)\\}%");
 
 		if(_ownerIconPath == "")
 			generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", "outgoing_icon.png");
@@ -228,10 +228,14 @@ namespace AdiumChat
 		processMessage(html, session, mes);
 
 		// Replace %sender% to name
-		QString sender_name = mes.isIncoming() ? mes.chatUnit()->property("name").toString() : mes.chatUnit()->account()->id(); //FIXME 
+		//FIXME
+		QString sender_name = mes.isIncoming() ? mes.chatUnit()->property("name").toString() : mes.chatUnit()->account()->name();
+		QString sender_id = mes.isIncoming() ? mes.chatUnit()->id() : mes.chatUnit()->account()->id();
+		if (sender_name.isEmpty())
+			sender_name = sender_id;
 		html = html.replace("%sender%", Qt::escape(sender_name));
 		// Replace %senderScreenName% to name
-		html = html.replace("%senderScreenName%", Qt::escape(mes.chatUnit()->id()));
+		html = html.replace("%senderScreenName%", Qt::escape(sender_id));
 		makeTime(html,mes.time());
 		// Replace %service% to protocol name
 		// TODO: have to get protocol global value somehow
@@ -240,7 +244,7 @@ namespace AdiumChat
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
 		// Replace userIconPath
-		QString avatarPath = mes.chatUnit()->property("imagepath").toString();		
+		QString avatarPath = mes.isIncoming() ? mes.chatUnit()->property("imagepath").toString() : mes.chatUnit()->account()->property("imagepath").toString();
 		if(avatarPath.isEmpty())
 		{
 			if(mes.isIncoming())
@@ -275,14 +279,18 @@ namespace AdiumChat
 	{
 		QString html = mes.isIncoming() ? m_current_style.outgoingActionHtml:m_current_style.incomingActionHtml;
 
-		QString avatarPath = mes.property("imagepath").toString();
-
 		processMessage(html,session,mes);
 
+		//FIXME
+		QString sender_name = mes.isIncoming() ? mes.chatUnit()->property("name").toString() : mes.chatUnit()->account()->name();
+		QString sender_id = mes.isIncoming() ? mes.chatUnit()->id() : mes.chatUnit()->account()->id();
+		if (sender_name.isEmpty())
+			sender_name = sender_id;		
+
 		// Replace %sender% to name
-		html = html.replace("%sender%", Qt::escape(mes.chatUnit()->property("name").toString()));
+		html = html.replace("%sender%", Qt::escape(sender_name));
 		// Replace %senderScreenName% to name
-		html = html.replace("%senderScreenName%", Qt::escape(mes.chatUnit()->id()));
+		html = html.replace("%senderScreenName%", Qt::escape(sender_id));
 		makeTime(html, mes.time());
 		// Replace %service% to protocol name
 		// TODO: have to get protocol global value somehow
@@ -291,6 +299,7 @@ namespace AdiumChat
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
 		// Replace userIconPath
+		QString avatarPath = mes.isIncoming() ? mes.chatUnit()->property("imagepath").toString() : mes.chatUnit()->account()->property("imagepath").toString();
 		if(avatarPath == "")
 		{
 			if(mes.isIncoming())
