@@ -30,6 +30,7 @@ namespace AdiumChat
 	class MessageModifier
 	{
 	public:
+		virtual ~MessageModifier() {}
 		virtual QString getValue(const ChatSession *session, const Message &message, const QString &name, const QString &value) = 0;
 		virtual QStringList supportedNames() const = 0;
 	};

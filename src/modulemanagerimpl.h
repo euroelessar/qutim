@@ -10,6 +10,8 @@ namespace Core
 	template<typename T>
 	class CoreModuleHelper;
 	template <typename T, typename V>
+	class CoreInterfaceModuleHelper;
+	template <typename T, typename V>
 	class CoreModuleHelper2;
 
 	class ModuleManagerImpl : public ModuleManager
@@ -27,6 +29,7 @@ namespace Core
 			return exts;
 		}
 		template<typename T> friend class CoreModuleHelper;
+		template <typename T, typename V> friend class CoreInterfaceModuleHelper;
 		template<typename T, typename V> friend class CoreModuleHelper2;
 	};
 
@@ -37,6 +40,16 @@ namespace Core
 		inline CoreModuleHelper(const char *name, const char *description)
 		{
 			ModuleManagerImpl::extensions() << ExtensionInfo(name, description, new GeneralGenerator<T>());
+		}
+	};
+
+	template <typename T, typename V>
+	class CoreInterfaceModuleHelper
+	{
+	public:
+		inline CoreInterfaceModuleHelper(const char *name, const char *description)
+		{
+			ModuleManagerImpl::extensions() << ExtensionInfo(name, description, new InterfaceGenerator<T, V>());
 		}
 	};
 
