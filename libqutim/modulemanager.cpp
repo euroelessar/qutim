@@ -66,6 +66,9 @@ namespace qutim_sdk_0_3
 	};
 	Q_DECLARE_FLAGS(ModuleFlags, ModuleFlag)
 
+	/**
+	 * ModuleManagerPrivate class used to hide inner structure of ModuleManager to provide binary compatibility between different versions.
+	 */
 	class ModuleManagerPrivate
 	{
 	public:
@@ -82,11 +85,17 @@ namespace qutim_sdk_0_3
 		QSet<const QMetaObject *> meta_modules;
 	};
 
+	/**
+	 * Function to detect if ModuleManager and it's inner data had been initialized.
+	 */
 	bool isCoreInited()
 	{
 		return ModuleManager::self && ModuleManager::self->p && ModuleManager::self->p->is_inited;
 	}
 
+	/**
+	 * Returns list of ObjectGenerator's for extensions that match QMetaObject criterion
+	 */
 	GeneratorList moduleGenerators(const QMetaObject *module)
 	{
 		GeneratorList list;
@@ -100,6 +109,9 @@ namespace qutim_sdk_0_3
 		return list;
 	}
 
+	/**
+	 * Returns list of ObjectGenerator's for extensions that match char* interfaceID
+	 */
 	GeneratorList moduleGenerators(const char *iid)
 	{
 		GeneratorList list;
@@ -113,6 +125,9 @@ namespace qutim_sdk_0_3
 		return list;
 	}
 
+	/**
+	 * Returns Map list of protocols
+	 */
 	ProtocolMap allProtocols()
 	{
 		ProtocolMap map;
@@ -121,6 +136,9 @@ namespace qutim_sdk_0_3
 		return map;
 	}
 
+	/**
+	 * Converts status from input enum value to string. Translates it on request.
+	 */
 	QString statusToString(Status status, bool translate)
 	{
 		switch(status)
@@ -159,8 +177,14 @@ namespace qutim_sdk_0_3
 		}
 	}
 
+	/**
+	 * The only instance of ModuleManager (singleton)
+	 */
 	ModuleManager *ModuleManager::self = 0;
 
+	/**
+	 * This is ModuleManager constructor.
+	 */
 	ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 	{
 		qDebug() << QIcon::themeSearchPaths();
@@ -173,11 +197,17 @@ namespace qutim_sdk_0_3
 //		qApp->setOrganizationName("qutIM");
 	}
 
+	/**
+	 * This is ModuleManager destructor.
+	 */
 	ModuleManager::~ModuleManager()
 	{
 		ModuleManager::self = 0;
 	}
 
+	/**
+	 * This function used to search and load plugins.
+	 */
 	void ModuleManager::loadPlugins(const QStringList &additional_paths)
 	{
 		QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim", "qutimsettings");
@@ -277,6 +307,9 @@ namespace qutim_sdk_0_3
 		}
 	}
 
+	/**
+	 * Selects all available extensions by QMetaObject criterion
+	 */
 	QMultiMap<Plugin *, ExtensionInfo> ModuleManager::getExtensions(const QMetaObject *service_meta) const
 	{
 		p->meta_modules.insert(service_meta);
@@ -308,6 +341,9 @@ namespace qutim_sdk_0_3
 		return result;
 	}
 
+	/**
+	 * Selects all available extensions by char* interface id criterion
+	 */
 	QMultiMap<Plugin *, ExtensionInfo> ModuleManager::getExtensions(const char *interface_id) const
 	{
 		QMultiMap<Plugin *, ExtensionInfo> result;
@@ -338,6 +374,9 @@ namespace qutim_sdk_0_3
 		return result;
 	}
 
+	/**
+	 * Initializes specific extension. To select extension type QMetaObject used.
+	 */
 	QObject *ModuleManager::initExtension(const QMetaObject *service_meta)
 	{
 		QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(service_meta);
@@ -352,6 +391,9 @@ namespace qutim_sdk_0_3
 		return 0;
 	}
 
+	/**
+	 * Don't know
+	 */
 	void ModuleManager::initExtensions()
 	{
 		CryptoService::self = initExtension<CryptoService>();
@@ -410,6 +452,9 @@ namespace qutim_sdk_0_3
 	}
 }
 
+/**
+ * Used for debug output.
+ */
 QDebug operator<<(QDebug debug, qutim_sdk_0_3::Status status)
 {
 	debug << "Status(" << qPrintable(qutim_sdk_0_3::statusToString(status, false)) << ')';

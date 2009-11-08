@@ -27,6 +27,10 @@ namespace qutim_sdk_0_3
 	class ModuleManagerPrivate;
 	typedef QList<ExtensionInfo> ExtensionList;
 
+	/**
+	 * ModuleManager class used to manage plug-ins and extensions/
+	 * ModuleManagerImpl inherit this class and used to hide core layers and protect those.
+	 */
 	class LIBQUTIM_EXPORT ModuleManager : public QObject
 	{
 		Q_OBJECT
