@@ -367,6 +367,10 @@ namespace qutim_sdk_0_3
 					qWarning("%s has no 'Extension' class info", meta->className());
 					continue;
 				}
+				else
+				{
+					qDebug("Found '%s' for '%s'", meta->className(), name.constData());
+				}
 				ConfigPrivate::config_backends << qMakePair(name, it.value().generator()->generate<ConfigBackend>());
 			}
 		}

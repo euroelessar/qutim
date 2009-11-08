@@ -47,8 +47,8 @@ namespace Core
 		inline CoreModuleHelper2(const char *nameT, const char *descriptionT, const char *nameV, const char *descriptionV)
 		{
 			ModuleManagerImpl::extensions()
-					<< ExtensionInfo(nameT, descriptionT, new GeneralGenerator<T>())
-					<< ExtensionInfo(nameV, descriptionV, new GeneralGenerator<V>());
+					<< ExtensionInfo(nameV, descriptionV, new GeneralGenerator<V>())
+					<< ExtensionInfo(nameT, descriptionT, new GeneralGenerator<T>());
 		}
 	};
 }
