@@ -24,24 +24,24 @@ namespace qutim_sdk_0_3
 	class MessagePrivate : public QSharedData
 	{
 	public:
-		MessagePrivate() : in(false) {}
+		MessagePrivate() : in(false), chatUnit(0) {}
 		MessagePrivate(const MessagePrivate &o)
 				: QSharedData(o), text(o.text), time(o.time), names(o.names), values(o.values),chatUnit(o.chatUnit) {}
 		~MessagePrivate() {}
 		QString text;
 		QDateTime time;
 		bool in;
+		ChatUnit *chatUnit;
 		QVariant getText() const { return text; }
 		void setText(const QVariant &val) { text = val.toString(); }
 		QVariant getTime() const { return time; }
 		void setTime(const QVariant &val) { time = val.toDateTime(); }
 		QVariant getIn() const { return in;}
 		void setIn(const QVariant &input) { in = input.toBool(); }
-		void setChatUnit (const QVariant &val) {chatUnit = val.value<ChatUnit *>();};
-		QVariant getChatUnit() const {return QVariant::fromValue(chatUnit);};
+		void setChatUnit (const QVariant &val) { chatUnit = val.value<ChatUnit *>(); }
+		QVariant getChatUnit() const { return QVariant::fromValue(chatUnit); }
 		QList<QByteArray> names;
 		QList<QVariant> values;
-		ChatUnit *chatUnit;
 	};
 
 	namespace CompiledProperty
