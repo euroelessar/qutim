@@ -204,6 +204,11 @@ namespace AdiumChat
 	{
 		// prepare values, so they could be inserted to html code
 		QString html;
+		if (!mes.chatUnit())
+		{
+			qDebug() << "Chat unit is not defined";
+			return QString();
+		}
 
 		if(mes.time().isValid())
 		{
@@ -222,10 +227,9 @@ namespace AdiumChat
 
 		processMessage(html, session, mes);
 
-		QString avatarPath = mes.chatUnit()->property("imagepath").toString(); //FIXME set buddy icon
-
 		// Replace %sender% to name
-		html = html.replace("%sender%", Qt::escape(mes.chatUnit()->property("name").toString()));
+		QString sender_name = mes.isIncoming() ? mes.chatUnit()->property("name").toString() : mes.chatUnit()->account()->id(); //FIXME 
+		html = html.replace("%sender%", Qt::escape(sender_name));
 		// Replace %senderScreenName% to name
 		html = html.replace("%senderScreenName%", Qt::escape(mes.chatUnit()->id()));
 		makeTime(html,mes.time());
@@ -236,6 +240,7 @@ namespace AdiumChat
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
 		// Replace userIconPath
+		QString avatarPath = mes.chatUnit()->property("imagepath").toString();		
 		if(avatarPath.isEmpty())
 		{
 			if(mes.isIncoming())
@@ -310,6 +315,7 @@ namespace AdiumChat
 
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
 		QString message = mes.text();
+
 		html = html.replace("%message%", message.replace("\\","\\\\").remove('\r').replace("%","&#37;")+"&nbsp;");
 
 		return html;

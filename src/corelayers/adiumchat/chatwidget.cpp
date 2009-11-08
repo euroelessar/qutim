@@ -127,6 +127,8 @@ namespace AdiumChat
 
 	void ChatWidget::onSendButtonClicked()
 	{
+		if (ui->chatEdit->toPlainText().isEmpty())
+			return;
 		ChatSessionImpl *session = m_sessions.at(ui->tabBar->currentIndex());
 		Message message (ui->chatEdit->toPlainText());
 		message.setIncoming(false);
