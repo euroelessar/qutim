@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>662</width>
-    <height>589</height>
+    <width>851</width>
+    <height>736</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,8 +26,6 @@
        </property>
        <item row="0" column="0">
         <widget class="QTabBar" name="tabBar" native="true">
-         <zorder>splitter</zorder>
-         <zorder>chatView</zorder>
          <zorder>chatView</zorder>
         </widget>
        </item>

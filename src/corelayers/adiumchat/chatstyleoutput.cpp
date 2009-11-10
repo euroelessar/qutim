@@ -269,8 +269,7 @@ namespace AdiumChat
 		html = html.replace("%messageDirection%", _aligment ? "ltr" : "rtl" );
 
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
-		QString message = mes.text();
-		html = html.replace("%message%", message.replace("\\","\\\\").remove('\r').replace("%","&#37;")+"&nbsp;");
+		html = html.replace("%message%", Qt::escape(mes.text()));
 		return html;
 	}
 
@@ -323,9 +322,7 @@ namespace AdiumChat
 		html = html.replace("%messageDirection%", _aligment ? "ltr" : "rtl" );
 
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
-		QString message = mes.text();
-
-		html = html.replace("%message%", message.replace("\\","\\\\").remove('\r').replace("%","&#37;")+"&nbsp;");
+		html = html.replace("%message%", Qt::escape(mes.text()));
 
 		return html;
 	}
@@ -334,7 +331,7 @@ namespace AdiumChat
 	{
 		QString html = m_current_style.statusHtml;
 		makeTime(html, datetime);
-		html = html.replace("%message%", Qt::escape(text).replace("\\","\\\\").remove('\r').replace("%","&#37;").replace("\n","<br/>")+"&nbsp;");
+		html = html.replace("%message%", Qt::escape(text));
 		return html;
 	}
 
