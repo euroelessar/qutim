@@ -39,6 +39,12 @@ namespace qutim_sdk_0_3
 //		}
 	}
 
+	QString Contact::title() const
+	{
+		QString n = name();
+		return n.isEmpty() ? id() : n;
+	}
+
 	QSet<QString> Contact::tags() const
 	{
 		return QSet<QString>();

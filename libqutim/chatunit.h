@@ -31,12 +31,14 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 		Q_PROPERTY(QString id READ id)
+		Q_PROPERTY(QString title READ title)
 		Q_PROPERTY(Account* account READ account)
 	public:
 		ChatUnit(Account *account);
 		ChatUnit(Account *account, ChatUnitPrivate *d);
 		virtual ~ChatUnit();
 		virtual QString id() const = 0;
+		virtual QString title() const;
 		Account *account();
 		const Account *account() const;
 		virtual void sendMessage(const Message &message) = 0;

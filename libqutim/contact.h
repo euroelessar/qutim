@@ -38,6 +38,7 @@ namespace qutim_sdk_0_3
 	public:
 		Contact(Account *account);
 		virtual ~Contact();
+		virtual QString title() const;
 		virtual QSet<QString> tags() const;
 		virtual QString name() const;
 		virtual Status status() const;

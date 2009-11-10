@@ -32,6 +32,12 @@ namespace qutim_sdk_0_3
 	{
 	}
 
+	QString ChatUnit::title() const
+	{
+		QString title = property("name").toString();
+		return title.isEmpty() ? id() : title;
+	}
+
 	Account *ChatUnit::account()
 	{
 		return p->account;

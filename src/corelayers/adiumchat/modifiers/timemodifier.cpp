@@ -1,7 +1,7 @@
 #include "timemodifier.h"
 #include "src/modulemanagerimpl.h"
+#include "libqutim/configbase.h"
 #include <QDateTime>
-#include <libqutim/configbase.h>
 
 namespace AdiumChat
 {
