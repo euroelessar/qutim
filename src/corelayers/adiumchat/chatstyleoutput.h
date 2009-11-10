@@ -96,6 +96,7 @@ namespace AdiumChat
 	private:
 		inline void makeTime (QString &input, const QDateTime& datetime,const QString &regexp = "%time\\{([^}]*)\\}%");
 		void loadSettings();
+		void loadTheme(const QString &name, const QString &variant = QString());
 		/*
 		style used for output generation
 		*/

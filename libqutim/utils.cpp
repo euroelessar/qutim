@@ -392,7 +392,7 @@ namespace qutim_sdk_0_3
 		return str;
 	}
 	
-	QString getThemePath(QDir shareDir, const QString &themeName , const QString &category )
+	inline QString getThemePath(QDir shareDir, const QString &themeName , const QString &category )
 	{
 		if(shareDir.cd(category) && shareDir.cd(themeName))
 			return shareDir.absolutePath();
@@ -408,6 +408,21 @@ namespace qutim_sdk_0_3
 			themePath = getThemePath(SystemInfo::getDir(SystemInfo::SystemShareDir),themeName,category);
 		}
 		return themePath;
+	}
+
+	inline QStringList listThemes (QDir shareDir, const QString &category)
+	{
+		shareDir.cd(category);
+		return shareDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+	}
+
+	QStringList listThemes( const QString &category)
+	{
+		QStringList theme_list;
+		theme_list << listThemes(SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::ShareDir),category);
+		theme_list << listThemes(SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::SystemShareDir),category);
+		theme_list.removeDuplicates();
+		return theme_list;
 	}
 	
 	QString &validateCpp(QString &text )

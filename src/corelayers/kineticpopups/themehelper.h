@@ -32,7 +32,6 @@ namespace KineticPopups
 			Qt::WindowFlags widgetFlags;
 		};
 		PopupSettings loadThemeSetting(const QString &themePath);
-		QList<PopupSettings> getThemes();
 	}
 };
 

@@ -58,6 +58,7 @@ namespace AdiumChat
 		~ChatStyleGenerator();
 		ChatStyle getChatStyle () const;
 		StyleVariants getVariants() const;
+		static StyleVariants listVariants (const QString &path);
 	private:
 		QScopedPointer<ChatStyleGeneratorPrivate> d;
 	};

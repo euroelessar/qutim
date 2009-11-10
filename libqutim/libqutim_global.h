@@ -89,6 +89,8 @@ namespace qutim_sdk_0_3
 	LIBQUTIM_EXPORT QString convertTimeDate(const QString &mac_format, const QDateTime &datetime);
 	LIBQUTIM_EXPORT QString &validateCpp(QString &text );
 	LIBQUTIM_EXPORT QString getThemePath (const QString& themeName, const QString &category ); //search theme in user and share dir
+	LIBQUTIM_EXPORT QStringList listThemes( const QString &category); //list all themes for category, will seach in user and share fir
+	//NOTE it's return themename not themepath!
 }
 
 class QDebug;

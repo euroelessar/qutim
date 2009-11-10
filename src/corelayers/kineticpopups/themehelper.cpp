@@ -51,27 +51,6 @@ namespace KineticPopups
 			popup_settings.widgetFlags = static_cast<Qt::WindowFlags>(appearance.value<int>("widgetFlags",Qt::ToolTip));
 			return popup_settings;
 		}
-
-		QList< PopupSettings > getThemes()
-		{
-			//TODO need optimization
-			QList< PopupSettings > popup_settings_list;
-			QDir theme_dir = SystemInfo::getDir(SystemInfo::ShareDir);
-			theme_dir.cd("kineticpopups");
-			QStringList theme_list = theme_dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-			theme_dir = SystemInfo::getDir(SystemInfo::SystemShareDir);
-			theme_dir.cd("kineticpopups");
-			theme_list << theme_dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-			theme_list.removeDuplicates();
-			qDebug() << theme_list;
-			foreach (QString theme_name, theme_list)
-			{
-				popup_settings_list.append(loadThemeSetting(getThemePath(theme_name,"kineticpopups")));
-				qDebug() << getThemePath(theme_name,"kineticpopups");
-			}
-			return popup_settings_list;
-		}
-
 	}
 
 };

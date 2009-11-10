@@ -69,20 +69,7 @@ namespace AdiumChat
 		void listVariants()
 		{
 			QString path =  style.basePath + QLatin1String("Variants/");
-			QDir variantDir(path);
-			variantDir.makeAbsolute();
-
-			QStringList variantList = variantDir.entryList(QStringList("*.css"));
-			QStringList::ConstIterator it, itEnd = variantList.constEnd();
-			for(it = variantList.constBegin(); it != itEnd; ++it)
-			{
-				QString name = *it, path;
-				// Retrieve only the file name.
-				name = name.left(name.lastIndexOf("."));
-				// variantPath is relative to basePath.
-				path = QString("Variants/%1").arg(*it);
-				style.variants.insert(name, path);
-			}
+			style.variants = ChatStyleGenerator::listVariants(path);
 		}
 		QString readStyleFile ( const QString& filePath, QFile* fileAccess )
 		{
@@ -168,6 +155,28 @@ namespace AdiumChat
 	{
 
 	}
+
+	
+	StyleVariants ChatStyleGenerator::listVariants(const QString& path)
+	{
+		StyleVariants variants;
+		QDir variantDir(path);
+		variantDir.makeAbsolute();
+
+		QStringList variantList = variantDir.entryList(QStringList("*.css"));
+		QStringList::ConstIterator it, itEnd = variantList.constEnd();
+		for(it = variantList.constBegin(); it != itEnd; ++it)
+		{
+			QString name = *it, path;
+			// Retrieve only the file name.
+			name = name.left(name.lastIndexOf("."));
+			// variantPath is relative to basePath.
+			path = QString("Variants/%1").arg(*it);
+			variants.insert(name, path);
+		}
+		return variants;
+	}
+
 	
 	StyleVariants ChatStyleGenerator::getVariants() const
 	{

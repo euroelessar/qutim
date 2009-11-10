@@ -89,11 +89,17 @@ namespace AdiumChat
 
 	void ChatStyleOutput::loadSettings()
 	{
-		ConfigGroup adium_chat = Config("appearance").group("adiumChat/style");
+		ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
 		m_current_style_path = getThemePath(adium_chat.value<QString>("name","default"),
 											"webkitstyle");
 		m_current_variant = adium_chat.value<QString>("variant", QString());
 		m_current_datetime_format = adium_chat.value<QString>("datetimeFormat","hh:mm:ss dd/MM/yyyy");
+	}
+	
+	void ChatStyleOutput::loadTheme(const QString& path, const QString& variant)
+	{
+		m_current_style_path = path;
+		m_current_variant = variant;
 	}
 
 	void ChatStyleOutput::reloadStyle(QWebPage* page)

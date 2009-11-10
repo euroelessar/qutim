@@ -1,5 +1,5 @@
 /****************************************************************************
- *  xsettingsdialog.cpp
+ *  chatappearance.cpp.cpp
  *
  *  Copyright (c) 2009 by Sidorov Aleksey <sauron@citadelspb.com>
  *
@@ -21,8 +21,10 @@ namespace Ui
 {
 	class chatAppearance;
 }
+class QWebPage;
 namespace AdiumChat
 {
+	class ChatStyleOutput;
 	class ChatAppearance : public SettingsWidget
 	{
 		Q_OBJECT
@@ -32,8 +34,16 @@ namespace AdiumChat
 		virtual void loadImpl();
 		virtual void saveImpl();
 		virtual ~ChatAppearance();
+	private slots:
+		void onCurrentIndexChanged(int index);
 	private:
+		void getThemes();
 		Ui::chatAppearance *ui;
+		QHash<QString, QString> m_themes;
+		QScopedPointer<ChatStyleOutput> m_chat_style_output;
+		QString m_current_style_name;
+		QString m_current_variant;
+		QWebPage *m_page;
 	};
 
 }

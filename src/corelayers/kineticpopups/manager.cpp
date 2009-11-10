@@ -113,7 +113,7 @@ namespace KineticPopups
 
 	void Manager::loadSettings()
 	{
-		ConfigGroup general = Config("appearance").group("kineticpopups/general");
+		ConfigGroup general = Config("appearance/kineticpopups").group("general");
 		animationDuration = general.value("animationDuration",1000);
 		QString theme_name = general.value<QString>("themeName","default");
 		*reinterpret_cast<int *>(&showFlags) = general.value("showFlags", 0xfffffff);
