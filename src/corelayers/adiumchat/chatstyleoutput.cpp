@@ -144,8 +144,8 @@ namespace AdiumChat
 		QString html = makeSkeleton(QObject::tr("Chat with %1").arg(id),
 									acc->id(),
 									id,
-									acc->property("imagepath").toString(),
-									acc->property("imagepath").toString(),
+									acc->property("avatar").toString(),
+									acc->property("avatar").toString(),
 									QDateTime::currentDateTime());
 		page->mainFrame()->setHtml(html);
 		reloadStyle(page);
@@ -244,7 +244,7 @@ namespace AdiumChat
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
 		// Replace userIconPath
-		QString avatarPath = mes.isIncoming() ? mes.chatUnit()->property("imagepath").toString() : mes.chatUnit()->account()->property("imagepath").toString();
+		QString avatarPath = mes.isIncoming() ? mes.chatUnit()->property("avatar").toString() : mes.chatUnit()->account()->property("avatar").toString();
 		if(avatarPath.isEmpty())
 		{
 			if(mes.isIncoming())
@@ -298,7 +298,7 @@ namespace AdiumChat
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
 		// Replace userIconPath
-		QString avatarPath = mes.isIncoming() ? mes.chatUnit()->property("imagepath").toString() : mes.chatUnit()->account()->property("imagepath").toString();
+		QString avatarPath = mes.isIncoming() ? mes.chatUnit()->property("avatar").toString() : mes.chatUnit()->account()->property("avatar").toString();
 		if(avatarPath == "")
 		{
 			if(mes.isIncoming())

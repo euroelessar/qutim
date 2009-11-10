@@ -19,6 +19,9 @@
 #include "chatwidget.h"
 #include "modulemanagerimpl.h"
 #include <QDebug>
+#include <libqutim/settingslayer.h>
+#include "chatappearance.h"
+#include <libqutim/icon.h>
 
 namespace AdiumChat
 {
@@ -29,7 +32,9 @@ namespace AdiumChat
 		
 	ChatLayerImpl::ChatLayerImpl()
 	{
-
+		GeneralSettingsItem<ChatAppearance> *item = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat theme"));
+		Settings::registerItem(item);
+		Settings::showWidget();
 	}
 
 
