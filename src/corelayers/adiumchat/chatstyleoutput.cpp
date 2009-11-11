@@ -79,27 +79,28 @@ namespace AdiumChat
 			}
 		}
 	}
-	
+
 	ChatStyleOutput::ChatStyleOutput ()
 	{
 		loadSettings();
-		ChatStyleGenerator generator (m_current_style_path,m_current_variant);
-		m_current_style = generator.getChatStyle();
 	}
 
 	void ChatStyleOutput::loadSettings()
 	{
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
-		m_current_style_path = getThemePath(adium_chat.value<QString>("name","default"),
+		QString path = getThemePath(adium_chat.value<QString>("name","default"),
 											"webkitstyle");
-		m_current_variant = adium_chat.value<QString>("variant", QString());
+		QString variant = adium_chat.value<QString>("variant", QString());
+		loadTheme(path,variant);
 		m_current_datetime_format = adium_chat.value<QString>("datetimeFormat","hh:mm:ss dd/MM/yyyy");
 	}
-	
+
 	void ChatStyleOutput::loadTheme(const QString& path, const QString& variant)
 	{
 		m_current_style_path = path;
 		m_current_variant = variant;
+		ChatStyleGenerator generator (m_current_style_path,m_current_variant);
+		m_current_style = generator.getChatStyle();
 	}
 
 	void ChatStyleOutput::reloadStyle(QWebPage* page)
@@ -108,7 +109,6 @@ namespace AdiumChat
 		js += "setStylesheet(\"mainStyle\",\"";
 		js += getVariantCSS();
 		js += "\");";
-		qDebug() << js;
 		page->currentFrame()->evaluateJavaScript(js);
 	}
 
@@ -132,7 +132,7 @@ namespace AdiumChat
 		return m_current_style.variants.value(m_current_variant, m_current_style.defaultVariant);
 	}
 
-	void ChatStyleOutput::preparePage ( QWebPage* page, Account* acc, const QString& id )
+	void ChatStyleOutput::preparePage ( QWebPage* page, const ChatSessionImpl *session)
 	{
 		QPalette palette = page->palette();
 		if(m_current_style.backgroundIsTransparent)
@@ -146,23 +146,16 @@ namespace AdiumChat
 			palette.setBrush(QPalette::Base, m_current_style.backgroundColor);
 		}
 		page->setPalette(palette);
-		//TODO 
-		QString html = makeSkeleton(QObject::tr("Chat with %1").arg(id),
-									acc->id(),
-									id,
-									acc->property("avatar").toString(),
-									acc->property("avatar").toString(),
-									QDateTime::currentDateTime());
+		//TODO
+		QString html = makeSkeleton(session,QDateTime::currentDateTime());
 		page->mainFrame()->setHtml(html);
 		reloadStyle(page);
 	}
 
-	QString ChatStyleOutput::makeSkeleton ( const QString& _chatName, const QString& _ownerName,
-											const QString& _partnerName, const QString& _ownerIconPath,
-											const QString& _partnerIconPath, const QDateTime& _dateTime
+	QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDateTime& _dateTime
 											)
 	{
-		//TODO 
+		//TODO
 		QString headerHTML = m_current_style.headerHtml;
 		QString footerHTML = m_current_style.footerHtml;
 
@@ -177,27 +170,21 @@ namespace AdiumChat
 		//	generalSkeleton.replace("%rep3%", "Variants/" + variantUsedName + ".css");
 		//	generalSkeleton.replace("%rep4%", headerHTML);
 
-		generalSkeleton = generalSkeleton.replace("%chatName%", Qt::escape(_chatName));
-		generalSkeleton = generalSkeleton.replace("%sourceName%", Qt::escape(_ownerName));
-		generalSkeleton = generalSkeleton.replace("%destinationName%", Qt::escape(_partnerName));
+		generalSkeleton = generalSkeleton.replace("%chatName%", session->getId());
+		generalSkeleton = generalSkeleton.replace("%sourceName%", Qt::escape(session->getAccount()->name() ));
+		generalSkeleton = generalSkeleton.replace("%destinationName%", Qt::escape(session->getUnit()->title()));
+		QString _ownerIconPath = session->getAccount()->property("avatar").toString();
+		QString _partnerIconPath = session->getUnit()->property("avatar").toString();
 
 		if(_ownerIconPath == "")
 			generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", "outgoing_icon.png");
 		else
-#if defined(Q_OS_WIN32) //TODO FIXME remove hacks!
 			generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", _ownerIconPath);
-#else
-		generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", "file://" + _ownerIconPath);
-#endif
-
 		if(_partnerIconPath == "")
 			generalSkeleton = generalSkeleton.replace("%incomingIconPath%", "incoming_icon.png");
 		else
-#if defined(Q_OS_WIN32)
 			generalSkeleton = generalSkeleton.replace("%incomingIconPath%", _partnerIconPath);
-#else
-		generalSkeleton = generalSkeleton.replace("%incomingIconPath%", "file://" + _partnerIconPath);
-#endif
+
 		return generalSkeleton;
 	}
 
@@ -235,10 +222,8 @@ namespace AdiumChat
 
 		// Replace %sender% to name
 		//FIXME
-		QString sender_name = mes.isIncoming() ? mes.chatUnit()->property("name").toString() : mes.chatUnit()->account()->name();
+		QString sender_name = mes.isIncoming() ? mes.chatUnit()->title() : mes.chatUnit()->account()->name();
 		QString sender_id = mes.isIncoming() ? mes.chatUnit()->id() : mes.chatUnit()->account()->id();
-		if (sender_name.isEmpty())
-			sender_name = sender_id;
 		html = html.replace("%sender%", Qt::escape(sender_name));
 		// Replace %senderScreenName% to name
 		html = html.replace("%senderScreenName%", Qt::escape(sender_id));
@@ -279,7 +264,7 @@ namespace AdiumChat
 		return html;
 	}
 
-	QString ChatStyleOutput::makeAction (const ChatSessionImpl *session, const Message &mes, 
+	QString ChatStyleOutput::makeAction (const ChatSessionImpl *session, const Message &mes,
 										 const bool& _aligment)
 	{
 		QString html = mes.isIncoming() ? m_current_style.outgoingActionHtml:m_current_style.incomingActionHtml;
@@ -287,10 +272,8 @@ namespace AdiumChat
 		processMessage(html,session,mes);
 
 		//FIXME
-		QString sender_name = mes.isIncoming() ? mes.chatUnit()->property("name").toString() : mes.chatUnit()->account()->name();
+		QString sender_name = mes.isIncoming() ? mes.chatUnit()->title() : mes.chatUnit()->account()->name();
 		QString sender_id = mes.isIncoming() ? mes.chatUnit()->id() : mes.chatUnit()->account()->id();
-		if (sender_name.isEmpty())
-			sender_name = sender_id;		
 
 		// Replace %sender% to name
 		html = html.replace("%sender%", Qt::escape(sender_name));
@@ -367,7 +350,7 @@ namespace AdiumChat
 		}
 		return html;
 	}
-	
+
 	QString ChatStyleOutput::findWebAddress ( const QString& _sourceHTML )
 	{
 		QString html = _sourceHTML;

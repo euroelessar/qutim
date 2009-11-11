@@ -22,18 +22,18 @@
 #include <QDateTime>
 #include <QDebug>
 #include "libqutim/history.h"
-#include <libqutim/notificationslayer.h> //for testing
+#include <libqutim/notificationslayer.h>
 
 namespace AdiumChat
 
 {
-	
+
 	ChatSessionImpl::ChatSessionImpl ( Account* acc, const QString& id, ChatLayer* chat)
 	: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage)
 	{
 		m_account = acc;
 		m_session_id = id;
-		m_chat_style_output->preparePage(m_web_page,m_account,m_session_id);
+		m_chat_style_output->preparePage(m_web_page,this);
 		m_message_count = 0;
 	}
 
@@ -77,7 +77,7 @@ namespace AdiumChat
 		}
 		else if (tmp_message.property("service").toBool())
 		{
-			item = m_chat_style_output->makeStatus(item, QDateTime::currentDateTime());
+			item = m_chat_style_output->makeStatus(message.text(), QDateTime::currentDateTime());
 			m_previous_sender = "";
 		}
 		else
@@ -94,7 +94,7 @@ namespace AdiumChat
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
-		if (!isHistory)
+		if (!isHistory && !tmp_message.property("disableNotify").toBool())
 			Notifications::sendNotification(tmp_message);
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
 		if (result.isEmpty()) //TODO I'm not sure that it works well //FIXME
@@ -111,7 +111,7 @@ namespace AdiumChat
 
 	}
 
-	
+
 	QWebPage* ChatSessionImpl::getPage() const
 	{
 		return m_web_page;
@@ -127,7 +127,7 @@ namespace AdiumChat
 		return m_session_id;
 	}
 
-	
+
 	ChatUnit* ChatSessionImpl::getUnit(bool create) const
 	{
 		return m_account->getUnit(m_session_id,create);
@@ -139,4 +139,15 @@ namespace AdiumChat
 			return QVariant();
 		return m_web_page->mainFrame()->evaluateJavaScript(scriptSource);
 	}
+
+	void ChatSessionImpl::activate(bool active)
+	{
+
+	}
+
+	bool ChatSessionImpl::isActive()
+	{
+
+	}
+
 }

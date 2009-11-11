@@ -18,21 +18,68 @@
 #include "chatstyleoutput.h"
 #include <QDebug>
 #include <libqutim/configbase.h>
+#include <QWebFrame>
+#include <libqutim/protocol.h>
+#include <libqutim/account.h>
+#include <libqutim/notificationslayer.h>
+#include <QDateTime>
 
 namespace AdiumChat
 {
-	
-	ChatAppearance::ChatAppearance(): ui(new Ui::chatAppearance), m_chat_style_output(new ChatStyleOutput), m_page(new QWebPage)
+	class FakeChatUnit : public ChatUnit
+	{
+	public:
+		FakeChatUnit(Account* account) : ChatUnit(account) {};
+		virtual QString title() const
+		{
+			return tr("Vasya Pupkin");
+		};
+		virtual void sendMessage(const qutim_sdk_0_3::Message& message) {};
+		virtual QString id() const
+		{
+			return tr("Noname");
+		};
+	};
+	class FakeAccount : public Account
+	{
+	public:
+		FakeAccount(const QString& id, Protocol* protocol) : Account(id,protocol)
+		{
+			m_unit = new FakeChatUnit(this);
+		};
+		virtual ~FakeAccount()
+		{
+			m_unit->deleteLater();
+		};
+		virtual ChatUnit* getUnit(const QString& unitId, bool create = false)
+		{
+			return m_unit;
+		};
+	private:
+		FakeChatUnit *m_unit;
+	};
+
+	ChatAppearance::ChatAppearance(): ui(new Ui::chatAppearance), m_chat_style_output(new ChatStyleOutput)
 	{
 		ui->setupUi(this);
-		connect(ui->chatBox,SIGNAL(currentIndexChanged(int)),SLOT(onCurrentIndexChanged(int)));
+		if (allProtocols().isEmpty())
+			m_chat_session = 0;
+		else
+		{
+			FakeAccount *account = new FakeAccount("Noname",allProtocols().begin().value());
+			m_chat_session = new ChatSessionImpl(account,tr("Preview"),ChatLayer::instance());
+			m_page = m_chat_session->getPage();
+			ui->chatPreview->setPage(m_page);
+		}
 	}
-	
+
 	ChatAppearance::~ChatAppearance()
 	{
 		delete ui;
+		if (m_chat_session)
+			m_chat_session->deleteLater();
 	}
-	
+
 	void ChatAppearance::cancelImpl()
 	{
 
@@ -43,15 +90,14 @@ namespace AdiumChat
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
 		m_current_style_name = adium_chat.value<QString>("name","default");
 		m_current_variant = adium_chat.value<QString>("variant", QString());
+		disconnect(ui->chatBox,SIGNAL(currentIndexChanged(int)),this,SLOT(onCurrentIndexChanged(int)));
 		getThemes();
-		//TODO need fake preview acc
-		//m_chat_style_output->preparePage(m_page,acc,"themePreview");
+		connect(ui->chatBox,SIGNAL(currentIndexChanged(int)),SLOT(onCurrentIndexChanged(int)));
+		makePage();
 	}
 
 	void ChatAppearance::saveImpl()
 	{
-		m_current_style_name = ui->chatBox->itemData(ui->chatBox->currentIndex()).toMap().value("name").toString();
-		m_current_style_name = ui->chatBox->itemData(ui->chatBox->currentIndex()).toMap().value("variant").toString();
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
 		adium_chat.setValue("name",m_current_style_name);
 		adium_chat.setValue("variant",m_current_variant);
@@ -94,13 +140,52 @@ namespace AdiumChat
 				}
 			}
 		}
-		qDebug() << default_index << m_current_style_name << m_current_variant;
-		ui->chatBox->setCurrentIndex(default_index);
+		ui->chatBox->setCurrentIndex(default_index == -1 ? 0 : default_index);
 	}
-	
+
 	void ChatAppearance::onCurrentIndexChanged(int index)
 	{
 		QVariantMap map = ui->chatBox->itemData(index).toMap();
+		m_current_variant = map.value("variant").toString();
+		if (m_current_style_name == map.value("name").toString())
+		{
+			m_chat_style_output->setVariant(m_current_variant);
+			m_chat_style_output->reloadStyle(m_page);
+		}
+		else
+		{
+			m_current_style_name = map.value("name").toString();
+			qDebug() << "change style" << m_current_style_name << m_current_variant;
+			m_chat_style_output->loadTheme(m_current_style_name,m_current_variant);
+			makePage();
+		}
+	}
+
+	void ChatAppearance::makePage()
+	{
+		if (!m_chat_session)
+		{
+			Notifications::sendNotification(qutim_sdk_0_3::Notifications::System,this,tr("TODO"));
+			return;
+		}
+		m_chat_style_output->preparePage(m_page,m_chat_session);
+		Message message(tr("Preview message"));
+		message.setProperty("disableNotify",true);
+		message.setIncoming(true);
+		message.setChatUnit(m_chat_session->getUnit());
+		message.setText(tr("Hello!"));
+		m_chat_session->appendMessage(message);
+		message.setText(tr("How are you?"));
+		m_chat_session->appendMessage(message);
+		message.setTime(QDateTime::currentDateTime());
+		message.setText(tr("I am fine!"));
+		message.setIncoming(false);
+		m_chat_session->appendMessage(message);
+		message.setText(tr("/me is thinking!"));
+		m_chat_session->appendMessage(message);
+		message.setProperty("service",true);
+		message.setText("Vasya is reading you mind");
+		m_chat_session->appendMessage(message);
 	}
 
 }

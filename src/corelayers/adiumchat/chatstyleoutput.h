@@ -45,18 +45,7 @@ namespace AdiumChat
 		*/
 		StyleVariants getVariants() const;
 
-		/*
-		sets variant to use, it's used for setting
-		*/
 		void setVariant(const QString &_variantName);
-		/*
-		creats a html skeleton. Future messages will be added to it
-		skeleton consist of styles, header and footer
-		it has a mark as well. before this mark new messages should be added
-		*/
-		QString makeSkeleton(const QString &_chatName, const QString &_ownerName,
-							const QString &_partnerName, const QString &_ownerIconPath,
-							const QString &_partnerIconPath, const QDateTime &datetime);
 		QString makeMessage(const ChatSessionImpl *session, const Message &mes, bool _aligment, bool _sameSender);
 		/*
 		changes keywords to action atributes in html like "Bob is writing on the desk"
@@ -84,19 +73,23 @@ namespace AdiumChat
 		*/
 		QString getMainCSS();
 		QString getVariantCSS();
-		void preparePage(QWebPage *page, Account* acc, const QString& id);
+		void preparePage(QWebPage *page,const ChatSessionImpl *session);
 		void reloadStyle(QWebPage* page);
+		void loadTheme(const QString &name, const QString &variant = QString());
 	private:
 		/*
 		makes html code from plaint text //TODO rewrite on javascript
 		*/
 		QString findEmail(const QString &_sourceHTML);
 		QString findWebAddress(const QString &_sourceHTML);
-
-	private:
+		/*
+		creats a html skeleton. Future messages will be added to it
+		skeleton consist of styles, header and footer
+		it has a mark as well. before this mark new messages should be added
+		*/
+		QString makeSkeleton(const ChatSessionImpl *session, const QDateTime &datetime);
 		inline void makeTime (QString &input, const QDateTime& datetime,const QString &regexp = "%time\\{([^}]*)\\}%");
 		void loadSettings();
-		void loadTheme(const QString &name, const QString &variant = QString());
 		/*
 		style used for output generation
 		*/

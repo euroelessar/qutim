@@ -39,6 +39,8 @@ namespace AdiumChat
 		ChatUnit *getUnit(bool create = false) const;
 	public slots:
 		QVariant evaluateJavaScript(const QString &scriptSource);
+		virtual void activate(bool active);
+		virtual bool isActive();
 	private:
 		QPointer<QWebPage> m_web_page;
 		QScopedPointer<ChatStyleOutput> m_chat_style_output;

@@ -38,12 +38,14 @@ namespace AdiumChat
 		void onCurrentIndexChanged(int index);
 	private:
 		void getThemes();
+		void makePage();
 		Ui::chatAppearance *ui;
 		QHash<QString, QString> m_themes;
 		QScopedPointer<ChatStyleOutput> m_chat_style_output;
 		QString m_current_style_name;
 		QString m_current_variant;
 		QWebPage *m_page;
+		ChatSessionImpl *m_chat_session;
 	};
 
 }
