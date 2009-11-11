@@ -37,13 +37,17 @@ namespace AdiumChat
 		Account *getAccount() const;
 		QString getId() const;
 		ChatUnit *getUnit(bool create = false) const;
+		void loadTheme(const QString& path, const QString& variant);
+		void setVariant(const QString& variant);
 	public slots:
 		QVariant evaluateJavaScript(const QString &scriptSource);
 		virtual void activate(bool active);
 		virtual bool isActive();
+	protected:
+		QScopedPointer<ChatStyleOutput> m_chat_style_output;
+		void loadHistory();
 	private:
 		QPointer<QWebPage> m_web_page;
-		QScopedPointer<ChatStyleOutput> m_chat_style_output;
 		Account *m_account;
 		QString m_session_id;
 		//additional info and flags

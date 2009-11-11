@@ -29,10 +29,10 @@ namespace AdiumChat
 		QT_TRANSLATE_NOOP("Plugin", "Webkit chat layer"),
 		QT_TRANSLATE_NOOP("Plugin", "Default qutIM chat realization, based on Adium chat styles")
 	);
-		
+
 	ChatLayerImpl::ChatLayerImpl()
 	{
-		GeneralSettingsItem<ChatAppearance> *item = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat theme"));
+		GeneralSettingsItem<ChatAppearance> *item = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat style"));
 		Settings::registerItem(item);
 		Settings::showWidget();
 	}
@@ -59,11 +59,11 @@ namespace AdiumChat
 			connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
 		}
 		widget->addSession(session);
-		
+
 		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved(Account*,QString)));
 		return session;
 	}
-	
+
 	ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
 	{
 		return getSession(unit->account(),unit->id(),create);
@@ -90,7 +90,7 @@ namespace AdiumChat
  		qDeleteAll (m_chat_sessions[acc]);
  		m_chat_sessions.remove(acc);
 	}
-	
+
 	void ChatLayerImpl::onChatWidgetDestroyed(QObject* object)
 	{
 		ChatWidget *widget = reinterpret_cast< ChatWidget* >(object);
@@ -104,12 +104,12 @@ namespace AdiumChat
 		if (m_chat_sessions.value(acc).count() == 0)
 			m_chat_sessions.remove(acc);
 	}
-	
+
 	ChatLayerImpl::~ChatLayerImpl()
 	{
-		
+
 	}
-	
+
 	QString ChatLayerImpl::getWidgetId(Account* acc, const QString& id) const
 	{
 		QString key;

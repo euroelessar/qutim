@@ -37,6 +37,27 @@ namespace AdiumChat
 		m_message_count = 0;
 	}
 
+	void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)
+	{
+		m_chat_style_output->loadTheme(path,variant);
+		m_chat_style_output->preparePage(m_web_page,this);
+	}
+
+	void ChatSessionImpl::setVariant(const QString& variant)
+	{
+		m_chat_style_output->setVariant(variant);
+		m_chat_style_output->reloadStyle(m_web_page);
+	}
+
+	void ChatSessionImpl::loadHistory()
+	{
+		ConfigGroup adium_chat = Config("appearance/adiumChat").group("general/history");
+		int max_num = adium_chat.value<int>("maxDisplayMessages",5);
+		MessageList messages = History::instance()->read(getUnit(),max_num);
+		foreach (Message mess, messages)
+			appendMessage(mess);
+	}
+
 	ChatSessionImpl::~ChatSessionImpl()
 	{
 		if (m_web_page)
@@ -97,6 +118,8 @@ namespace AdiumChat
 		if (!isHistory && !tmp_message.property("disableNotify").toBool())
 			Notifications::sendNotification(tmp_message);
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
+		if (!isHistory)
+			History::instance()->store(message);
 		if (result.isEmpty()) //TODO I'm not sure that it works well //FIXME
 			m_message_count++;
 	}

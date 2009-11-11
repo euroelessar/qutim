@@ -59,7 +59,7 @@ namespace AdiumChat
 		FakeChatUnit *m_unit;
 	};
 
-	ChatAppearance::ChatAppearance(): ui(new Ui::chatAppearance), m_chat_style_output(new ChatStyleOutput)
+	ChatAppearance::ChatAppearance(): ui(new Ui::chatAppearance)
 	{
 		ui->setupUi(this);
 		if (allProtocols().isEmpty())
@@ -149,14 +149,13 @@ namespace AdiumChat
 		m_current_variant = map.value("variant").toString();
 		if (m_current_style_name == map.value("name").toString())
 		{
-			m_chat_style_output->setVariant(m_current_variant);
-			m_chat_style_output->reloadStyle(m_page);
+			m_chat_session->setVariant(m_current_variant);
 		}
 		else
 		{
 			m_current_style_name = map.value("name").toString();
 			qDebug() << "change style" << m_current_style_name << m_current_variant;
-			m_chat_style_output->loadTheme(m_current_style_name,m_current_variant);
+			m_chat_session->loadTheme(m_current_style_name,m_current_variant);
 			makePage();
 		}
 	}
@@ -168,7 +167,6 @@ namespace AdiumChat
 			Notifications::sendNotification(qutim_sdk_0_3::Notifications::System,this,tr("TODO"));
 			return;
 		}
-		m_chat_style_output->preparePage(m_page,m_chat_session);
 		Message message(tr("Preview message"));
 		message.setProperty("disableNotify",true);
 		message.setIncoming(true);
