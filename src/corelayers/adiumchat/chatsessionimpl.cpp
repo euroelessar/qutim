@@ -75,6 +75,7 @@ namespace AdiumChat
 
 	void ChatSessionImpl::appendMessage ( const Message& message )
 	{
+		//emit activated(true);
 		Message tmp_message = message;
 		//TODO add normal check if contact is null
 		if (!tmp_message.chatUnit())
@@ -165,12 +166,13 @@ namespace AdiumChat
 
 	void ChatSessionImpl::activate(bool active)
 	{
-
+		m_active = active;
+		emit activated(active);//FIXME
 	}
 
 	bool ChatSessionImpl::isActive()
 	{
-
+		return m_active;
 	}
 
 }

@@ -53,6 +53,7 @@ namespace AdiumChat
 		//additional info and flags
 		QString m_previous_sender; //me or nme (not me) //FIXME need refactoring in future
 		int m_message_count;
+		bool m_active;
 	signals:
 		void removed(Account *,const QString &);//may be removed in future
 	};

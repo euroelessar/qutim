@@ -73,7 +73,7 @@ namespace KineticPopups
 		popup->setId(popup_id);
 		popup->setTimeOut(manager->timeout);
 		popup->setMessage(customTitle.isEmpty() ? title : customTitle,body,image_path);
-		setActions(sender,type,popup);
+		popup->setSender(sender);
 		popup->send();
 	}
 
@@ -98,7 +98,7 @@ namespace KineticPopups
 		case Notifications::MessageSend:
 			title = tr("Message to %1:").arg(sender);
 			append_id = "MessageSend";
-			break;			
+			break;
 		case Notifications::Typing:
 			title = tr("%1 is typing").arg(sender);
 			append_id = "Typing";
@@ -134,10 +134,5 @@ namespace KineticPopups
 		return title;
 	}
 
-
-	void Backend::setActions(QObject* sender, Notifications::Type type, Popup* popup)
-	{
-
-	}
 
 }

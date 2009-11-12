@@ -42,11 +42,14 @@ namespace KineticPopups
 		void send();
 		void update(QRect geom);
 		QString getId() const;
+		QObject *getSender() const;
+		void setSender(QObject* sender);
 		QRect geometry() const; //Show state geometry
 	signals:
 		void finished(const QString &id);
 		void updated();
 		void timeoutReached();
+	private slots:
 		void action1Activated();
 		void action2Activated();
 	private:
@@ -61,6 +64,7 @@ namespace KineticPopups
 		QStateMachine *machine;
 		QState *show_state;
 		QState *hide_state;
+		QObject *m_sender;
 		virtual void timerEvent ( QTimerEvent* );
 		int timer_id;
 	};

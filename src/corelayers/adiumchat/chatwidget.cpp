@@ -24,7 +24,7 @@
 
 namespace AdiumChat
 {
-	
+
 	ChatWidget::ChatWidget(ChatFlag chatFlags): ui(new Ui::AdiumChatForm),m_chat_flags(chatFlags)
 	{
 		ui->setupUi(this);
@@ -37,7 +37,7 @@ namespace AdiumChat
 		connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
 	}
-	
+
 	ChatWidget::~ChatWidget()
 	{
 		clear();
@@ -55,19 +55,19 @@ namespace AdiumChat
 		if (ui->tabBar->count() >1)
 			ui->tabBar->setVisible(true);
 	}
-	
+
 	void ChatWidget::addSession(const ChatSessionList &sessions)
 	{
 		for (int i;i!=sessions.count();i++)
 			addSession(sessions.at(i));
 	}
-	
+
 	void ChatWidget::currentIndexChanged(int index)
 	{
 		if (index == -1)
 			return;
 		ui->chatView->setPage(m_sessions.at(index)->getPage());
-		//ui->chatView->page()->currentFrame()->toHtml();
+		setWindowTitle(tr("Chat with %1").arg(m_sessions.at(index)->getUnit()->title()));
 	}
 
 	void ChatWidget::clear()
@@ -79,13 +79,13 @@ namespace AdiumChat
 		for (int i = 0;i!=count;i++)
 			ui->tabBar->removeTab(i);
 	}
-	
+
 	void ChatWidget::removeSession(ChatSessionImpl* session)
 	{
 		int index = m_sessions.indexOf(session);
 		if (index == -1)
 			return;
-	
+
 		ui->tabBar->removeTab(index);
 		m_sessions.removeAt(index);
 		if (ui->tabBar->count() == 1)
@@ -94,7 +94,7 @@ namespace AdiumChat
 		if (m_chat_flags & RemoveSessionOnClose)
 			session->deleteLater();
 	}
-	
+
 	void ChatWidget::onSessionRemoved()
 	{
 		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
@@ -106,7 +106,7 @@ namespace AdiumChat
 	{
 		return m_sessions;
 	}
-	
+
 	void ChatWidget::onCloseRequested(int index)
 	{
 		removeSession(m_sessions.at(index));
@@ -116,13 +116,18 @@ namespace AdiumChat
 	{
 		m_sessions.move(from,to);
 	}
-	
-	void ChatWidget::raise(AdiumChat::ChatSessionImpl* session)
+
+	void ChatWidget::raise(ChatSessionImpl* session)
 	{
 		//TODO customize support
 		activateWindow();
 		setFocus();
 		ui->tabBar->setCurrentIndex(m_sessions.indexOf(session));
+	}
+
+	bool ChatWidget::contains(ChatSessionImpl* session)
+	{
+		return m_sessions.contains(session);
 	}
 
 	void ChatWidget::onSendButtonClicked()

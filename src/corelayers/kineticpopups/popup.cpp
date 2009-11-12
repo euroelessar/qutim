@@ -23,6 +23,8 @@
 #include <QState>
 #include <QDebug>
 #include <QStateMachine>
+#include <libqutim/chatunit.h>
+#include <libqutim/messagesession.h>
 
 namespace KineticPopups
 {
@@ -36,6 +38,16 @@ namespace KineticPopups
 	Popup::Popup(QObject* parent): QObject(parent)
 	{
 
+	}
+
+	void Popup::setSender(QObject *sender)
+	{
+		m_sender = sender;
+	}
+
+	QObject* Popup::getSender() const
+	{
+		return m_sender;
 	}
 
 	void Popup::setId(const QString& id)
@@ -89,8 +101,8 @@ namespace KineticPopups
 		notification_widget = new PopupWidget (manager->popupSettings);
 		notification_widget->setData(title,body,image_path);
 		QSize notify_size = notification_widget->setData ( title,body,image_path );
-		connect (notification_widget,SIGNAL(action1Activated()),SIGNAL(action1Activated()));
-		connect (notification_widget,SIGNAL(action2Activated()),SIGNAL(action2Activated()));
+		connect (notification_widget,SIGNAL(action1Activated()),SLOT(action1Activated()));
+		connect (notification_widget,SIGNAL(action2Activated()),SLOT(action2Activated()));
 
 		show_geometry.setSize(notify_size);
 		QRect geom = manager->insert(this);
@@ -161,6 +173,25 @@ namespace KineticPopups
 	{
 		emit timeoutReached();
 		QObject::timerEvent(ev);
+	}
+
+	void Popup::action1Activated()
+	{
+		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
+		qDebug() << "Test" << unit;
+		if (unit)
+		{
+			ChatLayer::instance()->getSession(unit,false)->activate(true);
+		}
+	}
+
+	void Popup::action2Activated()
+	{
+		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
+		if (unit)
+		{
+			ChatLayer::instance()->getSession(unit,false)->activate(false);
+		}
 	}
 
 }

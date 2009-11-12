@@ -40,8 +40,10 @@ namespace AdiumChat
 		void onAccountDestroyed(QObject *object);
 		void onSessionRemoved(Account *acc, const QString &id);
 		void onChatWidgetDestroyed(QObject *object);
+		void onSessionActivated(bool active);
 	private:
-		inline QString getWidgetId (Account* acc, const QString& id) const;
+		inline QString getWidgetId(Account* acc, const QString& id) const;
+		inline QString getWidgetId(ChatSessionImpl *sess) const;
 		//QHash<Account * , QPair<QPointer<Account>, ChatSessionHash> >  m_chat_sessions;//TODO more safe
 		QHash<Account * , ChatSessionHash >  m_chat_sessions;
 		QHash<QString, ChatWidget *> m_chatwidget_list;

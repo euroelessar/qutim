@@ -31,7 +31,6 @@ namespace KineticPopups
 		Backend ();
 	private:
 		QString getTitle(Notifications::Type type, QString& id, const QString& sender = QString()) const;//also modify notify id
-		void setActions(QObject* sender, Notifications::Type type, Popup *popup);
 	};
 
 }

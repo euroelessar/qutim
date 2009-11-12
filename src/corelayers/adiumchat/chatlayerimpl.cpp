@@ -48,19 +48,8 @@ namespace AdiumChat
 		if (!m_chat_sessions.contains(acc))
 			connect(acc,SIGNAL(destroyed(QObject*)),SLOT(onAccountDestroyed(QObject*)));
 		m_chat_sessions[acc].insert(id,session);
-		//init or update chat widget(s)
-		QString key = getWidgetId(acc,id);
-		ChatWidget *widget = m_chatwidget_list.value(key,0);
-		if (!widget)
-		{
-			widget = new ChatWidget();
-			widget->show();
-			m_chatwidget_list.insert(key,widget);
-			connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
-		}
-		widget->addSession(session);
-
 		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved(Account*,QString)));
+		connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
 		return session;
 	}
 
@@ -116,6 +105,41 @@ namespace AdiumChat
 		//QString key = acc->id() + "/" + id; //simple variant
 		key = "adiumchat"; //all session in one window
 		return key;
+	}
+
+	QString ChatLayerImpl::getWidgetId(ChatSessionImpl* sess) const
+	{
+		return getWidgetId(sess->getAccount(),sess->getId());
+	}
+
+	void ChatLayerImpl::onSessionActivated(bool active)
+	{
+		//init or update chat widget(s)
+		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
+		if (!session)
+			return;
+		QString key = getWidgetId(session);
+		ChatWidget *widget = m_chatwidget_list.value(key,0);
+		if (!widget)
+		{
+			if (!active)
+				return;
+			widget = new ChatWidget();
+			m_chatwidget_list.insert(key,widget);
+			connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
+			widget->show();
+		}
+		if (active)
+		{
+			if (!widget->contains(session))
+				widget->addSession(session);
+			widget->raise(session);
+		}
+		else
+		{
+			if (widget->contains(session))
+				widget->removeSession(session);
+		}
 	}
 
 }

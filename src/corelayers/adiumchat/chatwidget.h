@@ -28,7 +28,7 @@ namespace AdiumChat
 	enum ChatFlag
 	{
 		RemoveSessionOnClose	=	0x1, //remove session, when widget or tab was closed
-		AeroThemeIntegeation	=	0x2, 
+		AeroThemeIntegeation	=	0x2,
 	};
 	class ChatSessionImpl;
 	class ChatWidget : public QWidget
@@ -39,6 +39,7 @@ namespace AdiumChat
 		void clear();//remove all sessions
 		ChatSessionList getSessionList() const;
 		virtual ~ChatWidget();
+		bool contains (ChatSessionImpl *session);
 	public slots:
 		void addSession(ChatSessionImpl *session);
 		void addSession(const ChatSessionList &sessions);
