@@ -133,7 +133,7 @@ namespace AdiumChat
 		{
 			if (!widget->contains(session))
 				widget->addSession(session);
-			widget->raise(session);
+			widget->activate(session);
 		}
 		else
 		{

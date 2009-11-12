@@ -117,11 +117,10 @@ namespace AdiumChat
 		m_sessions.move(from,to);
 	}
 
-	void ChatWidget::raise(ChatSessionImpl* session)
+	void ChatWidget::activate(ChatSessionImpl* session)
 	{
+		raise();
 		//TODO customize support
-		activateWindow();
-		setFocus();
 		ui->tabBar->setCurrentIndex(m_sessions.indexOf(session));
 	}
 

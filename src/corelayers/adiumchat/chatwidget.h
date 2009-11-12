@@ -44,7 +44,7 @@ namespace AdiumChat
 		void addSession(ChatSessionImpl *session);
 		void addSession(const ChatSessionList &sessions);
 		void removeSession(ChatSessionImpl *session);
-		void raise(ChatSessionImpl *session);
+		void activate(ChatSessionImpl *session);
 	private:
 		ChatSessionList m_sessions;
 		Ui::AdiumChatForm *ui;
