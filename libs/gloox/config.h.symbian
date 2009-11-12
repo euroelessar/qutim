@@ -1,0 +1,15 @@
+/**
+ * Uncomment whichever lib you have installed.
+ */
+
+/* Comment out if you don't have zlib available or don't want to use it */
+#define HAVE_ZLIB 1
+
+/* Comment out if you don't have OpenSSL available or don't want to use it */
+#define HAVE_OPENSSL 1
+
+/* Uncomment if you have LibIDN available and want to use it */
+// #define HAVE_LIBIDN 1
+
+/* Comment out if you don't have the `setsockopt' function. Usually available. */
+#define HAVE_SETSOCKOPT 1

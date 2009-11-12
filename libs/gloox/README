@@ -1,0 +1,19 @@
+
+For build instructions on *NIX/Linux/BSD-like systems see INSTALL.
+For build instructions on Windows see README.win32.
+For build instructions on Windows CE/Mobile see README.wince.
+For build instructions on Symbian/Nokia S60 see README.symbian.
+
+
+For API documentation run doxygen, or go to http://camaya.net/api/gloox/
+
+If you plan to contribute to gloox, please be aware of the following:
+
+Due to the commercial licensing which is available for the gloox library,
+I have to request the copyright to any modifications which go into the
+official distribution. I will not include code for which I don't have the
+copyright. If you do not agree with this, please don't send any code to me
+or the mailing list.
+
+Thanks,
+Jakob

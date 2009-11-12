@@ -1,0 +1,4 @@
+#define HAVE_ZLIB
+#define HAVE_GNUTLS
+/* #undef HAVE_OPENSSL */
+#define HAVE_LIBIDN
