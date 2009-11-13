@@ -163,6 +163,7 @@ if (setting_items.count()>1) // ==0 or >=0 need for testing, for normally usage 
 		{
 			group = new XSettingsGroup(setting_items,this);
 			ui->settingsStackedWidget->addWidget(group);
+			connect(group,SIGNAL(modifiedChanged(bool)),SLOT(onWidgetModifiedChanged(bool)));
 		}
 		ui->settingsStackedWidget->setCurrentWidget(group);
 	}
@@ -190,6 +191,7 @@ if (setting_items.count()>1) // ==0 or >=0 need for testing, for normally usage 
 void XSettingsDialog::onWidgetModifiedChanged ( bool haveChanges )
 {
 	SettingsWidget *widget = qobject_cast< SettingsWidget* >(sender());
+	qDebug() << "widget modified" << widget;
 	if (!widget)
 		return;
 	if (haveChanges)

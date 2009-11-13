@@ -18,6 +18,7 @@
 #include <QString>
 #include <QColor>
 #include <QMap>
+#include <QPair>
 
 namespace AdiumChat
 {
@@ -44,12 +45,12 @@ namespace AdiumChat
 		QString statusHtml;
 		QString mainCSS;
 		QColor backgroundColor;
-		QString defaultVariant;
+		QPair<QString, QString> defaultVariant;
 		StyleVariants variants;
 		bool backgroundIsTransparent;
 		bool isValid();
 	};
-	
+
 	struct ChatStyleGeneratorPrivate;
 	class ChatStyleGenerator
 	{

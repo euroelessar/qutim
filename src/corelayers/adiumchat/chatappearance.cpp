@@ -70,6 +70,7 @@ namespace AdiumChat
 			m_chat_session = new ChatSessionImpl(account,tr("Preview"),ChatLayer::instance());
 			m_page = m_chat_session->getPage();
 			ui->chatPreview->setPage(m_page);
+			makePage();
 		}
 	}
 
@@ -89,11 +90,10 @@ namespace AdiumChat
 	{
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
 		m_current_style_name = adium_chat.value<QString>("name","default");
-		m_current_variant = adium_chat.value<QString>("variant", QString());
+		m_current_variant = m_chat_session->getVariant();
 		disconnect(ui->chatBox,SIGNAL(currentIndexChanged(int)),this,SLOT(onCurrentIndexChanged(int)));
 		getThemes();
 		connect(ui->chatBox,SIGNAL(currentIndexChanged(int)),SLOT(onCurrentIndexChanged(int)));
-		makePage();
 	}
 
 	void ChatAppearance::saveImpl()
@@ -113,6 +113,7 @@ namespace AdiumChat
 		foreach (QString name, themes)
 		{
 			//FIXME optimize!
+			ui->chatBox->clear();
 			StyleVariants variants = ChatStyleGenerator::listVariants(getThemePath(name,category).append("/Contents/Resources/Variants"));
 			QVariantMap data;
 			data["name"] = name;
@@ -154,7 +155,6 @@ namespace AdiumChat
 		else
 		{
 			m_current_style_name = map.value("name").toString();
-			qDebug() << "change style" << m_current_style_name << m_current_variant;
 			m_chat_session->loadTheme(m_current_style_name,m_current_variant);
 			makePage();
 		}
@@ -164,11 +164,11 @@ namespace AdiumChat
 	{
 		if (!m_chat_session)
 		{
-			Notifications::sendNotification(qutim_sdk_0_3::Notifications::System,this,tr("TODO"));
+			Notifications::sendNotification(Notifications::System,this,tr("TODO"));
 			return;
 		}
 		Message message(tr("Preview message"));
-		message.setProperty("disableNotify",true);
+		message.setProperty("silent",true);
 		message.setIncoming(true);
 		message.setChatUnit(m_chat_session->getUnit());
 		message.setText(tr("Hello!"));

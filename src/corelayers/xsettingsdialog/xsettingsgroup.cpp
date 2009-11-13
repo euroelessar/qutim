@@ -53,6 +53,8 @@ void XSettingsGroup::currentRowChanged ( int index)
 
 XSettingsGroup::~XSettingsGroup()
 {
+	for (int i=0;i!=m_setting_list.count();i++)
+		m_setting_list.at(i)->widget()->save();
 	delete ui;
 }
 

@@ -34,7 +34,7 @@ signals:
 private:
 	SettingsItemList m_setting_list;
 	Ui::XSettingsGroup *ui;
-private slots:
+protected slots:
 	void currentRowChanged ( int );
 };
 

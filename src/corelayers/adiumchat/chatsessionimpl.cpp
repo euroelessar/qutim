@@ -49,6 +49,11 @@ namespace AdiumChat
 		m_chat_style_output->reloadStyle(m_web_page);
 	}
 
+	QString ChatSessionImpl::getVariant() const
+	{
+		return m_chat_style_output->getVariant();
+	}
+
 	void ChatSessionImpl::loadHistory()
 	{
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("general/history");
@@ -116,12 +121,13 @@ namespace AdiumChat
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
-		if (!isHistory && !tmp_message.property("disableNotify").toBool())
+		if (!isHistory && !tmp_message.property("silent").toBool())
+		{
 			Notifications::sendNotification(tmp_message);
-		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
-		if (!isHistory)
 			History::instance()->store(message);
-		if (result.isEmpty()) //TODO I'm not sure that it works well //FIXME
+		}
+		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
+		if (result.isEmpty())
 			m_message_count++;
 	}
 
@@ -152,9 +158,11 @@ namespace AdiumChat
 	}
 
 
-	ChatUnit* ChatSessionImpl::getUnit(bool create) const
+	ChatUnit* ChatSessionImpl::getUnit(bool create)
 	{
-		return m_account->getUnit(m_session_id,create);
+		if (!m_chat_unit)
+			m_chat_unit = m_account->getUnit(m_session_id,create);
+		return m_chat_unit;
 	}
 
 	QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)

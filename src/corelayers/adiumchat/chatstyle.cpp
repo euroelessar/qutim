@@ -87,8 +87,8 @@ namespace AdiumChat
 			return out;
 		}
 		ChatStyle style;
-	};	
-	
+	};
+
 	bool ChatStyle::isValid()
 	{
 		if (this->headerHtml.isEmpty() || this->footerHtml.isEmpty() || (!this->backgroundColor.isValid()) || this->basePath.isEmpty())
@@ -135,13 +135,15 @@ namespace AdiumChat
 			variant = settings.value("DefaultVariant", QString());
 			path = d->style.basePath % QLatin1Literal("Variants/") % variant % QLatin1Literal(".css");
 			info.setFile(path);
-			if(info.exists())
-				d->style.defaultVariant = path;
-			else
-				d->style.defaultVariant = QString();
+			if(!info.exists())
+			{
+				d->style.defaultVariant.first = QString();
+				d->style.defaultVariant.second = QString();
+				return;
+			}
 		}
-		else
-			d->style.defaultVariant = path;
+		d->style.defaultVariant.first = variant;
+		d->style.defaultVariant.second = path;
 	}
 
 	ChatStyle ChatStyleGenerator::getChatStyle () const
@@ -150,13 +152,13 @@ namespace AdiumChat
 		return d->style;
 	}
 
-	
+
 	ChatStyleGenerator::~ChatStyleGenerator()
 	{
 
 	}
 
-	
+
 	StyleVariants ChatStyleGenerator::listVariants(const QString& path)
 	{
 		StyleVariants variants;
@@ -177,7 +179,7 @@ namespace AdiumChat
 		return variants;
 	}
 
-	
+
 	StyleVariants ChatStyleGenerator::getVariants() const
 	{
 		d->listVariants();
