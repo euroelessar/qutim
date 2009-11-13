@@ -14,16 +14,21 @@
 *****************************************************************************/
 
 #include <QtCore/QCoreApplication>
-#include <QDataStream>
 #include <QDebug>
-#include "tlv.h"
-#include "oscarconnection.h"
-#include <QCryptographicHash>
+#include <icqaccount.h>
+#include <icqprotocol.h>
+#include <QSettings>
+#include <QDir>
 
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	OscarConnection conn;
-	conn.connectToLoginServer();
-    return a.exec();
+	QSettings settings("testicqlogin.ini", QSettings::IniFormat);	
+	QString uid = settings.value("uid", "").toString(); 
+	if(uid.isEmpty())
+		qFatal("testicqlogin is not found");
+	IcqProtocol protocol;	
+	IcqAccount acc(uid);
+	acc.setStatus(Online);
+	return a.exec();
 }

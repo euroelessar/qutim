@@ -180,8 +180,7 @@ void OscarConnection::processNewConnection()
 void OscarConnection::processSnac()
 {
 	SNAC snac = SNAC::fromByteArray(m_flap.data());
-	qDebug("SNAC: 0x%x 0x%x 0x%x %s", (int)snac.family(), (int)snac.subtype(), (int)snac.id(),
-		   snac.data().toHex().constData());
+	qDebug("SNAC: 0x%x 0x%x 0x%x", (int)snac.family(), (int)snac.subtype(), (int)snac.id());
 	bool found = false;
 	foreach(SNACHandler *handler, m_handlers.values((snac.family() << 16)| snac.subtype()))
 	{
@@ -209,6 +208,11 @@ void OscarConnection::processCloseConnection()
 
 void OscarConnection::readData()
 {
+	if(m_socket->bytesAvailable() <= 0) // Hack for windows (Qt4.6 tp1).
+	{
+		qDebug() << "readyRead emmited but the socket is empty";
+		return;
+	}
 	if(m_flap.readData(m_socket))
 	{
 		if(m_flap.isFinished())
@@ -271,36 +275,22 @@ void OscarConnection::sendUserInfo()
 {
 	SNAC snac(LocationFamily, 0x04);
 	TLV caps(0x05);
-	// TODO: Add normal capabilities support
-	// FIXME: May be quint64? It's bad that there is no quint128
 
 	// ICQ UTF8 Support {0946134e-4c7f-11d1-8222-444553540000}
-	caps.appendValue<quint32>(0x0946134e);
-	caps.appendValue<quint32>(0x4c7f11d1);
-	caps.appendValue<quint32>(0x82224445);
-	caps.appendValue<quint32>(0x53540000);
+	caps.appendValue(Capability(0x0946134e, 0x4c7f11d1, 0x82224445, 0x53540000));
 
 	// Buddy Icon {09461346-4c7f-11d1-8222-444553540000}
-	caps.appendValue<quint32>(0x09461346);
-	caps.appendValue<quint32>(0x4c7f11d1);
-	caps.appendValue<quint32>(0x82224445);
-	caps.appendValue<quint32>(0x53540000);
+	caps.appendValue(Capability(0x09461346, 0x4c7f11d1, 0x82224445, 0x53540000));
 
-//	// RTF messages {97B12751-243C-4334-AD22-D6ABF73F1492}
-//	caps.appendValue<quint32>(0x97B12751);
-//	caps.appendValue<quint32>(0x243C4334);
-//	caps.appendValue<quint32>(0xAD22D6AB);
-//	caps.appendValue<quint32>(0xF73F1492);
+	// RTF messages {97B12751-243C-4334-AD22-D6ABF73F1492}
+	//caps.appendValue(Capability(0x97B12751, 0x243C4334, 0xAD22D6AB, 0xF73F1492));
 
 	// qutIM some shit
-	caps.appendValue(QByteArray::fromHex("69716d7561746769656d000000000000"));
-	caps.appendValue(QByteArray::fromHex("094613434c7f11d18222444553540000"));
+	caps.appendValue(Capability(0x69716d75, 0x61746769, 0x656d0000, 0x00000000));
+	caps.appendValue(Capability(0x09461343, 0x4c7f11d1, 0x82224445, 0x53540000));
 	
 	// ICQ typing {563fc809-0b6f-41bd-9f79-422609dfa2f3}
-	caps.appendValue<quint32>(0x563FC809);
-	caps.appendValue<quint32>(0x0B6F41BD);
-	caps.appendValue<quint32>(0x9F794226);
-	caps.appendValue<quint32>(0x09DFA2F3);
+	caps.appendValue(Capability(0x563FC809, 0x0B6F41BD, 0x9F794226, 0x09DFA2F3));
 
 	// qutIM version info
 	// TODO: Send also version of system, i.e. 0x0601 for Windows Seven
@@ -330,10 +320,7 @@ void OscarConnection::sendUserInfo()
 	caps.appendValue<quint8>(0x00);    // 5 bytes more to 16
 
 	// Short capability support {09460000-4c7f-11d1-8222-444553540000}
-	caps.appendValue<quint32>(0x09460000);
-	caps.appendValue<quint32>(0x4c7f11d1);
-	caps.appendValue<quint32>(0x82224445);
-	caps.appendValue<quint32>(0x53540000);
+	caps.appendValue(Capability(0x09460000, 0x4c7f11d1, 0x82224445, 0x53540000));
 
 	snac.appendData(caps);
 	send(snac);
@@ -414,10 +401,10 @@ void OscarConnection::setIdle(bool allow)
 
 void OscarConnection::stateChanged(QAbstractSocket::SocketState state)
 {
-	qDebug() << state;
+	qDebug() << "New connection state" << state;
 }
 
 void OscarConnection::error(QAbstractSocket::SocketError error)
 {
-	qDebug() << error;
+	qDebug() << IMPLEMENT_ME << error;
 }

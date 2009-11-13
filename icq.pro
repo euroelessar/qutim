@@ -1,4 +1,10 @@
-TEMPLATE = lib
+test {
+    DEFINES = TEST
+    SOURCES = main.cpp
+} else {
+    TEMPLATE = lib
+}
+
 TARGET = icq
 OBJECTS_DIR = build/obj
 UI_DIR = build/uic
@@ -22,7 +28,7 @@ LIBS += -L../../../../libqutim \
     -lqutim
 
 # Input
-HEADERS += capabilty.h \
+HEADERS += capability.h \
     dataunit.h \
     flap.h \
     icq_global.h \
@@ -40,7 +46,7 @@ HEADERS += capabilty.h \
     messageplugin.h \
     icqcontact.h \
     icqcontact_p.h
-SOURCES += capabilty.cpp \
+SOURCES += capability.cpp \
     dataunit.cpp \
     flap.cpp \
     icqaccount.cpp \

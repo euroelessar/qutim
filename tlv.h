@@ -22,6 +22,7 @@
 #include <QtEndian>
 
 #include "icq_global.h"
+#include "capability.h"
 
 class QDataStream;
 class TLV;
@@ -99,6 +100,12 @@ Q_INLINE_TEMPLATE QByteArray TLV::value<QByteArray>() const
 }
 
 template<>
+Q_INLINE_TEMPLATE Capability TLV::value<Capability>() const
+{
+	return Capability(m_value);
+}
+
+template<>
 Q_INLINE_TEMPLATE QString TLV::value<QString>() const
 {
 	return QString::fromUtf8(m_value);
@@ -121,6 +128,13 @@ template<>
 Q_INLINE_TEMPLATE void TLV::appendValue<QByteArray>(const QByteArray &value)
 {
 	m_value += value;
+	ensure_value();
+}
+
+template<>
+Q_INLINE_TEMPLATE void TLV::appendValue<Capability>(const Capability &value)
+{
+	m_value += value.data();
 	ensure_value();
 }
 

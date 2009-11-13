@@ -39,12 +39,15 @@ public:
 	void appendSimple(T value, ByteOrder bo = BigEndian);
 	template<typename L>
 	void appendData(const QByteArray &str);
+	template<typename L>
+	void appendCapability(const Capability &data);
 	inline void resetState() { m_state = 0; }
 	inline uint dataSize() const { return m_data.size() > m_state ? m_data.size() - m_state : 0; }
 	template<typename T>
 	T readSimple(ByteOrder bo = BigEndian) const;
 	template<typename L>
 	QByteArray readData(ByteOrder bo = BigEndian) const;
+	inline Capability readCapability() const;
 	inline QByteArray readData(uint size) const;
 	template<typename L>
 	QString readString(ByteOrder bo = BigEndian) const;
@@ -77,6 +80,12 @@ Q_INLINE_TEMPLATE void DataUnit::appendData(const QByteArray &str)
 {
 	m_data.append(Util::toBigEndian<L>(str.size()));
 	m_data.append(str);
+}
+
+template<typename L>
+Q_INLINE_TEMPLATE void DataUnit::appendCapability(const Capability &data)
+{
+	m_data.append(data.data());
 }
 
 template<typename T>
@@ -131,6 +140,11 @@ template<typename L>
 Q_INLINE_TEMPLATE QByteArray DataUnit::readData(ByteOrder bo) const
 {
 	return readData(readSimple<L>(bo));
+}
+
+Capability DataUnit::readCapability() const
+{
+	return Capability(readData(16));
 }
 
 QByteArray DataUnit::readData(uint size) const

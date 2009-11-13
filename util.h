@@ -19,6 +19,8 @@
 #include <QByteArray>
 #include <QtEndian>
 
+#define IMPLEMENT_ME QString("Function %1 at line %2: implement me.").arg(Q_FUNC_INFO).arg(__LINE__)
+
 namespace Util
 {
 	template<typename T>

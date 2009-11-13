@@ -20,18 +20,66 @@
 #include <QTextCodec>
 #include <QDateTime>
 
+struct SSIItem
+{
+public:
+	SSIItem(const SNAC &snac);
+	~SSIItem(){}
+	QString toString();
+	QString record_name;
+	quint16 group_id;
+	quint16 item_id;
+	quint16 item_type;
+	TLVMap tlvs;
+};
+
+SSIItem::SSIItem(const SNAC &snac)
+{
+	record_name = snac.readString<quint16>();
+	group_id = snac.readSimple<quint16>();
+	item_id = snac.readSimple<quint16>();
+	item_type = snac.readSimple<quint16>();
+	tlvs = DataUnit(snac.readData<quint16>()).readTLVChain();
+}
+
+QString SSIItem::toString()
+{
+	QString buf;
+	QTextStream out(&buf, QIODevice::WriteOnly);
+	out << record_name << " "
+			<< group_id << " " << item_id << " "
+			<< item_type << " (";
+	bool first = true;
+	foreach(const TLV &tlv, tlvs)
+	{
+		if(!first)
+			out << ", ";
+		else
+			first = false;
+		out << "0x" << QString::number(tlv.type(), 16);
+	}
+	out << ")";
+	return qPrintable(buf);
+}
+
 Roster::Roster(IcqAccount *account)
 {
 	m_account = account;
 	m_infos << SNACInfo(ListsFamily, ListsList)
+			<< SNACInfo(ListsFamily, ListsUpdateGroup)
+			<< SNACInfo(ListsFamily, ListsCliModifyStart)
+			<< SNACInfo(ListsFamily, ListsCliModifyEnd)
+			<< SNACInfo(ListsFamily, ListsAuthRequest)
 			<< SNACInfo(BuddyFamily, UserOnline)
 			<< SNACInfo(BuddyFamily, UserOffline)
-			<< SNACInfo(MessageFamily, MessageSrvRecv);
+			<< SNACInfo(MessageFamily, MessageSrvRecv)
+			<< SNACInfo(MessageFamily, MessageSrvAck)
+			<< SNACInfo(MessageFamily, MessageSrvError);
 	m_state = ReceivingRoster;
 	foreach(const ObjectGenerator *gen, moduleGenerators<MessagePlugin>())
 	{
 		MessagePlugin *plugin = gen->generate<MessagePlugin>();
-		foreach(const QByteArray &cap, plugin->capabilities())
+		foreach(const Capability &cap, plugin->capabilities())
 			m_msg_plugins.insert(cap, plugin);
 	}
 }
@@ -43,16 +91,81 @@ void Roster::handleSNAC(OscarConnection *conn, const SNAC &sn)
 		// Server sends contactlist
 		case ListsFamily << 16 | ListsList:
 			handleServerCListReply(conn, sn);
-		break;
+			break;
+		// Server sends contact list updates
+		case ListsFamily << 16 | ListsUpdateGroup:
+			handleCListUpdates(conn, sn);
+			break;
+		case ListsFamily << 16 | ListsCliModifyStart:
+			qDebug() << IMPLEMENT_ME << "ListsCliModifyStart";
+			break;
+		case ListsFamily << 16 | ListsCliModifyEnd:
+			qDebug() << IMPLEMENT_ME << "ListsCliModifyEnd";
+			break;
+		case ListsFamily << 16 | ListsAuthRequest: {
+			sn.skipData(8); // unknown 8 bytes. Maybe cookie?
+			QString uin = sn.readString<quint8>();
+			QString reason = sn.readString<qint16>();
+			qDebug() << QString("Authorization request from \"%1\" with reason \"%2").arg(uin).arg(reason);
+			break;
+		}
 		case BuddyFamily << 16 | UserOnline:
 			handleUserOnline(conn, sn);
-		break;
+			break;
 		case BuddyFamily << 16 | UserOffline:
 			handleUserOffline(conn, sn);
-		break;
+			break;
 		case MessageFamily << 16 | MessageSrvRecv:
 			handleMessage(conn, sn);
+			break;
+		case MessageFamily << 16 | MessageSrvAck: {
+			sn.skipData(8); // skip cookie.
+			quint16 channel = sn.readSimple<quint16>();
+			QString uin = sn.readString<qint8>();
+			qDebug() << QString("Server accepted message for delivery to %1 on channel %2").
+					arg(uin).arg(channel);
+			break;
+		}
+		case MessageFamily << 16 | MessageSrvError:
+			handleICBMError(conn, sn);
+			break;
 	}
+}
+
+void Roster::sendMessage(OscarConnection *conn, const QString &id, const QString &message)
+{
+	SNAC sn(MessageFamily, MessageSrvSend);
+	sn.appendSimple<qint64>(QDateTime::currentDateTime().toTime_t()); // cookie
+	sn.appendSimple<qint16>(0x0001); // message channel
+	sn.appendData<qint8>(asciiCodec()->fromUnicode(id)); // uid or screenname
+
+	TLV msgData(0x0101);
+	// Charset.
+	// TODO: get supported charsets from client info.
+	// 0x0000 - us-ascii
+	// 0x0002 - utf-16 be
+	// 0x0003 - ansi
+	msgData.appendValue<quint16>(0x0002);
+	// Message.
+	msgData.appendValue(utf16Codec()->fromUnicode(message));
+
+	DataUnit dataUnit;
+	dataUnit.appendTLV(0x0501, (quint32)0x0106);
+	dataUnit.appendData(msgData);
+
+	sn.appendTLV(0x0002, dataUnit.readAll());
+	// empty TLV(6) store message if recipient offline.
+	sn.appendTLV(0x0006, "");
+	conn->send(sn);
+}
+
+void Roster::sendAuthResponse(OscarConnection *conn, const QString &id, const QString &message)
+{
+	SNAC snac(ListsFamily, ListsCliAuthResponse);
+	snac.appendData<qint8>(asciiCodec()->fromUnicode(id)); // uin.
+	snac.appendSimple<qint8>(0x01); // auth flag.
+	snac.appendData<qint16>("You are automatically authorized.");
+	conn->send(snac);
 }
 
 void Roster::handleServerCListReply(OscarConnection *conn, const SNAC &sn)
@@ -66,58 +179,40 @@ void Roster::handleServerCListReply(OscarConnection *conn, const SNAC &sn)
 	qDebug("SSI: number of entries is %u, version is %u", (uint)count, (uint)version);
 	for(uint i = 0; i < count; i++)
 	{
-		QString record_name = sn.readString<quint16>();
-		quint16 group_id = sn.readSimple<quint16>();
-		quint16 item_id = sn.readSimple<quint16>();
-		quint16 item_type = sn.readSimple<quint16>();
-		const TLVMap tlvs = DataUnit(sn.readData<quint16>()).readTLVChain();
-		switch(item_type)
+		SSIItem item(sn);
+		switch(item.item_type)
 		{
 		case SsiBuddy: {
 			IcqContact *contact = 0;
 			// record name contains uin, while item id contains some random value
-			if(!(contact = m_contacts.value(record_name)))
-				m_contacts.insert(record_name, contact = new IcqContact(record_name, m_account));
+			if(!(contact = m_contacts.value(item.record_name)))
+				m_contacts.insert(item.record_name, contact = new IcqContact(item.record_name, m_account));
 			bool not_auth = false;
-			if(tlvs.contains(0x0131))
-				contact->p->name = tlvs.value<QString>(0x0131);
-			if(tlvs.contains(0x013c))
-				contact->setProperty("comment", tlvs.value<QString>(0x013c));
-			if(tlvs.contains(0x0066))
+			if(item.tlvs.contains(0x0131))
+				contact->p->name = item.tlvs.value<QString>(0x0131);
+			if(item.tlvs.contains(0x013c))
+				contact->setProperty("comment", item.tlvs.value<QString>(0x013c));
+			if(item.tlvs.contains(0x0066))
 				not_auth = true;
-			contact->p->group_id = group_id;
+			contact->p->group_id = item.group_id;
 			qDebug() << contact->id() << contact->name();
+#ifndef TEST
 			ContactList::instance()->addContact(contact);
+#endif //TEST
 			break; }
 		case SsiGroup:
-			if(group_id > 0)
+			if(item.group_id > 0)
 			{
 				// record name contains name of group
-				m_groups.insert(group_id, record_name);
+				m_groups.insert(item.group_id, item.record_name);
 			}
 			else
 			{
 			}
 			break;
+		default:
+			qDebug() << QString("Dump of unknown SSI item: %1").arg(item.toString());
 		}
-		QString buf;
-		{
-			QTextStream out(&buf, QIODevice::WriteOnly);
-			out << record_name << " "
-					<< group_id << " " << item_id << " "
-					<< item_type << " (";
-			bool first = true;
-			foreach(const TLV &tlv, tlvs)
-			{
-				if(!first)
-					out << ", ";
-				else
-					first = false;
-				out << "0x" << QString::number(tlv.type(), 16);
-			}
-			out << ")";
-		}
-		qDebug("%s", qPrintable(buf));
 	}
 	qDebug() << "is_last" << is_last;
 	if(is_last)
@@ -129,6 +224,30 @@ void Roster::handleServerCListReply(OscarConnection *conn, const SNAC &sn)
 		conn->finishLogin();
 	}
 	qDebug() << m_groups;
+}
+
+void Roster::handleCListUpdates(OscarConnection *conn, const SNAC &sn)
+{
+	while(sn.dataSize() != 0)
+	{
+		SSIItem item(sn);
+		switch(item.item_type)
+		{
+		case SsiBuddy: {
+			IcqContact *contact = m_contacts.value(item.record_name);
+			if(!contact)
+				return;
+			/*if(tlvs.contains(0x0131))
+				contact->p->name = tlvs.value<QString>(0x0131);
+			if(tlvs.contains(0x013c))
+				contact->setProperty("comment", tlvs.value<QString>(0x013c));*/
+			bool auth = !item.tlvs.contains(0x0066);
+			qDebug() << IMPLEMENT_ME << "update the contact";
+			break; }
+		default:
+			qDebug() << QString("Dump of unknown SSI item: %1").arg(item.toString());
+		}
+	}
 }
 
 void Roster::handleUserOnline(OscarConnection *, const SNAC &snac)
@@ -188,14 +307,12 @@ void Roster::handleMessage(OscarConnection *conn, const SNAC &snac)
 	quint16 warning = snac.readSimple<quint16>();
 	snac.skipData(2); // unused number of tlvs
 	TLVMap tlvs = snac.readTLVChain();
-	static QTextCodec *utf16_codec = QTextCodec::codecForName("UTF-16BE");
-	static QTextCodec *ascii_codec = QTextCodec::codecForName("cp1251");
 	QString message;
 	QDateTime time;
 	qDebug() << "channel" << channel << uin << tlvs.keys();
 	switch(channel)
 	{
-	case 0x0001:
+	case 0x0001: // message
 		if(tlvs.contains(0x0002))
 		{
 			DataUnit data(tlvs.value(0x0002));
@@ -213,29 +330,40 @@ void Roster::handleMessage(OscarConnection *conn, const SNAC &snac)
 				QByteArray data = msg_data.readAll();
 				QTextCodec *codec = 0;
 				if(charset == 0x0002)
-					codec = utf16_codec;
+					codec = utf16Codec();
 				else
-					codec = ascii_codec;
+					codec = asciiCodec();
 				message += codec->toUnicode(data);
 			}
 			if(!(snac.id() & 0x80000000) && msg_tlvs.contains(0x0016)) // Offline message
 				time = QDateTime::fromTime_t(msg_tlvs.value(0x0016).value<quint32>());
 		}
 		break;
-	case 0x0002:
+	case 0x0002: // rendezvous
 		if(tlvs.contains(0x0005))
 		{
 			DataUnit data(tlvs.value(0x0005));
 			quint16 type = data.readSimple<quint16>();
 			data.skipData(8); // again cookie
-			QByteArray guid = data.readData(0x10);\
-			if(guid.size() != 0x10)
+			Capability guid = data.readCapability();
+			if(guid.isEmpty())
+			{
+				qDebug() << "Incorrect message on channel 2 from" << uin << ": guid is not found";
 				return;
+			}
 			QList<MessagePlugin *> plugins = m_msg_plugins.values(guid);
-			QByteArray plugin_data = data.readAll();
-			for(int i = 0; i < plugins.size(); i++)
-				plugins.at(i)->processMessage(uin, guid, plugin_data, cookie);
+			if(!plugins.isEmpty())
+			{
+				QByteArray plugin_data = data.readAll();
+				for(int i = 0; i < plugins.size(); i++)
+					plugins.at(i)->processMessage(uin, guid, plugin_data, cookie);
+			}
+			else
+				qDebug() << IMPLEMENT_ME << QString("Message (channel 2) from %1 with type %2 is not processed.").
+					arg(uin).arg(type);
 		}
+		else
+			qDebug() << "Incorrect message on channel 2 from" << uin << ": SNAC should contain TLV 5";
 		break;
 	case 0x0004:
 		// TODO: Understand this holy shit
@@ -248,7 +376,11 @@ void Roster::handleMessage(OscarConnection *conn, const SNAC &snac)
 			quint8 type = data.readSimple<quint8>();
 			quint8 flags = data.readSimple<quint8>();
 			QByteArray msg_data = data.readData<quint16>(DataUnit::LittleEndian);
+			qDebug() << IMPLEMENT_ME << QString("Message (channel 3) from %1 with type %2 is not processed.").
+					arg(uin).arg(type);
 		}
+		else
+			qDebug() << "Incorrect message on channel 3 from" << uin << ": SNAC should contain TLV 5";
 		break;
 	default:
 		qWarning("Unknown message channel: %d", int(channel));
@@ -258,7 +390,102 @@ void Roster::handleMessage(OscarConnection *conn, const SNAC &snac)
 		if(!time.isValid())
 			time = QDateTime::currentDateTime();
 		qDebug() << "Received message at" << time << message;
+#ifdef TEST
+		sendMessage(conn, uin, "Autoresponse: your message is \"" + message + "\"");
+#endif // TEST
 	}
+}
+
+void Roster::handleICBMError(OscarConnection *conn, const SNAC &snac)
+{
+	qint16 errorCode = snac.readSimple<qint16>();
+	qint16 subcode = 0;
+	QString error;
+	TLVMap tlvs = snac.readTLVChain();
+	if(tlvs.contains(0x08))
+	{
+		DataUnit data(tlvs.value(0x08));
+		subcode = data.readSimple<qint16>();
+	}
+	switch(errorCode)
+	{
+		case(0x01):
+			error = "Invalid SNAC header";
+			break;
+		case(0x02):
+			error = "Server rate limit exceeded";
+			break;
+		case(0x03):
+			error = "Client rate limit exceeded";
+			break;
+		case(0x04):
+			error = "Recipient is not logged in";
+			break;
+		case(0x05):
+			error = "Requested service unavailable";
+			break;
+		case(0x06):
+			error = "Requested service not defined";
+			break;
+		case(0x07):
+			 error = "You sent obsolete SNAC";
+			 break;
+		case(0x08):
+			error = "Not supported by server";
+			break;
+		case(0x09):
+			error = "Not supported by client";
+			break;
+		case(0x0A):
+			error = "Refused by client";
+			break;
+		case(0x0B):
+			error = "Reply too big";
+			break;
+		case(0x0C):
+			error = "Responses lost";
+			break;
+		case(0x0D):
+			error = "Request denied";
+			break;
+		case(0x0E):
+			error = "Incorrect SNAC format";
+			break;
+		case(0x0F):
+			error = "Insufficient rights";
+			break;
+		case(0x10):
+			error = "In local permit/deny (recipient blocked)";
+			break;
+		case(0x11):
+			error = "Sender too evil";
+			break;
+		case(0x12):
+			error = "Receiver too evil";
+			break;
+		case(0x13):
+			error = "User temporarily unavailable";
+			break;
+		case(0x14):
+			error = "No match";
+			break;
+		case(0x15):
+			error = "List overflow";
+			break;
+		case(0x16):
+			error = "Request ambiguous";
+			break;
+		case(0x17):
+			error = "Server queue full";
+			break;
+		case(0x18):
+			error = "Not while on AOL";
+			break;
+		default:
+			error = "Unknown error";
+	}
+	qDebug() << QString("ICBM error (%1, %2): %3").
+			arg(errorCode, 2, 16).arg(subcode, 2, 16).arg(error);
 }
 
 void Roster::sendRosterAck(OscarConnection *conn)
@@ -266,4 +493,16 @@ void Roster::sendRosterAck(OscarConnection *conn)
 	SNAC snac(ListsFamily, ListsGotList);
 	conn->send(snac);
 	qDebug("Send Roster Ack, SNAC %02X %02X", (int)snac.family(), (int)snac.subtype());
+}
+
+QTextCodec *Roster::asciiCodec()
+{
+	static QTextCodec *codec =  QTextCodec::codecForName("cp1251");
+	return codec;
+}
+
+QTextCodec *Roster::utf16Codec()
+{
+	static QTextCodec *codec = QTextCodec::codecForName("UTF-16BE");
+	return codec;
 }
