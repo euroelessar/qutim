@@ -84,4 +84,9 @@ namespace qutim_sdk_0_3
 		Account *acc = unit ? unit->account() : 0;
 		return acc ? acc->getUnitForSession(unit) : unit;
 	}
+
+	ChatSession* ChatLayer::get(ChatUnit* unit, bool create)
+	{
+		return instance() ? instance()->getSession(unit,create) : 0;
+	}
 }

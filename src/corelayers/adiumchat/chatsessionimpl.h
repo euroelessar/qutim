@@ -18,6 +18,7 @@
 #include <libqutim/messagesession.h>
 #include <QPointer>
 
+class QAbstractItemModel;
 class QWebPage;
 using namespace qutim_sdk_0_3;
 namespace AdiumChat
@@ -40,6 +41,7 @@ namespace AdiumChat
 		void loadTheme(const QString& path, const QString& variant);
 		void setVariant(const QString& variant);
 		QString getVariant() const;
+		QAbstractItemModel *getItemsModel() const;
 	public slots:
 		QVariant evaluateJavaScript(const QString &scriptSource);
 		virtual void activate(bool active);

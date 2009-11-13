@@ -64,7 +64,7 @@ namespace qutim_sdk_0_3
 		ChatSession *getSession(QObject *obj, bool create = true);
 		ChatSession *getSession(Account *acc, const QString &id, bool create = true);
 		virtual ChatSession *getSession(ChatUnit *unit, bool create = true) = 0;
-
+		static ChatSession *get(ChatUnit *unit, bool create = true);
 		virtual QList<ChatSession*> sessions() = 0;
 	signals:
 		void sessionCreated(ChatSession *session);

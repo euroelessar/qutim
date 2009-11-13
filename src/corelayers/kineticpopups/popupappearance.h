@@ -26,18 +26,20 @@ namespace Ui
 
 namespace KineticPopups
 {
- 
-  class PopupSettings : public SettingsWidget
+
+  class PopupAppearance : public SettingsWidget
   {
 	  Q_OBJECT
   public:
-	  PopupSettings();
-	  virtual ~PopupSettings();
+	  PopupAppearance();
+	  virtual ~PopupAppearance();
 	  virtual void loadImpl();
 	  virtual void cancelImpl();
 	  virtual void saveImpl();
   private:
 	  Ui::AppearanceSettings *ui;
+	  void getThemes();
+	  void preview();
   };
 
 }

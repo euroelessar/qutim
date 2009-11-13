@@ -181,4 +181,9 @@ namespace AdiumChat
 		return m_active;
 	}
 
+	QAbstractItemModel* ChatSessionImpl::getItemsModel() const
+	{
+		return 0; //TODO
+	}
+
 }

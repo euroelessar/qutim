@@ -19,6 +19,12 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
+     <property name="opaqueResize">
+      <bool>true</bool>
+     </property>
+     <property name="childrenCollapsible">
+      <bool>true</bool>
+     </property>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -47,13 +53,7 @@
      <widget class="QWidget" name="gridLayoutWidget_2">
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
-        <widget class="QTreeWidget" name="treeWidget">
-         <column>
-          <property name="text">
-           <string>Members</string>
-          </property>
-         </column>
-        </widget>
+        <widget class="QTreeView" name="membersView"/>
        </item>
       </layout>
      </widget>

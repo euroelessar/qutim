@@ -22,7 +22,7 @@
 #include <QDebug>
 #include "libqutim/settingslayer.h"
 #include "popupwidget.h"
-#include "popupsettings.h"
+#include "popupappearance.h"
 #include "libqutim/icon.h"
 
 namespace KineticPopups
@@ -36,7 +36,7 @@ namespace KineticPopups
 
 	Backend::Backend ()
 	{
-		GeneralSettingsItem<PopupSettings> *item = new GeneralSettingsItem<PopupSettings>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
+		GeneralSettingsItem<PopupAppearance> *item = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
 		Settings::registerItem(item);
 	}
 

@@ -23,7 +23,6 @@
 #include <QDesktopWidget>
 #include "libqutim/systeminfo.h"
 #include "libqutim/configbase.h"
-#include "popupsettings.h"
 
 namespace KineticPopups
 {

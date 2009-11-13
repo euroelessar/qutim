@@ -68,6 +68,8 @@ namespace AdiumChat
 			return;
 		ui->chatView->setPage(m_sessions.at(index)->getPage());
 		setWindowTitle(tr("Chat with %1").arg(m_sessions.at(index)->getUnit()->title()));
+		if (QAbstractItemModel *model = m_sessions.at(index)->getItemsModel())
+			ui->membersView->setModel(model);
 	}
 
 	void ChatWidget::clear()
