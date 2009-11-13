@@ -67,7 +67,8 @@ namespace AdiumChat
 		else
 		{
 			FakeAccount *account = new FakeAccount("Noname",allProtocols().begin().value());
-			m_chat_session = new ChatSessionImpl(account,tr("Preview"),ChatLayer::instance());
+			FakeChatUnit *unit = new FakeChatUnit(account);
+			m_chat_session = new ChatSessionImpl(unit,ChatLayer::instance());
 			m_page = m_chat_session->getPage();
 			ui->chatPreview->setPage(m_page);
 			makePage();

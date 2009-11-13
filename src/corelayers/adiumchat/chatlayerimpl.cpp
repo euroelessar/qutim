@@ -38,46 +38,30 @@ namespace AdiumChat
 	}
 
 
-	ChatSession* ChatLayerImpl::getSession ( Account* acc, const QString& id, bool create )
+	ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
 	{
 		create = false;
 		//find or create session
-		if (m_chat_sessions.value(acc).contains(id) && !create)
-			return m_chat_sessions.value(acc).value(id);
-		ChatSessionImpl *session = new ChatSessionImpl(acc,id,this);
-		if (!m_chat_sessions.contains(acc))
-			connect(acc,SIGNAL(destroyed(QObject*)),SLOT(onAccountDestroyed(QObject*)));
-		m_chat_sessions[acc].insert(id,session);
-		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved(Account*,QString)));
-		connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
+ 		if(!(unit = getUnitForSession(unit)))
+ 			return 0;
+		ChatSessionImpl *session = m_chat_sessions.value(unit);
+		if(!session || create)
+		{
+			session = new ChatSessionImpl(unit,this);
+			ChatSessionImpl *session = new ChatSessionImpl(unit,this);
+			connect(session,SIGNAL(destroyed(QObject*)),SLOT(onSessionDestroyed(QObject*)));
+			connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
+			m_chat_sessions.insert(unit,session);
+		}
 		return session;
-	}
-
-	ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
-	{
-		return getSession(unit->account(),unit->id(),create);
 	}
 
 	QList<ChatSession* > ChatLayerImpl::sessions()
 	{
 		QList<ChatSession* >  list;
-		foreach (ChatSessionHash hash, m_chat_sessions)
-		{
-			foreach (ChatSession *item, hash )
-			{
-				list.append(item);
-			}
-		}
+		foreach (ChatSession *sess, m_chat_sessions)
+			list.append(sess);
 		return list;
-	}
-
-	void ChatLayerImpl::onAccountDestroyed(QObject* object)
-	{
-		Account *acc = reinterpret_cast<Account *>(object);
- 		if (!acc && !m_chat_sessions.contains(acc))
- 			return;
- 		qDeleteAll (m_chat_sessions[acc]);
- 		m_chat_sessions.remove(acc);
 	}
 
 	void ChatLayerImpl::onChatWidgetDestroyed(QObject* object)
@@ -87,11 +71,12 @@ namespace AdiumChat
 		m_chatwidget_list.remove(key);
 	}
 
-	void ChatLayerImpl::onSessionRemoved(Account* acc, const QString& id)
+	void ChatLayerImpl::onSessionDestroyed(QObject* object)
 	{
-		m_chat_sessions[acc].remove(id);
-		if (m_chat_sessions.value(acc).count() == 0)
-			m_chat_sessions.remove(acc);
+		ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
+		ChatUnit *key = m_chat_sessions.key(sess);
+		if (key)
+			m_chat_sessions.remove(key);
 	}
 
 	ChatLayerImpl::~ChatLayerImpl()
@@ -99,17 +84,12 @@ namespace AdiumChat
 
 	}
 
-	QString ChatLayerImpl::getWidgetId(Account* acc, const QString& id) const
+	QString ChatLayerImpl::getWidgetId(ChatSessionImpl* sess) const
 	{
 		QString key;
 		//QString key = acc->id() + "/" + id; //simple variant
 		key = "adiumchat"; //all session in one window
 		return key;
-	}
-
-	QString ChatLayerImpl::getWidgetId(ChatSessionImpl* sess) const
-	{
-		return getWidgetId(sess->getAccount(),sess->getId());
 	}
 
 	void ChatLayerImpl::onSessionActivated(bool active)

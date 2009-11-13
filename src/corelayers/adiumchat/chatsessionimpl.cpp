@@ -28,13 +28,13 @@ namespace AdiumChat
 
 {
 
-	ChatSessionImpl::ChatSessionImpl ( Account* acc, const QString& id, ChatLayer* chat)
+	ChatSessionImpl::ChatSessionImpl ( ChatUnit* unit, ChatLayer* chat)
 	: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage)
 	{
-		m_account = acc;
-		m_session_id = id;
+		m_chat_unit = unit;
 		m_chat_style_output->preparePage(m_web_page,this);
 		m_message_count = 0;
+		connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 	}
 
 	void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)
@@ -69,8 +69,7 @@ namespace AdiumChat
 		{
 			m_web_page->deleteLater();
 		}
-		emit removed(m_account,m_session_id);
-		qDebug() << "Session removed:" << m_account->id() << m_session_id;
+		qDebug() << "Session removed:";
 	}
 
 	void ChatSessionImpl::addContact ( Contact* c )
@@ -149,19 +148,17 @@ namespace AdiumChat
 
 	Account* ChatSessionImpl::getAccount() const
 	{
-		return m_account;
+		return m_chat_unit->account();
 	}
 
 	QString ChatSessionImpl::getId() const
 	{
-		return m_session_id;
+		return m_chat_unit->id();
 	}
 
 
-	ChatUnit* ChatSessionImpl::getUnit(bool create)
+	ChatUnit* ChatSessionImpl::getUnit() const
 	{
-		if (!m_chat_unit)
-			m_chat_unit = m_account->getUnit(m_session_id,create);
 		return m_chat_unit;
 	}
 

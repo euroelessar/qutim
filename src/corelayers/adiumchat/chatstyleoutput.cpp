@@ -137,7 +137,7 @@ namespace AdiumChat
 		return m_current_style.variants.contains(m_current_variant) ? m_current_variant : m_current_style.defaultVariant.first;
 	}
 
-	void ChatStyleOutput::preparePage ( QWebPage* page, ChatSessionImpl *session)
+	void ChatStyleOutput::preparePage ( QWebPage* page,const ChatSessionImpl *session)
 	{
 		QPalette palette = page->palette();
 		if(m_current_style.backgroundIsTransparent)
@@ -157,7 +157,7 @@ namespace AdiumChat
 		reloadStyle(page);
 	}
 
-	QString ChatStyleOutput::makeSkeleton (ChatSessionImpl *session, const QDateTime& _dateTime)
+	QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDateTime& _dateTime)
 	{
 		//TODO
 		QString headerHTML = m_current_style.headerHtml;

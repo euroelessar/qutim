@@ -27,7 +27,7 @@ namespace AdiumChat
 	{
 		Q_OBJECT
 	public:
-		ChatSessionImpl ( Account* acc, const QString& id, ChatLayer* chat );
+		ChatSessionImpl (ChatUnit *unit, ChatLayer* chat );
 		virtual ~ChatSessionImpl();
 		virtual void addContact ( Contact* c );
 		virtual void appendMessage ( const Message& message );
@@ -36,7 +36,7 @@ namespace AdiumChat
 		QWebPage *getPage() const;
 		Account *getAccount() const;
 		QString getId() const;
-		ChatUnit *getUnit(bool create = false);
+		ChatUnit *getUnit() const;
 		void loadTheme(const QString& path, const QString& variant);
 		void setVariant(const QString& variant);
 		QString getVariant() const;
@@ -50,8 +50,6 @@ namespace AdiumChat
 	private:
 		QPointer<QWebPage> m_web_page;
 		QPointer<ChatUnit> m_chat_unit;
-		Account *m_account;
-		QString m_session_id;
 		//additional info and flags
 		QString m_previous_sender; //me or nme (not me) //FIXME need refactoring in future
 		int m_message_count;

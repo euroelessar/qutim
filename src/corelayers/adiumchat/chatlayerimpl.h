@@ -25,27 +25,24 @@ namespace AdiumChat
 
 	class ChatWidget;
 	class ChatSessionImpl;
-	typedef QHash<QString,  ChatSessionImpl *> ChatSessionHash;
+	typedef QHash<ChatUnit *,  ChatSessionImpl *> ChatSessionHash;
 	typedef QList<ChatSessionImpl *> ChatSessionList;
 	class ChatLayerImpl : public ChatLayer
 	{
 		Q_OBJECT
 	public:
-		virtual ChatSession* getSession ( Account* acc, const QString& id, bool create = true );
 		virtual QList<ChatSession* > sessions();
 		ChatLayerImpl();
 		virtual ~ChatLayerImpl();
 		virtual ChatSession* getSession(ChatUnit* unit, bool create = true);
 	private slots:
-		void onAccountDestroyed(QObject *object);
-		void onSessionRemoved(Account *acc, const QString &id);
+		void onSessionDestroyed(QObject* object);
 		void onChatWidgetDestroyed(QObject *object);
 		void onSessionActivated(bool active);
 	private:
-		inline QString getWidgetId(Account* acc, const QString& id) const;
 		inline QString getWidgetId(ChatSessionImpl *sess) const;
 		//QHash<Account * , QPair<QPointer<Account>, ChatSessionHash> >  m_chat_sessions;//TODO more safe
-		QHash<Account * , ChatSessionHash >  m_chat_sessions;
+		ChatSessionHash  m_chat_sessions;
 		QHash<QString, ChatWidget *> m_chatwidget_list;
 	};
 

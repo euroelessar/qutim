@@ -74,7 +74,7 @@ namespace AdiumChat
 		*/
 		QString getMainCSS();
 		QString getVariantCSS();
-		void preparePage(QWebPage *page,ChatSessionImpl *session);
+		void preparePage(QWebPage *page,const ChatSessionImpl *session);
 		void reloadStyle(QWebPage* page);
 		void loadTheme(const QString &name, const QString &variant = QString());
 	private:
@@ -88,7 +88,7 @@ namespace AdiumChat
 		skeleton consist of styles, header and footer
 		it has a mark as well. before this mark new messages should be added
 		*/
-		QString makeSkeleton(ChatSessionImpl *session, const QDateTime &datetime);
+		QString makeSkeleton(const ChatSessionImpl *session, const QDateTime &datetime);
 		inline void makeTime (QString &input, const QDateTime& datetime,const QString &regexp = "%time\\{([^}]*)\\}%");
 		void loadSettings();
 		/*
