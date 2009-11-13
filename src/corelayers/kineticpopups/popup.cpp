@@ -178,19 +178,20 @@ namespace KineticPopups
 	void Popup::action1Activated()
 	{
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
-		qDebug() << "Test" << unit;
-		if (unit)
+		ChatSession *sess;
+		if (unit && (sess = ChatLayer::instance()->getSession(unit,false)))
 		{
-			ChatLayer::instance()->getSession(unit,false)->activate(true);
+			sess->activate(true);
 		}
 	}
 
 	void Popup::action2Activated()
 	{
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
-		if (unit)
+		ChatSession *sess;
+		if (unit && (sess = ChatLayer::instance()->getSession(unit,false)))
 		{
-			ChatLayer::instance()->getSession(unit,false)->activate(false);
+			sess->activate(false);
 		}
 	}
 

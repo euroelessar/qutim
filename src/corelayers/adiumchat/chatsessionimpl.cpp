@@ -122,6 +122,7 @@ namespace AdiumChat
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
 		if (!isHistory && !tmp_message.property("silent").toBool())
 		{
+//			tmp_message.setChatUnit(m_chat_unit);
 			Notifications::sendNotification(tmp_message);
 			History::instance()->store(message);
 		}

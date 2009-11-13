@@ -51,7 +51,7 @@ namespace AdiumChat
 		{
 			m_unit->deleteLater();
 		};
-		virtual ChatUnit* getUnit(const QString& unitId, bool create = false)
+		virtual ChatUnit* getUnit(const QString& unitId, bool create = true)
 		{
 			return m_unit;
 		};
@@ -165,7 +165,7 @@ namespace AdiumChat
 	{
 		if (!m_chat_session)
 		{
-			Notifications::sendNotification(Notifications::System,this,tr("TODO"));
+			Notifications::sendNotification(Notifications::System,this,tr("Unable to create chat session"));
 			return;
 		}
 		Message message(tr("Preview message"));

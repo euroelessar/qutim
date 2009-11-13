@@ -6,39 +6,57 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>499</width>
-    <height>382</height>
+    <width>786</width>
+    <height>539</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
+  <layout class="QGridLayout" name="gridLayout_3">
    <item row="0" column="0" colspan="2">
-    <widget class="QSplitter" name="splitter">
+    <widget class="QSplitter" name="splitter_2">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QWidget" name="gridLayoutWidget">
-      <layout class="QGridLayout" name="gridLayout">
-       <property name="verticalSpacing">
-        <number>0</number>
-       </property>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QWidget" name="gridLayoutWidget">
+       <layout class="QGridLayout" name="gridLayout">
+        <property name="verticalSpacing">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QTabBar" name="tabBar" native="true"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QWebView" name="chatView">
+          <property name="url">
+           <url>
+            <string>about:blank</string>
+           </url>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QPlainTextEdit" name="chatEdit"/>
+     </widget>
+     <widget class="QWidget" name="gridLayoutWidget_2">
+      <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
-        <widget class="QTabBar" name="tabBar" native="true"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QWebView" name="chatView">
-         <property name="url">
-          <url>
-           <string>about:blank</string>
-          </url>
-         </property>
+        <widget class="QTreeWidget" name="treeWidget">
+         <column>
+          <property name="text">
+           <string>Members</string>
+          </property>
+         </column>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QPlainTextEdit" name="chatEdit"/>
     </widget>
    </item>
    <item row="1" column="0">

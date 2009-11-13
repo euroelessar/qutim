@@ -40,18 +40,17 @@ namespace AdiumChat
 
 	ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
 	{
-		create = false;
 		//find or create session
  		if(!(unit = getUnitForSession(unit)))
  			return 0;
 		ChatSessionImpl *session = m_chat_sessions.value(unit);
-		if(!session || create)
+		if(!session && create)
 		{
 			session = new ChatSessionImpl(unit,this);
-			ChatSessionImpl *session = new ChatSessionImpl(unit,this);
 			connect(session,SIGNAL(destroyed(QObject*)),SLOT(onSessionDestroyed(QObject*)));
 			connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
 			m_chat_sessions.insert(unit,session);
+			emit sessionCreated(session);
 		}
 		return session;
 	}
@@ -59,8 +58,11 @@ namespace AdiumChat
 	QList<ChatSession* > ChatLayerImpl::sessions()
 	{
 		QList<ChatSession* >  list;
-		foreach (ChatSession *sess, m_chat_sessions)
-			list.append(sess);
+		ChatSessionHash::const_iterator it;
+		for (it=m_chat_sessions.begin();it!=m_chat_sessions.end();it++)
+			list.append(it.value());
+// 		foreach (ChatSession *sess, m_chat_sessions)
+// 			list.append(sess);
 		return list;
 	}
 
