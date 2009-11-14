@@ -35,7 +35,9 @@ namespace qutim_sdk_0_3
 		inline QObject *generate(const char *id) const
 		{ return extends(id) ? generateHelper() : 0; }
 		virtual const QMetaObject *metaObject() const = 0;
-		virtual const char *iid() const = 0;
+		virtual bool hasInterface(const char *id) const = 0;
+		// TODO: There should be a way for getting interfaces list
+//		virtual QList<const char *> interfaces() const = 0;
 		inline bool extends(const QMetaObject *super) const
 		{
 			const QMetaObject *meta = metaObject();
@@ -43,7 +45,7 @@ namespace qutim_sdk_0_3
 			return super && meta == super;
 		}
 		inline bool extends(const char *id) const
-		{ return id && !qstrcmp(id, iid()); }
+		{ return id && hasInterface(id); }
 		template<typename T>
 		inline bool extends() const
 		{ return extends_helper<T>(reinterpret_cast<T *>(0)); }
@@ -57,10 +59,12 @@ namespace qutim_sdk_0_3
 		virtual QObject *generateHelper() const = 0;
 		inline ObjectGenerator() {}
 		virtual ~ObjectGenerator() {}
-		mutable QPointer<QObject> m_object;
 	};
 
-	template<typename T>
+	template<typename T, typename I0 = void,
+	typename I1 = void, typename I2 = void, typename I3 = void,
+	typename I4 = void, typename I5 = void, typename I6 = void,
+	typename I7 = void, typename I8 = void, typename I9 = void>
 	class LIBQUTIM_EXPORT GeneralGenerator : public ObjectGenerator
 	{
 		Q_DISABLE_COPY(GeneralGenerator)
@@ -69,41 +73,45 @@ namespace qutim_sdk_0_3
 	protected:
 		virtual QObject *generateHelper() const
 		{
-			if(m_object.isNull())
-				m_object = new T();
-			return m_object.data();
+			return new T();
 		}
 		virtual const QMetaObject *metaObject() const
 		{
 			return &T::staticMetaObject;
 		}
-		virtual const char *iid() const
+		virtual bool hasInterface(const char *id) const
 		{
-			return 0;
+			return !qstrcmp(qobject_interface_iid<I0 *>(), id)
+					|| !qstrcmp(qobject_interface_iid<I1 *>(), id)
+					|| !qstrcmp(qobject_interface_iid<I2 *>(), id)
+					|| !qstrcmp(qobject_interface_iid<I3 *>(), id)
+					|| !qstrcmp(qobject_interface_iid<I4 *>(), id)
+					|| !qstrcmp(qobject_interface_iid<I5 *>(), id)
+					|| !qstrcmp(qobject_interface_iid<I6 *>(), id)
+					|| !qstrcmp(qobject_interface_iid<I7 *>(), id)
+					|| !qstrcmp(qobject_interface_iid<I8 *>(), id)
+					|| !qstrcmp(qobject_interface_iid<I9 *>(), id);
 		}
 	};
 
-	template<typename T, typename Interface>
-	class LIBQUTIM_EXPORT InterfaceGenerator : public ObjectGenerator
+
+	template<typename T, typename I0 = void,
+	typename I1 = void, typename I2 = void, typename I3 = void,
+	typename I4 = void, typename I5 = void, typename I6 = void,
+	typename I7 = void, typename I8 = void, typename I9 = void>
+	class SingletonGenerator : public GeneralGenerator<T, I0, I1, I2, I3, I4, I5, I6, I7, I8, I9>
 	{
-		Q_DISABLE_COPY(InterfaceGenerator)
+		Q_DISABLE_COPY(SingletonGenerator)
 	public:
-		inline InterfaceGenerator() {}
+		inline SingletonGenerator() {}
 	protected:
 		virtual QObject *generateHelper() const
 		{
 			if(m_object.isNull())
-				m_object = new T();
+				m_object = new T;
 			return m_object.data();
 		}
-		virtual const QMetaObject *metaObject() const
-		{
-			return 0;
-		}
-		virtual const char *iid() const
-		{
-			return qobject_interface_iid<Interface *>();
-		}
+		mutable QPointer<QObject> m_object;
 	};
 }
 

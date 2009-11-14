@@ -130,6 +130,9 @@ namespace Core
 		{
 			if(p->contacts.contains(contact))
 				return;
+			connect(contact, SIGNAL(statusChanged(Status)),      SLOT(contactStatusChanged(Status)));
+			connect(contact, SIGNAL(nameChanged(QString)),       SLOT(contactNameChanged(QString)));
+			connect(contact, SIGNAL(tagsChanged(QSet<QString>)), SLOT(contactTagsChanged(QSet<QString>)));
 			QSet<QString> tags = contact->tags();
 			if(tags.isEmpty())
 				tags << QLatin1String("Default");
@@ -152,6 +155,7 @@ namespace Core
 
 		void Model::removeContact(Contact *contact)
 		{
+			contact->disconnect(this);
 			ContactData::Ptr item_data = p->contacts.value(contact);
 			if(!item_data)
 				return;

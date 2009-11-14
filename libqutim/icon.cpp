@@ -17,16 +17,20 @@
 #include "iconbackend_p.h"
 #include "iconloader.h"
 
-//namespace qutim_sdk_0_3
-//{
-using namespace qutim_sdk_0_3;
-
-Icon::Icon(const QString &name)
-		: QIcon(IconLoader::instance() ? IconLoader::instance()->loadIcon(name) : QIcon()) // QIcon(QIcon::fromTheme(name)) //QIcon(new IconBackend(name))
+namespace qutim_sdk_0_3
 {
-}
+	inline QIcon loadIcon(const QString &name)
+	{
+		if(IconLoader *loader = IconLoader::instance())
+			return loader->loadIcon(name);
+		return QIcon();
+	}
 
-Icon::Icon(const QIcon &icon) : QIcon(icon)
-{
+	Icon::Icon(const QString &name) : QIcon(loadIcon(name))
+	{
+	}
+
+	Icon::Icon(const QIcon &icon) : QIcon(icon)
+	{
+	}
 }
-//}

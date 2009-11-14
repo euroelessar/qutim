@@ -103,14 +103,12 @@ ENDIF (UNIX)
 
 SET (HEADERS
 	#new
-	src/cryptoserviceimpl.h
 	src/modulemanagerimpl.h
 	)
 
 SET (SOURCES 
 	main.cpp
 	#new
-	src/cryptoserviceimpl.cpp
 	src/modulemanagerimpl.cpp
 	)
 

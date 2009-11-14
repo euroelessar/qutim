@@ -39,6 +39,12 @@ class QDateTime;
 
 namespace qutim_sdk_0_3
 {
+	class LIBQUTIM_EXPORT StartupModule
+	{
+		inline StartupModule() {}
+		virtual ~StartupModule() {}
+	};
+
 	Q_ENUMS(Status)
 	enum Status
 	{
@@ -95,5 +101,6 @@ namespace qutim_sdk_0_3
 
 class QDebug;
 LIBQUTIM_EXPORT QDebug operator<<(QDebug debug, qutim_sdk_0_3::Status status);
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::StartupModule, "org.qutim.StartupModule")
 
 #endif // LIBQUTIM_GLOBAL_H

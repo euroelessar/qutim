@@ -24,15 +24,19 @@ namespace qutim_sdk_0_3
 	};
 	static Private *p = NULL;
 
+	void ensurePrivate_helper()
+	{
+		p = new Private;
+		GeneratorList gens = moduleGenerators<History>();
+		if(!gens.isEmpty())
+		   p->self = gens.first()->generate<History>();
+	}
+	inline void ensurePrivate()
+	{ if(!p) ensurePrivate_helper(); }
+
 	History::History()
 	{
-		if(!p)
-		{
-			p = new Private;
-			GeneratorList gens = moduleGenerators<History>();
-			if(!gens.isEmpty())
-			   p->self = gens.first()->generate<History>();
-		}
+		ensurePrivate();
 	}
 
 	History::~History()
@@ -41,10 +45,10 @@ namespace qutim_sdk_0_3
 
 	History *History::instance()
 	{
-		static QPointer<History> self;
-		if(self.isNull())
-			self = new History();
-		return self;
+		ensurePrivate();
+		if(p->self.isNull() && isCoreInited())
+			p->self = new History();
+		return p->self;
 	}
 
 	void History::store(const Message &message)

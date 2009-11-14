@@ -17,9 +17,11 @@ namespace Core
 		public:
 			Module();
 			virtual ~Module();
-			virtual void addContact(Contact *contact);
-			virtual void removeContact(Contact *contact);
+			virtual void addContact(ChatUnit *contact);
+			virtual void removeContact(ChatUnit *contact);
 			virtual void removeAccount(Account *account);
+		private slots:
+			void onConfigureClicked();
 		private:
 			QScopedPointer<ModulePrivate> p;
 		};

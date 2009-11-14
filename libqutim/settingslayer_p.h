@@ -66,7 +66,7 @@ namespace qutim_sdk_0_3
 	public:
 		AutoSettingsGenerator(AutoSettingsItemPrivate *pr) : p(pr) {}
 	protected:
-		virtual ~AutoSettingsGenerator() {};
+		virtual ~AutoSettingsGenerator() {}
 		virtual QObject *generateHelper() const
 		{
 			qDebug("%s", Q_FUNC_INFO);
@@ -78,12 +78,13 @@ namespace qutim_sdk_0_3
 		{
 			return &AutoSettingsWidget::staticMetaObject;
 		}
-		virtual const char *iid() const
+		virtual bool hasInterface(const char *id) const
 		{
-			return 0;
+			return false;
 		}
 	private:
 		AutoSettingsItemPrivate *p;
+		mutable QPointer<QObject> m_object;
 	};
 }
 

@@ -70,6 +70,13 @@ namespace qutim_sdk_0_3
 	public:
 		struct Emoticon
 		{
+			Emoticon(){}
+			/* sort by longest to shortest matchText */
+			bool operator < (const Emoticon &e) const { return matchText.length() > e.matchText.length(); }
+			QString matchText;
+			QString matchTextEscaped;
+			QString picPath;
+			QString picHTMLCode;
 		};
 		EmoticonsProvider();
 		virtual ~EmoticonsProvider();

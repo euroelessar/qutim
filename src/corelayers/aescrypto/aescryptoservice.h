@@ -8,14 +8,14 @@ using namespace qutim_sdk_0_3;
 
 namespace Core
 {
-	class CryptoServiceImpl : public CryptoService
+	class AesCryptoService : public CryptoService
 	{
 		Q_OBJECT
 	public:
-		Q_INVOKABLE CryptoServiceImpl();
+		AesCryptoService();
 	protected:
-		virtual QByteArray cryptImpl(const QByteArray &value) const;
-		virtual QByteArray decryptImpl(const QByteArray &value) const;
+		virtual QVariant cryptImpl(const QVariant &value) const;
+		virtual QVariant decryptImpl(const QVariant &value) const;
 		virtual void setPassword(const QString &password);
 	private:
 		QCA::SymmetricKey m_key;

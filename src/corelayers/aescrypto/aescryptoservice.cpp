@@ -1,15 +1,15 @@
-#include "cryptoserviceimpl.h"
+#include "aescryptoservice.h"
 #include "src/modulemanagerimpl.h"
 #include <QCryptographicHash>
 
 namespace Core
 {
-	static CoreModuleHelper<CryptoServiceImpl> crypto_static(
+	static CoreModuleHelper<AesCryptoService> crypto_static(
 			QT_TRANSLATE_NOOP("Plugin", "AES crypto"),
 			QT_TRANSLATE_NOOP("Plugin", "Default qutIM crypto realization. Based on algorithm aes256")
 			);
 
-	CryptoServiceImpl::CryptoServiceImpl()
+	AesCryptoService::AesCryptoService()
 	{
 		// We use AES-256, so we need vector with length 32
 		m_iv = QByteArray::fromHex("c898e1c1771eb0bc4dc846d5edba0005"
@@ -18,8 +18,9 @@ namespace Core
 		m_cipher_dec = 0;
 	}
 
-	QByteArray CryptoServiceImpl::cryptImpl(const QByteArray &value) const
+	QVariant AesCryptoService::cryptImpl(const QVariant &valueVar) const
 	{
+		QByteArray value = dataFromVariant(valueVar);
 		if(!m_cipher_enc)
 			return value;
 		QByteArray result;
@@ -35,10 +36,11 @@ namespace Core
 		return result;
 	}
 
-	QByteArray CryptoServiceImpl::decryptImpl(const QByteArray &value) const
+	QVariant AesCryptoService::decryptImpl(const QVariant &valueVar) const
 	{
 		if(!m_cipher_dec)
-			return value;
+			return valueVar;
+		QByteArray value = valueVar.toByteArray();
 		QByteArray result;
 		for(int i = 0x0; i < value.size(); i += 0x10)
 		{
@@ -49,10 +51,10 @@ namespace Core
 				return result;
 			result += m_cipher_dec->final().toByteArray();
 		}
-		return result;
+		return variantFromData(result);
 	}
 
-	void CryptoServiceImpl::setPassword(const QString &password)
+	void AesCryptoService::setPassword(const QString &password)
 	{
 		// Pass in utf-8
 		QByteArray pass = password.toUtf8();

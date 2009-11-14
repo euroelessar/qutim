@@ -14,13 +14,18 @@
 *****************************************************************************/
 
 #include "cryptoservice.h"
+
+#ifdef INSIDE_MODULE_MANAGER
+#undef INSIDE_MODULE_MANAGER
+
 #include "modulemanager.h"
 #include <QDataStream>
 #include <QBuffer>
 
 namespace qutim_sdk_0_3
 {
-	QPointer<CryptoService> CryptoService::self = NULL;
+	// is must be named as a lot of another variables
+	static QPointer<CryptoService> self = NULL;
 
 	CryptoService::CryptoService()
 	{
@@ -30,7 +35,43 @@ namespace qutim_sdk_0_3
 	{
 	}
 
-	QByteArray CryptoService::crypt(const QVariant &value)
+	QVariant CryptoService::crypt(const QVariant &value)
+	{
+		return self.isNull() ? value : self->cryptImpl(value);
+	}
+
+	QVariant CryptoService::decrypt(const QVariant &value)
+	{
+		return self.isNull() ? value : self->decryptImpl(value);
+	}
+
+	QVariant CryptoService::variantFromData(const QByteArray &data) const
+	{
+		QVariant result;
+		QByteArray tmp = data;
+		{
+			QBuffer buffer(&tmp);
+			buffer.open(QIODevice::ReadOnly);
+			QDataStream stream(&buffer);
+			stream.setVersion(QDataStream::Qt_4_5);
+			quint32 type;
+			stream >> type;
+			if(type == QVariant::String)
+			{
+				QByteArray tmp2;
+				stream >> tmp2;
+				result = QString::fromUtf8(tmp2, tmp2.size());
+			}
+			else
+			{
+				buffer.seek(0);
+				result.load(stream);
+			}
+		}
+		return result;
+	}
+
+	QByteArray CryptoService::dataFromVariant(const QVariant &value) const
 	{
 		QByteArray result;
 		{
@@ -44,37 +85,8 @@ namespace qutim_sdk_0_3
 			else
 				value.save(stream);
 		}
-		return self.isNull() ? result : self->cryptImpl(result);
-	}
-
-	QVariant CryptoService::decrypt(const QByteArray &value)
-	{
-		QVariant result;
-		QByteArray tmp = self.isNull() ? value : self->decryptImpl(value);
-		{
-			QBuffer buffer(&tmp);
-			buffer.open(QIODevice::ReadOnly);
-			QDataStream stream(&buffer);
-			stream.setVersion(QDataStream::Qt_4_5);
-			quint32 type;
-			stream >> type;
-			if(type == QVariant::String)
-			{
-				stream >> tmp;
-				result = QString::fromUtf8(tmp, tmp.size());
-			}
-			else
-			{
-				buffer.seek(0);
-				result.load(stream);
-			}
-		}
 		return result;
 	}
-
-//	void CryptoService::init()
-//	{
-//		foreach(ExtensionInfo info, exts)
-//			qDebug("%s", qPrintable(info.name()));
-//	}
 }
+
+#endif // INSIDE_MODULE_MANAGER

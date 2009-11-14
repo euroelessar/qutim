@@ -29,18 +29,16 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 	public:
-		static QByteArray crypt(const QVariant &value);
-		static QVariant decrypt(const QByteArray &value);
+		static QVariant crypt(const QVariant &value);
+		static QVariant decrypt(const QVariant &value);
 	protected:
-		virtual QByteArray cryptImpl(const QByteArray &value) const = 0;
-		virtual QByteArray decryptImpl(const QByteArray &value) const = 0;
+		virtual QVariant cryptImpl(const QVariant &value) const = 0;
+		virtual QVariant decryptImpl(const QVariant &value) const = 0;
 		virtual void setPassword(const QString &password) = 0;
+		QVariant variantFromData(const QByteArray &data) const;
+		QByteArray dataFromVariant(const QVariant &val) const;
 		CryptoService();
 		virtual ~CryptoService();
-	private:
-//		static void init(const QList<ExtensionInfo> &exts);
-		static QPointer<CryptoService> self;
-		friend class ModuleManager;
 	};
 }
 

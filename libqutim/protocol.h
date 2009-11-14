@@ -49,6 +49,8 @@ namespace qutim_sdk_0_3
 		Config config();
 		ConfigGroup config(const QString &group);
 		QString id() const;
+		virtual QList<Account *> accounts() const = 0;
+		virtual Account *account(const QString &id) const = 0;
 		virtual AccountCreationWizard *accountCreationWizard() = 0;
 	private:
 		virtual void loadAccounts() = 0;

@@ -5,7 +5,7 @@
 
 namespace AdiumChat
 {
-	static Core::CoreInterfaceModuleHelper<TimeModifier, MessageModifier> chat_layer_static(
+	static Core::CoreModuleHelper<TimeModifier, MessageModifier> chat_layer_static(
 		QT_TRANSLATE_NOOP("Plugin", "Time modifier"),
 		QT_TRANSLATE_NOOP("Plugin", "Modifier for %time% and %timeOpened% param, based on Apple's documentation")
 	);

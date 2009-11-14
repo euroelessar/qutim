@@ -32,6 +32,10 @@
 #include <QVarLengthArray>
 #include <QLibrary>
 
+// Is there any other way to init CryptoService from ModuleManager?
+#define INSIDE_MODULE_MANAGER
+#include "cryptoservice.cpp"
+
 #define TEST
 
 #ifdef TEST
@@ -288,12 +292,6 @@ namespace qutim_sdk_0_3
 				{
 					plugin->init();
 					p->plugins.append(plugin);
-					QList<ExtensionInfo> exts = plugin->avaiableExtensions();
-					for(int j = 0; j < exts.size(); j++)
-					{
-						if(const char *id = exts.at(j).generator()->iid())
-							p->interface_modules.insert(QByteArray(id));
-					}
 				}
 				else
 				{
@@ -396,7 +394,7 @@ namespace qutim_sdk_0_3
 	 */
 	void ModuleManager::initExtensions()
 	{
-		CryptoService::self = initExtension<CryptoService>();
+		qutim_sdk_0_3::self = initExtension<CryptoService>();
 		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions<ConfigBackend>();
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
@@ -435,6 +433,15 @@ namespace qutim_sdk_0_3
 			}
 		}
 		p->is_inited = true;
+		{
+			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(qobject_interface_iid<StartupModule *>());
+			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
+			for(; it != exts.end(); it++)
+			{
+				qDebug("Startup: %s", it.value().generator()->metaObject()->className());
+				it.value().generator()->generate<StartupModule>();
+			}
+		}
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();
 		Q_UNUSED(ContactList::instance());

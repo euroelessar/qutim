@@ -20,7 +20,7 @@
 
 namespace qutim_sdk_0_3
 {
-	class Contact;
+	class ChatUnit;
 	class Account;
 
 	class LIBQUTIM_EXPORT ContactList : public QObject
@@ -29,8 +29,8 @@ namespace qutim_sdk_0_3
 	public:
 		static ContactList *instance();
 	public slots:
-		virtual void addContact(Contact *contact) = 0;
-		virtual void removeContact(Contact *contact) = 0;
+		virtual void addContact(ChatUnit *unit) = 0;
+		virtual void removeContact(ChatUnit *unit) = 0;
 		virtual void removeAccount(Account *account) = 0;
 	protected:
 		ContactList();
