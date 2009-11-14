@@ -111,10 +111,10 @@ namespace AdiumChat
 		int default_index = -1;
 		bool index_found = false;
 		QStringList themes = listThemes(category);
+		ui->chatBox->clear();
 		foreach (QString name, themes)
 		{
 			//FIXME optimize!
-			ui->chatBox->clear();
 			StyleVariants variants = ChatStyleGenerator::listVariants(getThemePath(name,category).append("/Contents/Resources/Variants"));
 			QVariantMap data;
 			data["name"] = name;
@@ -170,10 +170,12 @@ namespace AdiumChat
 		}
 		Message message(tr("Preview message"));
 		message.setProperty("silent",true);
+		message.setProperty("history",true);
 		message.setIncoming(true);
 		message.setChatUnit(m_chat_session->getUnit());
 		message.setText(tr("Hello!"));
 		m_chat_session->appendMessage(message);
+		message.setProperty("history",false);
 		message.setText(tr("How are you?"));
 		m_chat_session->appendMessage(message);
 		message.setTime(QDateTime::currentDateTime());

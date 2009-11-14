@@ -34,6 +34,7 @@ namespace AdiumChat
 		m_chat_unit = unit;
 		m_chat_style_output->preparePage(m_web_page,this);
 		m_message_count = 0;
+		loadHistory();
 		connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 	}
 
@@ -60,7 +61,10 @@ namespace AdiumChat
 		int max_num = adium_chat.value<int>("maxDisplayMessages",5);
 		MessageList messages = History::instance()->read(getUnit(),max_num);
 		foreach (Message mess, messages)
+		{
+			mess.setProperty("history",true);
 			appendMessage(mess);
+		}
 	}
 
 	ChatSessionImpl::~ChatSessionImpl()
@@ -87,9 +91,9 @@ namespace AdiumChat
 			//TODO create fake chat unit for unknown messages
 			tmp_message.setChatUnit(getUnit());
 		}
-		History::instance()->store(tmp_message);
 		bool same_from = false;
-		bool isHistory = tmp_message.isIncoming() && tmp_message.time().isValid();
+		bool isHistory = tmp_message.property("history").toBool();
+		qDebug() << isHistory << tmp_message.property("silent").toBool();
 		if (isHistory)
 		{
 			m_previous_sender="";
@@ -124,6 +128,7 @@ namespace AdiumChat
 		{
 //			tmp_message.setChatUnit(m_chat_unit);
 			Notifications::sendNotification(tmp_message);
+			qDebug() << "message stored";
 			History::instance()->store(message);
 		}
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
