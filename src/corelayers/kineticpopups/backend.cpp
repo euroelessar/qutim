@@ -54,17 +54,17 @@ namespace KineticPopups
 			sender_name = sender_id;
 		QString popup_id = sender_id.isEmpty() ? QString::number(id_counter++) : sender_id;
 		QString title = getTitle(type, popup_id, sender_name);
-		QString image_path = sender ? sender->property("imagepath").toString() : QString();
+		QString image_path = sender ? sender->property("avatar").toString() : QString();
 		if(image_path.isEmpty())
 			image_path = QLatin1String(":/icons/qutim_64");
 		Popup *popup = manager->getById(popup_id);
-		if (popup != 0)
+		if (popup)
 		{
 			if (manager->appendMode) {
 				popup->appendMessage(body);
 				return;
 			}
-			else if (sender!=0)
+			else if (sender)
 			{
 				popup_id.append("." + QString::number(id_counter++));
 			}
@@ -74,6 +74,8 @@ namespace KineticPopups
 		popup->setTimeOut(manager->timeout);
 		popup->setMessage(customTitle.isEmpty() ? title : customTitle,body,image_path);
 		popup->setSender(sender);
+		if (sender)
+			connect(sender,SIGNAL(destroyed(QObject*)),popup,SLOT(deleteLater()));
 		popup->send();
 	}
 

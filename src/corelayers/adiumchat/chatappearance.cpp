@@ -159,6 +159,7 @@ namespace AdiumChat
 			m_chat_session->loadTheme(m_current_style_name,m_current_variant);
 			makePage();
 		}
+		emit modifiedChanged(true);
 	}
 
 	void ChatAppearance::makePage()

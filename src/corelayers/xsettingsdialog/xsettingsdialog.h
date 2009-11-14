@@ -41,7 +41,8 @@ signals:
 protected slots:
 	void showState();
 	void onActionTriggered(QAction *action);
-	void onWidgetModifiedChanged (bool haveChanges);
+	void onWidgetModifiedChanged(bool haveChanges);
+	void onWidgetModifiedChanged(SettingsWidget *widget);
 private:
 	inline void initAnimation();
 	inline void addAction(QAction* action, Settings::Type type);

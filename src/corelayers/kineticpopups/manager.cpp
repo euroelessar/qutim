@@ -121,12 +121,16 @@ namespace KineticPopups
 		timeout = general.value<int>("timeout",0);
 		appendMode = general.value<bool>("appendMode",true);
 		easingCurve.setType(static_cast<QEasingCurve::Type>(general.value<int>("easingCurve",QEasingCurve::OutSine)));
-
-		QString theme_path = getThemePath(theme_name,"kineticpopups");
-		popupSettings = ThemeHelper::loadThemeSetting(theme_path);
+		loadTheme(theme_name);
 		//TODO need global actions handler
 		action1Trigger = Qt::LeftButton;
 		action2Trigger = Qt::RightButton;
+	}
+
+	void Manager::loadTheme(const QString& themeName)
+	{
+		QString theme_path = getThemePath(themeName,"kineticpopups");
+		popupSettings = ThemeHelper::loadThemeSetting(theme_path);
 	}
 
 }

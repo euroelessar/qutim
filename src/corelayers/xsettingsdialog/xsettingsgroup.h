@@ -30,12 +30,13 @@ public:
 	XSettingsGroup (const SettingsItemList &settings,QWidget* parent = 0);
 	virtual ~XSettingsGroup();
 signals:
-	void modifiedChanged(bool haveChanges);
+	void modifiedChanged(SettingsWidget *item);
 private:
 	SettingsItemList m_setting_list;
 	Ui::XSettingsGroup *ui;
 protected slots:
 	void currentRowChanged ( int );
+	void onWidgetModifiedChanged(bool haveChanges);
 };
 
 #endif // XSETTINGSGROUP_H

@@ -20,6 +20,8 @@
 #include "popupwidget.h"
 #include <QLayout>
 #include "ui_popupappearance.h"
+#include <libqutim/configbase.h>
+#include "manager.h"
 
 namespace KineticPopups
 {
@@ -28,6 +30,8 @@ namespace KineticPopups
 			:    ui(new Ui::AppearanceSettings)
 	{
 		ui->setupUi(this);
+		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onTestButtonClicked(bool)));
+		setProperty("id",tr("Preview"));
 		// 	QList<KineticPopupThemeHelper::PopupAppearance> theme_list = KineticPopupThemeHelper::getThemes();
 		// 	QGridLayout *layout = new QGridLayout(this);
 		// 	foreach (KineticPopupThemeHelper::PopupAppearance theme, theme_list)
@@ -48,13 +52,19 @@ namespace KineticPopups
 
 	void PopupAppearance::loadImpl()
 	{
+		disconnect(ui->comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(onCurrentIndexChanged(int)));
+		ConfigGroup general = Config("appearance/kineticpopups").group("general");
+		m_current_theme = general.value<QString>("themeName","default");
 		getThemes();
+		connect(ui->comboBox,SIGNAL(currentIndexChanged(int)),SLOT(onCurrentIndexChanged(int)));
 	}
 
 
 	void PopupAppearance::saveImpl()
 	{
-
+		ConfigGroup general = Config("appearance/kineticpopups").group("general");
+		general.setValue("themeName",ui->comboBox->itemData(ui->comboBox->currentIndex()));
+		general.sync();
 	}
 
 	void PopupAppearance::cancelImpl()
@@ -66,10 +76,30 @@ namespace KineticPopups
 	{
 		QString category = "kineticpopups";
 		QStringList list = listThemes(category);
+		ui->comboBox->clear();
+		int index = -1;
 		foreach (QString theme,list)
 		{
-			ui->comboBox->addItem(theme);
+			ui->comboBox->addItem(theme,QVariant(theme));
+			if ((index == -1) && (m_current_theme == theme))
+				index = ui->comboBox->count() - 1;
 		}
+		ui->comboBox->setCurrentIndex(index == -1 ? 0 : index);
+	}
+
+	void PopupAppearance::onCurrentIndexChanged(int index)
+	{
+		//m_current_theme = ui->comboBox->itemData(index).toString();
+		emit modifiedChanged(true);
+	}
+
+	void PopupAppearance::onTestButtonClicked(bool )
+	{
+		Manager::self()->loadTheme(ui->comboBox->itemData(ui->comboBox->currentIndex()).toString());
+		Notifications::sendNotification(tr("Preview"),tr("This is a simple popup"));
+		Notifications::sendNotification(qutim_sdk_0_3::Notifications::MessageGet,this,tr("Simple message"));
+		Notifications::sendNotification(qutim_sdk_0_3::Notifications::MessageGet,this,tr("Another message"));
+		Manager::self()->loadTheme(m_current_theme);
 	}
 
 }

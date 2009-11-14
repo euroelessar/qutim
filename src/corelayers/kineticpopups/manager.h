@@ -35,6 +35,7 @@ namespace KineticPopups
 		Popup *getById (const QString &id) const;
 		Popup *getByNumber (const int &number) const;
 		QRect insert (Popup *notification);
+		void loadTheme (const QString &themeName);
 		void remove (const QString &id);
 		void updateGeometry();
 		static Manager *self();

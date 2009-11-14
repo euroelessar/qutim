@@ -45,7 +45,7 @@ void XSettingsGroup::currentRowChanged ( int index)
 	{
 		widget->load();
 		ui->stackedWidget->addWidget(widget);
-		connect(widget,SIGNAL(modifiedChanged(bool)),SIGNAL(modifiedChanged(bool)));
+		connect(widget,SIGNAL(modifiedChanged(bool)),SLOT(onWidgetModifiedChanged(bool)));
 	}
 	ui->stackedWidget->setCurrentWidget(widget);
 }
@@ -53,8 +53,15 @@ void XSettingsGroup::currentRowChanged ( int index)
 
 XSettingsGroup::~XSettingsGroup()
 {
-	for (int i=0;i!=m_setting_list.count();i++)
-		m_setting_list.at(i)->widget()->save();
-	delete ui;
+
+}
+
+void XSettingsGroup::onWidgetModifiedChanged(bool haveChanges)
+{
+	SettingsWidget *widget = qobject_cast< SettingsWidget* >(sender());
+	if (!widget)
+		return;
+	if (haveChanges)
+		emit modifiedChanged(widget);
 }
 
