@@ -36,8 +36,11 @@ private:
 	void handleUserOnline(OscarConnection *conn, const SNAC &snac);
 	void handleUserOffline(OscarConnection *conn, const SNAC &snac);
 	void handleMessage(OscarConnection *conn, const SNAC &snac);
-	void handleICBMError(OscarConnection *conn, const SNAC &snac);
+	void handleError(OscarConnection *conn, const SNAC &snac);
+	void handleMetaInfo(OscarConnection *conn, const SNAC &snac);
 	void sendRosterAck(OscarConnection *conn);
+	void sendOfflineMessagesRequest(OscarConnection *conn) { sendMetaInfoRequest(conn, 0x003C); }
+	void sendMetaInfoRequest(OscarConnection *conn, quint16 type);
 	static QTextCodec *asciiCodec();
 	static QTextCodec *utf16Codec();
 	enum State { ReceivingRoster, RosterReceived } m_state;

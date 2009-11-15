@@ -15,6 +15,7 @@
 
 #include "roster.h"
 #include "icqcontact_p.h"
+#include <icqaccount.h>
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
 #include <QTextCodec>
@@ -65,7 +66,8 @@ QString SSIItem::toString()
 Roster::Roster(IcqAccount *account)
 {
 	m_account = account;
-	m_infos << SNACInfo(ListsFamily, ListsList)
+	m_infos << SNACInfo(ListsFamily, ListsError)
+			<< SNACInfo(ListsFamily, ListsList)
 			<< SNACInfo(ListsFamily, ListsUpdateGroup)
 			<< SNACInfo(ListsFamily, ListsCliModifyStart)
 			<< SNACInfo(ListsFamily, ListsCliModifyEnd)
@@ -74,7 +76,9 @@ Roster::Roster(IcqAccount *account)
 			<< SNACInfo(BuddyFamily, UserOffline)
 			<< SNACInfo(MessageFamily, MessageSrvRecv)
 			<< SNACInfo(MessageFamily, MessageSrvAck)
-			<< SNACInfo(MessageFamily, MessageSrvError);
+			<< SNACInfo(MessageFamily, MessageSrvError)
+			<< SNACInfo(ExtensionsFamily, ExtensionsMetaError)
+			<< SNACInfo(ExtensionsFamily, ExtensionsMetaSrvReply);
 	m_state = ReceivingRoster;
 	foreach(const ObjectGenerator *gen, moduleGenerators<MessagePlugin>())
 	{
@@ -126,8 +130,13 @@ void Roster::handleSNAC(OscarConnection *conn, const SNAC &sn)
 					arg(uin).arg(channel);
 			break;
 		}
+		case ListsFamily << 16 | ListsError:
 		case MessageFamily << 16 | MessageSrvError:
-			handleICBMError(conn, sn);
+		case ExtensionsFamily << 16 | ExtensionsMetaError:
+			handleError(conn, sn);
+			break;
+		case ExtensionsFamily << 16 | ExtensionsMetaSrvReply:
+			handleMetaInfo(conn, sn);
 			break;
 	}
 }
@@ -222,6 +231,7 @@ void Roster::handleServerCListReply(OscarConnection *conn, const SNAC &sn)
 		conn->setProperty("SrvLastUpdate", last_info_update);
 		sendRosterAck(conn);
 		conn->finishLogin();
+		sendOfflineMessagesRequest(conn);
 	}
 	qDebug() << m_groups;
 }
@@ -396,7 +406,7 @@ void Roster::handleMessage(OscarConnection *conn, const SNAC &snac)
 	}
 }
 
-void Roster::handleICBMError(OscarConnection *conn, const SNAC &snac)
+void Roster::handleError(OscarConnection *conn, const SNAC &snac)
 {
 	qint16 errorCode = snac.readSimple<qint16>();
 	qint16 subcode = 0;
@@ -484,8 +494,32 @@ void Roster::handleICBMError(OscarConnection *conn, const SNAC &snac)
 		default:
 			error = "Unknown error";
 	}
-	qDebug() << QString("ICBM error (%1, %2): %3").
+	qDebug() << QString("Error (%1, %2): %3").
 			arg(errorCode, 2, 16).arg(subcode, 2, 16).arg(error);
+}
+
+void Roster::handleMetaInfo(OscarConnection *conn, const SNAC &snac)
+{
+	TLVMap tlvs = snac.readTLVChain();
+	if(tlvs.contains(0x01))
+	{
+		DataUnit data(tlvs.value(0x01));
+		data.skipData(6); // skip length field + my uin
+		quint16 metaType = data.readSimple<quint16>(DataUnit::LittleEndian);
+		switch(metaType)
+		{
+		case(0x0041):
+			// Offline message.
+			// It seems it's not used anymore.
+			break;
+		case(0x0042):
+			// Delete offline messages from the server.
+			sendMetaInfoRequest(conn, 0x003E);
+			break;
+		default:
+			qDebug() << "Unhandled meta information response" << metaType;
+		}
+	}
 }
 
 void Roster::sendRosterAck(OscarConnection *conn)
@@ -493,6 +527,18 @@ void Roster::sendRosterAck(OscarConnection *conn)
 	SNAC snac(ListsFamily, ListsGotList);
 	conn->send(snac);
 	qDebug("Send Roster Ack, SNAC %02X %02X", (int)snac.family(), (int)snac.subtype());
+}
+
+void Roster::sendMetaInfoRequest(OscarConnection *conn, quint16 type)
+{
+	SNAC snac(ExtensionsFamily, ExtensionsMetaCliRequest);
+	DataUnit data;
+	data.appendSimple<quint16>(8, DataUnit::LittleEndian); // data chunk size
+	data.appendSimple<quint32>(conn->account()->id().toUInt(), DataUnit::LittleEndian);
+	data.appendSimple<quint16>(type, DataUnit::LittleEndian); // message request cmd
+	data.appendSimple<quint16>(snac.id()); // request sequence number
+	snac.appendTLV(0x01, data);
+	conn->send(snac);
 }
 
 QTextCodec *Roster::asciiCodec()
