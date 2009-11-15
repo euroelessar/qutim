@@ -28,7 +28,7 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT ChatSession : public QObject
 	{
 		Q_OBJECT
-		Q_PROPERTY(bool active READ isActive WRITE activate NOTIFY activated)
+		Q_PROPERTY(bool active READ isActive WRITE setActive NOTIFY activated)
 	public:
 		ChatUnit *getUnit() const;
 	public slots:
@@ -37,7 +37,8 @@ namespace qutim_sdk_0_3
 		virtual void chatStateChanged(Contact *c, ChatState state) = 0;
 		virtual void appendMessage(const Message &message) = 0;
 		virtual bool isActive() = 0;
-		virtual void activate(bool active) = 0;
+		virtual void setActive(bool active) = 0;
+		inline void activate() { setActive(true); }
 		inline void appendMessage(const QString &text)
 		{ appendMessage(Message(text)); }
 	signals:

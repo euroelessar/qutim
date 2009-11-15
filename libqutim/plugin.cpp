@@ -119,4 +119,18 @@ namespace qutim_sdk_0_3
 	Plugin::Plugin()
 	{
 	}
+
+	void Plugin::setInfo(const char *name, const char *description, quint32 version, QIcon icon)
+	{
+		m_info.setName(name);
+		m_info.setDescription(description);
+		m_info.setVersion(version);
+		m_info.setIcon(icon);
+	}
+
+	void Plugin::addExtension(const char *name, const char *description, const ObjectGenerator *generator, QIcon icon)
+	{
+		Q_ASSERT_X(generator->metaObject(), "Plugin::addExtension", "ObjectGenerator must contain QMetaObject");
+		m_extensions << ExtensionInfo(name, description, generator, icon);
+	}
 }

@@ -3,15 +3,16 @@
 
 macro ( FIND_QUTIM_03 src_dir )
     if ( NOT FOUND_QUTIM_03 )
-        find_path( QUTIM_INCLUDE_DIRS NAMES "libqutim/plugin.h" PATHS "../../" "${src_dir}/../../" )
-        if ( QUTIM_INCLUDE_DIRS )
-            message ( "Found qutim at \"${QUTIM_INCLUDE_DIRS}\"" )
+        find_path( QUTIM_INCLUDE_DIRS NAMES "qutim/plugin.h" PATHS "../../" "${src_dir}/../../" )
+	find_library( QUTIM_LIBRARY qutim )
+        if ( QUTIM_INCLUDE_DIRS AND QUTIM_LIBRARY )
+            message ( "Found qutim: ${QUTIM_LIBRARY}" )
             # This is very very nasty hack:
             set ( QUTIM_INCLUDE_DIRS ${QUTIM_INCLUDE_DIRS} "${QUTIM_INCLUDE_DIRS}/src"  )
             set ( FOUND_QUTIM_03 TRUE )
-        else ( QUTIM_INCLUDE_DIRS )
+        else ( QUTIM_INCLUDE_DIRS AND QUTIM_LIBRARY )
             message ( FATAL_ERROR "Could not find qutIM development headers" )
-        endif ( QUTIM_INCLUDE_DIRS )
+        endif ( QUTIM_INCLUDE_DIRS AND QUTIM_LIBRARY )
     endif ( NOT FOUND_QUTIM_03 )
 endmacro ( FIND_QUTIM_03 )
 
@@ -22,8 +23,8 @@ macro ( PREPARE_QUTIM_PLUGIN src_dir )
             SET( QT_MIN_VERSION "4.6.0" )
 
             # Set QT modules
-            SET( QT_USE_QTNETWORK TRUE )
-            SET( QT_USE_QTGUI FALSE )
+            # SET( QT_USE_QTNETWORK TRUE )
+            SET( QT_USE_QTGUI TRUE )
 
             # Search for QT4
             FIND_PACKAGE( Qt4 REQUIRED )
@@ -39,16 +40,17 @@ macro ( PREPARE_QUTIM_PLUGIN src_dir )
     endif ( NOT QUTIM_PLUGIN )
 endmacro ( PREPARE_QUTIM_PLUGIN )
 
-macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir link_libraries )
+macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir libs_to_link )
     PREPARE_QUTIM_PLUGIN(${src_dir})
     if(MINGW)
         add_definitions( -DUNICODE -DQT_LARGEFILE_SUPPORT -DLIBQUTIM_LIBRARY -DQT_THREAD_SUPPORT )
         list( APPEND COMPILE_FLAGS "-mthreads" )
     endif(MINGW)
 
-    file( GLOB ${plugin_name}_SRC "${src_dir}/*.cpp" )
-    file( GLOB ${plugin_name}_HDR "${src_dir}/*.h" )
-    file( GLOB ${plugin_name}_UI "${src_dir}/*.ui" )
+    file( GLOB_RECURSE ${plugin_name}_SRC "${CMAKE_CURRENT_SOURCE_DIR}/${src_dir}/*.cpp" )
+    file( GLOB_RECURSE ${plugin_name}_HDR "${CMAKE_CURRENT_SOURCE_DIR}/${src_dir}/*.h" )
+    file( GLOB_RECURSE ${plugin_name}_UI "${CMAKE_CURRENT_SOURCE_DIR}/${src_dir}/*.ui" )
+    message( "${${plugin_name}_SRC}" )
 
     INCLUDE_DIRECTORIES ( ${hdr_dir} )
     INCLUDE_DIRECTORIES ( ${src_dir} )
@@ -63,7 +65,7 @@ macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir link_libraries )
     ADD_LIBRARY( ${plugin_name} SHARED ${${plugin_name}_SRC} ${${plugin_name}_MOC_SRC} ${${plugin_name}_UI_H} )
 
     # Link with QT
-    TARGET_LINK_LIBRARIES( ${plugin_name} ${QT_LIBRARIES} ${link_libraries})
+    TARGET_LINK_LIBRARIES( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARY} ${libs_to_link})
 
 endmacro ( ADD_QUTIMPLUGIN_EXT2 )
 

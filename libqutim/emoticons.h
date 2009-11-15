@@ -24,6 +24,7 @@ namespace qutim_sdk_0_3
 {
 	class EmoticonsProvider;
 	struct EmoticonsThemeData;
+	struct EmoticonsProviderPrivate;
 
 	class LIBQUTIM_EXPORT EmoticonsTheme
 	{
@@ -46,18 +47,27 @@ namespace qutim_sdk_0_3
 		{
 			inline Token() : type(Undefined) {}
 			inline Token(const QString &t) : type(Text), text(t) {}
-			inline Token(const QString &p, const QString &h) : type(Image), imgPath(p), imgHtmlCode(h) {}
+			inline Token(const QString &t, const QString &p, const QString &h)
+					: type(Image), text(t), imgPath(p), imgHtmlCode(h) {}
 			TokenType type;
 			QString text;
 			QString imgPath;
 			QString imgHtmlCode;
 		};
 
-		EmoticonsTheme(EmoticonsProvider *provider);
+		EmoticonsTheme(const QString &name = QString());
+		EmoticonsTheme(EmoticonsThemeData *data);
 		EmoticonsTheme(const EmoticonsTheme &theme);
 		~EmoticonsTheme();
+		EmoticonsTheme &operator =(const EmoticonsTheme &theme);
 
-		bool isNull();
+		bool isNull() const;
+
+		QHash<QString, QStringList> emoticonsMap() const;
+		QStringList emoticonsIndexes() const;
+		QString themeName() const;
+
+//		EmoticonsTheme pseudoClone();
 
 		QString parseEmoticons(const QString &text, ParseMode mode = DefaultParse, const QStringList &exclude = QStringList());
 		QList<Token> tokenize(const QString &text, ParseMode mode = DefaultParse);
@@ -68,6 +78,7 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT EmoticonsProvider
 	{
 	public:
+		// Emoticon has the same structure as in KDE for binary hacks
 		struct Emoticon
 		{
 			Emoticon(){}
@@ -80,9 +91,20 @@ namespace qutim_sdk_0_3
 		};
 		EmoticonsProvider();
 		virtual ~EmoticonsProvider();
-		virtual QHash<QString, QStringList> emoticonsMap() = 0;
-		virtual QStringList emoticonsIndexes() = 0;
-		virtual QHash<QChar, QList<Emoticon> > emoticonsByChar() = 0;
+		QHash<QString, QStringList> emoticonsMap() const;
+		QStringList emoticonsIndexes() const;
+		QHash<QChar, QList<Emoticon> > emoticonsByChar() const;
+		virtual QString themeName() const;
+		virtual bool saveTheme();
+		// Warning: QStringList must contain lower-case strings
+		virtual bool addEmoticon(const QString &imgPath, const QStringList &codes);
+		virtual bool removeEmoticon(const QStringList &codes);
+	protected:
+		void clearEmoticons();
+		void appendEmoticon(const QString &imgPath, const QStringList &codes);
+		void removeEmoticon(const QString &imgPath, const QStringList &codes);
+	private:
+		QScopedPointer<EmoticonsProviderPrivate> p;
 	};
 
 	class LIBQUTIM_EXPORT EmoticonsBackend : public QObject
@@ -90,8 +112,7 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 	public:
 		virtual QStringList themeList() = 0;
-		virtual EmoticonsTheme loadTheme(const QString &name) = 0;
-		virtual EmoticonsTheme saveTheme(const EmoticonsTheme &theme) = 0;
+		virtual EmoticonsProvider *loadTheme(const QString &name) = 0;
 	};
 
 	namespace Emoticons

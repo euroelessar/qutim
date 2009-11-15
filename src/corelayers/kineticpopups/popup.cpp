@@ -181,7 +181,7 @@ namespace KineticPopups
 		ChatSession *sess;
 		if (unit && (sess = ChatLayer::get(unit,false)))
 		{
-			sess->activate(true);
+			sess->setActive(true);
 		}
 	}
 
@@ -191,7 +191,7 @@ namespace KineticPopups
 		ChatSession *sess;
 		if (unit && (sess = ChatLayer::get(unit,false)))
 		{
-			sess->activate(false);
+			sess->setActive(false);
 		}
 	}
 

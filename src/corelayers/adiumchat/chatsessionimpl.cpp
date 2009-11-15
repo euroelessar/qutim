@@ -175,7 +175,7 @@ namespace AdiumChat
 		return m_web_page->mainFrame()->evaluateJavaScript(scriptSource);
 	}
 
-	void ChatSessionImpl::activate(bool active)
+	void ChatSessionImpl::setActive(bool active)
 	{
 		m_active = active;
 		emit activated(active);//FIXME

@@ -20,6 +20,8 @@
 #include <QSharedData>
 #include <QVariant>
 
+class QScriptEngine;
+
 namespace qutim_sdk_0_3
 {
 	class ChatUnit;
@@ -33,6 +35,7 @@ namespace qutim_sdk_0_3
 		Message(const Message &other);
 		virtual ~Message();
 		Message &operator =(const Message &other);
+		static void scriptRegister(QScriptEngine *engine);
 		const QString &text() const;
 		void setText(const QString &text);
 		const QDateTime &time() const;
@@ -50,5 +53,7 @@ namespace qutim_sdk_0_3
 
 	typedef QList<Message> MessageList;
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::Message)
 
 #endif // LIBQUTIM_MESSAGE_H

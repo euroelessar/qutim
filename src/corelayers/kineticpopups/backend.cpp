@@ -79,6 +79,9 @@ namespace KineticPopups
 		popup->send();
 	}
 
+	// FIXME: This function seems to be reusable in
+	// different module realizations, may be we
+	// should move it to qutim_sdk_0_3::Notifications?
 	QString Backend::getTitle(Notifications::Type type, QString& id,const QString& sender) const
 	{
 		QString title;

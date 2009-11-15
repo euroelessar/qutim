@@ -179,6 +179,17 @@ namespace qutim_sdk_0_3
 		virtual bool load() = 0;
 		virtual bool unload() = 0;
 	protected:
+		void setInfo(const char *name, const char *description, quint32 version = 0, QIcon icon = QIcon());
+		void addExtension(const char *name, const char *description, const ObjectGenerator *generator, QIcon icon = QIcon());
+		template<typename T>
+		void addExtension(const char *name, const char *description, QIcon icon = QIcon())
+		{ addExtension(name, description, new GeneralGenerator<T>(), icon); }
+		template<typename T, typename I0>
+		void addExtension(const char *name, const char *description, QIcon icon = QIcon())
+		{ addExtension(name, description, new GeneralGenerator<T, I0>(), icon); }
+		template<typename T, typename I0, typename I1>
+		void addExtension(const char *name, const char *description, QIcon icon = QIcon())
+		{ addExtension(name, description, new GeneralGenerator<T, I0, I1>(), icon); }
 		// Should be filled at init
 		PluginInfo m_info;
 		QList<ExtensionInfo> m_extensions;

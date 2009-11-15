@@ -15,12 +15,41 @@
 
 #include "message.h"
 #include <QDateTime>
+#include <QScriptEngine>
+#include <QScriptValue>
+#include <QScriptValueIterator>
 #include "chatunit.h"
 #include "account.h"
 #include "protocol.h"
 
 namespace qutim_sdk_0_3
 {
+	QScriptValue messageToScriptValue(QScriptEngine *engine, const Message &mes)
+	{
+		QScriptValue obj = engine->newObject();
+		obj.setProperty("time", engine->newDate(mes.time()));
+		obj.setProperty("chatUnit", engine->newQObject(const_cast<ChatUnit *>(mes.chatUnit())));
+		obj.setProperty("text", mes.text());
+		obj.setProperty("in", mes.isIncoming());
+		foreach(const QByteArray &name, mes.dynamicPropertyNames())
+			obj.setProperty(QString::fromUtf8(name), engine->newVariant(mes.property(name)));
+		return obj;
+	}
+
+	void messageFromScriptValue(const QScriptValue &obj, Message &mes)
+	{
+		QScriptValueIterator it(obj);
+		while (it.hasNext()) {
+			it.next();
+			mes.setProperty(it.name().toUtf8(), it.value().toVariant());
+		}
+	}
+
+	void Message::scriptRegister(QScriptEngine *engine)
+	{
+		qScriptRegisterMetaType(engine, &messageToScriptValue, &messageFromScriptValue);
+	}
+
 	class MessagePrivate : public QSharedData
 	{
 	public:

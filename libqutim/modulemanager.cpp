@@ -40,6 +40,7 @@
 
 #ifdef TEST
 # include "settingslayer.h"
+# include "emoticons.h"
 # include <QPlainTextEdit>
 # include <QLineEdit>
 # include <QComboBox>
@@ -453,6 +454,11 @@ namespace qutim_sdk_0_3
 			item->addEntry<AutoSettingsComboBox>(QT_TRANSLATE_NOOP("Settings", "Combo"))->setName("combo")->setProperty("items", QStringList() << "First" << "Second" << "Third");
 			item->addEntry<QCheckBox>(QT_TRANSLATE_NOOP("Settings", "Check"))->setName("check");
 			Settings::registerItem(item);
+		}
+		{
+			qDebug() << Emoticons::themeList();
+			QString text = "hello! :) :-D";
+			qDebug() << Emoticons::theme().parseEmoticons(text);
 		}
 #endif
 		Notifications::sendNotification(Notifications::Startup, 0);

@@ -42,10 +42,10 @@ namespace AdiumChat
 		void setVariant(const QString& variant);
 		QString getVariant() const;
 		QAbstractItemModel *getItemsModel() const;
+		virtual void setActive(bool active = true);
+		virtual bool isActive();
 	public slots:
 		QVariant evaluateJavaScript(const QString &scriptSource);
-		virtual void activate(bool active);
-		virtual bool isActive();
 	protected:
 		QScopedPointer<ChatStyleOutput> m_chat_style_output;
 		void loadHistory();
