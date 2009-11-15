@@ -265,6 +265,7 @@ namespace AdiumChat
 
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
 		html = html.replace("%message%", Qt::escape(mes.text()));
+		makeUrls(html,mes);
 		return html;
 	}
 
@@ -316,7 +317,7 @@ namespace AdiumChat
 
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
 		html = html.replace("%message%", Qt::escape(mes.text()));
-
+		makeUrls(html,mes);
 		return html;
 	}
 
@@ -339,6 +340,26 @@ namespace AdiumChat
 		while((pos=timeRegExp.indexIn(input, pos)) != -1)
 			input.replace(pos, timeRegExp.cap(0).length(), Qt::escape(convertTimeDate(timeRegExp.cap(1), datetime)));
 		// Replace %message%'s, replacing last to avoid errors if messages contains tags
+	}
+
+	void ChatStyleOutput::makeUrls(QString &html,const Message& message)
+	{
+		QVariant data = message.property("urls");
+		QList<QUrl> urls;
+		if (data.type() == QVariant::Url)
+			urls.append(data.toUrl());
+		else if (data.type() == QVariant::List) {
+			QList<QVariant> list = data.toList();
+				for (int i = 0; i < list.size(); ++i) {
+				if (list.at(i).type() == QVariant::Url)
+				urls.append(list.at(i).toUrl());
+			}
+		}
+		QList<QUrl>::const_iterator it;
+		for (it=urls.begin();it!=urls.end();it++)
+		{
+			html.append("<br /><a href=\"%1\">%2</a>").arg(it->toEncoded(),it->toString());
+		}
 	}
 
 	QString ChatStyleOutput::findEmail ( const QString& _sourceHTML )
