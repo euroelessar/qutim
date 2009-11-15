@@ -159,12 +159,12 @@ void Roster::sendMessage(OscarConnection *conn, const QString &id, const QString
 	conn->send(sn);
 }
 
-void Roster::sendAuthResponse(OscarConnection *conn, const QString &id, const QString &message)
+void Roster::sendAuthResponse(OscarConnection *conn, const QString &id, const QString &message, bool auth)
 {
 	SNAC snac(ListsFamily, ListsCliAuthResponse);
 	snac.appendData<qint8>(asciiCodec()->fromUnicode(id)); // uin.
-	snac.appendSimple<qint8>(0x01); // auth flag.
-	snac.appendData<qint16>("You are automatically authorized.");
+	snac.appendSimple<qint8>(auth ? 0x01 : 0x00); // auth flag.
+	snac.appendData<qint16>(asciiCodec()->fromUnicode(message)); // TODO: which codec should be used?
 	conn->send(snac);
 }
 
