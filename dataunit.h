@@ -33,14 +33,14 @@ public:
 	inline const QByteArray &data() const { return m_data; }
 	inline void setData(const QByteArray &data) { m_data = data; }
 	inline void appendData(const QByteArray &data) { m_data += data; }
+	void appendTLV(quint16 type) { appendData(TLV(type)); }
 	template<typename T>
 	void appendTLV(quint16 type, const T &value);
 	template<typename T>
 	void appendSimple(T value, ByteOrder bo = BigEndian);
 	template<typename L>
 	void appendData(const QByteArray &str);
-	template<typename L>
-	void appendCapability(const Capability &data);
+	inline void appendData(const Capability &data);
 	inline void resetState() { m_state = 0; }
 	inline uint dataSize() const { return m_data.size() > m_state ? m_data.size() - m_state : 0; }
 	template<typename T>
@@ -75,6 +75,12 @@ Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const T &value)
 	appendData(TLV::fromTypeValue(type, value));
 }
 
+template<>
+Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const DataUnit &value)
+{
+	appendData(TLV::fromTypeValue(type, value.data()));
+}
+
 template<typename L>
 Q_INLINE_TEMPLATE void DataUnit::appendData(const QByteArray &str)
 {
@@ -82,8 +88,7 @@ Q_INLINE_TEMPLATE void DataUnit::appendData(const QByteArray &str)
 	m_data.append(str);
 }
 
-template<typename L>
-Q_INLINE_TEMPLATE void DataUnit::appendCapability(const Capability &data)
+void DataUnit::appendData(const Capability &data)
 {
 	m_data.append(data.data());
 }

@@ -139,23 +139,23 @@ void Roster::sendMessage(OscarConnection *conn, const QString &id, const QString
 	sn.appendSimple<qint16>(0x0001); // message channel
 	sn.appendData<qint8>(asciiCodec()->fromUnicode(id)); // uid or screenname
 
-	TLV msgData(0x0101);
+	DataUnit msgData;
 	// Charset.
 	// TODO: get supported charsets from client info.
 	// 0x0000 - us-ascii
 	// 0x0002 - utf-16 be
 	// 0x0003 - ansi
-	msgData.appendValue<quint16>(0x0002);
+	msgData.appendSimple<quint16>(0x0002);
 	// Message.
-	msgData.appendValue(utf16Codec()->fromUnicode(message));
+	msgData.appendData(utf16Codec()->fromUnicode(message));
 
 	DataUnit dataUnit;
 	dataUnit.appendTLV(0x0501, (quint32)0x0106);
-	dataUnit.appendData(msgData);
+	dataUnit.appendTLV(0x0101, msgData);
 
-	sn.appendTLV(0x0002, dataUnit.readAll());
+	sn.appendTLV(0x0002, dataUnit);
 	// empty TLV(6) store message if recipient offline.
-	sn.appendTLV(0x0006, "");
+	sn.appendTLV(0x0006);
 	conn->send(sn);
 }
 

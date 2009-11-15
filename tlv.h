@@ -53,8 +53,6 @@ public:
 	static TLV fromByteArray(const char *data, int length, ByteOrder bo = BigEndian);
 	static TLVMap parseByteArray(const char *data, int length, ByteOrder bo = BigEndian);
 	static inline TLVMap parseByteArray(const QByteArray &data, ByteOrder bo = BigEndian);
-	static TLV fromTypeValue(quint16 type, const QByteArray &value);
-	static TLV fromTypeValue(quint16 type, const QString &value);
 	template<typename T>
 	static TLV fromTypeValue(quint16 type, T value);
 private:
@@ -151,20 +149,6 @@ Q_INLINE_TEMPLATE void TLV::setValue(const T &value)
 {
 	m_value.clear();
 	appendValue<T>(value);
-}
-
-inline TLV TLV::fromTypeValue(quint16 type, const QByteArray &value)
-{
-	TLV tlv(type);
-	tlv.setValue(value);
-	return tlv;
-}
-
-inline TLV TLV::fromTypeValue(quint16 type, const QString &value)
-{
-	TLV tlv(type);
-	tlv.setValue(value);
-	return tlv;
 }
 
 template<typename T>
