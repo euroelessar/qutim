@@ -31,6 +31,7 @@
 #include "messagemodifier.h"
 #include "libqutim/objectgenerator.h"
 #include "chatsessionimpl.h"
+#include <libqutim/emoticons.h>
 
 namespace AdiumChat
 {
@@ -43,7 +44,7 @@ namespace AdiumChat
 		MessageModifier *modifier;
 	};
 
-	void processMessage(QString &html, const ChatSession *session, const Message &message)
+	void ChatStyleOutput::processMessage(QString &html, const ChatSession *session, const Message &message)
 	{
 		// TODO: add cleanup
 		static QList<MessageModifier *> modifiers;
@@ -78,6 +79,8 @@ namespace AdiumChat
 				html.replace(pos, it->regexp.cap(0).length(), modified);
 			}
 		}
+		html = Emoticons::theme().parseEmoticons(html);
+		makeUrls(html,message);
 	}
 
 	ChatStyleOutput::ChatStyleOutput ()
@@ -264,8 +267,7 @@ namespace AdiumChat
 		html = html.replace("%messageDirection%", _aligment ? "ltr" : "rtl" );
 
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
-		html = html.replace("%message%", Qt::escape(mes.text()));
-		makeUrls(html,mes);
+		html = html.replace("%message%", Qt::escape(mes.text()));		
 		return html;
 	}
 
@@ -317,7 +319,6 @@ namespace AdiumChat
 
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
 		html = html.replace("%message%", Qt::escape(mes.text()));
-		makeUrls(html,mes);
 		return html;
 	}
 

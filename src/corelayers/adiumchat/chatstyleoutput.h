@@ -91,6 +91,7 @@ namespace AdiumChat
 		QString makeSkeleton(const ChatSessionImpl *session, const QDateTime &datetime);
 		inline void makeTime (QString &input, const QDateTime& datetime,const QString &regexp = "%time\\{([^}]*)\\}%");
 		void makeUrls(QString& html, const Message& message);//create url list under message body
+		void processMessage(QString &html, const ChatSession *session, const Message &message);
 		void loadSettings();
 		/*
 		style used for output generation
