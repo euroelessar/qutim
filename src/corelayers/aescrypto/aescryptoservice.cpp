@@ -39,7 +39,7 @@ namespace Core
 	QVariant AesCryptoService::decryptImpl(const QVariant &valueVar) const
 	{
 		if(!m_cipher_dec)
-			return valueVar;
+			return variantFromData(valueVar.toByteArray());
 		QByteArray value = valueVar.toByteArray();
 		QByteArray result;
 		for(int i = 0x0; i < value.size(); i += 0x10)
