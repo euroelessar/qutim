@@ -36,6 +36,8 @@ namespace AdiumChat
 		connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 		connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
+		ui->chatEdit->installEventFilter(this);
+		ui->chatEdit->setFocusPolicy(Qt::StrongFocus);
 	}
 
 	ChatWidget::~ChatWidget()
@@ -126,6 +128,22 @@ namespace AdiumChat
 		ui->tabBar->setCurrentIndex(m_sessions.indexOf(session));
 	}
 
+	bool ChatWidget::eventFilter(QObject *obj, QEvent *event)
+	{
+		if (event->type() == QEvent::KeyPress) {
+			QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+			QString key = QString::number(keyEvent->key(), 16);
+			QString modifiers = QString::number(keyEvent->modifiers(), 16);
+			if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
+				if (!(keyEvent->modifiers() & Qt::ControlModifier)) {
+					onSendButtonClicked();
+					return true;
+				}
+			}
+		}
+		return QObject::eventFilter(obj, event);
+	}
+
 	bool ChatWidget::contains(ChatSessionImpl* session)
 	{
 		return m_sessions.contains(session);
@@ -133,7 +151,7 @@ namespace AdiumChat
 
 	void ChatWidget::onSendButtonClicked()
 	{
-		if (ui->chatEdit->toPlainText().isEmpty())
+		if (ui->chatEdit->toPlainText().trimmed().isEmpty() || ui->tabBar->currentIndex() < 0)
 			return;
 		ChatSessionImpl *session = m_sessions.at(ui->tabBar->currentIndex());
 		Message message (ui->chatEdit->toPlainText());

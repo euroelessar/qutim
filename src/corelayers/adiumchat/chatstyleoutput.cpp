@@ -79,8 +79,13 @@ namespace AdiumChat
 				html.replace(pos, it->regexp.cap(0).length(), modified);
 			}
 		}
-		html = Emoticons::theme().parseEmoticons(html);
-		makeUrls(html,message);
+
+		QString text = message.property("html").toString();
+		if(text.isEmpty())
+			text = message.text();
+		text = Emoticons::theme().parseEmoticons(text);
+		makeUrls(text, message);
+		html.replace(QLatin1String("%message%"), text);
 	}
 
 	ChatStyleOutput::ChatStyleOutput ()
@@ -267,7 +272,7 @@ namespace AdiumChat
 		html = html.replace("%messageDirection%", _aligment ? "ltr" : "rtl" );
 
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
-		html = html.replace("%message%", Qt::escape(mes.text()));		
+//		html = html.replace("%message%", Qt::escape(mes.text()));
 		return html;
 	}
 

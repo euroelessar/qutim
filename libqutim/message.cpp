@@ -129,13 +129,18 @@ namespace qutim_sdk_0_3
 
 	QVariant Message::property(const char *name) const
 	{
+		return property(name, QVariant());
+	}
+
+	QVariant Message::property(const char *name, const QVariant &def) const
+	{
 		QByteArray prop = QByteArray::fromRawData(name, strlen(name));
 		int id = CompiledProperty::names.indexOf(prop);
 		if(id < 0)
 		{
 			id = p->names.indexOf(prop);
 			if(id < 0)
-				return QVariant();
+				return def;
 			return p->values.at(id);
 		}
 		return (p->*CompiledProperty::getters.at(id))();

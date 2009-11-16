@@ -92,8 +92,8 @@ namespace AdiumChat
 			tmp_message.setChatUnit(getUnit());
 		}
 		bool same_from = false;
-		bool isHistory = tmp_message.property("history").toBool();
-		qDebug() << isHistory << tmp_message.property("silent").toBool();
+		bool isHistory = tmp_message.property("history", false);
+		qDebug() << isHistory << tmp_message.property("silent", false);
 		if (isHistory)
 		{
 			m_previous_sender="";
@@ -124,7 +124,7 @@ namespace AdiumChat
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
-		if (!isHistory && !tmp_message.property("silent").toBool())
+		if (!isHistory && !tmp_message.property("silent", false))
 		{
 //			tmp_message.setChatUnit(m_chat_unit);
 			Notifications::sendNotification(tmp_message);
