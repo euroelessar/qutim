@@ -81,3 +81,16 @@ void IcqProtocol::loadAccounts()
 	foreach(const QString &uin, accounts)
 		p->accounts_hash->insert(uin, new IcqAccount(uin));
 }
+
+QList<Account *> IcqProtocol::accounts() const
+{
+    QList<Account *> accounts;
+	QHash<QString, QPointer<IcqAccount> >::const_iterator it;
+	for (it=p->accounts_hash->begin();it!=p->accounts_hash->end();it++)
+		accounts.append(it.value());
+    return accounts;
+}
+Account *IcqProtocol::account(const QString &id) const
+{
+    return p->accounts_hash->value(id);
+}
