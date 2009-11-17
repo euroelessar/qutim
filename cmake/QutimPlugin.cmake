@@ -3,9 +3,12 @@
 
 macro ( LANGUAGE_UPDATE plugin_name language sources )
 	file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/languages/${language}" )
+	if( NOT LANGUAGE_DEST_DIR )
+		set( LANGUAGE_DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/languages" )
+	endif( NOT LANGUAGE_DEST_DIR )
 	execute_process( COMMAND ${QT_LUPDATE_EXECUTABLE}
 					 -target-language "${language}" ${ARGN}
-					 -ts "${CMAKE_CURRENT_BINARY_DIR}/languages/${language}/${plugin_name}.ts"
+					 -ts "${LANGUAGE_DEST_DIR}/${language}/${plugin_name}.ts"
 					 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
 endmacro ( LANGUAGE_UPDATE plugin_name language sources )
 
@@ -73,7 +76,7 @@ macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir libs_to_link )
     ADD_LIBRARY( ${plugin_name} SHARED ${${plugin_name}_SRC} ${${plugin_name}_MOC_SRC} ${${plugin_name}_UI_H} )
 
     # Link with QT
-	TARGET_LINK_LIBRARIES( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARY} ${ARGN})
+	TARGET_LINK_LIBRARIES( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARY} ${libs_to_link})
 
 	if( LANGUAGE )
 		LANGUAGE_UPDATE( ${plugin_name} ${LANGUAGE} ${${plugin_name}_SRC} ${${plugin_name}_HDR} ${${plugin_name}_UI} )
