@@ -179,6 +179,7 @@ namespace qutim_sdk_0_3
 		virtual bool load() = 0;
 		virtual bool unload() = 0;
 	protected:
+		void addAuthor(const char *name, const char *task, const QString &email = QString(), const QString &web = QString());
 		void setInfo(const char *name, const char *description, quint32 version = 0, QIcon icon = QIcon());
 		void addExtension(const char *name, const char *description, const ObjectGenerator *generator, QIcon icon = QIcon());
 		template<typename T>

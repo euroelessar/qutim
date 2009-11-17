@@ -29,16 +29,19 @@ namespace AdiumChat
 	class FakeChatUnit : public ChatUnit
 	{
 	public:
-		FakeChatUnit(Account* account) : ChatUnit(account) {};
+		FakeChatUnit(Account* account) : ChatUnit(account) {}
+
 		virtual QString title() const
 		{
-			return tr("Vasya Pupkin");
-		};
-		virtual void sendMessage(const qutim_sdk_0_3::Message& message) {};
+			return ChatAppearance::tr("Vasya Pupkin");
+		}
+
+		virtual void sendMessage(const qutim_sdk_0_3::Message& message) {}
+
 		virtual QString id() const
 		{
-			return tr("Noname");
-		};
+			return ChatAppearance::tr("Noname");
+		}
 	};
 	class FakeAccount : public Account
 	{
@@ -46,15 +49,17 @@ namespace AdiumChat
 		FakeAccount(const QString& id, Protocol* protocol) : Account(id,protocol)
 		{
 			m_unit = new FakeChatUnit(this);
-		};
+		}
+
 		virtual ~FakeAccount()
 		{
 			m_unit->deleteLater();
-		};
+		}
+
 		virtual ChatUnit* getUnit(const QString& unitId, bool create = true)
 		{
 			return m_unit;
-		};
+		}
 	private:
 		FakeChatUnit *m_unit;
 	};

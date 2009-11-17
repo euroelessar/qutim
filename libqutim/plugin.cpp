@@ -120,6 +120,11 @@ namespace qutim_sdk_0_3
 	{
 	}
 
+	void Plugin::addAuthor(const char *name, const char *task, const QString &email, const QString &web)
+	{
+		Q_UNUSED(m_info.addAuthor(name, task, email, web));
+	}
+
 	void Plugin::setInfo(const char *name, const char *description, quint32 version, QIcon icon)
 	{
 		m_info.setName(name);
