@@ -2,6 +2,7 @@
 #define SIMPLECONTACTLIST_H
 
 #include "libqutim/contactlist.h"
+#include "libqutim/actiontoolbar.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -20,6 +21,7 @@ namespace Core
 			virtual void addContact(ChatUnit *contact);
 			virtual void removeContact(ChatUnit *contact);
 			virtual void removeAccount(Account *account);
+			Q_INVOKABLE void addButton(ActionGenerator *generator);
 		private slots:
 			void onConfigureClicked();
 		private:

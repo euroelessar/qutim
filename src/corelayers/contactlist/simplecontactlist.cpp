@@ -29,6 +29,7 @@ namespace Core
 			QWidget *widget;
 			TreeView *view;
 			Model *model;
+			ActionToolBar *toolbar;
 		};
 
 		Module::Module() : p(new ModulePrivate)
@@ -36,11 +37,21 @@ namespace Core
 			p->widget = new QWidget;
 			QVBoxLayout *layout = new QVBoxLayout(p->widget);
 			layout->setMargin(0);
-			QToolButton *button = new QToolButton(p->widget);
-			button->setIcon(Icon("show-menu"));
+
+			p->toolbar = new ActionToolBar(p->widget);
+			layout->addWidget(p->toolbar);
+
+			QMenu *menu = new QMenu(tr("Main menu"), p->toolbar);
+			menu->addAction(Icon("configure"), tr("&Settings..."), this, SLOT(onConfigureClicked()));
+			menu->addAction(Icon("application-exit"), tr("&Quit"), qApp, SLOT(quit()));
+
+			QAction *menuAction = new QAction(Icon("show-menu"), tr("Main menu"), menu);
+			menuAction->setMenu(menu);
+			p->toolbar->addAction(menuAction);
+
 			p->view = new TreeView(p->widget);
-			layout->addWidget(button);
 			layout->addWidget(p->view);
+
 			p->widget->setLayout(layout);
 			p->model = new Model(p->view);
 			p->view->setModel(p->model);
@@ -48,11 +59,6 @@ namespace Core
 			foreach(Protocol *proto, allProtocols())
 				foreach(Contact *contact, proto->findChildren<Contact *>())
 					addContact(contact);
-			QMenu *menu = new QMenu(tr("Main menu"), button);
-			menu->addAction(Icon("configure"), tr("&Settings..."), this, SLOT(onConfigureClicked()));
-			menu->addAction(Icon("application-exit"), tr("&Quit"), qApp, SLOT(quit()));
-			button->setMenu(menu);
-			connect(button, SIGNAL(clicked()), button, SLOT(showMenu()));
 		}
 
 		Module::~Module()
@@ -75,6 +81,11 @@ namespace Core
 		{
 			foreach(Contact *contact, account->findChildren<Contact *>())
 				removeContact(contact);
+		}
+
+		void Module::addButton(ActionGenerator *generator)
+		{
+			p->toolbar->addAction(generator);
 		}
 
 		void Module::onConfigureClicked()
