@@ -1,6 +1,11 @@
 # Copyright (c) 2009, Konstantin Plotnikov <kostyapl@gmail.com>
 # Redistribution and use is allowed according to the terms of the GPL v3.
 
+# TODO: add install and uninstall rules
+# TODO: change usage of relative path to absolute (src_dir)
+
+
+# This macro is for internal use only
 macro ( LANGUAGE_UPDATE plugin_name language sources )
 	file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/languages/${language}" )
 	if( NOT LANGUAGE_DEST_DIR )
@@ -12,9 +17,10 @@ macro ( LANGUAGE_UPDATE plugin_name language sources )
 					 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
 endmacro ( LANGUAGE_UPDATE plugin_name language sources )
 
+# This macro is for internal use only
 macro ( FIND_QUTIM_03 src_dir )
     if ( NOT FOUND_QUTIM_03 )
-        find_path( QUTIM_INCLUDE_DIRS NAMES "qutim/plugin.h" PATHS "../../" "${src_dir}/../../" )
+        find_path( QUTIM_INCLUDE_DIRS NAMES "qutim/plugin.h" PATHS "../../" "../" "${src_dir}/../../" "${src_dir}/../" )
 	find_library( QUTIM_LIBRARY qutim )
         if ( QUTIM_INCLUDE_DIRS AND QUTIM_LIBRARY )
             message ( "Found qutim: ${QUTIM_LIBRARY}" )
@@ -27,6 +33,7 @@ macro ( FIND_QUTIM_03 src_dir )
     endif ( NOT FOUND_QUTIM_03 )
 endmacro ( FIND_QUTIM_03 )
 
+# This macro is for internal use only
 macro ( PREPARE_QUTIM_PLUGIN src_dir )
     if ( NOT QUTIM_PLUGIN )
         if ( NOT QT4_INSTALLED )
@@ -51,7 +58,19 @@ macro ( PREPARE_QUTIM_PLUGIN src_dir )
     endif ( NOT QUTIM_PLUGIN )
 endmacro ( PREPARE_QUTIM_PLUGIN )
 
+# Parameters:
+#   plugin_name - name of plugin being added
+#   src_dir - folder with sources
+#   hdr_dir - folder with additional headers
+#   libs_to_link - additional libraries to link with
 macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir libs_to_link )
+
+    # Prepare path variables
+    # TODO: fix this to make reverse convertion and fix later usage
+    if ( IS_ABSOLUTE ${src_dir} )
+        file ( RELATIVE_PATH src_dir "${CMAKE_CURRENT_SOURCE_DIR}/" ${src_dir} )
+    endif ( IS_ABSOLUTE ${src_dir} )
+
     PREPARE_QUTIM_PLUGIN(${src_dir})
     if(MINGW)
         add_definitions( -DUNICODE -DQT_LARGEFILE_SUPPORT -DLIBQUTIM_LIBRARY -DQT_THREAD_SUPPORT )
@@ -84,11 +103,54 @@ macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir libs_to_link )
 
 endmacro ( ADD_QUTIMPLUGIN_EXT2 )
 
+# Parameters:
+#   plugin_name - name of plugin being added
+#   src_dir - folder with sources
+#   hdr_dir - folder with additional headers
 macro ( ADD_QUTIMPLUGIN_EXT plugin_name src_dir hdr_dir )
     ADD_QUTIMPLUGIN_EXT2(${plugin_name} ${src_dir} ${hdr_dir} "" )
 endmacro ( ADD_QUTIMPLUGIN_EXT )
 
+# Parameters:
+#   plugin_name - name of plugin being added
+#   src_dir - folder with sources
 macro ( ADD_QUTIMPLUGIN plugin_name src_dir )
     ADD_QUTIMPLUGIN_EXT2(${plugin_name} ${src_dir} "" "" )
 endmacro ( ADD_QUTIMPLUGIN )
 
+
+# Please, do not use this macro it is not ready yet
+# it is here because I need to store it somewhere =)
+# macro ( ADD_QUTIMPLUGIN_AUTO plugin_name )
+# 
+#     # search for sources
+#     if( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+#         set ( ${plugin_name}_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+#     else ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+#         set ( ${plugin_name}_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}" )
+#     endif ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+# 
+#     # search for resources
+#     file( GLOB_RECURSE ${plugin_name}_QRC "${CMAKE_CURRENT_SOURCE_DIR}/*.qrc" )
+#     if ( NOT ${plugin_name}_QRC )
+#         if( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/icons" )
+#             set ( ${plugin_name}_RESOURCES TRUE )
+#             set ( ${plugin_name}_ICONS "" )
+#             set ( extensions
+#                     png
+#                     jpg
+#                     gif
+#                 )
+#             foreach ( extension ${extensions} )
+#                 file ( GLOB_RECURSE ICONS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/icons/*.${extension}" )
+#                 list ( APPEND ${plugin_name}_ICONS ${ICONS} )
+#             endforeach ( extension )
+#             file ( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}.qrc" "<RCC>\n  <qresource prefix=\"${CMAKE_CURRENT_SOURCE_DIR}\">\n" )
+#             foreach ( ICON ${${plugin_name}_ICONS} )
+#                 file ( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}.qrc" "    <file>${ICON}</file>\n" )
+#             endforeach ( ICON )
+#         else ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/icons" )
+#             set ( ${plugin_name}_RESOURCES FALSE )
+#         endif ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/icons" )
+#     endif ( NOT ${plugin_name}_QRC )
+# endmacro ( QUTIMPLUGIN plugin_name )
