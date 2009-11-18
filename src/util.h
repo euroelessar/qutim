@@ -18,6 +18,7 @@
 
 #include <QByteArray>
 #include <QtEndian>
+#include <QTextCodec>
 
 #define IMPLEMENT_ME QString("Function %1 at line %2: implement me.").arg(Q_FUNC_INFO).arg(__LINE__)
 
@@ -42,6 +43,10 @@ namespace Util
 
 	// SNAC(0x17,0x03), TLV(0x05)
 	extern QString connectionErrorText(quint16 code);
+
+	extern QTextCodec *asciiCodec();
+	extern QTextCodec *utf16Codec();
+	extern QTextCodec *defaultCodec();
 }
 
 #endif // UTIL_H

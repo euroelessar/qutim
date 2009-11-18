@@ -33,6 +33,7 @@ public:
 	inline const QByteArray &data() const { return m_data; }
 	inline void setData(const QByteArray &data) { m_data = data; }
 	inline void appendData(const QByteArray &data) { m_data += data; }
+	inline void appendData(const QString &str, QTextCodec *codec = Util::defaultCodec()) { m_data += codec->fromUnicode(str); }
 	void appendTLV(quint16 type) { appendData(TLV(type)); }
 	template<typename T>
 	void appendTLV(quint16 type, const T &value);
@@ -40,6 +41,8 @@ public:
 	void appendSimple(T value, ByteOrder bo = BigEndian);
 	template<typename L>
 	void appendData(const QByteArray &str);
+	template<typename L>
+	void appendData(const QString &str, QTextCodec *codec = Util::defaultCodec());
 	inline void appendData(const Capability &data);
 	inline void resetState() { m_state = 0; }
 	inline uint dataSize() const { return m_data.size() > m_state ? m_data.size() - m_state : 0; }
@@ -50,7 +53,7 @@ public:
 	inline Capability readCapability() const;
 	inline QByteArray readData(uint size) const;
 	template<typename L>
-	QString readString(ByteOrder bo = BigEndian) const;
+	QString readString(QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian) const;
 	inline void skipData(uint num) const { m_state = qMin<uint>(m_state + num, m_data.size()); }
 	inline QByteArray readAll() const;
 	TLV readTLV(ByteOrder bo = BigEndian) const;
@@ -86,6 +89,12 @@ Q_INLINE_TEMPLATE void DataUnit::appendData(const QByteArray &str)
 {
 	m_data.append(Util::toBigEndian<L>(str.size()));
 	m_data.append(str);
+}
+
+template<typename L>
+Q_INLINE_TEMPLATE void DataUnit::appendData(const QString &str, QTextCodec *codec)
+{
+	appendData<L>(codec->fromUnicode(str));
 }
 
 void DataUnit::appendData(const Capability &data)
@@ -166,9 +175,9 @@ QByteArray DataUnit::readData(uint size) const
 }
 
 template<typename L>
-Q_INLINE_TEMPLATE QString DataUnit::readString(ByteOrder bo) const
+Q_INLINE_TEMPLATE QString DataUnit::readString(QTextCodec *codec, ByteOrder bo) const
 {
-	return QString::fromUtf8(readData<L>(bo));
+	return codec->toUnicode(readData<L>(bo));
 }
 
 QByteArray DataUnit::readAll() const
@@ -188,7 +197,7 @@ Q_INLINE_TEMPLATE TLVMap DataUnit::readTLVChain(ByteOrder bo) const
 		TLV tlv = readTLV(bo);
 		if(tlv.type() == 0xffff)
 			return tlvs;
-		tlvs.insert(tlv.type(), tlv);
+		tlvs.insert(tlv);
 	}
 	return tlvs;
 }
@@ -201,7 +210,7 @@ TLVMap DataUnit::readTLVChain(ByteOrder bo) const
 		TLV tlv = readTLV(bo);
 		if(tlv.type() == 0xffff)
 			return tlvs;
-		tlvs.insert(tlv.type(), tlv);
+		tlvs.insert(tlv);
 	}
 	return tlvs;
 }

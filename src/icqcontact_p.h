@@ -23,6 +23,7 @@ struct IcqContactPrivate
 	IcqAccount *account;
 	QString uin;
 	QString name;
+	quint16 user_id;
 	quint16 group_id;
 	Status status;
 };

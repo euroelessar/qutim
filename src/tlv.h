@@ -84,6 +84,44 @@ public:
 		TLVMap::const_iterator it = find(type);
 		return it == constEnd() ? def : it->value<T>();
 	}
+
+	TLVMap::iterator insert(quint16 /*type*/, const TLV &/*data*/)
+	{
+		Q_ASSERT(0);
+		return end();
+	}
+
+	template<typename T>
+	TLVMap::iterator insert(quint16 type, const T &data)
+	{
+		return QMultiMap<quint16, TLV>::insert(type, TLV::fromTypeValue(type, data));
+	}
+
+	TLVMap::iterator insert(quint16 type)
+	{
+		return QMultiMap<quint16, TLV>::insert(type, TLV(type));
+	}
+
+	TLVMap::iterator insert(const TLV &tlv)
+	{
+		return QMultiMap<quint16, TLV>::insert(tlv.type(), tlv);
+	}
+
+	quint32 valuesSize() const
+	{
+		quint32 size = 0;
+		foreach(const TLV &tlv, *this)
+			size = size + tlv.value().size() + 4;
+		return size;
+	}
+
+	operator QByteArray()  const
+	{
+		QByteArray data;
+		foreach(const TLV &tlv, *this)
+			data += tlv;
+		return data;
+	}
 };
 
 TLVMap TLV::parseByteArray(const QByteArray &data, ByteOrder bo)

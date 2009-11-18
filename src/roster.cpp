@@ -21,20 +21,9 @@
 #include <QTextCodec>
 #include <QDateTime>
 
-struct SSIItem
-{
-public:
-	SSIItem(const SNAC &snac);
-	~SSIItem(){}
-	QString toString();
-	QString record_name;
-	quint16 group_id;
-	quint16 item_id;
-	quint16 item_type;
-	TLVMap tlvs;
-};
+using namespace Util;
 
-SSIItem::SSIItem(const SNAC &snac)
+Roster::SSIItem::SSIItem(const SNAC &snac)
 {
 	record_name = snac.readString<quint16>();
 	group_id = snac.readSimple<quint16>();
@@ -43,7 +32,7 @@ SSIItem::SSIItem(const SNAC &snac)
 	tlvs = DataUnit(snac.readData<quint16>()).readTLVChain();
 }
 
-QString SSIItem::toString()
+QString Roster::SSIItem::toString() const
 {
 	QString buf;
 	QTextStream out(&buf, QIODevice::WriteOnly);
@@ -69,6 +58,9 @@ Roster::Roster(IcqAccount *account)
 	m_infos << SNACInfo(ListsFamily, ListsError)
 			<< SNACInfo(ListsFamily, ListsList)
 			<< SNACInfo(ListsFamily, ListsUpdateGroup)
+			<< SNACInfo(ListsFamily, ListsAddToList)
+			<< SNACInfo(ListsFamily, ListsRemoveFromList)
+			<< SNACInfo(ListsFamily, ListsAck)
 			<< SNACInfo(ListsFamily, ListsCliModifyStart)
 			<< SNACInfo(ListsFamily, ListsCliModifyEnd)
 			<< SNACInfo(ListsFamily, ListsAuthRequest)
@@ -98,7 +90,18 @@ void Roster::handleSNAC(OscarConnection *conn, const SNAC &sn)
 			break;
 		// Server sends contact list updates
 		case ListsFamily << 16 | ListsUpdateGroup:
-			handleCListUpdates(conn, sn);
+		// Server sends new items
+		case ListsFamily << 16 | ListsAddToList:
+		// Items was removed
+		case ListsFamily << 16 | ListsRemoveFromList:
+			while(sn.dataSize() != 0)
+			{
+				SSIItem item(sn);
+				handleSSIItem(item, (ModifingType)sn.subtype());
+			}
+			break;
+		case ListsFamily << 16 | ListsAck:
+			handleSSIServerAck(conn, sn);
 			break;
 		case ListsFamily << 16 | ListsCliModifyStart:
 			qDebug() << IMPLEMENT_ME << "ListsCliModifyStart";
@@ -146,7 +149,7 @@ void Roster::sendMessage(OscarConnection *conn, const QString &id, const QString
 	SNAC sn(MessageFamily, MessageSrvSend);
 	sn.appendSimple<qint64>(QDateTime::currentDateTime().toTime_t()); // cookie
 	sn.appendSimple<qint16>(0x0001); // message channel
-	sn.appendData<qint8>(asciiCodec()->fromUnicode(id)); // uid or screenname
+	sn.appendData<qint8>(id); // uid or screenname
 
 	DataUnit msgData;
 	// Charset.
@@ -156,7 +159,7 @@ void Roster::sendMessage(OscarConnection *conn, const QString &id, const QString
 	// 0x0003 - ansi
 	msgData.appendSimple<quint16>(0x0002);
 	// Message.
-	msgData.appendData(utf16Codec()->fromUnicode(message));
+	msgData.appendData(message, utf16Codec());
 
 	DataUnit dataUnit;
 	dataUnit.appendTLV(0x0501, (quint32)0x0106);
@@ -171,10 +174,86 @@ void Roster::sendMessage(OscarConnection *conn, const QString &id, const QString
 void Roster::sendAuthResponse(OscarConnection *conn, const QString &id, const QString &message, bool auth)
 {
 	SNAC snac(ListsFamily, ListsCliAuthResponse);
-	snac.appendData<qint8>(asciiCodec()->fromUnicode(id)); // uin.
+	snac.appendData<qint8>(id); // uin.
 	snac.appendSimple<qint8>(auth ? 0x01 : 0x00); // auth flag.
-	snac.appendData<qint16>(asciiCodec()->fromUnicode(message)); // TODO: which codec should be used?
+	snac.appendData<qint16>(message); // TODO: which codec should be used?
 	conn->send(snac);
+}
+
+void Roster::sendAddGroupRequest(OscarConnection *conn, const QString &name)
+{
+	SSIItem item;
+	item.item_type = SsiGroup;
+	item.record_name = name;
+	item.group_id = generateGroupID();
+	item.tlvs.insert(0x00c8);
+
+	sendCLModifyStart(conn);
+	sendCLOperator(conn, item, ListsAddToList);
+	sendCLModifyEnd(conn);
+}
+
+void Roster::sendRemoveGroupRequest(OscarConnection *conn, quint16 id)
+{
+	SSIItem item;
+	item.item_type = SsiGroup;
+	item.group_id = id;
+
+	sendCLModifyStart(conn);
+	sendCLOperator(conn, item, ListsRemoveFromList);
+	sendCLModifyEnd(conn);
+}
+
+void Roster::sendAddContactRequest(OscarConnection *conn, const QString &contact_id, const QString &contact_name, quint16 group_id)
+{
+	SSIItem item;
+	item.item_type = SsiBuddy;
+	item.record_name = contact_id;
+	item.group_id = group_id;
+	// Generating user_id
+	quint16 id = rand() % 0x03e6;
+	forever
+	{
+		bool found = false;
+		foreach(IcqContact *contact, m_contacts)
+		{
+			if(contact->p->user_id == id)
+			{
+				found = true;
+				break;
+			}
+		}
+		if(found)
+			id = rand() % 0x03e6;
+		else
+			break;
+	}
+	item.item_id = id;
+	item.tlvs.insert(0x0131, asciiCodec()->fromUnicode(contact_name)); // nick
+	item.tlvs.insert(0x0066); // auth flag
+
+	sendCLModifyStart(conn);
+	sendCLOperator(conn, item, ListsAddToList);
+	sendCLModifyEnd(conn);
+}
+
+void Roster::sendRemoveContactRequst(OscarConnection *conn, const QString &contact_id)
+{
+	IcqContact *contact = m_contacts.value(contact_id);
+	if(contact)
+	{
+		SSIItem item;
+		item.item_type = SsiBuddy;
+		item.item_id = contact->p->user_id;
+		item.group_id = contact->p->group_id;
+		item.record_name = contact->id();
+
+		sendCLModifyStart(conn);
+		sendCLOperator(conn, item, ListsRemoveFromList);
+		sendCLModifyEnd(conn);
+	}
+	else
+		qDebug() << Q_FUNC_INFO << QString("The contact (%1) does not exist").arg(contact_id);
 }
 
 void Roster::handleServerCListReply(OscarConnection *conn, const SNAC &sn)
@@ -189,39 +268,7 @@ void Roster::handleServerCListReply(OscarConnection *conn, const SNAC &sn)
 	for(uint i = 0; i < count; i++)
 	{
 		SSIItem item(sn);
-		switch(item.item_type)
-		{
-		case SsiBuddy: {
-			IcqContact *contact = 0;
-			// record name contains uin, while item id contains some random value
-			if(!(contact = m_contacts.value(item.record_name)))
-				m_contacts.insert(item.record_name, contact = new IcqContact(item.record_name, m_account));
-			bool not_auth = false;
-			if(item.tlvs.contains(0x0131))
-				contact->p->name = item.tlvs.value<QString>(0x0131);
-			if(item.tlvs.contains(0x013c))
-				contact->setProperty("comment", item.tlvs.value<QString>(0x013c));
-			if(item.tlvs.contains(0x0066))
-				not_auth = true;
-			contact->p->group_id = item.group_id;
-			qDebug() << contact->id() << contact->name();
-#ifndef TEST
-			ContactList::instance()->addContact(contact);
-#endif //TEST
-			break; }
-		case SsiGroup:
-			if(item.group_id > 0)
-			{
-				// record name contains name of group
-				m_groups.insert(item.group_id, item.record_name);
-			}
-			else
-			{
-			}
-			break;
-		default:
-			qDebug() << QString("Dump of unknown SSI item: %1").arg(item.toString());
-		}
+		handleSSIItem(item, mt_add_modify);
 	}
 	qDebug() << "is_last" << is_last;
 	if(is_last)
@@ -236,27 +283,193 @@ void Roster::handleServerCListReply(OscarConnection *conn, const SNAC &sn)
 	qDebug() << m_groups;
 }
 
-void Roster::handleCListUpdates(OscarConnection *conn, const SNAC &sn)
+void Roster::handleSSIItem(const SSIItem &item, ModifingType type)
 {
+	if(type == mt_remove)
+		handleRemoveCLItem(item);
+	else
+		handleAddModifyCLItem(item, type);
+}
+
+void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
+{
+	Q_ASSERT(type != mt_remove);
+	switch(item.item_type)
+	{
+	case SsiBuddy: {
+		IcqContact *contact = m_contacts. value(item.record_name);
+		// record name contains uin
+		bool is_adding = !contact;
+		if(is_adding && type == mt_modify)
+		{
+			qDebug() << Q_FUNC_INFO << "Contact does not exist" << item.record_name;
+			return;
+		}
+		if(!is_adding && type == mt_add)
+		{
+			qDebug() << Q_FUNC_INFO << "Contact already is in contactlist";
+			return;
+		}
+		if(is_adding)
+		{
+			m_contacts.insert(item.record_name, contact = new IcqContact(item.record_name, m_account));
+			contact->p->group_id = item.group_id;
+			if(item.tlvs.contains(0x0131))
+				contact->p->name = item.tlvs.value<QString>(0x0131);
+			if(item.tlvs.contains(0x013c))
+				contact->setProperty("comment", item.tlvs.value<QString>(0x013c));
+			bool auth = !item.tlvs.contains(0x0066);
+			// TODO: update the auth field in the contact
+#ifndef TEST
+			ContactList::instance()->addContact(contact);
+#endif //TEST
+			qDebug() << "New contact is added" << contact->id() << contact->name();
+		}
+		else
+		{
+			// name
+			QString new_name = item.tlvs.value<QString>(0x0131);
+			if(!new_name.isEmpty() && new_name != contact->p->name)
+			{
+				contact->p->name = new_name;
+				emit contact->nameChanged(new_name);
+			}
+			// comment
+			QString new_comment = item.tlvs.value<QString>(0x013c);
+			if(!new_comment.isEmpty() && new_comment != contact->property("comment").toString())
+			{
+				contact->setProperty("comment", new_comment);
+				// TODO: emit ...
+			}
+			// auth
+			bool new_auth = !item.tlvs.contains(0x0066);
+			// TODO: update contact
+			qDebug() << "The contact is updated" << contact->id() << contact->name();
+		}
+		contact->p->user_id = item.item_id;
+		break; }
+	case SsiGroup:
+		if(item.group_id > 0)
+		{
+			// record name contains name of group
+			QMap<quint16, QString>::iterator itr = m_groups.find(item.group_id);
+			if(itr == m_groups.end())
+			{
+				if(type != mt_modify)
+					m_groups.insert(item.group_id, item.record_name);
+				else
+					qDebug() << Q_FUNC_INFO << "Group does not exist" << item.group_id << item.record_name;
+			}
+			else
+			{
+				if(type != mt_add)
+					itr.value() = item.record_name;
+				else
+					qDebug() << Q_FUNC_INFO << "Group already is in contactlist" << item.group_id << item.record_name;
+			}
+		}
+		else
+		{
+		}
+		break;
+	default:
+		qDebug() << Q_FUNC_INFO << QString("Dump of unknown SSI item: %1").arg(item.toString());
+	}
+}
+
+void Roster::handleRemoveCLItem(const SSIItem &item)
+{
+	switch(item.item_type)
+	{
+	case SsiBuddy: {
+		QHash<QString, IcqContact *>::iterator contact_itr = m_contacts.begin();
+		QHash<QString, IcqContact *>::iterator end_itr = m_contacts.end();
+		while(contact_itr != end_itr)
+		{
+			if(contact_itr.value()->p->user_id == item.item_id)
+				break;
+			++contact_itr;
+		}
+		if(contact_itr == end_itr)
+		{
+			qDebug() << Q_FUNC_INFO << "contact does not exist" << item.item_id << item.record_name;
+			break;
+		}
+		removeContact(*contact_itr);
+		m_contacts.erase(contact_itr);
+		qDebug() << "contact is removed" << item.item_id << item.record_name;
+		break;
+	}
+	case SsiGroup: {
+		QMap<quint16, QString>::iterator group_itr = m_groups.find(item.group_id);
+		if(group_itr == m_groups.end())
+		{
+			qDebug() << Q_FUNC_INFO << "group does not exist" << item.group_id;
+			break;
+		}
+		// Removing all contacts in the group.
+		QHash<QString, IcqContact *>::iterator contact_itr = m_contacts.begin();
+		QHash<QString, IcqContact *>::iterator contact_end_itr = m_contacts.end();
+		while(contact_itr != contact_end_itr)
+		{
+			if(contact_itr.value()->p->group_id == item.group_id)
+			{
+				removeContact(*contact_itr);
+				contact_itr = m_contacts.erase(contact_itr);
+			}
+			else
+				++contact_itr;
+		}
+		// Removing the group.
+		m_groups.erase(group_itr);
+		qDebug() << "group is removed" << item.group_id;
+		break;
+	}
+	default:
+		qDebug() << Q_FUNC_INFO << QString("Dump of unknown SSI item: %1").arg(item.toString());
+	}
+
+}
+
+void Roster::removeContact(IcqContact *contact)
+{
+#ifndef TEST
+	ContactList::instance()->removeContact(contact);
+#endif //TEST
+	delete contact;
+}
+
+void Roster::handleSSIServerAck(OscarConnection *conn, const SNAC &sn)
+{
+	sn.skipData(8); // cookie?
 	while(sn.dataSize() != 0)
 	{
-		SSIItem item(sn);
-		switch(item.item_type)
+		quint16 error = sn.readSimple<quint16>();
+		if(error == 0)
 		{
-		case SsiBuddy: {
-			IcqContact *contact = m_contacts.value(item.record_name);
-			if(!contact)
-				return;
-			/*if(tlvs.contains(0x0131))
-				contact->p->name = tlvs.value<QString>(0x0131);
-			if(tlvs.contains(0x013c))
-				contact->setProperty("comment", tlvs.value<QString>(0x013c));*/
-			bool auth = !item.tlvs.contains(0x0066);
-			qDebug() << IMPLEMENT_ME << "update the contact";
-			break; }
-		default:
-			qDebug() << QString("Dump of unknown SSI item: %1").arg(item.toString());
+			SSIHistoryItem operation = m_ssi_history.dequeue();
+			qDebug() << "The last SSI operation is successfully done" << operation.type
+					<< operation.item.item_type << operation.item.record_name << operation.item.item_id
+					<< operation.item.group_id;
+			handleSSIItem(operation.item, operation.type);
+			break;
 		}
+		QString error_str;
+		if(error ==  0x0002)
+			error_str = "Item you want to modify not found in list";
+		else if(error ==  0x0003)
+			error_str = "Item you want to add allready exists";
+		else if(error ==  0x000a)
+			error_str = "Error adding item (invalid id, allready in list, invalid data)";
+		else if(error ==  0x000c)
+			error_str = "Can't add item. Limit for this type of items exceeded";
+		else if(error ==  0x000d)
+			error_str = "Trying to add ICQ contact to an AIM list";
+		else if(error ==  0x000e)
+			error_str = "Can't add this contact because it requires authorization";
+		else
+			error_str = QString::number(error);
+		qDebug() << "SSI operation error" << error_str;
 	}
 }
 
@@ -541,14 +754,37 @@ void Roster::sendMetaInfoRequest(OscarConnection *conn, quint16 type)
 	conn->send(snac);
 }
 
-QTextCodec *Roster::asciiCodec()
+void Roster::sendCLModifyStart(OscarConnection *conn)
 {
-	static QTextCodec *codec =  QTextCodec::codecForName("cp1251");
-	return codec;
+	SNAC snac(ListsFamily, ListsCliModifyStart);
+	conn->send(snac);
 }
 
-QTextCodec *Roster::utf16Codec()
+void Roster::sendCLModifyEnd(OscarConnection *conn)
 {
-	static QTextCodec *codec = QTextCodec::codecForName("UTF-16BE");
-	return codec;
+	SNAC snac(ListsFamily, ListsCliModifyEnd);
+	conn->send(snac);
+}
+
+void Roster::sendCLOperator(OscarConnection *conn, const SSIItem &item, quint16 operation)
+{
+	m_ssi_history.enqueue(SSIHistoryItem(item, (ModifingType)operation));
+	SNAC snac(ListsFamily, operation);
+	snac.appendData<quint16>(item.record_name);
+	snac.appendSimple<quint16>(item.group_id);
+	snac.appendSimple<quint16>(item.item_id);
+	snac.appendSimple<quint16>(item.item_type);
+	snac.appendSimple<quint16>(item.tlvs.valuesSize());
+	snac.appendData(item.tlvs);
+	conn->send(snac);
+}
+
+quint16 Roster::generateGroupID()
+{
+	QMap<quint16, QString>::iterator itr = m_groups.begin();
+	QMap<quint16, QString>::iterator end_itr = m_groups.end();
+	quint16 id = rand() % 0x03e6;
+	while(m_groups.contains(0x03e6))
+		id = rand() % 0x03e6;
+	return id;
 }

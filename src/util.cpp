@@ -88,4 +88,21 @@ namespace Util
 			return QCoreApplication::translate("ConnectionError", "Connection Error");
 		}
 	}
+
+	extern QTextCodec *asciiCodec()
+	{
+		static QTextCodec *codec =  QTextCodec::codecForName("cp1251");
+		return codec;
+	}
+
+	extern QTextCodec *utf16Codec()
+	{
+		static QTextCodec *codec = QTextCodec::codecForName("UTF-16BE");
+		return codec;
+	}
+
+	extern QTextCodec *defaultCodec()
+	{
+		return asciiCodec();
+	}
 }

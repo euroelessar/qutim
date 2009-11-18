@@ -19,10 +19,12 @@
 #include <icqprotocol.h>
 #include <QSettings>
 #include <QDir>
+#include <QDateTime>
 
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
+	srand(QDateTime::currentDateTime().toTime_t());
 	QSettings settings("testicqlogin.ini", QSettings::IniFormat);	
 	QString uid = settings.value("uid", "").toString(); 
 	if(uid.isEmpty())
