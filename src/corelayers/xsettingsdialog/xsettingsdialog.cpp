@@ -112,7 +112,7 @@ void XSettingsDialog::initAnimation()
 								 );
 	//init transitions
 	m_hide_state->addTransition(this,SIGNAL(showed()),m_show_state);
-	connect(m_show_state,SIGNAL(polished()),SLOT(showState()));
+	connect(m_show_state,SIGNAL(entered()),SLOT(showState()));
 	//start machine
 	m_machine->setInitialState(m_show_state);
 	m_machine->start();

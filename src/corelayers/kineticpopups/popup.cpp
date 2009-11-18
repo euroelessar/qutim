@@ -125,7 +125,6 @@ namespace KineticPopups
 
 		show_state->addTransition(notification_widget,SIGNAL(action1Activated()),hide_state);
 		show_state->addTransition(notification_widget,SIGNAL(action2Activated()),hide_state);
-		hide_state->addTransition(hide_state,SIGNAL(polished()),final_state);
 		show_state->addTransition(this,SIGNAL(updated()),show_state); //Black magic
 
 		if (timeout > 0) {
@@ -138,11 +137,16 @@ namespace KineticPopups
 		machine->addState(final_state);
 		machine->setInitialState (show_state);
 
-		QPropertyAnimation *animation = new QPropertyAnimation ( notification_widget,"geometry" );
 		if (manager->animation) {
+			QPropertyAnimation *animation = new QPropertyAnimation ( notification_widget,"geometry" );			
 			machine->addDefaultAnimation (animation);
 			animation->setDuration ( manager->animationDuration);
 			animation->setEasingCurve (manager->easingCurve);
+			connect(animation,SIGNAL(finished()),hide_state,SIGNAL(exited()));//HACK
+			hide_state->addTransition(hide_state,SIGNAL(exited()),final_state);
+		}
+		else {
+			hide_state->addTransition(hide_state,SIGNAL(entered()),final_state);
 		}
 
 		connect(machine,SIGNAL(finished()),SLOT(deleteLater()));
