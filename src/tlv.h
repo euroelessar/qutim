@@ -2,6 +2,7 @@
  *  tlv.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
