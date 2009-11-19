@@ -136,18 +136,8 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 	public:
 		inline AutoSettingsComboBox() {}
-		QStringList items() const
-		{
-			QStringList ls;
-			for(int i = 0, size = count(); i < size; i++)
-				ls << itemText(i);
-			return ls;
-		}
-		void setItems(const QStringList &ls)
-		{
-			clear();
-			addItems(ls);
-		}
+		QStringList items() const;
+		void setItems(const QStringList &ls);
 	};
 
 	typedef QList<SettingsItem *> SettingsItemList;

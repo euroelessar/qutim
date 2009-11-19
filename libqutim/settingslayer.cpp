@@ -197,6 +197,20 @@ namespace qutim_sdk_0_3
 		return p->gen;
 	}
 
+	QStringList AutoSettingsComboBox::items() const
+	{
+		QStringList ls;
+		for(int i = 0, size = count(); i < size; i++)
+			ls << itemText(i);
+		return ls;
+	}
+
+	void AutoSettingsComboBox::setItems(const QStringList &ls)
+	{
+		clear();
+		addItems(ls);
+	}
+
 	SettingsLayer::SettingsLayer()
 	{
 	}

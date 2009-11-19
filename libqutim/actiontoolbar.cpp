@@ -77,6 +77,8 @@ namespace qutim_sdk_0_3
 		QString text;
 		QPointer<QObject> receiver;
 		const char *member;
+		QList<QByteArray> names;
+		QList<QVariant>   values;
 	};
 
 	ActionGenerator::ActionGenerator(const QIcon &icon, const QString &text, const QObject *receiver, const char *member)
@@ -103,6 +105,18 @@ namespace qutim_sdk_0_3
 		return p->text;
 	}
 
+	ActionGenerator *ActionGenerator::setProperty(const QByteArray &name, const QVariant &value)
+	{
+		int index = p->names.indexOf(name);
+		if (index != -1) {
+			p->values[index] = value;
+		} else {
+			p->names.append(name);
+			p->values.append(value);
+		}
+		return this;
+	}
+
 	QObject *ActionGenerator::generateHelper() const
 	{
 		if (p->receiver.isNull())
@@ -110,6 +124,8 @@ namespace qutim_sdk_0_3
 		QAction *action = new QAction(p->receiver);
 		action->setIcon(p->icon);
 		action->setText(p->text);
+		for (int i = 0; i < p->names.size(); i++)
+			action->setProperty(p->names.at(i), p->values.at(i));
 		QObject::connect(action, SIGNAL(triggered()), p->receiver, p->member);
 		return action;
 	}
