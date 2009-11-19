@@ -22,6 +22,7 @@ using namespace qutim_sdk_0_3;
 
 struct IcqAccountPrivate;
 class Roster;
+class OscarConnection;
 
 class IcqAccount : public Account
 {
@@ -31,6 +32,7 @@ public:
 	virtual ~IcqAccount();
 	virtual void setStatus(Status status);
 	Roster *roster();
+	OscarConnection *connection();
 	ChatUnit *getUnit(const QString &unitId, bool create);
 private:
 	QScopedPointer<IcqAccountPrivate> p;

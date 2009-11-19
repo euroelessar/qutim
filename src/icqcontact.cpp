@@ -16,6 +16,7 @@
 #include "icqcontact_p.h"
 #include "icqaccount.h"
 #include "roster.h"
+#include "qutim/messagesession.h"
 
 IcqContact::IcqContact(const QString &uin, IcqAccount *account) : Contact(account), p(new IcqContactPrivate)
 {
@@ -27,7 +28,7 @@ IcqContact::IcqContact(const QString &uin, IcqAccount *account) : Contact(accoun
 QSet<QString> IcqContact::tags() const
 {
 	QSet<QString> group;
-	QString group_name = p->group_id == 0xffff ? QString() : p->account->roster()->groupId2Name(p->group_id);
+	QString group_name = p->group_id == not_in_list_group ? QString() : p->account->roster()->groupId2Name(p->group_id);
 	if(!group_name.isNull())
 		group.insert(group_name);
 	return group;
@@ -50,13 +51,14 @@ Status IcqContact::status() const
 
 bool IcqContact::isInList() const
 {
-	return p->group_id == 0xffff;
+	return p->group_id == not_in_list_group;
 }
 
 // TODO: Impl this fucked things)
 
 void IcqContact::sendMessage(const Message &message)
 {
+	p->account->roster()->sendMessage(p->account->connection(), p->uin, message.text());
 }
 
 void IcqContact::setName(const QString &name)

@@ -40,6 +40,11 @@ Roster *IcqAccount::roster()
 	return p->roster;
 }
 
+OscarConnection *IcqAccount::connection()
+{
+	return p->conn;
+}
+
 void IcqAccount::setStatus(Status status)
 {
 	Status current = this->status();
@@ -67,7 +72,7 @@ ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
 	IcqContact *contact = p->roster->contact(unitId);
 	if(create && !contact)
 	{
-		// TODO: Add to Not in list
+		contact = p->roster->sendAddContactRequest(p->conn, unitId, unitId, not_in_list_group);
 	}
 	return contact;
 }

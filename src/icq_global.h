@@ -201,6 +201,7 @@ enum SsiItemType
 
 const quint16 max_message_snac_size = 8000;
 const quint16 client_rate_limit     = 0;
+const quint16 not_in_list_group     = 0xFFF;
 
 enum IcqStatusF
 {

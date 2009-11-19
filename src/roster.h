@@ -34,9 +34,9 @@ public:
 	IcqContact *contact(const QString &uin) { return m_contacts.value(uin); }
 	void sendMessage(OscarConnection *conn, const QString &id, const QString &message);
 	void sendAuthResponse(OscarConnection *conn, const QString &id, const QString &message, bool auth = true);
-	void sendAddGroupRequest(OscarConnection *conn, const QString &name);
+	void sendAddGroupRequest(OscarConnection *conn, const QString &name, quint16 group_id = 0);
 	void sendRemoveGroupRequest(OscarConnection *conn, quint16 id);
-	void sendAddContactRequest(OscarConnection *conn, const QString &contact_id, const QString &contact_name, quint16 group_id);
+	IcqContact *sendAddContactRequest(OscarConnection *conn, const QString &contact_id, const QString &contact_name, quint16 group_id);
 	void sendRemoveContactRequst(OscarConnection *conn, const QString &contact_id);
 private:
 	enum ModifingType {
@@ -91,6 +91,7 @@ private:
 	QMap<quint16, QString> m_groups;
 	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
 	QHash<QString, IcqContact *> m_contacts;
+	QHash<QString, IcqContact *> m_not_in_list;
 	QQueue<SSIHistoryItem> m_ssi_history;
 };
 

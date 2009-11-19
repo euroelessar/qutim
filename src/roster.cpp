@@ -19,6 +19,7 @@
 #include <icqaccount.h>
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
+#include <qutim/messagesession.h>
 #include <QTextCodec>
 #include <QDateTime>
 
@@ -181,12 +182,12 @@ void Roster::sendAuthResponse(OscarConnection *conn, const QString &id, const QS
 	conn->send(snac);
 }
 
-void Roster::sendAddGroupRequest(OscarConnection *conn, const QString &name)
+void Roster::sendAddGroupRequest(OscarConnection *conn, const QString &name, quint16 group_id)
 {
 	SSIItem item;
 	item.item_type = SsiGroup;
 	item.record_name = name;
-	item.group_id = generateGroupID();
+	item.group_id = group_id == 0 ? generateGroupID() : group_id;
 	item.tlvs.insert(0x00c8);
 
 	sendCLModifyStart(conn);
@@ -205,7 +206,7 @@ void Roster::sendRemoveGroupRequest(OscarConnection *conn, quint16 id)
 	sendCLModifyEnd(conn);
 }
 
-void Roster::sendAddContactRequest(OscarConnection *conn, const QString &contact_id, const QString &contact_name, quint16 group_id)
+IcqContact *Roster::sendAddContactRequest(OscarConnection *conn, const QString &contact_id, const QString &contact_name, quint16 group_id)
 {
 	SSIItem item;
 	item.item_type = SsiBuddy;
@@ -236,6 +237,11 @@ void Roster::sendAddContactRequest(OscarConnection *conn, const QString &contact
 	sendCLModifyStart(conn);
 	sendCLOperator(conn, item, ListsAddToList);
 	sendCLModifyEnd(conn);
+
+	IcqContact *contact = new IcqContact(contact_id, m_account);
+	m_not_in_list.insert(contact_id, contact);
+	return contact;
+
 }
 
 void Roster::sendRemoveContactRequst(OscarConnection *conn, const QString &contact_id)
@@ -280,6 +286,8 @@ void Roster::handleServerCListReply(OscarConnection *conn, const SNAC &sn)
 		sendRosterAck(conn);
 		conn->finishLogin();
 		sendOfflineMessagesRequest(conn);
+		if(!m_groups.contains(not_in_list_group))
+			sendAddGroupRequest(conn, tr("Not in list"), not_in_list_group);
 	}
 }
 
@@ -297,7 +305,7 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 	switch(item.item_type)
 	{
 	case SsiBuddy: {
-		IcqContact *contact = m_contacts. value(item.record_name);
+		IcqContact *contact = m_contacts.value(item.record_name);
 		// record name contains uin
 		bool is_adding = !contact;
 		if(is_adding && type == mt_modify)
@@ -312,7 +320,10 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 		}
 		if(is_adding)
 		{
-			m_contacts.insert(item.record_name, contact = new IcqContact(item.record_name, m_account));
+			contact = m_not_in_list.take(item.record_name);
+			if(!contact)
+				contact = new IcqContact(item.record_name, m_account);
+			m_contacts.insert(item.record_name, contact);
 			contact->p->group_id = item.group_id;
 			if(item.tlvs.contains(0x0131))
 				contact->p->name = item.tlvs.value<QString>(0x0131);
@@ -320,9 +331,8 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 				contact->setProperty("comment", item.tlvs.value<QString>(0x013c));
 			bool auth = !item.tlvs.contains(0x0066);
 			// TODO: update the auth field in the contact
-#ifndef TEST
-			ContactList::instance()->addContact(contact);
-#endif //TEST
+			if(ContactList::instance())
+				ContactList::instance()->addContact(contact);
 			qDebug() << "New contact is added" << contact->id() << contact->name();
 		}
 		else
@@ -434,9 +444,8 @@ void Roster::handleRemoveCLItem(const SSIItem &item)
 
 void Roster::removeContact(IcqContact *contact)
 {
-#ifndef TEST
-	ContactList::instance()->removeContact(contact);
-#endif //TEST
+	if(ContactList::instance())
+		ContactList::instance()->removeContact(contact);
 	delete contact;
 }
 
@@ -612,7 +621,17 @@ void Roster::handleMessage(OscarConnection *conn, const SNAC &snac)
 	{
 		if(!time.isValid())
 			time = QDateTime::currentDateTime();
-		qDebug() << "Received message at" << time << message;
+		qDebug() << "Received message at" << uin << time << message;
+		if(ChatLayer::instance())
+		{
+			ChatSession *session = ChatLayer::instance()->getSession(m_account, uin);
+			Message m;
+			m.setIncoming(true);
+			m.setText(message);
+			m.setTime(time);
+			m.setChatUnit(session->getUnit());
+			session->appendMessage(m);
+		}
 #ifdef TEST
 		sendMessage(conn, uin, "Autoresponse: your message is \"" + message + "\"");
 #endif // TEST
