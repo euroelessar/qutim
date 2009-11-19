@@ -21,6 +21,7 @@
 #include <QWebFrame>
 #include <QDebug>
 #include <QTime>
+#include <libqutim/actiontoolbar.h>
 
 namespace AdiumChat
 {
@@ -31,6 +32,8 @@ namespace AdiumChat
 		ui->tabBar->setVisible(false);
 		ui->tabBar->setTabsClosable(true);
 		ui->tabBar->setMovable(true);
+		ui->statusbar->setVisible(false);
+		ui->menubar->setVisible(false);
 		setAttribute(Qt::WA_DeleteOnClose);
 		connect(ui->tabBar,SIGNAL(currentChanged(int)),SLOT(currentIndexChanged(int)));
 		connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
@@ -38,6 +41,10 @@ namespace AdiumChat
 		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
 		ui->chatEdit->installEventFilter(this);
 		ui->chatEdit->setFocusPolicy(Qt::StrongFocus);
+		//init toolbars
+		m_main_toolbar = new ActionToolBar(tr("Main actions"),this);
+		ui->actionsLayout->addWidget(m_main_toolbar);
+		//addToolBar(Qt::BottomToolBarArea,m_main_toolbar);
 	}
 
 	ChatWidget::~ChatWidget()
@@ -70,8 +77,9 @@ namespace AdiumChat
 			return;
 		ui->chatView->setPage(m_sessions.at(index)->getPage());
 		setWindowTitle(tr("Chat with %1").arg(m_sessions.at(index)->getUnit()->title()));
-		if (QAbstractItemModel *model = m_sessions.at(index)->getItemsModel())
-			ui->membersView->setModel(model);
+		//m_main_toolbar->setData(m_sessions.at(index)->getUnit());
+// 		if (QAbstractItemModel *model = m_sessions.at(index)->getItemsModel())
+// 			ui->membersView->setModel(model);
 	}
 
 	void ChatWidget::clear()

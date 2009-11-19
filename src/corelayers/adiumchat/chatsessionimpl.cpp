@@ -89,11 +89,11 @@ namespace AdiumChat
 		if (!tmp_message.chatUnit())
 		{
 			//TODO create fake chat unit for unknown messages
+			qWarning() << tr("Message %1 must have a ChatUnit").arg(tmp_message.text());
 			tmp_message.setChatUnit(getUnit());
 		}
 		bool same_from = false;
 		bool isHistory = tmp_message.property("history", false);
-		qDebug() << isHistory << tmp_message.property("silent", false);
 		if (isHistory)
 		{
 			m_previous_sender="";

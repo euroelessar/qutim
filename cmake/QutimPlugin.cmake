@@ -21,7 +21,7 @@ endmacro ( LANGUAGE_UPDATE plugin_name language sources )
 macro ( FIND_QUTIM_03 src_dir )
     if ( NOT FOUND_QUTIM_03 )
         find_path( QUTIM_INCLUDE_DIRS NAMES "qutim/plugin.h" PATHS "../../" "../" "${src_dir}/../../" "${src_dir}/../" )
-	find_library( QUTIM_LIBRARY qutim )
+	find_library( QUTIM_LIBRARY qutim PATHS ${QUTIM_LIBRARY_DIR} )
         if ( QUTIM_INCLUDE_DIRS AND QUTIM_LIBRARY )
             message ( "Found qutim: ${QUTIM_LIBRARY}" )
             # This is very very nasty hack:

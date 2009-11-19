@@ -18,6 +18,11 @@
 
 #include <QWidget>
 #include "chatlayerimpl.h"
+#include <QMainWindow>
+
+namespace qutim_sdk_0_3 {
+	class ActionToolBar;
+}
 
 namespace Ui
 {
@@ -31,7 +36,7 @@ namespace AdiumChat
 		AeroThemeIntegeation	=	0x2,
 	};
 	class ChatSessionImpl;
-	class ChatWidget : public QWidget
+	class ChatWidget : public QMainWindow
 	{
 		Q_OBJECT
 	public:
@@ -51,6 +56,7 @@ namespace AdiumChat
 		ChatSessionList m_sessions;
 		Ui::AdiumChatForm *ui;
 		ChatFlag m_chat_flags;
+		ActionToolBar *m_main_toolbar;
 	private slots:
 		void currentIndexChanged (int index);
 		void onCloseRequested(int index);
