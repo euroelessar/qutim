@@ -24,24 +24,27 @@
 
 namespace KineticPopups
 {
-	PopupWidget::PopupWidget (const ThemeHelper::PopupSettings &popupSettings)
+	PopupWidget::PopupWidget (const ThemeHelper::PopupSettings &popupSettings,PopupWidgetFlags flags)
 	{
-		popup_settings = popupSettings;
 		//init browser
-		this->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
-		this->setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
-		this->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
-		this->setFrameShape ( QFrame::NoFrame );
-		this->setWindowFlags(popup_settings.widgetFlags);
-		//this->resize(NotificationsManager::self()->defaultSize);
+		setTheme(popupSettings);
+		if (flags & Preview) {
+			setBackgroundRole(QPalette::Light);
+		}
+		else {
+			setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+			setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
+			setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
+			setFrameShape ( QFrame::NoFrame );
+			setWindowFlags(popup_settings.widgetFlags);
+			//this->resize(NotificationsManager::self()->defaultSize);
 
-		//init transparent
-		this->setAttribute(Qt::WA_TranslucentBackground);
-		this->setAttribute(Qt::WA_NoSystemBackground, false);
-		this->ensurePolished(); // workaround Oxygen filling the background
-		this->setAttribute(Qt::WA_StyledBackground, false);
-
-		this->setStyleSheet(popup_settings.styleSheet);
+			//init transparent
+			setAttribute(Qt::WA_TranslucentBackground);
+			setAttribute(Qt::WA_NoSystemBackground, false);
+			ensurePolished(); // workaround Oxygen filling the background
+			setAttribute(Qt::WA_StyledBackground, false);
+		}
 	}
 
 

@@ -26,7 +26,7 @@ class AppearanceSettings;
 
 namespace KineticPopups
 {
-
+	class PopupWidget;
 	class PopupAppearance : public SettingsWidget
 	{
 	Q_OBJECT
@@ -44,6 +44,7 @@ namespace KineticPopups
 		void preview();
 		QString m_current_theme;
 		Ui::AppearanceSettings *ui;
+		PopupWidget *m_popup_widget;
 	};
 
 }

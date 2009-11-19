@@ -32,6 +32,9 @@ namespace KineticPopups
 		ui->setupUi(this);
 		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onTestButtonClicked(bool)));
 		setProperty("id",tr("Preview"));
+		m_popup_widget = new PopupWidget(Manager::self()->popupSettings,Preview);
+		m_popup_widget->setData(tr("Preview"),tr("Simple messagebox"), QLatin1String(":/icons/qutim_64"));
+		ui->previewLayout->addWidget(m_popup_widget);
 		// 	QList<KineticPopupThemeHelper::PopupAppearance> theme_list = KineticPopupThemeHelper::getThemes();
 		// 	QGridLayout *layout = new QGridLayout(this);
 		// 	foreach (KineticPopupThemeHelper::PopupAppearance theme, theme_list)
@@ -89,7 +92,9 @@ namespace KineticPopups
 
 	void PopupAppearance::onCurrentIndexChanged(int index)
 	{
-		//m_current_theme = ui->comboBox->itemData(index).toString();
+		m_current_theme = ui->comboBox->itemData(index).toString();
+		QString theme_path = getThemePath(m_current_theme,"kineticpopups");
+		m_popup_widget->setTheme(ThemeHelper::loadThemeSetting(theme_path));
 		emit modifiedChanged(true);
 	}
 

@@ -30,7 +30,7 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 		Q_PROPERTY(bool active READ isActive WRITE setActive NOTIFY activated)
 	public:
-		ChatUnit *getUnit() const;
+		virtual ChatUnit *getUnit() const = 0;
 	public slots:
 		virtual void addContact(Contact *c) = 0;
 		virtual void removeContact(Contact *c) = 0;
