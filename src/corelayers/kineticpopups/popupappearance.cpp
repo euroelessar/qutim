@@ -33,8 +33,7 @@ namespace KineticPopups
 		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onTestButtonClicked(bool)));
 		setProperty("id",tr("Preview"));
 		m_popup_widget = new PopupWidget(Manager::self()->popupSettings,Preview);
-		m_popup_widget->setData(tr("Preview"),tr("Simple messagebox"), QLatin1String(":/icons/qutim_64"));
-		ui->previewLayout->addWidget(m_popup_widget);
+		layout()->addWidget(m_popup_widget);
 		// 	QList<KineticPopupThemeHelper::PopupAppearance> theme_list = KineticPopupThemeHelper::getThemes();
 		// 	QGridLayout *layout = new QGridLayout(this);
 		// 	foreach (KineticPopupThemeHelper::PopupAppearance theme, theme_list)
@@ -66,7 +65,7 @@ namespace KineticPopups
 	void PopupAppearance::saveImpl()
 	{
 		ConfigGroup general = Config("appearance/kineticpopups").group("general");
-		general.setValue("themeName",ui->comboBox->itemData(ui->comboBox->currentIndex()));
+		general.setValue("themeName",m_current_theme);
 		general.sync();
 	}
 
@@ -88,14 +87,14 @@ namespace KineticPopups
 				index = ui->comboBox->count() - 1;
 		}
 		ui->comboBox->setCurrentIndex(index == -1 ? 0 : index);
+		onCurrentIndexChanged(ui->comboBox->currentIndex());
 	}
 
 	void PopupAppearance::onCurrentIndexChanged(int index)
 	{
 		m_current_theme = ui->comboBox->itemData(index).toString();
-		QString theme_path = getThemePath(m_current_theme,"kineticpopups");
-		m_popup_widget->setTheme(ThemeHelper::loadThemeSetting(theme_path));
 		emit modifiedChanged(true);
+		preview();
 	}
 
 	void PopupAppearance::onTestButtonClicked(bool )
@@ -105,6 +104,13 @@ namespace KineticPopups
 		Notifications::sendNotification(qutim_sdk_0_3::Notifications::MessageGet,this,tr("Simple message"));
 		Notifications::sendNotification(qutim_sdk_0_3::Notifications::MessageGet,this,tr("Another message"));
 		Manager::self()->loadTheme(m_current_theme);
+	}
+
+	void PopupAppearance::preview()
+	{
+		QString theme_path = getThemePath(m_current_theme,"kineticpopups");
+		m_popup_widget->setTheme(ThemeHelper::loadThemeSetting(theme_path));
+		m_popup_widget->setData(tr("Preview"),tr("Simple messagebox"), QLatin1String(":/icons/qutim_64"));
 	}
 
 }

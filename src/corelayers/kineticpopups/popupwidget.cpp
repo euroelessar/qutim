@@ -29,13 +29,9 @@ namespace KineticPopups
 		//init browser
 		setTheme(popupSettings);
 		if (flags & Preview) {
-			setBackgroundRole(QPalette::Light);
+			setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 		}
 		else {
-			setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
-			setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
-			setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
-			setFrameShape ( QFrame::NoFrame );
 			setWindowFlags(popup_settings.widgetFlags);
 			//this->resize(NotificationsManager::self()->defaultSize);
 
@@ -45,6 +41,10 @@ namespace KineticPopups
 			ensurePolished(); // workaround Oxygen filling the background
 			setAttribute(Qt::WA_StyledBackground, false);
 		}
+		setFrameShape ( QFrame::NoFrame );
+		setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+		setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
+		setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
 	}
 
 
@@ -57,7 +57,7 @@ namespace KineticPopups
 		this->document()->setHtml(data);
 		this->document()->setTextWidth(popup_settings.defaultSize.width());
 		int width = popup_settings.defaultSize.width();
-		int height = this->document()->size().height();
+		int height = document()->size().height();
 
 		return QSize(width,height);
 
