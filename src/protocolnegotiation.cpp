@@ -57,7 +57,7 @@ void ProtocolNegotiation::handleSNAC(OscarConnection *conn, const SNAC &sn)
 		Q_UNUSED(sn.readData<quint8>());
 		sn.skipData(4);
 		// Login
-		qDebug() << (m_login_reqinfo == sn.id());
+		//qDebug() << (m_login_reqinfo == sn.id());
 		if(m_login_reqinfo == sn.id())
 		{
 			// TLV(x01) User type?
@@ -73,7 +73,7 @@ void ProtocolNegotiation::handleSNAC(OscarConnection *conn, const SNAC &sn)
 			TLVMap tlvs = sn.readTLVChain();
 			quint32 ip = tlvs.value(0x0a).value<quint32>();
 			conn->setExternalIP(QHostAddress(ip));
-			qDebug() << conn->externalIP();
+			//qDebug() << conn->externalIP();
 		}
 		// Else
 		else

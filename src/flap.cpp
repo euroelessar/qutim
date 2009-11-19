@@ -46,7 +46,7 @@ bool FLAP::readData(QIODevice *dev)
 	if(m_state == ReadHeader)
 	{
 		QByteArray data = dev->read(6);
-		qDebug("%s", data.toHex().constData());
+		//qDebug("%s", data.toHex().constData());
 		const uchar *s = (uchar *)data.constData();
 		if(*(s++) != 0x2a)
 			return false;

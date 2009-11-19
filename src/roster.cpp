@@ -275,13 +275,12 @@ void Roster::handleServerCListReply(OscarConnection *conn, const SNAC &sn)
 	if(is_last)
 	{
 		quint32 last_info_update = sn.readSimple<quint32>();
-		qDebug() << last_info_update;
+		qDebug() << "SrvLastUpdate" << last_info_update;
 		conn->setProperty("SrvLastUpdate", last_info_update);
 		sendRosterAck(conn);
 		conn->finishLogin();
 		sendOfflineMessagesRequest(conn);
 	}
-	qDebug() << m_groups;
 }
 
 void Roster::handleSSIItem(const SSIItem &item, ModifingType type)
@@ -368,6 +367,7 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 				else
 					qDebug() << Q_FUNC_INFO << "Group already is in contactlist" << item.group_id << item.record_name;
 			}
+			qDebug() << "New group is added" << item.group_id << item.record_name;
 		}
 		else
 		{
@@ -533,7 +533,6 @@ void Roster::handleMessage(OscarConnection *conn, const SNAC &snac)
 	TLVMap tlvs = snac.readTLVChain();
 	QString message;
 	QDateTime time;
-	qDebug() << "channel" << channel << uin << tlvs.keys();
 	switch(channel)
 	{
 	case 0x0001: // message

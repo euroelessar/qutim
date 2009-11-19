@@ -62,7 +62,7 @@ OscarConnection::OscarConnection(IcqAccount *parent) : QObject(parent)
 void OscarConnection::send(FLAP &flap)
 {
 	flap.setSeqNum(seqNum());
-	qDebug("%s", flap.toByteArray().toHex().constData());
+	//qDebug("FLAP: %s", flap.toByteArray().toHex().constData());
 	m_socket->write(flap.header());
 	m_socket->write(flap.data());
 	m_socket->flush();
@@ -70,6 +70,7 @@ void OscarConnection::send(FLAP &flap)
 
 quint32 OscarConnection::send(SNAC &snac)
 {
+	qDebug("Sending SNAC: 0x%x 0x%x", (int)snac.family(), (int)snac.subtype());
 	FLAP flap(0x02);
 	quint32 id = nextId();
 	snac.setId(id);
@@ -148,7 +149,7 @@ void OscarConnection::md5Login()
 
 void OscarConnection::processNewConnection()
 {
-	qDebug("0x0%d %d %s", (int)m_flap.channel(), (int)m_flap.seqNum(), m_flap.data().toHex().constData());
+	qDebug("processNewConnection: 0x0%d %d %s", (int)m_flap.channel(), (int)m_flap.seqNum(), m_flap.data().toHex().constData());
 
 	if(m_state == LoginServer)
 	{
@@ -181,7 +182,7 @@ void OscarConnection::processNewConnection()
 void OscarConnection::processSnac()
 {
 	SNAC snac = SNAC::fromByteArray(m_flap.data());
-	qDebug("SNAC: 0x%x 0x%x 0x%x", (int)snac.family(), (int)snac.subtype(), (int)snac.id());
+	qDebug("Receiving SNAC: 0x%x 0x%x", (int)snac.family(), (int)snac.subtype());
 	bool found = false;
 	foreach(SNACHandler *handler, m_handlers.values((snac.family() << 16)| snac.subtype()))
 	{
@@ -195,7 +196,7 @@ void OscarConnection::processSnac()
 
 void OscarConnection::processCloseConnection()
 {
-	qDebug("0x0%d %d %s", (int)m_flap.channel(), (int)m_flap.seqNum(), m_flap.data().toHex().constData());
+	qDebug("processCloseConnection: 0x0%d %d %s", (int)m_flap.channel(), (int)m_flap.seqNum(), m_flap.data().toHex().constData());
 	FLAP flap(0x04);
 	flap.appendSimple<quint32>(0x00000001);
 	send(flap);
