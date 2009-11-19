@@ -72,7 +72,7 @@ ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
 	IcqContact *contact = p->roster->contact(unitId);
 	if(create && !contact)
 	{
-		contact = p->roster->sendAddContactRequest(p->conn, unitId, unitId, not_in_list_group);
+		contact = p->roster->sendAddContactRequest(unitId, unitId, not_in_list_group);
 	}
 	return contact;
 }

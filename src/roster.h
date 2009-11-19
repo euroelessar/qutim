@@ -32,12 +32,12 @@ public:
 	virtual void handleSNAC(OscarConnection *conn, const SNAC &snac);
 	inline QString groupId2Name(quint16 id) { return m_groups.value(id); }
 	IcqContact *contact(const QString &uin) { return m_contacts.value(uin); }
-	void sendMessage(OscarConnection *conn, const QString &id, const QString &message);
-	void sendAuthResponse(OscarConnection *conn, const QString &id, const QString &message, bool auth = true);
-	void sendAddGroupRequest(OscarConnection *conn, const QString &name, quint16 group_id = 0);
-	void sendRemoveGroupRequest(OscarConnection *conn, quint16 id);
-	IcqContact *sendAddContactRequest(OscarConnection *conn, const QString &contact_id, const QString &contact_name, quint16 group_id);
-	void sendRemoveContactRequst(OscarConnection *conn, const QString &contact_id);
+	void sendMessage(const QString &id, const QString &message);
+	void sendAuthResponse(const QString &id, const QString &message, bool auth = true);
+	void sendAddGroupRequest(const QString &name, quint16 group_id = 0);
+	void sendRemoveGroupRequest(quint16 id);
+	IcqContact *sendAddContactRequest(const QString &contact_id, const QString &contact_name, quint16 group_id);
+	void sendRemoveContactRequst(const QString &contact_id);
 private:
 	enum ModifingType {
 		mt_add = ListsAddToList,
@@ -69,25 +69,26 @@ private:
 		ModifingType type;
 	};
 	enum State { ReceivingRoster, RosterReceived } m_state;
-	void handleServerCListReply(OscarConnection *conn, const SNAC &snac);
+	void handleServerCListReply(const SNAC &snac);
 	void handleSSIItem(const SSIItem &item, ModifingType type);
 	void handleAddModifyCLItem(const SSIItem &item, ModifingType type);
 	void handleRemoveCLItem(const SSIItem &item);
 	void removeContact(IcqContact *contact);
-	void handleSSIServerAck(OscarConnection *conn, const SNAC &sn);
-	void handleUserOnline(OscarConnection *conn, const SNAC &snac);
-	void handleUserOffline(OscarConnection *conn, const SNAC &snac);
-	void handleMessage(OscarConnection *conn, const SNAC &snac);
-	void handleError(OscarConnection *conn, const SNAC &snac);
-	void handleMetaInfo(OscarConnection *conn, const SNAC &snac);
-	void sendRosterAck(OscarConnection *conn);
-	void sendOfflineMessagesRequest(OscarConnection *conn) { sendMetaInfoRequest(conn, 0x003C); }
-	void sendMetaInfoRequest(OscarConnection *conn, quint16 type);
-	void sendCLModifyStart(OscarConnection *conn);
-	void sendCLModifyEnd(OscarConnection *conn);
-	void sendCLOperator(OscarConnection *conn, const SSIItem &item, quint16 operation);
+	void handleSSIServerAck(const SNAC &sn);
+	void handleUserOnline(const SNAC &snac);
+	void handleUserOffline(const SNAC &snac);
+	void handleMessage(const SNAC &snac);
+	void handleError(const SNAC &snac);
+	void handleMetaInfo(const SNAC &snac);
+	void sendRosterAck();
+	void sendOfflineMessagesRequest() { sendMetaInfoRequest(0x003C); }
+	void sendMetaInfoRequest(quint16 type);
+	void sendCLModifyStart();
+	void sendCLModifyEnd();
+	void sendCLOperator(const SSIItem &item, quint16 operation);
 	quint16 generateGroupID();
 	IcqAccount *m_account;
+	OscarConnection *m_conn;
 	QMap<quint16, QString> m_groups;
 	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
 	QHash<QString, IcqContact *> m_contacts;

@@ -57,6 +57,7 @@ QString Roster::SSIItem::toString() const
 Roster::Roster(IcqAccount *account)
 {
 	m_account = account;
+	m_conn = account->connection();
 	m_infos << SNACInfo(ListsFamily, ListsError)
 			<< SNACInfo(ListsFamily, ListsList)
 			<< SNACInfo(ListsFamily, ListsUpdateGroup)
@@ -82,13 +83,14 @@ Roster::Roster(IcqAccount *account)
 	}
 }
 
-void Roster::handleSNAC(OscarConnection *conn, const SNAC &sn)
+void Roster::handleSNAC(OscarConnection *c, const SNAC &sn)
 {
+	Q_ASSERT(c == m_conn);
 	switch((sn.family() << 16) | sn.subtype())
 	{
 		// Server sends contactlist
 		case ListsFamily << 16 | ListsList:
-			handleServerCListReply(conn, sn);
+			handleServerCListReply(sn);
 			break;
 		// Server sends contact list updates
 		case ListsFamily << 16 | ListsUpdateGroup:
@@ -103,7 +105,7 @@ void Roster::handleSNAC(OscarConnection *conn, const SNAC &sn)
 			}
 			break;
 		case ListsFamily << 16 | ListsAck:
-			handleSSIServerAck(conn, sn);
+			handleSSIServerAck(sn);
 			break;
 		case ListsFamily << 16 | ListsCliModifyStart:
 			qDebug() << IMPLEMENT_ME << "ListsCliModifyStart";
@@ -119,13 +121,13 @@ void Roster::handleSNAC(OscarConnection *conn, const SNAC &sn)
 			break;
 		}
 		case BuddyFamily << 16 | UserOnline:
-			handleUserOnline(conn, sn);
+			handleUserOnline(sn);
 			break;
 		case BuddyFamily << 16 | UserOffline:
-			handleUserOffline(conn, sn);
+			handleUserOffline(sn);
 			break;
 		case MessageFamily << 16 | MessageSrvRecv:
-			handleMessage(conn, sn);
+			handleMessage(sn);
 			break;
 		case MessageFamily << 16 | MessageSrvAck: {
 			sn.skipData(8); // skip cookie.
@@ -138,15 +140,15 @@ void Roster::handleSNAC(OscarConnection *conn, const SNAC &sn)
 		case ListsFamily << 16 | ListsError:
 		case MessageFamily << 16 | MessageSrvError:
 		case ExtensionsFamily << 16 | ExtensionsMetaError:
-			handleError(conn, sn);
+			handleError(sn);
 			break;
 		case ExtensionsFamily << 16 | ExtensionsMetaSrvReply:
-			handleMetaInfo(conn, sn);
+			handleMetaInfo(sn);
 			break;
 	}
 }
 
-void Roster::sendMessage(OscarConnection *conn, const QString &id, const QString &message)
+void Roster::sendMessage(const QString &id, const QString &message)
 {
 	SNAC sn(MessageFamily, MessageSrvSend);
 	sn.appendSimple<qint64>(QDateTime::currentDateTime().toTime_t()); // cookie
@@ -170,19 +172,19 @@ void Roster::sendMessage(OscarConnection *conn, const QString &id, const QString
 	sn.appendTLV(0x0002, dataUnit);
 	// empty TLV(6) store message if recipient offline.
 	sn.appendTLV(0x0006);
-	conn->send(sn);
+	m_conn->send(sn);
 }
 
-void Roster::sendAuthResponse(OscarConnection *conn, const QString &id, const QString &message, bool auth)
+void Roster::sendAuthResponse(const QString &id, const QString &message, bool auth)
 {
 	SNAC snac(ListsFamily, ListsCliAuthResponse);
 	snac.appendData<qint8>(id); // uin.
 	snac.appendSimple<qint8>(auth ? 0x01 : 0x00); // auth flag.
 	snac.appendData<qint16>(message); // TODO: which codec should be used?
-	conn->send(snac);
+	m_conn->send(snac);
 }
 
-void Roster::sendAddGroupRequest(OscarConnection *conn, const QString &name, quint16 group_id)
+void Roster::sendAddGroupRequest(const QString &name, quint16 group_id)
 {
 	SSIItem item;
 	item.item_type = SsiGroup;
@@ -190,23 +192,23 @@ void Roster::sendAddGroupRequest(OscarConnection *conn, const QString &name, qui
 	item.group_id = group_id == 0 ? generateGroupID() : group_id;
 	item.tlvs.insert(0x00c8);
 
-	sendCLModifyStart(conn);
-	sendCLOperator(conn, item, ListsAddToList);
-	sendCLModifyEnd(conn);
+	sendCLModifyStart();
+	sendCLOperator(item, ListsAddToList);
+	sendCLModifyEnd();
 }
 
-void Roster::sendRemoveGroupRequest(OscarConnection *conn, quint16 id)
+void Roster::sendRemoveGroupRequest(quint16 id)
 {
 	SSIItem item;
 	item.item_type = SsiGroup;
 	item.group_id = id;
 
-	sendCLModifyStart(conn);
-	sendCLOperator(conn, item, ListsRemoveFromList);
-	sendCLModifyEnd(conn);
+	sendCLModifyStart();
+	sendCLOperator(item, ListsRemoveFromList);
+	sendCLModifyEnd();
 }
 
-IcqContact *Roster::sendAddContactRequest(OscarConnection *conn, const QString &contact_id, const QString &contact_name, quint16 group_id)
+IcqContact *Roster::sendAddContactRequest(const QString &contact_id, const QString &contact_name, quint16 group_id)
 {
 	SSIItem item;
 	item.item_type = SsiBuddy;
@@ -234,9 +236,9 @@ IcqContact *Roster::sendAddContactRequest(OscarConnection *conn, const QString &
 	item.tlvs.insert(0x0131, asciiCodec()->fromUnicode(contact_name)); // nick
 	item.tlvs.insert(0x0066); // auth flag
 
-	sendCLModifyStart(conn);
-	sendCLOperator(conn, item, ListsAddToList);
-	sendCLModifyEnd(conn);
+	sendCLModifyStart();
+	sendCLOperator(item, ListsAddToList);
+	sendCLModifyEnd();
 
 	IcqContact *contact = new IcqContact(contact_id, m_account);
 	m_not_in_list.insert(contact_id, contact);
@@ -244,7 +246,7 @@ IcqContact *Roster::sendAddContactRequest(OscarConnection *conn, const QString &
 
 }
 
-void Roster::sendRemoveContactRequst(OscarConnection *conn, const QString &contact_id)
+void Roster::sendRemoveContactRequst(const QString &contact_id)
 {
 	IcqContact *contact = m_contacts.value(contact_id);
 	if(contact)
@@ -255,17 +257,16 @@ void Roster::sendRemoveContactRequst(OscarConnection *conn, const QString &conta
 		item.group_id = contact->p->group_id;
 		item.record_name = contact->id();
 
-		sendCLModifyStart(conn);
-		sendCLOperator(conn, item, ListsRemoveFromList);
-		sendCLModifyEnd(conn);
+		sendCLModifyStart();
+		sendCLOperator(item, ListsRemoveFromList);
+		sendCLModifyEnd();
 	}
 	else
 		qDebug() << Q_FUNC_INFO << QString("The contact (%1) does not exist").arg(contact_id);
 }
 
-void Roster::handleServerCListReply(OscarConnection *conn, const SNAC &sn)
+void Roster::handleServerCListReply(const SNAC &sn)
 {
-	Q_UNUSED(conn);
 	if(!(sn.flags() & 0x0001))
 		m_state = RosterReceived;
 	quint8 version = sn.readSimple<quint8>();
@@ -282,12 +283,12 @@ void Roster::handleServerCListReply(OscarConnection *conn, const SNAC &sn)
 	{
 		quint32 last_info_update = sn.readSimple<quint32>();
 		qDebug() << "SrvLastUpdate" << last_info_update;
-		conn->setProperty("SrvLastUpdate", last_info_update);
-		sendRosterAck(conn);
-		conn->finishLogin();
-		sendOfflineMessagesRequest(conn);
+		m_conn->setProperty("SrvLastUpdate", last_info_update);
+		sendRosterAck();
+		m_conn->finishLogin();
+		sendOfflineMessagesRequest();
 		if(!m_groups.contains(not_in_list_group))
-			sendAddGroupRequest(conn, tr("Not in list"), not_in_list_group);
+			sendAddGroupRequest(tr("Not in list"), not_in_list_group);
 	}
 }
 
@@ -449,7 +450,7 @@ void Roster::removeContact(IcqContact *contact)
 	delete contact;
 }
 
-void Roster::handleSSIServerAck(OscarConnection *conn, const SNAC &sn)
+void Roster::handleSSIServerAck(const SNAC &sn)
 {
 	sn.skipData(8); // cookie?
 	while(sn.dataSize() != 0)
@@ -483,7 +484,7 @@ void Roster::handleSSIServerAck(OscarConnection *conn, const SNAC &sn)
 	}
 }
 
-void Roster::handleUserOnline(OscarConnection *, const SNAC &snac)
+void Roster::handleUserOnline(const SNAC &snac)
 {
 	QString uin = snac.readData<quint8>();
 	IcqContact *contact = m_contacts.value(uin, 0);
@@ -518,7 +519,7 @@ void Roster::handleUserOnline(OscarConnection *, const SNAC &snac)
 //	bool status_present = tlv06.type() == 0x0006;
 }
 
-void Roster::handleUserOffline(OscarConnection *, const SNAC &snac)
+void Roster::handleUserOffline(const SNAC &snac)
 {
 	QString uin = snac.readString<quint8>();
 	IcqContact *contact = m_contacts.value(uin, 0);
@@ -532,7 +533,7 @@ void Roster::handleUserOffline(OscarConnection *, const SNAC &snac)
 //	tlvs.value(0x0001); // User class
 }
 
-void Roster::handleMessage(OscarConnection *conn, const SNAC &snac)
+void Roster::handleMessage(const SNAC &snac)
 {
 	quint64 cookie = snac.readSimple<quint64>();
 	quint16 channel = snac.readSimple<quint16>();
@@ -633,12 +634,12 @@ void Roster::handleMessage(OscarConnection *conn, const SNAC &snac)
 			session->appendMessage(m);
 		}
 #ifdef TEST
-		sendMessage(conn, uin, "Autoresponse: your message is \"" + message + "\"");
+		sendMessage(uin, "Autoresponse: your message is \"" + message + "\"");
 #endif // TEST
 	}
 }
 
-void Roster::handleError(OscarConnection *conn, const SNAC &snac)
+void Roster::handleError(const SNAC &snac)
 {
 	qint16 errorCode = snac.readSimple<qint16>();
 	qint16 subcode = 0;
@@ -730,7 +731,7 @@ void Roster::handleError(OscarConnection *conn, const SNAC &snac)
 			arg(errorCode, 2, 16).arg(subcode, 2, 16).arg(error);
 }
 
-void Roster::handleMetaInfo(OscarConnection *conn, const SNAC &snac)
+void Roster::handleMetaInfo(const SNAC &snac)
 {
 	TLVMap tlvs = snac.readTLVChain();
 	if(tlvs.contains(0x01))
@@ -746,7 +747,7 @@ void Roster::handleMetaInfo(OscarConnection *conn, const SNAC &snac)
 			break;
 		case(0x0042):
 			// Delete offline messages from the server.
-			sendMetaInfoRequest(conn, 0x003E);
+			sendMetaInfoRequest(0x003E);
 			break;
 		default:
 			qDebug() << "Unhandled meta information response" << metaType;
@@ -754,38 +755,38 @@ void Roster::handleMetaInfo(OscarConnection *conn, const SNAC &snac)
 	}
 }
 
-void Roster::sendRosterAck(OscarConnection *conn)
+void Roster::sendRosterAck()
 {
 	SNAC snac(ListsFamily, ListsGotList);
-	conn->send(snac);
+	m_conn->send(snac);
 	qDebug("Send Roster Ack, SNAC %02X %02X", (int)snac.family(), (int)snac.subtype());
 }
 
-void Roster::sendMetaInfoRequest(OscarConnection *conn, quint16 type)
+void Roster::sendMetaInfoRequest(quint16 type)
 {
 	SNAC snac(ExtensionsFamily, ExtensionsMetaCliRequest);
 	DataUnit data;
 	data.appendSimple<quint16>(8, DataUnit::LittleEndian); // data chunk size
-	data.appendSimple<quint32>(conn->account()->id().toUInt(), DataUnit::LittleEndian);
+	data.appendSimple<quint32>(m_account->id().toUInt(), DataUnit::LittleEndian);
 	data.appendSimple<quint16>(type, DataUnit::LittleEndian); // message request cmd
 	data.appendSimple<quint16>(snac.id()); // request sequence number
 	snac.appendTLV(0x01, data);
-	conn->send(snac);
+	m_conn->send(snac);
 }
 
-void Roster::sendCLModifyStart(OscarConnection *conn)
+void Roster::sendCLModifyStart()
 {
 	SNAC snac(ListsFamily, ListsCliModifyStart);
-	conn->send(snac);
+	m_conn->send(snac);
 }
 
-void Roster::sendCLModifyEnd(OscarConnection *conn)
+void Roster::sendCLModifyEnd()
 {
 	SNAC snac(ListsFamily, ListsCliModifyEnd);
-	conn->send(snac);
+	m_conn->send(snac);
 }
 
-void Roster::sendCLOperator(OscarConnection *conn, const SSIItem &item, quint16 operation)
+void Roster::sendCLOperator(const SSIItem &item, quint16 operation)
 {
 	m_ssi_history.enqueue(SSIHistoryItem(item, (ModifingType)operation));
 	SNAC snac(ListsFamily, operation);
@@ -795,7 +796,7 @@ void Roster::sendCLOperator(OscarConnection *conn, const SSIItem &item, quint16 
 	snac.appendSimple<quint16>(item.item_type);
 	snac.appendSimple<quint16>(item.tlvs.valuesSize());
 	snac.appendData(item.tlvs);
-	conn->send(snac);
+	m_conn->send(snac);
 }
 
 quint16 Roster::generateGroupID()

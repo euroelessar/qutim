@@ -58,7 +58,7 @@ bool IcqContact::isInList() const
 
 void IcqContact::sendMessage(const Message &message)
 {
-	p->account->roster()->sendMessage(p->account->connection(), p->uin, message.text());
+	p->account->roster()->sendMessage(p->uin, message.text());
 }
 
 void IcqContact::setName(const QString &name)
