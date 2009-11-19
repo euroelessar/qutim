@@ -104,6 +104,7 @@ namespace Util
 
 	extern QTextCodec *defaultCodec()
 	{
-		return asciiCodec();
+		static QTextCodec *codec =  QTextCodec::codecForName("UTF-8");
+		return codec;
 	}
 }
