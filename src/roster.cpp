@@ -186,6 +186,25 @@ void Roster::sendAuthResponse(const QString &id, const QString &message, bool au
 
 void Roster::sendAddGroupRequest(const QString &name, quint16 group_id)
 {
+	// Testing the name and group_id
+	QMapIterator<quint16, QString> itr(m_groups);
+	while(itr.hasNext())
+	{
+		itr.next();
+		if(itr.value().compare(name, Qt::CaseInsensitive) == 0)
+		{
+			qWarning() << QString("The group name \"%1\" already exists").arg(name);
+			return;
+		}
+
+		if(group_id != 0 && itr.key() == group_id)
+		{
+			qWarning() << QString("The group with id \"%1\" already exists").arg(group_id);
+			return;
+		}
+	}
+
+	// Adding the new group in the server contactlist
 	SSIItem item;
 	item.item_type = SsiGroup;
 	item.record_name = name;
@@ -205,13 +224,18 @@ void Roster::sendAddGroupRequest(const QString &name, quint16 group_id)
 
 void Roster::sendRemoveGroupRequest(quint16 id)
 {
-	SSIItem item;
-	item.item_type = SsiGroup;
-	item.group_id = id;
+	if(m_groups.contains(id))
+	{
+		SSIItem item;
+		item.item_type = SsiGroup;
+		item.group_id = id;
 
-	sendCLModifyStart();
-	sendCLOperator(item, ListsRemoveFromList);
-	sendCLModifyEnd();
+		sendCLModifyStart();
+		sendCLOperator(item, ListsRemoveFromList);
+		sendCLModifyEnd();
+	}
+	else
+		qDebug() << Q_FUNC_INFO << QString("The group (%1) does not exist").arg(id);
 }
 
 IcqContact *Roster::sendAddContactRequest(const QString &contact_id, const QString &contact_name, quint16 group_id)
@@ -294,7 +318,25 @@ void Roster::handleServerCListReply(const SNAC &sn)
 		m_conn->finishLogin();
 		sendOfflineMessagesRequest();
 		if(!m_groups.contains(not_in_list_group))
-			sendAddGroupRequest(tr("Not in list"), not_in_list_group);
+		{
+			const QString not_in_list_str = tr("Not In List");
+			QString group_name(not_in_list_str);
+			for(int i = 1;; ++i)
+			{
+				bool found = false;
+				foreach(const QString &grp, m_groups)
+				{
+					if(grp.compare(group_name, Qt::CaseInsensitive) == 0)
+					{
+						found = true;
+						break;
+					}
+				}
+				if(!found) break;
+				group_name = QString("%1 %2").arg(not_in_list_str).arg(i);
+			}
+			sendAddGroupRequest(group_name, not_in_list_group);
+		}
 	}
 }
 
