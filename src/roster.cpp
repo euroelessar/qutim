@@ -189,7 +189,13 @@ void Roster::sendAddGroupRequest(const QString &name, quint16 group_id)
 	SSIItem item;
 	item.item_type = SsiGroup;
 	item.record_name = name;
-	item.group_id = group_id == 0 ? generateGroupID() : group_id;
+	if(group_id == 0)
+	{
+		group_id = rand() % 0x03e6;
+		while(m_groups.contains(0x03e6))
+			group_id = rand() % 0x03e6;
+	}
+	item.group_id = group_id;
 	item.tlvs.insert(0x00c8);
 
 	sendCLModifyStart();
@@ -334,7 +340,7 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 			// TODO: update the auth field in the contact
 			if(ContactList::instance())
 				ContactList::instance()->addContact(contact);
-			qDebug() << "New contact is added" << contact->id() << contact->name();
+			qDebug() << "New contact is added" << contact->id() << contact->name() << item.item_id;
 		}
 		else
 		{
@@ -355,7 +361,7 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 			// auth
 			bool new_auth = !item.tlvs.contains(0x0066);
 			// TODO: update contact
-			qDebug() << "The contact is updated" << contact->id() << contact->name();
+			qDebug() << "The contact is updated" << contact->id() << contact->name() << item.item_id;
 		}
 		contact->p->user_id = item.item_id;
 		break; }
@@ -797,14 +803,4 @@ void Roster::sendCLOperator(const SSIItem &item, quint16 operation)
 	snac.appendSimple<quint16>(item.tlvs.valuesSize());
 	snac.appendData(item.tlvs);
 	m_conn->send(snac);
-}
-
-quint16 Roster::generateGroupID()
-{
-	QMap<quint16, QString>::iterator itr = m_groups.begin();
-	QMap<quint16, QString>::iterator end_itr = m_groups.end();
-	quint16 id = rand() % 0x03e6;
-	while(m_groups.contains(0x03e6))
-		id = rand() % 0x03e6;
-	return id;
 }

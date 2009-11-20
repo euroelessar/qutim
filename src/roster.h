@@ -86,7 +86,6 @@ private:
 	void sendCLModifyStart();
 	void sendCLModifyEnd();
 	void sendCLOperator(const SSIItem &item, quint16 operation);
-	quint16 generateGroupID();
 	IcqAccount *m_account;
 	OscarConnection *m_conn;
 	QMap<quint16, QString> m_groups;
