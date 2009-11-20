@@ -105,7 +105,7 @@ namespace qutim_sdk_0_3
 		return p->text;
 	}
 
-	ActionGenerator *ActionGenerator::setProperty(const QByteArray &name, const QVariant &value)
+	ActionGenerator *ActionGenerator::addProperty(const QByteArray &name, const QVariant &value)
 	{
 		int index = p->names.indexOf(name);
 		if (index != -1) {
@@ -117,17 +117,23 @@ namespace qutim_sdk_0_3
 		return this;
 	}
 
-	QObject *ActionGenerator::generateHelper() const
+	QAction *ActionGenerator::prepareAction(QAction *action) const
 	{
-		if (p->receiver.isNull())
+		if (p->receiver.isNull()) {
+			action->deleteLater();
 			return NULL;
-		QAction *action = new QAction(p->receiver);
+		}
+		action->setParent(p->receiver);
 		action->setIcon(p->icon);
 		action->setText(p->text);
 		for (int i = 0; i < p->names.size(); i++)
 			action->setProperty(p->names.at(i), p->values.at(i));
 		QObject::connect(action, SIGNAL(triggered()), p->receiver, p->member);
-		return action;
+	}
+
+	QObject *ActionGenerator::generateHelper() const
+	{
+		return prepareAction(new QAction(NULL));
 	}
 
 	const QMetaObject *ActionGenerator::metaObject() const

@@ -58,6 +58,7 @@ namespace qutim_sdk_0_3
 		{ return extends(qobject_interface_iid<T *>()); }
 		virtual QObject *generateHelper() const = 0;
 		inline ObjectGenerator() {}
+	public:
 		virtual ~ObjectGenerator() {}
 	};
 

@@ -53,8 +53,9 @@ namespace qutim_sdk_0_3
 		virtual ~ActionGenerator();
 		QIcon icon() const;
 		QString text() const;
-		ActionGenerator *setProperty(const QByteArray &name, const QVariant &value);
+		ActionGenerator *addProperty(const QByteArray &name, const QVariant &value);
 	protected:
+		QAction *prepareAction(QAction *action) const;
 		virtual QObject *generateHelper() const;
 		virtual const QMetaObject *metaObject() const;
 		virtual bool hasInterface(const char *id) const;
