@@ -295,6 +295,23 @@ void Roster::sendRemoveContactRequst(const QString &contact_id)
 		qDebug() << Q_FUNC_INFO << QString("The contact (%1) does not exist").arg(contact_id);
 }
 
+void Roster::sendRenameGroupRequest(quint16 group_id, const QString &name)
+{
+	if(m_groups.contains(group_id))
+	{
+		SSIItem item;
+		item.item_type = SsiGroup;
+		item.group_id = group_id;
+		item.record_name = name;
+
+		sendCLModifyStart();
+		sendCLOperator(item, ListsUpdateGroup);
+		sendCLModifyEnd();
+	}
+	else
+		qDebug() << Q_FUNC_INFO << QString("The group (%1) does not exist").arg(group_id);
+}
+
 void Roster::handleServerCListReply(const SNAC &sn)
 {
 	if(!(sn.flags() & 0x0001))
@@ -359,12 +376,12 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 		bool is_adding = !contact;
 		if(is_adding && type == mt_modify)
 		{
-			qDebug() << Q_FUNC_INFO << "Contact does not exist" << item.record_name;
+			qDebug() << Q_FUNC_INFO << "The contact does not exist" << item.record_name;
 			return;
 		}
 		if(!is_adding && type == mt_add)
 		{
-			qDebug() << Q_FUNC_INFO << "Contact already is in contactlist";
+			qDebug() << Q_FUNC_INFO << "The contact already is in contactlist";
 			return;
 		}
 		if(is_adding)
@@ -382,7 +399,7 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 			// TODO: update the auth field in the contact
 			if(ContactList::instance())
 				ContactList::instance()->addContact(contact);
-			qDebug() << "New contact is added" << contact->id() << contact->name() << item.item_id;
+			qDebug() << "The contact is added" << contact->id() << contact->name() << item.item_id;
 		}
 		else
 		{
@@ -415,18 +432,23 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 			if(itr == m_groups.end())
 			{
 				if(type != mt_modify)
+				{
 					m_groups.insert(item.group_id, item.record_name);
+					qDebug() << "The group is added" << item.group_id << item.record_name;
+				}
 				else
-					qDebug() << Q_FUNC_INFO << "Group does not exist" << item.group_id << item.record_name;
+					qDebug() << Q_FUNC_INFO << "The group does not exist" << item.group_id << item.record_name;
 			}
 			else
 			{
 				if(type != mt_add)
+				{
 					itr.value() = item.record_name;
+					qDebug() << "The group is updated" << item.group_id << item.record_name;
+				}
 				else
-					qDebug() << Q_FUNC_INFO << "Group already is in contactlist" << item.group_id << item.record_name;
+					qDebug() << Q_FUNC_INFO << "The group already is in contactlist" << item.group_id << item.record_name;
 			}
-			qDebug() << "New group is added" << item.group_id << item.record_name;
 		}
 		else
 		{

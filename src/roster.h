@@ -38,6 +38,7 @@ public:
 	void sendRemoveGroupRequest(quint16 id);
 	IcqContact *sendAddContactRequest(const QString &contact_id, const QString &contact_name, quint16 group_id);
 	void sendRemoveContactRequst(const QString &contact_id);
+	void sendRenameGroupRequest(quint16 group_id, const QString &name);
 private:
 	enum ModifingType {
 		mt_add = ListsAddToList,
