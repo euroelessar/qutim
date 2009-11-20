@@ -263,8 +263,8 @@ IcqContact *Roster::sendAddContactRequest(const QString &contact_id, const QStri
 			break;
 	}
 	item.item_id = id;
-	item.tlvs.insert(0x0131, asciiCodec()->fromUnicode(contact_name)); // nick
-	item.tlvs.insert(0x0066); // auth flag
+	item.tlvs.insert(SsiBuddyNick, contact_name);
+	item.tlvs.insert(SsiBuddyReqAuth);
 
 	sendCLModifyStart();
 	sendCLOperator(item, ListsAddToList);
@@ -289,6 +289,31 @@ void Roster::sendRemoveContactRequst(const QString &contact_id)
 
 		sendCLModifyStart();
 		sendCLOperator(item, ListsRemoveFromList);
+		sendCLModifyEnd();
+	}
+	else
+		qDebug() << Q_FUNC_INFO << QString("The contact (%1) does not exist").arg(contact_id);
+}
+
+void Roster::sendRenameContactRequest(const QString &contact_id, const QString &name)
+{
+	IcqContact *contact = m_contacts.value(contact_id);
+	if(contact)
+	{
+		SSIItem item;
+		item.item_type = SsiBuddy;
+		item.item_id = contact->p->user_id;
+		item.group_id = contact->p->group_id;
+		item.record_name = contact_id;
+		item.tlvs.insert(SsiBuddyNick, name);
+		if(!contact->property("authorized").toBool())
+			item.tlvs.insert(SsiBuddyReqAuth);
+		QString comment = contact->property("comment").toString();
+		if(!comment.isEmpty())
+			item.tlvs.insert(SsiBuddyComment, comment);
+
+		sendCLModifyStart();
+		sendCLOperator(item, ListsUpdateGroup);
 		sendCLModifyEnd();
 	}
 	else
@@ -391,12 +416,12 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 				contact = new IcqContact(item.record_name, m_account);
 			m_contacts.insert(item.record_name, contact);
 			contact->p->group_id = item.group_id;
-			if(item.tlvs.contains(0x0131))
-				contact->p->name = item.tlvs.value<QString>(0x0131);
-			if(item.tlvs.contains(0x013c))
-				contact->setProperty("comment", item.tlvs.value<QString>(0x013c));
-			bool auth = !item.tlvs.contains(0x0066);
-			// TODO: update the auth field in the contact
+			if(item.tlvs.contains(SsiBuddyNick))
+				contact->p->name = item.tlvs.value<QString>(SsiBuddyNick);
+			if(item.tlvs.contains(SsiBuddyComment))
+				contact->setProperty("comment", item.tlvs.value<QString>(SsiBuddyComment));
+			bool auth = !item.tlvs.contains(SsiBuddyReqAuth);
+			contact->setProperty("authorized", auth);
 			if(ContactList::instance())
 				ContactList::instance()->addContact(contact);
 			qDebug() << "The contact is added" << contact->id() << contact->name() << item.item_id;
@@ -404,22 +429,23 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 		else
 		{
 			// name
-			QString new_name = item.tlvs.value<QString>(0x0131);
+			QString new_name = item.tlvs.value<QString>(SsiBuddyNick);
 			if(!new_name.isEmpty() && new_name != contact->p->name)
 			{
 				contact->p->name = new_name;
 				emit contact->nameChanged(new_name);
 			}
 			// comment
-			QString new_comment = item.tlvs.value<QString>(0x013c);
+			QString new_comment = item.tlvs.value<QString>(SsiBuddyComment);
 			if(!new_comment.isEmpty() && new_comment != contact->property("comment").toString())
 			{
 				contact->setProperty("comment", new_comment);
 				// TODO: emit ...
 			}
 			// auth
-			bool new_auth = !item.tlvs.contains(0x0066);
-			// TODO: update contact
+			bool new_auth = !item.tlvs.contains(SsiBuddyReqAuth);
+			contact->setProperty("authorized", new_auth);
+			// TODO: emit ...
 			qDebug() << "The contact is updated" << contact->id() << contact->name() << item.item_id;
 		}
 		contact->p->user_id = item.item_id;

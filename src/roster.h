@@ -38,6 +38,7 @@ public:
 	void sendRemoveGroupRequest(quint16 id);
 	IcqContact *sendAddContactRequest(const QString &contact_id, const QString &contact_name, quint16 group_id);
 	void sendRemoveContactRequst(const QString &contact_id);
+	void sendRenameContactRequest(const QString &contact_id, const QString &name);
 	void sendRenameGroupRequest(quint16 group_id, const QString &name);
 private:
 	enum ModifingType {
@@ -45,6 +46,12 @@ private:
 		mt_add_modify = ListsList,
 		mt_modify = ListsUpdateGroup,
 		mt_remove =  ListsRemoveFromList
+	};
+	enum SsiBuddyTlvs
+	{
+		SsiBuddyNick = 0x0131,
+		SsiBuddyComment = 0x013c,
+		SsiBuddyReqAuth = 0x0066
 	};
 	struct SSIItem
 	{

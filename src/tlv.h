@@ -24,6 +24,7 @@
 
 #include "icq_global.h"
 #include "capability.h"
+#include "util.h"
 
 class QDataStream;
 class TLV;
@@ -145,7 +146,7 @@ Q_INLINE_TEMPLATE Capability TLV::value<Capability>() const
 template<>
 Q_INLINE_TEMPLATE QString TLV::value<QString>() const
 {
-	return QString::fromUtf8(m_value);
+	return Util::defaultCodec()->toUnicode(m_value);
 }
 
 template<typename T>
@@ -157,7 +158,7 @@ Q_INLINE_TEMPLATE T TLV::value() const
 template<>
 Q_INLINE_TEMPLATE void TLV::appendValue<QString>(const QString &value)
 {
-	m_value += value.toUtf8();
+	m_value += Util::defaultCodec()->fromUnicode(value);
 	ensure_value();
 }
 
