@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>798</width>
-    <height>717</height>
+    <width>697</width>
+    <height>649</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,61 +15,91 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_4">
-    <item row="0" column="0">
+    <item row="0" column="0" colspan="3">
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
       <widget class="QWidget" name="gridLayoutWidget">
        <layout class="QGridLayout" name="gridLayout">
-        <property name="verticalSpacing">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
          <number>0</number>
         </property>
         <item row="0" column="0">
          <widget class="QTabBar" name="tabBar" native="true"/>
         </item>
         <item row="1" column="0">
-         <widget class="QWebView" name="chatView">
-          <property name="url">
-           <url>
-            <string>about:blank</string>
-           </url>
+         <widget class="QFrame" name="frame">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QWebView" name="chatView">
+             <property name="url">
+              <url>
+               <string>about:blank</string>
+              </url>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="gridLayoutWidget_2">
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0" colspan="2">
-         <layout class="QHBoxLayout" name="actionsLayout"/>
-        </item>
+        <property name="verticalSpacing">
+         <number>0</number>
+        </property>
         <item row="1" column="0" colspan="2">
          <widget class="QPlainTextEdit" name="chatEdit"/>
         </item>
-        <item row="2" column="0">
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>557</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="2" column="1">
-         <widget class="QPushButton" name="pushButton">
-          <property name="text">
-           <string>Send</string>
-          </property>
-         </widget>
+        <item row="0" column="0" colspan="2">
+         <widget class="ActionToolBar" name="mainToolbar" native="true"/>
         </item>
        </layout>
       </widget>
      </widget>
+    </item>
+    <item row="1" column="1">
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>557</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="2">
+     <widget class="QPushButton" name="pushButton">
+      <property name="text">
+       <string>Send</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="ActionToolBar" name="additionalToolbar" native="true"/>
     </item>
    </layout>
   </widget>
@@ -78,7 +108,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>798</width>
+     <width>697</width>
      <height>20</height>
     </rect>
    </property>
@@ -95,6 +125,12 @@
    <class>QTabBar</class>
    <extends>QWidget</extends>
    <header>qtabbar.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ActionToolBar</class>
+   <extends>QWidget</extends>
+   <header location="global">libqutim/actiontoolbar.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

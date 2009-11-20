@@ -56,7 +56,6 @@ namespace AdiumChat
 		ChatSessionList m_sessions;
 		Ui::AdiumChatForm *ui;
 		ChatFlag m_chat_flags;
-		ActionToolBar *m_main_toolbar;
 	private slots:
 		void currentIndexChanged (int index);
 		void onCloseRequested(int index);

@@ -21,7 +21,6 @@
 #include <QWebFrame>
 #include <QDebug>
 #include <QTime>
-#include <libqutim/actiontoolbar.h>
 
 namespace AdiumChat
 {
@@ -29,9 +28,13 @@ namespace AdiumChat
 	ChatWidget::ChatWidget(ChatFlag chatFlags): ui(new Ui::AdiumChatForm),m_chat_flags(chatFlags)
 	{
 		ui->setupUi(this);
+		//init tabbar
 		ui->tabBar->setVisible(false);
 		ui->tabBar->setTabsClosable(true);
 		ui->tabBar->setMovable(true);
+		ui->tabBar->setDocumentMode(true);
+		ui->tabBar->setDrawBase(false);
+		//init status and menubar
 		ui->statusbar->setVisible(false);
 		ui->menubar->setVisible(false);
 		setAttribute(Qt::WA_DeleteOnClose);
@@ -42,9 +45,13 @@ namespace AdiumChat
 		ui->chatEdit->installEventFilter(this);
 		ui->chatEdit->setFocusPolicy(Qt::StrongFocus);
 		//init toolbars
-		m_main_toolbar = new ActionToolBar(tr("Main actions"),this);
-		ui->actionsLayout->addWidget(m_main_toolbar);
-		//addToolBar(Qt::BottomToolBarArea,m_main_toolbar);
+		ui->additionalToolbar->setAttribute(Qt::WA_StyledBackground,false);
+		ui->additionalToolbar->setBackgroundRole(QPalette::Base);
+		//for testing
+		QAction *test_act1 = new QAction(Icon("applications-internet"),tr("Testing action"),this);
+		ui->mainToolbar->addAction(test_act1);
+		QAction *test_act2 = new QAction(Icon("preferences-system"),tr("Testing action"),this);
+		ui->additionalToolbar->addAction(test_act2);
 	}
 
 	ChatWidget::~ChatWidget()
