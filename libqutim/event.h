@@ -41,7 +41,7 @@ namespace qutim_sdk_0_3
 			  const QVariant &arg6 = QVariant(), const QVariant &arg7 = QVariant(),
 			  const QVariant &arg8 = QVariant(), const QVariant &arg9 = QVariant());
 
-		inline Event(quint16 id = 0, const QVariant &arg0 = QVariant(), const QVariant &arg1 = QVariant(),
+		inline Event(quint16 id, const QVariant &arg0 = QVariant(), const QVariant &arg1 = QVariant(),
 			  const QVariant &arg2 = QVariant(), const QVariant &arg3 = QVariant(),
 			  const QVariant &arg4 = QVariant(), const QVariant &arg5 = QVariant(),
 			  const QVariant &arg6 = QVariant(), const QVariant &arg7 = QVariant(),
@@ -52,7 +52,7 @@ namespace qutim_sdk_0_3
 			  const QVariant &arg4, const QVariant &arg5,
 			  const QVariant &arg6, const QVariant &arg7,
 			  const QVariant &arg8, const QVariant &arg9,
-			  const QVariant &arg10 = QVariant(), const QVariant &arg11 = QVariant(),
+			  const QVariant &arg10, const QVariant &arg11 = QVariant(),
 			  const QVariant &arg12 = QVariant(), const QVariant &arg13 = QVariant(),
 			  const QVariant &arg14 = QVariant(), const QVariant &arg15 = QVariant(),
 			  const QVariant &arg16 = QVariant(), const QVariant &arg17 = QVariant(),
@@ -63,7 +63,7 @@ namespace qutim_sdk_0_3
 			  const QVariant &arg4, const QVariant &arg5,
 			  const QVariant &arg6, const QVariant &arg7,
 			  const QVariant &arg8, const QVariant &arg9,
-			  const QVariant &arg10 = QVariant(), const QVariant &arg11 = QVariant(),
+			  const QVariant &arg10, const QVariant &arg11 = QVariant(),
 			  const QVariant &arg12 = QVariant(), const QVariant &arg13 = QVariant(),
 			  const QVariant &arg14 = QVariant(), const QVariant &arg15 = QVariant(),
 			  const QVariant &arg16 = QVariant(), const QVariant &arg17 = QVariant(),

@@ -69,6 +69,7 @@ namespace qutim_sdk_0_3
 		explicit Config(const QStringList &files, OpenFlags flags = IncludeGlobals, const QString &backend = QString());
 		Config(const Config &other);
 		Config(const QExplicitlySharedDataPointer<ConfigPrivate> &other);
+		Config &operator =(const Config &other);
 		virtual ~Config();
 #ifdef DOC
 		QStringList groupList() const;
@@ -90,6 +91,7 @@ namespace qutim_sdk_0_3
 	public:
 		ConfigGroup(const ConfigGroup &other);
 		ConfigGroup(const QExplicitlySharedDataPointer<ConfigGroupPrivate> &other);
+		ConfigGroup &operator =(const ConfigGroup &other);
 		virtual ~ConfigGroup();
 		QString name() const;
 		bool isMap() const;

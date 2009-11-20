@@ -158,7 +158,7 @@ namespace qutim_sdk_0_3
 		ConfigGroup group;
 		group.p = new ConfigGroupPrivate;
 		group.p->name = name;
-		for(int i = 0; i < p->entries.size(); i++)
+		for (int i = 0; i < p->entries.size(); i++) {
 			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Map))
 			{
 				ConfigEntry::Ptr entry = p->entries.at(i);
@@ -166,16 +166,14 @@ namespace qutim_sdk_0_3
 				if(it != entry->map.end())
 					group.p->entries.append(*it);
 			}
-		if(const ConfigGroup *me = dynamic_cast<const ConfigGroup *>(this))
-		{
+		}
+		if (const ConfigGroup *me = dynamic_cast<const ConfigGroup *>(this)) {
 			group.p->parent = me->p;
 			group.p->config = me->p->config;
-		}
-		else
-		{
-			const Config *me = static_cast<const Config *>(this);
+		} else {
+			const Config *meConfig = static_cast<const Config *>(this);
 			group.p->parent.reset();
-			group.p->config = me->p;
+			group.p->config = meConfig->p;
 		}
 		return group;
 	}
@@ -224,24 +222,21 @@ namespace qutim_sdk_0_3
 				group.p->entries.append(new_entry);
 			}
 		}
-		for(int i = 1; i < p->entries.size(); i++)
-			if(p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Map))
-			{
+		for (int i = 1; i < p->entries.size(); i++) {
+			if (p->entries.at(i) && (p->entries.at(i).toStrongRef()->type & ConfigEntry::Map)) {
 				ConfigEntry::Ptr entry = p->entries.at(i);
 				ConfigEntry::EntryMap::const_iterator it = entry->map.constFind(name);
-				if(it != entry->map.end())
+				if (it != entry->map.end())
 					group.p->entries.append(*it);
 			}
-		if(const ConfigGroup *me = dynamic_cast<const ConfigGroup *>(this))
-		{
+		}
+		if (const ConfigGroup *me = dynamic_cast<const ConfigGroup *>(this)) {
 			group.p->parent = me->p;
 			group.p->config = me->p->config;
-		}
-		else
-		{
-			const Config *me = static_cast<const Config *>(this);
+		} else {
+			const Config *meConfig = static_cast<const Config *>(this);
 			group.p->parent.reset();
-			group.p->config = me->p;
+			group.p->config = meConfig->p;
 		}
 		return group;
 	}
@@ -385,6 +380,12 @@ namespace qutim_sdk_0_3
 	Config::Config(const QExplicitlySharedDataPointer<ConfigPrivate> &other) : p(other)
 	{
 	}
+		
+	Config &Config::operator =(const Config &other)
+	{
+		p = other.p;
+		return *this;
+	}
 
 	Config::~Config()
 	{
@@ -414,6 +415,12 @@ namespace qutim_sdk_0_3
 
 	ConfigGroup::~ConfigGroup()
 	{
+	}
+		
+	ConfigGroup &ConfigGroup::operator =(const ConfigGroup &other)
+	{
+		p = other.p;
+		return *this;
 	}
 
 	QString ConfigGroup::name() const

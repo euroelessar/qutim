@@ -25,6 +25,7 @@ namespace qutim_sdk_0_3
 		if (p->generator)
 			delete p->generator;
 		p->generator = gen;
+		return this;
 	}
 
 	WidgetActionGenerator *WidgetActionGenerator::addWidgetProperty(const QByteArray &name, const QVariant &value)
