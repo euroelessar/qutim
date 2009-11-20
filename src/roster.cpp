@@ -184,7 +184,7 @@ void Roster::sendAuthResponse(const QString &id, const QString &message, bool au
 	m_conn->send(snac);
 }
 
-void Roster::sendAddGroupRequest(const QString &name, quint16 group_id)
+quint16 Roster::sendAddGroupRequest(const QString &name, quint16 group_id)
 {
 	// Testing the name and group_id
 	QMapIterator<quint16, QString> itr(m_groups);
@@ -194,13 +194,13 @@ void Roster::sendAddGroupRequest(const QString &name, quint16 group_id)
 		if(itr.value().compare(name, Qt::CaseInsensitive) == 0)
 		{
 			qWarning() << QString("The group name \"%1\" already exists").arg(name);
-			return;
+			return 0;
 		}
 
 		if(group_id != 0 && itr.key() == group_id)
 		{
 			qWarning() << QString("The group with id \"%1\" already exists").arg(group_id);
-			return;
+			return 0;
 		}
 	}
 
@@ -220,6 +220,7 @@ void Roster::sendAddGroupRequest(const QString &name, quint16 group_id)
 	sendCLModifyStart();
 	sendCLOperator(item, ListsAddToList);
 	sendCLModifyEnd();
+	return group_id;
 }
 
 void Roster::sendRemoveGroupRequest(quint16 id)

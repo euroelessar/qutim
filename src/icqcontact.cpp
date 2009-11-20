@@ -63,6 +63,7 @@ void IcqContact::sendMessage(const Message &message)
 
 void IcqContact::setName(const QString &name)
 {
+	p->account->roster()->sendRenameContactRequest(p->uin, name);
 }
 
 void IcqContact::setTags(const QSet<QString> &tags)
