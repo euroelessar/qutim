@@ -2,6 +2,7 @@
  *  md5login.cpp
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -14,7 +15,6 @@
 *****************************************************************************/
 
 #include "md5login.h"
-#include "tlv.h"
 #include "icqaccount.h"
 #include <QCryptographicHash>
 #include <QUrl>
@@ -22,25 +22,28 @@
 #include <QSettings>
 #endif
 
-Md5Login::Md5Login()
+Md5LoginNegotiation::Md5LoginNegotiation(OscarConnection *conn, QObject *parent):
+	SNACHandler(parent), m_conn(conn)
 {
 	m_infos << SNACInfo(AuthorizationFamily, SignonLoginReply)
 			<< SNACInfo(AuthorizationFamily, SignonAuthKey);
 }
 
-void Md5Login::handleSNAC(OscarConnection *conn, const SNAC &sn)
+void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 {
+	Md5Login *conn = qobject_cast<Md5Login*>(c);
+	Q_ASSERT(conn);
 	if(sn.subtype() == SignonAuthKey)
 	{
-		const ClientInfo &client = conn->clientInfo();
+		const ClientInfo &client = m_conn->clientInfo();
 		SNAC snac(AuthorizationFamily, SignonLoginRequest);
 		snac.setId(qrand());
-		snac.appendTLV<QByteArray>(0x0001, conn->account()->id().toUtf8());
+		snac.appendTLV<QByteArray>(0x0001, m_conn->account()->id().toUtf8());
 		{
 			quint32 length = qFromBigEndian<quint32>((uchar *)sn.data().constData());
 			QByteArray key = sn.data().mid(2, length);
 #ifndef TEST
-			QString password = conn->account()->config().group("general").value("passwd", QString(), Config::Crypted);
+			QString password = m_conn->account()->config().group("general").value("passwd", QString(), Config::Crypted);
 #else
 			QSettings settings("testicqlogin.ini", QSettings::IniFormat);
 			QString password = settings.value("passwd", "").toString(); 
@@ -70,11 +73,54 @@ void Md5Login::handleSNAC(OscarConnection *conn, const SNAC &sn)
 		if(tlvs.contains(0x01) && tlvs.contains(0x05) && tlvs.contains(0x06))
 		{
 			QList<QByteArray> list = tlvs.value(0x05).value().split(':');
-			conn->connectToBOSS(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, tlvs.value(0x06).value());
+			conn->setLoginData(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, tlvs.value(0x06).value());
 		}
 		else
 		{
 			qDebug() << Util::connectionErrorText(qFromBigEndian<quint16>((const uchar *)tlvs.value(0x08).value().constData()));
 		}
 	}
+}
+
+Md5Login::Md5Login(OscarConnection *conn):
+	AbstractConnection(conn), m_conn(conn)
+{
+	// Connecting to login server
+	setSeqNum(generate_flap_sequence());
+//	QHostInfo host = QHostInfo::fromName("login.messaging.aol.com");
+//	qDebug() << host.addresses();
+//	m_socket->connectToHost(host.addresses().at(qrand() % host.addresses().size()), 5190);
+	socket()->connectToHost("205.188.251.43" /*"login.icq.com"*/, 5190);
+	registerHandler(new Md5LoginNegotiation(conn, this));
+}
+
+Md5Login::~Md5Login()
+{
+}
+
+void Md5Login::processNewConnection()
+{
+	FLAP flap(0x01);
+	flap.appendSimple<quint32>(0x00000001);
+	// It's some strange unknown shit, but ICQ 6.5 sends it
+	flap.appendTLV<quint32>(0x8003, 0x00100000);
+	send(flap);
+
+	SNAC snac(AuthorizationFamily, 0x0006);
+	snac.appendTLV<QByteArray>(0x0001, m_conn->account()->id().toLatin1());
+	send(snac);
+}
+
+void Md5Login::processCloseConnection()
+{
+	AbstractConnection::processCloseConnection();
+	m_conn->connectToBOSS(m_addr, m_port, m_cookie);
+	deleteLater();
+}
+
+void Md5Login::setLoginData(const QString &addr, quint16 port, const QByteArray &cookie)
+{
+	m_addr = addr;
+	m_port = port;
+	m_cookie = cookie;
 }

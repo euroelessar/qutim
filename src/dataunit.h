@@ -45,7 +45,7 @@ public:
 	template<typename L>
 	void appendData(const QString &str, QTextCodec *codec = Util::defaultCodec());
 	inline void appendData(const Capability &data);
-	inline void resetState() { m_state = 0; }
+	inline void resetState() const { m_state = 0; }
 	inline uint dataSize() const { return m_data.size() > m_state ? m_data.size() - m_state : 0; }
 	template<typename T>
 	T readSimple(ByteOrder bo = BigEndian) const;

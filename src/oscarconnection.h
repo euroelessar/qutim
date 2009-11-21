@@ -2,6 +2,7 @@
  *  oscarconnection.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -16,17 +17,15 @@
 #ifndef OSCARCONNECTION_H
 #define OSCARCONNECTION_H
 
-#include <QTcpSocket>
-#include <QMap>
-#include <QHostAddress>
-#include <qutim/libqutim_global.h>
-#include "flap.h"
+#include "connection.h"
 
 using namespace qutim_sdk_0_3;
 
 class SNACHandler;
 class SNAC;
+class ProtocolNegotiation;
 class IcqAccount;
+class BuddyPicture;
 
 struct ClientInfo
 {
@@ -55,62 +54,38 @@ struct DirectConnectionInfo
     quint32 extstatus_utime;    // last ext status update time (i.e. phonebook)
 };
 
-class OscarConnection : public QObject
+class OscarConnection : public AbstractConnection
 {
 	Q_OBJECT
 public:
 	enum ConnectState { LoginServer, HaveBOSS, BOSS, Connected };
 	OscarConnection(IcqAccount *parent);
 	void connectToLoginServer();
-	void connectToBOSS(const QByteArray &host, int port, const QByteArray &cookie);
-	void approveConnection();
-	void disconnectFromHost(bool force = true);
-	void md5Login();
-	void setSeqNum(quint16 seqnum);
-	// max value is 0x7fff, min is 0
-	inline quint16 seqNum() { m_seqnum++; return (m_seqnum &= 0x7fff); }
-	inline quint32 nextId() { return m_id++; }
-	void send(FLAP &flap);
-	quint32 send(SNAC &snac);
-	void registerHandler(SNACHandler *handler);
-	inline void setConnectState(ConnectState state) { m_state = state; }
-	inline ConnectState connectState() const { return m_state; }
 	inline const ClientInfo &clientInfo() const { return m_client_info; }
 	inline const DirectConnectionInfo &dcInfo() const { return m_dc_info; }
 	IcqAccount *account() { return m_account; }
 	const IcqAccount *account() const { return m_account; }
 	void finishLogin();
-	void sendUserInfo();
 	void setStatus(Status status);
+	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
+	BuddyPicture *buddyPictureService() { return m_buddy_picture; }
+private slots:
+	void disconnected();
+private:
+	void sendUserInfo();
 	void sendStatus();
 	void setIdle(bool allow);
-	void setExternalIP(const QHostAddress &ip) { m_ext_ip = ip; }
-	const QHostAddress &externalIP() const { return m_ext_ip; }
-private slots:
-	void readData();
-	void stateChanged(QAbstractSocket::SocketState);
-	void error(QAbstractSocket::SocketError);
-private:
 	void processNewConnection();
-	void processSnac();
-	void processCloseConnection();
 	IcqAccount *m_account;
-	QTcpSocket *m_socket;
-	ConnectState m_state;
 	Status m_status_enum;
 	quint16 m_status;
 	quint16 m_status_flags;
-	FLAP m_flap;
-	quint16 m_seqnum;
-	quint32 m_id;
-	QMultiMap<quint32, SNACHandler*> m_handlers;
-	QHostAddress m_boss_server;
-	int m_boss_port;
-	QHostAddress m_ext_ip;
 	QByteArray m_auth_cookie;
 	ClientInfo m_client_info;
 	DirectConnectionInfo m_dc_info;
 	bool m_is_idle;
+	bool m_is_connected;
+	BuddyPicture *m_buddy_picture;
 };
 
 #endif // OSCARCONNECTION_H

@@ -20,7 +20,8 @@
 #include <QPair>
 #include "snac.h"
 #include "util.h"
-#include "oscarconnection.h"
+
+class AbstractConnection;
 
 typedef QPair<quint16, quint16> SNACInfo;
 
@@ -28,9 +29,9 @@ class SNACHandler : public QObject
 {
 	Q_OBJECT
 public:
-    SNACHandler();
+    SNACHandler(QObject *parent = 0);
 	const QList<SNACInfo> &infos() { return m_infos; }
-	virtual void handleSNAC(OscarConnection *conn, const SNAC &snac) = 0;
+	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac) = 0;
 protected:
 	QList<SNACInfo> m_infos;
 };

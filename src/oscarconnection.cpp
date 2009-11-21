@@ -15,26 +15,117 @@
 *****************************************************************************/
 
 #include "oscarconnection.h"
-#include "tlv.h"
-#include "snac.h"
 #include "util.h"
 #include "md5login.h"
-#include "protocolnegotiation.h"
 #include "roster.h"
 #include "icqaccount.h"
+#include "buddypicture.h"
 #include <qutim/objectgenerator.h>
 #include <QHostInfo>
 #include <QBuffer>
 #include <QTimer>
 
-quint16 generate_flap_sequence()
+class ProtocolNegotiationImpl : public ProtocolNegotiation
 {
-	quint32 n = qrand(), s = 0;
-	for (quint32 i = n; i >>= 3; s += i);
-	return ((((0 - s) ^ (quint8)n) & 7) ^ n) + 2;
+public:
+    ProtocolNegotiationImpl(QObject *parent = 0);
+	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
+	void setMsgChannelParams(AbstractConnection *conn, quint16 chan, quint32 flags);
+};
+
+ProtocolNegotiationImpl::ProtocolNegotiationImpl(QObject *parent):
+	ProtocolNegotiation(parent)
+{
+	m_infos << SNACInfo(LocationFamily, LocationRightsReply)
+			<< SNACInfo(MessageFamily, MessageSrvReplyIcbm)
+			<< SNACInfo(BosFamily, PrivacyRightsReply);
 }
 
-OscarConnection::OscarConnection(IcqAccount *parent) : QObject(parent)
+void ProtocolNegotiationImpl::handleSNAC(AbstractConnection *conn, const SNAC &sn)
+{
+	ProtocolNegotiation::handleSNAC(conn, sn);
+	sn.resetState();
+	switch((sn.family() << 16) | sn.subtype())
+	{
+		// Server sends rate limits information
+	case 0x00010007: {
+		// Requesting avatar service
+		SNAC snac(ServiceFamily, ServiceClientNewService);
+		snac.appendSimple<quint16>(AvatarFamily);
+		conn->send(snac);
+
+		// Request server-stored information (SSI) service limitations
+		snac.reset(ListsFamily, ListsCliReqLists);
+		snac.appendTLV<quint16>(0x0B, 0x000F); // mimic ICQ 6
+		conn->send(snac);
+
+		// Requesting Location rights
+		snac.reset(LocationFamily, LocationCliReqRights);
+		conn->send(snac);
+
+		// Requesting client-side contactlist rights
+		snac.reset(BuddyFamily, UserCliReqBuddy);
+		// Query flags: 1 = Enable Avatars
+		//              2 = Enable offline status message notification
+		//              4 = Enable Avatars for offline contacts
+		//              8 = Use reject for not authorized contacts
+		snac.appendTLV<quint16>(0x05, 0x0003); // mimic ICQ 6
+		conn->send(snac);
+
+		// Sending CLI_REQICBM
+		snac.reset(MessageFamily, MessageCliReqIcbm);
+		conn->send(snac);
+
+		// Sending CLI_REQBOS
+		snac.reset(BosFamily, PrivacyReqRights);
+		conn->send(snac);
+
+		// Requesting roster
+		// TODO: Don't ask full roster each time, see SNAC(13,05) for it
+		snac.reset(ListsFamily, ListsCliRequest);
+		conn->send(snac);
+		break; }
+	// Server replies via location service limitations
+	case 0x00020003: {
+		// TODO: Implement, it's important
+		break; }
+	// Server replies via BLM service limitations
+	case 0x00030003: {
+		break; }
+	// Server sends ICBM service parameters to client
+	case 0x00040005: {
+		quint32 dw_flags = 0x00000303;
+		// TODO: Find description
+#ifdef DBG_CAPHTML
+		dw_flags |= 0x00000400;
+#endif
+#ifdef DBG_CAPMTN
+		dw_flags |= 0x00000008;
+#endif
+		// Set message parameters for all channels (imitate ICQ 6)
+		setMsgChannelParams(conn, 0x0000, dw_flags);
+		break; }
+	// Server sends PRM service limitations to client
+	case 0x00090003: {
+		break; }
+	}
+}
+
+void ProtocolNegotiationImpl::setMsgChannelParams(AbstractConnection *conn, quint16 chan, quint32 flags)
+{
+	SNAC snac(MessageFamily, MessageCliSetParams);
+	snac.appendSimple<quint16>(chan);                   // Channel
+	snac.appendSimple<quint32>(flags);                  // Flags
+	snac.appendSimple<quint16>(max_message_snac_size);  // Max message snac size
+	snac.appendSimple<quint16>(0x03E7);                 // Max sender warning level
+	snac.appendSimple<quint16>(0x03E7);                 // Max receiver warning level
+	snac.appendSimple<quint16>(client_rate_limit);      // Minimum message interval in seconds
+	snac.appendSimple<quint16>(0x0000);                 // Unknown
+	conn->send(snac);
+}
+
+OscarConnection::OscarConnection(IcqAccount *parent):
+	AbstractConnection(parent), m_is_connected(false)
 {
 	m_account = parent;
 	{
@@ -48,205 +139,39 @@ OscarConnection::OscarConnection(IcqAccount *parent) : QObject(parent)
 	m_status_enum = Offline;
 	m_status = 0x0000;
 	m_status_flags = 0x0000;
-	m_socket = new QTcpSocket(this);
-	connect(m_socket, SIGNAL(readyRead()), SLOT(readData()));
-	connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
-	connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
-	registerHandler(new Md5Login);
-	registerHandler(new ProtocolNegotiation);
+	m_buddy_picture = new BuddyPicture(m_account, this);
+	registerHandler(m_buddy_picture);
+	registerHandler(new ProtocolNegotiationImpl(this));
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
 		registerHandler(gen->generate<SNACHandler>());
 }
 
-void OscarConnection::send(FLAP &flap)
-{
-	flap.setSeqNum(seqNum());
-	//qDebug("FLAP: %s", flap.toByteArray().toHex().constData());
-	m_socket->write(flap.header());
-	m_socket->write(flap.data());
-	m_socket->flush();
-}
-
-quint32 OscarConnection::send(SNAC &snac)
-{
-	qDebug("Sending SNAC: 0x%x 0x%x", (int)snac.family(), (int)snac.subtype());
-	FLAP flap(0x02);
-	quint32 id = nextId();
-	snac.setId(id);
-	flap.appendData(snac);
-	send(flap);
-	return id;
-}
-
-void OscarConnection::registerHandler(SNACHandler *handler)
-{
-	QList<SNACInfo> infos = handler->infos();
-	foreach(const SNACInfo &info, infos)
-		m_handlers.insertMulti((info.first << 16) | info.second, handler);
-}
-
-void OscarConnection::setSeqNum(quint16 seqnum)
-{
-	// Have a look at seqNum method to understand reasons
-	m_seqnum = (seqnum > 0) ? (seqnum - 1) : 0x7fff;
-}
-
 void OscarConnection::connectToLoginServer()
 {
-	setSeqNum(generate_flap_sequence());
-	m_id = (quint32)qrand();
-//	QHostInfo host = QHostInfo::fromName("login.messaging.aol.com");
-//	qDebug() << host.addresses();
-//	m_socket->connectToHost(host.addresses().at(qrand() % host.addresses().size()), 5190);
-	m_socket->connectToHost("205.188.251.43" /*"login.icq.com"*/, 5190);
-	m_state = LoginServer;
-//	SNAC snac(0x17, 0x03);
-//	QByteArray data = QByteArray::fromHex("2a02a8a80134");
-//	snac.setData(QByteArray::fromHex(" 008e000100000100093438313339393133390005001036342e31322e32352e36343a3531393000060100e9e56c3ecc0e29b7cf5150ef982ce97c"
-//			"e065f06e1b3cb12edfb8cf9a41a9151028512b2f4f64eba28f0f9879ced776d204e0a49c5b09a75746703cec05e9cd74b8f7cdb7"
-//			"fc15246579a1b6520cfa7d210faf6dd16f1d3b04d831a4abe30ff1a207d464834ec647fe7441d45101d3f3a2f67325da11a5edd2"
-//			"2ae545fa0b3320355aec5108bf2fa0f40b5699a9041f86c68ac837f71b55502eebdb6f55104ec99dd40a36b9fabf5f6e2e1d962b"
-//			"3245dc03ee269830df5e2a07c16e81c7529b308ab9113c840576144a371bae6e756b5bd26c52e636f3fccb6d5b4984d1d03ca3d9"
-//			"7832c6c3c2a7eaea69d054a7550df76e0e73a55593fcc9b5005b0a243975e65d"));
-//	data += snac;
-//	QBuffer buf(&data);
-//	buf.open(QIODevice::ReadOnly);
-//	qDebug() << m_flap.readData(&buf);
-//	qDebug() << m_flap.isFinished();
-//	readData();
-}
-
-void OscarConnection::approveConnection()
-{
-	FLAP flap(0x01);
-	flap.appendSimple<quint32>(0x00000001);
-	// It's some strange unknown shit, but ICQ 6.5 sends it
-	flap.appendTLV<quint32>(0x8003, 0x00100000);
-	send(flap);
-}
-
-void OscarConnection::disconnectFromHost(bool force)
-{
-	Q_UNUSED(force);
-	m_socket->disconnectFromHost();
-}
-
-void OscarConnection::connectToBOSS(const QByteArray &host, int port, const QByteArray &cookie)
-{
-	m_state = HaveBOSS;
-	m_boss_server = host;
-	m_boss_port = port;
-	m_auth_cookie = cookie;
-}
-
-void OscarConnection::md5Login()
-{
-	SNAC snac(AuthorizationFamily, 0x0006);
-	snac.appendTLV<QByteArray>(0x0001, m_account->id().toLatin1());
-	send(snac);
+	new Md5Login(this);
 }
 
 void OscarConnection::processNewConnection()
 {
-	qDebug("processNewConnection: 0x0%d %d %s", (int)m_flap.channel(), (int)m_flap.seqNum(), m_flap.data().toHex().constData());
+	qDebug("processNewConnection: 0x0%d %d %s", (int)flap().channel(), (int)flap().seqNum(), flap().data().toHex().constData());
 
-	if(m_state == LoginServer)
-	{
-		approveConnection();
-		md5Login();
-	}
-	else if(m_state == BOSS)
-	{
-		FLAP flap(0x01);
-		flap.appendSimple<quint32>(0x01);
-		flap.appendTLV<QByteArray>(0x0006, m_auth_cookie);
-		flap.appendTLV<QByteArray>(0x0003, m_client_info.id_string);
-		flap.appendTLV<quint16>(0x0017, m_client_info.major_version);
-		flap.appendTLV<quint16>(0x0018, m_client_info.minor_version);
-		flap.appendTLV<quint16>(0x0019, m_client_info.lesser_version);
-		flap.appendTLV<quint16>(0x001a, m_client_info.build_number);
-		flap.appendTLV<quint16>(0x0016, m_client_info.id_number);
-		flap.appendTLV<quint32>(0x0014, m_client_info.distribution_number);
-		flap.appendTLV<QByteArray>(0x000f, m_client_info.language);
-		flap.appendTLV<QByteArray>(0x000e, m_client_info.country);
-		// Unknown shit
-		flap.appendTLV<quint8>(0x0094, 0x00);
-		flap.appendTLV<quint32>(0x8003, 0x00100000);
-		send(flap);
-	}
-	else
-		return;
-}
-
-void OscarConnection::processSnac()
-{
-	SNAC snac = SNAC::fromByteArray(m_flap.data());
-	qDebug("Receiving SNAC: 0x%x 0x%x", (int)snac.family(), (int)snac.subtype());
-	bool found = false;
-	foreach(SNACHandler *handler, m_handlers.values((snac.family() << 16)| snac.subtype()))
-	{
-		found = true;
-		snac.resetState();
-		handler->handleSNAC(this, snac);
-	}
-	if(!found)
-		qWarning("No handlers for SNAC %02X %02X", int(snac.family()), int(snac.subtype()));
-}
-
-void OscarConnection::processCloseConnection()
-{
-	qDebug("processCloseConnection: 0x0%d %d %s", (int)m_flap.channel(), (int)m_flap.seqNum(), m_flap.data().toHex().constData());
-	FLAP flap(0x04);
-	flap.appendSimple<quint32>(0x00000001);
+	FLAP flap(0x01);
+	flap.appendSimple<quint32>(0x01);
+	flap.appendTLV<QByteArray>(0x0006, m_auth_cookie);
+	flap.appendTLV<QByteArray>(0x0003, m_client_info.id_string);
+	flap.appendTLV<quint16>(0x0017, m_client_info.major_version);
+	flap.appendTLV<quint16>(0x0018, m_client_info.minor_version);
+	flap.appendTLV<quint16>(0x0019, m_client_info.lesser_version);
+	flap.appendTLV<quint16>(0x001a, m_client_info.build_number);
+	flap.appendTLV<quint16>(0x0016, m_client_info.id_number);
+	flap.appendTLV<quint32>(0x0014, m_client_info.distribution_number);
+	flap.appendTLV<QByteArray>(0x000f, m_client_info.language);
+	flap.appendTLV<QByteArray>(0x000e, m_client_info.country);
+	// Unknown shit
+	flap.appendTLV<quint8>(0x0094, 0x00);
+	flap.appendTLV<quint32>(0x8003, 0x00100000);
 	send(flap);
-	m_socket->disconnectFromHost();
-	if(m_state == HaveBOSS)
-	{
-		m_state = BOSS;
-		m_socket->connectToHost(m_boss_server, m_boss_port);
-	}
-}
-
-void OscarConnection::readData()
-{
-	if(m_socket->bytesAvailable() <= 0) // Hack for windows (Qt4.6 tp1).
-	{
-		qDebug() << "readyRead emmited but the socket is empty";
-		return;
-	}
-	if(m_flap.readData(m_socket))
-	{
-		if(m_flap.isFinished())
-		{
-			switch(m_flap.channel())
-			{
-			case 0x01:
-				processNewConnection();
-				break;
-			case 0x02:
-				processSnac();
-				break;
-			case 0x04:
-				processCloseConnection();
-				break;
-			default:
-				qDebug("Unknown shac channel: 0x%04X", (int)m_flap.channel());
-			case 0x03:
-			case 0x05:
-				break;
-			}
-			m_flap.clear();
-		}
-		// Just give a chance to other parts of qutIM to do something if needed
-		if(m_socket->bytesAvailable())
-			QTimer::singleShot(0, this, SLOT(readData()));
-	}
-	else
-	{
-		qCritical("Strange situation at %s: %d", Q_FUNC_INFO, __LINE__);
-		m_socket->close();
-	}
 }
 
 void OscarConnection::finishLogin()
@@ -270,7 +195,7 @@ void OscarConnection::finishLogin()
 			"000a 0001 0110 164f"
 			"000b 0001 0110 164f"));
 	send(snac);
-	m_state = Connected;
+	m_is_connected = true;
 }
 
 void OscarConnection::sendUserInfo()
@@ -366,8 +291,20 @@ void OscarConnection::setStatus(Status status)
 		return;
 	m_status_enum = status;
 	m_status = qutimStatusToICQ(status);
-	if(m_state == Connected)
+	if(m_is_connected)
 		sendStatus();
+}
+
+void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie)
+{
+	m_auth_cookie = cookie;
+	socket()->connectToHost(host, port);
+}
+
+void OscarConnection::disconnected()
+{
+	m_is_connected = false;
+	m_status_enum = Offline;
 }
 
 void OscarConnection::sendStatus()
@@ -376,7 +313,7 @@ void OscarConnection::sendStatus()
 	snac.appendTLV<quint32>(0x06, (m_status_flags << 16) | m_status); // Status mode and security flags
 	snac.appendTLV<quint16>(0x08, 0x0000); // Error code
 	TLV dc(0x0c); // Direct connection info
-	dc.appendValue<quint32>(m_ext_ip.toIPv4Address()); // Real IP
+	dc.appendValue<quint32>(externalIP().toIPv4Address()); // Real IP
 	dc.appendValue<quint32>(666); // DC Port
 	dc.appendValue<quint8>(m_dc_info.dc_type); // TCP/FLAG firewall settings
 	dc.appendValue<quint16>(m_dc_info.protocol_version); // Protocol version;
@@ -399,14 +336,4 @@ void OscarConnection::setIdle(bool allow)
 	SNAC snac(ServiceFamily, 0x0011);
 	snac.appendSimple<quint32>(allow ? 0x0000003C : 0x00000000);
 	send(snac);
-}
-
-void OscarConnection::stateChanged(QAbstractSocket::SocketState state)
-{
-	qDebug() << "New connection state" << state;
-}
-
-void OscarConnection::error(QAbstractSocket::SocketError error)
-{
-	qDebug() << IMPLEMENT_ME << error;
 }

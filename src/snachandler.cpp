@@ -15,6 +15,7 @@
 
 #include "snachandler.h"
 
-SNACHandler::SNACHandler()
+SNACHandler::SNACHandler(QObject *parent):
+	QObject(parent)
 {
 }

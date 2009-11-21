@@ -17,6 +17,8 @@
 #include "roster.h"
 #include "icqcontact_p.h"
 #include <icqaccount.h>
+#include "oscarconnection.h"
+#include "buddypicture.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
@@ -67,8 +69,12 @@ Roster::Roster(IcqAccount *account)
 			<< SNACInfo(ListsFamily, ListsCliModifyStart)
 			<< SNACInfo(ListsFamily, ListsCliModifyEnd)
 			<< SNACInfo(ListsFamily, ListsAuthRequest)
+			<< SNACInfo(ListsFamily, ListsSrvReplyLists)
+			<< SNACInfo(ListsFamily, ListsUpToDate)
 			<< SNACInfo(BuddyFamily, UserOnline)
 			<< SNACInfo(BuddyFamily, UserOffline)
+			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy)
+			<< SNACInfo(MessageFamily, MessageSrvReplyIcbm)
 			<< SNACInfo(MessageFamily, MessageSrvRecv)
 			<< SNACInfo(MessageFamily, MessageSrvAck)
 			<< SNACInfo(MessageFamily, MessageSrvError)
@@ -83,7 +89,7 @@ Roster::Roster(IcqAccount *account)
 	}
 }
 
-void Roster::handleSNAC(OscarConnection *c, const SNAC &sn)
+void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 {
 	Q_ASSERT(c == m_conn);
 	switch((sn.family() << 16) | sn.subtype())
@@ -125,6 +131,19 @@ void Roster::handleSNAC(OscarConnection *c, const SNAC &sn)
 			break;
 		case BuddyFamily << 16 | UserOffline:
 			handleUserOffline(sn);
+			break;
+		case BuddyFamily << 16 | UserSrvReplyBuddy:
+			qDebug() << IMPLEMENT_ME << "BuddyFamily, UserSrvReplyBuddy";
+			break;
+		// Server sends SSI service limitations to client
+		case ListsFamily << 16 | ListsSrvReplyLists: {
+			qDebug() << IMPLEMENT_ME << "ListsFamily, ListsSrvReplyLists";
+			break; }
+		case ListsFamily << 16 | ListsUpToDate: {
+			qDebug() << "Local contactlist is up to date";
+			break; }
+		case MessageFamily << 16 | MessageSrvReplyIcbm:
+			qDebug() << IMPLEMENT_ME << "MessageFamily, MessageSrvReplyIcbm";
 			break;
 		case MessageFamily << 16 | MessageSrvRecv:
 			handleMessage(sn);
@@ -606,6 +625,14 @@ void Roster::handleUserOnline(const SNAC &snac)
 			data.readSimple<quint32>(),
 			data.readSimple<quint32>()
 		};
+	}
+	if(tlvs.contains(0x001d))
+	{
+		DataUnit data(tlvs.value(0x001d));
+		quint16 id = data.readSimple<quint16>();
+		quint8 flags = data.readSimple<quint8>();
+		QByteArray hash = data.readData<quint8>();
+		m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
 	}
 	qDebug("Handle UserOnline %02X %02X, %s", (int)snac.family(), (int)snac.subtype(), qPrintable(uin));
 	qDebug() << tlvs.keys();

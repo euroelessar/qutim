@@ -2,6 +2,7 @@
  *  md5login.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -16,13 +17,35 @@
 #ifndef MD5LOGIN_H
 #define MD5LOGIN_H
 
-#include "snachandler.h"
+#include "oscarconnection.h"
 
-class Md5Login : public SNACHandler
+class Md5LoginNegotiation: public SNACHandler
 {
+	Q_OBJECT
 public:
-    Md5Login();
-	virtual void handleSNAC(OscarConnection *conn, const SNAC &snac);
+    Md5LoginNegotiation(OscarConnection *conn, QObject *parent = 0);
+	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
+	void setConnection(OscarConnection *conn) { m_conn = conn; }
+private:
+	OscarConnection *m_conn;
+};
+
+class Md5Login: public AbstractConnection
+{
+	Q_OBJECT
+public:
+	Md5Login(OscarConnection *conn);
+	~Md5Login();
+protected:
+	void processNewConnection();
+	void processCloseConnection();
+private:
+	void setLoginData(const QString &addr, quint16 port, const QByteArray &cookie);
+	friend class Md5LoginNegotiation;
+	QString m_addr;
+	quint16 m_port;
+	QByteArray m_cookie;
+	OscarConnection *m_conn;
 };
 
 #endif // MD5LOGIN_H
