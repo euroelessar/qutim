@@ -75,7 +75,7 @@ namespace qutim_sdk_0_3
 	};
 
 	template<typename T>
-	class LIBQUTIM_EXPORT GeneralSettingsItem : public SettingsItem
+	class GeneralSettingsItem : public SettingsItem
 	{
 	public:
 		GeneralSettingsItem(Settings::Type type, const QIcon &icon, const char *text)

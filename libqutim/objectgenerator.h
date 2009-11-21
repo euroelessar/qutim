@@ -66,7 +66,7 @@ namespace qutim_sdk_0_3
 	typename I1 = void, typename I2 = void, typename I3 = void,
 	typename I4 = void, typename I5 = void, typename I6 = void,
 	typename I7 = void, typename I8 = void, typename I9 = void>
-	class LIBQUTIM_EXPORT GeneralGenerator : public ObjectGenerator
+	class GeneralGenerator : public ObjectGenerator
 	{
 		Q_DISABLE_COPY(GeneralGenerator)
 	public:

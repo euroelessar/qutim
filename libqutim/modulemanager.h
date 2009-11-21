@@ -66,10 +66,10 @@ namespace qutim_sdk_0_3
 		}
 	private:
 		// Friend functions
-		friend bool isCoreInited();
-		friend GeneratorList moduleGenerators(const QMetaObject *);
-		friend GeneratorList moduleGenerators(const char *);
-		friend ProtocolMap allProtocols();
+		friend LIBQUTIM_EXPORT bool isCoreInited();
+		friend LIBQUTIM_EXPORT GeneratorList moduleGenerators(const QMetaObject *);
+		friend LIBQUTIM_EXPORT GeneratorList moduleGenerators(const char *);
+		friend LIBQUTIM_EXPORT ProtocolMap allProtocols();
 
 		// Static Fields
 		static ModuleManager *self;

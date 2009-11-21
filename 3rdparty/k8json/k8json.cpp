@@ -15,7 +15,9 @@
 
 //#include <QtDebug>
 
-#include "k8json.h"
+#include "libqutim/k8json.h"
+
+#define K8JSON_INCLUDE_GENERATOR
 
 #ifdef K8JSON_INCLUDE_GENERATOR
 # include <QStringList>

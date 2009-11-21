@@ -17,7 +17,7 @@
 
 namespace qutim_sdk_0_3
 {
-	struct NetworkProxy
+	class NetworkProxy
 	{
 	};
 

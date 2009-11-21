@@ -129,6 +129,7 @@ namespace qutim_sdk_0_3
 		for (int i = 0; i < p->names.size(); i++)
 			action->setProperty(p->names.at(i), p->values.at(i));
 		QObject::connect(action, SIGNAL(triggered()), p->receiver, p->member);
+		return action;
 	}
 
 	QObject *ActionGenerator::generateHelper() const
