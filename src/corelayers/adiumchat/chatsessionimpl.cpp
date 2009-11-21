@@ -60,9 +60,9 @@ namespace AdiumChat
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("general/history");
 		int max_num = adium_chat.value<int>("maxDisplayMessages",5);
 		MessageList messages = History::instance()->read(getUnit(),max_num);
-		foreach (Message mess, messages)
-		{
+		foreach (Message mess, messages) {
 			mess.setProperty("history",true);
+			mess.setChatUnit(getUnit());
 			appendMessage(mess);
 		}
 	}
@@ -86,21 +86,18 @@ namespace AdiumChat
 		//emit activated(true);
 		Message tmp_message = message;
 		//TODO add normal check if contact is null
-		if (!tmp_message.chatUnit())
-		{
+		if (!tmp_message.chatUnit()) {
 			//TODO create fake chat unit for unknown messages
 			qWarning() << tr("Message %1 must have a ChatUnit").arg(tmp_message.text());
 			tmp_message.setChatUnit(getUnit());
 		}
 		bool same_from = false;
 		bool isHistory = tmp_message.property("history", false);
-		if (isHistory)
-		{
+		if (isHistory) {
 			m_previous_sender="";
 		}
 		QString item;
-		if(tmp_message.text().startsWith("/me "))
-		{
+		if(tmp_message.text().startsWith("/me ")) {
 			tmp_message.setText(tmp_message.text().mid(3));
 			item = m_chat_style_output->makeAction(this,tmp_message,true);
 			m_previous_sender = "";
@@ -110,8 +107,7 @@ namespace AdiumChat
 			item = m_chat_style_output->makeStatus(message.text(), QDateTime::currentDateTime());
 			m_previous_sender = "";
 		}
-		else
-		{
+		else {
 			same_from = (m_previous_sender == (tmp_message.isIncoming()?"nme":"me"));
 			item = m_chat_style_output->makeMessage(this, tmp_message, true,
 															same_from );
@@ -124,11 +120,8 @@ namespace AdiumChat
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
-		if (!isHistory && !tmp_message.property("silent", false))
-		{
-//			tmp_message.setChatUnit(m_chat_unit);
+		if (!isHistory && !tmp_message.property("silent", false)) {
 			Notifications::sendNotification(tmp_message);
-			qDebug() << "message stored";
 			History::instance()->store(message);
 		}
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
@@ -178,7 +171,7 @@ namespace AdiumChat
 	void ChatSessionImpl::setActive(bool active)
 	{
 		m_active = active;
-		emit activated(active);//FIXME
+		emit activated(active);
 	}
 
 	bool ChatSessionImpl::isActive()

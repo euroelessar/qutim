@@ -32,7 +32,7 @@ XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings
 		//list_item->setToolTip(settings_item->description()); //TODO need short description!
 	}
 	connect(ui->listWidget,SIGNAL(currentRowChanged(int)),SLOT(currentRowChanged(int)));
-	ui->listWidget->setCurrentRow(0);
+	currentRowChanged(0);
 }
 
 
@@ -48,6 +48,7 @@ void XSettingsGroup::currentRowChanged ( int index)
 		connect(widget,SIGNAL(modifiedChanged(bool)),SLOT(onWidgetModifiedChanged(bool)));
 	}
 	ui->stackedWidget->setCurrentWidget(widget);
+	emit titleChanged(m_setting_list.at(index)->text());
 }
 
 

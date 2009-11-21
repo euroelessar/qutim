@@ -23,6 +23,7 @@
 #include <libqutim/account.h>
 #include <libqutim/notificationslayer.h>
 #include <QDateTime>
+#include <libqutim/libqutim_global.h>
 
 namespace AdiumChat
 {
@@ -161,7 +162,7 @@ namespace AdiumChat
 		else
 		{
 			m_current_style_name = map.value("name").toString();
-			m_chat_session->loadTheme(m_current_style_name,m_current_variant);
+			m_chat_session->loadTheme(getThemePath(m_current_style_name,"webkitstyle") ,m_current_variant);
 			makePage();
 		}
 		emit modifiedChanged(true);

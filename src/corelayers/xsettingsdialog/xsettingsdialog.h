@@ -43,6 +43,7 @@ protected slots:
 	void onActionTriggered(QAction *action);
 	void onWidgetModifiedChanged(bool haveChanges);
 	void onWidgetModifiedChanged(SettingsWidget *widget);
+	void onTitleChanged(const QString &title);	
 private:
 	inline void initAnimation();
 	inline void addAction(QAction* action, Settings::Type type);

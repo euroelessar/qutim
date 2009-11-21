@@ -164,6 +164,7 @@ if (setting_items.count()>1) // ==0 or >=0 need for testing, for normally usage 
 			group = new XSettingsGroup(setting_items,this);
 			ui->settingsStackedWidget->addWidget(group);
 			connect(group,SIGNAL(modifiedChanged(SettingsWidget*)),SLOT(onWidgetModifiedChanged(SettingsWidget*)));
+			connect(group,SIGNAL(titleChanged(QString)),SLOT(onTitleChanged(QString)));
 		}
 		ui->settingsStackedWidget->setCurrentWidget(group);
 	}
@@ -184,6 +185,7 @@ if (setting_items.count()>1) // ==0 or >=0 need for testing, for normally usage 
 			ui->settingsStackedWidget->addWidget(widget);
 		}
 		ui->settingsStackedWidget->setCurrentWidget(widget);
+		onTitleChanged(setting_items.at(0)->text());
 	}
 }
 
@@ -205,3 +207,10 @@ void XSettingsDialog::onWidgetModifiedChanged(SettingsWidget* widget)
 	if (!m_modified_widgets.contains(widget))
 		m_modified_widgets.append(widget);
 }
+
+
+void XSettingsDialog::onTitleChanged(const QString& title)
+{
+	setWindowTitle(tr("qutIM settings - %1").arg(title));
+}
+

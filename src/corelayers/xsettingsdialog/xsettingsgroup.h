@@ -31,6 +31,7 @@ public:
 	virtual ~XSettingsGroup();
 signals:
 	void modifiedChanged(SettingsWidget *item);
+	void titleChanged(const QString &title);
 private:
 	SettingsItemList m_setting_list;
 	Ui::XSettingsGroup *ui;
