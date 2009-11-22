@@ -27,6 +27,9 @@
 #include "util.h"
 
 class QDataStream;
+
+namespace Icq {
+
 class TLV;
 class TLVMap;
 
@@ -198,5 +201,7 @@ Q_INLINE_TEMPLATE TLV TLV::fromTypeValue(quint16 type, T value)
 	tlv.setValue(value);
 	return tlv;
 }
+
+} // namespace Icq
 
 #endif // TLV_H

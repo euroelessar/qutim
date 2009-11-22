@@ -18,6 +18,8 @@
 
 #include <qutim/plugin.h>
 
+namespace Icq {
+
 using namespace qutim_sdk_0_3;
 
 class OscarPlugin : public Plugin
@@ -29,5 +31,7 @@ public:
 	bool load();
 	bool unload();
 };
+
+} // namespace Icq
 
 #endif // OSCARPLUGIN_H

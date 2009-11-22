@@ -19,11 +19,13 @@
 
 #include <qutim/account.h>
 #include <capability.h>
+#include "icqaccount.h"
 
-class IcqAccount;
 
 namespace qutim_sdk_0_3
 {
+	using namespace Icq;
+
 	class MessagePlugin
 	{
 	public:

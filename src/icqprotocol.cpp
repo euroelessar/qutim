@@ -20,6 +20,8 @@
 #include <QPointer>
 #include <QDebug>
 
+namespace Icq {
+
 IcqProtocol *IcqProtocol::self = 0;
 
 struct IcqProtocolPrivate
@@ -94,3 +96,5 @@ Account *IcqProtocol::account(const QString &id) const
 {
     return p->accounts_hash->value(id);
 }
+
+} // namespace Icq

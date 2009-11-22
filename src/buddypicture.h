@@ -20,6 +20,8 @@
 #include "icqcontact.h"
 #include "snachandler.h"
 
+namespace Icq {
+
 class IcqAccount;
 class BuddyPicture;
 
@@ -51,5 +53,7 @@ private:
 	QList<SNAC> m_history;
 	bool m_is_connected;
 };
+
+} // namespace Icq
 
 #endif /* BUDDYPICTURE_H_ */

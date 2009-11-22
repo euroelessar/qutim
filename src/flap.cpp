@@ -17,6 +17,8 @@
 #include "util.h"
 #include <QIODevice>
 
+namespace Icq {
+
 FLAP::FLAP(quint8 channel)
 {
 	m_channel = channel;
@@ -74,3 +76,5 @@ void FLAP::clear()
 	m_state = ReadHeader;
 	m_data.clear();
 }
+
+} // namespace Icq

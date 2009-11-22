@@ -19,6 +19,8 @@
 
 #include "oscarconnection.h"
 
+namespace Icq {
+
 class Md5LoginNegotiation: public SNACHandler
 {
 	Q_OBJECT
@@ -47,5 +49,7 @@ private:
 	QByteArray m_cookie;
 	OscarConnection *m_conn;
 };
+
+} // namespace Icq
 
 #endif // MD5LOGIN_H

@@ -17,8 +17,9 @@
 #include "util.h"
 #include <QCoreApplication>
 
-namespace Util
-{
+namespace Icq {
+
+namespace Util {
 	QString connectionErrorText(quint16 error)
 	{
 		switch(error)
@@ -107,4 +108,6 @@ namespace Util
 		static QTextCodec *codec =  QTextCodec::codecForName("UTF-8");
 		return codec;
 	}
-}
+} // namespace Icq::Util
+
+} // namespace Icq

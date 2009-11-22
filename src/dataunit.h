@@ -20,6 +20,8 @@
 #include "util.h"
 #include "tlv.h"
 
+namespace Icq {
+
 class DataUnit
 {
 public:
@@ -215,5 +217,7 @@ TLVMap DataUnit::readTLVChain(ByteOrder bo) const
 	}
 	return tlvs;
 }
+
+} // namespace Icq
 
 #endif // DATAUNIT_H

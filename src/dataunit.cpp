@@ -15,6 +15,8 @@
 
 #include "dataunit.h"
 
+namespace Icq {
+
 TLV DataUnit::readTLV(ByteOrder bo) const
 {
 	TLV tlv(0xffff);
@@ -44,3 +46,5 @@ TLV DataUnit::readTLV(ByteOrder bo) const
 	}
 	return tlv;
 }
+
+} // namespace Icq

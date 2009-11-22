@@ -16,6 +16,8 @@
 
 #include "capability.h"
 
+namespace Icq {
+
 Capability::Capability()
 {
 }
@@ -39,3 +41,5 @@ bool Capability::operator==(const Capability &rhs) const
 {
 	return m_data == rhs.m_data;
 }
+
+} // namespace Icq

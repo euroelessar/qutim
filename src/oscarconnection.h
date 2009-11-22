@@ -19,6 +19,8 @@
 
 #include "connection.h"
 
+namespace Icq {
+
 using namespace qutim_sdk_0_3;
 
 class SNACHandler;
@@ -87,5 +89,7 @@ private:
 	bool m_is_connected;
 	BuddyPicture *m_buddy_picture;
 };
+
+} // namespace Icq
 
 #endif // OSCARCONNECTION_H

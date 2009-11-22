@@ -21,6 +21,8 @@
 #include "snac.h"
 #include "util.h"
 
+namespace Icq {
+
 class AbstractConnection;
 
 typedef QPair<quint16, quint16> SNACInfo;
@@ -35,5 +37,7 @@ public:
 protected:
 	QList<SNACInfo> m_infos;
 };
+
+} // namespace Icq
 
 #endif // SNACHANDLER_H

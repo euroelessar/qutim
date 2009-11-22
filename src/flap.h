@@ -20,6 +20,8 @@
 
 class QIODevice;
 
+namespace Icq {
+
 class FLAP : public DataUnit
 {
 public:
@@ -39,5 +41,7 @@ private:
 	quint16 m_sequence_number;
 	quint16 m_length;
 };
+
+} // namespace Icq
 
 #endif // FLAP_H

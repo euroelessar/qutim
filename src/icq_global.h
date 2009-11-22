@@ -18,6 +18,8 @@
 
 #include <qutim/libqutim_global.h>
 
+namespace Icq {
+
 enum SnacFamily
 {
 	ServiceFamily		    = 0x0001,
@@ -224,5 +226,7 @@ enum IcqStatusF
 
 //extern quint16 qutimStatusToICQ(qutim_sdk_0_3::Status status);
 extern qutim_sdk_0_3::Status icqStatusToQutim(quint16 status);
+
+} // namespace Icq
 
 #endif // ICQ_GLOBAL_H

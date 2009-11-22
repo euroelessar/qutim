@@ -23,8 +23,9 @@
 
 #define IMPLEMENT_ME QString("Function %1 at line %2: implement me.").arg(Q_FUNC_INFO).arg(__LINE__)
 
-namespace Util
-{
+namespace Icq {
+
+namespace Util {
 	template<typename T>
 	inline QByteArray toBigEndian(T source)
 	{
@@ -48,6 +49,8 @@ namespace Util
 	extern QTextCodec *asciiCodec();
 	extern QTextCodec *utf16Codec();
 	extern QTextCodec *defaultCodec();
-}
+} // namespace Icq::Util
+
+} // namespace Icq
 
 #endif // UTIL_H

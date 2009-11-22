@@ -19,6 +19,8 @@
 #ifndef ICQCONTACT_PH_H
 #define ICQCONTACT_PH_H
 
+namespace Icq {
+
 struct IcqContactPrivate
 {
 	IcqAccount *account;
@@ -28,5 +30,7 @@ struct IcqContactPrivate
 	quint16 group_id;
 	Status status;
 };
+
+} // namespace Icq
 
 #endif // ICQCONTACT_PH_H

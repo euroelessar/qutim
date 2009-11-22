@@ -19,6 +19,8 @@
 
 #include <QByteArray>
 
+namespace Icq {
+
 class Capability
 {
 public:
@@ -37,5 +39,7 @@ inline uint qHash(const Capability &capability)
 {
 	return qHash(capability.data());
 }
+
+} // namespace Icq
 
 #endif // CAPABILTY_H

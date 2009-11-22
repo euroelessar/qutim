@@ -20,6 +20,8 @@
 #include <QBuffer>
 #include <QDebug>
 
+namespace Icq {
+
 quint16 generate_flap_sequence()
 {
 	quint32 n = qrand(), s = 0;
@@ -247,4 +249,4 @@ void AbstractConnection::error(QAbstractSocket::SocketError error)
 	qDebug() << IMPLEMENT_ME << error;
 }
 
-
+} // namespace Icq

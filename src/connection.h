@@ -24,6 +24,8 @@
 #include "snachandler.h"
 #include "flap.h"
 
+namespace Icq {
+
 extern quint16 generate_flap_sequence();
 
 class ProtocolNegotiation: public SNACHandler
@@ -74,5 +76,7 @@ private:
 	QHostAddress m_ext_ip;
 	QList<quint16> m_services;
 };
+
+} // namespace Icq
 
 #endif // CONNECTION_H

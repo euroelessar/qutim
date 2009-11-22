@@ -19,6 +19,8 @@
 #include <QDebug>
 #include <QImage>
 
+namespace Icq {
+
 BuddyPictureConnection::BuddyPictureConnection(QObject *parent):
 	AbstractConnection(parent)
 {
@@ -145,3 +147,5 @@ void BuddyPicture::disconnected()
 	m_is_connected = false;
 	m_history.clear();
 }
+
+} // namespace Icq

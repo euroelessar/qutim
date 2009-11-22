@@ -22,6 +22,8 @@
 #include "messageplugin.h"
 #include "icqcontact.h"
 
+namespace Icq {
+
 class OscarConnection;
 
 class Roster : public SNACHandler
@@ -102,5 +104,7 @@ private:
 	QHash<QString, IcqContact *> m_not_in_list;
 	QQueue<SSIHistoryItem> m_ssi_history;
 };
+
+} // namespace Icq
 
 #endif // ROSTER_H

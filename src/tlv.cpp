@@ -16,6 +16,8 @@
 #include "tlv.h"
 #include <QDataStream>
 
+namespace Icq {
+
 TLV::TLV(quint16 type)
 {
 	m_type = type;
@@ -78,3 +80,5 @@ TLVMap TLV::parseByteArray(const char *data, int length, ByteOrder bo)
 	}
 	return map;
 }
+
+} // namespace Icq

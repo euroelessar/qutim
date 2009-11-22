@@ -25,6 +25,8 @@
 #include <QTextCodec>
 #include <QDateTime>
 
+namespace Icq {
+
 using namespace Util;
 
 Roster::SSIItem::SSIItem(const SNAC &snac)
@@ -922,3 +924,5 @@ void Roster::sendCLOperator(const SSIItem &item, quint16 operation)
 	snac.appendData(item.tlvs);
 	m_conn->send(snac);
 }
+
+} // namespace Icq

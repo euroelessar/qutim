@@ -25,6 +25,8 @@
 #include <QBuffer>
 #include <QTimer>
 
+namespace Icq {
+
 class ProtocolNegotiationImpl : public ProtocolNegotiation
 {
 public:
@@ -337,3 +339,5 @@ void OscarConnection::setIdle(bool allow)
 	snac.appendSimple<quint32>(allow ? 0x0000003C : 0x00000000);
 	send(snac);
 }
+
+} // namespace Icq

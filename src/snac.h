@@ -18,6 +18,8 @@
 
 #include "dataunit.h"
 
+namespace Icq {
+
 class SNAC : public DataUnit
 {
 public:
@@ -105,5 +107,7 @@ private:
 //{
 //	subtype = 0x01; // Invalid Family
 //}
+
+} // namespace Icq
 
 #endif // SNAC_H

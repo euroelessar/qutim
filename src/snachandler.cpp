@@ -15,7 +15,11 @@
 
 #include "snachandler.h"
 
+namespace Icq {
+
 SNACHandler::SNACHandler(QObject *parent):
 	QObject(parent)
 {
 }
+
+} // namespace Icq

@@ -22,6 +22,8 @@
 #include <QSettings>
 #endif
 
+namespace Icq {
+
 Md5LoginNegotiation::Md5LoginNegotiation(OscarConnection *conn, QObject *parent):
 	SNACHandler(parent), m_conn(conn)
 {
@@ -124,3 +126,5 @@ void Md5Login::setLoginData(const QString &addr, quint16 port, const QByteArray 
 	m_port = port;
 	m_cookie = cookie;
 }
+
+} // namespace Icq

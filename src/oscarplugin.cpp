@@ -16,6 +16,8 @@
 #include "oscarplugin.h"
 #include "icqprotocol.h"
 
+namespace Icq {
+
 OscarPlugin::OscarPlugin()
 {
 	qDebug("%s", Q_FUNC_INFO);
@@ -46,4 +48,6 @@ bool OscarPlugin::unload()
 	return false;
 }
 
-QUTIM_EXPORT_PLUGIN(OscarPlugin)
+} // namespace Icq
+
+QUTIM_EXPORT_PLUGIN(Icq::OscarPlugin)

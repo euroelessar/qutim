@@ -18,6 +18,8 @@
 
 #include <qutim/contact.h>
 
+namespace Icq {
+
 using namespace qutim_sdk_0_3;
 
 class IcqAccount;
@@ -42,5 +44,7 @@ private:
 	friend class Roster;
 	QScopedPointer<IcqContactPrivate> p;
 };
+
+} // namespace Icq
 
 #endif // ICQCONTACT_H

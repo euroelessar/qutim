@@ -16,6 +16,8 @@
 #include "snac.h"
 #include "util.h"
 
+namespace Icq {
+
 void SNAC::reset(quint16 family, quint16 subtype)
 {
 	m_family = family;
@@ -52,3 +54,5 @@ QByteArray SNAC::header() const
 	qToBigEndian<quint32>(m_id, (uchar *)data.data() + 6);
 	return data;
 }
+
+} // namespace Icq

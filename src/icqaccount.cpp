@@ -18,6 +18,8 @@
 #include "oscarconnection.h"
 #include "roster.h"
 
+namespace Icq {
+
 struct IcqAccountPrivate
 {
 	OscarConnection *conn;
@@ -76,3 +78,5 @@ ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
 	}
 	return contact;
 }
+
+} // namespace Icq

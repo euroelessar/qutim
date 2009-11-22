@@ -18,6 +18,8 @@
 
 #include <qutim/account.h>
 
+namespace Icq {
+
 using namespace qutim_sdk_0_3;
 
 struct IcqAccountPrivate;
@@ -37,5 +39,7 @@ public:
 private:
 	QScopedPointer<IcqAccountPrivate> p;
 };
+
+} // namespace Icq
 
 #endif // ICQACCOUNT_H

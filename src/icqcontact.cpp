@@ -18,6 +18,8 @@
 #include "roster.h"
 #include "qutim/messagesession.h"
 
+namespace Icq {
+
 IcqContact::IcqContact(const QString &uin, IcqAccount *account) : Contact(account), p(new IcqContactPrivate)
 {
 	p->account = account;
@@ -73,3 +75,5 @@ void IcqContact::setTags(const QSet<QString> &tags)
 void IcqContact::setInList(bool inList)
 {
 }
+
+} // namespace Icq

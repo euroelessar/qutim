@@ -18,6 +18,8 @@
 
 #include <qutim/protocol.h>
 
+namespace Icq {
+
 using namespace qutim_sdk_0_3;
 
 struct IcqProtocolPrivate;
@@ -27,17 +29,19 @@ class IcqProtocol : public Protocol
 	Q_OBJECT
 	Q_CLASSINFO("Protocol", "icq")
 public:
-    IcqProtocol();
+	IcqProtocol();
 	virtual ~IcqProtocol();
 	static inline IcqProtocol *instance() { if(!self) qWarning("IcqProtocol isn't created"); return self; }
 	virtual AccountCreationWizard *accountCreationWizard();
-        virtual QList<Account *> accounts() const;
-        virtual Account *account(const QString &id) const;
+	virtual QList<Account *> accounts() const;
+	virtual Account *account(const QString &id) const;
 protected:
 	void loadAccounts();
 private:
 	QScopedPointer<IcqProtocolPrivate> p;
 	static IcqProtocol *self;
 };
+
+} // namespace Icq
 
 #endif // ICQPROTOCOL_H
