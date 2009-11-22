@@ -21,6 +21,12 @@
 #include "vpluginsystem.h"
 #include "vavatarmanagement.h"
 
+enum BuddyType {
+  btFriend,
+  btFavorite,
+  btTemporary,
+};
+
 class Buddy {
 public:
     QString m_id;
@@ -28,6 +34,8 @@ public:
     bool m_online;
     QByteArray m_avatar_hash;
     QString m_activity;
+    BuddyType m_type;
+    Buddy() { m_type = btFriend; }
 };
 
 
@@ -57,6 +65,7 @@ private slots:
     void activitiesArrived(QList<Activity> &activities);
     void getNewMessages(QList<Message> &messages);
     void openPageActionTriggered();
+    void addTempFriend(QString id, QString name, QString avatar_url);
 
 
 private:
@@ -66,9 +75,10 @@ private:
     VpluginSystem &m_plugin_system;
     void loadLocalList(QHash<QString,Buddy> local_status_list,bool add_to_gui = true);
     QStringList m_tmp_friend_list;
+    QStringList m_tmp_temporary_list;
     QHash<QString,Buddy*> m_current_friend_list;
-	QHash<QString,Buddy*> m_current_fave_list;
-	QString getParentForId(QString);
+    QStringList m_last_fave_list;
+    QString getParentForId(QString);
     QIcon m_online_icon;
     QIcon m_offline_icon;
     void setBuddyOffline(const QString &account_id);
@@ -76,14 +86,17 @@ private:
     void setStatuses(QList<FriendBuddy> &friends);
     VavatarManagement *m_avatar_management;
     QString m_avatar_path;
-	bool m_show_statustext;
+    bool m_show_statustext;
 
-	void createContactListActions();
-	QMenu *currentContextMenu;
-	Buddy *currentContextBuddy;
-	QWidgetAction *menuTitle;
-	QLabel *menuLabel;
-	QAction *openPageAction;
+    void createContactListActions();
+    QMenu *currentContextMenu;
+    Buddy *currentContextBuddy;
+    QWidgetAction *menuTitle;
+    QLabel *menuLabel;
+    QAction *openPageAction;
+
+    void moveToAnotherGroup(const QString &id, const QString &src, const QString &dest);
+    void changeContactSettings(const QString &id, const QString &name, const QString &type);
 };
 
 #endif // VCONTACTLIST_H

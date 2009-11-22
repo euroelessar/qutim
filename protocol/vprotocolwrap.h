@@ -42,6 +42,8 @@ struct Message {
     QString m_sender_id;
     QString m_message;
     QDateTime m_time;
+    QString m_tmp_name;
+    QString m_tmp_avatar_url;
 };
 
 struct Photo {

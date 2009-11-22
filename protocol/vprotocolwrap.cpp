@@ -320,7 +320,8 @@ void VprotocolWrap::processFaves(QString data)
 	qutim_faves.append(f_buddy);
 	//		qDebug()<<"processFaves"<<f_buddy.m_id<<f_buddy.m_name<<f_buddy.m_avatar_url<<f_buddy.m_online;
     }
-    if (qutim_faves.count()) emit faveListArrived(qutim_faves);
+
+    emit faveListArrived(qutim_faves);
 }
 
 void VprotocolWrap::askForFriendsActivity()
@@ -419,6 +420,8 @@ void VprotocolWrap::processMessagesArray(QString data)
 	f_mess.m_time = QDateTime::fromTime_t(sc_item.property("1").toInteger());
 	f_mess.m_message = sc_item.property("2").property(0).toString();
 	f_mess.m_sender_id = sc_item.property("3").property(0).toString();
+	f_mess.m_tmp_name = sc_item.property("3").property(1).toString();
+	f_mess.m_tmp_avatar_url = sc_item.property("3").property(2).toString();
 	qutim_messages.prepend(f_mess);
 	//qDebug() << "processMessagesArray: " << f_mess.m_sender_id << ", " << f_mess.m_message;
     }

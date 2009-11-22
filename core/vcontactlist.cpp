@@ -31,6 +31,7 @@ m_plugin_system(VpluginSystem::instance())
     m_online_icon = QIcon(":/images/online.png");
     m_offline_icon = QIcon(":/images/offline.png");
 
+    // add Vkontakte protocol group
     TreeModelItem item;
     item.m_protocol_name = "VKontakte";
     item.m_account_name = m_account_name;
@@ -38,12 +39,23 @@ m_plugin_system(VpluginSystem::instance())
     item.m_item_type = 2;
     m_plugin_system.addItemToContactList(item, m_account_name);
 
+    // add Friends group
     item.m_protocol_name = "VKontakte";
     item.m_account_name = m_account_name;
     item.m_parent_name = m_account_name;
 	item.m_item_name = "2";
     item.m_item_type = 1;
     m_plugin_system.addItemToContactList(item, tr("Friends"));
+
+    // add Favorites group
+    item.m_protocol_name = "VKontakte";
+    item.m_account_name = m_account_name;
+    item.m_parent_name = m_account_name;
+    item.m_item_name = "1";
+    item.m_item_type = 1;
+    m_plugin_system.addItemToContactList(item, tr("Favorites"));
+
+
 	loadSettings();
 	QHash<QString,Buddy> tmp;
     loadLocalList(tmp);
@@ -73,6 +85,42 @@ void VcontactList::removeCL()
     m_plugin_system.removeItemFromContactList(item);
 }
 
+void VcontactList::addTempFriend(QString id, QString name, QString avatar_url)
+{
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+m_profile_name+"/vkontakte."+m_account_name, "contactlist");
+    QStringList friend_list = settings.value("list/all", QStringList()).toStringList();
+
+    Buddy *tmp_buddy = new Buddy;
+    TreeModelItem item;
+
+    m_avatar_management->requestForAvatar(id, avatar_url);
+
+    tmp_buddy->m_id = id;
+    tmp_buddy->m_name = name;
+    tmp_buddy->m_type = btTemporary;
+    tmp_buddy->m_online = false;
+
+    m_current_friend_list.insert(id, tmp_buddy);
+
+    item.m_protocol_name = "VKontakte";
+    item.m_account_name = m_account_name;
+    item.m_parent_name = "";
+    item.m_item_name = id;
+    item.m_item_type = 0;
+
+    m_plugin_system.addItemToContactList(item, name);
+    setBuddyOffline(id);
+
+    settings.beginGroup(id);
+    settings.setValue("id",id);
+    settings.setValue("name", name);
+    settings.setValue("type", "temporary");
+    settings.endGroup();
+
+    friend_list << id;
+    settings.setValue("list/all",friend_list);
+}
+
 void VcontactList::getFriendsList(QList<FriendBuddy> &friends)
 {
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+m_profile_name+"/vkontakte."+m_account_name, "contactlist");
@@ -82,159 +130,193 @@ void VcontactList::getFriendsList(QList<FriendBuddy> &friends)
     QStringList friend_list;
 
     QDir dir(settings.fileName().section('/', 0, -3) + "/vkontakteicons");
-	if ( !dir.exists() )
-	    dir.mkdir(dir.path());
+    if ( !dir.exists() )
+	dir.mkdir(dir.path());
 
     //add new users and make list for removing
-	foreach(FriendBuddy mine_friend, friends) {
+    foreach(FriendBuddy mine_friend, friends) {
 
-	    QFile file(dir.path() + "/" + QCryptographicHash::hash(mine_friend.m_avatar_url.toUtf8(),
-						       QCryptographicHash::Md5).toHex());
+	QFile file(dir.path() + "/" + QCryptographicHash::hash(mine_friend.m_avatar_url.toUtf8(),
+							       QCryptographicHash::Md5).toHex());
 
-		if ( m_current_friend_list.contains(mine_friend.m_id)) {
-			if ( m_current_friend_list.value(mine_friend.m_id)->m_avatar_hash !=
-					QCryptographicHash::hash(mine_friend.m_avatar_url.toUtf8(), QCryptographicHash::Md5)
-			    || !file.exists())
-			m_avatar_management->requestForAvatar(mine_friend.m_id, mine_friend.m_avatar_url);
-		}
-		else m_avatar_management->requestForAvatar(mine_friend.m_id, mine_friend.m_avatar_url);
+	if ( m_current_friend_list.contains(mine_friend.m_id)) {
+	    if ( m_current_friend_list.value(mine_friend.m_id)->m_avatar_hash !=
+		 QCryptographicHash::hash(mine_friend.m_avatar_url.toUtf8(), QCryptographicHash::Md5)
+		|| !file.exists())
+		m_avatar_management->requestForAvatar(mine_friend.m_id, mine_friend.m_avatar_url);
+	}
+	else m_avatar_management->requestForAvatar(mine_friend.m_id, mine_friend.m_avatar_url);
 
-		friend_list<<mine_friend.m_id;
-        tmp_remove_buddies.removeAll(mine_friend.m_id);
-		if (!tmp_add_buddies.contains(mine_friend.m_id)) {
-            Buddy *tmp_buddy = new Buddy;
-            tmp_buddy->m_id = mine_friend.m_id;
-            tmp_buddy->m_name = mine_friend.m_name;
-            tmp_buddy->m_online = false;
-            m_current_friend_list.insert(mine_friend.m_id, tmp_buddy);
+	friend_list << mine_friend.m_id;
+	tmp_remove_buddies.removeAll(mine_friend.m_id);
 
-            settings.beginGroup(mine_friend.m_id);
-            settings.setValue("id",mine_friend.m_id);
-            settings.setValue("name", mine_friend.m_name);
-            settings.endGroup();
+	if (!tmp_add_buddies.contains(mine_friend.m_id)) {
+	    Buddy *tmp_buddy = new Buddy;
+	    tmp_buddy->m_id = mine_friend.m_id;
+	    tmp_buddy->m_name = mine_friend.m_name;
+	    tmp_buddy->m_online = false;
+	    tmp_buddy->m_type = btFriend;
+	    m_current_friend_list.insert(mine_friend.m_id, tmp_buddy);
 
-            TreeModelItem item;
-            item.m_protocol_name = "VKontakte";
-            item.m_account_name = m_account_name;
-			item.m_parent_name = getParentForId(mine_friend.m_id);
-            item.m_item_name = mine_friend.m_id;
-            item.m_item_type = 0;
-            m_plugin_system.addItemToContactList(item, mine_friend.m_name);
-            setBuddyOffline(mine_friend.m_id);
+	    settings.beginGroup(mine_friend.m_id);
+	    settings.setValue("id",mine_friend.m_id);
+	    settings.setValue("name", mine_friend.m_name);
+	    settings.setValue("type", "friend");
+	    settings.endGroup();
 
-        }
+	    TreeModelItem item;
+	    item.m_protocol_name = "VKontakte";
+	    item.m_account_name = m_account_name;
+	    item.m_parent_name = getParentForId(mine_friend.m_id);
+	    item.m_item_name = mine_friend.m_id;
+	    item.m_item_type = 0;
+	    m_plugin_system.addItemToContactList(item, mine_friend.m_name);
+	    setBuddyOffline(mine_friend.m_id);
+	}
     }
 
+    // if contact is old, but not temporary  ==> remove it
     foreach(QString tmp_id, tmp_remove_buddies)
     {
-        if ( m_current_friend_list.contains(tmp_id) )
-        {
-            delete m_current_friend_list.value(tmp_id);
-            m_current_friend_list.remove(tmp_id);
-            settings.remove(tmp_id);
-        }
+	if ( m_current_friend_list.contains(tmp_id) && !m_tmp_temporary_list.contains(tmp_id) )
+	{
+	    delete m_current_friend_list.value(tmp_id);
+	    m_current_friend_list.remove(tmp_id);
+	    settings.remove(tmp_id);
+	}
     }
 
+    // do not forget to append temporary contacts to friend_list
+    friend_list.append(m_tmp_temporary_list);
+    // save friend_list
     settings.setValue("list/all",friend_list);
 
     setStatuses(friends);
 
 }
 
+void VcontactList::moveToAnotherGroup(const QString &id, const QString &src, const QString &dest)
+{
+    TreeModelItem item;
+    item.m_protocol_name = "VKontakte";
+    item.m_account_name = m_account_name;
+    item.m_item_name = id;
+    item.m_item_type = 0;
+    item.m_parent_name = src;
+
+    TreeModelItem newitem = item;
+    newitem.m_parent_name = dest;
+
+    m_plugin_system.moveItemInContactList(item, newitem);
+}
+
+void VcontactList::changeContactSettings(const QString &id, const QString &name, const QString &type)
+{
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+m_profile_name+"/vkontakte."+m_account_name, "contactlist");
+
+    settings.beginGroup(id);
+    settings.setValue("id",id);
+    settings.setValue("name", name);
+    settings.setValue("type", type);
+    settings.endGroup();
+}
+
 void VcontactList::faveListArrived(QList<FriendBuddy> &faves)
 {
+    QStringList tmp_remove_faves = m_last_fave_list;
 
-	if (!m_current_fave_list.count()) {
-		TreeModelItem item;
-		item.m_protocol_name = "VKontakte";
-		item.m_account_name = m_account_name;
-		item.m_parent_name = m_account_name;
-		item.m_item_name = "1";
-		item.m_item_type = 1;
-		m_plugin_system.addItemToContactList(item, tr("Favorites"));
+    foreach(FriendBuddy mine_fave, faves) {
+	if ( !m_last_fave_list.contains(mine_fave.m_id) )
+	{
+	    moveToAnotherGroup(mine_fave.m_id, "2", "1");
+	    m_current_friend_list.value(mine_fave.m_id)->m_type = btFavorite;
+	    m_last_fave_list << mine_fave.m_id;
+	    changeContactSettings(mine_fave.m_id, mine_fave.m_name, "favorite");
+	}
+	tmp_remove_faves.removeAll(mine_fave.m_id);
+    }
+
+    if ( faves.isEmpty() )
+    { // no bookmarks at all ? move all back to Friends group
+	foreach(QString fav, m_last_fave_list) {
+	    moveToAnotherGroup(fav, "1", "2");
+	    m_current_friend_list.value(fav)->m_type = btFriend;
+	    changeContactSettings(m_current_friend_list.value(fav)->m_id, m_current_friend_list.value(fav)->m_name, "friend");
 	}
 
-	foreach(FriendBuddy mine_fave, faves) {
-		if (m_current_friend_list.contains(mine_fave.m_id)) {
-			if (!m_current_fave_list.contains(mine_fave.m_id)) {
-
-				TreeModelItem item;
-				item.m_protocol_name = "VKontakte";
-				item.m_account_name = m_account_name;
-				item.m_item_name = mine_fave.m_id;
-				item.m_item_type = 0;
-				item.m_parent_name="2";
-
-				TreeModelItem newitem = item;
-				newitem.m_parent_name="1";
-
-				m_plugin_system.moveItemInContactList(item, newitem);
-
-				Buddy *tmp_buddy = new Buddy;
-				tmp_buddy->m_id = mine_fave.m_id;
-				tmp_buddy->m_name = mine_fave.m_name;
-				m_current_fave_list.insert(mine_fave.m_id, tmp_buddy);
-			}
-		}
-		else {
-			if (!m_current_fave_list.contains(mine_fave.m_id)) {
-
-				TreeModelItem item;
-				item.m_protocol_name = "VKontakte";
-				item.m_account_name = m_account_name;
-				item.m_item_name = mine_fave.m_id;
-				item.m_item_type = 0;
-				item.m_parent_name="1";
-
-				m_plugin_system.addItemToContactList(item, mine_fave.m_name);
-
-				Buddy *tmp_buddy = new Buddy;
-				tmp_buddy->m_id = mine_fave.m_id;
-				tmp_buddy->m_name = mine_fave.m_name;
-				m_current_fave_list.insert(mine_fave.m_id, tmp_buddy);
-			}
-		}
+	m_last_fave_list.clear();
+    } else
+    { // move contacts that are no longer bookmarked back to Friends group
+	foreach(QString fav, tmp_remove_faves) {
+	    moveToAnotherGroup(fav, "1", "2");
+	    m_current_friend_list.value(fav)->m_type = btFriend;
+	    m_last_fave_list.removeAll(fav);
+	    changeContactSettings(m_current_friend_list.value(fav)->m_id, m_current_friend_list.value(fav)->m_name, "friend");
 	}
+    }
 }
 
 QString VcontactList::getParentForId(QString v_id) {
-	QString v_parent = "2";
-	if (m_current_fave_list.contains(v_id)) v_parent = "1";
-	return v_parent;
+    BuddyType type;
+
+    if (m_current_friend_list.contains(v_id))
+	type = m_current_friend_list.value(v_id)->m_type;
+
+    switch (type) {
+    //case btFriend: return "2";
+    case btFavorite: return "1";
+    case btTemporary: return "";
+    default: return "2";
+    }
 }
 
 void VcontactList::loadLocalList(QHash<QString,Buddy> local_status_list,bool add_to_gui)
 {
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+m_profile_name+"/vkontakte."+m_account_name, "contactlist");
     m_avatar_path = settings.fileName().section('/', 0, -3) + "/vkontakteicons/";
-   
+
     QStringList friend_list = settings.value("list/all", QStringList()).toStringList();
+
     qDeleteAll(m_current_friend_list);
     m_tmp_friend_list.clear();
     m_current_friend_list.clear();
+    m_tmp_temporary_list.clear();
+
     foreach(QString mine_friend, friend_list)
     {
 	settings.beginGroup(mine_friend);
 	if ( !settings.value("id","").toString().isEmpty())
 	{
-            QString tmp_id = settings.value("id","").toString();
-            Buddy *tmp_buddy = new Buddy;
-            tmp_buddy->m_id = tmp_id;
-            tmp_buddy->m_name = settings.value("name","").toString();
-            tmp_buddy->m_online = false;
+	    QString tmp_id = settings.value("id","").toString();
+	    Buddy *tmp_buddy = new Buddy;
+	    tmp_buddy->m_id = tmp_id;
+	    tmp_buddy->m_name = settings.value("name","").toString();
+	    tmp_buddy->m_online = false;
 	    tmp_buddy->m_avatar_hash = settings.value("avatar",QByteArray()).toByteArray();
 
-            m_tmp_friend_list<<tmp_id;
-            if ( local_status_list.contains(tmp_id) )
-            {
-                tmp_buddy->m_online = local_status_list.value(tmp_id).m_online;
-            }
-            m_current_friend_list.insert(tmp_id, tmp_buddy);
+	    QString sType = settings.value("type", "friend").toString();
+	    if ( sType == "favorite") {
+		tmp_buddy->m_type = btFavorite;
+		m_last_fave_list << tmp_id;
+	    }
+	    else if ( sType == "temporary") {
+		m_tmp_temporary_list << tmp_id;
+		tmp_buddy->m_type = btTemporary;
+	    }
+	    else
+		tmp_buddy->m_type = btFriend;
+
+	    m_tmp_friend_list<<tmp_id;
+	    if ( local_status_list.contains(tmp_id) )
+	    {
+		tmp_buddy->m_online = local_status_list.value(tmp_id).m_online;
+	    }
+	    m_current_friend_list.insert(tmp_id, tmp_buddy);
 	    TreeModelItem item;
 	    item.m_protocol_name = "VKontakte";
 	    item.m_account_name = m_account_name;
 	    item.m_item_name = settings.value("id","").toString();
-		item.m_parent_name = getParentForId(item.m_item_name);
+	    item.m_parent_name = getParentForId(item.m_item_name);
 	    item.m_item_type = 0;
 	    if (add_to_gui)
 	    {
@@ -244,8 +326,10 @@ void VcontactList::loadLocalList(QHash<QString,Buddy> local_status_list,bool add
 
 	    if ( !tmp_buddy->m_avatar_hash.isEmpty() )
 	    {
-			m_plugin_system.setContactItemIcon(item,
-			QIcon(settings.fileName().section('/', 0, -3) + "/vkontakteicons/" + settings.value("avatar",QByteArray()).toByteArray().toHex()), 1);
+		m_plugin_system.setContactItemIcon(
+		    item,
+		    QIcon(settings.fileName().section('/', 0, -3) + "/vkontakteicons/" + settings.value("avatar",QByteArray()).toByteArray().toHex()),
+		    1);
 
 	    }
 
@@ -259,8 +343,8 @@ void VcontactList::setBuddyOffline(const QString &account_id)
 	    TreeModelItem item;
 	    item.m_protocol_name = "VKontakte";
 	    item.m_account_name = m_account_name;
-		item.m_parent_name = getParentForId(item.m_item_name);
 	    item.m_item_name = account_id;
+	    item.m_parent_name = getParentForId(item.m_item_name);
 	    item.m_item_type = 0;
 	    m_plugin_system.setContactItemStatus(item,m_offline_icon,"offline", 1000);
 }
@@ -270,8 +354,8 @@ void VcontactList::setBuddyOnline(const QString &account_id)
 	    TreeModelItem item;
 	    item.m_protocol_name = "VKontakte";
 	    item.m_account_name = m_account_name;
-		item.m_parent_name = getParentForId(item.m_item_name);
 	    item.m_item_name = account_id;
+	    item.m_parent_name = getParentForId(item.m_item_name);
 	    item.m_item_type = 0;
 	    m_plugin_system.setContactItemStatus(item,m_online_icon,"online", 0);
 }
@@ -309,7 +393,7 @@ void VcontactList::setStatuses(QList<FriendBuddy> &friends)
 
 void VcontactList::avatarArrived(const QString &buddy_id, const QByteArray &avatar_hash)
 {
-    if ( m_current_friend_list.contains(buddy_id) )
+    if ( m_current_friend_list.contains(buddy_id))
     {
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+m_profile_name+"/vkontakte."+m_account_name, "contactlist");
 	
@@ -323,8 +407,8 @@ void VcontactList::avatarArrived(const QString &buddy_id, const QByteArray &avat
 	TreeModelItem item;
 	item.m_protocol_name = "VKontakte";
 	item.m_account_name = m_account_name;
-	item.m_parent_name = getParentForId(item.m_item_name);
 	item.m_item_name = buddy_id;
+	item.m_parent_name = getParentForId(item.m_item_name);
 	item.m_item_type = 0;
 
 	m_plugin_system.setContactItemIcon(item,
@@ -353,8 +437,8 @@ void VcontactList::activitiesArrived(QList<Activity> &activities)
 	    TreeModelItem item;
 	    item.m_protocol_name = "VKontakte";
 	    item.m_account_name = m_account_name;
-		item.m_parent_name = getParentForId(item.m_item_name);
 	    item.m_item_name = tmp_act.m_id;
+	    item.m_parent_name = getParentForId(item.m_item_name);
 	    item.m_item_type = 0;
 	    m_current_friend_list.value(tmp_act.m_id)->m_activity = tmp_act.m_activity;
 	    if (!m_show_statustext)
@@ -405,20 +489,19 @@ void VcontactList::getNewMessages(QList<Message> &messages)
 {
     foreach(Message tmp_mess, messages)
     {
-	if ( m_current_friend_list.contains(tmp_mess.m_sender_id) )
-	{
-	    TreeModelItem item;
-	    item.m_protocol_name = "VKontakte";
-	    item.m_account_name = m_account_name;
-		item.m_parent_name = getParentForId(item.m_item_name);
-	    item.m_item_name = tmp_mess.m_sender_id;
-	    item.m_item_type = 0;
+	if (! m_current_friend_list.contains(tmp_mess.m_sender_id) )
+	    addTempFriend(tmp_mess.m_sender_id, tmp_mess.m_tmp_name, tmp_mess.m_tmp_avatar_url);
 
-	    replaceImproperChars(tmp_mess.m_message);
+	TreeModelItem item;
+	item.m_protocol_name = "VKontakte";
+	item.m_account_name = m_account_name;
+	item.m_item_name = tmp_mess.m_sender_id;
+	item.m_parent_name = getParentForId(item.m_item_name);
+	item.m_item_type = 0;
 
+	replaceImproperChars(tmp_mess.m_message);
 
-	    m_plugin_system.addMessageFromContact(item,tmp_mess.m_message, tmp_mess.m_time);
-	}
+	m_plugin_system.addMessageFromContact(item,tmp_mess.m_message, tmp_mess.m_time);
     }
 }
 
@@ -436,8 +519,8 @@ QStringList VcontactList::getInfoAboutBuddy(const QString &buddy_id)
 
 void VcontactList::loadSettings()
 {
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+m_profile_name+"/vkontakte."+m_account_name, "accountsettings");
- 	m_show_statustext = settings.value("roster/statustext", true).toBool();
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim/qutim."+m_profile_name+"/vkontakte."+m_account_name, "accountsettings");
+    m_show_statustext = settings.value("roster/statustext", true).toBool();
 }
 
 void VcontactList::showItemContextMenu(const QList<QAction*> &action_list,
