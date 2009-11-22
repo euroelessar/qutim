@@ -21,6 +21,7 @@
 #include <QWebFrame>
 #include <QDebug>
 #include <QTime>
+#include <3rdparty/qtwin/qtwin.h>
 
 namespace AdiumChat
 {
@@ -52,6 +53,13 @@ namespace AdiumChat
 		ui->mainToolbar->addAction(test_act1);
 		QAction *test_act2 = new QAction(Icon("preferences-system"),tr("Testing action"),this);
 		ui->additionalToolbar->addAction(test_act2);
+                //init aero integration for win
+                if (chatFlags & AeroThemeIntegeation) {
+                    if (QtWin::isCompositionEnabled()) {
+                        QtWin::extendFrameIntoClientArea(this);
+                        setContentsMargins(0, 0, 0, 0);
+                    }
+                }
 	}
 
 	ChatWidget::~ChatWidget()

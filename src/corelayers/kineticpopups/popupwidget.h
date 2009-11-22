@@ -27,7 +27,7 @@ namespace KineticPopups
 	{
 		Default = 0x0,
 		Preview = 0x1,
-		AeroThemeIntegeation	=	0x2,
+                AeroThemeIntegration	=	0x2,
 	};
 	class PopupWidget : public QTextBrowser
 	{

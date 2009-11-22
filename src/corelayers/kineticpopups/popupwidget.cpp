@@ -21,6 +21,7 @@
 #include <QLabel>
 #include <QPainter>
 #include <QDesktopWidget>
+#include <3rdparty/qtwin/qtwin.h>
 
 namespace KineticPopups
 {
@@ -34,19 +35,26 @@ namespace KineticPopups
 		else {
 			setWindowFlags(popup_settings.widgetFlags);
 			//this->resize(NotificationsManager::self()->defaultSize);
-
+                        //init aero integration for win
+                        if (flags & AeroThemeIntegration) {
+                            if (QtWin::isCompositionEnabled()) {
+                                QtWin::extendFrameIntoClientArea(this);
+                                setContentsMargins(0, 0, 0, 0);
+                            }
+                        else {
 			//init transparent
-			setAttribute(Qt::WA_TranslucentBackground);
-                        setAttribute(Qt::WA_NoSystemBackground, true);
-			ensurePolished(); // workaround Oxygen filling the background
-			setAttribute(Qt::WA_StyledBackground, false);
-                        //hacks
+                            setAttribute(Qt::WA_TranslucentBackground);
+                            setAttribute(Qt::WA_NoSystemBackground, true);
+                            ensurePolished(); // workaround Oxygen filling the background
+                            setAttribute(Qt::WA_StyledBackground, false);
+                      }
 		}
 		setFrameShape ( QFrame::NoFrame );
 		setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
 		setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
                 setContextMenuPolicy(Qt::NoContextMenu);
 		setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
+                }
 	}
 
 
@@ -62,8 +70,6 @@ namespace KineticPopups
 		int height = document()->size().height();
 
 		return QSize(width,height);
-
-
 	}
 
 
