@@ -33,10 +33,6 @@ namespace qutim_sdk_0_3
 		AccountCreationWizard(Protocol *protocol);
 		virtual ~AccountCreationWizard();
 		virtual QList<QWizardPage *> createPages(QWidget *parent) = 0;
-	public slots:
-		virtual void registrationFinished() = 0;
-	signals:
-		void registrationCanceled();
 	};
 
 	class LIBQUTIM_EXPORT Protocol : public QObject

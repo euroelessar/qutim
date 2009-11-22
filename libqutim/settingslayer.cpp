@@ -24,6 +24,26 @@
 
 namespace qutim_sdk_0_3
 {
+	SettingsItem::SettingsItem(SettingsItemPrivate &d) : p(&d)
+	{
+		p->text.setContext("Settings");
+	}
+
+	SettingsItem::SettingsItem(Settings::Type type, const QIcon &icon, const char *text) : p(new SettingsItemPrivate)
+	{
+		p->type = type;
+		p->icon = icon;
+		p->text.setContext("Settings");
+		p->text.setOriginal(text);
+	}
+
+	SettingsItem::SettingsItem(Settings::Type type, const char *text) : p(new SettingsItemPrivate)
+	{
+		p->type = type;
+		p->text.setContext("Settings");
+		p->text.setOriginal(text);
+	}
+
 	SettingsItem::~SettingsItem()
 	{
 		clearWidget();
@@ -31,35 +51,44 @@ namespace qutim_sdk_0_3
 
 	Settings::Type SettingsItem::type() const
 	{
-		if(m_type < Settings::General || m_type > Settings::Protocol)
+		if(p->type < Settings::General || p->type > Settings::Protocol)
 			return Settings::Invalid;
-		return m_type;
+		return p->type;
 	}
 
 	QIcon SettingsItem::icon() const
 	{
 		// TODO: If icon is null choose it by type
-		return m_icon;
+		return p->icon;
 	}
 
 	LocalizedString SettingsItem::text() const
 	{
-		return m_text;
+		return p->text;
 	}
 
 	SettingsWidget *SettingsItem::widget() const
 	{
-		if(!m_gen)
-			m_gen = generator();
-		if(m_gen && m_widget.isNull())
-			m_widget = m_gen->generate<SettingsWidget>();
-		return m_widget;
+		if(!p->gen)
+			p->gen = generator();
+		if(p->gen && p->widget.isNull()) {
+			p->widget = p->gen->generate<SettingsWidget>();
+			foreach (const ConnectInfo &info, p->connections)
+				QObject::connect(p->widget, info.signal, info.receiver, info.member);
+		}
+		return p->widget;
 	}
 
 	void SettingsItem::clearWidget()
 	{
-		if(!m_widget.isNull())
-			delete m_widget.data();
+		if(!p->widget.isNull())
+			delete p->widget.data();
+	}
+
+	void SettingsItem::connect(const char *signal, QObject *receiver, const char *member)
+	{
+		Q_ASSERT(signal && receiver && member);
+		p->connections << ConnectInfo(signal, receiver, member);
 	}
 
 	AutoSettingsWidget::AutoSettingsWidget(AutoSettingsItemPrivate *pr) : p(pr), g(new AutoSettingsWidgetPrivate)
@@ -162,15 +191,22 @@ namespace qutim_sdk_0_3
 	}
 
 	AutoSettingsItem::AutoSettingsItem(Settings::Type type, const QIcon &icon, const char *text)
-			: SettingsItem(type, icon, text), p(new AutoSettingsItemPrivate)
+			: SettingsItem(*new AutoSettingsItemPrivate)
 	{
-		p->gen = new AutoSettingsGenerator(p.data());
+		AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
+		d->type = type;
+		d->icon = icon;
+		d->text.setOriginal(text);
+		d->gen = new AutoSettingsGenerator(d);
 	}
 
 	AutoSettingsItem::AutoSettingsItem(Settings::Type type, const char *text)
-			: SettingsItem(type, text), p(new AutoSettingsItemPrivate)
+			: SettingsItem(*new AutoSettingsItemPrivate)
 	{
-		p->gen = new AutoSettingsGenerator(p.data());
+		AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
+		d->type = type;
+		d->text.setOriginal(text);
+		d->gen = new AutoSettingsGenerator(d);
 	}
 
 	AutoSettingsItem::~AutoSettingsItem()
@@ -179,16 +215,18 @@ namespace qutim_sdk_0_3
 
 	void AutoSettingsItem::setConfig(const QString &config, const QString &group)
 	{
-		p->config = config;
-		p->group = group;
+		AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
+		d->config = config;
+		d->group = group;
 	}
 
 	AutoSettingsItem::Entry *AutoSettingsItem::addEntry(const char *text, const ObjectGenerator *gen)
 	{
+		AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
 		if(!gen->extends<QWidget>())
 			return 0;
 		Entry *entry = new Entry(text, gen);
-		p->entries.append(entry);
+		d->entries.append(entry);
 		return entry;
 	}
 

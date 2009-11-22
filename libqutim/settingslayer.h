@@ -27,6 +27,8 @@ namespace qutim_sdk_0_3
 {
 	class SettingsWidget;
 	class SettingsItem;
+	struct SettingsItemPrivate;
+
 	namespace Settings
 	{
 		enum Type
@@ -53,25 +55,19 @@ namespace qutim_sdk_0_3
 	{
 		Q_DISABLE_COPY(SettingsItem);
 	public:
-		SettingsItem()
-				: m_gen(0), m_type(Settings::Invalid), m_text("Settings", 0) {}
-		SettingsItem(Settings::Type type, const QIcon &icon, const char *text)
-				: m_gen(0), m_type(type), m_icon(icon), m_text("Settings", text) {}
-		SettingsItem(Settings::Type type, const char *text)
-				: m_gen(0), m_type(type), m_text("Settings", text) {}
+		SettingsItem(SettingsItemPrivate &d);
+		SettingsItem(Settings::Type type, const QIcon &icon, const char *text);
+		SettingsItem(Settings::Type type, const char *text);
 		virtual ~SettingsItem();
 		Settings::Type type() const;
 		QIcon icon() const;
 		LocalizedString text() const;
 		SettingsWidget *widget() const;
 		void clearWidget();
+		void connect(const char *signal, QObject *receiver, const char *member);
 	protected:
 		virtual const ObjectGenerator *generator() const = 0;
-		mutable const ObjectGenerator *m_gen;
-		Settings::Type m_type;
-		QIcon m_icon;
-		LocalizedString m_text; // should be inserted by QT_TRANSLATE_NOOP_UTF8("Settings", "Contact list")
-		mutable QPointer<SettingsWidget> m_widget;
+		QScopedPointer<SettingsItemPrivate> p;
 	};
 
 	template<typename T>
@@ -127,7 +123,6 @@ namespace qutim_sdk_0_3
 		}
 	private:
 		virtual const ObjectGenerator *generator() const;
-		QScopedPointer<AutoSettingsItemPrivate> p;
 	};
 
 	class AutoSettingsComboBox : public QComboBox

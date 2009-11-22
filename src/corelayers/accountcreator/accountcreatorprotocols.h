@@ -12,11 +12,18 @@ namespace Ui {
 
 namespace Core
 {
-	class AccountCreatorProtocols : public QWizardPage {
+	class AccountCreatorWizard;
+
+	class AccountCreatorProtocols : public QWizardPage
+	{
 		Q_OBJECT
 	public:
-		AccountCreatorProtocols(QWidget *parent = 0);
+		enum { Id = 1 };
+		AccountCreatorProtocols(AccountCreatorWizard *parent = 0);
 		~AccountCreatorProtocols();
+		virtual bool validatePage();
+		virtual bool isComplete() const;
+		virtual int nextId() const;
 
 	public slots:
 		void on_protocolsBox_currentIndexChanged(int index);
@@ -26,6 +33,7 @@ namespace Core
 
 	private:
 		Ui::AccountCreatorProtocols *m_ui;
+		AccountCreatorWizard *m_wizard;
 	};
 }
 

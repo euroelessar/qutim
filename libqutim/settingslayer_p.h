@@ -23,12 +23,32 @@
 
 namespace qutim_sdk_0_3
 {
-	struct AutoSettingsItemPrivate
+	struct ConnectInfo
 	{
+		ConnectInfo(const char *s, QObject *r, const char *m) : signal(s), receiver(r), member(m) {}
+		QByteArray signal;
+		QPointer<QObject> receiver;
+		QByteArray member;
+	};
+
+	class SettingsItemPrivate
+	{
+	public:
+		SettingsItemPrivate() : gen(0), type(Settings::Invalid) {}
+		mutable const ObjectGenerator *gen;
+		Settings::Type type;
+		QIcon icon;
+		LocalizedString text; // should be inserted by QT_TRANSLATE_NOOP_UTF8("Settings", "Contact list")
+		mutable QPointer<SettingsWidget> widget;
+		QList<ConnectInfo> connections;
+	};
+
+	class AutoSettingsItemPrivate : public SettingsItemPrivate
+	{
+	public:
 		QString config;
 		QString group;
 		QList<AutoSettingsItem::Entry *> entries;
-		ObjectGenerator *gen;
 	};
 
 	struct AutoSettingsItem::EntryPrivate
