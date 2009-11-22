@@ -10,6 +10,7 @@
 #ifndef QTWIN_H
 #define QTWIN_H
 
+#include "libqutim/libqutim_global.h"
 #include <QColor>
 #include <QWidget>
 /**
@@ -20,7 +21,7 @@
 
 class WindowNotifier;
 
-class QtWin
+class LIBQUTIM_EXPORT QtWin
 {
 public:
     static bool enableBlurBehindWindow(QWidget *widget, bool enable = true);

@@ -52,7 +52,7 @@ QT4_WRAP_CPP( MOC_SRC ${HDR} )
 # Add JDNS using separate cmake project
 ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/jdns/" )
 # Add Aero theme integration for Windows Vista and later
-ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtwin/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/qtwin/")
+# ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtwin/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/qtwin/")
 
 # This project will generate library
 ADD_LIBRARY( libqutim SHARED ${SRC} ${MOC_SRC} )
