@@ -13,10 +13,13 @@ namespace Core
 
 		void TreeView::onClick(const QModelIndex &index)
 		{
-			ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
-			Contact *contact = item->data->contact;
-			if (ChatSession *session = ChatLayer::get(contact, true))
-				session->activate();
+			ItemType type = getItemType(index);
+			if (type == ContactType) {
+				ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
+				Contact *contact = item->data->contact;
+				if (ChatSession *session = ChatLayer::get(contact, true))
+					session->activate();
+			}
 		}
 	}
 }

@@ -2,14 +2,18 @@
 #define ACCOUNTCREATORWIZARD_H
 
 #include <QWizard>
-#include "libqutim/protocol.h"
-#include "libqutim/account.h"
+#include "accountcreatorprotocols.h"
 
-class AccountCreatorWizard : public QWizard
+using namespace qutim_sdk_0_3;
+
+namespace Core
 {
-	Q_OBJECT
-public:
-    AccountCreatorWizard();
-};
+	class AccountCreatorWizard : public QWizard
+	{
+		Q_OBJECT
+	public:
+		AccountCreatorWizard();
+	};
+}
 
 #endif // ACCOUNTCREATORWIZARD_H

@@ -52,6 +52,19 @@ namespace Core
 
 	void AccountCreatorList::on_addButton_clicked()
 	{
+		if (!m_wizard.isNull())
+			return;
+		if (QWidget *parent = window())
+			window()->setEnabled(false);
+		AccountCreatorWizard *wizard = new AccountCreatorWizard();
+		connect(wizard, SIGNAL(destroyed()), this, SLOT(on_wizard_destroyed()));
+		wizard->show();
+	}
+
+	void AccountCreatorList::on_wizard_destroyed()
+	{
+		if (QWidget *parent = window())
+			window()->setEnabled(true);
 	}
 
 	void AccountCreatorList::changeEvent(QEvent *e)

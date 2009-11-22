@@ -14,7 +14,7 @@
 *****************************************************************************/
 
 #include "modulemanager.h"
-#include "plugin.h"
+#include "plugin_p.h"
 #include "deprecatedplugin_p.h"
 #include "cryptoservice.h"
 #include "configbase_p.h"
@@ -255,8 +255,7 @@ namespace qutim_sdk_0_3
 		{
 			QDir plugins_dir = path;
 			QFileInfoList files = plugins_dir.entryInfoList(QDir::AllEntries);
-			for(int i = 0; i < files.count(); ++i)
-			{
+			for (int i = 0; i < files.count(); ++i) {
 				QString filename = files[i].canonicalFilePath();
 				if(plugin_paths_list.contains(filename) || !QLibrary::isLibrary(filename) || !files[i].isFile())
 					continue;
@@ -270,18 +269,14 @@ namespace qutim_sdk_0_3
 #endif
 					QutimPluginVerificationFunction verificationFunction = NULL;
 					QScopedPointer<QLibrary> lib(new QLibrary(filename));
-					if(lib->load())
-					{
+					if (lib->load()) {
 						verificationFunction = (QutimPluginVerificationFunction)lib->resolve("qutim_plugin_query_verification_data");
 						lib->unload();
-						if(!verificationFunction)
-						{
+						if (!verificationFunction) {
 //							qDebug("'%s' has no valid verification data", qPrintable(filename));
 							continue;
 						}
-					}
-					else
-					{
+					} else {
 						qDebug("%s", qPrintable(lib->errorString()));
 						continue;
 					}
@@ -289,14 +284,16 @@ namespace qutim_sdk_0_3
 				QPluginLoader *loader = new QPluginLoader(filename);
 				loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
 				QObject *object = loader->instance();
-				if(Plugin *plugin = qobject_cast<Plugin *>(object))
-				{
+				if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
 					plugin->init();
-					p->plugins.append(plugin);
-				}
-				else
-				{
-					if(object)
+					if (plugin->p->validate()) {
+						plugin->p->is_inited = true;
+						p->plugins.append(plugin);
+					} else {
+						delete object;
+					}
+				} else {
+					if (object)
 						delete object;
 					else
 						qWarning("%s", qPrintable(loader->errorString()));
@@ -313,25 +310,21 @@ namespace qutim_sdk_0_3
 	{
 		p->meta_modules.insert(service_meta);
 		QMultiMap<Plugin *, ExtensionInfo> result;
-		if(!service_meta)
+		if (!service_meta)
 			return result;
-		for(int i = -1; i < p->plugins.size(); i++)
-		{
+		for (int i = -1; i < p->plugins.size(); i++) {
 			Plugin *plugin;
-			QList<ExtensionInfo> extensions;
-			if(i < 0)
-			{
+			ExtensionInfoList extensions;
+			if (i < 0) {
 				plugin = 0;
 				extensions = self->coreExtensions();
-			}
-			else
-			{
+			} else {
 				plugin = p->plugins.at(i);
 				if(!plugin)
 					continue;
 				extensions = plugin->avaiableExtensions();
 			}
-			for(int j = 0; j < extensions.size(); j++)
+			for (int j = 0; j < extensions.size(); j++)
 			{
 				if(extensions.at(j).generator()->extends(service_meta))
 					result.insert(plugin, extensions.at(j));
@@ -351,7 +344,7 @@ namespace qutim_sdk_0_3
 		for(int i = -1; i < p->plugins.size(); i++)
 		{
 			Plugin *plugin;
-			QList<ExtensionInfo> extensions;
+			ExtensionInfoList extensions;
 			if(i < 0)
 			{
 				plugin = 0;

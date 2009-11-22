@@ -13,56 +13,47 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "plugin.h"
+#include "plugin_p.h"
+#include "objectgenerator_p.h"
 #include <QtCore/QCoreApplication>
 
 namespace qutim_sdk_0_3
 {
-	PersonInfoData::PersonInfoData() : name(0), task(0)
+	PluginInfoData::PluginInfoData()
 	{
-	}
-
-	PersonInfoData::PersonInfoData(const PersonInfoData &other)
-			: QSharedData(other), name(other.name), task(other.task), email(other.email), web(other.web)
-	{
-	}
-
-	PersonInfo::PersonInfo(const char *name, const char *task, const QString &email, const QString &web)
-	{
-		d = new PersonInfoData;
-		setName(name);
-		setTask(task);
-		setEmail(email);
-		setWeb(web);
-	}
-
-	QString PersonInfo::name() const
-	{
-		return qApp->translate("Author", d->name);
-	}
-
-	QString PersonInfo::task() const
-	{
-		return qApp->translate("Task", d->task);
-	}
-
-	PluginInfoData::PluginInfoData() : name(0), description(0)
-	{
+		name.setContext("Plugin");
+		description.setContext("Plugin");
 	}
 
 	PluginInfoData::PluginInfoData(const PluginInfoData &other)
 			: QSharedData(other), authors(other.authors), name(other.name),
 			description(other.description), version(other.version), icon(other.icon)
 	{
+		name.setContext("Plugin");
+		description.setContext("Plugin");
 	}
 
-	PluginInfo::PluginInfo(const char *name, const char *description, quint32 version, QIcon icon)
+	PluginInfo::PluginInfo(const char *name, const char *description, quint32 version, ExtensionIcon icon)
 	{
 		d = new PluginInfoData;
 		setName(name);
 		setDescription(description);
 		setVersion(version);
 		setIcon(icon);
+	}
+
+	PluginInfo::PluginInfo(const PluginInfo &other) : d(other.d)
+	{
+	}
+
+	PluginInfo::~PluginInfo()
+	{
+	}
+
+	PluginInfo &PluginInfo::operator =(const PluginInfo &other)
+	{
+		d = other.d;
+		return *this;
 	}
 
 	PluginInfo &PluginInfo::addAuthor(const PersonInfo &author)
@@ -77,65 +68,112 @@ namespace qutim_sdk_0_3
 		return *this;
 	}
 
-	QString PluginInfo::name() const
+	PluginInfo &PluginInfo::setName(const char *name)
 	{
-		return qApp->translate("Plugin", d->name);
+		d->name = name;
+		return *this;
 	}
 
-	QString PluginInfo::description() const
+	PluginInfo &PluginInfo::setDescription(const char *description)
 	{
-		return qApp->translate("Plugin", d->description);
+		d->description = description;
+		return *this;
 	}
 
-	ExtensionInfoData::ExtensionInfoData() : name(0), description(0), gen(0)
+	PluginInfo &PluginInfo::setIcon(const ExtensionIcon &icon)
+	{
+		d->icon = icon;
+		return *this;
+	}
+
+	PluginInfo &PluginInfo::setVersion(quint32 version)
+	{
+		d->version = version;
+		return *this;
+	}
+
+	QList<PersonInfo> PluginInfo::authors() const
+	{
+		return d->authors;
+	}
+
+	LocalizedString PluginInfo::name() const
+	{
+		return d->name;
+	}
+
+	LocalizedString PluginInfo::description() const
+	{
+		return d->description;
+	}
+
+
+	quint32 PluginInfo::version() const
+	{
+		return d->version;
+	}
+
+	ExtensionIcon PluginInfo::icon() const
+	{
+		return d->icon;
+	}
+
+	PluginInfo::Data *PluginInfo::data()
+	{
+		return const_cast<Data *>(d.constData());
+	}
+
+	Plugin::Plugin() : p(new PluginPrivate)
 	{
 	}
 
-	ExtensionInfoData::ExtensionInfoData(const ExtensionInfoData &other)
-			: QSharedData(other), name(other.name), description(other.description),
-			gen(other.gen), icon(other.icon)
+	Plugin::~Plugin()
 	{
 	}
 
-	ExtensionInfo::ExtensionInfo(const char *name, const char *description, const ObjectGenerator *generator, QIcon icon)
+	PluginInfo Plugin::info() const
 	{
-		d = new ExtensionInfoData;
-		setName(name);
-		setDescription(description);
-		setGenerator(generator);
-		setIcon(icon);
+		return p->info;
 	}
 
-	QString ExtensionInfo::name() const
+	ExtensionInfoList Plugin::avaiableExtensions() const
 	{
-		return qApp->translate("Plugin", d->name);
-	}
-
-	QString ExtensionInfo::description() const
-	{
-		return qApp->translate("Plugin", d->description);
-	}
-
-	Plugin::Plugin()
-	{
+		return p->extensions;
 	}
 
 	void Plugin::addAuthor(const char *name, const char *task, const QString &email, const QString &web)
 	{
-		Q_UNUSED(m_info.addAuthor(name, task, email, web));
+		if (p->is_inited)
+			return;
+		Q_UNUSED(p->info.addAuthor(name, task, email, web));
 	}
 
 	void Plugin::setInfo(const char *name, const char *description, quint32 version, QIcon icon)
 	{
-		m_info.setName(name);
-		m_info.setDescription(description);
-		m_info.setVersion(version);
-		m_info.setIcon(icon);
+		if (p->is_inited)
+			return;
+		p->info.setName(name);
+		p->info.setDescription(description);
+		p->info.setVersion(version);
+		p->info.setIcon(icon);
 	}
 
-	void Plugin::addExtension(const char *name, const char *description, const ObjectGenerator *generator, QIcon icon)
+	void Plugin::addExtension(const char *name, const char *description, const ObjectGenerator *generator, ExtensionIcon icon)
 	{
+		if (p->is_inited)
+			return;
 		Q_ASSERT_X(generator->metaObject(), "Plugin::addExtension", "ObjectGenerator must contain QMetaObject");
-		m_extensions << ExtensionInfo(name, description, generator, icon);
+		p->extensions << ExtensionInfo(name, description, generator, icon);
+	}
+
+	// TODO: Add validation :)
+	bool PluginPrivate::validate()
+	{
+		for (int i = 0; i < extensions.size(); i++) {
+			ExtensionInfo &extensionInfo = extensions[i];
+			extensionInfo.data()->plugin = info;
+			const_cast<ObjectGenerator *>(extensionInfo.data()->gen)->data()->info = extensionInfo;
+		}
+		return true;
 	}
 }

@@ -163,7 +163,7 @@ namespace qutim_sdk_0_3
 			{
 				ConfigEntry::Ptr entry = p->entries.at(i);
 				ConfigEntry::EntryMap::const_iterator it = entry->map.find(name);
-				if(it != entry->map.end())
+				if(it != entry->map.constEnd())
 					group.p->entries.append(*it);
 			}
 		}
@@ -595,7 +595,7 @@ namespace qutim_sdk_0_3
 			{
 				ConfigEntry::Ptr entry = p->entries.at(i);
 				ConfigEntry::EntryMap::const_iterator it = entry->map.constFind(key);
-				if((it != entry->map.end()) && (*it) && ((*it)->type & ConfigEntry::Value))
+				if((it != entry->map.constEnd()) && (*it) && ((*it)->type & ConfigEntry::Value))
 				{
 					result = (*it)->value;
 					break;

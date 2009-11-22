@@ -16,14 +16,37 @@
 #include "icon.h"
 #include "iconbackend_p.h"
 #include "iconloader.h"
+#include "objectgenerator.h"
 
 namespace qutim_sdk_0_3
 {
-	inline QIcon loadIcon(const QString &name)
+	struct IconPrivate
 	{
-		if(IconLoader *loader = IconLoader::instance())
-			return loader->loadIcon(name);
-		return QIcon();
+		QList<IconWrapper*> wrappers;
+	};
+	static IconPrivate *p = NULL;
+
+	void createIconPrivate()
+	{
+		if (p) return;
+		p = new IconPrivate;
+		GeneratorList gens = moduleGenerators<IconWrapper>();
+		foreach (const ObjectGenerator *gen, gens)
+			p->wrappers << gen->generate<IconWrapper>();
+	}
+
+	QIcon loadIcon(const QString &name)
+	{
+		if (!p) createIconPrivate();
+		QIcon result;
+		for (int i = 0; i < p->wrappers.size(); i++) {
+			result = p->wrappers[i]->getIcon(name);
+			if (!result.isNull())
+				return result;
+		}
+		if (IconLoader *loader = IconLoader::instance())
+			result = loader->loadIcon(name);
+		return result;
 	}
 
 	Icon::Icon(const QString &name) : QIcon(loadIcon(name))

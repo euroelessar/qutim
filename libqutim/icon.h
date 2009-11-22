@@ -38,6 +38,15 @@ namespace qutim_sdk_0_3
 
 		Icon(const QIcon &icon);
 	};
+
+	class IconWrapper
+	{
+	public:
+		virtual ~IconWrapper() {}
+		virtual QIcon getIcon(const QString &name) = 0;
+	};
 }
+
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::IconWrapper, "org.qutim.IconWrapper")
 
 #endif // ICON_H

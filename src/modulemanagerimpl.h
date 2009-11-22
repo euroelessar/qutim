@@ -25,13 +25,13 @@ namespace Core
 		Q_OBJECT
 	public:
 		ModuleManagerImpl();
-		virtual QList<ExtensionInfo> coreExtensions() const;
+		virtual ExtensionInfoList coreExtensions() const;
 	private slots:
 		virtual void initExtensions();
 	private:
-		inline static QList<ExtensionInfo> &extensions()
+		inline static ExtensionInfoList &extensions()
 		{
-			static QList<ExtensionInfo> exts;
+			static ExtensionInfoList exts;
 			return exts;
 		}
 		template <typename T, typename I0, typename I1, typename I2, typename I3,

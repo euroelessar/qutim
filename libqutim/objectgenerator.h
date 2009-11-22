@@ -21,21 +21,32 @@
 
 namespace qutim_sdk_0_3
 {
+	struct ObjectGeneratorPrivate;
+
 	class LIBQUTIM_EXPORT ObjectGenerator
 	{
 		Q_DISABLE_COPY(ObjectGenerator)
+	protected:
+		ObjectGenerator();
 	public:
+		typedef ObjectGeneratorPrivate Data;
+		virtual ~ObjectGenerator();
+
+		ObjectGenerator *addProperty(const QByteArray &name, const QVariant &value);
+
 		inline QObject *generate() const
-		{ return generateHelper(); }
+		{ return generateHelper2(); }
 		template<typename T>
 		inline T *generate() const
-		{ return extends<T>() ? qobject_cast<T *>(generateHelper()) : 0; }
+		{ return extends<T>() ? qobject_cast<T *>(generateHelper2()) : 0; }
 		inline QObject *generate(const QMetaObject *super) const
-		{ return extends(super) ? generateHelper() : 0; }
+		{ return extends(super) ? generateHelper2() : 0; }
 		inline QObject *generate(const char *id) const
-		{ return extends(id) ? generateHelper() : 0; }
+		{ return extends(id) ? generateHelper2() : 0; }
+
 		virtual const QMetaObject *metaObject() const = 0;
 		virtual bool hasInterface(const char *id) const = 0;
+
 		// TODO: There should be a way for getting interfaces list
 //		virtual QList<const char *> interfaces() const = 0;
 		inline bool extends(const QMetaObject *super) const
@@ -56,10 +67,13 @@ namespace qutim_sdk_0_3
 		template<typename T>
 		inline bool extends_helper(const void *) const
 		{ return extends(qobject_interface_iid<T *>()); }
+
+		QObject *generateHelper2() const;
 		virtual QObject *generateHelper() const = 0;
-		inline ObjectGenerator() {}
+	private:
+		QScopedPointer<ObjectGeneratorPrivate> p;
 	public:
-		virtual ~ObjectGenerator() {}
+		inline Data *data() { return p.data(); }
 	};
 
 	template<typename T, typename I0 = void,

@@ -40,7 +40,7 @@ namespace Core
 		QTimer::singleShot(0, this, SLOT(initExtensions()));
 	}
 
-	QList<ExtensionInfo> ModuleManagerImpl::coreExtensions() const
+	ExtensionInfoList ModuleManagerImpl::coreExtensions() const
 	{
 		return extensions();
 	}

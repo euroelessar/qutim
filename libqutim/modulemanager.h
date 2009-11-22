@@ -25,7 +25,6 @@
 namespace qutim_sdk_0_3
 {
 	class ModuleManagerPrivate;
-	typedef QList<ExtensionInfo> ExtensionList;
 
 	/**
 	 * ModuleManager class used to manage plug-ins and extensions/
@@ -49,7 +48,7 @@ namespace qutim_sdk_0_3
 		QObject *initExtension(const QMetaObject *service_meta);
 
 		// Virtual Methods
-		virtual QList<ExtensionInfo> coreExtensions() const = 0;
+		virtual ExtensionInfoList coreExtensions() const = 0;
 		virtual void initExtensions();
 
 		// Inline Methods

@@ -3,6 +3,7 @@
 
 #include "libqutim/settingslayer.h"
 #include "libqutim/settingswidget.h"
+#include "accountcreatorwizard.h"
 
 namespace Ui {
     class AccountCreatorList;
@@ -20,6 +21,7 @@ namespace Core
 
 	public slots:
 		void on_addButton_clicked();
+		void on_wizard_destroyed();
 
 	protected:
 		virtual void loadImpl();
@@ -29,6 +31,7 @@ namespace Core
 
 	private:
 		Ui::AccountCreatorList *m_ui;
+		QPointer<AccountCreatorWizard> m_wizard;
 	};
 }
 
