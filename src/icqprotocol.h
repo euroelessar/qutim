@@ -23,6 +23,20 @@ namespace Icq {
 using namespace qutim_sdk_0_3;
 
 struct IcqProtocolPrivate;
+class IcqProtocol;
+struct IcqAccWizardPrivate;
+
+class IcqAccountCreationWizard : public AccountCreationWizard
+{
+	Q_OBJECT
+public:
+	IcqAccountCreationWizard(IcqProtocol *protocol);
+	~IcqAccountCreationWizard();
+	QList<QWizardPage *> createPages(QWidget *parent);
+	void finished();
+private:
+	QScopedPointer<IcqAccWizardPrivate> p;
+};
 
 class IcqProtocol : public Protocol
 {
@@ -38,6 +52,7 @@ public:
 protected:
 	void loadAccounts();
 private:
+	friend class IcqAccountCreationWizard;
 	QScopedPointer<IcqProtocolPrivate> p;
 	static IcqProtocol *self;
 };
