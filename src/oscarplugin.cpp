@@ -24,15 +24,16 @@ OscarPlugin::OscarPlugin()
 void OscarPlugin::init()
 {
 	qDebug("%s", Q_FUNC_INFO);
-	m_info = PluginInfo(QT_TRANSLATE_NOOP("Plugin", "Oscar"),
-						QT_TRANSLATE_NOOP("Plugin", "Module-based realization of Oscar protocol"),
-						PLUGIN_VERSION(0, 0, 1, 0));
-	m_info.addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
-					 QT_TRANSLATE_NOOP("Task", "Author"),
-					 QLatin1String("euroelessar@gmail.com"));
-	m_extensions << ExtensionInfo(QT_TRANSLATE_NOOP("Plugin", "ICQ"),
-								  QT_TRANSLATE_NOOP("Plugin", "Module-based realization of ICQ protocol"),
-								  new GeneralGenerator<IcqProtocol>());
+	setInfo(QT_TRANSLATE_NOOP("Plugin", "Oscar"),
+			QT_TRANSLATE_NOOP("Plugin", "Module-based realization of Oscar protocol"),
+			PLUGIN_VERSION(0, 0, 1, 0));
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
+			  QT_TRANSLATE_NOOP("Task", "Author"),
+			  QLatin1String("euroelessar@gmail.com"));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "ICQ"),
+				 QT_TRANSLATE_NOOP("Plugin", "Module-based realization of ICQ protocol"),
+				 new GeneralGenerator<IcqProtocol>(),
+				 ExtensionIcon("im-icq"));
 }
 
 bool OscarPlugin::load()
