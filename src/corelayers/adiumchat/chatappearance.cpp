@@ -121,7 +121,7 @@ namespace AdiumChat
 		foreach (QString name, themes)
 		{
 			//FIXME optimize!
-			StyleVariants variants = ChatStyleGenerator::listVariants(getThemePath(name,category).append("/Contents/Resources/Variants"));
+			StyleVariants variants = ChatStyleGenerator::listVariants(getThemePath(category,name).append("/Contents/Resources/Variants"));
 			QVariantMap data;
 			data["name"] = name;
  			if (variants.isEmpty())
@@ -162,7 +162,7 @@ namespace AdiumChat
 		else
 		{
 			m_current_style_name = map.value("name").toString();
-			m_chat_session->loadTheme(getThemePath(m_current_style_name,"webkitstyle") ,m_current_variant);
+			m_chat_session->loadTheme(getThemePath("webkitstyle",m_current_style_name) ,m_current_variant);
 			makePage();
 		}
 		emit modifiedChanged(true);

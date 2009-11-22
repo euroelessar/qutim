@@ -1,5 +1,5 @@
 /****************************************************************************
- *  objectgenerator_p.h
+ *  serviceicons.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,20 +13,25 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef OBJECTGENERATOR_P_H
-#define OBJECTGENERATOR_P_H
+#ifndef SERVICEICONS_H
+#define SERVICEICONS_H
 
-#include "plugin_p.h"
-#include "objectgenerator.h"
+#include "libqutim/icon.h"
+#include <QtCore/QHash>
 
-namespace qutim_sdk_0_3
+namespace Adium
 {
-	struct ObjectGeneratorPrivate
+	class ServiceIcons : public QObject, public qutim_sdk_0_3::IconWrapper
 	{
-		QList<QByteArray> names;
-		QList<QVariant>   values;
-		ExtensionInfo info;
+		Q_OBJECT
+		Q_INTERFACES(qutim_sdk_0_3::IconWrapper)
+	public:
+		ServiceIcons();
+		virtual ~ServiceIcons();
+		virtual QIcon getIcon(const QString &name);
+	private:
+		QHash<QString, QIcon> m_icons;
 	};
 }
 
-#endif // OBJECTGENERATOR_P_H
+#endif // SERVICEICONS_H

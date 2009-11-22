@@ -28,7 +28,7 @@ namespace qutim_sdk_0_3
 
 	void createIconPrivate()
 	{
-		if (p) return;
+		if (p || !isCoreInited()) return;
 		p = new IconPrivate;
 		GeneratorList gens = moduleGenerators<IconWrapper>();
 		foreach (const ObjectGenerator *gen, gens)
@@ -39,13 +39,15 @@ namespace qutim_sdk_0_3
 	{
 		if (!p) createIconPrivate();
 		QIcon result;
-		for (int i = 0; i < p->wrappers.size(); i++) {
-			result = p->wrappers[i]->getIcon(name);
-			if (!result.isNull())
-				return result;
+		if (p) {
+			for (int i = 0; i < p->wrappers.size(); i++) {
+				result = p->wrappers[i]->getIcon(name);
+				if (!result.isNull())
+					return result;
+			}
+			if (IconLoader *loader = IconLoader::instance())
+				result = loader->loadIcon(name);
 		}
-		if (IconLoader *loader = IconLoader::instance())
-			result = loader->loadIcon(name);
 		return result;
 	}
 

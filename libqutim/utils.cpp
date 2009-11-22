@@ -1,7 +1,8 @@
 /****************************************************************************
  *  utils.cpp
  *
- *  Copyright (c) 2009 by Sidorov Aleksey <sauron@citadelspb.com>
+ *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                     by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -400,7 +401,7 @@ namespace qutim_sdk_0_3
 			return QString();
 	}	
 
-	QString getThemePath ( const QString& themeName, const QString &category )
+	QString getThemePath ( const QString& category, const QString &themeName )
 	{
 		QString themePath = getThemePath(SystemInfo::getDir(SystemInfo::ShareDir),themeName,category);
 		if (themePath.isEmpty())

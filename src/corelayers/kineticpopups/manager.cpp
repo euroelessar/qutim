@@ -129,7 +129,7 @@ namespace KineticPopups
 
 	void Manager::loadTheme(const QString& themeName)
 	{
-		QString theme_path = getThemePath(themeName,"kineticpopups");
+		QString theme_path = getThemePath("kineticpopups", themeName);
 		popupSettings = ThemeHelper::loadThemeSetting(theme_path);
 	}
 

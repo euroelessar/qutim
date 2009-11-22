@@ -96,8 +96,7 @@ namespace AdiumChat
 	void ChatStyleOutput::loadSettings()
 	{
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
-		QString path = getThemePath(adium_chat.value<QString>("name","default"),
-											"webkitstyle");
+		QString path = getThemePath("webkitstyle", adium_chat.value<QString>("name","default"));
 		QString variant = adium_chat.value<QString>("variant", QString());
 		loadTheme(path,variant);
 		m_current_datetime_format = adium_chat.value<QString>("datetimeFormat","hh:mm:ss dd/MM/yyyy");

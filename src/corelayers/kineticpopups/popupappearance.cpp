@@ -108,7 +108,7 @@ namespace KineticPopups
 
 	void PopupAppearance::preview()
 	{
-		QString theme_path = getThemePath(m_current_theme,"kineticpopups");
+		QString theme_path = getThemePath("kineticpopups", m_current_theme);
 		m_popup_widget->setTheme(ThemeHelper::loadThemeSetting(theme_path));
 		m_popup_widget->setData(tr("Preview"),tr("Simple messagebox"), QLatin1String(":/icons/qutim_64"));
 	}
