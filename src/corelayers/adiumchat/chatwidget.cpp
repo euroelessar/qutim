@@ -34,11 +34,12 @@ namespace AdiumChat
 		ui->tabBar->setTabsClosable(true);
 		ui->tabBar->setMovable(true);
 		ui->tabBar->setDocumentMode(true);
-		ui->tabBar->setDrawBase(false);
+		//ui->tabBar->setDrawBase(false);
 		//init status and menubar
 		ui->statusbar->setVisible(false);
 		ui->menubar->setVisible(false);
 		setAttribute(Qt::WA_DeleteOnClose);
+		setAttribute(Qt::WA_MacBrushedMetal);
 		connect(ui->tabBar,SIGNAL(currentChanged(int)),SLOT(currentIndexChanged(int)));
 		connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 		connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
