@@ -634,7 +634,8 @@ void Roster::handleUserOnline(const SNAC &snac)
 		quint16 id = data.readSimple<quint16>();
 		quint8 flags = data.readSimple<quint8>();
 		QByteArray hash = data.readData<quint8>();
-		m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
+		if(hash.size() == 16)
+			m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
 	}
 	qDebug("Handle UserOnline %02X %02X, %s", (int)snac.family(), (int)snac.subtype(), qPrintable(uin));
 	qDebug() << tlvs.keys();

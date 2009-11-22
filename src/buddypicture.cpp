@@ -14,8 +14,12 @@
 *****************************************************************************/
 
 #include "buddypicture.h"
+#include "qutim/systeminfo.h"
+#include "qutim/protocol.h"
 #include "icqaccount.h"
 #include <QSet>
+#include <QDir>
+#include <QFile>
 #include <QDebug>
 #include <QImage>
 
@@ -83,20 +87,14 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 	}
 	else
 	{
-		switch((snac.family() << 16) | snac.subtype())
+		if (snac.family() == ServiceFamily && snac.subtype() == ServerRedirectService)
 		{
-			case ServiceFamily << 16 | ServerRedirectService: {
-				TLVMap tlvs = snac.readTLVChain();
-				quint16 id = tlvs.value(0x0D).value<quint16>();
-				if(id == AvatarFamily)
-				{
-					QList<QByteArray> list = tlvs.value(0x05).value().split(':');
-					m_conn->connectToServ(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, tlvs.value(0x06).value());
-				}
-			}
-			break;
-			default:{
-
+			TLVMap tlvs = snac.readTLVChain();
+			quint16 id = tlvs.value(0x0D).value<quint16>();
+			if(id == AvatarFamily)
+			{
+				QList<QByteArray> list = tlvs.value(0x05).value().split(':');
+				m_conn->connectToServ(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, tlvs.value(0x06).value());
 			}
 		}
 	}
@@ -104,16 +102,32 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 	{
 		case AvatarFamily << 16 | AvatarGetReply: {
 			QString uin = snac.readString<quint8>();
-			qDebug() << "avatar update for" << uin;
 			ChatUnit *contact = m_account->getUnit(uin, false);
 			if(!contact)
 				break;
 			snac.skipData(3); // skip icon_id and icon_flag
 			QByteArray hash = snac.readData<quint8>();
 			snac.skipData(21);
-			QImage image = QImage::fromData(snac.readData<quint16>());
-			contact->setProperty("icon_hash", hash);
-			contact->setProperty("avatar", image);
+			QByteArray image = snac.readData<quint16>();
+			if(!image.isEmpty())
+			{
+				QString image_path = QString("%1/%2.%3/avatars/")
+						.arg(SystemInfo::getPath(SystemInfo::ConfigDir))
+						.arg(m_account->protocol()->id())
+						.arg(m_account->name());
+				QDir dir(image_path);
+				if(!dir.exists())
+					dir.mkpath(image_path);
+				image_path += hash.toHex();
+				QFile icon_file(image_path);
+				if(!icon_file.exists())
+				{
+					if(icon_file.open(QIODevice::WriteOnly))
+						icon_file.write(image);
+					contact->setProperty("icon_hash", hash);
+					contact->setProperty("avatar", image_path);
+				}
+			}
 		}
 		break;
 		default:{
