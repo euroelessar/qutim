@@ -36,6 +36,7 @@ public:
 	IcqContact *contact(const QString &uin) { return m_contacts.value(uin); }
 	void sendMessage(const QString &id, const QString &message);
 	void sendAuthResponse(const QString &id, const QString &message, bool auth = true);
+	void sendAuthRequest(const QString &id, const QString &message);
 	quint16 sendAddGroupRequest(const QString &name, quint16 group_id = 0);
 	void sendRemoveGroupRequest(quint16 id);
 	IcqContact *sendAddContactRequest(const QString &contact_id, const QString &contact_name, quint16 group_id);

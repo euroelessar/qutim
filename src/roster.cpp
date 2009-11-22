@@ -71,6 +71,7 @@ Roster::Roster(IcqAccount *account)
 			<< SNACInfo(ListsFamily, ListsCliModifyStart)
 			<< SNACInfo(ListsFamily, ListsCliModifyEnd)
 			<< SNACInfo(ListsFamily, ListsAuthRequest)
+			<< SNACInfo(ListsFamily, ListsSrvAuthResponse)
 			<< SNACInfo(ListsFamily, ListsSrvReplyLists)
 			<< SNACInfo(ListsFamily, ListsUpToDate)
 			<< SNACInfo(BuddyFamily, UserOnline)
@@ -122,11 +123,18 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 			qDebug() << IMPLEMENT_ME << "ListsCliModifyEnd";
 			break;
 		case ListsFamily << 16 | ListsAuthRequest: {
-			sn.skipData(8); // unknown 8 bytes. Maybe cookie?
+			sn.skipData(8); // cookie
 			QString uin = sn.readString<quint8>();
 			QString reason = sn.readString<qint16>();
 			qDebug() << QString("Authorization request from \"%1\" with reason \"%2").arg(uin).arg(reason);
 			break;
+		}
+		case ListsFamily << 16 | ListsSrvAuthResponse: {
+			sn.skipData(8); // cookie
+			QString uin = sn.readString<qint8>();
+			bool is_accepted = sn.readSimple<qint8>();
+			QString reason = sn.readString<qint16>();
+			qDebug() << "Auth response" << uin << is_accepted << reason;
 		}
 		case BuddyFamily << 16 | UserOnline:
 			handleUserOnline(sn);
@@ -202,6 +210,15 @@ void Roster::sendAuthResponse(const QString &id, const QString &message, bool au
 	snac.appendData<qint8>(id); // uin.
 	snac.appendSimple<qint8>(auth ? 0x01 : 0x00); // auth flag.
 	snac.appendData<qint16>(message); // TODO: which codec should be used?
+	m_conn->send(snac);
+}
+
+void Roster::sendAuthRequest(const QString &id, const QString &message)
+{
+	SNAC snac(ListsFamily, ListsRequestAuth);
+	snac.appendData<qint8>(id); // uin.
+	snac.appendData<qint16>(message, Util::asciiCodec()); // TODO: which codec should be used?
+	snac.appendSimple<quint16>(0);
 	m_conn->send(snac);
 }
 
@@ -326,7 +343,7 @@ void Roster::sendRenameContactRequest(const QString &contact_id, const QString &
 		item.item_type = SsiBuddy;
 		item.item_id = contact->p->user_id;
 		item.group_id = contact->p->group_id;
-		item.record_name = contact_id;
+		item.record_name = contact->id();
 		item.tlvs.insert(SsiBuddyNick, name);
 		if(!contact->property("authorized").toBool())
 			item.tlvs.insert(SsiBuddyReqAuth);
