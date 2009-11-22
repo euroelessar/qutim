@@ -1,5 +1,5 @@
 /****************************************************************************
- *  mrimprotocol.h
+ *  mrimaccount.h
  *
  *  Copyright (c) 2009 by Rusanov Peter <peter.rusanov@gmail.com>
  *
@@ -13,44 +13,16 @@
  ***************************************************************************
 *****************************************************************************/
 
+#include "mrimaccount.h"
+#include "mrimprotocol.h"
 
-#ifndef MRIMPROTOCOL_H
-#define MRIMPROTOCOL_H
-
-#include <qutim/protocol.h>
-
-using namespace qutim_sdk_0_3;
-
-struct MrimProtocolPrivate;
-
-class MrimProtocol : public Protocol
+MrimAccount::MrimAccount(const QString& email)
+        : Account(email,MrimProtocol::instance())
 {
-    Q_OBJECT
-    Q_CLASSINFO("Protocol", "mrim")
+}
 
-public:
-    enum AccountCreationError
-    {
-        None,
-        AlreadyExists,
-        InvalidArguments
-    };
-
-public:
-    static MrimProtocol* instance();
-    MrimProtocol();
-    ~MrimProtocol();
-    QList<Account *> accounts() const;
-    Account *account(const QString &id) const;
-    AccountCreationWizard *accountCreationWizard();
-    AccountCreationError createAccount(const QString& email, const QString& password);
-
-private:
-    Q_DISABLE_COPY(MrimProtocol)
-    void loadAccounts();
-
-    QScopedPointer<MrimProtocolPrivate> p;
-    static MrimProtocol* self;
-};
-
-#endif // MRIMPROTOCOL_H
+ChatUnit *MrimAccount::getUnit(const QString &unitId, bool create)
+{
+    //TODO: roster functionality
+    return 0;
+}

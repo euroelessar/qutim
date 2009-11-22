@@ -30,16 +30,16 @@ void MrimPlugin::init()
 {
     qDebug("%s", Q_FUNC_INFO);
     const char *info = QT_TRANSLATE_NOOP("Plugin", "Module-based realization of Mail.Ru IM protocol");
-    const char *plugName = QT_TRANSLATE_NOOP("Plugin", "Mrim");
+    const char *plugName = QT_TRANSLATE_NOOP("Plugin", "MRIM");
 
-    m_info = PluginInfo(plugName, info,
-                        PLUGIN_VERSION(MRIM_MAJOR_VER, MRIM_MINOR_VER, MRIM_SECMINOR_VER, MRIM_PATCH_VER));
+    setInfo(plugName, info,
+            PLUGIN_VERSION(MRIM_MAJOR_VER, MRIM_MINOR_VER, MRIM_SECMINOR_VER, MRIM_PATCH_VER));
 
-    m_info.addAuthor(QT_TRANSLATE_NOOP("Author", "Peter Rusanov"),
-                     QT_TRANSLATE_NOOP("Task", "Author"),
-                     QLatin1String("peter.rusanov@gmail.com"));
+    addAuthor(QT_TRANSLATE_NOOP("Author", "Peter Rusanov"),
+              QT_TRANSLATE_NOOP("Task", "Author"),
+              QLatin1String("peter.rusanov@gmail.com"));
 
-    m_extensions << ExtensionInfo(plugName,info,new GeneralGenerator<MrimProtocol>());
+    addExtension(plugName,info,new GeneralGenerator<MrimProtocol>(),ExtensionIcon("im-mrim"));
 }
 
 bool MrimPlugin::load()
