@@ -74,7 +74,7 @@ macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir libs_to_link )
 
     PREPARE_QUTIM_PLUGIN(${src_dir})
     if(MINGW)
-        add_definitions( -DUNICODE -DQT_LARGEFILE_SUPPORT -DLIBQUTIM_LIBRARY -DQT_THREAD_SUPPORT )
+        add_definitions( -DUNICODE -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT )
         list( APPEND COMPILE_FLAGS "-mthreads" )
     endif(MINGW)
 

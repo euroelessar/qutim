@@ -105,9 +105,9 @@ namespace AdiumChat
 	void ChatStyleOutput::loadTheme(const QString& path, const QString& variant)
 	{
 		m_current_style_path = path;
-		m_current_variant = variant;
-		ChatStyleGenerator generator (m_current_style_path,m_current_variant);
+                ChatStyleGenerator generator (m_current_style_path,variant);
 		m_current_style = generator.getChatStyle();
+                m_current_variant = variant.isEmpty() ? m_current_style.defaultVariant.first : variant;
 	}
 
 	void ChatStyleOutput::reloadStyle(QWebPage* page)

@@ -37,13 +37,15 @@ namespace KineticPopups
 
 			//init transparent
 			setAttribute(Qt::WA_TranslucentBackground);
-			setAttribute(Qt::WA_NoSystemBackground, false);
+                        setAttribute(Qt::WA_NoSystemBackground, true);
 			ensurePolished(); // workaround Oxygen filling the background
 			setAttribute(Qt::WA_StyledBackground, false);
+                        //hacks
 		}
 		setFrameShape ( QFrame::NoFrame );
 		setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
 		setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
+                setContextMenuPolicy(Qt::NoContextMenu);
 		setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
 	}
 
