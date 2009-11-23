@@ -18,6 +18,8 @@
 
 #include "mrimprotocol.h"
 #include "mrimaccount.h"
+#include "utils.h"
+
 #include "ui/wizards/mrimaccountwizard.h"
 
 MrimProtocol* MrimProtocol::self = 0;
@@ -61,7 +63,7 @@ AccountCreationWizard *MrimProtocol::accountCreationWizard()
 
 void MrimProtocol::loadAccounts()
 {
-    QStringList accounts = config("accounts").value("list",QStringList());
+    QStringList accounts = config("accounts").groupList();
 
     foreach (QString email, accounts)
     {
@@ -82,20 +84,17 @@ MrimProtocol::AccountCreationError MrimProtocol::createAccount(const QString& em
 {
     AccountCreationError err = None;
 
-    //Verify email by RFC 2822 spec with additionaly verified domain
-    QRegExp emailRx("(\\b[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*\\@(?:mail.ru|bk.ru|inbox.ru|list.ru|corp.mail.ru)\\b)");
-    int matchIndex = emailRx.indexIn(email);
+    QString validEmail = Utils::stripEmail(email);
 
-    if (matchIndex >= 0)
+    if (!validEmail.isEmpty())
     {//email is compliant
-        QString validEmail = emailRx.cap(1);
         QStringList accounts = config("accounts").value("list",QStringList());
 
         if (!accounts.contains(validEmail))
         {//account is new, saving
             accounts << validEmail;
-            config("accounts").setValue("list",accounts);
-            config("accounts").group("validEmail").setValue("password",password,ConfigBase::Crypted);
+            config("accounts").group(validEmail).setValue("password",password,ConfigBase::Crypted);
+            config("accounts").sync(); //save settings
             p->m_accountsHash.insert(validEmail,new MrimAccount(validEmail));
         }
         else

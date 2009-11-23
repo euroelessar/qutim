@@ -16,6 +16,11 @@
 #include "mrimaccount.h"
 #include "mrimprotocol.h"
 
+struct MrimAccountPrivate
+{
+
+};
+
 MrimAccount::MrimAccount(const QString& email)
         : Account(email,MrimProtocol::instance())
 {
@@ -24,5 +29,7 @@ MrimAccount::MrimAccount(const QString& email)
 ChatUnit *MrimAccount::getUnit(const QString &unitId, bool create)
 {
     //TODO: roster functionality
+    Q_UNUSED(unitId);
+    Q_UNUSED(create);
     return 0;
 }

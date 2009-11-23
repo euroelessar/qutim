@@ -18,13 +18,21 @@
 
 #include <qutim/account.h>
 
+#include "mrimconnection.h"
+
 using namespace qutim_sdk_0_3;
+
+struct MrimAccountPrivate;
 
 class MrimAccount : public Account
 {
 public:
     MrimAccount(const QString& email);
     ChatUnit *getUnit(const QString &unitId, bool create = false);
+    MrimConnection *connection();
+
+private:
+    QScopedPointer<MrimAccountPrivate> p;
 };
 
 #endif // MRIMACCOUNT_H
