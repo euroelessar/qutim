@@ -23,8 +23,7 @@
 
 enum BuddyType {
   btFriend,
-  btFavorite,
-  btTemporary,
+  btNotInList,
 };
 
 class Buddy {
@@ -35,7 +34,11 @@ public:
     QByteArray m_avatar_hash;
     QString m_activity;
     BuddyType m_type;
-    Buddy() { m_type = btFriend; }
+    bool m_bookmarked;
+    Buddy() {
+	m_type = btFriend;
+	m_bookmarked = false;
+    }
 };
 
 
@@ -65,7 +68,6 @@ private slots:
     void activitiesArrived(QList<Activity> &activities);
     void getNewMessages(QList<Message> &messages);
     void openPageActionTriggered();
-    void addTempFriend(QString id, QString name, QString avatar_url);
 
 
 private:
@@ -95,8 +97,9 @@ private:
     QLabel *menuLabel;
     QAction *openPageAction;
 
+    void addTempFriend(const QString &id, const QString &name, const QString &avatar_url, const bool bookmarked);
     void moveToAnotherGroup(const QString &id, const QString &src, const QString &dest);
-    void changeContactSettings(const QString &id, const QString &name, const QString &type);
+    void changeContactSettings(const QString &id, const QString &name, const QString &type, const bool &bookmarked);
 };
 
 #endif // VCONTACTLIST_H
