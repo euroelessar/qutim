@@ -18,6 +18,7 @@
 #define OSCARCONNECTION_H
 
 #include "connection.h"
+#include "metainfo.h"
 
 namespace Icq {
 
@@ -71,6 +72,7 @@ public:
 	void setStatus(Status status);
 	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
 	BuddyPicture *buddyPictureService() { return m_buddy_picture; }
+	MetaInfo *metaInfo() { return m_meta_info; }
 private slots:
 	void disconnected();
 private:
@@ -88,6 +90,7 @@ private:
 	bool m_is_idle;
 	bool m_is_connected;
 	BuddyPicture *m_buddy_picture;
+	MetaInfo *m_meta_info;
 };
 
 } // namespace Icq

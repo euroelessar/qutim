@@ -893,8 +893,6 @@ void Roster::handleMetaInfo(const SNAC &snac)
 			// Delete offline messages from the server.
 			sendMetaInfoRequest(0x003E);
 			break;
-		default:
-			qDebug() << "Unhandled meta information response" << metaType;
 		}
 	}
 }
