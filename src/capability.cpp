@@ -50,7 +50,6 @@ Capability::Capability(quint8 d1, quint8 d2, quint8 d3, quint8 d4, quint8 d5, qu
 	stream << d1 << d2 << d3 << d4 << d5 << d6 << d7 << d8 << d9 << d10 << d11 << d12 << d13 << d14 << d15 << d16;
 	Q_ASSERT(m_data.size() == 16);
 	stripLasts();
-	qDebug() << m_data.toHex();
 }
 
 
