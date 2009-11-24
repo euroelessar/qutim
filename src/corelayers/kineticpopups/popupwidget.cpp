@@ -1,16 +1,16 @@
 /****************************************************************************
- *  popupwidget.cpp
- *
- *  Copyright (c) 2009 by Sidorov Aleksey <sauron@citadelspb.com>
- *
- ***************************************************************************
- *                                                                         *
- *   This library is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************
+*  popupwidget.cpp
+*
+*  Copyright (c) 2009 by Sidorov Aleksey <sauron@citadelspb.com>
+*
+***************************************************************************
+*                                                                         *
+*   This library is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+***************************************************************************
 *****************************************************************************/
 
 #include "popupwidget.h"
@@ -35,26 +35,26 @@ namespace KineticPopups
 		else {
 			setWindowFlags(popup_settings.widgetFlags);
 			//this->resize(NotificationsManager::self()->defaultSize);
-                        //init aero integration for win
-                        if (flags & AeroThemeIntegration) {
-                            if (QtWin::isCompositionEnabled()) {
-                                QtWin::extendFrameIntoClientArea(this);
-                                setContentsMargins(0, 0, 0, 0);
-                            }
-                        else {
-			//init transparent
-                            setAttribute(Qt::WA_TranslucentBackground);
-                            setAttribute(Qt::WA_NoSystemBackground, true);
-                            ensurePolished(); // workaround Oxygen filling the background
-                            setAttribute(Qt::WA_StyledBackground, false);
-                      }
+			//init aero integration for win
+			if (flags & AeroThemeIntegration) {
+				if (QtWin::isCompositionEnabled()) {
+					QtWin::extendFrameIntoClientArea(this);
+					setContentsMargins(0, 0, 0, 0);
+				}
+			}
+			else {
+				setAutoFillBackground(true);
+				setAttribute(Qt::WA_TranslucentBackground);
+				setAttribute(Qt::WA_NoSystemBackground, false);
+				ensurePolished(); // workaround Oxygen filling the background
+				setAttribute(Qt::WA_StyledBackground, false);
+			}
 		}
 		setFrameShape ( QFrame::NoFrame );
 		setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
 		setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
-                setContextMenuPolicy(Qt::NoContextMenu);
+		setContextMenuPolicy(Qt::NoContextMenu);
 		setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
-                }
 	}
 
 
