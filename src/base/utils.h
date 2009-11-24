@@ -24,4 +24,6 @@ public:
     static QString stripEmail(const QString& email);
 };
 
+#include "mrimdebug.h"
+
 #endif // UTILS_H

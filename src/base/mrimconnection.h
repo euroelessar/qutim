@@ -16,10 +16,46 @@
 #ifndef MRIMCONNECTION_H
 #define MRIMCONNECTION_H
 
-class MrimConnection
+#include <QObject>
+#include <QScopedPointer>
+
+#include <qutim/configbase.h>
+
+using namespace qutim_sdk_0_3;
+
+class MrimAccount;
+struct MrimConnectionPrivate;
+
+class MrimConnection : public QObject
 {
+    Q_OBJECT
+
 public:
-    MrimConnection();
+    enum TConnectionState
+    {
+        Unconnected = 0,
+        RecievingGoodIMServer = 1,
+        ConnectingToIMServer = 2,
+        ConnectedToIMServer = 3,
+        UnknownState = 4
+    };
+
+public:
+    MrimConnection(MrimAccount *account);
+    void start();
+    void close();
+    ~MrimConnection();
+    Config config();
+    ConfigGroup config(const QString &group);
+    TConnectionState state() const;
+
+private slots:
+    void connected();
+    void readyRead();
+
+private:
+    Q_DISABLE_COPY(MrimConnection)
+    QScopedPointer<MrimConnectionPrivate> p;
 };
 
 #endif // MRIMCONNECTION_H

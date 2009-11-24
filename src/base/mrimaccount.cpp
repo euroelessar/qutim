@@ -18,12 +18,14 @@
 
 struct MrimAccountPrivate
 {
-
+    MrimConnection *conn;
 };
 
 MrimAccount::MrimAccount(const QString& email)
-        : Account(email,MrimProtocol::instance())
+        : Account(email,MrimProtocol::instance()), p(new MrimAccountPrivate)
 {
+    p->conn = new MrimConnection(this);
+    p->conn->start(); //TODO: temporary, for debugging
 }
 
 ChatUnit *MrimAccount::getUnit(const QString &unitId, bool create)
@@ -32,4 +34,9 @@ ChatUnit *MrimAccount::getUnit(const QString &unitId, bool create)
     Q_UNUSED(unitId);
     Q_UNUSED(create);
     return 0;
+}
+
+MrimConnection *MrimAccount::connection()
+{
+    return p->conn;
 }
