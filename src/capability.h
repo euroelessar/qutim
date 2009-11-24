@@ -37,6 +37,7 @@ public:
     bool isEmpty() const { return m_data.isEmpty(); }
     bool operator==(const Capability &rhs) const;
     inline bool match(const Capability &capability) const;
+    operator QByteArray() const;
 private:
     void stripLasts();
 	QByteArray m_data;

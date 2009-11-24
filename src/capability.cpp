@@ -66,6 +66,14 @@ bool Capability::operator==(const Capability &rhs) const
 	return m_data == rhs.m_data;
 }
 
+Capability::operator QByteArray() const
+{
+	QByteArray data = m_data;
+	if(!m_is_short)
+		data.resize(16);
+	return data;
+}
+
 void Capability::stripLasts()
 {
 	QByteArray::iterator itr = m_data.end();

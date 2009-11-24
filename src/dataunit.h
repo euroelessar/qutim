@@ -46,7 +46,6 @@ public:
 	void appendData(const QByteArray &str);
 	template<typename L>
 	void appendData(const QString &str, QTextCodec *codec = Util::defaultCodec());
-	inline void appendData(const Capability &data);
 	inline void resetState() const { m_state = 0; }
 	inline uint dataSize() const { return m_data.size() > m_state ? m_data.size() - m_state : 0; }
 	template<typename T>
@@ -98,11 +97,6 @@ template<typename L>
 Q_INLINE_TEMPLATE void DataUnit::appendData(const QString &str, QTextCodec *codec)
 {
 	appendData<L>(codec->fromUnicode(str));
-}
-
-void DataUnit::appendData(const Capability &data)
-{
-	m_data.append(data.data());
 }
 
 template<typename T>
