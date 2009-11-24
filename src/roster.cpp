@@ -19,6 +19,7 @@
 #include <icqaccount.h>
 #include "oscarconnection.h"
 #include "buddypicture.h"
+#include "buddycaps.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
@@ -645,7 +646,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 			data.readSimple<quint32>()
 		};
 	}
-	if(tlvs.contains(0x001d))
+	if(tlvs.contains(0x001d)) // avatar
 	{
 		DataUnit data(tlvs.value(0x001d));
 		quint16 id = data.readSimple<quint16>();
@@ -653,6 +654,63 @@ void Roster::handleUserOnline(const SNAC &snac)
 		QByteArray hash = data.readData<quint8>();
 		if(hash.size() == 16)
 			m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
+	}
+	contact->clearCapabilities();
+	if(tlvs.contains(0x000d)) // capabilities
+	{
+		DataUnit data(tlvs.value(0x000d));
+		while(data.dataSize() != 0)
+		{
+			Capability capability(data.readData(16));
+			if(capability.match(ICQ_CAPABILITY_RTFxMSGS))
+				contact->p->rtf_support = true;
+			else if(capability.match(ICQ_CAPABILITY_TYPING))
+				contact->p->typing_support = true;
+			else if(capability.match(ICQ_CAPABILITY_AIMCHAT))
+				contact->p->aim_chat_support = true;
+			else if(capability.match(ICQ_CAPABILITY_XTRAZ))
+				contact->p->xtraz_support = true;
+			else if(capability.match(ICQ_CAPABILITY_UTF8))
+				contact->p->utf8_support = true;
+			else if(capability.match(ICQ_CAPABILITY_AIMSENDFILE))
+				contact->p->sendfile_support = true;
+			else if(capability.match(ICQ_CAPABILITY_DIRECT))
+				contact->p->direct_support = true;
+			else if(capability.match(ICQ_CAPABILITY_AIMICON))
+				contact->p->icon_support = true;
+			else if(capability.match(ICQ_CAPABILITY_AIMGETFILE))
+				contact->p->getfile_support = true;
+			else if(capability.match(ICQ_CAPABILITY_SRVxRELAY))
+				contact->p->srvrelay_support = true;
+			else if(capability.match(ICQ_CAPABILITY_AVATAR))
+				contact->p->avatar_support = true;
+			else
+				contact->p->capabilities << capability;
+		}
+	}
+	if(tlvs.contains(0x0019)) // short capabilities
+	{
+		DataUnit data(tlvs.value(0x0019));
+		while(data.dataSize() != 0)
+		{
+			Capability capability(data.readData(2));
+			if(capability.match(ICQ_SHORTCAP_UTF))
+				contact->p->utf8_support = true;
+			else if(capability.match(ICQ_SHORTCAP_SENDFILE))
+				contact->p->sendfile_support = true;
+			else if(capability.match(ICQ_SHORTCAP_DIRECT))
+				contact->p->direct_support = true;
+			else if(capability.match(ICQ_SHORTCAP_BUDDYCON))
+				contact->p->icon_support = true;
+			else if(capability.match(ICQ_SHORTCAP_GETFILE))
+				contact->p->getfile_support = true;
+			else if(capability.match(ICQ_SHORTCAP_RELAY))
+				contact->p->srvrelay_support = true;
+			else if(capability.match(ICQ_SHORTCAP_AVATAR))
+				contact->p->avatar_support = true;
+			else
+				contact->p->capabilities << capability;
+		}
 	}
 	qDebug("Handle UserOnline %02X %02X, %s", (int)snac.family(), (int)snac.subtype(), qPrintable(uin));
 	qDebug() << tlvs.keys();

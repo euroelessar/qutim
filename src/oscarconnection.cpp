@@ -20,6 +20,7 @@
 #include "roster.h"
 #include "icqaccount.h"
 #include "buddypicture.h"
+#include "buddycaps.h"
 #include <qutim/objectgenerator.h>
 #include <QHostInfo>
 #include <QBuffer>
@@ -207,21 +208,19 @@ void OscarConnection::sendUserInfo()
 	SNAC snac(LocationFamily, 0x04);
 	TLV caps(0x05);
 
-	// ICQ UTF8 Support {0946134e-4c7f-11d1-8222-444553540000}
-	caps.appendValue(Capability(0x0946134e, 0x4c7f11d1, 0x82224445, 0x53540000));
-
-	// Buddy Icon {09461346-4c7f-11d1-8222-444553540000}
-	caps.appendValue(Capability(0x09461346, 0x4c7f11d1, 0x82224445, 0x53540000));
-
-	// RTF messages {97B12751-243C-4334-AD22-D6ABF73F1492}
-	//caps.appendValue(Capability(0x97B12751, 0x243C4334, 0xAD22D6AB, 0xF73F1492));
-
+	// ICQ UTF8 Support
+	caps.appendValue(ICQ_CAPABILITY_UTF8);
+	// Buddy Icon
+	caps.appendValue(ICQ_CAPABILITY_AIMICON);
+	// RTF messages
+	//caps.appendValue(ICQ_CAPABILITY_RTFxMSGS);
 	// qutIM some shit
 	caps.appendValue(Capability(0x69716d75, 0x61746769, 0x656d0000, 0x00000000));
 	caps.appendValue(Capability(0x09461343, 0x4c7f11d1, 0x82224445, 0x53540000));
-	
-	// ICQ typing {563fc809-0b6f-41bd-9f79-422609dfa2f3}
-	caps.appendValue(Capability(0x563FC809, 0x0B6F41BD, 0x9F794226, 0x09DFA2F3));
+	// ICQ typing
+	caps.appendValue(ICQ_CAPABILITY_TYPING);
+	// Short capability support
+	caps.appendValue(ICQ_CAPABILITY_SHORTCAPS);
 
 	// qutIM version info
 	// TODO: Send also version of system, i.e. 0x0601 for Windows Seven
@@ -249,9 +248,6 @@ void OscarConnection::sendUserInfo()
 	caps.appendValue<quint16>(0x0175); // build
 	caps.appendValue<quint32>(0x00000000);
 	caps.appendValue<quint8>(0x00);    // 5 bytes more to 16
-
-	// Short capability support {09460000-4c7f-11d1-8222-444553540000}
-	caps.appendValue(Capability(0x09460000, 0x4c7f11d1, 0x82224445, 0x53540000));
 
 	snac.appendData(caps);
 	send(snac);

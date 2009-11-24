@@ -19,6 +19,8 @@
 #ifndef ICQCONTACT_PH_H
 #define ICQCONTACT_PH_H
 
+#include "capability.h"
+
 namespace Icq {
 
 struct IcqContactPrivate
@@ -29,6 +31,19 @@ struct IcqContactPrivate
 	quint16 user_id;
 	quint16 group_id;
 	Status status;
+
+	bool rtf_support;
+	bool typing_support;
+	bool aim_chat_support;
+	bool xtraz_support;
+	bool utf8_support;
+	bool sendfile_support;
+	bool direct_support;
+	bool icon_support;
+	bool getfile_support;
+	bool srvrelay_support;
+	bool avatar_support;
+	Capabilities capabilities;
 };
 
 } // namespace Icq

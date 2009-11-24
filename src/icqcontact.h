@@ -17,6 +17,7 @@
 #define ICQCONTACT_H
 
 #include <qutim/contact.h>
+#include <capability.h>
 
 namespace Icq {
 
@@ -40,7 +41,21 @@ public:
 	virtual void setTags(const QSet<QString> &tags);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
+public:
+	bool RtfSupport();
+	bool TypingSupport();
+	bool AimChatSupport();
+	bool XtrazSupport();
+	bool Utf8Support();
+	bool SendFileSupport();
+	bool DirectSupport();
+	bool IconSupport();
+	bool GetFileSupport();
+	bool SrvRelaySupport();
+	bool AvatarSupport();
+	Capabilities capabilities();
 private:
+	void clearCapabilities();
 	friend class Roster;
 	QScopedPointer<IcqContactPrivate> p;
 };

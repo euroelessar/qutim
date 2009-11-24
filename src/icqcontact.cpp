@@ -25,6 +25,8 @@ IcqContact::IcqContact(const QString &uin, IcqAccount *account) : Contact(accoun
 	p->account = account;
 	p->uin = uin;
 	p->status = Offline;
+
+	clearCapabilities();
 }
 
 QSet<QString> IcqContact::tags() const
@@ -74,6 +76,82 @@ void IcqContact::setTags(const QSet<QString> &tags)
 
 void IcqContact::setInList(bool inList)
 {
+}
+
+bool IcqContact::RtfSupport()
+{
+	return p->rtf_support;
+}
+
+bool IcqContact::TypingSupport()
+{
+	return p->typing_support;
+}
+
+bool IcqContact::AimChatSupport()
+{
+	return p->aim_chat_support;
+}
+
+bool IcqContact::XtrazSupport()
+{
+	return p->xtraz_support;
+}
+
+bool IcqContact::Utf8Support()
+{
+	return p->utf8_support;
+}
+
+bool IcqContact::SendFileSupport()
+{
+	return p->sendfile_support;
+}
+
+bool IcqContact::DirectSupport()
+{
+	return p->direct_support;
+}
+
+bool IcqContact::IconSupport()
+{
+	return p->icon_support;
+}
+
+bool IcqContact::GetFileSupport()
+{
+	return p->getfile_support;
+}
+
+bool IcqContact::SrvRelaySupport()
+{
+	return p->srvrelay_support;
+}
+
+bool IcqContact::AvatarSupport()
+{
+	return p->avatar_support;
+}
+
+Capabilities IcqContact::capabilities()
+{
+	return p->capabilities;
+}
+
+void IcqContact::clearCapabilities()
+{
+	p->rtf_support = false;
+	p->typing_support = false;
+	p->aim_chat_support = false;
+	p->xtraz_support = false;
+	p->utf8_support = false;
+	p->sendfile_support = false;
+	p->direct_support = false;
+	p->aim_chat_support = false;
+	p->getfile_support = false;
+	p->srvrelay_support = false;
+	p->avatar_support = false;
+	p->capabilities.clear();
 }
 
 } // namespace Icq
