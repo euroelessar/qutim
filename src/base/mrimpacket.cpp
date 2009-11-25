@@ -19,12 +19,13 @@
 #include <qendian.h>
 
 #include "mrimdebug.h"
-#include "mrimpacket.h"
 #include "protoutils.h"
 
-MrimPacket::MrimPacket() : m_currBodyPos(0)
+#include "mrimpacket.h"
+
+MrimPacket::MrimPacket(PacketMode mode) : m_mode(mode)
 {
-    initHeader();
+    clear();
 }
 
 MrimPacket::~MrimPacket()
@@ -125,39 +126,70 @@ QByteArray MrimPacket::toByteArray()
     return temp;
 }
 
-MrimPacket *MrimPacket::fromRawData(QBuffer& buffer, TPacketErrorCode &err)
+bool MrimPacket::readFrom(QIODevice& device)
 {
-    err = NoError;
+    Q_ASSERT(mode() == Recieve);
 
-    MrimPacket* packet = new MrimPacket();
-    QByteArray cont = buffer.read(HEADER_SIZE);
-    packet->setHeader(cont);
-    quint64 estimBodySize = buffer.size()-buffer.pos();
+    if (state() == ReadHeader)
+    {
+        setHeader(device.read(HEADER_SIZE));
 
-    if ( packet->isHeaderCorrect() && estimBodySize >= packet->dataLength() )
-    {
-        cont = buffer.read(packet->dataLength());
-        packet->setBody(cont);
+        if (isHeaderCorrect())
+        {
+            m_bytesLeft = dataLength();
+            m_body.resize(dataLength());
+            setState(ReadData);
+        }
+        else
+        {
+            setError(HeaderCorrupted);
+        }
     }
-    else if (packet->isHeaderCorrect())
-    {
-        buffer.seek(buffer.pos()-HEADER_SIZE);
-        err = NotEnoughBytes;
-    }
-    else
-        err = HeaderCorrupted;
 
-    if (err != NoError)
+    if (state() == ReadData)
     {
-        delete packet;
-        packet = 0;
+        if (m_bytesLeft <= 0)
+        {
+            return false;
+        }
+
+        char *data = m_body.data() + m_body.size() - m_bytesLeft;
+        qint64 bytesRead = device.read(data,m_bytesLeft);
+
+        if (bytesRead < 0)
+        {//read error, connection lost
+            setError(CannotReadFromSocket);
+            return false;
+        }
+        m_bytesLeft -= bytesRead;
     }
-    return packet;
+
+    if (m_bytesLeft == 0)
+    {
+        setState(Finished);
+    }
+    return true;
+}
+
+QString MrimPacket::errorString(PacketError errCode)
+{
+    switch (errCode)
+    {
+    case NoError:
+        return tr("No error");
+    case CannotReadFromSocket:
+        return tr("Cannot read from socket");
+    case HeaderCorrupted:
+        return tr("Header is corrupted");
+    default:
+        return tr("Unknown error");
+    }
+    return QString();
 }
 
 bool MrimPacket::isHeaderCorrect()
 {
-    return (m_header.magic == CS_MAGIC);
+    return (m_header.magic == CS_MAGIC && dataLength() <= MAX_PACKET_BODY_SIZE);
 }
 
 void MrimPacket::append( const QString &str, bool unicode )
@@ -178,10 +210,17 @@ void MrimPacket::append( const quint32 &num )
     m_header.dlen = m_body.length();
 }
 
-qint64 MrimPacket::send( QTcpSocket *socket )
+qint64 MrimPacket::writeTo(QIODevice *device, bool waitForWritten)
 {
-    Q_ASSERT(socket);
-    return socket->write(toByteArray());
+    Q_ASSERT(mode() == Compose);
+    Q_ASSERT(device);
+    qint64 written = device->write(toByteArray());
+
+    if (waitForWritten)
+    {
+        device->waitForBytesWritten(10000);
+    }
+    return written;
 }
 
 MrimPacket& MrimPacket::operator<<( LPString &str )
@@ -196,7 +235,7 @@ MrimPacket& MrimPacket::operator<<( const quint32 &num )
     return *this;
 }
 
-qint32 MrimPacket::read( QString *str, bool unicode )
+qint32 MrimPacket::readTo( QString *str, bool unicode )
 {
     Q_ASSERT(str);
     *str = ByteUtils::readString(data(),m_currBodyPos,unicode);
@@ -205,10 +244,29 @@ qint32 MrimPacket::read( QString *str, bool unicode )
     return str->size();
 }
 
-qint32 MrimPacket::read( quint32 &num )
+qint32 MrimPacket::readTo( quint32 &num )
 {
     num = ByteUtils::readUint32(data(),m_currBodyPos);
     m_currBodyPos += sizeof(num);
     return sizeof(num);
 }
 
+void MrimPacket::setState(PacketState newState)
+{
+    m_currState = newState;
+}
+
+void MrimPacket::clear()
+{
+    initHeader();
+    m_body.clear();
+    m_currBodyPos = 0;
+    m_bytesLeft = -1;
+    setState(ReadHeader);
+}
+
+void MrimPacket::setError(PacketError errCode)
+{
+    m_lastError = errCode;
+    setState(Error);
+}

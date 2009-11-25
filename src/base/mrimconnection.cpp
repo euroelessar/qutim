@@ -16,37 +16,54 @@
 #include <QStringList>
 #include <QTcpSocket>
 #include <QHostAddress>
+#include <QTimer>
 
+#include "utils.h"
 #include "mrimdebug.h"
 #include "mrimaccount.h"
+#include "mrimpacket.h"
+
 #include "mrimconnection.h"
 
 struct MrimConnectionPrivate
 {
     MrimConnectionPrivate(MrimAccount *acc)
-        : account(acc), imSocket(new QTcpSocket), srvReqSocket(new QTcpSocket)
-    { }
+        : account(acc), imSocket(new QTcpSocket), srvReqSocket(new QTcpSocket), readyReadTimer(new QTimer)
+    {
+        readyReadTimer->setSingleShot(true);
+        readyReadTimer->setInterval(0);
+    }
 
     inline QTcpSocket *IMSocket() const     { return imSocket.data(); }
     inline QTcpSocket *SrvReqSocket() const { return srvReqSocket.data(); }
+    inline QTimer *ReadyReadTimer() const   { return readyReadTimer.data(); }
 
     MrimAccount *account;
     QScopedPointer<QTcpSocket> imSocket;
     QScopedPointer<QTcpSocket> srvReqSocket;
     QString imHost;
     quint32 imPort;
+    QScopedPointer<QTimer> readyReadTimer;
+    MrimPacket m_readPacket;
 };
 
 MrimConnection::MrimConnection(MrimAccount *account) : p(new MrimConnectionPrivate(account))
 {    
     connect(p->SrvReqSocket(),SIGNAL(connected()),this,SLOT(connected()));
+    connect(p->SrvReqSocket(),SIGNAL(disconnected()),this,SLOT(disconnected()));
     connect(p->SrvReqSocket(),SIGNAL(readyRead()),this,SLOT(readyRead()));
     connect(p->IMSocket(),SIGNAL(connected()),this,SLOT(connected()));
+    connect(p->IMSocket(),SIGNAL(disconnected()),this,SLOT(disconnected()));
     connect(p->IMSocket(),SIGNAL(readyRead()),this,SLOT(readyRead()));
+    connect(p->ReadyReadTimer(),SIGNAL(timeout()),this,SLOT(readyRead()));
 }
 
 MrimConnection::~MrimConnection()
 {
+    p->SrvReqSocket()->disconnect(this);
+    p->IMSocket()->disconnect(this);
+    p->ReadyReadTimer()->disconnect(this);
+    close();
 }
 
 void MrimConnection::start()
@@ -59,6 +76,15 @@ void MrimConnection::start()
 
 void MrimConnection::close()
 {
+    if (p->IMSocket()->isOpen())
+    {
+        p->IMSocket()->disconnectFromHost();
+    }
+
+    if (p->SrvReqSocket()->isOpen())
+    {
+        p->IMSocket()->disconnectFromHost();
+    }
 }
 
 void MrimConnection::connected()
@@ -77,16 +103,41 @@ void MrimConnection::connected()
         break;
     }
 
-    QString address = QString("%1:%2").arg(socket->peerAddress().toString()).arg(socket->peerPort());
+    QString address = Utils::toHostPortPair(socket->peerAddress(),socket->peerPort());
 
     if (!connected)
     {
-        MDEBUG(Info,"Connection to Mail.ru server server at "<<qPrintable(address)<<" has failed! :(");
+        MDEBUG(Info,"Connection to Mail.ru server at "<<qPrintable(address)<<" has failed! :(");
         return;
     }
     else
     {
         MDEBUG(Info,"Connected to Mail.ru server at"<<qPrintable(address));
+
+        if (socket == p->IMSocket()) //temp
+        {
+            sendGreetings();
+        }
+    }
+}
+
+void MrimConnection::disconnected()
+{
+    QTcpSocket *socket = qobject_cast<QTcpSocket*>(sender());
+    Q_ASSERT(socket);
+
+    MDEBUG(Info,"Disconnected from Mail.ru server at "<<qPrintable( Utils::toHostPortPair(socket->peerAddress(),socket->peerPort()) ) );
+
+    if (socket == p->SrvReqSocket())
+    {
+        if (!p->imHost.isEmpty() && p->imPort > 0)
+        {//all is fine, connecting to IM server
+            p->IMSocket()->connectToHost(p->imHost,p->imPort);
+        }
+        else
+        {
+            MCRIT("Oh god! This is epic fail! We didn't recieve any server, connection couldn't be established!");
+        }
     }
 }
 
@@ -130,11 +181,20 @@ MrimConnection::TConnectionState MrimConnection::state() const
 }
 
 void MrimConnection::readyRead()
-{
+{    
     QTcpSocket *socket = qobject_cast<QTcpSocket*>(sender());
+
+    if (!socket)
+    {
+        if (qobject_cast<QTimer*>(sender()) != 0)
+        {
+            socket = (p->IMSocket()->bytesAvailable()) ? p->IMSocket() : p->SrvReqSocket();
+        }
+    }
+
     Q_ASSERT(socket);
 
-    if (socket->bytesAvailable() == 0) //hack
+    if (socket->bytesAvailable() <= 0) //windows hack?
     {
         return;
     }
@@ -144,6 +204,45 @@ void MrimConnection::readyRead()
         QStringList ipPortPair = QString(socket->readAll()).split(':');
         p->imHost = ipPortPair[0];
         p->imPort = ipPortPair[1].toUInt();
-        //TODO: handle further connection
+        //srv request socket will disconnected immediatly
     }
+    else
+    {
+        if (p->m_readPacket.readFrom(*socket))
+        {
+            if (p->m_readPacket.isFinished())
+            {
+                processPacket();
+                p->m_readPacket.clear();
+            }
+        }
+        else
+        {
+            close();
+        }
+
+        if (p->m_readPacket.lastError() != MrimPacket::NoError)
+        {
+            MDEBUG(Verbose,"An error occured while reading packet:" << p->m_readPacket.lastErrorString() );
+        }
+    }
+
+    if (socket->bytesAvailable())
+    {//run next read round
+        p->readyReadTimer->start();
+    }
+}
+
+bool MrimConnection::processPacket()
+{
+    Q_ASSERT(p->m_readPacket.isFinished());
+    //TODO: packets processing
+}
+
+void MrimConnection::sendGreetings()
+{
+    MrimPacket hello(MrimPacket::Compose);
+    hello.setMsgType(MRIM_CS_HELLO);
+    hello.setBody("");
+    hello.writeTo(p->IMSocket());
 }

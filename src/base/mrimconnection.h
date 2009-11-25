@@ -49,9 +49,14 @@ public:
     ConfigGroup config(const QString &group);
     TConnectionState state() const;
 
-private slots:
+protected slots:
     void connected();
+    void disconnected();
     void readyRead();
+
+protected:
+    bool processPacket();
+    void sendGreetings();
 
 private:
     Q_DISABLE_COPY(MrimConnection)

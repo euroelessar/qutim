@@ -17,11 +17,13 @@
 #define UTILS_H
 
 #include <QString>
+#include <QHostAddress>
 
 class Utils
 {
 public:
     static QString stripEmail(const QString& email);
+    static QString toHostPortPair(const QHostAddress& host, quint32 port);
 };
 
 #include "mrimdebug.h"

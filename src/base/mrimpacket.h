@@ -21,7 +21,7 @@
 #include <QByteArray>
 #include "proto.h"
 
-class QBuffer;
+class QIODevice;
 class LPString;
 class QTcpSocket;
 
@@ -34,20 +34,41 @@ class MrimPacket : public QObject
     Q_PROPERTY(quint32 sequence READ sequence WRITE setSequence);
 
 public:
-    enum TPacketErrorCode
+    enum PacketError
     {
         NoError = 0,
-        NotEnoughBytes,
         HeaderCorrupted,
+        CannotReadFromSocket,
         UnknownError
+    };
+
+    enum PacketState
+    {
+        ReadHeader = 0,
+        ReadData,
+        Finished,
+        Error
+    };
+
+    enum PacketMode
+    {
+        Recieve,
+        Compose
     };
 
 public:	
 
-    MrimPacket();
+    MrimPacket(PacketMode mode = Recieve);
     virtual ~MrimPacket();
 
-    static MrimPacket *fromRawData(QBuffer& buffer, TPacketErrorCode &err);
+    static QString errorString(PacketError errCode);
+
+    //Compose mode
+    void append(const QString &str, bool unicode = false);
+    void append(LPString &lpStr);
+    void append(const quint32 &num);
+    MrimPacket& operator<<(LPString &str);
+    MrimPacket& operator<<(const quint32 &num);
     void setHeader(const QByteArray& header);
     void setHeader(const mrim_packet_header_t& header);
     void setBody(const QByteArray& body);
@@ -57,17 +78,15 @@ public:
     void setMsgType(quint32 msgType);
     void setFrom(quint32 from);
     void setFromPort(quint32 fromPort);
+    QByteArray toByteArray();
+    qint64 writeTo(QIODevice *device, bool waitForWritten = false);
 
-    void append(const QString &str, bool unicode = false);
-    void append(LPString &lpStr);
-    void append(const quint32 &num);
+    //Recieve mode
+    bool readFrom(QIODevice& device);
+    qint32 readTo(QString *str, bool unicode = false);
+    qint32 readTo(quint32 &num);
 
-    qint32 read(QString *str,bool unicode = false);
-    qint32 read(quint32 &num);
-
-    MrimPacket& operator<<(LPString &str);
-    MrimPacket& operator<<(const quint32 &num);
-
+    //Common
     bool isHeaderCorrect();
     inline quint32 dataLength() { return m_header.dlen; }
     inline quint32 msgType() { return m_header.msg; }
@@ -76,16 +95,42 @@ public:
     inline quint32 fromPort() { return m_header.fromport; }
     inline const QByteArray& data() { return m_body; }
 
-    QByteArray toByteArray();
-    qint64 send(QTcpSocket *aSocket);
+    inline PacketError lastError() const;
+    inline QString lastErrorString() const;
+    void clear();
+
+    inline PacketState state() const;
+    inline bool isFinished() const;
+    inline PacketMode mode() const;
 
 private:
     void initHeader();
+    void setState(PacketState newState);
+    void setError(PacketError errCode);
 
     mrim_packet_header_t m_header;
     mrim_connection_params_t m_connParams;
     QByteArray m_body;
     quint32 m_currBodyPos;
+    quint32 m_bytesLeft;
+    PacketState m_currState;
+    PacketError m_lastError;
+    PacketMode m_mode;
 };
+
+inline MrimPacket::PacketState MrimPacket::state() const
+{ return m_currState; }
+
+inline bool MrimPacket::isFinished() const
+{ return state() == Finished; }
+
+inline MrimPacket::PacketError MrimPacket::lastError() const
+{ return (state() == Error) ? m_lastError : NoError; }
+
+inline QString MrimPacket::lastErrorString() const
+{ return errorString(lastError()); }
+
+inline MrimPacket::PacketMode MrimPacket::mode() const
+{ return m_mode; }
 
 #endif /*MrimPacket_H_*/

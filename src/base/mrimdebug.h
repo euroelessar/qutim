@@ -18,7 +18,12 @@ enum TMrimDebugLevel
 
     static TMrimDebugLevel MrimDebugLevel = MRIM_DEBUG_LEVEL;
 
-    #define MDEBUG(DebugLevel,DebugStatement) if (MrimDebugLevel <= DebugLevel) { qDebug()<<"[MRIM]"<<Q_FUNC_INFO<<":"<<DebugStatement; }
+    #define MDEBUG_EX(DebugLevel,DebugStatement,DebugObject) if (MrimDebugLevel <= DebugLevel) { DebugObject<<"[MRIM]"<<Q_FUNC_INFO<<":"<<DebugStatement; }
+
+    #define MDEBUG(DebugLevel,DebugStatement) MDEBUG_EX(DebugLevel,DebugStatement,qDebug())
+    #define MWARN(DebugStatement) MDEBUG_EX(Info,DebugStatement,qWarning())
+    #define MCRIT(DebugStatement) MDEBUG_EX(Info,DebugStatement,qCritical())
+
 #else
     #define MDEBUG(DebugLevel,DebugStatement)
 #endif

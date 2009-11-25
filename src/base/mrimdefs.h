@@ -21,6 +21,9 @@
 
 #define MAX_INT32 4294836225
 
+//to detect corrupted headers
+#define MAX_PACKET_BODY_SIZE 500 * 1024 //500 kbytes
+
 struct MRIMUserInfo
 {
 	QString messagesTotal;

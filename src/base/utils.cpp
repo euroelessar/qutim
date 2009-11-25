@@ -31,3 +31,8 @@ QString Utils::stripEmail(const QString& email)
     }
     return stripped;
 }
+
+QString Utils::toHostPortPair(const QHostAddress& host, quint32 port)
+{
+    return QString("%1:%2").arg(host.toString()).arg(port);
+}
