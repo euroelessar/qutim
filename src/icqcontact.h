@@ -25,6 +25,7 @@ using namespace qutim_sdk_0_3;
 
 class IcqAccount;
 class Roster;
+class DirectConnectionInfo;
 
 struct IcqContactPrivate;
 
@@ -45,6 +46,7 @@ public:
 	bool RtfSupport();
 	bool TypingSupport();
 	bool AimChatSupport();
+	bool AimImageSupport();
 	bool XtrazSupport();
 	bool Utf8Support();
 	bool SendFileSupport();
@@ -53,7 +55,9 @@ public:
 	bool GetFileSupport();
 	bool SrvRelaySupport();
 	bool AvatarSupport();
-	Capabilities capabilities();
+	const Capabilities &capabilities();
+	const Capabilities &shortCapabilities();
+	const DirectConnectionInfo &dcInfo();
 private:
 	void clearCapabilities();
 	friend class Roster;

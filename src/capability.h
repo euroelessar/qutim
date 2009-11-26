@@ -36,23 +36,29 @@ public:
     bool isShort() const { return m_is_short; }
     bool isEmpty() const { return m_data.isEmpty(); }
     bool operator==(const Capability &rhs) const;
-    inline bool match(const Capability &capability) const;
-    operator QByteArray() const;
+    inline bool match(const Capability &capability, quint8 len = 17) const;
+    operator QByteArray() const { return m_data; };
 private:
-    void stripLasts();
+    void getLength();
 	QByteArray m_data;
 	bool m_is_short;
+	quint8 m_len;
 };
 
 class Capabilities: public QList<Capability>
 {
 public:
-	iterator match(const Capability &capability);
+	bool match(const Capability &capability, quint8 len = 17) const;
+	const_iterator find(const Capability &capability, quint8 len = 17) const;
 };
 
-bool Capability::match(const Capability &capability) const
+bool Capability::match(const Capability &capability, quint8 len) const
 {
-	return !(memcmp(m_data.data(), capability.m_data.data(), m_data.size()));
+	if(m_is_short)
+		len = 2;
+	else if(len > 16)
+		len = capability.m_len;
+	return !(memcmp(m_data.data(), capability.m_data.data(), len));
 }
 
 inline uint qHash(const Capability &capability)

@@ -29,8 +29,7 @@ Capability::Capability(const QByteArray &data)
 	Q_ASSERT(data.size() == 16 || data.size() == 2);
 	m_data = data;
 	m_is_short = (data.size() == 2);
-	if(!m_is_short)
-		stripLasts();
+	getLength();
 }
 
 Capability::Capability(quint32 d1, quint32 d2, quint32 d3, quint32 d4)
@@ -39,7 +38,7 @@ Capability::Capability(quint32 d1, quint32 d2, quint32 d3, quint32 d4)
 	stream << d1 << d2 << d3 << d4;
 	m_is_short = false;
 	Q_ASSERT(m_data.size() == 16);
-	stripLasts();
+	getLength();
 }
 
 Capability::Capability(quint8 d1, quint8 d2, quint8 d3, quint8 d4, quint8 d5, quint8 d6,
@@ -49,7 +48,7 @@ Capability::Capability(quint8 d1, quint8 d2, quint8 d3, quint8 d4, quint8 d5, qu
 	QDataStream stream(&m_data, QIODevice::WriteOnly);
 	stream << d1 << d2 << d3 << d4 << d5 << d6 << d7 << d8 << d9 << d10 << d11 << d12 << d13 << d14 << d15 << d16;
 	Q_ASSERT(m_data.size() == 16);
-	stripLasts();
+	getLength();
 }
 
 
@@ -66,37 +65,43 @@ bool Capability::operator==(const Capability &rhs) const
 	return m_data == rhs.m_data;
 }
 
-Capability::operator QByteArray() const
+void Capability::getLength()
 {
-	QByteArray data = m_data;
-	if(!m_is_short)
-		data.resize(16);
-	return data;
-}
-
-void Capability::stripLasts()
-{
+	if(m_is_short)
+	{
+		m_len = 2;
+		return;
+	}
 	QByteArray::iterator itr = m_data.end();
 	QByteArray::iterator itr_first = m_data.begin();
-	int count = m_data.count();
+	m_len = m_data.count();
 	do
 	{
 		--itr;
 		if(*itr != 0)
 			break;
-		--count;
+		--m_len;
 	}
 	while(itr != itr_first);
-	m_data.truncate(count);
 }
 
-Capabilities::iterator Capabilities::match(const Capability &capability)
+bool Capabilities::match(const Capability &capability, quint8 len) const
 {
-	iterator itr = begin();
-	iterator end_itr = end();
+	foreach(const Capability &cap, *this)
+	{
+		if(cap.match(capability, len))
+			return true;
+	}
+	return false;
+}
+
+Capabilities::const_iterator Capabilities::find(const Capability &capability, quint8 len) const
+{
+	const_iterator itr = begin();
+	const_iterator end_itr = end();
 	while(itr != end_itr)
 	{
-		if(itr->match(capability))
+		if(itr->match(capability, len))
 			return itr;
 		++itr;
 	}

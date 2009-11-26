@@ -93,6 +93,11 @@ bool IcqContact::AimChatSupport()
 	return p->aim_chat_support;
 }
 
+bool IcqContact::AimImageSupport()
+{
+	return p->aim_image_support;
+}
+
 bool IcqContact::XtrazSupport()
 {
 	return p->xtraz_support;
@@ -133,9 +138,19 @@ bool IcqContact::AvatarSupport()
 	return p->avatar_support;
 }
 
-Capabilities IcqContact::capabilities()
+const Capabilities &IcqContact::capabilities()
 {
 	return p->capabilities;
+}
+
+const Capabilities &IcqContact::shortCapabilities()
+{
+	return p->short_capabilities;
+}
+
+const DirectConnectionInfo &IcqContact::dcInfo()
+{
+	return p->dc_info;
 }
 
 void IcqContact::clearCapabilities()
@@ -143,6 +158,7 @@ void IcqContact::clearCapabilities()
 	p->rtf_support = false;
 	p->typing_support = false;
 	p->aim_chat_support = false;
+	p->aim_image_support = false;
 	p->xtraz_support = false;
 	p->utf8_support = false;
 	p->sendfile_support = false;

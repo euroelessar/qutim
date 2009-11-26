@@ -20,6 +20,7 @@
 #include "oscarconnection.h"
 #include "buddypicture.h"
 #include "buddycaps.h"
+#include "clientidentify.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
@@ -645,6 +646,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 			data.readSimple<quint32>(),
 			data.readSimple<quint32>()
 		};
+		contact->p->dc_info = info;
 	}
 	if(tlvs.contains(0x001d)) // avatar
 	{
@@ -668,6 +670,8 @@ void Roster::handleUserOnline(const SNAC &snac)
 				contact->p->typing_support = true;
 			else if(capability.match(ICQ_CAPABILITY_AIMCHAT))
 				contact->p->aim_chat_support = true;
+			else if(capability.match(ICQ_CAPABILITY_AIMIMAGE))
+				contact->p->aim_image_support = true;
 			else if(capability.match(ICQ_CAPABILITY_XTRAZ))
 				contact->p->xtraz_support = true;
 			else if(capability.match(ICQ_CAPABILITY_UTF8))
@@ -684,8 +688,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 				contact->p->srvrelay_support = true;
 			else if(capability.match(ICQ_CAPABILITY_AVATAR))
 				contact->p->avatar_support = true;
-			else
-				contact->p->capabilities << capability;
+			contact->p->capabilities << capability;
 		}
 	}
 	if(tlvs.contains(0x0019)) // short capabilities
@@ -694,7 +697,9 @@ void Roster::handleUserOnline(const SNAC &snac)
 		while(data.dataSize() != 0)
 		{
 			Capability capability(data.readData(2));
-			if(capability.match(ICQ_SHORTCAP_UTF))
+			if(capability.match(ICQ_SHORTCAP_AIMIMAGE))
+				contact->p->aim_image_support = true;
+			else if(capability.match(ICQ_SHORTCAP_UTF))
 				contact->p->utf8_support = true;
 			else if(capability.match(ICQ_SHORTCAP_SENDFILE))
 				contact->p->sendfile_support = true;
@@ -708,16 +713,16 @@ void Roster::handleUserOnline(const SNAC &snac)
 				contact->p->srvrelay_support = true;
 			else if(capability.match(ICQ_SHORTCAP_AVATAR))
 				contact->p->avatar_support = true;
-			else
-				contact->p->capabilities << capability;
+			contact->p->short_capabilities << capability;
 		}
 	}
 	qDebug("Handle UserOnline %02X %02X, %s", (int)snac.family(), (int)snac.subtype(), qPrintable(uin));
-	qDebug() << tlvs.keys();
 	quint32 status = tlvs.value<quint32>(0x0006, 0x0000);
 	contact->p->status = icqStatusToQutim(status & 0xffff);
 	emit contact->statusChanged(contact->p->status);
-	qDebug("%s", qPrintable(QString::number(status, 16)));
+	ClientIdentify identify;
+	identify.identify(contact);
+	qDebug() << contact->name() << "uses" << contact->property("client_id").toString();
 //	bool status_present = tlv06.type() == 0x0006;
 }
 

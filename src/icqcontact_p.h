@@ -20,6 +20,7 @@
 #define ICQCONTACT_PH_H
 
 #include "capability.h"
+#include "oscarconnection.h"
 
 namespace Icq {
 
@@ -35,6 +36,7 @@ struct IcqContactPrivate
 	bool rtf_support;
 	bool typing_support;
 	bool aim_chat_support;
+	bool aim_image_support;
 	bool xtraz_support;
 	bool utf8_support;
 	bool sendfile_support;
@@ -44,6 +46,8 @@ struct IcqContactPrivate
 	bool srvrelay_support;
 	bool avatar_support;
 	Capabilities capabilities;
+	Capabilities short_capabilities;
+	DirectConnectionInfo dc_info;
 };
 
 } // namespace Icq
