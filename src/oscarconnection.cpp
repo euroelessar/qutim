@@ -154,7 +154,9 @@ OscarConnection::OscarConnection(IcqAccount *parent):
 
 void OscarConnection::connectToLoginServer()
 {
-	new Md5Login(this);
+	Md5Login *md5login = new Md5Login(this);
+	connect(md5login->socket(), SIGNAL(disconnected()), md5login, SLOT(deleteLater()));
+	md5login->login();
 }
 
 void OscarConnection::processNewConnection()

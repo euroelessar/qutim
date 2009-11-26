@@ -38,6 +38,7 @@ class Md5Login: public AbstractConnection
 public:
 	Md5Login(OscarConnection *conn);
 	~Md5Login();
+	void login();
 protected:
 	void processNewConnection();
 	void processCloseConnection();

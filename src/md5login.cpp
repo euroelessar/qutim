@@ -87,17 +87,24 @@ void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 Md5Login::Md5Login(OscarConnection *conn):
 	AbstractConnection(conn), m_conn(conn)
 {
-	// Connecting to login server
 	setSeqNum(generate_flap_sequence());
-//	QHostInfo host = QHostInfo::fromName("login.messaging.aol.com");
-//	qDebug() << host.addresses();
-//	m_socket->connectToHost(host.addresses().at(qrand() % host.addresses().size()), 5190);
-	socket()->connectToHost("205.188.251.43" /*"login.icq.com"*/, 5190);
-	registerHandler(new Md5LoginNegotiation(conn, this));
 }
 
 Md5Login::~Md5Login()
 {
+}
+
+void Md5Login::login()
+{
+	m_addr.clear();
+	m_port = 0;
+	m_cookie.clear();
+	// Connecting to login server
+	//	QHostInfo host = QHostInfo::fromName("login.messaging.aol.com");
+//	qDebug() << host.addresses();
+//	m_socket->connectToHost(host.addresses().at(qrand() % host.addresses().size()), 5190);
+	socket()->connectToHost("205.188.251.43" /*"login.icq.com"*/, 5190);
+	registerHandler(new Md5LoginNegotiation(m_conn, this));
 }
 
 void Md5Login::processNewConnection()
@@ -116,8 +123,8 @@ void Md5Login::processNewConnection()
 void Md5Login::processCloseConnection()
 {
 	AbstractConnection::processCloseConnection();
-	m_conn->connectToBOSS(m_addr, m_port, m_cookie);
-	deleteLater();
+	if(!m_addr.isEmpty())
+		m_conn->connectToBOSS(m_addr, m_port, m_cookie);
 }
 
 void Md5Login::setLoginData(const QString &addr, quint16 port, const QByteArray &cookie)
