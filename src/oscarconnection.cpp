@@ -186,7 +186,7 @@ void OscarConnection::processCloseConnection()
 {
 	TLVMap tlvs = flap().readTLVChain();
 	if(tlvs.contains(0x0009))
-		Notifications::sendNotification(Notifications::System, this, tr("Another client is loggin with this uin"));
+		Notifications::sendNotification(tr("Another client is loggin with this uin"));
 	else if(tlvs.contains(0x0008))
 	{
 		QString error = Util::connectionErrorText(qFromBigEndian<quint16>((const uchar *)tlvs.value(0x0008).value().constData()));

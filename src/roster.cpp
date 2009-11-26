@@ -661,7 +661,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 	if(tlvs.contains(0x000d)) // capabilities
 	{
 		DataUnit data(tlvs.value(0x000d));
-		while(data.dataSize() != 0)
+		while(data.dataSize() >= 16)
 		{
 			Capability capability(data.readData(16));
 			if(capability.match(ICQ_CAPABILITY_RTFxMSGS))
@@ -694,7 +694,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 	if(tlvs.contains(0x0019)) // short capabilities
 	{
 		DataUnit data(tlvs.value(0x0019));
-		while(data.dataSize() != 0)
+		while(data.dataSize() >= 2)
 		{
 			Capability capability(data.readData(2));
 			if(capability.match(ICQ_SHORTCAP_AIMIMAGE))

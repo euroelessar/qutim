@@ -97,8 +97,8 @@ bool Capabilities::match(const Capability &capability, quint8 len) const
 
 Capabilities::const_iterator Capabilities::find(const Capability &capability, quint8 len) const
 {
-	const_iterator itr = begin();
-	const_iterator end_itr = end();
+	const_iterator itr = constBegin();
+	const_iterator end_itr = constEnd();
 	while(itr != end_itr)
 	{
 		if(itr->match(capability, len))

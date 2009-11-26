@@ -681,7 +681,7 @@ void ClientIdentify::identify_qutIM()
 	                                                  0x00, 0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap = m_client_caps.find(ICQ_CAPABILITY_QUTIMxVER);
-	if (cap != m_client_caps.end())
+	if (cap != m_client_caps.constEnd())
 	{
 		const char *verStr = cap->data().data() + 5;
 		if (verStr[1] == 46)
@@ -729,7 +729,7 @@ void ClientIdentify::identify_k8qutIM()
 	                                                     0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap = m_client_caps.find(ICQ_CAPABILITY_K8QUTIMxVER);
-	if (cap != m_client_caps.end())
+	if (cap != m_client_caps.constEnd())
 	{
 		const char *cap_str = cap->data().data() + 7;
 		QString os("");
@@ -779,7 +779,7 @@ void ClientIdentify::identify_Miranda()
 	                                                     0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	Capabilities::const_iterator end_itr = m_client_caps.end();
+	Capabilities::const_iterator end_itr = m_client_caps.constEnd();
 
 	if (((cap = m_client_caps.find(ICQ_CAPABILITY_ICQJSINxVER)) != end_itr) ||
 		((cap = m_client_caps.find(ICQ_CAPABILITY_ICQJS7xVER)) != end_itr) ||
@@ -924,7 +924,7 @@ void ClientIdentify::identify_Qip()
 	                                                     0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_QIPxVER/*, 0x0e*/)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_QIPxVER/*, 0x0e*/)) != m_client_caps.constEnd())
 	{
 		const QByteArray &cap_data = cap->data();
 		m_client_id = "QIP ";
@@ -1005,7 +1005,7 @@ void ClientIdentify::identify_Sim()
                                                        0xf7, 0x3f, 0x14, 0x00);
     */
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_SIMxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_SIMxVER)) != m_client_caps.constEnd())
 	{
 		QString clientId = "SIM v";
 		const char *cap_str = cap->data().data() + 12;
@@ -1030,7 +1030,7 @@ void ClientIdentify::identify_Sim()
 void ClientIdentify::identify_SimRnQ()
 {
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_SIMxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_SIMxVER)) != m_client_caps.constEnd())
 	{
 		const char *cap_str = cap->data().data() + 12;
 		if (cap_str[0] || cap_str[1] || cap_str[2] || (cap_str[3] & 0x0f))
@@ -1048,7 +1048,7 @@ void ClientIdentify::identify_Licq()
 	                                                  0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_LICQxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_LICQxVER)) != m_client_caps.constEnd())
 	{
 		const char *cap_str = cap->data().data() + 12;
 		unsigned ver1 = cap_str[0];
@@ -1068,7 +1068,7 @@ void ClientIdentify::identify_Kopete()
 	                                                     0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_KOPETExVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_KOPETExVER)) != m_client_caps.constEnd())
 	{
 		const char *cap_str = cap->data().data() + 12;
 		unsigned ver1 = cap_str[0];
@@ -1087,7 +1087,7 @@ void ClientIdentify::identify_Micq()
 	                                                 0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_MICQxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_MICQxVER)) != m_client_caps.constEnd())
 	{
 		m_client_id = "mICQ v";
 		const char *cap_str = cap->data().data() + 12;
@@ -1131,7 +1131,7 @@ void ClientIdentify::identify_Jimm()
 	                                                 0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_JIMMxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_JIMMxVER)) != m_client_caps.constEnd())
 	{
 		m_client_id = "Jimm ";
 		m_client_id += QString::fromUtf8(cap->data().mid(5, 11));
@@ -1146,7 +1146,7 @@ void ClientIdentify::identify_Mip()
 	                                                  0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_MIPCLIENT, 12)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_MIPCLIENT, 12)) != m_client_caps.constEnd())
 	{
 		m_client_id = "MIP ";
 		const char *cap_str = cap->data().data() + 12;
@@ -1162,7 +1162,7 @@ void ClientIdentify::identify_Mip()
 	    else
 	    	m_client_id += QString::fromUtf8(cap->data().mid(11, 5));
 	}
-	else if ((cap = m_client_caps.find(ICQ_CAPABILITY_MIPCLIENT)) != m_client_caps.end())
+	else if ((cap = m_client_caps.find(ICQ_CAPABILITY_MIPCLIENT)) != m_client_caps.constEnd())
 	{
 		m_client_id = "MIP ";
 		m_client_id += QString::fromUtf8(cap->data().mid(4, 12));
@@ -1203,7 +1203,7 @@ void ClientIdentify::identify_Climm()
 	                                                  0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_CLIMMxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_CLIMMxVER)) != m_client_caps.constEnd())
 	{
 		const char *cap_str = cap->data().data() + 12;
 	    unsigned ver1 = cap_str[0];
@@ -1239,7 +1239,7 @@ void ClientIdentify::identify_AndRQ()
 	                                              0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_ANDRQxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_ANDRQxVER)) != m_client_caps.constEnd())
 	{
 		const char *cap_str = cap->data().data();
 		unsigned ver1 = cap_str[0xC];
@@ -1258,7 +1258,7 @@ void ClientIdentify::identify_RandQ()
 	                                                  0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_RANDQxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_RANDQxVER)) != m_client_caps.constEnd())
 	{
 		const char *cap_str = cap->data().data();
 		unsigned ver1 = cap_str[0xC];
@@ -1288,7 +1288,7 @@ void ClientIdentify::identify_Mchat()
 	                                              0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_MCHATxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_MCHATxVER)) != m_client_caps.constEnd())
 	{
 		m_client_id = "mChat ";
 		m_client_id += QString::fromUtf8(cap->data().mid(10, 6));
@@ -1303,7 +1303,7 @@ void ClientIdentify::identify_CorePager()
 	                                                    0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_COREPGRxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_COREPGRxVER)) != m_client_caps.constEnd())
 	{
 		m_client_id += "CORE Pager";
 		if ((m_ext_status_info == 0x0FFFF0011) &&
@@ -1325,7 +1325,7 @@ void ClientIdentify::identify_DiChat()
 	                                                   0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_DICHATxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_DICHATxVER)) != m_client_caps.constEnd())
 	{
 		m_client_id += "D[i]Chat ";
 		m_client_id += QString::fromUtf8(cap->data().mid(8, 8));
@@ -1361,7 +1361,7 @@ void ClientIdentify::identify_Jicq()
 	                                                 0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_PALMJICQ, 0xc)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_PALMJICQ, 0xc)) != m_client_caps.constEnd())
 	{
 		const char *cap_str = cap->data().data();
 		unsigned ver1 = cap_str[0xC];
@@ -1390,7 +1390,7 @@ void ClientIdentify::identify_Vmicq()
 	                                                  0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_VMICQxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_VMICQxVER)) != m_client_caps.constEnd())
 	{
 		m_client_id += "VmICQ ";
 		m_client_id += QString::fromUtf8(cap->data().mid(5, 11));
@@ -1405,7 +1405,7 @@ void ClientIdentify::identify_Smaper()
 	                                                   0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_SMAPERxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_SMAPERxVER)) != m_client_caps.constEnd())
 	{
 		m_client_id += "SmapeR ";
 		m_client_id += QString::fromUtf8(cap->data().mid(6, 10));
@@ -1419,7 +1419,7 @@ void ClientIdentify::identify_Yapp()
 	                                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	                                                 0x00, 0x00, 0x00, 0x00);
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_YAPPxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_YAPPxVER)) != m_client_caps.constEnd())
 	{
 		m_client_id = "Yapp! v";
 		m_client_id += QString::fromUtf8(cap->data().mid(8, 5));
@@ -1444,7 +1444,7 @@ void ClientIdentify::identify_NatIcq()
 	                                                   0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_NATICQxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_NATICQxVER)) != m_client_caps.constEnd())
 	{
 		const char *cap_str = cap->data().data();
 		m_client_id = QString("NatICQ Siemens (revision %s)").arg(QString::fromUtf8(cap->data().mid(0xc, 4)));
@@ -1459,7 +1459,7 @@ void ClientIdentify::identify_WebIcqPro()
 	                                                  0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_WEBICQPRO)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_WEBICQPRO)) != m_client_caps.constEnd())
 	{
 		const char *cap_str = cap->data().data();
 	    unsigned ver1 = cap_str[0xA];
@@ -1479,7 +1479,7 @@ void ClientIdentify::identify_BayanIcq()
 	                                                     0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_BAYANICQxVER)) != m_client_caps.end())
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_BAYANICQxVER)) != m_client_caps.constEnd())
 	{
 		m_client_id = "bayanICQ v";
 		m_client_id += QString::fromUtf8(cap->data().mid(8, 8));
