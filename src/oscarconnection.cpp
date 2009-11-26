@@ -22,6 +22,7 @@
 #include "buddypicture.h"
 #include "buddycaps.h"
 #include <qutim/objectgenerator.h>
+#include <qutim/notificationslayer.h>
 #include <QHostInfo>
 #include <QBuffer>
 #include <QTimer>
@@ -179,6 +180,20 @@ void OscarConnection::processNewConnection()
 	flap.appendTLV<quint8>(0x0094, 0x00);
 	flap.appendTLV<quint32>(0x8003, 0x00100000);
 	send(flap);
+}
+
+void OscarConnection::processCloseConnection()
+{
+	TLVMap tlvs = flap().readTLVChain();
+	if(tlvs.contains(0x0009))
+		Notifications::sendNotification(Notifications::System, this, tr("Another client is loggin with this uin"));
+	else if(tlvs.contains(0x0008))
+	{
+		QString error = Util::connectionErrorText(qFromBigEndian<quint16>((const uchar *)tlvs.value(0x0008).value().constData()));
+		Notifications::sendNotification(error);
+	}
+
+	AbstractConnection::processCloseConnection();
 }
 
 void OscarConnection::finishLogin()

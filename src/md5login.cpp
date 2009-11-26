@@ -16,6 +16,7 @@
 
 #include "md5login.h"
 #include "icqaccount.h"
+#include "qutim/notificationslayer.h"
 #include <QCryptographicHash>
 #include <QUrl>
 #ifdef TEST
@@ -79,7 +80,8 @@ void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 		}
 		else
 		{
-			qDebug() << Util::connectionErrorText(qFromBigEndian<quint16>((const uchar *)tlvs.value(0x08).value().constData()));
+			QString error = Util::connectionErrorText(qFromBigEndian<quint16>((const uchar *)tlvs.value(0x0008).value().constData()));
+			Notifications::sendNotification(error);
 		}
 	}
 }

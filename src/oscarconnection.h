@@ -80,6 +80,7 @@ private:
 	void sendStatus();
 	void setIdle(bool allow);
 	void processNewConnection();
+	void processCloseConnection();
 	IcqAccount *m_account;
 	Status m_status_enum;
 	quint16 m_status;
