@@ -31,6 +31,40 @@ namespace Icq {
 
 using namespace Util;
 
+struct SessionDataItem
+{
+	quint16 type;
+	quint8 flags;
+	QByteArray data;
+};
+
+class SessionDataItemMap: public QMultiMap<quint16, SessionDataItem>
+{
+public:
+	SessionDataItemMap(const TLVMap &tlvs)
+	{
+		if(tlvs.contains(0x1D))
+			parseData(DataUnit(tlvs.value(0x1D)));
+	}
+
+	SessionDataItemMap(const DataUnit &data)
+	{
+		parseData(data);
+	}
+private:
+	void parseData(const DataUnit &data)
+	{
+		SessionDataItem item;
+		while(data.dataSize() >= 4)
+		{
+			item.type = data.readSimple<quint16>();
+			item.flags = data.readSimple<quint8>();
+			item.data = data.readData<quint8>();
+			insertMulti(item.type, item);
+		}
+	}
+};
+
 Roster::SSIItem::SSIItem(const SNAC &snac)
 {
 	record_name = snac.readString<quint16>();
@@ -630,7 +664,45 @@ void Roster::handleUserOnline(const SNAC &snac)
 		return;
 	quint16 warning_level = snac.readSimple<quint16>();
 	TLVMap tlvs = snac.readTLVChain<quint16>();
-	if(tlvs.contains(0x000c))
+
+	// status.
+	quint32 status = tlvs.value<quint32>(0x0006, 0x0000);
+	Status oldStatus = contact->status();
+	contact->setStatus(icqStatusToQutim(status & 0xffff));
+	qDebug()<< QString("%1 changed status to %2").arg(contact->name()).arg(contact->status());
+
+	// Status note
+	SessionDataItemMap status_note_data(tlvs);
+	if(status_note_data.contains(0x0d))
+	{
+		DataUnit data(status_note_data.value(0x0d).data);
+		quint16 time = data.readSimple<quint16>();
+		qDebug() << "Status note update time" << time;
+	}
+
+	if(status_note_data.contains(0x02))
+	{
+		DataUnit data(status_note_data.value(0x02).data);
+		QByteArray note_data = data.readData<quint16>();
+		QByteArray encoding = data.readData<quint16>();
+		QTextCodec *codec;
+		if(encoding.isEmpty())
+			codec = defaultCodec();
+		else
+			codec = QTextCodec::codecForName(encoding);
+		if(!codec)
+		{
+			qDebug() << "Server sent wrong encoding for status note";
+			codec = defaultCodec();
+		}
+		QString note = codec->toUnicode(note_data);
+		qDebug() << "Status note: " << note;
+	}
+
+	if(oldStatus != Offline)
+		return;
+
+	if(tlvs.contains(0x000c)) // direct connection info
 	{
 		DataUnit data(tlvs.value(0x000c));
 		DirectConnectionInfo info =
@@ -648,6 +720,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 		};
 		contact->p->dc_info = info;
 	}
+
 	if(tlvs.contains(0x001d)) // avatar
 	{
 		DataUnit data(tlvs.value(0x001d));
@@ -716,14 +789,9 @@ void Roster::handleUserOnline(const SNAC &snac)
 			contact->p->short_capabilities << capability;
 		}
 	}
-	qDebug("Handle UserOnline %02X %02X, %s", (int)snac.family(), (int)snac.subtype(), qPrintable(uin));
-	quint32 status = tlvs.value<quint32>(0x0006, 0x0000);
-	contact->p->status = icqStatusToQutim(status & 0xffff);
-	emit contact->statusChanged(contact->p->status);
 	ClientIdentify identify;
 	identify.identify(contact);
 	qDebug() << contact->name() << "uses" << contact->property("client_id").toString();
-//	bool status_present = tlv06.type() == 0x0006;
 }
 
 void Roster::handleUserOffline(const SNAC &snac)

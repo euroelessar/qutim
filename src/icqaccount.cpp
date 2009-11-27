@@ -60,7 +60,11 @@ void IcqAccount::setStatus(Status status)
 			p->conn->setStatus(status);
 	}
 	else if(status == Offline)
+	{
 		p->conn->disconnectFromHost(false);
+		foreach(IcqContact *contact, p->roster->contacts())
+			contact->setStatus(Offline);
+	}
 	else if(current == Offline)
 	{
 		p->conn->setStatus(status);

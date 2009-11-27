@@ -125,8 +125,8 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 					if(icon_file.open(QIODevice::WriteOnly))
 						icon_file.write(image);
 					contact->setProperty("icon_hash", hash);
-					contact->setProperty("avatar", image_path);
 				}
+				contact->setProperty("avatar", image_path);
 			}
 		}
 		break;

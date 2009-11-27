@@ -153,6 +153,12 @@ const DirectConnectionInfo &IcqContact::dcInfo()
 	return p->dc_info;
 }
 
+void IcqContact::setStatus(Status status)
+{
+	p->status = status;
+	emit statusChanged(status);
+}
+
 void IcqContact::clearCapabilities()
 {
 	p->rtf_support = false;

@@ -131,6 +131,7 @@ void ProtocolNegotiationImpl::setMsgChannelParams(AbstractConnection *conn, quin
 OscarConnection::OscarConnection(IcqAccount *parent):
 	AbstractConnection(parent), m_is_connected(false)
 {
+	connect(socket(), SIGNAL(disconnected()), this, SLOT(disconnected()));
 	m_account = parent;
 	{
 		ClientInfo info = { "ICQ Client", 0x011a, 6, 5, 10, 104, 0x00007537, "ru", "ru" };
@@ -322,6 +323,7 @@ void OscarConnection::disconnected()
 {
 	m_is_connected = false;
 	m_status_enum = Offline;
+	m_account->setStatus(Offline);
 }
 
 void OscarConnection::sendStatus()

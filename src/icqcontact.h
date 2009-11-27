@@ -58,6 +58,7 @@ public:
 	const Capabilities &capabilities();
 	const Capabilities &shortCapabilities();
 	const DirectConnectionInfo &dcInfo();
+	void setStatus(Status status);
 private:
 	void clearCapabilities();
 	friend class Roster;

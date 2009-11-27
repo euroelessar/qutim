@@ -34,6 +34,7 @@ public:
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 	QString groupId2Name(quint16 id) { return m_groups.value(id); }
 	IcqContact *contact(const QString &uin) { return m_contacts.value(uin); }
+	const QHash<QString, IcqContact *> &contacts() const {return m_contacts; }
 	void sendMessage(const QString &id, const QString &message);
 	void sendAuthResponse(const QString &id, const QString &message, bool auth = true);
 	void sendAuthRequest(const QString &id, const QString &message);
