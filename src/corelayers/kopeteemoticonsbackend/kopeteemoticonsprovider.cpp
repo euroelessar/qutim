@@ -2,7 +2,7 @@
 #include <QFile>
 #include <QDomDocument>
 #include <QDir>
-
+#include <QDebug>
 
 KopeteEmoticonsProvider::KopeteEmoticonsProvider(const QString& themePath)
 : m_theme_path(themePath)
@@ -17,6 +17,10 @@ void KopeteEmoticonsProvider::loadTheme(const QString& themePath)
 	loadTheme();
 }
 
+KopeteEmoticonsProvider::KopeteEmoticonsProvider()
+{
+
+}
 
 void KopeteEmoticonsProvider::getThemeName()
 {
@@ -32,6 +36,11 @@ void KopeteEmoticonsProvider::getThemeName()
 	m_theme_name = doc.documentElement().attribute("title");
 }
 
+void KopeteEmoticonsProvider::setThemePath(const QString& themePath)
+{
+	m_theme_path = themePath;
+	getThemeName();
+}
 
 void KopeteEmoticonsProvider::loadTheme()
 {
@@ -67,7 +76,7 @@ void KopeteEmoticonsProvider::loadTheme()
 					}
 					emoticonString = emoticonString.nextSibling().toElement();
 				}
-				appendEmoticon(fileName.at(0),strings); //FIXME
+				appendEmoticon(m_theme_path + "/" + fileName.first(),strings); //FIXME
 			}
 		}
 		emoticon = emoticon.nextSibling().toElement();

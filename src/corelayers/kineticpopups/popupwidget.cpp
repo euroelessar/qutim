@@ -22,6 +22,7 @@
 #include <QPainter>
 #include <QDesktopWidget>
 #include <3rdparty/qtwin/qtwin.h>
+#include <libqutim/emoticons.h>
 
 namespace KineticPopups
 {
@@ -62,7 +63,7 @@ namespace KineticPopups
 	{
 		QString data = popup_settings.content;
 		data.replace ( "{title}", title );
-		data.replace ( "{body}", body );
+		data.replace ( "{body}", Emoticons::theme().parseEmoticons(body) );
 		data.replace ( "{imagepath}",Qt::escape ( imagePath ) );
 		this->document()->setHtml(data);
 		this->document()->setTextWidth(popup_settings.defaultSize.width());
