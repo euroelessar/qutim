@@ -19,6 +19,7 @@
 
 #include <QByteArray>
 #include <QList>
+#include <QHash>
 
 namespace Icq {
 

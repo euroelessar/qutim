@@ -16,6 +16,7 @@
 
 #include "util.h"
 #include <QCoreApplication>
+#include <QDateTime>
 
 namespace Icq {
 
@@ -108,6 +109,13 @@ namespace Util {
 		static QTextCodec *codec =  QTextCodec::codecForName("UTF-8");
 		return codec;
 	}
+
+
+	extern qint64 generateCookie()
+	{
+		return QDateTime::currentDateTime().toTime_t();
+	}
+
 } // namespace Icq::Util
 
 } // namespace Icq

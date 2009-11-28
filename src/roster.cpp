@@ -213,33 +213,6 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 	}
 }
 
-void Roster::sendMessage(const QString &id, const QString &message)
-{
-	SNAC sn(MessageFamily, MessageSrvSend);
-	sn.appendSimple<qint64>(QDateTime::currentDateTime().toTime_t()); // cookie
-	sn.appendSimple<qint16>(0x0001); // message channel
-	sn.appendData<qint8>(id); // uid or screenname
-
-	DataUnit msgData;
-	// Charset.
-	// TODO: get supported charsets from client info.
-	// 0x0000 - us-ascii
-	// 0x0002 - utf-16 be
-	// 0x0003 - ansi
-	msgData.appendSimple<quint16>(0x0002);
-	// Message.
-	msgData.appendData(message, utf16Codec());
-
-	DataUnit dataUnit;
-	dataUnit.appendTLV(0x0501, (quint32)0x0106);
-	dataUnit.appendTLV(0x0101, msgData);
-
-	sn.appendTLV(0x0002, dataUnit);
-	// empty TLV(6) store message if recipient offline.
-	sn.appendTLV(0x0006);
-	m_conn->send(sn);
-}
-
 void Roster::sendAuthResponse(const QString &id, const QString &message, bool auth)
 {
 	SNAC snac(ListsFamily, ListsCliAuthResponse);

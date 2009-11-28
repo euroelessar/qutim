@@ -16,6 +16,7 @@
 #include "icqcontact_p.h"
 #include "icqaccount.h"
 #include "roster.h"
+#include "messages.h"
 #include "qutim/messagesession.h"
 
 namespace Icq {
@@ -62,7 +63,8 @@ bool IcqContact::isInList() const
 
 void IcqContact::sendMessage(const Message &message)
 {
-	p->account->roster()->sendMessage(p->uin, message.text());
+	ServerMessage msgData(p->uin, Channel1MessageData(message.text()));
+	p->account->connection()->send(msgData);
 }
 
 void IcqContact::setName(const QString &name)
