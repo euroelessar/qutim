@@ -55,7 +55,7 @@ namespace AdiumChat
 		QAction *test_act2 = new QAction(Icon("preferences-system"),tr("Testing action"),this);
 		ui->additionalToolbar->addAction(test_act2);
                 //init aero integration for win
-                if (chatFlags & AeroThemeIntegeation) {
+                if (chatFlags & AeroThemeIntegration) {
                     if (QtWin::isCompositionEnabled()) {
                         QtWin::extendFrameIntoClientArea(this);
                         setContentsMargins(0, 0, 0, 0);
@@ -74,9 +74,13 @@ namespace AdiumChat
 			return;
 		m_sessions.append(session);
 		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved()));
-		QString imagePath = session->getUnit()->property("avatar").toString();
-		QIcon icon = imagePath.isEmpty() ? Icon("im-user") : QIcon(imagePath);
-		ui->tabBar->addTab(icon,session->getUnit()->title());
+		if (m_chat_flags & IconsOnTabs) {
+			QString imagePath = session->getUnit()->property("avatar").toString();
+			QIcon icon = imagePath.isEmpty() ? Icon("im-user") : QIcon(imagePath);
+			ui->tabBar->addTab(icon,session->getUnit()->title());
+		}
+		else
+			ui->tabBar->addTab(session->getUnit()->title());
 		if (ui->tabBar->count() >1)
 			ui->tabBar->setVisible(true);
 	}
