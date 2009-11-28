@@ -29,6 +29,7 @@ namespace AdiumChat
 	ChatWidget::ChatWidget(ChatFlag chatFlags): ui(new Ui::AdiumChatForm),m_chat_flags(chatFlags)
 	{
 		ui->setupUi(this);
+		centerizeWidget(this);
 		//init tabbar
 		ui->tabBar->setVisible(false);
 		ui->tabBar->setTabsClosable(true);
@@ -95,7 +96,9 @@ namespace AdiumChat
 	{
 		if (index == -1)
 			return;
-		ui->chatView->setPage(m_sessions.at(index)->getPage());
+		//ui->chatView->setPage(m_sessions.at(index)->getPage());
+		//dirty HACK
+		ui->chatView->page()->currentFrame()->setHtml(m_sessions.at(index)->getPage()->currentFrame()->toHtml());
 		setWindowTitle(tr("Chat with %1").arg(m_sessions.at(index)->getUnit()->title()));
 		//m_main_toolbar->setData(m_sessions.at(index)->getUnit());
 // 		if (QAbstractItemModel *model = m_sessions.at(index)->getItemsModel())
@@ -188,6 +191,8 @@ namespace AdiumChat
 		session->getUnit()->sendMessage(message);
 		session->appendMessage(message); //for testing
 		ui->chatEdit->clear();
+		//Dirty HACK
+		ui->chatView->page()->currentFrame()->setHtml(session->getPage()->currentFrame()->toHtml());
 	}
 
 }

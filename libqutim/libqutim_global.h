@@ -97,6 +97,7 @@ namespace qutim_sdk_0_3
 	LIBQUTIM_EXPORT QString getThemePath (const QString& category, const QString &themeName ); //search theme in user and share dir
 	LIBQUTIM_EXPORT QStringList listThemes( const QString &category); //list all themes for category, will seach in user and share fir
 	//NOTE it's return themename not themepath!
+	LIBQUTIM_EXPORT void centerizeWidget(QWidget *widget); //move widget to center of current screen
 }
 
 class QDebug;
