@@ -24,6 +24,7 @@
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
+#include <qutim/notificationslayer.h>
 #include <QTextCodec>
 #include <QDateTime>
 
@@ -697,6 +698,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 		}
 		QString note = codec->toUnicode(note_data);
 		qDebug() << "Status note: " << note;
+		sendNotification(Notifications::StatusChange, contact, note);
 	}
 
 	if(oldStatus != Offline)
