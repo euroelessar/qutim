@@ -74,9 +74,9 @@ namespace AdiumChat
 			return;
 		m_sessions.append(session);
 		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved()));
-		QString imagePath = session->getUnit()->property("avatar").toString();
-		QIcon icon = imagePath.isEmpty() ? Icon("im-user") : QIcon(imagePath);
-		ui->tabBar->addTab(icon,session->getUnit()->title());
+		QString imagePath = session->getAccount()->property("imagepath").toString();
+		QIcon icon = imagePath.isEmpty() ? QIcon(":/icons/qutim_64") : QIcon(imagePath);
+		ui->tabBar->addTab(icon,session->getId());
 		if (ui->tabBar->count() >1)
 			ui->tabBar->setVisible(true);
 	}
@@ -100,12 +100,12 @@ namespace AdiumChat
 
 	void ChatWidget::clear()
 	{
-		int count = m_sessions.count();
-		for (int i = 0;i!=count;i++)
-			ui->tabBar->removeTab(i);
 		if (m_chat_flags & RemoveSessionOnClose)
 			qDeleteAll(m_sessions);
-		m_sessions.clear();		
+		int count = m_sessions.count();
+		m_sessions.clear();
+		for (int i = 0;i!=count;i++)
+			ui->tabBar->removeTab(i);
 	}
 
 	void ChatWidget::removeSession(ChatSessionImpl* session)
