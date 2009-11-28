@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
-PROJECT( ICQ )
+PROJECT( OSCAR )
 
 set(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")
 if(QUTIM_PATH)
@@ -12,5 +12,4 @@ endif(QUTIM_PATH)
 
 SET( QT_USE_QTNETWORK TRUE )
 include( ${QUTIM_CMAKE_PLUGIN} )
-ADD_QUTIMPLUGIN( "icq" "src" )
-
+ADD_QUTIMPLUGIN( "oscar" "src" )
