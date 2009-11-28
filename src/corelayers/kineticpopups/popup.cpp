@@ -108,6 +108,7 @@ namespace KineticPopups
 		QRect geom = manager->insert(this);
 		if ( geom.isEmpty() )
 			deleteLater();
+		qDebug() << geom;
 
 		show_state = new QState();
 		hide_state = new QState();
@@ -119,8 +120,10 @@ namespace KineticPopups
 
 		show_state->assignProperty(notification_widget,"geometry",geom);
 		show_geometry = geom;
-		geom.moveLeft(geom.left() + x);
+		if (manager->animation & Slide)
+			geom.moveLeft(geom.left() + x);
 		hide_state->assignProperty(notification_widget,"geometry",geom);
+		qDebug() << "geom" << geom;
 		notification_widget->setGeometry(geom);
 
 		show_state->addTransition(notification_widget,SIGNAL(action1Activated()),hide_state);
@@ -138,11 +141,21 @@ namespace KineticPopups
 		machine->setInitialState (show_state);
 
 		if (manager->animation) {
-			QPropertyAnimation *animation = new QPropertyAnimation ( notification_widget,"geometry" );			
-			machine->addDefaultAnimation (animation);
-			animation->setDuration ( manager->animationDuration);
-			animation->setEasingCurve (manager->easingCurve);
-			connect(animation,SIGNAL(finished()),hide_state,SIGNAL(exited()));//HACK
+			QPropertyAnimation *moving = new QPropertyAnimation ( notification_widget,"geometry" );
+			machine->addDefaultAnimation (moving);
+			moving->setDuration ( manager->animationDuration);
+			moving->setEasingCurve (manager->easingCurve);
+			connect(moving,SIGNAL(finished()),hide_state,SIGNAL(exited()));//HACK
+			
+			if (manager->animation & Opacity) {
+				QPropertyAnimation *opacity = new QPropertyAnimation(notification_widget,"windowOpacity");
+				machine->addDefaultAnimation(opacity);
+				opacity->setDuration (manager->animationDuration);
+				opacity->setEasingCurve (manager->easingCurve);
+				notification_widget->setProperty("windowOpacity",0);
+				show_state->assignProperty(notification_widget,"windowOpacity",1);
+				hide_state->assignProperty(notification_widget,"windowOpacity",0);
+			}
 			hide_state->addTransition(hide_state,SIGNAL(exited()),final_state);
 		}
 		else {
@@ -158,7 +171,8 @@ namespace KineticPopups
 	{
 		show_state->assignProperty(notification_widget,"geometry",geom);
 		updateGeometry(geom);
-		geom.moveRight(geom.right() + notification_widget->width() + Manager::self()->popupSettings.margin);
+		if (Manager::self()->animation & Slide)
+			geom.moveRight(geom.right() + notification_widget->width() + Manager::self()->popupSettings.margin);
 		hide_state->assignProperty(notification_widget,"geometry",geom);
 	}
 

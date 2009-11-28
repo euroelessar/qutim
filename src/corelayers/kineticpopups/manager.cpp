@@ -117,7 +117,7 @@ namespace KineticPopups
 		QString theme_name = general.value<QString>("themeName","default");
 		*reinterpret_cast<int *>(&showFlags) = general.value("showFlags", 0xfffffff - Notifications::MessageSend);
 		updatePosition = general.value<bool>("updatePosition",true);
-		animation = general.value<bool>("animated",true);
+		animation = static_cast<AnimationFlags>(general.value<int>("animationFlags",Opacity));
 		timeout = general.value<int>("timeout",0);
 		appendMode = general.value<bool>("appendMode",true);
 		easingCurve.setType(static_cast<QEasingCurve::Type>(general.value<int>("easingCurve",QEasingCurve::OutSine)));

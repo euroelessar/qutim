@@ -27,6 +27,12 @@ class QDir;
 namespace KineticPopups
 {
 	class Popup;
+	enum AnimationFlags
+	{
+		NoAnimation = 0x0,
+		Slide = 0x1,
+		Opacity = 0x2
+	};
 	class Manager
 	{
 		Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
@@ -42,7 +48,7 @@ namespace KineticPopups
 		int animationDuration;
 		QEasingCurve easingCurve;
 		bool updatePosition;
-		bool animation;
+		AnimationFlags animation;
 		Qt::MouseButton action1Trigger;
 		Qt::MouseButton action2Trigger;
 		NotificationTypes showFlags;

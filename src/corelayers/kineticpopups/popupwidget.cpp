@@ -35,6 +35,7 @@ namespace KineticPopups
 		}
 		else {
 			setWindowFlags(popup_settings.widgetFlags);
+			setAttribute(Qt::WA_DeleteOnClose);
 			//this->resize(NotificationsManager::self()->defaultSize);
 			//init aero integration for win
 			if (flags & AeroThemeIntegration) {
