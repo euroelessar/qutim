@@ -681,6 +681,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 		DirectConnectionInfo info =
 		{
 			QHostAddress(data.readSimple<quint32>()),
+			QHostAddress(),
 			data.readSimple<quint32>(),
 			data.readSimple<quint8>(),
 			data.readSimple<quint16>(),
@@ -786,6 +787,7 @@ void Roster::handleMessage(const SNAC &snac)
 	quint64 cookie = snac.readSimple<quint64>();
 	quint16 channel = snac.readSimple<quint16>();
 	QString uin = snac.readString<quint8>();
+	IcqContact *contact = m_contacts.value(uin);
 	quint16 warning = snac.readSimple<quint16>();
 	snac.skipData(2); // unused number of tlvs
 	TLVMap tlvs = snac.readTLVChain();
@@ -832,16 +834,98 @@ void Roster::handleMessage(const SNAC &snac)
 				qDebug() << "Incorrect message on channel 2 from" << uin << ": guid is not found";
 				return;
 			}
-			QList<MessagePlugin *> plugins = m_msg_plugins.values(guid);
-			if(!plugins.isEmpty())
+			if(guid == ICQ_CAPABILITY_SRVxRELAY)
 			{
-				QByteArray plugin_data = data.readAll();
-				for(int i = 0; i < plugins.size(); i++)
-					plugins.at(i)->processMessage(uin, guid, plugin_data, cookie);
+				if(type == 1)
+				{
+					qDebug() << "Abort messages on channel 2 is ignored";
+					return;
+				}
+
+				TLVMap tlvs = data.readTLVChain();
+				quint16 ack = tlvs.value(0x0A).value<quint16>();
+
+				if(contact)
+				{
+					if(tlvs.contains(0x03))
+						contact->p->dc_info.external_ip = QHostAddress(tlvs.value(0x04).value<quint32>());
+					if(tlvs.contains(0x04))
+						contact->p->dc_info.internal_ip = QHostAddress(tlvs.value(0x04).value<quint32>());
+					if(tlvs.contains(0x04))
+						contact->p->dc_info.port = tlvs.value(0x05).value<quint32>();
+				}
+
+				if(!tlvs.contains(0x2711))
+				{
+					qDebug() << "Message on channel 2 should contain Tlv2711";
+					return;
+				}
+
+				DataUnit data(tlvs.value(0x2711));
+				quint16 id = data.readSimple<quint16>(DataUnit::LittleEndian);
+				if(id != 0x1B)
+				{
+					qDebug() << "Unknown message id on channel2";
+					return;
+				}
+				quint16 version = data.readSimple<quint16>(DataUnit::LittleEndian);
+				if(contact)
+					contact->p->version = version;
+				guid = data.readCapability();
+				data.skipData(9);
+				id = data.readSimple<quint16>(DataUnit::LittleEndian);
+				cookie = data.readSimple<quint16>(DataUnit::LittleEndian);
+				if(guid == ICQ_CAPABILITY_PSIG_MESSAGE)
+				{
+					data.skipData(12);
+					quint8 type = data.readSimple<quint8>();
+					quint8 flags = data.readSimple<quint8>();
+					quint16 status = data.readSimple<quint16>(DataUnit::LittleEndian);
+					quint16 priority = data.readSimple<quint16>(DataUnit::LittleEndian);
+
+					if(ack == 2)
+					{
+						qDebug() << "Ack on channel2 is ignored";
+						return;
+					}
+
+					if(type == 0x01) // Plain message
+					{
+						QByteArray message_data = data.readData<quint16>(DataUnit::LittleEndian);
+						/*QColor foreground(
+								data.readSimple<quint8>(),
+								data.readSimple<quint8>(),
+								data.readSimple<quint8>(),
+								data.readSimple<quint8>()
+								);
+						QColor background(
+								data.readSimple<quint8>(),
+								data.readSimple<quint8>(),
+								data.readSimple<quint8>(),
+								data.readSimple<quint8>()
+								);*/
+						// TODO: codec may be contained in guids list after colors
+						message = QString::fromUtf8(message_data);
+					}
+					else
+						qDebug() << "Unhandled message (channel2) with type" << type;
+				}
+				else
+					qDebug() << "Unknown format of message on channel2";
 			}
 			else
-				qDebug() << IMPLEMENT_ME << QString("Message (channel 2) from %1 with type %2 is not processed.").
-					arg(uin).arg(type);
+			{
+				QList<MessagePlugin *> plugins = m_msg_plugins.values(guid);
+				if(!plugins.isEmpty())
+				{
+					QByteArray plugin_data = data.readAll();
+					for(int i = 0; i < plugins.size(); i++)
+						plugins.at(i)->processMessage(uin, guid, plugin_data, cookie);
+				}
+				else
+					qDebug() << IMPLEMENT_ME << QString("Message (channel 2) from %1 with type %2 is not processed.").
+						arg(uin).arg(type);
+			}
 		}
 		else
 			qDebug() << "Incorrect message on channel 2 from" << uin << ": SNAC should contain TLV 5";

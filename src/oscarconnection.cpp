@@ -138,7 +138,7 @@ OscarConnection::OscarConnection(IcqAccount *parent):
 		m_client_info = info;
 	}
 	{
-		DirectConnectionInfo info = { QHostAddress(quint32(0)), 0, 0x04, 0x08, 0, 0x50, 0x03, 0, 0, 0 };
+		DirectConnectionInfo info = { QHostAddress(quint32(0)), QHostAddress(quint32(0)), 0, 0x04, 0x08, 0, 0x50, 0x03, 0, 0, 0 };
 		m_dc_info = info;
 	}
 	m_status_enum = Offline;
@@ -237,6 +237,8 @@ void OscarConnection::sendUserInfo()
 	caps.appendValue(Capability(0x09461343, 0x4c7f11d1, 0x82224445, 0x53540000));
 	// ICQ typing
 	caps.appendValue(ICQ_CAPABILITY_TYPING);
+	// Messages on channel 2
+	caps.appendValue(ICQ_CAPABILITY_SRVxRELAY);
 	// Short capability support
 	caps.appendValue(ICQ_CAPABILITY_SHORTCAPS);
 
