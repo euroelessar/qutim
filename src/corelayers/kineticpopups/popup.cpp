@@ -108,7 +108,6 @@ namespace KineticPopups
 		QRect geom = manager->insert(this);
 		if ( geom.isEmpty() )
 			deleteLater();
-		qDebug() << geom;
 
 		show_state = new QState();
 		hide_state = new QState();
@@ -123,7 +122,6 @@ namespace KineticPopups
 		if (manager->animation & Slide)
 			geom.moveLeft(geom.left() + x);
 		hide_state->assignProperty(notification_widget,"geometry",geom);
-		qDebug() << "geom" << geom;
 		notification_widget->setGeometry(geom);
 
 		show_state->addTransition(notification_widget,SIGNAL(action1Activated()),hide_state);
