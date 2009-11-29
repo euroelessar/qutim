@@ -46,6 +46,7 @@ struct ClientInfo
 struct DirectConnectionInfo
 {
 	QHostAddress internal_ip;
+	QHostAddress external_ip;
 	quint32 port;
 	quint8 dc_type;
 	quint16 protocol_version;

@@ -16,6 +16,8 @@
 #include "icqcontact_p.h"
 #include "icqaccount.h"
 #include "roster.h"
+#include "messages.h"
+#include "buddycaps.h"
 #include "qutim/messagesession.h"
 
 namespace Icq {
@@ -62,7 +64,24 @@ bool IcqContact::isInList() const
 
 void IcqContact::sendMessage(const Message &message)
 {
-	p->account->roster()->sendMessage(p->uin, message.text());
+	if(!p->srvrelay_support)
+	{
+		ServerMessage msgData(p->uin, Channel1MessageData(message.text(), CodecUtf16Be));
+		p->account->connection()->send(msgData);
+		qDebug() << "Message" << message.text() << "is sent on channel 1";
+	}
+	else
+	{
+		Tlv2711 tlv(0x01, 0);
+		tlv.appendXData(qutimStatusToICQ(p->status), 1);
+		tlv.appendData<quint16>(message.text() + "\0", Util::utf8Codec(), DataUnit::LittleEndian);
+		tlv.appendSimple<quint32>(0x00000000); // foreground
+		tlv.appendSimple<quint32>(0x00FFFFFF, DataUnit::LittleEndian); // background
+		tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString(), Util::asciiCodec(), DataUnit::LittleEndian);
+		ServerMessage msgData(p->uin, Channel2MessageData(0, tlv));
+		p->account->connection()->send(msgData);
+		qDebug() << "Message" << message.text() << "is sent on channel 2";
+	}
 }
 
 void IcqContact::setName(const QString &name)

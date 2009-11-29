@@ -65,6 +65,28 @@ bool Capability::operator==(const Capability &rhs) const
 	return m_data == rhs.m_data;
 }
 
+QString Capability::toString() const
+{
+	if(m_str.isEmpty())
+	{
+		if(m_is_short)
+		{
+			m_str = m_data.toHex();
+		}
+		else
+		{
+			m_str = QString("{%1-%2-%3-%4-%5}")
+					.arg(QString::fromAscii(m_data.mid(0, 4).toHex()))
+					.arg(QString::fromAscii(m_data.mid(4, 2).toHex()))
+					.arg(QString::fromAscii(m_data.mid(6, 2).toHex()))
+					.arg(QString::fromAscii(m_data.mid(8, 2).toHex()))
+					.arg(QString::fromAscii(m_data.mid(10, 6).toHex()));
+			m_str = m_str.toUpper();
+		}
+	}
+	return m_str;
+}
+
 void Capability::getLength()
 {
 	if(m_is_short)

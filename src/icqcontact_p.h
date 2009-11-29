@@ -32,6 +32,7 @@ struct IcqContactPrivate
 	quint16 user_id;
 	quint16 group_id;
 	Status status;
+	quint16 version;
 
 	bool rtf_support;
 	bool typing_support;
