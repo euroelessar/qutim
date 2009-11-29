@@ -65,6 +65,7 @@ namespace AdiumChat
 			mess.setChatUnit(getUnit());
 			appendMessage(mess);
 		}
+		m_previous_sender = "";
 	}
 
 	ChatSessionImpl::~ChatSessionImpl()
@@ -92,10 +93,6 @@ namespace AdiumChat
 			tmp_message.setChatUnit(getUnit());
 		}
 		bool same_from = false;
-		bool isHistory = tmp_message.property("history", false);
-		if (isHistory) {
-			m_previous_sender="";
-		}
 		QString item;
 		if(tmp_message.text().startsWith("/me ")) {
 			tmp_message.setText(tmp_message.text().mid(3));
@@ -120,6 +117,7 @@ namespace AdiumChat
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
+		bool isHistory = tmp_message.property("history", false);
 		if (!isHistory && !tmp_message.property("silent", false)) {
 			Notifications::sendNotification(tmp_message);
 			History::instance()->store(message);

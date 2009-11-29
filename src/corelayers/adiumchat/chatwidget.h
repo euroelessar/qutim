@@ -33,7 +33,8 @@ namespace AdiumChat
 	enum ChatFlag
 	{
 		RemoveSessionOnClose	=	0x1, //remove session, when widget or tab was closed
-		AeroThemeIntegeation	=	0x2,
+		AeroThemeIntegration	=	0x2,
+		IconsOnTabs				=	0x4,
 	};
 	class ChatSessionImpl;
 	class ChatWidget : public QMainWindow
@@ -56,6 +57,7 @@ namespace AdiumChat
 		ChatSessionList m_sessions;
 		Ui::AdiumChatForm *ui;
 		ChatFlag m_chat_flags;
+		QString m_chat_icon_type;
 	private slots:
 		void currentIndexChanged (int index);
 		void onCloseRequested(int index);

@@ -105,7 +105,9 @@ namespace AdiumChat
 		{
 			if (!active)
 				return;
-			widget = new ChatWidget();
+			ConfigGroup adium_chat = Config("appearance/adiumChat").group("behavior/widget");
+			ChatFlag flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",RemoveSessionOnClose | IconsOnTabs));
+			widget = new ChatWidget(flags);
 			m_chatwidget_list.insert(key,widget);
 			connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
 			widget->show();

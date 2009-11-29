@@ -35,6 +35,7 @@ namespace KineticPopups
 		}
 		else {
 			setWindowFlags(popup_settings.widgetFlags);
+			setAttribute(Qt::WA_DeleteOnClose);
 			//this->resize(NotificationsManager::self()->defaultSize);
 			//init aero integration for win
 			if (flags & AeroThemeIntegration) {
@@ -65,8 +66,8 @@ namespace KineticPopups
 		data.replace ( "{title}", title );
 		data.replace ( "{body}", Emoticons::theme().parseEmoticons(body) );
 		data.replace ( "{imagepath}",Qt::escape ( imagePath ) );
-		this->document()->setHtml(data);
-		this->document()->setTextWidth(popup_settings.defaultSize.width());
+		document()->setTextWidth(popup_settings.defaultSize.width());
+		document()->setHtml(data);
 		int width = popup_settings.defaultSize.width();
 		int height = document()->size().height();
 

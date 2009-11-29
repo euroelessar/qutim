@@ -18,6 +18,8 @@
 #include "systeminfo.h"
 #include <QDate>
 #include <QLocale>
+#include <QDesktopWidget>
+#include <QApplication>
 
 namespace qutim_sdk_0_3
 {
@@ -430,5 +432,13 @@ namespace qutim_sdk_0_3
 	{
 		text.replace( "\"", "\\\"" ).replace( "\n", "\\n" ).replace( "\t", "\\t" );
 		return text;
+	}
+
+	void centerizeWidget(QWidget *widget)
+	{
+		QRect rect = QApplication::desktop()->screenGeometry(QCursor::pos());
+		QPoint position(rect.left() + rect.width() / 2 - widget->size().width() / 2,
+		rect.top() + rect.height() / 2 - widget->size().height() / 2);
+		widget->move(position);
 	}
 }

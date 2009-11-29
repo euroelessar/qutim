@@ -29,11 +29,12 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
         QDialog(parent),    ui(new Ui::XSettingsDialog)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
+	ui->setupUi(this);
+	centerizeWidget(this);
 	//load settings
 	ConfigGroup general_group = Config("appearance").group("xsettings/general");
 	animated = general_group.value<bool>("animated", true);
 	//init toolbar
-	ui->setupUi(this);
 	connect(ui->xtoolBar,SIGNAL(actionTriggered(QAction*)),SLOT(onActionTriggered(QAction*)));
 
 	//init actions

@@ -214,7 +214,7 @@ namespace AdiumChat
 			return QString();
 		}
 
-		if(mes.time().isValid())
+		if(mes.property("history").toBool())
 		{
 			if ( mes.isIncoming() )
 				html = sameSender ? m_current_style.nextOutgoingHistoryHtml : m_current_style.outgoingHistoryHtml;
@@ -253,8 +253,8 @@ namespace AdiumChat
 				avatarPath = (m_current_style.baseHref + "Outgoing/buddy_icon.png");
 			else
 				avatarPath = (m_current_style.baseHref + "Incoming/buddy_icon.png");
-			if(!QFileInfo(avatarPath).exists())
-				avatarPath = QLatin1String(":/icons/qutim_64");
+// 			if(!QFileInfo(avatarPath).exists())
+// 				avatarPath = QLatin1String(":/icons/qutim_64");
 		}
 		html = html.replace("%userIconPath%", avatarPath);
 

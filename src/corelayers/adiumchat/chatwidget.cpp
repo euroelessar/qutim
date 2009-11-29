@@ -29,6 +29,7 @@ namespace AdiumChat
 	ChatWidget::ChatWidget(ChatFlag chatFlags): ui(new Ui::AdiumChatForm),m_chat_flags(chatFlags)
 	{
 		ui->setupUi(this);
+		centerizeWidget(this);
 		//init tabbar
 		ui->tabBar->setVisible(false);
 		ui->tabBar->setTabsClosable(true);
@@ -55,12 +56,13 @@ namespace AdiumChat
 		QAction *test_act2 = new QAction(Icon("preferences-system"),tr("Testing action"),this);
 		ui->additionalToolbar->addAction(test_act2);
                 //init aero integration for win
-                if (chatFlags & AeroThemeIntegeation) {
+                if (chatFlags & AeroThemeIntegration) {
                     if (QtWin::isCompositionEnabled()) {
                         QtWin::extendFrameIntoClientArea(this);
                         setContentsMargins(0, 0, 0, 0);
                     }
                 }
+		m_chat_icon_type = Config("appearance/adiumChat").group("behavior/widget").value<QString>("chatIconType","avatar");
 	}
 
 	ChatWidget::~ChatWidget()
@@ -74,9 +76,13 @@ namespace AdiumChat
 			return;
 		m_sessions.append(session);
 		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved()));
-		QString imagePath = session->getAccount()->property("imagepath").toString();
-		QIcon icon = imagePath.isEmpty() ? QIcon(":/icons/qutim_64") : QIcon(imagePath);
-		ui->tabBar->addTab(icon,session->getId());
+		if (m_chat_flags & IconsOnTabs) {
+			QString imagePath = session->getUnit()->property(m_chat_icon_type.toAscii()).toString();
+			QIcon icon = imagePath.isEmpty() ? Icon("im-user") : QIcon(imagePath);
+			ui->tabBar->addTab(icon,session->getUnit()->title());
+		}
+		else
+			ui->tabBar->addTab(session->getUnit()->title());
 		if (ui->tabBar->count() >1)
 			ui->tabBar->setVisible(true);
 	}
@@ -92,6 +98,8 @@ namespace AdiumChat
 		if (index == -1)
 			return;
 		ui->chatView->setPage(m_sessions.at(index)->getPage());
+		//ugly HACK
+		//ui->chatView->page()->currentFrame()->setHtml(m_sessions.at(index)->getPage()->currentFrame()->toHtml());
 		setWindowTitle(tr("Chat with %1").arg(m_sessions.at(index)->getUnit()->title()));
 		//m_main_toolbar->setData(m_sessions.at(index)->getUnit());
 // 		if (QAbstractItemModel *model = m_sessions.at(index)->getItemsModel())
@@ -100,12 +108,12 @@ namespace AdiumChat
 
 	void ChatWidget::clear()
 	{
-		if (m_chat_flags & RemoveSessionOnClose)
-			qDeleteAll(m_sessions);
 		int count = m_sessions.count();
-		m_sessions.clear();
 		for (int i = 0;i!=count;i++)
 			ui->tabBar->removeTab(i);
+		if (m_chat_flags & RemoveSessionOnClose)
+			qDeleteAll(m_sessions);
+		m_sessions.clear();		
 	}
 
 	void ChatWidget::removeSession(ChatSessionImpl* session)
@@ -184,6 +192,8 @@ namespace AdiumChat
 		session->getUnit()->sendMessage(message);
 		session->appendMessage(message); //for testing
 		ui->chatEdit->clear();
+		//ugly HACK
+		//ui->chatView->page()->currentFrame()->setHtml(session->getPage()->currentFrame()->toHtml());
 	}
 
 }

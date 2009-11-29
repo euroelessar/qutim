@@ -76,7 +76,20 @@ namespace KineticPopups
 
 	void Popup::appendMessage ( const QString& message )
 	{
-		this->body += "<br />" + message;
+		body += "<br />" + message;
+		updateMessage();
+	}
+	
+	void Popup::updateMessage(const QString& message)
+	{
+		int message_count = notification_widget->property("messageCount").toInt() + 1;
+		body = message + tr("<p> + %1 more notifications </p>").arg(message_count);
+		notification_widget->setProperty("messageCount",message_count);
+		updateMessage();
+	}
+	
+	void Popup::updateMessage()
+	{
 		QSize newSize = notification_widget->setData(title,body,image_path);
 		show_geometry.setSize(newSize);
 		updateGeometry(show_geometry);
@@ -119,7 +132,8 @@ namespace KineticPopups
 
 		show_state->assignProperty(notification_widget,"geometry",geom);
 		show_geometry = geom;
-		geom.moveLeft(geom.left() + x);
+		if (manager->animation & Slide)
+			geom.moveLeft(geom.left() + x);
 		hide_state->assignProperty(notification_widget,"geometry",geom);
 		notification_widget->setGeometry(geom);
 
@@ -129,7 +143,7 @@ namespace KineticPopups
 
 		if (timeout > 0) {
 			timer_id = startTimer(timeout);
-			show_state->addTransition(this,SIGNAL(timeoutReached()),hide_state);
+			connect(this,SIGNAL(timeoutReached()),notification_widget,SIGNAL(action2Activated()));
 		}
 
 		machine->addState(show_state);
@@ -138,11 +152,21 @@ namespace KineticPopups
 		machine->setInitialState (show_state);
 
 		if (manager->animation) {
-			QPropertyAnimation *animation = new QPropertyAnimation ( notification_widget,"geometry" );			
-			machine->addDefaultAnimation (animation);
-			animation->setDuration ( manager->animationDuration);
-			animation->setEasingCurve (manager->easingCurve);
-			connect(animation,SIGNAL(finished()),hide_state,SIGNAL(exited()));//HACK
+			QPropertyAnimation *moving = new QPropertyAnimation ( notification_widget,"geometry" );
+			machine->addDefaultAnimation (moving);
+			moving->setDuration ( manager->animationDuration);
+			moving->setEasingCurve (manager->easingCurve);
+			connect(moving,SIGNAL(finished()),hide_state,SIGNAL(exited()));//HACK
+			
+			if (manager->animation & Opacity) {
+				QPropertyAnimation *opacity = new QPropertyAnimation(notification_widget,"windowOpacity");
+				machine->addDefaultAnimation(opacity);
+				opacity->setDuration (manager->animationDuration);
+				opacity->setEasingCurve (manager->easingCurve);
+				notification_widget->setProperty("windowOpacity",0);
+				show_state->assignProperty(notification_widget,"windowOpacity",1);
+				hide_state->assignProperty(notification_widget,"windowOpacity",0);
+			}
 			hide_state->addTransition(hide_state,SIGNAL(exited()),final_state);
 		}
 		else {
@@ -158,7 +182,8 @@ namespace KineticPopups
 	{
 		show_state->assignProperty(notification_widget,"geometry",geom);
 		updateGeometry(geom);
-		geom.moveRight(geom.right() + notification_widget->width() + Manager::self()->popupSettings.margin);
+		if (Manager::self()->animation & Slide)
+			geom.moveRight(geom.right() + notification_widget->width() + Manager::self()->popupSettings.margin);
 		hide_state->assignProperty(notification_widget,"geometry",geom);
 	}
 
@@ -183,7 +208,7 @@ namespace KineticPopups
 	{
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
 		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(unit,false)))
+		if (unit && (sess = ChatLayer::get(unit)))
 		{
 			sess->setActive(true);
 		}
@@ -195,7 +220,9 @@ namespace KineticPopups
 		ChatSession *sess;
 		if (unit && (sess = ChatLayer::get(unit,false)))
 		{
-			sess->setActive(false);
+			//TODO
+			if (!sess->isActive())
+				sess->deleteLater();
 		}
 	}
 
