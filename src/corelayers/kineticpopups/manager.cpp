@@ -118,7 +118,7 @@ namespace KineticPopups
 		*reinterpret_cast<int *>(&showFlags) = general.value("showFlags", 0xfffffff);
 		updatePosition = general.value<bool>("updatePosition",true);
 		animation = static_cast<AnimationFlags>(general.value<int>("animationFlags",Opacity));
-		timeout = general.value<int>("timeout",0);
+                timeout = general.value<int>("timeout",5000);
 		appendMode = general.value<bool>("appendMode",true);
 		easingCurve.setType(static_cast<QEasingCurve::Type>(general.value<int>("easingCurve",QEasingCurve::OutSine)));
 		loadTheme(theme_name);

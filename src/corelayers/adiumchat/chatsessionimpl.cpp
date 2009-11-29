@@ -29,13 +29,11 @@ namespace AdiumChat
 {
 
 	ChatSessionImpl::ChatSessionImpl ( ChatUnit* unit, ChatLayer* chat)
-	: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage)
+	: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage),m_showed(false)
 	{
 		m_chat_unit = unit;
-		m_chat_style_output->preparePage(m_web_page,this);
-		m_message_count = 0;
-		loadHistory();
 		connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
+                m_store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", false);
 	}
 
 	void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)
@@ -57,7 +55,7 @@ namespace AdiumChat
 
 	void ChatSessionImpl::loadHistory()
 	{
-		ConfigGroup adium_chat = Config("appearance/adiumChat").group("general/history");
+		ConfigGroup adium_chat = Config("appearance/chat").group("general/history");
 		int max_num = adium_chat.value<int>("maxDisplayMessages",5);
 		MessageList messages = History::instance()->read(getUnit(),max_num);
 		foreach (Message mess, messages) {
@@ -93,14 +91,16 @@ namespace AdiumChat
 			tmp_message.setChatUnit(getUnit());
 		}
 		bool same_from = false;
+		bool service = tmp_message.property("service").isValid();
 		QString item;
 		if(tmp_message.text().startsWith("/me ")) {
 			tmp_message.setText(tmp_message.text().mid(3));
 			item = m_chat_style_output->makeAction(this,tmp_message,true);
 			m_previous_sender = "";
 		}
-		else if (tmp_message.property("service").toBool())
+		else if (service)
 		{
+			Notifications::Type service_type = static_cast<Notifications::Type>(tmp_message.property("service").toInt());
 			item = m_chat_style_output->makeStatus(message.text(), QDateTime::currentDateTime());
 			m_previous_sender = "";
 		}
@@ -120,8 +120,9 @@ namespace AdiumChat
 		bool isHistory = tmp_message.property("history", false);
 		if (!isHistory && !tmp_message.property("silent", false)) {
 			Notifications::sendNotification(tmp_message);
-			History::instance()->store(message);
 		}
+		if (!tmp_message.property("store",true) && (!service || (service && m_store_service_messages)))
+			History::instance()->store(message);
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
 		if (result.isEmpty())
 			m_message_count++;
@@ -169,6 +170,8 @@ namespace AdiumChat
 	void ChatSessionImpl::setActive(bool active)
 	{
 		m_active = active;
+		if (!m_showed && m_active)
+			show();
 		emit activated(active);
 	}
 
@@ -181,5 +184,14 @@ namespace AdiumChat
 	{
 		return 0; //TODO
 	}
+	
+	void ChatSessionImpl::show()
+	{
+		m_chat_style_output->preparePage(m_web_page,this);
+		m_message_count = 0;
+		loadHistory();
+		m_showed = true;
+	}
+
 
 }

@@ -94,4 +94,10 @@ namespace KineticPopups
 		disconnect(SIGNAL(action1Activated()));
 		disconnect(SIGNAL(action2Activated()));
 	}
+	
+	PopupWidget::~PopupWidget()
+	{
+
+	}
+
 }

@@ -65,6 +65,7 @@ namespace KineticPopups
 		Manager::self()->remove (id);
 		Manager::self()->updateGeometry();
 		notification_widget->deleteLater();
+		machine->deleteLater();
 	}
 
 	void Popup::setMessage ( const QString& title, const QString& body, const QString &imagePath )

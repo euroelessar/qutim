@@ -29,18 +29,18 @@ namespace qutim_sdk_0_3
 	{
 		//note: title is set on type and sender, customTitle override this
 		enum Type
-		{
-			Online = 0,
-			Offline = 1,
-			StatusChange = 2,
-			Birthday =3,
-			Startup = 4,
-			MessageGet = 5,
-			MessageSend = 6,
-			System = 7,
-			Typing = 8,
-			BlockedMessage = 9,
-			Count = 10
+		{			
+			Online = 1,
+			Offline = 2,
+			StatusChange = 3,
+			Birthday = 4,
+			Startup = 5,
+			MessageGet = 6,
+			MessageSend = 7,
+			System = 8,
+			Typing = 9,
+			BlockedMessage = 10,
+			Count = 11
 		};
 		LIBQUTIM_EXPORT void sendNotification(const QString &body,const QString &custom_title = QString());
 		LIBQUTIM_EXPORT void sendNotification(Type type, QObject *sender,
@@ -59,6 +59,7 @@ namespace qutim_sdk_0_3
 						  const QString &customTitle) = 0;
 	protected:
 		virtual void virtual_hook(int type, void *data);
+		QString getTitle(Notifications::Type type, QString& id, const QString& sender = QString()) const;//also modify notify id		
 	};
 
 	class LIBQUTIM_EXPORT SoundBackend

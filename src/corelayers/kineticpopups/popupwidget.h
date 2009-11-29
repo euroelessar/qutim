@@ -39,6 +39,7 @@ namespace KineticPopups
 					const QString &imagePath); //size of textbrowser
 		void setTheme(const ThemeHelper::PopupSettings &popupSettings);
 		virtual void mouseReleaseEvent ( QMouseEvent* ev );
+		virtual ~PopupWidget();
 	private:
 		ThemeHelper::PopupSettings popup_settings;
 	signals:

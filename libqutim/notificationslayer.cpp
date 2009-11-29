@@ -93,7 +93,10 @@ namespace qutim_sdk_0_3
 
 		void sendNotification(const Message& message)
 		{
-			sendNotification(message.isIncoming() ? MessageGet : MessageSend, const_cast<ChatUnit *>(message.chatUnit()), message.text());
+			Type type = static_cast<Type>(message.property("service").toInt());
+			if (!type)
+				type = message.isIncoming() ? MessageGet : MessageSend;
+			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()), message.text());
 		}
 
 	}
@@ -170,5 +173,63 @@ namespace qutim_sdk_0_3
 	{
 
 	}
+
+	QString PopupBackend::getTitle(Notifications::Type type, QString& id, const QString& sender) const
+	{
+		QString title;
+		QString append_id;
+		switch ( type )
+		{
+		case Notifications::System:
+			title = tr("System message from %1:").arg(sender.isEmpty() ? "qutIM" : sender);
+			append_id = "SystemMessage";
+			break;
+		case Notifications::StatusChange:
+			title = tr("%1 changed status").arg(sender);
+			append_id = "StatusChange";
+			break;
+		case Notifications::MessageGet:
+			title = tr("Message from %1:").arg(sender);
+			append_id = "MessageGet";
+			break;
+		case Notifications::MessageSend:
+			title = tr("Message to %1:").arg(sender);
+			append_id = "MessageSend";
+			break;
+		case Notifications::Typing:
+			title = tr("%1 is typing").arg(sender);
+			append_id = "Typing";
+			break;
+		case Notifications::BlockedMessage:
+			title = tr("Blocked message from %1").arg(sender);
+			append_id = "BlockedMessage";
+			break;
+		case Notifications::Birthday:
+			title = tr("%1 has birthday today!!").arg(sender);
+			append_id = "Birthday";
+			break;
+		case Notifications::Online:
+			title = tr("%1 is online").arg(sender);
+			append_id = "Online";
+			break;
+		case Notifications::Offline:
+			title = tr("%1 is offline").arg(sender);
+			append_id = "Offline";
+			break;
+		case Notifications::Startup:
+			title = tr("qutIM launched");
+			append_id = "Startup";
+			break;
+		case Notifications::Count:
+			title = tr("Count");
+			append_id = "Count";
+			break;
+		default:
+			return title;
+		}
+		id.append("."+append_id);
+		return title;
+	}
+
 
 }

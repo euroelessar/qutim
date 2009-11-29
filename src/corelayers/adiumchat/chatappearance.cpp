@@ -178,6 +178,7 @@ namespace AdiumChat
 		Message message(tr("Preview message"));
 		message.setProperty("silent",true);
 		message.setProperty("history",true);
+		message.setProperty("store",false);
 		message.setIncoming(true);
 		message.setChatUnit(m_chat_session->getUnit());
 		message.setText(tr("Hello!"));
