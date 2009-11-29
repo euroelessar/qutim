@@ -26,11 +26,11 @@
 
 namespace KineticPopups
 {
-	PopupWidget::PopupWidget (const ThemeHelper::PopupSettings &popupSettings,PopupWidgetFlags flags)
+	PopupWidget::PopupWidget (const ThemeHelper::PopupSettings &popupSettings)
 	{
 		//init browser
 		setTheme(popupSettings);
-		if (flags & Preview) {
+		if (popupSettings.popupFlags & ThemeHelper::Preview) {
 			setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 		}
 		else {
@@ -38,7 +38,7 @@ namespace KineticPopups
 			setAttribute(Qt::WA_DeleteOnClose);
 			//this->resize(NotificationsManager::self()->defaultSize);
 			//init aero integration for win
-			if (flags & AeroThemeIntegration) {
+			if (popupSettings.popupFlags & ThemeHelper::AeroThemeIntegration) {
 				if (QtWin::isCompositionEnabled()) {
 					QtWin::extendFrameIntoClientArea(this);
 					setContentsMargins(0, 0, 0, 0);

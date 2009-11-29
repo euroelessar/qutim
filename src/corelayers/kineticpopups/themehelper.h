@@ -23,6 +23,12 @@ namespace KineticPopups
 {
 	namespace ThemeHelper
 	{
+		enum PopupWidgetFlags
+		{
+			Default = 0x0,
+			Preview = 0x1,
+			AeroThemeIntegration	=	0x2,
+		};
 		struct PopupSettings {
 			QString styleSheet;
 			QString content;
@@ -30,6 +36,8 @@ namespace KineticPopups
 			QSize defaultSize;
 			int margin;
 			Qt::WindowFlags widgetFlags;
+			PopupWidgetFlags popupFlags;
+
 		};
 		PopupSettings loadThemeSetting(const QString &themePath);
 	}

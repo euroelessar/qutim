@@ -32,7 +32,9 @@ namespace KineticPopups
 		ui->setupUi(this);
 		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onTestButtonClicked(bool)));
 		setProperty("id",tr("Preview"));
-		m_popup_widget = new PopupWidget(Manager::self()->popupSettings,Preview);
+		ThemeHelper::PopupSettings settings = Manager::self()->popupSettings;
+		settings.popupFlags = ThemeHelper::Preview;
+		m_popup_widget = new PopupWidget(settings);
 		layout()->addWidget(m_popup_widget);
 		// 	QList<KineticPopupThemeHelper::PopupAppearance> theme_list = KineticPopupThemeHelper::getThemes();
 		// 	QGridLayout *layout = new QGridLayout(this);
