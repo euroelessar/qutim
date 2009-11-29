@@ -1,0 +1,9 @@
+TARGET = webhistory
+HEADERS += webhistory.h settings.h
+SOURCES += webhistory.cpp settings.cpp
+INCLUDEPATH += /usr/include ../../include
+CONFIG += qt plugin
+QT += core gui network script sql
+TEMPLATE = lib
+RESOURCES += webhistory.qrc
+FORMS += settings.ui

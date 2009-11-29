@@ -1,0 +1,117 @@
+<ui version="4.0" >
+ <class>uploadDialogClass</class>
+ <widget class="QWidget" name="uploadDialogClass" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>250</width>
+    <height>195</height>
+   </rect>
+  </property>
+  <property name="maximumSize" >
+   <size>
+    <width>600</width>
+    <height>195</height>
+   </size>
+  </property>
+  <property name="windowTitle" >
+   <string>Uploading...</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="yandexnarod.qrc" >
+    <normaloff>:/icons/yandexnarodplugin.png</normaloff>:/icons/yandexnarodplugin.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <widget class="QLabel" name="labelStatus" >
+     <property name="text" >
+      <string>Upload started.</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelFile" >
+     <property name="text" >
+      <string>File: </string>
+     </property>
+     <property name="textFormat" >
+      <enum>Qt::PlainText</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelProgress" >
+     <property name="text" >
+      <string>Progress:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelETime" >
+     <property name="text" >
+      <string>Elapsed time:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelSpeed" >
+     <property name="text" >
+      <string>Speed:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="progressBar" >
+     <property name="value" >
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" >
+     <item>
+      <spacer name="horizontalSpacer" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnUploadCancel" >
+       <property name="text" >
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="yandexnarod.qrc" />
+ </resources>
+ <connections/>
+</ui>

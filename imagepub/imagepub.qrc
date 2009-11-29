@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="/" >
+    <file>icons/imagepub-icon16.png</file>
+    <file>icons/imagepub-icon48.png</file>
+    <file>icons/imagepub-serv-imageshack.png</file>
+  </qresource>
+</RCC>
