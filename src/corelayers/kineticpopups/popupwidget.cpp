@@ -66,8 +66,8 @@ namespace KineticPopups
 		data.replace ( "{title}", title );
 		data.replace ( "{body}", Emoticons::theme().parseEmoticons(body) );
 		data.replace ( "{imagepath}",Qt::escape ( imagePath ) );
-		this->document()->setHtml(data);
-		this->document()->setTextWidth(popup_settings.defaultSize.width());
+		document()->setTextWidth(popup_settings.defaultSize.width());
+		document()->setHtml(data);
 		int width = popup_settings.defaultSize.width();
 		int height = document()->size().height();
 

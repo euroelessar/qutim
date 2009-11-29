@@ -37,6 +37,7 @@ namespace KineticPopups
 		void setTimeOut(uint timeOut);
 		void setMessage(const QString &title, const QString &body = NULL, const QString &imagePath = NULL);
 		void appendMessage(const QString &message);
+		void updateMessage(const QString &message);
 		void setActionsText(const QString &action1,const QString &action2);
 		//for short message you can use only title
 		void send();
@@ -55,6 +56,7 @@ namespace KineticPopups
 	private:
 		PopupWidget *notification_widget;
 		void updateGeometry(const QRect &newGeometry);
+		inline void updateMessage();
 		QString title;
 		QString body;
 		QString id;
