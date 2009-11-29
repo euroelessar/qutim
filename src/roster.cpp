@@ -21,6 +21,7 @@
 #include "buddypicture.h"
 #include "buddycaps.h"
 #include "clientidentify.h"
+#include "messages.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
@@ -806,13 +807,10 @@ void Roster::handleMessage(const SNAC &snac)
 			{
 				DataUnit msg_data(tlv);
 				quint16 charset = msg_data.readSimple<quint16>();
-				// 0x0000 - us-ascii
-				// 0x0002 - utf-16 be
-				// 0x0003 - ansi
 				quint16 codepage = msg_data.readSimple<quint16>();
 				QByteArray data = msg_data.readAll();
 				QTextCodec *codec = 0;
-				if(charset == 0x0002)
+				if(charset == CodecUtf16Be)
 					codec = utf16Codec();
 				else
 					codec = asciiCodec();
@@ -892,7 +890,8 @@ void Roster::handleMessage(const SNAC &snac)
 					if(type == 0x01) // Plain message
 					{
 						QByteArray message_data = data.readData<quint16>(DataUnit::LittleEndian);
-						/*QColor foreground(
+						message_data.resize(message_data.size() - 1);
+						QColor foreground(
 								data.readSimple<quint8>(),
 								data.readSimple<quint8>(),
 								data.readSimple<quint8>(),
@@ -903,9 +902,24 @@ void Roster::handleMessage(const SNAC &snac)
 								data.readSimple<quint8>(),
 								data.readSimple<quint8>(),
 								data.readSimple<quint8>()
-								);*/
-						// TODO: codec may be contained in guids list after colors
-						message = QString::fromUtf8(message_data);
+								);
+						QTextCodec *codec = NULL;
+						while(data.dataSize() > 0)
+						{
+							QString guid = data.readString<quint32>(asciiCodec(), DataUnit::LittleEndian);
+							if(guid.compare(ICQ_CAPABILITY_UTF8.toString(), Qt::CaseInsensitive) == 0)
+							{
+								codec = utf8Codec();
+							}
+							if(guid.compare(ICQ_CAPABILITY_RTFxMSGS.toString(), Qt::CaseInsensitive) == 0)
+							{
+								qDebug() << "RTF is not supported";
+								return;
+							}
+						}
+						if(codec == NULL)
+							codec = asciiCodec();
+						message = codec->toUnicode(message_data);
 					}
 					else
 						qDebug() << "Unhandled message (channel2) with type" << type;

@@ -20,10 +20,17 @@
 
 namespace Icq {
 
+enum Channel1Codec
+{
+	CodecUsAscii = 0x0000,
+	CodecUtf16Be = 0x0002,
+	CodecAnsi    = 0x0003
+};
+
 class Channel1MessageData: public DataUnit
 {
 public:
-	Channel1MessageData(const QString &message, quint16 charset = 2);
+	Channel1MessageData(const QString &message, Channel1Codec charset = CodecUtf16Be);
 };
 
 class Tlv2711: public DataUnit

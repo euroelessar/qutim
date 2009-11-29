@@ -39,11 +39,13 @@ public:
     bool operator==(const Capability &rhs) const;
     inline bool match(const Capability &capability, quint8 len = 17) const;
     operator QByteArray() const { return m_data; };
+    QString toString() const;
 private:
     void getLength();
 	QByteArray m_data;
 	bool m_is_short;
 	quint8 m_len;
+	mutable QString m_str;
 };
 
 class Capabilities: public QList<Capability>

@@ -98,6 +98,12 @@ namespace Util {
 		return codec;
 	}
 
+	extern QTextCodec *utf8Codec()
+	{
+		static QTextCodec *codec =  QTextCodec::codecForName("UTF-8");
+		return codec;
+	}
+
 	extern QTextCodec *utf16Codec()
 	{
 		static QTextCodec *codec = QTextCodec::codecForName("UTF-16BE");
@@ -106,8 +112,7 @@ namespace Util {
 
 	extern QTextCodec *defaultCodec()
 	{
-		static QTextCodec *codec =  QTextCodec::codecForName("UTF-8");
-		return codec;
+		return utf8Codec();
 	}
 
 

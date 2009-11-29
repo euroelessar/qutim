@@ -21,15 +21,15 @@ namespace Icq {
 
 using namespace Util;
 
-Channel1MessageData::Channel1MessageData(const QString &message, quint16 charset)
+Channel1MessageData::Channel1MessageData(const QString &message, Channel1Codec charset)
 {
 	QTextCodec *codec = 0;
-	if(charset == 0x0002)
+	if(charset == CodecUtf16Be)
 		codec = utf16Codec();
 	else
 		codec = asciiCodec();
 	DataUnit msgData;
-	msgData.appendSimple(charset);
+	msgData.appendSimple<quint16>(charset);
 	msgData.appendData(message, codec);
 
 	appendTLV(0x0501, (quint32)0x0106);
