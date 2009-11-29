@@ -227,7 +227,7 @@ enum IcqStatusF
 	IcqFlagLunch          = 0x2001
 };
 
-//extern quint16 qutimStatusToICQ(qutim_sdk_0_3::Status status);
+extern quint16 qutimStatusToICQ(qutim_sdk_0_3::Status status);
 extern qutim_sdk_0_3::Status icqStatusToQutim(quint16 status);
 
 } // namespace Icq

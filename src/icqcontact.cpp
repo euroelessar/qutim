@@ -63,8 +63,23 @@ bool IcqContact::isInList() const
 
 void IcqContact::sendMessage(const Message &message)
 {
-	ServerMessage msgData(p->uin, Channel1MessageData(message.text()));
-	p->account->connection()->send(msgData);
+	if(!p->srvrelay_support)
+	{
+		ServerMessage msgData(p->uin, Channel1MessageData(message.text()));
+		p->account->connection()->send(msgData);
+		qDebug() << "Message" << message.text() << "is sent on channel 1";
+	}
+	else
+	{
+		Tlv2711 tlv(0x01, 0);
+		tlv.appendXData(qutimStatusToICQ(p->status), 1);
+		tlv.appendData<quint16>(message.text(), Util::asciiCodec(), DataUnit::LittleEndian);
+		tlv.appendSimple<quint32>(0x00000000); // foreground
+		tlv.appendSimple<quint32>(0x00FFFFFF); // background
+		ServerMessage msgData(p->uin, Channel2MessageData(0, tlv));
+		p->account->connection()->send(msgData);
+		qDebug() << "Message" << message.text() << "is sent on channel 2";
+	}
 }
 
 void IcqContact::setName(const QString &name)

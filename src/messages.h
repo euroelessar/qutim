@@ -46,7 +46,7 @@ private:
 	qint64 m_cookie;
 };
 
-class Channel2MessageData: protected Channel2BasicMessageData
+class Channel2MessageData: public Channel2BasicMessageData
 {
 public:
 	Channel2MessageData(quint16 ackType, const Tlv2711 &data);

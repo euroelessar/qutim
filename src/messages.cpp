@@ -40,23 +40,24 @@ Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags)
 {
 	m_cookie = generateCookie();
 	appendSimple<quint16>(0x1B, DataUnit::LittleEndian);
-	appendSimple(protocol_version);
+	appendSimple<quint16>(protocol_version, DataUnit::LittleEndian);
 	appendData(ICQ_CAPABILITY_PSIG_MESSAGE);
-	appendSimple(client_features);
-	appendSimple(dc_type);
-	appendSimple(m_cookie, DataUnit::LittleEndian);
+	appendSimple<quint8>(0); // not sure
+	appendSimple<quint16>(client_features);
+	appendSimple<quint32>(dc_type);
+	appendSimple<quint16>(m_cookie, DataUnit::LittleEndian);
 	appendSimple<quint16>(0x0E, DataUnit::LittleEndian);
-	appendSimple(m_cookie, DataUnit::LittleEndian);
+	appendSimple<quint16>(m_cookie, DataUnit::LittleEndian);
 	appendSimple<quint64>(0); // Unknown 12 bytes
 	appendSimple<quint32>(0);
-	appendSimple(msgType);
-	appendSimple(msgFlags);
+	appendSimple<quint8>(msgType);
+	appendSimple<quint8>(msgFlags);
 }
 
 void Tlv2711::appendXData(quint16 X1, quint16 X2)
 {
-	appendSimple(X1, LittleEndian);
-	appendSimple(X2);
+	appendSimple<quint16>(X1, LittleEndian);
+	appendSimple<quint16>(X2);
 }
 
 void Tlv2711::appendEmptyPacket()
@@ -104,7 +105,7 @@ ServerMessage::ServerMessage(const QString &uin, const Channel2BasicMessageData 
 	SNAC(MessageFamily, MessageSrvSend)
 {
 	init(uin, 2, data.cookie());
-	appendTLV(0x05, data);
+	appendTLV(0x05, data.data());
 }
 
 void ServerMessage::init(const QString &uin, qint16 channel, qint64 cookie)

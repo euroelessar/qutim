@@ -43,9 +43,9 @@ public:
 	template<typename T>
 	void appendSimple(T value, ByteOrder bo = BigEndian);
 	template<typename L>
-	void appendData(const QByteArray &str);
+	void appendData(const QByteArray &str, ByteOrder bo = BigEndian);
 	template<typename L>
-	void appendData(const QString &str, QTextCodec *codec = Util::defaultCodec());
+	void appendData(const QString &str, QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian);
 	inline void resetState() const { m_state = 0; }
 	inline uint dataSize() const { return m_data.size() > m_state ? m_data.size() - m_state : 0; }
 	template<typename T>
@@ -87,16 +87,16 @@ Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const DataUnit &value)
 }
 
 template<typename L>
-Q_INLINE_TEMPLATE void DataUnit::appendData(const QByteArray &str)
+Q_INLINE_TEMPLATE void DataUnit::appendData(const QByteArray &str, ByteOrder bo)
 {
-	m_data.append(Util::toBigEndian<L>(str.size()));
+	appendSimple<L>(str.size(), bo);
 	m_data.append(str);
 }
 
 template<typename L>
-Q_INLINE_TEMPLATE void DataUnit::appendData(const QString &str, QTextCodec *codec)
+Q_INLINE_TEMPLATE void DataUnit::appendData(const QString &str, QTextCodec *codec, ByteOrder bo)
 {
-	appendData<L>(codec->fromUnicode(str));
+	appendData<L>(codec->fromUnicode(str), bo);
 }
 
 template<typename T>
