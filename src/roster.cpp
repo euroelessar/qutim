@@ -698,7 +698,17 @@ void Roster::handleUserOnline(const SNAC &snac)
 		}
 		QString note = codec->toUnicode(note_data);
 		qDebug() << "Status note: " << note;
-		sendNotification(Notifications::StatusChange, contact, note);
+		if(ChatLayer::instance())
+		{
+			ChatSession *session = ChatLayer::instance()->getSession(contact);
+			Q_ASSERT(session);
+			Message msg;
+			msg.setIncoming(true);
+			msg.setText(note);
+			msg.setChatUnit(session->getUnit());
+			msg.setProperty("service", Notifications::StatusChange);
+			session->appendMessage(msg);
+		}
 	}
 
 	if(oldStatus != Offline)
