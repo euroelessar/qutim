@@ -125,7 +125,7 @@ namespace KineticPopups
                 timeout = general.value<int>("timeout",5000);
 		appendMode = general.value<bool>("appendMode",true);
 		easingCurve.setType(static_cast<QEasingCurve::Type>(general.value<int>("easingCurve",QEasingCurve::OutSine)));
-		maxCount = Config("behavior/popups").group("general").value<int>("maxCount",20);
+		maxCount = Config("behavior/popups").group("general").value<int>("maxCount",10);
 		loadTheme(theme_name);
 		//TODO need global actions handler
 		action1Trigger = Qt::LeftButton;

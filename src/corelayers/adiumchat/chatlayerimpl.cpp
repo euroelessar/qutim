@@ -21,7 +21,6 @@
 #include <QDebug>
 #include <libqutim/settingslayer.h>
 #include <libqutim/icon.h>
-#include "settings/chatappearance.h"
 
 namespace AdiumChat
 {
@@ -32,8 +31,6 @@ namespace AdiumChat
 
 	ChatLayerImpl::ChatLayerImpl()
 	{
-		GeneralSettingsItem<ChatAppearance> *item = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat style"));
-		Settings::registerItem(item);
 	}
 
 

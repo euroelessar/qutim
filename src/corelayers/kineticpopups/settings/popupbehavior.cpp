@@ -1,6 +1,6 @@
 #include "popupbehavior.h"
 
-namespace KineticPopups
+namespace Core
 {
 	
 	PopupBehavior::PopupBehavior()

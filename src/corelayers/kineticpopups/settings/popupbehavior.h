@@ -3,7 +3,7 @@
 #include <libqutim/settingswidget.h>
 #include "../backend.h"
 
-namespace KineticPopups
+namespace Core
 {
 
 	class PopupBehavior : public SettingsWidget

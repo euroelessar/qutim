@@ -89,11 +89,8 @@ namespace AdiumChat
 
 	void ChatSessionImpl::appendMessage ( const Message& message )
 	{
-		//emit activated(true);
 		Message tmp_message = message;
-		//TODO add normal check if contact is null
 		if (!tmp_message.chatUnit()) {
-			//TODO create fake chat unit for unknown messages
 			qWarning() << tr("Message %1 must have a ChatUnit").arg(tmp_message.text());
 			tmp_message.setChatUnit(getUnit());
 		}
@@ -126,7 +123,7 @@ namespace AdiumChat
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
 		bool isHistory = tmp_message.property("history", false);
 		bool silent = tmp_message.property("silent", false);
-		if (!isHistory && silent) {
+		if (!isHistory && !silent) {
 			Notifications::sendNotification(tmp_message);
 		}
 		if (tmp_message.property("store",true) && (!service || (service && m_store_service_messages)))

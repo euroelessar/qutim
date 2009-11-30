@@ -1,13 +1,13 @@
 #ifndef POPUPSETTINGS_H
 #define POPUPSETTINGS_H
-#include "../backend.h"
-#include <libqutim/plugin.h>
+#include <QObject>
 
-namespace KineticPopups
+namespace Core
 {
 
-	class PopupSettings : public StartupModule
+	class PopupSettings : public QObject
 	{
+		Q_OBJECT
 	public:
 		PopupSettings();
 	};

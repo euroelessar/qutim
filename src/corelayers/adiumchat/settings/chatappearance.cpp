@@ -25,7 +25,7 @@
 #include <QDateTime>
 #include <libqutim/libqutim_global.h>
 
-namespace AdiumChat
+namespace Core
 {
 	class FakeChatUnit : public ChatUnit
 	{

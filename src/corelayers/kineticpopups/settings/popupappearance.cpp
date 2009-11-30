@@ -23,7 +23,9 @@
 #include <libqutim/configbase.h>
 #include "../manager.h"
 
-namespace KineticPopups
+using namespace KineticPopups;
+
+namespace Core
 {
 
 	PopupAppearance::PopupAppearance ()

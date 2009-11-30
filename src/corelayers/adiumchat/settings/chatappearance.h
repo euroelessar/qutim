@@ -22,9 +22,9 @@ namespace Ui
 	class chatAppearance;
 }
 class QWebPage;
-namespace AdiumChat
+using namespace AdiumChat;
+namespace Core
 {
-	class ChatStyleOutput;
 	class ChatAppearance : public SettingsWidget
 	{
 		Q_OBJECT
@@ -43,6 +43,7 @@ namespace AdiumChat
 		QHash<QString, QString> m_themes;
 		QString m_current_style_name;
 		QString m_current_variant;
+		QPair<QString,QString> m_old_style;
 		QWebPage *m_page;
 		ChatSessionImpl *m_chat_session;
 	};

@@ -14,11 +14,12 @@ the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 Boston, MA 02110-1301, USA.
 */
 
-#ifndef POPUPSETTINGS_H
-#define POPUPSETTINGS_H
+#ifndef POPUPAPPEARANCE_H
+#define POPUPAPPEARANCE_H
 #include <QWidget>
 #include "../backend.h"
-#include "libqutim/settingswidget.h"
+#include <libqutim/settingswidget.h>
+
 namespace Ui
 {
 class AppearanceSettings;
@@ -27,9 +28,14 @@ class AppearanceSettings;
 namespace KineticPopups
 {
 	class PopupWidget;
+}
+
+
+namespace Core
+{
 	class PopupAppearance : public SettingsWidget
 	{
-	Q_OBJECT
+		Q_OBJECT
 	public:
 		PopupAppearance();
 		virtual ~PopupAppearance();
@@ -44,8 +50,8 @@ namespace KineticPopups
 		void preview();
 		QString m_current_theme;
 		Ui::AppearanceSettings *ui;
-		PopupWidget *m_popup_widget;
+		KineticPopups::PopupWidget *m_popup_widget;
 	};
 
 }
-#endif // POPUPSETTINGS_H
+#endif // POPUPAPPEARANCE_H
