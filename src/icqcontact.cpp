@@ -182,6 +182,8 @@ const DirectConnectionInfo &IcqContact::dcInfo()
 void IcqContact::setStatus(Status status)
 {
 	p->status = status;
+	if(status == Offline)
+		clearCapabilities();
 	emit statusChanged(status);
 }
 
@@ -200,6 +202,7 @@ void IcqContact::clearCapabilities()
 	p->srvrelay_support = false;
 	p->avatar_support = false;
 	p->capabilities.clear();
+	p->short_capabilities.clear();
 }
 
 } // namespace Icq
