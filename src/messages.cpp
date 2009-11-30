@@ -296,7 +296,7 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 					return;
 				}
 
-				if(type == 0x01) // Plain message
+				if(type == MsgPlain) // Plain message
 				{
 					QByteArray message_data = data.readData<quint16>(DataUnit::LittleEndian);
 					message_data.resize(message_data.size() - 1);

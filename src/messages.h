@@ -33,6 +33,37 @@ enum Channel1Codec
 	CodecAnsi    = 0x0003
 };
 
+enum MessageType
+{
+	MsgPlain = 0x01,
+	MsgChatReq = 0x02,
+	MsgFileReq = 0x03,
+	MsgUrl = 0x04,
+	MsgAuthReq = 0x06,
+	MsgAuthDeny = 0x07,
+	MsgAuthOk = 0x08,
+	MsgServer = 0x09,
+	MsgAdded = 0x0C,
+	MsgWwp = 0x0D,
+	MsgEexpress = 0x0E,
+	MsgPlugin = 0x1A,
+	MsgAutoAway = 0xE8,
+	MsgAutoBusy = 0xE9,
+	MsgAutoNA =  0xEA,
+	MsgAutoDND = 0xEB,
+	MsgAutoFFC = 0xEC,
+	MsgUnknown = 0x00,
+	MsgGreetingCard = 0x101,
+	MsgRequestContacts = 0x102,
+	MsgMessage = 0x103,
+	MsgStatusSMSText = 0x104,
+	MsgSMSMessage = 0x110,
+	MsgXtrazInvitation = 0x201,
+	MsgXtrazMessage = 0x202,
+	MsgXtrazNotify = 0x208,
+	MsgReverseDCReq = 0x401
+};
+
 class Channel1MessageData: public DataUnit
 {
 public:
