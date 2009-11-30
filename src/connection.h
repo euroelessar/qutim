@@ -28,6 +28,17 @@ namespace Icq {
 
 extern quint16 generate_flap_sequence();
 
+struct ProtocolError
+{
+public:
+	ProtocolError(const SNAC &snac);
+	qint16 code;
+	qint16 subcode;
+	QString str;
+private:
+	QString getErrorStr();
+};
+
 class ProtocolNegotiation: public SNACHandler
 {
 	Q_OBJECT

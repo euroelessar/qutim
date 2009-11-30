@@ -21,6 +21,7 @@
 #include "icqaccount.h"
 #include "buddypicture.h"
 #include "buddycaps.h"
+#include "messages.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/notificationslayer.h>
 #include <QHostInfo>
@@ -149,6 +150,7 @@ OscarConnection::OscarConnection(IcqAccount *parent):
 	m_meta_info = new MetaInfo(this);
 	registerHandler(m_meta_info);
 	registerHandler(new ProtocolNegotiationImpl(this));
+	registerHandler(new MessagesHandler(m_account, this));
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
 		registerHandler(gen->generate<SNACHandler>());

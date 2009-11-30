@@ -17,8 +17,14 @@
 #define MESSAGES_H_
 
 #include "snac.h"
+#include "snachandler.h"
+#include "messageplugin.h"
+#include <QDateTime>
 
 namespace Icq {
+
+class IcqAccount;
+class IcqContact;
 
 enum Channel1Codec
 {
@@ -66,6 +72,22 @@ public:
 	ServerMessage(const QString &uin, const Channel2BasicMessageData &data);
 protected:
 	void init(const QString &uin, qint16 channel, qint64 cookie = 0);
+};
+
+class MessagesHandler: public SNACHandler
+{
+	Q_OBJECT
+public:
+	MessagesHandler(IcqAccount *account, QObject *parent = 0);
+	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
+private:
+	void handleMessage(const SNAC &snac);
+	void handleChannel1Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
+	void handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
+	void handleChannel4Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
+	void appendMessage(const QString &uin, const QString &message, QDateTime time = QDateTime());
+	IcqAccount *m_account;
+	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
 };
 
 } // namespace Icq

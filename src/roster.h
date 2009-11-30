@@ -19,7 +19,6 @@
 
 #include <QQueue>
 #include "snachandler.h"
-#include "messageplugin.h"
 #include "icqcontact.h"
 
 namespace Icq {
@@ -88,7 +87,6 @@ private:
 	void handleSSIServerAck(const SNAC &sn);
 	void handleUserOnline(const SNAC &snac);
 	void handleUserOffline(const SNAC &snac);
-	void handleMessage(const SNAC &snac);
 	void handleError(const SNAC &snac);
 	void handleMetaInfo(const SNAC &snac);
 	void sendRosterAck();
@@ -100,7 +98,6 @@ private:
 	IcqAccount *m_account;
 	OscarConnection *m_conn;
 	QMap<quint16, QString> m_groups;
-	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
 	QHash<QString, IcqContact *> m_contacts;
 	QHash<QString, IcqContact *> m_not_in_list;
 	QQueue<SSIHistoryItem> m_ssi_history;

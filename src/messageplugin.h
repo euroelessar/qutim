@@ -31,7 +31,7 @@ namespace qutim_sdk_0_3
 	public:
 		virtual ~MessagePlugin() {}
 		virtual QList<Capability> capabilities() = 0;
-		virtual void processMessage(const QString &uin, const Capability &guid, const QByteArray &data, quint64 id) = 0;
+		virtual void processMessage(const QString &uin, const Capability &guid, const QByteArray &data, quint16 type) = 0;
 		virtual void virtual_hook(int type, void *data) = 0;
 		inline void setAccount(Account *account) { m_account = account; }
 	protected:
