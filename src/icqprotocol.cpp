@@ -114,6 +114,7 @@ void IcqAccountCreationWizard::finished()
 	}
 	p->protocol->p->accounts_hash->insert(account->id(), account);
 	delete p->page;
+	emit p->protocol->accountCreated(account);
 }
 
 qutim_sdk_0_3::Status icqStatusToQutim(quint16 status)

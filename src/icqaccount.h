@@ -37,6 +37,7 @@ public:
 	OscarConnection *connection();
 	ChatUnit *getUnit(const QString &unitId, bool create);
 private:
+	friend class Roster;
 	QScopedPointer<IcqAccountPrivate> p;
 };
 

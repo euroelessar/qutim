@@ -322,6 +322,7 @@ IcqContact *Roster::sendAddContactRequest(const QString &contact_id, const QStri
 
 	IcqContact *contact = new IcqContact(contact_id, m_account);
 	m_not_in_list.insert(contact_id, contact);
+	emit m_account->contactCreated(contact);
 	return contact;
 
 }
@@ -463,7 +464,10 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 		{
 			contact = m_not_in_list.take(item.record_name);
 			if(!contact)
+			{
 				contact = new IcqContact(item.record_name, m_account);
+				emit m_account->contactCreated(contact);
+			}
 			m_contacts.insert(item.record_name, contact);
 			contact->p->group_id = item.group_id;
 			if(item.tlvs.contains(SsiBuddyNick))
