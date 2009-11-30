@@ -72,12 +72,19 @@ void IcqContact::sendMessage(const Message &message)
 	}
 	else
 	{
+		QTextCodec *codec;
+		if(p->utf8_support)
+			codec = Util::utf8Codec();
+		else
+			codec = Util::asciiCodec();
+		QByteArray msg = codec->fromUnicode(message.text()) + '\0';
 		Tlv2711 tlv(0x01, 0);
 		tlv.appendXData(qutimStatusToICQ(p->status), 1);
-		tlv.appendData<quint16>(message.text() + "\0", Util::utf8Codec(), DataUnit::LittleEndian);
+		tlv.appendData<quint16>(msg, DataUnit::LittleEndian);
 		tlv.appendSimple<quint32>(0x00000000); // foreground
 		tlv.appendSimple<quint32>(0x00FFFFFF, DataUnit::LittleEndian); // background
-		tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString(), Util::asciiCodec(), DataUnit::LittleEndian);
+		if(p->utf8_support)
+			tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString(), Util::asciiCodec(), DataUnit::LittleEndian);
 		ServerMessage msgData(p->uin, Channel2MessageData(0, tlv));
 		p->account->connection()->send(msgData);
 		qDebug() << "Message" << message.text() << "is sent on channel 2";
