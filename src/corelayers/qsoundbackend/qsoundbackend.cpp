@@ -1,6 +1,7 @@
 #include "qsoundbackend.h"
 #include <qsound.h>
 #include <QDebug>
+#include <QStringList>
 
 void QSoundBackend::playSound(const QString& filename)
 {

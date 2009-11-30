@@ -59,7 +59,7 @@ namespace qutim_sdk_0_3
 						  const QString &customTitle) = 0;
 	protected:
 		virtual void virtual_hook(int type, void *data);
-		QString getTitle(Notifications::Type type, QString& id, const QString& sender = QString()) const;//also modify notify id		
+		QString getTitle(Notifications::Type type) const;
 	};
 
 	class LIBQUTIM_EXPORT SoundBackend

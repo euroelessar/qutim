@@ -15,13 +15,13 @@
 */
 
 #include "popupappearance.h"
-#include "themehelper.h"
+#include "../themehelper.h"
 #include <QLayout>
-#include "popupwidget.h"
+#include "../popupwidget.h"
 #include <QLayout>
 #include "ui_popupappearance.h"
 #include <libqutim/configbase.h>
-#include "manager.h"
+#include "../manager.h"
 
 namespace KineticPopups
 {

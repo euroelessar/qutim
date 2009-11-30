@@ -40,6 +40,7 @@ namespace KineticPopups
 		Manager();
 		Popup *getById (const QString &id) const;
 		Popup *getByNumber (const int &number) const;
+		int count();
 		QRect insert (Popup *notification);
 		void loadTheme (const QString &themeName);
 		void remove (const QString &id);
@@ -54,6 +55,7 @@ namespace KineticPopups
 		NotificationTypes showFlags;
 		uint timeout;
 		bool appendMode;
+		int maxCount;
 		ThemeHelper::PopupSettings popupSettings;
 	private:
 		QList<Popup *> active_notifications;

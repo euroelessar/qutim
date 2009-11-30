@@ -20,8 +20,8 @@
 #include "modulemanagerimpl.h"
 #include <QDebug>
 #include <libqutim/settingslayer.h>
-#include "chatappearance.h"
 #include <libqutim/icon.h>
+#include "settings/chatappearance.h"
 
 namespace AdiumChat
 {

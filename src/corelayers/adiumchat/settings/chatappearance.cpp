@@ -14,8 +14,8 @@
 *****************************************************************************/
 #include "chatappearance.h"
 #include "ui_chatappearance.h"
-#include "chatstyle.h"
-#include "chatstyleoutput.h"
+#include "../chatstyle.h"
+#include "../chatstyleoutput.h"
 #include <QDebug>
 #include <libqutim/configbase.h>
 #include <QWebFrame>

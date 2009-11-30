@@ -1,7 +1,7 @@
 #ifndef POPUPBEHAVIOR_H
 #define POPUPBEHAVIOR_H
 #include <libqutim/settingswidget.h>
-#include "backend.h"
+#include "../backend.h"
 
 namespace KineticPopups
 {

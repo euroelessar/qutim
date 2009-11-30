@@ -29,11 +29,18 @@ namespace AdiumChat
 {
 
 	ChatSessionImpl::ChatSessionImpl ( ChatUnit* unit, ChatLayer* chat)
-	: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage),m_showed(false)
+	: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage)
 	{
 		m_chat_unit = unit;
+		qDebug() << "create session" << unit->title();
 		connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
-                m_store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", false);
+		m_store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", false);
+		Contact *contact = qobject_cast<Contact*>(m_chat_unit);
+		if (contact)
+			connect(contact,SIGNAL(statusChanged(Status)),SLOT(statusChanged(Status)));
+		m_chat_style_output->preparePage(m_web_page,this);
+		m_message_count = 0;
+		loadHistory();
 	}
 
 	void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)
@@ -77,7 +84,7 @@ namespace AdiumChat
 
 	void ChatSessionImpl::addContact ( Contact* c )
 	{
-
+		connect(c,SIGNAL(statusChanged(Status)),SLOT(statusChanged(Status)));
 	}
 
 	void ChatSessionImpl::appendMessage ( const Message& message )
@@ -100,8 +107,8 @@ namespace AdiumChat
 		}
 		else if (service)
 		{
-			Notifications::Type service_type = static_cast<Notifications::Type>(tmp_message.property("service").toInt());
-			item = m_chat_style_output->makeStatus(message.text(), QDateTime::currentDateTime());
+			Notifications::Type service_type = static_cast<Notifications::Type>(tmp_message.property("service").toInt());		;
+			item = m_chat_style_output->makeStatus(this,tmp_message);
 			m_previous_sender = "";
 		}
 		else {
@@ -118,10 +125,11 @@ namespace AdiumChat
 				result.isEmpty() ? item :
 				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
 		bool isHistory = tmp_message.property("history", false);
-		if (!isHistory && !tmp_message.property("silent", false)) {
+		bool silent = tmp_message.property("silent", false);
+		if (!isHistory && silent) {
 			Notifications::sendNotification(tmp_message);
 		}
-		if (!tmp_message.property("store",true) && (!service || (service && m_store_service_messages)))
+		if (tmp_message.property("store",true) && (!service || (service && m_store_service_messages)))
 			History::instance()->store(message);
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
 		if (result.isEmpty())
@@ -130,7 +138,7 @@ namespace AdiumChat
 
 	void ChatSessionImpl::chatStateChanged ( Contact* c, ChatState state )
 	{
-
+		//TODO
 	}
 
 	void ChatSessionImpl::removeContact ( Contact* c )
@@ -170,8 +178,6 @@ namespace AdiumChat
 	void ChatSessionImpl::setActive(bool active)
 	{
 		m_active = active;
-		if (!m_showed && m_active)
-			show();
 		emit activated(active);
 	}
 
@@ -185,13 +191,20 @@ namespace AdiumChat
 		return 0; //TODO
 	}
 	
-	void ChatSessionImpl::show()
+	void ChatSessionImpl::statusChanged(Status status)
 	{
-		m_chat_style_output->preparePage(m_web_page,this);
-		m_message_count = 0;
-		loadHistory();
-		m_showed = true;
+		Contact *contact = qobject_cast<Contact *>(sender());		
+		if (!contact && contact->property("silent").toBool())
+			return;
+		QString text = contact->property("statusText").toString();
+		contact->setProperty("updateMode",true);
+		Message msg;
+		msg.setChatUnit(contact);
+		msg.setIncoming(true);
+		msg.setProperty("service",Notifications::StatusChange);
+		msg.setProperty("title",contact->title() + " " + statusToString(status));
+		msg.setText(text);
+		appendMessage(msg);
 	}
-
 
 }

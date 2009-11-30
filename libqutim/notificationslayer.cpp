@@ -96,7 +96,7 @@ namespace qutim_sdk_0_3
 			Type type = static_cast<Type>(message.property("service").toInt());
 			if (!type)
 				type = message.isIncoming() ? MessageGet : MessageSend;
-			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()), message.text());
+			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()), message.text(),message.property("title").toString());
 		}
 
 	}
@@ -174,60 +174,47 @@ namespace qutim_sdk_0_3
 
 	}
 
-	QString PopupBackend::getTitle(Notifications::Type type, QString& id, const QString& sender) const
+	QString PopupBackend::getTitle(Notifications::Type type) const
 	{
 		QString title;
-		QString append_id;
 		switch ( type )
 		{
 		case Notifications::System:
-			title = tr("System message from %1:").arg(sender.isEmpty() ? "qutIM" : sender);
-			append_id = "SystemMessage";
+			title = tr("System message from %1:");
 			break;
 		case Notifications::StatusChange:
-			title = tr("%1 changed status").arg(sender);
-			append_id = "StatusChange";
+			title = tr("%1 changed status");
 			break;
 		case Notifications::MessageGet:
-			title = tr("Message from %1:").arg(sender);
-			append_id = "MessageGet";
+			title = tr("Message from %1:");
 			break;
 		case Notifications::MessageSend:
-			title = tr("Message to %1:").arg(sender);
-			append_id = "MessageSend";
+			title = tr("Message to %1:");
 			break;
 		case Notifications::Typing:
-			title = tr("%1 is typing").arg(sender);
-			append_id = "Typing";
+			title = tr("%1 is typing");
 			break;
 		case Notifications::BlockedMessage:
-			title = tr("Blocked message from %1").arg(sender);
-			append_id = "BlockedMessage";
+			title = tr("Blocked message from %1");
 			break;
 		case Notifications::Birthday:
-			title = tr("%1 has birthday today!!").arg(sender);
-			append_id = "Birthday";
+			title = tr("%1 has birthday today!!");
 			break;
 		case Notifications::Online:
-			title = tr("%1 is online").arg(sender);
-			append_id = "Online";
+			title = tr("%1 is online");
 			break;
 		case Notifications::Offline:
-			title = tr("%1 is offline").arg(sender);
-			append_id = "Offline";
+			title = tr("%1 is offline");
 			break;
 		case Notifications::Startup:
 			title = tr("qutIM launched");
-			append_id = "Startup";
 			break;
 		case Notifications::Count:
 			title = tr("Count");
-			append_id = "Count";
 			break;
 		default:
 			return title;
 		}
-		id.append("."+append_id);
 		return title;
 	}
 

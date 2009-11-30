@@ -20,11 +20,12 @@
 #include <QVariant>
 #include <QTime>
 #include <QDebug>
-#include "libqutim/settingslayer.h"
 #include "popupwidget.h"
-#include "popupappearance.h"
-#include "libqutim/icon.h"
-#include "popupbehavior.h"
+#include <libqutim/configbase.h>
+#include "settings/popupappearance.h"
+#include "settings/popupbehavior.h"
+#include <libqutim/settingslayer.h>
+#include <libqutim/icon.h>
 
 namespace KineticPopups
 {
@@ -46,7 +47,7 @@ namespace KineticPopups
 	void Backend::show(Notifications::Type type, QObject* sender, const QString& body, const QString& customTitle)
 	{
 		Manager *manager =  Manager::self();
- 		if (!(manager->showFlags & type))
+ 		if (!(manager->showFlags & type) || (manager->count() >= manager->maxCount))
  		{
 			return;
 		}
@@ -55,8 +56,8 @@ namespace KineticPopups
 		QString sender_name = sender ? sender->property("name").toString() : QString();
 		if(sender_name.isEmpty())
 			sender_name = sender_id;
-		QString popup_id = sender_id.isEmpty() ? QString::number(id_counter++) : sender_id;
-		QString title = getTitle(type, popup_id, sender_name);
+		QString title = customTitle.isEmpty() ? getTitle(type).arg(sender_name) : customTitle;
+		QString popup_id = title;
 		QString image_path = sender ? sender->property("avatar").toString() : QString();
 		bool updateMode = sender ? sender->property("updateMode").toBool() : false;
 		if(image_path.isEmpty())
@@ -73,11 +74,11 @@ namespace KineticPopups
 				popup_id.append("." + QString::number(id_counter++));
 			}
 		}
-		popup  = new Popup ();
-		popup->setId(popup_id);
+		popup  = new Popup ();		
 		popup->setTimeOut(manager->timeout);
-		popup->setMessage(customTitle.isEmpty() ? title : customTitle,body,image_path);
+		popup->setMessage(title,body,image_path);
 		popup->setSender(sender);
+		popup->setId(popup_id);
 		if (sender)
 			connect(sender,SIGNAL(destroyed(QObject*)),popup,SLOT(deleteLater()));
 		popup->send();

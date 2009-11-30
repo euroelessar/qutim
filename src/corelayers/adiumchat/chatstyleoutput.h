@@ -67,7 +67,7 @@ namespace AdiumChat
 		_message - message by it self to be shown
 		_time - timestamp
 		*/
-		QString makeStatus(const QString &_message, const QDateTime &datetime);
+		QString makeStatus(const ChatSessionImpl *session, const Message &mes);
 
 		/*
 		for degubing purpose, must be deleted before release

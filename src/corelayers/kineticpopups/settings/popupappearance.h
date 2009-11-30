@@ -17,7 +17,7 @@ Boston, MA 02110-1301, USA.
 #ifndef POPUPSETTINGS_H
 #define POPUPSETTINGS_H
 #include <QWidget>
-#include "backend.h"
+#include "../backend.h"
 #include "libqutim/settingswidget.h"
 namespace Ui
 {

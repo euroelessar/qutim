@@ -280,8 +280,6 @@ namespace AdiumChat
 	{
 		QString html = mes.isIncoming() ? m_current_style.outgoingActionHtml:m_current_style.incomingActionHtml;
 
-		processMessage(html,session,mes);
-
 		//FIXME
 		QString sender_name = mes.isIncoming() ? mes.chatUnit()->title() : mes.chatUnit()->account()->name();
 		QString sender_id = mes.isIncoming() ? mes.chatUnit()->id() : mes.chatUnit()->account()->id();
@@ -323,14 +321,17 @@ namespace AdiumChat
 
 		// Replace %messages%, replacing last to avoid errors if messages contains tags
 		html = html.replace("%message%", Qt::escape(mes.text()));
+		processMessage(html,session,mes);
 		return html;
 	}
 
-	QString ChatStyleOutput::makeStatus ( const QString& text, const QDateTime& datetime)
+	QString ChatStyleOutput::makeStatus (const ChatSessionImpl *session, const Message &mes)
 	{
 		QString html = m_current_style.statusHtml;
-		makeTime(html, datetime);
-		html = html.replace("%message%", Qt::escape(text));
+		makeTime(html, mes.time());
+		QString title = mes.property("title").toString();
+		html = html.replace("%message%",title.isEmpty() ? mes.text() : QString("<b>%1 :</b> %2").arg(title,mes.text()));
+		processMessage(html,session,mes);
 		return html;
 	}
 
