@@ -644,12 +644,6 @@ void Roster::handleUserOnline(const SNAC &snac)
 	quint16 warning_level = snac.readSimple<quint16>();
 	TLVMap tlvs = snac.readTLVChain<quint16>();
 
-	// status.
-	quint32 status = tlvs.value<quint32>(0x0006, 0x0000);
-	Status oldStatus = contact->status();
-	contact->setStatus(icqStatusToQutim(status & 0xffff));
-	qDebug()<< QString("%1 changed status to %2").arg(contact->name()).arg(contact->status());
-
 	// Status note
 	SessionDataItemMap status_note_data(tlvs);
 	if(status_note_data.contains(0x0d))
@@ -658,7 +652,6 @@ void Roster::handleUserOnline(const SNAC &snac)
 		quint16 time = data.readSimple<quint16>();
 		qDebug() << "Status note update time" << time;
 	}
-
 	if(status_note_data.contains(0x02))
 	{
 		DataUnit data(status_note_data.value(0x02).data);
@@ -674,20 +667,15 @@ void Roster::handleUserOnline(const SNAC &snac)
 			qDebug() << "Server sent wrong encoding for status note";
 			codec = defaultCodec();
 		}
-		QString note = codec->toUnicode(note_data);
-		qDebug() << "Status note: " << note;
-		if(ChatLayer::instance())
-		{
-			ChatSession *session = ChatLayer::instance()->getSession(contact);
-			Q_ASSERT(session);
-			Message msg;
-			msg.setIncoming(true);
-			msg.setText(note);
-			msg.setChatUnit(session->getUnit());
-			msg.setProperty("service", Notifications::StatusChange);
-			session->appendMessage(msg);
-		}
+		contact->setProperty("statusText", codec->toUnicode(note_data));
 	}
+
+	// status.
+	quint32 status = tlvs.value<quint32>(0x0006, 0x0000);
+	Status oldStatus = contact->status();
+	qDebug()<< QString("%1 changed status to %2").arg(contact->name()).arg(contact->status());
+	contact->setStatus(icqStatusToQutim(status & 0xffff));
+
 
 	if(oldStatus != Offline)
 		return;
