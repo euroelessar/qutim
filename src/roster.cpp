@@ -22,6 +22,7 @@
 #include "buddycaps.h"
 #include "clientidentify.h"
 #include "messages.h"
+#include "xstatus.h"
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
 #include <qutim/notificationslayer.h>
@@ -668,6 +669,29 @@ void Roster::handleUserOnline(const SNAC &snac)
 		}
 	}
 
+	// XStatus
+	Capabilities newCaps;
+	DataUnit data(tlvs.value(0x000d));
+	while(data.dataSize() >= 16)
+	{
+		Capability capability(data.readData(16));
+		newCaps << capability;
+	}
+	qint8 moodIndex = -1;
+	if(tlvs.contains(0x0e))
+	{
+		QString moodStr = QString::fromAscii(tlvs.value(0x0e).value());
+		if(moodStr.startsWith("icqmood"))
+		{
+			bool ok;
+			moodIndex = moodStr.mid(8, -1).toInt(&ok);
+			if(!ok)
+				moodIndex = -1;
+		}
+	}
+	XStatuses::handelXStatusCapabilities(contact, newCaps, moodIndex);
+	qDebug() << "xstatus" << contact->property("statusTittle").toString();
+
 	if(oldStatus != Offline)
 		return;
 
@@ -701,39 +725,34 @@ void Roster::handleUserOnline(const SNAC &snac)
 			m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
 	}
 	contact->clearCapabilities();
-	if(tlvs.contains(0x000d)) // capabilities
+	foreach(const Capability &capability, newCaps) 	// capabilities
 	{
-		DataUnit data(tlvs.value(0x000d));
-		while(data.dataSize() >= 16)
-		{
-			Capability capability(data.readData(16));
-			if(capability.match(ICQ_CAPABILITY_RTFxMSGS))
-				contact->p->rtf_support = true;
-			else if(capability.match(ICQ_CAPABILITY_TYPING))
-				contact->p->typing_support = true;
-			else if(capability.match(ICQ_CAPABILITY_AIMCHAT))
-				contact->p->aim_chat_support = true;
-			else if(capability.match(ICQ_CAPABILITY_AIMIMAGE))
-				contact->p->aim_image_support = true;
-			else if(capability.match(ICQ_CAPABILITY_XTRAZ))
-				contact->p->xtraz_support = true;
-			else if(capability.match(ICQ_CAPABILITY_UTF8))
-				contact->p->utf8_support = true;
-			else if(capability.match(ICQ_CAPABILITY_AIMSENDFILE))
-				contact->p->sendfile_support = true;
-			else if(capability.match(ICQ_CAPABILITY_DIRECT))
-				contact->p->direct_support = true;
-			else if(capability.match(ICQ_CAPABILITY_AIMICON))
-				contact->p->icon_support = true;
-			else if(capability.match(ICQ_CAPABILITY_AIMGETFILE))
-				contact->p->getfile_support = true;
-			else if(capability.match(ICQ_CAPABILITY_SRVxRELAY))
-				contact->p->srvrelay_support = true;
-			else if(capability.match(ICQ_CAPABILITY_AVATAR))
-				contact->p->avatar_support = true;
-			contact->p->capabilities << capability;
-		}
+		if(capability.match(ICQ_CAPABILITY_RTFxMSGS))
+			contact->p->rtf_support = true;
+		else if(capability.match(ICQ_CAPABILITY_TYPING))
+			contact->p->typing_support = true;
+		else if(capability.match(ICQ_CAPABILITY_AIMCHAT))
+			contact->p->aim_chat_support = true;
+		else if(capability.match(ICQ_CAPABILITY_AIMIMAGE))
+			contact->p->aim_image_support = true;
+		else if(capability.match(ICQ_CAPABILITY_XTRAZ))
+			contact->p->xtraz_support = true;
+		else if(capability.match(ICQ_CAPABILITY_UTF8))
+			contact->p->utf8_support = true;
+		else if(capability.match(ICQ_CAPABILITY_AIMSENDFILE))
+			contact->p->sendfile_support = true;
+		else if(capability.match(ICQ_CAPABILITY_DIRECT))
+			contact->p->direct_support = true;
+		else if(capability.match(ICQ_CAPABILITY_AIMICON))
+			contact->p->icon_support = true;
+		else if(capability.match(ICQ_CAPABILITY_AIMGETFILE))
+			contact->p->getfile_support = true;
+		else if(capability.match(ICQ_CAPABILITY_SRVxRELAY))
+			contact->p->srvrelay_support = true;
+		else if(capability.match(ICQ_CAPABILITY_AVATAR))
+			contact->p->avatar_support = true;
 	}
+	contact->p->capabilities = newCaps;
 	if(tlvs.contains(0x0019)) // short capabilities
 	{
 		DataUnit data(tlvs.value(0x0019));
