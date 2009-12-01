@@ -62,7 +62,7 @@ namespace qutim_sdk_0_3
 	namespace Notifications
 	{
 		void sendNotification(Type type, QObject *sender,
-							const QString &body, const QString &custom_title)
+							const QString &body, const QString &custom_title,NotifyOptions opts)
 		{
 			ensure_notifications_private();
 			//TODO add checks
@@ -81,17 +81,17 @@ namespace qutim_sdk_0_3
 				p->popup_backend = p->popup_gen->generate<PopupBackend>();
 
 			if (p->popup_backend)
-				p->popup_backend->show(type, sender, body, custom_title);
+				p->popup_backend->show(type, sender, body, custom_title,opts);
 		}
 
 
-		void sendNotification(const QString &body, const QString &custom_title)
+		void sendNotification(const QString &body, const QString &custom_title,NotifyOptions opts)
 		{
-			sendNotification(System, 0, body, custom_title);
+			sendNotification(System, 0, body, custom_title,opts);
 		}
 
 
-		void sendNotification(const Message& message)
+		void sendNotification(const Message& message,NotifyOptions opts)
 		{
 			Type type = static_cast<Type>(message.property("service").toInt());
 			if (!type)
@@ -99,7 +99,51 @@ namespace qutim_sdk_0_3
 			QString text = message.property("html").toString();
 			if(text.isEmpty())
 				text = message.text();
-			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()), text ,message.property("title").toString());
+			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()),text,message.property("title").toString(),opts);
+		}
+
+		QString toString(Notifications::Type type)
+		{
+			QString title;
+			switch ( type )
+			{
+			case Notifications::System:
+				title = QObject::tr("System message from %1:");
+				break;
+			case Notifications::StatusChange:
+				title = QObject::tr("%1 changed status");
+				break;
+			case Notifications::MessageGet:
+				title = QObject::tr("Message from %1:");
+				break;
+			case Notifications::MessageSend:
+				title = QObject::tr("Message to %1:");
+				break;
+			case Notifications::Typing:
+				title = QObject::tr("%1 is typing");
+				break;
+			case Notifications::BlockedMessage:
+				title = QObject::tr("Blocked message from %1");
+				break;
+			case Notifications::Birthday:
+				title = QObject::tr("%1 has birthday today!!");
+				break;
+			case Notifications::Online:
+				title = QObject::tr("%1 is online");
+				break;
+			case Notifications::Offline:
+				title = QObject::tr("%1 is offline");
+				break;
+			case Notifications::Startup:
+				title = QObject::tr("qutIM launched");
+				break;
+			case Notifications::Count:
+				title = QObject::tr("Count");
+				break;
+			default:
+				return title;
+			}
+			return title;
 		}
 
 	}
@@ -177,49 +221,5 @@ namespace qutim_sdk_0_3
 
 	}
 
-	QString PopupBackend::getTitle(Notifications::Type type) const
-	{
-		QString title;
-		switch ( type )
-		{
-		case Notifications::System:
-			title = tr("System message from %1:");
-			break;
-		case Notifications::StatusChange:
-			title = tr("%1 changed status");
-			break;
-		case Notifications::MessageGet:
-			title = tr("Message from %1:");
-			break;
-		case Notifications::MessageSend:
-			title = tr("Message to %1:");
-			break;
-		case Notifications::Typing:
-			title = tr("%1 is typing");
-			break;
-		case Notifications::BlockedMessage:
-			title = tr("Blocked message from %1");
-			break;
-		case Notifications::Birthday:
-			title = tr("%1 has birthday today!!");
-			break;
-		case Notifications::Online:
-			title = tr("%1 is online");
-			break;
-		case Notifications::Offline:
-			title = tr("%1 is offline");
-			break;
-		case Notifications::Startup:
-			title = tr("qutIM launched");
-			break;
-		case Notifications::Count:
-			title = tr("Count");
-			break;
-		default:
-			return title;
-		}
-		return title;
-	}
-
-
 }
+

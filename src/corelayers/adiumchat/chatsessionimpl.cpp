@@ -125,7 +125,8 @@ namespace AdiumChat
 		bool isHistory = tmp_message.property("history", false);
 		bool silent = tmp_message.property("silent", false);
 		if (!isHistory && !silent) {
-			Notifications::sendNotification(tmp_message);
+			Notifications::NotifyOptions opts = service ? Notifications::NotifyOptionUpdate : Notifications::NotifyOptionNormal;
+			Notifications::sendNotification(tmp_message,opts);
 		}
 		if (tmp_message.property("store",true) && (!service || (service && m_store_service_messages)))
 			History::instance()->store(message);
@@ -195,7 +196,6 @@ namespace AdiumChat
 		if (!contact && contact->property("silent").toBool())
 			return;
 		QString text = contact->property("statusText").toString();
-		contact->setProperty("updateMode",true);
 		Message msg;
 		msg.setChatUnit(contact);
 		msg.setIncoming(true);

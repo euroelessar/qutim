@@ -40,7 +40,8 @@ namespace KineticPopups
 	{
 	}
 
-	void Backend::show(Notifications::Type type, QObject* sender, const QString& body, const QString& customTitle)
+	void Backend::show(Notifications::Type type, QObject* sender, const QString& body,
+					   const QString& customTitle,Notifications::NotifyOptions opts)
 	{
 		Manager *manager =  Manager::self();
  		if (!(manager->showFlags & type) || (manager->count() >= manager->maxCount))
@@ -52,16 +53,24 @@ namespace KineticPopups
 		QString sender_name = sender ? sender->property("name").toString() : QString();
 		if(sender_name.isEmpty())
 			sender_name = sender_id;
-		QString title = customTitle.isEmpty() ? getTitle(type).arg(sender_name) : customTitle;
+		QString title = customTitle.isEmpty() ? Notifications::toString(type).arg(sender_name) : customTitle;
 		QString popup_id = title;
 		QString image_path = sender ? sender->property("avatar").toString() : QString();
-		bool updateMode = sender ? sender->property("updateMode").toBool() : false;
+
+		bool updateMode = opts & Notifications::NotifyOptionAppend ? true : manager->updateMode;
+		bool appendMode = opts & Notifications::NotifyOptionUpdate ? true : manager->appendMode;
+
+		if (opts == Notifications::NotifyOptionNone) {
+			appendMode = false;
+			updateMode = false;
+		}
+
 		if(image_path.isEmpty())
 			image_path = QLatin1String(":/icons/qutim_64");
 		Popup *popup = manager->getById(popup_id);
 		if (popup)
 		{
-			if (manager->appendMode) {
+			if (appendMode) {
 				updateMode ? popup->updateMessage(body) : popup->appendMessage(body);
 				return;
 			}

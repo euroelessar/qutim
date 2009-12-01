@@ -55,6 +55,7 @@ namespace KineticPopups
 		NotificationTypes showFlags;
 		uint timeout;
 		bool appendMode;
+		bool updateMode;
 		int maxCount;
 		int maxTextLength;
 		ThemeHelper::PopupSettings popupSettings;

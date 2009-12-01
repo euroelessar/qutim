@@ -209,9 +209,13 @@ namespace KineticPopups
 	{
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
 		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(unit)))
-		{
+		if (unit && (sess = ChatLayer::get(unit))) {
 			sess->setActive(true);
+		}
+		else {
+			QWidget *widget = qobject_cast<QWidget *>(m_sender);
+			if (widget)
+				widget->raise();
 		}
 	}
 
@@ -219,8 +223,7 @@ namespace KineticPopups
 	{
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
 		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(unit,false)))
-		{
+		if (unit && (sess = ChatLayer::get(unit,false))) {
 			//TODO
 			if (!sess->isActive())
 				sess->deleteLater();

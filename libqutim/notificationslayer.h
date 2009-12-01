@@ -42,11 +42,21 @@ namespace qutim_sdk_0_3
 			BlockedMessage = 10,
 			Count = 11
 		};
-		LIBQUTIM_EXPORT void sendNotification(const QString &body,const QString &custom_title = QString());
+		enum NotifyOption
+		{
+			NotifyOptionNone = 0x00,
+			NotifyOptionNormal = 0x01,
+			NotifyOptionAppend = 0x02,
+			NotifyOptionUpdate = 0x06
+		};
+		Q_DECLARE_FLAGS(NotifyOptions, NotifyOption);
+		LIBQUTIM_EXPORT void sendNotification(const QString &body,const QString &custom_title = QString(),NotifyOptions opts = NotifyOptionNormal);
 		LIBQUTIM_EXPORT void sendNotification(Type type, QObject *sender,
 											  const QString &body = QString(),
-											  const QString &custom_title = QString());
-		LIBQUTIM_EXPORT void sendNotification(const Message &message);
+											  const QString &custom_title = QString(),
+											  NotifyOptions opts = NotifyOptionNormal);
+		LIBQUTIM_EXPORT void sendNotification(const Message &message,NotifyOptions opts = NotifyOptionNormal);
+		LIBQUTIM_EXPORT QString toString(Notifications::Type type);
 	}
 
 	class LIBQUTIM_EXPORT PopupBackend : public QObject
@@ -56,10 +66,10 @@ namespace qutim_sdk_0_3
 		virtual void show(Notifications::Type type,
 						  QObject *sender,
 						  const QString &body,
-						  const QString &customTitle) = 0;
+						  const QString &customTitle,
+						  Notifications::NotifyOptions opts) = 0;
 	protected:
 		virtual void virtual_hook(int type, void *data);
-		QString getTitle(Notifications::Type type) const;
 	};
 
 	class LIBQUTIM_EXPORT SoundBackend
