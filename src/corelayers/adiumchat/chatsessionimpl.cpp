@@ -105,7 +105,7 @@ namespace AdiumChat
 		}
 		else if (service)
 		{
-			Notifications::Type service_type = static_cast<Notifications::Type>(tmp_message.property("service").toInt());		;
+			//Notifications::Type service_type = static_cast<Notifications::Type>(tmp_message.property("service").toInt());		;
 			item = m_chat_style_output->makeStatus(this,tmp_message);
 			m_previous_sender = "";
 		}
@@ -125,8 +125,7 @@ namespace AdiumChat
 		bool isHistory = tmp_message.property("history", false);
 		bool silent = tmp_message.property("silent", false);
 		if (!isHistory && !silent) {
-			Notifications::NotifyOptions opts = service ? Notifications::NotifyOptionUpdate : Notifications::NotifyOptionNormal;
-			Notifications::sendNotification(tmp_message,opts);
+			Notifications::sendNotification(tmp_message);
 		}
 		if (tmp_message.property("store",true) && (!service || (service && m_store_service_messages)))
 			History::instance()->store(message);
