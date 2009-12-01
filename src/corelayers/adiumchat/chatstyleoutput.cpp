@@ -82,7 +82,7 @@ namespace AdiumChat
 
 		QString text = message.property("html").toString();
 		if(text.isEmpty())
-			text = Qt::convertFromPlainText(message.text()).replace("\n","<br />");
+			text = message.text();
 		text = Emoticons::theme().parseEmoticons(text);
 		makeWebAddress(html);
 		makeUrls(text, message);

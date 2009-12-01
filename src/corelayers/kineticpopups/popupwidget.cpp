@@ -63,7 +63,7 @@ namespace KineticPopups
 	QSize PopupWidget::setData ( const QString& title, const QString& body, const QString& imagePath )
 	{
 		QString data = popup_settings.content;
-		QString text = Emoticons::theme().parseEmoticons(Qt::convertFromPlainText(body));
+		QString text = Emoticons::theme().parseEmoticons(body);
 		if (text.length() > Manager::self()->maxTextLength) {
 			text.truncate(Manager::self()->maxTextLength);
 			text.append("...");
