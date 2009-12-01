@@ -99,6 +99,7 @@ namespace AdiumChat
 		QString item;
 		if(tmp_message.text().startsWith("/me ")) {
 			tmp_message.setText(tmp_message.text().mid(3));
+			tmp_message.setProperty("title",tmp_message.isIncoming() ? tmp_message.chatUnit()->title() : tmp_message.chatUnit()->account()->name());
 			item = m_chat_style_output->makeAction(this,tmp_message,true);
 			m_previous_sender = "";
 		}

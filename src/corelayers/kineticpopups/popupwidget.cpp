@@ -63,8 +63,13 @@ namespace KineticPopups
 	QSize PopupWidget::setData ( const QString& title, const QString& body, const QString& imagePath )
 	{
 		QString data = popup_settings.content;
+		QString text = Emoticons::theme().parseEmoticons(Qt::escape(body));
+		if (text.length() > Manager::self()->maxTextLength) {
+			text.truncate(Manager::self()->maxTextLength);
+			text.append("...");
+		}
 		data.replace ( "{title}", title );
-		data.replace ( "{body}", Emoticons::theme().parseEmoticons(body) );
+		data.replace ( "{body}", text);
 		data.replace ( "{imagepath}",Qt::escape ( imagePath ) );
 		document()->setTextWidth(popup_settings.defaultSize.width());
 		document()->setHtml(data);

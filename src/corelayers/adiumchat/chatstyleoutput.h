@@ -82,13 +82,14 @@ namespace AdiumChat
 		makes html code from plaint text //TODO rewrite on javascript
 		*/
 		QString findEmail(const QString &_sourceHTML);
-		QString findWebAddress(const QString &_sourceHTML);
+		void makeWebAddress(QString &html);
 		/*
 		creats a html skeleton. Future messages will be added to it
 		skeleton consist of styles, header and footer
 		it has a mark as well. before this mark new messages should be added
 		*/
 		QString makeSkeleton(const ChatSessionImpl *session, const QDateTime &datetime);
+		void makeUserIcons(const Message &mes, QString &source);
 		inline void makeTime (QString &input, const QDateTime& datetime,const QString &regexp = "%time\\{([^}]*)\\}%");
 		void makeUrls(QString& html, const Message& message);//create url list under message body
 		void processMessage(QString &html, const ChatSession *session, const Message &message);

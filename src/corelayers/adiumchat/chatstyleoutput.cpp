@@ -82,9 +82,11 @@ namespace AdiumChat
 
 		QString text = message.property("html").toString();
 		if(text.isEmpty())
-			text = message.text();
+			text = Qt::escape(message.text()).replace("\n","<br />");
 		text = Emoticons::theme().parseEmoticons(text);
+		makeWebAddress(html);
 		makeUrls(text, message);
+		makeUserIcons(message,html);
 		html.replace(QLatin1String("%message%"), text);
 	}
 
@@ -245,18 +247,6 @@ namespace AdiumChat
 		// Replace %protocolIcon% to sender statusIcon path
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
-		// Replace userIconPath
-		QString avatarPath = mes.isIncoming() ? mes.chatUnit()->property("avatar").toString() : mes.chatUnit()->account()->property("avatar").toString();
-		if(avatarPath.isEmpty())
-		{
-			if(mes.isIncoming())
-				avatarPath = (m_current_style.baseHref + "Outgoing/buddy_icon.png");
-			else
-				avatarPath = (m_current_style.baseHref + "Incoming/buddy_icon.png");
-// 			if(!QFileInfo(avatarPath).exists())
-// 				avatarPath = QLatin1String(":/icons/qutim_64");
-		}
-		html = html.replace("%userIconPath%", avatarPath);
 
 		// search for background colors and change them, so CSS would stay clean
 		QString bgColor = "inherit";
@@ -270,15 +260,13 @@ namespace AdiumChat
 		// Replace %messageDirection% with "rtl"(Right-To-Left) or "ltr"(Left-to-right)
 		html = html.replace("%messageDirection%", _aligment ? "ltr" : "rtl" );
 
-		// Replace %messages%, replacing last to avoid errors if messages contains tags
-//		html = html.replace("%message%", Qt::escape(mes.text()));
 		return html;
 	}
 
 	QString ChatStyleOutput::makeAction (const ChatSessionImpl *session, const Message &mes,
 										 const bool& _aligment)
 	{
-		QString html = mes.isIncoming() ? m_current_style.outgoingActionHtml:m_current_style.incomingActionHtml;
+		QString html = mes.isIncoming() ? m_current_style.outgoingActionHtml : m_current_style.incomingActionHtml;
 
 		//FIXME
 		QString sender_name = mes.isIncoming() ? mes.chatUnit()->title() : mes.chatUnit()->account()->name();
@@ -295,18 +283,6 @@ namespace AdiumChat
 		// Replace %protocolIcon% to sender statusIcon path
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
-		// Replace userIconPath
-		QString avatarPath = mes.isIncoming() ? mes.chatUnit()->property("avatar").toString() : mes.chatUnit()->account()->property("avatar").toString();
-		if(avatarPath == "")
-		{
-			if(mes.isIncoming())
-				avatarPath = (m_current_style.baseHref + "Outgoing/buddy_icon.png");
-			else
-				avatarPath = (m_current_style.baseHref + "Incoming/buddy_icon.png");
-
-		}
-		html = html.replace("%userIconPath%", avatarPath);
-
 		// search for background colors and change them, so CSS would stay clean
 		QString bgColor = "inherit";
 		static QRegExp textBackgroundRegExp("%textbackgroundcolor\\{([^}]*)\\}%");
@@ -319,20 +295,34 @@ namespace AdiumChat
 		// Replace %messageDirection% with "rtl"(Right-To-Left) or "ltr"(Left-to-right)
 		html = html.replace("%messageDirection%", _aligment ? "ltr" : "rtl" );
 
-		// Replace %messages%, replacing last to avoid errors if messages contains tags
-		html = html.replace("%message%", Qt::escape(mes.text()));
 		processMessage(html,session,mes);
 		return html;
 	}
 
 	QString ChatStyleOutput::makeStatus (const ChatSessionImpl *session, const Message &mes)
 	{
+		Message tmp_msg = mes;
 		QString html = m_current_style.statusHtml;
 		makeTime(html, mes.time());
 		QString title = mes.property("title").toString();
-		html = html.replace("%message%",title.isEmpty() ? mes.text() : QString("<b>%1 :</b> %2").arg(title,mes.text()));
-		processMessage(html,session,mes);
+		tmp_msg.setProperty("html", title.isEmpty() ? mes.text() : QString("<b>%1 :</b> %2").arg(title,mes.text()));
+		processMessage(html,session,tmp_msg);
 		return html;
+	}
+
+	void AdiumChat::ChatStyleOutput::makeUserIcons(const Message &mes, QString &source)
+	{
+		// Replace userIconPath
+		QString avatarPath = mes.isIncoming() ? mes.chatUnit()->property("avatar").toString() : mes.chatUnit()->account()->property("avatar").toString();
+		if(avatarPath == "")
+		{
+			if(mes.isIncoming())
+				avatarPath = (m_current_style.baseHref + "Outgoing/buddy_icon.png");
+			else
+				avatarPath = (m_current_style.baseHref + "Incoming/buddy_icon.png");
+
+		}
+		source.replace("%userIconPath%", avatarPath);
 	}
 
 	void ChatStyleOutput::makeTime(QString &input, const QDateTime& datetime, const QString &regexp)
@@ -382,9 +372,8 @@ namespace AdiumChat
 		return html;
 	}
 
-	QString ChatStyleOutput::findWebAddress ( const QString& _sourceHTML )
+	void ChatStyleOutput::makeWebAddress (QString& html )
 	{
-		QString html = _sourceHTML;
 		static QRegExp linkRegExp("(([a-z]+://|www\\d?\\.)[^\\s]+)");
 		int pos = 0;
 		while((pos=linkRegExp.indexIn(html, pos)) != -1)
@@ -394,7 +383,6 @@ namespace AdiumChat
 			html.replace(linkRegExp.cap(0), link);
 			pos += link.count();
 		}
-		return html;
 	}
-
 }
+

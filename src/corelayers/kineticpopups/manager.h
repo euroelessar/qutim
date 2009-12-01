@@ -56,6 +56,7 @@ namespace KineticPopups
 		uint timeout;
 		bool appendMode;
 		int maxCount;
+		int maxTextLength;
 		ThemeHelper::PopupSettings popupSettings;
 	private:
 		QList<Popup *> active_notifications;

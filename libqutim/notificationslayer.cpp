@@ -96,7 +96,10 @@ namespace qutim_sdk_0_3
 			Type type = static_cast<Type>(message.property("service").toInt());
 			if (!type)
 				type = message.isIncoming() ? MessageGet : MessageSend;
-			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()), message.text(),message.property("title").toString());
+			QString text = message.property("html").toString();
+			if(text.isEmpty())
+				text = message.text();
+			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()), text ,message.property("title").toString());
 		}
 
 	}
