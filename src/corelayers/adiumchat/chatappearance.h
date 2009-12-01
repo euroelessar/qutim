@@ -14,9 +14,24 @@
 *****************************************************************************/
 #ifndef CHATAPPEARANCE_H
 #define CHATAPPEARANCE_H
-#include <QWidget>
-#include <libqutim/settingswidget.h>
 #include "chatlayerimpl.h"
+#include "chatstyle.h"
+#include "chatstyleoutput.h"
+#include "ui_chatappearance.h"
+#include <QWidget>
+#include <QDebug>
+#include <QDateTime>
+#include <QWebFrame>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <libqutim/configbase.h>
+#include <libqutim/protocol.h>
+#include <libqutim/account.h>
+#include <libqutim/notificationslayer.h>
+#include <libqutim/settingswidget.h>
+#include <libqutim/libqutim_global.h>
+
 namespace Ui
 {
 	class chatAppearance;
@@ -36,15 +51,20 @@ namespace AdiumChat
 		virtual ~ChatAppearance();
 	private slots:
 		void onCurrentIndexChanged(int index);
+		void changeVariant(const QString &variant);
 	private:
-		void getThemes();
+		int getThemes();
+		void makeSettings(const QString &theme);
 		void makePage();
 		Ui::chatAppearance *ui;
 		QHash<QString, QString> m_themes;
 		QString m_current_style_name;
 		QString m_current_variant;
+		StyleVariables m_current_style_variables;
 		QWebPage *m_page;
 		ChatSessionImpl *m_chat_session;
+		bool is_load;
+		QWidget *settingsWidget;
 	};
 
 }

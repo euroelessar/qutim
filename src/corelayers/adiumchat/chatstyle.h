@@ -23,6 +23,16 @@
 namespace AdiumChat
 {
 	typedef QMap<QString,QString> StyleVariants;
+	enum StyleVariableType {COLOR, FONT, BACKGROUND};
+	struct StyleVariable
+	{
+		QString name;
+		QString label;
+		QString desc;
+		QString value;
+		StyleVariableType type;
+	};
+	typedef QMap<QString,StyleVariable> StyleVariables;
 	struct ChatStyle
 	{
 		QString styleName;
@@ -47,6 +57,7 @@ namespace AdiumChat
 		QColor backgroundColor;
 		QPair<QString, QString> defaultVariant;
 		StyleVariants variants;
+		StyleVariables variables;
 		bool backgroundIsTransparent;
 		bool isValid();
 	};
