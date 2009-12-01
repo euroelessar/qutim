@@ -235,6 +235,8 @@ void OscarConnection::sendUserInfo()
 	// qutIM some shit
 	caps.appendValue(Capability(0x69716d75, 0x61746769, 0x656d0000, 0x00000000));
 	caps.appendValue(Capability(0x09461343, 0x4c7f11d1, 0x82224445, 0x53540000));
+	// HTML messages
+	caps.appendValue(ICQ_CAPABILITY_HTMLMSGS);
 	// ICQ typing
 	caps.appendValue(ICQ_CAPABILITY_TYPING);
 	// Messages on channel 2

@@ -64,11 +64,16 @@ bool IcqContact::isInList() const
 
 void IcqContact::sendMessage(const Message &message)
 {
+	QString msgText;
+	if(p->html_support)
+		msgText = message.property("html").toString();
+	else
+		msgText = message.text();
 	if(!p->srvrelay_support)
 	{
-		ServerMessage msgData(p->uin, Channel1MessageData(message.text(), CodecUtf16Be));
+		ServerMessage msgData(p->uin, Channel1MessageData(msgText, CodecUtf16Be));
 		p->account->connection()->send(msgData);
-		qDebug() << "Message" << message.text() << "is sent on channel 1";
+		qDebug() << "Message" << msgText << "is sent on channel 1";
 	}
 	else
 	{
@@ -77,7 +82,7 @@ void IcqContact::sendMessage(const Message &message)
 			codec = Util::utf8Codec();
 		else
 			codec = Util::asciiCodec();
-		QByteArray msg = codec->fromUnicode(message.text()) + '\0';
+		QByteArray msg = codec->fromUnicode(msgText) + '\0';
 		Tlv2711 tlv(0x01, 0);
 		tlv.appendXData(qutimStatusToICQ(p->status), 1);
 		tlv.appendData<quint16>(msg, DataUnit::LittleEndian);
@@ -87,7 +92,7 @@ void IcqContact::sendMessage(const Message &message)
 			tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString(), Util::asciiCodec(), DataUnit::LittleEndian);
 		ServerMessage msgData(p->uin, Channel2MessageData(0, tlv));
 		p->account->connection()->send(msgData);
-		qDebug() << "Message" << message.text() << "is sent on channel 2";
+		qDebug() << "Message" << msgText << "is sent on channel 2";
 	}
 }
 
@@ -107,6 +112,11 @@ void IcqContact::setInList(bool inList)
 bool IcqContact::RtfSupport()
 {
 	return p->rtf_support;
+}
+
+bool IcqContact::HtmlSupport()
+{
+	return p->html_support;
 }
 
 bool IcqContact::TypingSupport()

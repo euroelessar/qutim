@@ -718,6 +718,8 @@ void Roster::handleUserOnline(const SNAC &snac)
 			Capability capability(data.readData(16));
 			if(capability.match(ICQ_CAPABILITY_RTFxMSGS))
 				contact->p->rtf_support = true;
+			else if(capability.match(ICQ_CAPABILITY_HTMLMSGS))
+				contact->p->html_support = true;
 			else if(capability.match(ICQ_CAPABILITY_TYPING))
 				contact->p->typing_support = true;
 			else if(capability.match(ICQ_CAPABILITY_AIMCHAT))
@@ -978,7 +980,10 @@ void Roster::handleMessage(const SNAC &snac)
 			ChatSession *session = ChatLayer::instance()->getSession(m_account, uin);
 			Message m;
 			m.setIncoming(true);
-			m.setText(message);
+			//if(contact->HtmlSupport())
+				m.setProperty("html", message);
+			//else
+			//	m.setText(message);
 			m.setTime(time);
 			m.setChatUnit(session->getUnit());
 			session->appendMessage(m);

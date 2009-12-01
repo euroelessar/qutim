@@ -44,6 +44,7 @@ public:
 	virtual void setInList(bool inList);
 public:
 	bool RtfSupport();
+	bool HtmlSupport();
 	bool TypingSupport();
 	bool AimChatSupport();
 	bool AimImageSupport();

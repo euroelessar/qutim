@@ -35,6 +35,7 @@ struct IcqContactPrivate
 	quint16 version;
 
 	bool rtf_support;
+	bool html_support;
 	bool typing_support;
 	bool aim_chat_support;
 	bool aim_image_support;
