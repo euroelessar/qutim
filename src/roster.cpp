@@ -673,8 +673,8 @@ void Roster::handleUserOnline(const SNAC &snac)
 	// status.
 	quint32 status = tlvs.value<quint32>(0x0006, 0x0000);
 	Status oldStatus = contact->status();
-	qDebug()<< QString("%1 changed status to %2").arg(contact->name()).arg(contact->status());
 	contact->setStatus(icqStatusToQutim(status & 0xffff));
+	qDebug()<< contact->name()<< "changed status to " << contact->status();
 
 
 	if(oldStatus != Offline)

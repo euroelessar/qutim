@@ -121,7 +121,7 @@ qutim_sdk_0_3::Status icqStatusToQutim(quint16 status)
 {
 	if(status & IcqFlagInvisible)
 		return Invisible;
-	else if(status & IcqFlagEvil)
+	else /*if(status & IcqFlagEvil)
 		return Evil;
 	else if(status & IcqFlagDepress)
 		return Depression;
@@ -131,7 +131,7 @@ qutim_sdk_0_3::Status icqStatusToQutim(quint16 status)
 		return AtWork;
 	else if(status & IcqFlagLunch)
 		return OutToLunch;
-	else if(status & IcqFlagDND)
+	else */if(status & IcqFlagDND)
 		return DND;
 	else if(status & IcqFlagOccupied)
 		return Occupied;
