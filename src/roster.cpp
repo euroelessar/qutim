@@ -617,10 +617,17 @@ void Roster::handleUserOnline(const SNAC &snac)
 	TLVMap tlvs = snac.readTLVChain<quint16>();
 
 	// status.
-	quint32 status = tlvs.value<quint32>(0x0006, 0x0000);
 	Status oldStatus = contact->status();
-	contact->setStatus(icqStatusToQutim(status & 0xffff));
-	qDebug()<< QString("%1 changed status to %2").arg(contact->name()).arg(contact->status());
+	quint16 statusFlags = 0;
+	quint16 status = 0;
+	if(tlvs.contains(0x06))
+	{
+		DataUnit status_data(tlvs.value(0x06));
+		statusFlags = status_data.readSimple<quint16>();
+		status = status_data.readSimple<quint16>();
+	}
+	contact->setStatus(icqStatusToQutim(status));
+	qDebug()<< contact->name()<< "changed status to " << contact->status();
 
 	// Status note
 	SessionDataItemMap status_note_data(tlvs);
