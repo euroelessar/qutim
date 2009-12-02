@@ -125,7 +125,9 @@ void XdgIconManager::init()
 
         foreach(QString parent, theme.parentNames())
         {
-            theme.addParent(themeById(parent));
+			const XdgIconTheme *parentTheme = themeById(parent);
+			if(parentTheme)
+				theme.addParent(parentTheme);
         }
     }
 }

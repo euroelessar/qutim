@@ -75,10 +75,21 @@ QString XdgThemeChooserGnome2::getThemeId() const
 QString XdgThemeChooserKde4::getThemeId() const
 {
     XdgEnvironmentMap envMap;
-	QDir kdehome(envMap.value(QLatin1String("KDEHOME"), QDir::home().absoluteFilePath(QLatin1String(".kde"))));
+	QDir kdeHome;
+	{
+		QByteArray env = qgetenv("KDEHOME");
+		if (env.isEmpty()) {
+			kdeHome = QDir::home();
+			// We should try both ~/.kde and ~/.kde4
+			if (!(kdeHome.cd(QLatin1String(".kde")) || kdeHome.cd(QLatin1String(".kde4"))))
+				return QLatin1String("oxygen");
+		}
+		else
+			kdeHome = QString::fromLocal8Bit(env, env.size());
+	}
 
-	if (kdehome.exists()) {
-		QString config = kdehome.absoluteFilePath(QLatin1String("share/config/kdeglobals"));
+	if (kdeHome.exists()) {
+		QString config = kdeHome.absoluteFilePath(QLatin1String("share/config/kdeglobals"));
 
 		if (QFile::exists(config)) {
             QSettings settings(config, QSettings::IniFormat);
