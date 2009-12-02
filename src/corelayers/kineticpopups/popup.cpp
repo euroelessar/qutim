@@ -65,7 +65,10 @@ namespace KineticPopups
 		Manager::self()->remove (id);
 		Manager::self()->updateGeometry();
 		notification_widget->deleteLater();
+		//workaround
 		machine->deleteLater();
+		show_state->deleteLater();
+		hide_state->deleteLater();
 	}
 
 	void Popup::setMessage ( const QString& title, const QString& body, const QString &imagePath )
@@ -110,6 +113,9 @@ namespace KineticPopups
 	void Popup::send()
 	{
 		Manager *manager = Manager::self();
+		if (machine) {
+			qWarning("Notification already sended");
+		}
 		machine = new QStateMachine(this);
 
 		notification_widget = new PopupWidget (manager->popupSettings);

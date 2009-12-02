@@ -26,7 +26,7 @@
 namespace AdiumChat
 {
 
-	ChatWidget::ChatWidget(ChatFlag chatFlags): ui(new Ui::AdiumChatForm),m_chat_flags(chatFlags)
+	ChatWidget::ChatWidget(ChatFlags chatFlags): ui(new Ui::AdiumChatForm),m_chat_flags(chatFlags)
 	{
 		ui->setupUi(this);
 		centerizeWidget(this);

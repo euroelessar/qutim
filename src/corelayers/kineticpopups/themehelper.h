@@ -23,12 +23,14 @@ namespace KineticPopups
 {
 	namespace ThemeHelper
 	{
-		enum PopupWidgetFlags
+		enum PopupWidgetFlag
 		{
-			Default = 0x0,
+			None = 0x0,
 			Preview = 0x1,
 			AeroThemeIntegration	=	0x2,
+			Transparent = 0x4,
 		};
+		Q_DECLARE_FLAGS(PopupWidgetFlags,PopupWidgetFlag)
 		struct PopupSettings {
 			QString styleSheet;
 			QString content;

@@ -182,7 +182,7 @@ namespace qutim_sdk_0_3
 
 	QString SoundTheme::path(Notifications::Type type)
 	{
-
+		return QString();
 	}
 
 	void SoundTheme::play(Notifications::Type type)
@@ -218,7 +218,7 @@ namespace qutim_sdk_0_3
 
 	QString SoundTheme::title()
 	{
-
+		return QString();
 	}
 
 }
