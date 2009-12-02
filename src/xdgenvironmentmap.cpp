@@ -18,55 +18,53 @@
 
 #include "xdgenvironmentmap.h"
 
-namespace {
+namespace
+{
     inline QList<QDir> splitDirList(const QString& str)
     {
         QList<QDir> list;
 
-        foreach(QString str, str.split(':'))
-        {
-            list.append(QDir(str));
-        }
+		foreach(QString str, str.split(QLatin1Char(':')))
+			list.append(QDir(str));
 
         return list;
     }
+
+	inline QString getValue(const char *varName, const QString &defValue)
+	{
+		QByteArray env = qgetenv(varName);
+		return env.isEmpty() ? defValue : QString::fromLocal8Bit(env.constData(), env.size());
+	}
 }
 
-XdgEnvironmentMap::XdgEnvironmentMap(QProcess *process)
- : _process(process)
+XdgEnvironmentMap::XdgEnvironmentMap()
 {
-    reload();
 }
 
-void XdgEnvironmentMap::reload()
+XdgEnvironmentMap::~XdgEnvironmentMap()
 {
-    clear();
-
-    QStringList env = _process ? _process->environment() : QProcess::systemEnvironment();
-
-    for(QStringList::iterator it = env.begin(); it != env.end(); ++it)
-    {
-        QStringList list = it->split('=');
-        insert(list.at(0), list.at(1));
-    }
 }
 
-QDir XdgEnvironmentMap::dataHome() const
+QDir XdgEnvironmentMap::dataHome()
 {
-    return QDir(value("XDG_DATA_HOME", QDir::home().absoluteFilePath(".share/locale")));
+	return QDir(getValue("XDG_DATA_HOME",
+						 QDir::home().absoluteFilePath(QLatin1String(".share/locale"))));
 }
 
-QDir XdgEnvironmentMap::configHome() const
+QDir XdgEnvironmentMap::configHome()
 {
-    return QDir(value("XDG_CONFIG_HOME", QDir::home().absoluteFilePath(".config")));
+	return QDir(getValue("XDG_CONFIG_HOME",
+						 QDir::home().absoluteFilePath(QLatin1String(".config"))));
 }
 
-QList<QDir> XdgEnvironmentMap::dataDirs() const
+QList<QDir> XdgEnvironmentMap::dataDirs()
 {
-    return splitDirList(value("XDG_DATA_DIRS", "/usr/local/share:/usr/share"));
+	return splitDirList(getValue("XDG_DATA_DIRS",
+								 QLatin1String("/usr/local/share:/usr/share")));
 }
 
-QList<QDir> XdgEnvironmentMap::configDirs() const
+QList<QDir> XdgEnvironmentMap::configDirs()
 {
-    return splitDirList(value("XDG_CONFIG_DIRS", QDir::home().absoluteFilePath(".share/locale")));
+	return splitDirList(getValue("XDG_CONFIG_DIRS",
+								 QDir::home().absoluteFilePath(QLatin1String(".share/locale"))));
 }

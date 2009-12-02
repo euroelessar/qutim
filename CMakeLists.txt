@@ -18,6 +18,7 @@ set(QXDG_HEADERS
     src/xdgicontheme.h
 	src/xdgicontheme_p.h
     src/xdgiconmanager.h
+	src/xdgiconmanager_p.h
     src/xdgthemechooser.h
 )
 

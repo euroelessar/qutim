@@ -74,7 +74,6 @@ QString XdgThemeChooserGnome2::getThemeId() const
 
 QString XdgThemeChooserKde4::getThemeId() const
 {
-    XdgEnvironmentMap envMap;
 	QDir kdeHome;
 	{
 		QByteArray env = qgetenv("KDEHOME");

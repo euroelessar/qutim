@@ -22,22 +22,21 @@
 #include <QtCore/QHash>
 #include <QtCore/QMap>
 #include <QtCore/QRegExp>
+#include <QtCore/QSharedData>
 #include "xdgenvironmentmap.h"
 #include "xdgicontheme.h"
 #include "xdgthemechooser.h"
 
+class XdgIconManagerPrivate;
+
 class XdgIconManager
 {
-private:
-    QHash<QString, const XdgThemeChooser *> _rules;
-	mutable QMap<QString, XdgIconTheme *> _themes;
-    mutable QMap<QString, XdgIconTheme *> _themeIdMap;
-    XdgEnvironmentMap _envMap;
-
-    void init();
 public:
     XdgIconManager();
-    XdgIconManager(const XdgIconManager& other);
+	virtual ~XdgIconManager();
+
+	XdgIconManager(const XdgIconManager &other);
+	XdgIconManager &operator =(const XdgIconManager &other);
 
     void clearRules();
     void installRule(const QRegExp& regexp, const XdgThemeChooser *chooser);
@@ -45,15 +44,10 @@ public:
     const XdgIconTheme *themeByName(const QString& themeName) const;
     const XdgIconTheme *themeById(const QString& themeId) const;
 
-    QStringList themeNames() const
-    {
-        return QStringList(_themes.keys());
-    }
-
-    QStringList themeIds() const
-    {
-        return QStringList(_themeIdMap.keys());
-    }
+	QStringList themeNames() const;
+	QStringList themeIds() const;
+protected:
+	QSharedDataPointer<XdgIconManagerPrivate> d;
 };
 
 #endif // XDGICONMANAGER_H

@@ -1,2 +1,5 @@
 * Hidden theme flag
 * Code comments
+* Add search in application paths, like KDE apps do, 
+  i.e. Kopete looks for icons also in /usr/share/kde4/apps/kopete/icons/
+* Add posibility for getting QIcons, not only paths and QPixmaps

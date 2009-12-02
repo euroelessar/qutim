@@ -24,20 +24,17 @@
 #include <QtCore/QMap>
 #include <QtCore/QProcess>
 
-class XdgEnvironmentMap: public QMap<QString, QString>
+class XdgEnvironmentMap
 {
-private:
-    QProcess *_process;
-
+	Q_DISABLE_COPY(XdgEnvironmentMap)
 public:
-    XdgEnvironmentMap(QProcess *process = 0);
-
-    void reload();
-
-    QDir dataHome() const;
-    QDir configHome() const;
-    QList<QDir> dataDirs() const;
-    QList<QDir> configDirs() const;
+	static QDir dataHome();
+	static QDir configHome();
+	static QList<QDir> dataDirs();
+	static QList<QDir> configDirs();
+private:
+	XdgEnvironmentMap();
+	~XdgEnvironmentMap();
 };
 
 #endif // XDGENVIRONMENTMAP_H

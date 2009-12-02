@@ -34,7 +34,6 @@ class XdgIconThemePrivate;
 
 class XdgIconTheme
 {
-private:
 	Q_DECLARE_PRIVATE_D(p, XdgIconTheme)
 	Q_DISABLE_COPY(XdgIconTheme)
 public:
