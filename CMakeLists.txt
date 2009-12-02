@@ -16,6 +16,7 @@ set(QXDG_HEADERS
     src/xdg.h
     src/xdgenvironmentmap.h
     src/xdgicontheme.h
+	src/xdgicontheme_p.h
     src/xdgiconmanager.h
     src/xdgthemechooser.h
 )

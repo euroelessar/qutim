@@ -96,10 +96,10 @@ void XdgIconManager::init()
                 {
                     if (!_themes.contains(name))
                     {
-                        _themes.insert(name, XdgIconTheme(basedirs, subdir.fileName(), index));
+						_themes.insert(name, new XdgIconTheme(basedirs, subdir.fileName(), index));
                     }
 
-                    _themeIdMap.insert(subdir.fileName(), &_themes.find(name).value());
+					_themeIdMap.insert(subdir.fileName(), _themes.find(name).value());
                 }
             }
         }
@@ -108,9 +108,9 @@ void XdgIconManager::init()
     const XdgIconTheme *hicolor = themeById("hicolor");
 
     // Resolve dependencies
-    for(QMap<QString, XdgIconTheme>::iterator it = _themes.begin(); it != _themes.end(); ++it)
+	for(QMap<QString, XdgIconTheme*>::iterator it = _themes.begin(); it != _themes.end(); ++it)
     {
-        XdgIconTheme& theme = it.value();
+		XdgIconTheme& theme = *it.value();
 
         if (theme.id() == "hicolor")
         {
@@ -159,7 +159,7 @@ const XdgIconTheme *XdgIconManager::defaultTheme(const QString& xdgSession) cons
 
 const XdgIconTheme *XdgIconManager::themeByName(const QString& themeName) const
 {
-    return _themes.contains(themeName) ? &_themes.find(themeName).value() : 0;
+	return _themes.value(themeName, 0);
 }
 
 const XdgIconTheme *XdgIconManager::themeById(const QString& themeName) const

@@ -30,7 +30,7 @@ class XdgIconManager
 {
 private:
     QHash<QString, const XdgThemeChooser *> _rules;
-    mutable QMap<QString, XdgIconTheme> _themes;
+	mutable QMap<QString, XdgIconTheme *> _themes;
     mutable QMap<QString, XdgIconTheme *> _themeIdMap;
     XdgEnvironmentMap _envMap;
 

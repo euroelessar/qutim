@@ -18,216 +18,242 @@
 
 #include <limits>
 #include <QtCore/QSettings>
-#include "xdgicontheme.h"
+#include "xdgicontheme_p.h"
 
 namespace
 {
-    const int extCount = 3;
-    const char *exts[] = { "png", "svg", "xpm" };
+	const char *exts[] = { ".png", ".svg", ".xpm" };
+	const int extCount = sizeof(exts) / sizeof(char *);
+}
+
+QString XdgIconThemePrivate::findIcon(const QString& name, uint size) const
+{
+	QString filename = lookupIconRecursive(name, size);
+
+	if (!filename.isEmpty())
+		return filename;
+
+	return lookupFallbackIcon(name);
+}
+
+QString XdgIconThemePrivate::lookupIconRecursive(const QString& name, uint size) const
+{
+	// Look for an exact size match first, per specification
+	foreach (const XdgIconDir& dirdata, subdirs) {
+		if (dirMatchesSize(dirdata, size)) {
+
+			// TODO: May be we should use QStringBuilder?
+			// Release of Qt 4.6 has already been...
+			QString path = id;
+			path += QLatin1Char('/');
+			path += dirdata.path;
+			path += QLatin1Char('/');
+			path += name;
+
+			foreach (QDir basedir, basedirs) {
+				for (int k = 0; k < extCount; k++) {
+					path += QLatin1String(exts[k]);
+					QString filename = basedir.absoluteFilePath(path);
+
+					if (QFile::exists(filename))
+						return filename;
+					path.chop(4);
+				}
+			}
+		}
+	}
+
+	uint mindist = std::numeric_limits<uint>::max();
+	QString closestFilename;
+
+	foreach(const XdgIconDir &dirdata, subdirs)
+	{
+		uint distance = dirSizeDistance(dirdata, size);
+
+		if(distance >= mindist)
+			continue;
+
+		QString path = id;
+		path += QLatin1Char('/');
+		path += dirdata.path;
+		path += QLatin1Char('/');
+		path += name;
+
+		// Here we look for the first match in the given subdir.
+		// If found, we decrease the mindist, immediately exit
+		// the inner loops and move to the next subdir
+		for (int j = 0; j < basedirs.size(); j++) {
+			bool found = false;
+
+			for (int k = 0; k < extCount; k++) {
+				path += QLatin1String(exts[k]);
+				QString filename = QDir(basedirs.at(j)).absoluteFilePath(path);
+
+				if (QFile::exists(filename)) {
+					closestFilename = filename;
+					mindist = distance;
+					found = true;
+					break;
+				}
+				path.chop(4);
+			}
+
+			if(found)
+				break;
+		}
+
+		// mindist can't be below 1, so if we reached that,
+		// it's pointless to look further
+		if (mindist == 1)
+			break;
+	}
+
+	if (!closestFilename.isEmpty())
+		return closestFilename;
+
+	foreach (const XdgIconTheme *parent, parents) {
+		closestFilename = parent->d_func()->lookupIconRecursive(name, size);
+
+		if (!closestFilename.isEmpty())
+			return closestFilename;
+	}
+
+	return QString();
+}
+
+QString XdgIconThemePrivate::lookupFallbackIcon(const QString& name) const
+{
+	for (int i = 0; i < basedirs.size(); i++) {
+		QDir dir(basedirs.at(i));
+
+		for (int j = 0; j < extCount; j++) {
+			QString fullname = dir.absoluteFilePath(name + exts[j]);
+
+			if (QFile::exists(fullname))
+				return fullname;
+		}
+	}
+
+	return QString();
+}
+
+bool XdgIconThemePrivate::dirMatchesSize(const XdgIconDir &dir, uint size) const
+{
+	switch (dir.type) {
+	case XdgIconDir::Fixed:
+		return size == dir.size;
+	case XdgIconDir::Scalable:
+		return (size >= dir.minsize) && (size <= dir.maxsize);
+	default:
+		return (size >= dir.size - dir.threshold) && (size <= dir.size + dir.threshold);
+	}
+	Q_ASSERT(!"New directory type?..");
+	return false;
+}
+
+uint XdgIconThemePrivate::dirSizeDistance(const XdgIconDir& dir, uint size) const
+{
+	switch (dir.type) {
+		case XdgIconDir::Fixed:
+			return abs(dir.size - size);
+		case XdgIconDir::Scalable:
+			if(size < dir.minsize)
+				return dir.minsize - size;
+			if(size > dir.maxsize)
+				return size - dir.maxsize;
+			return 0;
+		case XdgIconDir::Threshold:
+			if(size < dir.size - dir.threshold)
+				return dir.size - dir.threshold - size;
+			if(size > dir.size + dir.threshold)
+				return size - dir.size - dir.threshold;
+			return 0;
+	}
+	Q_ASSERT(!"New directory type?..");
+	return 0;
 }
 
 XdgIconTheme::XdgIconTheme(const QVector<QDir>& basedirs, const QString& id, const QString &indexFileName)
-        : _id(id), _basedirs(basedirs)
+		: p(new XdgIconThemePrivate)
 {
+	Q_D(XdgIconTheme);
+
+	d->id = id;
+	d->basedirs = basedirs;
     QSettings settings(indexFileName, QSettings::IniFormat);
 
-    settings.beginGroup("Icon Theme");
-    _parentNames = settings.value("Inherits").toStringList();
-    QStringList subdirList = settings.value("Directories").toStringList();
+	settings.beginGroup(QLatin1String("Icon Theme"));
+	d->parentNames = settings.value(QLatin1String("Inherits")).toStringList();
+	QStringList subdirList = settings.value(QLatin1String("Directories")).toStringList();
     settings.endGroup();
 
-    for (QListIterator<QString> it(subdirList); it.hasNext(); )
-    {
+	for (QListIterator<QString> it(subdirList); it.hasNext();) {
         // The defaults are dictated by the FDO specification
-        _subdirs.append(IconDir());
-        IconDir& dirdata = _subdirs.last();
+		d->subdirs.append(XdgIconDir());
+		XdgIconDir &dirdata = d->subdirs.last();
 
         dirdata.path = it.next();
         settings.beginGroup(dirdata.path);
-        dirdata.size = settings.value("Size").toUInt();
-        dirdata.maxsize = settings.value("MaxSize", dirdata.size).toUInt();
-        dirdata.minsize = settings.value("MinSize", dirdata.size).toUInt();
-        dirdata.threshold = settings.value("Threshold", 2).toUInt();
-        QString type = settings.value("Type", "Threshold").toString();
+		dirdata.size = settings.value(QLatin1String("Size")).toUInt();
+		dirdata.maxsize = settings.value(QLatin1String("MaxSize"), dirdata.size).toUInt();
+		dirdata.minsize = settings.value(QLatin1String("MinSize"), dirdata.size).toUInt();
+		dirdata.threshold = settings.value(QLatin1String("Threshold"), 2).toUInt();
+		QString type = settings.value(QLatin1String("Type"), QLatin1String("Threshold")).toString();
         settings.endGroup();
 
-        if (type == "Fixed")
-        {
-            dirdata.type = IconDir::Fixed;
-        }
-        else if (type == "Scalable")
-        {
-            dirdata.type = IconDir::Scalable;
-        }
-        else
-        {
-            dirdata.type = IconDir::Threshold;
-        }
+		if (type == QLatin1String("Fixed"))
+			dirdata.type = XdgIconDir::Fixed;
+		else if (type == QLatin1String("Scalable"))
+			dirdata.type = XdgIconDir::Scalable;
+		else
+			dirdata.type = XdgIconDir::Threshold;
     }
 }
 
-QString XdgIconTheme::findIcon(const QString& name, uint size) const
+XdgIconTheme::~XdgIconTheme()
 {
-    QString filename = lookupIconRecursive(name, size);
-
-    if(!filename.isEmpty())
-    {
-        return filename;
-    }
-
-    return lookupFallbackIcon(name);
+	delete p;
 }
 
-QString XdgIconTheme::lookupIconRecursive(const QString& name, uint size) const
+QString XdgIconTheme::id() const
 {
-    // Look for an exact size match first, per specification
-    foreach (const IconDir& dirdata, _subdirs)
-    {
-        if (dirMatchesSize(dirdata, size))
-        {
-            foreach (QDir basedir, _basedirs)
-            {
-                for (int k = 0; k < extCount; k++)
-                {
-                    QString filename = basedir.absoluteFilePath
-                            (_id + '/' + dirdata.path + '/' + name + '.' + exts[k]);
-
-                    if (QFile::exists(filename))
-                        return filename;
-                }
-            }
-        }
-    }
-
-    uint mindist = std::numeric_limits<uint>::max();
-    QString closestFilename;
-
-    foreach(const IconDir& dirdata, _subdirs)
-    {
-        uint distance = dirSizeDistance(dirdata, size);
-
-        if(distance >= mindist)
-            continue;
-
-        // Here we look for the first match in the given subdir.
-        // If found, we decrease the mindist, immediately exit
-        // the inner loops and move to the next subdir
-        for (int j = 0; j < _basedirs.size(); j++)
-        {
-            bool found = false;
-
-            for (int k = 0; k < extCount; k++)
-            {
-                QString filename = QDir(_basedirs.at(j)).absoluteFilePath
-                        (_id + '/' + dirdata.path + '/' + name + '.' + exts[k]);
-
-                if (QFile::exists(filename))
-                {
-                    closestFilename = filename;
-                    mindist = distance;
-                    found = true;
-                    break;
-                }
-            }
-
-            if(found)
-                break;
-        }
-
-        // mindist can't be below 1, so if we reached that,
-        // it's pointless to look further
-        if(mindist == 1)
-            break;
-    }
-
-    if(!closestFilename.isEmpty())
-    {
-        return closestFilename;
-    }
-
-    foreach(const XdgIconTheme *parent, _parents)
-    {
-        closestFilename = parent->lookupIconRecursive(name, size);
-
-        if(!closestFilename.isEmpty())
-        {
-            return closestFilename;
-        }
-    }
-
-    return QString();
+	return d_func()->id;
 }
 
-QString XdgIconTheme::lookupFallbackIcon(const QString& name) const
+QString XdgIconTheme::name() const
 {
-    for (int i = 0; i < _basedirs.size(); i++)
-    {
-        QDir dir(_basedirs.at(i));
-
-        for (int j = 0; j < extCount; j++)
-        {
-            QString fullname = dir.absoluteFilePath(name + '.' + exts[j]);
-
-            if (QFile::exists(fullname))
-                return fullname;
-        }
-    }
-
-    return QString();
+	return d_func()->name;
 }
 
-bool XdgIconTheme::dirMatchesSize(const IconDir &dir, uint size) const
+QStringList XdgIconTheme::parentNames() const
 {
-    switch (dir.type)
-    {
-    case IconDir::Fixed:
-        return size == dir.size;
-    case IconDir::Scalable:
-        return (size >= dir.minsize) && (size <= dir.maxsize);
-    default:
-        return (size >= dir.size - dir.threshold) && (size <= dir.size + dir.threshold);
-    }
+	return d_func()->parentNames;
 }
 
-uint XdgIconTheme::dirSizeDistance(const IconDir& dir, uint size) const
+void XdgIconTheme::addParent(const XdgIconTheme *parent)
 {
-    switch (dir.type)
-    {
-        case IconDir::Fixed:
-            return abs(dir.size - size);
-        case IconDir::Scalable:
-            if(size < dir.minsize)
-                return dir.minsize - size;
-            if(size > dir.maxsize)
-                return size - dir.maxsize;
-            return 0;
-        case IconDir::Threshold:
-            if(size < dir.size - dir.threshold)
-                return dir.size - dir.threshold - size;
-            if(size > dir.size + dir.threshold)
-                return size - dir.size - dir.threshold;
-            return 0;
-    }
-
-    // We shouldn't really get here - if we do, it's probably a bug
-    return 0;
+	Q_D(XdgIconTheme);
+	Q_ASSERT_X(parent, "XdgIconTheme::addParent", "Parent must be not null");
+	d->parents.append(parent);
 }
 
 QString XdgIconTheme::getIconPath(const QString& name, uint size) const
 {
-    QString key = QString(size) + ' ' + name;
+	Q_D(const XdgIconTheme);
 
-    if (_cache.contains(key))
-    {
-        return _cache[key];
-    }
+	QString key = QChar(size);
+	key += QLatin1Char(' ');
+	key += name;
 
-    QString filename = findIcon(name, size);
+	// FIXME: We should use QCache, it's rather faster than QMap
+	QMap<QString, QString>::const_iterator it = d->cache.constFind(key);
+	if (it != d->cache.constEnd())
+		return it.value();
 
-    if (!filename.isEmpty())
-    {
-        _cache.insert(key, filename);
-    }
+	QString filename = d->findIcon(name, size);
+
+	if (!filename.isEmpty())
+		d->cache.insert(key, filename);
 
     return filename;
 }

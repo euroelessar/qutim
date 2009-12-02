@@ -30,41 +30,13 @@
 #include <QtGui/QPixmap>
 #endif
 
+class XdgIconThemePrivate;
+
 class XdgIconTheme
 {
 private:
-
-    struct IconDir
-    {
-        enum Type
-        {
-            Fixed = 0,
-            Scalable = 1,
-            Threshold = 2
-        };
-
-        QString path;
-        uint size;
-        Type type;
-        uint maxsize;
-        uint minsize;
-        uint threshold;
-    };
-
-    QString _id;
-    QString _name;
-    QVector<QDir> _basedirs;
-    QStringList _parentNames;
-    QVector<IconDir> _subdirs;
-    QVector<const XdgIconTheme *> _parents;
-    mutable QMap<QString, QString> _cache;
-
-    QString findIcon(const QString& name, uint size) const;
-    QString lookupIconRecursive(const QString& name, uint size) const;
-    QString lookupFallbackIcon(const QString& name) const;
-    bool dirMatchesSize(const IconDir &dir, uint size) const;
-    unsigned dirSizeDistance(const IconDir& dir, uint size) const;
-
+	Q_DECLARE_PRIVATE_D(p, XdgIconTheme)
+	Q_DISABLE_COPY(XdgIconTheme)
 public:
     enum DefaultTheme
     {
@@ -73,31 +45,14 @@ public:
         DefaultThemeKDE = 2,
     };
 
-    XdgIconTheme(const QVector<QDir>& basedirs, const QString& id, const QString &indexFileName);
+	XdgIconTheme(const QVector<QDir> &basedirs, const QString &id, const QString &indexFileName);
+	virtual ~XdgIconTheme();
 
-    QString id() const
-    {
-        return _id;
-    }
+	QString id() const;
+	QString name() const;
+	QStringList parentNames() const;
 
-    QString name() const
-    {
-        return _name;
-    }
-
-    QStringList parentNames() const
-    {
-        return _parentNames;
-    }
-
-    void addParent(const XdgIconTheme *parent)
-    {
-        if(parent)
-        {
-            _parents.append(parent);
-        }
-    }
-
+	void addParent(const XdgIconTheme *parent);
     QString getIconPath(const QString& name, uint size = 22) const;
 
 #ifdef QT_GUI_LIB
@@ -111,6 +66,8 @@ public:
         return pm;
     }
 #endif
+protected:
+	XdgIconThemePrivate *p;
 };
 
 #endif // XDGICONTHEME_H
