@@ -7,7 +7,7 @@
 int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
-    XdgIconManager manager;
+	XdgIconManager manager;
     XdgThemeChooserGnome2 gnomeChooser;
     XdgThemeChooserKde4 kdeChooser;
 

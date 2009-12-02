@@ -32,7 +32,7 @@ class XdgIconManagerPrivate;
 class XdgIconManager
 {
 public:
-    XdgIconManager();
+	XdgIconManager(const QList<QDir> &appDirs = QList<QDir>());
 	virtual ~XdgIconManager();
 
 	XdgIconManager(const XdgIconManager &other);

@@ -20,6 +20,7 @@
 #include <QtCore/QDirIterator>
 #include <QtCore/QSettings>
 #include <QtCore/QVector>
+#include <QtCore/QCoreApplication>
 #include "xdgiconmanager_p.h"
 
 namespace
@@ -28,11 +29,11 @@ namespace
     XdgThemeChooserKde4 kdeChooser;
 }
 
-XdgIconManager::XdgIconManager() : d(new XdgIconManagerPrivate)
+XdgIconManager::XdgIconManager(const QList<QDir> &appDirs) : d(new XdgIconManagerPrivate)
 {
 	d->rules.insert(QLatin1String("gnome"), &gnomeChooser);
 	d->rules.insert(QLatin1String("kde"), &kdeChooser);
-	d->init();
+	d->init(appDirs);
 }
 
 XdgIconManager::~XdgIconManager()
@@ -48,7 +49,7 @@ XdgIconManager &XdgIconManager::operator =(const XdgIconManager &other)
 	d = other.d;
 }
 
-void XdgIconManagerPrivate::init()
+void XdgIconManagerPrivate::init(const QList<QDir> &appDirs)
 {
     // Identify base directories
     QVector<QDir> basedirs;
@@ -58,13 +59,25 @@ void XdgIconManagerPrivate::init()
 		basedirs.append(basedir);
 
 	QList<QDir> datadirs = XdgEnvironmentMap::dataDirs();
+	datadirs << appDirs;
+	{
+		datadirs << QCoreApplication::applicationDirPath();
+#ifdef Q_OS_WIN32
+#endif
+		basedir = QLatin1String("/usr/share/");
+		if (basedir.cd(QCoreApplication::applicationName()))
+			datadirs << basedir;
+		basedir = QLatin1String("/usr/share/kde4/apps");
+		if (basedir.cd(QCoreApplication::applicationName()))
+			datadirs << basedir;
+	}
+
+	QString iconsStr = QLatin1String("icons");
 
 	foreach (QDir dir, datadirs) {
-		basedir = dir.absoluteFilePath(QLatin1String("icons"));
-
-		if(basedir.exists())
-			basedirs.append(basedir);
-    }
+		if (dir.cd(iconsStr))
+			basedirs.append(dir);
+	}
 
 	basedir = QLatin1String("/usr/share/pixmaps");
 
@@ -160,7 +173,7 @@ const XdgIconTheme *XdgIconManager::themeByName(const QString& themeName) const
 
 const XdgIconTheme *XdgIconManager::themeById(const QString& themeName) const
 {
-	return d->themeIdMap.value(themeName);
+	return d->themeIdMap.value(themeName, 0);
 }
 
 QStringList XdgIconManager::themeNames() const
