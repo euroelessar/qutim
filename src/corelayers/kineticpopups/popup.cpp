@@ -30,12 +30,12 @@ namespace KineticPopups
 {
 
 	Popup::Popup ( const QString& id, uint timeOut )
-			:	id ( id ), timeout ( timeOut )
+			:	id ( id ), timeout ( timeOut ), machine(0)
 	{
 
 	}
 
-	Popup::Popup(QObject* parent): QObject(parent)
+	Popup::Popup(QObject* parent): QObject(parent), machine(0)
 	{
 
 	}
@@ -65,10 +65,6 @@ namespace KineticPopups
 		Manager::self()->remove (id);
 		Manager::self()->updateGeometry();
 		notification_widget->deleteLater();
-		//workaround
-		machine->deleteLater();
-		show_state->deleteLater();
-		hide_state->deleteLater();
 	}
 
 	void Popup::setMessage ( const QString& title, const QString& body, const QString &imagePath )

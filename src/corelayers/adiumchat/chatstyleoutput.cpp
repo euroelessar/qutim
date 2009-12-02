@@ -84,7 +84,7 @@ namespace AdiumChat
 		if(text.isEmpty())
 			text = message.text();
 		text = Emoticons::theme().parseEmoticons(text);
-		makeWebAddress(html);
+		makeBackground(html);
 		makeUrls(text, message);
 		makeUserIcons(message,html);
 		html.replace(QLatin1String("%message%"), text);
@@ -107,9 +107,9 @@ namespace AdiumChat
 	void ChatStyleOutput::loadTheme(const QString& path, const QString& variant)
 	{
 		m_current_style_path = path;
-                ChatStyleGenerator generator (m_current_style_path,variant);
+		ChatStyleGenerator generator (m_current_style_path,variant);
 		m_current_style = generator.getChatStyle();
-                m_current_variant = variant.isEmpty() ? m_current_style.defaultVariant.first : variant;
+		m_current_variant = variant.isEmpty() ? m_current_style.defaultVariant.first : variant;
 	}
 
 	void ChatStyleOutput::reloadStyle(QWebPage* page)
@@ -230,9 +230,6 @@ namespace AdiumChat
 			else
 				html = sameSender ? m_current_style.nextIncomingHtml : m_current_style.incomingHtml;
 		}
-
-		processMessage(html, session, mes);
-
 		// Replace %sender% to name
 		//FIXME
 		QString sender_name = mes.isIncoming() ? mes.chatUnit()->title() : mes.chatUnit()->account()->name();
@@ -247,19 +244,8 @@ namespace AdiumChat
 		// Replace %protocolIcon% to sender statusIcon path
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
-
-		// search for background colors and change them, so CSS would stay clean
-		QString bgColor = "inherit";
-		static QRegExp textBackgroundRegExp("%textbackgroundcolor\\{([^}]*)\\}%");
-		int textPos=0;
-		while((textPos=textBackgroundRegExp.indexIn(html, textPos)) != -1)
-		{
-			html = html.replace(textPos, textBackgroundRegExp.cap(0).length(), bgColor);
-		}
-
-		// Replace %messageDirection% with "rtl"(Right-To-Left) or "ltr"(Left-to-right)
 		html = html.replace("%messageDirection%", _aligment ? "ltr" : "rtl" );
-
+		processMessage(html, session, mes);
 		return html;
 	}
 
@@ -283,14 +269,6 @@ namespace AdiumChat
 		// Replace %protocolIcon% to sender statusIcon path
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
-		// search for background colors and change them, so CSS would stay clean
-		QString bgColor = "inherit";
-		static QRegExp textBackgroundRegExp("%textbackgroundcolor\\{([^}]*)\\}%");
-		int textPos=0;
-		while((textPos=textBackgroundRegExp.indexIn(html, textPos)) != -1)
-		{
-			html = html.replace(textPos, textBackgroundRegExp.cap(0).length(), bgColor);
-		}
 
 		// Replace %messageDirection% with "rtl"(Right-To-Left) or "ltr"(Left-to-right)
 		html = html.replace("%messageDirection%", _aligment ? "ltr" : "rtl" );
@@ -325,6 +303,18 @@ namespace AdiumChat
 		source.replace("%userIconPath%", avatarPath);
 	}
 
+	void ChatStyleOutput::makeBackground(QString &html)
+	{
+		// search for background colors and change them, so CSS would stay clean
+		QString bgColor = "inherit";
+		static QRegExp textBackgroundRegExp("%textbackgroundcolor\\{([^}]*)\\}%");
+		int textPos=0;
+		while((textPos=textBackgroundRegExp.indexIn(html, textPos)) != -1)
+		{
+			html = html.replace(textPos, textBackgroundRegExp.cap(0).length(), bgColor);
+		}
+	}
+
 	void ChatStyleOutput::makeTime(QString &input, const QDateTime& datetime, const QString &regexp)
 	{
 		QString time = datetime.toString(m_current_datetime_format);
@@ -357,32 +347,6 @@ namespace AdiumChat
 			html.append("<br /><a href=\"%1\">%2</a>").arg(it->toEncoded(),it->toString());
 		}
 	}
-
-	QString ChatStyleOutput::findEmail ( const QString& _sourceHTML )
-	{
-		QString html = _sourceHTML;
-		static QRegExp emailRegExp("((?:\\w+\\.)*\\w+@(?:\\w+\\.)*\\w+)");
-		emailRegExp.indexIn(html);
-		for(int i=0;i<emailRegExp.numCaptures();i++)
-		{
-			QString email = emailRegExp.cap(i);
-			email = "<a href=\"mailto:" + email + "\">" + email + "</a>";
-			html.replace(emailRegExp.cap(i), email);
-		}
-		return html;
-	}
-
-	void ChatStyleOutput::makeWebAddress (QString& html )
-	{
-		static QRegExp linkRegExp("(([a-z]+://|www\\d?\\.)[^\\s]+)");
-		int pos = 0;
-		while((pos=linkRegExp.indexIn(html, pos)) != -1)
-		{
-			QString link = linkRegExp.cap(0);
-			link = "<a href='" + link + "' target='_blank'>" + link + "</a>";
-			html.replace(linkRegExp.cap(0), link);
-			pos += link.count();
-		}
-	}
 }
+
 
