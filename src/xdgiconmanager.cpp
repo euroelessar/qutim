@@ -53,24 +53,25 @@ void XdgIconManagerPrivate::init(const QList<QDir> &appDirs)
 {
     // Identify base directories
     QVector<QDir> basedirs;
-    QDir basedir(QDir::home().absoluteFilePath(QLatin1String(".icons")));
+    QDir basedir(QDir::home());
 
-    if(basedir.exists())
+    if(basedir.cd(QLatin1String(".icons")) && !basedirs.contains(basedir))
         basedirs.append(basedir);
 
     QList<QDir> datadirs = XdgEnvironment::dataDirs();
     datadirs << appDirs;
 
-    QString iconsStr = QLatin1String("icons");
+    QString iconsStr(QLatin1String("icons"));
 
     foreach (QDir dir, datadirs) {
-        if (dir.cd(iconsStr))
+        dir.makeAbsolute();
+        if (dir.cd(iconsStr) && !basedirs.contains(dir))
             basedirs.append(dir);
     }
 
     basedir = QLatin1String("/usr/share/pixmaps");
 
-    if (basedir.exists())
+    if (basedir.exists() && !basedirs.contains(basedir))
         basedirs.append(basedir);
 
     // Build theme list
@@ -131,12 +132,12 @@ void XdgIconManager::clearRules()
     d->rules.clear();
 }
 
-void XdgIconManager::installRule(const QRegExp& regexp, const XdgThemeChooser *chooser)
+void XdgIconManager::installRule(const QRegExp &regexp, const XdgThemeChooser *chooser)
 {
     d->rules.insert(regexp.pattern(), chooser);
 }
 
-const XdgIconTheme *XdgIconManager::defaultTheme(const QString& xdgSession) const
+const XdgIconTheme *XdgIconManager::defaultTheme(const QString &xdgSession) const
 {
     QByteArray env = qgetenv("DESKTOP_SESSION");
     QString session = QString::fromLocal8Bit(env, env.size());
@@ -156,12 +157,12 @@ const XdgIconTheme *XdgIconManager::defaultTheme(const QString& xdgSession) cons
     return themeById(chooser->getThemeId());
 }
 
-const XdgIconTheme *XdgIconManager::themeByName(const QString& themeName) const
+const XdgIconTheme *XdgIconManager::themeByName(const QString &themeName) const
 {
     return d->themes.value(themeName, 0);
 }
 
-const XdgIconTheme *XdgIconManager::themeById(const QString& themeName) const
+const XdgIconTheme *XdgIconManager::themeById(const QString &themeName) const
 {
     return d->themeIdMap.value(themeName, 0);
 }

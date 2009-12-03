@@ -52,10 +52,10 @@ public:
     QStringList parentNames() const;
 
     void addParent(const XdgIconTheme *parent);
-    QString getIconPath(const QString& name, uint size = 22) const;
+    QString getIconPath(const QString &name, uint size = 22) const;
 
 #ifdef QT_GUI_LIB
-    QPixmap getPixmap(const QString& name, int size) const
+    QPixmap getPixmap(const QString &name, int size) const
     {
         QImage image;
         QImageReader reader;

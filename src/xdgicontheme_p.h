@@ -38,6 +38,26 @@ struct XdgIconDir
     uint threshold;
 };
 
+struct XdgIconEntry
+{
+    inline XdgIconEntry() : dir(0) {}
+    XdgIconEntry(const XdgIconDir *d, const QString &name);
+    const XdgIconDir *dir;
+    QString path;
+};
+
+class XdgIconData
+{
+public:
+    QList<XdgIconEntry> entries;
+    const XdgIconThemePrivate *theme;
+    QString name;
+
+    const XdgIconEntry *findEntry(uint size) const;
+};
+
+typedef QHash<QString, const XdgIconData *> XdgIconDataHash;
+
 class XdgIconThemePrivate
 {
 public:
@@ -47,13 +67,16 @@ public:
     QStringList parentNames;
     QVector<XdgIconDir> subdirs;
     QVector<const XdgIconTheme *> parents;
-    mutable QMap<QString, QString> cache;
+    mutable XdgIconDataHash cache;
 
-    QString findIcon(const QString& name, uint size) const;
-    QString lookupIconRecursive(const QString& name, uint size) const;
-    QString lookupFallbackIcon(const QString& name) const;
-    bool dirMatchesSize(const XdgIconDir &dir, uint size) const;
-    unsigned dirSizeDistance(const XdgIconDir& dir, uint size) const;
+    const XdgIconData *findIcon(const QString &name) const;
+    QString findIcon(const QString &name, uint size) const;
+    XdgIconData *lookupIconRecursive(const QString &name) const;
+    QString lookupFallbackIcon(const QString &name) const;
+    static bool dirMatchesSize(const XdgIconDir &dir, uint size);
+    static uint dirSizeDistance(const XdgIconDir &dir, uint size);
 };
+
+XdgIconEntry::XdgIconEntry(const XdgIconDir *d, const QString &p) : dir(d), path(p) {}
 
 #endif // XDGICONTHEME_P_H

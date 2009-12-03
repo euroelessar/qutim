@@ -38,10 +38,10 @@ public:
     XdgIconManager &operator =(const XdgIconManager &other);
 
     void clearRules();
-    void installRule(const QRegExp& regexp, const XdgThemeChooser *chooser);
-    const XdgIconTheme *defaultTheme(const QString& xdgSession = QString()) const;
-    const XdgIconTheme *themeByName(const QString& themeName) const;
-    const XdgIconTheme *themeById(const QString& themeId) const;
+    void installRule(const QRegExp &regexp, const XdgThemeChooser *chooser);
+    const XdgIconTheme *defaultTheme(const QString &xdgSession = QString()) const;
+    const XdgIconTheme *themeByName(const QString &themeName) const;
+    const XdgIconTheme *themeById(const QString &themeId) const;
 
     QStringList themeNames() const;
     QStringList themeIds() const;

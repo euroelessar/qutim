@@ -20,7 +20,7 @@
 
 namespace
 {
-    inline QList<QDir> splitDirList(const QString& str)
+    inline QList<QDir> splitDirList(const QString &str)
     {
         QList<QDir> list;
 
