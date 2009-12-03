@@ -33,10 +33,10 @@ class XdgIconManager
 {
 public:
     XdgIconManager();
-	virtual ~XdgIconManager();
+    virtual ~XdgIconManager();
 
-	XdgIconManager(const XdgIconManager &other);
-	XdgIconManager &operator =(const XdgIconManager &other);
+    XdgIconManager(const XdgIconManager &other);
+    XdgIconManager &operator =(const XdgIconManager &other);
 
     void clearRules();
     void installRule(const QRegExp& regexp, const XdgThemeChooser *chooser);
@@ -44,10 +44,10 @@ public:
     const XdgIconTheme *themeByName(const QString& themeName) const;
     const XdgIconTheme *themeById(const QString& themeId) const;
 
-	QStringList themeNames() const;
-	QStringList themeIds() const;
+    QStringList themeNames() const;
+    QStringList themeIds() const;
 protected:
-	QSharedDataPointer<XdgIconManagerPrivate> d;
+    QSharedDataPointer<XdgIconManagerPrivate> d;
 };
 
 #endif // XDGICONMANAGER_H

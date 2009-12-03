@@ -24,17 +24,17 @@ namespace
     {
         QList<QDir> list;
 
-		foreach(QString str, str.split(QLatin1Char(':')))
-			list.append(QDir(str));
+        foreach(QString str, str.split(QLatin1Char(':')))
+            list.append(QDir(str));
 
         return list;
     }
 
-	inline QString getValue(const char *varName, const QString &defValue)
-	{
-		QByteArray env = qgetenv(varName);
-		return env.isEmpty() ? defValue : QString::fromLocal8Bit(env.constData(), env.size());
-	}
+    inline QString getValue(const char *varName, const QString &defValue)
+    {
+        QByteArray env = qgetenv(varName);
+        return env.isEmpty() ? defValue : QString::fromLocal8Bit(env.constData(), env.size());
+    }
 }
 
 XdgEnvironmentMap::XdgEnvironmentMap()
@@ -47,24 +47,24 @@ XdgEnvironmentMap::~XdgEnvironmentMap()
 
 QDir XdgEnvironmentMap::dataHome()
 {
-	return QDir(getValue("XDG_DATA_HOME",
-						 QDir::home().absoluteFilePath(QLatin1String(".share/locale"))));
+    return QDir(getValue("XDG_DATA_HOME",
+                         QDir::home().absoluteFilePath(QLatin1String(".share/locale"))));
 }
 
 QDir XdgEnvironmentMap::configHome()
 {
-	return QDir(getValue("XDG_CONFIG_HOME",
-						 QDir::home().absoluteFilePath(QLatin1String(".config"))));
+    return QDir(getValue("XDG_CONFIG_HOME",
+                         QDir::home().absoluteFilePath(QLatin1String(".config"))));
 }
 
 QList<QDir> XdgEnvironmentMap::dataDirs()
 {
-	return splitDirList(getValue("XDG_DATA_DIRS",
-								 QLatin1String("/usr/local/share:/usr/share")));
+    return splitDirList(getValue("XDG_DATA_DIRS",
+                                 QLatin1String("/usr/local/share:/usr/share")));
 }
 
 QList<QDir> XdgEnvironmentMap::configDirs()
 {
-	return splitDirList(getValue("XDG_CONFIG_DIRS",
-								 QDir::home().absoluteFilePath(QLatin1String(".share/locale"))));
+    return splitDirList(getValue("XDG_CONFIG_DIRS",
+                                 QDir::home().absoluteFilePath(QLatin1String(".share/locale"))));
 }

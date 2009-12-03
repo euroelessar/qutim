@@ -30,9 +30,9 @@ namespace
 
 XdgIconManager::XdgIconManager() : d(new XdgIconManagerPrivate)
 {
-	d->rules.insert(QLatin1String("gnome"), &gnomeChooser);
-	d->rules.insert(QLatin1String("kde"), &kdeChooser);
-	d->init();
+    d->rules.insert(QLatin1String("gnome"), &gnomeChooser);
+    d->rules.insert(QLatin1String("kde"), &kdeChooser);
+    d->init();
 }
 
 XdgIconManager::~XdgIconManager()
@@ -45,106 +45,107 @@ XdgIconManager::XdgIconManager(const XdgIconManager &other) : d(other.d)
 
 XdgIconManager &XdgIconManager::operator =(const XdgIconManager &other)
 {
-	d = other.d;
+    d = other.d;
 }
 
 void XdgIconManagerPrivate::init()
 {
     // Identify base directories
     QVector<QDir> basedirs;
-	QDir basedir(QDir::home().absoluteFilePath(QLatin1String(".icons")));
+    QDir basedir(QDir::home().absoluteFilePath(QLatin1String(".icons")));
 
-	if(basedir.exists())
-		basedirs.append(basedir);
+    if(basedir.exists())
+        basedirs.append(basedir);
 
-	QList<QDir> datadirs = XdgEnvironmentMap::dataDirs();
+    QList<QDir> datadirs = XdgEnvironmentMap::dataDirs();
 
-	foreach (QDir dir, datadirs) {
-		basedir = dir.absoluteFilePath(QLatin1String("icons"));
+    foreach (QDir dir, datadirs) {
+        basedir = dir.absoluteFilePath(QLatin1String("icons"));
 
-		if(basedir.exists())
-			basedirs.append(basedir);
+        if(basedir.exists())
+            basedirs.append(basedir);
     }
 
-	basedir = QLatin1String("/usr/share/pixmaps");
+    basedir = QLatin1String("/usr/share/pixmaps");
 
-	if (basedir.exists())
-		basedirs.append(basedir);
+    if (basedir.exists())
+        basedirs.append(basedir);
 
     // Build theme list
-	foreach (QDir dir, basedirs) {
+    foreach (QDir dir, basedirs) {
         QDirIterator subdirs(dir);
 
-		while (subdirs.hasNext()) {
+        while (subdirs.hasNext()) {
             QFileInfo subdir(subdirs.next());
 
-			if (!subdir.isDir())
-				continue;
+            if (!subdir.isDir())
+                continue;
 
-			QString index = QDir(subdir.canonicalFilePath()).absoluteFilePath(QLatin1String("index.theme"));
+            QString index = QDir(subdir.canonicalFilePath()).absoluteFilePath(QLatin1String("index.theme"));
 
-			if (QFileInfo(index).exists()) {
+            if (QFileInfo(index).exists()) {
                 QSettings settings(index, QSettings::IniFormat);
-				QString name = settings.value(QLatin1String("Icon Theme/Name")).toString();
+                QString name = settings.value(QLatin1String("Icon Theme/Name")).toString();
 
-				if (!name.isEmpty()) {
-					QMap<QString, XdgIconTheme *>::const_iterator it = themes.constFind(name);
-					XdgIconTheme *theme;
-					if (it == themes.constEnd()) {
-						theme = new XdgIconTheme(basedirs, subdir.fileName(), index);
-						themes.insert(name, theme);
-					} else
-						theme = it.value();
+                if (!name.isEmpty()) {
+                    QMap<QString, XdgIconTheme *>::const_iterator it = themes.constFind(name);
+                    XdgIconTheme *theme;
+                    if (it == themes.constEnd()) {
+                        theme = new XdgIconTheme(basedirs, subdir.fileName(), index);
+                        themes.insert(name, theme);
+                    } else
+                        theme = it.value();
 
-					themeIdMap.insert(subdir.fileName(), theme);
+                    themeIdMap.insert(subdir.fileName(), theme);
                 }
             }
         }
     }
 
-	const XdgIconTheme *hicolor = themeIdMap.value(QLatin1String("hicolor"));
+    const XdgIconTheme *hicolor = themeIdMap.value(QLatin1String("hicolor"));
 
     // Resolve dependencies
-	for(QMap<QString, XdgIconTheme*>::iterator it = themes.begin(); it != themes.end(); ++it) {
-		XdgIconTheme &theme = *it.value();
+    for(QMap<QString, XdgIconTheme*>::iterator it = themes.begin(); it != themes.end(); ++it) {
+        XdgIconTheme &theme = *it.value();
 
-		if (theme.id() == QLatin1String("hicolor"))
-			continue;
+        if (theme.id() == QLatin1String("hicolor"))
+            continue;
 
-		if (theme.parentNames().isEmpty()) {
+        if (theme.parentNames().isEmpty()) {
             theme.addParent(hicolor);
             continue;
         }
 
-		foreach (QString parent, theme.parentNames()) {
-			const XdgIconTheme *parentTheme = themeIdMap.value(parent);
-			if(parentTheme)
-				theme.addParent(parentTheme);
+        foreach (QString parent, theme.parentNames()) {
+            const XdgIconTheme *parentTheme = themeIdMap.value(parent);
+            if(parentTheme)
+                theme.addParent(parentTheme);
         }
     }
 }
 
 void XdgIconManager::clearRules()
 {
-	d->rules.clear();
+    d->rules.clear();
 }
 
 void XdgIconManager::installRule(const QRegExp& regexp, const XdgThemeChooser *chooser)
 {
-	d->rules.insert(regexp.pattern(), chooser);
+    d->rules.insert(regexp.pattern(), chooser);
 }
 
 const XdgIconTheme *XdgIconManager::defaultTheme(const QString& xdgSession) const
 {
-	QByteArray env = qgetenv("DESKTOP_SESSION");
-	QString session = QString::fromLocal8Bit(env, env.size());
+    QByteArray env = qgetenv("DESKTOP_SESSION");
+    QString session = QString::fromLocal8Bit(env, env.size());
 
     const XdgThemeChooser *chooser = &kdeChooser;
 
-	QHash<QString, const XdgThemeChooser *>::const_iterator it;
-	for (it = d->rules.begin(); it != d->rules.end(); ++it) {
-		// FIXME: Is it really needed to use regular expressions here?
-		if(QRegExp(it.key()).indexIn(session) != -1) {
+    QHash<QString, const XdgThemeChooser *>::const_iterator it;
+
+    for (it = d->rules.begin(); it != d->rules.end(); ++it) {
+        // FIXME: Is it really needed to use regular expressions here?
+        if(QRegExp(it.key()).indexIn(session) != -1) {
             chooser = it.value();
             break;
         }
@@ -155,20 +156,20 @@ const XdgIconTheme *XdgIconManager::defaultTheme(const QString& xdgSession) cons
 
 const XdgIconTheme *XdgIconManager::themeByName(const QString& themeName) const
 {
-	return d->themes.value(themeName, 0);
+    return d->themes.value(themeName, 0);
 }
 
 const XdgIconTheme *XdgIconManager::themeById(const QString& themeName) const
 {
-	return d->themeIdMap.value(themeName);
+    return d->themeIdMap.value(themeName);
 }
 
 QStringList XdgIconManager::themeNames() const
 {
-	return QStringList(d->themes.keys());
+    return QStringList(d->themes.keys());
 }
 
 QStringList XdgIconManager::themeIds() const
 {
-	return QStringList(d->themeIdMap.keys());
+    return QStringList(d->themeIdMap.keys());
 }

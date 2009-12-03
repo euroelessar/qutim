@@ -26,15 +26,15 @@
 
 class XdgEnvironmentMap
 {
-	Q_DISABLE_COPY(XdgEnvironmentMap)
+    Q_DISABLE_COPY(XdgEnvironmentMap)
 public:
-	static QDir dataHome();
-	static QDir configHome();
-	static QList<QDir> dataDirs();
-	static QList<QDir> configDirs();
+    static QDir dataHome();
+    static QDir configHome();
+    static QList<QDir> dataDirs();
+    static QList<QDir> configDirs();
 private:
-	XdgEnvironmentMap();
-	~XdgEnvironmentMap();
+    XdgEnvironmentMap();
+    ~XdgEnvironmentMap();
 };
 
 #endif // XDGENVIRONMENTMAP_H
