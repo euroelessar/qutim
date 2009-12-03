@@ -48,7 +48,7 @@ XdgEnvironment::~XdgEnvironment()
 QDir XdgEnvironment::dataHome()
 {
     return QDir(getValue("XDG_DATA_HOME",
-                         QDir::home().absoluteFilePath(QLatin1String(".share/locale"))));
+                         QDir::home().absoluteFilePath(QLatin1String(".local/share"))));
 }
 
 QDir XdgEnvironment::configHome()
@@ -66,5 +66,5 @@ QList<QDir> XdgEnvironment::dataDirs()
 QList<QDir> XdgEnvironment::configDirs()
 {
     return splitDirList(getValue("XDG_CONFIG_DIRS",
-                                 QDir::home().absoluteFilePath(QLatin1String(".share/locale"))));
+                                 QDir::home().absoluteFilePath(QLatin1String("/etc/xdg"))));
 }
