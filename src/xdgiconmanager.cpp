@@ -20,6 +20,7 @@
 #include <QtCore/QDirIterator>
 #include <QtCore/QSettings>
 #include <QtCore/QVector>
+#include "xdgenvironment.h"
 #include "xdgiconmanager_p.h"
 
 namespace
@@ -57,7 +58,7 @@ void XdgIconManagerPrivate::init()
     if(basedir.exists())
         basedirs.append(basedir);
 
-    QList<QDir> datadirs = XdgEnvironmentMap::dataDirs();
+    QList<QDir> datadirs = XdgEnvironment::dataDirs();
 
     foreach (QDir dir, datadirs) {
         basedir = dir.absoluteFilePath(QLatin1String("icons"));

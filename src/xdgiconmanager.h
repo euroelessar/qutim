@@ -23,7 +23,6 @@
 #include <QtCore/QMap>
 #include <QtCore/QRegExp>
 #include <QtCore/QSharedData>
-#include "xdgenvironmentmap.h"
 #include "xdgicontheme.h"
 #include "xdgthemechooser.h"
 

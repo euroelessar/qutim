@@ -16,7 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "xdgenvironmentmap.h"
+#include "xdgenvironment.h"
 
 namespace
 {
@@ -37,33 +37,33 @@ namespace
     }
 }
 
-XdgEnvironmentMap::XdgEnvironmentMap()
+XdgEnvironment::XdgEnvironment()
 {
 }
 
-XdgEnvironmentMap::~XdgEnvironmentMap()
+XdgEnvironment::~XdgEnvironment()
 {
 }
 
-QDir XdgEnvironmentMap::dataHome()
+QDir XdgEnvironment::dataHome()
 {
     return QDir(getValue("XDG_DATA_HOME",
                          QDir::home().absoluteFilePath(QLatin1String(".share/locale"))));
 }
 
-QDir XdgEnvironmentMap::configHome()
+QDir XdgEnvironment::configHome()
 {
     return QDir(getValue("XDG_CONFIG_HOME",
                          QDir::home().absoluteFilePath(QLatin1String(".config"))));
 }
 
-QList<QDir> XdgEnvironmentMap::dataDirs()
+QList<QDir> XdgEnvironment::dataDirs()
 {
     return splitDirList(getValue("XDG_DATA_DIRS",
                                  QLatin1String("/usr/local/share:/usr/share")));
 }
 
-QList<QDir> XdgEnvironmentMap::configDirs()
+QList<QDir> XdgEnvironment::configDirs()
 {
     return splitDirList(getValue("XDG_CONFIG_DIRS",
                                  QDir::home().absoluteFilePath(QLatin1String(".share/locale"))));

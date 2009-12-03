@@ -16,25 +16,25 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef XDGENVIRONMENTMAP_H
-#define XDGENVIRONMENTMAP_H
+#ifndef XDGENVIRONMENT_H
+#define XDGENVIRONMENT_H
 
 #include <QtCore/QDir>
 #include <QtCore/QList>
 #include <QtCore/QMap>
 #include <QtCore/QProcess>
 
-class XdgEnvironmentMap
+class XdgEnvironment
 {
-    Q_DISABLE_COPY(XdgEnvironmentMap)
+    Q_DISABLE_COPY(XdgEnvironment)
 public:
     static QDir dataHome();
     static QDir configHome();
     static QList<QDir> dataDirs();
     static QList<QDir> configDirs();
 private:
-    XdgEnvironmentMap();
-    ~XdgEnvironmentMap();
+    XdgEnvironment();
+    ~XdgEnvironment();
 };
 
 #endif // XDGENVIRONMENTMAP_H

@@ -19,7 +19,7 @@
 #ifndef XDG_H
 #define XDG_H
 
-#include "xdgenvironmentmap.h"
+#include "xdgenvironment.h"
 #include "xdgicontheme.h"
 #include "xdgiconmanager.h"
 #include "xdgthemechooser.h"

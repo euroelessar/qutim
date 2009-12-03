@@ -22,7 +22,6 @@
 #include <QtCore/QSettings>
 #include <QtCore/QTextStream>
 #include "xdgthemechooser.h"
-#include "xdgenvironmentmap.h"
 
 XdgThemeChooser::~XdgThemeChooser()
 {

@@ -24,7 +24,6 @@
 #include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QVector>
-#include "xdgenvironmentmap.h"
 
 #ifdef QT_GUI_LIB
 #include <QtGui/QPixmap>
