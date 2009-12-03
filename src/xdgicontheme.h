@@ -26,6 +26,7 @@
 #include <QtCore/QVector>
 
 #ifdef QT_GUI_LIB
+#include <QtGui/QImageReader>
 #include <QtGui/QPixmap>
 #endif
 
@@ -56,12 +57,15 @@ public:
 #ifdef QT_GUI_LIB
     QPixmap getPixmap(const QString& name, int size) const
     {
-        QPixmap pm(getIconPath(name));
+        QImage image;
+        QImageReader reader;
+        reader.setFileName(getIconPath(name));
+        reader.setScaledSize(QSize(size, size));
 
-        if(pm.size() != QSize(size, size))
-            pm = pm.scaled(size, size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        if (reader.read(&image))
+           return QPixmap::fromImage(image);
 
-        return pm;
+        return QPixmap();
     }
 #endif
 protected:

@@ -33,7 +33,7 @@ XdgIconManager::XdgIconManager(const QList<QDir> &appDirs) : d(new XdgIconManage
 {
     d->rules.insert(QLatin1String("gnome"), &gnomeChooser);
     d->rules.insert(QLatin1String("kde"), &kdeChooser);
-    d->init();
+    d->init(appDirs);
 }
 
 XdgIconManager::~XdgIconManager()
@@ -58,31 +58,14 @@ void XdgIconManagerPrivate::init(const QList<QDir> &appDirs)
     if(basedir.exists())
         basedirs.append(basedir);
 
-    QList<QDir> datadirs = XdgEnvironmentMap::dataDirs();
+    QList<QDir> datadirs = XdgEnvironment::dataDirs();
     datadirs << appDirs;
-    {
-        datadirs << QCoreApplication::applicationDirPath();
-        basedir = QLatin1String("/usr/share/");
-        if (basedir.cd(QCoreApplication::applicationName()))
-            datadirs << basedir;
-        basedir = QLatin1String("/usr/share/kde4/apps");
-        if (basedir.cd(QCoreApplication::applicationName()))
-            datadirs << basedir;
-    }
 
     QString iconsStr = QLatin1String("icons");
 
     foreach (QDir dir, datadirs) {
         if (dir.cd(iconsStr))
             basedirs.append(dir);
-    }
-    QList<QDir> datadirs = XdgEnvironment::dataDirs();
-
-    foreach (QDir dir, datadirs) {
-        basedir = dir.absoluteFilePath(QLatin1String("icons"));
-
-        if(basedir.exists())
-            basedirs.append(basedir);
     }
 
     basedir = QLatin1String("/usr/share/pixmaps");

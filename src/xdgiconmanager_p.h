@@ -33,7 +33,7 @@ public:
     mutable QMap<QString, XdgIconTheme *> themes;
     mutable QMap<QString, XdgIconTheme *> themeIdMap;
 
-    void init();
+    void init(const QList<QDir> &appDirs);
 };
 
 XdgIconManagerPrivate::~XdgIconManagerPrivate()

@@ -144,7 +144,7 @@ bool XdgIconThemePrivate::dirMatchesSize(const XdgIconDir &dir, uint size) const
         return size == dir.size;
     case XdgIconDir::Scalable:
         return (size >= dir.minsize) && (size <= dir.maxsize);
-    default:
+    case XdgIconDir::Threshold:
         return (size >= dir.size - dir.threshold) && (size <= dir.size + dir.threshold);
     }
     Q_ASSERT(!"New directory type?..");
