@@ -38,15 +38,6 @@ namespace Core
 		settings.popupFlags = ThemeHelper::Preview;
 		m_popup_widget = new PopupWidget(settings);
 		layout()->addWidget(m_popup_widget);
-		// 	QList<KineticPopupThemeHelper::PopupAppearance> theme_list = KineticPopupThemeHelper::getThemes();
-		// 	QGridLayout *layout = new QGridLayout(this);
-		// 	foreach (KineticPopupThemeHelper::PopupAppearance theme, theme_list)
-		// 	{
-		// 		KineticPopupWidget *popup_widget = new KineticPopupWidget(theme);
-		// 		popup_widget->setData("Title", "Message", QLatin1String(":/icons/qutim_64"));
-		//  		layout->addWidget(popup_widget);
-		// 	}
-
 	}
 
 	PopupAppearance::~PopupAppearance()

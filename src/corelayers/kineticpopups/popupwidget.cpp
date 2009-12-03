@@ -36,21 +36,23 @@ namespace KineticPopups
 		else {
 			setWindowFlags(popup_settings.widgetFlags);
 			setAttribute(Qt::WA_DeleteOnClose);
-			//this->resize(NotificationsManager::self()->defaultSize);
-			//init aero integration for win
-			if (popupSettings.popupFlags & ThemeHelper::AeroThemeIntegration) {
-				if (QtWin::isCompositionEnabled()) {
-					QtWin::extendFrameIntoClientArea(this);
-					setContentsMargins(0, 0, 0, 0);
-				}
-			}
-			else {
+			if (popupSettings.popupFlags & ThemeHelper::Transparent) {
 				setAutoFillBackground(true);
 				setAttribute(Qt::WA_TranslucentBackground);
 				setAttribute(Qt::WA_NoSystemBackground, false);
 				ensurePolished(); // workaround Oxygen filling the background
 				setAttribute(Qt::WA_StyledBackground, false);
 			}
+
+			if (popupSettings.popupFlags & ThemeHelper::AeroThemeIntegration) {
+				//init aero integration for win
+				if (QtWin::isCompositionEnabled()) {
+					QtWin::extendFrameIntoClientArea(this);
+					setContentsMargins(0, 0, 0, 0);
+				}
+
+			}
+
 		}
 		setFrameShape ( QFrame::NoFrame );
 		setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
@@ -102,7 +104,6 @@ namespace KineticPopups
 	
 	PopupWidget::~PopupWidget()
 	{
-
 	}
 
 }
