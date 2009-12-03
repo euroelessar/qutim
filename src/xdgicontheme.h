@@ -55,17 +55,22 @@ public:
     QString getIconPath(const QString& name, uint size = 22) const;
 
 #ifdef QT_GUI_LIB
-    QPixmap getPixmap(const QString& name, int size) const
+    QPixmap getPixmap(const QString& name, QSize size) const
     {
         QImage image;
         QImageReader reader;
-        reader.setFileName(getIconPath(name));
-        reader.setScaledSize(QSize(size, size));
+        reader.setFileName(getIconPath(name, qMax(size.width(), size.height())));
+        reader.setScaledSize(size);
 
         if (reader.read(&image))
            return QPixmap::fromImage(image);
 
         return QPixmap();
+    }
+
+    QPixmap getPixmap(const QString& name, int size) const
+    {
+        return getPixmap(name, QSize(size, size));
     }
 #endif
 protected:
