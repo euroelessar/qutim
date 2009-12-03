@@ -67,7 +67,7 @@ namespace AdiumChat
 		_message - message by it self to be shown
 		_time - timestamp
 		*/
-		QString makeStatus(const QString &_message, const QDateTime &datetime);
+		QString makeStatus(const ChatSessionImpl *session, const Message &mes);
 
 		/*
 		for degubing purpose, must be deleted before release
@@ -79,18 +79,15 @@ namespace AdiumChat
 		void loadTheme(const QString &name, const QString &variant = QString());
 	private:
 		/*
-		makes html code from plaint text //TODO rewrite on javascript
-		*/
-		QString findEmail(const QString &_sourceHTML);
-		QString findWebAddress(const QString &_sourceHTML);
-		/*
 		creats a html skeleton. Future messages will be added to it
 		skeleton consist of styles, header and footer
 		it has a mark as well. before this mark new messages should be added
 		*/
 		QString makeSkeleton(const ChatSessionImpl *session, const QDateTime &datetime);
+		void makeUserIcons(const Message &mes, QString &source);
 		inline void makeTime (QString &input, const QDateTime& datetime,const QString &regexp = "%time\\{([^}]*)\\}%");
 		void makeUrls(QString& html, const Message& message);//create url list under message body
+		void makeBackground(QString &html);
 		void processMessage(QString &html, const ChatSession *session, const Message &message);
 		void loadSettings();
 		/*

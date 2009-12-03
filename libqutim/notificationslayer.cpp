@@ -96,7 +96,54 @@ namespace qutim_sdk_0_3
 			Type type = static_cast<Type>(message.property("service").toInt());
 			if (!type)
 				type = message.isIncoming() ? MessageGet : MessageSend;
-			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()), message.text());
+			QString text = message.property("html").toString();
+			if(text.isEmpty())
+				text = message.text();
+			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()),text,message.property("title").toString());
+		}
+
+		QString toString(Notifications::Type type)
+		{
+			QString title;
+			switch ( type )
+			{
+			case Notifications::System:
+				title = QObject::tr("System message from %1:");
+				break;
+			case Notifications::StatusChange:
+				title = QObject::tr("%1 changed status");
+				break;
+			case Notifications::MessageGet:
+				title = QObject::tr("Message from %1:");
+				break;
+			case Notifications::MessageSend:
+				title = QObject::tr("Message to %1:");
+				break;
+			case Notifications::Typing:
+				title = QObject::tr("%1 is typing");
+				break;
+			case Notifications::BlockedMessage:
+				title = QObject::tr("Blocked message from %1");
+				break;
+			case Notifications::Birthday:
+				title = QObject::tr("%1 has birthday today!!");
+				break;
+			case Notifications::Online:
+				title = QObject::tr("%1 is online");
+				break;
+			case Notifications::Offline:
+				title = QObject::tr("%1 is offline");
+				break;
+			case Notifications::Startup:
+				title = QObject::tr("qutIM launched");
+				break;
+			case Notifications::Count:
+				title = QObject::tr("Count");
+				break;
+			default:
+				return title;
+			}
+			return title;
 		}
 
 	}
@@ -135,7 +182,7 @@ namespace qutim_sdk_0_3
 
 	QString SoundTheme::path(Notifications::Type type)
 	{
-
+		return QString();
 	}
 
 	void SoundTheme::play(Notifications::Type type)
@@ -171,65 +218,8 @@ namespace qutim_sdk_0_3
 
 	QString SoundTheme::title()
 	{
-
+		return QString();
 	}
-
-	QString PopupBackend::getTitle(Notifications::Type type, QString& id, const QString& sender) const
-	{
-		QString title;
-		QString append_id;
-		switch ( type )
-		{
-		case Notifications::System:
-			title = tr("System message from %1:").arg(sender.isEmpty() ? "qutIM" : sender);
-			append_id = "SystemMessage";
-			break;
-		case Notifications::StatusChange:
-			title = tr("%1 changed status").arg(sender);
-			append_id = "StatusChange";
-			break;
-		case Notifications::MessageGet:
-			title = tr("Message from %1:").arg(sender);
-			append_id = "MessageGet";
-			break;
-		case Notifications::MessageSend:
-			title = tr("Message to %1:").arg(sender);
-			append_id = "MessageSend";
-			break;
-		case Notifications::Typing:
-			title = tr("%1 is typing").arg(sender);
-			append_id = "Typing";
-			break;
-		case Notifications::BlockedMessage:
-			title = tr("Blocked message from %1").arg(sender);
-			append_id = "BlockedMessage";
-			break;
-		case Notifications::Birthday:
-			title = tr("%1 has birthday today!!").arg(sender);
-			append_id = "Birthday";
-			break;
-		case Notifications::Online:
-			title = tr("%1 is online").arg(sender);
-			append_id = "Online";
-			break;
-		case Notifications::Offline:
-			title = tr("%1 is offline").arg(sender);
-			append_id = "Offline";
-			break;
-		case Notifications::Startup:
-			title = tr("qutIM launched");
-			append_id = "Startup";
-			break;
-		case Notifications::Count:
-			title = tr("Count");
-			append_id = "Count";
-			break;
-		default:
-			return title;
-		}
-		id.append("."+append_id);
-		return title;
-	}
-
 
 }
+

@@ -26,31 +26,33 @@
 
 namespace KineticPopups
 {
-	PopupWidget::PopupWidget (const ThemeHelper::PopupSettings &popupSettings,PopupWidgetFlags flags)
+	PopupWidget::PopupWidget (const ThemeHelper::PopupSettings &popupSettings)
 	{
 		//init browser
 		setTheme(popupSettings);
-		if (flags & Preview) {
+		if (popupSettings.popupFlags & ThemeHelper::Preview) {
 			setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 		}
 		else {
 			setWindowFlags(popup_settings.widgetFlags);
 			setAttribute(Qt::WA_DeleteOnClose);
-			//this->resize(NotificationsManager::self()->defaultSize);
-			//init aero integration for win
-			if (flags & AeroThemeIntegration) {
-				if (QtWin::isCompositionEnabled()) {
-					QtWin::extendFrameIntoClientArea(this);
-					setContentsMargins(0, 0, 0, 0);
-				}
-			}
-			else {
+			if (popupSettings.popupFlags & ThemeHelper::Transparent) {
 				setAutoFillBackground(true);
 				setAttribute(Qt::WA_TranslucentBackground);
 				setAttribute(Qt::WA_NoSystemBackground, false);
 				ensurePolished(); // workaround Oxygen filling the background
 				setAttribute(Qt::WA_StyledBackground, false);
 			}
+
+			if (popupSettings.popupFlags & ThemeHelper::AeroThemeIntegration) {
+				//init aero integration for win
+				if (QtWin::isCompositionEnabled()) {
+					QtWin::extendFrameIntoClientArea(this);
+					setContentsMargins(0, 0, 0, 0);
+				}
+
+			}
+
 		}
 		setFrameShape ( QFrame::NoFrame );
 		setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
@@ -63,8 +65,13 @@ namespace KineticPopups
 	QSize PopupWidget::setData ( const QString& title, const QString& body, const QString& imagePath )
 	{
 		QString data = popup_settings.content;
+		QString text = Emoticons::theme().parseEmoticons(body);
+		if (text.length() > Manager::self()->maxTextLength) {
+			text.truncate(Manager::self()->maxTextLength);
+			text.append("...");
+		}
 		data.replace ( "{title}", title );
-		data.replace ( "{body}", Emoticons::theme().parseEmoticons(body) );
+		data.replace ( "{body}", text);
 		data.replace ( "{imagepath}",Qt::escape ( imagePath ) );
 		document()->setTextWidth(popup_settings.defaultSize.width());
 		document()->setHtml(data);
@@ -97,7 +104,6 @@ namespace KineticPopups
 	
 	PopupWidget::~PopupWidget()
 	{
-
 	}
 
 }

@@ -47,6 +47,7 @@ namespace qutim_sdk_0_3
 											  const QString &body = QString(),
 											  const QString &custom_title = QString());
 		LIBQUTIM_EXPORT void sendNotification(const Message &message);
+		LIBQUTIM_EXPORT QString toString(Notifications::Type type);
 	}
 
 	class LIBQUTIM_EXPORT PopupBackend : public QObject
@@ -59,7 +60,6 @@ namespace qutim_sdk_0_3
 						  const QString &customTitle) = 0;
 	protected:
 		virtual void virtual_hook(int type, void *data);
-		QString getTitle(Notifications::Type type, QString& id, const QString& sender = QString()) const;//also modify notify id		
 	};
 
 	class LIBQUTIM_EXPORT SoundBackend

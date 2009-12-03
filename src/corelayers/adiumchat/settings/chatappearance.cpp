@@ -14,8 +14,8 @@
 *****************************************************************************/
 #include "chatappearance.h"
 #include "ui_chatappearance.h"
-#include "chatstyle.h"
-#include "chatstyleoutput.h"
+#include "../chatstyle.h"
+#include "../chatstyleoutput.h"
 #include <QDebug>
 #include <libqutim/configbase.h>
 #include <QWebFrame>
@@ -25,7 +25,7 @@
 #include <QDateTime>
 #include <libqutim/libqutim_global.h>
 
-namespace AdiumChat
+namespace Core
 {
 	class FakeChatUnit : public ChatUnit
 	{

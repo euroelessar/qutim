@@ -27,12 +27,13 @@ class QDir;
 namespace KineticPopups
 {
 	class Popup;
-	enum AnimationFlags
+	enum AnimationFlag
 	{
 		NoAnimation = 0x0,
 		Slide = 0x1,
 		Opacity = 0x2
 	};
+	Q_DECLARE_FLAGS (AnimationFlags, AnimationFlag)
 	class Manager
 	{
 		Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
@@ -40,6 +41,7 @@ namespace KineticPopups
 		Manager();
 		Popup *getById (const QString &id) const;
 		Popup *getByNumber (const int &number) const;
+		int count();
 		QRect insert (Popup *notification);
 		void loadTheme (const QString &themeName);
 		void remove (const QString &id);
@@ -54,6 +56,9 @@ namespace KineticPopups
 		NotificationTypes showFlags;
 		uint timeout;
 		bool appendMode;
+		bool updateMode;
+		int maxCount;
+		int maxTextLength;
 		ThemeHelper::PopupSettings popupSettings;
 	private:
 		QList<Popup *> active_notifications;

@@ -30,12 +30,12 @@ namespace KineticPopups
 {
 
 	Popup::Popup ( const QString& id, uint timeOut )
-			:	id ( id ), timeout ( timeOut )
+			:	m_id ( id ), timeout ( timeOut ), m_machine(0), m_notification_widget(0)
 	{
 
 	}
 
-	Popup::Popup(QObject* parent): QObject(parent)
+	Popup::Popup(QObject* parent): QObject(parent), m_machine(0), m_notification_widget(0)
 	{
 
 	}
@@ -52,7 +52,7 @@ namespace KineticPopups
 
 	void Popup::setId(const QString& id)
 	{
-		this->id = id;
+		this->m_id = id;
 	}
 
 	void Popup::setTimeOut(uint timeOut)
@@ -62,140 +62,143 @@ namespace KineticPopups
 
 	Popup::~Popup()
 	{
-		Manager::self()->remove (id);
+		Manager::self()->remove (m_id);
 		Manager::self()->updateGeometry();
-		notification_widget->deleteLater();
-		machine->deleteLater();
+		m_notification_widget->deleteLater();
 	}
 
 	void Popup::setMessage ( const QString& title, const QString& body, const QString &imagePath )
 	{
-		this->title = title;
-		this->body = body;
-		this->image_path = imagePath;
+		m_title = title;
+		m_body = body;
+		m_image_path = imagePath;
 	}
 
 	void Popup::appendMessage ( const QString& message )
 	{
-		body += "<br />" + message;
+		m_body += "<br />" + message;
 		updateMessage();
 	}
 	
 	void Popup::updateMessage(const QString& message)
 	{
-		int message_count = notification_widget->property("messageCount").toInt() + 1;
-		body = message + tr("<p> + %1 more notifications </p>").arg(message_count);
-		notification_widget->setProperty("messageCount",message_count);
+		int message_count = m_notification_widget->property("messageCount").toInt() + 1;
+		m_body = message + tr("<p> + %1 more notifications </p>").arg(message_count);
+		m_notification_widget->setProperty("messageCount",message_count);
 		updateMessage();
 	}
 	
 	void Popup::updateMessage()
 	{
-		QSize newSize = notification_widget->setData(title,body,image_path);
-		show_geometry.setSize(newSize);
-		updateGeometry(show_geometry);
+		QSize newSize = m_notification_widget->setData(m_title,m_body,m_image_path);
+		m_show_geometry.setSize(newSize);
+		updateGeometry(m_show_geometry);
 		Manager::self()->updateGeometry();
-		show_state->assignProperty(notification_widget,"geometry",show_geometry);
+		m_show_state->assignProperty(m_notification_widget,"geometry",m_show_geometry);
 		if (timeout > 0) {
-			killTimer(timer_id);
-			timer_id = startTimer(timeout);
+			killTimer(m_timer_id);
+			m_timer_id = startTimer(timeout);
 		}
 	}
 
 	QString Popup::getId() const
 	{
-		return id;
+		return m_id;
 	}
 
 	void Popup::send()
 	{
 		Manager *manager = Manager::self();
-		machine = new QStateMachine(this);
+		if (m_machine || m_notification_widget) {
+			qWarning("Notification already sended");
+			return;
+		}
+		m_machine = new QStateMachine(this);
 
-		notification_widget = new PopupWidget (manager->popupSettings);
-		notification_widget->setData(title,body,image_path);
-		QSize notify_size = notification_widget->setData ( title,body,image_path );
-		connect (notification_widget,SIGNAL(action1Activated()),SLOT(action1Activated()));
-		connect (notification_widget,SIGNAL(action2Activated()),SLOT(action2Activated()));
+		m_notification_widget = new PopupWidget (manager->popupSettings);
+		m_notification_widget->setData(m_title,m_body,m_image_path);
+		QSize notify_size = m_notification_widget->setData ( m_title,m_body,m_image_path );
+		connect (m_notification_widget,SIGNAL(action1Activated()),SLOT(action1Activated()));
+		connect (m_notification_widget,SIGNAL(action2Activated()),SLOT(action2Activated()));
 
-		show_geometry.setSize(notify_size);
+		m_show_geometry.setSize(notify_size);
 		QRect geom = manager->insert(this);
 		if ( geom.isEmpty() )
 			deleteLater();
 
-		show_state = new QState();
-		hide_state = new QState();
+		m_show_state = new QState();
+		m_hide_state = new QState();
 		QFinalState *final_state = new QFinalState();
 
 		int x = manager->popupSettings.margin + geom.width();
 		int y = manager->popupSettings.margin + geom.height();
 		geom.moveTop(geom.y() - y);
 
-		show_state->assignProperty(notification_widget,"geometry",geom);
-		show_geometry = geom;
+		m_show_state->assignProperty(m_notification_widget,"geometry",geom);
+		m_show_geometry = geom;
 		if (manager->animation & Slide)
 			geom.moveLeft(geom.left() + x);
-		hide_state->assignProperty(notification_widget,"geometry",geom);
-		notification_widget->setGeometry(geom);
+		m_hide_state->assignProperty(m_notification_widget,"geometry",geom);
+		m_notification_widget->setGeometry(geom);
 
-		show_state->addTransition(notification_widget,SIGNAL(action1Activated()),hide_state);
-		show_state->addTransition(notification_widget,SIGNAL(action2Activated()),hide_state);
-		show_state->addTransition(this,SIGNAL(updated()),show_state); //Black magic
+		m_show_state->addTransition(m_notification_widget,SIGNAL(action1Activated()),m_hide_state);
+		m_show_state->addTransition(m_notification_widget,SIGNAL(action2Activated()),m_hide_state);
+		m_show_state->addTransition(this,SIGNAL(updated()),m_show_state); //Black magic
 
 		if (timeout > 0) {
-			timer_id = startTimer(timeout);
-			connect(this,SIGNAL(timeoutReached()),notification_widget,SIGNAL(action2Activated()));
+			m_timer_id = startTimer(timeout);
+			connect(this,SIGNAL(timeoutReached()),m_notification_widget,SIGNAL(action2Activated()));
 		}
 
-		machine->addState(show_state);
-		machine->addState(hide_state);
-		machine->addState(final_state);
-		machine->setInitialState (show_state);
+		m_machine->addState(m_show_state);
+		m_machine->addState(m_hide_state);
+		m_machine->addState(final_state);
+		m_machine->setInitialState (m_show_state);
 
 		if (manager->animation) {
-			QPropertyAnimation *moving = new QPropertyAnimation ( notification_widget,"geometry" );
-			machine->addDefaultAnimation (moving);
+			QPropertyAnimation *moving = new QPropertyAnimation ( m_notification_widget,"geometry" );
+			m_machine->addDefaultAnimation (moving);
 			moving->setDuration ( manager->animationDuration);
 			moving->setEasingCurve (manager->easingCurve);
-			connect(moving,SIGNAL(finished()),hide_state,SIGNAL(exited()));//HACK
+			connect(moving,SIGNAL(finished()),m_hide_state,SIGNAL(exited()));//HACK
 			
 			if (manager->animation & Opacity) {
-				QPropertyAnimation *opacity = new QPropertyAnimation(notification_widget,"windowOpacity");
-				machine->addDefaultAnimation(opacity);
+				QPropertyAnimation *opacity = new QPropertyAnimation(m_notification_widget,"windowOpacity");
+				m_machine->addDefaultAnimation(opacity);
 				opacity->setDuration (manager->animationDuration);
 				opacity->setEasingCurve (manager->easingCurve);
-				notification_widget->setProperty("windowOpacity",0);
-				show_state->assignProperty(notification_widget,"windowOpacity",1);
-				hide_state->assignProperty(notification_widget,"windowOpacity",0);
+				m_notification_widget->setProperty("windowOpacity",0);
+				m_show_state->assignProperty(m_notification_widget,"windowOpacity",1);
+				m_hide_state->assignProperty(m_notification_widget,"windowOpacity",0);
 			}
-			hide_state->addTransition(hide_state,SIGNAL(exited()),final_state);
+			m_hide_state->addTransition(m_hide_state,SIGNAL(exited()),final_state);
 		}
 		else {
-			hide_state->addTransition(hide_state,SIGNAL(entered()),final_state);
+			m_hide_state->addTransition(m_hide_state,SIGNAL(entered()),final_state);
 		}
 
-		connect(machine,SIGNAL(finished()),SLOT(deleteLater()));
-		machine->start();
-		notification_widget->show();
+		connect(m_machine,SIGNAL(finished()),SLOT(deleteLater()));
+		m_machine->start();
+		m_notification_widget->show();
 	}
 
 	void Popup::update(QRect geom)
 	{
-		show_state->assignProperty(notification_widget,"geometry",geom);
+		m_show_state->assignProperty(m_notification_widget,"geometry",geom);
 		updateGeometry(geom);
 		if (Manager::self()->animation & Slide)
-			geom.moveRight(geom.right() + notification_widget->width() + Manager::self()->popupSettings.margin);
-		hide_state->assignProperty(notification_widget,"geometry",geom);
+			geom.moveRight(geom.right() + m_notification_widget->width() + Manager::self()->popupSettings.margin);
+		m_hide_state->assignProperty(m_notification_widget,"geometry",geom);
 	}
 
 	QRect Popup::geometry() const
 	{
-		return show_geometry;
+		return m_show_geometry;
 	}
 
 	void Popup::updateGeometry(const QRect &newGeometry)
 	{
-		show_geometry = newGeometry;
+		m_show_geometry = newGeometry;
 		emit updated();
 	}
 
@@ -209,9 +212,13 @@ namespace KineticPopups
 	{
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
 		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(unit)))
-		{
+		if (unit && (sess = ChatLayer::get(unit))) {
 			sess->setActive(true);
+		}
+		else {
+			QWidget *widget = qobject_cast<QWidget *>(m_sender);
+			if (widget)
+				widget->raise();
 		}
 	}
 
@@ -219,8 +226,7 @@ namespace KineticPopups
 	{
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
 		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(unit,false)))
-		{
+		if (unit && (sess = ChatLayer::get(unit,false))) {
 			//TODO
 			if (!sess->isActive())
 				sess->deleteLater();

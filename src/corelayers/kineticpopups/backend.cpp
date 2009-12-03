@@ -20,11 +20,12 @@
 #include <QVariant>
 #include <QTime>
 #include <QDebug>
-#include "libqutim/settingslayer.h"
 #include "popupwidget.h"
-#include "popupappearance.h"
-#include "libqutim/icon.h"
-#include "popupbehavior.h"
+#include <libqutim/configbase.h>
+#include "settings/popupappearance.h"
+#include "settings/popupbehavior.h"
+#include <libqutim/settingslayer.h>
+#include <libqutim/icon.h>
 
 namespace KineticPopups
 {
@@ -37,16 +38,13 @@ namespace KineticPopups
 
 	Backend::Backend ()
 	{
-		GeneralSettingsItem<PopupAppearance> *appearance = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
-		GeneralSettingsItem<PopupBehavior> *behavior = new GeneralSettingsItem<PopupBehavior>(Settings::General,Icon("dialog-information"),QT_TRANSLATE_NOOP("Settings","Notifications"));
-		Settings::registerItem(appearance);
-		Settings::registerItem(behavior);
 	}
 
-	void Backend::show(Notifications::Type type, QObject* sender, const QString& body, const QString& customTitle)
+	void Backend::show(Notifications::Type type, QObject* sender, const QString& body,
+					   const QString& customTitle)
 	{
 		Manager *manager =  Manager::self();
- 		if (!(manager->showFlags & type))
+ 		if (!(manager->showFlags & type) || (manager->count() >= manager->maxCount))
  		{
 			return;
 		}
@@ -55,16 +53,19 @@ namespace KineticPopups
 		QString sender_name = sender ? sender->property("name").toString() : QString();
 		if(sender_name.isEmpty())
 			sender_name = sender_id;
-		QString popup_id = sender_id.isEmpty() ? QString::number(id_counter++) : sender_id;
-		QString title = getTitle(type, popup_id, sender_name);
+		QString title = customTitle.isEmpty() ? Notifications::toString(type).arg(sender_name) : customTitle;
+		QString popup_id = title;
 		QString image_path = sender ? sender->property("avatar").toString() : QString();
-		bool updateMode = sender ? sender->property("updateMode").toBool() : false;
+
+		bool updateMode = manager->updateMode;
+		bool appendMode = manager->appendMode;
+
 		if(image_path.isEmpty())
 			image_path = QLatin1String(":/icons/qutim_64");
 		Popup *popup = manager->getById(popup_id);
 		if (popup)
 		{
-			if (manager->appendMode) {
+			if (appendMode) {
 				updateMode ? popup->updateMessage(body) : popup->appendMessage(body);
 				return;
 			}
@@ -73,11 +74,11 @@ namespace KineticPopups
 				popup_id.append("." + QString::number(id_counter++));
 			}
 		}
-		popup  = new Popup ();
-		popup->setId(popup_id);
+		popup  = new Popup ();		
 		popup->setTimeOut(manager->timeout);
-		popup->setMessage(customTitle.isEmpty() ? title : customTitle,body,image_path);
+		popup->setMessage(title,body,image_path);
 		popup->setSender(sender);
+		popup->setId(popup_id);
 		if (sender)
 			connect(sender,SIGNAL(destroyed(QObject*)),popup,SLOT(deleteLater()));
 		popup->send();

@@ -23,17 +23,11 @@
 class QTextBrowser;
 namespace KineticPopups
 {
-	enum PopupWidgetFlags
-	{
-		Default = 0x0,
-		Preview = 0x1,
-		AeroThemeIntegration	=	0x2,
-	};
 	class PopupWidget : public QTextBrowser
 	{
 		Q_OBJECT
 	public:
-		PopupWidget(const ThemeHelper::PopupSettings &popupSettings, PopupWidgetFlags flags = Default);
+		PopupWidget(const ThemeHelper::PopupSettings &popupSettings);
 		QSize setData(const QString& title,
 					const QString& body,
 					const QString &imagePath); //size of textbrowser
