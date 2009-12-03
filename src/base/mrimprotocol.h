@@ -39,7 +39,7 @@ public:
 public:
     static MrimProtocol* instance();
     MrimProtocol();
-    ~MrimProtocol();
+    virtual ~MrimProtocol();
     QList<Account *> accounts() const;
     Account *account(const QString &id) const;
     AccountCreationWizard *accountCreationWizard();

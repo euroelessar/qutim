@@ -17,34 +17,49 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QTimer>
+#include <QMap>
+#include <QApplication>
 
+#include <qutim/notificationslayer.h>
+
+#include "proto.h"
 #include "utils.h"
 #include "mrimdebug.h"
 #include "mrimaccount.h"
 #include "mrimpacket.h"
+#include "useragent.h"
 
 #include "mrimconnection.h"
+
+typedef QMap<quint32,PacketHandler*> QHandlersMap;
 
 struct MrimConnectionPrivate
 {
     MrimConnectionPrivate(MrimAccount *acc)
-        : account(acc), imSocket(new QTcpSocket), srvReqSocket(new QTcpSocket), readyReadTimer(new QTimer)
+        : account(acc), imSocket(new QTcpSocket), srvReqSocket(new QTcpSocket), readyReadTimer(new QTimer),
+          pingTimer(new QTimer)
     {
         readyReadTimer->setSingleShot(true);
         readyReadTimer->setInterval(0);
+
     }
 
     inline QTcpSocket *IMSocket() const     { return imSocket.data(); }
     inline QTcpSocket *SrvReqSocket() const { return srvReqSocket.data(); }
     inline QTimer *ReadyReadTimer() const   { return readyReadTimer.data(); }
 
-    MrimAccount *account;
-    QScopedPointer<QTcpSocket> imSocket;
-    QScopedPointer<QTcpSocket> srvReqSocket;
     QString imHost;
     quint32 imPort;
+    MrimAccount *account;
+    MrimPacket   readPacket;
+    UserAgent    selfID;
+
+    QScopedPointer<QTcpSocket> imSocket;
+    QScopedPointer<QTcpSocket> srvReqSocket;
     QScopedPointer<QTimer> readyReadTimer;
-    MrimPacket m_readPacket;
+    QScopedPointer<QTimer> pingTimer;
+    QHandlersMap handlers;
+    QList<quint32> handledTypes;
 };
 
 MrimConnection::MrimConnection(MrimAccount *account) : p(new MrimConnectionPrivate(account))
@@ -56,6 +71,11 @@ MrimConnection::MrimConnection(MrimAccount *account) : p(new MrimConnectionPriva
     connect(p->IMSocket(),SIGNAL(disconnected()),this,SLOT(disconnected()));
     connect(p->IMSocket(),SIGNAL(readyRead()),this,SLOT(readyRead()));
     connect(p->ReadyReadTimer(),SIGNAL(timeout()),this,SLOT(readyRead()));
+    connect(p->pingTimer.data(),SIGNAL(timeout()),this,SLOT(sendPing()));
+    registerPacketHandler(this);
+    UserAgent qutimAgent(QApplication::applicationName(),QApplication::applicationVersion(),
+                         "(git)",PROTO_VERSION_MAJOR,PROTO_VERSION_MINOR); //TODO: real build version
+    p->selfID.set(qutimAgent);
 }
 
 MrimConnection::~MrimConnection()
@@ -63,6 +83,7 @@ MrimConnection::~MrimConnection()
     p->SrvReqSocket()->disconnect(this);
     p->IMSocket()->disconnect(this);
     p->ReadyReadTimer()->disconnect(this);
+    p->pingTimer->disconnect(this);
     close();
 }
 
@@ -107,12 +128,12 @@ void MrimConnection::connected()
 
     if (!connected)
     {
-        MDEBUG(Info,"Connection to Mail.ru server at "<<qPrintable(address)<<" has failed! :(");
+        MDEBUG(Info,"Connection to server"<<qPrintable(address)<<"failed! :(");
         return;
     }
     else
     {
-        MDEBUG(Info,"Connected to Mail.ru server at"<<qPrintable(address));
+        MDEBUG(Info,"Connected to server"<<qPrintable(address));
 
         if (socket == p->IMSocket()) //temp
         {
@@ -126,7 +147,7 @@ void MrimConnection::disconnected()
     QTcpSocket *socket = qobject_cast<QTcpSocket*>(sender());
     Q_ASSERT(socket);
 
-    MDEBUG(Info,"Disconnected from Mail.ru server at "<<qPrintable( Utils::toHostPortPair(socket->peerAddress(),socket->peerPort()) ) );
+    MDEBUG(Info,"Disconnected from server"<<qPrintable( Utils::toHostPortPair(socket->peerAddress(),socket->peerPort()) ) );
 
     if (socket == p->SrvReqSocket())
     {
@@ -136,7 +157,7 @@ void MrimConnection::disconnected()
         }
         else
         {
-            MCRIT("Oh god! This is epic fail! We didn't recieve any server, connection couldn't be established!");
+            MCRIT("Oh god! This is epic fail! We didn't recieve any server, so connection couldn't be established!");
         }
     }
 }
@@ -151,7 +172,51 @@ ConfigGroup MrimConnection::config(const QString &group)
     return p->account->config(group);
 }
 
-MrimConnection::TConnectionState MrimConnection::state() const
+QList<quint32> MrimConnection::handledTypes()
+{
+    if (p->handledTypes.isEmpty())
+    {
+        p->handledTypes << MRIM_CS_HELLO_ACK
+                        << MRIM_CS_LOGIN_ACK
+                        << MRIM_CS_LOGIN_REJ
+                        << MRIM_CS_LOGOUT;
+    }
+    return p->handledTypes;
+}
+
+bool MrimConnection::handlePacket(MrimPacket& packet)
+{
+    bool handled = true;
+
+    switch (packet.msgType())
+    {
+    case MRIM_CS_HELLO_ACK:
+        {
+            quint32 pingTimeout = 0;
+            packet.readTo(pingTimeout);
+
+            if (p->pingTimer->isActive())
+            {
+                p->pingTimer->stop();
+            }
+            p->pingTimer->setInterval(pingTimeout);
+            login();
+        }
+        break;
+    case MRIM_CS_LOGIN_ACK:
+        p->pingTimer->start();
+        break;
+    case MRIM_CS_LOGIN_REJ:
+        Notifications::sendNotification(Notifications::System,p->account,tr("Authentication failed!"));
+        break;
+    default:
+        handled = false;
+        break;
+    }
+    return handled;
+}
+
+MrimConnection::ConnectionState MrimConnection::state() const
 {
     QAbstractSocket::SocketState srvReqState =  p->SrvReqSocket()->state();
     QAbstractSocket::SocketState IMState =  p->IMSocket()->state();
@@ -182,16 +247,7 @@ MrimConnection::TConnectionState MrimConnection::state() const
 
 void MrimConnection::readyRead()
 {    
-    QTcpSocket *socket = qobject_cast<QTcpSocket*>(sender());
-
-    if (!socket)
-    {
-        if (qobject_cast<QTimer*>(sender()) != 0)
-        {
-            socket = (p->IMSocket()->bytesAvailable()) ? p->IMSocket() : p->SrvReqSocket();
-        }
-    }
-
+    QTcpSocket *socket = (p->IMSocket()->bytesAvailable()) ? p->IMSocket() : p->SrvReqSocket();
     Q_ASSERT(socket);
 
     if (socket->bytesAvailable() <= 0) //windows hack?
@@ -208,12 +264,12 @@ void MrimConnection::readyRead()
     }
     else
     {
-        if (p->m_readPacket.readFrom(*socket))
+        if (p->readPacket.readFrom(*socket))
         {
-            if (p->m_readPacket.isFinished())
+            if (p->readPacket.isFinished())
             {
                 processPacket();
-                p->m_readPacket.clear();
+                p->readPacket.clear();
             }
         }
         else
@@ -221,9 +277,9 @@ void MrimConnection::readyRead()
             close();
         }
 
-        if (p->m_readPacket.lastError() != MrimPacket::NoError)
+        if (p->readPacket.lastError() != MrimPacket::NoError)
         {
-            MDEBUG(Verbose,"An error occured while reading packet:" << p->m_readPacket.lastErrorString() );
+            MDEBUG(Verbose,"Error while reading packet:" << p->readPacket.lastErrorString() );
         }
     }
 
@@ -235,8 +291,36 @@ void MrimConnection::readyRead()
 
 bool MrimConnection::processPacket()
 {
-    Q_ASSERT(p->m_readPacket.isFinished());
-    //TODO: packets processing
+    Q_ASSERT(p->readPacket.isFinished());
+    MDEBUG(VeryVerbose,"Recieved packet:"<<hex<<p->readPacket.msgType());
+    bool handled = false;
+    QHandlersMap::iterator it = p->handlers.find(p->readPacket.msgType());
+
+    if (it != p->handlers.end())
+    {
+        handled = it.value()->handlePacket(p->readPacket);
+    }
+
+    if (!handled)
+    {
+        MDEBUG(VeryVerbose,"Packet was not handled!");
+    }
+}
+
+ void MrimConnection::registerPacketHandler(PacketHandler *handler)
+ {
+    Q_ASSERT(handler);
+    QList<quint32> msgTypes = handler->handledTypes();
+
+    foreach (quint32 type, msgTypes)
+    {
+        p->handlers[type] = handler;
+    }
+ }
+
+quint32 MrimConnection::protoFeatures() const
+{
+    return MY_MRIM_PROTO_FEATURES;
 }
 
 void MrimConnection::sendGreetings()
@@ -245,4 +329,47 @@ void MrimConnection::sendGreetings()
     hello.setMsgType(MRIM_CS_HELLO);
     hello.setBody("");
     hello.writeTo(p->IMSocket());
+}
+
+void MrimConnection::login()
+{
+    MrimPacket login(MrimPacket::Compose);
+    login.setMsgType(MRIM_CS_LOGIN2);
+    login << p->account->id();
+    login << config("general").value("passwd",QString(),Config::Crypted);
+    login << STATUS_ONLINE; //TODO: TEMP!!!
+    login << "STATUS_ONLINE"; //TODO: TEMP!!!
+    login.append("Online",true); //TODO: TEMP!!!
+    login.append("",true); //TODO: TEMP!!!
+    login << protoFeatures();
+    login << p->selfID.toString();
+    login << "ru"; //TODO: TEMP !!
+#if PROTO_VERSION_MINOR >= 20
+    //hack for 1.20
+    login << 0; //NULL
+    login << 0; //NULL
+#endif
+    login << QString("%1 %2;").arg(QApplication::applicationName()).arg(QApplication::applicationVersion());
+    login.writeTo(p->IMSocket());
+}
+
+void MrimConnection::sendPing()
+{
+    if (state() != ConnectedToIMServer)
+    {
+        p->pingTimer->stop();
+        return;
+    }
+
+    MrimPacket ping(MrimPacket::Compose);
+    ping.setMsgType(MRIM_CS_PING);
+    ping.setBody("");
+    ping.writeTo(p->IMSocket());
+}
+
+bool MrimConnection::setStatus(Status status)
+{
+    //TODO:
+
+
 }

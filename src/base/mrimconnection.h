@@ -21,17 +21,20 @@
 
 #include <qutim/configbase.h>
 
+#include "mrimpacket.h"
+
 using namespace qutim_sdk_0_3;
 
 class MrimAccount;
 struct MrimConnectionPrivate;
 
-class MrimConnection : public QObject
+class MrimConnection : public QObject,
+                       public PacketHandler
 {
     Q_OBJECT
 
 public:
-    enum TConnectionState
+    enum ConnectionState
     {
         Unconnected = 0,
         RecievingGoodIMServer = 1,
@@ -44,19 +47,27 @@ public:
     MrimConnection(MrimAccount *account);
     void start();
     void close();
-    ~MrimConnection();
+    virtual ~MrimConnection();
+
     Config config();
     ConfigGroup config(const QString &group);
-    TConnectionState state() const;
+    ConnectionState state() const;
+    void registerPacketHandler(PacketHandler *handler);
+    quint32 protoFeatures() const;
+    bool setStatus(Status status);
 
 protected slots:
     void connected();
     void disconnected();
     void readyRead();
+    void sendPing();
 
 protected:
     bool processPacket();
     void sendGreetings();
+    void login();
+    virtual QList<quint32> handledTypes();
+    virtual bool handlePacket(class MrimPacket& packet);
 
 private:
     Q_DISABLE_COPY(MrimConnection)

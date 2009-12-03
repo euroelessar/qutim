@@ -25,7 +25,7 @@ MrimAccount::MrimAccount(const QString& email)
         : Account(email,MrimProtocol::instance()), p(new MrimAccountPrivate)
 {
     p->conn = new MrimConnection(this);
-    p->conn->start(); //TODO: temporary, for debugging
+    p->conn->start(); //TODO: temporary autologin, for debugging
 }
 
 ChatUnit *MrimAccount::getUnit(const QString &unitId, bool create)

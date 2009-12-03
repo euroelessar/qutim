@@ -68,7 +68,7 @@ void MrimPacket::setHeader(const mrim_packet_header_t& header)
 }
 
 void MrimPacket::setBody(const QByteArray& body)
-{
+{    
     m_body.clear();
     m_body.append(body);
     m_header.dlen = m_body.length();
@@ -136,6 +136,7 @@ bool MrimPacket::readFrom(QIODevice& device)
 
         if (isHeaderCorrect())
         {
+            MDEBUG(VeryVerbose,"Packet body size:" << dataLength());
             m_bytesLeft = dataLength();
             m_body.resize(dataLength());
             setState(ReadData);
@@ -146,13 +147,8 @@ bool MrimPacket::readFrom(QIODevice& device)
         }
     }
 
-    if (state() == ReadData)
+    if (state() == ReadData && m_bytesLeft >= 0)
     {
-        if (m_bytesLeft <= 0)
-        {
-            return false;
-        }
-
         char *data = m_body.data() + m_body.size() - m_bytesLeft;
         qint64 bytesRead = device.read(data,m_bytesLeft);
 
@@ -221,6 +217,12 @@ qint64 MrimPacket::writeTo(QIODevice *device, bool waitForWritten)
         device->waitForBytesWritten(10000);
     }
     return written;
+}
+
+MrimPacket& MrimPacket::operator<<(const QString &str)
+{
+    append(str);
+    return *this;
 }
 
 MrimPacket& MrimPacket::operator<<( LPString &str )

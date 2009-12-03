@@ -25,6 +25,13 @@ class QIODevice;
 class LPString;
 class QTcpSocket;
 
+class PacketHandler
+{
+public:
+    virtual QList<quint32> handledTypes() = 0;
+    virtual bool handlePacket(class MrimPacket& packet) = 0;
+};
+
 class MrimPacket : public QObject
 {
     Q_OBJECT
@@ -67,6 +74,7 @@ public:
     void append(const QString &str, bool unicode = false);
     void append(LPString &lpStr);
     void append(const quint32 &num);
+    MrimPacket& operator<<(const QString &str);
     MrimPacket& operator<<(LPString &str);
     MrimPacket& operator<<(const quint32 &num);
     void setHeader(const QByteArray& header);
@@ -88,12 +96,12 @@ public:
 
     //Common
     bool isHeaderCorrect();
-    inline quint32 dataLength() { return m_header.dlen; }
-    inline quint32 msgType() { return m_header.msg; }
-    inline quint32 sequence() { return m_header.seq; }
-    inline quint32 from() { return m_header.from; }
-    inline quint32 fromPort() { return m_header.fromport; }
-    inline const QByteArray& data() { return m_body; }
+    inline quint32 dataLength() const { return m_header.dlen; }
+    inline quint32 msgType() const { return m_header.msg; }
+    inline quint32 sequence() const { return m_header.seq; }
+    inline quint32 from() const { return m_header.from; }
+    inline quint32 fromPort() const { return m_header.fromport; }
+    inline const QByteArray& data() const { return m_body; }
 
     inline PacketError lastError() const;
     inline QString lastErrorString() const;

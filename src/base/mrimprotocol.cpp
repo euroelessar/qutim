@@ -63,7 +63,7 @@ AccountCreationWizard *MrimProtocol::accountCreationWizard()
 
 void MrimProtocol::loadAccounts()
 {
-    QStringList accounts = config("accounts").groupList();
+    QStringList accounts = config("general").value("accounts",QStringList());
 
     foreach (QString email, accounts)
     {
@@ -88,14 +88,19 @@ MrimProtocol::AccountCreationError MrimProtocol::createAccount(const QString& em
 
     if (!validEmail.isEmpty())
     {//email is compliant
-        QStringList accounts = config("accounts").value("list",QStringList());
+        ConfigGroup cfg = config("general");
+        QStringList accounts = cfg.value("accounts",QStringList());
 
         if (!accounts.contains(validEmail))
         {//account is new, saving
+            MrimAccount *account = new MrimAccount(validEmail);
+            account->config().group("general").setValue("passwd", password, Config::Crypted);
+            account->config().sync();//save account settings
+            p->m_accountsHash.insert(validEmail,account);
+
             accounts << validEmail;
-            config("accounts").group(validEmail).setValue("password",password,ConfigBase::Crypted);
-            config("accounts").sync(); //save settings
-            p->m_accountsHash.insert(validEmail,new MrimAccount(validEmail));
+            cfg.setValue("accounts",accounts);
+            cfg.sync(); //save global settings
         }
         else
         {
