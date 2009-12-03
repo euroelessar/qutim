@@ -24,7 +24,6 @@
 #include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QVector>
-#include "xdgenvironmentmap.h"
 
 #ifdef QT_GUI_LIB
 #include <QtGui/QPixmap>
@@ -34,8 +33,8 @@ class XdgIconThemePrivate;
 
 class XdgIconTheme
 {
-	Q_DECLARE_PRIVATE_D(p, XdgIconTheme)
-	Q_DISABLE_COPY(XdgIconTheme)
+    Q_DECLARE_PRIVATE_D(p, XdgIconTheme)
+    Q_DISABLE_COPY(XdgIconTheme)
 public:
     enum DefaultTheme
     {
@@ -44,14 +43,14 @@ public:
         DefaultThemeKDE = 2,
     };
 
-	XdgIconTheme(const QVector<QDir> &basedirs, const QString &id, const QString &indexFileName);
-	virtual ~XdgIconTheme();
+    XdgIconTheme(const QVector<QDir> &basedirs, const QString &id, const QString &indexFileName);
+    virtual ~XdgIconTheme();
 
-	QString id() const;
-	QString name() const;
-	QStringList parentNames() const;
+    QString id() const;
+    QString name() const;
+    QStringList parentNames() const;
 
-	void addParent(const XdgIconTheme *parent);
+    void addParent(const XdgIconTheme *parent);
     QString getIconPath(const QString& name, uint size = 22) const;
 
 #ifdef QT_GUI_LIB
@@ -66,7 +65,7 @@ public:
     }
 #endif
 protected:
-	XdgIconThemePrivate *p;
+    XdgIconThemePrivate *p;
 };
 
 #endif // XDGICONTHEME_H

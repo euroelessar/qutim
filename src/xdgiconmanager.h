@@ -23,7 +23,6 @@
 #include <QtCore/QMap>
 #include <QtCore/QRegExp>
 #include <QtCore/QSharedData>
-#include "xdgenvironmentmap.h"
 #include "xdgicontheme.h"
 #include "xdgthemechooser.h"
 
@@ -32,11 +31,11 @@ class XdgIconManagerPrivate;
 class XdgIconManager
 {
 public:
-	XdgIconManager(const QList<QDir> &appDirs = QList<QDir>());
-	virtual ~XdgIconManager();
+    XdgIconManager(const QList<QDir> &appDirs = QList<QDir>());
+    virtual ~XdgIconManager();
 
-	XdgIconManager(const XdgIconManager &other);
-	XdgIconManager &operator =(const XdgIconManager &other);
+    XdgIconManager(const XdgIconManager &other);
+    XdgIconManager &operator =(const XdgIconManager &other);
 
     void clearRules();
     void installRule(const QRegExp& regexp, const XdgThemeChooser *chooser);
@@ -44,10 +43,10 @@ public:
     const XdgIconTheme *themeByName(const QString& themeName) const;
     const XdgIconTheme *themeById(const QString& themeId) const;
 
-	QStringList themeNames() const;
-	QStringList themeIds() const;
+    QStringList themeNames() const;
+    QStringList themeIds() const;
 protected:
-	QSharedDataPointer<XdgIconManagerPrivate> d;
+    QSharedDataPointer<XdgIconManagerPrivate> d;
 };
 
 #endif // XDGICONMANAGER_H

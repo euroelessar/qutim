@@ -24,7 +24,7 @@ class QString;
 class XdgThemeChooser
 {
 public:
-	virtual ~XdgThemeChooser();
+    virtual ~XdgThemeChooser();
     virtual QString getThemeId() const = 0;
 };
 

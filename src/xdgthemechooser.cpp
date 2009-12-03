@@ -22,7 +22,6 @@
 #include <QtCore/QSettings>
 #include <QtCore/QTextStream>
 #include "xdgthemechooser.h"
-#include "xdgenvironmentmap.h"
 
 XdgThemeChooser::~XdgThemeChooser()
 {
@@ -33,9 +32,9 @@ QString XdgThemeChooserGnome2::getThemeId() const
     QString themeName;
 
     QProcess process;
-	process.start(QLatin1String("gconftool-2 -g /desktop/gnome/interface/icon_theme"), QIODevice::ReadOnly);
+    process.start(QLatin1String("gconftool-2 -g /desktop/gnome/interface/icon_theme"), QIODevice::ReadOnly);
 
-	if (process.waitForStarted()) {
+    if (process.waitForStarted()) {
         QTextStream stream(&process);
 
         while (process.waitForReadyRead())
@@ -47,20 +46,20 @@ QString XdgThemeChooserGnome2::getThemeId() const
     }
 
     // Attempt to read gtkrc
-	QFile file(QDir::home().absoluteFilePath(QLatin1String(".gtkrc-2.0")));
+    QFile file(QDir::home().absoluteFilePath(QLatin1String(".gtkrc-2.0")));
 
-	if (file.exists()) {
+    if (file.exists()) {
         file.open(QIODevice::ReadOnly);
         QTextStream stream(&file);
-		QRegExp exp(QLatin1String("^\\s*gtk-icon-theme-name\\s*=(.*)"));
+        QRegExp exp(QLatin1String("^\\s*gtk-icon-theme-name\\s*=(.*)"));
         QString str;
 
-		while (!(str = stream.readLine()).isEmpty()) {
-			if (exp.indexIn(str) != -1) {
+        while (!(str = stream.readLine()).isEmpty()) {
+            if (exp.indexIn(str) != -1) {
                 themeName = exp.cap(1).trimmed();
 
-				if ((themeName.startsWith('"') && themeName.endsWith('"'))
-					|| (themeName.startsWith('\'') && themeName.endsWith('\''))) {
+                if ((themeName.startsWith('"') && themeName.endsWith('"'))
+                    || (themeName.startsWith('\'') && themeName.endsWith('\''))) {
                     themeName = themeName.mid(1, themeName.length() - 2).trimmed();
                 }
 
@@ -69,32 +68,34 @@ QString XdgThemeChooserGnome2::getThemeId() const
         }
     }
 
-	return QLatin1String("gnome");
+    return QLatin1String("gnome");
 }
 
 QString XdgThemeChooserKde4::getThemeId() const
 {
-	QDir kdeHome;
-	{
-		QByteArray env = qgetenv("KDEHOME");
-		if (env.isEmpty()) {
-			kdeHome = QDir::home();
-			// We should try both ~/.kde and ~/.kde4
-			if (!(kdeHome.cd(QLatin1String(".kde")) || kdeHome.cd(QLatin1String(".kde4"))))
-				return QLatin1String("oxygen");
-		}
-		else
-			kdeHome = QString::fromLocal8Bit(env, env.size());
-	}
+    QDir kdeHome;
+    {
+        QByteArray env = qgetenv("KDEHOME");
 
-	if (kdeHome.exists()) {
-		QString config = kdeHome.absoluteFilePath(QLatin1String("share/config/kdeglobals"));
-
-		if (QFile::exists(config)) {
-            QSettings settings(config, QSettings::IniFormat);
-			return settings.value(QLatin1String("Icons/Theme")).toString();
+        if (env.isEmpty()) {
+            kdeHome = QDir::home();
+            // We should try both ~/.kde and ~/.kde4
+            if (!(kdeHome.cd(QLatin1String(".kde")) || kdeHome.cd(QLatin1String(".kde4"))))
+                return QLatin1String("oxygen");
+        }
+        else {
+            kdeHome = QString::fromLocal8Bit(env, env.size());
         }
     }
 
-	return QLatin1String("oxygen");
+    if (kdeHome.exists()) {
+        QString config = kdeHome.absoluteFilePath(QLatin1String("share/config/kdeglobals"));
+
+        if (QFile::exists(config)) {
+            QSettings settings(config, QSettings::IniFormat);
+            return settings.value(QLatin1String("Icons/Theme")).toString();
+        }
+    }
+
+    return QLatin1String("oxygen");
 }

@@ -6,7 +6,7 @@ include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
 add_definitions(${QT_DEFINITIONS})
 
 set(QXDG_SOURCES
-    src/xdgenvironmentmap.cpp
+    src/xdgenvironment.cpp
     src/xdgicontheme.cpp
     src/xdgiconmanager.cpp
     src/xdgthemechooser.cpp
@@ -14,18 +14,21 @@ set(QXDG_SOURCES
 
 set(QXDG_HEADERS
     src/xdg.h
-    src/xdgenvironmentmap.h
+    src/xdgenvironment.h
     src/xdgicontheme.h
-	src/xdgicontheme_p.h
     src/xdgiconmanager.h
-	src/xdgiconmanager_p.h
     src/xdgthemechooser.h
+)
+
+set(QXDG_PRIVATE_HEADERS
+    src/xdgicontheme_p.h
+    src/xdgiconmanager_p.h
 )
 
 set(TEST_SOURCES main.cpp)
 
 qt4_automoc(${QXDG_SOURCES} ${TEST_SOURCES})
-add_library(q-xdg SHARED ${QXDG_SOURCES} ${QXDG_HEADERS})
+add_library(q-xdg SHARED ${QXDG_SOURCES} ${QXDG_HEADERS} ${QXDG_PRIVATE_HEADERS})
 target_link_libraries(q-xdg ${QT_QTCORE_LIBRARY})
 
 add_executable(qxdgtest ${TEST_SOURCES})
@@ -35,4 +38,4 @@ add_dependencies(qxdgtest q-xdg)
 
 set_target_properties(q-xdg PROPERTIES VERSION "0.1" SOVERSION "0")
 install(TARGETS q-xdg DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-install(FILES q-xdg DESTINATION ${CMAKE_INSTALL_PREFIX}/include/q-xdg)
+install(FILES ${QXDG_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/q-xdg)
