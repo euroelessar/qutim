@@ -52,7 +52,7 @@ private:
 	QState *m_hide_state;
 	QState *m_show_state;
 	QVector<SettingsItemList> m_settings_items;
-	QList<XSettingsGroup *> m_group_widgets;
+	QVector<XSettingsGroup *> m_group_widgets;
 	QList<SettingsWidget *> m_modified_widgets;
 	//configuration
 	bool animated;

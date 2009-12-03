@@ -16,6 +16,7 @@
 #include "xsettingsgroup.h"
 #include "ui_xsettingsgroup.h"
 #include <libqutim/settingswidget.h>
+#include <QDebug>
 
 XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings, QWidget* parent )
 : QWidget (parent ), ui (new Ui::XSettingsGroup)
@@ -33,6 +34,7 @@ XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings
 	}
 	connect(ui->listWidget,SIGNAL(currentRowChanged(int)),SLOT(currentRowChanged(int)));
 	currentRowChanged(0);
+	qDebug() << "create group";
 }
 
 

@@ -65,7 +65,7 @@ namespace Core
 		FakeChatUnit *m_unit;
 	};
 
-	ChatAppearance::ChatAppearance(): ui(new Ui::chatAppearance)
+	ChatAppearance::ChatAppearance(): ui(new Ui::chatAppearance),m_page(0),m_chat_session(0)
 	{
 		ui->setupUi(this);
 		if (allProtocols().isEmpty())
@@ -95,6 +95,10 @@ namespace Core
 
 	void ChatAppearance::loadImpl()
 	{
+		if (!m_chat_session) {
+			Notifications::sendNotification(Notifications::System,this,tr("Unable to create chat session"));
+			return;
+		}		
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
 		m_current_style_name = adium_chat.value<QString>("name","default");
 		m_current_variant = m_chat_session->getVariant();
@@ -124,8 +128,7 @@ namespace Core
 			StyleVariants variants = ChatStyleGenerator::listVariants(getThemePath(category,name).append("/Contents/Resources/Variants"));
 			QVariantMap data;
 			data["name"] = name;
- 			if (variants.isEmpty())
-			{
+ 			if (variants.isEmpty()) {
 				ui->chatBox->addItem(name,data);
 				if (!index_found && name == m_current_style_name)
 				{
@@ -136,8 +139,7 @@ namespace Core
 			else
 			{
 				StyleVariants::const_iterator it;
-				for (it=variants.begin();it!=variants.end();it++)
-				{
+				for (it=variants.begin();it!=variants.end();it++) {
 					data["variant"] = it.key();
 					ui->chatBox->addItem(tr("%1 (%2)").arg(name).arg(it.key()),data);
 					if (!index_found && name == m_current_style_name && it.key() == m_current_variant)
@@ -155,12 +157,10 @@ namespace Core
 	{
 		QVariantMap map = ui->chatBox->itemData(index).toMap();
 		m_current_variant = map.value("variant").toString();
-		if (m_current_style_name == map.value("name").toString())
-		{
+		if (m_current_style_name == map.value("name").toString()) {
 			m_chat_session->setVariant(m_current_variant);
 		}
-		else
-		{
+		else {
 			m_current_style_name = map.value("name").toString();
 			m_chat_session->loadTheme(getThemePath("webkitstyle",m_current_style_name) ,m_current_variant);
 			makePage();
@@ -170,8 +170,7 @@ namespace Core
 
 	void ChatAppearance::makePage()
 	{
-		if (!m_chat_session)
-		{
+		if (!m_chat_session) {
 			Notifications::sendNotification(Notifications::System,this,tr("Unable to create chat session"));
 			return;
 		}
