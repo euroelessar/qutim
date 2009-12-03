@@ -54,21 +54,21 @@ namespace KineticPopups
 		void action1Activated();
 		void action2Activated();
 	private:
-		PopupWidget *notification_widget;
+		PopupWidget *m_notification_widget;
 		void updateGeometry(const QRect &newGeometry);
 		inline void updateMessage();
-		QString title;
-		QString body;
-		QString id;
-		QString image_path;
+		QString m_title;
+		QString m_body;
+		QString m_id;
+		QString m_image_path;
 		uint timeout;
-		QRect show_geometry; //Don't use direct, change by UpdateGeometry!
-		QStateMachine *machine;
-		QState *show_state;
-		QState *hide_state;
+		QRect m_show_geometry; //Don't use direct, change by UpdateGeometry!
+		QStateMachine *m_machine;
+		QState *m_show_state;
+		QState *m_hide_state;
 		QObject *m_sender;
 		virtual void timerEvent ( QTimerEvent* );
-		int timer_id;
+		int m_timer_id;
 	};
 }
 
