@@ -6,7 +6,7 @@ include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
 add_definitions(${QT_DEFINITIONS})
 
 set(QXDG_SOURCES
-    src/xdgenvironmentmap.cpp
+    src/xdgenvironment.cpp
     src/xdgicontheme.cpp
     src/xdgiconmanager.cpp
     src/xdgthemechooser.cpp
@@ -14,7 +14,7 @@ set(QXDG_SOURCES
 
 set(QXDG_HEADERS
     src/xdg.h
-    src/xdgenvironmentmap.h
+    src/xdgenvironment.h
     src/xdgicontheme.h
     src/xdgiconmanager.h
     src/xdgthemechooser.h
