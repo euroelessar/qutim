@@ -34,7 +34,6 @@ XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings
 	}
 	connect(ui->listWidget,SIGNAL(currentRowChanged(int)),SLOT(currentRowChanged(int)));
 	currentRowChanged(0);
-	qDebug() << "create group";
 }
 
 
