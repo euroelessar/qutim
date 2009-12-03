@@ -62,6 +62,7 @@ namespace AdiumChat
                         setContentsMargins(0, 0, 0, 0);
                     }
                 }
+		m_chat_icon_type = Config("appearance/adiumChat").group("behavior/widget").value<QString>("chatIconType","avatar");
 	}
 
 	ChatWidget::~ChatWidget()
@@ -76,7 +77,7 @@ namespace AdiumChat
 		m_sessions.append(session);
 		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved()));
 		if (m_chat_flags & IconsOnTabs) {
-			QString imagePath = session->getUnit()->property("avatar").toString();
+			QString imagePath = session->getUnit()->property(m_chat_icon_type.toAscii()).toString();
 			QIcon icon = imagePath.isEmpty() ? Icon("im-user") : QIcon(imagePath);
 			ui->tabBar->addTab(icon,session->getUnit()->title());
 		}

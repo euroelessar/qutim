@@ -49,6 +49,8 @@ namespace AdiumChat
 	protected:
 		QScopedPointer<ChatStyleOutput> m_chat_style_output;
 		void loadHistory();
+	protected slots:
+		void statusChanged(Status status);
 	private:
 		QPointer<QWebPage> m_web_page;
 		QPointer<ChatUnit> m_chat_unit;
@@ -56,6 +58,7 @@ namespace AdiumChat
 		QString m_previous_sender; //me or nme (not me) //FIXME need refactoring in future
 		int m_message_count;
 		bool m_active;
+		bool m_store_service_messages;
 	signals:
 		void removed(Account *,const QString &);//may be removed in future
 	};

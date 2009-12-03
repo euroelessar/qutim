@@ -23,7 +23,7 @@
 namespace AdiumChat
 {
 	typedef QMap<QString,QString> StyleVariants;
-	enum StyleVariableType {COLOR, FONT, BACKGROUND};
+	enum StyleVariableType {COLOR, FONT, BACKGROUND, NUM};
 	struct StyleVariable
 	{
 		QString name;

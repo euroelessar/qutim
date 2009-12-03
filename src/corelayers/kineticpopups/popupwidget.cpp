@@ -26,11 +26,11 @@
 
 namespace KineticPopups
 {
-	PopupWidget::PopupWidget (const ThemeHelper::PopupSettings &popupSettings,PopupWidgetFlags flags)
+	PopupWidget::PopupWidget (const ThemeHelper::PopupSettings &popupSettings)
 	{
 		//init browser
 		setTheme(popupSettings);
-		if (flags & Preview) {
+		if (popupSettings.popupFlags & ThemeHelper::Preview) {
 			setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 		}
 		else {
@@ -38,7 +38,7 @@ namespace KineticPopups
 			setAttribute(Qt::WA_DeleteOnClose);
 			//this->resize(NotificationsManager::self()->defaultSize);
 			//init aero integration for win
-			if (flags & AeroThemeIntegration) {
+			if (popupSettings.popupFlags & ThemeHelper::AeroThemeIntegration) {
 				if (QtWin::isCompositionEnabled()) {
 					QtWin::extendFrameIntoClientArea(this);
 					setContentsMargins(0, 0, 0, 0);
@@ -63,11 +63,16 @@ namespace KineticPopups
 	QSize PopupWidget::setData ( const QString& title, const QString& body, const QString& imagePath )
 	{
 		QString data = popup_settings.content;
+		QString text = Emoticons::theme().parseEmoticons(body);
+		if (text.length() > Manager::self()->maxTextLength) {
+			text.truncate(Manager::self()->maxTextLength);
+			text.append("...");
+		}
 		data.replace ( "{title}", title );
-		data.replace ( "{body}", Emoticons::theme().parseEmoticons(body) );
+		data.replace ( "{body}", text);
 		data.replace ( "{imagepath}",Qt::escape ( imagePath ) );
-		this->document()->setHtml(data);
-		this->document()->setTextWidth(popup_settings.defaultSize.width());
+		document()->setTextWidth(popup_settings.defaultSize.width());
+		document()->setHtml(data);
 		int width = popup_settings.defaultSize.width();
 		int height = document()->size().height();
 
@@ -94,4 +99,10 @@ namespace KineticPopups
 		disconnect(SIGNAL(action1Activated()));
 		disconnect(SIGNAL(action2Activated()));
 	}
+	
+	PopupWidget::~PopupWidget()
+	{
+
+	}
+
 }

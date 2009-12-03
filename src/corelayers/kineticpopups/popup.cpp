@@ -65,6 +65,7 @@ namespace KineticPopups
 		Manager::self()->remove (id);
 		Manager::self()->updateGeometry();
 		notification_widget->deleteLater();
+		machine->deleteLater();
 	}
 
 	void Popup::setMessage ( const QString& title, const QString& body, const QString &imagePath )
@@ -76,7 +77,20 @@ namespace KineticPopups
 
 	void Popup::appendMessage ( const QString& message )
 	{
-		this->body += "<br />" + message;
+		body += "<br />" + message;
+		updateMessage();
+	}
+	
+	void Popup::updateMessage(const QString& message)
+	{
+		int message_count = notification_widget->property("messageCount").toInt() + 1;
+		body = message + tr("<p> + %1 more notifications </p>").arg(message_count);
+		notification_widget->setProperty("messageCount",message_count);
+		updateMessage();
+	}
+	
+	void Popup::updateMessage()
+	{
 		QSize newSize = notification_widget->setData(title,body,image_path);
 		show_geometry.setSize(newSize);
 		updateGeometry(show_geometry);
@@ -130,7 +144,7 @@ namespace KineticPopups
 
 		if (timeout > 0) {
 			timer_id = startTimer(timeout);
-			show_state->addTransition(this,SIGNAL(timeoutReached()),hide_state);
+			connect(this,SIGNAL(timeoutReached()),notification_widget,SIGNAL(action2Activated()));
 		}
 
 		machine->addState(show_state);
@@ -195,9 +209,13 @@ namespace KineticPopups
 	{
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
 		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(unit,false)))
-		{
+		if (unit && (sess = ChatLayer::get(unit))) {
 			sess->setActive(true);
+		}
+		else {
+			QWidget *widget = qobject_cast<QWidget *>(m_sender);
+			if (widget)
+				widget->raise();
 		}
 	}
 
@@ -205,9 +223,10 @@ namespace KineticPopups
 	{
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
 		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(unit,false)))
-		{
-			sess->setActive(false);
+		if (unit && (sess = ChatLayer::get(unit,false))) {
+			//TODO
+			if (!sess->isActive())
+				sess->deleteLater();
 		}
 	}
 

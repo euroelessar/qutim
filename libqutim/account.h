@@ -46,6 +46,7 @@ namespace qutim_sdk_0_3
 		virtual ChatUnit *getUnitForSession(ChatUnit *unit);
 		virtual ChatUnit *getUnit(const QString &unitId, bool create = false) = 0;
 	signals:
+		void contactCreated(qutim_sdk_0_3::Contact *);
 		void nameChanged(const QString &name);
 		void statusChanged(Status status);
 	private:

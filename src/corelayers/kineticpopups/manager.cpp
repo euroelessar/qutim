@@ -56,6 +56,10 @@ namespace KineticPopups
 		return active_notifications.value(number);
 	}
 
+	int Manager::count()
+	{
+		return active_notifications.count();
+	}
 
 	QRect Manager::insert ( Popup* notification )
 	{
@@ -113,14 +117,19 @@ namespace KineticPopups
 	void Manager::loadSettings()
 	{
 		ConfigGroup general = Config("appearance/kineticpopups").group("general");
-		animationDuration = general.value("animationDuration",1000);
 		QString theme_name = general.value<QString>("themeName","default");
-		*reinterpret_cast<int *>(&showFlags) = general.value("showFlags", 0xfffffff - Notifications::MessageSend);
 		updatePosition = general.value<bool>("updatePosition",true);
 		animation = static_cast<AnimationFlags>(general.value<int>("animationFlags",Opacity));
-		timeout = general.value<int>("timeout",0);
-		appendMode = general.value<bool>("appendMode",true);
+		timeout = general.value<int>("timeout",5000);
 		easingCurve.setType(static_cast<QEasingCurve::Type>(general.value<int>("easingCurve",QEasingCurve::OutSine)));
+
+		ConfigGroup behavior = Config("behavior/popups").group("general");
+		maxCount = behavior.value<int>("maxCount",10);
+		maxTextLength = behavior.value<int>("maxTextLength",160);
+		appendMode = behavior.value<bool>("appendMode",true);
+		updateMode = behavior.value<bool>("updateMode",false);
+		animationDuration = behavior.value("animationDuration",1000);
+		*reinterpret_cast<int *>(&showFlags) = behavior.value("showFlags", 0xfffffff);
 		loadTheme(theme_name);
 		//TODO need global actions handler
 		action1Trigger = Qt::LeftButton;

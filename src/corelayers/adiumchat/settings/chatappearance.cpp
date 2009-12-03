@@ -14,7 +14,7 @@
 *****************************************************************************/
 #include "chatappearance.h"
 
-namespace AdiumChat
+namespace Core
 {
 	class FakeChatUnit : public ChatUnit
 	{
@@ -107,7 +107,7 @@ namespace AdiumChat
 	int ChatAppearance::getThemes()
 	{
 		int default_index = -1;
-		QString category = "qutim/webkitstyle";
+		QString category = "webkitstyle";
 		bool index_found = false;
 		QStringList themes = listThemes(category);
 		ui->chatBox->clear();
@@ -125,34 +125,22 @@ namespace AdiumChat
 
 	void ChatAppearance::makeSettings(const QString &theme)
 	{
-		/*int count = ui->scrollAreaLayout->count();
-		while (count > 1)
-		{
-			QLayoutItem *item = ui->scrollAreaLayout->itemAt(0);
-			//ui->scrollAreaLayout->removeItem(item);
-			delete item;
-			qDebug() << "*******************************" << count;
-			count--;
-		}*/
-		//QLayoutItem *item = ui->scrollAreaLayout->itemAt(0);
-			//ui->scrollAreaLayout->removeItem(item);
 		if (settingsWidget)
 			delete settingsWidget;
 		settingsWidget = new QWidget();
-		QVBoxLayout *layout = new QVBoxLayout();
+		QFormLayout *layout = new QFormLayout();
 		settingsWidget->setLayout(layout);
-		QString category = "qutim/webkitstyle";
+		QString category = "webkitstyle";
 		StyleVariants variants = ChatStyleGenerator::listVariants(getThemePath(category,theme).append("/Contents/Resources/Variants"));
 		if (!variants.isEmpty())
 		{
-			QHBoxLayout *variantLayout = new QHBoxLayout();
 			QLabel *label = new QLabel(tr("Style variant:"));
 			QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			label->setSizePolicy(sizePolicy);
 			QComboBox *variantBox = new QComboBox();
 			variantLayout->addWidget(label);
 			variantLayout->addWidget(variantBox);
-			layout->addLayout(variantLayout);
+			layout->addRow(label, variantLayout);
 			int default_index = -1;
 			bool index_found = false;
 			StyleVariants::const_iterator it;
@@ -166,8 +154,20 @@ namespace AdiumChat
 				}
 			}
 			variantBox->setCurrentIndex(default_index == -1 ? 0 : default_index);
-			connect(variantBox,SIGNAL(currentIndexChanged(QString)),SLOT(changeVariant(QString)));
+			connect(variantBox, SIGNAL(currentIndexChanged(QString)), SLOT(changeVariant(QString)));
 		}
+		StyleVariable a, b;
+		a.desc = "test test";
+		a.label = "Font:";
+		a.name = "messageFont";
+		a.type = FONT;
+		a.value = "bold 12pt Verdana";
+		b.desc = "tost tost";
+		b.label = "Animation duration:";
+		b.name = "animationDuration";
+		b.type = NUM;
+		b.value = "1.2";
+		m_current_style_variables << a << b;
 		//m_current_style_variables = Config("appearance/adiumChat").group("style");
 		foreach (StyleVariable style, m_current_style_variables)
 		{
@@ -176,8 +176,65 @@ namespace AdiumChat
 				case COLOR:
 					break;
 				case FONT:
+					/*QString fvalue(style.value);
+					QString fstyle("normal"), fvariant("normal"), fweight("normal"), fsize, fline, ffamily;
+					QRegExp rx("^\\s*(normal|italic)");
+					if (fvalue.contains(rx))
+					{
+						fstyle = rx.cap(1);
+						fvalue.remove(rx);
+					}
+					rx = QRegExp("^\\s*(normal|small-caps)");
+					if (fvalue.contains(rx))
+					{
+						fvariant = rx.cap(1);
+						fvalue.remove(rx);
+					}
+					rx = QRegExp("^\\s*(normal|bold)");
+					if (fvalue.contains(rx))
+					{
+						fweight = rx.cap(1);
+						fvalue.remove(rx);
+					}
+					rx = QRegExp("^\\s*(\\d+)(pt|em|ex|px|%)");
+					if (fvalue.contains(rx))
+					{
+						fsize = rx.cap(1)+rx.cap(2);
+						fvalue.remove(rx);
+						rx = QRegExp("^/(\\d+)(pt|em|ex|px|%)");
+						if (fvalue.contains(rx))
+						{
+							fline = rx.cap(1)+rx.cap(2);
+						}
+					}
+					else
+						continue;
+					rx = QRegExp("^\\s*\w*");
+					if (fvalue.contains(rx))
+					{
+						ffamily = rx.cap(1);
+						fvalue.remove(rx);
+					}
+					else
+						continue;
+					QFont ffont;
+					ffont.setBold(fweight == "normal" ? false : true);
+					ffont.setCapitalization(fvariant == "normal" ? false : true);
+					ffont.setFamily(ffamily);
+					ffont.setItalic(fstyle == "normal" ? false : true);
+					*/
+					QLabel *label = new QLabel(tr("Font:"));
+					QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+					label->setSizePolicy(sizePolicy);
+					QLabel *fontLabel = new QLabel();
+					QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+					fontLabel->setText(QString("<span style='%1'>%1</span>").arg(style.value));
+
+					layout->addRow(label, variantLayout);
 					break;
 				case BACKGROUND:
+					break;
+				case NUM:
 					break;
 			}
 		}
@@ -200,7 +257,7 @@ namespace AdiumChat
 			m_current_variant = "";
 		is_load = false;
 		makeSettings(m_current_style_name);
-		m_chat_session->loadTheme(getThemePath("qutim/webkitstyle",m_current_style_name) ,m_current_variant);
+		m_chat_session->loadTheme(getThemePath("webkitstyle",m_current_style_name) ,m_current_variant);
 		makePage();
 		emit modifiedChanged(true);
 	}
@@ -215,6 +272,7 @@ namespace AdiumChat
 		Message message(tr("Preview message"));
 		message.setProperty("silent",true);
 		message.setProperty("history",true);
+		message.setProperty("store",false);
 		message.setIncoming(true);
 		message.setChatUnit(m_chat_session->getUnit());
 		message.setText(tr("Hello!"));

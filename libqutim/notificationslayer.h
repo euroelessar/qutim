@@ -29,24 +29,25 @@ namespace qutim_sdk_0_3
 	{
 		//note: title is set on type and sender, customTitle override this
 		enum Type
-		{
-			Online = 0,
-			Offline = 1,
-			StatusChange = 2,
-			Birthday =3,
-			Startup = 4,
-			MessageGet = 5,
-			MessageSend = 6,
-			System = 7,
-			Typing = 8,
-			BlockedMessage = 9,
-			Count = 10
+		{			
+			Online = 1,
+			Offline = 2,
+			StatusChange = 3,
+			Birthday = 4,
+			Startup = 5,
+			MessageGet = 6,
+			MessageSend = 7,
+			System = 8,
+			Typing = 9,
+			BlockedMessage = 10,
+			Count = 11
 		};
 		LIBQUTIM_EXPORT void sendNotification(const QString &body,const QString &custom_title = QString());
 		LIBQUTIM_EXPORT void sendNotification(Type type, QObject *sender,
 											  const QString &body = QString(),
 											  const QString &custom_title = QString());
 		LIBQUTIM_EXPORT void sendNotification(const Message &message);
+		LIBQUTIM_EXPORT QString toString(Notifications::Type type);
 	}
 
 	class LIBQUTIM_EXPORT PopupBackend : public QObject
@@ -61,34 +62,38 @@ namespace qutim_sdk_0_3
 		virtual void virtual_hook(int type, void *data);
 	};
 
-	class LIBQUTIM_EXPORT SoundBackend : public QObject
+	class LIBQUTIM_EXPORT SoundBackend
 	{
-		Q_OBJECT
 	public:
 		virtual void playSound(const QString &filename) = 0;
+		virtual QStringList supportedFormats() = 0;
 	protected:
 		virtual void virtual_hook(int type, void *data);
 	};
 
-	class LIBQUTIM_EXPORT SoundThemeBackend : public QObject
+	class SoundThemePrivate;
+	class SoundTheme
 	{
-		//TODO
-		Q_OBJECT
 	public:
-		virtual bool loadTheme(const QString &path) = 0;
-	protected:
-		virtual void virtual_hook(int type, void *data);
+		SoundTheme (const QString name = QString());
+		QString path(Notifications::Type type);
+		void setPath(Notifications::Type  type, QString path);
+		void play(Notifications::Type type);
+		QString title();
+		void load();
+		void save();
 	};
 
 	class LIBQUTIM_EXPORT SoundThemeProvider : public QObject
 	{
-		Q_OBJECT
-	public:
-		virtual bool init(const QString &path) = 0;
-		virtual void setSound(Notifications::Type sound, const QString &file) = 0;
-		virtual QString sound(Notifications::Type sound) = 0;
-	protected:
-		virtual void virtual_hook(int type, void *data);
+		//TODO
+// 		Q_OBJECT
+// 	public:
+// 		virtual bool init(const QString &path) = 0;
+// 		virtual void setSound(Notifications::Type sound, const QString &file) = 0;
+// 		virtual QString sound(Notifications::Type sound) = 0;
+// 	protected:
+// 		virtual void virtual_hook(int type, void *data);
 	};
 
 }

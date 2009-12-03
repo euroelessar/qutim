@@ -48,6 +48,8 @@ namespace qutim_sdk_0_3
 		virtual QList<Account *> accounts() const = 0;
 		virtual Account *account(const QString &id) const = 0;
 		virtual AccountCreationWizard *accountCreationWizard() = 0;
+	signals:
+		void accountCreated(qutim_sdk_0_3::Account *);
 	private:
 		virtual void loadAccounts() = 0;
 		friend class ModuleManager;

@@ -14,9 +14,9 @@
 *****************************************************************************/
 #ifndef CHATAPPEARANCE_H
 #define CHATAPPEARANCE_H
-#include "chatlayerimpl.h"
-#include "chatstyle.h"
-#include "chatstyleoutput.h"
+#include "../chatlayerimpl.h"
+#include "../chatstyle.h"
+#include "../chatstyleoutput.h"
 #include "ui_chatappearance.h"
 #include <QWidget>
 #include <QDebug>
@@ -24,6 +24,7 @@
 #include <QWebFrame>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QFormLayout>
 #include <QLabel>
 #include <libqutim/configbase.h>
 #include <libqutim/protocol.h>
@@ -37,9 +38,9 @@ namespace Ui
 	class chatAppearance;
 }
 class QWebPage;
-namespace AdiumChat
+using namespace AdiumChat;
+namespace Core
 {
-	class ChatStyleOutput;
 	class ChatAppearance : public SettingsWidget
 	{
 		Q_OBJECT
