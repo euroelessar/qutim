@@ -32,7 +32,7 @@ namespace AdiumChat
 		QString value;
 		StyleVariableType type;
 	};
-	typedef QMap<QString,StyleVariable> StyleVariables;
+	typedef QList<StyleVariable> StyleVariables;
 	struct ChatStyle
 	{
 		QString styleName;

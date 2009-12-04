@@ -135,12 +135,10 @@ namespace Core
 		if (!variants.isEmpty())
 		{
 			QLabel *label = new QLabel(tr("Style variant:"));
-			QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			label->setSizePolicy(sizePolicy);
+			//QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			//label->setSizePolicy(sizePolicy);
 			QComboBox *variantBox = new QComboBox();
-			variantLayout->addWidget(label);
-			variantLayout->addWidget(variantBox);
-			layout->addRow(label, variantLayout);
+			layout->addRow(label, variantBox);
 			int default_index = -1;
 			bool index_found = false;
 			StyleVariants::const_iterator it;
@@ -156,12 +154,13 @@ namespace Core
 			variantBox->setCurrentIndex(default_index == -1 ? 0 : default_index);
 			connect(variantBox, SIGNAL(currentIndexChanged(QString)), SLOT(changeVariant(QString)));
 		}
+		m_current_style_variables.clear();
 		StyleVariable a, b;
 		a.desc = "test test";
 		a.label = "Font:";
 		a.name = "messageFont";
 		a.type = FONT;
-		a.value = "bold 12pt Verdana";
+		a.value = "bold 12px Times New Roman";
 		b.desc = "tost tost";
 		b.label = "Animation duration:";
 		b.name = "animationDuration";
@@ -176,15 +175,40 @@ namespace Core
 				case COLOR:
 					break;
 				case FONT:
+				{
+					int sec = 0;
+					QString value = style.value.section(" ", sec, sec);
+					QFont fvalue;
+					QRegExp rxSize("(\\d+)(pt|px)");
+					while (!value.isEmpty())
+					{
+						qDebug() << sec << value;
+						if (value == "bold")
+							fvalue.setBold(true);
+						else if (value == "italic")
+							fvalue.setItalic(true);
+						else if (value == "small-caps")
+							fvalue.setCapitalization(QFont::SmallCaps);
+						else if (value.contains(rxSize))
+						{
+							if (rxSize.cap(2) == "pt")
+								fvalue.setPointSize(rxSize.cap(1).toInt());
+							else
+								fvalue.setPixelSize(rxSize.cap(1).toInt());
+							break;
+						}
+						value = style.value.section(" ", ++sec, sec);
+					}
+					fvalue.setFamily(style.value.section(" ", ++sec));
 					/*QString fvalue(style.value);
-					QString fstyle("normal"), fvariant("normal"), fweight("normal"), fsize, fline, ffamily;
-					QRegExp rx("^\\s*(normal|italic)");
+					QString fstyle, fvariant, fweight, fsize, fline, ffamily;
+					QRegExp rx("(italic)");
 					if (fvalue.contains(rx))
 					{
 						fstyle = rx.cap(1);
 						fvalue.remove(rx);
 					}
-					rx = QRegExp("^\\s*(normal|small-caps)");
+					rx = QRegExp("(small-caps)");
 					if (fvalue.contains(rx))
 					{
 						fvariant = rx.cap(1);
@@ -224,13 +248,14 @@ namespace Core
 					ffont.setItalic(fstyle == "normal" ? false : true);
 					*/
 					QLabel *label = new QLabel(tr("Font:"));
-					QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-					label->setSizePolicy(sizePolicy);
+					//label->setSizePolicy(sizePolicy);
 					QLabel *fontLabel = new QLabel();
-					QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-					fontLabel->setText(QString("<span style='%1'>%1</span>").arg(style.value));
-
-					layout->addRow(label, variantLayout);
+					fontLabel->setFont(fvalue);
+					//QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+					fontLabel->setText(QString("%1").arg(fvalue.pointSize())+" "+fvalue.family());
+					layout->addRow(label, fontLabel);
+					qDebug() << fontLabel->font().toString();
+				}
 					break;
 				case BACKGROUND:
 					break;
