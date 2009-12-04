@@ -36,13 +36,6 @@ class XdgIconTheme
     Q_DECLARE_PRIVATE_D(p, XdgIconTheme)
     Q_DISABLE_COPY(XdgIconTheme)
 public:
-    enum DefaultTheme
-    {
-        DefaultThemeAny = 0,
-        DefaultThemeGNOME = 1,
-        DefaultThemeKDE = 2,
-    };
-
     XdgIconTheme(const QVector<QDir> &basedirs, const QString &id, const QString &indexFileName);
     virtual ~XdgIconTheme();
 
