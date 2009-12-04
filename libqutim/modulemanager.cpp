@@ -36,17 +36,6 @@
 #define INSIDE_MODULE_MANAGER
 #include "cryptoservice.cpp"
 
-#define TEST
-
-#ifdef TEST
-# include "settingslayer.h"
-# include "emoticons.h"
-# include <QPlainTextEdit>
-# include <QLineEdit>
-# include <QComboBox>
-# include <QCheckBox>
-#endif
-
 namespace qutim_sdk_0_3
 {
 	const char *qutimVersion()
@@ -439,21 +428,6 @@ namespace qutim_sdk_0_3
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();
 		Q_UNUSED(ContactList::instance());
-#ifdef TEST
-		{
-			AutoSettingsItem *item = new AutoSettingsItem(Settings::General, QT_TRANSLATE_NOOP("Settings", "Test settings"));
-			item->setConfig(QString(), "test");
-			item->addEntry<QLineEdit>(QT_TRANSLATE_NOOP("Settings", "Text"))->setName("text")->setProperty("acceptRichText", false);
-			item->addEntry<AutoSettingsComboBox>(QT_TRANSLATE_NOOP("Settings", "Combo"))->setName("combo")->setProperty("items", QStringList() << "First" << "Second" << "Third");
-			item->addEntry<QCheckBox>(QT_TRANSLATE_NOOP("Settings", "Check"))->setName("check");
-			Settings::registerItem(item);
-		}
-		{
-			qDebug() << Emoticons::themeList();
-			QString text = "hello! :) :-D";
-			qDebug() << Emoticons::theme().parseEmoticons(text);
-		}
-#endif
 		Notifications::sendNotification(Notifications::Startup, 0);
 	}
 }

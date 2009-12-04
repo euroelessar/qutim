@@ -56,7 +56,9 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	QAction *plugins =  new QAction(Icon("applications-other"),tr("Plugins"),ui->xtoolBar);
 	plugins->setToolTip(tr("Additional plugins settings"));
 	addAction(plugins,Settings::Plugin);
-
+	m_group_widgets.resize(4); //FIXME
+	
+	
 	//init categories
 
 	foreach (SettingsItem *item, settings)
@@ -160,12 +162,13 @@ if (setting_items.count()>1) // ==0 or >=0 need for testing, for normally usage 
 	{
 		//TODO need way to add custom group
 		XSettingsGroup *group = m_group_widgets.value(type);
-		if (group == 0)
+		if (!group)
 		{
 			group = new XSettingsGroup(setting_items,this);
 			ui->settingsStackedWidget->addWidget(group);
 			connect(group,SIGNAL(modifiedChanged(SettingsWidget*)),SLOT(onWidgetModifiedChanged(SettingsWidget*)));
 			connect(group,SIGNAL(titleChanged(QString)),SLOT(onTitleChanged(QString)));
+			m_group_widgets.insert(type,group);
 		}
 		ui->settingsStackedWidget->setCurrentWidget(group);
 	}

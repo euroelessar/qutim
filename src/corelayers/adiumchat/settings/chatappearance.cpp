@@ -54,7 +54,7 @@ namespace Core
 		FakeChatUnit *m_unit;
 	};
 
-	ChatAppearance::ChatAppearance(): ui(new Ui::chatAppearance)
+	ChatAppearance::ChatAppearance(): ui(new Ui::chatAppearance),m_page(0),m_chat_session(0)
 	{
 		ui->setupUi(this);
 		settingsWidget = 0;
@@ -86,6 +86,10 @@ namespace Core
 	void ChatAppearance::loadImpl()
 	{
 		is_load = true;
+		if (!m_chat_session) {
+			Notifications::sendNotification(Notifications::System,this,tr("Unable to create chat session"));
+			return;
+		}		
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
 		m_current_style_name = adium_chat.value<QString>("name","default");
 		m_current_variant = m_chat_session->getVariant();
@@ -289,8 +293,7 @@ namespace Core
 
 	void ChatAppearance::makePage()
 	{
-		if (!m_chat_session)
-		{
+		if (!m_chat_session) {
 			Notifications::sendNotification(Notifications::System,this,tr("Unable to create chat session"));
 			return;
 		}
