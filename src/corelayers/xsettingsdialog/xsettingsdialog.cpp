@@ -56,7 +56,7 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	QAction *plugins =  new QAction(Icon("applications-other"),tr("Plugins"),ui->xtoolBar);
 	plugins->setToolTip(tr("Additional plugins settings"));
 	addAction(plugins,Settings::Plugin);
-	m_group_widgets.resize(4); //FIXME
+	m_group_widgets.resize(ui->xtoolBar->actions().count());
 	
 	
 	//init categories

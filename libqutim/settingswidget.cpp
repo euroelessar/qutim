@@ -102,8 +102,8 @@ namespace qutim_sdk_0_3
 
 	void SettingsWidget::save()
 	{
-		if(!isModified())
-			return;
+//		if(!isModified())
+//			return;
 		p->sleep = true;
 		saveImpl();
 		p->clearValues();

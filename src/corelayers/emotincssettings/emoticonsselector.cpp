@@ -3,11 +3,14 @@
 #include <libqutim/emoticons.h>
 #include <qmovie.h>
 #include <QLabel>
+#include "flowlayout.h"
 
 EmoticonsSelector::EmoticonsSelector() : ui(new Ui::emoticonsSelector)
 {
 	ui->setupUi(this);
 	connect(ui->themeSelector,SIGNAL(currentIndexChanged(QString)),SLOT(currentIndexChanged(QString)));
+	FlowLayout *flowLayout = new FlowLayout;
+	ui->emoticons->setLayout(flowLayout);
 }
 
 EmoticonsSelector::~EmoticonsSelector()
@@ -30,7 +33,7 @@ void EmoticonsSelector::cancelImpl()
 
 void EmoticonsSelector::saveImpl()
 {
-
+	Emoticons::setTheme(m_selected_theme);
 }
 
 void EmoticonsSelector::currentIndexChanged(const QString& text)
@@ -38,21 +41,15 @@ void EmoticonsSelector::currentIndexChanged(const QString& text)
 	QHash<QString, QStringList> theme_map = Emoticons::theme(text).emoticonsMap();
 	QHash<QString, QStringList>::const_iterator it;
 	clearEmoticonsPreview();
-	int i,j = 0; //HACK
 	for (it = theme_map.constBegin();it != theme_map.constEnd();it ++) {
 		QMovie *emoticon = new QMovie (it.key());
 		QLabel *label = new QLabel();
 		label->setMovie(emoticon);
-		ui->emoticonsLayout->addWidget(label,i,j);
+		ui->emoticons->layout()->addWidget(label);
 		m_active_emoticons.append(label);
 		emoticon->start();
-		j++;
-		if (j>8) {
-			j = 0;
-			i++;
-		}
 	}
-	
+	m_selected_theme = text;
 }
 
 void EmoticonsSelector::clearEmoticonsPreview()
