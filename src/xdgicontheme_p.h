@@ -20,6 +20,7 @@
 #define XDGICONTHEME_P_H
 
 #include "xdgicontheme.h"
+#include <QHash>
 
 struct XdgIconDir
 {
@@ -41,7 +42,7 @@ struct XdgIconDir
 struct XdgIconEntry
 {
     inline XdgIconEntry() : dir(0) {}
-    XdgIconEntry(const XdgIconDir *d, const QString &name);
+    XdgIconEntry(const XdgIconDir *d, const QString &p) : dir(d), path(p) {}
     const XdgIconDir *dir;
     QString path;
 };
@@ -76,7 +77,5 @@ public:
     static bool dirMatchesSize(const XdgIconDir &dir, uint size);
     static uint dirSizeDistance(const XdgIconDir &dir, uint size);
 };
-
-XdgIconEntry::XdgIconEntry(const XdgIconDir *d, const QString &p) : dir(d), path(p) {}
 
 #endif // XDGICONTHEME_P_H

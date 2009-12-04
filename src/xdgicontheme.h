@@ -26,8 +26,7 @@
 #include <QtCore/QVector>
 
 #ifdef QT_GUI_LIB
-#include <QtGui/QImageReader>
-#include <QtGui/QPixmap>
+#include "xdgicon.h"
 #endif
 
 class XdgIconThemePrivate;
@@ -55,21 +54,16 @@ public:
     QString getIconPath(const QString &name, uint size = 22) const;
 
 #ifdef QT_GUI_LIB
-    QPixmap getPixmap(const QString &name, int size) const
-    {
-        QImage image;
-        QImageReader reader;
-        reader.setFileName(getIconPath(name));
-        reader.setScaledSize(QSize(size, size));
-
-        if (reader.read(&image))
-           return QPixmap::fromImage(image);
-
-        return QPixmap();
-    }
+    inline QIcon getIcon(const QString &name) const
+    { return XdgIcon(name, this); }
+    inline QPixmap getPixmap(const QString &name, int size) const
+    { return getIcon(name).pixmap(size); }
 #endif
 protected:
     XdgIconThemePrivate *p;
+public:
+    typedef XdgIconThemePrivate * Data;
+    const Data &data() const { return p; }
 };
 
 #endif // XDGICONTHEME_H

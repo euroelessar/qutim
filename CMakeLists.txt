@@ -10,6 +10,8 @@ set(QXDG_SOURCES
     src/xdgicontheme.cpp
     src/xdgiconmanager.cpp
     src/xdgthemechooser.cpp
+    src/xdgicon.cpp
+    src/xdgiconengine.cpp
 )
 
 set(QXDG_HEADERS
@@ -18,11 +20,13 @@ set(QXDG_HEADERS
     src/xdgicontheme.h
     src/xdgiconmanager.h
     src/xdgthemechooser.h
+    src/xdgicon.h
 )
 
 set(QXDG_PRIVATE_HEADERS
     src/xdgicontheme_p.h
     src/xdgiconmanager_p.h
+    src/xdgiconengine_p.h
 )
 
 set(TEST_SOURCES main.cpp)

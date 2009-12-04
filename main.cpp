@@ -23,6 +23,7 @@ int main(int argc, char** argv)
         QPixmap pixmap = current->getPixmap("document-save", 28);
         QLabel label;
         label.setPixmap(pixmap);
+        qDebug() << pixmap.size();
         label.show();
         return QApplication::exec();
     }
