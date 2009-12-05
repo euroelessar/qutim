@@ -18,6 +18,7 @@
 #include "../chatstyle.h"
 #include "../chatstyleoutput.h"
 #include "ui_chatappearance.h"
+#include "chatvariable.h"
 #include <QWidget>
 #include <QDebug>
 #include <QDateTime>
