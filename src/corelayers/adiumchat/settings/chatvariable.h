@@ -15,8 +15,11 @@ namespace Core
 			virtual const QString &value() = 0;
 			virtual void setValue(const QString &value) = 0;
 	};
-	Q_DECLARE_INTERFACE(ChatVariable, "core.adiumchat.ChatVariable")
+}
+Q_DECLARE_INTERFACE(Core::ChatVariable, "org.qutim.core.ChatVariable")
 
+namespace  Core
+{
 	class ChatBackground : public QWidget, ChatVariable
 	{
 		Q_OBJECT
@@ -63,5 +66,6 @@ namespace Core
 			const QString &value();
 			void setValue(const QString &value);
 	};
+Q_DECLARE_INTERFACE(Core::ChatVariable, "org.qutim.core.ChatVariable")
 
 #endif // CHATVARIABLE_H
