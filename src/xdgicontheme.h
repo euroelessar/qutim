@@ -51,6 +51,8 @@ public:
     { return XdgIcon(name, this); }
     inline QPixmap getPixmap(const QString &name, int size) const
     { return getIcon(name).pixmap(size); }
+    inline QPixmap getPixmap(const QString &name, QSize size) const
+    { return getIcon(name).pixmap(size); }
 #endif
 protected:
     XdgIconThemePrivate *p;

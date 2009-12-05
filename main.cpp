@@ -7,7 +7,7 @@
 int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
-	XdgIconManager manager;
+    XdgIconManager manager;
     XdgThemeChooserGnome2 gnomeChooser;
     XdgThemeChooserKde4 kdeChooser;
 
@@ -20,10 +20,10 @@ int main(int argc, char** argv)
         qDebug() << current->getIconPath("document-new", 22);
         qDebug() << current->getIconPath("document-open", 22);
 
-        QPixmap pixmap = current->getPixmap("document-save", 28);
+        QIcon icon = current->getIcon("document-save");
+        QPixmap pixmap = icon.pixmap(64, QIcon::Selected);
         QLabel label;
         label.setPixmap(pixmap);
-        qDebug() << pixmap.size();
         label.show();
         return QApplication::exec();
     }

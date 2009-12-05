@@ -50,14 +50,16 @@ struct XdgIconEntry
 class XdgIconData
 {
 public:
+    QAtomicInt ref;
     QList<XdgIconEntry> entries;
     const XdgIconThemePrivate *theme;
     QString name;
 
     const XdgIconEntry *findEntry(uint size) const;
+    bool destroy();
 };
 
-typedef QHash<QString, const XdgIconData *> XdgIconDataHash;
+typedef QHash<QString, XdgIconData *> XdgIconDataHash;
 
 class XdgIconThemePrivate
 {
@@ -70,7 +72,7 @@ public:
     QVector<const XdgIconTheme *> parents;
     mutable XdgIconDataHash cache;
 
-    const XdgIconData *findIcon(const QString &name) const;
+    XdgIconData *findIcon(const QString &name) const;
     QString findIcon(const QString &name, uint size) const;
     XdgIconData *lookupIconRecursive(const QString &name) const;
     QString lookupFallbackIcon(const QString &name) const;

@@ -28,6 +28,9 @@ namespace
 
 const XdgIconEntry *XdgIconData::findEntry(uint size) const
 {
+    if (entries.isEmpty())
+        return 0;
+
     // Look for an exact size match first, per specification
     for (int i = 0; i < entries.size(); i++) {
         if (XdgIconThemePrivate::dirMatchesSize(*entries[i].dir, size)) {
@@ -50,9 +53,31 @@ const XdgIconEntry *XdgIconData::findEntry(uint size) const
     return entry;
 }
 
-const XdgIconData *XdgIconThemePrivate::findIcon(const QString &name) const
+bool XdgIconData::destroy()
 {
-    return lookupIconRecursive(name);
+    entries.clear();
+    name.clear();
+    theme = 0;
+    return !ref;
+}
+
+XdgIconData *XdgIconThemePrivate::findIcon(const QString &name) const
+{
+    QString key = id;
+    key += QLatin1Char('\0');
+    key += name;
+
+    XdgIconData *data = 0;
+
+    XdgIconDataHash::const_iterator it = cache.constFind(key);
+    if (it != cache.constEnd()) {
+        data = it.value();
+    } else {
+        data = lookupIconRecursive(name);
+        cache.insert(key, data);
+    }
+
+    return data;
 }
 
 XdgIconData *XdgIconThemePrivate::lookupIconRecursive(const QString &name) const
@@ -189,7 +214,10 @@ XdgIconTheme::XdgIconTheme(const QVector<QDir> &basedirs, const QString &id, con
 
 XdgIconTheme::~XdgIconTheme()
 {
-    qDeleteAll(p->cache);
+    foreach (XdgIconData *data, p->cache) {
+        if (data->destroy())
+            delete data;
+    }
     delete p;
 }
 
@@ -219,20 +247,7 @@ QString XdgIconTheme::getIconPath(const QString &name, uint size) const
 {
     Q_D(const XdgIconTheme);
 
-    QString key = d->id;
-    key += QLatin1Char('\0');
-    key += name;
-
-    const XdgIconData *data = 0;
-
-    XdgIconDataHash::const_iterator it = d->cache.constFind(key);
-    if (it != d->cache.constEnd()) {
-        data = it.value();
-    } else {
-        data = d->findIcon(name);
-        d->cache.insert(key, data);
-    }
-
+    XdgIconData *data = d->findIcon(name);
     const XdgIconEntry *entry = data ? data->findEntry(size) : 0;
     return entry ? entry->path : QString();
 }
