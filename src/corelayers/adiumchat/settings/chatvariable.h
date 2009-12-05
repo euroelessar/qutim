@@ -23,7 +23,7 @@ namespace  Core
 	class ChatBackground : public QWidget, ChatVariable
 	{
 		Q_OBJECT
-		Q_INTERFACES(ChatVariable)
+		Q_INTERFACES(Core::ChatVariable)
 
 		public:
 			ChatBackground(QWidget *parent);
@@ -35,7 +35,7 @@ namespace  Core
 	class ChatFont : public QWidget, ChatVariable
 	{
 		Q_OBJECT
-		Q_INTERFACES(ChatVariable)
+		Q_INTERFACES(Core::ChatVariable)
 
 		public:
 			ChatFont(QWidget *parent);
@@ -46,7 +46,7 @@ namespace  Core
 	class ChatColor : public QWidget, ChatVariable
 	{
 		Q_OBJECT
-		Q_INTERFACES(ChatVariable)
+		Q_INTERFACES(Core::ChatVariable)
 
 		public:
 			ChatColor(QWidget *parent);
@@ -58,7 +58,7 @@ namespace  Core
 	class ChatNumeric : public QWidget, ChatVariable
 	{
 		Q_OBJECT
-		Q_INTERFACES(ChatVariable)
+		Q_INTERFACES(Core::ChatVariable)
 
 		public:
 			ChatBackground(QWidget *parent);
@@ -66,6 +66,5 @@ namespace  Core
 			const QString &value();
 			void setValue(const QString &value);
 	};
-Q_DECLARE_INTERFACE(Core::ChatVariable, "org.qutim.core.ChatVariable")
 
 #endif // CHATVARIABLE_H
