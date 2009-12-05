@@ -168,7 +168,7 @@ namespace Core
 		b.desc = "tost tost";
 		b.label = "Animation duration:";
 		b.name = "animationDuration";
-		b.type = NUM;
+		b.type = NUMERIC;
 		b.value = "1.2";
 		m_current_style_variables << a << b;
 		//m_current_style_variables = Config("appearance/adiumChat").group("style");
@@ -263,7 +263,7 @@ namespace Core
 					break;
 				case BACKGROUND:
 					break;
-				case NUM:
+				case NUMERIC:
 					break;
 			}
 		}

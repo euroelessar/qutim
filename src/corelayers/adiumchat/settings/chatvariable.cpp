@@ -12,7 +12,7 @@ namespace Core
 
 	}
 
-	ChatFont::setValue(const QString &value)
+	void ChatFont::setValue(const QString &value)
 	{
 
 	}
@@ -27,7 +27,7 @@ namespace Core
 
 	}
 
-	ChatColor::setValue(const QString &value)
+	void ChatColor::setValue(const QString &value)
 	{
 
 	}
@@ -42,7 +42,7 @@ namespace Core
 
 	}
 
-	ChatNumeric::setValue(const QString &value)
+	void ChatNumeric::setValue(const QString &value)
 	{
 
 	}
@@ -57,7 +57,7 @@ namespace Core
 
 	}
 
-	ChatBackground::setValue(const QString &value)
+	void ChatBackground::setValue(const QString &value)
 	{
 
 	}

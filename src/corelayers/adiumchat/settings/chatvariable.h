@@ -61,10 +61,11 @@ namespace  Core
 		Q_INTERFACES(Core::ChatVariable)
 
 		public:
-			ChatBackground(QWidget *parent);
+			ChatNumeric(QWidget *parent);
 			StyleVariableType type() {return NUMERIC;}
 			const QString &value();
 			void setValue(const QString &value);
 	};
+}
 
 #endif // CHATVARIABLE_H
