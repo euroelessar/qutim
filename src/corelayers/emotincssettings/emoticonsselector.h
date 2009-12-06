@@ -24,6 +24,7 @@ private slots:
 private:
 	Ui::emoticonsSelector *ui;
 	QWidgetList m_active_emoticons;
+	QString m_selected_theme;
 };
 
 #endif // EMOTICONSSELECTOR_H

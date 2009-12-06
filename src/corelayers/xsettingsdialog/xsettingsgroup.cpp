@@ -16,6 +16,7 @@
 #include "xsettingsgroup.h"
 #include "ui_xsettingsgroup.h"
 #include <libqutim/settingswidget.h>
+#include <libqutim/configbase.h>
 #include <QDebug>
 
 XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings, QWidget* parent )
@@ -23,9 +24,12 @@ XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings
 {
 	m_setting_list = settings;
 	ui->setupUi(this);
+	//appearance
+	ConfigGroup general = Config("appearance").group("xsettings/general");
+	uint icon_size = general.value<int>("iconSize",16);
+	ui->listWidget->setIconSize(QSize(icon_size,icon_size));
 
-	foreach (SettingsItem *settings_item, m_setting_list)
-	{
+	foreach (SettingsItem *settings_item, m_setting_list) {
 		QListWidgetItem *list_item = new QListWidgetItem (settings_item->icon(),
 														  settings_item->text(),
 														  ui->listWidget
@@ -42,8 +46,7 @@ void XSettingsGroup::currentRowChanged ( int index)
 	SettingsWidget *widget = m_setting_list.at(index)->widget();
 	if (widget == 0)
 		return;
-	if (ui->stackedWidget->indexOf(widget) == -1)
-	{
+	if (ui->stackedWidget->indexOf(widget) == -1) {
 		widget->load();
 		ui->stackedWidget->addWidget(widget);
 		connect(widget,SIGNAL(modifiedChanged(bool)),SLOT(onWidgetModifiedChanged(bool)));

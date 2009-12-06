@@ -76,6 +76,7 @@ namespace AdiumChat
 			return;
 		m_sessions.append(session);
 		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved()));
+		connect(session,SIGNAL(remoteChatStateChanged(Contact*,ChatState)),SLOT(remoteChatStateChanged(Contact*,ChatState)));
 		if (m_chat_flags & IconsOnTabs) {
 			QString imagePath = session->getUnit()->property(m_chat_icon_type.toAscii()).toString();
 			QIcon icon = imagePath.isEmpty() ? Icon("im-user") : QIcon(imagePath);
@@ -98,8 +99,6 @@ namespace AdiumChat
 		if (index == -1)
 			return;
 		ui->chatView->setPage(m_sessions.at(index)->getPage());
-		//ugly HACK
-		//ui->chatView->page()->currentFrame()->setHtml(m_sessions.at(index)->getPage()->currentFrame()->toHtml());
 		setWindowTitle(tr("Chat with %1").arg(m_sessions.at(index)->getUnit()->title()));
 		//m_main_toolbar->setData(m_sessions.at(index)->getUnit());
 // 		if (QAbstractItemModel *model = m_sessions.at(index)->getItemsModel())
@@ -196,4 +195,31 @@ namespace AdiumChat
 		//ui->chatView->page()->currentFrame()->setHtml(session->getPage()->currentFrame()->toHtml());
 	}
 
+	void ChatWidget::remoteChatStateChanged(Contact *c, ChatState state)
+	{
+		//checks
+		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
+		if (!session)
+			return;
+		int index = m_sessions.indexOf(session);
+		if (index == -1)
+			return;
+		if (session->getUnit() != c) //TODO
+			return;
+		//states
+		switch (state) {
+			case ChatStateActive: 
+				break;
+			case ChatStateInActive:
+				break;
+			case ChatStateGone:
+				break;
+			case ChatStateComposing:
+				break;
+			case ChatStatePaused:
+				break;
+			default:
+				break;
+		}
+	}
 }

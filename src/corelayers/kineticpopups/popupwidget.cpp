@@ -37,11 +37,8 @@ namespace KineticPopups
 			setWindowFlags(popup_settings.widgetFlags);
 			setAttribute(Qt::WA_DeleteOnClose);
 			if (popupSettings.popupFlags & ThemeHelper::Transparent) {
-				setAutoFillBackground(true);
+				setAttribute(Qt::WA_NoSystemBackground);
 				setAttribute(Qt::WA_TranslucentBackground);
-				setAttribute(Qt::WA_NoSystemBackground, false);
-				ensurePolished(); // workaround Oxygen filling the background
-				setAttribute(Qt::WA_StyledBackground, false);
 			}
 
 			if (popupSettings.popupFlags & ThemeHelper::AeroThemeIntegration) {
@@ -50,7 +47,6 @@ namespace KineticPopups
 					QtWin::extendFrameIntoClientArea(this);
 					setContentsMargins(0, 0, 0, 0);
 				}
-
 			}
 
 		}
