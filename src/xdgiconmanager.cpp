@@ -23,16 +23,10 @@
 #include "xdgenvironment.h"
 #include "xdgiconmanager_p.h"
 
-namespace
-{
-    XdgThemeChooserGnome2 gnomeChooser;
-    XdgThemeChooserKde4 kdeChooser;
-}
-
 XdgIconManager::XdgIconManager(const QList<QDir> &appDirs) : d(new XdgIconManagerPrivate)
 {
-    d->rules.insert(QLatin1String("gnome"), &gnomeChooser);
-    d->rules.insert(QLatin1String("kde"), &kdeChooser);
+    d->rules.insert(QRegExp(QLatin1String("gnome"), Qt::CaseInsensitive), &xdgGetGnomeTheme);
+    d->rules.insert(QRegExp(QLatin1String("kde"), Qt::CaseInsensitive), &xdgGetKdeTheme);
     d->init(appDirs);
 }
 
@@ -132,29 +126,36 @@ void XdgIconManager::clearRules()
     d->rules.clear();
 }
 
-void XdgIconManager::installRule(const QRegExp &regexp, const XdgThemeChooser *chooser)
+void XdgIconManager::installRule(const QRegExp &regexp, XdgThemeChooser chooser)
 {
-    d->rules.insert(regexp.pattern(), chooser);
+    d->rules.insert(regexp, chooser);
 }
 
 const XdgIconTheme *XdgIconManager::defaultTheme(const QString &xdgSession) const
 {
+    // What is xdgSession?.. Can't understand logic
+    Q_UNUSED(xdgSession);
+
+    XdgThemeChooser chooser = 0;
+    if (qgetenv("KDE_FULL_SESSION") == "true")
+        chooser = &xdgGetKdeTheme;
+    else if (!qgetenv("GNOME_DESKTOP_SESSION_ID").isEmpty())
+        chooser = &xdgGetGnomeTheme;
+
     QByteArray env = qgetenv("DESKTOP_SESSION");
     QString session = QString::fromLocal8Bit(env, env.size());
 
-    const XdgThemeChooser *chooser = &kdeChooser;
-
-    QHash<QString, const XdgThemeChooser *>::const_iterator it;
+    QHash<QRegExp, XdgThemeChooser>::const_iterator it;
 
     for (it = d->rules.begin(); it != d->rules.end(); ++it) {
         // FIXME: Is it really needed to use regular expressions here?
-        if(QRegExp(it.key()).indexIn(session) != -1) {
+        if(it.key().indexIn(session) != -1) {
             chooser = it.value();
             break;
         }
     }
 
-    return themeById(chooser->getThemeId());
+    return themeById(chooser ? (*chooser)() : QLatin1String("hicolor"));
 }
 
 const XdgIconTheme *XdgIconManager::themeByName(const QString &themeName) const

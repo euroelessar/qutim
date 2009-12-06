@@ -8,10 +8,8 @@ int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
     XdgIconManager manager;
-    XdgThemeChooserGnome2 gnomeChooser;
-    XdgThemeChooserKde4 kdeChooser;
 
-    qDebug() << manager.themeNames() << manager.themeIds() << gnomeChooser.getThemeId() << kdeChooser.getThemeId();
+    qDebug() << manager.themeNames() << manager.themeIds() << xdgGetGnomeTheme() << xdgGetKdeTheme();
 
     const XdgIconTheme *current = manager.defaultTheme();
 

@@ -27,16 +27,16 @@
 
 XdgIconEngine::XdgIconEngine(XdgIconData *data)
 {
-    m_data = data;
-    if (m_data)
-        m_data->ref.ref();
+    d = data;
+    if (d)
+        d->ref.ref();
 }
 
 XdgIconEngine::~XdgIconEngine()
 {
-    if (m_data && !m_data->ref.deref()) {
-        delete m_data;
-        m_data = 0;
+    if (d && !d->ref.deref() && !d->theme) {
+        delete d;
+        d = 0;
     }
 }
 
@@ -48,7 +48,7 @@ void XdgIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode mode
 QSize XdgIconEngine::actualSize(const QSize &size, QIcon::Mode, QIcon::State)
 {
     int min = qMin(size.width(), size.height());
-    const XdgIconEntry *entry = m_data ? m_data->findEntry(min) : 0;
+    const XdgIconEntry *entry = d ? d->findEntry(min) : 0;
     if (entry) {
         if (entry->dir->type == XdgIconDir::Scalable)
             return QSize(min, min);
@@ -63,11 +63,11 @@ QPixmap XdgIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State 
     Q_UNUSED(state);
 
     QPixmap pixmap;
-    if (!size.isValid() || !m_data)
+    if (!size.isValid() || !d)
         return pixmap;
 
     int min = qMin(size.width(), size.height());
-    const XdgIconEntry *entry = m_data->findEntry(min);
+    const XdgIconEntry *entry = d->findEntry(min);
 
     if (entry) {
         QString key = QLatin1String("$xdg_icon_");
@@ -77,7 +77,7 @@ QPixmap XdgIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State 
         key += QString::number(min);
         key += QString::number(QApplication::palette().cacheKey());
         key += QLatin1Char('_');
-        key += m_data->name;
+        key += d->name;
         key += QString::number(mode);
 
         if (QPixmapCache::find(key, pixmap))
@@ -134,7 +134,7 @@ QString XdgIconEngine::key() const
 
 QIconEngineV2 *XdgIconEngine::clone() const
 {
-    return new XdgIconEngine(m_data);
+    return new XdgIconEngine(d);
 }
 
 // TODO: There may be different IconManager's, which we should use?..

@@ -41,7 +41,7 @@ public:
     virtual bool write(QDataStream &out) const;
     virtual void virtual_hook(int id, void *data);
 protected:
-    XdgIconData *m_data;
+    XdgIconData *d;
 };
 
 #endif // XDGICONENGINE_P_H

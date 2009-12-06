@@ -21,23 +21,11 @@
 
 class QString;
 
-class XdgThemeChooser
-{
-public:
-    virtual ~XdgThemeChooser();
-    virtual QString getThemeId() const = 0;
-};
+// FIXME: Rename functions to more appropriate
 
-class XdgThemeChooserGnome2: public XdgThemeChooser
-{
-public:
-    virtual QString getThemeId() const;
-};
+typedef QString (*XdgThemeChooser)();
 
-class XdgThemeChooserKde4: public XdgThemeChooser
-{
-public:
-    virtual QString getThemeId() const;
-};
+extern QString xdgGetKdeTheme();
+extern QString xdgGetGnomeTheme();
 
 #endif // XDGTHEMECHOOSER_H

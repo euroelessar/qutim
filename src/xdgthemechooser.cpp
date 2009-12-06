@@ -23,11 +23,7 @@
 #include <QtCore/QTextStream>
 #include "xdgthemechooser.h"
 
-XdgThemeChooser::~XdgThemeChooser()
-{
-}
-
-QString XdgThemeChooserGnome2::getThemeId() const
+QString xdgGetGnomeTheme()
 {
     QString themeName;
 
@@ -71,9 +67,17 @@ QString XdgThemeChooserGnome2::getThemeId() const
     return QLatin1String("gnome");
 }
 
-QString XdgThemeChooserKde4::getThemeId() const
+QString xdgGetKdeTheme()
 {
     QDir kdeHome;
+
+    int version = QString::fromLocal8Bit(qgetenv("KDE_SESSION_VERSION")).toInt();
+    QString fallback;
+    if (version >= 4)
+        fallback = QLatin1String("oxygen");
+    else
+        fallback = QLatin1String("crystalsvg");
+
     {
         QByteArray env = qgetenv("KDEHOME");
 
@@ -81,7 +85,7 @@ QString XdgThemeChooserKde4::getThemeId() const
             kdeHome = QDir::home();
             // We should try both ~/.kde and ~/.kde4
             if (!(kdeHome.cd(QLatin1String(".kde")) || kdeHome.cd(QLatin1String(".kde4"))))
-                return QLatin1String("oxygen");
+                return fallback;
         }
         else {
             kdeHome = QString::fromLocal8Bit(env, env.size());
@@ -93,9 +97,9 @@ QString XdgThemeChooserKde4::getThemeId() const
 
         if (QFile::exists(config)) {
             QSettings settings(config, QSettings::IniFormat);
-            return settings.value(QLatin1String("Icons/Theme")).toString();
+            return settings.value(QLatin1String("Icons/Theme"), fallback).toString();
         }
     }
 
-    return QLatin1String("oxygen");
+    return fallback;
 }

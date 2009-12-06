@@ -22,6 +22,9 @@
 #include "xdgiconmanager.h"
 #include <QtCore/QSet>
 
+inline uint qHash(const QRegExp &regexp)
+{ return qHash(regexp.pattern()); }
+
 class XdgIconManagerPrivate : public QSharedData
 {
 public:
@@ -29,7 +32,7 @@ public:
     XdgIconManagerPrivate(const XdgIconManagerPrivate &o)
             : rules(o.rules), themes(o.themes), themeIdMap(o.themeIdMap) {}
     ~XdgIconManagerPrivate();
-    QHash<QString, const XdgThemeChooser *> rules;
+    QHash<QRegExp, XdgThemeChooser> rules;
     mutable QMap<QString, XdgIconTheme *> themes;
     mutable QMap<QString, XdgIconTheme *> themeIdMap;
 
