@@ -69,11 +69,8 @@ namespace AdiumChat
 		*/
 		QString makeStatus(const ChatSessionImpl *session, const Message &mes);
 
-		/*
-		for degubing purpose, must be deleted before release
-		*/
-		QString getMainCSS();
-		QString getVariantCSS();
+		inline QString getMainCSS();
+		inline QString getVariantCSS();
 		void preparePage(QWebPage *page,const ChatSessionImpl *session);
 		void reloadStyle(QWebPage* page);
 		void loadTheme(const QString &name, const QString &variant = QString());
