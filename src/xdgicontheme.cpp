@@ -40,7 +40,7 @@ const XdgIconEntry *XdgIconData::findEntry(uint size) const
     }
 
     // Then find the closest size
-    int mindist = 0;
+    uint mindist = 0;
     const XdgIconEntry *entry = 0;
     for (int i = 0; i < entries.size(); i++) {
         uint distance = XdgIconThemePrivate::dirSizeDistance(*entries[i].dir, size);
@@ -205,7 +205,7 @@ uint XdgIconThemePrivate::dirSizeDistance(const XdgIconDir &dir, uint size)
 {
     switch (dir.type) {
         case XdgIconDir::Fixed:
-            return abs(dir.size - size);
+            return qAbs(int(dir.size) - int(size));
         case XdgIconDir::Scalable:
             if(size < dir.minsize)
                 return dir.minsize - size;

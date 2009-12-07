@@ -41,6 +41,7 @@ XdgIconManager::XdgIconManager(const XdgIconManager &other) : d(other.d)
 XdgIconManager &XdgIconManager::operator =(const XdgIconManager &other)
 {
     d = other.d;
+	return *this;
 }
 
 void XdgIconManagerPrivate::init(const QList<QDir> &appDirs)
@@ -155,7 +156,7 @@ const XdgIconTheme *XdgIconManager::defaultTheme(const QString &xdgSession) cons
         }
     }
 
-    return themeById(chooser ? (*chooser)() : QLatin1String("hicolor"));
+	return themeById((chooser ? *chooser : xdgGetKdeTheme)());
 }
 
 const XdgIconTheme *XdgIconManager::themeByName(const QString &themeName) const

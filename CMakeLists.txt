@@ -15,7 +15,8 @@ set(QXDG_SOURCES
 )
 
 set(QXDG_HEADERS
-    src/xdg.h
+    src/xdg.h    
+    src/xdgexport.h
     src/xdgenvironment.h
     src/xdgicontheme.h
     src/xdgiconmanager.h
@@ -33,7 +34,8 @@ set(TEST_SOURCES main.cpp)
 
 qt4_automoc(${QXDG_SOURCES} ${TEST_SOURCES})
 add_library(q-xdg SHARED ${QXDG_SOURCES} ${QXDG_HEADERS} ${QXDG_PRIVATE_HEADERS})
-target_link_libraries(q-xdg ${QT_QTCORE_LIBRARY})
+set_target_properties(q-xdg PROPERTIES COMPILE_FLAGS "-DXDG_LIBRARY")
+target_link_libraries(q-xdg ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 
 add_executable(qxdgtest ${TEST_SOURCES})
 target_link_libraries(qxdgtest ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} q-xdg)

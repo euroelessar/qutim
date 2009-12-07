@@ -19,13 +19,13 @@
 #ifndef XDGTHEMECHOOSER_H
 #define XDGTHEMECHOOSER_H
 
-class QString;
+#include "xdgexport.h"
 
 // FIXME: Rename functions to more appropriate
 
 typedef QString (*XdgThemeChooser)();
 
-extern QString xdgGetKdeTheme();
-extern QString xdgGetGnomeTheme();
+XDG_API QString xdgGetKdeTheme();
+XDG_API QString xdgGetGnomeTheme();
 
 #endif // XDGTHEMECHOOSER_H

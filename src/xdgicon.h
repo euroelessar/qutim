@@ -20,10 +20,11 @@
 #define XDGICON_H
 
 #include <QtGui/QIcon>
+#include "xdgexport.h"
 
 class XdgIconTheme;
 
-class XdgIcon : public QIcon
+class XDG_API XdgIcon : public QIcon
 {
 public:
     XdgIcon(const QString &name, const XdgIconTheme *theme);

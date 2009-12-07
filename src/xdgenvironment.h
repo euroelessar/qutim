@@ -23,8 +23,9 @@
 #include <QtCore/QList>
 #include <QtCore/QMap>
 #include <QtCore/QProcess>
+#include "xdgexport.h"
 
-class XdgEnvironment
+class XDG_API XdgEnvironment
 {
     Q_DISABLE_COPY(XdgEnvironment)
 public:

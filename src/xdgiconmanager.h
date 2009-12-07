@@ -25,10 +25,11 @@
 #include <QtCore/QSharedData>
 #include "xdgicontheme.h"
 #include "xdgthemechooser.h"
+#include "xdgexport.h"
 
 class XdgIconManagerPrivate;
 
-class XdgIconManager
+class XDG_API XdgIconManager
 {
 public:
     XdgIconManager(const QList<QDir> &appDirs = QList<QDir>());

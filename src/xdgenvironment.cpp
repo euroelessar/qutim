@@ -16,6 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <QCoreApplication>
 #include "xdgenvironment.h"
 
 namespace
@@ -47,24 +48,38 @@ XdgEnvironment::~XdgEnvironment()
 
 QDir XdgEnvironment::dataHome()
 {
+#ifdef Q_OS_WIN32
+	return QDir(QString::fromLocal8Bit(qgetenv("appdata")) + QLatin1String("\\qutim"));
+#else
     return QDir(getValue("XDG_DATA_HOME",
                          QDir::home().absoluteFilePath(QLatin1String(".local/share"))));
+#endif
 }
 
 QDir XdgEnvironment::configHome()
 {
+#ifdef Q_OS_WIN32
+	return QDir(QString::fromLocal8Bit(qgetenv("appdata")) + QLatin1String("\\qutim\\config"));
+#else
     return QDir(getValue("XDG_CONFIG_HOME",
                          QDir::home().absoluteFilePath(QLatin1String(".config"))));
+#endif
 }
 
 QList<QDir> XdgEnvironment::dataDirs()
 {
-    return splitDirList(getValue("XDG_DATA_DIRS",
-                                 QLatin1String("/usr/local/share:/usr/share")));
+#ifdef Q_OS_WIN32
+	return QList<QDir>() << QDir(QCoreApplication::applicationDirPath());
+#else
+    return splitDirList(getValue("XDG_DATA_DIRS", QLatin1String("/usr/local/share:/usr/share")));
+#endif
 }
 
 QList<QDir> XdgEnvironment::configDirs()
 {
-    return splitDirList(getValue("XDG_CONFIG_DIRS",
-                                 QDir::home().absoluteFilePath(QLatin1String("/etc/xdg"))));
+#ifdef Q_OS_WIN32
+	return QList<QDir>() << QDir(QCoreApplication::applicationDirPath() + QLatin1String("\\config"));
+#else
+    return splitDirList(getValue("XDG_CONFIG_DIRS", QDir::home().absoluteFilePath(QLatin1String("/etc/xdg"))));
+#endif
 }

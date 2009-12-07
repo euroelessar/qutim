@@ -24,14 +24,12 @@
 #include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QVector>
-
-#ifdef QT_GUI_LIB
+#include "xdgexport.h"
 #include "xdgicon.h"
-#endif
 
 class XdgIconThemePrivate;
 
-class XdgIconTheme
+class XDG_API XdgIconTheme
 {
     Q_DECLARE_PRIVATE_D(p, XdgIconTheme)
     Q_DISABLE_COPY(XdgIconTheme)
@@ -46,14 +44,13 @@ public:
     void addParent(const XdgIconTheme *parent);
     QString getIconPath(const QString &name, uint size = 22) const;
 
-#ifdef QT_GUI_LIB
     inline QIcon getIcon(const QString &name) const
     { return XdgIcon(name, this); }
     inline QPixmap getPixmap(const QString &name, int size) const
     { return getIcon(name).pixmap(size); }
     inline QPixmap getPixmap(const QString &name, QSize size) const
     { return getIcon(name).pixmap(size); }
-#endif
+
 protected:
     XdgIconThemePrivate *p;
 public:
