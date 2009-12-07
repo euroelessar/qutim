@@ -21,6 +21,7 @@
 #include "icqcontact.h"
 #include "connection.h"
 #include "roster.h"
+#include "xtraz.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
@@ -330,8 +331,25 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 						codec = asciiCodec();
 					appendMessage(uin, codec->toUnicode(message_data));
 				}
+				else if(MsgPlugin)
+				{
+					data.readData<quint16>(DataUnit::LittleEndian);
+					DataUnit info = data.readData<quint16>(DataUnit::LittleEndian);
+					Capability pluginType = info.readCapability().data();
+					quint16 pluginId = info.readSimple<quint16>(DataUnit::LittleEndian);
+					QString pluginName = info.readString<quint32>(asciiCodec(), DataUnit::LittleEndian);
+					DataUnit pluginData = data.readData<quint32>(DataUnit::LittleEndian);
+					if(pluginType == MSG_XSTRAZ_SCRIPT)
+					{
+						Xtraz::handleXtraz(contact, pluginId, pluginData);
+					}
+					else
+						qDebug() << "Unhandled plugin message"
+								<< pluginType.toString() << pluginId << pluginName 
+								<< pluginData.data().toHex();
+				}
 				else
-					qDebug() << "Unhandled message (channel2) with type" << type;
+					qDebug() << "Unhandled message (channel2) with type" << hex << type;
 			}
 			else
 				qDebug() << "Unknown format of message on channel2";

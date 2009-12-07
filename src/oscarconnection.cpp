@@ -239,6 +239,8 @@ void OscarConnection::sendUserInfo()
 	caps.appendValue(Capability(0x09461343, 0x4c7f11d1, 0x82224445, 0x53540000));
 	// ICQ typing
 	caps.appendValue(ICQ_CAPABILITY_TYPING);
+	// Xtraz
+	caps.appendValue(ICQ_CAPABILITY_XTRAZ);
 	// Messages on channel 2
 	caps.appendValue(ICQ_CAPABILITY_SRVxRELAY);
 	// Short capability support
