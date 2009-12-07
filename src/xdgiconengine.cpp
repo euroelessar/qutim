@@ -112,7 +112,7 @@ QPixmap XdgIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State 
                 pixmap = generated;
 
             key.chop(1);
-            key += QString::number(state);
+            key += QString::number(mode);
             QPixmapCache::insert(key, pixmap);
         }
     }

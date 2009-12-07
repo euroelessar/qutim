@@ -75,6 +75,8 @@ public:
     XdgIconData *findIcon(const QString &name) const;
     QString findIcon(const QString &name, uint size) const;
     XdgIconData *lookupIconRecursive(const QString &name) const;
+    XdgIconData *tryCache(const QString &name) const;
+    void saveToCache(const QString &originName, XdgIconData *data) const;
     QString lookupFallbackIcon(const QString &name) const;
     static bool dirMatchesSize(const XdgIconDir &dir, uint size);
     static uint dirSizeDistance(const XdgIconDir &dir, uint size);

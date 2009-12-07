@@ -137,7 +137,7 @@ const XdgIconTheme *XdgIconManager::defaultTheme(const QString &xdgSession) cons
     Q_UNUSED(xdgSession);
 
     XdgThemeChooser chooser = 0;
-    if (qgetenv("KDE_FULL_SESSION") == "true")
+    if (!qgetenv("KDE_FULL_SESSION").isEmpty())
         chooser = &xdgGetKdeTheme;
     else if (!qgetenv("GNOME_DESKTOP_SESSION_ID").isEmpty())
         chooser = &xdgGetGnomeTheme;

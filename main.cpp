@@ -1,4 +1,5 @@
 #include <QtCore/QDebug>
+#include <QtCore/QTime>
 #include <QtGui/QApplication>
 #include <QtGui/QIcon>
 #include <QtGui/QLabel>
@@ -13,20 +14,16 @@ int main(int argc, char** argv)
 
     const XdgIconTheme *current = manager.defaultTheme();
 
-    if(current)
-    {
+    if(current) {
         qDebug() << current->getIconPath("document-new", 22);
-        qDebug() << current->getIconPath("document-open", 22);
-
-        QIcon icon = current->getIcon("document-save");
+        qDebug() << current->getIconPath("document-open-subtype-test", 64);
+        QIcon icon = current->getIcon("document-save-test");
         QPixmap pixmap = icon.pixmap(64, QIcon::Selected);
         QLabel label;
         label.setPixmap(pixmap);
         label.show();
         return QApplication::exec();
-    }
-    else
-    {
+    } else {
         qDebug() << "Current theme not found!";
     }
 }

@@ -18,6 +18,7 @@
 
 #include <limits>
 #include <QtCore/QSettings>
+#include <QtCore/QSet>
 #include "xdgicontheme_p.h"
 
 namespace
@@ -80,46 +81,94 @@ XdgIconData *XdgIconThemePrivate::findIcon(const QString &name) const
     return data;
 }
 
-XdgIconData *XdgIconThemePrivate::lookupIconRecursive(const QString &name) const
+XdgIconData *XdgIconThemePrivate::lookupIconRecursive(const QString &originName) const
 {
     XdgIconData *data = 0;
 
-    foreach (const XdgIconDir &dirdata, subdirs) {
-        QString path = id;
-        path += QLatin1Char('/');
-        path += dirdata.path;
-        path += QLatin1Char('/');
-        path += name;
+    QString name = originName;
+    while (!name.isEmpty()) {
+        if (data = tryCache(name))
+            return data;
 
-        for (int j = 0; j < basedirs.size(); j++) {
-            for (int k = 0; k < extCount; k++) {
-                path += QLatin1String(exts[k]);
-                QString filename = QDir(basedirs.at(j)).absoluteFilePath(path);
+        foreach (const XdgIconDir &dirdata, subdirs) {
+            QString path = id;
+            path += QLatin1Char('/');
+            path += dirdata.path;
+            path += QLatin1Char('/');
+            path += name;
 
-                if (QFile::exists(filename)) {
-                    if (!data) {
-                        data = new XdgIconData;
-                        data->theme = this;
-                        data->name = name;
-                        path.chop(qstrlen(exts[k]));
+            for (int j = 0; j < basedirs.size(); j++) {
+                for (int k = 0; k < extCount; k++) {
+                    path += QLatin1String(exts[k]);
+                    QString filename = QDir(basedirs.at(j)).absoluteFilePath(path);
+
+                    if (QFile::exists(filename)) {
+                        if (!data) {
+                            data = new XdgIconData;
+                            data->theme = this;
+                            data->name = name;
+                            path.chop(qstrlen(exts[k]));
+                        }
+                        data->entries.append(XdgIconEntry(&dirdata, filename));
                         break;
                     }
-                    data->entries.append(XdgIconEntry(&dirdata, filename));
+                    path.chop(qstrlen(exts[k]));
                 }
-                path.chop(qstrlen(exts[k]));
             }
+        }
+        if (data) {
+            saveToCache(originName, data);
+            return data;
+        }
+        int pos = name.lastIndexOf(QLatin1Char('-'));
+        if (pos != -1) {
+            name.truncate(pos);
         }
     }
 
     if (!data) {
         foreach (const XdgIconTheme *parent, parents) {
             data = parent->d_func()->lookupIconRecursive(name);
-            if (data)
+            if (data) {
+                saveToCache(originName, data);
                 break;
+            }
         }
     }
 
+    if (!data)
+        saveToCache(originName, 0);
+
     return data;
+}
+
+XdgIconData *XdgIconThemePrivate::tryCache(const QString &name) const
+{
+    QString key;
+    key.reserve(id.size() + name.size() + 1);
+    key += id;
+    key += QLatin1Char('\0');
+    key += name;
+
+    return cache.value(key, 0);
+}
+
+void XdgIconThemePrivate::saveToCache(const QString &originName, XdgIconData *data) const
+{
+    QString name = originName;
+    QString key = id;
+    key += QLatin1Char('\0');
+    while (!name.isEmpty() && (name.size() >= (data ? data->name.size() : 0))) {
+        key += name;
+        cache.insert(key, data);
+
+        int pos = name.lastIndexOf(QLatin1Char('-'));
+        if (pos == -1)
+            return;
+
+        key.truncate(id.size() + 1);
+        name.truncate(pos);
+    }
 }
 
 QString XdgIconThemePrivate::lookupFallbackIcon(const QString &name) const
@@ -214,8 +263,10 @@ XdgIconTheme::XdgIconTheme(const QVector<QDir> &basedirs, const QString &id, con
 
 XdgIconTheme::~XdgIconTheme()
 {
-    foreach (XdgIconData *data, p->cache) {
-        if (data->destroy())
+    // There sometimes equal values for different keys, i.e. because of fallback
+    QSet<XdgIconData *> allData = QSet<XdgIconData *>::fromList(p->cache.values());
+    foreach (XdgIconData *data, allData) {
+        if (data->theme == p && data->destroy())
             delete data;
     }
     delete p;
