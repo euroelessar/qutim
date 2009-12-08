@@ -58,7 +58,7 @@ namespace qutim_sdk_0_3
 			fmap = (uchar *)array.constData();
 		}
 		const uchar *s = K8JSON::skipBlanks(fmap, &len);
-		bool result = (K8JSON::parseRec(variant, s, &len) != 0);
+		bool result = (K8JSON::parseRecord(variant, s, &len) != 0);
 		p->file.close();
 		return result;
 	}

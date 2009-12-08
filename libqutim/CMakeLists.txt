@@ -7,12 +7,9 @@ FILE( GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" )
 FILE( GLOB HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
 
 # Add K8JSON code
+ADD_DEFINITIONS( -DK8JSON_INCLUDE_GENERATOR )
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/k8json.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/k8json.h" )
-
-# Add QtIconLoader code
-LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qticonloader/qticonloader.cpp" )
-LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qticonloader/qticonloader.h" )
 
 # Add QtWin code
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtwin/qtwin.cpp" )

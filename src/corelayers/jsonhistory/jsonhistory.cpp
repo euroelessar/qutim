@@ -183,7 +183,7 @@ namespace Core
 				value.clear();
 				s = pointers[i];
 				len = file.size() + 1 - (s - fmap);
-				K8JSON::parseRec(value, s, &len);
+				K8JSON::parseRecord(value, s, &len);
 				QVariantMap message = value.toMap();
 				Message item;
 				QVariantMap::iterator it = message.begin();

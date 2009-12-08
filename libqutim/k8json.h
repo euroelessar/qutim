@@ -61,7 +61,7 @@ namespace K8JSON
 	 * return ptr to the first non-blank char after the record (or 0)
 	 * 'maxLen' will be changed
 	 */
-	LIBQUTIM_EXPORT const uchar *parseRec(QVariant &res, const uchar *s, int *maxLength);
+	LIBQUTIM_EXPORT const uchar *parseRecord(QVariant &res, const uchar *s, int *maxLength);
 
 	LIBQUTIM_EXPORT bool generate(QByteArray &res, const QVariant &val, int indent=0);
 }
