@@ -1,5 +1,5 @@
 /****************************************************************************
- *  widgetactiongenerator.h
+ *  actiongenerator.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,32 +13,38 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef WIDGETACTIONGENERATOR_H
-#define WIDGETACTIONGENERATOR_H
+#ifndef ACTIONGENERATOR_H
+#define ACTIONGENERATOR_H
 
-#include "actiontoolbar.h"
-#include <QWidgetAction>
+#include "objectgenerator.h"
+#include "localizedstring.h"
+#include <QtGui/QIcon>
+#include <QtGui/QAction>
 
 namespace qutim_sdk_0_3
 {
-	struct WidgetActionGeneratorPrivate;
+	struct ActionGeneratorPrivate;
 
-	class LIBQUTIM_EXPORT WidgetActionGenerator : public ActionGenerator
+	class LIBQUTIM_EXPORT ActionGenerator : public ObjectGenerator
 	{
+		Q_DECLARE_PRIVATE(ActionGenerator)
+		Q_DISABLE_COPY(ActionGenerator)
 	public:
-		WidgetActionGenerator(const QIcon &icon, const LocalizedString &text, const QObject *receiver, const char *member);
-		virtual ~WidgetActionGenerator();
-
-		template <typename T>
-		WidgetActionGenerator *setWidget()
-		{ return setWidget(new GeneralGenerator<T>()); }
-		WidgetActionGenerator *setWidget(ObjectGenerator *gen);
-		WidgetActionGenerator *addWidgetProperty(const QByteArray &name, const QVariant &value);
+		ActionGenerator(const QIcon &icon, const LocalizedString &text, const QObject *receiver, const char *member);
+		virtual ~ActionGenerator();
+		QIcon icon() const;
+		const LocalizedString &text() const;
+		ActionGenerator *addProperty(const QByteArray &name, const QVariant &value);
+		int type() const;
+		ActionGenerator *setType(int type);
+		int priority() const;
+		ActionGenerator *setPriority(int priority);
 	protected:
+		QAction *prepareAction(QAction *action) const;
 		virtual QObject *generateHelper() const;
-	private:
-		QScopedPointer<WidgetActionGeneratorPrivate> p;
+		virtual const QMetaObject *metaObject() const;
+		virtual bool hasInterface(const char *id) const;
 	};
 }
 
-#endif // WIDGETACTIONGENERATOR_H
+#endif // ACTIONGENERATOR_H

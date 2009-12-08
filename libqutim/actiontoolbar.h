@@ -16,15 +16,12 @@
 #ifndef ACTIONTOOLBAR_H
 #define ACTIONTOOLBAR_H
 
-#include "objectgenerator.h"
-#include "libqutim_global.h"
+#include "actiongenerator.h"
 #include <QToolBar>
 
 namespace qutim_sdk_0_3
 {
 	struct ActionToolBarPrivate;
-	struct ActionGeneratorPrivate;
-	class ActionGenerator;
 
 	class LIBQUTIM_EXPORT ActionToolBar : public QToolBar
 	{
@@ -44,23 +41,6 @@ namespace qutim_sdk_0_3
 		QVariant data() const;
 	private:
 		QScopedPointer<ActionToolBarPrivate> p;
-	};
-
-	class LIBQUTIM_EXPORT ActionGenerator : public ObjectGenerator
-	{
-	public:
-		ActionGenerator(const QIcon &icon, const QString &text, const QObject *receiver, const char *member);
-		virtual ~ActionGenerator();
-		QIcon icon() const;
-		QString text() const;
-		ActionGenerator *addProperty(const QByteArray &name, const QVariant &value);
-	protected:
-		QAction *prepareAction(QAction *action) const;
-		virtual QObject *generateHelper() const;
-		virtual const QMetaObject *metaObject() const;
-		virtual bool hasInterface(const char *id) const;
-	private:
-		QScopedPointer<ActionGeneratorPrivate> p;
 	};
 }
 

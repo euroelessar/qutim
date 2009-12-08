@@ -24,7 +24,7 @@ namespace qutim_sdk_0_3
 	{
 	};
 
-	Contact::Contact(Account *account) : ChatUnit(account, new ContactPrivate)
+	Contact::Contact(Account *account) : ChatUnit(*new ContactPrivate, account)
 	{
 	}
 

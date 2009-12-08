@@ -1,5 +1,5 @@
 /****************************************************************************
- *  chatunit_p.h
+ *  menucontroller.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,18 +13,31 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef CHATUNIT_P_H
-#define CHATUNIT_P_H
+#ifndef MENUUNIT_H
+#define MENUUNIT_H
 
-#include "chatunit.h"
-#include "menucontroller_p.h"
+#include "actiongenerator.h"
+#include <QtGui/QMenu>
 
 namespace qutim_sdk_0_3
 {
-	struct ChatUnitPrivate : public MenuControllerPrivate
+	class MenuControllerPrivate;
+
+	class LIBQUTIM_EXPORT MenuController : public QObject
 	{
-		Account *account;
+		Q_DISABLE_COPY(MenuController)
+		Q_DECLARE_PRIVATE(MenuController)
+	public:
+		MenuController(QObject *parent = 0);
+		MenuController(MenuControllerPrivate &p, QObject *parent = 0);
+		virtual ~MenuController();
+
+		QMenu *menu(bool deleteOnClose = true) const;
+		void addAction(const ActionGenerator *gen);
+		static void addAction(const ActionGenerator *gen, const QMetaObject *meta);
+	protected:
+		QScopedPointer<MenuControllerPrivate> d_ptr;
 	};
 }
 
-#endif // CHATUNIT_P_H
+#endif // MENUUNIT_H

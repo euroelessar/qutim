@@ -1,5 +1,5 @@
 /****************************************************************************
- *  chatunit_p.h
+ *  menucontroller_p.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,18 +13,18 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef CHATUNIT_P_H
-#define CHATUNIT_P_H
+#ifndef MENUCONTROLLER_P_H
+#define MENUCONTROLLER_P_H
 
-#include "chatunit.h"
-#include "menucontroller_p.h"
+#include "menucontroller.h"
 
 namespace qutim_sdk_0_3
 {
-	struct ChatUnitPrivate : public MenuControllerPrivate
+	class MenuControllerPrivate
 	{
-		Account *account;
+	public:
+		QList<const ActionGenerator *> actions;
 	};
 }
 
-#endif // CHATUNIT_P_H
+#endif // MENUCONTROLLER_P_H

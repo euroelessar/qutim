@@ -125,6 +125,8 @@ ENDFOREACH( LAYER )
 #endif(MINGW)
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libqutim/" "${CMAKE_CURRENT_BINARY_DIR}/libqutim")
+#set( XDG_NOT_BUILD_TEST true )
+#add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/q-xdg" "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/q-xdg")
 REMOVE_DEFINITIONS ( -DLIBQUTIM_LIBRARY )
 
 QT4_WRAP_CPP (MOC_SRCS ${HEADERS})

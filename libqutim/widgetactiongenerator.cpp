@@ -24,7 +24,7 @@ namespace qutim_sdk_0_3
 		ObjectGenerator *generator;
 	};
 
-	WidgetActionGenerator::WidgetActionGenerator(const QIcon &icon, const QString &text, const QObject *receiver, const char *member)
+	WidgetActionGenerator::WidgetActionGenerator(const QIcon &icon, const LocalizedString &text, const QObject *receiver, const char *member)
 			: ActionGenerator(icon, text, receiver, member)
 	{
 		p->generator = 0;

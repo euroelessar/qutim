@@ -103,7 +103,7 @@ namespace qutim_sdk_0_3
 		return d->icon;
 	}
 
-	ExtensionInfo::Data *ExtensionInfo::data()
+	ExtensionInfo::Data *ExtensionInfo::data() const
 	{
 		return const_cast<Data *>(d.constData());
 	}

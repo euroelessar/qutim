@@ -17,6 +17,7 @@
 #define ACCOUNT_H
 
 #include "configbase.h"
+#include "menucontroller.h"
 #include <QMetaType>
 
 namespace qutim_sdk_0_3
@@ -26,8 +27,9 @@ namespace qutim_sdk_0_3
 	class Protocol;
 	struct AccountPrivate;
 
-	class LIBQUTIM_EXPORT Account : public QObject
+	class LIBQUTIM_EXPORT Account : public MenuController
 	{
+		Q_DECLARE_PRIVATE(Account)
 		Q_OBJECT
 		Q_PROPERTY(QString id READ id)
 		Q_PROPERTY(Status status READ status WRITE setStatus NOTIFY statusChanges)
@@ -49,8 +51,6 @@ namespace qutim_sdk_0_3
 		void contactCreated(qutim_sdk_0_3::Contact *);
 		void nameChanged(const QString &name);
 		void statusChanged(Status status);
-	private:
-		QScopedPointer<AccountPrivate> p;
 	};
 }
 

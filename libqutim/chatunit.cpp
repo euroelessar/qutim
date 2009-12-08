@@ -18,14 +18,14 @@
 
 namespace qutim_sdk_0_3
 {
-	ChatUnit::ChatUnit(Account *account) : QObject(account), p(new ChatUnitPrivate)
+	ChatUnit::ChatUnit(Account *account) : MenuController(*new ChatUnitPrivate, account)
 	{
-		p->account = account;
+		d_func()->account = account;
 	}
 
-	ChatUnit::ChatUnit(Account *account, ChatUnitPrivate *d) : p(d)
+	ChatUnit::ChatUnit(ChatUnitPrivate &d, Account *account) : MenuController(d, account)
 	{
-		p->account = account;
+		d_func()->account = account;
 	}
 
 	ChatUnit::~ChatUnit()
@@ -40,12 +40,12 @@ namespace qutim_sdk_0_3
 
 	Account *ChatUnit::account()
 	{
-		return p->account;
+		return d_func()->account;
 	}
 
 	const Account *ChatUnit::account() const
 	{
-		return p->account;
+		return d_func()->account;
 	}
 
 	ChatUnitList ChatUnit::lowerUnits()

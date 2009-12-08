@@ -47,7 +47,7 @@ namespace qutim_sdk_0_3
 		QSharedDataPointer<ExtensionInfoData> d;
 	public:
 		typedef ExtensionInfoData Data;
-		Data *data();
+		Data *data() const;
 	};
 
 	typedef QList<ExtensionInfo> ExtensionInfoList;

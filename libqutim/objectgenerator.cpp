@@ -18,7 +18,11 @@
 
 namespace qutim_sdk_0_3
 {
-	ObjectGenerator::ObjectGenerator() : p(new ObjectGeneratorPrivate)
+	ObjectGenerator::ObjectGenerator() : d_ptr(new ObjectGeneratorPrivate)
+	{
+	}
+
+	ObjectGenerator::ObjectGenerator(ObjectGeneratorPrivate &priv) : d_ptr(&priv)
 	{
 	}
 
@@ -28,23 +32,25 @@ namespace qutim_sdk_0_3
 
 	ObjectGenerator *ObjectGenerator::addProperty(const QByteArray &name, const QVariant &value)
 	{
-		int index = p->names.indexOf(name);
+		Q_D(ObjectGenerator);
+		int index = d->names.indexOf(name);
 		if (index != -1) {
-			p->values[index] = value;
+			d->values[index] = value;
 		} else {
-			p->names.append(name);
-			p->values.append(value);
+			d->names.append(name);
+			d->values.append(value);
 		}
 		return this;
 	}
 
 	QObject *ObjectGenerator::generateHelper2() const
 	{
+		Q_D(const ObjectGenerator);
 		if (QObject *obj = generateHelper()) {
-			for (int i = 0; i < p->names.size(); i++)
-				obj->setProperty(p->names.at(i), p->values.at(i));
-			if (p->info.data())
-				obj->setProperty("extensioninfo", QVariant::fromValue(p->info));
+			for (int i = 0; i < d->names.size(); i++)
+				obj->setProperty(d->names.at(i), d->values.at(i));
+			if (d->info.data())
+				obj->setProperty("extensioninfo", QVariant::fromValue(d->info));
 			return obj;
 		}
 		return NULL;

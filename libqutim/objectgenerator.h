@@ -25,9 +25,11 @@ namespace qutim_sdk_0_3
 
 	class LIBQUTIM_EXPORT ObjectGenerator
 	{
+		Q_DECLARE_PRIVATE(ObjectGenerator)
 		Q_DISABLE_COPY(ObjectGenerator)
 	protected:
 		ObjectGenerator();
+		ObjectGenerator(ObjectGeneratorPrivate &priv);
 	public:
 		typedef ObjectGeneratorPrivate Data;
 		virtual ~ObjectGenerator();
@@ -70,10 +72,9 @@ namespace qutim_sdk_0_3
 
 		QObject *generateHelper2() const;
 		virtual QObject *generateHelper() const = 0;
-	private:
-		QScopedPointer<ObjectGeneratorPrivate> p;
+		QScopedPointer<ObjectGeneratorPrivate> d_ptr;
 	public:
-		inline Data *data() { return p.data(); }
+		inline Data *data() { return d_ptr.data(); }
 	};
 
 	template<typename T, typename I0 = void,

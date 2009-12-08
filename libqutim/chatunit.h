@@ -16,7 +16,7 @@
 #ifndef CHATUNIT_H
 #define CHATUNIT_H
 
-#include "libqutim_global.h"
+#include "menucontroller.h"
 #include <QMetaType>
 
 namespace qutim_sdk_0_3
@@ -27,15 +27,16 @@ namespace qutim_sdk_0_3
 	struct ChatUnitPrivate;
 	typedef QList<ChatUnit *> ChatUnitList;
 
-	class LIBQUTIM_EXPORT ChatUnit : public QObject
+	class LIBQUTIM_EXPORT ChatUnit : public MenuController
 	{
+		Q_DECLARE_PRIVATE(ChatUnit)
 		Q_OBJECT
 		Q_PROPERTY(QString id READ id)
 		Q_PROPERTY(QString title READ title)
 		Q_PROPERTY(Account* account READ account)
 	public:
 		ChatUnit(Account *account);
-		ChatUnit(Account *account, ChatUnitPrivate *d);
+		ChatUnit(ChatUnitPrivate &d, Account *account);
 		virtual ~ChatUnit();
 		virtual QString id() const = 0;
 		virtual QString title() const;
@@ -44,8 +45,6 @@ namespace qutim_sdk_0_3
 		virtual void sendMessage(const Message &message) = 0;
 		virtual ChatUnitList lowerUnits();
 		virtual ChatUnit *upperUnit();
-	protected:
-		QScopedPointer<ChatUnitPrivate> p;
 	};
 }
 

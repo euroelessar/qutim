@@ -14,24 +14,26 @@
 *****************************************************************************/
 
 #include <QPointer>
+#include "menucontroller_p.h"
 #include "account.h"
 #include "contact.h"
 #include "protocol.h"
 
 namespace qutim_sdk_0_3
 {
-	struct AccountPrivate
+	struct AccountPrivate : public MenuControllerPrivate
 	{
 		QPointer<Protocol> protocol;
 		QString id;
 		Status status;
 	};
 
-	Account::Account(const QString &id, Protocol *protocol) : QObject(protocol), p(new AccountPrivate)
+	Account::Account(const QString &id, Protocol *protocol) : MenuController(*new AccountPrivate, protocol)
 	{
-		p->protocol = protocol;
-		p->id = id;
-		p->status = Offline;
+		Q_D(Account);
+		d->protocol = protocol;
+		d->id = id;
+		d->status = Offline;
 	}
 
 	Account::~Account()
@@ -44,17 +46,18 @@ namespace qutim_sdk_0_3
 
 	QString Account::id() const
 	{
-		return p->id;
+		return d_func()->id;
 	}
 
 	QString Account::name() const
 	{
-		return p->id;
+		return d_func()->id;
 	}
 
 	Config Account::config()
 	{
-		return Config(p->protocol->id() + QLatin1Char('.') + p->id + QLatin1String("/account"));
+		Q_D(Account);
+		return Config(d->protocol->id() + QLatin1Char('.') + d->id + QLatin1String("/account"));
 	}
 
 	ConfigGroup Account::config(const QString &group)
@@ -64,22 +67,22 @@ namespace qutim_sdk_0_3
 		
 	Status Account::status() const
 	{
-		return p->status;
+		return d_func()->status;
 	}
 
 	Protocol *Account::protocol()
 	{
-		return p->protocol;
+		return d_func()->protocol;
 	}
 
 	const Protocol *Account::protocol() const
 	{
-		return p->protocol;
+		return d_func()->protocol;
 	}
 		
 	void Account::setStatus(Status status)
 	{
-		p->status = status;
+		d_func()->status = status;
 	}
 
 	ChatUnit *Account::getUnitForSession(ChatUnit *unit)
