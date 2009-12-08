@@ -14,8 +14,8 @@ namespace Core
 		IconLoaderImpl();
 		virtual QIcon loadIcon(const QString &name);
 		virtual QMovie *loadMovie(const QString &name);
-		virtual QString iconPath(const QString &name, StdSize iconSize);
-		virtual QString moviePath(const QString &name, StdSize iconSize);
+		virtual QString iconPath(const QString &name, uint iconSize);
+		virtual QString moviePath(const QString &name, uint iconSize);
 	};
 }
 

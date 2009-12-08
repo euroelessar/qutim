@@ -29,20 +29,20 @@ namespace qutim_sdk_0_3
 	public:
 		enum StdSize
 		{
-			StdSize16,
-			StdSize22,
-			StdSize32,
-			StdSize28,
-			StdSize64,
-			StdSize128
+			StdSize16  = 16,
+			StdSize22  = 22,
+			StdSize32  = 32,
+			StdSize28  = 28,
+			StdSize64  = 64,
+			StdSize128 = 128
 		};
 		IconLoader();
 		virtual ~IconLoader();
 		static IconLoader *instance();
 		virtual QIcon loadIcon(const QString &name) = 0;
 		virtual QMovie *loadMovie(const QString &name) = 0;
-		virtual QString iconPath(const QString &name, StdSize iconSize) = 0;
-		virtual QString moviePath(const QString &name, StdSize iconSize) = 0;
+		virtual QString iconPath(const QString &name, uint iconSize) = 0;
+		virtual QString moviePath(const QString &name, uint iconSize) = 0;
 	};
 }
 
