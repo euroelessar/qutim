@@ -101,6 +101,7 @@ public:
 class ServerMessage: public SNAC
 {
 public:
+	ServerMessage();
 	ServerMessage(const QString &uin, const Channel1MessageData &data, bool storeMessage = true);
 	ServerMessage(const QString &uin, const Channel2BasicMessageData &data);
 protected:

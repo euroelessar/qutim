@@ -17,13 +17,19 @@
 #define XTRAZ_H
 
 #include "icq_global.h"
+#include "messages.h"
 
 class QXmlStreamReader;
 
 namespace Icq {
 
 class IcqContact;
-class DataUnit;
+
+class XtrazRequest: public ServerMessage
+{
+public:
+	XtrazRequest(const QString uin, const QString &query, const QString &notify);
+};
 
 class Xtraz
 {

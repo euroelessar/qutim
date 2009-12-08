@@ -69,12 +69,12 @@ Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags)
 void Tlv2711::appendXData(quint16 X1, quint16 X2)
 {
 	appendSimple<quint16>(X1, LittleEndian);
-	appendSimple<quint16>(X2);
+	appendSimple<quint16>(X2, LittleEndian);
 }
 
 void Tlv2711::appendEmptyPacket()
 {
-	appendSimple<quint16>(1);
+	appendSimple<quint16>(1, LittleEndian);
 	appendSimple<quint8>(0);
 }
 
@@ -99,6 +99,12 @@ Channel2MessageData::Channel2MessageData(quint16 ackType, const Tlv2711 &data):
 	}*/
 	appendTLV(0x000F);
 	appendTLV(0x2711, data.data());
+}
+
+ServerMessage::ServerMessage():
+		SNAC(MessageFamily, MessageSrvSend)
+{
+
 }
 
 ServerMessage::ServerMessage(const QString &uin, const Channel1MessageData &data, bool storeMessage):

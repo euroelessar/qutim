@@ -263,7 +263,7 @@ void AbstractConnection::processSnac()
 		handler->handleSNAC(this, snac);
 	}
 	if(!found)
-		qWarning("No handlers for SNAC %02X %02X", int(snac.family()), int(snac.subtype()));
+		qWarning("No handlers for SNAC %02X %02X %s", int(snac.family()), int(snac.subtype()), metaObject()->className());
 }
 
 void AbstractConnection::readData()

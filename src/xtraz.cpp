@@ -14,7 +14,6 @@
 *****************************************************************************/
 
 #include "xtraz.h"
-#include "dataunit.h"
 #include "icqcontact.h"
 #include <QXmlStreamReader>
 #include <QDebug>
@@ -28,6 +27,49 @@ enum XtrazType
 	xtrazUserRemove = 0x0004,
 	xtrazNotify     = 0x0008
 };
+
+XtrazRequest::XtrazRequest(const QString uin, const QString &query, const QString &notify)
+{
+	QString body;
+	{
+		QXmlStreamWriter xml(&body);
+		xml.writeStartElement("N");
+		xml.writeStartElement("QUERY");
+		xml.writeCharacters(query);
+		xml.writeEndElement();
+		xml.writeStartElement("NOTIFY");
+		xml.writeCharacters(notify);
+		xml.writeEndElement();
+		xml.writeEndElement();
+	}
+	Tlv2711 tlv(MsgPlugin, 0);
+	tlv.appendXData(0, 1);
+	tlv.appendEmptyPacket();
+
+	// Plugin type ID
+	tlv.appendSimple<quint16>(0x04f, DataUnit::LittleEndian); // Length
+	tlv.appendData(Capability(0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865));    // type: xtraz script
+	tlv.appendSimple<quint16>(0x0008, DataUnit::LittleEndian); // Function ID: script notify
+	tlv.appendSimple<quint32>(0x002a, DataUnit::LittleEndian); // Request type
+	tlv.appendData("Script Plug-in: Remote Notification Arrive", Util::asciiCodec());
+	// unknown
+	tlv.appendSimple<quint32>(0x00000100);
+	tlv.appendSimple<quint32>(0x00000000);
+	tlv.appendSimple<quint32>(0x00000000);
+	tlv.appendSimple<quint16>(0x0000);
+	tlv.appendSimple<quint8>(0x00);
+
+	// data
+	{
+		DataUnit data;
+		data.appendData<quint32>(body, Util::asciiCodec(), DataUnit::LittleEndian);
+		tlv.appendData<quint32>(data.data(), DataUnit::LittleEndian);
+	}
+
+	init(uin, 2, tlv.cookie());
+	appendTLV(0x05, Channel2MessageData(1, tlv).data());
+	appendTLV(0x03);
+}
 
 Xtraz::Xtraz()
 {
