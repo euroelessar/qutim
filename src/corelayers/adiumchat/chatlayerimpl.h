@@ -39,6 +39,7 @@ namespace AdiumChat
 		void onSessionDestroyed(QObject* object);
 		void onChatWidgetDestroyed(QObject *object);
 		void onSessionActivated(bool active);
+		void onStartChat();
 	private:
 		inline QString getWidgetId(ChatSessionImpl *sess) const;
 		//QHash<Account * , QPair<QPointer<Account>, ChatSessionHash> >  m_chat_sessions;//TODO more safe

@@ -1,6 +1,7 @@
 #include "simplecontactlistview.h"
 #include "simplecontactlistitem.h"
 #include "libqutim/messagesession.h"
+#include <QtGui/QContextMenuEvent>
 
 namespace Core
 {
@@ -19,6 +20,18 @@ namespace Core
 				Contact *contact = item->data->contact;
 				if (ChatSession *session = ChatLayer::get(contact, true))
 					session->activate();
+			}
+		}
+
+		void TreeView::contextMenuEvent(QContextMenuEvent *event)
+		{
+			QModelIndex index = indexAt(event->pos());
+			ItemType type = getItemType(index);
+			if (type == ContactType) {
+				ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
+				Contact *contact = item->data->contact;
+				qDebug("%s", qPrintable(contact->id()));
+				contact->menu(true)->popup(event->globalPos());
 			}
 		}
 	}

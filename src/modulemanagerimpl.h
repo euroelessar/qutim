@@ -41,6 +41,8 @@ namespace Core
 		typename I4, typename I5, typename I6, typename I7, typename I8, typename I9>
 		friend class CoreSingleModuleHelper;
 		template<typename T, typename V> friend class CoreModuleHelper2;
+		template <void (*T)()>
+		friend class CoreStartupHelper;
 	};
 
 	template <typename T, typename I0, typename I1, typename I2, typename I3,
@@ -53,6 +55,38 @@ namespace Core
 			ModuleManagerImpl::extensions()
 					<< ExtensionInfo(name, description,
 									 new GeneralGenerator<T, I0, I1, I2, I3, I4, I5, I6, I7, I8, I9>());
+		}
+	};
+
+	class CoreStartupModuleHelper : public QObject
+	{
+		Q_OBJECT
+	public:
+		CoreStartupModuleHelper(void (*method)() = 0)
+		{
+			(*method)();
+			deleteLater();
+		}
+	};
+
+	template <void (*T)()>
+	class CoreStartupHelper
+	{
+	private:
+		template <void (*F)()>
+		class Generator : public GeneralGenerator<CoreStartupModuleHelper, StartupModule>
+		{
+		protected:
+			virtual QObject *generateHelper() const
+			{
+				return new CoreStartupModuleHelper(F);
+			}
+		};
+	public:
+		inline CoreStartupHelper(const char *name, const char *description)
+		{
+			ModuleManagerImpl::extensions()
+					<< ExtensionInfo(name, description, new Generator<T>());
 		}
 	};
 

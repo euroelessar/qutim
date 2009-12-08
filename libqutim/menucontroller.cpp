@@ -15,6 +15,7 @@
 
 #include "menucontroller_p.h"
 #include <QMap>
+#include <QDebug>
 
 namespace qutim_sdk_0_3
 {
@@ -52,7 +53,7 @@ namespace qutim_sdk_0_3
 		QList<const ActionGenerator *> actions = d_func()->actions;
 		const QMetaObject *meta = metaObject();
 		while (meta) {
-			actions.append(globalActions()->value(meta));
+			actions.append(globalActions()->values(meta));
 			meta = meta->superClass();
 		}
 		if (actions.isEmpty())
@@ -65,6 +66,7 @@ namespace qutim_sdk_0_3
 				menu->addSeparator();
 			}
 			QAction *action = actions[i]->generate<QAction>();
+			action->setData(QVariant::fromValue(const_cast<MenuController *>(this)));
 			action->setParent(action);
 			menu->addAction(action);
 		}

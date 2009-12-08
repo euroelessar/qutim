@@ -40,4 +40,6 @@ namespace qutim_sdk_0_3
 	};
 }
 
+Q_DECLARE_METATYPE(qutim_sdk_0_3::MenuController *)
+
 #endif // MENUUNIT_H

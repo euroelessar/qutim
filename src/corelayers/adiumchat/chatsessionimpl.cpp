@@ -121,7 +121,7 @@ namespace AdiumChat
 																	 .arg(m_message_count)).toString();
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
-				validateCpp(result.replace("\\","\\\\")), same_from?"Next":"");
+				validateCpp(result), same_from?"Next":"");
 		bool isHistory = tmp_message.property("history", false);
 		bool silent = tmp_message.property("silent", false);
 		if (!isHistory && !silent) {

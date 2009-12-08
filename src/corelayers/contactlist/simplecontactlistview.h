@@ -12,6 +12,8 @@ namespace Core
 			Q_OBJECT
 		public:
 			TreeView(QWidget *parent = 0);
+		protected:
+			void contextMenuEvent(QContextMenuEvent *);
 		protected slots:
 			void onClick(const QModelIndex &index);
 		};

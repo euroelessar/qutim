@@ -43,6 +43,14 @@ namespace qutim_sdk_0_3
 		return this;
 	}
 
+	bool ObjectGenerator::extends(const QMetaObject *super) const
+	{
+		const QMetaObject *meta = metaObject();
+		while (meta && meta != super)
+			meta = meta->superClass();
+		return super && meta == super;
+	}
+
 	QObject *ObjectGenerator::generateHelper2() const
 	{
 		Q_D(const ObjectGenerator);

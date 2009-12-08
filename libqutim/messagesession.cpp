@@ -23,33 +23,32 @@ namespace qutim_sdk_0_3
 	struct ChatSessionPrivate
 	{
 	};
-
+	
 	struct ChatLayerPrivate
 	{
 		QPointer<ChatLayer> self;
 	};
-
+	
 	static ChatLayerPrivate *p = new ChatLayerPrivate;
-
-        ChatSession::ChatSession(ChatLayer *chat) : QObject(chat), p(new ChatSessionPrivate)
+	
+	ChatSession::ChatSession(ChatLayer *chat) : QObject(chat), p(new ChatSessionPrivate)
 	{
-
-        }
-
+	}
+	
 	ChatSession::~ChatSession()
 	{
 	}
-
+	
 	ChatLayer::ChatLayer()
 	{
 	}
-
+	
 	ChatLayer::~ChatLayer()
 	{
 		if(p->self == this)
 			p->self = NULL;
 	}
-
+	
 	ChatLayer *ChatLayer::instance()
 	{
 		if(p->self.isNull() && isCoreInited())
@@ -60,7 +59,7 @@ namespace qutim_sdk_0_3
 		}
 		return p->self;
 	}
-
+	
 	ChatSession *ChatLayer::getSession(Account *acc, QObject *obj, bool create)
 	{
 		QString id = (acc && obj) ? obj->property("id").toString() : QString();

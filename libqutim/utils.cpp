@@ -45,7 +45,7 @@ namespace qutim_sdk_0_3
 	inline void appendStr(QString &str, const QString &res, int length)
 	{
 		length -= res.length();
-		while(length-->0)
+		while (length-->0)
 			str += QChar(' ');
 		str += res;
 	}
@@ -54,38 +54,38 @@ namespace qutim_sdk_0_3
 	{
 		int n = number;
 		length--;
-		while(n/=10)
+		while (n /= 10)
 			length--;
-		while(length-->0)
-			str += QChar('0');
+		while (length --> 0)
+			str += QLatin1Char('0');
 		str += QString::number(number);
 	}
 
-	#define TRIM_LENGTH(NUM) \
-		while(length > NUM) \
-		{ \
-			finishStr(str, week_date, date, time, c, NUM); \
-			length -= NUM; \
-		}
+#define TRIM_LENGTH(NUM) \
+	while (length > NUM) { \
+						   finishStr(str, week_date, date, time, c, NUM); \
+						   length -= NUM; \
+								 }
 
+	// TODO: On MacOS X use native methods
 	// http://unicode.org/reports/tr35/tr35-6.html#Date_Format_Patterns
 	inline void finishStr(QString &str, const WeekDate &week_date, const QDate &date, const QTime &time, QChar c, int length)
 	{
-		if(length <= 0)
+		if (length <= 0)
 			return;
-		switch(c.unicode())
-		{
-		case L'G':{
+		switch (c.unicode()) {
+		case L'G': {
 			bool ad = date.year() > 0;
-			if(length < 4)
+			if (length < 4)
 				str += ad ? "AD" : "BC";
-			else if(length == 4)
+			else if (length == 4)
 				str += ad ? "Anno Domini" : "Before Christ";
 			else
 				str += ad ? "A" : "B";
-			break;}
+			break;
+		}
 		case L'y':
-			if(length == 2)
+			if (length == 2)
 				appendInt(str, date.year() % 100, 2);
 			else
 				appendInt(str, date.year(), length);
@@ -93,26 +93,23 @@ namespace qutim_sdk_0_3
 		case L'Y':
 			appendInt(str, week_date.year(), length);
 			break;
-		case L'u':{
+		case L'u': {
 			int year = date.year();
-			if(year < 0)
+			if (year < 0)
 				year++;
 			appendInt(str, date.year(), length);
-			break;}
+			break;
+		}
 		case L'q':
-		case L'Q':{
+		case L'Q': {
 			int q = (date.month() + 2) / 3;
-			if(length < 3)
+			if (length < 3) {
 				appendInt(str, q, length);
-			else if(length == 3)
-			{
+			} else if (length == 3) {
 				str += "Q";
 				str += QString::number(q);
-			}
-			else
-			{
-				switch(q)
-				{
+			} else {
+				switch (q) {
 				case 1:
 					str += QObject::tr("1st quarter");
 					break;
@@ -129,14 +126,15 @@ namespace qutim_sdk_0_3
 					break;
 				}
 			}
-			break;}
+			break;
+		}
 		case L'M':
 		case L'L':
-			if(length < 3)
+			if (length < 3)
 				appendInt(str, date.month(), length);
-			else if(length == 3)
+			else if (length == 3)
 				str += QDate::shortMonthName(date.month());
-			else if(length == 4)
+			else if (length == 4)
 				str += QDate::longMonthName(date.month());
 			else
 				str += QDate::shortMonthName(date.month()).at(0);
@@ -146,7 +144,7 @@ namespace qutim_sdk_0_3
 			appendInt(str, length, week_date.week());
 			break;
 		case L'W':
-			while(length-->0)
+			while (length-->0)
 				str += QString::number((date.day() + 6) / 7);
 			break;
 		case L'd':
@@ -158,7 +156,7 @@ namespace qutim_sdk_0_3
 			appendInt(str, date.dayOfYear(), length);
 			break;
 		case L'F':
-			while(length-->0)
+			while (length-->0)
 				str += QString::number(1);
 			break;
 		case L'g':
@@ -166,15 +164,14 @@ namespace qutim_sdk_0_3
 			break;
 		case L'c':
 		case L'e':
-			if(length < 3)
-			{
+			if (length < 3) {
 				appendInt(str, date.dayOfWeek(), length);
 				break;
 			}
 		case L'E':
-			if(length < 4)
+			if (length < 4)
 				str += QDate::shortDayName(date.dayOfWeek());
-			else if(length == 4)
+			else if (length == 4)
 				str += QDate::longDayName(date.dayOfWeek());
 			else
 				str += QDate::shortDayName(date.dayOfWeek()).at(0);
@@ -210,29 +207,30 @@ namespace qutim_sdk_0_3
 			str += QString::number(time.msec() / 1000.0, 'f', length).section('.', 1);
 			break;
 		case L'A':
-			appendInt(str, QTime(0,0).msecsTo(time), length);
+			appendInt(str, QTime(0, 0).msecsTo(time), length);
 			break;
 		case L'v':
 			// I don't understand the difference
 		case L'z':
-			if(length < 4)
+			if (length < 4)
 				str += qutim_sdk_0_3::SystemInfo::getTimezone();
 			else
 				// There should be localized name, but I don't know how get it
 				str += qutim_sdk_0_3::SystemInfo::getTimezone();
 			break;
-		case L'Z':{
-				if(length == 4)
-					str += "GMT";
+		case L'Z': {
+				if (length == 4)
+					str += QLatin1String("GMT");
 				int offset = qutim_sdk_0_3::SystemInfo::getTimezoneOffset();
-				if(offset < 0)
-					str += '+';
+				if (offset < 0)
+					str += QLatin1Char('+');
 				else
-					str += '-';
+					str += QLatin1Char('-');
 				appendInt(str, qAbs((offset/60)*100 + offset%60), 4);
-			break;}
+				break;
+			}
 		default:
-			while(length-->0)
+			while (length-->0)
 				str += c;
 			break;
 		}
@@ -243,19 +241,16 @@ namespace qutim_sdk_0_3
 		QDate date = datetime.date();
 		QTime time = datetime.time();
 		QString str;
-		if(mac_format.contains('%'))
-		{
+		// TODO: may be we should use system methods on *NIX-compatible systems?
+		if (mac_format.contains('%')) {
 			const QChar *chars = mac_format.constData();
 			bool is_percent = false;
 			int length = 0;
 			bool error = false;
-			while((*chars).unicode() && !error)
-			{
-				if( is_percent )
-				{
+			while ((*chars).unicode() && !error) {
+				if ( is_percent ) {
 					is_percent = false;
-					switch( (*chars).unicode() )
-					{
+					switch (chars->unicode()) {
 					case L'%':
 						str += *chars;
 						break;
@@ -323,13 +318,13 @@ namespace qutim_sdk_0_3
 						// It should be localized, isn't it?..
 						appendStr(str, SystemInfo::getTimezone(), length);
 						break;
-					case L'z':{
+					case L'z': {
 						int offset = SystemInfo::getTimezoneOffset();
 						appendInt(str, (offset/60)*100 + offset%60, length > 0 ? length : 4);
-						break;}
+						break;
+					}
 					default:
-						if((*chars).isDigit())
-						{
+						if ((*chars).isDigit()) {
 							is_percent = true;
 							length *= 10;
 							length += (*chars).digitValue();
@@ -337,17 +332,14 @@ namespace qutim_sdk_0_3
 						else
 							error = true;
 					}
-				}
-				else if(*chars == '%')
-				{
+				} else if (*chars == QLatin1Char('%')) {
 					length = 0;
 					is_percent = true;
-				}
-				else
+				} else
 					str += *chars;
 				chars++;
 			}
-			if(!error)
+			if (!error)
 				return str;
 			str = QString();
 		}
@@ -357,37 +349,29 @@ namespace qutim_sdk_0_3
 		int length = 0;
 		bool quote = false;
 		const QChar *chars = mac_format.constData();
-		forever
-		{
+		forever {
 			cur = *chars;
-			if(cur == '\'')
-			{
-				if(*(chars+1) == '\'')
-				{
+			if (cur == QLatin1Char('\'')) {
+				if (*(chars+1) == QLatin1Char('\'')) {
 					chars++;
 					str += cur;
-				}
-				else
-				{
-					if(!quote)
+				} else {
+					if (!quote)
 						finishStr(str, week_date, date, time, last, length);
 					quote = !quote;
 				}
 				length = 0;
-			}
-			else if(quote)
+			} else if (quote) {
 				str += cur;
-			else
-			{
-				if(cur == last)
+			} else {
+				if (cur == last) {
 					length++;
-				else
-				{
+				} else {
 					finishStr(str, week_date, date, time, last, length);
 					length = 1;
 				}
 			}
-			if(!chars->unicode())
+			if (!chars->unicode())
 				break;
 			last = cur;
 			chars++;
@@ -397,7 +381,7 @@ namespace qutim_sdk_0_3
 	
 	inline QString getThemePath(QDir shareDir, const QString &themeName , const QString &category )
 	{
-		if(shareDir.cd(category) && shareDir.cd(themeName))
+		if (shareDir.cd(category) && shareDir.cd(themeName))
 			return shareDir.absolutePath();
 		else
 			return QString();
@@ -407,9 +391,7 @@ namespace qutim_sdk_0_3
 	{
 		QString themePath = getThemePath(SystemInfo::getDir(SystemInfo::ShareDir),themeName,category);
 		if (themePath.isEmpty())
-		{
 			themePath = getThemePath(SystemInfo::getDir(SystemInfo::SystemShareDir),themeName,category);
-		}
 		return themePath;
 	}
 
@@ -428,17 +410,37 @@ namespace qutim_sdk_0_3
 		return theme_list;
 	}
 	
-	QString &validateCpp(QString &text )
+	QString &validateCpp(QString &text)
 	{
-		text.replace( "\"", "\\\"" ).replace( "\n", "\\n" ).replace( "\t", "\\t" );
-		return text;
+		QString txt;
+		txt.reserve(text.size() * 1.2);
+		for (int i = 0; i < text.size(); i++) {
+			switch (text.at(i).unicode()) {
+			case L'\"':
+				txt += QLatin1String("\\\"");
+				break;
+			case L'\n':
+				txt += QLatin1String("\\n");
+				break;
+			case L'\t':
+				txt += QLatin1String("\\t");
+				break;
+			case L'\\':
+				txt += QLatin1String("\\\\");
+				break;
+			default:
+				txt += text.at(i);
+				break;
+			}
+		}
+		return (text = txt);
 	}
 
 	void centerizeWidget(QWidget *widget)
 	{
 		QRect rect = QApplication::desktop()->screenGeometry(QCursor::pos());
 		QPoint position(rect.left() + rect.width() / 2 - widget->size().width() / 2,
-		rect.top() + rect.height() / 2 - widget->size().height() / 2);
+						rect.top() + rect.height() / 2 - widget->size().height() / 2);
 		widget->move(position);
 	}
 }

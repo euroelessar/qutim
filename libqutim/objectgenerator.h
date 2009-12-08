@@ -51,12 +51,7 @@ namespace qutim_sdk_0_3
 
 		// TODO: There should be a way for getting interfaces list
 //		virtual QList<const char *> interfaces() const = 0;
-		inline bool extends(const QMetaObject *super) const
-		{
-			const QMetaObject *meta = metaObject();
-			while(meta && ((meta = meta->superClass()) != super));
-			return super && meta == super;
-		}
+		bool extends(const QMetaObject *super) const;
 		inline bool extends(const char *id) const
 		{ return id && hasInterface(id); }
 		template<typename T>
