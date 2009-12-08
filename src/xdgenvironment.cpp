@@ -37,11 +37,11 @@ namespace
         return env.isEmpty() ? defValue : QString::fromLocal8Bit(env.constData(), env.size());
     }
 
-	inline QDir getWinDir(const QLatin1String &str)
-	{
-		return QDir(QString::fromLocal8Bit(qgetenv("appdata")) + QLatin1Char('\\')
-					+ QCoreApplication::applicationName() + str);
-	}
+    inline QDir getWinDir(const QLatin1String &str)
+    {
+        return QDir(QString::fromLocal8Bit(qgetenv("appdata")) + QLatin1Char('\\')
+                    + QCoreApplication::applicationName() + str);
+    }
 }
 
 XdgEnvironment::XdgEnvironment()
@@ -55,7 +55,7 @@ XdgEnvironment::~XdgEnvironment()
 QDir XdgEnvironment::dataHome()
 {
 #ifdef Q_OS_WIN32
-	return getWinDir(QLatin1String(""));
+    return getWinDir(QLatin1String(""));
 #else
     return QDir(getValue("XDG_DATA_HOME",
                          QDir::home().absoluteFilePath(QLatin1String(".local/share"))));
@@ -65,7 +65,7 @@ QDir XdgEnvironment::dataHome()
 QDir XdgEnvironment::configHome()
 {
 #ifdef Q_OS_WIN32
-	return getWinDir(QLatin1String("\\config"));
+    return getWinDir(QLatin1String("\\config"));
 #else
     return QDir(getValue("XDG_CONFIG_HOME",
                          QDir::home().absoluteFilePath(QLatin1String(".config"))));
@@ -75,7 +75,7 @@ QDir XdgEnvironment::configHome()
 QList<QDir> XdgEnvironment::dataDirs()
 {
 #ifdef Q_OS_WIN32
-	return QList<QDir>() << QDir(QCoreApplication::applicationDirPath());
+    return QList<QDir>() << QDir(QCoreApplication::applicationDirPath());
 #else
     return splitDirList(getValue("XDG_DATA_DIRS", QLatin1String("/usr/local/share:/usr/share")));
 #endif
@@ -84,7 +84,7 @@ QList<QDir> XdgEnvironment::dataDirs()
 QList<QDir> XdgEnvironment::configDirs()
 {
 #ifdef Q_OS_WIN32
-	return QList<QDir>() << QDir(QCoreApplication::applicationDirPath() + QLatin1String("\\config"));
+    return QList<QDir>() << QDir(QCoreApplication::applicationDirPath() + QLatin1String("\\config"));
 #else
     return splitDirList(getValue("XDG_CONFIG_DIRS", QDir::home().absoluteFilePath(QLatin1String("/etc/xdg"))));
 #endif
