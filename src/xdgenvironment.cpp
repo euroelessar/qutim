@@ -36,6 +36,12 @@ namespace
         QByteArray env = qgetenv(varName);
         return env.isEmpty() ? defValue : QString::fromLocal8Bit(env.constData(), env.size());
     }
+
+	inline QDir getWinDir(const QLatin1String &str)
+	{
+		return QDir(QString::fromLocal8Bit(qgetenv("appdata")) + QLatin1Char('\\')
+					+ QCoreApplication::applicationName() + str);
+	}
 }
 
 XdgEnvironment::XdgEnvironment()
@@ -49,7 +55,7 @@ XdgEnvironment::~XdgEnvironment()
 QDir XdgEnvironment::dataHome()
 {
 #ifdef Q_OS_WIN32
-	return QDir(QString::fromLocal8Bit(qgetenv("appdata")) + QLatin1String("\\qutim"));
+	return getWinDir(QLatin1String(""));
 #else
     return QDir(getValue("XDG_DATA_HOME",
                          QDir::home().absoluteFilePath(QLatin1String(".local/share"))));
@@ -59,7 +65,7 @@ QDir XdgEnvironment::dataHome()
 QDir XdgEnvironment::configHome()
 {
 #ifdef Q_OS_WIN32
-	return QDir(QString::fromLocal8Bit(qgetenv("appdata")) + QLatin1String("\\qutim\\config"));
+	return getWinDir(QLatin1String("\\config"));
 #else
     return QDir(getValue("XDG_CONFIG_HOME",
                          QDir::home().absoluteFilePath(QLatin1String(".config"))));
