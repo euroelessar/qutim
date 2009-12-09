@@ -127,9 +127,10 @@ XdgIconData *XdgIconThemePrivate::lookupIconRecursive(const QString &originName,
             return data;
         }
         int pos = name.lastIndexOf(QLatin1Char('-'));
-        if (pos != -1) {
+        if (pos != -1)
             name.truncate(pos);
-        }
+        else
+            break;
     }
 
     if (!data) {
