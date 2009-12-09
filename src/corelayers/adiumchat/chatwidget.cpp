@@ -55,13 +55,13 @@ namespace AdiumChat
 		ui->mainToolbar->addAction(test_act1);
 		QAction *test_act2 = new QAction(Icon("preferences-system"),tr("Testing action"),this);
 		ui->additionalToolbar->addAction(test_act2);
-                //init aero integration for win
-                if (chatFlags & AeroThemeIntegration) {
-                    if (QtWin::isCompositionEnabled()) {
-                        QtWin::extendFrameIntoClientArea(this);
-                        setContentsMargins(0, 0, 0, 0);
-                    }
-                }
+		//init aero integration for win
+		if (chatFlags & AeroThemeIntegration) {
+			if (QtWin::isCompositionEnabled()) {
+				QtWin::extendFrameIntoClientArea(this);
+				setContentsMargins(0, 0, 0, 0);
+			}
+		}
 		m_chat_icon_type = Config("appearance/adiumChat").group("behavior/widget").value<QString>("chatIconType","avatar");
 	}
 

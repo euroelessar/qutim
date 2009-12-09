@@ -29,7 +29,8 @@ namespace Core
 			QWidget *widget;
 			TreeView *view;
 			Model *model;
-			ActionToolBar *toolbar;
+			ActionToolBar *main_toolbar;
+			ActionToolBar *bottom_toolbar;
 		};
 
 		Module::Module() : p(new ModulePrivate)
@@ -38,16 +39,16 @@ namespace Core
 			QVBoxLayout *layout = new QVBoxLayout(p->widget);
 			layout->setMargin(0);
 
-			p->toolbar = new ActionToolBar(p->widget);
-			layout->addWidget(p->toolbar);
+			p->main_toolbar = new ActionToolBar(p->widget);
+			layout->addWidget(p->main_toolbar);
 
-			QMenu *menu = new QMenu(tr("Main menu"), p->toolbar);
+			QMenu *menu = new QMenu(tr("Main menu"), p->main_toolbar);
 			menu->addAction(Icon("configure"), tr("&Settings..."), this, SLOT(onConfigureClicked()));
 			menu->addAction(Icon("application-exit"), tr("&Quit"), qApp, SLOT(quit()));
 
 			QAction *menuAction = new QAction(Icon("show-menu"), tr("Main menu"), menu);
 			menuAction->setMenu(menu);
-			p->toolbar->addAction(menuAction);
+			p->main_toolbar->addAction(menuAction);
 
 			p->view = new TreeView(p->widget);
 			layout->addWidget(p->view);
@@ -56,9 +57,21 @@ namespace Core
 			p->model = new Model(p->view);
 			p->view->setModel(p->model);
 			p->widget->show();
-			foreach(Protocol *proto, allProtocols())
-				foreach(Contact *contact, proto->findChildren<Contact *>())
-					addContact(contact);
+
+			p->bottom_toolbar = new ActionToolBar(p->widget);
+			layout->addWidget(p->bottom_toolbar);
+			foreach(Protocol *proto, allProtocols()) {
+				foreach(Account *account, proto->accounts()) {
+					//TODO add account icon
+					QAction *act = new QAction (Icon("user-online"),account->name(),p->bottom_toolbar);
+					act->setMenu(account->menu());
+					p->bottom_toolbar->addAction(act);
+					foreach (Contact *contact, account->findChildren<Contact *>()) {
+						//FIXME
+						addContact(contact);
+					}
+				}
+			}
 		}
 
 		Module::~Module()
@@ -85,7 +98,7 @@ namespace Core
 
 		void Module::addButton(ActionGenerator *generator)
 		{
-			p->toolbar->addAction(generator);
+			p->main_toolbar->addAction(generator);
 		}
 
 		void Module::onConfigureClicked()
