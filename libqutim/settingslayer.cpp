@@ -29,19 +29,17 @@ namespace qutim_sdk_0_3
 		p->text.setContext("Settings");
 	}
 
-	SettingsItem::SettingsItem(Settings::Type type, const QIcon &icon, const char *text) : p(new SettingsItemPrivate)
+	SettingsItem::SettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text) : p(new SettingsItemPrivate)
 	{
 		p->type = type;
 		p->icon = icon;
-		p->text.setContext("Settings");
-		p->text.setOriginal(text);
+		p->text = text;
 	}
 
-	SettingsItem::SettingsItem(Settings::Type type, const char *text) : p(new SettingsItemPrivate)
+	SettingsItem::SettingsItem(Settings::Type type, const LocalizedString &text) : p(new SettingsItemPrivate)
 	{
 		p->type = type;
-		p->text.setContext("Settings");
-		p->text.setOriginal(text);
+		p->text = text;
 	}
 
 	SettingsItem::~SettingsItem()
@@ -139,9 +137,9 @@ namespace qutim_sdk_0_3
 	{
 	}
 
-	AutoSettingsItem::Entry::Entry(const char *text, const ObjectGenerator *gen) : p(new EntryPrivate)
+	AutoSettingsItem::Entry::Entry(const LocalizedString &text, const ObjectGenerator *gen) : p(new EntryPrivate)
 	{
-		p->text = LocalizedString("Settings", text);
+		p->text = text;
 		p->gen = gen;
 	}
 
@@ -190,22 +188,22 @@ namespace qutim_sdk_0_3
 		return p->name;
 	}
 
-	AutoSettingsItem::AutoSettingsItem(Settings::Type type, const QIcon &icon, const char *text)
+	AutoSettingsItem::AutoSettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text)
 			: SettingsItem(*new AutoSettingsItemPrivate)
 	{
 		AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
 		d->type = type;
 		d->icon = icon;
-		d->text.setOriginal(text);
+		d->text = text;
 		d->gen = new AutoSettingsGenerator(d);
 	}
 
-	AutoSettingsItem::AutoSettingsItem(Settings::Type type, const char *text)
+	AutoSettingsItem::AutoSettingsItem(Settings::Type type, const LocalizedString &text)
 			: SettingsItem(*new AutoSettingsItemPrivate)
 	{
 		AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
 		d->type = type;
-		d->text.setOriginal(text);
+		d->text = text;
 		d->gen = new AutoSettingsGenerator(d);
 	}
 
@@ -220,7 +218,7 @@ namespace qutim_sdk_0_3
 		d->group = group;
 	}
 
-	AutoSettingsItem::Entry *AutoSettingsItem::addEntry(const char *text, const ObjectGenerator *gen)
+	AutoSettingsItem::Entry *AutoSettingsItem::addEntry(const LocalizedString &text, const ObjectGenerator *gen)
 	{
 		AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
 		if(!gen->extends<QWidget>())

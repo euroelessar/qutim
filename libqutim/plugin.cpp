@@ -21,19 +21,16 @@ namespace qutim_sdk_0_3
 {
 	PluginInfoData::PluginInfoData()
 	{
-		name.setContext("Plugin");
-		description.setContext("Plugin");
 	}
 
 	PluginInfoData::PluginInfoData(const PluginInfoData &other)
 			: QSharedData(other), authors(other.authors), name(other.name),
 			description(other.description), version(other.version), icon(other.icon)
 	{
-		name.setContext("Plugin");
-		description.setContext("Plugin");
 	}
 
-	PluginInfo::PluginInfo(const char *name, const char *description, quint32 version, ExtensionIcon icon)
+	PluginInfo::PluginInfo(const LocalizedString &name, const LocalizedString &description,
+						   quint32 version, ExtensionIcon icon)
 	{
 		d = new PluginInfoData;
 		setName(name);
@@ -62,19 +59,20 @@ namespace qutim_sdk_0_3
 		return *this;
 	}
 
-	PluginInfo &PluginInfo::addAuthor(const char *name, const char *task, const QString &email, const QString &web)
+	PluginInfo &PluginInfo::addAuthor(const LocalizedString &name, const LocalizedString &task,
+									  const QString &email, const QString &web)
 	{
 		d->authors.append(PersonInfo(name, task, email, web));
 		return *this;
 	}
 
-	PluginInfo &PluginInfo::setName(const char *name)
+	PluginInfo &PluginInfo::setName(const LocalizedString &name)
 	{
 		d->name = name;
 		return *this;
 	}
 
-	PluginInfo &PluginInfo::setDescription(const char *description)
+	PluginInfo &PluginInfo::setDescription(const LocalizedString &description)
 	{
 		d->description = description;
 		return *this;
@@ -141,14 +139,16 @@ namespace qutim_sdk_0_3
 		return p->extensions;
 	}
 
-	void Plugin::addAuthor(const char *name, const char *task, const QString &email, const QString &web)
+	void Plugin::addAuthor(const LocalizedString &name, const LocalizedString &task,
+						   const QString &email, const QString &web)
 	{
 		if (p->is_inited)
 			return;
 		Q_UNUSED(p->info.addAuthor(name, task, email, web));
 	}
 
-	void Plugin::setInfo(const char *name, const char *description, quint32 version, QIcon icon)
+	void Plugin::setInfo(const LocalizedString &name, const LocalizedString &description,
+						 quint32 version, ExtensionIcon icon)
 	{
 		if (p->is_inited)
 			return;
@@ -158,7 +158,8 @@ namespace qutim_sdk_0_3
 		p->info.setIcon(icon);
 	}
 
-	void Plugin::addExtension(const char *name, const char *description, const ObjectGenerator *generator, ExtensionIcon icon)
+	void Plugin::addExtension(const LocalizedString &name, const LocalizedString &description,
+							  const ObjectGenerator *generator, ExtensionIcon icon)
 	{
 		if (p->is_inited)
 			return;

@@ -29,13 +29,14 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT ExtensionInfo
 	{
 	public:
-		ExtensionInfo(const char *name = 0, const char *description = 0,
+		ExtensionInfo(const LocalizedString &name = LocalizedString(),
+					  const LocalizedString &description = LocalizedString(),
 					  const ObjectGenerator *generator = 0, ExtensionIcon icon = ExtensionIcon());
 		ExtensionInfo(const ExtensionInfo &other);
 		~ExtensionInfo();
 		ExtensionInfo &operator =(const ExtensionInfo &other);
-		ExtensionInfo &setName(const char *name);
-		ExtensionInfo &setDescription(const char *description);
+		ExtensionInfo &setName(const LocalizedString &name);
+		ExtensionInfo &setDescription(const LocalizedString &description);
 		ExtensionInfo &setIcon(const ExtensionIcon &icon);
 		ExtensionInfo &setGenerator(const ObjectGenerator *generator);
 		QList<PersonInfo> authors() const;

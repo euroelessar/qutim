@@ -20,18 +20,14 @@ namespace qutim_sdk_0_3
 {
 	ExtensionInfoData::ExtensionInfoData() : gen(0)
 	{
-		name.setContext("Plugin");
-		description.setContext("Plugin");
 	}
 
 	ExtensionInfoData::ExtensionInfoData(const ExtensionInfoData &o)
 			: QSharedData(o), name(o.name), description(o.description), gen(o.gen), icon(o.icon), plugin(o.plugin)
 	{
-		name.setContext("Plugin");
-		description.setContext("Plugin");
 	}
 
-	ExtensionInfo::ExtensionInfo(const char *name, const char *description, const ObjectGenerator *generator, ExtensionIcon icon)
+	ExtensionInfo::ExtensionInfo(const LocalizedString &name, const LocalizedString &description, const ObjectGenerator *generator, ExtensionIcon icon)
 	{
 		d = new ExtensionInfoData;
 		setName(name);
@@ -54,13 +50,13 @@ namespace qutim_sdk_0_3
 		return *this;
 	}
 
-	ExtensionInfo &ExtensionInfo::setName(const char *name)
+	ExtensionInfo &ExtensionInfo::setName(const LocalizedString &name)
 	{
 		d->name = name;
 		return *this;
 	}
 
-	ExtensionInfo &ExtensionInfo::setDescription(const char *description)
+	ExtensionInfo &ExtensionInfo::setDescription(const LocalizedString &description)
 	{
 		d->description = description;
 		return *this;

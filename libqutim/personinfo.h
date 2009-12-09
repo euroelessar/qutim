@@ -28,13 +28,14 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT PersonInfo
 	{
 	public:
-		PersonInfo(const char *name = 0, const char *task = 0,
+		PersonInfo(const LocalizedString &name = LocalizedString(),
+				   const LocalizedString &task = LocalizedString(),
 				   const QString &email = QString(), const QString &web = QString());
 		PersonInfo(const PersonInfo &other);
 		~PersonInfo();
 		PersonInfo &operator =(const PersonInfo &other);
-		PersonInfo &setName(const char *name);
-		PersonInfo &setTask(const char *task);
+		PersonInfo &setName(const LocalizedString &name);
+		PersonInfo &setTask(const LocalizedString &task);
 		PersonInfo &setEmail(const QString &email);
 		PersonInfo &setWeb(const QString &web);
 		LocalizedString name() const;

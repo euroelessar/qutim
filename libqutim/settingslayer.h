@@ -56,8 +56,8 @@ namespace qutim_sdk_0_3
 		Q_DISABLE_COPY(SettingsItem);
 	public:
 		SettingsItem(SettingsItemPrivate &d);
-		SettingsItem(Settings::Type type, const QIcon &icon, const char *text);
-		SettingsItem(Settings::Type type, const char *text);
+		SettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text);
+		SettingsItem(Settings::Type type, const LocalizedString &text);
 		virtual ~SettingsItem();
 		Settings::Type type() const;
 		QIcon icon() const;
@@ -74,9 +74,9 @@ namespace qutim_sdk_0_3
 	class GeneralSettingsItem : public SettingsItem
 	{
 	public:
-		GeneralSettingsItem(Settings::Type type, const QIcon &icon, const char *text)
+		GeneralSettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text)
 				: SettingsItem(type, icon, text) {}
-		GeneralSettingsItem(Settings::Type type, const char *text)
+		GeneralSettingsItem(Settings::Type type, const LocalizedString &text)
 				: SettingsItem(type, text) {}
 		virtual ~GeneralSettingsItem() {}
 	protected:
@@ -98,7 +98,7 @@ namespace qutim_sdk_0_3
 		class Entry
 		{
 		public:
-			Entry(const char *text, const ObjectGenerator *gen);
+			Entry(const LocalizedString &text, const ObjectGenerator *gen);
 			virtual ~Entry();
 			Entry *setProperty(const char *name, QVariant value);
 			Entry *setName(const QString &name);
@@ -109,13 +109,13 @@ namespace qutim_sdk_0_3
 		private:
 			QScopedPointer<EntryPrivate> p;
 		};
-		AutoSettingsItem(Settings::Type type, const QIcon &icon, const char *text);
-		AutoSettingsItem(Settings::Type type, const char *text);
+		AutoSettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text);
+		AutoSettingsItem(Settings::Type type, const LocalizedString &text);
 		virtual ~AutoSettingsItem();
 		void setConfig(const QString &config, const QString &group);
-		Entry *addEntry(const char *text, const ObjectGenerator *gen);
+		Entry *addEntry(const LocalizedString &text, const ObjectGenerator *gen);
 		template <typename T>
-		Entry *addEntry(const char *text)
+		Entry *addEntry(const LocalizedString &text)
 		{
 			register QWidget *widget = reinterpret_cast<T *>(0);
 			Q_UNUSED(widget);

@@ -32,16 +32,17 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT PluginInfo
 	{
 	public:
-		PluginInfo(const char *name = 0, const char *description = 0,
+		PluginInfo(const LocalizedString &name = LocalizedString(),
+				   const LocalizedString &description = LocalizedString(),
 				   quint32 version = 0, ExtensionIcon icon = ExtensionIcon());
 		PluginInfo(const PluginInfo &other);
 		~PluginInfo();
 		PluginInfo &operator =(const PluginInfo &other);
 		PluginInfo &addAuthor(const PersonInfo &author);
-		PluginInfo &addAuthor(const char *name, const char *task,
+		PluginInfo &addAuthor(const LocalizedString &name, const LocalizedString &task,
 							  const QString &email = QString(), const QString &web = QString());
-		PluginInfo &setName(const char *name);
-		PluginInfo &setDescription(const char *description);
+		PluginInfo &setName(const LocalizedString &name);
+		PluginInfo &setDescription(const LocalizedString &description);
 		PluginInfo &setIcon(const ExtensionIcon &icon);
 		PluginInfo &setVersion(quint32 version);
 		QList<PersonInfo> authors() const;
@@ -72,18 +73,23 @@ namespace qutim_sdk_0_3
 		virtual bool unload() = 0;
 	protected:
 		// Should be called at init
-		void addAuthor(const char *name, const char *task, const QString &email = QString(), const QString &web = QString());
-		void setInfo(const char *name, const char *description, quint32 version = 0, QIcon icon = QIcon());
-		void addExtension(const char *name, const char *description, const ObjectGenerator *generator,
-						  ExtensionIcon icon = ExtensionIcon());
+		void addAuthor(const LocalizedString &name, const LocalizedString &task,
+					   const QString &email = QString(), const QString &web = QString());
+		void setInfo(const LocalizedString &name, const LocalizedString &description,
+					 quint32 version = 0, ExtensionIcon icon = ExtensionIcon());
+		void addExtension(const LocalizedString &name, const LocalizedString &description,
+						  const ObjectGenerator *generator, ExtensionIcon icon = ExtensionIcon());
 		template<typename T>
-		void addExtension(const char *name, const char *description, ExtensionIcon icon = ExtensionIcon())
+		void addExtension(const LocalizedString &name, const LocalizedString &description,
+						  ExtensionIcon icon = ExtensionIcon())
 		{ addExtension(name, description, new GeneralGenerator<T>(), icon); }
 		template<typename T, typename I0>
-		void addExtension(const char *name, const char *description, ExtensionIcon icon = ExtensionIcon())
+		void addExtension(const LocalizedString &name, const LocalizedString &description,
+						  ExtensionIcon icon = ExtensionIcon())
 		{ addExtension(name, description, new GeneralGenerator<T, I0>(), icon); }
 		template<typename T, typename I0, typename I1>
-		void addExtension(const char *name, const char *description, ExtensionIcon icon = ExtensionIcon())
+		void addExtension(const LocalizedString &name, const LocalizedString &description,
+						  ExtensionIcon icon = ExtensionIcon())
 		{ addExtension(name, description, new GeneralGenerator<T, I0, I1>(), icon); }
 	private:
 		QScopedPointer<PluginPrivate> p;

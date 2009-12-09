@@ -18,12 +18,20 @@
 
 #include "libqutim_global.h"
 
+#ifndef NO_AUTOLOCALIZATION
+# undef QT_TRANSLATE_NOOP
+# undef QT_TRANSLATE_NOOP_UTF8
+# define QT_TRANSLATE_NOOP(scope, x)      qutim_sdk_0_3::LocalizedString(scope, x)
+# define QT_TRANSLATE_NOOP_UTF8(scope, x) qutim_sdk_0_3::LocalizedString(scope, x)
+#endif // NO_AUTOLOCALIZATION
+
 namespace qutim_sdk_0_3
 {
 	class LIBQUTIM_EXPORT LocalizedString
 	{
 	public:
 		LocalizedString() {}
+		LocalizedString(const char *str) : m_str(str) {}
 		LocalizedString(const char *cxt, const QByteArray &str) : m_ctx(cxt), m_str(str) {}
 		LocalizedString(const char *cxt, const char *str, int len) : m_ctx(cxt), m_str(str, len) {}
 		LocalizedString(const char *cxt, const char *str) : m_ctx(cxt), m_str(str, qstrlen(str)) {}

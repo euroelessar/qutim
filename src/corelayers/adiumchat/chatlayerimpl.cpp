@@ -33,7 +33,7 @@ namespace AdiumChat
 	{
 		ActionGenerator *action;
 		action = new ActionGenerator(Icon("mail-message-new"),
-									 LocalizedString("ChatLayer", QT_TRANSLATE_NOOP("ChatLayer", "Send message")),
+									 QT_TRANSLATE_NOOP("ChatLayer", "Send message"),
 									 ChatLayer::instance(), SLOT(onStartChat()));
 		MenuController::addAction(action, &Contact::staticMetaObject);
 	}

@@ -50,7 +50,7 @@ namespace Core
 	class CoreModuleHelper
 	{
 	public:
-		inline CoreModuleHelper(const char *name, const char *description)
+		inline CoreModuleHelper(const LocalizedString &name, const LocalizedString &description)
 		{
 			ModuleManagerImpl::extensions()
 					<< ExtensionInfo(name, description,
@@ -83,7 +83,7 @@ namespace Core
 			}
 		};
 	public:
-		inline CoreStartupHelper(const char *name, const char *description)
+		inline CoreStartupHelper(const LocalizedString &name, const LocalizedString &description)
 		{
 			ModuleManagerImpl::extensions()
 					<< ExtensionInfo(name, description, new Generator<T>());
@@ -95,7 +95,7 @@ namespace Core
 	class CoreSingleModuleHelper
 	{
 	public:
-		inline CoreSingleModuleHelper(const char *name, const char *description)
+		inline CoreSingleModuleHelper(const LocalizedString &name, const LocalizedString &description)
 		{
 			ModuleManagerImpl::extensions()
 					<< ExtensionInfo(name, description,
@@ -107,7 +107,8 @@ namespace Core
 	class CoreModuleHelper2
 	{
 	public:
-		inline CoreModuleHelper2(const char *nameT, const char *descriptionT, const char *nameV, const char *descriptionV)
+		inline CoreModuleHelper2(const LocalizedString &nameT, const LocalizedString &descriptionT,
+								 const LocalizedString &nameV, const LocalizedString &descriptionV)
 		{
 			ModuleManagerImpl::extensions()
 					<< ExtensionInfo(nameV, descriptionV, new GeneralGenerator<V>())
