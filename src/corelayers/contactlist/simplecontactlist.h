@@ -24,6 +24,8 @@ namespace Core
 			Q_INVOKABLE void addButton(ActionGenerator *generator);
 		private slots:
 			void onConfigureClicked();
+			void onAccountCreated(qutim_sdk_0_3::Account *account);
+			void onAccountButtonClicked();
 		private:
 			QScopedPointer<ModulePrivate> p;
 		};

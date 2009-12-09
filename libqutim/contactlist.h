@@ -29,9 +29,9 @@ namespace qutim_sdk_0_3
 	public:
 		static ContactList *instance();
 	public slots:
-		virtual void addContact(ChatUnit *unit) = 0;
-		virtual void removeContact(ChatUnit *unit) = 0;
-		virtual void removeAccount(Account *account) = 0;
+		virtual void addContact(qutim_sdk_0_3::ChatUnit *unit) = 0;
+		virtual void removeContact(qutim_sdk_0_3::ChatUnit *unit) = 0;
+		virtual void removeAccount(qutim_sdk_0_3::Account *account) = 0;
 	protected:
 		ContactList();
 		virtual ~ContactList();

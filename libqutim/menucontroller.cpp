@@ -24,16 +24,16 @@ namespace qutim_sdk_0_3
 	Q_GLOBAL_STATIC(MenuActionMap, globalActions)
 
 	MenuController::MenuController(QObject *parent) : QObject(parent), d_ptr(new MenuControllerPrivate)
-    {
-    }
+	{
+	}
 
 	MenuController::MenuController(MenuControllerPrivate &mup, QObject *parent) : QObject(parent), d_ptr(&mup)
 	{
 	}
 
 	MenuController::~MenuController()
-    {
-    }
+	{
+	}
 
 	inline bool actionLessThan(const ActionGenerator *a, const ActionGenerator *b)
 	{
@@ -71,6 +71,11 @@ namespace qutim_sdk_0_3
 			menu->addAction(action);
 		}
 		return menu;
+	}
+
+	void MenuController::showMenu(const QPoint &pos)
+	{
+		menu(true)->popup(pos);
 	}
 
 	void MenuController::addAction(const ActionGenerator *gen)

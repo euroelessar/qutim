@@ -51,7 +51,7 @@ namespace qutim_sdk_0_3
 		void addToList() { setInList(true); }
 		void removeFromList() { setInList(false); }
 	signals:
-		void statusChanged(Status status);
+		void statusChanged(qutim_sdk_0_3::Status status);
 		void statusIconChanged(const QIcon &statusIcon);
 		void nameChanged(const QString &name);
 		void tagsChanged(const QSet<QString> &tags);

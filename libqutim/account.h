@@ -50,7 +50,7 @@ namespace qutim_sdk_0_3
 	signals:
 		void contactCreated(qutim_sdk_0_3::Contact *);
 		void nameChanged(const QString &name);
-		void statusChanged(Status status);
+        void statusChanged(qutim_sdk_0_3::Status status);
 	};
 }
 

@@ -61,15 +61,9 @@ namespace Core
 			p->bottom_toolbar = new ActionToolBar(p->widget);
 			layout->addWidget(p->bottom_toolbar);
 			foreach(Protocol *proto, allProtocols()) {
+				connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 				foreach(Account *account, proto->accounts()) {
-					//TODO add account icon
-					QAction *act = new QAction (Icon("user-online"),account->name(),p->bottom_toolbar);
-					act->setMenu(account->menu());
-					p->bottom_toolbar->addAction(act);
-					foreach (Contact *contact, account->findChildren<Contact *>()) {
-						//FIXME
-						addContact(contact);
-					}
+					onAccountCreated(account);
 				}
 			}
 		}
@@ -104,6 +98,27 @@ namespace Core
 		void Module::onConfigureClicked()
 		{
 			Settings::showWidget();
+		}
+
+		void Module::onAccountCreated(Account *account)
+		{
+			//TODO add account icon
+			QAction *action = p->bottom_toolbar->addAction(Icon("user-online"),
+														   account->name(),
+														   this, SLOT(onAccountButtonClicked()));
+			action->setData(QVariant::fromValue<MenuController *>(account));
+			foreach (Contact *contact, account->findChildren<Contact *>()) {
+				//FIXME
+				addContact(contact);
+			}
+		}
+
+		void Module::onAccountButtonClicked()
+		{
+			QAction *action = qobject_cast<QAction *>(sender());
+			Q_ASSERT(action);
+			if(Account *account = qobject_cast<Account *>(action->data().value<MenuController *>()))
+				account->showMenu(QCursor::pos());
 		}
 	}
 }

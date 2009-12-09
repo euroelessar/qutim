@@ -25,6 +25,7 @@ namespace qutim_sdk_0_3
 
 	class LIBQUTIM_EXPORT MenuController : public QObject
 	{
+		Q_OBJECT
 		Q_DISABLE_COPY(MenuController)
 		Q_DECLARE_PRIVATE(MenuController)
 	public:
@@ -35,6 +36,8 @@ namespace qutim_sdk_0_3
 		QMenu *menu(bool deleteOnClose = true) const;
 		void addAction(const ActionGenerator *gen);
 		static void addAction(const ActionGenerator *gen, const QMetaObject *meta);
+	public slots:
+		void showMenu(const QPoint &pos);
 	protected:
 		QScopedPointer<MenuControllerPrivate> d_ptr;
 	};

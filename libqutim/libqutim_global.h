@@ -72,7 +72,7 @@ namespace qutim_sdk_0_3
 		ChatStateInActive,      // User has not been actively participating in the chat session.
 		ChatStateGone,          // User has effectively ended their participation in the chat session.
 		ChatStateComposing,     // User is composing a message.
-		ChatStatePaused        // User had been composing but now has stopped.
+		ChatStatePaused         // User had been composing but now has stopped.
 	};
 	class ObjectGenerator;
 	class Protocol;
