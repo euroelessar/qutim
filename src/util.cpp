@@ -116,7 +116,7 @@ namespace Util {
 	}
 
 
-	extern qint64 generateCookie()
+	extern quint64 generateCookie()
 	{
 		return QDateTime::currentDateTime().toTime_t();
 	}

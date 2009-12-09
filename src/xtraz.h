@@ -32,21 +32,28 @@ public:
 	XtrazRequest(const QString uin, const QString &query, const QString &notify);
 };
 
+class XtrazResponse: public ServerResponseMessage
+{
+public:
+	XtrazResponse(const QString uin, const QString &response, quint64 cookie);
+};
+
 class Xtraz
 {
 public:
 	Xtraz();
-	static void handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data);
+	static void handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data, quint64 cookie);
 	static bool handelXStatusCapabilities(IcqContact *contact, const Capabilities &caps, qint8 mood);
 private:
 	static XtrazPrivate *data();
-	static void handleNotify(IcqContact *contact, const QString &message);
+	static void handleNotify(IcqContact *contact, const QString &message, quint64 cookie);
 	static void parseQuery(const QString &query, QString *pluginID);
 	static void parseRes(IcqContact *contact, const QString &res);
-	static void parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response);
+	static void parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response, quint64 cookie);
 	static void parseVal(IcqContact *contact, QXmlStreamReader &xml);
 	static void parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml);
-	static void parseRequest(IcqContact *contact, QXmlStreamReader &xml);
+	static void parseRequest(IcqContact *contact, QXmlStreamReader &xml, quint64 cookie);
+	static void sendXStatus(IcqContact *contact, quint64 cookie);
 };
 
 } // namespace Icq

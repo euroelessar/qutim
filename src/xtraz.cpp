@@ -15,6 +15,8 @@
 
 #include "xtraz.h"
 #include "icqcontact.h"
+#include "icqaccount.h"
+#include "oscarconnection.h"
 #include <QXmlStreamReader>
 #include <QDebug>
 
@@ -27,7 +29,6 @@ enum XtrazType
 	xtrazUserRemove = 0x0004,
 	xtrazNotify     = 0x0008
 };
-
 
 struct XStatus
 {
@@ -53,6 +54,11 @@ public:
 	QList<XStatus> xstatuses;
 };
 
+class XtrazData: public Tlv2711
+{
+public:
+	XtrazData(const QString &body, quint64 cookie = 0);
+};
 
 XtrazPrivate::XtrazPrivate()
 {
@@ -156,6 +162,30 @@ XtrazPrivate::XtrazPrivate()
 								0xa9, 0xc6, 0x41, 0x32, 0x06, 0xd6, 0xf2, 0x80));
 }
 
+XtrazData::XtrazData(const QString &body, quint64 cookie):
+	Tlv2711(MsgPlugin, 0, cookie)
+{
+	appendXData(0, 1);
+	appendEmptyPacket();
+
+	// Plugin type ID
+	appendSimple<quint16>(0x04f, DataUnit::LittleEndian); // Length
+	appendData(Capability(0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865));    // type: xtraz script
+	appendSimple<quint16>(0x0008, DataUnit::LittleEndian); // Function ID: script notify
+	appendSimple<quint32>(0x002a, DataUnit::LittleEndian); // Request type
+	appendData("Script Plug-in: Remote Notification Arrive", Util::asciiCodec());
+	// unknown
+	appendSimple<quint32>(0x00000100);
+	appendSimple<quint32>(0x00000000);
+	appendSimple<quint32>(0x00000000);
+	appendSimple<quint16>(0x0000);
+	appendSimple<quint8>(0x00);
+
+	// data
+	DataUnit data;
+	data.appendData<quint32>(body, Util::asciiCodec(), DataUnit::LittleEndian);
+	appendData<quint32>(data.data(), DataUnit::LittleEndian);
+}
 
 XtrazRequest::XtrazRequest(const QString uin, const QString &query, const QString &notify)
 {
@@ -171,44 +201,37 @@ XtrazRequest::XtrazRequest(const QString uin, const QString &query, const QStrin
 		xml.writeEndElement();
 		xml.writeEndElement();
 	}
-	Tlv2711 tlv(MsgPlugin, 0);
-	tlv.appendXData(0, 1);
-	tlv.appendEmptyPacket();
-
-	// Plugin type ID
-	tlv.appendSimple<quint16>(0x04f, DataUnit::LittleEndian); // Length
-	tlv.appendData(Capability(0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865));    // type: xtraz script
-	tlv.appendSimple<quint16>(0x0008, DataUnit::LittleEndian); // Function ID: script notify
-	tlv.appendSimple<quint32>(0x002a, DataUnit::LittleEndian); // Request type
-	tlv.appendData("Script Plug-in: Remote Notification Arrive", Util::asciiCodec());
-	// unknown
-	tlv.appendSimple<quint32>(0x00000100);
-	tlv.appendSimple<quint32>(0x00000000);
-	tlv.appendSimple<quint32>(0x00000000);
-	tlv.appendSimple<quint16>(0x0000);
-	tlv.appendSimple<quint8>(0x00);
-
-	// data
-	{
-		DataUnit data;
-		data.appendData<quint32>(body, Util::asciiCodec(), DataUnit::LittleEndian);
-		tlv.appendData<quint32>(data.data(), DataUnit::LittleEndian);
-	}
-
-	init(uin, 2, tlv.cookie());
-	appendTLV(0x05, Channel2MessageData(1, tlv).data());
+	XtrazData data(body);
+	init(uin, 2, data.cookie());
+	appendTLV(0x05, Channel2MessageData(1, data).data());
 	appendTLV(0x03);
+}
+
+XtrazResponse::XtrazResponse(const QString uin, const QString &response, quint64 cookie):
+	ServerResponseMessage(uin, 2, 3, cookie)
+{
+	QString body;
+	{
+		QXmlStreamWriter xml(&body);
+		xml.writeStartElement("NR");
+		xml.writeStartElement("RES");
+		xml.writeCharacters(response);
+		xml.writeEndElement();
+		xml.writeEndElement();
+	}
+	XtrazData data(body, cookie);
+	appendData(data.data());
 }
 
 Xtraz::Xtraz()
 {
 }
 
-void Xtraz::handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data)
+void Xtraz::handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data, quint64 cookie)
 {
 	QString message = data.readData<quint32>(DataUnit::LittleEndian);
 	if(type == xtrazNotify)
-		handleNotify(contact, message);
+		handleNotify(contact, message, cookie);
 	else
 		qDebug() << "Unhandled xtraz message" << type << message;
 }
@@ -234,11 +257,11 @@ XtrazPrivate *Xtraz::data()
 	return &d;
 }
 
-void Xtraz::handleNotify(IcqContact *contact, const QString &message)
+void Xtraz::handleNotify(IcqContact *contact, const QString &message, quint64 cookie)
 {
 	QString query;
 	QString notify;
-	QString res;
+	QString response;
 	QXmlStreamReader xml(message);
 	while (!xml.atEnd()) {
 		xml.readNext();
@@ -249,7 +272,7 @@ void Xtraz::handleNotify(IcqContact *contact, const QString &message)
 			else if(xml.name() == "NOTIFY")
 				notify = xml.readElementText();
 			else if(xml.name() == "RES")
-				res = xml.readElementText();
+				response = xml.readElementText();
 		}
 	}
 	if (xml.hasError())
@@ -262,16 +285,16 @@ void Xtraz::handleNotify(IcqContact *contact, const QString &message)
 		if(pluginId == "srvMng")
 		{
 			QXmlStreamReader xml(notify);
-			parseSrv(contact, xml, false);
+			parseSrv(contact, xml, false, cookie);
 			if (xml.hasError())
 				qDebug() << "Parsing error of the xtraz notify" << xml.errorString();
 		}
 		else
 			qDebug() << "Unknown xtraz query type";
 	}
-	else if(!res.isEmpty())
+	else if(!response.isEmpty())
 	{
-		parseRes(contact, res);
+		parseRes(contact, response);
 	}
 	else
 		qDebug() << "Unknown xtraz notify format";
@@ -289,7 +312,6 @@ void Xtraz::parseQuery(const QString &query, QString *pluginId)
 				*pluginId = xml.readElementText();
 		}
 	}
-
 	if (xml.hasError())
 		qDebug() << "Parsing error of the xtraz query" << xml.errorString();
 }
@@ -307,14 +329,14 @@ void Xtraz::parseRes(IcqContact *contact, const QString &res)
 				xml.raiseError("Unknown event type in xtraz notify response");
 				break;
 			}
-			parseSrv(contact, xml, true);
+			parseSrv(contact, xml, true, 0);
 		}
 	}
 	if (xml.hasError())
 		qDebug() << "Parsing error of the xtraz notify" << xml.errorString();
 }
 
-void Xtraz::parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response)
+void Xtraz::parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response, quint64 cookie)
 {
 	while(!xml.atEnd())
 	{
@@ -330,7 +352,7 @@ void Xtraz::parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response)
 			else if(response && xml.name() == "val")
 				parseVal(contact, xml);
 			else if(!response && xml.name() == "req")
-				parseRequest(contact, xml);
+				parseRequest(contact, xml, cookie);
 		}
 	}
 }
@@ -381,7 +403,7 @@ void Xtraz::parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml)
 	}
 }
 
-void Xtraz::parseRequest(IcqContact *contact, QXmlStreamReader &xml)
+void Xtraz::parseRequest(IcqContact *contact, QXmlStreamReader &xml, quint64 cookie)
 {
 	QString reqId;
 	QString uin;
@@ -397,7 +419,33 @@ void Xtraz::parseRequest(IcqContact *contact, QXmlStreamReader &xml)
 			uin = xml.readElementText();
 	}
 	if(reqId == "AwayStat")
-		qDebug() << uin << "requested my away message";
+		sendXStatus(contact, cookie);
+	else
+		qDebug() << "Unknown xtraz response" << reqId;
+}
+
+void Xtraz::sendXStatus(IcqContact *contact, quint64 cookie)
+{
+	IcqAccount *account = qobject_cast<IcqAccount*>(contact->account());
+	Q_ASSERT(account);
+	account->setProperty("xstatusIndex", 1);
+	account->setProperty("statusTitle", "title");
+	account->setProperty("statusText", "note");
+	QString response = QString(
+			"<ret event='OnRemoteNotification'>"
+			"<srv><id>cAwaySrv</id>"
+			"<val srv_id='cAwaySrv'><Root>"
+			"<CASXtraSetAwayMessage></CASXtraSetAwayMessage>"
+			"<uin>%1</uin>"
+			"<index>%2</index>"
+			"<title>%3</title>"
+			"<desc>%4</desc></Root></val></srv></ret>")
+			.arg(account->id())
+			.arg(account->property("xstatusIndex").toInt())
+			.arg(account->property("statusTitle").toString())
+			.arg(account->property("statusText").toString());
+	XtrazResponse data(contact->id(), response, cookie);
+	account->connection()->send(data);
 }
 
 } // namespace Icq

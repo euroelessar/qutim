@@ -75,12 +75,12 @@ public:
 class Tlv2711: public DataUnit
 {
 public:
-	Tlv2711(quint8 msgType, quint8 msgFlags);
+	Tlv2711(quint8 msgType, quint8 msgFlags, quint64 cookie = 0);
 	void appendXData(quint16 X1, quint16 X2);
 	void appendEmptyPacket();
-	qint64 cookie() const { return m_cookie; };
+	quint64 cookie() const { return m_cookie; };
 private:
-	qint64 m_cookie;
+	quint64 m_cookie;
 };
 
 class Channel2BasicMessageData: public DataUnit
@@ -108,6 +108,12 @@ protected:
 	void init(const QString &uin, qint16 channel, qint64 cookie = 0);
 };
 
+class ServerResponseMessage: public SNAC
+{
+public:
+	ServerResponseMessage(const QString &uin, quint16 format, quint16 reason, quint64 cookie = 0);
+};
+
 class MessagesHandler: public SNACHandler
 {
 	Q_OBJECT
@@ -118,9 +124,9 @@ private:
 	void handleMessage(const SNAC &snac);
 	void handleResponse(const SNAC &snac);
 	void handleChannel1Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
-	void handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
+	void handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs, quint64 msgCookie);
 	void handleChannel4Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
-	void handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack);
+	void handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, quint64 msgCookie);
 	void appendMessage(const QString &uin, const QString &message, QDateTime time = QDateTime());
 	IcqAccount *m_account;
 	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;

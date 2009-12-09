@@ -48,9 +48,9 @@ Channel1MessageData::Channel1MessageData(const QString &message, Channel1Codec c
 	appendTLV(0x0101, msgData.data());
 }
 
-Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags)
+Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags, quint64 cookie)
 {
-	m_cookie = generateCookie();
+	m_cookie = (cookie == 0) ? generateCookie() : cookie;
 	appendSimple<quint16>(0x1B, DataUnit::LittleEndian);
 	appendSimple<quint16>(protocol_version, DataUnit::LittleEndian);
 	appendData(ICQ_CAPABILITY_PSIG_MESSAGE);
@@ -135,6 +135,18 @@ void ServerMessage::init(const QString &uin, qint16 channel, qint64 cookie)
 	appendData<qint8>(uin); // uid or screenname
 }
 
+ServerResponseMessage::ServerResponseMessage(const QString &uin, quint16 format,
+											 quint16 reason, quint64 cookie):
+	SNAC(MessageFamily, MessageResponse)
+{
+	if(cookie == 0)
+		cookie = generateCookie();
+	appendSimple<quint64>(cookie);
+	appendSimple<quint16>(format);
+	appendData<quint8>(uin);
+	appendSimple<quint16>(reason);
+}
+
 MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent):
 	SNACHandler(parent), m_account(account)
 {
@@ -199,7 +211,7 @@ void MessagesHandler::handleMessage(const SNAC &snac)
 		handleChannel1Message(snac, contact, uin, tlvs);
 		break;
 	case 0x0002: // rendezvous
-		handleChannel2Message(snac, contact, uin, tlvs);
+		handleChannel2Message(snac, contact, uin, tlvs, cookie);
 		break;
 	case 0x0004:
 		handleChannel4Message(snac, contact, uin, tlvs);
@@ -211,23 +223,23 @@ void MessagesHandler::handleMessage(const SNAC &snac)
 
 void MessagesHandler::handleResponse(const SNAC &snac)
 {
-	snac.skipData(8); // cookie
+	quint64 cookie = snac.readSimple<quint64>();
 	quint16 format = snac.readSimple<quint16>();
 	if(format != 2)
 	{
-		qDebug() << Q_FUNC_INFO << "Unknown response format" << format;
+		qDebug() <<  "Unknown response format" << format;
 		return;
 	}
 	QString uin = snac.readString<quint8>();
 	IcqContact *contact = m_account->roster()->contact(uin);
 	if(!contact)
 	{
-		qDebug() << Q_FUNC_INFO << "Response message from unknown contact" << uin;
+		qDebug() << "Response message from unknown contact" << uin;
 		return;
 	}
 	//quint16 reason = snac.readSimple<quint16>();
 	snac.skipData(2);
-	handleTlv2711(snac, contact, 2);
+	handleTlv2711(snac, contact, 2, cookie);
 }
 
 void MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs)
@@ -260,7 +272,7 @@ void MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *contac
 	}
 }
 
-void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs)
+void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs, quint64 msgCookie)
 {
 	if(tlvs.contains(0x0005))
 	{
@@ -280,10 +292,8 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 				qDebug() << "Abort messages on channel 2 is ignored";
 				return;
 			}
-
 			TLVMap tlvs = data.readTLVChain();
 			quint16 ack = tlvs.value(0x0A).value<quint16>();
-
 			if(contact)
 			{
 				if(tlvs.contains(0x03))
@@ -293,15 +303,14 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 				if(tlvs.contains(0x04))
 					contact->p->dc_info.port = tlvs.value(0x05).value<quint32>();
 			}
-
-			if(!tlvs.contains(0x2711))
+			if(tlvs.contains(0x2711))
 			{
-				qDebug() << "Message on channel 2 should contain Tlv2711";
-				return;
-			}
+				DataUnit data(tlvs.value(0x2711));
+				handleTlv2711(data, contact, ack, msgCookie);
 
-			DataUnit data(tlvs.value(0x2711));
-			handleTlv2711(data, contact, ack);
+			}
+			else
+				qDebug() << "Message on channel 2 should contain Tlv2711";
 		}
 		else
 		{
@@ -340,7 +349,7 @@ void MessagesHandler::handleChannel4Message(const SNAC &snac, IcqContact *contac
 		qDebug() << "Incorrect message on channel 4 from" << uin << ": SNAC should contain TLV 5";
 }
 
-void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack)
+void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, quint64 msgCookie)
 {
 	quint16 id = data.readSimple<quint16>(DataUnit::LittleEndian);
 	if(id != 0x1B)
@@ -407,7 +416,7 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 			DataUnit pluginData = data.readData<quint32>(DataUnit::LittleEndian);
 			if(pluginType == MSG_XSTRAZ_SCRIPT)
 			{
-				Xtraz::handleXtraz(contact, pluginId, pluginData);
+				Xtraz::handleXtraz(contact, pluginId, pluginData, msgCookie);
 			}
 			else
 				qDebug() << "Unhandled plugin message"
