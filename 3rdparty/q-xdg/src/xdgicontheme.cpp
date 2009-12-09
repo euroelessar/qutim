@@ -74,16 +74,22 @@ XdgIconData *XdgIconThemePrivate::findIcon(const QString &name) const
     if (it != cache.constEnd()) {
         data = it.value();
     } else {
-        data = lookupIconRecursive(name);
+		QSet<const XdgIconThemePrivate*> themeSet;
+		data = lookupIconRecursive(name, themeSet);
         cache.insert(key, data);
     }
 
     return data;
 }
 
-XdgIconData *XdgIconThemePrivate::lookupIconRecursive(const QString &originName) const
+XdgIconData *XdgIconThemePrivate::lookupIconRecursive(const QString &originName,
+													  QSet<const XdgIconThemePrivate*> &themeSet) const
 {
     XdgIconData *data = 0;
+
+	if (themeSet.contains(this))
+		return data;
+	themeSet.insert(this);
 
     QString name = originName;
     while (!name.isEmpty()) {
@@ -128,7 +134,7 @@ XdgIconData *XdgIconThemePrivate::lookupIconRecursive(const QString &originName)
 
     if (!data) {
         foreach (const XdgIconTheme *parent, parents) {
-            data = parent->d_func()->lookupIconRecursive(name);
+			data = parent->d_func()->lookupIconRecursive(name, themeSet);
             if (data) {
                 saveToCache(originName, data);
                 break;
@@ -291,7 +297,8 @@ void XdgIconTheme::addParent(const XdgIconTheme *parent)
 {
     Q_D(XdgIconTheme);
     Q_ASSERT_X(parent, "XdgIconTheme::addParent", "Parent must be not null");
-    d->parents.append(parent);
+	if (!d->parents.contains(parent))
+		d->parents.append(parent);
 }
 
 QString XdgIconTheme::getIconPath(const QString &name, uint size) const
