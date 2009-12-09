@@ -135,7 +135,7 @@ namespace KineticPopups
 
 	void PopupWidget::onTimeoutReached()
 	{
-		onAction2Triggered();
+		//TODO
 		emit actionActivated();
 	}
 }
