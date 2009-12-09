@@ -23,8 +23,6 @@
 #include <QState>
 #include <QDebug>
 #include <QStateMachine>
-#include <libqutim/chatunit.h>
-#include <libqutim/messagesession.h>
 
 namespace KineticPopups
 {
@@ -67,11 +65,11 @@ namespace KineticPopups
 		m_notification_widget->deleteLater();
 	}
 
-	void Popup::setMessage ( const QString& title, const QString& body, const QString &imagePath )
+	void Popup::setMessage ( const QString& title, const QString& body, QObject *sender )
 	{
 		m_title = title;
 		m_body = body;
-		m_image_path = imagePath;
+		m_sender = sender;
 	}
 
 	void Popup::appendMessage ( const QString& message )
@@ -90,7 +88,7 @@ namespace KineticPopups
 	
 	void Popup::updateMessage()
 	{
-		QSize newSize = m_notification_widget->setData(m_title,m_body,m_image_path);
+		QSize newSize = m_notification_widget->setData(m_title,m_body,m_sender);
 		m_show_geometry.setSize(newSize);
 		updateGeometry(m_show_geometry);
 		Manager::self()->updateGeometry();
@@ -116,10 +114,7 @@ namespace KineticPopups
 		m_machine = new QStateMachine(this);
 
 		m_notification_widget = new PopupWidget (manager->popupSettings);
-		m_notification_widget->setData(m_title,m_body,m_image_path);
-		QSize notify_size = m_notification_widget->setData ( m_title,m_body,m_image_path );
-		connect (m_notification_widget,SIGNAL(action1Activated()),SLOT(action1Activated()));
-		connect (m_notification_widget,SIGNAL(action2Activated()),SLOT(action2Activated()));
+		QSize notify_size = m_notification_widget->setData ( m_title,m_body,m_sender );
 
 		m_show_geometry.setSize(notify_size);
 		QRect geom = manager->insert(this);
@@ -141,13 +136,13 @@ namespace KineticPopups
 		m_hide_state->assignProperty(m_notification_widget,"geometry",geom);
 		m_notification_widget->setGeometry(geom);
 
-		m_show_state->addTransition(m_notification_widget,SIGNAL(action1Activated()),m_hide_state);
-		m_show_state->addTransition(m_notification_widget,SIGNAL(action2Activated()),m_hide_state);
+		m_show_state->addTransition(m_notification_widget,SIGNAL(actionActivated()),m_hide_state);
+		m_show_state->addTransition(m_notification_widget,SIGNAL(actionActivated()),m_hide_state);
 		m_show_state->addTransition(this,SIGNAL(updated()),m_show_state); //Black magic
 
 		if (timeout > 0) {
 			m_timer_id = startTimer(timeout);
-			connect(this,SIGNAL(timeoutReached()),m_notification_widget,SIGNAL(action2Activated()));
+			connect(this,SIGNAL(timeoutReached()),m_notification_widget,SLOT(onTimeoutReached()));
 		}
 
 		m_machine->addState(m_show_state);
@@ -202,35 +197,10 @@ namespace KineticPopups
 		emit updated();
 	}
 
-	void Popup::timerEvent ( QTimerEvent* ev)
+	void Popup::timerEvent(QTimerEvent *e)
 	{
 		emit timeoutReached();
-		QObject::timerEvent(ev);
+		QObject::timerEvent(e);
 	}
-
-	void Popup::action1Activated()
-	{
-		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
-		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(unit))) {
-			sess->setActive(true);
-		}
-		else {
-			QWidget *widget = qobject_cast<QWidget *>(m_sender);
-			if (widget)
-				widget->raise();
-		}
-	}
-
-	void Popup::action2Activated()
-	{
-		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
-		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(unit,false))) {
-			//TODO
-			if (!sess->isActive())
-				sess->deleteLater();
-		}
-	}
-
 }
+

@@ -33,7 +33,8 @@ namespace Core
 	{
 		ui->setupUi(this);
 		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onTestButtonClicked(bool)));
-		setProperty("id",tr("Preview"));
+		setProperty("name",tr("Preview"));
+		setProperty("avatar",QLatin1String(":/icons/qutim_64"));
 		ThemeHelper::PopupSettings settings = Manager::self()->popupSettings;
 		settings.popupFlags = ThemeHelper::Preview;
 		m_popup_widget = new PopupWidget(settings);
@@ -105,7 +106,7 @@ namespace Core
 	{
 		QString theme_path = getThemePath("kineticpopups", m_current_theme);
 		m_popup_widget->setTheme(ThemeHelper::loadThemeSetting(theme_path));
-		m_popup_widget->setData(tr("Preview"),tr("Simple messagebox"), QLatin1String(":/icons/qutim_64"));
+		m_popup_widget->setData(tr("Preview"),tr("Simple messagebox"), this);
 	}
 
 }
