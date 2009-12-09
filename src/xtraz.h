@@ -24,6 +24,7 @@ class QXmlStreamReader;
 namespace Icq {
 
 class IcqContact;
+class XtrazPrivate;
 
 class XtrazRequest: public ServerMessage
 {
@@ -36,11 +37,16 @@ class Xtraz
 public:
 	Xtraz();
 	static void handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data);
+	static bool handelXStatusCapabilities(IcqContact *contact, const Capabilities &caps, qint8 mood);
 private:
+	static XtrazPrivate *data();
 	static void handleNotify(IcqContact *contact, const QString &message);
 	static void parseQuery(const QString &query, QString *pluginID);
-	static void parseNotify(const QString &notify, QString *reqId, QString *uin,
-							QString *srvId = NULL, QString *trans = NULL);
+	static void parseRes(IcqContact *contact, const QString &res);
+	static void parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response);
+	static void parseVal(IcqContact *contact, QXmlStreamReader &xml);
+	static void parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml);
+	static void parseRequest(IcqContact *contact, QXmlStreamReader &xml);
 };
 
 } // namespace Icq

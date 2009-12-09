@@ -22,7 +22,6 @@
 #include "buddycaps.h"
 #include "clientidentify.h"
 #include "messages.h"
-#include "xstatus.h"
 #include "xtraz.h"
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
@@ -691,13 +690,15 @@ void Roster::handleUserOnline(const SNAC &snac)
 				moodIndex = -1;
 		}
 	}
-	XStatuses::handelXStatusCapabilities(contact, newCaps, moodIndex);
-	qDebug() << "xstatus" << contact->property("statusTittle").toString();
-
-	QString notify = QString("<srv><id>cAwaySrv</id><req><id>AwayStat</id><trans>1</trans><senderId>%1</senderId></req></srv>").
-			arg(m_account->id());
-	XtrazRequest xstatusRequest(uin, "<Q><PluginID>srvMng</PluginID></Q>", notify);
-	m_conn->send(xstatusRequest);
+	if (Xtraz::handelXStatusCapabilities(contact, newCaps, moodIndex))
+	{
+		qDebug() << "xstatus" << contact->property("statusTitle").toString();
+		QString notify = QString("<srv><id>cAwaySrv</id><req><id>AwayStat</id>"
+							"<trans>1</trans><senderId>%1</senderId></req></srv>").
+							arg(m_account->id());
+		XtrazRequest xstatusRequest(uin, "<Q><PluginID>srvMng</PluginID></Q>", notify);
+		m_conn->send(xstatusRequest);
+	}
 
 	if(oldStatus != Offline)
 		return;

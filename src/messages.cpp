@@ -139,6 +139,7 @@ MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent):
 	SNACHandler(parent), m_account(account)
 {
 	m_infos << SNACInfo(MessageFamily, MessageSrvReplyIcbm)
+			<< SNACInfo(MessageFamily, MessageResponse)
 			<< SNACInfo(MessageFamily, MessageSrvRecv)
 			<< SNACInfo(MessageFamily, MessageSrvAck)
 			<< SNACInfo(MessageFamily, MessageSrvError);
@@ -160,6 +161,9 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			break;
 		case MessageFamily << 16 | MessageSrvRecv:
 			handleMessage(sn);
+			break;
+		case MessageFamily << 16 | MessageResponse:
+			handleResponse(sn);
 			break;
 		case MessageFamily << 16 | MessageSrvAck: {
 			sn.skipData(8); // skip cookie.
@@ -203,6 +207,27 @@ void MessagesHandler::handleMessage(const SNAC &snac)
 	default:
 		qWarning("Unknown message channel: %d", int(channel));
 	}
+}
+
+void MessagesHandler::handleResponse(const SNAC &snac)
+{
+	snac.skipData(8); // cookie
+	quint16 format = snac.readSimple<quint16>();
+	if(format != 2)
+	{
+		qDebug() << Q_FUNC_INFO << "Unknown response format" << format;
+		return;
+	}
+	QString uin = snac.readString<quint8>();
+	IcqContact *contact = m_account->roster()->contact(uin);
+	if(!contact)
+	{
+		qDebug() << Q_FUNC_INFO << "Response message from unknown contact" << uin;
+		return;
+	}
+	//quint16 reason = snac.readSimple<quint16>();
+	snac.skipData(2);
+	handleTlv2711(snac, contact, 2);
 }
 
 void MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs)
@@ -276,89 +301,7 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 			}
 
 			DataUnit data(tlvs.value(0x2711));
-			quint16 id = data.readSimple<quint16>(DataUnit::LittleEndian);
-			if(id != 0x1B)
-			{
-				qDebug() << "Unknown message id on channel2";
-				return;
-			}
-			quint16 version = data.readSimple<quint16>(DataUnit::LittleEndian);
-			if(contact)
-				contact->p->version = version;
-			guid = data.readCapability();
-			data.skipData(9);
-			id = data.readSimple<quint16>(DataUnit::LittleEndian);
-			quint16 cookie = data.readSimple<quint16>(DataUnit::LittleEndian);
-			if(guid == ICQ_CAPABILITY_PSIG_MESSAGE)
-			{
-				data.skipData(12);
-				quint8 type = data.readSimple<quint8>();
-				quint8 flags = data.readSimple<quint8>();
-				quint16 status = data.readSimple<quint16>(DataUnit::LittleEndian);
-				quint16 priority = data.readSimple<quint16>(DataUnit::LittleEndian);
-
-				if(ack == 2)
-				{
-					qDebug() << "Ack on channel2 is ignored";
-					return;
-				}
-
-				if(type == MsgPlain) // Plain message
-				{
-					QByteArray message_data = data.readData<quint16>(DataUnit::LittleEndian);
-					message_data.resize(message_data.size() - 1);
-					QColor foreground(
-							data.readSimple<quint8>(),
-							data.readSimple<quint8>(),
-							data.readSimple<quint8>(),
-							data.readSimple<quint8>()
-							);
-					QColor background(
-							data.readSimple<quint8>(),
-							data.readSimple<quint8>(),
-							data.readSimple<quint8>(),
-							data.readSimple<quint8>()
-							);
-					QTextCodec *codec = NULL;
-					while(data.dataSize() > 0)
-					{
-						QString guid = data.readString<quint32>(asciiCodec(), DataUnit::LittleEndian);
-						if(guid.compare(ICQ_CAPABILITY_UTF8.toString(), Qt::CaseInsensitive) == 0)
-						{
-							codec = utf8Codec();
-						}
-						if(guid.compare(ICQ_CAPABILITY_RTFxMSGS.toString(), Qt::CaseInsensitive) == 0)
-						{
-							qDebug() << "RTF is not supported";
-							return;
-						}
-					}
-					if(codec == NULL)
-						codec = asciiCodec();
-					appendMessage(uin, codec->toUnicode(message_data));
-				}
-				else if(MsgPlugin)
-				{
-					data.readData<quint16>(DataUnit::LittleEndian);
-					DataUnit info = data.readData<quint16>(DataUnit::LittleEndian);
-					Capability pluginType = info.readCapability().data();
-					quint16 pluginId = info.readSimple<quint16>(DataUnit::LittleEndian);
-					QString pluginName = info.readString<quint32>(asciiCodec(), DataUnit::LittleEndian);
-					DataUnit pluginData = data.readData<quint32>(DataUnit::LittleEndian);
-					if(pluginType == MSG_XSTRAZ_SCRIPT)
-					{
-						Xtraz::handleXtraz(contact, pluginId, pluginData);
-					}
-					else
-						qDebug() << "Unhandled plugin message"
-								<< pluginType.toString() << pluginId << pluginName 
-								<< pluginData.data().toHex();
-				}
-				else
-					qDebug() << "Unhandled message (channel2) with type" << hex << type;
-			}
-			else
-				qDebug() << "Unknown format of message on channel2";
+			handleTlv2711(data, contact, ack);
 		}
 		else
 		{
@@ -395,6 +338,87 @@ void MessagesHandler::handleChannel4Message(const SNAC &snac, IcqContact *contac
 	}
 	else
 		qDebug() << "Incorrect message on channel 4 from" << uin << ": SNAC should contain TLV 5";
+}
+
+void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack)
+{
+	quint16 id = data.readSimple<quint16>(DataUnit::LittleEndian);
+	if(id != 0x1B)
+	{
+		qDebug() << "Unknown tlv2711 message id";
+		return;
+	}
+	quint16 version = data.readSimple<quint16>(DataUnit::LittleEndian);
+	if(contact)
+		contact->p->version = version;
+	Capability guid = data.readCapability();
+	data.skipData(9);
+	id = data.readSimple<quint16>(DataUnit::LittleEndian);
+	quint16 cookie = data.readSimple<quint16>(DataUnit::LittleEndian);
+	if(guid == ICQ_CAPABILITY_PSIG_MESSAGE)
+	{
+		data.skipData(12);
+		quint8 type = data.readSimple<quint8>();
+		quint8 flags = data.readSimple<quint8>();
+		quint16 status = data.readSimple<quint16>(DataUnit::LittleEndian);
+		quint16 priority = data.readSimple<quint16>(DataUnit::LittleEndian);
+
+		if(type == MsgPlain && ack != 2) // Plain message
+		{
+			QByteArray message_data = data.readData<quint16>(DataUnit::LittleEndian);
+			message_data.resize(message_data.size() - 1);
+			QColor foreground(
+					data.readSimple<quint8>(),
+					data.readSimple<quint8>(),
+					data.readSimple<quint8>(),
+					data.readSimple<quint8>()
+					);
+			QColor background(
+					data.readSimple<quint8>(),
+					data.readSimple<quint8>(),
+					data.readSimple<quint8>(),
+					data.readSimple<quint8>()
+					);
+			QTextCodec *codec = NULL;
+			while(data.dataSize() > 0)
+			{
+				QString guid = data.readString<quint32>(asciiCodec(), DataUnit::LittleEndian);
+				if(guid.compare(ICQ_CAPABILITY_UTF8.toString(), Qt::CaseInsensitive) == 0)
+				{
+					codec = utf8Codec();
+				}
+				if(guid.compare(ICQ_CAPABILITY_RTFxMSGS.toString(), Qt::CaseInsensitive) == 0)
+				{
+					qDebug() << "RTF is not supported";
+					return;
+				}
+			}
+			if(codec == NULL)
+				codec = asciiCodec();
+			appendMessage(contact->id(), codec->toUnicode(message_data));
+		}
+		else if(MsgPlugin)
+		{
+			data.readData<quint16>(DataUnit::LittleEndian);
+			DataUnit info = data.readData<quint16>(DataUnit::LittleEndian);
+			Capability pluginType = info.readCapability().data();
+			quint16 pluginId = info.readSimple<quint16>(DataUnit::LittleEndian);
+			QString pluginName = info.readString<quint32>(asciiCodec(), DataUnit::LittleEndian);
+			DataUnit pluginData = data.readData<quint32>(DataUnit::LittleEndian);
+			if(pluginType == MSG_XSTRAZ_SCRIPT)
+			{
+				Xtraz::handleXtraz(contact, pluginId, pluginData);
+			}
+			else
+				qDebug() << "Unhandled plugin message"
+						<< pluginType.toString() << pluginId << pluginName
+						<< pluginData.data().toHex();
+		}
+		else
+			qDebug() << "Unhandled tlv2711 message with type" << hex << type;
+	}
+	else
+		qDebug() << "Unknown tlv2711 format";
 }
 
 void MessagesHandler::appendMessage(const QString &uin, const QString &message, QDateTime time)

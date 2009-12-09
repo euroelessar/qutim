@@ -116,9 +116,11 @@ public:
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private:
 	void handleMessage(const SNAC &snac);
+	void handleResponse(const SNAC &snac);
 	void handleChannel1Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
 	void handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
 	void handleChannel4Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
+	void handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack);
 	void appendMessage(const QString &uin, const QString &message, QDateTime time = QDateTime());
 	IcqAccount *m_account;
 	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
