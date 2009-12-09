@@ -29,7 +29,7 @@ struct XdgIconDir
         Fixed = 0,
         Scalable = 1,
         Threshold = 2
-    };
+                };
 
     QString path;
     uint size;
@@ -74,7 +74,7 @@ public:
 
     XdgIconData *findIcon(const QString &name) const;
     QString findIcon(const QString &name, uint size) const;
-	XdgIconData *lookupIconRecursive(const QString &name, QSet<const XdgIconThemePrivate*> &themeSet) const;
+    XdgIconData *lookupIconRecursive(const QString &name, QSet<const XdgIconThemePrivate*> &themeSet) const;
     XdgIconData *tryCache(const QString &name) const;
     void saveToCache(const QString &originName, XdgIconData *data) const;
     QString lookupFallbackIcon(const QString &name) const;

@@ -74,8 +74,8 @@ XdgIconData *XdgIconThemePrivate::findIcon(const QString &name) const
     if (it != cache.constEnd()) {
         data = it.value();
     } else {
-		QSet<const XdgIconThemePrivate*> themeSet;
-		data = lookupIconRecursive(name, themeSet);
+        QSet<const XdgIconThemePrivate*> themeSet;
+        data = lookupIconRecursive(name, themeSet);
         cache.insert(key, data);
     }
 
@@ -83,13 +83,13 @@ XdgIconData *XdgIconThemePrivate::findIcon(const QString &name) const
 }
 
 XdgIconData *XdgIconThemePrivate::lookupIconRecursive(const QString &originName,
-													  QSet<const XdgIconThemePrivate*> &themeSet) const
+                                                      QSet<const XdgIconThemePrivate*> &themeSet) const
 {
     XdgIconData *data = 0;
 
-	if (themeSet.contains(this))
-		return data;
-	themeSet.insert(this);
+    if (themeSet.contains(this))
+        return data;
+    themeSet.insert(this);
 
     QString name = originName;
     while (!name.isEmpty()) {
@@ -113,8 +113,8 @@ XdgIconData *XdgIconThemePrivate::lookupIconRecursive(const QString &originName,
                             data = new XdgIconData;
                             data->theme = this;
                             data->name = name;
-                            path.chop(qstrlen(exts[k]));
                         }
+                        path.chop(qstrlen(exts[k]));
                         data->entries.append(XdgIconEntry(&dirdata, filename));
                         break;
                     }
@@ -134,7 +134,7 @@ XdgIconData *XdgIconThemePrivate::lookupIconRecursive(const QString &originName,
 
     if (!data) {
         foreach (const XdgIconTheme *parent, parents) {
-			data = parent->d_func()->lookupIconRecursive(name, themeSet);
+            data = parent->d_func()->lookupIconRecursive(name, themeSet);
             if (data) {
                 saveToCache(originName, data);
                 break;
@@ -210,20 +210,20 @@ bool XdgIconThemePrivate::dirMatchesSize(const XdgIconDir &dir, uint size)
 uint XdgIconThemePrivate::dirSizeDistance(const XdgIconDir &dir, uint size)
 {
     switch (dir.type) {
-        case XdgIconDir::Fixed:
-            return qAbs(int(dir.size) - int(size));
-        case XdgIconDir::Scalable:
-            if(size < dir.minsize)
-                return dir.minsize - size;
-            if(size > dir.maxsize)
-                return size - dir.maxsize;
-            return 0;
-        case XdgIconDir::Threshold:
-            if(size < dir.size - dir.threshold)
-                return dir.size - dir.threshold - size;
-            if(size > dir.size + dir.threshold)
-                return size - dir.size - dir.threshold;
-            return 0;
+    case XdgIconDir::Fixed:
+        return qAbs(int(dir.size) - int(size));
+    case XdgIconDir::Scalable:
+        if(size < dir.minsize)
+            return dir.minsize - size;
+        if(size > dir.maxsize)
+            return size - dir.maxsize;
+        return 0;
+    case XdgIconDir::Threshold:
+        if(size < dir.size - dir.threshold)
+            return dir.size - dir.threshold - size;
+        if(size > dir.size + dir.threshold)
+            return size - dir.size - dir.threshold;
+        return 0;
     }
 
     Q_ASSERT(!"New directory type?..");
@@ -297,8 +297,8 @@ void XdgIconTheme::addParent(const XdgIconTheme *parent)
 {
     Q_D(XdgIconTheme);
     Q_ASSERT_X(parent, "XdgIconTheme::addParent", "Parent must be not null");
-	if (!d->parents.contains(parent))
-		d->parents.append(parent);
+    if (!d->parents.contains(parent))
+        d->parents.append(parent);
 }
 
 QString XdgIconTheme::getIconPath(const QString &name, uint size) const
