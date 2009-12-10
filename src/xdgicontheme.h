@@ -28,6 +28,7 @@
 #include "xdgicon.h"
 
 class XdgIconThemePrivate;
+class XdgIconManagerPrivate;
 
 class XDG_API XdgIconTheme
 {
@@ -53,6 +54,7 @@ public:
 
 protected:
     XdgIconThemePrivate *p;
+    friend class XdgIconManagerPrivate;
 public:
     typedef XdgIconThemePrivate * Data;
     const Data &data() const { return p; }

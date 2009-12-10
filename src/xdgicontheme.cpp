@@ -270,12 +270,6 @@ XdgIconTheme::XdgIconTheme(const QVector<QDir> &basedirs, const QString &id, con
 
 XdgIconTheme::~XdgIconTheme()
 {
-    // There sometimes equal values for different keys, i.e. because of fallback
-    QSet<XdgIconData *> allData = QSet<XdgIconData *>::fromList(p->cache.values());
-    foreach (XdgIconData *data, allData) {
-        if (data->theme == p && data->destroy())
-            delete data;
-    }
     delete p;
 }
 
