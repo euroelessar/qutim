@@ -36,8 +36,8 @@ namespace qutim_sdk_0_3
 		QMenu *menu(bool deleteOnClose = true) const;
 		void addAction(const ActionGenerator *gen);
 		static void addAction(const ActionGenerator *gen, const QMetaObject *meta);
-        template <typename T>
-        static inline void addAction(const ActionGenerator *gen) { addAction(gen, &T::staticMetaObject); }
+		template <typename T>
+		static inline void addAction(const ActionGenerator *gen) { addAction(gen, &T::staticMetaObject); }
 	public slots:
 		void showMenu(const QPoint &pos);
 	protected:
