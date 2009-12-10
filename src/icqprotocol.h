@@ -51,6 +51,8 @@ public:
 	virtual Account *account(const QString &id) const;
 protected:
 	void loadAccounts();
+private slots:
+	void onStatusActionPressed();
 private:
 	friend class IcqAccountCreationWizard;
 	QScopedPointer<IcqProtocolPrivate> p;

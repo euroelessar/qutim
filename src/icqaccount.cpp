@@ -30,7 +30,6 @@ IcqAccount::IcqAccount(const QString &uin) : Account(uin, IcqProtocol::instance(
 {
 	p->conn = new OscarConnection(this);
 	p->conn->registerHandler(p->roster = new Roster(this));
-	setStatus(Evil);
 }
 
 IcqAccount::~IcqAccount()
@@ -50,6 +49,9 @@ OscarConnection *IcqAccount::connection()
 void IcqAccount::setStatus(Status status)
 {
 	Status current = this->status();
+	qDebug("Changing status from %s to %s",
+		   qPrintable(statusToString(current, false)),
+		   qPrintable(statusToString(status, false)));
 	if(status < Offline || status > OnThePhone || current == status)
 		return;
 	if(current >= Connecting)
