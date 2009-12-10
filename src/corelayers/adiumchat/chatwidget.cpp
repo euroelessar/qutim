@@ -222,4 +222,10 @@ namespace AdiumChat
 				break;
 		}
 	}
+
+	QTextDocument *ChatWidget::getInputField()
+	{
+		return ui->chatEdit->document();
+	}
 }
+
