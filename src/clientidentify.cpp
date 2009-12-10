@@ -907,7 +907,7 @@ void ClientIdentify::identify_Miranda()
 				m_client_id += QString("0.%1.%2.%3 alpha)").arg(iver1).arg(iver2).arg(iver3);
 				break;
 			default:
-				m_client_id += QString("%1.%2.%3.%4").arg(iver0).arg(iver1).arg(iver2).arg(iver3);
+				m_client_id += QString("%1.%2.%3.%4)").arg(iver0).arg(iver1).arg(iver2).arg(iver3);
 				break;
 		}
 		if ((m_ext_info == 0x5AFEC0DE) || m_client_caps.match(ICQ_CAPABILITY_ICQJS7SxVER, 0x10))
