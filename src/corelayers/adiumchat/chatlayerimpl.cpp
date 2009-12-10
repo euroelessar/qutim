@@ -35,7 +35,7 @@ namespace AdiumChat
 		action = new ActionGenerator(Icon("mail-message-new"),
 									 QT_TRANSLATE_NOOP("ChatLayer", "Send message"),
 									 ChatLayer::instance(), SLOT(onStartChat()));
-		MenuController::addAction(action, &Contact::staticMetaObject);
+        MenuController::addAction<Contact>(action);
 	}
 
 	static Core::CoreStartupHelper<&init> action_init_static(
