@@ -18,8 +18,10 @@
 
 #include "libqutim_global.h"
 
-#define K8JSON_INCLUDE_COMPLEX_GENERATOR
-#define K8JSON_INCLUDE_GENERATOR
+#ifndef K8JSON_INCLUDE_GENERATOR
+# define K8JSON_INCLUDE_COMPLEX_GENERATOR
+# define K8JSON_INCLUDE_GENERATOR
+#endif
 
 // Low level api for parsing json files
 #include <QHash>
