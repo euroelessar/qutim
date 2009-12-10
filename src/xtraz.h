@@ -26,6 +26,8 @@ namespace Icq {
 class IcqContact;
 class XtrazPrivate;
 
+const Capability MSG_XSTRAZ_SCRIPT(0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865);
+
 class XtrazRequest: public ServerMessage
 {
 public:

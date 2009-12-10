@@ -19,9 +19,6 @@
 #include "qutim/notificationslayer.h"
 #include <QCryptographicHash>
 #include <QUrl>
-#ifdef TEST
-#include <QSettings>
-#endif
 
 namespace Icq {
 
@@ -45,12 +42,7 @@ void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 		{
 			quint32 length = qFromBigEndian<quint32>((uchar *)sn.data().constData());
 			QByteArray key = sn.data().mid(2, length);
-#ifndef TEST
 			QString password = m_conn->account()->config().group("general").value("passwd", QString(), Config::Crypted);
-#else
-			QSettings settings("testicqlogin.ini", QSettings::IniFormat);
-			QString password = settings.value("passwd", "").toString(); 
-#endif
 			key += QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Md5);;
 			key += "AOL Instant Messenger (SM)";
 			snac.appendTLV(0x0025, QCryptographicHash::hash(key, QCryptographicHash::Md5));

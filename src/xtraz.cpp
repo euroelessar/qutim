@@ -163,15 +163,14 @@ XtrazPrivate::XtrazPrivate()
 }
 
 XtrazData::XtrazData(const QString &body, quint64 cookie):
-	Tlv2711(MsgPlugin, 0, cookie)
+	Tlv2711(MsgPlugin, 0, 0, 1, cookie)
 {
-	appendXData(0, 1);
 	appendEmptyPacket();
 
 	// Plugin type ID
 	appendSimple<quint16>(0x04f, DataUnit::LittleEndian); // Length
 	appendData(Capability(0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865));    // type: xtraz script
-	appendSimple<quint16>(0x0008, DataUnit::LittleEndian); // Function ID: script notify
+	appendSimple<quint16>(xtrazNotify, DataUnit::LittleEndian); // Function ID
 	appendSimple<quint32>(0x002a, DataUnit::LittleEndian); // Request type
 	appendData("Script Plug-in: Remote Notification Arrive", Util::asciiCodec());
 	// unknown
@@ -308,7 +307,7 @@ void Xtraz::parseQuery(const QString &query, QString *pluginId)
 		xml.readNext();
 		if(xml.isStartElement())
 		{
-			if(xml.name() == "PluginID")
+			if(pluginId && xml.name() == "PluginID")
 				*pluginId = xml.readElementText();
 		}
 	}
@@ -347,7 +346,7 @@ void Xtraz::parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response, 
 			{
 				QString srvId = xml.readElementText();
 				if(srvId != "cAwaySrv")
-					xml.raiseError("Unknown srvId in xtraz notify");
+					xml.raiseError("Unknown srvId in the xtraz notify");
 			}
 			else if(response && xml.name() == "val")
 				parseVal(contact, xml);
@@ -362,7 +361,7 @@ void Xtraz::parseVal(IcqContact *contact, QXmlStreamReader &xml)
 	QString srvId = xml.attributes().value("srv_id").toString();
 	if(srvId != "cAwaySrv")
 	{
-		xml.raiseError("Unknown srvId in xtraz notify");
+		xml.raiseError("Unknown srvId in the xtraz notify");
 		return;
 	}
 	while(!xml.atEnd())

@@ -53,18 +53,7 @@ enum MessageType
 	MsgAutoDND = 0xEB,
 	MsgAutoFFC = 0xEC,
 	MsgUnknown = 0x00,
-	MsgGreetingCard = 0x101,
-	MsgRequestContacts = 0x102,
-	MsgMessage = 0x103,
-	MsgStatusSMSText = 0x104,
-	MsgSMSMessage = 0x110,
-	MsgXtrazInvitation = 0x201,
-	MsgXtrazMessage = 0x202,
-	MsgXtrazNotify = 0x208,
-	MsgReverseDCReq = 0x401
 };
-
-const Capability MSG_XSTRAZ_SCRIPT(0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865);
 
 class Channel1MessageData: public DataUnit
 {
@@ -75,8 +64,7 @@ public:
 class Tlv2711: public DataUnit
 {
 public:
-	Tlv2711(quint8 msgType, quint8 msgFlags, quint64 cookie = 0);
-	void appendXData(quint16 X1, quint16 X2);
+	Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, quint64 cookie = 0);
 	void appendEmptyPacket();
 	quint64 cookie() const { return m_cookie; };
 private:

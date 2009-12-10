@@ -48,7 +48,7 @@ Channel1MessageData::Channel1MessageData(const QString &message, Channel1Codec c
 	appendTLV(0x0101, msgData.data());
 }
 
-Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags, quint64 cookie)
+Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, quint64 cookie)
 {
 	m_cookie = (cookie == 0) ? generateCookie() : cookie;
 	appendSimple<quint16>(0x1B, DataUnit::LittleEndian);
@@ -64,10 +64,6 @@ Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags, quint64 cookie)
 	appendSimple<quint32>(0);
 	appendSimple<quint8>(msgType);
 	appendSimple<quint8>(msgFlags);
-}
-
-void Tlv2711::appendXData(quint16 X1, quint16 X2)
-{
 	appendSimple<quint16>(X1, LittleEndian);
 	appendSimple<quint16>(X2, LittleEndian);
 }
@@ -270,6 +266,8 @@ void MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *contac
 			time = QDateTime::fromTime_t(msg_tlvs.value(0x0016).value<quint32>());
 		appendMessage(uin, message, time);
 	}
+	else
+		qDebug() << "Incorrect message on channel 1 from" << uin << ": SNAC should contain TLV 2";
 }
 
 void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs, quint64 msgCookie)
@@ -310,7 +308,7 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 
 			}
 			else
-				qDebug() << "Message on channel 2 should contain Tlv2711";
+				qDebug() << "Message on channel 2 should contain TLV 2711";
 		}
 		else
 		{
@@ -354,7 +352,7 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 	quint16 id = data.readSimple<quint16>(DataUnit::LittleEndian);
 	if(id != 0x1B)
 	{
-		qDebug() << "Unknown tlv2711 message id";
+		qDebug() << "Unknown message id in TLV 2711";
 		return;
 	}
 	quint16 version = data.readSimple<quint16>(DataUnit::LittleEndian);
@@ -424,10 +422,10 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 						<< pluginData.data().toHex();
 		}
 		else
-			qDebug() << "Unhandled tlv2711 message with type" << hex << type;
+			qDebug() << "Unhandled TLV 2711 message with type" << hex << type;
 	}
 	else
-		qDebug() << "Unknown tlv2711 format";
+		qDebug() << "Unknown format of TLV 2711";
 }
 
 void MessagesHandler::appendMessage(const QString &uin, const QString &message, QDateTime time)
