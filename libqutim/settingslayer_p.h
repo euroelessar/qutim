@@ -51,8 +51,9 @@ namespace qutim_sdk_0_3
 		QList<AutoSettingsItem::Entry *> entries;
 	};
 
-	struct AutoSettingsItem::EntryPrivate
+	class AutoSettingsItem::EntryPrivate
 	{
+	public:
 		LocalizedString text;
 		const ObjectGenerator *gen;
 		QString name;
@@ -61,8 +62,9 @@ namespace qutim_sdk_0_3
 
 	typedef QPair<QWidget *, QByteArray> AutoSettingsEntryInfo;
 
-	struct AutoSettingsWidgetPrivate
+	class AutoSettingsWidgetPrivate
 	{
+	public:
 		QList<AutoSettingsEntryInfo> entries;
 	};
 

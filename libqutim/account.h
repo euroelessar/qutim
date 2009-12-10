@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3
 	class ChatUnit;
 	class Contact;
 	class Protocol;
-	struct AccountPrivate;
+	class AccountPrivate;
 
 	class LIBQUTIM_EXPORT Account : public MenuController
 	{

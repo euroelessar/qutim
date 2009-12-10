@@ -21,8 +21,9 @@
 
 namespace qutim_sdk_0_3
 {
-	struct ChatUnitPrivate : public MenuControllerPrivate
+	class ChatUnitPrivate : public MenuControllerPrivate
 	{
+	public:
 		Account *account;
 	};
 }

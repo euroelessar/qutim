@@ -21,8 +21,9 @@
 
 namespace qutim_sdk_0_3
 {
-	struct ObjectGeneratorPrivate
+	class ObjectGeneratorPrivate
 	{
+	public:
 		QList<QByteArray> names;
 		QList<QVariant>   values;
 		ExtensionInfo info;

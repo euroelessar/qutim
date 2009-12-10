@@ -20,8 +20,9 @@
 
 namespace qutim_sdk_0_3
 {
-	struct ActionGeneratorPrivate : public ObjectGeneratorPrivate
+	class ActionGeneratorPrivate : public ObjectGeneratorPrivate
 	{
+	public:
 		QIcon icon;
 		LocalizedString text;
 		QPointer<QObject> receiver;

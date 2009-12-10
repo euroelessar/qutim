@@ -23,7 +23,7 @@
 
 namespace qutim_sdk_0_3
 {
-	struct ActionGeneratorPrivate;
+	class ActionGeneratorPrivate;
 
 	class LIBQUTIM_EXPORT ActionGenerator : public ObjectGenerator
 	{

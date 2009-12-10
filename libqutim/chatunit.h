@@ -24,7 +24,7 @@ namespace qutim_sdk_0_3
 	class Account;
 	class Message;
 	class ChatUnit;
-	struct ChatUnitPrivate;
+	class ChatUnitPrivate;
 	typedef QList<ChatUnit *> ChatUnitList;
 
 	class LIBQUTIM_EXPORT ChatUnit : public MenuController

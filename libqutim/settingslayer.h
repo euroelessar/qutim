@@ -27,7 +27,7 @@ namespace qutim_sdk_0_3
 {
 	class SettingsWidget;
 	class SettingsItem;
-	struct SettingsItemPrivate;
+	class SettingsItemPrivate;
 
 	namespace Settings
 	{
@@ -94,7 +94,7 @@ namespace qutim_sdk_0_3
 	class AutoSettingsItem : public SettingsItem
 	{
 	public:
-		struct EntryPrivate;
+		class EntryPrivate;
 		class Entry
 		{
 		public:
