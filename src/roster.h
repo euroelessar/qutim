@@ -87,7 +87,6 @@ private:
 	void handleSSIServerAck(const SNAC &sn);
 	void handleUserOnline(const SNAC &snac);
 	void handleUserOffline(const SNAC &snac);
-	void handleError(const SNAC &snac);
 	void handleMetaInfo(const SNAC &snac);
 	void sendRosterAck();
 	void sendOfflineMessagesRequest() { sendMetaInfoRequest(0x003C); }

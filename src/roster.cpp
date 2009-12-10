@@ -795,14 +795,6 @@ void Roster::handleUserOffline(const SNAC &snac)
 //	tlvs.value(0x0001); // User class
 }
 
-
-void Roster::handleError(const SNAC &snac)
-{
-	ProtocolError error(snac);
-	qDebug() << QString("Error (%1, %2): %3").
-			arg(error.code, 2, 16).arg(error.subcode, 2, 16).arg(error.str);
-}
-
 void Roster::handleMetaInfo(const SNAC &snac)
 {
 	TLVMap tlvs = snac.readTLVChain();
