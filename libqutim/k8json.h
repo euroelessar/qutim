@@ -16,29 +16,41 @@
 #ifndef K8JSON_QUTIM_H
 #define K8JSON_QUTIM_H
 
+#include "libqutim_global.h"
+
+// Low level api for parsing json files
 #include <QHash>
 #include <QList>
 #include <QMap>
 #include <QString>
 #include <QVariant>
-#include <QByteArray>
-#include "libqutim_global.h"
 
-// Low level api for parsing json files
+#if defined(K8JSON_INCLUDE_COMPLEX_GENERATOR) || defined(K8JSON_INCLUDE_GENERATOR)
+# include <QByteArray>
+#endif
+
 
 namespace K8JSON
 {
-	/*
-	 * quote string to JSON-friendly format, add '"'
-	 */
-	LIBQUTIM_EXPORT QString quote(const QString &str);
+   /*
+	* quote string to JSON-friendly format, add '"'
+	*/
+	LIBQUTIM_EXPORT QString quote (const QString &str);
 
-	/*
-	 * skip blanks and comments
-	 * return ptr to first non-blank char or 0 on error
-	 * 'maxLen' will be changed
-	 */
-	LIBQUTIM_EXPORT const uchar *skipBlanks(const uchar *s, int *maxLength);
+   /*
+	* check if given (const uchar *) represents valid UTF-8 sequence
+	* NULL (or empty) s is not valid
+	* sequence ends on '\0' if zeroInvalid==false
+	*/
+	LIBQUTIM_EXPORT bool isValidUtf8 (const uchar *s, int maxLen, bool zeroInvalid=false);
+
+
+   /*
+	* skip blanks and comments
+	* return ptr to first non-blank char or 0 on error
+	* 'maxLen' will be changed
+	*/
+	LIBQUTIM_EXPORT const uchar *skipBlanks (const uchar *s, int *maxLength);
 
 	/*
 	 * skip one record
@@ -47,23 +59,66 @@ namespace K8JSON
 	 * return ptr to the first non-blank char after the record (or 0)
 	 * 'maxLen' will be changed
 	 */
-	LIBQUTIM_EXPORT const uchar *skipRec(const uchar *s, int *maxLength);
+	LIBQUTIM_EXPORT const uchar *skipRec (const uchar *s, int *maxLength);
 
 	/*
-	 * parse one simple record (f-v pair)
+	 * parse field value
+	 * return ptr to the first non-blank char after the value (or 0)
+	 * 'maxLen' will be changed
+	 */
+	LIBQUTIM_EXPORT const uchar *parseValue (QVariant &fvalue, const uchar *s, int *maxLength);
+
+
+	/*
+	 * parse one field (f-v pair)
 	 * return ptr to the first non-blank char after the record (or 0)
 	 * 'maxLen' will be changed
 	 */
-	LIBQUTIM_EXPORT const uchar *parseSimple(QString &fname, QVariant &fvalue, const uchar *s, int *maxLength);
+	LIBQUTIM_EXPORT const uchar *parseField (QString &fname, QVariant &fvalue, const uchar *s, int *maxLength);
 
 	/*
 	 * parse one record (list or object)
 	 * return ptr to the first non-blank char after the record (or 0)
 	 * 'maxLen' will be changed
 	 */
-	LIBQUTIM_EXPORT const uchar *parseRecord(QVariant &res, const uchar *s, int *maxLength);
+	LIBQUTIM_EXPORT const uchar *parseRecord (QVariant &res, const uchar *s, int *maxLength);
 
-	LIBQUTIM_EXPORT bool generate(QByteArray &res, const QVariant &val, int indent=0);
+
+#ifdef K8JSON_INCLUDE_GENERATOR
+	/*
+	 * generate JSON text from variant
+	 * 'err' must be empty (generateEx() will not clear it)
+	 * return false on error
+	 */
+	LIBQUTIM_EXPORT bool generateEx (QString &err, QByteArray &res, const QVariant &val, int indent=0);
+
+	/*
+	 * same as above, but without error message
+	 */
+	LIBQUTIM_EXPORT bool generate (QByteArray &res, const QVariant &val, int indent=0);
+#endif
+
+
+#ifdef K8JSON_INCLUDE_COMPLEX_GENERATOR
+	/*
+	 * callback for unknown variant type
+	 * return false and set 'err' on error
+	 * or return true and *add* converted value (valid sequence of utf-8 bytes) to res
+	 */
+	typedef bool (*generatorCB) (void *udata, QString &err, QByteArray &res, const QVariant &val, int indent);
+
+	/*
+	 * generate JSON text from variant
+	 * 'err' must be empty (generateEx() will not clear it)
+	 * return false on error
+	 */
+	LIBQUTIM_EXPORT bool generateExCB (void *udata, generatorCB cb, QString &err, QByteArray &res, const QVariant &val, int indent=0);
+
+	/*
+	 * same as above, but without error message
+	 */
+	LIBQUTIM_EXPORT bool generateCB (void *udata, generatorCB cb, QByteArray &res, const QVariant &val, int indent=0);
+#endif
 }
 
 #endif // K8JSON_QUTIM_H
