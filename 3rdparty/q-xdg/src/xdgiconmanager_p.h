@@ -20,6 +20,7 @@
 #define XDGICONMANAGER_P_H
 
 #include "xdgiconmanager.h"
+#include "xdgicontheme_p.h"
 #include <QtCore/QSet>
 
 inline uint qHash(const QRegExp &regexp)
@@ -41,6 +42,12 @@ public:
 
 XdgIconManagerPrivate::~XdgIconManagerPrivate()
 {
+    // There sometimes equal values for different keys, i.e. because of fallback
+    QSet<XdgIconData *> allData;
+    foreach (XdgIconTheme *theme, themes)
+        allData |= QSet<XdgIconData *>::fromList(theme->p->cache.values());
+    qDeleteAll(allData);
+
     // FIXME: May be it will be better to carry all XdgIconTheme's in some list?..
     QSet<XdgIconTheme *> allThemes;
     allThemes |= QSet<XdgIconTheme *>::fromList(allThemes.values());
