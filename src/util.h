@@ -50,7 +50,7 @@ namespace Util {
 	extern QTextCodec *utf8Codec();
 	extern QTextCodec *utf16Codec();
 	extern QTextCodec *defaultCodec();
-	extern qint64 generateCookie();
+	extern quint64 generateCookie();
 } // namespace Icq::Util
 
 } // namespace Icq

@@ -63,6 +63,7 @@ public:
 private:
 	void clearCapabilities();
 	friend class Roster;
+	friend class MessagesHandler;
 	QScopedPointer<IcqContactPrivate> p;
 };
 

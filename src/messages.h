@@ -17,14 +17,42 @@
 #define MESSAGES_H_
 
 #include "snac.h"
+#include "snachandler.h"
+#include "messageplugin.h"
+#include <QDateTime>
 
 namespace Icq {
+
+class IcqAccount;
+class IcqContact;
 
 enum Channel1Codec
 {
 	CodecUsAscii = 0x0000,
 	CodecUtf16Be = 0x0002,
 	CodecAnsi    = 0x0003
+};
+
+enum MessageType
+{
+	MsgPlain = 0x01,
+	MsgChatReq = 0x02,
+	MsgFileReq = 0x03,
+	MsgUrl = 0x04,
+	MsgAuthReq = 0x06,
+	MsgAuthDeny = 0x07,
+	MsgAuthOk = 0x08,
+	MsgServer = 0x09,
+	MsgAdded = 0x0C,
+	MsgWwp = 0x0D,
+	MsgEexpress = 0x0E,
+	MsgPlugin = 0x1A,
+	MsgAutoAway = 0xE8,
+	MsgAutoBusy = 0xE9,
+	MsgAutoNA =  0xEA,
+	MsgAutoDND = 0xEB,
+	MsgAutoFFC = 0xEC,
+	MsgUnknown = 0x00,
 };
 
 class Channel1MessageData: public DataUnit
@@ -36,12 +64,11 @@ public:
 class Tlv2711: public DataUnit
 {
 public:
-	Tlv2711(quint8 msgType, quint8 msgFlags);
-	void appendXData(quint16 X1, quint16 X2);
+	Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, quint64 cookie = 0);
 	void appendEmptyPacket();
-	qint64 cookie() const { return m_cookie; };
+	quint64 cookie() const { return m_cookie; };
 private:
-	qint64 m_cookie;
+	quint64 m_cookie;
 };
 
 class Channel2BasicMessageData: public DataUnit
@@ -62,10 +89,35 @@ public:
 class ServerMessage: public SNAC
 {
 public:
+	ServerMessage();
 	ServerMessage(const QString &uin, const Channel1MessageData &data, bool storeMessage = true);
 	ServerMessage(const QString &uin, const Channel2BasicMessageData &data);
 protected:
 	void init(const QString &uin, qint16 channel, qint64 cookie = 0);
+};
+
+class ServerResponseMessage: public SNAC
+{
+public:
+	ServerResponseMessage(const QString &uin, quint16 format, quint16 reason, quint64 cookie = 0);
+};
+
+class MessagesHandler: public SNACHandler
+{
+	Q_OBJECT
+public:
+	MessagesHandler(IcqAccount *account, QObject *parent = 0);
+	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
+private:
+	void handleMessage(const SNAC &snac);
+	void handleResponse(const SNAC &snac);
+	void handleChannel1Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
+	void handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs, quint64 msgCookie);
+	void handleChannel4Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
+	void handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, quint64 msgCookie);
+	void appendMessage(const QString &uin, const QString &message, QDateTime time = QDateTime());
+	IcqAccount *m_account;
+	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
 };
 
 } // namespace Icq

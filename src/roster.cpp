@@ -22,12 +22,11 @@
 #include "buddycaps.h"
 #include "clientidentify.h"
 #include "messages.h"
-#include <qutim/objectgenerator.h>
+#include "xtraz.h"
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
 #include <qutim/notificationslayer.h>
-#include <QTextCodec>
-#include <QDateTime>
+
 
 namespace Icq {
 
@@ -115,19 +114,9 @@ Roster::Roster(IcqAccount *account)
 			<< SNACInfo(BuddyFamily, UserOnline)
 			<< SNACInfo(BuddyFamily, UserOffline)
 			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy)
-			<< SNACInfo(MessageFamily, MessageSrvReplyIcbm)
-			<< SNACInfo(MessageFamily, MessageSrvRecv)
-			<< SNACInfo(MessageFamily, MessageSrvAck)
-			<< SNACInfo(MessageFamily, MessageSrvError)
 			<< SNACInfo(ExtensionsFamily, ExtensionsMetaError)
 			<< SNACInfo(ExtensionsFamily, ExtensionsMetaSrvReply);
 	m_state = ReceivingRoster;
-	foreach(const ObjectGenerator *gen, moduleGenerators<MessagePlugin>())
-	{
-		MessagePlugin *plugin = gen->generate<MessagePlugin>();
-		foreach(const Capability &cap, plugin->capabilities())
-			m_msg_plugins.insert(cap, plugin);
-	}
 }
 
 void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
@@ -189,26 +178,15 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 			break; }
 		case ListsFamily << 16 | ListsUpToDate: {
 			qDebug() << "Local contactlist is up to date";
-			break; }
-		case MessageFamily << 16 | MessageSrvReplyIcbm:
-			qDebug() << IMPLEMENT_ME << "MessageFamily, MessageSrvReplyIcbm";
-			break;
-		case MessageFamily << 16 | MessageSrvRecv:
-			handleMessage(sn);
-			break;
-		case MessageFamily << 16 | MessageSrvAck: {
-			sn.skipData(8); // skip cookie.
-			quint16 channel = sn.readSimple<quint16>();
-			QString uin = sn.readString<qint8>();
-			qDebug() << QString("Server accepted message for delivery to %1 on channel %2").
-					arg(uin).arg(channel);
 			break;
 		}
 		case ListsFamily << 16 | ListsError:
-		case MessageFamily << 16 | MessageSrvError:
-		case ExtensionsFamily << 16 | ExtensionsMetaError:
-			handleError(sn);
+		case ExtensionsFamily << 16 | ExtensionsMetaError: {
+			ProtocolError error(sn);
+			qDebug() << QString("Error (%1, %2): %3").
+				arg(error.code, 2, 16).arg(error.subcode, 2, 16).arg(error.str);
 			break;
+		}
 		case ExtensionsFamily << 16 | ExtensionsMetaSrvReply:
 			handleMetaInfo(sn);
 			break;
@@ -644,6 +622,19 @@ void Roster::handleUserOnline(const SNAC &snac)
 	quint16 warning_level = snac.readSimple<quint16>();
 	TLVMap tlvs = snac.readTLVChain<quint16>();
 
+	// status.
+	Status oldStatus = contact->status();
+	quint16 statusFlags = 0;
+	quint16 status = 0;
+	if(tlvs.contains(0x06))
+	{
+		DataUnit status_data(tlvs.value(0x06));
+		statusFlags = status_data.readSimple<quint16>();
+		status = status_data.readSimple<quint16>();
+	}
+	contact->setStatus(icqStatusToQutim(status));
+	qDebug()<< contact->name()<< "changed status to " << contact->status();
+
 	// Status note
 	SessionDataItemMap status_note_data(tlvs);
 	if(status_note_data.contains(0x0d))
@@ -670,12 +661,34 @@ void Roster::handleUserOnline(const SNAC &snac)
 		contact->setProperty("statusText", codec->toUnicode(note_data));
 	}
 
-	// status.
-	quint32 status = tlvs.value<quint32>(0x0006, 0x0000);
-	Status oldStatus = contact->status();
-	contact->setStatus(icqStatusToQutim(status & 0xffff));
-	qDebug()<< contact->name()<< "changed status to " << contact->status();
-
+	// XStatus
+	Capabilities newCaps;
+	DataUnit data(tlvs.value(0x000d));
+	while(data.dataSize() >= 16)
+	{
+		Capability capability(data.readData(16));
+		newCaps << capability;
+	}
+	qint8 moodIndex = -1;
+	if(tlvs.contains(0x0e))
+	{
+		QString moodStr = QString::fromAscii(tlvs.value(0x0e).value());
+		if(moodStr.startsWith("icqmood"))
+		{
+			bool ok;
+			moodIndex = moodStr.mid(8, -1).toInt(&ok);
+			if(!ok)
+				moodIndex = -1;
+		}
+	}
+	if (Xtraz::handelXStatusCapabilities(contact, newCaps, moodIndex))
+	{
+		QString notify = QString("<srv><id>cAwaySrv</id><req><id>AwayStat</id>"
+							"<trans>1</trans><senderId>%1</senderId></req></srv>").
+							arg(m_account->id());
+		XtrazRequest xstatusRequest(uin, "<Q><PluginID>srvMng</PluginID></Q>", notify);
+		m_conn->send(xstatusRequest);
+	}
 
 	if(oldStatus != Offline)
 		return;
@@ -710,41 +723,34 @@ void Roster::handleUserOnline(const SNAC &snac)
 			m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
 	}
 	contact->clearCapabilities();
-	if(tlvs.contains(0x000d)) // capabilities
+	foreach(const Capability &capability, newCaps) 	// capabilities
 	{
-		DataUnit data(tlvs.value(0x000d));
-		while(data.dataSize() >= 16)
-		{
-			Capability capability(data.readData(16));
-			if(capability.match(ICQ_CAPABILITY_RTFxMSGS))
-				contact->p->rtf_support = true;
-			else if(capability.match(ICQ_CAPABILITY_HTMLMSGS))
-				contact->p->html_support = true;
-			else if(capability.match(ICQ_CAPABILITY_TYPING))
-				contact->p->typing_support = true;
-			else if(capability.match(ICQ_CAPABILITY_AIMCHAT))
-				contact->p->aim_chat_support = true;
-			else if(capability.match(ICQ_CAPABILITY_AIMIMAGE))
-				contact->p->aim_image_support = true;
-			else if(capability.match(ICQ_CAPABILITY_XTRAZ))
-				contact->p->xtraz_support = true;
-			else if(capability.match(ICQ_CAPABILITY_UTF8))
-				contact->p->utf8_support = true;
-			else if(capability.match(ICQ_CAPABILITY_AIMSENDFILE))
-				contact->p->sendfile_support = true;
-			else if(capability.match(ICQ_CAPABILITY_DIRECT))
-				contact->p->direct_support = true;
-			else if(capability.match(ICQ_CAPABILITY_AIMICON))
-				contact->p->icon_support = true;
-			else if(capability.match(ICQ_CAPABILITY_AIMGETFILE))
-				contact->p->getfile_support = true;
-			else if(capability.match(ICQ_CAPABILITY_SRVxRELAY))
-				contact->p->srvrelay_support = true;
-			else if(capability.match(ICQ_CAPABILITY_AVATAR))
-				contact->p->avatar_support = true;
-			contact->p->capabilities << capability;
-		}
+		if(capability.match(ICQ_CAPABILITY_RTFxMSGS))
+			contact->p->rtf_support = true;
+		else if(capability.match(ICQ_CAPABILITY_TYPING))
+			contact->p->typing_support = true;
+		else if(capability.match(ICQ_CAPABILITY_AIMCHAT))
+			contact->p->aim_chat_support = true;
+		else if(capability.match(ICQ_CAPABILITY_AIMIMAGE))
+			contact->p->aim_image_support = true;
+		else if(capability.match(ICQ_CAPABILITY_XTRAZ))
+			contact->p->xtraz_support = true;
+		else if(capability.match(ICQ_CAPABILITY_UTF8))
+			contact->p->utf8_support = true;
+		else if(capability.match(ICQ_CAPABILITY_AIMSENDFILE))
+			contact->p->sendfile_support = true;
+		else if(capability.match(ICQ_CAPABILITY_DIRECT))
+			contact->p->direct_support = true;
+		else if(capability.match(ICQ_CAPABILITY_AIMICON))
+			contact->p->icon_support = true;
+		else if(capability.match(ICQ_CAPABILITY_AIMGETFILE))
+			contact->p->getfile_support = true;
+		else if(capability.match(ICQ_CAPABILITY_SRVxRELAY))
+			contact->p->srvrelay_support = true;
+		else if(capability.match(ICQ_CAPABILITY_AVATAR))
+			contact->p->avatar_support = true;
 	}
+	contact->p->capabilities = newCaps;
 	if(tlvs.contains(0x0019)) // short capabilities
 	{
 		DataUnit data(tlvs.value(0x0019));
@@ -789,301 +795,12 @@ void Roster::handleUserOffline(const SNAC &snac)
 //	tlvs.value(0x0001); // User class
 }
 
-void Roster::handleMessage(const SNAC &snac)
-{
-	quint64 cookie = snac.readSimple<quint64>();
-	quint16 channel = snac.readSimple<quint16>();
-	QString uin = snac.readString<quint8>();
-	IcqContact *contact = m_contacts.value(uin);
-	quint16 warning = snac.readSimple<quint16>();
-	snac.skipData(2); // unused number of tlvs
-	TLVMap tlvs = snac.readTLVChain();
-	QString message;
-	QDateTime time;
-	switch(channel)
-	{
-	case 0x0001: // message
-		if(tlvs.contains(0x0002))
-		{
-			DataUnit data(tlvs.value(0x0002));
-			TLVMap msg_tlvs = data.readTLVChain();
-			if(msg_tlvs.contains(0x0501))
-				qDebug("Message has %s caps", msg_tlvs.value(0x0501).value().toHex().constData());
-			foreach(const TLV &tlv, msg_tlvs.values(0x0101))
-			{
-				DataUnit msg_data(tlv);
-				quint16 charset = msg_data.readSimple<quint16>();
-				quint16 codepage = msg_data.readSimple<quint16>();
-				QByteArray data = msg_data.readAll();
-				QTextCodec *codec = 0;
-				if(charset == CodecUtf16Be)
-					codec = utf16Codec();
-				else
-					codec = asciiCodec();
-				message += codec->toUnicode(data);
-			}
-			if(!(snac.id() & 0x80000000) && msg_tlvs.contains(0x0016)) // Offline message
-				time = QDateTime::fromTime_t(msg_tlvs.value(0x0016).value<quint32>());
-		}
-		break;
-	case 0x0002: // rendezvous
-		if(tlvs.contains(0x0005))
-		{
-			DataUnit data(tlvs.value(0x0005));
-			quint16 type = data.readSimple<quint16>();
-			data.skipData(8); // again cookie
-			Capability guid = data.readCapability();
-			if(guid.isEmpty())
-			{
-				qDebug() << "Incorrect message on channel 2 from" << uin << ": guid is not found";
-				return;
-			}
-			if(guid == ICQ_CAPABILITY_SRVxRELAY)
-			{
-				if(type == 1)
-				{
-					qDebug() << "Abort messages on channel 2 is ignored";
-					return;
-				}
-
-				TLVMap tlvs = data.readTLVChain();
-				quint16 ack = tlvs.value(0x0A).value<quint16>();
-
-				if(contact)
-				{
-					if(tlvs.contains(0x03))
-						contact->p->dc_info.external_ip = QHostAddress(tlvs.value(0x04).value<quint32>());
-					if(tlvs.contains(0x04))
-						contact->p->dc_info.internal_ip = QHostAddress(tlvs.value(0x04).value<quint32>());
-					if(tlvs.contains(0x04))
-						contact->p->dc_info.port = tlvs.value(0x05).value<quint32>();
-				}
-
-				if(!tlvs.contains(0x2711))
-				{
-					qDebug() << "Message on channel 2 should contain Tlv2711";
-					return;
-				}
-
-				DataUnit data(tlvs.value(0x2711));
-				quint16 id = data.readSimple<quint16>(DataUnit::LittleEndian);
-				if(id != 0x1B)
-				{
-					qDebug() << "Unknown message id on channel2";
-					return;
-				}
-				quint16 version = data.readSimple<quint16>(DataUnit::LittleEndian);
-				if(contact)
-					contact->p->version = version;
-				guid = data.readCapability();
-				data.skipData(9);
-				id = data.readSimple<quint16>(DataUnit::LittleEndian);
-				cookie = data.readSimple<quint16>(DataUnit::LittleEndian);
-				if(guid == ICQ_CAPABILITY_PSIG_MESSAGE)
-				{
-					data.skipData(12);
-					quint8 type = data.readSimple<quint8>();
-					quint8 flags = data.readSimple<quint8>();
-					quint16 status = data.readSimple<quint16>(DataUnit::LittleEndian);
-					quint16 priority = data.readSimple<quint16>(DataUnit::LittleEndian);
-
-					if(ack == 2)
-					{
-						qDebug() << "Ack on channel2 is ignored";
-						return;
-					}
-
-					if(type == 0x01) // Plain message
-					{
-						QByteArray message_data = data.readData<quint16>(DataUnit::LittleEndian);
-						message_data.resize(message_data.size() - 1);
-						QColor foreground(
-								data.readSimple<quint8>(),
-								data.readSimple<quint8>(),
-								data.readSimple<quint8>(),
-								data.readSimple<quint8>()
-								);
-						QColor background(
-								data.readSimple<quint8>(),
-								data.readSimple<quint8>(),
-								data.readSimple<quint8>(),
-								data.readSimple<quint8>()
-								);
-						QTextCodec *codec = NULL;
-						while(data.dataSize() > 0)
-						{
-							QString guid = data.readString<quint32>(asciiCodec(), DataUnit::LittleEndian);
-							if(guid.compare(ICQ_CAPABILITY_UTF8.toString(), Qt::CaseInsensitive) == 0)
-							{
-								codec = utf8Codec();
-							}
-							if(guid.compare(ICQ_CAPABILITY_RTFxMSGS.toString(), Qt::CaseInsensitive) == 0)
-							{
-								qDebug() << "RTF is not supported";
-								return;
-							}
-						}
-						if(codec == NULL)
-							codec = asciiCodec();
-						message = codec->toUnicode(message_data);
-					}
-					else
-						qDebug() << "Unhandled message (channel2) with type" << type;
-				}
-				else
-					qDebug() << "Unknown format of message on channel2";
-			}
-			else
-			{
-				QList<MessagePlugin *> plugins = m_msg_plugins.values(guid);
-				if(!plugins.isEmpty())
-				{
-					QByteArray plugin_data = data.readAll();
-					for(int i = 0; i < plugins.size(); i++)
-						plugins.at(i)->processMessage(uin, guid, plugin_data, cookie);
-				}
-				else
-					qDebug() << IMPLEMENT_ME << QString("Message (channel 2) from %1 with type %2 is not processed.").
-						arg(uin).arg(type);
-			}
-		}
-		else
-			qDebug() << "Incorrect message on channel 2 from" << uin << ": SNAC should contain TLV 5";
-		break;
-	case 0x0004:
-		// TODO: Understand this holy shit
-		if(tlvs.contains(0x0005))
-		{
-			DataUnit data(tlvs.value(0x0005));
-			quint32 uin_2 = data.readSimple<quint32>(DataUnit::LittleEndian);
-			if(QString::number(uin_2) != uin)
-				return;
-			quint8 type = data.readSimple<quint8>();
-			quint8 flags = data.readSimple<quint8>();
-			QByteArray msg_data = data.readData<quint16>(DataUnit::LittleEndian);
-			qDebug() << IMPLEMENT_ME << QString("Message (channel 3) from %1 with type %2 is not processed.").
-					arg(uin).arg(type);
-		}
-		else
-			qDebug() << "Incorrect message on channel 3 from" << uin << ": SNAC should contain TLV 5";
-		break;
-	default:
-		qWarning("Unknown message channel: %d", int(channel));
-	}
-	if(!message.isEmpty())
-	{
-		if(!time.isValid())
-			time = QDateTime::currentDateTime();
-		qDebug() << "Received message at" << uin << time << message;
-		if(ChatLayer::instance())
-		{
-			ChatSession *session = ChatLayer::instance()->getSession(m_account, uin);
-			Message m;
-			m.setIncoming(true);
-			//if(contact->HtmlSupport())
-				m.setProperty("html", message);
-			//else
-			//	m.setText(message);
-			m.setTime(time);
-			m.setChatUnit(session->getUnit());
-			session->appendMessage(m);
-		}
-#ifdef TEST
-		sendMessage(uin, "Autoresponse: your message is \"" + message + "\"");
-#endif // TEST
-	}
-}
 
 void Roster::handleError(const SNAC &snac)
 {
-	qint16 errorCode = snac.readSimple<qint16>();
-	qint16 subcode = 0;
-	QString error;
-	TLVMap tlvs = snac.readTLVChain();
-	if(tlvs.contains(0x08))
-	{
-		DataUnit data(tlvs.value(0x08));
-		subcode = data.readSimple<qint16>();
-	}
-	switch(errorCode)
-	{
-		case(0x01):
-			error = "Invalid SNAC header";
-			break;
-		case(0x02):
-			error = "Server rate limit exceeded";
-			break;
-		case(0x03):
-			error = "Client rate limit exceeded";
-			break;
-		case(0x04):
-			error = "Recipient is not logged in";
-			break;
-		case(0x05):
-			error = "Requested service unavailable";
-			break;
-		case(0x06):
-			error = "Requested service not defined";
-			break;
-		case(0x07):
-			 error = "You sent obsolete SNAC";
-			 break;
-		case(0x08):
-			error = "Not supported by server";
-			break;
-		case(0x09):
-			error = "Not supported by client";
-			break;
-		case(0x0A):
-			error = "Refused by client";
-			break;
-		case(0x0B):
-			error = "Reply too big";
-			break;
-		case(0x0C):
-			error = "Responses lost";
-			break;
-		case(0x0D):
-			error = "Request denied";
-			break;
-		case(0x0E):
-			error = "Incorrect SNAC format";
-			break;
-		case(0x0F):
-			error = "Insufficient rights";
-			break;
-		case(0x10):
-			error = "In local permit/deny (recipient blocked)";
-			break;
-		case(0x11):
-			error = "Sender too evil";
-			break;
-		case(0x12):
-			error = "Receiver too evil";
-			break;
-		case(0x13):
-			error = "User temporarily unavailable";
-			break;
-		case(0x14):
-			error = "No match";
-			break;
-		case(0x15):
-			error = "List overflow";
-			break;
-		case(0x16):
-			error = "Request ambiguous";
-			break;
-		case(0x17):
-			error = "Server queue full";
-			break;
-		case(0x18):
-			error = "Not while on AOL";
-			break;
-		default:
-			error = "Unknown error";
-	}
+	ProtocolError error(snac);
 	qDebug() << QString("Error (%1, %2): %3").
-			arg(errorCode, 2, 16).arg(subcode, 2, 16).arg(error);
+			arg(error.code, 2, 16).arg(error.subcode, 2, 16).arg(error.str);
 }
 
 void Roster::handleMetaInfo(const SNAC &snac)

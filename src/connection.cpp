@@ -29,6 +29,75 @@ quint16 generate_flap_sequence()
 	return ((((0 - s) ^ (quint8)n) & 7) ^ n) + 2;
 }
 
+ProtocolError::ProtocolError(const SNAC &snac)
+{
+	code = snac.readSimple<qint16>();
+	subcode = 0;
+	TLVMap tlvs = snac.readTLVChain();
+	if(tlvs.contains(0x08))
+	{
+		DataUnit data(tlvs.value(0x08));
+		subcode = data.readSimple<qint16>();
+	}
+	str = getErrorStr();
+}
+
+QString ProtocolError::getErrorStr()
+{
+	switch(code)
+	{
+		case(0x01):
+			return "Invalid SNAC header";
+		case(0x02):
+			return "Server rate limit exceeded";
+		case(0x03):
+			return "Client rate limit exceeded";
+		case(0x04):
+			return "Recipient is not logged in";
+		case(0x05):
+			return "Requested service unavailable";
+		case(0x06):
+			return "Requested service not defined";
+		case(0x07):
+			return "You sent obsolete SNAC";
+		case(0x08):
+			return "Not supported by server";
+		case(0x09):
+			return "Not supported by client";
+		case(0x0A):
+			return "Refused by client";
+		case(0x0B):
+			return "Reply too big";
+		case(0x0C):
+			return "Responses lost";
+		case(0x0D):
+			return "Request denied";
+		case(0x0E):
+			return "Incorrect SNAC format";
+		case(0x0F):
+			return "Insufficient rights";
+		case(0x10):
+			return "In local permit/deny (recipient blocked)";
+		case(0x11):
+			return "Sender too evil";
+		case(0x12):
+			return "Receiver too evil";
+		case(0x13):
+			return "User temporarily unavailable";
+		case(0x14):
+			return "No match";
+		case(0x15):
+			return "List overflow";
+		case(0x16):
+			return "Request ambiguous";
+		case(0x17):
+			return "Server queue full";
+		case(0x18):
+			return "Not while on AOL";
+		default:
+			return "Unknown error";
+	}
+}
 
 ProtocolNegotiation::ProtocolNegotiation(QObject *parent):
 	SNACHandler(parent)
@@ -194,7 +263,7 @@ void AbstractConnection::processSnac()
 		handler->handleSNAC(this, snac);
 	}
 	if(!found)
-		qWarning("No handlers for SNAC %02X %02X", int(snac.family()), int(snac.subtype()));
+		qWarning("No handlers for SNAC %02X %02X %s", int(snac.family()), int(snac.subtype()), metaObject()->className());
 }
 
 void AbstractConnection::readData()
