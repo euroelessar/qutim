@@ -19,7 +19,8 @@
 
 namespace qutim_sdk_0_3
 {
-	typedef QMap<const QMetaObject *, const ActionGenerator *> MenuActionMap;
+
+	typedef QMap<const QMetaObject *, ActionInfo> MenuActionMap;
 
 	Q_GLOBAL_STATIC(MenuActionMap, globalActions)
 
@@ -35,22 +36,66 @@ namespace qutim_sdk_0_3
 	{
 	}
 
-	inline bool actionLessThan(const ActionGenerator *a, const ActionGenerator *b)
+	bool actionLessThan(const ActionInfo &a, const ActionInfo &b)
 	{
-		if (a->type() == b->type()) {
-			if (a->priority() == b->priority())
-				return a->text() < b->text();
-			else
-				return a->priority() > b->priority();
+		int cmp = a.menu.size() - b.menu.size();
+		if (cmp == 0) {
+			for (int i = 0; i < a.menu.size() && !cmp; i++)
+				cmp = a.hash.at(i) - b.hash.at(i); //qstrcmp(a.menu.at(i), b.menu.at(i));
+			if (cmp != 0)
+				return cmp < 0;
 		} else
-			return a->type() < b->type();
+			return cmp < 0;
+
+		// Items are inside one menu
+		if (a.gen->type() == b.gen->type()) {
+			if (a.gen->priority() == b.gen->priority())
+				return a.gen->text() < b.gen->text();
+			else
+				return a.gen->priority() > b.gen->priority();
+		} else
+			return a.gen->type() < b.gen->type();
+	}
+
+	inline bool isEqualMenu(const QList<uint> &a, const QList<uint> &b)
+	{
+		if (a.size() != b.size())
+			return false;
+		for (int i = 0; i < a.size(); i++) {
+			if (a[i] != b[i])
+				return false;
+		}
+		return true;
+	}
+
+	struct ActionEntry
+	{
+		inline ActionEntry(QMenu *m) : menu(m) {}
+		inline ActionEntry(QAction *action) : menu(action->menu()) {}
+
+		QMenu *menu;
+		QMap<uint, ActionEntry> entries;
+	};
+
+	ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info)
+	{
+		ActionEntry *current = &entries;
+		for (int i = 0; i < info.menu.size(); i++) {
+			QMap<uint, ActionEntry>::iterator it = current->entries.find(info.hash.at(i));
+			if (it == current->entries.end()) {
+				QMenu *menu = current->menu->addMenu(QString::fromUtf8(info.menu.at(i), info.menu.at(i).size()));
+				it = current->entries.insert(info.hash.at(i), ActionEntry(menu));
+			}
+			current = &it.value();
+		}
+		return current;
 	}
 
 	QMenu *MenuController::menu(bool deleteOnClose) const
 	{
 		QMenu *menu = new QMenu();
 		menu->setAttribute(Qt::WA_DeleteOnClose, deleteOnClose);
-		QList<const ActionGenerator *> actions = d_func()->actions;
+		QList<ActionInfo> actions = d_func()->actions;
 		const QMetaObject *meta = metaObject();
 		while (meta) {
 			actions.append(globalActions()->values(meta));
@@ -59,16 +104,25 @@ namespace qutim_sdk_0_3
 		if (actions.isEmpty())
 			return menu;
 		qSort(actions.begin(), actions.end(), actionLessThan);
-		int lastType = actions[0]->type();
+		int lastType = actions[0].gen->type();
+		QList<uint> lastMenu;
+		ActionEntry entry(menu);
+		ActionEntry *currentEntry = &entry;
 		for (int i = 0; i < actions.size(); i++) {
-			if (lastType != actions[i]->type()) {
-				lastType = actions[i]->type();
+			const ActionInfo &act = actions[i];
+			if (!isEqualMenu(lastMenu, act.hash)) {
+				lastType = act.gen->type();
+				lastMenu = act.hash;
+				currentEntry = findEntry(entry, act);
+			} else if (lastType != act.gen->type()) {
+				lastType = act.gen->type();
 				menu->addSeparator();
 			}
-			QAction *action = actions[i]->generate<QAction>();
+			QAction *action = act.gen->generate<QAction>();
+			action->setParent(currentEntry->menu);
 			action->setData(QVariant::fromValue(const_cast<MenuController *>(this)));
 			action->setParent(action);
-			menu->addAction(action);
+			currentEntry->menu->addAction(action);
 		}
 		return menu;
 	}
@@ -78,15 +132,15 @@ namespace qutim_sdk_0_3
 		menu(true)->popup(pos);
 	}
 
-	void MenuController::addAction(const ActionGenerator *gen)
+	void MenuController::addAction(const ActionGenerator *gen, const QList<QByteArray> &menu)
 	{
 		Q_ASSERT(gen);
-		d_func()->actions.append(gen);
+		d_func()->actions.append(ActionInfo(gen, menu));
 	}
 
-	void MenuController::addAction(const ActionGenerator *gen, const QMetaObject *meta)
+	void MenuController::addAction(const ActionGenerator *gen, const QMetaObject *meta, const QList<QByteArray> &menu)
 	{
 		Q_ASSERT(gen && meta);
-		globalActions()->insertMulti(meta, gen);
+		globalActions()->insertMulti(meta, ActionInfo(gen, menu));
 	}
 }

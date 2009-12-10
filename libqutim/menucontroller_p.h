@@ -20,10 +20,22 @@
 
 namespace qutim_sdk_0_3
 {
+	struct ActionInfo
+	{
+		ActionInfo(const ActionGenerator *g, const QList<QByteArray> &m) : gen(g), menu(m)
+		{
+			for (int i = 0; i < menu.size(); i++)
+				hash << qHash(menu.at(i));
+		}
+		const ActionGenerator *gen;
+		QList<QByteArray> menu;
+		QList<uint> hash;
+	};
+
 	class MenuControllerPrivate
 	{
 	public:
-		QList<const ActionGenerator *> actions;
+		QList<ActionInfo> actions;
 	};
 }
 

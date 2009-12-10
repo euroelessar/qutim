@@ -34,15 +34,49 @@ namespace qutim_sdk_0_3
 		virtual ~MenuController();
 
 		QMenu *menu(bool deleteOnClose = true) const;
-		void addAction(const ActionGenerator *gen);
-		static void addAction(const ActionGenerator *gen, const QMetaObject *meta);
+		void addAction(const ActionGenerator *gen, const QList<QByteArray> &menu = QList<QByteArray>());
+		template <int N>
+		void addAction(const ActionGenerator *gen, const char (&menu)[N]);
+		static void addAction(const ActionGenerator *gen, const QMetaObject *meta,
+							  const QList<QByteArray> &menu = QList<QByteArray>());
 		template <typename T>
-		static inline void addAction(const ActionGenerator *gen) { addAction(gen, &T::staticMetaObject); }
+		static void addAction(const ActionGenerator *gen,
+							  const QList<QByteArray> &menu = QList<QByteArray>());
+		template <typename T, int N>
+		static void addAction(const ActionGenerator *gen, const char (&menu)[N]);
+		template <int N>
+		static void addAction(const ActionGenerator *gen, const QMetaObject *meta, const char (&menu)[N]);
 	public slots:
 		void showMenu(const QPoint &pos);
 	protected:
 		QScopedPointer<MenuControllerPrivate> d_ptr;
 	};
+
+	template <int N>
+	Q_INLINE_TEMPLATE void MenuController::addAction(const ActionGenerator *gen, const char (&menu)[N])
+	{
+		addAction(gen, QByteArray::fromRawData(menu, N - 1).split('\0'));
+	}
+
+	template <typename T>
+	Q_INLINE_TEMPLATE void MenuController::addAction(const ActionGenerator *gen, const QList<QByteArray> &menu)
+	{
+		addAction(gen, &T::staticMetaObject, menu);
+	}
+
+	template <typename T, int N>
+	Q_INLINE_TEMPLATE void MenuController::addAction(const ActionGenerator *gen, const char (&menu)[N])
+	{
+		addAction(gen, &T::staticMetaObject, QByteArray::fromRawData(menu, N - 1).split('\0'));
+	}
+
+	template <int N>
+	Q_INLINE_TEMPLATE void MenuController::addAction(const ActionGenerator *gen,
+													 const QMetaObject *meta,
+													 const char (&menu)[N])
+	{
+		addAction(gen, meta, QByteArray::fromRawData(menu, N - 1).split('\0'));
+	}
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::MenuController*)

@@ -29,6 +29,13 @@ namespace AdiumChat
 		QT_TRANSLATE_NOOP("Plugin", "Default qutIM chat realization, based on Adium chat styles")
 	);
 
+//	inline ActionGenerator *generate(const char *name)
+//	{
+//		return new ActionGenerator(Icon("mail-message-new"),
+//								   LocalizedString("ChatLayer", name),
+//								   ChatLayer::instance(), SLOT(onStartChat()));
+//	}
+
 	void init()
 	{
 		ActionGenerator *action;
@@ -36,6 +43,12 @@ namespace AdiumChat
 									 QT_TRANSLATE_NOOP("ChatLayer", "Send message"),
 									 ChatLayer::instance(), SLOT(onStartChat()));
 		MenuController::addAction<Contact>(action);
+//		MenuController::addAction<Contact>(generate("1"), "1first");
+//		MenuController::addAction<Contact>(generate("2"), "1first\0""1first");
+//		MenuController::addAction<Contact>(generate("3"), "1first\0""2second");
+//		MenuController::addAction<Contact>(generate("4"), "2second");
+//		MenuController::addAction<Contact>(generate("5"), "2second\0""1first");
+//		MenuController::addAction<Contact>(generate("6"), "3third");
 	}
 
 	static Core::CoreStartupHelper<&init> action_init_static(
