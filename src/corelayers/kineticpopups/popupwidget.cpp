@@ -23,6 +23,8 @@
 #include <QDesktopWidget>
 #include <3rdparty/qtwin/qtwin.h>
 #include <libqutim/emoticons.h>
+#include <libqutim/chatunit.h>
+#include <libqutim/messagesession.h>
 
 namespace KineticPopups
 {
@@ -58,8 +60,12 @@ namespace KineticPopups
 	}
 
 
-	QSize PopupWidget::setData ( const QString& title, const QString& body, const QString& imagePath )
+	QSize PopupWidget::setData ( const QString& title, const QString& body, QObject *sender )
 	{
+		m_sender = sender;
+		QString image_path = sender ? sender->property("avatar").toString() : QString();
+		if(image_path.isEmpty())
+			image_path = QLatin1String(":/icons/qutim_64");
 		QString data = popup_settings.content;
 		QString text = Emoticons::theme().parseEmoticons(body);
 		if (text.length() > Manager::self()->maxTextLength) {
@@ -68,7 +74,7 @@ namespace KineticPopups
 		}
 		data.replace ( "{title}", title );
 		data.replace ( "{body}", text);
-		data.replace ( "{imagepath}",Qt::escape ( imagePath ) );
+		data.replace ( "{imagepath}",Qt::escape ( image_path ) );
 		document()->setTextWidth(popup_settings.defaultSize.width());
 		document()->setHtml(data);
 		int width = popup_settings.defaultSize.width();
@@ -88,18 +94,53 @@ namespace KineticPopups
 	void PopupWidget::mouseReleaseEvent ( QMouseEvent* ev )
 	{
 		if (ev->button() == Manager::self()->action1Trigger) {
-			emit action1Activated();
+			onAction1Triggered();
 		}
 		else if (ev->button() == Manager::self()->action2Trigger)
-			emit action2Activated();
+			onAction2Triggered();
 		else
 			return;
-		disconnect(SIGNAL(action1Activated()));
-		disconnect(SIGNAL(action2Activated()));
+		emit actionActivated();
 	}
 	
 	PopupWidget::~PopupWidget()
 	{
 	}
 
+
+	void KineticPopups::PopupWidget::onAction1Triggered()
+	{
+		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
+		ChatSession *sess;
+		if (unit && (sess = ChatLayer::get(unit))) {
+			sess->setActive(true);
+		}
+		else {
+			QWidget *widget = qobject_cast<QWidget *>(m_sender);
+			if (widget)
+				widget->raise();
+		}
+	}
+
+	void KineticPopups::PopupWidget::onAction2Triggered()
+	{
+		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
+		ChatSession *sess;
+		if (unit && (sess = ChatLayer::get(unit,false))) {
+			//TODO
+			if (!sess->isActive())
+				sess->deleteLater();
+		}
+	}
+
+	void PopupWidget::onTimeoutReached()
+	{
+		//TODO
+		emit actionActivated();
+	}
 }
+
+
+
+
+

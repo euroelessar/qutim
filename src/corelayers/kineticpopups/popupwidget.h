@@ -30,15 +30,21 @@ namespace KineticPopups
 		PopupWidget(const ThemeHelper::PopupSettings &popupSettings);
 		QSize setData(const QString& title,
 					const QString& body,
-					const QString &imagePath); //size of textbrowser
+					QObject *sender); //size of textbrowser
 		void setTheme(const ThemeHelper::PopupSettings &popupSettings);
 		virtual void mouseReleaseEvent ( QMouseEvent* ev );
 		virtual ~PopupWidget();
+	public slots:
+		void onTimeoutReached();
+	signals:
+		void actionActivated();
+	private slots:
+		//TODO need refactoring in future
+		void onAction1Triggered();
+		void onAction2Triggered();
 	private:
 		ThemeHelper::PopupSettings popup_settings;
-	signals:
-		void action1Activated();
-		void action2Activated();
+		QObject *m_sender;
 	};
 }
 #endif // POPUPWIDGET_H

@@ -55,13 +55,10 @@ namespace KineticPopups
 			sender_name = sender_id;
 		QString title = customTitle.isEmpty() ? Notifications::toString(type).arg(sender_name) : customTitle;
 		QString popup_id = title;
-		QString image_path = sender ? sender->property("avatar").toString() : QString();
 
 		bool updateMode = manager->updateMode;
 		bool appendMode = manager->appendMode;
 
-		if(image_path.isEmpty())
-			image_path = QLatin1String(":/icons/qutim_64");
 		Popup *popup = manager->getById(popup_id);
 		if (popup)
 		{
@@ -76,8 +73,7 @@ namespace KineticPopups
 		}
 		popup  = new Popup ();		
 		popup->setTimeOut(manager->timeout);
-		popup->setMessage(title,body,image_path);
-		popup->setSender(sender);
+		popup->setMessage(title,body,sender);
 		popup->setId(popup_id);
 		if (sender)
 			connect(sender,SIGNAL(destroyed(QObject*)),popup,SLOT(deleteLater()));

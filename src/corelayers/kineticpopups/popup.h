@@ -35,7 +35,7 @@ namespace KineticPopups
 		virtual ~Popup();
 		void setId(const QString &id);
 		void setTimeOut(uint timeOut);
-		void setMessage(const QString &title, const QString &body = NULL, const QString &imagePath = NULL);
+		void setMessage(const QString &title, const QString &body = NULL, QObject *sender = NULL);
 		void appendMessage(const QString &message);
 		void updateMessage(const QString &message);
 		void setActionsText(const QString &action1,const QString &action2);
@@ -50,24 +50,20 @@ namespace KineticPopups
 		void finished(const QString &id);
 		void updated();
 		void timeoutReached();
-	private slots:
-		void action1Activated();
-		void action2Activated();
 	private:
-		PopupWidget *m_notification_widget;
 		void updateGeometry(const QRect &newGeometry);
 		inline void updateMessage();
+		virtual void timerEvent(QTimerEvent *);
+		PopupWidget *m_notification_widget;
 		QString m_title;
 		QString m_body;
 		QString m_id;
-		QString m_image_path;
 		uint timeout;
 		QRect m_show_geometry; //Don't use direct, change by UpdateGeometry!
 		QStateMachine *m_machine;
 		QState *m_show_state;
 		QState *m_hide_state;
 		QObject *m_sender;
-		virtual void timerEvent ( QTimerEvent* );
 		int m_timer_id;
 	};
 }
