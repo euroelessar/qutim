@@ -26,7 +26,7 @@
 #include <libqutim/settingswidget.h>
 
 XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* parent) :
-        QDialog(parent),    ui(new Ui::XSettingsDialog)
+		QDialog(parent),    ui(new Ui::XSettingsDialog)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	ui->setupUi(this);
@@ -61,8 +61,7 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	
 	//init categories
 
-	foreach (SettingsItem *item, settings)
-	{
+	foreach (SettingsItem *item, settings) {
 		if (item->type() >= m_settings_items.size())
 			m_settings_items.resize(item->type()+1);
 		m_settings_items[item->type()].append(item);
@@ -74,12 +73,11 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 
 XSettingsDialog::~XSettingsDialog()
 {
-	foreach (SettingsWidget *widget, m_modified_widgets)
-	{
+	foreach (SettingsWidget *widget, m_modified_widgets) {
 		widget->save();
 		qDebug() << "Saved config for:" << widget->objectName();
 	}
-    delete ui;
+	delete ui;
 }
 
 
@@ -123,14 +121,14 @@ void XSettingsDialog::initAnimation()
 
 void XSettingsDialog::changeEvent(QEvent *e)
 {
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QDialog::changeEvent(e);
+	switch (e->type()) {
+	case QEvent::LanguageChange:
+		ui->retranslateUi(this);
+		break;
+	default:
+		break;
+	}
 }
 
 
@@ -141,7 +139,7 @@ void XSettingsDialog::showEvent(QShowEvent* e)
 		layout()->setEnabled(false);
 		ui->xtoolBar->setGeometry(0,-ui->xtoolBar->sizeHint().height(),width(),ui->xtoolBar->sizeHint().height());
 	}
-    QDialog::showEvent(e);
+	QDialog::showEvent(e);
 	emit showed();
 }
 
@@ -151,6 +149,7 @@ void XSettingsDialog::showState()
 	{
 		layout()->setEnabled(true);
 		updateGeometry();
+		animated = false;
 	}
 }
 
@@ -158,12 +157,10 @@ void XSettingsDialog::onActionTriggered ( QAction* action )
 {
 	Settings::Type type = static_cast<Settings::Type>(action->property("category").toInt());
 	SettingsItemList setting_items = m_settings_items.value(type);
-if (setting_items.count()>1) // ==0 or >=0 need for testing, for normally usage use >1
-	{
+	if (setting_items.count()>1) { // ==0 or >=0 need for testing, for normally usage use >1
 		//TODO need way to add custom group
 		XSettingsGroup *group = m_group_widgets.value(type);
-		if (!group)
-		{
+		if (!group) {
 			group = new XSettingsGroup(setting_items,this);
 			ui->settingsStackedWidget->addWidget(group);
 			connect(group,SIGNAL(modifiedChanged(SettingsWidget*)),SLOT(onWidgetModifiedChanged(SettingsWidget*)));
@@ -171,19 +168,15 @@ if (setting_items.count()>1) // ==0 or >=0 need for testing, for normally usage 
 			m_group_widgets.insert(type,group);
 		}
 		ui->settingsStackedWidget->setCurrentWidget(group);
-	}
-	else
-	{
-		if (setting_items.count() == 0)
-		{
+	} else {
+		if (setting_items.count() == 0) {
 			ui->settingsStackedWidget->setCurrentIndex(0);
 			return;
 		}
 		SettingsWidget *widget = setting_items.at(0)->widget();
-		if (widget == 0)
+		if (widget == 0) {
 			return;
-		if (ui->settingsStackedWidget->indexOf(widget) == -1)
-		{
+		} else if (ui->settingsStackedWidget->indexOf(widget) == -1) {
 			widget->load();
 			connect(widget,SIGNAL(modifiedChanged(bool)),SLOT(onWidgetModifiedChanged(bool)));
 			ui->settingsStackedWidget->addWidget(widget);
