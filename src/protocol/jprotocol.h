@@ -1,21 +1,24 @@
 #ifndef JPROTOCOL_H
 #define JPROTOCOL_H
 
+#include <qutim/protocol.h>
 
-namespace Jabber {
+using namespace qutim_sdk_0_3;
 
-	using namespace qutim_sdk_0_3;
-
-	class jProtocol : public QObject
+namespace Jabber
+{
+	class JProtocol : public QObject
 	{
 		Q_OBJECT
+	public:
+		JProtocol();
 
-		public:
-			jProtocol();
-			static inline jProtocol *instance() {if(!self) qWarning("jProtocol isn't created"); return self;}
-			virtual AccountCreationWizard *accountCreationWizard();
-			virtual QList<Account *> accounts() const;
-			virtual Account *account(const QString &id) const;
+		static inline JProtocol *instance() { if(!self) qWarning("JProtocol isn't created"); return self; }
+		virtual AccountCreationWizard *accountCreationWizard();
+		virtual QList<Account *> accounts() const;
+		virtual Account *account(const QString &id) const;
+	private:
+		static JProtocol *self;
 	};
 } // Jabber namespace
 

@@ -3,19 +3,19 @@
 
 #include <qutim/plugin.h>
 
-namespace Jabber {
+using namespace qutim_sdk_0_3;
 
-	using namespace qutim_sdk_0_3;
-
-	class jPlugin : public Plugin
+namespace Jabber
+{
+	class JPlugin : public Plugin
 	{
 		Q_OBJECT
+	public:
+		JPlugin();
 
-		public:
-			jPlugin();
-			void init();
-			bool load();
-			bool unload();
+		void init();
+		bool load();
+		bool unload();
 	};
 } // Jabber namespace
 
