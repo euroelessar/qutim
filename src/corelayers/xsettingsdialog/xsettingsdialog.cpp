@@ -24,6 +24,7 @@
 #include "xsettingsgroup.h"
 #include <libqutim/configbase.h>
 #include <libqutim/settingswidget.h>
+#include <QMessageBox>
 
 XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* parent) :
 		QDialog(parent),    ui(new Ui::XSettingsDialog)
@@ -57,7 +58,11 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	plugins->setToolTip(tr("Additional plugins settings"));
 	addAction(plugins,Settings::Plugin);
 	m_group_widgets.resize(ui->xtoolBar->actions().count());
-	
+
+	//init button box
+	ui->buttonBox->setVisible(false);
+	connect(ui->buttonBox,SIGNAL(accepted()),SLOT(onSaveButtonTriggered()));
+	connect(ui->buttonBox,SIGNAL(rejected()),SLOT(onCancelButtonTriggered()));
 	
 	//init categories
 
@@ -73,10 +78,6 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 
 XSettingsDialog::~XSettingsDialog()
 {
-	foreach (SettingsWidget *widget, m_modified_widgets) {
-		widget->save();
-		qDebug() << "Saved config for:" << widget->objectName();
-	}
 	delete ui;
 }
 
@@ -203,6 +204,7 @@ void XSettingsDialog::onWidgetModifiedChanged(SettingsWidget* widget)
 		return;
 	if (!m_modified_widgets.contains(widget))
 		m_modified_widgets.append(widget);
+	ui->buttonBox->setVisible(true);
 }
 
 
@@ -211,3 +213,50 @@ void XSettingsDialog::onTitleChanged(const QString& title)
 	setWindowTitle(tr("qutIM settings - %1").arg(title));
 }
 
+
+void XSettingsDialog::onSaveButtonTriggered()
+{
+	while (m_modified_widgets.count()) {
+		SettingsWidget *widget = m_modified_widgets.takeFirst();
+		qDebug() << "Saved config for:" << widget->objectName();
+		widget->save();
+	}
+	ui->buttonBox->setVisible(false);
+}
+
+void XSettingsDialog::onCancelButtonTriggered()
+{
+	while (m_modified_widgets.count()) {
+		SettingsWidget *widget = m_modified_widgets.takeFirst();
+		qDebug() << "Canceled:" << widget->objectName();
+		widget->cancel();
+	}
+	ui->buttonBox->setVisible(false);
+}
+
+
+void XSettingsDialog::closeEvent(QCloseEvent* e)
+{
+	if (m_modified_widgets.count()) {
+		int ret = QMessageBox::question(this,
+										tr("Apply Settings - System Settings"),
+										tr("The settings of the current module have changed. \n Do you want to apply the changes or discard them?"),
+										QMessageBox::Apply,
+										QMessageBox::Discard,
+										QMessageBox::Cancel);
+		switch (ret) {
+			case QMessageBox::Apply:
+				onSaveButtonTriggered();
+				break;
+			case QMessageBox::Discard:
+				onCancelButtonTriggered();
+				break;
+			case QMessageBox::Cancel:
+				onCancelButtonTriggered();
+				break;
+			default:
+				break;
+		}
+	}
+    QDialog::closeEvent(e);
+}

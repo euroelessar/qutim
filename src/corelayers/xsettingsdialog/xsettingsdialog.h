@@ -36,6 +36,7 @@ public:
 protected:
 	void changeEvent(QEvent *e);
 	virtual void showEvent(QShowEvent* );
+	virtual void closeEvent(QCloseEvent* );
 signals:
 	void showed();
 protected slots:
@@ -43,7 +44,9 @@ protected slots:
 	void onActionTriggered(QAction *action);
 	void onWidgetModifiedChanged(bool haveChanges);
 	void onWidgetModifiedChanged(SettingsWidget *widget);
-	void onTitleChanged(const QString &title);	
+	void onTitleChanged(const QString &title);
+	void onSaveButtonTriggered();
+	void onCancelButtonTriggered();
 private:
 	inline void initAnimation();
 	inline void addAction(QAction* action, Settings::Type type);
