@@ -20,4 +20,8 @@ namespace Jabber
 	{
 		return 0;
 	}
+
+	void JProtocol::loadAccounts()
+	{
+	}
 }

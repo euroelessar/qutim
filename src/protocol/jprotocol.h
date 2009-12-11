@@ -7,7 +7,7 @@ using namespace qutim_sdk_0_3;
 
 namespace Jabber
 {
-	class JProtocol : public QObject
+	class JProtocol : public Protocol
 	{
 		Q_OBJECT
 	public:
@@ -18,6 +18,7 @@ namespace Jabber
 		virtual QList<Account *> accounts() const;
 		virtual Account *account(const QString &id) const;
 	private:
+		virtual void loadAccounts();
 		static JProtocol *self;
 	};
 } // Jabber namespace

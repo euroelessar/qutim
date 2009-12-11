@@ -106,4 +106,4 @@ if( UNIX )
 configure_file( ${CMAKE_SOURCE_DIR}/libs/gloox/config.h.cmake ${CMAKE_BINARY_DIR}/libs/gloox/config.h.unix )
 endif( UNIX )
 
-add_subdirectory ( libs/gloox/ )
+add_subdirectory ( "gloox" )
