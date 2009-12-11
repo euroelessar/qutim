@@ -148,7 +148,7 @@ namespace qutim_sdk_0_3
 						  % QLatin1Literal("\" width=\"")
 						  % QString::number(pixmap.width())
 						  % QLatin1Literal("\" height=\"")
-						  % QString::number(pixmap.width())
+						  % QString::number(pixmap.height())
 						  % QLatin1Literal("\" alt=\"%4\" title=\"%4\"/>");
 		foreach (const QString &code, codes) {
 			Emoticon e;
@@ -399,7 +399,7 @@ namespace qutim_sdk_0_3
 		QString currentThemeName()
 		{
 			ensurePrivate();
-			QString name = Config().group("emoticons").value<QString>("theme", QString());
+			QString name = Config("appearance").group("emoticons").value<QString>("theme", QString());
 			if (name.isEmpty()) {
 				QStringList themes = themeList();
 				if (themes.isEmpty())
@@ -458,12 +458,12 @@ namespace qutim_sdk_0_3
 
 		void setTheme(const QString &name)
 		{
-			Config().group("emoticons").setValue("theme", name);
+			Config("appearance").group("emoticons").setValue("theme", name);
 		}
 
 		void setTheme(const EmoticonsTheme &theme)
 		{
-			Config().group("emoticons").setValue("theme", theme.themeName());
+			Config("appearance").group("emoticons").setValue("theme", theme.themeName());
 		}
 	}
 }
