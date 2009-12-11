@@ -39,6 +39,7 @@ namespace Core
 		settings.popupFlags = ThemeHelper::Preview;
 		m_popup_widget = new PopupWidget(settings);
 		layout()->addWidget(m_popup_widget);
+		connect(ui->comboBox,SIGNAL(currentIndexChanged(int)),SLOT(onCurrentIndexChanged(int)));
 	}
 
 	PopupAppearance::~PopupAppearance()
@@ -50,11 +51,9 @@ namespace Core
 
 	void PopupAppearance::loadImpl()
 	{
-		disconnect(ui->comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(onCurrentIndexChanged(int)));
 		ConfigGroup general = Config("appearance/kineticpopups").group("general");
 		m_current_theme = general.value<QString>("themeName","default");
 		getThemes();
-		connect(ui->comboBox,SIGNAL(currentIndexChanged(int)),SLOT(onCurrentIndexChanged(int)));
 	}
 
 
@@ -72,6 +71,7 @@ namespace Core
 
 	void PopupAppearance::getThemes()
 	{
+		ui->comboBox->blockSignals(true);
 		QString category = "kineticpopups";
 		QStringList list = listThemes(category);
 		ui->comboBox->clear();
@@ -84,6 +84,7 @@ namespace Core
 		}
 		ui->comboBox->setCurrentIndex(index == -1 ? 0 : index);
 		onCurrentIndexChanged(ui->comboBox->currentIndex());
+		ui->comboBox->blockSignals(false);
 	}
 
 	void PopupAppearance::onCurrentIndexChanged(int index)

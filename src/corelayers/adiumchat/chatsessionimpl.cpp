@@ -137,6 +137,7 @@ namespace AdiumChat
 	void ChatSessionImpl::chatStateChanged ( Contact* c, ChatState state )
 	{
 		//TODO
+		emit chatStateChanged(c,state);
 	}
 
 	void ChatSessionImpl::removeContact ( Contact* c )
