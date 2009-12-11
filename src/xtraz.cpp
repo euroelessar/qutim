@@ -17,7 +17,6 @@
 #include "icqcontact.h"
 #include "icqaccount.h"
 #include "oscarconnection.h"
-#include <QXmlStreamReader>
 #include <QDebug>
 
 namespace Icq {

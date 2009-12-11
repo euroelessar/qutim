@@ -19,7 +19,7 @@
 #include "icq_global.h"
 #include "messages.h"
 
-class QXmlStreamReader;
+#include <QXmlStreamReader>
 
 namespace Icq {
 
