@@ -23,6 +23,7 @@
 #include <QDebug>
 #include "libqutim/history.h"
 #include <libqutim/notificationslayer.h>
+#include "chatlayerimpl.h"
 
 namespace AdiumChat
 
@@ -138,6 +139,8 @@ namespace AdiumChat
 	{
 		//TODO
 		emit chatStateChanged(c,state);
+		if (state & ChatStateComposing)
+			Notifications::sendNotification(qutim_sdk_0_3::Notifications::Typing,c);
 	}
 
 	void ChatSessionImpl::removeContact ( Contact* c )
@@ -203,6 +206,12 @@ namespace AdiumChat
 		msg.setProperty("title",contact->title() + " " + statusToString(status));
 		msg.setText(text);
 		appendMessage(msg);
+	}
+	
+	QTextDocument* ChatSessionImpl::getInputField()
+	{
+		ChatLayerImpl *chat_layer = qobject_cast<ChatLayerImpl *>(ChatLayerImpl::instance());
+		return chat_layer->getInputField(this);
 	}
 
 }

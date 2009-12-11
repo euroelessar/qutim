@@ -32,6 +32,7 @@ namespace qutim_sdk_0_3
 		Q_PROPERTY(bool active READ isActive WRITE setActive NOTIFY activated)
 	public:
 		virtual ChatUnit *getUnit() const = 0;
+		virtual QTextDocument *getInputField() = 0;
 	public slots:
 		virtual void addContact(Contact *c) = 0;
 		virtual void removeContact(Contact *c) = 0;
@@ -68,7 +69,6 @@ namespace qutim_sdk_0_3
 		virtual ChatSession *getSession(ChatUnit *unit, bool create = true) = 0;
 		static ChatSession *get(ChatUnit *unit, bool create = true);
 		virtual QList<ChatSession*> sessions() = 0;
-		virtual QTextDocument *getInputField(ChatSession *session) = 0;
 	signals:
 		void sessionCreated(ChatSession *session);
 	protected:
