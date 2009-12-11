@@ -47,6 +47,7 @@ namespace AdiumChat
 		ChatSessionList getSessionList() const;
 		virtual ~ChatWidget();
 		bool contains (ChatSessionImpl *session);
+		QTextDocument *getInputField();
 	public slots:
 		void addSession(ChatSessionImpl *session);
 		void addSession(const ChatSessionList &sessions);

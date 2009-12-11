@@ -82,7 +82,7 @@ namespace AdiumChat
 	{
 		QList<ChatSession* >  list;
 		ChatSessionHash::const_iterator it;
-		for (it=m_chat_sessions.begin();it!=m_chat_sessions.end();it++)
+		for (it=m_chat_sessions.constBegin();it!=m_chat_sessions.constEnd();it++)
 			list.append(it.value());
 // 		foreach (ChatSession *sess, m_chat_sessions)
 // 			list.append(sess);
@@ -92,8 +92,8 @@ namespace AdiumChat
 	void ChatLayerImpl::onChatWidgetDestroyed(QObject* object)
 	{
 		ChatWidget *widget = reinterpret_cast< ChatWidget* >(object);
-		QString key = m_chatwidget_list.key(widget);
-		m_chatwidget_list.remove(key);
+		QString key = m_chatwidgets.key(widget);
+		m_chatwidgets.remove(key);
 	}
 
 	void ChatLayerImpl::onSessionDestroyed(QObject* object)
@@ -124,7 +124,7 @@ namespace AdiumChat
 		if (!session)
 			return;
 		QString key = getWidgetId(session);
-		ChatWidget *widget = m_chatwidget_list.value(key,0);
+		ChatWidget *widget = m_chatwidgets.value(key,0);
 		if (!widget)
 		{
 			if (!active)
@@ -132,10 +132,11 @@ namespace AdiumChat
 			ConfigGroup adium_chat = Config("appearance/adiumChat").group("behavior/widget");
 			ChatFlag flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",RemoveSessionOnClose | IconsOnTabs));
 			widget = new ChatWidget(flags);
-			m_chatwidget_list.insert(key,widget);
+			m_chatwidgets.insert(key,widget);
 			connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
 			widget->show();
 		}
+		//FIXME
 		if (active)
 		{
 			if (!widget->contains(session))
@@ -160,4 +161,23 @@ namespace AdiumChat
 				session->activate();
 		}
 	}
+
+	ChatWidget *AdiumChat::ChatLayerImpl::findWidget(ChatSession *sess) const
+	{
+		ChatWidgetHash::const_iterator it;
+		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sess);
+		for (it=m_chatwidgets.constBegin();it!=m_chatwidgets.constEnd();it++) {
+			if (it.value()->contains(session))
+				return it.value();
+		}
+		return 0;
+	}
+
+	QTextDocument *ChatLayerImpl::getInputField(ChatSession *session)
+	{
+		ChatWidget *widget = findWidget(session);
+		return widget ? widget->getInputField() : 0;
+	}
+
 }
+

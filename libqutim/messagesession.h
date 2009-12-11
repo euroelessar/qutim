@@ -19,6 +19,7 @@
 #include "message.h"
 #include "contact.h"
 
+class QTextDocument;
 namespace qutim_sdk_0_3
 {
 	class Account;
@@ -67,6 +68,7 @@ namespace qutim_sdk_0_3
 		virtual ChatSession *getSession(ChatUnit *unit, bool create = true) = 0;
 		static ChatSession *get(ChatUnit *unit, bool create = true);
 		virtual QList<ChatSession*> sessions() = 0;
+		virtual QTextDocument *getInputField(ChatSession *session) = 0;
 	signals:
 		void sessionCreated(ChatSession *session);
 	protected:
