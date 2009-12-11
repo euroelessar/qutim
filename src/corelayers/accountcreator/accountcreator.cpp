@@ -12,10 +12,9 @@ namespace Core
 
 	AccountCreator::AccountCreator()
 	{
-		qDebug("%s", Q_FUNC_INFO);
-		SettingsItem *item = new GeneralSettingsItem<AccountCreatorList>
-							 (Settings::General, Icon("meeting-attending"),
-							  QT_TRANSLATE_NOOP("Settings", "Accounts"));
+		SettingsItem *item = new GeneralSettingsItem<AccountCreatorList>(
+				Settings::General, Icon("meeting-attending"),
+				QT_TRANSLATE_NOOP("Settings", "Accounts"));
 		Settings::registerItem(item);
 		deleteLater();
 	}

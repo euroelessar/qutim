@@ -40,6 +40,8 @@ namespace Core
 		int index = m_ui->protocolsBox->currentIndex();
 		qptrdiff protoPtr = m_ui->protocolsBox->itemData(index, Qt::UserRole + 1).value<qptrdiff>();
 		Protocol *proto = reinterpret_cast<Protocol *>(protoPtr);
+		if (!proto)
+			return false;
 		AccountCreationWizard *wizard = proto->accountCreationWizard();
 		if (!wizard)
 			return false;
@@ -51,7 +53,7 @@ namespace Core
 
 	bool AccountCreatorProtocols::isComplete() const
 	{
-		return true;
+		return m_ui->protocolsBox->currentIndex() != -1;
 	}
 
 	int AccountCreatorProtocols::nextId() const
