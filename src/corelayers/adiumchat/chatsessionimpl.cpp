@@ -204,6 +204,7 @@ namespace AdiumChat
 		msg.setIncoming(true);
 		msg.setProperty("service",Notifications::StatusChange);
 		msg.setProperty("title",contact->title() + " " + statusToString(status));
+		msg.setTime(QDateTime::currentDateTime());
 		msg.setText(text);
 		appendMessage(msg);
 	}

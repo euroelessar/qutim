@@ -25,6 +25,7 @@
 #include <libqutim/configbase.h>
 #include <libqutim/settingswidget.h>
 #include <QMessageBox>
+#include <QCloseEvent>
 
 XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* parent) :
 		QDialog(parent),    ui(new Ui::XSettingsDialog)
@@ -60,7 +61,7 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	m_group_widgets.resize(ui->xtoolBar->actions().count());
 
 	//init button box
-	ui->buttonBox->setVisible(false);
+	ui->buttonsWidget->setVisible(false);
 	connect(ui->buttonBox,SIGNAL(accepted()),SLOT(onSaveButtonTriggered()));
 	connect(ui->buttonBox,SIGNAL(rejected()),SLOT(onCancelButtonTriggered()));
 	
@@ -204,7 +205,7 @@ void XSettingsDialog::onWidgetModifiedChanged(SettingsWidget* widget)
 		return;
 	if (!m_modified_widgets.contains(widget))
 		m_modified_widgets.append(widget);
-	ui->buttonBox->setVisible(true);
+	ui->buttonsWidget->setVisible(true);
 }
 
 
@@ -221,7 +222,7 @@ void XSettingsDialog::onSaveButtonTriggered()
 		qDebug() << "Saved config for:" << widget->objectName();
 		widget->save();
 	}
-	ui->buttonBox->setVisible(false);
+	ui->buttonsWidget->setVisible(false);
 }
 
 void XSettingsDialog::onCancelButtonTriggered()
@@ -231,7 +232,7 @@ void XSettingsDialog::onCancelButtonTriggered()
 		qDebug() << "Canceled:" << widget->objectName();
 		widget->cancel();
 	}
-	ui->buttonBox->setVisible(false);
+	ui->buttonsWidget->setVisible(false);
 }
 
 
@@ -252,11 +253,10 @@ void XSettingsDialog::closeEvent(QCloseEvent* e)
 				onCancelButtonTriggered();
 				break;
 			case QMessageBox::Cancel:
-				onCancelButtonTriggered();
+				e->ignore();
 				break;
 			default:
 				break;
 		}
 	}
-    QDialog::closeEvent(e);
 }
