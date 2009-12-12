@@ -1,5 +1,6 @@
 #include "jplugin.h"
 #include "protocol/jprotocol.h"
+#include "protocol/jaccountwizard.h"
 
 namespace Jabber
 {
@@ -22,6 +23,26 @@ namespace Jabber
 			QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
 			new GeneralGenerator<JProtocol>(),
 			ExtensionIcon("im-jabber"));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber account creator"),
+			QT_TRANSLATE_NOOP("Plugin", "Account creator for Jabber protocol"),
+			new GeneralGenerator<JAccountWizard>(),
+			ExtensionIcon("im-jabber"));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "LiveJournal account creator"),
+			QT_TRANSLATE_NOOP("Plugin", "Account creator for LiveJournal"),
+			new GeneralGenerator<LJAccountWizard>(),
+			ExtensionIcon("im-livejournal"));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Google Talk account creator"),
+			QT_TRANSLATE_NOOP("Plugin", "Account creator for Google Talk"),
+			new GeneralGenerator<GTAccountWizard>(),
+			ExtensionIcon("im-gtalk"));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Yandex.Online account creator"),
+			QT_TRANSLATE_NOOP("Plugin", "Account creator for Yandex.Online"),
+			new GeneralGenerator<YAccountWizard>(),
+			ExtensionIcon("im-yandex"));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "QIP account creator"),
+			QT_TRANSLATE_NOOP("Plugin", "Account creator for QIP"),
+			new GeneralGenerator<QIPAccountWizard>(),
+			ExtensionIcon("im-qip"));
 	}
 
 	bool JPlugin::load()
