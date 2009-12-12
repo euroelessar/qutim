@@ -201,6 +201,7 @@ namespace AdiumChat
 		Message message (ui->chatEdit->toPlainText());
 		message.setIncoming(false);
 		message.setChatUnit(session->getUnit());
+		message.setTime(QDateTime::currentDateTime());
 		session->getUnit()->sendMessage(message);
 		session->appendMessage(message); //for testing
 		ui->chatEdit->clear();
