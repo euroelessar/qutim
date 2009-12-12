@@ -30,7 +30,7 @@ class IcqAccountCreationWizard : public AccountCreationWizard
 {
 	Q_OBJECT
 public:
-	IcqAccountCreationWizard(IcqProtocol *protocol);
+	IcqAccountCreationWizard();
 	~IcqAccountCreationWizard();
 	QList<QWizardPage *> createPages(QWidget *parent);
 	void finished();
@@ -46,7 +46,6 @@ public:
 	IcqProtocol();
 	virtual ~IcqProtocol();
 	static inline IcqProtocol *instance() { if(!self) qWarning("IcqProtocol isn't created"); return self; }
-	virtual AccountCreationWizard *accountCreationWizard();
 	virtual QList<Account *> accounts() const;
 	virtual Account *account(const QString &id) const;
 protected:

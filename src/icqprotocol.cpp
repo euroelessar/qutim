@@ -81,10 +81,10 @@ bool IcqAccWizardPage::validatePage()
 	return true;
 }
 
-IcqAccountCreationWizard::IcqAccountCreationWizard(IcqProtocol *protocol):
-	AccountCreationWizard(protocol), p(new IcqAccWizardPrivate)
+IcqAccountCreationWizard::IcqAccountCreationWizard()
+		: AccountCreationWizard(IcqProtocol::instance()), p(new IcqAccWizardPrivate)
 {
-	p->protocol = protocol;
+	p->protocol = IcqProtocol::instance();
 }
 
 IcqAccountCreationWizard::~IcqAccountCreationWizard()
@@ -154,12 +154,6 @@ IcqProtocol::IcqProtocol() : p(new IcqProtocolPrivate)
 IcqProtocol::~IcqProtocol()
 {
 	self = 0;
-}
-
-AccountCreationWizard *IcqProtocol::accountCreationWizard()
-{
-	static IcqAccountCreationWizard *wizard = new IcqAccountCreationWizard(this);
-	return wizard;
 }
 
 void initActions(IcqProtocol *proto)

@@ -36,6 +36,10 @@ void OscarPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Module-based realization of ICQ protocol"),
 				 new GeneralGenerator<IcqProtocol>(),
 				 ExtensionIcon("im-icq"));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "ICQ account creator"),
+				 QT_TRANSLATE_NOOP("Plugin", "Account creator for module-based realization of ICQ protocol"),
+				 new GeneralGenerator<IcqAccountCreationWizard>(),
+				 ExtensionIcon("im-icq"));
 }
 
 bool OscarPlugin::load()
