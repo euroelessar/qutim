@@ -16,11 +16,6 @@ namespace Jabber
 		//p = new JProtocolPrivate();
 	}
 
-	AccountCreationWizard *JProtocol::accountCreationWizard()
-	{
-		return 0;
-	}
-
 	QList<Account *> JProtocol::accounts() const
 	{
 		QList<Account *> accounts;

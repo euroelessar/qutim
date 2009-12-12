@@ -17,7 +17,6 @@ namespace Jabber
 		JProtocol();
 
 		static inline JProtocol *instance() { if(!self) qWarning("JProtocol isn't created"); return self; }
-		virtual AccountCreationWizard *accountCreationWizard();
 		virtual QList<Account *> accounts() const;
 		virtual Account *account(const QString &id) const;
 	private:
