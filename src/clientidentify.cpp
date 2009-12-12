@@ -16,6 +16,8 @@
 
 #include <QTextCodec>
 #include <QtEndian>
+#include <QStringBuilder>
+#include <qutim/systeminfo.h>
 
 #include "icqcontact.h"
 #include "buddycaps.h"
@@ -556,100 +558,18 @@ void ClientIdentify::identify_by_ProtoVersion()
 	}
 }
 
-QString ClientIdentify::icq_systemID2String(quint8 type, quint32 id)
-{
-		QString str;
-		quint8 VER_NT_WORKSTATION = 0x01;
-		switch(type)
-		{
-		case 'm':
-			if(id)
-			{
-				quint8 major, minor, bugfix;
-				major = (id >> 24) & 0xff;
-				minor = (id >> 16) & 0xff;
-				bugfix = (id >> 8) & 0xff;
-				str = QString("MacOS X %1.%2.%3").arg(QString::number(major), QString::number(minor), QString::number(bugfix));
-			}
-			else
-				str += "MacOS X";
-			break;
-		case 'c':
-			str += "Windows CE";
-			break;
-		case 'l':
-			str += "Linux";
-			break;
-		case 's':
-			str += "Symbian";
-			break;
-		case 'u':
-			str += "*nix";
-			break;
-		case 'w': {
-			str = "Windows";
-			quint16 version = (id >> 16) & 0xffff;
-			quint8 product  = (id >> 8) & 0xff;
-			quint8 winflag  = id & 0xff;
-			switch(version)
-			{
-			case 0x0500:
-				str += " 2000";
-				break;
-			case 0x0501:
-				str += " XP";
-				if(winflag & 0x01)
-					str += " Home Edition";
-				else
-					str += " Professional";
-				break;
-			case 0x0502:
-				if(winflag & 0x02)
-					str += " Home Server";
-				else
-					str += " Server 200";
-				break;
-			case 0x0600:
-				if(product == VER_NT_WORKSTATION)
-				{
-					str += " Vista";
-					if(winflag & 0x01)
-						str += " Home";
-				}
-				else
-					str += " Server 2008";
-				break;
-			case 0x0601:
-				if(product == VER_NT_WORKSTATION)
-					str += " 7";
-				else
-					str += " Server 2008 R2";
-				break;
-			default:
-				str += " NT ";
-				str += QString::number(version >> 8);
-				str += ".";
-				str += QString::number(version & 0xff);
-			case 0x0000:
-				break;
-			}
-			break; }
-		default:
-			str = "Unknown";
-		}
-		return str;
-}
-
 void ClientIdentify::identify_qutIM()
 {
 	static const Capability ICQ_CAPABILITY_QUTIMxVER ('q',  'u',  't',  'i',  'm',  0x00,
 	                                                  0x00,  0x00,  0x00,  0x00,  0x00,
 	                                                  0x00, 0x00, 0x00, 0x00, 0x00);
 
-	Capabilities::const_iterator cap = m_client_caps.find(ICQ_CAPABILITY_QUTIMxVER);
-	if (cap != m_client_caps.constEnd())
+	Capabilities::const_iterator capit = m_client_caps.find(ICQ_CAPABILITY_QUTIMxVER);
+	if (capit != m_client_caps.constEnd())
 	{
-		const char *verStr = cap->data().data() + 5;
+		const Capability &cap = *capit;
+		QByteArray data = cap.data();
+		const char *verStr = data.constData() + 5;
 		if (verStr[1] == 46)
 		{
 			// old qutim id
@@ -662,7 +582,7 @@ void ClientIdentify::identify_qutIM()
 			// new qutim id
 			quint8 type = verStr[0];
 			quint32 ver = qFromBigEndian<quint32>((uchar *)verStr + 6);
-			QString os = icq_systemID2String(type, ver);
+			QString os = SystemInfo::systemID2String(type, ver);
 			os.prepend('(');
 			os.append (')');
 			int ver1 = verStr[1];

@@ -24,6 +24,7 @@
 #include "messages.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/notificationslayer.h>
+#include <qutim/systeminfo.h>
 #include <QHostInfo>
 #include <QBuffer>
 #include <QTimer>
@@ -249,30 +250,11 @@ void OscarConnection::sendUserInfo()
 	caps.appendValue(ICQ_CAPABILITY_SHORTCAPS);
 
 	// qutIM version info
-	// TODO: Send also version of system, i.e. 0x0601 for Windows Seven
-	// TODO: Integrate with SystemInfo from libqutim
-	// There are 5 bytes for it in the end of caps. Also it's possible to send linux distrib name by enum
 	caps.appendValue<QByteArray>("qutim");
-#if defined(Q_OS_WINCE)
-	caps.appendValue<quint8>('c');
-#elif defined(Q_OS_WIN32)
-	caps.appendValue<quint8>('w');
-#elif defined(Q_OS_LINUX)
-	caps.appendValue<quint8>('l');
-#elif defined(Q_OS_MAC)
-	caps.appendValue<quint8>('m');
-#elif defined(Q_OS_SYMBIAN)
-	caps.appendValue<quint8>('s');
-#elif defined(Q_OS_UNIX)
-	caps.appendValue<quint8>('u');
-#else
-	caps.appendValue<quint8>('\0');
-#endif
-	caps.appendValue<quint8>(0x00);    // major
-	caps.appendValue<quint8>(0x02);    // minor
-	caps.appendValue<quint8>(0x60);    // fix
-	caps.appendValue<quint16>(0x0175); // build
-	caps.appendValue<quint32>(0x00000000);
+	caps.appendValue<quint8>(SystemInfo::getSystemTypeID());
+	caps.appendValue<quint32>(qutimVersion());
+	caps.appendValue<quint8>(0x00);
+	caps.appendValue<quint32>(SystemInfo::getSystemVersionID());
 	caps.appendValue<quint8>(0x00);    // 5 bytes more to 16
 
 	snac.appendData(caps);
