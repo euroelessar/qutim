@@ -62,7 +62,8 @@ namespace AdiumChat
 				setContentsMargins(0, 0, 0, 0);
 			}
 		}
-		m_chat_icon_type = Config("appearance/adiumChat").group("behavior/widget").value<QString>("chatIconType","avatar");
+		//
+		setProperty("currentIndex",-1);
 	}
 
 	ChatWidget::~ChatWidget()
@@ -77,13 +78,15 @@ namespace AdiumChat
 		m_sessions.append(session);
 		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved()));
 		connect(session,SIGNAL(remoteChatStateChanged(Contact*,ChatState)),SLOT(remoteChatStateChanged(Contact*,ChatState)));
-		if (m_chat_flags & IconsOnTabs) {
-			QString imagePath = session->getUnit()->property(m_chat_icon_type.toAscii()).toString();
-			QIcon icon = imagePath.isEmpty() ? Icon("im-user") : QIcon(imagePath);
-			ui->tabBar->addTab(icon,session->getUnit()->title());
+		QIcon icon;
+		if (m_chat_flags & AvatarsOnTabs) {
+			QString imagePath = session->getUnit()->property("avatar").toString();
+			icon = imagePath.isEmpty() ? Icon("im-user") : QIcon(imagePath);
 		}
-		else
-			ui->tabBar->addTab(session->getUnit()->title());
+		if (m_chat_flags & ChatStateIconsOnTabs) {
+			icon = Icon("im-user"); //FIXME
+		}
+		ui->tabBar->addTab(icon,session->getUnit()->title());
 		if (ui->tabBar->count() >1)
 			ui->tabBar->setVisible(true);
 	}
@@ -98,6 +101,13 @@ namespace AdiumChat
 	{
 		if (index == -1)
 			return;
+		int previous_index = property("currentIndex").toInt();
+		qDebug() << "previous index" << previous_index;
+		if ((previous_index != -1) && (previous_index != index)) {
+			m_sessions.at(previous_index)->setActive(false);
+			m_sessions.at(index)->activate();
+		}
+		setProperty("currentIndex",index);
 		ui->chatView->setPage(m_sessions.at(index)->getPage());
 		setWindowTitle(tr("Chat with %1").arg(m_sessions.at(index)->getUnit()->title()));
 		//m_main_toolbar->setData(m_sessions.at(index)->getUnit());
@@ -156,7 +166,10 @@ namespace AdiumChat
 	{
 		raise();
 		//TODO customize support
-		ui->tabBar->setCurrentIndex(m_sessions.indexOf(session));
+		int index = m_sessions.indexOf(session);
+		qDebug() << "active index" << index;
+		if (ui->tabBar->currentIndex() != index)
+			ui->tabBar->setCurrentIndex(index);
 	}
 
 	bool ChatWidget::eventFilter(QObject *obj, QEvent *event)
@@ -207,19 +220,26 @@ namespace AdiumChat
 		if (session->getUnit() != c) //TODO
 			return;
 		//states
-		switch (state) {
-			case ChatStateActive: 
-				break;
-			case ChatStateInActive:
-				break;
-			case ChatStateGone:
-				break;
-			case ChatStateComposing:
-				break;
-			case ChatStatePaused:
-				break;
-			default:
-				break;
+		if (m_chat_flags & ChatStateIconsOnTabs) {
+			switch (state) {
+				case ChatStateActive:
+					ui->tabBar->setTabIcon(index,Icon("im-user"));
+					break;
+				case ChatStateInActive:
+					ui->tabBar->setTabIcon(index,Icon("im-user-away"));
+					break;
+				case ChatStateGone:
+					ui->tabBar->setTabIcon(index,Icon("im-user-offline"));
+					break;
+				case ChatStateComposing:
+					ui->tabBar->setTabIcon(index,Icon("im-user-status-message-edit"));
+					break;
+				case ChatStatePaused:
+					ui->tabBar->setTabIcon(index,Icon("im-user-status-message-edit"));
+					break;
+				default:
+					break;
+			}
 		}
 	}
 

@@ -38,6 +38,7 @@ namespace AdiumChat
 		Account *getAccount() const;
 		QString getId() const;
 		ChatUnit *getUnit() const;
+		virtual QTextDocument *getInputField();
 		void loadTheme(const QString& path, const QString& variant);
 		void setVariant(const QString& variant);
 		QString getVariant() const;

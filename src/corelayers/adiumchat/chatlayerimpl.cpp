@@ -130,23 +130,17 @@ namespace AdiumChat
 			if (!active)
 				return;
 			ConfigGroup adium_chat = Config("appearance/adiumChat").group("behavior/widget");
-			ChatFlag flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",RemoveSessionOnClose | IconsOnTabs));
+			ChatFlag flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",RemoveSessionOnClose | ChatStateIconsOnTabs));
 			widget = new ChatWidget(flags);
 			m_chatwidgets.insert(key,widget);
 			connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
 			widget->show();
 		}
-		//FIXME
 		if (active)
 		{
 			if (!widget->contains(session))
 				widget->addSession(session);
 			widget->activate(session);
-		}
-		else
-		{
-			if (widget->contains(session))
-				widget->removeSession(session);
 		}
 	}
 

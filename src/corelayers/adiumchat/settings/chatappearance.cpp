@@ -75,6 +75,7 @@ namespace Core
 			FakeAccount *account = new FakeAccount("Noname",allProtocols().begin().value());
 			FakeChatUnit *unit = new FakeChatUnit(account);
 			m_chat_session = new ChatSessionImpl(unit,ChatLayer::instance());
+			connect(ui->chatBox,SIGNAL(currentIndexChanged(int)),SLOT(onCurrentIndexChanged(int)));
 			m_page = m_chat_session->getPage();
 			ui->chatPreview->setPage(m_page);
 			makePage();
@@ -98,13 +99,11 @@ namespace Core
 		if (!m_chat_session) {
 			Notifications::sendNotification(Notifications::System,this,tr("Unable to create chat session"));
 			return;
-		}		
+		}
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
 		m_current_style_name = adium_chat.value<QString>("name","default");
 		m_current_variant = m_chat_session->getVariant();
-		disconnect(ui->chatBox,SIGNAL(currentIndexChanged(int)),this,SLOT(onCurrentIndexChanged(int)));
 		getThemes();
-		connect(ui->chatBox,SIGNAL(currentIndexChanged(int)),SLOT(onCurrentIndexChanged(int)));
 	}
 
 	void ChatAppearance::saveImpl()
@@ -117,6 +116,7 @@ namespace Core
 
 	void ChatAppearance::getThemes()
 	{
+		ui->chatBox->blockSignals(true);
 		QString category = "webkitstyle";
 		int default_index = -1;
 		bool index_found = false;
@@ -151,6 +151,7 @@ namespace Core
 			}
 		}
 		ui->chatBox->setCurrentIndex(default_index == -1 ? 0 : default_index);
+		ui->chatBox->blockSignals(false);
 	}
 
 	void ChatAppearance::onCurrentIndexChanged(int index)
