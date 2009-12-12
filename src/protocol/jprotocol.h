@@ -2,11 +2,14 @@
 #define JPROTOCOL_H
 
 #include <qutim/protocol.h>
-
-using namespace qutim_sdk_0_3;
+#include "account/jaccount.h"
 
 namespace Jabber
 {
+	using namespace qutim_sdk_0_3;
+
+	struct JProtocolPrivate;
+
 	class JProtocol : public Protocol
 	{
 		Q_OBJECT
@@ -20,6 +23,7 @@ namespace Jabber
 	private:
 		virtual void loadAccounts();
 		static JProtocol *self;
+		QScopedPointer<JProtocolPrivate> p;
 	};
 } // Jabber namespace
 

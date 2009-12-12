@@ -12,16 +12,16 @@ namespace Jabber
 	{
 		qDebug("%s", Q_FUNC_INFO);
 		setInfo(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
-				QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
-				PLUGIN_VERSION(0, 0, 1, 0),
-				ExtensionIcon("im-jabber"));
+			QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
+			PLUGIN_VERSION(0, 0, 1, 0),
+			ExtensionIcon("im-jabber"));
 		addAuthor(QT_TRANSLATE_NOOP("Author", "Denis Daschenko"),
-				  QT_TRANSLATE_NOOP("Task", "Author"),
-				  QLatin1String("daschenko@gmail.com"));
+			QT_TRANSLATE_NOOP("Task", "Author"),
+			QLatin1String("daschenko@gmail.com"));
 		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
-					 QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
-					 new GeneralGenerator<JProtocol>(),
-					 ExtensionIcon("im-jabber"));
+			QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
+			new GeneralGenerator<JProtocol>(),
+			ExtensionIcon("im-jabber"));
 	}
 
 	bool JPlugin::load()
