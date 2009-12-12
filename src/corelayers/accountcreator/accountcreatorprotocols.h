@@ -29,11 +29,15 @@ namespace Core
 		void on_protocolsBox_currentIndexChanged(int index);
 
 	protected:
+		QMap<AccountCreationWizard *, int>::iterator ensureCurrentProtocol();
 		void changeEvent(QEvent *e);
 
 	private:
 		Ui::AccountCreatorProtocols *m_ui;
 		AccountCreatorWizard *m_wizard;
+		QMultiMap<QString, AccountCreationWizard *> m_wizards;
+		QMap<AccountCreationWizard *, int> m_wizardIds;
+		int m_lastId;
 	};
 }
 
