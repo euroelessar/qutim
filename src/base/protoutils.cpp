@@ -15,79 +15,10 @@
 
 #include <QString>
 #include <QDataStream>
-#include <QBuffer>
+#include <QTextCodec>
 #include <qendian.h>
-#include <QApplication>
-#include <QDesktopWidget>
 
 #include "protoutils.h"
-
-LPString::LPString(QString str, bool unicode)
-    : m_rawData(NULL), m_unicode(unicode)
-{
-    m_string = new QString(str);
-}
-
-LPString::LPString(const QByteArray& arr, bool unicode)
-    : m_rawData(NULL), m_string(NULL), m_unicode(unicode)
-{
-    read(arr);
-}
-
-LPString::LPString(const char* str, bool unicode) : m_rawData(NULL), m_string(NULL), m_unicode(unicode)
-{
-    read(QByteArray(str));
-}
-
-void LPString::read(const QByteArray& arr)
-{
-    QString codepage = (m_unicode) ? "UTF-16LE" : "CP1251";
-    QTextCodec* codec = QTextCodec::codecForName(codepage.toLocal8Bit());
-
-    if (codec != NULL)
-    {
-        delete m_string;
-        QTextCodec::ConverterState convState(QTextCodec::IgnoreHeader);
-        m_string = new QString(codec->toUnicode(arr.constData(),arr.length(),&convState));
-    }
-}
-
-const QByteArray& LPString::toByteArray()
-{
-    if (!m_rawData)
-    {
-        m_rawData = new QByteArray;
-    }
-
-    QString codepage = (m_unicode) ? "UTF-16LE" : "CP1251";
-    QTextCodec* codec = QTextCodec::codecForName(codepage.toLocal8Bit());
-    
-    if (codec != NULL)
-    {
-        QByteArray d;
-        QTextCodec::ConverterState convState(QTextCodec::IgnoreHeader);
-
-        if (m_string->size() > 0)
-        {
-        d.append(codec->fromUnicode(m_string->data(),m_string->size(),&convState));
-        }
-        m_rawData->append(ByteUtils::toByteArray(d.length()));
-        m_rawData->append(d);
-    }
-    return *m_rawData;
-}
-
-const QString& LPString::toString()
-{
-    return *m_string;
-}
-
-LPString::~LPString()
-{
-    delete m_rawData;
-    delete m_string;
-}
-
 
 QByteArray ByteUtils::toByteArray(const quint32 UL)
 {
@@ -107,7 +38,7 @@ quint32 ByteUtils::toUint32(const QByteArray& arr)
     return res;
 }
 
-quint32 ByteUtils::readUint32(QBuffer& buffer)
+quint32 ByteUtils::readUint32(QIODevice& buffer)
 {
     return toUint32(buffer.read(4));
 }
@@ -117,39 +48,28 @@ quint32 ByteUtils::readUint32(const QByteArray& arr, quint32 pos)
     return toUint32(arr.mid(pos,4));
 }
 
-LPString* ByteUtils::readLPS(QBuffer& buffer, bool unicode)
+LPString* ByteUtils::readLPS(QIODevice& device, bool unicode)
 {
-    quint32 len = readUint32(buffer);
-    QByteArray str;
-    str.append(buffer.read(len));
-    LPString* lps = new LPString(str,unicode);
-    return lps;
+    return LPString::readFrom(device,unicode);
 }
 
 LPString* ByteUtils::readLPS(const QByteArray& arr, quint32 pos, bool unicode)
 {
-    quint32 len = readUint32(arr,pos);
-    QByteArray str;
-    str.append(arr.mid(pos+sizeof(len),len));
-    LPString* lps = new LPString(str,unicode);
-    return lps;
+    return LPString::readFrom(arr,pos,unicode);
 }
 
-
-QString ByteUtils::readString(QBuffer& buffer, bool unicode)
+QString ByteUtils::readString(QIODevice& device, bool unicode)
 {	
-    LPString* lps = readLPS(buffer,unicode);
-    QString res(lps->toString());
-    delete lps;
-    return res;
+    LPString lps;
+    lps.read(device,unicode);
+    return lps.toString();
 }
 
 QString ByteUtils::readString( const QByteArray& arr, quint32 pos, bool unicode /*= false*/ )
 {
-    LPString* lps = readLPS(arr,pos,unicode);
-    QString res(lps->toString());
-    delete lps;
-    return res;
+    LPString lps;
+    lps.read(arr,pos,unicode);
+    return lps.toString();
 }
 
 //MRIMCommonUtils
