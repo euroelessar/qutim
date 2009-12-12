@@ -15,6 +15,7 @@
 
 #include "mrimplugin.h"
 #include "mrimprotocol.h"
+#include "ui/wizards/mrimaccountwizard.h"
 
 #define MRIM_MAJOR_VER 0
 #define MRIM_MINOR_VER 1
@@ -39,7 +40,14 @@ void MrimPlugin::init()
               QT_TRANSLATE_NOOP("Task", "Author"),
               QLatin1String("peter.rusanov@gmail.com"));
 
-    addExtension(plugName,info,new GeneralGenerator<MrimProtocol>(),ExtensionIcon("im-mrim"));
+	addExtension(plugName, info,
+				 new GeneralGenerator<MrimProtocol>(),
+				 ExtensionIcon("im-mrim"));
+
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "MRIM account creator"),
+				 QT_TRANSLATE_NOOP("Plugin", "Account creator for module-based realization of Mail.Ru IM protocol"),
+				 new GeneralGenerator<MrimAccountWizard>(),
+				 ExtensionIcon("im-mrim"));
 }
 
 bool MrimPlugin::load()

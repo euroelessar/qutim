@@ -11,7 +11,7 @@ class MrimAccountWizard : public AccountCreationWizard
 {
 Q_OBJECT
 public:
-    MrimAccountWizard(Protocol *protocol);
+	MrimAccountWizard();
     QList<QWizardPage*> createPages(QWidget *parent);
     ~MrimAccountWizard();
 

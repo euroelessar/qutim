@@ -42,7 +42,6 @@ public:
     virtual ~MrimProtocol();
     QList<Account *> accounts() const;
     Account *account(const QString &id) const;
-    AccountCreationWizard *accountCreationWizard();
     AccountCreationError createAccount(const QString& email, const QString& password);
 
 private:

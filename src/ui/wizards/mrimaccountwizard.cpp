@@ -6,8 +6,9 @@ struct MrimAccountWizardPrivate
 
 };
 
-MrimAccountWizard::MrimAccountWizard(Protocol *protocol)
-        : AccountCreationWizard(protocol), p(new MrimAccountWizardPrivate)
+MrimAccountWizard::MrimAccountWizard()
+		: AccountCreationWizard(MrimProtocol::instance()),
+		p(new MrimAccountWizardPrivate)
 {    
 }
 

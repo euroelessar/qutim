@@ -56,11 +56,6 @@ Account *MrimProtocol::account(const QString &id) const
     return p->m_accountsHash.value(id);
 }
 
-AccountCreationWizard *MrimProtocol::accountCreationWizard()
-{
-    return new MrimAccountWizard(this);
-}
-
 void MrimProtocol::loadAccounts()
 {
     QStringList accounts = config("general").value("accounts",QStringList());
