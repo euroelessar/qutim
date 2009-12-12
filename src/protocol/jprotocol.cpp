@@ -6,11 +6,6 @@ namespace Jabber
 	{
 	}
 
-	AccountCreationWizard *JProtocol::accountCreationWizard()
-	{
-		return 0;
-	}
-
 	QList<Account *> JProtocol::accounts() const
 	{
 		return QList<Account *>();
