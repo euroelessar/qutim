@@ -2,6 +2,7 @@
 #define JACCOUNTWIZARD_H
 
 #include <qutim/protocol.h>
+#include <qutim/extensioninfo.h>
 #include "jprotocol.h"
 #include "jaccountwizardpage.h"
 
@@ -20,10 +21,11 @@ namespace Jabber {
 			~JAccountWizard();
 			QList<QWizardPage *> createPages(QWidget *parent);
 			void createAccount();
+			enum JAccountType {JABBER, LIVEJOURNAL, GOOGLETALK, QIP, YANDEX};
 		protected:
 			JAccountWizardPage *page;
+		private:
 			JProtocol *protocol;
-			enum JAccountType {JABBER, LIVEJOURNAL, GOOGLETALK, QIP, YANDEX};
 			JAccountType type;
 	};
 

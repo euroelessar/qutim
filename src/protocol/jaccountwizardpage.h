@@ -19,13 +19,13 @@ namespace Jabber
 		Q_OBJECT
 
 		public:
-			JAccountWizardPage(JAccountWizard *accountWizard, QWidget *parent = 0);
+			JAccountWizardPage(JAccountWizard *accountWizard,
+				JAccountWizard::JAccountType type);
 			~JAccountWizardPage();
 			bool validatePage();
 		protected:
 			Ui::JAccountWizardPage *ui;
 		private:
-			friend class JAccountWizard;
 			JAccountWizard *m_accountWizard;
 	};
 }

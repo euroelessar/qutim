@@ -14,24 +14,7 @@ namespace Jabber
 
 	QList<QWizardPage *> JAccountWizard::createPages(QWidget *parent)
 	{
-		page = new JAccountWizardPage(this);
-		switch (type) {
-		case JABBER:
-			page->ui->serverLabel->setVisible(false);
-			break;
-		case LIVEJOURNAL:
-			page->ui->serverLabel->setText("@livejournal.com");
-			break;
-		case YANDEX:
-			page->ui->serverLabel->setText("@ya.ru");
-			break;
-		case GOOGLETALK:
-			page->ui->serverLabel->setText("@google.com");
-			break;
-		case QIP:
-			page->ui->serverLabel->setText("@qip.ru");
-			break;
-		}
+		page = new JAccountWizardPage(this, type);
 	}
 
 	void JAccountWizard::createAccount()
@@ -41,6 +24,8 @@ namespace Jabber
 	LJAccountWizard::LJAccountWizard()
 	{
 		type = JAccountWizard::LIVEJOURNAL;
+		ExtensionInfo info("LiveJournal", "Add LiveJournal account");
+		setInfo(info);
 	}
 
 	LJAccountWizard::~LJAccountWizard()
@@ -50,6 +35,8 @@ namespace Jabber
 	GTAccountWizard::GTAccountWizard()
 	{
 		type = JAccountWizard::GOOGLETALK;
+		ExtensionInfo info("GoogleTalk", "Add GoogleTalk account");
+		setInfo(info);
 	}
 
 	GTAccountWizard::~GTAccountWizard()
@@ -58,7 +45,9 @@ namespace Jabber
 
 	YAccountWizard::YAccountWizard()
 	{
-		JAccountWizard::YANDEX;
+		type = JAccountWizard::YANDEX;
+		ExtensionInfo info("Yandex.Online", "Add Yandex.Online account");
+		setInfo(info);
 	}
 
 	YAccountWizard::~YAccountWizard()
@@ -67,7 +56,9 @@ namespace Jabber
 
 	QIPAccountWizard::QIPAccountWizard()
 	{
-		JAccountWizard::QIP;
+		type = JAccountWizard::QIP;
+		ExtensionInfo info("QIP", "Add QIP account");
+		setInfo(info);
 	}
 
 	QIPAccountWizard::~QIPAccountWizard()
