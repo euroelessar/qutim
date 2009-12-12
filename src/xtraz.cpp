@@ -249,6 +249,12 @@ bool Xtraz::handelXStatusCapabilities(IcqContact *contact, const Capabilities &c
 	return false;
 }
 
+void Xtraz::removeXStatuses(Capabilities &caps)
+{
+	foreach (const XStatus &xstatus, data()->xstatuses)
+		caps.removeAll(xstatus.capability);
+}
+
 XtrazPrivate *Xtraz::data()
 {
 	static XtrazPrivate d;

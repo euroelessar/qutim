@@ -39,7 +39,7 @@ public:
 	QByteArray data() const;
 	bool isShort() const;
 	bool isEmpty() const { return isNull(); }
-	bool operator==(const Capability &rhs) const;
+	bool operator==(const QUuid &rhs) const;
 	bool match(const Capability &capability, quint8 len = 17) const;
 };
 

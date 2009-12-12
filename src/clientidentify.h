@@ -35,7 +35,6 @@ public:
 private:
 	void setClientData(const QString &clientId, const QString &icon);
 	void setClientIcon(const QString &icon);
-	void removeXstatus();
 	QString icq_systemID2String(quint8 type, quint32 id);
 	void identify_by_DCInfo();
 	void parseMirandaVersionInDCInfo();
