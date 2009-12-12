@@ -12,57 +12,81 @@ namespace Core
 		m_wizard(parent)
 	{
 		m_ui->setupUi(this);
-		ProtocolMap protocols = allProtocols();
-		QStringList keys = protocols.keys();
-		keys.sort();
-		foreach (const QString &name, keys) {
-			Protocol *proto = protocols.value(name);
-			QVariant var = proto ? proto->property("extensioninfo") : QVariant();
-			if (!var.isValid())
-				continue;
-			ExtensionInfo info = var.value<ExtensionInfo>();
+		m_lastId = Id;
+
+		foreach(const ObjectGenerator *gen, moduleGenerators<AccountCreationWizard>()) {
+			AccountCreationWizard *wizard = gen->generate<AccountCreationWizard>();
+			m_wizards.insert(wizard->info().name(), wizard);
+		}
+
+		foreach (AccountCreationWizard *wizard, m_wizards) {
+			ExtensionInfo info = wizard->info();
 			QIcon icon = info.icon();
 			if (icon.isNull())
-				icon = Icon(QLatin1String("im-") + name.toLower());
+				icon = Icon(QLatin1String("im-") + info.name().original().toLower());
 			m_ui->protocolsBox->addItem(info.icon(), info.name(), QVariant::fromValue(info));
 			m_ui->protocolsBox->setItemData(m_ui->protocolsBox->count() - 1,
-											reinterpret_cast<qptrdiff>(proto), Qt::UserRole + 1);
+											reinterpret_cast<qptrdiff>(wizard),
+											Qt::UserRole + 1);
 		}
 	}
 
 	AccountCreatorProtocols::~AccountCreatorProtocols()
 	{
 		delete m_ui;
+		qDeleteAll(m_wizards);
 	}
 
 	bool AccountCreatorProtocols::validatePage()
 	{
 		int index = m_ui->protocolsBox->currentIndex();
-		qptrdiff protoPtr = m_ui->protocolsBox->itemData(index, Qt::UserRole + 1).value<qptrdiff>();
-		Protocol *proto = reinterpret_cast<Protocol *>(protoPtr);
-		AccountCreationWizard *wizard = proto->accountCreationWizard();
+		qptrdiff wizardPtr = m_ui->protocolsBox->itemData(index, Qt::UserRole + 1).value<qptrdiff>();
+		AccountCreationWizard *wizard = reinterpret_cast<AccountCreationWizard *>(wizardPtr);
 		if (!wizard)
 			return false;
-		QList<QWizardPage *> pages = wizard->createPages(m_wizard);
-		for (int i = 0; i < pages.size(); i++)
-			m_wizard->setPage(Id + 1 + i, pages.at(i));
-		return true;
+
+		QMap<AccountCreationWizard *, int>::iterator it = ensureCurrentProtocol();
+		return it.value() != -1;
 	}
 
 	bool AccountCreatorProtocols::isComplete() const
 	{
-		return true;
+		return m_ui->protocolsBox->currentIndex() != -1;
 	}
 
 	int AccountCreatorProtocols::nextId() const
 	{
-		return Id + 1;
+		QMap<AccountCreationWizard *, int>::iterator it
+				= const_cast<AccountCreatorProtocols *>(this)->ensureCurrentProtocol();
+		return it == m_wizardIds.end() ? -1 : it.value();
 	}
 
 	void AccountCreatorProtocols::on_protocolsBox_currentIndexChanged(int index)
 	{
 		ExtensionInfo info = m_ui->protocolsBox->itemData(index).value<ExtensionInfo>();
 		m_ui->protocolDescription->setText(info.description());
+	}
+
+	QMap<AccountCreationWizard *, int>::iterator AccountCreatorProtocols::ensureCurrentProtocol()
+	{
+		int index = m_ui->protocolsBox->currentIndex();
+		qptrdiff wizardPtr = m_ui->protocolsBox->itemData(index, Qt::UserRole + 1).value<qptrdiff>();
+		AccountCreationWizard *wizard = reinterpret_cast<AccountCreationWizard *>(wizardPtr);
+		if (!wizard)
+			return m_wizardIds.end();
+
+		QMap<AccountCreationWizard *, int>::iterator it = m_wizardIds.find(wizard);
+		if (it == m_wizardIds.end()) {
+			QList<QWizardPage *> pages = wizard->createPages(m_wizard);
+			if (pages.isEmpty()) {
+				it = m_wizardIds.insert(wizard, -1);
+			} else {
+				it = m_wizardIds.insert(wizard, m_lastId + 1);
+				for (int i = 0; i < pages.size(); i++)
+					m_wizard->setPage(++m_lastId, pages.at(i));
+			}
+		}
+		return it;
 	}
 
 	void AccountCreatorProtocols::changeEvent(QEvent *e)

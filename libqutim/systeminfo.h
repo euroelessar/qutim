@@ -24,9 +24,8 @@ namespace qutim_sdk_0_3
 {
 	struct SystemInfoPrivate;
 
-	class LIBQUTIM_EXPORT SystemInfo : public QObject
+	class LIBQUTIM_EXPORT SystemInfo
 	{
-		Q_OBJECT
 	public:
 		enum DirType { ConfigDir, HistoryDir, ShareDir, SystemConfigDir, SystemShareDir };
 		static QString getFullName();
@@ -42,7 +41,6 @@ namespace qutim_sdk_0_3
 	private:
 		SystemInfo();
 		virtual ~SystemInfo();
-		static SystemInfoPrivate *p;
 	};
 }
 

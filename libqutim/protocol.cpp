@@ -16,6 +16,7 @@
 #include "protocol.h"
 #include "account.h"
 #include "contact.h"
+#include "extensioninfo.h"
 
 namespace qutim_sdk_0_3
 {
@@ -25,6 +26,19 @@ namespace qutim_sdk_0_3
 
 	AccountCreationWizard::~AccountCreationWizard()
 	{
+	}
+
+	ExtensionInfo AccountCreationWizard::info() const
+	{
+		QVariant info = property("protocolinfo");
+		if (!info.canConvert<ExtensionInfo>())
+			info = parent()->property("extensioninfo");
+		return info.value<ExtensionInfo>();
+	}
+
+	void AccountCreationWizard::setInfo(const ExtensionInfo &info)
+	{
+		setProperty("protocolinfo", qVariantFromValue(info));
 	}
 
 	struct ProtocolPrivate

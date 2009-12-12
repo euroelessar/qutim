@@ -22,6 +22,7 @@ class QWizardPage;
 
 namespace qutim_sdk_0_3
 {
+	class ExtensionInfo;
 	class Contact;
 	class Account;
 	struct ProtocolPrivate;
@@ -33,6 +34,9 @@ namespace qutim_sdk_0_3
 		AccountCreationWizard(Protocol *protocol);
 		virtual ~AccountCreationWizard();
 		virtual QList<QWizardPage *> createPages(QWidget *parent) = 0;
+		ExtensionInfo info() const;
+	protected:
+		void setInfo(const ExtensionInfo &info);
 	};
 
 	class LIBQUTIM_EXPORT Protocol : public QObject
@@ -47,7 +51,6 @@ namespace qutim_sdk_0_3
 		QString id() const;
 		virtual QList<Account *> accounts() const = 0;
 		virtual Account *account(const QString &id) const = 0;
-		virtual AccountCreationWizard *accountCreationWizard() = 0;
 	signals:
 		void accountCreated(qutim_sdk_0_3::Account *);
 	private:

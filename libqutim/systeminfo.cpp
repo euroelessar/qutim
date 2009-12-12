@@ -65,8 +65,6 @@
 
 namespace qutim_sdk_0_3
 {
-	SystemInfoPrivate *SystemInfo::p = 0;
-
 	struct SystemInfoPrivate
 	{
 		inline SystemInfoPrivate() : dirs(SystemInfo::SystemShareDir + 1) {}
@@ -202,36 +200,34 @@ namespace qutim_sdk_0_3
 	{
 	}
 
-	void system_info_ensure_private_helper(SystemInfoPrivate * &p)
+	void init(SystemInfoPrivate *d)
 	{
-		if(p) return;
 //		QDateTime tmp_datetime = QDateTime::currentDateTime().toLocalTime();
-//		p->timezone_offset = tmp_datetime.utcOffset();
+//		d->timezone_offset = tmp_datetime.utcOffset();
 		// Initialize
 		qDebug() << QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-		p = new SystemInfoPrivate;
-		p->dirs[SystemInfo::ConfigDir]         = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/config");
-		p->dirs[SystemInfo::HistoryDir]        = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/history");
-		p->dirs[SystemInfo::ShareDir]          = QDir::homePath() % QLatin1Literal("/.qutim/share");
-		p->dirs[SystemInfo::SystemConfigDir]   = QLatin1String("/etc/qutim");
-		p->dirs[SystemInfo::SystemShareDir]    = QDir::currentPath() % QLatin1Literal("/../share");
-		p->timezone_offset = 0;
-		p->timezone_str = "N/A";
-		p->os_full = "Unknown";
+		d->dirs[SystemInfo::ConfigDir]         = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/config");
+		d->dirs[SystemInfo::HistoryDir]        = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/history");
+		d->dirs[SystemInfo::ShareDir]          = QDir::homePath() % QLatin1Literal("/.qutim/share");
+		d->dirs[SystemInfo::SystemConfigDir]   = QLatin1String("/etc/qutim");
+		d->dirs[SystemInfo::SystemShareDir]    = QDir::currentPath() % QLatin1Literal("/../share");
+		d->timezone_offset = 0;
+		d->timezone_str = "N/A";
+		d->os_full = "Unknown";
 #if defined(Q_OS_WINCE)
-		p->os_type_id = 'c';
+		d->os_type_id = 'c';
 #elif defined(Q_OS_WIN32)
-		p->os_type_id = 'w';
+		d->os_type_id = 'w';
 #elif defined(Q_OS_LINUX)
-		p->os_type_id = 'l';
+		d->os_type_id = 'l';
 #elif defined(Q_OS_MAC)
-		p->os_type_id = 'm';
+		d->os_type_id = 'm';
 #elif defined(Q_OS_SYMBIAN)
-		p->os_type_id = 's';
+		d->os_type_id = 's';
 #elif defined(Q_OS_UNIX)
-		p->os_type_id = 'u';
+		d->os_type_id = 'u';
 #else
-		p->os_type_id = '\0';
+		d->os_type_id = '\0';
 #endif
 
 		// Detect
@@ -259,24 +255,24 @@ namespace qutim_sdk_0_3
 				offset = 1;
 			int tmp = s.toInt();
 			offset *= (tmp/100)*60 + tmp%100;
-			p->timezone_offset = offset;
+			d->timezone_offset = offset;
 		}
 		strcpy(fmt, "%Z");
 		strftime(str, 256, fmt, localtime(&x));
 		if(strcmp(fmt, str))
-			p->timezone_str = str;
+			d->timezone_str = str;
 #endif
 #if defined(Q_WS_X11)
 		// attempt to get LSB version before trying the distro-specific approach
 
-		p->os_full = lsbRelease(QStringList() << "--description" << "--short");
+		d->os_full = lsbRelease(QStringList() << "--description" << "--short");
 
-		if(p->os_full.isEmpty()) {
-			p->os_full = unixHeuristicDetect();
+		if(d->os_full.isEmpty()) {
+			d->os_full = unixHeuristicDetect();
 		}
 		else {
-			p->os_name = lsbRelease(QStringList() << "--short" << "--id");
-			p->os_version = lsbRelease(QStringList() << "--short" << "--release");;
+			d->os_name = lsbRelease(QStringList() << "--short" << "--id");
+			d->os_version = lsbRelease(QStringList() << "--short" << "--release");;
 		}
 
 #elif defined(Q_WS_MAC)
@@ -284,33 +280,33 @@ namespace qutim_sdk_0_3
 		Gestalt(gestaltSystemVersionMajor, &major_version);
 		Gestalt(gestaltSystemVersionMinor, &minor_version);
 		Gestalt(gestaltSystemVersionBugFix, &bug_fix);
-		p->os_version_id = (quint8(major_version) << 24) | (quint8(minor_version) << 16) | (quint8(bug_fix) << 8);
-		p->os_name = "MacOS X";
-		p->os_version = QString("%1.%2.%3").arg(major_version, minor_version, bug_fix);
-		p->os_full = p->os_name;
-		p->os_full += " ";
-		p->os_full += p->os_version;
+		d->os_version_id = (quint8(major_version) << 24) | (quint8(minor_version) << 16) | (quint8(bug_fix) << 8);
+		d->os_name = "MacOS X";
+		d->os_version = QString("%1.%2.%3").arg(major_version, minor_version, bug_fix);
+		d->os_full = d->os_name;
+		d->os_full += " ";
+		d->os_full += d->os_version;
 #endif
 
 #if defined(Q_WS_WIN)
 		TIME_ZONE_INFORMATION i;
 		//GetTimeZoneInformation(&i);
-		//p->timezone_offset = (-i.Bias) / 60;
+		//d->timezone_offset = (-i.Bias) / 60;
 		memset(&i, 0, sizeof(i));
 		bool inDST = (GetTimeZoneInformation(&i) == TIME_ZONE_ID_DAYLIGHT);
 		int bias = i.Bias;
 		if(inDST)
 			bias += i.DaylightBias;
-		p->timezone_offset = -bias;
-		p->timezone_str = "";
+		d->timezone_offset = -bias;
+		d->timezone_str = "";
 		for(int n = 0; n < 32; ++n) {
 			int w = inDST ? i.DaylightName[n] : i.StandardName[n];
 			if(w == 0)
 				break;
-			p->timezone_str += QChar(w);
+			d->timezone_str += QChar(w);
 		}
-		p->os_full = QString();
-		p->os_name = "Windows";
+		d->os_full = QString();
+		d->os_name = "Windows";
 		OSVERSIONINFOEX osvi;
 		BOOL bOsVersionInfoEx;
 		ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
@@ -327,48 +323,48 @@ namespace qutim_sdk_0_3
 			special_info |= SuitePersonal;
 		if(osvi.wSuiteMask & VER_SUITE_WH_SERVER)
 			special_info |= SuiteHomeServer;
-		p->os_version_id = (quint8(osvi.dwMajorVersion) << 24) | (quint8(osvi.dwMinorVersion) << 16)
+		d->os_version_id = (quint8(osvi.dwMajorVersion) << 24) | (quint8(osvi.dwMinorVersion) << 16)
 						   | (quint8(osvi.wProductType) << 8)  | special_info;
 #endif
 	}
 
-	inline void system_info_ensure_private(SystemInfoPrivate * &p)
-	{ if(!p) system_info_ensure_private_helper(p); }
+	Q_GLOBAL_STATIC_WITH_INITIALIZER(SystemInfoPrivate, d_func, init(x.data()))
+
 
 	QString SystemInfo::getFullName()
 	{
-		system_info_ensure_private(p);
-		return p->os_full;
+		Q_D(SystemInfo);
+		return d->os_full;
 	}
 
 	QString SystemInfo::getName()
 	{
-		system_info_ensure_private(p);
-		return p->os_name;
+		Q_D(SystemInfo);
+		return d->os_name;
 	}
 
 	QString SystemInfo::getVersion()
 	{
-		system_info_ensure_private(p);
-		return p->os_version.isEmpty() ? (p->os_version = systemID2String(p->os_type_id, p->os_version_id)) : p->os_version;
-//		return p->os_version;
+		Q_D(SystemInfo);
+		return d->os_version.isEmpty() ? (d->os_version = systemID2String(d->os_type_id, d->os_version_id)) : d->os_version;
+//		return d->os_version;
 	}
 
 	quint32 SystemInfo::getSystemVersionID()
 	{
-		system_info_ensure_private(p);
-		return p->os_version_id;
+		Q_D(SystemInfo);
+		return d->os_version_id;
 	}
 
 	quint8 SystemInfo::getSystemTypeID()
 	{
-		system_info_ensure_private(p);
-		return p->os_type_id;
+		Q_D(SystemInfo);
+		return d->os_type_id;
 	}
 
 	QString SystemInfo::systemID2String(quint8 type, quint32 id)
 	{
-		system_info_ensure_private(p);
+		Q_D(SystemInfo);
 		QString str;
 		switch(type)
 		{
@@ -449,29 +445,29 @@ namespace qutim_sdk_0_3
 
 	QString SystemInfo::getTimezone()
 	{
-		system_info_ensure_private(p);
-		return p->timezone_str;
+		Q_D(SystemInfo);
+		return d->timezone_str;
 	}
 
 	int SystemInfo::getTimezoneOffset()
 	{
-		system_info_ensure_private(p);
-		return p->timezone_offset;
+		Q_D(SystemInfo);
+		return d->timezone_offset;
 	}
 
 	QDir SystemInfo::getDir(DirType type)
 	{
-		system_info_ensure_private(p);
-		if(type >= p->dirs.size())
+		Q_D(SystemInfo);
+		if(type >= d->dirs.size())
 			return QDir();
-		return p->dirs.at(type);
+		return d->dirs.at(type);
 	}
 
 	QString SystemInfo::getPath(DirType type)
 	{
-		system_info_ensure_private(p);
-		if(type >= p->dirs.size())
+		Q_D(SystemInfo);
+		if(type >= d->dirs.size())
 			return QString();
-		return p->dirs.at(type).absolutePath();
+		return d->dirs.at(type).absolutePath();
 	}
 }
