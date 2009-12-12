@@ -320,8 +320,8 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 					plugins.at(i)->processMessage(uin, guid, plugin_data, type);
 			}
 			else
-				qDebug() << IMPLEMENT_ME << QString("Message (channel 2) from %1 with type %2 is not processed.").
-					arg(uin).arg(type);
+				qDebug() << IMPLEMENT_ME << QString("Message (channel 2) from %1 with type %2 and guid %3 is not processed.").
+					arg(uin).arg(type).arg(guid.toString());
 		}
 	}
 	else
@@ -359,6 +359,11 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 	if(contact)
 		contact->p->version = version;
 	Capability guid = data.readCapability();
+	if(guid.isEmpty())
+	{
+		qDebug() << "Wrong format of TLV 2711";
+		return;
+	}
 	data.skipData(9);
 	id = data.readSimple<quint16>(DataUnit::LittleEndian);
 	quint16 cookie = data.readSimple<quint16>(DataUnit::LittleEndian);

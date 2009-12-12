@@ -26,9 +26,9 @@ Capability::Capability()
 
 Capability::Capability(const QByteArray &data)
 {
-	Q_ASSERT(data.size() == 16 || data.size() == 2);
-	m_data = data;
-	m_is_short = (data.size() == 2);
+	if(data.size() == 16 || data.size() == 2)
+		m_data = data;
+	m_is_short = (m_data.size() == 2);
 	getLength();
 }
 
