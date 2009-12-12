@@ -1,11 +1,12 @@
 #include "jaccountwizard.h"
+#include "jaccountwizardpage.h"
 
 namespace Jabber
 {
 
 	JAccountWizard::JAccountWizard() : AccountCreationWizard(JProtocol::instance())
 	{
-		type = JABBER;
+		type = AccountTypeJabber;
 	}
 
 	JAccountWizard::~JAccountWizard()
@@ -23,7 +24,7 @@ namespace Jabber
 
 	LJAccountWizard::LJAccountWizard()
 	{
-		type = JAccountWizard::LIVEJOURNAL;
+		type = AccountTypeLivejournal;
 		ExtensionInfo info("LiveJournal", "Add LiveJournal account");
 		setInfo(info);
 	}
@@ -34,7 +35,7 @@ namespace Jabber
 
 	GTAccountWizard::GTAccountWizard()
 	{
-		type = JAccountWizard::GOOGLETALK;
+		type = AccountTypeGoogletalk;
 		ExtensionInfo info("GoogleTalk", "Add GoogleTalk account");
 		setInfo(info);
 	}
@@ -45,7 +46,7 @@ namespace Jabber
 
 	YAccountWizard::YAccountWizard()
 	{
-		type = JAccountWizard::YANDEX;
+		type = AccountTypeYandex;
 		ExtensionInfo info("Yandex.Online", "Add Yandex.Online account");
 		setInfo(info);
 	}
@@ -56,7 +57,7 @@ namespace Jabber
 
 	QIPAccountWizard::QIPAccountWizard()
 	{
-		type = JAccountWizard::QIP;
+		type = AccountTypeQip;
 		ExtensionInfo info("QIP", "Add QIP account");
 		setInfo(info);
 	}

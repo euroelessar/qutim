@@ -4,13 +4,19 @@
 #include <qutim/protocol.h>
 #include <qutim/extensioninfo.h>
 #include "jprotocol.h"
-#include "jaccountwizardpage.h"
 
 namespace Jabber {
 
-	using namespace qutim_sdk_0_3;
 
 	class JAccountWizardPage;
+
+	enum JAccountType {
+		AccountTypeJabber,
+		AccountTypeLivejournal,
+		AccountTypeGoogletalk,
+		AccountTypeQip,
+		AccountTypeYandex
+	};
 
 	class JAccountWizard : public AccountCreationWizard
 	{
@@ -21,12 +27,11 @@ namespace Jabber {
 			~JAccountWizard();
 			QList<QWizardPage *> createPages(QWidget *parent);
 			void createAccount();
-			enum JAccountType {JABBER, LIVEJOURNAL, GOOGLETALK, QIP, YANDEX};
 		protected:
 			JAccountWizardPage *page;
+			JAccountType type;
 		private:
 			JProtocol *protocol;
-			JAccountType type;
 	};
 
 	class LJAccountWizard : public JAccountWizard

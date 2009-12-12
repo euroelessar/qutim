@@ -1,26 +1,23 @@
 #ifndef JACCOUNTWIZARDPAGE_H
 #define JACCOUNTWIZARDPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 #include "jaccountwizard.h"
-#include "ui_jaccountwizardpage.h"
 
-//namespace Ui
-//{
-//	class JAccountWizardPage;
-//}
+namespace Ui
+{
+	class JAccountWizardPage;
+}
 
 namespace Jabber
 {
-	class JAccountWizard;
-
 	class JAccountWizardPage : public QWizardPage
 	{
 		Q_OBJECT
 
 		public:
 			JAccountWizardPage(JAccountWizard *accountWizard,
-				JAccountWizard::JAccountType type);
+				JAccountType type);
 			~JAccountWizardPage();
 			bool validatePage();
 		protected:

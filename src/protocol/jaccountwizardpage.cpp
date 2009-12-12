@@ -1,26 +1,27 @@
 #include "jaccountwizardpage.h"
+#include "ui_jaccountwizardpage.h"
 
 namespace Jabber
 {
 	JAccountWizardPage::JAccountWizardPage(JAccountWizard *accountWizard,
-		JAccountWizard::JAccountType type)
+		JAccountType type)
 		: m_accountWizard(accountWizard)
 	{
 		ui->setupUi(this);
 		switch (type) {
-		case JAccountWizard::JABBER:
+		case AccountTypeJabber:
 			ui->serverLabel->setVisible(false);
 			break;
-		case JAccountWizard::LIVEJOURNAL:
+		case AccountTypeLivejournal:
 			ui->serverLabel->setText("@livejournal.com");
 			break;
-		case JAccountWizard::YANDEX:
+		case AccountTypeYandex:
 			ui->serverLabel->setText("@ya.ru");
 			break;
-		case JAccountWizard::GOOGLETALK:
+		case AccountTypeGoogletalk:
 			ui->serverLabel->setText("@google.com");
 			break;
-		case JAccountWizard::QIP:
+		case AccountTypeQip:
 			ui->serverLabel->setText("@qip.ru");
 			break;
 		}
