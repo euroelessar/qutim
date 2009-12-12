@@ -13,9 +13,11 @@ namespace Jabber
 	class JProtocol : public Protocol
 	{
 		Q_OBJECT
+		Q_CLASSINFO("Protocol", "jabber")
+
 	public:
 		JProtocol();
-
+		virtual ~JProtocol();
 		static inline JProtocol *instance() { if(!self) qWarning("JProtocol isn't created"); return self; }
 		virtual QList<Account *> accounts() const;
 		virtual Account *account(const QString &id) const;

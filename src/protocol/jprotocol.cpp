@@ -9,11 +9,17 @@ namespace Jabber
 		QHash<QString, JAccount *> *accounts;
 	};
 
+	JProtocol *JProtocol::self = 0;
+
 	JProtocol::JProtocol() : p(new JProtocolPrivate)
 	{
 		Q_ASSERT(!self);
 		self = this;
 		//p = new JProtocolPrivate();
+	}
+
+	JProtocol::~JProtocol()
+	{
 	}
 
 	QList<Account *> JProtocol::accounts() const
