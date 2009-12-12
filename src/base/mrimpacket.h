@@ -91,9 +91,12 @@ public:
 
     //Recieve mode
     bool readFrom(QIODevice& device);
+    qint32 readTo(LPString &str, bool unicode = false);
     qint32 readTo(QString *str, bool unicode = false);
     qint32 readTo(quint32 &num);
-
+    inline quint32 currBodyPos() const;
+    inline bool atEnd() const;
+    
     //Common
     bool isHeaderCorrect();
     inline quint32 dataLength() const { return m_header.dlen; }
@@ -140,5 +143,11 @@ inline QString MrimPacket::lastErrorString() const
 
 inline MrimPacket::PacketMode MrimPacket::mode() const
 { return m_mode; }
+
+inline quint32 MrimPacket::currBodyPos() const
+{ return m_currBodyPos; }
+
+inline bool MrimPacket::atEnd() const
+{ return currBodyPos() >= dataLength(); }
 
 #endif /*MrimPacket_H_*/

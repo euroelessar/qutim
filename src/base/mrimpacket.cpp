@@ -237,6 +237,12 @@ MrimPacket& MrimPacket::operator<<( const quint32 &num )
     return *this;
 }
 
+qint32 MrimPacket::readTo(LPString &str, bool unicode)
+{
+    m_currBodyPos += str.read(data(),m_currBodyPos,unicode);
+    return 0; //TODO: not need to return anything yet
+}
+
 qint32 MrimPacket::readTo( QString *str, bool unicode )
 {
     Q_ASSERT(str);

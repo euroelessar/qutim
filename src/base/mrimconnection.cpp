@@ -208,6 +208,18 @@ bool MrimConnection::handlePacket(MrimPacket& packet)
         break;
     case MRIM_CS_LOGIN_REJ:
         Notifications::sendNotification(Notifications::System,p->account,tr("Authentication failed!"));
+        break;        
+    case MRIM_CS_LOGOUT:
+        {
+            quint32 reason = 0;
+            packet.readTo(reason);
+
+            if (reason == LOGOUT_NO_RELOGIN_FLAG)
+            {
+                Notifications::sendNotification(Notifications::System,p->account,tr("Another client with same login connected!"));
+                //TODO: do not relogin
+            }
+        }
         break;
     default:
         handled = false;

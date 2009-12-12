@@ -13,18 +13,22 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "mrimaccount.h"
 #include "mrimprotocol.h"
+#include "roster.h"
+
+#include "mrimaccount.h"
 
 struct MrimAccountPrivate
 {
     MrimConnection *conn;
+    Roster* roster;
 };
 
 MrimAccount::MrimAccount(const QString& email)
         : Account(email,MrimProtocol::instance()), p(new MrimAccountPrivate)
-{
-    p->conn = new MrimConnection(this);
+{   
+    p->conn = new MrimConnection(this);        
+    p->conn->registerPacketHandler(p->roster = new Roster(this));
     p->conn->start(); //TODO: temporary autologin, for debugging
 }
 
