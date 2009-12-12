@@ -18,7 +18,6 @@
 #include "icqaccount.h"
 #include "oscarconnection.h"
 #include <qutim/extensionicon.h>
-#include <QXmlStreamReader>
 #include <QDebug>
 
 namespace Icq {
