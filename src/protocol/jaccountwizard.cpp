@@ -16,7 +16,7 @@ namespace Jabber
 
 	QList<QWizardPage *> JAccountWizard::createPages(QWidget *parent)
 	{
-		page = new JAccountWizardPage(this, type);
+		page = new JAccountWizardPage(this, type, parent);
 		QList<QWizardPage *> pages;
 		pages.append(page);
 		return pages;
