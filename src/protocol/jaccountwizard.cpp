@@ -29,12 +29,12 @@ namespace Jabber
 		{
 			account->config().group("general").setValue("passwd", page->passwd(), Config::Crypted);
 			account->config().sync();
-			ConfigGroup cfg = protocol->config().group("general");
-			QStringList accounts = cfg.value("accounts", QStringList());
-			accounts << account->id();
-			cfg.setValue("accounts", accounts);
-			cfg.sync();
 		}
+		ConfigGroup cfg = protocol->config().group("general");
+		QStringList accounts = cfg.value("accounts", QStringList());
+		accounts << account->id();
+		cfg.setValue("accounts", accounts);
+		cfg.sync();
 		protocol->addAccount(account, true);
 		delete page;
 	}
