@@ -429,6 +429,9 @@ namespace qutim_sdk_0_3
 			case L'\\':
 				txt += QLatin1String("\\\\");
 				break;
+			case L'\r':
+				txt += QLatin1String("\\r");
+				break;
 			default:
 				txt += text.at(i);
 				break;
