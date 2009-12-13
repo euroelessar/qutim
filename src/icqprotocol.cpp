@@ -107,12 +107,12 @@ void IcqAccountCreationWizard::finished()
 	{
 		account->config().group("general").setValue("passwd", p->page->password(), Config::Crypted);
 		account->config().sync();
-		ConfigGroup cfg = p->protocol->config().group("general");
-		QStringList accounts = cfg.value("accounts", QStringList());
-		accounts << account->id();
-		cfg.setValue("accounts", accounts);
-		cfg.sync();
 	}
+	ConfigGroup cfg = p->protocol->config().group("general");
+	QStringList accounts = cfg.value("accounts", QStringList());
+	accounts << account->id();
+	cfg.setValue("accounts", accounts);
+	cfg.sync();
 	p->protocol->p->accounts_hash->insert(account->id(), account);
 	delete p->page;
 	emit p->protocol->accountCreated(account);
