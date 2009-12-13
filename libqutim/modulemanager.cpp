@@ -38,9 +38,14 @@
 
 namespace qutim_sdk_0_3
 {
-	const char *qutimVersion()
+	const char *qutimVersionStr()
 	{
 		return QUTIM_VERSION_STR;
+	}
+
+	quint32 qutimVersion()
+	{
+		return QUTIM_VERSION;
 	}
 
 	const char *metaInfo(const QMetaObject *meta, const char *name)
@@ -186,7 +191,7 @@ namespace qutim_sdk_0_3
 		p = new ModuleManagerPrivate;
 		self = this;
 		qApp->setApplicationName("qutIM");
-		qApp->setApplicationVersion(qutimVersion());
+		qApp->setApplicationVersion(qutimVersionStr());
 		qApp->setOrganizationDomain("qutim.org");
 //		qApp->setOrganizationName("qutIM");
 	}

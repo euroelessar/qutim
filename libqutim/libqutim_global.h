@@ -79,7 +79,8 @@ namespace qutim_sdk_0_3
 	class ModuleManager;
 	typedef QList<const ObjectGenerator *> GeneratorList;
 	typedef QHash<QString, Protocol *> ProtocolMap;
-	LIBQUTIM_EXPORT const char *qutimVersion();
+	LIBQUTIM_EXPORT const char *qutimVersionStr();
+	LIBQUTIM_EXPORT quint32 qutimVersion();
 	LIBQUTIM_EXPORT const char *metaInfo(const QMetaObject *meta, const char *name);
 	LIBQUTIM_EXPORT bool isCoreInited();
 	LIBQUTIM_EXPORT GeneratorList moduleGenerators(const QMetaObject *module);
