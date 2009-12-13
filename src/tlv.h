@@ -175,7 +175,7 @@ Q_INLINE_TEMPLATE void TLV::appendValue<QByteArray>(const QByteArray &value)
 template<>
 Q_INLINE_TEMPLATE void TLV::appendValue<Capability>(const Capability &value)
 {
-	m_value += static_cast<QByteArray>(value);
+	m_value += value.data();
 	ensure_value();
 }
 

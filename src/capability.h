@@ -20,32 +20,27 @@
 #include <QByteArray>
 #include <QList>
 #include <QHash>
+#include <QUuid>
 
 namespace Icq {
 
-class Capability
+struct Capability : public QUuid
 {
 public:
-    Capability();
-    Capability(const QByteArray &data);
-    Capability(quint32 d1, quint32 d2, quint32 d3, quint32 d4);
-    Capability(quint8 d1, quint8 d2, quint8 d3, quint8 d4, quint8 d5, quint8 d6,
-    		   quint8 d7, quint8 d8, quint8 d9, quint8 d10, quint8 d11, quint8 d12,
-    		   quint8 d13, quint8 d14, quint8 d15, quint8 d16);
-    Capability(quint16 data);
-    const QByteArray &data() const { return m_data; }
-    bool isShort() const { return m_is_short; }
-    bool isEmpty() const { return m_data.isEmpty(); }
-    bool operator==(const Capability &rhs) const;
-    inline bool match(const Capability &capability, quint8 len = 17) const;
-    operator QByteArray() const { return m_data; };
-    QString toString() const;
-private:
-    void getLength();
-	QByteArray m_data;
-	bool m_is_short;
-	quint8 m_len;
-	mutable QString m_str;
+	Capability();
+	Capability(const QByteArray &data);
+	Capability(quint32 d1, quint32 d2, quint32 d3, quint32 d4);
+	Capability(uint l, ushort w1, ushort w2, uchar b1, uchar b2,
+			   uchar b3, uchar b4, uchar b5, uchar b6, uchar b7, uchar b8);
+	Capability(quint8 d1, quint8 d2, quint8 d3, quint8 d4, quint8 d5, quint8 d6,
+			   quint8 d7, quint8 d8, quint8 d9, quint8 d10, quint8 d11, quint8 d12,
+			   quint8 d13, quint8 d14, quint8 d15, quint8 d16);
+	Capability(quint16 data);
+	QByteArray data() const;
+	bool isShort() const;
+	bool isEmpty() const { return isNull(); }
+	bool operator==(const QUuid &rhs) const;
+	bool match(const Capability &capability, quint8 len = 17) const;
 };
 
 class Capabilities: public QList<Capability>
@@ -54,15 +49,6 @@ public:
 	bool match(const Capability &capability, quint8 len = 17) const;
 	const_iterator find(const Capability &capability, quint8 len = 17) const;
 };
-
-bool Capability::match(const Capability &capability, quint8 len) const
-{
-	if(m_is_short)
-		len = 2;
-	else if(len > 16)
-		len = capability.m_len;
-	return !(memcmp(m_data.data(), capability.m_data.data(), len));
-}
 
 inline uint qHash(const Capability &capability)
 {

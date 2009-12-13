@@ -46,6 +46,7 @@ public:
 	Xtraz();
 	static void handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data, quint64 cookie);
 	static bool handelXStatusCapabilities(IcqContact *contact, const Capabilities &caps, qint8 mood);
+	static void removeXStatuses(Capabilities &caps);
 private:
 	static XtrazPrivate *data();
 	static void handleNotify(IcqContact *contact, const QString &message, quint64 cookie);

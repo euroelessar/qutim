@@ -16,11 +16,14 @@
 
 #include <QTextCodec>
 #include <QtEndian>
+#include <QStringBuilder>
+#include <qutim/systeminfo.h>
 
 #include "icqcontact.h"
 #include "buddycaps.h"
 #include "clientidentify.h"
 #include "oscarconnection.h"
+#include "xtraz.h"
 
 
 namespace Icq {
@@ -37,7 +40,10 @@ const Capability ClientIdentify::ICQ_CAPABILITY_SIMxVER      ('S',  'I',  'M',  
                                                               'i',  'e',  'n',  't',  ' ',  ' ',
                                                               0x00, 0x00, 0x00, 0x00);
 
-#define IDENTIFY_CLIENT(func) identify_##func(); 	if(!m_client_id.isEmpty()) return;
+#define IDENTIFY_CLIENT(func) \
+	identify_##func(); \
+	if(!m_client_id.isEmpty()) \
+		return;
 
 ClientIdentify::ClientIdentify()
 {
@@ -58,7 +64,7 @@ void ClientIdentify::identify(IcqContact *contact)
 	m_ext_status_info = contact->dcInfo().extstatus_utime;
 
 	// There may be some x-statuses info here.. remove all of them.
-	removeXstatus();
+	Xtraz::removeXStatuses(m_client_caps);
 
 	IDENTIFY_CLIENT( qutIM );
 	IDENTIFY_CLIENT( k8qutIM );
@@ -110,44 +116,6 @@ inline void ClientIdentify::setClientIcon(const QString &icon)
 {
 	m_contact->setProperty("client_id", m_client_id);
 	m_contact->setProperty("client_icon", icon);
-}
-
-void ClientIdentify::removeXstatus()
-{
-	m_client_caps.removeAll(QByteArray::fromHex("01d8d7eeac3b492aa58dd3d877e66b92"));
-	m_client_caps.removeAll(QByteArray::fromHex("5a581ea1e580430ca06f612298b7e4c7"));
-	m_client_caps.removeAll(QByteArray::fromHex("83c9b78e77e74378b2c5fb6cfcc35bec"));
-	m_client_caps.removeAll(QByteArray::fromHex("e601e41c33734bd1bc06811d6c323d81"));
-	m_client_caps.removeAll(QByteArray::fromHex("8c50dbae81ed4786acca16cc3213c7b7"));
-	m_client_caps.removeAll(QByteArray::fromHex("3fb0bd36af3b4a609eefcf190f6a5a7f"));
-	m_client_caps.removeAll(QByteArray::fromHex("f8e8d7b282c4414290f810c6ce0a89a6"));
-	m_client_caps.removeAll(QByteArray::fromHex("80537de2a4674a76b3546dfd075f5ec6"));
-	m_client_caps.removeAll(QByteArray::fromHex("f18ab52edc57491d99dc6444502457af"));
-	m_client_caps.removeAll(QByteArray::fromHex("1b78ae31fa0b4d3893d1997eeeafb218"));
-	m_client_caps.removeAll(QByteArray::fromHex("61bee0dd8bdd475d8dee5f4baacf19a7"));
-	m_client_caps.removeAll(QByteArray::fromHex("488e14898aca4a0882aa77ce7a165208"));
-	m_client_caps.removeAll(QByteArray::fromHex("107a9a1812324da4b6cd0879db780f09"));
-	m_client_caps.removeAll(QByteArray::fromHex("6f4930984f7c4affa27634a03bceaea7"));
-	m_client_caps.removeAll(QByteArray::fromHex("1292e5501b644f66b206b29af378e48d"));
-	m_client_caps.removeAll(QByteArray::fromHex("d4a611d08f014ec09223c5b6bec6ccf0"));
-	m_client_caps.removeAll(QByteArray::fromHex("609d52f8a29a49a6b2a02524c5e9d260"));
-	m_client_caps.removeAll(QByteArray::fromHex("63627337a03f49ff80e5f709cde0a4ee"));
-	m_client_caps.removeAll(QByteArray::fromHex("1f7a4071bf3b4e60bc324c5787b04cf1"));
-	m_client_caps.removeAll(QByteArray::fromHex("785e8c4840d34c65886f04cf3f3f43df"));
-	m_client_caps.removeAll(QByteArray::fromHex("a6ed557e6bf744d4a5d4d2e7d95ce81f"));
-	m_client_caps.removeAll(QByteArray::fromHex("12d07e3ef885489e8e97a72a6551e58d"));
-	m_client_caps.removeAll(QByteArray::fromHex("ba74db3e9e24434b87b62f6b8dfee50f"));
-	m_client_caps.removeAll(QByteArray::fromHex("634f6bd8add24aa1aab9115bc26d05a1"));
-	m_client_caps.removeAll(QByteArray::fromHex("2ce0e4e57c6443709c3a7a1ce878a7dc"));
-	m_client_caps.removeAll(QByteArray::fromHex("101117c9a3b040f981ac49e159fbd5d4"));
-	m_client_caps.removeAll(QByteArray::fromHex("160c60bbdd4443f39140050f00e6c009"));
-	m_client_caps.removeAll(QByteArray::fromHex("6443c6af22604517b58cd7df8e290352"));
-	m_client_caps.removeAll(QByteArray::fromHex("16f5b76fa9d240358cc5c084703c98fa"));
-	m_client_caps.removeAll(QByteArray::fromHex("631436ff3f8a40d0a5cb7b66e051b364"));
-	m_client_caps.removeAll(QByteArray::fromHex("b70867f538254327a1ffcf4cc1939797"));
-	m_client_caps.removeAll(QByteArray::fromHex("ddcf0ea971954048a9c6413206d6f280"));
-	m_client_caps.removeAll(QByteArray::fromHex("d4e2b0ba334e4fa598d0117dbf4d3cc8"));
-	m_client_caps.removeAll(QByteArray::fromHex("0072d9084ad143dd91996f026966026f"));
 }
 
 void ClientIdentify::identify_by_DCInfo()
@@ -590,100 +558,18 @@ void ClientIdentify::identify_by_ProtoVersion()
 	}
 }
 
-QString ClientIdentify::icq_systemID2String(quint8 type, quint32 id)
-{
-		QString str;
-		quint8 VER_NT_WORKSTATION = 0x01;
-		switch(type)
-		{
-		case 'm':
-			if(id)
-			{
-				quint8 major, minor, bugfix;
-				major = (id >> 24) & 0xff;
-				minor = (id >> 16) & 0xff;
-				bugfix = (id >> 8) & 0xff;
-				str = QString("MacOS X %1.%2.%3").arg(QString::number(major), QString::number(minor), QString::number(bugfix));
-			}
-			else
-				str += "MacOS X";
-			break;
-		case 'c':
-			str += "Windows CE";
-			break;
-		case 'l':
-			str += "Linux";
-			break;
-		case 's':
-			str += "Symbian";
-			break;
-		case 'u':
-			str += "*nix";
-			break;
-		case 'w': {
-			str = "Windows";
-			quint16 version = (id >> 16) & 0xffff;
-			quint8 product  = (id >> 8) & 0xff;
-			quint8 winflag  = id & 0xff;
-			switch(version)
-			{
-			case 0x0500:
-				str += " 2000";
-				break;
-			case 0x0501:
-				str += " XP";
-				if(winflag & 0x01)
-					str += " Home Edition";
-				else
-					str += " Professional";
-				break;
-			case 0x0502:
-				if(winflag & 0x02)
-					str += " Home Server";
-				else
-					str += " Server 200";
-				break;
-			case 0x0600:
-				if(product == VER_NT_WORKSTATION)
-				{
-					str += " Vista";
-					if(winflag & 0x01)
-						str += " Home";
-				}
-				else
-					str += " Server 2008";
-				break;
-			case 0x0601:
-				if(product == VER_NT_WORKSTATION)
-					str += " 7";
-				else
-					str += " Server 2008 R2";
-				break;
-			default:
-				str += " NT ";
-				str += QString::number(version >> 8);
-				str += ".";
-				str += QString::number(version & 0xff);
-			case 0x0000:
-				break;
-			}
-			break; }
-		default:
-			str = "Unknown";
-		}
-		return str;
-}
-
 void ClientIdentify::identify_qutIM()
 {
 	static const Capability ICQ_CAPABILITY_QUTIMxVER ('q',  'u',  't',  'i',  'm',  0x00,
 	                                                  0x00,  0x00,  0x00,  0x00,  0x00,
 	                                                  0x00, 0x00, 0x00, 0x00, 0x00);
 
-	Capabilities::const_iterator cap = m_client_caps.find(ICQ_CAPABILITY_QUTIMxVER);
-	if (cap != m_client_caps.constEnd())
+	Capabilities::const_iterator capit = m_client_caps.find(ICQ_CAPABILITY_QUTIMxVER);
+	if (capit != m_client_caps.constEnd())
 	{
-		const char *verStr = cap->data().data() + 5;
+		const Capability &cap = *capit;
+		QByteArray data = cap.data();
+		const char *verStr = data.constData() + 5;
 		if (verStr[1] == 46)
 		{
 			// old qutim id
@@ -696,7 +582,7 @@ void ClientIdentify::identify_qutIM()
 			// new qutim id
 			quint8 type = verStr[0];
 			quint32 ver = qFromBigEndian<quint32>((uchar *)verStr + 6);
-			QString os = icq_systemID2String(type, ver);
+			QString os = SystemInfo::systemID2String(type, ver);
 			os.prepend('(');
 			os.append (')');
 			int ver1 = verStr[1];
