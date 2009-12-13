@@ -330,9 +330,10 @@ bool MrimConnection::processPacket()
     }
  }
 
-quint32 MrimConnection::protoFeatures() const
+MrimConnection::FeatureFlags MrimConnection::protoFeatures() const
 {
-    return MY_MRIM_PROTO_FEATURES;
+    static FeatureFlags supportedFeatures = FeatureFlagBaseSmiles;
+    return supportedFeatures;
 }
 
 void MrimConnection::sendGreetings()

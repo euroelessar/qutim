@@ -18,6 +18,7 @@
 
 #include <qutim/account.h>
 
+#include "roster.h"
 #include "mrimconnection.h"
 
 using namespace qutim_sdk_0_3;
@@ -29,7 +30,8 @@ class MrimAccount : public Account
 public:
     MrimAccount(const QString& email);
     ChatUnit *getUnit(const QString &unitId, bool create = false);
-    MrimConnection *connection();
+    MrimConnection *connection() const;
+    Roster *roster() const;
 
 private:
     QScopedPointer<MrimAccountPrivate> p;

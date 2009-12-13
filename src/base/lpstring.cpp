@@ -1,3 +1,18 @@
+/****************************************************************************
+ *  lpstring.cpp
+ *
+ *  Copyright (c) 2009 by Rusanov Peter <peter.rusanov@gmail.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include <QIODevice>
 #include <QTextCodec>
 
@@ -55,6 +70,21 @@ QByteArray LPString::toByteArray(const QString& str, bool unicode)
     return arr;    
 }
 
+QString LPString::toString(const QByteArray& arr, bool unicode)
+{
+    QString str;
+
+    QString codepage = (unicode) ? "UTF-16LE" : "CP1251";
+    QTextCodec* codec = QTextCodec::codecForName(codepage.toLocal8Bit());
+
+    if (codec != NULL)
+    {
+        QTextCodec::ConverterState convState(QTextCodec::IgnoreHeader);
+        str = codec->toUnicode(arr.constData(),arr.length(),&convState);
+    }
+    return str;
+}
+
 QByteArray LPString::toByteArray()
 {
     if (m_arr.isNull())
@@ -74,14 +104,7 @@ QString LPString::toString()
 {
     if (m_str.isNull())
     {
-        QString codepage = (m_unicode) ? "UTF-16LE" : "CP1251";
-        QTextCodec* codec = QTextCodec::codecForName(codepage.toLocal8Bit());
-    
-        if (codec != NULL)
-        {
-            QTextCodec::ConverterState convState(QTextCodec::IgnoreHeader);
-            m_str = codec->toUnicode(m_arr.constData(),m_arr.length(),&convState);
-        }
+        m_str = toString(m_arr,m_unicode);
     }
     return m_str;
 }

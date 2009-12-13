@@ -93,6 +93,9 @@ QString UserAgent::toString() const
 
 QString UserAgent::toReadable() const
 {
+    if (isEmpty())
+        return QString("-");
+
     QString userAgentFmt("%1 %2 %3");
     return userAgentFmt.arg(m_clientID).arg(m_versionStr).arg(m_buildVer);
 }

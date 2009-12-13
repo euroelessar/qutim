@@ -127,18 +127,6 @@ typedef struct mrim_packet_header_t
 	#define STATUS_DESC_MAX 64
 // LPS user e-mail ANSI
 // UL com_support (>=1.14)
-	#define FEATURE_FLAG_RTF_MESSAGE       0x00000001
-	#define FEATURE_FLAG_BASE_SMILES       0x00000002
-	#define FEATURE_FLAG_ADVANCED_SMILES   0x00000004
-	#define FEATURE_FLAG_CONTACTS_EXCH     0x00000008
-	#define FEATURE_FLAG_WAKEUP            0x00000010
-	#define FEATURE_FLAG_MULTS             0x00000020
-	#define FEATURE_FLAG_FILE_TRANSFER     0x00000040
-	#define FEATURE_FLAG_VOICE             0x00000080
-	#define FEATURE_FLAG_VIDEO             0x00000100
-	#define FEATURE_FLAG_GAMES             0x00000200
-	#define FEATURE_FLAG_LAST              0x00000200
-	#define FEATURE_UA_FLAG_MASK           ((FEATURE_FLAG_LAST << 1) - 1)
 // LPS user_agent (>=1.14) ANSI
 	#define USER_AGENT_MAX 255
 	// Format:
@@ -155,8 +143,6 @@ typedef struct mrim_packet_header_t
 	//  "build" - product internal numeration (may be positive number or time).
 	//  "protocol" - MMP protocol number by format "<major>.<minor>".
 
-
-#define MY_MRIM_PROTO_FEATURES (FEATURE_FLAG_RTF_MESSAGE | FEATURE_FLAG_BASE_SMILES | FEATURE_FLAG_ADVANCED_SMILES | FEATURE_FLAG_WAKEUP | FEATURE_FLAG_FILE_TRANSFER)
 
 #define MRIM_CS_LOGOUT			0x1013	// S -> C
 // UL reason
@@ -175,16 +161,6 @@ typedef struct mrim_packet_header_t
 
 #define MRIM_CS_ADD_CONTACT			0x1019	// C -> S
 // UL flags (group(2) or usual(0) 
-	#define CONTACT_FLAG_REMOVED		0x00000001
-	#define CONTACT_FLAG_GROUP			0x00000002
-	#define CONTACT_FLAG_INVISIBLE		0x00000004
-	#define CONTACT_FLAG_VISIBLE		0x00000008
-	#define CONTACT_FLAG_IGNORE			0x00000010
-	#define CONTACT_FLAG_SHADOW			0x00000020
-	#define CONTACT_FLAG_AUTHORIZED		0x00000040 // ( >= 1.15)
-	#define CONTACT_FLAG_PHONE			0x00100000
-	#define CONTACT_FLAG_UNICODE_NAME	0x00000200
-
 // UL group id (unused if contact is group)
 // LPS contact e-mail ANSI
 // LPS name UNICODE

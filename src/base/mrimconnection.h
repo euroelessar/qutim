@@ -43,6 +43,24 @@ public:
         UnknownState = 4
     };
 
+    enum FeatureFlag
+    {
+        FeatureFlagRtfMessage       =   0x00000001,
+        FeatureFlagBaseSmiles       =   0x00000002,
+        FeatureFlagAdvancedSmiles   =   0x00000004,
+        FeatureFlagContactsExchange =   0x00000008,
+        FeatureFlagWakeup           =   0x00000010,
+        FeatureFlagMults            =   0x00000020,
+        FeatureFlagFileTransfer     =   0x00000040,
+        FeatureFlagVoice            =   0x00000080,
+        FeatureFlagVideo            =   0x00000100,
+        FeatureFlagGames            =   0x00000200,
+        FeatureFlagLast             =   FeatureFlagGames,
+        FeatureFlagUAMask           =   ((FeatureFlagLast << 1) - 1)
+    };
+
+    Q_DECLARE_FLAGS(FeatureFlags,FeatureFlag)
+
 public:
     MrimConnection(MrimAccount *account);
     void start();
@@ -53,7 +71,7 @@ public:
     ConfigGroup config(const QString &group);
     ConnectionState state() const;
     void registerPacketHandler(PacketHandler *handler);
-    quint32 protoFeatures() const;
+    FeatureFlags protoFeatures() const;
     bool setStatus(Status status);
 
 protected slots:
@@ -73,5 +91,7 @@ private:
     Q_DISABLE_COPY(MrimConnection)
     QScopedPointer<MrimConnectionPrivate> p;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(MrimConnection::FeatureFlags)
 
 #endif // MRIMCONNECTION_H

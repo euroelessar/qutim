@@ -20,15 +20,18 @@
 
 struct MrimAccountPrivate
 {
-    MrimConnection *conn;
-    Roster* roster;
+    MrimAccountPrivate(MrimAccount *parent)
+        : conn(new MrimConnection(parent)), roster(new Roster(parent))
+    { }
+
+    QScopedPointer<MrimConnection> conn;
+    QScopedPointer<Roster> roster;
 };
 
 MrimAccount::MrimAccount(const QString& email)
-        : Account(email,MrimProtocol::instance()), p(new MrimAccountPrivate)
+        : Account(email,MrimProtocol::instance()), p(new MrimAccountPrivate(this))
 {   
-    p->conn = new MrimConnection(this);        
-    p->conn->registerPacketHandler(p->roster = new Roster(this));
+    p->conn->registerPacketHandler(p->roster.data());
     p->conn->start(); //TODO: temporary autologin, for debugging
 }
 
@@ -40,7 +43,8 @@ ChatUnit *MrimAccount::getUnit(const QString &unitId, bool create)
     return 0;
 }
 
-MrimConnection *MrimAccount::connection()
-{
-    return p->conn;
-}
+MrimConnection *MrimAccount::connection() const
+{ return p->conn.data(); }
+
+Roster *MrimAccount::roster() const
+{ return p->roster.data(); }
