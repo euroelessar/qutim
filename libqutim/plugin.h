@@ -95,6 +95,7 @@ namespace qutim_sdk_0_3
 		QScopedPointer<PluginPrivate> p;
 		friend class ModuleManager;
 	};
+}
 
 #define QUTIM_EXPORT_PLUGIN(Plugin) \
 	Q_EXPORT_PLUGIN(Plugin) \
@@ -103,8 +104,9 @@ namespace qutim_sdk_0_3
 	"libqutim="QUTIM_VERSION_STR"\0"; \
 	Q_EXTERN_C Q_DECL_EXPORT \
 	const char * Q_STANDARD_CALL qutim_plugin_query_verification_data() \
-	{ return qutim_plugin_verification_data; }
-}
+	{ return qutim_plugin_verification_data; } \
+	LIBQUTIM_NO_EXPORT qptrdiff qutim_plugin_id() \
+	{ return reinterpret_cast<qptrdiff>(&Plugin::staticMetaObject); }
 
 
 #endif // PLUGIN_H

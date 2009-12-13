@@ -23,6 +23,12 @@
 # error Incompatible Qt library, need 4.6.0 at least
 #endif
 
+#ifdef QT_VISIBILITY_AVAILABLE
+# define LIBQUTIM_NO_EXPORT __attribute__ ((visibility("hidden")))
+#else
+# define LIBQUTIM_NO_EXPORT
+#endif
+
 #if defined(LIBQUTIM_LIBRARY)
 #  define LIBQUTIM_EXPORT Q_DECL_EXPORT
 #else
