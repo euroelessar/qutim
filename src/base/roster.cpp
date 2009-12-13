@@ -15,6 +15,8 @@
 
 #include <QVariant>
 
+#include <qutim/contactlist.h>
+
 #include "mrimdebug.h"
 #include "mrimcontact.h"
 #include "mrimaccount.h"
@@ -185,5 +187,33 @@ RosterParseMultiMap Roster::parseByMask(MrimPacket& packet, const QString& mask)
 
 QString Roster::groupName(quint32 groupId) const
 {
-    return (groupId > 0 && groupId < p->groups.count()) ? p->groups[groupId] : QString();
+    QString group;
+
+    if (groupId >= 0 && groupId < p->groups.count())
+    {
+        group = p->groups[groupId];
+    }
+    else if (groupId == MRIM_PHONE_GROUP_ID)
+    {
+        group = tr("Phone contacts");
+    }
+    return group;
 }
+
+void Roster::addToList(MrimContact *cnt)
+{
+    Q_ASSERT(cnt);
+    RosterPrivate::ContactsHash::iterator it = p->contacts.find(cnt->email());
+
+    if (it != p->contacts.end())
+    {
+        delete it.value();
+    }
+    p->contacts.insert(cnt->email(),cnt);
+
+    if (ContactList::instance())
+    {
+        ContactList::instance()->addContact(cnt);
+    }
+}
+

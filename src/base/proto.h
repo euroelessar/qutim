@@ -424,7 +424,7 @@ typedef struct mrim_packet_header_t
 // UL uidl
 
 
-
+#define MRIM_PHONE_GROUP_ID 0x67
 
 typedef struct mrim_connection_params_t
 {

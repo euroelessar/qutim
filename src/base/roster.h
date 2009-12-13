@@ -61,6 +61,7 @@ public:
     QString groupName(quint32 groupId) const;
 
 protected:
+    void addToList(class MrimContact *cnt);
     bool parseList(MrimPacket& packet);    
     bool parseGroups(MrimPacket& packet, quint32 count, const QString& mask);
     bool parseContacts(MrimPacket& packet, const QString& mask);
@@ -73,3 +74,4 @@ private:
 };
 
 #endif // ROSTER_H
+
