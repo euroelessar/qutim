@@ -112,6 +112,10 @@ namespace Jabber
 		}
 	}
 
+	JDataForm::~JDataForm()
+	{
+	}
+
 	DataForm *JDataForm::getDataForm()
 	{
 		foreach (JDataFormElement *dataField, p->fields)

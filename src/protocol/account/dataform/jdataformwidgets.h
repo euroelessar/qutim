@@ -53,8 +53,8 @@ namespace Jabber
 		public:
 			JDFMultiJID(QWidget *parent = 0);
 			~JDFMultiJID();
-			QString dfValue();
-			void dfSetValue(const QString &value);
+			QString dfValue() {}
+			void dfSetValue(const QString &value) {}
 			QString dfName() {return objectName();}
 			void dfSetName(const QString &name) {setObjectName(name);}
 			QObject *instance() {return this;}
@@ -85,8 +85,8 @@ namespace Jabber
 		public:
 			JDFMultiList(QWidget *parent = 0);
 			~JDFMultiList();
-			QString dfValue();
-			void dfSetValue(const QString &value);
+			QString dfValue() {}
+			void dfSetValue(const QString &value) {}
 			QString dfName() {return objectName();}
 			void dfSetName(const QString &name) {setObjectName(name);}
 			QObject *instance() {return this;}
