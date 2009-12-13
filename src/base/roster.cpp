@@ -25,7 +25,7 @@
 
 struct RosterPrivate
 {
-    typedef QHash<QString,MrimContact*> ContactsHash;
+    typedef QMultiHash<QString,MrimContact*> ContactsHash;
     QList<quint32> handledTypes;
     QMap<quint32,QString> groups;
     ContactsHash contacts;
@@ -147,14 +147,8 @@ bool Roster::parseContacts(MrimPacket& packet, const QString& mask)
             contact->setUserAgent(agent);
         }
 
-        RosterPrivate::ContactsHash::iterator it = p->contacts.find(contact->email());
-
-        if (it != p->contacts.end())
-        {
-            delete it.value();
-        }
-        p->contacts.insert(contact->email(),contact);
         MDEBUG(Verbose,"New contact read:"<<*contact);
+        addToList(contact);
      }
 }
 
@@ -203,17 +197,12 @@ QString Roster::groupName(quint32 groupId) const
 void Roster::addToList(MrimContact *cnt)
 {
     Q_ASSERT(cnt);
-    RosterPrivate::ContactsHash::iterator it = p->contacts.find(cnt->email());
-
-    if (it != p->contacts.end())
-    {
-        delete it.value();
-    }
-    p->contacts.insert(cnt->email(),cnt);
+    p->contacts.insertMulti(cnt->email(),cnt);
 
     if (ContactList::instance())
     {
         ContactList::instance()->addContact(cnt);
     }
 }
+
 
