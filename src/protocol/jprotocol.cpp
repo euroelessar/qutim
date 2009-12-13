@@ -15,7 +15,6 @@ namespace Jabber
 	{
 		Q_ASSERT(!self);
 		self = this;
-		//p = new JProtocolPrivate();
 	}
 
 	JProtocol::~JProtocol()
@@ -39,7 +38,13 @@ namespace Jabber
 	{
 		QStringList accounts = config("general").value("accounts", QStringList());
 		foreach(const QString &jid, accounts)
-			p->accounts->insert(jid, new JAccount(jid));
+			addAccount(new JAccount(jid));
+	}
 
+	void JProtocol::addAccount(JAccount *account, bool isEmit)
+	{
+		p->accounts->insert(account->id(), account);
+		if (isEmit)
+			emit accountCreated(account);
 	}
 }

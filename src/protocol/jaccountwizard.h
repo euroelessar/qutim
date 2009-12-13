@@ -4,6 +4,7 @@
 #include <qutim/protocol.h>
 #include <qutim/extensioninfo.h>
 #include "jprotocol.h"
+#include "account/jaccount.h"
 
 namespace Jabber {
 
@@ -28,9 +29,9 @@ namespace Jabber {
 			QList<QWizardPage *> createPages(QWidget *parent);
 			void createAccount();
 		protected:
-			JAccountWizardPage *page;
 			JAccountType type;
 		private:
+			JAccountWizardPage *page;
 			JProtocol *protocol;
 	};
 

@@ -6,6 +6,7 @@ namespace Jabber
 
 	JAccountWizard::JAccountWizard() : AccountCreationWizard(JProtocol::instance())
 	{
+		protocol = JProtocol::instance();
 		type = AccountTypeJabber;
 	}
 
@@ -16,10 +17,26 @@ namespace Jabber
 	QList<QWizardPage *> JAccountWizard::createPages(QWidget *parent)
 	{
 		page = new JAccountWizardPage(this, type);
+		QList<QWizardPage *> pages;
+		pages.append(page);
+		return pages;
 	}
 
 	void JAccountWizard::createAccount()
 	{
+		JAccount *account = new JAccount(page->jid());
+		if(page->isSavePasswd())
+		{
+			account->config().group("general").setValue("passwd", page->passwd(), Config::Crypted);
+			account->config().sync();
+			ConfigGroup cfg = protocol->config().group("general");
+			QStringList accounts = cfg.value("accounts", QStringList());
+			accounts << account->id();
+			cfg.setValue("accounts", accounts);
+			cfg.sync();
+		}
+		protocol->addAccount(account, true);
+		delete page;
 	}
 
 	LJAccountWizard::LJAccountWizard()

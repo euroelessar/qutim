@@ -3,10 +3,10 @@
 
 #include <qutim/plugin.h>
 
-using namespace qutim_sdk_0_3;
-
 namespace Jabber
 {
+	using namespace qutim_sdk_0_3;
+
 	class JPlugin : public Plugin
 	{
 		Q_OBJECT

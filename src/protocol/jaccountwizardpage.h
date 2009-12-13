@@ -20,10 +20,13 @@ namespace Jabber
 				JAccountType type);
 			~JAccountWizardPage();
 			bool validatePage();
-		protected:
-			Ui::JAccountWizardPage *ui;
+			QString jid();
+			QString passwd();
+			bool isSavePasswd();
 		private:
 			JAccountWizard *m_accountWizard;
+			JAccountType m_type;
+			Ui::JAccountWizardPage *ui;
 	};
 }
 
