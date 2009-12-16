@@ -1,5 +1,6 @@
 #include "../jprotocol.h"
 #include "jaccount.h"
+#include <QDebug>
 
 //#include "oscarconnection.h"
 //#include "roster.h"
@@ -15,7 +16,7 @@ namespace Jabber {
 		QString passwd;
 		bool keepStatus;
 		bool autoConnect;
-		QString status;
+		Presence::PresenceType status;
 		//Roster *roster;
 	};
 
@@ -23,15 +24,13 @@ namespace Jabber {
 	{
 		p->jid = jid;
 		p->connection = new JConnection(this);
+		connect(p->connection, SIGNAL(setStatus(Presence::PresenceType)),
+				this, SLOT(endChangeStatus(Presence::PresenceType)));
 		loadSettings();
 		p->keepStatus = false;
-		if (p->autoConnect)
-			autoconnect();
-		///setStatus(p.status);
+		autoconnect();
 		//p->roster = new JRoster(p->connection);
 		//p->connection->registerHandler(p->roster);
-		///p->connection->registerHandler(p->roster = new JRoster(this));
-		///setStatus(Evil);
 	}
 
 	JAccount::~JAccount()
@@ -40,6 +39,12 @@ namespace Jabber {
 
 	ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 	{
+		/*IcqContact *contact = p->roster->contact(unitId);
+		if(create && !contact)
+		{
+			contact = p->roster->sendAddContactRequest(unitId, unitId, not_in_list_group);
+		}
+		return contact;*/
 		return 0;
 	}
 
@@ -53,70 +58,24 @@ namespace Jabber {
 		return p->conn;
 	}*/
 
-	void JAccount::setStatus(Status status)
+	void JAccount::beginChangeStatus(Presence::PresenceType presence)
 	{
-		Status current = this->status();
-
-		if(status < Offline || status > FreeChat || status == Occupied || current == status)
-			return;
-
-		if(current >= Connecting)
-		{
-			if(status == Offline)
-				p->conn->disconnectFromHost(true);
-			else
-				p->conn->setStatus(status);
-		}
-		else if(status == Offline)
-		{
-			p->conn->disconnectFromHost(false);
-			foreach(IcqContact *contact, p->roster->contacts())
-				contact->setStatus(Offline);
-		}
-		else if(current == Offline)
-		{
-			p->conn->setStatus(status);
-			p->conn->connectToLoginServer();
-		}
-		Account::setStatus(status);
+		p->connection->setConnectionPresence(presence);
 	}
 
-	/*ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
+	void JAccount::endChangeStatus(Presence::PresenceType presence)
 	{
-		IcqContact *contact = p->roster->contact(unitId);
-		if(create && !contact)
-		{
-			contact = p->roster->sendAddContactRequest(unitId, unitId, not_in_list_group);
-		}
-		return contact;
-	}*/
+		Account::setStatus(JProtocol::presenceToStatus(presence));
+	}
 
 	void JAccount::autoconnect()
 	{
-		if (p->keepStatus) {
-			Presence::PresenceType presence = Presence::Invalid;
-			if (p->status == "online")
-				presence = Presence::Available;
-			else if (p->status == "away")
-				presence = Presence::Away;
-			else if (p->status == "chat")
-				presence = Presence::Chat;
-			else if (p->status == "dnd")
-				presence = Presence::DND;
-			else if (p->status == "na")
-				presence = Presence::XA;
+		if (p->autoConnect) {
+			if (p->keepStatus)
+				beginChangeStatus(p->status);
 			else
-				presence = Presence::Unavailable;
-			if (presence != Presence::Unavailable && presence != Presence::Invalid)
-				setConnectionPresence(presence);
-		} else {
-			setConnectionPresence(Presence::Available);
+				beginChangeStatus(Presence::Available);
 		}
-	}
-
-	void JAccount::setConnectionPresence(Presence::PresenceType presence)
-	{
-		p->connection->setConnectionPresence(presence);
 	}
 
 	void JAccount::loadSettings()
@@ -124,7 +83,8 @@ namespace Jabber {
 		p->passwd = config().group("general").value("passwd", QString(), Config::Crypted);
 		p->autoConnect = config().group("general").value("autoconnect", true);
 		p->keepStatus = config().group("general").value("keepstatus", true);
-		p->status = config().group("general").value("prevstatus", QString("offline"));
+		p->status = static_cast<Presence::PresenceType>(
+				config().group("general").value("prevstatus", 8));
 	}
 
 	const QString &JAccount::jid()

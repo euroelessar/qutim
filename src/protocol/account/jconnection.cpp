@@ -9,7 +9,7 @@ namespace Jabber
 		JAccount *account;
 		Client *client;
 		QString resource;
-		bool isAutoPriority;
+		bool autoPriority;
 		QMap<Presence::PresenceType, int> priority;
 		QString password;
 	};
@@ -46,8 +46,8 @@ namespace Jabber
 		p->resource = group.value("resource", defaultResource);
 		p->priority.clear();
 		p->priority.insert(Presence::Invalid, group.value("proirity", 3));
-		p->isAutoPriority = group.value("autopriority",true);
-		if (p->isAutoPriority)
+		p->autoPriority = group.value("autopriority",true);
+		if (p->autoPriority)
 		{
 			group = JProtocol::instance()->config().group("priority");
 			p->priority.insert(Presence::Available, group.value("online", 3));
@@ -67,22 +67,12 @@ namespace Jabber
 				p->client->setPassword(p->password.toStdString());
 			else
 				return;
-			qDebug() << p->password;
 		}
-		p->client->setPresence(presence, p->isAutoPriority
+		p->client->setPresence(presence, p->autoPriority
 				? p->priority.value(presence) : p->priority.value(Presence::Invalid));
 		if (p->client->state() == StateDisconnected) {
 			p->client->connect(false);
-			QTimer *timer = new QTimer();
-			timer->setInterval(100);
-			connect(timer, SIGNAL(timeout()), this, SLOT(checkData()));
-			timer->start();
 		}
-		qDebug() << p->client->presence().presence() << "***************************";
-	}
-
-	void JConnection::checkData()
-	{
-		p->client->recv();
+		emit setStatus(presence);
 	}
 }

@@ -20,8 +20,8 @@ namespace Jabber
 			JConnection(JAccount *account);
 			void loadSettings();
 			void setConnectionPresence(Presence::PresenceType presence);
-		public slots:
-			void checkData(); //TODO: delete it!
+		signals:
+			void setStatus(Presence::PresenceType presence);
 		protected:
 			void handlePresence(const Presence &presence);
 		private:

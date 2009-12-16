@@ -38,40 +38,34 @@ namespace Jabber
 	void JProtocol::loadActions()
 	{
 		MenuController::addAction((new ActionGenerator(Icon("user-online-jabber"),
-			LocalizedString("Status", "Online"),
-			this, SLOT(onStatusActionPressed())))->addProperty("status", Online)->setPriority(Online),
-			&JAccount::staticMetaObject);
-
+				LocalizedString("Status", "Online"),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", Online)->setPriority(Online),
+				&JAccount::staticMetaObject);
 		MenuController::addAction((new ActionGenerator(Icon("user-online-chat-jabber"),
-			LocalizedString("Status", "Free for chat"),
-			this, SLOT(onStatusActionPressed())))->addProperty("status", FreeChat)->setPriority(FreeChat),
-			&JAccount::staticMetaObject);
-
+				LocalizedString("Status", "Free for chat"),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", FreeChat)->setPriority(FreeChat),
+				&JAccount::staticMetaObject);
 		MenuController::addAction((new ActionGenerator(Icon("user-away-jabber"),
-			LocalizedString("Status", "Away"),
-			this, SLOT(onStatusActionPressed())))->addProperty("status", Away)->setPriority(Away),
-			&JAccount::staticMetaObject);
-
+				LocalizedString("Status", "Away"),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", Away)->setPriority(Away),
+				&JAccount::staticMetaObject);
 		MenuController::addAction((new ActionGenerator(Icon("user-away-extended-jabber"),
-			LocalizedString("Status", "NA"),
-			this, SLOT(onStatusActionPressed())))->addProperty("status", NA)->setPriority(NA),
-			&JAccount::staticMetaObject);
-
+				LocalizedString("Status", "NA"),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", NA)->setPriority(NA),
+				&JAccount::staticMetaObject);
 		MenuController::addAction((new ActionGenerator(Icon("user-busy-jabber"),
-			LocalizedString("Status", "DND"),
-			this, SLOT(onStatusActionPressed())))->addProperty("status", DND)->setPriority(DND),
-			&JAccount::staticMetaObject);
-
+				LocalizedString("Status", "DND"),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", DND)->setPriority(DND),
+				&JAccount::staticMetaObject);
 		MenuController::addAction((new ActionGenerator(Icon("user-offline-jabber"),
-			LocalizedString("Status", "Offline"),
-			this, SLOT(onStatusActionPressed())))->addProperty("status", Offline)->setPriority(Offline),
-			&JAccount::staticMetaObject);
+				LocalizedString("Status", "Offline"),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", Offline)->setPriority(Offline),
+				&JAccount::staticMetaObject);
 	}
 
 	void JProtocol::loadAccounts()
 	{
 		loadActions();
-
 		QStringList accounts = config("general").value("accounts", QStringList());
 		foreach(const QString &jid, accounts)
 			addAccount(new JAccount(jid));
@@ -90,7 +84,62 @@ namespace Jabber
 		Q_ASSERT(action);
 		MenuController *item = action->data().value<MenuController *>();
 		if (JAccount *account = qobject_cast<JAccount *>(item)) {
-			account->setStatus(static_cast<Status>(action->property("status").toInt()));
+			account->beginChangeStatus(
+					statusToPresence(static_cast<Status>(action->property("status").toInt())));
 		}
+	}
+
+	Presence::PresenceType JProtocol::statusToPresence(Status status)
+	{
+		Presence::PresenceType presence;
+		switch (status) {
+		case Offline:
+			presence = Presence::Unavailable;
+			break;
+		case Online:
+			presence = Presence::Available;
+			break;
+		case Away:
+			presence = Presence::Away;
+			break;
+		case FreeChat:
+			presence = Presence::Chat;
+			break;
+		case DND:
+			presence = Presence::DND;
+			break;
+		case NA:
+			presence = Presence::XA;
+			break;
+		default:
+			presence = Presence::Invalid;
+		}
+		return presence;
+	}
+
+	Status JProtocol::presenceToStatus(Presence::PresenceType presence)
+	{
+		Status status;
+		switch (status) {
+		case Presence::Available:
+			status = Online;
+			break;
+		case Presence::Away:
+			status = Away;
+			break;
+		case Presence::Chat:
+			status = FreeChat;
+			break;
+		case Presence::DND:
+			status = DND;
+			break;
+		case Presence::XA:
+			status = NA;
+			break;
+		case Presence::Unavailable:
+		default:
+			status = Offline;
+		}
+		return status;
 	}
 }

@@ -2,11 +2,13 @@
 #define JPROTOCOL_H
 
 #include <qutim/protocol.h>
+#include <gloox/presence.h>
 #include "account/jaccount.h"
 
 namespace Jabber
 {
 	using namespace qutim_sdk_0_3;
+	using namespace gloox;
 
 	struct JProtocolPrivate;
 	class JAccount;
@@ -25,6 +27,8 @@ namespace Jabber
 			virtual QList<Account *> accounts() const;
 			virtual Account *account(const QString &id) const;
 			void addAccount(JAccount *account, bool isEmit = false);
+			static Presence::PresenceType statusToPresence(Status status);
+			static Status presenceToStatus(Presence::PresenceType presence);
 		private slots:
 			void onStatusActionPressed();
 		private:

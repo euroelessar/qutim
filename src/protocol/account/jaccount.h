@@ -25,13 +25,15 @@ namespace Jabber {
 			//Roster *roster();
 			//OscarConnection *connection();
 			ChatUnit *getUnit(const QString &unitId, bool create = false);
-			void setStatus(Status status);
+			void beginChangeStatus(Presence::PresenceType presence);
 			const QString &jid();
 			const QString &password(bool *ok = 0);
-			void setConnectionPresence(Presence::PresenceType presence);
 			void autoconnect();
-		private:
+		private slots:
+			void endChangeStatus(Presence::PresenceType presence);
+		protected:
 			void loadSettings();
+		private:
 			//friend class Roster;
 			QScopedPointer<JAccountPrivate> p;
 	};
