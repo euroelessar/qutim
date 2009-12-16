@@ -129,16 +129,19 @@ void OscarRate::update(quint32 groupId, const SNAC &sn)
 	}
 }
 
-void OscarRate::send(const SNAC &snac)
+void OscarRate::send(const SNAC &snac, bool priority)
 {
-	m_queue.push_back(snac);
-	if(m_queue.size() == 1)
+	if(priority)
+		m_priorQueue.push_back(snac);
+	else
+		m_queue.push_back(snac);
+	if(m_priorQueue.size() + m_queue.size() == 1)
 		sendNextPacket();
 }
 
 void OscarRate::sendNextPacket()
 {
-	Q_ASSERT(!m_queue.isEmpty());
+	Q_ASSERT(!m_priorQueue.isEmpty() || !m_queue.isEmpty());
 	QDateTime dateTime = QDateTime::currentDateTime();
 
 	quint32 timeDiff;
@@ -160,13 +163,16 @@ void OscarRate::sendNextPacket()
 
 	if(timeout == 0)
 	{
-		qDebug() << "Send queue packet";
 		m_time = dateTime;
 		m_lastTimeDiff = timeDiff;
 		m_currentLevel = level;
-		SNAC snac = m_queue.takeFirst();
+		SNAC snac;
+		if(!m_priorQueue.isEmpty())
+			snac = m_priorQueue.takeFirst();
+		else
+			snac = m_queue.takeFirst();
 		m_conn->sendSnac(snac);
-		if(!m_queue.isEmpty())
+		if(!m_priorQueue.isEmpty() || !m_queue.isEmpty())
 			sendNextPacket();
 	}
 	else
@@ -340,11 +346,11 @@ void AbstractConnection::disconnectFromHost(bool force)
 	m_socket->disconnectFromHost();
 }
 
-void AbstractConnection::send(SNAC &snac)
+void AbstractConnection::send(SNAC &snac, bool priority)
 {
 	OscarRate *rate = m_ratesHash.value(snac.family() << 16 | snac.subtype());
 	if(rate)
-		rate->send(snac);
+		rate->send(snac, priority);
 	else
 		sendSnac(snac);
 }

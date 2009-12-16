@@ -23,7 +23,7 @@ namespace Icq {
 class SNAC : public DataUnit
 {
 public:
-	inline SNAC(quint16 family, quint16 subtype) { reset(family, subtype); }
+	inline SNAC(quint16 family = 0, quint16 subtype = 0) { reset(family, subtype); }
 //	template <typename Family>
 //	SNAC(Family subtype);
 	void reset(quint16 family, quint16 subtype);

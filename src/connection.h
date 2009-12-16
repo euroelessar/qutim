@@ -50,7 +50,7 @@ public:
 	const QList<quint32> &snacTypes() { return m_snacTypes; }
 	void addSnacType(quint32 snacType) { m_snacTypes << snacType; }
 	quint16 groupId() { return m_groupId; }
-	void send(const SNAC &snac);
+	void send(const SNAC &snac, bool priority);
 	bool isEmpty() { return m_windowSize <= 1; }
 private slots:
 	void sendNextPacket();
@@ -67,6 +67,7 @@ private:
 	quint8 m_currentState;
 	QDateTime m_time;
 	QList<quint32> m_snacTypes;
+	QList<SNAC> m_priorQueue;
 	QList<SNAC> m_queue;
 	double m_levelMultiplier;
 	double m_timeMultiplier;
@@ -93,7 +94,7 @@ public:
 	AbstractConnection(QObject *parent);
 	~AbstractConnection();
 	void registerHandler(SNACHandler *handler);
-	void send(SNAC &snac);
+	void send(SNAC &snac, bool priority = true);
 	void disconnectFromHost(bool force);
 	void setExternalIP(const QHostAddress &ip) { m_ext_ip = ip; }
 	const QHostAddress &externalIP() const { return m_ext_ip; }
