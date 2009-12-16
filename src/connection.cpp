@@ -114,124 +114,128 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 {
 	switch((sn.family() << 16) | sn.subtype())
 	{
-	// Server sends supported services list
-	case 0x00010003: {
-		QList<quint16> services;
-		while(sn.dataSize() != 0)
-			services << sn.readSimple<quint16>();
-		conn->setServicesList(services);
-		SNAC snac(ServiceFamily, ServiceClientFamilies);
-		// Sending the same as ICQ 6
-		snac.appendSimple<quint32>(0x00220001);
-		snac.appendSimple<quint32>(0x00010004);
-		snac.appendSimple<quint32>(0x00130004);
-		snac.appendSimple<quint32>(0x00020001);
-		snac.appendSimple<quint32>(0x00030001);
-		snac.appendSimple<quint32>(0x00150001);
-		snac.appendSimple<quint32>(0x00040001);
-		snac.appendSimple<quint32>(0x00060001);
-		snac.appendSimple<quint32>(0x00090001);
-		snac.appendSimple<quint32>(0x000a0001);
-		snac.appendSimple<quint32>(0x000b0001);
-		conn->send(snac);
-		break; }
-	// This is the reply to CLI_REQINFO
-	case 0x0001000f: {
-
-		// Skip uin
-		Q_UNUSED(sn.readData<quint8>());
-		sn.skipData(4);
-		// Login
-		//qDebug() << (m_login_reqinfo == sn.id());
-		if(m_login_reqinfo == sn.id())
-		{
-			// TLV(x01) User type?
-			// TLV(x0C) Empty CLI2CLI Direct connection info
-			// TLV(x0A) External IP
-			// TLV(x0F) Number of seconds that user has been online
-			// TLV(x03) The online since time.
-			// TLV(x0A) External IP again
-			// TLV(x22) Unknown
-			// TLV(x1E) Unknown: empty.
-			// TLV(x05) Member of ICQ since.
-			// TLV(x14) Unknown
-			TLVMap tlvs = sn.readTLVChain();
-			quint32 ip = tlvs.value(0x0a).value<quint32>();
-			conn->setExternalIP(QHostAddress(ip));
-			//qDebug() << conn->externalIP();
+		// Server sends supported services list
+		case ServiceFamily << 16 | ServiceServerReady: {
+			QList<quint16> services;
+			while(sn.dataSize() != 0)
+				services << sn.readSimple<quint16>();
+			conn->setServicesList(services);
+			SNAC snac(ServiceFamily, ServiceClientFamilies);
+			// Sending the same as ICQ 6
+			snac.appendSimple<quint32>(0x00220001);
+			snac.appendSimple<quint32>(0x00010004);
+			snac.appendSimple<quint32>(0x00130004);
+			snac.appendSimple<quint32>(0x00020001);
+			snac.appendSimple<quint32>(0x00030001);
+			snac.appendSimple<quint32>(0x00150001);
+			snac.appendSimple<quint32>(0x00040001);
+			snac.appendSimple<quint32>(0x00060001);
+			snac.appendSimple<quint32>(0x00090001);
+			snac.appendSimple<quint32>(0x000a0001);
+			snac.appendSimple<quint32>(0x000b0001);
+			conn->send(snac);
+			break;
 		}
-		// Else
-		else
-		{
-		}
-		break; }
-	// Server sends its services version numbers
-	case 0x00010018: {
-		SNAC snac(ServiceFamily, ServiceClientReqRateInfo);
-		conn->send(snac);
-		break; }
-	// Server sends rate limits information
-	case 0x00010007: {
-		foreach(const OscarRate *rate, conn->m_rates)
-			delete rate;
-		conn->m_rates.clear();
-		conn->m_ratesHash.clear();
+		// This is the reply to CLI_REQINFO
+		case ServiceFamily << 16 | ServiceServerNameInfo: {
 
-		// Rate classes
-		quint16 groupCount = sn.readSimple<quint16>();
-		for(int i = 0; i < groupCount; ++i)
-		{
-			OscarRate *rate = new OscarRate;
-			rate->groupId = sn.readSimple<quint16>();
-			rate->windowSize = sn.readSimple<quint32>();
-			rate->clearLevel = sn.readSimple<quint32>();
-			rate->alertLevel = sn.readSimple<quint32>();
-			rate->limitLevel = sn.readSimple<quint32>();
-			rate->disconnectLevel = sn.readSimple<quint32>();
-			rate->currentLevel = sn.readSimple<quint32>();
-			rate->maxLevel = sn.readSimple<quint32>();
-			rate->lastTime = sn.readSimple<quint32>();
-			rate->currentState = sn.readSimple<quint8>();
-			rate->time = QDateTime::currentDateTime().toTime_t();
-			conn->m_rates.insert(rate->groupId, rate);
-
-			qDebug() << "Rate class"
-					<< rate->groupId << rate->windowSize << rate->clearLevel
-					<< rate->alertLevel << rate->limitLevel << rate->disconnectLevel
-					<< rate->currentLevel << rate->maxLevel << rate->lastTime
-					<< rate->currentState << rate->time;
-		}
-		// Rate groups
-		while(sn.dataSize() >= 4)
-		{
-			quint16 groupId = sn.readSimple<quint16>();
-			quint16 count = sn.readSimple<quint16>();
-			QHash<quint16, OscarRate*>::iterator rateItr = conn->m_rates.find(groupId);
-			if(rateItr == conn->m_rates.end())
+			// Skip uin
+			Q_UNUSED(sn.readData<quint8>());
+			sn.skipData(4);
+			// Login
+			//qDebug() << (m_login_reqinfo == sn.id());
+			if(m_login_reqinfo == sn.id())
 			{
-				sn.skipData(count*4);
-				continue;
+				// TLV(x01) User type?
+				// TLV(x0C) Empty CLI2CLI Direct connection info
+				// TLV(x0A) External IP
+				// TLV(x0F) Number of seconds that user has been online
+				// TLV(x03) The online since time.
+				// TLV(x0A) External IP again
+				// TLV(x22) Unknown
+				// TLV(x1E) Unknown: empty.
+				// TLV(x05) Member of ICQ since.
+				// TLV(x14) Unknown
+				TLVMap tlvs = sn.readTLVChain();
+				quint32 ip = tlvs.value(0x0a).value<quint32>();
+				conn->setExternalIP(QHostAddress(ip));
+				//qDebug() << conn->externalIP();
 			}
-			for(int j = 0; j < count; ++j)
+			// Else
+			else
 			{
-				quint32 snacType = sn.readSimple<quint32>();
-				rateItr.value()->snacTypes << snacType;
-				conn->m_ratesHash.insert(snacType, *rateItr);
 			}
-			qDebug() << "Rate group" << groupId << hex << rateItr.value()->snacTypes;
+			break;
 		}
+		// Server sends its services version numbers
+		case ServiceFamily << 16 | ServiceServerFamilies2: {
+			SNAC snac(ServiceFamily, ServiceClientReqRateInfo);
+			conn->send(snac);
+			break;
+		}
+		// Server sends rate limits information
+		case ServiceFamily << 16 | ServiceServerRateInfo: {
+			foreach(const OscarRate *rate, conn->m_rates)
+				delete rate;
+			conn->m_rates.clear();
+			conn->m_ratesHash.clear();
 
-		// Accepting rates
-		SNAC snac(ServiceFamily, ServiceClientRateAck);
-		for(int i = 1; i <= groupCount; i++)
-			snac.appendSimple<quint16>(i);
-		conn->send(snac);
+			// Rate classes
+			quint16 groupCount = sn.readSimple<quint16>();
+			for(int i = 0; i < groupCount; ++i)
+			{
+				OscarRate *rate = new OscarRate;
+				rate->groupId = sn.readSimple<quint16>();
+				rate->windowSize = sn.readSimple<quint32>();
+				rate->clearLevel = sn.readSimple<quint32>();
+				rate->alertLevel = sn.readSimple<quint32>();
+				rate->limitLevel = sn.readSimple<quint32>();
+				rate->disconnectLevel = sn.readSimple<quint32>();
+				rate->currentLevel = sn.readSimple<quint32>();
+				rate->maxLevel = sn.readSimple<quint32>();
+				rate->lastTime = sn.readSimple<quint32>();
+				rate->currentState = sn.readSimple<quint8>();
+				rate->time = QDateTime::currentDateTime().toTime_t();
+				conn->m_rates.insert(rate->groupId, rate);
 
-		// This command requests from the server certain information about the client that is stored on the server
-		// In other words: CLI_REQINFO
-		snac.reset(ServiceFamily, ServiceClientReqinfo);
-		m_login_reqinfo = conn->send(snac);
-		break; }
+				qDebug() << "Rate class"
+						<< rate->groupId << rate->windowSize << rate->clearLevel
+						<< rate->alertLevel << rate->limitLevel << rate->disconnectLevel
+						<< rate->currentLevel << rate->maxLevel << rate->lastTime
+						<< rate->currentState << rate->time;
+			}
+			// Rate groups
+			while(sn.dataSize() >= 4)
+			{
+				quint16 groupId = sn.readSimple<quint16>();
+				quint16 count = sn.readSimple<quint16>();
+				QHash<quint16, OscarRate*>::iterator rateItr = conn->m_rates.find(groupId);
+				if(rateItr == conn->m_rates.end())
+				{
+					sn.skipData(count*4);
+					continue;
+				}
+				for(int j = 0; j < count; ++j)
+				{
+					quint32 snacType = sn.readSimple<quint32>();
+					rateItr.value()->snacTypes << snacType;
+					conn->m_ratesHash.insert(snacType, *rateItr);
+				}
+				qDebug() << "Rate group" << groupId << hex << rateItr.value()->snacTypes;
+			}
+
+			// Accepting rates
+			SNAC snac(ServiceFamily, ServiceClientRateAck);
+			for(int i = 1; i <= groupCount; i++)
+				snac.appendSimple<quint16>(i);
+			conn->send(snac);
+
+			// This command requests from the server certain information about the client that is stored on the server
+			// In other words: CLI_REQINFO
+			snac.reset(ServiceFamily, ServiceClientReqinfo);
+			m_login_reqinfo = conn->send(snac);
+			break;
+		}
 	}
 }
 
