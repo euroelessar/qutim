@@ -73,16 +73,7 @@ namespace Jabber
 				? p->priority.value(presence) : p->priority.value(Presence::Invalid));
 		if (p->client->state() == StateDisconnected) {
 			p->client->connect(false);
-			QTimer *timer = new QTimer();
-			timer->setInterval(100);
-			connect(timer, SIGNAL(timeout()), this, SLOT(checkData()));
-			timer->start();
 		}
 		qDebug() << p->client->presence().presence() << "***************************";
-	}
-
-	void JConnection::checkData()
-	{
-		p->client->recv();
 	}
 }

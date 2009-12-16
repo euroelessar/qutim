@@ -60,25 +60,25 @@ namespace Jabber {
 		if(status < Offline || status > FreeChat || status == Occupied || current == status)
 			return;
 
-		if(current >= Connecting)
-		{
-			if(status == Offline)
-				p->conn->disconnectFromHost(true);
-			else
-				p->conn->setStatus(status);
-		}
-		else if(status == Offline)
-		{
-			p->conn->disconnectFromHost(false);
-			foreach(IcqContact *contact, p->roster->contacts())
-				contact->setStatus(Offline);
-		}
-		else if(current == Offline)
-		{
-			p->conn->setStatus(status);
-			p->conn->connectToLoginServer();
-		}
-		Account::setStatus(status);
+//		if(current >= Connecting)
+//		{
+//			if(status == Offline)
+//				p->conn->disconnectFromHost(true);
+//			else
+//				p->conn->setStatus(status);
+//		}
+//		else if(status == Offline)
+//		{
+//			p->conn->disconnectFromHost(false);
+//			foreach(IcqContact *contact, p->roster->contacts())
+//				contact->setStatus(Offline);
+//		}
+//		else if(current == Offline)
+//		{
+//			p->conn->setStatus(status);
+//			p->conn->connectToLoginServer();
+//		}
+//		Account::setStatus(status);
 	}
 
 	/*ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
