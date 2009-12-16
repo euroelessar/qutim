@@ -18,6 +18,7 @@
 #include <QTimer>
 #include <QHostInfo>
 #include <QBuffer>
+#include <QDateTime>
 #include <QDebug>
 
 namespace Icq {
@@ -171,11 +172,58 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break; }
 	// Server sends rate limits information
 	case 0x00010007: {
-		// Don't know what does it mean
-		// TODO: Understand it
-		quint16 group_count = sn.readSimple<quint16>();
+		foreach(const OscarRate *rate, conn->m_rates)
+			delete rate;
+		conn->m_rates.clear();
+		conn->m_ratesHash.clear();
+
+		// Rate classes
+		quint16 groupCount = sn.readSimple<quint16>();
+		for(int i = 0; i < groupCount; ++i)
+		{
+			OscarRate *rate = new OscarRate;
+			rate->groupId = sn.readSimple<quint16>();
+			rate->windowSize = sn.readSimple<quint32>();
+			rate->clearLevel = sn.readSimple<quint32>();
+			rate->alertLevel = sn.readSimple<quint32>();
+			rate->limitLevel = sn.readSimple<quint32>();
+			rate->disconnectLevel = sn.readSimple<quint32>();
+			rate->currentLevel = sn.readSimple<quint32>();
+			rate->maxLevel = sn.readSimple<quint32>();
+			rate->lastTime = sn.readSimple<quint32>();
+			rate->currentState = sn.readSimple<quint8>();
+			rate->time = QDateTime::currentDateTime().toTime_t();
+			conn->m_rates.insert(rate->groupId, rate);
+
+			qDebug() << "Rate class"
+					<< rate->groupId << rate->windowSize << rate->clearLevel
+					<< rate->alertLevel << rate->limitLevel << rate->disconnectLevel
+					<< rate->currentLevel << rate->maxLevel << rate->lastTime
+					<< rate->currentState << rate->time;
+		}
+		// Rate groups
+		while(sn.dataSize() >= 4)
+		{
+			quint16 groupId = sn.readSimple<quint16>();
+			quint16 count = sn.readSimple<quint16>();
+			QHash<quint16, OscarRate*>::iterator rateItr = conn->m_rates.find(groupId);
+			if(rateItr == conn->m_rates.end())
+			{
+				sn.skipData(count*4);
+				continue;
+			}
+			for(int j = 0; j < count; ++j)
+			{
+				quint32 snacType = sn.readSimple<quint32>();
+				rateItr.value()->snacTypes << snacType;
+				conn->m_ratesHash.insert(snacType, *rateItr);
+			}
+			qDebug() << "Rate group" << groupId << hex << rateItr.value()->snacTypes;
+		}
+
+		// Accepting rates
 		SNAC snac(ServiceFamily, ServiceClientRateAck);
-		for(int i = 1; i <= group_count; i++)
+		for(int i = 1; i <= groupCount; i++)
 			snac.appendSimple<quint16>(i);
 		conn->send(snac);
 
@@ -196,6 +244,12 @@ AbstractConnection::AbstractConnection(QObject *parent):
 	connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
 	connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
 	m_id = (quint32)qrand();
+}
+
+AbstractConnection::~AbstractConnection()
+{
+	foreach(const OscarRate *rate, m_rates)
+		delete rate;
 }
 
 void AbstractConnection::registerHandler(SNACHandler *handler)

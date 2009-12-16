@@ -39,22 +39,40 @@ private:
 	QString getErrorStr();
 };
 
+struct OscarRate
+{
+	quint16 groupId;
+	quint32 windowSize;
+	quint32 clearLevel;
+	quint32 alertLevel;
+	quint32 limitLevel;
+	quint32 disconnectLevel;
+	quint32 currentLevel;
+	quint32 maxLevel;
+	quint32 lastTime;
+	quint8 currentState;
+	quint64 time;
+	QList<quint32> snacTypes;
+};
+
 class ProtocolNegotiation: public SNACHandler
 {
 	Q_OBJECT
 public:
-    ProtocolNegotiation(QObject *parent = 0);
+	ProtocolNegotiation(QObject *parent = 0);
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private:
 	void setMsgChannelParams(AbstractConnection *conn, quint16 chans, quint32 flags);
 	quint32 m_login_reqinfo;
 };
 
+
 class AbstractConnection: public QObject
 {
 	Q_OBJECT
 public:
 	AbstractConnection(QObject *parent);
+	~AbstractConnection();
 	void registerHandler(SNACHandler *handler);
 	quint32 send(SNAC &snac);
 	void disconnectFromHost(bool force);
@@ -78,7 +96,8 @@ private:
 	// max value is 0x7fff, min is 0
 	inline quint16 seqNum() { m_seqnum++; return (m_seqnum &= 0x7fff); }
 	inline quint32 nextId() { return m_id++; }
-
+private:
+	friend class ProtocolNegotiation;
 	QTcpSocket *m_socket;
 	FLAP m_flap;
 	QMultiMap<quint32, SNACHandler*> m_handlers;
@@ -86,6 +105,8 @@ private:
 	quint32 m_id;
 	QHostAddress m_ext_ip;
 	QList<quint16> m_services;
+	QHash<quint16, OscarRate*> m_rates;
+	QHash<quint32, OscarRate*> m_ratesHash;
 };
 
 } // namespace Icq
