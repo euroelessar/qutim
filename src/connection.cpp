@@ -100,13 +100,29 @@ QString ProtocolError::getErrorStr()
 	}
 }
 
+OscarRate::OscarRate(const SNAC &sn)
+{
+	m_groupId = sn.readSimple<quint16>();
+	m_windowSize = sn.readSimple<quint32>();
+	m_clearLevel = sn.readSimple<quint32>();
+	m_alertLevel = sn.readSimple<quint32>();
+	m_limitLevel = sn.readSimple<quint32>();
+	m_disconnectLevel = sn.readSimple<quint32>();
+	m_currentLevel = sn.readSimple<quint32>();
+	m_maxLevel = sn.readSimple<quint32>();
+	m_lastTime = sn.readSimple<quint32>();
+	m_currentState = sn.readSimple<quint8>();
+	m_time = QDateTime::currentDateTime();
+}
+
 ProtocolNegotiation::ProtocolNegotiation(QObject *parent):
 	SNACHandler(parent)
 {
 	m_infos << SNACInfo(ServiceFamily, ServiceServerReady)
 			<< SNACInfo(ServiceFamily, ServiceServerNameInfo)
 			<< SNACInfo(ServiceFamily, ServiceServerFamilies2)
-			<< SNACInfo(ServiceFamily, ServiceServerRateInfo);
+			<< SNACInfo(ServiceFamily, ServiceServerRateInfo)
+			<< SNACInfo(ServiceFamily, ServiceServerRateChange);
 	m_login_reqinfo = qrand();
 }
 
@@ -184,25 +200,8 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			quint16 groupCount = sn.readSimple<quint16>();
 			for(int i = 0; i < groupCount; ++i)
 			{
-				OscarRate *rate = new OscarRate;
-				rate->groupId = sn.readSimple<quint16>();
-				rate->windowSize = sn.readSimple<quint32>();
-				rate->clearLevel = sn.readSimple<quint32>();
-				rate->alertLevel = sn.readSimple<quint32>();
-				rate->limitLevel = sn.readSimple<quint32>();
-				rate->disconnectLevel = sn.readSimple<quint32>();
-				rate->currentLevel = sn.readSimple<quint32>();
-				rate->maxLevel = sn.readSimple<quint32>();
-				rate->lastTime = sn.readSimple<quint32>();
-				rate->currentState = sn.readSimple<quint8>();
-				rate->time = QDateTime::currentDateTime().toTime_t();
-				conn->m_rates.insert(rate->groupId, rate);
-
-				qDebug() << "Rate class"
-						<< rate->groupId << rate->windowSize << rate->clearLevel
-						<< rate->alertLevel << rate->limitLevel << rate->disconnectLevel
-						<< rate->currentLevel << rate->maxLevel << rate->lastTime
-						<< rate->currentState << rate->time;
+				OscarRate *rate = new OscarRate(sn);
+				conn->m_rates.insert(rate->groupId(), rate);
 			}
 			// Rate groups
 			while(sn.dataSize() >= 4)
@@ -218,10 +217,9 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 				for(int j = 0; j < count; ++j)
 				{
 					quint32 snacType = sn.readSimple<quint32>();
-					rateItr.value()->snacTypes << snacType;
+					rateItr.value()->addSnacType(snacType);
 					conn->m_ratesHash.insert(snacType, *rateItr);
 				}
-				qDebug() << "Rate group" << groupId << hex << rateItr.value()->snacTypes;
 			}
 
 			// Accepting rates
@@ -234,6 +232,20 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			// In other words: CLI_REQINFO
 			snac.reset(ServiceFamily, ServiceClientReqinfo);
 			m_login_reqinfo = conn->send(snac);
+			break;
+		}
+		case ServiceFamily << 16 | ServiceServerRateChange: {	
+			sn.readData<quint16>(); // Unknown
+			quint16 code = sn.readSimple<quint16>();
+			if(code == 2)
+				qDebug() << "Rate limits warning";
+			if(code == 3)
+				qDebug() << "Rate limits hit";
+			if(code == 4)
+				qDebug() << "Rate limits clear";
+			OscarRate newRate(sn);
+			if(conn->m_rates.contains(newRate.groupId()))
+				*conn->m_rates[newRate.groupId()] = newRate;
 			break;
 		}
 	}

@@ -20,6 +20,7 @@
 #include <QTcpSocket>
 #include <QMap>
 #include <QHostAddress>
+#include <QDateTime>
 #include <qutim/libqutim_global.h>
 #include "snachandler.h"
 #include "flap.h"
@@ -41,18 +42,24 @@ private:
 
 struct OscarRate
 {
-	quint16 groupId;
-	quint32 windowSize;
-	quint32 clearLevel;
-	quint32 alertLevel;
-	quint32 limitLevel;
-	quint32 disconnectLevel;
-	quint32 currentLevel;
-	quint32 maxLevel;
-	quint32 lastTime;
-	quint8 currentState;
-	quint64 time;
-	QList<quint32> snacTypes;
+public:
+	OscarRate(const SNAC &sn);
+	const QList<quint32> &snacTypes() { return m_snacTypes; }
+	void addSnacType(quint32 snacType) { m_snacTypes << snacType; }
+	quint16 groupId() { return m_groupId; }
+private:
+	quint16 m_groupId;
+	quint32 m_windowSize;
+	quint32 m_clearLevel;
+	quint32 m_alertLevel;
+	quint32 m_limitLevel;
+	quint32 m_disconnectLevel;
+	quint32 m_currentLevel;
+	quint32 m_maxLevel;
+	quint32 m_lastTime;
+	quint8 m_currentState;
+	QDateTime m_time;
+	QList<quint32> m_snacTypes;
 };
 
 class ProtocolNegotiation: public SNACHandler
