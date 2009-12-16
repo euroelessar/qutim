@@ -53,7 +53,14 @@
       </layout>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="passwdEdit"/>
+      <widget class="QLineEdit" name="passwdEdit">
+       <property name="inputMask">
+        <string/>
+       </property>
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
+       </property>
+      </widget>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_4">

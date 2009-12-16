@@ -25,7 +25,10 @@ namespace Jabber
 			virtual QList<Account *> accounts() const;
 			virtual Account *account(const QString &id) const;
 			void addAccount(JAccount *account, bool isEmit = false);
+		private slots:
+			void onStatusActionPressed();
 		private:
+			void loadActions();
 			virtual void loadAccounts();
 			static JProtocol *self;
 		QScopedPointer<JProtocolPrivate> p;

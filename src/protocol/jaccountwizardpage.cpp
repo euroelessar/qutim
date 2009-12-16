@@ -2,6 +2,7 @@
 #include "ui_jaccountwizardpage.h"
 #include <gloox/jid.h>
 #include <gloox/gloox.h>
+#include <QDebug>
 
 namespace Jabber
 {
@@ -37,12 +38,13 @@ namespace Jabber
 		Q_D(const JJidValidator);
 		gloox::JID jid;
 		if (d->server.empty()) {
+
 			std::string jidFull = str.toStdString();
 			jid.setJID(jidFull);
+			if (str.indexOf('@') == str.size()-1)
+				return Acceptable;
 			if (!jid)
 				return Invalid;
-			if (jid.full() == jidFull)
-				return Acceptable;
 		} else {
 			std::string jidNode = str.toStdString();
 			if (str.indexOf('@') != -1) {
@@ -130,11 +132,6 @@ namespace Jabber
 	{
 		if (jid().isEmpty() || (isSavePasswd() && passwd().isEmpty()))
 			return false;
-//		if (m_type > AccountTypeJabber)
-//		{
-//			QRegExp rx("@\\.*");
-//			ui->jidEdit->setText(ui->jidEdit->text().remove(rx) + ui->serverLabel->text());
-//		}
 		m_accountWizard->createAccount();
 		return true;
 	}

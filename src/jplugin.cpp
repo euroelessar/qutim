@@ -19,6 +19,9 @@ namespace Jabber
 		addAuthor(QT_TRANSLATE_NOOP("Author", "Denis Daschenko"),
 			QT_TRANSLATE_NOOP("Task", "Author"),
 			QLatin1String("daschenko@gmail.com"));
+		addAuthor(QT_TRANSLATE_NOOP("Author", "Nikita Belov"),
+			QT_TRANSLATE_NOOP("Task", "Author"),
+			QLatin1String("zodiac.nv@gmail.com"));
 		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
 			QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
 			new GeneralGenerator<JProtocol>(),

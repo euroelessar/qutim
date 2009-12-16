@@ -25,8 +25,7 @@ namespace Jabber {
 			//Roster *roster();
 			//OscarConnection *connection();
 			ChatUnit *getUnit(const QString &unitId, bool create = false);
-			//void setStatus(const QString &status);
-			//void changeStatus(const QString &status);
+			void setStatus(Status status);
 			const QString &jid();
 			const QString &password(bool *ok = 0);
 			void setConnectionPresence(Presence::PresenceType presence);

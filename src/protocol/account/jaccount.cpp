@@ -53,16 +53,13 @@ namespace Jabber {
 		return p->conn;
 	}*/
 
-	//void JAccount::setStatus()
-	//{
-
-	//}
-
-	/*void IcqAccount::setStatus(Status status)
+	void JAccount::setStatus(Status status)
 	{
 		Status current = this->status();
-		if(status < Offline || status > OnThePhone || current == status)
+
+		if(status < Offline || status > FreeChat || status == Occupied || current == status)
 			return;
+
 		if(current >= Connecting)
 		{
 			if(status == Offline)
@@ -82,7 +79,7 @@ namespace Jabber {
 			p->conn->connectToLoginServer();
 		}
 		Account::setStatus(status);
-	}*/
+	}
 
 	/*ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
 	{
