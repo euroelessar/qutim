@@ -4,6 +4,7 @@
 #include <gloox/client.h>
 #include <gloox/presencehandler.h>
 #include <gloox/disco.h>
+#include "jconnectionbase.h"
 #include "../jprotocol.h"
 
 namespace Jabber
