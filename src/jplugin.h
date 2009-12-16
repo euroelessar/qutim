@@ -10,12 +10,11 @@ namespace Jabber
 	class JPlugin : public Plugin
 	{
 		Q_OBJECT
-	public:
-		JPlugin();
-
-		void init();
-		bool load();
-		bool unload();
+		public:
+			JPlugin();
+			void init();
+			bool load();
+			bool unload();
 	};
 } // Jabber namespace
 

@@ -1,4 +1,4 @@
-#include "jdataformwidgets.h"
+/*#include "jdataformwidgets.h"
 
 namespace Jabber
 {
@@ -67,3 +67,4 @@ namespace Jabber
 	}
 
 }
+*/

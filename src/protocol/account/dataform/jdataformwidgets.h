@@ -15,10 +15,7 @@ namespace Jabber
 	{
 		Q_OBJECT
 		Q_INTERFACES(Jabber::JDataFormElement)
-
 		public:
-			JDFBoolean(QWidget *parent = 0);
-			~JDFBoolean();
 			QString dfValue() {return isChecked() ? "1" : "0";}
 			void dfSetValue(const QString &value) {setChecked(value == "1" ? true : false);}
 			QString dfName() {return objectName();}
@@ -31,10 +28,7 @@ namespace Jabber
 	{
 		Q_OBJECT
 		Q_INTERFACES(Jabber::JDataFormElement)
-
 		public:
-			JDFHidden(QWidget *parent = 0);
-			~JDFHidden();
 			QString dfValue() {return m_text;}
 			void dfSetValue(const QString &value) {m_text = value;}
 			QString dfName() {return objectName();}
@@ -49,10 +43,7 @@ namespace Jabber
 	{
 		Q_OBJECT
 		Q_INTERFACES(Jabber::JDataFormElement )
-
 		public:
-			JDFMultiJID(QWidget *parent = 0);
-			~JDFMultiJID();
 			QString dfValue() {}
 			void dfSetValue(const QString &value) {}
 			QString dfName() {return objectName();}
@@ -65,10 +56,7 @@ namespace Jabber
 	{
 		Q_OBJECT
 		Q_INTERFACES(Jabber::JDataFormElement )
-
 		public:
-			JDFSingleJID(QWidget *parent = 0);
-			~JDFSingleJID();
 			QString dfValue() {return text();}
 			void dfSetValue(const QString &value) {setText(value);}
 			QString dfName() {return objectName();}
@@ -81,10 +69,7 @@ namespace Jabber
 	{
 		Q_OBJECT
 		Q_INTERFACES(Jabber::JDataFormElement )
-
 		public:
-			JDFMultiList(QWidget *parent = 0);
-			~JDFMultiList();
 			QString dfValue() {}
 			void dfSetValue(const QString &value) {}
 			QString dfName() {return objectName();}
@@ -97,10 +82,7 @@ namespace Jabber
 	{
 		Q_OBJECT
 		Q_INTERFACES(Jabber::JDataFormElement )
-
 		public:
-			JDFSingleList(QWidget *parent = 0);
-			~JDFSingleList();
 			QString dfValue() {return currentText();}
 			void dfSetValue(const QString &value) {setCurrentIndex(findText(value));}
 			QString dfName() {return objectName();}
@@ -113,10 +95,7 @@ namespace Jabber
 	{
 		Q_OBJECT
 		Q_INTERFACES(Jabber::JDataFormElement )
-
 		public:
-			JDFMultiText(QWidget *parent = 0);
-			~JDFMultiText();
 			QString dfValue() {return toPlainText();}
 			void dfSetValue(const QString &value) {setPlainText(value);}
 			QString dfName() {return objectName();}
@@ -129,10 +108,7 @@ namespace Jabber
 	{
 		Q_OBJECT
 		Q_INTERFACES(Jabber::JDataFormElement )
-
 		public:
-			JDFSingleText(QWidget *parent = 0);
-			~JDFSingleText();
 			QString dfValue() {return text();}
 			void dfSetValue(const QString &value) {setText(value);}
 			QString dfName() {return objectName();}

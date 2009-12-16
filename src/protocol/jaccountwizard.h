@@ -8,7 +8,6 @@
 
 namespace Jabber {
 
-
 	class JAccountWizardPage;
 
 	enum JAccountType {
@@ -22,7 +21,6 @@ namespace Jabber {
 	class JAccountWizard : public AccountCreationWizard
 	{
 		Q_OBJECT
-
 		public:
 			JAccountWizard();
 			~JAccountWizard();
@@ -38,7 +36,6 @@ namespace Jabber {
 	class LJAccountWizard : public JAccountWizard
 	{
 		Q_OBJECT
-
 		public:
 			LJAccountWizard();
 			~LJAccountWizard();
@@ -47,7 +44,6 @@ namespace Jabber {
 	class GTAccountWizard : public JAccountWizard
 	{
 		Q_OBJECT
-
 		public:
 			GTAccountWizard();
 			~GTAccountWizard();
@@ -56,7 +52,6 @@ namespace Jabber {
 	class YAccountWizard : public JAccountWizard
 	{
 		Q_OBJECT
-
 		public:
 			YAccountWizard();
 			~YAccountWizard();
@@ -65,7 +60,6 @@ namespace Jabber {
 	class QIPAccountWizard : public JAccountWizard
 	{
 		Q_OBJECT
-
 		public:
 			QIPAccountWizard();
 			~QIPAccountWizard();

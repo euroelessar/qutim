@@ -17,15 +17,13 @@ namespace Jabber
 
 	class JDataForm : public QWidget
 	{
-	Q_OBJECT
-
-	public:
-		JDataForm(const DataForm *form, bool twocolumn = false, QWidget *parent = 0);
-		~JDataForm();
-		DataForm *getDataForm();
-
-	private:
-		QScopedPointer<JDataFormPrivate> p;
+		Q_OBJECT
+		public:
+			JDataForm(const DataForm *form, bool twocolumn = false, QWidget *parent = 0);
+			~JDataForm();
+			DataForm *getDataForm();
+		private:
+			QScopedPointer<JDataFormPrivate> p;
 	};
 }
 
