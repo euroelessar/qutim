@@ -100,9 +100,17 @@ QString ProtocolError::getErrorStr()
 	}
 }
 
-OscarRate::OscarRate(const SNAC &sn)
+OscarRate::OscarRate(const SNAC &sn, AbstractConnection *conn):
+	m_conn(conn)
 {
 	m_groupId = sn.readSimple<quint16>();
+	update(m_groupId, sn);
+	connect(&m_timer, SIGNAL(timeout()), SLOT(sendNextPacket()));
+	m_timer.setSingleShot(true);
+}
+
+void OscarRate::update(quint32 groupId, const SNAC &sn)
+{
 	m_windowSize = sn.readSimple<quint32>();
 	m_clearLevel = sn.readSimple<quint32>();
 	m_alertLevel = sn.readSimple<quint32>();
@@ -110,9 +118,59 @@ OscarRate::OscarRate(const SNAC &sn)
 	m_disconnectLevel = sn.readSimple<quint32>();
 	m_currentLevel = sn.readSimple<quint32>();
 	m_maxLevel = sn.readSimple<quint32>();
-	m_lastTime = sn.readSimple<quint32>();
+	m_lastTimeDiff = sn.readSimple<quint32>();
 	m_currentState = sn.readSimple<quint8>();
-	m_time = QDateTime::currentDateTime();
+
+	if(m_windowSize > 1)
+	{
+		m_time = QDateTime::currentDateTime();
+		m_levelMultiplier = (m_windowSize - 1) / (double)m_windowSize;
+		m_timeMultiplier = 1 / (double)m_windowSize;
+	}
+}
+
+void OscarRate::send(const SNAC &snac)
+{
+	m_queue.push_back(snac);
+	if(m_queue.size() == 1)
+		sendNextPacket();
+}
+
+void OscarRate::sendNextPacket()
+{
+	Q_ASSERT(!m_queue.isEmpty());
+	QDateTime dateTime = QDateTime::currentDateTime();
+
+	quint32 timeDiff;
+	if(dateTime.date() == m_time.date())
+		timeDiff = m_time.time().msecsTo(dateTime.time());
+	else if(m_time.daysTo(dateTime) == 1)
+		timeDiff = 86400000 - m_time.time().msec() + dateTime.time().msec();
+	else // That should never happen
+		timeDiff = 86400000;
+
+	quint32 level = m_levelMultiplier * m_currentLevel + m_timeMultiplier * timeDiff;
+	level = qMin(level, m_maxLevel);
+
+	quint32 timeout;
+	if(m_clearLevel > level)
+		timeout = (m_clearLevel - level) / m_levelMultiplier / m_timeMultiplier;
+	else
+		timeout = 0;
+
+	if(timeout == 0)
+	{
+		qDebug() << "Send queue packet";
+		m_time = dateTime;
+		m_lastTimeDiff = timeDiff;
+		m_currentLevel = level;
+		SNAC snac = m_queue.takeFirst();
+		m_conn->sendSnac(snac);
+		if(!m_queue.isEmpty())
+			sendNextPacket();
+	}
+	else
+		m_timer.start(timeout);
 }
 
 ProtocolNegotiation::ProtocolNegotiation(QObject *parent):
@@ -200,8 +258,9 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			quint16 groupCount = sn.readSimple<quint16>();
 			for(int i = 0; i < groupCount; ++i)
 			{
-				OscarRate *rate = new OscarRate(sn);
-				conn->m_rates.insert(rate->groupId(), rate);
+				OscarRate *rate = new OscarRate(sn, conn);
+				if(!rate->isEmpty())
+					conn->m_rates.insert(rate->groupId(), rate);
 			}
 			// Rate groups
 			while(sn.dataSize() >= 4)
@@ -231,7 +290,7 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			// This command requests from the server certain information about the client that is stored on the server
 			// In other words: CLI_REQINFO
 			snac.reset(ServiceFamily, ServiceClientReqinfo);
-			m_login_reqinfo = conn->send(snac);
+			m_login_reqinfo = conn->sendSnac(snac);
 			break;
 		}
 		case ServiceFamily << 16 | ServiceServerRateChange: {	
@@ -243,9 +302,9 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 				qDebug() << "Rate limits hit";
 			if(code == 4)
 				qDebug() << "Rate limits clear";
-			OscarRate newRate(sn);
-			if(conn->m_rates.contains(newRate.groupId()))
-				*conn->m_rates[newRate.groupId()] = newRate;
+			quint32 groupId = sn.readSimple<quint16>();
+			if(conn->m_rates.contains(groupId))
+				conn->m_rates.value(groupId)->update(groupId, sn);
 			break;
 		}
 	}
@@ -275,6 +334,21 @@ void AbstractConnection::registerHandler(SNACHandler *handler)
 		m_handlers.insertMulti((info.first << 16) | info.second, handler);
 }
 
+void AbstractConnection::disconnectFromHost(bool force)
+{
+	Q_UNUSED(force);
+	m_socket->disconnectFromHost();
+}
+
+void AbstractConnection::send(SNAC &snac)
+{
+	OscarRate *rate = m_ratesHash.value(snac.family() << 16 | snac.subtype());
+	if(rate)
+		rate->send(snac);
+	else
+		sendSnac(snac);
+}
+
 void AbstractConnection::send(FLAP &flap)
 {
 	flap.setSeqNum(seqNum());
@@ -284,13 +358,7 @@ void AbstractConnection::send(FLAP &flap)
 	m_socket->flush();
 }
 
-void AbstractConnection::disconnectFromHost(bool force)
-{
-	Q_UNUSED(force);
-	m_socket->disconnectFromHost();
-}
-
-quint32 AbstractConnection::send(SNAC &snac)
+quint32 AbstractConnection::sendSnac(SNAC &snac)
 {
 	qDebug("Sending SNAC: 0x%x 0x%x %s", (int)snac.family(), (int)snac.subtype(), metaObject()->className());
 	FLAP flap(0x02);

@@ -21,6 +21,7 @@
 #include <QMap>
 #include <QHostAddress>
 #include <QDateTime>
+ #include <QTimer>
 #include <qutim/libqutim_global.h>
 #include "snachandler.h"
 #include "flap.h"
@@ -40,13 +41,19 @@ private:
 	QString getErrorStr();
 };
 
-struct OscarRate
+struct OscarRate: QObject
 {
+	Q_OBJECT
 public:
-	OscarRate(const SNAC &sn);
+	OscarRate(const SNAC &sn, AbstractConnection *conn);
+	void update(quint32 groupId, const SNAC &sn);
 	const QList<quint32> &snacTypes() { return m_snacTypes; }
 	void addSnacType(quint32 snacType) { m_snacTypes << snacType; }
 	quint16 groupId() { return m_groupId; }
+	void send(const SNAC &snac);
+	bool isEmpty() { return m_windowSize <= 1; }
+private slots:
+	void sendNextPacket();
 private:
 	quint16 m_groupId;
 	quint32 m_windowSize;
@@ -56,10 +63,15 @@ private:
 	quint32 m_disconnectLevel;
 	quint32 m_currentLevel;
 	quint32 m_maxLevel;
-	quint32 m_lastTime;
+	quint32 m_lastTimeDiff;
 	quint8 m_currentState;
 	QDateTime m_time;
 	QList<quint32> m_snacTypes;
+	QList<SNAC> m_queue;
+	double m_levelMultiplier;
+	double m_timeMultiplier;
+	QTimer m_timer;
+	AbstractConnection *m_conn;
 };
 
 class ProtocolNegotiation: public SNACHandler
@@ -81,7 +93,7 @@ public:
 	AbstractConnection(QObject *parent);
 	~AbstractConnection();
 	void registerHandler(SNACHandler *handler);
-	quint32 send(SNAC &snac);
+	void send(SNAC &snac);
 	void disconnectFromHost(bool force);
 	void setExternalIP(const QHostAddress &ip) { m_ext_ip = ip; }
 	const QHostAddress &externalIP() const { return m_ext_ip; }
@@ -91,6 +103,7 @@ public:
 protected:
 	const FLAP &flap() { return m_flap; }
 	void send(FLAP &flap);
+	quint32 sendSnac(SNAC &snac);
 	void setSeqNum(quint16 seqnum);
 	virtual void processNewConnection();
 	virtual void processCloseConnection();
@@ -105,6 +118,7 @@ private:
 	inline quint32 nextId() { return m_id++; }
 private:
 	friend class ProtocolNegotiation;
+	friend class OscarRate;
 	QTcpSocket *m_socket;
 	FLAP m_flap;
 	QMultiMap<quint32, SNACHandler*> m_handlers;
