@@ -19,6 +19,7 @@
 
 #include "util.h"
 #include "tlv.h"
+#include "capability.h"
 
 namespace Icq {
 
@@ -36,6 +37,7 @@ public:
 	inline const QByteArray &data() const { return m_data; }
 	inline void setData(const QByteArray &data) { m_data = data; }
 	inline void appendData(const QByteArray &data) { m_data += data; }
+	inline void appendData(const Capability &data) { m_data += data.data(); }
 	inline void appendData(const QString &str, QTextCodec *codec = Util::defaultCodec()) { m_data += codec->fromUnicode(str); }
 	void appendTLV(quint16 type) { appendData(TLV(type)); }
 	template<typename T>
