@@ -403,7 +403,7 @@ void Xtraz::parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml)
 		contact->setProperty("statusTitle", title);
 		contact->setProperty("xstatusIcon", data()->xstatuses[index].icon.toIcon());
 		contact->setProperty("statusText", desc);
-		qDebug() << "xstatus" << index << data()->xstatuses[index].status;
+		qDebug() << "xstatus" << contact->id() << index << data()->xstatuses[index].status;
 	}
 }
 
