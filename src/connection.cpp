@@ -14,12 +14,9 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "connection.h"
-#include <QTimer>
+#include "connection_p.h"
 #include <QHostInfo>
 #include <QBuffer>
-#include <QDateTime>
-#include <QTimer>
 #include <QDebug>
 
 namespace Icq {
@@ -30,40 +27,6 @@ quint16 generate_flap_sequence()
 	for (quint32 i = n; i >>= 3; s += i);
 	return ((((0 - s) ^ (quint8)n) & 7) ^ n) + 2;
 }
-
-struct OscarRate: QObject
-{
-	Q_OBJECT
-public:
-	OscarRate(const SNAC &sn, AbstractConnection *conn);
-	void update(quint32 groupId, const SNAC &sn);
-	const QList<quint32> &snacTypes() { return m_snacTypes; }
-	void addSnacType(quint32 snacType) { m_snacTypes << snacType; }
-	quint16 groupId() { return m_groupId; }
-	void send(const SNAC &snac, bool priority);
-	bool isEmpty() { return m_windowSize <= 1; }
-private slots:
-	void sendNextPackets();
-private:
-	quint16 m_groupId;
-	quint32 m_windowSize;
-	quint32 m_clearLevel;
-	quint32 m_alertLevel;
-	quint32 m_limitLevel;
-	quint32 m_disconnectLevel;
-	quint32 m_currentLevel;
-	quint32 m_maxLevel;
-	quint32 m_lastTimeDiff;
-	quint8 m_currentState;
-	QDateTime m_time;
-	QList<quint32> m_snacTypes;
-	QList<SNAC> m_priorQueue;
-	QList<SNAC> m_queue;
-	double m_levelMultiplier;
-	double m_timeMultiplier;
-	QTimer m_timer;
-	AbstractConnection *m_conn;
-};
 
 ProtocolError::ProtocolError(const SNAC &snac)
 {
@@ -83,55 +46,55 @@ QString ProtocolError::getErrorStr()
 	switch(code)
 	{
 		case(0x01):
-			return "Invalid SNAC header";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Invalid SNAC header");
 		case(0x02):
-			return "Server rate limit exceeded";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Server rate limit exceeded");
 		case(0x03):
-			return "Client rate limit exceeded";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Client rate limit exceeded");
 		case(0x04):
-			return "Recipient is not logged in";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Recipient is not logged in");
 		case(0x05):
-			return "Requested service unavailable";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Requested service unavailable");
 		case(0x06):
-			return "Requested service not defined";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Requested service not defined");
 		case(0x07):
-			return "You sent obsolete SNAC";
+			return QT_TRANSLATE_NOOP("ProtocolError", "You sent obsolete SNAC");
 		case(0x08):
-			return "Not supported by server";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Not supported by server");
 		case(0x09):
-			return "Not supported by client";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Not supported by client");
 		case(0x0A):
-			return "Refused by client";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Refused by client");
 		case(0x0B):
-			return "Reply too big";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Reply too big");
 		case(0x0C):
-			return "Responses lost";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Responses lost");
 		case(0x0D):
-			return "Request denied";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Request denied");
 		case(0x0E):
-			return "Incorrect SNAC format";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Incorrect SNAC format");
 		case(0x0F):
-			return "Insufficient rights";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Insufficient rights");
 		case(0x10):
-			return "In local permit/deny (recipient blocked)";
+			return QT_TRANSLATE_NOOP("ProtocolError", "In local permit/deny (recipient blocked)");
 		case(0x11):
-			return "Sender too evil";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Sender too evil");
 		case(0x12):
-			return "Receiver too evil";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Receiver too evil");
 		case(0x13):
-			return "User temporarily unavailable";
+			return QT_TRANSLATE_NOOP("ProtocolError", "User temporarily unavailable");
 		case(0x14):
-			return "No match";
+			return QT_TRANSLATE_NOOP("ProtocolError", "No match");
 		case(0x15):
-			return "List overflow";
+			return QT_TRANSLATE_NOOP("ProtocolError", "List overflow");
 		case(0x16):
-			return "Request ambiguous";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Request ambiguous");
 		case(0x17):
-			return "Server queue full";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Server queue full");
 		case(0x18):
-			return "Not while on AOL";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Not while on AOL");
 		default:
-			return "Unknown error";
+			return QT_TRANSLATE_NOOP("ProtocolError", "Unknown error");
 	}
 }
 
