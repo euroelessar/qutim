@@ -47,8 +47,8 @@ Capability::Capability(const QByteArray &data)
 Capability::Capability(quint32 d1, quint32 d2, quint32 d3, quint32 d4)
 {
 	data1 = d1;
-	data2 = (d2 & 0xff00) >> 8;
-	data3 = (d2 & 0x00ff);
+	data2 = (d2 & 0xffff0000) >> 16;
+	data3 = (d2 & 0x0000ffff);
 	qToBigEndian(d3, (uchar *)data4);
 	qToBigEndian(d4, (uchar *)data4 + 4);
 }
