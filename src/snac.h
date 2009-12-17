@@ -39,6 +39,7 @@ public:
 	QByteArray toByteArray() const;
 	QByteArray header() const;
 	inline operator QByteArray() const { return toByteArray(); }
+	inline bool isEmpty() const { return m_family == 0 && m_subtype == 0; }
 private:
 	quint16 m_family;
 	quint16 m_subtype;

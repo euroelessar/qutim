@@ -105,7 +105,7 @@ OscarRate::OscarRate(const SNAC &sn, AbstractConnection *conn):
 {
 	m_groupId = sn.readSimple<quint16>();
 	update(m_groupId, sn);
-	connect(&m_timer, SIGNAL(timeout()), SLOT(sendNextPacket()));
+	connect(&m_timer, SIGNAL(timeout()), SLOT(sendNextPackets()));
 	m_timer.setSingleShot(true);
 }
 
@@ -136,10 +136,10 @@ void OscarRate::send(const SNAC &snac, bool priority)
 	else
 		m_queue.push_back(snac);
 	if(m_priorQueue.size() + m_queue.size() == 1)
-		sendNextPacket();
+		sendNextPackets();
 }
 
-void OscarRate::sendNextPacket()
+void OscarRate::sendNextPackets()
 {
 	Q_ASSERT(!m_priorQueue.isEmpty() || !m_queue.isEmpty());
 	QDateTime dateTime = QDateTime::currentDateTime();
@@ -152,31 +152,30 @@ void OscarRate::sendNextPacket()
 	else // That should never happen
 		timeDiff = 86400000;
 
-	quint32 level = m_levelMultiplier * m_currentLevel + m_timeMultiplier * timeDiff;
-	level = qMin(level, m_maxLevel);
-
-	quint32 timeout;
-	if(m_clearLevel > level)
-		timeout = (m_clearLevel - level) / m_levelMultiplier / m_timeMultiplier;
-	else
-		timeout = 0;
-
-	if(timeout == 0)
+	double levelInc = m_timeMultiplier * (double)timeDiff;
+	quint32 newLevel = m_currentLevel * m_levelMultiplier + levelInc;
+	while(newLevel >= m_clearLevel)
 	{
-		m_time = dateTime;
-		m_lastTimeDiff = timeDiff;
-		m_currentLevel = level;
 		SNAC snac;
 		if(!m_priorQueue.isEmpty())
 			snac = m_priorQueue.takeFirst();
-		else
+		else if(!m_queue.isEmpty())
 			snac = m_queue.takeFirst();
+		if(snac.isEmpty())
+			break;
+		m_currentLevel = newLevel;
 		m_conn->sendSnac(snac);
-		if(!m_priorQueue.isEmpty() || !m_queue.isEmpty())
-			sendNextPacket();
+		newLevel = newLevel * m_levelMultiplier;
 	}
-	else
+	m_currentLevel = qMin(m_currentLevel, m_maxLevel);
+	m_time = dateTime;
+	m_lastTimeDiff = timeDiff;
+	if(!m_priorQueue.isEmpty() || !m_queue.isEmpty())
+	{
+		Q_ASSERT(m_clearLevel > newLevel);
+		quint32 timeout = (m_clearLevel - newLevel) / m_levelMultiplier / m_timeMultiplier;
 		m_timer.start(timeout);
+	}
 }
 
 ProtocolNegotiation::ProtocolNegotiation(QObject *parent):

@@ -53,7 +53,7 @@ public:
 	void send(const SNAC &snac, bool priority);
 	bool isEmpty() { return m_windowSize <= 1; }
 private slots:
-	void sendNextPacket();
+	void sendNextPackets();
 private:
 	quint16 m_groupId;
 	quint32 m_windowSize;
