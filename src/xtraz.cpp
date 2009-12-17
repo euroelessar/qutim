@@ -400,10 +400,13 @@ void Xtraz::parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml)
 	}
 	if(uin == contact->id())
 	{
-		contact->setProperty("statusTitle", title);
-		contact->setProperty("xstatusIcon", data()->xstatuses[index].icon.toIcon());
-		contact->setProperty("statusText", desc);
-		qDebug() << "xstatus" << contact->id() << index << data()->xstatuses[index].status;
+		if(index > 0 && index < data()->xstatuses.size())
+		{
+			contact->setProperty("statusTitle", title);
+			contact->setProperty("xstatusIcon", data()->xstatuses[index].icon.toIcon());
+			contact->setProperty("statusText", desc);
+			qDebug() << "xstatus" << contact->name() << index << data()->xstatuses[index].status;
+		}
 	}
 }
 
