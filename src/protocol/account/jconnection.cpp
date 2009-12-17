@@ -8,6 +8,7 @@ namespace Jabber
 	{
 		JAccount *account;
 		Client *client;
+		JConnectionBase *connection;
 		QString resource;
 		bool autoPriority;
 		QMap<Presence::PresenceType, int> priority;
@@ -21,7 +22,10 @@ namespace Jabber
 		loadSettings();
 		JID jid = JID(account->jid().toStdString());
 		jid.setResource(p->resource.toStdString());
+
 		p->client = new Client(jid, p->password.toStdString());
+		p->connection = new JConnectionBase(p->client);
+		p->client->setConnectionImpl(p->connection);
 		p->client->disco()->setVersion("qutIM", "0.3");
 		p->client->disco()->setIdentity("client", "pc");
 		p->client->registerPresenceHandler(this);
