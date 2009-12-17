@@ -359,11 +359,6 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 	if(contact)
 		contact->p->version = version;
 	Capability guid = data.readCapability();
-	if(guid.isEmpty())
-	{
-		qDebug() << "Wrong format of TLV 2711";
-		return;
-	}
 	data.skipData(9);
 	id = data.readSimple<quint16>(DataUnit::LittleEndian);
 	quint16 cookie = data.readSimple<quint16>(DataUnit::LittleEndian);
