@@ -56,7 +56,7 @@ namespace Jabber
 		p->totalBytesOut += bw;
 		p->socket->flush();
 
-		debug() << Q_FUNC_INFO << QString::fromStdString(data);
+		//debug() << Q_FUNC_INFO << QString::fromStdString(data);
 
 		return true;
 	}
@@ -139,7 +139,7 @@ namespace Jabber
 	void JConnectionBase::startConnection()
 	{
 		if (p->useDns) { //FIX IT
-			debug() << "Server:" << QString::fromStdString(m_server) << "port:" << m_port;
+			//debug() << "Server:" << QString::fromStdString(m_server) << "port:" << m_port;
 			DNS::HostMap hosts = DNS::resolve(m_server, LogSink());
 			DNS::HostMap::iterator h = hosts.begin();
 			for(;h!=hosts.end();h++)
@@ -148,7 +148,7 @@ namespace Jabber
 				QString hostr = host;
 				hostr.remove(QRegExp("(\\w+\\.)+\\w+"));
 				if(hostr.isEmpty() || !QHostAddress( host ).isNull()) {
-					debug() << "DNS: Server:" << host << "port:" << h->second;
+					//debug() << "DNS: Server:" << host << "port:" << h->second;
 					m_server = host.toStdString();
 					m_port = h->second;
 					break;
@@ -161,21 +161,21 @@ namespace Jabber
 
 	void JConnectionBase::connected()
 	{
-		debug() << Q_FUNC_INFO;
+		//debug() << Q_FUNC_INFO;
 		p->connectionError = ConnNoError;
 		m_handler->handleConnect(this);
 	}
 
 	void JConnectionBase::disconnected()
 	{
-		debug() << Q_FUNC_INFO;
+		//debug() << Q_FUNC_INFO;
 		m_handler->handleDisconnect(this, p->connectionError);
 		cleanup();
 	}
 
 	void JConnectionBase::hostFound()
 	{
-		debug() << Q_FUNC_INFO;
+		//debug() << Q_FUNC_INFO;
 	}
 
 	void JConnectionBase::read()
@@ -191,12 +191,12 @@ namespace Jabber
 		p->totalBytesIn += data.size();
 		m_handler->handleReceivedData(this, data.data());
 
-		debug() << Q_FUNC_INFO << QString(data);
+		//debug() << Q_FUNC_INFO << QString(data);
 	}
 
 	void JConnectionBase::error(QAbstractSocket::SocketError error)
 	{
-		debug() << Q_FUNC_INFO << error;
+		//debug() << Q_FUNC_INFO << error;
 		if (p->connectionError == ConnUserDisconnected)
 			return;
 
@@ -225,7 +225,7 @@ namespace Jabber
 
 	void JConnectionBase::stateChanged(QAbstractSocket::SocketState state)
 	{
-		debug() << Q_FUNC_INFO << state;
+		//debug() << Q_FUNC_INFO << state;
 		switch (state) {
 			case QAbstractSocket::HostLookupState:
 			case QAbstractSocket::ConnectingState:

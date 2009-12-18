@@ -21,8 +21,6 @@ namespace Jabber
 		p->account = account;
 		p->password = QString();
 		JID jid = JID(account->jid().toStdString());
-		jid.setResource(p->resource.toStdString());
-
 		p->client = new Client(jid, p->password.toStdString());
 		p->connection = new JConnectionBase(p->client);
 		loadSettings();
@@ -37,6 +35,7 @@ namespace Jabber
 	{
 		qDebug() << presence.presence();
 		qDebug() << p->client->state();
+		emit setStatus(presence.presence());
 	}
 
 	void JConnection::loadSettings()
@@ -50,8 +49,9 @@ namespace Jabber
 			requestBookmarks();
 		}*/
 		p->resource = group.value("resource", defaultResource);
+		p->client->setResource(p->resource.toStdString());
 		p->priority.clear();
-		p->priority.insert(Presence::Invalid, group.value("proirity", 3));
+		p->priority.insert(Presence::Invalid, group.value("priority", 3));
 		p->autoPriority = group.value("autopriority",true);
 		if (p->autoPriority)
 		{
@@ -83,8 +83,10 @@ namespace Jabber
 		p->proxy.setType(t);
 		p->proxy.setHostName(group.value("hostname", QString()));
 		p->proxy.setPort(group.value("port", qint16()));
-		p->proxy.setUser(group.value("user", QString()));
-		p->proxy.setPassword(group.value("password", QString()));
+		if (group.value("authorize", false)) {
+			p->proxy.setUser(group.value("user", QString()));
+			p->proxy.setPassword(group.value("password", QString()));
+		}
 		p->connection->setProxy(p->proxy);
 
 		//connect settings
@@ -106,8 +108,12 @@ namespace Jabber
 		//p->client->setCompression(group.value("compression", true));
 		p->client->setTls(TLSDisabled); // Error with 'TLSOptional'
 		p->client->setCompression(false); // Error with 'true' =/ Hm...
-		p->connection->setServer(group.value("server", QString::fromStdString(p->client->jid().server())).toStdString(),
-				group.value("port", 5222));
+		if (group.value("manualhost", false)) {
+			p->connection->setServer(group.value("server", QString::fromStdString(p->client->jid().server())).toStdString(),
+					group.value("port", 5222));
+		} else {
+			p->connection->setServer(p->client->jid().server(), 5222);
+		}
 		p->connection->setUseDns(group.value("usedns", true));
 	}
 
@@ -126,6 +132,5 @@ namespace Jabber
 		if (p->client->state() == StateDisconnected) {
 			p->client->connect(false);
 		}
-		emit setStatus(presence);
 	}
 }
