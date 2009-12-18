@@ -38,34 +38,34 @@ namespace Jabber
 	void JProtocol::loadActions()
 	{
 		MenuController::addAction((new ActionGenerator(Icon("user-online-jabber"),
-			QT_TRANSLATE_NOOP("Status", "Online"),
-			this, SLOT(onStatusActionPressed())))->addProperty("status", Online)->setPriority(Online),
-			&JAccount::staticMetaObject);
+				QT_TRANSLATE_NOOP("Status", "Online"),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", Online)->setPriority(Online),
+				&JAccount::staticMetaObject);
 
 		MenuController::addAction((new ActionGenerator(Icon("user-online-chat-jabber"),
-			QT_TRANSLATE_NOOP("Status", "Free for chat"),
-			this, SLOT(onStatusActionPressed())))->addProperty("status", FreeChat)->setPriority(FreeChat),
-			&JAccount::staticMetaObject);
+				QT_TRANSLATE_NOOP("Status", "Free for chat"),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", FreeChat)->setPriority(FreeChat),
+				&JAccount::staticMetaObject);
 
 		MenuController::addAction((new ActionGenerator(Icon("user-away-jabber"),
-			QT_TRANSLATE_NOOP("Status", "Away"),
-			this, SLOT(onStatusActionPressed())))->addProperty("status", Away)->setPriority(Away),
-			&JAccount::staticMetaObject);
+				QT_TRANSLATE_NOOP("Status", "Away"),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", Away)->setPriority(Away),
+				&JAccount::staticMetaObject);
 
 		MenuController::addAction((new ActionGenerator(Icon("user-away-extended-jabber"),
-			QT_TRANSLATE_NOOP("Status", "NA"),
-			this, SLOT(onStatusActionPressed())))->addProperty("status", NA)->setPriority(NA),
-			&JAccount::staticMetaObject);
+				QT_TRANSLATE_NOOP("Status", "NA"),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", NA)->setPriority(NA),
+				&JAccount::staticMetaObject);
 
 		MenuController::addAction((new ActionGenerator(Icon("user-busy-jabber"),
-			QT_TRANSLATE_NOOP("Status", "DND"),
-			this, SLOT(onStatusActionPressed())))->addProperty("status", DND)->setPriority(DND),
-			&JAccount::staticMetaObject);
+				QT_TRANSLATE_NOOP("Status", "DND"),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", DND)->setPriority(DND),
+				&JAccount::staticMetaObject);
 
 		MenuController::addAction((new ActionGenerator(Icon("user-offline-jabber"),
-			QT_TRANSLATE_NOOP("Status", "Offline"),
-			this, SLOT(onStatusActionPressed())))->addProperty("status", Offline)->setPriority(Offline),
-			&JAccount::staticMetaObject);
+				QT_TRANSLATE_NOOP("Status", "Offline"),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", Offline)->setPriority(Offline),
+				&JAccount::staticMetaObject);
 	}
 
 	void JProtocol::loadAccounts()

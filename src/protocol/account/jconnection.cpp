@@ -9,6 +9,7 @@ namespace Jabber
 		JAccount *account;
 		Client *client;
 		JConnectionBase *connection;
+		QNetworkProxy proxy;
 		QString resource;
 		bool isAutoPriority;
 		QMap<Presence::PresenceType, int> priority;
@@ -19,12 +20,13 @@ namespace Jabber
 	{
 		p->account = account;
 		p->password = QString();
-		loadSettings();
 		JID jid = JID(account->jid().toStdString());
 		jid.setResource(p->resource.toStdString());
 
 		p->client = new Client(jid, p->password.toStdString());
 		p->connection = new JConnectionBase(p->client);
+		loadSettings();
+
 		p->client->setConnectionImpl(p->connection);
 		p->client->disco()->setVersion("qutIM", "0.3");
 		p->client->disco()->setIdentity("client", "pc");
@@ -60,6 +62,53 @@ namespace Jabber
 			p->priority.insert(Presence::XA, group.value("na", 1));
 			p->priority.insert(Presence::DND, group.value("dnd", -1));
 		}
+
+		//proxy settings
+		group = JProtocol::instance()->config().group("proxy");
+		QNetworkProxy::ProxyType t = QNetworkProxy::DefaultProxy;;
+		switch (group.value("type", 0)) {
+			case 0: // Default proxy
+				t = QNetworkProxy::DefaultProxy;
+				break;
+			case 1: // Socks5
+				t = QNetworkProxy::Socks5Proxy;
+				break;
+			case 2: // No proxy
+				t = QNetworkProxy::NoProxy;
+				break;
+			case 3: // Http
+				t = QNetworkProxy::HttpProxy;
+				break;
+		}
+		p->proxy.setType(t);
+		p->proxy.setHostName(group.value("hostname", QString()));
+		p->proxy.setPort(group.value("port", qint16()));
+		p->proxy.setUser(group.value("user", QString()));
+		p->proxy.setPassword(group.value("password", QString()));
+		p->connection->setProxy(p->proxy);
+
+		//connect settings
+		group = JProtocol::instance()->config().group("connect");
+		TLSPolicy tls = TLSOptional;
+		switch (group.value("tls", 1)) {
+			case 0:
+				tls = TLSDisabled;
+				break;
+			case 1:
+				tls = TLSOptional;
+				break;
+			case 2:
+				tls = TLSRequired;
+				break;
+		}
+		//p->client->setTls(tls);
+		p->client->setSasl(group.value("sasl", true));
+		//p->client->setCompression(group.value("compression", true));
+		p->client->setTls(TLSDisabled); // Error with 'TLSOptional'
+		p->client->setCompression(false); // Error with 'true' =/ Hm...
+		p->connection->setServer(group.value("server", QString::fromStdString(p->client->jid().server())).toStdString(),
+				group.value("port", 5222));
+		p->connection->setUseDns(group.value("usedns", true));
 	}
 
 	void JConnection::setConnectionPresence(Presence::PresenceType presence)

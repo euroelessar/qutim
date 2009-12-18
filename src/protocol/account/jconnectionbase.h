@@ -3,6 +3,9 @@
 
 #include <gloox/connectionbase.h>
 #include <gloox/connectiondatahandler.h>
+#include <gloox/dns.h>
+#include <QtNetwork/QHostAddress>
+#include <QtNetwork/QTcpSocket>
 #include "../jprotocol.h"
 
 namespace Jabber
@@ -24,21 +27,24 @@ namespace Jabber
 			virtual ConnectionError receive();
 			virtual void disconnect();
 			virtual void cleanup();
-			ConnectionState state() const;
-			void registerConnectionDataHandler(ConnectionDataHandler *cdh);
-			void setServer(const std::string &server, int port = -1);
-			const std::string &server() const;
-			int port() const;
 			virtual int localPort() const;
 			virtual const std::string localInterface() const;
 			virtual void getStatistics(long int &totalIn, long int &totalOut);
 			virtual ConnectionBase *newInstance() const;
-		protected:
-			ConnectionDataHandler *m_handler;
-			ConnectionState m_state;
-			std::string m_server;
-			int m_port;
+
+			void setProxy(QNetworkProxy &proxy);
+			void setUseDns(bool useDns);
+		private slots:
+			void connected();
+			void disconnected();
+			void hostFound();
+			void read();
+			void error(QAbstractSocket::SocketError error);
+			void stateChanged(QAbstractSocket::SocketState state);
 		private:
+			void createSocket();
+			void deleteSocket();
+			void startConnection();
 			JConnectionBasePrivate *p;
 	};
 }
