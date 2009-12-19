@@ -64,6 +64,8 @@ namespace AdiumChat
 		}
 		//
 		setProperty("currentIndex",-1);
+		//
+		m_html_message = Config("appearance/adiumChat").group("behavior/widget").value<bool>("htmlMessage",false);
 	}
 
 	ChatWidget::~ChatWidget()
@@ -198,15 +200,16 @@ namespace AdiumChat
 		if (ui->chatEdit->toPlainText().trimmed().isEmpty() || ui->tabBar->currentIndex() < 0)
 			return;
 		ChatSessionImpl *session = m_sessions.at(ui->tabBar->currentIndex());
-		Message message (ui->chatEdit->toPlainText());
+		ChatUnit *unit = session->getUnit();
+		Message message(ui->chatEdit->toPlainText());
+		if (m_html_message)
+			message.setProperty("html",Qt::escape(message.text()));
 		message.setIncoming(false);
-		message.setChatUnit(session->getUnit());
+		message.setChatUnit(unit);
 		message.setTime(QDateTime::currentDateTime());
 		session->getUnit()->sendMessage(message);
 		session->appendMessage(message); //for testing
 		ui->chatEdit->clear();
-		//ugly HACK
-		//ui->chatView->page()->currentFrame()->setHtml(session->getPage()->currentFrame()->toHtml());
 	}
 
 	void ChatWidget::remoteChatStateChanged(Contact *c, ChatState state)

@@ -60,6 +60,7 @@ namespace AdiumChat
 		ChatSessionList m_sessions;
 		Ui::AdiumChatForm *ui;
 		ChatFlags m_chat_flags;
+		bool m_html_message;
 	private slots:
 		void currentIndexChanged (int index);
 		void onCloseRequested(int index);
