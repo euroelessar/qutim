@@ -84,7 +84,7 @@ void IcqContact::sendMessage(const Message &message)
 	QString msgText;
 	if(HtmlSupport())
 		msgText = message.property("html").toString();
-	else
+	if(msgText.isEmpty())
 		msgText = message.text();
 	if(!SrvRelaySupport())
 	{
