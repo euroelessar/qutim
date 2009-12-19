@@ -49,6 +49,7 @@ namespace KineticPopups
 			return;
 		}
 		static int id_counter = 0;
+		QString text = Qt::escape(body);
 		QString sender_id = sender ? sender->property("id").toString() : QString();
 		QString sender_name = sender ? sender->property("name").toString() : QString();
 		if(sender_name.isEmpty())
@@ -63,7 +64,7 @@ namespace KineticPopups
 		if (popup)
 		{
 			if (appendMode) {
-				updateMode ? popup->updateMessage(body) : popup->appendMessage(body);
+				updateMode ? popup->updateMessage(text) : popup->appendMessage(text);
 				return;
 			}
 			else if (sender)
@@ -73,7 +74,7 @@ namespace KineticPopups
 		}
 		popup  = new Popup ();		
 		popup->setTimeOut(manager->timeout);
-		popup->setMessage(title,body,sender);
+		popup->setMessage(title,text,sender);
 		popup->setId(popup_id);
 		if (sender)
 			connect(sender,SIGNAL(destroyed(QObject*)),popup,SLOT(deleteLater()));
