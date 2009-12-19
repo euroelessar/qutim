@@ -264,7 +264,7 @@ void MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *contac
 		}
 		if(!(snac.id() & 0x80000000) && msg_tlvs.contains(0x0016)) // Offline message
 			time = QDateTime::fromTime_t(msg_tlvs.value(0x0016).value<quint32>());
-		appendMessage(uin, message, time);
+		appendMessage(contact, message, time);
 	}
 	else
 		qDebug() << "Incorrect message on channel 1 from" << uin << ": SNAC should contain TLV 2";
@@ -402,7 +402,7 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 			}
 			if(codec == NULL)
 				codec = asciiCodec();
-			appendMessage(contact->id(), codec->toUnicode(message_data));
+			appendMessage(contact, codec->toUnicode(message_data));
 		}
 		else if(MsgPlugin)
 		{
@@ -428,16 +428,18 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 		qDebug() << "Unknown format of TLV 2711";
 }
 
-void MessagesHandler::appendMessage(const QString &uin, const QString &message, QDateTime time)
+void MessagesHandler::appendMessage(IcqContact *contact, const QString &message, QDateTime time)
 {
 	if(!time.isValid())
 		time = QDateTime::currentDateTime();
-	qDebug() << "Received message" << uin << time << message;
+	qDebug() << "Received message" << contact->name() << time << message;
 	if(ChatLayer::instance())
 	{
-		ChatSession *session = ChatLayer::instance()->getSession(m_account, uin);
+		ChatSession *session = ChatLayer::instance()->getSession(m_account, contact);
 		Message m;
 		m.setIncoming(true);
+		if(contact->HtmlSupport())
+			m.setProperty("html", message);
 		m.setText(message);
 		m.setTime(time);
 		m.setChatUnit(session->getUnit());

@@ -115,7 +115,7 @@ private:
 	void handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs, quint64 msgCookie);
 	void handleChannel4Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
 	void handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, quint64 msgCookie);
-	void appendMessage(const QString &uin, const QString &message, QDateTime time = QDateTime());
+	void appendMessage(IcqContact *contact, const QString &message, QDateTime time = QDateTime());
 	IcqAccount *m_account;
 	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
 };
