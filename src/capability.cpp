@@ -21,8 +21,6 @@
 
 namespace Icq {
 
-static const QUuid shortUuid("{09460000-4C7F-11D1-8222-444553540000}");
-
 Capability::Capability()
 {
 }
@@ -30,11 +28,11 @@ Capability::Capability()
 Capability::Capability(const QByteArray &data)
 {
 	if (data.size() == 2) {
-		data1 = shortUuid.data1;
+		data1 = shortUuid().data1;
 		data1 |= qFromBigEndian<quint16>((const uchar *)data.constData());
-		data2 = shortUuid.data2;
-		data3 = shortUuid.data3;
-		memcpy(data4, shortUuid.data4, 8);
+		data2 = shortUuid().data2;
+		data3 = shortUuid().data3;
+		memcpy(data4, shortUuid().data4, 8);
 	} else if (data.size() == 16) {
 		const uchar *src = (const uchar *)data.constData();
 		data1 = qFromBigEndian<quint32>(src);
@@ -47,7 +45,7 @@ Capability::Capability(const QByteArray &data)
 Capability::Capability(quint32 d1, quint32 d2, quint32 d3, quint32 d4)
 {
 	data1 = d1;
-	data2 = (d2 & 0xffff0000) >> 16;
+	data2 = d2 >> 16;
 	data3 = (d2 & 0x0000ffff);
 	qToBigEndian(d3, (uchar *)data4);
 	qToBigEndian(d4, (uchar *)data4 + 4);
@@ -72,18 +70,18 @@ Capability::Capability(quint8 d1, quint8 d2, quint8 d3, quint8 d4, quint8 d5, qu
 }
 
 
-Capability::Capability(quint16 data) : QUuid(shortUuid)
+Capability::Capability(quint16 data): QUuid(shortUuid())
 {
-	data1 = ((data1 & 0xffff0000) >> 16) | data;
+	data1 |= data;
 }
 
 bool Capability::isShort() const
 {
 	if((data1 >> 16) != 0x0946)
 		return false;
-	return data2 == shortUuid.data2
-			&& data3 == shortUuid.data3
-			&& !memcmp(data4, shortUuid.data4, 16);
+	return data2 == shortUuid().data2
+			&& data3 == shortUuid().data3
+			&& !memcmp(data4, shortUuid().data4, 16);
 }
 
 bool Capability::operator==(const QUuid &rhs) const
@@ -151,6 +149,12 @@ bool Capability::match(const Capability &c, quint8 len) const
 				&& data3 == c.data3
 				&& !memcmp(data4, c.data4, len - 8);
 	}
+}
+
+const QUuid &Capability::shortUuid()
+{
+	static const QUuid uuid("{09460000-4C7F-11D1-8222-444553540000}");
+	return uuid;
 }
 
 bool Capabilities::match(const Capability &capability, quint8 len) const

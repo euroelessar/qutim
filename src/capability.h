@@ -41,6 +41,8 @@ public:
 	bool isEmpty() const { return isNull(); }
 	bool operator==(const QUuid &rhs) const;
 	bool match(const Capability &capability, quint8 len = 17) const;
+protected:
+	static const QUuid &shortUuid();
 };
 
 class Capabilities: public QList<Capability>
