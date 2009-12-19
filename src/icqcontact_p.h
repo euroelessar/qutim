@@ -54,7 +54,6 @@ struct IcqContactPrivate
 	quint16 version;
 	CapabilityFlags flags;
 	Capabilities capabilities;
-	Capabilities short_capabilities;
 	DirectConnectionInfo dc_info;
 };
 

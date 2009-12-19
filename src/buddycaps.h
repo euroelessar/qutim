@@ -154,37 +154,6 @@ const Capability ICQ_CAPABILITY_PSIG_MESSAGE (0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 											  0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 											  0x00, 0x00, 0x00, 0x00);
 
-
-// Short capabilities
-
-const Capability ICQ_SHORTCAP_SHORTCAPS    (0x0000);
-
-const Capability ICQ_SHORTCAP_AIMVOICE     (0x1341);
-
-const Capability ICQ_SHORTCAP_SENDFILE     (0x1343);
-
-const Capability ICQ_SHORTCAP_DIRECT       (0x1344);
-
-const Capability ICQ_SHORTCAP_AIMIMAGE     (0x1345);
-
-const Capability ICQ_SHORTCAP_BUDDYCON     (0x1346);
-
-const Capability ICQ_SHORTCAP_AIMSTOCKS    (0x1347);
-
-const Capability ICQ_SHORTCAP_GETFILE      (0x1348);
-
-const Capability ICQ_SHORTCAP_RELAY        (0x1349);
-
-const Capability ICQ_SHORTCAP_GAMES        (0x134a);
-
-const Capability ICQ_SHORTCAP_AIMBUDDYLIST (0x134b);
-
-const Capability ICQ_SHORTCAP_AVATAR       (0x134c);
-
-const Capability ICQ_SHORTCAP_AIMSUPPORT   (0x134d);
-
-const Capability ICQ_SHORTCAP_UTF          (0x134e);
-
 } // namespace Icq
 
 #endif /*CAPABILITIES_H_*/

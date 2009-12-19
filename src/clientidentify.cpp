@@ -284,6 +284,8 @@ void ClientIdentify::identify_by_ProtoVersion()
 	                                                    0x45, 0x1b, 0xbd, 0x79, 0xdc, 0x58,
 	                                                    0x49, 0x78, 0x88, 0xb9);
 
+	static const Capability ICQ_CAPABILITY_DIGSBY      (0x0002);
+
 	bool rtf      = m_contact->RtfSupport();
 	bool typing   = m_contact->TypingSupport();
 	bool aimChat  = m_contact->AimChatSupport();
@@ -318,8 +320,8 @@ void ClientIdentify::identify_by_ProtoVersion()
 					setClientData("PyICQ-t Jabber Transport", "pyicq");
 				}
 				else if (utf8 && srvRelay && sendFile &&
-						m_client_caps.match(ICQ_SHORTCAP_AIMBUDDYLIST) &&
-						m_contact->shortCapabilities().match(0x0002))
+						m_client_caps.match(ICQ_CAPABILITY_BUDDY_LIST) &&
+						m_contact->capabilities().match(ICQ_CAPABILITY_DIGSBY))
 				{
 					setClientData("Digsby", "digsby");
 				}
@@ -330,7 +332,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 				{
 					setClientData("Easy Message", "unknown");
 				}
-				else if (aimIcon && m_contact->shortCapabilities().match(ICQ_SHORTCAP_AIMIMAGE))
+				else if (aimIcon && m_client_caps.match(ICQ_CAPABILITY_AIMIMAGE))
 				{
 					setClientData("AIM", "aim");
 				}
@@ -528,7 +530,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 			}
 		}
 		else if(utf8 && sendFile && aimIcon && aimChat
-				&& m_contact->shortCapabilities().match(ICQ_SHORTCAP_AIMBUDDYLIST))
+				&& m_contact->capabilities().match(ICQ_CAPABILITY_BUDDY_LIST))
 		{
 			m_client_id = "ICQ Lite";
 			setClientIcon("icq4lite");
@@ -996,7 +998,7 @@ void ClientIdentify::identify_LibGaim()
 
 	if (m_contact->SendFileSupport() && m_contact->AimImageSupport() &&
 		m_contact->IconSupport() && m_contact->Utf8Support() &&
-		((m_client_caps.size() + m_contact->shortCapabilities().size()) == (4 + newver)))
+		(m_client_caps.size() == (4 + newver)))
 	{
 		if (newver >= 1)
 			setClientData("Pidgin/AdiumX", "pidgin");

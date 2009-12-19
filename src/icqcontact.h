@@ -62,10 +62,9 @@ public:
 	bool SrvRelaySupport() const;
 	bool AvatarSupport() const;
 	const Capabilities &capabilities() const;
-	const Capabilities &shortCapabilities() const;
 	const DirectConnectionInfo &dcInfo() const;
 	void setStatus(Status status);
-	void setCapabilities(const Capabilities &caps, const Capabilities &shortCaps);
+	void setCapabilities(const Capabilities &caps);
 protected:
 	friend class Roster;
 	friend class MessagesHandler;

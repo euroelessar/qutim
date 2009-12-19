@@ -724,14 +724,13 @@ void Roster::handleUserOnline(const SNAC &snac)
 	}
 
 	// Updating capabilities
-	Capabilities shortCaps;
 	if(tlvs.contains(0x0019))
 	{
 		DataUnit data(tlvs.value(0x0019));
 		while(data.dataSize() >= 2)
-			shortCaps.push_back(Capability(data.readData(2)));
+			newCaps.push_back(Capability(data.readData(2)));
 	}
-	contact->setCapabilities(newCaps, shortCaps);
+	contact->setCapabilities(newCaps);
 
 	ClientIdentify identify;
 	identify.identify(contact);

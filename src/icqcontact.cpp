@@ -26,7 +26,6 @@ void IcqContactPrivate::clearCapabilities()
 {
 	flags = 0;
 	capabilities.clear();
-	short_capabilities.clear();
 }
 
 IcqContact::IcqContact(const QString &uin, IcqAccount *account) : Contact(account), d_ptr(new IcqContactPrivate)
@@ -85,7 +84,7 @@ void IcqContact::sendMessage(const Message &message)
 	QString msgText;
 	if(HtmlSupport())
 		msgText = message.property("html").toString();
-	if(msgText.isEmpty())
+	else
 		msgText = message.text();
 	if(!SrvRelaySupport())
 	{
@@ -197,11 +196,6 @@ const Capabilities &IcqContact::capabilities() const
 	return d_func()->capabilities;
 }
 
-const Capabilities &IcqContact::shortCapabilities() const
-{
-	return d_func()->short_capabilities;
-}
-
 const DirectConnectionInfo &IcqContact::dcInfo() const
 {
 	Q_D(const IcqContact);
@@ -217,7 +211,7 @@ void IcqContact::setStatus(Status status)
 	emit statusChanged(status);
 }
 
-void IcqContact::setCapabilities(const Capabilities &caps, const Capabilities &shortCaps)
+void IcqContact::setCapabilities(const Capabilities &caps)
 {
 	Q_D(IcqContact);
 	d->clearCapabilities();
@@ -249,27 +243,6 @@ void IcqContact::setCapabilities(const Capabilities &caps, const Capabilities &s
 			d->flags |= avatar_support;
 	}
 	d->capabilities = caps;
-
-	foreach(const Capability &capability, shortCaps)
-	{
-		if(capability.match(ICQ_SHORTCAP_AIMIMAGE))
-			d->flags |= aim_image_support;
-		else if(capability.match(ICQ_SHORTCAP_UTF))
-			d->flags |= utf8_support;
-		else if(capability.match(ICQ_SHORTCAP_SENDFILE))
-			d->flags |= sendfile_support;
-		else if(capability.match(ICQ_SHORTCAP_DIRECT))
-			d->flags |= direct_support;
-		else if(capability.match(ICQ_SHORTCAP_BUDDYCON))
-			d->flags |= icon_support;
-		else if(capability.match(ICQ_SHORTCAP_GETFILE))
-			d->flags |= getfile_support;
-		else if(capability.match(ICQ_SHORTCAP_RELAY))
-			d->flags |= srvrelay_support;
-		else if(capability.match(ICQ_SHORTCAP_AVATAR))
-			d->flags |= avatar_support;
-	}
-	d->short_capabilities = shortCaps;
 }
 
 } // namespace Icq
