@@ -295,11 +295,11 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 			if(contact)
 			{
 				if(tlvs.contains(0x03))
-					contact->p->dc_info.external_ip = QHostAddress(tlvs.value(0x04).value<quint32>());
+					contact->d_func()->dc_info.external_ip = QHostAddress(tlvs.value(0x04).value<quint32>());
 				if(tlvs.contains(0x04))
-					contact->p->dc_info.internal_ip = QHostAddress(tlvs.value(0x04).value<quint32>());
+					contact->d_func()->dc_info.internal_ip = QHostAddress(tlvs.value(0x04).value<quint32>());
 				if(tlvs.contains(0x04))
-					contact->p->dc_info.port = tlvs.value(0x05).value<quint32>();
+					contact->d_func()->dc_info.port = tlvs.value(0x05).value<quint32>();
 			}
 			if(tlvs.contains(0x2711))
 			{
@@ -357,7 +357,7 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 	}
 	quint16 version = data.readSimple<quint16>(DataUnit::LittleEndian);
 	if(contact)
-		contact->p->version = version;
+		contact->d_func()->version = version;
 	Capability guid = data.readCapability();
 	data.skipData(9);
 	id = data.readSimple<quint16>(DataUnit::LittleEndian);

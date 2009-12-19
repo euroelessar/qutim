@@ -16,6 +16,7 @@
 #ifndef ICQCONTACT_H
 #define ICQCONTACT_H
 
+#include <QScopedPointer>
 #include <qutim/contact.h>
 #include <capability.h>
 
@@ -31,8 +32,12 @@ struct IcqContactPrivate;
 
 class IcqContact : public Contact
 {
+	Q_DECLARE_PRIVATE(IcqContact)
+	Q_OBJECT
+	Q_DISABLE_COPY(IcqContact)
 public:
 	IcqContact(const QString &uin, IcqAccount *account);
+	~IcqContact();
 	virtual QSet<QString> tags() const;
 	virtual QString id() const;
 	virtual QString name() const;
@@ -43,28 +48,28 @@ public:
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
 public:
-	bool RtfSupport();
-	bool HtmlSupport();
-	bool TypingSupport();
-	bool AimChatSupport();
-	bool AimImageSupport();
-	bool XtrazSupport();
-	bool Utf8Support();
-	bool SendFileSupport();
-	bool DirectSupport();
-	bool IconSupport();
-	bool GetFileSupport();
-	bool SrvRelaySupport();
-	bool AvatarSupport();
-	const Capabilities &capabilities();
-	const Capabilities &shortCapabilities();
-	const DirectConnectionInfo &dcInfo();
+	bool RtfSupport() const;
+	bool HtmlSupport() const;
+	bool TypingSupport() const;
+	bool AimChatSupport() const;
+	bool AimImageSupport() const;
+	bool XtrazSupport() const;
+	bool Utf8Support() const;
+	bool SendFileSupport() const;
+	bool DirectSupport() const;
+	bool IconSupport() const;
+	bool GetFileSupport() const;
+	bool SrvRelaySupport() const;
+	bool AvatarSupport() const;
+	const Capabilities &capabilities() const;
+	const Capabilities &shortCapabilities() const;
+	const DirectConnectionInfo &dcInfo() const;
 	void setStatus(Status status);
-private:
-	void clearCapabilities();
+	void setCapabilities(const Capabilities &caps, const Capabilities &shortCaps);
+protected:
 	friend class Roster;
 	friend class MessagesHandler;
-	QScopedPointer<IcqContactPrivate> p;
+	QScopedPointer<IcqContactPrivate> d_ptr;
 };
 
 } // namespace Icq

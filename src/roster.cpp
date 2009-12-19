@@ -279,7 +279,7 @@ IcqContact *Roster::sendAddContactRequest(const QString &contact_id, const QStri
 		bool found = false;
 		foreach(IcqContact *contact, m_contacts)
 		{
-			if(contact->p->user_id == id)
+			if(contact->d_func()->user_id == id)
 			{
 				found = true;
 				break;
@@ -312,8 +312,8 @@ void Roster::sendRemoveContactRequst(const QString &contact_id)
 	{
 		SSIItem item;
 		item.item_type = SsiBuddy;
-		item.item_id = contact->p->user_id;
-		item.group_id = contact->p->group_id;
+		item.item_id = contact->d_func()->user_id;
+		item.group_id = contact->d_func()->group_id;
 		item.record_name = contact->id();
 
 		sendCLModifyStart();
@@ -331,8 +331,8 @@ void Roster::sendRenameContactRequest(const QString &contact_id, const QString &
 	{
 		SSIItem item;
 		item.item_type = SsiBuddy;
-		item.item_id = contact->p->user_id;
-		item.group_id = contact->p->group_id;
+		item.item_id = contact->d_func()->user_id;
+		item.group_id = contact->d_func()->group_id;
 		item.record_name = contact->id();
 		item.tlvs.insert(SsiBuddyNick, name);
 		if(!contact->property("authorized").toBool())
@@ -447,9 +447,9 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 				emit m_account->contactCreated(contact);
 			}
 			m_contacts.insert(item.record_name, contact);
-			contact->p->group_id = item.group_id;
+			contact->d_func()->group_id = item.group_id;
 			if(item.tlvs.contains(SsiBuddyNick))
-				contact->p->name = item.tlvs.value<QString>(SsiBuddyNick);
+				contact->d_func()->name = item.tlvs.value<QString>(SsiBuddyNick);
 			if(item.tlvs.contains(SsiBuddyComment))
 				contact->setProperty("comment", item.tlvs.value<QString>(SsiBuddyComment));
 			bool auth = !item.tlvs.contains(SsiBuddyReqAuth);
@@ -462,9 +462,9 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 		{
 			// name
 			QString new_name = item.tlvs.value<QString>(SsiBuddyNick);
-			if(!new_name.isEmpty() && new_name != contact->p->name)
+			if(!new_name.isEmpty() && new_name != contact->d_func()->name)
 			{
-				contact->p->name = new_name;
+				contact->d_func()->name = new_name;
 				emit contact->nameChanged(new_name);
 			}
 			// comment
@@ -480,7 +480,7 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 			// TODO: emit ...
 			qDebug() << "The contact is updated" << contact->id() << contact->name() << item.item_id;
 		}
-		contact->p->user_id = item.item_id;
+		contact->d_func()->user_id = item.item_id;
 		break; }
 	case SsiGroup:
 		if(item.group_id > 0)
@@ -526,7 +526,7 @@ void Roster::handleRemoveCLItem(const SSIItem &item)
 		QHash<QString, IcqContact *>::iterator end_itr = m_contacts.end();
 		while(contact_itr != end_itr)
 		{
-			if(contact_itr.value()->p->user_id == item.item_id)
+			if(contact_itr.value()->d_func()->user_id == item.item_id)
 				break;
 			++contact_itr;
 		}
@@ -552,7 +552,7 @@ void Roster::handleRemoveCLItem(const SSIItem &item)
 		QHash<QString, IcqContact *>::iterator contact_end_itr = m_contacts.end();
 		while(contact_itr != contact_end_itr)
 		{
-			if(contact_itr.value()->p->group_id == item.group_id)
+			if(contact_itr.value()->d_func()->group_id == item.group_id)
 			{
 				removeContact(*contact_itr);
 				contact_itr = m_contacts.erase(contact_itr);
@@ -710,7 +710,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 			data.readSimple<quint32>(),
 			data.readSimple<quint32>()
 		};
-		contact->p->dc_info = info;
+		contact->d_func()->dc_info = info;
 	}
 
 	if(tlvs.contains(0x001d)) // avatar
@@ -722,60 +722,17 @@ void Roster::handleUserOnline(const SNAC &snac)
 		if(hash.size() == 16)
 			m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
 	}
-	contact->clearCapabilities();
-	foreach(const Capability &capability, newCaps) 	// capabilities
-	{
-		if(capability.match(ICQ_CAPABILITY_RTFxMSGS))
-			contact->p->rtf_support = true;
-		else if(capability.match(ICQ_CAPABILITY_TYPING))
-			contact->p->typing_support = true;
-		else if(capability.match(ICQ_CAPABILITY_AIMCHAT))
-			contact->p->aim_chat_support = true;
-		else if(capability.match(ICQ_CAPABILITY_AIMIMAGE))
-			contact->p->aim_image_support = true;
-		else if(capability.match(ICQ_CAPABILITY_XTRAZ))
-			contact->p->xtraz_support = true;
-		else if(capability.match(ICQ_CAPABILITY_UTF8))
-			contact->p->utf8_support = true;
-		else if(capability.match(ICQ_CAPABILITY_AIMSENDFILE))
-			contact->p->sendfile_support = true;
-		else if(capability.match(ICQ_CAPABILITY_DIRECT))
-			contact->p->direct_support = true;
-		else if(capability.match(ICQ_CAPABILITY_AIMICON))
-			contact->p->icon_support = true;
-		else if(capability.match(ICQ_CAPABILITY_AIMGETFILE))
-			contact->p->getfile_support = true;
-		else if(capability.match(ICQ_CAPABILITY_SRVxRELAY))
-			contact->p->srvrelay_support = true;
-		else if(capability.match(ICQ_CAPABILITY_AVATAR))
-			contact->p->avatar_support = true;
-	}
-	contact->p->capabilities = newCaps;
-	if(tlvs.contains(0x0019)) // short capabilities
+
+	// Updating capabilities
+	Capabilities shortCaps;
+	if(tlvs.contains(0x0019))
 	{
 		DataUnit data(tlvs.value(0x0019));
 		while(data.dataSize() >= 2)
-		{
-			Capability capability(data.readData(2));
-			if(capability.match(ICQ_SHORTCAP_AIMIMAGE))
-				contact->p->aim_image_support = true;
-			else if(capability.match(ICQ_SHORTCAP_UTF))
-				contact->p->utf8_support = true;
-			else if(capability.match(ICQ_SHORTCAP_SENDFILE))
-				contact->p->sendfile_support = true;
-			else if(capability.match(ICQ_SHORTCAP_DIRECT))
-				contact->p->direct_support = true;
-			else if(capability.match(ICQ_SHORTCAP_BUDDYCON))
-				contact->p->icon_support = true;
-			else if(capability.match(ICQ_SHORTCAP_GETFILE))
-				contact->p->getfile_support = true;
-			else if(capability.match(ICQ_SHORTCAP_RELAY))
-				contact->p->srvrelay_support = true;
-			else if(capability.match(ICQ_SHORTCAP_AVATAR))
-				contact->p->avatar_support = true;
-			contact->p->short_capabilities << capability;
-		}
+			shortCaps.push_back(Capability(data.readData(2)));
 	}
+	contact->setCapabilities(newCaps, shortCaps);
+
 	ClientIdentify identify;
 	identify.identify(contact);
 	qDebug() << contact->name() << "uses" << contact->property("client_id").toString();
@@ -788,8 +745,7 @@ void Roster::handleUserOffline(const SNAC &snac)
 	// We don't know this contact
 	if(!contact)
 		return;
-	contact->p->status = Offline;
-	contact->statusChanged(contact->p->status);
+	contact->setStatus(Offline);
 //	quint16 warning_level = snac.readSimple<quint16>();
 //	TLVMap tlvs = snac.readTLVChain<quint16>();
 //	tlvs.value(0x0001); // User class

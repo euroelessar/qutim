@@ -24,8 +24,27 @@
 
 namespace Icq {
 
+enum ContactCapabilityFlags
+{
+	rtf_support       = 0x0001,
+	html_support      = 0x0002,
+	typing_support    = 0x0004,
+	aim_chat_support  = 0x0008,
+	aim_image_support = 0x0010,
+	xtraz_support     = 0x0020,
+	utf8_support      = 0x0040,
+	sendfile_support  = 0x0080,
+	direct_support    = 0x0100,
+	icon_support      = 0x0200,
+	getfile_support   = 0x0400,
+	srvrelay_support  = 0x0800,
+	avatar_support    = 0x1000
+};
+
 struct IcqContactPrivate
 {
+	void clearCapabilities();
+	Q_DECLARE_FLAGS(CapabilityFlags, ContactCapabilityFlags);
 	IcqAccount *account;
 	QString uin;
 	QString name;
@@ -33,24 +52,13 @@ struct IcqContactPrivate
 	quint16 group_id;
 	Status status;
 	quint16 version;
-
-	bool rtf_support;
-	bool html_support;
-	bool typing_support;
-	bool aim_chat_support;
-	bool aim_image_support;
-	bool xtraz_support;
-	bool utf8_support;
-	bool sendfile_support;
-	bool direct_support;
-	bool icon_support;
-	bool getfile_support;
-	bool srvrelay_support;
-	bool avatar_support;
+	CapabilityFlags flags;
 	Capabilities capabilities;
 	Capabilities short_capabilities;
 	DirectConnectionInfo dc_info;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(IcqContactPrivate::CapabilityFlags)
 
 } // namespace Icq
 
