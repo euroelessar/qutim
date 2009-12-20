@@ -66,6 +66,7 @@ class Tlv2711: public DataUnit
 public:
 	Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, quint64 cookie = 0);
 	void appendEmptyPacket();
+	void appendColors();
 	quint64 cookie() const { return m_cookie; };
 private:
 	quint64 m_cookie;
@@ -116,6 +117,7 @@ private:
 	void handleChannel4Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
 	void handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, quint64 msgCookie);
 	void appendMessage(IcqContact *contact, const QString &message, QDateTime time = QDateTime());
+	void sendChannel2Response(IcqContact *contact, quint8 type, quint8 flags, quint64 cookie);
 	IcqAccount *m_account;
 	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
 };

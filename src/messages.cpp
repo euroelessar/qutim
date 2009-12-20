@@ -74,6 +74,12 @@ void Tlv2711::appendEmptyPacket()
 	appendSimple<quint8>(0);
 }
 
+void Tlv2711::appendColors()
+{
+	appendSimple<quint32>(0x00000000); // foreground
+	appendSimple<quint32>(0x00FFFFFF, DataUnit::LittleEndian); // background
+}
+
 Channel2BasicMessageData::Channel2BasicMessageData(quint16 command, const Capability &guid, qint64 cookie):
 	m_cookie(cookie)
 {
@@ -372,6 +378,7 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 
 		if(type == MsgPlain && ack != 2) // Plain message
 		{
+			sendChannel2Response(contact, type, flags, msgCookie);
 			QByteArray message_data = data.readData<quint16>(DataUnit::LittleEndian);
 			message_data.resize(message_data.size() - 1);
 			QColor foreground(
@@ -445,6 +452,16 @@ void MessagesHandler::appendMessage(IcqContact *contact, const QString &message,
 		m.setChatUnit(session->getUnit());
 		session->appendMessage(m);
 	}
+}
+
+void MessagesHandler::sendChannel2Response(IcqContact *contact, quint8 type, quint8 flags, quint64 cookie)
+{
+	Tlv2711 responseTlv(type, flags, 0, 0);
+	responseTlv.appendEmptyPacket();
+	responseTlv.appendColors();
+	ServerResponseMessage response(contact->id(), 2, 3, cookie);
+	response.appendData(responseTlv.data());
+	m_account->connection()->send(response);
 }
 
 } // namespace Icq

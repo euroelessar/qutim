@@ -102,8 +102,7 @@ void IcqContact::sendMessage(const Message &message)
 		QByteArray msg = codec->fromUnicode(msgText) + '\0';
 		Tlv2711 tlv(0x01, 0, qutimStatusToICQ(d->status), 1);
 		tlv.appendData<quint16>(msg, DataUnit::LittleEndian);
-		tlv.appendSimple<quint32>(0x00000000); // foreground
-		tlv.appendSimple<quint32>(0x00FFFFFF, DataUnit::LittleEndian); // background
+		tlv.appendColors();
 		if(Utf8Support())
 			tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString(), Util::asciiCodec(), DataUnit::LittleEndian);
 		ServerMessage msgData(d->uin, Channel2MessageData(0, tlv));
