@@ -49,7 +49,7 @@ namespace Jabber
 		if (!p->socket)
 			return false;
 
-		int bw = p->socket->write(data.c_str());
+		int bw = p->socket->write(data.c_str(), data.length());
 		if (bw == -1)
 			return false;
 
@@ -189,7 +189,7 @@ namespace Jabber
 
 		QByteArray data = p->socket->read(ba);
 		p->totalBytesIn += data.size();
-		m_handler->handleReceivedData(this, data.data());
+		m_handler->handleReceivedData(this, std::string(data.data(), data.size()));
 
 		//debug() << Q_FUNC_INFO << QString(data);
 	}

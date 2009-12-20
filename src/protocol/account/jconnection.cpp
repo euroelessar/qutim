@@ -107,17 +107,14 @@ namespace Jabber
 				tls = TLSRequired;
 				break;
 		}
-		//p->client->setTls(tls);
+		p->client->setTls(tls);
 		p->client->setSasl(group.value("sasl", true));
-		//p->client->setCompression(group.value("compression", true));
-		p->client->setTls(TLSDisabled); // Error with 'TLSOptional'
-		p->client->setCompression(false); // Error with 'true' =/ Hm...
-		if (group.value("manualhost", false)) {
+		p->client->setCompression(group.value("compression", true));
+		if (group.value("manualhost", false))
 			p->connection->setServer(group.value("server", QString::fromStdString(p->client->jid().server())).toStdString(),
 					group.value("port", 5222));
-		} else {
+		else
 			p->connection->setServer(p->client->jid().server(), 5222);
-		}
 		p->connection->setUseDns(group.value("usedns", true));
 	}
 
