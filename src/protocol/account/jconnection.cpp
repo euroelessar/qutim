@@ -8,7 +8,7 @@ namespace Jabber
 	{
 		JAccount *account;
 		Client *client;
-		JConnectionBase *connection;
+		JConnectionTCPBase *connection;
 		QNetworkProxy proxy;
 		QString resource;
 		bool autoPriority;
@@ -22,7 +22,7 @@ namespace Jabber
 		p->password = QString();
 		JID jid = JID(account->jid().toStdString());
 		p->client = new Client(jid, p->password.toStdString());
-		p->connection = new JConnectionBase(p->client);
+		p->connection = new JConnectionTCPBase(p->client);
 		loadSettings();
 
 		p->client->setConnectionImpl(p->connection);

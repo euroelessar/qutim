@@ -28,6 +28,7 @@ namespace Jabber {
 		loadSettings();
 		p->keepStatus = false;
 		p->roster = new JRoster(this);
+		//p->connection->client()->rosterManager()->registerRosterListener(p->roster);
 		autoconnect();
 		//p->connection->registerHandler(p->roster);
 	}

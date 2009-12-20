@@ -5,7 +5,7 @@ namespace Jabber
 {
 	JRoster::JRoster(JAccount *account) : RosterManager(account->connection()->client())
 	{
-		registerRosterListener(this, false);
+		account->connection()->client()->rosterManager()->registerRosterListener(this);
 	}
 
 	JRoster::~JRoster()

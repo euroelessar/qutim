@@ -5,7 +5,7 @@
 #include <gloox/presencehandler.h>
 #include <gloox/disco.h>
 #include <QtNetwork/QNetworkProxy>
-#include "jconnectionbase.h"
+#include "jconnectiontcpbase.h"
 #include "../jprotocol.h"
 
 namespace Jabber
