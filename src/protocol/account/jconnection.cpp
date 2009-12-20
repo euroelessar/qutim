@@ -28,14 +28,18 @@ namespace Jabber
 		p->client->setConnectionImpl(p->connection);
 		p->client->disco()->setVersion("qutIM", "0.3");
 		p->client->disco()->setIdentity("client", "pc");
+		p->client->disco()->addFeature("jabber:iq:roster");
 		p->client->registerPresenceHandler(this);
+	}
+
+	Client *JConnection::client()
+	{
+		return p->client;
 	}
 
 	void JConnection::handlePresence(const Presence &presence)
 	{
-		qDebug() << presence.presence();
-		qDebug() << p->client->state();
-		emit setStatus(presence.presence());
+		p->account->endChangeStatus(presence.presence());
 	}
 
 	void JConnection::loadSettings()

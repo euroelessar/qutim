@@ -5,6 +5,8 @@
 #include <gloox/presence.h>
 #include "jconnection.h"
 #include "jinputpassword.h"
+#include "jconnection.h"
+#include "roster/jroster.h"
 
 namespace Jabber {
 
@@ -12,8 +14,8 @@ namespace Jabber {
 	using namespace gloox;
 
 	struct JAccountPrivate;
-	//class Roster;
-	//class OscarConnection;
+	class JRoster;
+	class JConnection;
 
 	class JAccount : public Account
 	{
@@ -26,11 +28,11 @@ namespace Jabber {
 			//OscarConnection *connection();
 			ChatUnit *getUnit(const QString &unitId, bool create = false);
 			void beginChangeStatus(Presence::PresenceType presence);
+			void endChangeStatus(Presence::PresenceType presence);
 			const QString &jid();
 			const QString &password(bool *ok = 0);
 			void autoconnect();
-		private slots:
-			void endChangeStatus(Presence::PresenceType presence);
+			JConnection *connection();
 		protected:
 			void loadSettings();
 		private:

@@ -22,8 +22,7 @@ namespace Jabber
 			JConnection(JAccount *account);
 			void loadSettings();
 			void setConnectionPresence(Presence::PresenceType presence);
-		signals:
-			void setStatus(Presence::PresenceType presence);
+			Client *client();
 		protected:
 			void handlePresence(const Presence &presence);
 		private:

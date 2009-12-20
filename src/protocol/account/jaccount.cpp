@@ -12,6 +12,7 @@ namespace Jabber {
 		inline JAccountPrivate() : keepStatus(false), autoConnect(false) {}
 		inline ~JAccountPrivate() {}
 		JConnection *connection;
+		JRoster *roster;
 		QString jid;
 		QString passwd;
 		bool keepStatus;
@@ -24,12 +25,10 @@ namespace Jabber {
 	{
 		p->jid = jid;
 		p->connection = new JConnection(this);
-		connect(p->connection, SIGNAL(setStatus(Presence::PresenceType)),
-				this, SLOT(endChangeStatus(Presence::PresenceType)));
 		loadSettings();
 		p->keepStatus = false;
+		p->roster = new JRoster(this);
 		autoconnect();
-		//p->roster = new JRoster(p->connection);
 		//p->connection->registerHandler(p->roster);
 	}
 
@@ -116,5 +115,9 @@ namespace Jabber {
 		return p->passwd;
 	}
 
+	JConnection *JAccount::connection()
+	{
+		return p->connection;
+	}
 } // Jabber namespace
 
