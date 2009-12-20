@@ -104,7 +104,8 @@ void IcqContact::sendMessage(const Message &message)
 		tlv.appendData<quint16>(msg, DataUnit::LittleEndian);
 		tlv.appendColors();
 		if(Utf8Support())
-			tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString(), Util::asciiCodec(), DataUnit::LittleEndian);
+			tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(),
+						Util::asciiCodec(), DataUnit::LittleEndian);
 		ServerMessage msgData(d->uin, Channel2MessageData(0, tlv));
 		d->account->connection()->send(msgData);
 		qDebug() << "Message" << msgText << "is sent on channel 2";
