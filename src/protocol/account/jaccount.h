@@ -3,9 +3,10 @@
 
 #include <qutim/account.h>
 #include <gloox/presence.h>
+
 #include "jconnection.h"
+#include "connection/jconnectionlistener.h"
 #include "jinputpassword.h"
-#include "jconnection.h"
 #include "roster/jroster.h"
 
 namespace Jabber {

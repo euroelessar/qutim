@@ -1,6 +1,4 @@
 #include "jconnection.h"
-#include <QDebug>
-#include <QTimer>
 
 namespace Jabber
 {

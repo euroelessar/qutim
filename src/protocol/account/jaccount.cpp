@@ -1,9 +1,4 @@
-#include "../jprotocol.h"
 #include "jaccount.h"
-#include <QDebug>
-
-//#include "oscarconnection.h"
-//#include "roster.h"
 
 namespace Jabber {
 
@@ -13,12 +8,12 @@ namespace Jabber {
 		inline ~JAccountPrivate() {}
 		JConnection *connection;
 		JRoster *roster;
+		JConnectionListener *connectionListener;
 		QString jid;
 		QString passwd;
 		bool keepStatus;
 		bool autoConnect;
 		Presence::PresenceType status;
-		//Roster *roster;
 	};
 
 	JAccount::JAccount(const QString &jid) : Account(jid, JProtocol::instance()), p(new JAccountPrivate)
@@ -26,11 +21,10 @@ namespace Jabber {
 		p->jid = jid;
 		p->connection = new JConnection(this);
 		loadSettings();
-		p->keepStatus = false;
+		p->keepStatus = false; // what the fuck? fix it!
 		p->roster = new JRoster(this);
-		//p->connection->client()->rosterManager()->registerRosterListener(p->roster);
+		p->connectionListener = new JConnectionListener(this);
 		autoconnect();
-		//p->connection->registerHandler(p->roster);
 	}
 
 	JAccount::~JAccount()
@@ -39,24 +33,8 @@ namespace Jabber {
 
 	ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 	{
-		/*IcqContact *contact = p->roster->contact(unitId);
-		if(create && !contact)
-		{
-			contact = p->roster->sendAddContactRequest(unitId, unitId, not_in_list_group);
-		}
-		return contact;*/
 		return 0;
 	}
-
-	/*Roster *IcqAccount::roster()
-	{
-		return p->roster;
-	}*/
-
-	/*OscarConnection *IcqAccount::connection()
-	{
-		return p->conn;
-	}*/
 
 	void JAccount::beginChangeStatus(Presence::PresenceType presence)
 	{
