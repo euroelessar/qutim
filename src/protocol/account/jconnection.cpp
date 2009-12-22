@@ -66,7 +66,7 @@ namespace Jabber
 		}
 
 		//proxy settings
-		group = JProtocol::instance()->config().group("proxy");
+		group = p->account->config().group("proxy");
 		QNetworkProxy::ProxyType t = QNetworkProxy::DefaultProxy;;
 		switch (group.value("type", 0)) {
 			case 0: // Default proxy
@@ -92,7 +92,7 @@ namespace Jabber
 		p->connection->setProxy(p->proxy);
 
 		//connect settings
-		group = JProtocol::instance()->config().group("connect");
+		group = p->account->config().group("connect");
 		TLSPolicy tls = TLSOptional;
 		switch (group.value("tls", 1)) {
 			case 0:

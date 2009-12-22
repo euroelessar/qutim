@@ -25,4 +25,10 @@ namespace Jabber
 	JCertInfo::~JCertInfo()
 	{
 	}
+
+	bool JCertInfo::exec(bool &result)
+	{
+		result = QDialog::exec();
+		return p->ui.rememberBox->isChecked();
+	}
 }

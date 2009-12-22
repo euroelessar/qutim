@@ -17,6 +17,8 @@ namespace Jabber
 		public:
 			JCertInfo(const CertInfo &info, QWidget *parent = 0);
 			virtual ~JCertInfo();
+
+			bool exec(bool &result);
 		private:
 			JCertInfoPrivate *p;
 	};

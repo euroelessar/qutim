@@ -26,7 +26,6 @@ namespace Jabber {
 			virtual ~JAccount();
 			//virtual void setStatus(Status status);
 			//Roster *roster();
-			//OscarConnection *connection();
 			ChatUnit *getUnit(const QString &unitId, bool create = false);
 			void beginChangeStatus(Presence::PresenceType presence);
 			void endChangeStatus(Presence::PresenceType presence);
@@ -37,7 +36,6 @@ namespace Jabber {
 		protected:
 			void loadSettings();
 		private:
-			//friend class Roster;
 			QScopedPointer<JAccountPrivate> p;
 	};
 } // Jabber namespace

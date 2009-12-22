@@ -5,11 +5,13 @@ namespace Jabber
 {
 	struct JConnectionListenerPrivate
 	{
+		JAccount *account;
 	};
 
 	JConnectionListener::JConnectionListener(JAccount *account) : p(new JConnectionListenerPrivate), ConnectionListener()
 	{
-		account->connection()->client()->registerConnectionListener(this);
+		p->account = account;
+		p->account->connection()->client()->registerConnectionListener(this);
 	}
 
 	JConnectionListener::~JConnectionListener()
@@ -18,7 +20,6 @@ namespace Jabber
 
 	void JConnectionListener::onConnect()
 	{
-		qDebug() << Q_FUNC_INFO;
 	}
 
 	void JConnectionListener::onDisconnect(ConnectionError error)
@@ -39,7 +40,22 @@ namespace Jabber
 
 	bool JConnectionListener::onTLSConnect(const CertInfo &info)
 	{
-		if (JCertInfo(info).exec())
+		Config c = Config(p->account->protocol()->id() + QLatin1Char('.') + p->account->id() + QLatin1String("/certificates"));
+		QString s = QString::fromStdString(info.server);
+
+		if (c.hasGroup(s))
+			return c.value(s, true);
+
+		if (!p->account->config().group("connect").value("viewCertInfo", false))
+			return true;
+
+		bool r;
+		if (JCertInfo(info).exec(r)) {
+			c.setValue(s, r);
+			c.sync();
+		}
+
+		if (r)
 			return true;
 		else
 			return false;
