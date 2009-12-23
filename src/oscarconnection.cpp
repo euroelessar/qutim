@@ -131,7 +131,7 @@ void ProtocolNegotiationImpl::setMsgChannelParams(AbstractConnection *conn, quin
 }
 
 OscarConnection::OscarConnection(IcqAccount *parent):
-	AbstractConnection(parent), m_is_connected(false)
+	AbstractConnection(parent)
 {
 	connect(socket(), SIGNAL(disconnected()), this, SLOT(disconnected()));
 	m_account = parent;
@@ -143,7 +143,6 @@ OscarConnection::OscarConnection(IcqAccount *parent):
 		DirectConnectionInfo info = { QHostAddress(quint32(0)), QHostAddress(quint32(0)), 0, 0x04, 0x08, 0, 0x50, 0x03, 0, 0, 0 };
 		m_dc_info = info;
 	}
-	m_status_enum = Offline;
 	m_status = 0x0000;
 	m_status_flags = 0x0000;
 	m_buddy_picture = new BuddyPicture(m_account, this);
@@ -205,6 +204,7 @@ void OscarConnection::finishLogin()
 	sendUserInfo();
 	m_is_idle = true;
 	setIdle(false);
+	m_account->setStatus(icqStatusToQutim(m_status));
 	sendStatus();
 	SNAC snac(ServiceFamily, 0x02);
 	// imitate ICQ 6 behaviour
@@ -221,12 +221,12 @@ void OscarConnection::finishLogin()
 			"000a 0001 0110 164f"
 			"000b 0001 0110 164f"));
 	send(snac);
-	m_is_connected = true;
 }
 
 void OscarConnection::sendUserInfo()
 {
 	SNAC snac(LocationFamily, 0x04);
+
 	TLV caps(0x05);
 
 	// ICQ UTF8 Support
@@ -277,7 +277,7 @@ quint16 qutimStatusToICQ(Status status)
 	case Occupied:
 		return 0x0011;
 	case FreeChat:
-		return 0x0002;
+		return 0x0020;
 	case Evil:
 		return 0x3000;
 	case Depression:
@@ -295,11 +295,11 @@ quint16 qutimStatusToICQ(Status status)
 
 void OscarConnection::setStatus(Status status)
 {
-	if(status < Online || status > OnThePhone || m_status_enum == status)
+	Status currentStatus = m_account->status();
+	if(status < Online || status > OnThePhone || currentStatus == status)
 		return;
-	m_status_enum = status;
 	m_status = qutimStatusToICQ(status);
-	if(m_is_connected)
+	if(currentStatus < Connecting && currentStatus > Offline)
 		sendStatus();
 }
 
@@ -311,14 +311,12 @@ void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QBy
 
 void OscarConnection::disconnected()
 {
-	m_is_connected = false;
-	m_status_enum = Offline;
 	m_account->setStatus(Offline);
 }
 
 void OscarConnection::sendStatus()
 {
-	SNAC snac(ServiceFamily, 0x1e);
+	SNAC snac(ServiceFamily, ServiceClientSetStatus);
 	snac.appendTLV<quint32>(0x06, (m_status_flags << 16) | m_status); // Status mode and security flags
 	snac.appendTLV<quint16>(0x08, 0x0000); // Error code
 	TLV dc(0x0c); // Direct connection info

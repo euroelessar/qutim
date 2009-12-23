@@ -54,14 +54,7 @@ void IcqAccount::setStatus(Status status)
 		   qPrintable(statusToString(status, false)));
 	if(status < Offline || status > OnThePhone || current == status)
 		return;
-	if(current >= Connecting)
-	{
-		if(status == Offline)
-			p->conn->disconnectFromHost(true);
-		else
-			p->conn->setStatus(status);
-	}
-	else if(status == Offline)
+	if(status == Offline)
 	{
 		p->conn->disconnectFromHost(false);
 		foreach(IcqContact *contact, p->roster->contacts())
@@ -70,8 +63,11 @@ void IcqAccount::setStatus(Status status)
 	else if(current == Offline)
 	{
 		p->conn->setStatus(status);
+		status = Connecting;
 		p->conn->connectToLoginServer();
 	}
+	else
+		p->conn->setStatus(status);
 	Account::setStatus(status);
 }
 

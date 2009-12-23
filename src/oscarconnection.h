@@ -83,14 +83,12 @@ private:
 	void processNewConnection();
 	void processCloseConnection();
 	IcqAccount *m_account;
-	Status m_status_enum;
 	quint16 m_status;
 	quint16 m_status_flags;
 	QByteArray m_auth_cookie;
 	ClientInfo m_client_info;
 	DirectConnectionInfo m_dc_info;
 	bool m_is_idle;
-	bool m_is_connected;
 	BuddyPicture *m_buddy_picture;
 	MetaInfo *m_meta_info;
 };
