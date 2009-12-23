@@ -332,7 +332,16 @@ void OscarConnection::sendStatus()
 	dc.appendValue<quint32>(0x00000000); // last ext status update time (i.e. phonebook)
 	dc.appendValue<quint16>(0x0000); // Unknown
 	snac.appendData(dc);
-	snac.appendTLV<quint16>(0x1f, 0x00);
+	// Status item
+	DataUnit statusNote;
+	DataUnit statusData;
+	statusNote.appendSimple<quint16>(0x02);
+	statusData.appendData<quint16>(m_account->property("statusText").toString(), Util::utf8Codec());
+	statusData.appendSimple<quint16>(0); // endcoding: utf8 by default
+	statusNote.appendSimple<quint16>(0x400 | statusData.data().size()); // Flags + length
+	statusNote.appendData(statusData.data());
+	snac.appendTLV(0x1D, statusNote);
+	snac.appendTLV<quint16>(0x1f, 0x00); // unknown
 	send(snac);
 }
 
