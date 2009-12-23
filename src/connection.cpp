@@ -183,7 +183,8 @@ ProtocolNegotiation::ProtocolNegotiation(QObject *parent):
 			<< SNACInfo(ServiceFamily, ServiceServerNameInfo)
 			<< SNACInfo(ServiceFamily, ServiceServerFamilies2)
 			<< SNACInfo(ServiceFamily, ServiceServerRateInfo)
-			<< SNACInfo(ServiceFamily, ServiceServerRateChange);
+			<< SNACInfo(ServiceFamily, ServiceServerRateChange)
+			<< SNACInfo(ServiceFamily, ServiceError);
 	m_login_reqinfo = qrand();
 }
 
@@ -219,6 +220,7 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			// Skip uin
 			Q_UNUSED(sn.readData<quint8>());
 			sn.skipData(4);
+
 			// Login
 			//qDebug() << (m_login_reqinfo == sn.id());
 			if(m_login_reqinfo == sn.id())
@@ -237,6 +239,7 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 				quint32 ip = tlvs.value(0x0a).value<quint32>();
 				conn->setExternalIP(QHostAddress(ip));
 				//qDebug() << conn->externalIP();
+
 			}
 			// Else
 			else
@@ -308,6 +311,12 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			quint32 groupId = sn.readSimple<quint16>();
 			if(conn->m_rates.contains(groupId))
 				conn->m_rates.value(groupId)->update(groupId, sn);
+			break;
+		}
+		case ServiceFamily << 16 | ServiceError: {
+			ProtocolError error(sn);
+			qDebug() << QString("Error (%1, %2): %3").
+				 arg(error.code, 2, 16).arg(error.subcode, 2, 16).arg(error.str);
 			break;
 		}
 	}
