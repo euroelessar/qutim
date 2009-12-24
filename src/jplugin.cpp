@@ -12,10 +12,11 @@ namespace Jabber
 	void JPlugin::init()
 	{
 		qDebug("%s", Q_FUNC_INFO);
+		ExtensionIcon jabberIcon("im-jabber");
 		setInfo(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
 			QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
 			PLUGIN_VERSION(0, 0, 1, 0),
-			ExtensionIcon("im-jabber"));
+			jabberIcon);
 		addAuthor(QT_TRANSLATE_NOOP("Author", "Denis Daschenko"),
 			QT_TRANSLATE_NOOP("Task", "Author"),
 			QLatin1String("daschenko@gmail.com"));
@@ -25,11 +26,11 @@ namespace Jabber
 		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
 			QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
 			new GeneralGenerator<JProtocol>(),
-			ExtensionIcon("im-jabber"));
+			jabberIcon);
 		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber account creator"),
 			QT_TRANSLATE_NOOP("Plugin", "Account creator for Jabber protocol"),
 			new GeneralGenerator<JAccountWizard>(),
-			ExtensionIcon("im-jabber"));
+			jabberIcon);
 		addExtension(QT_TRANSLATE_NOOP("Plugin", "LiveJournal account creator"),
 			QT_TRANSLATE_NOOP("Plugin", "Account creator for LiveJournal"),
 			new GeneralGenerator<LJAccountWizard>(),

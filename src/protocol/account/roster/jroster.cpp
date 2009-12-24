@@ -3,9 +3,10 @@
 
 namespace Jabber
 {
-	JRoster::JRoster(JAccount *account) : RosterManager(account->connection()->client())
+	JRoster::JRoster(JAccount *account)
 	{
-		account->connection()->client()->rosterManager()->registerRosterListener(this);
+		m_rosterManager = account->connection()->client()->rosterManager();
+		m_rosterManager->registerRosterListener(this, false);
 	}
 
 	JRoster::~JRoster()

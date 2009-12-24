@@ -10,7 +10,7 @@ namespace Jabber
 
 	class JAccount;
 
-	class JRoster : public RosterManager, public RosterListener
+	class JRoster : public RosterListener
 	{
 		public:
 			JRoster(JAccount *account);
@@ -31,6 +31,8 @@ namespace Jabber
 			bool handleUnsubscriptionRequest(const JID &jid, const std::string &msg);
 			void handleNonrosterPresence(const Presence &presence);
 			void handleRosterError(const IQ &iq);
+		private:
+			RosterManager *m_rosterManager;
 	};
 }
 #endif // JROSTER_H
