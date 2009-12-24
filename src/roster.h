@@ -25,6 +25,15 @@ namespace Icq {
 
 class OscarConnection;
 
+enum Visibility
+{
+	AllowAllUsers = 1,
+	BlockAllUsers = 2,
+	AllowPermitList = 3,
+	BlockDenyList = 4,
+	AllowContactList = 5
+};
+
 class Roster : public SNACHandler
 {
 	Q_OBJECT
@@ -42,6 +51,7 @@ public:
 	void sendRemoveContactRequst(const QString &contact_id);
 	void sendRenameContactRequest(const QString &contact_id, const QString &name);
 	void sendRenameGroupRequest(quint16 group_id, const QString &name);
+	void setVisibility(Visibility visibility);
 private:
 	enum ModifingType {
 		mt_add = ListsAddToList,
@@ -100,6 +110,8 @@ private:
 	QHash<QString, IcqContact *> m_contacts;
 	QHash<QString, IcqContact *> m_not_in_list;
 	QQueue<SSIHistoryItem> m_ssi_history;
+	quint16 m_visibility_id;
+	Visibility m_visibility;
 };
 
 } // namespace Icq

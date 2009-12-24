@@ -366,6 +366,28 @@ void Roster::sendRenameGroupRequest(quint16 group_id, const QString &name)
 		qDebug() << Q_FUNC_INFO << QString("The group (%1) does not exist").arg(group_id);
 }
 
+void Roster::setVisibility(Visibility visibility)
+{
+	SSIItem item;
+	item.item_type = SsiVisibility;
+	item.item_id = m_visibility_id;
+	TLV data(0x00CA);
+	data.appendValue<quint8>(visibility);
+	item.tlvs.insert(data);
+	item.tlvs.insert<qint32>(0x00C9, 0xffffffff);
+	sendCLModifyStart();
+	if(m_visibility_id == 0)
+	{
+		item.item_type = 1; // TODO: don't hardcode it
+		sendCLOperator(item, ListsAddToList);
+		m_visibility_id = 1;
+	}
+	else
+		sendCLOperator(item, ListsUpdateGroup);
+	sendCLModifyEnd();
+	m_visibility = visibility;
+}
+
 void Roster::handleServerCListReply(const SNAC &sn)
 {
 	if(!(sn.flags() & 0x0001))
@@ -388,6 +410,7 @@ void Roster::handleServerCListReply(const SNAC &sn)
 		sendRosterAck();
 		m_conn->finishLogin();
 		sendOfflineMessagesRequest();
+
 		if(!m_groups.contains(not_in_list_group))
 		{
 			const QString not_in_list_str = tr("Not In List");
@@ -511,6 +534,11 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 		else
 		{
 		}
+		break;
+	case SsiVisibility:
+		m_visibility_id = item.item_id;
+		m_visibility = static_cast<Visibility>(item.tlvs.value<quint8>(0x00CA, AllowAllUsers));
+		qDebug() << "Visibility" <<  m_visibility_id << m_visibility;
 		break;
 	default:
 		qDebug() << Q_FUNC_INFO << QString("Dump of unknown SSI item: %1").arg(item.toString());

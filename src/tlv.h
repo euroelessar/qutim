@@ -152,6 +152,18 @@ Q_INLINE_TEMPLATE QString TLV::value<QString>() const
 	return Util::defaultCodec()->toUnicode(m_value);
 }
 
+template<>
+Q_INLINE_TEMPLATE quint8 TLV::value<quint8>() const
+{
+	return !m_value.isEmpty() ? m_value[0] : 0;
+}
+
+template<>
+Q_INLINE_TEMPLATE qint8 TLV::value<qint8>() const
+{
+	return !m_value.isEmpty() ? m_value[0] : 0;
+}
+
 template<typename T>
 Q_INLINE_TEMPLATE T TLV::value() const
 {
