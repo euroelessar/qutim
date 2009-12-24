@@ -83,10 +83,11 @@ namespace AdiumChat
 		QIcon icon;
 		if (m_chat_flags & AvatarsOnTabs) {
 			QString imagePath = session->getUnit()->property("avatar").toString();
-			icon = imagePath.isEmpty() ? Icon("im-user") : QIcon(imagePath);
+			icon = imagePath.isEmpty() ? Icon("user-online") : QIcon(imagePath);
 		}
 		if (m_chat_flags & ChatStateIconsOnTabs) {
-			icon = Icon("im-user"); //FIXME
+			icon = Icon("user-online"); //FIXME
+			setProperty("currentChatState", ChatStateActive);
 		}
 		ui->tabBar->addTab(icon,session->getUnit()->title());
 		if (ui->tabBar->count() >1)
@@ -208,7 +209,7 @@ namespace AdiumChat
 		message.setChatUnit(unit);
 		message.setTime(QDateTime::currentDateTime());
 		session->getUnit()->sendMessage(message);
-		session->appendMessage(message); //for testing
+		session->appendMessage(message);
 		ui->chatEdit->clear();
 	}
 
@@ -221,28 +222,36 @@ namespace AdiumChat
 		int index = m_sessions.indexOf(session);
 		if (index == -1)
 			return;
-		if (session->getUnit() != c) //TODO
-			return;
+// 		if (session->getUnit() != c) //TODO
+// 			return;
 		//states
 		if (m_chat_flags & ChatStateIconsOnTabs) {
-			switch (state) {
-				case ChatStateActive:
-					ui->tabBar->setTabIcon(index,Icon("im-user"));
-					break;
-				case ChatStateInActive:
-					ui->tabBar->setTabIcon(index,Icon("im-user-away"));
-					break;
-				case ChatStateGone:
-					ui->tabBar->setTabIcon(index,Icon("im-user-offline"));
-					break;
-				case ChatStateComposing:
-					ui->tabBar->setTabIcon(index,Icon("im-user-status-message-edit"));
-					break;
-				case ChatStatePaused:
-					ui->tabBar->setTabIcon(index,Icon("im-user-status-message-edit"));
-					break;
-				default:
-					break;
+			QString icon_name;
+			ChatState previous_state = static_cast<ChatState>(session->property("currentChatState").toInt());
+			if (!(previous_state & ChatStateComposing) || (state & ChatStatePaused)) {
+				switch (state) {
+					//FIXME icon names
+					case ChatStateActive:
+						icon_name = "user-online";
+						break;
+					case ChatStateInActive:
+						icon_name = "user-away";
+						break;
+					case ChatStateGone:
+						icon_name =  "user-offline";
+						break;
+					case ChatStateComposing:
+						icon_name = "mail-unread-new";
+						break;
+					case ChatStatePaused:
+						icon_name = "mail-unread";
+						break;
+					default:
+						break;
+				}
+				ui->tabBar->setTabIcon(index,Icon(icon_name));
+				//ui->tabBar->setTabText(index,icon_name);
+				session->setProperty("currentChatState",state);
 			}
 		}
 	}

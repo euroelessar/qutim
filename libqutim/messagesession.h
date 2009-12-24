@@ -32,6 +32,7 @@ namespace qutim_sdk_0_3
 		Q_PROPERTY(bool active READ isActive WRITE setActive NOTIFY activated)
 	public:
 		virtual ChatUnit *getUnit() const = 0;
+		virtual void setChatUnit(ChatUnit* unit) = 0;
 		virtual QTextDocument *getInputField() = 0;
 	public slots:
 		virtual void addContact(Contact *c) = 0;

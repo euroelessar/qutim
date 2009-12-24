@@ -44,6 +44,7 @@ namespace AdiumChat
 		QString getVariant() const;
 		QAbstractItemModel *getItemsModel() const;
 		virtual void setActive(bool active = true);
+		virtual void setChatUnit(ChatUnit* unit);
 		virtual bool isActive();
 	public slots:
 		QVariant evaluateJavaScript(const QString &scriptSource);

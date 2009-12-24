@@ -213,4 +213,9 @@ namespace AdiumChat
 		return chat_layer->getInputField(this);
 	}
 
+	void ChatSessionImpl::setChatUnit(ChatUnit* unit)
+	{
+		m_chat_unit = unit;
+	}
+
 }

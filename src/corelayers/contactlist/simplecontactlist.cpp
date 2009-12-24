@@ -69,13 +69,21 @@ namespace Core
 				}
 			}
 			//set widget size (test) TODO
-			QRect size = QApplication::desktop()->availableGeometry(QCursor::pos());
-			p->widget->resize(150, size.height());
-			p->widget->move(size.width()-150,0);
+			QRect geom = Config("other/screenGeometry").value<QRect>("contactList",QRect());
+			if (geom.isEmpty()) {
+				int width = 150; //TODO
+				geom = QApplication::desktop()->availableGeometry(QCursor::pos());
+				geom.setX(geom.width() - width);
+				geom.setWidth(width);
+			}
+			p->widget->setGeometry(geom);
 		}
 
 		Module::~Module()
 		{
+			Config geometry = Config("other/screenGeometry");
+			geometry.setValue("contactList",p->widget->geometry());
+			geometry.sync();
 		}
 
 		void Module::addContact(ChatUnit *unit)

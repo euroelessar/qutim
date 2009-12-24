@@ -44,8 +44,7 @@ namespace KineticPopups
 					   const QString& customTitle)
 	{
 		Manager *manager =  Manager::self();
- 		if (!(manager->showFlags & type) || (manager->count() >= manager->maxCount))
- 		{
+ 		if (!(manager->showFlags & type) || (manager->count() >= manager->maxCount)) {
 			return;
 		}
 		static int id_counter = 0;
@@ -67,8 +66,7 @@ namespace KineticPopups
 				updateMode ? popup->updateMessage(text) : popup->appendMessage(text);
 				return;
 			}
-			else if (sender)
-			{
+			else if (sender) {
 				popup_id.append("." + QString::number(id_counter++));
 			}
 		}
