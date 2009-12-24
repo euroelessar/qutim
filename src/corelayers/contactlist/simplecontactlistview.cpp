@@ -10,6 +10,8 @@ namespace Core
 		TreeView::TreeView(QWidget *parent) : QTreeView(parent)
 		{
 			connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onClick(QModelIndex)));
+			setAnimated(true);
+			setAlternatingRowColors(true);
 		}
 
 		void TreeView::onClick(const QModelIndex &index)

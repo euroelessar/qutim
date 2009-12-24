@@ -104,9 +104,7 @@ namespace AdiumChat
 			item = m_chat_style_output->makeAction(this,tmp_message,true);
 			m_previous_sender = "";
 		}
-		else if (service)
-		{
-			//Notifications::Type service_type = static_cast<Notifications::Type>(tmp_message.property("service").toInt());		;
+		else if (service) {
 			item = m_chat_style_output->makeStatus(this,tmp_message);
 			m_previous_sender = "";
 		}
@@ -138,9 +136,9 @@ namespace AdiumChat
 	void ChatSessionImpl::chatStateChanged ( Contact* c, ChatState state )
 	{
 		//TODO
-		emit chatStateChanged(c,state);
+		emit remoteChatStateChanged(c,state);
 		if (state & ChatStateComposing)
-			Notifications::sendNotification(qutim_sdk_0_3::Notifications::Typing,c);
+			Notifications::sendNotification(Notifications::Typing,c);
 	}
 
 	void ChatSessionImpl::removeContact ( Contact* c )

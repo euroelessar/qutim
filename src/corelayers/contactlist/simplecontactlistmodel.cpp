@@ -1,6 +1,7 @@
 #include "simplecontactlistmodel.h"
 #include "libqutim/notificationslayer.h"
 #include <QDebug>
+#include <libqutim/messagesession.h>
 
 namespace Core
 {
@@ -191,11 +192,13 @@ namespace Core
 				QModelIndex index = createIndex(item->index(), 0, item);
 				dataChanged(index, index);
 			}
+			//if (ChatLayer::get(contact,false))
+			//	return; //TODO FIXME
 			Notifications::Type notify;
 			if(status == Offline)
 				notify = Notifications::Offline;
 			else if(item_data->status == Offline)
-				notify = Notifications::Online;
+				notify = Notifications::Online;yfdt
 			else
 				notify = Notifications::StatusChange;
 			Notifications::sendNotification(notify, contact);

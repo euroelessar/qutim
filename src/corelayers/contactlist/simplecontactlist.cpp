@@ -14,6 +14,8 @@
 #include <QToolButton>
 #include <QMenu>
 #include <QCoreApplication>
+#include <QApplication>
+#include <QDesktopWidget>
 
 namespace Core
 {
@@ -66,6 +68,10 @@ namespace Core
 					onAccountCreated(account);
 				}
 			}
+			//set widget size (test) TODO
+			QRect size = QApplication::desktop()->availableGeometry(QCursor::pos());
+			p->widget->resize(150, size.height());
+			p->widget->move(size.width()-150,0);
 		}
 
 		Module::~Module()
