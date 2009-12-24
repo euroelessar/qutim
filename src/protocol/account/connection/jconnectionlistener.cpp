@@ -162,6 +162,8 @@ namespace Jabber
 				case ConnAuthenticationFailed:
 					switch (p->account->connection()->client()->authError()) {
 						case AuthErrorUndefined:
+							// FIX IT
+							// need or not?
 							s = tr("Authentication failed.");
 							break;
 						case SaslAborted:
@@ -207,6 +209,7 @@ namespace Jabber
 					break;
 			}
 			// somes actions with s
+			qDebug() << "ERROR" << s;
 		}
 	}
 
@@ -216,10 +219,14 @@ namespace Jabber
 
 	void JConnectionListener::onResourceBindError(const Error *error)
 	{
+		if (!error)
+			return;
 	}
 
 	void JConnectionListener::onSessionCreateError(const Error *error)
 	{
+		if (!error)
+			return;
 	}
 
 	bool JConnectionListener::onTLSConnect(const CertInfo &info)

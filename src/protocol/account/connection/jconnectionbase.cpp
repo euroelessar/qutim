@@ -36,7 +36,7 @@ namespace Jabber
 			{
 				QString host = QString::fromStdString(h->first);
 				QString hostr = host;
-				hostr.remove(QRegExp("(\\w+\\.)+\\w+"));
+				hostr.remove(QRegExp("((\\w|-)+\\.)*(\\w|-)+"));
 				if(hostr.isEmpty() || !QHostAddress( host ).isNull()) {
 					m_server = host.toStdString();
 					m_port = h->second;

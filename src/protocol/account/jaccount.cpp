@@ -19,11 +19,13 @@ namespace Jabber {
 	JAccount::JAccount(const QString &jid) : Account(jid, JProtocol::instance()), p(new JAccountPrivate)
 	{
 		p->jid = jid;
-		p->connection = new JConnection(this);
 		loadSettings();
 		p->keepStatus = false; // what the fuck? fix it!
-		p->roster = new JRoster(this);
+
+		p->connection = new JConnection(this);
 		p->connectionListener = new JConnectionListener(this);
+		p->roster = new JRoster(this);
+
 		autoconnect();
 	}
 
