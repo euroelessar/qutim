@@ -698,13 +698,13 @@ void Roster::handleUserOnline(const SNAC &snac)
 		newCaps << capability;
 	}
 	qint8 moodIndex = -1;
-	if(tlvs.contains(0x0e))
+	if(status_note_data.contains(0x0e))
 	{
-		QString moodStr = QString::fromAscii(tlvs.value(0x0e).value());
+		QString moodStr = QString::fromAscii(status_note_data.value(0x0e).data);
 		if(moodStr.startsWith("icqmood"))
 		{
 			bool ok;
-			moodIndex = moodStr.mid(8, -1).toInt(&ok);
+			moodIndex = moodStr.mid(7, -1).toInt(&ok);
 			if(!ok)
 				moodIndex = -1;
 		}

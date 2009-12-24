@@ -239,7 +239,7 @@ bool Xtraz::handelXStatusCapabilities(IcqContact *contact, const Capabilities &c
 {
 	foreach(const XStatus &status, data()->xstatuses)
 	{
-		if(caps.match(status.capability) || status.mood == mood)
+		if(caps.match(status.capability) || (mood != -1 && status.mood == mood))
 		{
 			contact->setProperty("xstatusIcon", status.icon.toIcon());
 			contact->setProperty("statusTitle", status.status.toString());
