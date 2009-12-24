@@ -105,9 +105,7 @@ void ProtocolNegotiationImpl::handleSNAC(AbstractConnection *conn, const SNAC &s
 #ifdef DBG_CAPHTML
 		dw_flags |= 0x00000400;
 #endif
-#ifdef DBG_CAPMTN
-		dw_flags |= 0x00000008;
-#endif
+		dw_flags |= 0x00000008; // typing notifications
 		// Set message parameters for all channels (imitate ICQ 6)
 		setMsgChannelParams(conn, 0x0000, dw_flags);
 		break; }

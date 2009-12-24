@@ -156,6 +156,7 @@ MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent):
 			<< SNACInfo(MessageFamily, MessageResponse)
 			<< SNACInfo(MessageFamily, MessageSrvRecv)
 			<< SNACInfo(MessageFamily, MessageSrvAck)
+			<< SNACInfo(MessageFamily, MessageMtn)
 			<< SNACInfo(MessageFamily, MessageSrvError);
 	foreach(const ObjectGenerator *gen, moduleGenerators<MessagePlugin>())
 	{
@@ -185,6 +186,29 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			QString uin = sn.readString<qint8>();
 			qDebug() << QString("Server accepted message for delivery to %1 on channel %2").
 					arg(uin).arg(channel);
+			break;
+		}
+		// Typing notifications
+		case MessageFamily << 16 | MessageMtn: {
+			sn.skipData(8); // skip cookie.
+			quint16 channel = sn.readSimple<quint16>();
+			QString uin = sn.readString<qint8>();
+			quint16 type = sn.readSimple<quint16>();
+			IcqContact *contact = m_account->roster()->contact(uin);
+			if(contact)
+			{
+				ChatSession *session = ChatLayer::instance()->getSession(m_account, contact, false);
+				if(session)
+				{
+					ChatState newState;
+					if(/*type == 0 || */type == 1)
+						newState = ChatStatePaused;
+					else if(type == 2)
+						newState = ChatStateComposing;
+					qDebug() << contact->id() << "typing state changed to" << type;
+					session->chatStateChanged(contact, newState);
+				}
+			}
 			break;
 		}
 		case MessageFamily << 16 | MessageSrvError: {
