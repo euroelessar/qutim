@@ -198,7 +198,7 @@ namespace Core
 			if(status == Offline)
 				notify = Notifications::Offline;
 			else if(item_data->status == Offline)
-				notify = Notifications::Online;yfdt
+				notify = Notifications::Online;
 			else
 				notify = Notifications::StatusChange;
 			Notifications::sendNotification(notify, contact);
