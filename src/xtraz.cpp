@@ -435,9 +435,6 @@ void Xtraz::sendXStatus(IcqContact *contact, quint64 cookie)
 {
 	IcqAccount *account = qobject_cast<IcqAccount*>(contact->account());
 	Q_ASSERT(account);
-	account->setProperty("xstatusIndex", 1);
-	account->setProperty("statusTitle", "title");
-	account->setProperty("statusText", "note");
 	QString response = QString(
 			"<ret event='OnRemoteNotification'>"
 			"<srv><id>cAwaySrv</id>"
