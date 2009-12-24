@@ -134,7 +134,7 @@ OscarConnection::OscarConnection(IcqAccount *parent):
 	connect(socket(), SIGNAL(disconnected()), this, SLOT(disconnected()));
 	m_account = parent;
 	{
-		ClientInfo info = { "ICQ Client", 0x011a, 6, 5, 10, 104, 0x00007537, "ru", "ru" };
+		ClientInfo info = { "ICQ Client", 266, 6, 5, 10, 104, 0x00007537, "ru", "ru"  };
 		m_client_info = info;
 	}
 	{
