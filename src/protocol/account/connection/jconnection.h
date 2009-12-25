@@ -20,13 +20,14 @@ namespace Jabber
 		Q_OBJECT
 		public:
 			JConnection(JAccount *account);
+			~JConnection();
 			void loadSettings();
 			void setConnectionPresence(Presence::PresenceType presence);
 			Client *client();
 		protected:
 			void handlePresence(const Presence &presence);
 		private:
-			JConnectionPrivate *p;
+			QScopedPointer<JConnectionPrivate> p;
 	};
 }
 

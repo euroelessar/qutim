@@ -3,15 +3,18 @@
 
 #include <gloox/rostermanager.h>
 #include "../jaccount.h"
+#include "jcontact.h"
 
 namespace Jabber
 {
 	using namespace gloox;
 
 	class JAccount;
+	struct JRosterPrivate;
 
-	class JRoster : public RosterListener
+	class JRoster : public QObject, public RosterListener
 	{
+		Q_OBJECT
 		public:
 			JRoster(JAccount *account);
 			~JRoster();
@@ -32,7 +35,7 @@ namespace Jabber
 			void handleNonrosterPresence(const Presence &presence);
 			void handleRosterError(const IQ &iq);
 		private:
-			RosterManager *m_rosterManager;
+			QScopedPointer<JRosterPrivate> p;
 	};
 }
 #endif // JROSTER_H

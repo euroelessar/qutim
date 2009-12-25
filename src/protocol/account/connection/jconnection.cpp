@@ -4,6 +4,8 @@ namespace Jabber
 {
 	struct JConnectionPrivate
 	{
+		JConnectionPrivate() {}
+		~JConnectionPrivate() {}
 		JAccount *account;
 		Client *client;
 		JConnectionTCPBase *connection;
@@ -28,6 +30,10 @@ namespace Jabber
 		p->client->disco()->setIdentity("client", "pc");
 		p->client->disco()->addFeature("jabber:iq:roster");
 		p->client->registerPresenceHandler(this);
+	}
+
+	JConnection::~JConnection()
+	{
 	}
 
 	Client *JConnection::client()
