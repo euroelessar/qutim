@@ -118,7 +118,7 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				QString image_path = QString("%1/%2.%3/avatars/")
 						.arg(SystemInfo::getPath(SystemInfo::ConfigDir))
 						.arg(m_account->protocol()->id())
-						.arg(m_account->name());
+						.arg(m_account->id());
 				QDir dir(image_path);
 				if(!dir.exists())
 					dir.mkpath(image_path);
