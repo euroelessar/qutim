@@ -44,7 +44,7 @@ public:
 	BuddyPicture(IcqAccount *account, QObject *parent = 0);
 	virtual ~BuddyPicture();
 	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-	void sendUpdatePicture(IcqContact *contact, quint16 icon_id, quint8 icon_flags, const QByteArray &icon_hash);
+	void sendUpdatePicture(QObject *reqObject, quint16 icon_id, quint8 icon_flags, const QByteArray &icon_hash);
 private slots:
 	void disconnected();
 private:

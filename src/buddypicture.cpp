@@ -102,8 +102,12 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 	{
 		case AvatarFamily << 16 | AvatarGetReply: {
 			QString uin = snac.readString<quint8>();
-			ChatUnit *contact = m_account->getUnit(uin, false);
-			if(!contact)
+			QObject *obj;
+			if(uin == m_account->id())
+				obj = m_account;
+			else
+				obj = m_account->getUnit(uin, false);
+			if(!obj)
 				break;
 			snac.skipData(3); // skip icon_id and icon_flag
 			QByteArray hash = snac.readData<quint8>();
@@ -124,9 +128,9 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				{
 					if(icon_file.open(QIODevice::WriteOnly))
 						icon_file.write(image);
-					contact->setProperty("icon_hash", hash);
+					obj->setProperty("icon_hash", hash);
 				}
-				contact->setProperty("avatar", image_path);
+				obj->setProperty("avatar", image_path);
 			}
 		}
 		break;
@@ -136,15 +140,15 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 	}
 }
 
-void BuddyPicture::sendUpdatePicture(IcqContact *contact, quint16 icon_id, quint8 icon_flags, const QByteArray &icon_hash)
+void BuddyPicture::sendUpdatePicture(QObject *reqObject, quint16 icon_id, quint8 icon_flags, const QByteArray &icon_hash)
 {
 	if(m_conn->socket()->state() == QTcpSocket::UnconnectedState)
 		return;
-	QByteArray old_hash = contact->property("icon_hash").toByteArray();
+	QByteArray old_hash = reqObject->property("icon_hash").toByteArray();
 	if(old_hash != icon_hash)
 	{
 		SNAC snac(AvatarFamily, AvatarGetRequest);
-		snac.appendData<quint8>(contact->id());
+		snac.appendData<quint8>(reqObject->property("id").toString());
 		snac.appendSimple<quint8>(1); // unknown
 		snac.appendSimple<quint16>(icon_id);
 		snac.appendSimple<quint8>(icon_flags);

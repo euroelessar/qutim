@@ -540,6 +540,16 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 		m_visibility = static_cast<Visibility>(item.tlvs.value<quint8>(0x00CA, AllowAllUsers));
 		qDebug() << "Visibility" <<  m_visibility_id << m_visibility;
 		break;
+	case SsiBuddyIcon:
+		if(item.tlvs.contains(0x00d5))
+		{
+			DataUnit data(item.tlvs.value(0x00d5));
+			quint8 flags = data.readSimple<quint8>();
+			QByteArray hash = data.readData<quint8>();
+			if(hash.size() == 16)
+				m_conn->buddyPictureService()->sendUpdatePicture(m_account, 1, flags, hash);
+		}
+		break;
 	default:
 		qDebug() << Q_FUNC_INFO << QString("Dump of unknown SSI item: %1").arg(item.toString());
 	}
