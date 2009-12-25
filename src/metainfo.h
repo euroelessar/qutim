@@ -21,6 +21,7 @@
 namespace Icq {
 
 class OscarConnection;
+class IcqAccount;
 
 class MetaInfo: public SNACHandler
 {
@@ -34,22 +35,24 @@ public:
 
 	MetaInfo(QObject *parent = 0);
 	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-	void sendShortInfoRequest(OscarConnection *conn, const QString &uin);
-	void sendFullInfoRequest(OscarConnection *conn, const QString &uin);
+	void sendShortInfoRequest(OscarConnection *conn, QObject *reqObject);
+	void sendFullInfoRequest(OscarConnection *conn, QObject *reqObject);
 private:
-	void sendRequest(OscarConnection *conn, quint16 type, const DataUnit &data);
-	void handleShortInfo(const DataUnit &data);
-	void handleBasicInfo(const DataUnit &data);
-	void handleMoreInfo(const DataUnit &data);
-	void handleEmails(const DataUnit &data);
-	void handleHomepage(const DataUnit &data);
-	void handleWork(const DataUnit &data);
-	void handleNotes(const DataUnit &data);
-	void handleInterests(const DataUnit &data);
-	void handleAffilations(const DataUnit &data);
+	void sendRequest(OscarConnection *conn, QObject *reqObject, quint16 type, const DataUnit &data);
+	void sendInfoRequest(OscarConnection *conn, QObject *reqObject, quint16 type);
+	void handleShortInfo(QObject *reqObject, const DataUnit &data);
+	void handleBasicInfo(QObject *reqObject, const DataUnit &data);
+	void handleMoreInfo(QObject *reqObject, const DataUnit &data);
+	void handleEmails(QObject *reqObject, const DataUnit &data);
+	void handleHomepage(QObject *reqObject, const DataUnit &data);
+	void handleWork(QObject *reqObject, const DataUnit &data);
+	void handleNotes(QObject *reqObject, const DataUnit &data);
+	void handleInterests(QObject *reqObject, const DataUnit &data);
+	void handleAffilations(QObject *reqObject, const DataUnit &data);
 	QList<Category> handleCatagories(const DataUnit &data, QString &debug_str);
 	QString readString(const DataUnit &data);
 	quint16 m_sequence;
+	QHash<quint16, QObject*> m_requests;
 };
 
 } //namespace Icq

@@ -39,7 +39,13 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 			quint16 metaType = data.readSimple<quint16>(DataUnit::LittleEndian);
 			if(metaType == 0x07da)
 			{
-				data.skipData(2); // skip sequence number
+				quint16 reqNumber = data.readSimple<quint16>(DataUnit::LittleEndian);
+				QHash<quint16, QObject*>::iterator objItr = m_requests.find(reqNumber);
+				if(objItr == m_requests.end())
+				{
+					qDebug() << "Unexpected metainfo response";
+					return;
+				}
 				quint16 dataType = data.readSimple<quint16>(DataUnit::LittleEndian);
 				quint8 success = data.readSimple<quint8>(DataUnit::LittleEndian);
 				if(success == 0x0a)
@@ -47,34 +53,39 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 					switch(dataType)
 					{
 					case(0x0104):
-						handleShortInfo(data);
+						handleShortInfo(*objItr, data);
+						m_requests.erase(objItr);
 						break;
 					case(0x00c8):
-						handleBasicInfo(data);
+						handleBasicInfo(*objItr, data);
 						break;
 					case(0x00dc):
-						handleMoreInfo(data);
+						handleMoreInfo(*objItr, data);
 						break;
 					case(0x00eb):
-						handleEmails(data);
+						handleEmails(*objItr, data);
 						break;
 					case(0x010e):
-						handleHomepage(data);
+						handleHomepage(*objItr, data);
 						break;
 					case(0x00d2):
-						handleWork(data);
+						handleWork(*objItr, data);
 						break;
 					case(0x00e6):
-						handleNotes(data);
+						handleNotes(*objItr, data);
 						break;
 					case(0x00f0):
-						handleInterests(data);
+						handleInterests(*objItr, data);
 						break;
 					case(0x00fa):
-						handleAffilations(data);
+						handleAffilations(*objItr, data);
+						m_requests.erase(objItr);
 						break;
 					default:
-						qDebug() << "Unhandled metatype response" << hex << dataType;
+						qDebug() << "Unhandled metatype response"
+								<< (*objItr)->property("name").toString()
+								<< hex << dataType;
+						m_requests.erase(objItr);
 					}
 				}
 			}
@@ -82,21 +93,17 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 	}
 }
 
-void MetaInfo::sendShortInfoRequest(OscarConnection *conn, const QString &uin)
+void MetaInfo::sendShortInfoRequest(OscarConnection *conn, QObject *reqObject)
 {
-	DataUnit data;
-	data.appendSimple<quint32>(uin.toUInt(), DataUnit::LittleEndian);
-	sendRequest(conn, 0x04ba, data);
+	sendInfoRequest(conn, reqObject, 0x04ba);
 }
 
-void MetaInfo::sendFullInfoRequest(OscarConnection *conn, const QString &uin)
+void MetaInfo::sendFullInfoRequest(OscarConnection *conn, QObject *reqObject)
 {
-	DataUnit data;
-	data.appendSimple<quint32>(uin.toUInt(), DataUnit::LittleEndian);
-	sendRequest(conn, 0x04b2, data);
+	sendInfoRequest(conn, reqObject, 0x04b2);
 }
 
-void MetaInfo::sendRequest(OscarConnection *conn, quint16 type, const DataUnit &extend_data)
+void MetaInfo::sendRequest(OscarConnection *conn, QObject *reqObject, quint16 type, const DataUnit &extend_data)
 {
 	SNAC snac(ExtensionsFamily, ExtensionsMetaCliRequest);
 	DataUnit tlv_data;
@@ -109,10 +116,22 @@ void MetaInfo::sendRequest(OscarConnection *conn, quint16 type, const DataUnit &
 	tlv_data.appendSimple<quint16>(data.data().size(), DataUnit::LittleEndian);
 	tlv_data.appendData(data.data());
 	snac.appendTLV(1, tlv_data);
+	m_requests.insert(m_sequence, reqObject);
 	conn->send(snac);
 }
 
-void MetaInfo::handleShortInfo(const DataUnit &data)
+void MetaInfo::sendInfoRequest(OscarConnection *conn, QObject *reqObject, quint16 type)
+{
+	quint32 id = reqObject->property("id").toUInt();
+	if(id != 0)
+	{
+		DataUnit data;
+		data.appendSimple<quint32>(id, DataUnit::LittleEndian);
+		sendRequest(conn, reqObject, type, data);
+	}
+}
+
+void MetaInfo::handleShortInfo(QObject *reqObject, const DataUnit &data)
 {
 	QString nick = readString(data);
 	QString first_name = readString(data);
@@ -122,10 +141,15 @@ void MetaInfo::handleShortInfo(const DataUnit &data)
 	data.skipData(2); // 0x00 unknown
 	qint8 gender = data.readSimple<qint8>();
 
+	if(reqObject)
+	{
+		reqObject->setProperty("name", nick);
+	}
+
 	qDebug() << "Short info" << nick << first_name << last_name << email << auth << gender;
 }
 
-void MetaInfo::handleBasicInfo(const DataUnit &data)
+void MetaInfo::handleBasicInfo(QObject *reqObject, const DataUnit &data)
 {
 	QString nick = readString(data);
 	QString first_name = readString(data);
@@ -151,7 +175,7 @@ void MetaInfo::handleBasicInfo(const DataUnit &data)
 			<< home_country_code << GMT << auth << webaware << direct_connection << publish_primary_email;
 }
 
-void MetaInfo::handleMoreInfo(const DataUnit &data)
+void MetaInfo::handleMoreInfo(QObject *reqObject, const DataUnit &data)
 {
 	quint16 age = data.readSimple<quint16>(DataUnit::LittleEndian);
 	qint8 gender = data.readSimple<qint8>();
@@ -173,7 +197,7 @@ void MetaInfo::handleMoreInfo(const DataUnit &data)
 			<< original_country_code << time_zone;
 }
 
-void MetaInfo::handleEmails(const DataUnit &data)
+void MetaInfo::handleEmails(QObject *reqObject, const DataUnit &data)
 {
 	// TODO: test it
 	QStringList publish_emails;
@@ -193,7 +217,7 @@ void MetaInfo::handleEmails(const DataUnit &data)
 	qDebug() << "Emails" << publish_emails << private_emails;
 }
 
-void MetaInfo::handleHomepage(const DataUnit &data)
+void MetaInfo::handleHomepage(QObject *reqObject, const DataUnit &data)
 {
 	bool is_enabled = data.readSimple<quint8>();
 	quint16 homepage_category_code = data.readSimple<quint16>(DataUnit::LittleEndian);
@@ -202,7 +226,7 @@ void MetaInfo::handleHomepage(const DataUnit &data)
 	qDebug() << "Homepage" << is_enabled << homepage_category_code << homepage_keyword;
 }
 
-void MetaInfo::handleWork(const DataUnit &data)
+void MetaInfo::handleWork(QObject *reqObject, const DataUnit &data)
 {
 	QString work_city = readString(data);
 	QString work_state = readString(data);
@@ -222,21 +246,21 @@ void MetaInfo::handleWork(const DataUnit &data)
 			<< work_position << work_ocupation_code << work_webpage;
 }
 
-void MetaInfo::handleNotes(const DataUnit &data)
+void MetaInfo::handleNotes(QObject *reqObject, const DataUnit &data)
 {
 	QString notes = readString(data);
 
 	qDebug() << "Notes" << notes;
 }
 
-void MetaInfo::handleInterests(const DataUnit &data)
+void MetaInfo::handleInterests(QObject *reqObject, const DataUnit &data)
 {
 	QString debug_str;
 	QList<Category> interests = handleCatagories(data, debug_str);
 	qDebug() << "Interests" << debug_str;
 }
 
-void MetaInfo::handleAffilations(const DataUnit &data)
+void MetaInfo::handleAffilations(QObject *reqObject, const DataUnit &data)
 {
 	QString debug_str;
 	QList<Category> pasts = handleCatagories(data, debug_str);

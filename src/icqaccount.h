@@ -29,10 +29,13 @@ class OscarConnection;
 class IcqAccount : public Account
 {
 	Q_OBJECT
+	Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 public:
 	IcqAccount(const QString &uin);
 	virtual ~IcqAccount();
 	virtual void setStatus(Status status);
+	virtual QString name() const;
+	void setName(const QString &name);
 	Roster *roster();
 	OscarConnection *connection();
 	ChatUnit *getUnit(const QString &unitId, bool create);

@@ -219,6 +219,7 @@ void OscarConnection::finishLogin()
 			"000a 0001 0110 164f"
 			"000b 0001 0110 164f"));
 	send(snac);
+	m_meta_info->sendShortInfoRequest(this, m_account); // Requesting own information.
 }
 
 void OscarConnection::sendUserInfo()

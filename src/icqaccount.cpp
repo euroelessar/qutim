@@ -24,6 +24,7 @@ struct IcqAccountPrivate
 {
 	OscarConnection *conn;
 	Roster *roster;
+	QString name;
 };
 
 IcqAccount::IcqAccount(const QString &uin) : Account(uin, IcqProtocol::instance()), p(new IcqAccountPrivate)
@@ -69,6 +70,19 @@ void IcqAccount::setStatus(Status status)
 	else
 		p->conn->setStatus(status);
 	Account::setStatus(status);
+}
+
+QString IcqAccount::name() const
+{
+	if(!p->name.isEmpty())
+		return p->name;
+	else
+		return id();
+}
+
+void IcqAccount::setName(const QString &name)
+{
+	p->name = name;
 }
 
 ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
