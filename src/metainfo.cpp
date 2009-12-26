@@ -148,7 +148,8 @@ void MetaInfo::handleShortInfo(QObject *reqObject, const DataUnit &data)
 
 	if(reqObject)
 	{
-		reqObject->setProperty("name", nick);
+		if(reqObject->property("name").toString().isEmpty())
+			reqObject->setProperty("name", nick);
 	}
 
 	debug(Verbose) << "Short info" << nick << first_name << last_name << email << auth << gender;
