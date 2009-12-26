@@ -25,7 +25,6 @@
 
 namespace AdiumChat
 {
-
 	ChatWidget::ChatWidget(ChatFlags chatFlags): ui(new Ui::AdiumChatForm),m_chat_flags(chatFlags)
 	{
 		ui->setupUi(this);
@@ -41,10 +40,17 @@ namespace AdiumChat
 		ui->menubar->setVisible(false);
 		setAttribute(Qt::WA_DeleteOnClose);
 		setAttribute(Qt::WA_MacBrushedMetal);
+		
 		connect(ui->tabBar,SIGNAL(currentChanged(int)),SLOT(currentIndexChanged(int)));
 		connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 		connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
+		if (m_chat_flags & SendTypingNotification) {
+			connect(ui->chatEdit,SIGNAL(textChanged()),SLOT(onTextChanged()));
+			m_chatstate = ChatStateActive;
+			m_timeout = 5000;
+		}
+		
 		ui->chatEdit->installEventFilter(this);
 		ui->chatEdit->setFocusPolicy(Qt::StrongFocus);
 		//init toolbars
@@ -103,7 +109,6 @@ namespace AdiumChat
 		if (index == -1)
 			return;
 		int previous_index = property("currentIndex").toInt();
-		qDebug() << "previous index" << previous_index;
 		if ((previous_index != -1) && (previous_index != index)) {
 			m_sessions.at(previous_index)->setActive(false);
 			m_sessions.at(index)->activate();
@@ -114,6 +119,11 @@ namespace AdiumChat
 		//m_main_toolbar->setData(m_sessions.at(index)->getUnit());
 // 		if (QAbstractItemModel *model = m_sessions.at(index)->getItemsModel())
 // 			ui->membersView->setModel(model);
+		if ((m_chat_flags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
+			killTimer(m_timerid);
+			m_chatstate = ChatStatePaused;			
+			m_sessions.at(previous_index)->getUnit()->setChatState(m_chatstate);
+		}
 	}
 
 	void ChatWidget::clear()
@@ -256,5 +266,27 @@ namespace AdiumChat
 	{
 		return ui->chatEdit->document();
 	}
+	
+	void ChatWidget::onTextChanged()
+	{
+		killTimer(m_timerid);
+		m_timerid = startTimer(m_timeout);
+		if (!(m_chatstate & ChatStateComposing)) {
+			ChatUnit *unit = m_sessions.at(ui->tabBar->currentIndex())->getUnit();
+			m_chatstate = ChatStateComposing;
+			unit->setChatState(m_chatstate);
+			qDebug()<< "typing to" << unit->title();
+		}
+	}
+
+	void ChatWidget::timerEvent(QTimerEvent* e)
+	{
+		m_chatstate = ChatStatePaused;
+		ChatUnit *unit = m_sessions.at(ui->tabBar->currentIndex())->getUnit();
+		qDebug() << "paused to" << unit->title();
+		unit->setChatState(m_chatstate);
+		QObject::timerEvent(e);
+	}
+
 }
 

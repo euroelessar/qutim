@@ -32,10 +32,11 @@ namespace AdiumChat
 {
 	enum ChatFlag
 	{
-		RemoveSessionOnClose	=	0x1, //remove session, when widget or tab was closed
-		AeroThemeIntegration	=	0x2,
-		ChatStateIconsOnTabs	=	0x4,
-		AvatarsOnTabs			=	0x8,
+		RemoveSessionOnClose	=	0x01, //remove session, when widget or tab was closed
+		AeroThemeIntegration	=	0x02,
+		ChatStateIconsOnTabs	=	0x04,
+		AvatarsOnTabs			=	0x08,
+		SendTypingNotification	=	0x10
 	};
 	Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
 	class ChatSessionImpl;
@@ -56,11 +57,15 @@ namespace AdiumChat
 		void activate(ChatSessionImpl *session);
 	protected:
 		bool eventFilter(QObject *obj, QEvent *event);
+		virtual void timerEvent(QTimerEvent* );
 	private:
 		ChatSessionList m_sessions;
 		Ui::AdiumChatForm *ui;
 		ChatFlags m_chat_flags;
 		bool m_html_message;
+		ChatState m_chatstate;
+		int m_timerid;
+		int m_timeout;
 	private slots:
 		void currentIndexChanged (int index);
 		void onCloseRequested(int index);
@@ -68,6 +73,7 @@ namespace AdiumChat
 		void onSessionRemoved();
 		void onSendButtonClicked();
 		void chatStateChanged(ChatUnit* c, ChatState state);
+		void onTextChanged(); //TODO separate from chatlayer
 	};
 
 }

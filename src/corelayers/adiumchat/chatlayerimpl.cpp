@@ -130,7 +130,7 @@ namespace AdiumChat
 			if (!active)
 				return;
 			ConfigGroup adium_chat = Config("appearance/adiumChat").group("behavior/widget");
-			ChatFlag flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",RemoveSessionOnClose | ChatStateIconsOnTabs));
+			ChatFlag flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",RemoveSessionOnClose | ChatStateIconsOnTabs | SendTypingNotification));
 			widget = new ChatWidget(flags);
 			m_chatwidgets.insert(key,widget);
 			connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
