@@ -163,7 +163,7 @@ void OscarConnection::connectToLoginServer()
 
 void OscarConnection::processNewConnection()
 {
-	qDebug("processNewConnection: 0x0%d %d %s", (int)flap().channel(), (int)flap().seqNum(), flap().data().toHex().constData());
+	AbstractConnection::processNewConnection();
 
 	FLAP flap(0x01);
 	flap.appendSimple<quint32>(0x01);

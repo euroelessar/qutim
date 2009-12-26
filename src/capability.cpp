@@ -17,7 +17,6 @@
 #include "capability.h"
 #include <QDataStream>
 #include <QtEndian>
-#include <QDebug>
 
 namespace Icq {
 

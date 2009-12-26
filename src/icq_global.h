@@ -17,6 +17,7 @@
 #define ICQ_GLOBAL_H
 
 #include <qutim/libqutim_global.h>
+#include <qutim/debug.h>
 
 namespace Icq {
 

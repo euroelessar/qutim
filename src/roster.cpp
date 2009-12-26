@@ -77,22 +77,24 @@ Roster::SSIItem::SSIItem(const SNAC &snac)
 
 QString Roster::SSIItem::toString() const
 {
-	QString buf;
-	QTextStream out(&buf, QIODevice::WriteOnly);
-	out << record_name << " "
-			<< group_id << " " << item_id << " "
-			<< item_type << " (";
+	QString str;
+	QTextStream stream(&str);
+	if(!record_name.isEmpty())
+		stream << "Name: "<< record_name << "; ";
+	stream << "ID: " << item_id << "; "
+			<< "type: " << item_type << "; "
+			<< "group: " << group_id << "(";
 	bool first = true;
 	foreach(const TLV &tlv, tlvs)
 	{
 		if(!first)
-			out << ", ";
+			stream << ", ";
 		else
 			first = false;
-		out << "0x" << QString::number(tlv.type(), 16);
+		stream  << "0x" << hex << tlv.type();
 	}
-	out << ")";
-	return qPrintable(buf);
+	stream << ")";
+	return str;
 }
 
 Roster::Roster(IcqAccount *account)
@@ -144,16 +146,16 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 			handleSSIServerAck(sn);
 			break;
 		case ListsFamily << 16 | ListsCliModifyStart:
-			qDebug() << IMPLEMENT_ME << "ListsCliModifyStart";
+			debug() << IMPLEMENT_ME << "ListsCliModifyStart";
 			break;
 		case ListsFamily << 16 | ListsCliModifyEnd:
-			qDebug() << IMPLEMENT_ME << "ListsCliModifyEnd";
+			debug() << IMPLEMENT_ME << "ListsCliModifyEnd";
 			break;
 		case ListsFamily << 16 | ListsAuthRequest: {
 			sn.skipData(8); // cookie
 			QString uin = sn.readString<quint8>();
 			QString reason = sn.readString<qint16>();
-			qDebug() << QString("Authorization request from \"%1\" with reason \"%2").arg(uin).arg(reason);
+			debug() << QString("Authorization request from \"%1\" with reason \"%2").arg(uin).arg(reason);
 			break;
 		}
 		case ListsFamily << 16 | ListsSrvAuthResponse: {
@@ -161,7 +163,8 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 			QString uin = sn.readString<qint8>();
 			bool is_accepted = sn.readSimple<qint8>();
 			QString reason = sn.readString<qint16>();
-			qDebug() << "Auth response" << uin << is_accepted << reason;
+			debug() << "Auth response" << uin << is_accepted << reason;
+			break;
 		}
 		case BuddyFamily << 16 | UserOnline:
 			handleUserOnline(sn);
@@ -170,20 +173,20 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 			handleUserOffline(sn);
 			break;
 		case BuddyFamily << 16 | UserSrvReplyBuddy:
-			qDebug() << IMPLEMENT_ME << "BuddyFamily, UserSrvReplyBuddy";
+			debug() << IMPLEMENT_ME << "BuddyFamily, UserSrvReplyBuddy";
 			break;
 		// Server sends SSI service limitations to client
 		case ListsFamily << 16 | ListsSrvReplyLists: {
-			qDebug() << IMPLEMENT_ME << "ListsFamily, ListsSrvReplyLists";
+			debug() << IMPLEMENT_ME << "ListsFamily, ListsSrvReplyLists";
 			break; }
 		case ListsFamily << 16 | ListsUpToDate: {
-			qDebug() << "Local contactlist is up to date";
+			debug() << "Local contactlist is up to date";
 			break;
 		}
 		case ListsFamily << 16 | ListsError:
 		case ExtensionsFamily << 16 | ExtensionsMetaError: {
 			ProtocolError error(sn);
-			qDebug() << QString("Error (%1, %2): %3").
+			debug() << QString("Error (%1, %2): %3").
 				arg(error.code, 2, 16).arg(error.subcode, 2, 16).arg(error.str);
 			break;
 		}
@@ -263,7 +266,7 @@ void Roster::sendRemoveGroupRequest(quint16 id)
 		sendCLModifyEnd();
 	}
 	else
-		qDebug() << Q_FUNC_INFO << QString("The group (%1) does not exist").arg(id);
+		debug() << QString("The group (%1) does not exist").arg(id);
 }
 
 IcqContact *Roster::sendAddContactRequest(const QString &contact_id, const QString &contact_name, quint16 group_id)
@@ -321,7 +324,7 @@ void Roster::sendRemoveContactRequst(const QString &contact_id)
 		sendCLModifyEnd();
 	}
 	else
-		qDebug() << Q_FUNC_INFO << QString("The contact (%1) does not exist").arg(contact_id);
+		debug() << QString("The contact (%1) does not exist").arg(contact_id);
 }
 
 void Roster::sendRenameContactRequest(const QString &contact_id, const QString &name)
@@ -346,7 +349,7 @@ void Roster::sendRenameContactRequest(const QString &contact_id, const QString &
 		sendCLModifyEnd();
 	}
 	else
-		qDebug() << Q_FUNC_INFO << QString("The contact (%1) does not exist").arg(contact_id);
+		debug() << QString("The contact (%1) does not exist").arg(contact_id);
 }
 
 void Roster::sendRenameGroupRequest(quint16 group_id, const QString &name)
@@ -363,7 +366,7 @@ void Roster::sendRenameGroupRequest(quint16 group_id, const QString &name)
 		sendCLModifyEnd();
 	}
 	else
-		qDebug() << Q_FUNC_INFO << QString("The group (%1) does not exist").arg(group_id);
+		debug() << QString("The group (%1) does not exist").arg(group_id);
 }
 
 void Roster::setVisibility(Visibility visibility)
@@ -395,17 +398,17 @@ void Roster::handleServerCListReply(const SNAC &sn)
 	quint8 version = sn.readSimple<quint8>();
 	quint16 count = sn.readSimple<quint16>();
 	bool is_last = !(sn.flags() & 0x0001);
-	qDebug("SSI: number of entries is %u, version is %u", (uint)count, (uint)version);
+	debug() << "SSI: number of entries is" << count << "version is" << version;
 	for(uint i = 0; i < count; i++)
 	{
 		SSIItem item(sn);
 		handleSSIItem(item, mt_add_modify);
 	}
-	qDebug() << "is_last" << is_last;
+	debug() << "is_last" << is_last;
 	if(is_last)
 	{
 		quint32 last_info_update = sn.readSimple<quint32>();
-		qDebug() << "SrvLastUpdate" << last_info_update;
+		debug() << "SrvLastUpdate" << last_info_update;
 		m_conn->setProperty("SrvLastUpdate", last_info_update);
 		sendRosterAck();
 		m_conn->finishLogin();
@@ -453,12 +456,12 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 		bool is_adding = !contact;
 		if(is_adding && type == mt_modify)
 		{
-			qDebug() << Q_FUNC_INFO << "The contact does not exist" << item.record_name;
+			debug() << "The contact does not exist" << item.record_name;
 			return;
 		}
 		if(!is_adding && type == mt_add)
 		{
-			qDebug() << Q_FUNC_INFO << "The contact already is in contactlist";
+			debug() << "The contact already is in contactlist";
 			return;
 		}
 		if(is_adding)
@@ -479,7 +482,7 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 			contact->setProperty("authorized", auth);
 			if(ContactList::instance())
 				ContactList::instance()->addContact(contact);
-			qDebug() << "The contact is added" << contact->id() << contact->name() << item.item_id;
+			debug() << "The contact is added" << contact->id() << contact->name() << item.item_id;
 		}
 		else
 		{
@@ -501,7 +504,7 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 			bool new_auth = !item.tlvs.contains(SsiBuddyReqAuth);
 			contact->setProperty("authorized", new_auth);
 			// TODO: emit ...
-			qDebug() << "The contact is updated" << contact->id() << contact->name() << item.item_id;
+			debug() << "The contact is updated" << contact->id() << contact->name() << item.item_id;
 		}
 		contact->d_func()->user_id = item.item_id;
 		break; }
@@ -515,20 +518,20 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 				if(type != mt_modify)
 				{
 					m_groups.insert(item.group_id, item.record_name);
-					qDebug() << "The group is added" << item.group_id << item.record_name;
+					debug() << "The group is added" << item.group_id << item.record_name;
 				}
 				else
-					qDebug() << Q_FUNC_INFO << "The group does not exist" << item.group_id << item.record_name;
+					debug() << "The group does not exist" << item.group_id << item.record_name;
 			}
 			else
 			{
 				if(type != mt_add)
 				{
 					itr.value() = item.record_name;
-					qDebug() << "The group is updated" << item.group_id << item.record_name;
+					debug() << "The group is updated" << item.group_id << item.record_name;
 				}
 				else
-					qDebug() << Q_FUNC_INFO << "The group already is in contactlist" << item.group_id << item.record_name;
+					debug() << "The group already is in contactlist" << item.group_id << item.record_name;
 			}
 		}
 		else
@@ -538,7 +541,7 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 	case SsiVisibility:
 		m_visibility_id = item.item_id;
 		m_visibility = static_cast<Visibility>(item.tlvs.value<quint8>(0x00CA, AllowAllUsers));
-		qDebug() << "Visibility" <<  m_visibility_id << m_visibility;
+		debug() << "Visibility" <<  m_visibility_id << m_visibility;
 		break;
 	case SsiBuddyIcon:
 		if(item.tlvs.contains(0x00d5))
@@ -551,7 +554,7 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 		}
 		break;
 	default:
-		qDebug() << Q_FUNC_INFO << QString("Dump of unknown SSI item: %1").arg(item.toString());
+		debug(Verbose) << "Dump of unknown SSI item:" << item.toString();
 	}
 }
 
@@ -570,19 +573,19 @@ void Roster::handleRemoveCLItem(const SSIItem &item)
 		}
 		if(contact_itr == end_itr)
 		{
-			qDebug() << Q_FUNC_INFO << "contact does not exist" << item.item_id << item.record_name;
+			debug() << "The contact does not exist" << item.item_id << item.record_name;
 			break;
 		}
 		removeContact(*contact_itr);
 		m_contacts.erase(contact_itr);
-		qDebug() << "contact is removed" << item.item_id << item.record_name;
+		debug() << "The contact is removed" << item.item_id << item.record_name;
 		break;
 	}
 	case SsiGroup: {
 		QMap<quint16, QString>::iterator group_itr = m_groups.find(item.group_id);
 		if(group_itr == m_groups.end())
 		{
-			qDebug() << Q_FUNC_INFO << "group does not exist" << item.group_id;
+			debug() << "The group does not exist" << item.group_id;
 			break;
 		}
 		// Removing all contacts in the group.
@@ -600,11 +603,11 @@ void Roster::handleRemoveCLItem(const SSIItem &item)
 		}
 		// Removing the group.
 		m_groups.erase(group_itr);
-		qDebug() << "group is removed" << item.group_id;
+		debug() << "The group is removed" << item.group_id;
 		break;
 	}
 	default:
-		qDebug() << Q_FUNC_INFO << QString("Dump of unknown SSI item: %1").arg(item.toString());
+		debug(Verbose) << "Dump of unknown SSI item:" << item.toString();
 	}
 
 }
@@ -625,7 +628,7 @@ void Roster::handleSSIServerAck(const SNAC &sn)
 		if(error == 0)
 		{
 			SSIHistoryItem operation = m_ssi_history.dequeue();
-			qDebug() << "The last SSI operation is successfully done" << operation.type
+			debug() << "The last SSI operation is successfully done" << operation.type
 					<< operation.item.item_type << operation.item.record_name << operation.item.item_id
 					<< operation.item.group_id;
 			handleSSIItem(operation.item, operation.type);
@@ -646,7 +649,7 @@ void Roster::handleSSIServerAck(const SNAC &sn)
 			error_str = "Can't add this contact because it requires authorization";
 		else
 			error_str = QString::number(error);
-		qDebug() << "SSI operation error" << error_str;
+		debug() << "SSI operation error" << error_str;
 	}
 }
 
@@ -671,7 +674,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 		status = status_data.readSimple<quint16>();
 	}
 	contact->setStatus(icqStatusToQutim(status));
-	qDebug()<< contact->name()<< "changed status to " << contact->status();
+	debug()<< contact->name()<< "changed status to " << contact->status();
 
 	// Status note
 	SessionDataItemMap status_note_data(tlvs);
@@ -679,7 +682,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 	{
 		DataUnit data(status_note_data.value(0x0d).data);
 		quint16 time = data.readSimple<quint16>();
-		qDebug() << "Status note update time" << time;
+		debug() << "Status note update time" << time;
 	}
 	if(status_note_data.contains(0x02))
 	{
@@ -693,7 +696,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 			codec = QTextCodec::codecForName(encoding);
 		if(!codec)
 		{
-			qDebug() << "Server sent wrong encoding for status note";
+			debug() << "Server sent wrong encoding for status note";
 			codec = defaultCodec();
 		}
 		contact->setProperty("statusText", codec->toUnicode(note_data));
@@ -772,7 +775,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 
 	ClientIdentify identify;
 	identify.identify(contact);
-	qDebug() << contact->name() << "uses" << contact->property("client_id").toString();
+	debug() << contact->name() << "uses" << contact->property("client_id").toString();
 }
 
 void Roster::handleUserOffline(const SNAC &snac)
@@ -814,7 +817,6 @@ void Roster::sendRosterAck()
 {
 	SNAC snac(ListsFamily, ListsGotList);
 	m_conn->send(snac);
-	qDebug("Send Roster Ack, SNAC %02X %02X", (int)snac.family(), (int)snac.subtype());
 }
 
 void Roster::sendMetaInfoRequest(quint16 type)

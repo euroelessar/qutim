@@ -33,7 +33,7 @@ public:
 	QByteArray toByteArray() const;
 	QByteArray header() const;
 	bool readData(QIODevice *dev);
-	inline bool isFinished() const { /*qDebug("%d", m_length);*/ return m_state == Finished; }
+	inline bool isFinished() const { return m_state == Finished; }
 	void clear();
 private:
 	enum State { ReadHeader, ReadData, Finished } m_state;

@@ -27,7 +27,6 @@
 #include <qutim/messagesession.h>
 #include <qutim/notificationslayer.h>
 #include <QHostAddress>
-#include <QDebug>
 
 namespace Icq {
 
@@ -172,7 +171,7 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	switch((sn.family() << 16) | sn.subtype())
 	{
 		case MessageFamily << 16 | MessageSrvReplyIcbm:
-			qDebug() << IMPLEMENT_ME << "MessageFamily, MessageSrvReplyIcbm";
+			debug() << IMPLEMENT_ME << "MessageFamily, MessageSrvReplyIcbm";
 			break;
 		case MessageFamily << 16 | MessageSrvRecv:
 			handleMessage(sn);
@@ -184,7 +183,7 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			sn.skipData(8); // skip cookie.
 			quint16 channel = sn.readSimple<quint16>();
 			QString uin = sn.readString<qint8>();
-			qDebug() << QString("Server accepted message for delivery to %1 on channel %2").
+			debug() << QString("Server accepted message for delivery to %1 on channel %2").
 					arg(uin).arg(channel);
 			break;
 		}
@@ -205,7 +204,7 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 						newState = ChatStatePaused;
 					else if(type == 2)
 						newState = ChatStateComposing;
-					qDebug() << contact->id() << "typing state changed to" << type;
+					debug() << contact->id() << "typing state changed to" << type;
 					session->chatStateChanged(contact, newState);
 				}
 			}
@@ -213,7 +212,7 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		}
 		case MessageFamily << 16 | MessageSrvError: {
 			ProtocolError error(sn);
-			qDebug() << QString("Error (%1, %2): %3").
+			debug() << QString("Error (%1, %2): %3").
 				arg(error.code, 2, 16).arg(error.subcode, 2, 16).arg(error.str);
 			break;
 		}
@@ -253,14 +252,14 @@ void MessagesHandler::handleResponse(const SNAC &snac)
 	quint16 format = snac.readSimple<quint16>();
 	if(format != 2)
 	{
-		qDebug() <<  "Unknown response format" << format;
+		debug() <<  "Unknown response format" << format;
 		return;
 	}
 	QString uin = snac.readString<quint8>();
 	IcqContact *contact = m_account->roster()->contact(uin);
 	if(!contact)
 	{
-		qDebug() << "Response message from unknown contact" << uin;
+		debug() << "Response message from unknown contact" << uin;
 		return;
 	}
 	//quint16 reason = snac.readSimple<quint16>();
@@ -278,7 +277,7 @@ void MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *contac
 		DataUnit data(tlvs.value(0x0002));
 		TLVMap msg_tlvs = data.readTLVChain();
 		if(msg_tlvs.contains(0x0501))
-			qDebug("Message has %s caps", msg_tlvs.value(0x0501).value().toHex().constData());
+			debug(Verbose) << "Message has" << msg_tlvs.value(0x0501).value().toHex().constData() << "caps";
 		foreach(const TLV &tlv, msg_tlvs.values(0x0101))
 		{
 			DataUnit msg_data(tlv);
@@ -297,7 +296,7 @@ void MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *contac
 		appendMessage(contact, message, time);
 	}
 	else
-		qDebug() << "Incorrect message on channel 1 from" << uin << ": SNAC should contain TLV 2";
+		debug() << "Incorrect message on channel 1 from" << uin << ": SNAC should contain TLV 2";
 }
 
 void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs, quint64 msgCookie)
@@ -310,14 +309,14 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 		Capability guid = data.readCapability();
 		if(guid.isEmpty())
 		{
-			qDebug() << "Incorrect message on channel 2 from" << uin << ": guid is not found";
+			debug() << "Incorrect message on channel 2 from" << uin << ": guid is not found";
 			return;
 		}
 		if(guid == ICQ_CAPABILITY_SRVxRELAY)
 		{
 			if(type == 1)
 			{
-				qDebug() << "Abort messages on channel 2 is ignored";
+				debug() << "Abort messages on channel 2 is ignored";
 				return;
 			}
 			TLVMap tlvs = data.readTLVChain();
@@ -338,7 +337,7 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 
 			}
 			else
-				qDebug() << "Message on channel 2 should contain TLV 2711";
+				debug() << "Message on channel 2 should contain TLV 2711";
 		}
 		else
 		{
@@ -350,12 +349,12 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 					plugins.at(i)->processMessage(uin, guid, plugin_data, type);
 			}
 			else
-				qDebug() << IMPLEMENT_ME << QString("Message (channel 2) from %1 with type %2 and guid %3 is not processed.").
+				debug() << IMPLEMENT_ME << QString("Message (channel 2) from %1 with type %2 and guid %3 is not processed.").
 					arg(uin).arg(type).arg(guid.toString());
 		}
 	}
 	else
-		qDebug() << "Incorrect message on channel 2 from" << uin << ": SNAC should contain TLV 5";
+		debug() << "Incorrect message on channel 2 from" << uin << ": SNAC should contain TLV 5";
 }
 
 void MessagesHandler::handleChannel4Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs)
@@ -370,11 +369,11 @@ void MessagesHandler::handleChannel4Message(const SNAC &snac, IcqContact *contac
 		quint8 type = data.readSimple<quint8>();
 		quint8 flags = data.readSimple<quint8>();
 		QByteArray msg_data = data.readData<quint16>(DataUnit::LittleEndian);
-		qDebug() << IMPLEMENT_ME << QString("Message (channel 3) from %1 with type %2 is not processed.").
+		debug() << IMPLEMENT_ME << QString("Message (channel 3) from %1 with type %2 is not processed.").
 				arg(uin).arg(type);
 	}
 	else
-		qDebug() << "Incorrect message on channel 4 from" << uin << ": SNAC should contain TLV 5";
+		debug() << "Incorrect message on channel 4 from" << uin << ": SNAC should contain TLV 5";
 }
 
 void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, quint64 msgCookie)
@@ -382,7 +381,7 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 	quint16 id = data.readSimple<quint16>(DataUnit::LittleEndian);
 	if(id != 0x1B)
 	{
-		qDebug() << "Unknown message id in TLV 2711";
+		debug() << "Unknown message id in TLV 2711";
 		return;
 	}
 	quint16 version = data.readSimple<quint16>(DataUnit::LittleEndian);
@@ -427,7 +426,7 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 				}
 				if(guid.compare(ICQ_CAPABILITY_RTFxMSGS.toString(), Qt::CaseInsensitive) == 0)
 				{
-					qDebug() << "RTF is not supported";
+					debug() << "RTF is not supported";
 					return;
 				}
 			}
@@ -448,22 +447,22 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 				Xtraz::handleXtraz(contact, pluginId, pluginData, msgCookie);
 			}
 			else
-				qDebug() << "Unhandled plugin message"
+				debug() << "Unhandled plugin message"
 						<< pluginType.toString() << pluginId << pluginName
 						<< pluginData.data().toHex();
 		}
 		else
-			qDebug() << "Unhandled TLV 2711 message with type" << hex << type;
+			debug() << "Unhandled TLV 2711 message with type" << hex << type;
 	}
 	else
-		qDebug() << "Unknown format of TLV 2711";
+		debug() << "Unknown format of TLV 2711";
 }
 
 void MessagesHandler::appendMessage(IcqContact *contact, const QString &message, QDateTime time)
 {
 	if(!time.isValid())
 		time = QDateTime::currentDateTime();
-	qDebug() << "Received message" << contact->name() << time << message;
+	debug() << "Received message" << contact->name() << time << message;
 	if(ChatLayer::instance())
 	{
 		ChatSession *session = ChatLayer::instance()->getSession(m_account, contact);

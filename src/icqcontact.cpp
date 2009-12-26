@@ -90,7 +90,7 @@ void IcqContact::sendMessage(const Message &message)
 	{
 		ServerMessage msgData(d->uin, Channel1MessageData(msgText, CodecUtf16Be));
 		d->account->connection()->send(msgData);
-		qDebug() << "Message" << msgText << "is sent on channel 1";
+		debug() << "Message" << msgText << "is sent on channel 1";
 	}
 	else
 	{
@@ -108,7 +108,7 @@ void IcqContact::sendMessage(const Message &message)
 						Util::asciiCodec(), DataUnit::LittleEndian);
 		ServerMessage msgData(d->uin, Channel2MessageData(0, tlv));
 		d->account->connection()->send(msgData);
-		qDebug() << "Message" << msgText << "is sent on channel 2";
+		debug() << "Message" << msgText << "is sent on channel 2";
 	}
 }
 

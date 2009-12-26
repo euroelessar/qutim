@@ -49,7 +49,7 @@ private:
 	void handleNotes(QObject *reqObject, const DataUnit &data);
 	void handleInterests(QObject *reqObject, const DataUnit &data);
 	void handleAffilations(QObject *reqObject, const DataUnit &data);
-	QList<Category> handleCatagories(const DataUnit &data, QString &debug_str);
+	QList<Category> handleCatagories(const DataUnit &data);
 	QString readString(const DataUnit &data);
 	quint16 m_sequence;
 	QHash<quint16, QObject*> m_requests;

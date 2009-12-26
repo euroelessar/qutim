@@ -15,17 +15,18 @@
 
 #include "oscarplugin.h"
 #include "icqprotocol.h"
+#include <qutim/debug.h>
 
 namespace Icq {
 
 OscarPlugin::OscarPlugin()
 {
-	qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
 }
 
 void OscarPlugin::init()
 {
-	qDebug("%s", Q_FUNC_INFO);
+	debug() << Q_FUNC_INFO;
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Oscar"),
 			QT_TRANSLATE_NOOP("Plugin", "Module-based realization of Oscar protocol"),
 			PLUGIN_VERSION(0, 0, 1, 0));

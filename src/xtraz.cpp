@@ -18,7 +18,6 @@
 #include "icqaccount.h"
 #include "oscarconnection.h"
 #include <qutim/extensionicon.h>
-#include <QDebug>
 
 namespace Icq {
 
@@ -231,7 +230,7 @@ void Xtraz::handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data,
 	if(type == xtrazNotify)
 		handleNotify(contact, message, cookie);
 	else
-		qDebug() << "Unhandled xtraz message" << type << message;
+		debug() << "Unhandled xtraz message" << type << message;
 }
 
 
@@ -280,7 +279,7 @@ void Xtraz::handleNotify(IcqContact *contact, const QString &message, quint64 co
 		}
 	}
 	if (xml.hasError())
-		qDebug() << "Xtraz parsing error" << xml.errorString();
+		debug() << "Xtraz parsing error" << xml.errorString();
 
 	if(!query.isEmpty() && !notify.isEmpty())
 	{
@@ -291,17 +290,17 @@ void Xtraz::handleNotify(IcqContact *contact, const QString &message, quint64 co
 			QXmlStreamReader xml(notify);
 			parseSrv(contact, xml, false, cookie);
 			if (xml.hasError())
-				qDebug() << "Parsing error of the xtraz notify" << xml.errorString();
+				debug() << "Parsing error of the xtraz notify" << xml.errorString();
 		}
 		else
-			qDebug() << "Unknown xtraz query type";
+			debug() << "Unknown xtraz query type";
 	}
 	else if(!response.isEmpty())
 	{
 		parseRes(contact, response);
 	}
 	else
-		qDebug() << "Unknown xtraz notify format";
+		debug() << "Unknown xtraz notify format";
 }
 
 void Xtraz::parseQuery(const QString &query, QString *pluginId)
@@ -317,7 +316,7 @@ void Xtraz::parseQuery(const QString &query, QString *pluginId)
 		}
 	}
 	if (xml.hasError())
-		qDebug() << "Parsing error of the xtraz query" << xml.errorString();
+		debug() << "Parsing error of the xtraz query" << xml.errorString();
 }
 
 void Xtraz::parseRes(IcqContact *contact, const QString &res)
@@ -337,7 +336,7 @@ void Xtraz::parseRes(IcqContact *contact, const QString &res)
 		}
 	}
 	if (xml.hasError())
-		qDebug() << "Parsing error of the xtraz notify" << xml.errorString();
+		debug() << "Parsing error of the xtraz notify" << xml.errorString();
 }
 
 void Xtraz::parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response, quint64 cookie)
@@ -405,7 +404,7 @@ void Xtraz::parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml)
 			contact->setProperty("statusTitle", title);
 			contact->setProperty("xstatusIcon", data()->xstatuses[index].icon.toIcon());
 			contact->setProperty("statusText", desc);
-			qDebug() << "xstatus" << contact->name() << index << data()->xstatuses[index].status;
+			debug() << "xstatus" << contact->name() << index << data()->xstatuses[index].status;
 		}
 	}
 }
@@ -428,7 +427,7 @@ void Xtraz::parseRequest(IcqContact *contact, QXmlStreamReader &xml, quint64 coo
 	if(reqId == "AwayStat")
 		sendXStatus(contact, cookie);
 	else
-		qDebug() << "Unknown xtraz response" << reqId;
+		debug() << "Unknown xtraz response" << reqId;
 }
 
 void Xtraz::sendXStatus(IcqContact *contact, quint64 cookie)

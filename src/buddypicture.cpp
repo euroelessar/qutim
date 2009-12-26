@@ -16,11 +16,12 @@
 #include "buddypicture.h"
 #include "qutim/systeminfo.h"
 #include "qutim/protocol.h"
+#include <qutim/debug.h>
 #include "icqaccount.h"
 #include <QSet>
 #include <QDir>
 #include <QFile>
-#include <QDebug>
+
 #include <QImage>
 
 namespace Icq {

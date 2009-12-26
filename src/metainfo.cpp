@@ -17,9 +17,14 @@
 #include "icqaccount.h"
 #include "oscarconnection.h"
 #include <QStringList>
-#include <QDebug>
 
 namespace Icq {
+
+static QDebug operator<<(QDebug dbg, const MetaInfo::Category &cat)
+{
+	dbg.nospace() << "{" << cat.category << ", " << cat.keyword << "}";
+	return dbg.space();
+}
 
 MetaInfo::MetaInfo(QObject *parent):
 	SNACHandler(parent), m_sequence(0)
@@ -43,7 +48,7 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				QHash<quint16, QObject*>::iterator objItr = m_requests.find(reqNumber);
 				if(objItr == m_requests.end())
 				{
-					qDebug() << "Unexpected metainfo response";
+					debug() << "Unexpected metainfo response";
 					return;
 				}
 				quint16 dataType = data.readSimple<quint16>(DataUnit::LittleEndian);
@@ -82,7 +87,7 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 						m_requests.erase(objItr);
 						break;
 					default:
-						qDebug() << "Unhandled metatype response"
+						debug() << "Unhandled metatype response"
 								<< (*objItr)->property("name").toString()
 								<< hex << dataType;
 						m_requests.erase(objItr);
@@ -146,7 +151,7 @@ void MetaInfo::handleShortInfo(QObject *reqObject, const DataUnit &data)
 		reqObject->setProperty("name", nick);
 	}
 
-	qDebug() << "Short info" << nick << first_name << last_name << email << auth << gender;
+	debug(Verbose) << "Short info" << nick << first_name << last_name << email << auth << gender;
 }
 
 void MetaInfo::handleBasicInfo(QObject *reqObject, const DataUnit &data)
@@ -170,7 +175,7 @@ void MetaInfo::handleBasicInfo(QObject *reqObject, const DataUnit &data)
 	quint8 direct_connection = data.readSimple<quint8>();
 	quint8 publish_primary_email = data.readSimple<quint8>();
 
-	qDebug() << "Basic info" << nick << first_name << last_name << email << home_city
+	debug(Verbose) << "Basic info" << nick << first_name << last_name << email << home_city
 			<< home_state << home_phone << home_fax << home_address << cell_phone << home_zip_code
 			<< home_country_code << GMT << auth << webaware << direct_connection << publish_primary_email;
 }
@@ -192,7 +197,7 @@ void MetaInfo::handleMoreInfo(QObject *reqObject, const DataUnit &data)
 	quint16 original_country_code = data.readSimple<quint16>(DataUnit::LittleEndian);
 	quint8 time_zone = data.readSimple<quint8>();
 
-	qDebug() << "More info" << age << gender << homepage << birth_year << birth_month << birth_day
+	debug(Verbose) << "More info" << age << gender << homepage << birth_year << birth_month << birth_day
 			<< language1 << language2 << language3 << original_city << original_state
 			<< original_country_code << time_zone;
 }
@@ -203,7 +208,6 @@ void MetaInfo::handleEmails(QObject *reqObject, const DataUnit &data)
 	QStringList publish_emails;
 	QStringList private_emails;
 	quint8 count = data.readSimple<quint8>();
-	qDebug() << count;
 	for(int i = 0; i < count; ++i)
 	{
 		bool is_publish = data.readSimple<quint8>();
@@ -214,7 +218,7 @@ void MetaInfo::handleEmails(QObject *reqObject, const DataUnit &data)
 			private_emails << email;
 	}
 
-	qDebug() << "Emails" << publish_emails << private_emails;
+	debug(Verbose) << "Emails" << publish_emails << private_emails;
 }
 
 void MetaInfo::handleHomepage(QObject *reqObject, const DataUnit &data)
@@ -223,7 +227,7 @@ void MetaInfo::handleHomepage(QObject *reqObject, const DataUnit &data)
 	quint16 homepage_category_code = data.readSimple<quint16>(DataUnit::LittleEndian);
 	QString homepage_keyword = readString(data);
 
-	qDebug() << "Homepage" << is_enabled << homepage_category_code << homepage_keyword;
+	debug(Verbose) << "Homepage" << is_enabled << homepage_category_code << homepage_keyword;
 }
 
 void MetaInfo::handleWork(QObject *reqObject, const DataUnit &data)
@@ -241,7 +245,7 @@ void MetaInfo::handleWork(QObject *reqObject, const DataUnit &data)
 	quint16 work_ocupation_code = data.readSimple<quint16>(DataUnit::LittleEndian);
 	QString work_webpage = readString(data);
 
-	qDebug() << "Work info" << work_city << work_state << work_phone << work_fax
+	debug(Verbose) << "Work info" << work_city << work_state << work_phone << work_fax
 			<< work_address << work_zip << work_country_code << work_company << work_department
 			<< work_position << work_ocupation_code << work_webpage;
 }
@@ -250,28 +254,25 @@ void MetaInfo::handleNotes(QObject *reqObject, const DataUnit &data)
 {
 	QString notes = readString(data);
 
-	qDebug() << "Notes" << notes;
+	debug(Verbose) << "Notes" << notes;
 }
 
 void MetaInfo::handleInterests(QObject *reqObject, const DataUnit &data)
 {
-	QString debug_str;
-	QList<Category> interests = handleCatagories(data, debug_str);
-	qDebug() << "Interests" << debug_str;
+	QList<Category> interests = handleCatagories(data);
+	debug(Verbose) << "Interests" << interests;
 }
 
 void MetaInfo::handleAffilations(QObject *reqObject, const DataUnit &data)
 {
-	QString debug_str;
-	QList<Category> pasts = handleCatagories(data, debug_str);
-	qDebug() << "Pasts" << debug_str;
+	QList<Category> pasts = handleCatagories(data);
+	debug(Verbose) << "Pasts" << pasts;
 
-	debug_str.clear();
-	QList<Category> affilations = handleCatagories(data, debug_str);
-	qDebug() << "Affilations" << debug_str;
+	QList<Category> affilations = handleCatagories(data);
+	debug(Verbose) << "Affilations" << affilations;
 }
 
-QList<MetaInfo::Category> MetaInfo::handleCatagories(const DataUnit &data, QString &debug_str)
+QList<MetaInfo::Category> MetaInfo::handleCatagories(const DataUnit &data)
 {
 	QList<Category> result;
 	quint8 count = data.readSimple<quint8>();
@@ -281,8 +282,6 @@ QList<MetaInfo::Category> MetaInfo::handleCatagories(const DataUnit &data, QStri
 		category.category = data.readSimple<quint16>(DataUnit::LittleEndian);
 		category.keyword = readString(data);
 		result << category;
-
-		debug_str += "    " + QString::number(category.category) + " " + category.keyword;
 	}
 	return result;
 }

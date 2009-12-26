@@ -24,7 +24,6 @@
 #include <QWizardPage>
 #include <QRegExp>
 #include <QValidator>
-#include <QDebug>
 
 #include "ui_addaccountform.h"
 

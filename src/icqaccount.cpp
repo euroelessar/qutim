@@ -50,9 +50,9 @@ OscarConnection *IcqAccount::connection()
 void IcqAccount::setStatus(Status status)
 {
 	Status current = this->status();
-	qDebug("Changing status from %s to %s",
-		   qPrintable(statusToString(current, false)),
-		   qPrintable(statusToString(status, false)));
+	debug() << QString("Changing status from %1 to %2")
+			.arg(statusToString(current, false))
+			.arg(statusToString(status, false));
 	if(status < Offline || status > OnThePhone || current == status)
 		return;
 	if(status == Offline)

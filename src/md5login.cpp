@@ -95,7 +95,7 @@ void Md5Login::login()
 	m_cookie.clear();
 	// Connecting to login server
 	//	QHostInfo host = QHostInfo::fromName("login.messaging.aol.com");
-//	qDebug() << host.addresses();
+//	debug() << host.addresses();
 //	m_socket->connectToHost(host.addresses().at(qrand() % host.addresses().size()), 5190);
 	socket()->connectToHost("205.188.251.43" /*"login.icq.com"*/, 5190);
 	registerHandler(new Md5LoginNegotiation(m_conn, this));

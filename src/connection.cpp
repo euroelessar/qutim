@@ -17,7 +17,6 @@
 #include "connection_p.h"
 #include <QHostInfo>
 #include <QBuffer>
-#include <QDebug>
 
 namespace Icq {
 
@@ -222,7 +221,6 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			sn.skipData(4);
 
 			// Login
-			//qDebug() << (m_login_reqinfo == sn.id());
 			if(m_login_reqinfo == sn.id())
 			{
 				// TLV(x01) User type?
@@ -238,8 +236,7 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 				TLVMap tlvs = sn.readTLVChain();
 				quint32 ip = tlvs.value(0x0a).value<quint32>();
 				conn->setExternalIP(QHostAddress(ip));
-				//qDebug() << conn->externalIP();
-
+				//debug() << conn->externalIP();
 			}
 			// Else
 			else
@@ -303,11 +300,11 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			sn.readData<quint16>(); // Unknown
 			quint16 code = sn.readSimple<quint16>();
 			if(code == 2)
-				qDebug() << "Rate limits warning";
+				debug() << "Rate limits warning";
 			if(code == 3)
-				qDebug() << "Rate limits hit";
+				debug() << "Rate limits hit";
 			if(code == 4)
-				qDebug() << "Rate limits clear";
+				debug() << "Rate limits clear";
 			quint32 groupId = sn.readSimple<quint16>();
 			if(conn->m_rates.contains(groupId))
 				conn->m_rates.value(groupId)->update(groupId, sn);
@@ -315,7 +312,7 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		}
 		case ServiceFamily << 16 | ServiceError: {
 			ProtocolError error(sn);
-			qDebug() << QString("Error (%1, %2): %3").
+			debug() << QString("Error (%1, %2): %3").
 				 arg(error.code, 2, 16).arg(error.subcode, 2, 16).arg(error.str);
 			break;
 		}
@@ -364,7 +361,7 @@ void AbstractConnection::send(SNAC &snac, bool priority)
 void AbstractConnection::send(FLAP &flap)
 {
 	flap.setSeqNum(seqNum());
-	//qDebug("FLAP: %s", flap.toByteArray().toHex().constData());
+	//debug(VeryVerbose) << "FLAP:" << flap.toByteArray().toHex().constData();
 	m_socket->write(flap.header());
 	m_socket->write(flap.data());
 	m_socket->flush();
@@ -372,7 +369,10 @@ void AbstractConnection::send(FLAP &flap)
 
 quint32 AbstractConnection::sendSnac(SNAC &snac)
 {
-	qDebug("Sending SNAC: 0x%x 0x%x %s", (int)snac.family(), (int)snac.subtype(), metaObject()->className());
+	debug(Verbose) << QString("SNAC(0x%1, 0x%2) is sent to %3")
+			.arg(snac.family(), 4, 16, QChar('0'))
+			.arg(snac.subtype(), 4, 16, QChar('0'))
+			.arg(metaObject()->className());
 	FLAP flap(0x02);
 	quint32 id = nextId();
 	snac.setId(id);
@@ -389,12 +389,18 @@ void AbstractConnection::setSeqNum(quint16 seqnum)
 
 void AbstractConnection::processNewConnection()
 {
-	qDebug("processNewConnection: 0x0%d %d %s", (int)flap().channel(), (int)flap().seqNum(), flap().data().toHex().constData());
+	debug(Verbose) << QString("processNewConnection: %1 %2 %3")
+			.arg(flap().channel(), 2, 16, QChar('0'))
+			.arg(flap().seqNum())
+			.arg(flap().data().toHex().constData());
 }
 
 void AbstractConnection::processCloseConnection()
 {
-	qDebug("processCloseConnection: 0x0%d %d %s", (int)flap().channel(), (int)flap().seqNum(), flap().data().toHex().constData());
+	debug(Verbose) << QString("processCloseConnection: %1 %2 %3")
+			.arg(flap().channel(), 2, 16, QChar('0'))
+			.arg(flap().seqNum())
+			.arg(flap().data().toHex().constData());
 	FLAP flap(0x04);
 	flap.appendSimple<quint32>(0x00000001);
 	send(flap);
@@ -404,7 +410,10 @@ void AbstractConnection::processCloseConnection()
 void AbstractConnection::processSnac()
 {
 	SNAC snac = SNAC::fromByteArray(m_flap.data());
-	qDebug("Receiving SNAC: 0x%x 0x%x %s", (int)snac.family(), (int)snac.subtype(), metaObject()->className());
+	debug(Verbose) << QString("SNAC(0x%1, 0x%2) is received from %3")
+			.arg(snac.family(), 4, 16, QChar('0'))
+			.arg(snac.subtype(), 4, 16, QChar('0'))
+			.arg(metaObject()->className());
 	bool found = false;
 	foreach(SNACHandler *handler, m_handlers.values((snac.family() << 16)| snac.subtype()))
 	{
@@ -413,14 +422,19 @@ void AbstractConnection::processSnac()
 		handler->handleSNAC(this, snac);
 	}
 	if(!found)
-		qWarning("No handlers for SNAC %02X %02X %s", int(snac.family()), int(snac.subtype()), metaObject()->className());
+	{
+		warning() << QString("No handlers for SNAC(0x%1, 0x%2) in %3")
+				.arg(snac.family(), 4, 16, QChar('0'))
+				.arg(snac.subtype(), 4, 16, QChar('0'))
+				.arg(metaObject()->className());
+	}
 }
 
 void AbstractConnection::readData()
 {
-	if(m_socket->bytesAvailable() <= 0) // Hack for windows (Qt4.6 tp1).
+	if(m_socket->bytesAvailable() <= 0)
 	{
-		qDebug() << "readyRead emmited but the socket is empty";
+		debug() << "readyRead emmited but the socket is empty";
 		return;
 	}
 	if(m_flap.readData(m_socket))
@@ -439,7 +453,7 @@ void AbstractConnection::readData()
 				processCloseConnection();
 				break;
 			default:
-				qDebug("Unknown shac channel: 0x%04X", (int)m_flap.channel());
+				debug() << "Unknown shac channel" << hex << m_flap.channel();
 			case 0x03:
 			case 0x05:
 				break;
@@ -452,7 +466,7 @@ void AbstractConnection::readData()
 	}
 	else
 	{
-		qCritical("Strange situation at %s: %d", Q_FUNC_INFO, __LINE__);
+		critical() << "Strange situation at" << Q_FUNC_INFO << ":" << __LINE__;
 		m_socket->close();
 	}
 }
@@ -460,12 +474,12 @@ void AbstractConnection::readData()
 
 void AbstractConnection::stateChanged(QAbstractSocket::SocketState state)
 {
-	qDebug() << "New connection state" << state;
+	debug(Verbose) << "New connection state" << state;
 }
 
 void AbstractConnection::error(QAbstractSocket::SocketError error)
 {
-	qDebug() << IMPLEMENT_ME << error;
+	debug() << IMPLEMENT_ME << error;
 }
 
 } // namespace Icq
