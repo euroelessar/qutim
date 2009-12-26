@@ -25,6 +25,7 @@ namespace qutim_sdk_0_3
 	class Message;
 	class ChatUnit;
 	class ChatUnitPrivate;
+	class Contact;
 	typedef QList<ChatUnit *> ChatUnitList;
 
 	class LIBQUTIM_EXPORT ChatUnit : public MenuController
@@ -45,6 +46,10 @@ namespace qutim_sdk_0_3
 		virtual void sendMessage(const Message &message) = 0;
 		virtual ChatUnitList lowerUnits();
 		virtual ChatUnit *upperUnit();
+	public slots:
+		virtual void setChatState(ChatState state) = 0;
+	signals:
+		void chatStateChanged(Contact *c, ChatState state);
 	};
 }
 

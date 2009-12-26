@@ -32,7 +32,7 @@ namespace AdiumChat
 		virtual ~ChatSessionImpl();
 		virtual void addContact ( Contact* c );
 		virtual void appendMessage ( const Message& message );
-		virtual void chatStateChanged ( Contact* c, ChatState state );
+		virtual void setChatState ( Contact* c, ChatState state );
 		virtual void removeContact ( Contact* c );
 		QWebPage *getPage() const;
 		Account *getAccount() const;

@@ -133,10 +133,10 @@ namespace AdiumChat
 			m_message_count++;
 	}
 
-	void ChatSessionImpl::chatStateChanged ( Contact* c, ChatState state )
+	void ChatSessionImpl::setChatState ( Contact* c, ChatState state )
 	{
 		//TODO
-		emit remoteChatStateChanged(c,state);
+		emit setChatState(c,state);
 		if (state & ChatStateComposing)
 			Notifications::sendNotification(Notifications::Typing,c);
 	}

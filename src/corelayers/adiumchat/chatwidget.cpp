@@ -79,7 +79,7 @@ namespace AdiumChat
 			return;
 		m_sessions.append(session);
 		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved()));
-		connect(session,SIGNAL(remoteChatStateChanged(Contact*,ChatState)),SLOT(remoteChatStateChanged(Contact*,ChatState)));
+		connect(session,SIGNAL(setChatState(Contact*,ChatState)),SLOT(chatStateChanged(Contact*,ChatState)));
 		QIcon icon;
 		if (m_chat_flags & AvatarsOnTabs) {
 			QString imagePath = session->getUnit()->property("avatar").toString();
@@ -213,7 +213,7 @@ namespace AdiumChat
 		ui->chatEdit->clear();
 	}
 
-	void ChatWidget::remoteChatStateChanged(Contact *c, ChatState state)
+	void ChatWidget::chatStateChanged(Contact *c, ChatState state)
 	{
 		//checks
 		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
