@@ -248,11 +248,6 @@ void IcqContact::setCapabilities(const Capabilities &caps)
 
 void IcqContact::setChatState(ChatState state)
 {
-	emit chatStateChanged(state);
-	//TODO move to core!
-	if (state & ChatStateComposing) {
-		Notifications::sendNotification(Notifications::Typing,this);
-	}
 }
 
 } // namespace Icq

@@ -202,7 +202,7 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 				else if(type == 2)
 					newState = ChatStateComposing;
 				debug() << contact->id() << "typing state changed to" << type;
-				contact->setChatState(newState);
+				emit contact->chatStateChanged(newState);
 			}
 			break;
 		}
