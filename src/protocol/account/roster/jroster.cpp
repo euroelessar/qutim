@@ -45,12 +45,10 @@ namespace Jabber
 				p->contacts.insert(key, contact);
 			}
 		}*/
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~item added";
 	}
 
 	void JRoster::handleItemSubscribed(const JID &jid)
 	{
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~item subscribed";
 	}
 
 	void JRoster::handleItemRemoved(const JID &jid)
@@ -66,7 +64,6 @@ namespace Jabber
 				delete p->contacts.take(key);
 			}
 		}*/
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~item removed";
 	}
 
 	void JRoster::handleItemUpdated(const JID &jid)
@@ -83,12 +80,10 @@ namespace Jabber
 				tags.insert(QString::fromStdString(*group));
 			contact->setTags(tags);
 		}*/
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~item updated";
 	}
 
 	void JRoster::handleItemUnsubscribed(const JID &jid)
 	{
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~item unsubscribed";
 	}
 
 	void JRoster::handleRoster(const Roster &roster)
@@ -120,7 +115,7 @@ namespace Jabber
 				contact->addToList();
 				ContactList::instance()->addContact(contact);
 				p->contacts.insert(jid, contact);
-				debug() << QString::fromStdString(item->name()) << contact->resources();
+				//debug() << contact->name() << contact->tags();
 			}
 		}
 		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~roster";
@@ -135,8 +130,12 @@ namespace Jabber
 
 	void JRoster::handlePresence(const Presence &presence)
 	{
+		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~presence";
 		QString jid(QString::fromStdString(presence.from().bare()));
 		QString resource(QString::fromStdString(presence.from().resource()));
+		 if (jid == p->account->jid())
+			 return;
+		debug() << jid << resource;
 		if (!p->contacts.contains(jid)) {
 			JContact *contact = new JContact(p->account);
 			contact->setName(QString::fromStdString(presence.from().username()));
@@ -159,8 +158,6 @@ namespace Jabber
 	void JRoster::handleSelfPresence(const RosterItem &item, const std::string &resource,
 			Presence::PresenceType presence, const std::string &msg)
 	{
-		debug() << QString::fromStdString(item.jid()) << QString::fromStdString(resource) << presence << QString::fromStdString(msg);
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~self presence";
 	}
 
 	bool JRoster::handleSubscriptionRequest(const JID &jid, const std::string &msg)
