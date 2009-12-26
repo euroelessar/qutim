@@ -15,6 +15,7 @@ namespace Jabber
 		p->account = account;
 		p->rosterManager = p->account->connection()->client()->rosterManager();
 		p->rosterManager->registerRosterListener(this, false);
+		p->account->connection()->client()->registerPresenceHandler(this);
 	}
 
 	JRoster::~JRoster()
@@ -23,11 +24,11 @@ namespace Jabber
 
 	void JRoster::handleItemAdded(const JID &jid)
 	{
-		QString key(QString::fromStdString(jid.bare()));
+		/*QString key(QString::fromStdString(jid.bare()));
 		QString resource(QString::fromStdString(jid.resource()));
-		if (p->contacts.contains(key)) {
-			p->contacts.value(key)->addResource(resource);
-		} else {
+		if (!p->contacts.contains(key)) {
+			//p->contacts.value(key)->addResource(resource);
+		//} else {
 			if (key != p->account->jid()) {
 				JContact *contact = new JContact(p->account);
 				contact->setName(QString::fromStdString(jid.username()));
@@ -38,11 +39,12 @@ namespace Jabber
 				for(; group != groups.end(); ++group)
 					tags.insert(QString::fromStdString(*group));
 				contact->setTags(tags);
-				contact->addResource(key);
+				//contact->addResource(key);
 				contact->addToList();
+				ContactList::instance()->addContact(contact);
 				p->contacts.insert(key, contact);
 			}
-		}
+		}*/
 		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~item added";
 	}
 
@@ -53,19 +55,23 @@ namespace Jabber
 
 	void JRoster::handleItemRemoved(const JID &jid)
 	{
-		QString key(QString::fromStdString(jid.bare()));
+		/*QString key(QString::fromStdString(jid.bare()));
 		QString resource(QString::fromStdString(jid.resource()));
 		if (p->contacts.contains(key)) {
-			p->contacts.value(key)->removeResource(resource);
-			if (p->contacts.value(key)->resources().isEmpty())
+			if (!resource.isEmpty()) {
+				p->contacts.value(key)->removeResource(resource);
+				if (p->contacts.value(key)->resources().isEmpty())
+					delete p->contacts.take(key);
+			} else {
 				delete p->contacts.take(key);
-		}
+			}
+		}*/
 		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~item removed";
 	}
 
 	void JRoster::handleItemUpdated(const JID &jid)
 	{
-		RosterItem *item = p->rosterManager->getRosterItem(jid);
+		/*RosterItem *item = p->rosterManager->getRosterItem(jid);
 		QString key(QString::fromStdString(jid.bare()));
 		if (p->contacts.contains(key)) {
 			JContact *contact = p->contacts.value(key);
@@ -76,7 +82,7 @@ namespace Jabber
 			for(; group != groups.end(); ++group)
 				tags.insert(QString::fromStdString(*group));
 			contact->setTags(tags);
-		}
+		}*/
 		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~item updated";
 	}
 
@@ -106,11 +112,15 @@ namespace Jabber
 				contact->setTags(tags);
 				//QMap<std::string, Resource *> resources(item->resources());
 				//foreach (std::string key, resources.keys())
-				std::map<std::string, Resource *>::const_iterator resource = item->resources().begin();
-				for(; resource != item->resources().end(); ++resource)
+				/*std::map<std::string, Resource *>::const_iterator resource = item->resources().begin();
+				for(; resource != item->resources().end(); ++resource) {
+					debug() << QString::fromStdString(resource->first);
 					contact->addResource(QString::fromStdString(resource->first));
+				}*/
 				contact->addToList();
+				ContactList::instance()->addContact(contact);
 				p->contacts.insert(jid, contact);
+				debug() << QString::fromStdString(item->name()) << contact->resources();
 			}
 		}
 		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~roster";
@@ -120,11 +130,30 @@ namespace Jabber
 			const std::string &resource, Presence::PresenceType presence,
 			const std::string &msg)
 	{
-		QString jid(QString::fromStdString(JID(item.jid()).bare()));
-		if (p->contacts.contains(jid))
-			p->contacts.value(jid)->setStatus(QString::fromStdString(resource),
-					presence, item.resource(resource)->priority());
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~roster presence";
+		//debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~roster presence";
+	}
+
+	void JRoster::handlePresence(const Presence &presence)
+	{
+		QString jid(QString::fromStdString(presence.from().bare()));
+		QString resource(QString::fromStdString(presence.from().resource()));
+		if (!p->contacts.contains(jid)) {
+			JContact *contact = new JContact(p->account);
+			contact->setName(QString::fromStdString(presence.from().username()));
+			RosterItem *item = p->rosterManager->getRosterItem(presence.from());
+			QSet<QString> tags;
+			StringList groups = item->groups();
+			StringList::const_iterator group = groups.begin();
+			for(; group != groups.end(); ++group)
+				tags.insert(QString::fromStdString(*group));
+			contact->setTags(tags);
+			contact->addToList();
+			ContactList::instance()->addContact(contact);
+			p->contacts.insert(jid, contact);
+		}
+		if (!resource.isEmpty())
+			p->contacts.value(jid)->setStatus(resource,
+					presence.presence(), presence.priority());
 	}
 
 	void JRoster::handleSelfPresence(const RosterItem &item, const std::string &resource,

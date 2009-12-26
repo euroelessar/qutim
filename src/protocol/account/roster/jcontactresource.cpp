@@ -2,7 +2,18 @@
 
 namespace Jabber
 {
-	JContactResource::JContactResource(JAccount *account) : ChatUnit(account)
+	struct JResourcePrivate
+	{
+		Presence::PresenceType presence;
+		int priority;
+	};
+
+	JContactResource::JContactResource(JAccount *account)
+			: ChatUnit(account), p(new JResourcePrivate)
+	{
+	}
+
+	JContactResource::~JContactResource()
 	{
 	}
 
@@ -14,5 +25,26 @@ namespace Jabber
 	void JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
 
+	}
+
+	void JContactResource::setPriority(int priority)
+	{
+		p->priority = priority;
+	}
+
+	int JContactResource::priority()
+	{
+		return p->priority;
+	}
+
+	void JContactResource::setStatus(Presence::PresenceType presence, int priority)
+	{
+		p->presence = presence;
+		p->priority = priority;
+	}
+
+	Presence::PresenceType JContactResource::status()
+	{
+		return p->presence;
 	}
 }

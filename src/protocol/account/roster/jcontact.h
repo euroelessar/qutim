@@ -22,6 +22,9 @@ namespace Jabber
 			void setName(const QString &name);
 			void setTags(const QSet<QString> &tags);
 			void setStatus(const QString &resource, Presence::PresenceType presence, int priority);
+			QString name();
+			QSet<QString> tags();
+			Status status();
 			bool isInList() const;
 			void setInList(bool inList);
 			bool hasResource(const QString &resource);
@@ -29,6 +32,8 @@ namespace Jabber
 			void removeResource(const QString &resource);
 			QStringList resources();
 			JContactResource *resource(const QString &key);
+		protected:
+			void fillMaxResource();
 		private:
 			QScopedPointer<JContactPrivate> p;
 	};
