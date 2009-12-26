@@ -18,6 +18,7 @@
 #include "messages.h"
 #include "buddycaps.h"
 #include "qutim/messagesession.h"
+#include "qutim/notificationslayer.h"
 
 namespace Icq {
 
@@ -243,6 +244,15 @@ void IcqContact::setCapabilities(const Capabilities &caps)
 			d->flags |= avatar_support;
 	}
 	d->capabilities = caps;
+}
+
+void IcqContact::setChatState(ChatState state)
+{
+	emit chatStateChanged(state);
+	//TODO move to core!
+	if (state & ChatStateComposing) {
+		Notifications::sendNotification(Notifications::Typing,this);
+	}
 }
 
 } // namespace Icq

@@ -65,6 +65,8 @@ public:
 	const DirectConnectionInfo &dcInfo() const;
 	void setStatus(Status status);
 	void setCapabilities(const Capabilities &caps);
+public slots:
+	virtual void setChatState(ChatState state);
 protected:
 	friend class Roster;
 	friend class MessagesHandler;

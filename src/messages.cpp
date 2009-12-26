@@ -196,17 +196,13 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			IcqContact *contact = m_account->roster()->contact(uin);
 			if(contact)
 			{
-				ChatSession *session = ChatLayer::instance()->getSession(m_account, contact, false);
-				if(session)
-				{
-					ChatState newState;
-					if(/*type == 0 || */type == 1)
-						newState = ChatStatePaused;
-					else if(type == 2)
-						newState = ChatStateComposing;
-					debug() << contact->id() << "typing state changed to" << type;
-					session->chatStateChanged(contact, newState);
-				}
+				ChatState newState;
+				if(/*type == 0 || */type == 1)
+					newState = ChatStatePaused;
+				else if(type == 2)
+					newState = ChatStateComposing;
+				debug() << contact->id() << "typing state changed to" << type;
+				contact->setChatState(newState);
 			}
 			break;
 		}
