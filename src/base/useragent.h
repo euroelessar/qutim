@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QDebug>
 
 class QIcon;
 
@@ -52,5 +53,11 @@ private:
     quint8 m_protoMajorVer;
     quint8 m_protoMinorVer;
 };
+
+static QDebug operator<<(QDebug dbg, const UserAgent &u)
+{
+    dbg.nospace() << "UserAgent (" << u.toString() << ")";
+    return dbg.space();
+}
 
 #endif // USERAGENT_H

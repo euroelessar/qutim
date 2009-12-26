@@ -47,7 +47,7 @@ void MrimPacket::initHeader()
 
 void MrimPacket::setHeader(const QByteArray& header)
 {
-    MDEBUG(VeryVerbose,"Input array size = " << header.count());
+    debug(VeryVerbose)<<"Input array size = " << header.count();
 
     QDataStream in(header);
     in.setByteOrder(QDataStream::LittleEndian);
@@ -136,7 +136,7 @@ bool MrimPacket::readFrom(QIODevice& device)
 
         if (isHeaderCorrect())
         {
-            MDEBUG(VeryVerbose,"Packet body size:" << dataLength());
+            debug(VeryVerbose)<<"Packet body size:" << dataLength();
             m_bytesLeft = dataLength();
             m_body.resize(dataLength());
             setState(ReadData);

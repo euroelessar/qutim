@@ -128,12 +128,12 @@ void MrimConnection::connected()
 
     if (!connected)
     {
-        MDEBUG(Info,"Connection to server"<<qPrintable(address)<<"failed! :(");
+        debug()<<"Connection to server"<<qPrintable(address)<<"failed! :(";
         return;
     }
     else
     {
-        MDEBUG(Info,"Connected to server"<<qPrintable(address));
+        debug()<<"Connected to server"<<qPrintable(address);
 
         if (socket == p->IMSocket()) //temp
         {
@@ -147,7 +147,7 @@ void MrimConnection::disconnected()
     QTcpSocket *socket = qobject_cast<QTcpSocket*>(sender());
     Q_ASSERT(socket);
 
-    MDEBUG(Info,"Disconnected from server"<<qPrintable( Utils::toHostPortPair(socket->peerAddress(),socket->peerPort()) ) );
+    debug()<<"Disconnected from server"<<qPrintable( Utils::toHostPortPair(socket->peerAddress(),socket->peerPort()) );
 
     if (socket == p->SrvReqSocket())
     {
@@ -157,7 +157,7 @@ void MrimConnection::disconnected()
         }
         else
         {
-            MCRIT("Oh god! This is epic fail! We didn't recieve any server, so connection couldn't be established!");
+            critical()<<"Oh god! This is epic fail! We didn't recieve any server, so connection couldn't be established!";
         }
     }
 }
@@ -291,7 +291,7 @@ void MrimConnection::readyRead()
 
         if (p->readPacket.lastError() != MrimPacket::NoError)
         {
-            MDEBUG(Verbose,"Error while reading packet:" << p->readPacket.lastErrorString() );
+            debug(Verbose)<<"Error while reading packet:" << p->readPacket.lastErrorString() ;
         }
     }
 
@@ -304,7 +304,8 @@ void MrimConnection::readyRead()
 bool MrimConnection::processPacket()
 {
     Q_ASSERT(p->readPacket.isFinished());
-    MDEBUG(VeryVerbose,"Recieved packet:"<<hex<<p->readPacket.msgType());
+    debug(VeryVerbose)<<"Recieved packet of type"<<hex<<p->readPacket.msgType();
+
     bool handled = false;
     QHandlersMap::iterator it = p->handlers.find(p->readPacket.msgType());
 
@@ -315,7 +316,8 @@ bool MrimConnection::processPacket()
 
     if (!handled)
     {
-        MDEBUG(VeryVerbose,"Packet was not handled!");
+        debug(VeryVerbose)<<"Packet was not handled!";
+        debug(VeryVerbose)<<p->readPacket;
     }
 }
 

@@ -16,9 +16,11 @@
 #ifndef MrimPacket_H_
 #define MrimPacket_H_
 
+#include <QDebug>
 #include <QObject>
 #include <QString>
 #include <QByteArray>
+
 #include "proto.h"
 
 class QIODevice;
@@ -149,5 +151,18 @@ inline quint32 MrimPacket::currBodyPos() const
 
 inline bool MrimPacket::atEnd() const
 { return currBodyPos() >= dataLength(); }
+
+static QDebug operator<<(QDebug dbg, const MrimPacket &p)
+{
+    dbg.nospace() << "MrimPacket (type=0x" << hex << p.msgType() << dec
+                  << ", seq=" << p.sequence()
+                  << ", dlen=" << p.dataLength()
+                  << ", from=" << p.from()
+                  << ", fromPort=" << p.fromPort()
+                  << ", data="
+                  << p.data().toHex().toUpper()
+                  << ")";
+    return dbg.space();
+}
 
 #endif /*MrimPacket_H_*/

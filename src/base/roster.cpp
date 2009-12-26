@@ -107,7 +107,7 @@ bool Roster::parseGroups(MrimPacket& packet, quint32 count, const QString& mask)
     {
         parsedGroup = parseByMask(packet,mask);
         p->groups[i] = parsedGroup.getString(0,true);
-        MDEBUG(VeryVerbose,"MrimGroup (id=" << i << ", flags=" << parsedGroup.getUint(0) << ", name=" << p->groups[i] << ")");
+        debug(VeryVerbose)<<"MrimGroup (id=" << i << ", flags=" << parsedGroup.getUint(0) << ", name=" << p->groups[i] << ")";
     }
     return true;
 }
@@ -147,7 +147,7 @@ bool Roster::parseContacts(MrimPacket& packet, const QString& mask)
             contact->setUserAgent(agent);
         }
 
-        MDEBUG(Verbose,"New contact read:"<<*contact);
+        debug(Verbose)<<"New contact read:"<<*contact;
         addToList(contact);
      }
 }
@@ -204,5 +204,4 @@ void Roster::addToList(MrimContact *cnt)
         ContactList::instance()->addContact(cnt);
     }
 }
-
 
