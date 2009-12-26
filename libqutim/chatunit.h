@@ -49,7 +49,7 @@ namespace qutim_sdk_0_3
 	public slots:
 		virtual void setChatState(ChatState state) = 0;
 	signals:
-		void chatStateChanged(Contact *c, ChatState state);
+		void chatStateChanged(ChatState state);
 	};
 }
 
