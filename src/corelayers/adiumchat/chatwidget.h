@@ -67,7 +67,7 @@ namespace AdiumChat
 		void onTabMoved(int from,int to);
 		void onSessionRemoved();
 		void onSendButtonClicked();
-		void chatStateChanged(Contact *c, ChatState state);
+		void chatStateChanged(ChatUnit* c, ChatState state);
 	};
 
 }

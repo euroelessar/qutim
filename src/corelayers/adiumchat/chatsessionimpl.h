@@ -31,8 +31,7 @@ namespace AdiumChat
 		ChatSessionImpl (ChatUnit *unit, ChatLayer* chat );
 		virtual ~ChatSessionImpl();
 		virtual void addContact ( Contact* c );
-		virtual void appendMessage ( const Message& message );
-		virtual void setChatState ( Contact* c, ChatState state );
+		virtual void appendMessage ( const Message& message );		
 		virtual void removeContact ( Contact* c );
 		QWebPage *getPage() const;
 		Account *getAccount() const;
@@ -53,6 +52,7 @@ namespace AdiumChat
 		void loadHistory();
 	protected slots:
 		void statusChanged(Status status);
+		virtual void onChatStateChanged (ChatState state );
 	private:
 		QPointer<QWebPage> m_web_page;
 		QPointer<ChatUnit> m_chat_unit;
@@ -62,7 +62,7 @@ namespace AdiumChat
 		bool m_active;
 		bool m_store_service_messages;
 	signals:
-		void removed(Account *,const QString &);//may be removed in future
+		void chatStateChanged(ChatUnit *c, ChatState state);
 	};
 }
 #endif // CHATSESSIONIMPL_H

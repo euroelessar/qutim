@@ -78,8 +78,7 @@ namespace AdiumChat
 		if(m_sessions.contains(session))
 			return;
 		m_sessions.append(session);
-		connect(session,SIGNAL(removed(Account*,QString)),SLOT(onSessionRemoved()));
-		connect(session,SIGNAL(setChatState(Contact*,ChatState)),SLOT(chatStateChanged(Contact*,ChatState)));
+		connect(session,SIGNAL(chatStateChanged(ChatUnit*,ChatState)),SLOT(chatStateChanged(ChatUnit*,ChatState)));
 		QIcon icon;
 		if (m_chat_flags & AvatarsOnTabs) {
 			QString imagePath = session->getUnit()->property("avatar").toString();
@@ -87,7 +86,6 @@ namespace AdiumChat
 		}
 		if (m_chat_flags & ChatStateIconsOnTabs) {
 			icon = Icon("user-online"); //FIXME
-			setProperty("currentChatState", ChatStateActive);
 		}
 		ui->tabBar->addTab(icon,session->getUnit()->title());
 		if (ui->tabBar->count() >1)
@@ -213,7 +211,7 @@ namespace AdiumChat
 		ui->chatEdit->clear();
 	}
 
-	void ChatWidget::chatStateChanged(Contact *c, ChatState state)
+	void ChatWidget::chatStateChanged(ChatUnit *c, ChatState state)
 	{
 		//checks
 		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
@@ -222,12 +220,9 @@ namespace AdiumChat
 		int index = m_sessions.indexOf(session);
 		if (index == -1)
 			return;
-// 		if (session->getUnit() != c) //TODO
-// 			return;
-		//states
 		if (m_chat_flags & ChatStateIconsOnTabs) {
 			QString icon_name;
-			ChatState previous_state = static_cast<ChatState>(session->property("currentChatState").toInt());
+			ChatState previous_state = static_cast<ChatState>(c->property("currentChatState").toInt());
 			if (!(previous_state & ChatStateComposing) || (state & ChatStatePaused)) {
 				switch (state) {
 					//FIXME icon names
@@ -250,8 +245,9 @@ namespace AdiumChat
 						break;
 				}
 				ui->tabBar->setTabIcon(index,Icon(icon_name));
+				qDebug() << c->title() << icon_name;
 				//ui->tabBar->setTabText(index,icon_name);
-				session->setProperty("currentChatState",state);
+				c->setProperty("currentChatState",state);
 			}
 		}
 	}

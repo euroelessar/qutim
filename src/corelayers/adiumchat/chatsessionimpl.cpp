@@ -32,13 +32,10 @@ namespace AdiumChat
 	ChatSessionImpl::ChatSessionImpl ( ChatUnit* unit, ChatLayer* chat)
 	: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage)
 	{
-		m_chat_unit = unit;
-		qDebug() << "create session" << unit->title();
+		setChatUnit(unit);
+		qDebug() << "create session" << m_chat_unit->title();
 		connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 		m_store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", false);
-		Contact *contact = qobject_cast<Contact*>(m_chat_unit);
-		if (contact)
-			connect(contact,SIGNAL(statusChanged(Status)),SLOT(statusChanged(Status)));
 		m_chat_style_output->preparePage(m_web_page,this);
 		m_message_count = 0;
 		loadHistory();
@@ -133,14 +130,6 @@ namespace AdiumChat
 			m_message_count++;
 	}
 
-	void ChatSessionImpl::setChatState ( Contact* c, ChatState state )
-	{
-		//TODO
-		emit setChatState(c,state);
-		if (state & ChatStateComposing)
-			Notifications::sendNotification(Notifications::Typing,c);
-	}
-
 	void ChatSessionImpl::removeContact ( Contact* c )
 	{
 
@@ -216,6 +205,15 @@ namespace AdiumChat
 	void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 	{
 		m_chat_unit = unit;
+		connect(unit,SIGNAL(chatStateChanged(ChatState)),SLOT(onChatStateChanged(ChatState)));
+	}
+
+	void ChatSessionImpl::onChatStateChanged(ChatState state)
+	{
+		ChatUnit *c = qobject_cast<ChatUnit *>(sender());
+		if (!c)
+			return;
+		emit chatStateChanged(c,state);
 	}
 
 }

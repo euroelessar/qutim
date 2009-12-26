@@ -134,6 +134,7 @@ namespace Core
             connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(contactStatusChanged(qutim_sdk_0_3::Status)));
             connect(contact, SIGNAL(nameChanged(QString)), SLOT(contactNameChanged(QString)));
 			connect(contact, SIGNAL(tagsChanged(QSet<QString>)), SLOT(contactTagsChanged(QSet<QString>)));
+			connect(contact, SIGNAL(chatStateChanged(ChatState)), SLOT(contactChatStateChanged(ChatState)));
 			QSet<QString> tags = contact->tags();
 			if(tags.isEmpty())
 				tags << QLatin1String("Default");
@@ -202,6 +203,15 @@ namespace Core
 			else
 				notify = Notifications::StatusChange;
 			Notifications::sendNotification(notify, contact);
+		}
+		
+		
+		void Model::contactChatStateChanged(ChatState state)
+		{
+			//TODO
+			Contact *contact = qobject_cast<Contact *>(sender());
+			if (state & ChatStateComposing)
+				Notifications::sendNotification(Notifications::Typing,contact);
 		}
 
 		void Model::contactNameChanged(const QString &name)

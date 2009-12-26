@@ -37,7 +37,6 @@ namespace qutim_sdk_0_3
 	public slots:
 		virtual void addContact(Contact *c) = 0;
 		virtual void removeContact(Contact *c) = 0;
-		virtual void setChatState(Contact *c, ChatState state) = 0;
 		virtual void appendMessage(const Message &message) = 0;
 		virtual bool isActive() = 0;
 		virtual void setActive(bool active) = 0;
@@ -45,7 +44,6 @@ namespace qutim_sdk_0_3
 		inline void appendMessage(const QString &text)
 		{ appendMessage(Message(text)); }
 	signals:
-		void chatStateChanged(Contact *c, ChatState state);
 		void messageReceived(const Message &message);
 		void messageSended(const Message &message);
 		void contactAdded();
