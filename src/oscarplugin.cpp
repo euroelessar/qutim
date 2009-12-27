@@ -19,7 +19,8 @@
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 
-namespace Icq {
+namespace Icq
+{
 
 OscarPlugin::OscarPlugin()
 {

@@ -120,8 +120,7 @@ inline void ClientIdentify::setClientIcon(const QString &icon)
 
 void ClientIdentify::identify_by_DCInfo()
 {
-	if ((m_info & 0xff000000) == 0x7d000000)
-	{
+	if ((m_info & 0xff000000) == 0x7d000000) {
 		QString extra;
 		unsigned long ver = m_info & 0xffff;
 		extra = QString("%1.%2").arg(ver / 1000).arg((ver / 10) % 100);
@@ -131,9 +130,7 @@ void ClientIdentify::identify_by_DCInfo()
 		if ((m_info & 0x00ff0000) == 0x00800000)
 			m_client_id += "/SSL";
 		setClientIcon("licq");
-	}
-	else if (m_info == 0xffffffff)
-	{
+	} else if (m_info == 0xffffffff) {
 		if (m_ext_status_info == 0xffffffff)
 			setClientData("Gaim", "gaim");
 		else if ((!m_ext_status_info) && (m_client_proto == 7))
@@ -142,98 +139,60 @@ void ClientIdentify::identify_by_DCInfo()
 			setClientData("Spam Bot", "bot");
 		else
 			parseMirandaVersionInDCInfo();
-	}
-	else if (m_info == 0x7fffffff)
-	{
+	} else if (m_info == 0x7fffffff) {
 		parseMirandaVersionInDCInfo();
-	}
-	else if (m_info == 0x3b75ac09)
-	{
+	} else if (m_info == 0x3b75ac09) {
 		setClientData("Trillian", "trillian");
-	}
-	else if (m_info == 0xffffff42)
-	{
+	} else if (m_info == 0xffffff42) {
 		setClientData("mICQ", "micq");
-	}
-	else if (m_info == 0xffffff8f)
-	{
+	} else if (m_info == 0xffffff8f) {
 		setClientData("StrICQ", "unknown");
-	}
-	else if (m_info == 0xffffff7f)
-	{
+	} else if (m_info == 0xffffff7f) {
 		setClientData("&RQ", "RQ");
-	}
-	else if (m_info == 0xffffffab)
-	{
+	} else if (m_info == 0xffffffab) {
 		setClientData("YSM", "unknown");
-	}
-	else if (m_info == 0xffffffbe)
-	{
+	} else if (m_info == 0xffffffbe) {
 		int ver1 = (m_ext_status_info >> 0x18) & 0xff;
 		int ver2 = (m_ext_status_info >> 0x10) & 0xff;
 		int ver3 = (m_ext_status_info >> 0x08) & 0xff;
 		m_client_id = QString("Alicq %1.%2.%3").arg(ver1).arg(ver2).arg(ver3);
 		setClientIcon("unknown");
-	}
-	else if (m_info == 0x04031980)
-	{
+	} else if (m_info == 0x04031980) {
 		setClientData("vICQ", "unknown");
-	}
-	else if ((m_info == 0x3aa773ee) && (m_ext_status_info == 0x3aa66380))
-	{
-		if (m_contact->RtfSupport())
-		{
+	} else if ((m_info == 0x3aa773ee) && (m_ext_status_info == 0x3aa66380)) {
+		if (m_contact->RtfSupport()) {
 			setClientData("Centericq", "centericq");
-		}
-		else
-		{
+		} else {
 			m_client_id = "libicq2000";
 			if (m_contact->Utf8Support())
 				m_client_id += " (Unicode)";
 			setClientIcon("icq2000");
 		}
 	}
-	else if ((m_info == 0x3ba8dbaf) && (m_client_proto == 2))
-	{
+	else if ((m_info == 0x3ba8dbaf) && (m_client_proto == 2)) {
 		setClientData("stICQ", "sticq");
-	}
-	else if ((m_info == 0xfffffffe) && (m_ext_info == 0xfffffffe))
-	{
+	} else if ((m_info == 0xfffffffe) && (m_ext_info == 0xfffffffe)) {
 		setClientData("Jimm", "jimm");
-	}
-	else if ((m_info == 0x3ff19beb) && (m_ext_info == 0x3ff19beb))
-	{
+	} else if ((m_info == 0x3ff19beb) && (m_ext_info == 0x3ff19beb)) {
 		setClientData("IM2", "im2");
-	}
-	else if ((m_info == 0xddddeeff) && (!m_ext_status_info) && (!m_ext_info))
-	{
+	} else if ((m_info == 0xddddeeff) && (!m_ext_status_info) && (!m_ext_info)) {
 		setClientData("SmartICQ", "unknown");
-	}
-	else if (((m_info & 0xfffffff0) == 0x494d2b00) && (!m_ext_status_info) && (!m_ext_info))
-	{
+	} else if (((m_info & 0xfffffff0) == 0x494d2b00) && (!m_ext_status_info) && (!m_ext_info)) {
 		setClientData("IM+", "implus");
-	}
-	else if ((m_info == 0x3b4c4c0c) && (!m_ext_status_info) && (m_ext_info == 0x3b7248ed))
-	{
+	} else if ((m_info == 0x3b4c4c0c) && (!m_ext_status_info) && (m_ext_info == 0x3b7248ed)) {
 		setClientData("KXicq2", "kxicq");
-	}
-	else if ((m_info == 0xfffff666)/* && (!lastExtInfo)*/)
-	{
+	} else if ((m_info == 0xfffff666)/* && (!lastExtInfo)*/) {
 		m_client_id = QString("R&Q %1").arg((unsigned int)m_ext_status_info);
 		setClientIcon("rnq");
-	}
-	else if ((m_info == 0x66666666) && (m_ext_info == 0x66666666))
-	{
+	} else if ((m_info == 0x66666666) && (m_ext_info == 0x66666666)) {
 		m_client_id = "D[i]Chat";
 		if (m_ext_status_info == 0x10000)
 			m_client_id += " v.0.1a";
 		else if (m_ext_status_info == 0x22)
 			m_client_id += " v.0.2b";
 		setClientIcon("di_chat");
-	}
-	else if ((m_info == 0x44F523B0) && (m_ext_status_info == 0x44F523A6) &&
-			(m_ext_info == 0x44F523A6) && (m_client_proto == 8))
-	{
+	} else if ((m_info == 0x44F523B0) && (m_ext_status_info == 0x44F523A6) &&
+			(m_ext_info == 0x44F523A6) && (m_client_proto == 8)) {
 		setClientData("Virus", "unknown");
 	}
 }
@@ -299,8 +258,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 	bool avatar   = m_contact->AvatarSupport();
 
 	// VERSION = 0
-	if (m_client_proto == 0)
-	{
+	if (m_client_proto == 0) {
 		if (!m_info && !m_ext_status_info && !m_ext_info &&
 			!(m_contact->dcInfo().port) && !(m_contact->dcInfo().auth_cookie))
 		{
@@ -311,8 +269,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 			{
 				setClientData("Spam Bot", "bot");
 			}
-			else if (aimIcon)
-			{
+			else if (aimIcon) {
 				if ((typing && xtraz && srvRelay && utf8) ||
 					(utf8 && (m_client_caps.size() == 2)) ||
 					(m_client_caps.match(ICQ_CAPABILITY_ICQLITExVER) && xtraz))
@@ -325,37 +282,24 @@ void ClientIdentify::identify_by_ProtoVersion()
 				{
 					setClientData("Digsby", "digsby");
 				}
-			}
-			else if (aimChat)
-			{
-				if (sendFile && (m_client_caps.size() == 2))
-				{
+			} else if (aimChat) {
+				if (sendFile && (m_client_caps.size() == 2)) {
 					setClientData("Easy Message", "unknown");
-				}
-				else if (aimIcon && m_client_caps.match(ICQ_CAPABILITY_AIMIMAGE))
-				{
+				} else if (aimIcon && m_client_caps.match(ICQ_CAPABILITY_AIMIMAGE)) {
 					setClientData("AIM", "aim");
 				}
-			}
-			else if (utf8 && (m_client_caps.size() == 2))
-			{
+			} else if (utf8 && (m_client_caps.size() == 2)) {
 				setClientData("BeejiveIM", "beejive");
 			}
-		}
-		else if (utf8 && srvRelay && direct)
-		{
+		} else if (utf8 && srvRelay && direct) {
 			if ((typing && (m_client_caps.size() == 4)) ||
 				(aimIcon && avatar && (m_client_caps.size() == 5)))
 			{
 				setClientData("Agile Messenger", "agile");
-			}
-			else if (sendFile && getFile)
-			{
+			} else if (sendFile && getFile) {
 				setClientData("Slick", "slick");
 			}
-		}
-		else if(direct && rtf && typing && utf8)
-		{
+		} else if(direct && rtf && typing && utf8) {
 			setClientData("GlICQ", "glicq");
 		}
 	}
@@ -374,20 +318,13 @@ void ClientIdentify::identify_by_ProtoVersion()
 			{
 				setClientData("GnomeICU", "unknown");
 			}
-		}
-		else if (srvRelay)
-		{
-			if (!m_info && !m_ext_status_info && !m_ext_info)
-			{
+		} else if (srvRelay) {
+			if (!m_info && !m_ext_status_info && !m_ext_info) {
 				setClientData("&RQ", "RQ");
-			}
-			else
-			{
+			} else {
 				setClientData("ICQ 2000", "icq2000");
 			}
-		}
-		else if (utf8)
-		{
+		} else if (utf8) {
 			if (typing)
 				m_client_id = "Icq2Go! (Java)";
 			else
@@ -400,64 +337,43 @@ void ClientIdentify::identify_by_ProtoVersion()
 	else if (m_client_proto == 8) {
 		if (xtraz)
 		{
-			if (direct && utf8 && srvRelay && avatar)
-			{
+			if (direct && utf8 && srvRelay && avatar) {
 				setClientData("IM Gate", "imgate");
-			}
-			else if (m_client_caps.match(ICQ_CAPABILITY_IMSECKEY1) &&
+			} else if (m_client_caps.match(ICQ_CAPABILITY_IMSECKEY1) &&
 					m_client_caps.match(ICQ_CAPABILITY_IMSECKEY2))
 			{
 				m_client_proto = 9;
 				return identify_by_ProtoVersion();
 			}
 		}
-		else if (m_client_caps.match(ICQ_CAPABILITY_COMM20012) || srvRelay)
-		{
-			if (m_client_caps.match(ICQ_CAPABILITY_IS2001))
-			{
-				if (!m_info && !m_ext_status_info && !m_ext_info)
-				{
-					if (rtf)
-					{
+		else if (m_client_caps.match(ICQ_CAPABILITY_COMM20012) || srvRelay) {
+			if (m_client_caps.match(ICQ_CAPABILITY_IS2001)) {
+				if (!m_info && !m_ext_status_info && !m_ext_info) {
+					if (rtf) {
 						setClientData("TICQClient", "unknown"); // possibly also older GnomeICU
-					}
-					else
-					{
+					} else {
 						setClientData("ICQ for Pocket PC", "unknown");
 					}
-				}
-				else
-				{
+				} else {
 					setClientData("ICQ 2001", "icq2001");
 				}
-			}
-			else if (m_client_caps.match(ICQ_CAPABILITY_IS2002))
-			{
+			} else if (m_client_caps.match(ICQ_CAPABILITY_IS2002)) {
 				setClientData("ICQ 2002", "icq");
-			}
-			else if (srvRelay && utf8 && rtf &&
+			} else if (srvRelay && utf8 && rtf &&
 					(!m_client_caps.match(ICQ_CAPABILITY_ICQJS7xVER)) &&
 					(!m_client_caps.match(ICQ_CAPABILITY_ICQJSINxVER)))
 			{
 				if (!m_info && !m_ext_status_info && !m_ext_info) {
-					if (!(m_contact->dcInfo().port))
-					{
+					if (!(m_contact->dcInfo().port)) {
 						setClientData("GnomeICU 0.99.5+", "unknown");
-					}
-					else
-					{
+					} else {
 						setClientData("IC@", "unknown");
 					}
-				}
-				else
-				{
+				} else {
 					setClientData("ICQ 2002/2003a", "icq");
 				}
-			}
-			else if (srvRelay && utf8 && typing)
-			{
-				if (!m_info && !m_ext_status_info && !m_ext_info)
-				{
+			} else if (srvRelay && utf8 && typing) {
+				if (!m_info && !m_ext_status_info && !m_ext_info) {
 					setClientData("PreludeICQ", "unknown");
 				}
 			}
@@ -465,36 +381,25 @@ void ClientIdentify::identify_by_ProtoVersion()
 	}
 
 	// VERSION = 9
-	else if (m_client_proto == 9)
-	{
-		if (xtraz)
-		{
-			if (sendFile)
-			{
+	else if (m_client_proto == 9) {
+		if (xtraz) {
+			if (sendFile) {
 				QString icon;
-				if (m_client_caps.match(ICQ_CAPABILITY_TZERS))
-				{
-					if (m_client_caps.match(ICQ_CAPABILITY_HTMLMSGS))
-					{
-						if (rtf)
-						{
+				if (m_client_caps.match(ICQ_CAPABILITY_TZERS)) {
+					if (m_client_caps.match(ICQ_CAPABILITY_HTMLMSGS)) {
+						if (rtf) {
 							m_client_id = "MDC";
 							icon = "mdc";
-						}
-						else
-						{
+						} else {
 							m_client_id = "ICQ 6";
 							icon = "icq60";
 						}
-					}
-					else
-					{
+					} else {
 						m_client_id = "ICQ 5.1";
 						icon = "icq51";
 					}
 				}
-				else
-				{
+				else {
 					m_client_id = "ICQ 5";
 					icon = "icq50";
 				}
@@ -505,38 +410,30 @@ void ClientIdentify::identify_by_ProtoVersion()
 				else if (m_client_caps.match(ICQ_CAPABILITY_NETVIGATOR))
 					m_client_id += " (Netvigator)";
 				setClientIcon(icon);
-			}
-			else if (!direct)
-			{
+			} else if (!direct) {
 				if (rtf) {
 					m_client_id = "QNext";
 					setClientIcon("unknown");
 				}
-				else if(m_client_caps.match(ICQ_CAPABILITY_TZERS))
-				{
+				else if(m_client_caps.match(ICQ_CAPABILITY_TZERS)) {
 					m_client_id = "Mail.Ru Agent";
 					setClientIcon("mrim");
 				}
-				else
-				{
+				else {
 					m_client_id = "PyICQ-t Jabber Transport";
 					setClientIcon("pyicq");
 				}
-			}
-			else
-			{
+			} else {
 				m_client_id = "ICQ Lite v4";
 				setClientIcon("icq4lite");
 			}
-		}
-		else if(utf8 && sendFile && aimIcon && aimChat
+		} else if(utf8 && sendFile && aimIcon && aimChat
 				&& m_contact->capabilities().match(ICQ_CAPABILITY_BUDDY_LIST))
 		{
 			m_client_id = "ICQ Lite";
 			setClientIcon("icq4lite");
 		}
-		else if (!direct && utf8 && !rtf)
-		{
+		else if (!direct && utf8 && !rtf) {
 			m_client_id = "PyICQ-t Jabber Transport";
 			setClientIcon("pyicq");
 		}
@@ -546,17 +443,11 @@ void ClientIdentify::identify_by_ProtoVersion()
 	else if (m_client_proto == 0xA)
 	{
 		if (rtf && utf8 && typing && direct && srvRelay)
-		{
 			setClientData("ICQ 2003b Pro", "icq2003pro");
-		}
 		else if (!rtf && !utf8)
-		{
 			setClientData("QNext", "unknown");
-		}
 		else if (!rtf && utf8 && !m_info && !m_ext_status_info && !m_ext_info)
-		{
 			setClientData("NanoICQ", "unknown");
-		}
 	}
 }
 
@@ -567,20 +458,16 @@ void ClientIdentify::identify_qutIM()
 	                                                  0x00, 0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator capit = m_client_caps.find(ICQ_CAPABILITY_QUTIMxVER);
-	if (capit != m_client_caps.constEnd())
-	{
+	if (capit != m_client_caps.constEnd()) {
 		const Capability &cap = *capit;
 		QByteArray data = cap.data();
 		const char *verStr = data.constData() + 5;
-		if (verStr[1] == 46)
-		{
+		if (verStr[1] == 46) {
 			// old qutim id
 			unsigned int ver1 = verStr[0] - 48;
 			unsigned int ver2 = verStr[2] - 48;
 			m_client_id = QString("qutIM v%1.%2").arg(ver1).arg(ver2);
-		}
-		else
-		{
+		} else {
 			// new qutim id
 			quint8 type = verStr[0];
 			quint32 ver = qFromBigEndian<quint32>((uchar *)verStr + 6);
@@ -592,13 +479,10 @@ void ClientIdentify::identify_qutIM()
 			int ver3 = verStr[3];
 			unsigned char svn1 = verStr[4];
 			unsigned char svn2 = verStr[5];
-			if (ver1 == 0x42)
-			{
+			if (ver1 == 0x42) {
 				m_client_id = QString("oldk8 v%1.%2 (%3) %4").arg(ver2).arg(ver3).
 						           arg((unsigned int)((svn1 << 0x08))).arg(os);
-			}
-			else
-			{
+			} else {
 				if (svn1 | svn2)
 					m_client_id = QString("qutIM v%1.%2.%3 svn%4 %5").arg(ver1).arg(ver2).arg(ver3).
 							                  arg((unsigned int)((svn1 << 0x08) | svn2)).arg(os);
@@ -617,8 +501,7 @@ void ClientIdentify::identify_k8qutIM()
 	                                                     0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap = m_client_caps.find(ICQ_CAPABILITY_K8QUTIMxVER);
-	if (cap != m_client_caps.constEnd())
-	{
+	if (cap != m_client_caps.constEnd()) {
 		const char *cap_str = cap->data().data() + 7;
 		QString os("");
 		if(cap_str[0] != 'l')
@@ -687,18 +570,14 @@ void ClientIdentify::identify_Miranda()
 		unsigned ModVer  = cap_str[0x3] & 0xff;
 
 		unsigned Unicode = (m_ext_info >> 24) & 0xff;
-		if ((mver1 < 20) && (iver1 < 20))
-		{
+		if ((mver1 < 20) && (iver1 < 20)) {
 			m_client_id +=  "Miranda IM ";
-			if (mver0 == 0x80)
-			{
+			if (mver0 == 0x80) {
 				if (mver2 == 0x00)
 					m_client_id += QString("0.%1 alpha build #%2").arg(mver1).arg(mver3);
 				else
 					m_client_id += QString("0.%1.%2 alpha build #%3").arg(mver1).arg(mver2).arg(mver3);
-			}
-			else
-			{
+			} else {
 				if (mver2 == 0x00)
 					m_client_id += QString("%1.%2").arg(mver0).arg(mver1);
 				else
@@ -744,15 +623,12 @@ void ClientIdentify::identify_Miranda()
 		m_client_id += "Miranda IM ";
 		if (m_client_caps.match(ICQ_CAPABILITY_MIRMOBxVER))
 			m_client_id += "Mobile ";
-		if (mver0 == 0x80)
-		{
+		if (mver0 == 0x80) {
 			if (mver2 == 0x00)
 				m_client_id += QString("0.%1 alpha build #%2").arg(mver1).arg(mver3);
 			else
 				m_client_id += QString("0.%1.%2 alpha build #%3").arg(mver1).arg(mver2).arg(mver3);
-		}
-		else
-		{
+		} else {
 			if (mver2 == 0x00)
 				m_client_id += QString("%1.%2").arg(mver0).arg(mver1);
 			else
@@ -789,14 +665,14 @@ void ClientIdentify::identify_Miranda()
 		m_client_id += " ";
 		switch (iver0)
 		{
-			case 0x88:
-			case 0x81:
-			case 0x80:
-				m_client_id += QString("0.%1.%2.%3 alpha)").arg(iver1).arg(iver2).arg(iver3);
-				break;
-			default:
-				m_client_id += QString("%1.%2.%3.%4)").arg(iver0).arg(iver1).arg(iver2).arg(iver3);
-				break;
+		case 0x88:
+		case 0x81:
+		case 0x80:
+			m_client_id += QString("0.%1.%2.%3 alpha)").arg(iver1).arg(iver2).arg(iver3);
+			break;
+		default:
+			m_client_id += QString("%1.%2.%3.%4)").arg(iver0).arg(iver1).arg(iver2).arg(iver3);
+			break;
 		}
 		if ((m_ext_info == 0x5AFEC0DE) || m_client_caps.match(ICQ_CAPABILITY_ICQJS7SxVER, 0x10))
 			m_client_id += " (SecureIM)";
@@ -812,8 +688,7 @@ void ClientIdentify::identify_Qip()
 	                                                     0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_QIPxVER/*, 0x0e*/)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_QIPxVER/*, 0x0e*/)) != m_client_caps.constEnd()) {
 		const QByteArray &cap_data = cap->data();
 		m_client_id = "QIP ";
 		if (m_ext_info == 0x0F)
@@ -821,8 +696,7 @@ void ClientIdentify::identify_Qip()
 		else
 			m_client_id += QString::fromUtf8(cap_data.mid(11, 5));
 
-		if ((m_ext_status_info == 0x0000000e) && (m_ext_info == 0x0000000f))
-		{
+		if ((m_ext_status_info == 0x0000000e) && (m_ext_info == 0x0000000f)) {
 			m_client_id += QString(" (Build %1%2%3%4)")
 					.arg((unsigned)m_info >> 0x18)
 					.arg((unsigned)(m_info >> 0x10) & 0xFF)
@@ -839,8 +713,7 @@ void ClientIdentify::identify_QipInfium()
 	                                              0x4F, 0x3E, 0xA6, 0x9F, 0x00, 0x00,
 	                                              0x00, 0x00, 0x00, 0x00);
 
-	if (m_client_caps.match(ICQ_CAPABILITY_QIPINFxVER))
-	{
+	if (m_client_caps.match(ICQ_CAPABILITY_QIPINFxVER)) {
 		m_client_id += "QIP Infium";
 		if (m_info)
 			m_client_id += QString(" (Build %1)").arg((unsigned)m_info);
@@ -893,8 +766,7 @@ void ClientIdentify::identify_Sim()
                                                        0xf7, 0x3f, 0x14, 0x00);
     */
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_SIMxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_SIMxVER)) != m_client_caps.constEnd()) {
 		QString clientId = "SIM v";
 		const char *cap_str = cap->data().data() + 12;
 	    unsigned ver1 = cap_str[0];
@@ -918,8 +790,7 @@ void ClientIdentify::identify_Sim()
 void ClientIdentify::identify_SimRnQ()
 {
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_SIMxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_SIMxVER)) != m_client_caps.constEnd()) {
 		const char *cap_str = cap->data().data() + 12;
 		if (cap_str[0] || cap_str[1] || cap_str[2] || (cap_str[3] & 0x0f))
 			return;
@@ -936,8 +807,7 @@ void ClientIdentify::identify_Licq()
 	                                                  0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_LICQxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_LICQxVER)) != m_client_caps.constEnd()) {
 		const char *cap_str = cap->data().data() + 12;
 		unsigned ver1 = cap_str[0];
 		unsigned ver2 = cap_str[1]%100;
@@ -956,8 +826,7 @@ void ClientIdentify::identify_Kopete()
 	                                                     0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_KOPETExVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_KOPETExVER)) != m_client_caps.constEnd()) {
 		const char *cap_str = cap->data().data() + 12;
 		unsigned ver1 = cap_str[0];
 		unsigned ver2 = cap_str[1];
@@ -975,8 +844,7 @@ void ClientIdentify::identify_Micq()
 	                                                 0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_MICQxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_MICQxVER)) != m_client_caps.constEnd()) {
 		m_client_id = "mICQ v";
 		const char *cap_str = cap->data().data() + 12;
 		unsigned ver1 = cap_str[0];
@@ -1004,9 +872,7 @@ void ClientIdentify::identify_LibGaim()
 			setClientData("Pidgin/AdiumX", "pidgin");
 		else
 			setClientData("Gaim/AdiumX", "gaim");
-	}
-	else if ((newver >= 1) && (m_client_proto == 0))
-	{
+	} else if ((newver >= 1) && (m_client_proto == 0)) {
 		if(m_contact->IconSupport() && m_contact->Utf8Support())
 			setClientData("Meebo", "meebo");
 	}
@@ -1019,8 +885,7 @@ void ClientIdentify::identify_Jimm()
 	                                                 0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_JIMMxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_JIMMxVER)) != m_client_caps.constEnd()) {
 		m_client_id = "Jimm ";
 		m_client_id += QString::fromUtf8(cap->data().mid(5, 11));
 		setClientIcon("jimm");
@@ -1034,14 +899,12 @@ void ClientIdentify::identify_Mip()
 	                                                  0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_MIPCLIENT, 12)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_MIPCLIENT, 12)) != m_client_caps.constEnd()) {
 		m_client_id = "MIP ";
 		const char *cap_str = cap->data().data() + 12;
 	    unsigned ver1 = cap_str[0];
 
-	    if (ver1 < 30)
-	    {
+	    if (ver1 < 30) {
 	    	unsigned ver2 = cap_str[1];
 			unsigned ver3 = cap_str[2];
 			unsigned ver4 = cap_str[3];
@@ -1049,9 +912,7 @@ void ClientIdentify::identify_Mip()
 	    }
 	    else
 	    	m_client_id += QString::fromUtf8(cap->data().mid(11, 5));
-	}
-	else if ((cap = m_client_caps.find(ICQ_CAPABILITY_MIPCLIENT)) != m_client_caps.constEnd())
-	{
+	} else if ((cap = m_client_caps.find(ICQ_CAPABILITY_MIPCLIENT)) != m_client_caps.constEnd()) {
 		m_client_id = "MIP ";
 		m_client_id += QString::fromUtf8(cap->data().mid(4, 12));
 	}
@@ -1073,8 +934,7 @@ void ClientIdentify::identify_Trillian()
 		m_client_caps.match(ICQ_CAPABILITY_TRILCRPTxVER))
 	{
 		m_client_id = "Trillian";
-		if (m_contact->RtfSupport())
-		{
+		if (m_contact->RtfSupport()) {
 			if (m_contact->SendFileSupport())
 				m_client_id += " Astra";
 			else
@@ -1091,8 +951,7 @@ void ClientIdentify::identify_Climm()
 	                                                  0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_CLIMMxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_CLIMMxVER)) != m_client_caps.constEnd()) {
 		const char *cap_str = cap->data().data() + 12;
 	    unsigned ver1 = cap_str[0];
 	    unsigned ver2 = cap_str[1];
@@ -1127,8 +986,7 @@ void ClientIdentify::identify_AndRQ()
 	                                              0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_ANDRQxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_ANDRQxVER)) != m_client_caps.constEnd()) {
 		const char *cap_str = cap->data().data();
 		unsigned ver1 = cap_str[0xC];
 		unsigned ver2 = cap_str[0xB];
@@ -1146,8 +1004,7 @@ void ClientIdentify::identify_RandQ()
 	                                                  0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_RANDQxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_RANDQxVER)) != m_client_caps.constEnd()) {
 		const char *cap_str = cap->data().data();
 		unsigned ver1 = cap_str[0xC];
 		unsigned ver2 = cap_str[0xB];
@@ -1176,8 +1033,7 @@ void ClientIdentify::identify_Mchat()
 	                                              0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_MCHATxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_MCHATxVER)) != m_client_caps.constEnd()) {
 		m_client_id = "mChat ";
 		m_client_id += QString::fromUtf8(cap->data().mid(10, 6));
 		setClientIcon("mchat");
@@ -1191,8 +1047,7 @@ void ClientIdentify::identify_CorePager()
 	                                                    0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_COREPGRxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_COREPGRxVER)) != m_client_caps.constEnd()) {
 		m_client_id += "CORE Pager";
 		if ((m_ext_status_info == 0x0FFFF0011) &&
 			(m_ext_info == 0x1100FFFF) &&
@@ -1213,8 +1068,7 @@ void ClientIdentify::identify_DiChat()
 	                                                   0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_DICHATxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_DICHATxVER)) != m_client_caps.constEnd()) {
 		m_client_id += "D[i]Chat ";
 		m_client_id += QString::fromUtf8(cap->data().mid(8, 8));
 		setClientIcon("di_chat");
@@ -1249,8 +1103,7 @@ void ClientIdentify::identify_Jicq()
 	                                                 0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_PALMJICQ, 0xc)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_PALMJICQ, 0xc)) != m_client_caps.constEnd()) {
 		const char *cap_str = cap->data().data();
 		unsigned ver1 = cap_str[0xC];
 		unsigned ver2 = cap_str[0xD];
@@ -1278,8 +1131,7 @@ void ClientIdentify::identify_Vmicq()
 	                                                  0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_VMICQxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_VMICQxVER)) != m_client_caps.constEnd()) {
 		m_client_id += "VmICQ ";
 		m_client_id += QString::fromUtf8(cap->data().mid(5, 11));
 		setClientIcon("vmicq");
@@ -1293,8 +1145,7 @@ void ClientIdentify::identify_Smaper()
 	                                                   0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_SMAPERxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_SMAPERxVER)) != m_client_caps.constEnd()) {
 		m_client_id += "SmapeR ";
 		m_client_id += QString::fromUtf8(cap->data().mid(6, 10));
 		setClientIcon("smaper");
@@ -1307,8 +1158,7 @@ void ClientIdentify::identify_Yapp()
 	                                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	                                                 0x00, 0x00, 0x00, 0x00);
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_YAPPxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_YAPPxVER)) != m_client_caps.constEnd()) {
 		m_client_id = "Yapp! v";
 		m_client_id += QString::fromUtf8(cap->data().mid(8, 5));
 		setClientIcon("yapp");
@@ -1332,8 +1182,7 @@ void ClientIdentify::identify_NatIcq()
 	                                                   0x00, 0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_NATICQxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_NATICQxVER)) != m_client_caps.constEnd()) {
 		const char *cap_str = cap->data().data();
 		m_client_id = QString("NatICQ Siemens (revision %s)").arg(QString::fromUtf8(cap->data().mid(0xc, 4)));
 		setClientIcon("naticq");
@@ -1347,8 +1196,7 @@ void ClientIdentify::identify_WebIcqPro()
 	                                                  0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_WEBICQPRO)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_WEBICQPRO)) != m_client_caps.constEnd()) {
 		const char *cap_str = cap->data().data();
 	    unsigned ver1 = cap_str[0xA];
 	    unsigned ver2 = cap_str[0xB];
@@ -1367,8 +1215,7 @@ void ClientIdentify::identify_BayanIcq()
 	                                                     0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_BAYANICQxVER)) != m_client_caps.constEnd())
-	{
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_BAYANICQxVER)) != m_client_caps.constEnd()) {
 		m_client_id = "bayanICQ v";
 		m_client_id += QString::fromUtf8(cap->data().mid(8, 8));
 		setClientIcon("bayanicq");

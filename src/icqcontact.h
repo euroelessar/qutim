@@ -11,7 +11,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef ICQCONTACT_H
 #define ICQCONTACT_H
@@ -20,7 +20,8 @@
 #include <qutim/contact.h>
 #include <capability.h>
 
-namespace Icq {
+namespace Icq
+{
 
 using namespace qutim_sdk_0_3;
 
@@ -30,7 +31,7 @@ class DirectConnectionInfo;
 
 struct IcqContactPrivate;
 
-class IcqContact : public Contact
+class IcqContact: public Contact
 {
 	Q_DECLARE_PRIVATE(IcqContact)
 	Q_OBJECT

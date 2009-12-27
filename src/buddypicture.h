@@ -11,7 +11,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef BUDDYPICTURE_H_
 #define BUDDYPICTURE_H_
@@ -20,7 +20,8 @@
 #include "icqcontact.h"
 #include "snachandler.h"
 
-namespace Icq {
+namespace Icq
+{
 
 class IcqAccount;
 class BuddyPicture;

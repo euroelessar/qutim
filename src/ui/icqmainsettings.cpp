@@ -11,7 +11,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #include "icqmainsettings.h"
 #include "icqprotocol.h"
@@ -20,14 +20,15 @@
 #include <QTextCodec>
 #include "ui_icqmainsettings.h"
 
-namespace Icq {
+namespace Icq
+{
 
-IcqMainSettings::IcqMainSettings():
+IcqMainSettings::IcqMainSettings() :
 	ui(new Ui::IcqMainSettings), m_config(IcqProtocol::instance()->config())
 {
 	ui->setupUi(this);
 	/*foreach(int codec, QTextCodec::availableMibs())
-		ui->codepageBox->addItem(QIcon(), QTextCodec::codecForMib(codec)->name());*/
+	 ui->codepageBox->addItem(QIcon(), QTextCodec::codecForMib(codec)->name());*/
 	listenChildrenStates();
 }
 
@@ -46,23 +47,19 @@ void IcqMainSettings::loadImpl()
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
 	codecName = codec->name().toLower();
 
-	for(int i = 0; i < ui->codepageBox->count(); ++i)
-	{
+	for (int i = 0; i < ui->codepageBox->count(); ++i) {
 		QString curName = ui->codepageBox->itemText(i).toLower();
 		bool found = codecName == curName;
-		if(!found)
-		{
+		if (!found) {
 			foreach(const QByteArray codecName, codec->aliases())
 			{
-				if(QString::fromLatin1(codecName).toLower() == curName)
-				{
+				if (QString::fromLatin1(codecName).toLower() == curName) {
 					found = true;
 					break;
 				}
 			}
 		}
-		if(found)
-		{
+		if (found) {
 			ui->codepageBox->setCurrentIndex(i);
 			break;
 		}

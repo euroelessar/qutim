@@ -12,20 +12,21 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef MD5LOGIN_H
 #define MD5LOGIN_H
 
 #include "oscarconnection.h"
 
-namespace Icq {
+namespace Icq
+{
 
 class Md5LoginNegotiation: public SNACHandler
 {
 	Q_OBJECT
 public:
-    Md5LoginNegotiation(OscarConnection *conn, QObject *parent = 0);
+	Md5LoginNegotiation(OscarConnection *conn, QObject *parent = 0);
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 	void setConnection(OscarConnection *conn) { m_conn = conn; }
 private:

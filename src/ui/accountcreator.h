@@ -11,20 +11,21 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef ACCOUNTCREATOR_H
 #define ACCOUNTCREATOR_H
 
 #include "qutim/protocol.h"
 
-namespace Icq {
+namespace Icq
+{
 
 using namespace qutim_sdk_0_3;
 
 struct IcqAccWizardPrivate;
 
-class IcqAccountCreationWizard : public AccountCreationWizard
+class IcqAccountCreationWizard: public AccountCreationWizard
 {
 	Q_OBJECT
 public:

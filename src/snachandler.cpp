@@ -11,13 +11,14 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #include "snachandler.h"
 
-namespace Icq {
+namespace Icq
+{
 
-SNACHandler::SNACHandler(QObject *parent):
+SNACHandler::SNACHandler(QObject *parent) :
 	QObject(parent)
 {
 }

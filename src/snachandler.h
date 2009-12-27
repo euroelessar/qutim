@@ -11,7 +11,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef SNACHANDLER_H
 #define SNACHANDLER_H
@@ -21,17 +21,18 @@
 #include "snac.h"
 #include "util.h"
 
-namespace Icq {
+namespace Icq
+{
 
 class AbstractConnection;
 
 typedef QPair<quint16, quint16> SNACInfo;
 
-class SNACHandler : public QObject
+class SNACHandler: public QObject
 {
 	Q_OBJECT
 public:
-    SNACHandler(QObject *parent = 0);
+	SNACHandler(QObject *parent = 0);
 	const QList<SNACInfo> &infos() { return m_infos; }
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac) = 0;
 protected:

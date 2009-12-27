@@ -12,7 +12,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef MESSAGEPLUGIN_H
 #define MESSAGEPLUGIN_H
@@ -21,25 +21,25 @@
 #include <capability.h>
 #include "icqaccount.h"
 
-
 namespace qutim_sdk_0_3
 {
-	using namespace Icq;
+using namespace Icq;
 
-	class MessagePlugin
+class MessagePlugin
+{
+public:
+	virtual ~MessagePlugin() { }
+	virtual QList<Capability> capabilities() = 0;
+	virtual void processMessage(const QString &uin, const Capability &guid, const QByteArray &data, quint16 type) = 0;
+	virtual void virtual_hook(int type, void *data) = 0;
+	inline void setAccount(Account *account) { m_account = account; }
+protected:
+	union
 	{
-	public:
-		virtual ~MessagePlugin() {}
-		virtual QList<Capability> capabilities() = 0;
-		virtual void processMessage(const QString &uin, const Capability &guid, const QByteArray &data, quint16 type) = 0;
-		virtual void virtual_hook(int type, void *data) = 0;
-		inline void setAccount(Account *account) { m_account = account; }
-	protected:
-		union {
-			IcqAccount *m_icq_account;
-			Account *m_account;
-		};
+		IcqAccount *m_icq_account;
+		Account *m_account;
 	};
+};
 }
 
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::MessagePlugin, "org.qutim.MessagePlugin")

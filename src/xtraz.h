@@ -11,7 +11,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef XTRAZ_H
 #define XTRAZ_H
@@ -21,7 +21,8 @@
 
 #include <QXmlStreamReader>
 
-namespace Icq {
+namespace Icq
+{
 
 class IcqContact;
 class XtrazPrivate;

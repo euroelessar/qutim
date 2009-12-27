@@ -12,7 +12,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef ICQPROTOCOL_P_H
 #define ICQPROTOCOL_P_H
@@ -20,13 +20,17 @@
 #include "icqaccount.h"
 #include "icqprotocol.h"
 
-namespace Icq {
+namespace Icq
+{
 
 struct IcqProtocolPrivate
 {
-	inline IcqProtocolPrivate() : accounts_hash(new QHash<QString, QPointer<IcqAccount> >()) {}
+	inline IcqProtocolPrivate() :
+		accounts_hash(new QHash<QString, QPointer<IcqAccount> > ())
+	{ }
 	inline ~IcqProtocolPrivate() { delete accounts_hash; }
-	union {
+	union
+	{
 		QHash<QString, QPointer<IcqAccount> > *accounts_hash;
 		QHash<QString, IcqAccount *> *accounts;
 	};

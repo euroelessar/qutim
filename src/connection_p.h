@@ -12,7 +12,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef CONNECTION_P_H
 #define CONNECTION_P_H
@@ -22,7 +22,8 @@
 #include <QTimer>
 #include <QDateTime>
 
-namespace Icq {
+namespace Icq
+{
 
 struct OscarRate: public QObject
 {
@@ -30,11 +31,23 @@ struct OscarRate: public QObject
 public:
 	OscarRate(const SNAC &sn, AbstractConnection *conn);
 	void update(quint32 groupId, const SNAC &sn);
-	const QList<quint32> &snacTypes() { return m_snacTypes; }
-	void addSnacType(quint32 snacType) { m_snacTypes << snacType; }
-	quint16 groupId() { return m_groupId; }
+	const QList<quint32> &snacTypes()
+	{
+		return m_snacTypes;
+	}
+	void addSnacType(quint32 snacType)
+	{
+		m_snacTypes << snacType;
+	}
+	quint16 groupId()
+	{
+		return m_groupId;
+	}
 	void send(const SNAC &snac, bool priority);
-	bool isEmpty() { return m_windowSize <= 1; }
+	bool isEmpty()
+	{
+		return m_windowSize <= 1;
+	}
 private slots:
 	void sendNextPackets();
 private:

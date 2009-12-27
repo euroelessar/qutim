@@ -11,21 +11,22 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef METAINFO_H_
 #define METAINFO_H_
 
 #include "snachandler.h"
 
-namespace Icq {
+namespace Icq
+{
 
 class OscarConnection;
 class IcqAccount;
 
 class MetaInfo: public SNACHandler
 {
-	Q_OBJECT
+Q_OBJECT
 public:
 	struct Category
 	{

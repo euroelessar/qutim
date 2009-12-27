@@ -12,7 +12,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef TLV_H
 #define TLV_H
@@ -28,7 +28,8 @@
 
 class QDataStream;
 
-namespace Icq {
+namespace Icq
+{
 
 class TLV;
 class TLVMap;
@@ -36,9 +37,9 @@ class TLVMap;
 class TLV
 {
 public:
-	enum ByteOrder {
-		BigEndian = QSysInfo::BigEndian,
-		LittleEndian = QSysInfo::LittleEndian
+	enum ByteOrder
+	{
+		BigEndian = QSysInfo::BigEndian, LittleEndian = QSysInfo::LittleEndian
 	};
 
 	TLV(quint16 type = 0x0000);
@@ -54,40 +55,46 @@ public:
 	QByteArray toByteArray(ByteOrder bo = BigEndian) const;
 	inline operator QByteArray() const { return toByteArray(BigEndian); }
 	static inline TLV fromByteArray(const QByteArray &data, ByteOrder bo = BigEndian)
-	{ return fromByteArray(data.constData(), data.size(), bo); }
+	{
+		return fromByteArray(data.constData(), data.size(), bo);
+	}
 	static TLV fromByteArray(const char *data, int length, ByteOrder bo = BigEndian);
 	static TLVMap parseByteArray(const char *data, int length, ByteOrder bo = BigEndian);
 	static inline TLVMap parseByteArray(const QByteArray &data, ByteOrder bo = BigEndian);
 	template<typename T>
 	static TLV fromTypeValue(quint16 type, T value);
 private:
-	inline void ensure_value() { if(m_value.size() > 0xffff) m_value.truncate(0xffff); } // 16 bits
+	inline void ensure_value() { if (m_value.size() > 0xffff) m_value.truncate(0xffff); } // 16 bits
 	quint16 m_type;
 	QByteArray m_value;
 };
 
-class TLVMap : public QMultiMap<quint16, TLV>
+class TLVMap: public QMultiMap<quint16, TLV>
 {
 public:
-	enum ByteOrder {
-		BigEndian = QSysInfo::BigEndian,
-		LittleEndian = QSysInfo::LittleEndian
+	enum ByteOrder
+	{
+		BigEndian = QSysInfo::BigEndian, LittleEndian = QSysInfo::LittleEndian
 	};
-	inline TLVMap() {}
-	inline TLVMap(const QMap<quint16, TLV> &other) : QMultiMap<quint16, TLV>(other) {}
+	inline TLVMap() { }
+	inline TLVMap(const QMap<quint16, TLV> &other) :
+		QMultiMap<quint16, TLV> (other) { }
 
-//	TLVMap(const QByteArray &data, ByteOrder bo = BigEndian);
+	//	TLVMap(const QByteArray &data, ByteOrder bo = BigEndian);
 
-	inline TLV value(int key)
-	{ return QMultiMap<quint16, TLV>::value(key); }
+	inline TLV value(int key) {
+		return QMultiMap<quint16, TLV>::value(key);
+	}
 	inline TLV value(int key) const
-	{ return QMultiMap<quint16, TLV>::value(key); }
+	{
+		return QMultiMap<quint16, TLV>::value(key);
+	}
 
 	template<typename T>
 	T value(quint16 type, const T &def = T()) const
 	{
 		TLVMap::const_iterator it = find(type);
-		return it == constEnd() ? def : it->value<T>();
+		return it == constEnd() ? def : it->value<T> ();
 	}
 
 	TLVMap::iterator insert(quint16 /*type*/, const TLV &/*data*/)
@@ -120,7 +127,7 @@ public:
 		return size;
 	}
 
-	operator QByteArray()  const
+	operator QByteArray() const
 	{
 		QByteArray data;
 		foreach(const TLV &tlv, *this)
@@ -143,7 +150,7 @@ Q_INLINE_TEMPLATE QByteArray TLV::value<QByteArray>() const
 template<>
 Q_INLINE_TEMPLATE Capability TLV::value<Capability>() const
 {
-       return Capability(m_value);
+	return Capability(m_value);
 }
 
 template<>
@@ -167,7 +174,7 @@ Q_INLINE_TEMPLATE qint8 TLV::value<qint8>() const
 template<typename T>
 Q_INLINE_TEMPLATE T TLV::value() const
 {
-	return uint(m_value.size()) >= sizeof(T) ? qFromBigEndian<T>((const uchar *)m_value.constData()) : T();
+	return uint(m_value.size()) >= sizeof(T) ? qFromBigEndian<T> ((const uchar *) m_value.constData()) : T();
 }
 
 template<>
@@ -195,7 +202,7 @@ template<typename T>
 Q_INLINE_TEMPLATE void TLV::appendValue(const T &value)
 {
 	char str[sizeof(T)];
-	qToBigEndian<T>(value, (uchar *)str);
+	qToBigEndian<T> (value, (uchar *) str);
 	m_value += QByteArray::fromRawData(str, sizeof(T));
 }
 
@@ -203,7 +210,7 @@ template<typename T>
 Q_INLINE_TEMPLATE void TLV::setValue(const T &value)
 {
 	m_value.clear();
-	appendValue<T>(value);
+	appendValue<T> (value);
 }
 
 template<typename T>

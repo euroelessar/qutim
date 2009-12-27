@@ -12,7 +12,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef OSCARCONNECTION_H
 #define OSCARCONNECTION_H
@@ -20,7 +20,8 @@
 #include "connection.h"
 #include "metainfo.h"
 
-namespace Icq {
+namespace Icq
+{
 
 using namespace qutim_sdk_0_3;
 
@@ -54,16 +55,19 @@ struct DirectConnectionInfo
 	quint32 auth_cookie;
 	quint32 web_front_port;
 	quint32 client_futures;
-	quint32 info_utime;         // last info update time (unix time_t)
-    quint32 extinfo_utime;      // last ext info update time (i.e. icqphone status)
-    quint32 extstatus_utime;    // last ext status update time (i.e. phonebook)
+	quint32 info_utime; // last info update time (unix time_t)
+	quint32 extinfo_utime; // last ext info update time (i.e. icqphone status)
+	quint32 extstatus_utime; // last ext status update time (i.e. phonebook)
 };
 
-class OscarConnection : public AbstractConnection
+class OscarConnection: public AbstractConnection
 {
 	Q_OBJECT
 public:
-	enum ConnectState { LoginServer, HaveBOSS, BOSS, Connected };
+	enum ConnectState
+	{
+		LoginServer, HaveBOSS, BOSS, Connected
+	};
 	OscarConnection(IcqAccount *parent);
 	void connectToLoginServer();
 	inline const ClientInfo &clientInfo() const { return m_client_info; }

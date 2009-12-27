@@ -11,7 +11,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef OSCARPLUGIN_H
 #define OSCARPLUGIN_H
@@ -20,15 +20,16 @@
 #include "ui/icqmainsettings.h"
 #include "qutim/settingslayer.h"
 
-namespace Icq {
+namespace Icq
+{
 
 using namespace qutim_sdk_0_3;
 
-class OscarPlugin : public Plugin
+class OscarPlugin: public Plugin
 {
 	Q_OBJECT
 public:
-    OscarPlugin();
+	OscarPlugin();
 	void init();
 	bool load();
 	bool unload();

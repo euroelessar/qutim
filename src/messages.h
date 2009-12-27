@@ -11,7 +11,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef MESSAGES_H_
 #define MESSAGES_H_
@@ -21,7 +21,8 @@
 #include "messageplugin.h"
 #include <QDateTime>
 
-namespace Icq {
+namespace Icq
+{
 
 class IcqAccount;
 class IcqContact;
@@ -35,24 +36,24 @@ enum Channel1Codec
 
 enum MessageType
 {
-	MsgPlain = 0x01,
-	MsgChatReq = 0x02,
-	MsgFileReq = 0x03,
-	MsgUrl = 0x04,
-	MsgAuthReq = 0x06,
+	MsgPlain    = 0x01,
+	MsgChatReq  = 0x02,
+	MsgFileReq  = 0x03,
+	MsgUrl      = 0x04,
+	MsgAuthReq  = 0x06,
 	MsgAuthDeny = 0x07,
-	MsgAuthOk = 0x08,
-	MsgServer = 0x09,
-	MsgAdded = 0x0C,
-	MsgWwp = 0x0D,
+	MsgAuthOk   = 0x08,
+	MsgServer   = 0x09,
+	MsgAdded    = 0x0C,
+	MsgWwp      = 0x0D,
 	MsgEexpress = 0x0E,
-	MsgPlugin = 0x1A,
+	MsgPlugin   = 0x1A,
 	MsgAutoAway = 0xE8,
 	MsgAutoBusy = 0xE9,
-	MsgAutoNA =  0xEA,
-	MsgAutoDND = 0xEB,
-	MsgAutoFFC = 0xEC,
-	MsgUnknown = 0x00,
+	MsgAutoNA   = 0xEA,
+	MsgAutoDND  = 0xEB,
+	MsgAutoFFC  = 0xEC,
+	MsgUnknown  = 0x00,
 };
 
 class Channel1MessageData: public DataUnit
@@ -67,7 +68,7 @@ public:
 	Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, quint64 cookie = 0);
 	void appendEmptyPacket();
 	void appendColors();
-	quint64 cookie() const { return m_cookie; };
+	quint64 cookie() const { return m_cookie; }
 private:
 	quint64 m_cookie;
 };
@@ -76,7 +77,7 @@ class Channel2BasicMessageData: public DataUnit
 {
 public:
 	Channel2BasicMessageData(quint16 command, const Capability &guid, qint64 cookie = 0);
-	qint64 cookie() const { return m_cookie; };
+	qint64 cookie() const { return m_cookie; }
 private:
 	qint64 m_cookie;
 };
@@ -105,7 +106,7 @@ public:
 
 class MessagesHandler: public SNACHandler
 {
-	Q_OBJECT
+Q_OBJECT
 public:
 	MessagesHandler(IcqAccount *account, QObject *parent = 0);
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);

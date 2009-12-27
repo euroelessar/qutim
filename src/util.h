@@ -12,7 +12,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef UTIL_H
 #define UTIL_H
@@ -23,35 +23,39 @@
 
 #define IMPLEMENT_ME QString("Function %1 at line %2: implement me.").arg(Q_FUNC_INFO).arg(__LINE__)
 
-namespace Icq {
+namespace Icq
+{
 
-namespace Util {
-	template<typename T>
-	inline QByteArray toBigEndian(T source)
-	{
-		QByteArray data;
-		data.resize(sizeof(T));
-		qToBigEndian(source, (uchar *)data.data());
-		return data;
-	}
-	template<typename T>
-	inline QByteArray toLittleEndian(T source)
-	{
-		QByteArray data;
-		data.resize(sizeof(T));
-		qToLittleEndian(source, (uchar *)data.data());
-		return data;
-	}
+namespace Util
+{
 
-	// SNAC(0x17,0x03), TLV(0x05)
-	extern QString connectionErrorText(quint16 code);
+template<typename T>
+inline QByteArray toBigEndian(T source)
+{
+	QByteArray data;
+	data.resize(sizeof(T));
+	qToBigEndian(source, (uchar *) data.data());
+	return data;
+}
+template<typename T>
+inline QByteArray toLittleEndian(T source)
+{
+	QByteArray data;
+	data.resize(sizeof(T));
+	qToLittleEndian(source, (uchar *) data.data());
+	return data;
+}
 
-	extern QTextCodec *asciiCodec();
-	extern void setAsciiCodec(QTextCodec *codec);
-	extern QTextCodec *utf8Codec();
-	extern QTextCodec *utf16Codec();
-	extern QTextCodec *defaultCodec();
-	extern quint64 generateCookie();
+// SNAC(0x17,0x03), TLV(0x05)
+extern QString connectionErrorText(quint16 code);
+
+extern QTextCodec *asciiCodec();
+extern void setAsciiCodec(QTextCodec *codec);
+extern QTextCodec *utf8Codec();
+extern QTextCodec *utf16Codec();
+extern QTextCodec *defaultCodec();
+extern quint64 generateCookie();
+
 } // namespace Icq::Util
 
 } // namespace Icq

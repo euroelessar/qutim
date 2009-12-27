@@ -11,7 +11,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef ICQMAINSETTINGS_H
 #define ICQMAINSETTINGS_H
@@ -25,7 +25,8 @@ namespace Ui
 class IcqMainSettings;
 }
 
-namespace Icq {
+namespace Icq
+{
 
 using namespace qutim_sdk_0_3;
 
@@ -33,7 +34,7 @@ class IcqMainSettings: public SettingsWidget
 {
 	Q_OBJECT
 public:
-    IcqMainSettings();
+	IcqMainSettings();
 	virtual ~IcqMainSettings();
 	virtual void loadImpl();
 	virtual void cancelImpl();

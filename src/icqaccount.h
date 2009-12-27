@@ -11,14 +11,15 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #ifndef ICQACCOUNT_H
 #define ICQACCOUNT_H
 
 #include <qutim/account.h>
 
-namespace Icq {
+namespace Icq
+{
 
 using namespace qutim_sdk_0_3;
 
@@ -26,7 +27,7 @@ struct IcqAccountPrivate;
 class Roster;
 class OscarConnection;
 
-class IcqAccount : public Account
+class IcqAccount: public Account
 {
 	Q_OBJECT
 	Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)

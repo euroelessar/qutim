@@ -21,16 +21,17 @@
 #include "snachandler.h"
 #include "icqcontact.h"
 
-namespace Icq {
+namespace Icq
+{
 
 class OscarConnection;
 
 enum Visibility
 {
-	AllowAllUsers = 1,
-	BlockAllUsers = 2,
-	AllowPermitList = 3,
-	BlockDenyList = 4,
+	AllowAllUsers    = 1,
+	BlockAllUsers    = 2,
+	AllowPermitList  = 3,
+	BlockDenyList    = 4,
 	AllowContactList = 5
 };
 

@@ -12,7 +12,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #include "icqprotocol_p.h"
 #include "icq_global.h"
@@ -22,13 +22,14 @@
 #include <QStringList>
 #include <QPointer>
 
-namespace Icq {
+namespace Icq
+{
 
 IcqProtocol *IcqProtocol::self = 0;
 
 qutim_sdk_0_3::Status icqStatusToQutim(quint16 status)
 {
-	if(status & IcqFlagInvisible)
+	if (status & IcqFlagInvisible)
 		return Invisible;
 	else /*if(status & IcqFlagEvil)
 		return Evil;
@@ -40,20 +41,21 @@ qutim_sdk_0_3::Status icqStatusToQutim(quint16 status)
 		return AtWork;
 	else if(status & IcqFlagLunch)
 		return OutToLunch;
-	else */if(status & IcqFlagDND)
+	else */if (status & IcqFlagDND)
 		return DND;
-	else if(status & IcqFlagOccupied)
+	else if (status & IcqFlagOccupied)
 		return Occupied;
-	else if(status & IcqFlagNA)
+	else if (status & IcqFlagNA)
 		return NA;
-	else if(status & IcqFlagAway)
+	else if (status & IcqFlagAway)
 		return Away;
-	else if(status & IcqFlagFFC)
+	else if (status & IcqFlagFFC)
 		return FreeChat;
 	return Online;
 }
 
-IcqProtocol::IcqProtocol() : p(new IcqProtocolPrivate)
+IcqProtocol::IcqProtocol() :
+	p(new IcqProtocolPrivate)
 {
 	Q_ASSERT(!self);
 	self = this;
@@ -69,27 +71,27 @@ IcqProtocol::~IcqProtocol()
 void initActions(IcqProtocol *proto)
 {
 	static bool inited = false;
-	if(inited)
+	if (inited)
 		return;
 	QList<ActionGenerator *> actions;
 	actions << (new ActionGenerator(Icon("user-online-icq"),
-								   LocalizedString("Status", "Online"),
-								   proto, SLOT(onStatusActionPressed())))->addProperty("status", Online)->setPriority(Online);
+				LocalizedString("Status", "Online"), proto,
+				SLOT(onStatusActionPressed())))->addProperty("status", Online)->setPriority(Online);
 	actions << (new ActionGenerator(Icon("user-online-chat-icq"),
-								   LocalizedString("Status", "Free for chat"),
-								   proto, SLOT(onStatusActionPressed())))->addProperty("status", FreeChat)->setPriority(FreeChat);
+				LocalizedString("Status", "Free for chat"), proto,
+				SLOT(onStatusActionPressed())))->addProperty("status", FreeChat)->setPriority(FreeChat);
 	actions << (new ActionGenerator(Icon("user-away-icq"),
-								   LocalizedString("Status", "Away"),
-								   proto, SLOT(onStatusActionPressed())))->addProperty("status", Away)->setPriority(Away);
+				LocalizedString("Status", "Away"), proto,
+				SLOT(onStatusActionPressed())))->addProperty("status", Away)->setPriority(Away);
 	actions << (new ActionGenerator(Icon("user-away-extended-icq"),
-								   LocalizedString("Status", "NA"),
-								   proto, SLOT(onStatusActionPressed())))->addProperty("status", NA)->setPriority(NA);
+				LocalizedString("Status", "NA"), proto,
+				SLOT(onStatusActionPressed())))->addProperty("status", NA)->setPriority(NA);
 	actions << (new ActionGenerator(Icon("user-busy-icq"),
-								   LocalizedString("Status", "DND"),
-								   proto, SLOT(onStatusActionPressed())))->addProperty("status", DND)->setPriority(DND);
+				LocalizedString("Status", "DND"), proto,
+				SLOT(onStatusActionPressed())))->addProperty("status", DND)->setPriority(DND);
 	actions << (new ActionGenerator(Icon("user-offline-icq"),
-								   LocalizedString("Status", "Offline"),
-								   proto, SLOT(onStatusActionPressed())))->addProperty("status", Offline)->setPriority(Offline);
+				LocalizedString("Status", "Offline"), proto,
+				SLOT(onStatusActionPressed())))->addProperty("status", Offline)->setPriority(Offline);
 	foreach (ActionGenerator *action, actions)
 		MenuController::addAction(action, &IcqAccount::staticMetaObject);
 	inited = true;
@@ -105,25 +107,24 @@ void IcqProtocol::loadAccounts()
 
 QList<Account *> IcqProtocol::accounts() const
 {
-    QList<Account *> accounts;
+	QList<Account *> accounts;
 	QHash<QString, QPointer<IcqAccount> >::const_iterator it;
-	for (it=p->accounts_hash->begin();it!=p->accounts_hash->end();it++)
+	for (it = p->accounts_hash->begin(); it != p->accounts_hash->end(); it++)
 		accounts.append(it.value());
-    return accounts;
+	return accounts;
 }
 Account *IcqProtocol::account(const QString &id) const
 {
-    return p->accounts_hash->value(id);
+	return p->accounts_hash->value(id);
 }
 
 void IcqProtocol::onStatusActionPressed()
 {
-	QAction *action = qobject_cast<QAction *>(sender());
+	QAction *action = qobject_cast<QAction *> (sender());
 	Q_ASSERT(action);
-	MenuController *item = action->data().value<MenuController *>();
-	if (IcqAccount *account = qobject_cast<IcqAccount *>(item)) {
-		account->setStatus(static_cast<Status>(action->property("status").toInt()));
-	}
+	MenuController *item = action->data().value<MenuController *> ();
+	if (IcqAccount *account = qobject_cast<IcqAccount *>(item))
+		account->setStatus(static_cast<Status> (action->property("status").toInt()));
 }
 
 } // namespace Icq

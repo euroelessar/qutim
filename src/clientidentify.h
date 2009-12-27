@@ -12,8 +12,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-****************************************************************************/
-
+ ****************************************************************************/
 
 #ifndef CLIENTIDENTIFY_H_
 #define CLIENTIDENTIFY_H_
@@ -22,7 +21,8 @@
 #include <QByteArray>
 #include "capability.h"
 
-namespace Icq {
+namespace Icq
+{
 
 class IcqContact;
 

@@ -20,7 +20,8 @@
 
 class QIODevice;
 
-namespace Icq {
+namespace Icq
+{
 
 class FLAP : public DataUnit
 {

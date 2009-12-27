@@ -12,7 +12,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #include "icqcontact.h"
 
@@ -22,7 +22,8 @@
 #include "capability.h"
 #include "oscarconnection.h"
 
-namespace Icq {
+namespace Icq
+{
 
 enum ContactCapabilityFlags
 {
@@ -44,7 +45,7 @@ enum ContactCapabilityFlags
 struct IcqContactPrivate
 {
 	void clearCapabilities();
-	Q_DECLARE_FLAGS(CapabilityFlags, ContactCapabilityFlags);
+	Q_DECLARE_FLAGS(CapabilityFlags, ContactCapabilityFlags)
 	IcqAccount *account;
 	QString uin;
 	QString name;

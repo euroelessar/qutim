@@ -11,14 +11,15 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*****************************************************************************/
+ *****************************************************************************/
 
 #include "icqaccount.h"
 #include "icqprotocol.h"
 #include "oscarconnection.h"
 #include "roster.h"
 
-namespace Icq {
+namespace Icq
+{
 
 struct IcqAccountPrivate
 {
@@ -28,7 +29,8 @@ struct IcqAccountPrivate
 	bool avatars;
 };
 
-IcqAccount::IcqAccount(const QString &uin) : Account(uin, IcqProtocol::instance()), p(new IcqAccountPrivate)
+IcqAccount::IcqAccount(const QString &uin) :
+	Account(uin, IcqProtocol::instance()), p(new IcqAccountPrivate)
 {
 	p->conn = new OscarConnection(this);
 	p->conn->registerHandler(p->roster = new Roster(this));
@@ -52,31 +54,25 @@ OscarConnection *IcqAccount::connection()
 void IcqAccount::setStatus(Status status)
 {
 	Status current = this->status();
-	debug() << QString("Changing status from %1 to %2")
-			.arg(statusToString(current, false))
-			.arg(statusToString(status, false));
-	if(status < Offline || status > OnThePhone || current == status)
+	debug() << QString("Changing status from %1 to %2") .arg(statusToString(current, false)) .arg(statusToString(status, false));
+	if (status < Offline || status > OnThePhone || current == status)
 		return;
-	if(status == Offline)
-	{
+	if (status == Offline) {
 		p->conn->disconnectFromHost(false);
 		foreach(IcqContact *contact, p->roster->contacts())
 			contact->setStatus(Offline);
-	}
-	else if(current == Offline)
-	{
+	} else if (current == Offline) {
 		p->conn->setStatus(status);
 		status = Connecting;
 		p->conn->connectToLoginServer();
-	}
-	else
+	} else
 		p->conn->setStatus(status);
 	Account::setStatus(status);
 }
 
 QString IcqAccount::name() const
 {
-	if(!p->name.isEmpty())
+	if (!p->name.isEmpty())
 		return p->name;
 	else
 		return id();
@@ -90,8 +86,7 @@ void IcqAccount::setName(const QString &name)
 ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
 {
 	IcqContact *contact = p->roster->contact(unitId);
-	if(create && !contact)
-	{
+	if (create && !contact) {
 		contact = p->roster->sendAddContactRequest(unitId, unitId, not_in_list_group);
 	}
 	return contact;
@@ -106,6 +101,5 @@ bool IcqAccount::avatarsSupport()
 {
 	return p->avatars;
 }
-
 
 } // namespace Icq

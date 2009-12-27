@@ -24,7 +24,8 @@
 #include "snachandler.h"
 #include "flap.h"
 
-namespace Icq {
+namespace Icq
+{
 
 extern quint16 generate_flap_sequence();
 
