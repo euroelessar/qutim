@@ -21,6 +21,11 @@ namespace Jabber
 	{
 	}
 
+	QString JContact::id() const
+	{
+		return d_func()->jid;
+	}
+
 	void JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
 	}
@@ -36,7 +41,7 @@ namespace Jabber
 		rosterManager->synchronize();
 	}
 
-	QString JContact::name()
+	QString JContact::name() const
 	{
 		return d_func()->name;
 	}
@@ -46,7 +51,7 @@ namespace Jabber
 		d_func()->tags = tags;
 	}
 
-	QSet<QString> JContact::tags()
+	QSet<QString> JContact::tags() const
 	{
 		return d_func()->tags;
 	}
@@ -126,9 +131,9 @@ namespace Jabber
 		fillMaxResource();
 	}
 
-	Status JContact::status()
+	Status JContact::status() const
 	{
-		Q_D(JContact);
+		Q_D(const JContact);
 		return JProtocol::presenceToStatus(d->currentResources.isEmpty()
 				? Presence::Unavailable
 				: d->resources.value(d->currentResources.first())->status());

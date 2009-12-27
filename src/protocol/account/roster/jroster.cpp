@@ -115,6 +115,7 @@ namespace Jabber
 					contact->addResource(QString::fromStdString(resource->first));
 				}*/
 				c_d->inList = true;
+				debug() << contact->id() << contact->name() << contact->tags();
 				ContactList::instance()->addContact(contact);
 				p->contacts.insert(jid, contact);
 				//debug() << contact->name() << contact->tags();
@@ -150,6 +151,7 @@ namespace Jabber
 				tags.insert(QString::fromStdString(*group));
 			c_d->tags = tags;
 			c_d->inList = false;
+			debug() << contact->id() << contact->name() << contact->tags();
 			ContactList::instance()->addContact(contact);
 			p->contacts.insert(jid, contact);
 		}

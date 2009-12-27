@@ -19,15 +19,15 @@ namespace Jabber
 		public:
 			JContact(const QString &jid, JAccount *account);
 			~JContact();
-			QString id() const {return QString();}
+			QString id() const;
 			void sendMessage(const qutim_sdk_0_3::Message &message);
 			void setName(const QString &name);
 			void setTags(const QSet<QString> &tags);
 			void setChatState(qutim_sdk_0_3::ChatState state);
 			void setStatus(const QString &resource, gloox::Presence::PresenceType presence, int priority);
-			QString name();
-			QSet<QString> tags();
-			Status status();
+			QString name() const;
+			QSet<QString> tags() const;
+			Status status() const;
 			bool isInList() const;
 			void setInList(bool inList);
 			bool hasResource(const QString &resource);
