@@ -1,25 +1,15 @@
-#include "jcontact.h"
+#include "jcontact_p.h"
+#include "jaccount.h"
+#include <gloox/message.h>
+#include <gloox/chatstate.h>
 
 namespace Jabber
 {
-	struct JContactPrivate
+	JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_ptr(new JContactPrivate)
 	{
-		~JContactPrivate()
-		{
-			foreach (QString key, resources.keys())
-				delete resources.take(key);
-		}
-		JAccount *account;
-		QHash<QString, JContactResource *> resources;
-		QStringList currentResources;
-		QSet<QString> tags;
-		QString name;
-		bool inList;
-	};
-
-	JContact::JContact(JAccount *account) : Contact(account), p(new JContactPrivate)
-	{
-		p->account = account;
+		Q_D(JContact);
+		d->account = account;
+		d->jid = jid;
 	}
 
 	JContact::~JContact()
@@ -32,85 +22,127 @@ namespace Jabber
 
 	void JContact::setName(const QString &name)
 	{
-		p->name = name;
+		Q_D(JContact);
+		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
+		RosterItem *item = rosterManager->getRosterItem(d->jid.toStdString());
+		if (!item)
+			return;
+		item->setName(name.toStdString());
+		rosterManager->synchronize();
 	}
 
 	QString JContact::name()
 	{
-		return p->name;
+		return d_func()->name;
 	}
 
 	void JContact::setTags(const QSet<QString> &tags)
 	{
-		p->tags = tags;
+		d_func()->tags = tags;
 	}
 
 	QSet<QString> JContact::tags()
 	{
-		return p->tags;
+		return d_func()->tags;
 	}
 
 	bool JContact::isInList() const
 	{
-		return p->inList;
+		return d_func()->inList;
 	}
 
 	void JContact::setInList(bool inList)
 	{
-		p->inList = inList;
+		Q_D(JContact);
+		if (d->inList == inList)
+			return;
+		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
+		if (inList)
+			rosterManager->add(d->jid.toStdString(), d->name.toStdString());
+		else
+			rosterManager->remove(d->jid.toStdString());
+	}
+
+	inline gloox::ChatStateType qutimToGloox(qutim_sdk_0_3::ChatState state)
+	{
+		switch (state) {
+		case qutim_sdk_0_3::ChatStateActive:
+			return gloox::ChatStateActive;
+		case qutim_sdk_0_3::ChatStateInActive:
+			return gloox::ChatStateInactive;
+		case qutim_sdk_0_3::ChatStateGone:
+			return gloox::ChatStateGone;
+		case qutim_sdk_0_3::ChatStateComposing:
+			return gloox::ChatStateComposing;
+		case qutim_sdk_0_3::ChatStatePaused:
+			return gloox::ChatStatePaused;
+		default:
+			return gloox::ChatStateInvalid;
+		}
+	}
+
+	void JContact::setChatState(qutim_sdk_0_3::ChatState state)
+	{
+		Q_D(JContact);
+		Client *client = d->account->connection()->client();
+		gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
+		gmes.addExtension(new gloox::ChatState(qutimToGloox(state)));
+		client->send(gmes);
 	}
 
 	bool JContact::hasResource(const QString &resource)
 	{
-		return p->resources.contains(resource);
+		return d_func()->resources.contains(resource);
 	}
 
 	void JContact::addResource(const QString &resource)
 	{
-		JContactResource *res = new JContactResource(p->account);
-		p->resources.insert(resource, res);
+		JContactResource *res = new JContactResource(d_func()->account);
+		d_func()->resources.insert(resource, res);
 	}
 
-	void JContact::setStatus(const QString &resource,
-			Presence::PresenceType presence, int priority)
+	void JContact::setStatus(const QString &resource, Presence::PresenceType presence, int priority)
 	{
+		Q_D(JContact);
 		if (presence == Presence::Unavailable) {
-			if (p->resources.contains(resource))
+			if (d->resources.contains(resource))
 				removeResource(resource);
 		} else {
-			if (!p->resources.contains(resource))
+			if (!d->resources.contains(resource))
 				addResource(resource);
-			p->resources.value(resource)->setStatus(presence, priority);
+			d->resources.value(resource)->setStatus(presence, priority);
 			fillMaxResource();
 		}
 	}
 
 	void JContact::removeResource(const QString &resource)
 	{
-		delete p->resources.take(resource);
+		delete d_func()->resources.take(resource);
 		fillMaxResource();
 	}
 
 	Status JContact::status()
 	{
-		return JProtocol::presenceToStatus(p->currentResources.isEmpty()
+		Q_D(JContact);
+		return JProtocol::presenceToStatus(d->currentResources.isEmpty()
 				? Presence::Unavailable
-				: p->resources.value(p->currentResources.first())->status());
+				: d->resources.value(d->currentResources.first())->status());
 	}
 
 	void JContact::fillMaxResource()
 	{
-		p->currentResources.clear();
-		foreach (QString resource, p->resources.keys()) {
-			if (p->currentResources.isEmpty()) {
-				p->currentResources << resource;
+		Q_D(JContact);
+		d->currentResources.clear();
+		foreach (QString resource, d->resources.keys()) {
+			if (d->currentResources.isEmpty()) {
+				d->currentResources << resource;
 			} else {
-				int prevPriority = p->resources.value(p->currentResources.first())->priority();
-				if (p->resources.value(resource)->priority() > prevPriority) {
-					p->currentResources.clear();
-					p->currentResources << resource;
-				} else if (p->resources.value(resource)->priority() == prevPriority) {
-					p->currentResources << resource;
+				int prevPriority = d->resources.value(d->currentResources.first())->priority();
+				if (d->resources.value(resource)->priority() > prevPriority) {
+					d->currentResources.clear();
+					d->currentResources << resource;
+				} else if (d->resources.value(resource)->priority() == prevPriority) {
+					d->currentResources << resource;
 				}
 			}
 		}
@@ -118,11 +150,11 @@ namespace Jabber
 
 	QStringList JContact::resources()
 	{
-		return p->resources.keys();
+		return d_func()->resources.keys();
 	}
 
 	JContactResource *JContact::resource(const QString &key)
 	{
-		return p->resources.value(key);
+		return d_func()->resources.value(key);
 	}
 }

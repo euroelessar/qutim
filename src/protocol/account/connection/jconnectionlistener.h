@@ -3,7 +3,6 @@
 
 #include <gloox/connectionlistener.h>
 #include "jcertinfo.h"
-#include "../jaccount.h"
 
 namespace Jabber
 {

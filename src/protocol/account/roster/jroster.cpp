@@ -1,4 +1,5 @@
 #include "jroster.h"
+#include "jcontact_p.h"
 #include <qutim/debug.h>
 
 namespace Jabber
@@ -96,15 +97,16 @@ namespace Jabber
 			if (jid == p->account->jid()) {
 					continue;
 			} else if (!p->contacts.contains(jid)) {
-				JContact *contact = new JContact(p->account);
+				JContact *contact = new JContact(jid, p->account);
+				JContactPrivate *c_d = contact->d_func();
 				RosterItem *item = items->second;
-				contact->setName(QString::fromStdString(item->name()));
+				c_d->name = QString::fromStdString(item->name());
 				QSet<QString> tags;
 				StringList groups = item->groups();
 				StringList::const_iterator group = groups.begin();
 				for(; group != groups.end(); ++group)
 					tags.insert(QString::fromStdString(*group));
-				contact->setTags(tags);
+				c_d->tags = tags;
 				//QMap<std::string, Resource *> resources(item->resources());
 				//foreach (std::string key, resources.keys())
 				/*std::map<std::string, Resource *>::const_iterator resource = item->resources().begin();
@@ -112,7 +114,7 @@ namespace Jabber
 					debug() << QString::fromStdString(resource->first);
 					contact->addResource(QString::fromStdString(resource->first));
 				}*/
-				contact->addToList();
+				c_d->inList = true;
 				ContactList::instance()->addContact(contact);
 				p->contacts.insert(jid, contact);
 				//debug() << contact->name() << contact->tags();
@@ -137,16 +139,17 @@ namespace Jabber
 			 return;
 		debug() << jid << resource;
 		if (!p->contacts.contains(jid)) {
-			JContact *contact = new JContact(p->account);
-			contact->setName(QString::fromStdString(presence.from().username()));
+			JContact *contact = new JContact(jid, p->account);
+			JContactPrivate *c_d = contact->d_func();
+			c_d->name = QString::fromStdString(presence.from().username());
 			RosterItem *item = p->rosterManager->getRosterItem(presence.from());
 			QSet<QString> tags;
 			StringList groups = item->groups();
 			StringList::const_iterator group = groups.begin();
 			for(; group != groups.end(); ++group)
 				tags.insert(QString::fromStdString(*group));
-			contact->setTags(tags);
-			contact->addToList();
+			c_d->tags = tags;
+			c_d->inList = false;
 			ContactList::instance()->addContact(contact);
 			p->contacts.insert(jid, contact);
 		}

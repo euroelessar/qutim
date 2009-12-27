@@ -1,5 +1,7 @@
 #include "jaccountwizard.h"
 #include "jaccountwizardpage.h"
+#include "jprotocol.h"
+#include "account/jaccount.h"
 
 namespace Jabber
 {

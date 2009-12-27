@@ -3,7 +3,6 @@
 
 #include <qutim/protocol.h>
 #include <gloox/presence.h>
-#include "account/jaccount.h"
 
 namespace Jabber
 {

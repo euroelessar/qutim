@@ -1,4 +1,6 @@
 #include "jconnectionlistener.h"
+#include "../jaccount.h"
+#include "../../jprotocol.h"
 #include <QDebug>
 
 namespace Jabber

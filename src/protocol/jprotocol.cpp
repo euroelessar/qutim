@@ -1,4 +1,5 @@
 #include "jprotocol.h"
+#include "account/jaccount.h"
 #include <qutim/icon.h>
 
 namespace Jabber

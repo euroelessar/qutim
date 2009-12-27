@@ -1,4 +1,5 @@
 #include "jcontactresource.h"
+#include "../jaccount.h"
 
 namespace Jabber
 {

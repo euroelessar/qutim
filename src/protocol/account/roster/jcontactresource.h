@@ -2,7 +2,6 @@
 #define JCONTACTRESOURCE_H
 
 #include <qutim/chatunit.h>
-#include "../jaccount.h"
 
 namespace Jabber
 {

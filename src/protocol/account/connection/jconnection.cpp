@@ -1,4 +1,6 @@
 #include "jconnection.h"
+#include "../../jprotocol.h"
+#include "../jaccount.h"
 
 namespace Jabber
 {
@@ -48,6 +50,7 @@ namespace Jabber
 
 	void JConnection::loadSettings()
 	{
+		// TODO: FIXME: Protocol settings must be fallback for account everywhere %)
 		QString defaultResource = JProtocol::instance()->config().group("general").value("defaultresource", QString("qutIM"));
 		ConfigGroup group = p->account->config().group("general");
 		/*bool lbookmark = group.value("localbookmark", false);

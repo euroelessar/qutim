@@ -1,4 +1,6 @@
 #include "jaccount.h"
+#include "roster/jroster.h"
+#include "../jprotocol.h"
 
 namespace Jabber {
 
@@ -24,7 +26,7 @@ namespace Jabber {
 		p->connectionListener = new JConnectionListener(this);
 		p->roster = new JRoster(this);
 		loadSettings();
-                autoconnect();
+		autoconnect();
 	}
 
 	JAccount::~JAccount()
@@ -59,10 +61,10 @@ namespace Jabber {
 	void JAccount::loadSettings()
 	{
 		p->passwd = config().group("general").value("passwd", QString(), Config::Crypted);
-		p->autoConnect = config().group("general").value("autoconnect", true);
+		p->autoConnect = config().group("general").value("autoconnect", false);
 		p->keepStatus = config().group("general").value("keepstatus", true);
 		p->status = static_cast<Presence::PresenceType>(
-				config().group("general").value("prevstatus", 8));
+		config().group("general").value("prevstatus", 8));
 	}
 
 	const QString &JAccount::jid()

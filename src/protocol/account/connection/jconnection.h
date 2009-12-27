@@ -6,7 +6,6 @@
 #include <gloox/disco.h>
 
 #include "jconnectiontcpbase.h"
-#include "../../jprotocol.h"
 
 namespace Jabber
 {

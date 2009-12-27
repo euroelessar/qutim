@@ -3,12 +3,11 @@
 
 #include <qutim/protocol.h>
 #include <qutim/extensioninfo.h>
-#include "jprotocol.h"
-#include "account/jaccount.h"
 
 namespace Jabber {
 
 	class JAccountWizardPage;
+	class JProtocol;
 
 	enum JAccountType {
 		AccountTypeJabber,
@@ -18,7 +17,7 @@ namespace Jabber {
 		AccountTypeYandex
 	};
 
-	class JAccountWizard : public AccountCreationWizard
+	class JAccountWizard : public qutim_sdk_0_3::AccountCreationWizard
 	{
 		Q_OBJECT
 		public:
