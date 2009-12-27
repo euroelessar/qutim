@@ -16,6 +16,7 @@
 #include "oscarplugin.h"
 #include "icqprotocol.h"
 #include "ui/accountcreator.h"
+#include <qutim/icon.h>
 #include <qutim/debug.h>
 
 namespace Icq {
@@ -44,7 +45,7 @@ void OscarPlugin::init()
 				 ExtensionIcon("im-icq"));
 	Settings::registerItem(new GeneralSettingsItem<IcqMainSettings>(
 						 Settings::Protocol,
-						 QIcon(""),
+						 Icon("im-icq"),
 						 QT_TRANSLATE_NOOP_UTF8("Settings", "Icq")));
 }
 
