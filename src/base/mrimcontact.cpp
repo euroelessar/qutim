@@ -65,6 +65,9 @@ bool MrimContact::isInList() const
 void MrimContact::setInList(bool inList)
 { Q_UNUSED(inList); } //not supported yet
 
+void MrimContact::setChatState(ChatState state)
+{ Q_UNUSED(state); } //not supported yet
+
 //new
 const MrimAccount *MrimContact::account() const
 { return static_cast<const MrimAccount*>(Contact::account());}
