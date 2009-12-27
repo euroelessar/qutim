@@ -15,6 +15,7 @@
 
 #include "icqmainsettings.h"
 #include "icqprotocol.h"
+#include "icqaccount.h"
 #include "util.h"
 #include <QTextCodec>
 #include "ui_icqmainsettings.h"
@@ -75,11 +76,14 @@ void IcqMainSettings::cancelImpl()
 void IcqMainSettings::saveImpl()
 {
 	QString codecName = ui->codepageBox->currentText();
-	m_config.group("general").setValue("avatars", !ui->avatarBox->isChecked());
+	bool avatars = !ui->avatarBox->isChecked();
+	m_config.group("general").setValue("avatars", avatars);
 	m_config.group("general").setValue("reconnect", ui->reconnectBox->isChecked());
 	m_config.group("general").setValue("codec", codecName);
-	Util::setAsciiCodec(QTextCodec::codecForName(codecName.toLatin1()));
 	m_config.sync();
+	Util::setAsciiCodec(QTextCodec::codecForName(codecName.toLatin1()));
+	foreach(Account *account, IcqProtocol::instance()->accounts())
+		account->setProperty("avatarsSupport", avatars);
 }
 
 } // namespace Icq

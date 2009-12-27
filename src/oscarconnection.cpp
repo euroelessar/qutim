@@ -55,13 +55,20 @@ void ProtocolNegotiationImpl::handleSNAC(AbstractConnection *conn, const SNAC &s
 	{
 		// Server sends rate limits information
 	case 0x00010007: {
-		// Requesting avatar service
-		SNAC snac(ServiceFamily, ServiceClientNewService);
-		snac.appendSimple<quint16>(AvatarFamily);
-		conn->send(snac);
+		quint16 buddyFlags = 0x0002;
+		OscarConnection *c = qobject_cast<OscarConnection*>(conn);
+		Q_ASSERT(c);
+		if(c->account()->avatarsSupport())
+		{
+			// Requesting avatar service
+			SNAC snac(ServiceFamily, ServiceClientNewService);
+			snac.appendSimple<quint16>(AvatarFamily);
+			conn->send(snac);
+			buddyFlags |= 0x0001;
+		}
 
 		// Request server-stored information (SSI) service limitations
-		snac.reset(ListsFamily, ListsCliReqLists);
+		SNAC snac(ListsFamily, ListsCliReqLists);
 		snac.appendTLV<quint16>(0x0B, 0x000F); // mimic ICQ 6
 		conn->send(snac);
 
@@ -75,7 +82,7 @@ void ProtocolNegotiationImpl::handleSNAC(AbstractConnection *conn, const SNAC &s
 		//              2 = Enable offline status message notification
 		//              4 = Enable Avatars for offline contacts
 		//              8 = Use reject for not authorized contacts
-		snac.appendTLV<quint16>(0x05, 0x0003); // mimic ICQ 6
+		snac.appendTLV<quint16>(0x05, buddyFlags); // mimic ICQ 6
 		conn->send(snac);
 
 		// Sending CLI_REQICBM

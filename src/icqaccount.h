@@ -30,6 +30,7 @@ class IcqAccount : public Account
 {
 	Q_OBJECT
 	Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+	Q_PROPERTY(bool avatarsSupport READ avatarsSupport WRITE setAvatarsSupport)
 public:
 	IcqAccount(const QString &uin);
 	virtual ~IcqAccount();
@@ -39,6 +40,8 @@ public:
 	Roster *roster();
 	OscarConnection *connection();
 	ChatUnit *getUnit(const QString &unitId, bool create);
+	void setAvatarsSupport(bool avatars);
+	bool avatarsSupport();
 private:
 	friend class Roster;
 	QScopedPointer<IcqAccountPrivate> p;

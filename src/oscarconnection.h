@@ -29,6 +29,7 @@ class SNAC;
 class ProtocolNegotiation;
 class IcqAccount;
 class BuddyPicture;
+class Roster;
 
 struct ClientInfo
 {

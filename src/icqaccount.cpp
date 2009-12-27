@@ -25,12 +25,14 @@ struct IcqAccountPrivate
 	OscarConnection *conn;
 	Roster *roster;
 	QString name;
+	bool avatars;
 };
 
 IcqAccount::IcqAccount(const QString &uin) : Account(uin, IcqProtocol::instance()), p(new IcqAccountPrivate)
 {
 	p->conn = new OscarConnection(this);
 	p->conn->registerHandler(p->roster = new Roster(this));
+	p->avatars = protocol()->config("general").value("avatars", QVariant(true)).toBool();
 }
 
 IcqAccount::~IcqAccount()
@@ -94,5 +96,16 @@ ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
 	}
 	return contact;
 }
+
+void IcqAccount::setAvatarsSupport(bool avatars)
+{
+	p->avatars = avatars;
+}
+
+bool IcqAccount::avatarsSupport()
+{
+	return p->avatars;
+}
+
 
 } // namespace Icq

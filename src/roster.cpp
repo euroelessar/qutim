@@ -16,7 +16,8 @@
 
 #include "roster.h"
 #include "icqcontact_p.h"
-#include <icqaccount.h>
+#include "icqaccount.h"
+#include "icqprotocol.h"
 #include "oscarconnection.h"
 #include "buddypicture.h"
 #include "buddycaps.h"
@@ -544,7 +545,7 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 		debug() << "Visibility" <<  m_visibility_id << m_visibility;
 		break;
 	case SsiBuddyIcon:
-		if(item.tlvs.contains(0x00d5))
+		if(m_account->avatarsSupport() && item.tlvs.contains(0x00d5))
 		{
 			DataUnit data(item.tlvs.value(0x00d5));
 			quint8 flags = data.readSimple<quint8>();
@@ -754,7 +755,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 		contact->d_func()->dc_info = info;
 	}
 
-	if(tlvs.contains(0x001d)) // avatar
+	if(m_account->avatarsSupport() && tlvs.contains(0x001d)) // avatar
 	{
 		DataUnit data(tlvs.value(0x001d));
 		quint16 id = data.readSimple<quint16>();
