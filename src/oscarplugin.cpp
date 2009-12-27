@@ -41,6 +41,10 @@ void OscarPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Account creator for module-based realization of ICQ protocol"),
 				 new GeneralGenerator<IcqAccountCreationWizard>(),
 				 ExtensionIcon("im-icq"));
+	Settings::registerItem(new GeneralSettingsItem<IcqMainSettings>(
+						 Settings::Protocol,
+						 QIcon(""),
+						 QT_TRANSLATE_NOOP_UTF8("Settings", "Icq")));
 }
 
 bool OscarPlugin::load()

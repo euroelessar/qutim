@@ -1,7 +1,7 @@
 /****************************************************************************
- *  oscarplugin.h
+ *  icqmainsettings.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,27 +13,38 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef OSCARPLUGIN_H
-#define OSCARPLUGIN_H
+#ifndef ICQMAINSETTINGS_H
+#define ICQMAINSETTINGS_H
 
-#include <qutim/plugin.h>
-#include "ui/icqmainsettings.h"
-#include "qutim/settingslayer.h"
+#include <icq_global.h>
+#include <qutim/settingswidget.h>
+#include <qutim/configbase.h>
+
+namespace Ui
+{
+class IcqMainSettings;
+}
 
 namespace Icq {
 
 using namespace qutim_sdk_0_3;
 
-class OscarPlugin : public Plugin
+class IcqMainSettings: public SettingsWidget
 {
 	Q_OBJECT
 public:
-    OscarPlugin();
-	void init();
-	bool load();
-	bool unload();
+    IcqMainSettings();
+	virtual ~IcqMainSettings();
+	virtual void loadImpl();
+	virtual void cancelImpl();
+	virtual void saveImpl();
+private slots:
+	void avatarBoxToggled(bool checked);
+private:
+	Ui::IcqMainSettings *ui;
+	Config m_config;
 };
 
 } // namespace Icq
 
-#endif // OSCARPLUGIN_H
+#endif // ICQMAINSETTINGS_H
