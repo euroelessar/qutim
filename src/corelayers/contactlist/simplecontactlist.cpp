@@ -26,6 +26,31 @@ namespace Core
 				QT_TRANSLATE_NOOP("Plugin", "Default qutIM contact list realization. Just simple")
 				);
 
+		class MyWidget : public QWidget
+		{
+		public:
+			MyWidget()
+			{
+				QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
+				if (geom.isNull()) {
+					int width = 150; //TODO: what to do? o.O
+					QRect rect = QApplication::desktop()->availableGeometry(QCursor::pos());
+					rect.setX(rect.width() - width);
+					rect.setWidth(width);
+					setGeometry(rect);
+				} else
+					restoreGeometry(geom);
+				connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
+			}
+
+			virtual ~MyWidget()
+			{
+				Config config;
+				config.setValue("contactList/geometry", saveGeometry());
+				config.sync();
+			}
+		};
+
 		struct ModulePrivate
 		{
 			QWidget *widget;
@@ -37,7 +62,7 @@ namespace Core
 
 		Module::Module() : p(new ModulePrivate)
 		{
-			p->widget = new QWidget;
+			p->widget = new MyWidget;
 			QVBoxLayout *layout = new QVBoxLayout(p->widget);
 			layout->setMargin(0);
 
@@ -68,22 +93,10 @@ namespace Core
 					onAccountCreated(account);
 				}
 			}
-			//set widget size (test) TODO
-			QRect geom = Config("other/screenGeometry").value<QRect>("contactList",QRect());
-			if (geom.isEmpty()) {
-				int width = 150; //TODO
-				geom = QApplication::desktop()->availableGeometry(QCursor::pos());
-				geom.setX(geom.width() - width);
-				geom.setWidth(width);
-			}
-			p->widget->setGeometry(geom);
 		}
 
 		Module::~Module()
 		{
-			Config geometry = Config("other/screenGeometry");
-			geometry.setValue("contactList",p->widget->geometry());
-			geometry.sync();
 		}
 
 		void Module::addContact(ChatUnit *unit)
