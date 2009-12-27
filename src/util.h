@@ -47,6 +47,7 @@ namespace Util {
 	extern QString connectionErrorText(quint16 code);
 
 	extern QTextCodec *asciiCodec();
+	extern void setAsciiCodec(QTextCodec *codec);
 	extern QTextCodec *utf8Codec();
 	extern QTextCodec *utf16Codec();
 	extern QTextCodec *defaultCodec();

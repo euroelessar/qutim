@@ -21,6 +21,8 @@
 namespace Icq {
 
 namespace Util {
+	static QTextCodec *_asciiCodec;
+
 	QString connectionErrorText(quint16 error)
 	{
 		switch(error)
@@ -94,8 +96,14 @@ namespace Util {
 
 	extern QTextCodec *asciiCodec()
 	{
-		static QTextCodec *codec =  QTextCodec::codecForName("cp1251");
-		return codec;
+		Q_ASSERT(_asciiCodec);
+		return _asciiCodec;
+	}
+
+	extern void setAsciiCodec(QTextCodec *codec)
+	{
+		Q_ASSERT(codec);
+		_asciiCodec = codec;
 	}
 
 	extern QTextCodec *utf8Codec()

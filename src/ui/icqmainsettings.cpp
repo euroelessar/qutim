@@ -15,6 +15,7 @@
 
 #include "icqmainsettings.h"
 #include "icqprotocol.h"
+#include "util.h"
 #include <QTextCodec>
 #include "ui_icqmainsettings.h"
 
@@ -41,7 +42,7 @@ void IcqMainSettings::loadImpl()
 	bool reconnect = m_config.group("general").value("reconnect", QVariant(true)).toBool();
 	ui->reconnectBox->setChecked(reconnect);
 	QString codecName = m_config.group("general").value("codec", "System").toString();
-	QTextCodec *codec = QTextCodec::codecForName(codecName.toAscii());
+	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
 	codecName = codec->name().toLower();
 
 	for(int i = 0; i < ui->codepageBox->count(); ++i)
@@ -52,7 +53,7 @@ void IcqMainSettings::loadImpl()
 		{
 			foreach(const QByteArray codecName, codec->aliases())
 			{
-				if(QString::fromAscii(codecName).toLower() == curName)
+				if(QString::fromLatin1(codecName).toLower() == curName)
 				{
 					found = true;
 					break;
@@ -73,9 +74,11 @@ void IcqMainSettings::cancelImpl()
 
 void IcqMainSettings::saveImpl()
 {
+	QString codecName = ui->codepageBox->currentText();
 	m_config.group("general").setValue("avatars", !ui->avatarBox->isChecked());
 	m_config.group("general").setValue("reconnect", ui->reconnectBox->isChecked());
-	m_config.group("general").setValue("codec", ui->codepageBox->currentText());
+	m_config.group("general").setValue("codec", codecName);
+	Util::setAsciiCodec(QTextCodec::codecForName(codecName.toLatin1()));
 	m_config.sync();
 }
 

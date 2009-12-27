@@ -148,6 +148,8 @@ IcqProtocol::IcqProtocol() : p(new IcqProtocolPrivate)
 {
 	Q_ASSERT(!self);
 	self = this;
+	QString codecName = config("general").value("codec", "System").toString();
+	Util::setAsciiCodec(QTextCodec::codecForName(codecName.toLatin1()));
 }
 
 IcqProtocol::~IcqProtocol()
