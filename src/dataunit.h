@@ -26,7 +26,8 @@ namespace Icq
 
 enum ByteOrder
 {
-	BigEndian = QSysInfo::BigEndian, LittleEndian = QSysInfo::LittleEndian
+	BigEndian = QSysInfo::BigEndian,
+	LittleEndian = QSysInfo::LittleEndian
 };
 
 class DataUnit

@@ -675,8 +675,19 @@ void Roster::handleUserOnline(const SNAC &snac)
 	if (tlvs.contains(0x000c)) { // direct connection info
 		DataUnit data(tlvs.value(0x000c));
 		DirectConnectionInfo info =
-		{ QHostAddress(data.readSimple<quint32> ()), QHostAddress(), data.readSimple<quint32> (), data.readSimple<quint8> (), data.readSimple<quint16> (), data.readSimple<quint32> (),
-				data.readSimple<quint32> (), data.readSimple<quint32> (), data.readSimple<quint32> (), data.readSimple<quint32> (), data.readSimple<quint32> () };
+		{
+				QHostAddress(data.readSimple<quint32> ()),
+				QHostAddress(),
+				data.readSimple<quint32> (),
+				data.readSimple<quint8> (),
+				data.readSimple<quint16> (),
+				data.readSimple<quint32> (),
+				data.readSimple<quint32> (),
+				data.readSimple<quint32> (),
+				data.readSimple<quint32> (),
+				data.readSimple<quint32> (),
+				data.readSimple<quint32> ()
+		};
 		contact->d_func()->dc_info = info;
 	}
 

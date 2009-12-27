@@ -51,13 +51,15 @@ Capability::Capability(quint32 d1, quint32 d2, quint32 d3, quint32 d4)
 	qToBigEndian(d4, (uchar *) data4 + 4);
 }
 
-Capability::Capability(uint l, ushort w1, ushort w2, uchar b1, uchar b2, uchar b3, uchar b4, uchar b5, uchar b6, uchar b7, uchar b8) :
+Capability::Capability(uint l, ushort w1, ushort w2, uchar b1, uchar b2,
+		uchar b3, uchar b4, uchar b5, uchar b6, uchar b7, uchar b8) :
 	QUuid(l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8)
 {
 }
 
-Capability::Capability(quint8 d1, quint8 d2, quint8 d3, quint8 d4, quint8 d5, quint8 d6, quint8 d7, quint8 d8, quint8 d9, quint8 d10, quint8 d11, quint8 d12, quint8 d13, quint8 d14, quint8 d15,
-		quint8 d16)
+Capability::Capability(quint8 d1, quint8 d2, quint8 d3, quint8 d4, quint8 d5,
+		quint8 d6, quint8 d7, quint8 d8, quint8 d9, quint8 d10, quint8 d11,
+		quint8 d12, quint8 d13, quint8 d14, quint8 d15, quint8 d16)
 {
 	uchar data[16] =
 	{ d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16 };
