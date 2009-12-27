@@ -92,6 +92,12 @@ namespace AdiumChat
 			qWarning() << tr("Message %1 must have a ChatUnit").arg(tmp_message.text());
 			tmp_message.setChatUnit(getUnit());
 		}
+		
+		if (message.isIncoming())
+			emit messageReceived(message);
+		else
+			emit messageSended(message);
+		
 		bool same_from = false;
 		bool service = tmp_message.property("service").isValid();
 		QString item;
@@ -205,19 +211,10 @@ namespace AdiumChat
 	void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 	{
 		m_chat_unit = unit;
-		connect(unit,SIGNAL(chatStateChanged(ChatState)),SLOT(onChatStateChanged(ChatState)));
+		connect(unit,SIGNAL(chatStateChanged(ChatState)),SIGNAL(chatStateChanged(ChatState)));
 		Contact *c = qobject_cast<Contact *>(unit);
 		if (c) {
 			connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 		}
 	}
-
-	void ChatSessionImpl::onChatStateChanged(ChatState state)
-	{
-		ChatUnit *c = qobject_cast<ChatUnit *>(sender());
-		if (!c)
-			return;
-		emit chatStateChanged(c,state);
-	}
-
 }

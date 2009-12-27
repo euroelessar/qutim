@@ -52,7 +52,6 @@ namespace AdiumChat
 		void loadHistory();
 	protected slots:
 		void onStatusChanged(qutim_sdk_0_3::Status);
-		virtual void onChatStateChanged (ChatState state );
 	private:
 		QPointer<QWebPage> m_web_page;
 		QPointer<ChatUnit> m_chat_unit;
@@ -62,7 +61,7 @@ namespace AdiumChat
 		bool m_active;
 		bool m_store_service_messages;
 	signals:
-		void chatStateChanged(ChatUnit *c, ChatState state);
+		void chatStateChanged(ChatState state);
 	};
 }
 #endif // CHATSESSIONIMPL_H

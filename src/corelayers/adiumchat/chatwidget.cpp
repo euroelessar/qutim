@@ -63,7 +63,7 @@ namespace AdiumChat
 		//load settings
 		m_html_message = Config("appearance/adiumChat").group("behavior/widget").value<bool>("htmlMessage",false);
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("behavior/widget");
-		m_chat_flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",ChatStateIconsOnTabs | SendTypingNotification));
+		m_chat_flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",ChatStateIconsOnTabs | SendTypingNotification | ShowUnreadMessages));
 		
 		if (m_chat_flags & SendTypingNotification) {
 			connect(ui->chatEdit,SIGNAL(textChanged()),SLOT(onTextChanged()));
@@ -75,7 +75,7 @@ namespace AdiumChat
 				QtWin::extendFrameIntoClientArea(this);
 				setContentsMargins(0, 0, 0, 0);
 			}
-		}		
+		}
 	}
 
 	ChatWidget::~ChatWidget()
@@ -88,7 +88,9 @@ namespace AdiumChat
 		if(m_sessions.contains(session))
 			return;
 		m_sessions.append(session);
-		connect(session,SIGNAL(chatStateChanged(ChatUnit*,ChatState)),SLOT(chatStateChanged(ChatUnit*,ChatState)));
+		connect(session,SIGNAL(chatStateChanged(ChatState)),SLOT(chatStateChanged(ChatState)));
+		connect(session,SIGNAL(messageReceived(Message)),SLOT(onMessageReceived(Message)));
+		connect(session,SIGNAL(messageSended(Message)),SLOT(onMessageSended(Message)));
 		QIcon icon;
 		if (m_chat_flags & AvatarsOnTabs) {
 			QString imagePath = session->getUnit()->property("avatar").toString();
@@ -97,6 +99,8 @@ namespace AdiumChat
 		if (m_chat_flags & ChatStateIconsOnTabs) {
 			icon = Icon("user-online"); //FIXME
 		}
+		if (m_chat_flags & ShowUnreadMessages)
+			session->setProperty("currentIcon",icon);
 		ui->tabBar->addTab(icon,session->getUnit()->title());
 		if (ui->tabBar->count() >1)
 			ui->tabBar->setVisible(true);
@@ -125,7 +129,7 @@ namespace AdiumChat
 // 			ui->membersView->setModel(model);
 		if ((m_chat_flags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
 			killTimer(m_timerid);
-			m_chatstate = ChatStatePaused;			
+			m_chatstate = ChatStatePaused;
 			m_sessions.at(previous_index)->getUnit()->setChatState(m_chatstate);
 		}
 	}
@@ -185,6 +189,13 @@ namespace AdiumChat
 		qDebug() << "active index" << index;
 		if (ui->tabBar->currentIndex() != index)
 			ui->tabBar->setCurrentIndex(index);
+
+		if ((m_chat_flags & ShowUnreadMessages) && session->property("unreadMessages").toInt()) {
+			session->setProperty("unreadMessages",0);
+			QIcon icon = qvariant_cast<QIcon>(session->property("currentIcon"));
+			ui->tabBar->setTabIcon(index,icon);
+			ui->tabBar->setTabText(index,session->getUnit()->title());
+		}		
 	}
 
 	bool ChatWidget::eventFilter(QObject *obj, QEvent *event)
@@ -225,18 +236,21 @@ namespace AdiumChat
 		ui->chatEdit->clear();
 	}
 
-	void ChatWidget::chatStateChanged(ChatUnit *c, ChatState state)
+	void ChatWidget::chatStateChanged(ChatState state)
 	{
 		//checks
 		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
 		if (!session)
 			return;
+
 		int index = m_sessions.indexOf(session);
 		if (index == -1)
 			return;
+		
+		ChatUnit *c = session->getUnit();
 		if (m_chat_flags & ChatStateIconsOnTabs) {
 			QString icon_name;
-			ChatState previous_state = static_cast<ChatState>(c->property("currentChatState").toInt());
+			ChatState previous_state = static_cast<ChatState>(session->property("currentChatState").toInt());
 			if (!(previous_state & ChatStateComposing) || (state & ChatStatePaused)) {
 				switch (state) {
 					//FIXME icon names
@@ -258,10 +272,11 @@ namespace AdiumChat
 					default:
 						break;
 				}
-				ui->tabBar->setTabIcon(index,Icon(icon_name));
-				qDebug() << c->title() << icon_name;
-				//ui->tabBar->setTabText(index,icon_name);
-				c->setProperty("currentChatState",state);
+				QIcon icon = Icon(icon_name);
+				if (session->property("unreadMessages").toInt())
+					ui->tabBar->setTabIcon(index,icon);
+				session->setProperty("currentChatState",state);
+				session->setProperty("currentIcon",icon);
 			}
 		}
 	}
@@ -290,6 +305,42 @@ namespace AdiumChat
 		qDebug() << "paused to" << unit->title();
 		unit->setChatState(m_chatstate);
 		QObject::timerEvent(e);
+	}
+	
+	void ChatWidget::onMessageReceived(const qutim_sdk_0_3::Message& message)
+	{
+		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
+		qDebug() << "messageReceived" << message.text();
+		if (!session)
+			return;
+		qDebug() << "message from" << session->getUnit()->title();
+		int index = m_sessions.indexOf(session);
+		if (index == -1)
+			return;
+		if ((m_chat_flags & ShowUnreadMessages) && !session->isActive()) {
+			int unread_messages = session->property("unreadMessages").toInt()+1;
+			session->setProperty("unreadMessages",unread_messages);
+			ui->tabBar->setTabIcon(index,Icon("mail-unread-new"));
+			ui->tabBar->setTabText(index,tr("%1 (%2 unreaded messages)").arg(session->getUnit()->title()).arg( unread_messages));
+		}
+	}
+
+	void ChatWidget::onMessageSended(const qutim_sdk_0_3::Message& message)
+	{
+		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
+		qDebug() << "messageSended" << message.text();
+		if (!session)
+			return;
+		
+		int index = m_sessions.indexOf(session);
+		if (index == -1)
+			return;
+		
+		if (m_chat_flags & SendTypingNotification) {
+			killTimer(m_timerid);
+			m_chatstate = ChatStateActive;
+			m_sessions.at(index)->getUnit()->setChatState(m_chatstate);
+		}
 	}
 
 }

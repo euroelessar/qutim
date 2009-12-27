@@ -35,7 +35,8 @@ namespace AdiumChat
 		AeroThemeIntegration	=	0x01,
 		ChatStateIconsOnTabs	=	0x02,
 		AvatarsOnTabs			=	0x04,
-		SendTypingNotification	=	0x08
+		SendTypingNotification	=	0x08,
+		ShowUnreadMessages		=	0x10
 	};
 	Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
 	class ChatSessionImpl;
@@ -72,8 +73,10 @@ namespace AdiumChat
 		void onTabMoved(int from,int to);
 		void onSessionRemoved();
 		void onSendButtonClicked();
-		void chatStateChanged(ChatUnit* c, ChatState state);
+		void chatStateChanged(ChatState state);
 		void onTextChanged(); //TODO separate from chatlayer
+		void onMessageReceived(const Message &message);
+		void onMessageSended(const Message &message);
 	};
 
 }
