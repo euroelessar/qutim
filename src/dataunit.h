@@ -23,13 +23,15 @@
 
 namespace Icq {
 
+enum ByteOrder {
+	BigEndian = QSysInfo::BigEndian,
+	LittleEndian = QSysInfo::LittleEndian
+};
+
 class DataUnit
 {
 public:
-	enum ByteOrder {
-		BigEndian = QSysInfo::BigEndian,
-		LittleEndian = QSysInfo::LittleEndian
-	};
+
 	inline DataUnit() { m_state = 0; }
 	inline DataUnit(const DataUnit &unit) { m_data = unit.m_data; m_state = 0; }
 	inline DataUnit(const TLV &tlv) { m_data = tlv.value(); m_state = 0; }
@@ -48,6 +50,8 @@ public:
 	void appendData(const QByteArray &str, ByteOrder bo = BigEndian);
 	template<typename L>
 	void appendData(const QString &str, QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian);
+	template<typename L>
+	void appendData(const QString &str, ByteOrder bo);
 	inline void resetState() const { m_state = 0; }
 	inline uint dataSize() const { return m_data.size() > m_state ? m_data.size() - m_state : 0; }
 	template<typename T>
@@ -58,6 +62,8 @@ public:
 	inline QByteArray readData(uint size) const;
 	template<typename L>
 	QString readString(QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian) const;
+	template<typename L>
+	QString readString(ByteOrder bo) const;
 	inline void skipData(uint num) const { m_state = qMin<uint>(m_state + num, m_data.size()); }
 	inline QByteArray readAll() const;
 	TLV readTLV(ByteOrder bo = BigEndian) const;
@@ -99,6 +105,12 @@ template<typename L>
 Q_INLINE_TEMPLATE void DataUnit::appendData(const QString &str, QTextCodec *codec, ByteOrder bo)
 {
 	appendData<L>(codec->fromUnicode(str), bo);
+}
+
+template<typename L>
+Q_INLINE_TEMPLATE void DataUnit::appendData(const QString &str, ByteOrder bo)
+{
+	appendData<L>(Util::defaultCodec()->fromUnicode(str), bo);
 }
 
 template<typename T>
@@ -177,6 +189,12 @@ template<typename L>
 Q_INLINE_TEMPLATE QString DataUnit::readString(QTextCodec *codec, ByteOrder bo) const
 {
 	return codec->toUnicode(readData<L>(bo));
+}
+
+template<typename L>
+Q_INLINE_TEMPLATE QString DataUnit::readString(ByteOrder bo) const
+{
+	return Util::defaultCodec()->toUnicode(readData<L>(bo));
 }
 
 QByteArray DataUnit::readAll() const

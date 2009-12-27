@@ -50,15 +50,15 @@ Channel1MessageData::Channel1MessageData(const QString &message, Channel1Codec c
 Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, quint64 cookie)
 {
 	m_cookie = (cookie == 0) ? generateCookie() : cookie;
-	appendSimple<quint16>(0x1B, DataUnit::LittleEndian);
-	appendSimple<quint16>(protocol_version, DataUnit::LittleEndian);
+	appendSimple<quint16>(0x1B, LittleEndian);
+	appendSimple<quint16>(protocol_version, LittleEndian);
 	appendData(ICQ_CAPABILITY_PSIG_MESSAGE);
 	appendSimple<quint8>(0); // not sure
 	appendSimple<quint16>(client_features);
 	appendSimple<quint32>(dc_type);
-	appendSimple<quint16>(m_cookie, DataUnit::LittleEndian);
-	appendSimple<quint16>(0x0E, DataUnit::LittleEndian);
-	appendSimple<quint16>(m_cookie, DataUnit::LittleEndian);
+	appendSimple<quint16>(m_cookie, LittleEndian);
+	appendSimple<quint16>(0x0E, LittleEndian);
+	appendSimple<quint16>(m_cookie, LittleEndian);
 	appendSimple<quint64>(0); // Unknown 12 bytes
 	appendSimple<quint32>(0);
 	appendSimple<quint8>(msgType);
@@ -76,7 +76,7 @@ void Tlv2711::appendEmptyPacket()
 void Tlv2711::appendColors()
 {
 	appendSimple<quint32>(0x00000000); // foreground
-	appendSimple<quint32>(0x00FFFFFF, DataUnit::LittleEndian); // background
+	appendSimple<quint32>(0x00FFFFFF, LittleEndian); // background
 }
 
 Channel2BasicMessageData::Channel2BasicMessageData(quint16 command, const Capability &guid, qint64 cookie):
@@ -85,7 +85,7 @@ Channel2BasicMessageData::Channel2BasicMessageData(quint16 command, const Capabi
 	if(m_cookie == 0)
 		m_cookie = generateCookie();
 	appendSimple(command);
-	appendSimple(cookie, DataUnit::LittleEndian);
+	appendSimple(cookie, LittleEndian);
 	appendData(guid);
 }
 
@@ -359,12 +359,12 @@ void MessagesHandler::handleChannel4Message(const SNAC &snac, IcqContact *contac
 	if(tlvs.contains(0x0005))
 	{
 		DataUnit data(tlvs.value(0x0005));
-		quint32 uin_2 = data.readSimple<quint32>(DataUnit::LittleEndian);
+		quint32 uin_2 = data.readSimple<quint32>(LittleEndian);
 		if(QString::number(uin_2) != uin)
 			return;
 		quint8 type = data.readSimple<quint8>();
 		quint8 flags = data.readSimple<quint8>();
-		QByteArray msg_data = data.readData<quint16>(DataUnit::LittleEndian);
+		QByteArray msg_data = data.readData<quint16>(LittleEndian);
 		debug() << IMPLEMENT_ME << QString("Message (channel 3) from %1 with type %2 is not processed.").
 				arg(uin).arg(type);
 	}
@@ -374,31 +374,31 @@ void MessagesHandler::handleChannel4Message(const SNAC &snac, IcqContact *contac
 
 void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, quint64 msgCookie)
 {
-	quint16 id = data.readSimple<quint16>(DataUnit::LittleEndian);
+	quint16 id = data.readSimple<quint16>(LittleEndian);
 	if(id != 0x1B)
 	{
 		debug() << "Unknown message id in TLV 2711";
 		return;
 	}
-	quint16 version = data.readSimple<quint16>(DataUnit::LittleEndian);
+	quint16 version = data.readSimple<quint16>(LittleEndian);
 	if(contact)
 		contact->d_func()->version = version;
 	Capability guid = data.readCapability();
 	data.skipData(9);
-	id = data.readSimple<quint16>(DataUnit::LittleEndian);
-	quint16 cookie = data.readSimple<quint16>(DataUnit::LittleEndian);
+	id = data.readSimple<quint16>(LittleEndian);
+	quint16 cookie = data.readSimple<quint16>(LittleEndian);
 	if(guid == ICQ_CAPABILITY_PSIG_MESSAGE)
 	{
 		data.skipData(12);
 		quint8 type = data.readSimple<quint8>();
 		quint8 flags = data.readSimple<quint8>();
-		quint16 status = data.readSimple<quint16>(DataUnit::LittleEndian);
-		quint16 priority = data.readSimple<quint16>(DataUnit::LittleEndian);
+		quint16 status = data.readSimple<quint16>(LittleEndian);
+		quint16 priority = data.readSimple<quint16>(LittleEndian);
 
 		if(type == MsgPlain && ack != 2) // Plain message
 		{
 			sendChannel2Response(contact, type, flags, msgCookie);
-			QByteArray message_data = data.readData<quint16>(DataUnit::LittleEndian);
+			QByteArray message_data = data.readData<quint16>(LittleEndian);
 			message_data.resize(message_data.size() - 1);
 			QColor foreground(
 					data.readSimple<quint8>(),
@@ -415,7 +415,7 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 			QTextCodec *codec = NULL;
 			while(data.dataSize() > 0)
 			{
-				QString guid = data.readString<quint32>(asciiCodec(), DataUnit::LittleEndian);
+				QString guid = data.readString<quint32>(LittleEndian);
 				if(guid.compare(ICQ_CAPABILITY_UTF8.toString(), Qt::CaseInsensitive) == 0)
 				{
 					codec = utf8Codec();
@@ -432,12 +432,12 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 		}
 		else if(MsgPlugin)
 		{
-			data.readData<quint16>(DataUnit::LittleEndian);
-			DataUnit info = data.readData<quint16>(DataUnit::LittleEndian);
+			data.readData<quint16>(LittleEndian);
+			DataUnit info = data.readData<quint16>(LittleEndian);
 			Capability pluginType = info.readCapability().data();
-			quint16 pluginId = info.readSimple<quint16>(DataUnit::LittleEndian);
-			QString pluginName = info.readString<quint32>(asciiCodec(), DataUnit::LittleEndian);
-			DataUnit pluginData = data.readData<quint32>(DataUnit::LittleEndian);
+			quint16 pluginId = info.readSimple<quint16>(LittleEndian);
+			QString pluginName = info.readString<quint32>(LittleEndian);
+			DataUnit pluginData = data.readData<quint32>(LittleEndian);
 			if(pluginType == MSG_XSTRAZ_SCRIPT)
 			{
 				Xtraz::handleXtraz(contact, pluginId, pluginData, msgCookie);

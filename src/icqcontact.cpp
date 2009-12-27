@@ -102,11 +102,10 @@ void IcqContact::sendMessage(const Message &message)
 			codec = Util::asciiCodec();
 		QByteArray msg = codec->fromUnicode(msgText) + '\0';
 		Tlv2711 tlv(0x01, 0, qutimStatusToICQ(d->status), 1);
-		tlv.appendData<quint16>(msg, DataUnit::LittleEndian);
+		tlv.appendData<quint16>(msg, LittleEndian);
 		tlv.appendColors();
 		if(Utf8Support())
-			tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(),
-						Util::asciiCodec(), DataUnit::LittleEndian);
+			tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
 		ServerMessage msgData(d->uin, Channel2MessageData(0, tlv));
 		d->account->connection()->send(msgData);
 		debug() << "Message" << msgText << "is sent on channel 2";

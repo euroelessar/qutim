@@ -41,18 +41,18 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 		{
 			DataUnit data(tlvs.value(0x01));
 			data.skipData(6); // skip length field + my uin
-			quint16 metaType = data.readSimple<quint16>(DataUnit::LittleEndian);
+			quint16 metaType = data.readSimple<quint16>(LittleEndian);
 			if(metaType == 0x07da)
 			{
-				quint16 reqNumber = data.readSimple<quint16>(DataUnit::LittleEndian);
+				quint16 reqNumber = data.readSimple<quint16>(LittleEndian);
 				QHash<quint16, QObject*>::iterator objItr = m_requests.find(reqNumber);
 				if(objItr == m_requests.end())
 				{
 					debug() << "Unexpected metainfo response";
 					return;
 				}
-				quint16 dataType = data.readSimple<quint16>(DataUnit::LittleEndian);
-				quint8 success = data.readSimple<quint8>(DataUnit::LittleEndian);
+				quint16 dataType = data.readSimple<quint16>(LittleEndian);
+				quint8 success = data.readSimple<quint8>(LittleEndian);
 				if(success == 0x0a)
 				{
 					switch(dataType)
@@ -113,12 +113,12 @@ void MetaInfo::sendRequest(OscarConnection *conn, QObject *reqObject, quint16 ty
 	SNAC snac(ExtensionsFamily, ExtensionsMetaCliRequest);
 	DataUnit tlv_data;
 	DataUnit data;
-	data.appendSimple<quint32>(conn->account()->id().toUInt(), DataUnit::LittleEndian);
-	data.appendSimple<quint16>(0x07d0, DataUnit::LittleEndian);
-	data.appendSimple<quint16>(++m_sequence, DataUnit::LittleEndian);
-	data.appendSimple<quint16>(type, DataUnit::LittleEndian);
+	data.appendSimple<quint32>(conn->account()->id().toUInt(), LittleEndian);
+	data.appendSimple<quint16>(0x07d0, LittleEndian);
+	data.appendSimple<quint16>(++m_sequence, LittleEndian);
+	data.appendSimple<quint16>(type, LittleEndian);
 	data.appendData(extend_data.data());
-	tlv_data.appendSimple<quint16>(data.data().size(), DataUnit::LittleEndian);
+	tlv_data.appendSimple<quint16>(data.data().size(), LittleEndian);
 	tlv_data.appendData(data.data());
 	snac.appendTLV(1, tlv_data);
 	m_requests.insert(m_sequence, reqObject);
@@ -131,7 +131,7 @@ void MetaInfo::sendInfoRequest(OscarConnection *conn, QObject *reqObject, quint1
 	if(id != 0)
 	{
 		DataUnit data;
-		data.appendSimple<quint32>(id, DataUnit::LittleEndian);
+		data.appendSimple<quint32>(id, LittleEndian);
 		sendRequest(conn, reqObject, type, data);
 	}
 }
@@ -168,7 +168,7 @@ void MetaInfo::handleBasicInfo(QObject *reqObject, const DataUnit &data)
 	QString home_address = readString(data);
 	QString cell_phone = readString(data);
 	QString home_zip_code = readString(data);
-	quint16 home_country_code = data.readSimple<quint16>(DataUnit::LittleEndian);
+	quint16 home_country_code = data.readSimple<quint16>(LittleEndian);
 	quint8 GMT = data.readSimple<quint8>();
 	// flags
 	quint8 auth = data.readSimple<quint8>();
@@ -183,10 +183,10 @@ void MetaInfo::handleBasicInfo(QObject *reqObject, const DataUnit &data)
 
 void MetaInfo::handleMoreInfo(QObject *reqObject, const DataUnit &data)
 {
-	quint16 age = data.readSimple<quint16>(DataUnit::LittleEndian);
+	quint16 age = data.readSimple<quint16>(LittleEndian);
 	qint8 gender = data.readSimple<qint8>();
 	QString homepage = readString(data);
-	quint16 birth_year = data.readSimple<quint16>(DataUnit::LittleEndian);
+	quint16 birth_year = data.readSimple<quint16>(LittleEndian);
 	quint8 birth_month = data.readSimple<quint8>();
 	quint8 birth_day = data.readSimple<quint8>();
 	quint8 language1 = data.readSimple<quint8>();
@@ -195,7 +195,7 @@ void MetaInfo::handleMoreInfo(QObject *reqObject, const DataUnit &data)
 	data.skipData(2); // 0x0000 unknown
 	QString original_city = readString(data);
 	QString original_state = readString(data);
-	quint16 original_country_code = data.readSimple<quint16>(DataUnit::LittleEndian);
+	quint16 original_country_code = data.readSimple<quint16>(LittleEndian);
 	quint8 time_zone = data.readSimple<quint8>();
 
 	debug(Verbose) << "More info" << age << gender << homepage << birth_year << birth_month << birth_day
@@ -225,7 +225,7 @@ void MetaInfo::handleEmails(QObject *reqObject, const DataUnit &data)
 void MetaInfo::handleHomepage(QObject *reqObject, const DataUnit &data)
 {
 	bool is_enabled = data.readSimple<quint8>();
-	quint16 homepage_category_code = data.readSimple<quint16>(DataUnit::LittleEndian);
+	quint16 homepage_category_code = data.readSimple<quint16>(LittleEndian);
 	QString homepage_keyword = readString(data);
 
 	debug(Verbose) << "Homepage" << is_enabled << homepage_category_code << homepage_keyword;
@@ -239,11 +239,11 @@ void MetaInfo::handleWork(QObject *reqObject, const DataUnit &data)
 	QString work_fax = readString(data);
 	QString work_address = readString(data);
 	QString work_zip = readString(data);
-	quint16 work_country_code = data.readSimple<quint16>(DataUnit::LittleEndian);
+	quint16 work_country_code = data.readSimple<quint16>(LittleEndian);
 	QString work_company = readString(data);
 	QString work_department = readString(data);
 	QString work_position = readString(data);
-	quint16 work_ocupation_code = data.readSimple<quint16>(DataUnit::LittleEndian);
+	quint16 work_ocupation_code = data.readSimple<quint16>(LittleEndian);
 	QString work_webpage = readString(data);
 
 	debug(Verbose) << "Work info" << work_city << work_state << work_phone << work_fax
@@ -280,7 +280,7 @@ QList<MetaInfo::Category> MetaInfo::handleCatagories(const DataUnit &data)
 	Category category;
 	for(int i = 0; i < count; ++i)
 	{
-		category.category = data.readSimple<quint16>(DataUnit::LittleEndian);
+		category.category = data.readSimple<quint16>(LittleEndian);
 		category.keyword = readString(data);
 		result << category;
 	}
@@ -289,7 +289,7 @@ QList<MetaInfo::Category> MetaInfo::handleCatagories(const DataUnit &data)
 
 inline QString MetaInfo::readString(const DataUnit &data)
 {
-	QString str = data.readString<quint16>(Util::asciiCodec(), DataUnit::LittleEndian);
+	QString str = data.readString<quint16>(Util::asciiCodec(), LittleEndian);
 	str.truncate(str.length()-1);
 	return str;
 }

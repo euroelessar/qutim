@@ -201,7 +201,7 @@ void Roster::sendAuthResponse(const QString &id, const QString &message, bool au
 	SNAC snac(ListsFamily, ListsCliAuthResponse);
 	snac.appendData<qint8>(id); // uin.
 	snac.appendSimple<qint8>(auth ? 0x01 : 0x00); // auth flag.
-	snac.appendData<qint16>(message); // TODO: which codec should be used?
+	snac.appendData<qint16>(message);
 	m_conn->send(snac);
 }
 
@@ -209,7 +209,7 @@ void Roster::sendAuthRequest(const QString &id, const QString &message)
 {
 	SNAC snac(ListsFamily, ListsRequestAuth);
 	snac.appendData<qint8>(id); // uin.
-	snac.appendData<qint16>(message, Util::asciiCodec()); // TODO: which codec should be used?
+	snac.appendData<qint16>(message);
 	snac.appendSimple<quint16>(0);
 	m_conn->send(snac);
 }
@@ -798,7 +798,7 @@ void Roster::handleMetaInfo(const SNAC &snac)
 	{
 		DataUnit data(tlvs.value(0x01));
 		data.skipData(6); // skip length field + my uin
-		quint16 metaType = data.readSimple<quint16>(DataUnit::LittleEndian);
+		quint16 metaType = data.readSimple<quint16>(LittleEndian);
 		switch(metaType)
 		{
 		case(0x0041):
@@ -823,9 +823,9 @@ void Roster::sendMetaInfoRequest(quint16 type)
 {
 	SNAC snac(ExtensionsFamily, ExtensionsMetaCliRequest);
 	DataUnit data;
-	data.appendSimple<quint16>(8, DataUnit::LittleEndian); // data chunk size
-	data.appendSimple<quint32>(m_account->id().toUInt(), DataUnit::LittleEndian);
-	data.appendSimple<quint16>(type, DataUnit::LittleEndian); // message request cmd
+	data.appendSimple<quint16>(8, LittleEndian); // data chunk size
+	data.appendSimple<quint32>(m_account->id().toUInt(), LittleEndian);
+	data.appendSimple<quint16>(type, LittleEndian); // message request cmd
 	data.appendSimple<quint16>(snac.id()); // request sequence number
 	snac.appendTLV(0x01, data);
 	m_conn->send(snac);

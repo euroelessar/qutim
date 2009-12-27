@@ -166,11 +166,11 @@ XtrazData::XtrazData(const QString &body, quint64 cookie):
 	appendEmptyPacket();
 
 	// Plugin type ID
-	appendSimple<quint16>(0x04f, DataUnit::LittleEndian); // Length
+	appendSimple<quint16>(0x04f, LittleEndian); // Length
 	appendData(Capability(0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865));    // type: xtraz script
-	appendSimple<quint16>(xtrazNotify, DataUnit::LittleEndian); // Function ID
-	appendSimple<quint32>(0x002a, DataUnit::LittleEndian); // Request type
-	appendData("Script Plug-in: Remote Notification Arrive", Util::asciiCodec());
+	appendSimple<quint16>(xtrazNotify, LittleEndian); // Function ID
+	appendSimple<quint32>(0x002a, LittleEndian); // Request type
+	appendData(QString("Script Plug-in: Remote Notification Arrive"));
 	// unknown
 	appendSimple<quint32>(0x00000100);
 	appendSimple<quint32>(0x00000000);
@@ -180,8 +180,8 @@ XtrazData::XtrazData(const QString &body, quint64 cookie):
 
 	// data
 	DataUnit data;
-	data.appendData<quint32>(body, Util::asciiCodec(), DataUnit::LittleEndian);
-	appendData<quint32>(data.data(), DataUnit::LittleEndian);
+	data.appendData<quint32>(body, LittleEndian);
+	appendData<quint32>(data.data(), LittleEndian);
 }
 
 XtrazRequest::XtrazRequest(const QString uin, const QString &query, const QString &notify)
@@ -226,7 +226,7 @@ Xtraz::Xtraz()
 
 void Xtraz::handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data, quint64 cookie)
 {
-	QString message = data.readData<quint32>(DataUnit::LittleEndian);
+	QString message = data.readData<quint32>(LittleEndian);
 	if(type == xtrazNotify)
 		handleNotify(contact, message, cookie);
 	else
