@@ -2,6 +2,7 @@
  *  icqprotocol.cpp
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,109 +14,17 @@
  ***************************************************************************
 *****************************************************************************/
 
+#include "icqprotocol_p.h"
 #include "icq_global.h"
 #include "util.h"
 #include <qutim/icon.h>
-#include "icqprotocol.h"
 #include "icqaccount.h"
 #include <QStringList>
 #include <QPointer>
-#include <QWizard>
-#include <QWizardPage>
-#include <QRegExp>
-#include <QValidator>
-
-#include "ui_addaccountform.h"
 
 namespace Icq {
 
 IcqProtocol *IcqProtocol::self = 0;
-
-class IcqAccWizardPage;
-
-struct IcqAccWizardPrivate
-{
-	IcqAccWizardPage *page;
-	IcqProtocol *protocol;
-};
-
-struct IcqProtocolPrivate
-{
-	inline IcqProtocolPrivate() : accounts_hash(new QHash<QString, QPointer<IcqAccount> >()) {}
-	inline ~IcqProtocolPrivate() { delete accounts_hash; }
-	union {
-		QHash<QString, QPointer<IcqAccount> > *accounts_hash;
-		QHash<QString, IcqAccount *> *accounts;
-	};
-};
-
-class IcqAccWizardPage: public QWizardPage
-{
-public:
-	IcqAccWizardPage(IcqAccountCreationWizard *account_wizard);
-	bool validatePage();
-	QString uin() { return ui.uinEdit->text(); }
-	QString password() { return ui.passwordEdit->text(); }
-	bool isSavePassword() { return ui.passwordBox->isChecked(); }
-private:
-	IcqAccountCreationWizard *m_account_wizard;
-	Ui::AddAccountFormClass ui;
-};
-
-IcqAccWizardPage::IcqAccWizardPage(IcqAccountCreationWizard *account_wizard):
-	m_account_wizard(account_wizard)
-{
-	ui.setupUi(this);
-
-	QRegExp rx("[1-9][0-9]{1,9}");
-	QValidator *validator = new QRegExpValidator(rx, this);
-	ui.uinEdit->setValidator(validator);
-}
-
-bool IcqAccWizardPage::validatePage()
-{
-	if(uin().isEmpty() || (isSavePassword() && password().isEmpty()))
-		return false;
-	m_account_wizard->finished();
-	return true;
-}
-
-IcqAccountCreationWizard::IcqAccountCreationWizard()
-		: AccountCreationWizard(IcqProtocol::instance()), p(new IcqAccWizardPrivate)
-{
-	p->protocol = IcqProtocol::instance();
-}
-
-IcqAccountCreationWizard::~IcqAccountCreationWizard()
-{
-
-}
-
-QList<QWizardPage *> IcqAccountCreationWizard::createPages(QWidget *parent)
-{
-	p->page = new IcqAccWizardPage(this);
-	QList<QWizardPage *> pages;
-	pages << p->page;
-	return pages;
-}
-
-void IcqAccountCreationWizard::finished()
-{
-	IcqAccount *account = new IcqAccount(p->page->uin());
-	if(p->page->isSavePassword())
-	{
-		account->config().group("general").setValue("passwd", p->page->password(), Config::Crypted);
-		account->config().sync();
-	}
-	ConfigGroup cfg = p->protocol->config().group("general");
-	QStringList accounts = cfg.value("accounts", QStringList());
-	accounts << account->id();
-	cfg.setValue("accounts", accounts);
-	cfg.sync();
-	p->protocol->p->accounts_hash->insert(account->id(), account);
-	delete p->page;
-	emit p->protocol->accountCreated(account);
-}
 
 qutim_sdk_0_3::Status icqStatusToQutim(quint16 status)
 {

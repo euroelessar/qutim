@@ -1,8 +1,7 @@
 /****************************************************************************
- *  icqprotocol.h
+ *  accountcreator.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -14,38 +13,29 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef ICQPROTOCOL_H
-#define ICQPROTOCOL_H
+#ifndef ACCOUNTCREATOR_H
+#define ACCOUNTCREATOR_H
 
-#include <qutim/protocol.h>
+#include "qutim/protocol.h"
 
 namespace Icq {
 
 using namespace qutim_sdk_0_3;
 
-struct IcqProtocolPrivate;
-class IcqProtocol;
+struct IcqAccWizardPrivate;
 
-class IcqProtocol : public Protocol
+class IcqAccountCreationWizard : public AccountCreationWizard
 {
 	Q_OBJECT
-	Q_CLASSINFO("Protocol", "icq")
 public:
-	IcqProtocol();
-	virtual ~IcqProtocol();
-	static inline IcqProtocol *instance() { if(!self) qWarning("IcqProtocol isn't created"); return self; }
-	virtual QList<Account *> accounts() const;
-	virtual Account *account(const QString &id) const;
-protected:
-	void loadAccounts();
-private slots:
-	void onStatusActionPressed();
+	IcqAccountCreationWizard();
+	~IcqAccountCreationWizard();
+	QList<QWizardPage *> createPages(QWidget *parent);
+	void finished();
 private:
-	friend class IcqAccountCreationWizard;
-	QScopedPointer<IcqProtocolPrivate> p;
-	static IcqProtocol *self;
+	QScopedPointer<IcqAccWizardPrivate> p;
 };
 
 } // namespace Icq
 
-#endif // ICQPROTOCOL_H
+#endif // ACCOUNTCREATOR_H

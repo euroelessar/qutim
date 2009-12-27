@@ -1,5 +1,5 @@
 /****************************************************************************
- *  icqprotocol.h
+ *  icqprotocol_p.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
@@ -14,38 +14,24 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef ICQPROTOCOL_H
-#define ICQPROTOCOL_H
+#ifndef ICQPROTOCOL_P_H
+#define ICQPROTOCOL_P_H
 
-#include <qutim/protocol.h>
+#include "icqaccount.h"
+#include "icqprotocol.h"
 
 namespace Icq {
 
-using namespace qutim_sdk_0_3;
-
-struct IcqProtocolPrivate;
-class IcqProtocol;
-
-class IcqProtocol : public Protocol
+struct IcqProtocolPrivate
 {
-	Q_OBJECT
-	Q_CLASSINFO("Protocol", "icq")
-public:
-	IcqProtocol();
-	virtual ~IcqProtocol();
-	static inline IcqProtocol *instance() { if(!self) qWarning("IcqProtocol isn't created"); return self; }
-	virtual QList<Account *> accounts() const;
-	virtual Account *account(const QString &id) const;
-protected:
-	void loadAccounts();
-private slots:
-	void onStatusActionPressed();
-private:
-	friend class IcqAccountCreationWizard;
-	QScopedPointer<IcqProtocolPrivate> p;
-	static IcqProtocol *self;
+	inline IcqProtocolPrivate() : accounts_hash(new QHash<QString, QPointer<IcqAccount> >()) {}
+	inline ~IcqProtocolPrivate() { delete accounts_hash; }
+	union {
+		QHash<QString, QPointer<IcqAccount> > *accounts_hash;
+		QHash<QString, IcqAccount *> *accounts;
+	};
 };
 
 } // namespace Icq
 
-#endif // ICQPROTOCOL_H
+#endif // ICQPROTOCOL_P_H

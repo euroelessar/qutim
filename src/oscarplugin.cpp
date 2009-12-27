@@ -15,6 +15,7 @@
 
 #include "oscarplugin.h"
 #include "icqprotocol.h"
+#include "ui/accountcreator.h"
 #include <qutim/debug.h>
 
 namespace Icq {
