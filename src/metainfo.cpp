@@ -148,7 +148,7 @@ void MetaInfo::handleShortInfo(QObject *reqObject, const DataUnit &data)
 
 	if(reqObject)
 	{
-		if(reqObject->property("name").toString().isEmpty())
+		if(reqObject->property("name").toString() == reqObject->property("id").toString())
 			reqObject->setProperty("name", nick);
 	}
 
