@@ -1,6 +1,7 @@
 #include "jconnection.h"
 #include "../../jprotocol.h"
 #include "../jaccount.h"
+#include "jabber.h"
 
 namespace Jabber
 {
@@ -32,6 +33,11 @@ namespace Jabber
 		p->client->disco()->setIdentity("client", "pc");
 		p->client->disco()->addFeature("jabber:iq:roster");
 		p->client->registerPresenceHandler(this);
+
+		foreach (const ObjectGenerator *gen, moduleGenerators<JabberExtension>()) {
+			if (JabberExtension *ext = gen->generate<JabberExtension>())
+				ext->setClient(p->account, p->client);
+		}
 	}
 
 	JConnection::~JConnection()
