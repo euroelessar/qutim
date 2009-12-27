@@ -24,7 +24,7 @@ namespace Jabber
 			void setName(const QString &name);
 			void setTags(const QSet<QString> &tags);
 			void setChatState(qutim_sdk_0_3::ChatState state);
-			void setStatus(const QString &resource, Presence::PresenceType presence, int priority);
+			void setStatus(const QString &resource, gloox::Presence::PresenceType presence, int priority);
 			QString name();
 			QSet<QString> tags();
 			Status status();

@@ -2,6 +2,7 @@
 #define JCONTACTRESOURCE_H
 
 #include <qutim/chatunit.h>
+#include <gloox/presence.h>
 
 namespace Jabber
 {
@@ -19,8 +20,9 @@ namespace Jabber
 			void sendMessage(const qutim_sdk_0_3::Message &message);
 			void setPriority(int priority);
 			int priority();
-			void setStatus(Presence::PresenceType presence, int priority);
-			Presence::PresenceType status();
+			void setStatus(gloox::Presence::PresenceType presence, int priority);
+			gloox::Presence::PresenceType status();
+			void setChatState(ChatState state);
 		private:
 			QScopedPointer<JResourcePrivate> p;
 	};

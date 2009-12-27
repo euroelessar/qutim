@@ -1,7 +1,12 @@
 #include "jcontact_p.h"
-#include "jaccount.h"
+#include "../jaccount.h"
+#include "../../jprotocol.h"
 #include <gloox/message.h>
 #include <gloox/chatstate.h>
+#include <gloox/rostermanager.h>
+#include <gloox/rosteritem.h>
+
+using namespace gloox;
 
 namespace Jabber
 {
@@ -58,7 +63,7 @@ namespace Jabber
 			return;
 		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
 		if (inList)
-			rosterManager->add(d->jid.toStdString(), d->name.toStdString());
+			rosterManager->add(d->jid.toStdString(), d->name.toStdString(), StringList());
 		else
 			rosterManager->remove(d->jid.toStdString());
 	}

@@ -1,6 +1,8 @@
 #include "jcontactresource.h"
 #include "../jaccount.h"
 
+using namespace gloox;
+
 namespace Jabber
 {
 	struct JResourcePrivate
@@ -47,5 +49,9 @@ namespace Jabber
 	Presence::PresenceType JContactResource::status()
 	{
 		return p->presence;
+	}
+
+	void JContactResource::setChatState(ChatState state)
+	{
 	}
 }
