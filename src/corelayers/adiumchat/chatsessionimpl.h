@@ -51,7 +51,7 @@ namespace AdiumChat
 		QScopedPointer<ChatStyleOutput> m_chat_style_output;
 		void loadHistory();
 	protected slots:
-		void statusChanged(Status status);
+		void onStatusChanged(qutim_sdk_0_3::Status);
 		virtual void onChatStateChanged (ChatState state );
 	private:
 		QPointer<QWebPage> m_web_page;
