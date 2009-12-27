@@ -123,6 +123,9 @@ bool Roster::parseContacts(MrimPacket& packet, const QString& mask)
     while(!packet.atEnd())
     {
         parsedContact = parseByMask(packet,mask);
+		// TODO: Learn why is it possible
+		if (parsedContact.isEmpty())
+			break;
         contact = new MrimContact(p->account);
         //common params
         contact->setContactId(contactId++);

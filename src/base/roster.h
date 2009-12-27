@@ -37,7 +37,7 @@ template <class T>
 T RosterParseMultiMap::get(QChar key, quint32 index)
 {
     QVariantList vals = values(key);
-    return vals[vals.count() - index - 1].value<T>();
+    return vals.value(vals.count() - index - 1).value<T>();
 }
 
 inline quint32 RosterParseMultiMap::getUint(quint32 index)
