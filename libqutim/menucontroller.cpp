@@ -121,7 +121,6 @@ namespace qutim_sdk_0_3
 			QAction *action = act.gen->generate<QAction>();
 			action->setParent(currentEntry->menu);
 			action->setData(QVariant::fromValue(const_cast<MenuController *>(this)));
-			action->setParent(action);
 			currentEntry->menu->addAction(action);
 		}
 		return menu;

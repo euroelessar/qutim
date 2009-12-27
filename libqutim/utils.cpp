@@ -64,9 +64,9 @@ namespace qutim_sdk_0_3
 
 #define TRIM_LENGTH(NUM) \
 	while (length > NUM) { \
-						   finishStr(str, week_date, date, time, c, NUM); \
-						   length -= NUM; \
-								 }
+	   finishStr(str, week_date, date, time, c, NUM); \
+	   length -= NUM; \
+	}
 
 	// TODO: On MacOS X use native methods
 	// http://unicode.org/reports/tr35/tr35-6.html#Date_Format_Patterns
