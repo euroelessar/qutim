@@ -25,7 +25,7 @@
 
 namespace AdiumChat
 {
-	ChatWidget::ChatWidget(ChatFlags chatFlags): ui(new Ui::AdiumChatForm),m_chat_flags(chatFlags)
+	ChatWidget::ChatWidget(bool removeSessionOnClose): ui(new Ui::AdiumChatForm),m_remove_session_on_close(removeSessionOnClose)
 	{
 		ui->setupUi(this);
 		centerizeWidget(this);
@@ -45,11 +45,6 @@ namespace AdiumChat
 		connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 		connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
-		if (m_chat_flags & SendTypingNotification) {
-			connect(ui->chatEdit,SIGNAL(textChanged()),SLOT(onTextChanged()));
-			m_chatstate = ChatStateActive;
-			m_timeout = 5000;
-		}
 		
 		ui->chatEdit->installEventFilter(this);
 		ui->chatEdit->setFocusPolicy(Qt::StrongFocus);
@@ -62,16 +57,25 @@ namespace AdiumChat
 		QAction *test_act2 = new QAction(Icon("preferences-system"),tr("Testing action"),this);
 		ui->additionalToolbar->addAction(test_act2);
 		//init aero integration for win
-		if (chatFlags & AeroThemeIntegration) {
+
+		//
+		setProperty("currentIndex",-1);
+		//load settings
+		m_html_message = Config("appearance/adiumChat").group("behavior/widget").value<bool>("htmlMessage",false);
+		ConfigGroup adium_chat = Config("appearance/adiumChat").group("behavior/widget");
+		m_chat_flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",ChatStateIconsOnTabs | SendTypingNotification));
+		
+		if (m_chat_flags & SendTypingNotification) {
+			connect(ui->chatEdit,SIGNAL(textChanged()),SLOT(onTextChanged()));
+			m_chatstate = ChatStateActive;
+			m_timeout = 5000;
+		}
+		if (m_chat_flags & AeroThemeIntegration) {
 			if (QtWin::isCompositionEnabled()) {
 				QtWin::extendFrameIntoClientArea(this);
 				setContentsMargins(0, 0, 0, 0);
 			}
-		}
-		//
-		setProperty("currentIndex",-1);
-		//
-		m_html_message = Config("appearance/adiumChat").group("behavior/widget").value<bool>("htmlMessage",false);
+		}		
 	}
 
 	ChatWidget::~ChatWidget()
@@ -131,7 +135,7 @@ namespace AdiumChat
 		int count = m_sessions.count();
 		for (int i = 0;i!=count;i++)
 			ui->tabBar->removeTab(i);
-		if (m_chat_flags & RemoveSessionOnClose)
+		if (m_remove_session_on_close)
 			qDeleteAll(m_sessions);
 		m_sessions.clear();		
 	}
@@ -147,7 +151,7 @@ namespace AdiumChat
 		if (ui->tabBar->count() == 1)
 			ui->tabBar->setVisible(false);
 		currentIndexChanged(ui->tabBar->currentIndex());
-		if (m_chat_flags & RemoveSessionOnClose)
+		if (m_remove_session_on_close)
 			session->deleteLater();
 	}
 

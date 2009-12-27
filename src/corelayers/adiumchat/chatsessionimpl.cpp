@@ -183,7 +183,6 @@ namespace AdiumChat
 	void ChatSessionImpl::onStatusChanged(qutim_sdk_0_3::Status status)
 	{
 		Contact *contact = qobject_cast<Contact *>(sender());
-		qDebug() << "status changed" << contact->title() << contact->property("statusText").toString();
 		if (!contact && contact->property("silent").toBool())
 			return;
 		QString text = contact->property("statusText").toString();
@@ -209,7 +208,6 @@ namespace AdiumChat
 		connect(unit,SIGNAL(chatStateChanged(ChatState)),SLOT(onChatStateChanged(ChatState)));
 		Contact *c = qobject_cast<Contact *>(unit);
 		if (c) {
-			qDebug() << "connected" << c->title();
 			connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 		}
 	}
