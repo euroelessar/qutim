@@ -35,13 +35,13 @@ namespace qutim_sdk_0_3
 		const char *property;
 		const char *signal;
 	} widget_infos[] =  {
-		{ &QAbstractButton::staticMetaObject,   "checked",      SIGNAL(toggled()) },
-		{ &QAbstractSlider::staticMetaObject,   "value",        SIGNAL(valueChanged()) },
-		{ &QComboBox::staticMetaObject,         "currentIndex", SIGNAL(currentIndexChanged()) },
-		{ &QDateTimeEdit::staticMetaObject,     "dateTime",     SIGNAL(dateTimeChanged()) },
-		{ &QLineEdit::staticMetaObject,         "text",         SIGNAL(textChanged()) },
-		{ &QListWidget::staticMetaObject,       "currentRow",   SIGNAL(currentRowChanged()) },
-		{ &QSpinBox::staticMetaObject,          "value",        SIGNAL(valueChanged()) }
+		{ &QAbstractButton::staticMetaObject,   "checked",      SIGNAL(toggled(bool)) },
+		{ &QAbstractSlider::staticMetaObject,   "value",        SIGNAL(valueChanged(int)) },
+		{ &QComboBox::staticMetaObject,         "currentIndex", SIGNAL(currentIndexChanged(int)) },
+		{ &QDateTimeEdit::staticMetaObject,     "dateTime",     SIGNAL(dateTimeChanged(const QDateTime&)) },
+		{ &QLineEdit::staticMetaObject,         "text",         SIGNAL(textChanged(const QString&)) },
+		{ &QListWidget::staticMetaObject,       "currentRow",   SIGNAL(currentRowChanged(int)) },
+		{ &QSpinBox::staticMetaObject,          "value",        SIGNAL(valueChanged(int)) }
 	};
 
 	struct WidgetInfo
