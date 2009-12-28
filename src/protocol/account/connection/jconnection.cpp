@@ -2,6 +2,8 @@
 #include "../../jprotocol.h"
 #include "../jaccount.h"
 #include "jabber.h"
+#include <gloox/adhoc.h>
+#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -11,12 +13,14 @@ namespace Jabber
 		~JConnectionPrivate() {}
 		JAccount *account;
 		Client *client;
+		Adhoc *adhoc;
 		JConnectionTCPBase *connection;
 		QNetworkProxy proxy;
 		QString resource;
 		bool autoPriority;
 		QMap<Presence::PresenceType, int> priority;
 		QString password;
+		QList<JabberExtension *> extensions;
 	};
 
 	JConnection::JConnection(JAccount *account) : p(new JConnectionPrivate)
@@ -33,15 +37,23 @@ namespace Jabber
 		p->client->disco()->setIdentity("client", "pc");
 		p->client->disco()->addFeature("jabber:iq:roster");
 		p->client->registerPresenceHandler(this);
+		p->adhoc = new Adhoc(p->client);
+
+		JabberParams params;
+		params.addItem<Client>(p->client);
+		params.addItem<Adhoc>(p->adhoc);
 
 		foreach (const ObjectGenerator *gen, moduleGenerators<JabberExtension>()) {
-			if (JabberExtension *ext = gen->generate<JabberExtension>())
-				ext->setClient(p->account, p->client);
+			if (JabberExtension *ext = gen->generate<JabberExtension>()) {
+				p->extensions.append(ext);
+				ext->init(p->account, params);
+			}
 		}
 	}
 
 	JConnection::~JConnection()
 	{
+		qDeleteAll(p->extensions);
 	}
 
 	Client *JConnection::client()

@@ -30,14 +30,14 @@ namespace Jabber
 	void JConnectionBase::resolveHost()
 	{
 		if (m_useDns) { //FIX IT
-			DNS::HostMap hosts = DNS::resolve(m_server, LogSink());
+			static LogSink emptyLogSync;
+			DNS::HostMap hosts = DNS::resolve(m_server, emptyLogSync);
 			DNS::HostMap::iterator h = hosts.begin();
-			for(;h!=hosts.end();h++)
-			{
+			for (; h!=hosts.end(); h++) {
 				QString host = QString::fromStdString(h->first);
 				QString hostr = host;
 				hostr.remove(QRegExp("((\\w|-)+\\.)*(\\w|-)+"));
-				if(hostr.isEmpty() || !QHostAddress( host ).isNull()) {
+				if (hostr.isEmpty() || !QHostAddress( host ).isNull()) {
 					m_server = host.toStdString();
 					m_port = h->second;
 					break;
