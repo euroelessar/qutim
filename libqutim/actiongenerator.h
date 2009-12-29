@@ -24,6 +24,7 @@
 namespace qutim_sdk_0_3
 {
 	class ActionGeneratorPrivate;
+	class MenuController;
 
 	class LIBQUTIM_EXPORT ActionGenerator : public ObjectGenerator
 	{
@@ -34,11 +35,14 @@ namespace qutim_sdk_0_3
 		virtual ~ActionGenerator();
 		QIcon icon() const;
 		const LocalizedString &text() const;
+		const QObject *receiver() const;
+		const char *member() const;
 		ActionGenerator *addProperty(const QByteArray &name, const QVariant &value);
 		int type() const;
 		ActionGenerator *setType(int type);
 		int priority() const;
 		ActionGenerator *setPriority(int priority);
+		void setMenuController(MenuController *controller);
 	protected:
 		QAction *prepareAction(QAction *action) const;
 		virtual QObject *generateHelper() const;

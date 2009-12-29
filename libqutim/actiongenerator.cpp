@@ -15,6 +15,7 @@
 
 #include "actiongenerator.h"
 #include "objectgenerator_p.h"
+#include "menucontroller.h"
 #include <QtGui/QIcon>
 #include <QtGui/QAction>
 
@@ -26,9 +27,10 @@ namespace qutim_sdk_0_3
 		QIcon icon;
 		LocalizedString text;
 		QPointer<QObject> receiver;
-		const char *member;
+		QByteArray member;
 		int type;
 		int priority;
+		MenuController *controller;
 	};
 
 	ActionGenerator::ActionGenerator(const QIcon &icon, const LocalizedString &text, const QObject *receiver, const char *member)
@@ -42,6 +44,7 @@ namespace qutim_sdk_0_3
 		d->member = member;
 		d->type = 0;
 		d->priority = 0;
+		d->controller = 0;
 	}
 
 	ActionGenerator::~ActionGenerator()
@@ -56,6 +59,16 @@ namespace qutim_sdk_0_3
 	const LocalizedString &ActionGenerator::text() const
 	{
 		return d_func()->text;
+	}
+
+	const QObject *ActionGenerator::receiver() const
+	{
+		return d_func()->receiver;
+	}
+
+	const char *ActionGenerator::member() const
+	{
+		return d_func()->member.constData();
 	}
 
 	ActionGenerator *ActionGenerator::addProperty(const QByteArray &name, const QVariant &value)
@@ -85,6 +98,11 @@ namespace qutim_sdk_0_3
 		return this;
 	}
 
+	void ActionGenerator::setMenuController(MenuController *controller)
+	{
+		d_func()->controller = controller;
+	}
+
 	QAction *ActionGenerator::prepareAction(QAction *action) const
 	{
 		Q_D(const ActionGenerator);
@@ -95,6 +113,8 @@ namespace qutim_sdk_0_3
 		action->setParent(d->receiver);
 		action->setIcon(d->icon);
 		action->setText(d->text);
+		if (d->controller)
+			action->setData(QVariant::fromValue(const_cast<MenuController *>(d->controller)));
 		QObject::connect(action, SIGNAL(triggered()), d->receiver, d->member);
 		return action;
 	}

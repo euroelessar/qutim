@@ -118,10 +118,11 @@ namespace qutim_sdk_0_3
 				lastType = act.gen->type();
 				menu->addSeparator();
 			}
-			QAction *action = act.gen->generate<QAction>();
-			action->setParent(currentEntry->menu);
-			action->setData(QVariant::fromValue(const_cast<MenuController *>(this)));
-			currentEntry->menu->addAction(action);
+			const_cast<ActionGenerator *>(act.gen)->setMenuController(const_cast<MenuController *>(this));
+			if (QAction *action = act.gen->generate<QAction>()) {
+				action->setParent(currentEntry->menu);
+				currentEntry->menu->addAction(action);
+			}
 		}
 		return menu;
 	}
