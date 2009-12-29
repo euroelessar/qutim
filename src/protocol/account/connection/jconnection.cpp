@@ -3,7 +3,10 @@
 #include "../jaccount.h"
 #include "jabber.h"
 #include <gloox/adhoc.h>
+#include <gloox/vcardmanager.h>
 #include <qutim/debug.h>
+#include <qutim/systeminfo.h>
+#include <gloox/capabilities.h>
 
 namespace Jabber
 {
@@ -14,6 +17,7 @@ namespace Jabber
 		JAccount *account;
 		Client *client;
 		Adhoc *adhoc;
+		VCardManager *vCardManager;
 		JConnectionTCPBase *connection;
 		QNetworkProxy proxy;
 		QString resource;
@@ -29,19 +33,34 @@ namespace Jabber
 		p->password = QString();
 		JID jid = JID(account->jid().toStdString());
 		p->client = new Client(jid, p->password.toStdString());
+		p->adhoc = new Adhoc(p->client);
+		p->vCardManager = new VCardManager(p->client);
 		p->connection = new JConnectionTCPBase(p->client);
 		loadSettings();
 
+		Capabilities *caps = new Capabilities(p->client->disco());
+		caps->setNode("http://qutim.org");
+		p->client->addPresenceExtension(caps);
+
 		p->client->setConnectionImpl(p->connection);
-		p->client->disco()->setVersion("qutIM", "0.3");
+		p->client->disco()->setVersion("qutIM", qutimVersionStr());
 		p->client->disco()->setIdentity("client", "pc");
 		p->client->disco()->addFeature("jabber:iq:roster");
 		p->client->registerPresenceHandler(this);
-		p->adhoc = new Adhoc(p->client);
+
+		// XEP-0232
+		DataForm *form = new DataForm(TypeResult);
+		form->addField(DataFormField::TypeHidden, "FORM_TYPE", "urn:xmpp:dataforms:softwareinfo");
+		form->addField(DataFormField::TypeNone, "os", SystemInfo::getName().toStdString());
+		form->addField(DataFormField::TypeNone, "os_version", SystemInfo::getVersion().toStdString());
+		form->addField(DataFormField::TypeNone, "software", "qutIM");
+		form->addField(DataFormField::TypeNone, "software_version", qutimVersionStr());
+		p->client->disco()->setForm(form);
 
 		JabberParams params;
 		params.addItem<Client>(p->client);
 		params.addItem<Adhoc>(p->adhoc);
+		params.addItem<VCardManager>(p->vCardManager);
 
 		foreach (const ObjectGenerator *gen, moduleGenerators<JabberExtension>()) {
 			if (JabberExtension *ext = gen->generate<JabberExtension>()) {
@@ -155,8 +174,10 @@ namespace Jabber
 		}
 		p->client->setPresence(presence, p->autoPriority
 				? p->priority.value(presence) : p->priority.value(Presence::Invalid));
-		if (p->client->state() == StateDisconnected)
+		if (p->client->state() == StateDisconnected) {
+			p->client->setXmlLang(QLocale::languageToString(QLocale().language()));
 			p->client->connect(false);
+		}
 		if (presence == Presence::Unavailable)
 			p->client->disconnect();
 	}

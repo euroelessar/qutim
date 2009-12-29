@@ -73,8 +73,10 @@ namespace Jabber
 	{
 		loadActions();
 		QStringList accounts = config("general").value("accounts", QStringList());
-		foreach(const QString &jid, accounts)
-			addAccount(new JAccount(jid));
+		foreach(const QString &id, accounts) {
+			JID jid(id.toStdString());
+			addAccount(new JAccount(QString::fromStdString(jid.bare())));
+		}
 	}
 
 	void JProtocol::addAccount(JAccount *account, bool isEmit)
