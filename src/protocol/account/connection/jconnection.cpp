@@ -175,7 +175,7 @@ namespace Jabber
 		p->client->setPresence(presence, p->autoPriority
 				? p->priority.value(presence) : p->priority.value(Presence::Invalid));
 		if (p->client->state() == StateDisconnected) {
-			p->client->setXmlLang(QLocale::languageToString(QLocale().language()));
+			p->client->setXmlLang(QLocale::languageToString(QLocale().language()).toStdString());
 			p->client->connect(false);
 		}
 		if (presence == Presence::Unavailable)

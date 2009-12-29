@@ -15,6 +15,7 @@ namespace Jabber
 
 	class JContact : public Contact
 	{
+		Q_OBJECT
 		Q_DECLARE_PRIVATE(JContact)
 		public:
 			JContact(const QString &jid, JAccount *account);
