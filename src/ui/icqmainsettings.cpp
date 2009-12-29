@@ -83,4 +83,8 @@ void IcqMainSettings::saveImpl()
 		account->setProperty("avatarsSupport", avatars);
 }
 
+void IcqMainSettings::avatarBoxToggled(bool checked)
+{
+}
+
 } // namespace Icq
