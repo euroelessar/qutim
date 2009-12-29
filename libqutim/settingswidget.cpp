@@ -38,8 +38,8 @@ namespace qutim_sdk_0_3
 		{ &QAbstractButton::staticMetaObject,   "checked",      SIGNAL(toggled(bool)) },
 		{ &QAbstractSlider::staticMetaObject,   "value",        SIGNAL(valueChanged(int)) },
 		{ &QComboBox::staticMetaObject,         "currentIndex", SIGNAL(currentIndexChanged(int)) },
-		{ &QDateTimeEdit::staticMetaObject,     "dateTime",     SIGNAL(dateTimeChanged(const QDateTime&)) },
-		{ &QLineEdit::staticMetaObject,         "text",         SIGNAL(textChanged(const QString&)) },
+		{ &QDateTimeEdit::staticMetaObject,     "dateTime",     SIGNAL(dateTimeChanged(QDateTime)) },
+		{ &QLineEdit::staticMetaObject,         "text",         SIGNAL(textChanged(QString)) },
 		{ &QListWidget::staticMetaObject,       "currentRow",   SIGNAL(currentRowChanged(int)) },
 		{ &QSpinBox::staticMetaObject,          "value",        SIGNAL(valueChanged(int)) }
 	};
@@ -108,6 +108,7 @@ namespace qutim_sdk_0_3
 		saveImpl();
 		p->clearValues();
 		p->sleep = false;
+		emit saved();
 	}
 
 	void SettingsWidget::cancel()

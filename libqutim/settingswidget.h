@@ -39,6 +39,7 @@ namespace qutim_sdk_0_3
 		void cancel();
 	signals:
 		void modifiedChanged(bool have_changes);
+		void saved();
 	protected:
 		virtual void loadImpl() = 0;
 		virtual void saveImpl() = 0;
