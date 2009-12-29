@@ -44,6 +44,7 @@ XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings
 void XSettingsGroup::currentRowChanged ( int index)
 {
 	SettingsWidget *widget = m_setting_list.at(index)->widget();
+	m_all_widgets.insert(widget);
 	if (widget == 0)
 		return;
 	if (ui->stackedWidget->indexOf(widget) == -1) {
@@ -58,7 +59,7 @@ void XSettingsGroup::currentRowChanged ( int index)
 
 XSettingsGroup::~XSettingsGroup()
 {
-
+	qDeleteAll(m_all_widgets);
 }
 
 void XSettingsGroup::onWidgetModifiedChanged(bool haveChanges)

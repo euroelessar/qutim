@@ -43,7 +43,8 @@ namespace Core
 		{
 			return ChatAppearance::tr("Noname");
 		}
-		virtual void setChatState(ChatState state) {};
+
+		virtual void setChatState(ChatState state) {}
 	};
 	class FakeAccount : public Account
 	{
@@ -80,11 +81,15 @@ namespace Core
 			m_page = m_chat_session->getPage();
 			ui->chatPreview->setPage(m_page);
 			makePage();
+			connect(this, SIGNAL(destroyed()), account, SLOT(deleteLater()));
+			connect(this, SIGNAL(destroyed()), m_chat_session, SLOT(deleteLater()));
 		}
 	}
 
 	ChatAppearance::~ChatAppearance()
 	{
+		if (m_page)
+			m_page->deleteLater();
 		delete ui;
 		if (m_chat_session)
 			m_chat_session->deleteLater();

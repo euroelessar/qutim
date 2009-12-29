@@ -16,6 +16,7 @@ EmoticonsSelector::EmoticonsSelector() : ui(new Ui::emoticonsSelector)
 EmoticonsSelector::~EmoticonsSelector()
 {
 	delete ui;
+	clearEmoticonsPreview();
 }
 
 void EmoticonsSelector::loadImpl()
@@ -42,8 +43,8 @@ void EmoticonsSelector::currentIndexChanged(const QString& text)
 	QHash<QString, QStringList>::const_iterator it;
 	clearEmoticonsPreview();
 	for (it = theme_map.constBegin();it != theme_map.constEnd();it ++) {
-		QMovie *emoticon = new QMovie (it.key());
 		QLabel *label = new QLabel();
+		QMovie *emoticon = new QMovie (it.key(), QByteArray(), label);
 		label->setMovie(emoticon);
 		ui->emoticons->layout()->addWidget(label);
 		m_active_emoticons.append(label);
