@@ -81,6 +81,9 @@ namespace Core
 		QString path = dir.absolutePath();
 		QStringList files = dir.entryList(QStringList() << "*.qm", QDir::Files);
 
+		// For jabber's xml:lang
+		QLocale::setDefault(QLocale(lang));
+
 		foreach (const QString &file, files) {
 			QTranslator *translator = new QTranslator(this);
 			if (!translator->load(file, path)) {
