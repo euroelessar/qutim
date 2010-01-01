@@ -1,7 +1,113 @@
 #include "jdataform.h"
+#include <QFormLayout>
 
 namespace Jabber
 {
+
+	void dataform_add_widget_default(QGridLayout *layout, QObject *obj, const QString &label, int row, int column)
+	{
+		QWidget * const widget = static_cast<QWidget *>(obj);
+		layout->addWidget(new QLabel(label, widget->parentWidget()), row, column + 1);
+		layout->addWidget(widget, row, column);
+	}
+
+//		TypeBoolean,              /**< The field enables an entity to gather or provide an either-or
+//									* choice  between two options. The default value is "false". */
+	QObject *dataform_new_instance_boolean(QWidget *parent)
+	{ return new QCheckBox(parent); }
+	void dataform_import_value_boolean(QObject *obj, gloox::DataFormField *field)
+	{ static_cast<QCheckBox *>(obj)->setChecked(field->value() == "1"); }
+	void dataform_export_value_boolean(QObject *obj, gloox::DataFormField *field)
+	{ field->setValue(static_cast<QCheckBox *>(obj)->isChecked() ? "1" : "0"); }
+	void dataform_add_widget_boolean(QGridLayout *layout, QObject *obj, const QString &label, int row, int column)
+	{
+		QCheckBox * const box = static_cast<QCheckBox *>(obj);
+		box->setText(label);
+		layout->addWidget(box, row, column, 1, 2);
+	}
+
+//		TypeFixed,                /**< The field is intended for data description (e.g.,
+//									* human-readable text such as "section" headers) rather than data
+//									* gathering or provision. The &lt;value/&gt; child SHOULD NOT contain
+//									* newlines (the \\n and \\r characters); instead an application SHOULD
+//									* generate multiple fixed fields, each with one &lt;value/&gt; child. */
+	QObject *dataform_new_instance_fixed(QWidget *parent)
+	{ return new QLabel(parent); }
+	void dataform_import_value_fixed(QObject *obj, gloox::DataFormField *field)
+	{ static_cast<QLabel *>(obj)->setText(QString::fromStdString(field->value())); }
+	void dataform_export_value_fixed(QObject *obj, gloox::DataFormField *field)
+	{ field->setValue(static_cast<QLabel *>(obj)->text().toStdString()); }
+	void dataform_add_widget_fixed(QGridLayout *layout, QObject *obj, const QString &label, int row, int column)
+	{
+		QLabel * const widget = static_cast<QLabel *>(obj);
+		widget->setText(label);
+		layout->addWidget(widget, row, column, 1, 2);
+	}
+//		TypeHidden,               /**< The field is not shown to the entity providing information, but
+//									* instead is returned with the form. */
+	QObject *dataform_new_instance_hidden(QWidget *parent)
+	{ return new QObject(parent); }
+	void dataform_import_value_hidden(QObject *obj, gloox::DataFormField *field)
+	{ obj->setProperty("value", QString::fromStdString(field->value())); }
+	void dataform_export_value_hidden(QObject *obj, gloox::DataFormField *field)
+	{ field->setValue(obj->property("value").toString().toStdString()); }
+	void dataform_add_widget_hidden(QGridLayout *layout, QObject *obj, const QString &label, int row, int column)
+	{}
+//		TypeJidMulti,             /**< The field enables an entity to gather or provide multiple Jabber
+//									* IDs.*/
+//		TypeJidSingle,            /**< The field enables an entity to gather or provide a single Jabber
+//									* ID.*/
+//		TypeListMulti,            /**< The field enables an entity to gather or provide one or more options
+//									* from among many. */
+//		TypeListSingle,           /**< The field enables an entity to gather or provide one option from
+//									* among many. */
+//		TypeTextMulti,            /**< The field enables an entity to gather or provide multiple lines of
+//									* text. */
+//		TypeTextPrivate,          /**< The field enables an entity to gather or provide a single line or
+//									* word of text, which shall be obscured in an interface
+//									* (e.g., *****). */
+	QObject *dataform_new_instance_text_private(QWidget *parent)
+	{
+		QLineEdit * const lineEdit = new QLineEdit(parent);
+		lineEdit->setEchoMode(QLineEdit::Password);
+		return lineEdit;
+	}
+//		TypeTextSingle,           /**< The field enables an entity to gather or provide a single line or
+//									* word of text, which may be shown in an interface. This field type is
+//									* the default and MUST be assumed if an entity receives a field type it
+//									* does not understand.*/
+	QObject *dataform_new_instance_text_single(QWidget *parent)
+	{ return new QLineEdit(parent); }
+	void dataform_import_value_text_single(QObject *obj, gloox::DataFormField *field)
+	{ static_cast<QLineEdit *>(obj)->setText(QString::fromStdString(field->value())); }
+	void dataform_export_value_text_single(QObject *obj, gloox::DataFormField *field)
+	{ field->setValue(static_cast<QLineEdit *>(obj)->text().toStdString()); }
+//		TypeNone,                 /**< The field is child of either a &lt;reported&gt; or &lt;item&gt;
+//									* element or has no type attribute. */
+//		TypeInvalid               /**< The field is invalid. Only possible if the field was created from
+//									* a Tag not correctly describing a Data Form Field. */
+
+
+	static struct NewJDataFormElement
+	{
+		QObject *(*new_instance)(QWidget *parent);
+		void (*import_value)(QObject *obj, gloox::DataFormField *field);
+		void (*export_value)(QObject *obj, gloox::DataFormField *field);
+		void (*add_widget)(QGridLayout *layout, QObject *obj, const QString &label, int row, int column);
+	} dataform_elements[]  =
+	{
+		{ &dataform_new_instance_boolean, &dataform_import_value_boolean, &dataform_export_value_boolean, &dataform_add_widget_boolean },
+		{ &dataform_new_instance_fixed, &dataform_import_value_fixed, &dataform_export_value_fixed, &dataform_add_widget_fixed },
+		{ &dataform_new_instance_hidden, &dataform_import_value_hidden, &dataform_export_value_hidden, &dataform_add_widget_hidden },
+		{ 0, 0, 0, &dataform_add_widget_default },
+		{ 0, 0, 0, &dataform_add_widget_default },
+		{ 0, 0, 0, &dataform_add_widget_default },
+		{ 0, 0, 0, &dataform_add_widget_default },
+		{ 0, 0, 0, &dataform_add_widget_default },
+		{ &dataform_new_instance_text_private, &dataform_import_value_text_single, &dataform_export_value_text_single, &dataform_add_widget_default},
+		{ &dataform_new_instance_text_single, &dataform_import_value_text_single, &dataform_export_value_text_single, &dataform_add_widget_default}
+	};
+
 	struct JDataFormPrivate
 	{
 		JDataFormPrivate()
@@ -76,7 +182,7 @@ namespace Jabber
 				df->dfSetValue(QString::fromStdString(field->value()));
 				p->fields.append(df);
 			} else if (field->type() != DataFormField::TypeBoolean) {
-				label->setText(QString::fromStdString(field->value()));
+				label->setText(QString::fromStdString(field->label()));
 				label->setWordWrap(true);
 			}
 			if (field->type() == DataFormField::TypeHidden)

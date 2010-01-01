@@ -2,6 +2,9 @@
 #include "account/jaccount.h"
 #include <qutim/icon.h>
 
+#include <gloox/dataform.h>
+#include "account/dataform/jdataform.h"
+
 namespace Jabber
 {
 	struct JProtocolPrivate
@@ -17,6 +20,11 @@ namespace Jabber
 	{
 		Q_ASSERT(!self);
 		self = this;
+
+		gloox::DataForm *form = new gloox::DataForm(gloox::TypeForm, "cool title");
+		form->addField(DataFormField::TypeTextSingle, "text-single", "uau, value", "cool label");
+		JDataForm *jForm = new JDataForm(form, false);
+		jForm->show();
 	}
 
 	JProtocol::~JProtocol()
