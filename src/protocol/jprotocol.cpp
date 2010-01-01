@@ -23,6 +23,14 @@ namespace Jabber
 
 		gloox::DataForm *form = new gloox::DataForm(gloox::TypeForm, "cool title");
 		form->addField(DataFormField::TypeTextSingle, "text-single", "uau, value", "cool label");
+		{
+			DataFormField *field = new DataFormField(DataFormField::TypeListSingle);
+			field->setLabel("hello! choose me!");
+			field->addOption("1231", "1231");
+			field->addOption("1232", "1232");
+			field->addOption("1233", "1233");
+			form->addField(field);
+		}
 		JDataForm *jForm = new JDataForm(form, false);
 		jForm->show();
 	}
