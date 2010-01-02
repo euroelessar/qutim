@@ -39,14 +39,10 @@ namespace Jabber
 	}
 	void dataform_import_value_fixed(QObject *obj, gloox::DataFormField *field)
 	{ static_cast<QLabel *>(obj)->setText(QString::fromStdString(field->value())); }
-	void dataform_export_value_fixed(QObject *obj, gloox::DataFormField *field)
-	{ field->setValue(static_cast<QLabel *>(obj)->text().toStdString()); }
+//	void dataform_export_value_fixed(QObject *obj, gloox::DataFormField *field)
+//	{ field->setValue(static_cast<QLabel *>(obj)->text().toStdString()); }
 	void dataform_add_widget_fixed(QGridLayout *layout, QObject *obj, const QString &label, int row, int column)
-	{
-		QLabel * const widget = static_cast<QLabel *>(obj);
-		widget->setText(label);
-		layout->addWidget(widget, row, column, 1, 2);
-	}
+	{ layout->addWidget(static_cast<QLabel *>(obj), row, column, 1, 2); }
 //		TypeHidden,               /**< The field is not shown to the entity providing information, but
 //									* instead is returned with the form. */
 	QObject *dataform_new_instance_hidden(QWidget *parent)
@@ -145,10 +141,13 @@ namespace Jabber
 		  &dataform_export_value_boolean, &dataform_add_widget_boolean },
 //		TypeFixed
 		{ 0, 0, &dataform_new_instance_fixed, &dataform_import_value_fixed,
-		  &dataform_export_value_fixed, &dataform_add_widget_fixed },
+		  0, &dataform_add_widget_fixed },
 //		TypeHidden
-		{ 0, 0, &dataform_new_instance_hidden, &dataform_import_value_hidden,
+		{ 0, 0, 0, 0,
+		  0, 0 },
+	/*	{ 0, 0, &dataform_new_instance_hidden, &dataform_import_value_hidden,
 		  &dataform_export_value_hidden, &dataform_add_widget_hidden },
+	*/
 //		TypeJidMulti
 		{ 0, 0, 0, 0,
 		  0, &dataform_add_widget_default },
@@ -199,64 +198,17 @@ namespace Jabber
 		int fieldCount = fields.count();
 		for (int num = 0; num < fieldCount; num++) {
 			DataFormField *field = fields[num];
+			if (field->type() >= (sizeof(dataform_elements)/sizeof(NewJDataFormElement))
+				|| !dataform_elements[field->type()].new_instance)
+				continue;
 			NewJDataFormElement *elem = new NewJDataFormElement(dataform_elements[field->type()]);
 			elem->obj = (*elem->new_instance)(this);
 			elem->obj->setObjectName(QString::fromStdString(field->name()));
 			elem->field = field;
-			(*elem->import_value)(elem->obj, field);
+			if (elem->import_value)
+				(*elem->import_value)(elem->obj, field);
 			p->fields.append(elem);
-//
-//			QLabel *label = new QLabel();
-//			JDataFormElement *df = 0;
-//			switch (field->type()) {
-//			case DataFormField::TypeTextPrivate:
-//				df = new JDFSingleText();
-//				qobject_cast<JDFSingleText *>(df->instance())->setEchoMode(QLineEdit::Password);
-//				break;
-//			case DataFormField::TypeTextSingle:
-//				df = new JDFSingleText();
-//				//widget = line_edits.last();
-//				break;
-//			case DataFormField::TypeTextMulti:
-//				df = new JDFMultiText();
-//				//widget = text_edits.last();
-//				break;
-//			case DataFormField::TypeBoolean:
-//				df = new JDFBoolean();
-//				qobject_cast<JDFBoolean *>(df->instance())->setText(QString::fromStdString(field->label()));
-//				break;
-//			case DataFormField::TypeHidden:
-//				df = new JDFHidden();
-//				break;
-//			case DataFormField::TypeListSingle:
-//				df = new JDFSingleList();
-//				{
-//					StringMultiMap options = field->options();
-//					StringMultiMap::const_iterator it2 = options.begin();
-//					for( ; it2 != options.end(); ++it2 )
-//						qobject_cast<JDFSingleList *>(df->instance())->addItem(
-//								QString::fromStdString((*it2).first),
-//								QString::fromStdString((*it2).second));
-//				}
-//				break;
-//			case DataFormField::TypeListMulti:
-//				df = new JDFMultiList();
-//				break;
-//			case DataFormField::TypeJidSingle:
-//				df = new JDFSingleJID();
-//				break;
-//			case DataFormField::TypeJidMulti:
-//				df = new JDFMultiJID();
-//				break;
-//			}
-//			if (field->type() != DataFormField::TypeFixed) {
-//				df->dfSetName(QString::fromStdString(field->name()));
-//				df->dfSetValue(QString::fromStdString(field->value()));
-//				p->fields.append(df);
-//			} else if (field->type() != DataFormField::TypeBoolean) {
-//				label->setText(QString::fromStdString(field->label()));
-//				label->setWordWrap(true);
-//			}
+
 			if (field->type() == DataFormField::TypeHidden)
 				continue;
 
@@ -271,7 +223,8 @@ namespace Jabber
 				row--;
 				column = 2;
 			}
-			(*elem->add_widget)(layout, elem->obj, QString::fromStdString(field->label()), row, column);
+			if (elem->add_widget)
+				(*elem->add_widget)(layout, elem->obj, QString::fromStdString(field->label()), row, column);
 			skip = !skip;
 		}
 	}
@@ -283,8 +236,10 @@ namespace Jabber
 	DataForm *JDataForm::getDataForm()
 	{
 		foreach (NewJDataFormElement *dataField, p->fields) {
-			std::string name = dataField->obj->objectName().toStdString();
-			(*dataField->export_value)(dataField->obj, p->form->field(name));
+			if (dataField->export_value) {
+				std::string name = dataField->obj->objectName().toStdString();
+				(*dataField->export_value)(dataField->obj, p->form->field(name));
+			}
 		}
 		return new DataForm(*p->form);
 	}
