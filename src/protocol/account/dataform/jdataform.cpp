@@ -41,21 +41,12 @@ namespace Jabber
 	}
 	void dataform_import_value_fixed(QObject *obj, gloox::DataFormField *field)
 	{ static_cast<QLabel *>(obj)->setText(QString::fromStdString(field->value())); }
-//	void dataform_export_value_fixed(QObject *obj, gloox::DataFormField *field)
-//	{ field->setValue(static_cast<QLabel *>(obj)->text().toStdString()); }
 	void dataform_add_widget_fixed(QGridLayout *layout, QObject *obj, const QString &label, int row, int column)
 	{ layout->addWidget(static_cast<QLabel *>(obj), row, column, 1, 2); }
 //		TypeHidden,               /**< The field is not shown to the entity providing information, but
 //									* instead is returned with the form. */
-	QObject *dataform_new_instance_hidden(QWidget *parent)
-	{ return new QObject(parent); }
-	void dataform_import_value_hidden(QObject *obj, gloox::DataFormField *field)
-	{ obj->setProperty("value", QString::fromStdString(field->value())); }
-	void dataform_export_value_hidden(QObject *obj, gloox::DataFormField *field)
-	{ field->setValue(obj->property("value").toString().toStdString()); }
-	void dataform_add_widget_hidden(QGridLayout *layout, QObject *obj, const QString &label, int row, int column)
-	{}
-//+		TypeJidMulti,             /**< The field enables an entity to gather or provide multiple Jabber
+
+//		TypeJidMulti,             /**< The field enables an entity to gather or provide multiple Jabber
 //									* IDs.*/
 	JDataFormJidMulti::JDataFormJidMulti(QWidget *parent) : QListWidget(parent)
 	{
@@ -134,7 +125,7 @@ namespace Jabber
 		lineEdit->setValidator(new JJidValidator(EmptyString, lineEdit));
 		return lineEdit;
 	}
-//+		TypeListMulti,            /**< The field enables an entity to gather or provide one or more options
+//		TypeListMulti,            /**< The field enables an entity to gather or provide one or more options
 //									* from among many. */
 	QObject *dataform_new_instance_list_multi(QWidget *parent)
 	{
@@ -182,7 +173,7 @@ namespace Jabber
 		QComboBox * const box = static_cast<QComboBox *>(obj);
 		field->setValue(box->itemData(box->currentIndex()).toString().toStdString());
 	}
-//+		TypeTextMulti,            /**< The field enables an entity to gather or provide multiple lines of
+//		TypeTextMulti,            /**< The field enables an entity to gather or provide multiple lines of
 //									* text. */
 	QObject *dataform_new_instance_text_multi(QWidget *parent)
 	{ return new QTextEdit(parent); }
@@ -249,9 +240,6 @@ namespace Jabber
 //		TypeHidden
 		{ 0, 0, 0, 0,
 		  0, 0 },
-	/*	{ 0, 0, &dataform_new_instance_hidden, &dataform_import_value_hidden,
-		  &dataform_export_value_hidden, &dataform_add_widget_hidden },
-	*/
 //		TypeJidMulti
 		{ 0, 0, &dataform_new_instance_jid_multi, &dataform_import_value_jid_multi,
 		  &dataform_export_value_jid_multi, &dataform_add_widget_jid_multi },
@@ -341,14 +329,14 @@ namespace Jabber
 
 	DataForm *JDataForm::getDataForm()
 	{
+		DataForm *form = new DataForm(*p->form);
+		form->setType(TypeSubmit);
 		foreach (NewJDataFormElement *dataField, p->fields) {
 			if (dataField->export_value) {
 				std::string name = dataField->obj->objectName().toStdString();
-				(*dataField->export_value)(dataField->obj, p->form->field(name));
+				(*dataField->export_value)(dataField->obj, form->field(name));
 			}
 		}
-		DataForm *form = new DataForm(*p->form);
-		form->setType(TypeSubmit);
 		return form;
 	}
 }

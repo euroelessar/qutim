@@ -14,14 +14,6 @@
 
 namespace Jabber
 {
-	class JDataFormHidden : public QObject
-	{
-		Q_OBJECT
-	public:
-		JDataFormHidden(QObject *parent) : QObject(parent) {}
-		virtual ~JDataFormHidden() {}
-	};
-
 	class JDataFormJidMultiItemDelegate : public QStyledItemDelegate
 	{
 		Q_OBJECT
