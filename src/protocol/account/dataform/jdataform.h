@@ -7,7 +7,6 @@
 #include <gloox/dataform.h>
 #include <gloox/dataformfield.h>
 #include <gloox/dataformfieldcontainer.h>
-#include "jdataformwidgets.h"
 
 namespace Jabber
 {

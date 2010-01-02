@@ -5,6 +5,12 @@
 #include "../../jjidvalidator.h"
 #include <QStyledItemDelegate>
 #include <QPushButton>
+#include <QLineEdit>
+#include <QListWidget>
+#include <QLabel>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QTextEdit>
 
 namespace Jabber
 {
