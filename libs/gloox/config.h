@@ -21,7 +21,7 @@
 #elif defined( __SYMBIAN32__ )
 # include "config.h.symbian"
 #else
-# include "config.h.unix" // run ./configure to create config.h.unix
+# include "config.h.unix"
 #endif
 
 #endif // CONFIG_H__
