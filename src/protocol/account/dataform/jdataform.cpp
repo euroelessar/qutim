@@ -1,3 +1,19 @@
+/****************************************************************************
+ *  jdataform.cpp
+ *
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                     by Denis Daschenko <daschenko@gmail.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include "jdataform_p.h"
 #include <qutim/icon.h>
 #include <QGridLayout>
@@ -279,9 +295,10 @@ namespace Jabber
 	};
 
 	JDataForm::JDataForm(const DataForm *form, bool twocolumn, QWidget *parent)
-			: QWidget(parent), p(new JDataFormPrivate)
+			: QWidget(parent), d_ptr(new JDataFormPrivate)
 	{
-		p->form = new DataForm(*form);
+		Q_D(JDataForm);
+		d->form = new DataForm(*form);
 		QGridLayout *layout = new QGridLayout();
 		setLayout(layout);
 		QList<DataFormField*> fields = QList<DataFormField*>::fromStdList(form->fields());
@@ -298,7 +315,7 @@ namespace Jabber
 			elem->field = field;
 			if (elem->import_value)
 				(*elem->import_value)(elem->obj, field);
-			p->fields.append(elem);
+			d->fields.append(elem);
 
 			if (!elem->add_widget)
 				continue;
@@ -329,9 +346,10 @@ namespace Jabber
 
 	DataForm *JDataForm::getDataForm()
 	{
-		DataForm *form = new DataForm(*p->form);
+		Q_D(JDataForm);
+		DataForm *form = new DataForm(*d->form);
 		form->setType(TypeSubmit);
-		foreach (NewJDataFormElement *dataField, p->fields) {
+		foreach (NewJDataFormElement *dataField, d->fields) {
 			if (dataField->export_value) {
 				std::string name = dataField->obj->objectName().toStdString();
 				(*dataField->export_value)(dataField->obj, form->field(name));
