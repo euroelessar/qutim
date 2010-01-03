@@ -59,7 +59,10 @@ namespace gloox
   void ChatStateFilter::decorate( Message& msg )
   {
     if( m_enableChatStates )
+    {
+      m_lastSent = ChatStateActive;
       msg.addExtension( new ChatState( ChatStateActive ) );
+    }
   }
 
 }

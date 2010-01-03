@@ -1,5 +1,6 @@
 #include "jaccount.h"
 #include "roster/jroster.h"
+#include "roster/jmessagehandler.h"
 #include "../jprotocol.h"
 
 namespace Jabber {
@@ -11,6 +12,7 @@ namespace Jabber {
 		JConnection *connection;
 		JRoster *roster;
 		JConnectionListener *connectionListener;
+		JMessageHandler *messageHandler;
 		QString jid;
 		QString passwd;
 		bool keepStatus;
@@ -25,6 +27,7 @@ namespace Jabber {
 		p->connection = new JConnection(this);
 		p->connectionListener = new JConnectionListener(this);
 		p->roster = new JRoster(this);
+		p->messageHandler = new JMessageHandler(this);
 		loadSettings();
 		autoconnect();
 	}
@@ -33,9 +36,16 @@ namespace Jabber {
 	{
 	}
 
+	ChatUnit *JAccount::getUnitForSession(ChatUnit *unit)
+	{
+		return p->messageHandler->getSession(unit);
+	}
+
 	ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 	{
-		return 0;
+		if (ChatUnit *unit = p->messageHandler->getSession(unitId))
+			return unit;
+		return p->roster->contact(unitId, create);
 	}
 
 	void JAccount::beginChangeStatus(Presence::PresenceType presence)
@@ -99,6 +109,11 @@ namespace Jabber {
 	JConnection *JAccount::connection()
 	{
 		return p->connection;
+	}
+
+	gloox::Client *JAccount::client()
+	{
+		return p->connection->client();
 	}
 } // Jabber namespace
 

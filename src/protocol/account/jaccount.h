@@ -25,6 +25,7 @@ namespace Jabber {
 			virtual ~JAccount();
 			//virtual void setStatus(Status status);
 			//Roster *roster();
+			ChatUnit *getUnitForSession(ChatUnit *unit);
 			ChatUnit *getUnit(const QString &unitId, bool create = false);
 			void beginChangeStatus(Presence::PresenceType presence);
 			void endChangeStatus(Presence::PresenceType presence);
@@ -32,6 +33,7 @@ namespace Jabber {
 			const QString &password(bool *ok = 0);
 			void autoconnect();
 			JConnection *connection();
+			gloox::Client *client();
 		protected:
 			void loadSettings();
 		private:

@@ -107,7 +107,7 @@ namespace Jabber
 
 	void JContact::addResource(const QString &resource)
 	{
-		JContactResource *res = new JContactResource(d_func()->account);
+		JContactResource *res = new JContactResource(this, resource);
 		d_func()->resources.insert(resource, res);
 	}
 

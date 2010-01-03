@@ -21,6 +21,7 @@ namespace Jabber
 		public:
 			JRoster(JAccount *account);
 			~JRoster();
+			ChatUnit *contact(const QString &jid, bool create = false);
 		protected:
 			void handleItemAdded(const JID &jid);
 			void handleItemSubscribed(const JID &jid);

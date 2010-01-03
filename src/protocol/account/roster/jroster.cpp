@@ -23,6 +23,27 @@ namespace Jabber
 	{
 	}
 
+	ChatUnit *JRoster::contact(const QString &id, bool create)
+	{
+		JID jid(id.toStdString());
+		QString bare = id.contains('/') ? QString::fromStdString(jid.bare()) : id;
+		QString resourceId = id == bare ? QString() : QString::fromStdString(jid.resource());
+		JContact *contact = p->contacts.value(bare);
+		if (!resourceId.isEmpty()) {
+			if (JContactResource *resource = contact->resource(resourceId))
+				return resource;
+			if (create) {
+				// TODO: implement logic
+				return 0;
+			}
+		} else if (contact) {
+			return contact;
+		} else if (create) {
+			// TODO: implement logic
+			return 0;
+		}
+	}
+
 	void JRoster::handleItemAdded(const JID &jid)
 	{
 		/*QString key(QString::fromStdString(jid.bare()));

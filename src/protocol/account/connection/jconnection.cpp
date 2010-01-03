@@ -68,6 +68,26 @@ namespace Jabber
 				ext->init(p->account, params);
 			}
 		}
+
+		p->client->disco()->addFeature("http://jabber.org/protocol/chatstates");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/bytestreams");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/si");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/si/profile/file-transfer");
+		p->client->disco()->addFeature("http://jabber.org/protocol/disco#info");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/commands");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/rosterx");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/muc");
+		p->client->disco()->addFeature("jabber:x:data");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/activity+notify");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/mood+notify");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/tune+notify");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/physloc+notify");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/geoloc+notify");
+//		p->client->disco()->addFeature("http://www.xmpp.org/extensions/xep-0084.html#ns-metadata+notify");
+		p->client->disco()->addFeature("urn:xmpp:receipts");
+		p->client->disco()->addFeature("http://jabber.org/protocol/xhtml-im");
+//		p->client->disco()->addFeature("urn:xmpp:tmp:sxe");
+//		p->client->disco()->addFeature("http://www.w3.org/2000/svg");
 	}
 
 	JConnection::~JConnection()
