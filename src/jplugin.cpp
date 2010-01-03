@@ -1,6 +1,7 @@
 #include "jplugin.h"
 #include "protocol/jprotocol.h"
 #include "protocol/jaccountwizard.h"
+#include "protocol/modules/xmlconsole/xmlconsole.h"
 
 namespace Jabber
 {
@@ -47,6 +48,10 @@ namespace Jabber
 			QT_TRANSLATE_NOOP("Plugin", "Account creator for QIP"),
 			new GeneralGenerator<QIPAccountWizard>(),
 			ExtensionIcon("im-qip"));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber XML console"),
+			QT_TRANSLATE_NOOP("Plugin", "XML console for low-level protocol debugging"),
+			new GeneralGenerator<XmlConsole, JabberExtension>(),
+			ExtensionIcon("utilities-terminal"));
 	}
 
 	bool JPlugin::load()

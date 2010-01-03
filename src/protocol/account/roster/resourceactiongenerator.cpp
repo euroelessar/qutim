@@ -8,17 +8,17 @@ namespace Jabber
 {
 using namespace qutim_sdk_0_3;
 
-ResourceActionGenerator::ResourceActionGenerator(const QIcon &icon, const LocalizedString &text,
+JResourceActionGenerator::JResourceActionGenerator(const QIcon &icon, const LocalizedString &text,
 												 const QObject *receiver, const char *member)
 		: ActionGenerator(icon, text, receiver, member)
 {
 }
 
-ResourceActionGenerator::~ResourceActionGenerator()
+JResourceActionGenerator::~JResourceActionGenerator()
 {
 }
 
-QObject *ResourceActionGenerator::generateHelper() const
+QObject *JResourceActionGenerator::generateHelper() const
 {
 	QAction *action = prepareAction(new QAction(NULL));
 	if (JContact *contact = qobject_cast<JContact *>(action->data().value<MenuController *>())) {

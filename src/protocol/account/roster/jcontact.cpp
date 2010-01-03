@@ -73,7 +73,7 @@ namespace Jabber
 			rosterManager->remove(d->jid.toStdString());
 	}
 
-	inline gloox::ChatStateType qutimToGloox(qutim_sdk_0_3::ChatState state)
+	inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)
 	{
 		switch (state) {
 		case qutim_sdk_0_3::ChatStateActive:
@@ -96,7 +96,7 @@ namespace Jabber
 		Q_D(JContact);
 		Client *client = d->account->connection()->client();
 		gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
-		gmes.addExtension(new gloox::ChatState(qutimToGloox(state)));
+		gmes.addExtension(new gloox::ChatState(qutIM2gloox(state)));
 		client->send(gmes);
 	}
 
@@ -114,6 +114,7 @@ namespace Jabber
 	void JContact::setStatus(const QString &resource, Presence::PresenceType presence, int priority)
 	{
 		Q_D(JContact);
+		Status oldStatus = status();
 		if (presence == Presence::Unavailable) {
 			if (d->resources.contains(resource))
 				removeResource(resource);
@@ -123,6 +124,9 @@ namespace Jabber
 			d->resources.value(resource)->setStatus(presence, priority);
 			fillMaxResource();
 		}
+		Status newStatus = status();
+		if(oldStatus != newStatus)
+			emit statusChanged(newStatus);
 	}
 
 	void JContact::removeResource(const QString &resource)
@@ -134,6 +138,13 @@ namespace Jabber
 	Status JContact::status() const
 	{
 		Q_D(const JContact);
+		qDebug() << "status" << d->currentResources
+				<< (d->currentResources.isEmpty()
+					? Presence::Unavailable
+					: d->resources.value(d->currentResources.first())->status())
+				<< JProtocol::presenceToStatus(d->currentResources.isEmpty()
+											   ? Presence::Unavailable
+											   : d->resources.value(d->currentResources.first())->status());
 		return JProtocol::presenceToStatus(d->currentResources.isEmpty()
 				? Presence::Unavailable
 				: d->resources.value(d->currentResources.first())->status());

@@ -1,7 +1,8 @@
 #include "jprotocol.h"
 #include "account/jaccount.h"
 #include <qutim/icon.h>
-
+#include "account/roster/resourceactiongenerator.h"
+#include "account/roster/jcontact.h"
 #include <gloox/dataform.h>
 #include "account/dataform/jdataform.h"
 
@@ -81,6 +82,10 @@ namespace Jabber
 			addAccount(new JAccount(QString::fromStdString(jid.bare())));
 		}
 
+		MenuController::addAction<JContact>(
+				new JResourceActionGenerator(QIcon(),
+											 QT_TRANSLATE_NOOP("Test", "Test action"),
+											 this, SLOT(onStatusActionPressed())));
 		gloox::DataForm *form = new gloox::DataForm(gloox::TypeForm, "cool title");
 		form->addField(DataFormField::TypeTextSingle, "text-single", "uau, value", "cool label");
 		form->addField(DataFormField::TypeJidSingle, "jid-single", "test@qutim.org", "jid label");
@@ -164,7 +169,7 @@ namespace Jabber
 	Status JProtocol::presenceToStatus(Presence::PresenceType presence)
 	{
 		Status status;
-		switch (status) {
+		switch (presence) {
 		case Presence::Available:
 			status = Online;
 			break;

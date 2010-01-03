@@ -1,7 +1,7 @@
 #include "jconnection.h"
 #include "../../jprotocol.h"
 #include "../jaccount.h"
-#include "jabber.h"
+#include "sdk/jabber.h"
 #include <gloox/adhoc.h>
 #include <gloox/vcardmanager.h>
 #include <qutim/debug.h>
@@ -175,7 +175,7 @@ namespace Jabber
 		p->client->setPresence(presence, p->autoPriority
 				? p->priority.value(presence) : p->priority.value(Presence::Invalid));
 		if (p->client->state() == StateDisconnected) {
-			p->client->setXmlLang(QLocale::languageToString(QLocale().language()).toStdString());
+			p->client->setXmlLang(QLocale().name().section('_', 0, 0).toStdString());
 			p->client->connect(false);
 		}
 		if (presence == Presence::Unavailable)

@@ -89,6 +89,7 @@ namespace Jabber
 
 	void JRoster::handleRoster(const Roster &roster)
 	{
+		qDeleteAllLater(p->contacts);
 		p->contacts.clear();
 		std::map<const std::string, RosterItem *>::const_iterator items = roster.begin();
 		for(; items != roster.end(); ++items) {
@@ -138,7 +139,7 @@ namespace Jabber
 		QString resource(QString::fromStdString(presence.from().resource()));
 		 if (jid == p->account->jid())
 			 return;
-		debug() << jid << resource;
+		debug() << QString::fromStdString(presence.from().full()) << jid << resource;
 		if (!p->contacts.contains(jid)) {
 			JContact *contact = new JContact(jid, p->account);
 			JContactPrivate *c_d = contact->d_func();

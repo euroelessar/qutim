@@ -1,6 +1,7 @@
 #include "jconnectionlistener.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
+#include <qutim/notificationslayer.h>
 #include <QDebug>
 
 namespace Jabber
@@ -211,6 +212,7 @@ namespace Jabber
 					break;
 			}
 			// somes actions with s
+			Notifications::sendNotification(s, tr("System error"));
 			qDebug() << "ERROR" << s;
 		}
 	}
