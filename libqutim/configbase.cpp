@@ -22,8 +22,6 @@
 #include <QStringBuilder>
 #include <QCache>
 
-#include <QDebug>
-
 namespace qutim_sdk_0_3
 {
 	QList<ConfigBackendInfo> ConfigPrivate::config_backends = QList<ConfigBackendInfo>();
@@ -44,17 +42,12 @@ namespace qutim_sdk_0_3
 					 % filepath;
 		ConfigEntryInfo *entry_info = cached_entries->object(id);
 		if(entry_info && entry_info->last_change >= info.lastModified())
-		{
-			qDebug("%s from cache", qPrintable(filepath));
 			return *entry_info;
-		}
 		entry_info = new ConfigEntryInfo;
 		entry_info->root = backend->parse(filepath);
 		entry_info->file = filepath;
 		entry_info->backend = backend;
 		entry_info->last_change = info.lastModified();
-//		ConfigEntryInfo entry_info = { backend->parse(filepath), filepath, backend, info.lastModified() };
-		qDebug("%s parsed", qPrintable(filepath));
 		if(entry_info->root.isNull())
 			entry_info->root = ConfigEntry::Ptr(new ConfigEntry());
 		cached_entries->insert(id, entry_info);

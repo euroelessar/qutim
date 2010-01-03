@@ -167,7 +167,7 @@ namespace Core
 		else if (element.nodeName()=="dict") {
 			QString key = "";
 			entry->type = ConfigEntry::Map;
-			qDebug() << "begin dict:";
+//			qDebug() << "begin dict:";
 			for (QDomNode node = val.firstChild(); !node.isNull(); node = node.nextSibling())
 			{
 				if (node.toElement().nodeName()=="key")
@@ -179,13 +179,13 @@ namespace Core
 			}
 		}
 		else if (element.nodeName()=="array") {
-			qDebug() << "begin array:";
+//			qDebug() << "begin array:";
 			entry->type = ConfigEntry::Array;
 			for (QDomNode node = val.firstChild(); !node.isNull(); node = node.nextSibling()) {
 				entry->array.append(generateConfigEntry(node));
 			}
 		}
-		qDebug() << entry->value << entry->type;
+//		qDebug() << entry->value << entry->type;
 		return entry;
 	}
 
