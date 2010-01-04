@@ -30,6 +30,14 @@ namespace Jabber
 		QString resourceId = id == bare ? QString() : QString::fromStdString(jid.resource());
 		JContact *contact = p->contacts.value(bare);
 		if (!resourceId.isEmpty()) {
+			if (!contact) {
+				if (create) {
+					// TODO: implement logic
+					return 0;
+				} else {
+					return 0;
+				}
+			}
 			if (JContactResource *resource = contact->resource(resourceId))
 				return resource;
 			if (create) {

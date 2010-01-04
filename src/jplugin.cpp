@@ -2,6 +2,8 @@
 #include "protocol/jprotocol.h"
 #include "protocol/jaccountwizard.h"
 #include "protocol/modules/xmlconsole/xmlconsole.h"
+#include "protocol/modules/adhoc/jadhocmodule.h"
+#include "protocol/modules/remotecontrol/remotecontrol.h"
 
 namespace Jabber
 {
@@ -51,6 +53,14 @@ namespace Jabber
 		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber XML console"),
 			QT_TRANSLATE_NOOP("Plugin", "XML console for low-level protocol debugging"),
 			new GeneralGenerator<XmlConsole, JabberExtension>(),
+			ExtensionIcon("utilities-terminal"));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber AdHoc"),
+			QT_TRANSLATE_NOOP("Plugin", "Implementation of Ad-hoc Commands"),
+			new GeneralGenerator<JAdHocModule, JabberExtension>(),
+			ExtensionIcon("utilities-terminal"));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Remote Control"),
+			QT_TRANSLATE_NOOP("Plugin", "Implementation of client remote controlling"),
+			new GeneralGenerator<RemoteControl, JabberExtension>(),
 			ExtensionIcon("utilities-terminal"));
 	}
 

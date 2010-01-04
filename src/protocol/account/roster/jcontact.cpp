@@ -138,13 +138,6 @@ namespace Jabber
 	Status JContact::status() const
 	{
 		Q_D(const JContact);
-		qDebug() << "status" << d->currentResources
-				<< (d->currentResources.isEmpty()
-					? Presence::Unavailable
-					: d->resources.value(d->currentResources.first())->status())
-				<< JProtocol::presenceToStatus(d->currentResources.isEmpty()
-											   ? Presence::Unavailable
-											   : d->resources.value(d->currentResources.first())->status());
 		return JProtocol::presenceToStatus(d->currentResources.isEmpty()
 				? Presence::Unavailable
 				: d->resources.value(d->currentResources.first())->status());

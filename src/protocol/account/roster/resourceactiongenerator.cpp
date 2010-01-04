@@ -29,7 +29,8 @@ QObject *JResourceActionGenerator::generateHelper() const
 		QStringList resources = contact->resources();
 		foreach (const QString &resId, resources) {
 			if (JContactResource *resource = contact->resource(resId)) {
-				menu->addAction(Icon("user-status-online"), resId, receiver(), member());
+				QAction *action = menu->addAction(Icon("user-online-jabber"), resId, receiver(), member());
+				action->setData(qVariantFromValue<MenuController *>(resource));
 			}
 		}
 		if (resources.isEmpty())
