@@ -129,7 +129,7 @@ namespace AdiumChat
 // 			ui->membersView->setModel(model);
 		if ((m_chat_flags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
 			killTimer(m_timerid);
-			m_chatstate = ChatStatePaused;
+			m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
 			m_sessions.at(previous_index)->getUnit()->setChatState(m_chatstate);
 		}
 	}
@@ -194,7 +194,6 @@ namespace AdiumChat
 			session->setProperty("unreadMessages",0);
 			QIcon icon = qvariant_cast<QIcon>(session->property("currentIcon"));
 			ui->tabBar->setTabIcon(index,icon);
-			ui->tabBar->setTabText(index,session->getUnit()->title());
 		}		
 	}
 
@@ -300,7 +299,7 @@ namespace AdiumChat
 
 	void ChatWidget::timerEvent(QTimerEvent* e)
 	{
-		m_chatstate = ChatStatePaused;
+		m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
 		ChatUnit *unit = m_sessions.at(ui->tabBar->currentIndex())->getUnit();
 		qDebug() << "paused to" << unit->title();
 		unit->setChatState(m_chatstate);
@@ -321,7 +320,6 @@ namespace AdiumChat
 			int unread_messages = session->property("unreadMessages").toInt()+1;
 			session->setProperty("unreadMessages",unread_messages);
 			ui->tabBar->setTabIcon(index,Icon("mail-unread-new"));
-			ui->tabBar->setTabText(index,tr("%1 (%2 unreaded messages)").arg(session->getUnit()->title()).arg( unread_messages));
 		}
 	}
 

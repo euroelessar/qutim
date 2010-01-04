@@ -99,7 +99,8 @@ namespace qutim_sdk_0_3
 			QString text = message.property("html").toString();
 			if(text.isEmpty())
 				text = message.text();
-			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()),text,message.property("title").toString());
+			QString title = toString(type).arg(message.chatUnit()->title());
+			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()),text,title);
 		}
 
 		QString toString(Notifications::Type type)
