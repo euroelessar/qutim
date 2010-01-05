@@ -8,6 +8,7 @@
 #include <qutim/debug.h>
 #include <qutim/systeminfo.h>
 #include <gloox/capabilities.h>
+#include <gloox/receipt.h>
 
 namespace Jabber
 {
@@ -38,6 +39,8 @@ namespace Jabber
 		p->vCardManager = new VCardManager(p->client);
 		p->connection = new JConnectionTCPBase(p->client);
 		loadSettings();
+
+		p->client->registerStanzaExtension(new Receipt(Receipt::Invalid));
 
 		Capabilities *caps = new Capabilities(p->client->disco());
 		caps->setNode("http://qutim.org");

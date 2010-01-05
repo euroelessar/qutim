@@ -17,6 +17,7 @@
 #include "jmucuser.h"
 #include "../jaccount.h"
 #include "../roster/jmessagesession.h"
+#include "../roster/jmessagehandler.h"
 #include <gloox/uniquemucroom.h>
 #include <qutim/message.h>
 #include <gloox/message.h>
@@ -100,19 +101,22 @@ namespace Jabber
 		if (priv) {
 			JMessageSession *session = qobject_cast<JMessageSession *>(m_account->getUnitForSession(user));
 			if (!session) {
-				session = new JMessageSession(user);
-				session->handleMessage(msg, 0);
+				MessageSession *glooxSession = new MessageSession(m_account->client(), msg.from(), false,
+																  gloox::Message::Chat | gloox::Message::Normal);
+				session = new JMessageSession(m_account->messageHandler(), user, glooxSession);
+				m_account->messageHandler()->setSessionUnit(session, user);
+				session->handleMessage(msg, glooxSession);
 			}
 		} else {
 			qutim_sdk_0_3::Message coreMsg(QString::fromStdString(msg.body()));
 			coreMsg.setChatUnit(user);
 			coreMsg.setIncoming(msg.from().resource() != m_room->nick());
+			ChatSession *chatSession = ChatLayer::get(this, true);
 			if (!coreMsg.isIncoming()) {
 				QHash<std::string, quint64>::iterator it = m_messages.find(msg.id());
 				if (it != m_messages.end()) {
-					quint64 id = it.value();
+					qApp->postEvent(chatSession, new qutim_sdk_0_3::MessageReceiptEvent(it.value(), true));
 					m_messages.erase(it);
-					// TODO: Add message receiving verification
 				}
 				return;
 			}
@@ -120,7 +124,7 @@ namespace Jabber
 				coreMsg.setTime(stamp2date(when->stamp()));
 			if (!msg.subject().empty())
 				coreMsg.setProperty("subject", QString::fromStdString(msg.subject()));
-			ChatLayer::get(this)->appendMessage(coreMsg);
+			chatSession->appendMessage(coreMsg);
 		}
 	}
 

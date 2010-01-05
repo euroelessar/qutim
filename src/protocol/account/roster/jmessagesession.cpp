@@ -4,6 +4,7 @@
 #include "jabber_global.h"
 #include <qutim/message.h>
 #include <gloox/message.h>
+#include <gloox/receipt.h>
 #include <gloox/chatstatefilter.h>
 
 using namespace gloox;
@@ -47,12 +48,58 @@ namespace Jabber
 		}
 	}
 
+	class JMessageReceiptFilter : public MessageFilter
+	{
+	public:
+		JMessageReceiptFilter(JMessageSession *s, MessageSession *p) :
+				MessageFilter(p), m_session(s), m_nextId(0) {}
+		void decorate(gloox::Message &msg);
+		void filter(gloox::Message &msg);
+		inline void setNextId(quint64 id) { m_nextId = id; }
+	protected:
+		JMessageSession *m_session;
+		quint64 m_nextId;
+		QHash<QByteArray, quint64> m_messages;
+	};
+
+	void JMessageReceiptFilter::decorate(gloox::Message &msg)
+	{
+		if (m_nextId) {
+			m_messages.insert(QByteArray(msg.id().data(), msg.id().size()), m_nextId);
+			msg.addExtension(new Receipt(Receipt::Request));
+			m_nextId = 0;
+		}
+	}
+
+	void JMessageReceiptFilter::filter(gloox::Message &msg)
+	{
+		QHash<QByteArray, quint64>::iterator it = m_messages.find(QByteArray(msg.id().data(), msg.id().size()));
+		if (it == m_messages.end()) {
+			if (const Receipt *receipt = msg.findExtension<Receipt>(ExtReceipt)) {
+				if (receipt->rcpt() == Receipt::Request) {
+					gloox::Message message(msg.subtype(), msg.from());
+					message.setID(msg.id());
+					message.addExtension(new Receipt(Receipt::Received));
+					send(message);
+				}
+			}
+			return;
+		}
+		if (const Receipt *receipt = msg.findExtension<Receipt>(ExtReceipt)) {
+			QEvent *ev = new qutim_sdk_0_3::MessageReceiptEvent(it.value(), receipt->rcpt() == Receipt::Received);
+			if (ChatSession *session = ChatLayer::get(m_session, false))
+				qApp->postEvent(session, ev);
+		}
+		m_messages.erase(it);
+	}
+
 	struct JMessageSessionPrivate
 	{
 		JMessageHandler *handler;
 		JAccount *account;
 		MessageSession *session;
 		ChatStateFilter *chatStateFilter;
+		JMessageReceiptFilter *messageReceiptFilter;
 		ChatUnit *unit;
 		bool followChanges;
 	};
@@ -65,6 +112,7 @@ namespace Jabber
 		d->handler = handler;
 		d->session = session;
 		d->chatStateFilter = new ChatStateFilter(d->session);
+		d->messageReceiptFilter = new JMessageReceiptFilter(this, d->session);
 		d->chatStateFilter->registerChatStateHandler(this);
 		d->session->registerMessageHandler(this);
 		d->followChanges = session->threadID().empty();
@@ -99,12 +147,14 @@ namespace Jabber
 
 	QString JMessageSession::title() const
 	{
-		return d_func()->unit->title();
+		Q_D(const JMessageSession);
+		return d->unit ? d->unit->title() : id();
 	}
 
 	void JMessageSession::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
 		Q_D(JMessageSession);
+		d->messageReceiptFilter->setNextId(message.id());
 		d->session->send(message.text().toStdString(), message.property("subject").toString().toStdString());
 		if (d->followChanges) {
 			d->handler->setSessionId(this, id());
