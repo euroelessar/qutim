@@ -21,6 +21,9 @@ endif(QUTIM_PATH)
 
 SET( QT_USE_QTNETWORK TRUE )
 
+if ( WIN32 )
+ADD_DEFINITIONS( -DGLOOX_IMPORTS )
+endif ( WIN32 )
+
 include( ${QUTIM_CMAKE_PLUGIN} )
 ADD_QUTIMPLUGIN_EXT2( "jabber" "src" "" gloox )
-
