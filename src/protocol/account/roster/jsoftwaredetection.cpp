@@ -51,7 +51,7 @@ namespace Jabber
 				unit->setProperty("node", qNode);
 				SoftwareInfoHash::iterator it = m_hash.find(qNode);
 				if (it != m_hash.end()) {
-					SoftwareInfo &info = it->value();
+					SoftwareInfo &info = *it;
 					unit->setProperty("features", qVariantFromValue(info.features));
 					unit->setProperty("client", info.name);
 					unit->setProperty("os", info.os);
@@ -73,14 +73,14 @@ namespace Jabber
 	{
 		if (context == RequestSoftware) {
 			if (const SoftwareVersion *soft = iq.findExtension<SoftwareVersion>(ExtVersion)) {
-				if (ChatUnit *unit = m_account->getUnit(jid, false)) {
-					QString node = unit->property("node");
+				if (ChatUnit *unit = m_account->getUnit(QString::fromStdString(iq.from().full()), false)) {
+					QString node = unit->property("node").toString();
 					QString software = QString::fromStdString(soft->name());
 					QString softwareVersion = QString::fromStdString(soft->version());
 					QString os = QString::fromStdString(soft->os());
 					SoftwareInfoHash::iterator it = m_hash.find(node);
 					if (it != m_hash.end()) {
-						SoftwareInfo &info = &it.value();
+						SoftwareInfo &info = (*it);
 						info.name = software;
 						info.version = softwareVersion;
 						info.os = os;
@@ -91,18 +91,18 @@ namespace Jabber
 		}
 	}
 
-	void JSoftwareDetection::handleDiscoInfo(const JID &from, const Disco::Info &info, int context)
+	void JSoftwareDetection::handleDiscoInfo(const JID &from, const Disco::Info &discoInfo, int context)
 	{
 		Q_ASSERT(context == RequestDisco);
 
-		QString node = QString::fromStdString(info.node());
+		QString node = QString::fromStdString(discoInfo.node());
 
 		SoftwareInfo info;
-		foreach(const std::string &str, info.features())
+		foreach(const std::string &str, discoInfo.features())
 			info.features << QString::fromStdString(str);
 
 		QString jid = QString::fromStdString(from.full());
-		const DataForm *form = info.form();
+		const DataForm *form = discoInfo.form();
 
 		if (DataFormField *field = (form ? form->field("FORM_TYPE") : 0)) {
 			if (field->value() == "urn:xmpp:dataforms:softwareinfo") {
@@ -147,7 +147,7 @@ namespace Jabber
 				iq.addExtension(new SoftwareVersion());
 				m_account->client()->send(iq, this, RequestSoftware);
 			}
-			unit->setProperty("features", qVariantFromValue(caps));
+			unit->setProperty("features", qVariantFromValue(info.features));
 		}
 	}
 
