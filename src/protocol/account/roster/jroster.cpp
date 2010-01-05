@@ -50,6 +50,7 @@ namespace Jabber
 			// TODO: implement logic
 			return 0;
 		}
+		return 0;
 	}
 
 	void JRoster::handleItemAdded(const JID &jid)

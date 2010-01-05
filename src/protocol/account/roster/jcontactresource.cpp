@@ -13,6 +13,7 @@ namespace Jabber
 		QString id;
 		Presence::PresenceType presence;
 		int priority;
+		QSet<QString> features;
 	};
 
 	JContactResource::JContactResource(JContact *contact, const QString &name)
@@ -57,5 +58,30 @@ namespace Jabber
 
 	void JContactResource::setChatState(ChatState state)
 	{
+	}
+
+	QSet<QString> JContactResource::features() const
+	{
+		return p->features;
+	}
+
+	void JContactResource::setFeatures(const QSet<QString> &features)
+	{
+		p->features = features;
+	}
+
+	bool JContactResource::checkFeature(const QLatin1String &feature) const
+	{
+		p->features.contains(feature);
+	}
+
+	bool JContactResource::checkFeature(const QString &feature) const
+	{
+		p->features.contains(feature);
+	}
+
+	bool JContactResource::checkFeature(const std::string &feature) const
+	{
+		p->features.contains(QString::fromStdString(feature));
 	}
 }

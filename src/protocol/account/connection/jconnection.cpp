@@ -1,6 +1,7 @@
 #include "jconnection.h"
 #include "../../jprotocol.h"
 #include "../jaccount.h"
+#include "../roster/jsoftwaredetection.h"
 #include "sdk/jabber.h"
 #include <gloox/adhoc.h>
 #include <gloox/vcardmanager.h>
@@ -57,18 +58,6 @@ namespace Jabber
 		form->addField(DataFormField::TypeNone, "software_version", qutimVersionStr());
 		p->client->disco()->setForm(form);
 
-		JabberParams params;
-		params.addItem<Client>(p->client);
-		params.addItem<Adhoc>(p->adhoc);
-		params.addItem<VCardManager>(p->vCardManager);
-
-		foreach (const ObjectGenerator *gen, moduleGenerators<JabberExtension>()) {
-			if (JabberExtension *ext = gen->generate<JabberExtension>()) {
-				p->extensions.append(ext);
-				ext->init(p->account, params);
-			}
-		}
-
 		p->client->disco()->addFeature("http://jabber.org/protocol/chatstates");
 //		p->client->disco()->addFeature("http://jabber.org/protocol/bytestreams");
 //		p->client->disco()->addFeature("http://jabber.org/protocol/si");
@@ -98,6 +87,23 @@ namespace Jabber
 	Client *JConnection::client()
 	{
 		return p->client;
+	}
+
+	void JConnection::initExtensions()
+	{
+		JabberParams params;
+		params.addItem<Client>(p->client);
+		params.addItem<Adhoc>(p->adhoc);
+		params.addItem<VCardManager>(p->vCardManager);
+
+		new JSoftwareDetection(p->account, params);
+
+		foreach (const ObjectGenerator *gen, moduleGenerators<JabberExtension>()) {
+			if (JabberExtension *ext = gen->generate<JabberExtension>()) {
+				p->extensions.append(ext);
+				ext->init(p->account, params);
+			}
+		}
 	}
 
 	void JConnection::handlePresence(const Presence &presence)

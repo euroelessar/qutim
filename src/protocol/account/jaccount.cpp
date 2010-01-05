@@ -28,6 +28,7 @@ namespace Jabber {
 		p->connectionListener = new JConnectionListener(this);
 		p->roster = new JRoster(this);
 		p->messageHandler = new JMessageHandler(this);
+		p->connection->initExtensions();
 		loadSettings();
 		autoconnect();
 	}

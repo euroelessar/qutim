@@ -27,9 +27,12 @@ namespace Jabber
 		if (!self) {
 			self = new JAdHocModule;
 			self->setParent(account->protocol());
-			ActionGenerator *gen = new JResourceActionGenerator(Icon("utilities-terminal"),
-																QT_TRANSLATE_NOOP("Jabber", "Execute command"),
-																self, SLOT(onActionClicked()));
+			JResourceActionGenerator *gen =
+					new JResourceActionGenerator(Icon("utilities-terminal"),
+												 QT_TRANSLATE_NOOP("Jabber", "Execute command"),
+												 self,
+												 SLOT(onActionClicked()));
+			gen->setFeature(gloox::XMLNS_ADHOC_COMMANDS);
 			MenuController::addAction<JContact>(gen);
 		}
 		self->m_modules.insert(m_account, this);
