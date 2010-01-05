@@ -112,6 +112,11 @@ namespace Jabber {
 		return p->connection;
 	}
 
+	JMessageHandler *JAccount::messageHandler()
+	{
+		return p->messageHandler;
+	}
+
 	gloox::Client *JAccount::client()
 	{
 		return p->connection->client();

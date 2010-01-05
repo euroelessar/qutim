@@ -16,6 +16,7 @@ namespace Jabber {
 	struct JAccountPrivate;
 	class JRoster;
 	class JConnection;
+	class JMessageHandler;
 
 	class JAccount : public Account
 	{
@@ -33,6 +34,7 @@ namespace Jabber {
 			const QString &password(bool *ok = 0);
 			void autoconnect();
 			JConnection *connection();
+			JMessageHandler *messageHandler();
 			gloox::Client *client();
 		protected:
 			void loadSettings();

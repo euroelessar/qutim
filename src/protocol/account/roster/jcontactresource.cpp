@@ -1,25 +1,24 @@
-#include "jcontactresource.h"
+#include "jcontactresource_p.h"
 #include "jcontact.h"
 #include "../jaccount.h"
 #include <QStringBuilder>
 
 using namespace gloox;
+using namespace qutim_sdk_0_3;
 
 namespace Jabber
 {
-	struct JResourcePrivate
+	JContactResource::JContactResource(ChatUnit *parent, const QString &name) :
+			ChatUnit(parent->account()), d_ptr(new JContactResourcePrivate)
 	{
-		JContact *contact;
-		QString id;
-		Presence::PresenceType presence;
-		int priority;
-		QSet<QString> features;
-	};
+		Q_D(JContactResource);
+		d->name = name;
+		d->id = parent->id() % QLatin1Char('/') % name;
+	}
 
-	JContactResource::JContactResource(JContact *contact, const QString &name)
-			: ChatUnit(contact->account()), p(new JResourcePrivate)
+	JContactResource::JContactResource(ChatUnit *parent, JContactResourcePrivate &ptr) :
+			ChatUnit(parent->account()), d_ptr(&ptr)
 	{
-		p->id = contact->id() % QLatin1Char('/') % name;
 	}
 
 	JContactResource::~JContactResource()
@@ -28,7 +27,17 @@ namespace Jabber
 
 	QString JContactResource::id() const
 	{
-		return p->id;
+		return d_func()->id;
+	}
+
+	QString JContactResource::title() const
+	{
+		Q_D(const JContactResource);
+		if (Contact *contact = qobject_cast<Contact *>(d->contact)) {
+			return contact->title() % "/" % d->name;
+		} else {
+			return ChatUnit::title();
+		}
 	}
 
 	void JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
@@ -37,23 +46,24 @@ namespace Jabber
 
 	void JContactResource::setPriority(int priority)
 	{
-		p->priority = priority;
+		d_func()->priority = priority;
 	}
 
 	int JContactResource::priority()
 	{
-		return p->priority;
+		return d_func()->priority;
 	}
 
 	void JContactResource::setStatus(Presence::PresenceType presence, int priority)
 	{
-		p->presence = presence;
-		p->priority = priority;
+		Q_D(JContactResource);
+		d->presence = presence;
+		d->priority = priority;
 	}
 
 	Presence::PresenceType JContactResource::status()
 	{
-		return p->presence;
+		return d_func()->presence;
 	}
 
 	void JContactResource::setChatState(ChatState state)
@@ -62,26 +72,26 @@ namespace Jabber
 
 	QSet<QString> JContactResource::features() const
 	{
-		return p->features;
+		return d_ptr->features;
 	}
 
 	void JContactResource::setFeatures(const QSet<QString> &features)
 	{
-		p->features = features;
+		d_ptr->features = features;
 	}
 
 	bool JContactResource::checkFeature(const QLatin1String &feature) const
 	{
-		p->features.contains(feature);
+		d_ptr->features.contains(feature);
 	}
 
 	bool JContactResource::checkFeature(const QString &feature) const
 	{
-		p->features.contains(feature);
+		d_ptr->features.contains(feature);
 	}
 
 	bool JContactResource::checkFeature(const std::string &feature) const
 	{
-		p->features.contains(QString::fromStdString(feature));
+		d_ptr->features.contains(QString::fromStdString(feature));
 	}
 }

@@ -61,14 +61,29 @@ namespace Jabber
 			: ChatUnit(handler->account()), d_ptr(new JMessageSessionPrivate)
 	{
 		Q_D(JMessageSession);
-		d->handler = handler;
 		d->account = handler->account();
+		d->handler = handler;
 		d->session = session;
 		d->chatStateFilter = new ChatStateFilter(d->session);
 		d->chatStateFilter->registerChatStateHandler(this);
 		d->session->registerMessageHandler(this);
 		d->followChanges = session->threadID().empty();
 		d->unit = unit;
+	}
+
+	JMessageSession::JMessageSession(ChatUnit *unit) :
+			ChatUnit(unit->account()), d_ptr(new JMessageSessionPrivate)
+	{
+		Q_D(JMessageSession);
+		d->account = static_cast<JAccount *>(unit->account());
+		d->handler = d->account->messageHandler();
+		d->session = new MessageSession(d->account->client(), JID(unit->id().toStdString()));
+		d->chatStateFilter = new ChatStateFilter(d->session);
+		d->chatStateFilter->registerChatStateHandler(this);
+		d->session->registerMessageHandler(this);
+		d->followChanges = true;
+		d->unit = unit;
+		d->handler->setSessionUnit(this, unit);
 	}
 
 	JMessageSession::~JMessageSession()
@@ -105,7 +120,7 @@ namespace Jabber
 	void JMessageSession::handleMessage(const gloox::Message &msg, MessageSession *session)
 	{
 		Q_D(JMessageSession);
-		Q_ASSERT(d->session == session);
+		Q_ASSERT((!session) || (d->session == session));
 		if (d->followChanges) {
 			d->handler->setSessionId(this, id());
 			d->followChanges = false;

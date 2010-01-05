@@ -25,6 +25,7 @@ namespace Jabber
 		qutim_sdk_0_3::ChatUnit *getSession(const QString &id);
 		void handleMessageSession(gloox::MessageSession *session);
 		void setSessionId(JMessageSession *session, const QString &id);
+		void setSessionUnit(JMessageSession *session, qutim_sdk_0_3::ChatUnit *unit);
 	private:
 		QScopedPointer<JMessageHandlerPrivate> d_ptr;
 	};

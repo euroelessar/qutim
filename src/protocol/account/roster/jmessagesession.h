@@ -20,6 +20,7 @@ namespace Jabber
 		Q_DECLARE_PRIVATE(JMessageSession)
 	public:
 		JMessageSession(JMessageHandler *handler, ChatUnit *unit, gloox::MessageSession *session);
+		JMessageSession(ChatUnit *unit);
 		~JMessageSession();
 		virtual QString id() const;
 		virtual QString title() const;

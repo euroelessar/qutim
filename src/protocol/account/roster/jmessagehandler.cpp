@@ -63,4 +63,9 @@ namespace Jabber
 	{
 		d_func()->sessions.insert(id, session);
 	}
+
+	void JMessageHandler::setSessionUnit(JMessageSession *session, qutim_sdk_0_3::ChatUnit *unit)
+	{
+		d_func()->unitSessions.insert(unit, session);
+	}
 }
