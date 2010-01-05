@@ -50,27 +50,22 @@ namespace qutim_sdk_0_3
 		qScriptRegisterMetaType(engine, &messageToScriptValue, &messageFromScriptValue);
 	}
 
+	static quint64 message_id = 0;
+
 	class MessagePrivate : public QSharedData
 	{
 	public:
-		MessagePrivate() : in(false), chatUnit(0) { text.clear(); }
+		MessagePrivate() : in(false), chatUnit(0), id(++message_id) { text.clear(); }
 		MessagePrivate(const MessagePrivate &o)
-				: QSharedData(o), text(o.text), time(o.time), in(o.in), chatUnit(o.chatUnit), names(o.names), values(o.values) {}
-		MessagePrivate &operator =(const MessagePrivate &o)
-		{
-			text = o.text;
-			time = o.time;
-			in = o.in;
-			chatUnit = o.chatUnit;
-			names = o.names;
-			values = o.values;
-			return *this;
-		}
+				: QSharedData(o), text(o.text), time(o.time),
+				in(o.in), chatUnit(o.chatUnit), id(++message_id),
+				names(o.names), values(o.values) {}
 		~MessagePrivate() {}
 		QString text;
 		QDateTime time;
 		bool in;
 		ChatUnit *chatUnit;
+		quint64 id;
 		QVariant getText() const { return text; }
 		void setText(const QVariant &val) { text = val.toString(); }
 		QVariant getTime() const { return time; }
@@ -217,6 +212,10 @@ namespace qutim_sdk_0_3
 		return p->chatUnit;
 	}
 
+	quint64 Message::id() const
+	{
+		return p->id;
+	}
 	
 	void Message::setChatUnit ( ChatUnit* chatUnit )
 	{

@@ -44,6 +44,7 @@ namespace qutim_sdk_0_3
 		bool isIncoming() const;
 		void setChatUnit (ChatUnit *chatUnit);
 		const ChatUnit *chatUnit() const;
+		quint64 id() const;
 		// TODO: merge methods
 		QVariant property(const char *name) const;
 		QVariant property(const char *name, const QVariant &def) const;
