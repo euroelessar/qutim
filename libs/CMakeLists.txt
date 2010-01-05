@@ -116,9 +116,9 @@ endif( IDN_FOUND )
 
 ## Windows/Pthreads
 if( WIN32 )
-        list( APPEND LIBS "-lwsock32 -lgdi32 -ldnsapi" )
+	list( APPEND LIBS "wsock32.lib gdi32.lib dnsapi.lib" )
         if( GLOOX_WITH_SCHANNEL )
-                list( LIBS APPEND "-lcrypt32 -lsecur32" )
+		list( LIBS APPEND "crypt32.lib secur32.lib" )
         endif( GLOOX_WITH_SCHANNEL )
         set( HAVE_WINTLS true )
         set( HAVE_WINDNS_H true )
