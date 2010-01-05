@@ -77,6 +77,7 @@ namespace AdiumChat
 		void onTextChanged(); //TODO separate from chatlayer
 		void onMessageReceived(const Message &message);
 		void onMessageSended(const Message &message);
+		void onTabContextMenu(const QPoint &pos);
 	};
 
 }

@@ -18,6 +18,7 @@
 #include "ui_chatwidget.h"
 #include <libqutim/account.h>
 #include <libqutim/icon.h>
+#include <libqutim/menucontroller.h>
 #include <QWebFrame>
 #include <QDebug>
 #include <QTime>
@@ -34,6 +35,7 @@ namespace AdiumChat
 		ui->tabBar->setTabsClosable(true);
 		ui->tabBar->setMovable(true);
 		ui->tabBar->setDocumentMode(true);
+		ui->tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 		//ui->tabBar->setDrawBase(false);
 		//init status and menubar
 		ui->statusbar->setVisible(false);
@@ -44,6 +46,7 @@ namespace AdiumChat
 		connect(ui->tabBar,SIGNAL(currentChanged(int)),SLOT(currentIndexChanged(int)));
 		connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 		connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
+		connect(ui->tabBar,SIGNAL(customContextMenuRequested(QPoint)),SLOT(onTabContextMenu(QPoint)));
 		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
 		
 		ui->chatEdit->installEventFilter(this);
@@ -122,6 +125,7 @@ namespace AdiumChat
 			m_sessions.at(index)->activate();
 		}
 		setProperty("currentIndex",index);
+		ui->chatView->page()->setView(0);
 		ui->chatView->setPage(m_sessions.at(index)->getPage());
 		setWindowTitle(tr("Chat with %1").arg(m_sessions.at(index)->getUnit()->title()));
 		//m_main_toolbar->setData(m_sessions.at(index)->getUnit());
@@ -341,5 +345,14 @@ namespace AdiumChat
 		}
 	}
 
+	void ChatWidget::onTabContextMenu(const QPoint &pos)
+	{
+		int index = ui->tabBar->tabAt(pos);
+		if (index != -1) {
+			if (MenuController *session = m_sessions.value(index)->getUnit()) {
+				session->showMenu(ui->tabBar->mapToGlobal(pos));
+			}
+		}
+	}
 }
 
