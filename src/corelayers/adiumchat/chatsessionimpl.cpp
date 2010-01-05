@@ -80,9 +80,9 @@ namespace AdiumChat
 		qDebug() << "Session removed:";
 	}
 
-	void ChatSessionImpl::addContact ( Contact* c )
+	void ChatSessionImpl::addContact ( ChatUnit* c )
 	{
-		connect(c,SIGNAL(statusChanged(Status)),SLOT(statusChanged(Status)));
+//		connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(statusChanged(qutim_sdk_0_3::Status)));
 	}
 
 	void ChatSessionImpl::appendMessage ( const Message& message )
@@ -136,7 +136,7 @@ namespace AdiumChat
 			m_message_count++;
 	}
 
-	void ChatSessionImpl::removeContact ( Contact* c )
+	void ChatSessionImpl::removeContact ( ChatUnit* c )
 	{
 
 	}

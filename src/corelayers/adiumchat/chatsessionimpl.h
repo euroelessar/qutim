@@ -30,9 +30,9 @@ namespace AdiumChat
 	public:
 		ChatSessionImpl (ChatUnit *unit, ChatLayer* chat );
 		virtual ~ChatSessionImpl();
-		virtual void addContact ( Contact* c );
+		virtual void addContact ( ChatUnit* c );
 		virtual void appendMessage ( const Message& message );		
-		virtual void removeContact ( Contact* c );
+		virtual void removeContact ( ChatUnit* c );
 		QWebPage *getPage() const;
 		Account *getAccount() const;
 		QString getId() const;
