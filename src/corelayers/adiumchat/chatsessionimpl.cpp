@@ -38,6 +38,7 @@ namespace AdiumChat
 		m_store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", false);
 		m_chat_style_output->preparePage(m_web_page,this);
 		m_message_count = 0;
+		m_skipOneMerge = true;
 		loadHistory();
 	}
 
@@ -68,7 +69,8 @@ namespace AdiumChat
 			mess.setChatUnit(getUnit());
 			appendMessage(mess);
 		}
-		m_previous_sender = "";
+		m_previous_sender = 0;
+		m_skipOneMerge = true;
 	}
 
 	ChatSessionImpl::~ChatSessionImpl()
@@ -105,17 +107,21 @@ namespace AdiumChat
 			tmp_message.setText(tmp_message.text().mid(3));
 			tmp_message.setProperty("title",tmp_message.isIncoming() ? tmp_message.chatUnit()->title() : tmp_message.chatUnit()->account()->name());
 			item = m_chat_style_output->makeAction(this,tmp_message,true);
-			m_previous_sender = "";
+			m_previous_sender = 0;
+			m_skipOneMerge = true;
 		}
 		else if (service) {
 			item = m_chat_style_output->makeStatus(this,tmp_message);
-			m_previous_sender = "";
+			m_previous_sender = 0;
+			m_skipOneMerge = true;
 		}
 		else {
-			same_from = (m_previous_sender == (tmp_message.isIncoming()?"nme":"me"));
+			const ChatUnit *currentSender = tmp_message.isIncoming() ? tmp_message.chatUnit() : 0;
+			same_from = (!m_skipOneMerge) && (m_previous_sender == currentSender);
 			item = m_chat_style_output->makeMessage(this, tmp_message, true,
 															same_from );
-			m_previous_sender = (tmp_message.isIncoming()?"nme":"me");
+			m_previous_sender = currentSender;
+			m_skipOneMerge = false;
 		}
 
 		QString result = m_web_page->mainFrame()->evaluateJavaScript(QString("getEditedHtml(\"%1\", \"%2\");")

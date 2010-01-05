@@ -56,7 +56,8 @@ namespace AdiumChat
 		QPointer<QWebPage> m_web_page;
 		QPointer<ChatUnit> m_chat_unit;
 		//additional info and flags
-		QString m_previous_sender; //me or nme (not me) //FIXME need refactoring in future
+		const ChatUnit *m_previous_sender; // zero if outcoming
+		bool m_skipOneMerge;
 		int m_message_count;
 		bool m_active;
 		bool m_store_service_messages;
