@@ -51,7 +51,7 @@ namespace qutim_sdk_0_3
 		QScopedPointer<EventTest> test(new EventTest(0));
 		test->test();
 		QObject::connect(test.data(), SIGNAL(signal()), test.data(), SLOT(test()));
-		EventManager::registerEventHandler("TestSystem", test.data(), &EventTest::testE);
+//		EventManager::registerEventHandler("TestSystem", test.data(), &EventTest::testE);
 		Event event("TestSystem");
 		QutimEvent qevent;
 		qApp->installEventFilter(test.data());

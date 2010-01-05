@@ -222,5 +222,14 @@ namespace qutim_sdk_0_3
 		p->chatUnit = chatUnit;
 	}
 
+	MessageReceiptEvent::MessageReceiptEvent(quint64 id, bool success) :
+			QEvent(eventType()), i(id), s(success)
+	{
+	}
 
+	QEvent::Type MessageReceiptEvent::eventType()
+	{
+		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 101));
+		return type;
+	}
 }

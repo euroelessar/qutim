@@ -19,6 +19,7 @@
 #include "libqutim_global.h"
 #include <QSharedData>
 #include <QVariant>
+#include <QEvent>
 
 class QScriptEngine;
 
@@ -55,6 +56,18 @@ namespace qutim_sdk_0_3
 		QList<QByteArray> dynamicPropertyNames() const;
 	private:
 		QSharedDataPointer<MessagePrivate> p;
+	};
+
+	class LIBQUTIM_EXPORT MessageReceiptEvent : public QEvent
+	{
+	public:
+		MessageReceiptEvent(quint64 id, bool success);
+		inline quint64 id() const { return i; }
+		inline bool success() const { return s; }
+		static QEvent::Type eventType();
+	protected:
+		quint64 i;
+		bool s;
 	};
 
 	typedef QList<Message> MessageList;
