@@ -49,6 +49,7 @@ namespace qutim_sdk_0_3
 	public slots:
 		void showMenu(const QPoint &pos);
 	protected:
+		void setMenuOwner(MenuController *controller);
 		QScopedPointer<MenuControllerPrivate> d_ptr;
 	};
 

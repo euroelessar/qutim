@@ -35,7 +35,10 @@ namespace qutim_sdk_0_3
 	class MenuControllerPrivate
 	{
 	public:
+		MenuControllerPrivate() : owner(0) {}
 		QList<ActionInfo> actions;
+		MenuController *owner;
+		QList<ActionInfo> allActions(const MenuController *control) const;
 	};
 }
 

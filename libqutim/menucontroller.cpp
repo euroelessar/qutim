@@ -91,16 +91,30 @@ namespace qutim_sdk_0_3
 		return current;
 	}
 
+	QList<ActionInfo> MenuControllerPrivate::allActions(const MenuController *owner) const
+	{
+		QList<ActionInfo> actions;
+		QSet<const QMetaObject *> metaObjects;
+		while (owner) {
+			actions.append(owner->d_ptr->actions);
+			const QMetaObject *meta = owner->metaObject();
+			while (meta) {
+				if (metaObjects.contains(meta))
+					break;
+				actions.append(globalActions()->values(meta));
+				meta = meta->superClass();
+				metaObjects.insert(meta);
+			}
+			owner = owner->d_ptr->owner;
+		}
+		return actions;
+	}
+
 	QMenu *MenuController::menu(bool deleteOnClose) const
 	{
 		QMenu *menu = new QMenu();
 		menu->setAttribute(Qt::WA_DeleteOnClose, deleteOnClose);
-		QList<ActionInfo> actions = d_func()->actions;
-		const QMetaObject *meta = metaObject();
-		while (meta) {
-			actions.append(globalActions()->values(meta));
-			meta = meta->superClass();
-		}
+		QList<ActionInfo> actions = d_func()->allActions(this);
 		if (actions.isEmpty())
 			return menu;
 		qSort(actions.begin(), actions.end(), actionLessThan);
@@ -142,5 +156,11 @@ namespace qutim_sdk_0_3
 	{
 		Q_ASSERT(gen && meta);
 		globalActions()->insertMulti(meta, ActionInfo(gen, menu));
+	}
+
+	void MenuController::setMenuOwner(MenuController *controller)
+	{
+		Q_D(MenuController);
+		d->owner = controller;
 	}
 }
