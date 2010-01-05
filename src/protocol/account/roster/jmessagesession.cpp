@@ -139,4 +139,10 @@ namespace Jabber
 		Q_UNUSED(from);
 		emit chatStateChanged(gloox2qutIM(state));
 	}
+
+	ChatUnit *JMessageSession::upperUnit()
+	{
+		Q_D(JMessageSession);
+		return d->unit ? d->unit->upperUnit() : 0;
+	}
 }

@@ -33,6 +33,7 @@ namespace Jabber
 			bool checkFeature(const QLatin1String &feature) const;
 			bool checkFeature(const QString &feature) const;
 			bool checkFeature(const std::string &feature) const;
+			ChatUnit *upperUnit();
 		protected:
 			QScopedPointer<JContactResourcePrivate> d_ptr;
 	};

@@ -36,6 +36,7 @@ namespace Jabber
 			void removeResource(const QString &resource);
 			QStringList resources();
 			JContactResource *resource(const QString &key);
+			ChatUnitList lowerUnits();
 		protected:
 			void fillMaxResource();
 		private:

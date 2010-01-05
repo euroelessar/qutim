@@ -94,4 +94,9 @@ namespace Jabber
 	{
 		d_ptr->features.contains(QString::fromStdString(feature));
 	}
+
+	ChatUnit *JContactResource::upperUnit()
+	{
+		return qobject_cast<Contact *>(d_ptr->contact);
+	}
 }

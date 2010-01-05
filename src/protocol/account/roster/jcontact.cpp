@@ -171,4 +171,12 @@ namespace Jabber
 	{
 		return d_func()->resources.value(key);
 	}
+
+	ChatUnitList JContact::lowerUnits()
+	{
+		ChatUnitList list;
+		foreach(ChatUnit *unit, d_func()->resources)
+			list << unit;
+		return list;
+	}
 }
