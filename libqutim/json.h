@@ -29,8 +29,19 @@ namespace qutim_sdk_0_3
 	namespace Json
 	{
 		// High level api
+		/**
+		  * @brief This function quotes string to Json friendly format
+		  * and surronds it by \"
+		  *
+		  * @param str String which would be quoted
+		  */
 		LIBQUTIM_EXPORT QString quote(const QString &str);
-
+		/**
+		  *
+		  *
+		  *
+		  *
+		  */
 		LIBQUTIM_EXPORT QVariant parse(const QByteArray &data);
 
 		LIBQUTIM_EXPORT void parseToProperties(const QByteArray &json, QObject *obj);

@@ -153,7 +153,7 @@ namespace qutim_sdk_0_3
 				QMetaProperty prop = meta->property(i);
 				QVariantMap::iterator it = map.find(prop.name());
 				if (it != map.end()) {
-					QVariant var = it->value();
+					QVariant var = it.value();
 					if (var.canConvert(prop.type())) {
 						prop.write(obj, var);
 					}
