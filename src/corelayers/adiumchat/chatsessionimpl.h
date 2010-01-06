@@ -45,6 +45,7 @@ namespace AdiumChat
 		virtual void setActive(bool active = true);
 		virtual void setChatUnit(ChatUnit* unit);
 		virtual bool isActive();
+		bool event(QEvent *);
 	public slots:
 		QVariant evaluateJavaScript(const QString &scriptSource);
 	protected:
@@ -58,7 +59,6 @@ namespace AdiumChat
 		//additional info and flags
 		const ChatUnit *m_previous_sender; // zero if outcoming
 		bool m_skipOneMerge;
-		int m_message_count;
 		bool m_active;
 		bool m_store_service_messages;
 	signals:

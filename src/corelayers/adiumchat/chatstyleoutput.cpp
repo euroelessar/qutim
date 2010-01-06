@@ -219,14 +219,14 @@ namespace AdiumChat
 
 		if(mes.property("history").toBool())
 		{
-			if ( mes.isIncoming() )
+			if ( !mes.isIncoming() )
 				html = sameSender ? m_current_style.nextOutgoingHistoryHtml : m_current_style.outgoingHistoryHtml;
 			else
 				html = sameSender ? m_current_style.nextIncomingHistoryHtml : m_current_style.incomingHistoryHtml;
 		}
 		else
 		{
-			if ( mes.isIncoming() )
+			if ( !mes.isIncoming() )
 				html = sameSender ? m_current_style.nextOutgoingHtml : m_current_style.outgoingHtml;
 			else
 				html = sameSender ? m_current_style.nextIncomingHtml : m_current_style.incomingHtml;
@@ -253,7 +253,7 @@ namespace AdiumChat
 	QString ChatStyleOutput::makeAction (const ChatSessionImpl *session, const Message &mes,
 										 const bool& _aligment)
 	{
-		QString html = mes.isIncoming() ? m_current_style.outgoingActionHtml : m_current_style.incomingActionHtml;
+		QString html = (!mes.isIncoming()) ? m_current_style.outgoingActionHtml : m_current_style.incomingActionHtml;
 
 		//FIXME
 		QString sender_name = mes.isIncoming() ? mes.chatUnit()->title() : mes.chatUnit()->account()->name();
@@ -295,7 +295,7 @@ namespace AdiumChat
 		QString avatarPath = mes.isIncoming() ? mes.chatUnit()->property("avatar").toString() : mes.chatUnit()->account()->property("avatar").toString();
 		if(avatarPath == "")
 		{
-			if(mes.isIncoming())
+			if(!mes.isIncoming())
 				avatarPath = (m_current_style.baseHref + "Outgoing/buddy_icon.png");
 			else
 				avatarPath = (m_current_style.baseHref + "Incoming/buddy_icon.png");

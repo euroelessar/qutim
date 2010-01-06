@@ -17,8 +17,10 @@
 #include "chatstyleoutput.h"
 #include <QWebPage>
 #include <QWebFrame>
+#include <qutim/message.h>
 #include <libqutim/account.h>
 #include <QTextDocument>
+#include <QStringBuilder>
 #include <QDateTime>
 #include <QDebug>
 #include "libqutim/history.h"
@@ -37,7 +39,6 @@ namespace AdiumChat
 		connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 		m_store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", false);
 		m_chat_style_output->preparePage(m_web_page,this);
-		m_message_count = 0;
 		m_skipOneMerge = true;
 		loadHistory();
 	}
@@ -126,7 +127,7 @@ namespace AdiumChat
 
 		QString result = m_web_page->mainFrame()->evaluateJavaScript(QString("getEditedHtml(\"%1\", \"%2\");")
 																	 .arg(validateCpp(item))
-																	 .arg(m_message_count)).toString();
+																	 .arg(message.id())).toString();
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
 				validateCpp(result), same_from?"Next":"");
@@ -138,8 +139,6 @@ namespace AdiumChat
 		if (tmp_message.property("store",true) && (!service || (service && m_store_service_messages)))
 			History::instance()->store(message);
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
-		if (result.isEmpty())
-			m_message_count++;
 	}
 
 	void ChatSessionImpl::removeContact ( ChatUnit* c )
@@ -185,6 +184,20 @@ namespace AdiumChat
 	bool ChatSessionImpl::isActive()
 	{
 		return m_active;
+	}
+
+	bool ChatSessionImpl::event(QEvent *ev)
+	{
+		if (ev->type() == MessageReceiptEvent::eventType()) {
+			qDebug() << m_web_page->mainFrame()->toHtml();
+			MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
+			m_web_page->mainFrame()->evaluateJavaScript(QLatin1Literal("messageDlvrd(\"")
+														% QString::number(msgEvent->id())
+														% QLatin1Literal("\");"));
+			return true;
+		} else {
+			return ChatSession::event(ev);
+		}
 	}
 
 	QAbstractItemModel* ChatSessionImpl::getItemsModel() const
