@@ -14,7 +14,7 @@
 *****************************************************************************/
 
 #include "jsonfile.h"
-#include "k8json.h"
+#include "json.h"
 #include <QFile>
 #include <QTextStream>
 #include <QStringList>
@@ -57,8 +57,8 @@ namespace qutim_sdk_0_3
 			array = p->file.readAll();
 			fmap = (uchar *)array.constData();
 		}
-		const uchar *s = K8JSON::skipBlanks(fmap, &len);
-		bool result = (K8JSON::parseRecord(variant, s, &len) != 0);
+		const uchar *s = Json::skipBlanks(fmap, &len);
+		bool result = (Json::parseRecord(variant, s, &len) != 0);
 		p->file.close();
 		return result;
 	}
@@ -67,10 +67,10 @@ namespace qutim_sdk_0_3
 		switch (val.type()) {
 			case QVariant::Invalid: res << "null"; break;
 			case QVariant::Bool: res << (val.toBool() ? "true" : "false"); break;
-			case QVariant::Char: res << K8JSON::quote(QString(val.toChar())).toUtf8(); break;
+			case QVariant::Char: res << Json::quote(QString(val.toChar())).toUtf8(); break;
 			case QVariant::Double: res << QString::number(val.toDouble()).toAscii(); break; //CHECKME: is '.' always '.'?
 			case QVariant::Int: res << QString::number(val.toInt()).toAscii(); break;
-			case QVariant::String: res << K8JSON::quote(val.toString()).toUtf8(); break;
+			case QVariant::String: res << Json::quote(val.toString()).toUtf8(); break;
 			case QVariant::UInt: res << QString::number(val.toUInt()).toAscii(); break;
 			case QVariant::ULongLong: res << QString::number(val.toULongLong()).toAscii(); break;
 			case QVariant::Map: {
@@ -82,7 +82,7 @@ namespace qutim_sdk_0_3
 				for (i = m.constBegin(); i != m.constEnd(); ++i) {
 					if (comma) res << ",\n"; else { res << '\n'; comma = true; }
 					for (int c = indent; c > 0; c--) res << ' ';
-					res << K8JSON::quote(i.key()).toUtf8();
+					res << Json::quote(i.key()).toUtf8();
 					res << ": ";
 					if (!json_file_generate(res, i.value(), indent)) return false;
 				}
@@ -120,7 +120,7 @@ namespace qutim_sdk_0_3
 				foreach (const QString &v, m) {
 					if (comma) res << ",\n"; else { res << '\n'; comma = true; }
 					for (int c = indent; c > 0; c--) res << ' ';
-					res << K8JSON::quote(v).toUtf8();
+					res << Json::quote(v).toUtf8();
 				}
 				indent--;
 				if (comma) {

@@ -13,7 +13,7 @@
 # include <QStringList>
 #endif
 
-#include "libqutim/k8json.h"
+#include "k8json.h"
 
 
 namespace K8JSON {

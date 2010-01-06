@@ -4,7 +4,7 @@
 #include "libqutim/account.h"
 #include "libqutim/protocol.h"
 #include "libqutim/systeminfo.h"
-#include "libqutim/k8json.h"
+#include "libqutim/json.h"
 #include <QStringBuilder>
 
 namespace Core
@@ -33,7 +33,7 @@ namespace Core
 			fmap = (uchar *)data.constData();
 		}
 		uint end = file.size();
-		const uchar *s = K8JSON::skipBlanks(fmap, &len);
+		const uchar *s = Json::skipBlanks(fmap, &len);
 		uchar qch = *s;
 		if(!s || (qch != '[' && qch != '{'))
 		{
@@ -47,7 +47,7 @@ namespace Core
 		bool first = true;
 		while(s)
 		{
-			s = K8JSON::skipBlanks(s, &len);
+			s = Json::skipBlanks(s, &len);
 			if(len < 2 || (s && *s == qch))
 			{
 				if(*(s-1) == '\n')
@@ -65,7 +65,7 @@ namespace Core
 				s++;
 				len--;
 			}
-			if(!(s = K8JSON::skipRec(s, &len)))
+			if(!(s = Json::skipRecord(s, &len)))
 				break;
 		}
 		if(data.isEmpty())
@@ -96,10 +96,10 @@ namespace Core
 		foreach(const QByteArray &name, message.dynamicPropertyNames())
 		{
 			QByteArray data;
-			if(!K8JSON::generate(data, message.property(name), 2))
+			if(!Json::generate(data, message.property(name), 2))
 				continue;
 			file.write("  ");
-			file.write(K8JSON::quote(QString::fromUtf8(name)).toUtf8());
+			file.write(Json::quote(QString::fromUtf8(name)).toUtf8());
 			file.write(": ");
 			file.write(data);
 			file.write(",\n");
@@ -112,7 +112,7 @@ namespace Core
 		file.write("\",\n  \"in\": ");
 		file.write(message.isIncoming() ? "true" : "false");
 		file.write(",\n  \"text\": ");
-		file.write(K8JSON::quote(message.text()).toUtf8());
+		file.write(Json::quote(message.text()).toUtf8());
 		file.write("\n }\n]");
 		file.close();
 	//	It will produce something like this:
@@ -149,7 +149,7 @@ namespace Core
 				data = file.readAll();
 				fmap = (uchar *)data.constData();
 			}
-			const uchar *s = K8JSON::skipBlanks(fmap, &len);
+			const uchar *s = Json::skipBlanks(fmap, &len);
 			uchar qch = *s;
 			if(!s || (qch != '[' && qch != '{'))
 				continue;
@@ -159,7 +159,7 @@ namespace Core
 			bool first = true;
 			while(s)
 			{
-				s = K8JSON::skipBlanks(s, &len);
+				s = Json::skipBlanks(s, &len);
 				if(len < 2 || (s && *s == qch))
 					break;
 				if((!first && *s != ',') || (first && *s == ','))
@@ -171,7 +171,7 @@ namespace Core
 					len--;
 				}
 				pointers.prepend(s);
-				if(!(s = K8JSON::skipRec(s, &len)))
+				if(!(s = Json::skipRecord(s, &len)))
 				{
 					pointers.removeFirst();
 					break;
@@ -183,7 +183,7 @@ namespace Core
 				value.clear();
 				s = pointers[i];
 				len = file.size() + 1 - (s - fmap);
-				K8JSON::parseRecord(value, s, &len);
+				Json::parseRecord(value, s, &len);
 				QVariantMap message = value.toMap();
 				Message item;
 				QVariantMap::iterator it = message.begin();
