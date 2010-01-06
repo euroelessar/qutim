@@ -56,6 +56,16 @@ enum MessageType
 	MsgUnknown  = 0x00,
 };
 
+// Typing notification statuses
+enum MTN
+{
+	MtnUnknown  = 0xFFFF,
+	MtnFinished = 0x0000,
+	MtnTyped    = 0x0001,
+	MtnBegun    = 0x0002,
+	MtnGone     = 0x000F
+};
+
 class Channel1MessageData: public DataUnit
 {
 public:

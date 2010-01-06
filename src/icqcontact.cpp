@@ -243,16 +243,20 @@ void IcqContact::setCapabilities(const Capabilities &caps)
 void IcqContact::setChatState(ChatState state)
 {
 	Q_D(IcqContact);
-	qint8 type = -1;
+	MTN type = MtnUnknown;
 	if (state == ChatStatePaused)
-		type = 1;
+		type = MtnTyped;
 	else if (state == ChatStateComposing)
-		type = 2;
-	if (type < 0)
+		type = MtnBegun;
+	else if (state == ChatStateGone)
+		type = MtnGone;
+	else if (state == ChatStateInActive || state == ChatStateActive)
+		type = MtnFinished;
+	if (type == MtnUnknown)
 		return;
 	SNAC sn(MessageFamily, MessageMtn);
 	sn.appendSimple<quint64> (Util::generateCookie());
-	sn.appendSimple<quint16> (1); // ???
+	sn.appendSimple<quint16> (1); // channel?
 	sn.appendData<quint8> (d->uin);
 	sn.appendSimple<quint16> (type);
 	d->account->connection()->send(sn);

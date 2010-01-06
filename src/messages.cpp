@@ -193,10 +193,17 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		IcqContact *contact = m_account->roster()->contact(uin);
 		if (contact) {
 			ChatState newState;
-			if (/*type == 0 || */type == 1)
+			if (type == MtnFinished)
+				newState = ChatStateInActive;
+			else if (type == MtnTyped)
 				newState = ChatStatePaused;
-			else if (type == 2)
+			else if (type == MtnBegun)
 				newState = ChatStateComposing;
+			else if (type == MtnGone)
+				newState = ChatStateGone;
+			else
+				debug() << "Unknown typing notification from"
+						<< contact->id() << ", type" << type;
 			debug() << contact->id() << "typing state changed to" << type;
 			emit contact->chatStateChanged(newState);
 		}
