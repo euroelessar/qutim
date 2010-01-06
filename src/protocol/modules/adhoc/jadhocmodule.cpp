@@ -2,7 +2,7 @@
 #include "jadhocwidget.h"
 #include "../../account/roster/jcontact.h"
 #include "../../account/jaccount.h"
-#include "../../account/roster/resourceactiongenerator.h"
+#include "../../account/roster/jresourceactiongenerator.h"
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/icon.h>

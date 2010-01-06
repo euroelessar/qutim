@@ -1,4 +1,4 @@
-#include "resourceactiongenerator.h"
+#include "jresourceactiongenerator.h"
 #include "jcontact.h"
 #include <qutim/menucontroller.h>
 #include <qutim/icon.h>

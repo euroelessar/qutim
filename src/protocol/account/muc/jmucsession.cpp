@@ -43,6 +43,7 @@ namespace Jabber
 	JMUCSession::JMUCSession(JMessageSession *session) : ChatUnit(session->account())
 	{
 		Q_ASSERT(!"Not yet implemented");
+//		m_roomJid = JID();
 		m_account = static_cast<JAccount *>(session->account());
 		m_room = new UniqueMUCRoom(m_account->client(), EmptyString, this);
 		Presence &pres = m_account->client()->presence();

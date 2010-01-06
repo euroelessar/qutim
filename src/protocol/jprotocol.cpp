@@ -1,7 +1,7 @@
 #include "jprotocol.h"
 #include "account/jaccount.h"
 #include <qutim/icon.h>
-#include "account/roster/resourceactiongenerator.h"
+#include "account/roster/jresourceactiongenerator.h"
 #include "account/roster/jcontact.h"
 #include <gloox/dataform.h>
 #include "account/dataform/jdataform.h"
