@@ -17,14 +17,14 @@
 #include "chatstyleoutput.h"
 #include <QWebPage>
 #include <QWebFrame>
-#include <qutim/message.h>
-#include <libqutim/account.h>
+#include "libqutim/message.h"
+#include "libqutim/account.h"
 #include <QTextDocument>
 #include <QStringBuilder>
 #include <QDateTime>
 #include <QDebug>
 #include "libqutim/history.h"
-#include <libqutim/notificationslayer.h>
+#include "libqutim/notificationslayer.h"
 #include "chatlayerimpl.h"
 
 namespace AdiumChat
