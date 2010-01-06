@@ -21,6 +21,7 @@
 #endif
 
 #include "3rdparty/k8json/k8json.h"
+#include <QMetaProperty>
 
 namespace qutim_sdk_0_3
 {
@@ -142,6 +143,22 @@ namespace qutim_sdk_0_3
 			QByteArray res;
 			K8JSON::generate(res, data, indent);
 			return res;
+		}
+
+		void parseToProperties(const QByteArray &json, QObject *obj)
+		{
+			QVariantMap map = parse(json).toMap();
+			const QMetaObject *meta = obj->metaObject();
+			for (int i = 0, size = meta->propertyCount(); i < size; i++) {
+				QMetaProperty prop = meta->property(i);
+				QVariantMap::iterator it = map.find(prop.name());
+				if (it != map.end()) {
+					QVariant var = it->value();
+					if (var.canConvert(prop.type())) {
+						prop.write(obj, var);
+					}
+				}
+			}
 		}
 	}
 }

@@ -22,6 +22,7 @@
 #include <QString>
 #include <QVariant>
 #include <QByteArray>
+class QObject;
 
 namespace qutim_sdk_0_3
 {
@@ -29,7 +30,11 @@ namespace qutim_sdk_0_3
 	{
 		// High level api
 		LIBQUTIM_EXPORT QString quote(const QString &str);
+
 		LIBQUTIM_EXPORT QVariant parse(const QByteArray &data);
+
+		LIBQUTIM_EXPORT void parseToProperties(const QByteArray &json, QObject *obj);
+
 		LIBQUTIM_EXPORT QByteArray generate(const QVariant &data, bool indent = 0);
 
 		// Low level api
