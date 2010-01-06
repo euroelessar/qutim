@@ -197,6 +197,10 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 				newState = ChatStatePaused;
 			else if (type == 2)
 				newState = ChatStateComposing;
+			else {
+				debug() << contact->id() << "unknown chat state:" << type;
+				return;
+			}
 			debug() << contact->id() << "typing state changed to" << type;
 			emit contact->chatStateChanged(newState);
 		}
