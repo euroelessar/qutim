@@ -16,8 +16,11 @@
 
 #include <QApplication>
 #include <QtCrypto>
-
 #include <QTextCodec>
+
+#include <cstdlib>
+#include <ctime>
+
 #include "src/modulemanagerimpl.h"
 #include "libqutim/cryptoservice.h"
 #include "libqutim/configbase.h"
