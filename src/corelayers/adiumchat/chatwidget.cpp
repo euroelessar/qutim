@@ -154,11 +154,12 @@ namespace AdiumChat
 		if (index == -1)
 			return;
 
+		currentIndexChanged(ui->tabBar->currentIndex());
+
 		ui->tabBar->removeTab(index);
 		m_sessions.removeAt(index);
 		if (ui->tabBar->count() == 1)
 			ui->tabBar->setVisible(false);
-		currentIndexChanged(ui->tabBar->currentIndex());
 		if (m_remove_session_on_close)
 			session->deleteLater();
 	}
@@ -307,6 +308,7 @@ namespace AdiumChat
 		ChatUnit *unit = m_sessions.at(ui->tabBar->currentIndex())->getUnit();
 		qDebug() << "paused to" << unit->title();
 		unit->setChatState(m_chatstate);
+		killTimer(m_timerid);
 		QObject::timerEvent(e);
 	}
 	

@@ -28,6 +28,7 @@ namespace KineticPopups
 		Q_OBJECT
 	public:
 		PopupWidget(const ThemeHelper::PopupSettings &popupSettings);
+		PopupWidget();
 		QSize setData(const QString& title,
 					const QString& body,
 					QObject *sender); //size of textbrowser
@@ -44,6 +45,7 @@ namespace KineticPopups
 		void onAction2Triggered();
 	private:
 		ThemeHelper::PopupSettings popup_settings;
+		void init(const ThemeHelper::PopupSettings &popupSettings);
 		QObject *m_sender;
 	};
 }

@@ -62,6 +62,7 @@ namespace KineticPopups
 		QRect m_show_geometry; //Don't use direct, change by UpdateGeometry!
 		QStateMachine *m_machine;
 		QState *m_show_state;
+		QState *m_update_state;
 		QState *m_hide_state;
 		QObject *m_sender;
 		int m_timer_id;
