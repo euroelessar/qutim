@@ -41,8 +41,7 @@ namespace qutim_sdk_0_3
 		/**
 		* @brief Account's contructor
 		*
-		* @param id Account's identification, i.e. JID for XMPP
-		* or UIN for ICQ
+		* @param id Account's identification, i.e. JID for XMPP or UIN for ICQ
 		*
 		* @param protocol Pointer to account's protocol
 		*/
@@ -116,6 +115,8 @@ namespace qutim_sdk_0_3
 		*
 		* @param unitId Identification string for @ref ChatUnit
 		* @param create If true create ChatUnit if it doesn't exist
+		*
+		* @note If unitId is invalid, i.e. invalid JID, unit won't be created and NULL will be returned
 		*
 		* @return ChatUnit with iq equal to unitId
 		*/
