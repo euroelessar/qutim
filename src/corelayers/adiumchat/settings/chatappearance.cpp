@@ -185,6 +185,7 @@ namespace Core
 		message.setProperty("silent",true);
 		message.setProperty("history",true);
 		message.setProperty("store",false);
+		message.setTime(QDateTime::currentDateTime());
 		message.setIncoming(true);
 		message.setChatUnit(m_chat_session->getUnit());
 		message.setText(tr("Hello!"));
@@ -199,7 +200,7 @@ namespace Core
 		message.setText(tr("/me is thinking!"));
 		m_chat_session->appendMessage(message);
 		message.setProperty("service",true);
-		message.setText("Vasya is reading you mind");
+		message.setText(tr("Vasya is reading you mind"));
 		m_chat_session->appendMessage(message);
 	}
 

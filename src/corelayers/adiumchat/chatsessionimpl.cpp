@@ -67,7 +67,8 @@ namespace AdiumChat
 		MessageList messages = History::instance()->read(getUnit(),max_num);
 		foreach (Message mess, messages) {
 			mess.setProperty("history",true);
-			mess.setChatUnit(getUnit());
+			if (!mess.chatUnit()) //TODO FIXME
+				mess.setChatUnit(getUnit()); 
 			appendMessage(mess);
 		}
 		m_previous_sender = 0;
@@ -80,7 +81,7 @@ namespace AdiumChat
 		{
 			m_web_page->deleteLater();
 		}
-		qDebug() << "Session removed:";
+		qDebug() << "Session removed:" << m_chat_unit->title();
 	}
 
 	void ChatSessionImpl::addContact ( ChatUnit* c )
