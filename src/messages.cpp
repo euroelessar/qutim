@@ -49,18 +49,18 @@ Channel1MessageData::Channel1MessageData(const QString &message, Channel1Codec c
 	appendTLV(0x0101, msgData.data());
 }
 
-Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, quint64 cookie)
+Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, const Cookie &cookie)
 {
-	m_cookie = (cookie == 0) ? generateCookie() : cookie;
+	m_cookie = cookie.isEmpty() ? Cookie(true) : cookie;
 	appendSimple<quint16> (0x1B, LittleEndian);
 	appendSimple<quint16> (protocol_version, LittleEndian);
 	appendData(ICQ_CAPABILITY_PSIG_MESSAGE);
 	appendSimple<quint8> (0); // not sure
 	appendSimple<quint16> (client_features);
 	appendSimple<quint32> (dc_type);
-	appendSimple<quint16> (m_cookie, LittleEndian);
+	appendSimple<quint16> (m_cookie.id(), LittleEndian);
 	appendSimple<quint16> (0x0E, LittleEndian);
-	appendSimple<quint16> (m_cookie, LittleEndian);
+	appendSimple<quint16> (m_cookie.id(), LittleEndian);
 	appendSimple<quint64> (0); // Unknown 12 bytes
 	appendSimple<quint32> (0);
 	appendSimple<quint8> (msgType);
@@ -81,13 +81,11 @@ void Tlv2711::appendColors()
 	appendSimple<quint32> (0x00FFFFFF, LittleEndian); // background
 }
 
-Channel2BasicMessageData::Channel2BasicMessageData(quint16 command, const Capability &guid, qint64 cookie) :
-	m_cookie(cookie)
+Channel2BasicMessageData::Channel2BasicMessageData(quint16 command, const Capability &guid, const Cookie &cookie)
 {
-	if (m_cookie == 0)
-		m_cookie = generateCookie();
+	m_cookie = cookie.isEmpty() ? Cookie(true) : cookie;
 	appendSimple(command);
-	appendSimple(cookie, LittleEndian);
+	appendData(m_cookie);
 	appendData(guid);
 }
 
@@ -110,10 +108,10 @@ ServerMessage::ServerMessage() :
 
 }
 
-ServerMessage::ServerMessage(const QString &uin, const Channel1MessageData &data, quint64 cookie, bool storeMessage) :
+ServerMessage::ServerMessage(IcqContact *contact, const Channel1MessageData &data, const Cookie &cookie, bool storeMessage) :
 	SNAC(MessageFamily, MessageSrvSend)
 {
-	init(uin, 1, cookie);
+	init(contact, 1, cookie);
 	appendTLV(0x0002, data.data());
 	if (storeMessage) {
 		// empty TLV(6) store message if recipient offline.
@@ -121,30 +119,28 @@ ServerMessage::ServerMessage(const QString &uin, const Channel1MessageData &data
 	}
 }
 
-ServerMessage::ServerMessage(const QString &uin, const Channel2BasicMessageData &data) :
+ServerMessage::ServerMessage(IcqContact *contact, const Channel2BasicMessageData &data) :
 	SNAC(MessageFamily, MessageSrvSend)
 {
-	init(uin, 2, data.cookie());
+	init(contact, 2, data.cookie());
 	appendTLV(0x05, data.data());
 }
 
-void ServerMessage::init(const QString &uin, qint16 channel, qint64 cookie)
+void ServerMessage::init(IcqContact *contact, qint16 channel, const Cookie &cookie)
 {
-	if (cookie == 0)
-		cookie = generateCookie();
-	appendSimple<qint64> (cookie); // cookie
-	appendSimple<qint16> (channel); // message channel
-	appendData<qint8> (uin); // uid or screenname
+	Cookie c = cookie.isEmpty() ? Cookie(true) : cookie;
+	appendData(c); // cookie
+	appendSimple<quint16>(channel); // message channel
+	appendData<quint8>(contact->id()); // uid or screenname
 }
 
-ServerResponseMessage::ServerResponseMessage(const QString &uin, quint16 format, quint16 reason, quint64 cookie) :
+ServerResponseMessage::ServerResponseMessage(IcqContact *contact, quint16 format, quint16 reason, const Cookie &cookie) :
 	SNAC(MessageFamily, MessageResponse)
 {
-	if (cookie == 0)
-		cookie = generateCookie();
-	appendSimple<quint64> (cookie);
+	Cookie c = cookie.isEmpty() ? Cookie(true) : cookie;
+	appendData(c);
 	appendSimple<quint16> (format);
-	appendData<quint8> (uin);
+	appendData<quint8> (contact->id());
 	appendSimple<quint16> (reason);
 }
 
@@ -246,14 +242,15 @@ void MessagesHandler::handleMessage(const SNAC &snac)
 
 void MessagesHandler::handleResponse(const SNAC &snac)
 {
-	quint64 cookie = snac.readSimple<quint64> ();
-	quint16 format = snac.readSimple<quint16> ();
+	Cookie cookie = snac.readCookie();
+	quint16 format = snac.readSimple<quint16>();
 	if (format != 2) {
 		debug() << "Unknown response format" << format;
 		return;
 	}
 	QString uin = snac.readString<quint8> ();
 	IcqContact *contact = m_account->roster()->contact(uin);
+	cookie.setContact(contact);
 	if (!contact) {
 		debug() << "Response message from unknown contact" << uin;
 		return;
@@ -355,8 +352,12 @@ void MessagesHandler::handleChannel4Message(const SNAC &snac, IcqContact *contac
 		debug() << "Incorrect message on channel 4 from" << uin << ": SNAC should contain TLV 5";
 }
 
-void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, quint64 msgCookie)
+void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, const Cookie &msgCookie)
 {
+	if (ack == 2 && !msgCookie.unlock()) {
+		debug().nospace() << "Unexpected response message is skiped. Cookie:" << msgCookie.id();
+		return;
+	}
 	quint16 id = data.readSimple<quint16> (LittleEndian);
 	if (id != 0x1B) {
 		debug() << "Unknown message id in TLV 2711";
@@ -408,8 +409,8 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 				if (ack == 2) {
 					ChatSession *session = ChatLayer::instance()->getSession(contact, false);
 					if (session) {
-						QApplication::instance()->postEvent(session, new MessageReceiptEvent(msgCookie, true));
-						debug() << "Message with id" << msgCookie << "has been delivered";
+						QApplication::instance()->postEvent(session, new MessageReceiptEvent(msgCookie.id(), true));
+						debug() << "Message with id" << msgCookie.id() << "has been delivered";
 					}
 				}
 			} else if (pluginType == MSG_XSTRAZ_SCRIPT) {
@@ -442,12 +443,12 @@ void MessagesHandler::appendMessage(IcqContact *contact, const QString &message,
 	}
 }
 
-void MessagesHandler::sendChannel2Response(IcqContact *contact, quint8 type, quint8 flags, quint64 cookie)
+void MessagesHandler::sendChannel2Response(IcqContact *contact, quint8 type, quint8 flags, const Cookie &cookie)
 {
 	Tlv2711 responseTlv(type, flags, 0, 0);
 	responseTlv.appendEmptyPacket();
 	responseTlv.appendColors();
-	ServerResponseMessage response(contact->id(), 2, 3, cookie);
+	ServerResponseMessage response(contact, 2, 3, cookie);
 	response.appendData(responseTlv.data());
 	m_account->connection()->send(response);
 }

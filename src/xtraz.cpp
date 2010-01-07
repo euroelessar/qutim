@@ -53,7 +53,7 @@ public:
 class XtrazData: public Tlv2711
 {
 public:
-	XtrazData(const QString &body, quint64 cookie = 0);
+	XtrazData(const QString &body, const Cookie &cookie = Cookie());
 };
 
 XtrazPrivate::XtrazPrivate()
@@ -158,7 +158,7 @@ XtrazPrivate::XtrazPrivate()
 								0xa9, 0xc6, 0x41, 0x32, 0x06, 0xd6, 0xf2, 0x80));
 }
 
-XtrazData::XtrazData(const QString &body, quint64 cookie) :
+XtrazData::XtrazData(const QString &body, const Cookie &cookie) :
 	Tlv2711(MsgPlugin, 0, 0, 1, cookie)
 {
 	appendEmptyPacket();
@@ -182,7 +182,7 @@ XtrazData::XtrazData(const QString &body, quint64 cookie) :
 	appendData<quint32> (data.data(), LittleEndian);
 }
 
-XtrazRequest::XtrazRequest(const QString uin, const QString &query, const QString &notify)
+XtrazRequest::XtrazRequest(IcqContact *contact, const QString &query, const QString &notify)
 {
 	QString body;
 	{
@@ -197,13 +197,16 @@ XtrazRequest::XtrazRequest(const QString uin, const QString &query, const QStrin
 		xml.writeEndElement();
 	}
 	XtrazData data(body);
-	init(uin, 2, data.cookie());
+	Cookie cookie = data.cookie();
+	cookie.setContact(contact);
+	cookie.lock();
+	init(contact, 2, cookie);
 	appendTLV(0x05, Channel2MessageData(1, data).data());
 	appendTLV(0x03);
 }
 
-XtrazResponse::XtrazResponse(const QString uin, const QString &response, quint64 cookie) :
-	ServerResponseMessage(uin, 2, 3, cookie)
+XtrazResponse::XtrazResponse(IcqContact *contact, const QString &response, const Cookie &cookie) :
+	ServerResponseMessage(contact, 2, 3, cookie)
 {
 	QString body;
 	{
@@ -222,7 +225,7 @@ Xtraz::Xtraz()
 {
 }
 
-void Xtraz::handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data, quint64 cookie)
+void Xtraz::handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data, const Cookie &cookie)
 {
 	QString message = data.readData<quint32> (LittleEndian);
 	if (type == xtrazNotify)
@@ -256,7 +259,7 @@ XtrazPrivate *Xtraz::data()
 	return &d;
 }
 
-void Xtraz::handleNotify(IcqContact *contact, const QString &message, quint64 cookie)
+void Xtraz::handleNotify(IcqContact *contact, const QString &message, const Cookie &cookie)
 {
 	QString query;
 	QString notify;
@@ -316,14 +319,14 @@ void Xtraz::parseRes(IcqContact *contact, const QString &res)
 				xml.raiseError("Unknown event type in xtraz notify response");
 				break;
 			}
-			parseSrv(contact, xml, true, 0);
+			parseSrv(contact, xml, true);
 		}
 	}
 	if (xml.hasError())
 		debug() << "Parsing error of the xtraz notify" << xml.errorString();
 }
 
-void Xtraz::parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response, quint64 cookie)
+void Xtraz::parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response, const Cookie &cookie)
 {
 	while (!xml.atEnd()) {
 		xml.readNext();
@@ -383,7 +386,7 @@ void Xtraz::parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml)
 	}
 }
 
-void Xtraz::parseRequest(IcqContact *contact, QXmlStreamReader &xml, quint64 cookie)
+void Xtraz::parseRequest(IcqContact *contact, QXmlStreamReader &xml, const Cookie &cookie)
 {
 	QString reqId;
 	QString uin;
@@ -403,7 +406,7 @@ void Xtraz::parseRequest(IcqContact *contact, QXmlStreamReader &xml, quint64 coo
 		debug() << "Unknown xtraz response" << reqId;
 }
 
-void Xtraz::sendXStatus(IcqContact *contact, quint64 cookie)
+void Xtraz::sendXStatus(IcqContact *contact, const Cookie &cookie)
 {
 	IcqAccount *account = qobject_cast<IcqAccount*> (contact->account());
 	Q_ASSERT(account);
@@ -419,7 +422,7 @@ void Xtraz::sendXStatus(IcqContact *contact, quint64 cookie)
 			.arg(account->property("xstatusIndex").toInt())
 			.arg(account->property("statusTitle").toString())
 			.arg(account->property("statusText").toString());
-	XtrazResponse data(contact->id(), response, cookie);
+	XtrazResponse data(contact, response, cookie);
 	account->connection()->send(data);
 }
 

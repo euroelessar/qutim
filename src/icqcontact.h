@@ -48,6 +48,7 @@ public:
 	virtual void setTags(const QSet<QString> &tags);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
+	IcqAccount *account();
 public:
 	bool RtfSupport() const;
 	bool HtmlSupport() const;

@@ -17,6 +17,7 @@
 #define ICQACCOUNT_H
 
 #include <qutim/account.h>
+#include "cookie.h"
 
 namespace Icq
 {
@@ -44,7 +45,9 @@ public:
 	void setAvatarsSupport(bool avatars);
 	bool avatarsSupport();
 private:
+	QHash<quint64, Cookie> &cookies();
 	friend class Roster;
+	friend class Cookie;
 	QScopedPointer<IcqAccountPrivate> p;
 };
 

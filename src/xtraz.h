@@ -32,32 +32,32 @@ const Capability MSG_XSTRAZ_SCRIPT(0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e86
 class XtrazRequest: public ServerMessage
 {
 public:
-	XtrazRequest(const QString uin, const QString &query, const QString &notify);
+	XtrazRequest(IcqContact *contact, const QString &query, const QString &notify);
 };
 
 class XtrazResponse: public ServerResponseMessage
 {
 public:
-	XtrazResponse(const QString uin, const QString &response, quint64 cookie);
+	XtrazResponse(IcqContact *contact, const QString &response, const Cookie &cookie);
 };
 
 class Xtraz
 {
 public:
 	Xtraz();
-	static void handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data, quint64 cookie);
+	static void handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data, const Cookie &cookie);
 	static bool handelXStatusCapabilities(IcqContact *contact, const Capabilities &caps, qint8 mood);
 	static void removeXStatuses(Capabilities &caps);
 private:
 	static XtrazPrivate *data();
-	static void handleNotify(IcqContact *contact, const QString &message, quint64 cookie);
+	static void handleNotify(IcqContact *contact, const QString &message, const Cookie &cookie);
 	static void parseQuery(const QString &query, QString *pluginID);
 	static void parseRes(IcqContact *contact, const QString &res);
-	static void parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response, quint64 cookie);
+	static void parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response, const Cookie &cookie = Cookie());
 	static void parseVal(IcqContact *contact, QXmlStreamReader &xml);
 	static void parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml);
-	static void parseRequest(IcqContact *contact, QXmlStreamReader &xml, quint64 cookie);
-	static void sendXStatus(IcqContact *contact, quint64 cookie);
+	static void parseRequest(IcqContact *contact, QXmlStreamReader &xml, const Cookie &cookie);
+	static void sendXStatus(IcqContact *contact, const Cookie &cookie);
 };
 
 } // namespace Icq

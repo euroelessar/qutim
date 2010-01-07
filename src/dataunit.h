@@ -20,6 +20,7 @@
 #include "util.h"
 #include "tlv.h"
 #include "capability.h"
+#include "cookie.h"
 
 namespace Icq
 {
@@ -41,6 +42,7 @@ public:
 	inline void setData(const QByteArray &data) { m_data = data; }
 	inline void appendData(const QByteArray &data) { m_data += data; }
 	inline void appendData(const Capability &data) { m_data += data.data(); }
+	inline void appendData(const Cookie &cookie) { appendSimple<quint64>(cookie.id()); };
 	inline void appendData(const QString &str, QTextCodec *codec = Util::defaultCodec()) { m_data += codec->fromUnicode(str); }
 	void appendTLV(quint16 type) { appendData(TLV(type)); }
 	template<typename T>
@@ -60,6 +62,7 @@ public:
 	template<typename L>
 	QByteArray readData(ByteOrder bo = BigEndian) const;
 	inline Capability readCapability() const;
+	inline quint64 readCookie() const;
 	inline QByteArray readData(uint size) const;
 	template<typename L>
 	QString readString(QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian) const;
@@ -167,6 +170,11 @@ Q_INLINE_TEMPLATE QByteArray DataUnit::readData(ByteOrder bo) const
 Capability DataUnit::readCapability() const
 {
 	return Capability(readData(16));
+}
+
+quint64 DataUnit::readCookie() const
+{
+	return readSimple<quint64>();
 }
 
 QByteArray DataUnit::readData(uint size) const

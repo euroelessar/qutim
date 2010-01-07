@@ -665,7 +665,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 	if (Xtraz::handelXStatusCapabilities(contact, newCaps, moodIndex)) {
 		QString notify = QString("<srv><id>cAwaySrv</id><req><id>AwayStat</id>"
 			"<trans>1</trans><senderId>%1</senderId></req></srv>"). arg(m_account->id());
-		XtrazRequest xstatusRequest(uin, "<Q><PluginID>srvMng</PluginID></Q>", notify);
+		XtrazRequest xstatusRequest(contact, "<Q><PluginID>srvMng</PluginID></Q>", notify);
 		m_conn->send(xstatusRequest);
 	}
 

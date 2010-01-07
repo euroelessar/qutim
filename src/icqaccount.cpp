@@ -27,6 +27,7 @@ struct IcqAccountPrivate
 	Roster *roster;
 	QString name;
 	bool avatars;
+	QHash<quint64, Cookie> cookies;
 };
 
 IcqAccount::IcqAccount(const QString &uin) :
@@ -100,6 +101,11 @@ void IcqAccount::setAvatarsSupport(bool avatars)
 bool IcqAccount::avatarsSupport()
 {
 	return p->avatars;
+}
+
+QHash<quint64, Cookie> &IcqAccount::cookies()
+{
+	return p->cookies;
 }
 
 } // namespace Icq

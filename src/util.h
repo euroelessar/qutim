@@ -54,7 +54,6 @@ extern void setAsciiCodec(QTextCodec *codec);
 extern QTextCodec *utf8Codec();
 extern QTextCodec *utf16Codec();
 extern QTextCodec *defaultCodec();
-extern quint64 generateCookie();
 
 } // namespace Icq::Util
 
