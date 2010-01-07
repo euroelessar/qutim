@@ -146,9 +146,10 @@ ADD_EXECUTABLE (qutim ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
 
 TARGET_LINK_LIBRARIES (qutim
 	${QT_LIBRARIES}
+	${QT_QTMAIN_LIBRARY}
 	${QCA2_LIBRARIES}
 	${QUTIM_LIBS}
-    libqutim
+	libqutim
 	q-xdg
 	)
 
