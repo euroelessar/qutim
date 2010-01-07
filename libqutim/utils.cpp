@@ -398,8 +398,10 @@ namespace qutim_sdk_0_3
 
 	inline QStringList listThemes (QDir shareDir, const QString &category)
 	{
-		shareDir.cd(category);
-		return shareDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+		if (shareDir.cd(category))
+			return shareDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+		else
+			return QStringList();
 	}
 
 	QStringList listThemes( const QString &category)
