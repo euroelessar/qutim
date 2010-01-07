@@ -119,7 +119,7 @@ namespace qutim_sdk_0_3
 			if (!err)
 				errPtr.reset(err = new QString());
 			K8JSON::generatorCB gcb = cb ? &simpleMethod : 0;
-			K8JSON::generateExCB(reinterpret_cast<void *>(cb), gcb, *err, res, val, indent);
+			return K8JSON::generateExCB(reinterpret_cast<void *>(cb), gcb, *err, res, val, indent);
 		}
 
 		bool generate(QByteArray &res, const QVariant &val, int indent, QString *err)
@@ -127,7 +127,7 @@ namespace qutim_sdk_0_3
 			QScopedPointer<QString> errPtr;
 			if (!err)
 				errPtr.reset(err = new QString());
-			K8JSON::generateEx(*err, res, val, indent);
+			return K8JSON::generateEx(*err, res, val, indent);
 		}
 
 		QVariant parse(const QByteArray &data)
