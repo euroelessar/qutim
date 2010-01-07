@@ -27,6 +27,7 @@
 #include <qutim/messagesession.h>
 #include <qutim/notificationslayer.h>
 #include <QHostAddress>
+#include <QApplication>
 
 namespace Icq
 {
@@ -109,10 +110,10 @@ ServerMessage::ServerMessage() :
 
 }
 
-ServerMessage::ServerMessage(const QString &uin, const Channel1MessageData &data, bool storeMessage) :
+ServerMessage::ServerMessage(const QString &uin, const Channel1MessageData &data, quint64 cookie, bool storeMessage) :
 	SNAC(MessageFamily, MessageSrvSend)
 {
-	init(uin, 1);
+	init(uin, 1, cookie);
 	appendTLV(0x0002, data.data());
 	if (storeMessage) {
 		// empty TLV(6) store message if recipient offline.
@@ -403,10 +404,20 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 			quint16 pluginId = info.readSimple<quint16> (LittleEndian);
 			QString pluginName = info.readString<quint32> (LittleEndian);
 			DataUnit pluginData = data.readData<quint32> (LittleEndian);
-			if (pluginType == MSG_XSTRAZ_SCRIPT) {
+			if (pluginType.isNull()) {
+				if (ack == 2) {
+					ChatSession *session = ChatLayer::instance()->getSession(contact, false);
+					if (session) {
+						QApplication::instance()->postEvent(session, new MessageReceiptEvent(msgCookie, true));
+						debug() << "Message with id" << msgCookie << "has been delivered";
+					}
+				}
+			} else if (pluginType == MSG_XSTRAZ_SCRIPT) {
 				Xtraz::handleXtraz(contact, pluginId, pluginData, msgCookie);
-			} else
-				debug() << "Unhandled plugin message" << pluginType.toString() << pluginId << pluginName << pluginData.data().toHex();
+			} else {
+				debug() << "Unhandled plugin message" << pluginType.toString()
+						<< pluginId << pluginName << pluginData.data().toHex();
+			}
 		} else
 			debug() << "Unhandled TLV 2711 message with type" << hex << type;
 	} else

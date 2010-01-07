@@ -102,7 +102,7 @@ class ServerMessage: public SNAC
 {
 public:
 	ServerMessage();
-	ServerMessage(const QString &uin, const Channel1MessageData &data, bool storeMessage = true);
+	ServerMessage(const QString &uin, const Channel1MessageData &data, quint64 cookie, bool storeMessage = true);
 	ServerMessage(const QString &uin, const Channel2BasicMessageData &data);
 protected:
 	void init(const QString &uin, qint16 channel, qint64 cookie = 0);
