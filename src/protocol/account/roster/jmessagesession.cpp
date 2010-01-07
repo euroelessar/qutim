@@ -117,6 +117,7 @@ namespace Jabber
 		d->session->registerMessageHandler(this);
 		d->followChanges = session->threadID().empty();
 		d->unit = unit;
+		setMenuOwner(unit);
 	}
 
 	JMessageSession::JMessageSession(ChatUnit *unit) :
@@ -132,6 +133,7 @@ namespace Jabber
 		d->followChanges = true;
 		d->unit = unit;
 		d->handler->setSessionUnit(this, unit);
+		setMenuOwner(unit);
 	}
 
 	JMessageSession::~JMessageSession()

@@ -47,7 +47,8 @@ namespace Jabber
 		p->client->addPresenceExtension(caps);
 
 		p->client->setConnectionImpl(p->connection);
-		p->client->disco()->setVersion("qutIM", qutimVersionStr());
+		p->client->disco()->setVersion("qutIM", qutimVersionStr(),
+									   SystemInfo::getFullName().toStdString());
 		p->client->disco()->setIdentity("client", "pc");
 		p->client->disco()->addFeature("jabber:iq:roster");
 		p->client->registerPresenceHandler(this);
