@@ -34,6 +34,12 @@ int main(int argc, char *argv[])
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf-8"));
 	QCA::Initializer qca_init;
 	Core::ModuleManagerImpl core_init;
+	// At first time use current time with pointers to initiators
+	qsrand(uint(time(0)) ^ (qHash(&qca_init) ^ qHash(&core_init)));
+	// At second random value
+	qsrand(uint(qrand()));
+	// It looks like Qt doesn't always use srand as backend of qsrand
+	srand(uint(qrand()));
 	return app.exec();
 }
 
