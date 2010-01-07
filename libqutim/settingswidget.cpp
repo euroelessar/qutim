@@ -128,6 +128,10 @@ namespace qutim_sdk_0_3
 		p->sleep = false;
 	}
 
+#ifdef Q_CC_MSVC
+#   pragma warning (push)
+#   pragma warning (disable : 4996) // MSVC thinks that QList is unsafe
+#endif
 	void SettingsWidget::listenChildrenStates(const QWidgetList &exceptions)
 	{
 		QWidgetList widgets;
@@ -144,6 +148,9 @@ namespace qutim_sdk_0_3
 		foreach(QWidget *widget, widgets)
 			lookForWidgetState(widget);
 	}
+#ifdef Q_CC_MSVC
+#   pragma warning (pop)
+#endif
 
 	const char *SettingsWidget::lookForWidgetState(QWidget *widget, const char *property, const char *signal)
 	{
