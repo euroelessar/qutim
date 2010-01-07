@@ -11,6 +11,7 @@ macro ( LANGUAGE_UPDATE plugin_name language sources )
 	if( NOT LANGUAGE_DEST_DIR )
 		set( LANGUAGE_DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/languages" )
 	endif( NOT LANGUAGE_DEST_DIR )
+	separate_arguments( LANGUAGE_OPTS )
 	execute_process( COMMAND ${QT_LUPDATE_EXECUTABLE}
 					 ${LANGUAGE_OPTS}
 					 -target-language "${language}" ${ARGN}
