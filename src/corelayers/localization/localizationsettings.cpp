@@ -17,6 +17,7 @@
 #include "ui_localizationsettings.h"
 #include "libqutim/configbase.h"
 #include <QStringBuilder>
+#include <QDebug>
 
 using namespace qutim_sdk_0_3;
 
@@ -30,6 +31,7 @@ namespace Core
 		foreach (const QString &lang, langs) {
 			QLocale locale(lang);
 			QString text = QLocale::languageToString(locale.language());
+			qDebug() << Q_FUNC_INFO << lang << locale.name() << text;
 			if (locale.country() != QLocale::AnyCountry) {
 				text += QString(QLatin1Literal(" (")
 						 % QLocale::countryToString(locale.country())
