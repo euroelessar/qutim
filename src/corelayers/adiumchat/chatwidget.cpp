@@ -154,11 +154,12 @@ namespace AdiumChat
 		if (index == -1)
 			return;
 
+		currentIndexChanged(ui->tabBar->currentIndex());
+
 		ui->tabBar->removeTab(index);
 		m_sessions.removeAt(index);
 		if (ui->tabBar->count() == 1)
 			ui->tabBar->setVisible(false);
-		currentIndexChanged(ui->tabBar->currentIndex());
 		if (m_remove_session_on_close)
 			session->deleteLater();
 	}
