@@ -307,6 +307,7 @@ namespace AdiumChat
 		ChatUnit *unit = m_sessions.at(ui->tabBar->currentIndex())->getUnit();
 		qDebug() << "paused to" << unit->title();
 		unit->setChatState(m_chatstate);
+		killTimer(m_timerid);
 		QObject::timerEvent(e);
 	}
 	

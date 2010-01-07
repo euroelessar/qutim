@@ -28,7 +28,18 @@
 
 namespace KineticPopups
 {
+	PopupWidget::PopupWidget ()
+	{
+		ThemeHelper::PopupSettings popupSettings = Manager::self()->popupSettings;
+		init(popupSettings);
+	}
+
 	PopupWidget::PopupWidget (const ThemeHelper::PopupSettings &popupSettings)
+	{
+		init(popupSettings);
+	}
+
+	void PopupWidget::init (const ThemeHelper::PopupSettings &popupSettings)
 	{
 		//init browser
 		setTheme(popupSettings);
@@ -58,7 +69,6 @@ namespace KineticPopups
 		setContextMenuPolicy(Qt::NoContextMenu);
 		setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
 	}
-
 
 	QSize PopupWidget::setData ( const QString& title, const QString& body, QObject *sender )
 	{
