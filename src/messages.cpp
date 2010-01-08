@@ -27,6 +27,7 @@
 #include <qutim/messagesession.h>
 #include <qutim/notificationslayer.h>
 #include <QHostAddress>
+#include <QApplication>
 
 namespace Icq
 {
@@ -201,8 +202,11 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 				debug() << contact->id() << "unknown chat state:" << type;
 				return;
 			}
+			//TODO
 			debug() << contact->id() << "typing state changed to" << type;
-			emit contact->chatStateChanged(newState);
+			ChatStateChangedEvent *ev = new ChatStateChangedEvent(contact,newState);
+			if (ChatSession *session = ChatLayer::get(contact))
+				qApp->postEvent ( session, ev);
 		}
 		break;
 	}
