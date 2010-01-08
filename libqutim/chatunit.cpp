@@ -57,4 +57,17 @@ namespace qutim_sdk_0_3
 	{
 		return 0;
 	}
+	
+	ChatStateChangedEvent::ChatStateChangedEvent(ChatUnit* unit, ChatState state) : 
+			QEvent(eventType()),m_unit(unit),m_state(state)
+	{
+
+	}
+
+	QEvent::Type ChatStateChangedEvent::eventType()
+	{
+		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 110));
+		return type;
+	}
+
 }

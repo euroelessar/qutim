@@ -91,17 +91,19 @@ namespace AdiumChat
 
 	void ChatLayerImpl::onChatWidgetDestroyed(QObject* object)
 	{
-		ChatWidget *widget = reinterpret_cast< ChatWidget* >(object);
+		ChatWidget *widget = qobject_cast< ChatWidget* >(object);
 		QString key = m_chatwidgets.key(widget);
 		m_chatwidgets.remove(key);
 	}
 
 	void ChatLayerImpl::onSessionDestroyed(QObject* object)
 	{
-		ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
+		ChatSessionImpl *sess = qobject_cast<ChatSessionImpl *>(object);
 		ChatUnit *key = m_chat_sessions.key(sess);
-		if (key)
+		if (key) {
 			m_chat_sessions.remove(key);
+			findWidget(sess)->removeSession(sess);
+		}
 	}
 
 	ChatLayerImpl::~ChatLayerImpl()

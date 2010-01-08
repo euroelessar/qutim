@@ -138,8 +138,6 @@ namespace KineticPopups
 		ChatSession *sess;
 		if (unit && (sess = ChatLayer::get(unit,false))) {
 			//TODO
-			if (!sess->isActive())
-				sess->deleteLater();
 		}
 	}
 

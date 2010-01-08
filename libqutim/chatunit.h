@@ -18,6 +18,7 @@
 
 #include "menucontroller.h"
 #include <QMetaType>
+#include <QEvent>
 
 namespace qutim_sdk_0_3
 {
@@ -48,8 +49,18 @@ namespace qutim_sdk_0_3
 		virtual ChatUnit *upperUnit();
 	public slots:
 		virtual void setChatState(ChatState state) = 0;
-	signals:
-		void chatStateChanged(ChatState state);
+	};
+	
+	class LIBQUTIM_EXPORT ChatStateChangedEvent : public QEvent
+	{
+	public:
+		ChatStateChangedEvent(ChatUnit *unit, ChatState state);
+		inline ChatUnit *chatUnit() const {return m_unit;};
+		inline ChatState chatState() const {return m_state;};
+		static QEvent::Type eventType();
+	protected:
+		ChatUnit *m_unit;
+		ChatState m_state;
 	};
 }
 

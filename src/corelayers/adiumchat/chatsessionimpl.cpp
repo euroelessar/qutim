@@ -196,7 +196,18 @@ namespace AdiumChat
 														% QString::number(msgEvent->id())
 														% QLatin1Literal("\");"));
 			return true;
-		} else {
+		} else if (ev->type() == ChatStateChangedEvent::eventType()) {
+			ChatStateChangedEvent *chatEvent = static_cast<ChatStateChangedEvent *>(ev);
+			//FIXME 
+			qDebug() << "Chat State changed" << chatEvent->chatUnit()->title();
+			if (chatEvent->chatUnit() == getUnit()) {//TODO
+				emit chatStateChanged(chatEvent->chatState());
+			}
+			if (chatEvent->chatState() & ChatStateComposing)
+				Notifications::sendNotification(Notifications::Typing,chatEvent->chatUnit());	
+			return true;
+		}
+		else {
 			return ChatSession::event(ev);
 		}
 	}
@@ -231,7 +242,6 @@ namespace AdiumChat
 	void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 	{
 		m_chat_unit = unit;
-		connect(unit,SIGNAL(chatStateChanged(ChatState)),SIGNAL(chatStateChanged(ChatState)));
 		Contact *c = qobject_cast<Contact *>(unit);
 		if (c) {
 			connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
