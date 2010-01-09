@@ -10,6 +10,7 @@ set( QUTIM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" )
 set( QUTIM_LIBRARY libqutim )
 
 add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/core/" "${CMAKE_CURRENT_BINARY_DIR}/core" )
+add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/translations/" "${CMAKE_CURRENT_BINARY_DIR}/translations" )
 
 file( GLOB PROTOCOLS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/protocols/" "${CMAKE_CURRENT_SOURCE_DIR}/protocols/*" )
 
