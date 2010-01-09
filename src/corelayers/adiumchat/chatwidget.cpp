@@ -91,7 +91,7 @@ namespace AdiumChat
 		if(m_sessions.contains(session))
 			return;
 		m_sessions.append(session);
-		connect(session,SIGNAL(chatStateChanged(ChatState)),SLOT(chatStateChanged(ChatState)));
+		session->installEventFilter(this);
 		connect(session,SIGNAL(messageReceived(Message)),SLOT(onMessageReceived(Message)));
 		connect(session,SIGNAL(messageSended(Message)),SLOT(onMessageSended(Message)));
 		QIcon icon;
@@ -204,14 +204,21 @@ namespace AdiumChat
 
 	bool ChatWidget::eventFilter(QObject *obj, QEvent *event)
 	{
-		if (event->type() == QEvent::KeyPress) {
-			QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-			QString key = QString::number(keyEvent->key(), 16);
-			QString modifiers = QString::number(keyEvent->modifiers(), 16);
-			if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
-				if (!(keyEvent->modifiers() & Qt::ControlModifier)) {
-					onSendButtonClicked();
-					return true;
+		if (obj->metaObject() == &ChatSessionImpl::staticMetaObject) {
+			if (event->type() == ChatStateEvent::eventType()) {
+				ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(event);
+				chatStateChanged(chatEvent->chatState());
+			}
+		} else {
+			if (event->type() == QEvent::KeyPress) {
+				QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+				QString key = QString::number(keyEvent->key(), 16);
+				QString modifiers = QString::number(keyEvent->modifiers(), 16);
+				if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
+					if (!(keyEvent->modifiers() & Qt::ControlModifier)) {
+						onSendButtonClicked();
+						return true;
+					}
 				}
 			}
 		}

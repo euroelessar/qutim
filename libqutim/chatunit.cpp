@@ -15,6 +15,7 @@
 
 #include "chatunit_p.h"
 #include "account.h"
+#include <QCoreApplication>
 
 namespace qutim_sdk_0_3
 {
@@ -57,16 +58,22 @@ namespace qutim_sdk_0_3
 	{
 		return 0;
 	}
+
+	void ChatUnit::setChatState(ChatState state)
+	{
+		ChatStateEvent event(state);
+		qApp->sendEvent(this, &event);
+	}
 	
-	ChatStateChangedEvent::ChatStateChangedEvent(ChatUnit* unit, ChatState state) : 
-			QEvent(eventType()),m_unit(unit),m_state(state)
+	ChatStateEvent::ChatStateEvent(ChatState state) :
+			QEvent(eventType()), m_state(state)
 	{
 
 	}
 
-	QEvent::Type ChatStateChangedEvent::eventType()
+	QEvent::Type ChatStateEvent::eventType()
 	{
-		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 110));
+		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 102));
 		return type;
 	}
 

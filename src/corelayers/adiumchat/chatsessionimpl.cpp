@@ -190,24 +190,19 @@ namespace AdiumChat
 	bool ChatSessionImpl::event(QEvent *ev)
 	{
 		if (ev->type() == MessageReceiptEvent::eventType()) {
-			qDebug() << m_web_page->mainFrame()->toHtml();
 			MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
 			m_web_page->mainFrame()->evaluateJavaScript(QLatin1Literal("messageDlvrd(\"")
 														% QString::number(msgEvent->id())
 														% QLatin1Literal("\");"));
 			return true;
-		} else if (ev->type() == ChatStateChangedEvent::eventType()) {
-			ChatStateChangedEvent *chatEvent = static_cast<ChatStateChangedEvent *>(ev);
+		} else if (ev->type() == ChatStateEvent::eventType()) {
+			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
 			//FIXME 
-			qDebug() << "Chat State changed" << chatEvent->chatUnit()->title();
-			if (chatEvent->chatUnit() == getUnit()) {//TODO
-				emit chatStateChanged(chatEvent->chatState());
-			}
+			qDebug() << "Chat State changed" << m_chat_unit->title();
 			if (chatEvent->chatState() & ChatStateComposing)
-				Notifications::sendNotification(Notifications::Typing,chatEvent->chatUnit());	
+				Notifications::sendNotification(Notifications::Typing, m_chat_unit);
 			return true;
-		}
-		else {
+		} else {
 			return ChatSession::event(ev);
 		}
 	}

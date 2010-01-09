@@ -61,8 +61,6 @@ namespace AdiumChat
 		bool m_skipOneMerge;
 		bool m_active;
 		bool m_store_service_messages;
-	signals:
-		void chatStateChanged(ChatState state);
 	};
 }
 #endif // CHATSESSIONIMPL_H
