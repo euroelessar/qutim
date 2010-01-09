@@ -5,7 +5,7 @@ ENDIF (COMMAND cmake_policy)
 PROJECT ( Jabber )
 SET ( QT_MIN_VERSION "4.6.0" )
 
-SET ( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/" )
+SET ( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/" )
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/" "${CMAKE_CURRENT_BINARY_DIR}/libs/")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/")
