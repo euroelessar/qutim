@@ -10,3 +10,6 @@
 [submodule "protocols/mrim"]
 	path = protocols/mrim
 	url = git://gitorious.org/qutim/mrim.git
+[submodule "translations"]
+	path = translations
+	url = git://gitorious.org/qutim/translations.git
