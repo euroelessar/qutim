@@ -25,10 +25,10 @@ namespace Jabber
 		virtual QString id() const;
 		virtual QString title() const;
 		virtual void sendMessage(const qutim_sdk_0_3::Message &message);
-		virtual void setChatState(qutim_sdk_0_3::ChatState state);
 		virtual void handleMessage(const gloox::Message &msg, gloox::MessageSession* session = 0);
 		virtual void handleChatState(const gloox::JID &from, gloox::ChatStateType state);
 		ChatUnit *upperUnit();
+		bool event(QEvent *);
 	private:
 		QScopedPointer<JMessageSessionPrivate> d_ptr;
 	};

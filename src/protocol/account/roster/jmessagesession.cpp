@@ -3,6 +3,7 @@
 #include "../jaccount.h"
 #include "jabber_global.h"
 #include <qutim/message.h>
+#include <qutim/messagesession.h>
 #include <gloox/message.h>
 #include <gloox/receipt.h>
 #include <gloox/chatstatefilter.h>
@@ -164,11 +165,6 @@ namespace Jabber
 		}
 	}
 
-	void JMessageSession::setChatState(qutim_sdk_0_3::ChatState state)
-	{
-		d_func()->chatStateFilter->setChatState(qutIM2gloox(state));
-	}
-
 	void JMessageSession::handleMessage(const gloox::Message &msg, MessageSession *session)
 	{
 		Q_D(JMessageSession);
@@ -183,13 +179,24 @@ namespace Jabber
 			coreMsg.setTime(stamp2date(when->stamp()));
 		if (!msg.subject().empty())
 			coreMsg.setProperty("subject", QString::fromStdString(msg.subject()));
-		ChatLayer::get(this)->appendMessage(coreMsg);
+		ChatLayer::get(this, true)->appendMessage(coreMsg);
+	}
+
+	bool JMessageSession::event(QEvent *ev)
+	{
+		if (ev->type() == ChatStateEvent::eventType()) {
+			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
+			d_func()->chatStateFilter->setChatState(qutIM2gloox(chatEvent->chatState()));
+			return true;
+		}
+		return QObject::event(ev);
 	}
 
 	void JMessageSession::handleChatState(const JID &from, gloox::ChatStateType state)
 	{
 		Q_UNUSED(from);
-		//emit chatStateChanged(gloox2qutIM(state));
+		ChatStateEvent ev(gloox2qutIM(state));
+		qApp->postEvent(ChatLayer::get(this, true), &ev);
 	}
 
 	ChatUnit *JMessageSession::upperUnit()
