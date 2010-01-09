@@ -1,0 +1,12 @@
+[submodule "core"]
+	path = core
+	url = /home/elessar/gitgames/qutim
+[submodule "protocols/jabber"]
+	path = protocols/jabber
+	url = /home/elessar/gitgames/jabber/jabber
+[submodule "protocols/oscar"]
+	path = protocols/oscar
+	url = /home/elessar/gitgames/icq/icq
+[submodule "protocols/mrim"]
+	path = protocols/mrim
+	url = /home/elessar/gitgames/mrim
