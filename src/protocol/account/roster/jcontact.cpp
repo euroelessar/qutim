@@ -100,6 +100,7 @@ namespace Jabber
 			gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
 			gmes.addExtension(new gloox::ChatState(qutIM2gloox(chatEvent->chatState())));
 			client->send(gmes);
+			return true;
 		}
 	}
 
