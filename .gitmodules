@@ -1,0 +1,6 @@
+[submodule "3rdparty/q-xdg"]
+	path = 3rdparty/q-xdg
+	url = git://gitorious.org/+qutim-developers/q-xdg/qutim-developers-q-xdg.git
+[submodule "3rdparty/k8json"]
+	path = 3rdparty/k8json
+	url = git://gitorious.org/+qutim-developers/k8jsonqt/qutim-developers-k8json.git
