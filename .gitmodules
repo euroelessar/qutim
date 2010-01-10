@@ -13,3 +13,6 @@
 [submodule "translations"]
 	path = translations
 	url = git://gitorious.org/qutim/translations.git
+[submodule "integrations/kde"]
+	path = integrations/kde
+	url = git://gitorious.org/qutim/kde-integration.git
