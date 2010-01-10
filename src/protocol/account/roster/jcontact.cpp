@@ -91,13 +91,16 @@ namespace Jabber
 		}
 	}
 
-	void JContact::setChatState(qutim_sdk_0_3::ChatState state)
+	bool JContact::event(QEvent *ev)
 	{
-		Q_D(JContact);
-		Client *client = d->account->connection()->client();
-		gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
-		gmes.addExtension(new gloox::ChatState(qutIM2gloox(state)));
-		client->send(gmes);
+		if (ev->type() == ChatStateEvent::eventType()) {
+			Q_D(JContact);
+			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
+			Client *client = d->account->connection()->client();
+			gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
+			gmes.addExtension(new gloox::ChatState(qutIM2gloox(chatEvent->chatState())));
+			client->send(gmes);
+		}
 	}
 
 	bool JContact::hasResource(const QString &resource)

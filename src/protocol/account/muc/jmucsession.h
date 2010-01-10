@@ -65,8 +65,6 @@ namespace Jabber
 		void handleMUCConfigForm(gloox::MUCRoom *room, const gloox::DataForm &form);
 		void handleMUCConfigResult(gloox::MUCRoom *room, bool success, gloox::MUCOperation operation);
 		void handleMUCRequest(gloox::MUCRoom *room, const gloox::DataForm &form);
-
-		void setChatState(qutim_sdk_0_3::ChatState) {}
 	protected:
 		JAccount *m_account;
 		gloox::MUCRoom *m_room;

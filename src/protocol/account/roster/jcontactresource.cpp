@@ -66,8 +66,17 @@ namespace Jabber
 		return d_func()->presence;
 	}
 
-	void JContactResource::setChatState(ChatState state)
+	bool JContactResource::event(QEvent *ev)
 	{
+		if (ev->type() == ChatStateEvent::eventType()) {
+			Q_D(JContactResource);
+			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
+			//TODO
+			//Client *client = d->contact->account->connection()->client();
+			//gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
+			//gmes.addExtension(new gloox::ChatState(qutIM2gloox(chatEvent->chatState())));
+			//client->send(gmes);
+		}
 	}
 
 	QSet<QString> JContactResource::features() const

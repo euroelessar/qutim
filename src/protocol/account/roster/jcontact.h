@@ -24,7 +24,6 @@ namespace Jabber
 			void sendMessage(const qutim_sdk_0_3::Message &message);
 			void setName(const QString &name);
 			void setTags(const QSet<QString> &tags);
-			void setChatState(qutim_sdk_0_3::ChatState state);
 			void setStatus(const QString &resource, gloox::Presence::PresenceType presence, int priority);
 			QString name() const;
 			QSet<QString> tags() const;
@@ -37,6 +36,7 @@ namespace Jabber
 			QStringList resources();
 			JContactResource *resource(const QString &key);
 			ChatUnitList lowerUnits();
+			virtual bool event(QEvent *);
 		protected:
 			void fillMaxResource();
 		private:

@@ -27,7 +27,7 @@ namespace Jabber
 			int priority();
 			void setStatus(gloox::Presence::PresenceType presence, int priority);
 			gloox::Presence::PresenceType status();
-			void setChatState(qutim_sdk_0_3::ChatState state);
+			virtual bool event(QEvent *ev);
 			QSet<QString> features() const;
 			void setFeatures(const QSet<QString> &features);
 			bool checkFeature(const QLatin1String &feature) const;
