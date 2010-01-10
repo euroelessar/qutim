@@ -14,7 +14,16 @@ if( NOT KDE_HAS_4_2 )
 	message( SEND_ERROR "Minimum kdelibs version is 4.2.0, but ${GENERIC_LIB_VERSION} found" )
 endif( NOT KDE_HAS_4_2 )
 
-include( ${CMAKE_ROOT}/Modules/QutimPlugin.cmake )
+set(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")
+if(QUTIM_PATH)
+    set(QUTIM_INCLUDE_DIRS ${QUTIM_PATH}/libqutim/include)
+    set(QUTIM_LIBRARY_DIR ${QUTIM_PATH}/libqutim/)
+    set(QUTIM_CMAKE_PLUGIN ${QUTIM_PATH}/cmake/QutimPlugin.cmake)
+else(QUTIM_PATH)
+    set(QUTIM_CMAKE_PLUGIN ${CMAKE_ROOT}/Modules/QutimPlugin.cmake)
+endif(QUTIM_PATH)
+
+include( ${QUTIM_CMAKE_PLUGIN} )
 
 ADD_QUTIMPLUGIN_EXT2( "kdeintegration" "src" "" ${KDE4_KUTILS_LIBS})
 
