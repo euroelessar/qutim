@@ -202,11 +202,8 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 				debug() << contact->id() << "unknown chat state:" << type;
 				return;
 			}
-			//TODO
 			debug() << contact->id() << "typing state changed to" << type;
-			ChatStateEvent *ev = new ChatStateEvent(newState);
-			if (ChatSession *session = ChatLayer::get(contact))
-				qApp->postEvent ( session, ev);
+			qApp->postEvent(ChatLayer::get(contact, true), new ChatStateEvent (newState));
 		}
 		break;
 	}

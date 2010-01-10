@@ -240,22 +240,28 @@ void IcqContact::setCapabilities(const Capabilities &caps)
 	d->capabilities = caps;
 }
 
-void IcqContact::setChatState(ChatState state)
+bool IcqContact::event(QEvent *ev)
 {
-	Q_D(IcqContact);
-	qint8 type = -1;
-	if (state == ChatStatePaused)
-		type = 1;
-	else if (state == ChatStateComposing)
-		type = 2;
-	if (type < 0)
-		return;
-	SNAC sn(MessageFamily, MessageMtn);
-	sn.appendSimple<quint64> (Util::generateCookie());
-	sn.appendSimple<quint16> (1); // ???
-	sn.appendData<quint8> (d->uin);
-	sn.appendSimple<quint16> (type);
-	d->account->connection()->send(sn);
+	if (ev->type() == ChatStateEvent::eventType()) {
+		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
+		ChatState state = chatEvent->chatState();
+		Q_D(IcqContact);
+		qint8 type = -1;
+		if (state == ChatStatePaused)
+			type = 1;
+		else if (state == ChatStateComposing)
+			type = 2;
+		if (type < 0)
+			return true;
+		SNAC sn(MessageFamily, MessageMtn);
+		sn.appendSimple<quint64> (Util::generateCookie());
+		sn.appendSimple<quint16> (1); // ???
+		sn.appendData<quint8> (d->uin);
+		sn.appendSimple<quint16> (type);
+		d->account->connection()->send(sn);
+		return true;
+	}
+	return Contact::event(ev);
 }
 
 } // namespace Icq

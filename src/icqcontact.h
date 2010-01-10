@@ -48,6 +48,7 @@ public:
 	virtual void setTags(const QSet<QString> &tags);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
+	virtual bool event(QEvent *);
 public:
 	bool RtfSupport() const;
 	bool HtmlSupport() const;
@@ -66,8 +67,6 @@ public:
 	const DirectConnectionInfo &dcInfo() const;
 	void setStatus(Status status);
 	void setCapabilities(const Capabilities &caps);
-public slots:
-	virtual void setChatState(ChatState state);
 protected:
 	friend class Roster;
 	friend class MessagesHandler;
