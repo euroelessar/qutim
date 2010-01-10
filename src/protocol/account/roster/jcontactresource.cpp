@@ -77,6 +77,7 @@ namespace Jabber
 			//gmes.addExtension(new gloox::ChatState(qutIM2gloox(chatEvent->chatState())));
 			//client->send(gmes);
 		}
+		return ChatUnit::event(ev);
 	}
 
 	QSet<QString> JContactResource::features() const

@@ -195,8 +195,7 @@ namespace Jabber
 	void JMessageSession::handleChatState(const JID &from, gloox::ChatStateType state)
 	{
 		Q_UNUSED(from);
-		ChatStateEvent ev(gloox2qutIM(state));
-		qApp->postEvent(ChatLayer::get(this, true), &ev);
+		qApp->postEvent(ChatLayer::get(this, true), new ChatStateEvent (gloox2qutIM(state)));
 	}
 
 	ChatUnit *JMessageSession::upperUnit()

@@ -102,6 +102,7 @@ namespace Jabber
 			client->send(gmes);
 			return true;
 		}
+		return Contact::event(ev);
 	}
 
 	bool JContact::hasResource(const QString &resource)
