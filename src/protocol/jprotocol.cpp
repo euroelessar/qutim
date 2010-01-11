@@ -1,6 +1,10 @@
 #include "jprotocol.h"
 #include "account/jaccount.h"
 #include <qutim/icon.h>
+#include "account/roster/jresourceactiongenerator.h"
+#include "account/roster/jcontact.h"
+#include <gloox/dataform.h>
+#include "account/dataform/jdataform.h"
 
 namespace Jabber
 {
@@ -77,6 +81,43 @@ namespace Jabber
 			JID jid(id.toStdString());
 			addAccount(new JAccount(QString::fromStdString(jid.bare())));
 		}
+
+		MenuController::addAction<JContact>(
+				new JResourceActionGenerator(QIcon(),
+											 QT_TRANSLATE_NOOP("Test", "Test action"),
+											 this, SLOT(onStatusActionPressed())));
+		gloox::DataForm *form = new gloox::DataForm(gloox::TypeForm, "cool title");
+		form->addField(DataFormField::TypeTextSingle, "text-single", "uau, value", "cool label");
+		form->addField(DataFormField::TypeJidSingle, "jid-single", "test@qutim.org", "jid label");
+		{
+			DataFormField *field = new DataFormField(DataFormField::TypeListSingle);
+			field->setName("list-single");
+			field->setLabel("hello! choose me!");
+			field->addOption("1231", "1231");
+			field->addOption("1232", "1232");
+			field->addOption("1233", "1233");
+			form->addField(field);
+		}
+		{
+			DataFormField *field = new DataFormField(DataFormField::TypeListMulti);
+			field->setName("list-multi");
+			field->setLabel("hello! this is List!");
+			field->addOption("101", "1231");
+			field->addOption("102", "1232");
+			field->addOption("103", "1233");
+			form->addField(field);
+		}
+		{
+			DataFormField *field = new DataFormField(DataFormField::TypeJidMulti);
+			field->setName("jid-multi");
+			field->setLabel("JID List!");
+			field->addValue("test@qutim.org");
+			field->addValue("test2@qutim.org");
+			field->addValue("test3@qutim.org");
+			form->addField(field);
+		}
+		JDataForm *jForm = new JDataForm(form, false);
+		jForm->show();
 	}
 
 	void JProtocol::addAccount(JAccount *account, bool isEmit)
@@ -128,7 +169,7 @@ namespace Jabber
 	Status JProtocol::presenceToStatus(Presence::PresenceType presence)
 	{
 		Status status;
-		switch (status) {
+		switch (presence) {
 		case Presence::Available:
 			status = Online;
 			break;

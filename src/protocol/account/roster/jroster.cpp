@@ -23,6 +23,36 @@ namespace Jabber
 	{
 	}
 
+	ChatUnit *JRoster::contact(const QString &id, bool create)
+	{
+		JID jid(id.toStdString());
+		QString bare = id.contains('/') ? QString::fromStdString(jid.bare()) : id;
+		QString resourceId = id == bare ? QString() : QString::fromStdString(jid.resource());
+		JContact *contact = p->contacts.value(bare);
+		if (!resourceId.isEmpty()) {
+			if (!contact) {
+				if (create) {
+					// TODO: implement logic
+					return 0;
+				} else {
+					return 0;
+				}
+			}
+			if (JContactResource *resource = contact->resource(resourceId))
+				return resource;
+			if (create) {
+				// TODO: implement logic
+				return 0;
+			}
+		} else if (contact) {
+			return contact;
+		} else if (create) {
+			// TODO: implement logic
+			return 0;
+		}
+		return 0;
+	}
+
 	void JRoster::handleItemAdded(const JID &jid)
 	{
 		/*QString key(QString::fromStdString(jid.bare()));
@@ -89,6 +119,7 @@ namespace Jabber
 
 	void JRoster::handleRoster(const Roster &roster)
 	{
+		qDeleteAllLater(p->contacts);
 		p->contacts.clear();
 		std::map<const std::string, RosterItem *>::const_iterator items = roster.begin();
 		for(; items != roster.end(); ++items) {
@@ -138,7 +169,7 @@ namespace Jabber
 		QString resource(QString::fromStdString(presence.from().resource()));
 		 if (jid == p->account->jid())
 			 return;
-		debug() << jid << resource;
+		debug() << QString::fromStdString(presence.from().full()) << jid << resource;
 		if (!p->contacts.contains(jid)) {
 			JContact *contact = new JContact(jid, p->account);
 			JContactPrivate *c_d = contact->d_func();

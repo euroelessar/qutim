@@ -1,12 +1,14 @@
 #include "jconnection.h"
 #include "../../jprotocol.h"
 #include "../jaccount.h"
-#include "jabber.h"
+#include "../roster/jsoftwaredetection.h"
+#include "sdk/jabber.h"
 #include <gloox/adhoc.h>
 #include <gloox/vcardmanager.h>
 #include <qutim/debug.h>
 #include <qutim/systeminfo.h>
 #include <gloox/capabilities.h>
+#include <gloox/receipt.h>
 
 namespace Jabber
 {
@@ -38,13 +40,16 @@ namespace Jabber
 		p->connection = new JConnectionTCPBase(p->client);
 		loadSettings();
 
+		p->client->registerStanzaExtension(new Receipt(Receipt::Invalid));
+
 		Capabilities *caps = new Capabilities(p->client->disco());
 		caps->setNode("http://qutim.org");
 		p->client->addPresenceExtension(caps);
 
 		p->client->setConnectionImpl(p->connection);
-		p->client->disco()->setVersion("qutIM", qutimVersionStr());
-		p->client->disco()->setIdentity("client", "pc");
+		p->client->disco()->setVersion("qutIM", qutimVersionStr(),
+									   SystemInfo::getFullName().toStdString());
+		p->client->disco()->setIdentity("client", "pc", "qutIM");
 		p->client->disco()->addFeature("jabber:iq:roster");
 		p->client->registerPresenceHandler(this);
 
@@ -57,17 +62,25 @@ namespace Jabber
 		form->addField(DataFormField::TypeNone, "software_version", qutimVersionStr());
 		p->client->disco()->setForm(form);
 
-		JabberParams params;
-		params.addItem<Client>(p->client);
-		params.addItem<Adhoc>(p->adhoc);
-		params.addItem<VCardManager>(p->vCardManager);
-
-		foreach (const ObjectGenerator *gen, moduleGenerators<JabberExtension>()) {
-			if (JabberExtension *ext = gen->generate<JabberExtension>()) {
-				p->extensions.append(ext);
-				ext->init(p->account, params);
-			}
-		}
+		p->client->disco()->addFeature("http://jabber.org/protocol/chatstates");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/bytestreams");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/si");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/si/profile/file-transfer");
+		p->client->disco()->addFeature("http://jabber.org/protocol/disco#info");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/commands");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/rosterx");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/muc");
+		p->client->disco()->addFeature("jabber:x:data");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/activity+notify");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/mood+notify");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/tune+notify");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/physloc+notify");
+//		p->client->disco()->addFeature("http://jabber.org/protocol/geoloc+notify");
+//		p->client->disco()->addFeature("http://www.xmpp.org/extensions/xep-0084.html#ns-metadata+notify");
+		p->client->disco()->addFeature("urn:xmpp:receipts");
+		p->client->disco()->addFeature("http://jabber.org/protocol/xhtml-im");
+//		p->client->disco()->addFeature("urn:xmpp:tmp:sxe");
+//		p->client->disco()->addFeature("http://www.w3.org/2000/svg");
 	}
 
 	JConnection::~JConnection()
@@ -78,6 +91,23 @@ namespace Jabber
 	Client *JConnection::client()
 	{
 		return p->client;
+	}
+
+	void JConnection::initExtensions()
+	{
+		JabberParams params;
+		params.addItem<Client>(p->client);
+		params.addItem<Adhoc>(p->adhoc);
+		params.addItem<VCardManager>(p->vCardManager);
+
+		new JSoftwareDetection(p->account, params);
+
+		foreach (const ObjectGenerator *gen, moduleGenerators<JabberExtension>()) {
+			if (JabberExtension *ext = gen->generate<JabberExtension>()) {
+				p->extensions.append(ext);
+				ext->init(p->account, params);
+			}
+		}
 	}
 
 	void JConnection::handlePresence(const Presence &presence)
@@ -175,7 +205,7 @@ namespace Jabber
 		p->client->setPresence(presence, p->autoPriority
 				? p->priority.value(presence) : p->priority.value(Presence::Invalid));
 		if (p->client->state() == StateDisconnected) {
-			p->client->setXmlLang(QLocale::languageToString(QLocale().language()).toStdString());
+			p->client->setXmlLang(QLocale().name().section('_', 0, 0).toStdString());
 			p->client->connect(false);
 		}
 		if (presence == Presence::Unavailable)

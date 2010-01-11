@@ -23,6 +23,7 @@ namespace Jabber
 			void loadSettings();
 			void setConnectionPresence(Presence::PresenceType presence);
 			Client *client();
+			void initExtensions();
 		protected:
 			void handlePresence(const Presence &presence);
 		private:

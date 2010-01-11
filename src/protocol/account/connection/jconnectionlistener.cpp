@@ -1,6 +1,9 @@
 #include "jconnectionlistener.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
+#include "../muc/jmucsession.h"
+#include <qutim/notificationslayer.h>
+#include <qutim/messagesession.h>
 #include <QDebug>
 
 namespace Jabber
@@ -22,6 +25,10 @@ namespace Jabber
 
 	void JConnectionListener::onConnect()
 	{
+		JID jid("qutim@conference.jabber.ru");
+		jid.setResource(p->account->client()->getID());
+		JMUCSession *session = new JMUCSession(jid, p->account);
+		ChatLayer::get(session, true)->activate();
 	}
 
 	void JConnectionListener::onDisconnect(ConnectionError error)
@@ -211,6 +218,7 @@ namespace Jabber
 					break;
 			}
 			// somes actions with s
+			Notifications::sendNotification(s, tr("System error"));
 			qDebug() << "ERROR" << s;
 		}
 	}

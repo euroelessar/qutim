@@ -4,8 +4,19 @@
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 
-namespace gloox { class Client; class Adhoc; class VCardManager; }
-namespace qutim_sdk_0_3 { class Account; }
+namespace gloox
+{
+	class Client;
+	class Adhoc;
+	class VCardManager;
+	class MessageFilter;
+	class MessageSession;
+}
+
+namespace qutim_sdk_0_3
+{
+	class Account;
+}
 
 namespace Jabber
 {
@@ -44,11 +55,21 @@ namespace Jabber
 		virtual ~JabberExtension() {}
 		virtual void init(qutim_sdk_0_3::Account *account, const JabberParams &params) = 0;
 	};
+
+	class MessageFilterFactory
+	{
+	public:
+		MessageFilterFactory() {}
+		virtual ~MessageFilterFactory() {}
+
+		virtual gloox::MessageFilter *create(gloox::MessageSession *parent) = 0;
+	};
 }
 
-Q_DECLARE_INTERFACE(Jabber::JabberExtension, "org.qutim.jabber.JabberExtension")
-Q_DECLARE_INTERFACE(gloox::Client,			 "net.camaya.gloox.Client")
-Q_DECLARE_INTERFACE(gloox::Adhoc,			 "net.camaya.gloox.Adhoc")
-Q_DECLARE_INTERFACE(gloox::VCardManager,	 "net.camaya.gloox.VCardManager")
+Q_DECLARE_INTERFACE(Jabber::JabberExtension,		"org.qutim.jabber.JabberExtension")
+Q_DECLARE_INTERFACE(Jabber::MessageFilterFactory,	"org.qutim.jabber.MessageFilterFactory")
+Q_DECLARE_INTERFACE(gloox::Client,			"net.camaya.gloox.Client")
+Q_DECLARE_INTERFACE(gloox::Adhoc,			"net.camaya.gloox.Adhoc")
+Q_DECLARE_INTERFACE(gloox::VCardManager,	"net.camaya.gloox.VCardManager")
 
 #endif // JABBER_SDK_0_3_H

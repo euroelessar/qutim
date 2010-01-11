@@ -5,7 +5,7 @@ ENDIF (COMMAND cmake_policy)
 PROJECT ( Jabber )
 SET ( QT_MIN_VERSION "4.6.0" )
 
-SET ( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/" )
+SET ( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/" )
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/" "${CMAKE_CURRENT_BINARY_DIR}/libs/")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/")
@@ -21,6 +21,9 @@ endif(QUTIM_PATH)
 
 SET( QT_USE_QTNETWORK TRUE )
 
+if ( WIN32 )
+ADD_DEFINITIONS( -DGLOOX_IMPORTS )
+endif ( WIN32 )
+
 include( ${QUTIM_CMAKE_PLUGIN} )
 ADD_QUTIMPLUGIN_EXT2( "jabber" "src" "" gloox )
-

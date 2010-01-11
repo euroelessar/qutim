@@ -73,7 +73,7 @@ namespace Jabber
 			rosterManager->remove(d->jid.toStdString());
 	}
 
-	inline gloox::ChatStateType qutimToGloox(qutim_sdk_0_3::ChatState state)
+	inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)
 	{
 		switch (state) {
 		case qutim_sdk_0_3::ChatStateActive:
@@ -91,13 +91,18 @@ namespace Jabber
 		}
 	}
 
-	void JContact::setChatState(qutim_sdk_0_3::ChatState state)
+	bool JContact::event(QEvent *ev)
 	{
-		Q_D(JContact);
-		Client *client = d->account->connection()->client();
-		gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
-		gmes.addExtension(new gloox::ChatState(qutimToGloox(state)));
-		client->send(gmes);
+		if (ev->type() == ChatStateEvent::eventType()) {
+			Q_D(JContact);
+			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
+			Client *client = d->account->connection()->client();
+			gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
+			gmes.addExtension(new gloox::ChatState(qutIM2gloox(chatEvent->chatState())));
+			client->send(gmes);
+			return true;
+		}
+		return Contact::event(ev);
 	}
 
 	bool JContact::hasResource(const QString &resource)
@@ -107,13 +112,14 @@ namespace Jabber
 
 	void JContact::addResource(const QString &resource)
 	{
-		JContactResource *res = new JContactResource(d_func()->account);
+		JContactResource *res = new JContactResource(this, resource);
 		d_func()->resources.insert(resource, res);
 	}
 
 	void JContact::setStatus(const QString &resource, Presence::PresenceType presence, int priority)
 	{
 		Q_D(JContact);
+		Status oldStatus = status();
 		if (presence == Presence::Unavailable) {
 			if (d->resources.contains(resource))
 				removeResource(resource);
@@ -123,6 +129,9 @@ namespace Jabber
 			d->resources.value(resource)->setStatus(presence, priority);
 			fillMaxResource();
 		}
+		Status newStatus = status();
+		if(oldStatus != newStatus)
+			emit statusChanged(newStatus);
 	}
 
 	void JContact::removeResource(const QString &resource)
@@ -166,5 +175,13 @@ namespace Jabber
 	JContactResource *JContact::resource(const QString &key)
 	{
 		return d_func()->resources.value(key);
+	}
+
+	ChatUnitList JContact::lowerUnits()
+	{
+		ChatUnitList list;
+		foreach(ChatUnit *unit, d_func()->resources)
+			list << unit;
+		return list;
 	}
 }
