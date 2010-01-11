@@ -32,6 +32,13 @@ SET( QT_USE_QTGUI FALSE )
 # Search for QT4
 FIND_PACKAGE( Qt4 REQUIRED )
 
+option(WITH_DOXYGEN "" ON)
+
+if(WITH_DOXYGEN)
+    message("-- Checking for Doxygen...")
+    find_package(Doxygen)
+endif()
+
 # Include QT4
 INCLUDE( ${QT_USE_FILE} )
 
@@ -62,3 +69,13 @@ TARGET_LINK_LIBRARIES( libqutim libjdns ${QT_LIBRARIES} )
 
 
 INSTALL (TARGETS libqutim DESTINATION "lib")
+
+if(DOXYGEN_FOUND)
+    set(DOC_TARGET "qutim-doc")
+    configure_file(doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
+    add_custom_target(${DOC_TARGET} ALL
+        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc DESTINATION ${CMAKE_INSTALL_PREFIX}/share/qutim)
+    add_dependencies(libqutim ${DOC_TARGET})
+endif()
+
