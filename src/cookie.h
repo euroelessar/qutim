@@ -24,7 +24,7 @@ namespace Icq
 
 class IcqContact;
 class IcqAccount;
-struct CookiePrivate;
+class CookiePrivate;
 
 class Cookie: public QObject
 {
@@ -36,12 +36,12 @@ class Cookie: public QObject
 public:
 	Cookie(bool generate = false);
 	Cookie(quint64 id);
-	Cookie(IcqContact *contact, quint64 id = 0, bool lock = false);
-	Cookie(IcqAccount *account, quint64 id = 0, bool lock = false);
+	Cookie(IcqContact *contact, quint64 id = 0);
+	Cookie(IcqAccount *account, quint64 id = 0);
 	Cookie(const Cookie &cookie);
 	Cookie &operator=(const Cookie &cookie);
 	virtual ~Cookie();
-	void lock() const;
+	void lock(QObject *receiver = 0, const char *member = "", int msec = 10000) const;
 	bool unlock() const;
 	bool isLocked() const;
 	bool isEmpty() const;
@@ -51,8 +51,12 @@ public:
 	IcqAccount *account() const;
 	void setAccount(IcqAccount *account);
 	static quint64 generateId();
+signals:
+	void timeout();
+private slots:
+	void onTimeout();
 private:
-	QSharedPointer<CookiePrivate> d_ptr;
+	QExplicitlySharedDataPointer<CookiePrivate> d_ptr;
 };
 
 } // namespace Icq

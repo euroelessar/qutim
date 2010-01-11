@@ -13,18 +13,19 @@
  ***************************************************************************
  *****************************************************************************/
 
-
 #include "cookie.h"
 #include "icqcontact.h"
 #include "icqaccount.h"
 #include "icq_global.h"
 #include <QDateTime>
+#include <QTimer>
 
 namespace Icq
 {
 
-struct CookiePrivate
+class CookiePrivate: public QSharedData
 {
+public:
 	CookiePrivate(quint64 _id = 0):
 		id(_id)
 	{
@@ -33,6 +34,7 @@ struct CookiePrivate
 	quint64 id;
 	IcqContact *contact;
 	IcqAccount *account;
+	mutable QTimer timer;
 };
 
 Cookie::Cookie(bool generate):
@@ -53,23 +55,18 @@ Cookie::Cookie(quint64 id):
 	d->account = NULL;
 }
 
-Cookie::Cookie(IcqContact *contact, quint64 id, bool l):
+Cookie::Cookie(IcqContact *contact, quint64 id):
 	d_ptr(new CookiePrivate(id))
 {
-	Q_D(Cookie);
 	setContact(contact);
-	if (l)
-		lock();
 }
 
-Cookie::Cookie(IcqAccount *account, quint64 id, bool l):
+Cookie::Cookie(IcqAccount *account, quint64 id):
 	d_ptr(new CookiePrivate(id))
 {
 	Q_D(Cookie);
 	d->contact = NULL;
 	d->account = account;
-	if (l)
-		lock();
 }
 
 Cookie::Cookie(const Cookie &cookie):
@@ -89,18 +86,25 @@ Cookie::~Cookie()
 
 }
 
-void Cookie::lock() const
+void Cookie::lock(QObject *receiver, const char *member, int msec) const
 {
 	Q_D(const Cookie);
 	Q_ASSERT(d->account);
-	d->account->cookies().insert(d->id, *this);
+	Cookie *cookie = new Cookie(*this);
+	d->account->cookies().insert(d->id, cookie);
+	if (receiver)
+		QObject::connect(cookie, SIGNAL(timeout()), receiver, member);
+	d->timer.singleShot(msec, cookie, SLOT(onTimeout()));
 }
 
 bool Cookie::unlock() const
 {
 	Q_D(const Cookie);
 	Q_ASSERT(d->account);
-	return !d->account->cookies().take(d->id).isEmpty();
+	Cookie *cookie = d->account->cookies().take(d->id);
+	cookie->d_func()->timer.stop();
+	cookie->deleteLater();
+	return !cookie->isEmpty();
 }
 
 bool Cookie::isLocked() const
@@ -145,6 +149,13 @@ void Cookie::setAccount(IcqAccount *account)
 quint64 Cookie::generateId()
 {
 	return QDateTime::currentDateTime().toTime_t();
+}
+
+void Cookie::onTimeout()
+{
+	Q_D(Cookie);
+	emit timeout();
+	unlock();
 }
 
 } // namespace Icq

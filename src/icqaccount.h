@@ -45,7 +45,7 @@ public:
 	void setAvatarsSupport(bool avatars);
 	bool avatarsSupport();
 private:
-	QHash<quint64, Cookie> &cookies();
+	QHash<quint64, Cookie*> &cookies();
 	friend class Roster;
 	friend class Cookie;
 	QScopedPointer<IcqAccountPrivate> p;

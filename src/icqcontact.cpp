@@ -83,7 +83,7 @@ void IcqContact::sendMessage(const Message &message)
 	Q_D(IcqContact);
 	QString msgText;
 	quint8 channel = 2;
-	Cookie cookie(this, message.id(), true);
+	Cookie cookie(this, message.id());
 	if (HtmlSupport())
 		msgText = message.property("html").toString();
 	if (msgText.isEmpty())
@@ -105,6 +105,7 @@ void IcqContact::sendMessage(const Message &message)
 		if (Utf8Support())
 			tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
 		ServerMessage msgData(this, Channel2MessageData(0, tlv));
+		cookie.lock();
 		d->account->connection()->send(msgData);
 	}
 	debug().nospace() << "Message is sent on channel " << channel
