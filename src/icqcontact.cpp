@@ -19,6 +19,8 @@
 #include "buddycaps.h"
 #include "qutim/messagesession.h"
 #include "qutim/notificationslayer.h"
+#include "qutim/messagesession.h"
+#include <QApplication>
 
 namespace Icq
 {
@@ -105,7 +107,7 @@ void IcqContact::sendMessage(const Message &message)
 		if (Utf8Support())
 			tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
 		ServerMessage msgData(this, Channel2MessageData(0, tlv));
-		cookie.lock();
+		cookie.lock(this, SLOT(messageTimeout()));
 		d->account->connection()->send(msgData);
 	}
 	debug().nospace() << "Message is sent on channel " << channel
@@ -270,6 +272,17 @@ void IcqContact::setChatState(ChatState state)
 	sn.appendData<quint8> (d->uin);
 	sn.appendSimple<quint16> (type);
 	d->account->connection()->send(sn);
+}
+
+void IcqContact::messageTimeout()
+{
+	Cookie *cookie = qobject_cast<Cookie*>(sender());
+	Q_ASSERT(cookie);
+	ChatSession *session = ChatLayer::instance()->getSession(cookie->contact(), false);
+	if (session) {
+		QApplication::instance()->postEvent(session, new MessageReceiptEvent(cookie->id(), false));
+		debug() << "Message with id" << cookie->id() << "has not been delivered";
+	}
 }
 
 } // namespace Icq

@@ -19,6 +19,7 @@
 #include <QScopedPointer>
 #include <qutim/contact.h>
 #include <capability.h>
+#include <cookie.h>
 
 namespace Icq
 {
@@ -69,6 +70,7 @@ public:
 	void setCapabilities(const Capabilities &caps);
 public slots:
 	virtual void setChatState(ChatState state);
+	void messageTimeout();
 protected:
 	friend class Roster;
 	friend class MessagesHandler;
