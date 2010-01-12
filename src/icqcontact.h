@@ -49,6 +49,7 @@ public:
 	virtual void setTags(const QSet<QString> &tags);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
+	virtual bool event(QEvent *);
 	IcqAccount *account();
 public:
 	bool RtfSupport() const;
@@ -69,7 +70,6 @@ public:
 	void setStatus(Status status);
 	void setCapabilities(const Capabilities &caps);
 public slots:
-	virtual void setChatState(ChatState state);
 	void messageTimeout();
 protected:
 	friend class Roster;

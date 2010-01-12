@@ -204,7 +204,7 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 				debug() << "Unknown typing notification from"
 						<< contact->id() << ", type" << type;
 			debug() << contact->id() << "typing state changed to" << type;
-			emit contact->chatStateChanged(newState);
+			qApp->postEvent(ChatLayer::get(contact, true), new ChatStateEvent (newState));
 		}
 		break;
 	}

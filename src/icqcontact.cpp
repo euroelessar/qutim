@@ -252,26 +252,32 @@ void IcqContact::setCapabilities(const Capabilities &caps)
 	d->capabilities = caps;
 }
 
-void IcqContact::setChatState(ChatState state)
+bool IcqContact::event(QEvent *ev)
 {
 	Q_D(IcqContact);
-	MTN type = MtnUnknown;
-	if (state == ChatStatePaused)
-		type = MtnTyped;
-	else if (state == ChatStateComposing)
-		type = MtnBegun;
-	else if (state == ChatStateGone)
-		type = MtnGone;
-	else if (state == ChatStateInActive || state == ChatStateActive)
-		type = MtnFinished;
-	if (type == MtnUnknown)
-		return;
-	SNAC sn(MessageFamily, MessageMtn);
-	sn.appendData(Cookie(true));
-	sn.appendSimple<quint16> (1); // channel?
-	sn.appendData<quint8> (d->uin);
-	sn.appendSimple<quint16> (type);
-	d->account->connection()->send(sn);
+	if (ev->type() == ChatStateEvent::eventType()) {
+		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
+		ChatState state = chatEvent->chatState();
+		MTN type = MtnUnknown;
+		if (state == ChatStatePaused)
+			type = MtnTyped;
+		else if (state == ChatStateComposing)
+			type = MtnBegun;
+		else if (state == ChatStateGone)
+			type = MtnGone;
+		else if (state == ChatStateInActive || state == ChatStateActive)
+			type = MtnFinished;
+		if (type == MtnUnknown)
+			return true;
+		SNAC sn(MessageFamily, MessageMtn);
+		sn.appendData(Cookie(true));
+		sn.appendSimple<quint16>(1); // channel?
+		sn.appendData<quint8>(d->uin);
+		sn.appendSimple<quint16>(type);
+		d->account->connection()->send(sn);
+		return true;
+	}
+	return Contact::event(ev);
 }
 
 void IcqContact::messageTimeout()
