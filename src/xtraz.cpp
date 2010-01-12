@@ -53,7 +53,7 @@ public:
 class XtrazData: public Tlv2711
 {
 public:
-	XtrazData(const QString &body, const Cookie &cookie = Cookie());
+	XtrazData(const QString &body, const Cookie &cookie = Cookie(true));
 };
 
 XtrazPrivate::XtrazPrivate()

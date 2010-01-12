@@ -75,7 +75,7 @@ public:
 class Tlv2711: public DataUnit
 {
 public:
-	Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, const Cookie &cookie = Cookie());
+	Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, const Cookie &cookie = Cookie(true));
 	void appendEmptyPacket();
 	void appendColors();
 	const Cookie &cookie() const { return m_cookie; }
@@ -86,7 +86,7 @@ private:
 class Channel2BasicMessageData: public DataUnit
 {
 public:
-	Channel2BasicMessageData(quint16 command, const Capability &guid, const Cookie &cookie = Cookie());
+	Channel2BasicMessageData(quint16 command, const Capability &guid, const Cookie &cookie = Cookie(true));
 	const Cookie &cookie() const { return m_cookie; }
 private:
 	Cookie m_cookie;
@@ -105,13 +105,13 @@ public:
 	ServerMessage(IcqContact *contact, const Channel1MessageData &data, const Cookie &cookie, bool storeMessage = true);
 	ServerMessage(IcqContact *contact, const Channel2BasicMessageData &data);
 protected:
-	void init(IcqContact *contact, qint16 channel, const Cookie &cookie = Cookie());
+	void init(IcqContact *contact, qint16 channel, const Cookie &cookie = Cookie(true));
 };
 
 class ServerResponseMessage: public SNAC
 {
 public:
-	ServerResponseMessage(IcqContact *contact, quint16 format, quint16 reason, const Cookie &cookie = Cookie());
+	ServerResponseMessage(IcqContact *contact, quint16 format, quint16 reason, const Cookie &cookie = Cookie(true));
 };
 
 class MessagesHandler: public SNACHandler

@@ -49,9 +49,10 @@ Channel1MessageData::Channel1MessageData(const QString &message, Channel1Codec c
 	appendTLV(0x0101, msgData.data());
 }
 
-Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, const Cookie &cookie)
+Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, const Cookie &cookie):
+	m_cookie(cookie)
 {
-	m_cookie = cookie.isEmpty() ? Cookie(true) : cookie;
+	Q_ASSERT(!cookie.isEmpty());
 	appendSimple<quint16> (0x1B, LittleEndian);
 	appendSimple<quint16> (protocol_version, LittleEndian);
 	appendData(ICQ_CAPABILITY_PSIG_MESSAGE);
@@ -81,9 +82,10 @@ void Tlv2711::appendColors()
 	appendSimple<quint32> (0x00FFFFFF, LittleEndian); // background
 }
 
-Channel2BasicMessageData::Channel2BasicMessageData(quint16 command, const Capability &guid, const Cookie &cookie)
+Channel2BasicMessageData::Channel2BasicMessageData(quint16 command, const Capability &guid, const Cookie &cookie):
+	m_cookie(cookie)
 {
-	m_cookie = cookie.isEmpty() ? Cookie(true) : cookie;
+	Q_ASSERT(!cookie.isEmpty());
 	appendSimple(command);
 	appendData(m_cookie);
 	appendData(guid);
@@ -128,8 +130,8 @@ ServerMessage::ServerMessage(IcqContact *contact, const Channel2BasicMessageData
 
 void ServerMessage::init(IcqContact *contact, qint16 channel, const Cookie &cookie)
 {
-	Cookie c = cookie.isEmpty() ? Cookie(true) : cookie;
-	appendData(c); // cookie
+	Q_ASSERT(!cookie.isEmpty());
+	appendData(cookie); // cookie
 	appendSimple<quint16>(channel); // message channel
 	appendData<quint8>(contact->id()); // uid or screenname
 }
@@ -137,11 +139,11 @@ void ServerMessage::init(IcqContact *contact, qint16 channel, const Cookie &cook
 ServerResponseMessage::ServerResponseMessage(IcqContact *contact, quint16 format, quint16 reason, const Cookie &cookie) :
 	SNAC(MessageFamily, MessageResponse)
 {
-	Cookie c = cookie.isEmpty() ? Cookie(true) : cookie;
-	appendData(c);
-	appendSimple<quint16> (format);
-	appendData<quint8> (contact->id());
-	appendSimple<quint16> (reason);
+	Q_ASSERT(!cookie.isEmpty());
+	appendData(cookie);
+	appendSimple<quint16>(format);
+	appendData<quint8>(contact->id());
+	appendSimple<quint16>(reason);
 }
 
 MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent) :
