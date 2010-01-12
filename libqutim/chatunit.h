@@ -67,7 +67,7 @@ namespace qutim_sdk_0_3
 		*/
 		virtual QString id() const = 0;
 		/**
-		* @brief Returnes chatunits's representable name
+		* @brief Returnes chatunit's representable name
 		*
 		* @return ChatUnit's name
 		*/

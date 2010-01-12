@@ -31,7 +31,7 @@ namespace qutim_sdk_0_3
 		// High level api
 		/**
 		  * @brief This function quotes string to Json friendly format
-		  * and surronds it by \"
+		  * and surronds it by \"\"
 		  *
 		  * @param str String which would be quoted
 		  */

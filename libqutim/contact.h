@@ -27,6 +27,9 @@ namespace qutim_sdk_0_3
 	class MetaContact;
 	class Message;
 
+	/**
+	* @brief Contact is base class for all contactlist members
+	*/
 	class LIBQUTIM_EXPORT Contact : public ChatUnit
 	{
 		Q_OBJECT
@@ -36,19 +39,63 @@ namespace qutim_sdk_0_3
 		Q_PROPERTY(QIcon statusIcon READ statusIcon NOTIFY statusIconChanged)
 		Q_PROPERTY(bool inList READ isInList WRITE setInList NOTIFY inListChanged)
 	public:
+		/**
+		* @brief default Contact's contructor
+		*
+		* @param account Pointer to chatunit's account
+		*/
 		Contact(Account *account);
+		/**
+		* @brief Contact's destructor
+		*/
 		virtual ~Contact();
+		/**
+		* @brief Returnes contact's representable name
+		*
+		* @return Contact's name
+		*/
 		virtual QString title() const;
+		/**
+		* @brief Returnes set of tags that mark the contact
+		*
+		* @return QSet<QString> tags
+		*/
 		virtual QSet<QString> tags() const;
 		virtual QString name() const;
 		virtual Status status() const;
 		virtual QIcon statusIcon() const;
+		/**
+		* @brief send message to contact
+		*
+		* @param message Message, which to be sent to the recipient
+		*/
 		virtual void sendMessage(const Message &message) = 0;
 		virtual void setName(const QString &name) = 0;
+		/**
+		* @brief set a set of tags
+		*
+		* @param tags
+		*/
 		virtual void setTags(const QSet<QString> &tags) = 0;
+		/**
+		* @brief Returnes membership contact to contactlist
+		*
+		* @return isInList
+		*/
 		virtual bool isInList() const = 0;
+		/**
+		* @brief set a membership contact to contactlist
+		*
+		* @param inList
+		*/
 		virtual void setInList(bool inList) = 0;
+		/**
+		* @brief add contact to contactlist, see also setInList(bool inList)
+		*/
 		void addToList() { setInList(true); }
+		/**
+		* @brief remove contact from contactlist, see also setInList(bool inList)
+		*/
 		void removeFromList() { setInList(false); }
 	signals:
 		void statusChanged(qutim_sdk_0_3::Status status);
