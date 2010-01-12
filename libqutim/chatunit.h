@@ -29,6 +29,9 @@ namespace qutim_sdk_0_3
 	class Contact;
 	typedef QList<ChatUnit *> ChatUnitList;
 
+	/**
+	* @brief ChatUnit is base class for all chat members
+	*/
 	class LIBQUTIM_EXPORT ChatUnit : public MenuController
 	{
 		Q_DECLARE_PRIVATE(ChatUnit)
@@ -37,25 +40,99 @@ namespace qutim_sdk_0_3
 		Q_PROPERTY(QString title READ title)
 		Q_PROPERTY(Account* account READ account)
 	public:
+		/**
+		* @brief default ChatUnit's contructor
+		*
+		* @param account Pointer to chatunit's account
+		*/
 		ChatUnit(Account *account);
+		/**
+		* @brief ChatUnit's contructor
+		*
+		* @param d ChatUnitPrivate
+		*
+		* @param account Pointer to chatunit's account
+		*
+		* @internal For internal use only
+		*/
 		ChatUnit(ChatUnitPrivate &d, Account *account);
+		/**
+		* @brief ChatUnit's destructor
+		*/
 		virtual ~ChatUnit();
+		/**
+		* @brief Returnes chatunit's identification, which is unique for account
+		*
+		* @return ChatUnit's identitification string
+		*/
 		virtual QString id() const = 0;
+		/**
+		* @brief Returnes chatunits's representable name
+		*
+		* @return ChatUnit's name
+		*/
 		virtual QString title() const;
+		/**
+		* @brief Returnes pointer to chatunits's @ref Account
+		*
+		* @return Pointer to account
+		*/
 		Account *account();
+		/**
+		* @brief Returnes pointer to chatunits's @ref Account
+		*
+		* @return Pointer to account
+		*/
 		const Account *account() const;
+		/**
+		* @brief send message to chatunit
+		*
+		* @param message Message, which to be sent to the recipient
+		*/
 		virtual void sendMessage(const Message &message) = 0;
+		/**
+		* @brief Returnes TODO
+		*
+		* @return ChatUnitList
+		*/
 		virtual ChatUnitList lowerUnits();
+		/**
+		* @brief Returnes TODO
+		*
+		* @return Pointer to upper chatunit
+		*/
 		virtual ChatUnit *upperUnit();
 	public slots:
+		/**
+		* @brief Sets a new chat state
+		*
+		* @param state New ChatState
+		*/
 		void setChatState(ChatState state);
 	};
-	
+	/**
+	* @brief The ChatStateEvent class provides events for change chat state
+	*/
 	class LIBQUTIM_EXPORT ChatStateEvent : public QEvent
 	{
 	public:
+		/**
+		* @brief default ChatStateEvent's contructor
+		*
+		* @param state ChatState
+		*/
 		ChatStateEvent(ChatState state);
+		/**
+		* @brief Returnes chatState
+		*
+		* @return ChatState shatState
+		*/
 		inline ChatState chatState() const { return m_state; }
+		/**
+		* @brief event type
+		*
+		* @return QEvent::Type eventType
+		*/
 		static QEvent::Type eventType();
 	protected:
 		ChatState m_state;

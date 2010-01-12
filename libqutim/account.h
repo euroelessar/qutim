@@ -107,7 +107,7 @@ namespace qutim_sdk_0_3
 		*
 		* @param unit ChatUnit with which user wants to start conversation
 		*
-		* @return ChatUnit for @ref ChatSesion
+		* @return ChatUnit for @ref ChatSession
 		*/
 		virtual ChatUnit *getUnitForSession(ChatUnit *unit);
 		/**
