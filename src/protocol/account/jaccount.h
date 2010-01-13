@@ -17,6 +17,7 @@ namespace Jabber {
 	class JRoster;
 	class JConnection;
 	class JMessageHandler;
+	class JServiceDiscovery;
 
 	class JAccount : public Account
 	{
@@ -30,12 +31,12 @@ namespace Jabber {
 			ChatUnit *getUnit(const QString &unitId, bool create = false);
 			void beginChangeStatus(Presence::PresenceType presence);
 			void endChangeStatus(Presence::PresenceType presence);
-			const QString &jid();
 			const QString &password(bool *ok = 0);
 			void autoconnect();
 			JConnection *connection();
 			JMessageHandler *messageHandler();
 			gloox::Client *client();
+			JServiceDiscovery *discoManager();
 		protected:
 			void loadSettings();
 		private:

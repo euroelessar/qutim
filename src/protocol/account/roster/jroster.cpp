@@ -125,7 +125,7 @@ namespace Jabber
 		for(; items != roster.end(); ++items) {
 			std::string key = items->first;
 			QString jid(QString::fromStdString(JID(key).bare()));
-			if (jid == p->account->jid()) {
+			if (jid == p->account->id()) {
 					continue;
 			} else if (!p->contacts.contains(jid)) {
 				JContact *contact = new JContact(jid, p->account);
@@ -167,7 +167,7 @@ namespace Jabber
 		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~presence";
 		QString jid(QString::fromStdString(presence.from().bare()));
 		QString resource(QString::fromStdString(presence.from().resource()));
-		 if (jid == p->account->jid())
+		 if (jid == p->account->id())
 			 return;
 		debug() << QString::fromStdString(presence.from().full()) << jid << resource;
 		if (!p->contacts.contains(jid)) {

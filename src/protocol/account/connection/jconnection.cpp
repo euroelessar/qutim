@@ -33,7 +33,7 @@ namespace Jabber
 	{
 		p->account = account;
 		p->password = QString();
-		JID jid = JID(account->jid().toStdString());
+		JID jid = JID(account->id().toStdString());
 		p->client = new Client(jid, p->password.toStdString());
 		p->adhoc = new Adhoc(p->client);
 		p->vCardManager = new VCardManager(p->client);

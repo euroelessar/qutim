@@ -1,6 +1,8 @@
 #include "jaccount.h"
 #include "roster/jroster.h"
 #include "roster/jmessagehandler.h"
+#include "servicediscovery/jservicebrowser.h"
+#include "servicediscovery/jservicediscovery.h"
 #include "../jprotocol.h"
 
 namespace Jabber {
@@ -13,17 +15,16 @@ namespace Jabber {
 		JRoster *roster;
 		JConnectionListener *connectionListener;
 		JMessageHandler *messageHandler;
-		QString jid;
 		QString passwd;
 		bool keepStatus;
 		bool autoConnect;
 		Presence::PresenceType status;
+		QPointer<JServiceDiscovery> discoManager;
 	};
 
 	JAccount::JAccount(const QString &jid) : Account(jid, JProtocol::instance()), p(new JAccountPrivate)
 	{
-		p->jid = jid;
-
+		p->discoManager = 0;
 		p->connection = new JConnection(this);
 		p->connectionListener = new JConnectionListener(this);
 		p->roster = new JRoster(this);
@@ -57,6 +58,8 @@ namespace Jabber {
 	void JAccount::endChangeStatus(Presence::PresenceType presence)
 	{
 		Account::setStatus(JProtocol::presenceToStatus(presence));
+		JServiceBrowser *w = new JServiceBrowser(this);
+		w->show();
 	}
 
 	void JAccount::autoconnect()
@@ -78,9 +81,11 @@ namespace Jabber {
 		config().group("general").value("prevstatus", 8));
 	}
 
-	const QString &JAccount::jid()
+	JServiceDiscovery *JAccount::discoManager()
 	{
-		return p->jid;
+		if (!p->discoManager)
+			p->discoManager = new JServiceDiscovery(this);
+		return p->discoManager;
 	}
 
 	const QString &JAccount::password(bool *ok)
@@ -88,7 +93,7 @@ namespace Jabber {
 		if (ok)
 			*ok = true;
 		if (p->passwd.isEmpty()) {
-			JInputPassword *inputPasswd = new JInputPassword(jid());
+			JInputPassword *inputPasswd = new JInputPassword(id());
 			if (inputPasswd->exec()) {
 				p->passwd = inputPasswd->passwd();
 				if (inputPasswd->isSave()) {
