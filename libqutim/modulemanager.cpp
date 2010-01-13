@@ -276,7 +276,7 @@ namespace qutim_sdk_0_3
 					}
 				}
 				QPluginLoader *loader = new QPluginLoader(filename);
-				loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
+//				loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
 				QObject *object = loader->instance();
 				if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
 					plugin->init();
