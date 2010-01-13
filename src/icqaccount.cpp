@@ -31,11 +31,12 @@ struct IcqAccountPrivate
 };
 
 IcqAccount::IcqAccount(const QString &uin) :
-	Account(uin, IcqProtocol::instance()), p(new IcqAccountPrivate)
+	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
 {
-	p->conn = new OscarConnection(this);
-	p->conn->registerHandler(p->roster = new Roster(this));
-	p->avatars = protocol()->config("general").value("avatars", QVariant(true)).toBool();
+	Q_D(IcqAccount);
+	d->conn = new OscarConnection(this);
+	d->conn->registerHandler(d->roster = new Roster(this));
+	d->avatars = protocol()->config("general").value("avatars", QVariant(true)).toBool();
 }
 
 IcqAccount::~IcqAccount()
@@ -44,68 +45,77 @@ IcqAccount::~IcqAccount()
 
 Roster *IcqAccount::roster()
 {
-	return p->roster;
+	Q_D(IcqAccount);
+	return d->roster;
 }
 
 OscarConnection *IcqAccount::connection()
 {
-	return p->conn;
+	Q_D(IcqAccount);
+	return d->conn;
 }
 
 void IcqAccount::setStatus(Status status)
 {
+	Q_D(IcqAccount);
 	Status current = this->status();
 	debug() << QString("Changing status from %1 to %2") .arg(statusToString(current, false)) .arg(statusToString(status, false));
 	if (status < Offline || status > OnThePhone || current == status)
 		return;
 	if (status == Offline) {
-		p->conn->disconnectFromHost(false);
-		foreach(IcqContact *contact, p->roster->contacts())
+		d->conn->disconnectFromHost(false);
+		foreach(IcqContact *contact, d->roster->contacts())
 			contact->setStatus(Offline);
 	} else if (current == Offline) {
-		p->conn->setStatus(status);
+		d->conn->setStatus(status);
 		status = Connecting;
-		p->conn->connectToLoginServer();
-	} else
-		p->conn->setStatus(status);
+		d->conn->connectToLoginServer();
+	} else {
+		d->conn->setStatus(status);
+	}
 	Account::setStatus(status);
 }
 
 QString IcqAccount::name() const
 {
-	if (!p->name.isEmpty())
-		return p->name;
+	Q_D(const IcqAccount);
+	if (!d->name.isEmpty())
+		return d->name;
 	else
 		return id();
 }
 
 void IcqAccount::setName(const QString &name)
 {
-	p->name = name;
+	Q_D(IcqAccount);
+	d->name = name;
 }
 
 ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
 {
-	IcqContact *contact = p->roster->contact(unitId);
-	if (create && !contact) {
-		contact = p->roster->sendAddContactRequest(unitId, unitId, not_in_list_group);
-	}
+	Q_D(IcqAccount);
+	IcqContact *contact = d->roster->contact(unitId);
+	if (create && !contact)
+		contact = d->roster->sendAddContactRequest(unitId, unitId, not_in_list_group);
 	return contact;
 }
 
 void IcqAccount::setAvatarsSupport(bool avatars)
 {
-	p->avatars = avatars;
+	Q_D(IcqAccount);
+	d->avatars = avatars;
 }
 
 bool IcqAccount::avatarsSupport()
 {
-	return p->avatars;
+	Q_D(IcqAccount);
+	return d->avatars;
 }
 
 QHash<quint64, Cookie*> &IcqAccount::cookies()
 {
-	return p->cookies;
+	Q_D(IcqAccount);
+	return d->cookies;
 }
 
 } // namespace Icq

@@ -30,11 +30,11 @@ QByteArray TLV::toByteArray(ByteOrder bo) const
 	value.resize(4);
 	value.reserve(4 + m_value.size());
 	if (bo == BigEndian) {
-		qToBigEndian<quint16> (m_type, (uchar *) value.data());
-		qToBigEndian<quint16> (m_value.size(), (uchar *) value.data() + 2);
+		qToBigEndian<quint16>(m_type, (uchar *) value.data());
+		qToBigEndian<quint16>(m_value.size(), (uchar *) value.data() + 2);
 	} else {
-		qToLittleEndian<quint16> (m_type, (uchar *) value.data());
-		qToLittleEndian<quint16> (m_value.size(), (uchar *) value.data() + 2);
+		qToLittleEndian<quint16>(m_type, (uchar *) value.data());
+		qToLittleEndian<quint16>(m_value.size(), (uchar *) value.data() + 2);
 	}
 	value += m_value;
 	return value;
@@ -47,11 +47,11 @@ TLV TLV::fromByteArray(const char *data, int length, ByteOrder bo)
 		return tlv;
 	quint16 len;
 	if (bo == BigEndian) {
-		tlv.setType(qFromBigEndian<quint16> ((const uchar *) data));
-		len = qFromBigEndian<quint16> ((const uchar *) data + 2);
+		tlv.setType(qFromBigEndian<quint16>((const uchar *) data));
+		len = qFromBigEndian<quint16>((const uchar *) data + 2);
 	} else {
-		tlv.setType(qFromLittleEndian<quint16> ((const uchar *) data));
-		len = qFromLittleEndian<quint16> ((const uchar *) data + 2);
+		tlv.setType(qFromLittleEndian<quint16>((const uchar *) data));
+		len = qFromLittleEndian<quint16>((const uchar *) data + 2);
 	}
 	if (len > length)
 		tlv.setType(0xffff);

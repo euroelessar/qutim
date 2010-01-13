@@ -24,19 +24,18 @@ namespace Icq
 quint16 generate_flap_sequence()
 {
 	quint32 n = qrand(), s = 0;
-	for (quint32 i = n; i >>= 3; s += i)
-		;
+	for (quint32 i = n; i >>= 3; s += i);
 	return ((((0 - s) ^ (quint8) n) & 7) ^ n) + 2;
 }
 
 ProtocolError::ProtocolError(const SNAC &snac)
 {
-	code = snac.readSimple<qint16> ();
+	code = snac.readSimple<qint16>();
 	subcode = 0;
 	TLVMap tlvs = snac.readTLVChain();
 	if (tlvs.contains(0x08)) {
 		DataUnit data(tlvs.value(0x08));
-		subcode = data.readSimple<qint16> ();
+		subcode = data.readSimple<qint16>();
 	}
 	str = getErrorStr();
 }
@@ -100,7 +99,7 @@ QString ProtocolError::getErrorStr()
 OscarRate::OscarRate(const SNAC &sn, AbstractConnection *conn) :
 	m_conn(conn)
 {
-	m_groupId = sn.readSimple<quint16> ();
+	m_groupId = sn.readSimple<quint16>();
 	update(m_groupId, sn);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(sendNextPackets()));
 	m_timer.setSingleShot(true);
@@ -108,15 +107,15 @@ OscarRate::OscarRate(const SNAC &sn, AbstractConnection *conn) :
 
 void OscarRate::update(quint32 groupId, const SNAC &sn)
 {
-	m_windowSize = sn.readSimple<quint32> ();
-	m_clearLevel = sn.readSimple<quint32> ();
-	m_alertLevel = sn.readSimple<quint32> ();
-	m_limitLevel = sn.readSimple<quint32> ();
-	m_disconnectLevel = sn.readSimple<quint32> ();
-	m_currentLevel = sn.readSimple<quint32> ();
-	m_maxLevel = sn.readSimple<quint32> ();
-	m_lastTimeDiff = sn.readSimple<quint32> ();
-	m_currentState = sn.readSimple<quint8> ();
+	m_windowSize = sn.readSimple<quint32>();
+	m_clearLevel = sn.readSimple<quint32>();
+	m_alertLevel = sn.readSimple<quint32>();
+	m_limitLevel = sn.readSimple<quint32>();
+	m_disconnectLevel = sn.readSimple<quint32>();
+	m_currentLevel = sn.readSimple<quint32>();
+	m_maxLevel = sn.readSimple<quint32>();
+	m_lastTimeDiff = sn.readSimple<quint32>();
+	m_currentState = sn.readSimple<quint8>();
 
 	if (m_windowSize > 1) {
 		m_time = QDateTime::currentDateTime();
@@ -191,21 +190,21 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case ServiceFamily << 16 | ServiceServerReady: {
 		QList<quint16> services;
 		while (sn.dataSize() != 0)
-			services << sn.readSimple<quint16> ();
+			services << sn.readSimple<quint16>();
 		conn->setServicesList(services);
 		SNAC snac(ServiceFamily, ServiceClientFamilies);
 		// Sending the same as ICQ 6
-		snac.appendSimple<quint32> (0x00220001);
-		snac.appendSimple<quint32> (0x00010004);
-		snac.appendSimple<quint32> (0x00130004);
-		snac.appendSimple<quint32> (0x00020001);
-		snac.appendSimple<quint32> (0x00030001);
-		snac.appendSimple<quint32> (0x00150001);
-		snac.appendSimple<quint32> (0x00040001);
-		snac.appendSimple<quint32> (0x00060001);
-		snac.appendSimple<quint32> (0x00090001);
-		snac.appendSimple<quint32> (0x000a0001);
-		snac.appendSimple<quint32> (0x000b0001);
+		snac.appendSimple<quint32>(0x00220001);
+		snac.appendSimple<quint32>(0x00010004);
+		snac.appendSimple<quint32>(0x00130004);
+		snac.appendSimple<quint32>(0x00020001);
+		snac.appendSimple<quint32>(0x00030001);
+		snac.appendSimple<quint32>(0x00150001);
+		snac.appendSimple<quint32>(0x00040001);
+		snac.appendSimple<quint32>(0x00060001);
+		snac.appendSimple<quint32>(0x00090001);
+		snac.appendSimple<quint32>(0x000a0001);
+		snac.appendSimple<quint32>(0x000b0001);
 		conn->send(snac);
 		break;
 	}
@@ -229,7 +228,7 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			// TLV(x05) Member of ICQ since.
 			// TLV(x14) Unknown
 			TLVMap tlvs = sn.readTLVChain();
-			quint32 ip = tlvs.value(0x0a).value<quint32> ();
+			quint32 ip = tlvs.value(0x0a).value<quint32>();
 			conn->setExternalIP(QHostAddress(ip));
 			//debug() << conn->externalIP();
 		}
@@ -252,7 +251,7 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		conn->m_ratesHash.clear();
 
 		// Rate classes
-		quint16 groupCount = sn.readSimple<quint16> ();
+		quint16 groupCount = sn.readSimple<quint16>();
 		for (int i = 0; i < groupCount; ++i) {
 			OscarRate *rate = new OscarRate(sn, conn);
 			if (!rate->isEmpty())
@@ -260,15 +259,15 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		}
 		// Rate groups
 		while (sn.dataSize() >= 4) {
-			quint16 groupId = sn.readSimple<quint16> ();
-			quint16 count = sn.readSimple<quint16> ();
+			quint16 groupId = sn.readSimple<quint16>();
+			quint16 count = sn.readSimple<quint16>();
 			QHash<quint16, OscarRate*>::iterator rateItr = conn->m_rates.find(groupId);
 			if (rateItr == conn->m_rates.end()) {
 				sn.skipData(count * 4);
 				continue;
 			}
 			for (int j = 0; j < count; ++j) {
-				quint32 snacType = sn.readSimple<quint32> ();
+				quint32 snacType = sn.readSimple<quint32>();
 				rateItr.value()->addSnacType(snacType);
 				conn->m_ratesHash.insert(snacType, *rateItr);
 			}
@@ -277,7 +276,7 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		// Accepting rates
 		SNAC snac(ServiceFamily, ServiceClientRateAck);
 		for (int i = 1; i <= groupCount; i++)
-			snac.appendSimple<quint16> (i);
+			snac.appendSimple<quint16>(i);
 		conn->send(snac);
 
 		// This command requests from the server certain information about the client that is stored on the server
@@ -287,15 +286,15 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	case ServiceFamily << 16 | ServiceServerRateChange: {
-		sn.readData<quint16> (); // Unknown
-		quint16 code = sn.readSimple<quint16> ();
+		sn.readData<quint16>(); // Unknown
+		quint16 code = sn.readSimple<quint16>();
 		if (code == 2)
 			debug() << "Rate limits warning";
 		if (code == 3)
 			debug() << "Rate limits hit";
 		if (code == 4)
 			debug() << "Rate limits clear";
-		quint32 groupId = sn.readSimple<quint16> ();
+		quint32 groupId = sn.readSimple<quint16>();
 		if (conn->m_rates.contains(groupId))
 			conn->m_rates.value(groupId)->update(groupId, sn);
 		break;
@@ -381,7 +380,7 @@ void AbstractConnection::processCloseConnection()
 {
 	debug(Verbose) << QString("processCloseConnection: %1 %2 %3") .arg(flap().channel(), 2, 16, QChar('0')) .arg(flap().seqNum()) .arg(flap().data().toHex().constData());
 	FLAP flap(0x04);
-	flap.appendSimple<quint32> (0x00000001);
+	flap.appendSimple<quint32>(0x00000001);
 	send(flap);
 	socket()->disconnectFromHost();
 }

@@ -32,15 +32,15 @@ Md5LoginNegotiation::Md5LoginNegotiation(OscarConnection *conn, QObject *parent)
 
 void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 {
-	Md5Login *conn = qobject_cast<Md5Login*> (c);
+	Md5Login *conn = qobject_cast<Md5Login*>(c);
 	Q_ASSERT(conn);
 	if (sn.subtype() == SignonAuthKey) {
 		const ClientInfo &client = m_conn->clientInfo();
 		SNAC snac(AuthorizationFamily, SignonLoginRequest);
 		snac.setId(qrand());
-		snac.appendTLV<QByteArray> (0x0001, m_conn->account()->id().toUtf8());
+		snac.appendTLV<QByteArray>(0x0001, m_conn->account()->id().toUtf8());
 		{
-			quint32 length = qFromBigEndian<quint32> ((uchar *) sn.data().constData());
+			quint32 length = qFromBigEndian<quint32>((uchar *) sn.data().constData());
 			QByteArray key = sn.data().mid(2, length);
 			QString password = m_conn->account()->config().group("general").value("passwd", QString(), Config::Crypted);
 			key += QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Md5);
@@ -49,17 +49,17 @@ void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 		}
 		// Flag for "new" md5 authorization
 		snac.appendData(TLV(0x004c));
-		snac.appendTLV<QByteArray> (0x0003, client.id_string);
-		snac.appendTLV<quint16> (0x0017, client.major_version);
-		snac.appendTLV<quint16> (0x0018, client.minor_version);
-		snac.appendTLV<quint16> (0x0019, client.lesser_version);
-		snac.appendTLV<quint16> (0x001a, client.build_number);
-		snac.appendTLV<quint16> (0x0016, client.id_number);
-		snac.appendTLV<quint32> (0x0014, client.distribution_number);
-		snac.appendTLV<QByteArray> (0x000f, client.language);
-		snac.appendTLV<QByteArray> (0x000e, client.country);
+		snac.appendTLV<QByteArray>(0x0003, client.id_string);
+		snac.appendTLV<quint16>(0x0017, client.major_version);
+		snac.appendTLV<quint16>(0x0018, client.minor_version);
+		snac.appendTLV<quint16>(0x0019, client.lesser_version);
+		snac.appendTLV<quint16>(0x001a, client.build_number);
+		snac.appendTLV<quint16>(0x0016, client.id_number);
+		snac.appendTLV<quint32>(0x0014, client.distribution_number);
+		snac.appendTLV<QByteArray>(0x000f, client.language);
+		snac.appendTLV<QByteArray>(0x000e, client.country);
 		// Unknown shit
-		snac.appendTLV<quint8> (0x0094, 0x00);
+		snac.appendTLV<quint8>(0x0094, 0x00);
 		conn->send(snac);
 	} else if (sn.subtype() == SignonLoginReply) {
 		TLVMap tlvs = sn.readTLVChain();
@@ -67,7 +67,7 @@ void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 			QList<QByteArray> list = tlvs.value(0x05).value().split(':');
 			conn->setLoginData(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, tlvs.value(0x06).value());
 		} else {
-			QString error = Util::connectionErrorText(qFromBigEndian<quint16> ((const uchar *) tlvs.value(0x0008).value().constData()));
+			QString error = Util::connectionErrorText(qFromBigEndian<quint16>((const uchar *) tlvs.value(0x0008).value().constData()));
 			Notifications::sendNotification(error);
 		}
 	}
@@ -99,13 +99,13 @@ void Md5Login::login()
 void Md5Login::processNewConnection()
 {
 	FLAP flap(0x01);
-	flap.appendSimple<quint32> (0x00000001);
+	flap.appendSimple<quint32>(0x00000001);
 	// It's some strange unknown shit, but ICQ 6.5 sends it
-	flap.appendTLV<quint32> (0x8003, 0x00100000);
+	flap.appendTLV<quint32>(0x8003, 0x00100000);
 	send(flap);
 
 	SNAC snac(AuthorizationFamily, 0x0006);
-	snac.appendTLV<QByteArray> (0x0001, m_conn->account()->id().toLatin1());
+	snac.appendTLV<QByteArray>(0x0001, m_conn->account()->id().toLatin1());
 	send(snac);
 }
 

@@ -94,7 +94,7 @@ void IcqAccountCreationWizard::finished()
 	accounts << account->id();
 	cfg.setValue("accounts", accounts);
 	cfg.sync();
-	p->protocol->p->accounts_hash->insert(account->id(), account);
+	p->protocol->d_func()->accounts_hash->insert(account->id(), account);
 	delete p->page;
 	emit p->protocol->accountCreated(account);
 }

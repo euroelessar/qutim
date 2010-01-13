@@ -31,6 +31,7 @@ class OscarConnection;
 class IcqAccount: public Account
 {
 	Q_OBJECT
+	Q_DECLARE_PRIVATE(IcqAccount)
 	Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 	Q_PROPERTY(bool avatarsSupport READ avatarsSupport WRITE setAvatarsSupport)
 public:
@@ -48,7 +49,7 @@ private:
 	QHash<quint64, Cookie*> &cookies();
 	friend class Roster;
 	friend class Cookie;
-	QScopedPointer<IcqAccountPrivate> p;
+	QScopedPointer<IcqAccountPrivate> d_ptr;
 };
 
 } // namespace Icq

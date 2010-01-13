@@ -30,6 +30,7 @@ class IcqProtocol;
 class IcqProtocol: public Protocol
 {
 	Q_OBJECT
+	Q_DECLARE_PRIVATE(IcqProtocol)
 	Q_CLASSINFO("Protocol", "icq")
 public:
 	IcqProtocol();
@@ -43,7 +44,7 @@ private slots:
 	void onStatusActionPressed();
 private:
 	friend class IcqAccountCreationWizard;
-	QScopedPointer<IcqProtocolPrivate> p;
+	QScopedPointer<IcqProtocolPrivate> d_ptr;
 	static IcqProtocol *self;
 };
 

@@ -58,9 +58,9 @@ private:
 	{
 		SessionDataItem item;
 		while (data.dataSize() >= 4) {
-			item.type = data.readSimple<quint16> ();
-			item.flags = data.readSimple<quint8> ();
-			item.data = data.readData<quint8> ();
+			item.type = data.readSimple<quint16>();
+			item.flags = data.readSimple<quint8>();
+			item.data = data.readData<quint8>();
 			insertMulti(item.type, item);
 		}
 	}
@@ -68,11 +68,11 @@ private:
 
 Roster::SSIItem::SSIItem(const SNAC &snac)
 {
-	record_name = snac.readString<quint16> ();
-	group_id = snac.readSimple<quint16> ();
-	item_id = snac.readSimple<quint16> ();
-	item_type = snac.readSimple<quint16> ();
-	tlvs = DataUnit(snac.readData<quint16> ()).readTLVChain();
+	record_name = snac.readString<quint16>();
+	group_id = snac.readSimple<quint16>();
+	item_id = snac.readSimple<quint16>();
+	item_type = snac.readSimple<quint16>();
+	tlvs = DataUnit(snac.readData<quint16>()).readTLVChain();
 }
 
 QString Roster::SSIItem::toString() const
@@ -149,16 +149,16 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 		break;
 	case ListsFamily << 16 | ListsAuthRequest: {
 		sn.skipData(8); // cookie
-		QString uin = sn.readString<quint8> ();
-		QString reason = sn.readString<qint16> ();
+		QString uin = sn.readString<quint8>();
+		QString reason = sn.readString<qint16>();
 		debug() << QString("Authorization request from \"%1\" with reason \"%2").arg(uin).arg(reason);
 		break;
 	}
 	case ListsFamily << 16 | ListsSrvAuthResponse: {
 		sn.skipData(8); // cookie
-		QString uin = sn.readString<qint8> ();
-		bool is_accepted = sn.readSimple<qint8> ();
-		QString reason = sn.readString<qint16> ();
+		QString uin = sn.readString<qint8>();
+		bool is_accepted = sn.readSimple<qint8>();
+		QString reason = sn.readString<qint16>();
 		debug() << "Auth response" << uin << is_accepted << reason;
 		break;
 	}
@@ -195,18 +195,18 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 void Roster::sendAuthResponse(const QString &id, const QString &message, bool auth)
 {
 	SNAC snac(ListsFamily, ListsCliAuthResponse);
-	snac.appendData<qint8> (id); // uin.
-	snac.appendSimple<qint8> (auth ? 0x01 : 0x00); // auth flag.
-	snac.appendData<qint16> (message);
+	snac.appendData<qint8>(id); // uin.
+	snac.appendSimple<qint8>(auth ? 0x01 : 0x00); // auth flag.
+	snac.appendData<qint16>(message);
 	m_conn->send(snac);
 }
 
 void Roster::sendAuthRequest(const QString &id, const QString &message)
 {
 	SNAC snac(ListsFamily, ListsRequestAuth);
-	snac.appendData<qint8> (id); // uin.
-	snac.appendData<qint16> (message);
-	snac.appendSimple<quint16> (0);
+	snac.appendData<qint8>(id); // uin.
+	snac.appendData<qint16>(message);
+	snac.appendSimple<quint16>(0);
 	m_conn->send(snac);
 }
 
@@ -291,8 +291,7 @@ IcqContact *Roster::sendAddContactRequest(const QString &contact_id, const QStri
 
 	IcqContact *contact = new IcqContact(contact_id, m_account);
 	m_not_in_list.insert(contact_id, contact);
-	emit
-	m_account->contactCreated(contact);
+	emit m_account->contactCreated(contact);
 	return contact;
 
 }
@@ -358,9 +357,9 @@ void Roster::setVisibility(Visibility visibility)
 	item.item_type = SsiVisibility;
 	item.item_id = m_visibility_id;
 	TLV data(0x00CA);
-	data.appendValue<quint8> (visibility);
+	data.appendValue<quint8>(visibility);
 	item.tlvs.insert(data);
-	item.tlvs.insert<qint32> (0x00C9, 0xffffffff);
+	item.tlvs.insert<qint32>(0x00C9, 0xffffffff);
 	sendCLModifyStart();
 	if (m_visibility_id == 0) {
 		item.item_type = 1; // TODO: don't hardcode it
@@ -376,8 +375,8 @@ void Roster::handleServerCListReply(const SNAC &sn)
 {
 	if (!(sn.flags() & 0x0001))
 		m_state = RosterReceived;
-	quint8 version = sn.readSimple<quint8> ();
-	quint16 count = sn.readSimple<quint16> ();
+	quint8 version = sn.readSimple<quint8>();
+	quint16 count = sn.readSimple<quint16>();
 	bool is_last = !(sn.flags() & 0x0001);
 	debug() << "SSI: number of entries is" << count << "version is" << version;
 	for (uint i = 0; i < count; i++) {
@@ -386,7 +385,7 @@ void Roster::handleServerCListReply(const SNAC &sn)
 	}
 	debug() << "is_last" << is_last;
 	if (is_last) {
-		quint32 last_info_update = sn.readSimple<quint32> ();
+		quint32 last_info_update = sn.readSimple<quint32>();
 		debug() << "SrvLastUpdate" << last_info_update;
 		m_conn->setProperty("SrvLastUpdate", last_info_update);
 		sendRosterAck();
@@ -447,9 +446,9 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 			m_contacts.insert(item.record_name, contact);
 			contact->d_func()->group_id = item.group_id;
 			if (item.tlvs.contains(SsiBuddyNick))
-				contact->d_func()->name = item.tlvs.value<QString> (SsiBuddyNick);
+				contact->d_func()->name = item.tlvs.value<QString>(SsiBuddyNick);
 			if (item.tlvs.contains(SsiBuddyComment))
-				contact->setProperty("comment", item.tlvs.value<QString> (SsiBuddyComment));
+				contact->setProperty("comment", item.tlvs.value<QString>(SsiBuddyComment));
 			bool auth = !item.tlvs.contains(SsiBuddyReqAuth);
 			contact->setProperty("authorized", auth);
 			if (ContactList::instance())
@@ -457,13 +456,13 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 			debug() << "The contact is added" << contact->id() << contact->name() << item.item_id;
 		} else {
 			// name
-			QString new_name = item.tlvs.value<QString> (SsiBuddyNick);
+			QString new_name = item.tlvs.value<QString>(SsiBuddyNick);
 			if (!new_name.isEmpty() && new_name != contact->d_func()->name) {
 				contact->d_func()->name = new_name;
 				emit contact->nameChanged(new_name);
 			}
 			// comment
-			QString new_comment = item.tlvs.value<QString> (SsiBuddyComment);
+			QString new_comment = item.tlvs.value<QString>(SsiBuddyComment);
 			if (!new_comment.isEmpty() && new_comment != contact->property("comment").toString()) {
 				contact->setProperty("comment", new_comment);
 				// TODO: emit ...
@@ -499,14 +498,14 @@ void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
 		break;
 	case SsiVisibility:
 		m_visibility_id = item.item_id;
-		m_visibility = static_cast<Visibility> (item.tlvs.value<quint8> (0x00CA, AllowAllUsers));
+		m_visibility = static_cast<Visibility>(item.tlvs.value<quint8>(0x00CA, AllowAllUsers));
 		debug() << "Visibility" << m_visibility_id << m_visibility;
 		break;
 	case SsiBuddyIcon:
 		if (m_account->avatarsSupport() && item.tlvs.contains(0x00d5)) {
 			DataUnit data(item.tlvs.value(0x00d5));
-			quint8 flags = data.readSimple<quint8> ();
-			QByteArray hash = data.readData<quint8> ();
+			quint8 flags = data.readSimple<quint8>();
+			QByteArray hash = data.readData<quint8>();
 			if (hash.size() == 16)
 				m_conn->buddyPictureService()->sendUpdatePicture(m_account, 1, flags, hash);
 		}
@@ -574,7 +573,7 @@ void Roster::handleSSIServerAck(const SNAC &sn)
 {
 	sn.skipData(8); // cookie?
 	while (sn.dataSize() != 0) {
-		quint16 error = sn.readSimple<quint16> ();
+		quint16 error = sn.readSimple<quint16>();
 		if (error == 0) {
 			SSIHistoryItem operation = m_ssi_history.dequeue();
 			debug() << "The last SSI operation is successfully done" << operation.type << operation.item.item_type << operation.item.record_name << operation.item.item_id << operation.item.group_id;
@@ -602,13 +601,13 @@ void Roster::handleSSIServerAck(const SNAC &sn)
 
 void Roster::handleUserOnline(const SNAC &snac)
 {
-	QString uin = snac.readData<quint8> ();
+	QString uin = snac.readData<quint8>();
 	IcqContact *contact = m_contacts.value(uin, 0);
 	// We don't know this contact
 	if (!contact)
 		return;
-	quint16 warning_level = snac.readSimple<quint16> ();
-	TLVMap tlvs = snac.readTLVChain<quint16> ();
+	quint16 warning_level = snac.readSimple<quint16>();
+	TLVMap tlvs = snac.readTLVChain<quint16>();
 
 	// status.
 	Status oldStatus = contact->status();
@@ -616,8 +615,8 @@ void Roster::handleUserOnline(const SNAC &snac)
 	quint16 status = 0;
 	if (tlvs.contains(0x06)) {
 		DataUnit status_data(tlvs.value(0x06));
-		statusFlags = status_data.readSimple<quint16> ();
-		status = status_data.readSimple<quint16> ();
+		statusFlags = status_data.readSimple<quint16>();
+		status = status_data.readSimple<quint16>();
 	}
 	contact->setStatus(icqStatusToQutim(status));
 	debug() << contact->name() << "changed status to " << contact->status();
@@ -626,13 +625,13 @@ void Roster::handleUserOnline(const SNAC &snac)
 	SessionDataItemMap status_note_data(tlvs);
 	if (status_note_data.contains(0x0d)) {
 		DataUnit data(status_note_data.value(0x0d).data);
-		quint16 time = data.readSimple<quint16> ();
+		quint16 time = data.readSimple<quint16>();
 		debug() << "Status note update time" << time;
 	}
 	if (status_note_data.contains(0x02)) {
 		DataUnit data(status_note_data.value(0x02).data);
-		QByteArray note_data = data.readData<quint16> ();
-		QByteArray encoding = data.readData<quint16> ();
+		QByteArray note_data = data.readData<quint16>();
+		QByteArray encoding = data.readData<quint16>();
 		QTextCodec *codec;
 		if (encoding.isEmpty())
 			codec = defaultCodec();
@@ -676,26 +675,26 @@ void Roster::handleUserOnline(const SNAC &snac)
 		DataUnit data(tlvs.value(0x000c));
 		DirectConnectionInfo info =
 		{
-				QHostAddress(data.readSimple<quint32> ()),
+				QHostAddress(data.readSimple<quint32>()),
 				QHostAddress(),
-				data.readSimple<quint32> (),
-				data.readSimple<quint8> (),
-				data.readSimple<quint16> (),
-				data.readSimple<quint32> (),
-				data.readSimple<quint32> (),
-				data.readSimple<quint32> (),
-				data.readSimple<quint32> (),
-				data.readSimple<quint32> (),
-				data.readSimple<quint32> ()
+				data.readSimple<quint32>(),
+				data.readSimple<quint8>(),
+				data.readSimple<quint16>(),
+				data.readSimple<quint32>(),
+				data.readSimple<quint32>(),
+				data.readSimple<quint32>(),
+				data.readSimple<quint32>(),
+				data.readSimple<quint32>(),
+				data.readSimple<quint32>()
 		};
 		contact->d_func()->dc_info = info;
 	}
 
 	if (m_account->avatarsSupport() && tlvs.contains(0x001d)) { // avatar
 		DataUnit data(tlvs.value(0x001d));
-		quint16 id = data.readSimple<quint16> ();
-		quint8 flags = data.readSimple<quint8> ();
-		QByteArray hash = data.readData<quint8> ();
+		quint16 id = data.readSimple<quint16>();
+		quint8 flags = data.readSimple<quint8>();
+		QByteArray hash = data.readData<quint8>();
 		if (hash.size() == 16)
 			m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
 	}
@@ -715,7 +714,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 
 void Roster::handleUserOffline(const SNAC &snac)
 {
-	QString uin = snac.readString<quint8> ();
+	QString uin = snac.readString<quint8>();
 	IcqContact *contact = m_contacts.value(uin, 0);
 	// We don't know this contact
 	if (!contact)
@@ -732,7 +731,7 @@ void Roster::handleMetaInfo(const SNAC &snac)
 	if (tlvs.contains(0x01)) {
 		DataUnit data(tlvs.value(0x01));
 		data.skipData(6); // skip length field + my uin
-		quint16 metaType = data.readSimple<quint16> (LittleEndian);
+		quint16 metaType = data.readSimple<quint16>(LittleEndian);
 		switch (metaType) {
 		case (0x0041):
 			// Offline message.
@@ -756,10 +755,10 @@ void Roster::sendMetaInfoRequest(quint16 type)
 {
 	SNAC snac(ExtensionsFamily, ExtensionsMetaCliRequest);
 	DataUnit data;
-	data.appendSimple<quint16> (8, LittleEndian); // data chunk size
-	data.appendSimple<quint32> (m_account->id().toUInt(), LittleEndian);
-	data.appendSimple<quint16> (type, LittleEndian); // message request cmd
-	data.appendSimple<quint16> (snac.id()); // request sequence number
+	data.appendSimple<quint16>(8, LittleEndian); // data chunk size
+	data.appendSimple<quint32>(m_account->id().toUInt(), LittleEndian);
+	data.appendSimple<quint16>(type, LittleEndian); // message request cmd
+	data.appendSimple<quint16>(snac.id()); // request sequence number
 	snac.appendTLV(0x01, data);
 	m_conn->send(snac);
 }
@@ -780,11 +779,11 @@ void Roster::sendCLOperator(const SSIItem &item, quint16 operation)
 {
 	m_ssi_history.enqueue(SSIHistoryItem(item, (ModifingType) operation));
 	SNAC snac(ListsFamily, operation);
-	snac.appendData<quint16> (item.record_name);
-	snac.appendSimple<quint16> (item.group_id);
-	snac.appendSimple<quint16> (item.item_id);
-	snac.appendSimple<quint16> (item.item_type);
-	snac.appendSimple<quint16> (item.tlvs.valuesSize());
+	snac.appendData<quint16>(item.record_name);
+	snac.appendSimple<quint16>(item.group_id);
+	snac.appendSimple<quint16>(item.item_id);
+	snac.appendSimple<quint16>(item.item_type);
+	snac.appendSimple<quint16>(item.tlvs.valuesSize());
 	snac.appendData(item.tlvs);
 	m_conn->send(snac);
 }

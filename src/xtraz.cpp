@@ -164,22 +164,22 @@ XtrazData::XtrazData(const QString &body, const Cookie &cookie) :
 	appendEmptyPacket();
 
 	// Plugin type ID
-	appendSimple<quint16> (0x04f, LittleEndian); // Length
+	appendSimple<quint16>(0x04f, LittleEndian); // Length
 	appendData(Capability(0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865)); // type: xtraz script
-	appendSimple<quint16> (xtrazNotify, LittleEndian); // Function ID
-	appendSimple<quint32> (0x002a, LittleEndian); // Request type
+	appendSimple<quint16>(xtrazNotify, LittleEndian); // Function ID
+	appendSimple<quint32>(0x002a, LittleEndian); // Request type
 	appendData(QString("Script Plug-in: Remote Notification Arrive"));
 	// unknown
-	appendSimple<quint32> (0x00000100);
-	appendSimple<quint32> (0x00000000);
-	appendSimple<quint32> (0x00000000);
-	appendSimple<quint16> (0x0000);
-	appendSimple<quint8> (0x00);
+	appendSimple<quint32>(0x00000100);
+	appendSimple<quint32>(0x00000000);
+	appendSimple<quint32>(0x00000000);
+	appendSimple<quint16>(0x0000);
+	appendSimple<quint8>(0x00);
 
 	// data
 	DataUnit data;
-	data.appendData<quint32> (body, LittleEndian);
-	appendData<quint32> (data.data(), LittleEndian);
+	data.appendData<quint32>(body, LittleEndian);
+	appendData<quint32>(data.data(), LittleEndian);
 }
 
 XtrazRequest::XtrazRequest(IcqContact *contact, const QString &query, const QString &notify)
@@ -227,7 +227,7 @@ Xtraz::Xtraz()
 
 void Xtraz::handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data, const Cookie &cookie)
 {
-	QString message = data.readData<quint32> (LittleEndian);
+	QString message = data.readData<quint32>(LittleEndian);
 	if (type == xtrazNotify)
 		handleNotify(contact, message, cookie);
 	else
@@ -408,7 +408,7 @@ void Xtraz::parseRequest(IcqContact *contact, QXmlStreamReader &xml, const Cooki
 
 void Xtraz::sendXStatus(IcqContact *contact, const Cookie &cookie)
 {
-	IcqAccount *account = qobject_cast<IcqAccount*> (contact->account());
+	IcqAccount *account = qobject_cast<IcqAccount*>(contact->account());
 	Q_ASSERT(account);
 	QString response = QString("<ret event='OnRemoteNotification'>"
 			"<srv><id>cAwaySrv</id>"

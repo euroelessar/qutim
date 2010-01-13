@@ -78,7 +78,7 @@ public:
 	};
 	inline TLVMap() { }
 	inline TLVMap(const QMap<quint16, TLV> &other) :
-		QMultiMap<quint16, TLV> (other) { }
+		QMultiMap<quint16, TLV>(other) { }
 
 	//	TLVMap(const QByteArray &data, ByteOrder bo = BigEndian);
 
@@ -94,7 +94,7 @@ public:
 	T value(quint16 type, const T &def = T()) const
 	{
 		TLVMap::const_iterator it = find(type);
-		return it == constEnd() ? def : it->value<T> ();
+		return it == constEnd() ? def : it->value<T>();
 	}
 
 	TLVMap::iterator insert(quint16 /*type*/, const TLV &/*data*/)
@@ -174,7 +174,7 @@ Q_INLINE_TEMPLATE qint8 TLV::value<qint8>() const
 template<typename T>
 Q_INLINE_TEMPLATE T TLV::value() const
 {
-	return uint(m_value.size()) >= sizeof(T) ? qFromBigEndian<T> ((const uchar *) m_value.constData()) : T();
+	return uint(m_value.size()) >= sizeof(T) ? qFromBigEndian<T>((const uchar *) m_value.constData()) : T();
 }
 
 template<>
@@ -202,7 +202,7 @@ template<typename T>
 Q_INLINE_TEMPLATE void TLV::appendValue(const T &value)
 {
 	char str[sizeof(T)];
-	qToBigEndian<T> (value, (uchar *) str);
+	qToBigEndian<T>(value, (uchar *) str);
 	m_value += QByteArray::fromRawData(str, sizeof(T));
 }
 
@@ -210,7 +210,7 @@ template<typename T>
 Q_INLINE_TEMPLATE void TLV::setValue(const T &value)
 {
 	m_value.clear();
-	appendValue<T> (value);
+	appendValue<T>(value);
 }
 
 template<typename T>
