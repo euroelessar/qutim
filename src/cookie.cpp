@@ -102,9 +102,13 @@ bool Cookie::unlock() const
 	Q_D(const Cookie);
 	Q_ASSERT(d->account);
 	Cookie *cookie = d->account->cookies().take(d->id);
-	cookie->d_func()->timer.stop();
-	cookie->deleteLater();
-	return !cookie->isEmpty();
+	if (cookie) {
+		cookie->d_func()->timer.stop();
+		cookie->deleteLater();
+		return true;
+	} else {
+		return false;
+	}
 }
 
 bool Cookie::isLocked() const
