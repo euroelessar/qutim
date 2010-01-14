@@ -1,17 +1,18 @@
-/*
-	yandexnarodNetMan
-
-	Copyright (c) 2009 by Alexander Kazarin <boiler@co.ru>
-
+/****************************************************************************
+ *  yandexnarodnetman.h
+ *
+ *  Copyright (c) 2008-2009 by Alexander Kazarin <boiler@co.ru>
+ *                     2010 by Nigmatullin Ruslan <euroelessar@ya.ru>
+ *
  ***************************************************************************
  *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
+ *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*/
+*****************************************************************************/
 
 #ifndef YANDEXNARODNETMAN_H
 #define YANDEXNARODNETMAN_H
@@ -25,27 +26,49 @@ class QNetworkRequest;
 class QNetworkReply;
 
 
-class yandexnarodNetMan : public QObject
+class YandexNarodNetMan : public QObject
 {
 	Q_OBJECT
 
 public:
-	yandexnarodNetMan(QObject *parent, QString);
-	~yandexnarodNetMan();
+	enum Action
+	{
+		Authorize,
+		GetFileList,
+		DeleteFile,
+		UploadFile
+	};
+
+	YandexNarodNetMan(QObject *parent);
+	~YandexNarodNetMan();
+
+	quint32 startAuthorization();
+	quint32 startAuthorization(const QString &login, const QString &password);
+
 	void setFilepath (QString arg) { filepath = arg; }
-	void startAuthTest(QString, QString);
 	void startGetFilelist();
 	void startDelFiles(QStringList);
 	void startUploadFile(QString);
 
+signals:
+	bool authorized(quint32);
+
 private:
-	QString m_profile_name;
+	struct Track
+	{
+		quint32 id;
+		Action action;
+	};
+	typedef QHash<QNetworkReply *, Track> TrackMap;
+	TrackMap m_tracks;
+	quint32 m_trackId;
+
 	void netmanDo();
 	QString narodCaptchaKey;
-	QString action;
+	Action m_action;
 	QString page;
-	QNetworkAccessManager *netman;
-	QNetworkRequest netreq;
+	QNetworkAccessManager *m_networkManager;
+	QNetworkRequest m_networkRequest;
 	int nstep;
 	int filesnum;
 	QString purl;

@@ -1,17 +1,18 @@
-/*
-    yandexnarodSettings
-
-	Copyright (c) 2009 by Alexander Kazarin <boiler@co.ru>
-
+/****************************************************************************
+ *  yandexnarodsettings.h
+ *
+ *  Copyright (c) 2008-2009 by Alexander Kazarin <boiler@co.ru>
+ *                     2010 by Nigmatullin Ruslan <euroelessar@ya.ru>
+ *
  ***************************************************************************
  *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
+ *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*/
+*****************************************************************************/
 
 #define VERSION "0.1.4"
 
@@ -19,26 +20,31 @@
 #define YANDEXNARODSETTINGS_H
 
 #include "ui_yandexnarodsettings.h"
-#include <QSettings>
+#include "yandexnarodauthorizator.h"
+#include <qutim/settingswidget.h>
 
-class yandexnarodSettings  : public QWidget
+class YandexNarodSettings  : public qutim_sdk_0_3::SettingsWidget
 {
 	Q_OBJECT;
 
 public:
-	yandexnarodSettings(QString);
-	~yandexnarodSettings();
+	YandexNarodSettings();
+	~YandexNarodSettings();
 	QString getLogin() { return ui.editLogin->text(); }
 	QString getPasswd() { return ui.editPasswd->text(); }
 	void btnTest_enabled(bool b) { ui.btnTest->setEnabled(b); }
 
+	virtual void loadImpl();
+	virtual void saveImpl();
+	virtual void cancelImpl();
+
 public slots:
-	void setStatus(QString str);
-	void saveSettings();
+	void onTestClick();
+	void authorizationResult(YandexNarodAuthorizator::Result result, const QString &error);
 
 private:
-	Ui::yandexnarodSettingsClass ui;
-	QString m_profile_name;
+	YandexNarodAuthorizator *m_authorizator;
+	Ui::YandexNarodSettingsClass ui;
 
 signals:
 	void testclick();

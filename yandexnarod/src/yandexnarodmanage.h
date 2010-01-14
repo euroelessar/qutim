@@ -1,45 +1,46 @@
-/*
-    yandexnarodManage
-
-	Copyright (c) 2009 by Alexander Kazarin <boiler@co.ru>
-
+/****************************************************************************
+ *  yandexnarodmanage.h
+ *
+ *  Copyright (c) 2008-2009 by Alexander Kazarin <boiler@co.ru>
+ *                     2010 by Nigmatullin Ruslan <euroelessar@ya.ru>
+ *
  ***************************************************************************
  *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
+ *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*/
+*****************************************************************************/
 
 #ifndef YANDEXNARODMANAGE_H
 #define YANDEXNARODMANAGE_H
 
 #include <QWidget>
-#include <QSettings>
 #include <QClipboard>
 #include "ui_yandexnarodmanage.h"
 
 #include "yandexnarodnetman.h"
 #include "uploaddialog.h"
 
-class yandexnarodManage : public QWidget, public Ui::yandexnarodManageClass
+class YandexNarodManager : public QWidget, public Ui::yandexnarodManageClass
 {
 Q_OBJECT
 
 public:
-	yandexnarodManage(QString);
-	~yandexnarodManage();
+	YandexNarodManager();
+	~YandexNarodManager();
+
 private:
-	QString m_profile_name;
-	yandexnarodNetMan *netman;
-	yandexnarodNetMan *upnetman;
-	uploadDialog* uploadwidget;
+	void netmanPrepare();
+
+	YandexNarodNetMan *netman;
+	YandexNarodNetMan *upnetman;
+	YandexNarodUploadDialog* uploadwidget;
 	QStringList cooks;
 	QList<QIcon> fileicons;
 	QHash<QString, int> fileiconstyles;
-	void netmanPrepare();
 
 struct FileItem
 {

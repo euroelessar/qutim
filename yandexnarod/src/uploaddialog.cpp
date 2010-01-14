@@ -1,43 +1,44 @@
-/*
-    uploadDialog
-
-    Copyright (c) 2008-2009 by Alexander Kazarin <boiler@co.ru>
-
+/****************************************************************************
+ *  uploaddialog.cpp
+ *
+ *  Copyright (c) 2008-2009 by Alexander Kazarin <boiler@co.ru>
+ *                     2010 by Nigmatullin Ruslan <euroelessar@ya.ru>
+ *
  ***************************************************************************
  *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
+ *   This library is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
-*/
+*****************************************************************************/
 
-#include <qutim/plugininterface.h>
+#include <qutim/libqutim_global.h>
 #include "uploaddialog.h"
 
-uploadDialog::uploadDialog( )
+YandexNarodUploadDialog::YandexNarodUploadDialog( )
 {
 	ui.setupUi(this);
 	utime.start();
 	connect(ui.btnUploadCancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
 	connect(ui.btnUploadCancel, SIGNAL(clicked()), this, SLOT(close()));
-	qutim_sdk_0_2::SystemsCity::PluginSystem()->centerizeWidget(this);
+	qutim_sdk_0_3::centerizeWidget(this);
 	setAttribute(Qt::WA_QuitOnClose, false);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
-uploadDialog::~uploadDialog() 
+YandexNarodUploadDialog::~YandexNarodUploadDialog()
 {
 	
 }
 
-void uploadDialog::start() {
+void YandexNarodUploadDialog::start() {
 	ui.progressBar->setValue(0);
 	utime.start();
 }
 
-void uploadDialog::progress(qint64 cBytes, qint64 totalBytes) {
+void YandexNarodUploadDialog::progress(qint64 cBytes, qint64 totalBytes) {
 	ui.labelStatus->setText("Uploading...");
 	ui.labelProgress->setText("Progress: "+QString::number(cBytes)+" / "+QString::number(totalBytes));
 	ui.progressBar->setMaximum(totalBytes);
