@@ -9,8 +9,8 @@ namespace Jabber
 	struct JServicePrivate
 	{
 		JAccount *account;
-		QHash<QString, JDiscoItem *> items;
-		QHash<QString, JServiceReceiver *> receivers;
+		QMap<int, JDiscoItem *> items;
+		QMap<int, JServiceReceiver *> receivers;
 		int count;
 	};
 
@@ -26,34 +26,31 @@ namespace Jabber
 	{
 	}
 
-	QString JServiceDiscovery::getInfo(JServiceReceiver *receiver, JDiscoItem *di)
+	int JServiceDiscovery::getInfo(JServiceReceiver *receiver, JDiscoItem *di)
 	{
-		QString id = QString("discorequest%1").arg(p->count++);
+		int id = p->count++;
 		p->receivers.insert(id, receiver);
 		debug() << p->items;
 		debug() << id << di;
 		p->items.insert(id, di);
 		p->account->connection()->client()->disco()->getDiscoInfo(di->jid().toStdString(),
-				di->node().toStdString(), dynamic_cast<DiscoHandler *>(this),
-				0, id.toStdString());
+				di->node().toStdString(), dynamic_cast<DiscoHandler *>(this), id);
 		return id;
 	}
 
-	QString JServiceDiscovery::getItems(JServiceReceiver *receiver, JDiscoItem *di)
+	int JServiceDiscovery::getItems(JServiceReceiver *receiver, JDiscoItem *di)
 	{
-		QString id(QString("discorequest%1").arg(p->count++));
+		int id = p->count++;
 		p->receivers.insert(id, receiver);
 		p->items.insert(id, di);
 		p->account->connection()->client()->disco()->getDiscoItems(di->jid().toStdString(),
-				di->node().toStdString(), dynamic_cast<DiscoHandler *>(this),
-				0, id.toStdString());
+				di->node().toStdString(), dynamic_cast<DiscoHandler *>(this), id);
 		return id;
 	}
 
 	void JServiceDiscovery::handleDiscoInfo(const JID &from, const Disco::Info &info, int context)
 	{
-		QString id; //TODO!
-		JDiscoItem *di = p->items.take(id);
+		JDiscoItem *di = p->items.take(context);
 		di->setJID(QString::fromStdString(from.full()));
 		di->setNode(QString::fromStdString(info.node()));
 		foreach (std::string feature, info.features())
@@ -61,12 +58,11 @@ namespace Jabber
 		foreach (Disco::Identity *identity, info.identities())
 			addDiscoIdentity(di, identity);
 		setActions(di);
-		p->receivers.take(id)->setInfo(id);
+		p->receivers.take(context)->setInfo(context);
 	}
 
 	void JServiceDiscovery::handleDiscoItems(const JID &from, const Disco::Items &items, int context)
 	{
-		QString id; //TODO!
 		QList<JDiscoItem *> discoItems;
 		foreach (Disco::Item *item, items.items()) {
 			JDiscoItem *di = new JDiscoItem();
@@ -76,14 +72,13 @@ namespace Jabber
 			di->setNode(QString::fromStdString(item->node()));
 			discoItems << di;
 		}
-		p->items.remove(id);
-		p->receivers.take(id)->setItems(id, discoItems);
+		p->items.remove(context);
+		p->receivers.take(context)->setItems(context, discoItems);
 	}
 
 	void JServiceDiscovery::handleDiscoError(const JID &from, const Error *error, int context)
 	{
-		QString id; //TODO!
-		JDiscoItem *di = p->items.take(id);
+		JDiscoItem *di = p->items.take(context);
 		di->setJID(QString::fromStdString(from.full()));
 		di->setError(QString::fromStdString(error->text()));
 		if (di->error().isEmpty()) {
@@ -163,7 +158,7 @@ namespace Jabber
 			}
 			di->setError(errorText);
 		}
-		p->receivers.take(id)->setError(id, di);
+		p->receivers.take(context)->setError(context, di);
 	}
 
 	bool JServiceDiscovery::handleDiscoSet(const IQ &iq)

@@ -5,15 +5,15 @@
 
 namespace Jabber
 {
-	struct JServicePrivate
+	struct JServiceBrowserPrivate
 	{
 		JAccount *account;
-		QHash<QString, QTreeWidgetItem *> treeItems;
+		QMap<int, QTreeWidgetItem *> treeItems;
 		Ui::ServiceBrowser *ui;
 	};
 
 	JServiceBrowser::JServiceBrowser(JAccount *account, QWidget *parent)
-			: QDialog(parent), p(new JServicePrivate)
+			: QDialog(parent), p(new JServiceBrowserPrivate)
 	{
 		p->account = account;
 		//m_autoclose = autoclose;
@@ -50,7 +50,7 @@ namespace Jabber
 	{
 		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
 		if (!item->childCount() && (di->expand())) {
-			QString id = p->account->discoManager()->getItems(this, di);
+			int id = p->account->discoManager()->getItems(this, di);
 			p->treeItems.insert(id, item);
 		}
 	}
@@ -58,11 +58,11 @@ namespace Jabber
 	void JServiceBrowser::getInfo(QTreeWidgetItem *item)
 	{
 		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
-		QString id = p->account->discoManager()->getInfo(this, di);
+		int id = p->account->discoManager()->getInfo(this, di);
 		p->treeItems.insert(id, item);
 	}
 
-	void JServiceBrowser::setItems(const QString &id, const QList<JDiscoItem *> &items)
+	void JServiceBrowser::setItems(int id, const QList<JDiscoItem *> &items)
 	{
 		QTreeWidgetItem *parentItem = p->treeItems.take(id);
 		if (!parentItem || parentItem->childCount())
@@ -81,7 +81,7 @@ namespace Jabber
 		parentItem->setExpanded(true);
 	}
 
-	void JServiceBrowser::setInfo(const QString &id)
+	void JServiceBrowser::setInfo(int id)
 	{
 		QTreeWidgetItem *item = p->treeItems.take(id);
 		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
@@ -131,7 +131,7 @@ namespace Jabber
 	void JServiceBrowser::on_searchButton_clicked()
 	{
 		hideControls();
-		foreach (QString id, p->treeItems.keys()) {
+		foreach (int id, p->treeItems.keys()) {
 			QTreeWidgetItem *item = p->treeItems.take(id);
 			JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
 			delete di;

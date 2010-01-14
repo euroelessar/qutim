@@ -112,7 +112,8 @@ namespace Jabber
 
 	void JConnection::handlePresence(const Presence &presence)
 	{
-		p->account->endChangeStatus(presence.presence());
+		if (presence.from() == p->client->jid())
+			p->account->endChangeStatus(presence.presence());
 	}
 
 	void JConnection::loadSettings()

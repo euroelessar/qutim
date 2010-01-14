@@ -17,7 +17,7 @@ namespace Jabber
 	class JDiscoItem;
 	class JServiceDiscovery;
 
-	struct JServicePrivate;
+	struct JServiceBrowserPrivate;
 
 	class JServiceBrowser : public QDialog, public JServiceReceiver
 	{
@@ -25,9 +25,9 @@ namespace Jabber
 		public:
 			JServiceBrowser(JAccount *account, QWidget *parent = 0);
 			~JServiceBrowser();
-			virtual void setInfo(const QString &id);
-			virtual void setItems(const QString &id, const QList<JDiscoItem *> &items);
-			virtual void setError(const QString &id, JDiscoItem * di) {}
+			virtual void setInfo(int id);
+			virtual void setItems(int id, const QList<JDiscoItem *> &items);
+			virtual void setError(int id, JDiscoItem * di) {}
 		protected:
 			bool eventFilter(QObject *obj, QEvent *event);
 			void searchServer(const QString &server);
@@ -53,7 +53,7 @@ namespace Jabber
 			void on_addProxyButton_clicked();
 			void on_addRosterButton_clicked();*/
 		private:
-			QScopedPointer<JServicePrivate> p;
+			QScopedPointer<JServiceBrowserPrivate> p;
 		/*signals:
 			void finishSearch();
 			void joinConference(const QString &conference);
