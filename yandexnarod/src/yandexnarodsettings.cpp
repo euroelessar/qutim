@@ -73,12 +73,7 @@ void YandexNarodSettings::onTestClick()
 
 void YandexNarodSettings::authorizationResult(YandexNarodAuthorizator::Result result, const QString &error)
 {
-	if (result == YandexNarodAuthorizator::Success)
-		ui.labelStatus->setText(tr("Authorization succeed"));
-	else if (result == YandexNarodAuthorizator::Error)
-		ui.labelStatus->setText(error);
-	else
-		ui.labelStatus->setText(tr("Authorization failured"));
+	ui.labelStatus->setText(m_authorizator->resultString(result, error));
 	m_authorizator->deleteLater();
 	m_authorizator = 0;
 }

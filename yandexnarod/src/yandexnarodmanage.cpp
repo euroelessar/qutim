@@ -143,30 +143,31 @@ void YandexNarodManager::on_btnClipboard_clicked()
 
 void YandexNarodManager::on_btnUpload_clicked()
 {
-		uploadwidget = new YandexNarodUploadDialog();
-		connect(uploadwidget, SIGNAL(canceled()), this, SLOT(removeUploadWidget()));
-		uploadwidget->show();
-
-		ConfigGroup group = Config().group("yandexnarod");
-		QString filepath = QFileDialog::getOpenFileName(uploadwidget,
-														tr("Choose file"),
-														group.value("lastdir", QString()));
-
-		if (filepath.length()>0) {
-			QFileInfo fi(filepath);
-			group.setValue("lastdir", fi.dir().path());
-			group.sync();
-			upnetman = new YandexNarodNetMan(uploadwidget);
-			connect(upnetman, SIGNAL(statusText(QString)), uploadwidget, SLOT(setStatus(QString)));
-			connect(upnetman, SIGNAL(statusFileName(QString)), uploadwidget, SLOT(setFilename(QString)));
-			connect(upnetman, SIGNAL(transferProgress(qint64,qint64)), uploadwidget, SLOT(progress(qint64,qint64)));
-			connect(upnetman, SIGNAL(uploadFinished()), uploadwidget, SLOT(setDone()));
-			connect(upnetman, SIGNAL(finished()), this, SLOT(netmanFinished()));
-			upnetman->startUploadFile(filepath);
-		}
-		else {
-			delete uploadwidget; uploadwidget=0;
-		}
+//	new YandexNarodUploadDialog(m_nM)
+//		uploadwidget = new YandexNarodUploadDialog();
+//		connect(uploadwidget, SIGNAL(canceled()), this, SLOT(removeUploadWidget()));
+//		uploadwidget->show();
+//
+//		ConfigGroup group = Config().group("yandexnarod");
+//		QString filepath = QFileDialog::getOpenFileName(uploadwidget,
+//														tr("Choose file"),
+//														group.value("lastdir", QString()));
+//
+//		if (filepath.length()>0) {
+//			QFileInfo fi(filepath);
+//			group.setValue("lastdir", fi.dir().path());
+//			group.sync();
+//			upnetman = new YandexNarodNetMan(uploadwidget);
+//			connect(upnetman, SIGNAL(statusText(QString)), uploadwidget, SLOT(setStatus(QString)));
+//			connect(upnetman, SIGNAL(statusFileName(QString)), uploadwidget, SLOT(setFilename(QString)));
+//			connect(upnetman, SIGNAL(transferProgress(qint64,qint64)), uploadwidget, SLOT(progress(qint64,qint64)));
+//			connect(upnetman, SIGNAL(uploadFinished()), uploadwidget, SLOT(setDone()));
+//			connect(upnetman, SIGNAL(finished()), this, SLOT(netmanFinished()));
+//			upnetman->startUploadFile(filepath);
+//		}
+//		else {
+//			delete uploadwidget; uploadwidget=0;
+//		}
 
 
 }

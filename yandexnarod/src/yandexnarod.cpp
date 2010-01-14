@@ -52,13 +52,65 @@ bool YandexNarodPlugin::load()
 			QT_TRANSLATE_NOOP("Yandex", "Yandex Narod"));
 	settings->connect(SIGNAL(testclick()), this,  SLOT(on_btnTest_clicked()));
 	Settings::registerItem(settings);
-	m_netMan = new YandexNarodNetMan(this);
+	m_networkManager = new QNetworkAccessManager(this);
+	loadCookies();
+	m_authorizator = new YandexNarodAuthorizator(m_networkManager);
+	connect(m_authorizator, SIGNAL(needSaveCookies()), SLOT(saveCookies()));
+
+	new YandexNarodUploadDialog(m_networkManager, m_authorizator);
 	return true;
 }
 
 bool YandexNarodPlugin::unload()
 {
 	return false;
+}
+
+void YandexNarodPlugin::loadCookies()
+{
+	return;
+	const ConfigGroup cookies = Config().group("yandexnarod").group("cookies");
+	QNetworkCookieJar *cookieJar = m_networkManager->cookieJar();
+	QList<QNetworkCookie> cookieList;
+	for (int i = 0, size = cookies.arraySize(); i < size; i++) {
+		QNetworkCookie netcook;
+		const ConfigGroup cookie = cookies.at(i);
+		netcook.setDomain(cookie.value("domain", QString()));
+		QString date = cookie.value("expirationDate", QString());
+		if (!date.isEmpty())
+			netcook.setExpirationDate(QDateTime::fromString(date, Qt::ISODate));
+		netcook.setHttpOnly(cookie.value("httpOnly", false));
+		netcook.setSecure(cookie.value("secure", false));
+		netcook.setName(cookie.value("name", QString()).toLatin1());
+		netcook.setPath(cookie.value("path", QString()));
+		netcook.setValue(cookie.value("value", QString()).toLatin1());
+		cookieList.append(netcook);
+		debug() << netcook;
+	}
+	cookieJar->setCookiesFromUrl(cookieList, QUrl("http://yandex.ru"));
+}
+
+void YandexNarodPlugin::saveCookies()
+{
+	ConfigGroup group = Config().group("yandexnarod");
+	group.removeGroup("cookies");
+	ConfigGroup cookies = group.group("cookies");
+
+	QNetworkCookieJar *cookieJar = m_networkManager->cookieJar();
+	int i = 0;
+	foreach (QNetworkCookie netcook, cookieJar->cookiesForUrl(QUrl("http://narod.yandex.ru"))) {
+		if (netcook.isSessionCookie())
+			continue;
+		ConfigGroup cookie = cookies.at(i++);
+		cookie.setValue("domain", netcook.domain());
+		cookie.setValue("expirationDate", netcook.expirationDate().toString(Qt::ISODate));
+		cookie.setValue("httpOnly", netcook.isHttpOnly());
+		cookie.setValue("secure", netcook.isSecure());
+		cookie.setValue("name", QString::fromLatin1(netcook.name()));
+		cookie.setValue("path", netcook.path());
+		cookie.setValue("value", QString::fromLatin1(netcook.value()));
+	}
+	group.sync();
 }
 
 void YandexNarodPlugin::onActionClicked()
@@ -68,45 +120,39 @@ void YandexNarodPlugin::onActionClicked()
 	Contact *contact = qobject_cast<Contact *>(action->data().value<MenuController *>());
 	Q_ASSERT(contact);
 
-	ConfigGroup group = Config().group("yandexnarod");
+	new YandexNarodUploadDialog(m_networkManager, m_authorizator, contact);
 
-	m_uploadWidget = new YandexNarodUploadDialog();
-	connect(m_uploadWidget, SIGNAL(canceled()), this, SLOT(removeUploadWidget()));
-
-	m_uploadWidget->show();
-
-	QString filepath = QFileDialog::getOpenFileName(
-			m_uploadWidget,
-			tr("Choose file for %1").arg(contact->name()),
-			group.value("lastdir", QString()));
-
-	if (filepath.length()>0) {
-		fi.setFile(filepath);
-		group.setValue("lastdir", fi.dir().path());
-		group.sync();
-
-		m_netMan = new YandexNarodNetMan(m_uploadWidget);
-		m_uploadWidget->setContact(contact);
-		connect(m_netMan, SIGNAL(statusText(QString)), m_uploadWidget, SLOT(setStatus(QString)));
-		connect(m_netMan, SIGNAL(statusFileName(QString)), m_uploadWidget, SLOT(setFilename(QString)));
-		connect(m_netMan, SIGNAL(transferProgress(qint64,qint64)), m_uploadWidget, SLOT(progress(qint64,qint64)));
-		connect(m_netMan, SIGNAL(uploadFileURL(QString)), this, SLOT(onFileURL(QString)));
-		connect(m_netMan, SIGNAL(uploadFinished()), m_uploadWidget, SLOT(setDone()));
-		m_netMan->startUploadFile(filepath);
-	}
-	else {
-		delete m_uploadWidget; m_uploadWidget=0;
-	}
-
-	authtest=false;
+//	m_uploadWidget = new YandexNarodUploadDialog();
+//	connect(m_uploadWidget, SIGNAL(canceled()), this, SLOT(removeUploadWidget()));
+//
+//	m_uploadWidget->show();
+//
+//		fi.setFile(filepath);
+//		group.setValue("lastdir", fi.dir().path());
+//		group.sync();
+//
+//		m_netMan = new YandexNarodNetMan(m_uploadWidget);
+//		m_uploadWidget->setContact(contact);
+//		connect(m_netMan, SIGNAL(statusText(QString)), m_uploadWidget, SLOT(setStatus(QString)));
+//		connect(m_netMan, SIGNAL(statusFileName(QString)), m_uploadWidget, SLOT(setFilename(QString)));
+//		connect(m_netMan, SIGNAL(transferProgress(qint64,qint64)), m_uploadWidget, SLOT(progress(qint64,qint64)));
+//		connect(m_netMan, SIGNAL(uploadFileURL(QString)), this, SLOT(onFileURL(QString)));
+//		connect(m_netMan, SIGNAL(uploadFinished()), m_uploadWidget, SLOT(setDone()));
+//		m_netMan->startUploadFile(filepath);
+//	}
+//	else {
+//		delete m_uploadWidget; m_uploadWidget=0;
+//	}
+//
+//	authtest=false;
 }
 
 void YandexNarodPlugin::onManageClicked()
 {
-	if (m_manageDialog.isNull()) {
-		m_manageDialog = new YandexNarodManager();
-		m_manageDialog->show();
-	}
+//	if (m_manageDialog.isNull()) {
+//		m_manageDialog = new YandexNarodManager();
+//		m_manageDialog->show();
+//	}
 }
 
 void YandexNarodPlugin::on_btnTest_clicked()
@@ -123,7 +169,7 @@ void YandexNarodPlugin::on_btnTest_clicked()
 
 void YandexNarodPlugin::on_TestFinished()
 {
-	delete testnetman;
+//	delete testnetman;
 }
 
 void YandexNarodPlugin::actionStart()

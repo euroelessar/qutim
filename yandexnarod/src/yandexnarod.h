@@ -22,6 +22,7 @@
 
 #include "yandexnarodmanage.h"
 #include "yandexnarodsettings.h"
+#include "yandexnarodauthorizator.h"
 #include "uploaddialog.h"
 
 using namespace qutim_sdk_0_3;
@@ -36,24 +37,19 @@ public:
 	virtual bool unload();
 
 private:
-	YandexNarodUploadDialog* m_uploadWidget;
-	QPointer<YandexNarodManager> m_manageDialog;
-	YandexNarodNetMan *m_netMan;
-	YandexNarodNetMan *testnetman;
-	QString msgtemplate;
-	QString purl;
-	QTime time;
-	QFileInfo fi;
-	QStringList cooks;
-	bool authtest;
+	void loadCookies();
+
+	QNetworkAccessManager *m_networkManager;
+	YandexNarodAuthorizator *m_authorizator;
 
 private slots:
+	void saveCookies();
 	void onActionClicked();
 	void onManageClicked();
 	void on_btnTest_clicked();
 	void on_TestFinished();
 	void actionStart();
-	void setCooks(QStringList cs) { cooks = cs; }
+//	void setCooks(QStringList cs) { cooks = cs; }
 	void onFileURL(const QString &);
 
 };
