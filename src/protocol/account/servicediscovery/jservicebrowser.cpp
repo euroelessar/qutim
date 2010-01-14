@@ -2,6 +2,7 @@
 #include "jservicediscovery.h"
 #include "jdiscoitem.h"
 #include "../jaccount.h"
+#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -24,14 +25,15 @@ namespace Jabber
 		p->ui->serviceServer->installEventFilter(this);
 		p->ui->filterButton->setCheckable(true);
 		p->ui->filterLine->setVisible(false);
+		p->ui->searchButton->setIcon(Icon("system-search"));
 		connect(p->ui->serviceTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
 				SLOT(showControls(QTreeWidgetItem*, int)));
 		connect(p->ui->serviceTree, SIGNAL(itemExpanded(QTreeWidgetItem*)),
-				SLOT(getChildItems(QTreeWidgetItem*)));
+				SLOT(getItems(QTreeWidgetItem*)));
 		connect(p->ui->filterLine, SIGNAL(textEdited(const QString&)),
 				SLOT(filterItem(const QString&)));
 		connect(p->ui->filterButton, SIGNAL(clicked(bool)), SLOT(showFilterLine(bool)));
-		searchServer(QString::fromStdString(JID(p->account->id().toStdString()).server()));
+		searchServer(QString::fromStdString(p->account->client()->jid().server()));
 		this->resize(700, 600);
 		p->ui->serviceTree->setColumnWidth(0, p->ui->serviceTree->width()*9/10);
 	}
@@ -48,6 +50,7 @@ namespace Jabber
 
 	void JServiceBrowser::getItems(QTreeWidgetItem *item)
 	{
+		item->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicator);
 		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
 		if (!item->childCount() && (di->expand())) {
 			int id = p->account->discoManager()->getItems(this, di);
@@ -71,6 +74,7 @@ namespace Jabber
 			parentItem->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicator);
 		foreach (JDiscoItem *di, items) {
 			QTreeWidgetItem *item = new QTreeWidgetItem(parentItem);
+			item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
 			if (!di->name().isEmpty())
 				item->setText(0, di->name());
 			item->setText(1, di->jid());
@@ -111,6 +115,7 @@ namespace Jabber
 				tooltip += feature+"<br/>";
 		}
 		item->setToolTip(0, tooltip);
+		debug() << di->jid() << di->expand();
 		if (di->expand())
 			item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
 		if (p->ui->filterButton->isChecked()) {
@@ -128,16 +133,27 @@ namespace Jabber
 		}
 	}
 
+	void clean_item(QTreeWidgetItem *item)
+	{
+		for (int i = item->childCount(); i < 0; i--) {
+			QTreeWidgetItem *child = item->child(0);
+			clean_item(child);
+			JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1)
+														   .value<qptrdiff>());
+			item->removeChild(child);
+			delete child;
+			delete di;
+		}
+	}
+
 	void JServiceBrowser::on_searchButton_clicked()
 	{
 		hideControls();
-		foreach (int id, p->treeItems.keys()) {
-			QTreeWidgetItem *item = p->treeItems.take(id);
-			JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
-			delete di;
-			delete item;
-		}
+		clean_item(p->ui->serviceTree->invisibleRootItem());
+		p->treeItems.clear();
+
 		QTreeWidgetItem *item = new QTreeWidgetItem();
+		item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
 		item->setText(0, "");
 		item->setText(1, p->ui->serviceServer->currentText());
 		p->ui->serviceTree->addTopLevelItem(item);

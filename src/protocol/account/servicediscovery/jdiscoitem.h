@@ -1,7 +1,9 @@
 #ifndef JDISKOITEM_H
 #define JDISKOITEM_H
 
+#include <QObject>
 #include <QStringList>
+#include <QSet>
 
 namespace Jabber
 {
@@ -49,12 +51,12 @@ namespace Jabber
 			bool expand() const {return m_expand;}
 			QList<JDiscoIdentity> identities() {return m_identities;}
 			QList<JDiscoAction> actions() {return m_actions;}
-			QStringList features() {return m_features;}
+			QSet<QString> features() {return m_features;}
 			bool empty() const {return m_empty;}
 		private:
 			QString m_name, m_jid, m_node, m_error;
 			QList<JDiscoIdentity> m_identities;
-			QStringList m_features;
+			QSet<QString> m_features;
 			QList<JDiscoAction> m_actions;
 			bool m_expand, m_empty;
 	};

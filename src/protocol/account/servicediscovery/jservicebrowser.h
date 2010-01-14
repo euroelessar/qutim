@@ -31,7 +31,6 @@ namespace Jabber
 		protected:
 			bool eventFilter(QObject *obj, QEvent *event);
 			void searchServer(const QString &server);
-			void getItems(QTreeWidgetItem *item);
 			void getInfo(QTreeWidgetItem *item);
 			void hideControls();
 			void setItemVisible(QTreeWidgetItem *item, bool visibility);
@@ -39,6 +38,7 @@ namespace Jabber
 			void setBranchVisible(QList<QTreeWidgetItem *> items);
 			QString setServiceIcon(JDiscoItem *di);
 		private slots:
+			void getItems(QTreeWidgetItem *item);
 			void showControls(QTreeWidgetItem*, int);
 			void filterItem(const QString &mask);
 			void closeEvent(QCloseEvent*);
