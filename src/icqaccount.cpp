@@ -17,6 +17,8 @@
 #include "icqprotocol.h"
 #include "oscarconnection.h"
 #include "roster.h"
+#include "buddycaps.h"
+#include <qutim/systeminfo.h>
 
 namespace Icq
 {
@@ -28,6 +30,8 @@ struct IcqAccountPrivate
 	QString name;
 	bool avatars;
 	QHash<quint64, Cookie*> cookies;
+	Capabilities caps;
+	QHash<QString, Capability> typedCaps;
 };
 
 IcqAccount::IcqAccount(const QString &uin) :
@@ -37,6 +41,36 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->roster = new Roster(this));
 	d->avatars = protocol()->config("general").value("avatars", QVariant(true)).toBool();
+
+	// ICQ UTF8 Support
+	d->caps.append(ICQ_CAPABILITY_UTF8);
+	// Buddy Icon
+	d->caps.append(ICQ_CAPABILITY_AIMICON);
+	// RTF messages
+	//d->caps.append(ICQ_CAPABILITY_RTFxMSGS);
+	// qutIM some shit
+	d->caps.append(Capability(0x69716d75, 0x61746769, 0x656d0000, 0x00000000));
+	d->caps.append(Capability(0x09461343, 0x4c7f11d1, 0x82224445, 0x53540000));
+	// HTML messages
+	d->caps.append(ICQ_CAPABILITY_HTMLMSGS);
+	// ICQ typing
+	d->caps.append(ICQ_CAPABILITY_TYPING);
+	// Xtraz
+	d->caps.append(ICQ_CAPABILITY_XTRAZ);
+	// Messages on channel 2
+	d->caps.append(ICQ_CAPABILITY_SRVxRELAY);
+	// Short capability support
+	d->caps.append(ICQ_CAPABILITY_SHORTCAPS);
+
+	// qutIM version info
+	DataUnit version;
+	version.appendData(QByteArray("qutim"));
+	version.appendSimple<quint8>(SystemInfo::getSystemTypeID());
+	version.appendSimple<quint32>(qutimVersion());
+	version.appendSimple<quint8>(0x00);
+	version.appendSimple<quint32>(SystemInfo::getSystemVersionID());
+	version.appendSimple<quint8>(0x00); // 5 bytes more to 16
+	d->caps.append(Capability(version.data()));
 }
 
 IcqAccount::~IcqAccount()
@@ -110,6 +144,54 @@ bool IcqAccount::avatarsSupport()
 {
 	Q_D(IcqAccount);
 	return d->avatars;
+}
+
+void IcqAccount::setCapability(const Capability &capability, const QString &type)
+{
+	Q_D(IcqAccount);
+	if (type.isEmpty())
+		d->caps.push_back(capability);
+	else
+		d->typedCaps.insert(type, capability);
+}
+
+bool IcqAccount::removeCapability(const Capability &capability)
+{
+	Q_D(IcqAccount);
+	return d->caps.removeOne(capability);
+}
+
+bool IcqAccount::removeCapability(const QString &type)
+{
+	Q_D(IcqAccount);
+	return d->typedCaps.remove(type) > 0;
+}
+
+bool IcqAccount::containsCapability(const Capability &capability)
+{
+	Q_D(IcqAccount);
+	if (d->caps.contains(capability))
+		return true;
+	foreach (const Capability &cap, d->typedCaps) {
+		if (cap == capability)
+			return true;
+	}
+	return false;
+}
+
+bool IcqAccount::containsCapability(const QString &type)
+{
+	Q_D(IcqAccount);
+	return d->typedCaps.contains(type);
+}
+
+QList<Capability> IcqAccount::capabilities()
+{
+	Q_D(IcqAccount);
+	QList<Capability> caps = d->caps;
+	foreach (const Capability &cap, d->typedCaps)
+		caps << cap;
+	return caps;
 }
 
 QHash<quint64, Cookie*> &IcqAccount::cookies()

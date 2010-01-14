@@ -24,7 +24,6 @@
 #include "messages.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/notificationslayer.h>
-#include <qutim/systeminfo.h>
 #include <QHostInfo>
 #include <QBuffer>
 #include <QTimer>
@@ -237,37 +236,9 @@ void OscarConnection::finishLogin()
 void OscarConnection::sendUserInfo()
 {
 	SNAC snac(LocationFamily, 0x04);
-
 	TLV caps(0x05);
-
-	// ICQ UTF8 Support
-	caps.appendValue(ICQ_CAPABILITY_UTF8);
-	// Buddy Icon
-	caps.appendValue(ICQ_CAPABILITY_AIMICON);
-	// RTF messages
-	//caps.appendValue(ICQ_CAPABILITY_RTFxMSGS);
-	// qutIM some shit
-	caps.appendValue(Capability(0x69716d75, 0x61746769, 0x656d0000, 0x00000000));
-	caps.appendValue(Capability(0x09461343, 0x4c7f11d1, 0x82224445, 0x53540000));
-	// HTML messages
-	caps.appendValue(ICQ_CAPABILITY_HTMLMSGS);
-	// ICQ typing
-	caps.appendValue(ICQ_CAPABILITY_TYPING);
-	// Xtraz
-	caps.appendValue(ICQ_CAPABILITY_XTRAZ);
-	// Messages on channel 2
-	caps.appendValue(ICQ_CAPABILITY_SRVxRELAY);
-	// Short capability support
-	caps.appendValue(ICQ_CAPABILITY_SHORTCAPS);
-
-	// qutIM version info
-	caps.appendValue<QByteArray>("qutim");
-	caps.appendValue<quint8>(SystemInfo::getSystemTypeID());
-	caps.appendValue<quint32>(qutimVersion());
-	caps.appendValue<quint8>(0x00);
-	caps.appendValue<quint32>(SystemInfo::getSystemVersionID());
-	caps.appendValue<quint8>(0x00); // 5 bytes more to 16
-
+	foreach (const Capability &cap, m_account->capabilities())
+		caps.appendValue(cap);
 	snac.appendData(caps);
 	send(snac);
 }

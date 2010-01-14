@@ -18,6 +18,7 @@
 
 #include <qutim/account.h>
 #include "cookie.h"
+#include "capability.h"
 
 namespace Icq
 {
@@ -45,6 +46,12 @@ public:
 	ChatUnit *getUnit(const QString &unitId, bool create);
 	void setAvatarsSupport(bool avatars);
 	bool avatarsSupport();
+	void setCapability(const Capability &capability, const QString &type = QString());
+	bool removeCapability(const Capability &capability);
+	bool removeCapability(const QString &type);
+	bool containsCapability(const Capability &capability);
+	bool containsCapability(const QString &type);
+	QList<Capability> capabilities();
 private:
 	QHash<quint64, Cookie*> &cookies();
 	friend class Roster;
