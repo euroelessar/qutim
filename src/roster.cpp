@@ -265,23 +265,7 @@ IcqContact *Roster::sendAddContactRequest(const QString &contact_id, const QStri
 	item.item_type = SsiBuddy;
 	item.record_name = contact_id;
 	item.group_id = group_id;
-	// Generating user_id
-	quint16 id = rand() % 0x03e6;
-	forever {
-		bool found = false;
-		foreach(IcqContact *contact, m_contacts)
-		{
-			if (contact->d_func()->user_id == id) {
-				found = true;
-				break;
-			}
-		}
-		if (found)
-			id = rand() % 0x03e6;
-		else
-			break;
-	}
-	item.item_id = id;
+	item.item_id = getItemId();
 	item.tlvs.insert(SsiBuddyNick, contact_name);
 	item.tlvs.insert(SsiBuddyReqAuth);
 
@@ -362,9 +346,9 @@ void Roster::setVisibility(Visibility visibility)
 	item.tlvs.insert<qint32>(0x00C9, 0xffffffff);
 	sendCLModifyStart();
 	if (m_visibility_id == 0) {
-		item.item_type = 1; // TODO: don't hardcode it
+		item.item_id = getItemId(1);
 		sendCLOperator(item, ListsAddToList);
-		m_visibility_id = 1;
+		m_visibility_id = item.item_id;
 	} else
 		sendCLOperator(item, ListsUpdateGroup);
 	sendCLModifyEnd();
@@ -419,6 +403,7 @@ void Roster::handleSSIItem(const SSIItem &item, ModifingType type)
 		handleRemoveCLItem(item);
 	else
 		handleAddModifyCLItem(item, type);
+	m_ssi_id_set.insert(item.item_id);
 }
 
 void Roster::handleAddModifyCLItem(const SSIItem &item, ModifingType type)
@@ -786,6 +771,17 @@ void Roster::sendCLOperator(const SSIItem &item, quint16 operation)
 	snac.appendSimple<quint16>(item.tlvs.valuesSize());
 	snac.appendData(item.tlvs);
 	m_conn->send(snac);
+}
+
+quint16 Roster::getItemId(quint16 value)
+{
+	quint16 id = (value == 0) ? (rand() % 0x03e6) : value;
+	forever {
+		if (m_ssi_id_set.contains(id))
+			id = rand() % 0x03e6;
+		else
+			break;
+	}
 }
 
 } // namespace Icq

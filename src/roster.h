@@ -105,12 +105,14 @@ private:
 	void sendCLModifyStart();
 	void sendCLModifyEnd();
 	void sendCLOperator(const SSIItem &item, quint16 operation);
+	quint16 getItemId(quint16 value = 0);
 	IcqAccount *m_account;
 	OscarConnection *m_conn;
 	QMap<quint16, QString> m_groups;
 	QHash<QString, IcqContact *> m_contacts;
 	QHash<QString, IcqContact *> m_not_in_list;
 	QQueue<SSIHistoryItem> m_ssi_history;
+	QSet<quint16> m_ssi_id_set;
 	quint16 m_visibility_id;
 	Visibility m_visibility;
 };
