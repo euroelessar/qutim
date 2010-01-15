@@ -67,6 +67,7 @@ public:
 	void setServicesList(const QList<quint16> &services) { m_services = services; };
 	const QList<quint16> &servicesList() { return m_services; };
 	QTcpSocket *socket() { return m_socket; };
+	bool isConnected() { return m_socket->isOpen(); }
 protected:
 	const FLAP &flap() { return m_flap; }
 	void send(FLAP &flap);

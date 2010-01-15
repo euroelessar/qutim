@@ -32,6 +32,7 @@ struct IcqAccountPrivate
 	QHash<quint64, Cookie*> cookies;
 	Capabilities caps;
 	QHash<QString, Capability> typedCaps;
+	Status lastStatus;
 };
 
 IcqAccount::IcqAccount(const QString &uin) :
@@ -40,6 +41,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 	Q_D(IcqAccount);
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->roster = new Roster(this));
+	d->lastStatus = Offline; // TODO: load the value from the account config.
 	d->avatars = protocol()->config("general").value("avatars", QVariant(true)).toBool();
 
 	// ICQ UTF8 Support
@@ -93,19 +95,30 @@ void IcqAccount::setStatus(Status status)
 {
 	Q_D(IcqAccount);
 	Status current = this->status();
-	debug() << QString("Changing status from %1 to %2") .arg(statusToString(current, false)) .arg(statusToString(status, false));
-	if (status < Offline || status > OnThePhone || current == status)
+	debug() << QString("Changing status from %1 to %2")
+			.arg(statusToString(current, false))
+			.arg(statusToString(status, false));
+	if (current == status)
 		return;
 	if (status == Offline) {
-		d->conn->disconnectFromHost(false);
+		if (d->conn->isConnected()) {
+			d->conn->disconnectFromHost(false);
+			d->lastStatus = status;
+		}
 		foreach(IcqContact *contact, d->roster->contacts())
 			contact->setStatus(Offline);
-	} else if (current == Offline) {
-		d->conn->setStatus(status);
-		status = Connecting;
-		d->conn->connectToLoginServer();
-	} else {
-		d->conn->setStatus(status);
+	} else if (status == ConnectingStop && current == Connecting) {
+		status = d->lastStatus;
+		d->conn->sendStatus(status);
+		d->conn->metaInfo()->sendShortInfoRequest(d->conn, this); // Requesting own information.
+	} else if (status >= Online && status <= OnThePhone) {
+		d->lastStatus = status;
+		if (current == Offline) {
+			status = Connecting;
+			d->conn->connectToLoginServer();
+		} else {
+			d->conn->sendStatus(status);
+		}
 	}
 	Account::setStatus(status);
 }

@@ -153,7 +153,6 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 		{ QHostAddress(quint32(0)), QHostAddress(quint32(0)), 0, 0x04, 0x08, 0, 0x50, 0x03, 0, 0, 0 };
 		m_dc_info = info;
 	}
-	m_status = 0x0000;
 	m_status_flags = 0x0000;
 	m_buddy_picture = new BuddyPicture(m_account, this);
 	registerHandler(m_buddy_picture);
@@ -213,8 +212,6 @@ void OscarConnection::finishLogin()
 	sendUserInfo();
 	m_is_idle = true;
 	setIdle(false);
-	m_account->setStatus(icqStatusToQutim(m_status));
-	sendStatus();
 	SNAC snac(ServiceFamily, 0x02);
 	// imitate ICQ 6 behaviour
 	snac.appendData(QByteArray::fromHex(
@@ -230,7 +227,7 @@ void OscarConnection::finishLogin()
 		"000a 0001 0110 164f"
 		"000b 0001 0110 164f"));
 	send(snac);
-	m_meta_info->sendShortInfoRequest(this, m_account); // Requesting own information.
+	m_account->setStatus(ConnectingStop);
 }
 
 void OscarConnection::sendUserInfo()
@@ -274,16 +271,6 @@ quint16 qutimStatusToICQ(Status status)
 	}
 }
 
-void OscarConnection::setStatus(Status status)
-{
-	Status currentStatus = m_account->status();
-	if (status < Online || status > OnThePhone || currentStatus == status)
-		return;
-	m_status = qutimStatusToICQ(status);
-	if (currentStatus < Connecting && currentStatus > Offline)
-		sendStatus();
-}
-
 void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie)
 {
 	m_auth_cookie = cookie;
@@ -295,10 +282,10 @@ void OscarConnection::disconnected()
 	m_account->setStatus(Offline);
 }
 
-void OscarConnection::sendStatus()
+void OscarConnection::sendStatus(Status status)
 {
 	SNAC snac(ServiceFamily, ServiceClientSetStatus);
-	snac.appendTLV<quint32>(0x06, (m_status_flags << 16) | m_status); // Status mode and security flags
+	snac.appendTLV<quint32>(0x06, (m_status_flags << 16) | qutimStatusToICQ(status)); // Status mode and security flags
 	snac.appendTLV<quint16>(0x08, 0x0000); // Error code
 	TLV dc(0x0c); // Direct connection info
 	dc.appendValue<quint32>(externalIP().toIPv4Address()); // Real IP
