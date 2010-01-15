@@ -52,6 +52,8 @@ public:
 	bool containsCapability(const Capability &capability);
 	bool containsCapability(const QString &type);
 	QList<Capability> capabilities();
+public slots:
+	void onReconnectTimeout();
 private:
 	QHash<quint64, Cookie*> &cookies();
 	friend class Roster;

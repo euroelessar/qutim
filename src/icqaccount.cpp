@@ -19,6 +19,7 @@
 #include "roster.h"
 #include "buddycaps.h"
 #include <qutim/systeminfo.h>
+#include <QTimer>
 
 namespace Icq
 {
@@ -33,6 +34,7 @@ struct IcqAccountPrivate
 	Capabilities caps;
 	QHash<QString, Capability> typedCaps;
 	Status lastStatus;
+	QTimer reconnectTimer;
 };
 
 IcqAccount::IcqAccount(const QString &uin) :
@@ -104,6 +106,12 @@ void IcqAccount::setStatus(Status status)
 		if (d->conn->isConnected()) {
 			d->conn->disconnectFromHost(false);
 			d->lastStatus = status;
+		} else {
+			Config config = protocol()->config();
+			if (config.group("reconnect").value("enabled", true)) {
+				quint32 time = config.group("reconnect").value("time", 3000);
+				d->reconnectTimer.singleShot(time, this, SLOT(onReconnectTimeout()));
+			}
 		}
 		foreach(IcqContact *contact, d->roster->contacts())
 			contact->setStatus(Offline);
@@ -116,6 +124,7 @@ void IcqAccount::setStatus(Status status)
 		if (current == Offline) {
 			status = Connecting;
 			d->conn->connectToLoginServer();
+			d->reconnectTimer.stop();
 		} else {
 			d->conn->sendStatus(status);
 		}
@@ -205,6 +214,13 @@ QList<Capability> IcqAccount::capabilities()
 	foreach (const Capability &cap, d->typedCaps)
 		caps << cap;
 	return caps;
+}
+
+void IcqAccount::onReconnectTimeout()
+{
+	Q_D(IcqAccount);
+	if (status() == Offline)
+		setStatus(d->lastStatus);
 }
 
 QHash<quint64, Cookie*> &IcqAccount::cookies()

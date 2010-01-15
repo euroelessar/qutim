@@ -442,7 +442,7 @@ void AbstractConnection::stateChanged(QAbstractSocket::SocketState state)
 
 void AbstractConnection::error(QAbstractSocket::SocketError error)
 {
-	debug() << IMPLEMENT_ME << error;
+	debug() << "Connection error:" << error;
 }
 
 } // namespace Icq
