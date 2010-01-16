@@ -1,6 +1,7 @@
 #include "jplugin.h"
 #include "protocol/jprotocol.h"
 #include "protocol/jaccountwizard.h"
+#include "protocol/account/servicediscovery/jservicebrowser.h"
 #include "protocol/modules/xmlconsole/xmlconsole.h"
 #include "protocol/modules/adhoc/jadhocmodule.h"
 #include "protocol/modules/remotecontrol/remotecontrol.h"
@@ -62,6 +63,10 @@ namespace Jabber
 			QT_TRANSLATE_NOOP("Plugin", "Implementation of client remote controlling"),
 			new GeneralGenerator<RemoteControl, JabberExtension>(),
 			ExtensionIcon("utilities-terminal"));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Service Browser"),
+			QT_TRANSLATE_NOOP("Plugin", "Implementation of service browser"),
+			new GeneralGenerator<JServiceBrowserModule, JabberExtension>(),
+			ExtensionIcon("services"));
 	}
 
 	bool JPlugin::load()

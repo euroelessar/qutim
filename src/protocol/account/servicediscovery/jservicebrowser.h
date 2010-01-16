@@ -5,6 +5,7 @@
 #include <QKeyEvent>
 #include <gloox/jid.h>
 #include <qutim/icon.h>
+#include "sdk/jabber.h"
 #include "jservicereceiver.h"
 #include "ui_jservicebrowser.h"
 
@@ -19,6 +20,19 @@ namespace Jabber
 
 	struct JServiceBrowserPrivate;
 
+	class JServiceBrowserModule : public QObject, public JabberExtension
+	{
+		Q_OBJECT
+		Q_INTERFACES(Jabber::JabberExtension)
+	public:
+		JServiceBrowserModule();
+		virtual void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
+	public slots:
+		void showWindow();
+	private:
+		JAccount *m_account;
+	};
+
 	class JServiceBrowser : public QWidget, public JServiceReceiver
 	{
 		Q_OBJECT
@@ -28,9 +42,6 @@ namespace Jabber
 			virtual void setInfo(int id);
 			virtual void setItems(int id, const QList<JDiscoItem *> &items);
 			virtual void setError(int id);
-			void init(JAccount *account);
-		public slots:
-			void showWindow();
 		private slots:
 			void getItems(QTreeWidgetItem *item);
 			void showContextMenu(const QPoint &pos);

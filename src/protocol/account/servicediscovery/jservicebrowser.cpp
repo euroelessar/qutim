@@ -3,9 +3,30 @@
 #include "jservicediscovery.h"
 #include "jdiscoitem.h"
 #include "../jaccount.h"
+#include <qutim/debug.h>
 
 namespace Jabber
 {
+	JServiceBrowserModule::JServiceBrowserModule()
+	{
+		m_account = 0;
+	}
+
+	void JServiceBrowserModule::init(Account *account, const JabberParams &)
+	{
+		debug() << Q_FUNC_INFO;
+		m_account = qobject_cast<JAccount *>(account);
+		account->addAction(new ActionGenerator(Icon("services"),
+											   QT_TRANSLATE_NOOP("Jabber", "Service discovery"),
+											   this, SLOT(showWindow())), "Additional");
+	}
+
+	void JServiceBrowserModule::showWindow()
+	{
+		JServiceBrowser *browser = new JServiceBrowser(m_account);
+		browser->show();
+	}
+
 	struct JServiceBrowserPrivate
 	{
 		JAccount *account;
@@ -15,21 +36,6 @@ namespace Jabber
 		bool isConference;
 		int searchCount;
 	};
-
-	void JServiceBrowser::init(JAccount *account)
-	{
-		account->addAction(new ActionGenerator(Icon("services"),
-				QT_TRANSLATE_NOOP("Jabber", "Service discovery"),
-				this, SLOT(showWindow())), "Additional");
-	}
-
-	void JServiceBrowser::showWindow()
-	{
-		QAction *action = qobject_cast<QAction *>(sender());
-		JAccount *account = qobject_cast<JAccount *>(action->data().value<MenuController *>());
-		JServiceBrowser *window = new JServiceBrowser(account);
-		window->show();
-	}
 
 	JServiceBrowser::JServiceBrowser(JAccount *account, bool isConference, QWidget *parent)
 			: QWidget(parent), p(new JServiceBrowserPrivate)

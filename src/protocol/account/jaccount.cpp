@@ -30,7 +30,6 @@ namespace Jabber {
 		p->roster = new JRoster(this);
 		p->messageHandler = new JMessageHandler(this);
 		p->connection->initExtensions();
-		JServiceBrowser::init(this);
 		loadSettings();
 		autoconnect();
 	}
