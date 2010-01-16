@@ -1,7 +1,7 @@
 /****************************************************************************
  *  configbase.h
  *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar\gmail.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -22,6 +22,7 @@
 
 namespace qutim_sdk_0_3
 {
+#ifndef Q_QDOC
 	class ConfigGroup;
 	class ConfigBasePrivate;
 	class ConfigGroupPrivate;
@@ -56,67 +57,232 @@ namespace qutim_sdk_0_3
 	private:
 		QExplicitlySharedDataPointer<ConfigBasePrivate> get_p() const;
 	};
+#endif
 
-	class LIBQUTIM_EXPORT Config : public ConfigBase
+	class LIBQUTIM_EXPORT Config
+#ifndef Q_QDOC
+	 : public ConfigBase
+#endif
 	{
 	public:
+#ifdef Q_QDOC
+		enum ValueFlag
+		{
+			Normal = 0x00,
+			Crypted = 0x01
+		};
+#else // Q_QDOC
 		typedef ConfigBase::ValueFlag ValueFlag;
 		typedef ConfigBase::ValueFlags ValueFlags;
-		enum OpenFlag { IncludeGlobals = 0x01, SimpleConfig = 0x00 };
+#endif // Q_QDOC
+		enum OpenFlag
+		{
+			IncludeGlobals = 0x01,
+			SimpleConfig = 0x00
+		};
 		Q_DECLARE_FLAGS(OpenFlags, OpenFlag)
-		// If file is empty, then profile settings are loaded
+		/*!
+		  Contructs Config whith \a file as source. If file is empty
+		  \"profile\" will be opened.
+
+		  It is possible to choose certain \a backend, otherwise it
+		  will be guessed by file extension, or if it is not possible
+		  or no backend supports it default one will be used.
+		*/
 		explicit Config(const QString &file = QString(), OpenFlags flags = IncludeGlobals, const QString &backend = QString());
+		/*!
+		  Contructs Config with \a files as fallbacks.
+		*/
 		explicit Config(const QStringList &files, OpenFlags flags = IncludeGlobals, const QString &backend = QString());
+		/*!
+		  Contructs copy of \a other.
+		*/
 		Config(const Config &other);
+#ifndef Q_QDOC
 		Config(const QExplicitlySharedDataPointer<ConfigPrivate> &other);
-		Config &operator =(const Config &other);
-		virtual ~Config();
-#ifdef DOC
-		QStringList groupList() const;
-		bool hasGroup(const QString &name) const;
-		const ConfigGroup group(const QString &name) const;
-		ConfigGroup group(const QString &name);
-		void removeGroup(const QString &name);
 #endif
+		/*!
+		  Assigns the value of the config \a other to this config.
+		*/
+		Config &operator =(const Config &other);
+		/*!
+		  Destructor.
+		*/
+		virtual ~Config();
+#ifdef Q_QDOC
+		/*!
+		  Returnes \b true if config is valid, otherwise return \b false.
+		*/
+		bool isValid() const;
+		/*!
+		  Returnes list of children groups.
+		*/
+		QStringList groupList() const;
+		/*!
+		  Returnes if \a name is in list of children groups.
+		*/
+		bool hasGroup(const QString &name) const;
+		/*!
+		  Returnes group with \a name.
+		*/
+		ConfigGroup group(const QString &name);
+		/*!
+		  Returnes group with \a name.
+		  Convience const version.
+		*/
+		const ConfigGroup group(const QString &name) const;
+		/*! \copydoc Config::group(const QString&) const */
+		const ConfigGroup constGroup(const QString &name) const;
+		/*!
+		  Remove group with \a name.
+		*/
+		void removeGroup(const QString &name);
+		/*!
+		  \copydoc Config::value(const QString &,const QVariant &,ValueFlags) const
+		  If value can not be casted to type \b T default T value
+		  will be returned.
+		*/
+		template<typename T>
+		T value(const QString &key, const T &def, ValueFlags type = Normal) const;
+		/*!
+		  Returns the value for setting \a key. If the setting doesn't
+		  exist, returns \a def.
+		*/
+		QVariant value(const QString &key, const QVariant &def, ValueFlags type = Normal) const;
+		/*!
+		  Set value for setings \a key to \a value.
+		*/
+		void setValue(const QString &key, const QVariant &value, ValueFlags type = Normal);
+#endif
+		/*!
+		  Flush all changes in config to drive
+		*/
 		void sync();
+#ifndef Q_QDOC
 	private:
 		friend class ModuleManager;
 		friend class ConfigGroup;
 		friend class ConfigBase;
 		QExplicitlySharedDataPointer<ConfigPrivate> p;
+#endif
 	};
 
-	class LIBQUTIM_EXPORT ConfigGroup : public ConfigBase
+	class LIBQUTIM_EXPORT ConfigGroup
+#ifndef Q_QDOC
+	: public ConfigBase
+#endif
 	{
 	public:
+		/*!
+		  Constructs copy of \a other
+		*/
 		ConfigGroup(const ConfigGroup &other);
+#ifndef Q_QDOC
 		ConfigGroup(const QExplicitlySharedDataPointer<ConfigGroupPrivate> &other);
+#endif
+		/*!
+		  Assignes the value of config group \a other to this one.
+		*/
 		ConfigGroup &operator =(const ConfigGroup &other);
+		/*!
+		  Destructor
+		*/
 		virtual ~ConfigGroup();
+		/*!
+		  Returnes name of group.
+		*/
 		QString name() const;
+		/*!
+		  Returnes \b true if group is map, otherwise \b false.
+
+		  \note Config group may be also a value at the same time as map.
+		*/
 		bool isMap() const;
+		/*!
+		  Returnes \b true if group is array, otherwise \b false.
+
+		  \note Config group may be also a value at the same time as array.
+		*/
 		bool isArray() const;
+		/*!
+		  Returnes \b true if group is simple value, otherwise \b false.
+
+		  \note Config group may be also a map or array at the same time as value.
+		*/
 		bool isValue() const;
-
+		/*!
+		  Returnes array size
+		*/
 		int arraySize() const;
+		/*!
+		  Returnes group at \a index.
+		  If there is no group at \a index invalid group will be returned.
+		*/
 		const ConfigGroup at(int index) const;
+		/*!
+		  Returnes group at \a index.
+		  If there is no group at \a index it will be created. If group is
+		  map all map values will be erased.
+		*/
 		ConfigGroup at(int index);
+		/*!
+		  Remove group at \a index.
+		*/
 		void removeAt(int index);
-
+		/*!
+		  Return parent config group.
+		*/
 		ConfigGroup parent();
+		/*!
+		  Return parent config group.
+		  Const convience method.
+		*/
 		const ConfigGroup parent() const;
-
+		/*!
+		  Return config of group.
+		*/
 		Config config();
+		/*!
+		  Return config of group.
+		  Const convience method.
+		*/
 		const Config config() const;
 
+#ifdef Q_QDOC
+		/*! \copydoc Config::isValid() */
+		bool isValid() const;
+		/*! \copydoc Config::groupList() */
+		QStringList groupList() const;
+		/*! \copydoc Config::hasGroup() */
+		bool hasGroup(const QString &name) const;
+		/*! \copydoc Config::group(const QString&) */
+		ConfigGroup group(const QString &name);
+		/*! \copydoc Config::group(const QString&) const */
+		const ConfigGroup group(const QString &name) const;
+		/*! \copydoc Config::constGroup() */
+		const ConfigGroup constGroup(const QString &name) const;
+		/*! \copydoc Config::removeGroup() */
+		void removeGroup(const QString &name);
+		/*! \copydoc Config::value(const QString&,const T&,ValueFlags) const */
+		template<typename T>
+		T value(const QString &key, const T &def, ValueFlags type = Normal) const;
+		/*! \copydoc Config::value(const QString&,const QVariant&,ValueFlags) const */
+		QVariant value(const QString &key, const QVariant &def, ValueFlags type = Normal) const;
+		/*! \copydoc Config::setValue() */
+		void setValue(const QString &key, const QVariant &value, ValueFlags type = Normal);
+#endif
+		/*! \copydoc Config::sync() */
 		void sync();
+#ifndef Q_QDOC
 	private:
 		ConfigGroup();
 		friend class Config;
 		friend class ConfigBase;
 		QExplicitlySharedDataPointer<ConfigGroupPrivate> p;
+#endif
 	};
 
+#ifndef Q_QDOC
 	inline const ConfigGroup ConfigBase::constGroup(const QString &group) const
 	{
 		return const_cast<const ConfigBase *>(this)->group(group);
@@ -127,6 +293,7 @@ namespace qutim_sdk_0_3
 	{
 		return value(key, QVariant(def), type).value<T>();
 	}
+#endif
 }
 
 #endif // CONFIGBASE_H

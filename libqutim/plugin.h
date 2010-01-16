@@ -50,19 +50,24 @@ namespace qutim_sdk_0_3
 		LocalizedString description() const;
 		quint32 version() const;
 		ExtensionIcon icon() const;
+#ifndef Q_QDOC
 	private:
 		QSharedDataPointer<PluginInfoData> d;
 	public:
 		typedef PluginInfoData Data;
 		Data *data();
+#endif
 	};
 
+#ifndef Q_QDOC
 	typedef void ( /*QObject::*/ *ModuleInit)();
+#endif
 
 	class LIBQUTIM_EXPORT Plugin : public QObject
 	{
 		Q_OBJECT
 		Q_DISABLE_COPY(Plugin)
+		Q_DECLARE_PRIVATE(Plugin)
 	public:
 		Plugin();
 		virtual ~Plugin();
@@ -91,9 +96,11 @@ namespace qutim_sdk_0_3
 		void addExtension(const LocalizedString &name, const LocalizedString &description,
 						  ExtensionIcon icon = ExtensionIcon())
 		{ addExtension(name, description, new GeneralGenerator<T, I0, I1>(), icon); }
+#ifndef Q_QDOC
 	private:
 		QScopedPointer<PluginPrivate> p;
 		friend class ModuleManager;
+#endif
 	};
 }
 

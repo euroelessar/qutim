@@ -53,8 +53,7 @@ namespace qutim_sdk_0_3
 				   const LocalizedString &task = LocalizedString(),
 				   const QString &email = QString(), const QString &web = QString());
 		/**
-		* @brief Constructs copy of other
-		* @param other What to copy
+		* @brief Constructs copy of @a other
 		*/
 		PersonInfo(const PersonInfo &other);
 		/**
@@ -62,37 +61,32 @@ namespace qutim_sdk_0_3
 		*/
 		~PersonInfo();
 		/**
-		* @brief Assigns @i other to this info
+		* @brief Assigns @a other to this info
 		*
-		* @param Info which should be assigned to this one
 		* @return Reference to this info
 		*/
 		PersonInfo &operator =(const PersonInfo &other);
 		/**
-		* @brief Set person's name
+		* @brief Set person's name to @a name
 		*
-		* @param name Person's name
 		* @return Reference to this info
 		*/
 		PersonInfo &setName(const LocalizedString &name);
 		/**
-		* @brief Set person's task
+		* @brief Set person's task to @a task
 		*
-		* @param task Person's task
 		* @return Reference to this info
 		*/
 		PersonInfo &setTask(const LocalizedString &task);
 		/**
-		* @brief Set person's e-mail
+		* @brief Set person's e-mail to @a email
 		*
-		* @param email Person's e-mail
 		* @return Reference to this info
 		*/
 		PersonInfo &setEmail(const QString &email);
 		/**
-		* @brief Set person's web address
+		* @brief Set person's web address to @a web
 		*
-		* @param web Person's web address
 		* @return Reference to this info
 		*/
 		PersonInfo &setWeb(const QString &web);
