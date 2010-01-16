@@ -430,6 +430,11 @@ namespace qutim_sdk_0_3
 				it.value().generator()->generate<StartupModule>();
 			}
 		}
+		foreach(Plugin *plugin, p->plugins) {
+			if (plugin)
+				plugin->load();
+		}
+
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();
 		Q_UNUSED(ContactList::instance());

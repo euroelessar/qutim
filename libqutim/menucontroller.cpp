@@ -102,8 +102,8 @@ namespace qutim_sdk_0_3
 				if (metaObjects.contains(meta))
 					break;
 				actions.append(globalActions()->values(meta));
-				meta = meta->superClass();
 				metaObjects.insert(meta);
+				meta = meta->superClass();
 			}
 			owner = owner->d_ptr->owner;
 		}
