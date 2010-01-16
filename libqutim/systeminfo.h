@@ -2,7 +2,7 @@
 	System Info
 
 	Copyright (c) 2007-2008 by Remko Tronçon
-				  2008-2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+				  2008-2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
 
  ***************************************************************************
  *                                                                         *

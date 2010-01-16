@@ -1,7 +1,7 @@
 /****************************************************************************
  *  k8json.h
  *
- *  Copyright(c) 2009 by Ketmar // Avalon Group <psyc://ketmar.no-ip.org/~Ketmar>
+ *  Copyright(c) 2010 by Ketmar // Avalon Group <psyc://ketmar.no-ip.org/~Ketmar>
  *                    by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
  ***************************************************************************

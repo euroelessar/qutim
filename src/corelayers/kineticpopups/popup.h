@@ -1,5 +1,5 @@
 //   Modern notifications, which use new Qt Statemachine and Animation framework
-//   (c) by Sidorov "Sauron" Aleksey, sauron@citadelspb.com, 2009
+//   (c) by Sidorov "Sauron" Aleksey, sauron@citadelspb.com, 2010
 //   This library is free software; you can redistribute it and/or
 //   modify it under the terms of the GNU Library General Public
 //   License version 2 or later as published by the Free Software Foundation.

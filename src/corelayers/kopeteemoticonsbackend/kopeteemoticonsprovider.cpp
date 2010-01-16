@@ -1,7 +1,7 @@
 /****************************************************************************
  *  kopeteemoticonsprovider.cpp
  *
- *  Copyright (c) 2009 by Aleksey Sidorov <sauron@citadelspb.com>
+ *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *

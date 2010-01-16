@@ -1,7 +1,7 @@
 /****************************************************************************
  *  event.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
  ***************************************************************************
  *                                                                         *

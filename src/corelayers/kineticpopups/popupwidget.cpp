@@ -1,7 +1,7 @@
 /****************************************************************************
 *  popupwidget.cpp
 *
-*  Copyright (c) 2009 by Sidorov Aleksey <sauron@citadelspb.com>
+*  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
 *
 ***************************************************************************
 *                                                                         *
