@@ -1,7 +1,7 @@
 #ifndef JSERVICEBROWSER_H
 #define JSERVICEBROWSER_H
 
-#include <QDialog>
+#include <QWidget>
 #include <QKeyEvent>
 #include <gloox/jid.h>
 #include <qutim/icon.h>
@@ -19,32 +19,26 @@ namespace Jabber
 
 	struct JServiceBrowserPrivate;
 
-	class JServiceBrowser : public QDialog, public JServiceReceiver
+	class JServiceBrowser : public QWidget, public JServiceReceiver
 	{
 		Q_OBJECT
 		public:
-			JServiceBrowser(JAccount *account, QWidget *parent = 0);
+			JServiceBrowser(JAccount *account, bool isConference = false, QWidget *parent = 0);
 			~JServiceBrowser();
 			virtual void setInfo(int id);
 			virtual void setItems(int id, const QList<JDiscoItem *> &items);
-			virtual void setError(int id, JDiscoItem * di) {}
-		protected:
-			bool eventFilter(QObject *obj, QEvent *event);
-			void searchServer(const QString &server);
-			void getInfo(QTreeWidgetItem *item);
-			void hideControls();
-			void setItemVisible(QTreeWidgetItem *item, bool visibility);
-			QList<QTreeWidgetItem *> findItems(QTreeWidgetItem *item, const QString &text);
-			void setBranchVisible(QList<QTreeWidgetItem *> items);
-			QString setServiceIcon(JDiscoItem *di);
+			virtual void setError(int id);
+			void init(JAccount *account);
+		public slots:
+			void showWindow();
 		private slots:
 			void getItems(QTreeWidgetItem *item);
-			void showControls(QTreeWidgetItem*, int);
+			void showContextMenu(const QPoint &pos);
 			void filterItem(const QString &mask);
 			void closeEvent(QCloseEvent*);
-			void showFilterLine(bool show);
 			void on_searchButton_clicked();
 			void on_closeButton_clicked();
+			void on_clearButton_clicked();
 			/*void on_joinButton_clicked();
 			void on_registerButton_clicked();
 			void on_searchFormButton_clicked();
@@ -52,6 +46,15 @@ namespace Jabber
 			void on_showVCardButton_clicked();
 			void on_addProxyButton_clicked();
 			void on_addRosterButton_clicked();*/
+		protected:
+			bool eventFilter(QObject *obj, QEvent *event);
+			void searchServer(const QString &server);
+			void getInfo(QTreeWidgetItem *item);
+			//void hideControls();
+			void setItemVisible(QTreeWidgetItem *item, bool visibility);
+			QList<QTreeWidgetItem *> findItems(QTreeWidgetItem *item, const QString &text);
+			void setBranchVisible(QList<QTreeWidgetItem *> items);
+			QString setServiceIcon(JDiscoItem *di);
 		private:
 			QScopedPointer<JServiceBrowserPrivate> p;
 		/*signals:

@@ -1,8 +1,8 @@
+#include <QMovie>
 #include "jservicebrowser.h"
 #include "jservicediscovery.h"
 #include "jdiscoitem.h"
 #include "../jaccount.h"
-#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -11,31 +11,64 @@ namespace Jabber
 		JAccount *account;
 		QMap<int, QTreeWidgetItem *> treeItems;
 		Ui::ServiceBrowser *ui;
+		QMenu *contextMenu;
+		bool isConference;
+		int searchCount;
 	};
 
-	JServiceBrowser::JServiceBrowser(JAccount *account, QWidget *parent)
-			: QDialog(parent), p(new JServiceBrowserPrivate)
+	void JServiceBrowser::init(JAccount *account)
+	{
+		account->addAction(new ActionGenerator(Icon("services"),
+				QT_TRANSLATE_NOOP("Jabber", "Service discovery"),
+				this, SLOT(showWindow())), "Additional");
+	}
+
+	void JServiceBrowser::showWindow()
+	{
+		QAction *action = qobject_cast<QAction *>(sender());
+		JAccount *account = qobject_cast<JAccount *>(action->data().value<MenuController *>());
+		JServiceBrowser *window = new JServiceBrowser(account);
+		window->show();
+	}
+
+	JServiceBrowser::JServiceBrowser(JAccount *account, bool isConference, QWidget *parent)
+			: QWidget(parent), p(new JServiceBrowserPrivate)
 	{
 		p->account = account;
-		//m_autoclose = autoclose;
+		p->isConference = isConference;
+		p->searchCount = 0;
 		p->ui = new Ui::ServiceBrowser();
+		p->contextMenu = new QMenu();
 		p->ui->setupUi(this);
 		this->setWindowTitle(QApplication::translate("SearchService", "Search service",
 				0, QApplication::UnicodeUTF8));
 		p->ui->serviceServer->installEventFilter(this);
-		p->ui->filterButton->setCheckable(true);
-		p->ui->filterLine->setVisible(false);
 		p->ui->searchButton->setIcon(Icon("system-search"));
+		p->ui->closeButton->setIcon(Icon("window-close"));
+		p->ui->clearButton->setIcon(Icon("edit-clear-locationbar-ltr"));
+		p->ui->actionSearch->setIcon(Icon("system-search"));
+		//p->ui->actionJoin;
+		p->ui->actionExecute->setIcon(Icon("utilities-terminal"));
+		p->ui->actionSearch->setIcon(Icon("edit-find-user"));
+		p->ui->actionRegister->setIcon(Icon("dialog-password"));
+		p->ui->actionShowVCard->setIcon(Icon("user-identity"));
+		p->ui->actionAdd->setIcon(Icon("list-add-user"));
 		connect(p->ui->serviceTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
 				SLOT(showControls(QTreeWidgetItem*, int)));
 		connect(p->ui->serviceTree, SIGNAL(itemExpanded(QTreeWidgetItem*)),
 				SLOT(getItems(QTreeWidgetItem*)));
 		connect(p->ui->filterLine, SIGNAL(textEdited(const QString&)),
 				SLOT(filterItem(const QString&)));
-		connect(p->ui->filterButton, SIGNAL(clicked(bool)), SLOT(showFilterLine(bool)));
+		connect(p->ui->serviceTree, SIGNAL(customContextMenuRequested(QPoint)),
+				SLOT(showContextMenu(QPoint)));
 		searchServer(QString::fromStdString(p->account->client()->jid().server()));
 		this->resize(700, 600);
-		p->ui->serviceTree->setColumnWidth(0, p->ui->serviceTree->width()*9/10);
+		p->ui->serviceTree->setColumnWidth(0, p->ui->serviceTree->width());
+		QMovie *movie = new QMovie(p->ui->labelLoader);
+		movie->setFileName("loader");
+		movie->start();
+		p->ui->labelLoader->setMovie(movie);
+		p->ui->labelLoader->setVisible(false);
 	}
 
 	JServiceBrowser::~JServiceBrowser()
@@ -48,9 +81,17 @@ namespace Jabber
 		on_searchButton_clicked();
 	}
 
+	void JServiceBrowser::getInfo(QTreeWidgetItem *item)
+	{
+		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
+		int id = p->account->discoManager()->getInfo(this, di);
+		p->treeItems.insert(id, item);
+		p->searchCount++;
+		p->ui->labelLoader->setVisible(true);
+	}
+
 	void JServiceBrowser::getItems(QTreeWidgetItem *item)
 	{
-		item->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicator);
 		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
 		if (!item->childCount() && (di->expand())) {
 			int id = p->account->discoManager()->getItems(this, di);
@@ -58,43 +99,18 @@ namespace Jabber
 		}
 	}
 
-	void JServiceBrowser::getInfo(QTreeWidgetItem *item)
-	{
-		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
-		int id = p->account->discoManager()->getInfo(this, di);
-		p->treeItems.insert(id, item);
-	}
-
-	void JServiceBrowser::setItems(int id, const QList<JDiscoItem *> &items)
-	{
-		QTreeWidgetItem *parentItem = p->treeItems.take(id);
-		if (!parentItem || parentItem->childCount())
-			return;
-		if (items.isEmpty())
-			parentItem->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicator);
-		foreach (JDiscoItem *di, items) {
-			QTreeWidgetItem *item = new QTreeWidgetItem(parentItem);
-			item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
-			if (!di->name().isEmpty())
-				item->setText(0, di->name());
-			item->setText(1, di->jid());
-			item->setExpanded(false);
-			item->setData(0, Qt::UserRole+1, reinterpret_cast<qptrdiff>(di));
-			getInfo(item);
-		}
-		parentItem->setExpanded(true);
-	}
-
 	void JServiceBrowser::setInfo(int id)
 	{
 		QTreeWidgetItem *item = p->treeItems.take(id);
-		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
 		if (!item)
 			return;
-		item->setDisabled(false);
+		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
+		if (p->isConference && (di->hasIdentity("conference") || di->hasIdentity("server")))
+				item->setHidden(false);
 		if (!di->name().isEmpty())
-			item->setText(0, di->name());
-		item->setText(1, di->jid());
+			item->setText(0, QString("%1 (%2)").arg(di->name()).arg(di->jid()));
+		else
+			item->setText(0, QString("%1").arg(di->jid()));
 		item->setIcon(0, Icon(setServiceIcon(di)));
 		QString tooltip;
 		tooltip = "<b>"+di->name()+"</b> ("+di->jid()+")<br/>";
@@ -115,22 +131,50 @@ namespace Jabber
 				tooltip += feature+"<br/>";
 		}
 		item->setToolTip(0, tooltip);
-		debug() << di->jid() << di->expand();
 		if (di->expand())
 			item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
-		if (p->ui->filterButton->isChecked()) {
-			QTreeWidgetItem *parent = item->parent();
-			if (parent && parent->isHidden()) {
-				if (item->text(0).contains(p->ui->filterLine->text(), Qt::CaseInsensitive)
-						|| item->text(1).contains(p->ui->filterLine->text(), Qt::CaseInsensitive)) {
-					QList<QTreeWidgetItem*> items;
-					items << item;
-					setBranchVisible(items);
-				} else {
-					item->setHidden(true);
-				}
+		QTreeWidgetItem *parent = item->parent();
+		if (parent && parent->isHidden()) {
+			if (item->text(0).contains(p->ui->filterLine->text(), Qt::CaseInsensitive)) {
+				QList<QTreeWidgetItem*> items;
+				items << item;
+				setBranchVisible(items);
+			} else {
+				item->setHidden(true);
 			}
 		}
+		if (!--p->searchCount);
+			p->ui->labelLoader->setVisible(false);
+	}
+
+	void JServiceBrowser::setItems(int id, const QList<JDiscoItem *> &items)
+	{
+		QTreeWidgetItem *parentItem = p->treeItems.take(id);
+		if (!parentItem || parentItem->childCount())
+			return;
+		foreach (JDiscoItem *di, items) {
+			QTreeWidgetItem *item = new QTreeWidgetItem(parentItem);
+			if (p->isConference)
+				item->setHidden(true);
+			if (!di->name().isEmpty())
+				item->setText(0, QString("%1 (%2)").arg(di->name()).arg(di->jid()));
+			else
+				item->setText(0, QString("%1").arg(di->jid()));
+			item->setExpanded(false);
+			item->setData(0, Qt::UserRole+1, reinterpret_cast<qptrdiff>(di));
+			getInfo(item);
+		}
+		parentItem->setExpanded(true);
+	}
+
+	void JServiceBrowser::setError(int id)
+	{
+		QTreeWidgetItem *item = p->treeItems.take(id);
+		if (!item)
+			return;
+		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
+		item->setDisabled(true);
+		item->setToolTip(0, item->toolTip(0) + di->error());
 	}
 
 	void clean_item(QTreeWidgetItem *item)
@@ -138,8 +182,7 @@ namespace Jabber
 		for (int i = item->childCount(); i < 0; i--) {
 			QTreeWidgetItem *child = item->child(0);
 			clean_item(child);
-			JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1)
-														   .value<qptrdiff>());
+			JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
 			item->removeChild(child);
 			delete child;
 			delete di;
@@ -148,61 +191,46 @@ namespace Jabber
 
 	void JServiceBrowser::on_searchButton_clicked()
 	{
-		hideControls();
 		clean_item(p->ui->serviceTree->invisibleRootItem());
+		p->ui->serviceTree->clear();
 		p->treeItems.clear();
-
-		QTreeWidgetItem *item = new QTreeWidgetItem();
-		item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
-		item->setText(0, "");
-		item->setText(1, p->ui->serviceServer->currentText());
-		p->ui->serviceTree->addTopLevelItem(item);
+		QTreeWidgetItem *item = new QTreeWidgetItem(p->ui->serviceTree);
+		item->setText(0, p->ui->serviceServer->currentText());
 		JDiscoItem *di = new JDiscoItem();
 		di->setJID(p->ui->serviceServer->currentText());
 		item->setData(0, Qt::UserRole+1, reinterpret_cast<qptrdiff>(di));
 		getInfo(item);
 	}
 
-	void JServiceBrowser::hideControls()
+	void JServiceBrowser::showContextMenu(const QPoint &pos)
 	{
-		p->ui->joinButton->setEnabled(false);
-		p->ui->registerButton->setEnabled(false);
-		p->ui->searchFormButton->setEnabled(false);
-		p->ui->executeButton->setEnabled(false);
-		p->ui->addRosterButton->setEnabled(false);
-		p->ui->showVCardButton->setEnabled(false);
-		p->ui->addProxyButton->setEnabled(false);
-	}
-
-	void JServiceBrowser::showControls(QTreeWidgetItem *item, int)
-	{
-		hideControls();
+		p->contextMenu->clear();
+		QTreeWidgetItem *item = p->ui->serviceTree->itemAt(pos);
 		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
 		foreach (JDiscoItem::JDiscoAction action, di->actions()) {
 			switch (action) {
 			case JDiscoItem::JDiscoJoin:
-				p->ui->joinButton->setEnabled(true);
+				p->contextMenu->addAction(p->ui->actionJoin);
 				break;
 			case JDiscoItem::JDiscoRegister:
-				p->ui->registerButton->setEnabled(true);
+				p->contextMenu->addAction(p->ui->actionRegister);
 				break;
 			case JDiscoItem::JDiscoSearch:
-				p->ui->searchFormButton->setEnabled(true);
+				p->contextMenu->addAction(p->ui->actionSearch);
 				break;
 			case JDiscoItem::JDiscoExecute:
-				p->ui->executeButton->setEnabled(true);
+				p->contextMenu->addAction(p->ui->actionExecute);
 				break;
 			case JDiscoItem::JDiscoAdd:
-				p->ui->addRosterButton->setEnabled(true);
+				p->contextMenu->addAction(p->ui->actionAdd);
 				break;
 			case JDiscoItem::JDiscoVCard:
-				p->ui->showVCardButton->setEnabled(true);
-				break;
-			case JDiscoItem::JDiscoProxy:
-				p->ui->addProxyButton->setEnabled(true);
+				p->contextMenu->addAction(p->ui->actionShowVCard);
 				break;
 			}
 		}
+		if (!p->contextMenu->actions().isEmpty())
+			p->contextMenu->popup(p->ui->serviceTree->mapToGlobal(pos));
 	}
 
 	void JServiceBrowser::closeEvent(QCloseEvent*)
@@ -228,7 +256,7 @@ namespace Jabber
 			return "";
 		QString service_icon;
 		if (di->hasIdentity("server")) {
-			service_icon = "server";
+			service_icon = "network-server";
 		} else if (di->hasIdentity("conference", "text")) {
 			if (QString::fromStdString(JID(di->jid().toStdString()).username()).isEmpty())
 				service_icon = "conferenceserver";
@@ -251,9 +279,9 @@ namespace Jabber
 		} else if (di->hasIdentity("gateway")) {
 			service_icon = "default_tr";
 		} else if (di->hasIdentity("directory")) {
-			service_icon = "finduser";
+			service_icon = "edit-find-user";
 		} else if (di->hasIdentity("automation")) {
-			service_icon = "command";
+			service_icon = "utilities-terminal";
 		} else {
 			service_icon = "defaultservice";
 		}
@@ -264,7 +292,7 @@ namespace Jabber
 	{
 		QTreeWidgetItem *item = p->ui->serviceTree->currentItem();
 		emit joinConference(item->text(1));
-		if (m_autoclose)
+		if (p->isConference)
 			close();
 	}
 
@@ -344,9 +372,7 @@ namespace Jabber
 		QList<QTreeWidgetItem*> list;
 		int count = item->childCount();
 		for (int pos = 0; pos < count; pos++) {
-			if (text == ""
-					|| item->child(pos)->text(0).contains(text, Qt::CaseInsensitive)
-					|| item->child(pos)->text(1).contains(text, Qt::CaseInsensitive)) {
+			if (text == "" || item->child(pos)->text(0).contains(text, Qt::CaseInsensitive)) {
 				list << item->child(pos);
 				list << findItems(item->child(pos), "");
 			} else if (item->child(pos)->childCount()) {
@@ -364,10 +390,9 @@ namespace Jabber
 		setItemVisible(item->child(pos), visibility);
 	}
 
-	void JServiceBrowser::showFilterLine(bool show)
+	void JServiceBrowser::on_clearButton_clicked()
 	{
-		p->ui->filterLine->setText("");
+		p->ui->filterLine->clear();
 		filterItem("");
-		p->ui->filterLine->setVisible(show);
 	}
 }

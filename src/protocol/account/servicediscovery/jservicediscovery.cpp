@@ -2,7 +2,6 @@
 #include "jdiscoitem.h"
 #include "jservicereceiver.h"
 #include "../jaccount.h"
-#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -11,15 +10,14 @@ namespace Jabber
 		JAccount *account;
 		QMap<int, JDiscoItem *> items;
 		QMap<int, JServiceReceiver *> receivers;
-		int count;
+		int context;
 	};
 
 	JServiceDiscovery::JServiceDiscovery(JAccount *account)
 			: p(new JServicePrivate)
 	{
 		p->account = account;
-		p->count = 0;
-		debug() << Q_FUNC_INFO;
+		p->context = 1;
 	}
 
 	JServiceDiscovery::~JServiceDiscovery()
@@ -28,10 +26,8 @@ namespace Jabber
 
 	int JServiceDiscovery::getInfo(JServiceReceiver *receiver, JDiscoItem *di)
 	{
-		int id = p->count++;
+		int id = p->context++;
 		p->receivers.insert(id, receiver);
-		debug() << p->items;
-		debug() << id << di;
 		p->items.insert(id, di);
 		p->account->connection()->client()->disco()->getDiscoInfo(di->jid().toStdString(),
 				di->node().toStdString(), dynamic_cast<DiscoHandler *>(this), id);
@@ -40,7 +36,7 @@ namespace Jabber
 
 	int JServiceDiscovery::getItems(JServiceReceiver *receiver, JDiscoItem *di)
 	{
-		int id = p->count++;
+		int id = p->context++;
 		p->receivers.insert(id, receiver);
 		p->items.insert(id, di);
 		p->account->connection()->client()->disco()->getDiscoItems(di->jid().toStdString(),
@@ -158,7 +154,7 @@ namespace Jabber
 			}
 			di->setError(errorText);
 		}
-		p->receivers.take(context)->setError(context, di);
+		p->receivers.take(context)->setError(context);
 	}
 
 	bool JServiceDiscovery::handleDiscoSet(const IQ &iq)
@@ -198,7 +194,8 @@ namespace Jabber
 		if (di->hasFeature("vcard-temp"))
 			di->addAction(JDiscoItem::JDiscoVCard);
 		if (di->hasFeature("http://jabber.org/protocol/disco#items")
-				|| di->hasFeature("http://jabber.org/protocol/muc") && !isIRC)
+				|| (di->hasFeature("http://jabber.org/protocol/muc") && !isIRC)
+				|| (di->features().isEmpty() && di->identities().isEmpty()))
 			di->setExpand(true);
 		if (di->hasIdentity("automation")) {
 			bool expand = false;

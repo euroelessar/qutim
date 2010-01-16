@@ -30,6 +30,7 @@ namespace Jabber {
 		p->roster = new JRoster(this);
 		p->messageHandler = new JMessageHandler(this);
 		p->connection->initExtensions();
+		JServiceBrowser::init(this);
 		loadSettings();
 		autoconnect();
 	}
@@ -58,8 +59,6 @@ namespace Jabber {
 	void JAccount::endChangeStatus(Presence::PresenceType presence)
 	{
 		Account::setStatus(JProtocol::presenceToStatus(presence));
-		JServiceBrowser *w = new JServiceBrowser(this);
-		w->show();
 	}
 
 	void JAccount::autoconnect()
