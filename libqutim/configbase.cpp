@@ -204,7 +204,7 @@ namespace qutim_sdk_0_3
 				group.p->entries.append(*it);
 			else
 			{
-				if((entry->type & ConfigEntry::AnyGroup) == ConfigEntry::Array)
+				if(entry->type & ConfigEntry::Array)
 				{
 					entry->array.clear();
 					entry->type &= ~ConfigEntry::Array;
@@ -503,7 +503,7 @@ namespace qutim_sdk_0_3
 		Q_ASSERT_X(index >= 0, "ConfigGroup::at", "index out of range");
 		if(ConfigEntry::Ptr entry = p->entries.at(0))
 		{
-			if((entry->type & ConfigEntry::AnyGroup) == ConfigEntry::Map)
+			if(entry->type & ConfigEntry::Map)
 			{
 				entry->map.clear();
 				entry->type &= ~ConfigEntry::Map;

@@ -42,7 +42,8 @@ namespace qutim_sdk_0_3
 	QAction *ActionToolBar::addAction(ActionGenerator *generator)
 	{
 		Q_ASSERT(generator);
-		if (int index = p->generators.indexOf(generator))
+		int index = p->generators.indexOf(generator);
+		if (index != -1)
 			return p->actions.at(index);
 		QAction *action = generator->generate<QAction>();
 		action->setData(p->data);
