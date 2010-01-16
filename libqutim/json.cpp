@@ -138,7 +138,7 @@ namespace qutim_sdk_0_3
 			return res;
 		}
 
-		QByteArray generate(const QVariant &data, bool indent)
+		QByteArray generate(const QVariant &data, int indent)
 		{
 			QByteArray res;
 			K8JSON::generate(res, data, indent);

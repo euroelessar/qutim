@@ -20,6 +20,7 @@
 #include <QIcon>
 #include <QScopedPointer>
 
+#ifndef Q_QDOC
 namespace qutim_sdk_0_3
 {
 	struct AbstractContactPrivate;
@@ -52,5 +53,6 @@ namespace qutim_sdk_0_3
 		QScopedPointer<AbstractContactPrivate> p;
 	};
 }
+#endif
 
 #endif // ABSTRACTCONTACT_H
