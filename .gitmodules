@@ -1,0 +1,3 @@
+[submodule "3rdparty/gloox"]
+	path = 3rdparty/gloox
+	url = git://gitorious.org/+qutim-developers/gloox/qutim-developers-gloox.git
