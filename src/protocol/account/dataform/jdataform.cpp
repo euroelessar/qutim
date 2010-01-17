@@ -294,7 +294,7 @@ namespace Jabber
 		QList<NewJDataFormElement *> fields;
 	};
 
-	JDataForm::JDataForm(const DataForm *form, bool twocolumn, QWidget *parent)
+	JDataForm::JDataForm(const DataForm *form, QWidget *parent)
 			: QWidget(parent), d_ptr(new JDataFormPrivate)
 	{
 		Q_D(JDataForm);
@@ -302,7 +302,6 @@ namespace Jabber
 		QGridLayout *layout = new QGridLayout();
 		setLayout(layout);
 		QList<DataFormField*> fields = QList<DataFormField*>::fromStdList(form->fields());
-		bool skip = false;
 		int fieldCount = fields.count();
 		for (int num = 0; num < fieldCount; num++) {
 			DataFormField *field = fields[num];
@@ -323,20 +322,9 @@ namespace Jabber
 			if(QWidget *widget = qobject_cast<QWidget *>(elem->obj))
 				widget->setToolTip(QString::fromStdString(field->description()));
 
-			if (!twocolumn
-				|| (num < fieldCount-1 && fields[num+1]->type() == DataFormField::TypeFixed)
-				|| (num && fields[num-1]->type() == DataFormField::TypeFixed)
-				|| (fields[num]->type() == DataFormField::TypeFixed)) {
-				skip = false;
-			}
 			int row = layout->rowCount();
 			int column = 0;
-			if (skip && field->type() != DataFormField::TypeFixed) {
-				row--;
-				column = 2;
-			}
 			(*elem->add_widget)(layout, elem->obj, QString::fromStdString(field->label()), row, column);
-			skip = !skip;
 		}
 	}
 

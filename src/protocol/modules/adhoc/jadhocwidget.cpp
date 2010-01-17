@@ -55,7 +55,7 @@ namespace Jabber
 		}
 
 		if (command.form()) {
-			m_dataForm = new JDataForm(command.form(), true, this);
+			m_dataForm = new JDataForm(command.form(), this);
 			m_ui->layout->addWidget(m_dataForm);
 		}
 

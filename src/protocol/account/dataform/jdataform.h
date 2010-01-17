@@ -35,7 +35,7 @@ namespace Jabber
 		Q_OBJECT
 		Q_DECLARE_PRIVATE(JDataForm)
 		public:
-			JDataForm(const DataForm *form, bool twocolumn = false, QWidget *parent = 0);
+			JDataForm(const DataForm *form, QWidget *parent = 0);
 			~JDataForm();
 			DataForm *getDataForm();
 		private:

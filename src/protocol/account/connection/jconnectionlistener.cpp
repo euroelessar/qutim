@@ -25,10 +25,7 @@ namespace Jabber
 
 	void JConnectionListener::onConnect()
 	{
-		JID jid("qutim@conference.jabber.ru");
-		jid.setResource(p->account->client()->getID());
-		JMUCSession *session = new JMUCSession(jid, p->account);
-		ChatLayer::get(session, true)->activate();
+
 	}
 
 	void JConnectionListener::onDisconnect(ConnectionError error)

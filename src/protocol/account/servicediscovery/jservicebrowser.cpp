@@ -59,8 +59,6 @@ namespace Jabber
 		p->ui->actionRegister->setIcon(Icon("dialog-password"));
 		p->ui->actionShowVCard->setIcon(Icon("user-identity"));
 		p->ui->actionAdd->setIcon(Icon("list-add-user"));
-		connect(p->ui->serviceTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
-				SLOT(showControls(QTreeWidgetItem*, int)));
 		connect(p->ui->serviceTree, SIGNAL(itemExpanded(QTreeWidgetItem*)),
 				SLOT(getItems(QTreeWidgetItem*)));
 		connect(p->ui->filterLine, SIGNAL(textEdited(const QString&)),
@@ -114,27 +112,29 @@ namespace Jabber
 		if (p->isConference && (di->hasIdentity("conference") || di->hasIdentity("server")))
 				item->setHidden(false);
 		if (!di->name().isEmpty())
-			item->setText(0, QString("%1 (%2)").arg(di->name()).arg(di->jid()));
+			item->setText(0, di->name());
 		else
-			item->setText(0, QString("%1").arg(di->jid()));
+			item->setText(0, di->jid());
 		item->setIcon(0, Icon(setServiceIcon(di)));
 		QString tooltip;
 		tooltip = "<b>"+di->name()+"</b> ("+di->jid()+")<br/>";
-		tooltip += tr("<br/><b>Identities:</b><br/>");
-		foreach(JDiscoItem::JDiscoIdentity identity, di->identities()) {
-			JDiscoItem *di = new JDiscoItem();
-			di->setJID(di->jid());
-			di->addIdentity(identity);
-			QString img = setServiceIcon(di);
-			delete di;
-			tooltip += "<img src='" + img + "'> " + identity.name
-					+ " (" + tr("category: ") + identity.category + ", " + tr("type: ")
-					+ identity.type + ")<br/>";
+		if (!di->identities().isEmpty()) {
+			tooltip += tr("<br/><b>Identities:</b><br/>");
+			foreach(JDiscoItem::JDiscoIdentity identity, di->identities()) {
+				JDiscoItem *di = new JDiscoItem();
+				di->setJID(di->jid());
+				di->addIdentity(identity);
+				QString img = setServiceIcon(di);
+				delete di;
+				tooltip += "<img src='" + img + "'> " + identity.name
+						+ " (" + tr("category: ") + identity.category + ", " + tr("type: ")
+						+ identity.type + ")<br/>";
+			}
 		}
-		if (!di->features().isEmpty()) {
+		if (false && !di->features().isEmpty()) {
 			tooltip += tr("<br/><b>Features:</b><br/>");
 			foreach(QString feature, di->features())
-				tooltip += feature+"<br/>";
+				tooltip += feature.remove("http://jabber.org/protocol/")+"<br/>";
 		}
 		item->setToolTip(0, tooltip);
 		if (di->expand())
@@ -158,14 +158,16 @@ namespace Jabber
 		QTreeWidgetItem *parentItem = p->treeItems.take(id);
 		if (!parentItem || parentItem->childCount())
 			return;
+		if (items.isEmpty())
+			parentItem->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicator);
 		foreach (JDiscoItem *di, items) {
 			QTreeWidgetItem *item = new QTreeWidgetItem(parentItem);
 			if (p->isConference)
 				item->setHidden(true);
 			if (!di->name().isEmpty())
-				item->setText(0, QString("%1 (%2)").arg(di->name()).arg(di->jid()));
+				item->setText(0, di->name());
 			else
-				item->setText(0, QString("%1").arg(di->jid()));
+				item->setText(0, di->jid());
 			item->setExpanded(false);
 			item->setData(0, Qt::UserRole+1, reinterpret_cast<qptrdiff>(di));
 			getInfo(item);

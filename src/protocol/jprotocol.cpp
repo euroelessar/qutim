@@ -116,6 +116,18 @@ namespace Jabber
 			field->addValue("test3@qutim.org");
 			form->addField(field);
 		}
+		{
+			DataFormField *field = new DataFormField(DataFormField::TypeFixed);
+			field->setName("fixed");
+			field->addValue("hello! this is long, very long Text for test!");
+			form->addField(field);
+		}
+		{
+			DataFormField *field = new DataFormField(DataFormField::TypeBoolean);
+			field->setName("boolean");
+			field->setLabel("hello! this is long caption for boolean widget!");
+			form->addField(field);
+		}
 		JDataForm *jForm = new JDataForm(form, false);
 		jForm->show();
 	}

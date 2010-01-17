@@ -174,7 +174,6 @@ namespace Jabber
 			JContact *contact = new JContact(jid, p->account);
 			JContactPrivate *c_d = contact->d_func();
 			c_d->name = QString::fromStdString(presence.from().username());
-			c_d->tags = tags;
 			c_d->inList = false;
 			debug() << contact->id() << contact->name() << contact->tags();
 			ContactList::instance()->addContact(contact);
