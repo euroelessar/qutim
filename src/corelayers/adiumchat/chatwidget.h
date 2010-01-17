@@ -71,7 +71,7 @@ namespace AdiumChat
 		void currentIndexChanged (int index);
 		void onCloseRequested(int index);
 		void onTabMoved(int from,int to);
-		void onSessionRemoved();
+		void onSessionDestroyed(QObject* object);
 		void onSendButtonClicked();
 		void chatStateChanged(ChatState state);
 		void onTextChanged(); //TODO separate from chatlayer

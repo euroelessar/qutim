@@ -38,7 +38,6 @@ namespace AdiumChat
 		virtual ChatSession* getSession(ChatUnit* unit, bool create = true);
 		QTextDocument *getInputField(ChatSession *session);
 	private slots:
-		void onSessionDestroyed(QObject* object);
 		void onChatWidgetDestroyed(QObject *object);
 		void onSessionActivated(bool active);
 		void onStartChat();

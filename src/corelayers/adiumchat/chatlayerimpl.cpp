@@ -70,7 +70,6 @@ namespace AdiumChat
 		if(!session && create)
 		{
 			session = new ChatSessionImpl(unit,this);
-			connect(session,SIGNAL(destroyed(QObject*)),SLOT(onSessionDestroyed(QObject*)));
 			connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
 			m_chat_sessions.insert(unit,session);
 			emit sessionCreated(session);
@@ -94,16 +93,6 @@ namespace AdiumChat
 		ChatWidget *widget = qobject_cast< ChatWidget* >(object);
 		QString key = m_chatwidgets.key(widget);
 		m_chatwidgets.remove(key);
-	}
-
-	void ChatLayerImpl::onSessionDestroyed(QObject* object)
-	{
-		ChatSessionImpl *sess = qobject_cast<ChatSessionImpl *>(object);
-		ChatUnit *key = m_chat_sessions.key(sess);
-		if (key) {
-			m_chat_sessions.remove(key);
-			findWidget(sess)->removeSession(sess);
-		}
 	}
 
 	ChatLayerImpl::~ChatLayerImpl()

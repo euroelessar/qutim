@@ -94,6 +94,7 @@ namespace AdiumChat
 		session->installEventFilter(this);
 		connect(session,SIGNAL(messageReceived(Message)),SLOT(onMessageReceived(Message)));
 		connect(session,SIGNAL(messageSended(Message)),SLOT(onMessageSended(Message)));
+		connect(session,SIGNAL(destroyed(QObject*)),SLOT(onSessionDestroyed(QObject*)));
 		QIcon icon;
 		if (m_chat_flags & AvatarsOnTabs) {
 			QString imagePath = session->getUnit()->property("avatar").toString();
@@ -164,11 +165,11 @@ namespace AdiumChat
 			session->deleteLater();
 	}
 
-	void ChatWidget::onSessionRemoved()
+	void ChatWidget::onSessionDestroyed(QObject* object)
 	{
-		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
-		if (session && m_sessions.contains(session))
-			removeSession(session);
+		ChatSessionImpl *sess = qobject_cast<ChatSessionImpl *>(object);
+		if (sess && m_sessions.contains(sess))
+			m_sessions.removeAll(sess);
 	}
 
 	ChatSessionList ChatWidget::getSessionList() const
