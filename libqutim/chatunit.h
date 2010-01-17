@@ -61,25 +61,25 @@ namespace qutim_sdk_0_3
 		*/
 		virtual ~ChatUnit();
 		/**
-		* @brief Returnes chatunit's identification, which is unique for account
+		* @brief Returns chatunit's identification, which is unique for account
 		*
 		* @return ChatUnit's identitification string
 		*/
 		virtual QString id() const = 0;
 		/**
-		* @brief Returnes chatunit's representable name
+		* @brief Returns chatunit's representable name
 		*
 		* @return ChatUnit's name
 		*/
 		virtual QString title() const;
 		/**
-		* @brief Returnes pointer to chatunits's @ref Account
+		* @brief Returns pointer to chatunits's @ref Account
 		*
 		* @return Pointer to account
 		*/
 		Account *account();
 		/**
-		* @brief Returnes pointer to chatunits's @ref Account
+		* @brief Returns pointer to chatunits's @ref Account
 		*
 		* @return Pointer to account
 		*/
@@ -91,13 +91,13 @@ namespace qutim_sdk_0_3
 		*/
 		virtual void sendMessage(const Message &message) = 0;
 		/**
-		* @brief Returnes TODO
+		* @brief Returns TODO
 		*
 		* @return ChatUnitList
 		*/
 		virtual ChatUnitList lowerUnits();
 		/**
-		* @brief Returnes TODO
+		* @brief Returns TODO
 		*
 		* @return Pointer to upper chatunit
 		*/
@@ -123,7 +123,7 @@ namespace qutim_sdk_0_3
 		*/
 		ChatStateEvent(ChatState state);
 		/**
-		* @brief Returnes chatState
+		* @brief Returns chatState
 		*
 		* @return ChatState shatState
 		*/

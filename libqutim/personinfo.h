@@ -29,14 +29,14 @@ namespace qutim_sdk_0_3
 	* @brief PersonInfo is container of information about person.
 	*
 	* @code
-	* Encoding is utf-8, language russian
-	* PersonInfo author = PersonInfo(QT_TRANSLATE_NOOP("Author", "Ivan Sidoroff"),
-	*								 QT_TRANSLATE_NOOP("Task", "Plugin author"),
-	*								 "v.sidorov@qutim.org",
-	*								 "http://qutim.org/v.sidorov");
-	* author.name(); // "Иван Сидоров"
-	* author.task(); // "Автор плагина"
-	* @endcode
+Encoding is utf-8, language russian
+PersonInfo author = PersonInfo(QT_TRANSLATE_NOOP("Author", "Ivan Sidoroff"),
+							   QT_TRANSLATE_NOOP("Task", "Plugin author"),
+							   "v.sidorov@qutim.org",
+							   "http://qutim.org/v.sidorov");
+ author.name(); // "Иван Сидоров"
+ author.task(); // "Автор плагина"
+	@endcode
 	*/
 	class LIBQUTIM_EXPORT PersonInfo
 	{

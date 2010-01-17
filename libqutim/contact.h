@@ -50,13 +50,13 @@ namespace qutim_sdk_0_3
 		*/
 		virtual ~Contact();
 		/**
-		* @brief Returnes contact's representable name
+		* @brief Returns contact's representable name
 		*
 		* @return Contact's name
 		*/
 		virtual QString title() const;
 		/**
-		* @brief Returnes set of tags that mark the contact
+		* @brief Returns set of tags that mark the contact
 		*
 		* @return QSet<QString> tags
 		*/
@@ -78,7 +78,7 @@ namespace qutim_sdk_0_3
 		*/
 		virtual void setTags(const QSet<QString> &tags) = 0;
 		/**
-		* @brief Returnes membership contact to contactlist
+		* @brief Returns membership contact to contactlist
 		*
 		* @return isInList
 		*/

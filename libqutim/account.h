@@ -27,8 +27,8 @@ namespace qutim_sdk_0_3
 	class Protocol;
 	class AccountPrivate;
 
-	/**
-	* @brief Account is base class for all account entites
+	/*!
+	  Account is base class for all account entites.
 	*/
 	class LIBQUTIM_EXPORT Account : public MenuController
 	{
@@ -38,106 +38,76 @@ namespace qutim_sdk_0_3
 		Q_PROPERTY(Status status READ status WRITE setStatus NOTIFY statusChanges)
 		Q_PROPERTY(QString name READ name NOTIFY nameChanged)
 	public:
-		/**
-		* @brief Account's contructor
-		*
-		* @param id Account's identification, i.e. JID for XMPP or UIN for ICQ
-		*
-		* @param protocol Pointer to account's protocol
+		/*!
+		  Account's contructor with identification \a id and \a protocol.
+		  Identification is unique in current \a protocol, i.e. JID for
+		  XMPP or UIN for ICQ.
 		*/
 		Account(const QString &id, Protocol *protocol);
-		/**
-		* @brief Account destructor
+		/*!
+		  Account destructor
 		*/
 		virtual ~Account();
-		/**
-		* @brief Returnes account's identification, which is unique for protocol
-		*
-		* @return Account's identitification string
+		/*!
+		  Returns account's identification, which is unique for protocol
 		*/
 		QString id() const;
-		/**
-		* @brief Returnes account's representable name
-		*
-		* @return Account's name
+		/*!
+		  Returns account's representable name
 		*/
 		virtual QString name() const;
-		/**
-		* @brief Returnes @ref Config for current account
-		*
-		* @return Config entity
+		/*!
+		  Returns \ref Config for current account. It's equal to
+		  \code Config(protocol()->id() + '.' + id() + "/account") \endcode
 		*/
 		Config config();
-		/**
-		* @brief Returnes @ref ConfigGroup for certain group
-		*
-		* @param group Group name for configs
-		*
-		* @return ConfigGroup entity
+		/*!
+		  Returns \ref ConfigGroup for certain group with \a name. It's equal to
+		  \code config().group(name) \endcode
 		*/
-		ConfigGroup config(const QString &group);
-		/**
-		* @brief Returnes account's status
-		*
-		* @return Account's status
+		ConfigGroup config(const QString &name);
+		/*!
+		  Returns account's status
 		*/
 		Status status() const;
-		/**
-		* @brief Returnes pointer to account's @ref Protocol
-		*
-		* @return Pointer to protocol
+		/*!
+		  Returns pointer to account's \ref Protocol
 		*/
 		Protocol *protocol();
-		/**
-		* @brief Returnes pointer to account's @ref Protocol
-		*
-		* @return Pointer to protocol
+		/*!
+		  Returns pointer to account's \ref Protocol
 		*/
 		const Protocol *protocol() const;
-		/**
-		* @brief Asks account to change status on server. If status is not offline and
-		* acount hasn't already connected to server it should try to do it, else if
-		* status is offline and account is conntected to server it should disconnect
-		*
-		* @param status Status to be setted on server
+		/*!
+		  Asks account to change \a status on server. If \a status is not offline and
+		  acount hasn't already connected to server it should try to do it, else if
+		  \a status is offline and account is conntected to server it should disconnect.
 		*/
 		virtual void setStatus(Status status);
-		/**
-		* @brief Method looks for appropriate @ref ChatUnit for conversation with unit
-		*
-		* @param unit ChatUnit with which user wants to start conversation
-		*
-		* @return ChatUnit for @ref ChatSession
+		/*!
+		  Method looks for appropriate \ref ChatUnit for conversation with \a unit.
+		  Returns ChatUnit for \ref ChatSession.
 		*/
 		virtual ChatUnit *getUnitForSession(ChatUnit *unit);
-		/**
-		* @brief Method returnes @ref ChatUnit by it's identification string
-		*
-		* @param unitId Identification string for @ref ChatUnit
-		* @param create If true create ChatUnit if it doesn't exist
-		*
-		* @note If unitId is invalid, i.e. invalid JID, unit won't be created and NULL will be returned
-		*
-		* @return ChatUnit with iq equal to unitId
+		/*!
+		  Method Returns \ref ChatUnit by it's identification string \a unitId.
+		  If \a create is \b true create new ChatUnit if it doesn't exist.
+		  Returnes ChatUnit with iq equal to unitId.
+
+		  If unitId is invalid, i.e. invalid JID, unit won't be created and NULL will be returned.
 		*/
 		virtual ChatUnit *getUnit(const QString &unitId, bool create = false) = 0;
 	signals:
-		/**
-		* @brief Signal is emitted when new contact was created
-		*
-		* @param contact Created contact
+		/*!
+		  Signal is emitted when new \a contact was created.
 		*/
 		void contactCreated(qutim_sdk_0_3::Contact *contact);
-		/**
-		* @brief Signal is emitted when account's name was changed
-		*
-		* @param name New account's name
+		/*!
+		  Signal is emitted when account's \a name was changed.
 		*/
 		void nameChanged(const QString &name);
-		/**
-		* @brief Signal is emitted when account's status was changed
-		*
-		* @param status New account's status
+		/*!
+		  Signal is emitted when account's \a status was changed.
 		*/
         void statusChanged(qutim_sdk_0_3::Status status);
 	};

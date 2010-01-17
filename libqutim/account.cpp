@@ -14,6 +14,7 @@
 *****************************************************************************/
 
 #include <QPointer>
+#include <QStringBuilder>
 #include "menucontroller_p.h"
 #include "account.h"
 #include "contact.h"
@@ -57,12 +58,12 @@ namespace qutim_sdk_0_3
 	Config Account::config()
 	{
 		Q_D(Account);
-		return Config(d->protocol->id() + QLatin1Char('.') + d->id + QLatin1String("/account"));
+		return Config(d->protocol->id() % QLatin1Char('.') % d->id % QLatin1Literal("/account"));
 	}
 
-	ConfigGroup Account::config(const QString &group)
+	ConfigGroup Account::config(const QString &name)
 	{
-		return config().group(group);
+		return config().group(name);
 	}
 		
 	Status Account::status() const

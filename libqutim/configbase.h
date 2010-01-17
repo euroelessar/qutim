@@ -1,7 +1,7 @@
 /****************************************************************************
  *  configbase.h
  *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar\gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -111,23 +111,23 @@ namespace qutim_sdk_0_3
 		virtual ~Config();
 #ifdef Q_QDOC
 		/*!
-		  Returnes \b true if config is valid, otherwise return \b false.
+		  Returns \b true if config is valid, otherwise return \b false.
 		*/
 		bool isValid() const;
 		/*!
-		  Returnes list of children groups.
+		  Returns list of children groups.
 		*/
 		QStringList groupList() const;
 		/*!
-		  Returnes if \a name is in list of children groups.
+		  Returns if \a name is in list of children groups.
 		*/
 		bool hasGroup(const QString &name) const;
 		/*!
-		  Returnes group with \a name.
+		  Returns group with \a name.
 		*/
 		ConfigGroup group(const QString &name);
 		/*!
-		  Returnes group with \a name.
+		  Returns group with \a name.
 		  Convience const version.
 		*/
 		const ConfigGroup group(const QString &name) const;
@@ -189,38 +189,38 @@ namespace qutim_sdk_0_3
 		*/
 		virtual ~ConfigGroup();
 		/*!
-		  Returnes name of group.
+		  Returns name of group.
 		*/
 		QString name() const;
 		/*!
-		  Returnes \b true if group is map, otherwise \b false.
+		  Returns \b true if group is map, otherwise \b false.
 
 		  \note Config group may be also a value at the same time as map.
 		*/
 		bool isMap() const;
 		/*!
-		  Returnes \b true if group is array, otherwise \b false.
+		  Returns \b true if group is array, otherwise \b false.
 
 		  \note Config group may be also a value at the same time as array.
 		*/
 		bool isArray() const;
 		/*!
-		  Returnes \b true if group is simple value, otherwise \b false.
+		  Returns \b true if group is simple value, otherwise \b false.
 
 		  \note Config group may be also a map or array at the same time as value.
 		*/
 		bool isValue() const;
 		/*!
-		  Returnes array size
+		  Returns array size
 		*/
 		int arraySize() const;
 		/*!
-		  Returnes group at \a index.
+		  Returns group at \a index.
 		  If there is no group at \a index invalid group will be returned.
 		*/
 		const ConfigGroup at(int index) const;
 		/*!
-		  Returnes group at \a index.
+		  Returns group at \a index.
 		  If there is no group at \a index it will be created. If group is
 		  map all map values will be erased.
 		*/

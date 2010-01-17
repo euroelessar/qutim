@@ -26,12 +26,12 @@ namespace qutim_sdk_0_3
 	* @brief JsonFile provides high-level api for fast writing and reading files with JSON content.
 	*
 	* @code
-	* JsonFile file("test.json");
-	* QVariantMap map;
-	* map.insert("list", QVariantList() << QVariant(1) << QVariant("2"));
-	* map.insert("string", "Hello world!");
-	* file.write(var);
-	* @endcode
+JsonFile file("test.json");
+QVariantMap map;
+map.insert("list", QVariantList() << QVariant(1) << QVariant("2"));
+map.insert("string", "Hello world!");
+file.write(var);
+	@endcode
 	* File will contain something like:
 	* @verbatim
 	{
@@ -43,10 +43,10 @@ namespace qutim_sdk_0_3
 	}@endverbatim
 	* To read file conents back to QVariant just do:
 	* @code
-	* QVariant var;
-	* JsonFile file("test.json");
-	* file.read(var);
-	* @endcode
+QVariant var;
+JsonFile file("test.json");
+file.read(var);
+	@endcode
 	* @note JsonFile is wrapper around methods, provided in Json namespace
 	*/
 	class LIBQUTIM_EXPORT JsonFile

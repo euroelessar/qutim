@@ -25,13 +25,13 @@ DOXYFILE_ENCODING      = UTF-8
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = QUTIM
+PROJECT_NAME           = qutIM
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number.
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = 0.3
+PROJECT_NUMBER         = 0.2.60
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.
@@ -897,7 +897,7 @@ QCH_FILE               = ../qch/qutim.qch
 # Qt Help Project output. For more information please see
 # http://doc.trolltech.com/qthelpproject.html#namespace
 
-QHP_NAMESPACE          = org.qutim
+QHP_NAMESPACE          = org.qutim.@PROJECT_NUMBER@
 
 # The QHP_VIRTUAL_FOLDER tag specifies the namespace to use when generating
 # Qt Help Project output. For more information please see
@@ -974,7 +974,7 @@ FORMULA_FONTSIZE       = 10
 # there is already a search function so this one should typically
 # be disabled.
 
-SEARCHENGINE           = YES
+SEARCHENGINE           = NO
 
 #---------------------------------------------------------------------------
 # configuration options related to the LaTeX output
@@ -1223,7 +1223,7 @@ ENABLE_PREPROCESSING   = YES
 # compilation will be performed. Macro expansion can be done in a controlled
 # way by setting EXPAND_ONLY_PREDEF to YES.
 
-MACRO_EXPANSION        = NO
+MACRO_EXPANSION        = YES
 
 # If the EXPAND_ONLY_PREDEF and MACRO_EXPANSION tags are both set to YES
 # then the macro expansion is limited to the macros specified with the
