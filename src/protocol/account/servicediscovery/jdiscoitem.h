@@ -1,65 +1,61 @@
 #ifndef JDISKOITEM_H
 #define JDISKOITEM_H
 
-#include <QObject>
+#include <QMetaType>
 #include <QStringList>
 #include <QSet>
+#include <QSharedData>
 
 namespace Jabber
 {
-	class JDiscoItem : public QObject
+	class JDiscoItemData;
+
+	class JDiscoItem
 	{
-		Q_OBJECT
 		public:
-			enum JDiscoAction
+			enum Action
 			{
-				JDiscoExecute,
-				JDiscoRegister,
-				JDiscoJoin,
-				JDiscoSearch,
-				JDiscoAdd,
-				JDiscoVCard,
-				JDiscoProxy
+				ActionExecute,
+				ActionRegister,
+				ActionJoin,
+				ActionSearch,
+				ActionAdd,
+				ActionVCard,
+				ActionProxy
 			};
-			struct JDiscoIdentity
+			struct Identity
 			{
 				QString name;
 				QString category;
 				QString type;
 			};
-			JDiscoItem() {m_empty = true;}
-			void setName(const QString &name) {m_name = name;}
-			void setJID(const QString &jid) {m_jid = jid;}
-			void setNode(const QString &node) {m_node = node;}
-			void setError(const QString &error) {m_error = error;}
-			void setExpand(bool expand) {m_expand = expand;}
-			void addIdentity(const JDiscoIdentity &identity) {m_identities << identity; m_empty = false;}
-			bool hasIdentity(const QString &category, const QString &type = "") {
-				foreach (JDiscoIdentity identity, m_identities)
-					if (identity.category == category && (type.isEmpty() || identity.type == type))
-						return true;
-			}
-			void addFeature(const QString &feature) {m_features << feature; m_empty = false;}
-			bool hasFeature(const QString &feature) {
-				return m_features.contains(feature);
-			}
-			void addAction(JDiscoAction action) {m_actions << action; m_empty = false;}
-			QString name() const {return m_name;}
-			QString jid() const {return m_jid;}
-			QString node() const {return m_node;}
-			QString error() const {return m_error;}
-			bool expand() const {return m_expand;}
-			QList<JDiscoIdentity> identities() {return m_identities;}
-			QList<JDiscoAction> actions() {return m_actions;}
-			QSet<QString> features() {return m_features;}
-			bool empty() const {return m_empty;}
+			JDiscoItem();
+			JDiscoItem(const JDiscoItem &other);
+			~JDiscoItem();
+			JDiscoItem &operator =(const JDiscoItem &other);
+			void setName(const QString &name);
+			void setJID(const QString &jid);
+			void setNode(const QString &node);
+			void setError(const QString &error);
+			void setExpandable(bool expand);
+			void addIdentity(const Identity &identity);
+			bool hasIdentity(const QString &category, const QString &type = QString()) const;
+			void addFeature(const QString &feature);
+			bool hasFeature(const QString &feature) const;
+			void addAction(Action action);
+			QString name() const;
+			QString jid() const;
+			QString node() const;
+			QString error() const;
+			bool isExpandable() const;
+			QList<Identity> identities() const;
+			QList<Action> actions() const;
+			QSet<QString> features() const;
 		private:
-			QString m_name, m_jid, m_node, m_error;
-			QList<JDiscoIdentity> m_identities;
-			QSet<QString> m_features;
-			QList<JDiscoAction> m_actions;
-			bool m_expand, m_empty;
+			QExplicitlySharedDataPointer<JDiscoItemData> d;
 	};
 }
+
+Q_DECLARE_METATYPE(Jabber::JDiscoItem)
 
 #endif //JDISKOITEM_H

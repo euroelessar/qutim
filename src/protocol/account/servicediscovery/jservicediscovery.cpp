@@ -8,7 +8,7 @@ namespace Jabber
 	struct JServicePrivate
 	{
 		JAccount *account;
-		QMap<int, JDiscoItem *> items;
+		QMap<int, JDiscoItem> items;
 		QMap<int, JServiceReceiver *> receivers;
 		int context;
 	};
@@ -24,33 +24,33 @@ namespace Jabber
 	{
 	}
 
-	int JServiceDiscovery::getInfo(JServiceReceiver *receiver, JDiscoItem *di)
+	int JServiceDiscovery::getInfo(JServiceReceiver *receiver, const JDiscoItem &di)
 	{
 		int id = p->context++;
 		p->receivers.insert(id, receiver);
 		p->items.insert(id, di);
-		p->account->connection()->client()->disco()->getDiscoInfo(di->jid().toStdString(),
-				di->node().toStdString(), dynamic_cast<DiscoHandler *>(this), id);
+		p->account->connection()->client()->disco()->getDiscoInfo(di.jid().toStdString(),
+				di.node().toStdString(), dynamic_cast<DiscoHandler *>(this), id);
 		return id;
 	}
 
-	int JServiceDiscovery::getItems(JServiceReceiver *receiver, JDiscoItem *di)
+	int JServiceDiscovery::getItems(JServiceReceiver *receiver, const JDiscoItem &di)
 	{
 		int id = p->context++;
 		p->receivers.insert(id, receiver);
 		p->items.insert(id, di);
-		p->account->connection()->client()->disco()->getDiscoItems(di->jid().toStdString(),
-				di->node().toStdString(), dynamic_cast<DiscoHandler *>(this), id);
+		p->account->connection()->client()->disco()->getDiscoItems(di.jid().toStdString(),
+				di.node().toStdString(), dynamic_cast<DiscoHandler *>(this), id);
 		return id;
 	}
 
 	void JServiceDiscovery::handleDiscoInfo(const JID &from, const Disco::Info &info, int context)
 	{
-		JDiscoItem *di = p->items.take(context);
-		di->setJID(QString::fromStdString(from.full()));
-		di->setNode(QString::fromStdString(info.node()));
+		JDiscoItem di = p->items.take(context);
+		di.setJID(QString::fromStdString(from.full()));
+		di.setNode(QString::fromStdString(info.node()));
 		foreach (std::string feature, info.features())
-			di->addFeature(QString::fromStdString(feature));
+			di.addFeature(QString::fromStdString(feature));
 		foreach (Disco::Identity *identity, info.identities())
 			addDiscoIdentity(di, identity);
 		setActions(di);
@@ -59,13 +59,13 @@ namespace Jabber
 
 	void JServiceDiscovery::handleDiscoItems(const JID &from, const Disco::Items &items, int context)
 	{
-		QList<JDiscoItem *> discoItems;
+		QList<JDiscoItem> discoItems;
 		foreach (Disco::Item *item, items.items()) {
-			JDiscoItem *di = new JDiscoItem();
-			di->setExpand(false);
-			di->setName(QString::fromStdString(item->name()).replace("\n", " | "));
-			di->setJID(QString::fromStdString(item->jid().full()));
-			di->setNode(QString::fromStdString(item->node()));
+			JDiscoItem di;
+			di.setExpandable(false);
+			di.setName(QString::fromStdString(item->name()).replace("\n", " | "));
+			di.setJID(QString::fromStdString(item->jid().full()));
+			di.setNode(QString::fromStdString(item->node()));
 			discoItems << di;
 		}
 		p->items.remove(context);
@@ -74,11 +74,11 @@ namespace Jabber
 
 	void JServiceDiscovery::handleDiscoError(const JID &from, const Error *error, int context)
 	{
-		JDiscoItem *di = p->items.take(context);
-		di->setJID(QString::fromStdString(from.full()));
-		di->setError(QString::fromStdString(error->text()));
-		if (di->error().isEmpty()) {
+		JDiscoItem di = p->items.take(context);
+		di.setJID(QString::fromStdString(from.full()));
+		if (di.error().isEmpty()) {
 			QString errorText;
+			// TODO: Move this translation to Jabber utils
 			switch (error->error()) {
 			case StanzaErrorBadRequest:
 				errorText = tr("The sender has sent XML that is malformed or that cannot be processed.");
@@ -111,7 +111,7 @@ namespace Jabber
 				errorText = tr("The recipient or server does not allow any entity to perform the action.");
 				break;
 			case StanzaErrorNotAuthorized:
-					errorText = tr("The sender must provide proper credentials before being allowed to perform the action, or has provided impreoper credentials.");
+				errorText = tr("The sender must provide proper credentials before being allowed to perform the action, or has provided impreoper credentials.");
 				break;
 			case StanzaErrorNotModified:
 				errorText = tr("The item requested has not changed since it was last requested.");
@@ -152,7 +152,12 @@ namespace Jabber
 			case StanzaErrorUnknownSender:
 				errorText = tr("The stanza 'from' address specified by a connected client is not valid for the stream.");
 			}
-			di->setError(errorText);
+			QString additionalText = QString::fromStdString(error->text());
+			if (!additionalText.isEmpty()) {
+				errorText += '\n';
+				errorText += additionalText;
+			}
+			di.setError(errorText);
 		}
 		p->receivers.take(context)->setError(context);
 	}
@@ -162,52 +167,53 @@ namespace Jabber
 		return false;
 	}
 
-	void JServiceDiscovery::addDiscoIdentity(JDiscoItem *di, Disco::Identity *identity)
+	void JServiceDiscovery::addDiscoIdentity(JDiscoItem &di, Disco::Identity *identity)
 	{
-		if (di->name().isEmpty())
-			di->setName(QString::fromStdString(identity->name()).replace("\n", " | "));
-		JDiscoItem::JDiscoIdentity discoIdentity;
+		if (di.name().isEmpty())
+			di.setName(QString::fromStdString(identity->name()).replace("\n", " | "));
+		JDiscoItem::Identity discoIdentity;
 		discoIdentity.name = QString::fromStdString(identity->name()).replace("\n", " | ");
 		discoIdentity.category = QString::fromStdString(identity->category());
 		discoIdentity.type = QString::fromStdString(identity->type());
-		di->addIdentity(discoIdentity);
+		di.addIdentity(discoIdentity);
 	}
 
-	void JServiceDiscovery::setActions(JDiscoItem *di)
+	void JServiceDiscovery::setActions(JDiscoItem &di)
 	{
 		bool isIRC = false;
-		foreach (JDiscoItem::JDiscoIdentity identity, di->identities())
+		foreach (JDiscoItem::Identity identity, di.identities())
 			if (identity.category == "conference" && identity.type == "irc")
 				isIRC = true;
-		di->addAction(JDiscoItem::JDiscoAdd);
-		if (di->hasFeature("http://jabber.org/protocol/muc")
-				&& (!QString::fromStdString(JID(di->jid().toStdString()).username()).isEmpty()
+		di.addAction(JDiscoItem::ActionAdd);
+		if (di.hasFeature(QString::fromStdString(gloox::XMLNS_MUC))
+				&& (!QString::fromStdString(JID(di.jid().toStdString()).username()).isEmpty()
 				|| isIRC))
-			di->addAction(JDiscoItem::JDiscoJoin);
-		if (di->hasFeature("http://jabber.org/protocol/bytestreams"))
-			di->addAction(JDiscoItem::JDiscoProxy);
-		if(di->hasFeature("http://jabber.org/protocol/muc#register")
-				|| di->hasFeature("jabber:iq:register"))
-			di->addAction(JDiscoItem::JDiscoRegister);
-		if (di->hasFeature("jabber:iq:search"))
-			di->addAction(JDiscoItem::JDiscoSearch);
-		if (di->hasFeature("vcard-temp"))
-			di->addAction(JDiscoItem::JDiscoVCard);
-		if (di->hasFeature("http://jabber.org/protocol/disco#items")
-				|| (di->hasFeature("http://jabber.org/protocol/muc") && !isIRC)
-				|| (di->features().isEmpty() && di->identities().isEmpty()))
-			di->setExpand(true);
-		if (di->hasIdentity("automation")) {
+			di.addAction(JDiscoItem::ActionJoin);
+		if (di.hasFeature(QString::fromStdString(gloox::XMLNS_BYTESTREAMS)))
+			di.addAction(JDiscoItem::ActionProxy);
+		if(di.hasFeature("http://jabber.org/protocol/muc#register")
+			|| di.hasFeature(QString::fromStdString(gloox::XMLNS_REGISTER)))
+			di.addAction(JDiscoItem::ActionRegister);
+		if (di.hasFeature(QString::fromStdString(gloox::XMLNS_SEARCH)))
+			di.addAction(JDiscoItem::ActionSearch);
+		if (di.hasFeature(QString::fromStdString(gloox::XMLNS_VCARD_TEMP)))
+			di.addAction(JDiscoItem::ActionVCard);
+		if (di.hasFeature(QString::fromStdString(gloox::XMLNS_DISCO_ITEMS))
+				|| (di.hasFeature(QString::fromStdString(gloox::XMLNS_MUC)) && !isIRC)
+				|| (di.features().isEmpty() && di.identities().isEmpty()))
+			di.setExpandable(true);
+		if (di.hasIdentity("automation")) {
 			bool expand = false;
-			foreach (JDiscoItem::JDiscoIdentity identity, di->identities())
+			foreach (JDiscoItem::Identity identity, di.identities())
 				if (identity.type == "command-list")
 					expand = true;
 			if (expand)
-				di->setExpand(true);
-			else
-				di->addAction(JDiscoItem::JDiscoExecute);
-		} else if (di->hasFeature("http://jabber.org/protocol/commands")) {
-			di->setExpand(true);
+				di.setExpandable(true);
+//			else
+				di.addAction(JDiscoItem::ActionExecute);
+		} else if (di.hasFeature(QString::fromStdString(gloox::XMLNS_ADHOC_COMMANDS))) {
+			di.setExpandable(true);
+			di.addAction(JDiscoItem::ActionExecute);
 		}
 	}
 }

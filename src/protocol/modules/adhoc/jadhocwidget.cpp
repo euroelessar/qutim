@@ -2,6 +2,7 @@
 #include "ui_jadhocwidget.h"
 #include <QPushButton>
 #include <QLabel>
+#include <qutim/debug.h>
 
 using namespace gloox;
 
@@ -48,16 +49,43 @@ namespace Jabber
 		clear();
 		m_sessionId = command.sessionID();
 
-		StringList lst = command.form()->instructions();
-		StringList::iterator it;
-		for (it=lst.begin() ; it != lst.end(); it++) {
-			m_ui->layout->addWidget(new QLabel(QString::fromStdString(*it), this));
+		const Adhoc::Command::NoteList &nl = command.notes();
+		Adhoc::Command::NoteList::const_iterator it;
+		for (it = nl.begin(); it != nl.end(); it++) {
+			const Adhoc::Command::Note *note = *it;
+			QIcon icon;
+			switch (note->severity()) {
+			case Adhoc::Command::Note::Info:
+				icon = qutim_sdk_0_3::Icon("dialog-information");
+				break;
+			case Adhoc::Command::Note::Warning:
+				icon = qutim_sdk_0_3::Icon("dialog-warning");
+				break;
+			case Adhoc::Command::Note::Error:
+				icon = qutim_sdk_0_3::Icon("dialog-error");
+				break;
+			}
+			QLabel *label = new QLabel(QString::fromStdString(note->content()), this);
+			if (!icon.isNull())
+				label->setPixmap(icon.pixmap(16));
+			qutim_sdk_0_3::debug() << label->text();
+			m_ui->layout->addWidget(label);
 		}
 
 		if (command.form()) {
+			const StringList &lst = command.form()->instructions();
+			StringList::const_iterator it;
+			for (it=lst.begin() ; it != lst.end(); it++) {
+				m_ui->layout->addWidget(new QLabel(QString::fromStdString(*it), this));
+			}
 			m_dataForm = new JDataForm(command.form(), this);
 			m_ui->layout->addWidget(m_dataForm);
 		}
+
+        if (command.status() == Adhoc::Command::Completed) {
+            addButton(tr("Ok"), qutim_sdk_0_3::Icon("dialog-ok-apply"), SLOT(close()));
+            return;
+        }
 
 		if (command.actions() & Adhoc::Command::Execute) {
 			addButton(tr("Finish"), qutim_sdk_0_3::Icon("dialog-ok-apply"), SLOT(doExecute()));
@@ -75,7 +103,7 @@ namespace Jabber
 			addButton(tr("Complete"), qutim_sdk_0_3::Icon("dialog-ok-apply"), SLOT(doComplete()));
 		}
 		if (command.actions() == 0) {
-			addButton(tr("Ok"), qutim_sdk_0_3::Icon("dialog-ok-apply"), SLOT(doCancel()));
+            addButton(tr("Ok"), qutim_sdk_0_3::Icon("dialog-ok-apply"), SLOT(doComplete()));
 		}
 	}
 
@@ -143,6 +171,7 @@ namespace Jabber
 		m_ui->buttonBox->clear();
 		for (int i = m_ui->layout->count(); i > 0; i--) {
 			QLayoutItem *item = m_ui->layout->itemAt(0);
+            item->widget()->deleteLater();
 			m_ui->layout->removeItem(item);
 			delete item;
 		}

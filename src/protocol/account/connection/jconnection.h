@@ -4,6 +4,7 @@
 #include <gloox/client.h>
 #include <gloox/presencehandler.h>
 #include <gloox/disco.h>
+#include <gloox/adhoc.h>
 
 #include "jconnectiontcpbase.h"
 
@@ -23,6 +24,7 @@ namespace Jabber
 			void loadSettings();
 			void setConnectionPresence(Presence::PresenceType presence);
 			Client *client();
+			Adhoc *adhoc();
 			void initExtensions();
 		protected:
 			void handlePresence(const Presence &presence);

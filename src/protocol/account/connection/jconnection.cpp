@@ -93,6 +93,11 @@ namespace Jabber
 		return p->client;
 	}
 
+	Adhoc *JConnection::adhoc()
+	{
+		return p->adhoc;
+	}
+
 	void JConnection::initExtensions()
 	{
 		JabberParams params;

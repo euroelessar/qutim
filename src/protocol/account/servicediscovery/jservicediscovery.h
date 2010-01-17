@@ -20,15 +20,15 @@ namespace Jabber
 		public:
 			JServiceDiscovery(JAccount *account);
 			~JServiceDiscovery();
-			int getInfo(JServiceReceiver *receiver, JDiscoItem *di);
-			int getItems(JServiceReceiver *receiver, JDiscoItem *di);
+			int getInfo(JServiceReceiver *receiver, const JDiscoItem &di);
+			int getItems(JServiceReceiver *receiver, const JDiscoItem &di);
 			void handleDiscoInfo(const JID &from, const Disco::Info &info, int context);
 			void handleDiscoItems(const JID &from, const Disco::Items &items, int context);
 			void handleDiscoError(const JID &from, const Error *error, int context);
 			bool handleDiscoSet(const IQ &iq);
 		protected:
-			void addDiscoIdentity(JDiscoItem *di, Disco::Identity *identity);
-			void setActions(JDiscoItem *di);
+			void addDiscoIdentity(JDiscoItem &di, Disco::Identity *identity);
+			void setActions(JDiscoItem &di);
 		private:
 			QScopedPointer<JServicePrivate> p;
 	};

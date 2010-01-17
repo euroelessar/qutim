@@ -1,8 +1,13 @@
 #include <QMovie>
+#include <QStringBuilder>
 #include "jservicebrowser.h"
 #include "jservicediscovery.h"
 #include "jdiscoitem.h"
 #include "../jaccount.h"
+#include "protocol/modules/adhoc/jadhocwidget.h"
+#include <qutim/iconloader.h>
+#include <qutim/configbase.h>
+#include <qutim/protocol.h>
 #include <qutim/debug.h>
 
 namespace Jabber
@@ -35,19 +40,21 @@ namespace Jabber
 		QMenu *contextMenu;
 		bool isConference;
 		int searchCount;
+		bool showFeatures;
+		JDiscoItem currentMenuItem;
 	};
 
 	JServiceBrowser::JServiceBrowser(JAccount *account, bool isConference, QWidget *parent)
 			: QWidget(parent), p(new JServiceBrowserPrivate)
 	{
 		p->account = account;
+		ConfigGroup group = account->protocol()->config("serviceBrowser");
 		p->isConference = isConference;
 		p->searchCount = 0;
 		p->ui = new Ui::ServiceBrowser();
 		p->contextMenu = new QMenu();
 		p->ui->setupUi(this);
-		this->setWindowTitle(QApplication::translate("SearchService", "Search service",
-				0, QApplication::UnicodeUTF8));
+		setWindowTitle(tr("Search service"));
 		p->ui->serviceServer->installEventFilter(this);
 		p->ui->searchButton->setIcon(Icon("system-search"));
 		p->ui->closeButton->setIcon(Icon("window-close"));
@@ -59,6 +66,7 @@ namespace Jabber
 		p->ui->actionRegister->setIcon(Icon("dialog-password"));
 		p->ui->actionShowVCard->setIcon(Icon("user-identity"));
 		p->ui->actionAdd->setIcon(Icon("list-add-user"));
+		connect(p->ui->actionExecute, SIGNAL(triggered()), this, SLOT(onExecute()));
 		connect(p->ui->serviceTree, SIGNAL(itemExpanded(QTreeWidgetItem*)),
 				SLOT(getItems(QTreeWidgetItem*)));
 		connect(p->ui->filterLine, SIGNAL(textEdited(const QString&)),
@@ -66,13 +74,15 @@ namespace Jabber
 		connect(p->ui->serviceTree, SIGNAL(customContextMenuRequested(QPoint)),
 				SLOT(showContextMenu(QPoint)));
 		searchServer(QString::fromStdString(p->account->client()->jid().server()));
-		this->resize(700, 600);
+		// WTF? Why not use sizes from ui?
+		resize(700, 600);
 		p->ui->serviceTree->setColumnWidth(0, p->ui->serviceTree->width());
 		QMovie *movie = new QMovie(p->ui->labelLoader);
 		movie->setFileName("loader");
 		movie->start();
 		p->ui->labelLoader->setMovie(movie);
 		p->ui->labelLoader->setVisible(false);
+		p->showFeatures = group.value("showFeatures", false);
 	}
 
 	JServiceBrowser::~JServiceBrowser()
@@ -87,7 +97,7 @@ namespace Jabber
 
 	void JServiceBrowser::getInfo(QTreeWidgetItem *item)
 	{
-		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
+		JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
 		int id = p->account->discoManager()->getInfo(this, di);
 		p->treeItems.insert(id, item);
 		p->searchCount++;
@@ -96,8 +106,8 @@ namespace Jabber
 
 	void JServiceBrowser::getItems(QTreeWidgetItem *item)
 	{
-		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
-		if (!item->childCount() && (di->expand())) {
+		JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
+		if (!item->childCount() && (di.isExpandable())) {
 			int id = p->account->discoManager()->getItems(this, di);
 			p->treeItems.insert(id, item);
 		}
@@ -108,36 +118,41 @@ namespace Jabber
 		QTreeWidgetItem *item = p->treeItems.take(id);
 		if (!item)
 			return;
-		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
-		if (p->isConference && (di->hasIdentity("conference") || di->hasIdentity("server")))
+		JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
+		if (p->isConference && (di.hasIdentity("conference") || di.hasIdentity("server")))
 				item->setHidden(false);
-		if (!di->name().isEmpty())
-			item->setText(0, di->name());
+		if (!di.name().isEmpty())
+			item->setText(0, di.name());
 		else
-			item->setText(0, di->jid());
+			item->setText(0, di.jid());
 		item->setIcon(0, Icon(setServiceIcon(di)));
 		QString tooltip;
-		tooltip = "<b>"+di->name()+"</b> ("+di->jid()+")<br/>";
-		if (!di->identities().isEmpty()) {
-			tooltip += tr("<br/><b>Identities:</b><br/>");
-			foreach(JDiscoItem::JDiscoIdentity identity, di->identities()) {
-				JDiscoItem *di = new JDiscoItem();
-				di->setJID(di->jid());
-				di->addIdentity(identity);
+		tooltip = QLatin1Literal("<b>") % di.name() % QLatin1Literal("</b> (")
+				  % di.jid() % QLatin1Literal(")<br/>");
+		QString type = tr("type: ");
+		QString category = tr("category: ");
+		if (!di.identities().isEmpty()) {
+			tooltip += QLatin1Literal("<br/><b>") % tr("Identities:") % QLatin1Literal("</b><br/>");
+			foreach(JDiscoItem::Identity identity, di.identities()) {
+				JDiscoItem di;
+				di.setJID(di.jid());
+				di.addIdentity(identity);
 				QString img = setServiceIcon(di);
-				delete di;
-				tooltip += "<img src='" + img + "'> " + identity.name
-						+ " (" + tr("category: ") + identity.category + ", " + tr("type: ")
-						+ identity.type + ")<br/>";
+				tooltip += QLatin1Literal("<img src='") % img % QLatin1Literal("'> ")
+						   % identity.name % QLatin1Literal(" (") % category
+						   % identity.category % QLatin1Literal(", ") % type
+						   % identity.type % QLatin1Literal(")<br/>");
 			}
 		}
-		if (false && !di->features().isEmpty()) {
-			tooltip += tr("<br/><b>Features:</b><br/>");
-			foreach(QString feature, di->features())
-				tooltip += feature.remove("http://jabber.org/protocol/")+"<br/>";
+		if (p->showFeatures && !di.features().isEmpty()) {
+			tooltip += QLatin1Literal("<br/><b>") % tr("Features:") % QLatin1Literal("</b><br/>");
+			QStringList features = QStringList::fromSet(di.features());
+			features.sort();
+			foreach(QString feature, features)
+				tooltip += feature % QLatin1Literal("<br/>");
 		}
 		item->setToolTip(0, tooltip);
-		if (di->expand())
+		if (di.isExpandable())
 			item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
 		QTreeWidgetItem *parent = item->parent();
 		if (parent && parent->isHidden()) {
@@ -153,23 +168,23 @@ namespace Jabber
 			p->ui->labelLoader->setVisible(false);
 	}
 
-	void JServiceBrowser::setItems(int id, const QList<JDiscoItem *> &items)
+	void JServiceBrowser::setItems(int id, const QList<JDiscoItem> &items)
 	{
 		QTreeWidgetItem *parentItem = p->treeItems.take(id);
 		if (!parentItem || parentItem->childCount())
 			return;
 		if (items.isEmpty())
 			parentItem->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicator);
-		foreach (JDiscoItem *di, items) {
+		foreach (const JDiscoItem &di, items) {
 			QTreeWidgetItem *item = new QTreeWidgetItem(parentItem);
 			if (p->isConference)
 				item->setHidden(true);
-			if (!di->name().isEmpty())
-				item->setText(0, di->name());
+			if (!di.name().isEmpty())
+				item->setText(0, di.name());
 			else
-				item->setText(0, di->jid());
+				item->setText(0, di.jid());
 			item->setExpanded(false);
-			item->setData(0, Qt::UserRole+1, reinterpret_cast<qptrdiff>(di));
+			item->setData(0, Qt::UserRole+1, qVariantFromValue(di));
 			getInfo(item);
 		}
 		parentItem->setExpanded(true);
@@ -180,9 +195,9 @@ namespace Jabber
 		QTreeWidgetItem *item = p->treeItems.take(id);
 		if (!item)
 			return;
-		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
+		JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
 		item->setDisabled(true);
-		item->setToolTip(0, item->toolTip(0) + di->error());
+		item->setToolTip(0, item->toolTip(0) + di.error());
 	}
 
 	void clean_item(QTreeWidgetItem *item)
@@ -190,10 +205,8 @@ namespace Jabber
 		for (int i = item->childCount(); i < 0; i--) {
 			QTreeWidgetItem *child = item->child(0);
 			clean_item(child);
-			JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
 			item->removeChild(child);
 			delete child;
-			delete di;
 		}
 	}
 
@@ -204,9 +217,9 @@ namespace Jabber
 		p->treeItems.clear();
 		QTreeWidgetItem *item = new QTreeWidgetItem(p->ui->serviceTree);
 		item->setText(0, p->ui->serviceServer->currentText());
-		JDiscoItem *di = new JDiscoItem();
-		di->setJID(p->ui->serviceServer->currentText());
-		item->setData(0, Qt::UserRole+1, reinterpret_cast<qptrdiff>(di));
+		JDiscoItem di;
+		di.setJID(p->ui->serviceServer->currentText());
+		item->setData(0, Qt::UserRole+1, qVariantFromValue(di));
 		getInfo(item);
 	}
 
@@ -214,31 +227,32 @@ namespace Jabber
 	{
 		p->contextMenu->clear();
 		QTreeWidgetItem *item = p->ui->serviceTree->itemAt(pos);
-		JDiscoItem *di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
-		foreach (JDiscoItem::JDiscoAction action, di->actions()) {
+		JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
+		p->currentMenuItem = di;
+		foreach (JDiscoItem::Action action, di.actions()) {
 			switch (action) {
-			case JDiscoItem::JDiscoJoin:
+			case JDiscoItem::ActionJoin:
 				p->contextMenu->addAction(p->ui->actionJoin);
 				break;
-			case JDiscoItem::JDiscoRegister:
+			case JDiscoItem::ActionRegister:
 				p->contextMenu->addAction(p->ui->actionRegister);
 				break;
-			case JDiscoItem::JDiscoSearch:
+			case JDiscoItem::ActionSearch:
 				p->contextMenu->addAction(p->ui->actionSearch);
 				break;
-			case JDiscoItem::JDiscoExecute:
+			case JDiscoItem::ActionExecute:
 				p->contextMenu->addAction(p->ui->actionExecute);
 				break;
-			case JDiscoItem::JDiscoAdd:
+			case JDiscoItem::ActionAdd:
 				p->contextMenu->addAction(p->ui->actionAdd);
 				break;
-			case JDiscoItem::JDiscoVCard:
+			case JDiscoItem::ActionVCard:
 				p->contextMenu->addAction(p->ui->actionShowVCard);
 				break;
 			}
 		}
 		if (!p->contextMenu->actions().isEmpty())
-			p->contextMenu->popup(p->ui->serviceTree->mapToGlobal(pos));
+			p->contextMenu->popup(p->ui->serviceTree->viewport()->mapToGlobal(pos));
 	}
 
 	void JServiceBrowser::closeEvent(QCloseEvent*)
@@ -258,42 +272,42 @@ namespace Jabber
 		}
 	}
 
-	QString JServiceBrowser::setServiceIcon(JDiscoItem *di)
+	QString JServiceBrowser::setServiceIcon(const JDiscoItem &di)
 	{
-		if (di->identities().isEmpty())
-			return "";
+		if (di.identities().isEmpty())
+			return QString();
 		QString service_icon;
-		if (di->hasIdentity("server")) {
+		if (di.hasIdentity("server")) {
 			service_icon = "network-server";
-		} else if (di->hasIdentity("conference", "text")) {
-			if (QString::fromStdString(JID(di->jid().toStdString()).username()).isEmpty())
-				service_icon = "conferenceserver";
-			else if (QString::fromStdString(JID(di->jid().toStdString()).resource()).isEmpty())
+		} else if (di.hasIdentity("conference", "text")) {
+			if (QString::fromStdString(JID(di.jid().toStdString()).username()).isEmpty())
+				service_icon = "conference-server";
+			else if (QString::fromStdString(JID(di.jid().toStdString()).resource()).isEmpty())
 				service_icon = "conference";
 			else
-				service_icon = "conferenceuser";
-		} else if (di->hasIdentity("conference", "irc")) {
-			service_icon = "irc";
-		} else if (di->hasIdentity("gateway", "icq")) {
-			service_icon = "icq_tr";
-		} else if (di->hasIdentity("gateway", "aim")) {
-			service_icon = "aim_tr";
-		} else if (di->hasIdentity("gateway", "mrim")) {
-			service_icon = "mrim_tr";
-		} else if (di->hasIdentity("gateway", "msn")) {
-			service_icon = "msn_tr";
-		} else if (di->hasIdentity("gateway", "xmpp")) {
-			service_icon = "jabber_tr";
-		} else if (di->hasIdentity("gateway")) {
-			service_icon = "default_tr";
-		} else if (di->hasIdentity("directory")) {
+				service_icon = "conference-user";
+		} else if (di.hasIdentity("conference", "irc")) {
+			service_icon = "im-irc-gateway";
+		} else if (di.hasIdentity("gateway", "icq")) {
+			service_icon = "im-icq-gateway";
+		} else if (di.hasIdentity("gateway", "aim")) {
+			service_icon = "im-aim-gateway";
+		} else if (di.hasIdentity("gateway", "mrim")) {
+			service_icon = "im-mrim-gateway";
+		} else if (di.hasIdentity("gateway", "msn")) {
+			service_icon = "im-msn-gateway";
+		} else if (di.hasIdentity("gateway", "xmpp")) {
+			service_icon = "im-jabber-gateway";
+		} else if (di.hasIdentity("gateway")) {
+			service_icon = "im-default-gateway";
+		} else if (di.hasIdentity("directory")) {
 			service_icon = "edit-find-user";
-		} else if (di->hasIdentity("automation")) {
+		} else if (di.hasIdentity("automation")) {
 			service_icon = "utilities-terminal";
 		} else {
 			service_icon = "defaultservice";
 		}
-		return service_icon;
+		return IconLoader::instance()->iconPath(service_icon, 16);
 	}
 
 	/*void JServiceBrowser::on_joinButton_clicked()
@@ -313,17 +327,17 @@ namespace Jabber
 	void JServiceBrowser::on_searchFormButton_clicked()
 	{
 		QTreeWidgetItem *item = p->ui->serviceTree->currentItem();
-		JDiscoItem *di;
-		di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
+		JDiscoItem di;
+		di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
 		emit searchService("", item->text(1));
 	}
 
 	void JServiceBrowser::on_executeButton_clicked()
 	{
 		QTreeWidgetItem *item = p->ui->serviceTree->currentItem();
-		JDiscoItem *di;
-		di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
-		emit executeCommand(item->text(1), di->node());
+		JDiscoItem di;
+		di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
+		emit executeCommand(item->text(1), di.node());
 	}
 
 	void JServiceBrowser::on_addRosterButton_clicked()
@@ -335,8 +349,8 @@ namespace Jabber
 	void JServiceBrowser::on_showVCardButton_clicked()
 	{
 		QTreeWidgetItem *item = p->ui->serviceTree->currentItem();
-		JDiscoItem *di;
-		di = reinterpret_cast<JDiscoItem*>(item->data(0, Qt::UserRole+1).value<qptrdiff>());
+		JDiscoItem di;
+		di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
 		emit showVCard(item->text(1));
 	}
 
@@ -402,5 +416,15 @@ namespace Jabber
 	{
 		p->ui->filterLine->clear();
 		filterItem("");
+	}
+
+	void JServiceBrowser::onExecute()
+	{
+		QWidget *widget = new JAdHocWidget(p->currentMenuItem.jid().toStdString(),
+										   p->account->connection()->adhoc());
+		centerizeWidget(widget);
+		widget->setAttribute(Qt::WA_DeleteOnClose, true);
+		widget->setAttribute(Qt::WA_QuitOnClose, false);
+		widget->show();
 	}
 }

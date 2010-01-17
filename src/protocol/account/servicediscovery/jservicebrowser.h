@@ -40,7 +40,7 @@ namespace Jabber
 			JServiceBrowser(JAccount *account, bool isConference = false, QWidget *parent = 0);
 			~JServiceBrowser();
 			virtual void setInfo(int id);
-			virtual void setItems(int id, const QList<JDiscoItem *> &items);
+			virtual void setItems(int id, const QList<JDiscoItem> &items);
 			virtual void setError(int id);
 		private slots:
 			void getItems(QTreeWidgetItem *item);
@@ -50,6 +50,9 @@ namespace Jabber
 			void on_searchButton_clicked();
 			void on_closeButton_clicked();
 			void on_clearButton_clicked();
+
+			void onExecute();
+
 			/*void on_joinButton_clicked();
 			void on_registerButton_clicked();
 			void on_searchFormButton_clicked();
@@ -65,7 +68,7 @@ namespace Jabber
 			void setItemVisible(QTreeWidgetItem *item, bool visibility);
 			QList<QTreeWidgetItem *> findItems(QTreeWidgetItem *item, const QString &text);
 			void setBranchVisible(QList<QTreeWidgetItem *> items);
-			QString setServiceIcon(JDiscoItem *di);
+			QString setServiceIcon(const JDiscoItem &di);
 		private:
 			QScopedPointer<JServiceBrowserPrivate> p;
 		/*signals:
