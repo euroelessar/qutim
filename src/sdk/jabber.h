@@ -20,6 +20,22 @@ namespace qutim_sdk_0_3
 
 namespace Jabber
 {
+	/*!
+	  JabberParams is collection for flexible and safe providing of
+	  pointers to different Jabber objects.
+
+	  One of main advantages of this way providing pointers is full
+	  binary compatibility, it is preserved as much as it let to do
+	  binary compatibility of gloox library.
+
+	  \code
+		void MyExtension::init(qutim_sdk_0_3::Account *account, const JabberParams &params)
+		{
+			gloox::Client *client = params.item<gloox::Client>();
+			client->doStuff();
+		}
+	  \endcode
+	*/
 	class JabberParams
 	{
 	public:
@@ -47,12 +63,28 @@ namespace Jabber
 			return reinterpret_cast<T *>(m_params.value(iid, 0));
 		return 0;
 	}
-
+	/*!
+	  JabberExtension is abstract interface for every extension
+	  to Jabber plugin.
+	*/
 	class JabberExtension
 	{
 	public:
+		/*!
+		  Constructor
+		*/
 		JabberExtension() {}
+		/*!
+		  Destructor
+		*/
 		virtual ~JabberExtension() {}
+		/*!
+		  Initialization method for extension.
+		  \param account Pointer to jabber account
+		  \param params Collection of different parameters, such as gloox::Client
+
+		  \sa JabberParams
+		*/
 		virtual void init(qutim_sdk_0_3::Account *account, const JabberParams &params) = 0;
 	};
 

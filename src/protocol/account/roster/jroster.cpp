@@ -167,19 +167,13 @@ namespace Jabber
 		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~presence";
 		QString jid(QString::fromStdString(presence.from().bare()));
 		QString resource(QString::fromStdString(presence.from().resource()));
-		 if (jid == p->account->id())
+		if (presence.from().bare() == p->account->client()->jid().bare())
 			 return;
 		debug() << QString::fromStdString(presence.from().full()) << jid << resource;
 		if (!p->contacts.contains(jid)) {
 			JContact *contact = new JContact(jid, p->account);
 			JContactPrivate *c_d = contact->d_func();
 			c_d->name = QString::fromStdString(presence.from().username());
-			RosterItem *item = p->rosterManager->getRosterItem(presence.from());
-			QSet<QString> tags;
-			StringList groups = item->groups();
-			StringList::const_iterator group = groups.begin();
-			for(; group != groups.end(); ++group)
-				tags.insert(QString::fromStdString(*group));
 			c_d->tags = tags;
 			c_d->inList = false;
 			debug() << contact->id() << contact->name() << contact->tags();
