@@ -35,7 +35,8 @@ namespace Jabber
 
 		if (command.node() == "set-status") {
 			if (command.action() == Adhoc::Command::Execute) {
-				if (const DataForm *form = command.form()) {
+                const DataForm *form = command.form();
+                if (form) {
 					DataFormField *status = form->field("status");
 					if (!status || status->value().empty()) {
 						// Send error stanza
@@ -67,7 +68,7 @@ namespace Jabber
 				} else {
 					StringList instructions;
 					instructions.push_back("Choose the status and status message");
-					DataForm *form = new DataForm(TypeForm, instructions, "Change Status");
+                    form = new DataForm(TypeForm, instructions, "Change Status");
 					Presence &pres = m_client->presence();
 					form->addField(DataFormField::TypeHidden, "FORM_TYPE", "http://jabber.org/protocol/rc");
 					{

@@ -92,17 +92,17 @@ namespace Jabber
 
 	bool JContactResource::checkFeature(const QLatin1String &feature) const
 	{
-		d_ptr->features.contains(feature);
+        return d_ptr->features.contains(feature);
 	}
 
 	bool JContactResource::checkFeature(const QString &feature) const
 	{
-		d_ptr->features.contains(feature);
+        return d_ptr->features.contains(feature);
 	}
 
 	bool JContactResource::checkFeature(const std::string &feature) const
 	{
-		d_ptr->features.contains(QString::fromStdString(feature));
+        return d_ptr->features.contains(QString::fromStdString(feature));
 	}
 
 	ChatUnit *JContactResource::upperUnit()
