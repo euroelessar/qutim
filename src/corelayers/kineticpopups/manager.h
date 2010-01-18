@@ -51,8 +51,6 @@ namespace KineticPopups
 		QEasingCurve easingCurve;
 		bool updatePosition;
 		AnimationFlags animation;
-		Qt::MouseButton action1Trigger;
-		Qt::MouseButton action2Trigger;
 		NotificationTypes showFlags;
 		uint timeout;
 		bool appendMode;

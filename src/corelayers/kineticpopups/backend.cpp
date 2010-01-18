@@ -70,10 +70,8 @@ namespace KineticPopups
 				popup_id.append("." + QString::number(id_counter++));
 			}
 		}
-		popup  = new Popup ();		
-		popup->setTimeOut(manager->timeout);
+		popup  = new Popup (popup_id);
 		popup->setMessage(title,text,sender);
-		popup->setId(popup_id);
 		if (sender)
 			connect(sender,SIGNAL(destroyed(QObject*)),popup,SLOT(deleteLater()));
 		popup->send();
