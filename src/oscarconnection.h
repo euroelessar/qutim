@@ -81,6 +81,7 @@ public:
 	void sendStatus(Status status);
 private slots:
 	void disconnected();
+	void md5Error(ConnectionError error);
 private:
 	void sendUserInfo();
 	void setIdle(bool allow);

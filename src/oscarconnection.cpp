@@ -167,8 +167,10 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 
 void OscarConnection::connectToLoginServer()
 {
+	setError(NoError);
 	Md5Login *md5login = new Md5Login(this);
 	connect(md5login->socket(), SIGNAL(disconnected()), md5login, SLOT(deleteLater()));
+	connect(md5login, SIGNAL(error(ConnectionError)), this, SLOT(md5Error(ConnectionError)));
 	md5login->login();
 }
 
@@ -197,14 +199,15 @@ void OscarConnection::processNewConnection()
 void OscarConnection::processCloseConnection()
 {
 	TLVMap tlvs = flap().readTLVChain();
-	if (tlvs.contains(0x0009))
-		Notifications::sendNotification(tr("Another client is loggin with this uin"));
-	else if (tlvs.contains(0x0008)) {
-		QString error = Util::connectionErrorText(qFromBigEndian<quint16>((const uchar *) tlvs.value(0x0008).value().constData()));
-		Notifications::sendNotification(error);
+	if (tlvs.contains(0x0009)) {
+		setError(AnotherClientLogined);
+	} else if (tlvs.contains(0x0008)) {
+		DataUnit data(tlvs.value(0x0008));
+		setError(static_cast<ConnectionError>(data.readSimple<quint16>()));
 	}
-
-	AbstractConnection::processCloseConnection();
+	if (error() != NoError)
+		Notifications::sendNotification(errorString());
+	//AbstractConnection::processCloseConnection();
 }
 
 void OscarConnection::finishLogin()
@@ -280,6 +283,13 @@ void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QBy
 void OscarConnection::disconnected()
 {
 	m_account->setStatus(Offline);
+}
+
+void OscarConnection::md5Error(ConnectionError e)
+{
+	setError(e);
+	if (e != NoError)
+		emit error(e);
 }
 
 void OscarConnection::sendStatus(Status status)

@@ -57,6 +57,43 @@ class AbstractConnection: public QObject
 {
 	Q_OBJECT
 public:
+	enum ConnectionError
+	{
+		NoError = 0x00,
+		InvalidNickOrPassword = 0x01,
+		ServiceUnaivalable = 0x02,
+		IncorrectNickOrPassword = 0x04,
+		MismatchNickOrPassword = 0x05,
+		InternalClientError = 0x06,
+		InvalidAccount = 0x07,
+		DeletedAccount = 0x08,
+		ExpiredAccount = 0x09,
+		NoAccessToDatabase = 0x0a,
+		NoAccessToResolver = 0x0b,
+		InvalidDatabaseFields = 0x0c,
+		BadDatabaseStatus = 0x0D,
+		BadResolverStatus = 0x0E,
+		InternalError = 0x0F,
+		ServiceOffline = 0x10,
+		SuspendedAccount = 0x11,
+		DBSendError = 0x12,
+		DBLinkError = 0x13,
+		ReservationMapError = 0x14,
+		ReservationLinkError = 0x15,
+		ConnectionLimitExceeded = 0x16,
+		ConnectionLimitExceededReservation = 0x17,
+		RateLimitExceededReservation = 0x18,
+		UserHeavilyWarned = 0x19,
+		ReservationTimeout = 0x1a,
+		ClientUpgradeRequired = 0x1b,
+		ClientUpgradeRecommended = 0x1c,
+		RateLimitExceeded = 0x1d,
+		IcqNetworkError = 0x1e,
+		InvalidSecirID = 0x20,
+		AgeLimit = 0x22,
+		AnotherClientLogined = 0x80
+	};
+public:
 	AbstractConnection(QObject *parent);
 	~AbstractConnection();
 	void registerHandler(SNACHandler *handler);
@@ -68,6 +105,10 @@ public:
 	const QList<quint16> &servicesList() { return m_services; };
 	QTcpSocket *socket() { return m_socket; };
 	bool isConnected() { return m_socket->state() != QTcpSocket::UnconnectedState; }
+	ConnectionError error() { return m_error; };
+	QString errorString();
+signals:
+	void error(ConnectionError error);
 protected:
 	const FLAP &flap() { return m_flap; }
 	void send(FLAP &flap);
@@ -75,6 +116,7 @@ protected:
 	void setSeqNum(quint16 seqnum);
 	virtual void processNewConnection();
 	virtual void processCloseConnection();
+	void setError(ConnectionError error);
 private slots:
 	void processSnac();
 	void readData();
@@ -96,6 +138,7 @@ private:
 	QList<quint16> m_services;
 	QHash<quint16, OscarRate*> m_rates;
 	QHash<quint32, OscarRate*> m_ratesHash;
+	ConnectionError m_error;
 };
 
 } // namespace Icq

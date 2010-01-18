@@ -67,8 +67,9 @@ void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 			QList<QByteArray> list = tlvs.value(0x05).value().split(':');
 			conn->setLoginData(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, tlvs.value(0x06).value());
 		} else {
-			QString error = Util::connectionErrorText(qFromBigEndian<quint16>((const uchar *) tlvs.value(0x0008).value().constData()));
-			Notifications::sendNotification(error);
+			DataUnit data(tlvs.value(0x0008));
+			static_cast<Md5Login*>(c)->setError(static_cast<AbstractConnection::ConnectionError>(data.readSimple<quint16>()));
+			Notifications::sendNotification(c->errorString());
 		}
 	}
 }

@@ -17,6 +17,7 @@
 #include "connection_p.h"
 #include <QHostInfo>
 #include <QBuffer>
+#include <QCoreApplication>
 
 namespace Icq
 {
@@ -315,6 +316,7 @@ AbstractConnection::AbstractConnection(QObject *parent) :
 	connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
 	connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
 	m_id = (quint32) qrand();
+	m_error = NoError;
 }
 
 AbstractConnection::~AbstractConnection()
@@ -334,6 +336,78 @@ void AbstractConnection::disconnectFromHost(bool force)
 {
 	Q_UNUSED(force);
 	m_socket->disconnectFromHost();
+}
+
+QString AbstractConnection::errorString()
+{
+	switch (m_error) {
+	case InvalidNickOrPassword:
+		return QCoreApplication::translate("ConnectionError", "Invalid nick or password");
+	case ServiceUnaivalable:
+		return QCoreApplication::translate("ConnectionError", "Service temporarily unavailable");
+	case IncorrectNickOrPassword:
+		return QCoreApplication::translate("ConnectionError", "Incorrect nick or password");
+	case MismatchNickOrPassword:
+		return QCoreApplication::translate("ConnectionError", "Mismatch nick or password");
+	case InternalClientError:
+		return QCoreApplication::translate("ConnectionError", "Internal client error (bad input to authorizer)");
+	case InvalidAccount:
+		return QCoreApplication::translate("ConnectionError", "Invalid account");
+	case DeletedAccount:
+		return QCoreApplication::translate("ConnectionError", "Deleted account");
+	case ExpiredAccount:
+		return QCoreApplication::translate("ConnectionError", "Expired account");
+	case NoAccessToDatabase:
+		return QCoreApplication::translate("ConnectionError", "No access to database");
+	case NoAccessToResolver:
+		return QCoreApplication::translate("ConnectionError", "No access to resolver");
+	case InvalidDatabaseFields:
+		return QCoreApplication::translate("ConnectionError", "Invalid database fields");
+	case BadDatabaseStatus:
+		return QCoreApplication::translate("ConnectionError", "Bad database status");
+	case BadResolverStatus:
+		return QCoreApplication::translate("ConnectionError", "Bad resolver status");
+	case InternalError:
+		return QCoreApplication::translate("ConnectionError", "Internal error");
+	case ServiceOffline:
+		return QCoreApplication::translate("ConnectionError", "Service temporarily offline");
+	case SuspendedAccount:
+		return QCoreApplication::translate("ConnectionError", "Suspended account");
+	case DBSendError:
+		return QCoreApplication::translate("ConnectionError", "DB send error");
+	case DBLinkError:
+		return QCoreApplication::translate("ConnectionError", "DB link error");
+	case ReservationMapError:
+		return QCoreApplication::translate("ConnectionError", "Reservation map error");
+	case ReservationLinkError:
+		return QCoreApplication::translate("ConnectionError", "Reservation link error");
+	case ConnectionLimitExceeded :
+		return QCoreApplication::translate("ConnectionError", "The users num connected from this IP has reached the maximum");
+	case ConnectionLimitExceededReservation:
+		return QCoreApplication::translate("ConnectionError", "The users num connected from this IP has reached the maximum (reservation)");
+	case RateLimitExceededReservation:
+		return QCoreApplication::translate("ConnectionError", "Rate limit exceeded (reservation). Please try to reconnect in a few minutes");
+	case UserHeavilyWarned:
+		return QCoreApplication::translate("ConnectionError", "User too heavily warned");
+	case ReservationTimeout:
+		return QCoreApplication::translate("ConnectionError", "Reservation timeout");
+	case ClientUpgradeRequired:
+		return QCoreApplication::translate("ConnectionError", "You are using an older version of ICQ. Upgrade required");
+	case ClientUpgradeRecommended:
+		return QCoreApplication::translate("ConnectionError", "You are using an older version of ICQ. Upgrade recommended");
+	case RateLimitExceeded:
+		return QCoreApplication::translate("ConnectionError", "Rate limit exceeded. Please try to reconnect in a few minutes");
+	case IcqNetworkError:
+		return QCoreApplication::translate("ConnectionError", "Can't register on the ICQ network. Reconnect in a few minutes");
+	case InvalidSecirID:
+		return QCoreApplication::translate("ConnectionError", "Invalid SecurID");
+	case AgeLimit:
+		return QCoreApplication::translate("ConnectionError", "Account suspended because of your age (age < 13)");
+	case AnotherClientLogined:
+		return QCoreApplication::translate("ConnectionError", "Another client is loggin with this uin");
+	default:
+		return QCoreApplication::translate("ConnectionError", "Unknown error");
+	}
 }
 
 void AbstractConnection::send(SNAC &snac, bool priority)
@@ -383,6 +457,13 @@ void AbstractConnection::processCloseConnection()
 	flap.appendSimple<quint32>(0x00000001);
 	send(flap);
 	socket()->disconnectFromHost();
+}
+
+void AbstractConnection::setError(ConnectionError e)
+{
+	m_error = e;
+	if (m_error != NoError)
+		emit error(m_error);
 }
 
 void AbstractConnection::processSnac()
