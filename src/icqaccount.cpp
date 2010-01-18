@@ -100,13 +100,21 @@ void IcqAccount::setStatus(Status status)
 	debug() << QString("Changing status from %1 to %2")
 			.arg(statusToString(current, false))
 			.arg(statusToString(status, false));
-	if (current == status)
+	if (current == status) {
+		if (status == Offline) {
+			d->lastStatus = status;
+			d->reconnectTimer.stop();
+		}
 		return;
+	}
 	if (status == Offline) {
 		if (d->conn->isConnected()) {
 			d->conn->disconnectFromHost(false);
 			d->lastStatus = status;
-		} else {
+		} else if (d->conn->error() == AbstractConnection::NoError ||
+				   d->conn->error() == AbstractConnection::ReservationLinkError ||
+				   d->conn->error() == AbstractConnection::ReservationMapError)
+		{
 			Config config = protocol()->config();
 			if (config.group("reconnect").value("enabled", true)) {
 				quint32 time = config.group("reconnect").value("time", 3000);
