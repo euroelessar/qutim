@@ -29,7 +29,7 @@ YandexNarodAuthorizator::YandexNarodAuthorizator(QNetworkAccessManager *parent) 
 	m_stage = Need;
 	foreach (const QNetworkCookie &cookie,
 			 parent->cookieJar()->cookiesForUrl(QUrl("http://narod.yandex.ru"))) {
-		if (cookie.name() == "L") {
+		if (cookie.name() == "yandex_login" && !cookie.value().isEmpty()) {
 			m_stage = Already;
 			break;
 		}
@@ -51,7 +51,7 @@ void YandexNarodAuthorizator::requestAuthorization()
 			emit result(Success);
 		return;
 	}
-	ConfigGroup group = Config().group("yandexnarod");
+	ConfigGroup group = Config().group("yandex");
 	QString login = group.value("login", QString());
 	QString password = group.value("passwd", QString(), Config::Crypted);
 	if (login.isEmpty() || password.isEmpty()) {
@@ -91,7 +91,8 @@ void YandexNarodAuthorizator::requestAuthorization(const QString &login, const Q
 		return;
 	}
 	QByteArray post = "login=" + QUrl::toPercentEncoding(login)
-					  + "&passwd=" + QUrl::toPercentEncoding(password);
+					  + "&passwd=" + QUrl::toPercentEncoding(password)
+					  + "&twoweeks=yes";
 	QNetworkRequest request(QUrl("https://passport.yandex.ru/passport?mode=auth"));
 	request.setRawHeader("Cache-Control", "no-cache");
 	request.setRawHeader("Accept", "*/*");

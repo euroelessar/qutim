@@ -56,6 +56,7 @@ bool YandexNarodPlugin::load()
 	loadCookies();
 	m_authorizator = new YandexNarodAuthorizator(m_networkManager);
 	connect(m_authorizator, SIGNAL(needSaveCookies()), SLOT(saveCookies()));
+	connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(saveCookies()));
 
 	new YandexNarodUploadDialog(m_networkManager, m_authorizator);
 	return true;
@@ -68,8 +69,7 @@ bool YandexNarodPlugin::unload()
 
 void YandexNarodPlugin::loadCookies()
 {
-	return;
-	const ConfigGroup cookies = Config().group("yandexnarod").group("cookies");
+	const ConfigGroup cookies = Config().group("yandex").group("cookies");
 	QNetworkCookieJar *cookieJar = m_networkManager->cookieJar();
 	QList<QNetworkCookie> cookieList;
 	for (int i = 0, size = cookies.arraySize(); i < size; i++) {
@@ -79,11 +79,13 @@ void YandexNarodPlugin::loadCookies()
 		QString date = cookie.value("expirationDate", QString());
 		if (!date.isEmpty())
 			netcook.setExpirationDate(QDateTime::fromString(date, Qt::ISODate));
+		if (!netcook.expirationDate().isValid() || netcook.expirationDate() < QDateTime::currentDateTime())
+			continue;
 		netcook.setHttpOnly(cookie.value("httpOnly", false));
 		netcook.setSecure(cookie.value("secure", false));
 		netcook.setName(cookie.value("name", QString()).toLatin1());
 		netcook.setPath(cookie.value("path", QString()));
-		netcook.setValue(cookie.value("value", QString()).toLatin1());
+		netcook.setValue(cookie.value("value", QByteArray(), Config::Crypted));
 		cookieList.append(netcook);
 		debug() << netcook;
 	}
@@ -92,7 +94,7 @@ void YandexNarodPlugin::loadCookies()
 
 void YandexNarodPlugin::saveCookies()
 {
-	ConfigGroup group = Config().group("yandexnarod");
+	ConfigGroup group = Config().group("yandex");
 	group.removeGroup("cookies");
 	ConfigGroup cookies = group.group("cookies");
 
@@ -108,7 +110,7 @@ void YandexNarodPlugin::saveCookies()
 		cookie.setValue("secure", netcook.isSecure());
 		cookie.setValue("name", QString::fromLatin1(netcook.name()));
 		cookie.setValue("path", netcook.path());
-		cookie.setValue("value", QString::fromLatin1(netcook.value()));
+		cookie.setValue("value", netcook.value(), Config::Crypted);
 	}
 	group.sync();
 }

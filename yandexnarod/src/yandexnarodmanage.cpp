@@ -51,7 +51,7 @@ YandexNarodManager::YandexNarodManager()
 
 	uploadwidget=0;
 
-	ConfigGroup group = Config().group("yandexnarod");
+	ConfigGroup group = Config().group("yandex").group("narod");
 
 	QByteArray geometry = group.value("managerGeometry", QByteArray());
 	if (!geometry.isEmpty())
@@ -66,7 +66,7 @@ YandexNarodManager::YandexNarodManager()
 YandexNarodManager::~YandexNarodManager()
 {
 	delete netman;
-	ConfigGroup group = Config().group("yandexnarod");
+	ConfigGroup group = Config().group("yandex").group("narod");
 	group.setValue("managerGeometry", saveGeometry());
 	group.sync();
 }

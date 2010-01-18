@@ -41,7 +41,7 @@ YandexNarodNetMan::~YandexNarodNetMan()
 
 quint32 YandexNarodNetMan::startAuthorization()
 {
-	ConfigGroup group = Config().group("yandexnarod");
+	ConfigGroup group = Config().group("yandex");
 	QString login = group.value("login", QString());
 	QString password = group.value("passwd", QString(), Config::Crypted);
 	return startAuthorization(login, password);
@@ -91,7 +91,7 @@ void YandexNarodNetMan::loadSettings() {
 }
 
 void YandexNarodNetMan::loadCookies() {
-	const ConfigGroup cookies = Config().group("yandexnarod").group("cookies");
+	const ConfigGroup cookies = Config().group("yandex").group("cookies");
 	QNetworkCookieJar *netcookjar = m_networkManager->cookieJar();
 	QList<QNetworkCookie> cookieList;
 	for (int i = 0, size = cookies.arraySize(); i < size; i++) {

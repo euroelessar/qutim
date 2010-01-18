@@ -41,18 +41,20 @@ YandexNarodSettings::~YandexNarodSettings()
 
 void YandexNarodSettings::loadImpl()
 {
-	ConfigGroup group = Config().group("yandexnarod");
+	ConfigGroup group = Config().group("yandex");
+	ConfigGroup narod = group.group("narod");
 	ui.editLogin->setText(group.value("login", QString()));
 	ui.editPasswd->setText(group.value("passwd", QString(), Config::Crypted));
-	ui.textTpl->setText(group.value("template", QString("File sent: %N (%S bytes)\n%U")));
+	ui.textTpl->setText(narod.value("template", QString("File sent: %N (%S bytes)\n%U")));
 }
 
 void YandexNarodSettings::saveImpl()
 {
-	ConfigGroup group = Config().group("yandexnarod");
+	ConfigGroup group = Config().group("yandex");
+	ConfigGroup narod = group.group("narod");
 	group.setValue("login", ui.editLogin->text());
 	group.setValue("passwd", ui.editPasswd->text(), Config::Crypted);
-	group.setValue("template", ui.textTpl->toPlainText());
+	narod.setValue("template", ui.textTpl->toPlainText());
 	group.sync();
 }
 

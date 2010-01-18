@@ -17,6 +17,8 @@
 #include <qutim/configbase.h>
 #include <qutim/json.h>
 #include <qutim/debug.h>
+#include <qutim/message.h>
+#include <qutim/account.h>
 #include <QFileDialog>
 #include <QNetworkCookieJar>
 #include "uploaddialog.h"
@@ -71,11 +73,11 @@ qint64 YandexNarodBuffer::size() const
 
 qint64 YandexNarodBuffer::readData(char *data, qint64 maxlen)
 {
-	quint64 totalSize = 0;
+	qint64 totalSize = 0;
 	foreach (QIODevice *device, m_devices) {
 		if (maxlen == 0 || device->atEnd())
 			continue;
-		quint64 currentSize = device->read(data, maxlen);
+		qint64 currentSize = device->read(data, maxlen);
 		totalSize += currentSize;
 		maxlen -= currentSize;
 		data += currentSize;
@@ -109,7 +111,7 @@ m_networkManager(networkManager), m_authorizator(authorizator)
 	userAgent += " (U; YB/4.2.0; MRA/5.5; en)";
 	m_request.setRawHeader("User-Agent", userAgent);
 
-	ConfigGroup group = Config().group("yandexnarod");
+	ConfigGroup group = Config().group("yandex").group("narod");
 
 	m_filePath = QFileDialog::getOpenFileName(
 			this,
@@ -119,10 +121,13 @@ m_networkManager(networkManager), m_authorizator(authorizator)
 	if (m_filePath.isEmpty()) {
 		deleteLater();
 	} else {
-		m_timer.setInterval(5000);
+		m_timer.setInterval(1000);
+		m_timer.setSingleShot(true);
 		connect(&m_timer, SIGNAL(timeout()), this, SLOT(someStrangeSlot()));
 
 		QFileInfo info(m_filePath);
+
+		ui.labelFile->setText(ui.labelFile->text() + " " + info.fileName());
 		group.setValue("lastdir", info.dir().path());
 		if (!m_authorizator->isAuthorized()) {
 			ui.labelStatus->setText(tr("Authorizing..."));
@@ -170,6 +175,8 @@ void YandexNarodUploadDialog::start()
 		debug() << cookie;
 	}
 
+	debug() << "Cookie" << m_request.rawHeader("Cookie");
+
 	QNetworkReply *reply = m_networkManager->get(m_request);
 
 	connect(reply, SIGNAL(finished()), this, SLOT(storageReply()));
@@ -191,19 +198,16 @@ void YandexNarodUploadDialog::storageReply()
 
 	debug() << "storage" << map;
 
-//	отправляем POST: на параметр %url%?tid=%hash%
-//	(например, http://07-up1q-narod.yandex.ru/upload/?tid=1263311543ksIa9VwGOTIYGLFGVGXRgPXe)
-//	проверяем статус закачки: %purl%?tid=%hash%
-//	(например, http://07-up1q-narod.yandex.ru/progress/?tid=1263311543ksIa9VwGOTIYGLFGVGXRgPXe)
+	debug() << "storage" << reply->rawHeader("Set-Cookie");
 
 	QUrl url(map.value("url").toString());
 	url.addQueryItem("tid", map.value("hash").toString());
 	m_request.setUrl(url);
 
-	quint32 boundaryTemp[] = { qrand(), qrand() };
+	int boundaryTemp[] = { qrand(), qrand(), qrand() };
 
-	QByteArray boundary = QByteArray(reinterpret_cast<char *>(boundaryTemp),
-									 sizeof(boundaryTemp)).toHex();
+	QByteArray boundary = QByteArray::fromRawData(reinterpret_cast<char *>(boundaryTemp),
+												  sizeof(boundaryTemp)).toHex();
 
 	QIODevice *device = new YandexNarodBuffer(m_filePath, boundary, this);
 
@@ -216,6 +220,7 @@ void YandexNarodUploadDialog::storageReply()
 
 	QNetworkReply *uploadNetworkReply = m_networkManager->post(request, device);
 
+	connect(device, SIGNAL(destroyed()), uploadNetworkReply, SLOT(deleteLater()));
 	connect(uploadNetworkReply, SIGNAL(finished()), this, SLOT(uploadReply()));
 
 	m_timer.start();
@@ -225,7 +230,7 @@ void YandexNarodUploadDialog::someStrangeSlot()
 {
 	QUrl url(m_someData.value("purl").toString());
 	url.addQueryItem("tid", m_someData.value("hash").toString());
-	url.addQueryItem("type", "json");
+//	url.addQueryItem("type", "json");
 	m_request.setUrl(url);
 	connect(m_networkManager->get(m_request), SIGNAL(finished()),
 			this, SLOT(progressReply()));
@@ -247,6 +252,7 @@ void YandexNarodUploadDialog::uploadReply()
 
 	debug() << "upload" << data << map;
 	debug() << reply->rawHeaderList();
+	debug() << "upload" << reply->rawHeader("Set-Cookie");
 
 	someStrangeSlot();
 }
@@ -259,18 +265,74 @@ void YandexNarodUploadDialog::progressReply()
 		return;
 
 	QByteArray data = reply->readAll();
+#if 0
 	QVariantMap map = Json::parse(data).toMap();
+#else
+	QVariant tmpVar;
+	int dataBegin = data.indexOf('(') + 1;
+	int dataEnd = data.lastIndexOf(')');
+	int dataLength = dataEnd - dataBegin;
+	if (dataBegin < 0 || dataEnd < 0 || dataLength < 0) {
+		dataBegin = 0;
+		dataLength = data.length();
+	}
+	Json::parseRecord(tmpVar, data.constData() + dataBegin, &dataLength);
+	QVariantMap map = tmpVar.toMap();
+#endif
 
 	debug() << "progress" << reply->request().url() << data << map;
-	QVariantMap varMap = map.value("files").toList().value(0).toMap();
-//	Q_ASSERT(varMap.isEmpty())
-	if (!varMap.isEmpty()) {
-		QString url(QLatin1String("http://narod.ru/disk/"));
-		url += varMap.value("hash").toString();
-		url += QLatin1Char('/');
-		url += varMap.value("name").toString();
-		url += QLatin1String(".html");
-		debug() << url;
+	debug() << "progress" << reply->rawHeader("Set-Cookie");
+
+	QVariantMap time = map.value("time").toMap();
+
+	ui.labelETime->setText(tr("Will finish in: %1m %2s")
+						   .arg(time.value("min").toString(),
+								time.value("sec").toString()));
+	ui.progressBar->setValue(map.value("ipercent").toInt());
+
+//	(time.value("min").toInt() * 60 + time.value("sec").toInt()) 100.0 - map.value("percent").toDouble()
+
+	QString status = map.value("status").toString();
+	if (status == "upload") {
+		m_timer.start();
+//		{
+//		"tid": "1263553646SvsF9FFimF5thmoM2kGTwxL9",
+//		"status": "upload",
+//		"percent": "94.11",
+//		"ipercent": 94,
+//		"random": "1263553668S4gHxbB2nJSd2clhhfYimsfM",
+//		"time": { "min": "0","sec": "01" }
+//		}
+	} else if (status == "done") {
+//		{
+//		"tid": "1263553646SvsF9FFimF5thmoM2kGTwxL9",
+//		"status": "done",
+//		"fids": "8433938",
+//		"files": [{ "fid": "8433938", "hash": "16928325000", "name": "Makefile", "size": "146305" }],
+//		"percent": "100.00",
+//		"ipercent": 100,
+//		"random": "1263553670cshMPkykOsHbaCnIQ5ehEOKd",
+//		"time": { "min": "0","sec": "00" }
+//		}
+
+		ui.labelStatus->setText(tr("Upload complete."));
+		ui.btnUploadCancel->setText(tr("Finish"));
+		QVariantMap varMap = map.value("files").toList().value(0).toMap();
+		if (!varMap.isEmpty() && m_contact) {
+			QString url(QLatin1String("http://narod.ru/disk/"));
+			url += varMap.value("hash").toString();
+			url += QLatin1Char('/');
+			url += varMap.value("name").toString();
+			url += QLatin1String(".html");
+			debug() << url;
+
+			QString sendmsg = Config().group("yandex").group("narod")
+							  .value("template", QString("File sent: %N (%S bytes)\n%U"));
+			sendmsg.replace("%N", varMap.value("name").toString());
+			sendmsg.replace("%U", url);
+			sendmsg.replace("%S", varMap.value("size").toString());
+			m_contact->account()->getUnitForSession(m_contact)->sendMessage(Message(sendmsg));
+		}
 	}
 }
 
