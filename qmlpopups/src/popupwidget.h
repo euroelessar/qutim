@@ -19,10 +19,13 @@ namespace QmlPopups
 	class PopupWidget : public QWidget
 	{
 		Q_OBJECT
+		Q_PROPERTY(int action READ isActivated WRITE activate)
 	public:
 		explicit PopupWidget();
 		virtual QSize sizeHint() const;
 		void setData(const QString& title,const QString& body,QObject *sender);
+		void activate(int action);
+		int isActivated() {return 0;};//TODO
 	public slots:
 		void onTimeoutReached();
 	signals:

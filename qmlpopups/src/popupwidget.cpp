@@ -43,6 +43,7 @@ namespace QmlPopups {
 		view->setUrl(QUrl::fromLocalFile(filename));//url - main.qml
 
 		view->execute();
+		view->rootContext()->setContextProperty("Popup",this);
 
 	}
 
@@ -73,6 +74,23 @@ namespace QmlPopups {
 	
 	void PopupWidget::onTimeoutReached()
 	{
+		emit activated();
+	}
+
+	void PopupWidget::activate(int action)
+	{
+		if (action == 1) {
+			ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
+			ChatSession *sess;
+			if (unit && (sess = ChatLayer::get(unit))) {
+				sess->setActive(true);
+			}
+			else {
+				QWidget *widget = qobject_cast<QWidget *>(m_sender);
+				if (widget)
+					widget->raise();
+			}
+		}
 		emit activated();
 	}
 
