@@ -14,10 +14,15 @@ SET( QT_USE_QTNETWORK TRUE )
 SET( QT_USE_QTSCRIPT TRUE )
 SET( QT_USE_QTDECLARATIVE TRUE )
 find_package( Qt4 REQUIRED )
-# Evil hack for Qt Declarative
-_QT4_ADJUST_LIB_VARS(QTDECLARATIVE)
-# FIND_LIBRARY( GNUTLS_LIBRARIES gnutls)
 
 include( ${QUTIM_CMAKE_PLUGIN} )
-ADD_QUTIMPLUGIN( "qmlpopups" "src" "" )
+
+# Evil hack for Qt Declarative
+set( QT_DECLARATIVE_LIBRARY
+    /usr/lib/qt4/libQtDeclarative.so
+    )
+
+
+ADD_QUTIMPLUGIN_EXT2( "qmlpopups" "src" "" ${QT_DECLARATIVE_LIBRARY})
+
  

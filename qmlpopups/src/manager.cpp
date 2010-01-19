@@ -93,12 +93,13 @@ namespace QmlPopups
 		if (updatePosition) {
 			QRect geom = QApplication::desktop()->availableGeometry(QCursor::pos());
 			int y = geom.bottom();
-			geom.moveLeft(geom.right() - margin - defaultSize.width());
 			for (int i=0;i!=active_notifications.count();i++) {
 				y -= margin + active_notifications.value(i)->geometry().height();
 				geom.moveTop(y);
-				geom.setSize(active_notifications.value(i)->geometry().size());
-				active_notifications.value(i)->update(geom);
+				QRect widget_geom = geom;
+				widget_geom.moveLeft(geom.right() - margin - active_notifications.value(i)->geometry().width());
+				widget_geom.setSize(active_notifications.value(i)->geometry().size());
+				active_notifications.value(i)->update(widget_geom);
 			}
 		}
 	}
@@ -129,7 +130,6 @@ namespace QmlPopups
 		animationDuration = behavior.value("animationDuration",1000);
 		showFlags = static_cast<NotificationTypes>(behavior.value("showFlags", 0xfffffff));
 		margin = behavior.value("margin",20);
-		defaultSize = static_cast<QSize>(behavior.value("defaultSize", QSize(250,150)));
 	}
 
 }

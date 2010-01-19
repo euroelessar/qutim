@@ -59,7 +59,6 @@ namespace QmlPopups
 		int maxTextLength;
 		uint margin;
 	private:
-		QSize defaultSize;
 		QList<Popup *> active_notifications;
 		static Manager *instance;
 		int getNumber(const QString &id) const;

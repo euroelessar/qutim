@@ -8,6 +8,8 @@
 #include <QLatin1Literal>
 #include <qutim/libqutim_global.h>
 #include <qutim/debug.h>
+#include <qutim/messagesession.h>
+#include <QMouseEvent>
 
 namespace QmlPopups {
 
@@ -17,21 +19,27 @@ namespace QmlPopups {
 		ConfigGroup general = Config("appearance/qmlpopups").group("general");
 		QString theme_name = general.value<QString>("themeName","default");
 		
-		view = new QmlView(this);
-		//view->setContentResizable(true);
-		connect(view,SIGNAL(sceneResized(QSize)),this,SLOT(onSceneResized(QSize)));
+		QString themePath = getThemePath("qmlpopups",theme_name);
+		ConfigGroup appearance = Config(themePath + "/settings.json").group("appearance");
+		setWindowFlags(static_cast<Qt::WindowFlags>(appearance.value<int>("widgetFlags",Qt::ToolTip)));
+		PopupWidgetFlags popupFlags = static_cast<PopupWidgetFlags>(appearance.value<int>("popupFlags",Transparent));
 
-		setWindowFlags(Qt::FramelessWindowHint);
-		setAttribute(Qt::WA_TranslucentBackground);
-		setAttribute(Qt::WA_NoSystemBackground);
-		view->viewport()->setAutoFillBackground(false);
+		view = new QmlView(this);
+		connect(view,SIGNAL(sceneResized(QSize)),this,SLOT(onSceneResized(QSize)));
+		//view->setContentResizable(true);
+		setAttribute(Qt::WA_DeleteOnClose);
+
+		if (popupFlags & Transparent) {
+			setAttribute(Qt::WA_NoSystemBackground);
+			setAttribute(Qt::WA_TranslucentBackground);
+			view->viewport()->setAutoFillBackground(false);			
+		}
 
 		QGridLayout *gridLayout = new QGridLayout(this);
 		gridLayout->setMargin(0);
 		gridLayout->addWidget(view);
 
-		QString filename = getThemePath("qmlpopups",theme_name) %  QLatin1Literal("/popup.qml");
-		debug() << filename;
+		QString filename =themePath % QLatin1Literal("/popup.qml");
 		view->setUrl(QUrl::fromLocalFile(filename));//url - main.qml
 
 		view->execute();
@@ -40,6 +48,7 @@ namespace QmlPopups {
 
 	void PopupWidget::onSceneResized(QSize size)
 	{
+		debug() << "resized:" << size;
 		m_size_hint = size;
 		emit PopupResized(m_size_hint);
 	}
@@ -52,15 +61,19 @@ namespace QmlPopups {
 
 	void PopupWidget::setData ( const QString& title, const QString& body, QObject* sender )
 	{
+		m_sender = sender;
 		QmlContext *context = view->rootContext();
 		context->setContextProperty("PopupTitle",title);
 		context->setContextProperty("PopupBody",body);
-		context->setContextProperty("PopupImage",sender->property("avatar"));
+		QString image_path = sender ? sender->property("avatar").toString() : QString();
+		if(image_path.isEmpty())
+			image_path = QLatin1String("buddyicon.png");
+		context->setContextProperty("PopupImage",image_path);
 	}
 	
 	void PopupWidget::onTimeoutReached()
 	{
-		emit Activated();
+		emit activated();
 	}
 
 }

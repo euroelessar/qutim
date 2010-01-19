@@ -6,6 +6,16 @@
 class QmlView;
 namespace QmlPopups
 {
+	enum PopupWidgetFlag
+	{
+		None = 0x0,
+		Preview = 0x1,
+		AeroBackground = 0x2,
+		Transparent = 0x4,
+		AeroBlurBehind = 0x6,
+	};
+	Q_DECLARE_FLAGS(PopupWidgetFlags,PopupWidgetFlag)
+
 	class PopupWidget : public QWidget
 	{
 		Q_OBJECT
@@ -17,12 +27,13 @@ namespace QmlPopups
 		void onTimeoutReached();
 	signals:
 		void PopupResized(const QSize &size);
-		void Activated();
+		void activated();
 	private slots:
 		void onSceneResized(QSize size);
 	private:
 		QmlView *view;
 		QSize m_size_hint;
+		QObject *m_sender;
 	};
 }
 

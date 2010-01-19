@@ -121,7 +121,7 @@ namespace QmlPopups
 		m_show_state->addTransition(m_notification_widget,SIGNAL(activated()),m_hide_state);
 		m_show_state->addTransition(this,SIGNAL(updated()),m_show_state);
 		m_hide_state->addTransition(m_hide_state,SIGNAL(propertiesAssigned()),final_state);
-		connect(m_notification_widget,SIGNAL(popupResized(QSize)),SLOT(onPopupResized(QSize)));
+		connect(m_notification_widget,SIGNAL(PopupResized(QSize)),this,SLOT(onPopupResized(QSize)));
 
 		if (manager->timeout > 0) {
 			m_timer_id = startTimer(manager->timeout);
