@@ -221,7 +221,7 @@ void MessagesHandler::handleMessage(const SNAC &snac)
 	quint64 cookie = snac.readSimple<quint64>();
 	quint16 channel = snac.readSimple<quint16>();
 	QString uin = snac.readString<quint8>();
-	IcqContact *contact = m_account->roster()->contact(uin);
+	IcqContact *contact = m_account->getContact(uin, true);
 	quint16 warning = snac.readSimple<quint16>();
 	snac.skipData(2); // unused number of tlvs
 	TLVMap tlvs = snac.readTLVChain();

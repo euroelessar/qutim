@@ -43,7 +43,8 @@ public:
 	void setName(const QString &name);
 	Roster *roster();
 	OscarConnection *connection();
-	ChatUnit *getUnit(const QString &unitId, bool create);
+	ChatUnit *getUnit(const QString &unitId, bool create = false);
+	IcqContact *getContact(const QString &id, bool create = false);
 	void setAvatarsSupport(bool avatars);
 	bool avatarsSupport();
 	void setCapability(const Capability &capability, const QString &type = QString());

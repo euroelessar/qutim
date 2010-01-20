@@ -157,10 +157,15 @@ void IcqAccount::setName(const QString &name)
 
 ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
 {
+	return getContact(unitId, create);
+}
+
+IcqContact *IcqAccount::getContact(const QString &id, bool create)
+{
 	Q_D(IcqAccount);
-	IcqContact *contact = d->roster->contact(unitId);
+	IcqContact *contact = d->roster->contact(id);
 	if (create && !contact)
-		contact = d->roster->sendAddContactRequest(unitId, unitId, not_in_list_group);
+		contact = d->roster->sendAddContactRequest(id, id, not_in_list_group);
 	return contact;
 }
 
