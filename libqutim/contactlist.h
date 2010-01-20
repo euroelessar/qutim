@@ -17,13 +17,14 @@
 #define CONTACTLIST_H
 
 #include "libqutim_global.h"
+#include "menucontroller.h"
 
 namespace qutim_sdk_0_3
 {
 	class ChatUnit;
 	class Account;
 
-	class LIBQUTIM_EXPORT ContactList : public QObject
+	class LIBQUTIM_EXPORT ContactList : public MenuController
 	{
 		Q_OBJECT
 	public:

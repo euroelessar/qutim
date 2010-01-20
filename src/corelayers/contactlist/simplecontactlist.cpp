@@ -68,13 +68,25 @@ namespace Core
 
 			p->main_toolbar = new ActionToolBar(p->widget);
 			layout->addWidget(p->main_toolbar);
+			
+			addAction(new ActionGenerator(Icon("configure"),
+										  QT_TRANSLATE_NOOP("simplecontactlist","&Settings..."),
+										  this,
+										  SLOT(onConfigureClicked()))
+										  );
+			addAction(new ActionGenerator(Icon("application-exit"),
+										  QT_TRANSLATE_NOOP("simplecontactlist","&Quit"),
+										  qApp,
+										  SLOT(quit()))
+										  );
+			
+// 			QMenu *menu = new QMenu(tr("Main menu"), p->main_toolbar);
+// 			menu->addAction(Icon("configure"), tr("&Settings..."), this, SLOT(onConfigureClicked()));
+// 			menu->addAction(Icon("application-exit"), tr("&Quit"), qApp, SLOT(quit()));
 
-			QMenu *menu = new QMenu(tr("Main menu"), p->main_toolbar);
-			menu->addAction(Icon("configure"), tr("&Settings..."), this, SLOT(onConfigureClicked()));
-			menu->addAction(Icon("application-exit"), tr("&Quit"), qApp, SLOT(quit()));
-
-			QAction *menuAction = new QAction(Icon("show-menu"), tr("Main menu"), menu);
-			menuAction->setMenu(menu);
+			QAction *menuAction = new QAction(Icon("show-menu"), tr("Main menu"), this);
+			
+			menuAction->setMenu(menu());
 			p->main_toolbar->addAction(menuAction);
 
 			p->view = new TreeView(p->widget);
