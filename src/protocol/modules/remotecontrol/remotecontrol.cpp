@@ -35,9 +35,9 @@ namespace Jabber
 
 		if (command.node() == "set-status") {
 			if (command.action() == Adhoc::Command::Execute) {
-                const DataForm *form = command.form();
-                if (form) {
-					DataFormField *status = form->field("status");
+                const DataForm *constForm = command.form();
+                if (constForm) {
+                    DataFormField *status = constForm->field("status");
 					if (!status || status->value().empty()) {
 						// Send error stanza
 						return;
@@ -51,9 +51,9 @@ namespace Jabber
 						return;
 					}
 					m_client->presence().setPresence(presence);
-					if (DataFormField *field = form->field("status-priority"))
+                    if (DataFormField *field = constForm->field("status-priority"))
 						m_client->presence().setPriority(atoi(field->value().data()));
-					if (DataFormField *field = form->field("status-message")) {
+                    if (DataFormField *field = constForm->field("status-message")) {
 						std::string message;
 						foreach (const std::string &str, field->values())
 							message.append(str).append("\n");
@@ -68,7 +68,7 @@ namespace Jabber
 				} else {
 					StringList instructions;
 					instructions.push_back("Choose the status and status message");
-                    form = new DataForm(TypeForm, instructions, "Change Status");
+                    DataForm *form = new DataForm(TypeForm, instructions, "Change Status");
 					Presence &pres = m_client->presence();
 					form->addField(DataFormField::TypeHidden, "FORM_TYPE", "http://jabber.org/protocol/rc");
 					{
