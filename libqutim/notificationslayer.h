@@ -30,17 +30,17 @@ namespace qutim_sdk_0_3
 		//note: title is set on type and sender, customTitle override this
 		enum Type
 		{			
-			Online = 1,
-			Offline = 2,
-			StatusChange = 3,
-			Birthday = 4,
-			Startup = 5,
-			MessageGet = 6,
-			MessageSend = 7,
-			System = 8,
-			Typing = 9,
-			BlockedMessage = 10,
-			Count = 11
+			Online = 0x001,
+			Offline = 0x002,
+			StatusChange = 0x004,
+			Birthday = 0x008,
+			Startup = 0x010,
+			MessageGet = 0x020,
+			MessageSend = 0x040,
+			System = 0x080,
+			Typing = 0x100,
+			BlockedMessage = 0x200,
+			Count = 0x400
 		};
 		LIBQUTIM_EXPORT void sendNotification(const QString &body,const QString &custom_title = QString());
 		LIBQUTIM_EXPORT void sendNotification(Type type, QObject *sender,

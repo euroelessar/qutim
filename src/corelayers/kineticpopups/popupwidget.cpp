@@ -52,6 +52,7 @@ namespace KineticPopups
 			if (popupSettings.popupFlags & ThemeHelper::Transparent) {
 				setAttribute(Qt::WA_NoSystemBackground);
 				setAttribute(Qt::WA_TranslucentBackground);
+				viewport()->setAutoFillBackground(false);
 			}
 
 			if (popupSettings.popupFlags & ThemeHelper::AeroThemeIntegration) {

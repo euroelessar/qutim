@@ -118,15 +118,15 @@ namespace KineticPopups
 		QString theme_name = general.value<QString>("themeName","default");
 		loadTheme(theme_name);
 		
-		ConfigGroup behavior = Config("behavior/popups").group("general");
+		ConfigGroup behavior = Config("behavior/notifications").group("popups");
 		maxCount = behavior.value<int>("maxCount",10);
 		maxTextLength = behavior.value<int>("maxTextLength",160);
 		appendMode = behavior.value<bool>("appendMode",true);
 		updateMode = behavior.value<bool>("updateMode",false);
-		animationDuration = behavior.value("animationDuration",1000);
+		animationDuration = behavior.value("animationDuration",600);
 		showFlags = static_cast<NotificationTypes>(behavior.value<int>("showFlags", 0xfffffff));
 		updatePosition = behavior.value<bool>("updatePosition",true);
-		animation = static_cast<AnimationFlags>(behavior.value<int>("animationFlags",Opacity));
+		animation = animationDuration ? static_cast<AnimationFlags>(behavior.value<int>("animationFlags", Opacity)) : NoAnimation;
 		timeout = behavior.value<int>("timeout",5000);
 		easingCurve.setType(static_cast<QEasingCurve::Type>(behavior.value<int>("easingCurve",QEasingCurve::OutSine)));
 	}
