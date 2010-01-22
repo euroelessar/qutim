@@ -10,6 +10,7 @@
 #include <qutim/debug.h>
 #include <qutim/messagesession.h>
 #include <QMouseEvent>
+#include <qutim/qtwin.h>
 
 namespace QmlPopups {
 
@@ -33,6 +34,18 @@ namespace QmlPopups {
 			setAttribute(Qt::WA_NoSystemBackground);
 			setAttribute(Qt::WA_TranslucentBackground);
 			view->viewport()->setAutoFillBackground(false);			
+		}
+
+		if (popupFlags & AeroBackground) {
+			if (QtWin::isCompositionEnabled()) {
+				QtWin::extendFrameIntoClientArea(this);
+				setContentsMargins(0, 0, 0, 0);
+			}
+		}
+
+		if (popupFlags & AeroBlurBehind) {
+			if (QtWin::isCompositionEnabled())
+				QtWin::enableBlurBehindWindow(this,true);
 		}
 
 		QGridLayout *gridLayout = new QGridLayout(this);
