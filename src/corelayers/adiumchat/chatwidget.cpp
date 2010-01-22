@@ -22,7 +22,7 @@
 #include <QWebFrame>
 #include <QDebug>
 #include <QTime>
-#include <3rdparty/qtwin/qtwin.h>
+#include <libqutim/qtwin.h>
 
 namespace AdiumChat
 {

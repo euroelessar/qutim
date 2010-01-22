@@ -21,7 +21,7 @@
 #include <QLabel>
 #include <QPainter>
 #include <QDesktopWidget>
-#include <3rdparty/qtwin/qtwin.h>
+#include <libqutim/qtwin.h>
 #include <libqutim/emoticons.h>
 #include <libqutim/chatunit.h>
 #include <libqutim/messagesession.h>
