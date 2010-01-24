@@ -14,8 +14,8 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef QTWIN_H
-#define QTWIN_H
+#ifndef QUTIMWIN_H
+#define QUTIMWIN_H
 #include "libqutim_global.h"
 
 class QColor;
@@ -71,4 +71,4 @@ namespace qutim_sdk_0_3
 	
 }
 
-#endif // QTWIN_H
+#endif // QUTIMWIN_H

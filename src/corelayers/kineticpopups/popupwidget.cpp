@@ -54,7 +54,6 @@ namespace KineticPopups
 				setAttribute(Qt::WA_TranslucentBackground);
 				viewport()->setAutoFillBackground(false);
 			}
-
 			if (popupSettings.popupFlags & ThemeHelper::AeroThemeIntegration) {
 				//init aero integration for win
 				if (QtWin::isCompositionEnabled()) {

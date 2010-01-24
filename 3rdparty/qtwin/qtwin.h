@@ -21,7 +21,7 @@
 
 class WindowNotifier;
 
-class LIBQUTIM_EXPORT QtWin
+class QtDWM
 {
 public:
     static bool enableBlurBehindWindow(QWidget *widget, bool enable = true);
