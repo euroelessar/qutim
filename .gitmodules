@@ -1,15 +1,6 @@
 [submodule "core"]
 	path = core
 	url = git://gitorious.org/qutim/qutim.git
-[submodule "protocols/jabber"]
-	path = protocols/jabber
-	url = git://gitorious.org/qutim/jabber.git
-[submodule "protocols/oscar"]
-	path = protocols/oscar
-	url = git://gitorious.org/qutim/oscar.git
-[submodule "protocols/mrim"]
-	path = protocols/mrim
-	url = git://gitorious.org/qutim/mrim.git
 [submodule "translations"]
 	path = translations
 	url = git://gitorious.org/qutim/translations.git
