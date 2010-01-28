@@ -7,3 +7,6 @@
 [submodule "integrations/kde"]
 	path = integrations/kde
 	url = git://gitorious.org/qutim/kde-integration.git
+[submodule "protocols"]
+	path = protocols
+	url = git://gitorious.org/qutim/protocols.git
