@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>697</width>
-    <height>649</height>
+    <width>695</width>
+    <height>647</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,7 +43,7 @@
            <enum>QFrame::StyledPanel</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
+           <enum>QFrame::Sunken</enum>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
            <property name="margin">
@@ -68,11 +68,8 @@
         <property name="verticalSpacing">
          <number>0</number>
         </property>
-        <item row="1" column="0" colspan="2">
-         <widget class="QPlainTextEdit" name="chatEdit"/>
-        </item>
         <item row="0" column="0" colspan="2">
-         <widget class="ActionToolBar" name="mainToolbar" native="true"/>
+         <widget class="QPlainTextEdit" name="chatEdit"/>
         </item>
        </layout>
       </widget>
@@ -98,9 +95,6 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0">
-     <widget class="ActionToolBar" name="additionalToolbar" native="true"/>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -108,8 +102,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>697</width>
-     <height>20</height>
+     <width>695</width>
+     <height>19</height>
     </rect>
    </property>
   </widget>
@@ -125,12 +119,6 @@
    <class>QTabBar</class>
    <extends>QWidget</extends>
    <header>qtabbar.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ActionToolBar</class>
-   <extends>QWidget</extends>
-   <header location="global">libqutim/actiontoolbar.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -51,14 +51,7 @@ namespace AdiumChat
 		
 		ui->chatEdit->installEventFilter(this);
 		ui->chatEdit->setFocusPolicy(Qt::StrongFocus);
-		//init toolbars
-		ui->additionalToolbar->setAttribute(Qt::WA_StyledBackground,false);
-		ui->additionalToolbar->setBackgroundRole(QPalette::Base);
-		//for testing
-		QAction *test_act1 = new QAction(Icon("applications-internet"),tr("Testing action"),this);
-		ui->mainToolbar->addAction(test_act1);
-		QAction *test_act2 = new QAction(Icon("preferences-system"),tr("Testing action"),this);
-		ui->additionalToolbar->addAction(test_act2);
+
 		//init aero integration for win
 
 		//
