@@ -60,6 +60,7 @@ public slots:
 private:
 	QHash<quint64, Cookie*> &cookies();
 	friend class Roster;
+	friend class SsiHandler;
 	friend class Cookie;
 	QScopedPointer<IcqAccountPrivate> d_ptr;
 };

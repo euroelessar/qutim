@@ -156,12 +156,13 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 	}
 	m_status_flags = 0x0000;
 	m_buddy_picture = new BuddyPicture(m_account, this);
+	m_feedbag = new Feedbag(this, this);
 	registerHandler(m_buddy_picture);
 	m_meta_info = new MetaInfo(this);
 	registerHandler(m_meta_info);
 	registerHandler(new ProtocolNegotiationImpl(this));
 	registerHandler(new MessagesHandler(m_account, this));
-	registerHandler(new Feedbag(this, this));
+	registerHandler(m_feedbag);
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
 		registerHandler(gen->generate<SNACHandler>());

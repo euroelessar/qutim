@@ -74,6 +74,7 @@ public slots:
 protected:
 	friend class Roster;
 	friend class MessagesHandler;
+	friend class SsiHandler;
 	QScopedPointer<IcqContactPrivate> d_ptr;
 };
 

@@ -79,6 +79,7 @@ public:
 	void sendItem(const FeedbagItem &item, Feedbag::ModifyType operation);
 	void handleItem(const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	quint16 generateId() const;
+	void finishLoading();
 	QHash<quint32, SSIItem> items;
 	QQueue<FeedbagQueueItem> ssiQueue;
 	OscarConnection *conn;
@@ -266,13 +267,6 @@ void FeedbagItem::setField(const TLV &tlv)
 	d->tlvs.replace(tlv.type(), tlv);
 }
 
-void FeedbagItem::setField(quint16 field, const DataUnit &data)
-{
-	TLV tlv(field);
-	tlv.setValue(data);
-	setField(tlv);
-}
-
 bool FeedbagItem::removeField(quint16 field)
 {
 	return d->tlvs.remove(field) > 0;
@@ -296,6 +290,16 @@ quint16 FeedbagItem::itemId() const
 quint16 FeedbagItem::groupId() const
 {
 	return d->groupId;
+}
+
+TLV FeedbagItem::field(quint16 field) const
+{
+	return d->tlvs.value(field);
+}
+
+bool FeedbagItem::containsField(quint16 field) const
+{
+	return d->tlvs.contains(field);
 }
 
 TLVMap &FeedbagItem::data()
@@ -337,13 +341,22 @@ void FeedbagPrivate::handleItem(const FeedbagItem &item, Feedbag::ModifyType typ
 		found = true;
 		handler->handleFeedbagItem(q, item, type, error);
 	}
-	/*if (!found)
-		debug(Verbose) << "Dump of unknown SSI item:" << item.d_func()->toString();*/
+	if (!found)
+		debug(Verbose) << "Dump of unknown SSI item:" << item.d_func()->toString();
 }
 
 quint16 FeedbagPrivate::generateId() const
 {
 	return rand() % 0x03e6;
+}
+
+void FeedbagPrivate::finishLoading()
+{
+	Q_Q(Feedbag);
+	SNAC snac(ListsFamily, ListsGotList);
+	conn->send(snac); // Roster ack
+	conn->finishLogin();
+	emit q->loaded();
 }
 
 Feedbag::Feedbag(OscarConnection *conn, QObject *parent):
@@ -413,17 +426,40 @@ bool Feedbag::removeItem(quint16 type, quint16 id)
 	}
 }
 
+bool Feedbag::removeItem(quint16 type, const QString &name)
+{
+	FeedbagItem i = item(type, name);
+	if (!i.isNull()) {
+		removeItem(i);
+		return true;
+	} else {
+		return false;
+	}
+}
+
 bool Feedbag::removeGroup(quint16 groupId)
 {
 	return removeItem(SsiGroup, groupId);
 }
 
+bool Feedbag::removeGroup(const QString &name)
+{
+	FeedbagItem i = group(name);
+	if (!i.isNull()) {
+		removeItem(i);
+		return true;
+	} else {
+		return false;
+	}
+}
+
 FeedbagItem Feedbag::item(quint16 type, quint16 id, ItemLoadFlags flags) const
 {
-	debug() << (type << 16 | id);
-	QHash<quint32, SSIItem>::const_iterator itr = d->items.find(type << 16 | id);
-	if (itr != d->items.constEnd()) {
-		return FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), *itr));
+	if (!(flags & DontLoadLocal)) {
+		QHash<quint32, SSIItem>::const_iterator itr = d->items.find(type << 16 | id);
+		if (itr != d->items.constEnd()) {
+			return FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), *itr));
+		}
 	}
 	if (flags & CreateItem) {
 		if (flags & GenerateId)
@@ -439,9 +475,11 @@ FeedbagItem Feedbag::item(quint16 type, const QString &name, ItemLoadFlags flags
 {
 	Q_ASSERT_X(type != SsiGroup, Q_FUNC_INFO, "Use Feedbag::group() instead");
 	QString compressedName = getCompressedName(name);
-	foreach (const SSIItem &item, d->items) {
-		if (item.itemType == type && item.compressedName() == compressedName)
-			return FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), item));
+	if (!(flags & DontLoadLocal)) {
+		foreach (const SSIItem &item, d->items) {
+			if (item.itemType == type && item.compressedName() == compressedName)
+				return FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), item));
+		}
 	}
 	if (flags & CreateItem)
 		return FeedbagItem(const_cast<Feedbag*>(this), type, uniqueItemId(type), 0, name);
@@ -455,13 +493,35 @@ FeedbagItem Feedbag::group(quint16 groupId, ItemLoadFlags flags) const
 
 FeedbagItem Feedbag::group(const QString &name, ItemLoadFlags flags) const
 {
-	foreach (const SSIItem &item, d->items) {
-		if (item.itemType == SsiGroup && name.compare(item.recordName, Qt::CaseInsensitive) == 0)
-			return FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), item));
+	if (!(flags & DontLoadLocal)) {
+		foreach (const SSIItem &item, d->items) {
+			if (item.itemType == SsiGroup && name.compare(item.recordName, Qt::CaseInsensitive) == 0)
+				return FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), item));
+		}
 	}
 	if (flags & CreateItem)
 		return FeedbagItem(const_cast<Feedbag*>(this), SsiGroup, 0, uniqueGroupId(), name);
 	return FeedbagItem();
+}
+
+bool Feedbag::containsItem(quint16 type, quint16 id)
+{
+	return !item(type, id).isNull();
+}
+
+bool Feedbag::containsItem(quint16 type, const QString &name)
+{
+	return !item(type, name).isNull();
+}
+
+bool Feedbag::containsGroup(quint16 groupId)
+{
+	return !group(groupId).isNull();
+}
+
+bool Feedbag::containsGroup(const QString &name)
+{
+	return !group(name).isNull();
 }
 
 bool Feedbag::testItemName(quint16 type, const QString &name) const
@@ -512,7 +572,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 	case ListsFamily << 16 | ListsUpToDate: {
 		 debug() << "Local contactlist is up to date";
-		 emit loaded();
+		 d->finishLoading();
 		 break;
 	}
 	case ListsFamily << 16 | ListsList: { // Server sends contactlist
@@ -524,9 +584,11 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			FeedbagItem item(new FeedbagItemPrivate(this, sn));
 			d->handleItem(item, AddModify, FeedbagError::NoError);
 		}
-		debug() << "is_last" << isLast;
 		if (isLast) {
-			emit loaded();
+			quint32 last_info_update = sn.readSimple<quint32>();
+			debug() << "SrvLastUpdate" << last_info_update;
+			setProperty("SrvLastUpdate", last_info_update);
+			d->finishLoading();
 		}
 		break;
 	}
@@ -545,11 +607,11 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			FeedbagError error(sn);
 			FeedbagQueueItem operation = d->ssiQueue.dequeue();
 			if (error.code() == FeedbagError::NoError) {
-				debug() << "The last SSI operation has been successfully done"
+				debug() << "SSI operation has been successfully done"
 						<< operation.type
 						<< operation.item.d->toString();
 			} else {
-				debug() << "The last SSI operation has been failed:" << error.errorString();
+				debug() << "SSI operation has failed:" << error.errorString();
 			}
 			d->handleItem(operation.item, operation.type, error);
 		}
