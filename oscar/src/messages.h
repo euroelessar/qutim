@@ -120,6 +120,8 @@ Q_OBJECT
 public:
 	MessagesHandler(IcqAccount *account, QObject *parent = 0);
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
+private slots:
+	void loginFinished();
 private:
 	void handleMessage(const SNAC &snac);
 	void handleResponse(const SNAC &snac);
@@ -129,6 +131,7 @@ private:
 	void handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, const Cookie &msgCookie);
 	void appendMessage(IcqContact *contact, const QString &message, QDateTime time = QDateTime());
 	void sendChannel2Response(IcqContact *contact, quint8 type, quint8 flags, const Cookie &cookie);
+	void sendMetaInfoRequest(quint16 type);
 	IcqAccount *m_account;
 	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
 };

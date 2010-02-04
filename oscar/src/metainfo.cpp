@@ -30,7 +30,8 @@ static QDebug operator<<(QDebug dbg, const MetaInfo::Category &cat)
 MetaInfo::MetaInfo(QObject *parent) :
 	SNACHandler(parent), m_sequence(0)
 {
-	m_infos << SNACInfo(ExtensionsFamily, ExtensionsMetaSrvReply);
+	m_infos << SNACInfo(ExtensionsFamily, ExtensionsMetaSrvReply)
+		<< SNACInfo(ExtensionsFamily, ExtensionsMetaError);
 }
 
 void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
@@ -88,6 +89,12 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				}
 			}
 		}
+	} else if (snac.family() == ExtensionsFamily && snac.subtype() == ExtensionsMetaError) {
+		ProtocolError error(snac);
+		debug() << QString("Error (%1, %2): %3")
+				.arg(error.code, 2, 16)
+				.arg(error.subcode, 2, 16)
+				.arg(error.str);
 	}
 }
 

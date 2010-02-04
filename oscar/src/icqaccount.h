@@ -53,6 +53,8 @@ public:
 	bool containsCapability(const Capability &capability);
 	bool containsCapability(const QString &type);
 	QList<Capability> capabilities();
+signals:
+	void loginFinished();
 public slots:
 	void onReconnectTimeout();
 private:

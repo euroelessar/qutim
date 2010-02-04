@@ -127,6 +127,7 @@ void IcqAccount::setStatus(Status status)
 		status = d->lastStatus;
 		d->conn->sendStatus(status);
 		d->conn->metaInfo()->sendShortInfoRequest(d->conn, this); // Requesting own information.
+		emit loginFinished();
 	} else if (status >= Online && status <= OnThePhone) {
 		d->lastStatus = status;
 		if (current == Offline) {

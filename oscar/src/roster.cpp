@@ -165,14 +165,6 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 	case BuddyFamily << 16 | UserSrvReplyBuddy:
 		debug() << IMPLEMENT_ME << "BuddyFamily, UserSrvReplyBuddy";
 		break;
-	case ExtensionsFamily << 16 | ExtensionsMetaError: {
-		ProtocolError error(sn);
-		debug() << QString("Error (%1, %2): %3"). arg(error.code, 2, 16).arg(error.subcode, 2, 16).arg(error.str);
-		break;
-	}
-	case ExtensionsFamily << 16 | ExtensionsMetaSrvReply:
-		handleMetaInfo(sn);
-		break;
 	}
 }
 
@@ -358,7 +350,6 @@ void Roster::handleServerCListReply(const SNAC &sn)
 		m_conn->setProperty("SrvLastUpdate", last_info_update);
 		sendRosterAck();
 		m_conn->finishLogin();
-		sendOfflineMessagesRequest();
 
 		if (!m_groups.contains(not_in_list_group)) {
 			const QString not_in_list_str = tr("Not In List");
@@ -694,41 +685,9 @@ void Roster::handleUserOffline(const SNAC &snac)
 	//	tlvs.value(0x0001); // User class
 }
 
-void Roster::handleMetaInfo(const SNAC &snac)
-{
-	TLVMap tlvs = snac.readTLVChain();
-	if (tlvs.contains(0x01)) {
-		DataUnit data(tlvs.value(0x01));
-		data.skipData(6); // skip length field + my uin
-		quint16 metaType = data.readSimple<quint16>(LittleEndian);
-		switch (metaType) {
-		case (0x0041):
-			// Offline message.
-			// It seems it's not used anymore.
-			break;
-		case (0x0042):
-			// Delete offline messages from the server.
-			sendMetaInfoRequest(0x003E);
-			break;
-		}
-	}
-}
-
 void Roster::sendRosterAck()
 {
 	SNAC snac(ListsFamily, ListsGotList);
-	m_conn->send(snac);
-}
-
-void Roster::sendMetaInfoRequest(quint16 type)
-{
-	SNAC snac(ExtensionsFamily, ExtensionsMetaCliRequest);
-	DataUnit data;
-	data.appendSimple<quint16>(8, LittleEndian); // data chunk size
-	data.appendSimple<quint32>(m_account->id().toUInt(), LittleEndian);
-	data.appendSimple<quint16>(type, LittleEndian); // message request cmd
-	data.appendSimple<quint16>(snac.id()); // request sequence number
-	snac.appendTLV(0x01, data);
 	m_conn->send(snac);
 }
 

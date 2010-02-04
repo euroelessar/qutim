@@ -149,12 +149,14 @@ ServerResponseMessage::ServerResponseMessage(IcqContact *contact, quint16 format
 MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent) :
 	SNACHandler(parent), m_account(account)
 {
+	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
 	m_infos << SNACInfo(MessageFamily, MessageSrvReplyIcbm)
 			<< SNACInfo(MessageFamily, MessageResponse)
 			<< SNACInfo(MessageFamily, MessageSrvRecv)
 			<< SNACInfo(MessageFamily, MessageSrvAck)
 			<< SNACInfo(MessageFamily, MessageMtn)
-			<< SNACInfo(MessageFamily, MessageSrvError);
+			<< SNACInfo(MessageFamily, MessageSrvError)
+			<< SNACInfo(ExtensionsFamily, ExtensionsMetaSrvReply);
 	foreach(const ObjectGenerator *gen, moduleGenerators<MessagePlugin>())
 	{
 		MessagePlugin *plugin = gen->generate<MessagePlugin>();
@@ -208,12 +210,40 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		}
 		break;
 	}
+	case ExtensionsFamily << 16 | ExtensionsMetaSrvReply: {
+		TLVMap tlvs = sn.readTLVChain();
+		if (tlvs.contains(0x01)) {
+			DataUnit data(tlvs.value(0x01));
+			data.skipData(6); // skip length field + my uin
+			quint16 metaType = data.readSimple<quint16>(LittleEndian);
+			switch (metaType) {
+			case (0x0041):
+				// Offline message.
+				// It seems it's not used anymore.
+				break;
+			case (0x0042):
+				// Delete offline messages from the server.
+				sendMetaInfoRequest(0x003E);
+				break;
+			}
+		}
+		break;
+	}
 	case MessageFamily << 16 | MessageSrvError: {
 		ProtocolError error(sn);
-		debug() << QString("Error (%1, %2): %3"). arg(error.code, 2, 16).arg(error.subcode, 2, 16).arg(error.str);
+		debug() << QString("Error (%1, %2): %3")
+				.arg(error.code, 2, 16)
+				.arg(error.subcode, 2, 16)
+				.arg(error.str);
 		break;
 	}
 	}
+}
+
+void MessagesHandler::loginFinished()
+{
+	// Offline messages request
+	sendMetaInfoRequest(0x003C);
 }
 
 void MessagesHandler::handleMessage(const SNAC &snac)
@@ -459,6 +489,18 @@ void MessagesHandler::sendChannel2Response(IcqContact *contact, quint8 type, qui
 	ServerResponseMessage response(contact, 2, 3, cookie);
 	response.appendData(responseTlv.data());
 	m_account->connection()->send(response);
+}
+
+void MessagesHandler::sendMetaInfoRequest(quint16 type)
+{
+	SNAC snac(ExtensionsFamily, ExtensionsMetaCliRequest);
+	DataUnit data;
+	data.appendSimple<quint16>(8, LittleEndian); // data chunk size
+	data.appendSimple<quint32>(m_account->id().toUInt(), LittleEndian);
+	data.appendSimple<quint16>(type, LittleEndian); // message request cmd
+	data.appendSimple<quint16>(snac.id()); // request sequence number
+	snac.appendTLV(0x01, data);
+	m_account->connection()->send(snac);
 }
 
 } // namespace Icq
