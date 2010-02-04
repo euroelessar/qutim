@@ -182,7 +182,7 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 		break;
 	case SsiBuddyIcon:
 		if (m_account->avatarsSupport() && item.containsField(0x00d5)) {
-			DataUnit data(item.containsField(0x00d5));
+			DataUnit data(item.field(0x00d5));
 			quint8 flags = data.readSimple<quint8>();
 			QByteArray hash = data.readData<quint8>();
 			if (hash.size() == 16)
