@@ -92,7 +92,7 @@ static bool resolveLibs()
   * for the WM_DWMCOMPOSITIONCHANGED event to occur.
   *
   */
-bool QtWin::isCompositionEnabled()
+bool QtDWM::isCompositionEnabled()
 {
 #ifdef Q_WS_WIN
     if (resolveLibs()) {
@@ -111,7 +111,7 @@ bool QtWin::isCompositionEnabled()
   *
   * \a enable tells if the blur should be enabled or not
   */
-bool QtWin::enableBlurBehindWindow(QWidget *widget, bool enable)
+bool QtDWM::enableBlurBehindWindow(QWidget *widget, bool enable)
 {
     Q_ASSERT(widget);
     bool result = false;
@@ -146,7 +146,7 @@ bool QtWin::enableBlurBehindWindow(QWidget *widget, bool enable)
   *
   * \a enable tells if the blur should be enabled or not
   */
-bool QtWin::extendFrameIntoClientArea(QWidget *widget, int left, int top, int right, int bottom)
+bool QtDWM::extendFrameIntoClientArea(QWidget *widget, int left, int top, int right, int bottom)
 {
 
     Q_ASSERT(widget);
@@ -177,7 +177,7 @@ bool QtWin::extendFrameIntoClientArea(QWidget *widget, int left, int top, int ri
   *
   * \a enable tells if the blur should be enabled or not
   */
-QColor QtWin::colorizatinColor()
+QColor QtDWM::colorizatinColor()
 {
     QColor resultColor = QApplication::palette().window().color();
 
@@ -196,7 +196,7 @@ QColor QtWin::colorizatinColor()
 }
 
 #ifdef Q_WS_WIN
-WindowNotifier *QtWin::windowNotifier()
+WindowNotifier *QtDWM::windowNotifier()
 {
     static WindowNotifier *windowNotifierInstance = 0;
     if (!windowNotifierInstance)
@@ -209,7 +209,7 @@ WindowNotifier *QtWin::windowNotifier()
 bool WindowNotifier::winEvent(MSG *message, long *result)
 {
     if (message && message->message == WM_DWMCOMPOSITIONCHANGED) {
-        bool compositionEnabled = QtWin::isCompositionEnabled();
+		bool compositionEnabled = QtDWM::isCompositionEnabled();
         foreach(QWidget * widget, widgets) {
             if (widget) {
                 widget->setAttribute(Qt::WA_NoSystemBackground, compositionEnabled);

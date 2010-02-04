@@ -21,7 +21,7 @@
 #include <QLabel>
 #include <QPainter>
 #include <QDesktopWidget>
-#include <3rdparty/qtwin/qtwin.h>
+#include <libqutim/qtwin.h>
 #include <libqutim/emoticons.h>
 #include <libqutim/chatunit.h>
 #include <libqutim/messagesession.h>
@@ -52,8 +52,8 @@ namespace KineticPopups
 			if (popupSettings.popupFlags & ThemeHelper::Transparent) {
 				setAttribute(Qt::WA_NoSystemBackground);
 				setAttribute(Qt::WA_TranslucentBackground);
+				viewport()->setAutoFillBackground(false);
 			}
-
 			if (popupSettings.popupFlags & ThemeHelper::AeroThemeIntegration) {
 				//init aero integration for win
 				if (QtWin::isCompositionEnabled()) {
@@ -70,7 +70,7 @@ namespace KineticPopups
 		setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
 	}
 
-	QSize PopupWidget::setData ( const QString& title, const QString& body, QObject *sender )
+	void PopupWidget::setData ( const QString& title, const QString& body, QObject *sender )
 	{
 		m_sender = sender;
 		QString image_path = sender ? sender->property("avatar").toString() : QString();
@@ -87,10 +87,7 @@ namespace KineticPopups
 		data.replace ( "{imagepath}",image_path);
 		document()->setTextWidth(popup_settings.defaultSize.width());
 		document()->setHtml(data);
-		int width = popup_settings.defaultSize.width();
-		int height = document()->size().height();
-
-		return QSize(width,height);
+		emit sizeChanged(sizeHint());
 	}
 
 
@@ -103,14 +100,15 @@ namespace KineticPopups
 
 	void PopupWidget::mouseReleaseEvent ( QMouseEvent* ev )
 	{
-		if (ev->button() == Manager::self()->action1Trigger) {
+		//TODO
+		if (ev->button() == Qt::LeftButton) {
 			onAction1Triggered();
 		}
-		else if (ev->button() == Manager::self()->action2Trigger)
+		else if (ev->button() == Qt::RightButton)
 			onAction2Triggered();
 		else
 			return;
-		emit actionActivated();
+		emit activated();
 	}
 	
 	PopupWidget::~PopupWidget()
@@ -144,8 +142,16 @@ namespace KineticPopups
 	void PopupWidget::onTimeoutReached()
 	{
 		//TODO
-		emit actionActivated();
+		emit activated();
 	}
+	
+	QSize PopupWidget::sizeHint() const
+	{
+		int width = popup_settings.defaultSize.width();
+		int height = document()->size().height();
+		return QSize(width,height);
+	}
+
 }
 
 

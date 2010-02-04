@@ -39,6 +39,7 @@ namespace KineticPopups
 		Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
 	public:
 		Manager();
+		void loadSettings();		
 		Popup *getById (const QString &id) const;
 		Popup *getByNumber (const int &number) const;
 		int count();
@@ -51,8 +52,6 @@ namespace KineticPopups
 		QEasingCurve easingCurve;
 		bool updatePosition;
 		AnimationFlags animation;
-		Qt::MouseButton action1Trigger;
-		Qt::MouseButton action2Trigger;
 		NotificationTypes showFlags;
 		uint timeout;
 		bool appendMode;
@@ -63,7 +62,6 @@ namespace KineticPopups
 	private:
 		QList<Popup *> active_notifications;
 		static Manager *instance;
-		void loadSettings();
 		int getNumber(const QString &id) const;
 	};
 }

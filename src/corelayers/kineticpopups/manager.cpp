@@ -85,6 +85,7 @@ namespace KineticPopups
 	{
 		int number = getNumber(id);
 		active_notifications.removeAt(number);
+		updateGeometry();
 	}
 
 
@@ -103,9 +104,6 @@ namespace KineticPopups
 		}
 	}
 
-
-
-
 	Manager* Manager::self()
 	{
 		if ( !instance )
@@ -118,22 +116,19 @@ namespace KineticPopups
 	{
 		ConfigGroup general = Config("appearance/kineticpopups").group("general");
 		QString theme_name = general.value<QString>("themeName","default");
-		updatePosition = general.value<bool>("updatePosition",true);
-		animation = static_cast<AnimationFlags>(general.value<int>("animationFlags",Opacity));
-		timeout = general.value<int>("timeout",5000);
-		easingCurve.setType(static_cast<QEasingCurve::Type>(general.value<int>("easingCurve",QEasingCurve::OutSine)));
-
-		ConfigGroup behavior = Config("behavior/popups").group("general");
+		loadTheme(theme_name);
+		
+		ConfigGroup behavior = Config("behavior/notifications").group("popups");
 		maxCount = behavior.value<int>("maxCount",10);
 		maxTextLength = behavior.value<int>("maxTextLength",160);
 		appendMode = behavior.value<bool>("appendMode",true);
 		updateMode = behavior.value<bool>("updateMode",false);
-		animationDuration = behavior.value("animationDuration",1000);
-		*reinterpret_cast<int *>(&showFlags) = behavior.value("showFlags", 0xfffffff);
-		loadTheme(theme_name);
-		//TODO need global actions handler
-		action1Trigger = Qt::LeftButton;
-		action2Trigger = Qt::RightButton;
+		animationDuration = behavior.value("animationDuration",600);
+		showFlags = static_cast<NotificationTypes>(behavior.value<int>("showFlags", 0xfffffff));
+		updatePosition = behavior.value<bool>("updatePosition",true);
+		animation = animationDuration ? static_cast<AnimationFlags>(behavior.value<int>("animationFlags", Opacity)) : NoAnimation;
+		timeout = behavior.value<int>("timeout",5000);
+		easingCurve.setType(static_cast<QEasingCurve::Type>(behavior.value<int>("easingCurve",QEasingCurve::OutSine)));
 	}
 
 	void Manager::loadTheme(const QString& themeName)

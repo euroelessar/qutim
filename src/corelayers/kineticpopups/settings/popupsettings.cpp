@@ -15,9 +15,7 @@ namespace Core
 		);
 	PopupSettings::PopupSettings()
 	{
- 		GeneralSettingsItem<PopupAppearance> *appearance = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
 		GeneralSettingsItem<PopupBehavior> *behavior = new GeneralSettingsItem<PopupBehavior>(Settings::General,Icon("dialog-information"),QT_TRANSLATE_NOOP("Settings","Notifications"));
- 		Settings::registerItem(appearance);
 		Settings::registerItem(behavior);
 	}
 

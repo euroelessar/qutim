@@ -23,29 +23,15 @@
 #include <QState>
 #include <QDebug>
 #include <QStateMachine>
+#include <libqutim/debug.h>
 
 namespace KineticPopups
 {
 
-	Popup::Popup ( const QString& id, uint timeOut )
-			:	m_id ( id ), timeout ( timeOut ), m_machine(0), m_notification_widget(0)
+	Popup::Popup ( const QString& id )
+			:	m_id ( id ), m_machine(0), m_notification_widget(0)
 	{
 
-	}
-
-	Popup::Popup(QObject* parent): QObject(parent), m_machine(0), m_notification_widget(0)
-	{
-
-	}
-
-	void Popup::setSender(QObject *sender)
-	{
-		m_sender = sender;
-	}
-
-	QObject* Popup::getSender() const
-	{
-		return m_sender;
 	}
 
 	void Popup::setId(const QString& id)
@@ -53,15 +39,10 @@ namespace KineticPopups
 		this->m_id = id;
 	}
 
-	void Popup::setTimeOut(uint timeOut)
-	{
-		this->timeout = timeOut;
-	}
 
 	Popup::~Popup()
 	{
 		Manager::self()->remove (m_id);
-		Manager::self()->updateGeometry();
 		m_notification_widget->deleteLater();
 	}
 
@@ -88,17 +69,23 @@ namespace KineticPopups
 	
 	void Popup::updateMessage()
 	{
-		QSize newSize = m_notification_widget->setData(m_title,m_body,m_sender);
-		m_show_geometry.setSize(newSize);
-		updateGeometry(m_show_geometry);
-		Manager::self()->updateGeometry();
-		m_show_state->assignProperty(m_notification_widget,"geometry",m_show_geometry);
-//		m_update_state->assignProperty(m_notification_widget,"geometry",m_show_geometry);
+		m_notification_widget->setData(m_title,m_body,m_sender);
+		int timeout = Manager::self()->timeout;
 		if (timeout > 0) {
 			killTimer(m_timer_id);
 			m_timer_id = startTimer(timeout);
 		}
 	}
+	
+		
+	void Popup::onPopupWidgetSizeChanged ( const QSize& size )
+	{		
+		m_show_geometry.setSize(size);
+		updateGeometry(m_show_geometry);
+		Manager::self()->updateGeometry();
+		m_show_state->assignProperty(m_notification_widget,"geometry",m_show_geometry);
+	}
+
 
 	QString Popup::getId() const
 	{
@@ -109,13 +96,14 @@ namespace KineticPopups
 	{
 		Manager *manager = Manager::self();
 		if (m_machine || m_notification_widget) {
-			qWarning("Notification already sended");
+			warning() << "Notification already sended";
 			return;
 		}
 		m_machine = new QStateMachine(this);
 
 		m_notification_widget = new PopupWidget ();
-		QSize notify_size = m_notification_widget->setData ( m_title,m_body,m_sender );
+		m_notification_widget->setData ( m_title,m_body,m_sender );
+		QSize notify_size = m_notification_widget->sizeHint();
 
 		m_show_geometry.setSize(notify_size);
 		QRect geom = manager->insert(this);
@@ -124,7 +112,7 @@ namespace KineticPopups
 
 		m_show_state = new QState();
 		m_hide_state = new QState();
-//		m_update_state = new QState();
+
 		QFinalState *final_state = new QFinalState();
 
 		int x = manager->popupSettings.margin + geom.width();
@@ -138,23 +126,21 @@ namespace KineticPopups
 		m_hide_state->assignProperty(m_notification_widget,"geometry",geom);
 		m_notification_widget->setGeometry(geom);
 
-		m_show_state->addTransition(m_notification_widget,SIGNAL(actionActivated()),m_hide_state);
-//		m_update_state->addTransition(m_notification_widget,SIGNAL(actionActivated()),m_hide_state);
+		m_show_state->addTransition(m_notification_widget,SIGNAL(activated()),m_hide_state);
 		m_show_state->addTransition(this,SIGNAL(updated()),m_show_state);
-//		m_update_state->addTransition(m_update_state,SIGNAL(propertiesAssigned()),m_show_state);
 		m_hide_state->addTransition(m_hide_state,SIGNAL(propertiesAssigned()),final_state);
 
-		if (timeout > 0) {
-			m_timer_id = startTimer(timeout);
+		if (manager->timeout > 0) {
+			m_timer_id = startTimer(manager->timeout);
 			connect(this,SIGNAL(timeoutReached()),m_notification_widget,SLOT(onTimeoutReached()));
 		}
 
 		m_machine->addState(m_show_state);
-//		m_machine->addState(m_update_state);
 		m_machine->addState(m_hide_state);
 		m_machine->addState(final_state);
 		m_machine->setInitialState (m_show_state);
 
+		//TODO FIXME
 		if (manager->animation) {
 			QPropertyAnimation *moving = new QPropertyAnimation ( m_notification_widget,"geometry" );
 			m_machine->addDefaultAnimation (moving);
@@ -173,6 +159,7 @@ namespace KineticPopups
 		}
 
 		connect(m_machine,SIGNAL(finished()),SLOT(deleteLater()));
+		connect(m_notification_widget,SIGNAL(sizeChanged(QSize)),SLOT(onPopupWidgetSizeChanged(QSize)));
 		m_machine->start();
 		m_notification_widget->show();
 	}
@@ -194,7 +181,7 @@ namespace KineticPopups
 
 	void Popup::updateGeometry(const QRect &newGeometry)
 	{
-		m_show_geometry = newGeometry;		
+		m_show_geometry = newGeometry;
 		emit updated();
 	}
 

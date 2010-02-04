@@ -30,26 +30,22 @@ namespace KineticPopups
 	{
 		Q_OBJECT
 	public:
-		Popup(const QString &id, uint timeOut = 0); //0 - persistant
-		Popup(QObject* parent = 0);
+		Popup(const QString &id); //0 - persistant
 		virtual ~Popup();
 		void setId(const QString &id);
-		void setTimeOut(uint timeOut);
 		void setMessage(const QString &title, const QString &body = NULL, QObject *sender = NULL);
 		void appendMessage(const QString &message);
 		void updateMessage(const QString &message);
-		void setActionsText(const QString &action1,const QString &action2);
-		//for short message you can use only title
 		void send();
 		void update(QRect geom);
 		QString getId() const;
-		QObject *getSender() const;
-		void setSender(QObject* sender);
 		QRect geometry() const; //Show state geometry
 	signals:
 		void finished(const QString &id);
 		void updated();
 		void timeoutReached();
+	private slots:
+		void onPopupWidgetSizeChanged(const QSize &size);
 	private:
 		void updateGeometry(const QRect &newGeometry);
 		inline void updateMessage();
@@ -58,11 +54,9 @@ namespace KineticPopups
 		QString m_title;
 		QString m_body;
 		QString m_id;
-		uint timeout;
 		QRect m_show_geometry; //Don't use direct, change by UpdateGeometry!
 		QStateMachine *m_machine;
 		QState *m_show_state;
-//		QState *m_update_state;
 		QState *m_hide_state;
 		QObject *m_sender;
 		int m_timer_id;
