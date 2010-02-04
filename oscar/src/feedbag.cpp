@@ -342,7 +342,7 @@ void FeedbagPrivate::handleItem(const FeedbagItem &item, Feedbag::ModifyType typ
 		handler->handleFeedbagItem(q, item, type, error);
 	}
 	if (!found)
-		debug(Verbose) << "Dump of unknown SSI item:" << item.d_func()->toString();
+		debug(Verbose) << "Dump of unknown SSI item:" << item.d->toString();
 }
 
 quint16 FeedbagPrivate::generateId() const
