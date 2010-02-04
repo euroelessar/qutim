@@ -24,7 +24,7 @@
 
 namespace qutim_sdk_0_3
 {
-	class QmlMessage : public QObject
+/*	class QmlMessage : public QObject
 	{
 		Q_OBJECT
 		Q_PROPERTY(QString text READ text WRITE setText NOTIFY onTextChanged)
@@ -88,7 +88,7 @@ namespace qutim_sdk_0_3
 		bool m_delete;
 		Message *m_message;
 	};
-
+*/
 	QScriptValue messageToScriptValue(QScriptEngine *engine, const Message &mes)
 	{
 		QScriptValue obj = engine->newObject();
