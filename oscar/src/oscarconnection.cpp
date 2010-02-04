@@ -18,6 +18,7 @@
 #include "util.h"
 #include "md5login.h"
 #include "roster.h"
+#include "feedbag.h"
 #include "icqaccount.h"
 #include "buddypicture.h"
 #include "buddycaps.h"
@@ -160,6 +161,7 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 	registerHandler(m_meta_info);
 	registerHandler(new ProtocolNegotiationImpl(this));
 	registerHandler(new MessagesHandler(m_account, this));
+	registerHandler(new Feedbag(this, this));
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
 		registerHandler(gen->generate<SNACHandler>());

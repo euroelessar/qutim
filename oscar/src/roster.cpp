@@ -141,12 +141,6 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 	case ListsFamily << 16 | ListsAck:
 		handleSSIServerAck(sn);
 		break;
-	case ListsFamily << 16 | ListsCliModifyStart:
-		debug() << IMPLEMENT_ME << "ListsCliModifyStart";
-		break;
-	case ListsFamily << 16 | ListsCliModifyEnd:
-		debug() << IMPLEMENT_ME << "ListsCliModifyEnd";
-		break;
 	case ListsFamily << 16 | ListsAuthRequest: {
 		sn.skipData(8); // cookie
 		QString uin = sn.readString<quint8>();
@@ -171,16 +165,6 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 	case BuddyFamily << 16 | UserSrvReplyBuddy:
 		debug() << IMPLEMENT_ME << "BuddyFamily, UserSrvReplyBuddy";
 		break;
-		// Server sends SSI service limitations to client
-	case ListsFamily << 16 | ListsSrvReplyLists: {
-		debug() << IMPLEMENT_ME << "ListsFamily, ListsSrvReplyLists";
-		break;
-	}
-	case ListsFamily << 16 | ListsUpToDate: {
-		debug() << "Local contactlist is up to date";
-		break;
-	}
-	case ListsFamily << 16 | ListsError:
 	case ExtensionsFamily << 16 | ExtensionsMetaError: {
 		ProtocolError error(sn);
 		debug() << QString("Error (%1, %2): %3"). arg(error.code, 2, 16).arg(error.subcode, 2, 16).arg(error.str);
