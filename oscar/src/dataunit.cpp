@@ -25,11 +25,11 @@ TLV DataUnit::readTLV(ByteOrder bo) const
 		return tlv;
 	quint16 len;
 	if (bo == BigEndian) {
-		tlv.setType(qFromBigEndian<quint16> ((const uchar *) m_data.constData() + m_state));
-		len = qFromBigEndian<quint16> ((const uchar *) m_data.constData() + m_state + 2);
+		tlv.setType(qFromBigEndian<quint16>((const uchar *) m_data.constData() + m_state));
+		len = qFromBigEndian<quint16>((const uchar *) m_data.constData() + m_state + 2);
 	} else {
-		tlv.setType(qFromLittleEndian<quint16> ((const uchar *) m_data.constData() + m_state));
-		len = qFromLittleEndian<quint16> ((const uchar *) m_data.constData() + m_state + 2);
+		tlv.setType(qFromLittleEndian<quint16>((const uchar *) m_data.constData() + m_state));
+		len = qFromLittleEndian<quint16>((const uchar *) m_data.constData() + m_state + 2);
 	}
 	m_state += 4;
 	if (dataSize() < len) {

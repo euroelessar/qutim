@@ -46,9 +46,6 @@ inline QByteArray toLittleEndian(T source)
 	return data;
 }
 
-// SNAC(0x17,0x03), TLV(0x05)
-extern QString connectionErrorText(quint16 code);
-
 extern QTextCodec *asciiCodec();
 extern void setAsciiCodec(QTextCodec *codec);
 extern QTextCodec *utf8Codec();

@@ -43,6 +43,7 @@ public:
 protected:
 	void processNewConnection();
 	void processCloseConnection();
+	void setError(ConnectionError error) { AbstractConnection::setError(error); };
 private:
 	void setLoginData(const QString &addr, quint16 port, const QByteArray &cookie);
 	friend class Md5LoginNegotiation;

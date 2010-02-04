@@ -20,7 +20,7 @@
 #include <QRegExp>
 #include <QValidator>
 
-#include "ui_addaccountform.h"
+#include "ui_loginform.h"
 
 namespace Icq
 {
@@ -43,7 +43,7 @@ public:
 	bool isSavePassword() { return ui.passwordBox->isChecked(); }
 private:
 	IcqAccountCreationWizard *m_account_wizard;
-	Ui::AddAccountFormClass ui;
+	Ui::LoginForm ui;
 };
 
 IcqAccWizardPage::IcqAccWizardPage(IcqAccountCreationWizard *account_wizard) :
@@ -94,7 +94,7 @@ void IcqAccountCreationWizard::finished()
 	accounts << account->id();
 	cfg.setValue("accounts", accounts);
 	cfg.sync();
-	p->protocol->p->accounts_hash->insert(account->id(), account);
+	p->protocol->d_func()->accounts_hash->insert(account->id(), account);
 	delete p->page;
 	emit p->protocol->accountCreated(account);
 }

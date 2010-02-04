@@ -29,15 +29,15 @@ Capability::Capability(const QByteArray &data)
 {
 	if (data.size() == 2) {
 		data1 = shortUuid().data1;
-		data1 |= qFromBigEndian<quint16> ((const uchar *) data.constData());
+		data1 |= qFromBigEndian<quint16>((const uchar *) data.constData());
 		data2 = shortUuid().data2;
 		data3 = shortUuid().data3;
 		memcpy(data4, shortUuid().data4, 8);
 	} else if (data.size() == 16) {
 		const uchar *src = (const uchar *) data.constData();
-		data1 = qFromBigEndian<quint32> (src);
-		data2 = qFromBigEndian<quint16> (src + 4);
-		data3 = qFromBigEndian<quint16> (src + 6);
+		data1 = qFromBigEndian<quint32>(src);
+		data2 = qFromBigEndian<quint16>(src + 4);
+		data3 = qFromBigEndian<quint16>(src + 6);
 		memcpy(data4, src + 8, 8);
 	}
 }
@@ -63,9 +63,9 @@ Capability::Capability(quint8 d1, quint8 d2, quint8 d3, quint8 d4, quint8 d5,
 {
 	uchar data[16] =
 	{ d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16 };
-	data1 = qFromBigEndian<quint32> (data);
-	data2 = qFromBigEndian<quint16> (data + 4);
-	data3 = qFromBigEndian<quint16> (data + 6);
+	data1 = qFromBigEndian<quint32>(data);
+	data2 = qFromBigEndian<quint16>(data + 4);
+	data3 = qFromBigEndian<quint16>(data + 6);
 	for (int i = 8; i < 16; i++)
 		data4[i - 8] = data[i];
 }

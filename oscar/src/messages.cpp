@@ -157,7 +157,7 @@ MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent) :
 			<< SNACInfo(MessageFamily, MessageSrvError);
 	foreach(const ObjectGenerator *gen, moduleGenerators<MessagePlugin>())
 	{
-		MessagePlugin *plugin = gen->generate<MessagePlugin> ();
+		MessagePlugin *plugin = gen->generate<MessagePlugin>();
 		foreach(const Capability &cap, plugin->capabilities())
 			m_msg_plugins.insert(cap, plugin);
 	}
@@ -221,7 +221,7 @@ void MessagesHandler::handleMessage(const SNAC &snac)
 	quint64 cookie = snac.readSimple<quint64>();
 	quint16 channel = snac.readSimple<quint16>();
 	QString uin = snac.readString<quint8>();
-	IcqContact *contact = m_account->roster()->contact(uin);
+	IcqContact *contact = m_account->getContact(uin, true);
 	quint16 warning = snac.readSimple<quint16>();
 	snac.skipData(2); // unused number of tlvs
 	TLVMap tlvs = snac.readTLVChain();
@@ -286,7 +286,7 @@ void MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *contac
 			message += codec->toUnicode(data);
 		}
 		if (!(snac.id() & 0x80000000) && msg_tlvs.contains(0x0016)) // Offline message
-			time = QDateTime::fromTime_t(msg_tlvs.value(0x0016).value<quint32> ());
+			time = QDateTime::fromTime_t(msg_tlvs.value(0x0016).value<quint32>());
 		appendMessage(contact, message, time);
 	} else {
 		debug() << "Incorrect message on channel 1 from" << uin << ": SNAC should contain TLV 2";
@@ -313,11 +313,11 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 			quint16 ack = tlvs.value(0x0A).value<quint16>();
 			if (contact) {
 				if (tlvs.contains(0x03))
-					contact->d_func()->dc_info.external_ip = QHostAddress(tlvs.value(0x04).value<quint32> ());
+					contact->d_func()->dc_info.external_ip = QHostAddress(tlvs.value(0x04).value<quint32>());
 				if (tlvs.contains(0x04))
-					contact->d_func()->dc_info.internal_ip = QHostAddress(tlvs.value(0x04).value<quint32> ());
+					contact->d_func()->dc_info.internal_ip = QHostAddress(tlvs.value(0x04).value<quint32>());
 				if (tlvs.contains(0x04))
-					contact->d_func()->dc_info.port = tlvs.value(0x05).value<quint32> ();
+					contact->d_func()->dc_info.port = tlvs.value(0x05).value<quint32>();
 			}
 			if (tlvs.contains(0x2711)) {
 				DataUnit data(tlvs.value(0x2711));
@@ -370,7 +370,7 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 		contact->d_func()->version = version;
 	Capability guid = data.readCapability();
 	data.skipData(9);
-	id = data.readSimple<quint16> (LittleEndian);
+	id = data.readSimple<quint16>(LittleEndian);
 	quint16 cookie = data.readSimple<quint16>(LittleEndian);
 	if (guid == ICQ_CAPABILITY_PSIG_MESSAGE) {
 		data.skipData(12);
@@ -407,7 +407,7 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 				codec = asciiCodec();
 			appendMessage(contact, codec->toUnicode(message_data));
 		} else if (MsgPlugin) {
-			data.readData<quint16> (LittleEndian);
+			data.readData<quint16>(LittleEndian);
 			DataUnit info = data.readData<quint16>(LittleEndian);
 			Capability pluginType = info.readCapability().data();
 			quint16 pluginId = info.readSimple<quint16>(LittleEndian);

@@ -55,7 +55,7 @@ qutim_sdk_0_3::Status icqStatusToQutim(quint16 status)
 }
 
 IcqProtocol::IcqProtocol() :
-	p(new IcqProtocolPrivate)
+	d_ptr(new IcqProtocolPrivate)
 {
 	Q_ASSERT(!self);
 	self = this;
@@ -99,32 +99,37 @@ void initActions(IcqProtocol *proto)
 
 void IcqProtocol::loadAccounts()
 {
+	Q_D(IcqProtocol);
 	initActions(this);
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &uin, accounts)
-		p->accounts_hash->insert(uin, new IcqAccount(uin));
+		d->accounts_hash->insert(uin, new IcqAccount(uin));
 }
 
 QList<Account *> IcqProtocol::accounts() const
 {
+	Q_D(const IcqProtocol);
 	QList<Account *> accounts;
 	QHash<QString, QPointer<IcqAccount> >::const_iterator it;
-	for (it = p->accounts_hash->begin(); it != p->accounts_hash->end(); it++)
+	for (it = d->accounts_hash->begin(); it != d->accounts_hash->end(); it++)
 		accounts.append(it.value());
 	return accounts;
 }
+
 Account *IcqProtocol::account(const QString &id) const
 {
-	return p->accounts_hash->value(id);
+	Q_D(const IcqProtocol);
+	return d->accounts_hash->value(id);
 }
 
 void IcqProtocol::onStatusActionPressed()
 {
-	QAction *action = qobject_cast<QAction *> (sender());
+	Q_D(IcqProtocol);
+	QAction *action = qobject_cast<QAction *>(sender());
 	Q_ASSERT(action);
-	MenuController *item = action->data().value<MenuController *> ();
+	MenuController *item = action->data().value<MenuController *>();
 	if (IcqAccount *account = qobject_cast<IcqAccount *>(item))
-		account->setStatus(static_cast<Status> (action->property("status").toInt()));
+		account->setStatus(static_cast<Status>(action->property("status").toInt()));
 }
 
 } // namespace Icq

@@ -39,8 +39,8 @@ QByteArray FLAP::header() const
 	data.resize(6);
 	data[0] = 0x2a;
 	data[1] = (uchar) m_channel;
-	qToBigEndian<quint16> (m_sequence_number, (uchar *) data.constData() + 2);
-	qToBigEndian<quint16> (m_data.size(), (uchar *) data.constData() + 4);
+	qToBigEndian<quint16>(m_sequence_number, (uchar *) data.constData() + 2);
+	qToBigEndian<quint16>(m_data.size(), (uchar *) data.constData() + 4);
 	return data;
 }
 
@@ -52,8 +52,8 @@ bool FLAP::readData(QIODevice *dev)
 		if (*(s++) != 0x2a)
 			return false;
 		m_channel = *(s++);
-		m_sequence_number = qFromBigEndian<quint16> (s);
-		m_length = qFromBigEndian<quint16> (s + 2);
+		m_sequence_number = qFromBigEndian<quint16>(s);
+		m_length = qFromBigEndian<quint16>(s + 2);
 		m_state = ReadData;
 		m_data.resize(m_length);
 	}
