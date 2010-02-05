@@ -7,7 +7,7 @@
 **
 ****************************************************************************/
 
-#include "qtwin.h"
+#include "qtdwm.h"
 #include <QLibrary>
 #include <QApplication>
 #include <QWidget>
