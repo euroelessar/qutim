@@ -28,6 +28,7 @@ struct IcqAccountPrivate
 {
 	OscarConnection *conn;
 	Roster *roster;
+	Feedbag *feedbag;
 	QString name;
 	bool avatars;
 	QHash<quint64, Cookie*> cookies;
@@ -42,6 +43,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 {
 	Q_D(IcqAccount);
 	d->conn = new OscarConnection(this);
+	d->conn->registerHandler(d->feedbag = new Feedbag(this));
 	d->conn->registerHandler(d->roster = new Roster(this));
 	d->lastStatus = Offline; // TODO: load the value from the account config.
 	d->avatars = protocol()->config("general").value("avatars", QVariant(true)).toBool();
@@ -85,6 +87,12 @@ Roster *IcqAccount::roster()
 {
 	Q_D(IcqAccount);
 	return d->roster;
+}
+
+Feedbag *IcqAccount::feedbag()
+{
+	Q_D(IcqAccount);
+	return d->feedbag;
 }
 
 OscarConnection *IcqAccount::connection()

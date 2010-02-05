@@ -27,7 +27,7 @@ class Feedbag;
 class FeedbagPrivate;
 class FeedbagItemPrivate;
 class FeedbagItemHandler;
-class OscarConnection;
+class IcqAccount;
 
 class FeedbagError
 {
@@ -67,6 +67,7 @@ public:
 	bool isEmpty() const;
 	bool isNull() const;
 	void setName(const QString &name);
+	void setId(quint16 itemId);
 	void setGroup(quint16 groupId);
 	void setField(quint16 field);
 	void setField(const TLV &tlv);
@@ -88,6 +89,8 @@ protected:
 private:
 	friend class Feedbag;
 	friend class FeedbagPrivate;
+	friend class FeedbagItemPrivate;
+	friend QDebug &operator<<(QDebug &stream, const Icq::FeedbagItem &item);
 	QSharedDataPointer<FeedbagItemPrivate> d;
 };
 
@@ -121,29 +124,20 @@ public:
 		DontLoadLocal = 0x0010
 	};
 	Q_DECLARE_FLAGS(ItemLoadFlags, ItemLoadFlag);
-	Feedbag(OscarConnection *conn, QObject *parent = 0);
+	Feedbag(IcqAccount *acc);
 	virtual ~Feedbag();
 	void beginModify();
 	void endModify();
 	bool isModifyStarted() const;
-	void updateItem(const FeedbagItem &item);
-	void removeItem(const FeedbagItem &item);
 	bool removeItem(quint16 type, quint16 id);
 	bool removeItem(quint16 type, const QString &name);
-	bool removeGroup(quint16 groupId);
-	bool removeGroup(const QString &name);
 	FeedbagItem item(quint16 type, quint16 id, ItemLoadFlags flags = NoFlags) const;
 	FeedbagItem item(quint16 type, const QString &name, ItemLoadFlags flags = NoFlags) const;
-	FeedbagItem group(quint16 groupId, ItemLoadFlags flags = NoFlags) const;
-	FeedbagItem group(const QString &name, ItemLoadFlags flags = NoFlags) const;
-	bool containsItem(quint16 type, quint16 id);
-	bool containsItem(quint16 type, const QString &name);
-	bool containsGroup(quint16 groupId);
-	bool containsGroup(const QString &name);
-	bool testItemName(quint16 type, const QString &name) const;
-	bool testGroupName(const QString &name) const;
+	QList<FeedbagItem> group(quint16 groupId) const;
+	QList<FeedbagItem> group(const QString &name) const;
+	bool containsItem(quint16 type, quint16 id) const;
+	bool containsItem(quint16 type, const QString &name) const;
 	quint16 uniqueItemId(quint16 type, quint16 value = 0) const;
-	quint16 uniqueGroupId(quint16 value = 0) const;
 	void registerHandler(FeedbagItemHandler *handler);
 signals:
 	void loaded();
@@ -152,6 +146,7 @@ protected:
 private:
 	friend class FeedbagPrivate;
 	friend class FeedbagItem;
+	friend class FeedbagItemPrivate;
 	QScopedPointer<FeedbagPrivate> d;
 };
 
@@ -164,7 +159,7 @@ public:
 	explicit FeedbagItemHandler(QObject *parent = 0);
 	virtual ~FeedbagItemHandler();
 	const QList<quint16> &types() { return m_types; }
-	virtual void handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error) = 0;
+	virtual bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error) = 0;
 protected:
 	QList<quint16> m_types;
 };

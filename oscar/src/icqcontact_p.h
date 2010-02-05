@@ -21,9 +21,17 @@
 
 #include "capability.h"
 #include "oscarconnection.h"
+#include "feedbag.h"
 
 namespace Icq
 {
+
+enum SsiBuddyTlvs
+{
+	SsiBuddyNick = 0x0131,
+	SsiBuddyComment = 0x013c,
+	SsiBuddyReqAuth = 0x0066
+};
 
 enum ContactCapabilityFlags
 {
@@ -49,13 +57,12 @@ struct IcqContactPrivate
 	IcqAccount *account;
 	QString uin;
 	QString name;
-	quint16 user_id;
-	quint16 group_id;
 	Status status;
 	quint16 version;
 	CapabilityFlags flags;
 	Capabilities capabilities;
 	DirectConnectionInfo dc_info;
+	FeedbagItem item;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IcqContactPrivate::CapabilityFlags)

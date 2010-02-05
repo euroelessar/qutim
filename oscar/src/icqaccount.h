@@ -27,6 +27,7 @@ using namespace qutim_sdk_0_3;
 
 struct IcqAccountPrivate;
 class Roster;
+class Feedbag;
 class OscarConnection;
 
 class IcqAccount: public Account
@@ -42,6 +43,7 @@ public:
 	virtual QString name() const;
 	void setName(const QString &name);
 	Roster *roster();
+	Feedbag *feedbag();
 	OscarConnection *connection();
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
 	IcqContact *getContact(const QString &id, bool create = false);

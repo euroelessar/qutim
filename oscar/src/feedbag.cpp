@@ -17,6 +17,7 @@
 #include "feedbag.h"
 #include "snac.h"
 #include "oscarconnection.h"
+#include "icqaccount.h"
 #include <QQueue>
 #include <qutim/objectgenerator.h>
 
@@ -39,9 +40,6 @@ public:
 		groupId(0), itemId(0)
 	{}
 	~SSIItem(){}
-	QString toString() const;
-	bool isEmpty() const { return itemId == 0 && groupId == 0; }
-	inline QString compressedName() const { return getCompressedName(recordName); }
 	QString recordName;
 	quint16 groupId;
 	quint16 itemId;
@@ -55,63 +53,43 @@ public:
 	FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item, quint16 group, const QString &name, bool inList = false);
 	FeedbagItemPrivate(Feedbag *bag, const SSIItem &item, bool inList = true);
 	FeedbagItemPrivate(Feedbag *bag, const SNAC &snac, bool inList = false);
+	void send(const FeedbagItem &item, Feedbag::ModifyType operation, bool move);
+	inline void remove(FeedbagItem item, bool move);
 	Feedbag *feedbag;
 	bool isInList;
+	quint16 newGroupId;
 };
 
 struct FeedbagQueueItem
 {
-	FeedbagQueueItem(const FeedbagItem &item_, Feedbag::ModifyType type_):
-		item(item_), type(type_)
+	FeedbagQueueItem(const FeedbagItem &item_, Feedbag::ModifyType type_, bool move_):
+		item(item_), type(type_), move(move_)
 	{
 	}
 	FeedbagItem item;
 	Feedbag::ModifyType type;
+	bool move;
 };
 
 class FeedbagPrivate
 {
 	Q_DECLARE_PUBLIC(Feedbag)
 public:
-	FeedbagPrivate(OscarConnection *c, Feedbag *q):
-		modifyStarted(false), conn(c), q_ptr(q)
+	FeedbagPrivate(IcqAccount *acc, Feedbag *q):
+		modifyStarted(false), account(acc), conn(acc->connection()), q_ptr(q)
 	{}
-	void sendItem(const FeedbagItem &item, Feedbag::ModifyType operation);
-	void handleItem(const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
+	void handleItem(FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	quint16 generateId() const;
 	void finishLoading();
 	QHash<quint32, SSIItem> items;
 	QQueue<FeedbagQueueItem> ssiQueue;
+	IcqAccount *account;
 	OscarConnection *conn;
 	bool modifyStarted;
 	QHash<quint16, FeedbagItemHandler*> handlers;
+	FeedbagError::ErrorEnum lastError;
 	Feedbag *q_ptr;
 };
-
-QString SSIItem::toString() const
-{
-	QString str;
-	QTextStream stream(&str);
-	if (!recordName.isEmpty())
-		stream << "Name: " << recordName << "; type: ";
-	else
-		stream << "Type: ";
-	stream << itemType << "; ";
-	if (itemType != SsiGroup)
-		stream << "item id: " << itemId << "; ";
-	stream << "group id: " << groupId << " (";
-	bool first = true;
-	foreach(const TLV &tlv, tlvs)
-	{
-		if (!first)
-			stream << ", ";
-		else
-			first = false;
-		stream << "0x" << hex << tlv.type();
-	}
-	stream << ")";
-	return str;
-}
 
 FeedbagError::FeedbagError(const SNAC &sn)
 {
@@ -151,7 +129,7 @@ QString FeedbagError::errorString()
 }
 
 FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item, quint16 group, const QString &name, bool inList):
-	feedbag(bag), isInList(inList)
+	feedbag(bag), isInList(inList), newGroupId(0)
 {
 	itemType = type;
 	itemId = item;
@@ -160,18 +138,38 @@ FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item,
 }
 
 FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, const SSIItem &item, bool inList):
-	SSIItem(item), feedbag(bag), isInList(inList)
+	SSIItem(item), feedbag(bag), isInList(inList), newGroupId(0)
 {
 }
 
 FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, const SNAC &snac, bool inList):
-	feedbag(bag), isInList(inList)
+	feedbag(bag), isInList(inList), newGroupId(0)
 {
 	recordName = snac.readString<quint16>();
 	groupId = snac.readSimple<quint16>();
 	itemId = snac.readSimple<quint16>();
 	itemType = snac.readSimple<quint16>();
 	tlvs = DataUnit(snac.readData<quint16>()).readTLVChain();
+}
+
+void FeedbagItemPrivate::send(const FeedbagItem &item, Feedbag::ModifyType operation, bool move)
+{
+	feedbag->d->ssiQueue.enqueue(FeedbagQueueItem(item, operation, move));
+	SNAC snac(ListsFamily, operation);
+	snac.appendData<quint16>(recordName);
+	snac.appendSimple<quint16>(groupId);
+	snac.appendSimple<quint16>(itemId);
+	snac.appendSimple<quint16>(itemType);
+	snac.appendSimple<quint16>(tlvs.valuesSize());
+	snac.appendData(tlvs);
+	feedbag->d->conn->send(snac);
+}
+
+void FeedbagItemPrivate::remove(FeedbagItem item, bool move)
+{
+	item.d->tlvs.clear();
+	isInList = false;
+	send(item, Feedbag::Remove, move);
 }
 
 FeedbagItem::FeedbagItem():
@@ -207,13 +205,18 @@ const FeedbagItem &FeedbagItem::operator=(const FeedbagItem &item)
 
 void FeedbagItem::update()
 {
-	Feedbag *f = feedbag();
-	bool modify = f->isModifyStarted();
+	bool modify = feedbag()->isModifyStarted();
+	FeedbagItem item = *this;
 	if (!modify)
-		f->beginModify();
-	f->updateItem(*this);
+		feedbag()->beginModify();
+	bool move = d->isInList && d->newGroupId != 0 && d->groupId != d->newGroupId;
+	if (move) {
+		d->remove(*this, move);
+		item.d->groupId = d->newGroupId;
+	}
+	d->send(item, d->isInList ? Feedbag::Modify : Feedbag::Add, move);
 	if (!modify)
-		f->endModify();
+		feedbag()->endModify();
 }
 
 void FeedbagItem::remove()
@@ -223,7 +226,7 @@ void FeedbagItem::remove()
 	bool modify = f->isModifyStarted();
 	if (!modify)
 		f->beginModify();
-	f->removeItem(*this);
+	d->remove(*this, false);
 	if (!modify)
 		f->endModify();
 }
@@ -256,7 +259,7 @@ void FeedbagItem::setName(const QString &name)
 void FeedbagItem::setGroup(quint16 groupId)
 {
 	Q_ASSERT_X(d->itemType != SsiGroup, Q_FUNC_INFO, "Cannot change groupId for group");
-	d->groupId = groupId;
+	d->newGroupId = groupId;
 }
 
 void FeedbagItem::setField(quint16 field)
@@ -314,37 +317,72 @@ const TLVMap &FeedbagItem::constData() const
 	return d->tlvs;
 }
 
-void FeedbagPrivate::sendItem(const FeedbagItem &item, Feedbag::ModifyType operation)
+QDebug &operator<<(QDebug &stream, const Icq::FeedbagItem &item)
 {
-	ssiQueue.enqueue(FeedbagQueueItem(item, operation));
-	SNAC snac(ListsFamily, operation);
-	snac.appendData<quint16>(item.name());
-	snac.appendSimple<quint16>(item.groupId());
-	snac.appendSimple<quint16>(item.itemId());
-	snac.appendSimple<quint16>(item.type());
-	snac.appendSimple<quint16>(item.constData().valuesSize());
-	snac.appendData(item.constData());
-	conn->send(snac);
+	const Icq::FeedbagItemPrivate *d = item.d;
+	if (!d->recordName.isEmpty())
+		stream.nospace() << "Name: " << d->recordName << "; type: ";
+	else
+		stream.nospace() << "Type: ";
+	stream.nospace() << d->itemType << "; ";
+	if (d->itemType != SsiGroup)
+		stream.nospace() << "item id: " << d->itemId << "; ";
+	stream.nospace() << "group id: " << d->groupId << " (";
+	bool first = true;
+	foreach(const TLV &tlv, d->tlvs)
+	{
+		if (!first)
+			stream.nospace() << ", ";
+		else
+			first = false;
+		stream.nospace() << "0x" << hex << tlv.type();
+	}
+	stream.nospace() << ")";
+	return stream;
 }
 
-void FeedbagPrivate::handleItem(const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
+void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
 {
 	Q_Q(Feedbag);
-	if (error.code() != FeedbagError::NoError)
-		return;
 	quint32 id = item.type() << 16 | (item.type() == SsiGroup ? item.groupId() : item.itemId());
-	if (type == Feedbag::Remove) {
-		items.remove(id);
-	} else {
-		items.insert(id, *item.d);
-	}
+	bool isInList = items.contains(id);
+	item.d->isInList = type != Feedbag::Remove;
 	bool found = false;
 	foreach (FeedbagItemHandler *handler, handlers.values(item.type())) {
-		found = true;
-		handler->handleFeedbagItem(q, item, type, error);
+		found = found || handler->handleFeedbagItem(q, item, type, error);
 	}
-	if (!found)
-		debug(Verbose) << "Dump of unknown SSI item:" << item.d->toString();
+	if (!found) {
+		if (error == FeedbagError::NoError) {
+			if (type == Feedbag::Remove) {
+				debug(Verbose) << "The feedbag item has been removed:" << item;
+			} else {
+				if (isInList) {
+					debug(Verbose) << "The feedbag item has been updated:" << item;
+				} else {
+					debug(Verbose) << "The feedbag item has been added:" << item;
+				}
+			}
+		} else {
+			if (type == Feedbag::Remove) {
+				debug(Verbose).nospace() << "The feedbag item has not been removed: "
+						<< error.errorString() << ". " << item;
+			} else {
+				if (isInList) {
+					debug(Verbose) << "The feedbag item has not been updated:"
+							<< error.errorString() << ". " << item;
+				} else {
+					debug(Verbose) << "The feedbag item has not been added:"
+							<< error.errorString() << ". " << item;
+				}
+			}
+		}
+	}
+	if (error == FeedbagError::NoError) {
+		if (type == Feedbag::Remove)
+			items.remove(id);
+		else
+			items.insert(id, *item.d);
+	}
 }
 
 quint16 FeedbagPrivate::generateId() const
@@ -361,8 +399,8 @@ void FeedbagPrivate::finishLoading()
 	emit q->loaded();
 }
 
-Feedbag::Feedbag(OscarConnection *conn, QObject *parent):
-	SNACHandler(parent), d(new FeedbagPrivate(conn, this))
+Feedbag::Feedbag(IcqAccount *acc):
+	SNACHandler(acc), d(new FeedbagPrivate(acc, this))
 {
 	m_infos << SNACInfo(ListsFamily, ListsError)
 			<< SNACInfo(ListsFamily, ListsUpToDate)
@@ -401,27 +439,11 @@ bool Feedbag::isModifyStarted() const
 	return d->modifyStarted;
 }
 
-void Feedbag::updateItem(const FeedbagItem &item)
-{
-	Q_ASSERT(!item.isNull());
-	Q_ASSERT(item.feedbag() == this);
-	d->sendItem(item, item.isInList() ? Modify : Add);
-}
-
-void Feedbag::removeItem(const FeedbagItem &item)
-{
-	Q_ASSERT(!item.isNull());
-	Q_ASSERT(item.feedbag() == this);
-	FeedbagItem i = item;
-	i.data().clear();
-	d->sendItem(i, Remove);
-}
-
 bool Feedbag::removeItem(quint16 type, quint16 id)
 {
 	FeedbagItem i = item(type, id);
 	if (!i.isNull()) {
-		removeItem(i);
+		i.remove();
 		return true;
 	} else {
 		return false;
@@ -432,23 +454,7 @@ bool Feedbag::removeItem(quint16 type, const QString &name)
 {
 	FeedbagItem i = item(type, name);
 	if (!i.isNull()) {
-		removeItem(i);
-		return true;
-	} else {
-		return false;
-	}
-}
-
-bool Feedbag::removeGroup(quint16 groupId)
-{
-	return removeItem(SsiGroup, groupId);
-}
-
-bool Feedbag::removeGroup(const QString &name)
-{
-	FeedbagItem i = group(name);
-	if (!i.isNull()) {
-		removeItem(i);
+		i.remove();
 		return true;
 	} else {
 		return false;
@@ -475,65 +481,58 @@ FeedbagItem Feedbag::item(quint16 type, quint16 id, ItemLoadFlags flags) const
 
 FeedbagItem Feedbag::item(quint16 type, const QString &name, ItemLoadFlags flags) const
 {
-	Q_ASSERT_X(type != SsiGroup, Q_FUNC_INFO, "Use Feedbag::group() instead");
-	QString compressedName = getCompressedName(name);
+	QString n;
+	if (type != SsiGroup)
+		n = getCompressedName(name);
 	if (!(flags & DontLoadLocal)) {
 		foreach (const SSIItem &item, d->items) {
-			if (item.itemType == type && item.compressedName() == compressedName)
-				return FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), item));
+			if (item.itemType == type) {
+				bool found = type != SsiGroup ?
+							 n == getCompressedName(item.recordName) :
+							 name.compare(item.recordName, Qt::CaseInsensitive) == 0;
+				if (found)
+					return FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), item));
+			}
 		}
 	}
 	if (flags & CreateItem)
-		return FeedbagItem(const_cast<Feedbag*>(this), type, uniqueItemId(type), 0, name);
+		return FeedbagItem(const_cast<Feedbag*>(this), type,
+						   type != SsiGroup ? uniqueItemId(type) : 0,
+						   type == SsiGroup ? uniqueItemId(type) : 0,
+						   name);
 	return FeedbagItem();
 }
 
-FeedbagItem Feedbag::group(quint16 groupId, ItemLoadFlags flags) const
+QList<FeedbagItem> Feedbag::group(quint16 groupId) const
 {
-	return item(SsiGroup, groupId, flags);
-}
-
-FeedbagItem Feedbag::group(const QString &name, ItemLoadFlags flags) const
-{
-	if (!(flags & DontLoadLocal)) {
-		foreach (const SSIItem &item, d->items) {
-			if (item.itemType == SsiGroup && name.compare(item.recordName, Qt::CaseInsensitive) == 0)
-				return FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), item));
+	QList<FeedbagItem> items;
+	foreach (const SSIItem &item, d->items) {
+		if ((item.itemType != SsiGroup && item.groupId == groupId) ||
+			(item.itemType == SsiGroup && groupId == 0 && item.groupId != 0))
+		{
+				items << FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), item));
 		}
 	}
-	if (flags & CreateItem)
-		return FeedbagItem(const_cast<Feedbag*>(this), SsiGroup, 0, uniqueGroupId(), name);
-	return FeedbagItem();
+	return items;
 }
 
-bool Feedbag::containsItem(quint16 type, quint16 id)
+QList<FeedbagItem> Feedbag::group(const QString &name) const
+{
+	FeedbagItem i = item(SsiGroup, name);
+	if (i.isInList())
+		return group(i.groupId());
+	return QList<FeedbagItem>();
+}
+
+
+bool Feedbag::containsItem(quint16 type, quint16 id) const
 {
 	return !item(type, id).isNull();
 }
 
-bool Feedbag::containsItem(quint16 type, const QString &name)
+bool Feedbag::containsItem(quint16 type, const QString &name) const
 {
 	return !item(type, name).isNull();
-}
-
-bool Feedbag::containsGroup(quint16 groupId)
-{
-	return !group(groupId).isNull();
-}
-
-bool Feedbag::containsGroup(const QString &name)
-{
-	return !group(name).isNull();
-}
-
-bool Feedbag::testItemName(quint16 type, const QString &name) const
-{
-	return item(type, name).isNull();
-}
-
-bool Feedbag::testGroupName(const QString &name) const
-{
-	return group(name).isNull();
 }
 
 quint16 Feedbag::uniqueItemId(quint16 type, quint16 value) const
@@ -547,11 +546,6 @@ quint16 Feedbag::uniqueItemId(quint16 type, quint16 value) const
 			break;
 	}
 	return value;
-}
-
-quint16 Feedbag::uniqueGroupId(quint16 value) const
-{
-	return uniqueItemId(SsiGroup, value);
 }
 
 void Feedbag::registerHandler(FeedbagItemHandler *handler)
@@ -607,13 +601,13 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		sn.skipData(8); // cookie
 		while (sn.dataSize() != 0) {
 			FeedbagError error(sn);
+			d->lastError = error.code();
 			FeedbagQueueItem operation = d->ssiQueue.dequeue();
-			if (error.code() == FeedbagError::NoError) {
-				debug() << "SSI operation has been successfully done"
-						<< operation.type
-						<< operation.item.d->toString();
-			} else {
-				debug() << "SSI operation has failed:" << error.errorString();
+			if (operation.move) {
+				if (operation.type == Feedbag::Remove && error == FeedbagError::NoError)
+					break;
+				if (operation.type != Feedbag::Remove && error != FeedbagError::NoError && d->lastError == FeedbagError::NoError)
+					d->handleItem(operation.item, Feedbag::Remove, FeedbagError::NoError);
 			}
 			d->handleItem(operation.item, operation.type, error);
 		}

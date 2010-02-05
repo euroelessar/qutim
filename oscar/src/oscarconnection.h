@@ -79,7 +79,6 @@ public:
 	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
 	BuddyPicture *buddyPictureService() { return m_buddy_picture; }
 	MetaInfo *metaInfo() { return m_meta_info; }
-	Feedbag *feedbag() { return m_feedbag; }
 	void sendStatus(Status status);
 private slots:
 	void disconnected();
@@ -97,7 +96,6 @@ private:
 	bool m_is_idle;
 	BuddyPicture *m_buddy_picture;
 	MetaInfo *m_meta_info;
-	Feedbag *m_feedbag;
 };
 
 } // namespace Icq
