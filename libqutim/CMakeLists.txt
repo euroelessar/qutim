@@ -11,9 +11,9 @@ ADD_DEFINITIONS( -DK8JSON_INCLUDE_GENERATOR -DK8JSON_INCLUDE_COMPLEX_GENERATOR )
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/k8json.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/k8json.h" )
 
-# Add QtWin code
-LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtwin/qtwin.cpp" )
-LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtwin/qtwin.h" )
+# Add qtdwm code
+LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.cpp" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.h" )
 
 # MinGW special options
 # Not sure if those applicable for linux
@@ -47,7 +47,7 @@ INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/../" )
 INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/../sdk02/" )
 INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/" )
 INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/" )
-INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtwin/" )
+INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/" )
 INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qticonloader/" )
 
 # Generate moc files
@@ -56,7 +56,7 @@ QT4_WRAP_CPP( MOC_SRC ${HDR} )
 # Add JDNS using separate cmake project
 ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/jdns/" )
 # Add Aero theme integration for Windows Vista and later
-# ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtwin/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/qtwin/")
+# ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/qtdwm/")
 
 # This project will generate library
 ADD_LIBRARY( libqutim SHARED ${SRC} ${MOC_SRC} )
