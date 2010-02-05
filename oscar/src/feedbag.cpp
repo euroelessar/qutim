@@ -207,23 +207,25 @@ const FeedbagItem &FeedbagItem::operator=(const FeedbagItem &item)
 
 void FeedbagItem::update()
 {
-	bool modify = d->feedbag->isModifyStarted();
+	Feedbag *f = feedbag();
+	bool modify = f->isModifyStarted();
 	if (!modify)
-		d->feedbag->beginModify();
-	feedbag()->updateItem(*this);
+		f->beginModify();
+	f->updateItem(*this);
 	if (!modify)
-		d->feedbag->endModify();
+		f->endModify();
 }
 
 void FeedbagItem::remove()
 {
 	Q_ASSERT(isInList());
-	bool modify = d->feedbag->isModifyStarted();
+	Feedbag *f = feedbag();
+	bool modify = f->isModifyStarted();
 	if (!modify)
-		d->feedbag->beginModify();
-	feedbag()->removeItem(*this);
+		f->beginModify();
+	f->removeItem(*this);
 	if (!modify)
-		d->feedbag->endModify();
+		f->endModify();
 }
 
 Feedbag *FeedbagItem::feedbag() const
@@ -394,7 +396,7 @@ void Feedbag::endModify()
 	d->modifyStarted = false;
 }
 
-bool Feedbag::isModifyStarted()
+bool Feedbag::isModifyStarted() const
 {
 	return d->modifyStarted;
 }

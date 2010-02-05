@@ -88,7 +88,7 @@ protected:
 private:
 	friend class Feedbag;
 	friend class FeedbagPrivate;
-	QExplicitlySharedDataPointer<FeedbagItemPrivate> d;
+	QSharedDataPointer<FeedbagItemPrivate> d;
 };
 
 template<typename T>
@@ -125,7 +125,7 @@ public:
 	virtual ~Feedbag();
 	void beginModify();
 	void endModify();
-	bool isModifyStarted();
+	bool isModifyStarted() const;
 	void updateItem(const FeedbagItem &item);
 	void removeItem(const FeedbagItem &item);
 	bool removeItem(quint16 type, quint16 id);
