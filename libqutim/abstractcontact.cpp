@@ -23,7 +23,7 @@ namespace qutim_sdk_0_3
 		QString id;
 	};
 
-	AbstractContact::AbstractContact(const QString &id, QObject *parent) : QObject(parent), p(new AbstractContactPrivate)
+    AbstractContact::AbstractContact(const QString &id, Account *parent) : ChatUnit(parent), p(new AbstractContactPrivate)
 	{
 		p->id = id;
 	}

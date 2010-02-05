@@ -52,6 +52,7 @@ file.read(var);
 	class LIBQUTIM_EXPORT JsonFile
 	{
 		Q_DISABLE_COPY(JsonFile)
+		Q_DECLARE_PRIVATE(JsonFile)
 	public:
 #ifndef Q_QDOC
 		enum OpenMode { ReadOnly, ReadWrite };
@@ -84,7 +85,7 @@ file.read(var);
 		bool save(const QVariant &variant);
 #ifndef Q_QDOC
 	private:
-		JsonFilePrivate *p;
+		QScopedPointer<JsonFilePrivate> d_ptr;
 #endif
 	};
 }

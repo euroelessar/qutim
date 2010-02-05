@@ -24,6 +24,71 @@
 
 namespace qutim_sdk_0_3
 {
+/*	class QmlMessage : public QObject
+	{
+		Q_OBJECT
+		Q_PROPERTY(QString text READ text WRITE setText NOTIFY onTextChanged)
+		Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY onDateTimeChanged)
+		Q_PROPERTY(bool incoming READ isIncoming WRITE setIncoming NOTIFY onIncomingChanged)
+		Q_PROPERTY(QObject* chatUnit READ chatUnit WRITE setChatUnit NOTIFY onChatUnitChanged)
+		Q_PROPERTY(quint64 id READ id CONSTANT)
+	public:
+		QmlMessage(Message &message, QObject *parent = 0) : QObject(parent), m_message(&message), m_delete(false)
+		{
+			foreach(const QByteArray &name, message.dynamicPropertyNames())
+				setProperty(name, message.property(name));
+		}
+		QmlMessage(QObject *parent = 0) : QObject(parent), m_message(new Message), m_delete(true) {}
+		~QmlMessage() { if(m_delete) delete m_message; }
+		Message message() const { return *m_message; }
+
+		QString text() { return m_message->text(); }
+		QDateTime dateTime() { return m_message->time(); }
+		bool isIncoming() { return m_message->isIncoming(); }
+		QObject *chatUnit() { return m_message->chatUnit(); }
+		quint64 id() { return m_message->id(); }
+
+		void setText(const QString &t)
+		{
+			m_message->setText(t);
+			emit onTextChanged(t);
+		}
+		void setDateTime(const QDateTime &dt)
+		{
+			m_message->setTime(dt);
+			emit onDateTimeChanged(dt);
+		}
+		void setIncoming(bool i)
+		{
+			m_message->setIncoming(i);
+			emit onIncomingChanged(i);
+		}
+		void setChatUnit(QObject *obj)
+		{
+			m_message->setChatUnit(qobject_cast<ChatUnit *>(obj));
+			emit onChatUnitChanged(obj);
+		}
+
+	protected:
+		bool event(QEvent *ev)
+		{
+			if (ev->type() == QEvent::DynamicPropertyChange) {
+				QDynamicPropertyChangeEvent *event = static_cast<QDynamicPropertyChangeEvent *>(ev);
+				m_message->setProperty(event->propertyName(), property(event->propertyName()));
+			}
+		}
+
+	signals:
+		void onTextChanged(const QString &);
+		void onDateTimeChanged(const QDateTime &);
+		void onIncomingChanged(bool);
+		void onChatUnitChanged(QObject *);
+
+	private:
+		bool m_delete;
+		Message *m_message;
+	};
+*/
 	QScriptValue messageToScriptValue(QScriptEngine *engine, const Message &mes)
 	{
 		QScriptValue obj = engine->newObject();

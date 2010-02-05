@@ -71,7 +71,7 @@ TARGET_LINK_LIBRARIES( libqutim libjdns ${QT_LIBRARIES} )
 INSTALL (TARGETS libqutim DESTINATION "lib")
 
 if(DOXYGEN_FOUND)
-    set(DOC_TARGET "qutim-doc")
+    set(DOC_TARGET "doc")
     configure_file(doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
     add_custom_target(${DOC_TARGET} ALL
         ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)

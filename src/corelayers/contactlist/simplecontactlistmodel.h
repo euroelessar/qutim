@@ -26,6 +26,7 @@ namespace Core
 			void removeContact(Contact *contact);
 			bool containsContact(Contact *contact) const;
 		protected slots:
+			void contactDeleted(QObject *obj);
 			void contactStatusChanged(qutim_sdk_0_3::Status status);
 			void contactNameChanged(const QString &name);
 			void contactTagsChanged(const QSet<QString> &tags);

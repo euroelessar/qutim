@@ -16,7 +16,7 @@
 #ifndef ABSTRACTCONTACT_H
 #define ABSTRACTCONTACT_H
 
-#include "libqutim_global.h"
+#include "chatunit.h"
 #include <QIcon>
 #include <QScopedPointer>
 
@@ -27,16 +27,14 @@ namespace qutim_sdk_0_3
 	class MetaContact;
 	class Message;
 
-	class LIBQUTIM_EXPORT AbstractContact : public QObject
+    class LIBQUTIM_EXPORT AbstractContact : public ChatUnit
 	{
 		Q_OBJECT
-		Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-		Q_PROPERTY(QString id READ id)
-		Q_PROPERTY(Status status READ status NOTIFY statusChanged)
-		Q_PROPERTY(QIcon statusIcon READ statusIcon NOTIFY statusIconChanged)
-		Q_PROPERTY(MetaContact * metaContact READ metaContact NOTIFY metaContactChanged)
+        Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+        Q_PROPERTY(Status status READ status NOTIFY statusChanged)
+        Q_PROPERTY(QIcon statusIcon READ statusIcon NOTIFY statusIconChanged)
 	public:
-		AbstractContact(const QString &id, QObject *parent = 0);
+        AbstractContact(const QString &id, Account *parent = 0);
 		virtual ~AbstractContact();
 		QString id();
 		virtual QString name() const;

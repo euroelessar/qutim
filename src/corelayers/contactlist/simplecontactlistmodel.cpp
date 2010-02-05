@@ -131,6 +131,7 @@ namespace Core
 		{
 			if(p->contacts.contains(contact))
 				return;
+			connect(contact, SIGNAL(destroyed(QObject*)), this, SLOT(contactDeleted(QObject*)));
             connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(contactStatusChanged(qutim_sdk_0_3::Status)));
             connect(contact, SIGNAL(nameChanged(QString)), SLOT(contactNameChanged(QString)));
 			connect(contact, SIGNAL(tagsChanged(QSet<QString>)), SLOT(contactTagsChanged(QSet<QString>)));
@@ -174,6 +175,12 @@ namespace Core
 		bool Model::containsContact(Contact *contact) const
 		{
 			return p->contacts.contains(contact);
+		}
+
+		void Model::contactDeleted(QObject *obj)
+		{
+			if (Contact *contact = qobject_cast<Contact *>(obj))
+				removeContact(contact);
 		}
 
 		void Model::contactStatusChanged(Status status)
