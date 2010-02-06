@@ -15,10 +15,12 @@
 
 #include "icqaccount.h"
 #include "icqprotocol.h"
+#include "icqcontact_p.h"
 #include "oscarconnection.h"
 #include "roster.h"
 #include "buddycaps.h"
 #include <qutim/systeminfo.h>
+#include <qutim/contactlist.h>
 #include <QTimer>
 
 namespace Icq
@@ -27,7 +29,6 @@ namespace Icq
 struct IcqAccountPrivate
 {
 	OscarConnection *conn;
-	Roster *roster;
 	Feedbag *feedbag;
 	QString name;
 	bool avatars;
@@ -36,6 +37,7 @@ struct IcqAccountPrivate
 	QHash<QString, Capability> typedCaps;
 	Status lastStatus;
 	QTimer reconnectTimer;
+	QHash<QString, IcqContact *> contacts;
 };
 
 IcqAccount::IcqAccount(const QString &uin) :
@@ -44,7 +46,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 	Q_D(IcqAccount);
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
-	d->conn->registerHandler(d->roster = new Roster(this));
+	d->conn->registerHandler(new Roster(this));
 	d->lastStatus = Offline; // TODO: load the value from the account config.
 	d->avatars = protocol()->config("general").value("avatars", QVariant(true)).toBool();
 
@@ -81,12 +83,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 
 IcqAccount::~IcqAccount()
 {
-}
-
-Roster *IcqAccount::roster()
-{
-	Q_D(IcqAccount);
-	return d->roster;
 }
 
 Feedbag *IcqAccount::feedbag()
@@ -129,7 +125,7 @@ void IcqAccount::setStatus(Status status)
 				d->reconnectTimer.singleShot(time, this, SLOT(onReconnectTimeout()));
 			}
 		}
-		foreach(IcqContact *contact, d->roster->contacts())
+		foreach(IcqContact *contact, d->contacts)
 			contact->setStatus(Offline);
 	} else if (status == ConnectingStop && current == Connecting) {
 		status = d->lastStatus;
@@ -172,10 +168,26 @@ ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
 IcqContact *IcqAccount::getContact(const QString &id, bool create)
 {
 	Q_D(IcqAccount);
-	IcqContact *contact = d->roster->contact(id);
-	if (create && !contact)
-		contact = d->roster->sendAddContactRequest(id, id, not_in_list_group);
+	IcqContact *contact = d->contacts.value(id);
+	if (create && !contact) {
+		FeedbagItem item = d->feedbag->item(SsiBuddy, id, Feedbag::GenerateId | Feedbag::DontLoadLocal);
+		item.setGroup(not_in_list_group);
+		item.setField<QString>(SsiBuddyNick, id);
+		item.setField(SsiBuddyReqAuth);
+		contact = new IcqContact(id, this);
+		contact->d_func()->item = item;
+		d->contacts.insert(id, contact);
+		emit contactCreated(contact);
+		//if (ContactList::instance())
+		//	ContactList::instance()->addContact(contact);
+	}
 	return contact;
+}
+
+const QHash<QString, IcqContact*> &IcqAccount::contacts() const
+{
+	Q_D(const IcqAccount);
+	return d->contacts;
 }
 
 void IcqAccount::setAvatarsSupport(bool avatars)
@@ -236,6 +248,21 @@ QList<Capability> IcqAccount::capabilities()
 	foreach (const Capability &cap, d->typedCaps)
 		caps << cap;
 	return caps;
+}
+
+void IcqAccount::setVisibility(Visibility visibility)
+{
+	QList<FeedbagItem> items = feedbag()->group(SsiVisibility);
+	FeedbagItem item;
+	if (!items.isEmpty())
+		item = items.first();
+	else
+		item = feedbag()->item(SsiVisibility, 0, Feedbag::GenerateId | Feedbag::DontLoadLocal);
+	TLV data(0x00CA);
+	data.appendValue<quint8>(visibility);
+	item.setField(data);
+	item.setField<qint32>(0x00C9, 0xffffffff);
+	item.update();
 }
 
 void IcqAccount::onReconnectTimeout()

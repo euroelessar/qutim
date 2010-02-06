@@ -30,6 +30,15 @@ class Roster;
 class Feedbag;
 class OscarConnection;
 
+enum Visibility
+{
+	AllowAllUsers    = 1,
+	BlockAllUsers    = 2,
+	AllowPermitList  = 3,
+	BlockDenyList    = 4,
+	AllowContactList = 5
+};
+
 class IcqAccount: public Account
 {
 	Q_OBJECT
@@ -42,11 +51,11 @@ public:
 	virtual void setStatus(Status status);
 	virtual QString name() const;
 	void setName(const QString &name);
-	Roster *roster();
 	Feedbag *feedbag();
 	OscarConnection *connection();
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
 	IcqContact *getContact(const QString &id, bool create = false);
+	const QHash<QString, IcqContact*> &contacts() const;
 	void setAvatarsSupport(bool avatars);
 	bool avatarsSupport();
 	void setCapability(const Capability &capability, const QString &type = QString());
@@ -55,6 +64,7 @@ public:
 	bool containsCapability(const Capability &capability);
 	bool containsCapability(const QString &type);
 	QList<Capability> capabilities();
+	void setVisibility(Visibility visibility);
 signals:
 	void loginFinished();
 public slots:

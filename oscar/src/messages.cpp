@@ -20,7 +20,6 @@
 #include "icqaccount.h"
 #include "icqcontact.h"
 #include "connection.h"
-#include "roster.h"
 #include "xtraz.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
@@ -191,7 +190,7 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		quint16 channel = sn.readSimple<quint16>();
 		QString uin = sn.readString<qint8>();
 		quint16 type = sn.readSimple<quint16>();
-		IcqContact *contact = m_account->roster()->contact(uin);
+		IcqContact *contact = m_account->getContact(uin);
 		if (contact) {
 			ChatState newState;
 			if (type == MtnFinished)
@@ -281,7 +280,7 @@ void MessagesHandler::handleResponse(const SNAC &snac)
 		return;
 	}
 	QString uin = snac.readString<quint8>();
-	IcqContact *contact = m_account->roster()->contact(uin);
+	IcqContact *contact = m_account->getContact(uin);
 	cookie.setContact(contact);
 	if (!contact) {
 		debug() << "Response message from unknown contact" << uin;

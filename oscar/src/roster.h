@@ -28,13 +28,18 @@ namespace Icq
 class OscarConnection;
 class SsiHandler;
 
-enum Visibility
+class SsiHandler : public FeedbagItemHandler
 {
-	AllowAllUsers    = 1,
-	BlockAllUsers    = 2,
-	AllowPermitList  = 3,
-	BlockDenyList    = 4,
-	AllowContactList = 5
+	Q_OBJECT
+public:
+	SsiHandler(IcqAccount *account, QObject *parent = 0);
+protected:
+	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
+	void handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType type);
+	void handleRemoveCLItem(const FeedbagItem &item);
+	void removeContact(IcqContact *contact);
+private:
+	IcqAccount *m_account;
 };
 
 class Roster : public SNACHandler
@@ -42,19 +47,11 @@ class Roster : public SNACHandler
 	Q_OBJECT
 public:
 	Roster(IcqAccount *account);
-	IcqContact *contact(const QString &uin);
-	const QHash<QString, IcqContact *> &contacts() const;
-	void sendAuthResponse(const QString &id, const QString &message, bool auth = true);
-	void sendAuthRequest(const QString &id, const QString &message);
-	IcqContact *sendAddContactRequest(const QString &contactId, const QString &contactName, quint16 groupId);
-	void setVisibility(Visibility visibility);
 protected:
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-private slots:
-	void loginFinished();
-private:
 	void handleUserOnline(const SNAC &snac);
 	void handleUserOffline(const SNAC &snac);
+private:
 	IcqAccount *m_account;
 	OscarConnection *m_conn;
 	SsiHandler *m_ssiHandler;

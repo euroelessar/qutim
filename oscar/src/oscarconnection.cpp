@@ -17,7 +17,6 @@
 #include "oscarconnection.h"
 #include "util.h"
 #include "md5login.h"
-#include "roster.h"
 #include "feedbag.h"
 #include "icqaccount.h"
 #include "buddypicture.h"

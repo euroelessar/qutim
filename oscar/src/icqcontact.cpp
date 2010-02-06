@@ -14,7 +14,6 @@
  *****************************************************************************/
 
 #include "icqcontact_p.h"
-#include "roster.h"
 #include "messages.h"
 #include "buddycaps.h"
 #include "qutim/messagesession.h"
@@ -146,15 +145,45 @@ void IcqContact::setTags(const QSet<QString> &tags)
 				newGroup.update();
 		}	
 		d->item.setGroup(newGroup.groupId());
-		debug() << d->item.groupId();
 		d->item.update();
-		debug() << d->item.groupId();
 		f->endModify();
 	}
 }
 
 void IcqContact::setInList(bool inList)
 {
+	Q_D(IcqContact);
+	if (inList == d->item.isInList())
+		return;
+	if (inList) {
+		Feedbag *f = d->account->feedbag();
+		f->beginModify();
+		FeedbagItem group = f->item(SsiGroup, QT_TRANSLATE_NOOP("ContactList", "General"), Feedbag::GenerateId);
+		if (!group.isInList())
+			group.update();
+		d->item.update();
+		f->endModify();
+	} else {
+		d->item.remove();
+	}
+}
+
+void IcqContact::authResponse(const QString &message, bool auth)
+{
+	SNAC snac(ListsFamily, ListsCliAuthResponse);
+	snac.appendData<qint8>(id()); // uin.
+	snac.appendSimple<qint8>(auth ? 0x01 : 0x00); // auth flag.
+	snac.appendData<qint16>(message);
+	account()->connection()->send(snac);
+}
+
+void IcqContact::authRequest(const QString &message)
+{
+	SNAC snac(ListsFamily, ListsRequestAuth);
+	snac.appendData<qint8>(id()); // uin.
+	snac.appendData<qint16>(message);
+	snac.appendSimple<quint16>(0);
+	account()->connection()->send(snac);
 }
 
 IcqAccount *IcqContact::account()

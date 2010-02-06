@@ -215,6 +215,7 @@ void FeedbagItem::update()
 		item.d->groupId = d->newGroupId;
 	}
 	d->send(item, d->isInList ? Feedbag::Modify : Feedbag::Add, move);
+	d->isInList = true;
 	if (!modify)
 		feedbag()->endModify();
 }
@@ -256,10 +257,14 @@ void FeedbagItem::setName(const QString &name)
 	d->recordName = name;
 }
 
-void FeedbagItem::setGroup(quint16 groupId)
+void FeedbagItem::setGroup(quint16 groupId, bool force)
 {
-	Q_ASSERT_X(d->itemType != SsiGroup, Q_FUNC_INFO, "Cannot change groupId for group");
-	d->newGroupId = groupId;
+	if (!force) {
+		Q_ASSERT_X(d->itemType != SsiGroup, Q_FUNC_INFO, "Cannot change groupId for group");
+		d->newGroupId = groupId;
+	} else {
+		d->groupId = groupId;
+	}
 }
 
 void FeedbagItem::setField(quint16 field)
