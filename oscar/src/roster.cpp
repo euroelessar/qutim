@@ -59,9 +59,9 @@ private:
 	{
 		SessionDataItem item;
 		while (data.dataSize() >= 4) {
-			item.type = data.readSimple<quint16>();
-			item.flags = data.readSimple<quint8>();
-			item.data = data.readData<quint8>();
+			item.type = data.read<quint16>();
+			item.flags = data.read<quint8>();
+			item.data = data.read<QByteArray, quint8>();
 			insertMulti(item.type, item);
 		}
 	}
@@ -137,8 +137,8 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 	case SsiBuddyIcon:
 		if (m_account->avatarsSupport() && item.containsField(0x00d5)) {
 			DataUnit data(item.field(0x00d5));
-			quint8 flags = data.readSimple<quint8>();
-			QByteArray hash = data.readData<quint8>();
+			quint8 flags = data.read<quint8>();
+			QByteArray hash = data.read<QByteArray, quint8>();
 			if (hash.size() == 16)
 				m_account->connection()->buddyPictureService()->sendUpdatePicture(m_account, 1, flags, hash);
 		}
@@ -211,16 +211,16 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 	switch ((sn.family() << 16) | sn.subtype()) {
 	case ListsFamily << 16 | ListsAuthRequest: {
 		sn.skipData(8); // cookie
-		QString uin = sn.readString<quint8>();
-		QString reason = sn.readString<qint16>();
+		QString uin = sn.read<QString, quint8>();
+		QString reason = sn.read<QString, qint16>();
 		debug() << QString("Authorization request from \"%1\" with reason \"%2").arg(uin).arg(reason);
 		break;
 	}
 	case ListsFamily << 16 | ListsSrvAuthResponse: {
 		sn.skipData(8); // cookie
-		QString uin = sn.readString<qint8>();
-		bool is_accepted = sn.readSimple<qint8>();
-		QString reason = sn.readString<qint16>();
+		QString uin = sn.read<QString, qint8>();
+		bool is_accepted = sn.read<qint8>();
+		QString reason = sn.read<QString, qint16>();
 		debug() << "Auth response" << uin << is_accepted << reason;
 		break;
 	}
@@ -238,13 +238,13 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 
 void Roster::handleUserOnline(const SNAC &snac)
 {
-	QString uin = snac.readData<quint8>();
+	QString uin = snac.read<QString, quint8>();
 	IcqContact *contact = m_account->getContact(uin);
 	// We don't know this contact
 	if (!contact)
 		return;
-	quint16 warning_level = snac.readSimple<quint16>();
-	TLVMap tlvs = snac.readTLVChain<quint16>();
+	quint16 warning_level = snac.read<quint16>();
+	TLVMap tlvs = snac.read<TLVMap, quint16>();
 
 	// status.
 	Status oldStatus = contact->status();
@@ -252,8 +252,8 @@ void Roster::handleUserOnline(const SNAC &snac)
 	quint16 status = 0;
 	if (tlvs.contains(0x06)) {
 		DataUnit status_data(tlvs.value(0x06));
-		statusFlags = status_data.readSimple<quint16>();
-		status = status_data.readSimple<quint16>();
+		statusFlags = status_data.read<quint16>();
+		status = status_data.read<quint16>();
 	}
 	contact->setStatus(icqStatusToQutim(status));
 	debug() << contact->name() << "changed status to " << contact->status();
@@ -262,13 +262,13 @@ void Roster::handleUserOnline(const SNAC &snac)
 	SessionDataItemMap status_note_data(tlvs);
 	if (status_note_data.contains(0x0d)) {
 		DataUnit data(status_note_data.value(0x0d).data);
-		quint16 time = data.readSimple<quint16>();
+		quint16 time = data.read<quint16>();
 		debug() << "Status note update time" << time;
 	}
 	if (status_note_data.contains(0x02)) {
 		DataUnit data(status_note_data.value(0x02).data);
-		QByteArray note_data = data.readData<quint16>();
-		QByteArray encoding = data.readData<quint16>();
+		QByteArray note_data = data.read<QByteArray, quint16>();
+		QByteArray encoding = data.read<QByteArray, quint16>();
 		QTextCodec *codec;
 		if (encoding.isEmpty())
 			codec = defaultCodec();
@@ -312,26 +312,26 @@ void Roster::handleUserOnline(const SNAC &snac)
 		DataUnit data(tlvs.value(0x000c));
 		DirectConnectionInfo info =
 		{
-				QHostAddress(data.readSimple<quint32>()),
+				QHostAddress(data.read<quint32>()),
 				QHostAddress(),
-				data.readSimple<quint32>(),
-				data.readSimple<quint8>(),
-				data.readSimple<quint16>(),
-				data.readSimple<quint32>(),
-				data.readSimple<quint32>(),
-				data.readSimple<quint32>(),
-				data.readSimple<quint32>(),
-				data.readSimple<quint32>(),
-				data.readSimple<quint32>()
+				data.read<quint32>(),
+				data.read<quint8>(),
+				data.read<quint16>(),
+				data.read<quint32>(),
+				data.read<quint32>(),
+				data.read<quint32>(),
+				data.read<quint32>(),
+				data.read<quint32>(),
+				data.read<quint32>()
 		};
 		contact->d_func()->dc_info = info;
 	}
 
 	if (m_account->avatarsSupport() && tlvs.contains(0x001d)) { // avatar
 		DataUnit data(tlvs.value(0x001d));
-		quint16 id = data.readSimple<quint16>();
-		quint8 flags = data.readSimple<quint8>();
-		QByteArray hash = data.readData<quint8>();
+		quint16 id = data.read<quint16>();
+		quint8 flags = data.read<quint8>();
+		QByteArray hash = data.read<QByteArray, quint8>();
 		if (hash.size() == 16)
 			m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
 	}
@@ -351,13 +351,13 @@ void Roster::handleUserOnline(const SNAC &snac)
 
 void Roster::handleUserOffline(const SNAC &snac)
 {
-	QString uin = snac.readString<quint8>();
+	QString uin = snac.read<QString, quint8>();
 	IcqContact *contact = m_account->getContact(uin);
 	// We don't know this contact
 	if (!contact)
 		return;
 	contact->setStatus(Offline);
-	//	quint16 warning_level = snac.readSimple<quint16>();
+	//	quint16 warning_level = snac.read<quint16>();
 	//	TLVMap tlvs = snac.readTLVChain<quint16>();
 	//	tlvs.value(0x0001); // User class
 }

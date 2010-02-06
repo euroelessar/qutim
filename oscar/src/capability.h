@@ -21,6 +21,7 @@
 #include <QList>
 #include <QHash>
 #include <QUuid>
+#include "dataunit.h"
 
 namespace Icq
 {
@@ -38,6 +39,7 @@ public:
 			quint8 d13, quint8 d14, quint8 d15, quint8 d16);
 	Capability(quint16 data);
 	QByteArray data() const;
+	operator QByteArray() const { return data(); }
 	bool isShort() const;
 	bool isEmpty() const { return isNull(); }
 	bool operator==(const QUuid &rhs) const;
@@ -57,6 +59,15 @@ inline uint qHash(const Capability &capability)
 {
 	return qHash(capability.data());
 }
+
+template<>
+struct fromDataUnitHelper<Capability, false>
+{
+	static inline Capability fromByteArray(const DataUnit &d)
+	{
+		return Capability(d.readData(16));
+	}
+};
 
 } // namespace Icq
 

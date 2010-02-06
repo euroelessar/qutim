@@ -93,7 +93,7 @@ public:
 
 FeedbagError::FeedbagError(const SNAC &sn)
 {
-	m_error = static_cast<ErrorEnum>(sn.readSimple<quint16>());
+	m_error = static_cast<ErrorEnum>(sn.read<quint16>());
 }
 
 FeedbagError::FeedbagError(FeedbagError::ErrorEnum error):
@@ -145,23 +145,23 @@ FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, const SSIItem &item, bool i
 FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, const SNAC &snac, bool inList):
 	feedbag(bag), isInList(inList), newGroupId(0)
 {
-	recordName = snac.readString<quint16>();
-	groupId = snac.readSimple<quint16>();
-	itemId = snac.readSimple<quint16>();
-	itemType = snac.readSimple<quint16>();
-	tlvs = DataUnit(snac.readData<quint16>()).readTLVChain();
+	recordName = snac.read<QString, quint16>();
+	groupId = snac.read<quint16>();
+	itemId = snac.read<quint16>();
+	itemType = snac.read<quint16>();
+	tlvs = snac.read<DataUnit, quint16>().read<TLVMap>();
 }
 
 void FeedbagItemPrivate::send(const FeedbagItem &item, Feedbag::ModifyType operation, bool move)
 {
 	feedbag->d->ssiQueue.enqueue(FeedbagQueueItem(item, operation, move));
 	SNAC snac(ListsFamily, operation);
-	snac.appendData<quint16>(recordName);
-	snac.appendSimple<quint16>(groupId);
-	snac.appendSimple<quint16>(itemId);
-	snac.appendSimple<quint16>(itemType);
-	snac.appendSimple<quint16>(tlvs.valuesSize());
-	snac.appendData(tlvs);
+	snac.append<quint16>(recordName);
+	snac.append<quint16>(groupId);
+	snac.append<quint16>(itemId);
+	snac.append<quint16>(itemType);
+	snac.append<quint16>(tlvs.valuesSize());
+	snac.append(tlvs);
 	feedbag->d->conn->send(snac);
 }
 
@@ -577,8 +577,8 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		 break;
 	}
 	case ListsFamily << 16 | ListsList: { // Server sends contactlist
-		quint8 version = sn.readSimple<quint8>();
-		quint16 count = sn.readSimple<quint16>();
+		quint8 version = sn.read<quint8>();
+		quint16 count = sn.read<quint16>();
 		bool isLast = !(sn.flags() & 0x0001);
 		debug() << "SSI: number of entries is" << count << "version is" << version;
 		for (uint i = 0; i < count; i++) {
@@ -586,7 +586,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			d->handleItem(item, AddModify, FeedbagError::NoError);
 		}
 		if (isLast) {
-			quint32 last_info_update = sn.readSimple<quint32>();
+			quint32 last_info_update = sn.read<quint32>();
 			debug() << "SrvLastUpdate" << last_info_update;
 			setProperty("SrvLastUpdate", last_info_update);
 			d->finishLoading();

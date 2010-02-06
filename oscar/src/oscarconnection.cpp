@@ -60,7 +60,7 @@ void ProtocolNegotiationImpl::handleSNAC(AbstractConnection *conn, const SNAC &s
 		if (c->account()->avatarsSupport()) {
 			// Requesting avatar service
 			SNAC snac(ServiceFamily, ServiceClientNewService);
-			snac.appendSimple<quint16>(AvatarFamily);
+			snac.append<quint16>(AvatarFamily);
 			conn->send(snac);
 			buddyFlags |= 0x0001;
 		}
@@ -128,13 +128,13 @@ void ProtocolNegotiationImpl::handleSNAC(AbstractConnection *conn, const SNAC &s
 void ProtocolNegotiationImpl::setMsgChannelParams(AbstractConnection *conn, quint16 chan, quint32 flags)
 {
 	SNAC snac(MessageFamily, MessageCliSetParams);
-	snac.appendSimple<quint16>(chan); // Channel
-	snac.appendSimple<quint32>(flags); // Flags
-	snac.appendSimple<quint16>(max_message_snac_size); // Max message snac size
-	snac.appendSimple<quint16>(0x03E7); // Max sender warning level
-	snac.appendSimple<quint16>(0x03E7); // Max receiver warning level
-	snac.appendSimple<quint16>(client_rate_limit); // Minimum message interval in seconds
-	snac.appendSimple<quint16>(0x0000); // Unknown
+	snac.append<quint16>(chan); // Channel
+	snac.append<quint32>(flags); // Flags
+	snac.append<quint16>(max_message_snac_size); // Max message snac size
+	snac.append<quint16>(0x03E7); // Max sender warning level
+	snac.append<quint16>(0x03E7); // Max receiver warning level
+	snac.append<quint16>(client_rate_limit); // Minimum message interval in seconds
+	snac.append<quint16>(0x0000); // Unknown
 	conn->send(snac);
 }
 
@@ -180,7 +180,7 @@ void OscarConnection::processNewConnection()
 	AbstractConnection::processNewConnection();
 
 	FLAP flap(0x01);
-	flap.appendSimple<quint32>(0x01);
+	flap.append<quint32>(0x01);
 	flap.appendTLV<QByteArray>(0x0006, m_auth_cookie);
 	flap.appendTLV<QByteArray>(0x0003, m_client_info.id_string);
 	flap.appendTLV<quint16>(0x0017, m_client_info.major_version);
@@ -199,12 +199,12 @@ void OscarConnection::processNewConnection()
 
 void OscarConnection::processCloseConnection()
 {
-	TLVMap tlvs = flap().readTLVChain();
+	TLVMap tlvs = flap().read<TLVMap>();
 	if (tlvs.contains(0x0009)) {
 		setError(AnotherClientLogined);
 	} else if (tlvs.contains(0x0008)) {
 		DataUnit data(tlvs.value(0x0008));
-		setError(static_cast<ConnectionError>(data.readSimple<quint16>()));
+		setError(static_cast<ConnectionError>(data.read<quint16>()));
 	}
 	if (error() != NoError)
 		Notifications::sendNotification(errorString());
@@ -218,7 +218,7 @@ void OscarConnection::finishLogin()
 	setIdle(false);
 	SNAC snac(ServiceFamily, 0x02);
 	// imitate ICQ 6 behaviour
-	snac.appendData(QByteArray::fromHex(
+	snac.append(QByteArray::fromHex(
 		"0022 0001 0110 164f"
 		"0001 0004 0110 164f"
 		"0013 0004 0110 164f"
@@ -239,8 +239,8 @@ void OscarConnection::sendUserInfo()
 	SNAC snac(LocationFamily, 0x04);
 	TLV caps(0x05);
 	foreach (const Capability &cap, m_account->capabilities())
-		caps.appendValue(cap);
-	snac.appendData(caps);
+		caps.append(cap);
+	snac.append(caps);
 	send(snac);
 }
 
@@ -299,26 +299,26 @@ void OscarConnection::sendStatus(Status status)
 	snac.appendTLV<quint32>(0x06, (m_status_flags << 16) | qutimStatusToICQ(status)); // Status mode and security flags
 	snac.appendTLV<quint16>(0x08, 0x0000); // Error code
 	TLV dc(0x0c); // Direct connection info
-	dc.appendValue<quint32>(externalIP().toIPv4Address()); // Real IP
-	dc.appendValue<quint32>(666); // DC Port
-	dc.appendValue<quint8>(m_dc_info.dc_type); // TCP/FLAG firewall settings
-	dc.appendValue<quint16>(m_dc_info.protocol_version); // Protocol version;
-	dc.appendValue<quint32>(qrand()); // DC auth cookie
-	dc.appendValue<quint32>(m_dc_info.web_front_port); // Web front port
-	dc.appendValue<quint32>(m_dc_info.client_futures); // client futures
-	dc.appendValue<quint32>(0x00000000); // last info update time
-	dc.appendValue<quint32>(0x00000000); // last ext info update time (i.e. icqphone status)
-	dc.appendValue<quint32>(0x00000000); // last ext status update time (i.e. phonebook)
-	dc.appendValue<quint16>(0x0000); // Unknown
-	snac.appendData(dc);
+	dc.append<quint32>(externalIP().toIPv4Address()); // Real IP
+	dc.append<quint32>(666); // DC Port
+	dc.append<quint8>(m_dc_info.dc_type); // TCP/FLAG firewall settings
+	dc.append<quint16>(m_dc_info.protocol_version); // Protocol version;
+	dc.append<quint32>(qrand()); // DC auth cookie
+	dc.append<quint32>(m_dc_info.web_front_port); // Web front port
+	dc.append<quint32>(m_dc_info.client_futures); // client futures
+	dc.append<quint32>(0x00000000); // last info update time
+	dc.append<quint32>(0x00000000); // last ext info update time (i.e. icqphone status)
+	dc.append<quint32>(0x00000000); // last ext status update time (i.e. phonebook)
+	dc.append<quint16>(0x0000); // Unknown
+	snac.append(dc);
 	// Status item
 	DataUnit statusNote;
 	DataUnit statusData;
-	statusNote.appendSimple<quint16>(0x02);
-	statusData.appendData<quint16>(m_account->property("statusText").toString(), Util::utf8Codec());
-	statusData.appendSimple<quint16>(0); // endcoding: utf8 by default
-	statusNote.appendSimple<quint16>(0x400 | statusData.data().size()); // Flags + length
-	statusNote.appendData(statusData.data());
+	statusNote.append<quint16>(0x02);
+	statusData.append<quint16>(m_account->property("statusText").toString(), Util::utf8Codec());
+	statusData.append<quint16>(0); // endcoding: utf8 by default
+	statusNote.append<quint16>(0x400 | statusData.data().size()); // Flags + length
+	statusNote.append(statusData.data());
 	snac.appendTLV(0x1D, statusNote);
 	snac.appendTLV<quint16>(0x1f, 0x00); // unknown
 	send(snac);
@@ -329,7 +329,7 @@ void OscarConnection::setIdle(bool allow)
 	if (m_is_idle == allow)
 		return;
 	SNAC snac(ServiceFamily, 0x0011);
-	snac.appendSimple<quint32>(allow ? 0x0000003C : 0x00000000);
+	snac.append<quint32>(allow ? 0x0000003C : 0x00000000);
 	send(snac);
 }
 

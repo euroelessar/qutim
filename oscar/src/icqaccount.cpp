@@ -72,12 +72,12 @@ IcqAccount::IcqAccount(const QString &uin) :
 
 	// qutIM version info
 	DataUnit version;
-	version.appendData(QByteArray("qutim"));
-	version.appendSimple<quint8>(SystemInfo::getSystemTypeID());
-	version.appendSimple<quint32>(qutimVersion());
-	version.appendSimple<quint8>(0x00);
-	version.appendSimple<quint32>(SystemInfo::getSystemVersionID());
-	version.appendSimple<quint8>(0x00); // 5 bytes more to 16
+	version.append(QByteArray("qutim"));
+	version.append<quint8>(SystemInfo::getSystemTypeID());
+	version.append<quint32>(qutimVersion());
+	version.append<quint8>(0x00);
+	version.append<quint32>(SystemInfo::getSystemVersionID());
+	version.append<quint8>(0x00); // 5 bytes more to 16
 	d->caps.append(Capability(version.data()));
 }
 
@@ -259,7 +259,7 @@ void IcqAccount::setVisibility(Visibility visibility)
 	else
 		item = feedbag()->item(SsiVisibility, 0, Feedbag::GenerateId | Feedbag::DontLoadLocal);
 	TLV data(0x00CA);
-	data.appendValue<quint8>(visibility);
+	data.append<quint8>(visibility);
 	item.setField(data);
 	item.setField<qint32>(0x00C9, 0xffffffff);
 	item.update();

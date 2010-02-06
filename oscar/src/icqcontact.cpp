@@ -103,10 +103,10 @@ void IcqContact::sendMessage(const Message &message)
 			codec = Util::asciiCodec();
 		QByteArray msg = codec->fromUnicode(msgText) + '\0';
 		Tlv2711 tlv(0x01, 0, qutimStatusToICQ(d->status), 1, cookie);
-		tlv.appendData<quint16>(msg, LittleEndian);
+		tlv.append<quint16>(msg, LittleEndian);
 		tlv.appendColors();
 		if (Utf8Support())
-			tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
+			tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
 		ServerMessage msgData(this, Channel2MessageData(0, tlv));
 		cookie.lock(this, SLOT(messageTimeout()));
 		d->account->connection()->send(msgData);
@@ -171,18 +171,18 @@ void IcqContact::setInList(bool inList)
 void IcqContact::authResponse(const QString &message, bool auth)
 {
 	SNAC snac(ListsFamily, ListsCliAuthResponse);
-	snac.appendData<qint8>(id()); // uin.
-	snac.appendSimple<qint8>(auth ? 0x01 : 0x00); // auth flag.
-	snac.appendData<qint16>(message);
+	snac.append<qint8>(id()); // uin.
+	snac.append<qint8>(auth ? 0x01 : 0x00); // auth flag.
+	snac.append<qint16>(message);
 	account()->connection()->send(snac);
 }
 
 void IcqContact::authRequest(const QString &message)
 {
 	SNAC snac(ListsFamily, ListsRequestAuth);
-	snac.appendData<qint8>(id()); // uin.
-	snac.appendData<qint16>(message);
-	snac.appendSimple<quint16>(0);
+	snac.append<qint8>(id()); // uin.
+	snac.append<qint16>(message);
+	snac.append<quint16>(0);
 	account()->connection()->send(snac);
 }
 
@@ -327,10 +327,10 @@ bool IcqContact::event(QEvent *ev)
 		if (type == MtnUnknown)
 			return true;
 		SNAC sn(MessageFamily, MessageMtn);
-		sn.appendData(Cookie(true));
-		sn.appendSimple<quint16>(1); // channel?
-		sn.appendData<quint8>(d->uin);
-		sn.appendSimple<quint16>(type);
+		sn.append(Cookie(true));
+		sn.append<quint16>(1); // channel?
+		sn.append<quint8>(d->uin);
+		sn.append<quint16>(type);
 		d->account->connection()->send(sn);
 		return true;
 	}

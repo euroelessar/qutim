@@ -48,7 +48,7 @@ void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 			snac.appendTLV(0x0025, QCryptographicHash::hash(key, QCryptographicHash::Md5));
 		}
 		// Flag for "new" md5 authorization
-		snac.appendData(TLV(0x004c));
+		snac.appendTLV(0x004c);
 		snac.appendTLV<QByteArray>(0x0003, client.id_string);
 		snac.appendTLV<quint16>(0x0017, client.major_version);
 		snac.appendTLV<quint16>(0x0018, client.minor_version);
@@ -62,13 +62,13 @@ void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 		snac.appendTLV<quint8>(0x0094, 0x00);
 		conn->send(snac);
 	} else if (sn.subtype() == SignonLoginReply) {
-		TLVMap tlvs = sn.readTLVChain();
+		TLVMap tlvs = sn.read<TLVMap>();
 		if (tlvs.contains(0x01) && tlvs.contains(0x05) && tlvs.contains(0x06)) {
-			QList<QByteArray> list = tlvs.value(0x05).value().split(':');
-			conn->setLoginData(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, tlvs.value(0x06).value());
+			QList<QByteArray> list = tlvs.value(0x05).data().split(':');
+			conn->setLoginData(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, tlvs.value(0x06).data());
 		} else {
 			DataUnit data(tlvs.value(0x0008));
-			static_cast<Md5Login*>(c)->setError(static_cast<AbstractConnection::ConnectionError>(data.readSimple<quint16>()));
+			static_cast<Md5Login*>(c)->setError(static_cast<AbstractConnection::ConnectionError>(data.read<quint16>()));
 			Notifications::sendNotification(c->errorString());
 		}
 	}
@@ -100,7 +100,7 @@ void Md5Login::login()
 void Md5Login::processNewConnection()
 {
 	FLAP flap(0x01);
-	flap.appendSimple<quint32>(0x00000001);
+	flap.append<quint32>(0x00000001);
 	// It's some strange unknown shit, but ICQ 6.5 sends it
 	flap.appendTLV<quint32>(0x8003, 0x00100000);
 	send(flap);

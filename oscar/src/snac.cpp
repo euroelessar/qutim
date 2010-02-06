@@ -27,14 +27,15 @@ void SNAC::reset(quint16 family, quint16 subtype)
 	m_data.clear();
 }
 
-SNAC SNAC::fromByteArray(const QByteArray &data)
+SNAC SNAC::fromByteArray(const QByteArray &d)
 {
-	quint16 family = qFromBigEndian<quint16>((const uchar *) data.constData());
-	quint16 subtype = qFromBigEndian<quint16>((const uchar *) data.constData() + 2);
+	DataUnit data(d);
+	quint16 family = data.read<quint16>();
+	quint16 subtype = data.read<quint16>();
 	SNAC snac(family, subtype);
-	snac.m_flags = qFromBigEndian<quint16>((const uchar *) data.constData() + 4);
-	snac.m_id = qFromBigEndian<quint32>((const uchar *) data.constData() + 6);
-	snac.m_data = data.mid(10);
+	snac.m_flags = data.read<quint16>();
+	snac.m_id = data.read<quint32>();
+	snac.m_data = data.readAll();
 	return snac;
 }
 
@@ -47,13 +48,12 @@ QByteArray SNAC::toByteArray() const
 
 QByteArray SNAC::header() const
 {
-	QByteArray data;
-	data.resize(10);
-	qToBigEndian<quint16>(m_family, (uchar *) data.data());
-	qToBigEndian<quint16>(m_subtype, (uchar *) data.data() + 2);
-	qToBigEndian<quint16>(m_flags, (uchar *) data.data() + 4);
-	qToBigEndian<quint32>(m_id, (uchar *) data.data() + 6);
-	return data;
+	DataUnit data;
+	data.append<quint16>(m_family);
+	data.append<quint16>(m_subtype);
+	data.append<quint16>(m_flags);
+	data.append<quint32>(m_id);
+	return data.data();
 }
 
 } // namespace Icq
