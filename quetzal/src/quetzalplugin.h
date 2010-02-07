@@ -56,6 +56,7 @@ private:
 class QuetzalPlugin : public Plugin
 {
     Q_OBJECT
+	Q_CLASSINFO("DebugName", "quetzal")
 public:
 	virtual void init();
 	virtual bool load() { return true; }

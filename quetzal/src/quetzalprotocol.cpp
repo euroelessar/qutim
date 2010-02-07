@@ -1,54 +1,48 @@
 #include "quetzalprotocol.h"
+#include "quetzalaccount.h"
+#include <qutim/debug.h>
 
-QuetzalProtocol::QuetzalProtocol(const QuetzalMetaObject *meta)
+QuetzalProtocol::QuetzalProtocol(const QuetzalMetaObject *meta, PurplePlugin *plugin)
 {
-    QObject::d_ptr->metaObject = const_cast<QuetzalMetaObject *>(meta);
+	QObject::d_ptr->metaObject = const_cast<QuetzalMetaObject *>(meta);
+	m_plugin = plugin;
+	protocols().insert(m_plugin, this);
 }
 
 QList<Account *> QuetzalProtocol::accounts() const
 {
-    return QList<Account *>();
+	QList<QuetzalAccount *> accounts = m_accounts.values();
+	return *reinterpret_cast<QList<Account *> *>(&accounts);
 }
 
 Account *QuetzalProtocol::account(const QString &id) const
 {
-    return 0;
+	return m_accounts.value(id);
 }
 
 void QuetzalProtocol::loadAccounts()
 {
+	QStringList accounts = config("general").value("accounts", QStringList());
+	debug() << id() << accounts;
+	foreach(const QString &id, accounts)
+		m_accounts.insert(id, new QuetzalAccount(id, this));
 }
 
-//static const uint qt_meta_data_PurpleSubProtocol[] = {
-//
-// // content:
-//	   2,       // revision
-//	   0,       // classname
-//	   0,    0, // classinfo
-//	   0,    0, // methods
-//	   0,    0, // properties
-//	   0,    0, // enums/sets
-//	   0,    0, // constructors
-//
-//	   0        // eod
-//};
-//
-//static const char qt_meta_stringdata_PurpleProtocolPlugin[] = {
-//	"PurpleProtocolPlugin\0"
-//};
-
-//const QMetaObject QuetzalProtocol::staticMetaObject = {
-//	{ &Plugin::staticMetaObject, qt_meta_stringdata_PurpleProtocolPlugin,
-//      qt_meta_data_PurpleSubProtocol, 0 }
-//};
+QByteArray quetzal_fix_protocol_name(const char *name)
+{
+	if (!qstrcmp(name, "XMPP"))
+		return "jabber";
+	return QByteArray(name).toLower();
+}
 
 QuetzalMetaObject::QuetzalMetaObject(PurplePlugin *protocol)
 {
 	QByteArray stringdata_b = "Quetzal::";
 	stringdata_b += protocol->info->id;
 	stringdata_b += '\0';
+	stringdata_b.replace('-', '_');
 	int value = stringdata_b.size();
-	stringdata_b += protocol->info->name;
+	stringdata_b += quetzal_fix_protocol_name(protocol->info->name);
 	stringdata_b += '\0';
 	int key = stringdata_b.size();
 	stringdata_b.append("Protocol\0", 9);

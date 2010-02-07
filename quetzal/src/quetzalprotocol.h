@@ -9,16 +9,25 @@
 using namespace qutim_sdk_0_3;
 
 class QuetzalMetaObject;
+class QuetzalAccount;
 
 class QuetzalProtocol : public Protocol
 {
     Q_OBJECT
 public:
-    QuetzalProtocol(const QuetzalMetaObject *meta);
+	QuetzalProtocol(const QuetzalMetaObject *meta, PurplePlugin *plugin);
     virtual QList<Account *> accounts() const;
     virtual Account *account(const QString &id) const;
+	PurplePlugin *plugin() { return m_plugin; }
+	static QHash<PurplePlugin *, QuetzalProtocol *> &protocols()
+	{
+		static QHash<PurplePlugin *, QuetzalProtocol *> protos;
+		return protos;
+	}
 private:
     virtual void loadAccounts();
+	PurplePlugin *m_plugin;
+	QHash<QString, QuetzalAccount *> m_accounts;
 };
 
 class QuetzalMetaObject : public QMetaObject
@@ -37,7 +46,7 @@ protected:
 	virtual QObject *generateHelper() const
 	{
 		if(m_object.isNull())
-            m_object = new QuetzalProtocol(m_meta);
+			m_object = new QuetzalProtocol(m_meta, m_protocol);
 		return m_object.data();
 	}
 	virtual const QMetaObject *metaObject() const

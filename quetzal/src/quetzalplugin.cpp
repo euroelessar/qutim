@@ -1,12 +1,20 @@
 #include "quetzalplugin.h"
 #include "quetzalprotocol.h"
-#include "quetzalthread.h"
+#include "quetzalaccount.h"
+#include "quatzelactiondialog.h"
 #include <purple.h>
 #include <qutim/debug.h>
+#include <QCoreApplication>
 #include <QTimerEvent>
 #include <QLibrary>
 #include <qutim/icon.h>
+#include <qutim/notificationslayer.h>
 #include <QAbstractEventDispatcher>
+#include <QWidget>
+#include <QFileDialog>
+#include <QInputDialog>
+#include <QStringBuilder>
+#include <QTextDocument>
 
 QuetzalTimer *QuetzalTimer::m_self = NULL;
 
@@ -25,15 +33,20 @@ uint QuetzalTimer::addTimer(guint interval, GSourceFunc function, gpointer data)
 gboolean QuetzalTimer::removeTimer(guint handle)
 {
 	int id = static_cast<int>(handle);
+	QMap<int, TimerInfo *>::iterator it = m_timers.find(id);
+	if (it == m_timers.end())
+		return FALSE;
 	killTimer(id);
-	delete m_timers.take(id);
+	delete it.value();
+	m_timers.erase(it);
+	return TRUE;
 }
 
 void QuetzalTimer::timerEvent(QTimerEvent *event)
 {
 	QMap<int, TimerInfo *>::iterator it = m_timers.find(event->timerId());
 	TimerInfo *info = it.value();
-	gboolean result = (*info->function)(info->data);
+	gboolean result = ( *info->function)(info->data);
 	if(result == FALSE) {
 		killTimer(it.key());
 		delete it.value();
@@ -66,9 +79,12 @@ guint QuetzalTimer::addIO(int fd, PurpleInputCondition cond, PurpleInputFunction
 gboolean QuetzalTimer::removeIO(guint handle)
 {
 	QMap<uint, FileInfo *>::iterator it = m_files.find(handle);
+	if (it == m_files.end())
+		return FALSE;
 	FileInfo *info = it.value();
 	delete info->socket;
 	m_files.erase(it);
+	return TRUE;
 }
 
 int QuetzalTimer::getIOError(int fd, int *error)
@@ -78,13 +94,14 @@ int QuetzalTimer::getIOError(int fd, int *error)
 
 void QuetzalTimer::onSocket(int fd)
 {
-	QSocketNotifier *socket = static_cast<QSocketNotifier *>(sender());
+	QPointer<QSocketNotifier> socket = qobject_cast<QSocketNotifier *>(sender());
 	guint id = socket->property("quetzal_id").toUInt();
 	QMap<uint, FileInfo *>::iterator it = m_files.find(id);
 	FileInfo *info = it.value();
 	socket->setEnabled(false);
 	(*info->func)(info->data, fd, info->cond);
-	socket->setEnabled(true);
+	if (socket)
+		socket->setEnabled(true);
 }
 
 static guint quetzal_timeout_add(guint interval, GSourceFunc function, gpointer data)
@@ -191,19 +208,408 @@ null_ui_init(void)
 	purple_conversations_set_ui_ops(&null_conv_uiops);
 }
 
-static PurpleCoreUiOps null_core_uiops =
+inline char *quetzal_copystr(const QByteArray &data)
+{
+	char *str = reinterpret_cast<char *>(qMalloc(data.size() + 1));
+	qMemCopy(str, data, data.size());
+	str[data.size()] = '\0';
+	return str;
+}
+
+static GHashTable *quetzal_ui_info()
+{
+	static GHashTable *table = NULL;
+	if (!table) {
+		table = g_hash_table_new(g_str_hash, g_str_equal);
+		QByteArray name = qApp->applicationName().toUtf8();
+		QByteArray version = qApp->applicationVersion().toUtf8();
+		g_hash_table_insert(table, const_cast<char *>("name"), quetzal_copystr(name));
+		g_hash_table_insert(table, const_cast<char *>("version"), quetzal_copystr(version));
+		g_hash_table_insert(table, const_cast<char *>("website"), const_cast<char *>("http://qutim.org/"));
+		g_hash_table_insert(table, const_cast<char *>("type"), const_cast<char *>("pc"));
+	}
+	return table;
+}
+
+static PurpleCoreUiOps quetzal_core_uiops =
 {
 	NULL,
 	NULL,
 	null_ui_init,
 	NULL,
+	quetzal_ui_info,
 
 	/* padding */
+	NULL,
+	NULL,
+	NULL
+};
+
+void quetzal_debug_print(PurpleDebugLevel level, const char *category, const char *arg_s)
+{
+	Q_UNUSED(level);
+//	QByteArray arg(arg_s);
+//	arg.chop(1);
+//	qDebug("[quetzal/%s]: %s", category, arg.constData());
+}
+
+gboolean quetzal_debug_is_enabled(PurpleDebugLevel level, const char *category)
+{
+	Q_UNUSED(level);
+	Q_UNUSED(category);
+	return TRUE;
+}
+
+static PurpleDebugUiOps quetzal_debug_uiops =
+{
+	quetzal_debug_print,
+	quetzal_debug_is_enabled,
 	NULL,
 	NULL,
 	NULL,
 	NULL
 };
+
+//PurpleRequestFieldsCb;
+
+void *quetzal_request_input(const char *title, const char *primary,
+							const char *secondary, const char *default_value,
+							gboolean multiline, gboolean masked, gchar *hint,
+							const char *ok_text, GCallback ok_cb,
+							const char *cancel_text, GCallback cancel_cb,
+							PurpleAccount *account, const char *who,
+							PurpleConversation *conv, void *user_data)
+{
+	debug() << Q_FUNC_INFO;
+	Q_UNUSED(account);
+	Q_UNUSED(who);
+	Q_UNUSED(conv);
+	QString label;
+	if (primary) {
+		label += QLatin1Literal("<span weight=\"bold\" size=\"larger\">")
+				 % Qt::escape(primary)
+				 % QLatin1Literal("</span>");
+		if (secondary)
+			label += "\n\n";
+	}
+	if (secondary)
+		label += Qt::escape(secondary);
+
+	QInputDialog dialog;
+	dialog.setWindowTitle(title);
+	dialog.setLabelText(label);
+	dialog.setTextValue(default_value);
+	dialog.setTextEchoMode(masked ? QLineEdit::Password : QLineEdit::Normal);
+	if (ok_text)
+		dialog.setOkButtonText(ok_text);
+	if (cancel_text)
+		dialog.setCancelButtonText(cancel_text);
+
+	bool ok = !!dialog.exec();
+
+	PurpleRequestInputCb func = reinterpret_cast<PurpleRequestInputCb>(ok ? ok_cb : cancel_cb);
+	if (func)
+		(*func)(user_data, ok ? dialog.textValue().toUtf8().constData() : NULL);
+	return NULL;
+}
+
+void *quetzal_request_choice(const char *title, const char *primary,
+							 const char *secondary, int default_value,
+							 const char *ok_text, GCallback ok_cb,
+							 const char *cancel_text, GCallback cancel_cb,
+							 PurpleAccount *account, const char *who,
+							 PurpleConversation *conv, void *user_data,
+							 va_list choices)
+{
+	debug() << Q_FUNC_INFO;
+}
+
+void *quetzal_request_action(const char *title, const char *primary,
+							 const char *secondary, int default_action,
+							 PurpleAccount *account, const char *who,
+							 PurpleConversation *conv, void *user_data,
+							 size_t action_count, va_list actions)
+{
+	debug() << Q_FUNC_INFO;
+	Q_UNUSED(account);
+	Q_UNUSED(who);
+	Q_UNUSED(conv);
+	QuetzalRequestActionList uiActions;
+	while (action_count --> 0) {
+		QString str = va_arg(actions, gchararray);
+		PurpleRequestActionCb cb = va_arg(actions, PurpleRequestActionCb);
+		uiActions << qMakePair(str, cb);
+	}
+	QDialog *dialog = new QuetzalActionDialog(title, primary, secondary,
+											  default_action, uiActions, user_data, NULL);
+	dialog->show();
+	return dialog;
+}
+
+void *quetzal_request_fields(const char *title, const char *primary,
+							 const char *secondary, PurpleRequestFields *fields,
+							 const char *ok_text, GCallback ok_cb,
+							 const char *cancel_text, GCallback cancel_cb,
+							 PurpleAccount *account, const char *who,
+							 PurpleConversation *conv, void *user_data)
+{
+	debug() << Q_FUNC_INFO;
+}
+
+void *quetzal_request_file(const char *title, const char *filename,
+						   gboolean savedialog, GCallback ok_cb,
+						   GCallback cancel_cb, PurpleAccount *account,
+						   const char *who, PurpleConversation *conv,
+						   void *user_data)
+{
+	debug() << Q_FUNC_INFO;
+	Q_UNUSED(account);
+	Q_UNUSED(who);
+	Q_UNUSED(conv);
+	QString file = (savedialog ? QFileDialog::getSaveFileName : QFileDialog::getOpenFileName)
+				   (NULL, title, filename, QString(), NULL, 0);
+	PurpleRequestFileCb func;
+	if (file.isEmpty())
+		func = reinterpret_cast<PurpleRequestFileCb>(cancel_cb);
+	else
+		func = reinterpret_cast<PurpleRequestFileCb>(ok_cb);
+
+	if (func)
+		(*func)(user_data, file.isEmpty() ? NULL : file.toUtf8().constData());
+	return NULL;
+}
+
+void quetzal_close_request(PurpleRequestType type, void *ui_handle)
+{
+	debug() << Q_FUNC_INFO;
+	Q_UNUSED(type);
+	QWidget *widget = reinterpret_cast<QWidget *>(ui_handle);
+	widget->deleteLater();
+}
+
+void *quetzal_request_folder(const char *title, const char *dirname,
+							 GCallback ok_cb, GCallback cancel_cb,
+							 PurpleAccount *account, const char *who,
+							 PurpleConversation *conv, void *user_data)
+{
+	debug() << Q_FUNC_INFO;
+	Q_UNUSED(account);
+	Q_UNUSED(who);
+	Q_UNUSED(conv);
+	QString dir = QFileDialog::getExistingDirectory(NULL, title, dirname);
+	PurpleRequestFileCb func;
+	if (dir.isEmpty())
+		func = reinterpret_cast<PurpleRequestFileCb>(cancel_cb);
+	else
+		func = reinterpret_cast<PurpleRequestFileCb>(ok_cb);
+
+	if (func)
+		(*func)(user_data, dir.toUtf8().constData());
+	return NULL;
+}
+
+PurpleRequestUiOps quetzal_request_uiops =
+{
+	quetzal_request_input,
+	quetzal_request_choice,
+	quetzal_request_action,
+	quetzal_request_fields,
+	quetzal_request_file,
+	quetzal_close_request,
+	quetzal_request_folder,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+void quetzal_new_list(PurpleBuddyList *list)
+{
+	debug() << "new_list";
+}
+
+void quetzal_new_node(PurpleBlistNode *node)
+{
+//	debug() << "new_node" << node->type;
+	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
+		PurpleBuddy *buddy = PURPLE_BUDDY(node);
+		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(buddy->account->ui_data);
+		if (acc) {
+			acc->createNode(node);
+		}
+	}
+}
+
+void quetzal_show(PurpleBuddyList *list)
+{
+	Q_UNUSED(list);
+}
+
+void quetzal_update(PurpleBuddyList *list, PurpleBlistNode *node)
+{
+	Q_UNUSED(list);
+	QObject *obj = reinterpret_cast<QObject *>(node->ui_data);
+	if (QuetzalContact *contact = qobject_cast<QuetzalContact *>(obj)) {
+		contact->update();
+	}
+}
+
+void quetzal_remove(PurpleBuddyList *list, PurpleBlistNode *node)
+{
+}
+
+void quetzal_destroy(PurpleBuddyList *list)
+{
+}
+
+void quetzal_set_visible(PurpleBuddyList *list, gboolean show)
+{
+}
+
+void quetzal_request_add_buddy(PurpleAccount *account, const char *username, const char *group, const char *alias)
+{
+}
+
+void quetzal_request_add_chat(PurpleAccount *account, PurpleGroup *group, const char *alias, const char *name)
+{
+}
+
+void quetzal_request_add_group(void)
+{
+}
+
+void quetzal_save_node(PurpleBlistNode *node)
+{
+	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
+		PurpleBuddy *buddy = PURPLE_BUDDY(node);
+		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(buddy->account->ui_data);
+		if (acc) {
+			QuetzalContact *contact = reinterpret_cast<QuetzalContact *>(buddy->node.ui_data);
+			acc->save(contact);
+		}
+	}
+}
+
+void quetzal_remove_node(PurpleBlistNode *node)
+{
+	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
+		PurpleBuddy *buddy = PURPLE_BUDDY(node);
+		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(buddy->account->ui_data);
+		if (acc) {
+			QuetzalContact *contact = reinterpret_cast<QuetzalContact *>(buddy->node.ui_data);
+			acc->remove(contact);
+		}
+	}
+}
+
+void quetzal_save_account(PurpleAccount *account)
+{
+	if (account) {
+		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account->ui_data);
+		if (acc)
+			acc->save();
+	} else {
+		for (GList *it = purple_accounts_get_all(); it != NULL; it = it->next) {
+			account = reinterpret_cast<PurpleAccount *>(it->data);
+			QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account->ui_data);
+			if (acc)
+				acc->save();
+		}
+	}
+}
+
+PurpleBlistUiOps quetzal_blist_uiops = {
+	quetzal_new_list,
+	quetzal_new_node,
+	quetzal_show,
+	quetzal_update,
+	quetzal_remove,
+	quetzal_destroy,
+	quetzal_set_visible,
+	quetzal_request_add_buddy,
+	quetzal_request_add_chat,
+	quetzal_request_add_group,
+	quetzal_save_node,
+	quetzal_remove_node,
+	quetzal_save_account,
+	NULL
+};
+
+
+void quetzal_notify_added(PurpleAccount *account,
+						  const char *remote_user,
+						  const char *id,
+						  const char *alias,
+						  const char *message)
+{
+}
+
+void quetzal_status_changed(PurpleAccount *account,
+							PurpleStatus *status)
+{
+}
+
+void quetzal_request_add(PurpleAccount *account,
+						 const char *remote_user,
+						 const char *id,
+						 const char *alias,
+						 const char *message)
+{
+}
+
+void *quetzal_request_authorize(PurpleAccount *account,
+								const char *remote_user,
+								const char *id,
+								const char *alias,
+								const char *message,
+								gboolean on_list,
+								PurpleAccountRequestAuthorizationCb authorize_cb,
+								PurpleAccountRequestAuthorizationCb deny_cb,
+								void *user_data)
+{
+	return 0;
+}
+
+void quetzal_close_account_request(void *ui_handle)
+{
+}
+
+PurpleAccountUiOps quetzal_accounts_uiops =
+{
+	quetzal_notify_added,
+	quetzal_status_changed,
+	quetzal_request_add,
+	quetzal_request_authorize,
+	quetzal_close_account_request,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+//PurpleConnectionUiOps;
+//PurpleDnsQueryUiOps;
+//PurpleXferUiOps;
+//PurpleIdleUiOps;
+//PurpleNotifyUiOps;
+//PurplePrivacyUiOps;
+//PurpleRequestUiOps;
+//PurpleSoundUiOps;
+//PurpleSslOps;
+//PurpleWhiteboardUiOps;
+//PurpleAccountUiOps;
+//PurpleRoomlistUiOps;
+//PurpleBlistUiOps;
+//PurpleConversationUiOps;
+//PurplePluginUiInfo;
+//PurpleCertificateVerifier
+
+static gboolean quetzal_blist_load(gpointer data)
+{
+	Q_UNUSED(data);
+	purple_blist_load();
+	return FALSE;
+}
 
 static void
 init_libpurple()
@@ -212,7 +618,7 @@ init_libpurple()
 //	purple_util_set_user_dir("/dev/null");
 
 	/* We do not want any debugging for now to keep the noise to a minimum. */
-	purple_debug_set_enabled(FALSE);
+	purple_debug_set_enabled(TRUE);
 
 	/* Set the core-uiops, which is used to
 	 * 	- initialize the ui specific preferences.
@@ -220,11 +626,12 @@ init_libpurple()
 	 * 	- initialize the ui components for all the modules.
 	 * 	- uninitialize the ui components for all the modules when the core terminates.
 	 */
-	purple_core_set_ui_ops(&null_core_uiops);
-
-	/* Set the uiops for the eventloop. If your client is glib-based, you can safely
-	 * copy this verbatim. */
+	purple_debug_set_ui_ops(&quetzal_debug_uiops);
+	purple_core_set_ui_ops(&quetzal_core_uiops);
 	purple_eventloop_set_ui_ops(&quetzal_eventloops);
+	purple_blist_set_ui_ops(&quetzal_blist_uiops);
+	purple_accounts_set_ui_ops(&quetzal_accounts_uiops);
+	purple_request_set_ui_ops(&quetzal_request_uiops);
 
 	/* Set path to search for plugins. The core (libpurple) takes care of loading the
 	 * core-plugins, which includes the protocol-plugins. So it is not essential to add
@@ -244,7 +651,10 @@ init_libpurple()
 
 	/* Create and load the buddylist. */
 	purple_set_blist(purple_blist_new());
-	purple_blist_load();
+
+//	purple_timeout_add(1000, quetzal_blist_load, 0);
+
+//	qDebug() << purple_get_blist();
 
 	/* Load the preferences. */
 	purple_prefs_load();
