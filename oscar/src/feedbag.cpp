@@ -40,6 +40,7 @@ public:
 		groupId(0), itemId(0)
 	{}
 	~SSIItem(){}
+	quint32 id() const { return (itemType << 16 | (itemType == SsiGroup ? groupId : itemId)); }
 	QString recordName;
 	quint16 groupId;
 	quint16 itemId;
@@ -80,6 +81,7 @@ public:
 	{}
 	void handleItem(FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	quint16 generateId() const;
+	void saveItem(const SSIItem &item, ConfigBase &config);
 	void finishLoading();
 	QHash<quint32, SSIItem> items;
 	QQueue<FeedbagQueueItem> ssiQueue;
@@ -349,7 +351,7 @@ QDebug &operator<<(QDebug &stream, const Icq::FeedbagItem &item)
 void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
 {
 	Q_Q(Feedbag);
-	quint32 id = item.type() << 16 | (item.type() == SsiGroup ? item.groupId() : item.itemId());
+	quint32 id = item.d->id();
 	bool isInList = items.contains(id);
 	item.d->isInList = type != Feedbag::Remove;
 	bool found = false;
@@ -383,16 +385,35 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 		}
 	}
 	if (error == FeedbagError::NoError) {
-		if (type == Feedbag::Remove)
+		if (type == Feedbag::Remove) {
 			items.remove(id);
-		else
+			account->config("feedbag").group("cache").removeGroup(QString::number(id));
+		} else {
 			items.insert(id, *item.d);
+			if (account->status() != Connecting) {
+				ConfigGroup cfg = account->config("feedbag").group("cache").group(QString::number(id));
+				saveItem(*item.d, cfg);
+				account->config().sync();
+			}
+		}
 	}
 }
 
 quint16 FeedbagPrivate::generateId() const
 {
 	return rand() % 0x03e6;
+}
+
+void FeedbagPrivate::saveItem(const SSIItem &item, ConfigBase &config)
+{
+	ConfigGroup cfg = config.group(QString::number(item.id()));
+	cfg.setValue("type", item.itemType);
+	cfg.setValue("itemId", item.itemId);
+	cfg.setValue("groupId", item.groupId);
+	cfg.setValue("name", item.recordName);
+	cfg = cfg.group("tlvs");
+	foreach (const TLV &tlv, item.tlvs)
+		cfg.setValue(QString::number(tlv.type()), tlv.data());
 }
 
 void FeedbagPrivate::finishLoading()
@@ -420,6 +441,24 @@ Feedbag::Feedbag(IcqAccount *acc):
 	foreach(const ObjectGenerator *gen, moduleGenerators<FeedbagItemHandler>())
 		registerHandler(gen->generate<FeedbagItemHandler>());
 	connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
+	ConfigGroup config = acc->config("feedbag").group("cache");
+	foreach (const QString &itemIdStr, config.groupList()) {
+		config = config.group(itemIdStr);
+		SSIItem item;
+		item.itemId = config.value("itemId", 0);
+		item.groupId = config.value("groupId", 0);
+		item.itemType = config.value("type", 0);
+		item.recordName = config.value<QString>("name", "");
+		config =  config.group("tlvs");
+		foreach (const QString &tlvIdStr, config.groupList()) {
+			quint16 tlvId = tlvIdStr.toInt();
+			if (tlvId > 0) {
+				item.tlvs.insert(tlvId, config.value(tlvIdStr, QByteArray()));
+			};
+		}
+		config = config.parent().parent();
+		d->items.insert(item.id(), item);
+	}
 }
 
 Feedbag::~Feedbag()
@@ -558,6 +597,10 @@ void Feedbag::registerHandler(FeedbagItemHandler *handler)
 {
 	foreach (quint16 type, handler->types())
 		d->handlers.insertMulti(type, handler);
+	foreach (const SSIItem &item, d->items) {
+		FeedbagItem feedbagItem(new FeedbagItemPrivate(this, item));
+		handler->handleFeedbagItem(this, feedbagItem, AddModify, FeedbagError::NoError);
+	}
 }
 
 void Feedbag::statusChanged(qutim_sdk_0_3::Status status)
@@ -596,8 +639,14 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		}
 		if (isLast) {
 			quint32 last_info_update = sn.read<quint32>();
-			debug() << "SrvLastUpdate" << last_info_update;
 			setProperty("SrvLastUpdate", last_info_update);
+			d->account->config().removeGroup("feedbag");
+			ConfigGroup config = d->account->config("feedbag");
+			config.setValue("lastUpdate", last_info_update);
+			config = config.group("cache");
+			foreach (const SSIItem &item, d->items)
+				d->saveItem(item, config);
+			config.sync();
 			d->finishLoading();
 		}
 		break;

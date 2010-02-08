@@ -101,8 +101,12 @@ void IcqProtocol::loadAccounts()
 	Q_D(IcqProtocol);
 	initActions(this);
 	QStringList accounts = config("general").value("accounts", QStringList());
-	foreach(const QString &uin, accounts)
-		d->accounts_hash->insert(uin, new IcqAccount(uin));
+	foreach(const QString &uin, accounts) {
+		IcqAccount *acc = new IcqAccount(uin);
+		d->accounts_hash->insert(uin, acc);
+		emit accountCreated(acc);
+	}
+
 }
 
 QList<Account *> IcqProtocol::accounts() const
