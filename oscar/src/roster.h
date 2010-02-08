@@ -51,6 +51,8 @@ protected:
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 	void handleUserOnline(const SNAC &snac);
 	void handleUserOffline(const SNAC &snac);
+private slots:
+	void loginFinished();
 private:
 	IcqAccount *m_account;
 	OscarConnection *m_conn;

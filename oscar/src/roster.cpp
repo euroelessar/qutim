@@ -191,6 +191,7 @@ void SsiHandler::removeContact(IcqContact *contact)
 Roster::Roster(IcqAccount *account):
 	SNACHandler(account)
 {
+	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
 	m_account = account;
 	m_ssiHandler = new SsiHandler(m_account, this);
 	m_conn = account->connection();
@@ -359,6 +360,17 @@ void Roster::handleUserOffline(const SNAC &snac)
 	//	quint16 warning_level = snac.read<quint16>();
 	//	TLVMap tlvs = snac.readTLVChain<quint16>();
 	//	tlvs.value(0x0001); // User class
+}
+
+void Roster::loginFinished()
+{
+	foreach (IcqContact *contact, m_account->contacts()) {
+		if (!m_account->feedbag()->containsItem(SsiBuddy, contact->id())) {
+			if (ContactList::instance())
+				ContactList::instance()->removeContact(contact);
+			delete contact;
+		}
+	}
 }
 
 } // namespace Icq
