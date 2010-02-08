@@ -22,14 +22,16 @@
 
 namespace qutim_sdk_0_3
 {
-	struct AccountPrivate : public MenuControllerPrivate
+	class AccountPrivate : public MenuControllerPrivate
 	{
+	public:
+		AccountPrivate(Account *a) : MenuControllerPrivate(a) {}
 		QPointer<Protocol> protocol;
 		QString id;
 		Status status;
 	};
 
-	Account::Account(const QString &id, Protocol *protocol) : MenuController(*new AccountPrivate, protocol)
+	Account::Account(const QString &id, Protocol *protocol) : MenuController(*new AccountPrivate(this), protocol)
 	{
 		Q_D(Account);
 		d->protocol = protocol;

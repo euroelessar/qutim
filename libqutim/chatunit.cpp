@@ -19,7 +19,7 @@
 
 namespace qutim_sdk_0_3
 {
-	ChatUnit::ChatUnit(Account *account) : MenuController(*new ChatUnitPrivate, account)
+	ChatUnit::ChatUnit(Account *account) : MenuController(*new ChatUnitPrivate(this), account)
 	{
 		d_func()->account = account;
 	}

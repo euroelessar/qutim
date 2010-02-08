@@ -14,6 +14,7 @@
 *****************************************************************************/
 
 #include "message.h"
+#include "dynamicpropertydata_p.h"
 #include <QDateTime>
 #include <QScriptEngine>
 #include <QScriptValue>
@@ -117,14 +118,13 @@ namespace qutim_sdk_0_3
 
 	static quint64 message_id = 0;
 
-	class MessagePrivate : public QSharedData
+	class MessagePrivate : public DynamicPropertyData
 	{
 	public:
 		MessagePrivate() : in(false), chatUnit(0), id(++message_id) { text.clear(); }
-		MessagePrivate(const MessagePrivate &o)
-				: QSharedData(o), text(o.text), time(o.time),
-				in(o.in), chatUnit(o.chatUnit), id(++message_id),
-				names(o.names), values(o.values) {}
+		MessagePrivate(const MessagePrivate &o) :
+				DynamicPropertyData(o), text(o.text), time(o.time),
+				in(o.in), chatUnit(o.chatUnit), id(++message_id) {}
 		~MessagePrivate() {}
 		QString text;
 		QDateTime time;
@@ -139,29 +139,25 @@ namespace qutim_sdk_0_3
 		void setIn(const QVariant &input) { in = input.toBool(); }
 		void setChatUnit (const QVariant &val) { chatUnit = val.value<ChatUnit *>(); }
 		QVariant getChatUnit() const { return QVariant::fromValue(chatUnit); }
-		QList<QByteArray> names;
-		QList<QVariant> values;
 	};
 
 	namespace CompiledProperty
 	{
-		typedef QVariant (MessagePrivate::*Getter)() const;
-		typedef void (MessagePrivate::*Setter)(const QVariant &variant);
 		static QList<QByteArray> names = QList<QByteArray>()
 										 << "text"
 										 << "time"
 										 << "in"
 										 << "chatUnit";
 		static QList<Getter> getters   = QList<Getter>()
-										 << &MessagePrivate::getText
-										 << &MessagePrivate::getTime
-										 << &MessagePrivate::getIn
-										 << &MessagePrivate::getChatUnit;
+										 << static_cast<Getter>(&MessagePrivate::getText)
+										 << static_cast<Getter>(&MessagePrivate::getTime)
+										 << static_cast<Getter>(&MessagePrivate::getIn)
+										 << static_cast<Getter>(&MessagePrivate::getChatUnit);
 		static QList<Setter> setters   = QList<Setter>()
-										 << &MessagePrivate::setText
-										 << &MessagePrivate::setTime
-										 << &MessagePrivate::setIn
-										 << &MessagePrivate::setChatUnit;
+										 << static_cast<Setter>(&MessagePrivate::setText)
+										 << static_cast<Setter>(&MessagePrivate::setTime)
+										 << static_cast<Setter>(&MessagePrivate::setIn)
+										 << static_cast<Setter>(&MessagePrivate::setChatUnit);
 	}
 
 	Message::Message() : p(new MessagePrivate)
@@ -194,46 +190,12 @@ namespace qutim_sdk_0_3
 
 	QVariant Message::property(const char *name, const QVariant &def) const
 	{
-		QByteArray prop = QByteArray::fromRawData(name, strlen(name));
-		int id = CompiledProperty::names.indexOf(prop);
-		if(id < 0)
-		{
-			id = p->names.indexOf(prop);
-			if(id < 0)
-				return def;
-			return p->values.at(id);
-		}
-		return (p->*CompiledProperty::getters.at(id))();
+		return p->property(name, def, CompiledProperty::names, CompiledProperty::getters);
 	}
 
 	void Message::setProperty(const char *name, const QVariant &value)
 	{
-		QByteArray prop = QByteArray::fromRawData(name, strlen(name));
-		int id = CompiledProperty::names.indexOf(prop);
-		if(id < 0)
-		{
-			id = p->names.indexOf(prop);
-			if(!value.isValid())
-			{
-				if(id < 0)
-					return;
-				p->names.removeAt(id);
-				p->values.removeAt(id);
-			}
-			else
-			{
-				if(id < 0)
-				{
-					prop.detach();
-					p->names.append(prop);
-					p->values.append(value);
-				}
-				else
-					p->values[id] = value;
-			}
-		}
-		else
-			(p->*CompiledProperty::setters.at(id))(value);
+		return p->setProperty(name, value, CompiledProperty::names, CompiledProperty::setters);
 	}
 
 	QList<QByteArray> Message::dynamicPropertyNames() const

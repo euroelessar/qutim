@@ -34,11 +34,25 @@ namespace qutim_sdk_0_3
 
 	class MenuControllerPrivate
 	{
+		Q_DECLARE_PUBLIC(MenuController)
 	public:
-		MenuControllerPrivate() : owner(0) {}
+		MenuControllerPrivate(MenuController *c) : owner(0), q_ptr(c) {}
 		QList<ActionInfo> actions;
 		MenuController *owner;
-		QList<ActionInfo> allActions(const MenuController *control) const;
+		MenuController *q_ptr;
+		QList<ActionInfo> allActions() const;
+	};
+
+	class DynamicMenu : public QMenu
+	{
+		Q_OBJECT
+	public:
+		DynamicMenu(const MenuControllerPrivate *d);
+	private slots:
+		void onAboutToShow();
+		void onAboutToHide();
+	private:
+		const MenuControllerPrivate * const m_d;
 	};
 }
 

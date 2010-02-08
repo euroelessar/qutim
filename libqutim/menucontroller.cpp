@@ -24,7 +24,7 @@ namespace qutim_sdk_0_3
 
 	Q_GLOBAL_STATIC(MenuActionMap, globalActions)
 
-	MenuController::MenuController(QObject *parent) : QObject(parent), d_ptr(new MenuControllerPrivate)
+	MenuController::MenuController(QObject *parent) : QObject(parent), d_ptr(new MenuControllerPrivate(this))
 	{
 	}
 
@@ -91,8 +91,10 @@ namespace qutim_sdk_0_3
 		return current;
 	}
 
-	QList<ActionInfo> MenuControllerPrivate::allActions(const MenuController *owner) const
+	QList<ActionInfo> MenuControllerPrivate::allActions() const
 	{
+		Q_Q(const MenuController);
+		const MenuController *owner = q;
 		QList<ActionInfo> actions;
 		QSet<const QMetaObject *> metaObjects;
 		while (owner) {
@@ -110,17 +112,22 @@ namespace qutim_sdk_0_3
 		return actions;
 	}
 
-	QMenu *MenuController::menu(bool deleteOnClose) const
+	DynamicMenu::DynamicMenu(const MenuControllerPrivate *d) :
+			m_d(d)
 	{
-		QMenu *menu = new QMenu();
-		menu->setAttribute(Qt::WA_DeleteOnClose, deleteOnClose);
-		QList<ActionInfo> actions = d_func()->allActions(this);
+		connect(this, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
+		connect(this, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
+	}
+
+	void DynamicMenu::onAboutToShow()
+	{
+		QList<ActionInfo> actions = m_d->allActions();
 		if (actions.isEmpty())
-			return menu;
+			return;
 		qSort(actions.begin(), actions.end(), actionLessThan);
 		int lastType = actions[0].gen->type();
 		QList<uint> lastMenu;
-		ActionEntry entry(menu);
+		ActionEntry entry(this);
 		ActionEntry *currentEntry = &entry;
 		for (int i = 0; i < actions.size(); i++) {
 			const ActionInfo &act = actions[i];
@@ -130,14 +137,28 @@ namespace qutim_sdk_0_3
 				currentEntry = findEntry(entry, act);
 			} else if (lastType != act.gen->type()) {
 				lastType = act.gen->type();
-				menu->addSeparator();
+				currentEntry->menu->addSeparator();
 			}
-			const_cast<ActionGenerator *>(act.gen)->setMenuController(const_cast<MenuController *>(this));
+			const_cast<ActionGenerator *>(act.gen)->setMenuController(const_cast<MenuController *>(m_d->q_ptr));
 			if (QAction *action = act.gen->generate<QAction>()) {
 				action->setParent(currentEntry->menu);
 				currentEntry->menu->addAction(action);
 			}
 		}
+	}
+
+	void DynamicMenu::onAboutToHide()
+	{
+		foreach (QAction *action, actions()) {
+			action->deleteLater();
+			removeAction(action);
+		}
+	}
+
+	QMenu *MenuController::menu(bool deleteOnClose) const
+	{
+		QMenu *menu = new DynamicMenu(d_func());
+		menu->setAttribute(Qt::WA_DeleteOnClose, deleteOnClose);
 		return menu;
 	}
 

@@ -20,11 +20,13 @@
 
 namespace qutim_sdk_0_3
 {
-	struct ContactPrivate : public ChatUnitPrivate
+	class ContactPrivate : public ChatUnitPrivate
 	{
+	public:
+		ContactPrivate(Contact *c) : ChatUnitPrivate(c) {}
 	};
 
-	Contact::Contact(Account *account) : ChatUnit(*new ContactPrivate, account)
+	Contact::Contact(Account *account) : ChatUnit(*new ContactPrivate(this), account)
 	{
 	}
 

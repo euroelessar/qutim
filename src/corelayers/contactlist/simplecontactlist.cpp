@@ -142,10 +142,10 @@ namespace Core
 		void Module::onAccountCreated(Account *account)
 		{
 			//TODO add account icon
-			QAction *action = p->bottom_toolbar->addAction(Icon("user-online"),
-														   account->name(),
-														   this, SLOT(onAccountButtonClicked()));
-			action->setData(QVariant::fromValue<MenuController *>(account));
+			QAction *action = new QAction(Icon("user-online"), account->name(), p->bottom_toolbar);
+//			connect(action, SIGNAL(triggered()), action, SLOT(toggle()));
+			action->setMenu(account->menu(false));
+			p->bottom_toolbar->addAction(action);
 			foreach (Contact *contact, account->findChildren<Contact *>()) {
 				//FIXME
 				addContact(contact);
