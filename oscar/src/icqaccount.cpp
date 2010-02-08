@@ -153,6 +153,7 @@ void IcqAccount::setStatus(Status status)
 			.arg(statusToString(current, false))
 			.arg(statusToString(status, false));
 	Account::setStatus(status);
+	emit statusChanged(status);
 }
 
 QString IcqAccount::name() const

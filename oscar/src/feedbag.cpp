@@ -419,6 +419,7 @@ Feedbag::Feedbag(IcqAccount *acc):
 			<< SNACInfo(ListsFamily, ListsSrvReplyLists);
 	foreach(const ObjectGenerator *gen, moduleGenerators<FeedbagItemHandler>())
 		registerHandler(gen->generate<FeedbagItemHandler>());
+	connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
 }
 
 Feedbag::~Feedbag()
@@ -557,6 +558,14 @@ void Feedbag::registerHandler(FeedbagItemHandler *handler)
 {
 	foreach (quint16 type, handler->types())
 		d->handlers.insertMulti(type, handler);
+}
+
+void Feedbag::statusChanged(qutim_sdk_0_3::Status status)
+{
+	if (status == ConnectingStart) {
+		d->items.clear();
+		d->lastError = FeedbagError::NoError;
+	}
 }
 
 void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)

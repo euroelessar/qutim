@@ -140,6 +140,8 @@ public:
 	void registerHandler(FeedbagItemHandler *handler);
 signals:
 	void loaded();
+private slots:
+	void statusChanged(qutim_sdk_0_3::Status status);
 protected:
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private:
