@@ -42,8 +42,7 @@ void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 		{
 			quint32 length = qFromBigEndian<quint32>((uchar *) sn.data().constData());
 			QByteArray key = sn.data().mid(2, length);
-			QString password = m_conn->account()->config().group("general").value("passwd", QString(), Config::Crypted);
-			key += QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Md5);
+			key += QCryptographicHash::hash(conn->m_password.toUtf8(), QCryptographicHash::Md5);
 			key += "AOL Instant Messenger (SM)";
 			snac.appendTLV(0x0025, QCryptographicHash::hash(key, QCryptographicHash::Md5));
 		}
@@ -74,10 +73,10 @@ void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 	}
 }
 
-Md5Login::Md5Login(OscarConnection *conn) :
-	AbstractConnection(conn), m_conn(conn)
+Md5Login::Md5Login(const QString &password, OscarConnection *conn) :
+	AbstractConnection(conn), m_conn(conn), m_password(password)
 {
-	setSeqNum( generate_flap_sequence());
+	setSeqNum(generate_flap_sequence());
 }
 
 Md5Login::~Md5Login()

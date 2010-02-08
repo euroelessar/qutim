@@ -70,7 +70,7 @@ public:
 		LoginServer, HaveBOSS, BOSS, Connected
 	};
 	OscarConnection(IcqAccount *parent);
-	void connectToLoginServer();
+	void connectToLoginServer(const QString &password);
 	inline const ClientInfo &clientInfo() const { return m_client_info; }
 	inline const DirectConnectionInfo &dcInfo() const { return m_dc_info; }
 	IcqAccount *account() { return m_account; }

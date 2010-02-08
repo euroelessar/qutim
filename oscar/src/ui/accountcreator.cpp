@@ -19,8 +19,7 @@
 #include <QWizardPage>
 #include <QRegExp>
 #include <QValidator>
-
-#include "ui_loginform.h"
+#include "ui_addaccountform.h"
 
 namespace Icq
 {
@@ -43,7 +42,7 @@ public:
 	bool isSavePassword() { return ui.passwordBox->isChecked(); }
 private:
 	IcqAccountCreationWizard *m_account_wizard;
-	Ui::LoginForm ui;
+	Ui::AddAccountForm ui;
 };
 
 IcqAccWizardPage::IcqAccWizardPage(IcqAccountCreationWizard *account_wizard) :
@@ -53,6 +52,7 @@ IcqAccWizardPage::IcqAccWizardPage(IcqAccountCreationWizard *account_wizard) :
 	QRegExp rx("[1-9][0-9]{1,9}");
 	QValidator *validator = new QRegExpValidator(rx, this);
 	ui.uinEdit->setValidator(validator);
+	ui.uinEdit->setFocus();
 }
 
 bool IcqAccWizardPage::validatePage()

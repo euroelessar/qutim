@@ -22,6 +22,7 @@
 #include <qutim/systeminfo.h>
 #include <qutim/contactlist.h>
 #include <QTimer>
+#include <ui/passworddialog.h>
 
 namespace Icq
 {
@@ -100,9 +101,6 @@ void IcqAccount::setStatus(Status status)
 {
 	Q_D(IcqAccount);
 	Status current = this->status();
-	debug() << QString("Changing status from %1 to %2")
-			.arg(statusToString(current, false))
-			.arg(statusToString(status, false));
 	if (current == status) {
 		if (status == Offline) {
 			d->lastStatus = status;
@@ -123,6 +121,11 @@ void IcqAccount::setStatus(Status status)
 				quint32 time = config.group("reconnect").value("time", 3000);
 				d->reconnectTimer.singleShot(time, this, SLOT(onReconnectTimeout()));
 			}
+		} else if (d->conn->error() == AbstractConnection::MismatchNickOrPassword) {
+			Account::setStatus(status);
+			config().group("general").setValue("passwd", QString(), Config::Crypted);
+			setStatus(d->lastStatus);
+			return;
 		}
 		foreach(IcqContact *contact, d->contacts)
 			contact->setStatus(Offline);
@@ -134,13 +137,21 @@ void IcqAccount::setStatus(Status status)
 	} else if (status >= Online && status <= OnThePhone) {
 		d->lastStatus = status;
 		if (current == Offline) {
-			status = Connecting;
-			d->conn->connectToLoginServer();
 			d->reconnectTimer.stop();
+			QString pass = password();
+			if (!pass.isEmpty()) {
+				status = Connecting;
+				d->conn->connectToLoginServer(pass);
+			} else {
+				status = Offline;
+			}
 		} else {
 			d->conn->sendStatus(status);
 		}
 	}
+	debug() << QString("Changing status from %1 to %2")
+			.arg(statusToString(current, false))
+			.arg(statusToString(status, false));
 	Account::setStatus(status);
 }
 
@@ -275,6 +286,24 @@ QHash<quint64, Cookie*> &IcqAccount::cookies()
 {
 	Q_D(IcqAccount);
 	return d->cookies;
+}
+
+QString IcqAccount::password()
+{
+	Q_D(IcqAccount);
+	QString password = config().group("general").value("passwd", QString(), Config::Crypted);
+	if (password.isEmpty()) {
+		PasswordDialog *dialog = new PasswordDialog(this);
+		if (dialog->exec() == PasswordDialog::Accepted) {
+			password = dialog->password();
+			if (dialog->isSavePassword()) {
+				config().group("general").setValue("passwd", password, Config::Crypted);
+				config().sync();
+			}
+		}
+		delete dialog;
+	}
+	return password;
 }
 
 } // namespace Icq

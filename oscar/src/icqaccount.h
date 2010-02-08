@@ -71,6 +71,7 @@ public slots:
 	void onReconnectTimeout();
 private:
 	QHash<quint64, Cookie*> &cookies();
+	QString password();
 	friend class Roster;
 	friend class SsiHandler;
 	friend class Cookie;

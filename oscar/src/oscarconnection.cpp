@@ -166,10 +166,10 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 		registerHandler(gen->generate<SNACHandler>());
 }
 
-void OscarConnection::connectToLoginServer()
+void OscarConnection::connectToLoginServer(const QString &password)
 {
 	setError(NoError);
-	Md5Login *md5login = new Md5Login(this);
+	Md5Login *md5login = new Md5Login(password, this);
 	connect(md5login->socket(), SIGNAL(disconnected()), md5login, SLOT(deleteLater()));
 	connect(md5login, SIGNAL(error(ConnectionError)), this, SLOT(md5Error(ConnectionError)));
 	md5login->login();
