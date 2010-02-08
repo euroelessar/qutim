@@ -257,12 +257,7 @@ QList<Capability> IcqAccount::capabilities()
 
 void IcqAccount::setVisibility(Visibility visibility)
 {
-	QList<FeedbagItem> items = feedbag()->group(SsiVisibility);
-	FeedbagItem item;
-	if (!items.isEmpty())
-		item = items.first();
-	else
-		item = feedbag()->item(SsiVisibility, 0, Feedbag::GenerateId | Feedbag::DontLoadLocal);
+	FeedbagItem item = feedbag()->type(SsiVisibility, Feedbag::CreateItem).first();
 	TLV data(0x00CA);
 	data.append<quint8>(visibility);
 	item.setField(data);

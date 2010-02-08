@@ -134,6 +134,7 @@ public:
 	FeedbagItem item(quint16 type, const QString &name, ItemLoadFlags flags = NoFlags) const;
 	QList<FeedbagItem> group(quint16 groupId) const;
 	QList<FeedbagItem> group(const QString &name) const;
+	QList<FeedbagItem> type(quint16 type, ItemLoadFlags flags = NoFlags) const;
 	bool containsItem(quint16 type, quint16 id) const;
 	bool containsItem(quint16 type, const QString &name) const;
 	quint16 uniqueItemId(quint16 type, quint16 value = 0) const;

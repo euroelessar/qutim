@@ -569,6 +569,22 @@ QList<FeedbagItem> Feedbag::group(const QString &name) const
 	return QList<FeedbagItem>();
 }
 
+QList<FeedbagItem> Feedbag::type(quint16 type, ItemLoadFlags flags) const
+{
+	QList<FeedbagItem> items;
+	if (!(flags & DontLoadLocal)) {
+		foreach (const SSIItem &item, d->items) {
+			if (item.itemType == type)
+				items << FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), item));
+		}
+	}
+	if (items.isEmpty() && flags & CreateItem)
+		items << FeedbagItem(const_cast<Feedbag*>(this), type,
+							 type != SsiGroup ? uniqueItemId(type) : 0,
+							 type == SsiGroup ? uniqueItemId(type) : 0,
+							 "");
+	return items;
+}
 
 bool Feedbag::containsItem(quint16 type, quint16 id) const
 {
