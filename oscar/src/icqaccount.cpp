@@ -48,7 +48,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
 	d->conn->registerHandler(new Roster(this));
 	d->lastStatus = Offline; // TODO: load the value from the account config.
-	d->avatars = protocol()->config("general").value("avatars", QVariant(true)).toBool();
 
 	// ICQ UTF8 Support
 	d->caps.append(ICQ_CAPABILITY_UTF8);
@@ -190,12 +189,6 @@ const QHash<QString, IcqContact*> &IcqAccount::contacts() const
 	return d->contacts;
 }
 
-void IcqAccount::setAvatarsSupport(bool avatars)
-{
-	Q_D(IcqAccount);
-	d->avatars = avatars;
-}
-
 bool IcqAccount::avatarsSupport()
 {
 	Q_D(IcqAccount);
@@ -263,6 +256,12 @@ void IcqAccount::setVisibility(Visibility visibility)
 	item.setField(data);
 	item.setField<qint32>(0x00C9, 0xffffffff);
 	item.update();
+}
+
+void IcqAccount::updateSettings()
+{
+	Q_D(IcqAccount);
+	d->avatars = protocol()->config("general").value("avatars", true);
 }
 
 void IcqAccount::onReconnectTimeout()

@@ -59,8 +59,7 @@ IcqProtocol::IcqProtocol() :
 {
 	Q_ASSERT(!self);
 	self = this;
-	QString codecName = config("general").value("codec", "System").toString();
-	Util::setAsciiCodec(QTextCodec::codecForName(codecName.toLatin1()));
+	updateSettings();
 }
 
 IcqProtocol::~IcqProtocol()
@@ -120,6 +119,15 @@ Account *IcqProtocol::account(const QString &id) const
 {
 	Q_D(const IcqProtocol);
 	return d->accounts_hash->value(id);
+}
+
+void IcqProtocol::updateSettings()
+{
+	Q_D(IcqProtocol);
+	QString codecName = config("general").value("codec", "System").toString();
+	Util::setAsciiCodec(QTextCodec::codecForName(codecName.toLatin1()));
+	foreach (QPointer<IcqAccount> acc, *d->accounts_hash)
+		acc->updateSettings();
 }
 
 void IcqProtocol::onStatusActionPressed()

@@ -44,7 +44,7 @@ class IcqAccount: public Account
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(IcqAccount)
 	Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-	Q_PROPERTY(bool avatarsSupport READ avatarsSupport WRITE setAvatarsSupport)
+	Q_PROPERTY(bool avatarsSupport READ avatarsSupport)
 public:
 	IcqAccount(const QString &uin);
 	virtual ~IcqAccount();
@@ -56,7 +56,6 @@ public:
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
 	IcqContact *getContact(const QString &id, bool create = false);
 	const QHash<QString, IcqContact*> &contacts() const;
-	void setAvatarsSupport(bool avatars);
 	bool avatarsSupport();
 	void setCapability(const Capability &capability, const QString &type = QString());
 	bool removeCapability(const Capability &capability);
@@ -68,6 +67,7 @@ public:
 signals:
 	void loginFinished();
 public slots:
+	void updateSettings();
 	void onReconnectTimeout();
 private:
 	QHash<quint64, Cookie*> &cookies();

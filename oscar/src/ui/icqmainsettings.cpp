@@ -72,15 +72,11 @@ void IcqMainSettings::cancelImpl()
 
 void IcqMainSettings::saveImpl()
 {
-	QString codecName = ui->codepageBox->currentText();
-	bool avatars = !ui->avatarBox->isChecked();
-	m_config.group("general").setValue("avatars", avatars);
+	m_config.group("general").setValue("avatars", !ui->avatarBox->isChecked());
 	m_config.group("reconnect").setValue("enabled", ui->reconnectBox->isChecked());
-	m_config.group("general").setValue("codec", codecName);
+	m_config.group("general").setValue("codec", ui->codepageBox->currentText());
 	m_config.sync();
-	Util::setAsciiCodec(QTextCodec::codecForName(codecName.toLatin1()));
-	foreach(Account *account, IcqProtocol::instance()->accounts())
-		account->setProperty("avatarsSupport", avatars);
+	IcqProtocol::instance()->updateSettings();
 }
 
 } // namespace Icq
