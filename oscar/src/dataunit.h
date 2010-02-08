@@ -40,6 +40,7 @@ public:
 	DataUnit(const DataUnit &unit) { m_data = unit.m_data; m_state = 0; m_max_size = 0; }
 	DataUnit(const QByteArray &data) { m_data = data; m_state = 0; m_max_size = 0; }
 	const QByteArray &data() const { return m_data; }
+	operator QByteArray() const { return data(); }
 	void setData(const QByteArray &data) { m_data = data; }
 	inline QByteArray readData(uint size) const;
 	inline void skipData(uint num) const { m_state = qMin<uint>(m_state + num, m_data.size()); }

@@ -191,7 +191,6 @@ void SsiHandler::removeContact(IcqContact *contact)
 Roster::Roster(IcqAccount *account):
 	SNACHandler(account)
 {
-	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
 	m_account = account;
 	m_ssiHandler = new SsiHandler(m_account, this);
 	m_conn = account->connection();

@@ -21,9 +21,7 @@
 #include <QString>
 #include <QMap>
 #include <QtEndian>
-
 #include "icq_global.h"
-#include "capability.h"
 #include "util.h"
 #include "dataunit.h"
 

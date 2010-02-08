@@ -32,6 +32,7 @@ public:
 	inline quint16 seqNum() const { return m_sequence_number; }
 	inline void setSeqNum(quint8 seqnum) { m_sequence_number = seqnum; }
 	QByteArray toByteArray() const;
+	operator QByteArray() const { return toByteArray(); };
 	QByteArray header() const;
 	bool readData(QIODevice *dev);
 	inline bool isFinished() const { return m_state == Finished; }

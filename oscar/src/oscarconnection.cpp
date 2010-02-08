@@ -53,7 +53,7 @@ void ProtocolNegotiationImpl::handleSNAC(AbstractConnection *conn, const SNAC &s
 	sn.resetState();
 	switch ((sn.family() << 16) | sn.subtype()) {
 	// Server sends rate limits information
-	case 0x00010007: {
+	case ServiceFamily << 16 | ServiceServerRateInfo: {
 		quint16 buddyFlags = 0x0002;
 		OscarConnection *c = qobject_cast<OscarConnection*>(conn);
 		Q_ASSERT(c);
@@ -98,16 +98,16 @@ void ProtocolNegotiationImpl::handleSNAC(AbstractConnection *conn, const SNAC &s
 		break;
 	}
 		// Server replies via location service limitations
-	case 0x00020003: {
+	case LocationFamily << 16 | LocationRightsReply: {
 		// TODO: Implement, it's important
 		break;
 	}
 		// Server replies via BLM service limitations
-	case 0x00030003: {
+	case BuddyFamily << 16 | UserSrvReplyBuddy: {
 		break;
 	}
 		// Server sends ICBM service parameters to client
-	case 0x00040005: {
+	case MessageFamily << 16 | MessageSrvReplyIcbm: {
 		quint32 dw_flags = 0x00000303;
 		// TODO: Find description
 #ifdef DBG_CAPHTML
@@ -119,7 +119,7 @@ void ProtocolNegotiationImpl::handleSNAC(AbstractConnection *conn, const SNAC &s
 		break;
 	}
 		// Server sends PRM service limitations to client
-	case 0x00090003: {
+	case BosFamily << 16 | PrivacyRightsReply: {
 		break;
 	}
 	}

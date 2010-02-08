@@ -139,7 +139,6 @@ void OscarRate::sendNextPackets()
 {
 	Q_ASSERT(!m_priorQueue.isEmpty() || !m_queue.isEmpty());
 	QDateTime dateTime = QDateTime::currentDateTime();
-
 	quint32 timeDiff;
 	if (dateTime.date() == m_time.date())
 		timeDiff = m_time.time().msecsTo(dateTime.time());
@@ -423,8 +422,7 @@ void AbstractConnection::send(FLAP &flap)
 {
 	flap.setSeqNum(seqNum());
 	//debug(VeryVerbose) << "FLAP:" << flap.toByteArray().toHex().constData();
-	m_socket->write(flap.header());
-	m_socket->write(flap.data());
+	m_socket->write(flap);
 	m_socket->flush();
 }
 
@@ -450,12 +448,18 @@ void AbstractConnection::setSeqNum(quint16 seqnum)
 
 void AbstractConnection::processNewConnection()
 {
-	debug(Verbose) << QString("processNewConnection: %1 %2 %3") .arg(flap().channel(), 2, 16, QChar('0')) .arg(flap().seqNum()) .arg(flap().data().toHex().constData());
+	debug(Verbose) << QString("processNewConnection: %1 %2 %3")
+			.arg(flap().channel(), 2, 16, QChar('0'))
+			.arg(flap().seqNum())
+			.arg(flap().data().toHex().constData());
 }
 
 void AbstractConnection::processCloseConnection()
 {
-	debug(Verbose) << QString("processCloseConnection: %1 %2 %3") .arg(flap().channel(), 2, 16, QChar('0')) .arg(flap().seqNum()) .arg(flap().data().toHex().constData());
+	debug(Verbose) << QString("processCloseConnection: %1 %2 %3")
+			.arg(flap().channel(), 2, 16, QChar('0'))
+			.arg(flap().seqNum())
+			.arg(flap().data().toHex().constData());
 	FLAP flap(0x04);
 	flap.append<quint32>(0x00000001);
 	send(flap);
@@ -472,7 +476,10 @@ void AbstractConnection::setError(ConnectionError e)
 void AbstractConnection::processSnac()
 {
 	SNAC snac = SNAC::fromByteArray(m_flap.data());
-	debug(Verbose) << QString("SNAC(0x%1, 0x%2) is received from %3") .arg(snac.family(), 4, 16, QChar('0')) .arg(snac.subtype(), 4, 16, QChar('0')) .arg(metaObject()->className());
+	debug(Verbose) << QString("SNAC(0x%1, 0x%2) is received from %3")
+			.arg(snac.family(), 4, 16, QChar('0'))
+			.arg(snac.subtype(), 4, 16, QChar('0'))
+			.arg(metaObject()->className());
 	bool found = false;
 	foreach(SNACHandler *handler, m_handlers.values((snac.family() << 16)| snac.subtype())) {
 		found = true;
@@ -480,7 +487,10 @@ void AbstractConnection::processSnac()
 		handler->handleSNAC(this, snac);
 	}
 	if (!found) {
-		warning() << QString("No handlers for SNAC(0x%1, 0x%2) in %3") .arg(snac.family(), 4, 16, QChar('0')) .arg(snac.subtype(), 4, 16, QChar('0')) .arg(metaObject()->className());
+		warning() << QString("No handlers for SNAC(0x%1, 0x%2) in %3")
+				.arg(snac.family(), 4, 16, QChar('0'))
+				.arg(snac.subtype(), 4, 16, QChar('0'))
+				.arg(metaObject()->className());
 	}
 }
 

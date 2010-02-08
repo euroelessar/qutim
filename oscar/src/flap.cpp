@@ -35,25 +35,23 @@ QByteArray FLAP::toByteArray() const
 
 QByteArray FLAP::header() const
 {
-	QByteArray data;
-	data.resize(6);
-	data[0] = 0x2a;
-	data[1] = (uchar) m_channel;
-	qToBigEndian<quint16>(m_sequence_number, (uchar *) data.constData() + 2);
-	qToBigEndian<quint16>(m_data.size(), (uchar *) data.constData() + 4);
+	DataUnit data;
+	data.append<quint8>(0x2a);
+	data.append<quint8>(m_channel);
+	data.append<quint16>(m_sequence_number);
+	data.append<quint16>(m_data.size());
 	return data;
 }
 
 bool FLAP::readData(QIODevice *dev)
 {
 	if (m_state == ReadHeader) {
-		QByteArray data = dev->read(6);
-		const uchar *s = (uchar *) data.constData();
-		if (*(s++) != 0x2a)
+		DataUnit data(dev->read(6));
+		if (data.read<quint8>() != 0x2a)
 			return false;
-		m_channel = *(s++);
-		m_sequence_number = qFromBigEndian<quint16>(s);
-		m_length = qFromBigEndian<quint16>(s + 2);
+		m_channel = data.read<quint8>();
+		m_sequence_number = data.read<quint16>();
+		m_length = data.read<quint16>();
 		m_state = ReadData;
 		m_data.resize(m_length);
 	}
