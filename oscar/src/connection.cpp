@@ -17,6 +17,7 @@
 #include "connection_p.h"
 #include <QHostInfo>
 #include <QBuffer>
+#include <QCoreApplication>
 
 namespace Icq
 {
@@ -24,19 +25,18 @@ namespace Icq
 quint16 generate_flap_sequence()
 {
 	quint32 n = qrand(), s = 0;
-	for (quint32 i = n; i >>= 3; s += i)
-		;
+	for (quint32 i = n; i >>= 3; s += i);
 	return ((((0 - s) ^ (quint8) n) & 7) ^ n) + 2;
 }
 
 ProtocolError::ProtocolError(const SNAC &snac)
 {
-	code = snac.readSimple<qint16> ();
+	code = snac.read<qint16>();
 	subcode = 0;
-	TLVMap tlvs = snac.readTLVChain();
+	TLVMap tlvs = snac.read<TLVMap>();
 	if (tlvs.contains(0x08)) {
 		DataUnit data(tlvs.value(0x08));
-		subcode = data.readSimple<qint16> ();
+		subcode = data.read<qint16>();
 	}
 	str = getErrorStr();
 }
@@ -100,7 +100,7 @@ QString ProtocolError::getErrorStr()
 OscarRate::OscarRate(const SNAC &sn, AbstractConnection *conn) :
 	m_conn(conn)
 {
-	m_groupId = sn.readSimple<quint16> ();
+	m_groupId = sn.read<quint16>();
 	update(m_groupId, sn);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(sendNextPackets()));
 	m_timer.setSingleShot(true);
@@ -108,15 +108,15 @@ OscarRate::OscarRate(const SNAC &sn, AbstractConnection *conn) :
 
 void OscarRate::update(quint32 groupId, const SNAC &sn)
 {
-	m_windowSize = sn.readSimple<quint32> ();
-	m_clearLevel = sn.readSimple<quint32> ();
-	m_alertLevel = sn.readSimple<quint32> ();
-	m_limitLevel = sn.readSimple<quint32> ();
-	m_disconnectLevel = sn.readSimple<quint32> ();
-	m_currentLevel = sn.readSimple<quint32> ();
-	m_maxLevel = sn.readSimple<quint32> ();
-	m_lastTimeDiff = sn.readSimple<quint32> ();
-	m_currentState = sn.readSimple<quint8> ();
+	m_windowSize = sn.read<quint32>();
+	m_clearLevel = sn.read<quint32>();
+	m_alertLevel = sn.read<quint32>();
+	m_limitLevel = sn.read<quint32>();
+	m_disconnectLevel = sn.read<quint32>();
+	m_currentLevel = sn.read<quint32>();
+	m_maxLevel = sn.read<quint32>();
+	m_lastTimeDiff = sn.read<quint32>();
+	m_currentState = sn.read<quint8>();
 
 	if (m_windowSize > 1) {
 		m_time = QDateTime::currentDateTime();
@@ -139,7 +139,6 @@ void OscarRate::sendNextPackets()
 {
 	Q_ASSERT(!m_priorQueue.isEmpty() || !m_queue.isEmpty());
 	QDateTime dateTime = QDateTime::currentDateTime();
-
 	quint32 timeDiff;
 	if (dateTime.date() == m_time.date())
 		timeDiff = m_time.time().msecsTo(dateTime.time());
@@ -191,21 +190,21 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case ServiceFamily << 16 | ServiceServerReady: {
 		QList<quint16> services;
 		while (sn.dataSize() != 0)
-			services << sn.readSimple<quint16> ();
+			services << sn.read<quint16>();
 		conn->setServicesList(services);
 		SNAC snac(ServiceFamily, ServiceClientFamilies);
 		// Sending the same as ICQ 6
-		snac.appendSimple<quint32> (0x00220001);
-		snac.appendSimple<quint32> (0x00010004);
-		snac.appendSimple<quint32> (0x00130004);
-		snac.appendSimple<quint32> (0x00020001);
-		snac.appendSimple<quint32> (0x00030001);
-		snac.appendSimple<quint32> (0x00150001);
-		snac.appendSimple<quint32> (0x00040001);
-		snac.appendSimple<quint32> (0x00060001);
-		snac.appendSimple<quint32> (0x00090001);
-		snac.appendSimple<quint32> (0x000a0001);
-		snac.appendSimple<quint32> (0x000b0001);
+		snac.append<quint32>(0x00220001);
+		snac.append<quint32>(0x00010004);
+		snac.append<quint32>(0x00130004);
+		snac.append<quint32>(0x00020001);
+		snac.append<quint32>(0x00030001);
+		snac.append<quint32>(0x00150001);
+		snac.append<quint32>(0x00040001);
+		snac.append<quint32>(0x00060001);
+		snac.append<quint32>(0x00090001);
+		snac.append<quint32>(0x000a0001);
+		snac.append<quint32>(0x000b0001);
 		conn->send(snac);
 		break;
 	}
@@ -213,7 +212,7 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case ServiceFamily << 16 | ServiceServerNameInfo: {
 
 		// Skip uin
-		Q_UNUSED(sn.readData<quint8>());
+		sn.read<QByteArray, quint8>();
 		sn.skipData(4);
 
 		// Login
@@ -228,8 +227,8 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			// TLV(x1E) Unknown: empty.
 			// TLV(x05) Member of ICQ since.
 			// TLV(x14) Unknown
-			TLVMap tlvs = sn.readTLVChain();
-			quint32 ip = tlvs.value(0x0a).value<quint32> ();
+			TLVMap tlvs = sn.read<TLVMap>();
+			quint32 ip = tlvs.value(0x0a).read<quint32>();
 			conn->setExternalIP(QHostAddress(ip));
 			//debug() << conn->externalIP();
 		}
@@ -252,7 +251,7 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		conn->m_ratesHash.clear();
 
 		// Rate classes
-		quint16 groupCount = sn.readSimple<quint16> ();
+		quint16 groupCount = sn.read<quint16>();
 		for (int i = 0; i < groupCount; ++i) {
 			OscarRate *rate = new OscarRate(sn, conn);
 			if (!rate->isEmpty())
@@ -260,15 +259,15 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		}
 		// Rate groups
 		while (sn.dataSize() >= 4) {
-			quint16 groupId = sn.readSimple<quint16> ();
-			quint16 count = sn.readSimple<quint16> ();
+			quint16 groupId = sn.read<quint16>();
+			quint16 count = sn.read<quint16>();
 			QHash<quint16, OscarRate*>::iterator rateItr = conn->m_rates.find(groupId);
 			if (rateItr == conn->m_rates.end()) {
 				sn.skipData(count * 4);
 				continue;
 			}
 			for (int j = 0; j < count; ++j) {
-				quint32 snacType = sn.readSimple<quint32> ();
+				quint32 snacType = sn.read<quint32>();
 				rateItr.value()->addSnacType(snacType);
 				conn->m_ratesHash.insert(snacType, *rateItr);
 			}
@@ -277,7 +276,7 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		// Accepting rates
 		SNAC snac(ServiceFamily, ServiceClientRateAck);
 		for (int i = 1; i <= groupCount; i++)
-			snac.appendSimple<quint16> (i);
+			snac.append<quint16>(i);
 		conn->send(snac);
 
 		// This command requests from the server certain information about the client that is stored on the server
@@ -287,15 +286,15 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	case ServiceFamily << 16 | ServiceServerRateChange: {
-		sn.readData<quint16> (); // Unknown
-		quint16 code = sn.readSimple<quint16> ();
+		sn.read<QByteArray, quint16>(); // Unknown
+		quint16 code = sn.read<quint16>();
 		if (code == 2)
 			debug() << "Rate limits warning";
 		if (code == 3)
 			debug() << "Rate limits hit";
 		if (code == 4)
 			debug() << "Rate limits clear";
-		quint32 groupId = sn.readSimple<quint16> ();
+		quint32 groupId = sn.read<quint16>();
 		if (conn->m_rates.contains(groupId))
 			conn->m_rates.value(groupId)->update(groupId, sn);
 		break;
@@ -316,6 +315,7 @@ AbstractConnection::AbstractConnection(QObject *parent) :
 	connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
 	connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
 	m_id = (quint32) qrand();
+	m_error = NoError;
 }
 
 AbstractConnection::~AbstractConnection()
@@ -337,6 +337,78 @@ void AbstractConnection::disconnectFromHost(bool force)
 	m_socket->disconnectFromHost();
 }
 
+QString AbstractConnection::errorString()
+{
+	switch (m_error) {
+	case InvalidNickOrPassword:
+		return QCoreApplication::translate("ConnectionError", "Invalid nick or password");
+	case ServiceUnaivalable:
+		return QCoreApplication::translate("ConnectionError", "Service temporarily unavailable");
+	case IncorrectNickOrPassword:
+		return QCoreApplication::translate("ConnectionError", "Incorrect nick or password");
+	case MismatchNickOrPassword:
+		return QCoreApplication::translate("ConnectionError", "Mismatch nick or password");
+	case InternalClientError:
+		return QCoreApplication::translate("ConnectionError", "Internal client error (bad input to authorizer)");
+	case InvalidAccount:
+		return QCoreApplication::translate("ConnectionError", "Invalid account");
+	case DeletedAccount:
+		return QCoreApplication::translate("ConnectionError", "Deleted account");
+	case ExpiredAccount:
+		return QCoreApplication::translate("ConnectionError", "Expired account");
+	case NoAccessToDatabase:
+		return QCoreApplication::translate("ConnectionError", "No access to database");
+	case NoAccessToResolver:
+		return QCoreApplication::translate("ConnectionError", "No access to resolver");
+	case InvalidDatabaseFields:
+		return QCoreApplication::translate("ConnectionError", "Invalid database fields");
+	case BadDatabaseStatus:
+		return QCoreApplication::translate("ConnectionError", "Bad database status");
+	case BadResolverStatus:
+		return QCoreApplication::translate("ConnectionError", "Bad resolver status");
+	case InternalError:
+		return QCoreApplication::translate("ConnectionError", "Internal error");
+	case ServiceOffline:
+		return QCoreApplication::translate("ConnectionError", "Service temporarily offline");
+	case SuspendedAccount:
+		return QCoreApplication::translate("ConnectionError", "Suspended account");
+	case DBSendError:
+		return QCoreApplication::translate("ConnectionError", "DB send error");
+	case DBLinkError:
+		return QCoreApplication::translate("ConnectionError", "DB link error");
+	case ReservationMapError:
+		return QCoreApplication::translate("ConnectionError", "Reservation map error");
+	case ReservationLinkError:
+		return QCoreApplication::translate("ConnectionError", "Reservation link error");
+	case ConnectionLimitExceeded :
+		return QCoreApplication::translate("ConnectionError", "The users num connected from this IP has reached the maximum");
+	case ConnectionLimitExceededReservation:
+		return QCoreApplication::translate("ConnectionError", "The users num connected from this IP has reached the maximum (reservation)");
+	case RateLimitExceededReservation:
+		return QCoreApplication::translate("ConnectionError", "Rate limit exceeded (reservation). Please try to reconnect in a few minutes");
+	case UserHeavilyWarned:
+		return QCoreApplication::translate("ConnectionError", "User too heavily warned");
+	case ReservationTimeout:
+		return QCoreApplication::translate("ConnectionError", "Reservation timeout");
+	case ClientUpgradeRequired:
+		return QCoreApplication::translate("ConnectionError", "You are using an older version of ICQ. Upgrade required");
+	case ClientUpgradeRecommended:
+		return QCoreApplication::translate("ConnectionError", "You are using an older version of ICQ. Upgrade recommended");
+	case RateLimitExceeded:
+		return QCoreApplication::translate("ConnectionError", "Rate limit exceeded. Please try to reconnect in a few minutes");
+	case IcqNetworkError:
+		return QCoreApplication::translate("ConnectionError", "Can't register on the ICQ network. Reconnect in a few minutes");
+	case InvalidSecirID:
+		return QCoreApplication::translate("ConnectionError", "Invalid SecurID");
+	case AgeLimit:
+		return QCoreApplication::translate("ConnectionError", "Account suspended because of your age (age < 13)");
+	case AnotherClientLogined:
+		return QCoreApplication::translate("ConnectionError", "Another client is loggin with this uin");
+	default:
+		return QCoreApplication::translate("ConnectionError", "Unknown error");
+	}
+}
+
 void AbstractConnection::send(SNAC &snac, bool priority)
 {
 	OscarRate *rate = m_ratesHash.value(snac.family() << 16 | snac.subtype());
@@ -350,18 +422,20 @@ void AbstractConnection::send(FLAP &flap)
 {
 	flap.setSeqNum(seqNum());
 	//debug(VeryVerbose) << "FLAP:" << flap.toByteArray().toHex().constData();
-	m_socket->write(flap.header());
-	m_socket->write(flap.data());
+	m_socket->write(flap);
 	m_socket->flush();
 }
 
 quint32 AbstractConnection::sendSnac(SNAC &snac)
 {
-	debug(Verbose) << QString("SNAC(0x%1, 0x%2) is sent to %3") .arg(snac.family(), 4, 16, QChar('0')) .arg(snac.subtype(), 4, 16, QChar('0')) .arg(metaObject()->className());
+	debug(Verbose) << QString("SNAC(0x%1, 0x%2) is sent to %3")
+			.arg(snac.family(), 4, 16, QChar('0'))
+			.arg(snac.subtype(), 4, 16, QChar('0'))
+			.arg(metaObject()->className());
 	FLAP flap(0x02);
 	quint32 id = nextId();
 	snac.setId(id);
-	flap.appendData(snac);
+	flap.append(snac.toByteArray());
 	send(flap);
 	return id;
 }
@@ -374,22 +448,38 @@ void AbstractConnection::setSeqNum(quint16 seqnum)
 
 void AbstractConnection::processNewConnection()
 {
-	debug(Verbose) << QString("processNewConnection: %1 %2 %3") .arg(flap().channel(), 2, 16, QChar('0')) .arg(flap().seqNum()) .arg(flap().data().toHex().constData());
+	debug(Verbose) << QString("processNewConnection: %1 %2 %3")
+			.arg(flap().channel(), 2, 16, QChar('0'))
+			.arg(flap().seqNum())
+			.arg(flap().data().toHex().constData());
 }
 
 void AbstractConnection::processCloseConnection()
 {
-	debug(Verbose) << QString("processCloseConnection: %1 %2 %3") .arg(flap().channel(), 2, 16, QChar('0')) .arg(flap().seqNum()) .arg(flap().data().toHex().constData());
+	debug(Verbose) << QString("processCloseConnection: %1 %2 %3")
+			.arg(flap().channel(), 2, 16, QChar('0'))
+			.arg(flap().seqNum())
+			.arg(flap().data().toHex().constData());
 	FLAP flap(0x04);
-	flap.appendSimple<quint32> (0x00000001);
+	flap.append<quint32>(0x00000001);
 	send(flap);
 	socket()->disconnectFromHost();
+}
+
+void AbstractConnection::setError(ConnectionError e)
+{
+	m_error = e;
+	if (m_error != NoError)
+		emit error(m_error);
 }
 
 void AbstractConnection::processSnac()
 {
 	SNAC snac = SNAC::fromByteArray(m_flap.data());
-	debug(Verbose) << QString("SNAC(0x%1, 0x%2) is received from %3") .arg(snac.family(), 4, 16, QChar('0')) .arg(snac.subtype(), 4, 16, QChar('0')) .arg(metaObject()->className());
+	debug(Verbose) << QString("SNAC(0x%1, 0x%2) is received from %3")
+			.arg(snac.family(), 4, 16, QChar('0'))
+			.arg(snac.subtype(), 4, 16, QChar('0'))
+			.arg(metaObject()->className());
 	bool found = false;
 	foreach(SNACHandler *handler, m_handlers.values((snac.family() << 16)| snac.subtype())) {
 		found = true;
@@ -397,7 +487,10 @@ void AbstractConnection::processSnac()
 		handler->handleSNAC(this, snac);
 	}
 	if (!found) {
-		warning() << QString("No handlers for SNAC(0x%1, 0x%2) in %3") .arg(snac.family(), 4, 16, QChar('0')) .arg(snac.subtype(), 4, 16, QChar('0')) .arg(metaObject()->className());
+		warning() << QString("No handlers for SNAC(0x%1, 0x%2) in %3")
+				.arg(snac.family(), 4, 16, QChar('0'))
+				.arg(snac.subtype(), 4, 16, QChar('0'))
+				.arg(metaObject()->className());
 	}
 }
 
@@ -438,12 +531,12 @@ void AbstractConnection::readData()
 
 void AbstractConnection::stateChanged(QAbstractSocket::SocketState state)
 {
-	debug(Verbose) << "New connection state" << state;
+	debug(Verbose) << "New connection state" << state << this->metaObject()->className();
 }
 
 void AbstractConnection::error(QAbstractSocket::SocketError error)
 {
-	debug() << IMPLEMENT_ME << error;
+	debug() << "Connection error:" << error;
 }
 
 } // namespace Icq

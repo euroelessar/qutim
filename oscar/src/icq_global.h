@@ -204,7 +204,7 @@ enum SsiItemType
 
 const quint16 max_message_snac_size = 8000;
 const quint16 client_rate_limit     = 0;
-const quint16 not_in_list_group     = 2;
+const quint16 not_in_list_group     = 0;
 const quint8 protocol_version       = 9;
 const quint16 client_features       = 0x3;
 const quint16 dc_type               = 0x0004;

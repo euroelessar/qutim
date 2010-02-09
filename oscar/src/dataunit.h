@@ -18,9 +18,8 @@
 #define DATAUNIT_H
 
 #include "util.h"
-#include "tlv.h"
-#include "capability.h"
-#include "cookie.h"
+#include <icq_global.h>
+#include <typeinfo>
 
 namespace Icq
 {
@@ -31,151 +30,60 @@ enum ByteOrder
 	LittleEndian = QSysInfo::LittleEndian
 };
 
+class TLV;
+class TLVMap;
+
 class DataUnit
 {
 public:
-	inline DataUnit() { m_state = 0; }
-	inline DataUnit(const DataUnit &unit) { m_data = unit.m_data; m_state = 0; }
-	inline DataUnit(const TLV &tlv) { m_data = tlv.value(); m_state = 0; }
-	inline DataUnit(const QByteArray &data) { m_data = data; m_state = 0; }
-	inline const QByteArray &data() const { return m_data; }
-	inline void setData(const QByteArray &data) { m_data = data; }
-	inline void appendData(const QByteArray &data) { m_data += data; }
-	inline void appendData(const Capability &data) { m_data += data.data(); }
-	inline void appendData(const Cookie &cookie) { appendSimple<quint64>(cookie.id()); };
-	inline void appendData(const QString &str, QTextCodec *codec = Util::defaultCodec()) { m_data += codec->fromUnicode(str); }
-	void appendTLV(quint16 type) { appendData(TLV(type)); }
-	template<typename T>
-	void appendTLV(quint16 type, const T &value);
-	template<typename T>
-	void appendSimple(T value, ByteOrder bo = BigEndian);
-	template<typename L>
-	void appendData(const QByteArray &str, ByteOrder bo = BigEndian);
-	template<typename L>
-	void appendData(const QString &str, QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian);
-	template<typename L>
-	void appendData(const QString &str, ByteOrder bo);
+	DataUnit() { m_state = 0; m_max_size = 0; }
+	DataUnit(const DataUnit &unit) { m_data = unit.m_data; m_state = 0; m_max_size = 0; }
+	DataUnit(const QByteArray &data) { m_data = data; m_state = 0; m_max_size = 0; }
+	const QByteArray &data() const { return m_data; }
+	operator QByteArray() const { return data(); }
+	void setData(const QByteArray &data) { m_data = data; }
+	inline QByteArray readData(uint size) const;
+	inline void skipData(uint num) const { m_state = qMin<uint>(m_state + num, m_data.size()); }
 	inline void resetState() const { m_state = 0; }
 	inline uint dataSize() const { return m_data.size() > m_state ? m_data.size() - m_state : 0; }
-	template<typename T>
-	T readSimple(ByteOrder bo = BigEndian) const;
-	template<typename L>
-	QByteArray readData(ByteOrder bo = BigEndian) const;
-	inline Capability readCapability() const;
-	inline quint64 readCookie() const;
-	inline QByteArray readData(uint size) const;
-	template<typename L>
-	QString readString(QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian) const;
-	template<typename L>
-	QString readString(ByteOrder bo) const;
-	inline void skipData(uint num) const { m_state = qMin<uint> (m_state + num, m_data.size()); }
 	inline QByteArray readAll() const;
-	TLV readTLV(ByteOrder bo = BigEndian) const;
+	int state() const { return m_state; }
+	void setMaxSize(int size) { m_max_size = size; }
+	template<typename T>
+	void append(const T& data);
+	void append(const char *data);
+	template<typename T>
+	void append(const T &data, ByteOrder bo);
+	void append(const QString &data, QTextCodec *codec);
+	void append(const char *data, QTextCodec *codec);
 	template<typename L>
-	TLVMap readTLVChain(ByteOrder bo = BigEndian) const;
-	inline TLVMap readTLVChain(ByteOrder bo = BigEndian) const;
+	void append(const QByteArray &data, ByteOrder bo = BigEndian);
+	template<typename L>
+	void append(const QString &data, QTextCodec *codec, ByteOrder bo = BigEndian);
+	template<typename L>
+	void append(const char *data, QTextCodec *codec, ByteOrder bo = BigEndian);
+	template<typename L>
+	void append(const QString &data, ByteOrder bo = BigEndian);
+	template<typename L>
+	void append(const char *data, ByteOrder bo = BigEndian);
+	template<typename T>
+	T read() const;
+	template<typename T>
+	T read(ByteOrder bo) const;
+	template<typename T, typename L>
+	T read(ByteOrder bo = BigEndian) const;
+	template<typename T, typename L>
+	T read(QTextCodec *codec, ByteOrder bo = BigEndian) const;
+	inline void appendTLV(quint16 type);
+	template<typename T>
+	void appendTLV(quint16 type, const T &value);
 protected:
 	QByteArray m_data;
+	inline void ensure_value() { if (m_max_size > 0 && m_data.size() > m_max_size) m_data.truncate(m_max_size); } // 16 bits
 private:
-	inline void appendSimple_helper(const QString &value, ByteOrder b) { appendSimple_helper(value.toUtf8(), b); }
-	inline void appendSimple_helper(const QByteArray &value, ByteOrder b) { appendSimple_helper(value.data(), value.size(), b); }
-	inline void appendSimple_helper(const char *value, ByteOrder b) { appendSimple_helper(value, qstrlen(value), b); }
-	inline void appendSimple_helper(const char *data, int size, ByteOrder);
-	template<typename T>
-	void appendSimple_helper(T value, ByteOrder bo = BigEndian);
+	int m_max_size;
 	mutable int m_state;
 };
-
-template<typename T>
-Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const T &value)
-{
-	appendData(TLV::fromTypeValue(type, value));
-}
-
-template<>
-Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const DataUnit &value)
-{
-	appendData(TLV::fromTypeValue(type, value.data()));
-}
-
-template<typename L>
-Q_INLINE_TEMPLATE void DataUnit::appendData(const QByteArray &str, ByteOrder bo)
-{
-	appendSimple<L> (str.size(), bo);
-	m_data.append(str);
-}
-
-template<typename L>
-Q_INLINE_TEMPLATE void DataUnit::appendData(const QString &str, QTextCodec *codec, ByteOrder bo)
-{
-	appendData<L> (codec->fromUnicode(str), bo);
-}
-
-template<typename L>
-Q_INLINE_TEMPLATE void DataUnit::appendData(const QString &str, ByteOrder bo)
-{
-	appendData<L> (Util::defaultCodec()->fromUnicode(str), bo);
-}
-
-template<typename T>
-Q_INLINE_TEMPLATE void DataUnit::appendSimple(T value, ByteOrder bo)
-{
-	appendSimple_helper(value, bo);
-}
-
-template<typename T>
-Q_INLINE_TEMPLATE void DataUnit::appendSimple_helper(T value, ByteOrder bo)
-{
-	appendData(bo == BigEndian ? Util::toBigEndian(value) : Util::toLittleEndian(value));
-}
-
-void DataUnit::appendSimple_helper(const char *data, int size, ByteOrder)
-{
-	m_data += QByteArray::fromRawData(data, size);
-}
-
-template<>
-Q_INLINE_TEMPLATE qint8 DataUnit::readSimple<qint8>(ByteOrder) const
-{
-	if (dataSize() < 1) {
-		m_state = m_data.size();
-		return 0;
-	}
-	return m_data.at(m_state++);
-}
-
-template<>
-Q_INLINE_TEMPLATE quint8 DataUnit::readSimple<quint8>(ByteOrder bo) const
-{
-	return (quint8) readSimple<qint8> (bo);
-}
-
-template<typename T>
-Q_INLINE_TEMPLATE T DataUnit::readSimple(ByteOrder bo) const
-{
-	if (dataSize() < sizeof(T)) {
-		m_state = m_data.size();
-		return 0;
-	}
-	m_state += sizeof(T);
-	return bo == BigEndian ? qFromBigEndian<T> ((const uchar *) m_data.constData() + m_state - sizeof(T)) : qFromLittleEndian<T> ((const uchar *) m_data.constData() + m_state - sizeof(T));
-}
-
-template<typename L>
-Q_INLINE_TEMPLATE QByteArray DataUnit::readData(ByteOrder bo) const
-{
-	return readData(readSimple<L> (bo));
-}
-
-Capability DataUnit::readCapability() const
-{
-	return Capability(readData(16));
-}
-
-quint64 DataUnit::readCookie() const
-{
-	return readSimple<quint64>();
-}
 
 QByteArray DataUnit::readData(uint size) const
 {
@@ -189,17 +97,6 @@ QByteArray DataUnit::readData(uint size) const
 	return str;
 }
 
-template<typename L>
-Q_INLINE_TEMPLATE QString DataUnit::readString(QTextCodec *codec, ByteOrder bo) const
-{
-	return codec->toUnicode(readData<L> (bo));
-}
-
-template<typename L>
-Q_INLINE_TEMPLATE QString DataUnit::readString(ByteOrder bo) const
-{
-	return Util::defaultCodec()->toUnicode(readData<L> (bo));
-}
 
 QByteArray DataUnit::readAll() const
 {
@@ -208,30 +105,266 @@ QByteArray DataUnit::readAll() const
 	return data;
 }
 
-template<typename L>
-Q_INLINE_TEMPLATE TLVMap DataUnit::readTLVChain(ByteOrder bo) const
+template<typename T>
+struct is_simple
 {
-	TLVMap tlvs;
-	L count = readSimple<L> ();
-	for (L i = 0; i < count; i++) {
-		TLV tlv = readTLV(bo);
-		if (tlv.type() == 0xffff)
-			return tlvs;
-		tlvs.insert(tlv);
+	static const bool value = false;
+};
+
+#define ADD_SIMPLE_TYPE(T)\
+	template<> \
+	struct is_simple<T> \
+	{ \
+		static const bool value = true; \
 	}
-	return tlvs;
+
+ADD_SIMPLE_TYPE(quint8);
+ADD_SIMPLE_TYPE(quint16);
+ADD_SIMPLE_TYPE(quint32);
+ADD_SIMPLE_TYPE(quint64);
+ADD_SIMPLE_TYPE(qint8);
+ADD_SIMPLE_TYPE(qint16);
+ADD_SIMPLE_TYPE(qint32);
+ADD_SIMPLE_TYPE(qint64);
+
+template<typename T, bool is_int = is_simple<T>::value >
+struct toDataUnitHelper;
+
+template<typename T>
+struct toDataUnitHelper<T, false>
+{
+	static inline QByteArray toByteArray(const T &data, ByteOrder)
+	{
+		return static_cast<QByteArray>(data);
+	}
+	static inline QByteArray toByteArray(const T &data)
+	{
+		return static_cast<QByteArray>(data);
+	}
+};
+
+template<>
+struct toDataUnitHelper<QString>
+{
+	static inline QByteArray toByteArray(const QString &data, QTextCodec *codec = Util::defaultCodec())
+	{
+		return codec->fromUnicode(data);
+	}
+	static inline QByteArray toByteArray(const QString &data, ByteOrder)
+	{
+		return toByteArray(data);
+	}
+};
+
+template<typename T>
+struct toDataUnitHelper<T, true>
+{
+	static inline QByteArray toByteArray(T data, ByteOrder bo = BigEndian)
+	{
+		return bo == BigEndian ? Util::toBigEndian(data) : Util::toLittleEndian(data);
+	}
+	static inline QByteArray toByteArray(const QByteArray &data, ByteOrder bo = BigEndian)
+	{
+		return toByteArray(data.size(), bo) + data;
+	}
+	static inline QByteArray toByteArray(const QString &data, ByteOrder bo = BigEndian)
+	{
+		return toByteArray(data, Util::defaultCodec(), bo);
+	}
+	static inline QByteArray toByteArray(const char *data, ByteOrder bo = BigEndian)
+	{
+		return toByteArray(QString(data), Util::defaultCodec(), bo);
+	}
+	static inline QByteArray toByteArray(const QString &data, QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian)
+	{
+		return toByteArray(data.size(), bo) + toDataUnitHelper<QString>::toByteArray(data, codec);
+	}
+	static inline QByteArray toByteArray(const char *data, QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian)
+	{
+		return toByteArray(QString(data), codec, bo);
+	}
+};
+
+template<typename T>
+Q_INLINE_TEMPLATE void DataUnit::append(const T& data)
+{
+	m_data += toDataUnitHelper<T>::toByteArray(data);
+	ensure_value();
 }
 
-TLVMap DataUnit::readTLVChain(ByteOrder bo) const
+inline void DataUnit::append(const char *data)
 {
-	TLVMap tlvs;
-	forever {
-		TLV tlv = readTLV(bo);
-		if (tlv.type() == 0xffff)
-			return tlvs;
-		tlvs.insert(tlv);
+	m_data += toDataUnitHelper<QString>::toByteArray(data);
+	ensure_value();
+}
+
+template<typename T>
+Q_INLINE_TEMPLATE void DataUnit::append(const T &data, ByteOrder bo)
+{
+	m_data += toDataUnitHelper<T>::toByteArray(data, bo);
+	ensure_value();
+}
+
+Q_INLINE_TEMPLATE void DataUnit::append(const QString &data, QTextCodec *codec)
+{
+	m_data += toDataUnitHelper<QString>::toByteArray(data, codec);
+	ensure_value();
+}
+
+inline void DataUnit::append(const char *data, QTextCodec *codec)
+{
+	m_data += toDataUnitHelper<QString>::toByteArray(data, codec);
+	ensure_value();
+}
+
+template<typename L>
+Q_INLINE_TEMPLATE void DataUnit::append(const QByteArray &data, ByteOrder bo)
+{
+	m_data += toDataUnitHelper<L>::toByteArray(data, bo);
+	ensure_value();
+}
+
+template<typename L>
+Q_INLINE_TEMPLATE void DataUnit::append(const QString &data, QTextCodec *codec, ByteOrder bo)
+{
+	m_data += toDataUnitHelper<L>::toByteArray(data, codec, bo);
+	ensure_value();
+}
+
+template<typename L>
+Q_INLINE_TEMPLATE void DataUnit::append(const char *data, QTextCodec *codec, ByteOrder bo)
+{
+	m_data += toDataUnitHelper<L>::toByteArray(data, codec, bo);
+	ensure_value();
+}
+
+template<typename L>
+Q_INLINE_TEMPLATE void DataUnit::append(const QString &data, ByteOrder bo)
+{
+	m_data += toDataUnitHelper<L>::toByteArray(data, bo);
+	ensure_value();
+}
+
+template<typename L>
+Q_INLINE_TEMPLATE void DataUnit::append(const char *data, ByteOrder bo)
+{
+	m_data += toDataUnitHelper<L>::toByteArray(data, bo);
+	ensure_value();
+}
+
+template<typename T, bool is_int = is_simple<T>::value>
+struct fromDataUnitHelper;
+
+template<typename T>
+struct fromDataUnitHelper<T, false>;
+
+template<typename T>
+struct fromDataUnitHelper<T, true>
+{
+	static inline T fromByteArray(const DataUnit &d, ByteOrder bo = BigEndian)
+	{
+		int state = d.state();
+		d.skipData(sizeof(T));
+		if (state >= d.data().size())
+			return 0;
+		return bo == BigEndian ?
+				qFromBigEndian<T>((const uchar *) d.data().constData() + state) :
+				qFromLittleEndian<T>((const uchar *) d.data().constData() + state);
 	}
-	return tlvs;
+};
+
+template<>
+struct fromDataUnitHelper<qint8, true>
+{
+	static inline qint8 fromByteArray(const DataUnit &d, ByteOrder bo = BigEndian) // TODO: remove bo
+	{
+		if (d.dataSize() < 1)
+			return 0;
+		d.skipData(1);
+		return d.data().at(d.state()-1);
+	}
+};
+
+template<>
+struct fromDataUnitHelper<quint8, true>
+{
+	static inline quint8 fromByteArray(const DataUnit &d, ByteOrder bo = BigEndian) // TODO: remove bo
+	{
+		return static_cast<quint8>(fromDataUnitHelper<qint8,true>::fromByteArray(d));
+	}
+};
+
+template<>
+struct fromDataUnitHelper<QString, false>
+{
+	template<class L>
+	static inline QString fromByteArray(const DataUnit &d, QTextCodec *codec, L count)
+	{
+		return codec->toUnicode(d.readData(count));
+	}
+	template<class L>
+	static inline QString fromByteArray(const DataUnit &d, L count, ByteOrder)
+	{
+		return fromByteArray<L>(d, Util::defaultCodec(), count);
+	}
+	static inline QString fromByteArray(const DataUnit &d, ByteOrder = BigEndian)
+	{
+		return Util::defaultCodec()->toUnicode(d.readAll());
+	}
+};
+
+template<>
+struct fromDataUnitHelper<QByteArray, false>
+{
+	template<class L>
+	static inline QByteArray fromByteArray(const DataUnit &d, L count, ByteOrder)
+	{
+		return d.readData(count);
+	}
+
+	static inline QByteArray fromByteArray(const DataUnit &d)
+	{
+		return d.readAll();
+	}
+};
+
+template<>
+struct fromDataUnitHelper<DataUnit, false>
+{
+	template<class L>
+	static inline DataUnit fromByteArray(const DataUnit &d, L count, ByteOrder)
+	{
+		return DataUnit(d.readData(count));
+	}
+
+	static inline DataUnit fromByteArray(const DataUnit &d)
+	{
+		return DataUnit(d.readAll());
+	}
+};
+
+template<typename T>
+T DataUnit::read() const
+{
+	return fromDataUnitHelper<T>::fromByteArray(*this);
+}
+
+template<typename T>
+T DataUnit::read(ByteOrder bo) const
+{
+	return fromDataUnitHelper<T>::fromByteArray(*this, bo);
+}
+
+template<typename T, typename L>
+T DataUnit::read(ByteOrder bo) const
+{
+	return fromDataUnitHelper<T>::fromByteArray(*this, read<L>(bo), bo);
+}
+
+template<typename T, typename L>
+T DataUnit::read(QTextCodec *codec, ByteOrder bo) const
+{
+	return fromDataUnitHelper<T>::fromByteArray(*this, codec, read<L>(bo));
 }
 
 } // namespace Icq

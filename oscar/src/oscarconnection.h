@@ -31,6 +31,7 @@ class ProtocolNegotiation;
 class IcqAccount;
 class BuddyPicture;
 class Roster;
+class Feedbag;
 
 struct ClientInfo
 {
@@ -69,26 +70,25 @@ public:
 		LoginServer, HaveBOSS, BOSS, Connected
 	};
 	OscarConnection(IcqAccount *parent);
-	void connectToLoginServer();
+	void connectToLoginServer(const QString &password);
 	inline const ClientInfo &clientInfo() const { return m_client_info; }
 	inline const DirectConnectionInfo &dcInfo() const { return m_dc_info; }
 	IcqAccount *account() { return m_account; }
 	const IcqAccount *account() const { return m_account; }
 	void finishLogin();
-	void setStatus(Status status);
 	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
 	BuddyPicture *buddyPictureService() { return m_buddy_picture; }
 	MetaInfo *metaInfo() { return m_meta_info; }
+	void sendStatus(Status status);
 private slots:
 	void disconnected();
+	void md5Error(ConnectionError error);
 private:
 	void sendUserInfo();
-	void sendStatus();
 	void setIdle(bool allow);
 	void processNewConnection();
 	void processCloseConnection();
 	IcqAccount *m_account;
-	quint16 m_status;
 	quint16 m_status_flags;
 	QByteArray m_auth_cookie;
 	ClientInfo m_client_info;

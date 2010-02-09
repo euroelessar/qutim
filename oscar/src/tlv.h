@@ -21,10 +21,9 @@
 #include <QString>
 #include <QMap>
 #include <QtEndian>
-
 #include "icq_global.h"
-#include "capability.h"
 #include "util.h"
+#include "dataunit.h"
 
 class QDataStream;
 
@@ -34,192 +33,180 @@ namespace Icq
 class TLV;
 class TLVMap;
 
-class TLV
+class TLV: public DataUnit
 {
 public:
-	enum ByteOrder
-	{
-		BigEndian = QSysInfo::BigEndian, LittleEndian = QSysInfo::LittleEndian
-	};
-
-	TLV(quint16 type = 0x0000);
-	inline const QByteArray &value() const { return m_value; }
+	inline TLV(quint16 type = 0x0000);
 	template<typename T>
-	T value() const;
-	template<typename T>
-	void setValue(const T &value);
-	template<typename T>
-	void appendValue(const T &value);
+	inline TLV(quint16 type, const T &data);
 	inline quint16 type() const { return m_type; }
 	inline void setType(quint16 type) { m_type = type; }
-	QByteArray toByteArray(ByteOrder bo = BigEndian) const;
+	inline QByteArray toByteArray(ByteOrder bo = BigEndian) const;
 	inline operator QByteArray() const { return toByteArray(BigEndian); }
-	static inline TLV fromByteArray(const QByteArray &data, ByteOrder bo = BigEndian)
-	{
-		return fromByteArray(data.constData(), data.size(), bo);
-	}
-	static TLV fromByteArray(const char *data, int length, ByteOrder bo = BigEndian);
-	static TLVMap parseByteArray(const char *data, int length, ByteOrder bo = BigEndian);
-	static inline TLVMap parseByteArray(const QByteArray &data, ByteOrder bo = BigEndian);
-	template<typename T>
-	static TLV fromTypeValue(quint16 type, T value);
+	static inline TLV fromByteArray(const QByteArray &data, ByteOrder bo = BigEndian);
 private:
-	inline void ensure_value() { if (m_value.size() > 0xffff) m_value.truncate(0xffff); } // 16 bits
 	quint16 m_type;
-	QByteArray m_value;
 };
 
 class TLVMap: public QMultiMap<quint16, TLV>
 {
 public:
-	enum ByteOrder
-	{
-		BigEndian = QSysInfo::BigEndian, LittleEndian = QSysInfo::LittleEndian
-	};
-	inline TLVMap() { }
-	inline TLVMap(const QMap<quint16, TLV> &other) :
-		QMultiMap<quint16, TLV> (other) { }
-
-	//	TLVMap(const QByteArray &data, ByteOrder bo = BigEndian);
-
-	inline TLV value(int key) {
-		return QMultiMap<quint16, TLV>::value(key);
-	}
-	inline TLV value(int key) const
-	{
-		return QMultiMap<quint16, TLV>::value(key);
-	}
-
+	inline TLVMap();
+	inline TLVMap(const QMap<quint16, TLV> &other);
+	inline TLV value(int key);
+	inline TLV value(int key) const;
 	template<typename T>
-	T value(quint16 type, const T &def = T()) const
-	{
-		TLVMap::const_iterator it = find(type);
-		return it == constEnd() ? def : it->value<T> ();
-	}
-
-	TLVMap::iterator insert(quint16 /*type*/, const TLV &/*data*/)
-	{
-		Q_ASSERT(0);
-		return end();
-	}
-
+	T value(quint16 type, const T &def = T()) const;
 	template<typename T>
-	TLVMap::iterator insert(quint16 type, const T &data)
-	{
-		return QMultiMap<quint16, TLV>::insert(type, TLV::fromTypeValue(type, data));
-	}
+	TLVMap::iterator insert(quint16 type, const T &data);
+	inline TLVMap::iterator insert(quint16 type);
+	inline TLVMap::iterator insert(const TLV &tlv);
+	quint32 valuesSize() const;
+	operator QByteArray() const;
+	inline static TLVMap fromByteArray(const QByteArray &data, ByteOrder bo = BigEndian);
+protected:
+	inline TLVMap::iterator insert(quint16 type, const TLV &data);
+};
 
-	TLVMap::iterator insert(quint16 type)
-	{
-		return QMultiMap<quint16, TLV>::insert(type, TLV(type));
-	}
 
-	TLVMap::iterator insert(const TLV &tlv)
-	{
-		return QMultiMap<quint16, TLV>::insert(tlv.type(), tlv);
-	}
+TLV::TLV(quint16 type)
+{
+	m_type = type;
+	setMaxSize(0xffff);
+}
 
-	quint32 valuesSize() const
-	{
-		quint32 size = 0;
-		foreach(const TLV &tlv, *this)
-			size = size + tlv.value().size() + 4;
-		return size;
-	}
+template<typename T>
+Q_INLINE_TEMPLATE TLV::TLV(quint16 type, const T &data):
+	m_type(type)
+{
+	append(data);
+}
 
-	operator QByteArray() const
+QByteArray TLV::toByteArray(ByteOrder bo) const
+{
+	DataUnit data;
+	data.append<quint16>(m_type);
+	data.append<quint16>(m_data);
+	return data.data();
+}
+
+TLV TLV::fromByteArray(const QByteArray &data, ByteOrder bo)
+{
+   return DataUnit(data).read<TLV>(bo);
+}
+
+TLVMap::TLVMap()
+{
+}
+
+TLVMap::TLVMap(const QMap<quint16, TLV> &other) :
+	QMultiMap<quint16, TLV>(other)
+{
+}
+
+TLV TLVMap::value(int key) {
+	return QMultiMap<quint16, TLV>::value(key);
+}
+TLV TLVMap::value(int key) const
+{
+	return QMultiMap<quint16, TLV>::value(key);
+}
+
+template<typename T>
+Q_INLINE_TEMPLATE T TLVMap::value(quint16 type, const T &def) const
+{
+	TLVMap::const_iterator it = find(type);
+	return it == constEnd() ? def : it->read<T>();
+}
+
+template<typename T>
+Q_INLINE_TEMPLATE TLVMap::iterator TLVMap::insert(quint16 type, const T &data)
+{
+	return QMultiMap<quint16, TLV>::insert(type, TLV(type, data));
+}
+
+TLVMap::iterator TLVMap::insert(quint16 type)
+{
+	return QMultiMap<quint16, TLV>::insert(type, TLV(type));
+}
+
+TLVMap::iterator TLVMap::insert(const TLV &tlv)
+{
+	return QMultiMap<quint16, TLV>::insert(tlv.type(), tlv);
+}
+
+TLVMap TLVMap::fromByteArray(const QByteArray &data, ByteOrder bo)
+{
+	return DataUnit(data).read<TLVMap>(bo);
+}
+
+TLVMap::iterator TLVMap::insert(quint16 type, const TLV &data)
+{
+	Q_UNUSED(type);
+	Q_UNUSED(data);
+}
+
+void DataUnit::appendTLV(quint16 type)
+{
+	append(TLV(type));
+}
+
+template<typename T>
+Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const T &data)
+{
+	append(TLV(type, data));
+}
+
+template<>
+Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const DataUnit &data)
+{
+	append(TLV(type, data.data()));
+}
+
+template<>
+struct fromDataUnitHelper<TLV>
+{
+	static inline TLV fromByteArray(const DataUnit &d, ByteOrder bo = BigEndian)
 	{
-		QByteArray data;
-		foreach(const TLV &tlv, *this)
-			data += tlv;
-		return data;
+		TLV tlv(0xffff);
+		if (d.dataSize() < 4)
+			return tlv;
+		tlv.setType(d.read<quint16>(bo));
+		if (d.dataSize() < 2)
+			tlv.setType(0xffff);
+		else
+			tlv.append(d.read<QByteArray, quint16>(bo));
+		return tlv;
 	}
 };
 
-TLVMap TLV::parseByteArray(const QByteArray &data, ByteOrder bo)
-{
-	return parseByteArray(data.constData(), data.size(), bo);
-}
-
 template<>
-Q_INLINE_TEMPLATE QByteArray TLV::value<QByteArray>() const
+struct fromDataUnitHelper<TLVMap>
 {
-	return m_value;
-}
-
-template<>
-Q_INLINE_TEMPLATE Capability TLV::value<Capability>() const
-{
-	return Capability(m_value);
-}
-
-template<>
-Q_INLINE_TEMPLATE QString TLV::value<QString>() const
-{
-	return Util::defaultCodec()->toUnicode(m_value);
-}
-
-template<>
-Q_INLINE_TEMPLATE quint8 TLV::value<quint8>() const
-{
-	return !m_value.isEmpty() ? m_value[0] : 0;
-}
-
-template<>
-Q_INLINE_TEMPLATE qint8 TLV::value<qint8>() const
-{
-	return !m_value.isEmpty() ? m_value[0] : 0;
-}
-
-template<typename T>
-Q_INLINE_TEMPLATE T TLV::value() const
-{
-	return uint(m_value.size()) >= sizeof(T) ? qFromBigEndian<T> ((const uchar *) m_value.constData()) : T();
-}
-
-template<>
-Q_INLINE_TEMPLATE void TLV::appendValue<QString>(const QString &value)
-{
-	m_value += Util::defaultCodec()->fromUnicode(value);
-	ensure_value();
-}
-
-template<>
-Q_INLINE_TEMPLATE void TLV::appendValue<QByteArray>(const QByteArray &value)
-{
-	m_value += value;
-	ensure_value();
-}
-
-template<>
-Q_INLINE_TEMPLATE void TLV::appendValue<Capability>(const Capability &value)
-{
-	m_value += value.data();
-	ensure_value();
-}
-
-template<typename T>
-Q_INLINE_TEMPLATE void TLV::appendValue(const T &value)
-{
-	char str[sizeof(T)];
-	qToBigEndian<T> (value, (uchar *) str);
-	m_value += QByteArray::fromRawData(str, sizeof(T));
-}
-
-template<typename T>
-Q_INLINE_TEMPLATE void TLV::setValue(const T &value)
-{
-	m_value.clear();
-	appendValue<T> (value);
-}
-
-template<typename T>
-Q_INLINE_TEMPLATE TLV TLV::fromTypeValue(quint16 type, T value)
-{
-	TLV tlv(type);
-	tlv.setValue(value);
-	return tlv;
-}
+	static inline TLVMap fromByteArray(const DataUnit &d, ByteOrder bo = BigEndian)
+	{
+		TLVMap tlvs;
+		forever {
+			TLV tlv = fromDataUnitHelper<TLV>::fromByteArray(d, bo);
+			if (tlv.type() == 0xffff)
+				return tlvs;
+			tlvs.insert(tlv);
+		}
+		return tlvs;
+	}
+	template<class L>
+	static inline TLVMap fromByteArray(const DataUnit &d, L count, ByteOrder bo = BigEndian)
+	{
+		TLVMap tlvs;
+		for (L i = 0; i < count; i++) {
+			TLV tlv = fromDataUnitHelper<TLV>::fromByteArray(d, bo);
+			if (tlv.type() == 0xffff)
+				return tlvs;
+			tlvs.insert(tlv);
+		}
+		return tlvs;
+	}
+};
 
 } // namespace Icq
 
