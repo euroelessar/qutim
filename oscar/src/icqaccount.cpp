@@ -1,7 +1,8 @@
 /****************************************************************************
  *  icqaccount.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,7 +14,7 @@
  ***************************************************************************
  *****************************************************************************/
 
-#include "icqaccount.h"
+#include "icqaccount_p.h"
 #include "icqprotocol.h"
 #include "icqcontact_p.h"
 #include "oscarconnection.h"
@@ -27,20 +28,6 @@
 
 namespace Icq
 {
-
-struct IcqAccountPrivate
-{
-	OscarConnection *conn;
-	Feedbag *feedbag;
-	QString name;
-	bool avatars;
-	QHash<quint64, Cookie*> cookies;
-	Capabilities caps;
-	QHash<QString, Capability> typedCaps;
-	Status lastStatus;
-	QTimer reconnectTimer;
-	QHash<QString, IcqContact *> contacts;
-};
 
 IcqAccount::IcqAccount(const QString &uin) :
 	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
@@ -136,12 +123,7 @@ void IcqAccount::setStatus(Status status)
 		Status stat = Status::Offline;
 		foreach(IcqContact *contact, d->contacts)
 			contact->setStatus(stat);
-	} else if (current == Status::Connecting) {
-		status = d->lastStatus;
-		d->conn->sendStatus(status);
-		d->conn->metaInfo()->sendShortInfoRequest(d->conn, this); // Requesting own information.
-		emit loginFinished();
-		emit statusChanged(Status::Connecting);
+	} else {
 		d->lastStatus = status;
 		if (current == Status::Offline) {
 			d->reconnectTimer.stop();

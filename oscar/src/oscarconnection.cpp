@@ -18,7 +18,7 @@
 #include "util.h"
 #include "md5login.h"
 #include "feedbag.h"
-#include "icqaccount.h"
+#include "icqaccount_p.h"
 #include "buddypicture.h"
 #include "buddycaps.h"
 #include "messages.h"
@@ -170,7 +170,9 @@ void OscarConnection::finishLogin()
 		"000a 0001 0110 164f"
 		"000b 0001 0110 164f"));
 	send(snac);
-	m_account->setStatus(Status::Connecting);
+	m_account->setStatus(m_account->d_func()->lastStatus);
+	metaInfo()->sendShortInfoRequest(this, m_account); // Requesting own information.
+	emit m_account->loginFinished();
 }
 
 void OscarConnection::sendUserInfo()
