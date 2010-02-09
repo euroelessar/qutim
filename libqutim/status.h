@@ -40,7 +40,7 @@ namespace qutim_sdk_0_3
 			Offline
 		};
 		// TODO: Remove defines, and optimize code, currently I just want plugins to compile
-#ifdef 0
+#if 0
 		explicit
 #endif
 		Status(Type type = Offline);
@@ -73,6 +73,8 @@ namespace qutim_sdk_0_3
 
 		void initIcon(const QString &protocol = QString());
 		static QIcon createIcon(Type type, const QString &protocol = QString());
+//		static Status fromHash(Type type, const char *proto, int subtype = 0);
+//		statis bool toHash(const Status &status, const char *proto);
 	private:
 		QSharedDataPointer<StatusPrivate> d;
 	};
