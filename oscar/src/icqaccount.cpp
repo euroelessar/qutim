@@ -182,8 +182,8 @@ IcqContact *IcqAccount::getContact(const QString &id, bool create)
 	Q_D(IcqAccount);
 	IcqContact *contact = d->contacts.value(id);
 	if (create && !contact) {
-		FeedbagItem item = d->feedbag->item(SsiBuddy, id, Feedbag::GenerateId | Feedbag::DontLoadLocal);
-		item.setGroup(not_in_list_group);
+		FeedbagItem item = d->feedbag->item(SsiBuddy, id, not_in_list_group,
+								Feedbag::GenerateId | Feedbag::DontLoadLocal);
 		item.setField<QString>(SsiBuddyNick, id);
 		item.setField(SsiBuddyReqAuth);
 		contact = new IcqContact(id, this);

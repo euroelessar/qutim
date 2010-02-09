@@ -122,7 +122,7 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 		break;
 	}
 	case SsiGroup: {
-		FeedbagItem old = m_account->feedbag()->item(SsiGroup, item.groupId());
+		FeedbagItem old = m_account->feedbag()->groupItem(item.groupId());
 		if (old.isInList() && old.name() != item.name()) {
 			foreach (const FeedbagItem &i, m_account->feedbag()->group(item.groupId())) {
 				IcqContact *contact = m_account->getContact(i.name());

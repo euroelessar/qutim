@@ -42,6 +42,7 @@ public:
 	{}
 	~SSIItem(){}
 	quint32 id() const { return (itemType << 16 | (itemType == SsiGroup ? groupId : itemId)); }
+	quint64 id2() const { return (quint64)id() << 32 | groupId; }
 	QString recordName;
 	quint16 groupId;
 	quint16 itemId;
@@ -84,7 +85,7 @@ public:
 	quint16 generateId() const;
 	void saveItem(const SSIItem &item, ConfigBase &config);
 	void finishLoading();
-	QHash<quint32, SSIItem> items;
+	QMultiHash<quint32, SSIItem> items;
 	QQueue<FeedbagQueueItem> ssiQueue;
 	IcqAccount *account;
 	OscarConnection *conn;
@@ -392,12 +393,13 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 		ConfigGroup cfg = account->config("feedbag");
 		if (type == Feedbag::Remove) {
 			items.remove(id);
-			if (updateConfig)
-				cfg.group("cache").removeGroup(QString::number(id));
+			if (updateConfig) {
+				cfg.group("cache").removeGroup(QString::number(item.d->id2()));
+			}
 		} else {
 			items.insertMulti(id, *item.d);
 			if (updateConfig) {
-				ConfigGroup cfg = cfg.group("cache").group(QString::number(id));
+				cfg = cfg.group("cache");
 				saveItem(*item.d, cfg);
 				account->config().sync();
 			}
@@ -405,6 +407,7 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 		if (updateConfig) {
 			lastUpdateTime = QDateTime::currentDateTime().toTime_t();
 			cfg.setValue("lastUpdateTime", lastUpdateTime);
+			cfg.sync();
 		}
 	}
 }
@@ -416,7 +419,7 @@ quint16 FeedbagPrivate::generateId() const
 
 void FeedbagPrivate::saveItem(const SSIItem &item, ConfigBase &config)
 {
-	ConfigGroup cfg = config.group(QString::number(item.id()));
+	ConfigGroup cfg = config.group(QString::number(item.id2()));
 	cfg.setValue("type", item.itemType);
 	cfg.setValue("itemId", item.itemId);
 	cfg.setValue("groupId", item.groupId);
@@ -471,6 +474,7 @@ Feedbag::Feedbag(IcqAccount *acc):
 		config = config.parent().parent();
 		d->items.insert(item.id(), item);
 	}
+
 }
 
 Feedbag::~Feedbag()
@@ -498,32 +502,27 @@ bool Feedbag::isModifyStarted() const
 
 bool Feedbag::removeItem(quint16 type, quint16 id)
 {
-	FeedbagItem i = item(type, id);
-	if (!i.isNull()) {
-		i.remove();
-		return true;
-	} else {
-		return false;
-	}
+	QList<FeedbagItem> list = items(type, id);
+	foreach (FeedbagItem item, list)
+		item.remove();
+	return list.isEmpty();
 }
 
 bool Feedbag::removeItem(quint16 type, const QString &name)
 {
-	FeedbagItem i = item(type, name);
-	if (!i.isNull()) {
-		i.remove();
-		return true;
-	} else {
-		return false;
-	}
+	QList<FeedbagItem> list = items(type, name);
+	foreach (FeedbagItem item, list)
+		item.remove();
+	return !list.isEmpty();
 }
 
-FeedbagItem Feedbag::item(quint16 type, quint16 id, ItemLoadFlags flags) const
+FeedbagItem Feedbag::item(quint16 type, quint16 id, quint16 group, ItemLoadFlags flags) const
 {
 	if (!(flags & DontLoadLocal)) {
-		QHash<quint32, SSIItem>::const_iterator itr = d->items.find(type << 16 | id);
-		if (itr != d->items.constEnd()) {
-			return FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), *itr));
+		QList<SSIItem> items = d->items.values(type << 16 | id);
+		foreach (const SSIItem &item, items) {
+			if (item.groupId == group)
+				return FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), item));
 		}
 	}
 	if (flags & CreateItem) {
@@ -531,19 +530,19 @@ FeedbagItem Feedbag::item(quint16 type, quint16 id, ItemLoadFlags flags) const
 			id = uniqueItemId(id);
 		return FeedbagItem(const_cast<Feedbag*>(this), type,
 						   type == SsiGroup ? 0 : id,
-						   type == SsiGroup ? id : 0, "");
+						   type == SsiGroup ? id : group, "");
 	}
 	return FeedbagItem();
 }
 
-FeedbagItem Feedbag::item(quint16 type, const QString &name, ItemLoadFlags flags) const
+FeedbagItem Feedbag::item(quint16 type, const QString &name, quint16 group, ItemLoadFlags flags) const
 {
 	QString n;
 	if (type != SsiGroup)
 		n = getCompressedName(name);
 	if (!(flags & DontLoadLocal)) {
 		foreach (const SSIItem &item, d->items) {
-			if (item.itemType == type) {
+			if (item.itemType == type && item.groupId == group) {
 				bool found = type != SsiGroup ?
 							 n == getCompressedName(item.recordName) :
 							 name.compare(item.recordName, Qt::CaseInsensitive) == 0;
@@ -555,9 +554,72 @@ FeedbagItem Feedbag::item(quint16 type, const QString &name, ItemLoadFlags flags
 	if (flags & CreateItem)
 		return FeedbagItem(const_cast<Feedbag*>(this), type,
 						   type != SsiGroup ? uniqueItemId(type) : 0,
-						   type == SsiGroup ? uniqueItemId(type) : 0,
+						   type == SsiGroup ? uniqueItemId(type) : group,
 						   name);
 	return FeedbagItem();
+}
+
+QList<FeedbagItem> Feedbag::items(quint16 type, quint16 id, ItemLoadFlags flags) const
+{
+	QList<FeedbagItem> items;
+	if (!(flags & DontLoadLocal)) {
+		QHash<quint32, SSIItem>::const_iterator itr = d->items.find(type << 16 | id);
+		if (itr != d->items.constEnd()) {
+			items << FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), *itr));
+		}
+	}
+	if (items.isEmpty() && flags & CreateItem) {
+		if (flags & GenerateId)
+			id = uniqueItemId(id);
+		items << FeedbagItem(const_cast<Feedbag*>(this), type,
+						   type == SsiGroup ? 0 : id,
+						   type == SsiGroup ? id : 0, "");
+	}
+	return items;
+}
+
+QList<FeedbagItem> Feedbag::items(quint16 type, const QString &name, ItemLoadFlags flags) const
+{
+	QList<FeedbagItem> items;
+	QString n;
+	if (type != SsiGroup)
+		n = getCompressedName(name);
+	if (!(flags & DontLoadLocal)) {
+		foreach (const SSIItem &item, d->items) {
+			if (item.itemType == type) {
+				bool found = type != SsiGroup ?
+							 n == getCompressedName(item.recordName) :
+							 name.compare(item.recordName, Qt::CaseInsensitive) == 0;
+				if (found) {
+					items << FeedbagItem(new FeedbagItemPrivate(const_cast<Feedbag*>(this), item));
+					if (flags & ReturnOne)
+						return items;
+				}
+			}
+		}
+	}
+	if (items.isEmpty() && flags & CreateItem)
+		items << FeedbagItem(const_cast<Feedbag*>(this), type,
+						   type != SsiGroup ? uniqueItemId(type) : 0,
+						   type == SsiGroup ? uniqueItemId(type) : 0,
+						   name);
+	return items;
+}
+
+FeedbagItem Feedbag::groupItem(quint16 id, ItemLoadFlags flags) const
+{
+	QList<FeedbagItem> list = items(SsiGroup, id, flags | ReturnOne);
+	if (list.isEmpty())
+		return FeedbagItem();
+	return list.first();
+}
+
+FeedbagItem Feedbag::groupItem(const QString &name, ItemLoadFlags flags) const
+{
+	QList<FeedbagItem> list = items(SsiGroup, name, flags | ReturnOne);
+	if (list.isEmpty())
+		return FeedbagItem();
+	return list.first();
 }
 
 QList<FeedbagItem> Feedbag::group(quint16 groupId) const
@@ -575,7 +637,7 @@ QList<FeedbagItem> Feedbag::group(quint16 groupId) const
 
 QList<FeedbagItem> Feedbag::group(const QString &name) const
 {
-	FeedbagItem i = item(SsiGroup, name);
+	FeedbagItem i = groupItem(name);
 	if (i.isInList())
 		return group(i.groupId());
 	return QList<FeedbagItem>();
@@ -600,12 +662,12 @@ QList<FeedbagItem> Feedbag::type(quint16 type, ItemLoadFlags flags) const
 
 bool Feedbag::containsItem(quint16 type, quint16 id) const
 {
-	return !item(type, id).isNull();
+	return !items(type, id).isEmpty();
 }
 
 bool Feedbag::containsItem(quint16 type, const QString &name) const
 {
-	return !item(type, name).isNull();
+	return !items(type, name).isEmpty();
 }
 
 quint16 Feedbag::uniqueItemId(quint16 type, quint16 value) const
@@ -625,9 +687,17 @@ void Feedbag::registerHandler(FeedbagItemHandler *handler)
 {
 	foreach (quint16 type, handler->types())
 		d->handlers.insertMulti(type, handler);
+	QList<FeedbagItem> items;
 	foreach (const SSIItem &item, d->items) {
 		FeedbagItem feedbagItem(new FeedbagItemPrivate(this, item));
-		handler->handleFeedbagItem(this, feedbagItem, AddModify, FeedbagError::NoError);
+		if (item.itemType == SsiGroup) {
+			handler->handleFeedbagItem(this, feedbagItem, AddModify, FeedbagError::NoError);
+		} else {
+			items << feedbagItem;
+		}
+	}
+	foreach (const FeedbagItem &item, items) {
+		handler->handleFeedbagItem(this, item, AddModify, FeedbagError::NoError);
 	}
 }
 

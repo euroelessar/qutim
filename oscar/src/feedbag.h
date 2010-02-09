@@ -120,7 +120,8 @@ public:
 		NoFlags = 0x0000,
 		CreateItem = 0x0001,
 		GenerateId = CreateItem | 0x0002,
-		DontLoadLocal = 0x0010
+		DontLoadLocal = 0x0010,
+		ReturnOne = 0x0020
 	};
 	Q_DECLARE_FLAGS(ItemLoadFlags, ItemLoadFlag);
 	Feedbag(IcqAccount *acc);
@@ -130,8 +131,12 @@ public:
 	bool isModifyStarted() const;
 	bool removeItem(quint16 type, quint16 id);
 	bool removeItem(quint16 type, const QString &name);
-	FeedbagItem item(quint16 type, quint16 id, ItemLoadFlags flags = NoFlags) const;
-	FeedbagItem item(quint16 type, const QString &name, ItemLoadFlags flags = NoFlags) const;
+	FeedbagItem item(quint16 type, quint16 id, quint16 group, ItemLoadFlags flags = NoFlags) const;
+	FeedbagItem item(quint16 type, const QString &name, quint16 group, ItemLoadFlags flags = NoFlags) const;
+	QList<FeedbagItem> items(quint16 type, quint16 id, ItemLoadFlags flags = NoFlags) const;
+	QList<FeedbagItem> items(quint16 type, const QString &name, ItemLoadFlags flags = NoFlags) const;
+	FeedbagItem groupItem(quint16 id, ItemLoadFlags flags = NoFlags) const;
+	FeedbagItem groupItem(const QString &name, ItemLoadFlags flags = NoFlags) const;
 	QList<FeedbagItem> group(quint16 groupId) const;
 	QList<FeedbagItem> group(const QString &name) const;
 	QList<FeedbagItem> type(quint16 type, ItemLoadFlags flags = NoFlags) const;
