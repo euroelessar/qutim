@@ -149,7 +149,8 @@ MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent) :
 	SNACHandler(parent), m_account(account)
 {
 	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
-	m_infos << SNACInfo(MessageFamily, MessageSrvReplyIcbm)
+	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
+			<< SNACInfo(MessageFamily, MessageSrvReplyIcbm)
 			<< SNACInfo(MessageFamily, MessageResponse)
 			<< SNACInfo(MessageFamily, MessageSrvRecv)
 			<< SNACInfo(MessageFamily, MessageSrvAck)
@@ -168,9 +169,33 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 {
 	Q_ASSERT((AbstractConnection*)m_account->connection() == conn);
 	switch ((sn.family() << 16) | sn.subtype()) {
-	case MessageFamily << 16 | MessageSrvReplyIcbm:
-		debug() << IMPLEMENT_ME << "MessageFamily, MessageSrvReplyIcbm";
+	case ServiceFamily << 16 | ServiceServerAsksServices: {
+		// Sending CLI_REQICBM
+		SNAC snac(MessageFamily, MessageCliReqIcbm);
+		conn->send(snac);
 		break;
+	}
+	// Server sends ICBM service parameters to client
+	case MessageFamily << 16 | MessageSrvReplyIcbm: {
+		debug() << IMPLEMENT_ME << "MessageFamily, MessageSrvReplyIcbm";
+		quint32 dw_flags = 0x00000303;
+		// TODO: Find description
+#ifdef DBG_CAPHTML
+		dw_flags |= 0x00000400;
+#endif
+		dw_flags |= 0x00000008; // typing notifications
+		// Set message parameters for all channels (imitate ICQ 6)
+		SNAC snac(MessageFamily, MessageCliSetParams);
+		snac.append<quint16>(0x0000); // Channel
+		snac.append<quint32>(dw_flags); // Flags
+		snac.append<quint16>(max_message_snac_size); // Max message snac size
+		snac.append<quint16>(0x03E7); // Max sender warning level
+		snac.append<quint16>(0x03E7); // Max receiver warning level
+		snac.append<quint16>(client_rate_limit); // Minimum message interval in seconds
+		snac.append<quint16>(0x0000); // Unknown
+		conn->send(snac);
+		break;
+	}
 	case MessageFamily << 16 | MessageSrvRecv:
 		handleMessage(sn);
 		break;

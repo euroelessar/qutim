@@ -429,6 +429,7 @@ Feedbag::Feedbag(IcqAccount *acc):
 	SNACHandler(acc), d(new FeedbagPrivate(acc, this))
 {
 	m_infos << SNACInfo(ListsFamily, ListsError)
+			<< SNACInfo(ServiceFamily, ServiceServerAsksServices)
 			<< SNACInfo(ListsFamily, ListsUpToDate)
 			<< SNACInfo(ListsFamily, ListsList)
 			<< SNACInfo(ListsFamily, ListsUpdateGroup)
@@ -638,6 +639,18 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 				 .arg(error.subcode, 2, 16)
 				 .arg(error.str);
 		 break;
+	}
+	case ServiceFamily << 16 | ServiceServerAsksServices: {
+		// Request server-stored information (SSI) service limitations
+		SNAC snac(ListsFamily, ListsCliReqLists);
+		snac.appendTLV<quint16>(0x0B, 0x000F); // mimic ICQ 6
+		conn->send(snac);
+
+		// Requesting roster
+		// TODO: Don't ask full roster each time, see SNAC(13,05) for it
+		snac.reset(ListsFamily, ListsCliRequest);
+		conn->send(snac);
+		break;
 	}
 	case ListsFamily << 16 | ListsUpToDate: {
 		 debug() << "Local contactlist is up to date";

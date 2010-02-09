@@ -47,6 +47,7 @@ enum ServiceFamilySubtype // 0x0001
 	ServiceClientNewService     = 0x0004,
 	ServerRedirectService		= 0x0005,
 	ServiceClientReqRateInfo    = 0x0006,
+	ServiceServerAsksServices   = 0x0007,
 	ServiceServerRateInfo       = 0x0007,
 	ServiceClientRateAck        = 0x0008,
 	ServiceServerRateChange     = 0x000a,

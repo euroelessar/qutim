@@ -177,7 +177,7 @@ ProtocolNegotiation::ProtocolNegotiation(QObject *parent) :
 	m_infos << SNACInfo(ServiceFamily, ServiceServerReady)
 			<< SNACInfo(ServiceFamily, ServiceServerNameInfo)
 			<< SNACInfo(ServiceFamily, ServiceServerFamilies2)
-			<< SNACInfo(ServiceFamily, ServiceServerRateInfo)
+			<< SNACInfo(ServiceFamily, ServiceServerAsksServices)
 			<< SNACInfo(ServiceFamily, ServiceServerRateChange)
 			<< SNACInfo(ServiceFamily, ServiceError);
 	m_login_reqinfo = qrand();
@@ -244,7 +244,7 @@ void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 		// Server sends rate limits information
-	case ServiceFamily << 16 | ServiceServerRateInfo: {
+	case ServiceFamily << 16 | ServiceServerAsksServices: {
 		foreach(const OscarRate *rate, conn->m_rates)
 			delete rate;
 		conn->m_rates.clear();

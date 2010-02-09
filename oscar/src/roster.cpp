@@ -196,7 +196,8 @@ Roster::Roster(IcqAccount *account):
 	m_ssiHandler = new SsiHandler(m_account, this);
 	m_conn = account->connection();
 	account->feedbag()->registerHandler(m_ssiHandler);
-	m_infos << SNACInfo(ListsFamily, ListsError)
+	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
+			<< SNACInfo(ListsFamily, ListsError)
 			<< SNACInfo(ListsFamily, ListsAuthRequest)
 			<< SNACInfo(ListsFamily, ListsSrvAuthResponse)
 			<< SNACInfo(BuddyFamily, UserOnline)
@@ -209,6 +210,26 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 {
 	Q_ASSERT(c == m_conn);
 	switch ((sn.family() << 16) | sn.subtype()) {
+	case ServiceFamily << 16 | ServiceServerAsksServices: {
+		quint16 buddyFlags = 0x0002;
+		if (m_account->avatarsSupport()) {
+			// Requesting avatar service
+			SNAC snac(ServiceFamily, ServiceClientNewService);
+			snac.append<quint16>(AvatarFamily);
+			m_conn->send(snac);
+			buddyFlags |= 0x0001;
+		}
+
+		// Requesting client-side contactlist rights
+		SNAC snac(BuddyFamily, UserCliReqBuddy);
+		// Query flags: 1 = Enable Avatars
+		//              2 = Enable offline status message notification
+		//              4 = Enable Avatars for offline contacts
+		//              8 = Use reject for not authorized contacts
+		snac.appendTLV<quint16>(0x05, buddyFlags); // mimic ICQ 6
+		m_conn->send(snac);
+		break;
+	}
 	case ListsFamily << 16 | ListsAuthRequest: {
 		sn.skipData(8); // cookie
 		QString uin = sn.read<QString, quint8>();
