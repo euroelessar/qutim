@@ -1,5 +1,5 @@
 #include "qtwin.h"
-#include <3rdparty/qtwin/qtwin.h>
+#include <3rdparty/qtdwm/qtdwm.h>
 #include <QColor>
 
 namespace qutim_sdk_0_3 {
