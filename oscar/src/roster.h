@@ -52,7 +52,7 @@ protected:
 	void handleUserOnline(const SNAC &snac);
 	void handleUserOffline(const SNAC &snac);
 private slots:
-	void loginFinished();
+	void statusChanged(qutim_sdk_0_3::Status status);
 private:
 	IcqAccount *m_account;
 	OscarConnection *m_conn;

@@ -67,6 +67,7 @@ public:
 	bool isEmpty() const;
 	bool isNull() const;
 	void setName(const QString &name);
+	void setId(quint16 itemId);
 	void setGroup(quint16 groupId, bool force = false);
 	void setField(quint16 field);
 	void setField(const TLV &tlv);
@@ -83,6 +84,7 @@ public:
 	bool containsField(quint16 field) const;
 	TLVMap &data();
 	const TLVMap &constData() const;
+	void setData(const TLVMap &tlvs);
 protected:
 	FeedbagItem(FeedbagItemPrivate *d);
 private:

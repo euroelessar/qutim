@@ -63,6 +63,7 @@ struct IcqContactPrivate
 	Capabilities capabilities;
 	DirectConnectionInfo dc_info;
 	FeedbagItem item;
+	QHash<quint16, quint16> groups;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IcqContactPrivate::CapabilityFlags)

@@ -263,6 +263,11 @@ void FeedbagItem::setName(const QString &name)
 	d->recordName = name;
 }
 
+void FeedbagItem::setId(quint16 itemId)
+{
+	d->itemId = itemId;
+}
+
 void FeedbagItem::setGroup(quint16 groupId, bool force)
 {
 	if (!force) {
@@ -326,6 +331,11 @@ TLVMap &FeedbagItem::data()
 const TLVMap &FeedbagItem::constData() const
 {
 	return d->tlvs;
+}
+
+void FeedbagItem::setData(const TLVMap &tlvs)
+{
+	d->tlvs = tlvs;
 }
 
 QDebug &operator<<(QDebug &stream, const Icq::FeedbagItem &item)
