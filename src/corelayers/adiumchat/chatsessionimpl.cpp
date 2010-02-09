@@ -222,7 +222,7 @@ namespace AdiumChat
 		msg.setChatUnit(contact);
 		msg.setIncoming(true);
 		msg.setProperty("service",Notifications::StatusChange);
-		msg.setProperty("title",contact->title() + " " + statusToString(status));
+		msg.setProperty("title",contact->title() + " " + status.name());
 		msg.setTime(QDateTime::currentDateTime());
 		msg.setText(text);
 		appendMessage(msg);

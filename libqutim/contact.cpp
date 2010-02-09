@@ -59,35 +59,35 @@ namespace qutim_sdk_0_3
 
 	Status Contact::status() const
 	{
-		return Online;
+		return Status::Online;
 	}
 
-	QIcon Contact::statusIcon() const
-	{
-		switch(status())
-		{
-		default:
-			if(status() >= Connecting)
-				return Icon("network-connect");
-		case Online:
-		case AtHome:
-		case FreeChat:
-		case Invisible:
-			return Icon("user-online");
-		case Offline:
-			return Icon("user-offline");
-		case Away:
-		case OutToLunch:
-			return Icon("user-away");
-		case DND:
-		case Evil:
-		case Depression:
-		case Occupied:
-		case AtWork:
-		case OnThePhone:
-			return Icon("user-busy");
-		case NA:
-			return Icon("user-away-extended");
-		}
-	}
+//	QIcon Contact::statusIcon() const
+//	{
+//		switch(status())
+//		{
+//		default:
+//			if(status() >= Connecting)
+//				return Icon("network-connect");
+//		case Online:
+//		case AtHome:
+//		case FreeChat:
+//		case Invisible:
+//			return Icon("user-online");
+//		case Offline:
+//			return Icon("user-offline");
+//		case Away:
+//		case OutToLunch:
+//			return Icon("user-away");
+//		case DND:
+//		case Evil:
+//		case Depression:
+//		case Occupied:
+//		case AtWork:
+//		case OnThePhone:
+//			return Icon("user-busy");
+//		case NA:
+//			return Icon("user-away-extended");
+//		}
+//	}
 }

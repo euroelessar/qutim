@@ -19,6 +19,7 @@
 #include "account.h"
 #include "contact.h"
 #include "protocol.h"
+#include "status.h"
 
 namespace qutim_sdk_0_3
 {
@@ -36,7 +37,6 @@ namespace qutim_sdk_0_3
 		Q_D(Account);
 		d->protocol = protocol;
 		d->id = id;
-		d->status = Offline;
 	}
 
 	Account::~Account()

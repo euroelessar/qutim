@@ -1,7 +1,9 @@
 #include "simplecontactlistmodel.h"
 #include "libqutim/notificationslayer.h"
 #include <QDebug>
-#include <libqutim/messagesession.h>
+#include "libqutim/messagesession.h"
+#include "libqutim/status.h"
+
 
 namespace Core
 {
@@ -102,7 +104,7 @@ namespace Core
 						return name.isEmpty() ? item->data->contact->id() : name;
 					}
 					case Qt::DecorationRole:
-						return item->data->contact->statusIcon();
+						return item->data->contact->status().icon();
 					case ItemDataType:
 						return ContactType;
 					default:
@@ -190,7 +192,7 @@ namespace Core
 			ContactData::Ptr item_data = p->contacts.value(contact);
 			if(!item_data)
 				return;
-			if(status == item_data->status)
+			if(status.type() == item_data->status.type())
 				return;
 			const QList<ContactItem *> &items = item_data->items;
 			for(int i = 0; i < items.size(); i++)
@@ -202,9 +204,9 @@ namespace Core
 			//if (ChatLayer::get(contact,false))
 			//	return; //TODO FIXME
 			Notifications::Type notify;
-			if(status == Offline)
+			if(status.type() == Status::Offline)
 				notify = Notifications::Offline;
-			else if(item_data->status == Offline)
+			else if(item_data->status.type() == Status::Offline)
 				notify = Notifications::Online;
 			else
 				notify = Notifications::StatusChange;

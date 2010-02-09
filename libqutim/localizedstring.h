@@ -32,6 +32,7 @@ namespace qutim_sdk_0_3
 	public:
 		LocalizedString() {}
 		LocalizedString(const char *str) : m_str(str) {}
+		LocalizedString(const QByteArray &str) : m_str(str) {}
 		LocalizedString(const char *cxt, const QByteArray &str) : m_ctx(cxt), m_str(str) {}
 		LocalizedString(const char *cxt, const char *str, int len) : m_ctx(cxt), m_str(str, len) {}
 		LocalizedString(const char *cxt, const char *str) : m_ctx(cxt), m_str(str, qstrlen(str)) {}

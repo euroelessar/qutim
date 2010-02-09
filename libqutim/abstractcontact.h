@@ -17,6 +17,7 @@
 #define ABSTRACTCONTACT_H
 
 #include "chatunit.h"
+#include "status.h"
 #include <QIcon>
 #include <QScopedPointer>
 
@@ -31,21 +32,18 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
         Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-        Q_PROPERTY(Status status READ status NOTIFY statusChanged)
-        Q_PROPERTY(QIcon statusIcon READ statusIcon NOTIFY statusIconChanged)
+		Q_PROPERTY(Status status READ status NOTIFY statusChanged)
 	public:
         AbstractContact(const QString &id, Account *parent = 0);
 		virtual ~AbstractContact();
 		QString id();
 		virtual QString name() const;
 		virtual Status status() const;
-		virtual QIcon statusIcon() const;
 		MetaContact *metaContact();
 		virtual void sendMessage(const Message &message) = 0;
 		virtual void setName(const QString &name) = 0;
 	signals:
-		void statusChanged(Status status);
-		void statusIconChanged(const QIcon &statusIcon);
+		void statusChanged(const Status &status);
 		void nameChanged(const QString &name);
 	private:
 		QScopedPointer<AbstractContactPrivate> p;

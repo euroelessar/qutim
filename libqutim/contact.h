@@ -17,6 +17,7 @@
 #define CONTACT_H
 
 #include "chatunit.h"
+#include "status.h"
 #include <QSet>
 #include <QIcon>
 #include <QMetaType>
@@ -36,7 +37,6 @@ namespace qutim_sdk_0_3
 		Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 		Q_PROPERTY(QSet<QString> tags READ tags WRITE setTags NOTIFY tagsChanged)
 		Q_PROPERTY(Status status READ status NOTIFY statusChanged)
-		Q_PROPERTY(QIcon statusIcon READ statusIcon NOTIFY statusIconChanged)
 		Q_PROPERTY(bool inList READ isInList WRITE setInList NOTIFY inListChanged)
 	public:
 		/**
@@ -63,7 +63,6 @@ namespace qutim_sdk_0_3
 		virtual QSet<QString> tags() const;
 		virtual QString name() const;
 		virtual Status status() const;
-		virtual QIcon statusIcon() const;
 		/**
 		* @brief send message to contact
 		*
@@ -98,8 +97,7 @@ namespace qutim_sdk_0_3
 		*/
 		void removeFromList() { setInList(false); }
 	signals:
-		void statusChanged(qutim_sdk_0_3::Status status);
-		void statusIconChanged(const QIcon &statusIcon);
+		void statusChanged(const qutim_sdk_0_3::Status &status);
 		void nameChanged(const QString &name);
 		void tagsChanged(const QSet<QString> &tags);
 		void inListChanged(bool inList);

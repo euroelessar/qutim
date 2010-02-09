@@ -18,6 +18,7 @@
 
 #include "configbase.h"
 #include "menucontroller.h"
+#include "status.h"
 #include <QMetaType>
 
 namespace qutim_sdk_0_3
@@ -109,7 +110,7 @@ namespace qutim_sdk_0_3
 		/*!
 		  Signal is emitted when account's \a status was changed.
 		*/
-        void statusChanged(qutim_sdk_0_3::Status status);
+		void statusChanged(const qutim_sdk_0_3::Status &status);
 	};
 }
 

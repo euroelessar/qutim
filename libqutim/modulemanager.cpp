@@ -136,47 +136,6 @@ namespace qutim_sdk_0_3
 	}
 
 	/**
-	 * Converts status from input enum value to string. Translates it on request.
-	 */
-	QString statusToString(Status status, bool translate)
-	{
-		switch(status)
-		{
-		default:
-			if(status >= Connecting)
-				return translate ? QCoreApplication::translate("Status", "is connecting") : QLatin1String("Connecting");
-		case Online:
-			return translate ? QCoreApplication::translate("Status", "is online") : QLatin1String("Online");
-		case Offline:
-			return translate ? QCoreApplication::translate("Status", "is offline") : QLatin1String("Offline");
-		case Away:
-			return translate ? QCoreApplication::translate("Status", "is away") : QLatin1String("Away");
-		case DND:
-			return translate ? QCoreApplication::translate("Status", "is busy") : QLatin1String("DND");
-		case NA:
-			return translate ? QCoreApplication::translate("Status", "is not avaiable") : QLatin1String("NA");
-		case Occupied:
-			return translate ? QCoreApplication::translate("Status", "is occupied") : QLatin1String("Occupied");
-		case FreeChat:
-			return translate ? QCoreApplication::translate("Status", "is free for chat") : QLatin1String("FreeChat");
-		case Evil:
-			return translate ? QCoreApplication::translate("Status", "is evil") : QLatin1String("Evil");
-		case Depression:
-			return translate ? QCoreApplication::translate("Status", "is depression") : QLatin1String("Depression");
-		case Invisible:
-			return translate ? QCoreApplication::translate("Status", "is invisible") : QLatin1String("Invisible");
-		case AtHome:
-			return translate ? QCoreApplication::translate("Status", "is at home") : QLatin1String("AtHome");
-		case AtWork:
-			return translate ? QCoreApplication::translate("Status", "is at work") : QLatin1String("AtWork");
-		case OnThePhone:
-			return translate ? QCoreApplication::translate("Status", "is on the phone") : QLatin1String("OnThePhone");
-		case OutToLunch:
-			return translate ? QCoreApplication::translate("Status", "is out to lunch") : QLatin1String("OutToLunch");
-		}
-	}
-
-	/**
 	 * The only instance of ModuleManager (singleton)
 	 */
 	ModuleManager *ModuleManager::self = 0;
@@ -440,13 +399,4 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(ContactList::instance());
 		Notifications::sendNotification(Notifications::Startup, 0);
 	}
-}
-
-/**
- * Used for debug output.
- */
-QDebug operator<<(QDebug debug, qutim_sdk_0_3::Status status)
-{
-	debug << "Status(" << qPrintable(qutim_sdk_0_3::statusToString(status, false)) << ')';
-	return debug;
 }

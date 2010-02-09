@@ -51,27 +51,27 @@ namespace qutim_sdk_0_3
 		virtual ~StartupModule() {}
 	};
 
-	Q_ENUMS(Status)
-	enum Status
-	{
-		Offline = 0,
-		Online,
-		Away,
-		DND,
-		NA,
-		Occupied,
-		FreeChat,
-		Evil,       // ?
-		Depression, // ?
-		Invisible,
-		AtHome,     // ?
-		AtWork,     // ?
-		OutToLunch,
-		OnThePhone,
-		Connecting  = 100,
-		ConnectingStart = Connecting,
-		ConnectingStop  = 1000
-	};
+//	Q_ENUMS(Status)
+//	enum Status
+//	{
+//		Offline = 0,
+//		Online,
+//		Away,
+//		DND,
+//		NA,
+//		Occupied,
+//		FreeChat,
+//		Evil,       // ?
+//		Depression, // ?
+//		Invisible,
+//		AtHome,     // ?
+//		AtWork,     // ?
+//		OutToLunch,
+//		OnThePhone,
+//		Connecting  = 100,
+//		ConnectingStart = Connecting,
+//		ConnectingStop  = 1000
+//	};
 	enum ChatState
 	{
 		ChatStateActive = 0,    // User is actively participating in the chat session.
@@ -98,7 +98,6 @@ namespace qutim_sdk_0_3
 	template<typename T> inline GeneratorList moduleGenerators()
 	{ return moduleGenerators_helper<T>(reinterpret_cast<T *>(0)); }
 	LIBQUTIM_EXPORT ProtocolMap allProtocols();
-	LIBQUTIM_EXPORT QString statusToString(Status status, bool translate = true);
 	LIBQUTIM_EXPORT QString convertTimeDate(const QString &mac_format, const QDateTime &datetime);
 	LIBQUTIM_EXPORT QString &validateCpp(QString &text );
 	LIBQUTIM_EXPORT QString getThemePath (const QString& category, const QString &themeName ); //search theme in user and share dir
@@ -123,8 +122,6 @@ namespace qutim_sdk_0_3
 	}
 }
 
-class QDebug;
-LIBQUTIM_EXPORT QDebug operator<<(QDebug debug, qutim_sdk_0_3::Status status);
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::StartupModule, "org.qutim.StartupModule")
 
 #endif // LIBQUTIM_GLOBAL_H
