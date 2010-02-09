@@ -19,6 +19,7 @@
 #include "oscarconnection.h"
 #include "icqaccount.h"
 #include <QQueue>
+#include <QDateTime>
 #include <qutim/objectgenerator.h>
 
 namespace Icq {
@@ -90,6 +91,8 @@ public:
 	bool modifyStarted;
 	QHash<quint16, FeedbagItemHandler*> handlers;
 	FeedbagError::ErrorEnum lastError;
+	uint lastUpdateTime;
+	bool firstPacket;
 	Feedbag *q_ptr;
 };
 
@@ -385,16 +388,23 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 		}
 	}
 	if (error == FeedbagError::NoError) {
+		bool updateConfig = account->status() != Connecting;
+		ConfigGroup cfg = account->config("feedbag");
 		if (type == Feedbag::Remove) {
 			items.remove(id);
-			account->config("feedbag").group("cache").removeGroup(QString::number(id));
+			if (updateConfig)
+				cfg.group("cache").removeGroup(QString::number(id));
 		} else {
-			items.insert(id, *item.d);
-			if (account->status() != Connecting) {
-				ConfigGroup cfg = account->config("feedbag").group("cache").group(QString::number(id));
+			items.insertMulti(id, *item.d);
+			if (updateConfig) {
+				ConfigGroup cfg = cfg.group("cache").group(QString::number(id));
 				saveItem(*item.d, cfg);
 				account->config().sync();
 			}
+		}
+		if (updateConfig) {
+			lastUpdateTime = QDateTime::currentDateTime().toTime_t();
+			cfg.setValue("lastUpdateTime", lastUpdateTime);
 		}
 	}
 }
@@ -441,8 +451,9 @@ Feedbag::Feedbag(IcqAccount *acc):
 			<< SNACInfo(ListsFamily, ListsSrvReplyLists);
 	foreach(const ObjectGenerator *gen, moduleGenerators<FeedbagItemHandler>())
 		registerHandler(gen->generate<FeedbagItemHandler>());
-	connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
-	ConfigGroup config = acc->config("feedbag").group("cache");
+	ConfigGroup config = acc->config("feedbag");
+	d->lastUpdateTime = config.value("lastUpdateTime", 0);
+	config = config.group("cache");
 	foreach (const QString &itemIdStr, config.groupList()) {
 		config = config.group(itemIdStr);
 		SSIItem item;
@@ -620,14 +631,6 @@ void Feedbag::registerHandler(FeedbagItemHandler *handler)
 	}
 }
 
-void Feedbag::statusChanged(qutim_sdk_0_3::Status status)
-{
-	if (status == ConnectingStart) {
-		d->items.clear();
-		d->lastError = FeedbagError::NoError;
-	}
-}
-
 void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 {
 	Q_ASSERT(conn == d->conn);
@@ -647,9 +650,15 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		conn->send(snac);
 
 		// Requesting roster
-		// TODO: Don't ask full roster each time, see SNAC(13,05) for it
-		snac.reset(ListsFamily, ListsCliRequest);
-		conn->send(snac);
+		if (d->lastUpdateTime > 0) {
+			snac.reset(ListsFamily, ListsCliCheck);
+			snac.append<quint32>(d->lastUpdateTime);
+			snac.append<quint16>(d->items.count());
+			conn->send(snac);
+		} else {
+			snac.reset(ListsFamily, ListsCliRequest);
+			conn->send(snac);
+		}
 		break;
 	}
 	case ListsFamily << 16 | ListsUpToDate: {
@@ -658,20 +667,25 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		 break;
 	}
 	case ListsFamily << 16 | ListsList: { // Server sends contactlist
+		if (d->firstPacket) {
+			d->items.clear();
+			d->firstPacket = false;
+			d->lastError = FeedbagError::NoError;
+		}
 		quint8 version = sn.read<quint8>();
 		quint16 count = sn.read<quint16>();
 		bool isLast = !(sn.flags() & 0x0001);
 		debug() << "SSI: number of entries is" << count << "version is" << version;
-		for (uint i = 0; i < count; i++) {
+		for (uint i = 0; i < count; i++) {	
 			FeedbagItem item(new FeedbagItemPrivate(this, sn));
 			d->handleItem(item, AddModify, FeedbagError::NoError);
 		}
 		if (isLast) {
-			quint32 last_info_update = sn.read<quint32>();
-			setProperty("SrvLastUpdate", last_info_update);
+			d->firstPacket = true;
+			d->lastUpdateTime = sn.read<quint32>();
 			d->account->config().removeGroup("feedbag");
 			ConfigGroup config = d->account->config("feedbag");
-			config.setValue("lastUpdate", last_info_update);
+			config.setValue("lastUpdateTime", d->lastUpdateTime);
 			config = config.group("cache");
 			foreach (const SSIItem &item, d->items)
 				d->saveItem(item, config);
