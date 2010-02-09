@@ -71,7 +71,7 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 	if (conn == m_conn) {
 		ProtocolNegotiation::handleSNAC(conn, snac);
 		snac.resetState();
-		if (snac.family() == ServiceFamily && snac.subtype() == ServiceServerRateInfo) {
+		if (snac.family() == ServiceFamily && snac.subtype() == ServiceServerAsksServices) {
 			SNAC snac(ServiceFamily, ServiceClientReady);
 			snac.append(QByteArray::fromHex(
 					"0001 0004 0110 164f" // ServiceFamily

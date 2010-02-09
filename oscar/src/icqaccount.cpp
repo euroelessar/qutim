@@ -46,10 +46,11 @@ IcqAccount::IcqAccount(const QString &uin) :
 	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
 {
 	Q_D(IcqAccount);
+	ConfigGroup cfg = config("general");
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
 	d->conn->registerHandler(new Roster(this));
-	d->lastStatus = Status::Offline; // TODO: load the value from the account config.
+	d->lastStatus = static_cast<Status::Type>(cfg.value<int>("lastStatus", Status::Offline));
 
 	// ICQ UTF8 Support
 	d->caps.append(ICQ_CAPABILITY_UTF8);
@@ -80,6 +81,9 @@ IcqAccount::IcqAccount(const QString &uin) :
 	version.append<quint32>(SystemInfo::getSystemVersionID());
 	version.append<quint8>(0x00); // 5 bytes more to 16
 	d->caps.append(Capability(version.data()));
+
+	if (cfg.value("autoconnect", true))
+		setStatus(d->lastStatus);
 }
 
 IcqAccount::~IcqAccount()
@@ -118,9 +122,9 @@ void IcqAccount::setStatus(Status status)
 				   d->conn->error() == AbstractConnection::ReservationLinkError ||
 				   d->conn->error() == AbstractConnection::ReservationMapError)
 		{
-			Config config = protocol()->config();
-			if (config.group("reconnect").value("enabled", true)) {
-				quint32 time = config.group("reconnect").value("time", 3000);
+			ConfigGroup config = protocol()->config().group("reconnect");
+			if (config.value("enabled", true)) {
+				quint32 time = config.value("time", 3000);
 				d->reconnectTimer.singleShot(time, this, SLOT(onReconnectTimeout()));
 			}
 		} else if (d->conn->error() == AbstractConnection::MismatchNickOrPassword) {
@@ -137,7 +141,7 @@ void IcqAccount::setStatus(Status status)
 		d->conn->sendStatus(status);
 		d->conn->metaInfo()->sendShortInfoRequest(d->conn, this); // Requesting own information.
 		emit loginFinished();
-	} else if (status.type() >= Status::Online && status.type() < Status::Offline) {
+		emit statusChanged(Status::Connecting);
 		d->lastStatus = status;
 		if (current == Status::Offline) {
 			d->reconnectTimer.stop();
@@ -152,8 +156,8 @@ void IcqAccount::setStatus(Status status)
 			d->conn->sendStatus(status);
 		}
 	}
-	debug() << "Changing status from" << current << "to" << status;
-	status.initIcon();
+	config().group("general").setValue("lastStatus", status.type());
+	config().sync();
 	Account::setStatus(status);
 	emit statusChanged(status);
 }
@@ -183,12 +187,11 @@ IcqContact *IcqAccount::getContact(const QString &id, bool create)
 	Q_D(IcqAccount);
 	IcqContact *contact = d->contacts.value(id);
 	if (create && !contact) {
-		FeedbagItem item = d->feedbag->item(SsiBuddy, id, Feedbag::GenerateId | Feedbag::DontLoadLocal);
-		item.setGroup(not_in_list_group);
+		contact = new IcqContact(id, this);
+		FeedbagItem &item = contact->d_func()->item;
+		item = d->feedbag->item(SsiBuddy, id, 0, Feedbag::GenerateId | Feedbag::DontLoadLocal);
 		item.setField<QString>(SsiBuddyNick, id);
 		item.setField(SsiBuddyReqAuth);
-		contact = new IcqContact(id, this);
-		contact->d_func()->item = item;
 		d->contacts.insert(id, contact);
 		emit contactCreated(contact);
 		//if (ContactList::instance())
@@ -259,12 +262,7 @@ QList<Capability> IcqAccount::capabilities()
 
 void IcqAccount::setVisibility(Visibility visibility)
 {
-	QList<FeedbagItem> items = feedbag()->group(SsiVisibility);
-	FeedbagItem item;
-	if (!items.isEmpty())
-		item = items.first();
-	else
-		item = feedbag()->item(SsiVisibility, 0, Feedbag::GenerateId | Feedbag::DontLoadLocal);
+	FeedbagItem item = feedbag()->type(SsiVisibility, Feedbag::CreateItem).first();
 	TLV data(0x00CA);
 	data.append<quint8>(visibility);
 	item.setField(data);

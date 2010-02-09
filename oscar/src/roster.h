@@ -51,6 +51,8 @@ protected:
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 	void handleUserOnline(const SNAC &snac);
 	void handleUserOffline(const SNAC &snac);
+private slots:
+	void statusChanged(qutim_sdk_0_3::Status status);
 private:
 	IcqAccount *m_account;
 	OscarConnection *m_conn;

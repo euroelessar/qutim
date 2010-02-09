@@ -88,11 +88,27 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 {
 	switch (item.type()) {
 	case SsiBuddy: {
+		if (item.name().isEmpty())
+			break;
 		IcqContact *contact = m_account->getContact(item.name(), true);
 		IcqContactPrivate *d = contact->d_func();
-		bool is_adding = !d->item.isInList();
-		bool is_move = d->item.groupId() != item.groupId();
-		d->item = item;
+		bool creating = !d->item.isInList();
+		if (!creating ) {
+			Status status = d->account->status();
+			if (status.type() >= Status::Online && status.type() <= Status::Offline && d->item.isInList()) {
+				if (d->item.constData() != item.constData()) {
+					FeedbagItem i = item;
+					i.setData(d->item.constData());
+					i.update();
+				}
+			}
+		} else {
+			d->item = item;
+		}
+		if (!d->groups.contains(item.groupId())) {
+			d->groups.insert(item.groupId(), item.itemId());
+			emit contact->tagsChanged(contact->tags());
+		}
 		// name
 		QString new_name = item.field<QString>(SsiBuddyNick);
 		if (!new_name.isEmpty() && new_name != contact->d_func()->name) {
@@ -108,10 +124,8 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 		// auth
 		bool new_auth = !item.containsField(SsiBuddyReqAuth);
 		contact->setProperty("authorized", new_auth);
-		// TODO: emit ...
-		if (is_move)
-			emit contact->tagsChanged(contact->tags());
-		if (is_adding) {
+		// TODO: emit ... 
+		if (creating) {
 			if (ContactList::instance())
 				ContactList::instance()->addContact(contact);
 			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
@@ -122,11 +136,18 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 		break;
 	}
 	case SsiGroup: {
-		FeedbagItem old = m_account->feedbag()->item(SsiGroup, item.groupId());
-		if (old.isInList()) {
+		FeedbagItem old = m_account->feedbag()->groupItem(item.groupId());
+		if (old.isInList() && old.name() != item.name()) {
 			foreach (const FeedbagItem &i, m_account->feedbag()->group(item.groupId())) {
+				QSet<QString> groups;
 				IcqContact *contact = m_account->getContact(i.name());
-				emit contact->tagsChanged(QSet<QString>() << item.name());
+				foreach (quint16 group, contact->d_func()->groups) {
+					if (item.groupId() == group)
+						groups << item.name();
+					else
+						groups << m_account->feedbag()->groupItem(group).name();
+				}
+				emit contact->tagsChanged(groups);
 			}
 			debug(Verbose) << "The group" << old.name() << "has been renamed to" << item.name();
 		} else {
@@ -155,8 +176,18 @@ void SsiHandler::handleRemoveCLItem(const FeedbagItem &item)
 			warning() << "The contact" << item.name() << "does not exist";
 			break;
 		}
-		debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been removed";
-		removeContact(contact);
+		QHash<quint16, quint16> &groups = contact->d_func()->groups;
+		groups.remove(item.groupId());
+		if (groups.isEmpty()) {
+			debug().nospace() << "The contact " << contact->id()
+					<< " (" << contact->name() << ") has been removed";
+			removeContact(contact);
+		} else {
+			debug().nospace() << "The contact " << contact->id() << " ("
+					<< contact->name() << ") has been removed from "
+					<< m_account->feedbag()->groupItem(item.groupId()).name();
+			emit contact->tagsChanged(contact->tags());
+		}
 		break;
 	}
 	case SsiGroup: {
@@ -165,10 +196,12 @@ void SsiHandler::handleRemoveCLItem(const FeedbagItem &item)
 		QHash<QString, IcqContact *>::const_iterator contactItr = contacts.constBegin();
 		QHash<QString, IcqContact *>::const_iterator contactEntItr = contacts.constEnd();
 		while (contactItr != contactEntItr) {
-			if (contactItr.value()->d_func()->item.groupId() == item.groupId()) {
+			QHash<quint16, quint16> &groups = contactItr.value()->d_func()->groups;
+			groups.remove(item.groupId());
+			if (groups.isEmpty())
 				removeContact(*contactItr);
-				//contactItr = m_contacts.erase(contactItr);
-			}
+			else
+				emit contactItr.value()->tagsChanged(contactItr.value()->tags());
 			++contactItr;
 		}
 		debug() << "The group" << item.name() << "has been removed";
@@ -184,18 +217,20 @@ void SsiHandler::removeContact(IcqContact *contact)
 		ContactList::instance()->removeContact(contact);
 	delete contact;
 */
-	contact->d_func()->item.setGroup(not_in_list_group, true);
+	contact->d_func()->groups.clear();
 	emit contact->tagsChanged(contact->tags());
 }
 
 Roster::Roster(IcqAccount *account):
 	SNACHandler(account)
 {
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
 	m_account = account;
 	m_ssiHandler = new SsiHandler(m_account, this);
 	m_conn = account->connection();
 	account->feedbag()->registerHandler(m_ssiHandler);
-	m_infos << SNACInfo(ListsFamily, ListsError)
+	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
+			<< SNACInfo(ListsFamily, ListsError)
 			<< SNACInfo(ListsFamily, ListsAuthRequest)
 			<< SNACInfo(ListsFamily, ListsSrvAuthResponse)
 			<< SNACInfo(BuddyFamily, UserOnline)
@@ -208,6 +243,26 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 {
 	Q_ASSERT(c == m_conn);
 	switch ((sn.family() << 16) | sn.subtype()) {
+	case ServiceFamily << 16 | ServiceServerAsksServices: {
+		quint16 buddyFlags = 0x0002;
+		if (m_account->avatarsSupport()) {
+			// Requesting avatar service
+			SNAC snac(ServiceFamily, ServiceClientNewService);
+			snac.append<quint16>(AvatarFamily);
+			m_conn->send(snac);
+			buddyFlags |= 0x0001;
+		}
+
+		// Requesting client-side contactlist rights
+		SNAC snac(BuddyFamily, UserCliReqBuddy);
+		// Query flags: 1 = Enable Avatars
+		//              2 = Enable offline status message notification
+		//              4 = Enable Avatars for offline contacts
+		//              8 = Use reject for not authorized contacts
+		snac.appendTLV<quint16>(0x05, buddyFlags); // mimic ICQ 6
+		m_conn->send(snac);
+		break;
+	}
 	case ListsFamily << 16 | ListsAuthRequest: {
 		sn.skipData(8); // cookie
 		QString uin = sn.read<QString, quint8>();
@@ -359,6 +414,23 @@ void Roster::handleUserOffline(const SNAC &snac)
 	//	quint16 warning_level = snac.read<quint16>();
 	//	TLVMap tlvs = snac.readTLVChain<quint16>();
 	//	tlvs.value(0x0001); // User class
+}
+
+void Roster::statusChanged(qutim_sdk_0_3::Status status)
+{
+	// ?!
+//	if (status == ConnectingStart) {
+//		foreach (IcqContact *contact, m_account->contacts())
+//			contact->d_func()->groups.clear();
+//	} else if (status == ConnectingStop) {
+//		foreach (IcqContact *contact, m_account->contacts()) {
+//			if (!m_account->feedbag()->containsItem(SsiBuddy, contact->id())) {
+//				if (ContactList::instance())
+//					ContactList::instance()->removeContact(contact);
+//				delete contact;
+//			}
+//		}
+//	}
 }
 
 } // namespace Icq

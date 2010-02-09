@@ -36,14 +36,12 @@ class ProtocolNegotiationImpl: public ProtocolNegotiation
 public:
 	ProtocolNegotiationImpl(QObject *parent = 0);
 	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-	void setMsgChannelParams(AbstractConnection *conn, quint16 chan, quint32 flags);
 };
 
 ProtocolNegotiationImpl::ProtocolNegotiationImpl(QObject *parent) :
 	ProtocolNegotiation(parent)
 {
 	m_infos << SNACInfo(LocationFamily, LocationRightsReply)
-			<< SNACInfo(MessageFamily, MessageSrvReplyIcbm)
 			<< SNACInfo(BosFamily, PrivacyRightsReply);
 }
 
@@ -53,89 +51,30 @@ void ProtocolNegotiationImpl::handleSNAC(AbstractConnection *conn, const SNAC &s
 	sn.resetState();
 	switch ((sn.family() << 16) | sn.subtype()) {
 	// Server sends rate limits information
-	case ServiceFamily << 16 | ServiceServerRateInfo: {
-		quint16 buddyFlags = 0x0002;
-		OscarConnection *c = qobject_cast<OscarConnection*>(conn);
-		Q_ASSERT(c);
-		if (c->account()->avatarsSupport()) {
-			// Requesting avatar service
-			SNAC snac(ServiceFamily, ServiceClientNewService);
-			snac.append<quint16>(AvatarFamily);
-			conn->send(snac);
-			buddyFlags |= 0x0001;
-		}
-
-		// Request server-stored information (SSI) service limitations
-		SNAC snac(ListsFamily, ListsCliReqLists);
-		snac.appendTLV<quint16>(0x0B, 0x000F); // mimic ICQ 6
-		conn->send(snac);
-
+	case ServiceFamily << 16 | ServiceServerAsksServices: {
 		// Requesting Location rights
-		snac.reset(LocationFamily, LocationCliReqRights);
-		conn->send(snac);
-
-		// Requesting client-side contactlist rights
-		snac.reset(BuddyFamily, UserCliReqBuddy);
-		// Query flags: 1 = Enable Avatars
-		//              2 = Enable offline status message notification
-		//              4 = Enable Avatars for offline contacts
-		//              8 = Use reject for not authorized contacts
-		snac.appendTLV<quint16>(0x05, buddyFlags); // mimic ICQ 6
-		conn->send(snac);
-
-		// Sending CLI_REQICBM
-		snac.reset(MessageFamily, MessageCliReqIcbm);
+		SNAC snac(LocationFamily, LocationCliReqRights);
 		conn->send(snac);
 
 		// Sending CLI_REQBOS
 		snac.reset(BosFamily, PrivacyReqRights);
 		conn->send(snac);
-
-		// Requesting roster
-		// TODO: Don't ask full roster each time, see SNAC(13,05) for it
-		snac.reset(ListsFamily, ListsCliRequest);
-		conn->send(snac);
 		break;
 	}
-		// Server replies via location service limitations
+	// Server replies via location service limitations
 	case LocationFamily << 16 | LocationRightsReply: {
 		// TODO: Implement, it's important
 		break;
 	}
-		// Server replies via BLM service limitations
+	// Server replies via BLM service limitations
 	case BuddyFamily << 16 | UserSrvReplyBuddy: {
 		break;
 	}
-		// Server sends ICBM service parameters to client
-	case MessageFamily << 16 | MessageSrvReplyIcbm: {
-		quint32 dw_flags = 0x00000303;
-		// TODO: Find description
-#ifdef DBG_CAPHTML
-		dw_flags |= 0x00000400;
-#endif
-		dw_flags |= 0x00000008; // typing notifications
-		// Set message parameters for all channels (imitate ICQ 6)
-		setMsgChannelParams(conn, 0x0000, dw_flags);
-		break;
-	}
-		// Server sends PRM service limitations to client
+	// Server sends PRM service limitations to client
 	case BosFamily << 16 | PrivacyRightsReply: {
 		break;
 	}
 	}
-}
-
-void ProtocolNegotiationImpl::setMsgChannelParams(AbstractConnection *conn, quint16 chan, quint32 flags)
-{
-	SNAC snac(MessageFamily, MessageCliSetParams);
-	snac.append<quint16>(chan); // Channel
-	snac.append<quint32>(flags); // Flags
-	snac.append<quint16>(max_message_snac_size); // Max message snac size
-	snac.append<quint16>(0x03E7); // Max sender warning level
-	snac.append<quint16>(0x03E7); // Max receiver warning level
-	snac.append<quint16>(client_rate_limit); // Minimum message interval in seconds
-	snac.append<quint16>(0x0000); // Unknown
-	conn->send(snac);
 }
 
 OscarConnection::OscarConnection(IcqAccount *parent) :

@@ -48,6 +48,7 @@ enum ServiceFamilySubtype // 0x0001
 	ServiceClientNewService     = 0x0004,
 	ServerRedirectService		= 0x0005,
 	ServiceClientReqRateInfo    = 0x0006,
+	ServiceServerAsksServices   = 0x0007,
 	ServiceServerRateInfo       = 0x0007,
 	ServiceClientRateAck        = 0x0008,
 	ServiceServerRateChange     = 0x000a,
@@ -205,7 +206,7 @@ enum SsiItemType
 
 const quint16 max_message_snac_size = 8000;
 const quint16 client_rate_limit     = 0;
-const quint16 not_in_list_group     = 0;
+const quint16 not_in_list_group     = 2;
 const quint8 protocol_version       = 9;
 const quint16 client_features       = 0x3;
 const quint16 dc_type               = 0x0004;

@@ -48,13 +48,15 @@ IcqContact::~IcqContact()
 QSet<QString> IcqContact::tags() const
 {
 	Q_D(const IcqContact);
-	QSet<QString> group;
-	QString group_name = d->item.groupId() == not_in_list_group ?
-						 QString() :
-						 d->account->feedbag()->item(SsiGroup, d->item.groupId()).name();
-	if (!group_name.isNull())
-		group.insert(group_name);
-	return group;
+	QSet<QString> groups;
+	QHashIterator<quint16, quint16> itr(d->groups);
+	while (itr.hasNext()) {
+		itr.next();
+		FeedbagItem group = d->account->feedbag()->groupItem(itr.key());
+		if (group.isInList() && group.groupId() != not_in_list_group)
+			groups << group.name();
+	}
+	return groups;
 }
 
 QString IcqContact::id() const
@@ -78,7 +80,7 @@ Status IcqContact::status() const
 bool IcqContact::isInList() const
 {
 	Q_D(const IcqContact);
-	return d->item.groupId() == not_in_list_group;
+	return d->item.isInList();
 }
 
 void IcqContact::sendMessage(const Message &message)
@@ -119,35 +121,52 @@ void IcqContact::sendMessage(const Message &message)
 void IcqContact::setName(const QString &name)
 {
 	Q_D(IcqContact);
-	d->item.setField(SsiBuddyNick, name);
-	d->item.update();
+	QHashIterator<quint16, quint16> itr(d->groups);
+	while (itr.hasNext()) {
+		itr.next();
+		FeedbagItem item = d->item;
+		item.setId(itr.value());
+		item.setGroup(itr.key());
+		item.setField(SsiBuddyNick, name);
+		item.update();
+	}
 }
 
 void IcqContact::setTags(const QSet<QString> &tags)
 {
 	Q_D(IcqContact);
-	if (tags.isEmpty())
+	if (!isInList())
 		return;
-	QString name = tags.values().first();
 	Feedbag *f = d->account->feedbag();
-	FeedbagItem newGroup = f->item(SsiGroup, name, Feedbag::GenerateId);
-	FeedbagItem currentGroup = f->item(SsiGroup, d->item.groupId());
-	if (newGroup.groupId() != d->item.groupId()) {
-		f->beginModify();
-		int count = f->group(d->item.groupId()).count();
-		if (newGroup.isInList()) {
-			if (count == 1)
-				currentGroup.remove();
-		} else {
-			if (count == 1)
-				currentGroup.setName(name);
-			else
-				newGroup.update();
-		}	
-		d->item.setGroup(newGroup.groupId());
-		d->item.update();
-		f->endModify();
+	f->beginModify();
+	QHash<quint16, quint16> removeList = d->groups;
+	QHash<quint16, quint16> newList;
+	foreach (const QString &name, tags) {
+		FeedbagItem group = f->groupItem(name, Feedbag::GenerateId);
+		if (!group.isInList())
+			group.update();
+		FeedbagItem item = f->item(SsiBuddy, d->groups.value(group.groupId()), group.groupId(), Feedbag::CreateItem);
+		if (!item.isInList()) {
+			item.setName(id());
+			item.setData(d->item.constData());
+			item.update();
+		}
+		newList.insert(group.groupId(), item.itemId());
+		removeList.remove(group.groupId());
 	}
+	QHashIterator<quint16, quint16> itr(removeList);
+	while (itr.hasNext()) {
+		itr.next();
+		if (f->group(itr.key()).count() <= 1) {
+			f->removeItem(SsiGroup, itr.key());
+		} else {
+			FeedbagItem item = f->item(SsiBuddy, itr.value(), itr.key());
+			if (item.isInList())
+				item.remove();
+		}
+	}
+	d->groups = newList;
+	f->endModify();
 }
 
 void IcqContact::setInList(bool inList)
@@ -158,9 +177,20 @@ void IcqContact::setInList(bool inList)
 	if (inList) {
 		Feedbag *f = d->account->feedbag();
 		f->beginModify();
-		FeedbagItem group = f->item(SsiGroup, QT_TRANSLATE_NOOP("ContactList", "General"), Feedbag::GenerateId);
-		if (!group.isInList())
+		const QString groupNameStr = QT_TRANSLATE_NOOP("ContactList", "General");
+		FeedbagItem group = f->groupItem(not_in_list_group, Feedbag::GenerateId);
+		if (!group.isInList()) {
+			QString groupName(groupNameStr);
+			for (int i = 1;; ++i) {
+				if (!f->containsItem(SsiGroup, groupName)) {
+					group.setName(groupName);
+					break;
+				}
+				groupName = QString("%1 %2").arg(groupNameStr).arg(i);
+			}
 			group.update();
+		}
+		d->item.setGroup(group.groupId(), true);
 		d->item.update();
 		f->endModify();
 	} else {

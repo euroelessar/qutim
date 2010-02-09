@@ -67,6 +67,7 @@ public:
 	bool isEmpty() const;
 	bool isNull() const;
 	void setName(const QString &name);
+	void setId(quint16 itemId);
 	void setGroup(quint16 groupId, bool force = false);
 	void setField(quint16 field);
 	void setField(const TLV &tlv);
@@ -83,6 +84,7 @@ public:
 	bool containsField(quint16 field) const;
 	TLVMap &data();
 	const TLVMap &constData() const;
+	void setData(const TLVMap &tlvs);
 protected:
 	FeedbagItem(FeedbagItemPrivate *d);
 private:
@@ -120,7 +122,8 @@ public:
 		NoFlags = 0x0000,
 		CreateItem = 0x0001,
 		GenerateId = CreateItem | 0x0002,
-		DontLoadLocal = 0x0010
+		DontLoadLocal = 0x0010,
+		ReturnOne = 0x0020
 	};
 	Q_DECLARE_FLAGS(ItemLoadFlags, ItemLoadFlag);
 	Feedbag(IcqAccount *acc);
@@ -130,18 +133,21 @@ public:
 	bool isModifyStarted() const;
 	bool removeItem(quint16 type, quint16 id);
 	bool removeItem(quint16 type, const QString &name);
-	FeedbagItem item(quint16 type, quint16 id, ItemLoadFlags flags = NoFlags) const;
-	FeedbagItem item(quint16 type, const QString &name, ItemLoadFlags flags = NoFlags) const;
+	FeedbagItem item(quint16 type, quint16 id, quint16 group, ItemLoadFlags flags = NoFlags) const;
+	FeedbagItem item(quint16 type, const QString &name, quint16 group, ItemLoadFlags flags = NoFlags) const;
+	QList<FeedbagItem> items(quint16 type, quint16 id, ItemLoadFlags flags = NoFlags) const;
+	QList<FeedbagItem> items(quint16 type, const QString &name, ItemLoadFlags flags = NoFlags) const;
+	FeedbagItem groupItem(quint16 id, ItemLoadFlags flags = NoFlags) const;
+	FeedbagItem groupItem(const QString &name, ItemLoadFlags flags = NoFlags) const;
 	QList<FeedbagItem> group(quint16 groupId) const;
 	QList<FeedbagItem> group(const QString &name) const;
+	QList<FeedbagItem> type(quint16 type, ItemLoadFlags flags = NoFlags) const;
 	bool containsItem(quint16 type, quint16 id) const;
 	bool containsItem(quint16 type, const QString &name) const;
 	quint16 uniqueItemId(quint16 type, quint16 value = 0) const;
 	void registerHandler(FeedbagItemHandler *handler);
 signals:
 	void loaded();
-private slots:
-	void statusChanged(qutim_sdk_0_3::Status status);
 protected:
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private:
