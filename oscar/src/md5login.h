@@ -37,12 +37,13 @@ class Md5Login: public AbstractConnection
 {
 	Q_OBJECT
 public:
-	Md5Login(OscarConnection *conn);
+	Md5Login(const QString &password, OscarConnection *conn);
 	~Md5Login();
 	void login();
 protected:
 	void processNewConnection();
 	void processCloseConnection();
+	void setError(ConnectionError error) { AbstractConnection::setError(error); };
 private:
 	void setLoginData(const QString &addr, quint16 port, const QByteArray &cookie);
 	friend class Md5LoginNegotiation;
@@ -50,6 +51,7 @@ private:
 	quint16 m_port;
 	QByteArray m_cookie;
 	OscarConnection *m_conn;
+	QString m_password;
 };
 
 } // namespace Icq

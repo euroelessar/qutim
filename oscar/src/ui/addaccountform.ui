@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AddAccountFormClass</class>
- <widget class="QWidget" name="AddAccountFormClass">
+ <class>AddAccountForm</class>
+ <widget class="QWidget" name="AddAccountForm">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>255</width>
-    <height>185</height>
+    <width>253</width>
+    <height>127</height>
    </rect>
   </property>
   <property name="windowTitle">

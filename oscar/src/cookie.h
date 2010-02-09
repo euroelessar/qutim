@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include <QSharedPointer>
+#include "dataunit.h"
 
 namespace Icq
 {
@@ -57,6 +58,24 @@ private slots:
 	void onTimeout();
 private:
 	QExplicitlySharedDataPointer<CookiePrivate> d_ptr;
+};
+
+template<>
+struct toDataUnitHelper<Cookie>
+{
+	static inline QByteArray toByteArray(const Cookie &data)
+	{
+		return toDataUnitHelper<quint64>::toByteArray(data.id());
+	}
+};
+
+template<>
+struct fromDataUnitHelper<Cookie>
+{
+	static inline Cookie fromByteArray(const DataUnit &d)
+	{
+		return Cookie(d.read<quint64>());
+	}
 };
 
 } // namespace Icq

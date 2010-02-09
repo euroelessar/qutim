@@ -41,8 +41,8 @@ void BuddyPictureConnection::connectToServ(const QString &addr, quint16 port, co
 void BuddyPictureConnection::processNewConnection()
 {
 	FLAP flap(0x01);
-	flap.appendSimple<quint32> (0x01);
-	flap.appendTLV<QByteArray> (0x0006, m_cookie);
+	flap.append<quint32>(0x01);
+	flap.appendTLV<QByteArray>(0x0006, m_cookie);
 	send(flap);
 }
 
@@ -73,7 +73,7 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 		snac.resetState();
 		if (snac.family() == ServiceFamily && snac.subtype() == ServiceServerRateInfo) {
 			SNAC snac(ServiceFamily, ServiceClientReady);
-			snac.appendData(QByteArray::fromHex(
+			snac.append(QByteArray::fromHex(
 					"0001 0004 0110 164f" // ServiceFamily
 					"000f 0001 0110 164f"));// AvatarFamily
 			conn->send(snac);
@@ -85,17 +85,17 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 		}
 	} else {
 		if (snac.family() == ServiceFamily && snac.subtype() == ServerRedirectService) {
-			TLVMap tlvs = snac.readTLVChain();
-			quint16 id = tlvs.value(0x0D).value<quint16> ();
+			TLVMap tlvs = snac.read<TLVMap>();
+			quint16 id = tlvs.value(0x0D).read<quint16>();
 			if (id == AvatarFamily) {
-				QList<QByteArray> list = tlvs.value(0x05).value().split(':');
-				m_conn->connectToServ(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, tlvs.value(0x06).value());
+				QList<QByteArray> list = tlvs.value(0x05).data().split(':');
+				m_conn->connectToServ(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, tlvs.value(0x06).data());
 			}
 		}
 	}
 	switch ((snac.family() << 16) | snac.subtype()) {
 	case AvatarFamily << 16 | AvatarGetReply: {
-		QString uin = snac.readString<quint8> ();
+		QString uin = snac.read<QString, quint8>();
 		QObject *obj;
 		if (uin == m_account->id())
 			obj = m_account;
@@ -104,9 +104,9 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 		if (!obj)
 			break;
 		snac.skipData(3); // skip icon_id and icon_flag
-		QByteArray hash = snac.readData<quint8> ();
+		QByteArray hash = snac.read<QByteArray, quint8>();
 		snac.skipData(21);
-		QByteArray image = snac.readData<quint16> ();
+		QByteArray image = snac.read<QByteArray, quint16>();
 		if (!image.isEmpty()) {
 			QString image_path = QString("%1/%2.%3/avatars/") .arg(SystemInfo::getPath(SystemInfo::ConfigDir)) .arg(m_account->protocol()->id()) .arg(m_account->id());
 			QDir dir(image_path);
@@ -133,11 +133,11 @@ void BuddyPicture::sendUpdatePicture(QObject *reqObject, quint16 icon_id, quint8
 	QByteArray old_hash = reqObject->property("icon_hash").toByteArray();
 	if (old_hash != icon_hash) {
 		SNAC snac(AvatarFamily, AvatarGetRequest);
-		snac.appendData<quint8> (reqObject->property("id").toString());
-		snac.appendSimple<quint8> (1); // unknown
-		snac.appendSimple<quint16> (icon_id);
-		snac.appendSimple<quint8> (icon_flags);
-		snac.appendData<quint8> (icon_hash);
+		snac.append<quint8>(reqObject->property("id").toString());
+		snac.append<quint8>(1); // unknown
+		snac.append<quint16>(icon_id);
+		snac.append<quint8>(icon_flags);
+		snac.append<quint8>(icon_hash);
 		if (m_is_connected)
 			m_conn->send(snac);
 		else

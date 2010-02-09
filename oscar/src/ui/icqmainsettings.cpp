@@ -41,7 +41,7 @@ void IcqMainSettings::loadImpl()
 {
 	bool avatars = !m_config.group("general").value("avatars", QVariant(true)).toBool();
 	ui->avatarBox->setChecked(avatars);
-	bool reconnect = m_config.group("general").value("reconnect", QVariant(true)).toBool();
+	bool reconnect = m_config.group("reconnect").value("enabled", QVariant(true)).toBool();
 	ui->reconnectBox->setChecked(reconnect);
 	QString codecName = m_config.group("general").value("codec", "System").toString();
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
@@ -72,19 +72,11 @@ void IcqMainSettings::cancelImpl()
 
 void IcqMainSettings::saveImpl()
 {
-	QString codecName = ui->codepageBox->currentText();
-	bool avatars = !ui->avatarBox->isChecked();
-	m_config.group("general").setValue("avatars", avatars);
-	m_config.group("general").setValue("reconnect", ui->reconnectBox->isChecked());
-	m_config.group("general").setValue("codec", codecName);
+	m_config.group("general").setValue("avatars", !ui->avatarBox->isChecked());
+	m_config.group("reconnect").setValue("enabled", ui->reconnectBox->isChecked());
+	m_config.group("general").setValue("codec", ui->codepageBox->currentText());
 	m_config.sync();
-	Util::setAsciiCodec(QTextCodec::codecForName(codecName.toLatin1()));
-	foreach(Account *account, IcqProtocol::instance()->accounts())
-		account->setProperty("avatarsSupport", avatars);
-}
-
-void IcqMainSettings::avatarBoxToggled(bool checked)
-{
+	IcqProtocol::instance()->updateSettings();
 }
 
 } // namespace Icq

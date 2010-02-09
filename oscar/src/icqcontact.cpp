@@ -14,7 +14,6 @@
  *****************************************************************************/
 
 #include "icqcontact_p.h"
-#include "roster.h"
 #include "messages.h"
 #include "buddycaps.h"
 #include "qutim/messagesession.h"
@@ -50,7 +49,9 @@ QSet<QString> IcqContact::tags() const
 {
 	Q_D(const IcqContact);
 	QSet<QString> group;
-	QString group_name = d->group_id == not_in_list_group ? QString() : d->account->roster()->groupId2Name(d->group_id);
+	QString group_name = d->item.groupId() == not_in_list_group ?
+						 QString() :
+						 d->account->feedbag()->item(SsiGroup, d->item.groupId()).name();
 	if (!group_name.isNull())
 		group.insert(group_name);
 	return group;
@@ -77,7 +78,7 @@ Status IcqContact::status() const
 bool IcqContact::isInList() const
 {
 	Q_D(const IcqContact);
-	return d->group_id == not_in_list_group;
+	return d->item.groupId() == not_in_list_group;
 }
 
 void IcqContact::sendMessage(const Message &message)
@@ -102,10 +103,10 @@ void IcqContact::sendMessage(const Message &message)
 			codec = Util::asciiCodec();
 		QByteArray msg = codec->fromUnicode(msgText) + '\0';
 		Tlv2711 tlv(0x01, 0, qutimStatusToICQ(d->status), 1, cookie);
-		tlv.appendData<quint16>(msg, LittleEndian);
+		tlv.append<quint16>(msg, LittleEndian);
 		tlv.appendColors();
 		if (Utf8Support())
-			tlv.appendData<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
+			tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
 		ServerMessage msgData(this, Channel2MessageData(0, tlv));
 		cookie.lock(this, SLOT(messageTimeout()));
 		d->account->connection()->send(msgData);
@@ -118,15 +119,71 @@ void IcqContact::sendMessage(const Message &message)
 void IcqContact::setName(const QString &name)
 {
 	Q_D(IcqContact);
-	d->account->roster()->sendRenameContactRequest(d->uin, name);
+	d->item.setField(SsiBuddyNick, name);
+	d->item.update();
 }
 
 void IcqContact::setTags(const QSet<QString> &tags)
 {
+	Q_D(IcqContact);
+	if (tags.isEmpty())
+		return;
+	QString name = tags.values().first();
+	Feedbag *f = d->account->feedbag();
+	FeedbagItem newGroup = f->item(SsiGroup, name, Feedbag::GenerateId);
+	FeedbagItem currentGroup = f->item(SsiGroup, d->item.groupId());
+	if (newGroup.groupId() != d->item.groupId()) {
+		f->beginModify();
+		int count = f->group(d->item.groupId()).count();
+		if (newGroup.isInList()) {
+			if (count == 1)
+				currentGroup.remove();
+		} else {
+			if (count == 1)
+				currentGroup.setName(name);
+			else
+				newGroup.update();
+		}	
+		d->item.setGroup(newGroup.groupId());
+		d->item.update();
+		f->endModify();
+	}
 }
 
 void IcqContact::setInList(bool inList)
 {
+	Q_D(IcqContact);
+	if (inList == d->item.isInList())
+		return;
+	if (inList) {
+		Feedbag *f = d->account->feedbag();
+		f->beginModify();
+		FeedbagItem group = f->item(SsiGroup, QT_TRANSLATE_NOOP("ContactList", "General"), Feedbag::GenerateId);
+		if (!group.isInList())
+			group.update();
+		d->item.update();
+		f->endModify();
+	} else {
+		d->item.remove();
+	}
+}
+
+void IcqContact::authResponse(const QString &message, bool auth)
+{
+	SNAC snac(ListsFamily, ListsCliAuthResponse);
+	snac.append<qint8>(id()); // uin.
+	snac.append<qint8>(auth ? 0x01 : 0x00); // auth flag.
+	snac.append<qint16>(message);
+	account()->connection()->send(snac);
+}
+
+void IcqContact::authRequest(const QString &message)
+{
+	SNAC snac(ListsFamily, ListsRequestAuth);
+	snac.append<qint8>(id()); // uin.
+	snac.append<qint16>(message);
+	snac.append<quint16>(0);
+	account()->connection()->send(snac);
 }
 
 IcqAccount *IcqContact::account()
@@ -270,10 +327,10 @@ bool IcqContact::event(QEvent *ev)
 		if (type == MtnUnknown)
 			return true;
 		SNAC sn(MessageFamily, MessageMtn);
-		sn.appendData(Cookie(true));
-		sn.appendSimple<quint16>(1); // channel?
-		sn.appendData<quint8>(d->uin);
-		sn.appendSimple<quint16>(type);
+		sn.append(Cookie(true));
+		sn.append<quint16>(1); // channel?
+		sn.append<quint8>(d->uin);
+		sn.append<quint16>(type);
 		d->account->connection()->send(sn);
 		return true;
 	}

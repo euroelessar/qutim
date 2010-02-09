@@ -49,6 +49,8 @@ public:
 	virtual void setTags(const QSet<QString> &tags);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
+	void authResponse(const QString &message, bool auth = true);
+	void authRequest(const QString &message);
 	virtual bool event(QEvent *);
 	IcqAccount *account();
 public:
@@ -73,7 +75,9 @@ public slots:
 	void messageTimeout();
 protected:
 	friend class Roster;
+	friend class IcqAccount;
 	friend class MessagesHandler;
+	friend class SsiHandler;
 	QScopedPointer<IcqContactPrivate> d_ptr;
 };
 

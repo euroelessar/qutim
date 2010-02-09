@@ -1,8 +1,7 @@
 /****************************************************************************
- *  util.cpp
+ *  passworddialog.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -14,45 +13,37 @@
  ***************************************************************************
  *****************************************************************************/
 
-#include "util.h"
-#include <QCoreApplication>
+#ifndef PASSWORDDIALOG_H
+#define PASSWORDDIALOG_H
 
-namespace Icq
-{
+#include <QDialog>
 
-namespace Util
-{
-static QTextCodec *_asciiCodec;
-
-extern QTextCodec *asciiCodec()
-{
-	Q_ASSERT(_asciiCodec);
-	return _asciiCodec;
+namespace Ui {
+	class PasswordForm;
 }
 
-extern void setAsciiCodec(QTextCodec *codec)
-{
-	Q_ASSERT(codec);
-	_asciiCodec = codec;
-}
+namespace Icq {
 
-extern QTextCodec *utf8Codec()
-{
-	static QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-	return codec;
-}
+class IcqAccount;
 
-extern QTextCodec *utf16Codec()
+class PasswordDialog : public QDialog
 {
-	static QTextCodec *codec = QTextCodec::codecForName("UTF-16BE");
-	return codec;
-}
-
-extern QTextCodec *defaultCodec()
-{
-	return utf8Codec();
-}
-
-} // namespace Icq::Util
+	Q_OBJECT
+public:
+	PasswordDialog(IcqAccount *account, QWidget *parent = 0);
+	virtual ~PasswordDialog();
+	QString id() const;
+	QString password() const;
+	bool isSavePassword() const;
+private slots:
+	void accepted();
+	void validate();
+private:
+	Ui::PasswordForm *ui;
+	QPushButton *m_okButton;
+	IcqAccount *m_account;
+};
 
 } // namespace Icq
+
+#endif // PASSWORDDIALOG_H

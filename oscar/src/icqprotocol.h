@@ -30,6 +30,7 @@ class IcqProtocol;
 class IcqProtocol: public Protocol
 {
 	Q_OBJECT
+	Q_DECLARE_PRIVATE(IcqProtocol)
 	Q_CLASSINFO("Protocol", "icq")
 public:
 	IcqProtocol();
@@ -37,13 +38,15 @@ public:
 	static inline IcqProtocol *instance() { if (!self) qWarning("IcqProtocol isn't created"); return self; }
 	virtual QList<Account *> accounts() const;
 	virtual Account *account(const QString &id) const;
+public slots:
+	void updateSettings();
 protected:
 	void loadAccounts();
 private slots:
 	void onStatusActionPressed();
 private:
 	friend class IcqAccountCreationWizard;
-	QScopedPointer<IcqProtocolPrivate> p;
+	QScopedPointer<IcqProtocolPrivate> d_ptr;
 	static IcqProtocol *self;
 };
 

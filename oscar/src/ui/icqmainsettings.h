@@ -39,8 +39,6 @@ public:
 	virtual void loadImpl();
 	virtual void cancelImpl();
 	virtual void saveImpl();
-private slots:
-	void avatarBoxToggled(bool checked);
 private:
 	Ui::IcqMainSettings *ui;
 	Config m_config;
