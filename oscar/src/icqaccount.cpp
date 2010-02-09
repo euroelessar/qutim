@@ -45,10 +45,11 @@ IcqAccount::IcqAccount(const QString &uin) :
 	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
 {
 	Q_D(IcqAccount);
+	ConfigGroup cfg = config("general");
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
 	d->conn->registerHandler(new Roster(this));
-	d->lastStatus = Offline; // TODO: load the value from the account config.
+	d->lastStatus = static_cast<Status>(cfg.value<int>("lastStatus", Offline));
 
 	// ICQ UTF8 Support
 	d->caps.append(ICQ_CAPABILITY_UTF8);
@@ -79,6 +80,9 @@ IcqAccount::IcqAccount(const QString &uin) :
 	version.append<quint32>(SystemInfo::getSystemVersionID());
 	version.append<quint8>(0x00); // 5 bytes more to 16
 	d->caps.append(Capability(version.data()));
+
+	if (cfg.value("autoconnect", true))
+		setStatus(d->lastStatus);
 }
 
 IcqAccount::~IcqAccount()
@@ -116,9 +120,9 @@ void IcqAccount::setStatus(Status status)
 				   d->conn->error() == AbstractConnection::ReservationLinkError ||
 				   d->conn->error() == AbstractConnection::ReservationMapError)
 		{
-			Config config = protocol()->config();
-			if (config.group("reconnect").value("enabled", true)) {
-				quint32 time = config.group("reconnect").value("time", 3000);
+			ConfigGroup config = protocol()->config().group("reconnect");
+			if (config.value("enabled", true)) {
+				quint32 time = config.value("time", 3000);
 				d->reconnectTimer.singleShot(time, this, SLOT(onReconnectTimeout()));
 			}
 		} else if (d->conn->error() == AbstractConnection::MismatchNickOrPassword) {
@@ -150,6 +154,8 @@ void IcqAccount::setStatus(Status status)
 			d->conn->sendStatus(status);
 		}
 	}
+	config().group("general").setValue("lastStatus", status);
+	config().sync();
 	debug() << QString("Changing status from %1 to %2")
 			.arg(statusToString(current, false))
 			.arg(statusToString(status, false));
