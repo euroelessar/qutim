@@ -36,7 +36,7 @@ IcqContact::IcqContact(const QString &uin, IcqAccount *account) :
 	Q_D(IcqContact);
 	d->account = account;
 	d->uin = uin;
-	d->status = Offline;
+	d->status = Status::Offline;
 	d->clearCapabilities();
 }
 
@@ -270,7 +270,7 @@ void IcqContact::setStatus(Status status)
 {
 	Q_D(IcqContact);
 	d->status = status;
-	if (status == Offline)
+	if (status == Status::Offline)
 		d->clearCapabilities();
 	emit statusChanged(status);
 }

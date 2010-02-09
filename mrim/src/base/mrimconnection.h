@@ -20,6 +20,7 @@
 #include <QScopedPointer>
 
 #include <qutim/configbase.h>
+#include <qutim/status.h>
 
 #include "mrimpacket.h"
 
@@ -72,7 +73,7 @@ public:
     ConnectionState state() const;
     void registerPacketHandler(PacketHandler *handler);
     FeatureFlags protoFeatures() const;
-    bool setStatus(Status status);
+	bool setStatus(const Status &status);
 
 protected slots:
     void connected();

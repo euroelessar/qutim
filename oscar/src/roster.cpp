@@ -304,7 +304,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 		m_conn->send(xstatusRequest);
 	}
 
-	if (oldStatus != Offline)
+	if (oldStatus != Status::Offline)
 		return;
 
 	if (tlvs.contains(0x000c)) { // direct connection info
@@ -355,7 +355,7 @@ void Roster::handleUserOffline(const SNAC &snac)
 	// We don't know this contact
 	if (!contact)
 		return;
-	contact->setStatus(Offline);
+	contact->setStatus(Status::Offline);
 	//	quint16 warning_level = snac.read<quint16>();
 	//	TLVMap tlvs = snac.readTLVChain<quint16>();
 	//	tlvs.value(0x0001); // User class

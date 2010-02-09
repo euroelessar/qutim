@@ -19,6 +19,7 @@
 #include "oscarconnection.h"
 #include "roster.h"
 #include "buddycaps.h"
+#include <qutim/status.h>
 #include <qutim/systeminfo.h>
 #include <qutim/contactlist.h>
 #include <QTimer>
@@ -48,7 +49,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
 	d->conn->registerHandler(new Roster(this));
-	d->lastStatus = Offline; // TODO: load the value from the account config.
+	d->lastStatus = Status::Offline; // TODO: load the value from the account config.
 
 	// ICQ UTF8 Support
 	d->caps.append(ICQ_CAPABILITY_UTF8);
@@ -101,14 +102,15 @@ void IcqAccount::setStatus(Status status)
 {
 	Q_D(IcqAccount);
 	Status current = this->status();
-	if (current == status) {
-		if (status == Offline) {
+	// TODO: Check for text field
+	if (current.type() == status.type()) {
+		if (status.type() == Status::Offline) {
 			d->lastStatus = status;
 			d->reconnectTimer.stop();
 		}
 		return;
 	}
-	if (status == Offline) {
+	if (status.type() == Status::Offline) {
 		if (d->conn->isConnected()) {
 			d->conn->disconnectFromHost(false);
 			d->lastStatus = status;
@@ -127,31 +129,31 @@ void IcqAccount::setStatus(Status status)
 			setStatus(d->lastStatus);
 			return;
 		}
+		Status stat = Status::Offline;
 		foreach(IcqContact *contact, d->contacts)
-			contact->setStatus(Offline);
-	} else if (status == ConnectingStop && current == Connecting) {
+			contact->setStatus(stat);
+	} else if (current == Status::Connecting) {
 		status = d->lastStatus;
 		d->conn->sendStatus(status);
 		d->conn->metaInfo()->sendShortInfoRequest(d->conn, this); // Requesting own information.
 		emit loginFinished();
-	} else if (status >= Online && status <= OnThePhone) {
+	} else if (status.type() >= Status::Online && status.type() < Status::Offline) {
 		d->lastStatus = status;
-		if (current == Offline) {
+		if (current == Status::Offline) {
 			d->reconnectTimer.stop();
 			QString pass = password();
 			if (!pass.isEmpty()) {
-				status = Connecting;
+				status = Status::Connecting;
 				d->conn->connectToLoginServer(pass);
 			} else {
-				status = Offline;
+				status = Status::Offline;
 			}
 		} else {
 			d->conn->sendStatus(status);
 		}
 	}
-	debug() << QString("Changing status from %1 to %2")
-			.arg(statusToString(current, false))
-			.arg(statusToString(status, false));
+	debug() << "Changing status from" << current << "to" << status;
+	status.initIcon();
 	Account::setStatus(status);
 	emit statusChanged(status);
 }
@@ -279,7 +281,7 @@ void IcqAccount::updateSettings()
 void IcqAccount::onReconnectTimeout()
 {
 	Q_D(IcqAccount);
-	if (status() == Offline)
+	if (status() == Status::Offline)
 		setStatus(d->lastStatus);
 }
 

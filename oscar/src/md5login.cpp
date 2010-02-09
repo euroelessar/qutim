@@ -115,7 +115,7 @@ void Md5Login::processCloseConnection()
 	if (!m_addr.isEmpty())
 		m_conn->connectToBOSS(m_addr, m_port, m_cookie);
 	else
-		m_conn->account()->setStatus(Offline);
+		m_conn->account()->setStatus(Status::Offline);
 }
 
 void Md5Login::setLoginData(const QString &addr, quint16 port, const QByteArray &cookie)

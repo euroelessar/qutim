@@ -27,11 +27,18 @@ namespace Icq
 
 IcqProtocol *IcqProtocol::self = 0;
 
+
+// May be there should be qutIM global hash in libqutim?..
 qutim_sdk_0_3::Status icqStatusToQutim(quint16 status)
 {
-	if (status & IcqFlagInvisible)
-		return Invisible;
-	else /*if(status & IcqFlagEvil)
+	if (status & IcqFlagInvisible) {
+		static Status *status = NULL;
+		if (!status) {
+			status = new Status(Status::Invisible);
+			status->initIcon(QLatin1String("icq"));
+		}
+		return *status;
+	} else /*if(status & IcqFlagEvil)
 		return Evil;
 	else if(status & IcqFlagDepress)
 		return Depression;
@@ -41,17 +48,50 @@ qutim_sdk_0_3::Status icqStatusToQutim(quint16 status)
 		return AtWork;
 	else if(status & IcqFlagLunch)
 		return OutToLunch;
-	else */if (status & IcqFlagDND)
-		return DND;
-	else if (status & IcqFlagOccupied)
-		return Occupied;
-	else if (status & IcqFlagNA)
-		return NA;
-	else if (status & IcqFlagAway)
-		return Away;
-	else if (status & IcqFlagFFC)
-		return FreeChat;
-	return Online;
+	else */if (status & IcqFlagDND) {
+		static Status *status = NULL;
+		if (!status) {
+			status = new Status(Status::DND);
+			status->initIcon(QLatin1String("icq"));
+		}
+		return *status;
+	} else if (status & IcqFlagOccupied) {
+		static Status *status = NULL;
+		if (!status) {
+			status = new Status(Status::DND);
+			status->setSubtype(IcqFlagOccupied);
+			status->setIcon(Icon(QLatin1String("user-busy-occupied-icq")));
+		}
+		return *status;
+	} else if (status & IcqFlagNA) {
+		static Status *status = NULL;
+		if (!status) {
+			status = new Status(Status::NA);
+			status->initIcon(QLatin1String("icq"));
+		}
+		return *status;
+	} else if (status & IcqFlagAway) {
+		static Status *status = NULL;
+		if (!status) {
+			status = new Status(Status::Away);
+			status->initIcon(QLatin1String("icq"));
+		}
+		return *status;
+	} else if (status & IcqFlagFFC) {
+		static Status *status = NULL;
+		if (!status) {
+			status = new Status(Status::FreeChat);
+			status->initIcon(QLatin1String("icq"));
+		}
+		return *status;
+	} else {
+		static Status *status = NULL;
+		if (!status) {
+			status = new Status(Status::Online);
+			status->initIcon(QLatin1String("icq"));
+		}
+		return *status;
+	}
 }
 
 IcqProtocol::IcqProtocol() :
@@ -75,22 +115,22 @@ void initActions(IcqProtocol *proto)
 	QList<ActionGenerator *> actions;
 	actions << (new ActionGenerator(Icon("user-online-icq"),
 				LocalizedString("Status", "Online"), proto,
-				SLOT(onStatusActionPressed())))->addProperty("status", Online)->setPriority(Online);
+				SLOT(onStatusActionPressed())))->addProperty("status", Status::Online)->setPriority(Status::Online);
 	actions << (new ActionGenerator(Icon("user-online-chat-icq"),
 				LocalizedString("Status", "Free for chat"), proto,
-				SLOT(onStatusActionPressed())))->addProperty("status", FreeChat)->setPriority(FreeChat);
+				SLOT(onStatusActionPressed())))->addProperty("status", Status::FreeChat)->setPriority(Status::FreeChat);
 	actions << (new ActionGenerator(Icon("user-away-icq"),
 				LocalizedString("Status", "Away"), proto,
-				SLOT(onStatusActionPressed())))->addProperty("status", Away)->setPriority(Away);
+				SLOT(onStatusActionPressed())))->addProperty("status", Status::Away)->setPriority(Status::Away);
 	actions << (new ActionGenerator(Icon("user-away-extended-icq"),
 				LocalizedString("Status", "NA"), proto,
-				SLOT(onStatusActionPressed())))->addProperty("status", NA)->setPriority(NA);
+				SLOT(onStatusActionPressed())))->addProperty("status", Status::NA)->setPriority(Status::NA);
 	actions << (new ActionGenerator(Icon("user-busy-icq"),
 				LocalizedString("Status", "DND"), proto,
-				SLOT(onStatusActionPressed())))->addProperty("status", DND)->setPriority(DND);
+				SLOT(onStatusActionPressed())))->addProperty("status", Status::DND)->setPriority(Status::DND);
 	actions << (new ActionGenerator(Icon("user-offline-icq"),
 				LocalizedString("Status", "Offline"), proto,
-				SLOT(onStatusActionPressed())))->addProperty("status", Offline)->setPriority(Offline);
+				SLOT(onStatusActionPressed())))->addProperty("status", Status::Offline)->setPriority(Status::Offline);
 	foreach (ActionGenerator *action, actions)
 		MenuController::addAction(action, &IcqAccount::staticMetaObject);
 	inited = true;
@@ -137,7 +177,7 @@ void IcqProtocol::onStatusActionPressed()
 	Q_ASSERT(action);
 	MenuController *item = action->data().value<MenuController *>();
 	if (IcqAccount *account = qobject_cast<IcqAccount *>(item))
-		account->setStatus(static_cast<Status>(action->property("status").toInt()));
+		account->setStatus(static_cast<Status::Type>(action->property("status").toInt()));
 }
 
 } // namespace Icq

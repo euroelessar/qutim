@@ -231,7 +231,7 @@ void OscarConnection::finishLogin()
 		"000a 0001 0110 164f"
 		"000b 0001 0110 164f"));
 	send(snac);
-	m_account->setStatus(ConnectingStop);
+	m_account->setStatus(Status::Connecting);
 }
 
 void OscarConnection::sendUserInfo()
@@ -244,34 +244,35 @@ void OscarConnection::sendUserInfo()
 	send(snac);
 }
 
-quint16 qutimStatusToICQ(Status status)
+quint16 qutimStatusToICQ(const Status &status)
 {
-	switch (status) {
+	// TODO: another statuses may be implemented like Occupied
+	switch (status.type()) {
 	default:
-	case Online:
+	case Status::Online:
 		return 0x0000;
-	case Away:
+	case Status::Away:
 		return 0x0001;
-	case DND:
+	case Status::DND:
+		if (status.subtype() == IcqFlagOccupied)
+			return 0x0011;
 		return 0x0013;
-	case NA:
+	case Status::NA:
 		return 0x0005;
-	case Occupied:
-		return 0x0011;
-	case FreeChat:
+	case Status::FreeChat:
 		return 0x0020;
-	case Evil:
-		return 0x3000;
-	case Depression:
-		return 0x4000;
-	case Invisible:
+//	case Evil:
+//		return 0x3000;
+//	case Depression:
+//		return 0x4000;
+	case Status::Invisible:
 		return 0x0100;
-	case AtHome:
-		return 0x5000;
-	case AtWork:
-		return 0x6000;
-	case OutToLunch:
-		return 0x2001;
+//	case AtHome:
+//		return 0x5000;
+//	case AtWork:
+//		return 0x6000;
+//	case OutToLunch:
+//		return 0x2001;
 	}
 }
 
@@ -283,7 +284,7 @@ void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QBy
 
 void OscarConnection::disconnected()
 {
-	m_account->setStatus(Offline);
+	m_account->setStatus(Status::Offline);
 }
 
 void OscarConnection::md5Error(ConnectionError e)

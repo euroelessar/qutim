@@ -562,7 +562,7 @@ void Feedbag::registerHandler(FeedbagItemHandler *handler)
 
 void Feedbag::statusChanged(qutim_sdk_0_3::Status status)
 {
-	if (status == ConnectingStart) {
+	if (status == Status::Connecting) {
 		d->items.clear();
 		d->lastError = FeedbagError::NoError;
 	}

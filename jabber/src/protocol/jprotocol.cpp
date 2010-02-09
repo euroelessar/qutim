@@ -44,32 +44,32 @@ namespace Jabber
 	{
 		MenuController::addAction((new ActionGenerator(Icon("user-online-jabber"),
 				QT_TRANSLATE_NOOP("Status", "Online"),
-				this, SLOT(onStatusActionPressed())))->addProperty("status", Online)->setPriority(Online),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", Status::Online)->setPriority(Status::Online),
 				&JAccount::staticMetaObject);
 
 		MenuController::addAction((new ActionGenerator(Icon("user-online-chat-jabber"),
 				QT_TRANSLATE_NOOP("Status", "Free for chat"),
-				this, SLOT(onStatusActionPressed())))->addProperty("status", FreeChat)->setPriority(FreeChat),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", Status::FreeChat)->setPriority(Status::FreeChat),
 				&JAccount::staticMetaObject);
 
 		MenuController::addAction((new ActionGenerator(Icon("user-away-jabber"),
 				QT_TRANSLATE_NOOP("Status", "Away"),
-				this, SLOT(onStatusActionPressed())))->addProperty("status", Away)->setPriority(Away),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", Status::Away)->setPriority(Status::Away),
 				&JAccount::staticMetaObject);
 
 		MenuController::addAction((new ActionGenerator(Icon("user-away-extended-jabber"),
 				QT_TRANSLATE_NOOP("Status", "NA"),
-				this, SLOT(onStatusActionPressed())))->addProperty("status", NA)->setPriority(NA),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", Status::NA)->setPriority(Status::NA),
 				&JAccount::staticMetaObject);
 
 		MenuController::addAction((new ActionGenerator(Icon("user-busy-jabber"),
 				QT_TRANSLATE_NOOP("Status", "DND"),
-				this, SLOT(onStatusActionPressed())))->addProperty("status", DND)->setPriority(DND),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", Status::DND)->setPriority(Status::DND),
 				&JAccount::staticMetaObject);
 
 		MenuController::addAction((new ActionGenerator(Icon("user-offline-jabber"),
 				QT_TRANSLATE_NOOP("Status", "Offline"),
-				this, SLOT(onStatusActionPressed())))->addProperty("status", Offline)->setPriority(Offline),
+				this, SLOT(onStatusActionPressed())))->addProperty("status", Status::Offline)->setPriority(Status::Offline),
 				&JAccount::staticMetaObject);
 	}
 
@@ -146,30 +146,30 @@ namespace Jabber
 		MenuController *item = action->data().value<MenuController *>();
 		if (JAccount *account = qobject_cast<JAccount *>(item)) {
 			account->beginChangeStatus(
-					statusToPresence(static_cast<Status>(action->property("status").toInt())));
+					statusToPresence(static_cast<Status::Type>(action->property("status").toInt())));
 		}
 	}
 
-	Presence::PresenceType JProtocol::statusToPresence(Status status)
+	Presence::PresenceType JProtocol::statusToPresence(const Status &status)
 	{
 		Presence::PresenceType presence;
-		switch (status) {
-		case Offline:
+		switch (status.type()) {
+		case Status::Offline:
 			presence = Presence::Unavailable;
 			break;
-		case Online:
+		case Status::Online:
 			presence = Presence::Available;
 			break;
-		case Away:
+		case Status::Away:
 			presence = Presence::Away;
 			break;
-		case FreeChat:
+		case Status::FreeChat:
 			presence = Presence::Chat;
 			break;
-		case DND:
+		case Status::DND:
 			presence = Presence::DND;
 			break;
-		case NA:
+		case Status::NA:
 			presence = Presence::XA;
 			break;
 		default:
@@ -183,23 +183,23 @@ namespace Jabber
 		Status status;
 		switch (presence) {
 		case Presence::Available:
-			status = Online;
+			status = Status::Online;
 			break;
 		case Presence::Away:
-			status = Away;
+			status = Status::Away;
 			break;
 		case Presence::Chat:
-			status = FreeChat;
+			status = Status::FreeChat;
 			break;
 		case Presence::DND:
-			status = DND;
+			status = Status::DND;
 			break;
 		case Presence::XA:
-			status = NA;
+			status = Status::NA;
 			break;
 		case Presence::Unavailable:
 		default:
-			status = Offline;
+			status = Status::Offline;
 		}
 		return status;
 	}

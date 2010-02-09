@@ -130,7 +130,7 @@ namespace Jabber
 			fillMaxResource();
 		}
 		Status newStatus = status();
-		if(oldStatus != newStatus)
+		if(oldStatus.type() != newStatus.type())
 			emit statusChanged(newStatus);
 	}
 

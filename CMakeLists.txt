@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.6 FATAL_ERROR)
 if( COMMAND cmake_policy )
 	cmake_policy( SET CMP0003 NEW )
 endif(COMMAND cmake_policy )
-project( meta-qutim )
+project( Protocols )
 set(QT_MIN_VERSION "4.6.0")
 
 set(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")
@@ -24,7 +24,7 @@ endif(QUTIM_PATH)
 include( "${QUTIM_CMAKE_PLUGIN}" )
 
 file( GLOB PROTOCOLS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/*" )
-LIST( REMOVE_ITEM PROTOCOLS .git _git )
+LIST( REMOVE_ITEM PROTOCOLS .git _git qtcreator-build )
 
 foreach( PROTOCOL ${PROTOCOLS} )
 	if( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL}" )

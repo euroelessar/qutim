@@ -2,6 +2,7 @@
 #define JPROTOCOL_H
 
 #include <qutim/protocol.h>
+#include <qutim/status.h>
 #include <gloox/presence.h>
 
 namespace Jabber
@@ -26,7 +27,7 @@ namespace Jabber
 			virtual QList<Account *> accounts() const;
 			virtual Account *account(const QString &id) const;
 			void addAccount(JAccount *account, bool isEmit = false);
-			static Presence::PresenceType statusToPresence(Status status);
+			static Presence::PresenceType statusToPresence(const Status &status);
 			static Status presenceToStatus(Presence::PresenceType presence);
 		private slots:
 			void onStatusActionPressed();

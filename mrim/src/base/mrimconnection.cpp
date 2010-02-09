@@ -382,7 +382,7 @@ void MrimConnection::sendPing()
     ping.writeTo(p->IMSocket());
 }
 
-bool MrimConnection::setStatus(Status status)
+bool MrimConnection::setStatus(const Status &status)
 {
     //TODO:
 
