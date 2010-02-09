@@ -48,6 +48,10 @@ namespace qutim_sdk_0_3
 		void generateName();
 	};
 
+	Q_GLOBAL_STATIC_WITH_INITIALIZER(StatusPrivate, offlineStatus,
+									 x->generateName();
+									 x->icon = Status::createIcon(Status::Offline));
+
 	namespace CompiledProperty
 	{
 		static QList<QByteArray> names = QList<QByteArray>()
@@ -100,9 +104,10 @@ namespace qutim_sdk_0_3
 		}
 	}
 
-	Status::Status(Type type) : d(new StatusPrivate)
+	Status::Status(Type type) : d(type == Status::Offline ? offlineStatus() : new StatusPrivate)
 	{
-		d->type = type;
+		if (type != Status::Offline)
+			d->type = type;
 	}
 
 	Status::Status(const Status &other) : d(other.d)
@@ -112,13 +117,19 @@ namespace qutim_sdk_0_3
 	Status &Status::operator =(const Status &other)
 	{
 		d = other.d;
+		return *this;
 	}
 
 	Status &Status::operator =(Status::Type type)
 	{
-		QSharedDataPointer<StatusPrivate> ptr(new StatusPrivate());
-		d.swap(ptr);
-		d->type = type;
+		if (type == Status::Offline) {
+			d = offlineStatus();
+		} else  {
+			QSharedDataPointer<StatusPrivate> ptr(new StatusPrivate());
+			d.swap(ptr);
+			d->type = type;
+		}
+		return *this;
 	}
 
 	Status::~Status()
@@ -142,16 +153,18 @@ namespace qutim_sdk_0_3
 
 	LocalizedString Status::name() const
 	{
+		return d->name;
 	}
 
 	void Status::setName(const LocalizedString &name)
 	{
+		d->name = name;
 	}
 
 	QIcon Status::icon() const
 	{
 		if (d->icon.isNull())
-			return Status::createIcon(type);
+			return Status::createIcon(d->type);
 		else
 			return d->icon;
 	}
@@ -232,6 +245,34 @@ namespace qutim_sdk_0_3
 			name += protocol;
 		}
 		return Icon(name);
+	}
+
+	typedef QHash<QByteArray, Status> StatusHash;
+	Q_GLOBAL_STATIC(StatusHash, statusHash);
+
+	Status Status::instance(Type type, const char *proto, int subtype)
+	{
+		QByteArray key;
+		key += proto;
+		key += '\0';
+		key += QByteArray::number(int(type));
+		key += '_';
+		key += QByteArray::number(subtype);
+		return statusHash()->value(key);
+	}
+
+	bool Status::remember(const Status &status, const char *proto)
+	{
+		QByteArray key;
+		key += proto;
+		key += '\0';
+		key += QByteArray::number(int(status.type()));
+		key += '_';
+		key += QByteArray::number(status.subtype());
+		if (statusHash()->contains(key))
+			return false;
+		statusHash()->insert(key, status);
+		return true;
 	}
 }
 
