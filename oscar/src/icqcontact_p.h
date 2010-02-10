@@ -30,7 +30,8 @@ enum SsiBuddyTlvs
 {
 	SsiBuddyNick = 0x0131,
 	SsiBuddyComment = 0x013c,
-	SsiBuddyReqAuth = 0x0066
+	SsiBuddyReqAuth = 0x0066,
+	SsiBuddyTags = 0x023c
 };
 
 enum ContactCapabilityFlags
@@ -64,6 +65,7 @@ struct IcqContactPrivate
 	Capabilities capabilities;
 	DirectConnectionInfo dc_info;
 	QList<FeedbagItem> items;
+	QStringList tags;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IcqContactPrivate::CapabilityFlags)

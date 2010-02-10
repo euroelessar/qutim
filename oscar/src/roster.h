@@ -59,6 +59,7 @@ private:
 	IcqAccount *m_account;
 	OscarConnection *m_conn;
 	SsiHandler *m_ssiHandler;
+	bool firstPacket;
 };
 
 } // namespace Icq

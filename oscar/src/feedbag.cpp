@@ -743,6 +743,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 	case ListsFamily << 16 | ListsUpToDate: {
 		 debug() << "Local contactlist is up to date";
+		 d->firstPacket = true;
 		 d->finishLoading();
 		 break;
 	}

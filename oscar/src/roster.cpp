@@ -96,46 +96,52 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 		QList<FeedbagItem>::iterator itr = d->items.begin();
 		QList<FeedbagItem>::iterator endItr = d->items.end();
 		bool newTag = true;
-		bool update = true;
 		while (itr != endItr) {
 			if (itr->itemId() == item.itemId() && itr->groupId() == item.groupId()) {
 				*itr = item;
 				newTag = false;
 				break;
 			}
-			update = false;
 			++itr;
 		}
-		if (newTag) {
+		if (newTag)
 			d->items << item;
-			if (!creating)
-				emit contact->tagsChanged(contact->tags());
+		// name
+		QString new_name = item.field<QString>(SsiBuddyNick);
+		if (!new_name.isEmpty() && new_name != contact->d_func()->name) {
+			contact->d_func()->name = new_name;
+			emit contact->nameChanged(new_name);
 		}
-		if (update) {
-			// name
-			QString new_name = item.field<QString>(SsiBuddyNick);
-			if (!new_name.isEmpty() && new_name != contact->d_func()->name) {
-				contact->d_func()->name = new_name;
-				emit contact->nameChanged(new_name);
-			}
-			// comment
-			QString new_comment = item.field<QString>(SsiBuddyComment);
-			if (!new_comment.isEmpty() && new_comment != contact->property("comment").toString()) {
-				contact->setProperty("comment", new_comment);
-				// TODO: emit ...
-			}
-			// auth
-			bool new_auth = !item.containsField(SsiBuddyReqAuth);
-			contact->setProperty("authorized", new_auth);
+		// comment
+		QString new_comment = item.field<QString>(SsiBuddyComment);
+		if (!new_comment.isEmpty() && new_comment != contact->property("comment").toString()) {
+			contact->setProperty("comment", new_comment);
 			// TODO: emit ...
-			if (creating) {
-				if (ContactList::instance())
-					ContactList::instance()->addContact(contact);
-				debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
-				return;
-			}
 		}
-		debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
+		// auth
+		bool new_auth = !item.containsField(SsiBuddyReqAuth);
+		contact->setProperty("authorized", new_auth);
+		// TODO: emit ...
+		// tags
+		if (item.containsField(SsiBuddyTags)) {
+			QStringList newTags;
+			DataUnit newTagsData = item.field(SsiBuddyTags);
+			while (newTagsData.dataSize() > 2) {
+				QString data = newTagsData.read<QString, quint16>();
+				if (!data.isEmpty())
+					newTags << data;
+			}
+			d->tags = newTags;
+		}
+		if (creating) {
+			if (ContactList::instance())
+				ContactList::instance()->addContact(contact);
+			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
+			return;
+		} else {
+			emit contact->tagsChanged(contact->tags());
+			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
+		}
 		break;
 	}
 	case SsiGroup: {
@@ -150,6 +156,8 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 					else
 						groups << i.name();
 				}
+				foreach (const QString &tag,  contact->d_func()->tags)
+					groups.insert(tag);
 				emit contact->tagsChanged(groups);
 			}
 			debug(Verbose) << "The group" << old.name() << "has been renamed to" << item.name();
@@ -243,6 +251,7 @@ Roster::Roster(IcqAccount *account):
 			<< SNACInfo(ListsFamily, ListsError)
 			<< SNACInfo(ListsFamily, ListsAuthRequest)
 			<< SNACInfo(ListsFamily, ListsSrvAuthResponse)
+			<< SNACInfo(ListsFamily, ListsList)
 			<< SNACInfo(BuddyFamily, UserOnline)
 			<< SNACInfo(BuddyFamily, UserOffline)
 			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy)
@@ -287,6 +296,13 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 		QString reason = sn.read<QString, qint16>();
 		debug() << "Auth response" << uin << is_accepted << reason;
 		break;
+	}
+	case ListsFamily << 16 | ListsList: {
+		if (firstPacket) {
+			firstPacket = false;
+			foreach (IcqContact *contact, m_account->contacts())
+				contact->d_func()->items.clear();
+		}
 	}
 	case BuddyFamily << 16 | UserOnline:
 		handleUserOnline(sn);
@@ -428,10 +444,8 @@ void Roster::handleUserOffline(const SNAC &snac)
 
 void Roster::statusChanged(qutim_sdk_0_3::Status status)
 {
-	if (status == Status::Connecting) {
-		foreach (IcqContact *contact, m_account->contacts())
-			contact->d_func()->items.clear();
-	}
+	if (status == Status::Connecting)
+		firstPacket = true;
 }
 
 void Roster::loginFinished()
