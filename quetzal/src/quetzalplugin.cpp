@@ -248,9 +248,9 @@ static PurpleCoreUiOps quetzal_core_uiops =
 void quetzal_debug_print(PurpleDebugLevel level, const char *category, const char *arg_s)
 {
 	Q_UNUSED(level);
-//	QByteArray arg(arg_s);
-//	arg.chop(1);
-//	qDebug("[quetzal/%s]: %s", category, arg.constData());
+	QByteArray arg(arg_s);
+	arg.chop(1);
+	qDebug("[quetzal/%s]: %s", category, arg.constData());
 }
 
 gboolean quetzal_debug_is_enabled(PurpleDebugLevel level, const char *category)
@@ -618,7 +618,7 @@ init_libpurple()
 //	purple_util_set_user_dir("/dev/null");
 
 	/* We do not want any debugging for now to keep the noise to a minimum. */
-	purple_debug_set_enabled(TRUE);
+	purple_debug_set_enabled(FALSE);
 
 	/* Set the core-uiops, which is used to
 	 * 	- initialize the ui specific preferences.
