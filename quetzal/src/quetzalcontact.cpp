@@ -51,9 +51,8 @@ QVariant quetzal_value2variant(const PurpleValue *value)
 	}
 }
 
-Status quetzal_get_status(PurplePresence *presence)
+Status quetzal_get_status(PurpleStatus *status, const QString &proto)
 {
-	PurpleStatus *status = purple_presence_get_active_status(presence);
 	const char *status_id = purple_status_get_id(status);
 	PurpleStatusType *status_type = purple_status_get_type(status);
 	PurpleStatusPrimitive primitive = purple_status_type_get_primitive(status_type);
@@ -96,14 +95,8 @@ Status quetzal_get_status(PurplePresence *presence)
 		break;
 	}
 	Status qStatus(type);
+	qStatus.initIcon(proto);
 
-	PurpleAccount *account = purple_presence_get_account(presence);
-	PurplePlugin *proto = account ? purple_plugins_find_with_id(account->protocol_id) : 0;
-	if (proto) {
-		qStatus.initIcon(QString::fromUtf8(proto->info->name).toLower());
-	} else {
-		qStatus.initIcon();
-	}
 	for (GList *it = purple_status_type_get_attrs(status_type); it; it = it->next) {
 		PurpleStatusAttr *attr = (PurpleStatusAttr *)it->data;
 		const char *id = purple_status_attr_get_id(attr);
@@ -118,19 +111,20 @@ Status quetzal_get_status(PurplePresence *presence)
 	return qStatus;
 }
 
-static PurpleStatus *quetzal_get_correct_status(PurplePresence *presence, Status qutim_status)
+Status quetzal_get_status(PurplePresence *presence)
 {
-	PurpleStatus *online = NULL;
-//	for (GList *it = m_acc)
-//	for (GList *it = purple_presence_get_statuses(m_account->presence); it; it = it->next) {
-//		PurpleStatus *status = reinterpret_cast<PurpleStatus *>(it->data);
-//		debug() << purple_status_type_get_primitive(purple_status_get_type(status))
-//				<< !!purple_status_is_online(status)
-//				<< purple_status_get_id(status)
-//				<< purple_status_get_name(status);
-//	}
-	return online;
+	PurpleStatus *status = purple_presence_get_active_status(presence);
+
+	PurpleAccount *account = purple_presence_get_account(presence);
+	PurplePlugin *proto = account ? purple_plugins_find_with_id(account->protocol_id) : 0;
+	QString proto_id;
+	if (proto) {
+		proto_id = QString::fromUtf8(proto->info->name).toLower();
+	}
+
+	return quetzal_get_status(status, proto_id);
 }
+
 
 QuetzalContact::QuetzalContact(PurpleBuddy *buddy) :
 	Contact(reinterpret_cast<QuetzalAccount *>(buddy->account->ui_data))
@@ -139,7 +133,7 @@ QuetzalContact::QuetzalContact(PurpleBuddy *buddy) :
 	buddy->node.ui_data = this;
 	PurpleBlistNode *node = &buddy->node;
 	m_id = buddy->name;
-	m_name = purple_buddy_get_alias(buddy->alias);
+	m_name = purple_buddy_get_alias(buddy);
 	m_status = quetzal_get_status(m_buddy->presence);
 	while (node = node->parent) {
 		if (PURPLE_BLIST_NODE_IS_GROUP(node)) {
@@ -169,13 +163,16 @@ void QuetzalContact::update()
 		m_tags = tags_;
 		tagsChanged(m_tags);
 	}
-	QString name = purple_buddy_get_alias(buddy->alias);
+	QString name = purple_buddy_get_alias(m_buddy);
 	if (name != m_name) {
 		m_name = name;
 		emit nameChanged(m_name);
 	}
 	Status status = quetzal_get_status(m_buddy->presence);
-	if (m_status.subtype() != status.subtype() || m_status.text() != status.text()) {
+	debug() << Q_FUNC_INFO << m_buddy->name << m_status << status;
+	if (m_status.type() != status.type()
+		|| m_status.subtype() != status.subtype()
+		|| m_status.text() != status.text()) {
 		debug() << Q_FUNC_INFO << m_id << status;
 		m_status = status;
 		emit statusChanged(m_status);
@@ -214,7 +211,8 @@ void QuetzalContact::sendMessage(const Message &message)
 
 void QuetzalContact::setName(const QString &name)
 {
-	purple_buddy_get_alias
+	purple_blist_alias_buddy(m_buddy, name.toUtf8().constData());
+	serv_alias_buddy(m_buddy);
 }
 
 void QuetzalContact::setTags(const QSet<QString> &tags)

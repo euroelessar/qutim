@@ -20,11 +20,15 @@ public:
 	void save();
 	void save(QuetzalContact *contact);
 	void remove(QuetzalContact *contact);
+	void addChatUnit(ChatUnit *unit);
+	void removeChatUnit(ChatUnit *unit);
 	virtual void setStatus(Status status);
+	void setStatusChanged(PurpleStatus *status);
 signals:
 
 public slots:
 private:
+	QHash<QString, ChatUnit *> m_units;
 	QHash<QString, QuetzalContact *> m_contacts;
 	PurpleAccount *m_account;
 	bool m_is_loading;

@@ -2,6 +2,7 @@
 #include "quetzalprotocol.h"
 #include "quetzalaccount.h"
 #include "quatzelactiondialog.h"
+#include "quetzalconverstion.h"
 #include <purple.h>
 #include <qutim/messagesession.h>
 #include <qutim/debug.h>
@@ -173,20 +174,31 @@ null_write_conv(PurpleConversation *conv, const char *who, const char *alias,
 
 void quetzal_create_conversation(PurpleConversation *conv)
 {
+	debug() << Q_FUNC_INFO << conv->name;
+	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(conv->account->ui_data);
 	if (conv->type == PURPLE_CONV_TYPE_IM) {
-		 QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(conv->account->ui_data);
-		 QuetzalContact *contact = qobject_cast<QuetzalContact *>(acc->getUnit(conv->name));
-		 conv->ui_data = contact;
+		ChatUnit *unit = acc->getUnit(conv->name);
+		if (!unit) {
+			unit = new QuetzalConversation(conv, acc);
+			acc->addChatUnit(unit);
+		}
+		conv->ui_data = unit;
 	}
 }
 
 void quetzal_destroy_conversation(PurpleConversation *conv)
 {
+	debug() << Q_FUNC_INFO << conv->name;
+	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(conv->account->ui_data);
 	if (conv->type == PURPLE_CONV_TYPE_IM) {
-		QuetzalContact *contact = reinterpret_cast<QuetzalContact *>(conv->ui_data);
-		if (contact) {
-			ChatSession *session = ChatLayer::get(contact, false);
+		ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
+		if (unit) {
+			ChatSession *session = ChatLayer::get(unit, false);
 			session->setActive(false);
+			if (!(qobject_cast<QuetzalContact *>(unit))) {
+				acc->removeChatUnit(unit);
+				unit->deleteLater();
+			}
 		}
 	}
 }
@@ -195,20 +207,29 @@ void quetzal_write_chat(PurpleConversation *conv, const char *who,
 				   const char *message, PurpleMessageFlags flags,
 				   time_t mtime)
 {
+	debug() << Q_FUNC_INFO << who;
 }
 
 void quetzal_write_im(PurpleConversation *conv, const char *who,
 				 const char *message, PurpleMessageFlags flags,
 				 time_t mtime)
 {
-	QuetzalContact *contact = reinterpret_cast<QuetzalContact *>(conv->ui_data);
+	debug() << Q_FUNC_INFO << who;
+	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
+	if (!unit)
+		quetzal_create_conversation(conv);
 	Message mess(message);
-	mess.setIncoming(!qstrcmp(who, contact->buddy()->name));
+	if (QuetzalContact *contact = qobject_cast<QuetzalContact *>(unit)) {
+		mess.setIncoming(!qstrcmp(who, contact->buddy()->name));
+	} else {
+		QuetzalConversation *quetzal_conv = static_cast<QuetzalConversation *>(unit);
+		mess.setIncoming(!qstrcmp(who, quetzal_conv->conv()->name));
+	}
 	if (!mess.isIncoming())
 		return;
 	mess.setTime(QDateTime::fromTime_t(mtime));
-	mess.setChatUnit(contact);
-	ChatLayer::get(contact, true)->appendMessage(mess);
+	mess.setChatUnit(unit);
+	ChatLayer::get(unit, true)->appendMessage(mess);
 }
 
 void quetzal_write_conv(PurpleConversation *conv,
@@ -218,15 +239,16 @@ void quetzal_write_conv(PurpleConversation *conv,
 				   PurpleMessageFlags flags,
 				   time_t mtime)
 {
-	ChatUnit *contact = reinterpret_cast<ChatUnit *>(conv->ui_data);
+	debug() << Q_FUNC_INFO << name << conv->account->username;
+	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
 	Message mess(message);
 	mess.setIncoming(qstrcmp(name, conv->account->username));
 	debug() << name << alias;
 	if (!mess.isIncoming())
 		return;
 	mess.setTime(QDateTime::fromTime_t(mtime));
-	mess.setChatUnit(contact);
-	ChatLayer::get(contact, true)->appendMessage(mess);
+	mess.setChatUnit(unit);
+	ChatLayer::get(unit, true)->appendMessage(mess);
 }
 
 void quetzal_chat_add_users(PurpleConversation *conv,
@@ -710,6 +732,14 @@ static gboolean quetzal_blist_load(gpointer data)
 	return FALSE;
 }
 
+static void quetzal_account_status_changed(PurpleAccount *account, PurpleStatus *old_status, PurpleStatus *new_status)
+{
+	Q_UNUSED(old_status);
+	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account->ui_data);
+	if (acc)
+		acc->setStatusChanged(new_status);
+}
+
 static void
 init_libpurple()
 {
@@ -764,6 +794,12 @@ init_libpurple()
 
 	/* Load the pounces. */
 	purple_pounces_load();
+
+	static int handle_ptr;
+	void *handle = &handle_ptr;
+	// connect signals
+	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed", handle,
+						  PURPLE_CALLBACK(quetzal_account_status_changed), NULL);
 }
 
 void QuetzalPlugin::init()

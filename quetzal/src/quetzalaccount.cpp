@@ -6,7 +6,42 @@
 #include <qutim/json.h>
 
 extern Status quetzal_get_status(PurplePresence *presence);
-extern PurpleStatus *quetzal_get_correct_status(PurplePresence *presence, Status qutim_status);
+static PurpleStatus *quetzal_get_correct_status(PurplePresence *presence, Status qutim_status)
+{
+	PurpleStatus *status = NULL;
+
+	PurpleStatusPrimitive type = PURPLE_STATUS_UNSET;
+	switch (qutim_status.type()) {
+	case Status::Online:
+		type = PURPLE_STATUS_AVAILABLE;
+		break;
+	case Status::FreeChat:
+		if ((status = purple_presence_get_status(presence, "freeforchat"))
+			|| (status = purple_presence_get_status(presence, "free4chat")))
+			return status;
+		type = PURPLE_STATUS_AVAILABLE;
+		break;
+	case Status::Away:
+		type = PURPLE_STATUS_AWAY;
+		break;
+	case Status::NA:
+		type = PURPLE_STATUS_EXTENDED_AWAY;
+		break;
+	case Status::DND:
+		if (status = purple_presence_get_status(presence, "dnd"))
+			return status;
+		type = PURPLE_STATUS_UNAVAILABLE;
+		break;
+	case Status::Invisible:
+		type = PURPLE_STATUS_INVISIBLE;
+		break;
+	case Status::Offline:
+		type = PURPLE_STATUS_OFFLINE;
+		break;
+	}
+
+	return purple_presence_get_status(presence, purple_primitive_get_id_from_type(type));
+}
 
 QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) :
 	Account(id, protocol)
@@ -124,6 +159,32 @@ void QuetzalAccount::remove(QuetzalContact *contact)
 	contact->deleteLater();
 }
 
+void QuetzalAccount::addChatUnit(ChatUnit *unit)
+{
+	m_units.insert(unit->id(), unit);
+}
+
+void QuetzalAccount::removeChatUnit(ChatUnit *unit)
+{
+	m_units.remove(unit->id());
+}
+
 void QuetzalAccount::setStatus(Status status)
 {
+	PurpleStatus *purple_status = quetzal_get_correct_status(m_account->presence, status);
+	debug() << purple_status_get_id(purple_status) << purple_status_get_name(purple_status);
+	purple_presence_set_status_active(m_account->presence, purple_status_get_id(purple_status), TRUE);
+	if (status.type() != Status::Offline)
+		purple_account_connect(m_account);
+}
+
+extern QVariant quetzal_value2variant(const PurpleValue *value);
+
+extern Status quetzal_get_status(PurpleStatus *status, const QString &proto);
+
+void QuetzalAccount::setStatusChanged(PurpleStatus *status)
+{
+	Status stat = quetzal_get_status(status, protocol()->id());
+	Account::setStatus(stat);
+	statusChanged(stat);
 }
