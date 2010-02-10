@@ -15,7 +15,11 @@
 
 #include "status.h"
 #include "dynamicpropertydata_p.h"
+<<<<<<< HEAD:libqutim/status.cpp
 #include "icon.h"
+=======
+#include "libqutim/icon.h"
+>>>>>>> 2e0a5a999f32d0853739bff515078ad9cb58ca8b:libqutim/status.cpp
 #include <QDebug>
 
 namespace qutim_sdk_0_3
