@@ -69,7 +69,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 	version.append<quint8>(0x00); // 5 bytes more to 16
 	d->caps.append(Capability(version.data()));
 
-	if (cfg.value("autoconnect", true))
+	if (cfg.value("autoconnect", false))
 		setStatus(d->lastStatus);
 }
 
@@ -170,10 +170,6 @@ IcqContact *IcqAccount::getContact(const QString &id, bool create)
 	IcqContact *contact = d->contacts.value(id);
 	if (create && !contact) {
 		contact = new IcqContact(id, this);
-		FeedbagItem &item = contact->d_func()->item;
-		item = d->feedbag->item(SsiBuddy, id, 0, Feedbag::GenerateId | Feedbag::DontLoadLocal);
-		item.setField<QString>(SsiBuddyNick, id);
-		item.setField(SsiBuddyReqAuth);
 		d->contacts.insert(id, contact);
 		emit contactCreated(contact);
 		//if (ContactList::instance())

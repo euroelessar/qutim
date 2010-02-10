@@ -92,47 +92,50 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 			break;
 		IcqContact *contact = m_account->getContact(item.name(), true);
 		IcqContactPrivate *d = contact->d_func();
-		bool creating = !d->item.isInList();
-		if (!creating ) {
-			Status status = d->account->status();
-			if (status.type() >= Status::Online && status.type() <= Status::Offline && d->item.isInList()) {
-				if (d->item.constData() != item.constData()) {
-					FeedbagItem i = item;
-					i.setData(d->item.constData());
-					i.update();
-				}
+		bool creating = d->items.isEmpty();
+		QList<FeedbagItem>::iterator itr = d->items.begin();
+		QList<FeedbagItem>::iterator endItr = d->items.end();
+		bool newTag = true;
+		bool update = true;
+		while (itr != endItr) {
+			if (itr->itemId() == item.itemId() && itr->groupId() == item.groupId()) {
+				*itr = item;
+				newTag = false;
+				break;
 			}
-		} else {
-			d->item = item;
+			update = false;
+			++itr;
 		}
-		if (!d->groups.contains(item.groupId())) {
-			d->groups.insert(item.groupId(), item.itemId());
-			emit contact->tagsChanged(contact->tags());
+		if (newTag) {
+			d->items << item;
+			if (!creating)
+				emit contact->tagsChanged(contact->tags());
 		}
-		// name
-		QString new_name = item.field<QString>(SsiBuddyNick);
-		if (!new_name.isEmpty() && new_name != contact->d_func()->name) {
-			contact->d_func()->name = new_name;
-			emit contact->nameChanged(new_name);
-		}
-		// comment
-		QString new_comment = item.field<QString>(SsiBuddyComment);
-		if (!new_comment.isEmpty() && new_comment != contact->property("comment").toString()) {
-			contact->setProperty("comment", new_comment);
+		if (update) {
+			// name
+			QString new_name = item.field<QString>(SsiBuddyNick);
+			if (!new_name.isEmpty() && new_name != contact->d_func()->name) {
+				contact->d_func()->name = new_name;
+				emit contact->nameChanged(new_name);
+			}
+			// comment
+			QString new_comment = item.field<QString>(SsiBuddyComment);
+			if (!new_comment.isEmpty() && new_comment != contact->property("comment").toString()) {
+				contact->setProperty("comment", new_comment);
+				// TODO: emit ...
+			}
+			// auth
+			bool new_auth = !item.containsField(SsiBuddyReqAuth);
+			contact->setProperty("authorized", new_auth);
 			// TODO: emit ...
+			if (creating) {
+				if (ContactList::instance())
+					ContactList::instance()->addContact(contact);
+				debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
+				return;
+			}
 		}
-		// auth
-		bool new_auth = !item.containsField(SsiBuddyReqAuth);
-		contact->setProperty("authorized", new_auth);
-		// TODO: emit ... 
-		if (creating) {
-			if (ContactList::instance())
-				ContactList::instance()->addContact(contact);
-			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
-		}
-		else {
-			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
-		}
+		debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
 		break;
 	}
 	case SsiGroup: {
@@ -141,11 +144,11 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 			foreach (const FeedbagItem &i, m_account->feedbag()->group(item.groupId())) {
 				QSet<QString> groups;
 				IcqContact *contact = m_account->getContact(i.name());
-				foreach (quint16 group, contact->d_func()->groups) {
-					if (item.groupId() == group)
+				foreach (const FeedbagItem &i, contact->d_func()->items) {
+					if (item.groupId() == i.groupId())
 						groups << item.name();
 					else
-						groups << m_account->feedbag()->groupItem(group).name();
+						groups << i.name();
 				}
 				emit contact->tagsChanged(groups);
 			}
@@ -172,41 +175,48 @@ void SsiHandler::handleRemoveCLItem(const FeedbagItem &item)
 	switch (item.type()) {
 	case SsiBuddy: {
 		IcqContact *contact = m_account->getContact(item.name());
+		IcqContactPrivate *d = contact->d_func();
 		if (!contact) {
 			warning() << "The contact" << item.name() << "does not exist";
 			break;
 		}
-		QHash<quint16, quint16> &groups = contact->d_func()->groups;
-		groups.remove(item.groupId());
-		if (groups.isEmpty()) {
+		removeContactFromGroup(contact, item.groupId());
+		break;
+	}
+	case SsiGroup: {
+		foreach (IcqContact *contact, m_account->contacts())
+			removeContactFromGroup(contact, item.groupId());
+		debug() << "The group" << item.name() << "has been removed";
+		break;
+	}
+	}
+}
+
+void SsiHandler::removeContactFromGroup(IcqContact *contact, quint16 groupId)
+{
+	QList<FeedbagItem> &items = contact->d_func()->items;
+	QList<FeedbagItem>::iterator itr = items.begin();
+	QList<FeedbagItem>::iterator endItr = items.end();
+	bool found = false;
+	while (itr != endItr) {
+		if (itr->groupId() == groupId) {
+			items.erase(itr);
+			found = true;
+			break;
+		}
+		++itr;
+	}
+	if (found) {
+		if (items.isEmpty()) {
 			debug().nospace() << "The contact " << contact->id()
 					<< " (" << contact->name() << ") has been removed";
 			removeContact(contact);
 		} else {
 			debug().nospace() << "The contact " << contact->id() << " ("
 					<< contact->name() << ") has been removed from "
-					<< m_account->feedbag()->groupItem(item.groupId()).name();
+					<< m_account->feedbag()->groupItem(groupId).name();
 			emit contact->tagsChanged(contact->tags());
 		}
-		break;
-	}
-	case SsiGroup: {
-		// Removing all contacts in the group.
-		const QHash<QString, IcqContact *> &contacts = m_account->contacts();
-		QHash<QString, IcqContact *>::const_iterator contactItr = contacts.constBegin();
-		QHash<QString, IcqContact *>::const_iterator contactEntItr = contacts.constEnd();
-		while (contactItr != contactEntItr) {
-			QHash<quint16, quint16> &groups = contactItr.value()->d_func()->groups;
-			groups.remove(item.groupId());
-			if (groups.isEmpty())
-				removeContact(*contactItr);
-			else
-				emit contactItr.value()->tagsChanged(contactItr.value()->tags());
-			++contactItr;
-		}
-		debug() << "The group" << item.name() << "has been removed";
-		break;
-	}
 	}
 }
 
@@ -217,7 +227,6 @@ void SsiHandler::removeContact(IcqContact *contact)
 		ContactList::instance()->removeContact(contact);
 	delete contact;
 */
-	contact->d_func()->groups.clear();
 	emit contact->tagsChanged(contact->tags());
 }
 
@@ -421,7 +430,7 @@ void Roster::statusChanged(qutim_sdk_0_3::Status status)
 {
 	if (status == Status::Connecting) {
 		foreach (IcqContact *contact, m_account->contacts())
-			contact->d_func()->groups.clear();
+			contact->d_func()->items.clear();
 	}
 }
 

@@ -53,6 +53,7 @@ enum ContactCapabilityFlags
 struct IcqContactPrivate
 {
 	void clearCapabilities();
+	FeedbagItem getNotInListGroup();
 	Q_DECLARE_FLAGS(CapabilityFlags, ContactCapabilityFlags)
 	IcqAccount *account;
 	QString uin;
@@ -62,8 +63,7 @@ struct IcqContactPrivate
 	CapabilityFlags flags;
 	Capabilities capabilities;
 	DirectConnectionInfo dc_info;
-	FeedbagItem item;
-	QHash<quint16, quint16> groups;
+	QList<FeedbagItem> items;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IcqContactPrivate::CapabilityFlags)
