@@ -87,10 +87,10 @@ namespace qutim_sdk_0_3
 			name = LocalizedString("Status", "Away");
 			break;
 		case Status::NA:
-			name = LocalizedString("Status", "Not avalaiable");
+			name = LocalizedString("Status", "Not available");
 			break;
 		case Status::DND:
-			name = LocalizedString("Status", "Busy");
+			name = LocalizedString("Status", "Do not disturb");
 			break;
 		case Status::Invisible:
 			name = LocalizedString("Status", "Invisible");
@@ -106,8 +106,10 @@ namespace qutim_sdk_0_3
 
 	Status::Status(Type type) : d(type == Status::Offline ? offlineStatus() : new StatusPrivate)
 	{
-		if (type != Status::Offline)
+		if (type != Status::Offline) {
 			d->type = type;
+			d->generateName();
+		}
 	}
 
 	Status::Status(const Status &other) : d(other.d)
@@ -128,6 +130,7 @@ namespace qutim_sdk_0_3
 			QSharedDataPointer<StatusPrivate> ptr(new StatusPrivate());
 			d.swap(ptr);
 			d->type = type;
+			d->generateName();
 		}
 		return *this;
 	}
@@ -182,6 +185,7 @@ namespace qutim_sdk_0_3
 	void Status::setType(Status::Type type)
 	{
 		d->type = type;
+		d->generateName();
 	}
 
 	int Status::subtype() const

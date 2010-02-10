@@ -31,7 +31,12 @@ namespace qutim_sdk_0_3
 		Q_DECLARE_PRIVATE(ActionGenerator)
 		Q_DISABLE_COPY(ActionGenerator)
 	public:
+		enum Type { StatusType = 0, GeneralType };
+
 		ActionGenerator(const QIcon &icon, const LocalizedString &text, const QObject *receiver, const char *member);
+#ifndef Q_QDOC
+		ActionGenerator(ActionGeneratorPrivate &priv);
+#endif
 		virtual ~ActionGenerator();
 		QIcon icon() const;
 		const LocalizedString &text() const;

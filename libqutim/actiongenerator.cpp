@@ -13,28 +13,16 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "actiongenerator.h"
-#include "objectgenerator_p.h"
+#include "actiongenerator_p.h"
 #include "menucontroller.h"
 #include <QtGui/QIcon>
 #include <QtGui/QAction>
 
 namespace qutim_sdk_0_3
 {
-	class ActionGeneratorPrivate : public ObjectGeneratorPrivate
-	{
-	public:
-		QIcon icon;
-		LocalizedString text;
-		QPointer<QObject> receiver;
-		QByteArray member;
-		int type;
-		int priority;
-		MenuController *controller;
-	};
-
-	ActionGenerator::ActionGenerator(const QIcon &icon, const LocalizedString &text, const QObject *receiver, const char *member)
-			: ObjectGenerator(*new ActionGeneratorPrivate)
+	ActionGenerator::ActionGenerator(const QIcon &icon, const LocalizedString &text,
+									 const QObject *receiver, const char *member)
+			  : ObjectGenerator(*new ActionGeneratorPrivate)
 	{
 		Q_D(ActionGenerator);
 		Q_ASSERT(receiver && member && *member);
@@ -42,9 +30,10 @@ namespace qutim_sdk_0_3
 		d->text = text;
 		d->receiver = const_cast<QObject *>(receiver);
 		d->member = member;
-		d->type = 0;
-		d->priority = 0;
-		d->controller = 0;
+	}
+
+	ActionGenerator::ActionGenerator(ActionGeneratorPrivate &priv) : ObjectGenerator(priv)
+	{
 	}
 
 	ActionGenerator::~ActionGenerator()
