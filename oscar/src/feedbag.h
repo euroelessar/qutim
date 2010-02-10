@@ -68,7 +68,7 @@ public:
 	bool isNull() const;
 	void setName(const QString &name);
 	void setId(quint16 itemId);
-	void setGroup(quint16 groupId, bool force = false);
+	void setGroup(quint16 groupId);
 	void setField(quint16 field);
 	void setField(const TLV &tlv);
 	template<typename T>
