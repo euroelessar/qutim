@@ -20,6 +20,7 @@ public:
 	void save();
 	void save(QuetzalContact *contact);
 	void remove(QuetzalContact *contact);
+	virtual void setStatus(Status status);
 signals:
 
 public slots:

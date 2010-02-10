@@ -1,6 +1,9 @@
 #include "quetzalprotocol.h"
 #include "quetzalaccount.h"
+#include "quetzalplugin.h"
 #include <qutim/debug.h>
+#include <qutim/icon.h>
+#include <qutim/statusactiongenerator.h>
 
 QuetzalProtocol::QuetzalProtocol(const QuetzalMetaObject *meta, PurplePlugin *plugin)
 {
@@ -20,12 +23,33 @@ Account *QuetzalProtocol::account(const QString &id) const
 	return m_accounts.value(id);
 }
 
+void initActions()
+{
+	static bool inited = false;
+	if (inited)
+		return;
+	QList<ActionGenerator *> actions;
+	actions << new StatusActionGenerator(Status(Status::Online))
+			<< new StatusActionGenerator(Status(Status::FreeChat))
+			<< new StatusActionGenerator(Status(Status::Away))
+			<< new StatusActionGenerator(Status(Status::NA))
+			<< new StatusActionGenerator(Status(Status::DND))
+			<< new StatusActionGenerator(Status(Status::Offline));
+	foreach (ActionGenerator *action, actions)
+		MenuController::addAction(action, &QuetzalAccount::staticMetaObject);
+	inited = true;
+}
+
 void QuetzalProtocol::loadAccounts()
 {
+	initActions();
 	QStringList accounts = config("general").value("accounts", QStringList());
 	debug() << id() << accounts;
-	foreach(const QString &id, accounts)
-		m_accounts.insert(id, new QuetzalAccount(id, this));
+	foreach(const QString &id, accounts) {
+		QuetzalAccount *account = new QuetzalAccount(id, this);
+		m_accounts.insert(id, account);
+		emit accountCreated(account);
+	}
 }
 
 QByteArray quetzal_fix_protocol_name(const char *name)

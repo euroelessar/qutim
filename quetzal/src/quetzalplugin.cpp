@@ -3,6 +3,7 @@
 #include "quetzalaccount.h"
 #include "quatzelactiondialog.h"
 #include <purple.h>
+#include <qutim/messagesession.h>
 #include <qutim/debug.h>
 #include <QCoreApplication>
 #include <QTimerEvent>
@@ -15,6 +16,7 @@
 #include <QInputDialog>
 #include <QStringBuilder>
 #include <QTextDocument>
+#include <QDateTime>
 
 QuetzalTimer *QuetzalTimer::m_self = NULL;
 
@@ -82,7 +84,7 @@ gboolean QuetzalTimer::removeIO(guint handle)
 	if (it == m_files.end())
 		return FALSE;
 	FileInfo *info = it.value();
-	delete info->socket;
+	info->socket->deleteLater();
 	m_files.erase(it);
 	return TRUE;
 }
@@ -94,51 +96,44 @@ int QuetzalTimer::getIOError(int fd, int *error)
 
 void QuetzalTimer::onSocket(int fd)
 {
-	QPointer<QSocketNotifier> socket = qobject_cast<QSocketNotifier *>(sender());
+	QSocketNotifier *socket = qobject_cast<QSocketNotifier *>(sender());
 	guint id = socket->property("quetzal_id").toUInt();
 	QMap<uint, FileInfo *>::iterator it = m_files.find(id);
 	FileInfo *info = it.value();
 	socket->setEnabled(false);
 	(*info->func)(info->data, fd, info->cond);
-	if (socket)
-		socket->setEnabled(true);
+	socket->setEnabled(true);
 }
 
 static guint quetzal_timeout_add(guint interval, GSourceFunc function, gpointer data)
 {
 	return QuetzalTimer::instance()->addTimer(interval, function, data);
 }
-//Should create a callback timer with an interval measured in milliseconds.
 
 static gboolean quetzal_timeout_remove(guint handle)
 {
 	return QuetzalTimer::instance()->removeTimer(handle);
 }
-//Should remove a callback timer.
 
 static guint quetzal_input_add(int fd, PurpleInputCondition cond, PurpleInputFunction func, gpointer user_data)
 {
 	return QuetzalTimer::instance()->addIO(fd, cond, func, user_data);
 }
-//Should add an input handler.
 
 static gboolean quetzal_input_remove(guint handle)
 {
 	return QuetzalTimer::instance()->removeIO(handle);
 }
-//Should remove an input handler.
 
 static int quetzal_input_get_error(int fd, int *error)
 {
 	return QuetzalTimer::instance()->getIOError(fd, error);
 }
-//If implemented, should get the current error status for an input.
 
 static guint quetzal_timeout_add_seconds(guint interval, GSourceFunc function, gpointer data)
 {
 	return quetzal_timeout_add(interval * 1000, function, data);
 }
-//If implemented, should create a callback timer with an interval measured in seconds.
 
 static PurpleEventLoopUiOps quetzal_eventloops =
 {
@@ -175,13 +170,117 @@ null_write_conv(PurpleConversation *conv, const char *who, const char *alias,
 			name, message);
 }
 
-static PurpleConversationUiOps null_conv_uiops =
+
+void quetzal_create_conversation(PurpleConversation *conv)
 {
-	NULL,                      /* create_conversation  */
-	NULL,                      /* destroy_conversation */
+	if (conv->type == PURPLE_CONV_TYPE_IM) {
+		 QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(conv->account->ui_data);
+		 QuetzalContact *contact = qobject_cast<QuetzalContact *>(acc->getUnit(conv->name));
+		 conv->ui_data = contact;
+	}
+}
+
+void quetzal_destroy_conversation(PurpleConversation *conv)
+{
+	if (conv->type == PURPLE_CONV_TYPE_IM) {
+		QuetzalContact *contact = reinterpret_cast<QuetzalContact *>(conv->ui_data);
+		if (contact) {
+			ChatSession *session = ChatLayer::get(contact, false);
+			session->setActive(false);
+		}
+	}
+}
+
+void quetzal_write_chat(PurpleConversation *conv, const char *who,
+				   const char *message, PurpleMessageFlags flags,
+				   time_t mtime)
+{
+}
+
+void quetzal_write_im(PurpleConversation *conv, const char *who,
+				 const char *message, PurpleMessageFlags flags,
+				 time_t mtime)
+{
+	QuetzalContact *contact = reinterpret_cast<QuetzalContact *>(conv->ui_data);
+	Message mess(message);
+	mess.setIncoming(!qstrcmp(who, contact->buddy()->name));
+	if (!mess.isIncoming())
+		return;
+	mess.setTime(QDateTime::fromTime_t(mtime));
+	mess.setChatUnit(contact);
+	ChatLayer::get(contact, true)->appendMessage(mess);
+}
+
+void quetzal_write_conv(PurpleConversation *conv,
+				   const char *name,
+				   const char *alias,
+				   const char *message,
+				   PurpleMessageFlags flags,
+				   time_t mtime)
+{
+	ChatUnit *contact = reinterpret_cast<ChatUnit *>(conv->ui_data);
+	Message mess(message);
+	mess.setIncoming(qstrcmp(name, conv->account->username));
+	debug() << name << alias;
+	if (!mess.isIncoming())
+		return;
+	mess.setTime(QDateTime::fromTime_t(mtime));
+	mess.setChatUnit(contact);
+	ChatLayer::get(contact, true)->appendMessage(mess);
+}
+
+void quetzal_chat_add_users(PurpleConversation *conv,
+					   GList *cbuddies,
+					   gboolean new_arrivals)
+{
+}
+
+void quetzal_chat_rename_user(PurpleConversation *conv, const char *old_name,
+						 const char *new_name, const char *new_alias)
+{
+}
+
+void quetzal_chat_remove_users(PurpleConversation *conv, GList *users)
+{
+}
+
+void quetzal_chat_update_user(PurpleConversation *conv, const char *user)
+{
+}
+
+void quetzal_present(PurpleConversation *conv)
+{
+}
+
+gboolean quetzal_has_focus(PurpleConversation *conv)
+{
+}
+
+gboolean quetzal_custom_smiley_add(PurpleConversation *conv, const char *smile, gboolean remote)
+{
+}
+
+void quetzal_custom_smiley_write(PurpleConversation *conv, const char *smile,
+							const guchar *data, gsize size)
+{
+}
+
+void quetzal_custom_smiley_close(PurpleConversation *conv, const char *smile)
+{
+}
+
+void quetzal_send_confirm(PurpleConversation *conv, const char *message)
+{
+}
+
+
+static PurpleConversationUiOps quetzal_conv_uiops =
+{
+	quetzal_create_conversation,/* create_conversation  */
+	quetzal_destroy_conversation,/* destroy_conversation */
 	NULL,                      /* write_chat           */
-	NULL,                      /* write_im             */
-	null_write_conv,           /* write_conv           */
+	quetzal_write_im,          /* write_im             */
+	quetzal_write_conv,           /* write_conv           */
 	NULL,                      /* chat_add_users       */
 	NULL,                      /* chat_rename_user     */
 	NULL,                      /* chat_remove_users    */
@@ -205,7 +304,7 @@ null_ui_init(void)
 	 * This should initialize the UI components for all the modules. Here we
 	 * just initialize the UI for conversations.
 	 */
-	purple_conversations_set_ui_ops(&null_conv_uiops);
+	purple_conversations_set_ui_ops(&quetzal_conv_uiops);
 }
 
 inline char *quetzal_copystr(const QByteArray &data)

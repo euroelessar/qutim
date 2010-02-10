@@ -5,12 +5,36 @@
 #include <QFile>
 #include <qutim/json.h>
 
+extern Status quetzal_get_status(PurplePresence *presence);
+extern PurpleStatus *quetzal_get_correct_status(PurplePresence *presence, Status qutim_status);
+
 QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) :
 	Account(id, protocol)
 {
 	m_account = purple_account_new(id.toUtf8(), protocol->plugin()->info->id);
 	m_account->ui_data = this;
 	debug() << "created!" << this << m_account->protocol_id;
+	for (GList *it = m_account->status_types; it; it = it->next) {
+		PurpleStatusType *type = (PurpleStatusType *)it->data;
+		debug() << purple_status_type_get_id(type) << purple_status_type_get_name(type);
+		for (GList *jt = purple_status_type_get_attrs(type); jt; jt = jt->next) {
+			PurpleStatusAttr *attr = (PurpleStatusAttr *)jt->data;
+			debug() << "!" << purple_status_attr_get_id(attr) << purple_status_attr_get_name(attr)
+					<< purple_status_attr_get_value(attr);
+		}
+	}
+	// Hack for anti-auto-connect
+	for (GList *it = purple_presence_get_statuses(m_account->presence); it; it = it->next) {
+		PurpleStatus *status = reinterpret_cast<PurpleStatus *>(it->data);
+//		debug() << purple_status_type_get_primitive(purple_status_get_type(status))
+//				<< !!purple_status_is_online(status)
+//				<< purple_status_get_id(status)
+//				<< purple_status_get_name(status);
+		if (!purple_status_is_online(status)) {
+			purple_presence_set_status_active(m_account->presence, purple_status_get_id(status), TRUE);
+			break;
+		}
+	}
 
 
 	Config cfg = config();
@@ -20,16 +44,18 @@ QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) :
 	m_is_loading = true;
 	load(cfg);
 	m_is_loading = false;
-	if (protocol->id() == "jabber" && id.contains("qutim.org")) {
+//	if (protocol->id() == "jabber" && id.contains("qutim.org")) {
+	if (!purple_account_get_enabled(m_account, "qutim"))
 		purple_account_set_enabled(m_account, "qutim", TRUE);
-		purple_account_connect(m_account);
-	} else
-		purple_account_set_enabled(m_account, "qutim", FALSE);
+
+//		purple_account_connect(m_account);
+//	} else
+//		purple_account_set_enabled(m_account, "qutim", FALSE);
 }
 
 ChatUnit *QuetzalAccount::getUnit(const QString &unitId, bool create)
 {
-	return 0;
+	return m_contacts.value(unitId);
 }
 
 void QuetzalAccount::createNode(PurpleBlistNode *node)
@@ -96,4 +122,8 @@ void QuetzalAccount::remove(QuetzalContact *contact)
 	m_contacts.remove(contact->id());
 	ContactList::instance()->removeContact(contact);
 	contact->deleteLater();
+}
+
+void QuetzalAccount::setStatus(Status status)
+{
 }

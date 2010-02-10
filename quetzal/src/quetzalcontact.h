@@ -15,6 +15,7 @@ class QuetzalContact : public Contact
 public:
 	explicit QuetzalContact(PurpleBuddy *buddy);
 
+	PurpleBuddy *buddy() { return m_buddy; }
 	void save(ConfigGroup group);
 	void update();
 	virtual QString id() const;
