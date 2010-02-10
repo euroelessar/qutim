@@ -58,6 +58,7 @@ namespace Core
 			Model *model;
 			ActionToolBar *main_toolbar;
 			ActionToolBar *bottom_toolbar;
+			QHash<Account *, QAction *> actions;
 		};
 
 		Module::Module() : p(new ModulePrivate)
@@ -142,7 +143,10 @@ namespace Core
 		void Module::onAccountCreated(Account *account)
 		{
 			//TODO add account icon
-			QAction *action = new QAction(Icon("user-online"), account->name(), p->bottom_toolbar);
+			QAction *action = new QAction(account->status().icon(), account->name(), p->bottom_toolbar);
+			connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
+					this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+			p->actions.insert(account, action);
 //			connect(action, SIGNAL(triggered()), action, SLOT(toggle()));
 			action->setMenu(account->menu(false));
 			p->bottom_toolbar->addAction(action);
@@ -152,12 +156,13 @@ namespace Core
 			}
 		}
 
-		void Module::onAccountButtonClicked()
+		void Module::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
 		{
-			QAction *action = qobject_cast<QAction *>(sender());
+			Account *account = qobject_cast<Account *>(sender());
+			Q_ASSERT(account);
+			QAction *action = p->actions.value(account);
 			Q_ASSERT(action);
-			if(Account *account = qobject_cast<Account *>(action->data().value<MenuController *>()))
-				account->showMenu(QCursor::pos());
+			action->setIcon(status.icon());
 		}
 	}
 }

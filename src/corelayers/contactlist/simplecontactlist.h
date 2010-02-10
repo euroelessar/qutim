@@ -3,6 +3,7 @@
 
 #include "libqutim/contactlist.h"
 #include "libqutim/actiontoolbar.h"
+#include "libqutim/status.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -25,7 +26,7 @@ namespace Core
 		private slots:
 			void onConfigureClicked();
 			void onAccountCreated(qutim_sdk_0_3::Account *account);
-			void onAccountButtonClicked();
+			void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
 		private:
 			QScopedPointer<ModulePrivate> p;
 		};
