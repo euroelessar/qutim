@@ -53,6 +53,7 @@ protected:
 	void handleUserOffline(const SNAC &snac);
 private slots:
 	void statusChanged(qutim_sdk_0_3::Status status);
+	void loginFinished();
 private:
 	IcqAccount *m_account;
 	OscarConnection *m_conn;

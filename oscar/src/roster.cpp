@@ -225,6 +225,7 @@ Roster::Roster(IcqAccount *account):
 	SNACHandler(account)
 {
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
 	m_account = account;
 	m_ssiHandler = new SsiHandler(m_account, this);
 	m_conn = account->connection();
@@ -418,19 +419,21 @@ void Roster::handleUserOffline(const SNAC &snac)
 
 void Roster::statusChanged(qutim_sdk_0_3::Status status)
 {
-	// ?!
-//	if (status == ConnectingStart) {
-//		foreach (IcqContact *contact, m_account->contacts())
-//			contact->d_func()->groups.clear();
-//	} else if (status == ConnectingStop) {
-//		foreach (IcqContact *contact, m_account->contacts()) {
-//			if (!m_account->feedbag()->containsItem(SsiBuddy, contact->id())) {
-//				if (ContactList::instance())
-//					ContactList::instance()->removeContact(contact);
-//				delete contact;
-//			}
-//		}
-//	}
+	if (status == Status::Connecting) {
+		foreach (IcqContact *contact, m_account->contacts())
+			contact->d_func()->groups.clear();
+	}
+}
+
+void Roster::loginFinished()
+{
+	foreach (IcqContact *contact, m_account->contacts()) {
+		if (!m_account->feedbag()->containsItem(SsiBuddy, contact->id())) {
+			if (ContactList::instance())
+				ContactList::instance()->removeContact(contact);
+			delete contact;
+		}
+	}
 }
 
 } // namespace Icq

@@ -6,7 +6,7 @@ project( Protocols )
 set(QT_MIN_VERSION "4.6.0")
 
 set(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")
-set(QUTIM_LIBRARY "" CACHE FILEPATH "Filepath to qutim library")
+set(QUTIM_LIBRARY QUTIM_LIBRARY-NOTFOUND CACHE FILEPATH "Filepath to qutim library")
 if(QUTIM_PATH)
     if(NOT QUTIM_INCLUDE_DIRS)
         set(QUTIM_INCLUDE_DIRS ${QUTIM_PATH}/libqutim/include)
