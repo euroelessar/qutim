@@ -50,6 +50,7 @@ public:
 	IcqAccount(const QString &uin);
 	virtual ~IcqAccount();
 	virtual void setStatus(Status status);
+	void setStatus(IcqStatus status);
 	virtual QString name() const;
 	void setName(const QString &name);
 	Feedbag *feedbag();

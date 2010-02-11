@@ -18,6 +18,8 @@
 #define ICQPROTOCOL_H
 
 #include <qutim/protocol.h>
+#include <qutim/status.h>
+#include <icq_global.h>
 
 namespace Icq
 {
@@ -46,6 +48,7 @@ private slots:
 	void onStatusActionPressed();
 private:
 	friend class IcqAccountCreationWizard;
+	friend qutim_sdk_0_3::Status icqStatusToQutim(IcqStatus status);
 	QScopedPointer<IcqProtocolPrivate> d_ptr;
 	static IcqProtocol *self;
 };

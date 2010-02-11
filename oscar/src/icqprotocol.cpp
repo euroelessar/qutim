@@ -18,6 +18,7 @@
 #include "icq_global.h"
 #include "util.h"
 #include <qutim/icon.h>
+#include <qutim/statusactiongenerator.h>
 #include "icqaccount.h"
 #include <QStringList>
 #include <QPointer>
@@ -27,79 +28,65 @@ namespace Icq
 
 IcqProtocol *IcqProtocol::self = 0;
 
-
-// May be there should be qutIM global hash in libqutim?..
-qutim_sdk_0_3::Status icqStatusToQutim(quint16 status)
+qutim_sdk_0_3::Status icqStatusToQutim(IcqStatus status)
 {
-	if (status & IcqFlagInvisible) {
-		static Status *status = NULL;
-		if (!status) {
-			status = new Status(Status::Invisible);
-			status->initIcon(QLatin1String("icq"));
-		}
-		return *status;
-	} else /*if(status & IcqFlagEvil)
-		return Evil;
-	else if(status & IcqFlagDepress)
-		return Depression;
-	else if(status & IcqFlagHome)
-		return AtHome;
-	else if(status & IcqFlagWork)
-		return AtWork;
-	else if(status & IcqFlagLunch)
-		return OutToLunch;
-	else */if (status & IcqFlagDND) {
-		static Status *status = NULL;
-		if (!status) {
-			status = new Status(Status::DND);
-			status->initIcon(QLatin1String("icq"));
-		}
-		return *status;
-	} else if (status & IcqFlagOccupied) {
-		static Status *status = NULL;
-		if (!status) {
-			status = new Status(Status::DND);
-			status->setSubtype(IcqFlagOccupied);
-			status->setIcon(Icon(QLatin1String("user-busy-occupied-icq")));
-		}
-		return *status;
-	} else if (status & IcqFlagNA) {
-		static Status *status = NULL;
-		if (!status) {
-			status = new Status(Status::NA);
-			status->initIcon(QLatin1String("icq"));
-		}
-		return *status;
-	} else if (status & IcqFlagAway) {
-		static Status *status = NULL;
-		if (!status) {
-			status = new Status(Status::Away);
-			status->initIcon(QLatin1String("icq"));
-		}
-		return *status;
-	} else if (status & IcqFlagFFC) {
-		static Status *status = NULL;
-		if (!status) {
-			status = new Status(Status::FreeChat);
-			status->initIcon(QLatin1String("icq"));
-		}
-		return *status;
-	} else {
-		static Status *status = NULL;
-		if (!status) {
-			status = new Status(Status::Online);
-			status->initIcon(QLatin1String("icq"));
-		}
-		return *status;
-	}
+	const IcqProtocolPrivate *d = IcqProtocol::instance()->d_func();
+	if (status == IcqOffline)
+		return d->statuses.value(IcqOffline);
+	Status online = d->statuses.value(IcqOnline);
+	if (status & IcqInvisible)
+		return d->statuses.value(IcqInvisible, online);
+	else /* if (status & IcqEvil)
+		return d->statuses.value(IcqEvil, online);
+	else if(status & IcqDepress)
+		return d->statuses.value(IcqDepress, online);
+	else if(status & IcqHome)
+		return d->statuses.value(IcqHome, online);
+	else if(status & IcqWork)
+		return d->statuses.value(IcqWork, online);
+	else if(status & IcqLunch)
+		return d->statuses.value(IcqLunch, online);
+	else */ if (status & IcqDND)
+		return d->statuses.value(IcqDND, online);
+	else if (status & IcqOccupied)
+		return d->statuses.value(IcqOccupied, online);
+	else if (status & IcqNA)
+		return d->statuses.value(IcqNA, online);
+	else if (status & IcqAway)
+		return d->statuses.value(IcqAway, online);
+	else if (status & IcqFFC)
+		return d->statuses.value(IcqFFC, online);
+	else
+		return online;
 }
 
 IcqProtocol::IcqProtocol() :
 	d_ptr(new IcqProtocolPrivate)
 {
 	Q_ASSERT(!self);
+	Q_D(IcqProtocol);
 	self = this;
 	updateSettings();
+	d->statuses.insert(IcqInvisible, Status(Status::Invisible));
+	d->statuses.insert(IcqDND, Status(Status::DND));
+	d->statuses.insert(IcqNA, Status(Status::NA));
+	d->statuses.insert(IcqAway, Status(Status::Away));
+	d->statuses.insert(IcqFFC, Status(Status::FreeChat));
+	d->statuses.insert(IcqOnline, Status(Status::Online));
+	d->statuses.insert(IcqOffline, Status(Status::Offline));
+	QHash<IcqStatus, Status>::iterator itr = d->statuses.begin();
+	QHash<IcqStatus, Status>::iterator endItr = d->statuses.end();
+	while (itr != endItr) {
+		itr->initIcon(QLatin1String("icq"));
+		++itr;
+	}
+	{
+		Status status(Status::DND);
+		status.setSubtype(IcqOccupied);
+		status.setIcon(Icon(QLatin1String("user-busy-occupied-icq")));
+		status.setName(QT_TRANSLATE_NOOP("Status", "Busy"));
+		d->statuses.insert(IcqOccupied, status);
+	}
 }
 
 IcqProtocol::~IcqProtocol()
@@ -107,39 +94,20 @@ IcqProtocol::~IcqProtocol()
 	self = 0;
 }
 
-void initActions(IcqProtocol *proto)
+void IcqProtocolPrivate::initActions()
 {
 	static bool inited = false;
 	if (inited)
 		return;
-	QList<ActionGenerator *> actions;
-	actions << (new ActionGenerator(Icon("user-online-icq"),
-				LocalizedString("Status", "Online"), proto,
-				SLOT(onStatusActionPressed())))->addProperty("status", Status::Online)->setPriority(Status::Online);
-	actions << (new ActionGenerator(Icon("user-online-chat-icq"),
-				LocalizedString("Status", "Free for chat"), proto,
-				SLOT(onStatusActionPressed())))->addProperty("status", Status::FreeChat)->setPriority(Status::FreeChat);
-	actions << (new ActionGenerator(Icon("user-away-icq"),
-				LocalizedString("Status", "Away"), proto,
-				SLOT(onStatusActionPressed())))->addProperty("status", Status::Away)->setPriority(Status::Away);
-	actions << (new ActionGenerator(Icon("user-away-extended-icq"),
-				LocalizedString("Status", "NA"), proto,
-				SLOT(onStatusActionPressed())))->addProperty("status", Status::NA)->setPriority(Status::NA);
-	actions << (new ActionGenerator(Icon("user-busy-icq"),
-				LocalizedString("Status", "DND"), proto,
-				SLOT(onStatusActionPressed())))->addProperty("status", Status::DND)->setPriority(Status::DND);
-	actions << (new ActionGenerator(Icon("user-offline-icq"),
-				LocalizedString("Status", "Offline"), proto,
-				SLOT(onStatusActionPressed())))->addProperty("status", Status::Offline)->setPriority(Status::Offline);
-	foreach (ActionGenerator *action, actions)
-		MenuController::addAction(action, &IcqAccount::staticMetaObject);
+	foreach (Status status, statuses)
+		MenuController::addAction(new StatusActionGenerator(status), &IcqAccount::staticMetaObject);
 	inited = true;
 }
 
 void IcqProtocol::loadAccounts()
 {
 	Q_D(IcqProtocol);
-	initActions(this);
+	d->initActions();
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &uin, accounts) {
 		IcqAccount *acc = new IcqAccount(uin);

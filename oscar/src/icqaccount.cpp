@@ -120,7 +120,7 @@ void IcqAccount::setStatus(Status status)
 			setStatus(d->lastStatus);
 			return;
 		}
-		Status stat = Status::Offline;
+		Status stat = icqStatusToQutim(IcqOffline);
 		foreach(IcqContact *contact, d->contacts)
 			contact->setStatus(stat);
 	} else {
@@ -132,7 +132,7 @@ void IcqAccount::setStatus(Status status)
 				status = Status::Connecting;
 				d->conn->connectToLoginServer(pass);
 			} else {
-				status = Status::Offline;
+				status = icqStatusToQutim(IcqOffline);
 			}
 		} else {
 			d->conn->sendStatus(status);
@@ -142,6 +142,11 @@ void IcqAccount::setStatus(Status status)
 	config().sync();
 	Account::setStatus(status);
 	emit statusChanged(status);
+}
+
+void IcqAccount::setStatus(IcqStatus status)
+{
+	setStatus(icqStatusToQutim(status));
 }
 
 QString IcqAccount::name() const

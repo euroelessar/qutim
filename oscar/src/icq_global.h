@@ -211,27 +211,28 @@ const quint8 protocol_version       = 9;
 const quint16 client_features       = 0x3;
 const quint16 dc_type               = 0x0004;
 
-enum IcqStatusF
+enum IcqStatus
 {
 // Status FLAGS (used to determine status of other users)
-	IcqFlagOnline         = 0x0000,
-	IcqFlagAway           = 0x0001,
-	IcqFlagDND            = 0x0002,
-	IcqFlagNA             = 0x0004,
-	IcqFlagOccupied       = 0x0010,
-	IcqFlagFFC            = 0x0020,
-	IcqFlagInvisible      = 0x0100,
+	IcqOffline        = 0xf000,
+	IcqOnline         = 0x0000,
+	IcqAway           = 0x0001,
+	IcqDND            = 0x0002,
+	IcqNA             = 0x0004,
+	IcqOccupied       = 0x0010,
+	IcqFFC            = 0x0020,
+	IcqInvisible      = 0x0100,
 
 // QIP Extended Status flags
-	IcqFlagEvil           = 0x3000,
-	IcqFlagDepress        = 0x4000,
-	IcqFlagHome           = 0x5000,
-	IcqFlagWork           = 0x6000,
-	IcqFlagLunch          = 0x2001
+	IcqEvil           = 0x3000,
+	IcqDepress        = 0x4000,
+	IcqHome           = 0x5000,
+	IcqWork           = 0x6000,
+	IcqLunch          = 0x2001
 };
 
 extern quint16 qutimStatusToICQ(const qutim_sdk_0_3::Status &status);
-extern qutim_sdk_0_3::Status icqStatusToQutim(quint16 status);
+extern qutim_sdk_0_3::Status icqStatusToQutim(IcqStatus status);
 
 } // namespace Icq
 

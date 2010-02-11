@@ -329,15 +329,12 @@ void Roster::handleUserOnline(const SNAC &snac)
 	// status.
 	Status oldStatus = contact->status();
 	quint16 statusFlags = 0;
-	quint16 status = 0;
+	Status status = icqStatusToQutim(IcqOnline);
 	if (tlvs.contains(0x06)) {
 		DataUnit status_data(tlvs.value(0x06));
 		statusFlags = status_data.read<quint16>();
-		status = status_data.read<quint16>();
+		status = icqStatusToQutim(static_cast<IcqStatus>(status_data.read<quint16>()));
 	}
-	contact->setStatus(icqStatusToQutim(status));
-	debug() << contact->name() << "changed status to " << contact->status();
-
 	// Status note
 	SessionDataItemMap status_note_data(tlvs);
 	if (status_note_data.contains(0x0d)) {
@@ -358,8 +355,10 @@ void Roster::handleUserOnline(const SNAC &snac)
 			debug() << "Server sent wrong encoding for status note";
 			codec = defaultCodec();
 		}
-		contact->setProperty("statusText", codec->toUnicode(note_data));
+		status.setText(codec->toUnicode(note_data));
 	}
+	contact->setStatus(status);
+	debug() << contact->name() << "changed status to " << contact->status();
 
 	// XStatus
 	Capabilities newCaps;
@@ -436,7 +435,7 @@ void Roster::handleUserOffline(const SNAC &snac)
 	// We don't know this contact
 	if (!contact)
 		return;
-	contact->setStatus(Status::Offline);
+	contact->setStatus(icqStatusToQutim(IcqOffline));
 	//	quint16 warning_level = snac.read<quint16>();
 	//	TLVMap tlvs = snac.readTLVChain<quint16>();
 	//	tlvs.value(0x0001); // User class
