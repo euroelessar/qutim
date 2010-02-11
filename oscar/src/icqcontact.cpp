@@ -151,6 +151,7 @@ void IcqContact::setTags(const QSet<QString> &tags)
 	if (!isInList())
 		return;
 	Feedbag *f = d->account->feedbag();
+	f->beginModify();
 	QHash<quint16, FeedbagItem> removeItems;
 	foreach (const FeedbagItem &item, d->items)
 		removeItems.insert(item.groupId(), item);
