@@ -48,9 +48,9 @@ namespace qutim_sdk_0_3
 		void generateName();
 	};
 
-	Q_GLOBAL_STATIC_WITH_INITIALIZER(StatusPrivate, offlineStatus,
-									 x->generateName();
-									 x->icon = Status::createIcon(Status::Offline));
+	Q_GLOBAL_STATIC_WITH_INITIALIZER(QSharedDataPointer<StatusPrivate>, offlineStatus,
+									 (*x)->generateName();
+									 (*x)->icon = Status::createIcon(Status::Offline));
 
 	namespace CompiledProperty
 	{
@@ -104,11 +104,14 @@ namespace qutim_sdk_0_3
 		}
 	}
 
-	Status::Status(Type type) : d(type == Status::Offline ? offlineStatus() : new StatusPrivate)
+	Status::Status(Type type)
 	{
 		if (type != Status::Offline) {
+			d = new StatusPrivate;
 			d->type = type;
 			d->generateName();
+		} else {
+			d = *offlineStatus();
 		}
 	}
 
@@ -125,7 +128,7 @@ namespace qutim_sdk_0_3
 	Status &Status::operator =(Status::Type type)
 	{
 		if (type == Status::Offline) {
-			d = offlineStatus();
+			d = *offlineStatus();
 		} else  {
 			QSharedDataPointer<StatusPrivate> ptr(new StatusPrivate());
 			d.swap(ptr);
@@ -241,6 +244,7 @@ namespace qutim_sdk_0_3
 			break;
 		case Status::Connecting:
 			name += QLatin1String("network-connect");
+			break;
 		default:
 			return QIcon();
 		}

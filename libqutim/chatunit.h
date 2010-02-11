@@ -37,7 +37,7 @@ namespace qutim_sdk_0_3
 		Q_DECLARE_PRIVATE(ChatUnit)
 		Q_OBJECT
 		Q_PROPERTY(QString id READ id)
-		Q_PROPERTY(QString title READ title)
+		Q_PROPERTY(QString title READ title NOTIFY titleChanged)
 		Q_PROPERTY(Account* account READ account)
 	public:
 		/**
@@ -109,6 +109,12 @@ namespace qutim_sdk_0_3
 		* @param state New ChatState
 		*/
 		void setChatState(ChatState state);
+	signals:
+		/*!
+		  Notify that ChatUnit's \a title is changed, may be because of
+		  changes in name
+		*/
+		void titleChanged(const QString &title);
 	};
 	/**
 	* @brief The ChatStateEvent class provides events for change chat state
