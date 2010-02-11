@@ -95,7 +95,7 @@ macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir libs_to_link )
 
     # This project will generate library
     ADD_LIBRARY( ${plugin_name} SHARED ${${plugin_name}_SRC} ${${plugin_name}_MOC_SRC} ${${plugin_name}_UI_H} )
-	INSTALL( TARGETS ${plugin_name}${plugin_name} DESTINATION "lib/qutim/plugins" )
+    INSTALL( TARGETS ${plugin_name} DESTINATION "lib/qutim/plugins" )
 
     # Link with QT
 	TARGET_LINK_LIBRARIES( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARY} ${libs_to_link})
