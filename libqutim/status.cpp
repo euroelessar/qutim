@@ -75,6 +75,7 @@ namespace qutim_sdk_0_3
 	}
 
 	Q_GLOBAL_STATIC_WITH_INITIALIZER(QSharedDataPointer<StatusPrivate>, offlineStatus,
+									 *x = new StatusPrivate;
 									 (*x)->generateName();
 									 (*x)->icon = Status::createIcon(Status::Offline));
 
