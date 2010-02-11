@@ -50,7 +50,7 @@ namespace qutim_sdk_0_3
 
 	typedef QVector<QSharedDataPointer<StatusPrivate> > StatusPrivateList;
 
-	static init_list(StatusPrivateList &list)
+	static void init_list(StatusPrivateList &list)
 	{
 		list.reserve(Status::Offline - Status::Connecting + 1);
 		for (int i = Status::Connecting; i <= Status::Offline; i++) {
@@ -69,15 +69,9 @@ namespace qutim_sdk_0_3
 	{
 		int index = type - Status::Connecting;
 		StatusPrivateList &list = *statusList();
-		if (index < 0 || index >= list.size())
-			return NULL;
+		Q_ASSERT(index >= 0 && index < list.size());
 		return list.at(index);
 	}
-
-	Q_GLOBAL_STATIC_WITH_INITIALIZER(QSharedDataPointer<StatusPrivate>, offlineStatus,
-									 *x = new StatusPrivate;
-									 (*x)->generateName();
-									 (*x)->icon = Status::createIcon(Status::Offline));
 
 	namespace CompiledProperty
 	{
@@ -147,14 +141,7 @@ namespace qutim_sdk_0_3
 
 	Status &Status::operator =(Status::Type type)
 	{
-		if (type == Status::Offline) {
-			d = *offlineStatus();
-		} else  {
-			QSharedDataPointer<StatusPrivate> ptr(new StatusPrivate());
-			d.swap(ptr);
-			d->type = type;
-			d->generateName();
-		}
+		d = get_status_private(type);
 		return *this;
 	}
 
@@ -189,10 +176,7 @@ namespace qutim_sdk_0_3
 
 	QIcon Status::icon() const
 	{
-		if (d->icon.isNull())
-			return Status::createIcon(d->type);
-		else
-			return d->icon;
+		return d->icon;
 	}
 
 	void Status::setIcon(const QIcon &icon)
@@ -208,7 +192,9 @@ namespace qutim_sdk_0_3
 	void Status::setType(Status::Type type)
 	{
 		d->type = type;
-		d->generateName();
+		QSharedDataPointer<StatusPrivate> p = get_status_private(type);
+		d->name = p->name;
+		d->icon = p->icon;
 	}
 
 	int Status::subtype() const
