@@ -92,23 +92,20 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 			break;
 		IcqContact *contact = m_account->getContact(item.name(), true);
 		IcqContactPrivate *d = contact->d_func();
-		bool creating = !d->item.isInList();
-		if (!creating ) {
-			Status status = d->account->status();
-			if (status.type() >= Status::Online && status.type() <= Status::Offline && d->item.isInList()) {
-				if (d->item.constData() != item.constData()) {
-					FeedbagItem i = item;
-					i.setData(d->item.constData());
-					i.update();
-				}
+		bool creating = d->items.isEmpty();
+		QList<FeedbagItem>::iterator itr = d->items.begin();
+		QList<FeedbagItem>::iterator endItr = d->items.end();
+		bool newTag = true;
+		while (itr != endItr) {
+			if (itr->itemId() == item.itemId() && itr->groupId() == item.groupId()) {
+				*itr = item;
+				newTag = false;
+				break;
 			}
-		} else {
-			d->item = item;
+			++itr;
 		}
-		if (!d->groups.contains(item.groupId())) {
-			d->groups.insert(item.groupId(), item.itemId());
-			emit contact->tagsChanged(contact->tags());
-		}
+		if (newTag)
+			d->items << item;
 		// name
 		QString new_name = item.field<QString>(SsiBuddyNick);
 		if (!new_name.isEmpty() && new_name != contact->d_func()->name) {
@@ -124,13 +121,25 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 		// auth
 		bool new_auth = !item.containsField(SsiBuddyReqAuth);
 		contact->setProperty("authorized", new_auth);
-		// TODO: emit ... 
+		// TODO: emit ...
+		// tags
+		if (item.containsField(SsiBuddyTags)) {
+			QStringList newTags;
+			DataUnit newTagsData = item.field(SsiBuddyTags);
+			while (newTagsData.dataSize() > 2) {
+				QString data = newTagsData.read<QString, quint16>();
+				if (!data.isEmpty())
+					newTags << data;
+			}
+			d->tags = newTags;
+		}
 		if (creating) {
 			if (ContactList::instance())
 				ContactList::instance()->addContact(contact);
 			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
-		}
-		else {
+			return;
+		} else {
+			emit contact->tagsChanged(contact->tags());
 			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
 		}
 		break;
@@ -141,12 +150,14 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 			foreach (const FeedbagItem &i, m_account->feedbag()->group(item.groupId())) {
 				QSet<QString> groups;
 				IcqContact *contact = m_account->getContact(i.name());
-				foreach (quint16 group, contact->d_func()->groups) {
-					if (item.groupId() == group)
+				foreach (const FeedbagItem &i, contact->d_func()->items) {
+					if (item.groupId() == i.groupId())
 						groups << item.name();
 					else
-						groups << m_account->feedbag()->groupItem(group).name();
+						groups << i.name();
 				}
+				foreach (const QString &tag,  contact->d_func()->tags)
+					groups.insert(tag);
 				emit contact->tagsChanged(groups);
 			}
 			debug(Verbose) << "The group" << old.name() << "has been renamed to" << item.name();
@@ -172,41 +183,48 @@ void SsiHandler::handleRemoveCLItem(const FeedbagItem &item)
 	switch (item.type()) {
 	case SsiBuddy: {
 		IcqContact *contact = m_account->getContact(item.name());
+		IcqContactPrivate *d = contact->d_func();
 		if (!contact) {
 			warning() << "The contact" << item.name() << "does not exist";
 			break;
 		}
-		QHash<quint16, quint16> &groups = contact->d_func()->groups;
-		groups.remove(item.groupId());
-		if (groups.isEmpty()) {
+		removeContactFromGroup(contact, item.groupId());
+		break;
+	}
+	case SsiGroup: {
+		foreach (IcqContact *contact, m_account->contacts())
+			removeContactFromGroup(contact, item.groupId());
+		debug() << "The group" << item.name() << "has been removed";
+		break;
+	}
+	}
+}
+
+void SsiHandler::removeContactFromGroup(IcqContact *contact, quint16 groupId)
+{
+	QList<FeedbagItem> &items = contact->d_func()->items;
+	QList<FeedbagItem>::iterator itr = items.begin();
+	QList<FeedbagItem>::iterator endItr = items.end();
+	bool found = false;
+	while (itr != endItr) {
+		if (itr->groupId() == groupId) {
+			items.erase(itr);
+			found = true;
+			break;
+		}
+		++itr;
+	}
+	if (found) {
+		if (items.isEmpty()) {
 			debug().nospace() << "The contact " << contact->id()
 					<< " (" << contact->name() << ") has been removed";
 			removeContact(contact);
 		} else {
 			debug().nospace() << "The contact " << contact->id() << " ("
 					<< contact->name() << ") has been removed from "
-					<< m_account->feedbag()->groupItem(item.groupId()).name();
+					<< m_account->feedbag()->groupItem(groupId).name();
 			emit contact->tagsChanged(contact->tags());
 		}
-		break;
-	}
-	case SsiGroup: {
-		// Removing all contacts in the group.
-		const QHash<QString, IcqContact *> &contacts = m_account->contacts();
-		QHash<QString, IcqContact *>::const_iterator contactItr = contacts.constBegin();
-		QHash<QString, IcqContact *>::const_iterator contactEntItr = contacts.constEnd();
-		while (contactItr != contactEntItr) {
-			QHash<quint16, quint16> &groups = contactItr.value()->d_func()->groups;
-			groups.remove(item.groupId());
-			if (groups.isEmpty())
-				removeContact(*contactItr);
-			else
-				emit contactItr.value()->tagsChanged(contactItr.value()->tags());
-			++contactItr;
-		}
-		debug() << "The group" << item.name() << "has been removed";
-		break;
-	}
 	}
 }
 
@@ -217,7 +235,6 @@ void SsiHandler::removeContact(IcqContact *contact)
 		ContactList::instance()->removeContact(contact);
 	delete contact;
 */
-	contact->d_func()->groups.clear();
 	emit contact->tagsChanged(contact->tags());
 }
 
@@ -234,6 +251,7 @@ Roster::Roster(IcqAccount *account):
 			<< SNACInfo(ListsFamily, ListsError)
 			<< SNACInfo(ListsFamily, ListsAuthRequest)
 			<< SNACInfo(ListsFamily, ListsSrvAuthResponse)
+			<< SNACInfo(ListsFamily, ListsList)
 			<< SNACInfo(BuddyFamily, UserOnline)
 			<< SNACInfo(BuddyFamily, UserOffline)
 			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy)
@@ -279,6 +297,13 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 		debug() << "Auth response" << uin << is_accepted << reason;
 		break;
 	}
+	case ListsFamily << 16 | ListsList: {
+		if (firstPacket) {
+			firstPacket = false;
+			foreach (IcqContact *contact, m_account->contacts())
+				contact->d_func()->items.clear();
+		}
+	}
 	case BuddyFamily << 16 | UserOnline:
 		handleUserOnline(sn);
 		break;
@@ -304,15 +329,12 @@ void Roster::handleUserOnline(const SNAC &snac)
 	// status.
 	Status oldStatus = contact->status();
 	quint16 statusFlags = 0;
-	quint16 status = 0;
+	Status status = icqStatusToQutim(IcqOnline);
 	if (tlvs.contains(0x06)) {
 		DataUnit status_data(tlvs.value(0x06));
 		statusFlags = status_data.read<quint16>();
-		status = status_data.read<quint16>();
+		status = icqStatusToQutim(static_cast<IcqStatus>(status_data.read<quint16>()));
 	}
-	contact->setStatus(icqStatusToQutim(status));
-	debug() << contact->name() << "changed status to " << contact->status();
-
 	// Status note
 	SessionDataItemMap status_note_data(tlvs);
 	if (status_note_data.contains(0x0d)) {
@@ -333,8 +355,10 @@ void Roster::handleUserOnline(const SNAC &snac)
 			debug() << "Server sent wrong encoding for status note";
 			codec = defaultCodec();
 		}
-		contact->setProperty("statusText", codec->toUnicode(note_data));
+		status.setText(codec->toUnicode(note_data));
 	}
+	contact->setStatus(status);
+	debug() << contact->name() << "changed status to " << contact->status();
 
 	// XStatus
 	Capabilities newCaps;
@@ -411,7 +435,7 @@ void Roster::handleUserOffline(const SNAC &snac)
 	// We don't know this contact
 	if (!contact)
 		return;
-	contact->setStatus(Status::Offline);
+	contact->setStatus(icqStatusToQutim(IcqOffline));
 	//	quint16 warning_level = snac.read<quint16>();
 	//	TLVMap tlvs = snac.readTLVChain<quint16>();
 	//	tlvs.value(0x0001); // User class
@@ -419,10 +443,8 @@ void Roster::handleUserOffline(const SNAC &snac)
 
 void Roster::statusChanged(qutim_sdk_0_3::Status status)
 {
-	if (status == Status::Connecting) {
-		foreach (IcqContact *contact, m_account->contacts())
-			contact->d_func()->groups.clear();
-	}
+	if (status == Status::Connecting)
+		firstPacket = true;
 }
 
 void Roster::loginFinished()

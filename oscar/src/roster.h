@@ -38,6 +38,7 @@ protected:
 	void handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType type);
 	void handleRemoveCLItem(const FeedbagItem &item);
 	void removeContact(IcqContact *contact);
+	void removeContactFromGroup(IcqContact *contact, quint16 groupId);
 private:
 	IcqAccount *m_account;
 };
@@ -58,6 +59,7 @@ private:
 	IcqAccount *m_account;
 	OscarConnection *m_conn;
 	SsiHandler *m_ssiHandler;
+	bool firstPacket;
 };
 
 } // namespace Icq

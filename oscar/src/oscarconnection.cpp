@@ -147,6 +147,7 @@ void OscarConnection::processCloseConnection()
 	}
 	if (error() != NoError)
 		Notifications::sendNotification(errorString());
+	socket()->close();
 	//AbstractConnection::processCloseConnection();
 }
 
@@ -195,7 +196,7 @@ quint16 qutimStatusToICQ(const Status &status)
 	case Status::Away:
 		return 0x0001;
 	case Status::DND:
-		if (status.subtype() == IcqFlagOccupied)
+		if (status.subtype() == IcqOccupied)
 			return 0x0011;
 		return 0x0013;
 	case Status::NA:
@@ -225,7 +226,7 @@ void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QBy
 
 void OscarConnection::disconnected()
 {
-	m_account->setStatus(Status::Offline);
+	m_account->setStatus(icqStatusToQutim(IcqOffline));
 }
 
 void OscarConnection::md5Error(ConnectionError e)

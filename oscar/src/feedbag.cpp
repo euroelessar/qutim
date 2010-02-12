@@ -56,22 +56,20 @@ public:
 	FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item, quint16 group, const QString &name, bool inList = false);
 	FeedbagItemPrivate(Feedbag *bag, const SSIItem &item, bool inList = true);
 	FeedbagItemPrivate(Feedbag *bag, const SNAC &snac, bool inList = false);
-	void send(const FeedbagItem &item, Feedbag::ModifyType operation, bool move);
-	inline void remove(FeedbagItem item, bool move);
+	void send(const FeedbagItem &item, Feedbag::ModifyType operation);
+	inline void remove(FeedbagItem item);
 	Feedbag *feedbag;
 	bool isInList;
-	quint16 newGroupId;
 };
 
 struct FeedbagQueueItem
 {
-	FeedbagQueueItem(const FeedbagItem &item_, Feedbag::ModifyType type_, bool move_):
-		item(item_), type(type_), move(move_)
+	FeedbagQueueItem(const FeedbagItem &item_, Feedbag::ModifyType type_):
+		item(item_), type(type_)
 	{
 	}
 	FeedbagItem item;
 	Feedbag::ModifyType type;
-	bool move;
 };
 
 class FeedbagPrivate
@@ -91,7 +89,6 @@ public:
 	OscarConnection *conn;
 	bool modifyStarted;
 	QHash<quint16, FeedbagItemHandler*> handlers;
-	FeedbagError::ErrorEnum lastError;
 	uint lastUpdateTime;
 	bool firstPacket;
 	Feedbag *q_ptr;
@@ -135,7 +132,7 @@ QString FeedbagError::errorString()
 }
 
 FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item, quint16 group, const QString &name, bool inList):
-	feedbag(bag), isInList(inList), newGroupId(0)
+	feedbag(bag), isInList(inList)
 {
 	itemType = type;
 	itemId = item;
@@ -144,12 +141,12 @@ FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item,
 }
 
 FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, const SSIItem &item, bool inList):
-	SSIItem(item), feedbag(bag), isInList(inList), newGroupId(0)
+	SSIItem(item), feedbag(bag), isInList(inList)
 {
 }
 
 FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, const SNAC &snac, bool inList):
-	feedbag(bag), isInList(inList), newGroupId(0)
+	feedbag(bag), isInList(inList)
 {
 	recordName = snac.read<QString, quint16>();
 	groupId = snac.read<quint16>();
@@ -158,9 +155,9 @@ FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, const SNAC &snac, bool inLi
 	tlvs = snac.read<DataUnit, quint16>().read<TLVMap>();
 }
 
-void FeedbagItemPrivate::send(const FeedbagItem &item, Feedbag::ModifyType operation, bool move)
+void FeedbagItemPrivate::send(const FeedbagItem &item, Feedbag::ModifyType operation)
 {
-	feedbag->d->ssiQueue.enqueue(FeedbagQueueItem(item, operation, move));
+	feedbag->d->ssiQueue.enqueue(FeedbagQueueItem(item, operation));
 	SNAC snac(ListsFamily, operation);
 	snac.append<quint16>(recordName);
 	snac.append<quint16>(groupId);
@@ -171,11 +168,11 @@ void FeedbagItemPrivate::send(const FeedbagItem &item, Feedbag::ModifyType opera
 	feedbag->d->conn->send(snac);
 }
 
-void FeedbagItemPrivate::remove(FeedbagItem item, bool move)
+void FeedbagItemPrivate::remove(FeedbagItem item)
 {
 	item.d->tlvs.clear();
 	isInList = false;
-	send(item, Feedbag::Remove, move);
+	send(item, Feedbag::Remove);
 }
 
 FeedbagItem::FeedbagItem():
@@ -215,12 +212,7 @@ void FeedbagItem::update()
 	FeedbagItem item = *this;
 	if (!modify)
 		feedbag()->beginModify();
-	bool move = d->isInList && d->newGroupId != 0 && d->groupId != d->newGroupId;
-	if (move) {
-		d->remove(*this, move);
-		item.d->groupId = d->newGroupId;
-	}
-	d->send(item, d->isInList ? Feedbag::Modify : Feedbag::Add, move);
+	d->send(item, d->isInList ? Feedbag::Modify : Feedbag::Add);
 	d->isInList = true;
 	if (!modify)
 		feedbag()->endModify();
@@ -233,7 +225,10 @@ void FeedbagItem::remove()
 	bool modify = f->isModifyStarted();
 	if (!modify)
 		f->beginModify();
-	d->remove(*this, false);
+	FeedbagItem item = *this;
+	item.d->tlvs.clear();
+	d->isInList = false;
+	d->send(item, Feedbag::Remove);
 	if (!modify)
 		f->endModify();
 }
@@ -268,14 +263,9 @@ void FeedbagItem::setId(quint16 itemId)
 	d->itemId = itemId;
 }
 
-void FeedbagItem::setGroup(quint16 groupId, bool force)
+void FeedbagItem::setGroup(quint16 groupId)
 {
-	if (!force) {
-		Q_ASSERT_X(d->itemType != SsiGroup, Q_FUNC_INFO, "Cannot change groupId for group");
-		d->newGroupId = groupId;
-	} else {
-		d->groupId = groupId;
-	}
+	d->groupId = groupId;
 }
 
 void FeedbagItem::setField(quint16 field)
@@ -743,6 +733,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 	case ListsFamily << 16 | ListsUpToDate: {
 		 debug() << "Local contactlist is up to date";
+		 d->firstPacket = true;
 		 d->finishLoading();
 		 break;
 	}
@@ -750,7 +741,6 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		if (d->firstPacket) {
 			d->items.clear();
 			d->firstPacket = false;
-			d->lastError = FeedbagError::NoError;
 		}
 		quint8 version = sn.read<quint8>();
 		quint16 count = sn.read<quint16>();
@@ -787,14 +777,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		sn.skipData(8); // cookie
 		while (sn.dataSize() != 0) {
 			FeedbagError error(sn);
-			d->lastError = error.code();
 			FeedbagQueueItem operation = d->ssiQueue.dequeue();
-			if (operation.move) {
-				if (operation.type == Feedbag::Remove && error == FeedbagError::NoError)
-					break;
-				if (operation.type != Feedbag::Remove && error != FeedbagError::NoError && d->lastError == FeedbagError::NoError)
-					d->handleItem(operation.item, Feedbag::Remove, FeedbagError::NoError);
-			}
 			d->handleItem(operation.item, operation.type, error);
 		}
 		break;

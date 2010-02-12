@@ -29,6 +29,7 @@ struct IcqProtocolPrivate
 		accounts_hash(new QHash<QString, QPointer<IcqAccount> > ())
 	{ }
 	inline ~IcqProtocolPrivate() { delete accounts_hash; }
+	void initActions();
 	union
 	{
 		QHash<QString, QPointer<IcqAccount> > *accounts_hash;

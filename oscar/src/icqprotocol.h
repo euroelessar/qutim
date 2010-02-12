@@ -18,6 +18,8 @@
 #define ICQPROTOCOL_H
 
 #include <qutim/protocol.h>
+#include <qutim/status.h>
+#include <icq_global.h>
 
 namespace Icq
 {

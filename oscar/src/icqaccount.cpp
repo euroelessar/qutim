@@ -33,6 +33,8 @@ IcqAccount::IcqAccount(const QString &uin) :
 	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
 {
 	Q_D(IcqAccount);
+	d->reconnectTimer.setSingleShot(true);
+	connect(&d->reconnectTimer, SIGNAL(timeout()), SLOT(onReconnectTimeout()));
 	ConfigGroup cfg = config("general");
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
@@ -69,7 +71,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 	version.append<quint8>(0x00); // 5 bytes more to 16
 	d->caps.append(Capability(version.data()));
 
-	if (cfg.value("autoconnect", true))
+	if (cfg.value("autoconnect", false))
 		setStatus(d->lastStatus);
 }
 
@@ -112,7 +114,7 @@ void IcqAccount::setStatus(Status status)
 			ConfigGroup config = protocol()->config().group("reconnect");
 			if (config.value("enabled", true)) {
 				quint32 time = config.value("time", 3000);
-				d->reconnectTimer.singleShot(time, this, SLOT(onReconnectTimeout()));
+				d->reconnectTimer.start(time);
 			}
 		} else if (d->conn->error() == AbstractConnection::MismatchNickOrPassword) {
 			Account::setStatus(status);
@@ -120,7 +122,7 @@ void IcqAccount::setStatus(Status status)
 			setStatus(d->lastStatus);
 			return;
 		}
-		Status stat = Status::Offline;
+		Status stat = icqStatusToQutim(IcqOffline);
 		foreach(IcqContact *contact, d->contacts)
 			contact->setStatus(stat);
 	} else {
@@ -132,7 +134,7 @@ void IcqAccount::setStatus(Status status)
 				status = Status::Connecting;
 				d->conn->connectToLoginServer(pass);
 			} else {
-				status = Status::Offline;
+				status = icqStatusToQutim(IcqOffline);
 			}
 		} else {
 			d->conn->sendStatus(status);
@@ -142,6 +144,11 @@ void IcqAccount::setStatus(Status status)
 	config().sync();
 	Account::setStatus(status);
 	emit statusChanged(status);
+}
+
+void IcqAccount::setStatus(IcqStatus status)
+{
+	setStatus(icqStatusToQutim(status));
 }
 
 QString IcqAccount::name() const
@@ -170,10 +177,6 @@ IcqContact *IcqAccount::getContact(const QString &id, bool create)
 	IcqContact *contact = d->contacts.value(id);
 	if (create && !contact) {
 		contact = new IcqContact(id, this);
-		FeedbagItem &item = contact->d_func()->item;
-		item = d->feedbag->item(SsiBuddy, id, 0, Feedbag::GenerateId | Feedbag::DontLoadLocal);
-		item.setField<QString>(SsiBuddyNick, id);
-		item.setField(SsiBuddyReqAuth);
 		d->contacts.insert(id, contact);
 		emit contactCreated(contact);
 		//if (ContactList::instance())
