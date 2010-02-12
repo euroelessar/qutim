@@ -1,5 +1,5 @@
 /****************************************************************************
- *  quetzalplugin.h
+ *  quetzalchatuser.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,24 +13,31 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef PURPLEPROTOCOLPLUGIN_H
-#define PURPLEPROTOCOLPLUGIN_H
+#ifndef QUETZALCHATUSER_H
+#define QUETZALCHATUSER_H
 
-#include <qutim/protocol.h>
-#include <qutim/plugin.h>
+#include <purple.h>
+#include <qutim/chatunit.h>
 
 using namespace qutim_sdk_0_3;
+class QuetzalChat;
 
-class QuetzalPlugin : public Plugin
+class QuetzalChatUser : public ChatUnit
 {
-    Q_OBJECT
-	Q_CLASSINFO("DebugName", "quetzal")
+Q_OBJECT
 public:
-	virtual void init();
-	virtual bool load() { return true; }
-	virtual bool unload() { return false; }
-private slots:
-	void onFinished(void *data);
+	explicit QuetzalChatUser(PurpleConvChatBuddy *user, QuetzalChat *chat);
+
+	virtual QString id() const { return m_id; }
+	virtual QString title() const { return m_name.isEmpty() ? m_id : m_name; }
+	virtual void sendMessage(const Message &message);
+
+	void update();
+	void rename(const QString &id, const QString &name);
+private:
+	PurpleConvChatBuddy *m_user;
+	QString m_id;
+	QString m_name;
 };
 
-#endif // PURPLEPROTOCOLPLUGIN_H
+#endif // QUETZALCHATUSER_H

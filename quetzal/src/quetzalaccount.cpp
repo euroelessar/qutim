@@ -1,5 +1,22 @@
+/****************************************************************************
+ *  quetzalaccount.cpp
+ *
+ *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include "quetzalaccount.h"
 #include "quetzalprotocol.h"
+#include "quetzalblist.h"
+#include "quetzaljoinchatdialog.h"
 #include <qutim/debug.h>
 #include <qutim/contactlist.h>
 #include <QFile>
@@ -48,6 +65,9 @@ QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) :
 {
 	m_account = purple_account_new(id.toUtf8(), protocol->plugin()->info->id);
 	m_account->ui_data = this;
+	if (PURPLE_PLUGIN_PROTOCOL_INFO(protocol->plugin())->chat_info != NULL) {
+		addAction((new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Quetzal", "Join groupchat"), this, SLOT(showJoinGroupChat())))->setType(1));
+	}
 	debug() << "created!" << this << m_account->protocol_id;
 	for (GList *it = m_account->status_types; it; it = it->next) {
 		PurpleStatusType *type = (PurpleStatusType *)it->data;
@@ -110,6 +130,7 @@ void QuetzalAccount::createNode(PurpleBlistNode *node)
 void QuetzalAccount::load(Config cfg)
 {
 	ConfigGroup group = cfg.group("contactlist");
+	QByteArray general = tr("General").toUtf8();
 	foreach (const QString &id, group.groupList()) {
 		ConfigGroup contact = group.group(id);
 		QString name = contact.value("name", QString());
@@ -122,7 +143,7 @@ void QuetzalAccount::load(Config cfg)
 		qc->m_tags = contact.value("tags", QStringList()).toSet();
 		QByteArray tag;
 		if (qc->m_tags.isEmpty()) {
-			tag = tr("General").toUtf8();
+			tag = general;
 		} else {
 			tag = qc->m_tags.begin()->toUtf8();
 		}
@@ -130,15 +151,41 @@ void QuetzalAccount::load(Config cfg)
 		buddy->node.parent->parent = PURPLE_BLIST_NODE(group);
 		ContactList::instance()->addContact(qc);
 	}
+	ConfigGroup bookmarks = cfg.group("bookmarks");
+	foreach (const QString &name, bookmarks.groupList()) {
+		ConfigGroup chat = bookmarks.group(name);
+		GHashTable *table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+		foreach (const QString &id, chat.groupList()) {
+			g_hash_table_insert(table,
+								g_strdup(id.toUtf8().constData()),
+								g_strdup(chat.value(id, QString()).toUtf8().constData()));
+		}
+		PurpleChat *pc = purple_chat_new(m_account, name.toUtf8().constData(), table);
+		purple_blist_add_chat(pc, NULL, NULL);
+	}
+}
+
+static void quetzal_save_chat(const char *key, const char *value, ConfigGroup *group)
+{
+	group->setValue(key, QString(value));
 }
 
 void QuetzalAccount::save()
 {
-	ConfigGroup group = config("contactlist");
+	Config cfg = config();
+	ConfigGroup group = cfg.group("contactlist");
 	QHash<QString, QuetzalContact *>::iterator it = m_contacts.begin();
 	for (; it != m_contacts.end(); it++) {
 		it.value()->save(group.group(it.value()->id()));
 	}
+	ConfigGroup bookmarks = cfg.group("bookmarks");
+	GList *chats = quetzal_blist_get_chats(m_account);
+	for (GList *it = chats; it; it = it->next) {
+		PurpleChat *chat = PURPLE_CHAT(it->data);
+		ConfigGroup group = bookmarks.group(chat->alias);
+		g_hash_table_foreach(chat->components, (GHFunc)quetzal_save_chat, &group);
+	}
+	g_list_free(chats);
 	group.sync();
 }
 
@@ -157,6 +204,23 @@ void QuetzalAccount::remove(QuetzalContact *contact)
 	m_contacts.remove(contact->id());
 	ContactList::instance()->removeContact(contact);
 	contact->deleteLater();
+}
+
+void QuetzalAccount::save(PurpleChat *chat)
+{
+	debug() << Q_FUNC_INFO << chat->alias;
+	ConfigGroup bookmarks = config("bookmarks");
+	ConfigGroup group = bookmarks.group(chat->alias);
+	g_hash_table_foreach(chat->components, (GHFunc)quetzal_save_chat, &group);
+	bookmarks.sync();
+}
+
+void QuetzalAccount::remove(PurpleChat *chat)
+{
+	debug() << Q_FUNC_INFO << chat->alias;
+	ConfigGroup bookmarks = config("bookmarks");
+	bookmarks.removeGroup(chat->alias);
+	bookmarks.sync();
 }
 
 void QuetzalAccount::addChatUnit(ChatUnit *unit)
@@ -187,4 +251,10 @@ void QuetzalAccount::setStatusChanged(PurpleStatus *status)
 	Status stat = quetzal_get_status(status, protocol()->id());
 	Account::setStatus(stat);
 	statusChanged(stat);
+}
+
+void QuetzalAccount::showJoinGroupChat()
+{
+	QDialog *dialog = new QuetzalJoinChatDialog(m_account->gc);
+	dialog->show();
 }

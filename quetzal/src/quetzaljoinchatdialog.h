@@ -1,5 +1,5 @@
 /****************************************************************************
- *  quetzalplugin.h
+ *  quetzaljoinchatdialog.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,24 +13,37 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef PURPLEPROTOCOLPLUGIN_H
-#define PURPLEPROTOCOLPLUGIN_H
+#ifndef QUETZALJOINCHATDIALOG_H
+#define QUETZALJOINCHATDIALOG_H
 
-#include <qutim/protocol.h>
-#include <qutim/plugin.h>
+#include <QDialog>
+#include <purple.h>
 
-using namespace qutim_sdk_0_3;
+namespace Ui {
+    class QuetzalJoinChatDialog;
+}
 
-class QuetzalPlugin : public Plugin
+class QuetzalJoinChatDialog : public QDialog
 {
-    Q_OBJECT
-	Q_CLASSINFO("DebugName", "quetzal")
+	Q_OBJECT
 public:
-	virtual void init();
-	virtual bool load() { return true; }
-	virtual bool unload() { return false; }
-private slots:
-	void onFinished(void *data);
+	QuetzalJoinChatDialog(PurpleConnection *gc, QWidget *parent = 0);
+	QuetzalJoinChatDialog(PurpleConnection *gc, const char *data, QWidget *parent = 0);
+	~QuetzalJoinChatDialog();
+
+protected:
+	void changeEvent(QEvent *e);
+
+protected slots:
+	void onJoinButtonClicked();
+	void on_bookmarkBox_currentIndexChanged(int index);
+
+private:
+	void init(const char *data);
+	Ui::QuetzalJoinChatDialog *ui;
+	QPushButton *m_searchButton;
+	QPushButton *m_joinButton;
+	PurpleConnection *m_gc;
 };
 
-#endif // PURPLEPROTOCOLPLUGIN_H
+#endif // QUETZALJOINCHATDIALOG_H

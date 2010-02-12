@@ -1,5 +1,5 @@
 /****************************************************************************
- *  quetzalplugin.h
+ *  quetzalrequest.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,24 +13,11 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef PURPLEPROTOCOLPLUGIN_H
-#define PURPLEPROTOCOLPLUGIN_H
+#ifndef QUETZALREQUEST_H
+#define QUETZALREQUEST_H
 
-#include <qutim/protocol.h>
-#include <qutim/plugin.h>
+#include <purple.h>
 
-using namespace qutim_sdk_0_3;
+extern PurpleRequestUiOps quetzal_request_uiops;
 
-class QuetzalPlugin : public Plugin
-{
-    Q_OBJECT
-	Q_CLASSINFO("DebugName", "quetzal")
-public:
-	virtual void init();
-	virtual bool load() { return true; }
-	virtual bool unload() { return false; }
-private slots:
-	void onFinished(void *data);
-};
-
-#endif // PURPLEPROTOCOLPLUGIN_H
+#endif // QUETZALREQUEST_H

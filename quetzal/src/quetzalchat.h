@@ -1,5 +1,5 @@
 /****************************************************************************
- *  quetzalplugin.h
+ *  quetzalchat.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,24 +13,24 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef PURPLEPROTOCOLPLUGIN_H
-#define PURPLEPROTOCOLPLUGIN_H
+#ifndef QUETZALCHAT_H
+#define QUETZALCHAT_H
 
-#include <qutim/protocol.h>
-#include <qutim/plugin.h>
+#include "quetzalconverstion.h"
+#include "quetzalchatuser.h"
 
-using namespace qutim_sdk_0_3;
-
-class QuetzalPlugin : public Plugin
+class QuetzalChat : public QuetzalConversation
 {
-    Q_OBJECT
-	Q_CLASSINFO("DebugName", "quetzal")
+Q_OBJECT
 public:
-	virtual void init();
-	virtual bool load() { return true; }
-	virtual bool unload() { return false; }
-private slots:
-	void onFinished(void *data);
+	explicit QuetzalChat(PurpleConversation *conv);
+	void addUsers(GList *cbuddies, gboolean new_arrivals);
+	QuetzalChatUser *getUser(const char *who) { return m_users.value(who); }
+	void renameUser(const char *old_name, const char *new_name, const char *new_alias);
+	void removeUsers(GList *users);
+	void updateUser(const char *user);
+private:
+	QHash<QString, QuetzalChatUser *> m_users;
 };
 
-#endif // PURPLEPROTOCOLPLUGIN_H
+#endif // QUETZALCHAT_H

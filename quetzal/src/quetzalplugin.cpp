@@ -1,157 +1,37 @@
+/****************************************************************************
+ *  quetzalplugin.cpp
+ *
+ *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include "quetzalplugin.h"
+#include "quetzaleventloop.h"
 #include "quetzalprotocol.h"
 #include "quetzalaccount.h"
-#include "quatzelactiondialog.h"
 #include "quetzalconverstion.h"
+#include "quetzalchat.h"
+#include "quetzalrequest.h"
+#include "quetzaljoinchatdialog.h"
+#include "quetzalblist.h"
 #include <purple.h>
 #include <qutim/messagesession.h>
 #include <qutim/debug.h>
 #include <QCoreApplication>
-#include <QTimerEvent>
 #include <QLibrary>
 #include <qutim/icon.h>
 #include <qutim/notificationslayer.h>
 #include <QAbstractEventDispatcher>
-#include <QWidget>
-#include <QFileDialog>
-#include <QInputDialog>
-#include <QStringBuilder>
-#include <QTextDocument>
 #include <QDateTime>
-
-QuetzalTimer *QuetzalTimer::m_self = NULL;
-
-QuetzalTimer::QuetzalTimer(QObject *parent):
-		QObject(parent), m_socketId(0)
-{
-}
-
-uint QuetzalTimer::addTimer(guint interval, GSourceFunc function, gpointer data)
-{
-	int id = startTimer(interval);
-	m_timers.insert(id, new TimerInfo(function, data));
-	return static_cast<uint>(id);
-}
-
-gboolean QuetzalTimer::removeTimer(guint handle)
-{
-	int id = static_cast<int>(handle);
-	QMap<int, TimerInfo *>::iterator it = m_timers.find(id);
-	if (it == m_timers.end())
-		return FALSE;
-	killTimer(id);
-	delete it.value();
-	m_timers.erase(it);
-	return TRUE;
-}
-
-void QuetzalTimer::timerEvent(QTimerEvent *event)
-{
-	QMap<int, TimerInfo *>::iterator it = m_timers.find(event->timerId());
-	TimerInfo *info = it.value();
-	gboolean result = ( *info->function)(info->data);
-	if(result == FALSE) {
-		killTimer(it.key());
-		delete it.value();
-		m_timers.erase(it);
-	}
-}
-
-guint QuetzalTimer::addIO(int fd, PurpleInputCondition cond, PurpleInputFunction func, gpointer user_data)
-{
-	if (fd < 0) {
-		warning() << "Invalid file descriptor" << fd << "return id" << m_socketId;
-		return m_socketId++;
-	}
-
-	QSocketNotifier::Type type;
-	if (cond & PURPLE_INPUT_READ)
-		type = QSocketNotifier::Read;
-	else
-		type = QSocketNotifier::Write;
-
-	QSocketNotifier *socket = new QSocketNotifier(fd, type, this);
-	socket->setProperty("quetzal_id", m_socketId);
-	connect(socket, SIGNAL(activated(int)), this, SLOT(onSocket(int)));
-
-	m_files.insert(m_socketId, new FileInfo(fd, socket, cond, func, user_data));
-	socket->setEnabled(true);
-	return m_socketId++;
-}
-
-gboolean QuetzalTimer::removeIO(guint handle)
-{
-	QMap<uint, FileInfo *>::iterator it = m_files.find(handle);
-	if (it == m_files.end())
-		return FALSE;
-	FileInfo *info = it.value();
-	info->socket->deleteLater();
-	m_files.erase(it);
-	return TRUE;
-}
-
-int QuetzalTimer::getIOError(int fd, int *error)
-{
-	return 0;
-}
-
-void QuetzalTimer::onSocket(int fd)
-{
-	QSocketNotifier *socket = qobject_cast<QSocketNotifier *>(sender());
-	guint id = socket->property("quetzal_id").toUInt();
-	QMap<uint, FileInfo *>::iterator it = m_files.find(id);
-	FileInfo *info = it.value();
-	socket->setEnabled(false);
-	(*info->func)(info->data, fd, info->cond);
-	socket->setEnabled(true);
-}
-
-static guint quetzal_timeout_add(guint interval, GSourceFunc function, gpointer data)
-{
-	return QuetzalTimer::instance()->addTimer(interval, function, data);
-}
-
-static gboolean quetzal_timeout_remove(guint handle)
-{
-	return QuetzalTimer::instance()->removeTimer(handle);
-}
-
-static guint quetzal_input_add(int fd, PurpleInputCondition cond, PurpleInputFunction func, gpointer user_data)
-{
-	return QuetzalTimer::instance()->addIO(fd, cond, func, user_data);
-}
-
-static gboolean quetzal_input_remove(guint handle)
-{
-	return QuetzalTimer::instance()->removeIO(handle);
-}
-
-static int quetzal_input_get_error(int fd, int *error)
-{
-	return QuetzalTimer::instance()->getIOError(fd, error);
-}
-
-static guint quetzal_timeout_add_seconds(guint interval, GSourceFunc function, gpointer data)
-{
-	return quetzal_timeout_add(interval * 1000, function, data);
-}
-
-static PurpleEventLoopUiOps quetzal_eventloops =
-{
-	quetzal_timeout_add,
-	quetzal_timeout_remove,
-	quetzal_input_add,
-	quetzal_input_remove,
-	NULL /*quetzal_input_get_error*/,
-	quetzal_timeout_add_seconds,
-
-	/* padding */
-	NULL,
-	NULL,
-	NULL
-};
-
-/*** End of the eventloop functions. ***/
+#include <QThread>
 
 /*** Conversation uiops ***/
 static void
@@ -175,22 +55,25 @@ null_write_conv(PurpleConversation *conv, const char *who, const char *alias,
 void quetzal_create_conversation(PurpleConversation *conv)
 {
 	debug() << Q_FUNC_INFO << conv->name;
+	debug() << QThread::currentThread() << qApp->thread();
 	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(conv->account->ui_data);
-	if (conv->type == PURPLE_CONV_TYPE_IM) {
-		ChatUnit *unit = acc->getUnit(conv->name);
-		if (!unit) {
-			unit = new QuetzalConversation(conv, acc);
-			acc->addChatUnit(unit);
-		}
-		conv->ui_data = unit;
+	debug() << acc;
+	ChatUnit *unit = acc->getUnit(conv->name);
+	if (!unit) {
+		if (conv->type == PURPLE_CONV_TYPE_IM)
+			unit = new QuetzalConversation(conv);
+		else
+			unit = new QuetzalChat(conv);
+		acc->addChatUnit(unit);
 	}
+	ChatLayer::get(unit)->activate();
 }
 
 void quetzal_destroy_conversation(PurpleConversation *conv)
 {
 	debug() << Q_FUNC_INFO << conv->name;
 	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(conv->account->ui_data);
-	if (conv->type == PURPLE_CONV_TYPE_IM) {
+//	if (conv->type == PURPLE_CONV_TYPE_IM) {
 		ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
 		if (unit) {
 			ChatSession *session = ChatLayer::get(unit, false);
@@ -200,7 +83,26 @@ void quetzal_destroy_conversation(PurpleConversation *conv)
 				unit->deleteLater();
 			}
 		}
+//	}
+}
+
+Message quetzal_convert_message(const char *message, PurpleMessageFlags flags, time_t mtime)
+{
+	Message mess;
+	debug() << QString::number(uint(flags), 16);
+	if (!(flags & PURPLE_MESSAGE_RAW)) {
+		char *plain_text = purple_markup_strip_html(message);
+		mess.setText(plain_text);
+		mess.setProperty("html", QString(message));
+		g_free(plain_text);
+	} else {
+		mess.setText(message);
 	}
+	mess.setTime(QDateTime::fromTime_t(mtime));
+	mess.setIncoming(flags & PURPLE_MESSAGE_RECV);
+	if (flags & PURPLE_MESSAGE_SYSTEM)
+		mess.setProperty("service", true);
+	return mess;
 }
 
 void quetzal_write_chat(PurpleConversation *conv, const char *who,
@@ -208,6 +110,16 @@ void quetzal_write_chat(PurpleConversation *conv, const char *who,
 				   time_t mtime)
 {
 	debug() << Q_FUNC_INFO << who;
+	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
+	if (QuetzalChat *chat = qobject_cast<QuetzalChat *>(unit)) {
+		Message mess = quetzal_convert_message(message, flags, mtime);
+		if (!mess.isIncoming())
+			return;
+		mess.setChatUnit(chat->getUser(who));
+		ChatLayer::get(unit, true)->appendMessage(mess);
+	} else {
+		Q_ASSERT(!"Some strange situation.. Every Chat unit must be an QuetzalChat");
+	}
 }
 
 void quetzal_write_im(PurpleConversation *conv, const char *who,
@@ -218,16 +130,9 @@ void quetzal_write_im(PurpleConversation *conv, const char *who,
 	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
 	if (!unit)
 		quetzal_create_conversation(conv);
-	Message mess(message);
-	if (QuetzalContact *contact = qobject_cast<QuetzalContact *>(unit)) {
-		mess.setIncoming(!qstrcmp(who, contact->buddy()->name));
-	} else {
-		QuetzalConversation *quetzal_conv = static_cast<QuetzalConversation *>(unit);
-		mess.setIncoming(!qstrcmp(who, quetzal_conv->conv()->name));
-	}
+	Message mess = quetzal_convert_message(message, flags, mtime);
 	if (!mess.isIncoming())
 		return;
-	mess.setTime(QDateTime::fromTime_t(mtime));
 	mess.setChatUnit(unit);
 	ChatLayer::get(unit, true)->appendMessage(mess);
 }
@@ -241,12 +146,10 @@ void quetzal_write_conv(PurpleConversation *conv,
 {
 	debug() << Q_FUNC_INFO << name << conv->account->username;
 	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
-	Message mess(message);
-	mess.setIncoming(qstrcmp(name, conv->account->username));
+	Message mess = quetzal_convert_message(message, flags, mtime);
 	debug() << name << alias;
 	if (!mess.isIncoming())
 		return;
-	mess.setTime(QDateTime::fromTime_t(mtime));
 	mess.setChatUnit(unit);
 	ChatLayer::get(unit, true)->appendMessage(mess);
 }
@@ -255,19 +158,35 @@ void quetzal_chat_add_users(PurpleConversation *conv,
 					   GList *cbuddies,
 					   gboolean new_arrivals)
 {
+	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
+	if (QuetzalChat *chat = qobject_cast<QuetzalChat *>(unit)) {
+		chat->addUsers(cbuddies, new_arrivals);
+	}
 }
 
 void quetzal_chat_rename_user(PurpleConversation *conv, const char *old_name,
 						 const char *new_name, const char *new_alias)
 {
+	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
+	if (QuetzalChat *chat = qobject_cast<QuetzalChat *>(unit)) {
+		chat->renameUser(old_name, new_name, new_alias);
+	}
 }
 
 void quetzal_chat_remove_users(PurpleConversation *conv, GList *users)
 {
+	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
+	if (QuetzalChat *chat = qobject_cast<QuetzalChat *>(unit)) {
+		chat->removeUsers(users);
+	}
 }
 
 void quetzal_chat_update_user(PurpleConversation *conv, const char *user)
 {
+	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
+	if (QuetzalChat *chat = qobject_cast<QuetzalChat *>(unit)) {
+		chat->updateUser(user);
+	}
 }
 
 void quetzal_present(PurpleConversation *conv)
@@ -298,21 +217,21 @@ void quetzal_send_confirm(PurpleConversation *conv, const char *message)
 
 static PurpleConversationUiOps quetzal_conv_uiops =
 {
-	quetzal_create_conversation,/* create_conversation  */
-	quetzal_destroy_conversation,/* destroy_conversation */
-	NULL,                      /* write_chat           */
-	quetzal_write_im,          /* write_im             */
+	quetzal_create_conversation,  /* create_conversation  */
+	quetzal_destroy_conversation, /* destroy_conversation */
+	quetzal_write_chat,           /* write_chat           */
+	quetzal_write_im,             /* write_im             */
 	quetzal_write_conv,           /* write_conv           */
-	NULL,                      /* chat_add_users       */
-	NULL,                      /* chat_rename_user     */
-	NULL,                      /* chat_remove_users    */
-	NULL,                      /* chat_update_user     */
-	NULL,                      /* present              */
-	NULL,                      /* has_focus            */
-	NULL,                      /* custom_smiley_add    */
-	NULL,                      /* custom_smiley_write  */
-	NULL,                      /* custom_smiley_close  */
-	NULL,                      /* send_confirm         */
+	quetzal_chat_add_users,       /* chat_add_users       */
+	quetzal_chat_rename_user,     /* chat_rename_user     */
+	quetzal_chat_remove_users,    /* chat_remove_users    */
+	quetzal_chat_update_user,     /* chat_update_user     */
+	NULL,                         /* present              */
+	NULL,                         /* has_focus            */
+	NULL,                         /* custom_smiley_add    */
+	NULL,                         /* custom_smiley_write  */
+	NULL,                         /* custom_smiley_close  */
+	NULL,                         /* send_confirm         */
 	NULL,
 	NULL,
 	NULL,
@@ -329,14 +248,6 @@ null_ui_init(void)
 	purple_conversations_set_ui_ops(&quetzal_conv_uiops);
 }
 
-inline char *quetzal_copystr(const QByteArray &data)
-{
-	char *str = reinterpret_cast<char *>(qMalloc(data.size() + 1));
-	qMemCopy(str, data, data.size());
-	str[data.size()] = '\0';
-	return str;
-}
-
 static GHashTable *quetzal_ui_info()
 {
 	static GHashTable *table = NULL;
@@ -344,8 +255,8 @@ static GHashTable *quetzal_ui_info()
 		table = g_hash_table_new(g_str_hash, g_str_equal);
 		QByteArray name = qApp->applicationName().toUtf8();
 		QByteArray version = qApp->applicationVersion().toUtf8();
-		g_hash_table_insert(table, const_cast<char *>("name"), quetzal_copystr(name));
-		g_hash_table_insert(table, const_cast<char *>("version"), quetzal_copystr(version));
+		g_hash_table_insert(table, const_cast<char *>("name"), g_strdup(name.constData()));
+		g_hash_table_insert(table, const_cast<char *>("version"), g_strdup(version.constData()));
 		g_hash_table_insert(table, const_cast<char *>("website"), const_cast<char *>("http://qutim.org/"));
 		g_hash_table_insert(table, const_cast<char *>("type"), const_cast<char *>("pc"));
 	}
@@ -368,10 +279,19 @@ static PurpleCoreUiOps quetzal_core_uiops =
 
 void quetzal_debug_print(PurpleDebugLevel level, const char *category, const char *arg_s)
 {
-	Q_UNUSED(level);
+	// Why should I read all xml staff in console?..
+	if (g_str_equal(category, "jabber") && level < PURPLE_DEBUG_WARNING)
+		return;
 	QByteArray arg(arg_s);
 	arg.chop(1);
-	qDebug("[quetzal/%s]: %s", category, arg.constData());
+	if (level >= PURPLE_DEBUG_FATAL)
+		qFatal("[quetzal/%s]: %s", category, arg.constData());
+	else if (level >= PURPLE_DEBUG_ERROR)
+		qCritical("[quetzal/%s]: %s", category, arg.constData());
+	else if (level >= PURPLE_DEBUG_WARNING)
+		qWarning("[quetzal/%s]: %s", category, arg.constData());
+	else
+		qDebug("[quetzal/%s]: %s", category, arg.constData());
 }
 
 gboolean quetzal_debug_is_enabled(PurpleDebugLevel level, const char *category)
@@ -391,272 +311,6 @@ static PurpleDebugUiOps quetzal_debug_uiops =
 	NULL
 };
 
-//PurpleRequestFieldsCb;
-
-void *quetzal_request_input(const char *title, const char *primary,
-							const char *secondary, const char *default_value,
-							gboolean multiline, gboolean masked, gchar *hint,
-							const char *ok_text, GCallback ok_cb,
-							const char *cancel_text, GCallback cancel_cb,
-							PurpleAccount *account, const char *who,
-							PurpleConversation *conv, void *user_data)
-{
-	debug() << Q_FUNC_INFO;
-	Q_UNUSED(account);
-	Q_UNUSED(who);
-	Q_UNUSED(conv);
-	QString label;
-	if (primary) {
-		label += QLatin1Literal("<span weight=\"bold\" size=\"larger\">")
-				 % Qt::escape(primary)
-				 % QLatin1Literal("</span>");
-		if (secondary)
-			label += "\n\n";
-	}
-	if (secondary)
-		label += Qt::escape(secondary);
-
-	QInputDialog dialog;
-	dialog.setWindowTitle(title);
-	dialog.setLabelText(label);
-	dialog.setTextValue(default_value);
-	dialog.setTextEchoMode(masked ? QLineEdit::Password : QLineEdit::Normal);
-	if (ok_text)
-		dialog.setOkButtonText(ok_text);
-	if (cancel_text)
-		dialog.setCancelButtonText(cancel_text);
-
-	bool ok = !!dialog.exec();
-
-	PurpleRequestInputCb func = reinterpret_cast<PurpleRequestInputCb>(ok ? ok_cb : cancel_cb);
-	if (func)
-		(*func)(user_data, ok ? dialog.textValue().toUtf8().constData() : NULL);
-	return NULL;
-}
-
-void *quetzal_request_choice(const char *title, const char *primary,
-							 const char *secondary, int default_value,
-							 const char *ok_text, GCallback ok_cb,
-							 const char *cancel_text, GCallback cancel_cb,
-							 PurpleAccount *account, const char *who,
-							 PurpleConversation *conv, void *user_data,
-							 va_list choices)
-{
-	debug() << Q_FUNC_INFO;
-}
-
-void *quetzal_request_action(const char *title, const char *primary,
-							 const char *secondary, int default_action,
-							 PurpleAccount *account, const char *who,
-							 PurpleConversation *conv, void *user_data,
-							 size_t action_count, va_list actions)
-{
-	debug() << Q_FUNC_INFO;
-	Q_UNUSED(account);
-	Q_UNUSED(who);
-	Q_UNUSED(conv);
-	QuetzalRequestActionList uiActions;
-	while (action_count --> 0) {
-		QString str = va_arg(actions, gchararray);
-		PurpleRequestActionCb cb = va_arg(actions, PurpleRequestActionCb);
-		uiActions << qMakePair(str, cb);
-	}
-	QDialog *dialog = new QuetzalActionDialog(title, primary, secondary,
-											  default_action, uiActions, user_data, NULL);
-	dialog->show();
-	return dialog;
-}
-
-void *quetzal_request_fields(const char *title, const char *primary,
-							 const char *secondary, PurpleRequestFields *fields,
-							 const char *ok_text, GCallback ok_cb,
-							 const char *cancel_text, GCallback cancel_cb,
-							 PurpleAccount *account, const char *who,
-							 PurpleConversation *conv, void *user_data)
-{
-	debug() << Q_FUNC_INFO;
-}
-
-void *quetzal_request_file(const char *title, const char *filename,
-						   gboolean savedialog, GCallback ok_cb,
-						   GCallback cancel_cb, PurpleAccount *account,
-						   const char *who, PurpleConversation *conv,
-						   void *user_data)
-{
-	debug() << Q_FUNC_INFO;
-	Q_UNUSED(account);
-	Q_UNUSED(who);
-	Q_UNUSED(conv);
-	QString file = (savedialog ? QFileDialog::getSaveFileName : QFileDialog::getOpenFileName)
-				   (NULL, title, filename, QString(), NULL, 0);
-	PurpleRequestFileCb func;
-	if (file.isEmpty())
-		func = reinterpret_cast<PurpleRequestFileCb>(cancel_cb);
-	else
-		func = reinterpret_cast<PurpleRequestFileCb>(ok_cb);
-
-	if (func)
-		(*func)(user_data, file.isEmpty() ? NULL : file.toUtf8().constData());
-	return NULL;
-}
-
-void quetzal_close_request(PurpleRequestType type, void *ui_handle)
-{
-	debug() << Q_FUNC_INFO;
-	Q_UNUSED(type);
-	QWidget *widget = reinterpret_cast<QWidget *>(ui_handle);
-	widget->deleteLater();
-}
-
-void *quetzal_request_folder(const char *title, const char *dirname,
-							 GCallback ok_cb, GCallback cancel_cb,
-							 PurpleAccount *account, const char *who,
-							 PurpleConversation *conv, void *user_data)
-{
-	debug() << Q_FUNC_INFO;
-	Q_UNUSED(account);
-	Q_UNUSED(who);
-	Q_UNUSED(conv);
-	QString dir = QFileDialog::getExistingDirectory(NULL, title, dirname);
-	PurpleRequestFileCb func;
-	if (dir.isEmpty())
-		func = reinterpret_cast<PurpleRequestFileCb>(cancel_cb);
-	else
-		func = reinterpret_cast<PurpleRequestFileCb>(ok_cb);
-
-	if (func)
-		(*func)(user_data, dir.toUtf8().constData());
-	return NULL;
-}
-
-PurpleRequestUiOps quetzal_request_uiops =
-{
-	quetzal_request_input,
-	quetzal_request_choice,
-	quetzal_request_action,
-	quetzal_request_fields,
-	quetzal_request_file,
-	quetzal_close_request,
-	quetzal_request_folder,
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-
-void quetzal_new_list(PurpleBuddyList *list)
-{
-	debug() << "new_list";
-}
-
-void quetzal_new_node(PurpleBlistNode *node)
-{
-//	debug() << "new_node" << node->type;
-	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
-		PurpleBuddy *buddy = PURPLE_BUDDY(node);
-		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(buddy->account->ui_data);
-		if (acc) {
-			acc->createNode(node);
-		}
-	}
-}
-
-void quetzal_show(PurpleBuddyList *list)
-{
-	Q_UNUSED(list);
-}
-
-void quetzal_update(PurpleBuddyList *list, PurpleBlistNode *node)
-{
-	Q_UNUSED(list);
-	QObject *obj = reinterpret_cast<QObject *>(node->ui_data);
-	if (QuetzalContact *contact = qobject_cast<QuetzalContact *>(obj)) {
-		contact->update();
-	}
-}
-
-void quetzal_remove(PurpleBuddyList *list, PurpleBlistNode *node)
-{
-}
-
-void quetzal_destroy(PurpleBuddyList *list)
-{
-}
-
-void quetzal_set_visible(PurpleBuddyList *list, gboolean show)
-{
-}
-
-void quetzal_request_add_buddy(PurpleAccount *account, const char *username, const char *group, const char *alias)
-{
-}
-
-void quetzal_request_add_chat(PurpleAccount *account, PurpleGroup *group, const char *alias, const char *name)
-{
-}
-
-void quetzal_request_add_group(void)
-{
-}
-
-void quetzal_save_node(PurpleBlistNode *node)
-{
-	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
-		PurpleBuddy *buddy = PURPLE_BUDDY(node);
-		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(buddy->account->ui_data);
-		if (acc) {
-			QuetzalContact *contact = reinterpret_cast<QuetzalContact *>(buddy->node.ui_data);
-			acc->save(contact);
-		}
-	}
-}
-
-void quetzal_remove_node(PurpleBlistNode *node)
-{
-	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
-		PurpleBuddy *buddy = PURPLE_BUDDY(node);
-		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(buddy->account->ui_data);
-		if (acc) {
-			QuetzalContact *contact = reinterpret_cast<QuetzalContact *>(buddy->node.ui_data);
-			acc->remove(contact);
-		}
-	}
-}
-
-void quetzal_save_account(PurpleAccount *account)
-{
-	if (account) {
-		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account->ui_data);
-		if (acc)
-			acc->save();
-	} else {
-		for (GList *it = purple_accounts_get_all(); it != NULL; it = it->next) {
-			account = reinterpret_cast<PurpleAccount *>(it->data);
-			QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account->ui_data);
-			if (acc)
-				acc->save();
-		}
-	}
-}
-
-PurpleBlistUiOps quetzal_blist_uiops = {
-	quetzal_new_list,
-	quetzal_new_node,
-	quetzal_show,
-	quetzal_update,
-	quetzal_remove,
-	quetzal_destroy,
-	quetzal_set_visible,
-	quetzal_request_add_buddy,
-	quetzal_request_add_chat,
-	quetzal_request_add_group,
-	quetzal_save_node,
-	quetzal_remove_node,
-	quetzal_save_account,
-	NULL
-};
-
-
 void quetzal_notify_added(PurpleAccount *account,
 						  const char *remote_user,
 						  const char *id,
@@ -668,6 +322,7 @@ void quetzal_notify_added(PurpleAccount *account,
 void quetzal_status_changed(PurpleAccount *account,
 							PurpleStatus *status)
 {
+	debug() << Q_FUNC_INFO << account->username << account->alias << purple_status_get_name(status);
 }
 
 void quetzal_request_add(PurpleAccount *account,
@@ -740,6 +395,27 @@ static void quetzal_account_status_changed(PurpleAccount *account, PurpleStatus 
 		acc->setStatusChanged(new_status);
 }
 
+static void quetzal_conversation_update(PurpleConversation *conv, PurpleConvUpdateType type)
+{
+	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
+	if (QuetzalConversation *quetzal_conv = qobject_cast<QuetzalConversation *>(unit)) {
+		quetzal_conv->update(type);
+	}
+}
+
+static void quetzal_account_signon_cb(PurpleConnection *gc, gpointer z)
+{
+//	PurpleAccount *acc = purple_connection_get_account(gc);
+//	QuetzalAccount *account = reinterpret_cast<QuetzalAccount *>(acc->ui_data);
+//	QDialog *dialog = new QuetzalJoinChatDialog(gc);
+//	dialog->show();
+//	GHashTable *comps = NULL;
+//	PurplePluginProtocolInfo *info = PURPLE_PLUGIN_PROTOCOL_INFO(gc->prpl);
+//	if (info->chat_info_defaults != NULL)
+//		comps = info->chat_info_defaults(gc, "talks@conference.qutim.org/Yahoo");
+//	serv_join_chat(gc, comps);
+}
+
 static void
 init_libpurple()
 {
@@ -757,7 +433,7 @@ init_libpurple()
 	 */
 	purple_debug_set_ui_ops(&quetzal_debug_uiops);
 	purple_core_set_ui_ops(&quetzal_core_uiops);
-	purple_eventloop_set_ui_ops(&quetzal_eventloops);
+	purple_eventloop_set_ui_ops(&quetzal_eventloop_uiops);
 	purple_blist_set_ui_ops(&quetzal_blist_uiops);
 	purple_accounts_set_ui_ops(&quetzal_accounts_uiops);
 	purple_request_set_ui_ops(&quetzal_request_uiops);
@@ -800,6 +476,10 @@ init_libpurple()
 	// connect signals
 	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed", handle,
 						  PURPLE_CALLBACK(quetzal_account_status_changed), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", handle,
+						  PURPLE_CALLBACK(quetzal_conversation_update), NULL);
+	purple_signal_connect(purple_connections_get_handle(), "signed-on",
+						  handle, PURPLE_CALLBACK(quetzal_account_signon_cb), NULL);
 }
 
 void QuetzalPlugin::init()

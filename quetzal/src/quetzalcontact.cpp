@@ -1,3 +1,18 @@
+/****************************************************************************
+ *  quetzalcontact.cpp
+ *
+ *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include "quetzalcontact.h"
 #include "quetzalaccount.h"
 #include <qutim/debug.h>
@@ -102,7 +117,7 @@ Status quetzal_get_status(PurpleStatus *status, const QString &proto)
 		const char *id = purple_status_attr_get_id(attr);
 //		QString name = purple_status_attr_get_name(attr);
 		QVariant value = quetzal_value2variant(purple_status_attr_get_value(attr));
-		debug() << "!" << type << id /*<< name */<< value;
+//		debug() << "!" << type << id /*<< name */<< value;
 		if (g_str_equal(id, "message"))
 			qStatus.setText(value.toString());
 		else
@@ -169,11 +184,11 @@ void QuetzalContact::update()
 		emit nameChanged(m_name);
 	}
 	Status status = quetzal_get_status(m_buddy->presence);
-	debug() << Q_FUNC_INFO << m_buddy->name << m_status << status;
+//	debug() << Q_FUNC_INFO << m_buddy->name << m_status << status;
 	if (m_status.type() != status.type()
 		|| m_status.subtype() != status.subtype()
 		|| m_status.text() != status.text()) {
-		debug() << Q_FUNC_INFO << m_id << status;
+//		debug() << Q_FUNC_INFO << m_id << status;
 		m_status = status;
 		emit statusChanged(m_status);
 	}

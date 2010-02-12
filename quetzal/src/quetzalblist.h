@@ -1,5 +1,5 @@
 /****************************************************************************
- *  quetzalplugin.h
+ *  quetzalblist.h
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,24 +13,15 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef PURPLEPROTOCOLPLUGIN_H
-#define PURPLEPROTOCOLPLUGIN_H
+#ifndef QUETZALBLIST_H
+#define QUETZALBLIST_H
 
-#include <qutim/protocol.h>
-#include <qutim/plugin.h>
+#include <purple.h>
 
-using namespace qutim_sdk_0_3;
+extern PurpleBlistUiOps quetzal_blist_uiops;
 
-class QuetzalPlugin : public Plugin
-{
-    Q_OBJECT
-	Q_CLASSINFO("DebugName", "quetzal")
-public:
-	virtual void init();
-	virtual bool load() { return true; }
-	virtual bool unload() { return false; }
-private slots:
-	void onFinished(void *data);
-};
+extern GList *quetzal_blist_get_chats(PurpleAccount *acc);
 
-#endif // PURPLEPROTOCOLPLUGIN_H
+Q_DECLARE_METATYPE(PurpleChat*)
+
+#endif // QUETZALBLIST_H
