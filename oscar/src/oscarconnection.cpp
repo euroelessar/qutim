@@ -147,6 +147,7 @@ void OscarConnection::processCloseConnection()
 	}
 	if (error() != NoError)
 		Notifications::sendNotification(errorString());
+	socket()->close();
 	//AbstractConnection::processCloseConnection();
 }
 
