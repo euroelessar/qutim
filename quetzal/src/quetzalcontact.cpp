@@ -51,9 +51,9 @@ QVariant quetzal_value2variant(const PurpleValue *value)
 		else
 			return QVariant(qulonglong(value->data.ulong_data));
 	case PURPLE_TYPE_INT64:
-		return QVariant(value->data.int64_data);
+		return QVariant(qlonglong(value->data.int64_data));
 	case PURPLE_TYPE_UINT64:
-		return QVariant(value->data.uint64_data);
+		return QVariant(qulonglong(value->data.uint64_data));
 	case PURPLE_TYPE_STRING:
 		return QVariant(QString::fromUtf8(value->data.string_data));
 	case PURPLE_TYPE_OBJECT:
