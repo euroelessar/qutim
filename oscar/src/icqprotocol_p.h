@@ -35,7 +35,6 @@ struct IcqProtocolPrivate
 		QHash<QString, QPointer<IcqAccount> > *accounts_hash;
 		QHash<QString, IcqAccount *> *accounts;
 	};
-	QHash<IcqStatus, Status> statuses;
 };
 
 } // namespace Icq

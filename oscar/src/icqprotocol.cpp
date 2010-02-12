@@ -28,34 +28,61 @@ namespace Icq
 
 IcqProtocol *IcqProtocol::self = 0;
 
+typedef QHash<IcqStatus, Status> StatusList;
+static void init_status_list(StatusList &list)
+{
+	list.insert(IcqInvisible, Status(Status::Invisible));
+	list.insert(IcqDND, Status(Status::DND));
+	list.insert(IcqNA, Status(Status::NA));
+	list.insert(IcqAway, Status(Status::Away));
+	list.insert(IcqFFC, Status(Status::FreeChat));
+	list.insert(IcqOnline, Status(Status::Online));
+	list.insert(IcqOffline, Status(Status::Offline));
+	QHash<IcqStatus, Status>::iterator itr = list.begin();
+	QHash<IcqStatus, Status>::iterator endItr = list.end();
+	while (itr != endItr) {
+		itr->initIcon(QLatin1String("icq"));
+		++itr;
+	}
+	{
+		Status status(Status::DND);
+		status.setSubtype(IcqOccupied);
+		status.setIcon(Icon(QLatin1String("user-busy-occupied-icq")));
+		status.setName(QT_TRANSLATE_NOOP("Status", "Busy"));
+		list.insert(IcqOccupied, status);
+	}
+}
+
+Q_GLOBAL_STATIC_WITH_INITIALIZER(StatusList, statusList, init_status_list(*x));
+
 qutim_sdk_0_3::Status icqStatusToQutim(IcqStatus status)
 {
-	const IcqProtocolPrivate *d = IcqProtocol::instance()->d_func();
+	const StatusList &list = *statusList();
 	if (status == IcqOffline)
-		return d->statuses.value(IcqOffline);
-	Status online = d->statuses.value(IcqOnline);
+		return list.value(IcqOffline);
+	Status online = list.value(IcqOnline);
 	if (status & IcqInvisible)
-		return d->statuses.value(IcqInvisible, online);
+		return list.value(IcqInvisible, online);
 	else /* if (status & IcqEvil)
-		return d->statuses.value(IcqEvil, online);
+		return list.value(IcqEvil, online);
 	else if(status & IcqDepress)
-		return d->statuses.value(IcqDepress, online);
+		return list.value(IcqDepress, online);
 	else if(status & IcqHome)
-		return d->statuses.value(IcqHome, online);
+		return list.value(IcqHome, online);
 	else if(status & IcqWork)
-		return d->statuses.value(IcqWork, online);
+		return list.value(IcqWork, online);
 	else if(status & IcqLunch)
-		return d->statuses.value(IcqLunch, online);
+		return list.value(IcqLunch, online);
 	else */ if (status & IcqDND)
-		return d->statuses.value(IcqDND, online);
+		return list.value(IcqDND, online);
 	else if (status & IcqOccupied)
-		return d->statuses.value(IcqOccupied, online);
+		return list.value(IcqOccupied, online);
 	else if (status & IcqNA)
-		return d->statuses.value(IcqNA, online);
+		return list.value(IcqNA, online);
 	else if (status & IcqAway)
-		return d->statuses.value(IcqAway, online);
+		return list.value(IcqAway, online);
 	else if (status & IcqFFC)
-		return d->statuses.value(IcqFFC, online);
+		return list.value(IcqFFC, online);
 	else
 		return online;
 }
@@ -67,26 +94,6 @@ IcqProtocol::IcqProtocol() :
 	Q_D(IcqProtocol);
 	self = this;
 	updateSettings();
-	d->statuses.insert(IcqInvisible, Status(Status::Invisible));
-	d->statuses.insert(IcqDND, Status(Status::DND));
-	d->statuses.insert(IcqNA, Status(Status::NA));
-	d->statuses.insert(IcqAway, Status(Status::Away));
-	d->statuses.insert(IcqFFC, Status(Status::FreeChat));
-	d->statuses.insert(IcqOnline, Status(Status::Online));
-	d->statuses.insert(IcqOffline, Status(Status::Offline));
-	QHash<IcqStatus, Status>::iterator itr = d->statuses.begin();
-	QHash<IcqStatus, Status>::iterator endItr = d->statuses.end();
-	while (itr != endItr) {
-		itr->initIcon(QLatin1String("icq"));
-		++itr;
-	}
-	{
-		Status status(Status::DND);
-		status.setSubtype(IcqOccupied);
-		status.setIcon(Icon(QLatin1String("user-busy-occupied-icq")));
-		status.setName(QT_TRANSLATE_NOOP("Status", "Busy"));
-		d->statuses.insert(IcqOccupied, status);
-	}
 }
 
 IcqProtocol::~IcqProtocol()
@@ -99,7 +106,7 @@ void IcqProtocolPrivate::initActions()
 	static bool inited = false;
 	if (inited)
 		return;
-	foreach (Status status, statuses)
+	foreach (Status status, *statusList())
 		MenuController::addAction(new StatusActionGenerator(status), &IcqAccount::staticMetaObject);
 	inited = true;
 }
