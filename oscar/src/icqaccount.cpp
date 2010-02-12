@@ -33,6 +33,8 @@ IcqAccount::IcqAccount(const QString &uin) :
 	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
 {
 	Q_D(IcqAccount);
+	d->reconnectTimer.setSingleShot(true);
+	connect(&d->reconnectTimer, SIGNAL(timeout()), SLOT(onReconnectTimeout()));
 	ConfigGroup cfg = config("general");
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
@@ -112,7 +114,7 @@ void IcqAccount::setStatus(Status status)
 			ConfigGroup config = protocol()->config().group("reconnect");
 			if (config.value("enabled", true)) {
 				quint32 time = config.value("time", 3000);
-				d->reconnectTimer.singleShot(time, this, SLOT(onReconnectTimeout()));
+				d->reconnectTimer.start(time);
 			}
 		} else if (d->conn->error() == AbstractConnection::MismatchNickOrPassword) {
 			Account::setStatus(status);
