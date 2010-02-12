@@ -17,6 +17,7 @@ namespace Core
 	{
 		GeneralSettingsItem<PopupBehavior> *behavior = new GeneralSettingsItem<PopupBehavior>(Settings::General,Icon("dialog-information"),QT_TRANSLATE_NOOP("Settings","Notifications"));
 		Settings::registerItem(behavior);
+		deleteLater();
 	}
 
 }

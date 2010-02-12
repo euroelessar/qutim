@@ -217,7 +217,7 @@ namespace AdiumChat
 		Contact *contact = qobject_cast<Contact *>(sender());
 		if (!contact && contact->property("silent").toBool())
 			return;
-		QString text = contact->property("statusText").toString();
+		QString text = contact->status().text();
 		Message msg;
 		msg.setChatUnit(contact);
 		msg.setIncoming(true);

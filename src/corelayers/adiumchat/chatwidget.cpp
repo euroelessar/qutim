@@ -161,8 +161,10 @@ namespace AdiumChat
 	void ChatWidget::onSessionDestroyed(QObject* object)
 	{
 		ChatSessionImpl *sess = qobject_cast<ChatSessionImpl *>(object);
-		if (sess && m_sessions.contains(sess))
+		if (sess && m_sessions.contains(sess)) {
+			int current_index = property("currentIndex").toInt();
 			m_sessions.removeAll(sess);
+		}
 	}
 
 	ChatSessionList ChatWidget::getSessionList() const

@@ -16,6 +16,7 @@ namespace Core
 	{
 		GeneralSettingsItem<ChatAppearance> *item = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat appearance"));
 		Settings::registerItem(item);
+		deleteLater();
 	}
 
 }
