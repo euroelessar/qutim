@@ -20,10 +20,10 @@
 #include <QDebug>
 #include "libqutim_global.h"
 
-#ifndef LIBQUTIM_LIBRARY
-extern qptrdiff qutim_plugin_id();
-#else
+#if defined(LIBQUTIM_LIBRARY) || defined(QUTIM_CORE)
 qptrdiff qutim_plugin_id() { return 0; }
+#else
+extern qptrdiff qutim_plugin_id();
 #endif
 
 namespace qutim_sdk_0_3

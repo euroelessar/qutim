@@ -98,7 +98,7 @@ macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir libs_to_link )
     INSTALL( TARGETS ${plugin_name} DESTINATION "lib/qutim/plugins" )
 
     # Link with QT
-	TARGET_LINK_LIBRARIES( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARY} ${libs_to_link})
+	TARGET_LINK_LIBRARIES( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARY} ${libs_to_link} ${ARGN})
 
 	if( LANGUAGE )
 		LANGUAGE_UPDATE( ${plugin_name} ${LANGUAGE} ${${plugin_name}_SRC} ${${plugin_name}_HDR} ${${plugin_name}_UI} )
