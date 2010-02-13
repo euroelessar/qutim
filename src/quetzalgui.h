@@ -13,6 +13,17 @@ namespace Quetzal
 	class PurpleAccount;
 	class PurpleConversation;
 
+	typedef enum
+	{
+		PURPLE_REQUEST_INPUT = 0,  /**< Text input request.        */
+		PURPLE_REQUEST_CHOICE,     /**< Multiple-choice request.   */
+		PURPLE_REQUEST_ACTION,     /**< Action request.            */
+		PURPLE_REQUEST_FIELDS,     /**< Multiple fields request.   */
+		PURPLE_REQUEST_FILE,       /**< File open or save request. */
+		PURPLE_REQUEST_FOLDER      /**< Folder selection request.  */
+
+	} PurpleRequestType;
+
 	class FileDialog : public KFileDialog
 	{
 		Q_OBJECT
@@ -22,6 +33,7 @@ namespace Quetzal
 	protected:
 		virtual void slotOk();
 		virtual void slotCancel();
+		virtual void closeEvent(QCloseEvent *e);
 	private:
 		PurpleRequestFileCb m_ok_cb;
 		PurpleRequestFileCb m_cancel_cb;
@@ -41,7 +53,7 @@ namespace Quetzal
 							  const char *who, PurpleConversation *conv,
 							  void *user_data);
 
-		void (*_purple_unused5)(void);
+		void (*close_request)(PurpleRequestType type, void *ui_handle);
 
 		void *(*request_folder)(const char *title, const char *dirname,
 								GCallback ok_cb, GCallback cancel_cb,
@@ -55,6 +67,7 @@ namespace Quetzal
 	} PurpleRequestUiOps;
 
 	typedef PurpleRequestUiOps *(*_purple_request_get_ui_ops)(void);
+	typedef void (*_purple_request_close)(PurpleRequestType type, void *uihandle);
 
 	extern void initGui();
 }

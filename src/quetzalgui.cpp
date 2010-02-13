@@ -4,6 +4,19 @@
 
 namespace Quetzal
 {
+	static _purple_request_get_ui_ops purple_request_get_ui_ops = NULL;
+	static _purple_request_close purple_request_close = NULL;
+
+	static void kde_request_close(FileDialog *dialog)
+	{
+		PurpleRequestType type;
+		if (dialog->mode() & KFile::File )
+			type = PURPLE_REQUEST_FILE;
+		else
+			type = PURPLE_REQUEST_FOLDER;
+		purple_request_close(type, dialog);
+	}
+
 	FileDialog::FileDialog(const KUrl &startDir, const QString &title,
 						   GCallback ok_cb, GCallback cancel_cb, void *user_data)
 			 : KFileDialog(startDir, QString(), 0)
@@ -12,6 +25,8 @@ namespace Quetzal
 		m_ok_cb = (PurpleRequestFileCb)ok_cb;
 		m_cancel_cb = (PurpleRequestFileCb)cancel_cb;
 		m_user_data = user_data;
+		connect(this, SIGNAL(closeClicked()), this, SLOT(slotCancel()));
+		setAttribute(Qt::WA_DeleteOnClose, true);
 		setAttribute(Qt::WA_QuitOnClose, false);
 	}
 
@@ -20,7 +35,7 @@ namespace Quetzal
 		if (m_ok_cb)
 			m_ok_cb(m_user_data, selectedFile().toUtf8().constData());
 		m_ok_cb = NULL;
-		close();
+		kde_request_close(this);
 	}
 
 	void FileDialog::slotCancel()
@@ -28,7 +43,13 @@ namespace Quetzal
 		if (m_cancel_cb)
 			m_cancel_cb(m_user_data, selectedFile().toUtf8().constData());
 		m_cancel_cb = NULL;
-		close();
+		kde_request_close(this);
+	}
+
+	void FileDialog::closeEvent(QCloseEvent *e)
+	{
+		slotCancel();
+		KFileDialog::closeEvent(e);
 	}
 
 	static void *kde_request_file(const char *title, const char *filename,
@@ -65,8 +86,8 @@ namespace Quetzal
 	void initGui()
 	{
 		QLibrary lib("purple");
-		_purple_request_get_ui_ops purple_request_get_ui_ops;
 		purple_request_get_ui_ops = (_purple_request_get_ui_ops)lib.resolve("purple_request_get_ui_ops");
+		purple_request_close = (_purple_request_close)lib.resolve("purple_request_close");
 
 		PurpleRequestUiOps *ui_ops = purple_request_get_ui_ops();
 		ui_ops->request_file = kde_request_file;
