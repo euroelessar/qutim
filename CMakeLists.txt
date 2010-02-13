@@ -23,9 +23,11 @@ else(QUTIM_PATH)
     set(QUTIM_CMAKE_PLUGIN ${CMAKE_ROOT}/Modules/QutimPlugin.cmake)
 endif(QUTIM_PATH)
 
+list( APPEND KDEINT_LIBS ${KDE4_KUTILS_LIBS} ${KDE4_KIO_LIBS} )
+
 include( ${QUTIM_CMAKE_PLUGIN} )
 
-ADD_QUTIMPLUGIN_EXT2( "kdeintegration" "src" "" ${KDE4_KUTILS_LIBS})
+ADD_QUTIMPLUGIN_EXT2( "kdeintegration" "src" "" ${KDEINT_LIBS})
 
 add_definitions( ${QT_DEFINITIONS} ${KDE4_DEFINITIONS} )
 

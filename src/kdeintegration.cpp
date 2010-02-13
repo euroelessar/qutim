@@ -1,12 +1,17 @@
 #include "kdeintegration.h"
 #include "emoticons/kdeemoticons.h"
+#include "quetzalgui.h"
 #include <kdeversion.h>
 #include <KIcon>
+#include <qutim/event.h>
+#include <QCoreApplication>
 
 namespace KdeIntegration
 {
 	KdePlugin::KdePlugin()
 	{
+		m_quetzal_id = Event::registerType("quetzal-ui-ops-inited");
+		qApp->installEventFilter(this);
 	}
 
 	void KdePlugin::init()
@@ -34,6 +39,18 @@ namespace KdeIntegration
 	bool KdePlugin::unload()
 	{
 		return false;
+	}
+
+	bool KdePlugin::eventFilter(QObject *obj, QEvent *ev)
+	{
+		if (ev->type() == Event::eventType()) {
+			Event *event = static_cast<Event *>(ev);
+			if (event->id == m_quetzal_id) {
+				qApp->removeEventFilter(this);
+				Quetzal::initGui();
+			}
+		}
+		return QObject::eventFilter(obj, ev);
 	}
 }
 
