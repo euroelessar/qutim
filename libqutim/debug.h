@@ -21,7 +21,7 @@
 #include "libqutim_global.h"
 
 #if defined(LIBQUTIM_LIBRARY) || defined(QUTIM_CORE)
-qptrdiff qutim_plugin_id() { return 0; }
+inline qptrdiff qutim_plugin_id() { return 0; }
 #else
 extern qptrdiff qutim_plugin_id();
 #endif
