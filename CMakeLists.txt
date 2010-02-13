@@ -143,8 +143,10 @@ QT4_ADD_RESOURCES (RCC ${RESOURCES})
 #endif( APPLE )
 
 ADD_EXECUTABLE (qutim ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
-set_target_properties( qutim PROPERTIES COMPILE_FLAGS "-DQUTIM_CORE -Wall -Werror" )
-set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "-Wall -Werror" )
+if( CMAKE_COMPILER_IS_GNUCXX )
+	set_target_properties( qutim PROPERTIES COMPILE_FLAGS "-DQUTIM_CORE -Wall -Werror" )
+	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "-Wall -Werror" )
+endif( CMAKE_COMPILER_IS_GNUCXX )
 
 TARGET_LINK_LIBRARIES (qutim
 	${QT_LIBRARIES}
