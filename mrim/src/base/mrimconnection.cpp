@@ -244,6 +244,8 @@ MrimConnection::ConnectionState MrimConnection::state() const
     case QAbstractSocket::ConnectingState:
     case QAbstractSocket::ConnectedState:
         return RecievingGoodIMServer;
+	default:
+		break;
     }
 
     switch (IMState)
@@ -251,7 +253,9 @@ MrimConnection::ConnectionState MrimConnection::state() const
     case QAbstractSocket::ConnectingState:
         return ConnectingToIMServer;
     case QAbstractSocket::ConnectedState:
-        return ConnectedToIMServer;        
+		return ConnectedToIMServer;
+	default:
+		break;
     }
 
     return UnknownState;
@@ -319,6 +323,7 @@ bool MrimConnection::processPacket()
         debug(VeryVerbose)<<"Packet was not handled!";
         debug(VeryVerbose)<<p->readPacket;
     }
+	return handled;
 }
 
  void MrimConnection::registerPacketHandler(PacketHandler *handler)
@@ -385,6 +390,5 @@ void MrimConnection::sendPing()
 bool MrimConnection::setStatus(const Status &status)
 {
     //TODO:
-
-
+	return false;
 }

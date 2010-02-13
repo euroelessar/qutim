@@ -35,7 +35,7 @@ struct XStatus
 	XStatus() { }
 
 	XStatus(const LocalizedString &status_, const QString &icon_, qint8 mood_, const Capability &capability_) :
-		status(status_), icon(QString("user-xstatus-") + icon_), capability(capability_), mood(mood_)
+		status(status_), icon(QLatin1String("user-xstatus-") + icon_), mood(mood_), capability(capability_)
 	{ }
 	LocalizedString status;
 	ExtensionIcon icon;

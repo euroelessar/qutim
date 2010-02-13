@@ -151,6 +151,10 @@ namespace Jabber
 				break;
 			case StanzaErrorUnknownSender:
 				errorText = tr("The stanza 'from' address specified by a connected client is not valid for the stream.");
+				break;
+			case StanzaErrorUndefined:
+				errorText = tr("No stanza error occured. You're just sleeping.");
+				break;
 			}
 			QString additionalText = QString::fromStdString(error->text());
 			if (!additionalText.isEmpty()) {

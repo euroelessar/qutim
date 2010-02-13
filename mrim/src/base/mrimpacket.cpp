@@ -278,3 +278,16 @@ void MrimPacket::setError(PacketError errCode)
     m_lastError = errCode;
     setState(Error);
 }
+
+QDebug operator<<(QDebug dbg, const MrimPacket &p)
+{
+	dbg.nospace() << "MrimPacket (type=0x" << hex << p.msgType() << dec
+				  << ", seq=" << p.sequence()
+				  << ", dlen=" << p.dataLength()
+				  << ", from=" << p.from()
+				  << ", fromPort=" << p.fromPort()
+				  << ", data="
+				  << p.data().toHex().toUpper()
+				  << ")";
+	return dbg.space();
+}

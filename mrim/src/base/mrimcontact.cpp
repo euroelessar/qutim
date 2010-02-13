@@ -116,3 +116,18 @@ const UserAgent& MrimContact::userAgent() const
 
 void MrimContact::setUserAgent(const UserAgent& agent)
 { p->userAgent.set(agent); }
+
+QDebug operator<<(QDebug dbg, const MrimContact &c)
+{
+	dbg.nospace() << "MrimContact (email=" << c.email() << ", name=" << c.name()
+				  << ", groupId=" << c.groupId()
+				  << ", contactId=" << c.contactId()
+				  << ", flags=0x" << hex << c.flags()
+				  << ", serverFlags=0x" << hex << c.serverFlags()
+				  << ", featureFlags=0x" << hex << c.featureFlags()
+				  << ", userAgent=" << c.userAgent().toReadable()
+				  << ", account=" << c.account()->id()
+				  << ")";
+
+	return dbg.space();
+}

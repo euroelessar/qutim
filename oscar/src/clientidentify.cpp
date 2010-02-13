@@ -1183,7 +1183,6 @@ void ClientIdentify::identify_NatIcq()
 
 	Capabilities::const_iterator cap;
 	if ((cap = m_client_caps.find(ICQ_CAPABILITY_NATICQxVER)) != m_client_caps.constEnd()) {
-		const char *cap_str = cap->data().data();
 		m_client_id = QString("NatICQ Siemens (revision %s)").arg(QString::fromUtf8(cap->data().mid(0xc, 4)));
 		setClientIcon("naticq");
 	}

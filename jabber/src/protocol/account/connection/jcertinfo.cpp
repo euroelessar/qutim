@@ -7,7 +7,7 @@ namespace Jabber
 		Ui::JCertInfo ui;
 	};
 
-	JCertInfo::JCertInfo(const CertInfo &info, QWidget *parent) : p(new JCertInfoPrivate), QDialog(parent)
+	JCertInfo::JCertInfo(const CertInfo &info, QWidget *parent) : QDialog(parent), p(new JCertInfoPrivate)
 	{
 		p->ui.setupUi(this);
 

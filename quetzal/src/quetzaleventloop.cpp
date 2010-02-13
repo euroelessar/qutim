@@ -115,10 +115,12 @@ void QuetzalTimer::onSocket(int fd)
 	QSocketNotifier *socket = qobject_cast<QSocketNotifier *>(sender());
 	guint id = socket->property("quetzal_id").toUInt();
 	QMap<uint, FileInfo *>::iterator it = m_files.find(id);
-	FileInfo *info = it.value();
-	socket->setEnabled(false);
-	(*info->func)(info->data, fd, info->cond);
-	socket->setEnabled(true);
+	if (it != m_files.end()) {
+		FileInfo *info = it.value();
+		socket->setEnabled(false);
+		(*info->func)(info->data, fd, info->cond);
+		socket->setEnabled(true);
+	}
 }
 
 static guint quetzal_timeout_add(guint interval, GSourceFunc function, gpointer data)
@@ -141,10 +143,10 @@ static gboolean quetzal_input_remove(guint handle)
 	return QuetzalTimer::instance()->removeIO(handle);
 }
 
-static int quetzal_input_get_error(int fd, int *error)
-{
-	return QuetzalTimer::instance()->getIOError(fd, error);
-}
+//static int quetzal_input_get_error(int fd, int *error)
+//{
+//	return QuetzalTimer::instance()->getIOError(fd, error);
+//}
 
 static guint quetzal_timeout_add_seconds(guint interval, GSourceFunc function, gpointer data)
 {

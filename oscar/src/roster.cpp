@@ -183,7 +183,6 @@ void SsiHandler::handleRemoveCLItem(const FeedbagItem &item)
 	switch (item.type()) {
 	case SsiBuddy: {
 		IcqContact *contact = m_account->getContact(item.name());
-		IcqContactPrivate *d = contact->d_func();
 		if (!contact) {
 			warning() << "The contact" << item.name() << "does not exist";
 			break;
@@ -324,6 +323,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 	if (!contact)
 		return;
 	quint16 warning_level = snac.read<quint16>();
+	Q_UNUSED(warning_level);
 	TLVMap tlvs = snac.read<TLVMap, quint16>();
 
 	// status.

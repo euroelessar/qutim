@@ -150,7 +150,7 @@ QuetzalContact::QuetzalContact(PurpleBuddy *buddy) :
 	m_id = buddy->name;
 	m_name = purple_buddy_get_alias(buddy);
 	m_status = quetzal_get_status(m_buddy->presence);
-	while (node = node->parent) {
+	while (!!(node = node->parent)) {
 		if (PURPLE_BLIST_NODE_IS_GROUP(node)) {
 			PurpleGroup *group = PURPLE_GROUP(node);
 			m_tags.insert(group->name);
@@ -168,7 +168,7 @@ void QuetzalContact::update()
 {
 	QSet<QString> tags_;
 	PurpleBlistNode *node = &m_buddy->node;
-	while (node = node->parent) {
+	while (!!(node = node->parent)) {
 		if (PURPLE_BLIST_NODE_IS_GROUP(node)) {
 			PurpleGroup *group = PURPLE_GROUP(node);
 			tags_.insert(group->name);

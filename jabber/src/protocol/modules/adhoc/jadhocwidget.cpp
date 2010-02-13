@@ -64,6 +64,8 @@ namespace Jabber
 			case Adhoc::Command::Note::Error:
 				icon = qutim_sdk_0_3::Icon("dialog-error");
 				break;
+			default:
+				return;
 			}
 			QLabel *label = new QLabel(QString::fromStdString(note->content()), this);
 			if (!icon.isNull())

@@ -95,10 +95,10 @@ Channel2MessageData::Channel2MessageData(quint16 ackType, const Tlv2711 &data) :
 {
 	appendTLV(0x000A, ackType);
 	/*if (includeDcInfo)
-	 {
-	 /*data.appendTLV(0x03, my_ip);
-	 data.appendTLV(0x05, my_port);
-	 }*/
+	{
+		data.appendTLV(0x03, my_ip);
+		data.appendTLV(0x05, my_port);
+	}*/
 	appendTLV(0x000F);
 	appendTLV(0x2711, data.data());
 }
@@ -213,6 +213,7 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case MessageFamily << 16 | MessageMtn: {
 		sn.skipData(8); // skip cookie.
 		quint16 channel = sn.read<quint16>();
+		Q_UNUSED(channel);
 		QString uin = sn.read<QString, qint8>();
 		quint16 type = sn.read<quint16>();
 		IcqContact *contact = m_account->getContact(uin);
@@ -277,10 +278,9 @@ void MessagesHandler::handleMessage(const SNAC &snac)
 	QString uin = snac.read<QString, quint8>();
 	IcqContact *contact = m_account->getContact(uin, true);
 	quint16 warning = snac.read<quint16>();
+	Q_UNUSED(warning);
 	snac.skipData(2); // unused number of tlvs
 	TLVMap tlvs = snac.read<TLVMap>();
-	QString message;
-	QDateTime time;
 	switch (channel) {
 	case 0x0001: // message
 		handleChannel1Message(snac, contact, uin, tlvs);
@@ -331,6 +331,7 @@ void MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *contac
 			DataUnit msg_data(tlv);
 			quint16 charset = msg_data.read<quint16>();
 			quint16 codepage = msg_data.read<quint16>();
+			Q_UNUSED(codepage);
 			QByteArray data = msg_data.readAll();
 			QTextCodec *codec = 0;
 			if (charset == CodecUtf16Be)
@@ -403,6 +404,8 @@ void MessagesHandler::handleChannel4Message(const SNAC &snac, IcqContact *contac
 		quint8 type = data.read<quint8>();
 		quint8 flags = data.read<quint8>();
 		QByteArray msg_data = data.read<QByteArray, quint16>(LittleEndian);
+		Q_UNUSED(flags);
+		Q_UNUSED(msg_data);
 		debug() << IMPLEMENT_ME << QString("Message (channel 3) from %1 with type %2 is not processed."). arg(uin).arg(type);
 	} else
 		debug() << "Incorrect message on channel 4 from" << uin << ": SNAC should contain TLV 5";
@@ -426,12 +429,15 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 	data.skipData(9);
 	id = data.read<quint16>(LittleEndian);
 	quint16 cookie = data.read<quint16>(LittleEndian);
+	Q_UNUSED(cookie);
 	if (guid == ICQ_CAPABILITY_PSIG_MESSAGE) {
 		data.skipData(12);
 		quint8 type = data.read<quint8>();
 		quint8 flags = data.read<quint8>();
 		quint16 status = data.read<quint16>(LittleEndian);
 		quint16 priority = data.read<quint16>(LittleEndian);
+		Q_UNUSED(status);
+		Q_UNUSED(priority);
 
 		if (type == MsgPlain && ack != 2) // Plain message
 		{

@@ -157,7 +157,6 @@ quint64 Cookie::generateId()
 
 void Cookie::onTimeout()
 {
-	Q_D(Cookie);
 	emit timeout();
 	unlock();
 }

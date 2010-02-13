@@ -8,7 +8,7 @@
 namespace Jabber
 {
 	JAccountWizardPage::JAccountWizardPage(JAccountWizard *accountWizard, JAccountType type, QWidget *parent)
-		: QWizardPage(parent), m_accountWizard(accountWizard), ui(new Ui::JAccountWizardPage), m_type(type)
+		: QWizardPage(parent), m_accountWizard(accountWizard), m_type(type), ui(new Ui::JAccountWizardPage)
 	{
 		ui->setupUi(this);
 		QString server;

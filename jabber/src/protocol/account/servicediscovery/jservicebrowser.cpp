@@ -249,6 +249,9 @@ namespace Jabber
 			case JDiscoItem::ActionVCard:
 				p->contextMenu->addAction(p->ui->actionShowVCard);
 				break;
+			case JDiscoItem::ActionProxy:
+//				p->contextMenu->addAction(p->ui->action);
+				break;
 			}
 		}
 		if (!p->contextMenu->actions().isEmpty())

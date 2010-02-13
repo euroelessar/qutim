@@ -305,7 +305,7 @@ namespace Jabber
 		int fieldCount = fields.count();
 		for (int num = 0; num < fieldCount; num++) {
 			DataFormField *field = fields[num];
-			if (field->type() >= (sizeof(dataform_elements)/sizeof(NewJDataFormElement))
+			if (field->type() >= static_cast<DataFormField::FieldType>((sizeof(dataform_elements)/sizeof(NewJDataFormElement)))
 				|| !dataform_elements[field->type()].new_instance)
 				continue;
 			NewJDataFormElement *elem = new NewJDataFormElement(dataform_elements[field->type()]);

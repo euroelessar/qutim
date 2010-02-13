@@ -13,7 +13,7 @@ namespace Jabber
 		JAccount *account;
 	};
 
-	JConnectionListener::JConnectionListener(JAccount *account) : p(new JConnectionListenerPrivate), ConnectionListener()
+	JConnectionListener::JConnectionListener(JAccount *account) : ConnectionListener(), p(new JConnectionListenerPrivate)
 	{
 		p->account = account;
 		p->account->connection()->client()->registerConnectionListener(this);

@@ -41,9 +41,9 @@ namespace Jabber
 	{
 		Q_D(JMessageHandler);
 		JMessageSession *session = 0;
-		if (session = qobject_cast<JMessageSession *>(unit))
+		if (!!(session = qobject_cast<JMessageSession *>(unit)))
 			return session;
-		if (session = d->unitSessions.value(unit))
+		if (!!(session = d->unitSessions.value(unit)))
 			return session;
 		if (qobject_cast<JContact *>(unit) || qobject_cast<JContactResource *>(unit)) {
 			MessageSession *glooxSession = new MessageSession(d->account->client(),

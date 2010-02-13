@@ -64,8 +64,8 @@ public:
 	quint32 valuesSize() const;
 	operator QByteArray() const;
 	inline static TLVMap fromByteArray(const QByteArray &data, ByteOrder bo = BigEndian);
-protected:
-	inline TLVMap::iterator insert(quint16 type, const TLV &data);
+private:
+	TLVMap::iterator insert(quint16 type, const TLV &data);
 };
 
 
@@ -138,12 +138,6 @@ TLVMap::iterator TLVMap::insert(const TLV &tlv)
 TLVMap TLVMap::fromByteArray(const QByteArray &data, ByteOrder bo)
 {
 	return DataUnit(data).read<TLVMap>(bo);
-}
-
-TLVMap::iterator TLVMap::insert(quint16 type, const TLV &data)
-{
-	Q_UNUSED(type);
-	Q_UNUSED(data);
 }
 
 void DataUnit::appendTLV(quint16 type)

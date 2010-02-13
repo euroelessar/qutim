@@ -15,6 +15,7 @@
 
 #include "quetzalrequest.h"
 #include "quatzelactiondialog.h"
+#include <cstdarg>
 #include <qutim/debug.h>
 #include <QWidget>
 #include <QFileDialog>
@@ -26,6 +27,7 @@ using namespace qutim_sdk_0_3;
 
 QString quetzal_create_label(const char *primary, const char *secondary)
 {
+	// Got from GTK+ interface, named Pidgin
 	QString label;
 	if (primary) {
 		label += QLatin1Literal("<span weight=\"bold\" size=\"larger\">")
@@ -142,8 +144,8 @@ void quetzal_close_request(PurpleRequestType type, void *ui_handle)
 {
 	debug() << Q_FUNC_INFO;
 	Q_UNUSED(type);
-	QWidget *widget = reinterpret_cast<QWidget *>(ui_handle);
-	if (widget) {
+	QObject *obj = reinterpret_cast<QObject *>(ui_handle);
+	if (QWidget *widget = qobject_cast<QWidget *>(obj)) {
 		widget->close();
 		widget->deleteLater();
 	}

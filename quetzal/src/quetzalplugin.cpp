@@ -22,6 +22,7 @@
 #include "quetzalrequest.h"
 #include "quetzaljoinchatdialog.h"
 #include "quetzalblist.h"
+#include <qutim/event.h>
 #include <purple.h>
 #include <qutim/messagesession.h>
 #include <qutim/debug.h>
@@ -32,25 +33,6 @@
 #include <QAbstractEventDispatcher>
 #include <QDateTime>
 #include <QThread>
-
-/*** Conversation uiops ***/
-static void
-null_write_conv(PurpleConversation *conv, const char *who, const char *alias,
-			const char *message, PurpleMessageFlags flags, time_t mtime)
-{
-	const char *name;
-	if (alias && *alias)
-		name = alias;
-	else if (who && *who)
-		name = who;
-	else
-		name = NULL;
-
-	printf("(%s) %s %s: %s\n", purple_conversation_get_name(conv),
-			purple_utf8_strftime("(%H:%M:%S)", localtime(&mtime)),
-			name, message);
-}
-
 
 void quetzal_create_conversation(PurpleConversation *conv)
 {
@@ -195,10 +177,12 @@ void quetzal_present(PurpleConversation *conv)
 
 gboolean quetzal_has_focus(PurpleConversation *conv)
 {
+	return ChatLayer::get(reinterpret_cast<ChatUnit*>(conv->ui_data))->isActive();
 }
 
 gboolean quetzal_custom_smiley_add(PurpleConversation *conv, const char *smile, gboolean remote)
 {
+	return FALSE;
 }
 
 void quetzal_custom_smiley_write(PurpleConversation *conv, const char *smile,
@@ -380,10 +364,15 @@ PurpleAccountUiOps quetzal_accounts_uiops =
 //PurplePluginUiInfo;
 //PurpleCertificateVerifier
 
-static gboolean quetzal_blist_load(gpointer data)
+static gboolean quetzal_test(gpointer data)
 {
 	Q_UNUSED(data);
-	purple_blist_load();
+	purple_request_file(0, "My title save", "/home/elessar/qutim/qutim", true, 0, 0, 0, 0, 0, 0);
+	debug() << "!!!!!!!" << "save";
+	purple_request_file(0, "My title load", "/home/elessar/qutim/qutim", false, 0, 0, 0, 0, 0, 0);
+	debug() << "!!!!!!!" << "load";
+	purple_request_folder(0, "My title directory", "/home/elessar/qutim", 0, 0, 0, 0, 0, 0);
+	debug() << "!!!!!!!" << "directory";
 	return FALSE;
 }
 
@@ -438,10 +427,14 @@ init_libpurple()
 	purple_accounts_set_ui_ops(&quetzal_accounts_uiops);
 	purple_request_set_ui_ops(&quetzal_request_uiops);
 
+	Event("quetzal-ui-ops-inited").send();
+
 	/* Set path to search for plugins. The core (libpurple) takes care of loading the
 	 * core-plugins, which includes the protocol-plugins. So it is not essential to add
 	 * any path here, but it might be desired, especially for ui-specific plugins. */
-	purple_plugins_add_search_path("");
+#ifdef Q_OS_WIN
+	purple_plugins_add_search_path(g_strdup_printf("%s/plugins", qApp->applicationDirPath().toUtf8().constData()));
+#endif
 
 	/* Now that all the essential stuff has been set, let's try to init the core. It's
 	 * necessary to provide a non-NULL name for the current ui to the core. This name
@@ -457,7 +450,7 @@ init_libpurple()
 	/* Create and load the buddylist. */
 	purple_set_blist(purple_blist_new());
 
-//	purple_timeout_add(1000, quetzal_blist_load, 0);
+	purple_timeout_add(1000, quetzal_test, 0);
 
 //	qDebug() << purple_get_blist();
 

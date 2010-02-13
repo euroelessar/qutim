@@ -52,10 +52,8 @@ bool UserAgent::parse( const QString &userAgentStr)
     if (userAgentStr.isEmpty()) return false;
 
     QRegExp rx("((\\w+)=\\\"([\\w \\t\\.]+)\\\"*)+");
-    QString clientID, versionStr, buildVer;
-    quint8 protoVerMinor = 0, protoVerMajor = 0;
 
-    quint32 offset = 0;
+	qint32 offset = 0;
     QString currParam;
 
     while ((offset = rx.indexIn(userAgentStr, offset)) != -1)
@@ -147,4 +145,10 @@ void UserAgent::set(const UserAgent& newAgent)
     m_protoMajorVer = newAgent.m_protoMajorVer;
     m_protoMinorVer = newAgent.m_protoMinorVer;
     emit changed();
+}
+
+QDebug operator<<(QDebug dbg, const UserAgent &u)
+{
+	dbg.nospace() << "UserAgent (" << u.toString() << ")";
+	return dbg.space();
 }

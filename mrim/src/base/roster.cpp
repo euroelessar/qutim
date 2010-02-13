@@ -97,6 +97,7 @@ bool Roster::parseList(MrimPacket& packet)
         }
     }
     //TODO: handle errors
+	return true;
 }
 
 bool Roster::parseGroups(MrimPacket& packet, quint32 count, const QString& mask)
@@ -152,7 +153,8 @@ bool Roster::parseContacts(MrimPacket& packet, const QString& mask)
 
         debug(Verbose)<<"New contact read:"<<*contact;
         addToList(contact);
-     }
+	}
+	return true;
 }
 
 RosterParseMultiMap Roster::parseByMask(MrimPacket& packet, const QString& mask)
@@ -186,7 +188,7 @@ QString Roster::groupName(quint32 groupId) const
 {
     QString group;
 
-    if (groupId >= 0 && groupId < p->groups.count())
+	if (groupId >= 0 && groupId < uint(p->groups.count()))
     {
         group = p->groups[groupId];
     }

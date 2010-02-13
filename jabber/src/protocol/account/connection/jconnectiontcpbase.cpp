@@ -7,8 +7,8 @@ namespace Jabber
 		QTcpSocket *socket;
 	};
 
-	JConnectionTCPBase::JConnectionTCPBase(ConnectionDataHandler *cdh) : p(new JConnectionTCPBasePrivate),
-			JConnectionBase(cdh)
+	JConnectionTCPBase::JConnectionTCPBase(ConnectionDataHandler *cdh) :
+			JConnectionBase(cdh), p(new JConnectionTCPBasePrivate)
 	{
 		p->socket = 0;
 		createSocket();

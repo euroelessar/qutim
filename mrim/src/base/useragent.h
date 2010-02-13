@@ -54,10 +54,6 @@ private:
     quint8 m_protoMinorVer;
 };
 
-static QDebug operator<<(QDebug dbg, const UserAgent &u)
-{
-    dbg.nospace() << "UserAgent (" << u.toString() << ")";
-    return dbg.space();
-}
+QDebug operator<<(QDebug dbg, const UserAgent &u);
 
 #endif // USERAGENT_H

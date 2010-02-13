@@ -91,7 +91,6 @@ IcqProtocol::IcqProtocol() :
 	d_ptr(new IcqProtocolPrivate)
 {
 	Q_ASSERT(!self);
-	Q_D(IcqProtocol);
 	self = this;
 	updateSettings();
 }
@@ -151,7 +150,6 @@ void IcqProtocol::updateSettings()
 
 void IcqProtocol::onStatusActionPressed()
 {
-	Q_D(IcqProtocol);
 	QAction *action = qobject_cast<QAction *>(sender());
 	Q_ASSERT(action);
 	MenuController *item = action->data().value<MenuController *>();

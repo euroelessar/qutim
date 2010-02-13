@@ -27,7 +27,7 @@ static PurpleStatus *quetzal_get_correct_status(PurplePresence *presence, Status
 {
 	PurpleStatus *status = NULL;
 
-	PurpleStatusPrimitive type = PURPLE_STATUS_UNSET;
+	PurpleStatusPrimitive type;
 	switch (qutim_status.type()) {
 	case Status::Online:
 		type = PURPLE_STATUS_AVAILABLE;
@@ -45,7 +45,7 @@ static PurpleStatus *quetzal_get_correct_status(PurplePresence *presence, Status
 		type = PURPLE_STATUS_EXTENDED_AWAY;
 		break;
 	case Status::DND:
-		if (status = purple_presence_get_status(presence, "dnd"))
+		if (!!(status = purple_presence_get_status(presence, "dnd")))
 			return status;
 		type = PURPLE_STATUS_UNAVAILABLE;
 		break;
@@ -54,6 +54,9 @@ static PurpleStatus *quetzal_get_correct_status(PurplePresence *presence, Status
 		break;
 	case Status::Offline:
 		type = PURPLE_STATUS_OFFLINE;
+		break;
+	default:
+		type = PURPLE_STATUS_UNSET;
 		break;
 	}
 

@@ -36,6 +36,7 @@ namespace Jabber
 	JDiscoItem &JDiscoItem::operator =(const JDiscoItem &other)
 	{
 		d = other.d;
+		return *this;
 	}
 
 	void JDiscoItem::setName(const QString &name)

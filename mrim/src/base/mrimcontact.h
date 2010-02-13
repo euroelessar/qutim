@@ -84,19 +84,6 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(MrimContact::ContactFlags)
 
-static QDebug operator<<(QDebug dbg, const MrimContact &c)
-{
-    dbg.nospace() << "MrimContact (email=" << c.email() << ", name=" << c.name()
-                  << ", groupId=" << c.groupId()
-                  << ", contactId=" << c.contactId()
-                  << ", flags=0x" << hex << c.flags()
-                  << ", serverFlags=0x" << hex << c.serverFlags()
-                  << ", featureFlags=0x" << hex << c.featureFlags()
-                  << ", userAgent=" << c.userAgent().toReadable()
-                  << ", account=" << c.account()->id()
-                  << ")";
-
-    return dbg.space();
-}
+QDebug operator<<(QDebug dbg, const MrimContact &c);
 
 #endif // MRIMCONTACT_H

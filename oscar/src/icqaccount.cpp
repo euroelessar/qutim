@@ -276,7 +276,6 @@ QHash<quint64, Cookie*> &IcqAccount::cookies()
 
 QString IcqAccount::password()
 {
-	Q_D(IcqAccount);
 	QString password = config().group("general").value("passwd", QString(), Config::Crypted);
 	if (password.isEmpty()) {
 		PasswordDialog *dialog = new PasswordDialog(this);
