@@ -54,7 +54,8 @@ namespace Core
 	{
 		if (!m_wizard.isNull())
 			return;
-		if (QWidget *parent = window())
+		QWidget *parent = window();
+		if (parent)
 			window()->setEnabled(false);
 		AccountCreatorWizard *wizard = new AccountCreatorWizard();
 		connect(wizard, SIGNAL(destroyed()), this, SLOT(on_wizard_destroyed()));
@@ -63,7 +64,8 @@ namespace Core
 
 	void AccountCreatorList::on_wizard_destroyed()
 	{
-		if (QWidget *parent = window())
+		QWidget *parent = window();
+		if (parent)
 			window()->setEnabled(true);
 	}
 

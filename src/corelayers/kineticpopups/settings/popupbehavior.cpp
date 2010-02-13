@@ -168,7 +168,6 @@ namespace Core
 	void PopupBehavior::loadFlags()
 	{
 		for (int i = 0;i != m_popup_btn_list.count();i++) {
-			bool test = (m_popup_flags & (1 << i));
 			m_popup_btn_list.at(i)->setChecked(m_popup_flags & (1 << i));
 			m_sound_btn_list.at(i)->setChecked(m_sound_flags & (1 << i));
 		}

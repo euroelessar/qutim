@@ -367,7 +367,6 @@ namespace qutim_sdk_0_3
 
 	QString SystemInfo::systemID2String(quint8 type, quint32 id)
 	{
-		Q_D(SystemInfo);
 		QString str;
 		switch(type)
 		{

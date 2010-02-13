@@ -29,7 +29,7 @@ namespace KineticPopups
 {
 
 	Popup::Popup ( const QString& id )
-			:	m_id ( id ), m_machine(0), m_notification_widget(0)
+			:	m_notification_widget(0), m_id ( id ), m_machine(0)
 	{
 
 	}

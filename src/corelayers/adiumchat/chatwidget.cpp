@@ -162,7 +162,6 @@ namespace AdiumChat
 	{
 		ChatSessionImpl *sess = qobject_cast<ChatSessionImpl *>(object);
 		if (sess && m_sessions.contains(sess)) {
-			int current_index = property("currentIndex").toInt();
 			m_sessions.removeAll(sess);
 		}
 	}
@@ -254,7 +253,6 @@ namespace AdiumChat
 		if (index == -1)
 			return;
 		
-		ChatUnit *c = session->getUnit();
 		if (m_chat_flags & ChatStateIconsOnTabs) {
 			QString icon_name;
 			ChatState previous_state = static_cast<ChatState>(session->property("currentChatState").toInt());

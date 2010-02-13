@@ -23,7 +23,7 @@ namespace qutim_sdk_0_3
 	class StatusPrivate : public DynamicPropertyData
 	{
 	public:
-		StatusPrivate() : subtype(0), type(Status::Offline) {}
+		StatusPrivate() : type(Status::Offline), subtype(0) {}
 		StatusPrivate(const StatusPrivate &o) :
 				DynamicPropertyData(o), text(o.text), name(o.name),
 				icon(o.icon), type(o.type), subtype(o.subtype) {}

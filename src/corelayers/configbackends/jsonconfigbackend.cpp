@@ -150,6 +150,8 @@ namespace Core
 				}
 				break;
 			}
+			default:
+				break;
 		}
 		entry->type |= ConfigEntry::Value;
 		if(val.type() == QVariant::String)
