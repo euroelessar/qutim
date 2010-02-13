@@ -31,8 +31,8 @@ typedef QList<QuetzalRequestAction> QuetzalRequestActionList;
 class QuetzalActionDialog : public QDialog {
     Q_OBJECT
 public:
-	QuetzalActionDialog(const QString &title, const QString &primary,
-						const QString &secondary, int default_action,
+	QuetzalActionDialog(const QString &title, const char *primary,
+						const char *secondary, int default_action,
 						const QuetzalRequestActionList &actions, gpointer user_data,
 						QWidget *parent = 0);
 	~QuetzalActionDialog();

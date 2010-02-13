@@ -15,12 +15,13 @@
 
 #include "quatzelactiondialog.h"
 #include "ui_quatzelactiondialog.h"
+#include "quetzalrequest.h"
 #include <QPushButton>
 #include <QStringBuilder>
 #include <QTextDocument>
 
-QuetzalActionDialog::QuetzalActionDialog(const QString &title, const QString &primary,
-										 const QString &secondary, int default_action,
+QuetzalActionDialog::QuetzalActionDialog(const QString &title, const char *primary,
+										 const char *secondary, int default_action,
 										 const QuetzalRequestActionList &actions, gpointer user_data,
 										 QWidget *parent) :
     QDialog(parent),
@@ -30,17 +31,7 @@ QuetzalActionDialog::QuetzalActionDialog(const QString &title, const QString &pr
 	m_default_action = default_action;
 	m_user_data = user_data;
 	setWindowTitle(title);
-	QString label;
-	if (!primary.isEmpty()) {
-		label += QLatin1Literal("<span weight=\"bold\" size=\"larger\">")
-				 % Qt::escape(primary)
-				 % QLatin1Literal("</span>");
-		if (!secondary.isEmpty())
-			label += "\n\n";
-	}
-	if (!secondary.isEmpty())
-		label += Qt::escape(secondary);
-	ui->label->setText(label);
+	ui->label->setText(quetzal_create_label(primary, secondary));
 	m_actions = actions;
 	for (int i = 0; i < actions.size(); i++) {
 		QPushButton *button = ui->buttonBox->addButton(actions.at(i).first, QDialogButtonBox::ActionRole);

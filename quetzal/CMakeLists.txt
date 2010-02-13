@@ -1,7 +1,20 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
 PROJECT( Quetzal )
 
-include_directories( "/usr/include/libpurple" "/usr/include/glib-2.0" "/usr/lib/glib-2.0/include" )
+find_package( PkgConfig )
+
+if( PKG_CONFIG_FOUND )
+	pkg_check_modules( PURPLE purple>=2.6.0 )
+	include_directories( ${PURPLE_INCLUDE_DIRS} )
+else( PKG_CONFIG_FOUND )
+	set( PURPLE_INCLUDE_DIR "" CACHE PATH "Path to libpurple include dir" )
+	set( PURPLE_LIBRARY "" CACHE FILEPATH "Filepath to libpurple library" )
+	set( GLIB_INCLUDE_DIR "" CACHE PATH "Path to glib-2.0 include dir" )
+	set( GLIBCONFIG_INCLUDE_DIR "" CACHE PATH "Path to glibconfig.h file for glib-2.0" )
+	set( GLIB_LIBRARY "" CACHE FILEPATH "Filepath to glib-2.0 library" )
+	include_directories( ${PURPLE_INCLUDE_DIR} ${GLIB_INCLUDE_DIR} ${GLIBCONFIG_INCLUDE_DIR} )
+	list( APPEND PURPLE_LIBRARIES ${PURPLE_LIBRARY} ${GLIB_LIBRARY} )
+endif( PKG_CONFIG_FOUND)
 
 SET( QT_USE_QTNETWORK TRUE )
-ADD_QUTIMPLUGIN( "quetzal" "src" )
+ADD_QUTIMPLUGIN_EXT2( "quetzal" "src" "" ${PURPLE_LIBRARIES})

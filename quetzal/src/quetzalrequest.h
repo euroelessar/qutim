@@ -16,8 +16,11 @@
 #ifndef QUETZALREQUEST_H
 #define QUETZALREQUEST_H
 
+#include <QString>
 #include <purple.h>
 
 extern PurpleRequestUiOps quetzal_request_uiops;
+
+extern QString quetzal_create_label(const char *primary, const char *secondary);
 
 #endif // QUETZALREQUEST_H

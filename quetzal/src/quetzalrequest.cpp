@@ -24,6 +24,21 @@
 
 using namespace qutim_sdk_0_3;
 
+QString quetzal_create_label(const char *primary, const char *secondary)
+{
+	QString label;
+	if (primary) {
+		label += QLatin1Literal("<span weight=\"bold\" size=\"larger\">")
+				 % Qt::escape(primary)
+				 % QLatin1Literal("</span>");
+		if (secondary)
+			label += "\n\n";
+	}
+	if (secondary)
+		label += Qt::escape(secondary);
+	return label;
+}
+
 void *quetzal_request_input(const char *title, const char *primary,
 							const char *secondary, const char *default_value,
 							gboolean multiline, gboolean masked, gchar *hint,
@@ -36,20 +51,10 @@ void *quetzal_request_input(const char *title, const char *primary,
 	Q_UNUSED(account);
 	Q_UNUSED(who);
 	Q_UNUSED(conv);
-	QString label;
-	if (primary) {
-		label += QLatin1Literal("<span weight=\"bold\" size=\"larger\">")
-				 % Qt::escape(primary)
-				 % QLatin1Literal("</span>");
-		if (secondary)
-			label += "\n\n";
-	}
-	if (secondary)
-		label += Qt::escape(secondary);
 
 	QInputDialog dialog;
 	dialog.setWindowTitle(title);
-	dialog.setLabelText(label);
+	dialog.setLabelText(quetzal_create_label(primary, secondary));
 	dialog.setTextValue(default_value);
 	dialog.setTextEchoMode(masked ? QLineEdit::Password : QLineEdit::Normal);
 	if (ok_text)
@@ -74,6 +79,7 @@ void *quetzal_request_choice(const char *title, const char *primary,
 							 va_list choices)
 {
 	debug() << Q_FUNC_INFO;
+	return NULL;
 }
 
 void *quetzal_request_action(const char *title, const char *primary,
@@ -106,6 +112,7 @@ void *quetzal_request_fields(const char *title, const char *primary,
 							 PurpleConversation *conv, void *user_data)
 {
 	debug() << Q_FUNC_INFO;
+	return NULL;
 }
 
 void *quetzal_request_file(const char *title, const char *filename,
@@ -136,7 +143,10 @@ void quetzal_close_request(PurpleRequestType type, void *ui_handle)
 	debug() << Q_FUNC_INFO;
 	Q_UNUSED(type);
 	QWidget *widget = reinterpret_cast<QWidget *>(ui_handle);
-	widget->deleteLater();
+	if (widget) {
+		widget->close();
+		widget->deleteLater();
+	}
 }
 
 void *quetzal_request_folder(const char *title, const char *dirname,
