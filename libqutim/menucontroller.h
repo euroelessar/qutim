@@ -200,7 +200,7 @@ namespace qutim_sdk_0_3
 	Q_INLINE_TEMPLATE T *MenuController::getController(QObject *obj)
 	{
 		QAction *action = qobject_cast<QAction *>(obj);
-		MenuController *controller = action ? action->data().value<MenuController *>() : 0;
+		MenuController *controller = action ? qVariantValue<MenuController *>(action->data()) : 0;
 		return qobject_cast<T *>(controller);
 	}
 }
