@@ -20,47 +20,47 @@
 #include <QStringBuilder>
 #include <QTextDocument>
 
-QuetzalActionDialog::QuetzalActionDialog(const QString &title, const char *primary,
+QuetzalActionDialog::QuetzalActionDialog(const char *title, const char *primary,
 										 const char *secondary, int default_action,
 										 const QuetzalRequestActionList &actions, gpointer user_data,
 										 QWidget *parent) :
-    QDialog(parent),
-	ui(new Ui::QuetzalActionDialog)
+	QuetzalRequestDialog(title, primary, secondary, PURPLE_REQUEST_ACTION, user_data, parent)
+//	ui(new Ui::QuetzalActionDialog)
 {
-    ui->setupUi(this);
+//    ui->setupUi(this);
 	m_default_action = default_action;
-	m_user_data = user_data;
-	setWindowTitle(title);
-	ui->label->setText(quetzal_create_label(primary, secondary));
+//	m_user_data = user_data;
+//	setWindowTitle(title);
+//	ui->label->setText(quetzal_create_label(primary, secondary));
 	m_actions = actions;
 	for (int i = 0; i < actions.size(); i++) {
-		QPushButton *button = ui->buttonBox->addButton(actions.at(i).first, QDialogButtonBox::ActionRole);
+		QPushButton *button = buttonBox()->addButton(actions.at(i).first, QDialogButtonBox::ActionRole);
 		button->setProperty("index", i);
 	}
+}
+
+QuetzalActionDialog::~QuetzalActionDialog()
+{
+//	delete ui;
 }
 
 void QuetzalActionDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
 	int index = button->property("index").toInt();
 	const QuetzalRequestAction &action = m_actions.at(index);
-	(*action.second)(m_user_data, index);
-	deleteLater();
+	(*action.second)(userData(), index);
 	m_actions.clear();
+	closeRequest();
 }
-
-QuetzalActionDialog::~QuetzalActionDialog()
-{
-    delete ui;
-}
-
-void QuetzalActionDialog::changeEvent(QEvent *e)
-{
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
+//
+//void QuetzalActionDialog::changeEvent(QEvent *e)
+//{
+//    QDialog::changeEvent(e);
+//    switch (e->type()) {
+//    case QEvent::LanguageChange:
+//        ui->retranslateUi(this);
+//        break;
+//    default:
+//        break;
+//    }
+//}

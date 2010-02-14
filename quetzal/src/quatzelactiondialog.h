@@ -18,6 +18,7 @@
 
 #include <QDialog>
 #include <purple.h>
+#include "quetzalrequestdialog.h"
 
 class QAbstractButton;
 
@@ -28,10 +29,11 @@ namespace Ui {
 typedef QPair<QString, PurpleRequestActionCb> QuetzalRequestAction;
 typedef QList<QuetzalRequestAction> QuetzalRequestActionList;
 
-class QuetzalActionDialog : public QDialog {
+class QuetzalActionDialog : public QuetzalRequestDialog
+{
     Q_OBJECT
 public:
-	QuetzalActionDialog(const QString &title, const char *primary,
+	QuetzalActionDialog(const char *title, const char *primary,
 						const char *secondary, int default_action,
 						const QuetzalRequestActionList &actions, gpointer user_data,
 						QWidget *parent = 0);
@@ -41,13 +43,13 @@ protected slots:
 	void on_buttonBox_clicked(QAbstractButton *button);
 
 protected:
-    void changeEvent(QEvent *e);
+//    void changeEvent(QEvent *e);
 
 private:
-	Ui::QuetzalActionDialog *ui;
+//	Ui::QuetzalActionDialog *ui;
 	QuetzalRequestActionList m_actions;
 	int m_default_action;
-	gpointer m_user_data;
+//	gpointer m_user_data;
 };
 
 #endif // QUATZELACTIONDIALOG_H

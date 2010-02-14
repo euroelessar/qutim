@@ -52,4 +52,6 @@ private:
 	bool m_is_loading;
 };
 
+Q_DECLARE_METATYPE(PurpleAccount*)
+
 #endif // QUETZALACCOUNT_H

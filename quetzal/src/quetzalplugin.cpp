@@ -364,18 +364,6 @@ PurpleAccountUiOps quetzal_accounts_uiops =
 //PurplePluginUiInfo;
 //PurpleCertificateVerifier
 
-static gboolean quetzal_test(gpointer data)
-{
-	Q_UNUSED(data);
-	purple_request_file(0, "My title save", "/home/elessar/qutim/qutim", true, 0, 0, 0, 0, 0, 0);
-	debug() << "!!!!!!!" << "save";
-	purple_request_file(0, "My title load", "/home/elessar/qutim/qutim", false, 0, 0, 0, 0, 0, 0);
-	debug() << "!!!!!!!" << "load";
-	purple_request_folder(0, "My title directory", "/home/elessar/qutim", 0, 0, 0, 0, 0, 0);
-	debug() << "!!!!!!!" << "directory";
-	return FALSE;
-}
-
 static void quetzal_account_status_changed(PurpleAccount *account, PurpleStatus *old_status, PurpleStatus *new_status)
 {
 	Q_UNUSED(old_status);
@@ -450,7 +438,7 @@ init_libpurple()
 	/* Create and load the buddylist. */
 	purple_set_blist(purple_blist_new());
 
-	purple_timeout_add(1000, quetzal_test, 0);
+//	purple_timeout_add(1000, quetzal_test, 0);
 
 //	qDebug() << purple_get_blist();
 

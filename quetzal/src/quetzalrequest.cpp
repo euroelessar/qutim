@@ -14,14 +14,18 @@
 *****************************************************************************/
 
 #include "quetzalrequest.h"
+#include "quetzalinputdialog.h"
+#include "quetzalchoicedialog.h"
 #include "quatzelactiondialog.h"
-#include <cstdarg>
+#include "quetzalfieldsdialog.h"
 #include <qutim/debug.h>
 #include <QWidget>
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QStringBuilder>
 #include <QTextDocument>
+#include <cstdarg>
+#include "quetzalfiledialog.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -53,23 +57,28 @@ void *quetzal_request_input(const char *title, const char *primary,
 	Q_UNUSED(account);
 	Q_UNUSED(who);
 	Q_UNUSED(conv);
-
-	QInputDialog dialog;
-	dialog.setWindowTitle(title);
-	dialog.setLabelText(quetzal_create_label(primary, secondary));
-	dialog.setTextValue(default_value);
-	dialog.setTextEchoMode(masked ? QLineEdit::Password : QLineEdit::Normal);
-	if (ok_text)
-		dialog.setOkButtonText(ok_text);
-	if (cancel_text)
-		dialog.setCancelButtonText(cancel_text);
-
-	bool ok = !!dialog.exec();
-
-	PurpleRequestInputCb func = reinterpret_cast<PurpleRequestInputCb>(ok ? ok_cb : cancel_cb);
-	if (func)
-		(*func)(user_data, ok ? dialog.textValue().toUtf8().constData() : NULL);
-	return NULL;
+	QDialog *dialog = new QuetzalInputDialog(title, primary, secondary, default_value,
+											 multiline, masked, hint, ok_text, ok_cb,
+											 cancel_text, cancel_cb, user_data);
+	dialog->show();
+	return dialog;
+//
+//	QInputDialog dialog;
+//	dialog.setWindowTitle(title);
+//	dialog.setLabelText(quetzal_create_label(primary, secondary));
+//	dialog.setTextValue(default_value);
+//	dialog.setTextEchoMode(masked ? QLineEdit::Password : QLineEdit::Normal);
+//	if (ok_text)
+//		dialog.setOkButtonText(ok_text);
+//	if (cancel_text)
+//		dialog.setCancelButtonText(cancel_text);
+//
+//	bool ok = !!dialog.exec();
+//
+//	PurpleRequestInputCb func = reinterpret_cast<PurpleRequestInputCb>(ok ? ok_cb : cancel_cb);
+//	if (func)
+//		(*func)(user_data, ok ? dialog.textValue().toUtf8().constData() : NULL);
+//	return NULL;
 }
 
 void *quetzal_request_choice(const char *title, const char *primary,
@@ -81,7 +90,13 @@ void *quetzal_request_choice(const char *title, const char *primary,
 							 va_list choices)
 {
 	debug() << Q_FUNC_INFO;
-	return NULL;
+	Q_UNUSED(account);
+	Q_UNUSED(who);
+	Q_UNUSED(conv);
+	QDialog *dialog = new QuetzalChoiceDialog(title, primary, secondary, default_value, ok_text, ok_cb,
+											  cancel_text, cancel_cb, user_data, choices);
+	dialog->show();
+	return dialog;
 }
 
 void *quetzal_request_action(const char *title, const char *primary,
@@ -114,7 +129,13 @@ void *quetzal_request_fields(const char *title, const char *primary,
 							 PurpleConversation *conv, void *user_data)
 {
 	debug() << Q_FUNC_INFO;
-	return NULL;
+	Q_UNUSED(account);
+	Q_UNUSED(who);
+	Q_UNUSED(conv);
+	QDialog *dialog = new QuetzalFieldsDialog(title, primary, secondary, fields, ok_text,
+											  ok_cb, cancel_text, cancel_cb, user_data);
+	dialog->show();
+	return dialog;
 }
 
 void *quetzal_request_file(const char *title, const char *filename,
@@ -127,17 +148,12 @@ void *quetzal_request_file(const char *title, const char *filename,
 	Q_UNUSED(account);
 	Q_UNUSED(who);
 	Q_UNUSED(conv);
-	QString file = (savedialog ? QFileDialog::getSaveFileName : QFileDialog::getOpenFileName)
-				   (NULL, title, filename, QString(), NULL, 0);
-	PurpleRequestFileCb func;
-	if (file.isEmpty())
-		func = reinterpret_cast<PurpleRequestFileCb>(cancel_cb);
-	else
-		func = reinterpret_cast<PurpleRequestFileCb>(ok_cb);
-
-	if (func)
-		(*func)(user_data, file.isEmpty() ? NULL : file.toUtf8().constData());
-	return NULL;
+	QFileInfo info = QString(filename);
+	QFileDialog *dialog = new QFileDialog;
+	new QuetzalFileDialog(title, info.absolutePath(), ok_cb, cancel_cb, user_data, dialog);
+	dialog->setAcceptMode(savedialog ? QFileDialog::AcceptSave : QFileDialog::AcceptSave);
+	dialog->show();
+	return dialog;
 }
 
 void quetzal_close_request(PurpleRequestType type, void *ui_handle)
@@ -160,16 +176,12 @@ void *quetzal_request_folder(const char *title, const char *dirname,
 	Q_UNUSED(account);
 	Q_UNUSED(who);
 	Q_UNUSED(conv);
-	QString dir = QFileDialog::getExistingDirectory(NULL, title, dirname);
-	PurpleRequestFileCb func;
-	if (dir.isEmpty())
-		func = reinterpret_cast<PurpleRequestFileCb>(cancel_cb);
-	else
-		func = reinterpret_cast<PurpleRequestFileCb>(ok_cb);
-
-	if (func)
-		(*func)(user_data, dir.toUtf8().constData());
-	return NULL;
+	QFileDialog *dialog = new QFileDialog;
+	new QuetzalFileDialog(title, dirname, ok_cb, cancel_cb, user_data, dialog);
+	dialog->setFileMode(QFileDialog::Directory);
+	dialog->setOption(QFileDialog::ShowDirsOnly, true);
+	dialog->show();
+	return dialog;
 }
 
 PurpleRequestUiOps quetzal_request_uiops =
