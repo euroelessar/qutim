@@ -96,13 +96,13 @@ private:
 };
 
 template<typename T>
-T FeedbagItem::field(quint16 f, const T &def) const
+Q_INLINE_TEMPLATE T FeedbagItem::field(quint16 f, const T &def) const
 {
-	return constData().value<T>(f, def);
+	return constData().value(f, def);
 }
 
 template<typename T>
-void FeedbagItem::setField(quint16 field, const T &d)
+Q_INLINE_TEMPLATE void FeedbagItem::setField(quint16 field, const T &d)
 {
 	data().insert(field, d);
 }
