@@ -685,19 +685,25 @@ quint16 Feedbag::uniqueItemId(quint16 type, quint16 value) const
 
 void Feedbag::registerHandler(FeedbagItemHandler *handler)
 {
-	foreach (quint16 type, handler->types())
+	const QSet<quint16> &types = handler->types();
+	foreach (quint16 type, types)
 		d->handlers.insertMulti(type, handler);
-	QList<FeedbagItem> items;
+	QList<SSIItem> items;
 	foreach (const SSIItem &item, d->items) {
-		FeedbagItem feedbagItem(new FeedbagItemPrivate(this, item));
 		if (item.itemType == SsiGroup) {
-			handler->handleFeedbagItem(this, feedbagItem, AddModify, FeedbagError::NoError);
+			if (types.contains(SsiGroup)) {
+				FeedbagItem feedbagItem(new FeedbagItemPrivate(this, item));
+				handler->handleFeedbagItem(this, feedbagItem, AddModify, FeedbagError::NoError);
+			}
 		} else {
-			items << feedbagItem;
+			items << item;
 		}
 	}
-	foreach (const FeedbagItem &item, items) {
-		handler->handleFeedbagItem(this, item, AddModify, FeedbagError::NoError);
+	foreach (const SSIItem &item, items) {
+		if (types.contains(item.itemType)) {
+			FeedbagItem feedbagItem(new FeedbagItemPrivate(this, item));
+			handler->handleFeedbagItem(this, feedbagItem, AddModify, FeedbagError::NoError);
+		}
 	}
 }
 

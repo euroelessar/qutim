@@ -165,10 +165,10 @@ class FeedbagItemHandler: public QObject
 public:
 	explicit FeedbagItemHandler(QObject *parent = 0);
 	virtual ~FeedbagItemHandler();
-	const QList<quint16> &types() { return m_types; }
+	const QSet<quint16> &types() { return m_types; }
 	virtual bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error) = 0;
 protected:
-	QList<quint16> m_types;
+	QSet<quint16> m_types;
 };
 
 } // namespace Icq
