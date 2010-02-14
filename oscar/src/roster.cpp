@@ -28,6 +28,8 @@
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
 #include <qutim/notificationslayer.h>
+#include <qutim/actiongenerator.h>
+#include <qutim/icon.h>
 
 namespace Icq
 {
@@ -67,10 +69,80 @@ private:
 	}
 };
 
+class PrivateListActionGenerator : public ActionGenerator
+{
+public:
+	PrivateListActionGenerator(quint16 type, const QIcon &icon,
+				const LocalizedString &text1, const LocalizedString &text2);
+	virtual ~PrivateListActionGenerator();
+protected:
+	virtual QObject *generateHelper() const;
+private:
+	quint16 m_type;
+	LocalizedString m_text2;
+};
+
+PrivateListActionGenerator::PrivateListActionGenerator(quint16 type, const QIcon &icon,
+				const LocalizedString &text1, const LocalizedString &text2) :
+	ActionGenerator(icon, text1, new PrivateListActionHandler(), SLOT(onModifyPrivateList())),
+	m_type(type), m_text2(text2)
+{
+}
+
+PrivateListActionGenerator::~PrivateListActionGenerator()
+{
+	delete receiver();
+}
+
+QObject *PrivateListActionGenerator::generateHelper() const
+{
+	QAction *action = prepareAction(new QAction(NULL));
+	IcqContact *contact = qobject_cast<IcqContact*>(action->data().value<MenuController*>());
+	Q_ASSERT(contact);
+	if (contact->account()->feedbag()->containsItem(m_type, contact->id()))
+		action->setText(m_text2);
+	action->setProperty("itemType", m_type);
+	return action;
+}
+
+void PrivateListActionHandler::onModifyPrivateList()
+{
+	QAction *action = qobject_cast<QAction *>(sender());
+	Q_ASSERT(action);
+	quint16 type = action->property("itemType").toInt();
+	IcqContact *contact = qobject_cast<IcqContact*>(action->data().value<MenuController*>());
+	Q_ASSERT(contact);
+	FeedbagItem item = contact->account()->feedbag()->item(type, contact->id(), 0, Feedbag::GenerateId);
+	if (item.isInList())
+		item.remove();
+	else
+		item.update();
+}
+
+typedef QSharedPointer<PrivateListActionGenerator> ActionPointer;
+typedef QList<ActionPointer> ActionsList;
+static void init_actions_list(ActionsList &list)
+{
+	list << ActionPointer(new PrivateListActionGenerator(SsiPermit, Icon("visible-icq"),
+						  QT_TRANSLATE_NOOP("ContactList", "Add to visible list"),
+						  QT_TRANSLATE_NOOP("ContactList", "Remove from visible list")))
+		<< ActionPointer(new PrivateListActionGenerator(SsiDeny, Icon("invisible-icq"),
+						 QT_TRANSLATE_NOOP("ContactList", "Add to invisible list"),
+						 QT_TRANSLATE_NOOP("ContactList", "Remove from invisible list")))
+		<< ActionPointer(new PrivateListActionGenerator(SsiIgnore, Icon("ignore-icq"),
+						 QT_TRANSLATE_NOOP("ContactList", "Add to ignore list"),
+						 QT_TRANSLATE_NOOP("ContactList", "Remove from ignore list")));
+	foreach (const ActionPointer &action, list)
+		MenuController::addAction<IcqContact>(action.data());
+}
+Q_GLOBAL_STATIC_WITH_INITIALIZER(ActionsList, actionsList, init_actions_list(*x));
+
 SsiHandler::SsiHandler(IcqAccount *account, QObject *parent):
 	FeedbagItemHandler(parent), m_account(account)
 {
-	m_types << SsiBuddy << SsiGroup << SsiBuddyIcon;
+	m_types << SsiBuddy << SsiGroup << SsiBuddyIcon
+			<< SsiPermit << SsiDeny << SsiIgnore;
+	Q_UNUSED(actionsList());
 }
 
 bool SsiHandler::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
@@ -175,6 +247,18 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 				m_account->connection()->buddyPictureService()->sendUpdatePicture(m_account, 1, flags, hash);
 		}
 		break;
+	case SsiPermit: {
+		debug() << item.name() << "has been added to visible list";
+		break;
+	}
+	case SsiDeny: {
+		debug() << item.name() << "has been added to invisible list";
+		break;
+	}
+	case SsiIgnore: {
+		debug() << item.name() << "has been added to ignore list";
+		break;
+	}
 	}
 }
 
@@ -195,6 +279,18 @@ void SsiHandler::handleRemoveCLItem(const FeedbagItem &item)
 		foreach (IcqContact *contact, m_account->contacts())
 			removeContactFromGroup(contact, item.groupId());
 		debug() << "The group" << item.name() << "has been removed";
+		break;
+	}
+	case SsiPermit: {
+		debug() << item.name() << "has been removed from visible list";
+		break;
+	}
+	case SsiDeny: {
+		debug() << item.name() << "has been removed from invisible list";
+		break;
+	}
+	case SsiIgnore: {
+		debug() << item.name() << "has been removed from ignore list";
 		break;
 	}
 	}
