@@ -28,6 +28,13 @@ namespace Icq
 class OscarConnection;
 class SsiHandler;
 
+class PrivateListActionHandler : public QObject
+{
+	Q_OBJECT
+public slots:
+	void onModifyPrivateList();
+};
+
 class SsiHandler : public FeedbagItemHandler
 {
 	Q_OBJECT
