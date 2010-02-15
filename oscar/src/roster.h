@@ -1,7 +1,7 @@
 /****************************************************************************
  *  roster.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -17,59 +17,37 @@
 #ifndef ROSTER_H
 #define ROSTER_H
 
-#include <QQueue>
-#include "snachandler.h"
-#include "icqcontact.h"
-#include "feedbag.h"
+#include "tlv.h"
 
 namespace Icq
 {
+	class IcqContact;
+	class IcqAccount;
+}
 
-class OscarConnection;
-class SsiHandler;
-
-class PrivateListActionHandler : public QObject
+namespace qutim_sdk_0_3
 {
-	Q_OBJECT
-public slots:
-	void onModifyPrivateList();
-};
 
-class SsiHandler : public FeedbagItemHandler
+using namespace Icq;
+class Account;
+
+class RosterPlugin
 {
-	Q_OBJECT
 public:
-	SsiHandler(IcqAccount *account, QObject *parent = 0);
+	virtual ~RosterPlugin() { }
+	virtual void statusChanged(IcqContact *contact, const Status &status, const TLVMap &tlvs) = 0;
+	virtual void virtual_hook(int type, void *data) = 0;
+	inline void setAccount(Account *account) { m_account = account; }
 protected:
-	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
-	void handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType type);
-	void handleRemoveCLItem(const FeedbagItem &item);
-	void removeContact(IcqContact *contact);
-	void removeContactFromGroup(IcqContact *contact, quint16 groupId);
-	QStringList readTags(const FeedbagItem &item);
-private:
-	IcqAccount *m_account;
+	union
+	{
+		IcqAccount *m_icq_account;
+		Account *m_account;
+	};
 };
 
-class Roster : public SNACHandler
-{
-	Q_OBJECT
-public:
-	Roster(IcqAccount *account);
-protected:
-	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-	void handleUserOnline(const SNAC &snac);
-	void handleUserOffline(const SNAC &snac);
-private slots:
-	void statusChanged(qutim_sdk_0_3::Status status);
-	void loginFinished();
-private:
-	IcqAccount *m_account;
-	OscarConnection *m_conn;
-	SsiHandler *m_ssiHandler;
-	bool firstPacket;
-};
+} // namespace qutim_sdk_0_3
 
-} // namespace Icq
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::RosterPlugin, "org.qutim.oscar.RosterPlugin");
 
 #endif // ROSTER_H

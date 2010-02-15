@@ -51,11 +51,11 @@ ClientIdentify::ClientIdentify()
 
 ClientIdentify::~ClientIdentify()
 {
-
 }
 
 void ClientIdentify::identify(IcqContact *contact)
 {
+	m_client_id.clear();
 	m_contact = contact;
 	m_client_caps = contact->capabilities();
 	m_client_proto = contact->dcInfo().protocol_version;
@@ -104,6 +104,22 @@ void ClientIdentify::identify(IcqContact *contact)
 	IDENTIFY_CLIENT( by_ProtoVersion );
 	IDENTIFY_CLIENT( by_DCInfo );
 	setClientData("-", "unknown");
+}
+
+void ClientIdentify::statusChanged(IcqContact *contact, const Status &status, const TLVMap &tlvs)
+{
+	Q_UNUSED(status);
+	Q_UNUSED(tlvs);
+	if (status != Status::Offline && contact->status() == Status::Offline) {
+		identify(contact);
+		debug() << contact->name() << "uses" << contact->property("client_id").toString();
+	}
+}
+
+void ClientIdentify::virtual_hook(int type, void *data)
+{
+	Q_UNUSED(type);
+	Q_UNUSED(data);
 }
 
 inline void ClientIdentify::setClientData(const QString &id, const QString &icon)

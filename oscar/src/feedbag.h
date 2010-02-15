@@ -91,7 +91,7 @@ private:
 	friend class Feedbag;
 	friend class FeedbagPrivate;
 	friend class FeedbagItemPrivate;
-	friend QDebug &operator<<(QDebug &stream, const Icq::FeedbagItem &item);
+	friend QDebug &operator<<(QDebug &stream, const FeedbagItem &item);
 	QSharedDataPointer<FeedbagItemPrivate> d;
 };
 

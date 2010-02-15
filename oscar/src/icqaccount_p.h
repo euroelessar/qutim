@@ -18,7 +18,8 @@
 #ifndef ICQACCOUNT_P_H
 #define ICQACCOUNT_P_H
 
-#include <icqaccount.h>
+#include "icqaccount.h"
+#include "clientidentify.h"
 #include <QTimer>
 
 namespace Icq {
@@ -35,6 +36,8 @@ struct IcqAccountPrivate
 	Status lastStatus;
 	QTimer reconnectTimer;
 	QHash<QString, IcqContact *> contacts;
+	QList<RosterPlugin*> rosterPlugins;
+	ClientIdentify *identify;
 };
 
 }

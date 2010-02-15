@@ -21,6 +21,11 @@
 #include "cookie.h"
 #include "capability.h"
 
+namespace qutim_sdk_0_3
+{
+	class RosterPlugin;
+}
+
 namespace Icq
 {
 
@@ -66,6 +71,7 @@ public:
 	bool containsCapability(const QString &type);
 	QList<Capability> capabilities();
 	void setVisibility(Visibility visibility);
+	void registerRosterPlugin(RosterPlugin *plugin);
 signals:
 	void loginFinished();
 public slots:

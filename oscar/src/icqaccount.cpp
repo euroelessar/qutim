@@ -18,13 +18,14 @@
 #include "icqprotocol.h"
 #include "icqcontact_p.h"
 #include "oscarconnection.h"
-#include "roster.h"
+#include "roster_p.h"
 #include "buddycaps.h"
 #include <qutim/status.h>
 #include <qutim/systeminfo.h>
 #include <qutim/contactlist.h>
 #include <QTimer>
 #include <ui/passworddialog.h>
+#include <qutim/objectgenerator.h>
 
 namespace Icq
 {
@@ -71,12 +72,23 @@ IcqAccount::IcqAccount(const QString &uin) :
 	version.append<quint8>(0x00); // 5 bytes more to 16
 	d->caps.append(Capability(version.data()));
 
+	foreach(const ObjectGenerator *gen, moduleGenerators<RosterPlugin>()) {
+		RosterPlugin *plugin = gen->generate<RosterPlugin>();
+		plugin->setAccount(this);
+		d->rosterPlugins << plugin;
+	}
+
+	d->identify = new ClientIdentify;
+	registerRosterPlugin(d->identify);
+
 	if (cfg.value("autoconnect", false))
 		setStatus(d->lastStatus);
 }
 
 IcqAccount::~IcqAccount()
 {
+	Q_D(IcqAccount);
+	delete d->identify;
 }
 
 Feedbag *IcqAccount::feedbag()
@@ -253,6 +265,13 @@ void IcqAccount::setVisibility(Visibility visibility)
 	item.setField(data);
 	item.setField<qint32>(0x00C9, 0xffffffff);
 	item.update();
+}
+
+void IcqAccount::registerRosterPlugin(RosterPlugin *plugin)
+{
+	Q_D(IcqAccount);
+	plugin->setAccount(this);
+	d->rosterPlugins << plugin;
 }
 
 void IcqAccount::updateSettings()

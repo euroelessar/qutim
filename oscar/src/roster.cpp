@@ -1,7 +1,7 @@
 /****************************************************************************
  *  roster.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -14,14 +14,13 @@
  ***************************************************************************
  *****************************************************************************/
 
-#include "roster.h"
+#include "roster_p.h"
 #include "icqcontact_p.h"
-#include "icqaccount.h"
+#include "icqaccount_p.h"
 #include "icqprotocol.h"
 #include "oscarconnection.h"
 #include "buddypicture.h"
 #include "buddycaps.h"
-#include "clientidentify.h"
 #include "messages.h"
 #include "xtraz.h"
 #include "feedbag.h"
@@ -443,8 +442,6 @@ void Roster::handleUserOnline(const SNAC &snac)
 		}
 		status.setText(codec->toUnicode(note_data));
 	}
-	contact->setStatus(status);
-	debug() << contact->name() << "changed status to " << contact->status();
 
 	// XStatus
 	Capabilities newCaps;
@@ -470,13 +467,11 @@ void Roster::handleUserOnline(const SNAC &snac)
 		m_conn->send(xstatusRequest);
 	}
 
-	if (oldStatus != Status::Offline)
-		return;
-
-	if (tlvs.contains(0x000c)) { // direct connection info
-		DataUnit data(tlvs.value(0x000c));
-		DirectConnectionInfo info =
-		{
+	if (oldStatus == Status::Offline) {
+		if (tlvs.contains(0x000c)) { // direct connection info
+			DataUnit data(tlvs.value(0x000c));
+			DirectConnectionInfo info =
+			{
 				QHostAddress(data.read<quint32>()),
 				QHostAddress(),
 				data.read<quint32>(),
@@ -488,30 +483,32 @@ void Roster::handleUserOnline(const SNAC &snac)
 				data.read<quint32>(),
 				data.read<quint32>(),
 				data.read<quint32>()
-		};
-		contact->d_func()->dc_info = info;
-	}
+			};
+			contact->d_func()->dc_info = info;
+		}
 
-	if (m_account->avatarsSupport() && tlvs.contains(0x001d)) { // avatar
-		DataUnit data(tlvs.value(0x001d));
-		quint16 id = data.read<quint16>();
-		quint8 flags = data.read<quint8>();
-		QByteArray hash = data.read<QByteArray, quint8>();
-		if (hash.size() == 16)
-			m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
-	}
+		if (m_account->avatarsSupport() && tlvs.contains(0x001d)) { // avatar
+			DataUnit data(tlvs.value(0x001d));
+			quint16 id = data.read<quint16>();
+			quint8 flags = data.read<quint8>();
+			QByteArray hash = data.read<QByteArray, quint8>();
+			if (hash.size() == 16)
+				m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
+		}
 
-	// Updating capabilities
-	if (tlvs.contains(0x0019)) {
-		DataUnit data(tlvs.value(0x0019));
-		while (data.dataSize() >= 2)
-			newCaps.push_back(Capability(data.readData(2)));
+		// Updating capabilities
+		if (tlvs.contains(0x0019)) {
+			DataUnit data(tlvs.value(0x0019));
+			while (data.dataSize() >= 2)
+				newCaps.push_back(Capability(data.readData(2)));
+		}
+		contact->setCapabilities(newCaps);
 	}
-	contact->setCapabilities(newCaps);
-
-	ClientIdentify identify;
-	identify.identify(contact);
-	debug() << contact->name() << "uses" << contact->property("client_id").toString();
+	QList<RosterPlugin*> plugins = m_account->d_func()->rosterPlugins;
+	foreach (RosterPlugin *plugin, plugins)
+		plugin->statusChanged(contact, status, tlvs);
+	contact->setStatus(status);
+	debug() << contact->name() << "changed status to " << contact->status();
 }
 
 void Roster::handleUserOffline(const SNAC &snac)
