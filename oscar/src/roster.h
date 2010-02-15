@@ -28,6 +28,13 @@ namespace Icq
 class OscarConnection;
 class SsiHandler;
 
+class PrivateListActionHandler : public QObject
+{
+	Q_OBJECT
+public slots:
+	void onModifyPrivateList();
+};
+
 class SsiHandler : public FeedbagItemHandler
 {
 	Q_OBJECT
@@ -39,6 +46,7 @@ protected:
 	void handleRemoveCLItem(const FeedbagItem &item);
 	void removeContact(IcqContact *contact);
 	void removeContactFromGroup(IcqContact *contact, quint16 groupId);
+	QStringList readTags(const FeedbagItem &item);
 private:
 	IcqAccount *m_account;
 };
