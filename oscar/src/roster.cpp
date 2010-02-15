@@ -25,6 +25,7 @@
 #include "messages.h"
 #include "xtraz.h"
 #include "feedbag.h"
+#include "sessiondataitem.h"
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
 #include <qutim/notificationslayer.h>
@@ -35,39 +36,6 @@ namespace Icq
 {
 
 using namespace Util;
-
-struct SessionDataItem
-{
-	quint16 type;
-	quint8 flags;
-	QByteArray data;
-};
-
-class SessionDataItemMap: public QMultiMap<quint16, SessionDataItem>
-{
-public:
-	SessionDataItemMap(const TLVMap &tlvs)
-	{
-		if (tlvs.contains(0x1D))
-			parseData(DataUnit(tlvs.value(0x1D)));
-	}
-
-	SessionDataItemMap(const DataUnit &data)
-	{
-		parseData(data);
-	}
-private:
-	void parseData(const DataUnit &data)
-	{
-		SessionDataItem item;
-		while (data.dataSize() >= 4) {
-			item.type = data.read<quint16>();
-			item.flags = data.read<quint8>();
-			item.data = data.read<QByteArray, quint8>();
-			insertMulti(item.type, item);
-		}
-	}
-};
 
 class PrivateListActionGenerator : public ActionGenerator
 {
@@ -455,14 +423,13 @@ void Roster::handleUserOnline(const SNAC &snac)
 		status = icqStatusToQutim(static_cast<IcqStatus>(status_data.read<quint16>()));
 	}
 	// Status note
-	SessionDataItemMap status_note_data(tlvs);
-	if (status_note_data.contains(0x0d)) {
-		DataUnit data(status_note_data.value(0x0d).data);
-		quint16 time = data.read<quint16>();
+	SessionDataItemMap statusNoteData(tlvs.value(0x1D));
+	if (statusNoteData.contains(0x0d)) {
+		quint16 time = statusNoteData.value(0x0d).read<quint16>();
 		debug() << "Status note update time" << time;
 	}
-	if (status_note_data.contains(0x02)) {
-		DataUnit data(status_note_data.value(0x02).data);
+	if (statusNoteData.contains(0x02)) {
+		DataUnit data(statusNoteData.value(0x02));
 		QByteArray note_data = data.read<QByteArray, quint16>();
 		QByteArray encoding = data.read<QByteArray, quint16>();
 		QTextCodec *codec;
@@ -487,8 +454,8 @@ void Roster::handleUserOnline(const SNAC &snac)
 		newCaps << capability;
 	}
 	qint8 moodIndex = -1;
-	if (status_note_data.contains(0x0e)) {
-		QString moodStr = QString::fromAscii(status_note_data.value(0x0e).data);
+	if (statusNoteData.contains(0x0e)) {
+		QString moodStr = statusNoteData.value(0x0e).read<QString>(asciiCodec());
 		if (moodStr.startsWith("icqmood")) {
 			bool ok;
 			moodIndex = moodStr.mid(7, -1).toInt(&ok);

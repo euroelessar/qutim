@@ -72,6 +72,8 @@ public:
 	T read(ByteOrder bo) const;
 	template<typename T, typename L>
 	T read(ByteOrder bo = BigEndian) const;
+	template<typename T>
+	T read(QTextCodec *codec) const;
 	template<typename T, typename L>
 	T read(QTextCodec *codec, ByteOrder bo = BigEndian) const;
 	inline void appendTLV(quint16 type);
@@ -311,6 +313,10 @@ struct fromDataUnitHelper<QString, false>
 	{
 		return Util::defaultCodec()->toUnicode(d.readAll());
 	}
+	static inline QString fromByteArray(const DataUnit &d, QTextCodec *codec)
+	{
+		return codec->toUnicode(d.readAll());
+	}
 };
 
 template<>
@@ -359,6 +365,12 @@ template<typename T, typename L>
 T DataUnit::read(ByteOrder bo) const
 {
 	return fromDataUnitHelper<T>::fromByteArray(*this, read<L>(bo), bo);
+}
+
+template<typename T>
+T DataUnit::read(QTextCodec *codec) const
+{
+	return fromDataUnitHelper<T>::fromByteArray(*this, codec);
 }
 
 template<typename T, typename L>

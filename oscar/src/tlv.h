@@ -53,7 +53,6 @@ class TLVMap: public QMap<quint16, TLV>
 public:
 	inline TLVMap();
 	inline TLVMap(const QMap<quint16, TLV> &other);
-	inline TLV value(int key);
 	inline TLV value(int key) const;
 	template<typename T>
 	T value(quint16 type, const T &def = T()) const;
@@ -104,9 +103,6 @@ TLVMap::TLVMap(const QMap<quint16, TLV> &other) :
 {
 }
 
-TLV TLVMap::value(int key) {
-	return QMap<quint16, TLV>::value(key);
-}
 TLV TLVMap::value(int key) const
 {
 	return QMap<quint16, TLV>::value(key);
