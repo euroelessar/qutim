@@ -32,7 +32,7 @@ class DirectConnectionInfo;
 
 struct IcqContactPrivate;
 
-class IcqContact: public Contact
+class LIBOSCAR_EXPORT IcqContact: public Contact
 {
 	Q_DECLARE_PRIVATE(IcqContact)
 	Q_OBJECT

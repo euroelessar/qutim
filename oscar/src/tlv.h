@@ -33,7 +33,7 @@ namespace Icq
 class TLV;
 class TLVMap;
 
-class TLV: public DataUnit
+class LIBOSCAR_EXPORT TLV: public DataUnit
 {
 public:
 	inline TLV(quint16 type = 0x0000);

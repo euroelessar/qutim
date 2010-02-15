@@ -45,7 +45,7 @@ enum Visibility
 	AllowContactList = 5
 };
 
-class IcqAccount: public Account
+class LIBOSCAR_EXPORT IcqAccount: public Account
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(IcqAccount)

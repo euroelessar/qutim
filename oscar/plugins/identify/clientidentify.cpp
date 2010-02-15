@@ -28,6 +28,34 @@
 
 namespace Icq {
 
+
+void ClientIdentify::init()
+{
+	debug() << Q_FUNC_INFO;
+	setInfo(QT_TRANSLATE_NOOP("Plugin", "OscarIdentify"),
+			QT_TRANSLATE_NOOP("Plugin", "Client identificaton for oscar contacts"),
+			PLUGIN_VERSION(0, 0, 1, 0));
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Ignatiev"),
+			  QT_TRANSLATE_NOOP("Task", "Author"),
+			  QLatin1String("twosev@gmail.com"));
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Prokhin"),
+			  QT_TRANSLATE_NOOP("Task", "Author"),
+			  QLatin1String("alexey.prokhin@yandex.ru"));
+	addExtension<ClientIdentify, RosterPlugin>(QT_TRANSLATE_NOOP("Plugin", "ICQ"),
+				 QT_TRANSLATE_NOOP("Plugin", "Client identificaton for oscar contacts"),
+				 ExtensionIcon("im-icq"));
+}
+
+bool ClientIdentify::load()
+{
+	return true;
+}
+
+bool ClientIdentify::unload()
+{
+	return false;
+}
+
 const Capability ClientIdentify::ICQ_CAPABILITY_ICQJSINxVER  ('s', 'i', 'n', 'j',  0x00, 0x00,
                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                                                0x00, 0x00, 0x00, 0x00);
@@ -1272,3 +1300,5 @@ void ClientIdentify::identify_NaimIcq()
 }
 
 } // namespace Icq
+
+QUTIM_EXPORT_PLUGIN(Icq::ClientIdentify);

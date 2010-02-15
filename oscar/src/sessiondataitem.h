@@ -20,7 +20,7 @@
 
 namespace Icq {
 
-class SessionDataItem : public DataUnit
+class LIBOSCAR_EXPORT SessionDataItem : public DataUnit
 {
 public:
 	inline SessionDataItem(quint16 type = 0x0000, quint8 flags = 0x0000);
@@ -36,7 +36,7 @@ private:
 	quint8 m_flags;
 };
 
-class SessionDataItemMap : public QMap<quint16, SessionDataItem>
+class LIBOSCAR_EXPORT SessionDataItemMap : public QMap<quint16, SessionDataItem>
 {
 public:
 	inline SessionDataItemMap();

@@ -20,7 +20,7 @@
 
 namespace Icq {
 
-class SNAC : public DataUnit
+class LIBOSCAR_EXPORT SNAC : public DataUnit
 {
 public:
 	inline SNAC(quint16 family = 0, quint16 subtype = 0) { reset(family, subtype); }

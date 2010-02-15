@@ -20,6 +20,12 @@
 #include <qutim/debug.h>
 #include <qutim/status.h>
 
+#if defined(LIBOSCAR_LIBRARY)
+#  define LIBOSCAR_EXPORT Q_DECL_EXPORT
+#else
+#  define LIBOSCAR_EXPORT Q_DECL_IMPORT
+#endif
+
 namespace Icq {
 
 enum SnacFamily

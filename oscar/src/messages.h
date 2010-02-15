@@ -66,13 +66,13 @@ enum MTN
 	MtnGone     = 0x000F
 };
 
-class Channel1MessageData: public DataUnit
+class LIBOSCAR_EXPORT Channel1MessageData: public DataUnit
 {
 public:
 	Channel1MessageData(const QString &message, Channel1Codec charset = CodecUtf16Be);
 };
 
-class Tlv2711: public DataUnit
+class LIBOSCAR_EXPORT Tlv2711: public DataUnit
 {
 public:
 	Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, const Cookie &cookie = Cookie(true));
@@ -83,7 +83,7 @@ private:
 	Cookie m_cookie;
 };
 
-class Channel2BasicMessageData: public DataUnit
+class LIBOSCAR_EXPORT Channel2BasicMessageData: public DataUnit
 {
 public:
 	Channel2BasicMessageData(quint16 command, const Capability &guid, const Cookie &cookie = Cookie(true));
@@ -92,13 +92,13 @@ private:
 	Cookie m_cookie;
 };
 
-class Channel2MessageData: public Channel2BasicMessageData
+class LIBOSCAR_EXPORT Channel2MessageData: public Channel2BasicMessageData
 {
 public:
 	Channel2MessageData(quint16 ackType, const Tlv2711 &data);
 };
 
-class ServerMessage: public SNAC
+class LIBOSCAR_EXPORT ServerMessage: public SNAC
 {
 public:
 	ServerMessage();
@@ -108,7 +108,7 @@ protected:
 	void init(IcqContact *contact, qint16 channel, const Cookie &cookie = Cookie(true));
 };
 
-class ServerResponseMessage: public SNAC
+class LIBOSCAR_EXPORT ServerResponseMessage: public SNAC
 {
 public:
 	ServerResponseMessage(IcqContact *contact, quint16 format, quint16 reason, const Cookie &cookie = Cookie(true));

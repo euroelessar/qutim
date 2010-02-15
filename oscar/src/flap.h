@@ -23,7 +23,7 @@ class QIODevice;
 namespace Icq
 {
 
-class FLAP : public DataUnit
+class LIBOSCAR_EXPORT FLAP : public DataUnit
 {
 public:
 	FLAP(quint8 channel = 0x02);

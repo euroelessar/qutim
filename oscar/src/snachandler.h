@@ -28,7 +28,7 @@ class AbstractConnection;
 
 typedef QPair<quint16, quint16> SNACInfo;
 
-class SNACHandler: public QObject
+class LIBOSCAR_EXPORT SNACHandler: public QObject
 {
 	Q_OBJECT
 public:

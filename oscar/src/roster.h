@@ -31,9 +31,10 @@ namespace qutim_sdk_0_3
 using namespace Icq;
 class Account;
 
-class RosterPlugin
+class LIBOSCAR_EXPORT RosterPlugin
 {
 public:
+	RosterPlugin() {}
 	virtual ~RosterPlugin() { }
 	virtual void statusChanged(IcqContact *contact, const Status &status, const TLVMap &tlvs) = 0;
 	virtual void virtual_hook(int type, void *data) = 0;

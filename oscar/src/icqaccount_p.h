@@ -37,7 +37,6 @@ struct IcqAccountPrivate
 	QTimer reconnectTimer;
 	QHash<QString, IcqContact *> contacts;
 	QList<RosterPlugin*> rosterPlugins;
-	ClientIdentify *identify;
 };
 
 }

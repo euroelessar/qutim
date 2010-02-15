@@ -27,7 +27,7 @@ class IcqContact;
 class IcqAccount;
 class CookiePrivate;
 
-class Cookie: public QObject
+class LIBOSCAR_EXPORT Cookie: public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(Cookie)

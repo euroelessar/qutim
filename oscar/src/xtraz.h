@@ -29,19 +29,19 @@ class XtrazPrivate;
 
 const Capability MSG_XSTRAZ_SCRIPT(0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865);
 
-class XtrazRequest: public ServerMessage
+class LIBOSCAR_EXPORT XtrazRequest: public ServerMessage
 {
 public:
 	XtrazRequest(IcqContact *contact, const QString &query, const QString &notify);
 };
 
-class XtrazResponse: public ServerResponseMessage
+class LIBOSCAR_EXPORT XtrazResponse: public ServerResponseMessage
 {
 public:
 	XtrazResponse(IcqContact *contact, const QString &response, const Cookie &cookie);
 };
 
-class Xtraz
+class LIBOSCAR_EXPORT Xtraz
 {
 public:
 	Xtraz();

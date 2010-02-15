@@ -29,7 +29,7 @@ class FeedbagItemPrivate;
 class FeedbagItemHandler;
 class IcqAccount;
 
-class FeedbagError
+class LIBOSCAR_EXPORT FeedbagError
 {
 public:
 	enum ErrorEnum
@@ -52,7 +52,7 @@ protected:
 	ErrorEnum m_error;
 };
 
-class FeedbagItem
+class LIBOSCAR_EXPORT FeedbagItem
 {
 public:
 	FeedbagItem();
@@ -107,7 +107,7 @@ Q_INLINE_TEMPLATE void FeedbagItem::setField(quint16 field, const T &d)
 	data().insert(field, d);
 }
 
-class Feedbag : public SNACHandler
+class LIBOSCAR_EXPORT Feedbag : public SNACHandler
 {
 	Q_OBJECT
 public:		
@@ -159,7 +159,7 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Feedbag::ItemLoadFlags);
 
-class FeedbagItemHandler: public QObject
+class LIBOSCAR_EXPORT FeedbagItemHandler: public QObject
 {
 	Q_OBJECT
 public:

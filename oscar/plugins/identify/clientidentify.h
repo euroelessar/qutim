@@ -21,20 +21,29 @@
 #include <QByteArray>
 #include "capability.h"
 #include "roster.h"
+#include <qutim/plugin.h>
 
 namespace Icq
 {
 
+using namespace qutim_sdk_0_3;
+
 class IcqContact;
 
-class ClientIdentify : public qutim_sdk_0_3::RosterPlugin
+class ClientIdentify : public Plugin, public RosterPlugin
 {
+	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::RosterPlugin)
+	Q_CLASSINFO("DebugName", "ICQ/Identify")
 public:
 	ClientIdentify();
 	~ClientIdentify();
 	void identify(IcqContact *contact);
 	virtual void statusChanged(IcqContact *contact, const Status &status, const TLVMap &tlvs);
 	virtual void virtual_hook(int type, void *data);
+	virtual void init();
+	virtual bool load();
+	virtual bool unload();
 private:
 	void setClientData(const QString &clientId, const QString &icon);
 	void setClientIcon(const QString &icon);

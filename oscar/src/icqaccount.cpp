@@ -78,17 +78,12 @@ IcqAccount::IcqAccount(const QString &uin) :
 		d->rosterPlugins << plugin;
 	}
 
-	d->identify = new ClientIdentify;
-	registerRosterPlugin(d->identify);
-
 	if (cfg.value("autoconnect", false))
 		setStatus(d->lastStatus);
 }
 
 IcqAccount::~IcqAccount()
 {
-	Q_D(IcqAccount);
-	delete d->identify;
 }
 
 Feedbag *IcqAccount::feedbag()

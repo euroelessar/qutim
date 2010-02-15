@@ -26,7 +26,7 @@
 namespace Icq
 {
 
-struct Capability: public QUuid
+struct LIBOSCAR_EXPORT Capability: public QUuid
 {
 public:
 	Capability();
@@ -48,7 +48,7 @@ protected:
 	static const QUuid &shortUuid();
 };
 
-class Capabilities: public QList<Capability>
+class LIBOSCAR_EXPORT Capabilities: public QList<Capability>
 {
 public:
 	bool match(const Capability &capability, quint8 len = 17) const;

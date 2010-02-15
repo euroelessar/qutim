@@ -29,7 +29,7 @@ using namespace qutim_sdk_0_3;
 struct IcqProtocolPrivate;
 class IcqProtocol;
 
-class IcqProtocol: public Protocol
+class LIBOSCAR_EXPORT IcqProtocol: public Protocol
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(IcqProtocol)

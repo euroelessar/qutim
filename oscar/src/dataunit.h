@@ -33,7 +33,7 @@ enum ByteOrder
 class TLV;
 class TLVMap;
 
-class DataUnit
+class LIBOSCAR_EXPORT DataUnit
 {
 public:
 	DataUnit() { m_state = 0; m_max_size = 0; }
