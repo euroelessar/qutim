@@ -96,6 +96,10 @@ namespace qutim_sdk_0_3
 		Q_Q(const MenuController);
 		const MenuController *owner = q;
 		QList<ActionInfo> actions;
+		foreach (const MenuController::Action &act, q->dynamicActions()) {
+			actions << ActionInfo(act.first, act.second);
+			temporary << act.first;
+		}
 		QSet<const QMetaObject *> metaObjects;
 		while (owner) {
 			actions.append(owner->d_ptr->actions);
@@ -149,6 +153,8 @@ namespace qutim_sdk_0_3
 
 	void DynamicMenu::onAboutToHide()
 	{
+		qDeleteAll(m_d->temporary);
+		m_d->temporary.clear();
 		foreach (QAction *action, actions()) {
 			action->deleteLater();
 			removeAction(action);
@@ -183,5 +189,10 @@ namespace qutim_sdk_0_3
 	{
 		Q_D(MenuController);
 		d->owner = controller;
+	}
+
+	QList<MenuController::Action> MenuController::dynamicActions() const
+	{
+		return QList<Action>();
 	}
 }

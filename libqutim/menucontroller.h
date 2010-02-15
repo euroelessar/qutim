@@ -62,6 +62,9 @@ MyObject::onAction()
 		Q_DISABLE_COPY(MenuController)
 		Q_DECLARE_PRIVATE(MenuController)
 	public:
+#ifndef Q_QDOC
+		typedef QPair<ActionGenerator *, QList<QByteArray> > Action;
+#endif
 		/*!
 		  Constructs MenuController with \a parent.
 		*/
@@ -155,6 +158,9 @@ void MyObject::onAction()
 		  Add to menu of this object also actions from another \a controller.
 		*/
 		void setMenuOwner(MenuController *controller);
+#ifndef Q_QDOC
+		virtual QList<Action> dynamicActions() const;
+#endif
 		QScopedPointer<MenuControllerPrivate> d_ptr;
 	};
 

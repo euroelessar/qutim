@@ -38,6 +38,7 @@ namespace qutim_sdk_0_3
 	public:
 		MenuControllerPrivate(MenuController *c) : owner(0), q_ptr(c) {}
 		QList<ActionInfo> actions;
+		mutable QList<ActionGenerator *> temporary;
 		MenuController *owner;
 		MenuController *q_ptr;
 		QList<ActionInfo> allActions() const;
