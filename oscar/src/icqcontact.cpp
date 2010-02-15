@@ -169,26 +169,21 @@ void IcqContact::setTags(const QSet<QString> &tags)
 		}
 		tagsData.append<quint16>(tag);
 	}
-	FeedbagItem item = d->items.takeFirst();
+	FeedbagItem tagsItem = f->item(SsiTags, id(), 0, Feedbag::GenerateId);
+	tagsItem.setField(SsiBuddyTags, tagsData);
+	tagsItem.update();
+	FeedbagItem item = d->items.first();
 	FeedbagItem newGroup = f->groupItem(name, Feedbag::GenerateId);
 	FeedbagItem currentGroup = f->groupItem(item.groupId());
 	removeItems.remove(newGroup.groupId());
-	removeItems.remove(currentGroup.groupId());
-	if (newGroup.groupId() == currentGroup.groupId()) {
-		//item.remove();
-		item.setField(SsiBuddyTags, tagsData);
-		item.update();
-		d->items.push_front(item);
-	} else {
+	if (newGroup.groupId() != currentGroup.groupId()) {
 		if (!newGroup.isInList())
 			newGroup.update();
 		FeedbagItem newItem = f->item(SsiBuddy, id(), newGroup.groupId(), Feedbag::GenerateId);
 		newItem.setData(item.constData());
-		newItem.setField(SsiBuddyTags, tagsData);
 		newItem.update();
-		d->items.push_front(newItem);
-		if (f->group(currentGroup.groupId()).count() == 1)
-			currentGroup.remove();
+	} else {
+		removeItems.remove(currentGroup.groupId());
 	}
 	foreach (FeedbagItem item, removeItems) {
 		if (f->group(item.groupId()).count() <= 1) {

@@ -46,6 +46,7 @@ protected:
 	void handleRemoveCLItem(const FeedbagItem &item);
 	void removeContact(IcqContact *contact);
 	void removeContactFromGroup(IcqContact *contact, quint16 groupId);
+	QStringList readTags(const FeedbagItem &item);
 private:
 	IcqAccount *m_account;
 };

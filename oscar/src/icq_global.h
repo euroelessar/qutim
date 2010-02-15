@@ -201,7 +201,9 @@ enum SsiItemType
 	SsiUnknown2     = 0x0011,  // Unknown.
 	SsiImportTime   = 0x0013,  // Item that contain roster import time (name: "Import time")
 	SsiBuddyIcon    = 0x0014,  // Buddy icon info. (names: "1", "8", etc. according ot the icon type)
-	SsiMetaInfo     = 0x0020   // Owner Details' token & last update time
+	SsiMetaInfo     = 0x0020,  // Owner Details' token & last update time
+	// QutIM specific items
+	SsiTags         = 0x5500   // Buddy tags
 };
 
 const quint16 max_message_snac_size = 8000;
