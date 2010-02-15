@@ -43,7 +43,8 @@ public:
 	virtual void setTags(const QSet<QString> &tags);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
-
+protected:
+	QList<MenuController::Action> dynamicActions() const;
 signals:
 
 public slots:

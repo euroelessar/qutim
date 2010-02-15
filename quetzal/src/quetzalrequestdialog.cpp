@@ -9,7 +9,9 @@ QuetzalRequestDialog::QuetzalRequestDialog(const char *title, const char *primar
 {
 	setWindowTitle(title);
 	m_boxLayout = new QVBoxLayout(this);
-	m_boxLayout->addWidget(new QLabel(quetzal_create_label(primary, secondary), this));
+	QLabel *label = new QLabel(quetzal_create_label(primary, secondary), this);
+	label->setWordWrap(true);
+	m_boxLayout->addWidget(label);
 	m_buttonBox = new QDialogButtonBox(Qt::Horizontal, this);
 	m_boxLayout->addWidget(m_buttonBox);
 //	connect(m_buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(closeRequest()));

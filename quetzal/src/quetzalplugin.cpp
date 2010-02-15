@@ -34,20 +34,39 @@
 #include <QDateTime>
 #include <QThread>
 
+void quetzal_menu_dump(PurpleMenuAction *action, int offset)
+{
+	QByteArray off;
+	for (int i = 0; i < offset; i++)
+		off += "-";
+	debug() << off << action->label;
+	for (GList *it = action->children; it; it = it->next)
+		quetzal_menu_dump((PurpleMenuAction *)it->data, offset + 1);
+}
+
 void quetzal_create_conversation(PurpleConversation *conv)
 {
 	debug() << Q_FUNC_INFO << conv->name;
-	debug() << QThread::currentThread() << qApp->thread();
 	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(conv->account->ui_data);
 	debug() << acc;
 	ChatUnit *unit = acc->getUnit(conv->name);
+//	debug() << Q_FUNC_INFO << unit;
 	if (!unit) {
 		if (conv->type == PURPLE_CONV_TYPE_IM)
 			unit = new QuetzalConversation(conv);
 		else
 			unit = new QuetzalChat(conv);
 		acc->addChatUnit(unit);
-	}
+	} /*else if (QuetzalContact *contact = qobject_cast<QuetzalContact *>(unit)) {
+//			purple_blist_node_get_extended_menu
+			debug() << Q_FUNC_INFO;
+			GList *menu = PURPLE_PLUGIN_PROTOCOL_INFO(conv->account->gc->prpl)
+						  ->blist_node_menu((PurpleBlistNode *)contact->buddy());
+			for (GList *it = menu; it; it = it->next) {
+				PurpleMenuAction *action = (PurpleMenuAction *)it->data;
+				quetzal_menu_dump(action, 0);
+			}
+	}*/
 	ChatLayer::get(unit)->activate();
 }
 
@@ -211,51 +230,12 @@ static PurpleConversationUiOps quetzal_conv_uiops =
 	quetzal_chat_remove_users,    /* chat_remove_users    */
 	quetzal_chat_update_user,     /* chat_update_user     */
 	NULL,                         /* present              */
-	NULL,                         /* has_focus            */
+	quetzal_has_focus,            /* has_focus            */
 	NULL,                         /* custom_smiley_add    */
 	NULL,                         /* custom_smiley_write  */
 	NULL,                         /* custom_smiley_close  */
 	NULL,                         /* send_confirm         */
 	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-
-static void
-null_ui_init(void)
-{
-	/**
-	 * This should initialize the UI components for all the modules. Here we
-	 * just initialize the UI for conversations.
-	 */
-	purple_conversations_set_ui_ops(&quetzal_conv_uiops);
-}
-
-static GHashTable *quetzal_ui_info()
-{
-	static GHashTable *table = NULL;
-	if (!table) {
-		table = g_hash_table_new(g_str_hash, g_str_equal);
-		QByteArray name = qApp->applicationName().toUtf8();
-		QByteArray version = qApp->applicationVersion().toUtf8();
-		g_hash_table_insert(table, const_cast<char *>("name"), g_strdup(name.constData()));
-		g_hash_table_insert(table, const_cast<char *>("version"), g_strdup(version.constData()));
-		g_hash_table_insert(table, const_cast<char *>("website"), const_cast<char *>("http://qutim.org/"));
-		g_hash_table_insert(table, const_cast<char *>("type"), const_cast<char *>("pc"));
-	}
-	return table;
-}
-
-static PurpleCoreUiOps quetzal_core_uiops =
-{
-	NULL,
-	NULL,
-	null_ui_init,
-	NULL,
-	quetzal_ui_info,
-
-	/* padding */
 	NULL,
 	NULL,
 	NULL
@@ -306,6 +286,9 @@ void quetzal_notify_added(PurpleAccount *account,
 void quetzal_status_changed(PurpleAccount *account,
 							PurpleStatus *status)
 {
+	QuetzalAccount *acc = (QuetzalAccount *)account->ui_data;
+	if (acc)
+		acc->setStatusChanged(status);
 	debug() << Q_FUNC_INFO << account->username << account->alias << purple_status_get_name(status);
 }
 
@@ -364,13 +347,14 @@ PurpleAccountUiOps quetzal_accounts_uiops =
 //PurplePluginUiInfo;
 //PurpleCertificateVerifier
 
-static void quetzal_account_status_changed(PurpleAccount *account, PurpleStatus *old_status, PurpleStatus *new_status)
-{
-	Q_UNUSED(old_status);
-	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account->ui_data);
-	if (acc)
-		acc->setStatusChanged(new_status);
-}
+//static void quetzal_account_status_changed(PurpleAccount *account, PurpleStatus *old_status, PurpleStatus *new_status)
+//{
+//	Q_UNUSED(old_status);
+////	int g;
+////	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account->ui_data);
+////	if (acc)
+////		acc->setStatusChanged(new_status);
+//}
 
 static void quetzal_conversation_update(PurpleConversation *conv, PurpleConvUpdateType type)
 {
@@ -393,11 +377,51 @@ static void quetzal_account_signon_cb(PurpleConnection *gc, gpointer z)
 //	serv_join_chat(gc, comps);
 }
 
+static void quetzal_ui_init(void)
+{
+	purple_debug_set_ui_ops(&quetzal_debug_uiops);
+	purple_conversations_set_ui_ops(&quetzal_conv_uiops);
+	purple_blist_set_ui_ops(&quetzal_blist_uiops);
+	purple_accounts_set_ui_ops(&quetzal_accounts_uiops);
+	purple_request_set_ui_ops(&quetzal_request_uiops);
+
+	Event("quetzal-ui-ops-inited").send();
+}
+
+static GHashTable *quetzal_ui_info()
+{
+	static GHashTable *table = NULL;
+	if (!table) {
+		table = g_hash_table_new(g_str_hash, g_str_equal);
+		QByteArray name = qApp->applicationName().toUtf8();
+		QByteArray version = qApp->applicationVersion().toUtf8();
+		g_hash_table_insert(table, const_cast<char *>("name"), g_strdup(name.constData()));
+		g_hash_table_insert(table, const_cast<char *>("version"), g_strdup(version.constData()));
+		g_hash_table_insert(table, const_cast<char *>("website"), const_cast<char *>("http://qutim.org/"));
+		g_hash_table_insert(table, const_cast<char *>("type"), const_cast<char *>("pc"));
+	}
+	return table;
+}
+
+static PurpleCoreUiOps quetzal_core_uiops =
+{
+	NULL,
+	NULL,
+	quetzal_ui_init,
+	NULL,
+	quetzal_ui_info,
+
+	/* padding */
+	NULL,
+	NULL,
+	NULL
+};
+
 static void
 init_libpurple()
 {
 	/* Set a custom user directory (optional) */
-//	purple_util_set_user_dir("/dev/null");
+	purple_util_set_user_dir("/dev/null");
 
 	/* We do not want any debugging for now to keep the noise to a minimum. */
 	purple_debug_set_enabled(FALSE);
@@ -408,14 +432,8 @@ init_libpurple()
 	 * 	- initialize the ui components for all the modules.
 	 * 	- uninitialize the ui components for all the modules when the core terminates.
 	 */
-	purple_debug_set_ui_ops(&quetzal_debug_uiops);
 	purple_core_set_ui_ops(&quetzal_core_uiops);
 	purple_eventloop_set_ui_ops(&quetzal_eventloop_uiops);
-	purple_blist_set_ui_ops(&quetzal_blist_uiops);
-	purple_accounts_set_ui_ops(&quetzal_accounts_uiops);
-	purple_request_set_ui_ops(&quetzal_request_uiops);
-
-	Event("quetzal-ui-ops-inited").send();
 
 	/* Set path to search for plugins. The core (libpurple) takes care of loading the
 	 * core-plugins, which includes the protocol-plugins. So it is not essential to add
@@ -455,8 +473,8 @@ init_libpurple()
 	static int handle_ptr;
 	void *handle = &handle_ptr;
 	// connect signals
-	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed", handle,
-						  PURPLE_CALLBACK(quetzal_account_status_changed), NULL);
+//	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed", handle,
+//						  PURPLE_CALLBACK(quetzal_account_status_changed), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", handle,
 						  PURPLE_CALLBACK(quetzal_conversation_update), NULL);
 	purple_signal_connect(purple_connections_get_handle(), "signed-on",

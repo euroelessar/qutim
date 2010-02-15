@@ -19,6 +19,7 @@
 #include <QPushButton>
 #include <QStringBuilder>
 #include <QTextDocument>
+#include <QButtonGroup>
 
 QuetzalActionDialog::QuetzalActionDialog(const char *title, const char *primary,
 										 const char *secondary, int default_action,
@@ -33,9 +34,11 @@ QuetzalActionDialog::QuetzalActionDialog(const char *title, const char *primary,
 //	setWindowTitle(title);
 //	ui->label->setText(quetzal_create_label(primary, secondary));
 	m_actions = actions;
+	QButtonGroup *group = new QButtonGroup(this);
+	connect(group, SIGNAL(buttonClicked(int)), this, SLOT(onButtonClick(int)));
 	for (int i = 0; i < actions.size(); i++) {
 		QPushButton *button = buttonBox()->addButton(actions.at(i).first, QDialogButtonBox::ActionRole);
-		button->setProperty("index", i);
+		group->addButton(button, i);
 	}
 }
 
@@ -44,11 +47,10 @@ QuetzalActionDialog::~QuetzalActionDialog()
 //	delete ui;
 }
 
-void QuetzalActionDialog::on_buttonBox_clicked(QAbstractButton *button)
+void QuetzalActionDialog::onButtonClick(int index)
 {
-	int index = button->property("index").toInt();
 	const QuetzalRequestAction &action = m_actions.at(index);
-	(*action.second)(userData(), index);
+	action.second(userData(), index);
 	m_actions.clear();
 	closeRequest();
 }

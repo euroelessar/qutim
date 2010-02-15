@@ -47,6 +47,8 @@ public:
 	guint addIO(int fd, PurpleInputCondition cond, PurpleInputFunction func, gpointer user_data);
 	gboolean removeIO(guint handle);
 	int getIOError(int fd, int *error);
+public slots:
+	void onAction();
 protected:
 	virtual void timerEvent(QTimerEvent *event);
 private slots:

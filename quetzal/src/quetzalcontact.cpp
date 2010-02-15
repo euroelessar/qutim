@@ -15,6 +15,7 @@
 
 #include "quetzalcontact.h"
 #include "quetzalaccount.h"
+#include "quetzalactiongenerator.h"
 #include <qutim/debug.h>
 #include <qutim/message.h>
 
@@ -66,10 +67,9 @@ QVariant quetzal_value2variant(const PurpleValue *value)
 	}
 }
 
-Status quetzal_get_status(PurpleStatus *status, const QString &proto)
+Status quetzal_get_status(PurpleStatusType *status_type, const QString &proto)
 {
-	const char *status_id = purple_status_get_id(status);
-	PurpleStatusType *status_type = purple_status_get_type(status);
+	const char *status_id = purple_status_type_get_id(status_type);
 	PurpleStatusPrimitive primitive = purple_status_type_get_primitive(status_type);
 	Status::Type type;
 	switch (primitive) {
@@ -109,8 +109,15 @@ Status quetzal_get_status(PurpleStatus *status, const QString &proto)
 		type = Status::Online;
 		break;
 	}
-	Status qStatus(type);
-	qStatus.initIcon(proto);
+	Status status(type);
+	status.initIcon(proto);
+	return status;
+}
+
+Status quetzal_get_status(PurpleStatus *status, const QString &proto)
+{
+	PurpleStatusType *status_type = purple_status_get_type(status);
+	Status qStatus = quetzal_get_status(status, proto);
 
 	for (GList *it = purple_status_type_get_attrs(status_type); it; it = it->next) {
 		PurpleStatusAttr *attr = (PurpleStatusAttr *)it->data;
@@ -241,4 +248,39 @@ bool QuetzalContact::isInList() const
 
 void QuetzalContact::setInList(bool inList)
 {
+}
+
+void quetzal_menu_add(QList<MenuController::Action> &actions, PurpleBlistNode *node,
+					  GList *menu, const QList<QByteArray> &off, int type)
+{
+	int i = 0;
+	for (GList *it = menu; it; it = it->next, i--) {
+		PurpleMenuAction *action = (PurpleMenuAction *)it->data;
+		actions << MenuController::Action((new QuetzalActionGenerator(action, node))
+										  ->setType(type)->setPriority(i), off);
+		QList<QByteArray> offs = off;
+		offs.append(action->label);
+		quetzal_menu_add(actions, node, action->children, offs, ActionGenerator::GeneralType);
+		g_list_free(action->children);
+		purple_menu_action_free(action);
+	}
+}
+
+QList<MenuController::Action> QuetzalContact::dynamicActions() const
+{
+	QList<MenuController::Action> actions;
+	if (!m_buddy->account->gc)
+		return actions;
+	PurpleBlistNode *node = const_cast<PurpleBlistNode *>(&m_buddy->node);
+	GList *menu = NULL;
+	PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
+	if (PURPLE_PROTOCOL_PLUGIN_HAS_FUNC(prpl, blist_node_menu)) {
+		menu = prpl->blist_node_menu(node);
+		quetzal_menu_add(actions, node, menu, QList<QByteArray>(), 2);
+		g_list_free(menu);
+	}
+	menu = purple_blist_node_get_extended_menu(node);
+	quetzal_menu_add(actions, node, menu, QList<QByteArray>(), 3);
+	g_list_free(menu);
+	return actions;
 }

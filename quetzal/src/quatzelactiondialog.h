@@ -40,16 +40,14 @@ public:
 	~QuetzalActionDialog();
 
 protected slots:
-	void on_buttonBox_clicked(QAbstractButton *button);
+	void onButtonClick(int id);
 
 protected:
 //    void changeEvent(QEvent *e);
 
 private:
-//	Ui::QuetzalActionDialog *ui;
 	QuetzalRequestActionList m_actions;
 	int m_default_action;
-//	gpointer m_user_data;
 };
 
 #endif // QUATZELACTIONDIALOG_H
