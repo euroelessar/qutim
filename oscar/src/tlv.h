@@ -48,7 +48,7 @@ private:
 	quint16 m_type;
 };
 
-class TLVMap: public QMultiMap<quint16, TLV>
+class TLVMap: public QMap<quint16, TLV>
 {
 public:
 	inline TLVMap();
@@ -100,16 +100,16 @@ TLVMap::TLVMap()
 }
 
 TLVMap::TLVMap(const QMap<quint16, TLV> &other) :
-	QMultiMap<quint16, TLV>(other)
+	QMap<quint16, TLV>(other)
 {
 }
 
 TLV TLVMap::value(int key) {
-	return QMultiMap<quint16, TLV>::value(key);
+	return QMap<quint16, TLV>::value(key);
 }
 TLV TLVMap::value(int key) const
 {
-	return QMultiMap<quint16, TLV>::value(key);
+	return QMap<quint16, TLV>::value(key);
 }
 
 template<typename T>
@@ -122,17 +122,17 @@ Q_INLINE_TEMPLATE T TLVMap::value(quint16 type, const T &def) const
 template<typename T>
 Q_INLINE_TEMPLATE TLVMap::iterator TLVMap::insert(quint16 type, const T &data)
 {
-	return QMultiMap<quint16, TLV>::insert(type, TLV(type, data));
+	return QMap<quint16, TLV>::insert(type, TLV(type, data));
 }
 
 TLVMap::iterator TLVMap::insert(quint16 type)
 {
-	return QMultiMap<quint16, TLV>::insert(type, TLV(type));
+	return QMap<quint16, TLV>::insert(type, TLV(type));
 }
 
 TLVMap::iterator TLVMap::insert(const TLV &tlv)
 {
-	return QMultiMap<quint16, TLV>::insert(tlv.type(), tlv);
+	return QMap<quint16, TLV>::insert(tlv.type(), tlv);
 }
 
 TLVMap TLVMap::fromByteArray(const QByteArray &data, ByteOrder bo)

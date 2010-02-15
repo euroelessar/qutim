@@ -270,12 +270,12 @@ void FeedbagItem::setGroup(quint16 groupId)
 
 void FeedbagItem::setField(quint16 field)
 {
-	d->tlvs.replace(field, TLV(field));
+	d->tlvs.insert(field);
 }
 
 void FeedbagItem::setField(const TLV &tlv)
 {
-	d->tlvs.replace(tlv.type(), tlv);
+	d->tlvs.insert(tlv);
 }
 
 bool FeedbagItem::removeField(quint16 field)
