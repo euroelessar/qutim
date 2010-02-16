@@ -92,7 +92,8 @@ void ClientIdentify::identify(IcqContact *contact)
 	m_ext_status_info = contact->dcInfo().extstatus_utime;
 
 	// There may be some x-statuses info here.. remove all of them.
-	Xtraz::removeXStatuses(m_client_caps);
+	// TODO:
+	//Xtraz::removeXStatuses(m_client_caps);
 
 	IDENTIFY_CLIENT( qutIM );
 	IDENTIFY_CLIENT( k8qutIM );

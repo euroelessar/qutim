@@ -37,14 +37,6 @@ public:
 	RosterPlugin() {}
 	virtual ~RosterPlugin() { }
 	virtual void statusChanged(IcqContact *contact, const Status &status, const TLVMap &tlvs) = 0;
-	virtual void virtual_hook(int type, void *data) = 0;
-	inline void setAccount(Account *account) { m_account = account; }
-protected:
-	union
-	{
-		IcqAccount *m_icq_account;
-		Account *m_account;
-	};
 };
 
 } // namespace qutim_sdk_0_3

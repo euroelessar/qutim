@@ -21,6 +21,24 @@
 #include "messageplugin.h"
 #include <QDateTime>
 
+namespace qutim_sdk_0_3
+{
+
+typedef QPair<Capability, quint16> Tlv2711Type;
+class Tlv2711Plugin
+{
+public:
+	virtual ~Tlv2711Plugin();
+	QSet<Tlv2711Type> tlv2711Types() { return m_tlvs2711Types; }
+	virtual void processTlvs2711(IcqContact *contact, Capability guid, quint16 type, const DataUnit &data, const Cookie &cookie) = 0;
+protected:
+	QSet<Tlv2711Type> m_tlvs2711Types;
+};
+
+} // namespace qutim_sdk_0_3
+
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::Tlv2711Plugin, "org.qutim.oscar.Tlvs2711Plugin");
+
 namespace Icq
 {
 
@@ -119,6 +137,7 @@ class MessagesHandler: public SNACHandler
 Q_OBJECT
 public:
 	MessagesHandler(IcqAccount *account, QObject *parent = 0);
+	virtual ~MessagesHandler();
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private slots:
 	void loginFinished();
@@ -134,6 +153,7 @@ private:
 	void sendMetaInfoRequest(quint16 type);
 	IcqAccount *m_account;
 	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
+	QMultiHash<Tlv2711Type, Tlv2711Plugin *> m_tlvs2711Plugins;
 };
 
 } // namespace Icq

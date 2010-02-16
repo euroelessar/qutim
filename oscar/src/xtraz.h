@@ -1,7 +1,7 @@
 /****************************************************************************
  *  xtraz.h
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -18,8 +18,6 @@
 
 #include "icq_global.h"
 #include "messages.h"
-
-#include <QXmlStreamReader>
 
 namespace Icq
 {
@@ -39,25 +37,6 @@ class LIBOSCAR_EXPORT XtrazResponse: public ServerResponseMessage
 {
 public:
 	XtrazResponse(IcqContact *contact, const QString &response, const Cookie &cookie);
-};
-
-class LIBOSCAR_EXPORT Xtraz
-{
-public:
-	Xtraz();
-	static void handleXtraz(IcqContact *contact, quint16 type, const DataUnit &data, const Cookie &cookie);
-	static bool handelXStatusCapabilities(IcqContact *contact, const Capabilities &caps, qint8 mood);
-	static void removeXStatuses(Capabilities &caps);
-private:
-	static XtrazPrivate *data();
-	static void handleNotify(IcqContact *contact, const QString &message, const Cookie &cookie);
-	static void parseQuery(const QString &query, QString *pluginID);
-	static void parseRes(IcqContact *contact, const QString &res);
-	static void parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response, const Cookie &cookie = Cookie());
-	static void parseVal(IcqContact *contact, QXmlStreamReader &xml);
-	static void parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml);
-	static void parseRequest(IcqContact *contact, QXmlStreamReader &xml, const Cookie &cookie);
-	static void sendXStatus(IcqContact *contact, const Cookie &cookie);
 };
 
 } // namespace Icq

@@ -20,7 +20,6 @@
 #include "icqaccount.h"
 #include "icqcontact.h"
 #include "connection.h"
-#include "xtraz.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
@@ -163,6 +162,17 @@ MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent) :
 		foreach(const Capability &cap, plugin->capabilities())
 			m_msg_plugins.insert(cap, plugin);
 	}
+
+	foreach(const ObjectGenerator *gen, moduleGenerators<Tlv2711Plugin>()) {
+		Tlv2711Plugin *plugin = gen->generate<Tlv2711Plugin>();
+		Q_ASSERT(plugin);
+		foreach (Tlv2711Type type, plugin->tlv2711Types())
+			m_tlvs2711Plugins.insert(type, plugin);
+	}
+}
+
+MessagesHandler::~MessagesHandler()
+{
 }
 
 void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
@@ -469,7 +479,7 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 		} else if (MsgPlugin) {
 			data.read<quint16>(LittleEndian);
 			DataUnit info = data.read<DataUnit, quint16>(LittleEndian);
-			Capability pluginType = info.read<Capability>().data();
+			Capability pluginType = info.read<Capability>();
 			quint16 pluginId = info.read<quint16>(LittleEndian);
 			QString pluginName = info.read<QString, quint32>(LittleEndian);
 			DataUnit pluginData = data.read<DataUnit, quint32>(LittleEndian);
@@ -481,11 +491,16 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 						debug() << "Message with id" << msgCookie.id() << "has been delivered";
 					}
 				}
-			} else if (pluginType == MSG_XSTRAZ_SCRIPT) {
-				Xtraz::handleXtraz(contact, pluginId, pluginData, msgCookie);
 			} else {
-				debug() << "Unhandled plugin message" << pluginType.toString()
-						<< pluginId << pluginName << pluginData.data().toHex();
+				bool found = false;
+				foreach (Tlv2711Plugin *plugin, m_tlvs2711Plugins.values(Tlv2711Type(pluginType, pluginId))) {
+					plugin->processTlvs2711(contact, pluginType, pluginId, pluginData, msgCookie);
+					found = true;
+				}
+				if (!found) {
+					debug() << "Unhandled plugin message" << pluginType.toString()
+							<< pluginId << pluginName << pluginData.data().toHex();
+				}
 			}
 		} else
 			debug() << "Unhandled TLV 2711 message with type" << hex << type;
@@ -534,3 +549,12 @@ void MessagesHandler::sendMetaInfoRequest(quint16 type)
 }
 
 } // namespace Icq
+
+namespace qutim_sdk_0_3
+{
+
+Tlv2711Plugin::~Tlv2711Plugin()
+{
+}
+
+} // namespace qutim_sdk_0_3

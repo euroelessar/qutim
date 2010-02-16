@@ -74,7 +74,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 
 	foreach(const ObjectGenerator *gen, moduleGenerators<RosterPlugin>()) {
 		RosterPlugin *plugin = gen->generate<RosterPlugin>();
-		plugin->setAccount(this);
 		d->rosterPlugins << plugin;
 	}
 
@@ -265,7 +264,6 @@ void IcqAccount::setVisibility(Visibility visibility)
 void IcqAccount::registerRosterPlugin(RosterPlugin *plugin)
 {
 	Q_D(IcqAccount);
-	plugin->setAccount(this);
 	d->rosterPlugins << plugin;
 }
 

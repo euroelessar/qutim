@@ -442,31 +442,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 		}
 		status.setText(codec->toUnicode(note_data));
 	}
-
-	// XStatus
-	Capabilities newCaps;
-	DataUnit data(tlvs.value(0x000d));
-	while (data.dataSize() >= 16) {
-		Capability capability(data.readData(16));
-		newCaps << capability;
-	}
-	qint8 moodIndex = -1;
-	if (statusNoteData.contains(0x0e)) {
-		QString moodStr = statusNoteData.value(0x0e).read<QString>(asciiCodec());
-		if (moodStr.startsWith("icqmood")) {
-			bool ok;
-			moodIndex = moodStr.mid(7, -1).toInt(&ok);
-			if (!ok)
-				moodIndex = -1;
-		}
-	}
-	if (Xtraz::handelXStatusCapabilities(contact, newCaps, moodIndex)) {
-		QString notify = QString("<srv><id>cAwaySrv</id><req><id>AwayStat</id>"
-			"<trans>1</trans><senderId>%1</senderId></req></srv>"). arg(m_account->id());
-		XtrazRequest xstatusRequest(contact, "<Q><PluginID>srvMng</PluginID></Q>", notify);
-		m_conn->send(xstatusRequest);
-	}
-
+	
 	if (oldStatus == Status::Offline) {
 		if (tlvs.contains(0x000c)) { // direct connection info
 			DataUnit data(tlvs.value(0x000c));
@@ -497,6 +473,12 @@ void Roster::handleUserOnline(const SNAC &snac)
 		}
 
 		// Updating capabilities
+		Capabilities newCaps;
+		DataUnit data(tlvs.value(0x000d));
+		while (data.dataSize() >= 16) {
+			Capability capability = data.read<Capability>();
+			newCaps << capability;
+		}
 		if (tlvs.contains(0x0019)) {
 			DataUnit data(tlvs.value(0x0019));
 			while (data.dataSize() >= 2)
