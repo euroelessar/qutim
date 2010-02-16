@@ -90,10 +90,7 @@ private:
 QByteArray DataUnit::readData(uint size) const
 {
 	QByteArray str;
-	if (dataSize() < size) {
-		m_state = m_data.size();
-		return str;
-	}
+	size = qMin(dataSize(), size);
 	str = QByteArray::fromRawData(m_data.constData() + m_state, size);
 	m_state += size;
 	return str;

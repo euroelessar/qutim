@@ -477,7 +477,7 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 				codec = asciiCodec();
 			appendMessage(contact, codec->toUnicode(message_data));
 		} else if (MsgPlugin) {
-			data.read<quint16>(LittleEndian);
+			data.skipData(3);
 			DataUnit info = data.read<DataUnit, quint16>(LittleEndian);
 			Capability pluginType = info.read<Capability>();
 			quint16 pluginId = info.read<quint16>(LittleEndian);
