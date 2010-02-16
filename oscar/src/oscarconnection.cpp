@@ -21,7 +21,7 @@
 #include "icqaccount_p.h"
 #include "buddypicture.h"
 #include "buddycaps.h"
-#include "messages.h"
+#include "messages_p.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/notificationslayer.h>
 #include <QHostInfo>

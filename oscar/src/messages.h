@@ -1,7 +1,7 @@
 /****************************************************************************
  *  messages.h
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -130,30 +130,6 @@ class LIBOSCAR_EXPORT ServerResponseMessage: public SNAC
 {
 public:
 	ServerResponseMessage(IcqContact *contact, quint16 format, quint16 reason, const Cookie &cookie = Cookie(true));
-};
-
-class MessagesHandler: public SNACHandler
-{
-Q_OBJECT
-public:
-	MessagesHandler(IcqAccount *account, QObject *parent = 0);
-	virtual ~MessagesHandler();
-	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-private slots:
-	void loginFinished();
-private:
-	void handleMessage(const SNAC &snac);
-	void handleResponse(const SNAC &snac);
-	void handleChannel1Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
-	void handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs, quint64 msgCookie);
-	void handleChannel4Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
-	void handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, const Cookie &msgCookie);
-	void appendMessage(IcqContact *contact, const QString &message, QDateTime time = QDateTime());
-	void sendChannel2Response(IcqContact *contact, quint8 type, quint8 flags, const Cookie &cookie);
-	void sendMetaInfoRequest(quint16 type);
-	IcqAccount *m_account;
-	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
-	QMultiHash<Tlv2711Type, Tlv2711Plugin *> m_tlvs2711Plugins;
 };
 
 } // namespace Icq

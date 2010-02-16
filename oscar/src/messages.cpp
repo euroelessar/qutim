@@ -1,7 +1,7 @@
 /****************************************************************************
  *  messages.cpp
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,7 +13,7 @@
  ***************************************************************************
  *****************************************************************************/
 
-#include "messages.h"
+#include "messages_p.h"
 #include "icqcontact_p.h"
 #include "util.h"
 #include "buddycaps.h"
@@ -26,6 +26,16 @@
 #include <qutim/notificationslayer.h>
 #include <QHostAddress>
 #include <QApplication>
+
+
+namespace qutim_sdk_0_3
+{
+
+Tlv2711Plugin::~Tlv2711Plugin()
+{
+}
+
+} // namespace qutim_sdk_0_3
 
 namespace Icq
 {
@@ -550,11 +560,3 @@ void MessagesHandler::sendMetaInfoRequest(quint16 type)
 
 } // namespace Icq
 
-namespace qutim_sdk_0_3
-{
-
-Tlv2711Plugin::~Tlv2711Plugin()
-{
-}
-
-} // namespace qutim_sdk_0_3
