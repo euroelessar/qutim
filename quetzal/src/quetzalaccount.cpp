@@ -97,8 +97,7 @@ QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) :
 
 	Config cfg = config();
 	QByteArray password = cfg.group("general").value("passwd", QString(), Config::Crypted).toUtf8();
-	m_account->password = reinterpret_cast<char *>(qMalloc(password.size() + 1));
-	qstrcpy(m_account->password, password);
+	m_account->password = g_strdup(password.constData());
 	m_is_loading = true;
 	load(cfg);
 	m_is_loading = false;

@@ -117,7 +117,7 @@ Status quetzal_get_status(PurpleStatusType *status_type, const QString &proto)
 Status quetzal_get_status(PurpleStatus *status, const QString &proto)
 {
 	PurpleStatusType *status_type = purple_status_get_type(status);
-	Status qStatus = quetzal_get_status(status, proto);
+	Status qStatus = quetzal_get_status(status_type, proto);
 
 	for (GList *it = purple_status_type_get_attrs(status_type); it; it = it->next) {
 		PurpleStatusAttr *attr = (PurpleStatusAttr *)it->data;
