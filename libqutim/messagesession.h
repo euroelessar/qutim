@@ -44,9 +44,11 @@ namespace qutim_sdk_0_3
 		inline void appendMessage(const QString &text)
 		{ appendMessage(Message(text)); }
 	signals:
+		void chatUnitChanged(ChatUnit *unit);
 		void messageReceived(const Message &message);
 		void messageSended(const Message &message);
-		void contactAdded();
+		void contactAdded(qutim_sdk_0_3::ChatUnit *c);
+		void contactRemoved(qutim_sdk_0_3::ChatUnit *c);
 		void activated(bool active);
 	protected:
 		ChatSession(ChatLayer *chat);
@@ -68,7 +70,7 @@ namespace qutim_sdk_0_3
 		static ChatSession *get(ChatUnit *unit, bool create = true);
 		virtual QList<ChatSession*> sessions() = 0;
 	signals:
-		void sessionCreated(ChatSession *session);
+		void sessionCreated(qutim_sdk_0_3::ChatSession *session);
 	protected:
 		ChatUnit *getUnitForSession(ChatUnit *unit) const;
 		ChatLayer();

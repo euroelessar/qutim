@@ -103,6 +103,7 @@ namespace qutim_sdk_0_3
 		*/
 		virtual ChatUnit *upperUnit();
 	public slots:
+		void sendMessage(const QString &text);
 		/**
 		* @brief Sets a new chat state
 		*

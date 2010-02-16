@@ -16,6 +16,7 @@
 #include "chatunit_p.h"
 #include "account.h"
 #include <QCoreApplication>
+#include "message.h"
 
 namespace qutim_sdk_0_3
 {
@@ -57,6 +58,13 @@ namespace qutim_sdk_0_3
 	ChatUnit *ChatUnit::upperUnit()
 	{
 		return 0;
+	}
+
+	void ChatUnit::sendMessage(const QString &text)
+	{
+		Message message(text);
+		message.setIncoming(false);
+		sendMessage(message);
 	}
 
 	void ChatUnit::setChatState(ChatState state)
