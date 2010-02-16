@@ -19,8 +19,8 @@
 #include <libqutim/account.h>
 #include <libqutim/icon.h>
 #include <libqutim/menucontroller.h>
+#include <libqutim/debug.h>
 #include <QWebFrame>
-#include <QDebug>
 #include <QTime>
 #include <libqutim/qtwin.h>
 
@@ -147,23 +147,26 @@ namespace AdiumChat
 		int index = m_sessions.indexOf(session);
 		if (index == -1)
 			return;
+		ui->tabBar->removeTab(index);
+		m_sessions.removeAt(index);
+		session->disconnect(this);
 
 		currentIndexChanged(ui->tabBar->currentIndex());
 
-		ui->tabBar->removeTab(index);
-		m_sessions.removeAt(index);
 		if (ui->tabBar->count() == 1)
 			ui->tabBar->setVisible(false);
-		if (m_remove_session_on_close)
+		if (session && m_remove_session_on_close) {			
 			session->deleteLater();
+			debug () << "session removed" << index;
+		}
 	}
 
 	void ChatWidget::onSessionDestroyed(QObject* object)
 	{
-		ChatSessionImpl *sess = qobject_cast<ChatSessionImpl *>(object);
-		if (sess && m_sessions.contains(sess)) {
-			m_sessions.removeAll(sess);
-		}
+		ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
+		if (!sess)
+			return;
+		removeSession(sess);
 	}
 
 	ChatSessionList ChatWidget::getSessionList() const
@@ -179,6 +182,7 @@ namespace AdiumChat
 	void ChatWidget::onTabMoved(int from, int to)
 	{
 		m_sessions.move(from,to);
+		debug() << "moved session" << from << to;
 	}
 
 	void ChatWidget::activate(ChatSessionImpl* session)
@@ -186,7 +190,7 @@ namespace AdiumChat
 		raise();
 		//TODO customize support
 		int index = m_sessions.indexOf(session);
-		qDebug() << "active index" << index;
+		debug() << "active index" << index;
 		if (ui->tabBar->currentIndex() != index)
 			ui->tabBar->setCurrentIndex(index);
 
@@ -299,7 +303,7 @@ namespace AdiumChat
 			ChatUnit *unit = m_sessions.at(ui->tabBar->currentIndex())->getUnit();
 			m_chatstate = ChatStateComposing;
 			unit->setChatState(m_chatstate);
-			qDebug()<< "typing to" << unit->title();
+			debug()<< "typing to" << unit->title();
 		}
 	}
 
@@ -307,7 +311,7 @@ namespace AdiumChat
 	{
 		m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
 		ChatUnit *unit = m_sessions.at(ui->tabBar->currentIndex())->getUnit();
-		qDebug() << "paused to" << unit->title();
+		debug() << "paused to" << unit->title();
 		unit->setChatState(m_chatstate);
 		killTimer(m_timerid);
 		QObject::timerEvent(e);
@@ -316,10 +320,10 @@ namespace AdiumChat
 	void ChatWidget::onMessageReceived(const qutim_sdk_0_3::Message& message)
 	{
 		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
-		qDebug() << "messageReceived" << message.text();
+		debug() << "messageReceived" << message.text();
 		if (!session)
 			return;
-		qDebug() << "message from" << session->getUnit()->title();
+		debug() << "message from" << session->getUnit()->title();
 		int index = m_sessions.indexOf(session);
 		if (index == -1)
 			return;
@@ -333,7 +337,6 @@ namespace AdiumChat
 	void ChatWidget::onMessageSended(const qutim_sdk_0_3::Message& message)
 	{
 		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
-		qDebug() << "messageSended" << message.text();
 		if (!session)
 			return;
 		

@@ -18,7 +18,7 @@
 #include "chatsessionimpl.h"
 #include "chatwidget.h"
 #include "modulemanagerimpl.h"
-#include <QDebug>
+#include <libqutim/debug.h>
 #include <libqutim/settingslayer.h>
 #include <libqutim/icon.h>
 
@@ -71,6 +71,7 @@ namespace AdiumChat
 		{
 			session = new ChatSessionImpl(unit,this);
 			connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
+			connect(session,SIGNAL(destroyed(QObject*)),SLOT(onChatSessionDestroyed(QObject*)));
 			m_chat_sessions.insert(unit,session);
 			emit sessionCreated(session);
 		}
@@ -90,9 +91,19 @@ namespace AdiumChat
 
 	void ChatLayerImpl::onChatWidgetDestroyed(QObject* object)
 	{
-		ChatWidget *widget = qobject_cast< ChatWidget* >(object);
+		ChatWidget *widget = reinterpret_cast < ChatWidget* >(object);
 		QString key = m_chatwidgets.key(widget);
 		m_chatwidgets.remove(key);
+	}
+	void ChatLayerImpl::onChatSessionDestroyed(QObject *object)
+	{
+		ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
+		if (!sess)
+			return;
+		ChatUnit *key = m_chat_sessions.key(sess);
+		debug() << "session removed" << sess << "unit:" << key;
+		if (key)
+			m_chat_sessions.remove(key);
 	}
 
 	ChatLayerImpl::~ChatLayerImpl()
@@ -110,6 +121,7 @@ namespace AdiumChat
 
 	void ChatLayerImpl::onSessionActivated(bool active)
 	{
+		debug() << "session activated";
 		//init or update chat widget(s)
 		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
 		if (!session)

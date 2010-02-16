@@ -54,7 +54,7 @@ namespace AdiumChat
 		void addSession(ChatSessionImpl *session);
 		void addSession(const ChatSessionList &sessions);
 		void removeSession(ChatSessionImpl *session);
-		void activate(ChatSessionImpl *session);
+		void activate(ChatSessionImpl *sessionz);
 	protected:
 		bool eventFilter(QObject *obj, QEvent *event);
 		virtual void timerEvent(QTimerEvent* );
