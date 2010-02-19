@@ -135,7 +135,7 @@ void ClientIdentify::identify(IcqContact *contact)
 	setClientData("-", "unknown");
 }
 
-void ClientIdentify::statusChanged(IcqContact *contact, const Status &status, const TLVMap &tlvs)
+void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
 {
 	Q_UNUSED(status);
 	Q_UNUSED(tlvs);

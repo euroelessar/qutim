@@ -25,6 +25,14 @@ namespace Icq
 class IcqContact;
 class XtrazPrivate;
 
+enum XtrazType
+{
+	xtrazInvitation = 0x0001,
+	xtrazData       = 0x0002,
+	xtrazUserRemove = 0x0004,
+	xtrazNotify     = 0x0008
+};
+
 const Capability MSG_XSTRAZ_SCRIPT(0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865);
 
 class LIBOSCAR_EXPORT XtrazRequest: public ServerMessage

@@ -20,6 +20,7 @@
 #include "oscarconnection.h"
 #include "roster_p.h"
 #include "buddycaps.h"
+#include "oscarstatus.h"
 #include <qutim/status.h>
 #include <qutim/systeminfo.h>
 #include <qutim/contactlist.h>
@@ -107,7 +108,7 @@ void IcqAccount::setStatus(Status status)
 			d->lastStatus = status;
 			d->reconnectTimer.stop();
 		}
-		return;
+		//return;
 	}
 	if (status.type() == Status::Offline) {
 		if (d->conn->isConnected()) {
@@ -128,7 +129,7 @@ void IcqAccount::setStatus(Status status)
 			setStatus(d->lastStatus);
 			return;
 		}
-		Status stat = icqStatusToQutim(IcqOffline);
+		OscarStatus stat;
 		foreach(IcqContact *contact, d->contacts)
 			contact->setStatus(stat);
 	} else {
@@ -140,7 +141,7 @@ void IcqAccount::setStatus(Status status)
 				status = Status::Connecting;
 				d->conn->connectToLoginServer(pass);
 			} else {
-				status = icqStatusToQutim(IcqOffline);
+				status = OscarStatus();
 			}
 		} else {
 			d->conn->sendStatus(status);
@@ -152,9 +153,9 @@ void IcqAccount::setStatus(Status status)
 	emit statusChanged(status);
 }
 
-void IcqAccount::setStatus(IcqStatus status)
+void IcqAccount::setStatus(OscarStatusEnum status)
 {
-	setStatus(icqStatusToQutim(status));
+	setStatus(OscarStatus(status));
 }
 
 QString IcqAccount::name() const

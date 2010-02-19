@@ -122,7 +122,7 @@ void IcqContact::sendMessage(const Message &message)
 		else
 			codec = Util::asciiCodec();
 		QByteArray msg = codec->fromUnicode(msgText) + '\0';
-		Tlv2711 tlv(0x01, 0, qutimStatusToICQ(d->status), 1, cookie);
+		Tlv2711 tlv(0x01, 0, d->status.subtype(), 1, cookie);
 		tlv.append<quint16>(msg, LittleEndian);
 		tlv.appendColors();
 		if (Utf8Support())

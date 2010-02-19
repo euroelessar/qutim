@@ -19,14 +19,6 @@
 namespace Icq
 {
 
-enum XtrazType
-{
-	xtrazInvitation = 0x0001,
-	xtrazData       = 0x0002,
-	xtrazUserRemove = 0x0004,
-	xtrazNotify     = 0x0008
-};
-
 class XtrazData: public Tlv2711
 {
 public:

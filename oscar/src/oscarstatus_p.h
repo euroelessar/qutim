@@ -1,8 +1,7 @@
 /****************************************************************************
- *  icqprotocol_p.h
+ *  oscarstatus_p.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -14,28 +13,21 @@
  ***************************************************************************
  *****************************************************************************/
 
-#ifndef ICQPROTOCOL_P_H
-#define ICQPROTOCOL_P_H
+#ifndef OSCARSTATUS_P_H
+#define OSCARSTATUS_P_H
 
-#include "icqaccount.h"
-#include "icqprotocol.h"
+#include "oscarstatus.h"
 
 namespace Icq
 {
 
-struct IcqProtocolPrivate
-{
-	inline IcqProtocolPrivate() :
-		accounts_hash(new QHash<QString, QPointer<IcqAccount> > ())
-	{ }
-	inline ~IcqProtocolPrivate() { delete accounts_hash; }
-	union
-	{
-		QHash<QString, QPointer<IcqAccount> > *accounts_hash;
-		QHash<QString, IcqAccount *> *accounts;
-	};
-};
+typedef QSet<QString> CapsTypes;
+typedef QHash<QString, Capability> CapsList;
+CapsTypes &capsTypes();
+typedef QHash<quint16, Status> OscarStatusList;
 
 } // namespace Icq
 
-#endif // ICQPROTOCOL_P_H
+Q_DECLARE_METATYPE(Icq::CapsList);
+
+#endif // OSCARSTATUS_P_H

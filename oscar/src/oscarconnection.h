@@ -19,6 +19,7 @@
 
 #include "connection.h"
 #include "metainfo.h"
+#include "oscarstatus.h"
 
 namespace Icq
 {
@@ -79,7 +80,7 @@ public:
 	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
 	BuddyPicture *buddyPictureService() { return m_buddy_picture; }
 	MetaInfo *metaInfo() { return m_meta_info; }
-	void sendStatus(Status status);
+	void sendStatus(OscarStatus status);
 private slots:
 	void disconnected();
 	void md5Error(ConnectionError error);

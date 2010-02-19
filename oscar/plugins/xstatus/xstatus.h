@@ -19,11 +19,32 @@
 #include "xtraz.h"
 #include "messages.h"
 #include "roster.h"
+#include "oscarstatus.h"
 #include <QXmlStreamReader>
 #include <qutim/plugin.h>
 
 namespace Icq
 {
+
+class QipExtendedStatus : public OscarStatus
+{
+public:
+	QipExtendedStatus(quint16 status, const QString &iconName,
+					  const LocalizedString &name, quint16 id);
+};
+
+struct XStatus
+{
+	XStatus() { }
+	XStatus(const LocalizedString &status, const QString &icon,
+			qint8 mood, const Capability &capability);
+	LocalizedString status;
+	ExtensionIcon icon;
+	qint8 mood;
+	Capability capability;
+};
+
+typedef QList<XStatus> XStatusList;
 
 class XStatusHandler: public Plugin, public Tlv2711Plugin, public RosterPlugin
 {
@@ -36,9 +57,10 @@ public:
 	virtual bool unload();
 	XStatusHandler();
 	void processTlvs2711(IcqContact *contact, Capability guid, quint16 type, const DataUnit &data, const Cookie &cookie);
-	void statusChanged(IcqContact *contact, const Status &status, const TLVMap &tlvs);
+	void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs);
 	static bool handelXStatusCapabilities(IcqContact *contact, const Capabilities &caps, qint8 mood);
 	static void removeXStatuses(Capabilities &caps);
+	static QHash<Capability, OscarStatus> qipstatuses;
 private:
 	static void handleNotify(IcqContact *contact, const QString &message, const Cookie &cookie);
 	static void parseQuery(const QString &query, QString *pluginID);
@@ -48,6 +70,7 @@ private:
 	static void parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml);
 	static void parseRequest(IcqContact *contact, QXmlStreamReader &xml, const Cookie &cookie);
 	static void sendXStatus(IcqContact *contact, const Cookie &cookie);
+
 };
 
 } // namespace Icq

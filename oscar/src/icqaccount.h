@@ -20,6 +20,7 @@
 #include <qutim/account.h>
 #include "cookie.h"
 #include "capability.h"
+#include "oscarstatus.h"
 
 namespace qutim_sdk_0_3
 {
@@ -55,7 +56,7 @@ public:
 	IcqAccount(const QString &uin);
 	virtual ~IcqAccount();
 	virtual void setStatus(Status status);
-	void setStatus(IcqStatus status);
+	void setStatus(OscarStatusEnum status);
 	virtual QString name() const;
 	void setName(const QString &name);
 	Feedbag *feedbag();

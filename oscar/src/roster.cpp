@@ -25,6 +25,7 @@
 #include "xtraz.h"
 #include "feedbag.h"
 #include "sessiondataitem.h"
+#include "oscarstatus.h"
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
 #include <qutim/notificationslayer.h>
@@ -415,11 +416,11 @@ void Roster::handleUserOnline(const SNAC &snac)
 	// status.
 	Status oldStatus = contact->status();
 	quint16 statusFlags = 0;
-	Status status = icqStatusToQutim(IcqOnline);
+	OscarStatus status(OscarOnline);
 	if (tlvs.contains(0x06)) {
 		DataUnit status_data(tlvs.value(0x06));
 		statusFlags = status_data.read<quint16>();
-		status = icqStatusToQutim(static_cast<IcqStatus>(status_data.read<quint16>()));
+		status = static_cast<OscarStatusEnum>(status_data.read<quint16>());
 	}
 	// Status note
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));
@@ -441,6 +442,13 @@ void Roster::handleUserOnline(const SNAC &snac)
 			codec = defaultCodec();
 		}
 		status.setText(codec->toUnicode(note_data));
+	}
+
+	Capabilities newCaps;
+	DataUnit data(tlvs.value(0x000d));
+	while (data.dataSize() >= 16) {
+		Capability capability = data.read<Capability>();
+		newCaps << capability;
 	}
 	
 	if (oldStatus == Status::Offline) {
@@ -473,12 +481,6 @@ void Roster::handleUserOnline(const SNAC &snac)
 		}
 
 		// Updating capabilities
-		Capabilities newCaps;
-		DataUnit data(tlvs.value(0x000d));
-		while (data.dataSize() >= 16) {
-			Capability capability = data.read<Capability>();
-			newCaps << capability;
-		}
 		if (tlvs.contains(0x0019)) {
 			DataUnit data(tlvs.value(0x0019));
 			while (data.dataSize() >= 2)
@@ -490,7 +492,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 	foreach (RosterPlugin *plugin, plugins)
 		plugin->statusChanged(contact, status, tlvs);
 	contact->setStatus(status);
-	debug() << contact->name() << "changed status to " << contact->status();
+	debug() << contact->name() << "changed status to " << status.name();
 }
 
 void Roster::handleUserOffline(const SNAC &snac)
@@ -500,7 +502,7 @@ void Roster::handleUserOffline(const SNAC &snac)
 	// We don't know this contact
 	if (!contact)
 		return;
-	contact->setStatus(icqStatusToQutim(IcqOffline));
+	contact->setStatus(OscarStatus(OscarOffline));
 	//	quint16 warning_level = snac.read<quint16>();
 	//	TLVMap tlvs = snac.readTLVChain<quint16>();
 	//	tlvs.value(0x0001); // User class

@@ -39,7 +39,7 @@ public:
 	ClientIdentify();
 	~ClientIdentify();
 	void identify(IcqContact *contact);
-	virtual void statusChanged(IcqContact *contact, const Status &status, const TLVMap &tlvs);
+	virtual void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs);
 	virtual void virtual_hook(int type, void *data);
 	virtual void init();
 	virtual bool load();
