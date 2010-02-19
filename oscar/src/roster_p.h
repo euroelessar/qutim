@@ -22,6 +22,7 @@
 #include "snachandler.h"
 #include "icqcontact.h"
 #include "feedbag.h"
+#include "oscarstatus.h"
 
 namespace Icq
 {
@@ -65,6 +66,7 @@ private slots:
 	void statusChanged(qutim_sdk_0_3::Status status);
 	void loginFinished();
 private:
+	void setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &tlvs);
 	IcqAccount *m_account;
 	OscarConnection *m_conn;
 	SsiHandler *m_ssiHandler;

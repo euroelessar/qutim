@@ -25,7 +25,6 @@
 #include "xtraz.h"
 #include "feedbag.h"
 #include "sessiondataitem.h"
-#include "oscarstatus.h"
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
 #include <qutim/notificationslayer.h>
@@ -412,7 +411,6 @@ void Roster::handleUserOnline(const SNAC &snac)
 	quint16 warning_level = snac.read<quint16>();
 	Q_UNUSED(warning_level);
 	TLVMap tlvs = snac.read<TLVMap, quint16>();
-
 	// status.
 	Status oldStatus = contact->status();
 	quint16 statusFlags = 0;
@@ -488,11 +486,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 		}
 		contact->setCapabilities(newCaps);
 	}
-	QList<RosterPlugin*> plugins = m_account->d_func()->rosterPlugins;
-	foreach (RosterPlugin *plugin, plugins)
-		plugin->statusChanged(contact, status, tlvs);
-	contact->setStatus(status);
-	debug() << contact->name() << "changed status to " << status.name();
+	setStatus(contact, status, tlvs);
 }
 
 void Roster::handleUserOffline(const SNAC &snac)
@@ -502,10 +496,12 @@ void Roster::handleUserOffline(const SNAC &snac)
 	// We don't know this contact
 	if (!contact)
 		return;
-	contact->setStatus(OscarStatus(OscarOffline));
-	//	quint16 warning_level = snac.read<quint16>();
-	//	TLVMap tlvs = snac.readTLVChain<quint16>();
-	//	tlvs.value(0x0001); // User class
+	quint16 warning_level = snac.read<quint16>();
+	Q_UNUSED(warning_level);
+	TLVMap tlvs = snac.read<TLVMap, quint16>();
+	//tlvs.value(0x0001); // User class
+	OscarStatus status(OscarOffline);
+	setStatus(contact, status, tlvs);
 }
 
 void Roster::statusChanged(qutim_sdk_0_3::Status status)
@@ -523,6 +519,14 @@ void Roster::loginFinished()
 			delete contact;
 		}
 	}
+}
+
+void Roster::setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &tlvs)
+{
+	foreach (RosterPlugin *plugin, m_account->d_func()->rosterPlugins)
+		plugin->statusChanged(contact, status, tlvs);
+	contact->setStatus(status);
+	debug() << contact->name() << "changed status to " << status.name();
 }
 
 } // namespace Icq
