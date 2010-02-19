@@ -441,13 +441,19 @@ void Roster::handleUserOnline(const SNAC &snac)
 		}
 		status.setText(codec->toUnicode(note_data));
 	}
-
+	// Updating capabilities
 	Capabilities newCaps;
 	DataUnit data(tlvs.value(0x000d));
 	while (data.dataSize() >= 16) {
 		Capability capability = data.read<Capability>();
 		newCaps << capability;
 	}
+	if (tlvs.contains(0x0019)) {
+		DataUnit data(tlvs.value(0x0019));
+		while (data.dataSize() >= 2)
+			newCaps.push_back(Capability(data.readData(2)));
+	}
+	contact->setCapabilities(newCaps);
 	
 	if (oldStatus == Status::Offline) {
 		if (tlvs.contains(0x000c)) { // direct connection info
@@ -477,14 +483,6 @@ void Roster::handleUserOnline(const SNAC &snac)
 			if (hash.size() == 16)
 				m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
 		}
-
-		// Updating capabilities
-		if (tlvs.contains(0x0019)) {
-			DataUnit data(tlvs.value(0x0019));
-			while (data.dataSize() >= 2)
-				newCaps.push_back(Capability(data.readData(2)));
-		}
-		contact->setCapabilities(newCaps);
 	}
 	setStatus(contact, status, tlvs);
 }

@@ -58,7 +58,7 @@ public:
 	XStatusHandler();
 	void processTlvs2711(IcqContact *contact, Capability guid, quint16 type, const DataUnit &data, const Cookie &cookie);
 	void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs);
-	static bool handelXStatusCapabilities(IcqContact *contact, const Capabilities &caps, qint8 mood);
+	static bool handelXStatusCapabilities(IcqContact *contact, qint8 mood);
 	static void removeXStatuses(Capabilities &caps);
 	static QHash<Capability, OscarStatus> qipstatuses;
 private:

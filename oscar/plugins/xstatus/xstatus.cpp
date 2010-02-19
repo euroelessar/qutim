@@ -204,14 +204,7 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
 {
 	IcqAccount *account = contact->account();
-	// TODO: optimize
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));
-	Capabilities newCaps;
-	DataUnit data(tlvs.value(0x000d));
-	while (data.dataSize() >= 16) {
-		Capability capability(data.readData(16));
-		newCaps << capability;
-	}
 	qint8 moodIndex = -1;
 	if (statusNoteData.contains(0x0e)) {
 		QString moodStr = statusNoteData.value(0x0e).read<QString>(Util::asciiCodec());
@@ -222,14 +215,14 @@ void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TL
 				moodIndex = -1;
 		}
 	}
-	if (handelXStatusCapabilities(contact, newCaps, moodIndex)) {
+	if (handelXStatusCapabilities(contact, moodIndex)) {
 		QString notify = QString("<srv><id>cAwaySrv</id><req><id>AwayStat</id>"
 			"<trans>1</trans><senderId>%1</senderId></req></srv>").
 			arg(account->id());
 		XtrazRequest xstatusRequest(contact, "<Q><PluginID>srvMng</PluginID></Q>", notify);
 		account->connection()->send(xstatusRequest);
 	}
-	foreach (const Capability &cap, newCaps) {
+	foreach (const Capability &cap, contact->capabilities()) {
 		if (qipstatuses.contains(cap)) {
 			OscarStatus qipStatus = qipstatuses.value(cap);
 			status.setIcon(qipStatus.icon());
@@ -238,8 +231,9 @@ void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TL
 	}
 }
 
-bool XStatusHandler::handelXStatusCapabilities(IcqContact *contact, const Capabilities &caps, qint8 mood)
+bool XStatusHandler::handelXStatusCapabilities(IcqContact *contact, qint8 mood)
 {
+	const Capabilities &caps = contact->capabilities();
 	foreach(const XStatus &status, *xstatusList())
 	{
 		if (caps.match(status.capability) || (mood != -1 && status.mood == mood)) {
