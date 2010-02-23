@@ -29,7 +29,7 @@ static QDebug operator<<(QDebug dbg, const MetaInfo::Category &cat)
 }
 
 MetaInfo::MetaInfo(QObject *parent) :
-	SNACHandler(parent), m_sequence(0)
+	QObject(parent), m_sequence(0)
 {
 	m_infos << SNACInfo(ExtensionsFamily, ExtensionsMetaSrvReply)
 		<< SNACInfo(ExtensionsFamily, ExtensionsMetaError);

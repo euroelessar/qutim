@@ -16,13 +16,3 @@
 
 #include "snachandler.h"
 
-namespace qutim_sdk_0_3 {
-
-namespace oscar {
-
-SNACHandler::SNACHandler(QObject *parent) :
-	QObject(parent)
-{
-}
-
-} } // namespace qutim_sdk_0_3::oscar

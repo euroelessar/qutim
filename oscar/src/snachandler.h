@@ -30,11 +30,9 @@ class AbstractConnection;
 
 typedef QPair<quint16, quint16> SNACInfo;
 
-class LIBOSCAR_EXPORT SNACHandler: public QObject
+class LIBOSCAR_EXPORT SNACHandler
 {
-	Q_OBJECT
 public:
-	SNACHandler(QObject *parent = 0);
 	const QList<SNACInfo> &infos() { return m_infos; }
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac) = 0;
 protected:
@@ -42,5 +40,7 @@ protected:
 };
 
 } } // namespace qutim_sdk_0_3::oscar
+
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::SNACHandler, "org.qutim.oscar.SNACHandler")
 
 #endif // SNACHANDLER_H

@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 Md5LoginNegotiation::Md5LoginNegotiation(OscarConnection *conn, QObject *parent) :
-	SNACHandler(parent), m_conn(conn)
+	QObject(parent), m_conn(conn)
 {
 	m_infos << SNACInfo(AuthorizationFamily, SignonLoginReply)
 			<< SNACInfo(AuthorizationFamily, SignonAuthKey);

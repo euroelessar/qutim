@@ -19,9 +19,10 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-class MessagesHandler: public SNACHandler
+class MessagesHandler : public QObject, public SNACHandler
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
 public:
 	MessagesHandler(IcqAccount *account, QObject *parent = 0);
 	virtual ~MessagesHandler();

@@ -25,9 +25,10 @@ namespace oscar {
 class OscarConnection;
 class IcqAccount;
 
-class MetaInfo: public SNACHandler
+class MetaInfo: public QObject, public SNACHandler
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
 public:
 	struct Category
 	{

@@ -109,9 +109,10 @@ Q_INLINE_TEMPLATE void FeedbagItem::setField(quint16 field, const T &d)
 	data().insert(field, d);
 }
 
-class LIBOSCAR_EXPORT Feedbag : public SNACHandler
+class LIBOSCAR_EXPORT Feedbag : public QObject, public SNACHandler
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
 public:		
 	enum ModifyType {
 		Add = ListsAddToList,

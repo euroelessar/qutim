@@ -150,7 +150,7 @@ ServerResponseMessage::ServerResponseMessage(IcqContact *contact, quint16 format
 }
 
 MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent) :
-	SNACHandler(parent), m_account(account)
+	QObject(parent), m_account(account)
 {
 	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
 	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)

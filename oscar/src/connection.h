@@ -43,9 +43,10 @@ private:
 	QString getErrorStr();
 };
 
-class ProtocolNegotiation: public SNACHandler
+class ProtocolNegotiation : public QObject, public SNACHandler
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
 public:
 	ProtocolNegotiation(QObject *parent = 0);
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
@@ -54,7 +55,7 @@ private:
 	quint32 m_login_reqinfo;
 };
 
-class AbstractConnection: public QObject
+class AbstractConnection : public QObject
 {
 	Q_OBJECT
 public:

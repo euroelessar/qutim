@@ -54,9 +54,10 @@ private:
 	IcqAccount *m_account;
 };
 
-class Roster : public SNACHandler
+class Roster : public QObject, public SNACHandler
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
 public:
 	Roster(IcqAccount *account);
 protected:

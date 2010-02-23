@@ -23,9 +23,10 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-class Md5LoginNegotiation: public SNACHandler
+class Md5LoginNegotiation : public QObject, public SNACHandler
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
 public:
 	Md5LoginNegotiation(OscarConnection *conn, QObject *parent = 0);
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);

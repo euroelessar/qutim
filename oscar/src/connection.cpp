@@ -173,7 +173,7 @@ void OscarRate::sendNextPackets()
 }
 
 ProtocolNegotiation::ProtocolNegotiation(QObject *parent) :
-	SNACHandler(parent)
+	QObject(parent)
 {
 	m_infos << SNACInfo(ServiceFamily, ServiceServerReady)
 			<< SNACInfo(ServiceFamily, ServiceServerNameInfo)

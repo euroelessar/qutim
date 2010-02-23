@@ -441,7 +441,7 @@ void FeedbagPrivate::finishLoading()
 }
 
 Feedbag::Feedbag(IcqAccount *acc):
-	SNACHandler(acc), d(new FeedbagPrivate(acc, this))
+	QObject(acc), d(new FeedbagPrivate(acc, this))
 {
 	m_infos << SNACInfo(ListsFamily, ListsError)
 			<< SNACInfo(ServiceFamily, ServiceServerAsksServices)

@@ -325,7 +325,7 @@ QStringList SsiHandler::readTags(const FeedbagItem &item)
 }
 
 Roster::Roster(IcqAccount *account):
-	SNACHandler(account)
+	QObject(account)
 {
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
 	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
