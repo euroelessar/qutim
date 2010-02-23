@@ -1,7 +1,8 @@
 /****************************************************************************
  *  snac.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -18,14 +19,14 @@
 
 #include "tlv.h"
 
-namespace Icq {
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class LIBOSCAR_EXPORT SNAC : public DataUnit
 {
 public:
 	inline SNAC(quint16 family = 0, quint16 subtype = 0) { reset(family, subtype); }
-//	template <typename Family>
-//	SNAC(Family subtype);
 	void reset(quint16 family, quint16 subtype);
 	inline quint16 family() const { return m_family; }
 	inline void setFamily(SnacFamily family) { m_family = family; }
@@ -47,6 +48,6 @@ private:
 	quint32 m_id;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // SNAC_H

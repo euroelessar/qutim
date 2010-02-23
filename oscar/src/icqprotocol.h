@@ -1,7 +1,7 @@
 /****************************************************************************
  *  icqprotocol.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -21,10 +21,9 @@
 #include <qutim/status.h>
 #include <icq_global.h>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-using namespace qutim_sdk_0_3;
+namespace oscar {
 
 struct IcqProtocolPrivate;
 class IcqProtocol;
@@ -52,6 +51,6 @@ private:
 	static IcqProtocol *self;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // ICQPROTOCOL_H

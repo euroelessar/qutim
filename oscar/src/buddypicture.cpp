@@ -1,7 +1,7 @@
 /****************************************************************************
  *  buddypicture.cpp
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -24,8 +24,10 @@
 
 #include <QImage>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
+
 
 BuddyPictureConnection::BuddyPictureConnection(QObject *parent) :
 	AbstractConnection(parent)
@@ -151,4 +153,4 @@ void BuddyPicture::disconnected()
 	m_history.clear();
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

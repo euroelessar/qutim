@@ -23,8 +23,9 @@
 #include <QXmlStreamReader>
 #include <qutim/plugin.h>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class QipExtendedStatus : public OscarStatus
 {
@@ -49,7 +50,7 @@ typedef QList<XStatus> XStatusList;
 class XStatusHandler: public Plugin, public Tlv2711Plugin, public RosterPlugin
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::Tlv2711Plugin qutim_sdk_0_3::RosterPlugin)
+	Q_INTERFACES(qutim_sdk_0_3::oscar::Tlv2711Plugin qutim_sdk_0_3::oscar::RosterPlugin)
 	Q_CLASSINFO("DebugName", "ICQ/Xstatus")
 public:
 	virtual void init();
@@ -73,6 +74,6 @@ private:
 
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // XTRAZ_P_H

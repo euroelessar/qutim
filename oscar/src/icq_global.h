@@ -1,7 +1,8 @@
 /****************************************************************************
  *  icq_global.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -26,7 +27,9 @@
 #  define LIBOSCAR_EXPORT Q_DECL_IMPORT
 #endif
 
-namespace Icq {
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 enum SnacFamily
 {
@@ -219,7 +222,6 @@ const quint8 protocol_version       = 9;
 const quint16 client_features       = 0x3;
 const quint16 dc_type               = 0x0004;
 
-
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // ICQ_GLOBAL_H

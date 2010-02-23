@@ -21,8 +21,12 @@
 #include "messageplugin.h"
 #include <QDateTime>
 
-namespace qutim_sdk_0_3
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
+
+class IcqAccount;
+class IcqContact;
 
 typedef QPair<Capability, quint16> Tlv2711Type;
 class Tlv2711Plugin
@@ -34,16 +38,6 @@ public:
 protected:
 	QSet<Tlv2711Type> m_tlvs2711Types;
 };
-
-} // namespace qutim_sdk_0_3
-
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::Tlv2711Plugin, "org.qutim.oscar.Tlvs2711Plugin");
-
-namespace Icq
-{
-
-class IcqAccount;
-class IcqContact;
 
 enum Channel1Codec
 {
@@ -132,6 +126,8 @@ public:
 	ServerResponseMessage(IcqContact *contact, quint16 format, quint16 reason, const Cookie &cookie = Cookie(true));
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
+
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::Tlv2711Plugin, "org.qutim.oscar.Tlvs2711Plugin");
 
 #endif /* MESSAGES_H_ */

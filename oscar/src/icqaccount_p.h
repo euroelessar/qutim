@@ -22,7 +22,9 @@
 #include "clientidentify.h"
 #include <QTimer>
 
-namespace Icq {
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 struct IcqAccountPrivate
 {
@@ -39,6 +41,6 @@ struct IcqAccountPrivate
 	QList<RosterPlugin*> rosterPlugins;
 };
 
-}
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // ICQACCOUNT_P_H

@@ -1,7 +1,7 @@
 /****************************************************************************
  *  buddypicture.h
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -20,8 +20,9 @@
 #include "icqcontact.h"
 #include "snachandler.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class IcqAccount;
 class BuddyPicture;
@@ -55,6 +56,6 @@ private:
 	bool m_is_connected;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif /* BUDDYPICTURE_H_ */

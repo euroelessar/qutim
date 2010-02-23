@@ -22,8 +22,9 @@
 #include <qutim/extensionicon.h>
 #include <qutim/statusactiongenerator.h>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 QHash<Capability, OscarStatus> XStatusHandler::qipstatuses;
 
@@ -420,6 +421,6 @@ void XStatusHandler::sendXStatus(IcqContact *contact, const Cookie &cookie)
 	account->connection()->send(data);
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
-QUTIM_EXPORT_PLUGIN(Icq::XStatusHandler);
+QUTIM_EXPORT_PLUGIN(qutim_sdk_0_3::oscar::XStatusHandler);

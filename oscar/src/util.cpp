@@ -1,7 +1,7 @@
 /****************************************************************************
  *  util.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -17,11 +17,12 @@
 #include "util.h"
 #include <QCoreApplication>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-namespace Util
-{
+namespace oscar {
+
+namespace Util {
+
 static QTextCodec *_asciiCodec;
 
 extern QTextCodec *asciiCodec()
@@ -53,6 +54,4 @@ extern QTextCodec *defaultCodec()
 	return utf8Codec();
 }
 
-} // namespace Icq::Util
-
-} // namespace Icq
+} } } // namespace qutim_sdk_0_3::oscar::Util

@@ -1,7 +1,7 @@
 /****************************************************************************
  *  capability.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -23,8 +23,9 @@
 #include <QUuid>
 #include "dataunit.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 struct LIBOSCAR_EXPORT Capability: public QUuid
 {
@@ -69,6 +70,6 @@ struct fromDataUnitHelper<Capability, false>
 	}
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // CAPABILTY_H

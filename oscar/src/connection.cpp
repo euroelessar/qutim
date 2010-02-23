@@ -1,7 +1,7 @@
 /****************************************************************************
  *  connection.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -19,8 +19,9 @@
 #include <QBuffer>
 #include <QCoreApplication>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 quint16 generate_flap_sequence()
 {
@@ -539,4 +540,4 @@ void AbstractConnection::error(QAbstractSocket::SocketError error)
 	debug() << "Connection error:" << error;
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

@@ -28,8 +28,9 @@
 #include <ui/passworddialog.h>
 #include <qutim/objectgenerator.h>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 IcqAccount::IcqAccount(const QString &uin) :
 	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
@@ -304,4 +305,4 @@ QString IcqAccount::password()
 	return password;
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

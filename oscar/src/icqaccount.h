@@ -22,17 +22,12 @@
 #include "capability.h"
 #include "oscarstatus.h"
 
-namespace qutim_sdk_0_3
-{
-	class RosterPlugin;
-}
+namespace qutim_sdk_0_3 {
 
-namespace Icq
-{
-
-using namespace qutim_sdk_0_3;
+namespace oscar {
 
 struct IcqAccountPrivate;
+class RosterPlugin;
 class Roster;
 class Feedbag;
 class OscarConnection;
@@ -88,6 +83,6 @@ private:
 	QScopedPointer<IcqAccountPrivate> d_ptr;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // ICQACCOUNT_H

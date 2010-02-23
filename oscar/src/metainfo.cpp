@@ -1,7 +1,7 @@
 /****************************************************************************
  *  metainfo.cpp
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -18,8 +18,9 @@
 #include "oscarconnection.h"
 #include <QStringList>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 static QDebug operator<<(QDebug dbg, const MetaInfo::Category &cat)
 {
@@ -290,4 +291,4 @@ inline QString MetaInfo::readString(const DataUnit &data)
 	return str;
 }
 
-} //namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

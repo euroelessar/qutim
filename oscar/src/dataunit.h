@@ -1,7 +1,7 @@
 /****************************************************************************
  *  dataunit.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -21,8 +21,9 @@
 #include <icq_global.h>
 #include <typeinfo>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 enum ByteOrder
 {
@@ -376,6 +377,6 @@ T DataUnit::read(QTextCodec *codec, ByteOrder bo) const
 	return fromDataUnitHelper<T>::fromByteArray(*this, codec, read<L>(bo));
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // DATAUNIT_H

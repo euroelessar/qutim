@@ -19,8 +19,9 @@
 #include <qutim/statusactiongenerator.h>
 #include "icqaccount.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 static void init_status_list(OscarStatusList &list)
 {
@@ -161,4 +162,4 @@ void OscarStatus::setCapability(const Capability &capability, const QString &typ
 	setProperty("capabilities", QVariant::fromValue(caps));
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

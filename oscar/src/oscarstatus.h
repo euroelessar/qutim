@@ -20,10 +20,9 @@
 #include "capability.h"
 #include <qutim/status.h>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-using namespace qutim_sdk_0_3;
+namespace oscar {
 
 enum OscarStatusEnum
 {
@@ -61,6 +60,6 @@ public:
 	void setCapability(const Capability &capability, const QString &type);
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // OSCARSTATUS_H

@@ -1,7 +1,7 @@
 /****************************************************************************
  *  icqprotocol.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -21,8 +21,9 @@
 #include <QStringList>
 #include <QPointer>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 IcqProtocol *IcqProtocol::self = 0;
 
@@ -86,4 +87,4 @@ void IcqProtocol::onStatusActionPressed()
 		account->setStatus(static_cast<Status::Type>(action->property("status").toInt()));
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

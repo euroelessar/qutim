@@ -2,7 +2,7 @@
  *  clientidentify.cpp
  *
  *  Copyright (c) 2008 by Alexey Ignatiev <twosev@gmail.com>
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -25,9 +25,9 @@
 #include "oscarconnection.h"
 #include "xtraz.h"
 
+namespace qutim_sdk_0_3 {
 
-namespace Icq {
-
+namespace oscar {
 
 void ClientIdentify::init()
 {
@@ -1300,6 +1300,6 @@ void ClientIdentify::identify_NaimIcq()
 												     0x00, 0x00, 0x00, 0x00);*/
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
-QUTIM_EXPORT_PLUGIN(Icq::ClientIdentify);
+QUTIM_EXPORT_PLUGIN(qutim_sdk_0_3::oscar::ClientIdentify);

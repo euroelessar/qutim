@@ -22,7 +22,9 @@
 #include <QDateTime>
 #include <qutim/objectgenerator.h>
 
-namespace Icq {
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 QString getCompressedName(const QString &name)
 {
@@ -328,9 +330,9 @@ void FeedbagItem::setData(const TLVMap &tlvs)
 	d->tlvs = tlvs;
 }
 
-QDebug &operator<<(QDebug &stream, const Icq::FeedbagItem &item)
+QDebug &operator<<(QDebug &stream, const FeedbagItem &item)
 {
-	const Icq::FeedbagItemPrivate *d = item.d;
+	const FeedbagItemPrivate *d = item.d;
 	if (!d->recordName.isEmpty())
 		stream.nospace() << "Name: " << d->recordName << "; type: ";
 	else
@@ -811,4 +813,4 @@ FeedbagItemHandler::~FeedbagItemHandler()
 {
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

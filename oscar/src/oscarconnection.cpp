@@ -1,7 +1,7 @@
 /****************************************************************************
  *  oscarconnection.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -29,8 +29,9 @@
 #include <QBuffer>
 #include <QTimer>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class ProtocolNegotiationImpl: public ProtocolNegotiation
 {
@@ -263,4 +264,4 @@ void OscarConnection::setIdle(bool allow)
 	send(snac);
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

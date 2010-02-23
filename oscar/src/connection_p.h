@@ -1,7 +1,7 @@
 /****************************************************************************
  *  connection.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -22,8 +22,9 @@
 #include <QTimer>
 #include <QDateTime>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 struct OscarRate: public QObject
 {
@@ -71,6 +72,6 @@ private:
 	AbstractConnection *m_conn;
 };
 
-} // namespace Icq 
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif //CONNECTION_P_H

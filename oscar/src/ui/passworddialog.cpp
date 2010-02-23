@@ -20,7 +20,9 @@
 #include "icqaccount.h"
 #include "ui_passwordform.h"
 
-namespace Icq {
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 PasswordDialog::PasswordDialog(IcqAccount *account, QWidget *parent) :
 	QDialog(parent), m_account(account)
@@ -75,4 +77,4 @@ void PasswordDialog::validate()
 	m_okButton->setEnabled(!disabled);
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

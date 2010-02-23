@@ -1,7 +1,7 @@
 /****************************************************************************
  *  md5login.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -20,8 +20,9 @@
 #include <QCryptographicHash>
 #include <QUrl>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 Md5LoginNegotiation::Md5LoginNegotiation(OscarConnection *conn, QObject *parent) :
 	SNACHandler(parent), m_conn(conn)
@@ -125,4 +126,4 @@ void Md5Login::setLoginData(const QString &addr, quint16 port, const QByteArray 
 	m_cookie = cookie;
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

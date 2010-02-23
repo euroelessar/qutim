@@ -15,8 +15,9 @@
 
 #include "messages.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class MessagesHandler: public SNACHandler
 {
@@ -42,4 +43,4 @@ private:
 	QMultiHash<Tlv2711Type, Tlv2711Plugin *> m_tlvs2711Plugins;
 };
 
-}
+} } // namespace qutim_sdk_0_3::oscar

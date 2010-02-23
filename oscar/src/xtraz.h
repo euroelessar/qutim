@@ -19,8 +19,9 @@
 #include "icq_global.h"
 #include "messages.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class IcqContact;
 class XtrazPrivate;
@@ -47,6 +48,6 @@ public:
 	XtrazResponse(IcqContact *contact, const QString &response, const Cookie &cookie);
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // XTRAZ_H

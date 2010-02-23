@@ -18,7 +18,9 @@
 
 #include <dataunit.h>
 
-namespace Icq {
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class LIBOSCAR_EXPORT SessionDataItem : public DataUnit
 {
@@ -156,6 +158,6 @@ struct fromDataUnitHelper<SessionDataItemMap>
 	}
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // SESSIONDATAITEM_H

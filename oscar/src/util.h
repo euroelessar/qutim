@@ -1,7 +1,7 @@
 /****************************************************************************
  *  util.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -23,11 +23,11 @@
 
 #define IMPLEMENT_ME QString("Function %1 at line %2: implement me.").arg(Q_FUNC_INFO).arg(__LINE__)
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-namespace Util
-{
+namespace oscar {
+
+namespace Util {
 
 template<typename T>
 inline QByteArray toBigEndian(T source)
@@ -52,8 +52,6 @@ extern QTextCodec *utf8Codec();
 extern QTextCodec *utf16Codec();
 extern QTextCodec *defaultCodec();
 
-} // namespace Icq::Util
-
-} // namespace Icq
+} } } // namespace qutim_sdk_0_3::oscar::Util
 
 #endif // UTIL_H

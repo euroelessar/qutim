@@ -1,7 +1,7 @@
 /****************************************************************************
  *  connection.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -24,8 +24,9 @@
 #include "snachandler.h"
 #include "flap.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 extern quint16 generate_flap_sequence();
 
@@ -141,6 +142,6 @@ private:
 	ConnectionError m_error;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // CONNECTION_H

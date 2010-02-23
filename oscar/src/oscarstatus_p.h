@@ -18,16 +18,17 @@
 
 #include "oscarstatus.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 typedef QSet<QString> CapsTypes;
 typedef QHash<QString, Capability> CapsList;
 CapsTypes &capsTypes();
 typedef QHash<quint16, Status> OscarStatusList;
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
-Q_DECLARE_METATYPE(Icq::CapsList);
+Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::CapsList);
 
 #endif // OSCARSTATUS_P_H

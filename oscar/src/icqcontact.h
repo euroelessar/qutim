@@ -1,7 +1,8 @@
 /****************************************************************************
  *  icqcontact.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -21,10 +22,9 @@
 #include <capability.h>
 #include <cookie.h>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-using namespace qutim_sdk_0_3;
+namespace oscar {
 
 class IcqAccount;
 class Roster;
@@ -81,6 +81,6 @@ protected:
 	QScopedPointer<IcqContactPrivate> d_ptr;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // ICQCONTACT_H

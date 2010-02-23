@@ -21,7 +21,9 @@
 #include "tlv.h"
 #include <QSharedData>
 
-namespace Icq {
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class Feedbag;
 class FeedbagPrivate;
@@ -171,6 +173,6 @@ protected:
 	QSet<quint16> m_types;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // FEEDBAG_H

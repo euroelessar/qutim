@@ -1,7 +1,8 @@
 /****************************************************************************
  *  icqcontact.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -21,8 +22,9 @@
 #include "qutim/messagesession.h"
 #include <QApplication>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 void IcqContactPrivate::clearCapabilities()
 {
@@ -431,4 +433,4 @@ void IcqContact::messageTimeout()
 	}
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

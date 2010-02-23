@@ -27,20 +27,15 @@
 #include <QHostAddress>
 #include <QApplication>
 
+namespace qutim_sdk_0_3 {
 
-namespace qutim_sdk_0_3
-{
+namespace oscar {
+
+using namespace Util;
 
 Tlv2711Plugin::~Tlv2711Plugin()
 {
 }
-
-} // namespace qutim_sdk_0_3
-
-namespace Icq
-{
-
-using namespace Util;
 
 Channel1MessageData::Channel1MessageData(const QString &message, Channel1Codec charset)
 {
@@ -558,5 +553,4 @@ void MessagesHandler::sendMetaInfoRequest(quint16 type)
 	m_account->connection()->send(snac);
 }
 
-} // namespace Icq
-
+} } // namespace qutim_sdk_0_3::oscar

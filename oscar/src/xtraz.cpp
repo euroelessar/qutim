@@ -16,8 +16,9 @@
 #include "xtraz.h"
 #include <QXmlStreamWriter>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class XtrazData: public Tlv2711
 {
@@ -88,4 +89,4 @@ XtrazResponse::XtrazResponse(IcqContact *contact, const QString &response, const
 	append(data.data());
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

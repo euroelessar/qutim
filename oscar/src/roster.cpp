@@ -31,8 +31,9 @@
 #include <qutim/actiongenerator.h>
 #include <qutim/icon.h>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 using namespace Util;
 
@@ -527,4 +528,4 @@ void Roster::setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &t
 	debug() << contact->name() << "changed status to " << status.name();
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

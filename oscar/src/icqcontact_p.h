@@ -1,7 +1,7 @@
 /****************************************************************************
  *  icqcontact_p.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -23,8 +23,9 @@
 #include "oscarconnection.h"
 #include "feedbag.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 enum SsiBuddyTlvs
 {
@@ -70,6 +71,6 @@ struct IcqContactPrivate
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IcqContactPrivate::CapabilityFlags)
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // ICQCONTACT_PH_H

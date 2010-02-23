@@ -24,8 +24,9 @@
 #include "feedbag.h"
 #include "oscarstatus.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class OscarConnection;
 class SsiHandler;
@@ -73,6 +74,6 @@ private:
 	bool firstPacket;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // ROSTER_P_H
