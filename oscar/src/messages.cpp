@@ -272,9 +272,9 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case MessageFamily << 16 | MessageSrvError: {
 		ProtocolError error(sn);
 		debug() << QString("Error (%1, %2): %3")
-				.arg(error.code, 2, 16)
-				.arg(error.subcode, 2, 16)
-				.arg(error.str);
+				.arg(error.code(), 2, 16)
+				.arg(error.subcode(), 2, 16)
+				.arg(error.errorString());
 		break;
 	}
 	}

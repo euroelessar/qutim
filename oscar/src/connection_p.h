@@ -72,6 +72,24 @@ private:
 	AbstractConnection *m_conn;
 };
 
+class AbstractConnectionPrivate
+{
+public:
+	// max value is 0x7fff, min is 0
+	inline quint16 seqNum() { seqnum++; return (seqnum &= 0x7fff); }
+	inline quint32 nextId() { return id++; }
+	QTcpSocket *socket;
+	FLAP flap;
+	QMultiMap<quint32, SNACHandler*> handlers;
+	quint16 seqnum;
+	quint32 id;
+	QHostAddress ext_ip;
+	QList<quint16> services;
+	QHash<quint16, OscarRate*> rates;
+	QHash<quint32, OscarRate*> ratesHash;
+	AbstractConnection::ConnectionError error;
+};
+
 } } // namespace qutim_sdk_0_3::oscar
 
 #endif //CONNECTION_P_H

@@ -77,7 +77,7 @@ void Md5LoginNegotiation::handleSNAC(AbstractConnection *c, const SNAC &sn)
 Md5Login::Md5Login(const QString &password, OscarConnection *conn) :
 	AbstractConnection(conn), m_conn(conn), m_password(password)
 {
-	setSeqNum(generate_flap_sequence());
+	setSeqNum(generateFlapSequence());
 }
 
 Md5Login::~Md5Login()

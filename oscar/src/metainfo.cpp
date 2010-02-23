@@ -93,9 +93,9 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 	} else if (snac.family() == ExtensionsFamily && snac.subtype() == ExtensionsMetaError) {
 		ProtocolError error(snac);
 		debug() << QString("Error (%1, %2): %3")
-				.arg(error.code, 2, 16)
-				.arg(error.subcode, 2, 16)
-				.arg(error.str);
+				.arg(error.code(), 2, 16)
+				.arg(error.subcode(), 2, 16)
+				.arg(error.errorString());
 	}
 }
 
