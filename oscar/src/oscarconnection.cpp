@@ -33,55 +33,11 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-class ProtocolNegotiationImpl: public ProtocolNegotiation
-{
-public:
-	ProtocolNegotiationImpl(QObject *parent = 0);
-	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-};
-
-ProtocolNegotiationImpl::ProtocolNegotiationImpl(QObject *parent) :
-	ProtocolNegotiation(parent)
-{
-	m_infos << SNACInfo(LocationFamily, LocationRightsReply)
-			<< SNACInfo(BosFamily, PrivacyRightsReply);
-}
-
-void ProtocolNegotiationImpl::handleSNAC(AbstractConnection *conn, const SNAC &sn)
-{
-	ProtocolNegotiation::handleSNAC(conn, sn);
-	sn.resetState();
-	switch ((sn.family() << 16) | sn.subtype()) {
-	// Server sends rate limits information
-	case ServiceFamily << 16 | ServiceServerAsksServices: {
-		// Requesting Location rights
-		SNAC snac(LocationFamily, LocationCliReqRights);
-		conn->send(snac);
-
-		// Sending CLI_REQBOS
-		snac.reset(BosFamily, PrivacyReqRights);
-		conn->send(snac);
-		break;
-	}
-	// Server replies via location service limitations
-	case LocationFamily << 16 | LocationRightsReply: {
-		// TODO: Implement, it's important
-		break;
-	}
-	// Server replies via BLM service limitations
-	case BuddyFamily << 16 | UserSrvReplyBuddy: {
-		break;
-	}
-	// Server sends PRM service limitations to client
-	case BosFamily << 16 | PrivacyRightsReply: {
-		break;
-	}
-	}
-}
-
 OscarConnection::OscarConnection(IcqAccount *parent) :
 	AbstractConnection(parent)
 {
+	m_infos << SNACInfo(LocationFamily, LocationRightsReply)
+			<< SNACInfo(BosFamily, PrivacyRightsReply);
 	connect(socket(), SIGNAL(disconnected()), this, SLOT(disconnected()));
 	m_account = parent;
 	{
@@ -100,7 +56,7 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 	registerHandler(m_buddy_picture);
 	m_meta_info = new MetaInfo(this);
 	registerHandler(m_meta_info);
-	registerHandler(new ProtocolNegotiationImpl(this));
+	registerHandler(this);
 	registerHandler(new MessagesHandler(m_account, this));
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
@@ -253,6 +209,39 @@ void OscarConnection::sendStatus(OscarStatus status)
 	}
 	if (changedCapsList)
 		sendUserInfo();
+}
+
+void OscarConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
+{
+	Q_ASSERT(this == conn);
+	AbstractConnection::handleSNAC(this, sn);
+	sn.resetState();
+	switch ((sn.family() << 16) | sn.subtype()) {
+	// Server sends rate limits information
+	case ServiceFamily << 16 | ServiceServerAsksServices: {
+		// Requesting Location rights
+		SNAC snac(LocationFamily, LocationCliReqRights);
+		send(snac);
+
+		// Sending CLI_REQBOS
+		snac.reset(BosFamily, PrivacyReqRights);
+		send(snac);
+		break;
+	}
+	// Server replies via location service limitations
+	case LocationFamily << 16 | LocationRightsReply: {
+		// TODO: Implement, it's important
+		break;
+	}
+	// Server replies via BLM service limitations
+	case BuddyFamily << 16 | UserSrvReplyBuddy: {
+		break;
+	}
+	// Server sends PRM service limitations to client
+	case BosFamily << 16 | PrivacyRightsReply: {
+		break;
+	}
+	}
 }
 
 void OscarConnection::setIdle(bool allow)

@@ -164,135 +164,6 @@ void OscarRate::sendNextPackets()
 	}
 }
 
-ProtocolNegotiation::ProtocolNegotiation(QObject *parent) :
-	QObject(parent)
-{
-	m_infos << SNACInfo(ServiceFamily, ServiceServerReady)
-			<< SNACInfo(ServiceFamily, ServiceServerNameInfo)
-			<< SNACInfo(ServiceFamily, ServiceServerFamilies2)
-			<< SNACInfo(ServiceFamily, ServiceServerAsksServices)
-			<< SNACInfo(ServiceFamily, ServiceServerRateChange)
-			<< SNACInfo(ServiceFamily, ServiceError);
-}
-
-void ProtocolNegotiation::handleSNAC(AbstractConnection *conn, const SNAC &sn)
-{
-	AbstractConnectionPrivate *d = conn->d_func();
-	switch ((sn.family() << 16) | sn.subtype()) {
-	// Server sends supported services list
-	case ServiceFamily << 16 | ServiceServerReady: {
-		QList<quint16> &services = d->services;
-		while (sn.dataSize() != 0)
-			services << sn.read<quint16>();
-		SNAC snac(ServiceFamily, ServiceClientFamilies);
-		// Sending the same as ICQ 6
-		snac.append<quint32>(0x00220001);
-		snac.append<quint32>(0x00010004);
-		snac.append<quint32>(0x00130004);
-		snac.append<quint32>(0x00020001);
-		snac.append<quint32>(0x00030001);
-		snac.append<quint32>(0x00150001);
-		snac.append<quint32>(0x00040001);
-		snac.append<quint32>(0x00060001);
-		snac.append<quint32>(0x00090001);
-		snac.append<quint32>(0x000a0001);
-		snac.append<quint32>(0x000b0001);
-		conn->send(snac);
-		break;
-	}
-	// This is the reply to CLI_REQINFO
-	case ServiceFamily << 16 | ServiceServerNameInfo: {
-		// Skip uin
-		sn.read<QByteArray, quint8>();
-		sn.skipData(4);
-		// TLV(x01) User type?
-		// TLV(x0C) Empty CLI2CLI Direct connection info
-		// TLV(x0A) External IP
-		// TLV(x0F) Number of seconds that user has been online
-		// TLV(x03) The online since time.
-		// TLV(x0A) External IP again
-		// TLV(x22) Unknown
-		// TLV(x1E) Unknown: empty.
-		// TLV(x05) Member of ICQ since.
-		// TLV(x14) Unknown
-		TLVMap tlvs = sn.read<TLVMap>();
-		quint32 ip = tlvs.value(0x0a).read<quint32>();
-		d->ext_ip = QHostAddress(ip);
-		//debug() << conn->externalIP();
-		break;
-	}
-	// Server sends its services version numbers
-	case ServiceFamily << 16 | ServiceServerFamilies2: {
-		SNAC snac(ServiceFamily, ServiceClientReqRateInfo);
-		conn->send(snac);
-		break;
-	}
-	// Server sends rate limits information
-	case ServiceFamily << 16 | ServiceServerAsksServices: {
-		foreach(const OscarRate *rate, d->rates)
-			delete rate;
-		d->rates.clear();
-		d->ratesHash.clear();
-
-		// Rate classes
-		quint16 groupCount = sn.read<quint16>();
-		for (int i = 0; i < groupCount; ++i) {
-			OscarRate *rate = new OscarRate(sn, conn);
-			if (!rate->isEmpty())
-				d->rates.insert(rate->groupId(), rate);
-		}
-		// Rate groups
-		while (sn.dataSize() >= 4) {
-			quint16 groupId = sn.read<quint16>();
-			quint16 count = sn.read<quint16>();
-			QHash<quint16, OscarRate*>::iterator rateItr = d->rates.find(groupId);
-			if (rateItr == d->rates.end()) {
-				sn.skipData(count * 4);
-				continue;
-			}
-			for (int j = 0; j < count; ++j) {
-				quint32 snacType = sn.read<quint32>();
-				rateItr.value()->addSnacType(snacType);
-				d->ratesHash.insert(snacType, *rateItr);
-			}
-		}
-
-		// Accepting rates
-		SNAC snac(ServiceFamily, ServiceClientRateAck);
-		for (int i = 1; i <= groupCount; i++)
-			snac.append<quint16>(i);
-		conn->send(snac);
-
-		// This command requests from the server certain information about the client that is stored on the server
-		// In other words: CLI_REQINFO
-		snac.reset(ServiceFamily, ServiceClientReqinfo);
-		break;
-	}
-	case ServiceFamily << 16 | ServiceServerRateChange: {
-		sn.read<QByteArray, quint16>(); // Unknown
-		quint16 code = sn.read<quint16>();
-		if (code == 2)
-			debug() << "Rate limits warning";
-		if (code == 3)
-			debug() << "Rate limits hit";
-		if (code == 4)
-			debug() << "Rate limits clear";
-		quint32 groupId = sn.read<quint16>();
-		if (d->rates.contains(groupId))
-			d->rates.value(groupId)->update(groupId, sn);
-		break;
-	}
-	case ServiceFamily << 16 | ServiceError: {
-		ProtocolError error(sn);
-		debug() << QString("Error (%1, %2): %3")
-				.arg(error.code(), 2, 16)
-				.arg(error.subcode(), 2, 16)
-				.arg(error.errorString());
-		break;
-	}
-	}
-}
-
 AbstractConnection::AbstractConnection(QObject *parent) :
 	QObject(parent), d_ptr(new AbstractConnectionPrivate)
 {
@@ -303,6 +174,12 @@ AbstractConnection::AbstractConnection(QObject *parent) :
 	connect(d->socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
 	d->id = (quint32) qrand();
 	d->error = NoError;
+	m_infos << SNACInfo(ServiceFamily, ServiceServerReady)
+			   << SNACInfo(ServiceFamily, ServiceServerNameInfo)
+			   << SNACInfo(ServiceFamily, ServiceServerFamilies2)
+			   << SNACInfo(ServiceFamily, ServiceServerAsksServices)
+			   << SNACInfo(ServiceFamily, ServiceServerRateChange)
+			   << SNACInfo(ServiceFamily, ServiceError);
 }
 
 AbstractConnection::~AbstractConnection()
@@ -502,6 +379,125 @@ void AbstractConnection::setError(ConnectionError e)
 	d->error = e;
 	if (d->error != NoError)
 		emit error(d->error);
+}
+
+void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
+{
+	Q_ASSERT(this == conn);
+	Q_D(AbstractConnection);
+	switch ((sn.family() << 16) | sn.subtype()) {
+	// Server sends supported services list
+	case ServiceFamily << 16 | ServiceServerReady: {
+		QList<quint16> &services = d->services;
+		while (sn.dataSize() != 0)
+			services << sn.read<quint16>();
+		SNAC snac(ServiceFamily, ServiceClientFamilies);
+		// Sending the same as ICQ 6
+		snac.append<quint32>(0x00220001);
+		snac.append<quint32>(0x00010004);
+		snac.append<quint32>(0x00130004);
+		snac.append<quint32>(0x00020001);
+		snac.append<quint32>(0x00030001);
+		snac.append<quint32>(0x00150001);
+		snac.append<quint32>(0x00040001);
+		snac.append<quint32>(0x00060001);
+		snac.append<quint32>(0x00090001);
+		snac.append<quint32>(0x000a0001);
+		snac.append<quint32>(0x000b0001);
+		send(snac);
+		break;
+	}
+	// This is the reply to CLI_REQINFO
+	case ServiceFamily << 16 | ServiceServerNameInfo: {
+		// Skip uin
+		sn.read<QByteArray, quint8>();
+		sn.skipData(4);
+		// TLV(x01) User type?
+		// TLV(x0C) Empty CLI2CLI Direct connection info
+		// TLV(x0A) External IP
+		// TLV(x0F) Number of seconds that user has been online
+		// TLV(x03) The online since time.
+		// TLV(x0A) External IP again
+		// TLV(x22) Unknown
+		// TLV(x1E) Unknown: empty.
+		// TLV(x05) Member of ICQ since.
+		// TLV(x14) Unknown
+		TLVMap tlvs = sn.read<TLVMap>();
+		quint32 ip = tlvs.value(0x0a).read<quint32>();
+		d->ext_ip = QHostAddress(ip);
+		//debug() << conn->externalIP();
+		break;
+	}
+	// Server sends its services version numbers
+	case ServiceFamily << 16 | ServiceServerFamilies2: {
+		SNAC snac(ServiceFamily, ServiceClientReqRateInfo);
+		send(snac);
+		break;
+	}
+	// Server sends rate limits information
+	case ServiceFamily << 16 | ServiceServerAsksServices: {
+		foreach(const OscarRate *rate, d->rates)
+			delete rate;
+		d->rates.clear();
+		d->ratesHash.clear();
+
+		// Rate classes
+		quint16 groupCount = sn.read<quint16>();
+		for (int i = 0; i < groupCount; ++i) {
+			OscarRate *rate = new OscarRate(sn, this);
+			if (!rate->isEmpty())
+				d->rates.insert(rate->groupId(), rate);
+		}
+		// Rate groups
+		while (sn.dataSize() >= 4) {
+			quint16 groupId = sn.read<quint16>();
+			quint16 count = sn.read<quint16>();
+			QHash<quint16, OscarRate*>::iterator rateItr = d->rates.find(groupId);
+			if (rateItr == d->rates.end()) {
+				sn.skipData(count * 4);
+				continue;
+			}
+			for (int j = 0; j < count; ++j) {
+				quint32 snacType = sn.read<quint32>();
+				rateItr.value()->addSnacType(snacType);
+				d->ratesHash.insert(snacType, *rateItr);
+			}
+		}
+
+		// Accepting rates
+		SNAC snac(ServiceFamily, ServiceClientRateAck);
+		for (int i = 1; i <= groupCount; i++)
+			snac.append<quint16>(i);
+		send(snac);
+
+		// This command requests from the server certain information about the client that is stored on the server
+		// In other words: CLI_REQINFO
+		snac.reset(ServiceFamily, ServiceClientReqinfo);
+		break;
+	}
+	case ServiceFamily << 16 | ServiceServerRateChange: {
+		sn.read<QByteArray, quint16>(); // Unknown
+		quint16 code = sn.read<quint16>();
+		if (code == 2)
+			debug() << "Rate limits warning";
+		if (code == 3)
+			debug() << "Rate limits hit";
+		if (code == 4)
+			debug() << "Rate limits clear";
+		quint32 groupId = sn.read<quint16>();
+		if (d->rates.contains(groupId))
+			d->rates.value(groupId)->update(groupId, sn);
+		break;
+	}
+	case ServiceFamily << 16 | ServiceError: {
+		ProtocolError error(sn);
+		debug() << QString("Error (%1, %2): %3")
+				.arg(error.code(), 2, 16)
+				.arg(error.subcode(), 2, 16)
+				.arg(error.errorString());
+		break;
+	}
+	}
 }
 
 quint16 AbstractConnection::generateFlapSequence()

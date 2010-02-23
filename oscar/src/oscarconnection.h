@@ -80,6 +80,8 @@ public:
 	BuddyPicture *buddyPictureService() { return m_buddy_picture; }
 	MetaInfo *metaInfo() { return m_meta_info; }
 	void sendStatus(OscarStatus status);
+protected:
+	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private slots:
 	void disconnected();
 	void md5Error(ConnectionError error);

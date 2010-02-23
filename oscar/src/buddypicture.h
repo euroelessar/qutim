@@ -27,33 +27,24 @@ namespace oscar {
 class IcqAccount;
 class BuddyPicture;
 
-class BuddyPictureConnection: public AbstractConnection
-{
-	Q_OBJECT
-public:
-	BuddyPictureConnection(QObject *parent = 0);
-	void connectToServ(const QString &addr, quint16 port, const QByteArray &cookie);
-	void processNewConnection();
-	void processCloseConnection();
-private:
-	QByteArray m_cookie;
-};
-
-class BuddyPicture: public ProtocolNegotiation
+class BuddyPicture: public AbstractConnection
 {
 	Q_OBJECT
 public:
 	BuddyPicture(IcqAccount *account, QObject *parent = 0);
 	virtual ~BuddyPicture();
-	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 	void sendUpdatePicture(QObject *reqObject, quint16 icon_id, quint8 icon_flags, const QByteArray &icon_hash);
+protected:
+	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
+	void connectToServ(const QString &addr, quint16 port, const QByteArray &cookie);
+	void processNewConnection();
 private slots:
 	void disconnected();
 private:
-	BuddyPictureConnection *m_conn;
 	IcqAccount *m_account;
 	QList<SNAC> m_history;
 	bool m_is_connected;
+	QByteArray m_cookie;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

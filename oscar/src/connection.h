@@ -43,18 +43,10 @@ protected:
 	qint16 m_subcode;
 };
 
-class ProtocolNegotiation : public QObject, public SNACHandler
+class AbstractConnection : public QObject, public SNACHandler
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
-public:
-	ProtocolNegotiation(QObject *parent = 0);
-	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-};
-
-class AbstractConnection : public QObject
-{
-	Q_OBJECT
 	Q_DECLARE_PRIVATE(AbstractConnection)
 public:
 	enum ConnectionError
@@ -116,6 +108,7 @@ protected:
 	virtual void processNewConnection();
 	virtual void processCloseConnection();
 	void setError(ConnectionError error);
+	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 	static quint16 generateFlapSequence();
 private slots:
 	void processSnac();
@@ -123,7 +116,6 @@ private slots:
 	void stateChanged(QAbstractSocket::SocketState);
 	void error(QAbstractSocket::SocketError);
 private:
-	friend class ProtocolNegotiation;
 	friend class OscarRate;
 	QScopedPointer<AbstractConnectionPrivate> d_ptr;
 };
