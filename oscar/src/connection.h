@@ -90,7 +90,7 @@ public:
 	virtual ~AbstractConnection();
 	void registerHandler(SNACHandler *handler);
 	void send(SNAC &snac, bool priority = true);
-	void disconnectFromHost(bool force);
+	void disconnectFromHost(bool force = false);
 	const QHostAddress &externalIP() const;
 	const QList<quint16> &servicesList();
 	QTcpSocket *socket();

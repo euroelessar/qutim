@@ -200,8 +200,13 @@ void AbstractConnection::registerHandler(SNACHandler *handler)
 void AbstractConnection::disconnectFromHost(bool force)
 {
 	Q_D(AbstractConnection);
-	Q_UNUSED(force);
-	d->socket->disconnectFromHost();
+	if (force) {
+		d->socket->disconnectFromHost();
+	} else {
+		FLAP flap(0x04);
+		flap.append<quint32>(0x00000001);
+		send(flap);
+	}
 }
 
 const QHostAddress &AbstractConnection::externalIP() const
