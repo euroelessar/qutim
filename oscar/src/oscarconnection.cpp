@@ -34,7 +34,7 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 OscarConnection::OscarConnection(IcqAccount *parent) :
-	AbstractConnection(parent)
+	AbstractConnection(parent, parent)
 {
 	m_infos << SNACInfo(LocationFamily, LocationRightsReply)
 			<< SNACInfo(BosFamily, PrivacyRightsReply);
@@ -52,7 +52,6 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 	}
 	m_status_flags = 0x0000;
 	m_buddy_picture = new BuddyPicture(m_account, this);
-
 	registerHandler(m_buddy_picture);
 	m_meta_info = new MetaInfo(this);
 	registerHandler(m_meta_info);
@@ -66,7 +65,7 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 void OscarConnection::connectToLoginServer(const QString &password)
 {
 	setError(NoError);
-	Md5Login *md5login = new Md5Login(password, this);
+	Md5Login *md5login = new Md5Login(password, account());
 	connect(md5login->socket(), SIGNAL(disconnected()), md5login, SLOT(deleteLater()));
 	connect(md5login, SIGNAL(error(ConnectionError)), this, SLOT(md5Error(ConnectionError)));
 	md5login->login();

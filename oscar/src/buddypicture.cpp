@@ -29,7 +29,7 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
-	AbstractConnection(parent), m_account(account), m_is_connected(false)
+	AbstractConnection(account, parent), m_is_connected(false)
 {
 	m_infos << SNACInfo(ServiceFamily, ServerRedirectService)
 			<< SNACInfo(AvatarFamily, AvatarGetReply);
@@ -92,10 +92,10 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 	case AvatarFamily << 16 | AvatarGetReply: {
 		QString uin = snac.read<QString, quint8>();
 		QObject *obj;
-		if (uin == m_account->id())
-			obj = m_account;
+		if (uin == account()->id())
+			obj = account();
 		else
-			obj = m_account->getUnit(uin, false);
+			obj = account()->getUnit(uin, false);
 		if (!obj)
 			break;
 		snac.skipData(3); // skip icon_id and icon_flag
@@ -105,8 +105,8 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 		if (!image.isEmpty()) {
 			QString image_path = QString("%1/%2.%3/avatars/")
 					.arg(SystemInfo::getPath(SystemInfo::ConfigDir))
-					.arg(m_account->protocol()->id())
-					.arg(m_account->id());
+					.arg(account()->protocol()->id())
+					.arg(account()->id());
 			QDir dir(image_path);
 			if (!dir.exists())
 				dir.mkpath(image_path);

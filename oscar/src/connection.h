@@ -29,6 +29,7 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 class OscarRate;
+class IcqAccount;
 class AbstractConnectionPrivate;
 
 struct ProtocolError
@@ -86,7 +87,7 @@ public:
 		AnotherClientLogined = 0x80
 	};
 public:
-	explicit AbstractConnection(QObject *parent = 0);
+	explicit AbstractConnection(IcqAccount *account, QObject *parent = 0);
 	virtual ~AbstractConnection();
 	void registerHandler(SNACHandler *handler);
 	void send(SNAC &snac, bool priority = true);
@@ -97,6 +98,8 @@ public:
 	bool isConnected();
 	ConnectionError error();
 	QString errorString();
+	IcqAccount *account();
+	const IcqAccount *account() const;
 signals:
 	void error(ConnectionError error);
 protected:

@@ -164,11 +164,12 @@ void OscarRate::sendNextPackets()
 	}
 }
 
-AbstractConnection::AbstractConnection(QObject *parent) :
+AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	QObject(parent), d_ptr(new AbstractConnectionPrivate)
 {
 	Q_D(AbstractConnection);
 	d->socket = new QTcpSocket(this);
+	d->account = account;
 	connect(d->socket, SIGNAL(readyRead()), SLOT(readData()));
 	connect(d->socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
 	connect(d->socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
@@ -305,6 +306,16 @@ QString AbstractConnection::errorString()
 	default:
 		return QCoreApplication::translate("ConnectionError", "Unknown error");
 	}
+}
+
+IcqAccount *AbstractConnection::account()
+{
+	return d_func()->account;
+}
+
+const IcqAccount *AbstractConnection::account() const
+{
+	return d_func()->account;
 }
 
 AbstractConnection::AbstractConnection(AbstractConnectionPrivate *d):

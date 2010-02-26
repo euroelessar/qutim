@@ -19,6 +19,7 @@
 
 #include "oscarconnection.h"
 #include "snac.h"
+#include "icqaccount.h"
 #include <QTimer>
 #include <QDateTime>
 
@@ -88,6 +89,7 @@ public:
 	QHash<quint16, OscarRate*> rates;
 	QHash<quint32, OscarRate*> ratesHash;
 	AbstractConnection::ConnectionError error;
+	IcqAccount *account;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

@@ -65,16 +65,10 @@ class OscarConnection: public AbstractConnection
 {
 	Q_OBJECT
 public:
-	enum ConnectState
-	{
-		LoginServer, HaveBOSS, BOSS, Connected
-	};
 	OscarConnection(IcqAccount *parent);
 	void connectToLoginServer(const QString &password);
 	inline const ClientInfo &clientInfo() const { return m_client_info; }
 	inline const DirectConnectionInfo &dcInfo() const { return m_dc_info; }
-	IcqAccount *account() { return m_account; }
-	const IcqAccount *account() const { return m_account; }
 	void finishLogin();
 	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
 	BuddyPicture *buddyPictureService() { return m_buddy_picture; }

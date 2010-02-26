@@ -27,7 +27,7 @@ class Md5Login: public AbstractConnection
 {
 	Q_OBJECT
 public:
-	Md5Login(const QString &password, OscarConnection *conn);
+	Md5Login(const QString &password, IcqAccount *account);
 	virtual ~Md5Login();
 	void login();
 protected:

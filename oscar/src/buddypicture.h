@@ -41,7 +41,6 @@ protected:
 private slots:
 	void disconnected();
 private:
-	IcqAccount *m_account;
 	QList<SNAC> m_history;
 	bool m_is_connected;
 	QByteArray m_cookie;
