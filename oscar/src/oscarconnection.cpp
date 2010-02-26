@@ -19,7 +19,6 @@
 #include "md5login.h"
 #include "feedbag.h"
 #include "icqaccount_p.h"
-#include "buddypicture.h"
 #include "buddycaps.h"
 #include "messages_p.h"
 #include "oscarstatus_p.h"
@@ -51,8 +50,6 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 		m_dc_info = info;
 	}
 	m_status_flags = 0x0000;
-	m_buddy_picture = new BuddyPicture(m_account, this);
-	registerHandler(m_buddy_picture);
 	m_meta_info = new MetaInfo(this);
 	registerHandler(m_meta_info);
 	registerHandler(this);

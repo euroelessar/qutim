@@ -33,8 +33,11 @@ BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
 {
 	m_infos << SNACInfo(ServiceFamily, ServerRedirectService)
 			<< SNACInfo(AvatarFamily, AvatarGetReply);
+	m_types << SsiBuddyIcon;
 	registerHandler(this);
 	connect(socket(), SIGNAL(disconnected()), SLOT(disconnected()));
+	account->feedbag()->registerHandler(this);
+	account->registerRosterPlugin(this);
 }
 
 BuddyPicture::~BuddyPicture()
@@ -129,7 +132,43 @@ void BuddyPicture::processNewConnection()
 	FLAP flap(0x01);
 	flap.append<quint32>(0x01);
 	flap.appendTLV<QByteArray>(0x0006, m_cookie);
+	m_cookie.clear();
 	send(flap);
+}
+
+void BuddyPicture::processCloseConnection()
+{
+	m_is_connected = false;
+}
+
+bool BuddyPicture::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
+{
+	Q_UNUSED(feedbag);
+	Q_ASSERT(item.type() == SsiBuddyIcon);
+	if (error != FeedbagError::NoError || type == Feedbag::Remove)
+		return false;
+	if (account()->avatarsSupport() && item.containsField(0x00d5)) {
+		DataUnit data(item.field(0x00d5));
+		quint8 flags = data.read<quint8>();
+		QByteArray hash = data.read<QByteArray, quint8>();
+		if (hash.size() == 16)
+			sendUpdatePicture(account(), 1, flags, hash);
+	}
+	return true;
+}
+
+void BuddyPicture::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
+{
+	if (contact->status() == Status::Offline) {
+		if (account()->avatarsSupport() && tlvs.contains(0x001d)) { // avatar
+			DataUnit data(tlvs.value(0x001d));
+			quint16 id = data.read<quint16>();
+			quint8 flags = data.read<quint8>();
+			QByteArray hash = data.read<QByteArray, quint8>();
+			if (hash.size() == 16)
+				sendUpdatePicture(contact, id, flags, hash);
+		}
+	}
 }
 
 void BuddyPicture::disconnected()

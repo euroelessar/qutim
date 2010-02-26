@@ -71,7 +71,6 @@ public:
 	inline const DirectConnectionInfo &dcInfo() const { return m_dc_info; }
 	void finishLogin();
 	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
-	BuddyPicture *buddyPictureService() { return m_buddy_picture; }
 	MetaInfo *metaInfo() { return m_meta_info; }
 	void sendStatus(OscarStatus status);
 protected:
@@ -90,7 +89,6 @@ private:
 	ClientInfo m_client_info;
 	DirectConnectionInfo m_dc_info;
 	bool m_is_idle;
-	BuddyPicture *m_buddy_picture;
 	MetaInfo *m_meta_info;
 };
 

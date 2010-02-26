@@ -104,9 +104,8 @@ Roster::Roster(IcqAccount *account):
 			<< SNACInfo(BuddyFamily, UserOffline)
 			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy)
 			<< SNACInfo(ExtensionsFamily, ExtensionsMetaError);
-	m_types << SsiBuddy << SsiGroup << SsiBuddyIcon
-			<< SsiPermit << SsiDeny << SsiIgnore
-			<< SsiTags;
+	m_types << SsiBuddy << SsiGroup << SsiPermit
+			<< SsiDeny << SsiIgnore << SsiTags;
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
 	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
 	m_account = account;
@@ -202,15 +201,6 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 		}
 		break;
 	}
-	case SsiBuddyIcon:
-		if (m_account->avatarsSupport() && item.containsField(0x00d5)) {
-			DataUnit data(item.field(0x00d5));
-			quint8 flags = data.read<quint8>();
-			QByteArray hash = data.read<QByteArray, quint8>();
-			if (hash.size() == 16)
-				m_account->connection()->buddyPictureService()->sendUpdatePicture(m_account, 1, flags, hash);
-		}
-		break;
 	case SsiPermit: {
 		debug() << item.name() << "has been added to visible list";
 		break;
@@ -455,15 +445,6 @@ void Roster::handleUserOnline(const SNAC &snac)
 				data.read<quint32>()
 			};
 			contact->d_func()->dc_info = info;
-		}
-
-		if (m_account->avatarsSupport() && tlvs.contains(0x001d)) { // avatar
-			DataUnit data(tlvs.value(0x001d));
-			quint16 id = data.read<quint16>();
-			quint8 flags = data.read<quint8>();
-			QByteArray hash = data.read<QByteArray, quint8>();
-			if (hash.size() == 16)
-				m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
 		}
 	}
 	setStatus(contact, status, tlvs);
