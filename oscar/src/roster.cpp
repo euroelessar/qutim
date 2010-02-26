@@ -37,19 +37,6 @@ namespace oscar {
 
 using namespace Util;
 
-class PrivateListActionGenerator : public ActionGenerator
-{
-public:
-	PrivateListActionGenerator(quint16 type, const QIcon &icon,
-				const LocalizedString &text1, const LocalizedString &text2);
-	virtual ~PrivateListActionGenerator();
-protected:
-	virtual QObject *generateHelper() const;
-private:
-	quint16 m_type;
-	LocalizedString m_text2;
-};
-
 PrivateListActionGenerator::PrivateListActionGenerator(quint16 type, const QIcon &icon,
 				const LocalizedString &text1, const LocalizedString &text2) :
 	ActionGenerator(icon, text1, new PrivateListActionHandler(), SLOT(onModifyPrivateList())),
@@ -105,16 +92,30 @@ static void init_actions_list(ActionsList &list)
 }
 Q_GLOBAL_STATIC_WITH_INITIALIZER(ActionsList, actionsList, init_actions_list(*x));
 
-SsiHandler::SsiHandler(IcqAccount *account, QObject *parent):
-	FeedbagItemHandler(parent), m_account(account)
+Roster::Roster(IcqAccount *account):
+	QObject(account)
 {
+	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
+			<< SNACInfo(ListsFamily, ListsError)
+			<< SNACInfo(ListsFamily, ListsAuthRequest)
+			<< SNACInfo(ListsFamily, ListsSrvAuthResponse)
+			<< SNACInfo(ListsFamily, ListsList)
+			<< SNACInfo(BuddyFamily, UserOnline)
+			<< SNACInfo(BuddyFamily, UserOffline)
+			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy)
+			<< SNACInfo(ExtensionsFamily, ExtensionsMetaError);
 	m_types << SsiBuddy << SsiGroup << SsiBuddyIcon
 			<< SsiPermit << SsiDeny << SsiIgnore
 			<< SsiTags;
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
+	m_account = account;
+	m_conn = account->connection();
 	Q_UNUSED(actionsList());
+	account->feedbag()->registerHandler(this);
 }
 
-bool SsiHandler::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
+bool Roster::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
 {
 	if (error != FeedbagError::NoError)
 		return false;
@@ -125,7 +126,7 @@ bool SsiHandler::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Fe
 	return true;
 }
 
-void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType type)
+void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType type)
 {
 	switch (item.type()) {
 	case SsiBuddy: {
@@ -233,7 +234,7 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 	}
 }
 
-void SsiHandler::handleRemoveCLItem(const FeedbagItem &item)
+void Roster::handleRemoveCLItem(const FeedbagItem &item)
 {
 	switch (item.type()) {
 	case SsiBuddy: {
@@ -274,7 +275,7 @@ void SsiHandler::handleRemoveCLItem(const FeedbagItem &item)
 	}
 }
 
-void SsiHandler::removeContactFromGroup(IcqContact *contact, quint16 groupId)
+void Roster::removeContactFromGroup(IcqContact *contact, quint16 groupId)
 {
 	QList<FeedbagItem> &items = contact->d_func()->items;
 	QList<FeedbagItem>::iterator itr = items.begin();
@@ -302,7 +303,7 @@ void SsiHandler::removeContactFromGroup(IcqContact *contact, quint16 groupId)
 	}
 }
 
-void SsiHandler::removeContact(IcqContact *contact)
+void Roster::removeContact(IcqContact *contact)
 {
 /*
 	if (ContactList::instance())
@@ -312,7 +313,7 @@ void SsiHandler::removeContact(IcqContact *contact)
 	emit contact->tagsChanged(contact->tags());
 }
 
-QStringList SsiHandler::readTags(const FeedbagItem &item)
+QStringList Roster::readTags(const FeedbagItem &item)
 {
 	QStringList newTags;
 	DataUnit newTagsData = item.field(SsiBuddyTags);
@@ -322,26 +323,6 @@ QStringList SsiHandler::readTags(const FeedbagItem &item)
 			newTags << data;
 	}
 	return newTags;
-}
-
-Roster::Roster(IcqAccount *account):
-	QObject(account)
-{
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
-	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
-	m_account = account;
-	m_ssiHandler = new SsiHandler(m_account, this);
-	m_conn = account->connection();
-	account->feedbag()->registerHandler(m_ssiHandler);
-	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
-			<< SNACInfo(ListsFamily, ListsError)
-			<< SNACInfo(ListsFamily, ListsAuthRequest)
-			<< SNACInfo(ListsFamily, ListsSrvAuthResponse)
-			<< SNACInfo(ListsFamily, ListsList)
-			<< SNACInfo(BuddyFamily, UserOnline)
-			<< SNACInfo(BuddyFamily, UserOffline)
-			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy)
-			<< SNACInfo(ExtensionsFamily, ExtensionsMetaError);
 }
 
 void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)

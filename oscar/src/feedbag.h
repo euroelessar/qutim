@@ -162,12 +162,9 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Feedbag::ItemLoadFlags);
 
-class LIBOSCAR_EXPORT FeedbagItemHandler: public QObject
+class LIBOSCAR_EXPORT FeedbagItemHandler
 {
-	Q_OBJECT
 public:
-	explicit FeedbagItemHandler(QObject *parent = 0);
-	virtual ~FeedbagItemHandler();
 	const QSet<quint16> &types() { return m_types; }
 	virtual bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error) = 0;
 protected:
@@ -175,5 +172,7 @@ protected:
 };
 
 } } // namespace qutim_sdk_0_3::oscar
+
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::FeedbagItemHandler, "org.qutim.oscar.FeedbagItemHandler");
 
 #endif // FEEDBAG_H

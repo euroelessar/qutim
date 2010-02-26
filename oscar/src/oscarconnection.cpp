@@ -233,10 +233,6 @@ void OscarConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		// TODO: Implement, it's important
 		break;
 	}
-	// Server replies via BLM service limitations
-	case BuddyFamily << 16 | UserSrvReplyBuddy: {
-		break;
-	}
 	// Server sends PRM service limitations to client
 	case BosFamily << 16 | PrivacyRightsReply: {
 		break;

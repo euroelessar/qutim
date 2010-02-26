@@ -28,7 +28,6 @@ namespace oscar {
 
 struct IcqAccountPrivate;
 class RosterPlugin;
-class Roster;
 class Feedbag;
 class OscarConnection;
 
@@ -77,7 +76,6 @@ private:
 	QHash<quint64, Cookie*> &cookies();
 	QString password();
 	friend class Roster;
-	friend class SsiHandler;
 	friend class Cookie;
 	friend class OscarConnection;
 	QScopedPointer<IcqAccountPrivate> d_ptr;

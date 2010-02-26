@@ -804,13 +804,4 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 }
 
-FeedbagItemHandler::FeedbagItemHandler(QObject *parent):
-	QObject(parent)
-{
-}
-
-FeedbagItemHandler::~FeedbagItemHandler()
-{
-}
-
 } } // namespace qutim_sdk_0_3::oscar
