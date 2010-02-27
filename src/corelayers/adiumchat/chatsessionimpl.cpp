@@ -197,11 +197,9 @@ namespace AdiumChat
 			return true;
 		} else if (ev->type() == ChatStateEvent::eventType()) {
 			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
-			//FIXME 
-			qDebug() << "Chat State changed" << m_chat_unit->title();
 			if (chatEvent->chatState() & ChatStateComposing)
 				Notifications::sendNotification(Notifications::Typing, m_chat_unit);
-			return true;
+			return ChatSession::event(ev);
 		} else {
 			return ChatSession::event(ev);
 		}

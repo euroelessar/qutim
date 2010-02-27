@@ -26,8 +26,11 @@
 
 namespace AdiumChat
 {
-	ChatWidget::ChatWidget(bool removeSessionOnClose): ui(new Ui::AdiumChatForm),m_remove_session_on_close(removeSessionOnClose)
+	ChatWidget::ChatWidget(bool removeSessionOnClose): 
+	ui(new Ui::AdiumChatForm),m_remove_session_on_close(removeSessionOnClose)
 	{
+		m_current_index = -1;
+		
 		ui->setupUi(this);
 		centerizeWidget(this);
 		//init tabbar
@@ -52,10 +55,15 @@ namespace AdiumChat
 		ui->chatEdit->installEventFilter(this);
 		ui->chatEdit->setFocusPolicy(Qt::StrongFocus);
 
-		//init aero integration for win
-
+		//init toolbar
+		ui->actionToolBar->setStyleSheet("QToolBar{background:none;border:none}");
+		
+			//for testing
+		QAction *test_act1 = new QAction(Icon("applications-internet"),tr("Testing action"),this);
+		ui->actionToolBar->addAction(test_act1);
+		QAction *test_act2 = new QAction(Icon("preferences-system"),tr("Testing action"),this);
+		ui->actionToolBar->addAction(test_act2);		
 		//
-		setProperty("currentIndex",-1);
 		//load settings
 		m_html_message = Config("appearance/adiumChat").group("behavior/widget").value<bool>("htmlMessage",false);
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("behavior/widget");
@@ -66,6 +74,7 @@ namespace AdiumChat
 			m_chatstate = ChatStateActive;
 			m_timeout = 5000;
 		}
+		//init aero integration for win		
 		if (m_chat_flags & AeroThemeIntegration) {
 			if (QtWin::isCompositionEnabled()) {
 				QtWin::extendFrameIntoClientArea(this);
@@ -94,10 +103,9 @@ namespace AdiumChat
 			icon = imagePath.isEmpty() ? Icon("user-online") : QIcon(imagePath);
 		}
 		if (m_chat_flags & ChatStateIconsOnTabs) {
-			icon = Icon("user-online"); //FIXME
+			icon = iconForState(ChatStateActive); //FIXME
 		}
-		if (m_chat_flags & ShowUnreadMessages)
-			session->setProperty("currentIcon",icon);
+
 		ui->tabBar->addTab(icon,session->getUnit()->title());
 		if (ui->tabBar->count() >1)
 			ui->tabBar->setVisible(true);
@@ -113,23 +121,26 @@ namespace AdiumChat
 	{
 		if (index == -1)
 			return;
-		int previous_index = property("currentIndex").toInt();
+		int previous_index = m_current_index;
 		if ((previous_index != -1) && (previous_index != index)) {
 			m_sessions.at(previous_index)->setActive(false);
 			m_sessions.at(index)->activate();
 		}
-		setProperty("currentIndex",index);
+		m_current_index = index;
 		ui->chatView->page()->setView(0);
 		ui->chatView->setPage(m_sessions.at(index)->getPage());
 		setWindowTitle(tr("Chat with %1").arg(m_sessions.at(index)->getUnit()->title()));
+		
 		//m_main_toolbar->setData(m_sessions.at(index)->getUnit());
 // 		if (QAbstractItemModel *model = m_sessions.at(index)->getItemsModel())
 // 			ui->membersView->setModel(model);
+
 		if ((m_chat_flags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
 			killTimer(m_timerid);
 			m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
 			m_sessions.at(previous_index)->getUnit()->setChatState(m_chatstate);
 		}
+
 	}
 
 	void ChatWidget::clear()
@@ -196,7 +207,8 @@ namespace AdiumChat
 
 		if ((m_chat_flags & ShowUnreadMessages) && session->property("unreadMessages").toInt()) {
 			session->setProperty("unreadMessages",0);
-			QIcon icon = qvariant_cast<QIcon>(session->property("currentIcon"));
+			ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
+			QIcon icon = iconForState(state);
 			ui->tabBar->setTabIcon(index,icon);
 		}		
 	}
@@ -257,36 +269,15 @@ namespace AdiumChat
 		if (index == -1)
 			return;
 		
-		if (m_chat_flags & ChatStateIconsOnTabs) {
+		if (m_chat_flags & ChatStateIconsOnTabs) {	
 			QString icon_name;
 			ChatState previous_state = static_cast<ChatState>(session->property("currentChatState").toInt());
 			if (!(previous_state & ChatStateComposing) || (state & ChatStatePaused)) {
-				switch (state) {
-					//FIXME icon names
-					case ChatStateActive:
-						icon_name = "user-online";
-						break;
-					case ChatStateInActive:
-						icon_name = "user-away";
-						break;
-					case ChatStateGone:
-						icon_name =  "user-offline";
-						break;
-					case ChatStateComposing:
-						icon_name = "mail-unread-new";
-						break;
-					case ChatStatePaused:
-						icon_name = "mail-unread";
-						break;
-					default:
-						break;
-				}
-				QIcon icon = Icon(icon_name);
-				if (session->property("unreadMessages").toInt())
-					ui->tabBar->setTabIcon(index,icon);
+				if (!session->property("unreadMessages").toInt())
+					ui->tabBar->setTabIcon(index,iconForState(state));
 				session->setProperty("currentChatState",state);
-				session->setProperty("currentIcon",icon);
 			}
+			debug() << previous_state << state << icon_name;
 		}
 	}
 
@@ -360,5 +351,32 @@ namespace AdiumChat
 			}
 		}
 	}
+	
+	QIcon ChatWidget::iconForState(ChatState state)
+	{
+		QString icon_name;
+		switch (state) {
+			//FIXME icon names
+			case ChatStateActive:
+				icon_name = "user-online";
+				break;
+			case ChatStateInActive:
+				icon_name = "user-away";
+				break;
+			case ChatStateGone:
+				icon_name =  "user-offline";
+				break;
+			case ChatStateComposing:
+				icon_name = "mail-unread-new";
+				break;
+			case ChatStatePaused:
+				icon_name = "mail-unread";
+				break;
+			default:
+				break;
+		}
+		return Icon(icon_name);
+	}
+
 }
 
