@@ -1,7 +1,7 @@
 /****************************************************************************
  *  connection.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -24,38 +24,31 @@
 #include "snachandler.h"
 #include "flap.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-extern quint16 generate_flap_sequence();
+namespace oscar {
 
 class OscarRate;
+class IcqAccount;
+class AbstractConnectionPrivate;
 
 struct ProtocolError
 {
 public:
 	ProtocolError(const SNAC &snac);
-	qint16 code;
-	qint16 subcode;
-	QString str;
-private:
-	QString getErrorStr();
+	qint16 code() { return m_code; }
+	qint16 subcode() { return m_subcode; }
+	QString errorString();
+protected:
+	qint16 m_code;
+	qint16 m_subcode;
 };
 
-class ProtocolNegotiation: public SNACHandler
+class AbstractConnection : public QObject, public SNACHandler
 {
 	Q_OBJECT
-public:
-	ProtocolNegotiation(QObject *parent = 0);
-	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-private:
-	void setMsgChannelParams(AbstractConnection *conn, quint16 chans, quint32 flags);
-	quint32 m_login_reqinfo;
-};
-
-class AbstractConnection: public QObject
-{
-	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
+	Q_DECLARE_PRIVATE(AbstractConnection)
 public:
 	enum ConnectionError
 	{
@@ -94,53 +87,42 @@ public:
 		AnotherClientLogined = 0x80
 	};
 public:
-	AbstractConnection(QObject *parent);
-	~AbstractConnection();
+	explicit AbstractConnection(IcqAccount *account, QObject *parent = 0);
+	virtual ~AbstractConnection();
 	void registerHandler(SNACHandler *handler);
 	void send(SNAC &snac, bool priority = true);
-	void disconnectFromHost(bool force);
-	void setExternalIP(const QHostAddress &ip) { m_ext_ip = ip; }
-	const QHostAddress &externalIP() const { return m_ext_ip; }
-	void setServicesList(const QList<quint16> &services) { m_services = services; };
-	const QList<quint16> &servicesList() { return m_services; };
-	QTcpSocket *socket() { return m_socket; };
-	bool isConnected() { return m_socket->state() != QTcpSocket::UnconnectedState; }
-	ConnectionError error() { return m_error; };
+	void disconnectFromHost(bool force = false);
+	const QHostAddress &externalIP() const;
+	const QList<quint16> &servicesList();
+	QTcpSocket *socket();
+	bool isConnected();
+	ConnectionError error();
 	QString errorString();
+	IcqAccount *account();
+	const IcqAccount *account() const;
 signals:
 	void error(ConnectionError error);
 protected:
-	const FLAP &flap() { return m_flap; }
+	AbstractConnection(AbstractConnectionPrivate *d);
+	const FLAP &flap();
 	void send(FLAP &flap);
 	quint32 sendSnac(SNAC &snac);
 	void setSeqNum(quint16 seqnum);
 	virtual void processNewConnection();
 	virtual void processCloseConnection();
 	void setError(ConnectionError error);
+	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
+	static quint16 generateFlapSequence();
 private slots:
 	void processSnac();
 	void readData();
 	void stateChanged(QAbstractSocket::SocketState);
 	void error(QAbstractSocket::SocketError);
 private:
-	// max value is 0x7fff, min is 0
-	inline quint16 seqNum() { m_seqnum++; return (m_seqnum &= 0x7fff); }
-	inline quint32 nextId() { return m_id++; }
-private:
-	friend class ProtocolNegotiation;
 	friend class OscarRate;
-	QTcpSocket *m_socket;
-	FLAP m_flap;
-	QMultiMap<quint32, SNACHandler*> m_handlers;
-	quint16 m_seqnum;
-	quint32 m_id;
-	QHostAddress m_ext_ip;
-	QList<quint16> m_services;
-	QHash<quint16, OscarRate*> m_rates;
-	QHash<quint32, OscarRate*> m_ratesHash;
-	ConnectionError m_error;
+	QScopedPointer<AbstractConnectionPrivate> d_ptr;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // CONNECTION_H

@@ -1,7 +1,8 @@
 /****************************************************************************
  *  flap.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -17,8 +18,9 @@
 #include "util.h"
 #include <QIODevice>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 FLAP::FLAP(quint8 channel)
 {
@@ -73,4 +75,4 @@ void FLAP::clear()
 	m_data.clear();
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

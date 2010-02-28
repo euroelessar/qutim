@@ -20,8 +20,9 @@
 #include <QDateTime>
 #include <QTimer>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class CookiePrivate: public QSharedData
 {
@@ -161,4 +162,4 @@ void Cookie::onTimeout()
 	unlock();
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

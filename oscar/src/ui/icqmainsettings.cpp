@@ -1,7 +1,7 @@
 /****************************************************************************
  *  icqmainsettings.cpp
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -20,8 +20,9 @@
 #include <QTextCodec>
 #include "ui_icqmainsettings.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 IcqMainSettings::IcqMainSettings() :
 	ui(new Ui::IcqMainSettings), m_config(IcqProtocol::instance()->config())
@@ -79,4 +80,4 @@ void IcqMainSettings::saveImpl()
 	IcqProtocol::instance()->updateSettings();
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

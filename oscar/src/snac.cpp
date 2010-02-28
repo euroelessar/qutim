@@ -1,7 +1,8 @@
 /****************************************************************************
  *  snac.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -16,8 +17,9 @@
 #include "snac.h"
 #include "util.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 void SNAC::reset(quint16 family, quint16 subtype)
 {
@@ -56,4 +58,4 @@ QByteArray SNAC::header() const
 	return data.data();
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

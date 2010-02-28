@@ -1,7 +1,8 @@
 /****************************************************************************
  *  flap.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -20,8 +21,9 @@
 
 class QIODevice;
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class LIBOSCAR_EXPORT FLAP : public DataUnit
 {
@@ -44,6 +46,6 @@ private:
 	quint16 m_length;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // FLAP_H

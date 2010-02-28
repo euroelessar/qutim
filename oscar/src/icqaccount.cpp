@@ -20,6 +20,8 @@
 #include "oscarconnection.h"
 #include "roster_p.h"
 #include "buddycaps.h"
+#include "oscarstatus.h"
+#include "buddypicture.h"
 #include <qutim/status.h>
 #include <qutim/systeminfo.h>
 #include <qutim/contactlist.h>
@@ -27,8 +29,9 @@
 #include <ui/passworddialog.h>
 #include <qutim/objectgenerator.h>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 IcqAccount::IcqAccount(const QString &uin) :
 	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
@@ -40,6 +43,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
 	d->conn->registerHandler(new Roster(this));
+	d->conn->registerHandler(new BuddyPicture(this, this));
 	d->lastStatus = static_cast<Status::Type>(cfg.value<int>("lastStatus", Status::Offline));
 
 	// ICQ UTF8 Support
@@ -74,7 +78,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 
 	foreach(const ObjectGenerator *gen, moduleGenerators<RosterPlugin>()) {
 		RosterPlugin *plugin = gen->generate<RosterPlugin>();
-		plugin->setAccount(this);
 		d->rosterPlugins << plugin;
 	}
 
@@ -108,7 +111,7 @@ void IcqAccount::setStatus(Status status)
 			d->lastStatus = status;
 			d->reconnectTimer.stop();
 		}
-		return;
+		//return;
 	}
 	if (status.type() == Status::Offline) {
 		if (d->conn->isConnected()) {
@@ -129,7 +132,7 @@ void IcqAccount::setStatus(Status status)
 			setStatus(d->lastStatus);
 			return;
 		}
-		Status stat = icqStatusToQutim(IcqOffline);
+		OscarStatus stat;
 		foreach(IcqContact *contact, d->contacts)
 			contact->setStatus(stat);
 	} else {
@@ -141,7 +144,7 @@ void IcqAccount::setStatus(Status status)
 				status = Status::Connecting;
 				d->conn->connectToLoginServer(pass);
 			} else {
-				status = icqStatusToQutim(IcqOffline);
+				status = OscarStatus();
 			}
 		} else {
 			d->conn->sendStatus(status);
@@ -153,9 +156,9 @@ void IcqAccount::setStatus(Status status)
 	emit statusChanged(status);
 }
 
-void IcqAccount::setStatus(IcqStatus status)
+void IcqAccount::setStatus(OscarStatusEnum status)
 {
-	setStatus(icqStatusToQutim(status));
+	setStatus(OscarStatus(status));
 }
 
 QString IcqAccount::name() const
@@ -265,7 +268,6 @@ void IcqAccount::setVisibility(Visibility visibility)
 void IcqAccount::registerRosterPlugin(RosterPlugin *plugin)
 {
 	Q_D(IcqAccount);
-	plugin->setAccount(this);
 	d->rosterPlugins << plugin;
 }
 
@@ -305,4 +307,4 @@ QString IcqAccount::password()
 	return password;
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

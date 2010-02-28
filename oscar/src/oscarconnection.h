@@ -1,7 +1,7 @@
 /****************************************************************************
  *  oscarconnection.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -19,11 +19,11 @@
 
 #include "connection.h"
 #include "metainfo.h"
+#include "oscarstatus.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-using namespace qutim_sdk_0_3;
+namespace oscar {
 
 class SNACHandler;
 class SNAC;
@@ -65,21 +65,16 @@ class OscarConnection: public AbstractConnection
 {
 	Q_OBJECT
 public:
-	enum ConnectState
-	{
-		LoginServer, HaveBOSS, BOSS, Connected
-	};
 	OscarConnection(IcqAccount *parent);
 	void connectToLoginServer(const QString &password);
 	inline const ClientInfo &clientInfo() const { return m_client_info; }
 	inline const DirectConnectionInfo &dcInfo() const { return m_dc_info; }
-	IcqAccount *account() { return m_account; }
-	const IcqAccount *account() const { return m_account; }
 	void finishLogin();
 	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
-	BuddyPicture *buddyPictureService() { return m_buddy_picture; }
 	MetaInfo *metaInfo() { return m_meta_info; }
-	void sendStatus(Status status);
+	void sendStatus(OscarStatus status);
+protected:
+	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private slots:
 	void disconnected();
 	void md5Error(ConnectionError error);
@@ -94,10 +89,9 @@ private:
 	ClientInfo m_client_info;
 	DirectConnectionInfo m_dc_info;
 	bool m_is_idle;
-	BuddyPicture *m_buddy_picture;
 	MetaInfo *m_meta_info;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // OSCARCONNECTION_H

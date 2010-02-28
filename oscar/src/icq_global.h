@@ -1,7 +1,8 @@
 /****************************************************************************
  *  icq_global.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -26,7 +27,9 @@
 #  define LIBOSCAR_EXPORT Q_DECL_IMPORT
 #endif
 
-namespace Icq {
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 enum SnacFamily
 {
@@ -219,29 +222,6 @@ const quint8 protocol_version       = 9;
 const quint16 client_features       = 0x3;
 const quint16 dc_type               = 0x0004;
 
-enum IcqStatus
-{
-// Status FLAGS (used to determine status of other users)
-	IcqOffline        = 0xf000,
-	IcqOnline         = 0x0000,
-	IcqAway           = 0x0001,
-	IcqDND            = 0x0002,
-	IcqNA             = 0x0004,
-	IcqOccupied       = 0x0010,
-	IcqFFC            = 0x0020,
-	IcqInvisible      = 0x0100,
-
-// QIP Extended Status flags
-	IcqEvil           = 0x3000,
-	IcqDepress        = 0x4000,
-	IcqHome           = 0x5000,
-	IcqWork           = 0x6000,
-	IcqLunch          = 0x2001
-};
-
-extern quint16 qutimStatusToICQ(const qutim_sdk_0_3::Status &status);
-extern qutim_sdk_0_3::Status icqStatusToQutim(IcqStatus status);
-
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // ICQ_GLOBAL_H

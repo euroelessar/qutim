@@ -2,7 +2,7 @@
  *  clientidentify.cpp
  *
  *  Copyright (c) 2008 by Alexey Ignatiev <twosev@gmail.com>
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -25,9 +25,9 @@
 #include "oscarconnection.h"
 #include "xtraz.h"
 
+namespace qutim_sdk_0_3 {
 
-namespace Icq {
-
+namespace oscar {
 
 void ClientIdentify::init()
 {
@@ -92,7 +92,8 @@ void ClientIdentify::identify(IcqContact *contact)
 	m_ext_status_info = contact->dcInfo().extstatus_utime;
 
 	// There may be some x-statuses info here.. remove all of them.
-	Xtraz::removeXStatuses(m_client_caps);
+	// TODO:
+	//Xtraz::removeXStatuses(m_client_caps);
 
 	IDENTIFY_CLIENT( qutIM );
 	IDENTIFY_CLIENT( k8qutIM );
@@ -134,7 +135,7 @@ void ClientIdentify::identify(IcqContact *contact)
 	setClientData("-", "unknown");
 }
 
-void ClientIdentify::statusChanged(IcqContact *contact, const Status &status, const TLVMap &tlvs)
+void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
 {
 	Q_UNUSED(status);
 	Q_UNUSED(tlvs);
@@ -1299,6 +1300,6 @@ void ClientIdentify::identify_NaimIcq()
 												     0x00, 0x00, 0x00, 0x00);*/
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
-QUTIM_EXPORT_PLUGIN(Icq::ClientIdentify);
+QUTIM_EXPORT_PLUGIN(qutim_sdk_0_3::oscar::ClientIdentify);

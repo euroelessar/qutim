@@ -2,7 +2,7 @@
  *  clientidentify.h
  *
  *  Copyright (c) 2008 by Alexey Ignatiev <twosev@gmail.com>
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -23,23 +23,22 @@
 #include "roster.h"
 #include <qutim/plugin.h>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-using namespace qutim_sdk_0_3;
+namespace oscar {
 
 class IcqContact;
 
 class ClientIdentify : public Plugin, public RosterPlugin
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::RosterPlugin)
+	Q_INTERFACES(qutim_sdk_0_3::oscar::RosterPlugin)
 	Q_CLASSINFO("DebugName", "ICQ/Identify")
 public:
 	ClientIdentify();
 	~ClientIdentify();
 	void identify(IcqContact *contact);
-	virtual void statusChanged(IcqContact *contact, const Status &status, const TLVMap &tlvs);
+	virtual void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs);
 	virtual void virtual_hook(int type, void *data);
 	virtual void init();
 	virtual bool load();
@@ -104,6 +103,6 @@ private:
 	static const Capability ICQ_CAPABILITY_SIMxVER;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif /*CLIENTIDENTIFY_H_*/

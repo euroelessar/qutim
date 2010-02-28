@@ -19,36 +19,23 @@
 
 #include "tlv.h"
 
-namespace Icq
-{
-	class IcqContact;
-	class IcqAccount;
-}
+namespace qutim_sdk_0_3 {
 
-namespace qutim_sdk_0_3
-{
+namespace oscar {
 
-using namespace Icq;
-class Account;
+class IcqContact;
+class IcqAccount;
 
 class LIBOSCAR_EXPORT RosterPlugin
 {
 public:
 	RosterPlugin() {}
 	virtual ~RosterPlugin() { }
-	virtual void statusChanged(IcqContact *contact, const Status &status, const TLVMap &tlvs) = 0;
-	virtual void virtual_hook(int type, void *data) = 0;
-	inline void setAccount(Account *account) { m_account = account; }
-protected:
-	union
-	{
-		IcqAccount *m_icq_account;
-		Account *m_account;
-	};
+	virtual void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs) = 0;
 };
 
-} // namespace qutim_sdk_0_3
+} } // namespace qutim_sdk_0_3::oscar
 
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::RosterPlugin, "org.qutim.oscar.RosterPlugin");
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::RosterPlugin, "org.qutim.oscar.RosterPlugin");
 
 #endif // ROSTER_H

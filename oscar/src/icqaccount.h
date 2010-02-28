@@ -20,19 +20,14 @@
 #include <qutim/account.h>
 #include "cookie.h"
 #include "capability.h"
+#include "oscarstatus.h"
 
-namespace qutim_sdk_0_3
-{
-	class RosterPlugin;
-}
+namespace qutim_sdk_0_3 {
 
-namespace Icq
-{
-
-using namespace qutim_sdk_0_3;
+namespace oscar {
 
 struct IcqAccountPrivate;
-class Roster;
+class RosterPlugin;
 class Feedbag;
 class OscarConnection;
 
@@ -55,7 +50,7 @@ public:
 	IcqAccount(const QString &uin);
 	virtual ~IcqAccount();
 	virtual void setStatus(Status status);
-	void setStatus(IcqStatus status);
+	void setStatus(OscarStatusEnum status);
 	virtual QString name() const;
 	void setName(const QString &name);
 	Feedbag *feedbag();
@@ -81,12 +76,11 @@ private:
 	QHash<quint64, Cookie*> &cookies();
 	QString password();
 	friend class Roster;
-	friend class SsiHandler;
 	friend class Cookie;
 	friend class OscarConnection;
 	QScopedPointer<IcqAccountPrivate> d_ptr;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // ICQACCOUNT_H

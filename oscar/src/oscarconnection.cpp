@@ -1,7 +1,7 @@
 /****************************************************************************
  *  oscarconnection.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -19,67 +19,24 @@
 #include "md5login.h"
 #include "feedbag.h"
 #include "icqaccount_p.h"
-#include "buddypicture.h"
 #include "buddycaps.h"
-#include "messages.h"
+#include "messages_p.h"
+#include "oscarstatus_p.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/notificationslayer.h>
 #include <QHostInfo>
 #include <QBuffer>
 #include <QTimer>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-class ProtocolNegotiationImpl: public ProtocolNegotiation
-{
-public:
-	ProtocolNegotiationImpl(QObject *parent = 0);
-	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-};
+namespace oscar {
 
-ProtocolNegotiationImpl::ProtocolNegotiationImpl(QObject *parent) :
-	ProtocolNegotiation(parent)
+OscarConnection::OscarConnection(IcqAccount *parent) :
+	AbstractConnection(parent, parent)
 {
 	m_infos << SNACInfo(LocationFamily, LocationRightsReply)
 			<< SNACInfo(BosFamily, PrivacyRightsReply);
-}
-
-void ProtocolNegotiationImpl::handleSNAC(AbstractConnection *conn, const SNAC &sn)
-{
-	ProtocolNegotiation::handleSNAC(conn, sn);
-	sn.resetState();
-	switch ((sn.family() << 16) | sn.subtype()) {
-	// Server sends rate limits information
-	case ServiceFamily << 16 | ServiceServerAsksServices: {
-		// Requesting Location rights
-		SNAC snac(LocationFamily, LocationCliReqRights);
-		conn->send(snac);
-
-		// Sending CLI_REQBOS
-		snac.reset(BosFamily, PrivacyReqRights);
-		conn->send(snac);
-		break;
-	}
-	// Server replies via location service limitations
-	case LocationFamily << 16 | LocationRightsReply: {
-		// TODO: Implement, it's important
-		break;
-	}
-	// Server replies via BLM service limitations
-	case BuddyFamily << 16 | UserSrvReplyBuddy: {
-		break;
-	}
-	// Server sends PRM service limitations to client
-	case BosFamily << 16 | PrivacyRightsReply: {
-		break;
-	}
-	}
-}
-
-OscarConnection::OscarConnection(IcqAccount *parent) :
-	AbstractConnection(parent)
-{
 	connect(socket(), SIGNAL(disconnected()), this, SLOT(disconnected()));
 	m_account = parent;
 	{
@@ -93,12 +50,9 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 		m_dc_info = info;
 	}
 	m_status_flags = 0x0000;
-	m_buddy_picture = new BuddyPicture(m_account, this);
-
-	registerHandler(m_buddy_picture);
 	m_meta_info = new MetaInfo(this);
 	registerHandler(m_meta_info);
-	registerHandler(new ProtocolNegotiationImpl(this));
+	registerHandler(this);
 	registerHandler(new MessagesHandler(m_account, this));
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
@@ -108,7 +62,7 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 void OscarConnection::connectToLoginServer(const QString &password)
 {
 	setError(NoError);
-	Md5Login *md5login = new Md5Login(password, this);
+	Md5Login *md5login = new Md5Login(password, account());
 	connect(md5login->socket(), SIGNAL(disconnected()), md5login, SLOT(deleteLater()));
 	connect(md5login, SIGNAL(error(ConnectionError)), this, SLOT(md5Error(ConnectionError)));
 	md5login->login();
@@ -186,38 +140,6 @@ void OscarConnection::sendUserInfo()
 	send(snac);
 }
 
-quint16 qutimStatusToICQ(const Status &status)
-{
-	// TODO: another statuses may be implemented like Occupied
-	switch (status.type()) {
-	default:
-	case Status::Online:
-		return 0x0000;
-	case Status::Away:
-		return 0x0001;
-	case Status::DND:
-		if (status.subtype() == IcqOccupied)
-			return 0x0011;
-		return 0x0013;
-	case Status::NA:
-		return 0x0005;
-	case Status::FreeChat:
-		return 0x0020;
-//	case Evil:
-//		return 0x3000;
-//	case Depression:
-//		return 0x4000;
-	case Status::Invisible:
-		return 0x0100;
-//	case AtHome:
-//		return 0x5000;
-//	case AtWork:
-//		return 0x6000;
-//	case OutToLunch:
-//		return 0x2001;
-	}
-}
-
 void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie)
 {
 	m_auth_cookie = cookie;
@@ -226,7 +148,7 @@ void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QBy
 
 void OscarConnection::disconnected()
 {
-	m_account->setStatus(icqStatusToQutim(IcqOffline));
+	m_account->setStatus(OscarOffline);
 }
 
 void OscarConnection::md5Error(ConnectionError e)
@@ -236,10 +158,10 @@ void OscarConnection::md5Error(ConnectionError e)
 		emit error(e);
 }
 
-void OscarConnection::sendStatus(Status status)
+void OscarConnection::sendStatus(OscarStatus status)
 {
 	SNAC snac(ServiceFamily, ServiceClientSetStatus);
-	snac.appendTLV<quint32>(0x06, (m_status_flags << 16) | qutimStatusToICQ(status)); // Status mode and security flags
+	snac.appendTLV<quint32>(0x06, (m_status_flags << 16) | status.subtype()); // Status mode and security flags
 	snac.appendTLV<quint16>(0x08, 0x0000); // Error code
 	TLV dc(0x0c); // Direct connection info
 	dc.append<quint32>(externalIP().toIPv4Address()); // Real IP
@@ -265,6 +187,53 @@ void OscarConnection::sendStatus(Status status)
 	snac.appendTLV(0x1D, statusNote);
 	snac.appendTLV<quint16>(0x1f, 0x00); // unknown
 	send(snac);
+
+	bool changedCapsList = false;
+	CapsTypes types = capsTypes();
+	CapsList caps = status.property<CapsList>("capabilities", CapsList());
+	CapsList::const_iterator itr = caps.constBegin();
+	CapsList::const_iterator endItr = caps.constEnd();
+	while (itr != endItr) {
+		types.remove(itr.key());
+		m_account->setCapability(itr.value(), itr.key());
+		changedCapsList = true;
+		++itr;
+	}
+	foreach (const QString &type, types) {
+		m_account->removeCapability(type);
+		changedCapsList = true;
+	}
+	if (changedCapsList)
+		sendUserInfo();
+}
+
+void OscarConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
+{
+	Q_ASSERT(this == conn);
+	AbstractConnection::handleSNAC(this, sn);
+	sn.resetState();
+	switch ((sn.family() << 16) | sn.subtype()) {
+	// Server sends rate limits information
+	case ServiceFamily << 16 | ServiceServerAsksServices: {
+		// Requesting Location rights
+		SNAC snac(LocationFamily, LocationCliReqRights);
+		send(snac);
+
+		// Sending CLI_REQBOS
+		snac.reset(BosFamily, PrivacyReqRights);
+		send(snac);
+		break;
+	}
+	// Server replies via location service limitations
+	case LocationFamily << 16 | LocationRightsReply: {
+		// TODO: Implement, it's important
+		break;
+	}
+	// Server sends PRM service limitations to client
+	case BosFamily << 16 | PrivacyRightsReply: {
+		break;
+	}
+	}
 }
 
 void OscarConnection::setIdle(bool allow)
@@ -276,4 +245,4 @@ void OscarConnection::setIdle(bool allow)
 	send(snac);
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

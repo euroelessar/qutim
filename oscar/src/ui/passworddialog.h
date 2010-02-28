@@ -22,7 +22,9 @@ namespace Ui {
 	class PasswordForm;
 }
 
-namespace Icq {
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class IcqAccount;
 
@@ -44,6 +46,6 @@ private:
 	IcqAccount *m_account;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // PASSWORDDIALOG_H

@@ -1,7 +1,7 @@
 /****************************************************************************
  *  md5login.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -19,34 +19,24 @@
 
 #include "oscarconnection.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-class Md5LoginNegotiation: public SNACHandler
-{
-	Q_OBJECT
-public:
-	Md5LoginNegotiation(OscarConnection *conn, QObject *parent = 0);
-	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-	void setConnection(OscarConnection *conn) { m_conn = conn; }
-private:
-	OscarConnection *m_conn;
-};
+namespace oscar {
 
 class Md5Login: public AbstractConnection
 {
 	Q_OBJECT
 public:
-	Md5Login(const QString &password, OscarConnection *conn);
-	~Md5Login();
+	Md5Login(const QString &password, IcqAccount *account);
+	virtual ~Md5Login();
 	void login();
 protected:
-	void processNewConnection();
-	void processCloseConnection();
+	virtual void processNewConnection();
+	virtual void processCloseConnection();
 	void setError(ConnectionError error) { AbstractConnection::setError(error); };
+	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private:
 	void setLoginData(const QString &addr, quint16 port, const QByteArray &cookie);
-	friend class Md5LoginNegotiation;
 	QString m_addr;
 	quint16 m_port;
 	QByteArray m_cookie;
@@ -54,6 +44,6 @@ private:
 	QString m_password;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // MD5LOGIN_H

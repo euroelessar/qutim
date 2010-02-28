@@ -22,12 +22,26 @@
 #include "snachandler.h"
 #include "icqcontact.h"
 #include "feedbag.h"
+#include "oscarstatus.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class OscarConnection;
-class SsiHandler;
+
+class PrivateListActionGenerator : public ActionGenerator
+{
+public:
+	PrivateListActionGenerator(quint16 type, const QIcon &icon,
+				const LocalizedString &text1, const LocalizedString &text2);
+	virtual ~PrivateListActionGenerator();
+protected:
+	virtual QObject *generateHelper() const;
+private:
+	quint16 m_type;
+	LocalizedString m_text2;
+};
 
 class PrivateListActionHandler : public QObject
 {
@@ -36,11 +50,12 @@ public slots:
 	void onModifyPrivateList();
 };
 
-class SsiHandler : public FeedbagItemHandler
+class Roster : public QObject, public SNACHandler, public FeedbagItemHandler
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler qutim_sdk_0_3::oscar::FeedbagItemHandler)
 public:
-	SsiHandler(IcqAccount *account, QObject *parent = 0);
+	Roster(IcqAccount *account);
 protected:
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	void handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType type);
@@ -48,16 +63,6 @@ protected:
 	void removeContact(IcqContact *contact);
 	void removeContactFromGroup(IcqContact *contact, quint16 groupId);
 	QStringList readTags(const FeedbagItem &item);
-private:
-	IcqAccount *m_account;
-};
-
-class Roster : public SNACHandler
-{
-	Q_OBJECT
-public:
-	Roster(IcqAccount *account);
-protected:
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 	void handleUserOnline(const SNAC &snac);
 	void handleUserOffline(const SNAC &snac);
@@ -65,12 +70,12 @@ private slots:
 	void statusChanged(qutim_sdk_0_3::Status status);
 	void loginFinished();
 private:
+	void setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &tlvs);
 	IcqAccount *m_account;
 	OscarConnection *m_conn;
-	SsiHandler *m_ssiHandler;
 	bool firstPacket;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // ROSTER_P_H

@@ -1,7 +1,8 @@
 /****************************************************************************
  *  icqcontact.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -16,13 +17,15 @@
 #include "icqcontact_p.h"
 #include "messages.h"
 #include "buddycaps.h"
+#include "icqaccount.h"
 #include "qutim/messagesession.h"
 #include "qutim/notificationslayer.h"
 #include "qutim/messagesession.h"
 #include <QApplication>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 void IcqContactPrivate::clearCapabilities()
 {
@@ -122,7 +125,7 @@ void IcqContact::sendMessage(const Message &message)
 		else
 			codec = Util::asciiCodec();
 		QByteArray msg = codec->fromUnicode(msgText) + '\0';
-		Tlv2711 tlv(0x01, 0, qutimStatusToICQ(d->status), 1, cookie);
+		Tlv2711 tlv(0x01, 0, d->status.subtype(), 1, cookie);
 		tlv.append<quint16>(msg, LittleEndian);
 		tlv.appendColors();
 		if (Utf8Support())
@@ -431,4 +434,4 @@ void IcqContact::messageTimeout()
 	}
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

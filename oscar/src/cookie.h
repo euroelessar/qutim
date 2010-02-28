@@ -20,8 +20,9 @@
 #include <QSharedPointer>
 #include "dataunit.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class IcqContact;
 class IcqAccount;
@@ -78,6 +79,6 @@ struct fromDataUnitHelper<Cookie>
 	}
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // COOKIE_H

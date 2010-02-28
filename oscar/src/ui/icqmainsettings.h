@@ -1,7 +1,7 @@
 /****************************************************************************
  *  icqmainsettings.h
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -25,10 +25,9 @@ namespace Ui
 class IcqMainSettings;
 }
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-using namespace qutim_sdk_0_3;
+namespace oscar {
 
 class IcqMainSettings: public SettingsWidget
 {
@@ -44,6 +43,6 @@ private:
 	Config m_config;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // ICQMAINSETTINGS_H

@@ -1,7 +1,8 @@
 /****************************************************************************
  *  oscarplugin.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -19,8 +20,9 @@
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 OscarPlugin::OscarPlugin()
 {
@@ -36,6 +38,9 @@ void OscarPlugin::init()
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("euroelessar@gmail.com"));
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Prokhin"),
+			  QT_TRANSLATE_NOOP("Task", "Author"),
+			  QLatin1String("alexey.prokhin@yandex.ru"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "ICQ"),
 				 QT_TRANSLATE_NOOP("Plugin", "Module-based realization of ICQ protocol"),
 				 new GeneralGenerator<IcqProtocol>(),
@@ -60,6 +65,6 @@ bool OscarPlugin::unload()
 	return false;
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
-QUTIM_EXPORT_PLUGIN(Icq::OscarPlugin)
+QUTIM_EXPORT_PLUGIN(qutim_sdk_0_3::oscar::OscarPlugin)

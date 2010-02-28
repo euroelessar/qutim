@@ -1,7 +1,8 @@
 /****************************************************************************
  *  messages.cpp
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,14 +14,13 @@
  ***************************************************************************
  *****************************************************************************/
 
-#include "messages.h"
+#include "messages_p.h"
 #include "icqcontact_p.h"
 #include "util.h"
 #include "buddycaps.h"
 #include "icqaccount.h"
 #include "icqcontact.h"
 #include "connection.h"
-#include "xtraz.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
@@ -28,8 +28,9 @@
 #include <QHostAddress>
 #include <QApplication>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 using namespace Util;
 
@@ -146,7 +147,7 @@ ServerResponseMessage::ServerResponseMessage(IcqContact *contact, quint16 format
 }
 
 MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent) :
-	SNACHandler(parent), m_account(account)
+	QObject(parent), m_account(account)
 {
 	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
 	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
@@ -163,6 +164,17 @@ MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent) :
 		foreach(const Capability &cap, plugin->capabilities())
 			m_msg_plugins.insert(cap, plugin);
 	}
+
+	foreach(const ObjectGenerator *gen, moduleGenerators<Tlv2711Plugin>()) {
+		Tlv2711Plugin *plugin = gen->generate<Tlv2711Plugin>();
+		Q_ASSERT(plugin);
+		foreach (Tlv2711Type type, plugin->tlv2711Types())
+			m_tlvs2711Plugins.insert(type, plugin);
+	}
+}
+
+MessagesHandler::~MessagesHandler()
+{
 }
 
 void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
@@ -257,9 +269,9 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case MessageFamily << 16 | MessageSrvError: {
 		ProtocolError error(sn);
 		debug() << QString("Error (%1, %2): %3")
-				.arg(error.code, 2, 16)
-				.arg(error.subcode, 2, 16)
-				.arg(error.str);
+				.arg(error.code(), 2, 16)
+				.arg(error.subcode(), 2, 16)
+				.arg(error.errorString());
 		break;
 	}
 	}
@@ -385,7 +397,7 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 			if (!plugins.isEmpty()) {
 				QByteArray plugin_data = data.readAll();
 				for (int i = 0; i < plugins.size(); i++)
-					plugins.at(i)->processMessage(uin, guid, plugin_data, type);
+					plugins.at(i)->processMessage(contact, guid, plugin_data, type);
 			} else
 				debug() << IMPLEMENT_ME << QString("Message (channel 2) from %1 with type %2 and guid %3 is not processed."). arg(uin).arg(type).arg(guid.toString());
 		}
@@ -467,9 +479,9 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 				codec = asciiCodec();
 			appendMessage(contact, codec->toUnicode(message_data));
 		} else if (MsgPlugin) {
-			data.read<quint16>(LittleEndian);
+			data.skipData(3);
 			DataUnit info = data.read<DataUnit, quint16>(LittleEndian);
-			Capability pluginType = info.read<Capability>().data();
+			Capability pluginType = info.read<Capability>();
 			quint16 pluginId = info.read<quint16>(LittleEndian);
 			QString pluginName = info.read<QString, quint32>(LittleEndian);
 			DataUnit pluginData = data.read<DataUnit, quint32>(LittleEndian);
@@ -481,11 +493,16 @@ void MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, q
 						debug() << "Message with id" << msgCookie.id() << "has been delivered";
 					}
 				}
-			} else if (pluginType == MSG_XSTRAZ_SCRIPT) {
-				Xtraz::handleXtraz(contact, pluginId, pluginData, msgCookie);
 			} else {
-				debug() << "Unhandled plugin message" << pluginType.toString()
-						<< pluginId << pluginName << pluginData.data().toHex();
+				bool found = false;
+				foreach (Tlv2711Plugin *plugin, m_tlvs2711Plugins.values(Tlv2711Type(pluginType, pluginId))) {
+					plugin->processTlvs2711(contact, pluginType, pluginId, pluginData, msgCookie);
+					found = true;
+				}
+				if (!found) {
+					debug() << "Unhandled plugin message" << pluginType.toString()
+							<< pluginId << pluginName << pluginData.data().toHex();
+				}
 			}
 		} else
 			debug() << "Unhandled TLV 2711 message with type" << hex << type;
@@ -533,4 +550,4 @@ void MessagesHandler::sendMetaInfoRequest(quint16 type)
 	m_account->connection()->send(snac);
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

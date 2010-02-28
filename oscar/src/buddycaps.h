@@ -19,8 +19,9 @@
 
 #include <capability.h>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 const Capability ICQ_CAPABILITY_SRVxRELAY    (0x09, 0x46, 0x13, 0x49, 0x4C, 0x7F,
                                               0x11, 0xD1, 0x82, 0x22, 0x44, 0x45,
@@ -155,6 +156,6 @@ const Capability ICQ_CAPABILITY_PSIG_MESSAGE (0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 											  0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 											  0x00, 0x00, 0x00, 0x00);
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif /*CAPABILITIES_H_*/

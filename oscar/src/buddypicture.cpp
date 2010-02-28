@@ -1,7 +1,7 @@
 /****************************************************************************
  *  buddypicture.cpp
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -24,63 +24,60 @@
 
 #include <QImage>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-BuddyPictureConnection::BuddyPictureConnection(QObject *parent) :
-	AbstractConnection(parent)
-{
-}
-
-void BuddyPictureConnection::connectToServ(const QString &addr, quint16 port, const QByteArray &cookie)
-{
-	m_cookie = cookie;
-	socket()->connectToHost(addr, port);
-}
-
-void BuddyPictureConnection::processNewConnection()
-{
-	FLAP flap(0x01);
-	flap.append<quint32>(0x01);
-	flap.appendTLV<QByteArray>(0x0006, m_cookie);
-	send(flap);
-}
-
-void BuddyPictureConnection::processCloseConnection()
-{
-	AbstractConnection::processCloseConnection();
-}
+namespace oscar {
 
 BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
-	ProtocolNegotiation(parent), m_account(account), m_is_connected(false)
+	AbstractConnection(account, parent), m_is_connected(false)
 {
 	m_infos << SNACInfo(ServiceFamily, ServerRedirectService)
 			<< SNACInfo(AvatarFamily, AvatarGetReply);
-	m_conn = new BuddyPictureConnection(this);
-	m_conn->registerHandler(this);
-	connect(m_conn->socket(), SIGNAL(disconnected()), SLOT(disconnected()));
+	m_types << SsiBuddyIcon;
+	registerHandler(this);
+	connect(socket(), SIGNAL(disconnected()), SLOT(disconnected()));
+	account->feedbag()->registerHandler(this);
+	account->registerRosterPlugin(this);
 }
 
 BuddyPicture::~BuddyPicture()
 {
+}
 
+void BuddyPicture::sendUpdatePicture(QObject *reqObject, quint16 icon_id, quint8 icon_flags, const QByteArray &icon_hash)
+{
+	if (socket()->state() == QTcpSocket::UnconnectedState)
+		return;
+	QByteArray old_hash = reqObject->property("icon_hash").toByteArray();
+	if (old_hash != icon_hash) {
+		SNAC snac(AvatarFamily, AvatarGetRequest);
+		snac.append<quint8>(reqObject->property("id").toString());
+		snac.append<quint8>(1); // unknown
+		snac.append<quint16>(icon_id);
+		snac.append<quint8>(icon_flags);
+		snac.append<quint8>(icon_hash);
+		if (m_is_connected)
+			send(snac);
+		else
+			m_history.push_back(snac);
+	}
 }
 
 void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 {
-	if (conn == m_conn) {
-		ProtocolNegotiation::handleSNAC(conn, snac);
+	if (this == conn) {
+		AbstractConnection::handleSNAC(this, snac);
 		snac.resetState();
 		if (snac.family() == ServiceFamily && snac.subtype() == ServiceServerAsksServices) {
 			SNAC snac(ServiceFamily, ServiceClientReady);
 			snac.append(QByteArray::fromHex(
 					"0001 0004 0110 164f" // ServiceFamily
 					"000f 0001 0110 164f"));// AvatarFamily
-			conn->send(snac);
+			send(snac);
 			m_is_connected = true;
 			while (!m_history.isEmpty()) {
 				SNAC tmp = m_history.takeFirst();
-				conn->send(tmp);
+				send(tmp);
 			}
 		}
 	} else {
@@ -89,7 +86,8 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 			quint16 id = tlvs.value(0x0D).read<quint16>();
 			if (id == AvatarFamily) {
 				QList<QByteArray> list = tlvs.value(0x05).data().split(':');
-				m_conn->connectToServ(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190, tlvs.value(0x06).data());
+				m_cookie = tlvs.value(0x06).data();
+				socket()->connectToHost(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190);
 			}
 		}
 	}
@@ -97,10 +95,10 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 	case AvatarFamily << 16 | AvatarGetReply: {
 		QString uin = snac.read<QString, quint8>();
 		QObject *obj;
-		if (uin == m_account->id())
-			obj = m_account;
+		if (uin == account()->id())
+			obj = account();
 		else
-			obj = m_account->getUnit(uin, false);
+			obj = account()->getUnit(uin, false);
 		if (!obj)
 			break;
 		snac.skipData(3); // skip icon_id and icon_flag
@@ -108,7 +106,10 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 		snac.skipData(21);
 		QByteArray image = snac.read<QByteArray, quint16>();
 		if (!image.isEmpty()) {
-			QString image_path = QString("%1/%2.%3/avatars/") .arg(SystemInfo::getPath(SystemInfo::ConfigDir)) .arg(m_account->protocol()->id()) .arg(m_account->id());
+			QString image_path = QString("%1/%2.%3/avatars/")
+					.arg(SystemInfo::getPath(SystemInfo::ConfigDir))
+					.arg(account()->protocol()->id())
+					.arg(account()->id());
 			QDir dir(image_path);
 			if (!dir.exists())
 				dir.mkpath(image_path);
@@ -126,22 +127,47 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 	}
 }
 
-void BuddyPicture::sendUpdatePicture(QObject *reqObject, quint16 icon_id, quint8 icon_flags, const QByteArray &icon_hash)
+void BuddyPicture::processNewConnection()
 {
-	if (m_conn->socket()->state() == QTcpSocket::UnconnectedState)
-		return;
-	QByteArray old_hash = reqObject->property("icon_hash").toByteArray();
-	if (old_hash != icon_hash) {
-		SNAC snac(AvatarFamily, AvatarGetRequest);
-		snac.append<quint8>(reqObject->property("id").toString());
-		snac.append<quint8>(1); // unknown
-		snac.append<quint16>(icon_id);
-		snac.append<quint8>(icon_flags);
-		snac.append<quint8>(icon_hash);
-		if (m_is_connected)
-			m_conn->send(snac);
-		else
-			m_history.push_back(snac);
+	FLAP flap(0x01);
+	flap.append<quint32>(0x01);
+	flap.appendTLV<QByteArray>(0x0006, m_cookie);
+	m_cookie.clear();
+	send(flap);
+}
+
+void BuddyPicture::processCloseConnection()
+{
+	m_is_connected = false;
+}
+
+bool BuddyPicture::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
+{
+	Q_UNUSED(feedbag);
+	Q_ASSERT(item.type() == SsiBuddyIcon);
+	if (error != FeedbagError::NoError || type == Feedbag::Remove)
+		return false;
+	if (account()->avatarsSupport() && item.containsField(0x00d5)) {
+		DataUnit data(item.field(0x00d5));
+		quint8 flags = data.read<quint8>();
+		QByteArray hash = data.read<QByteArray, quint8>();
+		if (hash.size() == 16)
+			sendUpdatePicture(account(), 1, flags, hash);
+	}
+	return true;
+}
+
+void BuddyPicture::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
+{
+	if (contact->status() == Status::Offline) {
+		if (account()->avatarsSupport() && tlvs.contains(0x001d)) { // avatar
+			DataUnit data(tlvs.value(0x001d));
+			quint16 id = data.read<quint16>();
+			quint8 flags = data.read<quint8>();
+			QByteArray hash = data.read<QByteArray, quint8>();
+			if (hash.size() == 16)
+				sendUpdatePicture(contact, id, flags, hash);
+		}
 	}
 }
 
@@ -151,4 +177,4 @@ void BuddyPicture::disconnected()
 	m_history.clear();
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

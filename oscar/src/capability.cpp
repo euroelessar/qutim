@@ -1,7 +1,7 @@
 /****************************************************************************
  *  capability.cpp
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
@@ -18,8 +18,9 @@
 #include <QDataStream>
 #include <QtEndian>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 Capability::Capability()
 {
@@ -172,4 +173,4 @@ Capabilities::const_iterator Capabilities::find(const Capability &capability, qu
 	return end_itr;
 }
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar

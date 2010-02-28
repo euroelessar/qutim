@@ -1,7 +1,7 @@
 /****************************************************************************
  *  accountcreator.h
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -18,10 +18,9 @@
 
 #include "qutim/protocol.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
 
-using namespace qutim_sdk_0_3;
+namespace oscar {
 
 struct IcqAccWizardPrivate;
 
@@ -37,6 +36,6 @@ private:
 	QScopedPointer<IcqAccWizardPrivate> p;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
 
 #endif // ACCOUNTCREATOR_H

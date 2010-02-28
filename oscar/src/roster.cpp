@@ -31,23 +31,11 @@
 #include <qutim/actiongenerator.h>
 #include <qutim/icon.h>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 using namespace Util;
-
-class PrivateListActionGenerator : public ActionGenerator
-{
-public:
-	PrivateListActionGenerator(quint16 type, const QIcon &icon,
-				const LocalizedString &text1, const LocalizedString &text2);
-	virtual ~PrivateListActionGenerator();
-protected:
-	virtual QObject *generateHelper() const;
-private:
-	quint16 m_type;
-	LocalizedString m_text2;
-};
 
 PrivateListActionGenerator::PrivateListActionGenerator(quint16 type, const QIcon &icon,
 				const LocalizedString &text1, const LocalizedString &text2) :
@@ -104,16 +92,29 @@ static void init_actions_list(ActionsList &list)
 }
 Q_GLOBAL_STATIC_WITH_INITIALIZER(ActionsList, actionsList, init_actions_list(*x));
 
-SsiHandler::SsiHandler(IcqAccount *account, QObject *parent):
-	FeedbagItemHandler(parent), m_account(account)
+Roster::Roster(IcqAccount *account):
+	QObject(account)
 {
-	m_types << SsiBuddy << SsiGroup << SsiBuddyIcon
-			<< SsiPermit << SsiDeny << SsiIgnore
-			<< SsiTags;
+	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
+			<< SNACInfo(ListsFamily, ListsError)
+			<< SNACInfo(ListsFamily, ListsAuthRequest)
+			<< SNACInfo(ListsFamily, ListsSrvAuthResponse)
+			<< SNACInfo(ListsFamily, ListsList)
+			<< SNACInfo(BuddyFamily, UserOnline)
+			<< SNACInfo(BuddyFamily, UserOffline)
+			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy)
+			<< SNACInfo(ExtensionsFamily, ExtensionsMetaError);
+	m_types << SsiBuddy << SsiGroup << SsiPermit
+			<< SsiDeny << SsiIgnore << SsiTags;
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
+	m_account = account;
+	m_conn = account->connection();
 	Q_UNUSED(actionsList());
+	account->feedbag()->registerHandler(this);
 }
 
-bool SsiHandler::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
+bool Roster::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
 {
 	if (error != FeedbagError::NoError)
 		return false;
@@ -124,7 +125,7 @@ bool SsiHandler::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Fe
 	return true;
 }
 
-void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType type)
+void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType type)
 {
 	switch (item.type()) {
 	case SsiBuddy: {
@@ -200,15 +201,6 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 		}
 		break;
 	}
-	case SsiBuddyIcon:
-		if (m_account->avatarsSupport() && item.containsField(0x00d5)) {
-			DataUnit data(item.field(0x00d5));
-			quint8 flags = data.read<quint8>();
-			QByteArray hash = data.read<QByteArray, quint8>();
-			if (hash.size() == 16)
-				m_account->connection()->buddyPictureService()->sendUpdatePicture(m_account, 1, flags, hash);
-		}
-		break;
 	case SsiPermit: {
 		debug() << item.name() << "has been added to visible list";
 		break;
@@ -232,7 +224,7 @@ void SsiHandler::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyT
 	}
 }
 
-void SsiHandler::handleRemoveCLItem(const FeedbagItem &item)
+void Roster::handleRemoveCLItem(const FeedbagItem &item)
 {
 	switch (item.type()) {
 	case SsiBuddy: {
@@ -273,7 +265,7 @@ void SsiHandler::handleRemoveCLItem(const FeedbagItem &item)
 	}
 }
 
-void SsiHandler::removeContactFromGroup(IcqContact *contact, quint16 groupId)
+void Roster::removeContactFromGroup(IcqContact *contact, quint16 groupId)
 {
 	QList<FeedbagItem> &items = contact->d_func()->items;
 	QList<FeedbagItem>::iterator itr = items.begin();
@@ -301,7 +293,7 @@ void SsiHandler::removeContactFromGroup(IcqContact *contact, quint16 groupId)
 	}
 }
 
-void SsiHandler::removeContact(IcqContact *contact)
+void Roster::removeContact(IcqContact *contact)
 {
 /*
 	if (ContactList::instance())
@@ -311,7 +303,7 @@ void SsiHandler::removeContact(IcqContact *contact)
 	emit contact->tagsChanged(contact->tags());
 }
 
-QStringList SsiHandler::readTags(const FeedbagItem &item)
+QStringList Roster::readTags(const FeedbagItem &item)
 {
 	QStringList newTags;
 	DataUnit newTagsData = item.field(SsiBuddyTags);
@@ -321,26 +313,6 @@ QStringList SsiHandler::readTags(const FeedbagItem &item)
 			newTags << data;
 	}
 	return newTags;
-}
-
-Roster::Roster(IcqAccount *account):
-	SNACHandler(account)
-{
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
-	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
-	m_account = account;
-	m_ssiHandler = new SsiHandler(m_account, this);
-	m_conn = account->connection();
-	account->feedbag()->registerHandler(m_ssiHandler);
-	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
-			<< SNACInfo(ListsFamily, ListsError)
-			<< SNACInfo(ListsFamily, ListsAuthRequest)
-			<< SNACInfo(ListsFamily, ListsSrvAuthResponse)
-			<< SNACInfo(ListsFamily, ListsList)
-			<< SNACInfo(BuddyFamily, UserOnline)
-			<< SNACInfo(BuddyFamily, UserOffline)
-			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy)
-			<< SNACInfo(ExtensionsFamily, ExtensionsMetaError);
 }
 
 void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
@@ -411,15 +383,14 @@ void Roster::handleUserOnline(const SNAC &snac)
 	quint16 warning_level = snac.read<quint16>();
 	Q_UNUSED(warning_level);
 	TLVMap tlvs = snac.read<TLVMap, quint16>();
-
 	// status.
 	Status oldStatus = contact->status();
 	quint16 statusFlags = 0;
-	Status status = icqStatusToQutim(IcqOnline);
+	OscarStatus status(OscarOnline);
 	if (tlvs.contains(0x06)) {
 		DataUnit status_data(tlvs.value(0x06));
 		statusFlags = status_data.read<quint16>();
-		status = icqStatusToQutim(static_cast<IcqStatus>(status_data.read<quint16>()));
+		status = static_cast<OscarStatusEnum>(status_data.read<quint16>());
 	}
 	// Status note
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));
@@ -442,31 +413,20 @@ void Roster::handleUserOnline(const SNAC &snac)
 		}
 		status.setText(codec->toUnicode(note_data));
 	}
-
-	// XStatus
+	// Updating capabilities
 	Capabilities newCaps;
 	DataUnit data(tlvs.value(0x000d));
 	while (data.dataSize() >= 16) {
-		Capability capability(data.readData(16));
+		Capability capability = data.read<Capability>();
 		newCaps << capability;
 	}
-	qint8 moodIndex = -1;
-	if (statusNoteData.contains(0x0e)) {
-		QString moodStr = statusNoteData.value(0x0e).read<QString>(asciiCodec());
-		if (moodStr.startsWith("icqmood")) {
-			bool ok;
-			moodIndex = moodStr.mid(7, -1).toInt(&ok);
-			if (!ok)
-				moodIndex = -1;
-		}
+	if (tlvs.contains(0x0019)) {
+		DataUnit data(tlvs.value(0x0019));
+		while (data.dataSize() >= 2)
+			newCaps.push_back(Capability(data.readData(2)));
 	}
-	if (Xtraz::handelXStatusCapabilities(contact, newCaps, moodIndex)) {
-		QString notify = QString("<srv><id>cAwaySrv</id><req><id>AwayStat</id>"
-			"<trans>1</trans><senderId>%1</senderId></req></srv>"). arg(m_account->id());
-		XtrazRequest xstatusRequest(contact, "<Q><PluginID>srvMng</PluginID></Q>", notify);
-		m_conn->send(xstatusRequest);
-	}
-
+	contact->setCapabilities(newCaps);
+	
 	if (oldStatus == Status::Offline) {
 		if (tlvs.contains(0x000c)) { // direct connection info
 			DataUnit data(tlvs.value(0x000c));
@@ -486,29 +446,8 @@ void Roster::handleUserOnline(const SNAC &snac)
 			};
 			contact->d_func()->dc_info = info;
 		}
-
-		if (m_account->avatarsSupport() && tlvs.contains(0x001d)) { // avatar
-			DataUnit data(tlvs.value(0x001d));
-			quint16 id = data.read<quint16>();
-			quint8 flags = data.read<quint8>();
-			QByteArray hash = data.read<QByteArray, quint8>();
-			if (hash.size() == 16)
-				m_conn->buddyPictureService()->sendUpdatePicture(contact, id, flags, hash);
-		}
-
-		// Updating capabilities
-		if (tlvs.contains(0x0019)) {
-			DataUnit data(tlvs.value(0x0019));
-			while (data.dataSize() >= 2)
-				newCaps.push_back(Capability(data.readData(2)));
-		}
-		contact->setCapabilities(newCaps);
 	}
-	QList<RosterPlugin*> plugins = m_account->d_func()->rosterPlugins;
-	foreach (RosterPlugin *plugin, plugins)
-		plugin->statusChanged(contact, status, tlvs);
-	contact->setStatus(status);
-	debug() << contact->name() << "changed status to " << contact->status();
+	setStatus(contact, status, tlvs);
 }
 
 void Roster::handleUserOffline(const SNAC &snac)
@@ -518,10 +457,12 @@ void Roster::handleUserOffline(const SNAC &snac)
 	// We don't know this contact
 	if (!contact)
 		return;
-	contact->setStatus(icqStatusToQutim(IcqOffline));
-	//	quint16 warning_level = snac.read<quint16>();
-	//	TLVMap tlvs = snac.readTLVChain<quint16>();
-	//	tlvs.value(0x0001); // User class
+	quint16 warning_level = snac.read<quint16>();
+	Q_UNUSED(warning_level);
+	TLVMap tlvs = snac.read<TLVMap, quint16>();
+	//tlvs.value(0x0001); // User class
+	OscarStatus status(OscarOffline);
+	setStatus(contact, status, tlvs);
 }
 
 void Roster::statusChanged(qutim_sdk_0_3::Status status)
@@ -541,4 +482,12 @@ void Roster::loginFinished()
 	}
 }
 
-} // namespace Icq
+void Roster::setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &tlvs)
+{
+	foreach (RosterPlugin *plugin, m_account->d_func()->rosterPlugins)
+		plugin->statusChanged(contact, status, tlvs);
+	contact->setStatus(status);
+	debug() << contact->name() << "changed status to " << status.name();
+}
+
+} } // namespace qutim_sdk_0_3::oscar

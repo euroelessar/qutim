@@ -1,7 +1,7 @@
 /****************************************************************************
  *  metainfo.h
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -18,19 +18,23 @@
 
 #include "snachandler.h"
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class OscarConnection;
 class IcqAccount;
 
-class MetaInfo: public SNACHandler
+typedef QHash<quint16, QString> FieldNamesList;
+
+class MetaInfo: public QObject, public SNACHandler
 {
-Q_OBJECT
+	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
 public:
 	struct Category
 	{
-		quint16 category;
+		QString category;
 		QString keyword;
 	};
 
@@ -50,12 +54,12 @@ private:
 	void handleNotes(QObject *reqObject, const DataUnit &data);
 	void handleInterests(QObject *reqObject, const DataUnit &data);
 	void handleAffilations(QObject *reqObject, const DataUnit &data);
-	QList<Category> handleCatagories(const DataUnit &data);
+	QList<Category> handleCatagories(const DataUnit &data, const FieldNamesList &list);
 	QString readString(const DataUnit &data);
 	quint16 m_sequence;
 	QHash<quint16, QObject*> m_requests;
 };
 
-} //namespace Icq
+} } // namespace qutim_sdk_0_3::Oscar
 
 #endif /* METAINFO_H_ */

@@ -1,7 +1,8 @@
 /****************************************************************************
  *  messages.h
  *
- *  Copyright (c) 2009 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -18,11 +19,13 @@
 
 #include "snac.h"
 #include "snachandler.h"
-#include "messageplugin.h"
+#include "capability.h"
+#include "cookie.h"
 #include <QDateTime>
 
-namespace Icq
-{
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class IcqAccount;
 class IcqContact;
@@ -114,28 +117,28 @@ public:
 	ServerResponseMessage(IcqContact *contact, quint16 format, quint16 reason, const Cookie &cookie = Cookie(true));
 };
 
-class MessagesHandler: public SNACHandler
+class MessagePlugin
 {
-Q_OBJECT
 public:
-	MessagesHandler(IcqAccount *account, QObject *parent = 0);
-	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-private slots:
-	void loginFinished();
-private:
-	void handleMessage(const SNAC &snac);
-	void handleResponse(const SNAC &snac);
-	void handleChannel1Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
-	void handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs, quint64 msgCookie);
-	void handleChannel4Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
-	void handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, const Cookie &msgCookie);
-	void appendMessage(IcqContact *contact, const QString &message, QDateTime time = QDateTime());
-	void sendChannel2Response(IcqContact *contact, quint8 type, quint8 flags, const Cookie &cookie);
-	void sendMetaInfoRequest(quint16 type);
-	IcqAccount *m_account;
-	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
+	QSet<Capability> capabilities() { return m_capabilities; }
+	virtual void processMessage(IcqContact *contact, const Capability &guid, const QByteArray &data, quint16 type) = 0;
+protected:
+	QSet<Capability> m_capabilities;
 };
 
-} // namespace Icq
+typedef QPair<Capability, quint16> Tlv2711Type;
+class Tlv2711Plugin
+{
+public:
+	QSet<Tlv2711Type> tlv2711Types() { return m_tlvs2711Types; }
+	virtual void processTlvs2711(IcqContact *contact, Capability guid, quint16 type, const DataUnit &data, const Cookie &cookie) = 0;
+protected:
+	QSet<Tlv2711Type> m_tlvs2711Types;
+};
+
+} } // namespace qutim_sdk_0_3::oscar
+
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::Tlv2711Plugin, "org.qutim.oscar.Tlvs2711Plugin");
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::MessagePlugin, "org.qutim.oscar.MessagePlugin");
 
 #endif /* MESSAGES_H_ */

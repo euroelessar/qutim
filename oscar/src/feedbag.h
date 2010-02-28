@@ -21,7 +21,9 @@
 #include "tlv.h"
 #include <QSharedData>
 
-namespace Icq {
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
 
 class Feedbag;
 class FeedbagPrivate;
@@ -107,9 +109,10 @@ Q_INLINE_TEMPLATE void FeedbagItem::setField(quint16 field, const T &d)
 	data().insert(field, d);
 }
 
-class LIBOSCAR_EXPORT Feedbag : public SNACHandler
+class LIBOSCAR_EXPORT Feedbag : public QObject, public SNACHandler
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
 public:		
 	enum ModifyType {
 		Add = ListsAddToList,
@@ -159,18 +162,17 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Feedbag::ItemLoadFlags);
 
-class LIBOSCAR_EXPORT FeedbagItemHandler: public QObject
+class LIBOSCAR_EXPORT FeedbagItemHandler
 {
-	Q_OBJECT
 public:
-	explicit FeedbagItemHandler(QObject *parent = 0);
-	virtual ~FeedbagItemHandler();
 	const QSet<quint16> &types() { return m_types; }
 	virtual bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error) = 0;
 protected:
 	QSet<quint16> m_types;
 };
 
-} // namespace Icq
+} } // namespace qutim_sdk_0_3::oscar
+
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::FeedbagItemHandler, "org.qutim.oscar.FeedbagItemHandler");
 
 #endif // FEEDBAG_H
