@@ -61,6 +61,7 @@ struct IcqContactPrivate
 	QString uin;
 	QString name;
 	Status status;
+	QString avatar;
 	quint16 version;
 	CapabilityFlags flags;
 	Capabilities capabilities;

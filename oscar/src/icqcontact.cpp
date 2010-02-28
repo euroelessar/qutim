@@ -98,6 +98,12 @@ Status IcqContact::status() const
 	return d->status;
 }
 
+QString IcqContact::avatar() const
+{
+	Q_D(const IcqContact);
+	return d->avatar;
+}
+
 bool IcqContact::isInList() const
 {
 	Q_D(const IcqContact);
@@ -350,6 +356,13 @@ const Capabilities &IcqContact::capabilities() const
 const DirectConnectionInfo &IcqContact::dcInfo() const
 {
 	return d_func()->dc_info;
+}
+
+void IcqContact::setAvatar(const QString &avatar)
+{
+	Q_D(IcqContact);
+	d->avatar = avatar;
+	emit avatarChanged(avatar);
 }
 
 void IcqContact::setStatus(Status status)
