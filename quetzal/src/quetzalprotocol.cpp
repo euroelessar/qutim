@@ -19,6 +19,7 @@
 #include <qutim/debug.h>
 #include <qutim/icon.h>
 #include <qutim/statusactiongenerator.h>
+#include <qutim/systeminfo.h>
 
 QuetzalProtocol::QuetzalProtocol(const QuetzalMetaObject *meta, PurplePlugin *plugin)
 {
@@ -53,6 +54,9 @@ void initActions()
 	foreach (ActionGenerator *action, actions)
 		MenuController::addAction(action, &QuetzalAccount::staticMetaObject);
 	inited = true;
+	QString path = SystemInfo::getPath(SystemInfo::ConfigDir);
+	path += "/purple";
+	purple_util_set_user_dir(QDir::toNativeSeparators(path).toUtf8().constData());
 }
 
 void QuetzalProtocol::loadAccounts()

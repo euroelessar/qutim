@@ -23,6 +23,7 @@
 #include "quetzaljoinchatdialog.h"
 #include "quetzalblist.h"
 #include <qutim/event.h>
+#include <qutim/systeminfo.h>
 #include <purple.h>
 #include <qutim/messagesession.h>
 #include <qutim/debug.h>
@@ -420,8 +421,11 @@ static PurpleCoreUiOps quetzal_core_uiops =
 static void
 init_libpurple()
 {
+	QString path = SystemInfo::getPath(SystemInfo::ConfigDir);
+	path += "/purple";
+	purple_util_set_user_dir(QDir::toNativeSeparators(path).toUtf8().constData());
 	/* Set a custom user directory (optional) */
-	purple_util_set_user_dir("/dev/null");
+//	purple_util_set_user_dir("/dev/null");
 
 	/* We do not want any debugging for now to keep the noise to a minimum. */
 	purple_debug_set_enabled(FALSE);
@@ -450,7 +454,7 @@ init_libpurple()
 		fprintf(stderr,
 				"libpurple initialization failed. Dumping core.\n"
 				"Please report this!\n");
-		abort();
+		return;
 	}
 
 	/* Create and load the buddylist. */

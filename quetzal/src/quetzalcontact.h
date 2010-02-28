@@ -33,6 +33,7 @@ public:
 	PurpleBuddy *buddy() { return m_buddy; }
 	void save(ConfigGroup group);
 	void update();
+	virtual QString avatar() const;
 	virtual QString id() const;
 	virtual QString name() const;
 	virtual QSet<QString> tags() const;
@@ -43,6 +44,7 @@ public:
 	virtual void setTags(const QSet<QString> &tags);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
+	virtual InfoFieldList info(bool extra = false);
 protected:
 	QList<MenuController::Action> dynamicActions() const;
 signals:
