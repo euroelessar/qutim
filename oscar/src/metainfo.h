@@ -25,6 +25,8 @@ namespace oscar {
 class OscarConnection;
 class IcqAccount;
 
+typedef QHash<quint16, QString> FieldNamesList;
+
 class MetaInfo: public QObject, public SNACHandler
 {
 	Q_OBJECT
@@ -32,7 +34,7 @@ class MetaInfo: public QObject, public SNACHandler
 public:
 	struct Category
 	{
-		quint16 category;
+		QString category;
 		QString keyword;
 	};
 
@@ -52,7 +54,7 @@ private:
 	void handleNotes(QObject *reqObject, const DataUnit &data);
 	void handleInterests(QObject *reqObject, const DataUnit &data);
 	void handleAffilations(QObject *reqObject, const DataUnit &data);
-	QList<Category> handleCatagories(const DataUnit &data);
+	QList<Category> handleCatagories(const DataUnit &data, const FieldNamesList &list);
 	QString readString(const DataUnit &data);
 	quint16 m_sequence;
 	QHash<quint16, QObject*> m_requests;
