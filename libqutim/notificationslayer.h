@@ -67,6 +67,7 @@ namespace qutim_sdk_0_3
 	public:
 		virtual void playSound(const QString &filename) = 0;
 		virtual QStringList supportedFormats() = 0;
+		virtual ~SoundBackend() {};
 	protected:
 		virtual void virtual_hook(int type, void *data);
 	};

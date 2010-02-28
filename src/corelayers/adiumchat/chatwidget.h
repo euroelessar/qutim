@@ -59,7 +59,9 @@ namespace AdiumChat
 		bool eventFilter(QObject *obj, QEvent *event);
 		virtual void timerEvent(QTimerEvent* );
 	private:
+		QIcon iconForState(ChatState state);
 		ChatSessionList m_sessions;
+		int m_current_index;
 		Ui::AdiumChatForm *ui;
 		ChatFlags m_chat_flags;
 		bool m_html_message;

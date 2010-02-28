@@ -95,6 +95,16 @@
       </property>
      </widget>
     </item>
+    <item row="1" column="0">
+     <widget class="ActionToolBar" name="actionToolBar" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -119,6 +129,12 @@
    <class>QTabBar</class>
    <extends>QWidget</extends>
    <header>qtabbar.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ActionToolBar</class>
+   <extends>QWidget</extends>
+   <header location="global">libqutim/actiontoolbar.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
