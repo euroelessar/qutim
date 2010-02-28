@@ -85,6 +85,7 @@ public:
 	QHash<quint16, FeedbagItemHandler*> handlers;
 	uint lastUpdateTime;
 	bool firstPacket;
+	QList<quint16> limits;
 	Feedbag *q_ptr;
 };
 
@@ -146,7 +147,15 @@ FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, const SNAC &snac, bool inLi
 
 void FeedbagItemPrivate::send(const FeedbagItem &item, Feedbag::ModifyType operation)
 {
-	feedbag->d->ssiQueue.enqueue(FeedbagQueueItem(item, operation));
+	FeedbagPrivate *d = feedbag->d.data();
+	if (operation == Feedbag::Add) {
+		quint16 limit = d->limits.value(item.type());
+		if (limit > 0 && d->items.value(item.type()).count() <= limit) {
+			warning() << "Limit for feedbag item type" << item.type() << "exceeded";
+			return;
+		}
+	}
+	d->ssiQueue.enqueue(FeedbagQueueItem(item, operation));
 	SNAC snac(ListsFamily, operation);
 	snac.append<quint16>(recordName);
 	snac.append<quint16>(groupId);
@@ -154,7 +163,7 @@ void FeedbagItemPrivate::send(const FeedbagItem &item, Feedbag::ModifyType opera
 	snac.append<quint16>(itemType);
 	snac.append<quint16>(tlvs.valuesSize());
 	snac.append(tlvs);
-	feedbag->d->conn->send(snac);
+	d->conn->send(snac);
 }
 
 void FeedbagItemPrivate::remove(FeedbagItem item)
@@ -734,6 +743,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case ListsFamily << 16 | ListsList: { // Server sends contactlist
 		if (d->firstPacket) {
 			d->items.clear();
+			d->limits.clear();
 			d->firstPacket = false;
 		}
 		quint8 version = sn.read<quint8>();
@@ -785,7 +795,12 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	// Server sends SSI service limitations to client
 	case ListsFamily << 16 | ListsSrvReplyLists: {
-		debug() << IMPLEMENT_ME << "ListsFamily, ListsSrvReplyLists";
+		TLVMap tlvs = sn.read<TLVMap>();
+		if (tlvs.contains(0x04)) {
+			DataUnit data = tlvs.value(0x04);
+			while (data.dataSize() >= 2)
+				d->limits << data.read<quint16>();
+		}
 		break;
 	}
 	}
