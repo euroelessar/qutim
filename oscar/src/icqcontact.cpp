@@ -17,6 +17,7 @@
 #include "icqcontact_p.h"
 #include "messages.h"
 #include "buddycaps.h"
+#include "icqaccount.h"
 #include "qutim/messagesession.h"
 #include "qutim/notificationslayer.h"
 #include "qutim/messagesession.h"

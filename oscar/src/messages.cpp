@@ -1,7 +1,8 @@
 /****************************************************************************
  *  messages.cpp
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *                        Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -32,10 +33,6 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 using namespace Util;
-
-Tlv2711Plugin::~Tlv2711Plugin()
-{
-}
 
 Channel1MessageData::Channel1MessageData(const QString &message, Channel1Codec charset)
 {
@@ -400,7 +397,7 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 			if (!plugins.isEmpty()) {
 				QByteArray plugin_data = data.readAll();
 				for (int i = 0; i < plugins.size(); i++)
-					plugins.at(i)->processMessage(uin, guid, plugin_data, type);
+					plugins.at(i)->processMessage(contact, guid, plugin_data, type);
 			} else
 				debug() << IMPLEMENT_ME << QString("Message (channel 2) from %1 with type %2 and guid %3 is not processed."). arg(uin).arg(type).arg(guid.toString());
 		}
