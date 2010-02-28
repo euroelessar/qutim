@@ -1,5 +1,5 @@
 /****************************************************************************
- *  debug.cpp
+ *  tooltip.h
  *
  *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,31 +13,28 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "debug.h"
+#ifndef TOOLTIPMANAGER_H
+#define TOOLTIPMANAGER_H
+
+#include "libqutim_global.h"
+#include <QPoint>
 
 namespace qutim_sdk_0_3
 {
-	typedef QMap<const QMetaObject *, QByteArray> DebugMap;
-	Q_GLOBAL_STATIC(DebugMap, modules)
+	class Contact;
 
-	QDebug debug_helper(qptrdiff ptr, DebugLevel level, QtMsgType type)
+	class LIBQUTIM_EXPORT ToolTip : public QObject
 	{
-		Q_UNUSED(level);
-		// TODO: Ability for disabling plugin's debug, check of level
-		if (const QMetaObject *meta = reinterpret_cast<const QMetaObject *>(ptr)) {
-			DebugMap::iterator it = modules()->find(meta);
-			if (it == modules()->end()) {
-				QByteArray name = metaInfo(meta, "DebugName");
-				if (name.isEmpty())
-					name = meta->className();
-				name = name.trimmed();
-				name.prepend("[");
-				name.append("]:");
-				it = modules()->insert(meta, name);
-			}
-			return (QDebug(type) << it.value().constData());
-		} else {
-			return (QDebug(type) << "[Core]:");
-		}
-	}
+		Q_OBJECT
+	public:
+		static ToolTip *instance();
+		virtual void showText(const QPoint &pos, QObject *obj, QWidget *w = 0);
+		inline void hideText() { showText(QPoint(), 0); }
+	protected:
+		ToolTip(QObject *parent = 0);
+		QString html(Contact *contact, bool extra);
+		bool eventFilter(QObject *, QEvent *);
+	};
 }
+
+#endif // TOOLTIPMANAGER_H

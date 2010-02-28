@@ -2,6 +2,7 @@
 #include "simplecontactlistview.h"
 #include "simplecontactlistmodel.h"
 #include "simplecontactlistitem.h"
+#include "simplecontactlistdelegate.h"
 #include "src/modulemanagerimpl.h"
 #include "libqutim/protocol.h"
 #include "libqutim/account.h"
@@ -95,6 +96,7 @@ namespace Core
 
 			p->widget->setLayout(layout);
 			p->model = new Model(p->view);
+			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));
 			p->view->setModel(p->model);
 			p->widget->show();
 

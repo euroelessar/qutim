@@ -32,6 +32,7 @@ namespace qutim_sdk_0_3
 
 	void TcpSocket::setProxy(const NetworkProxy &networkProxy)
 	{
+		Q_UNUSED(networkProxy);
 	}
 
 	NetworkProxy TcpSocket::proxy() const
@@ -41,6 +42,9 @@ namespace qutim_sdk_0_3
 
 	void TcpSocket::connectToHostImplementation(const QString &hostName, quint16 port, OpenMode mode)
 	{
+		Q_UNUSED(hostName);
+		Q_UNUSED(port);
+		Q_UNUSED(mode);
 	}
 
 	void TcpSocket::disconnectFromHostImplementation()

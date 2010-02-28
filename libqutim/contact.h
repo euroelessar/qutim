@@ -27,6 +27,8 @@ namespace qutim_sdk_0_3
 	class Account;
 	class MetaContact;
 	class Message;
+	typedef QPair<LocalizedString, QVariant> InfoField;
+	typedef QList<InfoField> InfoFieldList;
 
 	/**
 	* @brief Contact is base class for all contactlist members
@@ -35,6 +37,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 		Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+		Q_PROPERTY(QString avatar READ avatar NOTIFY avatarChanged)
 		Q_PROPERTY(QSet<QString> tags READ tags WRITE setTags NOTIFY tagsChanged)
 		Q_PROPERTY(Status status READ status NOTIFY statusChanged)
 		Q_PROPERTY(bool inList READ isInList WRITE setInList NOTIFY inListChanged)
@@ -49,6 +52,10 @@ namespace qutim_sdk_0_3
 		* @brief Contact's destructor
 		*/
 		virtual ~Contact();
+		/*!
+		  Path to buddy image
+		*/
+		virtual QString avatar() const;
 		/**
 		* @brief Returns contact's representable name
 		*
@@ -96,7 +103,19 @@ namespace qutim_sdk_0_3
 		* @brief remove contact from contactlist, see also setInList(bool inList)
 		*/
 		void removeFromList() { setInList(false); }
+		/*!
+		  Returnes list of protocol-specific info pairs for tooltip, i.e.:
+		  \code
+InfoFieldList list;
+list.append(Field(QT_TRANSLATE_NOOP("Jabber", "Mood"),     tr("Angry")));
+list.append(Field(QT_TRANSLATE_NOOP("Jabber", "Activity"), tr("Playing")));
+list.append(Field(QT_TRANSLATE_NOOP("Protocol", "Idle"),   m_idle - QDateTime::currentDateTime().toTime_t())));
+return list;
+		  \endcode
+		 */
+		virtual InfoFieldList info(bool extra = false);
 	signals:
+		void avatarChanged(const QString &path);
 		void statusChanged(const qutim_sdk_0_3::Status &status);
 		void nameChanged(const QString &name);
 		void tagsChanged(const QSet<QString> &tags);

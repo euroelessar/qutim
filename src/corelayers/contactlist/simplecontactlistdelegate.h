@@ -1,5 +1,5 @@
 /****************************************************************************
- *  debug.cpp
+ *  simplecontactlistitem.h
  *
  *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
@@ -13,31 +13,28 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "debug.h"
+#ifndef SIMPLECONTACTLISTDELEGATE_H
+#define SIMPLECONTACTLISTDELEGATE_H
 
-namespace qutim_sdk_0_3
+#include <QStyledItemDelegate>
+
+namespace Core
 {
-	typedef QMap<const QMetaObject *, QByteArray> DebugMap;
-	Q_GLOBAL_STATIC(DebugMap, modules)
-
-	QDebug debug_helper(qptrdiff ptr, DebugLevel level, QtMsgType type)
+	namespace SimpleContactList
 	{
-		Q_UNUSED(level);
-		// TODO: Ability for disabling plugin's debug, check of level
-		if (const QMetaObject *meta = reinterpret_cast<const QMetaObject *>(ptr)) {
-			DebugMap::iterator it = modules()->find(meta);
-			if (it == modules()->end()) {
-				QByteArray name = metaInfo(meta, "DebugName");
-				if (name.isEmpty())
-					name = meta->className();
-				name = name.trimmed();
-				name.prepend("[");
-				name.append("]:");
-				it = modules()->insert(meta, name);
-			}
-			return (QDebug(type) << it.value().constData());
-		} else {
-			return (QDebug(type) << "[Core]:");
-		}
+		class SimpleContactListDelegate : public QStyledItemDelegate
+		{
+			Q_OBJECT
+		public:
+			explicit SimpleContactListDelegate(QObject *parent = 0);
+
+		public Q_SLOTS:
+			bool helpEvent(QHelpEvent *event,
+						   QAbstractItemView *view,
+						   const QStyleOptionViewItem &option,
+						   const QModelIndex &index);
+		};
 	}
 }
+
+#endif // SIMPLECONTACTLISTDELEGATE_H

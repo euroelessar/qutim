@@ -166,6 +166,7 @@ namespace qutim_sdk_0_3
 
 	SoundTheme::SoundTheme(const QString name)
 	{
+		Q_UNUSED(name);
 // 		QString themeName = name;
 // 		if (themeName .isEmpty()) {
 // 			themeName  = Config().group("sounds").value<QString>("theme", QString());
@@ -183,11 +184,13 @@ namespace qutim_sdk_0_3
 
 	QString SoundTheme::path(Notifications::Type type)
 	{
+		Q_UNUSED(type);
 		return QString();
 	}
 
 	void SoundTheme::play(Notifications::Type type)
 	{
+		Q_UNUSED(type);
 // 		ensure_notifications_private();
 // 		if (!isCoreInited())
 // 			return;
@@ -214,7 +217,8 @@ namespace qutim_sdk_0_3
 
 	void SoundTheme::setPath(Notifications::Type type, QString path)
 	{
-
+		Q_UNUSED(type);
+		Q_UNUSED(path);
 	}
 
 	QString SoundTheme::title()

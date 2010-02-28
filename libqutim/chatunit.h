@@ -36,9 +36,9 @@ namespace qutim_sdk_0_3
 	{
 		Q_DECLARE_PRIVATE(ChatUnit)
 		Q_OBJECT
-		Q_PROPERTY(QString id READ id)
+		Q_PROPERTY(QString id READ id CONSTANT)
 		Q_PROPERTY(QString title READ title NOTIFY titleChanged)
-		Q_PROPERTY(Account* account READ account)
+		Q_PROPERTY(Account* account READ account CONSTANT)
 	public:
 		/**
 		* @brief default ChatUnit's contructor

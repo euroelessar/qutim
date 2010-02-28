@@ -29,7 +29,7 @@ namespace qutim_sdk_0_3
 	struct EmoticonsThemeData : public QSharedData
 	{
 		EmoticonsThemeData() : provider(0) {}
-		EmoticonsThemeData(const EmoticonsThemeData &o) : provider(o.provider) {}
+		EmoticonsThemeData(const EmoticonsThemeData &o) : QSharedData(o), provider(o.provider) {}
 		~EmoticonsThemeData() { delete provider; }
 		EmoticonsProvider *provider;
 	};

@@ -41,6 +41,11 @@ namespace qutim_sdk_0_3
 //		}
 	}
 
+	QString Contact::avatar() const
+	{
+		return QString();
+	}
+
 	QString Contact::title() const
 	{
 		QString n = name();
@@ -60,6 +65,12 @@ namespace qutim_sdk_0_3
 	Status Contact::status() const
 	{
 		return Status::Online;
+	}
+
+	InfoFieldList Contact::info(bool extra)
+	{
+		Q_UNUSED(extra);
+		return InfoFieldList();
 	}
 
 //	QIcon Contact::statusIcon() const

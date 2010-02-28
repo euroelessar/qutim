@@ -145,7 +145,7 @@ QT4_ADD_RESOURCES (RCC ${RESOURCES})
 ADD_EXECUTABLE (qutim ${SOURCES} ${MOC_SRCS} ${UIS_H} ${RCC})
 if( CMAKE_COMPILER_IS_GNUCXX )
 	set_target_properties( qutim PROPERTIES COMPILE_FLAGS "-DQUTIM_CORE -Wall -Werror" )
-	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "-Wall -Werror" )
+	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "-Wall -Werror -fvisibility=hidden -Wextra" )
 endif( CMAKE_COMPILER_IS_GNUCXX )
 
 TARGET_LINK_LIBRARIES (qutim

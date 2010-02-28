@@ -102,6 +102,7 @@ namespace qutim_sdk_0_3
 		}
 		virtual bool hasInterface(const char *id) const
 		{
+			Q_UNUSED(id);
 			return false;
 		}
 	private:

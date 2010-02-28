@@ -32,7 +32,7 @@ namespace qutim_sdk_0_3
 		*
 		* \a enable tells if the blur should be enabled or not
 		*/		
-		bool enableBlurBehindWindow(QWidget *widget, bool enable = true);
+		LIBQUTIM_EXPORT bool enableBlurBehindWindow(QWidget *widget, bool enable = true);
 		/*!
 		* ExtendFrameIntoClientArea.
 		*
@@ -45,9 +45,9 @@ namespace qutim_sdk_0_3
 		*
 		* \a enable tells if the blur should be enabled or not
 		*/
-		bool extendFrameIntoClientArea(QWidget *widget,
-									int left = -1, int top = -1,
-									int right = -1, int bottom = -1);
+		LIBQUTIM_EXPORT bool extendFrameIntoClientArea(QWidget *widget,
+													   int left = -1, int top = -1,
+													   int right = -1, int bottom = -1);
 		/*!
 		* @brief Chekcs and returns true if Windows DWM composition
 		* is currently enabled on the system.
@@ -60,13 +60,13 @@ namespace qutim_sdk_0_3
 		*@return current composition status
 		*
 		*/									
-		bool isCompositionEnabled();
+		LIBQUTIM_EXPORT bool isCompositionEnabled();
 		/*!
 		* Returns the current colorizationColor for the window.
 		*
 		* \a enable tells if the blur should be enabled or not
 		*/		
-		QColor colorizatinColor();
+		LIBQUTIM_EXPORT QColor colorizatinColor();
 	}
 	
 }

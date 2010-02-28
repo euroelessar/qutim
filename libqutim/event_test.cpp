@@ -24,6 +24,7 @@ namespace qutim_sdk_0_3
 {
 	void EventTest::testE(Event &event)
 	{
+		Q_UNUSED(event);
 		QSettings settings("/home/elessar/.config/qutim/qutim.EuroElessar/ICQ.3485140/accountsettings.ini");
 		Q_UNUSED(settings.allKeys());
 	}

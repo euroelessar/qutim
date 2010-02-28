@@ -22,7 +22,7 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		ExtensionIconData() {}
-		ExtensionIconData(const ExtensionIconData &o) : name(o.name), icon(o.icon) {}
+		ExtensionIconData(const ExtensionIconData &o) : QSharedData(o), name(o.name), icon(o.icon) {}
 		mutable QString name;
 		mutable QIcon icon;
 	};

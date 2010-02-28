@@ -113,6 +113,7 @@ bool QtDWM::isCompositionEnabled()
   */
 bool QtDWM::enableBlurBehindWindow(QWidget *widget, bool enable)
 {
+	Q_UNUSED(enable);
     Q_ASSERT(widget);
     bool result = false;
 #ifdef Q_WS_WIN
