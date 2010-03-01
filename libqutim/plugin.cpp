@@ -121,6 +121,11 @@ namespace qutim_sdk_0_3
 		return const_cast<Data *>(d.constData());
 	}
 
+	QString PluginInfo::fileName() const
+	{
+		return d->fileName;
+	}
+
 	Plugin::Plugin() : p(new PluginPrivate)
 	{
 	}

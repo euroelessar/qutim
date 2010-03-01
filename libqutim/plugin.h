@@ -51,6 +51,7 @@ namespace qutim_sdk_0_3
 		quint32 version() const;
 		ExtensionIcon icon() const;
 #ifndef Q_QDOC
+		QString fileName() const;
 	private:
 		QSharedDataPointer<PluginInfoData> d;
 	public:

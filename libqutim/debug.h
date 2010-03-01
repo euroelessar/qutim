@@ -20,9 +20,7 @@
 #include <QDebug>
 #include "libqutim_global.h"
 
-#if defined(LIBQUTIM_LIBRARY) || defined(QUTIM_CORE)
-inline qptrdiff qutim_plugin_id() { return 0; }
-#else
+#if !(defined(LIBQUTIM_LIBRARY) || defined(QUTIM_CORE))
 extern qptrdiff qutim_plugin_id();
 #endif
 
@@ -37,6 +35,16 @@ namespace qutim_sdk_0_3
 
 	LIBQUTIM_EXPORT QDebug debug_helper(qptrdiff, DebugLevel, QtMsgType);
 
+#if defined(LIBQUTIM_LIBRARY) || defined(QUTIM_CORE)
+	inline QDebug debug(DebugLevel level = Info)
+	{ return debug_helper(0, level, QtDebugMsg); }
+	inline QDebug warning(DebugLevel level = Info)
+	{ return debug_helper(0, level, QtWarningMsg); }
+	inline QDebug critical(DebugLevel level = Info)
+	{ return debug_helper(0, level, QtCriticalMsg); }
+	inline QDebug fatal(DebugLevel level = Info)
+	{ return debug_helper(0, level, QtFatalMsg); }
+#else
 	inline QDebug debug(DebugLevel level = Info)
 	{ return debug_helper(qutim_plugin_id(), level, QtDebugMsg); }
 	inline QDebug warning(DebugLevel level = Info)
@@ -45,5 +53,6 @@ namespace qutim_sdk_0_3
 	{ return debug_helper(qutim_plugin_id(), level, QtCriticalMsg); }
 	inline QDebug fatal(DebugLevel level = Info)
 	{ return debug_helper(qutim_plugin_id(), level, QtFatalMsg); }
+#endif
 }
 #endif // DEBUG_H

@@ -41,6 +41,7 @@ namespace qutim_sdk_0_3
 		LocalizedString description;
 		quint32 version;
 		ExtensionIcon icon;
+		QString fileName;
 	};
 
 	class ExtensionInfoData : public QSharedData

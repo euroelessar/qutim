@@ -235,9 +235,11 @@ namespace qutim_sdk_0_3
 					}
 				}
 				QPluginLoader *loader = new QPluginLoader(filename);
-//				loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
+				if (filename.contains("quetzal"))
+					loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
 				QObject *object = loader->instance();
 				if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
+					plugin->info().data()->fileName = filename;
 					plugin->init();
 					if (plugin->p->validate()) {
 						plugin->p->is_inited = true;
