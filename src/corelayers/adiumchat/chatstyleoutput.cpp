@@ -32,6 +32,7 @@
 #include "libqutim/objectgenerator.h"
 #include "chatsessionimpl.h"
 #include <libqutim/emoticons.h>
+#include <libqutim/debug.h>
 
 namespace AdiumChat
 {
@@ -292,8 +293,18 @@ namespace AdiumChat
 	void AdiumChat::ChatStyleOutput::makeUserIcons(const Message &mes, QString &source)
 	{
 		// Replace userIconPath
-		QString avatarPath = mes.isIncoming() ? mes.chatUnit()->property("avatar").toString() : mes.chatUnit()->account()->property("avatar").toString();
-		if(avatarPath == "")
+		QString avatarPath;
+		if (mes.isIncoming()) {
+			const Contact *c = qobject_cast< const Contact *>(mes.chatUnit());
+			debug() << c << mes.chatUnit();
+			avatarPath = c ? c->avatar() : (m_current_style.baseHref + "Outgoing/buddy_icon.png");
+		}
+		else {
+			//TODO
+			avatarPath = mes.chatUnit()->account()->property("avatar").toString();
+		}
+
+		if(avatarPath.isEmpty())
 		{
 			if(!mes.isIncoming())
 				avatarPath = (m_current_style.baseHref + "Outgoing/buddy_icon.png");
