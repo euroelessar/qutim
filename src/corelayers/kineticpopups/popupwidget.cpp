@@ -73,7 +73,8 @@ namespace KineticPopups
 	void PopupWidget::setData ( const QString& title, const QString& body, QObject *sender )
 	{
 		m_sender = sender;
-		QString image_path = sender ? sender->property("avatar").toString() : QString();
+		Contact *c = qobject_cast<Contact *>(sender);
+		QString image_path = c ? c->avatar() : QString();
 		if(image_path.isEmpty())
 			image_path = QLatin1String(":/icons/qutim_64");
 		QString data = popup_settings.content;
