@@ -398,8 +398,13 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 				QByteArray plugin_data = data.readAll();
 				for (int i = 0; i < plugins.size(); i++)
 					plugins.at(i)->processMessage(contact, guid, plugin_data, type);
-			} else
-				debug() << IMPLEMENT_ME << QString("Message (channel 2) from %1 with type %2 and guid %3 is not processed."). arg(uin).arg(type).arg(guid.toString());
+			} else {
+				debug() << IMPLEMENT_ME
+						<< QString("Message (channel 2) from %1 with type %2 and guid %3 is not processed.")
+						.arg(uin)
+						.arg(type)
+						.arg(guid.toString());
+			}
 		}
 	} else
 		debug() << "Incorrect message on channel 2 from" << uin << ": SNAC should contain TLV 5";
