@@ -177,6 +177,18 @@ MessagesHandler::~MessagesHandler()
 {
 }
 
+void MessagesHandler::registerMessagePlugin(MessagePlugin *plugin)
+{
+	foreach(const Capability &cap, plugin->capabilities())
+		m_msg_plugins.insert(cap, plugin);
+}
+
+void MessagesHandler::registerTlv2711Plugin(Tlv2711Plugin *plugin)
+{
+	foreach (Tlv2711Type type, plugin->tlv2711Types())
+		m_tlvs2711Plugins.insert(type, plugin);
+}
+
 void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 {
 	Q_ASSERT((AbstractConnection*)m_account->connection() == conn);
@@ -397,7 +409,7 @@ void MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contac
 			if (!plugins.isEmpty()) {
 				QByteArray plugin_data = data.readAll();
 				for (int i = 0; i < plugins.size(); i++)
-					plugins.at(i)->processMessage(contact, guid, plugin_data, type);
+					plugins.at(i)->processMessage(contact, guid, plugin_data, type, msgCookie);
 			} else {
 				debug() << IMPLEMENT_ME
 						<< QString("Message (channel 2) from %1 with type %2 and guid %3 is not processed.")

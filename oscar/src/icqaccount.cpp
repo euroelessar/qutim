@@ -22,6 +22,7 @@
 #include "buddycaps.h"
 #include "oscarstatus.h"
 #include "buddypicture.h"
+#include "filetransfer.h"
 #include <qutim/status.h>
 #include <qutim/systeminfo.h>
 #include <qutim/contactlist.h>
@@ -44,6 +45,8 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
 	d->conn->registerHandler(new Roster(this));
 	d->conn->registerHandler(new BuddyPicture(this, this));
+	d->conn->registerHandler(d->messagesHandler = new MessagesHandler(this, this));
+	registerMessagePlugin(new FileTransfer(this));
 	d->lastStatus = static_cast<Status::Type>(cfg.value<int>("lastStatus", Status::Offline));
 
 	// ICQ UTF8 Support
@@ -269,6 +272,23 @@ void IcqAccount::registerRosterPlugin(RosterPlugin *plugin)
 {
 	Q_D(IcqAccount);
 	d->rosterPlugins << plugin;
+}
+
+void IcqAccount::registerMessagePlugin(MessagePlugin *plugin)
+{
+	Q_D(IcqAccount);
+	d->messagesHandler->registerMessagePlugin(plugin);
+}
+
+void IcqAccount::registerTlv2711Plugin(Tlv2711Plugin *plugin)
+{
+	Q_D(IcqAccount);
+	d->messagesHandler->registerTlv2711Plugin(plugin);
+}
+
+QHostAddress IcqAccount::localAddress()
+{
+	return d_func()->conn->socket()->localAddress();
 }
 
 void IcqAccount::updateSettings()

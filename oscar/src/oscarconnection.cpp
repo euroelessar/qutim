@@ -53,7 +53,6 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 	m_meta_info = new MetaInfo(this);
 	registerHandler(m_meta_info);
 	registerHandler(this);
-	registerHandler(new MessagesHandler(m_account, this));
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
 		registerHandler(gen->generate<SNACHandler>());

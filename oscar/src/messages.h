@@ -37,6 +37,13 @@ enum Channel1Codec
 	CodecAnsi    = 0x0003
 };
 
+enum MessageAction
+{
+	MsgRequest = 0x0000,
+	MsgCancel  = 0x0001,
+	MsgAccept  = 0x0002
+};
+
 enum MessageType
 {
 	MsgPlain    = 0x01,
@@ -121,7 +128,7 @@ class MessagePlugin
 {
 public:
 	QSet<Capability> capabilities() { return m_capabilities; }
-	virtual void processMessage(IcqContact *contact, const Capability &guid, const QByteArray &data, quint16 type) = 0;
+	virtual void processMessage(IcqContact *contact, const Capability &guid, const QByteArray &data, quint16 type, quint64 cookie) = 0;
 protected:
 	QSet<Capability> m_capabilities;
 };

@@ -14,6 +14,9 @@
  ***************************************************************************
  *****************************************************************************/
 
+#ifndef MESSAGES_P_H_
+#define MESSAGES_P_H_
+
 #include "messages.h"
 
 namespace qutim_sdk_0_3 {
@@ -27,6 +30,8 @@ class MessagesHandler : public QObject, public SNACHandler
 public:
 	MessagesHandler(IcqAccount *account, QObject *parent = 0);
 	virtual ~MessagesHandler();
+	void registerMessagePlugin(MessagePlugin *plugin);
+	void registerTlv2711Plugin(Tlv2711Plugin *plugin);
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private slots:
 	void loginFinished();
@@ -46,3 +51,5 @@ private:
 };
 
 } } // namespace qutim_sdk_0_3::oscar
+
+#endif /* MESSAGES_P_H_ */
