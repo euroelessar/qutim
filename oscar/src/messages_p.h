@@ -18,6 +18,7 @@
 #define MESSAGES_P_H_
 
 #include "messages.h"
+#include <qutim/messagesession.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -38,11 +39,10 @@ private slots:
 private:
 	void handleMessage(const SNAC &snac);
 	void handleResponse(const SNAC &snac);
-	void handleChannel1Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
-	void handleChannel2Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs, quint64 msgCookie);
-	void handleChannel4Message(const SNAC &snac, IcqContact *contact, const QString &uin, const TLVMap &tlvs);
-	void handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, const Cookie &msgCookie);
-	void appendMessage(IcqContact *contact, const QString &message, QDateTime time = QDateTime());
+	QString handleChannel1Message(const SNAC &snac, IcqContact *contact, const TLVMap &tlvs);
+	QString handleChannel2Message(const SNAC &snac, IcqContact *contact, const TLVMap &tlvs, quint64 msgCookie);
+	QString handleChannel4Message(const SNAC &snac, IcqContact *contact, const TLVMap &tlvs);
+	QString handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, const Cookie &msgCookie);
 	void sendChannel2Response(IcqContact *contact, quint8 type, quint8 flags, const Cookie &cookie);
 	void sendMetaInfoRequest(quint16 type);
 	IcqAccount *m_account;
