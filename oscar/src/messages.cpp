@@ -567,4 +567,12 @@ void MessagesHandler::sendMetaInfoRequest(quint16 type)
 	m_account->connection()->send(snac);
 }
 
+MessagePlugin::~MessagePlugin()
+{
+}
+
+Tlv2711Plugin::~Tlv2711Plugin()
+{
+}
+
 } } // namespace qutim_sdk_0_3::oscar

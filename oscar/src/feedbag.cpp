@@ -806,4 +806,8 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 }
 
+FeedbagItemHandler::~FeedbagItemHandler()
+{
+}
+
 } } // namespace qutim_sdk_0_3::oscar

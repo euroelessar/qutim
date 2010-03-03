@@ -490,4 +490,8 @@ void Roster::setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &t
 	debug() << contact->name() << "changed status to " << status.name();
 }
 
+RosterPlugin::~RosterPlugin()
+{
+}
+
 } } // namespace qutim_sdk_0_3::oscar

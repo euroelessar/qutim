@@ -16,3 +16,12 @@
 
 #include "snachandler.h"
 
+namespace qutim_sdk_0_3 {
+
+namespace oscar {
+
+SNACHandler::~SNACHandler()
+{
+}
+
+} } // namespace qutim_sdk_0_3::oscar

@@ -165,6 +165,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Feedbag::ItemLoadFlags);
 class LIBOSCAR_EXPORT FeedbagItemHandler
 {
 public:
+	virtual ~FeedbagItemHandler();
 	const QSet<quint16> &types() { return m_types; }
 	virtual bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error) = 0;
 protected:
