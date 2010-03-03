@@ -391,12 +391,13 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 		bool updateConfig = account->status() != Status::Connecting;
 		ConfigGroup cfg = account->config("feedbag");
 		if (type == Feedbag::Remove) {
-			Q_ASSERT(itemsItr != items.end());
-			itemsItr->remove(id);
-			if (itemsItr->isEmpty())
-				items.erase(itemsItr);
-			if (updateConfig) {
-				cfg.group("cache").removeGroup(QString::number(item.d->id2()));
+			if (itemsItr != items.end()) {
+				itemsItr->remove(id);
+				if (itemsItr->isEmpty())
+					items.erase(itemsItr);
+				if (updateConfig) {
+					cfg.group("cache").removeGroup(QString::number(item.d->id2()));
+				}
 			}
 		} else {
 			if (itemsItr == items.end())
