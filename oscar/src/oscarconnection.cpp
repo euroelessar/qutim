@@ -180,7 +180,10 @@ void OscarConnection::sendStatus(OscarStatus status)
 	DataUnit statusData;
 	{
 		SessionDataItem statusNote(0x02, 0x04);
-		statusNote.append<quint16>(status.text(), Util::utf8Codec());
+		QByteArray text = Util::utf8Codec()->fromUnicode(status.text());
+		if (text.size() > 251)
+			text.resize(251);
+		statusNote.append<quint16>(text);
 		statusNote.append<quint16>(0); // endcoding: utf8 by default
 		statusData.append(statusNote);
 	}
