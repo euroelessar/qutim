@@ -18,6 +18,7 @@
 
 #include "libqutim_global.h"
 #include <QHostAddress>
+#include <QStringList>
 
 namespace qutim_sdk_0_3
 {
@@ -31,10 +32,16 @@ class LIBQUTIM_EXPORT FileTransferEngine : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(FileTransferEngine)
+	// Total progress
 	Q_PROPERTY(int progress READ progress NOTIFY progressChanged)
-	Q_PROPERTY(QString fileName READ fileName WRITE setFileName NOTIFY fileNameChanged)
-	Q_PROPERTY(QString remoteFileName READ remoteFileName NOTIFY remoteFileNameChanged)
+	Q_PROPERTY(QString currentFile READ currentFile NOTIFY currentFileChanged)
+	// Local and remote filenames should be constant
+	Q_PROPERTY(QStringList files READ files WRITE setFiles NOTIFY filesChanged)
+	Q_PROPERTY(QStringList remoteFiles READ remoteFiles NOTIFY remoteFilesChanged)
+	// Size of current file
 	Q_PROPERTY(qint64 fileSize READ fileSize NOTIFY fileSizeChanged)
+	// Size of all files
+	Q_PROPERTY(qint64 totalSize READ totalSize NOTIFY totalSizeChanged)
 	Q_PROPERTY(int localPort READ localPort NOTIFY localPortChanged)
 	Q_PROPERTY(int remotePort READ remotePort NOTIFY remotePortChanged)
 	Q_PROPERTY(QHostAddress remoteAddress READ remoteAddress NOTIFY remoteAddressChanged)
@@ -65,9 +72,11 @@ public:
 	virtual ~FileTransferEngine();
 	ChatUnit *chatUnit() const;
 	virtual int progress() const = 0;
-	virtual QString fileName() const = 0;
-	virtual QString remoteFileName() const = 0;
-	virtual void setFileName(const QString &) = 0;
+	virtual QString currentFile() const = 0;
+	virtual QStringList files() const = 0;
+	virtual QStringList remoteFiles() const = 0;
+	virtual void setFiles(const QStringList &) = 0;
+	virtual qint64 totalSize() const = 0;
 	virtual qint64 fileSize() const = 0;
 	virtual int localPort() const = 0;
 	virtual int remotePort() const = 0;
@@ -86,8 +95,9 @@ signals:
 	// From 0 to 100
 	void progressChanged(int percent);
 	void remoteAddressChanged(const QHostAddress &);
-	void fileNameChanged(const QString &);
-	void remoteFileNameChanged(const QString &);
+	void currentFileChanged(const QString &);
+	void filesChanged(const QStringList &);
+	void remoteFilesChanged(const QStringList &);
 	void fileSizeChanged(qint64);
 	void localPortChanged(int);
 	void remotePortChanged(int);
@@ -113,7 +123,8 @@ public:
 	explicit FileTransferManager();
 	virtual ~FileTransferManager();
 	bool checkAbility(ChatUnit *unit);
-	virtual void sendFile(ChatUnit *unit, const QString &fileName) = 0;
+	virtual void send(ChatUnit *unit, const QStringList &files) = 0;
+	inline void send(ChatUnit *unit, const QString &file) { send(unit, QStringList(file)); }
 signals:
 	void engineCreated(FileTransferEngine *);
 protected:
