@@ -1,21 +1,28 @@
-#include "simplepasswordwidget.h"
+#include "simplepassworddialog.h"
 #include "ui_simplepasswordwidget.h"
 #include "libqutim/protocol.h"
 
 namespace Core
 {
-SimplePasswordWidget::SimplePasswordWidget(Account *account) :
+SimplePasswordWidget::SimplePasswordWidget(Account *account, SimplePasswordDialog *parent) :
 		ui(new Ui::SimplePasswordWidget)
 {
     ui->setupUi(this);
 	ui->label->setText(ui->label->text().arg(account->id(), account->protocol()->id()));
 	connect(this, SIGNAL(accepted()), this, SLOT(onAccept()));
+	connect(this, SIGNAL(rejected()), this, SLOT(onReject()));
 	m_account = account;
+	m_parent = parent;
 }
 
 SimplePasswordWidget::~SimplePasswordWidget()
 {
     delete ui;
+}
+
+void SimplePasswordWidget::setValidator(QValidator *validator)
+{
+	ui->passwordLineEdit->setValidator(validator);
 }
 
 void SimplePasswordWidget::changeEvent(QEvent *e)
@@ -33,6 +40,11 @@ void SimplePasswordWidget::changeEvent(QEvent *e)
 
 void SimplePasswordWidget::onAccept()
 {
-	emit entered(ui->passwordLineEdit->text(), ui->rememberCheckBox->isChecked());
+	m_parent->apply(ui->passwordLineEdit->text(), ui->rememberCheckBox->isChecked());
+}
+
+void SimplePasswordWidget::onReject()
+{
+	m_parent->reject();
 }
 }

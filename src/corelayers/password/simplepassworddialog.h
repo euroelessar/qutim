@@ -2,6 +2,7 @@
 #define SIMPLEPASSWORDDIALOG_H
 
 #include "libqutim/passworddialog.h"
+#include "simplepasswordwidget.h"
 
 namespace Core
 {
@@ -13,6 +14,10 @@ namespace Core
 	public:
 		explicit SimplePasswordDialog();
 		virtual void setAccount(Account *account);
+		virtual void setValidator(QValidator *validator);
+	private:
+		QPointer<SimplePasswordWidget> m_widget;
+		friend class SimplePasswordWidget;
 	};
 }
 

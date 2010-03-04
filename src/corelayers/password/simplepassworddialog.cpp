@@ -1,5 +1,4 @@
 #include "simplepassworddialog.h"
-#include "simplepasswordwidget.h"
 #include "src/modulemanagerimpl.h"
 
 namespace Core
@@ -15,10 +14,16 @@ namespace Core
 
 	void SimplePasswordDialog::setAccount(Account *account)
 	{
-		SimplePasswordWidget *widget = new SimplePasswordWidget(account);
-		connect(this, SIGNAL(destroyed()), widget, SLOT(deleteLater()));
-		connect(widget, SIGNAL(rejected()), this, SIGNAL(rejected()));
-		connect(widget, SIGNAL(entered(QString,bool)), this, SIGNAL(entered(QString,bool)));
-		widget->show();
+		m_widget = new SimplePasswordWidget(account, this);
+		connect(this, SIGNAL(destroyed()), m_widget, SLOT(deleteLater()));
+		connect(m_widget, SIGNAL(rejected()), this, SIGNAL(rejected()));
+		connect(m_widget, SIGNAL(entered(QString,bool)), this, SIGNAL(entered(QString,bool)));
+		m_widget->show();
+	}
+
+	void SimplePasswordDialog::setValidator(QValidator *validator)
+	{
+		if (m_widget)
+			m_widget->setValidator(validator);
 	}
 }

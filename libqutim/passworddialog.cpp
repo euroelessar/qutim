@@ -1,5 +1,21 @@
+/****************************************************************************
+ *  passworddialog.cpp
+ *
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include "passworddialog.h"
 #include "account.h"
+#include <QEventLoop>
 
 namespace qutim_sdk_0_3
 {
@@ -20,8 +36,65 @@ namespace qutim_sdk_0_3
 		return dialog;
 	}
 
-	PasswordDialog::PasswordDialog()
+	struct PasswordDialogPrivate
 	{
+		QString password;
+		bool remember;
+		int result;
+	};
+
+	PasswordDialog::PasswordDialog() : d_ptr(new PasswordDialogPrivate)
+	{
+		Q_D(PasswordDialog);
+		d->remember = false;
+		d->result = Rejected;
+	}
+
+	PasswordDialog::~PasswordDialog()
+	{
+	}
+
+	QString PasswordDialog::password() const
+	{
+		return d_func()->password;
+	}
+
+	bool PasswordDialog::remember() const
+	{
+		return d_func()->remember;
+	}
+
+	void PasswordDialog::apply(const QString &password, bool remember)
+	{
+		Q_D(PasswordDialog);
+		d->password = password;
+		d->remember = remember;
+		d->result = Accepted;
+		emit entered(password, remember);
+	}
+
+	void PasswordDialog::reject()
+	{
+		Q_D(PasswordDialog);
+		d->password.clear();
+		d->remember = false;
+		d->result = Rejected;
+		emit rejected();
+	}
+
+	int PasswordDialog::exec()
+	{
+		QEventLoop eventLoop;
+		QPointer<PasswordDialog> guard = this;
+		(void) eventLoop.exec(QEventLoop::DialogExec);
+		if (guard.isNull())
+			return PasswordDialog::Rejected;
+		return result();
+	}
+
+	int PasswordDialog::result() const
+	{
+		return d_func()->result;
 	}
 
 	void PasswordDialog::virtual_hook(int id, void *data)
