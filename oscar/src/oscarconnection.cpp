@@ -22,6 +22,7 @@
 #include "buddycaps.h"
 #include "messages_p.h"
 #include "oscarstatus_p.h"
+#include "sessiondataitem.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/notificationslayer.h>
 #include <QHostInfo>
@@ -176,14 +177,14 @@ void OscarConnection::sendStatus(OscarStatus status)
 	dc.append<quint16>(0x0000); // Unknown
 	snac.append(dc);
 	// Status item
-	DataUnit statusNote;
 	DataUnit statusData;
-	statusNote.append<quint16>(0x02);
-	statusData.append<quint16>(m_account->property("statusText").toString(), Util::utf8Codec());
-	statusData.append<quint16>(0); // endcoding: utf8 by default
-	statusNote.append<quint16>(0x400 | statusData.data().size()); // Flags + length
-	statusNote.append(statusData.data());
-	snac.appendTLV(0x1D, statusNote);
+	{
+		SessionDataItem statusNote(0x02, 0x04);
+		statusNote.append<quint16>(status.text(), Util::utf8Codec());
+		statusNote.append<quint16>(0); // endcoding: utf8 by default
+		statusData.append(statusNote);
+	}
+	snac.appendTLV(0x1D, statusData);
 	snac.appendTLV<quint16>(0x1f, 0x00); // unknown
 	send(snac);
 

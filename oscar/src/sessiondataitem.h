@@ -94,8 +94,8 @@ inline void SessionDataItem::setFlags(quint8 flags)
 inline SessionDataItem::operator QByteArray() const
 {
 	DataUnit data;
-	data.append(m_type);
-	data.append(m_flags);
+	data.append<quint16>(m_type);
+	data.append<quint8>(m_flags);
 	data.append<quint8>(m_data);
 	return data.data();
 }
