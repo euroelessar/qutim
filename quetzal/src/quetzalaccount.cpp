@@ -96,11 +96,8 @@ QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) :
 	}
 
 
-	Config cfg = config();
-	QByteArray password = cfg.group("general").value("passwd", QString(), Config::Crypted).toUtf8();
-	m_account->password = g_strdup(password.constData());
 	m_is_loading = true;
-	load(cfg);
+	load(config());
 	m_is_loading = false;
 //	if (protocol->id() == "jabber" && id.contains("qutim.org")) {
 	if (!purple_account_get_enabled(m_account, "qutim"))
@@ -265,9 +262,30 @@ struct QuetzalAccountPasswordInfo
 
 Q_DECLARE_METATYPE(QuetzalAccountPasswordInfo)
 
+void quetzal_password_build(PurpleRequestFieldsCb cb, const char *password,
+							bool remember, void *userData)
+{
+	PurpleRequestFields *fields = purple_request_fields_new();
+	PurpleRequestFieldGroup *group = purple_request_field_group_new(NULL);
+	purple_request_fields_add_group(fields, group);
+	PurpleRequestField *field;
+	field = purple_request_field_string_new("password", "", password, FALSE);
+	purple_request_field_group_add_field(group, field);
+	field = purple_request_field_bool_new("remember", "", remember);
+	purple_request_field_group_add_field(group, field);
+	cb(userData, fields);
+	purple_request_fields_destroy(fields);
+}
+
 void QuetzalAccount::requestPassword(PurpleRequestFieldsCb okCb, PurpleRequestFieldsCb cancelCb,
 									 void *userData)
 {
+	QByteArray password = config("general").value("passwd", QString(), Config::Crypted).toUtf8();
+	if (password != purple_account_get_password(m_account)) {
+		quetzal_password_build(okCb, password.constData(), false, userData);
+		return;
+	}
+
 	PasswordDialog *dialog = PasswordDialog::request(this);
 	QuetzalAccountPasswordInfo info = {okCb, cancelCb, userData};
 	dialog->setProperty("info", qVariantFromValue(info));
@@ -284,21 +302,6 @@ int QuetzalAccount::sendRawData(const QByteArray &data)
 	if (PURPLE_PROTOCOL_PLUGIN_HAS_FUNC(prpl, send_raw))
 		return prpl->send_raw(m_account->gc, data.constData(), data.length());
 	return -1;
-}
-
-void quetzal_password_build(PurpleRequestFieldsCb cb, const char *password,
-							bool remember, void *userData)
-{
-	PurpleRequestFields *fields = purple_request_fields_new();
-	PurpleRequestFieldGroup *group = purple_request_field_group_new(NULL);
-	purple_request_fields_add_group(fields, group);
-	PurpleRequestField *field;
-	field = purple_request_field_string_new("password", "", password, FALSE);
-	purple_request_field_group_add_field(group, field);
-	field = purple_request_field_bool_new("remember", "", remember);
-	purple_request_field_group_add_field(group, field);
-	cb(userData, fields);
-	purple_request_fields_destroy(fields);
 }
 
 void QuetzalAccount::onPasswordEntered(const QString &password, bool remember)

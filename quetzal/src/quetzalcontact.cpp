@@ -243,7 +243,8 @@ void QuetzalContact::sendMessage(const Message &message)
 			return;
 
 		PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
-		prpl->send_im(m_buddy->account->gc, m_buddy->name, message.text().toUtf8().constData(), 0);
+		prpl->send_im(m_buddy->account->gc, m_buddy->name, message.text().toUtf8().constData(),
+					  static_cast<PurpleMessageFlags>(0));
 		return;
 	}
 	purple_conv_im_send(conv->u.im, message.text().toUtf8().constData());
