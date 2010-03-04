@@ -51,6 +51,7 @@ extern void setAsciiCodec(QTextCodec *codec);
 extern QTextCodec *utf8Codec();
 extern QTextCodec *utf16Codec();
 extern QTextCodec *defaultCodec();
+extern QTextCodec *detectCodec();
 
 } } } // namespace qutim_sdk_0_3::oscar::Util
 

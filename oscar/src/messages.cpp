@@ -373,7 +373,7 @@ QString MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *con
 			if (charset == CodecUtf16Be)
 				codec = utf16Codec();
 			else
-				codec = asciiCodec();
+				codec = detectCodec();
 			message += codec->toUnicode(data);
 		}
 	} else {
@@ -495,20 +495,14 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 							  data.read<quint8>(),
 							  data.read<quint8>(),
 							  data.read<quint8>());
-			QTextCodec *codec = NULL;
 			while (data.dataSize() > 0) {
 				QString guid = data.read<QString, quint32>(LittleEndian);
-				if (guid.compare(ICQ_CAPABILITY_UTF8.toString(), Qt::CaseInsensitive) == 0) {
-					codec = utf8Codec();
-				}
 				if (guid.compare(ICQ_CAPABILITY_RTFxMSGS.toString(), Qt::CaseInsensitive) == 0) {
 					debug() << "RTF is not supported";
 					return QString();
 				}
 			}
-			if (codec == NULL)
-				codec = asciiCodec();
-			return codec->toUnicode(message_data);
+			return detectCodec()->toUnicode(message_data);
 		} else if (MsgPlugin) {
 			data.skipData(3);
 			DataUnit info = data.read<DataUnit, quint16>(LittleEndian);
