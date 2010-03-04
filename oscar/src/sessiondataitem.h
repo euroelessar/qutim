@@ -57,7 +57,7 @@ private:
 SessionDataItem::SessionDataItem(quint16 type, quint8 flags) :
 	m_type(type), m_flags(flags)
 {
-	setMaxSize(0xff);
+	setMaxSize(253);
 }
 
 SessionDataItem::SessionDataItem(const DataUnit &data)
