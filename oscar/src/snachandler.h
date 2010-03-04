@@ -33,6 +33,7 @@ typedef QPair<quint16, quint16> SNACInfo;
 class LIBOSCAR_EXPORT SNACHandler
 {
 public:
+	virtual ~SNACHandler();
 	const QList<SNACInfo> &infos() { return m_infos; }
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac) = 0;
 protected:

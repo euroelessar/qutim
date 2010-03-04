@@ -131,9 +131,9 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 	case SsiBuddy: {
 		if (item.name().isEmpty())
 			break;
+		bool creating = !m_account->contacts().contains(item.name());
 		IcqContact *contact = m_account->getContact(item.name(), true);
 		IcqContactPrivate *d = contact->d_func();
-		bool creating = d->items.isEmpty();
 		QList<FeedbagItem>::iterator itr = d->items.begin();
 		QList<FeedbagItem>::iterator endItr = d->items.end();
 		bool newTag = true;
@@ -146,6 +146,8 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 			++itr;
 		}
 		if (newTag) {
+			if (!creating && m_account->status() == Status::Connecting && d->items.isEmpty())
+				loadTagsFromFeedbag(contact);
 			d->items << item;
 			emit contact->tagsChanged(contact->tags());
 		}
@@ -167,9 +169,7 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 		// TODO: emit ...
 		if (creating) {
 			if (ContactList::instance()) {
-				FeedbagItem tagsItem = m_account->feedbag()->item(SsiTags, item.name(), 0);
-				if (tagsItem.isInList())
-					contact->d_func()->tags = readTags(tagsItem);
+				loadTagsFromFeedbag(contact);
 				ContactList::instance()->addContact(contact);
 			}
 			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
@@ -293,6 +293,13 @@ void Roster::removeContactFromGroup(IcqContact *contact, quint16 groupId)
 	}
 }
 
+void Roster::loadTagsFromFeedbag(IcqContact *contact)
+{
+	FeedbagItem tagsItem = m_account->feedbag()->item(SsiTags, contact->id(), 0);
+	if (tagsItem.isInList())
+		contact->d_func()->tags = readTags(tagsItem);
+}
+
 void Roster::removeContact(IcqContact *contact)
 {
 /*
@@ -357,8 +364,10 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 	case ListsFamily << 16 | ListsList: {
 		if (firstPacket) {
 			firstPacket = false;
-			foreach (IcqContact *contact, m_account->contacts())
+			foreach (IcqContact *contact, m_account->contacts()) {
 				contact->d_func()->items.clear();
+				contact->d_func()->tags.clear();
+			}
 		}
 	}
 	case BuddyFamily << 16 | UserOnline:
@@ -402,16 +411,16 @@ void Roster::handleUserOnline(const SNAC &snac)
 		DataUnit data(statusNoteData.value(0x02));
 		QByteArray note_data = data.read<QByteArray, quint16>();
 		QByteArray encoding = data.read<QByteArray, quint16>();
-		QTextCodec *codec;
-		if (encoding.isEmpty())
-			codec = defaultCodec();
-		else
+		QTextCodec *codec = 0;
+		if (!encoding.isEmpty()) {
 			codec = QTextCodec::codecForName(encoding);
-		if (!codec) {
-			debug() << "Server sent wrong encoding for status note";
-			codec = defaultCodec();
+			if (!codec)
+				debug() << "Server sent wrong encoding for status note";
 		}
+		if (!codec)
+			codec = utf8Codec();
 		status.setText(codec->toUnicode(note_data));
+		debug() << "status note" << status.text();
 	}
 	// Updating capabilities
 	Capabilities newCaps;
@@ -488,6 +497,10 @@ void Roster::setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &t
 		plugin->statusChanged(contact, status, tlvs);
 	contact->setStatus(status);
 	debug() << contact->name() << "changed status to " << status.name();
+}
+
+RosterPlugin::~RosterPlugin()
+{
 }
 
 } } // namespace qutim_sdk_0_3::oscar

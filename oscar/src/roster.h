@@ -29,8 +29,7 @@ class IcqAccount;
 class LIBOSCAR_EXPORT RosterPlugin
 {
 public:
-	RosterPlugin() {}
-	virtual ~RosterPlugin() { }
+	virtual ~RosterPlugin();
 	virtual void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs) = 0;
 };
 

@@ -21,6 +21,7 @@
 #include "cookie.h"
 #include "capability.h"
 #include "oscarstatus.h"
+#include <QHostAddress>
 
 namespace qutim_sdk_0_3 {
 
@@ -28,6 +29,8 @@ namespace oscar {
 
 struct IcqAccountPrivate;
 class RosterPlugin;
+class MessagePlugin;
+class Tlv2711Plugin;
 class Feedbag;
 class OscarConnection;
 
@@ -67,6 +70,9 @@ public:
 	QList<Capability> capabilities();
 	void setVisibility(Visibility visibility);
 	void registerRosterPlugin(RosterPlugin *plugin);
+	void registerMessagePlugin(MessagePlugin *plugin);
+	void registerTlv2711Plugin(Tlv2711Plugin *plugin);
+	QHostAddress localAddress();
 signals:
 	void loginFinished();
 public slots:

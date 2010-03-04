@@ -37,6 +37,13 @@ enum Channel1Codec
 	CodecAnsi    = 0x0003
 };
 
+enum MessageAction
+{
+	MsgRequest = 0x0000,
+	MsgCancel  = 0x0001,
+	MsgAccept  = 0x0002
+};
+
 enum MessageType
 {
 	MsgPlain    = 0x01,
@@ -120,8 +127,9 @@ public:
 class MessagePlugin
 {
 public:
+	virtual ~MessagePlugin();
 	QSet<Capability> capabilities() { return m_capabilities; }
-	virtual void processMessage(IcqContact *contact, const Capability &guid, const QByteArray &data, quint16 type) = 0;
+	virtual void processMessage(IcqContact *contact, const Capability &guid, const QByteArray &data, quint16 type, quint64 cookie) = 0;
 protected:
 	QSet<Capability> m_capabilities;
 };
@@ -130,6 +138,7 @@ typedef QPair<Capability, quint16> Tlv2711Type;
 class Tlv2711Plugin
 {
 public:
+	virtual ~Tlv2711Plugin();
 	QSet<Tlv2711Type> tlv2711Types() { return m_tlvs2711Types; }
 	virtual void processTlvs2711(IcqContact *contact, Capability guid, quint16 type, const DataUnit &data, const Cookie &cookie) = 0;
 protected:

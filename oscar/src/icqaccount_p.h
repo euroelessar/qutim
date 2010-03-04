@@ -19,7 +19,7 @@
 #define ICQACCOUNT_P_H
 
 #include "icqaccount.h"
-#include "clientidentify.h"
+#include "messages_p.h"
 #include <QTimer>
 
 namespace qutim_sdk_0_3 {
@@ -30,6 +30,7 @@ struct IcqAccountPrivate
 {
 	OscarConnection *conn;
 	Feedbag *feedbag;
+	MessagesHandler *messagesHandler;
 	QString name;
 	bool avatars;
 	QHash<quint64, Cookie*> cookies;

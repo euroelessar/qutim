@@ -20,6 +20,7 @@
 #include "util.h"
 #include <icq_global.h>
 #include <typeinfo>
+#include <limits>
 
 namespace qutim_sdk_0_3 {
 
@@ -42,7 +43,7 @@ public:
 	DataUnit(const QByteArray &data) { m_data = data; m_state = 0; m_max_size = 0; }
 	const QByteArray &data() const { return m_data; }
 	operator QByteArray() const { return data(); }
-	void setData(const QByteArray &data) { m_data = data; }
+	void setData(const QByteArray &data) { m_data = data; m_state = 0; }
 	inline QByteArray readData(uint size) const;
 	inline void skipData(uint num) const { m_state = qMin<uint>(m_state + num, m_data.size()); }
 	inline void resetState() const { m_state = 0; }
@@ -177,7 +178,10 @@ struct toDataUnitHelper<T, true>
 	}
 	static inline QByteArray toByteArray(const QString &data, QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian)
 	{
-		return toByteArray(data.size(), bo) + toDataUnitHelper<QString>::toByteArray(data, codec);
+		QByteArray buf = toDataUnitHelper<QString>::toByteArray(data, codec);
+		if (std::numeric_limits<T>().max() < buf.size())
+			buf.resize(std::numeric_limits<T>().max() - 1);
+		return toByteArray(buf.size(), bo) + buf;
 	}
 	static inline QByteArray toByteArray(const char *data, QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian)
 	{

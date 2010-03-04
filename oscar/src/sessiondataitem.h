@@ -57,6 +57,7 @@ private:
 SessionDataItem::SessionDataItem(quint16 type, quint8 flags) :
 	m_type(type), m_flags(flags)
 {
+	setMaxSize(253);
 }
 
 SessionDataItem::SessionDataItem(const DataUnit &data)
@@ -94,8 +95,8 @@ inline void SessionDataItem::setFlags(quint8 flags)
 inline SessionDataItem::operator QByteArray() const
 {
 	DataUnit data;
-	data.append(m_type);
-	data.append(m_flags);
+	data.append<quint16>(m_type);
+	data.append<quint8>(m_flags);
 	data.append<quint8>(m_data);
 	return data.data();
 }

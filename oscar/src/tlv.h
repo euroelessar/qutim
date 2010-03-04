@@ -199,6 +199,12 @@ struct fromDataUnitHelper<TLVMap>
 	}
 };
 
+inline QDebug &operator<<(QDebug &stream, const TLV &data)
+{
+	stream.nospace() << hex << "(" << data.type() << ", " << data.data().toHex() << ")";
+	return stream;
+}
+
 } } // namespace qutim_sdk_0_3::oscar
 
 #endif // TLV_H

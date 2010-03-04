@@ -22,6 +22,7 @@
 #include "buddycaps.h"
 #include "messages_p.h"
 #include "oscarstatus_p.h"
+#include "sessiondataitem.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/notificationslayer.h>
 #include <QHostInfo>
@@ -53,7 +54,6 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 	m_meta_info = new MetaInfo(this);
 	registerHandler(m_meta_info);
 	registerHandler(this);
-	registerHandler(new MessagesHandler(m_account, this));
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
 		registerHandler(gen->generate<SNACHandler>());
@@ -177,14 +177,17 @@ void OscarConnection::sendStatus(OscarStatus status)
 	dc.append<quint16>(0x0000); // Unknown
 	snac.append(dc);
 	// Status item
-	DataUnit statusNote;
 	DataUnit statusData;
-	statusNote.append<quint16>(0x02);
-	statusData.append<quint16>(m_account->property("statusText").toString(), Util::utf8Codec());
-	statusData.append<quint16>(0); // endcoding: utf8 by default
-	statusNote.append<quint16>(0x400 | statusData.data().size()); // Flags + length
-	statusNote.append(statusData.data());
-	snac.appendTLV(0x1D, statusNote);
+	{
+		SessionDataItem statusNote(0x02, 0x04);
+		QByteArray text = Util::utf8Codec()->fromUnicode(status.text());
+		if (text.size() > 251)
+			text.resize(251);
+		statusNote.append<quint16>(text);
+		statusNote.append<quint16>(0); // endcoding: utf8 by default
+		statusData.append(statusNote);
+	}
+	snac.appendTLV(0x1D, statusData);
 	snac.appendTLV<quint16>(0x1f, 0x00); // unknown
 	send(snac);
 

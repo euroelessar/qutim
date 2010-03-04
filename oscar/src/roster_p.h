@@ -60,6 +60,7 @@ protected:
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	void handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType type);
 	void handleRemoveCLItem(const FeedbagItem &item);
+	void loadTagsFromFeedbag(IcqContact *contact);
 	void removeContact(IcqContact *contact);
 	void removeContactFromGroup(IcqContact *contact, quint16 groupId);
 	QStringList readTags(const FeedbagItem &item);
