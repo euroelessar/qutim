@@ -17,6 +17,7 @@
 #include "quetzalprotocol.h"
 #include "quetzalblist.h"
 #include "quetzaljoinchatdialog.h"
+#include <qutim/passworddialog.h>
 #include <qutim/debug.h>
 #include <qutim/contactlist.h>
 #include <QFile>
@@ -255,8 +256,83 @@ void QuetzalAccount::setStatusChanged(PurpleStatus *status)
 	statusChanged(stat);
 }
 
+struct QuetzalAccountPasswordInfo
+{
+	PurpleRequestFieldsCb okCb;
+	PurpleRequestFieldsCb cancelCb;
+	void *userData;
+};
+
+Q_DECLARE_METATYPE(QuetzalAccountPasswordInfo)
+
+void QuetzalAccount::requestPassword(PurpleRequestFieldsCb okCb, PurpleRequestFieldsCb cancelCb,
+									 void *userData)
+{
+	PasswordDialog *dialog = PasswordDialog::request(this);
+	QuetzalAccountPasswordInfo info = {okCb, cancelCb, userData};
+	dialog->setProperty("info", qVariantFromValue(info));
+	connect(dialog, SIGNAL(entered(QString,bool)), this, SLOT(onPasswordEntered(QString,bool)));
+	connect(dialog, SIGNAL(rejected()), this, SLOT(onPasswordRejected()));
+}
+
+int QuetzalAccount::sendRawData(const QByteArray &data)
+{
+	if (!m_account->gc)
+		return -1;
+
+	PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_account->gc->prpl);
+	if (PURPLE_PROTOCOL_PLUGIN_HAS_FUNC(prpl, send_raw))
+		return prpl->send_raw(m_account->gc, data.constData(), data.length());
+	return -1;
+}
+
+void quetzal_password_build(PurpleRequestFieldsCb cb, const char *password,
+							bool remember, void *userData)
+{
+	PurpleRequestFields *fields = purple_request_fields_new();
+	PurpleRequestFieldGroup *group = purple_request_field_group_new(NULL);
+	purple_request_fields_add_group(fields, group);
+	PurpleRequestField *field;
+	field = purple_request_field_string_new("password", "", password, FALSE);
+	purple_request_field_group_add_field(group, field);
+	field = purple_request_field_bool_new("remember", "", remember);
+	purple_request_field_group_add_field(group, field);
+	cb(userData, fields);
+	purple_request_fields_destroy(fields);
+}
+
+void QuetzalAccount::onPasswordEntered(const QString &password, bool remember)
+{
+	PasswordDialog *dialog = qobject_cast<PasswordDialog *>(sender());
+	QuetzalAccountPasswordInfo info = dialog->property("info").value<QuetzalAccountPasswordInfo>();
+	quetzal_password_build(info.okCb, password.toUtf8().constData(),
+						   false, info.userData);
+	if (remember)
+		config("general").setValue("passwd", password, Config::Crypted);
+	dialog->deleteLater();
+}
+
+void QuetzalAccount::onPasswordRejected()
+{
+	PasswordDialog *dialog = qobject_cast<PasswordDialog *>(sender());
+	QuetzalAccountPasswordInfo info = dialog->property("info").value<QuetzalAccountPasswordInfo>();
+	quetzal_password_build(info.okCb, "", false, info.userData);
+	dialog->deleteLater();
+}
+
 void QuetzalAccount::showJoinGroupChat()
 {
 	QDialog *dialog = new QuetzalJoinChatDialog(m_account->gc);
 	dialog->show();
+}
+
+Q_EXTERN_C Q_DECL_EXPORT void Q_STANDARD_CALL
+purple_account_request_password(PurpleAccount *account, GCallback ok_cb,
+							   GCallback cancel_cb, void *user_data)
+{
+	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account ? account->ui_data : 0);
+	if (!acc)
+		return;
+	acc->requestPassword(reinterpret_cast<PurpleRequestFieldsCb>(ok_cb),
+						 reinterpret_cast<PurpleRequestFieldsCb>(cancel_cb), user_data);
 }

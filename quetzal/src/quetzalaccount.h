@@ -41,10 +41,14 @@ public:
 	void removeChatUnit(ChatUnit *unit);
 	virtual void setStatus(Status status);
 	void setStatusChanged(PurpleStatus *status);
+	void requestPassword(PurpleRequestFieldsCb okCb, PurpleRequestFieldsCb cancelCb, void *userData);
+	Q_INVOKABLE int sendRawData(const QByteArray &data);
 signals:
 
 private slots:
 	void showJoinGroupChat();
+	void onPasswordEntered(const QString &password, bool remember);
+	void onPasswordRejected();
 private:
 	QHash<QString, ChatUnit *> m_units;
 	QHash<QString, QuetzalContact *> m_contacts;

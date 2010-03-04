@@ -239,8 +239,12 @@ void QuetzalContact::sendMessage(const Message &message)
 {
 	PurpleConversation *conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, m_buddy->name, m_buddy->account);
 	if (!conv) {
-		conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, m_buddy->account, m_buddy->name);
-		conv->ui_data = this;
+		if (!m_buddy->account->gc)
+			return;
+
+		PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
+		prpl->send_im(m_buddy->account->gc, m_buddy->name, message.text().toUtf8().constData(), 0);
+		return;
 	}
 	purple_conv_im_send(conv->u.im, message.text().toUtf8().constData());
 }
