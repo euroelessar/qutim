@@ -177,7 +177,8 @@ struct toDataUnitHelper<T, true>
 	}
 	static inline QByteArray toByteArray(const QString &data, QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian)
 	{
-		return toByteArray(data.size(), bo) + toDataUnitHelper<QString>::toByteArray(data, codec);
+		QByteArray buf = toDataUnitHelper<QString>::toByteArray(data, codec);
+		return toByteArray(buf.size(), bo) + buf;
 	}
 	static inline QByteArray toByteArray(const char *data, QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian)
 	{
