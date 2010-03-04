@@ -57,6 +57,7 @@ namespace AdiumChat
 
 		//init toolbar
 		ui->actionToolBar->setStyleSheet("QToolBar{background:none;border:none}");
+		ui->actionToolBar->setIconSize(QSize(16,16));
 		
 			//for testing
 		QAction *test_act1 = new QAction(Icon("applications-internet"),tr("Testing action"),this);

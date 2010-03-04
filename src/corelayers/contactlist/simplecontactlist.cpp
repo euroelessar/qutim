@@ -67,8 +67,16 @@ namespace Core
 			p->widget = new MyWidget;
 			QVBoxLayout *layout = new QVBoxLayout(p->widget);
 			layout->setMargin(0);
-
+			
+			int size = Config().group("contactList").value("toolBarIconSize",16);
+			
+			QSize toolbar_size (size,size);
+			
 			p->main_toolbar = new ActionToolBar(p->widget);
+			p->bottom_toolbar = new ActionToolBar(p->widget);
+			p->main_toolbar->setIconSize(toolbar_size);
+			p->bottom_toolbar->setIconSize(toolbar_size);
+			
 			layout->addWidget(p->main_toolbar);
 			
 			addAction(new ActionGenerator(Icon("configure"),
@@ -98,9 +106,10 @@ namespace Core
 			p->model = new Model(p->view);
 			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));
 			p->view->setModel(p->model);
+			p->view->setRootIsDecorated(false);
+			p->view->setIndentation(5);
 			p->widget->show();
 
-			p->bottom_toolbar = new ActionToolBar(p->widget);
 			layout->addWidget(p->bottom_toolbar);
 			foreach(Protocol *proto, allProtocols()) {
 				connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));

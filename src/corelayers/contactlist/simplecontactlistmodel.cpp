@@ -3,6 +3,8 @@
 #include <QDebug>
 #include "libqutim/messagesession.h"
 #include "libqutim/status.h"
+#include <libqutim/debug.h>
+#include <libqutim/icon.h>
 
 
 namespace Core
@@ -120,6 +122,8 @@ namespace Core
 						return item->name;
 					case ItemDataType:
 						return TagType;
+					case Qt::DecorationRole:
+						return Icon("feed-subscribe");
 					default:
 						return QVariant();
 					}
@@ -128,6 +132,17 @@ namespace Core
 				return QVariant();
 			}
 		}
+		
+		bool contactLessThan (ContactItem *a, ContactItem *b) {
+			if (a->data->status.type() < b->data->status.type() )
+				return true;
+			else if (a->data->status.type() > b->data->status.type())
+				return false;
+			int result = a->data->contact->title().compare(b->data->contact->title());
+			if (result < 0)
+				return true;
+			return false;
+		};		
 
 		void Model::addContact(Contact *contact)
 		{
@@ -150,9 +165,14 @@ namespace Core
 				TagItem *tag = ensureTag(*it);
 				beginInsertRows(createIndex(p->tags.indexOf(tag), 0, tag), tag->contacts.size(), tag->contacts.size());
 				ContactItem *item = new ContactItem(item_data);
+				
+				QList<ContactItem *> contacts = tag->contacts;
+				QList<ContactItem *>::const_iterator it = qLowerBound(contacts.constBegin(),contacts.constEnd(),item, contactLessThan);
+				int index = it - contacts.constBegin();
+				
 				item->parent = tag;
-				item_data->items << item;
-				tag->contacts << item;
+				item_data->items.insert(index,item);
+				tag->contacts.insert(index,item);
 				endInsertRows();
 			}
 		}
@@ -170,6 +190,14 @@ namespace Core
 				beginRemoveRows(createIndex(p->tags.indexOf(item->parent), 0, item->parent), index, index);
 				item->parent->contacts.removeAt(index);
 				endRemoveRows();
+				
+				if (item->parent->contacts.empty()) {
+					int tag_index = p->tags.indexOf(item->parent);
+					beginRemoveRows(QModelIndex(),tag_index,tag_index);
+					p->tags_hash.remove(p->tags.at(tag_index)->name);
+					p->tags.removeAt(tag_index);
+					endRemoveRows();
+				}
 			}
 			p->contacts.remove(contact);
 		}
@@ -198,8 +226,24 @@ namespace Core
 			for(int i = 0; i < items.size(); i++)
 			{
 				ContactItem *item = items.at(i);
-				QModelIndex index = createIndex(item->index(), 0, item);
-				dataChanged(index, index);
+				QList<ContactItem *> contacts = item->parent->contacts;
+				QList<ContactItem *>::const_iterator it = qLowerBound(contacts.constBegin(),contacts.constEnd(),item, contactLessThan);
+				
+				int to = it - contacts.constBegin();
+				int from = contacts.indexOf(item);
+				if (to == -1 || to >= contacts.count() || from == to)
+					continue;
+				debug () << from << to;
+				
+				QModelIndex parent_index = createIndex(p->tags.indexOf(item->parent), 0, item->parent);
+				
+				beginMoveRows(parent_index,from,from, parent_index, to);
+				item->parent->contacts.move(from,to);
+				//item_data->items.move(from,to); //FIXME
+				endMoveRows();				
+				
+ 				//QModelIndex index = createIndex(item->index(), 0, item);
+// 				dataChanged(index, index);
 			}
 			//if (ChatLayer::get(contact,false))
 			//	return; //TODO FIXME
@@ -280,5 +324,14 @@ namespace Core
 			}
 			return tag;
 		}
+		
+		QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
+		{
+ 			if (orientation == Qt::Horizontal)
+ 				return tr("Contacts");
+			
+			return QAbstractItemModel::headerData(section, orientation, role);
+		}
+
 	}
 }

@@ -55,7 +55,8 @@ namespace KineticPopups
 
 	void Popup::appendMessage ( const QString& message )
 	{
-		m_body += "<br />" + message;
+		if (!message.isEmpty())
+			m_body += "<br />" + message;
 		updateMessage();
 	}
 	

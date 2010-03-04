@@ -19,6 +19,8 @@
 #include "simplecontactlistitem.h"
 #include <QHelpEvent>
 #include <QAbstractItemView>
+#include <QApplication>
+#include <libqutim/debug.h>
 
 namespace Core
 {
@@ -28,6 +30,32 @@ namespace Core
 				QStyledItemDelegate(parent)
 		{
 		}
+		
+		void SimpleContactListDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+		{
+			QStyleOptionViewItemV4 opt(option);
+			QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
+			style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
+			
+			const QAbstractItemModel *model = index.model();
+			
+			ItemType type = static_cast<ItemType>(model->data(index,ItemDataType).toInt());
+			
+			switch (type) {
+				case TagType: {
+					style->drawPrimitive(QStyle::PE_PanelButtonBevel,&opt,painter,opt.widget);					
+					break;
+				}
+				case ContactType: {
+					break;
+				}
+				default:
+					break;
+			}
+			
+			QStyledItemDelegate::paint(painter, option, index);
+		}
+
 		
 		bool SimpleContactListDelegate::helpEvent(QHelpEvent *event,
 					   QAbstractItemView *view,
@@ -54,5 +82,12 @@ namespace Core
 			}
 			return false;
 		}
+		
+		QSize SimpleContactListDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
+		{
+			QSize size = QStyledItemDelegate::sizeHint(option, index);
+			return QSize(size.width(),24);
+		}
+
 	}
 }
