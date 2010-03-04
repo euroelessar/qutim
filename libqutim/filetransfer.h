@@ -27,7 +27,7 @@ class FileTransferManager;
 class FileTransferEnginePrivate;
 class FileTransferManagerPrivate;
 
-class FileTransferEngine : public QObject
+class LIBQUTIM_EXPORT FileTransferEngine : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(FileTransferEngine)
@@ -96,7 +96,7 @@ signals:
 	void error(qutim_sdk_0_3::FileTransferEngine::Error);
 };
 
-class FileTransferFactory : public QObject
+class LIBQUTIM_EXPORT FileTransferFactory : public QObject
 {
 	Q_OBJECT
 public:
@@ -105,7 +105,7 @@ public:
 	virtual FileTransferEngine *create(ChatUnit *unit) = 0;
 };
 
-class FileTransferManager : public QObject
+class LIBQUTIM_EXPORT FileTransferManager : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(FileTransferManager)
