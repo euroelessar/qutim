@@ -243,7 +243,7 @@ namespace Core
 			for(int i = 0, size = item_data->items.size(); i < size; i++)
 			{
 				ContactItem *item = item_data->items.at(i);
-				if(tags_helper.contains(item->parent->name))
+				if(tags.contains(item->parent->name))
 					continue;
 				int index = item->index();
 				beginRemoveRows(createIndex(p->tags.indexOf(item->parent), 0, item->parent), index, index);
