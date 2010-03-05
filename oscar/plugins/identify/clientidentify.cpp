@@ -159,8 +159,10 @@ inline void ClientIdentify::setClientData(const QString &id, const QString &icon
 
 inline void ClientIdentify::setClientIcon(const QString &icon)
 {
-	m_contact->setProperty("client_id", m_client_id);
-	m_contact->setProperty("client_icon", icon);
+	QVariantMap clientInfo;
+	clientInfo.insert("icon", QString("user-client-%1-icq").arg(icon));
+	clientInfo.insert("description", m_client_id);
+	m_contact->setProperty("client", clientInfo);
 }
 
 void ClientIdentify::identify_by_DCInfo()
