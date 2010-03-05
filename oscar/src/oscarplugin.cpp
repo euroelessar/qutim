@@ -17,6 +17,7 @@
 #include "oscarplugin.h"
 #include "icqprotocol.h"
 #include "ui/accountcreator.h"
+#include "filetransfer.h"
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 
@@ -48,6 +49,10 @@ void OscarPlugin::init()
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "ICQ account creator"),
 				 QT_TRANSLATE_NOOP("Plugin", "Account creator for module-based realization of ICQ protocol"),
 				 new GeneralGenerator<IcqAccountCreationWizard>(),
+				 ExtensionIcon("im-icq"));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar file transfer protocol"),
+				 QT_TRANSLATE_NOOP("Plugin", "Oscar file transfer protocol"),
+				 new GeneralGenerator<OftFileTransferFactory, MessagePlugin>(),
 				 ExtensionIcon("im-icq"));
 	Settings::registerItem(new GeneralSettingsItem<IcqMainSettings>(
 						 Settings::Protocol,

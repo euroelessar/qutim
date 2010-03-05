@@ -22,7 +22,6 @@
 #include "buddycaps.h"
 #include "oscarstatus.h"
 #include "buddypicture.h"
-#include "filetransfer.h"
 #include <qutim/status.h>
 #include <qutim/systeminfo.h>
 #include <qutim/contactlist.h>
@@ -60,7 +59,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->conn->registerHandler(new Roster(this));
 	d->conn->registerHandler(new BuddyPicture(this, this));
 	d->conn->registerHandler(d->messagesHandler = new MessagesHandler(this, this));
-	registerMessagePlugin(new FileTransfer(this));
 	d->lastStatus = static_cast<Status::Type>(cfg.value<int>("lastStatus", Status::Offline));
 
 	// ICQ UTF8 Support

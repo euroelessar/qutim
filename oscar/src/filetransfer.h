@@ -13,10 +13,11 @@
  ***************************************************************************
  *****************************************************************************/
 
-#ifndef FILETRANSFER_H
-#define FILETRANSFER_H
+#ifndef OSCAR_FILETRANSFER_H
+#define OSCAR_FILETRANSFER_H
 
 #include "messages.h"
+#include <qutim/filetransfer.h>
 #include <QTcpSocket>
 #include <QFile>
 #include <QFileInfo>
@@ -27,9 +28,8 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-class FileTransfer;
+class OftFileTransferFactory;
 class OftConnection;
-typedef QSharedPointer<OftConnection> OftConnectionPtr;
 
 enum OftPacketType
 {
@@ -130,74 +130,89 @@ class OftServer : public QTcpServer
 	Q_OBJECT
 public:
 	explicit OftServer(OftConnection *conn);
+	void listen();
 protected:
 	void incomingConnection(int socketDescriptor);
 private:
 	OftConnection *m_conn;
 };
 
-class OftConnection : public QObject
+class OftConnection : public FileTransferEngine
 {
 	Q_OBJECT
 public:
-	OftConnection(IcqContact *contact, quint64 cookie, FileTransfer *transfer);
-	void sendFile(const QFileInfo &file);
-	IcqContact *contact() const { return m_contact; }
+	OftConnection(IcqContact *contact, Direction direction, quint64 cookie, OftFileTransferFactory *transfer);
+	virtual ~OftConnection();
+	inline IcqContact *contact() const { return m_contact; }
 	quint64 cookie() const { return m_cookie; }
-	FileTransfer *transfer() const { return m_transfer; }
-	bool isReceiving() const { return m_receiving; }
+	OftFileTransferFactory *transfer() const { return m_transfer; }
+	virtual int progress() const;
+	virtual int currentFile() const;
+	virtual QStringList files() const;
+	virtual QStringList remoteFiles() const;
+	virtual void setFiles(const QStringList &files);
+	virtual qint64 totalSize() const;
+	virtual qint64 fileSize() const;
+	virtual int localPort() const;
+	virtual int remotePort() const;
+	virtual QHostAddress remoteAddress() const;
+	virtual State state() const;
+	virtual void start();
+	virtual void cancel();
 private:
+	void close(bool error = true);
 	void initProxyConnection();
 	void handleRendezvous(quint16 reqType, const TLVMap &tlvs);
 	void setSocket(OftSocket *socket);
-	void startFileTransfer(const QFileInfo &file);
+	bool startFileSending();
+	void startFileReceiving();
+	void setState(State state) { m_state = state; emit stateChanged(state); }
 private slots:
 	void sendFileRequest(bool fileinfo = true);
 	void connected();
-	void error(QAbstractSocket::SocketError);
-	void close();
-	void headerReaded();
-	void newData();
-	void sendData();
+	void onError(QAbstractSocket::SocketError);
+	void onHeaderReaded();
+	void onNewData();
+	void onSendData();
 private:
 	static quint32 fileChecksum(QIODevice *file, int bytes = 0);
 	static quint32 chunkChecksum(const char *buffer, int len, quint32 checksum, int offset);
 private:
 	friend class OftServer;
-	friend class FileTransfer;
+	friend class OftFileTransferFactory;
 	QPointer<OftSocket> m_socket;
 	OftServer m_server;
 	QScopedPointer<QIODevice> m_data;
-	FileTransfer *m_transfer;
-	quint64 m_cookie;
+	OftFileTransferFactory *m_transfer;
 	IcqContact *m_contact;
-	bool m_receiving;
+	quint64 m_cookie;
 	quint16 m_stage;
-	QFileInfo m_currentFile;
-	QHostAddress m_proxyIP;
-	QHostAddress m_clientIP;
-	QHostAddress m_verifiedIP;
 	bool m_proxy;
 	OftHeader m_header;
+	QString m_current;
+	QStringList m_files;
+	QStringList m_remoteFiles;
+	qint64 m_totalSize;
+	State m_state;
+	quint16 m_currentIndex;
+	bool m_connInited;
 };
 
-class FileTransfer : public QObject, public MessagePlugin
+class OftFileTransferFactory : public FileTransferFactory, public MessagePlugin
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::MessagePlugin)
 public:
-	explicit FileTransfer(QObject *parent = 0);
+	explicit OftFileTransferFactory();
 	virtual void processMessage(IcqContact *contact, const Capability &guid,
 								const QByteArray &data, quint16 reqType, quint64 cookie);
-	OftConnectionPtr connection(quint64 cookie) { return m_connections.value(cookie); }
-	const QHash<quint64, OftConnectionPtr> &connections() const { return m_connections; }
+	virtual bool check(ChatUnit *unit);
+	virtual FileTransferEngine *create(ChatUnit *unit);
 	void removeConnection(quint64 cookie);
-private slots:
-	void removeConnectionImpl(quint64 cookie);
 private:
-	QHash<quint64, OftConnectionPtr> m_connections;
+	QHash<quint64, OftConnection*> m_connections;
 };
 
 } } // namespace qutim_sdk_0_3::oscar
 
-#endif // FILETRANSFER_H
+#endif // OSCAR_FILETRANSFER_H
