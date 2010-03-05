@@ -34,6 +34,7 @@ namespace Core
 						   QAbstractItemView *view,
 						   const QStyleOptionViewItem &option,
 						   const QModelIndex &index);
+		private:
 		};
 	}
 }

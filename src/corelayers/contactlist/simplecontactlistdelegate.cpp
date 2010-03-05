@@ -21,6 +21,7 @@
 #include <QAbstractItemView>
 #include <QApplication>
 #include <libqutim/debug.h>
+#include <QPainter>
 
 namespace Core
 {
@@ -33,27 +34,45 @@ namespace Core
 		
 		void SimpleContactListDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 		{
-			QStyleOptionViewItemV4 opt(option);
-			QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
-			style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
+			QStyle *style = QApplication::style();
 			
 			const QAbstractItemModel *model = index.model();
 			
 			ItemType type = static_cast<ItemType>(model->data(index,ItemDataType).toInt());
 			
+			QString name = model->data(index,Qt::DisplayRole).toString();
+			
 			switch (type) {
 				case TagType: {
-					style->drawPrimitive(QStyle::PE_PanelButtonBevel,&opt,painter,opt.widget);					
+					QStyleOptionViewItem opt(option);
+					style->drawPrimitive(QStyle::PE_PanelButtonBevel,&opt,painter);
 					break;
 				}
 				case ContactType: {
+					QStyleOptionViewItemV4 opt(option);
+					style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
 					break;
 				}
 				default:
 					break;
 			}
 			
-			QStyledItemDelegate::paint(painter, option, index);
+			QIcon item_icon = model->data(index, Qt::DecorationRole).value<QIcon>();
+			item_icon.paint(painter,
+						option.rect.left() +5, //FIXME
+						option.rect.top(),
+						16, //FIXME
+						option.rect.height(),
+						Qt::AlignVCenter);
+			
+			painter->drawText(option.rect.left() + 26,
+								option.rect.top() + 5,
+								option.rect.right(),
+								option.rect.height(),
+								Qt::AlignTop,
+								name  
+							);
+
 		}
 
 		

@@ -107,7 +107,7 @@ namespace Core
 			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));
 			p->view->setModel(p->model);
 			p->view->setRootIsDecorated(false);
-			p->view->setIndentation(5);
+			p->view->setIndentation(0);
 			p->widget->show();
 
 			layout->addWidget(p->bottom_toolbar);
@@ -117,6 +117,7 @@ namespace Core
 					onAccountCreated(account);
 				}
 			}
+
 		}
 
 		Module::~Module()
@@ -165,6 +166,7 @@ namespace Core
 				//FIXME
 				addContact(contact);
 			}
+			p->view->expandAll(); //HACK			
 		}
 
 		void Module::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
