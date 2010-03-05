@@ -476,16 +476,16 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 	if (reqType == MsgRequest) {
 		debug() << m_contact->id() << "sent file transfer request";
 		m_stage = tlvs.value<quint16>(0x000A);
-		QHostAddress m_proxyIP(tlvs.value<quint32>(0x0002));
-		QHostAddress m_clientIP(tlvs.value<quint32>(0x0003));
-		QHostAddress m_verifiedIP(tlvs.value<quint32>(0x0004));
-		Q_UNUSED(m_verifiedIP);
+		QHostAddress proxyIP(tlvs.value<quint32>(0x0002));
+		QHostAddress clientIP(tlvs.value<quint32>(0x0003));
+		QHostAddress verifiedIP(tlvs.value<quint32>(0x0004));
+		Q_UNUSED(verifiedIP);
 		quint16 port = tlvs.value<quint16>(0x0005);
 		m_proxy = tlvs.value<quint8>(0x0010);
 		DataUnit tlv2711(tlvs.value(0x2711));
 		bool multipleFiles = tlv2711.read<quint16>() > 1;
 		quint16 files = tlv2711.read<quint16>();
-		m_totalSize = tlv2711.read<quint32>();
+		quint32 totalSize = tlv2711.read<quint32>();
 		Q_UNUSED(multipleFiles);
 		QTextCodec *codec;
 		{
@@ -504,14 +504,15 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 				for (int i = 1; i < files; ++i)
 					m_remoteFiles << QString();
 				emit remoteFilesChanged(m_remoteFiles);
+				m_totalSize = totalSize;
 				setSocket(new OftSocket(this));
 				if (!m_proxy) {
-					m_socket->directConnect(m_clientIP, port);
+					m_socket->directConnect(clientIP, port);
 					debug().nospace() << "Trying to connect to the receiver "
-							<< m_clientIP.toString().toLocal8Bit().constData()
+							<< clientIP.toString().toLocal8Bit().constData()
 							<< ":" << port;
 				} else {
-					m_socket->proxyConnect(m_contact->id(), m_cookie, m_proxyIP, 5190, port);
+					m_socket->proxyConnect(m_contact->id(), m_cookie, proxyIP, 5190, port);
 				}
 			} else {
 				errorStr = "Stage 1 oscar file transfer request is forbidden during file sending";
@@ -526,12 +527,12 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 				}
 				setSocket(new OftSocket(this));
 				if (!m_proxy) {
-					m_socket->directConnect(m_clientIP, port);
+					m_socket->directConnect(clientIP, port);
 					debug().nospace() << "Trying to connect to the sender "
-							<< m_clientIP.toString().toLocal8Bit().constData()
+							<< clientIP.toString().toLocal8Bit().constData()
 							<< ":" << port;
 				} else {
-					m_socket->proxyConnect(m_contact->id(), m_cookie, m_proxyIP, 5190);
+					m_socket->proxyConnect(m_contact->id(), m_cookie, proxyIP, 5190);
 				}
 			} else {
 				errorStr = "Stage 2 oscar file transfer request is forbidden during file receiving";
@@ -540,7 +541,7 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 			if (direction() == Receive) {
 				m_proxy = true;
 				setSocket(new OftSocket(this));
-				m_socket->proxyConnect(m_contact->id(), m_cookie, m_proxyIP, 5190, port);
+				m_socket->proxyConnect(m_contact->id(), m_cookie, proxyIP, 5190, port);
 			} else {
 				errorStr = "Stage 3 oscar file transfer request is forbidden during file sending";
 			}
