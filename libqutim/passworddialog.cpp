@@ -41,6 +41,7 @@ namespace qutim_sdk_0_3
 		QString password;
 		bool remember;
 		int result;
+		QEventLoop *eventLoop;
 	};
 
 	PasswordDialog::PasswordDialog() : d_ptr(new PasswordDialogPrivate)
@@ -48,6 +49,7 @@ namespace qutim_sdk_0_3
 		Q_D(PasswordDialog);
 		d->remember = false;
 		d->result = Rejected;
+		d->eventLoop = 0;
 	}
 
 	PasswordDialog::~PasswordDialog()
@@ -70,6 +72,7 @@ namespace qutim_sdk_0_3
 		d->password = password;
 		d->remember = remember;
 		d->result = Accepted;
+		d->eventLoop->quit();
 		emit entered(password, remember);
 	}
 
@@ -79,14 +82,20 @@ namespace qutim_sdk_0_3
 		d->password.clear();
 		d->remember = false;
 		d->result = Rejected;
+		d->eventLoop->quit();
 		emit rejected();
 	}
 
 	int PasswordDialog::exec()
 	{
+		Q_D(PasswordDialog);
+		if (d->eventLoop) // recursive call
+			return -1;
 		QEventLoop eventLoop;
+		d->eventLoop = &eventLoop;
 		QPointer<PasswordDialog> guard = this;
-		(void) eventLoop.exec(QEventLoop::DialogExec);
+		(void) eventLoop.exec();
+		d->eventLoop = 0;
 		if (guard.isNull())
 			return PasswordDialog::Rejected;
 		return result();
