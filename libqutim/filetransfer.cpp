@@ -32,13 +32,17 @@ namespace qutim_sdk_0_3
 	struct FileTransferData
 	{
 		QList<FileTransferFactory *> factories;
+		QPointer<FileTransferManager> manager;
 	};
 
 	void init(FileTransferData *data)
 	{
-		const GeneratorList gens = moduleGenerators<FileTransferFactory>();
+		GeneratorList gens = moduleGenerators<FileTransferFactory>();
 		foreach(const ObjectGenerator *gen, gens)
 			data->factories << gen->generate<FileTransferFactory>();
+		gens = moduleGenerators<FileTransferManager>();
+		if (!gens.isEmpty())
+			data->manager = gens.first()->generate<FileTransferManager>();
 	}
 
 	Q_GLOBAL_STATIC_WITH_INITIALIZER(FileTransferData, data, init(x.data()));
@@ -78,6 +82,11 @@ namespace qutim_sdk_0_3
 
 	FileTransferManager::~FileTransferManager()
 	{
+	}
+
+	FileTransferManager *FileTransferManager::instance()
+	{
+		return data()->manager;
 	}
 
 	bool FileTransferManager::checkAbility(ChatUnit *unit)

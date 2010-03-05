@@ -128,6 +128,7 @@ class LIBQUTIM_EXPORT FileTransferManager : public QObject
 public:
 	explicit FileTransferManager();
 	virtual ~FileTransferManager();
+	static FileTransferManager *instance();
 	bool checkAbility(ChatUnit *unit);
 	virtual void send(ChatUnit *unit, const QStringList &files) = 0;
 	inline void send(ChatUnit *unit, const QString &file) { send(unit, QStringList(file)); }
