@@ -114,7 +114,8 @@ class LIBQUTIM_EXPORT FileTransferFactory : public QObject
 {
 	Q_OBJECT
 public:
-	explicit FileTransferFactory();
+	FileTransferFactory();
+	~FileTransferFactory();
 	// If it is possible to send file to this unit
 	virtual bool check(ChatUnit *unit) = 0;
 	// Create Engine for file sending, not receiving

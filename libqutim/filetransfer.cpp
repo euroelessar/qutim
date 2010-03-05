@@ -76,6 +76,14 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(data);
 	}
 
+	FileTransferFactory::FileTransferFactory()
+	{
+	}
+
+	FileTransferFactory::~FileTransferFactory()
+	{
+	}
+
 	FileTransferManager::FileTransferManager() : d_ptr(new FileTransferManagerPrivate)
 	{
 	}
@@ -100,6 +108,9 @@ namespace qutim_sdk_0_3
 
 	FileTransferEngine *FileTransferManager::getEngine(ChatUnit *unit, FileTransferEngine *last)
 	{
+		if (last && last->direction() == FileTransferEngine::Receive)
+			return 0;
+
 		FileTransferFactory *lastFactory = last ? last->d_func()->factory : 0;
 		FileTransferData *d = data();
 		int index = lastFactory ? d->factories.indexOf(lastFactory) : -1;
