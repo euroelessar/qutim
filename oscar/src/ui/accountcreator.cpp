@@ -56,11 +56,7 @@ IcqAccWizardPage::IcqAccWizardPage(IcqAccountCreationWizard *account_wizard) :
 		ui.uinEdit->setValidator(validator);
 	}
 	ui.uinEdit->setFocus();
-	{
-		QRegExp rx("^.{8}$");
-		QValidator *validator = new QRegExpValidator(rx, this);
-		ui.passwordEdit->setValidator(validator);
-	}
+	ui.passwordEdit->setMaxLength(8);
 }
 
 bool IcqAccWizardPage::validatePage()
