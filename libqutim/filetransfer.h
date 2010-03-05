@@ -34,7 +34,7 @@ class LIBQUTIM_EXPORT FileTransferEngine : public QObject
 	Q_DECLARE_PRIVATE(FileTransferEngine)
 	// Total progress
 	Q_PROPERTY(int progress READ progress NOTIFY progressChanged)
-	Q_PROPERTY(QString currentFile READ currentFile NOTIFY currentFileChanged)
+	Q_PROPERTY(int currentFile READ currentFile NOTIFY currentFileChanged)
 	// Local and remote filenames should be constant
 	Q_PROPERTY(QStringList files READ files WRITE setFiles NOTIFY filesChanged)
 	Q_PROPERTY(QStringList remoteFiles READ remoteFiles NOTIFY remoteFilesChanged)
@@ -49,6 +49,7 @@ class LIBQUTIM_EXPORT FileTransferEngine : public QObject
 	Q_PROPERTY(State state READ state NOTIFY stateChanged)
 	Q_PROPERTY(ChatUnit* chatUnit READ chatUnit CONSTANT)
 public:
+	// Default should be Send, Receive must be setted only by impl itself.
 	enum Direction { Send, Receive };
 	enum State
 	{
@@ -68,11 +69,11 @@ public:
 	Q_ENUMS(Direction)
 	Q_ENUMS(State)
 	Q_ENUMS(Error)
-	explicit FileTransferEngine(ChatUnit *, FileTransferFactory *);
+	explicit FileTransferEngine(ChatUnit *, Direction, FileTransferFactory *);
 	virtual ~FileTransferEngine();
 	ChatUnit *chatUnit() const;
 	virtual int progress() const = 0;
-	virtual QString currentFile() const = 0;
+	virtual int currentFile() const = 0;
 	virtual QStringList files() const = 0;
 	virtual QStringList remoteFiles() const = 0;
 	virtual void setFiles(const QStringList &) = 0;
@@ -81,7 +82,7 @@ public:
 	virtual int localPort() const = 0;
 	virtual int remotePort() const = 0;
 	virtual QHostAddress remoteAddress() const = 0;
-	virtual Direction direction() const = 0;
+	Direction direction() const;
 	virtual State state() const = 0;
 public slots:
 	virtual void start() = 0;
@@ -95,8 +96,11 @@ signals:
 	// From 0 to 100
 	void progressChanged(int percent);
 	void remoteAddressChanged(const QHostAddress &);
-	void currentFileChanged(const QString &);
+	void currentFileChanged(int);
+	// This means that user has selected places for files to hold,
+	// engine should start transfer
 	void filesChanged(const QStringList &);
+	// If direction is Sending UI should ask user for files
 	void remoteFilesChanged(const QStringList &);
 	void fileSizeChanged(qint64);
 	void localPortChanged(int);
@@ -111,7 +115,9 @@ class LIBQUTIM_EXPORT FileTransferFactory : public QObject
 	Q_OBJECT
 public:
 	explicit FileTransferFactory();
+	// If it is possible to send file to this unit
 	virtual bool check(ChatUnit *unit) = 0;
+	// Create Engine for file sending, not receiving
 	virtual FileTransferEngine *create(ChatUnit *unit) = 0;
 };
 
@@ -125,6 +131,8 @@ public:
 	bool checkAbility(ChatUnit *unit);
 	virtual void send(ChatUnit *unit, const QStringList &files) = 0;
 	inline void send(ChatUnit *unit, const QString &file) { send(unit, QStringList(file)); }
+	// For incoming file transfer
+	virtual void receive(FileTransferEngine *engine) = 0;
 signals:
 	void engineCreated(FileTransferEngine *);
 protected:
