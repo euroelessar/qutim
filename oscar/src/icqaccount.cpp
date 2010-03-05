@@ -27,12 +27,26 @@
 #include <qutim/systeminfo.h>
 #include <qutim/contactlist.h>
 #include <QTimer>
-#include <ui/passworddialog.h>
 #include <qutim/objectgenerator.h>
 
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
+
+PasswordValidator::PasswordValidator(QObject *parent) :
+	QValidator(parent)
+{
+}
+
+PasswordValidator::State PasswordValidator::validate(QString &input, int &pos) const
+{
+	if (input.isEmpty())
+		return Intermediate;
+	if (input.size() > 8)
+		return Invalid;
+	else
+		return Acceptable;
+}
 
 IcqAccount::IcqAccount(const QString &uin) :
 	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
@@ -314,10 +328,11 @@ QString IcqAccount::password()
 {
 	QString password = config().group("general").value("passwd", QString(), Config::Crypted);
 	if (password.isEmpty()) {
-		PasswordDialog *dialog = new PasswordDialog(this);
+		PasswordDialog *dialog = PasswordDialog::request(this);
+		dialog->setValidator(new PasswordValidator(dialog));
 		if (dialog->exec() == PasswordDialog::Accepted) {
 			password = dialog->password();
-			if (dialog->isSavePassword()) {
+			if (dialog->remember()) {
 				config().group("general").setValue("passwd", password, Config::Crypted);
 				config().sync();
 			}

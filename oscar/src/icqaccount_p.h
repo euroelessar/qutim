@@ -21,10 +21,21 @@
 #include "icqaccount.h"
 #include "messages_p.h"
 #include <QTimer>
+#include <qutim/passworddialog.h>
 
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
+
+
+class PasswordValidator: public QValidator
+{
+	Q_OBJECT
+public:
+	explicit PasswordValidator(QObject *parent = 0);
+	virtual State validate(QString &input, int &pos) const;
+};
+
 
 struct IcqAccountPrivate
 {
