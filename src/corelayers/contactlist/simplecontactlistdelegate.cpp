@@ -40,6 +40,9 @@ namespace Core
 			QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
 			
 			const QAbstractItemModel *model = index.model();
+
+			if (!model)
+				return;
 			
 			ItemType type = static_cast<ItemType>(model->data(index,ItemDataType).toInt());
 			
@@ -152,8 +155,14 @@ namespace Core
 		QSize SimpleContactListDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 		{
 			QSize size = QStyledItemDelegate::sizeHint(option, index);
-			int height = index.model()->data(index,ItemStatusText).toString().isEmpty() ? 24 : 30; //TODO
-			height = (index.model()->data(index,ItemDataType).toInt() == TagType) ? 20 : height;
+
+			const QAbstractItemModel *model = index.model();
+
+			if (!model)
+				return size;
+
+			int height = model->data(index,ItemStatusText).toString().isEmpty() ? 24 : 30; //TODO
+			height = (model->data(index,ItemDataType).toInt() == TagType) ? 20 : height;
 			size.rheight() = height;	
 			return size;
 		}
