@@ -109,6 +109,8 @@ namespace Core
 						return item->data->contact->status().icon();
 					case ItemDataType:
 						return ContactType;
+					case ItemStatusText:
+						return item->data->contact->status().text();
 					default:
 						return QVariant();
 					}
@@ -231,19 +233,23 @@ namespace Core
 				
 				int to = it - contacts.constBegin();
 				int from = contacts.indexOf(item);
-				if (to == -1 || to >= contacts.count() || from == to)
-					continue;
+				
 				debug () << from << to;
 				
-				QModelIndex parent_index = createIndex(p->tags.indexOf(item->parent), 0, item->parent);
-				
-				beginMoveRows(parent_index,from,from, parent_index, to);
-				item->parent->contacts.move(from,to);
-				//item_data->items.move(from,to); //FIXME
-				endMoveRows();				
-				
- 				//QModelIndex index = createIndex(item->index(), 0, item);
-// 				dataChanged(index, index);
+	
+				if (from == to) {
+					QModelIndex index = createIndex(item->index(), 0, item);
+					dataChanged(index, index);					
+				}
+				else {
+					if (to == -1 || to >= contacts.count())
+						continue;					
+					QModelIndex parent_index = createIndex(p->tags.indexOf(item->parent), 0, item->parent);
+					beginMoveRows(parent_index,from,from, parent_index, to);
+					item->parent->contacts.move(from,to);
+					//item_data->items.move(from,to); //FIXME
+					endMoveRows();	
+				}
 			}
 			//if (ChatLayer::get(contact,false))
 			//	return; //TODO FIXME
