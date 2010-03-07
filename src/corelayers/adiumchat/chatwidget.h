@@ -55,9 +55,11 @@ namespace AdiumChat
 		void addSession(const ChatSessionList &sessions);
 		void removeSession(ChatSessionImpl *session);
 		void activate(ChatSessionImpl *sessionz);
+		void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 	protected:
 		bool eventFilter(QObject *obj, QEvent *event);
 		virtual void timerEvent(QTimerEvent* );
+		virtual bool event(QEvent *event);
 	private:
 		QIcon iconForState(ChatState state);
 		ChatSessionList m_sessions;

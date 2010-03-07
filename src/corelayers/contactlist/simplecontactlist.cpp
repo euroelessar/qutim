@@ -17,6 +17,7 @@
 #include <QCoreApplication>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QTimer>
 
 namespace Core
 {
@@ -145,6 +146,29 @@ namespace Core
 		void Module::addButton(ActionGenerator *generator)
 		{
 			p->main_toolbar->addAction(generator);
+		}
+
+		void Module::show()
+		{
+			p->widget->show();
+		}
+
+		void Module::hide()
+		{
+			p->widget->hide();
+		}
+
+		void Module::changeVisibility()
+		{
+			if (p->widget->isVisible() && !p->widget->isMinimized()) {
+				QTimer::singleShot( 0, p->widget, SLOT(hide()) );
+			} else {
+				p->widget->show();
+				p->widget->setWindowState(p->widget->windowState() & ~Qt::WindowMinimized);
+				p->widget->activateWindow();
+				p->widget->raise();
+			}
+
 		}
 
 		void Module::onConfigureClicked()

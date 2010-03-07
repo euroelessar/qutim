@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3
 			  : ObjectGenerator(*new ActionGeneratorPrivate)
 	{
 		Q_D(ActionGenerator);
-		Q_ASSERT(receiver && member && *member);
+//		Q_ASSERT(receiver && member && *member);
 		d->icon = icon;
 		d->text = text;
 		d->receiver = const_cast<QObject *>(receiver);
@@ -95,16 +95,18 @@ namespace qutim_sdk_0_3
 	QAction *ActionGenerator::prepareAction(QAction *action) const
 	{
 		Q_D(const ActionGenerator);
-		if (d->receiver.isNull()) {
-			action->deleteLater();
-			return NULL;
-		}
-		action->setParent(d->receiver);
+//		if (d->receiver.isNull()) {
+//			action->deleteLater();
+//			return NULL;
+//		}
+		if (d->receiver)
+			action->setParent(d->receiver);
 		action->setIcon(d->icon);
 		action->setText(d->text);
 		if (d->controller)
 			action->setData(QVariant::fromValue(const_cast<MenuController *>(d->controller)));
-		QObject::connect(action, SIGNAL(triggered()), d->receiver, d->member);
+		if (d->receiver)
+			QObject::connect(action, SIGNAL(triggered()), d->receiver, d->member);
 		return action;
 	}
 

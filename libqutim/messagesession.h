@@ -30,10 +30,13 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 		Q_PROPERTY(bool active READ isActive WRITE setActive NOTIFY activated)
+		Q_PROPERTY(qutim_sdk_0_3::MessageList unread READ unread NOTIFY unreadChanged)
 	public:
 		virtual ChatUnit *getUnit() const = 0;
 		virtual void setChatUnit(qutim_sdk_0_3::ChatUnit* unit) = 0;
 		virtual QTextDocument *getInputField() = 0;
+		virtual void markRead(quint64 id) = 0;
+		virtual MessageList unread() const = 0;
 	public slots:
 		virtual void addContact(qutim_sdk_0_3::ChatUnit *c) = 0;
 		virtual void removeContact(qutim_sdk_0_3::ChatUnit *c) = 0;
@@ -50,6 +53,7 @@ namespace qutim_sdk_0_3
 		void contactAdded(qutim_sdk_0_3::ChatUnit *c);
 		void contactRemoved(qutim_sdk_0_3::ChatUnit *c);
 		void activated(bool active);
+		void unreadChanged(const qutim_sdk_0_3::MessageList &);
 	protected:
 		ChatSession(ChatLayer *chat);
 		virtual ~ChatSession();

@@ -40,6 +40,7 @@ namespace AdiumChat
 		m_store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", false);
 		m_chat_style_output->preparePage(m_web_page,this);
 		m_skipOneMerge = true;
+		m_active = false;
 		loadHistory();
 	}
 
@@ -64,7 +65,7 @@ namespace AdiumChat
 	{
 		ConfigGroup adium_chat = Config("appearance/chat").group("general/history");
 		int max_num = adium_chat.value<int>("maxDisplayMessages",5);
-		MessageList messages = History::instance()->read(getUnit(),max_num);
+		MessageList messages = History::instance()->read(getUnit(), max_num);
 		foreach (Message mess, messages) {
 			mess.setProperty("history",true);
 			if (!mess.chatUnit()) //TODO FIXME
@@ -95,6 +96,10 @@ namespace AdiumChat
 		if (!tmp_message.chatUnit()) {
 			qWarning() << tr("Message %1 must have a ChatUnit").arg(tmp_message.text());
 			tmp_message.setChatUnit(getUnit());
+		}
+		if (!isActive()) {
+			m_unread.append(message);
+			unreadChanged(m_unread);
 		}
 		
 		if (message.isIncoming())
@@ -137,7 +142,7 @@ namespace AdiumChat
 		if (!isHistory && !silent) {
 			Notifications::sendNotification(tmp_message);
 		}
-		if (tmp_message.property("store",true) && (!service || (service && m_store_service_messages)))
+		if (tmp_message.property("store", true) && (!service || (service && m_store_service_messages)))
 			History::instance()->store(message);
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
 	}
@@ -178,6 +183,8 @@ namespace AdiumChat
 
 	void ChatSessionImpl::setActive(bool active)
 	{
+		if (m_active == active)
+			return;
 		m_active = active;
 		emit activated(active);
 	}
@@ -230,6 +237,28 @@ namespace AdiumChat
 	{
 		ChatLayerImpl *chat_layer = qobject_cast<ChatLayerImpl *>(ChatLayerImpl::instance());
 		return chat_layer->getInputField(this);
+	}
+
+	void ChatSessionImpl::markRead(quint64 id)
+	{
+		if (id == Q_UINT64_C(0xffffffffffffffff)) {
+			m_unread.clear();
+			unreadChanged(m_unread);
+			return;
+		}
+		MessageList::iterator it = m_unread.begin();
+		for (; it != m_unread.end(); it++) {
+			if (it->id() == id) {
+				m_unread.erase(it);
+				unreadChanged(m_unread);
+				return;
+			}
+		}
+	}
+
+	MessageList ChatSessionImpl::unread() const
+	{
+		return m_unread;
 	}
 
 	void ChatSessionImpl::setChatUnit(ChatUnit* unit)

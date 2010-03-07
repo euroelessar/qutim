@@ -1,6 +1,3 @@
-#include "simplecontactlistdelegate.h"
-#include "libqutim/tooltip.h"
-#include <QToolTip>
 /****************************************************************************
  *  simplecontactlistitem.cpp
  *
@@ -16,6 +13,9 @@
  ***************************************************************************
 *****************************************************************************/
 
+#include "simplecontactlistdelegate.h"
+#include "libqutim/tooltip.h"
+#include <QToolTip>
 #include "simplecontactlistitem.h"
 #include <QHelpEvent>
 #include <QAbstractItemView>

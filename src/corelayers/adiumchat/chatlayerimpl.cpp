@@ -26,7 +26,7 @@ namespace AdiumChat
 {
 	static Core::CoreModuleHelper<ChatLayerImpl> chat_layer_static(
 		QT_TRANSLATE_NOOP("Plugin", "Webkit chat layer"),
-		QT_TRANSLATE_NOOP("Plugin", "Default qutIM chat realization, based on Adium chat styles")
+		QT_TRANSLATE_NOOP("Plugin", "Default qutIM chat implementation, based on Adium chat styles")
 	);
 
 //	inline ActionGenerator *generate(const char *name)
@@ -149,7 +149,7 @@ namespace AdiumChat
 	{
 		QAction *action = qobject_cast<QAction *>(sender());
 		Q_ASSERT(action);
-		QVariant data = action->data();
+//		QVariant data = action->data();
 		MenuController *menu = action->data().value<MenuController *>();
 		if (ChatUnit *unit = qobject_cast<ChatUnit *>(menu)) {
 			if (ChatSession *session = getSession(unit, true))

@@ -229,7 +229,8 @@ namespace Core
 			{
 				ContactItem *item = items.at(i);
 				QList<ContactItem *> contacts = item->parent->contacts;
-				QList<ContactItem *>::const_iterator it = qLowerBound(contacts.constBegin(),contacts.constEnd(),item, contactLessThan);
+				QList<ContactItem *>::const_iterator it =
+						qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
 				
 				int to = it - contacts.constBegin();
 				int from = contacts.indexOf(item);

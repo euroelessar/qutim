@@ -179,6 +179,18 @@ namespace qutim_sdk_0_3
 		d_func()->actions.append(ActionInfo(gen, menu));
 	}
 
+	bool MenuController::removeAction(const ActionGenerator *gen)
+	{
+		Q_D(MenuController);
+		for (int i = 0; i < d->actions.size(); i++) {
+			if (d->actions.at(i).gen == gen) {
+				d->actions.removeAt(i);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	void MenuController::addAction(const ActionGenerator *gen, const QMetaObject *meta, const QList<QByteArray> &menu)
 	{
 		Q_ASSERT(gen && meta);

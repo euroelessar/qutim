@@ -23,6 +23,10 @@ namespace Core
 			virtual void removeContact(ChatUnit *contact);
 			virtual void removeAccount(Account *account);
 			Q_INVOKABLE void addButton(ActionGenerator *generator);
+		public slots:
+			void show();
+			void hide();
+			void changeVisibility();
 		private slots:
 			void onConfigureClicked();
 			void onAccountCreated(qutim_sdk_0_3::Account *account);

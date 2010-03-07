@@ -38,6 +38,8 @@ namespace AdiumChat
 		QString getId() const;
 		ChatUnit *getUnit() const;
 		virtual QTextDocument *getInputField();
+		virtual void markRead(quint64 id = Q_UINT64_C(0xffffffffffffffff));
+		virtual MessageList unread() const;
 		void loadTheme(const QString& path, const QString& variant);
 		void setVariant(const QString& variant);
 		QString getVariant() const;
@@ -61,6 +63,7 @@ namespace AdiumChat
 		bool m_skipOneMerge;
 		bool m_active;
 		bool m_store_service_messages;
+		MessageList m_unread;
 	};
 }
 #endif // CHATSESSIONIMPL_H

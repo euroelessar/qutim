@@ -97,6 +97,7 @@ MyObject::onAction()
 		*/
 		template <int N>
 		void addAction(const ActionGenerator *gen, const char (&menu)[N]);
+		bool removeAction(const ActionGenerator *gen);
 		/*!
 		  Add action \a gen to every object with QMetaObject \a meta.
 		  If \a menu is not empty action will be situated not in the root of

@@ -95,9 +95,11 @@ namespace AdiumChat
 			return;
 		m_sessions.append(session);
 		session->installEventFilter(this);
-		connect(session,SIGNAL(messageReceived(Message)),SLOT(onMessageReceived(Message)));
-		connect(session,SIGNAL(messageSended(Message)),SLOT(onMessageSended(Message)));
-		connect(session,SIGNAL(destroyed(QObject*)),SLOT(onSessionDestroyed(QObject*)));
+		connect(session, SIGNAL(messageReceived(Message)), SLOT(onMessageReceived(Message)));
+		connect(session, SIGNAL(messageSended(Message)), SLOT(onMessageSended(Message)));
+		connect(session, SIGNAL(destroyed(QObject*)), SLOT(onSessionDestroyed(QObject*)));
+		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
+				SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 		QIcon icon;
 		if (m_chat_flags & AvatarsOnTabs) {
 			QString imagePath = session->getUnit()->property("avatar").toString();
@@ -199,6 +201,7 @@ namespace AdiumChat
 
 	void ChatWidget::activate(ChatSessionImpl* session)
 	{
+		activateWindow();
 		raise();
 		//TODO customize support
 		int index = m_sessions.indexOf(session);
@@ -206,12 +209,24 @@ namespace AdiumChat
 		if (ui->tabBar->currentIndex() != index)
 			ui->tabBar->setCurrentIndex(index);
 
-		if ((m_chat_flags & ShowUnreadMessages) && session->property("unreadMessages").toInt()) {
-			session->setProperty("unreadMessages",0);
+		if ((m_chat_flags & ShowUnreadMessages) && !session->unread().isEmpty()) {
+			session->markRead();
+		}		
+	}
+
+	void ChatWidget::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
+	{
+		ChatSessionImpl *session = static_cast<ChatSessionImpl*>(sender());
+		int index = m_sessions.indexOf(session);
+		if (index < 0)
+			return;
+		if (unread.isEmpty()) {
 			ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
 			QIcon icon = iconForState(state);
-			ui->tabBar->setTabIcon(index,icon);
-		}		
+			ui->tabBar->setTabIcon(index, icon);
+		} else if (m_chat_flags & ShowUnreadMessages) {
+			ui->tabBar->setTabIcon(index, Icon("mail-unread-new"));
+		}
 	}
 
 	bool ChatWidget::eventFilter(QObject *obj, QEvent *event)
@@ -308,6 +323,16 @@ namespace AdiumChat
 		killTimer(m_timerid);
 		QObject::timerEvent(e);
 	}
+
+	bool ChatWidget::event(QEvent *event)
+	{
+		if (event->type() == QEvent::WindowActivate
+			|| event->type() == QEvent::WindowDeactivate) {
+			bool active = event->type() == QEvent::WindowActivate;
+			m_sessions.at(ui->tabBar->currentIndex())->setActive(active);
+		}
+		return QMainWindow::event(event);
+	}
 	
 	void ChatWidget::onMessageReceived(const qutim_sdk_0_3::Message& message)
 	{
@@ -319,11 +344,6 @@ namespace AdiumChat
 		int index = m_sessions.indexOf(session);
 		if (index == -1)
 			return;
-		if ((m_chat_flags & ShowUnreadMessages) && !session->isActive()) {
-			int unread_messages = session->property("unreadMessages").toInt()+1;
-			session->setProperty("unreadMessages",unread_messages);
-			ui->tabBar->setTabIcon(index,Icon("mail-unread-new"));
-		}
 	}
 
 	void ChatWidget::onMessageSended(const qutim_sdk_0_3::Message& message)

@@ -103,6 +103,7 @@ signals:
 	// If direction is Sending UI should ask user for files
 	void remoteFilesChanged(const QStringList &);
 	void fileSizeChanged(qint64);
+	void totalSizeChanged(qint64);
 	void localPortChanged(int);
 	void remotePortChanged(int);
 	void remoteAddressChanged(int);
