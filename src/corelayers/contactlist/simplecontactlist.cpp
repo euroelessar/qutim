@@ -18,6 +18,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QTimer>
+#include <QPushButton>
 
 namespace Core
 {
@@ -59,7 +60,8 @@ namespace Core
 			TreeView *view;
 			Model *model;
 			ActionToolBar *main_toolbar;
-			ActionToolBar *bottom_toolbar;
+			QPushButton *m_status_btn;
+			QPushButton *m_search_btn;
 			QHash<Account *, QAction *> actions;
 		};
 
@@ -68,15 +70,14 @@ namespace Core
 			p->widget = new MyWidget;
 			QVBoxLayout *layout = new QVBoxLayout(p->widget);
 			layout->setMargin(0);
+			layout->setSpacing(0);
 			
 			int size = Config().group("contactList").value("toolBarIconSize",16);
 			
 			QSize toolbar_size (size,size);
 			
 			p->main_toolbar = new ActionToolBar(p->widget);
-			p->bottom_toolbar = new ActionToolBar(p->widget);
 			p->main_toolbar->setIconSize(toolbar_size);
-			p->bottom_toolbar->setIconSize(toolbar_size);
 			
 			layout->addWidget(p->main_toolbar);
 			
@@ -91,10 +92,6 @@ namespace Core
 										  SLOT(quit()))
 										  );
 			
-// 			QMenu *menu = new QMenu(tr("Main menu"), p->main_toolbar);
-// 			menu->addAction(Icon("configure"), tr("&Settings..."), this, SLOT(onConfigureClicked()));
-// 			menu->addAction(Icon("application-exit"), tr("&Quit"), qApp, SLOT(quit()));
-
 			QAction *menuAction = new QAction(Icon("show-menu"), tr("Main menu"), this);
 			
 			menuAction->setMenu(menu());
@@ -111,7 +108,24 @@ namespace Core
 			p->view->setIndentation(0);
 			p->widget->show();
 
-			layout->addWidget(p->bottom_toolbar);
+			QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget);
+			layout->addLayout(bottom_layout);
+
+			p->m_status_btn = new QPushButton(Icon("im-user-online"),
+											  "Global status",
+											  p->widget);
+			p->m_status_btn->setMenu(new QMenu(p->widget));
+			p->m_search_btn = new QPushButton(p->widget);
+			p->m_search_btn->setIcon(Icon("edit-find"));
+			
+			p->m_status_btn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+			p->m_search_btn->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Preferred);
+
+			bottom_layout->addWidget(p->m_status_btn);
+			bottom_layout->addWidget(p->m_search_btn);
+			bottom_layout->setSpacing(0);
+			bottom_layout->setMargin(0);;
+
 			foreach(Protocol *proto, allProtocols()) {
 				connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 				foreach(Account *account, proto->accounts()) {
@@ -180,13 +194,13 @@ namespace Core
 		void Module::onAccountCreated(Account *account)
 		{
 			//TODO add account icon
-			QAction *action = new QAction(account->status().icon(), account->name(), p->bottom_toolbar);
+			QAction *action = new QAction(account->status().icon(), account->name(), p->m_status_btn);
 			connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
 					this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
 			p->actions.insert(account, action);
 //			connect(action, SIGNAL(triggered()), action, SLOT(toggle()));
 			action->setMenu(account->menu(false));
-			p->bottom_toolbar->addAction(action);
+			p->m_status_btn->menu()->addAction(action);
 			foreach (Contact *contact, account->findChildren<Contact *>()) {
 				//FIXME
 				addContact(contact);
