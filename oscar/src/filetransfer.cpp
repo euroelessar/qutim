@@ -307,6 +307,10 @@ void OftSocket::connected()
 	flush();
 }
 
+void OftSocket::disconnected()
+{
+}
+
 OftServer::OftServer(OftConnection *conn) :
 	m_conn(conn)
 {

@@ -14,6 +14,8 @@
 #include <QButtonGroup>
 #include <QComboBox>
 #include <QListWidget>
+#include <QFormLayout>
+#include <qutim/debug.h>
 
 Q_DECLARE_METATYPE(PurpleRequestField*)
 
@@ -193,12 +195,12 @@ QuetzalFieldsDialog::QuetzalFieldsDialog(const char *title, const char *primary,
 			box = new QGroupBox(purple_request_field_group_get_title(group), this);
 		else
 			box = new QWidget(this);
-		QVBoxLayout *layout = new QVBoxLayout(box);
+		QFormLayout *layout = new QFormLayout(box);
 		for (field_it = purple_request_field_group_get_fields(group); field_it; field_it = field_it->next) {
 			PurpleRequestField *field = (PurpleRequestField *)field_it->data;
 			QWidget *widget = (QWidget *)field->ui_data;
+			uint type = uint(purple_request_field_get_type(field));
 			if (!widget) {
-				uint type = uint(purple_request_field_get_type(field));
 				if (type < quetzal_field_creators_count && quetzal_field_creators[type]) {
 					widget = quetzal_field_creators[type](field, box);
 				}
@@ -206,7 +208,10 @@ QuetzalFieldsDialog::QuetzalFieldsDialog(const char *title, const char *primary,
 					continue;
 				widget->setObjectName(purple_request_field_get_id(field));
 			}
-			layout->addWidget(widget);
+			if (type == PURPLE_REQUEST_FIELD_BOOLEAN)
+				layout->addRow(widget);
+			else
+				layout->addRow(purple_request_field_get_label(field), widget);
 			purple_request_field_set_ui_data(field, widget);
 		}
 		boxLayout()->insertWidget(index++, box);
@@ -221,6 +226,7 @@ QuetzalFieldsDialog::~QuetzalFieldsDialog()
 void QuetzalFieldsDialog::onStringFieldChanged(const QString &text)
 {
 	QByteArray name = sender()->objectName().toUtf8();
+	debug() << Q_FUNC_INFO << name << text;
 	PurpleRequestField *field = purple_request_fields_get_field(m_fields, name.constData());
 	purple_request_field_string_set_value(field, text.toUtf8().constData());
 }
@@ -235,6 +241,7 @@ void QuetzalFieldsDialog::onIntFieldChanged(int value)
 void QuetzalFieldsDialog::onBooleanFieldChanged(bool value)
 {
 	QByteArray name = sender()->objectName().toUtf8();
+	debug() << Q_FUNC_INFO << name << value;
 	PurpleRequestField *field = purple_request_fields_get_field(m_fields, name.constData());
 	purple_request_field_bool_set_value(field, value);
 }
@@ -257,6 +264,7 @@ void QuetzalFieldsDialog::onListFieldChanged()
 		items << item->text().toUtf8();
 		selected = g_list_append(selected, const_cast<char *>(items.last().constData()));
 	}
+	debug() << Q_FUNC_INFO << name << items;
 	purple_request_field_list_set_selected(field, selected);
 	g_list_free(selected);
 }
@@ -279,7 +287,7 @@ void QuetzalFieldsDialog::onOkClicked()
 	if (m_ok_cb)
 		m_ok_cb(userData(), m_fields);
 	m_ok_cb = NULL;
-	purple_request_close(PURPLE_REQUEST_INPUT, this);
+	purple_request_close(PURPLE_REQUEST_FIELDS, this);
 }
 
 void QuetzalFieldsDialog::onCancelClicked()
@@ -287,5 +295,5 @@ void QuetzalFieldsDialog::onCancelClicked()
 	if (m_cancel_cb)
 		m_cancel_cb(userData(), m_fields);
 	m_cancel_cb = NULL;
-	purple_request_close(PURPLE_REQUEST_INPUT, this);
+	purple_request_close(PURPLE_REQUEST_FIELDS, this);
 }

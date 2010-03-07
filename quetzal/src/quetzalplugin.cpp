@@ -68,7 +68,6 @@ void quetzal_create_conversation(PurpleConversation *conv)
 				quetzal_menu_dump(action, 0);
 			}
 	}*/
-	ChatLayer::get(unit)->activate();
 }
 
 void quetzal_destroy_conversation(PurpleConversation *conv)

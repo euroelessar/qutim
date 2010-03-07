@@ -18,7 +18,7 @@
 
 
 QuetzalChatUser::QuetzalChatUser(PurpleConvChatBuddy *user, QuetzalChat *chat) :
-	ChatUnit(chat->account())
+	Buddy(chat->account())
 {
 	m_user = user;
 	m_id = user->name;
@@ -27,6 +27,11 @@ QuetzalChatUser::QuetzalChatUser(PurpleConvChatBuddy *user, QuetzalChat *chat) :
 
 void QuetzalChatUser::sendMessage(const Message &message)
 {
+}
+
+Status QuetzalChatUser::status() const
+{
+	return Status(Status::Online);
 }
 
 void QuetzalChatUser::update()

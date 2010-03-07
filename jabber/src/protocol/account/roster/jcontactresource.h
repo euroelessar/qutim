@@ -1,7 +1,7 @@
 #ifndef JCONTACTRESOURCE_H
 #define JCONTACTRESOURCE_H
 
-#include <qutim/chatunit.h>
+#include <qutim/buddy.h>
 #include <gloox/presence.h>
 #include <QSet>
 
@@ -11,7 +11,7 @@ namespace Jabber
 	class JContact;
 	class JContactResourcePrivate;
 
-	class JContactResource : public qutim_sdk_0_3::ChatUnit
+	class JContactResource : public qutim_sdk_0_3::Buddy
 	{
 		Q_PROPERTY(QSet<QString> features READ features WRITE setFeatures)
 		Q_DECLARE_PRIVATE(JContactResource)

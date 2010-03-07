@@ -9,7 +9,7 @@ using namespace qutim_sdk_0_3;
 namespace Jabber
 {
 	JContactResource::JContactResource(ChatUnit *parent, const QString &name) :
-			ChatUnit(parent->account()), d_ptr(new JContactResourcePrivate)
+			Buddy(parent->account()), d_ptr(new JContactResourcePrivate)
 	{
 		Q_D(JContactResource);
 		d->name = name;
@@ -17,7 +17,7 @@ namespace Jabber
 	}
 
 	JContactResource::JContactResource(ChatUnit *parent, JContactResourcePrivate &ptr) :
-			ChatUnit(parent->account()), d_ptr(&ptr)
+			Buddy(parent->account()), d_ptr(&ptr)
 	{
 	}
 

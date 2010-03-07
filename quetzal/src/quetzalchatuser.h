@@ -17,12 +17,12 @@
 #define QUETZALCHATUSER_H
 
 #include <purple.h>
-#include <qutim/chatunit.h>
+#include <qutim/buddy.h>
 
 using namespace qutim_sdk_0_3;
 class QuetzalChat;
 
-class QuetzalChatUser : public ChatUnit
+class QuetzalChatUser : public Buddy
 {
 Q_OBJECT
 public:
@@ -31,6 +31,7 @@ public:
 	virtual QString id() const { return m_id; }
 	virtual QString title() const { return m_name.isEmpty() ? m_id : m_name; }
 	virtual void sendMessage(const Message &message);
+	virtual Status status() const;
 
 	void update();
 	void rename(const QString &id, const QString &name);
