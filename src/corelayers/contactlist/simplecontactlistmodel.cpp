@@ -217,13 +217,13 @@ namespace Core
 
 		void Model::contactStatusChanged(Status status)
 		{
-			// TODO: Add sort by status
 			Contact *contact = qobject_cast<Contact *>(sender());
 			ContactData::Ptr item_data = p->contacts.value(contact);
 			if(!item_data)
 				return;
 			if(status.type() == item_data->status.type())
 				return;
+			item_data->status = status;
 			const QList<ContactItem *> &items = item_data->items;
 			for(int i = 0; i < items.size(); i++)
 			{
