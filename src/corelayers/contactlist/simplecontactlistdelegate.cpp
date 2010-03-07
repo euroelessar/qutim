@@ -25,7 +25,9 @@
 
 namespace Core
 {
-	static int vertical_padding = 3;
+	static int m_vertical_padding = 3;
+	static int m_horizontal_padding = 5;
+	static int m_icon_size = 16;
 	
 	namespace SimpleContactList
 	{
@@ -59,15 +61,14 @@ namespace Core
 					p.translate(-option.rect.topLeft());
 					
 					QFont font = opt.font;
-					font.setItalic(true);
 					font.setBold(true);
 					p.setFont(font);
 					
-					p.drawText(option.rect.left(),
+					p.drawText(option.rect.left() + 2*m_horizontal_padding + m_icon_size,
 							   option.rect.top(),
-							   option.rect.right() - 5,
+							   option.rect.right(),
 							   option.rect.height(),
-							   Qt::AlignRight | Qt::AlignVCenter,
+							   Qt::AlignLeft | Qt::AlignVCenter,
 							   name  
 							   );
 					
@@ -90,7 +91,7 @@ namespace Core
 						QFont font = opt.font;
 						font.setPointSize(font.pointSize() - 1);
 						p.setFont(font);
-						p.drawText(option.rect.left() + 25,
+						p.drawText(option.rect.left() + 2*m_horizontal_padding + m_icon_size,
 								   option.rect.top(),
 								   option.rect.right(),
 								   option.rect.height(),
@@ -102,10 +103,10 @@ namespace Core
 						
 					}
 					
-					painter->drawText(option.rect.left() + 25,
-									  option.rect.top() + vertical_padding,
+					painter->drawText(option.rect.left() + 2*m_horizontal_padding + m_icon_size,
+									  option.rect.top() + m_vertical_padding,
 									  option.rect.right(),
-									  option.rect.height() - vertical_padding,
+									  option.rect.height() - m_vertical_padding,
 									  Qt::AlignTop,
 									  name  
 									);
@@ -118,9 +119,9 @@ namespace Core
 			
 			QIcon item_icon = model->data(index, Qt::DecorationRole).value<QIcon>();
 			item_icon.paint(painter,
-							option.rect.left() + 5, //FIXME
+							option.rect.left() + m_horizontal_padding, //FIXME
 							option.rect.top(),
-							16, //FIXME
+							m_icon_size, //FIXME
 							option.rect.height(),
 							Qt::AlignVCenter);
 		}
@@ -161,8 +162,12 @@ namespace Core
 			if (!model)
 				return size;
 
-			int height = model->data(index,ItemStatusText).toString().isEmpty() ? 24 : 30; //TODO
-			height = (model->data(index,ItemDataType).toInt() == TagType) ? 20 : height;
+			int height = m_icon_size + 2 * m_vertical_padding;
+			if (!model->data(index,ItemStatusText).toString().isEmpty())
+				height += option.font.pointSize();
+				
+				
+			height = (model->data(index,ItemDataType).toInt() == TagType) ? m_icon_size + m_vertical_padding : height;
 			size.rheight() = height;	
 			return size;
 		}
