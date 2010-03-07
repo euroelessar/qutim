@@ -50,10 +50,13 @@ IcqAccWizardPage::IcqAccWizardPage(IcqAccountCreationWizard *account_wizard) :
 	m_account_wizard(account_wizard)
 {
 	ui.setupUi(this);
-	QRegExp rx("[1-9][0-9]{1,9}");
-	QValidator *validator = new QRegExpValidator(rx, this);
-	ui.uinEdit->setValidator(validator);
+	{
+		QRegExp rx("[1-9][0-9]{1,9}");
+		QValidator *validator = new QRegExpValidator(rx, this);
+		ui.uinEdit->setValidator(validator);
+	}
 	ui.uinEdit->setFocus();
+	ui.passwordEdit->setMaxLength(8);
 }
 
 bool IcqAccWizardPage::validatePage()

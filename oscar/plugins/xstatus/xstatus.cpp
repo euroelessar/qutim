@@ -372,9 +372,13 @@ void XStatusHandler::parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml)
 	if (uin == contact->id()) {
 		if (index > 0 && index < xstatusList()->size()) {
 			Status status = contact->status();
-			status.setProperty("title", title);
-			status.setProperty("xstatusIcon", xstatusList()->at(index).icon.toIcon());
-			status.setText(desc);
+			QVariantHash extStatuses = status.property("extendedStatuses", QVariantHash());
+			QVariantHash extStatus;
+			extStatus.insert("id", QT_TRANSLATE_NOOP("XStatus", "X-Status").toString());
+			extStatus.insert("title", title);
+			extStatus.insert("icon", xstatusList()->at(index).icon.toIcon());
+			extStatuses.insert("xstatus", extStatus);
+			status.setProperty("extendedStatuses", extStatuses);
 			contact->setStatus(status);
 			debug() << "xstatus" << contact->name() << index << xstatusList()->at(index).status;
 		}
