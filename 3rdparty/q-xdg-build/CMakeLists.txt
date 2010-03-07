@@ -38,7 +38,7 @@ set(QXDG_PRIVATE_HEADERS
 
 qt4_automoc(${QXDG_SOURCES} ${TEST_SOURCES})
 add_library(q-xdg STATIC ${QXDG_SOURCES} ${QXDG_HEADERS} ${QXDG_PRIVATE_HEADERS})
-set_target_properties(q-xdg PROPERTIES COMPILE_FLAGS "-DXDG_LIBRARY")
+set_target_properties(q-xdg PROPERTIES COMPILE_FLAGS "-DXDG_STATIC")
 target_link_libraries(q-xdg ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 
 set_target_properties(q-xdg PROPERTIES VERSION ${XDG_LIB_VERSION} SOVERSION "0")
