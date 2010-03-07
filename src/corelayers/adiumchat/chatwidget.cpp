@@ -39,6 +39,7 @@ namespace AdiumChat
 		ui->tabBar->setMovable(true);
 		ui->tabBar->setDocumentMode(true);
 		ui->tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
+		ui->contactsView->hide();
 		//ui->tabBar->setDrawBase(false);
 		//init status and menubar
 		ui->statusbar->setVisible(false);
@@ -125,17 +126,23 @@ namespace AdiumChat
 		if (index == -1)
 			return;
 		int previous_index = m_current_index;
+		ChatSessionImpl *session = m_sessions.at(index);
 		if ((previous_index != -1) && (previous_index != index)) {
 			m_sessions.at(previous_index)->setActive(false);
-			m_sessions.at(index)->activate();
+			session->activate();
 		}
 		m_current_index = index;
-		ui->chatView->page()->setView(0);
-		ui->chatView->setPage(m_sessions.at(index)->getPage());
-		setWindowTitle(tr("Chat with %1").arg(m_sessions.at(index)->getUnit()->title()));
+		ui->contactsView->setModel(session->getModel());
+		ui->contactsView->setVisible(session->getModel()->rowCount(QModelIndex()) > 0);
+		if (ui->chatView->page() != session->getPage()) {
+			ui->chatView->page()->setView(0);
+			ui->chatView->setPage(session->getPage());
+			session->getPage()->setView(ui->chatView);
+		}
+		setWindowTitle(tr("Chat with %1").arg(session->getUnit()->title()));
 		
-		//m_main_toolbar->setData(m_sessions.at(index)->getUnit());
-// 		if (QAbstractItemModel *model = m_sessions.at(index)->getItemsModel())
+		//m_main_toolbar->setData(session->getUnit());
+// 		if (QAbstractItemModel *model = session->getItemsModel())
 // 			ui->membersView->setModel(model);
 
 		if ((m_chat_flags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
@@ -177,7 +184,7 @@ namespace AdiumChat
 
 	void ChatWidget::onSessionDestroyed(QObject* object)
 	{
-		ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
+		ChatSessionImpl *sess = static_cast<ChatSessionImpl *>(object);
 		if (!sess)
 			return;
 		removeSession(sess);

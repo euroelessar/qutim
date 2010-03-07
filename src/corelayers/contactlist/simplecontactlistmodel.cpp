@@ -136,14 +136,10 @@ namespace Core
 		}
 		
 		bool contactLessThan (ContactItem *a, ContactItem *b) {
-			if (a->data->status.type() < b->data->status.type() )
-				return true;
-			else if (a->data->status.type() > b->data->status.type())
-				return false;
-			int result = a->data->contact->title().compare(b->data->contact->title());
-			if (result < 0)
-				return true;
-			return false;
+			int result = a->data->status.type() - b->data->status.type();
+			if (result != 0)
+				return result < 0;
+			return a->data->contact->title().compare(b->data->contact->title(), Qt::CaseInsensitive) < 0;
 		};		
 
 		void Model::addContact(Contact *contact)

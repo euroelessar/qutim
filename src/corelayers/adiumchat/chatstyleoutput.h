@@ -47,7 +47,7 @@ namespace AdiumChat
 		QString getVariant() const;
 
 		void setVariant(const QString &_variantName);
-		QString makeMessage(const ChatSessionImpl *session, const Message &mes, bool _aligment, bool _sameSender);
+		QString makeMessage(const ChatSessionImpl *session, const Message &mes, bool _sameSender);
 		/*
 		changes keywords to action atributes in html like "Bob is writing on the desk"
 		_name - sender's nickname
@@ -59,7 +59,7 @@ namespace AdiumChat
 		_senderID - sender's ID
 		_servise - protocol used to send a message
 		*/
-		QString makeAction(const ChatSessionImpl *session, const Message &mes, const bool& _aligment);
+		QString makeAction(const ChatSessionImpl *session, const Message &mes);
 
 		/*
 		It is used for displaying system and user messages like "user gone offline",

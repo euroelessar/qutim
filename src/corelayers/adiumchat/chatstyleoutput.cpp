@@ -208,7 +208,7 @@ namespace AdiumChat
 		m_current_variant = _variantName;
 	}
 
-	QString ChatStyleOutput::makeMessage(const ChatSessionImpl *session, const Message &mes, bool _aligment, bool sameSender)
+	QString ChatStyleOutput::makeMessage(const ChatSessionImpl *session, const Message &mes, bool sameSender)
 	{
 		// prepare values, so they could be inserted to html code
 		QString html;
@@ -246,13 +246,12 @@ namespace AdiumChat
 		// Replace %protocolIcon% to sender statusIcon path
 		// TODO: find icon to add here
 		html = html.replace("%senderStatusIcon%", "");
-		html = html.replace("%messageDirection%", _aligment ? "ltr" : "rtl" );
+		html = html.replace("%messageDirection%", mes.text().isRightToLeft() ? "rtl" : "ltr" );
 		processMessage(html, session, mes);
 		return html;
 	}
 
-	QString ChatStyleOutput::makeAction (const ChatSessionImpl *session, const Message &mes,
-										 const bool& _aligment)
+	QString ChatStyleOutput::makeAction (const ChatSessionImpl *session, const Message &mes)
 	{
 		QString html = (!mes.isIncoming()) ? m_current_style.outgoingActionHtml : m_current_style.incomingActionHtml;
 
@@ -273,7 +272,7 @@ namespace AdiumChat
 		html = html.replace("%senderStatusIcon%", "");
 
 		// Replace %messageDirection% with "rtl"(Right-To-Left) or "ltr"(Left-to-right)
-		html = html.replace("%messageDirection%", _aligment ? "ltr" : "rtl" );
+		html = html.replace("%messageDirection%", mes.text().isRightToLeft() ? "rtl" : "ltr" );
 
 		processMessage(html,session,mes);
 		return html;

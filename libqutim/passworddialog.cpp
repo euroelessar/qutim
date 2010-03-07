@@ -72,7 +72,8 @@ namespace qutim_sdk_0_3
 		d->password = password;
 		d->remember = remember;
 		d->result = Accepted;
-		d->eventLoop->quit();
+		if (d->eventLoop)
+			d->eventLoop->quit();
 		emit entered(password, remember);
 	}
 
@@ -82,7 +83,8 @@ namespace qutim_sdk_0_3
 		d->password.clear();
 		d->remember = false;
 		d->result = Rejected;
-		d->eventLoop->quit();
+		if (d->eventLoop)
+			d->eventLoop->quit();
 		emit rejected();
 	}
 

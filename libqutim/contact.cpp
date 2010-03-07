@@ -14,19 +14,19 @@
 *****************************************************************************/
 
 #include "contact.h"
-#include "chatunit_p.h"
+#include "buddy_p.h"
 #include "account.h"
 #include <libqutim/icon.h>
 
 namespace qutim_sdk_0_3
 {
-	class ContactPrivate : public ChatUnitPrivate
+	class ContactPrivate : public BuddyPrivate
 	{
 	public:
-		ContactPrivate(Contact *c) : ChatUnitPrivate(c) {}
+		ContactPrivate(Contact *c) : BuddyPrivate(c) {}
 	};
 
-	Contact::Contact(Account *account) : ChatUnit(*new ContactPrivate(this), account)
+	Contact::Contact(Account *account) : Buddy(*new ContactPrivate(this), account)
 	{
 	}
 
@@ -41,64 +41,8 @@ namespace qutim_sdk_0_3
 //		}
 	}
 
-	QString Contact::avatar() const
-	{
-		return QString();
-	}
-
-	QString Contact::title() const
-	{
-		QString n = name();
-		return n.isEmpty() ? id() : n;
-	}
-
 	QSet<QString> Contact::tags() const
 	{
 		return QSet<QString>();
 	}
-
-	QString Contact::name() const
-	{
-		return id();
-	}
-
-	Status Contact::status() const
-	{
-		return Status::Online;
-	}
-
-	InfoFieldList Contact::info(bool extra)
-	{
-		Q_UNUSED(extra);
-		return InfoFieldList();
-	}
-
-//	QIcon Contact::statusIcon() const
-//	{
-//		switch(status())
-//		{
-//		default:
-//			if(status() >= Connecting)
-//				return Icon("network-connect");
-//		case Online:
-//		case AtHome:
-//		case FreeChat:
-//		case Invisible:
-//			return Icon("user-online");
-//		case Offline:
-//			return Icon("user-offline");
-//		case Away:
-//		case OutToLunch:
-//			return Icon("user-away");
-//		case DND:
-//		case Evil:
-//		case Depression:
-//		case Occupied:
-//		case AtWork:
-//		case OnThePhone:
-//			return Icon("user-busy");
-//		case NA:
-//			return Icon("user-away-extended");
-//		}
-//	}
 }

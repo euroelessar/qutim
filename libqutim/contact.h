@@ -16,11 +16,8 @@
 #ifndef CONTACT_H
 #define CONTACT_H
 
-#include "chatunit.h"
-#include "status.h"
+#include "buddy.h"
 #include <QSet>
-#include <QIcon>
-#include <QMetaType>
 
 namespace qutim_sdk_0_3
 {
@@ -33,13 +30,10 @@ namespace qutim_sdk_0_3
 	/**
 	* @brief Contact is base class for all contactlist members
 	*/
-	class LIBQUTIM_EXPORT Contact : public ChatUnit
+	class LIBQUTIM_EXPORT Contact : public Buddy
 	{
 		Q_OBJECT
-		Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-		Q_PROPERTY(QString avatar READ avatar NOTIFY avatarChanged)
 		Q_PROPERTY(QSet<QString> tags READ tags WRITE setTags NOTIFY tagsChanged)
-		Q_PROPERTY(Status status READ status NOTIFY statusChanged)
 		Q_PROPERTY(bool inList READ isInList WRITE setInList NOTIFY inListChanged)
 	public:
 		/**
@@ -52,31 +46,12 @@ namespace qutim_sdk_0_3
 		* @brief Contact's destructor
 		*/
 		virtual ~Contact();
-		/*!
-		  Path to buddy image
-		*/
-		virtual QString avatar() const;
-		/**
-		* @brief Returns contact's representable name
-		*
-		* @return Contact's name
-		*/
-		virtual QString title() const;
 		/**
 		* @brief Returns set of tags that mark the contact
 		*
 		* @return QSet<QString> tags
 		*/
 		virtual QSet<QString> tags() const;
-		virtual QString name() const;
-		virtual Status status() const;
-		/**
-		* @brief send message to contact
-		*
-		* @param message Message, which to be sent to the recipient
-		*/
-		virtual void sendMessage(const Message &message) = 0;
-		virtual void setName(const QString &name) = 0;
 		/**
 		* @brief set a set of tags
 		*
@@ -103,17 +78,6 @@ namespace qutim_sdk_0_3
 		* @brief remove contact from contactlist, see also setInList(bool inList)
 		*/
 		void removeFromList() { setInList(false); }
-		/*!
-		  Returnes list of protocol-specific info pairs for tooltip, i.e.:
-		  \code
-InfoFieldList list;
-list.append(Field(QT_TRANSLATE_NOOP("Jabber", "Mood"),     tr("Angry")));
-list.append(Field(QT_TRANSLATE_NOOP("Jabber", "Activity"), tr("Playing")));
-list.append(Field(QT_TRANSLATE_NOOP("Protocol", "Idle"),   m_idle - QDateTime::currentDateTime().toTime_t())));
-return list;
-		  \endcode
-		 */
-		virtual InfoFieldList info(bool extra = false);
 	signals:
 		void avatarChanged(const QString &path);
 		void statusChanged(const qutim_sdk_0_3::Status &status);

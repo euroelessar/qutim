@@ -26,6 +26,7 @@
 #include "libqutim/history.h"
 #include "libqutim/notificationslayer.h"
 #include "chatlayerimpl.h"
+#include "chatsessionmodel.h"
 
 namespace AdiumChat
 
@@ -41,6 +42,7 @@ namespace AdiumChat
 		m_chat_style_output->preparePage(m_web_page,this);
 		m_skipOneMerge = true;
 		m_active = false;
+		m_model = new ChatSessionModel(this);
 		loadHistory();
 	}
 
@@ -85,12 +87,13 @@ namespace AdiumChat
 		qDebug() << "Session removed:" << m_chat_unit->title();
 	}
 
-	void ChatSessionImpl::addContact ( ChatUnit* c )
+	void ChatSessionImpl::addContact(Buddy* c)
 	{
 //		connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(statusChanged(qutim_sdk_0_3::Status)));
+		m_model->addContact(c);
 	}
 
-	void ChatSessionImpl::appendMessage ( const Message& message )
+	void ChatSessionImpl::appendMessage(const Message &message)
 	{
 		Message tmp_message = message;
 		if (!tmp_message.chatUnit()) {
@@ -113,7 +116,7 @@ namespace AdiumChat
 		if(tmp_message.text().startsWith("/me ")) {
 			tmp_message.setText(tmp_message.text().mid(3));
 			tmp_message.setProperty("title",tmp_message.isIncoming() ? tmp_message.chatUnit()->title() : tmp_message.chatUnit()->account()->name());
-			item = m_chat_style_output->makeAction(this,tmp_message,true);
+			item = m_chat_style_output->makeAction(this,tmp_message);
 			m_previous_sender = 0;
 			m_skipOneMerge = true;
 		}
@@ -125,8 +128,7 @@ namespace AdiumChat
 		else {
 			const ChatUnit *currentSender = tmp_message.isIncoming() ? tmp_message.chatUnit() : 0;
 			same_from = (!m_skipOneMerge) && (m_previous_sender == currentSender);
-			item = m_chat_style_output->makeMessage(this, tmp_message, true,
-															same_from );
+			item = m_chat_style_output->makeMessage(this, tmp_message, same_from);
 			m_previous_sender = currentSender;
 			m_skipOneMerge = false;
 		}
@@ -147,9 +149,9 @@ namespace AdiumChat
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
 	}
 
-	void ChatSessionImpl::removeContact ( ChatUnit* c )
+	void ChatSessionImpl::removeContact(Buddy *c)
 	{
-
+		m_model->removeContact(c);
 	}
 
 
@@ -212,9 +214,9 @@ namespace AdiumChat
 		}
 	}
 
-	QAbstractItemModel* ChatSessionImpl::getItemsModel() const
+	QAbstractItemModel* ChatSessionImpl::getModel() const
 	{
-		return 0; //TODO
+		return m_model;
 	}
 	
 	void ChatSessionImpl::onStatusChanged(qutim_sdk_0_3::Status status)

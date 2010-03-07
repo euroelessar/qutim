@@ -24,15 +24,16 @@ using namespace qutim_sdk_0_3;
 namespace AdiumChat
 {
 	class ChatStyleOutput;
+	class ChatSessionModel;
 	class ChatSessionImpl : public ChatSession
 	{
 		Q_OBJECT
 	public:
 		ChatSessionImpl (ChatUnit *unit, ChatLayer* chat );
 		virtual ~ChatSessionImpl();
-		virtual void addContact ( ChatUnit* c );
+		virtual void addContact ( Buddy* c );
 		virtual void appendMessage ( const Message& message );		
-		virtual void removeContact ( ChatUnit* c );
+		virtual void removeContact ( Buddy* c );
 		QWebPage *getPage() const;
 		Account *getAccount() const;
 		QString getId() const;
@@ -43,7 +44,7 @@ namespace AdiumChat
 		void loadTheme(const QString& path, const QString& variant);
 		void setVariant(const QString& variant);
 		QString getVariant() const;
-		QAbstractItemModel *getItemsModel() const;
+		QAbstractItemModel *getModel() const;
 		virtual void setActive(bool active = true);
 		virtual void setChatUnit(ChatUnit* unit);
 		virtual bool isActive();
@@ -58,6 +59,7 @@ namespace AdiumChat
 	private:
 		QPointer<QWebPage> m_web_page;
 		QPointer<ChatUnit> m_chat_unit;
+		ChatSessionModel *m_model;
 		//additional info and flags
 		const ChatUnit *m_previous_sender; // zero if outcoming
 		bool m_skipOneMerge;

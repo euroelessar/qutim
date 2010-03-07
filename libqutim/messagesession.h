@@ -38,8 +38,8 @@ namespace qutim_sdk_0_3
 		virtual void markRead(quint64 id) = 0;
 		virtual MessageList unread() const = 0;
 	public slots:
-		virtual void addContact(qutim_sdk_0_3::ChatUnit *c) = 0;
-		virtual void removeContact(qutim_sdk_0_3::ChatUnit *c) = 0;
+		virtual void addContact(qutim_sdk_0_3::Buddy *c) = 0;
+		virtual void removeContact(qutim_sdk_0_3::Buddy *c) = 0;
 		virtual void appendMessage(const qutim_sdk_0_3::Message &message) = 0;
 		virtual bool isActive() = 0;
 		virtual void setActive(bool active) = 0;
@@ -47,11 +47,10 @@ namespace qutim_sdk_0_3
 		inline void appendMessage(const QString &text)
 		{ appendMessage(Message(text)); }
 	signals:
-		void chatUnitChanged(ChatUnit *unit);
 		void messageReceived(const Message &message);
 		void messageSended(const Message &message);
-		void contactAdded(qutim_sdk_0_3::ChatUnit *c);
-		void contactRemoved(qutim_sdk_0_3::ChatUnit *c);
+		void contactAdded(qutim_sdk_0_3::Buddy *c);
+		void contactRemoved(qutim_sdk_0_3::Buddy *c);
 		void activated(bool active);
 		void unreadChanged(const qutim_sdk_0_3::MessageList &);
 	protected:
