@@ -42,6 +42,7 @@ namespace Core
 					QRect rect = QApplication::desktop()->availableGeometry(QCursor::pos());
 					rect.setX(rect.width() - width);
 					rect.setWidth(width);
+					rect.setHeight(rect.bottom());
 					setGeometry(rect);
 				} else
 					restoreGeometry(geom);
