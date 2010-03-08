@@ -20,6 +20,7 @@
 #include <QTimer>
 #include <QPushButton>
 #include <QLineEdit>
+#include <libqutim/qtwin.h>
 
 namespace Core
 {
@@ -73,6 +74,15 @@ namespace Core
 			QVBoxLayout *layout = new QVBoxLayout(p->widget);
 			layout->setMargin(0);
 			layout->setSpacing(0);
+
+#ifdef Q_WS_WIN
+			setStyleSheet("QToolBar{background:none;border:none}"); //HACK
+#endif
+
+			if (QtWin::isCompositionEnabled()) {
+				QtWin::extendFrameIntoClientArea(this);
+				p->widget->setContentsMargins(0, 0, 0, 0);
+			}
 			
 			int size = Config().group("contactList").value("toolBarIconSize",16);
 			
