@@ -330,10 +330,10 @@ namespace Core
 		
 		QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 		{
-// 			if (orientation == Qt::Horizontal)
-// 				return tr("Contacts");
-			
-			return QAbstractItemModel::headerData(section, orientation, role);
+			if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section==0)
+				return tr("All tags");
+
+			return QVariant();
 		}
 
 	}
