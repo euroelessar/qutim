@@ -80,7 +80,7 @@ namespace Core
 #endif
 
 			if (QtWin::isCompositionEnabled()) {
-				QtWin::extendFrameIntoClientArea(this);
+				QtWin::extendFrameIntoClientArea(p->widget);
 				p->widget->setContentsMargins(0, 0, 0, 0);
 			}
 			
