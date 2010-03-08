@@ -379,6 +379,7 @@ QString MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *con
 	} else {
 		debug() << "Incorrect message on channel 1 from" << contact->id() << ": SNAC should contain TLV 2";
 	}
+	debug() << "New message has been received on channel 1:" << message;
 	return message;
 }
 
@@ -502,7 +503,9 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 					return QString();
 				}
 			}
-			return detectCodec()->toUnicode(message_data);
+			QString message = detectCodec()->toUnicode(message_data);
+			debug() << "New message has been received on channel 2:" << message;
+			return message;
 		} else if (MsgPlugin) {
 			data.skipData(3);
 			DataUnit info = data.read<DataUnit, quint16>(LittleEndian);
