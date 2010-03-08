@@ -39,7 +39,7 @@ protected:
 	QByteArray name() const { return utf8 ? utf8->name() + " wrapper": "wrapper"; }
 	QString convertToUnicode(const char *chars, int len, ConverterState *state) const
 	{
-		if (Json::isValidUtf8(chars, len, true)) {
+		if (Json::isValidUtf8(chars, len, false)) {
 			return utf8->convertToUnicode(chars, len, state);
 		} else {
 			return static_cast<CodecWrapper*>(_asciiCodec)->convertToUnicode(chars, len, state);
