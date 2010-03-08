@@ -366,7 +366,7 @@ namespace qutim_sdk_0_3
 		}
 	}
 		
-	Config::Config(const Config &other) : p(other.p)
+	Config::Config(const Config &other) : ConfigBase(other),p(other.p)
 	{
 	}
 
@@ -398,7 +398,7 @@ namespace qutim_sdk_0_3
 	{
 	}
 
-	ConfigGroup::ConfigGroup(const ConfigGroup &other) : p(other.p)
+	ConfigGroup::ConfigGroup(const ConfigGroup &other) : ConfigBase(other),p(other.p)
 	{
 	}
 
