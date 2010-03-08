@@ -249,7 +249,7 @@ namespace AdiumChat
 				QString key = QString::number(keyEvent->key(), 16);
 				QString modifiers = QString::number(keyEvent->modifiers(), 16);
 				if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
-					if (!(keyEvent->modifiers() & Qt::ControlModifier)) {
+					if ((keyEvent->modifiers() & Qt::ControlModifier)) {
 						onSendButtonClicked();
 						return true;
 					}
