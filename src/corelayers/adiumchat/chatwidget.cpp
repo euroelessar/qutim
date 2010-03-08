@@ -249,7 +249,7 @@ namespace AdiumChat
 				QString key = QString::number(keyEvent->key(), 16);
 				QString modifiers = QString::number(keyEvent->modifiers(), 16);
 				if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
-					if (!(keyEvent->modifiers() & Qt::ControlModifier)) {
+					if ((keyEvent->modifiers() & Qt::ControlModifier)) {
 						onSendButtonClicked();
 						return true;
 					}
@@ -336,6 +336,8 @@ namespace AdiumChat
 		if (event->type() == QEvent::WindowActivate
 			|| event->type() == QEvent::WindowDeactivate) {
 			bool active = event->type() == QEvent::WindowActivate;
+			if (ui->tabBar->currentIndex() == -1)
+				return false;
 			m_sessions.at(ui->tabBar->currentIndex())->setActive(active);
 		}
 		return QMainWindow::event(event);

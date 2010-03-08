@@ -165,8 +165,8 @@ namespace Core
 				ContactItem *item = new ContactItem(item_data);
 				
 				QList<ContactItem *> contacts = tag->contacts;
-				QList<ContactItem *>::const_iterator it = qLowerBound(contacts.constBegin(),contacts.constEnd(),item, contactLessThan);
-				int index = it - contacts.constBegin();
+				QList<ContactItem *>::const_iterator contacts_it = qLowerBound(contacts.constBegin(),contacts.constEnd(),item, contactLessThan);
+				int index = contacts_it - contacts.constBegin();
 				
 				item->parent = tag;
 				item_data->items.insert(index,item);
@@ -330,8 +330,8 @@ namespace Core
 		
 		QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 		{
- 			if (orientation == Qt::Horizontal)
- 				return tr("Contacts");
+// 			if (orientation == Qt::Horizontal)
+// 				return tr("Contacts");
 			
 			return QAbstractItemModel::headerData(section, orientation, role);
 		}

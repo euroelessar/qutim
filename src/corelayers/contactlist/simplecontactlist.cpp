@@ -18,6 +18,9 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QTimer>
+#include <QPushButton>
+#include <QLineEdit>
+#include <libqutim/qtwin.h>
 
 namespace Core
 {
@@ -39,6 +42,7 @@ namespace Core
 					QRect rect = QApplication::desktop()->availableGeometry(QCursor::pos());
 					rect.setX(rect.width() - width);
 					rect.setWidth(width);
+					rect.setHeight(rect.bottom());
 					setGeometry(rect);
 				} else
 					restoreGeometry(geom);
@@ -59,7 +63,9 @@ namespace Core
 			TreeView *view;
 			Model *model;
 			ActionToolBar *main_toolbar;
-			ActionToolBar *bottom_toolbar;
+			QPushButton *status_btn;
+			QPushButton *search_btn;
+			QLineEdit *search_bar;
 			QHash<Account *, QAction *> actions;
 		};
 
@@ -68,15 +74,23 @@ namespace Core
 			p->widget = new MyWidget;
 			QVBoxLayout *layout = new QVBoxLayout(p->widget);
 			layout->setMargin(0);
+			layout->setSpacing(0);
+
+			if (QtWin::isCompositionEnabled()) {
+				QtWin::extendFrameIntoClientArea(p->widget);
+				p->widget->setContentsMargins(0, 0, 0, 0);
+			}
 			
 			int size = Config().group("contactList").value("toolBarIconSize",16);
 			
 			QSize toolbar_size (size,size);
 			
 			p->main_toolbar = new ActionToolBar(p->widget);
-			p->bottom_toolbar = new ActionToolBar(p->widget);
 			p->main_toolbar->setIconSize(toolbar_size);
-			p->bottom_toolbar->setIconSize(toolbar_size);
+
+#ifdef Q_WS_WIN
+			p->main_toolbar->setStyleSheet("QToolBar{background:none;border:none}"); //HACK
+#endif
 			
 			layout->addWidget(p->main_toolbar);
 			
@@ -91,10 +105,6 @@ namespace Core
 										  SLOT(quit()))
 										  );
 			
-// 			QMenu *menu = new QMenu(tr("Main menu"), p->main_toolbar);
-// 			menu->addAction(Icon("configure"), tr("&Settings..."), this, SLOT(onConfigureClicked()));
-// 			menu->addAction(Icon("application-exit"), tr("&Quit"), qApp, SLOT(quit()));
-
 			QAction *menuAction = new QAction(Icon("show-menu"), tr("Main menu"), this);
 			
 			menuAction->setMenu(menu());
@@ -111,7 +121,31 @@ namespace Core
 			p->view->setIndentation(0);
 			p->widget->show();
 
-			layout->addWidget(p->bottom_toolbar);
+			QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget);
+
+			p->status_btn = new QPushButton(Icon("im-user-online"),
+											  "Global status",
+											  p->widget);
+			p->status_btn->setMenu(new QMenu(p->widget));
+
+			p->search_btn = new QPushButton(p->widget);
+			p->search_btn->setIcon(Icon("edit-find"));
+			p->search_btn->setCheckable(true);
+
+			p->status_btn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+			p->search_btn->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Preferred);
+
+			p->search_bar = new QLineEdit(p->widget);
+			p->search_bar->setVisible(false);
+			connect(p->search_btn,SIGNAL(toggled(bool)),p->search_bar,SLOT(setVisible(bool)));
+
+			layout->addWidget(p->search_bar);
+			bottom_layout->addWidget(p->status_btn);
+			bottom_layout->addWidget(p->search_btn);
+			bottom_layout->setSpacing(0);
+			bottom_layout->setMargin(0);;
+			layout->addLayout(bottom_layout);
+
 			foreach(Protocol *proto, allProtocols()) {
 				connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 				foreach(Account *account, proto->accounts()) {
@@ -180,13 +214,13 @@ namespace Core
 		void Module::onAccountCreated(Account *account)
 		{
 			//TODO add account icon
-			QAction *action = new QAction(account->status().icon(), account->name(), p->bottom_toolbar);
+			QAction *action = new QAction(account->status().icon(), account->name(), p->status_btn);
 			connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
 					this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
 			p->actions.insert(account, action);
 //			connect(action, SIGNAL(triggered()), action, SLOT(toggle()));
 			action->setMenu(account->menu(false));
-			p->bottom_toolbar->addAction(action);
+			p->status_btn->menu()->addAction(action);
 			foreach (Contact *contact, account->findChildren<Contact *>()) {
 				//FIXME
 				addContact(contact);

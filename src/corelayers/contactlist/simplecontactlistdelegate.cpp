@@ -53,7 +53,7 @@ namespace Core
 			
 			switch (type) {
 				case TagType: {
-					style->drawPrimitive(QStyle::PE_PanelButtonCommand,&opt,painter, opt.widget);
+					style->drawPrimitive(QStyle::PE_PanelButtonBevel,&opt,painter, opt.widget);
 					
 					QPixmap pixmap(option.rect.size());
 					pixmap.fill(Qt::transparent);				
