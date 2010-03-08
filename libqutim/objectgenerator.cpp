@@ -63,4 +63,9 @@ namespace qutim_sdk_0_3
 		}
 		return NULL;
 	}
+
+	ExtensionInfo ObjectGenerator::info() const
+	{
+		return d_func()->info;
+	}
 }

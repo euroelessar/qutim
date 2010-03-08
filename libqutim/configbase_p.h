@@ -73,7 +73,7 @@ namespace qutim_sdk_0_3
 //		// First one must be real data, other fallbacks
 //		ConfigStrongEntryList entries;
 		ConfigEntryInfoList root_entries;
-		static QList<ConfigBackendInfo> config_backends;
+		LIBQUTIM_EXPORT static QList<ConfigBackendInfo> config_backends;
 	};
 }
 

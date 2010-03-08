@@ -175,11 +175,11 @@ namespace qutim_sdk_0_3
 	// TODO: Add validation :)
 	bool PluginPrivate::validate()
 	{
-		for (int i = 0; i < extensions.size(); i++) {
-			ExtensionInfo &extensionInfo = extensions[i];
-			extensionInfo.data()->plugin = info;
-			const_cast<ObjectGenerator *>(extensionInfo.data()->gen)->data()->info = extensionInfo;
-		}
+//		for (int i = 0; i < extensions.size(); i++) {
+//			ExtensionInfo &extensionInfo = extensions[i];
+//			extensionInfo.data()->plugin = info;
+//			const_cast<ObjectGenerator *>(extensionInfo.data()->gen)->data()->info = extensionInfo;
+//		}
 		return true;
 	}
 }

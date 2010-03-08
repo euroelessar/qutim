@@ -7,6 +7,7 @@
 #include <QScriptEngine>
 #include <QTimer>
 #include "libqutim/protocol.h"
+#include "profiledialog.h"
 
 namespace Core
 {
@@ -37,7 +38,9 @@ namespace Core
 //		QScriptValue object = engine.evaluate(QString::fromUtf8(file.readAll()));
 //		qDebug() << object.toString();
 		loadPlugins();
-		QTimer::singleShot(0, this, SLOT(initExtensions()));
+		QDialog *dialog = new ProfileDialog(this);
+		dialog->show();
+//		QTimer::singleShot(0, this, SLOT(initExtensions()));
 	}
 
 	ExtensionInfoList ModuleManagerImpl::coreExtensions() const

@@ -31,12 +31,13 @@ namespace qutim_sdk_0_3
 	public:
 		static QVariant crypt(const QVariant &value);
 		static QVariant decrypt(const QVariant &value);
-	protected:
 		virtual QVariant cryptImpl(const QVariant &value) const = 0;
 		virtual QVariant decryptImpl(const QVariant &value) const = 0;
 		virtual void setPassword(const QString &password) = 0;
+	protected:
 		QVariant variantFromData(const QByteArray &data) const;
 		QByteArray dataFromVariant(const QVariant &val) const;
+	public:
 		CryptoService();
 		virtual ~CryptoService();
 	};

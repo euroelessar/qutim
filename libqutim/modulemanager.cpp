@@ -98,7 +98,8 @@ namespace qutim_sdk_0_3
 	GeneratorList moduleGenerators(const QMetaObject *module)
 	{
 		GeneratorList list;
-		if(isCoreInited())
+//		if(isCoreInited())
+		if (ModuleManager::self && ModuleManager::self->p)
 		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = ModuleManager::self->getExtensions(module);
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.constBegin();
@@ -114,7 +115,8 @@ namespace qutim_sdk_0_3
 	GeneratorList moduleGenerators(const char *iid)
 	{
 		GeneratorList list;
-		if(isCoreInited())
+//		if(isCoreInited())
+		if (ModuleManager::self && ModuleManager::self->p)
 		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = ModuleManager::self->getExtensions(iid);
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.constBegin();
@@ -215,11 +217,7 @@ namespace qutim_sdk_0_3
 				plugin_paths_list << filename;
 				// Just don't load old plugins
 				{
-#ifdef Q_CC_BOR
-					typedef const char * __stdcall (*QutimPluginVerificationFunction)();
-#else
-					typedef const char * (*QutimPluginVerificationFunction)();
-#endif
+					typedef const char * Q_STANDARD_CALL (*QutimPluginVerificationFunction)();
 					QutimPluginVerificationFunction verificationFunction = NULL;
 					QScopedPointer<QLibrary> lib(new QLibrary(filename));
 					if (lib->load()) {
@@ -343,8 +341,8 @@ namespace qutim_sdk_0_3
 	 */
 	void ModuleManager::initExtensions()
 	{
-		qutim_sdk_0_3::self = initExtension<CryptoService>();
-		{
+//		qutim_sdk_0_3::self = initExtension<CryptoService>();
+		if (ConfigPrivate::config_backends.isEmpty()) {
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions<ConfigBackend>();
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
 			for(; it != exts.end(); it++)

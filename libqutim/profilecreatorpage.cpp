@@ -14,6 +14,7 @@
 *****************************************************************************/
 
 #include "profilecreatorpage.h"
+#include <QVariant>
 
 namespace qutim_sdk_0_3
 {
@@ -23,5 +24,15 @@ namespace qutim_sdk_0_3
 
 	ProfileCreatorPage::~ProfileCreatorPage()
 	{
+	}
+
+	double ProfileCreatorPage::priority() const
+	{
+		return 0.0;
+	}
+
+	ExtensionInfo ProfileCreatorPage::info() const
+	{
+		return property("protocolinfo").value<ExtensionInfo>();
 	}
 }

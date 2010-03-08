@@ -14,6 +14,7 @@
 *****************************************************************************/
 
 #include "plugin_p.h"
+#include "objectgenerator_p.h"
 #include <QtCore/QCoreApplication>
 
 namespace qutim_sdk_0_3
@@ -32,8 +33,8 @@ namespace qutim_sdk_0_3
 		d = new ExtensionInfoData;
 		setName(name);
 		setDescription(description);
-		setGenerator(generator);
 		setIcon(icon);
+		setGenerator(generator);
 	}
 
 	ExtensionInfo::ExtensionInfo(const ExtensionInfo &other) : d(other.d)
@@ -71,6 +72,9 @@ namespace qutim_sdk_0_3
 	ExtensionInfo &ExtensionInfo::setGenerator(const ObjectGenerator *generator)
 	{
 		d->gen = generator;
+		// FIXME: Set should be done only at final stage somewhere in ModuleManager
+		if (d->gen)
+			const_cast<ObjectGenerator*>(d->gen)->data()->info = *this;
 		return *this;
 	}
 

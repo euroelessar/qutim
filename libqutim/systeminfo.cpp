@@ -41,12 +41,12 @@
 
 // Nasty hack for VER_SUITE_PERSONAL =)
 #ifndef VER_SUITE_PERSONAL
-#define VER_SUITE_PERSONAL 0x00000200
+# define VER_SUITE_PERSONAL 0x00000200
 #endif
 
 // Nasty hack for VER_SUITE_WH_SERVER =)
 #ifndef VER_SUITE_WH_SERVER
-#define VER_SUITE_WH_SERVER 0x00008000
+# define VER_SUITE_WH_SERVER 0x00008000
 #endif
 
 #endif
@@ -54,7 +54,7 @@
 // Nasty hack for VER_NT_WORKSTATION.
 //TODO: It is used even for *nix
 #ifndef VER_NT_WORKSTATION
-#define VER_NT_WORKSTATION 0x0000001
+# define VER_NT_WORKSTATION 0x0000001
 #endif
 
 #ifdef Q_WS_MAC
@@ -210,7 +210,6 @@ namespace qutim_sdk_0_3
 		//		QDateTime tmp_datetime = QDateTime::currentDateTime().toLocalTime();
 		//		d->timezone_offset = tmp_datetime.utcOffset();
 		// Initialize
-		qDebug() << QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 		d->dirs[SystemInfo::ConfigDir]         = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/config");
 		d->dirs[SystemInfo::HistoryDir]        = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/history");
 		d->dirs[SystemInfo::ShareDir]          = QDir::homePath() % QLatin1Literal("/.qutim/share");
@@ -335,8 +334,11 @@ namespace qutim_sdk_0_3
 
 	Q_GLOBAL_STATIC_WITH_INITIALIZER(SystemInfoPrivate, d_func, init(x.data()))
 
+	LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs()
+	{ return &d_func()->dirs; }
 
- QString SystemInfo::getFullName()
+
+	QString SystemInfo::getFullName()
 	{
 		Q_D(SystemInfo);
 		return d->os_full;
@@ -372,9 +374,8 @@ namespace qutim_sdk_0_3
 		QString str;
 		switch(type)
 		{
-  case 'm':
-			if(id)
-			{
+		case 'm':
+			if (id) {
 				quint8 major, minor, bugfix;
 				major = (id >> 24) & 0xff;
 				minor = (id >> 16) & 0xff;
@@ -401,43 +402,41 @@ namespace qutim_sdk_0_3
 				quint16 version = (id >> 16) & 0xffff;
 				quint8 product  = (id >> 8) & 0xff;
 				quint8 winflag  = id & 0xff;
-				switch(version)
-				{
-	case 0x0500:
+				switch (version) {
+				case 0x0500:
 					str += " 2000";
-	case 0x0501:
+				case 0x0501:
 					str += " XP";
 					if(winflag & 0x01)
 						str += " Home Edition";
 					else
 						str += " Professional";
 					break;
-	case 0x0502:
+				case 0x0502:
 					if(winflag & 0x02)
 						str += " Home Server";
 					else
-						str += " Server 200";
-	case 0x0600:
-					if(product == VER_NT_WORKSTATION)
-					{
+						str += " Server 2003";
+				case 0x0600:
+					if( product == VER_NT_WORKSTATION) {
 						str += " Vista";
 						if(winflag & 0x01)
 							str += " Home";
 					}
 					else
 						str += " Server 2008";
-			case 0x0601:
+				case 0x0601:
 					if(product == VER_NT_WORKSTATION)
 						str += " 7";
 					else
 						str += " Server 2008 R2";
 					break;
-			default:
+				default:
 					str += " NT ";
 					str += QString::number(version >> 8);
 					str += ".";
 					str += QString::number(version & 0xff);
-			case 0x0000:
+				case 0x0000:
 					break;
 				}
 				break; }

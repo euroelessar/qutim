@@ -21,6 +21,7 @@
 #include "modulemanager.h"
 #include <QDataStream>
 #include <QBuffer>
+#include <QCoreApplication>
 
 namespace qutim_sdk_0_3
 {
@@ -29,10 +30,17 @@ namespace qutim_sdk_0_3
 
 	CryptoService::CryptoService()
 	{
+		if (self) {
+			qFatal("Double initialization of CryptoService, aborting");
+			// ensure
+			*((int*)0) = 0;
+		}
+		self = this;
 	}
 
 	CryptoService::~CryptoService()
 	{
+		self = 0;
 	}
 
 	QVariant CryptoService::crypt(const QVariant &value)

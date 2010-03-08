@@ -16,16 +16,21 @@
 #ifndef PROFILECREATORPAGE_H
 #define PROFILECREATORPAGE_H
 
-#include "abstractwizardpage.h"
+#include "extensioninfo.h"
+#include <QWizardPage>
 
 namespace qutim_sdk_0_3
 {
-	class LIBQUTIM_EXPORT ProfileCreatorPage : public AbstractWizardPage
+	class LIBQUTIM_EXPORT ProfileCreatorPage : public QObject
 	{
 		Q_OBJECT
-	protected:
+	public:
 		ProfileCreatorPage();
 		virtual ~ProfileCreatorPage();
+		virtual ExtensionInfo info() const;
+		// Creators with higher priority are shown earlier, default is 0.0
+		virtual double priority() const;
+		virtual QList<QWizardPage *> pages(QWidget *parent) = 0;
 	};
 }
 

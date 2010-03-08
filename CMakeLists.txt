@@ -74,24 +74,13 @@ IF (UNIX)
 	ENDIF( XSS_FOUND )
 ENDIF (UNIX)
 
-
-SET (HEADERS
-	#new
-	src/modulemanagerimpl.h
-	)
-
-SET (SOURCES 
-	main.cpp
-	#new
-	src/modulemanagerimpl.cpp
-	)
+file( GLOB HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h" )
+file( GLOB SOURCES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" )
+file( GLOB FORMS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.ui" )
+list( APPEND SOURCES "main.cpp" )
 
 SET (RESOURCES
 	qutim.qrc
-	)
-
-SET (FORMS
-
 	)
 
 # Enum elements in corelayers directory

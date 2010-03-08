@@ -22,6 +22,7 @@
 namespace qutim_sdk_0_3
 {
 	class ObjectGeneratorPrivate;
+	class ExtensionInfo;
 
 	/**
 	* @brief ObjectGenerator is general type for object initiatizations.
@@ -142,8 +143,9 @@ namespace qutim_sdk_0_3
 		template<typename T>
 		inline bool extends() const
 		{ return extends_helper<T>(reinterpret_cast<T *>(0)); }
-	protected:
 #ifndef Q_QDOC
+		ExtensionInfo info() const;
+	protected:
 		template<typename T>
 		inline bool extends_helper(const QObject *) const
 		{ return extends(&T::staticMetaObject); }
