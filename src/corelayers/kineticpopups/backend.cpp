@@ -42,19 +42,20 @@ namespace KineticPopups
 	}
 
 	void Backend::show(Notifications::Type type, QObject* sender, const QString& body,
-					   const QString& customTitle)
+					   const QVariant& data)
 	{
 		Manager *manager =  Manager::self();
  		if (!(manager->showFlags & type) || (manager->count() >= manager->maxCount)) {
 			return;
 		}
+
 		static int id_counter = 0;
 		QString text = Qt::escape(body);
 		QString sender_id = sender ? sender->property("id").toString() : QString();
 		QString sender_name = sender ? sender->property("name").toString() : QString();
 		if(sender_name.isEmpty())
 			sender_name = sender_id;
-		QString title = customTitle.isEmpty() ? Notifications::toString(type).arg(sender_name) : customTitle;
+		QString title = Notifications::toString(type).arg(sender_name);
 		QString popup_id = title;
 
 		bool updateMode = manager->updateMode;
@@ -73,6 +74,7 @@ namespace KineticPopups
 		}
 		popup  = new Popup (popup_id);
 		popup->setMessage(title,text,sender);
+		popup->setData(data);
 		if (sender)
 			connect(sender,SIGNAL(destroyed(QObject*)),popup,SLOT(deleteLater()));
 		popup->send();

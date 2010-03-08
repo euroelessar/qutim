@@ -19,7 +19,7 @@
 
 #include <QObject>
 #include <QRect>
-
+#include <QVariant>
 
 class QState;
 class QStateMachine;
@@ -35,6 +35,7 @@ namespace KineticPopups
 		void setId(const QString &id);
 		void setMessage(const QString &title, const QString &body = NULL, QObject *sender = NULL);
 		void appendMessage(const QString &message);
+		void setData(const QVariant &data);
 		void updateMessage(const QString &message);
 		void send();
 		void update(QRect geom);
@@ -59,6 +60,7 @@ namespace KineticPopups
 		QState *m_show_state;
 		QState *m_hide_state;
 		QObject *m_sender;
+		QVariant m_data;
 		int m_timer_id;
 	};
 }

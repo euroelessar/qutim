@@ -28,7 +28,7 @@ namespace KineticPopups
 		Q_OBJECT
 	public:
 		virtual void show(Notifications::Type type, QObject* sender,
-						  const QString& body, const QString& customTitle);
+						  const QString& body, const QVariant& data);
 		Backend ();
 	};
 

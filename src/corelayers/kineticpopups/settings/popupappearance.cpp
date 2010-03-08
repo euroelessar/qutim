@@ -108,7 +108,7 @@ namespace Core
 	{
 		QString theme_path = getThemePath("kineticpopups", m_current_theme);
 		m_popup_widget->setTheme(ThemeHelper::loadThemeSetting(theme_path));
-		m_popup_widget->setData(tr("Preview"),tr("Simple messagebox"), this);
+		m_popup_widget->setData(tr("Preview"),tr("Simple messagebox"), this, QVariant());
 	}
 
 }

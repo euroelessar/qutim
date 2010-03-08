@@ -19,6 +19,7 @@
 
 #include "libqutim_global.h"
 #include <QPointer>
+#include <QVariant>
 
 namespace qutim_sdk_0_3
 {
@@ -42,10 +43,10 @@ namespace qutim_sdk_0_3
 			BlockedMessage = 0x200,
 			Count = 0x400
 		};
-		LIBQUTIM_EXPORT void sendNotification(const QString &body,const QString &custom_title = QString());
+		LIBQUTIM_EXPORT void sendNotification(const QString &body,const QVariant &data = QVariant());
 		LIBQUTIM_EXPORT void sendNotification(Type type, QObject *sender,
 											  const QString &body = QString(),
-											  const QString &custom_title = QString());
+											  const QVariant &data = QVariant());
 		LIBQUTIM_EXPORT void sendNotification(const Message &message);
 		LIBQUTIM_EXPORT QString toString(Notifications::Type type);
 	}
@@ -57,7 +58,7 @@ namespace qutim_sdk_0_3
 		virtual void show(Notifications::Type type,
 						  QObject *sender,
 						  const QString &body,
-						  const QString &customTitle) = 0;
+						  const QVariant &data) = 0;
 	protected:
 		virtual void virtual_hook(int type, void *data);
 	};

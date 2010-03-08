@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QStateMachine>
 #include <libqutim/debug.h>
+#include <libqutim/chatunit.h>
 
 namespace KineticPopups
 {
@@ -53,6 +54,11 @@ namespace KineticPopups
 		m_sender = sender;
 	}
 
+	void Popup::setData ( const QVariant &data)
+	{
+		m_data = data;
+	}
+
 	void Popup::appendMessage ( const QString& message )
 	{
 		if (!message.isEmpty())
@@ -70,7 +76,7 @@ namespace KineticPopups
 	
 	void Popup::updateMessage()
 	{
-		m_notification_widget->setData(m_title,m_body,m_sender);
+		m_notification_widget->setData(m_title,m_body,m_sender,m_data);
 		int timeout = Manager::self()->timeout;
 		if (timeout > 0) {
 			killTimer(m_timer_id);
@@ -103,7 +109,7 @@ namespace KineticPopups
 		m_machine = new QStateMachine(this);
 
 		m_notification_widget = new PopupWidget ();
-		m_notification_widget->setData ( m_title,m_body,m_sender );
+		m_notification_widget->setData ( m_title,m_body,m_sender,m_data );
 		QSize notify_size = m_notification_widget->sizeHint();
 
 		m_show_geometry.setSize(notify_size);

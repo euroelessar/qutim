@@ -25,6 +25,7 @@
 #include <libqutim/emoticons.h>
 #include <libqutim/chatunit.h>
 #include <libqutim/messagesession.h>
+#include <libqutim/message.h>
 
 namespace KineticPopups
 {
@@ -70,24 +71,35 @@ namespace KineticPopups
 		setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
 	}
 
-	void PopupWidget::setData ( const QString& title, const QString& body, QObject *sender )
+	void PopupWidget::setData ( const QString& title, const QString& body, QObject *sender,const QVariant &data)
 	{
 		m_sender = sender;
+		m_data = data;
+
+		QString popup_title = title;
+
+		if (data.canConvert<Message>()) {
+			const Message &msg = data.value<Message>();
+			popup_title = msg.isIncoming() ? tr("Message from %1").arg(msg.chatUnit()->title()) : tr("Message to %1").arg(msg.chatUnit()->title());
+		} else if (data.canConvert<QString>()) {
+			popup_title = data.toString();
+		}
+
 		Contact *c = qobject_cast<Contact *>(sender);
 		QString image_path = c ? c->avatar() : QString();
 		if(image_path.isEmpty())
 			image_path = QLatin1String(":/icons/qutim_64");
-		QString data = popup_settings.content;
+		QString popup_data = popup_settings.content;
 		QString text = Emoticons::theme().parseEmoticons(body);
 		if (text.length() > Manager::self()->maxTextLength) {
 			text.truncate(Manager::self()->maxTextLength);
 			text.append("...");
 		}
-		data.replace ( "{title}", title );
-		data.replace ( "{body}", text);
-		data.replace ( "{imagepath}",image_path);
+		popup_data.replace ( "{title}", popup_title );
+		popup_data.replace ( "{body}", text);
+		popup_data.replace ( "{imagepath}",image_path);
 		document()->setTextWidth(popup_settings.defaultSize.width());
-		document()->setHtml(data);
+		document()->setHtml(popup_data);
 		emit sizeChanged(sizeHint());
 	}
 
@@ -136,7 +148,9 @@ namespace KineticPopups
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
 		ChatSession *sess;
 		if (unit && (sess = ChatLayer::get(unit,false))) {
-			//TODO
+
+			if (m_data.canConvert<Message>())
+				sess->markRead(m_data.value<Message>().id());
 		}
 	}
 

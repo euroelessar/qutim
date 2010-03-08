@@ -31,7 +31,9 @@ namespace KineticPopups
 		PopupWidget();
 		void setData(const QString& title,
 					const QString& body,
-					QObject *sender); //size of textbrowser
+					QObject *sender,
+					const QVariant &data); //size of textbrowser
+
 		void setTheme(const ThemeHelper::PopupSettings &popupSettings);
 		virtual void mouseReleaseEvent ( QMouseEvent* ev );
 		virtual ~PopupWidget();
@@ -49,6 +51,7 @@ namespace KineticPopups
 		ThemeHelper::PopupSettings popup_settings;
 		void init(const ThemeHelper::PopupSettings &popupSettings);
 		QObject *m_sender;
+		QVariant m_data;
 	};
 }
 #endif // POPUPWIDGET_H

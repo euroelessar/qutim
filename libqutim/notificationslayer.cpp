@@ -62,7 +62,7 @@ namespace qutim_sdk_0_3
 	namespace Notifications
 	{
 		void sendNotification(Type type, QObject *sender,
-							const QString &body, const QString &custom_title)
+							const QString &body, const QVariant &data)
 		{
 			ensure_notifications_private();
 			//TODO add checks
@@ -81,13 +81,13 @@ namespace qutim_sdk_0_3
 				p->popup_backend = p->popup_gen->generate<PopupBackend>();
 
 			if (p->popup_backend)
-				p->popup_backend->show(type, sender, body, custom_title);
+				p->popup_backend->show(type, sender, body, data);
 		}
 
 
-		void sendNotification(const QString &body, const QString &custom_title)
+		void sendNotification(const QString &body, const QVariant &data)
 		{
-			sendNotification(System, 0, body, custom_title);
+			sendNotification(System, 0, body, data);
 		}
 
 
@@ -99,8 +99,7 @@ namespace qutim_sdk_0_3
 			QString text = message.property("html").toString();
 			if(text.isEmpty())
 				text = message.text();
-			QString title = toString(type).arg(message.chatUnit()->title());
-			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()),text,title);
+			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()),text,QVariant::fromValue(message));
 		}
 
 		QString toString(Notifications::Type type)
