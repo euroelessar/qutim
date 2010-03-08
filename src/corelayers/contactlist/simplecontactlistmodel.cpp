@@ -330,8 +330,8 @@ namespace Core
 		
 		QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 		{
- 			if (orientation == Qt::Horizontal)
- 				return tr("Contacts");
+// 			if (orientation == Qt::Horizontal)
+// 				return tr("Contacts");
 			
 			return QAbstractItemModel::headerData(section, orientation, role);
 		}
