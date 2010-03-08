@@ -42,11 +42,11 @@ void MigrationStartPage::initializePage()
 	// Let's magic begin!
 	QDir configPath = qApp->applicationDirPath();
 	if (!configPath.cd("config")) {
+		QString userPath;
 #ifdef Q_OS_WIN
-		configPath = QString::fromLocal8Bit(qgetenv("APPDATA"));
+		userPath = QString::fromLocal8Bit(qgetenv("APPDATA"));
 #else
 		QByteArray env = qgetenv("XDG_CONFIG_HOME");
-		QString userPath;
 		if (env.isEmpty()) {
 			userPath = QDir::homePath();
 			userPath += QLatin1Char('/');
@@ -130,7 +130,7 @@ bool MigrationStartPage::validatePage()
 		QString password;
 		QString protocol = item->data(Qt::UserRole + 2).toString();
 		if (protocol == "icq") {
-			const char crypter[] = {
+			const uchar crypter[] = {
 				0x10, 0x67, 0x56, 0x78, 0x85, 0x14, 0x87,
 				0x11, 0x45, 0x45, 0x45, 0x45, 0x45, 0x45
 					};
