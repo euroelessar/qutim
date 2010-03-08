@@ -76,7 +76,7 @@ namespace Core
 			layout->setSpacing(0);
 
 #ifdef Q_WS_WIN
-			setStyleSheet("QToolBar{background:none;border:none}"); //HACK
+			p->main_toolbar->setStyleSheet("QToolBar{background:none;border:none}"); //HACK
 #endif
 
 			if (QtWin::isCompositionEnabled()) {
