@@ -32,7 +32,7 @@ class OscarRate;
 class IcqAccount;
 class AbstractConnectionPrivate;
 
-struct ProtocolError
+struct LIBOSCAR_EXPORT ProtocolError
 {
 public:
 	ProtocolError(const SNAC &snac);
@@ -44,7 +44,7 @@ protected:
 	qint16 m_subcode;
 };
 
-class AbstractConnection : public QObject, public SNACHandler
+class LIBOSCAR_EXPORT AbstractConnection : public QObject, public SNACHandler
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)

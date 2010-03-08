@@ -110,10 +110,19 @@ Feedbag *IcqAccount::feedbag()
 	return d->feedbag;
 }
 
-OscarConnection *IcqAccount::connection()
+AbstractConnection *IcqAccount::connection()
 {
-	Q_D(IcqAccount);
-	return d->conn;
+	return d_func()->conn;
+}
+
+const AbstractConnection *IcqAccount::connection() const
+{
+	return d_func()->conn;
+}
+
+OscarConnection *IcqAccount::oscarConnection()
+{
+	return d_func()->conn;
 }
 
 void IcqAccount::setStatus(Status status)

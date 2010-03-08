@@ -73,7 +73,7 @@ private slots:
 private:
 	void setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &tlvs);
 	IcqAccount *m_account;
-	OscarConnection *m_conn;
+	AbstractConnection *m_conn;
 	bool firstPacket;
 };
 

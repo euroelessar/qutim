@@ -17,6 +17,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include "icq_global.h"
 #include <QByteArray>
 #include <QtEndian>
 #include <QTextCodec>
@@ -46,12 +47,12 @@ inline QByteArray toLittleEndian(T source)
 	return data;
 }
 
-extern QTextCodec *asciiCodec();
+LIBOSCAR_EXPORT QTextCodec *asciiCodec();
 extern void setAsciiCodec(QTextCodec *codec);
-extern QTextCodec *utf8Codec();
-extern QTextCodec *utf16Codec();
-extern QTextCodec *defaultCodec();
-extern QTextCodec *detectCodec();
+LIBOSCAR_EXPORT QTextCodec *utf8Codec();
+LIBOSCAR_EXPORT QTextCodec *utf16Codec();
+LIBOSCAR_EXPORT QTextCodec *defaultCodec();
+LIBOSCAR_EXPORT QTextCodec *detectCodec();
 
 } } } // namespace qutim_sdk_0_3::oscar::Util
 

@@ -33,6 +33,7 @@ class MessagePlugin;
 class Tlv2711Plugin;
 class Feedbag;
 class OscarConnection;
+class AbstractConnection;
 
 enum Visibility
 {
@@ -57,7 +58,9 @@ public:
 	virtual QString name() const;
 	void setName(const QString &name);
 	Feedbag *feedbag();
-	OscarConnection *connection();
+	AbstractConnection *connection();
+	const AbstractConnection *connection() const;
+	OscarConnection *oscarConnection(); // TODO: remove
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
 	IcqContact *getContact(const QString &id, bool create = false);
 	const QHash<QString, IcqContact*> &contacts() const;

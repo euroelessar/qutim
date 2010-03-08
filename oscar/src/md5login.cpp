@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 Md5Login::Md5Login(const QString &password, IcqAccount *account) :
-	AbstractConnection(account, account), m_conn(account->connection()), m_password(password)
+	AbstractConnection(account, account), m_conn(account->oscarConnection()), m_password(password)
 {
 	m_infos.clear();
 	m_infos << SNACInfo(AuthorizationFamily, SignonLoginReply)

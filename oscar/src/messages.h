@@ -124,7 +124,7 @@ public:
 	ServerResponseMessage(IcqContact *contact, quint16 format, quint16 reason, const Cookie &cookie = Cookie(true));
 };
 
-class MessagePlugin
+class LIBOSCAR_EXPORT MessagePlugin
 {
 public:
 	virtual ~MessagePlugin();
@@ -135,7 +135,7 @@ protected:
 };
 
 typedef QPair<Capability, quint16> Tlv2711Type;
-class Tlv2711Plugin
+class LIBOSCAR_EXPORT Tlv2711Plugin
 {
 public:
 	virtual ~Tlv2711Plugin();
