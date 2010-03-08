@@ -336,6 +336,8 @@ namespace AdiumChat
 		if (event->type() == QEvent::WindowActivate
 			|| event->type() == QEvent::WindowDeactivate) {
 			bool active = event->type() == QEvent::WindowActivate;
+			if (ui->tabBar->currentIndex() == -1)
+				return false;
 			m_sessions.at(ui->tabBar->currentIndex())->setActive(active);
 		}
 		return QMainWindow::event(event);
