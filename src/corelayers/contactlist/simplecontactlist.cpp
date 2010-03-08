@@ -75,10 +75,6 @@ namespace Core
 			layout->setMargin(0);
 			layout->setSpacing(0);
 
-#ifdef Q_WS_WIN
-			p->main_toolbar->setStyleSheet("QToolBar{background:none;border:none}"); //HACK
-#endif
-
 			if (QtWin::isCompositionEnabled()) {
 				QtWin::extendFrameIntoClientArea(p->widget);
 				p->widget->setContentsMargins(0, 0, 0, 0);
@@ -90,6 +86,10 @@ namespace Core
 			
 			p->main_toolbar = new ActionToolBar(p->widget);
 			p->main_toolbar->setIconSize(toolbar_size);
+
+#ifdef Q_WS_WIN
+			p->main_toolbar->setStyleSheet("QToolBar{background:none;border:none}"); //HACK
+#endif
 			
 			layout->addWidget(p->main_toolbar);
 			
