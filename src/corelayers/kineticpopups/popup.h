@@ -59,6 +59,7 @@ namespace KineticPopups
 		QStateMachine *m_machine;
 		QState *m_show_state;
 		QState *m_hide_state;
+		QState *m_update_state;
 		QObject *m_sender;
 		QVariant m_data;
 		int m_timer_id;
