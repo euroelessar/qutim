@@ -25,6 +25,8 @@ namespace oscar {
 
 class IcqContact;
 class XtrazPrivate;
+class XtrazRequestPrivate;
+class XtrazResponsePrivate;
 
 enum XtrazType
 {
@@ -36,16 +38,63 @@ enum XtrazType
 
 const Capability MSG_XSTRAZ_SCRIPT(0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865);
 
-class LIBOSCAR_EXPORT XtrazRequest: public ServerMessage
+class LIBOSCAR_EXPORT XtrazRequest
 {
 public:
-	XtrazRequest(IcqContact *contact, const QString &query, const QString &notify);
+	XtrazRequest(const QString &serviceId = QString(), const QString &pluginId = QString());
+	XtrazRequest(const XtrazRequest &data);
+	~XtrazRequest();
+	XtrazRequest &operator=(const XtrazRequest &rhs);
+	QString pluginId() const;
+	void setPluginId(const QString &pluginId);
+	QString serviceId() const;
+	void setServiceId(const QString &serviceId);
+	QString value(const QString &name, const QString &def = QString()) const;
+	bool contains(const QString &name) const;
+	void setValue(const QString &name, const QString &value);
+	SNAC snac(IcqContact *contact) const;
+private:
+	friend class Xtraz;
+	QSharedDataPointer<XtrazRequestPrivate> d;
 };
 
-class LIBOSCAR_EXPORT XtrazResponse: public ServerResponseMessage
+class LIBOSCAR_EXPORT XtrazResponse
 {
 public:
-	XtrazResponse(IcqContact *contact, const QString &response, const Cookie &cookie);
+	XtrazResponse(const QString &serviceId = QString(), const QString &event = QString());
+	XtrazResponse(const XtrazResponse &data);
+	~XtrazResponse();
+	XtrazResponse &operator=(const XtrazResponse &rhs);
+	QString event() const;
+	void setEvent(const QString &event);
+	QString serviceId() const;
+	void setServiceId(const QString &serviceId);
+	QString value(const QString &name, const QString &def = QString()) const;
+	bool contains(const QString &name) const;
+	void setValue(const QString &name, const QString &value);
+	SNAC snac(IcqContact *contact, quint64 cookie) const;
+private:
+	friend class Xtraz;
+	QSharedDataPointer<XtrazResponsePrivate> d;
+};
+
+class LIBOSCAR_EXPORT Xtraz
+{
+public:
+	enum Type
+	{
+		Response,
+		Request,
+		Invalid
+	};
+	Xtraz(const QString &message);
+	~Xtraz();
+	Xtraz &operator=(const Xtraz &rhs);
+	Type type();
+	XtrazRequest request();
+	XtrazResponse response();
+private:
+	QSharedDataPointer<XtrazPrivate> d;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

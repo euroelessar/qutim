@@ -199,7 +199,43 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 {
 	QString message = data.read<QString, quint32>(LittleEndian);
 	Q_ASSERT(guid == MSG_XSTRAZ_SCRIPT && type == xtrazNotify);
-	handleNotify(contact, message, cookie);
+	Xtraz xtraz(message);
+	if (xtraz.type() == Xtraz::Request) {
+		XtrazRequest request = xtraz.request();
+		if (request.pluginId() != "srvMng" && request.serviceId() != "cAwaySrv" &&
+			request.value("senderId") != contact->id())
+		{
+			debug() << "Skipped xtraz request" << request.serviceId() << "from" << request.value("senderId");
+			return;
+		}
+		IcqAccount *account = contact->account();
+		QVariantHash extStatuses = account->status().property("extendedStatuses", QVariantHash());
+		QVariantHash extStatus = extStatuses.value("xstatus", QVariantHash()).value<QVariantHash>();
+		XtrazResponse response("cAwaySrv", "OnRemoteNotification");
+		response.setValue("CASXtraSetAwayMessage", "");
+		response.setValue("uin", account->id());
+		response.setValue("index", extStatus.value("index").toString());
+		response.setValue("title", extStatus.value("title").toString());
+		response.setValue("desc", extStatus.value("desc").toString());
+		SNAC snac = response.snac(contact, cookie.id());
+		account->connection()->send(snac);
+	} else if (xtraz.type() == Xtraz::Response) {
+		XtrazResponse response = xtraz.response();
+		if (response.serviceId() != "cAwaySrv" && response.event() != "OnRemoteNotification" &&
+			response.value("uin") != contact->id())
+		{
+			debug() << "Skipped xtraz response" << response.serviceId() << "from" << response.value("uin");
+			return;
+		}
+		int index = response.value("index", "-1").toInt();
+		if (index > 0 && index < xstatusList()->size()) {
+			setXstatus(contact,
+					   response.value("title"),
+					   xstatusList()->at(index).icon.toIcon(),
+					   response.value("desc"));
+			debug() << "xstatus" << contact->name() << index << xstatusList()->at(index).status;
+		}
+	}
 }
 
 void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
@@ -217,11 +253,12 @@ void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TL
 		}
 	}
 	if (handelXStatusCapabilities(contact, moodIndex)) {
-		QString notify = QString("<srv><id>cAwaySrv</id><req><id>AwayStat</id>"
-			"<trans>1</trans><senderId>%1</senderId></req></srv>").
-			arg(account->id());
-		XtrazRequest xstatusRequest(contact, "<Q><PluginID>srvMng</PluginID></Q>", notify);
-		account->connection()->send(xstatusRequest);
+		XtrazRequest request("cAwaySrv", "srvMng");
+		request.setValue("id", "AwayStat");
+		request.setValue("trans", "1");
+		request.setValue("senderId", account->id());
+		SNAC snac = request.snac(contact);
+		account->connection()->send(snac);
 	}
 	foreach (const Capability &cap, contact->capabilities()) {
 		if (qipstatuses.contains(cap)) {
@@ -238,8 +275,7 @@ bool XStatusHandler::handelXStatusCapabilities(IcqContact *contact, qint8 mood)
 	foreach(const XStatus &status, *xstatusList())
 	{
 		if (caps.match(status.capability) || (mood != -1 && status.mood == mood)) {
-			contact->setProperty("xstatusIcon", status.icon.toIcon());
-			contact->setProperty("statusTitle", status.status.toString());
+			setXstatus(contact, status.status.toString(), status.icon.toIcon());
 			return true;
 		}
 	}
@@ -252,177 +288,19 @@ void XStatusHandler::removeXStatuses(Capabilities &caps)
 		caps.removeAll(xstatus.capability);
 }
 
-void XStatusHandler::handleNotify(IcqContact *contact, const QString &message, const Cookie &cookie)
+void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const QIcon &icon , const QString &desc)
 {
-	QString query;
-	QString notify;
-	QString response;
-	QXmlStreamReader xml(message);
-	while (!xml.atEnd()) {
-		xml.readNext();
-		if (xml.isStartElement()) {
-			if (xml.name() == "QUERY")
-				query = xml.readElementText();
-			else if (xml.name() == "NOTIFY")
-				notify = xml.readElementText();
-			else if (xml.name() == "RES")
-				response = xml.readElementText();
-		}
-	}
-	if (xml.hasError())
-		debug() << "Xtraz parsing error" << xml.errorString();
-
-	if (!query.isEmpty() && !notify.isEmpty()) {
-		QString pluginId;
-		parseQuery(query, &pluginId);
-		if (pluginId == "srvMng") {
-			QXmlStreamReader xml(notify);
-			parseSrv(contact, xml, false, cookie);
-			if (xml.hasError())
-				debug() << "Parsing error of the xtraz notify" << xml.errorString();
-		} else
-			debug() << "Unknown xtraz query type";
-	} else if (!response.isEmpty()) {
-		parseRes(contact, response);
-	} else
-		debug() << "Unknown xtraz notify format";
-}
-
-void XStatusHandler::parseQuery(const QString &query, QString *pluginId)
-{
-	QXmlStreamReader xml(query);
-	while (!xml.atEnd()) {
-		xml.readNext();
-		if (xml.isStartElement()) {
-			if (pluginId && xml.name() == "PluginID")
-				*pluginId = xml.readElementText();
-		}
-	}
-	if (xml.hasError())
-		debug() << "Parsing error of the xtraz query" << xml.errorString();
-}
-
-void XStatusHandler::parseRes(IcqContact *contact, const QString &res)
-{
-	QXmlStreamReader xml(res);
-	while (!xml.atEnd()) {
-		xml.readNext();
-		if (xml.isStartElement() && xml.name() == "ret") {
-			if (xml.attributes().value("event").toString() != "OnRemoteNotification") {
-				xml.raiseError("Unknown event type in xtraz notify response");
-				break;
-			}
-			parseSrv(contact, xml, true);
-		}
-	}
-	if (xml.hasError())
-		debug() << "Parsing error of the xtraz notify" << xml.errorString();
-}
-
-void XStatusHandler::parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response, const Cookie &cookie)
-{
-	while (!xml.atEnd()) {
-		xml.readNext();
-		if (xml.isStartElement()) {
-			if (xml.name() == "id") {
-				QString srvId = xml.readElementText();
-				if (srvId != "cAwaySrv")
-					xml.raiseError("Unknown srvId in the xtraz notify");
-			} else if (response && xml.name() == "val")
-				parseVal(contact, xml);
-			else if (!response && xml.name() == "req")
-				parseRequest(contact, xml, cookie);
-		}
-	}
-}
-
-void XStatusHandler::parseVal(IcqContact *contact, QXmlStreamReader &xml)
-{
-	QString srvId = xml.attributes().value("srv_id").toString();
-	if (srvId != "cAwaySrv") {
-		xml.raiseError("Unknown srvId in the xtraz notify");
-		return;
-	}
-	while (!xml.atEnd()) {
-		xml.readNext();
-		if (xml.isStartElement() && xml.name() == "Root")
-			parseAwayMsg(contact, xml);
-	}
-}
-
-void XStatusHandler::parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml)
-{
-	QString uin;
-	quint8 index;
-	QString title;
-	QString desc;
-	while (!xml.atEnd()) {
-		xml.readNext();
-		if (xml.isStartElement()) {
-			if (xml.name() == "uin")
-				uin = xml.readElementText();
-			else if (xml.name() == "index")
-				index = xml.readElementText().toInt();
-			else if (xml.name() == "title")
-				title = xml.readElementText();
-			else if (xml.name() == "desc")
-				desc = xml.readElementText();
-		}
-	}
-	if (uin == contact->id()) {
-		if (index > 0 && index < xstatusList()->size()) {
-			Status status = contact->status();
-			QVariantHash extStatuses = status.property("extendedStatuses", QVariantHash());
-			QVariantHash extStatus;
-			extStatus.insert("id", QT_TRANSLATE_NOOP("XStatus", "X-Status").toString());
-			extStatus.insert("title", title);
-			extStatus.insert("icon", xstatusList()->at(index).icon.toIcon());
-			extStatuses.insert("xstatus", extStatus);
-			status.setProperty("extendedStatuses", extStatuses);
-			contact->setStatus(status);
-			debug() << "xstatus" << contact->name() << index << xstatusList()->at(index).status;
-		}
-	}
-}
-
-void XStatusHandler::parseRequest(IcqContact *contact, QXmlStreamReader &xml, const Cookie &cookie)
-{
-	QString reqId;
-	QString uin;
-	while (!xml.atEnd()) {
-		xml.readNext();
-
-		if (xml.name() == "id")
-			reqId = xml.readElementText();
-		//else if(xml.name() == "trans")
-		//	trans = xml.readElementText();
-		else if (xml.name() == "senderId")
-			uin = xml.readElementText();
-	}
-	if (reqId == "AwayStat")
-		sendXStatus(contact, cookie);
-	else
-		debug() << "Unknown xtraz response" << reqId;
-}
-
-void XStatusHandler::sendXStatus(IcqContact *contact, const Cookie &cookie)
-{
-	IcqAccount *account = qobject_cast<IcqAccount*>(contact->account());
-	Q_ASSERT(account);
-	QString response = QString("<ret event='OnRemoteNotification'>"
-			"<srv><id>cAwaySrv</id>"
-			"<val srv_id='cAwaySrv'><Root>"
-			"<CASXtraSetAwayMessage></CASXtraSetAwayMessage>"
-			"<uin>%1</uin>"
-			"<index>%2</index>"
-			"<title>%3</title>"
-			"<desc>%4</desc></Root></val></srv></ret>")
-			.arg(account->id())
-			.arg(account->property("xstatusIndex").toInt())
-			.arg(account->property("statusTitle").toString())
-			.arg(account->property("statusText").toString());
-	XtrazResponse data(contact, response, cookie);
-	account->connection()->send(data);
+	Status status = contact->status();
+	QVariantHash extStatuses = status.property("extendedStatuses", QVariantHash());
+	QVariantHash extStatus;
+	extStatus.insert("id", QT_TRANSLATE_NOOP("XStatus", "X-Status").toString());
+	extStatus.insert("title", title);
+	extStatus.insert("icon", icon);
+	if (!desc.isNull())
+		extStatus.insert("desc", desc);
+	extStatuses.insert("xstatus", extStatus);
+	status.setProperty("extendedStatuses", extStatuses);
+	contact->setStatus(status);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

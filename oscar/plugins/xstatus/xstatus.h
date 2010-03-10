@@ -59,19 +59,10 @@ public:
 	XStatusHandler();
 	void processTlvs2711(IcqContact *contact, Capability guid, quint16 type, const DataUnit &data, const Cookie &cookie);
 	void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs);
-	static bool handelXStatusCapabilities(IcqContact *contact, qint8 mood);
-	static void removeXStatuses(Capabilities &caps);
+	bool handelXStatusCapabilities(IcqContact *contact, qint8 mood);
+	void removeXStatuses(Capabilities &caps);
+	void setXstatus(IcqContact *contact, const QString &title, const QIcon &icon , const QString &desc = QString());
 	static QHash<Capability, OscarStatus> qipstatuses;
-private:
-	static void handleNotify(IcqContact *contact, const QString &message, const Cookie &cookie);
-	static void parseQuery(const QString &query, QString *pluginID);
-	static void parseRes(IcqContact *contact, const QString &res);
-	static void parseSrv(IcqContact *contact, QXmlStreamReader &xml, bool response, const Cookie &cookie = Cookie());
-	static void parseVal(IcqContact *contact, QXmlStreamReader &xml);
-	static void parseAwayMsg(IcqContact *contact, QXmlStreamReader &xml);
-	static void parseRequest(IcqContact *contact, QXmlStreamReader &xml, const Cookie &cookie);
-	static void sendXStatus(IcqContact *contact, const Cookie &cookie);
-
 };
 
 } } // namespace qutim_sdk_0_3::oscar
