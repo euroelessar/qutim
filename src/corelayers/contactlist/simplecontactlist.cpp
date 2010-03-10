@@ -153,6 +153,30 @@ namespace Core
 				}
 			}
 
+			QAction *act = new QAction(Status::createIcon(Status::Online),tr("Online"),p->status_btn);
+			act->setData(Status::Online);
+			connect(act,SIGNAL(triggered()),SLOT(onStatusChanged()));
+			p->status_btn->menu()->addAction(act);
+
+			act = new QAction(Status::createIcon(Status::Offline),tr("Offline"),p->status_btn);
+			act->setData(Status::Offline);
+			connect(act,SIGNAL(triggered()),SLOT(onStatusChanged()));
+			p->status_btn->menu()->addAction(act);
+
+			p->status_btn->menu()->addSeparator();
+
+		}
+
+		void Module::onStatusChanged()
+		{
+			if (QAction *a = qobject_cast<QAction *>(sender())) {
+				Status::Type status= static_cast<Status::Type>(a->data().toInt());
+				foreach(Protocol *proto, allProtocols()) {
+					foreach(Account *account, proto->accounts()) {
+						account->setStatus(status);
+					}
+			}
+			}
 		}
 
 		Module::~Module()

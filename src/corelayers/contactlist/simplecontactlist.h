@@ -31,6 +31,7 @@ namespace Core
 			void onConfigureClicked();
 			void onAccountCreated(qutim_sdk_0_3::Account *account);
 			void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
+			void onStatusChanged();
 		private:
 			QScopedPointer<ModulePrivate> p;
 		};
