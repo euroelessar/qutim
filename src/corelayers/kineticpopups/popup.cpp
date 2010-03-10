@@ -119,9 +119,10 @@ namespace KineticPopups
 		if ( geom.isEmpty() )
 			deleteLater();
 
-		m_show_state = new QState(m_machine);
+		m_active_state =  new QState(m_machine);
+		m_show_state = new QState(m_active_state);
 		m_hide_state = new QState(m_machine);
-		m_update_state =  new QState(m_machine);
+		m_update_state =  new QState(m_active_state);
 
 		QFinalState *final_state = new QFinalState(m_machine);
 
@@ -136,17 +137,17 @@ namespace KineticPopups
 		m_hide_state->assignProperty(m_notification_widget,"geometry",geom);
 		m_notification_widget->setGeometry(geom);
 
-		m_show_state->addTransition(m_notification_widget,SIGNAL(activated()),m_hide_state);
+		m_active_state->addTransition(m_notification_widget,SIGNAL(activated()),m_hide_state);
 		m_show_state->addTransition(this,SIGNAL(updated()),m_update_state);
-		m_update_state->addTransition(m_notification_widget,SIGNAL(activated()),m_hide_state);		
-		//m_update_state->addTransition(m_update_state,SIGNAL(propertiesAssigned()),m_show_state);
+		m_update_state->addTransition(m_update_state,SIGNAL(propertiesAssigned()),m_show_state);
 		m_hide_state->addTransition(m_hide_state,SIGNAL(propertiesAssigned()),final_state);
 
 		if (manager->timeout > 0) {
 			m_timer_id = startTimer(manager->timeout);
 			connect(this,SIGNAL(timeoutReached()),m_notification_widget,SLOT(onTimeoutReached()));
 		}
-		m_machine->setInitialState (m_show_state);
+		m_machine->setInitialState (m_active_state);
+		m_active_state->setInitialState(m_show_state);
 
 		//TODO FIXME
 		if (manager->animation) {
