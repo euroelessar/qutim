@@ -94,16 +94,24 @@ namespace Core
 			
 			layout->addWidget(p->main_toolbar);
 			
-			addAction(new ActionGenerator(Icon("configure"),
+			ActionGenerator *gen = new ActionGenerator(Icon("configure"),
 										  QT_TRANSLATE_NOOP("simplecontactlist","&Settings..."),
 										  this,
-										  SLOT(onConfigureClicked()))
+										  SLOT(onConfigureClicked())
 										  );
-			addAction(new ActionGenerator(Icon("application-exit"),
-										  QT_TRANSLATE_NOOP("simplecontactlist","&Quit"),
-										  qApp,
-										  SLOT(quit()))
-										  );
+			gen->setPriority(1);
+			addAction(gen);
+			gen = new ActionGenerator(Icon("configure"),
+									  QT_TRANSLATE_NOOP("simplecontactlist","&Settings..."),
+									  this,
+									  SLOT(onConfigureClicked())
+									  );
+			gen = new ActionGenerator(Icon("application-exit"),
+									  QT_TRANSLATE_NOOP("simplecontactlist","&Quit"),
+									  qApp,
+									  SLOT(quit()));
+			gen->setPriority(-1);
+			addAction(gen);
 			
 			QAction *menuAction = new QAction(Icon("show-menu"), tr("Main menu"), this);
 			
@@ -152,16 +160,13 @@ namespace Core
 					onAccountCreated(account);
 				}
 			}
-
-			QAction *act = new QAction(Status::createIcon(Status::Online),tr("Online"),p->status_btn);
-			act->setData(Status::Online);
-			connect(act,SIGNAL(triggered()),SLOT(onStatusChanged()));
-			p->status_btn->menu()->addAction(act);
-
-			act = new QAction(Status::createIcon(Status::Offline),tr("Offline"),p->status_btn);
-			act->setData(Status::Offline);
-			connect(act,SIGNAL(triggered()),SLOT(onStatusChanged()));
-			p->status_btn->menu()->addAction(act);
+			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Online));
+			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::FreeChat));
+			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Away));
+			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::DND));
+			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::NA));
+			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Invisible));
+			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Offline));
 
 			p->status_btn->menu()->addSeparator();
 
@@ -170,7 +175,7 @@ namespace Core
 		void Module::onStatusChanged()
 		{
 			if (QAction *a = qobject_cast<QAction *>(sender())) {
-				Status::Type status= static_cast<Status::Type>(a->data().toInt());
+				Status status= a->data().value<Status>();
 				foreach(Protocol *proto, allProtocols()) {
 					foreach(Account *account, proto->accounts()) {
 						account->setStatus(status);
@@ -259,6 +264,15 @@ namespace Core
 			QAction *action = p->actions.value(account);
 			Q_ASSERT(action);
 			action->setIcon(status.icon());
+		}
+
+		QAction *Module::createGlobalStatusAction(Status::Type type)
+		{
+			Status s (type);
+			QAction *act = new QAction(s.icon(),s.name(),p->status_btn);
+			act->setData(QVariant::fromValue(s));
+			connect(act,SIGNAL(triggered()),SLOT(onStatusChanged()));
+			return act;
 		}
 	}
 }
