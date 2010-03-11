@@ -54,6 +54,7 @@ namespace AdiumChat
 		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
 		
 		ui->chatEdit->installEventFilter(this);
+		ui->chatView->installEventFilter(this);
 		ui->chatEdit->setFocusPolicy(Qt::StrongFocus);
 
 		//init toolbar
@@ -253,6 +254,12 @@ namespace AdiumChat
 						onSendButtonClicked();
 						return true;
 					}
+				}
+				if (keyEvent->matches(QKeySequence::Copy) )
+				{
+					if (QWebView *view = qobject_cast<QWebView*>(obj))
+						view->triggerPageAction(QWebPage::Copy);
+					return true;
 				}
 			}
 		}
