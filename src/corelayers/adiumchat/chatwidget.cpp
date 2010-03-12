@@ -23,6 +23,7 @@
 #include <QWebFrame>
 #include <QTime>
 #include <libqutim/qtwin.h>
+#include <qshortcut.h>
 
 namespace AdiumChat
 {
@@ -84,12 +85,22 @@ namespace AdiumChat
 				setContentsMargins(0, 0, 0, 0);
 			}
 		}
+		
+		new QShortcut(QKeySequence(tr("Ctrl+Return","Send message")),
+					  this,
+					  SLOT(onSendButtonClicked())
+					  );
+		new QShortcut(QKeySequence(QKeySequence::Close),
+					  this,
+					  SLOT(closeCurrentTab())
+					  );
+		
 	}
 
 	ChatWidget::~ChatWidget()
 	{
 		clear();
-	}
+	}	
 
 	void ChatWidget::addSession(ChatSessionImpl* session)
 	{
@@ -97,16 +108,11 @@ namespace AdiumChat
 			return;
 		m_sessions.append(session);
 		session->installEventFilter(this);
-		connect(session, SIGNAL(messageReceived(Message)), SLOT(onMessageReceived(Message)));
 		connect(session, SIGNAL(messageSended(Message)), SLOT(onMessageSended(Message)));
 		connect(session, SIGNAL(destroyed(QObject*)), SLOT(onSessionDestroyed(QObject*)));
 		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
 				SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 		QIcon icon;
-		if (m_chat_flags & AvatarsOnTabs) {
-			QString imagePath = session->getUnit()->property("avatar").toString();
-			icon = imagePath.isEmpty() ? Icon("user-online") : QIcon(imagePath);
-		}
 		if (m_chat_flags & ChatStateIconsOnTabs) {
 			icon = iconForState(ChatStateActive); //FIXME
 		}
@@ -142,10 +148,6 @@ namespace AdiumChat
 		}
 		setWindowTitle(tr("Chat with %1").arg(session->getUnit()->title()));
 		
-		//m_main_toolbar->setData(session->getUnit());
-// 		if (QAbstractItemModel *model = session->getItemsModel())
-// 			ui->membersView->setModel(model);
-
 		if ((m_chat_flags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
 			killTimer(m_timerid);
 			m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
@@ -249,12 +251,12 @@ namespace AdiumChat
 				QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
 				QString key = QString::number(keyEvent->key(), 16);
 				QString modifiers = QString::number(keyEvent->modifiers(), 16);
-				if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
-					if ((keyEvent->modifiers() & Qt::ControlModifier)) {
-						onSendButtonClicked();
-						return true;
-					}
-				}
+// 				if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
+// 					if ((keyEvent->modifiers() & Qt::ControlModifier)) {
+// 						onSendButtonClicked();
+// 						return true;
+// 					}
+// 				}
 				if (keyEvent->matches(QKeySequence::Copy) )
 				{
 					if (QWebView *view = qobject_cast<QWebView*>(obj))
@@ -290,22 +292,16 @@ namespace AdiumChat
 
 	void ChatWidget::chatStateChanged(ChatState state, ChatSessionImpl *session)
 	{
-		debug() << "new state" << state << session->metaObject()->className();
-
 		int index = m_sessions.indexOf(session);
 		if (index == -1)
 			return;
 		
 		if (m_chat_flags & ChatStateIconsOnTabs) {	
-			QString icon_name;
-			ChatState previous_state = static_cast<ChatState>(session->property("currentChatState").toInt());
-			if (!(previous_state & ChatStateComposing) || (state & ChatStatePaused)) {
-				if (!session->property("unreadMessages").toInt())
-					ui->tabBar->setTabIcon(index,iconForState(state));
-				session->setProperty("currentChatState",state);
-			}
-			debug() << previous_state << state << icon_name;
+			if (!session->unread().count())
+				ui->tabBar->setTabIcon(index,iconForState(state));
 		}
+		
+		session->setProperty("currentChatState",static_cast<int>(state));
 	}
 
 	QTextDocument *ChatWidget::getInputField()
@@ -346,18 +342,6 @@ namespace AdiumChat
 		}
 		return QMainWindow::event(event);
 	}
-	
-	void ChatWidget::onMessageReceived(const qutim_sdk_0_3::Message& message)
-	{
-		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
-		debug() << "messageReceived" << message.text();
-		if (!session)
-			return;
-		debug() << "message from" << session->getUnit()->title();
-		int index = m_sessions.indexOf(session);
-		if (index == -1)
-			return;
-	}
 
 	void ChatWidget::onMessageSended(const qutim_sdk_0_3::Message& message)
 	{
@@ -392,16 +376,16 @@ namespace AdiumChat
 		switch (state) {
 			//FIXME icon names
 			case ChatStateActive:
-				icon_name = "user-online";
+				icon_name = "im-user";
 				break;
 			case ChatStateInActive:
-				icon_name = "user-away";
+				icon_name = "im-user-away";
 				break;
 			case ChatStateGone:
-				icon_name =  "user-offline";
+				icon_name =  "im-user-offline";
 				break;
 			case ChatStateComposing:
-				icon_name = "mail-unread-new";
+				icon_name = "im-status-message-edit";
 				break;
 			case ChatStatePaused:
 				icon_name = "mail-unread";
@@ -411,6 +395,15 @@ namespace AdiumChat
 		}
 		return Icon(icon_name);
 	}
+
+	void ChatWidget::closeCurrentTab()
+	{
+		if (ui->tabBar->count() > 1)
+			ui->tabBar->removeTab(ui->tabBar->currentIndex());
+		else
+			close();
+	}
+
 
 }
 

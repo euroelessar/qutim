@@ -60,6 +60,9 @@
                 <string>about:blank</string>
                </url>
               </property>
+              <property name="renderHints">
+               <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
+              </property>
              </widget>
             </item>
            </layout>

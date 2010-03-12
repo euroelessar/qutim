@@ -79,9 +79,9 @@ namespace AdiumChat
 		void onSessionDestroyed(QObject* object);
 		void onSendButtonClicked();		
 		void onTextChanged(); //TODO separate from chatlayer
-		void onMessageReceived(const Message &message);
 		void onMessageSended(const Message &message);
 		void onTabContextMenu(const QPoint &pos);
+		void closeCurrentTab();
 	};
 
 }
