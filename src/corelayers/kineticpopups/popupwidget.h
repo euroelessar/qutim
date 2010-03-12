@@ -38,8 +38,7 @@ namespace KineticPopups
 		virtual void mouseReleaseEvent ( QMouseEvent* ev );
 		virtual ~PopupWidget();
 		virtual QSize sizeHint() const;
-	public slots:
-		void onTimeoutReached();
+		virtual void timerEvent(QTimerEvent *);
 	signals:
 		void activated();
 		void sizeChanged(const QSize &size);
@@ -52,6 +51,7 @@ namespace KineticPopups
 		void init(const ThemeHelper::PopupSettings &popupSettings);
 		QObject *m_sender;
 		QVariant m_data;
+		int m_timer_id;
 	};
 }
 #endif // POPUPWIDGET_H

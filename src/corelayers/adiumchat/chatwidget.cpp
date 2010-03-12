@@ -242,7 +242,7 @@ namespace AdiumChat
 		if (obj->metaObject() == &ChatSessionImpl::staticMetaObject) {
 			if (event->type() == ChatStateEvent::eventType()) {
 				ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(event);
-				chatStateChanged(chatEvent->chatState());
+				chatStateChanged(chatEvent->chatState(),qobject_cast<ChatSessionImpl *>(obj));				
 			}
 		} else {
 			if (event->type() == QEvent::KeyPress) {
@@ -288,12 +288,9 @@ namespace AdiumChat
 		ui->chatEdit->clear();
 	}
 
-	void ChatWidget::chatStateChanged(ChatState state)
+	void ChatWidget::chatStateChanged(ChatState state, ChatSessionImpl *session)
 	{
-		//checks
-		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
-		if (!session)
-			return;
+		debug() << "new state" << state << session->metaObject()->className();
 
 		int index = m_sessions.indexOf(session);
 		if (index == -1)

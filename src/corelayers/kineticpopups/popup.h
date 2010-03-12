@@ -42,15 +42,12 @@ namespace KineticPopups
 		QString getId() const;
 		QRect geometry() const; //Show state geometry
 	signals:
-		void finished(const QString &id);
 		void updated();
-		void timeoutReached();
 	private slots:
 		void onPopupWidgetSizeChanged(const QSize &size);
 	private:
 		void updateGeometry(const QRect &newGeometry);
-		inline void updateMessage();
-		virtual void timerEvent(QTimerEvent *);
+		inline void updateMessage();		
 		PopupWidget *m_notification_widget;
 		QString m_title;
 		QString m_body;
@@ -63,7 +60,6 @@ namespace KineticPopups
 		QState *m_active_state;
 		QObject *m_sender;
 		QVariant m_data;
-		int m_timer_id;
 	};
 }
 

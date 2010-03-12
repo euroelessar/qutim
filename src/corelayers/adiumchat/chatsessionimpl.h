@@ -57,6 +57,7 @@ namespace AdiumChat
 	protected slots:
 		void onStatusChanged(qutim_sdk_0_3::Status);
 	private:
+		void statusChanged(Contact *contact, bool silent = false);
 		QPointer<QWebPage> m_web_page;
 		QPointer<ChatUnit> m_chat_unit;
 		ChatSessionModel *m_model;

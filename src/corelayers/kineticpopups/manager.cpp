@@ -123,9 +123,9 @@ namespace KineticPopups
 		maxTextLength = behavior.value<int>("maxTextLength",160);
 		appendMode = behavior.value<bool>("appendMode",false);
 		updateMode = behavior.value<bool>("updateMode",false);
-		animationDuration = behavior.value("animationDuration",600);
-		showFlags = static_cast<NotificationTypes>(behavior.value<int>("showFlags", 0xfffffff));
-		updatePosition = behavior.value<bool>("updatePosition",false);
+		animationDuration = behavior.value("animationDuration",400);
+		showFlags = static_cast<NotificationTypes>(behavior.value<int>("showFlags", 0xfffffff &~ Notifications::MessageSend));
+		updatePosition = behavior.value<bool>("updatePosition",true);
 		animation = animationDuration ? static_cast<AnimationFlags>(behavior.value<int>("animationFlags", Opacity)) : NoAnimation;
 		timeout = behavior.value<int>("timeout",5000);
 		easingCurve.setType(static_cast<QEasingCurve::Type>(behavior.value<int>("easingCurve",QEasingCurve::OutSine)));

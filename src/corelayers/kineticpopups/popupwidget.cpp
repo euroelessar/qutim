@@ -42,6 +42,7 @@ namespace KineticPopups
 
 	void PopupWidget::init (const ThemeHelper::PopupSettings &popupSettings)
 	{
+		m_timer_id = 0;
 		//init browser
 		setTheme(popupSettings);
 		if (popupSettings.popupFlags & ThemeHelper::Preview) {
@@ -78,13 +79,6 @@ namespace KineticPopups
 
 		QString popup_title = title;
 
-		if (data.canConvert<Message>()) {
-			const Message &msg = data.value<Message>();
-			popup_title = msg.isIncoming() ? tr("Message from %1").arg(msg.chatUnit()->title()) : tr("Message to %1").arg(msg.chatUnit()->title());
-		} else if (data.canConvert<QString>()) {
-			popup_title = data.toString();
-		}
-
 		Contact *c = qobject_cast<Contact *>(sender);
 		QString image_path = c ? c->avatar() : QString();
 		if(image_path.isEmpty())
@@ -101,6 +95,14 @@ namespace KineticPopups
 		document()->setTextWidth(popup_settings.defaultSize.width());
 		document()->setHtml(popup_data);
 		emit sizeChanged(sizeHint());
+		
+		Manager *manager = Manager::self();
+		
+		if (manager->timeout > 0) {
+			if (m_timer_id)
+				killTimer(m_timer_id);
+			m_timer_id = startTimer(manager->timeout);
+		}
 	}
 
 
@@ -153,11 +155,11 @@ namespace KineticPopups
 				sess->markRead(m_data.value<Message>().id());
 		}
 	}
-
-	void PopupWidget::onTimeoutReached()
+	
+	void PopupWidget::timerEvent(QTimerEvent* ev)
 	{
-		//TODO
 		emit activated();
+		QTextEdit::timerEvent(ev);
 	}
 	
 	QSize PopupWidget::sizeHint() const

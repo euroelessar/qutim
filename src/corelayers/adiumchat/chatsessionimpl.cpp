@@ -44,6 +44,8 @@ namespace AdiumChat
 		m_active = false;
 		m_model = new ChatSessionModel(this);
 		loadHistory();
+		if (Contact *c = qobject_cast<Contact *>(unit))
+			statusChanged(c,true);
 	}
 
 	void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)
@@ -222,16 +224,39 @@ namespace AdiumChat
 	void ChatSessionImpl::onStatusChanged(qutim_sdk_0_3::Status status)
 	{
 		Contact *contact = qobject_cast<Contact *>(sender());
-		if (!contact && contact->property("silent").toBool())
+		if (!contact)
 			return;
-		QString text = contact->status().text();
-		Message msg;
+		statusChanged(contact,contact->property("silent").toBool());
+	}
+	
+	void ChatSessionImpl::statusChanged(Contact* contact, bool silent)
+	{
+		Message msg;		
+		Notifications::Type type;
+		QString title;
+		
+		switch (contact->status().type()) {
+			case Status::Online:
+				type = Notifications::Online;
+				break;
+			case Status::Offline:
+				type = Notifications::Offline;
+				break;
+			default:
+				type = Notifications::StatusChange;
+				//title = contact->status().property("title", QVariant()).toString();
+				break;
+		}
+		
+		title = title.isEmpty() ? contact->status().name().toString() : title;
+		
 		msg.setChatUnit(contact);
 		msg.setIncoming(true);
-		msg.setProperty("service",Notifications::StatusChange);
-		msg.setProperty("title",contact->title() + " " + status.name());
+		msg.setProperty("service",type);
+		msg.setProperty("title",title);
 		msg.setTime(QDateTime::currentDateTime());
-		msg.setText(text);
+		msg.setText(contact->status().text());
+		msg.setProperty("silent",silent);
 		appendMessage(msg);
 	}
 	

@@ -25,6 +25,8 @@
 #include "settings/popupappearance.h"
 #include <libqutim/settingslayer.h>
 #include <libqutim/icon.h>
+#include <libqutim/message.h>
+#include <libqutim/chatunit.h>
 
 namespace KineticPopups
 {
@@ -56,6 +58,15 @@ namespace KineticPopups
 		if(sender_name.isEmpty())
 			sender_name = sender_id;
 		QString title = Notifications::toString(type).arg(sender_name);
+		
+
+		if (data.canConvert<Message>() && (type & Notifications::MessageSend & Notifications::MessageGet)) {
+			const Message &msg = data.value<Message>();
+			title = Notifications::toString(type).arg(msg.chatUnit()->title());
+		} else if (data.canConvert<QString>()) {
+			title = data.toString();
+		}
+		
 		QString popup_id = title;
 
 		bool updateMode = manager->updateMode;

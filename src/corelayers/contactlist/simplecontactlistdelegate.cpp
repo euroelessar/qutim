@@ -96,7 +96,7 @@ namespace Core
 								   option.rect.right(),
 								   option.rect.height(),
 								   Qt::AlignBottom,
-								   status_text
+								   status_text.remove("\n")
 									);
 						p.end();
 						painter->drawPixmap(option.rect,pixmap);

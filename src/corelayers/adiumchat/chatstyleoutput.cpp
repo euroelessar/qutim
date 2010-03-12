@@ -284,7 +284,12 @@ namespace AdiumChat
 		QString html = m_current_style.statusHtml;
 		makeTime(html, mes.time());
 		QString title = mes.property("title").toString();
-		tmp_msg.setProperty("html", title.isEmpty() ? mes.text() : QString("<b>%1 :</b> %2").arg(title,mes.text()));
+		QString text;
+		if (title.isEmpty()) 
+			text = mes.text();
+		else 
+			text = mes.text().isEmpty() ? title : QString("<b>%1</b> %2").arg(title,mes.text());
+		tmp_msg.setProperty("html", text);
 		processMessage(html,session,tmp_msg);
 		return html;
 	}

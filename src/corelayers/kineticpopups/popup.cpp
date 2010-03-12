@@ -78,11 +78,6 @@ namespace KineticPopups
 	void Popup::updateMessage()
 	{
 		m_notification_widget->setData(m_title,m_body,m_sender,m_data);
-		int timeout = Manager::self()->timeout;
-		if (timeout > 0) {
-			killTimer(m_timer_id);
-			m_timer_id = startTimer(timeout);
-		}
 	}
 	
 		
@@ -142,10 +137,6 @@ namespace KineticPopups
 		m_update_state->addTransition(m_update_state,SIGNAL(propertiesAssigned()),m_show_state);
 		m_hide_state->addTransition(m_hide_state,SIGNAL(propertiesAssigned()),final_state);
 
-		if (manager->timeout > 0) {
-			m_timer_id = startTimer(manager->timeout);
-			connect(this,SIGNAL(timeoutReached()),m_notification_widget,SLOT(onTimeoutReached()));
-		}
 		m_machine->setInitialState (m_active_state);
 		m_active_state->setInitialState(m_show_state);
 
@@ -192,13 +183,6 @@ namespace KineticPopups
 	{
 		m_show_geometry = newGeometry;
 		emit updated();
-	}
-
-	void Popup::timerEvent(QTimerEvent *e)
-	{
-		emit timeoutReached();
-		killTimer(m_timer_id);
-		QObject::timerEvent(e);
 	}
 }
 

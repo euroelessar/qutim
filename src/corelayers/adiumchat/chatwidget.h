@@ -62,6 +62,7 @@ namespace AdiumChat
 		virtual bool event(QEvent *event);
 	private:
 		QIcon iconForState(ChatState state);
+		void chatStateChanged(ChatState state, ChatSessionImpl* session);
 		ChatSessionList m_sessions;
 		int m_current_index;
 		Ui::AdiumChatForm *ui;
@@ -76,8 +77,7 @@ namespace AdiumChat
 		void onCloseRequested(int index);
 		void onTabMoved(int from,int to);
 		void onSessionDestroyed(QObject* object);
-		void onSendButtonClicked();
-		void chatStateChanged(ChatState state);
+		void onSendButtonClicked();		
 		void onTextChanged(); //TODO separate from chatlayer
 		void onMessageReceived(const Message &message);
 		void onMessageSended(const Message &message);

@@ -250,14 +250,14 @@ namespace Core
 			}
 			//if (ChatLayer::get(contact,false))
 			//	return; //TODO FIXME
-			Notifications::Type notify;
-			if(status.type() == Status::Offline)
-				notify = Notifications::Offline;
-			else if(item_data->status.type() == Status::Offline)
-				notify = Notifications::Online;
-			else
-				notify = Notifications::StatusChange;
-			Notifications::sendNotification(notify, contact);
+// 			Notifications::Type notify;
+// 			if(status.type() == Status::Offline)
+// 				notify = Notifications::Offline;
+// 			else if(item_data->status.type() == Status::Offline)
+// 				notify = Notifications::Online;
+// 			else
+// 				notify = Notifications::StatusChange;
+// 			Notifications::sendNotification(notify, contact);
 		}
 
 		void Model::contactNameChanged(const QString &name)
