@@ -126,14 +126,26 @@ void ProfileDialog::on_loginButton_clicked()
 
 void ProfileDialog::on_createButton_clicked()
 {
+	if (ui->nameEdit->text().isEmpty()) {
+		QMessageBox::critical(this, tr("Invalid name"), tr("Name can not be empty!"));
+		return;
+	}
+
 	if (ui->originalPasswordEdit->text() != ui->repeatPasswordEdit->text()) {
 		QMessageBox::critical(this, tr("Incorrect password"), tr("Passwords doesn't match each other"));
-	} else {
-		QWidget *wizard = new ProfileCreationWizard(m_manager, ui->nameEdit->text(),
-													ui->originalPasswordEdit->text());
-		wizard->show();
-		deleteLater();
+		return;
 	}
+
+	if (ui->originalPasswordEdit->text().isEmpty()) {
+		QMessageBox::critical(this, tr("Incorrect password"), tr("Password can not be empty!"));
+		return;
+	}
+
+	QWidget *wizard = new ProfileCreationWizard(m_manager, ui->nameEdit->text(),
+												ui->originalPasswordEdit->text());
+	wizard->show();
+	deleteLater();
+
 }
 
 void ProfileDialog::changeEvent(QEvent *e)
