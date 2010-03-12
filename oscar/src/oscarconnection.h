@@ -71,13 +71,13 @@ public:
 	inline const DirectConnectionInfo &dcInfo() const { return m_dc_info; }
 	void finishLogin();
 	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
-	MetaInfo *metaInfo() { return m_meta_info; }
 	void sendStatus(OscarStatus status);
 protected:
 	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private slots:
 	void disconnected();
 	void md5Error(ConnectionError error);
+	void accountInfoReceived(bool ok);
 private:
 	void sendUserInfo();
 	void setIdle(bool allow);
@@ -89,7 +89,6 @@ private:
 	ClientInfo m_client_info;
 	DirectConnectionInfo m_dc_info;
 	bool m_is_idle;
-	MetaInfo *m_meta_info;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

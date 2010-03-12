@@ -51,8 +51,6 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 		m_dc_info = info;
 	}
 	m_status_flags = 0x0000;
-	m_meta_info = new MetaInfo(this);
-	registerHandler(m_meta_info);
 	registerHandler(this);
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
@@ -126,8 +124,10 @@ void OscarConnection::finishLogin()
 		"000b 0001 0110 164f"));
 	send(snac);
 	m_account->setStatus(m_account->d_func()->lastStatus);
-	metaInfo()->sendShortInfoRequest(this, m_account); // Requesting own information.
 	emit m_account->loginFinished();
+	ShortInfoMetaRequest *req = new ShortInfoMetaRequest(m_account); // Requesting own information.
+	connect(req, SIGNAL(done(bool)), this, SLOT(accountInfoReceived(bool)));
+	req->send();
 }
 
 void OscarConnection::sendUserInfo()
@@ -156,6 +156,15 @@ void OscarConnection::md5Error(ConnectionError e)
 	setError(e);
 	if (e != NoError)
 		emit error(e);
+}
+
+void OscarConnection::accountInfoReceived(bool ok)
+{
+	ShortInfoMetaRequest *req = qobject_cast<ShortInfoMetaRequest*>(sender());
+	Q_ASSERT(req);
+	if (ok)
+		m_account->setName(req->value<QString>("nick", m_account->id()));
+	req->deleteLater();
 }
 
 void OscarConnection::sendStatus(OscarStatus status)

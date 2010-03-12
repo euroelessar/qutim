@@ -22,44 +22,113 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-class OscarConnection;
 class IcqAccount;
+class IcqContact;
+class AbstractMetaInfoRequestPrivate;
+class ShortInfoMetaRequestPrivate;
+class FullInfoMetaRequestPrivate;
 
+struct Category
+{
+	QString category;
+	QString keyword;
+};
+typedef QList<Category> CategoryList;
 typedef QHash<quint16, QString> FieldNamesList;
 
-class MetaInfo: public QObject, public SNACHandler
+class LIBOSCAR_EXPORT Gender
 {
-	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
 public:
-	struct Category
+	enum Enum
 	{
-		QString category;
-		QString keyword;
+		Unknown,
+		Female = 1,
+		Male = 2,
+		Female2 = 'F',
+		Male2 = 'M'
 	};
-
-	MetaInfo(QObject *parent = 0);
-	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-	void sendShortInfoRequest(OscarConnection *conn, QObject *reqObject);
-	void sendFullInfoRequest(OscarConnection *conn, QObject *reqObject);
+	Gender(int value = Unknown) :
+		m_value(static_cast<Enum>(value))
+	{}
+	Enum value() { return m_value; }
+	bool operator==(int value) { return value == m_value; }
+	bool operator!=(int value) { return value != m_value; }
+	Gender &operator=(int value) { m_value = static_cast<Enum>(value); return *this; }
+	Gender &operator=(const Gender &gender) { m_value = gender.m_value; return *this; }
+	QString toString();
+	operator QString() { return toString(); }
 private:
-	void sendRequest(OscarConnection *conn, QObject *reqObject, quint16 type, const DataUnit &data);
-	void sendInfoRequest(OscarConnection *conn, QObject *reqObject, quint16 type);
-	void handleShortInfo(QObject *reqObject, const DataUnit &data);
-	void handleBasicInfo(QObject *reqObject, const DataUnit &data);
-	void handleMoreInfo(QObject *reqObject, const DataUnit &data);
-	void handleEmails(QObject *reqObject, const DataUnit &data);
-	void handleHomepage(QObject *reqObject, const DataUnit &data);
-	void handleWork(QObject *reqObject, const DataUnit &data);
-	void handleNotes(QObject *reqObject, const DataUnit &data);
-	void handleInterests(QObject *reqObject, const DataUnit &data);
-	void handleAffilations(QObject *reqObject, const DataUnit &data);
-	QList<Category> handleCatagories(const DataUnit &data, const FieldNamesList &list);
-	QString readString(const DataUnit &data);
-	quint16 m_sequence;
-	QHash<quint16, QObject*> m_requests;
+	Enum m_value;
 };
 
-} } // namespace qutim_sdk_0_3::Oscar
+class LIBOSCAR_EXPORT AbstractMetaInfoRequest : public QObject
+{
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(AbstractMetaInfoRequest)
+public:
+	AbstractMetaInfoRequest();
+	AbstractMetaInfoRequest(const AbstractMetaInfoRequest &request);
+	virtual ~AbstractMetaInfoRequest();
+	quint16 id() const;
+	IcqAccount *account() const;
+	bool isDone() const;
+signals:
+	void done(bool ok);
+public slots:
+	virtual void send() const = 0;
+	void cancel();
+protected:
+	friend class MetaInfo;
+	AbstractMetaInfoRequest(IcqAccount *account, AbstractMetaInfoRequestPrivate *d);
+	virtual bool handleData(quint16 type, const DataUnit &data) = 0;
+	void sendRequest(quint16 type, const DataUnit &data) const;
+	void close(bool ok);
+protected:
+	QScopedPointer<AbstractMetaInfoRequestPrivate> d_ptr;
+};
+
+class LIBOSCAR_EXPORT ShortInfoMetaRequest : public AbstractMetaInfoRequest
+{
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(ShortInfoMetaRequest)
+public:
+	ShortInfoMetaRequest(IcqAccount *account, IcqContact *contact = 0);
+	QVariantHash values() const;
+	QVariant value(const QString &value, const QVariant &defaultValue = QVariant()) const;
+	template <typename T>
+	T value(const QString &value, const T &defaultValue = T());
+	virtual void send() const;
+protected:
+	ShortInfoMetaRequest();
+	virtual bool handleData(quint16 type, const DataUnit &data);
+};
+
+class LIBOSCAR_EXPORT FullInfoMetaRequest : public ShortInfoMetaRequest
+{
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(FullInfoMetaRequest)
+public:
+	FullInfoMetaRequest(IcqAccount *account, IcqContact *contact = 0);
+	virtual void send() const;
+protected:
+	FullInfoMetaRequest();
+	virtual bool handleData(quint16 type, const DataUnit &data);
+};
+
+template <typename T>
+T ShortInfoMetaRequest::value(const QString &val, const T &defaultValue) {
+	QVariant res = value(val);
+	if (!res.isValid())
+		return defaultValue;
+	return res.value<T>();
+}
+
+QDebug operator<<(QDebug dbg, const Category &cat);
+
+} } // namespace qutim_sdk_0_3::oscar
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::Gender);
+Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::Category);
+Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::CategoryList);
 
 #endif /* METAINFO_H_ */
