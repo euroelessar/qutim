@@ -129,13 +129,12 @@ void IcqAccount::setStatus(Status status)
 {
 	Q_D(IcqAccount);
 	Status current = this->status();
-	// TODO: Check for text field
 	if (current.type() == status.type()) {
 		if (status.type() == Status::Offline) {
 			d->lastStatus = status;
 			d->reconnectTimer.stop();
+			return;
 		}
-		//return;
 	}
 	if (status.type() == Status::Offline) {
 		if (d->conn->isConnected()) {
@@ -168,7 +167,7 @@ void IcqAccount::setStatus(Status status)
 				status = Status::Connecting;
 				d->conn->connectToLoginServer(pass);
 			} else {
-				status = OscarStatus();
+				status = Status::Offline;
 			}
 		} else {
 			d->conn->sendStatus(status);
