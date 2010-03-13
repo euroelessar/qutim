@@ -74,8 +74,9 @@ public:
 	void setAvatar(const QString &avatar);
 	void setStatus(Status status);
 	void setCapabilities(const Capabilities &caps);
-public slots:
+private slots:
 	void messageTimeout();
+	void infoReceived(bool ok);
 protected:
 	friend class Roster;
 	friend class IcqAccount;

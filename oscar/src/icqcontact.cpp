@@ -18,6 +18,7 @@
 #include "messages.h"
 #include "buddycaps.h"
 #include "icqaccount.h"
+#include "metainfo.h"
 #include "qutim/messagesession.h"
 #include "qutim/notificationslayer.h"
 #include "qutim/messagesession.h"
@@ -31,6 +32,16 @@ void IcqContactPrivate::clearCapabilities()
 {
 	flags = 0;
 	capabilities.clear();
+}
+
+void IcqContactPrivate::requestNick()
+{
+	Q_Q(IcqContact);
+	if (name.isEmpty()) {
+		ShortInfoMetaRequest *req = new ShortInfoMetaRequest(account, q);
+		QObject::connect(req, SIGNAL(done(bool)), q, SLOT(infoReceived(bool)));
+		req->send();
+	}
 }
 
 FeedbagItem IcqContactPrivate::getNotInListGroup()
@@ -55,6 +66,7 @@ IcqContact::IcqContact(const QString &uin, IcqAccount *account) :
 	Contact(account), d_ptr(new IcqContactPrivate)
 {
 	Q_D(IcqContact);
+	d->q_ptr = this;
 	d->account = account;
 	d->uin = uin;
 	d->status = Status::Offline;
@@ -89,7 +101,10 @@ QString IcqContact::id() const
 QString IcqContact::name() const
 {
 	Q_D(const IcqContact);
-	return d->name;
+	if (!d->name.isEmpty())
+		return d->name;
+	else
+		return d->uin;
 }
 
 Status IcqContact::status() const
@@ -148,8 +163,13 @@ void IcqContact::sendMessage(const Message &message)
 void IcqContact::setName(const QString &name)
 {
 	Q_D(IcqContact);
+	d->name = name;
+	d->requestNick(); // requestNick will do nothing if the name is not empty
 	foreach (FeedbagItem item, d->items) {
-		item.setField(SsiBuddyNick, name);
+		if (!name.isEmpty())
+			item.setField(SsiBuddyNick, name);
+		else
+			item.removeField(SsiBuddyNick);
 		item.update();
 	}
 }
@@ -445,6 +465,18 @@ void IcqContact::messageTimeout()
 		QApplication::instance()->postEvent(session, new MessageReceiptEvent(cookie->id(), false));
 		debug() << "Message with id" << cookie->id() << "has not been delivered";
 	}
+}
+
+void IcqContact::infoReceived(bool ok)
+{
+	ShortInfoMetaRequest *req = qobject_cast<ShortInfoMetaRequest*>(sender());
+	Q_ASSERT(req);
+	if (ok) {
+		QString name = req->value<QString>("nick");
+		if (!name.isEmpty())
+			setName(name);
+	}
+	req->deleteLater();
 }
 
 } } // namespace qutim_sdk_0_3::oscar

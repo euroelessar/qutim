@@ -487,6 +487,8 @@ void Roster::loginFinished()
 			if (ContactList::instance())
 				ContactList::instance()->removeContact(contact);
 			delete contact;
+		} else {
+			contact->d_func()->requestNick();
 		}
 	}
 }
