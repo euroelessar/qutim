@@ -323,38 +323,41 @@ bool FullInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
 {
 	Q_D(FullInfoMetaRequest);
 	switch (type) {
-	case (0x00c8):
+	case (BasicInfo):
 		d->handleBasicInfo(data);
 		break;
-	case (0x00dc):
+	case (MoreInfo):
 		d->handleMoreInfo(data);
 		break;
-	case (0x00eb):
+	case (Emails):
 		d->handleEmails(data);
 		break;
-	case (0x010e):
+	case (Homepage):
 		d->handleHomepage(data);
 		break;
-	case (0x00d2):
+	case (Work):
 		d->handleWork(data);
 		break;
-	case (0x00e6):
+	case (Notes):
 		d->readString("notes", data);
 		break;
-	case (0x00f0):
+	case (Interests):
 		d->readCatagories("interests", data, interests());
 		break;
-	case (0x00fa): {
+	case (Affilations): {
 		d->readCatagories("pasts", data, pasts());
 		d->readCatagories("affilations", data, affilations());
-		close(true);
-		debug() << d->uin << "full info:";
-		d->dump();
 		break;
 	}
 	default:
 		close(false);
 		return false;
+	}
+	emit infoUpdated(static_cast<State>(type));
+	if (type == Affilations) {
+		close(true);
+		debug() << d->uin << "full info:";
+		d->dump();
 	}
 	return true;
 }

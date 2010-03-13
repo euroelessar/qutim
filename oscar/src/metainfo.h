@@ -108,8 +108,20 @@ class LIBOSCAR_EXPORT FullInfoMetaRequest : public ShortInfoMetaRequest
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(FullInfoMetaRequest)
 public:
+	enum State {
+		BasicInfo = 0x00c8,
+		MoreInfo = 0x00dc,
+		Emails = 0x00eb,
+		Homepage = 0x010e,
+		Work = 0x00d2,
+		Notes = 0x00e6,
+		Interests = 0x00f0,
+		Affilations = 0x00fa
+	};
 	FullInfoMetaRequest(IcqAccount *account, IcqContact *contact = 0);
 	virtual void send() const;
+signals:
+	void infoUpdated(State state);
 protected:
 	FullInfoMetaRequest();
 	virtual bool handleData(quint16 type, const DataUnit &data);
