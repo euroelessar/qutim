@@ -16,6 +16,7 @@
 #include "metainfo_p.h"
 #include "icqaccount.h"
 #include "icqcontact.h"
+#include <icqprotocol.h>
 #include "oscarconnection.h"
 #include <metainfofields_p.h>
 #include <QStringList>
@@ -365,6 +366,10 @@ MetaInfo::MetaInfo() :
 	self = this;
 	m_infos << SNACInfo(ExtensionsFamily, ExtensionsMetaSrvReply)
 		<< SNACInfo(ExtensionsFamily, ExtensionsMetaError);
+	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+			this, SLOT(onNewAccount(qutim_sdk_0_3::Account*)));
+	foreach (Account *account, IcqProtocol::instance()->accounts())
+		onNewAccount(account);
 }
 
 void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
@@ -409,6 +414,22 @@ void MetaInfo::addRequest(AbstractMetaInfoRequest *request)
 bool MetaInfo::removeRequest(AbstractMetaInfoRequest *request)
 {
 	return m_requests.remove(request->id()) > 0;
+}
+
+void MetaInfo::onNewAccount(qutim_sdk_0_3::Account *account)
+{
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
+			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+}
+
+void MetaInfo::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
+{
+	if (status == Status::Offline) {
+		QHash<quint16, AbstractMetaInfoRequest*> requests = m_requests;
+		foreach (AbstractMetaInfoRequest *req, requests)
+			req->close(false);
+		Q_ASSERT(m_requests.isEmpty());
+	}
 }
 
 } } // namespace qutim_sdk_0_3::oscar

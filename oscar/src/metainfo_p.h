@@ -18,6 +18,7 @@
 #define METAINFO_P_H
 
 #include "metainfo.h"
+#include "icqaccount.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -66,6 +67,9 @@ public:
 	void addRequest(AbstractMetaInfoRequest *request);
 	bool removeRequest(AbstractMetaInfoRequest *request);
 	quint16 nextId() { return ++m_sequence; }
+private slots:
+	void onNewAccount(qutim_sdk_0_3::Account *account);
+	void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
 private:
 	quint16 m_sequence;
 	QHash<quint16, AbstractMetaInfoRequest*> m_requests;
