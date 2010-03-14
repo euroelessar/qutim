@@ -141,7 +141,8 @@ void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TL
 	Q_UNUSED(tlvs);
 	if (status != Status::Offline && contact->status() == Status::Offline) {
 		identify(contact);
-		debug() << contact->name() << "uses" << contact->property("client_id").toString();
+		debug() << contact->name() << "uses"
+				<< contact->property("client").toMap().value("description").toString();
 	}
 }
 
