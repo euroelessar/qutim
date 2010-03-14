@@ -62,7 +62,7 @@ class MetaInfo: public QObject, public SNACHandler
 	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
 public:
 	MetaInfo();
-	static MetaInfo &instance() { Q_ASSERT(self); return *self; }
+	static MetaInfo &instance() { if (!self) new MetaInfo(); return *self; }
 	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 	void addRequest(AbstractMetaInfoRequest *request);
 	bool removeRequest(AbstractMetaInfoRequest *request);
