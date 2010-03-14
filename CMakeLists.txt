@@ -90,7 +90,8 @@ LIST( REMOVE_ITEM CORELAYERS .svn _svn )
 FOREACH( LAYER ${CORELAYERS} )
     IF( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}" )
         STRING( TOUPPER ${LAYER} LAYER_NAME)
-        IF( NOT DEFINED "NO_${LAYER_NAME}" )
+        option( ${LAYER_NAME} "" ON )
+        IF( ${LAYER_NAME} )
             MESSAGE( "+ layer ${LAYER_NAME} added to build" )
             FILE( GLOB_RECURSE LAYER_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}/*.h")
             FILE( GLOB_RECURSE LAYER_SOURCES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}/*.cpp")
@@ -98,10 +99,10 @@ FOREACH( LAYER ${CORELAYERS} )
             LIST( APPEND HEADERS ${LAYER_HEADERS} )
             LIST( APPEND SOURCES ${LAYER_SOURCES} )
             LIST( APPEND FORMS ${LAYER_FORMS} )
-        ELSE( NOT DEFINED "NO_${LAYER_NAME}" )
+        ELSE( ${LAYER_NAME} )
             MESSAGE( "- layer ${LAYER_NAME} will be skipped" )
             ADD_DEFINITIONS( "-DNO_CORE_${LAYER_NAME}" )
-        ENDIF( NOT DEFINED "NO_${LAYER_NAME}" )
+        ENDIF( ${LAYER_NAME} )
     ENDIF( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}" )
 ENDFOREACH( LAYER )
 
@@ -161,9 +162,9 @@ endif( LANGUAGE )
 SET (module_install_dir "${CMAKE_ROOT}/Modules")
 
 SET (CMAKE_MODULES
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindQutIM.cmake"
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/qutimuic.cmake"
-#    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/QutimPlugin.cmake"
+#    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindQutIM.cmake"
+#    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/qutimuic.cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/QutimPlugin.cmake"
 )
 SET (DEV_HEADERS
 #TODO
