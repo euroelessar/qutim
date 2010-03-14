@@ -109,12 +109,8 @@ namespace AdiumChat
 		connect(session, SIGNAL(destroyed(QObject*)), SLOT(onSessionDestroyed(QObject*)));
 		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
 				SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
-		QIcon icon;
-		if (m_chat_flags & ChatStateIconsOnTabs) {
-			icon = iconForState(ChatStateActive); //FIXME
-		}
 
-		ui->tabBar->addTab(icon,session->getUnit()->title());
+		ui->tabBar->addTab(session->getUnit()->title());
 		if (ui->tabBar->count() >1)
 			ui->tabBar->setVisible(true);
 	}
@@ -145,11 +141,11 @@ namespace AdiumChat
 		}
 		setWindowTitle(tr("Chat with %1").arg(session->getUnit()->title()));
 		
-		if ((m_chat_flags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
-			killTimer(m_timerid);
-			m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
-			m_sessions.at(previous_index)->getUnit()->setChatState(m_chatstate);
-		}
+ 		if ((m_chat_flags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
+ 			killTimer(m_timerid);
+ 			m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
+ 			m_sessions.at(previous_index)->getUnit()->setChatState(m_chatstate);
+ 		}
 
 	}
 
@@ -228,9 +224,9 @@ namespace AdiumChat
 		if (index < 0)
 			return;
 		if (unread.isEmpty()) {
-			ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
-			QIcon icon = iconForState(state);
-			ui->tabBar->setTabIcon(index, icon);
+ 			ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
+ 			QIcon icon = iconForState(state);
+ 			ui->tabBar->setTabIcon(index, icon);
 		} else if (m_chat_flags & ShowUnreadMessages) {
 			ui->tabBar->setTabIcon(index, Icon("mail-unread-new"));
 		}
@@ -293,7 +289,7 @@ namespace AdiumChat
 		if (index == -1)
 			return;
 		
-		if (m_chat_flags & ChatStateIconsOnTabs) {	
+		if (m_chat_flags & ChatStateIconsOnTabs) {
 			if (!session->unread().count())
 				ui->tabBar->setTabIcon(index,iconForState(state));
 		}
@@ -390,6 +386,7 @@ namespace AdiumChat
 			default:
 				break;
 		}
+		debug() << icon_name;
 		return Icon(icon_name);
 	}
 

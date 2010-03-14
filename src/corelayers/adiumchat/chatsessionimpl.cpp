@@ -27,6 +27,8 @@
 #include "libqutim/notificationslayer.h"
 #include "chatlayerimpl.h"
 #include "chatsessionmodel.h"
+#include <QApplication>
+#include <libqutim/debug.h>
 
 namespace AdiumChat
 
@@ -208,7 +210,7 @@ namespace AdiumChat
 			return true;
 		} else if (ev->type() == ChatStateEvent::eventType()) {
 			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
-			if (chatEvent->chatState() & ChatStateComposing)
+			if (chatEvent->chatState() == ChatStateComposing)
 				Notifications::sendNotification(Notifications::Typing, m_chat_unit);
 			return ChatSession::event(ev);
 		} else {
@@ -236,12 +238,20 @@ namespace AdiumChat
 		QString title;
 		
 		switch (contact->status().type()) {
-			case Status::Online:
-				type = Notifications::Online;
+			case Status::Online: {
+				ChatStateEvent ev (ChatStateActive);
+				setProperty("currentChatState",static_cast<int>(ChatStateActive));
+				qApp->sendEvent(this, &ev);
+				debug() << "State active";
 				break;
-			case Status::Offline:
+			}
+			case Status::Offline: {
+				ChatStateEvent ev (ChatStateGone);
+				setProperty("currentChatState",static_cast<int>(ChatStateGone));
+				qApp->sendEvent(this, &ev);
 				type = Notifications::Offline;
 				break;
+			}
 			default:
 				type = Notifications::StatusChange;
 				//title = contact->status().property("title", QVariant()).toString();
