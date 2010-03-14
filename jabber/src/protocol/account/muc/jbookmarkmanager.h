@@ -3,6 +3,7 @@
 
 #include <qutim/libqutim_global.h>
 #include <gloox/bookmarkhandler.h>
+#include <QMetaType>
 
 namespace Jabber {
 
