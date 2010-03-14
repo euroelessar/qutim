@@ -24,13 +24,13 @@ namespace Jabber
 	{
 		Q_OBJECT
 		Q_INTERFACES(Jabber::JabberExtension)
-	public:
-		JServiceBrowserModule();
-		virtual void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
-	public slots:
-		void showWindow();
-	private:
-		JAccount *m_account;
+		public:
+			JServiceBrowserModule();
+			virtual void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
+		public slots:
+			void showWindow();
+		private:
+			JAccount *m_account;
 	};
 
 	class JServiceBrowser : public QWidget, public JServiceReceiver
@@ -71,9 +71,9 @@ namespace Jabber
 			QString setServiceIcon(const JDiscoItem &di);
 		private:
 			QScopedPointer<JServiceBrowserPrivate> p;
-		/*signals:
-			void finishSearch();
+		signals:
 			void joinConference(const QString &conference);
+			/*void finishSearch();
 			void registerTransport(const QString &transport);
 			void executeCommand(const QString &command, const QString &node);
 			void showVCard(const QString &jid);

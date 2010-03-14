@@ -22,8 +22,8 @@ namespace Jabber
 		debug() << Q_FUNC_INFO;
 		m_account = qobject_cast<JAccount *>(account);
 		account->addAction(new ActionGenerator(Icon("services"),
-											   QT_TRANSLATE_NOOP("Jabber", "Service discovery"),
-											   this, SLOT(showWindow())), "Additional");
+				QT_TRANSLATE_NOOP("Jabber", "Service discovery"),
+				this, SLOT(showWindow())), "Additional");
 	}
 
 	void JServiceBrowserModule::showWindow()

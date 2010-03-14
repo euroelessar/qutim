@@ -79,7 +79,7 @@ namespace Jabber
 		QStringList accounts = config("general").value("accounts", QStringList());
 		foreach(const QString &id, accounts) {
 			JID jid(id.toStdString());
-			addAccount(new JAccount(QString::fromStdString(jid.bare())));
+			addAccount(new JAccount(QString::fromStdString(jid.bare())), true);
 		}
 
 		MenuController::addAction<JContact>(

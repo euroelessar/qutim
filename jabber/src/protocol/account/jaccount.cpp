@@ -4,6 +4,8 @@
 #include "servicediscovery/jservicebrowser.h"
 #include "servicediscovery/jservicediscovery.h"
 #include "../jprotocol.h"
+#include "muc/jmucjoin.h"
+#include "muc/jbookmarkmanager.h"
 
 namespace Jabber {
 
@@ -16,10 +18,12 @@ namespace Jabber {
 		JConnectionListener *connectionListener;
 		JMessageHandler *messageHandler;
 		QString passwd;
+		QString nick;
 		bool keepStatus;
 		bool autoConnect;
 		Presence::PresenceType status;
 		QPointer<JServiceDiscovery> discoManager;
+		JBookmarkManager *bookmarkManager;
 	};
 
 	JAccount::JAccount(const QString &jid) : Account(jid, JProtocol::instance()), p(new JAccountPrivate)
@@ -28,6 +32,7 @@ namespace Jabber {
 		p->connection = new JConnection(this);
 		p->connectionListener = new JConnectionListener(this);
 		p->roster = new JRoster(this);
+		p->bookmarkManager = new JBookmarkManager(this);
 		p->messageHandler = new JMessageHandler(this);
 		p->connection->initExtensions();
 		loadSettings();
@@ -58,6 +63,9 @@ namespace Jabber {
 	void JAccount::endChangeStatus(Presence::PresenceType presence)
 	{
 		Account::setStatus(JProtocol::presenceToStatus(presence));
+		p->bookmarkManager->sync();
+		JMUCJoin *joinConference = new JMUCJoin(this);
+		joinConference->show();
 	}
 
 	void JAccount::autoconnect()
@@ -75,6 +83,7 @@ namespace Jabber {
 		p->passwd = config().group("general").value("passwd", QString(), Config::Crypted);
 		p->autoConnect = config().group("general").value("autoconnect", false);
 		p->keepStatus = config().group("general").value("keepstatus", true);
+		p->nick = config().group("general").value("nick", id());
 		p->status = static_cast<Presence::PresenceType>(
 		config().group("general").value("prevstatus", 8));
 	}
@@ -84,6 +93,11 @@ namespace Jabber {
 		if (!p->discoManager)
 			p->discoManager = new JServiceDiscovery(this);
 		return p->discoManager;
+	}
+
+	const QString &JAccount::nick()
+	{
+		return p->nick;
 	}
 
 	const QString &JAccount::password(bool *ok)
@@ -123,6 +137,11 @@ namespace Jabber {
 	gloox::Client *JAccount::client()
 	{
 		return p->connection->client();
+	}
+
+	JBookmarkManager *JAccount::bookmarkManager()
+	{
+		return p->bookmarkManager;
 	}
 } // Jabber namespace
 
