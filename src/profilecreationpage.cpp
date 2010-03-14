@@ -178,7 +178,7 @@ void ProfileCreationPage::rebaseDirs()
 	} else {
 #if defined(Q_OS_WIN)
 		QDir dir = QString::fromLocal8Bit(qgetenv("APPDATA"));
-		ui->dataEdit->setText(dir.absoluteFilePath("/share"));
+		ui->dataEdit->setText(dir.absolutePath() % "/qutim/share/");
 		dir = QDir::cleanPath(dir.absolutePath() % "/qutim/profiles/" % ui->idEdit->text());
 		ui->configEdit->setText(dir.absoluteFilePath("config"));
 		ui->historyEdit->setText(dir.absoluteFilePath("history"));

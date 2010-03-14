@@ -85,11 +85,8 @@ namespace AdiumChat
 				setContentsMargins(0, 0, 0, 0);
 			}
 		}
-		
-		new QShortcut(QKeySequence(tr("Ctrl+Return","Send message")),
-					  this,
-					  SLOT(onSendButtonClicked())
-					  );
+		ui->pushButton->setShortcut(QKeySequence(tr("Ctrl+Return","Send message")));
+
 		new QShortcut(QKeySequence(QKeySequence::Close),
 					  this,
 					  SLOT(closeCurrentTab())
