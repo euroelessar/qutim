@@ -29,6 +29,18 @@ namespace oscar {
 class IcqAccount;
 class BuddyPicture;
 
+enum IconItemType
+{
+	miniAvatar = 0x0000, // AIM mini avatar
+	staticAvatar = 0x0001, // AIM/ICQ avatar ID/hash (len 5 or 16 bytes)
+	iChatOnlineMessage = 0x0002, // iChat online message
+	flashAvatar = 0x0008, // ICQ Flash avatar hash (16 bytes)
+	itunesLink = 0x0009, // iTunes music store link
+	photoAvatar = 0x000c, // ICQ contact photo (16 bytes)
+	lastTime = 0x000D, // Last update time of online message
+	statusMood = 0x000e // Status mood
+};
+
 class BuddyPicture: public AbstractConnection, public FeedbagItemHandler, public RosterPlugin
 {
 	Q_OBJECT
@@ -47,9 +59,14 @@ protected:
 private slots:
 	void disconnected();
 private:
+	inline QString getAvatarDir() const;
+	inline bool setAvatar(QObject *obj, const QByteArray &hash);
+	inline void updateData(QObject *obj, const QByteArray &hash, const QString &path);
+private:
 	QList<SNAC> m_history;
 	bool m_is_connected;
 	QByteArray m_cookie;
+	static QByteArray emptyHash;
 };
 
 } } // namespace qutim_sdk_0_3::oscar
