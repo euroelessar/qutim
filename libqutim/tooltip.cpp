@@ -67,6 +67,8 @@ namespace qutim_sdk_0_3
 						   % QLatin1Literal("</b> &lt;")
 						   % c->id()
 						   % QLatin1Literal("&gt;<br/>")
+						   % c->account()->id()
+						   % QLatin1Literal("<br/")
 						   % html(c, true)
 						   % QLatin1Literal("</td><td><img width=\"64\" src=\"")
 						   % ava

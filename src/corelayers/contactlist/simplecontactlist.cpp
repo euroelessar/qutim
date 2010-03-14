@@ -123,6 +123,11 @@ namespace Core
 
 			p->widget->setLayout(layout);
 			p->model = new Model(p->view);
+
+			// TODO: choose another, non-kopete icon
+			gen = new ActionGenerator(Icon("view-user-offline-kopete"), QByteArray(), p->model, SLOT(onHideShowOffline()));
+			addButton(gen);
+
 			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));
 			p->view->setModel(p->model);
 			p->view->setRootIsDecorated(false);
@@ -146,6 +151,7 @@ namespace Core
 			p->search_bar = new QLineEdit(p->widget);
 			p->search_bar->setVisible(false);
 			connect(p->search_btn,SIGNAL(toggled(bool)),p->search_bar,SLOT(setVisible(bool)));
+			connect(p->search_bar, SIGNAL(textChanged(QString)), p->model, SLOT(onFilterList(QString)));
 
 			layout->addWidget(p->search_bar);
 			bottom_layout->addWidget(p->status_btn);

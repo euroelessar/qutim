@@ -154,6 +154,7 @@ namespace qutim_sdk_0_3
 		{ return extends(qobject_interface_iid<T *>()); }
 		QObject *generateHelper2() const;
 #endif
+	protected:
 		/**
 		* @brief Generate object.
 		*

@@ -21,6 +21,7 @@
 #include "protocol.h"
 #include "contactlist.h"
 #include "notificationslayer.h"
+#include "systeminfo.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
@@ -82,6 +83,7 @@ namespace qutim_sdk_0_3
 		QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
 		QSet<QByteArray> interface_modules;
 		QSet<const QMetaObject *> meta_modules;
+		QList<const ExtensionInfo> modules;
 	};
 
 	/**
@@ -343,6 +345,7 @@ namespace qutim_sdk_0_3
 	{
 //		qutim_sdk_0_3::self = initExtension<CryptoService>();
 		if (ConfigPrivate::config_backends.isEmpty()) {
+			// Is it really possible?.. May be we should remove it?
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions<ConfigBackend>();
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
 			for(; it != exts.end(); it++)
@@ -360,6 +363,9 @@ namespace qutim_sdk_0_3
 				}
 				ConfigPrivate::config_backends << qMakePair(name, it.value().generator()->generate<ConfigBackend>());
 			}
+		}
+		{
+			SystemInfo::getDir(SystemInfo::ConfigDir).filePath("modules.json");
 		}
 		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions<Protocol>();

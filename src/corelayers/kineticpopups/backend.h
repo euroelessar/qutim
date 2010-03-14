@@ -30,6 +30,8 @@ namespace KineticPopups
 		virtual void show(Notifications::Type type, QObject* sender,
 						  const QString& body, const QVariant& data);
 		Backend ();
+	public slots:
+		void onButtonClick();
 	};
 
 }

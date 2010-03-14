@@ -31,7 +31,13 @@ namespace Core
 			void contactStatusChanged(qutim_sdk_0_3::Status status);
 			void contactNameChanged(const QString &name);
 			void contactTagsChanged(const QSet<QString> &tags);
+			void onHideShowOffline();
+			void onFilterList(const QString &filter);
 		private:
+			void filterAllList();
+			bool isVisible(ContactItem *item);
+			void hideContact(int index, const QModelIndex &tagIndex, bool hide);
+			void recheckTag(TagItem *item, int index = -1);
 			TagItem *ensureTag(const QString &name);
 //			QModelIndex createIndex(
 			QScopedPointer<ModelPrivate> p;

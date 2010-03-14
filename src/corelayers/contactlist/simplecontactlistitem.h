@@ -32,8 +32,10 @@ namespace Core
 		class TagItem
 		{
 		public:
-			inline TagItem() : type(TagType) {}
+			inline TagItem() : type(TagType), visible(0), online(0) {}
 			const ItemType type;
+			int visible;
+			int online;
 			QString name;
 			QList<ContactItem *> contacts;
 		};
