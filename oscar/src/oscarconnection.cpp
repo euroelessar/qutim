@@ -23,6 +23,7 @@
 #include "messages_p.h"
 #include "oscarstatus_p.h"
 #include "sessiondataitem.h"
+#include "metainfo_p.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/notificationslayer.h>
 #include <QHostInfo>
@@ -55,6 +56,7 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
 		registerHandler(gen->generate<SNACHandler>());
+	registerHandler(&MetaInfo::instance());
 }
 
 void OscarConnection::connectToLoginServer(const QString &password)
