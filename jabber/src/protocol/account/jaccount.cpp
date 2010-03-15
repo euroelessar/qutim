@@ -6,6 +6,7 @@
 #include "../jprotocol.h"
 #include "muc/jmucjoin.h"
 #include "muc/jbookmarkmanager.h"
+#include "muc/jinvitemanager.h"
 
 namespace Jabber {
 
@@ -24,6 +25,7 @@ namespace Jabber {
 		Presence::PresenceType status;
 		QPointer<JServiceDiscovery> discoManager;
 		JBookmarkManager *bookmarkManager;
+		JInviteManager *inviteManager;
 	};
 
 	JAccount::JAccount(const QString &jid) : Account(jid, JProtocol::instance()), p(new JAccountPrivate)
@@ -33,6 +35,7 @@ namespace Jabber {
 		p->connectionListener = new JConnectionListener(this);
 		p->roster = new JRoster(this);
 		p->bookmarkManager = new JBookmarkManager(this);
+		p->inviteManager = new JInviteManager(this);
 		p->messageHandler = new JMessageHandler(this);
 		p->connection->initExtensions();
 		loadSettings();

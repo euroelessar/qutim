@@ -53,7 +53,7 @@ namespace Jabber
 		m_room->leave();
 	}
 
-	JMUCSession::join()
+	void JMUCSession::join()
 	{
 		Presence &pres = m_account->client()->presence();
 		m_room->join(pres.subtype(), pres.status(), pres.priority());
