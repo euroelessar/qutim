@@ -66,22 +66,30 @@ namespace Jabber
 	void JMUCJoin::fillBookmarks()
 	{
 		Q_D(JMUCJoin);
-		//disconnect(d->ui->comboEditBookmarks, SIGNAL(currentIndexChanged(int)), SLOT(editBookmarkChanged(int)));
-		//disconnect(d->ui->comboEnterBookmarks, SIGNAL(currentIndexChanged(int)), SLOT(enterBookmarkChanged(int)));
+		d->ui->comboEditBookmarks->clear();
+		d->ui->comboEnterBookmarks->clear();
 		d->ui->comboEditBookmarks->addItem("");
+		d->ui->comboEnterBookmarks->addItem("");
 		foreach (JBookmark bookmark, d->account->bookmarkManager()->bookmarks()) {
-			QString text;
-			if (bookmark.name.isEmpty())
-				text = bookmark.name%"\n<font color=#808080>"%bookmark.conference%"\n"%bookmark.name%"</font>";
-			else
-				text = bookmark.conference%"\n<font color=#808080>"%bookmark.name%"</font>";
-			d->ui->comboEnterBookmarks->addItem(bookmark.name);
+			d->ui->comboEnterBookmarks->addItem(bookmark.name%"\n"%bookmark.conference%"\n"%bookmark.nick);
+			d->ui->comboEnterBookmarks->setItemData(d->ui->comboEnterBookmarks->count() - 1,
+					qVariantFromValue(bookmark), Qt::UserRole+1);
 			d->ui->comboEditBookmarks->addItem(bookmark.name);
 			d->ui->comboEditBookmarks->setItemData(d->ui->comboEditBookmarks->count() - 1,
 					qVariantFromValue(bookmark), Qt::UserRole+1);
-			d->ui->comboEnterBookmarks->setItemData(d->ui->comboEnterBookmarks->count(),
-					qVariantFromValue(bookmark), Qt::UserRole+1);
 		}
+		int separator = d->ui->comboEnterBookmarks->count();
+		bool isRecent = false;
+		foreach (JBookmark bookmark, d->account->bookmarkManager()->recent()) {
+			if (d->account->bookmarkManager()->bookmarks().contains(bookmark))
+				continue;
+			d->ui->comboEnterBookmarks->addItem(bookmark.conference%"\n"%bookmark.nick);
+			d->ui->comboEnterBookmarks->setItemData(d->ui->comboEnterBookmarks->count() - 1,
+					qVariantFromValue(bookmark), Qt::UserRole+1);
+			isRecent = true;
+		}
+		if (isRecent)
+			d->ui->comboEnterBookmarks->insertSeparator(separator);
 		connect(d->ui->comboEditBookmarks, SIGNAL(currentIndexChanged(int)), SLOT(editBookmarkChanged(int)));
 		connect(d->ui->comboEnterBookmarks, SIGNAL(currentIndexChanged(int)), SLOT(enterBookmarkChanged(int)));
 		d->ui->comboEnterBookmarks->setCurrentIndex(0);
@@ -100,7 +108,8 @@ namespace Jabber
 		if (conference.isEmpty() || nick.isEmpty())
 			return;
 		if (d->ui->checkSaveBookmark->isChecked() && !name.isEmpty()) {
-			d->account->bookmarkManager()->saveBookmark(name, conference, nick, password);
+			d->account->bookmarkManager()->saveBookmark(d->account->bookmarkManager()->bookmarks().count(),
+					name, conference, nick, password);
 		}
 		d->account->bookmarkManager()->saveRecent(conference, nick, password);
 		//joinConference(conference, nick, password);
@@ -124,38 +133,32 @@ namespace Jabber
 		QString conference(d->ui->lineEditConference->text());
 		QString nick(d->ui->lineEditNick->text());
 		QString password(d->ui->lineEditPassword->text());
+		bool autojoin = d->ui->checkEditAutojoin->isChecked();
 		if (conference.isEmpty() || nick.isEmpty())
 			return;
 		if (name.isEmpty())
 			name = conference;
-		JBookmark bookmark;
-		int index = d->ui->comboEditBookmarks->currentIndex();
-		if (index > 0)
-			bookmark = d->ui->comboEditBookmarks->itemData(index, Qt::UserRole+1).value<JBookmark >();
-		int currentIndex = index > 0 ? index : d->account->bookmarkManager()->bookmarks().count();
-		if (index > 0)
-			d->account->bookmarkManager()->saveBookmark(bookmark, name, conference, nick, password);
-		else
-			d->account->bookmarkManager()->saveBookmark(name, conference, nick, password);
+		int currentIndex = d->ui->comboEditBookmarks->currentIndex() > 0 ?
+				d->ui->comboEditBookmarks->currentIndex() : d->account->bookmarkManager()->bookmarks().count();
+		d->account->bookmarkManager()->saveBookmark(currentIndex, name, conference, nick, password, autojoin);
 		fillBookmarks();
 		d->ui->comboEditBookmarks->setCurrentIndex(currentIndex);
 	}
 
 	void JMUCJoin::on_buttonDelete_clicked()
 	{
-		JBookmark bookmark = d_ptr->ui->comboEditBookmarks->itemData(d_ptr->ui->comboEditBookmarks->currentIndex(),
-				Qt::UserRole+1).value<JBookmark >();
 		if (d_ptr->ui->comboEditBookmarks->currentIndex() > 0)
-			d_ptr->account->bookmarkManager()->removeBookmark(bookmark);
+			d_ptr->account->bookmarkManager()->removeBookmark(d_ptr->ui->comboEditBookmarks->currentIndex());
 		fillBookmarks();
 	}
 
 	void JMUCJoin::editBookmarkChanged(int index)
 	{
 		if (index) {
-			JBookmark bookmark = d_ptr->ui->comboEditBookmarks->itemData(index, Qt::UserRole+1).value<JBookmark >();
+			JBookmark bookmark = d_ptr->ui->comboEditBookmarks->itemData(index, Qt::UserRole+1).value<JBookmark>();
 			setEditConference(bookmark.name, bookmark.conference,
 					bookmark.nick, bookmark.password, bookmark.autojoin);
+			d_ptr->ui->comboEditBookmarks->setEditText(bookmark.name);
 		} else {
 			setEditConference("", "", "", "", false);
 		}
@@ -163,8 +166,12 @@ namespace Jabber
 
 	void JMUCJoin::enterBookmarkChanged(int index)
 	{
-		JBookmark bookmark = d_ptr->ui->comboEditBookmarks->itemData(index, Qt::UserRole+1).value<JBookmark >();
+		JBookmark bookmark = d_ptr->ui->comboEditBookmarks->itemData(index, Qt::UserRole+1).value<JBookmark>();
 		setEnterConference(bookmark.conference, bookmark.nick, bookmark.password);
+		if (bookmark.name.isEmpty())
+			d_ptr->ui->comboEnterBookmarks->setEditText(bookmark.conference);
+		else
+			d_ptr->ui->comboEnterBookmarks->setEditText(bookmark.name);
 	}
 
 	/*************************** End actions block *****************************/
