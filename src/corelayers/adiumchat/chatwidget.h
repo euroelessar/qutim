@@ -70,7 +70,7 @@ namespace AdiumChat
 		bool m_html_message;
 		bool m_remove_session_on_close;
 		ChatState m_chatstate;
-		int m_timerid;
+		int m_self_chatstate_timer;
 		int m_timeout;
 	private slots:
 		void currentIndexChanged (int index);
@@ -79,7 +79,6 @@ namespace AdiumChat
 		void onSessionDestroyed(QObject* object);
 		void onSendButtonClicked();		
 		void onTextChanged(); //TODO separate from chatlayer
-		void onMessageSended(const Message &message);
 		void onTabContextMenu(const QPoint &pos);
 		void closeCurrentTab();
 	};

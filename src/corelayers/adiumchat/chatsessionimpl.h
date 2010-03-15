@@ -49,11 +49,14 @@ namespace AdiumChat
 		virtual void setChatUnit(ChatUnit* unit);
 		virtual bool isActive();
 		bool event(QEvent *);
+		void setChatState(ChatState state);
+		ChatState getChatState() const {return m_myself_chat_state;};
 	public slots:
 		QVariant evaluateJavaScript(const QString &scriptSource);
 	protected:
 		QScopedPointer<ChatStyleOutput> m_chat_style_output;
 		void loadHistory();
+		virtual void timerEvent(QTimerEvent *event);
 	protected slots:
 		void onStatusChanged(qutim_sdk_0_3::Status);
 	private:
@@ -66,7 +69,9 @@ namespace AdiumChat
 		bool m_skipOneMerge;
 		bool m_active;
 		bool m_store_service_messages;
+		int m_inactive_timer;
 		MessageList m_unread;
+		ChatState m_myself_chat_state;
 	};
 }
 #endif // CHATSESSIONIMPL_H

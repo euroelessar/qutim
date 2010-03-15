@@ -48,6 +48,7 @@ namespace AdiumChat
 		loadHistory();
 		if (Contact *c = qobject_cast<Contact *>(unit))
 			statusChanged(c,true);
+		setChatState(ChatStateActive);
 	}
 
 	void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)
@@ -109,11 +110,9 @@ namespace AdiumChat
 			unreadChanged(m_unread);
 		}
 		
-		if (message.isIncoming())
-			emit messageReceived(message);
-		else
-			emit messageSended(message);
-		
+		if (!message.isIncoming())
+			setChatState(ChatStateActive);
+
 		bool same_from = false;
 		bool service = tmp_message.property("service").isValid();
 		QString item;
@@ -235,7 +234,7 @@ namespace AdiumChat
 	{
 		Message msg;		
 		Notifications::Type type;
-		QString title;
+		QString title = contact->status().name().toString();
 		
 		switch (contact->status().type()) {
 			case Status::Online: {
@@ -258,7 +257,7 @@ namespace AdiumChat
 				break;
 		}
 		
-		title = title.isEmpty() ? contact->status().name().toString() : title;
+		//title = title.isEmpty() ? contact->status().name().toString() : title;
 		
 		msg.setChatUnit(contact);
 		msg.setIncoming(true);
@@ -304,6 +303,27 @@ namespace AdiumChat
 		Contact *c = qobject_cast<Contact *>(unit);
 		if (c) {
 			connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+		}
+	}
+
+	void ChatSessionImpl::timerEvent(QTimerEvent *event)
+	{
+		if (event->timerId() == m_inactive_timer) {
+			debug() << "set inactive state";
+			setChatState(ChatStateInActive);
+			killTimer(m_inactive_timer);
+		}
+		QObject::timerEvent(event);
+	}
+
+	void ChatSessionImpl::setChatState(ChatState state)
+	{
+		m_chat_unit->setChatState(state);
+		m_myself_chat_state = state;
+		if ((state != ChatStateInActive) && (state != ChatStateGone) && (state != ChatStateComposing)) {
+			killTimer(m_inactive_timer);
+			m_inactive_timer = startTimer(120000);
+			debug() << "timer activated";
 		}
 	}
 }

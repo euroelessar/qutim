@@ -105,7 +105,6 @@ namespace AdiumChat
 			return;
 		m_sessions.append(session);
 		session->installEventFilter(this);
-		connect(session, SIGNAL(messageSended(Message)), SLOT(onMessageSended(Message)));
 		connect(session, SIGNAL(destroyed(QObject*)), SLOT(onSessionDestroyed(QObject*)));
 		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
 				SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
@@ -142,9 +141,9 @@ namespace AdiumChat
 		setWindowTitle(tr("Chat with %1").arg(session->getUnit()->title()));
 		
  		if ((m_chat_flags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
- 			killTimer(m_timerid);
+			killTimer(m_self_chatstate_timer);
  			m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
- 			m_sessions.at(previous_index)->getUnit()->setChatState(m_chatstate);
+			m_sessions.at(previous_index)->setChatState(m_chatstate);
  		}
 
 	}
@@ -281,6 +280,9 @@ namespace AdiumChat
 		session->appendMessage(message);
 		session->getUnit()->sendMessage(message);
 		ui->chatEdit->clear();
+
+		killTimer(m_self_chatstate_timer);
+		m_chatstate = ChatStateActive;
 	}
 
 	void ChatWidget::chatStateChanged(ChatState state, ChatSessionImpl *session)
@@ -304,23 +306,19 @@ namespace AdiumChat
 	
 	void ChatWidget::onTextChanged()
 	{
-		killTimer(m_timerid);
-		m_timerid = startTimer(m_timeout);
-		if (!(m_chatstate & ChatStateComposing)) {
-			ChatUnit *unit = m_sessions.at(ui->tabBar->currentIndex())->getUnit();
+		killTimer(m_self_chatstate_timer);
+		m_self_chatstate_timer = startTimer(m_timeout);
+		if ((m_chatstate != ChatStateComposing) && (!ui->chatEdit->toPlainText().isEmpty())) {
 			m_chatstate = ChatStateComposing;
-			unit->setChatState(m_chatstate);
-			debug()<< "typing to" << unit->title();
+			 m_sessions.at(ui->tabBar->currentIndex())->setChatState(m_chatstate);
 		}
 	}
 
 	void ChatWidget::timerEvent(QTimerEvent* e)
 	{
 		m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
-		ChatUnit *unit = m_sessions.at(ui->tabBar->currentIndex())->getUnit();
-		debug() << "paused to" << unit->title();
-		unit->setChatState(m_chatstate);
-		killTimer(m_timerid);
+		m_sessions.at(ui->tabBar->currentIndex())->setChatState(m_chatstate);
+		killTimer(m_self_chatstate_timer);
 		QObject::timerEvent(e);
 	}
 
@@ -334,23 +332,6 @@ namespace AdiumChat
 			m_sessions.at(ui->tabBar->currentIndex())->setActive(active);
 		}
 		return QMainWindow::event(event);
-	}
-
-	void ChatWidget::onMessageSended(const qutim_sdk_0_3::Message& message)
-	{
-		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
-		if (!session)
-			return;
-		
-		int index = m_sessions.indexOf(session);
-		if (index == -1)
-			return;
-		
-		if (m_chat_flags & SendTypingNotification) {
-			killTimer(m_timerid);
-			m_chatstate = ChatStateActive;
-			m_sessions.at(index)->getUnit()->setChatState(m_chatstate);
-		}
 	}
 
 	void ChatWidget::onTabContextMenu(const QPoint &pos)
