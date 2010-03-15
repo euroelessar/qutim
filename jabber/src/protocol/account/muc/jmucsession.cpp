@@ -35,8 +35,6 @@ namespace Jabber
 		m_roomJid = room.bareJID();
 		m_room = new MUCRoom(account->client(), room, this, this);
 		m_account = account;
-		Presence &pres = m_account->client()->presence();
-		m_room->join(pres.subtype(), pres.status(), pres.priority());
 		m_isJoined = false;
 	}
 
@@ -53,6 +51,12 @@ namespace Jabber
 	JMUCSession::~JMUCSession()
 	{
 		m_room->leave();
+	}
+
+	JMUCSession::join()
+	{
+		Presence &pres = m_account->client()->presence();
+		m_room->join(pres.subtype(), pres.status(), pres.priority());
 	}
 
 	QString JMUCSession::id() const
