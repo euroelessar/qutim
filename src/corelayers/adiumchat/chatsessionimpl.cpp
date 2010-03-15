@@ -27,6 +27,8 @@
 #include "libqutim/notificationslayer.h"
 #include "chatlayerimpl.h"
 #include "chatsessionmodel.h"
+#include <QApplication>
+#include <libqutim/debug.h>
 
 namespace AdiumChat
 
@@ -46,6 +48,7 @@ namespace AdiumChat
 		loadHistory();
 		if (Contact *c = qobject_cast<Contact *>(unit))
 			statusChanged(c,true);
+		setChatState(ChatStateActive);
 	}
 
 	void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)
@@ -107,11 +110,9 @@ namespace AdiumChat
 			unreadChanged(m_unread);
 		}
 		
-		if (message.isIncoming())
-			emit messageReceived(message);
-		else
-			emit messageSended(message);
-		
+		if (!message.isIncoming())
+			setChatState(ChatStateActive);
+
 		bool same_from = false;
 		bool service = tmp_message.property("service").isValid();
 		QString item;
@@ -208,7 +209,7 @@ namespace AdiumChat
 			return true;
 		} else if (ev->type() == ChatStateEvent::eventType()) {
 			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
-			if (chatEvent->chatState() & ChatStateComposing)
+			if (chatEvent->chatState() == ChatStateComposing)
 				Notifications::sendNotification(Notifications::Typing, m_chat_unit);
 			return ChatSession::event(ev);
 		} else {
@@ -233,22 +234,30 @@ namespace AdiumChat
 	{
 		Message msg;		
 		Notifications::Type type;
-		QString title;
+		QString title = contact->status().name().toString();
 		
 		switch (contact->status().type()) {
-			case Status::Online:
-				type = Notifications::Online;
+			case Status::Online: {
+				ChatStateEvent ev (ChatStateActive);
+				setProperty("currentChatState",static_cast<int>(ChatStateActive));
+				qApp->sendEvent(this, &ev);
+				debug() << "State active";
 				break;
-			case Status::Offline:
+			}
+			case Status::Offline: {
+				ChatStateEvent ev (ChatStateGone);
+				setProperty("currentChatState",static_cast<int>(ChatStateGone));
+				qApp->sendEvent(this, &ev);
 				type = Notifications::Offline;
 				break;
+			}
 			default:
 				type = Notifications::StatusChange;
 				//title = contact->status().property("title", QVariant()).toString();
 				break;
 		}
 		
-		title = title.isEmpty() ? contact->status().name().toString() : title;
+		//title = title.isEmpty() ? contact->status().name().toString() : title;
 		
 		msg.setChatUnit(contact);
 		msg.setIncoming(true);
@@ -294,6 +303,27 @@ namespace AdiumChat
 		Contact *c = qobject_cast<Contact *>(unit);
 		if (c) {
 			connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+		}
+	}
+
+	void ChatSessionImpl::timerEvent(QTimerEvent *event)
+	{
+		if (event->timerId() == m_inactive_timer) {
+			debug() << "set inactive state";
+			setChatState(ChatStateInActive);
+			killTimer(m_inactive_timer);
+		}
+		QObject::timerEvent(event);
+	}
+
+	void ChatSessionImpl::setChatState(ChatState state)
+	{
+		m_chat_unit->setChatState(state);
+		m_myself_chat_state = state;
+		if ((state != ChatStateInActive) && (state != ChatStateGone) && (state != ChatStateComposing)) {
+			killTimer(m_inactive_timer);
+			m_inactive_timer = startTimer(120000);
+			debug() << "timer activated";
 		}
 	}
 }

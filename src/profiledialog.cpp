@@ -22,13 +22,23 @@ ProfileDialog::ProfileDialog(ModuleManager *parent) :
 {
 	m_manager = parent;
 	ui->setupUi(this);
+
 	QDir dir = qApp->applicationDirPath();
 	if (dir.exists("profiles")) {
 		dir.cd("profiles");
 	} else {
-		dir = QDir::home();
-		dir.mkpath(".config/qutim/profiles");
-		dir.cd(".config/qutim/profiles");
+
+#if defined(Q_OS_WIN)
+		dir = QString::fromLocal8Bit(qgetenv("APPDATA"));
+#elif defined(Q_OS_MAC)
+		dir = QDir::homePath() + "/Library/Application Support";
+#elif defined(Q_OS_UNIX)
+		dir = QDir::home().absoluteFilePath(".config");
+#else
+# Undefined OS
+#endif
+		dir.mkpath("qutim/profiles");
+		dir.cd("qutim/profiles");
 	}
 	QFileInfo profilesInfo(dir.filePath("profiles.json"));
 	if (!profilesInfo.exists() || !profilesInfo.isFile()) {
@@ -144,8 +154,8 @@ void ProfileDialog::on_createButton_clicked()
 	QWidget *wizard = new ProfileCreationWizard(m_manager, ui->nameEdit->text(),
 												ui->originalPasswordEdit->text());
 	wizard->show();
-	deleteLater();
 
+	deleteLater(); //FIXME, perhaps this leads to abnormal behavior when creating a profile, Sau
 }
 
 void ProfileDialog::changeEvent(QEvent *e)

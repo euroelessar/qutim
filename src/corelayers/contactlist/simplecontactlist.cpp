@@ -141,6 +141,11 @@ namespace Core
 			p->search_btn = new QPushButton(p->widget);
 			p->search_btn->setIcon(Icon("edit-find"));
 			p->search_btn->setCheckable(true);
+			
+			//TODO experiments. Need configuration support
+			
+			p->search_btn->setShortcut(QKeySequence::Find);
+			p->status_btn->setShortcut(QKeySequence("Ctrl+S"));
 
 			p->status_btn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 			p->search_btn->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Preferred);
@@ -148,6 +153,7 @@ namespace Core
 			p->search_bar = new QLineEdit(p->widget);
 			p->search_bar->setVisible(false);
 			connect(p->search_btn,SIGNAL(toggled(bool)),p->search_bar,SLOT(setVisible(bool)));
+			connect(p->search_btn,SIGNAL(toggled(bool)),p->search_bar,SLOT(setFocus()));
 			connect(p->search_bar, SIGNAL(textChanged(QString)), p->model, SLOT(onFilterList(QString)));
 
 			layout->addWidget(p->search_bar);

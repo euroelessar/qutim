@@ -466,10 +466,10 @@ namespace Core
 				int tagIndex = p->tags.indexOf(tag);
 				QModelIndex tagModelIndex = createIndex(tagIndex, 0, tag);
 				QList<ContactItem *> contacts = tag->contacts;
-				QList<ContactItem *>::const_iterator it =
+				QList<ContactItem *>::const_iterator search_it =
 						qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
 
-				int index = it - contacts.constBegin();
+				int index = search_it - contacts.constBegin();
 				beginInsertRows(tagModelIndex, index, index);
 				item->parent = tag;
 				item_data->items << item;
@@ -564,8 +564,8 @@ namespace Core
 			}
 			Contact *contact = item->data->contact;
 			if (!p->lastFilter.isEmpty()) {
-				return contact->id().contains(p->lastFilter)
-				|| contact->name().contains(p->lastFilter);
+				return contact->id().contains(p->lastFilter,Qt::CaseInsensitive)
+				|| contact->name().contains(p->lastFilter,Qt::CaseInsensitive);
 			} else {
 				return p->showOffline || contact->status().type() != Status::Offline;
 			}
