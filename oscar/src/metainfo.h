@@ -152,6 +152,7 @@ public:
 	quint16 id() const;
 	IcqAccount *account() const;
 	bool isDone() const;
+	void setTimeout(int msec);
 signals:
 	void done(bool ok);
 public slots:

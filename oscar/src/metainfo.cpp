@@ -82,6 +82,11 @@ bool AbstractMetaInfoRequest::isDone() const
 	return d_func()->ok;
 }
 
+void AbstractMetaInfoRequest::setTimeout(int msec)
+{
+	d_func()->timer.setInterval(msec);
+}
+
 void AbstractMetaInfoRequest::cancel()
 {
 	close(false);
@@ -93,6 +98,9 @@ AbstractMetaInfoRequest::AbstractMetaInfoRequest(IcqAccount *account, AbstractMe
 	d->id = MetaInfo::instance().nextId();
 	d->account = account;
 	d->ok = false;
+	d->timer.setInterval(60000);
+	d->timer.setSingleShot(true);
+	connect(&d->timer, SIGNAL(timeout()), this, SLOT(cancel()));
 }
 
 void AbstractMetaInfoRequest::sendRequest(quint16 type, const DataUnit &extendData) const
@@ -111,6 +119,7 @@ void AbstractMetaInfoRequest::sendRequest(quint16 type, const DataUnit &extendDa
 	snac.appendTLV(1, tlvData);
 	MetaInfo::instance().addRequest(const_cast<AbstractMetaInfoRequest*>(this));
 	d->account->connection()->send(snac);
+	d->timer.start();
 }
 
 void AbstractMetaInfoRequest::close(bool ok)

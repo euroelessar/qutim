@@ -19,6 +19,7 @@
 
 #include "metainfo.h"
 #include "icqaccount.h"
+#include <QTimer>
 
 namespace qutim_sdk_0_3 {
 
@@ -30,6 +31,7 @@ public:
 	quint16 id;
 	IcqAccount *account;
 	bool ok;
+	mutable QTimer timer;
 };
 
 class ShortInfoMetaRequestPrivate : public AbstractMetaInfoRequestPrivate

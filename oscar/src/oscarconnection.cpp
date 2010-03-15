@@ -56,7 +56,6 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
 		registerHandler(gen->generate<SNACHandler>());
-	registerHandler(&MetaInfo::instance());
 }
 
 void OscarConnection::connectToLoginServer(const QString &password)
