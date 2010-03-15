@@ -113,6 +113,7 @@ namespace Jabber
 		}
 		d->account->bookmarkManager()->saveRecent(conference, nick, password);
 		//joinConference(conference, nick, password);
+		close();
 	}
 
 	void JMUCJoin::on_buttonSearch_clicked()
