@@ -71,6 +71,7 @@ IcqContact::IcqContact(const QString &uin, IcqAccount *account) :
 	d->uin = uin;
 	d->status = Status::Offline;
 	d->clearCapabilities();
+	d->state = ChatStateGone;
 }
 
 IcqContact::~IcqContact()
@@ -426,6 +427,17 @@ void IcqContact::setCapabilities(const Capabilities &caps)
 			d->flags |= avatar_support;
 	}
 	d->capabilities = caps;
+}
+
+void IcqContact::setChatState(ChatState state)
+{
+	d_func()->state = state;
+	qApp->postEvent(ChatLayer::get(this, true), new ChatStateEvent(state));
+}
+
+ChatState IcqContact::chatState() const
+{
+	return d_func()->state;
 }
 
 bool IcqContact::event(QEvent *ev)

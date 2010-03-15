@@ -242,19 +242,24 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		IcqContact *contact = m_account->getContact(uin);
 		if (contact) {
 			ChatState newState;
-			if (type == MtnFinished)
-				newState = ChatStateInActive;
-			else if (type == MtnTyped)
+			if (type == MtnFinished) {
+				ChatState old = contact->chatState();
+				if (old == ChatStateActive || old == ChatStateInActive)
+					newState = ChatStateInActive;
+				else
+					newState = ChatStateActive;
+			} else if (type == MtnTyped) {
 				newState = ChatStatePaused;
-			else if (type == MtnBegun)
+			} else if (type == MtnBegun) {
 				newState = ChatStateComposing;
-			else if (type == MtnGone)
+			} else if (type == MtnGone) {
 				newState = ChatStateGone;
-			else
+			} else {
 				debug() << "Unknown typing notification from"
 						<< contact->id() << ", type" << type;
-			debug() << contact->id() << "typing state changed to" << type;
-			qApp->postEvent(ChatLayer::get(contact, true), new ChatStateEvent (newState));
+			}
+			debug() << contact->name() << "typing state changed to" << type;
+			contact->setChatState(newState);
 		}
 		break;
 	}

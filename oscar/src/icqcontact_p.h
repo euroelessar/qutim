@@ -70,6 +70,7 @@ struct IcqContactPrivate
 	DirectConnectionInfo dc_info;
 	QList<FeedbagItem> items;
 	QStringList tags;
+	ChatState state;
 	IcqContact *q_ptr;
 };
 
