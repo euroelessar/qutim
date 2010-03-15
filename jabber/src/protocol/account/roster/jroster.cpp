@@ -146,13 +146,13 @@ namespace Jabber
 					contact->addResource(QString::fromStdString(resource->first));
 				}*/
 				c_d->inList = true;
-				debug() << contact->id() << contact->name() << contact->tags();
+//				debug() << contact->id() << contact->name() << contact->tags();
 				ContactList::instance()->addContact(contact);
 				p->contacts.insert(jid, contact);
 				//debug() << contact->name() << contact->tags();
 			}
 		}
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~roster";
+//		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~roster";
 	}
 
 	void JRoster::handleRosterPresence(const RosterItem &item,
@@ -164,18 +164,18 @@ namespace Jabber
 
 	void JRoster::handlePresence(const Presence &presence)
 	{
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~presence";
+//		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~presence";
 		QString jid(QString::fromStdString(presence.from().bare()));
 		QString resource(QString::fromStdString(presence.from().resource()));
 		if (presence.from().bare() == p->account->client()->jid().bare())
 			 return;
-		debug() << QString::fromStdString(presence.from().full()) << jid << resource;
+//		debug() << QString::fromStdString(presence.from().full()) << jid << resource;
 		if (!p->contacts.contains(jid)) {
 			JContact *contact = new JContact(jid, p->account);
 			JContactPrivate *c_d = contact->d_func();
 			c_d->name = QString::fromStdString(presence.from().username());
 			c_d->inList = false;
-			debug() << contact->id() << contact->name() << contact->tags();
+//			debug() << contact->id() << contact->name() << contact->tags();
 			ContactList::instance()->addContact(contact);
 			p->contacts.insert(jid, contact);
 		}
@@ -191,24 +191,24 @@ namespace Jabber
 
 	bool JRoster::handleSubscriptionRequest(const JID &jid, const std::string &msg)
 	{
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~subscription request";
+//		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~subscription request";
 		return false;
 	}
 
 	bool JRoster::handleUnsubscriptionRequest(const JID &jid, const std::string &msg)
 	{
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~unsubscription request";
+//		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~unsubscription request";
 		return true;
 	}
 
 	void JRoster::handleNonrosterPresence(const Presence &presence)
 	{
 		//debug() << QString::fromStdString(presence.tag()->xml());
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~nonroster presence";
+//		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~nonroster presence";
 	}
 
 	void JRoster::handleRosterError(const IQ &iq)
 	{
-		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~roster error";
+//		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~roster error";
 	}
 }

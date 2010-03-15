@@ -14,6 +14,10 @@ namespace Jabber {
 
 	struct JBookmark
 	{
+		JBookmark(const QString &o_name, const QString &o_conference,
+					 const QString &o_nick, const QString &o_password, bool o_autojoin = false);
+		inline JBookmark() {}
+		bool operator==(const JBookmark &other) const;
 		QString name;
 		QString conference;
 		QString nick;
@@ -29,14 +33,18 @@ namespace Jabber {
 			~JBookmarkManager();
 			void handleBookmarks(const BookmarkList &bList, const ConferenceList &cList);
 			QList<JBookmark> bookmarks();
-			void saveBookmark(JBookmark bookmark, const QString &name, const QString &conference,
-					const QString &nick, const QString &password);
-			void saveBookmark(const QString &name, const QString &conference, const QString &nick, const QString &password);
+			QList<JBookmark> recent();
+			void saveBookmark(int index, const QString &name, const QString &conference,
+					const QString &nick, const QString &password, bool autojoin = false);
 			void saveRecent(const QString &conference, const QString &nick, const QString &password);
-			void removeBookmark(JBookmark bookmark);
+			void removeBookmark(int index);
 			void sync();
 		signals:
 			void bookmarksChanged();
+		protected:
+			void readFromCache(const QString &type, const QList<JBookmark> &list);
+			void writeToCache(const QString &type, const QList<JBookmark> &list);
+			void saveToServer();
 		private:
 			QScopedPointer<JBookmarkManagerPrivate> p;
 	};
