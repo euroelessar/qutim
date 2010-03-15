@@ -17,6 +17,7 @@
 #define METAINFO_H_
 
 #include "snachandler.h"
+#include <QHash>
 
 namespace qutim_sdk_0_3 {
 
@@ -36,7 +37,77 @@ struct Category
 typedef QList<Category> CategoryList;
 typedef QHash<quint16, QString> FieldNamesList;
 
-class LIBOSCAR_EXPORT Gender
+enum MetaInfoFieldEnum {
+	// Basic info
+	Nick,
+	FirstName,
+	LastName,
+	Email,
+	HomeCity,
+	HomeState,
+	HomePhone,
+	HomeFax,
+	HomeAddress,
+	CellPhone,
+	HomeZipCode,
+	HomeCountry,
+	GMT,
+	AuthFlag,
+	WebawareFlag,
+	DirectConnectionFlag,
+	PublishPrimaryEmailFlag,
+	// More info
+	Age,
+	Gender,
+	Homepage,
+	Birthday,
+	Languages,
+	OriginalCity,
+	OriginalState,
+	OriginalCountry,
+	// Work info
+	WorkCity,
+	WorkState,
+	WorkPhone,
+	WorkFax,
+	WorkAddress,
+	WorkZip,
+	WorkCountry,
+	WorkCompany,
+	WorkDepartment,
+	WorkPosition,
+	WorkOccupation,
+	WorkWebpage,
+	// Other
+	Emails,
+	Notes,
+	Interests,
+	Pasts,
+	Affilations
+};
+
+class LIBOSCAR_EXPORT MetaInfoField
+{
+public:
+	MetaInfoField(int value) :
+		m_value(static_cast<MetaInfoFieldEnum>(value))
+	{}
+	MetaInfoField(const MetaInfoField &field) :
+		m_value(field.m_value)
+	{}
+	MetaInfoFieldEnum value() const { return m_value; };
+	QString toString() const;
+	operator QString() const { return toString(); }
+	MetaInfoField &operator=(int value) { m_value = static_cast<MetaInfoFieldEnum>(value); return *this; }
+	bool operator==(int value) const { return m_value == value; }
+	bool operator!=(int value) const { return m_value != value; }
+	bool operator==(const MetaInfoField &value) const { return m_value == value.m_value; }
+	bool operator!=(const MetaInfoField &value) const { return m_value != value.m_value; }
+private:
+	MetaInfoFieldEnum m_value;
+};
+
+class LIBOSCAR_EXPORT MetaInfoGenderField
 {
 public:
 	enum Enum
@@ -47,16 +118,17 @@ public:
 		Female2 = 'F',
 		Male2 = 'M'
 	};
-	Gender(int value = Unknown) :
+	MetaInfoGenderField(int value = Unknown) :
 		m_value(static_cast<Enum>(value))
 	{}
 	Enum value() { return m_value; }
 	bool operator==(int value) { return value == m_value; }
 	bool operator!=(int value) { return value != m_value; }
-	Gender &operator=(int value) { m_value = static_cast<Enum>(value); return *this; }
-	Gender &operator=(const Gender &gender) { m_value = gender.m_value; return *this; }
-	QString toString();
+	MetaInfoGenderField &operator=(int value) { m_value = static_cast<Enum>(value); return *this; }
+	MetaInfoGenderField &operator=(const MetaInfoGenderField &gender) { m_value = gender.m_value; return *this; }
+	QString toString() const;
 	operator QString() { return toString(); }
+	friend QDebug &operator<<(QDebug &dbg, const MetaInfoGenderField &field);
 private:
 	Enum m_value;
 };
@@ -92,11 +164,12 @@ class LIBOSCAR_EXPORT ShortInfoMetaRequest : public AbstractMetaInfoRequest
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(ShortInfoMetaRequest)
 public:
+	typedef QHash<MetaInfoField, QVariant> ValuesHash;
 	ShortInfoMetaRequest(IcqAccount *account, IcqContact *contact = 0);
-	QVariantHash values() const;
-	QVariant value(const QString &value, const QVariant &defaultValue = QVariant()) const;
+	ValuesHash values() const;
+	QVariant value(MetaInfoField value, const QVariant &defaultValue = QVariant()) const;
 	template <typename T>
-	T value(const QString &value, const T &defaultValue = T());
+	T value(MetaInfoField value, const T &defaultValue = T());
 	virtual void send() const;
 protected:
 	ShortInfoMetaRequest();
@@ -109,14 +182,14 @@ class LIBOSCAR_EXPORT FullInfoMetaRequest : public ShortInfoMetaRequest
 	Q_DECLARE_PRIVATE(FullInfoMetaRequest)
 public:
 	enum State {
-		BasicInfo = 0x00c8,
-		MoreInfo = 0x00dc,
-		Emails = 0x00eb,
-		Homepage = 0x010e,
-		Work = 0x00d2,
-		Notes = 0x00e6,
-		Interests = 0x00f0,
-		Affilations = 0x00fa
+		StateBasicInfo = 0x00c8,
+		StateMoreInfo = 0x00dc,
+		StateEmails = 0x00eb,
+		StateHomepage = 0x010e,
+		StateWork = 0x00d2,
+		StateNotes = 0x00e6,
+		StateInterests = 0x00f0,
+		StateAffilations = 0x00fa
 	};
 	FullInfoMetaRequest(IcqAccount *account, IcqContact *contact = 0);
 	virtual void send() const;
@@ -128,7 +201,7 @@ protected:
 };
 
 template <typename T>
-T ShortInfoMetaRequest::value(const QString &val, const T &defaultValue) {
+T ShortInfoMetaRequest::value(MetaInfoField val, const T &defaultValue) {
 	QVariant res = value(val);
 	if (!res.isValid())
 		return defaultValue;
@@ -139,7 +212,12 @@ QDebug operator<<(QDebug dbg, const Category &cat);
 
 } } // namespace qutim_sdk_0_3::oscar
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::Gender);
+inline uint qHash(const qutim_sdk_0_3::oscar::MetaInfoField &field)
+{
+	return qHash(static_cast<int>(field.value()));
+}
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::MetaInfoGenderField);
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::Category);
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::CategoryList);
 

@@ -472,7 +472,7 @@ void IcqContact::infoReceived(bool ok)
 	ShortInfoMetaRequest *req = qobject_cast<ShortInfoMetaRequest*>(sender());
 	Q_ASSERT(req);
 	if (ok) {
-		QString name = req->value<QString>("nick");
+		QString name = req->value<QString>(Nick);
 		if (!name.isEmpty())
 			setName(name);
 	}

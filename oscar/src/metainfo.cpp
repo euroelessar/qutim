@@ -35,9 +35,20 @@ QDebug operator<<(QDebug dbg, const Category &cat)
 
 MetaInfo *MetaInfo::self = 0;
 
-QString Gender::toString()
+QString MetaInfoGenderField::toString() const
 {
 	return genders()->value(m_value);
+}
+
+QDebug &operator<<(QDebug &dbg, const MetaInfoGenderField &field)
+{
+	dbg << genders()->value(field.m_value);
+	return dbg;
+}
+
+QString MetaInfoField::toString() const
+{
+	return fields()->value(m_value);
 }
 
 AbstractMetaInfoRequest::AbstractMetaInfoRequest()
@@ -110,31 +121,31 @@ QString ShortInfoMetaRequestPrivate::readString(const DataUnit &data)
 	return str;
 }
 
-void ShortInfoMetaRequestPrivate::readString(const QString &name, const DataUnit &data)
+void ShortInfoMetaRequestPrivate::readString(MetaInfoFieldEnum value, const DataUnit &data)
 {
 	QString str = readString(data);
 	if (!str.isEmpty())
-		values.insert(name, str);
+		values.insert(value, str);
 }
 
-void ShortInfoMetaRequestPrivate::readFlag(const QString &name, const DataUnit &data)
+void ShortInfoMetaRequestPrivate::readFlag(MetaInfoFieldEnum value, const DataUnit &data)
 {
 	bool f = static_cast<bool>(data.read<quint8>());
 	if (f)
-		values.insert(name, f);
+		values.insert(value, f);
 }
 
 void ShortInfoMetaRequestPrivate::dump()
 {
-	QHashIterator<QString, QVariant> itr(values);
+	QHashIterator<MetaInfoField, QVariant> itr(values);
 	while (itr.hasNext()) {
 		itr.next();
-		if (itr.value().canConvert<Gender>())
-			debug() << itr.key() << itr.value().value<Gender>().toString();
+		if (itr.value().canConvert<MetaInfoGenderField>())
+			debug() << itr.key().toString() << itr.value().value<MetaInfoGenderField>();
 		else if (itr.value().canConvert<CategoryList>())
-			debug() << itr.key() << itr.value().value<CategoryList>();
+			debug() << itr.key().toString() << itr.value().value<CategoryList>();
 		else
-			debug() << itr.key() << itr.value();
+			debug() << itr.key().toString() << itr.value();
 	}
 }
 
@@ -148,12 +159,12 @@ ShortInfoMetaRequest::ShortInfoMetaRequest(IcqAccount *account, IcqContact *cont
 		d->uin = account->id().toUInt();
 }
 
-QVariantHash ShortInfoMetaRequest::values() const
+ShortInfoMetaRequest::ValuesHash ShortInfoMetaRequest::values() const
 {
 	return d_func()->values;
 }
 
-QVariant ShortInfoMetaRequest::value(const QString &value, const QVariant &def) const
+QVariant ShortInfoMetaRequest::value(MetaInfoField value, const QVariant &def) const
 {
 	return d_func()->values.value(value, def);
 }
@@ -175,16 +186,16 @@ bool ShortInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
 	Q_D(ShortInfoMetaRequest);
 	if (type != 0x0104)
 		return false;
-	d->readString("nick", data);
-	d->readString("firstName", data);
-	d->readString("lastName", data);
-	d->readString("email", data);
-	d->readFlag("auth", data);
+	d->readString(Nick, data);
+	d->readString(FirstName, data);
+	d->readString(LastName, data);
+	d->readString(Email, data);
+	d->readFlag(AuthFlag, data);
 	data.skipData(2); // 0x00 unknown
 	{
-		Gender gender(data.read<quint8>());
+		MetaInfoGenderField gender(data.read<quint8>());
 		if (!gender.toString().isEmpty())
-			d->values.insert("gender", QVariant::fromValue(gender));
+			d->values.insert(Gender, QVariant::fromValue(gender));
 	}
 	debug() << d->uin << "short info:";
 	d->dump();
@@ -192,7 +203,7 @@ bool ShortInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
 	return true;
 }
 
-void FullInfoMetaRequestPrivate::readCatagories(const QString &name, const DataUnit &data, FieldNamesList *list)
+void FullInfoMetaRequestPrivate::readCatagories(MetaInfoFieldEnum value, const DataUnit &data, FieldNamesList *list)
 {
 	CategoryList result;
 	quint8 count = data.read<quint8>();
@@ -204,45 +215,45 @@ void FullInfoMetaRequestPrivate::readCatagories(const QString &name, const DataU
 			result << category;
 	}
 	if (!result.isEmpty())
-		values.insert(name, QVariant::fromValue(result));
+		values.insert(value, QVariant::fromValue(result));
 }
 
 void FullInfoMetaRequestPrivate::handleBasicInfo(const DataUnit &data)
 {
-	readString("nick", data);
-	readString("firstName", data);
-	readString("lastName", data);
-	readString("email", data);
-	readString("homeCity", data);
-	readString("homeState", data);
-	readString("homePhone", data);
-	readString("homeFax", data);
-	readString("homeAddress", data);
-	readString("cellPhone", data);
-	readString("homeZipCode", data);
-	readField<quint16>("homeCountry", data, countries());
-	values.insert("GMT", data.read<qint8>());
-	readFlag("auth", data);
-	readFlag("webaware", data);
-	readFlag("directConnection", data);
-	readFlag("publishPrimaryEmail", data);
+	readString(Nick, data);
+	readString(FirstName, data);
+	readString(LastName, data);
+	readString(Email, data);
+	readString(HomeCity, data);
+	readString(HomeState, data);
+	readString(HomePhone, data);
+	readString(HomeFax, data);
+	readString(HomeAddress, data);
+	readString(CellPhone, data);
+	readString(HomeZipCode, data);
+	readField<quint16>(HomeCountry, data, countries());
+	values.insert(GMT, data.read<qint8>());
+	readFlag(AuthFlag, data);
+	readFlag(WebawareFlag, data);
+	readFlag(DirectConnectionFlag, data);
+	readFlag(PublishPrimaryEmailFlag, data);
 }
 
 void FullInfoMetaRequestPrivate::handleMoreInfo(const DataUnit &data)
 {
-	values.insert("age", data.read<quint16>(LittleEndian));
+	values.insert(Age, data.read<quint16>(LittleEndian));
 	{
-		Gender gender(data.read<quint8>());
+		MetaInfoGenderField gender(data.read<quint8>());
 		if (!gender.toString().isEmpty())
-			values.insert("gender", QVariant::fromValue(gender));
+			values.insert(Gender, QVariant::fromValue(gender));
 	}
-	readString("homepage", data);
+	readString(Homepage, data);
 	{
 		quint16 y = data.read<quint16>(LittleEndian);
 		quint8 m = data.read<quint8>();
 		quint8 d =  data.read<quint8>();
 		if (QDate::isValid(y, m, d))
-			values.insert("birthday", QDate(y, m, d));
+			values.insert(Birthday, QDate(y, m, d));
 	}
 	{
 		QStringList langList;
@@ -252,13 +263,13 @@ void FullInfoMetaRequestPrivate::handleMoreInfo(const DataUnit &data)
 				langList << lang;
 		}
 		if (!langList.isEmpty())
-			values.insert("languages", langList);
+			values.insert(Languages, langList);
 	}
 	data.skipData(2); // 0x0000 unknown
-	readString("originalCity", data);
-	readString("originalState", data);
-	readField<quint16>("originalCountry", data, countries());
-	values.insert("GMT", data.read<qint8>());
+	readString(OriginalCity, data);
+	readString(OriginalState, data);
+	readField<quint16>(OriginalCountry, data, countries());
+	values.insert(GMT, data.read<qint8>());
 }
 
 void FullInfoMetaRequestPrivate::handleEmails(const DataUnit &data)
@@ -273,7 +284,7 @@ void FullInfoMetaRequestPrivate::handleEmails(const DataUnit &data)
 			emails << email;
 	}
 	if (!emails.isEmpty())
-		values.insert("emails", emails);
+		values.insert(Emails, emails);
 }
 
 void FullInfoMetaRequestPrivate::handleHomepage(const DataUnit &data)
@@ -282,23 +293,23 @@ void FullInfoMetaRequestPrivate::handleHomepage(const DataUnit &data)
 	Q_UNUSED(isEnabled);
 	quint16 homepageCategoryCode = data.read<quint16>(LittleEndian);
 	Q_UNUSED(homepageCategoryCode);
-	readString("homepage", data);
+	readString(Homepage, data);
 }
 
 void FullInfoMetaRequestPrivate::handleWork(const DataUnit &data)
 {
-	readString("workCity", data);
-	readString("workState", data);
-	readString("workPhone", data);
-	readString("workFax", data);
-	readString("workAddress", data);
-	readString("workZip", data);
-	readField<quint16>("workCountry", data, countries());
-	readString("workCompany", data);
-	readString("workDepartment", data);
-	readString("workPosition", data);
-	readField<quint16>("workOccupation", data, occupations());
-	readString("workWebpage", data);
+	readString(WorkCity, data);
+	readString(WorkState, data);
+	readString(WorkPhone, data);
+	readString(WorkFax, data);
+	readString(WorkAddress, data);
+	readString(WorkZip, data);
+	readField<quint16>(WorkCountry, data, countries());
+	readString(WorkCompany, data);
+	readString(WorkDepartment, data);
+	readString(WorkPosition, data);
+	readField<quint16>(WorkOccupation, data, occupations());
+	readString(WorkWebpage, data);
 }
 
 
@@ -323,30 +334,30 @@ bool FullInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
 {
 	Q_D(FullInfoMetaRequest);
 	switch (type) {
-	case (BasicInfo):
+	case (StateBasicInfo):
 		d->handleBasicInfo(data);
 		break;
-	case (MoreInfo):
+	case (StateMoreInfo):
 		d->handleMoreInfo(data);
 		break;
-	case (Emails):
+	case (StateEmails):
 		d->handleEmails(data);
 		break;
-	case (Homepage):
+	case (StateHomepage):
 		d->handleHomepage(data);
 		break;
-	case (Work):
+	case (StateWork):
 		d->handleWork(data);
 		break;
-	case (Notes):
-		d->readString("notes", data);
+	case (StateNotes):
+		d->readString(Notes, data);
 		break;
-	case (Interests):
-		d->readCatagories("interests", data, interests());
+	case (StateInterests):
+		d->readCatagories(Interests, data, interests());
 		break;
-	case (Affilations): {
-		d->readCatagories("pasts", data, pasts());
-		d->readCatagories("affilations", data, affilations());
+	case (StateAffilations): {
+		d->readCatagories(Pasts, data, pasts());
+		d->readCatagories(Affilations, data, affilations());
 		break;
 	}
 	default:
@@ -354,7 +365,7 @@ bool FullInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
 		return false;
 	}
 	emit infoUpdated(static_cast<State>(type));
-	if (type == Affilations) {
+	if (type == StateAffilations) {
 		close(true);
 		debug() << d->uin << "full info:";
 		d->dump();

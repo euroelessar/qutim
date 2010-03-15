@@ -547,6 +547,54 @@ static void init_maritals_list(FieldNamesList &list)
 }
 Q_GLOBAL_STATIC_WITH_INITIALIZER(FieldNamesList, maritals, init_maritals_list(*x));
 
+static void init_fields_list(FieldNamesList &list)
+{
+	list.insert(Nick, QT_TRANSLATE_NOOP("MetaInfo", "Nick"));
+	list.insert(FirstName, QT_TRANSLATE_NOOP("MetaInfo", "First name"));
+	list.insert(LastName, QT_TRANSLATE_NOOP("MetaInfo", "Last name"));
+	list.insert(Email, QT_TRANSLATE_NOOP("MetaInfo", "Email"));
+	list.insert(HomeCity, QT_TRANSLATE_NOOP("MetaInfo", "Home city"));
+	list.insert(HomeState, QT_TRANSLATE_NOOP("MetaInfo", "Home state"));
+	list.insert(HomePhone, QT_TRANSLATE_NOOP("MetaInfo", "Home phone"));
+	list.insert(HomeFax, QT_TRANSLATE_NOOP("MetaInfo", "Home fax"));
+	list.insert(HomeAddress, QT_TRANSLATE_NOOP("MetaInfo", "Home address"));
+	list.insert(CellPhone, QT_TRANSLATE_NOOP("MetaInfo", "Cell phone"));
+	list.insert(HomeZipCode, QT_TRANSLATE_NOOP("MetaInfo", "Home zip code"));
+	list.insert(HomeCountry, QT_TRANSLATE_NOOP("MetaInfo", "Home country"));
+	list.insert(GMT, QT_TRANSLATE_NOOP("MetaInfo", "GMT"));
+	list.insert(AuthFlag, QT_TRANSLATE_NOOP("MetaInfo", "Auth"));
+	list.insert(WebawareFlag, QT_TRANSLATE_NOOP("MetaInfo", "Webaware"));
+	list.insert(DirectConnectionFlag, QT_TRANSLATE_NOOP("MetaInfo", "Direct connection"));
+	list.insert(PublishPrimaryEmailFlag, QT_TRANSLATE_NOOP("MetaInfo", "Public primary email"));
+	list.insert(Age, QT_TRANSLATE_NOOP("MetaInfo", "Age"));
+	list.insert(Gender, QT_TRANSLATE_NOOP("MetaInfo", "Gender"));
+	list.insert(Homepage, QT_TRANSLATE_NOOP("MetaInfo", "Homepage"));
+	list.insert(Birthday, QT_TRANSLATE_NOOP("MetaInfo", "Birthday"));
+	list.insert(Languages, QT_TRANSLATE_NOOP("MetaInfo", "Languages"));
+	list.insert(OriginalCity, QT_TRANSLATE_NOOP("MetaInfo", "Original city"));
+	list.insert(OriginalState, QT_TRANSLATE_NOOP("MetaInfo", "Original state"));
+	list.insert(OriginalCountry, QT_TRANSLATE_NOOP("MetaInfo", "Original country"));
+	list.insert(WorkCity, QT_TRANSLATE_NOOP("MetaInfo", "Work city"));
+	list.insert(WorkState, QT_TRANSLATE_NOOP("MetaInfo", "Work state"));
+	list.insert(WorkPhone, QT_TRANSLATE_NOOP("MetaInfo", "Work phone"));
+	list.insert(WorkFax, QT_TRANSLATE_NOOP("MetaInfo", "Work fax"));
+	list.insert(WorkAddress, QT_TRANSLATE_NOOP("MetaInfo", "Work address"));
+	list.insert(WorkZip, QT_TRANSLATE_NOOP("MetaInfo", "Work zip"));
+	list.insert(WorkCountry, QT_TRANSLATE_NOOP("MetaInfo", "Work country"));
+	list.insert(WorkCompany, QT_TRANSLATE_NOOP("MetaInfo", "Work company"));
+	list.insert(WorkDepartment, QT_TRANSLATE_NOOP("MetaInfo", "Work department"));
+	list.insert(WorkPosition, QT_TRANSLATE_NOOP("MetaInfo", "Work position"));
+	list.insert(WorkOccupation, QT_TRANSLATE_NOOP("MetaInfo", "Work occupation"));
+	list.insert(WorkWebpage, QT_TRANSLATE_NOOP("MetaInfo", "Work webpage"));
+	list.insert(Emails, QT_TRANSLATE_NOOP("MetaInfo", "Emails"));
+	list.insert(Notes, QT_TRANSLATE_NOOP("MetaInfo", "Notes"));
+	list.insert(Interests, QT_TRANSLATE_NOOP("MetaInfo", "Interests"));
+	list.insert(Pasts, QT_TRANSLATE_NOOP("MetaInfo", "Pasts"));
+	list.insert(Affilations, QT_TRANSLATE_NOOP("MetaInfo", "Affilations"));
+
+}
+Q_GLOBAL_STATIC_WITH_INITIALIZER(FieldNamesList, fields, init_fields_list(*x));
+
 } } // namespace qutim_sdk_0_3::Oscar
 
 #endif // METAINFOFIELDS_H

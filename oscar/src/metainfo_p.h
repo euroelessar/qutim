@@ -35,11 +35,11 @@ public:
 class ShortInfoMetaRequestPrivate : public AbstractMetaInfoRequestPrivate
 {
 public:
-	QVariantHash values;
+	QHash<MetaInfoField, QVariant> values;
 	quint32 uin;
 	inline QString readString(const DataUnit &data);
-	inline void readString(const QString &name, const DataUnit &data);
-	inline void readFlag(const QString &name, const DataUnit &data);
+	inline void readString(MetaInfoFieldEnum value, const DataUnit &data);
+	inline void readFlag(MetaInfoFieldEnum value, const DataUnit &data);
 	void dump();
 };
 
@@ -47,8 +47,8 @@ class FullInfoMetaRequestPrivate : public ShortInfoMetaRequestPrivate
 {
 public:
 	template <typename T>
-	void readField(const QString &name, const DataUnit &data, FieldNamesList *list);
-	void readCatagories(const QString &name, const DataUnit &data, FieldNamesList *list);
+	void readField(MetaInfoFieldEnum value, const DataUnit &data, FieldNamesList *list);
+	void readCatagories(MetaInfoFieldEnum value, const DataUnit &data, FieldNamesList *list);
 	void handleBasicInfo(const DataUnit &data);
 	void handleMoreInfo(const DataUnit &data);
 	void handleEmails(const DataUnit &data);
@@ -77,11 +77,11 @@ private:
 };
 
 template <typename T>
-void FullInfoMetaRequestPrivate::readField(const QString &name, const DataUnit &data, FieldNamesList *list)
+void FullInfoMetaRequestPrivate::readField(MetaInfoFieldEnum value, const DataUnit &data, FieldNamesList *list)
 {
 	QString str = list->value(data.read<T>(LittleEndian));
 	if (!str.isEmpty())
-		values.insert(name, str);
+		values.insert(value, str);
 }
 
 } } // namespace qutim_sdk_0_3::oscar
