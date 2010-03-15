@@ -169,6 +169,7 @@ bool XStatusHandler::load()
 		status.setSubtype(OscarOnline);
 		status.setCapability(cap, "qipstatus");
 		qipstatuses.insert(cap, status);
+		OscarStatus::registerStatus(OscarFFC, status);
 	}
 	QipExtendedStatus(OscarOnline, "user-online-angry-icq",
 					  QT_TRANSLATE_NOOP("Status", "Angry"), 0x0579);

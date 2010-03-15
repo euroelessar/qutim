@@ -27,6 +27,16 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+enum QipStatusEnum
+{
+	// QIP Extended Status flags
+	OscarEvil           = 0x3000,
+	OscarDepress        = 0x4000,
+	OscarHome           = 0x5000,
+	OscarWork           = 0x6000,
+	OscarLunch          = 0x2001
+};
+
 class QipExtendedStatus : public OscarStatus
 {
 public:

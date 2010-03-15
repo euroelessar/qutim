@@ -34,16 +34,8 @@ enum OscarStatusEnum
 	OscarOccupied       = 0x0010,
 	OscarFFC            = 0x0020,
 	OscarInvisible      = 0x0100,
-
 	// Qutim Status Flags
 	OscarOffline        = 0xf000,
-
-	// QIP Extended Status flags
-	OscarEvil           = 0x3000,
-	OscarDepress        = 0x4000,
-	OscarHome           = 0x5000,
-	OscarWork           = 0x6000,
-	OscarLunch          = 0x2001
 };
 
 class OscarStatusPrivate;
@@ -58,6 +50,7 @@ public:
 	OscarStatus &operator=(quint16 status);
 	virtual ~OscarStatus();
 	void setCapability(const Capability &capability, const QString &type);
+	static void registerStatus(quint16 statusId, OscarStatus oscarStatus);
 };
 
 } } // namespace qutim_sdk_0_3::oscar
