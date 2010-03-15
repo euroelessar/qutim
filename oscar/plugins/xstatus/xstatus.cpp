@@ -241,6 +241,8 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 
 void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
 {
+	if (status.type() != Status::Offline)
+		return;
 	IcqAccount *account = contact->account();
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));
 	qint8 moodIndex = -1;
