@@ -169,6 +169,7 @@ bool XStatusHandler::load()
 		status.setSubtype(OscarOnline);
 		status.setCapability(cap, "qipstatus");
 		qipstatuses.insert(cap, status);
+		OscarStatus::registerStatus(OscarFFC, status);
 	}
 	QipExtendedStatus(OscarOnline, "user-online-angry-icq",
 					  QT_TRANSLATE_NOOP("Status", "Angry"), 0x0579);
@@ -240,6 +241,8 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 
 void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
 {
+	if (status.type() != Status::Offline)
+		return;
 	IcqAccount *account = contact->account();
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));
 	qint8 moodIndex = -1;

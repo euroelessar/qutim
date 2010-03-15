@@ -56,7 +56,6 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
 		registerHandler(gen->generate<SNACHandler>());
-	registerHandler(&MetaInfo::instance());
 }
 
 void OscarConnection::connectToLoginServer(const QString &password)
@@ -165,7 +164,7 @@ void OscarConnection::accountInfoReceived(bool ok)
 	ShortInfoMetaRequest *req = qobject_cast<ShortInfoMetaRequest*>(sender());
 	Q_ASSERT(req);
 	if (ok)
-		m_account->setName(req->value<QString>("nick", m_account->id()));
+		m_account->setName(req->value<QString>(Nick, m_account->id()));
 	req->deleteLater();
 }
 

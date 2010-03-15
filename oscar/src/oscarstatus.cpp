@@ -29,14 +29,13 @@ static void init_status_list(OscarStatusList &list)
 	list.insert(OscarInvisible, Status(Status::Invisible));
 	list.insert(OscarDND, Status(Status::DND));
 	list.insert(OscarNA, Status(Status::NA));
-	//list.insert(OscarFFC, Status(Status::FreeChat));
 	list.insert(OscarOnline, Status(Status::Online));
 	list.insert(OscarOffline, Status(Status::Offline));
 	OscarStatusList::iterator itr = list.begin();
 	OscarStatusList::iterator endItr = list.end();
 	while (itr != endItr) {
-		itr->initIcon(QLatin1String("icq"));
-		itr->setSubtype(itr.key());
+		itr->second.initIcon(QLatin1String("icq"));
+		itr->second.setSubtype(itr->first);
 		++itr;
 	}
 	{
@@ -46,10 +45,25 @@ static void init_status_list(OscarStatusList &list)
 		status.setName(QT_TRANSLATE_NOOP("Status", "Busy"));
 		list.insert(OscarOccupied, status);
 	}
-	foreach (const Status &status, list)
-		MenuController::addAction(new StatusActionGenerator(status), &IcqAccount::staticMetaObject);
+	foreach (const OscarStatusPair &status, list)
+		MenuController::addAction(new StatusActionGenerator(status.second), &IcqAccount::staticMetaObject);
 }
 Q_GLOBAL_STATIC_WITH_INITIALIZER(OscarStatusList, statusList, init_status_list(*x));
+
+void OscarStatusList::insert(quint16 id, const Status &status)
+{
+	OscarStatusPair data(id, status);
+	iterator itr = begin();
+	iterator endItr = end();
+	while (itr != endItr) {
+		if (id > itr->first) {
+			QList<OscarStatusPair>::insert(itr, data);
+			return;
+		}
+		++itr;
+	}
+	push_back(data);
+}
 
 CapsTypes &capsTypes()
 {
@@ -59,62 +73,11 @@ CapsTypes &capsTypes()
 
 qutim_sdk_0_3::Status oscarStatusToQutim(quint16 status)
 {
-	const OscarStatusList &list = *statusList();
-	if (status == OscarOffline)
-		return list.value(OscarOffline);
-	Status online = list.value(OscarOnline);
-	if (status & OscarInvisible)
-		return list.value(OscarInvisible, online);
-	else /* if (status & OscarEvil)
-		return list.value(OscarEvil, online);
-	else if(status & OscarDepress)
-		return list.value(OscarDepress, online);
-	else if(status & OscarHome)
-		return list.value(OscarHome, online);
-	else if(status & OscarWork)
-		return list.value(OscarWork, online);
-	else if(status & OscarLunch)
-		return list.value(OscarLunch, online);
-	else */ if (status & OscarDND)
-		return list.value(OscarDND, online);
-	else if (status & OscarOccupied)
-		return list.value(OscarOccupied, online);
-	else if (status & OscarNA)
-		return list.value(OscarNA, online);
-	else if (status & OscarAway)
-		return list.value(OscarAway, online);
-	else if (status & OscarFFC)
-		return list.value(OscarFFC, online);
-	else
-		return online;
-}
-
-quint16 qutimStatusToOscar(const Status &status)
-{
-	switch (status.type()) {
-	case Status::Away:
-		return 0x0001;
-	case Status::DND:
-		return 0x0013;
-	case Status::NA:
-		return 0x0005;
-//	case Status::FreeChat:
-//		return 0x0020;
-//	case Evil:
-//		return 0x3000;
-//	case Depression:
-//		return 0x4000;
-	case Status::Invisible:
-		return 0x0100;
-//	case AtHome:
-//		return 0x5000;
-//	case AtWork:
-//		return 0x6000;
-//	case OutToLunch:
-//		return 0x2001;
-	default:
-		return 0x0000;
+	foreach (const OscarStatusPair &itr, *statusList()) {
+		if (status & itr.first)
+			return itr.second;
 	}
+	return statusList()->last().second;
 }
 
 OscarStatus::OscarStatus(quint16 status) :
@@ -127,21 +90,31 @@ OscarStatus::OscarStatus(Status::Type status) :
 	Status(status)
 {
 	initIcon("icq");
-	setSubtype(qutimStatusToOscar(status));
+	foreach (const OscarStatusPair &itr, *statusList()) {
+		if (itr.second.type() == status) {
+			*reinterpret_cast<Status*>(this) = itr.second;
+			break;
+		}
+	}
 }
 
 OscarStatus::OscarStatus(const Status &status):
 	Status(status)
 {
 	initIcon("icq");
-	if (status.subtype() == 0 && status.type() != Online)
-		setSubtype(qutimStatusToOscar(status));
+	if (status.subtype() == 0 && status.type() != Online) {
+		foreach (const OscarStatusPair &itr, *statusList()) {
+			if (itr.second.type() == status.type()) {
+				*reinterpret_cast<Status*>(this) = itr.second;
+				break;
+			}
+		}
+	}
 }
 
 OscarStatus::OscarStatus(const OscarStatus &status):
 	Status(status)
 {
-	initIcon("icq");
 }
 
 OscarStatus::~OscarStatus()
@@ -160,6 +133,11 @@ void OscarStatus::setCapability(const Capability &capability, const QString &typ
 	CapsList caps = property<CapsList>("capabilities", CapsList());
 	caps.insert(type, capability);
 	setProperty("capabilities", QVariant::fromValue(caps));
+}
+
+void OscarStatus::registerStatus(quint16 statusId, OscarStatus oscarStatus)
+{
+	statusList()->insert(statusId, oscarStatus);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

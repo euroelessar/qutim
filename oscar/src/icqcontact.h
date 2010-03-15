@@ -74,6 +74,8 @@ public:
 	void setAvatar(const QString &avatar);
 	void setStatus(Status status);
 	void setCapabilities(const Capabilities &caps);
+	void setChatState(ChatState state);
+	ChatState chatState() const;
 private slots:
 	void messageTimeout();
 	void infoReceived(bool ok);

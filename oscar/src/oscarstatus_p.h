@@ -25,7 +25,13 @@ namespace oscar {
 typedef QSet<QString> CapsTypes;
 typedef QHash<QString, Capability> CapsList;
 CapsTypes &capsTypes();
-typedef QHash<quint16, Status> OscarStatusList;
+typedef QPair<quint16, Status> OscarStatusPair;
+
+class OscarStatusList : public QList<OscarStatusPair>
+{
+public:
+	void insert(quint16 id, const Status &status);
+};
 
 } } // namespace qutim_sdk_0_3::oscar
 

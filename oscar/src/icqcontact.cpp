@@ -71,6 +71,7 @@ IcqContact::IcqContact(const QString &uin, IcqAccount *account) :
 	d->uin = uin;
 	d->status = Status::Offline;
 	d->clearCapabilities();
+	d->state = ChatStateGone;
 }
 
 IcqContact::~IcqContact()
@@ -428,6 +429,17 @@ void IcqContact::setCapabilities(const Capabilities &caps)
 	d->capabilities = caps;
 }
 
+void IcqContact::setChatState(ChatState state)
+{
+	d_func()->state = state;
+	qApp->postEvent(ChatLayer::get(this, true), new ChatStateEvent(state));
+}
+
+ChatState IcqContact::chatState() const
+{
+	return d_func()->state;
+}
+
 bool IcqContact::event(QEvent *ev)
 {
 	Q_D(IcqContact);
@@ -472,7 +484,7 @@ void IcqContact::infoReceived(bool ok)
 	ShortInfoMetaRequest *req = qobject_cast<ShortInfoMetaRequest*>(sender());
 	Q_ASSERT(req);
 	if (ok) {
-		QString name = req->value<QString>("nick");
+		QString name = req->value<QString>(Nick);
 		if (!name.isEmpty())
 			setName(name);
 	}
