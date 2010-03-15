@@ -26,6 +26,13 @@ namespace Core
 			void addContact(Contact *contact);
 			void removeContact(Contact *contact);
 			bool containsContact(Contact *contact) const;
+			bool setData(const QModelIndex &index, const QVariant &value, int role);
+			Qt::ItemFlags flags(const QModelIndex &index) const;
+			Qt::DropActions supportedDropActions() const;
+			QStringList mimeTypes() const;
+			QMimeData *mimeData(const QModelIndexList &indexes) const;
+			bool dropMimeData(const QMimeData *data, Qt::DropAction action,
+							  int row, int column, const QModelIndex &parent);
 		protected slots:
 			void contactDeleted(QObject *obj);
 			void contactStatusChanged(qutim_sdk_0_3::Status status);
@@ -33,6 +40,10 @@ namespace Core
 			void contactTagsChanged(const QSet<QString> &tags);
 			void onHideShowOffline();
 			void onFilterList(const QString &filter);
+			void onContactRenameAction();
+			void onContactRenameResult(const QString &name);
+			void onCollapsed(const QModelIndex &index);
+			void onExpanded(const QModelIndex &index);
 		private:
 			void filterAllList();
 			bool isVisible(ContactItem *item);

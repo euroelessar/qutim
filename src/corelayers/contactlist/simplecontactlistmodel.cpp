@@ -6,7 +6,9 @@
 #include <QTreeView>
 #include <libqutim/icon.h>
 #include "libqutim/configbase.h"
-
+#include "libqutim/debug.h"
+#include <QInputDialog>
+#include <QMimeData>
 
 namespace Core
 {
@@ -18,6 +20,7 @@ namespace Core
 			QList<TagItem *> tags;
 			QHash<QString, TagItem *> tagsHash;
 			QMap<Contact *, ContactData::Ptr> contacts;
+			QSet<QString> openTags;
 			QString lastFilter;
 			bool showOffline;
 		};
@@ -25,12 +28,25 @@ namespace Core
 		Model::Model(QObject *parent) : QAbstractItemModel(parent), p(new ModelPrivate)
 		{
 			p->view = static_cast<QTreeView*>(parent);
+			connect(p->view, SIGNAL(collapsed(QModelIndex)), this, SLOT(onCollapsed(QModelIndex)));
+			connect(p->view, SIGNAL(expanded(QModelIndex)), this, SLOT(onExpanded(QModelIndex)));
 			ConfigGroup group = Config().group("contactList");
 			p->showOffline = group.value("showOffline", true);
+			p->openTags = group.value("openTags", QStringList()).toSet();
+			ActionGenerator *gen = new ActionGenerator(Icon("user-properties"),
+													   QT_TRANSLATE_NOOP("ContactList", "Rename contact"),
+													   this, SLOT(onContactRenameAction()));
+			MenuController::addAction<Contact>(gen);
+			p->view->setDragEnabled(true);
+			p->view->setAcceptDrops(true);
+			p->view->setDropIndicatorShown(true);
 		}
 
 		Model::~Model()
 		{
+			ConfigGroup group = Config().group("contactList");
+			group.setValue("openTags", QStringList(p->openTags.toList()));
+			group.sync();
 		}
 
 		QModelIndex Model::index(int row, int, const QModelIndex &parent) const
@@ -108,6 +124,7 @@ namespace Core
 					ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
 					switch(role)
 					{
+					case Qt::EditRole:
 					case Qt::DisplayRole: {
 						QString name = item->data->contact->name();
 						return name.isEmpty() ? item->data->contact->id() : name;
@@ -228,6 +245,94 @@ namespace Core
 			return p->contacts.contains(contact);
 		}
 
+		bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
+		{
+			if (role == Qt::EditRole && getItemType(index) == ContactType) {
+				ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
+				item->data->contact->setName(value.toString());
+				return true;
+			}
+			return false;
+		}
+
+		Qt::ItemFlags Model::flags(const QModelIndex &index) const
+		{
+			Qt::ItemFlags flags = QAbstractItemModel::flags(index);
+
+			ItemType type = getItemType(index);
+			if (type == TagType)
+				flags |= Qt::ItemIsDropEnabled;
+			else if (type == ContactType)
+				flags |= Qt::ItemIsDragEnabled | Qt::ItemIsEditable;
+
+			return flags;
+		}
+
+		Qt::DropActions Model::supportedDropActions() const
+		{
+			return Qt::CopyAction | Qt::MoveAction;
+		}
+
+		QStringList Model::mimeTypes() const
+		{
+			QStringList types;
+			types << "application/qutim.item.contact";
+			return types;
+		}
+
+		QMimeData *Model::mimeData(const QModelIndexList &indexes) const
+		{
+			QMimeData *mimeData = new QMimeData();
+			QModelIndex index = indexes.value(0);
+			if (getItemType(index) != ContactType)
+				return mimeData;
+
+			ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
+
+			mimeData->setText(item->data->contact->id());
+
+			QByteArray encodedData;
+
+			QDataStream stream(&encodedData, QIODevice::WriteOnly);
+			stream << index.row() << index.column() << qptrdiff(index.internalPointer());
+
+			mimeData->setData("application/qutim.item.contact", encodedData);
+			return mimeData;
+		}
+
+		bool Model::dropMimeData(const QMimeData *data, Qt::DropAction action,
+								 int row, int column, const QModelIndex &parent)
+		{
+			if (action == Qt::IgnoreAction)
+				return true;
+
+			if (!data->hasFormat("application/qutim.item.contact"))
+				return false;
+
+			QByteArray encodedData = data->data("application/qutim.item.contact");
+			QDataStream stream(&encodedData, QIODevice::ReadOnly);
+			qptrdiff internalId;
+			stream >> row >> column >> internalId;
+
+			QModelIndex index = createIndex(row, column, reinterpret_cast<void*>(internalId));
+			if (getItemType(index) != ContactType || getItemType(parent) != TagType)
+				return false;
+
+			ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
+			TagItem *tag = reinterpret_cast<TagItem*>(parent.internalPointer());
+			if (tag->name == item->parent->name)
+				return false;
+
+			QSet<QString> tags = item->data->tags;
+			tags.remove(item->parent->name);
+			tags.insert(tag->name);
+			item->data->contact->setTags(tags);
+			debug() << "Moving contact from" << item->data->tags << "to" << tags;
+
+			// We should return false
+			return false;
+		}
+
 		void Model::contactDeleted(QObject *obj)
 		{
 			if (Contact *contact = qobject_cast<Contact *>(obj))
@@ -292,7 +397,6 @@ namespace Core
 
 		void Model::contactNameChanged(const QString &name)
 		{
-			// TODO: Add sort by name
 			Q_UNUSED(name);
 			Contact *contact = qobject_cast<Contact *>(sender());
 			ContactData::Ptr item_data = p->contacts.value(contact);
@@ -302,8 +406,28 @@ namespace Core
 			for(int i = 0; i < items.size(); i++)
 			{
 				ContactItem *item = items.at(i);
-				QModelIndex index = createIndex(item->index(), 0, item);
-				dataChanged(index, index);
+				QList<ContactItem *> contacts = item->parent->contacts;
+				QList<ContactItem *>::const_iterator it =
+						qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
+
+				int to = it - contacts.constBegin();
+				int from = contacts.indexOf(item);
+
+				QModelIndex parentIndex = createIndex(p->tags.indexOf(item->parent), 0, item->parent);
+
+				if (from == to) {
+					QModelIndex index = createIndex(item->index(), 0, item);
+					dataChanged(index, index);
+				}
+				else {
+					if (to == -1 || to >= contacts.count())
+						continue;
+
+					beginMoveRows(parentIndex, from, from, parentIndex, to);
+					item->parent->contacts.move(from, to);
+					//item_data->items.move(from,to); //FIXME
+					endMoveRows();
+				}
 			}
 		}
 
@@ -377,6 +501,42 @@ namespace Core
 			filterAllList();
 		}
 
+		void Model::onContactRenameAction()
+		{
+			Contact *contact = MenuController::getController<Contact>(sender());
+			if (!contact)
+				return;
+			QInputDialog *dialog = new QInputDialog(p->view);
+			dialog->setAttribute(Qt::WA_QuitOnClose, false);
+			dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+			dialog->setInputMode(QInputDialog::TextInput);
+			dialog->setProperty("contact", qVariantFromValue(contact));
+			dialog->open(this, SLOT(onContactRenameResult(QString)));
+		}
+
+		void Model::onContactRenameResult(const QString &name)
+		{
+			Contact *contact = sender()->property("contact").value<Contact*>();
+			if (contact->name() != name)
+				contact->setName(name);
+		}
+
+		void Model::onCollapsed(const QModelIndex &index)
+		{
+			if (getItemType(index) == TagType) {
+				TagItem *tag = reinterpret_cast<TagItem*>(index.internalPointer());
+				p->openTags.remove(tag->name);
+			}
+		}
+
+		void Model::onExpanded(const QModelIndex &index)
+		{
+			if (getItemType(index) == TagType) {
+				TagItem *tag = reinterpret_cast<TagItem*>(index.internalPointer());
+				p->openTags.insert(tag->name);
+			}
+		}
+
 		void Model::filterAllList()
 		{
 			for (int i = 0; i < p->tags.size(); i++) {
@@ -444,6 +604,8 @@ namespace Core
 				p->tags << tag;
 				endInsertRows();
 				p->view->setRowHidden(index, QModelIndex(), true);
+				if (p->openTags.contains(name))
+					p->view->setExpanded(createIndex(index, 0, tag), true);
 			}
 			return tag;
 		}

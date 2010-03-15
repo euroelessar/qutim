@@ -44,8 +44,9 @@ namespace Core
 					rect.setWidth(width);
 					rect.setHeight(rect.bottom());
 					setGeometry(rect);
-				} else
+				} else {
 					restoreGeometry(geom);
+				}
 				connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 			}
 
@@ -95,19 +96,15 @@ namespace Core
 			layout->addWidget(p->main_toolbar);
 			
 			ActionGenerator *gen = new ActionGenerator(Icon("configure"),
-										  QT_TRANSLATE_NOOP("simplecontactlist","&Settings..."),
+										  QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
 										  this,
 										  SLOT(onConfigureClicked())
 										  );
 			gen->setPriority(1);
 			addAction(gen);
-			gen = new ActionGenerator(Icon("configure"),
-									  QT_TRANSLATE_NOOP("simplecontactlist","&Settings..."),
-									  this,
-									  SLOT(onConfigureClicked())
-									  );
+
 			gen = new ActionGenerator(Icon("application-exit"),
-									  QT_TRANSLATE_NOOP("simplecontactlist","&Quit"),
+									  QT_TRANSLATE_NOOP("ContactList","&Quit"),
 									  qApp,
 									  SLOT(quit()));
 			gen->setPriority(-1);
