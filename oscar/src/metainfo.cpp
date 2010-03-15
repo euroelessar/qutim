@@ -27,6 +27,13 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+static QString readSString(const DataUnit &data)
+{
+	QString str = data.read<QString, quint16>(Util::asciiCodec(), LittleEndian);
+	str.chop(1);
+	return str;
+}
+
 QDebug operator<<(QDebug dbg, const Category &cat)
 {
 	dbg.nospace() << "{" << cat.category << ", " << cat.keyword << "}";
@@ -114,16 +121,9 @@ void AbstractMetaInfoRequest::close(bool ok)
 		emit done(ok);
 }
 
-QString ShortInfoMetaRequestPrivate::readString(const DataUnit &data)
-{
-	QString str = data.read<QString, quint16>(Util::asciiCodec(), LittleEndian);
-	str.chop(1);
-	return str;
-}
-
 void ShortInfoMetaRequestPrivate::readString(MetaInfoFieldEnum value, const DataUnit &data)
 {
-	QString str = readString(data);
+	QString str = readSString(data);
 	if (!str.isEmpty())
 		values.insert(value, str);
 }
@@ -159,7 +159,7 @@ ShortInfoMetaRequest::ShortInfoMetaRequest(IcqAccount *account, IcqContact *cont
 		d->uin = account->id().toUInt();
 }
 
-ShortInfoMetaRequest::ValuesHash ShortInfoMetaRequest::values() const
+MetaInfoValuesHash ShortInfoMetaRequest::values() const
 {
 	return d_func()->values;
 }
@@ -210,7 +210,7 @@ void FullInfoMetaRequestPrivate::readCatagories(MetaInfoFieldEnum value, const D
 	Category category;
 	for (int i = 0; i < count; ++i) {
 		category.category = list->value(data.read<quint16>(LittleEndian));
-		category.keyword = readString(data);
+		category.keyword = readSString(data);
 		if (!category.category.isEmpty())
 			result << category;
 	}
@@ -279,7 +279,7 @@ void FullInfoMetaRequestPrivate::handleEmails(const DataUnit &data)
 	for (int i = 0; i < count; ++i) {
 		bool isPublish = data.read<quint8>();
 		Q_UNUSED(isPublish);
-		QString email = readString(data);
+		QString email = readSString(data);
 		if (!email.isEmpty())
 			emails << email;
 	}
@@ -373,6 +373,175 @@ bool FullInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
 	return true;
 }
 
+void FindContactsMetaRequestPrivate::addString(quint16 id, MetaInfoFieldEnum value, DataUnit &data, bool test) const
+{
+	if (!test || values.contains(value)) {
+		DataUnit tlv;
+		addString(values.value(value).toString(), tlv);
+		data.appendTLV(id, tlv, LittleEndian);
+	}
+}
+
+void FindContactsMetaRequestPrivate::addString(const QString &str, DataUnit &data) const
+{
+	QByteArray d = Util::asciiCodec()->fromUnicode(str);
+	data.append<quint16>(d.size() + 1, LittleEndian);
+	data.append(d);
+	data.append<quint8>(0);
+}
+
+template <typename T>
+void FindContactsMetaRequestPrivate::addField(quint16 id, MetaInfoFieldEnum value, DataUnit &data, bool test) const
+{
+	if (!test || values.contains(value)) {
+		DataUnit tlv;
+		tlv.append<T>(values.value(value).value<T>(), LittleEndian);
+		data.appendTLV(id, tlv, LittleEndian);
+	}
+}
+
+template <typename T>
+void FindContactsMetaRequestPrivate::addCategoryId(quint16 id, MetaInfoFieldEnum value, DataUnit &data, FieldNamesList *list) const
+{
+	if (values.contains(value)) {
+		DataUnit tlv;
+		T catId = list->key(values.value(value).value<QString>());
+		tlv.append<T>(catId, LittleEndian);
+		data.appendTLV(id, tlv, LittleEndian);
+	}
+}
+
+void FindContactsMetaRequestPrivate::addCategory(quint16 id, MetaInfoFieldEnum value, DataUnit &data, FieldNamesList *list) const
+{
+	if (values.contains(value)) {
+		DataUnit tlv;
+		Category cat = values.value(value).value<Category>();
+		quint16 catId = list->key(cat.category);
+		tlv.append<quint16>(catId, LittleEndian);
+		addString(cat.keyword, tlv);
+		data.appendTLV(id, tlv, LittleEndian);
+	}
+}
+
+FindContactsMetaRequest::FindContactsMetaRequest(IcqAccount *account) :
+	AbstractMetaInfoRequest(account, new FindContactsMetaRequestPrivate)
+{
+}
+
+void FindContactsMetaRequest::send() const
+{
+	Q_D(const FindContactsMetaRequest);
+	DataUnit data;
+	quint16 type = 0x055F; // CLI_WHITE_PAGES_SEARCH2
+	if (d->values.contains(Email)) {
+		type = 0x0573; // META_SEARCH_BY_EMAIL
+		d->addString(0x015E, Email, data);
+	}
+	if (d->values.contains(Uin)) {
+		type =  0x0569; // META_SEARCH_BY_UIN
+		DataUnit tlv;
+		quint32 uin = d->values.value(Uin).toUInt();
+		tlv.append<quint32>(uin, LittleEndian);
+		data.appendTLV(0x0136, tlv, LittleEndian);
+	}
+	d->addString(0x0140, FirstName, data);
+	d->addString(0x014A, LastName, data);
+	d->addString(0x015A, Nick, data);
+	if (d->values.contains(Ages)) {
+		DataUnit tlv;
+		AgeRange range = d->values.value(Age).value<AgeRange>();
+		tlv.append<quint16>(range.first, LittleEndian);
+		tlv.append<quint16>(range.second, LittleEndian);
+		data.appendTLV(0x0168, tlv, LittleEndian);
+	}
+	d->addField<quint16>(0x0172, Age, data);
+	if (d->values.contains(Gender)) {
+		DataUnit tlv;
+		MetaInfoGenderField gender = d->values.value(Gender).value<MetaInfoGenderField>();
+		tlv.append<quint8>(gender.value(), LittleEndian);
+		data.appendTLV(0x017C, tlv, LittleEndian);
+	}
+	d->addCategoryId<quint16>(0x0186, Languages, data, languages());
+	d->addString(0x0190, HomeCity, data);
+	d->addString(0x0194, HomeState, data);
+	d->addCategoryId<quint16>(0x01A4, HomeCountry, data, countries());
+	d->addString(0x01AE, WorkCompany, data);
+	d->addString(0x01B8, WorkDepartment, data);
+	d->addString(0x01C2, WorkPosition, data);
+	d->addCategoryId<quint16>(0x01CC, WorkOccupation, data, occupations());
+	d->addCategory(0x01D6, Affilations, data, affilations());
+	d->addCategory(0x01EA, Interests, data, interests());
+	d->addCategory(0x01FE, Pasts, data, pasts());
+	//d->addCategory(0x0212, Homepage, tlvs, ...);
+	d->addString(0x0226, Whitepages, data);
+	d->addField<quint8>(0x0230, OnlineFlag, data);
+	if (d->values.contains(Birthday)) {
+		DataUnit tlv;
+		QDate date = d->values.value(Birthday).toDate();
+		tlv.append<quint16>(date.year(), LittleEndian);
+		tlv.append<quint16>(date.month(), LittleEndian);
+		tlv.append<quint16>(date.day(), LittleEndian);
+		data.appendTLV(0x023A, tlv, LittleEndian);
+	}
+	d->addString(0x0258, Notes, data);
+	d->addString(0x0262, HomeAddress, data);
+	d->addField<quint32>(0x026C, HomeZipCode, data);
+	d->addString(0x0276, HomePhone, data);
+	d->addString(0x0280, HomeFax, data);
+	d->addString(0x028A, CellPhone, data);
+	d->addString(0x029A, WorkAddress, data);
+	d->addString(0x029E, WorkCity, data);
+	d->addString(0x02A8, WorkState, data);
+	d->addCategoryId<quint16>(0x02B2, WorkCountry, data, countries());
+	d->addField<quint32>(0x02BC, WorkZip, data);
+	d->addString(0x02C6, WorkPhone, data);
+	d->addString(0x02D0, WorkFax, data);
+	d->addString(0x02DA, WorkWebpage, data);
+	d->addField<quint8>(0x02F8, WebawareFlag, data);
+	d->addField<quint8>(0x030C, AuthFlag, data);
+	d->addField<quint8>(0x0316, GMT, data);
+	d->addString(0x0320, OriginalCity, data);
+	d->addString(0x032A, OriginalState, data);
+	d->addCategoryId<quint16>(0x0334, OriginalCountry, data, countries());
+	sendRequest(type, data);
+}
+
+void FindContactsMetaRequest::setValue(const MetaInfoField &field, const QVariant &value)
+{
+	d_func()->values.insert(field, value);
+}
+
+const QHash<QString, FindContactsMetaRequest::FoundContact> &FindContactsMetaRequest::contacts() const
+{
+	return d_func()->contacts;
+}
+
+bool FindContactsMetaRequest::handleData(quint16 type, const DataUnit &data)
+{
+	Q_D(FindContactsMetaRequest);
+	if (type != 0x01A4 && type != 0x01AE)
+		return false;
+	data.skipData(2); // data size
+	FoundContact contact;
+	contact.uin = QString::number(data.read<quint32>(LittleEndian));
+	contact.nick = readSString(data);
+	contact.firstName = readSString(data);
+	contact.lastName = readSString(data);
+	contact.email = readSString(data);
+	contact.authFlag = data.read<quint8>();
+	contact.status = static_cast<FoundContact::Status>(data.read<quint16>(LittleEndian));
+	contact.gender = MetaInfoGenderField(data.read<quint8>());
+	contact.age = data.read<quint16>(LittleEndian);
+	debug() << "Contact found" << contact.uin << contact.nick << contact.firstName
+			<< contact.lastName << contact.email << contact.authFlag << contact.status
+			<< contact.gender << contact.age;	
+	emit contactFound(contact);
+	d->contacts.insert(contact.uin, contact);
+	if (type == 0x01AE)
+		close(true);
+	return true;
+}
+
 MetaInfo::MetaInfo() :
 	m_sequence(0)
 {
@@ -388,6 +557,7 @@ MetaInfo::MetaInfo() :
 
 void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 {
+	Q_UNUSED(conn);
 	if (snac.family() == ExtensionsFamily && snac.subtype() == ExtensionsMetaSrvReply) {
 		TLVMap tlvs = snac.read<TLVMap>();
 		if (tlvs.contains(0x01)) {
@@ -397,17 +567,18 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 			if (metaType == 0x07da) {
 				quint16 reqNumber = data.read<quint16>(LittleEndian);
 				QHash<quint16, AbstractMetaInfoRequest*>::iterator itr = m_requests.find(reqNumber);
+				quint16 dataType = data.read<quint16>(LittleEndian);
+				quint8 success = data.read<quint8>(LittleEndian);
 				if (itr == m_requests.end()) {
 					debug() << "Unexpected metainfo response" << reqNumber;
 					return;
 				}
-				quint16 dataType = data.read<quint16>(LittleEndian);
-				quint8 success = data.read<quint8>(LittleEndian);
 				if (success == 0x0a) {
 					if (!itr.value()->handleData(dataType, data))
 						debug() << "Unexpected metainfo response with type" << hex << dataType;
 				} else {
-					debug() << "Meta request failed" << success;
+					debug() << "Meta request failed" << hex << success;
+					itr.value()->close(false);
 				}
 			}
 		}

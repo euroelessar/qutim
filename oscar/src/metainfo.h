@@ -28,7 +28,9 @@ class IcqContact;
 class AbstractMetaInfoRequestPrivate;
 class ShortInfoMetaRequestPrivate;
 class FullInfoMetaRequestPrivate;
+class FindContactsMetaRequestPrivate;
 
+typedef QPair<quint16, quint16> AgeRange;
 struct Category
 {
 	QString category;
@@ -38,6 +40,7 @@ typedef QList<Category> CategoryList;
 typedef QHash<quint16, QString> FieldNamesList;
 
 enum MetaInfoFieldEnum {
+	Uin,
 	// Basic info
 	Nick,
 	FirstName,
@@ -83,7 +86,11 @@ enum MetaInfoFieldEnum {
 	Notes,
 	Interests,
 	Pasts,
-	Affilations
+	Affilations,
+
+	Ages,
+	Whitepages,
+	OnlineFlag
 };
 
 class LIBOSCAR_EXPORT MetaInfoField
@@ -106,6 +113,7 @@ public:
 private:
 	MetaInfoFieldEnum m_value;
 };
+typedef QHash<MetaInfoField, QVariant> MetaInfoValuesHash;
 
 class LIBOSCAR_EXPORT MetaInfoGenderField
 {
@@ -164,9 +172,8 @@ class LIBOSCAR_EXPORT ShortInfoMetaRequest : public AbstractMetaInfoRequest
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(ShortInfoMetaRequest)
 public:
-	typedef QHash<MetaInfoField, QVariant> ValuesHash;
 	ShortInfoMetaRequest(IcqAccount *account, IcqContact *contact = 0);
-	ValuesHash values() const;
+	MetaInfoValuesHash values() const;
 	QVariant value(MetaInfoField value, const QVariant &defaultValue = QVariant()) const;
 	template <typename T>
 	T value(MetaInfoField value, const T &defaultValue = T());
@@ -200,6 +207,38 @@ protected:
 	virtual bool handleData(quint16 type, const DataUnit &data);
 };
 
+class LIBOSCAR_EXPORT FindContactsMetaRequest : public AbstractMetaInfoRequest
+{
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(FindContactsMetaRequest)
+public:
+	struct FoundContact
+	{
+		QString uin;
+		QString nick;
+		QString firstName;
+		QString lastName;
+		QString email;
+		bool authFlag;
+		enum Status {
+			Offline = 0,
+			Online = 1,
+			NonWebaware
+		} status;
+		MetaInfoGenderField gender;
+		quint16 age;
+	};
+
+	FindContactsMetaRequest(IcqAccount *account);
+	virtual void send() const;
+	void setValue(const MetaInfoField &field, const QVariant &value);
+	const QHash<QString, FoundContact> &contacts() const;
+signals:
+	void contactFound(const FoundContact &contact);
+protected:
+	virtual bool handleData(quint16 type, const DataUnit &data);
+};
+
 template <typename T>
 T ShortInfoMetaRequest::value(MetaInfoField val, const T &defaultValue) {
 	QVariant res = value(val);
@@ -217,6 +256,7 @@ inline uint qHash(const qutim_sdk_0_3::oscar::MetaInfoField &field)
 	return qHash(static_cast<int>(field.value()));
 }
 
+Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::AgeRange);
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::MetaInfoGenderField);
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::Category);
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::CategoryList);

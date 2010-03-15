@@ -562,7 +562,7 @@ static void init_fields_list(FieldNamesList &list)
 	list.insert(HomeZipCode, QT_TRANSLATE_NOOP("MetaInfo", "Home zip code"));
 	list.insert(HomeCountry, QT_TRANSLATE_NOOP("MetaInfo", "Home country"));
 	list.insert(GMT, QT_TRANSLATE_NOOP("MetaInfo", "GMT"));
-	list.insert(AuthFlag, QT_TRANSLATE_NOOP("MetaInfo", "Auth"));
+	list.insert(AuthFlag, QT_TRANSLATE_NOOP("MetaInfo", "Authorization"));
 	list.insert(WebawareFlag, QT_TRANSLATE_NOOP("MetaInfo", "Webaware"));
 	list.insert(DirectConnectionFlag, QT_TRANSLATE_NOOP("MetaInfo", "Direct connection"));
 	list.insert(PublishPrimaryEmailFlag, QT_TRANSLATE_NOOP("MetaInfo", "Public primary email"));

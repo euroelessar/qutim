@@ -35,9 +35,8 @@ public:
 class ShortInfoMetaRequestPrivate : public AbstractMetaInfoRequestPrivate
 {
 public:
-	QHash<MetaInfoField, QVariant> values;
+	MetaInfoValuesHash values;
 	quint32 uin;
-	inline QString readString(const DataUnit &data);
 	inline void readString(MetaInfoFieldEnum value, const DataUnit &data);
 	inline void readFlag(MetaInfoFieldEnum value, const DataUnit &data);
 	void dump();
@@ -54,6 +53,20 @@ public:
 	void handleEmails(const DataUnit &data);
 	void handleHomepage(const DataUnit &data);
 	void handleWork(const DataUnit &data);
+};
+
+class FindContactsMetaRequestPrivate : public AbstractMetaInfoRequestPrivate
+{
+public:
+	void addString(quint16 id, MetaInfoFieldEnum value, DataUnit &data, bool test = true) const;
+	void addString(const QString &str, DataUnit &data) const;
+	template <typename T>
+	void addField(quint16 id, MetaInfoFieldEnum value, DataUnit &data, bool test = true) const;
+	template <typename T>
+	void addCategoryId(quint16 id, MetaInfoFieldEnum value, DataUnit &data, FieldNamesList *list) const;
+	void addCategory(quint16 id, MetaInfoFieldEnum value, DataUnit &data, FieldNamesList *list) const;
+	MetaInfoValuesHash values;
+	QHash<QString, FindContactsMetaRequest::FoundContact> contacts;
 };
 
 class MetaInfo: public QObject, public SNACHandler

@@ -85,8 +85,8 @@ Q_INLINE_TEMPLATE TLV::TLV(quint16 type, const T &data):
 QByteArray TLV::toByteArray(ByteOrder bo) const
 {
 	DataUnit data;
-	data.append<quint16>(m_type);
-	data.append<quint16>(m_data);
+	data.append<quint16>(m_type, bo);
+	data.append<quint16>(m_data, bo);
 	return data.data();
 }
 
@@ -137,21 +137,21 @@ TLVMap TLVMap::fromByteArray(const QByteArray &data, ByteOrder bo)
 	return DataUnit(data).read<TLVMap>(bo);
 }
 
-void DataUnit::appendTLV(quint16 type)
+void DataUnit::appendTLV(quint16 type, ByteOrder bo)
 {
-	append(TLV(type));
+	append(TLV(type), bo);
 }
 
 template<typename T>
-Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const T &data)
+Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const T &data, ByteOrder bo)
 {
-	append(TLV(type, data));
+	append(TLV(type, data), bo);
 }
 
 template<>
-Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const DataUnit &data)
+Q_INLINE_TEMPLATE void DataUnit::appendTLV(quint16 type, const DataUnit &data, ByteOrder bo)
 {
-	append(TLV(type, data.data()));
+	append(TLV(type, data.data()), bo);
 }
 
 template<>
@@ -196,6 +196,15 @@ struct fromDataUnitHelper<TLVMap>
 			tlvs.insert(tlv);
 		}
 		return tlvs;
+	}
+};
+
+template<>
+struct toDataUnitHelper<TLV>
+{
+	static inline QByteArray toByteArray(TLV data, ByteOrder bo = BigEndian)
+	{
+		return data.toByteArray(bo);
 	}
 };
 

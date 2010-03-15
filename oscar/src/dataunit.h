@@ -78,9 +78,9 @@ public:
 	T read(QTextCodec *codec) const;
 	template<typename T, typename L>
 	T read(QTextCodec *codec, ByteOrder bo = BigEndian) const;
-	inline void appendTLV(quint16 type);
+	inline void appendTLV(quint16 type, ByteOrder bo = BigEndian);
 	template<typename T>
-	void appendTLV(quint16 type, const T &value);
+	void appendTLV(quint16 type, const T &value, ByteOrder bo = BigEndian);
 protected:
 	QByteArray m_data;
 	inline void ensure_value() { if (m_max_size > 0 && m_data.size() > m_max_size) m_data.truncate(m_max_size); } // 16 bits
