@@ -88,10 +88,6 @@ namespace Core
 			
 			p->main_toolbar = new ActionToolBar(p->widget);
 			p->main_toolbar->setIconSize(toolbar_size);
-
-#ifdef Q_WS_WIN
-			p->main_toolbar->setStyleSheet("QToolBar{background:none;border:none}"); //HACK
-#endif
 			
 			layout->addWidget(p->main_toolbar);
 			

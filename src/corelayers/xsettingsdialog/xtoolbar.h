@@ -16,10 +16,12 @@
 #ifndef XTOOLBAR_H
 #define XTOOLBAR_H
 
-#include <QToolBar>
+#include <libqutim/actiontoolbar.h>
+
+using namespace qutim_sdk_0_3;
 
 class QMenu;
-class XToolBar : public QToolBar
+class XToolBar : public ActionToolBar
 {
 	Q_OBJECT
 public:
@@ -29,7 +31,6 @@ protected:
 private:
 	QMenu *m_context_menu;
 private slots:
-	void onActionTriggered(QAction *action);
 	void onAnimationActionTriggered(bool checked);
 	int getSizePos (const int &size);
 	void onSizeActionTriggered(QAction *action);

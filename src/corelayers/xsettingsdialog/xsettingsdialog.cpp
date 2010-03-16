@@ -41,24 +41,33 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 
 	//init actions
 	//TODO FIXME get rid of copypaste
+
+	QActionGroup *group = new QActionGroup(this);
+
 	QAction *general =  new QAction(Icon("preferences-system"),tr("General"),ui->xtoolBar);
 	general->setToolTip(tr("General configuration"));
 	addAction(general,Settings::General);
+	group->addAction(general);
 
 	ui->xtoolBar->addSeparator();
 
 	QAction *protocols =  new QAction(Icon("applications-internet"),tr("Protocols"),ui->xtoolBar);
 	protocols->setToolTip(tr("Accounts and protocols settings"));
 	addAction(protocols,Settings::Protocol);
+	group->addAction(protocols);
 
 	QAction *appearance =  new QAction(Icon("applications-graphics"),tr("Appearance"),ui->xtoolBar);
 	appearance->setToolTip(tr("Appearance settings"));
 	addAction(appearance,Settings::Appearance);
+	group->addAction(appearance);
 
 	QAction *plugins =  new QAction(Icon("applications-other"),tr("Plugins"),ui->xtoolBar);
 	plugins->setToolTip(tr("Additional plugins settings"));
 	addAction(plugins,Settings::Plugin);
 	m_group_widgets.resize(ui->xtoolBar->actions().count());
+	group->addAction(plugins);
+
+	group->setExclusive(true);
 
 	//init button box
 	ui->buttonsWidget->setVisible(false);

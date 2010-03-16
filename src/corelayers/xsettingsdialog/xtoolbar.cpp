@@ -21,7 +21,7 @@
 #include <QMenu>
 #include <QDebug>
 
-XToolBar::XToolBar ( QWidget* parent ) : QToolBar ( parent )
+XToolBar::XToolBar ( QWidget* parent ) : ActionToolBar ( parent )
 {
 	//load config
 	ConfigGroup toolbar_group = Config("appearance").group("xsettings/toolbar");
@@ -111,19 +111,8 @@ XToolBar::XToolBar ( QWidget* parent ) : QToolBar ( parent )
 	m_context_menu->addMenu(toolButtonStyleMenu);
 	m_context_menu->addAction(animated);
 
-
-	connect(this,SIGNAL(actionTriggered(QAction*)),SLOT(onActionTriggered(QAction*)));
 }
 
-
-void XToolBar::onActionTriggered ( QAction* action )
-{
-	foreach (QAction *act, actions())
-	{
-		act->setChecked(false);
-	}
-	action->setChecked(true);
-}
 
 void XToolBar::contextMenuEvent(QContextMenuEvent* e)
 {
