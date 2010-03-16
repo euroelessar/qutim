@@ -44,6 +44,28 @@ void IcqContactPrivate::requestNick()
 	}
 }
 
+void IcqContactPrivate::setCapabilities(const Capabilities &caps)
+{
+	clearCapabilities();
+	foreach(const Capability &capability, caps)
+	{
+		if (capability.match(ICQ_CAPABILITY_HTMLMSGS))
+			flags |= html_support;
+		else if (capability.match(ICQ_CAPABILITY_UTF8))
+			flags |= utf8_support;
+		else if (capability.match(ICQ_CAPABILITY_SRVxRELAY))
+			flags |= srvrelay_support;
+	}
+	capabilities = caps;
+}
+
+void IcqContactPrivate::setChatState(ChatState state)
+{
+	Q_Q(IcqContact);
+	state = state;
+	qApp->postEvent(ChatLayer::get(q, true), new ChatStateEvent(state));
+}
+
 FeedbagItem IcqContactPrivate::getNotInListGroup()
 {
 	const QString groupNameStr = QT_TRANSLATE_NOOP("ContactList", "General");
@@ -132,17 +154,17 @@ void IcqContact::sendMessage(const Message &message)
 	QString msgText;
 	quint8 channel = 2;
 	Cookie cookie(this, message.id());
-	if (HtmlSupport())
+	if (d->flags & html_support)
 		msgText = message.property("html").toString();
 	if (msgText.isEmpty())
 		msgText = message.text();
-	if (!SrvRelaySupport()) {
+	if (!(d->flags & srvrelay_support)) {
 		ServerMessage msgData(this, Channel1MessageData(msgText, CodecUtf16Be), cookie);
 		d->account->connection()->send(msgData);
 		channel = 1;
 	} else {
 		QTextCodec *codec;
-		if (Utf8Support())
+		if (d->flags & utf8_support)
 			codec = Util::utf8Codec();
 		else
 			codec = Util::asciiCodec();
@@ -150,7 +172,7 @@ void IcqContact::sendMessage(const Message &message)
 		Tlv2711 tlv(0x01, 0, d->status.subtype(), 1, cookie);
 		tlv.append<quint16>(msg, LittleEndian);
 		tlv.appendColors();
-		if (Utf8Support())
+		if (d->flags & utf8_support)
 			tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
 		ServerMessage msgData(this, Channel2MessageData(0, tlv));
 		cookie.lock(this, SLOT(messageTimeout()));
@@ -304,71 +326,6 @@ IcqAccount *IcqContact::account()
 	return d_func()->account;
 }
 
-bool IcqContact::RtfSupport() const
-{
-	return d_func()->flags & rtf_support;
-}
-
-bool IcqContact::HtmlSupport() const
-{
-	return d_func()->flags & html_support;
-}
-
-bool IcqContact::TypingSupport() const
-{
-	return d_func()->flags & typing_support;
-}
-
-bool IcqContact::AimChatSupport() const
-{
-	return d_func()->flags & aim_chat_support;
-}
-
-bool IcqContact::AimImageSupport() const
-{
-	return d_func()->flags & aim_image_support;
-}
-
-bool IcqContact::XtrazSupport() const
-{
-	return d_func()->flags & xtraz_support;
-}
-
-bool IcqContact::Utf8Support() const
-{
-	return d_func()->flags & utf8_support;
-}
-
-bool IcqContact::SendFileSupport() const
-{
-	return d_func()->flags & sendfile_support;
-}
-
-bool IcqContact::DirectSupport() const
-{
-	return d_func()->flags & direct_support;
-}
-
-bool IcqContact::IconSupport() const
-{
-	return d_func()->flags & icon_support;
-}
-
-bool IcqContact::GetFileSupport() const
-{
-	return d_func()->flags & getfile_support;
-}
-
-bool IcqContact::SrvRelaySupport() const
-{
-	return d_func()->flags & srvrelay_support;
-}
-
-bool IcqContact::AvatarSupport() const
-{
-	return d_func()->flags & avatar_support;
-}
-
 const Capabilities &IcqContact::capabilities() const
 {
 	return d_func()->capabilities;
@@ -393,46 +350,6 @@ void IcqContact::setStatus(Status status)
 	if (status == Status::Offline)
 		d->clearCapabilities();
 	emit statusChanged(status);
-}
-
-void IcqContact::setCapabilities(const Capabilities &caps)
-{
-	Q_D(IcqContact);
-	d->clearCapabilities();
-	foreach(const Capability &capability, caps)
-	{
-		if (capability.match(ICQ_CAPABILITY_RTFxMSGS))
-			d->flags |= rtf_support;
-		else if (capability.match(ICQ_CAPABILITY_TYPING))
-			d->flags |= typing_support;
-		else if (capability.match(ICQ_CAPABILITY_AIMCHAT))
-			d->flags |= aim_chat_support;
-		else if (capability.match(ICQ_CAPABILITY_AIMIMAGE))
-			d->flags |= aim_image_support;
-		else if (capability.match(ICQ_CAPABILITY_XTRAZ))
-			d->flags |= xtraz_support;
-		else if (capability.match(ICQ_CAPABILITY_UTF8))
-			d->flags |= utf8_support;
-		else if (capability.match(ICQ_CAPABILITY_AIMSENDFILE))
-			d->flags |= sendfile_support;
-		else if (capability.match(ICQ_CAPABILITY_DIRECT))
-			d->flags |= direct_support;
-		else if (capability.match(ICQ_CAPABILITY_AIMICON))
-			d->flags |= icon_support;
-		else if (capability.match(ICQ_CAPABILITY_AIMGETFILE))
-			d->flags |= getfile_support;
-		else if (capability.match(ICQ_CAPABILITY_SRVxRELAY))
-			d->flags |= srvrelay_support;
-		else if (capability.match(ICQ_CAPABILITY_AVATAR))
-			d->flags |= avatar_support;
-	}
-	d->capabilities = caps;
-}
-
-void IcqContact::setChatState(ChatState state)
-{
-	d_func()->state = state;
-	qApp->postEvent(ChatLayer::get(this, true), new ChatStateEvent(state));
 }
 
 ChatState IcqContact::chatState() const

@@ -91,6 +91,34 @@ void ClientIdentify::identify(IcqContact *contact)
 	m_ext_info = contact->dcInfo().extinfo_utime;
 	m_ext_status_info = contact->dcInfo().extstatus_utime;
 
+	foreach(const Capability &capability, m_client_caps)
+	{
+		if (capability.match(ICQ_CAPABILITY_RTFxMSGS))
+			m_flags |= rtf_support;
+		else if (capability.match(ICQ_CAPABILITY_TYPING))
+			m_flags |= typing_support;
+		else if (capability.match(ICQ_CAPABILITY_AIMCHAT))
+			m_flags |= aim_chat_support;
+		else if (capability.match(ICQ_CAPABILITY_AIMIMAGE))
+			m_flags |= aim_image_support;
+		else if (capability.match(ICQ_CAPABILITY_XTRAZ))
+			m_flags |= xtraz_support;
+		else if (capability.match(ICQ_CAPABILITY_UTF8))
+			m_flags |= utf8_support;
+		else if (capability.match(ICQ_CAPABILITY_AIMSENDFILE))
+			m_flags |= sendfile_support;
+		else if (capability.match(ICQ_CAPABILITY_DIRECT))
+			m_flags |= direct_support;
+		else if (capability.match(ICQ_CAPABILITY_AIMICON))
+			m_flags |= icon_support;
+		else if (capability.match(ICQ_CAPABILITY_AIMGETFILE))
+			m_flags |= getfile_support;
+		else if (capability.match(ICQ_CAPABILITY_SRVxRELAY))
+			m_flags |= srvrelay_support;
+		else if (capability.match(ICQ_CAPABILITY_AVATAR))
+			m_flags |= avatar_support;
+	}
+
 	// There may be some x-statuses info here.. remove all of them.
 	// TODO:
 	//Xtraz::removeXStatuses(m_client_caps);
@@ -145,6 +173,7 @@ void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TL
 				<< contact->property("client").toMap().value("description").toString();
 	}
 }
+
 
 void ClientIdentify::virtual_hook(int type, void *data)
 {
@@ -208,11 +237,11 @@ void ClientIdentify::identify_by_DCInfo()
 	} else if (m_info == 0x04031980) {
 		setClientData("vICQ", "unknown");
 	} else if ((m_info == 0x3aa773ee) && (m_ext_status_info == 0x3aa66380)) {
-		if (m_contact->RtfSupport()) {
+		if (RtfSupport()) {
 			setClientData("Centericq", "centericq");
 		} else {
 			m_client_id = "libicq2000";
-			if (m_contact->Utf8Support())
+			if (Utf8Support())
 				m_client_id += " (Unicode)";
 			setClientIcon("icq2000");
 		}
@@ -293,69 +322,57 @@ void ClientIdentify::identify_by_ProtoVersion()
 
 	static const Capability ICQ_CAPABILITY_DIGSBY      (0x0002);
 
-	bool rtf      = m_contact->RtfSupport();
-	bool typing   = m_contact->TypingSupport();
-	bool aimChat  = m_contact->AimChatSupport();
-	bool xtraz    = m_contact->XtrazSupport();
-	bool utf8     = m_contact->Utf8Support();
-	bool sendFile = m_contact->SendFileSupport();
-	bool direct   = m_contact->DirectSupport();
-	bool aimIcon  = m_contact->IconSupport();
-	bool getFile  = m_contact->GetFileSupport();
-	bool srvRelay = m_contact->SrvRelaySupport();
-	bool avatar   = m_contact->AvatarSupport();
-
 	// VERSION = 0
 	if (m_client_proto == 0) {
 		if (!m_info && !m_ext_status_info && !m_ext_info &&
 			!(m_contact->dcInfo().port) && !(m_contact->dcInfo().auth_cookie))
 		{
-			if (typing &&
+			if (TypingSupport() &&
 				m_client_caps.match(ICQ_CAPABILITY_IS2001) &&
 				m_client_caps.match(ICQ_CAPABILITY_IS2002) &&
 				m_client_caps.match(ICQ_CAPABILITY_COMM20012))
 			{
 				setClientData("Spam Bot", "bot");
 			}
-			else if (aimIcon) {
-				if ((typing && xtraz && srvRelay && utf8) ||
-					(utf8 && (m_client_caps.size() == 2)) ||
-					(m_client_caps.match(ICQ_CAPABILITY_ICQLITExVER) && xtraz))
+			else if (IconSupport()) {
+				if ((TypingSupport() && XtrazSupport() && SrvRelaySupport() && Utf8Support()) ||
+					(Utf8Support() && (m_client_caps.size() == 2)) ||
+					(m_client_caps.match(ICQ_CAPABILITY_ICQLITExVER) && XtrazSupport()))
 				{
 					setClientData("PyICQ-t Jabber Transport", "pyicq");
 				}
-				else if (utf8 && srvRelay && sendFile &&
+				else if (Utf8Support() && SrvRelaySupport() && SendFileSupport() &&
 						m_client_caps.match(ICQ_CAPABILITY_BUDDY_LIST) &&
-						m_contact->capabilities().match(ICQ_CAPABILITY_DIGSBY))
+						m_client_caps.match(ICQ_CAPABILITY_DIGSBY))
 				{
 					setClientData("Digsby", "digsby");
 				}
-			} else if (aimChat) {
-				if (sendFile && (m_client_caps.size() == 2)) {
+			} else if (AimChatSupport()) {
+				if (SendFileSupport() && (m_client_caps.size() == 2)) {
 					setClientData("Easy Message", "unknown");
-				} else if (aimIcon && m_client_caps.match(ICQ_CAPABILITY_AIMIMAGE)) {
+				} else if (IconSupport() && AimImageSupport()) {
 					setClientData("AIM", "aim");
 				}
-			} else if (utf8 && (m_client_caps.size() == 2)) {
+			} else if (Utf8Support() && (m_client_caps.size() == 2)) {
 				setClientData("BeejiveIM", "beejive");
 			}
-		} else if (utf8 && srvRelay && direct) {
-			if ((typing && (m_client_caps.size() == 4)) ||
-				(aimIcon && avatar && (m_client_caps.size() == 5)))
+		} else if (Utf8Support() && SrvRelaySupport() && DirectSupport()) {
+			if ((TypingSupport() && (m_client_caps.size() == 4)) ||
+				(IconSupport() && AvatarSupport() && (m_client_caps.size() == 5)))
 			{
 				setClientData("Agile Messenger", "agile");
-			} else if (sendFile && getFile) {
+			} else if (SendFileSupport() && GetFileSupport()) {
 				setClientData("Slick", "slick");
 			}
-		} else if(direct && rtf && typing && utf8) {
+		} else if(DirectSupport() && RtfSupport() && TypingSupport() && Utf8Support()) {
 			setClientData("GlICQ", "glicq");
 		}
 	}
 
 	// VERSION = 7
 	else if (m_client_proto == 7) {
-		if (rtf) {
-			if (srvRelay && direct &&
+		if (RtfSupport()) {
+			if (SrvRelaySupport() && DirectSupport() &&
 				(m_info == 0x3aa773ee) &&
 				(m_ext_status_info == 0x3aa66380) &&
 				(m_ext_info == 0x3a877a42))
@@ -366,14 +383,14 @@ void ClientIdentify::identify_by_ProtoVersion()
 			{
 				setClientData("GnomeICU", "unknown");
 			}
-		} else if (srvRelay) {
+		} else if (SrvRelaySupport()) {
 			if (!m_info && !m_ext_status_info && !m_ext_info) {
 				setClientData("&RQ", "RQ");
 			} else {
 				setClientData("ICQ 2000", "icq2000");
 			}
-		} else if (utf8) {
-			if (typing)
+		} else if (Utf8Support()) {
+			if (TypingSupport())
 				m_client_id = "Icq2Go! (Java)";
 			else
 				m_client_id = "Icq2Go! (Flash)";
@@ -383,9 +400,9 @@ void ClientIdentify::identify_by_ProtoVersion()
 
 	// VERSION = 8
 	else if (m_client_proto == 8) {
-		if (xtraz)
+		if (XtrazSupport())
 		{
-			if (direct && utf8 && srvRelay && avatar) {
+			if (DirectSupport() && Utf8Support() && SrvRelaySupport() && AvatarSupport()) {
 				setClientData("IM Gate", "imgate");
 			} else if (m_client_caps.match(ICQ_CAPABILITY_IMSECKEY1) &&
 					m_client_caps.match(ICQ_CAPABILITY_IMSECKEY2))
@@ -394,10 +411,10 @@ void ClientIdentify::identify_by_ProtoVersion()
 				return identify_by_ProtoVersion();
 			}
 		}
-		else if (m_client_caps.match(ICQ_CAPABILITY_COMM20012) || srvRelay) {
+		else if (m_client_caps.match(ICQ_CAPABILITY_COMM20012) || SrvRelaySupport()) {
 			if (m_client_caps.match(ICQ_CAPABILITY_IS2001)) {
 				if (!m_info && !m_ext_status_info && !m_ext_info) {
-					if (rtf) {
+					if (RtfSupport()) {
 						setClientData("TICQClient", "unknown"); // possibly also older GnomeICU
 					} else {
 						setClientData("ICQ for Pocket PC", "unknown");
@@ -407,7 +424,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 				}
 			} else if (m_client_caps.match(ICQ_CAPABILITY_IS2002)) {
 				setClientData("ICQ 2002", "icq");
-			} else if (srvRelay && utf8 && rtf &&
+			} else if (SrvRelaySupport() && Utf8Support() && RtfSupport() &&
 					(!m_client_caps.match(ICQ_CAPABILITY_ICQJS7xVER)) &&
 					(!m_client_caps.match(ICQ_CAPABILITY_ICQJSINxVER)))
 			{
@@ -420,7 +437,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 				} else {
 					setClientData("ICQ 2002/2003a", "icq");
 				}
-			} else if (srvRelay && utf8 && typing) {
+			} else if (SrvRelaySupport() && Utf8Support() && TypingSupport()) {
 				if (!m_info && !m_ext_status_info && !m_ext_info) {
 					setClientData("PreludeICQ", "unknown");
 				}
@@ -430,12 +447,12 @@ void ClientIdentify::identify_by_ProtoVersion()
 
 	// VERSION = 9
 	else if (m_client_proto == 9) {
-		if (xtraz) {
-			if (sendFile) {
+		if (XtrazSupport()) {
+			if (SendFileSupport()) {
 				QString icon;
 				if (m_client_caps.match(ICQ_CAPABILITY_TZERS)) {
 					if (m_client_caps.match(ICQ_CAPABILITY_HTMLMSGS)) {
-						if (rtf) {
+						if (RtfSupport()) {
 							m_client_id = "MDC";
 							icon = "mdc";
 						} else {
@@ -458,8 +475,8 @@ void ClientIdentify::identify_by_ProtoVersion()
 				else if (m_client_caps.match(ICQ_CAPABILITY_NETVIGATOR))
 					m_client_id += " (Netvigator)";
 				setClientIcon(icon);
-			} else if (!direct) {
-				if (rtf) {
+			} else if (!DirectSupport()) {
+				if (RtfSupport()) {
 					m_client_id = "QNext";
 					setClientIcon("unknown");
 				}
@@ -475,13 +492,13 @@ void ClientIdentify::identify_by_ProtoVersion()
 				m_client_id = "ICQ Lite v4";
 				setClientIcon("icq4lite");
 			}
-		} else if(utf8 && sendFile && aimIcon && aimChat
+		} else if(Utf8Support() && SendFileSupport() && IconSupport() && AimChatSupport()
 				&& m_contact->capabilities().match(ICQ_CAPABILITY_BUDDY_LIST))
 		{
 			m_client_id = "ICQ Lite";
 			setClientIcon("icq4lite");
 		}
-		else if (!direct && utf8 && !rtf) {
+		else if (!DirectSupport() && Utf8Support() && !RtfSupport()) {
 			m_client_id = "PyICQ-t Jabber Transport";
 			setClientIcon("pyicq");
 		}
@@ -490,11 +507,11 @@ void ClientIdentify::identify_by_ProtoVersion()
 	// VERSION = 10
 	else if (m_client_proto == 0xA)
 	{
-		if (rtf && utf8 && typing && direct && srvRelay)
+		if (RtfSupport() && Utf8Support() && TypingSupport() && DirectSupport() && SrvRelaySupport())
 			setClientData("ICQ 2003b Pro", "icq2003pro");
-		else if (!rtf && !utf8)
+		else if (!RtfSupport() && !Utf8Support())
 			setClientData("QNext", "unknown");
-		else if (!rtf && utf8 && !m_info && !m_ext_status_info && !m_ext_info)
+		else if (!RtfSupport() && Utf8Support() && !m_info && !m_ext_status_info && !m_ext_info)
 			setClientData("NanoICQ", "unknown");
 	}
 }
@@ -909,11 +926,11 @@ void ClientIdentify::identify_Micq()
 void ClientIdentify::identify_LibGaim()
 {
 	int newver = 0;
-	if (m_contact->AimChatSupport())
-		newver = m_contact->TypingSupport() ? 2 : 1;
+	if (AimChatSupport())
+		newver = TypingSupport() ? 2 : 1;
 
-	if (m_contact->SendFileSupport() && m_contact->AimImageSupport() &&
-		m_contact->IconSupport() && m_contact->Utf8Support() &&
+	if (SendFileSupport() && AimImageSupport() &&
+		IconSupport() && Utf8Support() &&
 		(m_client_caps.size() == (4 + newver)))
 	{
 		if (newver >= 1)
@@ -921,7 +938,7 @@ void ClientIdentify::identify_LibGaim()
 		else
 			setClientData("Gaim/AdiumX", "gaim");
 	} else if ((newver >= 1) && (m_client_proto == 0)) {
-		if(m_contact->IconSupport() && m_contact->Utf8Support())
+		if(IconSupport() && Utf8Support())
 			setClientData("Meebo", "meebo");
 	}
 }
@@ -982,8 +999,8 @@ void ClientIdentify::identify_Trillian()
 		m_client_caps.match(ICQ_CAPABILITY_TRILCRPTxVER))
 	{
 		m_client_id = "Trillian";
-		if (m_contact->RtfSupport()) {
-			if (m_contact->SendFileSupport())
+		if (RtfSupport()) {
+			if (SendFileSupport())
 				m_client_id += " Astra";
 			else
 				m_client_id += " v3";

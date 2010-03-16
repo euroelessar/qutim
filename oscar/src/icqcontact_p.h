@@ -37,19 +37,9 @@ enum SsiBuddyTlvs
 
 enum ContactCapabilityFlags
 {
-	rtf_support       = 0x0001,
-	html_support      = 0x0002,
-	typing_support    = 0x0004,
-	aim_chat_support  = 0x0008,
-	aim_image_support = 0x0010,
-	xtraz_support     = 0x0020,
-	utf8_support      = 0x0040,
-	sendfile_support  = 0x0080,
-	direct_support    = 0x0100,
-	icon_support      = 0x0200,
-	getfile_support   = 0x0400,
-	srvrelay_support  = 0x0800,
-	avatar_support    = 0x1000
+	html_support      = 0x0001,
+	utf8_support      = 0x0002,
+	srvrelay_support  = 0x0004
 };
 
 struct IcqContactPrivate
@@ -57,6 +47,8 @@ struct IcqContactPrivate
 	Q_DECLARE_PUBLIC(IcqContact);
 	void clearCapabilities();
 	void requestNick();
+	void setCapabilities(const Capabilities &caps);
+	void setChatState(ChatState state);
 	FeedbagItem getNotInListGroup();
 	Q_DECLARE_FLAGS(CapabilityFlags, ContactCapabilityFlags)
 	IcqAccount *account;

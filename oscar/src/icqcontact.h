@@ -27,7 +27,6 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 class IcqAccount;
-class Roster;
 class DirectConnectionInfo;
 
 struct IcqContactPrivate;
@@ -53,37 +52,20 @@ public:
 	virtual void setInList(bool inList);
 	void authResponse(const QString &message, bool auth = true);
 	void authRequest(const QString &message);
-	virtual bool event(QEvent *);
 	IcqAccount *account();
-public:
-	bool RtfSupport() const;
-	bool HtmlSupport() const;
-	bool TypingSupport() const;
-	bool AimChatSupport() const;
-	bool AimImageSupport() const;
-	bool XtrazSupport() const;
-	bool Utf8Support() const;
-	bool SendFileSupport() const;
-	bool DirectSupport() const;
-	bool IconSupport() const;
-	bool GetFileSupport() const;
-	bool SrvRelaySupport() const;
-	bool AvatarSupport() const;
 	const Capabilities &capabilities() const;
 	const DirectConnectionInfo &dcInfo() const;
-	void setAvatar(const QString &avatar);
 	void setStatus(Status status);
-	void setCapabilities(const Capabilities &caps);
-	void setChatState(ChatState state);
 	ChatState chatState() const;
+private:
+	virtual bool event(QEvent *);
+	void setAvatar(const QString &avatar);
 private slots:
 	void messageTimeout();
 	void infoReceived(bool ok);
 protected:
 	friend class Roster;
-	friend class IcqAccount;
 	friend class MessagesHandler;
-	friend class SsiHandler;
 	QScopedPointer<IcqContactPrivate> d_ptr;
 };
 
