@@ -534,7 +534,7 @@ FeedbagItem Feedbag::item(quint16 type, quint16 id, quint16 group, ItemLoadFlags
 		}
 	}
 	if (flags & CreateItem) {
-		if (flags & GenerateId)
+		if (flags & 0x0002) // GenerateId flag
 			id = uniqueItemId(id);
 		return FeedbagItem(const_cast<Feedbag*>(this), type,
 						   type == SsiGroup ? 0 : id,
@@ -573,7 +573,7 @@ QList<FeedbagItem> Feedbag::items(quint16 type, quint16 id, ItemLoadFlags flags)
 	if (!(flags & DontLoadLocal))
 		items = d->items.value(type).values(id);
 	if (items.isEmpty() && flags & CreateItem) {
-		if (flags & GenerateId)
+		if (flags & 0x0002) // GenerateId flag
 			id = uniqueItemId(id);
 		items << FeedbagItem(const_cast<Feedbag*>(this), type,
 						   type == SsiGroup ? 0 : id,

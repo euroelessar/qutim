@@ -48,6 +48,7 @@ public:
 	virtual void sendMessage(const Message &message);
 	virtual void setName(const QString &name);
 	virtual void setTags(const QSet<QString> &tags);
+	void setGroup(const QString &group);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
 	void authResponse(const QString &message, bool auth = true);
