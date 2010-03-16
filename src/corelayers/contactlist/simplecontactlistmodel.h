@@ -43,6 +43,7 @@ namespace Core
 			void onContactRenameAction();
 			void onContactRenameResult(const QString &name);
 			void onCollapsed(const QModelIndex &index);
+			void onTagsEditAction();
 			void onExpanded(const QModelIndex &index);
 		private:
 			void filterAllList();

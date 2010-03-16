@@ -9,6 +9,7 @@
 #include "libqutim/debug.h"
 #include <QInputDialog>
 #include <QMimeData>
+#include "simpletagseditor/simpletagseditor.h"
 
 namespace Core
 {
@@ -37,6 +38,11 @@ namespace Core
 													   QT_TRANSLATE_NOOP("ContactList", "Rename contact"),
 													   this, SLOT(onContactRenameAction()));
 			MenuController::addAction<Contact>(gen);
+			gen = new ActionGenerator(Icon("feed-subscribe"),
+													   QT_TRANSLATE_NOOP("ContactList", "Edit tags"),
+													   this, SLOT(onTagsEditAction()));
+			MenuController::addAction<Contact>(gen);
+
 			p->view->setDragEnabled(true);
 			p->view->setAcceptDrops(true);
 			p->view->setDropIndicatorShown(true);
@@ -511,7 +517,20 @@ namespace Core
 			dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 			dialog->setInputMode(QInputDialog::TextInput);
 			dialog->setProperty("contact", qVariantFromValue(contact));
+			centerizeWidget(dialog);
 			dialog->open(this, SLOT(onContactRenameResult(QString)));
+		}
+
+		void Model::onTagsEditAction()
+		{
+			Contact *contact = MenuController::getController<Contact>(sender());
+			if (!contact)
+				return;
+			SimpleTagsEditor *editor = new SimpleTagsEditor (contact);
+			centerizeWidget(editor);
+			editor->setTags(p->openTags); //TODO
+			editor->load();
+			editor->show();
 		}
 
 		void Model::onContactRenameResult(const QString &name)

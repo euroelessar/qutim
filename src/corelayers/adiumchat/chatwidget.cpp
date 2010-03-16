@@ -43,8 +43,6 @@ namespace AdiumChat
 		ui->contactsView->hide();
 		//ui->tabBar->setDrawBase(false);
 		//init status and menubar
-		ui->statusbar->setVisible(false);
-		ui->menubar->setVisible(false);
 		setAttribute(Qt::WA_DeleteOnClose);
 		setAttribute(Qt::WA_MacBrushedMetal);
 		

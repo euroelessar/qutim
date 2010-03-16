@@ -20,9 +20,6 @@
 #include "chatlayerimpl.h"
 #include <QMainWindow>
 
-namespace qutim_sdk_0_3 {
-	class ActionToolBar;
-}
 
 namespace Ui
 {
