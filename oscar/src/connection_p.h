@@ -84,6 +84,7 @@ public:
 	QMultiMap<quint32, SNACHandler*> handlers;
 	quint16 seqnum;
 	quint32 id;
+	ClientInfo clientInfo;
 	QHostAddress ext_ip;
 	QList<quint16> services;
 	QHash<quint16, OscarRate*> rates;

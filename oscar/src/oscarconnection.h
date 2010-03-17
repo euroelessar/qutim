@@ -33,26 +33,12 @@ class BuddyPicture;
 class Roster;
 class Feedbag;
 
-struct ClientInfo
-{
-	QByteArray id_string;
-	quint16 id_number;
-	quint16 major_version;
-	quint16 minor_version;
-	quint16 lesser_version;
-	quint16 build_number;
-	quint32 distribution_number;
-	QByteArray language;
-	QByteArray country;
-};
-
 class OscarConnection: public AbstractConnection
 {
 	Q_OBJECT
 public:
 	OscarConnection(IcqAccount *parent);
 	void connectToLoginServer(const QString &password);
-	inline const ClientInfo &clientInfo() const { return m_client_info; }
 	void finishLogin();
 	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
 	void sendStatus(OscarStatus status);
@@ -70,7 +56,6 @@ private:
 	IcqAccount *m_account;
 	quint16 m_status_flags;
 	QByteArray m_auth_cookie;
-	ClientInfo m_client_info;
 	bool m_is_idle;
 };
 

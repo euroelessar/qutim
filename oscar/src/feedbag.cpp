@@ -71,7 +71,8 @@ class FeedbagPrivate
 	Q_DECLARE_PUBLIC(Feedbag)
 public:
 	FeedbagPrivate(IcqAccount *acc, Feedbag *q):
-		account(acc), conn(acc->oscarConnection()), modifyStarted(false), q_ptr(q)
+		account(acc), conn(static_cast<OscarConnection*>(acc->connection())),
+		modifyStarted(false), q_ptr(q)
 	{}
 	void handleItem(FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	quint16 generateId() const;

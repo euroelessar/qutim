@@ -60,7 +60,6 @@ public:
 	Feedbag *feedbag();
 	AbstractConnection *connection();
 	const AbstractConnection *connection() const;
-	OscarConnection *oscarConnection(); // TODO: remove
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
 	IcqContact *getContact(const QString &id, bool create = false);
 	const QHash<QString, IcqContact*> &contacts() const;

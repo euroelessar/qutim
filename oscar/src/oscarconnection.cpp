@@ -41,11 +41,6 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 			<< SNACInfo(BosFamily, PrivacyRightsReply);
 	connect(socket(), SIGNAL(disconnected()), this, SLOT(disconnected()));
 	m_account = parent;
-	{
-		ClientInfo info =
-		{ "ICQ Client", 266, 6, 5, 10, 104, 0x00007537, "ru", "ru" };
-		m_client_info = info;
-	}
 	m_status_flags = 0x0000;
 	registerHandler(this);
 	m_is_idle = false;
@@ -65,19 +60,19 @@ void OscarConnection::connectToLoginServer(const QString &password)
 void OscarConnection::processNewConnection()
 {
 	AbstractConnection::processNewConnection();
-
+	const ClientInfo &info = clientInfo();
 	FLAP flap(0x01);
 	flap.append<quint32>(0x01);
 	flap.appendTLV<QByteArray>(0x0006, m_auth_cookie);
-	flap.appendTLV<QByteArray>(0x0003, m_client_info.id_string);
-	flap.appendTLV<quint16>(0x0017, m_client_info.major_version);
-	flap.appendTLV<quint16>(0x0018, m_client_info.minor_version);
-	flap.appendTLV<quint16>(0x0019, m_client_info.lesser_version);
-	flap.appendTLV<quint16>(0x001a, m_client_info.build_number);
-	flap.appendTLV<quint16>(0x0016, m_client_info.id_number);
-	flap.appendTLV<quint32>(0x0014, m_client_info.distribution_number);
-	flap.appendTLV<QByteArray>(0x000f, m_client_info.language);
-	flap.appendTLV<QByteArray>(0x000e, m_client_info.country);
+	flap.appendTLV<QByteArray>(0x0003, info.id_string);
+	flap.appendTLV<quint16>(0x0017, info.major_version);
+	flap.appendTLV<quint16>(0x0018, info.minor_version);
+	flap.appendTLV<quint16>(0x0019, info.lesser_version);
+	flap.appendTLV<quint16>(0x001a, info.build_number);
+	flap.appendTLV<quint16>(0x0016, info.id_number);
+	flap.appendTLV<quint32>(0x0014, info.distribution_number);
+	flap.appendTLV<QByteArray>(0x000f, info.language);
+	flap.appendTLV<QByteArray>(0x000e, info.country);
 	// Unknown shit
 	flap.appendTLV<quint8>(0x0094, 0x00);
 	flap.appendTLV<quint32>(0x8003, 0x00100000);

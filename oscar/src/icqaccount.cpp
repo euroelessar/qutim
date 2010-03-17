@@ -120,11 +120,6 @@ const AbstractConnection *IcqAccount::connection() const
 	return d_func()->conn;
 }
 
-OscarConnection *IcqAccount::oscarConnection()
-{
-	return d_func()->conn;
-}
-
 void IcqAccount::setStatus(Status status)
 {
 	Q_D(IcqAccount);
