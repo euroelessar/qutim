@@ -148,8 +148,7 @@ namespace Core
 
 			p->search_bar = new QLineEdit(p->widget);
 			p->search_bar->setVisible(false);
-			connect(p->search_btn,SIGNAL(toggled(bool)),p->search_bar,SLOT(setVisible(bool)));
-			connect(p->search_btn,SIGNAL(toggled(bool)),p->search_bar,SLOT(setFocus()));
+			connect(p->search_btn,SIGNAL(toggled(bool)),SLOT(onSearchButtonToggled(bool)));
 			connect(p->search_bar, SIGNAL(textChanged(QString)), p->model, SLOT(onFilterList(QString)));
 
 			layout->addWidget(p->search_bar);
@@ -278,6 +277,16 @@ namespace Core
 			act->setData(QVariant::fromValue(s));
 			connect(act,SIGNAL(triggered()),SLOT(onStatusChanged()));
 			return act;
+		}
+
+		void Module::onSearchButtonToggled(bool toggled)
+		{
+			p->search_bar->setVisible(toggled);
+			if (toggled) {
+				p->search_bar->setFocus();
+			}
+			else
+				p->search_bar->clear();
 		}
 	}
 }

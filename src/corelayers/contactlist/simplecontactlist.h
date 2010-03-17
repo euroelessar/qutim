@@ -32,6 +32,7 @@ namespace Core
 			void onAccountCreated(qutim_sdk_0_3::Account *account);
 			void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
 			void onStatusChanged();
+			void onSearchButtonToggled(bool toggled);
 		private:
 			QAction *createGlobalStatusAction(Status::Type type); //FIXME, temporary. Will be replaced by metacontact manager
 			QScopedPointer<ModulePrivate> p;
