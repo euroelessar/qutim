@@ -46,11 +46,6 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 		{ "ICQ Client", 266, 6, 5, 10, 104, 0x00007537, "ru", "ru" };
 		m_client_info = info;
 	}
-	{
-		DirectConnectionInfo info =
-		{ QHostAddress(quint32(0)), QHostAddress(quint32(0)), 0, 0x04, 0x08, 0, 0x50, 0x03, 0, 0, 0 };
-		m_dc_info = info;
-	}
 	m_status_flags = 0x0000;
 	registerHandler(this);
 	m_is_idle = false;
@@ -173,19 +168,6 @@ void OscarConnection::sendStatus(OscarStatus status)
 	SNAC snac(ServiceFamily, ServiceClientSetStatus);
 	snac.appendTLV<quint32>(0x06, (m_status_flags << 16) | status.subtype()); // Status mode and security flags
 	snac.appendTLV<quint16>(0x08, 0x0000); // Error code
-	TLV dc(0x0c); // Direct connection info
-	dc.append<quint32>(externalIP().toIPv4Address()); // Real IP
-	dc.append<quint32>(666); // DC Port
-	dc.append<quint8>(m_dc_info.dc_type); // TCP/FLAG firewall settings
-	dc.append<quint16>(m_dc_info.protocol_version); // Protocol version;
-	dc.append<quint32>(qrand()); // DC auth cookie
-	dc.append<quint32>(m_dc_info.web_front_port); // Web front port
-	dc.append<quint32>(m_dc_info.client_futures); // client futures
-	dc.append<quint32>(0x00000000); // last info update time
-	dc.append<quint32>(0x00000000); // last ext info update time (i.e. icqphone status)
-	dc.append<quint32>(0x00000000); // last ext status update time (i.e. phonebook)
-	dc.append<quint16>(0x0000); // Unknown
-	snac.append(dc);
 	// Status item
 	DataUnit statusData;
 	{
