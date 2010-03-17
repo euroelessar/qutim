@@ -29,12 +29,30 @@ namespace oscar {
 
 class IcqContact;
 
+enum CapabilityFlag
+{
+	rtf_support       = 0x0001,
+	html_support      = 0x0002,
+	typing_support    = 0x0004,
+	aim_chat_support  = 0x0008,
+	aim_image_support = 0x0010,
+	xtraz_support     = 0x0020,
+	utf8_support      = 0x0040,
+	sendfile_support  = 0x0080,
+	direct_support    = 0x0100,
+	icon_support      = 0x0200,
+	getfile_support   = 0x0400,
+	srvrelay_support  = 0x0800,
+	avatar_support    = 0x1000
+};
+
 class ClientIdentify : public Plugin, public RosterPlugin
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::RosterPlugin)
 	Q_CLASSINFO("DebugName", "ICQ/Identify")
 public:
+	Q_DECLARE_FLAGS(CapabilityFlags, CapabilityFlag)
 	ClientIdentify();
 	~ClientIdentify();
 	void identify(IcqContact *contact);
@@ -43,6 +61,20 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
+
+	bool RtfSupport() const;
+	bool HtmlSupport() const;
+	bool TypingSupport() const;
+	bool AimChatSupport() const;
+	bool AimImageSupport() const;
+	bool XtrazSupport() const;
+	bool Utf8Support() const;
+	bool SendFileSupport() const;
+	bool DirectSupport() const;
+	bool IconSupport() const;
+	bool GetFileSupport() const;
+	bool SrvRelaySupport() const;
+	bool AvatarSupport() const;
 private:
 	void setClientData(const QString &clientId, const QString &icon);
 	void setClientIcon(const QString &icon);
@@ -97,11 +129,79 @@ private:
 	quint32 m_ext_status_info;
 	quint32 m_ext_info;
 	QString m_client_id;
+	CapabilityFlags m_flags;
 private:
 	static const Capability ICQ_CAPABILITY_ICQJSINxVER;
 	static const Capability ICQ_CAPABILITY_ICQJS7xVER;
 	static const Capability ICQ_CAPABILITY_SIMxVER;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(ClientIdentify::CapabilityFlags);
+
+inline bool ClientIdentify::RtfSupport() const
+{
+	return m_flags & rtf_support;
+}
+
+inline bool ClientIdentify::HtmlSupport() const
+{
+	return m_flags & html_support;
+}
+
+inline bool ClientIdentify::TypingSupport() const
+{
+	return m_flags & typing_support;
+}
+
+inline bool ClientIdentify::AimChatSupport() const
+{
+	return m_flags & aim_chat_support;
+}
+
+inline bool ClientIdentify::AimImageSupport() const
+{
+	return m_flags & aim_image_support;
+}
+
+inline bool ClientIdentify::XtrazSupport() const
+{
+	return m_flags & xtraz_support;
+}
+
+inline bool ClientIdentify::Utf8Support() const
+{
+	return m_flags & utf8_support;
+}
+
+inline bool ClientIdentify::SendFileSupport() const
+{
+	return m_flags & sendfile_support;
+}
+
+inline bool ClientIdentify::DirectSupport() const
+{
+	return m_flags & direct_support;
+}
+
+inline bool ClientIdentify::IconSupport() const
+{
+	return m_flags & icon_support;
+}
+
+inline bool ClientIdentify::GetFileSupport() const
+{
+	return m_flags & getfile_support;
+}
+
+inline bool ClientIdentify::SrvRelaySupport() const
+{
+	return m_flags & srvrelay_support;
+}
+
+inline bool ClientIdentify::AvatarSupport() const
+{
+	return m_flags & avatar_support;
+}
 
 } } // namespace qutim_sdk_0_3::oscar
 

@@ -434,7 +434,7 @@ void Roster::handleUserOnline(const SNAC &snac)
 		while (data.dataSize() >= 2)
 			newCaps.push_back(Capability(data.readData(2)));
 	}
-	contact->setCapabilities(newCaps);
+	contact->d_func()->setCapabilities(newCaps);
 	
 	if (oldStatus == Status::Offline) {
 		if (tlvs.contains(0x000c)) { // direct connection info
