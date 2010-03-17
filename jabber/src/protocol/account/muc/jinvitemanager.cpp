@@ -25,8 +25,10 @@ namespace Jabber
 	void JInviteManager::handleMUCInvitation(const JID &room, const JID &from, const std::string &reason,
 			const std::string &, const std::string &password, bool, const std::string &)
 	{
-		QString conferenceName(QString::fromStdString(room.full()));
 		QString inviterName(QString::fromStdString(from.bare()));
+		if (inviterName.isEmpty())
+			return;
+		QString conferenceName(QString::fromStdString(room.full()));
 		QString reasonMessage(QString::fromStdString(reason));
 		QString passwordRoom(QString::fromStdString(password));
 		QString message = tr("User %1 invite you\nto conference %2").arg(inviterName).arg(conferenceName);

@@ -49,7 +49,10 @@ namespace Jabber {
 
 	ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 	{
-		if (ChatUnit *unit = p->messageHandler->getSession(unitId))
+		ChatUnit *unit = 0;
+		if (!!(unit = p->conferenceManager->muc(unitId)))
+			return unit;
+		if (!!(unit = p->messageHandler->getSession(unitId)))
 			return unit;
 		return p->roster->contact(unitId, create);
 	}
