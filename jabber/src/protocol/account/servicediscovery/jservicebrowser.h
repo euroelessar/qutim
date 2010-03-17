@@ -2,12 +2,12 @@
 #define JSERVICEBROWSER_H
 
 #include <QWidget>
+#include <QTreeWidgetItem>
 #include <QKeyEvent>
 #include <gloox/jid.h>
 #include <qutim/icon.h>
 #include "sdk/jabber.h"
 #include "jservicereceiver.h"
-#include "ui_jservicebrowser.h"
 
 namespace Jabber
 {
@@ -52,6 +52,7 @@ namespace Jabber
 			void on_clearButton_clicked();
 
 			void onExecute();
+			void onJoin();
 
 			/*void on_joinButton_clicked();
 			void on_registerButton_clicked();

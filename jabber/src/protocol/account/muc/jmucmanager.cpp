@@ -4,6 +4,7 @@
 #include "jinvitemanager.h"
 #include "jmucjoin.h"
 #include "jmucsession.h"
+#include <qutim/messagesession.h>
 
 namespace Jabber
 {
@@ -42,10 +43,18 @@ namespace Jabber
 	void JMUCManager::join(const QString &conference, const QString &nick, const QString &password)
 	{
 		if (!p->rooms.contains(conference)) {
-			JMUCSession *room = new JMUCSession(JID(conference.toStdString()), p->account);
+			JID jid = JID(conference.toStdString());
+			jid.setResource(nick.toStdString());
+			JMUCSession *room = new JMUCSession(jid, p->account);
 			room->join();
 			p->rooms.insert(conference, room);
+			ChatLayer::get(room, true)->activate();
 		}
+	}
+
+	ChatUnit *JMUCManager::muc(const QString &jid)
+	{
+		return p->rooms.value(jid);
 	}
 
 	JBookmarkManager *JMUCManager::bookmarkManager()

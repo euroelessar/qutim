@@ -20,6 +20,7 @@ namespace Jabber
 
 	JMUCJoin::JMUCJoin(JAccount *account, QWidget *parent) : QDialog(parent), d_ptr(new JMUCJoinPrivate)
 	{
+		setWindowTitle(tr("Join groupchat"));
 		d_ptr->account = account;
 		d_ptr->conferenceManager = d_ptr->account->conferenceManager();
 		connect(d_ptr->conferenceManager->bookmarkManager(), SIGNAL(bookmarksChanged()), SLOT(fillBookmarks()));

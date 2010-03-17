@@ -9,6 +9,7 @@
 #include <qutim/configbase.h>
 #include <qutim/protocol.h>
 #include <qutim/debug.h>
+#include "ui_jservicebrowser.h"
 
 namespace Jabber
 {
@@ -67,6 +68,7 @@ namespace Jabber
 		p->ui->actionShowVCard->setIcon(Icon("user-identity"));
 		p->ui->actionAdd->setIcon(Icon("list-add-user"));
 		connect(p->ui->actionExecute, SIGNAL(triggered()), this, SLOT(onExecute()));
+		connect(p->ui->actionJoin, SIGNAL(triggered()), this, SLOT(onJoin()));
 		connect(p->ui->serviceTree, SIGNAL(itemExpanded(QTreeWidgetItem*)),
 				SLOT(getItems(QTreeWidgetItem*)));
 		connect(p->ui->filterLine, SIGNAL(textEdited(const QString&)),
@@ -74,8 +76,6 @@ namespace Jabber
 		connect(p->ui->serviceTree, SIGNAL(customContextMenuRequested(QPoint)),
 				SLOT(showContextMenu(QPoint)));
 		searchServer(QString::fromStdString(p->account->client()->jid().server()));
-		// WTF? Why not use sizes from ui?
-		resize(700, 600);
 		p->ui->serviceTree->setColumnWidth(0, p->ui->serviceTree->width());
 		QMovie *movie = new QMovie(p->ui->labelLoader);
 		movie->setFileName("loader");
@@ -313,15 +313,7 @@ namespace Jabber
 		return IconLoader::instance()->iconPath(service_icon, 16);
 	}
 
-	/*void JServiceBrowser::on_joinButton_clicked()
-	{
-		QTreeWidgetItem *item = p->ui->serviceTree->currentItem();
-		emit joinConference(item->text(1));
-		if (p->isConference)
-			close();
-	}
-
-	void JServiceBrowser::on_registerButton_clicked()
+	/*void JServiceBrowser::on_registerButton_clicked()
 	{
 		QTreeWidgetItem *item = p->ui->serviceTree->currentItem();
 		emit registerTransport(item->text(1));
@@ -333,14 +325,6 @@ namespace Jabber
 		JDiscoItem di;
 		di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
 		emit searchService("", item->text(1));
-	}
-
-	void JServiceBrowser::on_executeButton_clicked()
-	{
-		QTreeWidgetItem *item = p->ui->serviceTree->currentItem();
-		JDiscoItem di;
-		di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
-		emit executeCommand(item->text(1), di.node());
 	}
 
 	void JServiceBrowser::on_addRosterButton_clicked()
@@ -430,4 +414,13 @@ namespace Jabber
 		widget->setAttribute(Qt::WA_QuitOnClose, false);
 		widget->show();
 	}
+
+	void JServiceBrowser::onJoin()
+		{
+			emit joinConference(p->currentMenuItem.jid());
+			if (p->isConference)
+				close();
+		}
+
+
 }
