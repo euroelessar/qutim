@@ -44,6 +44,19 @@ protected:
 	qint16 m_subcode;
 };
 
+struct LIBOSCAR_EXPORT ClientInfo
+{
+	QByteArray id_string;
+	quint16 id_number;
+	quint16 major_version;
+	quint16 minor_version;
+	quint16 lesser_version;
+	quint16 build_number;
+	quint32 distribution_number;
+	QByteArray language;
+	QByteArray country;
+};
+
 class LIBOSCAR_EXPORT AbstractConnection : public QObject, public SNACHandler
 {
 	Q_OBJECT
@@ -100,6 +113,7 @@ public:
 	QString errorString();
 	IcqAccount *account();
 	const IcqAccount *account() const;
+	const ClientInfo &clientInfo();
 signals:
 	void error(ConnectionError error);
 protected:

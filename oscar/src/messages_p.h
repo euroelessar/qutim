@@ -36,6 +36,7 @@ public:
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private slots:
 	void loginFinished();
+	void settingsUpdated();
 private:
 	void handleMessage(const SNAC &snac);
 	void handleResponse(const SNAC &snac);
@@ -48,6 +49,7 @@ private:
 	IcqAccount *m_account;
 	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;
 	QMultiHash<Tlv2711Type, Tlv2711Plugin *> m_tlvs2711Plugins;
+	bool m_detectCodec;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

@@ -173,6 +173,11 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	connect(d->socket, SIGNAL(readyRead()), SLOT(readData()));
 	connect(d->socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
 	connect(d->socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
+	{
+		ClientInfo info =
+		{ "ICQ Client", 266, 6, 5, 10, 104, 0x00007537, "ru", "ru" };
+		d->clientInfo = info;
+	}
 	d->id = (quint32) qrand();
 	d->error = NoError;
 	m_infos << SNACInfo(ServiceFamily, ServiceServerReady)
@@ -316,6 +321,11 @@ IcqAccount *AbstractConnection::account()
 const IcqAccount *AbstractConnection::account() const
 {
 	return d_func()->account;
+}
+
+const ClientInfo &AbstractConnection::clientInfo()
+{
+	return d_func()->clientInfo;
 }
 
 AbstractConnection::AbstractConnection(AbstractConnectionPrivate *d):

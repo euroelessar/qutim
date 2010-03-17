@@ -16,10 +16,10 @@
 
 #include "messages_p.h"
 #include "icqcontact_p.h"
+#include "icqaccount_p.h"
+#include "icqprotocol.h"
 #include "util.h"
 #include "buddycaps.h"
-#include "icqaccount.h"
-#include "icqcontact.h"
 #include "connection.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
@@ -149,6 +149,7 @@ MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent) :
 	QObject(parent), m_account(account)
 {
 	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
+	connect(account, SIGNAL(settingsUpdated()), SLOT(settingsUpdated()));
 	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
 			<< SNACInfo(MessageFamily, MessageSrvReplyIcbm)
 			<< SNACInfo(MessageFamily, MessageResponse)
@@ -299,6 +300,11 @@ void MessagesHandler::loginFinished()
 	sendMetaInfoRequest(0x003C);
 }
 
+void MessagesHandler::settingsUpdated()
+{
+	m_detectCodec = m_account->protocol()->config("general").value("detectCodec", true);
+}
+
 void MessagesHandler::handleMessage(const SNAC &snac)
 {
 	quint64 cookie = snac.read<quint64>();
@@ -377,8 +383,10 @@ QString MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *con
 			QTextCodec *codec = 0;
 			if (charset == CodecUtf16Be)
 				codec = utf16Codec();
-			else
+			else if (m_detectCodec)
 				codec = detectCodec();
+			else
+				codec = asciiCodec();
 			message += codec->toUnicode(data);
 		}
 	} else {
@@ -407,14 +415,11 @@ QString MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *con
 			}
 			TLVMap tlvs = data.read<TLVMap>();
 			quint16 ack = tlvs.value(0x0A).read<quint16>();
-			if (contact) {
-				if (tlvs.contains(0x03))
-					contact->d_func()->dc_info.external_ip = QHostAddress(tlvs.value(0x04).read<quint32>());
-				if (tlvs.contains(0x04))
-					contact->d_func()->dc_info.internal_ip = QHostAddress(tlvs.value(0x04).read<quint32>());
-				if (tlvs.contains(0x04))
-					contact->d_func()->dc_info.port = tlvs.value(0x05).read<quint32>();
-			}
+			/* TLVs:
+			   0x03 – contact external ip;
+			   0x04 – contact internal ip;
+			   0x05 – contact port.
+			*/
 			if (tlvs.contains(0x2711)) {
 				DataUnit data(tlvs.value(0x2711));
 				return handleTlv2711(data, contact, ack, msgCookie);
@@ -463,7 +468,7 @@ QString MessagesHandler::handleChannel4Message(const SNAC &snac, IcqContact *con
 QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, const Cookie &msgCookie)
 {
 	if (ack == 2 && !msgCookie.unlock()) {
-		debug().nospace() << "Unexpected response message is skiped. Cookie:" << msgCookie.id();
+		debug().nospace() << "Skipped unexpected response message with cookie" << msgCookie.id();
 		return QString();
 	}
 	quint16 id = data.read<quint16>(LittleEndian);
@@ -471,9 +476,7 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 		debug() << "Unknown message id in TLV 2711";
 		return QString();
 	}
-	quint16 version = data.read<quint16>(LittleEndian);
-	if (contact)
-		contact->d_func()->version = version;
+	data.skipData(2); // skipped protocol version
 	Capability guid = data.read<Capability>();
 	data.skipData(9);
 	id = data.read<quint16>(LittleEndian);
@@ -501,14 +504,28 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 							  data.read<quint8>(),
 							  data.read<quint8>(),
 							  data.read<quint8>());
+			Q_UNUSED(foreground);
+			Q_UNUSED(background);
+			QTextCodec *codec = NULL;
 			while (data.dataSize() > 0) {
 				QString guid = data.read<QString, quint32>(LittleEndian);
+				if (!m_detectCodec) {
+					if (guid.compare(ICQ_CAPABILITY_UTF8.toString(), Qt::CaseInsensitive) == 0) {
+						codec = utf8Codec();
+					}
+				}
 				if (guid.compare(ICQ_CAPABILITY_RTFxMSGS.toString(), Qt::CaseInsensitive) == 0) {
 					debug() << "RTF is not supported";
 					return QString();
 				}
 			}
-			QString message = detectCodec()->toUnicode(message_data);
+			if (codec == NULL) {
+				if (m_detectCodec)
+					codec = detectCodec();
+				else
+					codec = asciiCodec();
+			}
+			QString message = codec->toUnicode(message_data);
 			debug() << "New message has been received on channel 2:" << message;
 			return message;
 		} else if (MsgPlugin) {

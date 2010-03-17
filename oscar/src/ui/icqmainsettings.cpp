@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 IcqMainSettings::IcqMainSettings() :
-	ui(new Ui::IcqMainSettings), m_config(IcqProtocol::instance()->config())
+	ui(new Ui::IcqMainSettings)
 {
 	ui->setupUi(this);
 	/*foreach(int codec, QTextCodec::availableMibs())
@@ -40,13 +40,15 @@ IcqMainSettings::~IcqMainSettings()
 
 void IcqMainSettings::loadImpl()
 {
-	bool avatars = !m_config.group("general").value("avatars", QVariant(true)).toBool();
+	ConfigGroup config = IcqProtocol::instance()->config().group("general");
+	bool avatars = !config.value("avatars", QVariant(true)).toBool();
 	ui->avatarBox->setChecked(avatars);
-	bool reconnect = m_config.group("reconnect").value("enabled", QVariant(true)).toBool();
-	ui->reconnectBox->setChecked(reconnect);
-	QString codecName = m_config.group("general").value("codec", "System").toString();
+	QString codecName = config.value("codec", "System").toString();
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
 	codecName = codec->name().toLower();
+	config = config.parent().group("reconnect");
+	bool reconnect = config.value("enabled", QVariant(true)).toBool();
+	ui->reconnectBox->setChecked(reconnect);
 
 	for (int i = 0; i < ui->codepageBox->count(); ++i) {
 		QString curName = ui->codepageBox->itemText(i).toLower();
@@ -73,10 +75,12 @@ void IcqMainSettings::cancelImpl()
 
 void IcqMainSettings::saveImpl()
 {
-	m_config.group("general").setValue("avatars", !ui->avatarBox->isChecked());
-	m_config.group("reconnect").setValue("enabled", ui->reconnectBox->isChecked());
-	m_config.group("general").setValue("codec", ui->codepageBox->currentText());
-	m_config.sync();
+	ConfigGroup config = IcqProtocol::instance()->config().group("general");
+	config.setValue("avatars", !ui->avatarBox->isChecked());
+	config.setValue("codec", ui->codepageBox->currentText());
+	config = config.parent().group("reconnect");
+	config.setValue("enabled", ui->reconnectBox->isChecked());
+	config.sync();
 	IcqProtocol::instance()->updateSettings();
 }
 

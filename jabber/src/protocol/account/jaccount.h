@@ -18,7 +18,7 @@ namespace Jabber {
 	class JConnection;
 	class JMessageHandler;
 	class JServiceDiscovery;
-	class JBookmarkManager;
+	class JMUCManager;
 
 	class JAccount : public Account
 	{
@@ -39,7 +39,10 @@ namespace Jabber {
 			JMessageHandler *messageHandler();
 			gloox::Client *client();
 			JServiceDiscovery *discoManager();
-			JBookmarkManager *bookmarkManager();
+			JMUCManager *conferenceManager();
+		signals:
+			void stateConnected();
+			void stateDisconnected();
 		protected:
 			void loadSettings();
 		private:

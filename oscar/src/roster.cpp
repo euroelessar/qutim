@@ -435,27 +435,6 @@ void Roster::handleUserOnline(const SNAC &snac)
 			newCaps.push_back(Capability(data.readData(2)));
 	}
 	contact->d_func()->setCapabilities(newCaps);
-	
-	if (oldStatus == Status::Offline) {
-		if (tlvs.contains(0x000c)) { // direct connection info
-			DataUnit data(tlvs.value(0x000c));
-			DirectConnectionInfo info =
-			{
-				QHostAddress(data.read<quint32>()),
-				QHostAddress(),
-				data.read<quint32>(),
-				data.read<quint8>(),
-				data.read<quint16>(),
-				data.read<quint32>(),
-				data.read<quint32>(),
-				data.read<quint32>(),
-				data.read<quint32>(),
-				data.read<quint32>(),
-				data.read<quint32>()
-			};
-			contact->d_func()->dc_info = info;
-		}
-	}
 	setStatus(contact, status, tlvs);
 }
 

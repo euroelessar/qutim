@@ -41,16 +41,6 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 			<< SNACInfo(BosFamily, PrivacyRightsReply);
 	connect(socket(), SIGNAL(disconnected()), this, SLOT(disconnected()));
 	m_account = parent;
-	{
-		ClientInfo info =
-		{ "ICQ Client", 266, 6, 5, 10, 104, 0x00007537, "ru", "ru" };
-		m_client_info = info;
-	}
-	{
-		DirectConnectionInfo info =
-		{ QHostAddress(quint32(0)), QHostAddress(quint32(0)), 0, 0x04, 0x08, 0, 0x50, 0x03, 0, 0, 0 };
-		m_dc_info = info;
-	}
 	m_status_flags = 0x0000;
 	registerHandler(this);
 	m_is_idle = false;
@@ -70,19 +60,19 @@ void OscarConnection::connectToLoginServer(const QString &password)
 void OscarConnection::processNewConnection()
 {
 	AbstractConnection::processNewConnection();
-
+	const ClientInfo &info = clientInfo();
 	FLAP flap(0x01);
 	flap.append<quint32>(0x01);
 	flap.appendTLV<QByteArray>(0x0006, m_auth_cookie);
-	flap.appendTLV<QByteArray>(0x0003, m_client_info.id_string);
-	flap.appendTLV<quint16>(0x0017, m_client_info.major_version);
-	flap.appendTLV<quint16>(0x0018, m_client_info.minor_version);
-	flap.appendTLV<quint16>(0x0019, m_client_info.lesser_version);
-	flap.appendTLV<quint16>(0x001a, m_client_info.build_number);
-	flap.appendTLV<quint16>(0x0016, m_client_info.id_number);
-	flap.appendTLV<quint32>(0x0014, m_client_info.distribution_number);
-	flap.appendTLV<QByteArray>(0x000f, m_client_info.language);
-	flap.appendTLV<QByteArray>(0x000e, m_client_info.country);
+	flap.appendTLV<QByteArray>(0x0003, info.id_string);
+	flap.appendTLV<quint16>(0x0017, info.major_version);
+	flap.appendTLV<quint16>(0x0018, info.minor_version);
+	flap.appendTLV<quint16>(0x0019, info.lesser_version);
+	flap.appendTLV<quint16>(0x001a, info.build_number);
+	flap.appendTLV<quint16>(0x0016, info.id_number);
+	flap.appendTLV<quint32>(0x0014, info.distribution_number);
+	flap.appendTLV<QByteArray>(0x000f, info.language);
+	flap.appendTLV<QByteArray>(0x000e, info.country);
 	// Unknown shit
 	flap.appendTLV<quint8>(0x0094, 0x00);
 	flap.appendTLV<quint32>(0x8003, 0x00100000);
@@ -173,19 +163,6 @@ void OscarConnection::sendStatus(OscarStatus status)
 	SNAC snac(ServiceFamily, ServiceClientSetStatus);
 	snac.appendTLV<quint32>(0x06, (m_status_flags << 16) | status.subtype()); // Status mode and security flags
 	snac.appendTLV<quint16>(0x08, 0x0000); // Error code
-	TLV dc(0x0c); // Direct connection info
-	dc.append<quint32>(externalIP().toIPv4Address()); // Real IP
-	dc.append<quint32>(666); // DC Port
-	dc.append<quint8>(m_dc_info.dc_type); // TCP/FLAG firewall settings
-	dc.append<quint16>(m_dc_info.protocol_version); // Protocol version;
-	dc.append<quint32>(qrand()); // DC auth cookie
-	dc.append<quint32>(m_dc_info.web_front_port); // Web front port
-	dc.append<quint32>(m_dc_info.client_futures); // client futures
-	dc.append<quint32>(0x00000000); // last info update time
-	dc.append<quint32>(0x00000000); // last ext info update time (i.e. icqphone status)
-	dc.append<quint32>(0x00000000); // last ext status update time (i.e. phonebook)
-	dc.append<quint16>(0x0000); // Unknown
-	snac.append(dc);
 	// Status item
 	DataUnit statusData;
 	{

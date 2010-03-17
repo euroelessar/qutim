@@ -120,11 +120,6 @@ const AbstractConnection *IcqAccount::connection() const
 	return d_func()->conn;
 }
 
-OscarConnection *IcqAccount::oscarConnection()
-{
-	return d_func()->conn;
-}
-
 void IcqAccount::setStatus(Status status)
 {
 	Q_D(IcqAccount);
@@ -315,6 +310,7 @@ void IcqAccount::updateSettings()
 {
 	Q_D(IcqAccount);
 	d->avatars = protocol()->config("general").value("avatars", true);
+	emit settingsUpdated();
 }
 
 void IcqAccount::onReconnectTimeout()

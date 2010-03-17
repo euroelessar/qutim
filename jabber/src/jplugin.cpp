@@ -5,6 +5,7 @@
 #include "protocol/modules/xmlconsole/xmlconsole.h"
 #include "protocol/modules/adhoc/jadhocmodule.h"
 #include "protocol/modules/remotecontrol/remotecontrol.h"
+#include "protocol/account/muc/jmucjoinmodule.h"
 
 namespace Jabber
 {
@@ -67,6 +68,10 @@ namespace Jabber
 			QT_TRANSLATE_NOOP("Plugin", "Implementation of service browser"),
 			new GeneralGenerator<JServiceBrowserModule, JabberExtension>(),
 			ExtensionIcon("services"));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber MUC Join Window"),
+			QT_TRANSLATE_NOOP("Plugin", "Implementation of groupchat join window"),
+			new GeneralGenerator<JMUCJoinModule, JabberExtension>(),
+			ExtensionIcon(""));
 	}
 
 	bool JPlugin::load()

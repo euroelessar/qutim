@@ -55,7 +55,6 @@ public:
 	void authRequest(const QString &message);
 	IcqAccount *account();
 	const Capabilities &capabilities() const;
-	const DirectConnectionInfo &dcInfo() const;
 	void setStatus(Status status);
 	ChatState chatState() const;
 private:
@@ -66,7 +65,6 @@ private slots:
 	void infoReceived(bool ok);
 protected:
 	friend class Roster;
-	friend class MessagesHandler;
 	QScopedPointer<IcqContactPrivate> d_ptr;
 };
 

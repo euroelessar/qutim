@@ -4,9 +4,7 @@
 #include "servicediscovery/jservicebrowser.h"
 #include "servicediscovery/jservicediscovery.h"
 #include "../jprotocol.h"
-#include "muc/jmucjoin.h"
-#include "muc/jbookmarkmanager.h"
-#include "muc/jinvitemanager.h"
+#include "muc/jmucmanager.h"
 
 namespace Jabber {
 
@@ -23,9 +21,8 @@ namespace Jabber {
 		bool keepStatus;
 		bool autoConnect;
 		Presence::PresenceType status;
+		JMUCManager *conferenceManager;
 		QPointer<JServiceDiscovery> discoManager;
-		JBookmarkManager *bookmarkManager;
-		JInviteManager *inviteManager;
 	};
 
 	JAccount::JAccount(const QString &jid) : Account(jid, JProtocol::instance()), p(new JAccountPrivate)
@@ -34,9 +31,8 @@ namespace Jabber {
 		p->connection = new JConnection(this);
 		p->connectionListener = new JConnectionListener(this);
 		p->roster = new JRoster(this);
-		p->bookmarkManager = new JBookmarkManager(this);
-		p->inviteManager = new JInviteManager(this);
 		p->messageHandler = new JMessageHandler(this);
+		p->conferenceManager = new JMUCManager(this);
 		p->connection->initExtensions();
 		loadSettings();
 		autoconnect();
@@ -65,10 +61,13 @@ namespace Jabber {
 
 	void JAccount::endChangeStatus(Presence::PresenceType presence)
 	{
-		Account::setStatus(JProtocol::presenceToStatus(presence));
-		p->bookmarkManager->sync();
-		JMUCJoin *joinConference = new JMUCJoin(this);
-		joinConference->show();
+		Status newStatus = JProtocol::presenceToStatus(presence);
+		if (status() == Status::Offline && newStatus != Status::Offline)
+			emit stateConnected();
+		if (status() != Status::Offline && newStatus == Status::Offline)
+			emit stateDisconnected();
+		Account::setStatus(newStatus);
+		p->conferenceManager->syncBookmarks();
 	}
 
 	void JAccount::autoconnect()
@@ -142,9 +141,9 @@ namespace Jabber {
 		return p->connection->client();
 	}
 
-	JBookmarkManager *JAccount::bookmarkManager()
+	JMUCManager *JAccount::conferenceManager()
 	{
-		return p->bookmarkManager;
+		return p->conferenceManager;
 	}
 } // Jabber namespace
 

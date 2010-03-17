@@ -43,7 +43,7 @@ namespace Jabber {
 			void bookmarksChanged();
 		protected:
 			void readFromCache(const QString &type, const QList<JBookmark> &list);
-			void writeToCache(const QString &type, const QList<JBookmark> &list);
+			void writeToCache(const QString &type, const QList<JBookmark> &list, bool isServer = false);
 			void saveToServer();
 		private:
 			QScopedPointer<JBookmarkManagerPrivate> p;
