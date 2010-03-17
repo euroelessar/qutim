@@ -221,14 +221,14 @@ void IcqContact::setGroup(const QString &group)
 	f->beginModify();
 	bool found = false;
 	QList<FeedbagItem> items = d->items;
-	QList<FeedbagItem>::iterator itr = items.begin();
-	QList<FeedbagItem>::iterator endItr = items.end();
 	FeedbagItem newGroup;
 	if (group.isEmpty())
 		newGroup = d->getNotInListGroup();
 	else
 		newGroup = f->groupItem(group, Feedbag::GenerateId);
 	if (newGroup.isInList()) {
+		QList<FeedbagItem>::iterator itr = items.begin();
+		QList<FeedbagItem>::iterator endItr = items.end();
 		while (itr != endItr) {
 			if (itr->groupId() == newGroup.groupId()) {
 				// The contact is already contained in the group.
@@ -249,11 +249,9 @@ void IcqContact::setGroup(const QString &group)
 	}
 	// Remove unnecessary items
 	foreach (FeedbagItem item, items) {
-		if (f->group(item.groupId()).count() <= 1) {
+		item.remove();
+		if (f->group(item.groupId()).count() <= 1)
 			f->removeItem(SsiGroup, item.groupId());
-		} else {
-			item.remove();
-		}
 	}
 	f->endModify();
 }
