@@ -19,6 +19,7 @@
 #include "qutim/notificationslayer.h"
 #include <QCryptographicHash>
 #include <QUrl>
+#include <QHostInfo>
 
 namespace qutim_sdk_0_3 {
 
@@ -46,10 +47,10 @@ void Md5Login::login()
 	m_port = 0;
 	m_cookie.clear();
 	// Connecting to login server
-	//	QHostInfo host = QHostInfo::fromName("login.messaging.aol.com");
-	//	debug() << host.addresses();
-	//	m_socket->connectToHost(host.addresses().at(qrand() % host.addresses().size()), 5190);
-	socket()->connectToHost("205.188.251.43" /*"login.icq.com"*/, 5190);
+	ConfigGroup cfg = m_conn->account()->config("connection");
+	QHostInfo host = QHostInfo::fromName(cfg.value("server", "login.icq.com").toString());
+	quint16 port = cfg.value("port", 5190);
+	socket()->connectToHost(host.addresses().at(qrand() % host.addresses().size()), port);
 }
 
 void Md5Login::processNewConnection()
