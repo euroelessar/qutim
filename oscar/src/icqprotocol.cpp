@@ -48,9 +48,9 @@ void IcqProtocol::loadAccounts()
 	foreach(const QString &uin, accounts) {
 		IcqAccount *acc = new IcqAccount(uin);
 		d->accounts_hash->insert(uin, acc);
+		acc->updateSettings();
 		emit accountCreated(acc);
 	}
-
 }
 
 QList<Account *> IcqProtocol::accounts() const

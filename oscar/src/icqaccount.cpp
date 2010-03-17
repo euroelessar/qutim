@@ -315,6 +315,7 @@ void IcqAccount::updateSettings()
 {
 	Q_D(IcqAccount);
 	d->avatars = protocol()->config("general").value("avatars", true);
+	emit settingsUpdated();
 }
 
 void IcqAccount::onReconnectTimeout()

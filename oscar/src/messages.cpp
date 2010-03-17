@@ -16,10 +16,10 @@
 
 #include "messages_p.h"
 #include "icqcontact_p.h"
+#include "icqaccount_p.h"
+#include "icqprotocol.h"
 #include "util.h"
 #include "buddycaps.h"
-#include "icqaccount.h"
-#include "icqcontact.h"
 #include "connection.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/contactlist.h>
@@ -149,6 +149,7 @@ MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent) :
 	QObject(parent), m_account(account)
 {
 	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
+	connect(account, SIGNAL(settingsUpdated()), SLOT(settingsUpdated()));
 	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
 			<< SNACInfo(MessageFamily, MessageSrvReplyIcbm)
 			<< SNACInfo(MessageFamily, MessageResponse)
@@ -299,6 +300,11 @@ void MessagesHandler::loginFinished()
 	sendMetaInfoRequest(0x003C);
 }
 
+void MessagesHandler::settingsUpdated()
+{
+	m_detectCodec = m_account->protocol()->config("general").value("detectCodec", true);
+}
+
 void MessagesHandler::handleMessage(const SNAC &snac)
 {
 	quint64 cookie = snac.read<quint64>();
@@ -377,8 +383,10 @@ QString MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *con
 			QTextCodec *codec = 0;
 			if (charset == CodecUtf16Be)
 				codec = utf16Codec();
-			else
+			else if (m_detectCodec)
 				codec = detectCodec();
+			else
+				codec = asciiCodec();
 			message += codec->toUnicode(data);
 		}
 	} else {
@@ -501,14 +509,28 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 							  data.read<quint8>(),
 							  data.read<quint8>(),
 							  data.read<quint8>());
+			Q_UNUSED(foreground);
+			Q_UNUSED(background);
+			QTextCodec *codec = NULL;
 			while (data.dataSize() > 0) {
 				QString guid = data.read<QString, quint32>(LittleEndian);
+				if (!m_detectCodec) {
+					if (guid.compare(ICQ_CAPABILITY_UTF8.toString(), Qt::CaseInsensitive) == 0) {
+						codec = utf8Codec();
+					}
+				}
 				if (guid.compare(ICQ_CAPABILITY_RTFxMSGS.toString(), Qt::CaseInsensitive) == 0) {
 					debug() << "RTF is not supported";
 					return QString();
 				}
 			}
-			QString message = detectCodec()->toUnicode(message_data);
+			if (codec == NULL) {
+				if (m_detectCodec)
+					codec = detectCodec();
+				else
+					codec = asciiCodec();
+			}
+			QString message = codec->toUnicode(message_data);
 			debug() << "New message has been received on channel 2:" << message;
 			return message;
 		} else if (MsgPlugin) {

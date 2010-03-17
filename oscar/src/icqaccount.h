@@ -78,6 +78,7 @@ public:
 	QHostAddress localAddress();
 signals:
 	void loginFinished();
+	void settingsUpdated();
 public slots:
 	void updateSettings();
 	void onReconnectTimeout();
