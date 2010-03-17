@@ -40,7 +40,6 @@ public:
 	virtual void saveImpl();
 private:
 	Ui::IcqMainSettings *ui;
-	Config m_config;
 };
 
 } } // namespace qutim_sdk_0_3::oscar
