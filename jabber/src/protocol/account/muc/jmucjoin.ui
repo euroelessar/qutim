@@ -143,7 +143,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEnterPassword"/>
+        <widget class="QLineEdit" name="lineEnterPassword">
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_5">
@@ -285,7 +289,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEditPassword"/>
+        <widget class="QLineEdit" name="lineEditPassword">
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="checkEditAutojoin">

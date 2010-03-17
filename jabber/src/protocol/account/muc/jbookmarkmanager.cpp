@@ -1,6 +1,8 @@
 #include "jbookmarkmanager.h"
+#include "jmucmanager.h"
 #include "../jaccount.h"
 #include <gloox/bookmarkstorage.h>
+#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -50,7 +52,7 @@ namespace Jabber
 		foreach (ConferenceListItem conf, confList)
 			p->bookmarks << JBookmark(QString::fromStdString(conf.name), QString::fromStdString(conf.jid),
 					QString::fromStdString(conf.nick), QString::fromStdString(conf.password), conf.autojoin);
-		writeToCache("bookmark", p->bookmarks);
+		writeToCache("bookmarks", p->bookmarks, true);
 		QList<BookmarkListItem> urlList = QList<BookmarkListItem>::fromStdList(bList);
 		for (int num = 0; num < urlList.count(); num++) {
 			ConfigGroup configBookmarks = p->account->config().group("urlmarks").at(num);
@@ -58,11 +60,12 @@ namespace Jabber
 			configBookmarks.setValue("url", QString::fromStdString(urlList[num].url));
 			configBookmarks.sync();
 		}
-		/*if (!isLoaded)
+		if (!p->isLoaded)
 			foreach (JBookmark bookmark, p->bookmarks)
 				if (bookmark.autojoin)
-					joinConference(conference, nick, password);*/
+					p->account->conferenceManager()->join(bookmark.conference, bookmark.nick, bookmark.password);
 		emit bookmarksChanged();
+		p->isLoaded = true;
 	}
 
 	QList<JBookmark> JBookmarkManager::bookmarks()
@@ -79,7 +82,12 @@ namespace Jabber
 			const QString &nick, const QString &password, bool autojoin)
 	{
 		JBookmark bookmark(name, conference, nick, password, autojoin);
-		p->bookmarks.insert(index, bookmark);
+		debug() << "save index" << index;
+		debug() << "count" << p->bookmarks.count();
+		if (index == p->bookmarks.count())
+			p->bookmarks << bookmark;
+		else
+			p->bookmarks.replace(index, bookmark);
 		writeToCache("bookmarks", p->bookmarks);
 		saveToServer();
 	}
@@ -130,7 +138,7 @@ namespace Jabber
 		}
 	}
 
-	void JBookmarkManager::writeToCache(const QString &type, const QList<JBookmark> &list)
+	void JBookmarkManager::writeToCache(const QString &type, const QList<JBookmark> &list, bool isServer)
 	{
 		p->account->config().removeGroup(type);
 		for (int num = 0; num < list.count(); num++) {
@@ -138,7 +146,8 @@ namespace Jabber
 			configBookmarks.setValue("name", list[num].name);
 			configBookmarks.setValue("conference", list[num].conference);
 			configBookmarks.setValue("nick", list[num].nick);
-			configBookmarks.setValue("password", list[num].password, Config::Crypted);
+			if (!isServer)
+				configBookmarks.setValue("password", list[num].password, Config::Crypted);
 			configBookmarks.setValue("autojoin", list[num].autojoin);
 			configBookmarks.sync();
 		}
@@ -151,7 +160,6 @@ namespace Jabber
 			serverBookmark.name = bookmark.name.toStdString();
 			serverBookmark.jid = bookmark.conference.toStdString();
 			serverBookmark.nick = bookmark.nick.toStdString();
-			serverBookmark.password = bookmark.password.toStdString();
 			serverBookmark.autojoin = bookmark.autojoin;
 			confList << serverBookmark;
 		}

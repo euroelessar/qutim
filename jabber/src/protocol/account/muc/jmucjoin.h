@@ -24,7 +24,7 @@ namespace Jabber
 		private slots:
 			void fillBookmarks();
 			void switchScene(bool);
-			void searchConference(const QString &);
+			void setConference(const QString &);
 			void on_buttonJoin_clicked();
 			void on_buttonSearch_clicked();
 			void on_buttonSave_clicked();

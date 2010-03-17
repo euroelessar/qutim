@@ -1,6 +1,6 @@
 #include "jinvitemanager.h"
 #include "../jaccount.h"
-#include "jmucjoin.h"
+#include "jmucmanager.h"
 #include <QStringBuilder>
 #include <QMessageBox>
 
@@ -34,10 +34,7 @@ namespace Jabber
 			message = message % tr("\nwith reason \"%1\"").arg(reasonMessage);
 		message = message % tr("\nAccept invitation?");
 		if (QMessageBox(QMessageBox::Question, tr("Invite to groupchat"), message, QMessageBox::Yes | QMessageBox::No).exec()
-				== QMessageBox::Yes) {
-			JMUCJoin *joinConference = new JMUCJoin(p->account);
-			joinConference->setConference(conferenceName, p->account->nick(), passwordRoom);
-			joinConference->show();
-		}
+				== QMessageBox::Yes)
+			p->account->conferenceManager()->openJoinWindow(conferenceName, p->account->nick(), passwordRoom);
 	}
 }
