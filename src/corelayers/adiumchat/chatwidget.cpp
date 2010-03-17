@@ -24,6 +24,8 @@
 #include <QTime>
 #include <libqutim/qtwin.h>
 #include <qshortcut.h>
+#include <QWidgetAction>
+#include "actions/chatemoticonswidget.h"
 
 namespace AdiumChat
 {
@@ -61,10 +63,17 @@ namespace AdiumChat
 		ui->actionToolBar->setIconSize(QSize(16,16));
 		
 			//for testing
-		QAction *test_act1 = new QAction(Icon("applications-internet"),tr("Testing action"),this);
-		ui->actionToolBar->addAction(test_act1);
-		QAction *test_act2 = new QAction(Icon("preferences-system"),tr("Testing action"),this);
-		ui->actionToolBar->addAction(test_act2);		
+		QAction *emoticons = new QAction(Icon("emoticon"),tr("Emoticons"),this);
+		ui->actionToolBar->addAction(emoticons);
+		QMenu *menu = new QMenu(this);
+		emoticons->setMenu(menu);
+		QWidgetAction *emoticons_widget_act = new QWidgetAction(this);
+		ChatEmoticonsWidget *emoticons_widget = new ChatEmoticonsWidget(this);
+		emoticons_widget->loadTheme();
+		emoticons_widget_act->setDefaultWidget(emoticons_widget);
+		menu->addAction(emoticons_widget_act);
+		connect(emoticons_widget,SIGNAL(insertSmile(QString)),ui->chatEdit,SLOT(appendPlainText(QString)));
+
 		//
 		//load settings
 		m_html_message = Config("appearance/adiumChat").group("behavior/widget").value<bool>("htmlMessage",false);
@@ -376,7 +385,6 @@ namespace AdiumChat
 		else
 			close();
 	}
-
 
 }
 
