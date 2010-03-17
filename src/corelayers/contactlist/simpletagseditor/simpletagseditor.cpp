@@ -11,25 +11,9 @@ namespace Core {
 	{
 		ui->setupUi(this);
 		setAttribute(Qt::WA_DeleteOnClose);
-
-		QActionGroup *group = new QActionGroup(this);
-		QAction *act = new QAction(Icon("document-edit"),tr("Edit tags"),group);
-		act->setCheckable(true);
-		act->setData(0);
-
-		act = new QAction(Icon("document-new"),tr("Add tag"),group);
-		act->setCheckable(true);
-		group->setExclusive(true);
-		ui->actionBar->addActions(group->actions());
-		act->setData(1);
-
-		//FIXME
-		ui->actionBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-		ui->actionBar->setIconSize(QSize(32,32));
-
-		connect(group,SIGNAL(triggered(QAction*)),SLOT(onActionTriggered(QAction*)));
-		connect(ui->buttonBox,SIGNAL(accepted()),SLOT(onAddTagTriggered()));
-		group->actions().first()->trigger();
+		ui->addButton->setIcon(Icon("document-new"));
+		setWindowIcon(Icon("feed-subscribe"));
+		setWindowTitle(tr("Edit tags for %1").arg(contact->title()));
 	}
 
 	SimpleTagsEditor::~SimpleTagsEditor()
@@ -48,11 +32,6 @@ namespace Core {
 		default:
 			break;
 		}
-	}
-
-	void SimpleTagsEditor::onActionTriggered(QAction *act)
-	{		
-		ui->stackedWidget->setCurrentIndex(act->data().toInt());
 	}
 
 	void SimpleTagsEditor::load()
@@ -82,17 +61,16 @@ namespace Core {
 		m_contact->setTags(tags);
 	}
 
-	void SimpleTagsEditor::onAddTagTriggered()
-	{
-		QListWidgetItem *item = new QListWidgetItem(ui->lineEdit->text(),ui->listWidget);
-		item->setCheckState(Qt::Unchecked);
-		//ui->actionBar->actions().first()->trigger();
-		ui->lineEdit->clear();
-	}
-
 	void SimpleTagsEditor::setTags(QSet<QString>tags)
 	{
 		m_additional_tags = tags;
+	}
+
+	void Core::SimpleTagsEditor::on_addButton_clicked()
+	{
+			QListWidgetItem *item = new QListWidgetItem(ui->lineEdit->text(),ui->listWidget);
+			item->setCheckState(Qt::Unchecked);
+			ui->lineEdit->clear();
 	}
 
 }

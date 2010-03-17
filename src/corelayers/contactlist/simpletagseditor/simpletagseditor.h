@@ -27,8 +27,7 @@ namespace Core
 	public slots:
 		void load();
 	private slots:
-		void onActionTriggered(QAction *act);
-		void onAddTagTriggered();
+		void on_addButton_clicked();
 		void save();
 	protected:
 		void changeEvent(QEvent *e);
