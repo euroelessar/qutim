@@ -3,7 +3,7 @@
 #include <QHash>
 #include <QStyle>
 #include <QMovie>
-#include "../../emoticonssettings/flowlayout.h" //FIXME
+#include "3rdparty/flowlayout/flowlayout.h"
 #include "libqutim/emoticons.h"
 #include <QEvent>
 

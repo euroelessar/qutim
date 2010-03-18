@@ -3,7 +3,7 @@
 #include <libqutim/emoticons.h>
 #include <qmovie.h>
 #include <QLabel>
-#include "flowlayout.h"
+#include "3rdparty/flowlayout/flowlayout.h"
 
 EmoticonsSelector::EmoticonsSelector() : ui(new Ui::emoticonsSelector)
 {
