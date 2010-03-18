@@ -48,6 +48,9 @@ namespace qutim_sdk_0_3
 		int priority() const;
 		ActionGenerator *setPriority(int priority);
 		void setMenuController(MenuController *controller);
+		void setCheckable(bool checkable);
+		void setChecked(bool checked);
+		void setToolTip(const LocalizedString &toolTip);
 	protected:
 		QAction *prepareAction(QAction *action) const;
 		virtual QObject *generateHelper() const;

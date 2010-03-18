@@ -636,6 +636,12 @@ namespace Core
 
 			return QVariant();
 		}
+		
+		bool Model::showOffline() const
+		{
+			return p->showOffline;
+		}
+
 
 	}
 }

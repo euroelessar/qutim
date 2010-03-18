@@ -97,6 +97,7 @@ namespace Core
 										  SLOT(onConfigureClicked())
 										  );
 			gen->setPriority(1);
+			gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));
 			addAction(gen);
 
 			gen = new ActionGenerator(Icon("application-exit"),
@@ -121,6 +122,9 @@ namespace Core
 
 			// TODO: choose another, non-kopete icon
 			gen = new ActionGenerator(Icon("view-user-offline-kopete"), QByteArray(), p->model, SLOT(onHideShowOffline()));
+			gen->setCheckable(true);
+			gen->setChecked(!p->model->showOffline());
+			gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Hide offline"));
 			addButton(gen);
 
 			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));
@@ -260,7 +264,6 @@ namespace Core
 				//FIXME
 				addContact(contact);
 			}
-			p->view->expandAll(); //HACK			
 		}
 
 		void Module::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
