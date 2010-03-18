@@ -15,6 +15,8 @@
 
 #include "actiontoolbar.h"
 #include <QAction>
+#include <QToolButton>
+#include "debug.h"
 
 namespace qutim_sdk_0_3
 {
@@ -28,6 +30,7 @@ namespace qutim_sdk_0_3
 	ActionToolBar::ActionToolBar(const QString &title, QWidget *parent)
 			: QToolBar(title, parent), p(new ActionToolBarPrivate)
 	{
+		debug() << Q_FUNC_INFO;
 #ifdef Q_WS_WIN
 		setStyleSheet("QToolBar{background:none;border:none}"); //HACK
 #endif
@@ -52,7 +55,20 @@ namespace qutim_sdk_0_3
 		action->setData(p->data);
 		p->generators << generator;
 		p->actions << action;
+		bool hasMenu = !!action->menu();
 		QWidget::addAction(action);
+		debug() << Q_FUNC_INFO << hasMenu << generator->receiver() << generator->member();
+		if (hasMenu) {
+			QList<QToolButton *> buttons = findChildren<QToolButton*>();
+			debug() << "QList<QToolButton *>" << buttons.size();
+			for (int i = buttons.size() - 1; i >= 0; i--) {
+				debug() << action << buttons.at(i)->defaultAction();
+				if (buttons.at(i)->defaultAction() == action) {
+					buttons.at(i)->setPopupMode(QToolButton::InstantPopup);
+					break;
+				}
+			}
+		}
 		return action;
 	}
 

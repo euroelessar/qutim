@@ -54,6 +54,18 @@ namespace qutim_sdk_0_3
 		virtual const QMetaObject *metaObject() const;
 		virtual bool hasInterface(const char *id) const;
 	};
+
+	class LIBQUTIM_EXPORT MenuActionGenerator : public ActionGenerator
+	{
+		Q_DECLARE_PRIVATE(ActionGenerator)
+		Q_DISABLE_COPY(MenuActionGenerator)
+	public:
+		MenuActionGenerator(const QIcon &icon, const LocalizedString &text, QMenu *menu);
+		MenuActionGenerator(const QIcon &icon, const LocalizedString &text, MenuController *controller);
+		virtual ~MenuActionGenerator();
+	protected:
+		virtual QObject *generateHelper() const;
+	};
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::ActionGenerator*)

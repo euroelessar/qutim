@@ -9,7 +9,7 @@ namespace qutim_sdk_0_3
 	class ActionGeneratorPrivate : public ObjectGeneratorPrivate
 	{
 	public:
-		ActionGeneratorPrivate() : type(0), priority(0), controller(NULL) {}
+		ActionGeneratorPrivate() : type(0), priority(0), controller(NULL), menu(NULL) {}
 		QIcon icon;
 		LocalizedString text;
 		QPointer<QObject> receiver;
@@ -17,6 +17,7 @@ namespace qutim_sdk_0_3
 		int type;
 		int priority;
 		MenuController *controller;
+		QMenu *menu;
 	};
 }
 

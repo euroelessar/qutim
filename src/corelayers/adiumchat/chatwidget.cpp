@@ -63,10 +63,10 @@ namespace AdiumChat
 		ui->actionToolBar->setIconSize(QSize(16,16));
 		
 			//for testing
-		QAction *emoticons = new QAction(Icon("emoticon"),tr("Emoticons"),this);
-		ui->actionToolBar->addAction(emoticons);
 		QMenu *menu = new QMenu(this);
-		emoticons->setMenu(menu);
+		ui->actionToolBar->addAction(new MenuActionGenerator(Icon("emoticon"),
+															 QT_TRANSLATE_NOOP("Chat", "Emoticons"),
+															 menu));
 		QWidgetAction *emoticons_widget_act = new QWidgetAction(this);
 		ChatEmoticonsWidget *emoticons_widget = new ChatEmoticonsWidget(this);
 		emoticons_widget->loadTheme();

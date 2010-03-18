@@ -105,11 +105,13 @@ namespace Core
 									  SLOT(quit()));
 			gen->setPriority(-1);
 			addAction(gen);
-			
-			QAction *menuAction = new QAction(Icon("show-menu"), tr("Main menu"), this);
-			
-			menuAction->setMenu(menu());
-			p->main_toolbar->addAction(menuAction);
+
+			gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), this);
+			addButton(gen);
+//			QAction *menuAction = new QAction(Icon("show-menu"), tr("Main menu"), this);
+//
+//			menuAction->setMenu(menu());
+//			p->main_toolbar->addAction(menuAction);
 
 			p->view = new TreeView(p->widget);
 			layout->addWidget(p->view);

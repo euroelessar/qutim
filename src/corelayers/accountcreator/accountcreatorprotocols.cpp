@@ -13,8 +13,15 @@ namespace Core
 	{
 		m_ui->setupUi(this);
 		m_lastId = Id;
+		QSet<QByteArray> protocols;
+		foreach (Protocol *protocol, allProtocols()) {
+			protocols.insert(protocol->metaObject()->className());
+		}
 
 		foreach(const ObjectGenerator *gen, moduleGenerators<AccountCreationWizard>()) {
+			const char *proto = metaInfo(gen->metaObject(), "DependsOn");
+			if (!protocols.contains(proto))
+				continue;
 			AccountCreationWizard *wizard = gen->generate<AccountCreationWizard>();
 			m_wizards.insert(wizard->info().name(), wizard);
 		}

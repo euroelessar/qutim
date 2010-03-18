@@ -125,4 +125,40 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(id);
 		return false;
 	}
+
+	MenuActionGenerator::MenuActionGenerator(const QIcon &icon, const LocalizedString &text, QMenu *menu) :
+			ActionGenerator(*new ActionGeneratorPrivate)
+	{
+		Q_D(ActionGenerator);
+		d->icon = icon;
+		d->text = text;
+		d->menu = menu;
+	}
+
+	MenuActionGenerator::MenuActionGenerator(const QIcon &icon, const LocalizedString &text, MenuController *controller) :
+			ActionGenerator(*new ActionGeneratorPrivate)
+	{
+		Q_D(ActionGenerator);
+		d->icon = icon;
+		d->text = text;
+		d->controller = controller;
+	}
+
+	MenuActionGenerator::~MenuActionGenerator()
+	{
+	}
+
+	QObject *MenuActionGenerator::generateHelper() const
+	{
+		Q_D(const ActionGenerator);
+		QAction *action = prepareAction(new QAction(NULL));
+		if (d->menu) {
+			action->setMenu(d->menu);
+		} else if (d->controller) {
+			QMenu *menu = d->controller->menu(false);
+			QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
+			action->setMenu(menu);
+		}
+		return action;
+	}
 }
