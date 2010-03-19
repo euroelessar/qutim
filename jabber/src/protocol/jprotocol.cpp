@@ -5,9 +5,11 @@
 #include "account/roster/jcontact.h"
 #include <gloox/dataform.h>
 #include "account/dataform/jdataform.h"
+#include <qutim/statusactiongenerator.h>
 
 namespace Jabber
 {
+
 	struct JProtocolPrivate
 	{
 		inline JProtocolPrivate() : accounts(new QHash<QString, JAccount *>) {}
@@ -42,35 +44,18 @@ namespace Jabber
 
 	void JProtocol::loadActions()
 	{
-		MenuController::addAction((new ActionGenerator(Icon("user-online-jabber"),
-				QT_TRANSLATE_NOOP("Status", "Online"),
-				this, SLOT(onStatusActionPressed())))->addProperty("status", Status::Online)->setPriority(Status::Online),
-				&JAccount::staticMetaObject);
+		QList<Status> statuses;
+		statuses << Status(Status::Online)
+				 << Status(Status::FreeChat)
+				 << Status(Status::Away)
+				 << Status(Status::NA)
+				 << Status(Status::DND)
+				 << Status(Status::Offline);
 
-		MenuController::addAction((new ActionGenerator(Icon("user-online-chat-jabber"),
-				QT_TRANSLATE_NOOP("Status", "Free for chat"),
-				this, SLOT(onStatusActionPressed())))->addProperty("status", Status::FreeChat)->setPriority(Status::FreeChat),
-				&JAccount::staticMetaObject);
-
-		MenuController::addAction((new ActionGenerator(Icon("user-away-jabber"),
-				QT_TRANSLATE_NOOP("Status", "Away"),
-				this, SLOT(onStatusActionPressed())))->addProperty("status", Status::Away)->setPriority(Status::Away),
-				&JAccount::staticMetaObject);
-
-		MenuController::addAction((new ActionGenerator(Icon("user-away-extended-jabber"),
-				QT_TRANSLATE_NOOP("Status", "NA"),
-				this, SLOT(onStatusActionPressed())))->addProperty("status", Status::NA)->setPriority(Status::NA),
-				&JAccount::staticMetaObject);
-
-		MenuController::addAction((new ActionGenerator(Icon("user-busy-jabber"),
-				QT_TRANSLATE_NOOP("Status", "DND"),
-				this, SLOT(onStatusActionPressed())))->addProperty("status", Status::DND)->setPriority(Status::DND),
-				&JAccount::staticMetaObject);
-
-		MenuController::addAction((new ActionGenerator(Icon("user-offline-jabber"),
-				QT_TRANSLATE_NOOP("Status", "Offline"),
-				this, SLOT(onStatusActionPressed())))->addProperty("status", Status::Offline)->setPriority(Status::Offline),
-				&JAccount::staticMetaObject);
+		foreach (Status status, statuses) {
+			status.initIcon("jabber");
+			MenuController::addAction(new StatusActionGenerator(status), &JAccount::staticMetaObject);
+			}
 	}
 
 	void JProtocol::loadAccounts()
@@ -137,17 +122,6 @@ namespace Jabber
 		p->accounts->insert(account->id(), account);
 		if (isEmit)
 			emit accountCreated(account);
-	}
-
-	void JProtocol::onStatusActionPressed()
-	{
-		QAction *action = qobject_cast<QAction *>(sender());
-		Q_ASSERT(action);
-		MenuController *item = action->data().value<MenuController *>();
-		if (JAccount *account = qobject_cast<JAccount *>(item)) {
-			account->beginChangeStatus(
-					statusToPresence(static_cast<Status::Type>(action->property("status").toInt())));
-		}
 	}
 
 	Presence::PresenceType JProtocol::statusToPresence(const Status &status)

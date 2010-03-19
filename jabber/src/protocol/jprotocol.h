@@ -29,8 +29,6 @@ namespace Jabber
 			void addAccount(JAccount *account, bool isEmit = false);
 			static Presence::PresenceType statusToPresence(const Status &status);
 			static Status presenceToStatus(Presence::PresenceType presence);
-		private slots:
-			void onStatusActionPressed();
 		private:
 			void loadActions();
 			virtual void loadAccounts();

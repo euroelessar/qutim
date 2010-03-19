@@ -40,6 +40,7 @@ namespace Jabber {
 			gloox::Client *client();
 			JServiceDiscovery *discoManager();
 			JMUCManager *conferenceManager();
+			virtual void setStatus(Status status);
 		signals:
 			void stateConnected();
 			void stateDisconnected();

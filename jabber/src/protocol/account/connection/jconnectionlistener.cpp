@@ -25,7 +25,7 @@ namespace Jabber
 
 	void JConnectionListener::onConnect()
 	{
-
+		//p->account->endChangeStatus(p->account->client()->presence().presence()); //doesn't work correctly((
 	}
 
 	void JConnectionListener::onDisconnect(ConnectionError error)

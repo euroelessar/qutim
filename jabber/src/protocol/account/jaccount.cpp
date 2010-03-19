@@ -5,6 +5,7 @@
 #include "servicediscovery/jservicediscovery.h"
 #include "../jprotocol.h"
 #include "muc/jmucmanager.h"
+#include <qutim/debug.h>
 
 namespace Jabber {
 
@@ -65,11 +66,13 @@ namespace Jabber {
 	void JAccount::endChangeStatus(Presence::PresenceType presence)
 	{
 		Status newStatus = JProtocol::presenceToStatus(presence);
+		debug() << "new status" << newStatus << newStatus.text();
 		if (status() == Status::Offline && newStatus != Status::Offline)
 			emit stateConnected();
 		if (status() != Status::Offline && newStatus == Status::Offline)
 			emit stateDisconnected();
 		Account::setStatus(newStatus);
+		emit statusChanged(newStatus);
 		p->conferenceManager->syncBookmarks();
 	}
 
@@ -147,6 +150,11 @@ namespace Jabber {
 	JMUCManager *JAccount::conferenceManager()
 	{
 		return p->conferenceManager;
+	}
+
+	void JAccount::setStatus(Status status)
+	{
+		beginChangeStatus(JProtocol::statusToPresence(status));
 	}
 } // Jabber namespace
 
