@@ -20,6 +20,17 @@
 
 namespace qutim_sdk_0_3
 {
+	ActionCreatedEvent::ActionCreatedEvent(QAction *action, ActionGenerator *gen) :
+			QEvent(eventType()), m_action(action), m_gen(gen)
+	{
+	}
+
+	QEvent::Type ActionCreatedEvent::eventType()
+	{
+		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 103));
+		return type;
+	}
+
 	ActionGenerator::ActionGenerator(const QIcon &icon, const LocalizedString &text,
 									 const QObject *receiver, const char *member)
 			  : ObjectGenerator(*new ActionGeneratorPrivate)
@@ -90,6 +101,12 @@ namespace qutim_sdk_0_3
 	void ActionGenerator::setMenuController(MenuController *controller)
 	{
 		d_func()->controller = controller;
+	}
+
+	void ActionGenerator::addCreationHandler(QObject *obj)
+	{
+		Q_ASSERT(obj);
+		d_func()->handlers.append(obj);
 	}
 
 	QAction *ActionGenerator::prepareAction(QAction *action) const

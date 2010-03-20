@@ -20,11 +20,25 @@
 #include "localizedstring.h"
 #include <QtGui/QIcon>
 #include <QtGui/QAction>
+#include <QtCore/QEvent>
 
 namespace qutim_sdk_0_3
 {
+	class ActionGenerator;
 	class ActionGeneratorPrivate;
 	class MenuController;
+
+	class ActionCreatedEvent : public QEvent
+	{
+	public:
+		ActionCreatedEvent(QAction *action, ActionGenerator *gen);
+		static QEvent::Type eventType();
+		QAction *action() const { return m_action; }
+		ActionGenerator *generator() const { return m_gen; }
+	private:
+		QAction *m_action;
+		ActionGenerator *m_gen;
+	};
 
 	class LIBQUTIM_EXPORT ActionGenerator : public ObjectGenerator
 	{
@@ -48,6 +62,7 @@ namespace qutim_sdk_0_3
 		int priority() const;
 		ActionGenerator *setPriority(int priority);
 		void setMenuController(MenuController *controller);
+		void addCreationHandler(QObject *obj);
 	protected:
 		QAction *prepareAction(QAction *action) const;
 		virtual QObject *generateHelper() const;

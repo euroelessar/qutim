@@ -18,6 +18,7 @@ namespace qutim_sdk_0_3
 		int priority;
 		MenuController *controller;
 		QMenu *menu;
+		mutable QList<QPointer<QObject> > handlers;
 	};
 }
 

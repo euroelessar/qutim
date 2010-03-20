@@ -13,8 +13,9 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "objectgenerator_p.h"
+#include "actiongenerator_p.h"
 #include <QtCore/QVariant>
+#include <QtCore/QCoreApplication>
 
 namespace qutim_sdk_0_3
 {
@@ -59,6 +60,15 @@ namespace qutim_sdk_0_3
 				obj->setProperty(d->names.at(i), d->values.at(i));
 			if (d->info.data())
 				obj->setProperty("extensioninfo", QVariant::fromValue(d->info));
+			if (dynamic_cast<const ActionGenerator*>(this) && qobject_cast<QAction*>(obj)) {
+				const ActionGeneratorPrivate *p = static_cast<const ActionGeneratorPrivate*>(d);
+				const QList<QPointer<QObject> > &handlers = p->handlers;
+				ActionCreatedEvent event(static_cast<QAction*>(obj), const_cast<ActionGenerator*>(static_cast<const ActionGenerator*>(this)));
+				for (int i = 0; i < handlers.size(); i++) {
+					if (QObject *handler = handlers.at(i))
+						qApp->sendEvent(handler, &event);
+				}
+			}
 			return obj;
 		}
 		return NULL;
