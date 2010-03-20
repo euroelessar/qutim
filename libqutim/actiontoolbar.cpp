@@ -31,9 +31,6 @@ namespace qutim_sdk_0_3
 			: QToolBar(title, parent), p(new ActionToolBarPrivate)
 	{
 		debug() << Q_FUNC_INFO;
-#ifdef Q_WS_WIN
-		setStyleSheet("QToolBar{background:none;border:none}"); //HACK
-#endif
 	}
 
 	ActionToolBar::ActionToolBar(QWidget *parent)
