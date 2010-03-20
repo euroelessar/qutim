@@ -17,7 +17,11 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
+#ifdef OSCAR_SSL_SUPPORT
+#include <QSslSocket>
+#else
 #include <QTcpSocket>
+#endif
 #include <QMap>
 #include <QHostAddress>
 #include <qutim/libqutim_global.h>
@@ -56,6 +60,13 @@ struct LIBOSCAR_EXPORT ClientInfo
 	QByteArray language;
 	QByteArray country;
 };
+
+#ifdef OSCAR_SSL_SUPPORT
+typedef QSslSocket Socket;
+#else
+typedef QTcpSocket Socket;
+#endif
+
 
 class LIBOSCAR_EXPORT AbstractConnection : public QObject, public SNACHandler
 {
@@ -107,13 +118,14 @@ public:
 	void disconnectFromHost(bool force = false);
 	const QHostAddress &externalIP() const;
 	const QList<quint16> &servicesList();
-	QTcpSocket *socket();
+	Socket *socket();
 	bool isConnected();
 	ConnectionError error();
 	QString errorString();
 	IcqAccount *account();
 	const IcqAccount *account() const;
 	const ClientInfo &clientInfo();
+	bool isSslEnabled();
 signals:
 	void error(ConnectionError error);
 protected:

@@ -17,7 +17,7 @@
 #ifndef CONNECTION_P_H
 #define CONNECTION_P_H
 
-#include "oscarconnection.h"
+#include "connection.h"
 #include "snac.h"
 #include "icqaccount.h"
 #include <QTimer>
@@ -79,7 +79,7 @@ public:
 	// max value is 0x7fff, min is 0
 	inline quint16 seqNum() { seqnum++; return (seqnum &= 0x7fff); }
 	inline quint32 nextId() { return id++; }
-	QTcpSocket *socket;
+	Socket *socket;
 	FLAP flap;
 	QMultiMap<quint32, SNACHandler*> handlers;
 	quint16 seqnum;

@@ -168,7 +168,10 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	QObject(parent), d_ptr(new AbstractConnectionPrivate)
 {
 	Q_D(AbstractConnection);
-	d->socket = new QTcpSocket(this);
+	d->socket = new Socket(this);
+#if OSCAR_SSL_SUPPORT
+	d->socket->setPeerVerifyMode(QSslSocket::VerifyNone); // TODO:
+#endif
 	d->account = account;
 	connect(d->socket, SIGNAL(readyRead()), SLOT(readData()));
 	connect(d->socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
@@ -225,7 +228,7 @@ const QList<quint16> &AbstractConnection::servicesList()
 	return d_func()->services;
 }
 
-QTcpSocket *AbstractConnection::socket()
+Socket *AbstractConnection::socket()
 {
 	return d_func()->socket;
 };
@@ -328,6 +331,15 @@ const ClientInfo &AbstractConnection::clientInfo()
 	return d_func()->clientInfo;
 }
 
+bool AbstractConnection:: isSslEnabled()
+{
+#ifdef OSCAR_SSL_SUPPORT
+	return d_func()->account->config("connection").value("ssl", false);
+#else
+	return false;
+#endif
+}
+
 AbstractConnection::AbstractConnection(AbstractConnectionPrivate *d):
 	d_ptr(d)
 {
@@ -354,7 +366,7 @@ void AbstractConnection::send(FLAP &flap)
 	flap.setSeqNum(d->seqNum());
 	//debug(VeryVerbose) << "FLAP:" << flap.toByteArray().toHex().constData();
 	d->socket->write(flap);
-	d->socket->flush();
+	//d->socket->flush();
 }
 
 quint32 AbstractConnection::sendSnac(SNAC &snac)

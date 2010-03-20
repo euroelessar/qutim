@@ -48,9 +48,18 @@ void Md5Login::login()
 	m_cookie.clear();
 	// Connecting to login server
 	ConfigGroup cfg = m_conn->account()->config("connection");
-	QHostInfo host = QHostInfo::fromName(cfg.value("server", "login.icq.com").toString());
-	quint16 port = cfg.value("port", 5190);
-	socket()->connectToHost(host.addresses().at(qrand() % host.addresses().size()), port);
+#ifdef OSCAR_SSL_SUPPORT
+	if (m_conn->isSslEnabled()) {
+		QString host = cfg.value("sslhost", "slogin.oscar.aol.com").toString();
+		quint16 port = cfg.value("sslport", 443);
+		socket()->connectToHostEncrypted(host, port);
+	} else
+#endif
+	{
+		QHostInfo host = QHostInfo::fromName(cfg.value("host", "login.icq.com").toString());
+		quint16 port = cfg.value("port", 5190);
+		socket()->connectToHost(host.addresses().at(qrand() % host.addresses().size()), port);
+	}
 }
 
 void Md5Login::processNewConnection()
