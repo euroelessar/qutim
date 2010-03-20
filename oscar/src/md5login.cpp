@@ -20,6 +20,7 @@
 #include <QCryptographicHash>
 #include <QUrl>
 #include <QHostInfo>
+#include <QNetworkProxy>
 
 namespace qutim_sdk_0_3 {
 
@@ -35,6 +36,7 @@ Md5Login::Md5Login(const QString &password, IcqAccount *account) :
 			<< SNACInfo(AuthorizationFamily, SignonAuthKey);
 	registerHandler(this);
 	setSeqNum(generateFlapSequence());
+	socket()->setProxy(account->connection()->socket()->proxy());
 }
 
 Md5Login::~Md5Login()

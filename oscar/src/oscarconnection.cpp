@@ -29,6 +29,7 @@
 #include <QHostInfo>
 #include <QBuffer>
 #include <QTimer>
+#include <QNetworkProxy>
 
 namespace qutim_sdk_0_3 {
 

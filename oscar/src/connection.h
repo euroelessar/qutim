@@ -139,6 +139,8 @@ protected:
 	void setError(ConnectionError error);
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 	static quint16 generateFlapSequence();
+protected slots:
+	void loadProxy();
 private slots:
 	void processSnac();
 	void readData();

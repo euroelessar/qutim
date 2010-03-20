@@ -23,6 +23,7 @@
 #include <QDir>
 #include <QFile>
 #include <QImage>
+#include <QNetworkProxy>
 
 namespace qutim_sdk_0_3 {
 
@@ -37,6 +38,7 @@ BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
 			<< SNACInfo(AvatarFamily, AvatarGetReply);
 	m_types << SsiBuddyIcon;
 	registerHandler(this);
+	socket()->setProxy(account->connection()->socket()->proxy());
 	connect(socket(), SIGNAL(disconnected()), SLOT(disconnected()));
 	account->feedbag()->registerHandler(this);
 	account->registerRosterPlugin(this);

@@ -18,6 +18,7 @@
 #include <QHostInfo>
 #include <QBuffer>
 #include <QCoreApplication>
+#include <QNetworkProxy>
 
 namespace qutim_sdk_0_3 {
 
@@ -173,6 +174,7 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	d->socket->setPeerVerifyMode(QSslSocket::VerifyNone); // TODO:
 #endif
 	d->account = account;
+	connect(d->account, SIGNAL(settingsUpdated()), SLOT(loadProxy()));
 	connect(d->socket, SIGNAL(readyRead()), SLOT(readData()));
 	connect(d->socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
 	connect(d->socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
@@ -242,6 +244,49 @@ AbstractConnection::ConnectionError AbstractConnection::error()
 {
 	return d_func()->error;
 };
+
+void AbstractConnection::loadProxy()
+{
+	Q_D(AbstractConnection);
+	QNetworkProxy proxy(QNetworkProxy::NoProxy);
+	ConfigGroup cfg = d->account->config("connection");
+	if (cfg.value("useproxy", false)) {
+		cfg = d->account->config("proxy");
+		QNetworkProxy::ProxyType type;
+		QString typeStr = cfg.value("type", QString());
+		if (typeStr.isNull()) {
+			// attempt to load settings from qutim 0.2
+			type = static_cast<QNetworkProxy::ProxyType>(cfg.value("proxyType", -1));
+			if (type == -1) {
+				type = QNetworkProxy::NoProxy;
+			} else {
+				// migration to the new format
+				if (type == QNetworkProxy::Socks5Proxy)
+					typeStr = "socks5";
+				else if (type == QNetworkProxy::HttpProxy)
+					typeStr = "http";
+				else
+					type = QNetworkProxy::NoProxy;
+				if (!typeStr.isNull())
+					cfg.setValue("type", typeStr);
+				cfg.removeGroup("proxyType");
+				cfg.sync();
+			}
+		} else if (typeStr == "socks5") {
+			type = QNetworkProxy::Socks5Proxy;
+		} else if (typeStr == "http") {
+			type = QNetworkProxy::HttpProxy;
+		}
+		proxy.setHostName(cfg.value("host", QString()));
+		proxy.setPort(cfg.value("port", 1));
+		proxy.setType(type);
+		if (cfg.value("auth", false)) {
+			proxy.setUser(cfg.value("user", QString()));
+			proxy.setPassword(cfg.value("pass", QString()));
+		}
+	}
+	d->socket->setProxy(proxy);
+}
 
 QString AbstractConnection::errorString()
 {
@@ -610,7 +655,7 @@ void AbstractConnection::stateChanged(QAbstractSocket::SocketState state)
 
 void AbstractConnection::error(QAbstractSocket::SocketError error)
 {
-	debug() << "Connection error:" << error;
+	debug() << "Connection error:" << error << errorString();
 }
 
 } } // namespace qutim_sdk_0_3::oscar
