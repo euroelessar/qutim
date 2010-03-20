@@ -81,6 +81,7 @@ namespace qutim_sdk_0_3
 			QHash<QString, Protocol *> *protocols;
 		};
 		QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
+		QHash<QByteArray, QObject *> services;
 		QSet<QByteArray> interface_modules;
 		QSet<const QMetaObject *> meta_modules;
 		QList<const ExtensionInfo> modules;
@@ -92,6 +93,11 @@ namespace qutim_sdk_0_3
 	bool isCoreInited()
 	{
 		return ModuleManager::self && ModuleManager::self->p && ModuleManager::self->p->is_inited;
+	}
+
+	QObject *getService(const QByteArray &name)
+	{
+		return ModuleManager::self->p->services.value(name);
 	}
 
 	/**

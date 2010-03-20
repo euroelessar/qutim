@@ -33,6 +33,7 @@ namespace Core
 			QMimeData *mimeData(const QModelIndexList &indexes) const;
 			bool dropMimeData(const QMimeData *data, Qt::DropAction action,
 							  int row, int column, const QModelIndex &parent);
+			bool showOffline() const;
 		protected slots:
 			void contactDeleted(QObject *obj);
 			void contactStatusChanged(qutim_sdk_0_3::Status status);

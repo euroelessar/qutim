@@ -66,6 +66,7 @@ namespace qutim_sdk_0_3
 	private:
 		// Friend functions
 		friend LIBQUTIM_EXPORT bool isCoreInited();
+		friend LIBQUTIM_EXPORT QObject *getService(const QByteArray &name);
 		friend LIBQUTIM_EXPORT GeneratorList moduleGenerators(const QMetaObject *);
 		friend LIBQUTIM_EXPORT GeneratorList moduleGenerators(const char *);
 		friend LIBQUTIM_EXPORT ProtocolMap allProtocols();

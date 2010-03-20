@@ -120,6 +120,9 @@ namespace qutim_sdk_0_3
 			action->setParent(d->receiver);
 		action->setIcon(d->icon);
 		action->setText(d->text);
+		action->setCheckable(d->checkable);
+		action->setChecked(d->checked);
+		action->setToolTip(d->toolTip);
 		if (d->controller)
 			action->setData(QVariant::fromValue(const_cast<MenuController *>(d->controller)));
 		if (d->receiver)
@@ -178,4 +181,20 @@ namespace qutim_sdk_0_3
 		}
 		return action;
 	}
+	
+	void ActionGenerator::setCheckable(bool checkable)
+	{
+		d_func()->checkable = checkable;
+	}
+
+	void ActionGenerator::setChecked(bool checked)
+	{
+		d_func()->checked = checked;
+	}
+
+	void ActionGenerator::setToolTip(const LocalizedString& toolTip)
+	{
+		d_func()->toolTip = toolTip;
+	}
+
 }

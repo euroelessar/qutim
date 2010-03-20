@@ -39,6 +39,10 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	//init toolbar
 	connect(ui->xtoolBar,SIGNAL(actionTriggered(QAction*)),SLOT(onActionTriggered(QAction*)));
 
+#ifdef Q_WS_WIN
+	ui->xtoolBar->setStyleSheet("QToolBar{background:none;border:none}"); //HACK
+#endif
+
 	//init actions
 	//TODO FIXME get rid of copypaste
 

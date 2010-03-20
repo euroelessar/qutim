@@ -29,9 +29,6 @@ namespace qutim_sdk_0_3
 	ActionToolBar::ActionToolBar(const QString &title, QWidget *parent)
 			: QToolBar(title, parent), p(new ActionToolBarPrivate)
 	{
-#ifdef Q_WS_WIN
-		setStyleSheet("QToolBar{background:none;border:none}"); //HACK
-#endif
 	}
 
 	ActionToolBar::ActionToolBar(QWidget *parent)
