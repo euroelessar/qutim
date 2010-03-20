@@ -78,13 +78,4 @@ void IcqProtocol::updateSettings()
 		acc->updateSettings();
 }
 
-void IcqProtocol::onStatusActionPressed()
-{
-	QAction *action = qobject_cast<QAction *>(sender());
-	Q_ASSERT(action);
-	MenuController *item = action->data().value<MenuController *>();
-	if (IcqAccount *account = qobject_cast<IcqAccount *>(item))
-		account->setStatus(static_cast<Status::Type>(action->property("status").toInt()));
-}
-
 } } // namespace qutim_sdk_0_3::oscar

@@ -31,6 +31,7 @@ struct LIBOSCAR_EXPORT Capability: public QUuid
 {
 public:
 	Capability();
+	Capability(const QString &str);
 	Capability(const QByteArray &data);
 	Capability(quint32 d1, quint32 d2, quint32 d3, quint32 d4);
 	Capability(uint l, ushort w1, ushort w2, uchar b1, uchar b2, uchar b3,

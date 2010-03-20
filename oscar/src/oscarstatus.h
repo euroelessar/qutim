@@ -48,9 +48,13 @@ public:
 	OscarStatus(const Status &status);
 	OscarStatus(const OscarStatus &status);
 	OscarStatus &operator=(quint16 status);
+	OscarStatus &operator=(Status::Type status);
 	virtual ~OscarStatus();
 	void setCapability(const Capability &capability, const QString &type);
+	QHash<QString, Capability> capabilities();
 	static void registerStatus(quint16 statusId, OscarStatus oscarStatus);
+protected:
+	void setStatusType(Status::Type status);
 };
 
 } } // namespace qutim_sdk_0_3::oscar

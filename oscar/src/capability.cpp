@@ -26,6 +26,11 @@ Capability::Capability()
 {
 }
 
+Capability::Capability(const QString &str) :
+	QUuid(str)
+{
+}
+
 Capability::Capability(const QByteArray &data)
 {
 	if (data.size() == 2) {

@@ -43,8 +43,6 @@ public slots:
 	void updateSettings();
 protected:
 	void loadAccounts();
-private slots:
-	void onStatusActionPressed();
 private:
 	friend class IcqAccountCreationWizard;
 	QScopedPointer<IcqProtocolPrivate> d_ptr;

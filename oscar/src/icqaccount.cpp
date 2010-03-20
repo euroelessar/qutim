@@ -59,6 +59,20 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->conn->registerHandler(new Roster(this));
 	d->conn->registerHandler(new BuddyPicture(this, this));
 	d->conn->registerHandler(d->messagesHandler = new MessagesHandler(this, this));
+	{
+		ConfigGroup statusCfg = cfg.group("lastStatus");
+		int type = statusCfg.value("type", static_cast<int>(Status::Offline));
+		if (type >= Status::Online && type <= Status::Offline) {
+			OscarStatus status;
+			status.setType(static_cast<Status::Type>(type));
+			status.setSubtype(statusCfg.value("subtype", 0));
+			statusCfg = statusCfg.group("capabilities");
+			foreach (const QString &type, statusCfg.groupList()) {
+				Capability cap(statusCfg.value("subtype", QString()));
+				status.setCapability(cap, type);
+			}
+		}
+	}
 	d->lastStatus = static_cast<Status::Type>(cfg.value<int>("lastStatus", Status::Offline));
 
 	// ICQ UTF8 Support
@@ -120,9 +134,10 @@ const AbstractConnection *IcqAccount::connection() const
 	return d_func()->conn;
 }
 
-void IcqAccount::setStatus(Status status)
+void IcqAccount::setStatus(Status status_helper)
 {
 	Q_D(IcqAccount);
+	OscarStatus status(status_helper);
 	Status current = this->status();
 	if (current.type() == status.type()) {
 		if (status.type() == Status::Offline) {
@@ -168,8 +183,19 @@ void IcqAccount::setStatus(Status status)
 			d->conn->sendStatus(status);
 		}
 	}
-	config().group("general").setValue("lastStatus", status.type());
-	config().sync();
+	{
+		ConfigGroup statusCfg = config().group("general").group("lastStatus");
+		statusCfg.setValue("type", status.type());
+		statusCfg.setValue("subtype", status.subtype());
+		statusCfg.removeGroup("capabilities");
+		statusCfg = statusCfg.group("capabilities");
+		QHashIterator<QString, Capability> itr(status.capabilities());
+		while (itr.hasNext()) {
+			itr.next();
+			statusCfg.setValue(itr.key(), itr.value().toString());
+		}
+		config().sync();
+	}
 	Account::setStatus(status);
 	emit statusChanged(status);
 }
