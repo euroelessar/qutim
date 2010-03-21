@@ -1,0 +1,45 @@
+@import url("../main.css");
+
+body {
+	font: 8pt Verdana;
+}
+
+.time {
+	display: none;
+}
+
+.m_received {
+	margin-left: -10pt;
+	padding-left: 10pt;
+}
+
+.m_sending {
+	margin-left: -10pt;
+	padding-left: 10pt;
+}
+
+.m_sended {
+	padding-left: 10pt;
+	margin-left: -10pt;
+}
+
+.nickTime {
+	display: inline;
+}
+
+.inTime {
+	color: #ff6600;
+	padding-left: 0pt;
+	float: none;
+}
+
+.outTime {
+	color: #0078ff;
+	padding-left: 0pt;
+	float: none;
+}
+
+.message {
+	padding-left: 10pt;
+}
+

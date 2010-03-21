@@ -21,6 +21,8 @@
 	<string>Verdana</string>
 	<key>DefaultFontSize</key>
 	<integer>8</integer>
+        <key>DefaultVariant</key>
+        <string>medium</string>
 	<key>DisableCustomBackground</key>
 	<false/>
 	<key>ShowsUserIcons</key>

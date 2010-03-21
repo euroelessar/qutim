@@ -28,7 +28,7 @@ namespace qutim_sdk_0_3
 	class ActionGeneratorPrivate;
 	class MenuController;
 
-	class ActionCreatedEvent : public QEvent
+	class LIBQUTIM_EXPORT ActionCreatedEvent : public QEvent
 	{
 	public:
 		ActionCreatedEvent(QAction *action, ActionGenerator *gen);

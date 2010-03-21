@@ -1,0 +1,76 @@
+@-webkit-keyframes highlight {
+	0% {
+		background-color: #FFFFA0;
+	}
+	33% {
+		background-color: #FFFFA0;
+	}
+
+	100% {
+		background-color: white;
+	}
+}
+
+body {
+	font: 10pt Arial;
+}
+
+.remark {
+	margin-top: 0.3em;
+	padding-bottom: 4pt;
+}
+
+.inContact, .outContact, .inActionContact, .outActionContact {
+	font-weight: bold;
+}
+
+.inContact, .inActionContact, .inActionMessage {
+	color: #ff6600;
+}
+
+.outContact, .outActionContact, .outActionMessage {
+	color: #0078ff;
+}
+
+.inTime, .outTime, .statusTime {
+	color: gray;
+	font-size: 0.8em;
+	float: right;
+	padding-left: 3pt;
+	vertical-align: bottom;
+	margin-top: 2pt;
+}
+
+.nickTime {
+	display: none;
+}
+
+.statusMessage {
+	color: gray;
+}
+
+.inMessage, .outMessage {
+	-webkit-animation-name: highlight;
+	-webkit-animation-duration: 1.2s;
+	-webkit-animation-iteration-count: 1;
+	-webkit-animation-timing-function: linear;
+}
+
+.m_received {
+	display: inline;
+	padding-left: 6pt;
+	background: url('Images/bullet-received.png') left center no-repeat;
+}
+
+.m_sending {
+	display: inline;
+	padding-left: 6pt;
+	background: url('Images/bullet-send.png') left center no-repeat;
+}
+
+.m_sended {
+	display: inline;
+	padding-left: 6pt;
+	background: url('Images/bullet-received.png') left center no-repeat;
+}
+
