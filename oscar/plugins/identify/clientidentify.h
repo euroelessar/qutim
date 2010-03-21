@@ -132,6 +132,7 @@ private:
 	quint32 m_ext_info;
 	QString m_client_id;
 	CapabilityFlags m_flags;
+	QString m_client;
 private:
 	static const Capability ICQ_CAPABILITY_ICQJSINxVER;
 	static const Capability ICQ_CAPABILITY_ICQJS7xVER;

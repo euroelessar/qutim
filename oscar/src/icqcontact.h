@@ -57,6 +57,8 @@ public:
 	const Capabilities &capabilities() const;
 	void setStatus(Status status);
 	ChatState chatState() const;
+	void insertToolTipField(const LocalizedString &title, const QVariant &data);
+	void removeToolTipField(const QString &title);
 private:
 	virtual bool event(QEvent *);
 	void setAvatar(const QString &avatar);

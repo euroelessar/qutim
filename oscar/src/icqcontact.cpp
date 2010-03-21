@@ -21,7 +21,7 @@
 #include "metainfo.h"
 #include "qutim/messagesession.h"
 #include "qutim/notificationslayer.h"
-#include "qutim/messagesession.h"
+#include "qutim/tooltip.h"
 #include <QApplication>
 
 namespace qutim_sdk_0_3 {
@@ -316,14 +316,28 @@ void IcqContact::setStatus(Status status)
 {
 	Q_D(IcqContact);
 	d->status = status;
-	if (status == Status::Offline)
+	if (status == Status::Offline) {
 		d->clearCapabilities();
+		d->onlineSince = QDateTime();
+		d->awaySince = QDateTime();
+		d->regTime = QDateTime();
+	}
 	emit statusChanged(status);
 }
 
 ChatState IcqContact::chatState() const
 {
 	return d_func()->state;
+}
+
+void IcqContact::insertToolTipField(const LocalizedString &title, const QVariant &data)
+{
+	d_func()->fields.insert(title.original(), InfoField(title, data));
+}
+
+void IcqContact::removeToolTipField(const QString &title)
+{
+	d_func()->fields.remove(title);
 }
 
 bool IcqContact::event(QEvent *ev)
@@ -350,6 +364,33 @@ bool IcqContact::event(QEvent *ev)
 		sn.append<quint16>(type);
 		d->account->connection()->send(sn);
 		return true;
+	} else if (ev->type() == ToolTipEvent::eventType()) {
+		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+		QDateTime time;
+		if (!d->onlineSince.isNull()) {
+			time = QDateTime::currentDateTime();
+			time = time.addSecs(-d->onlineSince.toTime_t());
+			time = time.toUTC();
+			event->appendField(QT_TRANSLATE_NOOP("ContactList", "Online time"),
+							   QString("%1d %2h %3m %4s")
+							   .arg(time.date().day() - 1)
+							   .arg(time.time().hour())
+							   .arg(time.time().minute())
+							   .arg(time.time().second()));
+			event->appendField(QT_TRANSLATE_NOOP("ContactList", "Signed on"),
+							   d->onlineSince.toLocalTime().toString("hh:mm:ss dd/MM/yyyy"));
+		}
+		if (!d->awaySince.isNull()) {
+			event->appendField(QT_TRANSLATE_NOOP("ContactList", "Away since"),
+							   d->awaySince.toLocalTime().toString("hh:mm:ss dd/MM/yyyy"));
+		}
+		if (!d->regTime.isNull()) {
+			event->appendField(QT_TRANSLATE_NOOP("ContactList", "Reg. date"),
+							   d->regTime.toLocalTime().toString("hh:mm:ss dd/MM/yyyy"));
+		}
+		foreach (const InfoField &field, d->fields) {
+			event->appendField(field.first, field.second);
+		}
 	}
 	return Contact::event(ev);
 }

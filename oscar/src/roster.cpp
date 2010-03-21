@@ -394,12 +394,14 @@ void Roster::handleUserOnline(const SNAC &snac)
 	TLVMap tlvs = snac.read<TLVMap, quint16>();
 	// status.
 	Status oldStatus = contact->status();
+	quint16 statusId = 0;
 	quint16 statusFlags = 0;
 	OscarStatus status(OscarOnline);
 	if (tlvs.contains(0x06)) {
 		DataUnit status_data(tlvs.value(0x06));
 		statusFlags = status_data.read<quint16>();
-		status = static_cast<OscarStatusEnum>(status_data.read<quint16>());
+		statusId = status_data.read<quint16>();
+		status = static_cast<OscarStatusEnum>(statusId);
 	}
 	// Status note
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));
@@ -435,6 +437,25 @@ void Roster::handleUserOnline(const SNAC &snac)
 			newCaps.push_back(Capability(data.readData(2)));
 	}
 	contact->d_func()->setCapabilities(newCaps);
+
+	if (tlvs.contains(0x000f))
+		contact->d_func()->onlineSince = QDateTime::fromTime_t(QDateTime::currentDateTime().toTime_t() - tlvs.value<quint32>(0x000f));
+	else if (tlvs.contains(0x0003))
+		contact->d_func()->onlineSince = QDateTime::fromTime_t(tlvs.value<quint32>(0x0003));
+	else
+		contact->d_func()->onlineSince = QDateTime();
+
+	if (tlvs.contains(0x0004))
+		contact->d_func()->awaySince = QDateTime::currentDateTime().addSecs(-60 * tlvs.value<quint32>(0x0004));
+	else if (statusId != OscarOnline)
+		contact->d_func()->awaySince = QDateTime::currentDateTime();
+	else
+		contact->d_func()->awaySince = QDateTime();
+
+	if (tlvs.contains(0x0005))
+		contact->d_func()->regTime = QDateTime::fromTime_t(tlvs.value<quint32>(0x0005));
+	else
+		contact->d_func()->regTime = QDateTime();
 	setStatus(contact, status, tlvs);
 }
 

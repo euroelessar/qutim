@@ -166,8 +166,11 @@ void IcqAccount::setStatus(Status status_helper)
 			return;
 		}
 		OscarStatus stat;
-		foreach(IcqContact *contact, d->contacts)
+		foreach(IcqContact *contact, d->contacts) {
 			contact->setStatus(stat);
+			foreach (RosterPlugin *plugin, d->rosterPlugins)
+				plugin->statusChanged(contact, status, TLVMap());
+		}
 	} else {
 		d->lastStatus = status;
 		if (current == Status::Offline) {

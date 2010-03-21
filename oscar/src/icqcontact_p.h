@@ -22,10 +22,14 @@
 #include "capability.h"
 #include "oscarconnection.h"
 #include "feedbag.h"
+#include <QDateTime>
 
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
+
+typedef QPair<LocalizedString, QVariant> InfoField;
+typedef QHash<QString, InfoField> InfoFieldList;
 
 enum SsiBuddyTlvs
 {
@@ -62,6 +66,10 @@ struct IcqContactPrivate
 	QList<FeedbagItem> items;
 	QStringList tags;
 	ChatState state;
+	InfoFieldList fields;
+	QDateTime onlineSince;
+	QDateTime awaySince;
+	QDateTime regTime;
 	IcqContact *q_ptr;
 };
 

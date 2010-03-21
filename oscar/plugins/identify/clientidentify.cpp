@@ -161,9 +161,11 @@ void ClientIdentify::identify(IcqContact *contact)
 
 void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
 {
-	Q_UNUSED(status);
-	Q_UNUSED(tlvs);
-	if (status != Status::Offline && contact->status() == Status::Offline) {
+	if (status == Status::Offline) {
+		contact->removeToolTipField("Possible client");
+		return;
+	}
+	if (contact->status() == Status::Offline) {
 		if (tlvs.contains(0x000c)) { // direct connection info
 			DataUnit data(tlvs.value(0x000c));
 			data.skipData(4); // ip
@@ -177,8 +179,8 @@ void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TL
 			m_ext_status_info = data.read<quint32>();
 		}
 		identify(contact);
-		debug() << contact->name() << "uses"
-				<< contact->property("client").toMap().value("description").toString();
+		contact->insertToolTipField(QT_TRANSLATE_NOOP("ContactList", "Possible client"), m_client_id);
+		debug() << contact->name() << "uses" << m_client_id;
 	}
 }
 
