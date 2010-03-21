@@ -42,12 +42,6 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(name);
 	}
 
-	InfoFieldList Buddy::info(bool extra)
-	{
-		Q_UNUSED(extra);
-		return InfoFieldList();
-	}
-
 //	QIcon Contact::statusIcon() const
 //	{
 //		switch(status())

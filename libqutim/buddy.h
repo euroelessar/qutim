@@ -44,17 +44,6 @@ namespace qutim_sdk_0_3
 		*/
 		virtual void sendMessage(const Message &message) = 0;
 		virtual void setName(const QString &name);
-		/*!
-		  Returnes list of protocol-specific info pairs for tooltip, i.e.:
-		  \code
-InfoFieldList list;
-list.append(Field(QT_TRANSLATE_NOOP("Jabber", "Mood"),     tr("Angry")));
-list.append(Field(QT_TRANSLATE_NOOP("Jabber", "Activity"), tr("Playing")));
-list.append(Field(QT_TRANSLATE_NOOP("Protocol", "Idle"),   m_idle - QDateTime::currentDateTime().toTime_t())));
-return list;
-		  \endcode
-		 */
-		virtual InfoFieldList info(bool extra = false);
 	signals:
 		void avatarChanged(const QString &path);
 		void statusChanged(const qutim_sdk_0_3::Status &status);

@@ -15,7 +15,7 @@
 
 #include "tooltip.h"
 #include "objectgenerator.h"
-#include "contact.h"
+#include "buddy.h"
 #include "account.h"
 #include "protocol.h"
 #include <QPointer>
@@ -27,6 +27,38 @@
 
 namespace qutim_sdk_0_3
 {
+	typedef QPair<LocalizedString, QVariant> InfoField;
+	typedef QList<InfoField> InfoFieldList;
+
+	class ToolTipEventPrivate
+	{
+	public:
+		InfoFieldList list;
+		bool extra;
+	};
+
+	ToolTipEvent::ToolTipEvent(bool extra) :
+		QEvent(eventType()), d(new ToolTipEventPrivate)
+	{
+		d->extra = extra;
+	}
+
+	void ToolTipEvent::appendField(const LocalizedString &title, const QVariant &data)
+	{
+		d->list.append(InfoField(title, data));
+	}
+
+	bool ToolTipEvent::extra() const
+	{
+		return d->extra;
+	}
+
+	QEvent::Type ToolTipEvent::eventType()
+	{
+		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 103));
+		return type;
+	}
+
 	struct ToolTipManagerData
 	{
 		ToolTipManagerData() : isInited(false) {}
@@ -58,7 +90,7 @@ namespace qutim_sdk_0_3
 
 	void ToolTip::showText(const QPoint &pos, QObject *obj, QWidget *w)
 	{
-		if (Contact *c = qobject_cast<Contact *>(obj)) {
+		if (Buddy *c = qobject_cast<Buddy *>(obj)) {
 			QString ava = c->avatar();
 			if (ava.isEmpty())
 				ava = QLatin1String(":/icons/qutim_64.png");
@@ -68,7 +100,7 @@ namespace qutim_sdk_0_3
 						   % c->id()
 						   % QLatin1Literal("&gt;<br/>")
 						   % c->account()->id()
-						   % QLatin1Literal("<br/")
+						   % QLatin1Literal("<br/>")
 						   % html(c, true)
 						   % QLatin1Literal("</td><td><img width=\"64\" src=\"")
 						   % ava
@@ -102,9 +134,11 @@ namespace qutim_sdk_0_3
 		return QObject::eventFilter(obj, ev);
 	}
 
-	QString ToolTip::html(Contact *contact, bool extra)
+	QString ToolTip::html(QObject *object, bool extra)
 	{
-		InfoFieldList list = contact->info(extra);
+		ToolTipEvent event(extra);
+		qApp->sendEvent(object, &event);
+		const InfoFieldList &list = event.d->list;
 		QString text;
 		foreach (const InfoField &field, list) {
 			if (!text.isNull())
@@ -116,7 +150,7 @@ namespace qutim_sdk_0_3
 			} else {
 				text += QLatin1Literal("<b>")
 						% field.first.toString()
-						% QLatin1Literal("</b>:")
+						% QLatin1Literal("</b>: ")
 						% field.second.toString();
 			}
 		}

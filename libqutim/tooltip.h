@@ -17,11 +17,27 @@
 #define TOOLTIPMANAGER_H
 
 #include "libqutim_global.h"
+#include "localizedstring.h"
 #include <QPoint>
+#include <QEvent>
+#include <QVariant>
 
 namespace qutim_sdk_0_3
 {
-	class Contact;
+	class Buddy;
+	class ToolTipEventPrivate;
+
+	class LIBQUTIM_EXPORT ToolTipEvent : public QEvent
+	{
+	public:
+		ToolTipEvent(bool extra = false);
+		void appendField(const LocalizedString &title, const QVariant &data);
+		bool extra() const;
+		static QEvent::Type eventType();
+	protected:
+		friend class ToolTip;
+		QScopedPointer<ToolTipEventPrivate> d;
+	};
 
 	class LIBQUTIM_EXPORT ToolTip : public QObject
 	{
@@ -32,7 +48,7 @@ namespace qutim_sdk_0_3
 		inline void hideText() { showText(QPoint(), 0); }
 	protected:
 		ToolTip(QObject *parent = 0);
-		QString html(Contact *contact, bool extra);
+		QString html(QObject *object, bool extra);
 		bool eventFilter(QObject *, QEvent *);
 	};
 }
