@@ -44,12 +44,14 @@ public:
 	virtual void setTags(const QSet<QString> &tags);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
-	virtual InfoFieldList info(bool extra = false);
+
 protected:
 	QList<MenuController::Action> dynamicActions() const;
 signals:
 
 public slots:
+private:
+	virtual bool event(QEvent *);
 private:
 	Status m_status;
 	QSet<QString> m_tags;

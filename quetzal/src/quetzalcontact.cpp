@@ -18,6 +18,7 @@
 #include "quetzalactiongenerator.h"
 #include <qutim/debug.h>
 #include <qutim/message.h>
+#include <qutim/tooltip.h>
 
 QVariant quetzal_value2variant(const PurpleValue *value)
 {
@@ -304,25 +305,28 @@ QList<MenuController::Action> QuetzalContact::dynamicActions() const
 	return actions;
 }
 
-InfoFieldList QuetzalContact::info(bool extra)
+bool QuetzalContact::event(QEvent *ev)
 {
-	InfoFieldList list;
-	if (!m_buddy->account->gc)
-		return list;
+	if (ev->type() == ToolTipEvent::eventType()) {
+		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+		if (!m_buddy->account->gc)
+			return false;
 
-	PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
-	if (prpl->tooltip_text) {
-		PurpleNotifyUserInfo *user_info = purple_notify_user_info_new();
-		prpl->tooltip_text(PURPLE_BUDDY(m_buddy), user_info, extra);
-		GList *it = purple_notify_user_info_get_entries(user_info);
-		for (; it; it = it->next) {
-			PurpleNotifyUserInfoEntry *entry =
-					reinterpret_cast<PurpleNotifyUserInfoEntry *>(it->data);
-			LocalizedString label = purple_notify_user_info_entry_get_label(entry);
-			QString data = purple_notify_user_info_entry_get_value(entry);
-			list.append(InfoField(label, data));
+		PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
+		if (prpl->tooltip_text) {
+			PurpleNotifyUserInfo *user_info = purple_notify_user_info_new();
+			prpl->tooltip_text(PURPLE_BUDDY(m_buddy), user_info, event->extra());
+			GList *it = purple_notify_user_info_get_entries(user_info);
+			for (; it; it = it->next) {
+				PurpleNotifyUserInfoEntry *entry =
+						reinterpret_cast<PurpleNotifyUserInfoEntry *>(it->data);
+				LocalizedString label = purple_notify_user_info_entry_get_label(entry);
+				QString data = purple_notify_user_info_entry_get_value(entry);
+				event->appendField(label, data);
+			}
+			purple_notify_user_info_destroy(user_info);
 		}
-		purple_notify_user_info_destroy(user_info);
+		return true;
 	}
-	return list;
+	return Contact::event(ev);
 }
