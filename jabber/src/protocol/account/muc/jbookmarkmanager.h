@@ -31,7 +31,6 @@ namespace Jabber {
 		public:
 			JBookmarkManager(JAccount *account);
 			~JBookmarkManager();
-			void handleBookmarks(const BookmarkList &bList, const ConferenceList &cList);
 			QList<JBookmark> bookmarks();
 			QList<JBookmark> recent();
 			void saveBookmark(int index, const QString &name, const QString &conference,
@@ -40,10 +39,12 @@ namespace Jabber {
 			void removeBookmark(int index);
 			void sync();
 		signals:
+			void serverBookmarksChanged();
 			void bookmarksChanged();
 		protected:
-			void readFromCache(const QString &type, const QList<JBookmark> &list);
-			void writeToCache(const QString &type, const QList<JBookmark> &list, bool isServer = false);
+			void handleBookmarks(const BookmarkList &bList, const ConferenceList &cList);
+			QList<JBookmark> readFromCache(const QString &type);
+			void writeToCache(const QString &type, const QList<JBookmark> &list);
 			void saveToServer();
 		private:
 			QScopedPointer<JBookmarkManagerPrivate> p;

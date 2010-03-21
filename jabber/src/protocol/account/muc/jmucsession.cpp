@@ -24,28 +24,34 @@
 #include <qutim/messagesession.h>
 #include "jabber_global.h"
 #include <QStringBuilder>
+#include <QMessageBox>
+#include "jmucmanager.h"
+#include <qutim/debug.h>
 
 using namespace gloox;
 using namespace qutim_sdk_0_3;
 
 namespace Jabber
 {
-	JMUCSession::JMUCSession(const JID &room, JAccount *account) : ChatUnit(account)
+	JMUCSession::JMUCSession(const JID &room, const QString &password, JAccount *account) : Conference(account)
 	{
 		m_roomJid = room.bareJID();
+		m_nick = QString::fromStdString(room.resource());
 		m_room = new MUCRoom(account->client(), room, this, this);
+		if (!password.isEmpty())
+			m_room->setPassword(password.toStdString());
 		m_account = account;
 		m_isJoined = false;
+		m_isConfiguring = false;
 	}
 
-	JMUCSession::JMUCSession(JMessageSession *session) : ChatUnit(session->account())
+	JMUCSession::JMUCSession(JMessageSession *session) : Conference(session->account())
 	{
 		Q_ASSERT(!"Not yet implemented");
 //		m_roomJid = JID();
 		m_account = static_cast<JAccount *>(session->account());
 		m_room = new UniqueMUCRoom(m_account->client(), EmptyString, this);
-		Presence &pres = m_account->client()->presence();
-		m_room->join(pres.subtype(), pres.status(), pres.priority());
+		join();
 	}
 
 	JMUCSession::~JMUCSession()
@@ -53,10 +59,20 @@ namespace Jabber
 		m_room->leave();
 	}
 
+	qutim_sdk_0_3::Buddy *JMUCSession::me() const
+	{
+		return m_users.value(m_nick);
+	}
+
 	void JMUCSession::join()
 	{
 		Presence &pres = m_account->client()->presence();
 		m_room->join(pres.subtype(), pres.status(), pres.priority());
+	}
+
+	void JMUCSession::leave()
+	{
+		m_room->leave();
 	}
 
 	QString JMUCSession::id() const
@@ -152,6 +168,44 @@ namespace Jabber
 	void JMUCSession::handleMUCError(MUCRoom *room, StanzaError error)
 	{
 		Q_ASSERT(room == m_room);
+		bool nnr = false;
+		QString text;
+		switch(error) {
+		case StanzaErrorNotAuthorized:
+			text=tr("Not authorized: Password required.");
+			break;
+		case StanzaErrorForbidden:
+			text=tr("Forbidden: Access denied, user is banned.");
+			break;
+		case StanzaErrorItemNotFound:
+			text=tr("Item not found: The room does not exist.");
+			break;
+		case StanzaErrorNotAllowed:
+			text=tr("Not allowed: Room creation is restricted.");
+			break;
+		case StanzaErrorNotAcceptable :
+			text=tr("Not acceptable: Room nicks are locked down.");
+			break;
+		case StanzaErrorRegistrationRequired:
+			text=tr("Registration required: User is not on the member list.");
+			break;
+		case StanzaErrorConflict:
+			text=tr("Conflict: Desired room nickname is in use or registered by another user.");
+			break;
+		case StanzaErrorServiceUnavailable:
+			text=tr("Service unavailable: Maximum number of users has been reached.");
+			break;
+		default:
+			nnr = true;
+			text=tr("Unknown error: No description.");
+			break;
+		}
+		if (nnr) {
+
+		} else {
+			QMessageBox::warning(0, tr("Join groupchat on")+" "+m_account->id(), text);
+			m_account->conferenceManager()->leave(QString::fromStdString(m_roomJid.full()));
+		}
 	}
 
 	void JMUCSession::handleMUCInfo(MUCRoom *room, int features, const std::string &name, const DataForm *infoForm)
@@ -182,5 +236,32 @@ namespace Jabber
 	void JMUCSession::handleMUCRequest(MUCRoom *room, const DataForm &form)
 	{
 		Q_ASSERT(room == m_room);
+	}
+
+	void JMUCSession::setBookmarkIndex(int index)
+	{
+		m_bookmarkIndex = index;
+	}
+
+	int JMUCSession::bookmarkIndex()
+	{
+		return m_bookmarkIndex;
+	}
+
+	void JMUCSession::showConfigDialog()
+	{
+		m_isConfiguring = true;
+		//JConferenceConfig *dialog = new JConferenceConfig(m_room);
+		//connect(dialog, SIGNAL(destroyed()), SLOT(closeConfigDialog()));
+	}
+
+	void JMUCSession::closeConfigDialog()
+	{
+		m_isConfiguring = false;
+	}
+
+	bool JMUCSession::isConfiguring()
+	{
+		return m_isConfiguring && (m_room->affiliation() != AffiliationOwner);
 	}
 }

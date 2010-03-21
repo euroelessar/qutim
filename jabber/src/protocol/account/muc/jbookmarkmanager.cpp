@@ -36,8 +36,9 @@ namespace Jabber
 		p->isLoaded = false;
 		p->storage = new BookmarkStorage(account->client());
 		p->storage->registerBookmarkHandler(this);
-		readFromCache("bookmarks", p->bookmarks);
-		readFromCache("recent", p->recent);
+		p->bookmarks = readFromCache("bookmarks");
+		p->recent = readFromCache("recent");
+		emit bookmarksChanged();
 	}
 
 	JBookmarkManager::~JBookmarkManager()
@@ -48,11 +49,15 @@ namespace Jabber
 	void JBookmarkManager::handleBookmarks(const BookmarkList &bList, const ConferenceList &cList)
 	{
 		QList<ConferenceListItem> confList = QList<ConferenceListItem>::fromStdList(cList);
+		QList<JBookmark> tmpList(p->bookmarks);
 		p->bookmarks.clear();
 		foreach (ConferenceListItem conf, confList)
 			p->bookmarks << JBookmark(QString::fromStdString(conf.name), QString::fromStdString(conf.jid),
 					QString::fromStdString(conf.nick), QString::fromStdString(conf.password), conf.autojoin);
-		writeToCache("bookmarks", p->bookmarks, true);
+		foreach (JBookmark bookmark, tmpList)
+			if (p->bookmarks.contains(bookmark))
+				p->bookmarks[p->bookmarks.indexOf(bookmark)].password = bookmark.password;
+		writeToCache("bookmarks", p->bookmarks);
 		QList<BookmarkListItem> urlList = QList<BookmarkListItem>::fromStdList(bList);
 		for (int num = 0; num < urlList.count(); num++) {
 			ConfigGroup configBookmarks = p->account->config().group("urlmarks").at(num);
@@ -64,8 +69,8 @@ namespace Jabber
 			foreach (JBookmark bookmark, p->bookmarks)
 				if (bookmark.autojoin)
 					p->account->conferenceManager()->join(bookmark.conference, bookmark.nick, bookmark.password);
-		emit bookmarksChanged();
 		p->isLoaded = true;
+		emit serverBookmarksChanged();
 	}
 
 	QList<JBookmark> JBookmarkManager::bookmarks()
@@ -82,8 +87,6 @@ namespace Jabber
 			const QString &nick, const QString &password, bool autojoin)
 	{
 		JBookmark bookmark(name, conference, nick, password, autojoin);
-		debug() << "save index" << index;
-		debug() << "count" << p->bookmarks.count();
 		if (index == p->bookmarks.count())
 			p->bookmarks << bookmark;
 		else
@@ -123,22 +126,28 @@ namespace Jabber
 		p->storage->requestBookmarks();
 	}
 
-	void JBookmarkManager::readFromCache(const QString &type, const QList<JBookmark> &list)
+	QList<JBookmark> JBookmarkManager::readFromCache(const QString &type)
 	{
-		ConfigGroup configBookmarks = p->account->config(type);
+		QList<JBookmark> list;
+		debug() << type << "reading from cache";
+		const ConfigGroup configBookmarks = p->account->config().group(type);
 		int count = configBookmarks.arraySize();
+		debug() << "count is" << count;
 		for (int num = 0; num < count; num++) {
-			ConfigGroup configBookmark = configBookmarks.at(num);
+			const ConfigGroup configBookmark = configBookmarks.at(num);
+			debug() << configBookmark.groupList();
 			JBookmark bookmark(configBookmark.value("name", QString()),
 					configBookmark.value("conference", QString()),
 					configBookmark.value("nick", QString()),
 					configBookmark.value("password", QString(), Config::Crypted),
 					configBookmark.value("autojoin", false));
-			p->bookmarks << bookmark;
+			list << bookmark;
+			debug() << bookmark.name << bookmark.conference << bookmark.nick << bookmark.password << bookmark.autojoin;
 		}
+		return list;
 	}
 
-	void JBookmarkManager::writeToCache(const QString &type, const QList<JBookmark> &list, bool isServer)
+	void JBookmarkManager::writeToCache(const QString &type, const QList<JBookmark> &list)
 	{
 		p->account->config().removeGroup(type);
 		for (int num = 0; num < list.count(); num++) {
@@ -146,11 +155,12 @@ namespace Jabber
 			configBookmarks.setValue("name", list[num].name);
 			configBookmarks.setValue("conference", list[num].conference);
 			configBookmarks.setValue("nick", list[num].nick);
-			if (!isServer)
-				configBookmarks.setValue("password", list[num].password, Config::Crypted);
+			configBookmarks.setValue("password", list[num].password, Config::Crypted);
 			configBookmarks.setValue("autojoin", list[num].autojoin);
 			configBookmarks.sync();
 		}
+		if (type == "bookmarks")
+			emit bookmarksChanged();
 	}
 
 	void JBookmarkManager::saveToServer() {

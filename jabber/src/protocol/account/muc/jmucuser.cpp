@@ -8,7 +8,7 @@ namespace Jabber
 {
 	class JMUCUserPrivate : public JContactResourcePrivate
 	{
-	public:
+		public:
 	};
 
 	JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
@@ -25,6 +25,11 @@ namespace Jabber
 
 	QString JMUCUser::title() const
 	{
-		return d_func()->name;
+		return Buddy::title();
+	}
+
+	QString JMUCUser::name() const
+	{
+		return d_ptr->name;
 	}
 }

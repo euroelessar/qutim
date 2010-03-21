@@ -67,7 +67,7 @@ namespace Jabber
 			addAccount(new JAccount(QString::fromStdString(jid.bare())), true);
 		}
 
-		MenuController::addAction<JContact>(
+		/*MenuController::addAction<JContact>(
 				new JResourceActionGenerator(QIcon(),
 											 QT_TRANSLATE_NOOP("Test", "Test action"),
 											 this, SLOT(onStatusActionPressed())));
@@ -114,7 +114,7 @@ namespace Jabber
 			form->addField(field);
 		}
 		JDataForm *jForm = new JDataForm(form, false);
-		jForm->show();
+		jForm->show();*/
 	}
 
 	void JProtocol::addAccount(JAccount *account, bool isEmit)

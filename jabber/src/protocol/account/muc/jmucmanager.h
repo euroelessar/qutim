@@ -11,6 +11,7 @@ namespace Jabber
 	class JAccount;
 	class JBookmarkManager;
 	struct JMUCManagerPrivate;
+	class JMUCSession;
 
 	class JMUCManager : public QObject
 	{
@@ -20,10 +21,22 @@ namespace Jabber
 			~JMUCManager();
 			ChatUnit *muc(const QString &jid);
 			JBookmarkManager *bookmarkManager();
-			void openJoinWindow(const QString &conference, const QString &nick, const QString &password);
+			void openJoinWindow(const QString &conference, const QString &nick, const QString &password,
+					const QString &name = "");
 			void openJoinWindow();
 			void syncBookmarks();
-			void join(const QString &conference, const QString &nick, const QString &password);
+			void join(const QString &conference, const QString &nick = QString(), const QString &password = QString());
+			void leave(const QString &room);
+			bool event(QEvent *event);
+		private slots:
+			void bookmarksChanged();
+			void join();
+			void leave();
+			void saveToBookmarks();
+			void removeFromBookmarks();
+			void copyJIDToClipboard();
+		protected:
+			void createActions(JMUCSession *room);
 		private:
 			QScopedPointer<JMUCManagerPrivate> p;
 	};

@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>264</width>
-    <height>398</height>
+    <height>378</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Join to groupchat</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="margin">
@@ -339,6 +339,26 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>buttonEnter</tabstop>
+  <tabstop>buttonBookmark</tabstop>
+  <tabstop>comboEnterBookmarks</tabstop>
+  <tabstop>lineEnterConference</tabstop>
+  <tabstop>lineEnterNick</tabstop>
+  <tabstop>lineEnterPassword</tabstop>
+  <tabstop>checkSaveBookmark</tabstop>
+  <tabstop>lineEnterConferenceName</tabstop>
+  <tabstop>buttonJoin</tabstop>
+  <tabstop>buttonSearch</tabstop>
+  <tabstop>comboEditBookmarks</tabstop>
+  <tabstop>lineEditConferenceName</tabstop>
+  <tabstop>lineEditConference</tabstop>
+  <tabstop>lineEditNick</tabstop>
+  <tabstop>lineEditPassword</tabstop>
+  <tabstop>checkEditAutojoin</tabstop>
+  <tabstop>buttonSave</tabstop>
+  <tabstop>buttonDelete</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

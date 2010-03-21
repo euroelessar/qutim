@@ -17,6 +17,7 @@ namespace Jabber
 		JMUCUser(JMUCSession *muc, const QString &name);
 		~JMUCUser();
 		QString title() const;
+		QString name() const;
 
 	signals:
 

@@ -20,10 +20,9 @@ namespace Jabber
 
 	JMUCJoin::JMUCJoin(JAccount *account, QWidget *parent) : QDialog(parent), d_ptr(new JMUCJoinPrivate)
 	{
-		setWindowTitle(tr("Join groupchat"));
 		d_ptr->account = account;
 		d_ptr->conferenceManager = d_ptr->account->conferenceManager();
-		connect(d_ptr->conferenceManager->bookmarkManager(), SIGNAL(bookmarksChanged()), SLOT(fillBookmarks()));
+		connect(d_ptr->conferenceManager->bookmarkManager(), SIGNAL(serverBookmarksChanged()), SLOT(fillBookmarks()));
 		setInterface();
 		fillBookmarks();
 	}
@@ -33,7 +32,8 @@ namespace Jabber
 		delete d_ptr->ui;
 	}
 
-	void JMUCJoin::setConference(const QString &conference, const QString &nick, const QString &password, const QString &name)
+	void JMUCJoin::setConference(const QString &conference, const QString &nick, const QString &password,
+			const QString &name)
 	{
 		Q_D(JMUCJoin);
 		if (name.isEmpty()) {
@@ -80,7 +80,8 @@ namespace Jabber
 		d->ui->comboEditBookmarks->addItem("");
 		d->ui->comboEnterBookmarks->addItem("");
 		foreach (JBookmark bookmark, d->conferenceManager->bookmarkManager()->bookmarks()) {
-			d->ui->comboEnterBookmarks->addItem(bookmark.name%"\n"%bookmark.conference%"\n"%bookmark.nick);
+			d->ui->comboEnterBookmarks->addItem(bookmark.name
+					%"\n<font color=#808080>"%bookmark.conference%"\n"%bookmark.nick%"</font>");
 			d->ui->comboEnterBookmarks->setItemData(d->ui->comboEnterBookmarks->count() - 1,
 					qVariantFromValue(bookmark), Qt::UserRole+1);
 			d->ui->comboEditBookmarks->addItem(bookmark.name);
@@ -92,7 +93,7 @@ namespace Jabber
 		foreach (JBookmark bookmark, d->conferenceManager->bookmarkManager()->recent()) {
 			if (d->conferenceManager->bookmarkManager()->bookmarks().contains(bookmark))
 				continue;
-			d->ui->comboEnterBookmarks->addItem(bookmark.conference%"\n"%bookmark.nick);
+			d->ui->comboEnterBookmarks->addItem(bookmark.conference%"\n<font color=#808080>"%bookmark.nick%"</font>");
 			d->ui->comboEnterBookmarks->setItemData(d->ui->comboEnterBookmarks->count() - 1,
 					qVariantFromValue(bookmark), Qt::UserRole+1);
 			isRecent = true;

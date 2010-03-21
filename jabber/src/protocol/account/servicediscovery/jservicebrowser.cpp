@@ -164,7 +164,7 @@ namespace Jabber
 				item->setHidden(true);
 			}
 		}
-		if (!--p->searchCount);
+		if (!--p->searchCount)
 			p->ui->labelLoader->setVisible(false);
 	}
 
@@ -381,7 +381,7 @@ namespace Jabber
 		QList<QTreeWidgetItem*> list;
 		int count = item->childCount();
 		for (int pos = 0; pos < count; pos++) {
-			if (text == "" || item->child(pos)->text(0).contains(text, Qt::CaseInsensitive)) {
+			if (text.isEmpty() || item->child(pos)->text(0).contains(text, Qt::CaseInsensitive)) {
 				list << item->child(pos);
 				list << findItems(item->child(pos), "");
 			} else if (item->child(pos)->childCount()) {

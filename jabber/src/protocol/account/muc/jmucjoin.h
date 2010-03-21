@@ -15,7 +15,7 @@ namespace Jabber
 			JMUCJoin(JAccount *account, QWidget *parent = 0);
 			~JMUCJoin();
 			void setConference(const QString &conference, const QString &nick, const QString &password,
-					const QString &name = "");
+					const QString &name = QString());
 		protected:
 			void setInterface();
 			void setEditConference(const QString &name, const QString &conference,
