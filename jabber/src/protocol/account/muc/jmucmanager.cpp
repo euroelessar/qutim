@@ -216,7 +216,7 @@ namespace Jabber
 					action->setVisible(true);
 				break;
 			case RoomConfigAction:
-				action->setVisible(!room->isConfiguring());
+				action->setVisible(room->enabledConfiguring());
 				break;
 			case RoomParticipantsAction:
 				action->setVisible(false);

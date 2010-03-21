@@ -47,7 +47,7 @@ namespace Jabber
 			void sendMessage(const qutim_sdk_0_3::Message &message);
 			void setBookmarkIndex(int index);
 			int bookmarkIndex();
-			bool isConfiguring();
+			bool enabledConfiguring();
 			qutim_sdk_0_3::Buddy *me() const;
 		protected:
 			// MUCRoomHandler

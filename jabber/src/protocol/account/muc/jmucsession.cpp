@@ -26,6 +26,7 @@
 #include <QStringBuilder>
 #include <QMessageBox>
 #include "jmucmanager.h"
+#include "jconferenceconfig.h"
 #include <qutim/debug.h>
 
 using namespace gloox;
@@ -251,8 +252,9 @@ namespace Jabber
 	void JMUCSession::showConfigDialog()
 	{
 		m_isConfiguring = true;
-		//JConferenceConfig *dialog = new JConferenceConfig(m_room);
-		//connect(dialog, SIGNAL(destroyed()), SLOT(closeConfigDialog()));
+		JConferenceConfig *dialog = new JConferenceConfig(m_room);
+		connect(dialog, SIGNAL(destroyDialog()), SLOT(closeConfigDialog()));
+		dialog->show();
 	}
 
 	void JMUCSession::closeConfigDialog()
@@ -260,8 +262,8 @@ namespace Jabber
 		m_isConfiguring = false;
 	}
 
-	bool JMUCSession::isConfiguring()
+	bool JMUCSession::enabledConfiguring()
 	{
-		return m_isConfiguring && (m_room->affiliation() != AffiliationOwner);
+		return !m_isConfiguring;
 	}
 }
