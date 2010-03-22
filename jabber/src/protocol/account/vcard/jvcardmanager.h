@@ -4,12 +4,16 @@
 #include <QObject>
 #include <gloox/vcardhandler.h>
 
+namespace gloox
+{
+	class VCardManager;
+}
+
 namespace Jabber
 {
 	using namespace gloox;
 
 	class JAccount;
-	class VCardManager;
 	struct JVCardManagerPrivate;
 
 	class JVCardManager : public QObject, public VCardHandler

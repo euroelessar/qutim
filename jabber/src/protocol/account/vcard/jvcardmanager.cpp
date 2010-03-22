@@ -16,14 +16,15 @@ namespace Jabber
 		QStringList contacts;
 	};
 
-	JVCardManager(JAccount *account, QObject *parent) : QObject(parent)
+	JVCardManager::JVCardManager(JAccount *account, QObject *parent) :
+			QObject(parent)
 	{
 		Q_D(JVCardManager);
 		d->account = account;
 		d->manager = new VCardManager(d->account->client());
 	}
 
-	~JVCardManager()
+	JVCardManager::~JVCardManager()
 	{
 
 	}
@@ -38,7 +39,7 @@ namespace Jabber
 		Q_D(JVCardManager);
 		if (!d->contacts.contains(contact)) {
 			d->contacts << contact;
-			d->manager->fetchVCard(contact.toStdString());
+			d->manager->fetchVCard(contact.toStdString(), this);
 		}
 	}
 
@@ -54,7 +55,7 @@ namespace Jabber
 		QString id = QString::fromStdString(jid.full());
 		QString avatar;
 		const VCard *vcard = (!fetchedVCard) ? new VCard() : fetchedVCard;
-		VCard::Photo &photo = vcard->photo();
+		const VCard::Photo &photo = vcard->photo();
 		if(!photo.binval.empty()) {
 			QByteArray data(photo.binval.c_str(), photo.binval.length());
 			SHA sha;
@@ -86,7 +87,7 @@ namespace Jabber
 		d->contacts.removeOne(id);
 	}
 
-	void JVCardManager::handleVCardResult(VCardContext context, const JID &jid, StanzaError se);
+	void JVCardManager::handleVCardResult(VCardContext context, const JID &jid, StanzaError se)
 	{
 		if (context == StoreVCard && se == StanzaErrorUndefined);
 	}
