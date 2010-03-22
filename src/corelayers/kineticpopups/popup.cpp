@@ -27,10 +27,14 @@
 #include <libqutim/chatunit.h>
 
 namespace KineticPopups
-{
+{	
 
 	Popup::Popup ( const QString& id )
-			:	m_notification_widget(0), m_id ( id ), m_machine(0)
+			:	m_notification_widget(0),
+			m_id ( id ),
+			m_machine(0),
+			m_moving_animation(0),
+			m_opacity_animation(0)
 	{
 
 	}
@@ -82,12 +86,11 @@ namespace KineticPopups
 	
 		
 	void Popup::onPopupWidgetSizeChanged ( const QSize& size )
-	{		
-		m_show_geometry.setSize(size);
-		updateGeometry(m_show_geometry);
+	{
+		QRect geom = m_show_geometry;
+		geom.setSize(size);
+		update(geom);
 		Manager::self()->updateGeometry();
-		m_show_state->assignProperty(m_notification_widget,"geometry",m_show_geometry);
-		m_update_state->assignProperty(m_notification_widget,"geometry",m_show_geometry);
 	}
 
 
@@ -114,52 +117,39 @@ namespace KineticPopups
 		if ( geom.isEmpty() )
 			deleteLater();
 
-		m_active_state =  new QState(m_machine);
-		m_show_state = new QState(m_active_state);
-		m_hide_state = new QState(m_machine);
-		m_update_state =  new QState(m_active_state);
-
-		QFinalState *final_state = new QFinalState(m_machine);
+		m_show_state = new QState(m_machine);
+		m_hide_state = new QFinalState(m_machine);
 
 		int x = manager->popupSettings.margin + geom.width();
 		int y = manager->popupSettings.margin + geom.height();
 		geom.moveTop(geom.y() - y);
 
-		m_show_state->assignProperty(m_notification_widget,"geometry",geom);
 		m_show_geometry = geom;
 		if (manager->animation & Slide)
 			geom.moveLeft(geom.left() + x);
-		m_hide_state->assignProperty(m_notification_widget,"geometry",geom);
 		m_notification_widget->setGeometry(geom);
 
-		m_active_state->addTransition(m_notification_widget,SIGNAL(activated()),m_hide_state);
-		m_show_state->addTransition(this,SIGNAL(updated()),m_update_state);
-		m_update_state->addTransition(m_update_state,SIGNAL(propertiesAssigned()),m_show_state);
-		m_hide_state->addTransition(m_hide_state,SIGNAL(propertiesAssigned()),final_state);
-
-		m_machine->setInitialState (m_active_state);
-		m_active_state->setInitialState(m_show_state);
+		m_machine->setInitialState (m_show_state);
 
 		//TODO FIXME
 		if (manager->animation) {
-			QPropertyAnimation *moving = new QPropertyAnimation ( m_notification_widget,"geometry",this );
-			m_machine->addDefaultAnimation (moving);
-			moving->setDuration ( manager->animationDuration);
-			moving->setEasingCurve (manager->easingCurve);			
-			
-			if (manager->animation & Opacity) {
-				QPropertyAnimation *opacity = new QPropertyAnimation(m_notification_widget,"windowOpacity",this);
-				m_machine->addDefaultAnimation(opacity);
-				opacity->setDuration (manager->animationDuration);
-				opacity->setEasingCurve (manager->easingCurve);
-				m_notification_widget->setProperty("windowOpacity",0);
-				m_show_state->assignProperty(m_notification_widget,"windowOpacity",1);
-				m_hide_state->assignProperty(m_notification_widget,"windowOpacity",0);
-			}			
+			m_moving_animation = new QPropertyAnimation ( m_notification_widget,"geometry",this );
+			m_moving_animation->setDuration ( manager->animationDuration);
+			m_moving_animation->setEasingCurve (manager->easingCurve);
+		}
+		
+		if (manager->animation & Opacity) {
+			m_opacity_animation = new QPropertyAnimation(m_notification_widget,"windowOpacity",this);
+			m_opacity_animation->setDuration (manager->animationDuration);
+			m_opacity_animation->setEasingCurve (manager->easingCurve);
+			m_opacity_animation->setStartValue(0);
+			m_opacity_animation->setEndValue(1);
+			m_opacity_animation->start();
 		}
 
 		connect(m_machine,SIGNAL(finished()),SLOT(deleteLater()));
 		connect(m_notification_widget,SIGNAL(sizeChanged(QSize)),SLOT(onPopupWidgetSizeChanged(QSize)));
+		connect(m_notification_widget,SIGNAL(activated()),SLOT(onPopupActivated()));
 		m_machine->start();
 		m_notification_widget->show();
 	}
@@ -168,9 +158,12 @@ namespace KineticPopups
 	{
 		if (Manager::self()->animation & Slide)
 			geom.moveRight(geom.right() + m_notification_widget->width() + Manager::self()->popupSettings.margin);
-		m_show_state->assignProperty(m_notification_widget,"geometry",geom);
-		m_update_state->assignProperty(m_notification_widget,"geometry",geom);
-		m_hide_state->assignProperty(m_notification_widget,"geometry",geom);
+		if (m_moving_animation) {
+			m_moving_animation->setStartValue(m_show_geometry);
+			m_moving_animation->stop();
+			m_moving_animation->setEndValue(geom);
+			m_moving_animation->start();
+		}
 		updateGeometry(geom);
 	}
 
@@ -184,5 +177,21 @@ namespace KineticPopups
 		m_show_geometry = newGeometry;
 		emit updated();
 	}
+	
+	void Popup::onPopupActivated()
+	{
+		disconnect(m_notification_widget,SIGNAL(activated()),this,SLOT(onPopupActivated()));
+		
+		if (m_opacity_animation) {
+			m_show_state->addTransition(m_opacity_animation,SIGNAL(finished()),m_hide_state);
+			m_opacity_animation->stop(); 
+			m_opacity_animation->setStartValue(1);
+			m_opacity_animation->setEndValue(0);
+			m_opacity_animation->start();
+		}
+		else
+			m_show_state->addTransition(m_hide_state);
+	}
+
 }
 

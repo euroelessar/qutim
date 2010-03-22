@@ -233,7 +233,7 @@ namespace AdiumChat
 	void ChatSessionImpl::statusChanged(Contact* contact, bool silent)
 	{
 		Message msg;		
-		Notifications::Type type;
+		Notifications::Type type = Notifications::Online;
 		QString title = contact->status().name().toString();
 		
 		switch (contact->status().type()) {

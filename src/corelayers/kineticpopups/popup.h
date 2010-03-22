@@ -21,6 +21,8 @@
 #include <QRect>
 #include <QVariant>
 
+class QFinalState;
+class QPropertyAnimation;
 class QState;
 class QStateMachine;
 namespace KineticPopups
@@ -45,6 +47,7 @@ namespace KineticPopups
 		void updated();
 	private slots:
 		void onPopupWidgetSizeChanged(const QSize &size);
+		void onPopupActivated();
 	private:
 		void updateGeometry(const QRect &newGeometry);
 		inline void updateMessage();		
@@ -55,9 +58,9 @@ namespace KineticPopups
 		QRect m_show_geometry; //Don't use direct, change by UpdateGeometry!
 		QStateMachine *m_machine;
 		QState *m_show_state;
-		QState *m_hide_state;
-		QState *m_update_state;
-		QState *m_active_state;
+		QFinalState *m_hide_state;
+		QPropertyAnimation *m_moving_animation;
+		QPropertyAnimation *m_opacity_animation;
 		QObject *m_sender;
 		QVariant m_data;
 	};
