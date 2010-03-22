@@ -8,7 +8,6 @@
 #include <qutim/iconloader.h>
 #include <qutim/configbase.h>
 #include <qutim/protocol.h>
-#include <qutim/debug.h>
 #include "ui_jservicebrowser.h"
 
 namespace Jabber
@@ -20,7 +19,6 @@ namespace Jabber
 
 	void JServiceBrowserModule::init(Account *account, const JabberParams &)
 	{
-		debug() << Q_FUNC_INFO;
 		m_account = qobject_cast<JAccount *>(account);
 		account->addAction(new ActionGenerator(Icon("services"),
 				QT_TRANSLATE_NOOP("Jabber", "Service discovery"),

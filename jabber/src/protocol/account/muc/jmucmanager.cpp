@@ -8,7 +8,6 @@
 #include <qutim/messagesession.h>
 #include <qutim/contactlist.h>
 #include <qutim/icon.h>
-#include <qutim/debug.h>
 
 namespace Jabber
 {

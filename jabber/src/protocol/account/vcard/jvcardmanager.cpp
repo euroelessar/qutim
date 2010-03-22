@@ -16,12 +16,12 @@ namespace Jabber
 		QStringList contacts;
 	};
 
-	JVCardManager::JVCardManager(JAccount *account, QObject *parent) :
-			QObject(parent)
+	JVCardManager::JVCardManager(JAccount *account, Client *client, QObject *parent)
+			: QObject(parent), d_ptr(new JVCardManagerPrivate)
 	{
 		Q_D(JVCardManager);
 		d->account = account;
-		d->manager = new VCardManager(d->account->client());
+		d->manager = new VCardManager(client);
 	}
 
 	JVCardManager::~JVCardManager()

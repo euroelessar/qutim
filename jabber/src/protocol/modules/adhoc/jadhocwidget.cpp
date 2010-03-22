@@ -2,7 +2,6 @@
 #include "ui_jadhocwidget.h"
 #include <QPushButton>
 #include <QLabel>
-#include <qutim/debug.h>
 
 using namespace gloox;
 
@@ -70,7 +69,6 @@ namespace Jabber
 			QLabel *label = new QLabel(QString::fromStdString(note->content()), this);
 			if (!icon.isNull())
 				label->setPixmap(icon.pixmap(16));
-			qutim_sdk_0_3::debug() << label->text();
 			m_ui->layout->addWidget(label);
 		}
 

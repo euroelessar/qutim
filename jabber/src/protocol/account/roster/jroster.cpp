@@ -1,6 +1,10 @@
 #include "jroster.h"
 #include "jcontact_p.h"
-#include <qutim/debug.h>
+#include "../vcard/jvcardmanager.h"
+#include <QFile>
+#include <gloox/vcardupdate.h>
+#include <QFile>
+#include <QStringBuilder>
 
 namespace Jabber
 {
@@ -9,6 +13,7 @@ namespace Jabber
 		JAccount *account;
 		RosterManager *rosterManager;
 		QHash<QString, JContact*> contacts;
+		bool avatarsAutoLoad;
 	};
 
 	JRoster::JRoster(JAccount *account) : p(new JRosterPrivate)
@@ -142,46 +147,50 @@ namespace Jabber
 				//foreach (std::string key, resources.keys())
 				/*std::map<std::string, Resource *>::const_iterator resource = item->resources().begin();
 				for(; resource != item->resources().end(); ++resource) {
-					debug() << QString::fromStdString(resource->first);
 					contact->addResource(QString::fromStdString(resource->first));
 				}*/
 				c_d->inList = true;
-//				debug() << contact->id() << contact->name() << contact->tags();
 				ContactList::instance()->addContact(contact);
 				p->contacts.insert(jid, contact);
-				//debug() << contact->name() << contact->tags();
 			}
 		}
-//		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~roster";
 	}
 
 	void JRoster::handleRosterPresence(const RosterItem &item,
 			const std::string &resource, Presence::PresenceType presence,
 			const std::string &msg)
 	{
-		//debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~roster presence";
 	}
 
 	void JRoster::handlePresence(const Presence &presence)
 	{
-//		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~presence";
 		QString jid(QString::fromStdString(presence.from().bare()));
 		QString resource(QString::fromStdString(presence.from().resource()));
 		if (presence.from().bare() == p->account->client()->jid().bare())
 			 return;
-//		debug() << QString::fromStdString(presence.from().full()) << jid << resource;
 		if (!p->contacts.contains(jid)) {
 			JContact *contact = new JContact(jid, p->account);
 			JContactPrivate *c_d = contact->d_func();
 			c_d->name = QString::fromStdString(presence.from().username());
 			c_d->inList = false;
-//			debug() << contact->id() << contact->name() << contact->tags();
 			ContactList::instance()->addContact(contact);
 			p->contacts.insert(jid, contact);
 		}
 		if (!resource.isEmpty())
-			p->contacts.value(jid)->setStatus(resource,
-					presence.presence(), presence.priority());
+			p->contacts.value(jid)->setStatus(resource, presence.presence(), presence.priority());
+		if (presence.presence() != Presence::Unavailable && !presence.error()) {
+			const VCardUpdate *vcard = presence.findExtension<VCardUpdate>(ExtVCardUpdate);
+			if(vcard) {
+				QString hash = QString::fromStdString(vcard->hash());
+				JContact *contact = p->contacts.value(jid);
+				if (contact->avatarHash() != hash) {
+					if(hash.isEmpty() || QFile(p->account->getAvatarPath()%"/"%hash).exists())
+						contact->setAvatar(hash);
+					else if (p->avatarsAutoLoad)
+						p->account->connection()->vCardManager()->fetchVCard(jid);
+				}
+			}
+		}
 	}
 
 	void JRoster::handleSelfPresence(const RosterItem &item, const std::string &resource,
@@ -191,24 +200,24 @@ namespace Jabber
 
 	bool JRoster::handleSubscriptionRequest(const JID &jid, const std::string &msg)
 	{
-//		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~subscription request";
 		return false;
 	}
 
 	bool JRoster::handleUnsubscriptionRequest(const JID &jid, const std::string &msg)
 	{
-//		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~unsubscription request";
 		return true;
 	}
 
 	void JRoster::handleNonrosterPresence(const Presence &presence)
 	{
-		//debug() << QString::fromStdString(presence.tag()->xml());
-//		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~nonroster presence";
 	}
 
 	void JRoster::handleRosterError(const IQ &iq)
 	{
-//		debug() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~roster error";
+	}
+
+	void JRoster::loadSettings()
+	{
+		p->avatarsAutoLoad = p->account->config().group("general").value("getavatars", true);
 	}
 }

@@ -5,7 +5,6 @@
 #include "sdk/jabber.h"
 #include "../vcard/jvcardmanager.h"
 #include <gloox/adhoc.h>
-#include <qutim/debug.h>
 #include <qutim/systeminfo.h>
 #include <gloox/capabilities.h>
 #include <gloox/receipt.h>
@@ -38,11 +37,12 @@ namespace Jabber
 		JID jid = JID(account->id().toStdString());
 		p->client = new Client(jid, p->password.toStdString());
 		p->adhoc = new Adhoc(p->client);
-		p->vCardManager = new JVCardManager(p->account);
+		p->vCardManager = new JVCardManager(p->account, p->client);
 		p->connection = new JConnectionTCPBase(p->client);
 		loadSettings();
 
 		p->client->registerStanzaExtension(new Receipt(Receipt::Invalid));
+		p->client->registerStanzaExtension(new VCardUpdate());
 		p->client->addPresenceExtension(new VCardUpdate(p->avatarHash.toStdString()));
 		Capabilities *caps = new Capabilities(p->client->disco());
 		caps->setNode("http://qutim.org");
@@ -124,7 +124,6 @@ namespace Jabber
 
 	void JConnection::handlePresence(const Presence &presence)
 	{
-		debug() << presence.from().full().data() << p->client->jid().full().data();
 		if (presence.from() == p->client->jid()) {
 			p->account->endChangeStatus(presence.presence());
 			p->vCardManager->fetchVCard(p->account->id());

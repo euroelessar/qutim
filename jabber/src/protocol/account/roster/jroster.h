@@ -23,6 +23,7 @@ namespace Jabber
 			~JRoster();
 			ChatUnit *contact(const QString &jid, bool create = false);
 		protected:
+			void loadSettings();
 			void handleItemAdded(const JID &jid);
 			void handleItemSubscribed(const JID &jid);
 			void handleItemRemoved(const JID &jid);

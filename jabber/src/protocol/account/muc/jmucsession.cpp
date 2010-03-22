@@ -27,7 +27,6 @@
 #include <QMessageBox>
 #include "jmucmanager.h"
 #include "jconferenceconfig.h"
-#include <qutim/debug.h>
 
 using namespace gloox;
 using namespace qutim_sdk_0_3;
