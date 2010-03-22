@@ -48,6 +48,11 @@ namespace qutim_sdk_0_3
 		d->list.append(InfoField(title, data));
 	}
 
+        ToolTipEvent::~ToolTipEvent()
+        {
+
+        }
+
 	bool ToolTipEvent::extra() const
 	{
 		return d->extra;

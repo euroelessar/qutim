@@ -34,6 +34,7 @@ namespace qutim_sdk_0_3
 		void appendField(const LocalizedString &title, const QVariant &data);
 		bool extra() const;
 		static QEvent::Type eventType();
+                ~ToolTipEvent();
 	protected:
 		friend class ToolTip;
 		QScopedPointer<ToolTipEventPrivate> d;
