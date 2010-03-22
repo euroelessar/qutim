@@ -37,6 +37,8 @@ namespace Jabber
 			JContactResource *resource(const QString &key);
 			ChatUnitList lowerUnits();
 			virtual bool event(QEvent *);
+			QString avatar() const;
+			void setAvatar(const QString &hex);
 		protected:
 			void fillMaxResource();
 		private:

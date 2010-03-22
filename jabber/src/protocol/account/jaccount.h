@@ -33,6 +33,7 @@ namespace Jabber {
 			void beginChangeStatus(Presence::PresenceType presence);
 			void endChangeStatus(Presence::PresenceType presence);
 			const QString &nick();
+			void setNick(const QString &nick);
 			const QString &password(bool *ok = 0);
 			void autoconnect();
 			JConnection *connection();
@@ -41,6 +42,8 @@ namespace Jabber {
 			JServiceDiscovery *discoManager();
 			JMUCManager *conferenceManager();
 			virtual void setStatus(Status status);
+			QString getAvatarPath();
+			void setAvatar(const QString &hex);
 		signals:
 			void stateConnected();
 			void stateDisconnected();

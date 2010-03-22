@@ -5,6 +5,7 @@
 #include <gloox/chatstate.h>
 #include <gloox/rostermanager.h>
 #include <gloox/rosteritem.h>
+#include <QStringBuilder>
 
 using namespace gloox;
 
@@ -183,5 +184,17 @@ namespace Jabber
 		foreach(ChatUnit *unit, d_func()->resources)
 			list << unit;
 		return list;
+	}
+
+	QString JContact::avatar() const
+	{
+		return d_func()->avatar;
+	}
+	void JContact::setAvatar(const QString &hex)
+	{
+		if (d_func()->avatar == hex)
+			return;
+		d_func()->avatar = d_ptr->account->getAvatarPath() % "/" % hex;
+		emit avatarChanged(d_func()->avatar);
 	}
 }

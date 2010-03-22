@@ -13,6 +13,7 @@ namespace Jabber
 	using namespace gloox;
 
 	class JAccount;
+	class JVCardManager;
 	struct JConnectionPrivate;
 
 	class JConnection : public QObject, PresenceHandler
@@ -25,7 +26,9 @@ namespace Jabber
 			void setConnectionPresence(Presence::PresenceType presence);
 			Client *client();
 			Adhoc *adhoc();
+			JVCardManager *vCardManager();
 			void initExtensions();
+			void setAvatar(const QString &hex);
 		protected:
 			void handlePresence(const Presence &presence);
 		private:

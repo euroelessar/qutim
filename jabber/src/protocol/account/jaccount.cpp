@@ -5,6 +5,7 @@
 #include "servicediscovery/jservicediscovery.h"
 #include "../jprotocol.h"
 #include "muc/jmucmanager.h"
+#include <qutim/systeminfo.h>
 #include <qutim/debug.h>
 
 namespace Jabber {
@@ -28,6 +29,7 @@ namespace Jabber {
 
 	JAccount::JAccount(const QString &jid) : Account(jid, JProtocol::instance()), p(new JAccountPrivate)
 	{
+		loadSettings();
 		p->discoManager = 0;
 		p->connection = new JConnection(this);
 		p->connectionListener = new JConnectionListener(this);
@@ -35,7 +37,6 @@ namespace Jabber {
 		p->messageHandler = new JMessageHandler(this);
 		p->conferenceManager = new JMUCManager(this);
 		p->connection->initExtensions();
-		loadSettings();
 		autoconnect();
 	}
 
@@ -92,8 +93,7 @@ namespace Jabber {
 		p->autoConnect = config().group("general").value("autoconnect", false);
 		p->keepStatus = config().group("general").value("keepstatus", true);
 		p->nick = config().group("general").value("nick", id());
-		p->status = static_cast<Presence::PresenceType>(
-		config().group("general").value("prevstatus", 8));
+		p->status = static_cast<Presence::PresenceType>(config().group("general").value("prevstatus", 8));
 	}
 
 	JServiceDiscovery *JAccount::discoManager()
@@ -106,6 +106,14 @@ namespace Jabber {
 	const QString &JAccount::nick()
 	{
 		return p->nick;
+	}
+
+	void JAccount::setNick(const QString &nick)
+	{
+		ConfigGroup general = config("general");
+		general.setValue("nick", nick);
+		general.sync();
+		p->nick = nick;
 	}
 
 	const QString &JAccount::password(bool *ok)
@@ -156,5 +164,10 @@ namespace Jabber {
 	{
 		beginChangeStatus(JProtocol::statusToPresence(status));
 	}
-} // Jabber namespace
 
+	QString JAccount::getAvatarPath()
+	{
+		return QString("%1/%2.%3/avatars/").arg(SystemInfo::getPath(SystemInfo::ConfigDir))
+				.arg(JProtocol::instance()->id()).arg(id());
+	}
+} // Jabber namespace

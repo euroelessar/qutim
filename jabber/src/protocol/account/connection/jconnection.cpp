@@ -3,12 +3,13 @@
 #include "../jaccount.h"
 #include "../roster/jsoftwaredetection.h"
 #include "sdk/jabber.h"
+#include "../vcard/jvcardmanager.h"
 #include <gloox/adhoc.h>
-#include <gloox/vcardmanager.h>
 #include <qutim/debug.h>
 #include <qutim/systeminfo.h>
 #include <gloox/capabilities.h>
 #include <gloox/receipt.h>
+#include <gloox/vcardupdate.h>
 
 namespace Jabber
 {
@@ -19,7 +20,7 @@ namespace Jabber
 		JAccount *account;
 		Client *client;
 		Adhoc *adhoc;
-		VCardManager *vCardManager;
+		JVCardManager *vCardManager;
 		JConnectionTCPBase *connection;
 		QNetworkProxy proxy;
 		QString resource;
@@ -27,6 +28,7 @@ namespace Jabber
 		QMap<Presence::PresenceType, int> priority;
 		QString password;
 		QList<JabberExtension *> extensions;
+		QString avatarHash;
 	};
 
 	JConnection::JConnection(JAccount *account) : p(new JConnectionPrivate)
@@ -36,12 +38,12 @@ namespace Jabber
 		JID jid = JID(account->id().toStdString());
 		p->client = new Client(jid, p->password.toStdString());
 		p->adhoc = new Adhoc(p->client);
-		p->vCardManager = new VCardManager(p->client);
+		p->vCardManager = new JVCardManager(p->account);
 		p->connection = new JConnectionTCPBase(p->client);
 		loadSettings();
 
 		p->client->registerStanzaExtension(new Receipt(Receipt::Invalid));
-
+		p->client->addPresenceExtension(new VCardUpdate(p->avatarHash.toStdString()));
 		Capabilities *caps = new Capabilities(p->client->disco());
 		caps->setNode("http://qutim.org");
 		p->client->addPresenceExtension(caps);
@@ -98,12 +100,17 @@ namespace Jabber
 		return p->adhoc;
 	}
 
+	JVCardManager *JConnection::vCardManager()
+	{
+		return p->vCardManager;
+	}
+
 	void JConnection::initExtensions()
 	{
 		JabberParams params;
 		params.addItem<Client>(p->client);
 		params.addItem<Adhoc>(p->adhoc);
-		params.addItem<VCardManager>(p->vCardManager);
+		params.addItem<VCardManager>(p->vCardManager->manager());
 
 		new JSoftwareDetection(p->account, params);
 
@@ -118,8 +125,10 @@ namespace Jabber
 	void JConnection::handlePresence(const Presence &presence)
 	{
 		debug() << presence.from().full().data() << p->client->jid().full().data();
-		if (presence.from() == p->client->jid())
+		if (presence.from() == p->client->jid()) {
 			p->account->endChangeStatus(presence.presence());
+			p->vCardManager->fetchVCard(p->account->id());
+		}
 	}
 
 	void JConnection::loadSettings()
@@ -127,13 +136,8 @@ namespace Jabber
 		// TODO: FIXME: Protocol settings must be fallback for account everywhere %)
 		QString defaultResource = JProtocol::instance()->config().group("general").value("defaultresource", QString("qutIM"));
 		ConfigGroup group = p->account->config().group("general");
-		/*bool lbookmark = group.value("localbookmark", false);
-		if (lbookmark != p->isLocalBookmark)
-		{
-			p->isLocalBookmark = local_bookmark;
-			requestBookmarks();
-		}*/
 		p->resource = group.value("resource", defaultResource);
+		p->avatarHash = group.value("avatarhash", QString());
 		p->client->setResource(p->resource.toStdString());
 		p->priority.clear();
 		p->priority.insert(Presence::Invalid, group.value("priority", 3));
@@ -147,7 +151,6 @@ namespace Jabber
 			p->priority.insert(Presence::XA, group.value("na", 1));
 			p->priority.insert(Presence::DND, group.value("dnd", -1));
 		}
-
 		//proxy settings
 		group = p->account->config().group("proxy");
 		QNetworkProxy::ProxyType t = QNetworkProxy::DefaultProxy;;
@@ -178,15 +181,15 @@ namespace Jabber
 		group = p->account->config().group("connect");
 		TLSPolicy tls = TLSOptional;
 		switch (group.value("tls", 1)) {
-			case 0:
-				tls = TLSDisabled;
-				break;
-			case 1:
-				tls = TLSOptional;
-				break;
-			case 2:
-				tls = TLSRequired;
-				break;
+		case 0:
+			tls = TLSDisabled;
+			break;
+		case 1:
+			tls = TLSOptional;
+			break;
+		case 2:
+			tls = TLSRequired;
+			break;
 		}
 		p->client->setTls(tls);
 		p->client->setSasl(group.value("sasl", true));
@@ -217,5 +220,28 @@ namespace Jabber
 		}
 		if (presence == Presence::Unavailable)
 			p->client->disconnect();
+	}
+	
+	void JConnection::setAvatar(const QString &hex)
+	{
+		if (p->avatarHash != hex) {
+			p->avatarHash = hex;
+			ConfigGroup general = p->account->config("general");
+			general.setValue("avatarhash", p->avatarHash);
+			general.sync();
+			
+			StanzaExtensionList *extensions = (StanzaExtensionList *) &(p->client->presence().extensions());
+			StanzaExtensionList::iterator it = extensions->begin();
+			StanzaExtensionList::iterator it2;
+			while (it != extensions->end()) {
+				it2 = it++;
+				if ((*it2)->extensionType() == ExtVCardUpdate) {
+					delete (*it2);
+					extensions->erase(it2);
+				}
+			}
+			p->client->addPresenceExtension(new VCardUpdate(p->avatarHash.toStdString()));
+			p->client->setPresence();
+		}
 	}
 }
