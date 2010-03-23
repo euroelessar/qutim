@@ -116,7 +116,12 @@ namespace AdiumChat
 		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
 				SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 
-		ui->tabBar->addTab(session->getUnit()->title());
+		QIcon icon;
+		if (m_chat_flags & ChatStateIconsOnTabs) {
+			ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
+			icon = iconForState(state);
+		}
+		ui->tabBar->addTab(icon,session->getUnit()->title());
 		if (ui->tabBar->count() >1)
 			ui->tabBar->setVisible(true);
 	}
@@ -374,7 +379,6 @@ namespace AdiumChat
 			default:
 				break;
 		}
-		debug() << icon_name;
 		return Icon(icon_name);
 	}
 

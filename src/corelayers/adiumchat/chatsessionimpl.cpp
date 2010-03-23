@@ -48,6 +48,11 @@ namespace AdiumChat
 		loadHistory();
 		if (Contact *c = qobject_cast<Contact *>(unit))
 			statusChanged(c,true);
+		else {
+			//if you create a session, it is likely that the chat state is active
+			setProperty("currentChatState",static_cast<int>(ChatStateActive));
+		}
+			
 		setChatState(ChatStateActive);
 	}
 
