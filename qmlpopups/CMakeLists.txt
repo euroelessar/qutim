@@ -18,11 +18,10 @@ find_package( Qt4 REQUIRED )
 include( ${QUTIM_CMAKE_PLUGIN} )
 
 # Evil hack for Qt Declarative
-set( QT_DECLARATIVE_LIBRARY
-    /usr/lib/qt4/libQtDeclarative.so
-    )
+#evil hack for qt-declarative
+#find_library(QT_DECLARATIVE NAMES QtDeclarative PATHS ${QT_LIBRARY_DIR} NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH)
 
 
-ADD_QUTIMPLUGIN_EXT2( "qmlpopups" "src" "" ${QT_DECLARATIVE_LIBRARY})
+ADD_QUTIMPLUGIN_EXT2( "qmlpopups" "src" "" ${QT_DECLARATIVE})
 
  

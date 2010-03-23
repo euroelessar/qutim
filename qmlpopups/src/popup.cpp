@@ -21,174 +21,175 @@
 #include <QTimer>
 #include <QFinalState>
 #include <QState>
-#include <QDebug>
+#include <qutim/debug.h>
 #include <QStateMachine>
 
 namespace QmlPopups
 {
+    Popup::Popup ( const QString& id )
+		    :	m_notification_widget(0),
+		    m_id ( id ),
+		    m_machine(0),
+		    m_moving_animation(0),
+		    m_opacity_animation(0)
+    {
 
-	Popup::Popup ( const QString& id)
-			:	m_id ( id ), m_machine(0), m_notification_widget(0)
-	{
+    }
 
-	}
-	
-	void Popup::setId(const QString& id)
-	{
-		this->m_id = id;
-	}
+    void Popup::setId(const QString& id)
+    {
+	    this->m_id = id;
+    }
 
-	Popup::~Popup()
-	{
-		Manager::self()->remove (m_id);
-		Manager::self()->updateGeometry();
-		m_notification_widget->deleteLater();
-	}
 
-	void Popup::setMessage ( const QString& title, const QString& body, QObject *sender )
-	{
-		m_title = title;
-		m_body = body;
-		m_sender = sender;
-	}
+    Popup::~Popup()
+    {
+	    Manager::self()->remove (m_id);
+	    m_notification_widget->deleteLater();
+	    m_machine->stop();
+    }
 
-	void Popup::appendMessage ( const QString& message )
-	{
-		m_body += "<br />" + message;
-		updateMessage();
-	}
-	
-	void Popup::updateMessage(const QString& message)
-	{
-		int message_count = m_notification_widget->property("messageCount").toInt() + 1;
-		m_body = message + tr("<p> + %1 more notifications </p>").arg(message_count);
-		m_notification_widget->setProperty("messageCount",message_count);
-		updateMessage();
-	}
-	
-	void Popup::updateMessage()
-	{
-		Manager *manager = Manager::self();
-		
-		m_notification_widget->setData(m_title,m_body,m_sender);
+    void Popup::setMessage ( const QString& title, const QString& body, QObject *sender )
+    {
+	    m_title = title;
+	    m_body = body;
+	    m_sender = sender;
+    }
 
-		if (manager->timeout > 0) {
-			killTimer(m_timer_id);
-			m_timer_id = startTimer(manager->timeout);
-		}
-	}
+    void Popup::setData ( const QVariant &data)
+    {
+	    m_data = data;
+    }
 
-	QString Popup::getId() const
-	{
-		return m_id;
-	}
+    void Popup::appendMessage ( const QString& message )
+    {
+	    if (!message.isEmpty())
+		    m_body += "<br />" + message;
+	    updateMessage();
+    }
 
-	void Popup::send()
-	{
-		Manager *manager = Manager::self();
-		
-		if (m_machine || m_notification_widget) {
-			qWarning("Notification already sended");
-			return;
-		}
-		m_machine = new QStateMachine(this);
+    void Popup::updateMessage(const QString& message)
+    {
+	    int message_count = m_notification_widget->property("messageCount").toInt() + 1;
+	    m_body = message + tr("<p> + %1 more notifications </p>").arg(message_count);
+	    m_notification_widget->setProperty("messageCount",message_count);
+	    updateMessage();
+    }
 
-		m_notification_widget = new PopupWidget ();
-		m_notification_widget->setData ( m_title,m_body,m_sender );
-		QSize notify_size = m_notification_widget->sizeHint();
+    void Popup::updateMessage()
+    {
+	    m_notification_widget->setData(m_title,m_body,m_sender,m_data);
+    }
 
-		m_show_geometry.setSize(notify_size);
-		QRect geom = manager->insert(this);
-		if ( geom.isEmpty() )
-			deleteLater();
 
-		m_show_state = new QState();
-		m_hide_state = new QState();
-//		m_update_state = new QState();
-		QFinalState *final_state = new QFinalState();
+    void Popup::onPopupWidgetSizeChanged ( const QSize& size )
+    {
+	    QRect geom = m_show_geometry;
+	    geom.setSize(size);
+	    update(geom);
+	    Manager::self()->updateGeometry();
+    }
 
-		int x = manager->margin + geom.width();
-		int y = manager->margin + geom.height();
-		geom.moveTop(geom.y() - y);
 
-		m_show_state->assignProperty(m_notification_widget,"geometry",geom);
-		m_show_geometry = geom;
-		if (manager->animation & Slide)
-			geom.moveLeft(geom.left() + x);
-		m_hide_state->assignProperty(m_notification_widget,"geometry",geom);
-		m_notification_widget->setGeometry(geom);
+    QString Popup::getId() const
+    {
+	    return m_id;
+    }
 
-		m_show_state->addTransition(m_notification_widget,SIGNAL(activated()),m_hide_state);
-		m_show_state->addTransition(this,SIGNAL(updated()),m_show_state);
-		m_hide_state->addTransition(m_hide_state,SIGNAL(propertiesAssigned()),final_state);
-		connect(m_notification_widget,SIGNAL(PopupResized(QSize)),this,SLOT(onPopupResized(QSize)));
+    void Popup::send()
+    {
+	    Manager *manager = Manager::self();
+	    if (m_machine || m_notification_widget) {
+		    warning() << "Notification already sended";
+		    return;
+	    }
+	    m_machine = new QStateMachine(this);
 
-		if (manager->timeout > 0) {
-			m_timer_id = startTimer(manager->timeout);
-			connect(this,SIGNAL(timeoutReached()),m_notification_widget,SLOT(onTimeoutReached()));
-		}
+	    m_notification_widget = new PopupWidget ();
+	    m_notification_widget->setData ( m_title,m_body,m_sender,m_data );
+	    QSize notify_size = m_notification_widget->sizeHint();
 
-		m_machine->addState(m_show_state);
-		m_machine->addState(m_hide_state);
-		m_machine->addState(final_state);
-		m_machine->setInitialState (m_show_state);
+	    m_show_geometry.setSize(notify_size);
+	    QRect geom = manager->insert(this);
+	    if ( geom.isEmpty() )
+		    deleteLater();
 
-		if (manager->animation) {
-			QPropertyAnimation *moving = new QPropertyAnimation ( m_notification_widget,"geometry" );
-			m_machine->addDefaultAnimation (moving);
-			moving->setDuration ( manager->animationDuration);
-			moving->setEasingCurve (manager->easingCurve);			
-			
-			if (manager->animation & Opacity) {
-				QPropertyAnimation *opacity = new QPropertyAnimation(m_notification_widget,"windowOpacity");
-				m_machine->addDefaultAnimation(opacity);
-				opacity->setDuration (manager->animationDuration);
-				opacity->setEasingCurve (manager->easingCurve);
-				m_notification_widget->setProperty("windowOpacity",0);
-				m_show_state->assignProperty(m_notification_widget,"windowOpacity",1);
-				m_hide_state->assignProperty(m_notification_widget,"windowOpacity",0);
-			}
-		}
+	    m_show_state = new QState(m_machine);
+	    m_hide_state = new QFinalState(m_machine);
 
-		connect(m_machine,SIGNAL(finished()),SLOT(deleteLater()));
-		m_machine->start();
-		m_notification_widget->show();
-	}
+	    int x = manager->margin + geom.width();
+	    int y = manager->margin + geom.height();
+	    geom.moveTop(geom.y() - y);
 
-	void Popup::update(QRect geom)
-	{
-		if (Manager::self()->animation & Slide)
-			geom.moveRight(geom.right() + m_notification_widget->width() + Manager::self()->margin);
-		m_show_state->assignProperty(m_notification_widget,"geometry",geom);
-		m_hide_state->assignProperty(m_notification_widget,"geometry",geom);
-		updateGeometry(geom);
-	}
+	    m_show_geometry = geom;
+	    if (manager->animation & Slide)
+		    geom.moveLeft(geom.left() + x);
+	    m_notification_widget->setGeometry(geom);
 
-	QRect Popup::geometry() const
-	{
-		return m_show_geometry;
-	}
+	    m_machine->setInitialState (m_show_state);
 
-	void Popup::updateGeometry(const QRect &newGeometry)
-	{
-		m_show_geometry = newGeometry;		
-		emit updated();
-	}
+	    //TODO FIXME
+	    if (manager->animation) {
+		    m_moving_animation = new QPropertyAnimation ( m_notification_widget,"geometry",this );
+		    m_moving_animation->setDuration ( manager->animationDuration);
+		    m_moving_animation->setEasingCurve (manager->easingCurve);
+	    }
 
-	void Popup::timerEvent(QTimerEvent *e)
-	{
-		emit timeoutReached();
-		killTimer(m_timer_id);
-		QObject::timerEvent(e);
-	}
-	
-	void Popup::onPopupResized(const QSize &size)
-	{
-		m_show_geometry.setSize(size);
-		updateGeometry(m_show_geometry);
-		Manager::self()->updateGeometry();
-		m_show_state->assignProperty(m_notification_widget,"geometry",m_show_geometry);
-	}
+	    if (manager->animation & Opacity) {
+		    m_opacity_animation = new QPropertyAnimation(m_notification_widget,"windowOpacity",this);
+		    m_opacity_animation->setDuration (manager->animationDuration);
+		    m_opacity_animation->setEasingCurve (manager->easingCurve);
+		    m_opacity_animation->setStartValue(0);
+		    m_opacity_animation->setEndValue(1);
+		    m_opacity_animation->start();
+	    }
+
+	    connect(m_machine,SIGNAL(finished()),SLOT(deleteLater()));
+	    connect(m_notification_widget,SIGNAL(sizeChanged(QSize)),SLOT(onPopupWidgetSizeChanged(QSize)));
+	    connect(m_notification_widget,SIGNAL(activated()),SLOT(onPopupActivated()));
+	    m_machine->start();
+	    m_notification_widget->show();
+    }
+
+    void Popup::update(QRect geom)
+    {
+	    if (Manager::self()->animation & Slide)
+		    geom.moveRight(geom.right() + m_notification_widget->width() + Manager::self()->margin);
+	    if (m_moving_animation) {
+		    m_moving_animation->setStartValue(m_show_geometry);
+		    m_moving_animation->stop();
+		    m_moving_animation->setEndValue(geom);
+		    m_moving_animation->start();
+	    }
+	    updateGeometry(geom);
+    }
+
+    QRect Popup::geometry() const
+    {
+	    return m_show_geometry;
+    }
+
+    void Popup::updateGeometry(const QRect &newGeometry)
+    {
+	    m_show_geometry = newGeometry;
+	    emit updated();
+    }
+
+    void Popup::onPopupActivated()
+    {
+	    disconnect(m_notification_widget,SIGNAL(activated()),this,SLOT(onPopupActivated()));
+
+	    if (m_opacity_animation) {
+		    m_show_state->addTransition(m_opacity_animation,SIGNAL(finished()),m_hide_state);
+		    m_opacity_animation->stop();
+		    m_opacity_animation->setStartValue(1);
+		    m_opacity_animation->setEndValue(0);
+		    m_opacity_animation->start();
+	    }
+	    else
+		    m_show_state->addTransition(m_hide_state);
+    }
+
 
 }
 

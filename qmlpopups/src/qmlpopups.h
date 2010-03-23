@@ -9,7 +9,7 @@ namespace QmlPopups {
 	class QmlPopupsPlugin : public Plugin
 	{
 		Q_OBJECT
-		Q_CLASSINFO("DebugInfo", "QmlPopups")
+		Q_CLASSINFO("DebugName", "QmlPopups")
 	public:
 		virtual void init();
 		virtual bool load();
