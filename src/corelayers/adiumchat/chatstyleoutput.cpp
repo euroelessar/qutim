@@ -33,6 +33,7 @@
 #include "chatsessionimpl.h"
 #include <libqutim/emoticons.h>
 #include <libqutim/debug.h>
+#include "libqutim/conference.h"
 
 namespace AdiumChat
 {
@@ -234,7 +235,11 @@ namespace AdiumChat
 		}
 		// Replace %sender% to name
 		//FIXME
-		QString sender_name = mes.isIncoming() ? mes.chatUnit()->title() : mes.chatUnit()->account()->name();
+		QString sender_name;
+		if (qobject_cast<Conference *>(session->getUnit()))
+			sender_name = mes.chatUnit()->title();
+		else
+			sender_name = mes.isIncoming() ? mes.chatUnit()->title() : mes.chatUnit()->account()->name();
 		QString sender_id = mes.isIncoming() ? mes.chatUnit()->id() : mes.chatUnit()->account()->id();
 		html = html.replace("%sender%", Qt::escape(sender_name));
 		// Replace %senderScreenName% to name
@@ -256,7 +261,11 @@ namespace AdiumChat
 		QString html = (!mes.isIncoming()) ? m_current_style.outgoingActionHtml : m_current_style.incomingActionHtml;
 
 		//FIXME
-		QString sender_name = mes.isIncoming() ? mes.chatUnit()->title() : mes.chatUnit()->account()->name();
+		QString sender_name;
+		if (qobject_cast<Conference *>(session->getUnit()))
+			sender_name = mes.chatUnit()->title();
+		else
+			sender_name = mes.isIncoming() ? mes.chatUnit()->title() : mes.chatUnit()->account()->name();
 		QString sender_id = mes.isIncoming() ? mes.chatUnit()->id() : mes.chatUnit()->account()->id();
 
 		// Replace %sender% to name
@@ -299,7 +308,7 @@ namespace AdiumChat
 		// Replace userIconPath
 		QString avatarPath;
 		if (mes.isIncoming()) {
-			const Contact *c = qobject_cast< const Contact *>(mes.chatUnit());
+			const Buddy *c = qobject_cast< const Buddy *>(mes.chatUnit());
 			debug() << c << mes.chatUnit();
 			avatarPath = c ? c->avatar() : (m_current_style.baseHref + "Outgoing/buddy_icon.png");
 		}

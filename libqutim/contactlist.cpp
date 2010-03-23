@@ -25,10 +25,7 @@ namespace qutim_sdk_0_3
 	{
 		static QPointer<ContactList> self;
 		if(self.isNull() && isCoreInited())
-		{
-			GeneratorList exts = moduleGenerators<ContactList>();
-			self = exts.first()->generate<ContactList>();
-		}
+			self = qobject_cast<ContactList *>(getService("ContactList"));
 		return self;
 	}
 

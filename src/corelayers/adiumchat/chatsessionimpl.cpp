@@ -86,10 +86,7 @@ namespace AdiumChat
 	ChatSessionImpl::~ChatSessionImpl()
 	{
 		if (m_web_page)
-		{
 			m_web_page->deleteLater();
-		}
-		qDebug() << "Session removed:" << m_chat_unit->title();
 	}
 
 	void ChatSessionImpl::addContact(Buddy* c)

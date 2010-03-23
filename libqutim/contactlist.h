@@ -27,6 +27,7 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT ContactList : public MenuController
 	{
 		Q_OBJECT
+		Q_CLASSINFO("Service", "ContactList")
 	public:
 		static ContactList *instance();
 	public slots:

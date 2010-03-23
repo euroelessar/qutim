@@ -64,16 +64,8 @@ namespace qutim_sdk_0_3
 			return static_cast<T *>(initExtension(&T::staticMetaObject));
 		}
 	private:
-		// Friend functions
-		friend LIBQUTIM_EXPORT bool isCoreInited();
-		friend LIBQUTIM_EXPORT QObject *getService(const QByteArray &name);
 		friend LIBQUTIM_EXPORT GeneratorList moduleGenerators(const QMetaObject *);
 		friend LIBQUTIM_EXPORT GeneratorList moduleGenerators(const char *);
-		friend LIBQUTIM_EXPORT ProtocolMap allProtocols();
-
-		// Static Fields
-		static ModuleManager *self;
-		ModuleManagerPrivate *p;
 	};
 
 //	LIBQUTIM_EXPORT void registerModule(const char *name, const char *description, const char *face, const QMetaObject *meta, int min = 0, int max = -1);

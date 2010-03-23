@@ -82,22 +82,33 @@ namespace qutim_sdk_0_3
 		};
 		QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
 		QHash<QByteArray, QObject *> services;
+		ExtensionInfoList extensions;
 		QSet<QByteArray> interface_modules;
 		QSet<const QMetaObject *> meta_modules;
 		QList<const ExtensionInfo> modules;
 	};
+
+	// Static Fields
+	static ModuleManager *managerSelf = NULL;
+
+	static ModuleManagerPrivate *p = NULL;
 
 	/**
 	 * Function to detect if ModuleManager and it's inner data had been initialized.
 	 */
 	bool isCoreInited()
 	{
-		return ModuleManager::self && ModuleManager::self->p && ModuleManager::self->p->is_inited;
+		return managerSelf && p && p->is_inited;
 	}
 
 	QObject *getService(const QByteArray &name)
 	{
-		return ModuleManager::self->p->services.value(name);
+		return p->services.value(name);
+	}
+
+	QList<QByteArray> getServiceNames()
+	{
+		return p->services.keys();
 	}
 
 	/**
@@ -107,9 +118,9 @@ namespace qutim_sdk_0_3
 	{
 		GeneratorList list;
 //		if(isCoreInited())
-		if (ModuleManager::self && ModuleManager::self->p)
+		if (managerSelf && p)
 		{
-			QMultiMap<Plugin *, ExtensionInfo> exts = ModuleManager::self->getExtensions(module);
+			QMultiMap<Plugin *, ExtensionInfo> exts = managerSelf->getExtensions(module);
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.constBegin();
 			for(; it != exts.constEnd(); it++)
 				list << it.value().generator();
@@ -124,9 +135,9 @@ namespace qutim_sdk_0_3
 	{
 		GeneratorList list;
 //		if(isCoreInited())
-		if (ModuleManager::self && ModuleManager::self->p)
+		if (managerSelf && p)
 		{
-			QMultiMap<Plugin *, ExtensionInfo> exts = ModuleManager::self->getExtensions(iid);
+			QMultiMap<Plugin *, ExtensionInfo> exts = managerSelf->getExtensions(iid);
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.constBegin();
 			for(; it != exts.constEnd(); it++)
 				list << it.value().generator();
@@ -141,14 +152,9 @@ namespace qutim_sdk_0_3
 	{
 		ProtocolMap map;
 		if(isCoreInited())
-			map = *ModuleManager::self->p->protocols;
+			map = *p->protocols;
 		return map;
 	}
-
-	/**
-	 * The only instance of ModuleManager (singleton)
-	 */
-	ModuleManager *ModuleManager::self = 0;
 
 	/**
 	 * This is ModuleManager constructor.
@@ -156,9 +162,9 @@ namespace qutim_sdk_0_3
 	ModuleManager::ModuleManager(QObject *parent) : QObject(parent)
 	{
 		qDebug() << QIcon::themeSearchPaths();
-		Q_ASSERT_X(!self, "ModuleManager", "Only one instance of ModuleManager can be created");
+		Q_ASSERT_X(!managerSelf, "ModuleManager", "Only one instance of ModuleManager can be created");
 		p = new ModuleManagerPrivate;
-		self = this;
+		managerSelf = this;
 		qApp->setApplicationName("qutIM");
 		qApp->setApplicationVersion(qutimVersionStr());
 		qApp->setOrganizationDomain("qutim.org");
@@ -170,7 +176,7 @@ namespace qutim_sdk_0_3
 	 */
 	ModuleManager::~ModuleManager()
 	{
-		ModuleManager::self = 0;
+		managerSelf = 0;
 	}
 
 	/**
@@ -214,6 +220,7 @@ namespace qutim_sdk_0_3
 		paths << config_paths;
 		paths.removeDuplicates();
 		QSet<QString> plugin_paths_list;
+		p->extensions << coreExtensions();
 		foreach(const QString &path, paths)
 		{
 			QDir plugins_dir = path;
@@ -250,6 +257,7 @@ namespace qutim_sdk_0_3
 					if (plugin->p->validate()) {
 						plugin->p->is_inited = true;
 						p->plugins.append(plugin);
+						p->extensions << plugin->avaiableExtensions();
 					} else {
 						delete object;
 					}
@@ -278,7 +286,7 @@ namespace qutim_sdk_0_3
 			ExtensionInfoList extensions;
 			if (i < 0) {
 				plugin = 0;
-				extensions = self->coreExtensions();
+				extensions = managerSelf->coreExtensions();
 			} else {
 				plugin = p->plugins.at(i);
 				if(!plugin)
@@ -309,7 +317,7 @@ namespace qutim_sdk_0_3
 			if(i < 0)
 			{
 				plugin = 0;
-				extensions = self->coreExtensions();
+				extensions = managerSelf->coreExtensions();
 			}
 			else
 			{
@@ -343,13 +351,29 @@ namespace qutim_sdk_0_3
 		qWarning("%s extension isn't found", service_meta->className());
 		return 0;
 	}
+	
+	typedef QHash<QByteArray, const ObjectGenerator*> ServiceHash;
+	void initService(const QByteArray &name, QHash<QByteArray, QObject *> &services, const ServiceHash &hash, QSet<QByteArray> &used)
+	{
+		if (used.contains(name))
+			return;
+		used.insert(name);
+		const ObjectGenerator *gen = hash.value(name);
+		const QMetaObject *meta = gen->metaObject();
+		for (int i = 0, size = meta->classInfoCount(); i < size; i++) {
+			QMetaClassInfo info = meta->classInfo(i);
+			if (!qstrcmp(info.name(), "Uses"))
+				initService(name, services, hash, used);
+		}
+		services.insert(name, gen->generate<QObject>());
+	}
 
 	/**
 	 * Don't know
 	 */
 	void ModuleManager::initExtensions()
 	{
-//		qutim_sdk_0_3::self = initExtension<CryptoService>();
+//		qutim_sdk_0_3::managerSelf = initExtension<CryptoService>();
 		if (ConfigPrivate::config_backends.isEmpty()) {
 			// Is it really possible?.. May be we should remove it?
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions<ConfigBackend>();
@@ -371,9 +395,6 @@ namespace qutim_sdk_0_3
 			}
 		}
 		{
-			SystemInfo::getDir(SystemInfo::ConfigDir).filePath("modules.json");
-		}
-		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions<Protocol>();
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
 			for(; it != exts.end(); it++)
@@ -393,6 +414,23 @@ namespace qutim_sdk_0_3
 		}
 		p->is_inited = true;
 		{
+			ServiceHash serviceGens;
+			const ExtensionInfoList &exts = p->extensions;
+			for (int i = 0; i < exts.size(); i++) {
+				const ExtensionInfo &info = exts.at(i);
+				const char *serviceName = metaInfo(info.generator()->metaObject(), "Service");
+				if (serviceName && *serviceName) {
+					QByteArray name = serviceName;
+					serviceGens.insert(name, info.generator());
+				}
+			}
+			QSet<QByteArray> used;
+			ServiceHash::iterator it;
+			for (it = serviceGens.begin(); it != serviceGens.end(); it++)
+				initService(it.key(), p->services, serviceGens, used);
+			qDebug() << "Inited Services" << used;
+		}
+		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(qobject_interface_iid<StartupModule *>());
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
 			for(; it != exts.end(); it++)
@@ -408,7 +446,6 @@ namespace qutim_sdk_0_3
 
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();
-		Q_UNUSED(ContactList::instance());
 		Notifications::sendNotification(Notifications::Startup, 0);
 	}
 }

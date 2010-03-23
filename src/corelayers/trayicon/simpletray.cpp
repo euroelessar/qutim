@@ -5,7 +5,7 @@
 
 namespace Core
 {
-static Core::CoreModuleHelper<SimpleTray, StartupModule> tray_static(
+static Core::CoreModuleHelper<SimpleTray> tray_static(
 	QT_TRANSLATE_NOOP("Plugin", "Simple tray"),
 	QT_TRANSLATE_NOOP("Plugin", "Default qutIM system tray icon implementation")
 );
@@ -63,17 +63,16 @@ SimpleTray::SimpleTray()
 		addAction(gen);
 	}
 
-	setMenuOwner(ContactList::instance());
+	setMenuOwner(qobject_cast<MenuController*>(getService("ContactList")));
 	m_icon->setContextMenu(menu(false));
 }
 
-void SimpleTray::onActivated(QSystemTrayIcon::ActivationReason reason) {
+void SimpleTray::onActivated(QSystemTrayIcon::ActivationReason reason)
+{
 	if (reason == QSystemTrayIcon::Trigger) {
 		if (m_sessions.isEmpty()) {
-			QObject *obj = ContactList::instance();
-			if (obj) {
+			if (QObject *obj = getService("ContactList"))
 				obj->metaObject()->invokeMethod(obj, "changeVisibility");
-			}
 		} else {
 			m_sessions.first()->activate();
 		}
