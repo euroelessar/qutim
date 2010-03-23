@@ -32,6 +32,7 @@ namespace Jabber
 	class JMessageSession;
 	class JAccount;
 	class JMUCUser;
+	struct JMUCSessionPrivate;
 
 	class JMUCSession :
 			public qutim_sdk_0_3::Conference,
@@ -39,6 +40,7 @@ namespace Jabber
 			public gloox::MUCRoomConfigHandler
 	{
 		Q_OBJECT
+		Q_DECLARE_PRIVATE(JMUCSession)
 		public:
 			JMUCSession(const gloox::JID &room, const QString &password, JAccount *account);
 			JMUCSession(JMessageSession *session);
@@ -49,7 +51,9 @@ namespace Jabber
 			int bookmarkIndex();
 			bool enabledConfiguring();
 			qutim_sdk_0_3::Buddy *me() const;
+			ChatUnit *participant(const QString &nick);
 		protected:
+			void loadSettings();
 			// MUCRoomHandler
 			void handleMUCParticipantPresence(gloox::MUCRoom *room, const gloox::MUCRoomParticipant participant,
 											  const gloox::Presence &presence);
@@ -75,15 +79,7 @@ namespace Jabber
 		private slots:
 			void closeConfigDialog();
 		private:
-			JAccount *m_account;
-			gloox::MUCRoom *m_room;
-			gloox::JID m_roomJid;
-			QString m_nick;
-			QHash<std::string, quint64> m_messages;
-			QHash<QString, JMUCUser *> m_users;
-			bool m_isJoined;
-			int m_bookmarkIndex;
-			bool m_isConfiguring;
+			QScopedPointer<JMUCSessionPrivate> d_ptr;
 	};
 }
 

@@ -18,6 +18,7 @@ namespace Jabber
 
 	JRoster::JRoster(JAccount *account) : p(new JRosterPrivate)
 	{
+		loadSettings();
 		p->account = account;
 		p->rosterManager = p->account->connection()->client()->rosterManager();
 		p->rosterManager->registerRosterListener(this, false);
@@ -184,7 +185,7 @@ namespace Jabber
 				QString hash = QString::fromStdString(vcard->hash());
 				JContact *contact = p->contacts.value(jid);
 				if (contact->avatarHash() != hash) {
-					if(hash.isEmpty() || QFile(p->account->getAvatarPath()%"/"%hash).exists())
+					if(hash.isEmpty() || QFile(p->account->getAvatarPath()%QLatin1Char('/')%hash).exists())
 						contact->setAvatar(hash);
 					else if (p->avatarsAutoLoad)
 						p->account->connection()->vCardManager()->fetchVCard(jid);

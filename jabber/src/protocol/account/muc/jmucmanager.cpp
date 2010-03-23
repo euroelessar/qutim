@@ -103,6 +103,12 @@ namespace Jabber
 			join(room->id());
 	}
 
+	void JMUCManager::setPresenceToRooms()
+	{
+		foreach (JMUCSession *room, p->rooms)
+			room->join();
+	}
+
 	void JMUCManager::leave(const QString &room)
 	{
 		JMUCSession *muc = p->rooms.take(room);
@@ -119,7 +125,15 @@ namespace Jabber
 
 	ChatUnit *JMUCManager::muc(const QString &jid)
 	{
-		return p->rooms.value(jid);
+		QString room(jid.section('/', 0, 0));
+		QString user(jid.section('/', 1));
+		if (JMUCSession *muc = p->rooms.value(room)) {
+			if (user.isEmpty())
+				return muc;
+			else
+				return muc->participant(user);
+		}
+		return 0;
 	}
 
 	JBookmarkManager *JMUCManager::bookmarkManager()

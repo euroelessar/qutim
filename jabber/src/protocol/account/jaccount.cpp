@@ -68,13 +68,12 @@ namespace Jabber {
 	{
 		Status newStatus = JProtocol::presenceToStatus(presence);
 		debug() << "new status" << newStatus << newStatus.text();
-		if (status() == Status::Offline && newStatus != Status::Offline)
-			emit stateConnected();
-		if (status() != Status::Offline && newStatus == Status::Offline)
-			emit stateDisconnected();
+		if (status() == Status::Offline && newStatus != Status::Offline) {
+			p->conferenceManager->syncBookmarks();
+			p->conferenceManager->setPresenceToRooms();
+		}
 		Account::setStatus(newStatus);
 		emit statusChanged(newStatus);
-		p->conferenceManager->syncBookmarks();
 	}
 
 	void JAccount::autoconnect()

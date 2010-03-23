@@ -26,6 +26,7 @@ namespace Jabber
 			void openJoinWindow();
 			void syncBookmarks();
 			void join(const QString &conference, const QString &nick = QString(), const QString &password = QString());
+			void setPresenceToRooms();
 			void leave(const QString &room);
 			bool event(QEvent *event);
 		private slots:

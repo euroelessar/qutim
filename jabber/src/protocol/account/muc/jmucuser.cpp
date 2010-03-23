@@ -9,6 +9,8 @@ namespace Jabber
 	class JMUCUserPrivate : public JContactResourcePrivate
 	{
 		public:
+			QString avatar;
+			QStringRef hash;
 	};
 
 	JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
@@ -16,7 +18,7 @@ namespace Jabber
 	{
 		Q_D(JMUCUser);
 		d->name = name;
-		d->id = muc->id() % QLatin1Char('%') % name;
+		d->id = muc->id() % QLatin1Char('/') % name;
 	}
 
 	JMUCUser::~JMUCUser()
@@ -31,5 +33,28 @@ namespace Jabber
 	QString JMUCUser::name() const
 	{
 		return d_ptr->name;
+	}
+
+	QString JMUCUser::avatar() const
+	{
+		return d_func()->avatar;
+	}
+
+	QString JMUCUser::avatarHash() const
+	{
+		return d_func()->hash.toString();
+	}
+
+	void JMUCUser::setAvatar(const QString &hex)
+	{
+		Q_D(JMUCUser);
+		if (d->avatar == hex)
+			return;
+		d->avatar = static_cast<JAccount *>(d->contact->account())->getAvatarPath()
+				% QLatin1Char('/') % hex;
+		int pos = d->avatar.lastIndexOf('/') + 1;
+		int length = d->avatar.length() - pos;
+		d->hash = QStringRef(&d->avatar, pos, length);
+		emit avatarChanged(d->avatar);
 	}
 }

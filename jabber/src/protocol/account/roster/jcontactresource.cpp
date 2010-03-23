@@ -14,6 +14,7 @@ namespace Jabber
 		Q_D(JContactResource);
 		d->name = name;
 		d->id = parent->id() % QLatin1Char('/') % name;
+		connect(parent, SIGNAL(avatarChanged(QString)), this, SIGNAL(avatarChanged(QString)));
 	}
 
 	JContactResource::JContactResource(ChatUnit *parent, JContactResourcePrivate &ptr) :
@@ -108,5 +109,10 @@ namespace Jabber
 	ChatUnit *JContactResource::upperUnit()
 	{
 		return qobject_cast<Contact *>(d_ptr->contact);
+	}
+
+	QString JContactResource::avatar() const
+	{
+		return qobject_cast<JContact *>(d_func()->contact)->avatar();
 	}
 }

@@ -18,7 +18,9 @@ namespace Jabber
 		~JMUCUser();
 		QString title() const;
 		QString name() const;
-
+		QString avatar() const;
+		QString avatarHash() const;
+		void setAvatar(const QString &hex);
 	signals:
 
 	public slots:

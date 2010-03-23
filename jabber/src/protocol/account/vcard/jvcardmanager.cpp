@@ -1,4 +1,5 @@
 #include "jvcardmanager.h"
+#include "../muc/jmucuser.h"
 #include "../roster/jcontact.h"
 #include "../roster/jroster.h"
 #include "../jaccount.h"
@@ -82,6 +83,8 @@ namespace Jabber
 			d->account->connection()->setAvatar(avatar);
 		} else {
 			if (JContact *contact = qobject_cast<JContact *>(d->account->getUnit(id)))
+				contact->setAvatar(avatar);
+			if (JMUCUser *contact = qobject_cast<JMUCUser *>(d->account->getUnit(id)))
 				contact->setAvatar(avatar);
 		}
 		d->contacts.removeOne(id);

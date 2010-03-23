@@ -198,12 +198,13 @@ namespace Jabber
 
 	void JContact::setAvatar(const QString &hex)
 	{
-		if (d_func()->avatar == hex)
+		Q_D(JContact);
+		if (d->avatar == hex)
 			return;
-		d_func()->avatar = d_ptr->account->getAvatarPath() % "/" % hex;
-		int pos = d_func()->avatar.lastIndexOf('/') + 1;
-		int length = d_func()->avatar.length() - pos;
-		d_func()->hash = QStringRef(&d_func()->avatar, pos, length);
-		emit avatarChanged(d_func()->avatar);
+		d->avatar = d->account->getAvatarPath() % QLatin1Char('/') % hex;
+		int pos = d->avatar.lastIndexOf('/') + 1;
+		int length = d->avatar.length() - pos;
+		d->hash = QStringRef(&d->avatar, pos, length);
+		emit avatarChanged(d->avatar);
 	}
 }
