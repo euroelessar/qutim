@@ -33,7 +33,7 @@ namespace Jabber {
 		p->discoManager = 0;
 		p->connection = new JConnection(this);
 		p->connectionListener = new JConnectionListener(this);
-		p->roster = new JRoster(this);
+		p->roster = new JRoster(this, config());
 		p->messageHandler = new JMessageHandler(this);
 		p->conferenceManager = new JMUCManager(this);
 		p->connection->initExtensions();
@@ -68,13 +68,12 @@ namespace Jabber {
 	{
 		Status newStatus = JProtocol::presenceToStatus(presence);
 		debug() << "new status" << newStatus << newStatus.text();
-		if (status() == Status::Offline && newStatus != Status::Offline)
-			emit stateConnected();
-		if (status() != Status::Offline && newStatus == Status::Offline)
-			emit stateDisconnected();
+		if (status() == Status::Offline && newStatus != Status::Offline) {
+			p->conferenceManager->syncBookmarks();
+			p->conferenceManager->setPresenceToRooms();
+		}
 		Account::setStatus(newStatus);
 		emit statusChanged(newStatus);
-		p->conferenceManager->syncBookmarks();
 	}
 
 	void JAccount::autoconnect()
@@ -167,7 +166,6 @@ namespace Jabber {
 
 	QString JAccount::getAvatarPath()
 	{
-		return QString("%1/%2.%3/avatars/").arg(SystemInfo::getPath(SystemInfo::ConfigDir))
-				.arg(JProtocol::instance()->id()).arg(id());
+		return QString("%1/avatars/").arg(SystemInfo::getPath(SystemInfo::ConfigDir));
 	}
 } // Jabber namespace

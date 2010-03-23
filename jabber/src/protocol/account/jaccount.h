@@ -44,9 +44,6 @@ namespace Jabber {
 			virtual void setStatus(Status status);
 			QString getAvatarPath();
 			void setAvatar(const QString &hex);
-		signals:
-			void stateConnected();
-			void stateDisconnected();
 		protected:
 			void loadSettings();
 		private:

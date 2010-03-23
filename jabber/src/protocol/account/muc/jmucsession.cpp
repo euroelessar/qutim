@@ -18,127 +18,178 @@
 #include "../jaccount.h"
 #include "../roster/jmessagesession.h"
 #include "../roster/jmessagehandler.h"
+#include "../vcard/jvcardmanager.h"
 #include <gloox/uniquemucroom.h>
 #include <qutim/message.h>
 #include <gloox/message.h>
 #include <qutim/messagesession.h>
+#include <gloox/vcardupdate.h>
 #include "jabber_global.h"
 #include <QStringBuilder>
 #include <QMessageBox>
+#include <QFile>
 #include "jmucmanager.h"
 #include "jconferenceconfig.h"
-#include <qutim/debug.h>
 
 using namespace gloox;
 using namespace qutim_sdk_0_3;
 
 namespace Jabber
 {
-	JMUCSession::JMUCSession(const JID &room, const QString &password, JAccount *account) : Conference(account)
+	struct JMUCSessionPrivate
 	{
-		m_roomJid = room.bareJID();
-		m_nick = QString::fromStdString(room.resource());
-		m_room = new MUCRoom(account->client(), room, this, this);
+		JAccount *account;
+		gloox::MUCRoom *room;
+		gloox::JID jid;
+		QString nick;
+		QHash<std::string, quint64> messages;
+		QHash<QString, JMUCUser *> users;
+		bool isJoined;
+		int bookmarkIndex;
+		bool isConfiguring;
+		bool avatarsAutoLoad;
+		QDateTime lastMessage;
+	};
+
+	JMUCSession::JMUCSession(const JID &room, const QString &password, JAccount *account) : Conference(account), d_ptr(new JMUCSessionPrivate)
+	{
+		Q_D(JMUCSession);
+		d->jid = room.bareJID();
+		d->nick = QString::fromStdString(room.resource());
+		d->room = new MUCRoom(account->client(), room, this, this);
 		if (!password.isEmpty())
-			m_room->setPassword(password.toStdString());
-		m_account = account;
-		m_isJoined = false;
-		m_isConfiguring = false;
+			d->room->setPassword(password.toStdString());
+		d->account = account;
+		d->isJoined = false;
+		d->isConfiguring = false;
+		loadSettings();
 	}
 
 	JMUCSession::JMUCSession(JMessageSession *session) : Conference(session->account())
 	{
 		Q_ASSERT(!"Not yet implemented");
-//		m_roomJid = JID();
-		m_account = static_cast<JAccount *>(session->account());
-		m_room = new UniqueMUCRoom(m_account->client(), EmptyString, this);
+		Q_D(JMUCSession);
+//		d->jid = JID();
+		d->account = static_cast<JAccount *>(session->account());
+		d->room = new UniqueMUCRoom(d->account->client(), EmptyString, this);
 		join();
 	}
 
 	JMUCSession::~JMUCSession()
 	{
-		m_room->leave();
+		d_func()->room->leave();
 	}
 
 	qutim_sdk_0_3::Buddy *JMUCSession::me() const
 	{
-		return m_users.value(m_nick);
+		Q_D(const JMUCSession);
+		return d->users.value(d->nick);
+	}
+
+	ChatUnit *JMUCSession::participant(const QString &nick)
+	{
+		return d_func()->users.value(nick);
 	}
 
 	void JMUCSession::join()
 	{
-		Presence &pres = m_account->client()->presence();
-		m_room->join(pres.subtype(), pres.status(), pres.priority());
+		Q_D(JMUCSession);
+		Presence &pres = d->account->client()->presence();
+		if (d->isJoined) {
+			d->room->setPresence(pres.subtype(), pres.status());
+		} else {
+			d->users.clear();
+			d->messages.clear();
+			if (d->lastMessage.isValid())
+				d->room->setRequestHistory(d->lastMessage.toUTC()
+						.toString("yyyy-MM-ddThh:mm:ss.zzzZ").toStdString());
+			d->room->join(pres.subtype(), pres.status(), pres.priority());
+		}
 	}
 
 	void JMUCSession::leave()
 	{
-		m_room->leave();
+		d_func()->room->leave();
 	}
 
 	QString JMUCSession::id() const
 	{
-		return QString::fromStdString(m_room->name())
+		Q_D(const JMUCSession);
+		return QString::fromStdString(d->room->name())
 				% QLatin1Char('@')
-				% QString::fromStdString(m_room->service());
+				% QString::fromStdString(d->room->service());
 	}
 
 	void JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
-		gloox::Message gMsg(gloox::Message::Groupchat, m_roomJid, message.text().toStdString());
-		gMsg.setID(m_account->client()->getID());
-		m_messages.insert(gMsg.id(), message.id());
-		m_account->client()->send(gMsg);
+		Q_D(JMUCSession);
+		gloox::Message gMsg(gloox::Message::Groupchat, d->jid, message.text().toStdString());
+		gMsg.setID(d->account->client()->getID());
+		d->messages.insert(gMsg.id(), message.id());
+		d->account->client()->send(gMsg);
 	}
 
 	void JMUCSession::handleMUCParticipantPresence(MUCRoom *room, const MUCRoomParticipant participant,
-												   const Presence &presence)
+			const Presence &presence)
 	{
-		Q_ASSERT(room == m_room);
-
+		Q_D(JMUCSession);
+		Q_ASSERT(room == d->room);
 		QString nick = QString::fromStdString(participant.nick->resource());
-		JMUCUser *user = m_users.value(nick, 0);
+		JMUCUser *user = d->users.value(nick, 0);
 		if (!user && presence.subtype() != Presence::Unavailable) {
 			user = new JMUCUser(this, nick);
-			m_users.insert(nick, user);
+			d->users.insert(nick, user);
 			ChatLayer::get(this, true)->addContact(user);
 		} else if (!user) {
 			return;
 		} else if (presence.subtype() == Presence::Unavailable) {
-			m_users.remove(nick);
+			d->users.remove(nick);
 			ChatLayer::get(this, true)->removeContact(user);
 		}
-
-		if (!m_isJoined && (presence.from().resource() == m_room->nick()))
-			m_isJoined = true;
+		if (presence.presence() != Presence::Unavailable && !presence.error()) {
+			const VCardUpdate *vcard = presence.findExtension<VCardUpdate>(ExtVCardUpdate);
+			if(vcard) {
+				QString hash = QString::fromStdString(vcard->hash());
+				if (user->avatarHash() != hash) {
+					if(hash.isEmpty() || QFile(d->account->getAvatarPath()%QLatin1Char('/')%hash).exists())
+						user->setAvatar(hash);
+					else if (d->avatarsAutoLoad)
+						d->account->connection()->vCardManager()->fetchVCard(user->id());
+				}
+			}
+		}
+		if (!d->isJoined && (presence.from().resource() == d->room->nick()))
+			d->isJoined = true;
 	}
 
 	void JMUCSession::handleMUCMessage(MUCRoom *room, const gloox::Message &msg, bool priv)
 	{
-		Q_ASSERT(room == m_room);
+		Q_D(JMUCSession);
+		Q_ASSERT(room == d->room);
 		QString nick = QString::fromStdString(msg.from().resource());
-		JMUCUser *user = m_users.value(nick, 0);
+		JMUCUser *user = d->users.value(nick, 0);
 		if (!user)
 			return;
 		if (priv) {
-			JMessageSession *session = qobject_cast<JMessageSession *>(m_account->getUnitForSession(user));
+			JMessageSession *session = qobject_cast<JMessageSession *>(d->account->getUnitForSession(user));
 			if (!session) {
-				MessageSession *glooxSession = new MessageSession(m_account->client(), msg.from(), false,
+				MessageSession *glooxSession = new MessageSession(d->account->client(), msg.from(), false,
 																  gloox::Message::Chat | gloox::Message::Normal);
-				session = new JMessageSession(m_account->messageHandler(), user, glooxSession);
-				m_account->messageHandler()->setSessionUnit(session, user);
+				session = new JMessageSession(d->account->messageHandler(), user, glooxSession);
+				d->account->messageHandler()->setSessionUnit(session, user);
 				session->handleMessage(msg, glooxSession);
 			}
 		} else {
+			d->lastMessage = QDateTime::currentDateTime();
 			qutim_sdk_0_3::Message coreMsg(QString::fromStdString(msg.body()));
 			coreMsg.setChatUnit(user);
-			coreMsg.setIncoming(msg.from().resource() != m_room->nick());
+			coreMsg.setIncoming(msg.from().resource() != d->room->nick());
 			ChatSession *chatSession = ChatLayer::get(this, true);
 			if (!coreMsg.isIncoming()) {
-				QHash<std::string, quint64>::iterator it = m_messages.find(msg.id());
-				if (it != m_messages.end()) {
+				QHash<std::string, quint64>::iterator it = d->messages.find(msg.id());
+				if (it != d->messages.end()) {
 					qApp->postEvent(chatSession, new qutim_sdk_0_3::MessageReceiptEvent(it.value(), true));
-					m_messages.erase(it);
+					d->messages.erase(it);
 				}
 				return;
 			}
@@ -152,23 +203,28 @@ namespace Jabber
 
 	bool JMUCSession::handleMUCRoomCreation(MUCRoom *room)
 	{
-		Q_ASSERT(room == m_room);
-		return true;
+		Q_ASSERT(room == d_func()->room);
+		if(room) {
+			showConfigDialog();
+			return true;
+		}
+		return false;
 	}
 
 	void JMUCSession::handleMUCSubject(MUCRoom *room, const std::string &nick, const std::string &subject)
 	{
-		Q_ASSERT(room == m_room);
+		Q_ASSERT(room == d_func()->room);
 	}
 
 	void JMUCSession::handleMUCInviteDecline(MUCRoom *room, const JID &invitee, const std::string &reason)
 	{
-		Q_ASSERT(room == m_room);
+		Q_ASSERT(room == d_func()->room);
 	}
 
 	void JMUCSession::handleMUCError(MUCRoom *room, StanzaError error)
 	{
-		Q_ASSERT(room == m_room);
+		Q_D(JMUCSession);
+		Q_ASSERT(room == d->room);
 		bool nnr = false;
 		QString text;
 		switch(error) {
@@ -204,66 +260,71 @@ namespace Jabber
 		if (nnr) {
 
 		} else {
-			QMessageBox::warning(0, tr("Join groupchat on")+" "+m_account->id(), text);
-			m_account->conferenceManager()->leave(QString::fromStdString(m_roomJid.full()));
+			QMessageBox::warning(0, tr("Join groupchat on")+" "+d->account->id(), text);
+			d->account->conferenceManager()->leave(QString::fromStdString(d->jid.full()));
 		}
 	}
 
 	void JMUCSession::handleMUCInfo(MUCRoom *room, int features, const std::string &name, const DataForm *infoForm)
 	{
-		Q_ASSERT(room == m_room);
+		Q_ASSERT(room == d_func()->room);
 	}
 
 	void JMUCSession::handleMUCItems(MUCRoom *room, const Disco::ItemList &items)
 	{
-		Q_ASSERT(room == m_room);
+		Q_ASSERT(room == d_func()->room);
 	}
 
 	void JMUCSession::handleMUCConfigList(MUCRoom *room, const MUCListItemList &items, MUCOperation operation)
 	{
-		Q_ASSERT(room == m_room);
+		Q_ASSERT(room == d_func()->room);
 	}
 
 	void JMUCSession::handleMUCConfigForm(MUCRoom *room, const DataForm &form)
 	{
-		Q_ASSERT(room == m_room);
+		Q_ASSERT(room == d_func()->room);
 	}
 
 	void JMUCSession::handleMUCConfigResult(MUCRoom *room, bool success, MUCOperation operation)
 	{
-		Q_ASSERT(room == m_room);
+		Q_ASSERT(room == d_func()->room);
 	}
 
 	void JMUCSession::handleMUCRequest(MUCRoom *room, const DataForm &form)
 	{
-		Q_ASSERT(room == m_room);
+		Q_ASSERT(room == d_func()->room);
 	}
 
 	void JMUCSession::setBookmarkIndex(int index)
 	{
-		m_bookmarkIndex = index;
+		d_func()->bookmarkIndex = index;
 	}
 
 	int JMUCSession::bookmarkIndex()
 	{
-		return m_bookmarkIndex;
+		return d_func()->bookmarkIndex;
 	}
 
 	void JMUCSession::showConfigDialog()
 	{
-		m_isConfiguring = true;
-		JConferenceConfig *dialog = new JConferenceConfig(m_room);
+		d_func()->isConfiguring = true;
+		JConferenceConfig *dialog = new JConferenceConfig(d_func()->room);
 		connect(dialog, SIGNAL(destroyDialog()), SLOT(closeConfigDialog()));
 		dialog->show();
 	}
 
 	void JMUCSession::closeConfigDialog()
 	{
-		m_isConfiguring = false;
+		d_func()->isConfiguring = false;
 	}
 
 	bool JMUCSession::enabledConfiguring()
 	{
-		return !m_isConfiguring;
+		return !d_func()->isConfiguring;
+	}
+
+	void JMUCSession::loadSettings()
+	{
+		d_func()->avatarsAutoLoad = d_func()->account->config().group("general").value("getavatars", true);
 	}
 }

@@ -7,6 +7,7 @@
 namespace gloox
 {
 	class VCardManager;
+	class Client;
 }
 
 namespace Jabber
@@ -21,7 +22,7 @@ namespace Jabber
 		Q_OBJECT
 		Q_DECLARE_PRIVATE(JVCardManager)
 		public:
-			JVCardManager(JAccount *account, QObject *parent = 0);
+			JVCardManager(JAccount *account, Client *client, QObject *parent = 0);
 			~JVCardManager();
 			void fetchVCard(const QString &contact);
 			void storeVCard(VCard *vcard);

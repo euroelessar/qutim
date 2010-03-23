@@ -1,4 +1,5 @@
 #include "jvcardmanager.h"
+#include "../muc/jmucuser.h"
 #include "../roster/jcontact.h"
 #include "../roster/jroster.h"
 #include "../jaccount.h"
@@ -16,12 +17,12 @@ namespace Jabber
 		QStringList contacts;
 	};
 
-	JVCardManager::JVCardManager(JAccount *account, QObject *parent) :
-			QObject(parent)
+	JVCardManager::JVCardManager(JAccount *account, Client *client, QObject *parent)
+			: QObject(parent), d_ptr(new JVCardManagerPrivate)
 	{
 		Q_D(JVCardManager);
 		d->account = account;
-		d->manager = new VCardManager(d->account->client());
+		d->manager = new VCardManager(client);
 	}
 
 	JVCardManager::~JVCardManager()
@@ -82,6 +83,8 @@ namespace Jabber
 			d->account->connection()->setAvatar(avatar);
 		} else {
 			if (JContact *contact = qobject_cast<JContact *>(d->account->getUnit(id)))
+				contact->setAvatar(avatar);
+			if (JMUCUser *contact = qobject_cast<JMUCUser *>(d->account->getUnit(id)))
 				contact->setAvatar(avatar);
 		}
 		d->contacts.removeOne(id);

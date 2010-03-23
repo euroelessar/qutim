@@ -38,6 +38,7 @@ namespace Jabber
 			ChatUnitList lowerUnits();
 			virtual bool event(QEvent *);
 			QString avatar() const;
+			QString avatarHash() const;
 			void setAvatar(const QString &hex);
 		protected:
 			void fillMaxResource();

@@ -19,6 +19,7 @@ namespace Jabber
 		QString jid;
 		bool inList;
 		QString avatar;
+		QStringRef hash;
 	};
 }
 #endif // JCONTACT_P_H

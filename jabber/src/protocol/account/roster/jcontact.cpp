@@ -190,11 +190,21 @@ namespace Jabber
 	{
 		return d_func()->avatar;
 	}
+
+	QString JContact::avatarHash() const
+	{
+		return d_func()->hash.toString();
+	}
+
 	void JContact::setAvatar(const QString &hex)
 	{
-		if (d_func()->avatar == hex)
+		Q_D(JContact);
+		if (d->avatar == hex)
 			return;
-		d_func()->avatar = d_ptr->account->getAvatarPath() % "/" % hex;
-		emit avatarChanged(d_func()->avatar);
+		d->avatar = d->account->getAvatarPath() % QLatin1Char('/') % hex;
+		int pos = d->avatar.lastIndexOf('/') + 1;
+		int length = d->avatar.length() - pos;
+		d->hash = QStringRef(&d->avatar, pos, length);
+		emit avatarChanged(d->avatar);
 	}
 }

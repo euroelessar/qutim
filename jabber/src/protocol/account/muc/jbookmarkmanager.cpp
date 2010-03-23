@@ -2,7 +2,6 @@
 #include "jmucmanager.h"
 #include "../jaccount.h"
 #include <gloox/bookmarkstorage.h>
-#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -129,20 +128,16 @@ namespace Jabber
 	QList<JBookmark> JBookmarkManager::readFromCache(const QString &type)
 	{
 		QList<JBookmark> list;
-		debug() << type << "reading from cache";
 		const ConfigGroup configBookmarks = p->account->config().group(type);
 		int count = configBookmarks.arraySize();
-		debug() << "count is" << count;
 		for (int num = 0; num < count; num++) {
 			const ConfigGroup configBookmark = configBookmarks.at(num);
-			debug() << configBookmark.groupList();
 			JBookmark bookmark(configBookmark.value("name", QString()),
 					configBookmark.value("conference", QString()),
 					configBookmark.value("nick", QString()),
 					configBookmark.value("password", QString(), Config::Crypted),
 					configBookmark.value("autojoin", false));
 			list << bookmark;
-			debug() << bookmark.name << bookmark.conference << bookmark.nick << bookmark.password << bookmark.autojoin;
 		}
 		return list;
 	}
