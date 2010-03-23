@@ -31,9 +31,8 @@ namespace AdiumChat
 	{
 		AeroThemeIntegration	=	0x01,
 		ChatStateIconsOnTabs	=	0x02,
-		AvatarsOnTabs			=	0x04,
-		SendTypingNotification	=	0x08,
-		ShowUnreadMessages		=	0x10
+		SendTypingNotification	=	0x04,
+		ShowUnreadMessages		=	0x08
 	};
 	Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
 	class ChatSessionImpl;
