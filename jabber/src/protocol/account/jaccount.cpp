@@ -166,7 +166,6 @@ namespace Jabber {
 
 	QString JAccount::getAvatarPath()
 	{
-		return QString("%1/%2.%3/avatars/").arg(SystemInfo::getPath(SystemInfo::ConfigDir))
-				.arg(JProtocol::instance()->id()).arg(id());
+		return QString("%1/avatars/").arg(SystemInfo::getPath(SystemInfo::ConfigDir));
 	}
 } // Jabber namespace
