@@ -22,6 +22,7 @@
 #include <qutim/contactlist.h>
 #include <QFile>
 #include <qutim/json.h>
+#include "quetzalactiongenerator.h"
 
 extern Status quetzal_get_status(PurplePresence *presence);
 static PurpleStatus *quetzal_get_correct_status(PurplePresence *presence, Status qutim_status)
@@ -302,6 +303,24 @@ int QuetzalAccount::sendRawData(const QByteArray &data)
 	if (PURPLE_PROTOCOL_PLUGIN_HAS_FUNC(prpl, send_raw))
 		return prpl->send_raw(m_account->gc, data.constData(), data.length());
 	return -1;
+}
+
+QList<MenuController::Action> QuetzalAccount::dynamicActions() const
+{
+	QList<MenuController::Action> actions;
+	if (!m_account->gc)
+		return actions;
+	GList *menu = m_account->gc->prpl->info->actions(m_account->gc->prpl, m_account->gc);
+	QList<QByteArray> off;
+	int i = 0;
+	for (GList *it = menu; it; it = it->next, i--) {
+		PurplePluginAction *action = reinterpret_cast<PurplePluginAction*>(it->data);
+		action->context = m_account->gc;
+		actions << MenuController::Action((new QuetzalActionGenerator(action))
+										  ->setType(2)->setPriority(i), off);
+	}
+	g_list_free(menu);
+	return actions;
 }
 
 void QuetzalAccount::onPasswordEntered(const QString &password, bool remember)

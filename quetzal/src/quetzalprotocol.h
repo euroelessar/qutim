@@ -20,11 +20,13 @@
 #include <qutim/plugin.h>
 #include <qutim/objectgenerator.h>
 #include <purple.h>
+#include "quetzalaccountwizard.h"
 
 using namespace qutim_sdk_0_3;
 
 class QuetzalMetaObject;
 class QuetzalAccount;
+class QuetzalProtocolGenerator;
 
 class QuetzalProtocol : public Protocol
 {
@@ -48,22 +50,18 @@ private:
 class QuetzalMetaObject : public QMetaObject
 {
 public:
-    QuetzalMetaObject(PurplePlugin *protocol);
+	QuetzalMetaObject(PurplePlugin *protocol);
+	QuetzalMetaObject(QuetzalProtocolGenerator *protocol);
 };
 
 class QuetzalProtocolGenerator : public ObjectGenerator
 {
     Q_DISABLE_COPY(QuetzalProtocolGenerator)
 public:
-    inline QuetzalProtocolGenerator(PurplePlugin *protocol)
-        : m_protocol(protocol), m_meta(new QuetzalMetaObject(protocol)) {}
-protected:
-	virtual QObject *generateHelper() const
-	{
-		if(m_object.isNull())
-			m_object = new QuetzalProtocol(m_meta, m_protocol);
-		return m_object.data();
-	}
+	inline QuetzalProtocolGenerator(PurplePlugin *protocol) :
+			m_protocol(protocol), m_meta(new QuetzalMetaObject(protocol)) {}
+	inline QuetzalProtocolGenerator(QuetzalProtocolGenerator *gen) :
+			m_protocol(0), m_meta(new QuetzalMetaObject(gen)) {}
 	virtual const QMetaObject *metaObject() const
 	{
 		return m_meta;
@@ -77,8 +75,20 @@ protected:
 		Q_UNUSED(id);
 		return false;
 	}
+	inline PurplePlugin *plugin() const { return m_protocol; }
+protected:
+	virtual QObject *generateHelper() const
+	{
+		if(m_object.isNull()) {
+			if (m_protocol)
+				m_object = new QuetzalProtocol(m_meta, m_protocol);
+			else
+				m_object = new QuetzalAccountWizard(m_meta);
+		}
+		return m_object.data();
+	}
 private:
-    mutable QPointer<QuetzalProtocol> m_object;
+	mutable QPointer<QObject> m_object;
     PurplePlugin *m_protocol;
     const QuetzalMetaObject *m_meta;
 };

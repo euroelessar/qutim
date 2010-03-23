@@ -173,22 +173,22 @@ namespace Jabber
 				this, SLOT(copyJIDToClipboard()));
 		generator->addCreationHandler(this);
 		p->actions.insert(generator, CopyJIDAction);
-		room->addAction<JMUCSession>(generator);
+		room->addAction(generator);
 		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks"),
 				this, SLOT(saveToBookmarks()));
 		generator->addCreationHandler(this);
 		p->actions.insert(generator, SaveToBookmarkAction);
-		room->addAction<JMUCSession>(generator);
+		room->addAction(generator);
 		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"),
 				this, SLOT(removeFromBookmarks()));
 		generator->addCreationHandler(this);
 		p->actions.insert(generator, RemoveFromBookmarkAction);
-		room->addAction<JMUCSession>(generator);
+		room->addAction(generator);
 		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
 				room, SLOT(showConfigDialog()));
 		generator->addCreationHandler(this);
 		p->actions.insert(generator, RoomConfigAction);
-		room->addAction<JMUCSession>(generator);
+		room->addAction(generator);
 	}
 
 	bool JMUCManager::event(QEvent *event)

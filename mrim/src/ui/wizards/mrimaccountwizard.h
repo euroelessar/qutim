@@ -10,6 +10,7 @@ struct MrimAccountWizardPrivate;
 class MrimAccountWizard : public AccountCreationWizard
 {
 Q_OBJECT
+Q_CLASSINFO("DependsOn", "MrimProtocol")
 public:
 	MrimAccountWizard();
     QList<QWizardPage*> createPages(QWidget *parent);

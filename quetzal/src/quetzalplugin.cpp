@@ -499,9 +499,14 @@ void QuetzalPlugin::init()
 	{
 		PurplePlugin *protocol = (PurplePlugin *)it->data;
 		qDebug("Protocol: %s", protocol->info->name);
+		QuetzalProtocolGenerator *gen = new QuetzalProtocolGenerator(protocol);
 		addExtension(LocalizedString(protocol->info->name),
 					 QT_TRANSLATE_NOOP("Plugin", "'Quetzal' is set of protocols, powered by libpurple"),
-					 new QuetzalProtocolGenerator(protocol),
+					 gen,
+					 Icon(QLatin1String(imPrefix + const_cast<const char *>(protocol->info->name))));
+		addExtension(LocalizedString(protocol->info->name),
+					 QT_TRANSLATE_NOOP("Plugin", "'Quetzal' is set of protocols, powered by libpurple"),
+					 new QuetzalProtocolGenerator(gen),
 					 Icon(QLatin1String(imPrefix + const_cast<const char *>(protocol->info->name))));
 	}
 //	qDebug() << QAbstractEventDispatcher::instance()->metaObject()->className();

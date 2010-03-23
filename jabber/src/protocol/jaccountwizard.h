@@ -20,6 +20,7 @@ namespace Jabber {
 	class JAccountWizard : public qutim_sdk_0_3::AccountCreationWizard
 	{
 		Q_OBJECT
+		Q_CLASSINFO("DependsOn", "Jabber::JProtocol")
 		public:
 			JAccountWizard();
 			~JAccountWizard();

@@ -259,6 +259,18 @@ void QuetzalContact::setName(const QString &name)
 
 void QuetzalContact::setTags(const QSet<QString> &tags)
 {
+	if (!m_buddy->account->gc)
+		return;
+	PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
+	if (!prpl->group_buddy || tags.isEmpty())
+		return;
+	QString group = tags.values().value(0);
+	if (m_tags.contains(group))
+		return;
+	debug() << Q_FUNC_INFO << m_buddy->account->gc << m_id << m_tags.values().value(0) << group;
+	prpl->group_buddy(m_buddy->account->gc, m_id.toUtf8().constData(),
+					  m_tags.values().value(0).toUtf8().constData(),
+					  group.toUtf8().constData());
 }
 
 bool QuetzalContact::isInList() const
@@ -270,7 +282,7 @@ void QuetzalContact::setInList(bool inList)
 {
 }
 
-void quetzal_menu_add(QList<MenuController::Action> &actions, PurpleBlistNode *node,
+void quetzal_menu_add(QList<MenuController::Action> &actions, void *node,
 					  GList *menu, const QList<QByteArray> &off, int type)
 {
 	int i = 0;

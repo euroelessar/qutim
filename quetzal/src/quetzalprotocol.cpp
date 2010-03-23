@@ -16,6 +16,7 @@
 #include "quetzalprotocol.h"
 #include "quetzalaccount.h"
 #include "quetzalplugin.h"
+#include "quetzalaccountwizard.h"
 #include <qutim/debug.h>
 #include <qutim/icon.h>
 #include <qutim/statusactiongenerator.h>
@@ -80,7 +81,7 @@ QByteArray quetzal_fix_protocol_name(const char *name)
 
 QuetzalMetaObject::QuetzalMetaObject(PurplePlugin *protocol)
 {
-	QByteArray stringdata_b = "Quetzal::";
+	QByteArray stringdata_b = "Quetzal::Protocol::";
 	stringdata_b += protocol->info->id;
 	stringdata_b += '\0';
 	stringdata_b.replace('-', '_');
@@ -100,6 +101,35 @@ QuetzalMetaObject::QuetzalMetaObject(PurplePlugin *protocol)
 	data[15] = value;
 
 	d.superdata = &QuetzalProtocol::staticMetaObject;
+	d.stringdata = stringdata;
+	d.data = data;
+	d.extradata = 0;
+}
+
+QuetzalMetaObject::QuetzalMetaObject(QuetzalProtocolGenerator *protocol)
+{
+	const QMetaObject *meta = protocol->metaObject();
+	QByteArray stringdata_b = "Quetzal::AccountWizard::";
+	stringdata_b += protocol->plugin()->info->id;
+	stringdata_b += '\0';
+	stringdata_b.replace('-', '_');
+	int value = stringdata_b.size();
+	stringdata_b += meta->className();
+	stringdata_b += '\0';
+	int key = stringdata_b.size();
+	stringdata_b += "DependsOn";
+	stringdata_b += '\0';
+
+	char *stringdata = (char*)qMalloc(stringdata_b.size() + 1);
+	uint *data = (uint*) calloc(17, sizeof(uint));
+	qMemCopy(stringdata, stringdata_b.constData(), stringdata_b.size() + 1);
+	data[0] = 4;
+	data[2] = 1;
+	data[3] = 14;
+	data[14] = key;
+	data[15] = value;
+
+	d.superdata = &QuetzalAccountWizard::staticMetaObject;
 	d.stringdata = stringdata;
 	d.data = data;
 	d.extradata = 0;

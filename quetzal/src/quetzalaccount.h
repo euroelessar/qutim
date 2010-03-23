@@ -43,7 +43,8 @@ public:
 	void setStatusChanged(PurpleStatus *status);
 	void requestPassword(PurpleRequestFieldsCb okCb, PurpleRequestFieldsCb cancelCb, void *userData);
 	Q_INVOKABLE int sendRawData(const QByteArray &data);
-signals:
+protected:
+	QList<MenuController::Action> dynamicActions() const;
 
 private slots:
 	void showJoinGroupChat();

@@ -61,4 +61,7 @@ private:
 	friend class QuetzalAccount;
 };
 
+void quetzal_menu_add(QList<MenuController::Action> &actions, void *node,
+					  GList *menu, const QList<QByteArray> &off, int type);
+
 #endif // QUETZALCONTACT_H
