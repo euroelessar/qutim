@@ -14,11 +14,13 @@ namespace Jabber
 		RosterManager *rosterManager;
 		QHash<QString, JContact*> contacts;
 		bool avatarsAutoLoad;
+		Config config;
 	};
 
-	JRoster::JRoster(JAccount *account) : p(new JRosterPrivate)
+	JRoster::JRoster(JAccount *account, const Config &config) : p(new JRosterPrivate)
 	{
 		loadSettings();
+		p->config = config;
 		p->account = account;
 		p->rosterManager = p->account->connection()->client()->rosterManager();
 		p->rosterManager->registerRosterListener(this, false);
@@ -219,6 +221,6 @@ namespace Jabber
 
 	void JRoster::loadSettings()
 	{
-		p->avatarsAutoLoad = p->account->config().group("general").value("getavatars", true);
+		p->avatarsAutoLoad = p->config.group("general").value("getavatars", true);
 	}
 }

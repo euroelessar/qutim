@@ -51,7 +51,7 @@ namespace Jabber
 		QDateTime lastMessage;
 	};
 
-	JMUCSession::JMUCSession(const JID &room, const QString &password, JAccount *account) : Conference(account), d_func()(new JMUCSessionPrivate)
+	JMUCSession::JMUCSession(const JID &room, const QString &password, JAccount *account) : Conference(account), d_ptr(new JMUCSessionPrivate)
 	{
 		Q_D(JMUCSession);
 		d->jid = room.bareJID();
