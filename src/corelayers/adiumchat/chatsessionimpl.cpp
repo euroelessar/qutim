@@ -209,11 +209,6 @@ namespace AdiumChat
 														% QString::number(msgEvent->id())
 														% QLatin1Literal("\");"));
 			return true;
-		} else if (ev->type() == ChatStateEvent::eventType()) {
-			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
-			if (chatEvent->chatState() == ChatStateComposing)
-				Notifications::sendNotification(Notifications::Typing, m_chat_unit);
-			return ChatSession::event(ev);
 		} else {
 			return ChatSession::event(ev);
 		}

@@ -18,6 +18,7 @@
 #include "messagesession.h"
 #include <QCoreApplication>
 #include "message.h"
+#include "notificationslayer.h"
 
 namespace qutim_sdk_0_3
 {
@@ -74,6 +75,8 @@ namespace qutim_sdk_0_3
 		if (ChatSession *s = ChatLayer::get(this,false)) {
 			qApp->sendEvent(s,&event);
 		}
+		if (state == ChatStateComposing)
+			Notifications::sendNotification(Notifications::Typing,this);
 	}
 	
 	ChatStateEvent::ChatStateEvent(ChatState state) :
