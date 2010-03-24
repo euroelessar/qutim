@@ -101,7 +101,6 @@ OscarStatus::OscarStatus(Status::Type status) :
 OscarStatus::OscarStatus(const Status &status):
 	Status(status)
 {
-	initIcon("icq");
 	setSubtype(status.subtype());
 	setStatusType(status.type());
 }
@@ -147,14 +146,16 @@ void OscarStatus::registerStatus(quint16 statusId, OscarStatus oscarStatus)
 
 void OscarStatus::setStatusType(Status::Type status)
 {
-	if (subtype() == 0 && status != Online) {
+	if (subtype() == 0 && status != Online && status != Connecting) {
 		foreach (const OscarStatusPair &itr, *statusList()) {
 			if (itr.second.type() == status) {
 				*reinterpret_cast<Status*>(this) = itr.second;
-				break;
+				return;
 			}
 		}
 	}
+	setType(status);
+	initIcon("icq");
 }
 
 } } // namespace qutim_sdk_0_3::oscar

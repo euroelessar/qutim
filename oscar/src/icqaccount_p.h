@@ -47,7 +47,7 @@ struct IcqAccountPrivate
 	QHash<quint64, Cookie*> cookies;
 	Capabilities caps;
 	QHash<QString, Capability> typedCaps;
-	Status lastStatus;
+	OscarStatus lastStatus;
 	QTimer reconnectTimer;
 	QHash<QString, IcqContact *> contacts;
 	QList<RosterPlugin*> rosterPlugins;
