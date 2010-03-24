@@ -188,11 +188,11 @@ void IcqAccount::setStatus(Status status_helper)
 	}
 	{
 		ConfigGroup statusCfg = config().group("general").group("lastStatus");
-		statusCfg.setValue("type", status.type());
-		statusCfg.setValue("subtype", status.subtype());
+		statusCfg.setValue("type", d->lastStatus.type());
+		statusCfg.setValue("subtype", d->lastStatus.subtype());
 		statusCfg.removeGroup("capabilities");
 		statusCfg = statusCfg.group("capabilities");
-		QHashIterator<QString, Capability> itr(status.capabilities());
+		QHashIterator<QString, Capability> itr(d->lastStatus.capabilities());
 		while (itr.hasNext()) {
 			itr.next();
 			statusCfg.setValue(itr.key(), itr.value().toString());
