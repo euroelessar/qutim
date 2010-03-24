@@ -320,7 +320,8 @@ namespace AdiumChat
 
 	void ChatSessionImpl::setChatState(ChatState state)
 	{
-		m_chat_unit->setChatState(state);
+		ChatStateEvent event(state);
+		qApp->sendEvent(m_chat_unit,&event);
 		m_myself_chat_state = state;
 		if ((state != ChatStateInActive) && (state != ChatStateGone) && (state != ChatStateComposing)) {
 			killTimer(m_inactive_timer);

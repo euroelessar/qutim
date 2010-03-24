@@ -15,6 +15,7 @@
 
 #include "chatunit_p.h"
 #include "account.h"
+#include "messagesession.h"
 #include <QCoreApplication>
 #include "message.h"
 
@@ -70,7 +71,9 @@ namespace qutim_sdk_0_3
 	void ChatUnit::setChatState(ChatState state)
 	{
 		ChatStateEvent event(state);
-		qApp->sendEvent(this, &event);
+		if (ChatSession *s = ChatLayer::get(this,false)) {
+			qApp->sendEvent(s,&event);
+		}
 	}
 	
 	ChatStateEvent::ChatStateEvent(ChatState state) :
