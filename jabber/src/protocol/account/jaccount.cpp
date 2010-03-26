@@ -72,6 +72,10 @@ namespace Jabber {
 			p->conferenceManager->syncBookmarks();
 			p->conferenceManager->setPresenceToRooms();
 		}
+		if (status() != Status::Offline && newStatus == Status::Offline) {
+			p->conferenceManager->setPresenceToRooms();
+			p->roster->setOffline();
+		}
 		Account::setStatus(newStatus);
 		emit statusChanged(newStatus);
 	}

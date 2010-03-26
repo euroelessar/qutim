@@ -223,4 +223,10 @@ namespace Jabber
 	{
 		p->avatarsAutoLoad = p->config.group("general").value("getavatars", true);
 	}
+
+	void JRoster::setOffline()
+	{
+		foreach (JContact *contact, p->contacts)
+			contact->setStatus("", Presence::Unavailable, 0);
+	}
 }

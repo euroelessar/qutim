@@ -4,6 +4,7 @@
 #include "jservicediscovery.h"
 #include "jdiscoitem.h"
 #include "../jaccount.h"
+#include "../muc/jmucmanager.h"
 #include "protocol/modules/adhoc/jadhocwidget.h"
 #include <qutim/iconloader.h>
 #include <qutim/configbase.h>
@@ -67,6 +68,7 @@ namespace Jabber
 		p->ui->actionAdd->setIcon(Icon("list-add-user"));
 		connect(p->ui->actionExecute, SIGNAL(triggered()), this, SLOT(onExecute()));
 		connect(p->ui->actionJoin, SIGNAL(triggered()), this, SLOT(onJoin()));
+		connect(p->ui->actionAdd, SIGNAL(triggered()), this, SLOT(onAddToRoster()));
 		connect(p->ui->serviceTree, SIGNAL(itemExpanded(QTreeWidgetItem*)),
 				SLOT(getItems(QTreeWidgetItem*)));
 		connect(p->ui->filterLine, SIGNAL(textEdited(const QString&)),
@@ -428,11 +430,20 @@ namespace Jabber
 	}
 
 	void JServiceBrowser::onJoin()
-		{
+	{
+		if (p->isConference) {
 			emit joinConference(p->currentMenuItem.jid());
-			if (p->isConference)
-				close();
+			close();
+		} else {
+			p->account->conferenceManager()->openJoinWindow(p->currentMenuItem.jid(),
+					p->account->nick(), "", p->currentMenuItem.jid());
 		}
+	}
 
-
+	void JServiceBrowser::onAddToRoster()
+	{
+		if (p->isConference)
+			p->account->conferenceManager()->openJoinWindow(p->currentMenuItem.jid(),
+					p->account->nick(), "", p->currentMenuItem.jid());
+	}
 }

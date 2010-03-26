@@ -217,8 +217,10 @@ namespace Jabber
 			p->client->setXmlLang(QLocale().name().section('_', 0, 0).toStdString());
 			p->client->connect(false);
 		}
-		if (presence == Presence::Unavailable)
+		if (presence == Presence::Unavailable) {
 			p->client->disconnect();
+			p->account->endChangeStatus(presence);
+		}
 	}
 	
 	void JConnection::setAvatar(const QString &hex)

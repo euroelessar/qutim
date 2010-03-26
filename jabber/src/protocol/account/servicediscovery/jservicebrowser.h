@@ -53,14 +53,13 @@ namespace Jabber
 
 			void onExecute();
 			void onJoin();
+			void onAddToRoster();
 
-			/*void on_joinButton_clicked();
-			void on_registerButton_clicked();
+			/*void on_registerButton_clicked();
 			void on_searchFormButton_clicked();
 			void on_executeButton_clicked();
 			void on_showVCardButton_clicked();
-			void on_addProxyButton_clicked();
-			void on_addRosterButton_clicked();*/
+			void on_addProxyButton_clicked();*/
 		protected:
 			bool eventFilter(QObject *obj, QEvent *event);
 			void searchServer(const QString &server);

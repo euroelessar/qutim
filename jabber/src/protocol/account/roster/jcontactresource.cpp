@@ -1,6 +1,8 @@
 #include "jcontactresource_p.h"
 #include "jcontact.h"
 #include "../jaccount.h"
+#include "../../jprotocol.h"
+#include <qutim/status.h>
 #include <QStringBuilder>
 
 using namespace gloox;
@@ -60,11 +62,12 @@ namespace Jabber
 		Q_D(JContactResource);
 		d->presence = presence;
 		d->priority = priority;
+		emit statusChanged(JProtocol::presenceToStatus(presence));
 	}
 
-	Presence::PresenceType JContactResource::status()
+	Status JContactResource::status() const
 	{
-		return d_func()->presence;
+		return JProtocol::presenceToStatus(d_func()->presence);
 	}
 
 	bool JContactResource::event(QEvent *ev)
