@@ -232,7 +232,7 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 		if (index > 0 && index < xstatusList()->size()) {
 			setXstatus(contact,
 					   response.value("title"),
-					   xstatusList()->at(index).icon.toIcon(),
+					   xstatusList()->at(index).icon,
 					   response.value("desc"));
 			debug() << "xstatus" << contact->name() << index << xstatusList()->at(index).status;
 		}
@@ -241,7 +241,7 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 
 void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
 {
-	if (status.type() != Status::Offline)
+	if (status.type() == Status::Offline)
 		return;
 	IcqAccount *account = contact->account();
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));
@@ -278,7 +278,7 @@ bool XStatusHandler::handelXStatusCapabilities(IcqContact *contact, qint8 mood)
 	foreach(const XStatus &status, *xstatusList())
 	{
 		if (caps.match(status.capability) || (mood != -1 && status.mood == mood)) {
-			setXstatus(contact, status.status.toString(), status.icon.toIcon());
+			setXstatus(contact, status.status.toString(), status.icon);
 			return true;
 		}
 	}
@@ -291,14 +291,14 @@ void XStatusHandler::removeXStatuses(Capabilities &caps)
 		caps.removeAll(xstatus.capability);
 }
 
-void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const QIcon &icon , const QString &desc)
+void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon , const QString &desc)
 {
 	Status status = contact->status();
 	QVariantHash extStatuses = status.property("extendedStatuses", QVariantHash());
 	QVariantHash extStatus;
 	extStatus.insert("id", QT_TRANSLATE_NOOP("XStatus", "X-Status").toString());
 	extStatus.insert("title", title);
-	extStatus.insert("icon", icon);
+	extStatus.insert("icon", QVariant::fromValue(icon));
 	if (!desc.isNull())
 		extStatus.insert("desc", desc);
 	extStatuses.insert("xstatus", extStatus);

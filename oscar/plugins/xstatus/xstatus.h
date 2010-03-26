@@ -71,7 +71,7 @@ public:
 	void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs);
 	bool handelXStatusCapabilities(IcqContact *contact, qint8 mood);
 	void removeXStatuses(Capabilities &caps);
-	void setXstatus(IcqContact *contact, const QString &title, const QIcon &icon , const QString &desc = QString());
+	void setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
 	static QHash<Capability, OscarStatus> qipstatuses;
 };
 
