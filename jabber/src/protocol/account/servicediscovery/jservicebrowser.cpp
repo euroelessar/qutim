@@ -47,7 +47,6 @@ namespace Jabber
 			: QWidget(parent), p(new JServiceBrowserPrivate)
 	{
 		p->account = account;
-		ConfigGroup group = account->protocol()->config("serviceBrowser");
 		p->isConference = isConference;
 		p->searchCount = 0;
 		p->ui = new Ui::ServiceBrowser();
@@ -55,6 +54,7 @@ namespace Jabber
 		p->ui->setupUi(this);
 		setWindowTitle(tr("Search service"));
 		p->ui->serviceServer->installEventFilter(this);
+		p->ui->serviceServer->setDuplicatesEnabled(false);
 		p->ui->searchButton->setIcon(Icon("system-search"));
 		p->ui->closeButton->setIcon(Icon("window-close"));
 		p->ui->clearButton->setIcon(Icon("edit-clear-locationbar-ltr"));
@@ -73,14 +73,19 @@ namespace Jabber
 				SLOT(filterItem(const QString&)));
 		connect(p->ui->serviceTree, SIGNAL(customContextMenuRequested(QPoint)),
 				SLOT(showContextMenu(QPoint)));
-		searchServer(QString::fromStdString(p->account->client()->jid().server()));
 		p->ui->serviceTree->setColumnWidth(0, p->ui->serviceTree->width());
 		QMovie *movie = new QMovie(p->ui->labelLoader);
 		movie->setFileName("loader");
 		movie->start();
 		p->ui->labelLoader->setMovie(movie);
 		p->ui->labelLoader->setVisible(false);
+		ConfigGroup group = account->protocol()->config("serviceBrowser");
 		p->showFeatures = group.value("showFeatures", false);
+		const ConfigGroup servers = group.group("servers");
+		int count = servers.arraySize();
+		for (int num = 0; num < count; num++)
+			p->ui->serviceServer->addItem(servers.at(num).value("url", QString()));
+		searchServer(QString::fromStdString(p->account->client()->jid().server()));
 	}
 
 	JServiceBrowser::~JServiceBrowser()
@@ -89,7 +94,7 @@ namespace Jabber
 
 	void JServiceBrowser::searchServer(const QString &server)
 	{
-		p->ui->serviceServer->addItem(server);
+		p->ui->serviceServer->setEditText(server);
 		on_searchButton_clicked();
 	}
 
@@ -213,12 +218,21 @@ namespace Jabber
 		clean_item(p->ui->serviceTree->invisibleRootItem());
 		p->ui->serviceTree->clear();
 		p->treeItems.clear();
+		QString server(p->ui->serviceServer->currentText());
 		QTreeWidgetItem *item = new QTreeWidgetItem(p->ui->serviceTree);
-		item->setText(0, p->ui->serviceServer->currentText());
+		item->setText(0, server);
 		JDiscoItem di;
 		di.setJID(p->ui->serviceServer->currentText());
 		item->setData(0, Qt::UserRole+1, qVariantFromValue(di));
 		getInfo(item);
+		p->ui->serviceServer->insertItem(0, server);
+		ConfigGroup group = p->account->protocol()->config().group("serviceBrowser");
+		group.removeGroup("servers");
+		for (int num = 0; num < p->ui->serviceServer->count(); num++) {
+			ConfigGroup server = group.group("servers").at(num);
+			server.setValue("url", p->ui->serviceServer->itemText(num));
+		}
+		group.sync();
 	}
 
 	void JServiceBrowser::showContextMenu(const QPoint &pos)
