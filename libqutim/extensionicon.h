@@ -19,6 +19,7 @@
 #include "libqutim_global.h"
 #include <QtGui/QIcon>
 #include <QtCore/QSharedData>
+#include <QMetaType>
 
 namespace qutim_sdk_0_3
 {
@@ -34,9 +35,12 @@ namespace qutim_sdk_0_3
 		ExtensionIcon &operator =(const ExtensionIcon &other);
 		operator QIcon() const { return toIcon(); }
 		QIcon toIcon() const;
+		QString name() const;
 	private:
 		QSharedDataPointer<ExtensionIconData> p;
 	};
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::ExtensionIcon);
 
 #endif // EXTENSIONICON_H

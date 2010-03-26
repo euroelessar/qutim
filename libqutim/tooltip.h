@@ -18,6 +18,7 @@
 
 #include "libqutim_global.h"
 #include "localizedstring.h"
+#include "extensionicon.h"
 #include <QPoint>
 #include <QEvent>
 #include <QVariant>
@@ -31,7 +32,8 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		ToolTipEvent(bool extra = false);
-		void appendField(const LocalizedString &title, const QVariant &data);
+		void appendField(const LocalizedString &title, const QVariant &data, const QString &icon = QString());
+		void appendField(const LocalizedString &title, const QVariant &data, const ExtensionIcon &icon);
 		bool extra() const;
 		static QEvent::Type eventType();
                 ~ToolTipEvent();

@@ -18,6 +18,7 @@
 #include "buddy.h"
 #include "account.h"
 #include "protocol.h"
+#include "iconloader.h"
 #include <QPointer>
 #include <QCoreApplication>
 #include <QAbstractItemView>
@@ -27,7 +28,12 @@
 
 namespace qutim_sdk_0_3
 {
-	typedef QPair<LocalizedString, QVariant> InfoField;
+	struct InfoField
+	{
+		LocalizedString name;
+		QVariant data;
+		QString icon;
+	};
 	typedef QList<InfoField> InfoFieldList;
 
 	class ToolTipEventPrivate
@@ -43,9 +49,15 @@ namespace qutim_sdk_0_3
 		d->extra = extra;
 	}
 
-	void ToolTipEvent::appendField(const LocalizedString &title, const QVariant &data)
+	void ToolTipEvent::appendField(const LocalizedString &title, const QVariant &data, const QString &icon)
 	{
-		d->list.append(InfoField(title, data));
+		InfoField field = { title, data, icon };
+		d->list.append(field);
+	}
+
+	void ToolTipEvent::appendField(const LocalizedString &title, const QVariant &data, const ExtensionIcon &icon)
+	{
+		appendField(title, data, icon.name());
 	}
 
         ToolTipEvent::~ToolTipEvent()
@@ -148,15 +160,20 @@ namespace qutim_sdk_0_3
 		foreach (const InfoField &field, list) {
 			if (!text.isNull())
 				text += QLatin1String("<br/>");
-			if (!field.second.canConvert<QString>()) {
+			if (!field.icon.isEmpty()) {
+				QString icon = IconLoader::instance()->iconPath(field.icon, 16);
+				if (!icon.isEmpty())
+					text += "<img src='" + icon + "'> ";
+			}
+			if (!field.data.canConvert<QString>()) {
 				text += QLatin1Literal("<b>")
-						% field.first.toString()
+						% field.name.toString()
 						% QLatin1Literal("</b>");
 			} else {
 				text += QLatin1Literal("<b>")
-						% field.first.toString()
+						% field.name.toString()
 						% QLatin1Literal("</b>: ")
-						% field.second.toString();
+						% field.data.toString();
 			}
 		}
 		return text;

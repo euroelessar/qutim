@@ -53,10 +53,13 @@ namespace qutim_sdk_0_3
 
 	QIcon ExtensionIcon::toIcon() const
 	{
-		if (!p->name.isEmpty() && isCoreInited()) {
+		if (p->icon.isNull() && !p->name.isEmpty() && isCoreInited())
 			p->icon = Icon(p->name);
-			p->name.clear();
-		}
 		return p->icon;
+	}
+
+	QString ExtensionIcon::name() const
+	{
+		return p->name;
 	}
 }

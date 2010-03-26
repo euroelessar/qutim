@@ -11,8 +11,6 @@ namespace qutim_sdk_0_3
 	class Account;
 	class Message;
 	class BuddyPrivate;
-	typedef QPair<LocalizedString, QVariant> InfoField;
-	typedef QList<InfoField> InfoFieldList;
 
 	class LIBQUTIM_EXPORT Buddy : public ChatUnit
 	{
