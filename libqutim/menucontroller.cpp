@@ -68,22 +68,14 @@ namespace qutim_sdk_0_3
 		return true;
 	}
 
-	struct ActionEntry
-	{
-		inline ActionEntry(QMenu *m) : menu(m) {}
-		inline ActionEntry(QAction *action) : menu(action->menu()) {}
-
-		QMenu *menu;
-		QMap<uint, ActionEntry> entries;
-	};
-
-	ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info)
+	ActionEntry *DynamicMenu::findEntry(ActionEntry &entries, const ActionInfo &info)
 	{
 		ActionEntry *current = &entries;
 		for (int i = 0; i < info.menu.size(); i++) {
 			QMap<uint, ActionEntry>::iterator it = current->entries.find(info.hash.at(i));
 			if (it == current->entries.end()) {
 				QMenu *menu = current->menu->addMenu(QString::fromUtf8(info.menu.at(i), info.menu.at(i).size()));
+				connect(this, SIGNAL(aboutToHide()), menu, SLOT(deleteLater()));
 				it = current->entries.insert(info.hash.at(i), ActionEntry(menu));
 			}
 			current = &it.value();

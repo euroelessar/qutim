@@ -32,6 +32,15 @@ namespace qutim_sdk_0_3
 		QList<uint> hash;
 	};
 
+	struct ActionEntry
+	{
+		inline ActionEntry(QMenu *m) : menu(m) {}
+		inline ActionEntry(QAction *action) : menu(action->menu()) {}
+
+		QMenu *menu;
+		QMap<uint, ActionEntry> entries;
+	};
+
 	class MenuControllerPrivate
 	{
 		Q_DECLARE_PUBLIC(MenuController)
@@ -49,6 +58,7 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 	public:
 		DynamicMenu(const MenuControllerPrivate *d);
+		ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info);
 	private slots:
 		void onAboutToShow();
 		void onAboutToHide();
