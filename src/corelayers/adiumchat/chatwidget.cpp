@@ -26,6 +26,7 @@
 #include <qshortcut.h>
 #include <QWidgetAction>
 #include "actions/chatemoticonswidget.h"
+#include "../jsonhistory/historywindow.h"
 
 namespace AdiumChat
 {
@@ -64,6 +65,12 @@ namespace AdiumChat
 		
 			//for testing
 		QMenu *menu = new QMenu(this);
+		
+		ui->actionToolBar->addAction(new ActionGenerator(Icon("view-history"),
+														 QT_TRANSLATE_NOOP("Chat", "View History"),
+														 this,
+														 SLOT(onShowHistory())));
+		
 		ui->actionToolBar->addAction(new MenuActionGenerator(Icon("emoticon"),
 															 QT_TRANSLATE_NOOP("Chat", "Emoticons"),
 															 menu));
@@ -213,7 +220,7 @@ namespace AdiumChat
 		debug() << "moved session" << from << to;
 	}
 
-	void ChatWidget::activate(ChatSessionImpl* session)
+	void ChatWidget::activate(AdiumChat::ChatSessionImpl* session)
 	{
 		activateWindow();
 		raise();
@@ -389,6 +396,20 @@ namespace AdiumChat
 		else
 			close();
 	}
+	
+		
+	void ChatWidget::onShowHistory()
+	{
+		ChatUnit *unit = m_sessions.at(m_current_index)->getUnit();
+		if (m_history_window) {
+			m_history_window->setUnit(unit);
+			m_history_window->raise();
+		}
+		else { 
+			m_history_window = new Core::HistoryWindow(unit);
+			m_history_window->show();
+		}
+	}	
 
 }
 

@@ -20,6 +20,10 @@
 #include "chatlayerimpl.h"
 #include <QMainWindow>
 
+namespace Core
+{
+	class HistoryWindow;
+}
 
 namespace Ui
 {
@@ -50,12 +54,22 @@ namespace AdiumChat
 		void addSession(ChatSessionImpl *session);
 		void addSession(const ChatSessionList &sessions);
 		void removeSession(ChatSessionImpl *session);
-		void activate(ChatSessionImpl *sessionz);
+		void activate(AdiumChat::ChatSessionImpl* session);
 		void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 	protected:
 		bool eventFilter(QObject *obj, QEvent *event);
 		virtual void timerEvent(QTimerEvent* );
 		virtual bool event(QEvent *event);
+	private slots:
+		void currentIndexChanged (int index);
+		void onCloseRequested(int index);
+		void onTabMoved(int from,int to);
+		void onSessionDestroyed(QObject* object);
+		void onSendButtonClicked();		
+		void onTextChanged(); //TODO separate from chatlayer
+		void onTabContextMenu(const QPoint &pos);
+		void closeCurrentTab();
+		void onShowHistory(); //TODO Move to startup module
 	private:
 		QIcon iconForState(ChatState state);
 		void chatStateChanged(ChatState state, ChatSessionImpl* session);
@@ -68,16 +82,7 @@ namespace AdiumChat
 		ChatState m_chatstate;
 		int m_self_chatstate_timer;
 		int m_timeout;
-	private slots:
-		void currentIndexChanged (int index);
-		void onCloseRequested(int index);
-		void onTabMoved(int from,int to);
-		void onSessionDestroyed(QObject* object);
-		void onSendButtonClicked();		
-		void onTextChanged(); //TODO separate from chatlayer
-		void onTabContextMenu(const QPoint &pos);
-		void closeCurrentTab();
+		QPointer<Core::HistoryWindow> m_history_window; //TODO move to separated startup module
 	};
-
 }
 #endif // CHATWIDGET_H

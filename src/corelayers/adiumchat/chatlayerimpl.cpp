@@ -43,6 +43,7 @@ namespace AdiumChat
 									 QT_TRANSLATE_NOOP("ChatLayer", "Send message"),
 									 ChatLayer::instance(), SLOT(onStartChat()));
 		MenuController::addAction<Contact>(action);
+		
 //		MenuController::addAction<Contact>(generate("1"), "1first");
 //		MenuController::addAction<Contact>(generate("2"), "1first\0""1first");
 //		MenuController::addAction<Contact>(generate("3"), "1first\0""2second");

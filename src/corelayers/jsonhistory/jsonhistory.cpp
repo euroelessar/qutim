@@ -200,7 +200,7 @@ namespace Core
 				if(item.time() < from)
 					return items;
 				items.prepend(item);
-				if(items.size() >= max_num)
+				if((items.size() >= max_num) && (max_num != -1))
 					return items;
 			}
 		}
