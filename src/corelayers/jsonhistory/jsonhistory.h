@@ -20,11 +20,11 @@ namespace Core
 		virtual void store(const Message &message);
 		virtual MessageList read(const ChatUnit *unit, const QDateTime &from, const QDateTime &to, int max_num);
 		virtual void showHistory(const ChatUnit *unit);
+		static QString quote(const QString &str);
+		static QString unquote(const QString &str);
 	private:
 		QString getFileName(const Message &message) const;
 		QDir getAccountDir(const ChatUnit *unit) const;
-		static QString quote(const QString &str);
-		static QString unquote(const QString &str);
 		QPointer<HistoryWindow> m_history_window;
 	};
 }

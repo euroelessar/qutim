@@ -3,7 +3,6 @@
 
     Copyright (c) 2008 by Rustam Chakin <qutim.develop@gmail.com>
 				  2009 by Ruslan Nigmatullin <euroelessar@gmail.com>
-				  2010 by Sidorov Aleksey <sauron@citadelspb.com>
 
  ***************************************************************************
  *                                                                         *
@@ -20,51 +19,38 @@
 
 #include <QtGui/QWidget>
 #include <QByteArray>
+#include "libqutim/chatunit.h"
+#include "ui_historywindow.h"
 
-class QTreeWidgetItem;
-namespace Ui
+using namespace qutim_sdk_0_3;
+
+namespace Core
 {
-	class HistoryWindowClass;
-}
-namespace qutim_sdk_0_3
+class JsonEngine;
+
+class HistoryWindow : public QWidget
 {
-	class ChatUnit;
-	class Message;
-	typedef QList<Message> MessageList;
-}
+    Q_OBJECT
 
-namespace Core {
-	
-	using namespace qutim_sdk_0_3;
+public:
+	HistoryWindow(const ChatUnit *unit);
+	void setUnit(const ChatUnit *unit);
 
-	class HistoryWindow : public QWidget
-	{
-		Q_OBJECT
-
-	public:
-		HistoryWindow(const ChatUnit *unit,QWidget *parent = 0);
-		virtual ~HistoryWindow();
-		void setUnit(const ChatUnit *unit);
-	private slots:
-		void fillChatUnitsComboBox();
-		void fillDateTreeWidget(const MessageList &messageList);
-		//void fillContactComboBox(int index);
-		//void fillDateTreeWidget(int index, const QString &search_word = QString());
-		//void fillMonth(QTreeWidgetItem *month);
-		//void on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
-	//	void on_searchButton_clicked();
-		void currentUnitIndexChanged(int);
-		void currentDateItemChanged(QTreeWidgetItem*,QTreeWidgetItem*);		
-	private:
-		QString toHtml(const Message &msg);
-		//void fillAccountComboBox();
-		QString m_history_path;
-		QString m_search_word;
-		const ChatUnit *m_current_unit;
-		QList<const ChatUnit *> m_units;
-		Ui::HistoryWindowClass *ui;
-		MessageList m_msg_list; //all history messages for current unit
-	};
+private slots:
+	void fillContactComboBox(int index);
+	void fillDateTreeWidget(int index, const QString &search_word = QString());
+	void fillMonth(QTreeWidgetItem *month);
+	void on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
+	void on_searchButton_clicked();
+    
+private:
+	void fillAccountComboBox();
+	void setIcons();
+	Ui::HistoryWindowClass ui;
+	const ChatUnit *m_unit;
+    QString m_history_path;
+	QString m_search_word;
+};
 
 }
 
