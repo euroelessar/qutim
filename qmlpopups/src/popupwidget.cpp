@@ -49,7 +49,6 @@ namespace QmlPopups {
 	QString filename =themePath % QLatin1Literal("/main.qml");
 	setSource(QUrl::fromLocalFile(filename));//url - main.qml
 
-	show();
 	rootContext()->setContextProperty("popupWidget",this);
 	rootContext()->setContextProperty("timeout",Manager::self()->timeout);
 
