@@ -64,6 +64,7 @@ namespace AdiumChat
 		void onTextChanged(); //TODO separate from chatlayer
 		void onTabContextMenu(const QPoint &pos);
 		void closeCurrentTab();
+		void onSessionListActionTriggered();
 		void onShowHistory(); //TODO Move to startup module
 	private:
 		QIcon iconForState(ChatState state);

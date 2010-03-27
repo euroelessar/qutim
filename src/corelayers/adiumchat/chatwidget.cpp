@@ -43,6 +43,9 @@ namespace AdiumChat
 		ui->tabBar->setMovable(true);
 		ui->tabBar->setDocumentMode(true);
 		ui->tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
+		//ui->tabBar->setUsesScrollButtons(false);
+		ui->tabButton->setVisible(false);
+		//ui->tabButton->setIcon(Icon("view-list-text"));
 		ui->contactsView->hide();
 		//ui->tabBar->setDrawBase(false);
 		//init status and menubar
@@ -110,7 +113,12 @@ namespace AdiumChat
 
 	ChatWidget::~ChatWidget()
 	{
-		clear();
+		if (m_remove_session_on_close) {
+			foreach (ChatSessionImpl *s,m_sessions) {
+				s->disconnect(this);
+				s->deleteLater();
+			}
+		}
 	}	
 
 	void ChatWidget::addSession(ChatSessionImpl* session)
@@ -128,9 +136,16 @@ namespace AdiumChat
 			ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
 			icon = iconForState(state);
 		}
+
 		ui->tabBar->addTab(icon,session->getUnit()->title());
-		if (ui->tabBar->count() >1)
+		if (ui->tabBar->count() >1) {
 			ui->tabBar->setVisible(true);
+			ui->tabButton->setVisible(true);
+		}
+
+		QAction *act = new QAction(session->getUnit()->title(),this);
+		connect(act,SIGNAL(triggered()),this,SLOT(onSessionListActionTriggered()));
+		ui->tabButton->addAction(act);
 	}
 
 	void ChatWidget::addSession(const ChatSessionList &sessions)
@@ -184,12 +199,15 @@ namespace AdiumChat
 			return;
 		ui->tabBar->removeTab(index);
 		m_sessions.removeAt(index);
+		ui->tabButton->removeAction(ui->tabButton->actions().at(index));
 		session->disconnect(this);
 
 		currentIndexChanged(ui->tabBar->currentIndex());
 
-		if (ui->tabBar->count() == 1)
+		if (ui->tabBar->count() == 1) {
 			ui->tabBar->setVisible(false);
+			ui->tabButton->setVisible(false);
+		}
 		if (session && m_remove_session_on_close) {			
 			session->deleteLater();
 			debug () << "session removed" << index;
@@ -217,6 +235,15 @@ namespace AdiumChat
 	void ChatWidget::onTabMoved(int from, int to)
 	{
 		m_sessions.move(from,to);
+
+		//FIXME remove hack
+		
+		QList <QAction *> actions = ui->tabButton->actions();
+		actions.move(from,to);
+		foreach (QAction *a,ui->tabButton->actions())
+			ui->tabButton->removeAction(a);
+		ui->tabButton->addActions(actions);
+		
 		debug() << "moved session" << from << to;
 	}
 
@@ -403,6 +430,14 @@ namespace AdiumChat
 		ChatUnit *unit = m_sessions.at(m_current_index)->getUnit();
 		History::instance()->showHistory(unit);
 	}	
+
+	void ChatWidget::onSessionListActionTriggered()
+	{
+		QAction *act = qobject_cast<QAction *>(sender());
+		Q_ASSERT(act);
+
+		ui->tabBar->setCurrentIndex(ui->tabButton->actions().indexOf(act));
+	}
 
 }
 
