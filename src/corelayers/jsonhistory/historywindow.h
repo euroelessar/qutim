@@ -42,9 +42,9 @@ namespace Core {
 		Q_OBJECT
 
 	public:
-		HistoryWindow(ChatUnit *unit,QWidget *parent = 0);
+		HistoryWindow(const ChatUnit *unit,QWidget *parent = 0);
 		virtual ~HistoryWindow();
-		void setUnit(ChatUnit *unit);
+		void setUnit(const ChatUnit *unit);
 	private slots:
 		void fillChatUnitsComboBox();
 		void fillDateTreeWidget(const MessageList &messageList);
@@ -60,8 +60,8 @@ namespace Core {
 		//void fillAccountComboBox();
 		QString m_history_path;
 		QString m_search_word;
-		ChatUnit *m_current_unit;
-		QList<ChatUnit *> m_units;
+		const ChatUnit *m_current_unit;
+		QList<const ChatUnit *> m_units;
 		Ui::HistoryWindowClass *ui;
 		MessageList m_msg_list; //all history messages for current unit
 	};

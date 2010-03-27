@@ -33,7 +33,7 @@
 
 namespace Core {
 
-HistoryWindow::HistoryWindow(ChatUnit *unit,QWidget *parent)
+HistoryWindow::HistoryWindow(const ChatUnit *unit,QWidget *parent)
 	: QWidget(parent),m_current_unit(0),ui(new Ui::HistoryWindowClass)
 {
 	ui->setupUi(this);
@@ -60,7 +60,7 @@ HistoryWindow::~HistoryWindow()
 	delete ui;
 }
 
-void HistoryWindow::setUnit(ChatUnit* unit)
+void HistoryWindow::setUnit(const ChatUnit* unit)
 {
 	m_current_unit = unit;
 	int index = m_units.indexOf(m_current_unit);
@@ -89,7 +89,7 @@ void HistoryWindow::currentUnitIndexChanged(int index)
 	m_msg_list = History::instance()->read(m_current_unit,-1);
 	ui->historyLog->clear();
 	foreach (Message msg, m_msg_list) {
-		msg.setChatUnit(m_current_unit);
+		msg.setChatUnit(const_cast<ChatUnit *>(m_current_unit)); //fixme hack
 		ui->historyLog->append(toHtml(msg));
 	}
 	fillDateTreeWidget(m_msg_list);

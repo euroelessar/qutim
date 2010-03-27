@@ -6,6 +6,7 @@
 #include "libqutim/systeminfo.h"
 #include "libqutim/json.h"
 #include <QStringBuilder>
+#include "historywindow.h"
 
 namespace Core
 {
@@ -207,8 +208,16 @@ namespace Core
 		return items;
 	}
 
-	void JsonHistory::showHistory()
+	void JsonHistory::showHistory(const ChatUnit *unit)
 	{
+		if (m_history_window) {
+			m_history_window->setUnit(unit);
+			m_history_window->raise();
+		}
+		else {
+			m_history_window = new Core::HistoryWindow(unit);
+			m_history_window->show();
+		}
 	}
 
 	QString JsonHistory::quote(const QString &str)

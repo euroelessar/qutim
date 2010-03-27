@@ -3,11 +3,13 @@
 
 #include "libqutim/history.h"
 #include <QDir>
+#include <QPointer>
 
 using namespace qutim_sdk_0_3;
 
 namespace Core
 {
+	class HistoryWindow;
 	class JsonHistory : public History
 	{
 		Q_OBJECT
@@ -17,12 +19,13 @@ namespace Core
 		uint findEnd(QFile &file);
 		virtual void store(const Message &message);
 		virtual MessageList read(const ChatUnit *unit, const QDateTime &from, const QDateTime &to, int max_num);
-		virtual void showHistory();
+		virtual void showHistory(const ChatUnit *unit);
 	private:
 		QString getFileName(const Message &message) const;
 		QDir getAccountDir(const ChatUnit *unit) const;
 		static QString quote(const QString &str);
 		static QString unquote(const QString &str);
+		QPointer<HistoryWindow> m_history_window;
 	};
 }
 

@@ -65,10 +65,10 @@ namespace qutim_sdk_0_3
 		return p->self->read(unit, from, to, max_num);
 	}
 
-	void History::showHistory()
+	void History::showHistory(const ChatUnit *unit)
 	{
 		if(p->self.isNull() || p->self == this)
 			return;
-		p->self->showHistory();
+		p->self->showHistory(unit);
 	}
 }

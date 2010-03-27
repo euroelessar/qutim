@@ -20,11 +20,6 @@
 #include "chatlayerimpl.h"
 #include <QMainWindow>
 
-namespace Core
-{
-	class HistoryWindow;
-}
-
 namespace Ui
 {
 	class AdiumChatForm;
@@ -82,7 +77,6 @@ namespace AdiumChat
 		ChatState m_chatstate;
 		int m_self_chatstate_timer;
 		int m_timeout;
-		QPointer<Core::HistoryWindow> m_history_window; //TODO move to separated startup module
 	};
 }
 #endif // CHATWIDGET_H

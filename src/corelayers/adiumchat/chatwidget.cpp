@@ -26,7 +26,7 @@
 #include <qshortcut.h>
 #include <QWidgetAction>
 #include "actions/chatemoticonswidget.h"
-#include "../jsonhistory/historywindow.h"
+#include <libqutim/history.h>
 
 namespace AdiumChat
 {
@@ -401,14 +401,7 @@ namespace AdiumChat
 	void ChatWidget::onShowHistory()
 	{
 		ChatUnit *unit = m_sessions.at(m_current_index)->getUnit();
-		if (m_history_window) {
-			m_history_window->setUnit(unit);
-			m_history_window->raise();
-		}
-		else { 
-			m_history_window = new Core::HistoryWindow(unit);
-			m_history_window->show();
-		}
+		History::instance()->showHistory(unit);
 	}	
 
 }
