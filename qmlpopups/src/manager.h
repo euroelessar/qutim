@@ -52,12 +52,13 @@ namespace QmlPopups
 		bool updatePosition;
 		AnimationFlags animation;
 		NotificationTypes showFlags;
-		uint timeout;
+		int timeout;
 		bool appendMode;
 		bool updateMode;
 		int maxCount;
 		int maxTextLength;
 		uint margin;
+		QString themeName;
 	private:
 		QList<Popup *> active_notifications;
 		static Manager *instance;

@@ -85,6 +85,7 @@ namespace QmlPopups
 	{
 		int number = getNumber(id);
 		active_notifications.removeAt(number);
+		updateGeometry();
 	}
 
 
@@ -118,7 +119,7 @@ namespace QmlPopups
 	void Manager::loadSettings()
 	{
 		ConfigGroup behavior = Config("behavior/popups").group("general");
-		QString theme_name = behavior.value<QString>("themeName","default");
+		themeName = behavior.value<QString>("themeName","default");
 		updatePosition = behavior.value<bool>("updatePosition",true);
 		animation = static_cast<AnimationFlags>(behavior.value<int>("animationFlags",Opacity));
 		timeout = behavior.value<int>("timeout",5000);
@@ -127,7 +128,7 @@ namespace QmlPopups
 		maxTextLength = behavior.value<int>("maxTextLength",160);
 		appendMode = behavior.value<bool>("appendMode",true);
 		updateMode = behavior.value<bool>("updateMode",false);
-		animationDuration = behavior.value("animationDuration",1000);
+		animationDuration = behavior.value("animationDuration",600);
 		showFlags = static_cast<NotificationTypes>(behavior.value("showFlags", 0xfffffff));
 		margin = behavior.value("margin",20);
 	}

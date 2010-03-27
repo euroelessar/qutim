@@ -10,14 +10,14 @@
 #include <qutim/messagesession.h>
 #include <QMouseEvent>
 #include <qutim/qtwin.h>
+#include "manager.h"
 
 namespace QmlPopups {
 
     PopupWidget::PopupWidget()
     {
 	//TODO need cache
-	ConfigGroup general = Config("appearance/qmlpopups").group("general");
-	QString theme_name = general.value<QString>("themeName","default");
+	QString theme_name = Manager::self()->themeName;
 
 	QString themePath = getThemePath("qmlpopups",theme_name);
 	ConfigGroup appearance = Config(themePath + "/settings.json").group("appearance");
@@ -25,7 +25,7 @@ namespace QmlPopups {
 	PopupWidgetFlags popupFlags = static_cast<PopupWidgetFlags>(appearance.value<int>("popupFlags",Transparent));
 
 	connect(this,SIGNAL(sceneResized(QSize)),this,SLOT(onSceneResized(QSize)));
-	//view->setContentResizable(true);
+	setResizeMode(QDeclarativeView::SizeViewToRootObject);
 	setAttribute(Qt::WA_DeleteOnClose);
 
 	if (popupFlags & Transparent) {
@@ -51,7 +51,21 @@ namespace QmlPopups {
 
 	show();
 	rootContext()->setContextProperty("popupWidget",this);
+	rootContext()->setContextProperty("timeout",Manager::self()->timeout);
 
+    }
+    PopupWidget::PopupWidget(const QString &themeName)
+    {
+	setTheme(themeName);
+    }
+
+    void PopupWidget::setTheme(const QString &themeName)
+    {
+	QString themePath = getThemePath("qmlpopups",themeName);
+
+	QString filename =themePath % QLatin1Literal("/main.qml");
+	setSource(QUrl::fromLocalFile(filename));//url - main.qml
+	rootContext()->setContextProperty("popupWidget",this);
     }
 
     void PopupWidget::onSceneResized(QSize size)
@@ -83,12 +97,7 @@ namespace QmlPopups {
 	context->setContextProperty("popupImage",image_path);
     }
 
-    void PopupWidget::onTimeoutReached()
-    {
-	emit activated();
-    }
-
-    void PopupWidget::activate()
+    void PopupWidget::accept()
     {
 	ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
 	ChatSession *sess;
