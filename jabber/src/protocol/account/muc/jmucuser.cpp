@@ -50,8 +50,7 @@ namespace Jabber
 		Q_D(JMUCUser);
 		if (d->avatar == hex)
 			return;
-		d->avatar = static_cast<JAccount *>(d->contact->account())->getAvatarPath()
-				% QLatin1Char('/') % hex;
+		d->avatar = static_cast<JAccount *>(account())->getAvatarPath() % QLatin1Char('/') % hex;
 		int pos = d->avatar.lastIndexOf('/') + 1;
 		int length = d->avatar.length() - pos;
 		d->hash = QStringRef(&d->avatar, pos, length);
