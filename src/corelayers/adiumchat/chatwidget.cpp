@@ -27,6 +27,7 @@
 #include <QWidgetAction>
 #include "actions/chatemoticonswidget.h"
 #include <libqutim/history.h>
+#include <libqutim/shortcut.h>
 
 namespace AdiumChat
 {
@@ -102,12 +103,10 @@ namespace AdiumChat
 				setContentsMargins(0, 0, 0, 0);
 			}
 		}
-		ui->pushButton->setShortcut(QKeySequence(tr("Ctrl+Return","Send message")));
-
-		new QShortcut(QKeySequence(QKeySequence::Close),
-					  this,
-					  SLOT(closeCurrentTab())
-					  );
+		Shortcut *key = new Shortcut ("chatSendMessage",ui->pushButton);
+		connect(key,SIGNAL(activated()),ui->pushButton,SLOT(click()));
+		key = new Shortcut ("chatCloseSession",ui->tabBar);
+		connect(key,SIGNAL(activated()),SLOT(closeCurrentTab()));
 		
 	}
 
