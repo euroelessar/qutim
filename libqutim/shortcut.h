@@ -23,7 +23,7 @@ namespace qutim_sdk_0_3
 {
 class ShortcutPrivate;
 class GlobalShortcutPrivate;
-class Shortcut : public QShortcut
+class LIBQUTIM_EXPORT Shortcut : public QShortcut
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(Shortcut)
@@ -38,7 +38,7 @@ protected:
 	QScopedPointer<ShortcutPrivate> d_ptr;
 };
 
-class GlobalShortcut : public QObject
+class LIBQUTIM_EXPORT GlobalShortcut : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(GlobalShortcut)

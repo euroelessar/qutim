@@ -108,6 +108,7 @@ bool Shortcut::registerSequence(const QString &id, const LocalizedString &name,
 		info = new ShortcutInfo();
 	}
 	if (!info->inited) {
+		info->inited = true;
 		info->name = name;
 		info->group = group;
 		info->key = key;
@@ -117,6 +118,7 @@ bool Shortcut::registerSequence(const QString &id, const LocalizedString &name,
 			shortcut->setKey(info->key);
 			shortcut->setContext(info->context);
 		}
+		hash.insert(id, info);
 		return true;
 	}
 	return false;
@@ -158,6 +160,7 @@ bool GlobalShortcut::registerSequence(const QString &id, const LocalizedString &
 		info = new GlobalShortcutInfo();
 	}
 	if (!info->inited) {
+		info->inited = true;
 		info->name = name;
 		info->group = group;
 		info->key = key;
@@ -169,6 +172,7 @@ bool GlobalShortcut::registerSequence(const QString &id, const LocalizedString &
 			else
 				continue;
 		}
+		hash.insert(id, info);
 		return true;
 	}
 	return false;
