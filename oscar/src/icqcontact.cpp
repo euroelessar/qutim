@@ -22,7 +22,9 @@
 #include "qutim/messagesession.h"
 #include "qutim/notificationslayer.h"
 #include "qutim/tooltip.h"
+#include "qutim/extensionicon.h"
 #include <QApplication>
+#include <QVariant>
 
 namespace qutim_sdk_0_3 {
 
@@ -366,6 +368,17 @@ bool IcqContact::event(QEvent *ev)
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+		QVariantHash extStatuses = status().property("extendedStatuses", QVariantHash());
+		if (!extStatuses.isEmpty()) {
+			foreach (const QVariant &itr, extStatuses) {
+				QVariantHash extStatus = itr.toHash();
+				event->appendField(extStatus.value("title").toString(),
+								   extStatus.value("desc").toString(),
+								   extStatus.value("icon").value<ExtensionIcon>());
+			}
+		} else if (!status().text().isEmpty()) {
+			event->appendField(QString(), status().text());
+		}
 		QDateTime time;
 		if (!d->onlineSince.isNull()) {
 			time = QDateTime::currentDateTime();

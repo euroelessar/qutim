@@ -22,6 +22,7 @@ namespace Jabber
 			JRoster(JAccount *account, const Config &config);
 			~JRoster();
 			ChatUnit *contact(const QString &jid, bool create = false);
+			void setOffline();
 		protected:
 			void loadSettings();
 			void handleItemAdded(const JID &jid);

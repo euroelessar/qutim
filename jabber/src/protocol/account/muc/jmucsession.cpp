@@ -146,6 +146,7 @@ namespace Jabber
 			d->users.remove(nick);
 			ChatLayer::get(this, true)->removeContact(user);
 		}
+		user->setStatus(presence.presence(), presence.priority());
 		if (presence.presence() != Presence::Unavailable && !presence.error()) {
 			const VCardUpdate *vcard = presence.findExtension<VCardUpdate>(ExtVCardUpdate);
 			if(vcard) {

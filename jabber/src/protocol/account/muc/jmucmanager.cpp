@@ -175,31 +175,37 @@ namespace Jabber
 		ActionGenerator *generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Join to conference"),
 				this, SLOT(join()));
 		generator->addCreationHandler(this);
+		generator->setType(0);
 		p->actions.insert(generator, JoinAction);
 		room->addAction(generator);
 		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Leave from conference"),
 				this, SLOT(leave()));
 		generator->addCreationHandler(this);
+		generator->setType(0);
 		p->actions.insert(generator, LeaveAction);
 		room->addAction(generator);
 		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Copy room address to clipboard"),
 				this, SLOT(copyJIDToClipboard()));
 		generator->addCreationHandler(this);
+		generator->setType(1);
 		p->actions.insert(generator, CopyJIDAction);
 		room->addAction(generator);
 		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks"),
 				this, SLOT(saveToBookmarks()));
 		generator->addCreationHandler(this);
+		generator->setType(2);
 		p->actions.insert(generator, SaveToBookmarkAction);
 		room->addAction(generator);
 		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"),
 				this, SLOT(removeFromBookmarks()));
 		generator->addCreationHandler(this);
+		generator->setType(2);
 		p->actions.insert(generator, RemoveFromBookmarkAction);
 		room->addAction(generator);
 		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
 				room, SLOT(showConfigDialog()));
 		generator->addCreationHandler(this);
+		generator->setType(3);
 		p->actions.insert(generator, RoomConfigAction);
 		room->addAction(generator);
 	}

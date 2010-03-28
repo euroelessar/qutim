@@ -4,6 +4,7 @@
 #include "jservicediscovery.h"
 #include "jdiscoitem.h"
 #include "../jaccount.h"
+#include "../muc/jmucmanager.h"
 #include "protocol/modules/adhoc/jadhocwidget.h"
 #include <qutim/iconloader.h>
 #include <qutim/configbase.h>
@@ -47,7 +48,6 @@ namespace Jabber
 			: QWidget(parent), p(new JServiceBrowserPrivate)
 	{
 		p->account = account;
-		ConfigGroup group = account->protocol()->config("serviceBrowser");
 		p->isConference = isConference;
 		p->searchCount = 0;
 		p->ui = new Ui::ServiceBrowser();
@@ -55,6 +55,7 @@ namespace Jabber
 		p->ui->setupUi(this);
 		setWindowTitle(tr("Search service"));
 		p->ui->serviceServer->installEventFilter(this);
+		p->ui->serviceServer->setDuplicatesEnabled(false);
 		p->ui->searchButton->setIcon(Icon("system-search"));
 		p->ui->closeButton->setIcon(Icon("window-close"));
 		p->ui->clearButton->setIcon(Icon("edit-clear-locationbar-ltr"));
@@ -67,20 +68,26 @@ namespace Jabber
 		p->ui->actionAdd->setIcon(Icon("list-add-user"));
 		connect(p->ui->actionExecute, SIGNAL(triggered()), this, SLOT(onExecute()));
 		connect(p->ui->actionJoin, SIGNAL(triggered()), this, SLOT(onJoin()));
+		connect(p->ui->actionAdd, SIGNAL(triggered()), this, SLOT(onAddToRoster()));
 		connect(p->ui->serviceTree, SIGNAL(itemExpanded(QTreeWidgetItem*)),
 				SLOT(getItems(QTreeWidgetItem*)));
 		connect(p->ui->filterLine, SIGNAL(textEdited(const QString&)),
 				SLOT(filterItem(const QString&)));
 		connect(p->ui->serviceTree, SIGNAL(customContextMenuRequested(QPoint)),
 				SLOT(showContextMenu(QPoint)));
-		searchServer(QString::fromStdString(p->account->client()->jid().server()));
 		p->ui->serviceTree->setColumnWidth(0, p->ui->serviceTree->width());
 		QMovie *movie = new QMovie(p->ui->labelLoader);
 		movie->setFileName("loader");
 		movie->start();
 		p->ui->labelLoader->setMovie(movie);
 		p->ui->labelLoader->setVisible(false);
+		ConfigGroup group = account->protocol()->config("serviceBrowser");
 		p->showFeatures = group.value("showFeatures", false);
+		const ConfigGroup servers = group.group("servers");
+		int count = servers.arraySize();
+		for (int num = 0; num < count; num++)
+			p->ui->serviceServer->addItem(servers.at(num).value("url", QString()));
+		searchServer(QString::fromStdString(p->account->client()->jid().server()));
 	}
 
 	JServiceBrowser::~JServiceBrowser()
@@ -89,7 +96,7 @@ namespace Jabber
 
 	void JServiceBrowser::searchServer(const QString &server)
 	{
-		p->ui->serviceServer->addItem(server);
+		p->ui->serviceServer->setEditText(server);
 		on_searchButton_clicked();
 	}
 
@@ -213,12 +220,21 @@ namespace Jabber
 		clean_item(p->ui->serviceTree->invisibleRootItem());
 		p->ui->serviceTree->clear();
 		p->treeItems.clear();
+		QString server(p->ui->serviceServer->currentText());
 		QTreeWidgetItem *item = new QTreeWidgetItem(p->ui->serviceTree);
-		item->setText(0, p->ui->serviceServer->currentText());
+		item->setText(0, server);
 		JDiscoItem di;
 		di.setJID(p->ui->serviceServer->currentText());
 		item->setData(0, Qt::UserRole+1, qVariantFromValue(di));
 		getInfo(item);
+		p->ui->serviceServer->insertItem(0, server);
+		ConfigGroup group = p->account->protocol()->config().group("serviceBrowser");
+		group.removeGroup("servers");
+		for (int num = 0; num < p->ui->serviceServer->count(); num++) {
+			ConfigGroup server = group.group("servers").at(num);
+			server.setValue("url", p->ui->serviceServer->itemText(num));
+		}
+		group.sync();
 	}
 
 	void JServiceBrowser::showContextMenu(const QPoint &pos)
@@ -414,11 +430,20 @@ namespace Jabber
 	}
 
 	void JServiceBrowser::onJoin()
-		{
+	{
+		if (p->isConference) {
 			emit joinConference(p->currentMenuItem.jid());
-			if (p->isConference)
-				close();
+			close();
+		} else {
+			p->account->conferenceManager()->openJoinWindow(p->currentMenuItem.jid(),
+					p->account->nick(), "", p->currentMenuItem.jid());
 		}
+	}
 
-
+	void JServiceBrowser::onAddToRoster()
+	{
+		if (p->isConference)
+			p->account->conferenceManager()->openJoinWindow(p->currentMenuItem.jid(),
+					p->account->nick(), "", p->currentMenuItem.jid());
+	}
 }

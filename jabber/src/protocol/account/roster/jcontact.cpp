@@ -6,6 +6,7 @@
 #include <gloox/rostermanager.h>
 #include <gloox/rosteritem.h>
 #include <QStringBuilder>
+#include <qutim/debug.h>
 
 using namespace gloox;
 
@@ -40,6 +41,8 @@ namespace Jabber
 			return;
 		item->setName(name.toStdString());
 		rosterManager->synchronize();
+		d->name = name;
+		emit nameChanged(name);
 	}
 
 	QString JContact::name() const
@@ -49,7 +52,21 @@ namespace Jabber
 
 	void JContact::setTags(const QSet<QString> &tags)
 	{
-		d_func()->tags = tags;
+		Q_D(JContact);
+		if (d->tags == tags)
+			return;
+		d->tags = tags;
+		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
+		RosterItem *item = rosterManager->getRosterItem(JID(d->jid.toStdString()));
+		if(!item)
+			return;
+		StringList stdGroups;
+		foreach (QString group, d->tags) {
+			stdGroups.push_back(group.toStdString());
+		}
+		item->setGroups(stdGroups);
+		rosterManager->synchronize();
+		emit tagsChanged(tags);
 	}
 
 	QSet<QString> JContact::tags() const
@@ -72,6 +89,7 @@ namespace Jabber
 			rosterManager->add(d->jid.toStdString(), d->name.toStdString(), StringList());
 		else
 			rosterManager->remove(d->jid.toStdString());
+		emit inListChanged(inList);
 	}
 
 	inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)
@@ -121,7 +139,13 @@ namespace Jabber
 	{
 		Q_D(JContact);
 		Status oldStatus = status();
-		if (presence == Presence::Unavailable) {
+		if (presence == Presence::Unavailable && resource.isEmpty()) {
+			qDeleteAll(d->resources);
+			d->resources.clear();
+			d->currentResources.clear();
+		} else if (resource.isEmpty()) {
+			return;
+		} else if (presence == Presence::Unavailable) {
 			if (d->resources.contains(resource))
 				removeResource(resource);
 		} else {
@@ -131,6 +155,7 @@ namespace Jabber
 			fillMaxResource();
 		}
 		Status newStatus = status();
+		debug() << oldStatus.type() << newStatus.type();
 		if(oldStatus.type() != newStatus.type())
 			emit statusChanged(newStatus);
 	}
@@ -144,9 +169,8 @@ namespace Jabber
 	Status JContact::status() const
 	{
 		Q_D(const JContact);
-		return JProtocol::presenceToStatus(d->currentResources.isEmpty()
-				? Presence::Unavailable
-				: d->resources.value(d->currentResources.first())->status());
+		return d->currentResources.isEmpty()
+				? Status::Offline : d->resources.value(d->currentResources.first())->status();
 	}
 
 	void JContact::fillMaxResource()

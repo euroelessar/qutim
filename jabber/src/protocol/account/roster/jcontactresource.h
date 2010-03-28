@@ -5,8 +5,15 @@
 #include <gloox/presence.h>
 #include <QSet>
 
+namespace qutim_sdk_0_3
+{
+	class Status;
+}
+
 namespace Jabber
 {
+	using namespace qutim_sdk_0_3;
+
 	class JAccount;
 	class JContact;
 	class JContactResourcePrivate;
@@ -26,7 +33,7 @@ namespace Jabber
 			void setPriority(int priority);
 			int priority();
 			void setStatus(gloox::Presence::PresenceType presence, int priority);
-			gloox::Presence::PresenceType status();
+			Status status() const;
 			virtual bool event(QEvent *ev);
 			QSet<QString> features() const;
 			void setFeatures(const QSet<QString> &features);
