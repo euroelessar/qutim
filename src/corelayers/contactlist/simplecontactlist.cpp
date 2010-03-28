@@ -150,6 +150,7 @@ namespace Core
 			p->view->setModel(p->model);
 			p->view->setRootIsDecorated(false);
 			p->view->setIndentation(0);
+			p->view->setEditTriggers(QAbstractItemView::EditKeyPressed);
 			p->widget->show();
 
 			QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget);
@@ -167,8 +168,6 @@ namespace Core
 			Shortcut *key = new Shortcut("find",p->search_btn);
 			connect(key,SIGNAL(activated()),p->search_btn,SLOT(click()));
 			key = new Shortcut("contactListGlobalStatus",p->status_btn);
-			connect(key,SIGNAL(activated()),p->status_btn,SLOT(showMenu()));
-			key = new Shortcut("contactListActivateMainMenu",p->m);
 			connect(key,SIGNAL(activated()),p->status_btn,SLOT(showMenu()));
 
 			p->status_btn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
