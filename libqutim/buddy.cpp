@@ -42,6 +42,11 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(name);
 	}
 
+	InfoRequest *Buddy::infoRequest() const
+	{
+		return 0;
+	}
+
 //	QIcon Contact::statusIcon() const
 //	{
 //		switch(status())

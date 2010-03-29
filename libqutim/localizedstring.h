@@ -17,6 +17,7 @@
 #define LOCALIZEDSTRING_H
 
 #include "libqutim_global.h"
+#include <QMetaType>
 
 #ifndef NO_AUTOLOCALIZATION
 # undef QT_TRANSLATE_NOOP
@@ -56,6 +57,11 @@ namespace qutim_sdk_0_3
 		QByteArray m_ctx;
 		QByteArray m_str;
 	};
+
+	typedef QList<LocalizedString> LocalizedStringList;
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::LocalizedStringList);
+Q_DECLARE_METATYPE(qutim_sdk_0_3::LocalizedString);
 
 #endif // LOCALIZEDSTRING_H
