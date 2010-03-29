@@ -57,6 +57,7 @@ namespace AdiumChat
 		virtual bool event(QEvent *event);
 	private slots:
 		void currentIndexChanged (int index);
+		void onBuddiesChanged();
 		void onCloseRequested(int index);
 		void onTabMoved(int from,int to);
 		void onSessionDestroyed(QObject* object);

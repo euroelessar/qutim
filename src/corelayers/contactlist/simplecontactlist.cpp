@@ -148,9 +148,6 @@ namespace Core
 
 			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));
 			p->view->setModel(p->model);
-			p->view->setRootIsDecorated(false);
-			p->view->setIndentation(0);
-			p->view->setEditTriggers(QAbstractItemView::EditKeyPressed);
 			p->widget->show();
 
 			QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget);

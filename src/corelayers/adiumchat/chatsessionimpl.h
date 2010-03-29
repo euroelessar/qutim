@@ -51,6 +51,8 @@ namespace AdiumChat
 		bool event(QEvent *);
 		void setChatState(ChatState state);
 		ChatState getChatState() const {return m_myself_chat_state;};
+	signals:
+		void buddiesChanged();
 	public slots:
 		QVariant evaluateJavaScript(const QString &scriptSource);
 	protected:

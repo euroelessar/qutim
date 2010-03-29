@@ -15,7 +15,6 @@
 
 #include "chatwidget.h"
 #include "chatsessionimpl.h"
-#include "ui_chatwidget.h"
 #include <libqutim/account.h>
 #include <libqutim/icon.h>
 #include <libqutim/menucontroller.h>
@@ -28,6 +27,8 @@
 #include "actions/chatemoticonswidget.h"
 #include <libqutim/history.h>
 #include <libqutim/shortcut.h>
+#include <libqutim/conference.h>
+#include "ui_chatwidget.h"
 
 namespace AdiumChat
 {
@@ -169,7 +170,11 @@ namespace AdiumChat
 		}
 		m_current_index = index;
 		ui->contactsView->setModel(session->getModel());
-		ui->contactsView->setVisible(session->getModel()->rowCount(QModelIndex()) > 0);
+		if (qobject_cast<Conference*>(session->getUnit()))
+			ui->contactsView->setVisible(true);
+		else
+			ui->contactsView->setVisible(session->getModel()->rowCount(QModelIndex()) > 0);
+
 		if (ui->chatView->page() != session->getPage()) {
 			ui->chatView->page()->setView(0);
 			ui->chatView->setPage(session->getPage());
@@ -459,6 +464,20 @@ namespace AdiumChat
 		if (m_current_index < 0 )
 			m_current_index = m_sessions.count() - 1;
 		ui->tabBar->setCurrentIndex(m_current_index);
+	}
+
+	void ChatWidget::onBuddiesChanged()
+	{
+		ChatSessionImpl *s = qobject_cast<ChatSessionImpl *>(sender());
+
+		if (!s || (m_sessions.indexOf(s) != m_current_index))
+			return;
+
+		if (qobject_cast<Conference*>(s->getUnit()))
+			ui->contactsView->setVisible(true);
+		else
+			ui->contactsView->setVisible(s->getModel()->rowCount(QModelIndex()) > 0);
+
 	}
 }
 

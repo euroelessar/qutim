@@ -12,6 +12,9 @@ namespace Core
 			connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onClick(QModelIndex)));
 			setAnimated(true);
 			setAlternatingRowColors(true);
+			setRootIsDecorated(false);
+			setIndentation(0);
+			setEditTriggers(QAbstractItemView::EditKeyPressed);
 		}
 
 		void TreeView::onClick(const QModelIndex &index)

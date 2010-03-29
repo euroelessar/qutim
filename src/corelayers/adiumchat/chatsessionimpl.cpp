@@ -98,6 +98,7 @@ namespace AdiumChat
 	{
 //		connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(statusChanged(qutim_sdk_0_3::Status)));
 		m_model->addContact(c);
+		emit buddiesChanged();
 	}
 
 	void ChatSessionImpl::appendMessage(const Message &message)
@@ -157,6 +158,7 @@ namespace AdiumChat
 	void ChatSessionImpl::removeContact(Buddy *c)
 	{
 		m_model->removeContact(c);
+		emit buddiesChanged();
 	}
 
 
