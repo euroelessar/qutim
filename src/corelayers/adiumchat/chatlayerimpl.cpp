@@ -56,6 +56,16 @@ namespace AdiumChat
 								   "ChatWidget",
 								   QKeySequence(QKeySequence::Close)
 								   );   
+		Shortcut::registerSequence("chatNext",
+								   QT_TRANSLATE_NOOP("ChatLayer", "Next chat"),
+								   "ChatWidget",
+								   QKeySequence(QKeySequence::NextChild)
+								   );
+		Shortcut::registerSequence("chatPrevious",
+								   QT_TRANSLATE_NOOP("ChatLayer", "Previous chat"),
+								   "ChatWidget",
+								   QKeySequence(QKeySequence::PreviousChild)
+								   );
 		
 //		MenuController::addAction<Contact>(generate("1"), "1first");
 //		MenuController::addAction<Contact>(generate("2"), "1first\0""1first");

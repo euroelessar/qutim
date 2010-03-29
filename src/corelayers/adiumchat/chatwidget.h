@@ -66,6 +66,8 @@ namespace AdiumChat
 		void closeCurrentTab();
 		void onSessionListActionTriggered();
 		void onShowHistory(); //TODO Move to startup module
+		void showNextSession();
+		void showPreviousSession();
 	private:
 		QIcon iconForState(ChatState state);
 		void chatStateChanged(ChatState state, ChatSessionImpl* session);

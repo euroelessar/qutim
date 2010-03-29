@@ -39,14 +39,14 @@ namespace AdiumChat
 		ui->setupUi(this);
 		centerizeWidget(this);
 		//init tabbar
-		ui->tabBar->setVisible(false);
+		//ui->tabBar->setVisible(false);
 		ui->tabBar->setTabsClosable(true);
 		ui->tabBar->setMovable(true);
 		ui->tabBar->setDocumentMode(true);
 		ui->tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 		//ui->tabBar->setUsesScrollButtons(false);
 		ui->tabButton->setVisible(false);
-		//ui->tabButton->setIcon(Icon("view-list-text"));
+		ui->tabButton->setIcon(Icon("view-list-text"));
 		ui->contactsView->hide();
 		//ui->tabBar->setDrawBase(false);
 		//init status and menubar
@@ -103,11 +103,15 @@ namespace AdiumChat
 				setContentsMargins(0, 0, 0, 0);
 			}
 		}
+		//init shortcuts
 		Shortcut *key = new Shortcut ("chatSendMessage",ui->pushButton);
 		connect(key,SIGNAL(activated()),ui->pushButton,SLOT(click()));
 		key = new Shortcut ("chatCloseSession",ui->tabBar);
 		connect(key,SIGNAL(activated()),SLOT(closeCurrentTab()));
-		
+		key = new Shortcut ("chatNext",ui->tabBar);
+		connect(key,SIGNAL(activated()),SLOT(showNextSession()));
+		key = new Shortcut ("chatPrevious",ui->tabBar);
+		connect(key,SIGNAL(activated()),SLOT(showPreviousSession()));
 	}
 
 	ChatWidget::~ChatWidget()
@@ -138,11 +142,11 @@ namespace AdiumChat
 
 		ui->tabBar->addTab(icon,session->getUnit()->title());
 		if (ui->tabBar->count() >1) {
-			ui->tabBar->setVisible(true);
+			//ui->tabBar->setVisible(true);
 			ui->tabButton->setVisible(true);
 		}
 
-		QAction *act = new QAction(session->getUnit()->title(),this);
+		QAction *act = new QAction(icon,session->getUnit()->title(),this);
 		connect(act,SIGNAL(triggered()),this,SLOT(onSessionListActionTriggered()));
 		ui->tabButton->addAction(act);
 	}
@@ -204,7 +208,7 @@ namespace AdiumChat
 		currentIndexChanged(ui->tabBar->currentIndex());
 
 		if (ui->tabBar->count() == 1) {
-			ui->tabBar->setVisible(false);
+			//ui->tabBar->setVisible(false);
 			ui->tabButton->setVisible(false);
 		}
 		if (session && m_remove_session_on_close) {			
@@ -337,8 +341,11 @@ namespace AdiumChat
 			return;
 		
 		if (m_chat_flags & ChatStateIconsOnTabs) {
-			if (!session->unread().count())
-				ui->tabBar->setTabIcon(index,iconForState(state));
+			if (!session->unread().count()) {
+				QIcon icon = iconForState(state);
+				ui->tabBar->setTabIcon(index,icon);
+				ui->tabButton->actions().at(index)->setIcon(icon);
+			}
 		}
 		
 		session->setProperty("currentChatState",static_cast<int>(state));
@@ -438,5 +445,20 @@ namespace AdiumChat
 		ui->tabBar->setCurrentIndex(ui->tabButton->actions().indexOf(act));
 	}
 
+	void ChatWidget::showNextSession()
+	{
+		m_current_index++;
+		if (m_current_index >= m_sessions.count())
+			m_current_index = 0;
+		ui->tabBar->setCurrentIndex(m_current_index);
+	}
+
+	void ChatWidget::showPreviousSession()
+	{
+		m_current_index--;
+		if (m_current_index < 0 )
+			m_current_index = m_sessions.count() - 1;
+		ui->tabBar->setCurrentIndex(m_current_index);
+	}
 }
 
