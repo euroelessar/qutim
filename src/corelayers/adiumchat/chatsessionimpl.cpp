@@ -19,7 +19,6 @@
 #include <QWebFrame>
 #include "libqutim/message.h"
 #include "libqutim/account.h"
-#include <QTextDocument>
 #include <QStringBuilder>
 #include <QDateTime>
 #include <QDebug>
@@ -29,15 +28,17 @@
 #include "chatsessionmodel.h"
 #include <QApplication>
 #include <libqutim/debug.h>
+#include <QPlainTextDocumentLayout>
 
 namespace AdiumChat
 
 {
 
 	ChatSessionImpl::ChatSessionImpl ( ChatUnit* unit, ChatLayer* chat)
-	: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage)
+	: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage),m_input(new QTextDocument(this))
 	{
 		setChatUnit(unit);
+		m_input->setDocumentLayout(new QPlainTextDocumentLayout(m_input));
 		qDebug() << "create session" << m_chat_unit->title();
 		connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 		m_store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", false);
@@ -270,8 +271,7 @@ namespace AdiumChat
 	
 	QTextDocument* ChatSessionImpl::getInputField()
 	{
-		ChatLayerImpl *chat_layer = qobject_cast<ChatLayerImpl *>(ChatLayerImpl::instance());
-		return chat_layer->getInputField(this);
+		return m_input;
 	}
 
 	void ChatSessionImpl::markRead(quint64 id)

@@ -187,7 +187,7 @@ namespace AdiumChat
  			m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
 			m_sessions.at(previous_index)->setChatState(m_chatstate);
  		}
-
+		ui->chatEdit->setDocument(session->getInputField());
 	}
 
 	void ChatWidget::clear()
