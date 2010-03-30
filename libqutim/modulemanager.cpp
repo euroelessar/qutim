@@ -82,6 +82,7 @@ namespace qutim_sdk_0_3
 		};
 		QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
 		QHash<QByteArray, QObject *> services;
+		QHash<QByteArray, ExtensionInfo> extensionsHash;
 		ExtensionInfoList extensions;
 		QSet<QByteArray> interface_modules;
 		QSet<const QMetaObject *> meta_modules;
@@ -221,8 +222,7 @@ namespace qutim_sdk_0_3
 		paths.removeDuplicates();
 		QSet<QString> plugin_paths_list;
 		p->extensions << coreExtensions();
-		foreach(const QString &path, paths)
-		{
+		foreach (const QString &path, paths) {
 			QDir plugins_dir = path;
 			QFileInfoList files = plugins_dir.entryInfoList(QDir::AllEntries);
 			for (int i = 0; i < files.count(); ++i) {
@@ -270,6 +270,8 @@ namespace qutim_sdk_0_3
 				}
 			}
 		}
+		foreach (const ExtensionInfo &info, p->extensions)
+			p->extensionsHash.insert(info.generator()->metaObject()->className(), info);
 	}
 
 	/**
@@ -353,17 +355,29 @@ namespace qutim_sdk_0_3
 	}
 	
 	typedef QHash<QByteArray, const ObjectGenerator*> ServiceHash;
-	void initService(const QByteArray &name, QHash<QByteArray, QObject *> &services, const ServiceHash &hash, QSet<QByteArray> &used)
+	void initService(const QByteArray &name, QHash<QByteArray, QObject *> &services,
+					 const ServiceHash &hash, QSet<QByteArray> &used,
+					 QVariantMap &selected)
 	{
 		if (used.contains(name))
 			return;
 		used.insert(name);
-		const ObjectGenerator *gen = hash.value(name);
+		QString stringName = QString::fromLatin1(name, name.size());
+		QString previous = selected.value(stringName).toString();
+		const ObjectGenerator *gen = 0;
+		if (!previous.isEmpty()) {
+			gen = p->extensionsHash.value(previous.toLatin1()).generator();
+			if (!gen || name != metaInfo(gen->metaObject(), "Service"))
+				gen = 0;
+		}
+		if (!gen)
+			gen = hash.value(name);
 		const QMetaObject *meta = gen->metaObject();
 		for (int i = 0, size = meta->classInfoCount(); i < size; i++) {
 			QMetaClassInfo info = meta->classInfo(i);
+			selected.insert(stringName, QString::fromLatin1(meta->className()));
 			if (!qstrcmp(info.name(), "Uses"))
-				initService(name, services, hash, used);
+				initService(name, services, hash, used, selected);
 		}
 		services.insert(name, gen->generate<QObject>());
 	}
@@ -395,25 +409,46 @@ namespace qutim_sdk_0_3
 			}
 		}
 		{
-			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions<Protocol>();
-			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
-			for(; it != exts.end(); it++)
-			{
-				const QMetaObject *meta = it.value().generator()->metaObject();
-				QByteArray name = metaInfo(meta, "Protocol");
-				if(name.isEmpty())
-				{
-					qWarning("%s has no 'Protocol' class info", meta->className());
-					continue;
+			const QHash<QByteArray, ExtensionInfo> &extsHash = p->extensionsHash;
+			ConfigGroup group = Config().group("protocols");
+			QVariantMap selected = group.value("list", QVariantMap());
+			bool changed = false;
+			QVariantMap::const_iterator it = selected.constBegin();
+			for (; it != selected.constEnd(); it++) {
+				const ExtensionInfo info = extsHash.value(it.value().toString().toLatin1());
+				if (info.generator() && info.generator()->extends<Protocol>()) {
+					const QMetaObject *meta = info.generator()->metaObject();
+					QByteArray name = metaInfo(meta, "Protocol");
+					if (name.isEmpty() || name != it.key())
+						continue;
+					Protocol *protocol = info.generator()->generate<Protocol>();
+					p->protocols_hash->insert(protocol->id(), protocol);
 				}
-				else
-					qDebug("Found protocol '%s'", name.constData());
-				Protocol *protocol = it.value().generator()->generate<Protocol>();
+			}
+			const ExtensionInfoList &exts = p->extensions;
+			ExtensionInfoList::const_iterator it2 = exts.constBegin();
+			for(; it2 != exts.end(); it2++) {
+				const ObjectGenerator *gen = it2->generator();
+				const QMetaObject *meta = gen->metaObject();
+				if (!gen->extends<Protocol>())
+					continue;
+				QString name = QString::fromLatin1(metaInfo(meta, "Protocol"));
+				if (name.isEmpty() || p->protocols->contains(name))
+					continue;
+				Protocol *protocol = gen->generate<Protocol>();
 				p->protocols_hash->insert(protocol->id(), protocol);
+				selected.insert(protocol->id(), QString::fromLatin1(meta->className()));
+				changed = true;
+			}
+			if (changed) {
+				group.setValue("list", selected);
+				group.sync();
 			}
 		}
 		p->is_inited = true;
 		{
+			ConfigGroup group = Config().group("services");
+			QVariantMap selected = group.value("list", QVariantMap());
 			ServiceHash serviceGens;
 			const ExtensionInfoList &exts = p->extensions;
 			for (int i = 0; i < exts.size(); i++) {
@@ -427,8 +462,10 @@ namespace qutim_sdk_0_3
 			QSet<QByteArray> used;
 			ServiceHash::iterator it;
 			for (it = serviceGens.begin(); it != serviceGens.end(); it++)
-				initService(it.key(), p->services, serviceGens, used);
+				initService(it.key(), p->services, serviceGens, used, selected);
 			qDebug() << "Inited Services" << used;
+			group.setValue("list", selected);
+			group.sync();
 		}
 		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(qobject_interface_iid<StartupModule *>());

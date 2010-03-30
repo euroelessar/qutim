@@ -52,9 +52,25 @@ typedef QHash<QString, GeneralShortcutInfo *> ShortcutInfoHash;
 struct ShortcutSelf
 {
 	ShortcutInfoHash hash;
+	void init();
 };
 
-Q_GLOBAL_STATIC(ShortcutSelf, self)
+void ShortcutSelf::init()
+{
+	struct Info
+	{
+		const char *id;
+		LocalizedString name;
+		LocalizedString group;
+		QKeySequence key;
+		bool global;
+		Qt::ShortcutContext context;
+	} infos [] = {
+	};
+	Q_UNUSED(infos);
+}
+
+Q_GLOBAL_STATIC_WITH_INITIALIZER(ShortcutSelf, self, x->init())
 
 class ShortcutPrivate
 {
