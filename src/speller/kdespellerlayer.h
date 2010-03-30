@@ -17,43 +17,31 @@
 #define KDESPELLERLAYER_H
 
 #include <QObject>
-#include <qutim/layerinterface.h>
+#include <qutim/messagesession.h>
 #include <sonnet/speller.h>
-#include <sonnet/highlighter.h>
+#include <qutim/messagesession.h>
+#include "spellhighligter.h"
 
-using namespace qutIM;
+using namespace qutim_sdk_0_3;
 using namespace Sonnet;
 
-class KdeSpellerLayer : public QObject, public SpellerLayerInterface
+class KdeSpellerLayer : public QObject
 {
 	Q_OBJECT
+	Q_CLASSINFO("Service", "SpellChecker")
 public:
 	KdeSpellerLayer();
-	virtual bool init( PluginSystemInterface *plugin_system );
-	virtual void release();
-	virtual void setProfileName( const QString &profile_name );
-	virtual void setLayerInterface( LayerType type, LayerInterface *layer_interface );
-
+	~KdeSpellerLayer();
+	static Speller *spellerInstance();
+public slots:
+	bool isCorrect(const QString &word) const;
+	bool isMisspelled(const QString &word) const;
+	QStringList suggest(const QString &word) const;
+protected slots:
 	void loadSettings();
-
-	virtual void saveLayerSettings();
-	virtual QList<SettingsStructure> getLayerSettingsList();
-	virtual void removeLayerSettings();
-
-	virtual void saveGuiSettingsPressed();
-	virtual QList<SettingsStructure> getGuiSettingsList();
-	virtual void removeGuiLayerSettings();
-
-	virtual void startSpellCheck( QTextEdit *document );
-	virtual void stopSpellCheck( QTextEdit *document );
-	virtual bool isCorrect( const QString &word ) const;
-	virtual bool isMisspelled( const QString &word ) const;
-	virtual QStringList suggest( const QString &word ) const;
+	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
 private:
-	Speller *m_speller;
-	QMap<QTextEdit *, QPointer<Highlighter> > m_highlighters;
-	QString m_profile_name;
-	PluginSystemInterface *m_plugin_system;
+//	QMap<QTextDocument *, QPointer<Highlighter> > m_highlighters;
 	bool m_autodetect;
 	QString m_dictionary;
 };

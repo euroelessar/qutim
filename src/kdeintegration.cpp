@@ -1,5 +1,8 @@
 #include "kdeintegration.h"
 #include "emoticons/kdeemoticons.h"
+#include "crash/crashplugin.h"
+#include "speller/kdespellerlayer.h"
+#include "speller/kdespellersettings.h"
 #include "quetzalgui.h"
 #include <kdeversion.h>
 #include <KIcon>
@@ -29,6 +32,12 @@ namespace KdeIntegration
 		addExtension<KdeEmoticons>(QT_TRANSLATE_NOOP("Plugin", "KDE Emoticons"),
 								   QT_TRANSLATE_NOOP("Plugin", "Using KDE emoticons packs"),
 								   kdeIcon);
+		addExtension<KdeCrashHandler>(QT_TRANSLATE_NOOP("Plugin", "KDE Crash handler"),
+									  QT_TRANSLATE_NOOP("Plugin", "Handles qutIM's craches by KCrash"),
+									  kdeIcon);
+		addExtension<KdeSpellerLayer>(QT_TRANSLATE_NOOP("Plugin", "KDE Spell checker"),
+									  QT_TRANSLATE_NOOP("Plugin", ""),
+									  kdeIcon);
 	}
 
 	bool KdePlugin::load()

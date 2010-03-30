@@ -1,7 +1,7 @@
 /****************************************************************************
  * kdespellersettings.h
  *
- *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -18,33 +18,36 @@
 
 #include <QtGui/QWidget>
 #include <sonnet/speller.h>
+#include <qutim/settingswidget.h>
+#include <qutim/settingslayer.h>
+#include <KIcon>
 
 using namespace Sonnet;
+using namespace qutim_sdk_0_3;
 
 namespace Ui {
     class KdeSpellerSettings;
 }
 
-class KdeSpellerSettings : public QWidget
+class KdeSpellerSettings : public SettingsWidget
 {
     Q_OBJECT
     Q_DISABLE_COPY(KdeSpellerSettings)
 public:
-    explicit KdeSpellerSettings(QWidget *parent = 0);
+	explicit KdeSpellerSettings();
 	virtual ~KdeSpellerSettings();
 	static QString suggestLanguage( QString lang, Speller *speller );
-	void loadSettings( const QString &profile_name, Speller *speller );
-	void saveSettings();
 
-signals:
-	void settingsChanged();
+protected:
+	void loadImpl();
+	void saveImpl();
+	void cancelImpl() { loadImpl(); }
 
 protected:
     virtual void changeEvent(QEvent *e);
 
 private:
-    Ui::KdeSpellerSettings *m_ui;
-	QString m_profile_name;
+	Ui::KdeSpellerSettings *m_ui;
 };
 
 #endif // KDESPELLERSETTINGS_H
