@@ -163,7 +163,8 @@ namespace Core
 
 			// make shortcuts
 			Shortcut *key = new Shortcut("find",p->search_btn);
-			connect(key,SIGNAL(activated()),p->search_btn,SLOT(click()));
+			key->setContext(Qt::ApplicationShortcut);
+			connect(key,SIGNAL(activated()),p->search_btn,SLOT(toggle()));
 			key = new Shortcut("contactListGlobalStatus",p->status_btn);
 			connect(key,SIGNAL(activated()),p->status_btn,SLOT(showMenu()));
 
@@ -306,7 +307,7 @@ namespace Core
 		{
 			p->search_bar->setVisible(toggled);
 			if (toggled) {
-				p->search_bar->setFocus();
+				p->search_bar->setFocus(Qt::PopupFocusReason);
 			}
 			else
 				p->search_bar->clear();
