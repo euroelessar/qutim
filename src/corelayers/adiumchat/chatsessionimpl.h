@@ -16,6 +16,7 @@
 #ifndef CHATSESSIONIMPL_H
 #define CHATSESSIONIMPL_H
 #include <libqutim/messagesession.h>
+#include <QTextDocument>
 #include <QPointer>
 
 class QAbstractItemModel;
@@ -63,6 +64,7 @@ namespace AdiumChat
 		void statusChanged(Contact *contact, bool silent = false);
 		QPointer<QWebPage> m_web_page;
 		QPointer<ChatUnit> m_chat_unit;
+		QPointer<QTextDocument> m_input;
 		ChatSessionModel *m_model;
 		//additional info and flags
 		const ChatUnit *m_previous_sender; // zero if outcoming
