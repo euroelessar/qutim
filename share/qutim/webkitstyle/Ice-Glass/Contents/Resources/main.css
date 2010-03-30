@@ -70,6 +70,8 @@ a:active { text-decoration: none; }
 .avatar
 {
 	opacity:.25;
+	max-width:64px;
+	max-height:64px;
 }
 
 .m_sending {

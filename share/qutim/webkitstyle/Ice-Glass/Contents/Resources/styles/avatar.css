@@ -1,4 +1,6 @@
 .avatar
 {
 	opacity:1;
+	max-width:64px;
+	max-height:64px;	
 }
