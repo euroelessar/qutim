@@ -53,6 +53,8 @@ namespace qutim_sdk_0_3
 
 	typedef QList<ExtensionInfo> ExtensionInfoList;
 
+	LIBQUTIM_EXPORT ExtensionInfoList extensionList();
+
 //	TODO: Add possibility for getting ExtensionInfoList of avalaible modules
 //
 //	LIBQUTIM_EXPORT ExtensionInfoList extensionList(const QMetaObject *module);

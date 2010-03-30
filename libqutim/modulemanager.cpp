@@ -94,6 +94,11 @@ namespace qutim_sdk_0_3
 
 	static ModuleManagerPrivate *p = NULL;
 
+	ExtensionInfoList extensionList()
+	{
+		return (managerSelf && p && p->is_inited) ? p->extensions : ExtensionInfoList();
+	}
+
 	/**
 	 * Function to detect if ModuleManager and it's inner data had been initialized.
 	 */

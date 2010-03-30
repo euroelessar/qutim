@@ -81,6 +81,7 @@ namespace AdiumChat
 		ChatState m_chatstate;
 		int m_self_chatstate_timer;
 		int m_timeout;
+		QPointer<QTextDocument> m_originalDoc;
 	};
 }
 #endif // CHATWIDGET_H

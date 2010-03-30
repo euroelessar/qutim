@@ -39,6 +39,7 @@ namespace AdiumChat
 		
 		ui->setupUi(this);
 		centerizeWidget(this);
+		m_originalDoc = ui->chatEdit->document();
 		//init tabbar
 		//ui->tabBar->setVisible(false);
 		ui->tabBar->setTabsClosable(true);
@@ -123,6 +124,7 @@ namespace AdiumChat
 				s->deleteLater();
 			}
 		}
+		delete ui;
 	}	
 
 	void ChatWidget::addSession(ChatSessionImpl* session)
@@ -160,8 +162,10 @@ namespace AdiumChat
 
 	void ChatWidget::currentIndexChanged(int index)
 	{
-		if (index == -1)
+		if (index == -1) {
+			ui->chatEdit->setDocument(m_originalDoc);
 			return;
+		}
 		int previous_index = m_current_index;
 		ChatSessionImpl *session = m_sessions.at(index);
 		if ((previous_index != -1) && (previous_index != index)) {
