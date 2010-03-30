@@ -6,6 +6,8 @@
 #include <gloox/rostermanager.h>
 #include <gloox/rosteritem.h>
 #include <QStringBuilder>
+#include "qutim/tooltip.h"
+#include "qutim/extensionicon.h"
 #include <qutim/debug.h>
 
 using namespace gloox;
@@ -120,6 +122,20 @@ namespace Jabber
 			gmes.addExtension(new gloox::ChatState(qutIM2gloox(chatEvent->chatState())));
 			client->send(gmes);
 			return true;
+		} else if (ev->type() == ToolTipEvent::eventType()) {
+			Q_D(JContact);
+			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+			foreach (QString id, d->resources.keys()) {
+				JContactResource *resource = d->resources.value(id);
+				event->appendField(QString(), QString());
+				if (!resource->text().isEmpty())
+					event->appendField(resource->text(), QString());
+				event->appendField(QT_TRANSLATE_NOOP("Contact", "Resource"),
+						QString("%1 (%2)").arg(id).arg(resource->priority()));
+				if (false)
+					event->appendField(QT_TRANSLATE_NOOP("Contact", "Possible client"), resource->id());
+			}
+			return true;
 		}
 		return Contact::event(ev);
 	}
@@ -135,7 +151,7 @@ namespace Jabber
 		d_func()->resources.insert(resource, res);
 	}
 
-	void JContact::setStatus(const QString &resource, Presence::PresenceType presence, int priority)
+	void JContact::setStatus(const QString &resource, Presence::PresenceType presence, int priority, const QString &text)
 	{
 		Q_D(JContact);
 		Status oldStatus = status();
@@ -151,7 +167,7 @@ namespace Jabber
 		} else {
 			if (!d->resources.contains(resource))
 				addResource(resource);
-			d->resources.value(resource)->setStatus(presence, priority);
+			d->resources.value(resource)->setStatus(presence, priority, text);
 			fillMaxResource();
 		}
 		Status newStatus = status();

@@ -14,6 +14,7 @@ namespace Jabber
 		gloox::Presence::PresenceType presence;
 		int priority;
 		QSet<QString> features;
+		QString text;
 	};
 }
 

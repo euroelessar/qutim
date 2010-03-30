@@ -180,7 +180,8 @@ namespace Jabber
 			p->contacts.insert(jid, contact);
 		}
 		if (!resource.isEmpty())
-			p->contacts.value(jid)->setStatus(resource, presence.presence(), presence.priority());
+			p->contacts.value(jid)->setStatus(resource, presence.presence(), presence.priority(),
+					QString::fromStdString(presence.status()));
 		if (presence.presence() != Presence::Unavailable && !presence.error()) {
 			const VCardUpdate *vcard = presence.findExtension<VCardUpdate>(ExtVCardUpdate);
 			if(vcard) {

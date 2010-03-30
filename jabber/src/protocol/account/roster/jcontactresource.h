@@ -32,7 +32,7 @@ namespace Jabber
 			void sendMessage(const qutim_sdk_0_3::Message &message);
 			void setPriority(int priority);
 			int priority();
-			void setStatus(gloox::Presence::PresenceType presence, int priority);
+			void setStatus(gloox::Presence::PresenceType presence, int priority, const QString &text = QString());
 			Status status() const;
 			virtual bool event(QEvent *ev);
 			QSet<QString> features() const;
@@ -42,6 +42,7 @@ namespace Jabber
 			bool checkFeature(const std::string &feature) const;
 			ChatUnit *upperUnit();
 			QString avatar() const;
+			QString text() const;
 		protected:
 			QScopedPointer<JContactResourcePrivate> d_ptr;
 	};
