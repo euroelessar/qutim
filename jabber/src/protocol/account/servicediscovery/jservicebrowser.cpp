@@ -10,6 +10,7 @@
 #include <qutim/configbase.h>
 #include <qutim/protocol.h>
 #include "ui_jservicebrowser.h"
+#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -56,9 +57,10 @@ namespace Jabber
 		setWindowTitle(tr("Search service"));
 		p->ui->serviceServer->installEventFilter(this);
 		p->ui->serviceServer->setDuplicatesEnabled(false);
+		p->ui->serviceServer->setInsertPolicy(QComboBox::NoInsert);
+		connect(p->ui->serviceServer, SIGNAL(currentIndexChanged(int)), SLOT(on_searchButton_clicked()));
 		p->ui->searchButton->setIcon(Icon("system-search"));
-		p->ui->closeButton->setIcon(Icon("window-close"));
-		p->ui->clearButton->setIcon(Icon("edit-clear-locationbar-ltr"));
+		p->ui->clearButton->setIcon(Icon("edit-clear-locationbar-rtl"));
 		p->ui->actionSearch->setIcon(Icon("system-search"));
 		//p->ui->actionJoin;
 		p->ui->actionExecute->setIcon(Icon("utilities-terminal"));
@@ -76,17 +78,17 @@ namespace Jabber
 		connect(p->ui->serviceTree, SIGNAL(customContextMenuRequested(QPoint)),
 				SLOT(showContextMenu(QPoint)));
 		p->ui->serviceTree->setColumnWidth(0, p->ui->serviceTree->width());
-		QMovie *movie = new QMovie(p->ui->labelLoader);
+		/*QMovie *movie = new QMovie(p->ui->labelLoader);
 		movie->setFileName("loader");
 		movie->start();
-		p->ui->labelLoader->setMovie(movie);
+		p->ui->labelLoader->setMovie(movie);*/
 		p->ui->labelLoader->setVisible(false);
 		ConfigGroup group = account->protocol()->config("serviceBrowser");
 		p->showFeatures = group.value("showFeatures", false);
-		const ConfigGroup servers = group.group("servers");
-		int count = servers.arraySize();
-		for (int num = 0; num < count; num++)
-			p->ui->serviceServer->addItem(servers.at(num).value("url", QString()));
+		QStringList items = group.value("servers", QStringList());
+		p->ui->serviceServer->addItems(items);
+		if (!p->showFeatures)
+			p->ui->splitter->setSizes(QList<int>() << 100 << 0);
 		searchServer(QString::fromStdString(p->account->client()->jid().server()));
 	}
 
@@ -149,13 +151,15 @@ namespace Jabber
 						   % identity.type % QLatin1Literal(")<br/>");
 			}
 		}
-		if (p->showFeatures && !di.features().isEmpty()) {
-			tooltip += QLatin1Literal("<br/><b>") % tr("Features:") % QLatin1Literal("</b><br/>");
+		/*if (!di.features().isEmpty()) {
+			QString tooltipText;
+			tooltipText = QLatin1Literal("<br/><b>") % tr("Features:") % QLatin1Literal("</b><br/>");
 			QStringList features = QStringList::fromSet(di.features());
 			features.sort();
 			foreach(QString feature, features)
-				tooltip += feature % QLatin1Literal("<br/>");
-		}
+				tooltipText += feature % QLatin1Literal("<br/>");
+			p->ui->featuresView->setHtml(tooltipText);
+		}*/
 		item->setToolTip(0, tooltip);
 		if (di.isExpandable())
 			item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
@@ -203,6 +207,8 @@ namespace Jabber
 		JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
 		item->setDisabled(true);
 		item->setToolTip(0, item->toolTip(0) + di.error());
+		if (!--p->searchCount)
+			p->ui->labelLoader->setVisible(false);
 	}
 
 	void clean_item(QTreeWidgetItem *item)
@@ -217,6 +223,8 @@ namespace Jabber
 
 	void JServiceBrowser::on_searchButton_clicked()
 	{
+		disconnect(p->ui->serviceServer, SIGNAL(currentIndexChanged(int)), this, SLOT(on_searchButton_clicked()));
+		p->searchCount = 0;
 		clean_item(p->ui->serviceTree->invisibleRootItem());
 		p->ui->serviceTree->clear();
 		p->treeItems.clear();
@@ -227,14 +235,16 @@ namespace Jabber
 		di.setJID(p->ui->serviceServer->currentText());
 		item->setData(0, Qt::UserRole+1, qVariantFromValue(di));
 		getInfo(item);
+		p->ui->serviceServer->removeItem(p->ui->serviceServer->findText(server));
 		p->ui->serviceServer->insertItem(0, server);
+		p->ui->serviceServer->setCurrentIndex(0);
 		ConfigGroup group = p->account->protocol()->config().group("serviceBrowser");
-		group.removeGroup("servers");
-		for (int num = 0; num < p->ui->serviceServer->count(); num++) {
-			ConfigGroup server = group.group("servers").at(num);
-			server.setValue("url", p->ui->serviceServer->itemText(num));
-		}
+		QStringList items;
+		for (int num = 0; num < p->ui->serviceServer->count(); num++)
+			items << p->ui->serviceServer->itemText(num);
+		group.setValue("servers", items);
 		group.sync();
+		connect(p->ui->serviceServer, SIGNAL(currentIndexChanged(int)), SLOT(on_searchButton_clicked()));
 	}
 
 	void JServiceBrowser::showContextMenu(const QPoint &pos)
@@ -361,11 +371,6 @@ namespace Jabber
 		emit addProxy(JID(utils::toStd(item->text(1))));
 	}*/
 
-	void JServiceBrowser::on_closeButton_clicked()
-	{
-		close();
-	}
-
 	void JServiceBrowser::filterItem(const QString &mask)
 	{
 		setItemVisible(p->ui->serviceTree->invisibleRootItem(), true);
@@ -435,15 +440,12 @@ namespace Jabber
 			emit joinConference(p->currentMenuItem.jid());
 			close();
 		} else {
-			p->account->conferenceManager()->openJoinWindow(p->currentMenuItem.jid(),
-					p->account->nick(), "", p->currentMenuItem.jid());
+			p->account->conferenceManager()->openJoinWindow(p->currentMenuItem.jid(), p->account->nick(), "");
 		}
 	}
 
 	void JServiceBrowser::onAddToRoster()
 	{
-		if (p->isConference)
-			p->account->conferenceManager()->openJoinWindow(p->currentMenuItem.jid(),
-					p->account->nick(), "", p->currentMenuItem.jid());
+
 	}
 }
