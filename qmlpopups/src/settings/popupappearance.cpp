@@ -33,7 +33,8 @@ namespace QmlPopups
 		setProperty("name",tr("Preview"));
 		setProperty("avatar",QLatin1String(":/icons/qutim_64"));
 		m_popup_widget = new PopupWidget("default");
-		layout()->addWidget(m_popup_widget);
+		ui->verticalLayout_2->addWidget(m_popup_widget);
+
 		connect(ui->comboBox,SIGNAL(currentIndexChanged(int)),SLOT(onCurrentIndexChanged(int)));
 	}
 

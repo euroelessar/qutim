@@ -156,6 +156,7 @@ namespace QmlPopups
 	if (Manager::self()->animation & Slide)
 	    geom.moveRight(geom.right() + m_notification_widget->width() + Manager::self()->margin);
 	if (m_moving_animation) {
+	    m_moving_animation->stop();
 	    m_moving_animation->setStartValue(m_show_geometry);
 	    m_moving_animation->setEndValue(geom);
 	    m_moving_animation->start();
@@ -179,6 +180,7 @@ namespace QmlPopups
 	disconnect(m_notification_widget,SIGNAL(activated()),this,SLOT(onPopupActivated()));
 	if (m_opacity_animation) {
 	    m_show_state->addTransition(m_opacity_animation,SIGNAL(finished()),m_hide_state);
+	    m_opacity_animation->stop();
 	    m_opacity_animation->setStartValue(1);
 	    m_opacity_animation->setEndValue(0);
 	    m_opacity_animation->start();

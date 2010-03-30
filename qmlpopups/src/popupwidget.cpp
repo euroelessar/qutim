@@ -25,7 +25,6 @@ namespace QmlPopups {
 	PopupWidgetFlags popupFlags = static_cast<PopupWidgetFlags>(appearance.value<int>("popupFlags",Transparent));
 
 	connect(this,SIGNAL(sceneResized(QSize)),this,SLOT(onSceneResized(QSize)));
-	setResizeMode(QDeclarativeView::SizeViewToRootObject);
 	setAttribute(Qt::WA_DeleteOnClose);
 
 	if (popupFlags & Transparent) {
@@ -46,16 +45,15 @@ namespace QmlPopups {
 		QtWin::enableBlurBehindWindow(this,true);
 	}
 
-	QString filename =themePath % QLatin1Literal("/main.qml");
-	setSource(QUrl::fromLocalFile(filename));//url - main.qml
-
+	setTheme(theme_name);
+	setResizeMode(QDeclarativeView::SizeRootObjectToView);
 	rootContext()->setContextProperty("popupWidget",this);
 	rootContext()->setContextProperty("timeout",Manager::self()->timeout);
-
     }
     PopupWidget::PopupWidget(const QString &themeName)
     {
 	setTheme(themeName);
+	setResizeMode(QDeclarativeView::SizeViewToRootObject);
     }
 
     void PopupWidget::setTheme(const QString &themeName)
