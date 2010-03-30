@@ -21,6 +21,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <libqutim/qtwin.h>
+#include <libqutim/shortcut.h>
 
 namespace Core
 {
@@ -72,6 +73,24 @@ namespace Core
 
 		Module::Module() : p(new ModulePrivate)
 		{
+			// init shortcuts
+			Shortcut::registerSequence("contactListGlobalStatus",
+									QT_TRANSLATE_NOOP("ContactList", "Change global status"),
+									"ContactListWidget",
+									QKeySequence("Ctrl+S")
+									);
+			//TODO move to separated startup module
+			Shortcut::registerSequence("find",
+									QT_TRANSLATE_NOOP("qutIM", "Find"),
+									"ContactListWidget",
+									QKeySequence(QKeySequence::Find)
+									);
+			Shortcut::registerSequence("contactListActivateMainMenu",
+									QT_TRANSLATE_NOOP("ContactList", "Activate main menu"),
+									"ContactListWidget",
+									QKeySequence("Ctrl+M")
+									);
+			
 			p->widget = new MyWidget;
 			QVBoxLayout *layout = new QVBoxLayout(p->widget);
 			layout->setMargin(0);
@@ -113,10 +132,6 @@ namespace Core
 
 			gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), this);
 			addButton(gen);
-//			QAction *menuAction = new QAction(Icon("show-menu"), tr("Main menu"), this);
-//
-//			menuAction->setMenu(menu());
-//			p->main_toolbar->addAction(menuAction);
 
 			p->view = new TreeView(p->widget);
 			layout->addWidget(p->view);
@@ -133,8 +148,6 @@ namespace Core
 
 			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));
 			p->view->setModel(p->model);
-			p->view->setRootIsDecorated(false);
-			p->view->setIndentation(0);
 			p->widget->show();
 
 			QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget);
@@ -147,11 +160,12 @@ namespace Core
 			p->search_btn = new QPushButton(p->widget);
 			p->search_btn->setIcon(Icon("edit-find"));
 			p->search_btn->setCheckable(true);
-			
-			//TODO experiments. Need configuration support
-			
-			p->search_btn->setShortcut(QKeySequence::Find);
-			p->status_btn->setShortcut(QKeySequence("Ctrl+S"));
+
+			// make shortcuts
+			Shortcut *key = new Shortcut("find",p->search_btn);
+			connect(key,SIGNAL(activated()),p->search_btn,SLOT(click()));
+			key = new Shortcut("contactListGlobalStatus",p->status_btn);
+			connect(key,SIGNAL(activated()),p->status_btn,SLOT(showMenu()));
 
 			p->status_btn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 			p->search_btn->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Preferred);

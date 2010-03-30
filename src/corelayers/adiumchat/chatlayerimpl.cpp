@@ -21,6 +21,7 @@
 #include <libqutim/debug.h>
 #include <libqutim/settingslayer.h>
 #include <libqutim/icon.h>
+#include <libqutim/shortcut.h>
 
 namespace AdiumChat
 {
@@ -43,6 +44,28 @@ namespace AdiumChat
 									 QT_TRANSLATE_NOOP("ChatLayer", "Send message"),
 									 ChatLayer::instance(), SLOT(onStartChat()));
 		MenuController::addAction<Contact>(action);
+		
+		Shortcut::registerSequence("chatSendMessage",
+								   QT_TRANSLATE_NOOP("ChatLayer", "Send message"),
+								   "ChatWidget",
+								   QKeySequence("Ctrl+Return")
+								   );
+								   
+		Shortcut::registerSequence("chatCloseSession",
+								   QT_TRANSLATE_NOOP("ChatLayer", "Close chat"),
+								   "ChatWidget",
+								   QKeySequence(QKeySequence::Close)
+								   );   
+		Shortcut::registerSequence("chatNext",
+								   QT_TRANSLATE_NOOP("ChatLayer", "Next chat"),
+								   "ChatWidget",
+								   QKeySequence(QKeySequence::NextChild)
+								   );
+		Shortcut::registerSequence("chatPrevious",
+								   QT_TRANSLATE_NOOP("ChatLayer", "Previous chat"),
+								   "ChatWidget",
+								   QKeySequence(QKeySequence::PreviousChild)
+								   );
 		
 //		MenuController::addAction<Contact>(generate("1"), "1first");
 //		MenuController::addAction<Contact>(generate("2"), "1first\0""1first");

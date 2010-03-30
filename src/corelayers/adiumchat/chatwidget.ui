@@ -16,7 +16,14 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_4">
     <item row="0" column="0" colspan="3">
-     <widget class="QTabBar" name="tabBar" native="true"/>
+     <widget class="QTabBar" name="tabBar" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
     </item>
     <item row="1" column="0" colspan="4">
      <widget class="QSplitter" name="splitter_2">
@@ -116,6 +123,12 @@
     </item>
     <item row="0" column="3">
      <widget class="QToolButton" name="tabButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -124,6 +137,9 @@
       </property>
       <property name="autoRaise">
        <bool>true</bool>
+      </property>
+      <property name="arrowType">
+       <enum>Qt::NoArrow</enum>
       </property>
      </widget>
     </item>

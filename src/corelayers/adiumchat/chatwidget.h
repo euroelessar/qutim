@@ -57,6 +57,7 @@ namespace AdiumChat
 		virtual bool event(QEvent *event);
 	private slots:
 		void currentIndexChanged (int index);
+		void onBuddiesChanged();
 		void onCloseRequested(int index);
 		void onTabMoved(int from,int to);
 		void onSessionDestroyed(QObject* object);
@@ -66,6 +67,8 @@ namespace AdiumChat
 		void closeCurrentTab();
 		void onSessionListActionTriggered();
 		void onShowHistory(); //TODO Move to startup module
+		void showNextSession();
+		void showPreviousSession();
 	private:
 		QIcon iconForState(ChatState state);
 		void chatStateChanged(ChatState state, ChatSessionImpl* session);

@@ -15,7 +15,6 @@
 
 #include "chatwidget.h"
 #include "chatsessionimpl.h"
-#include "ui_chatwidget.h"
 #include <libqutim/account.h>
 #include <libqutim/icon.h>
 #include <libqutim/menucontroller.h>
@@ -27,6 +26,9 @@
 #include <QWidgetAction>
 #include "actions/chatemoticonswidget.h"
 #include <libqutim/history.h>
+#include <libqutim/shortcut.h>
+#include <libqutim/conference.h>
+#include "ui_chatwidget.h"
 
 namespace AdiumChat
 {
@@ -38,14 +40,14 @@ namespace AdiumChat
 		ui->setupUi(this);
 		centerizeWidget(this);
 		//init tabbar
-		ui->tabBar->setVisible(false);
+		//ui->tabBar->setVisible(false);
 		ui->tabBar->setTabsClosable(true);
 		ui->tabBar->setMovable(true);
 		ui->tabBar->setDocumentMode(true);
 		ui->tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 		//ui->tabBar->setUsesScrollButtons(false);
 		ui->tabButton->setVisible(false);
-		//ui->tabButton->setIcon(Icon("view-list-text"));
+		ui->tabButton->setIcon(Icon("view-list-text"));
 		ui->contactsView->hide();
 		//ui->tabBar->setDrawBase(false);
 		//init status and menubar
@@ -102,13 +104,15 @@ namespace AdiumChat
 				setContentsMargins(0, 0, 0, 0);
 			}
 		}
-		ui->pushButton->setShortcut(QKeySequence(tr("Ctrl+Return","Send message")));
-
-		new QShortcut(QKeySequence(QKeySequence::Close),
-					  this,
-					  SLOT(closeCurrentTab())
-					  );
-		
+		//init shortcuts
+		Shortcut *key = new Shortcut ("chatSendMessage",ui->pushButton);
+		connect(key,SIGNAL(activated()),ui->pushButton,SLOT(click()));
+		key = new Shortcut ("chatCloseSession",ui->tabBar);
+		connect(key,SIGNAL(activated()),SLOT(closeCurrentTab()));
+		key = new Shortcut ("chatNext",ui->tabBar);
+		connect(key,SIGNAL(activated()),SLOT(showNextSession()));
+		key = new Shortcut ("chatPrevious",ui->tabBar);
+		connect(key,SIGNAL(activated()),SLOT(showPreviousSession()));
 	}
 
 	ChatWidget::~ChatWidget()
@@ -139,11 +143,11 @@ namespace AdiumChat
 
 		ui->tabBar->addTab(icon,session->getUnit()->title());
 		if (ui->tabBar->count() >1) {
-			ui->tabBar->setVisible(true);
+			//ui->tabBar->setVisible(true);
 			ui->tabButton->setVisible(true);
 		}
 
-		QAction *act = new QAction(session->getUnit()->title(),this);
+		QAction *act = new QAction(icon,session->getUnit()->title(),this);
 		connect(act,SIGNAL(triggered()),this,SLOT(onSessionListActionTriggered()));
 		ui->tabButton->addAction(act);
 	}
@@ -166,7 +170,11 @@ namespace AdiumChat
 		}
 		m_current_index = index;
 		ui->contactsView->setModel(session->getModel());
-		ui->contactsView->setVisible(session->getModel()->rowCount(QModelIndex()) > 0);
+		if (qobject_cast<Conference*>(session->getUnit()))
+			ui->contactsView->setVisible(true);
+		else
+			ui->contactsView->setVisible(session->getModel()->rowCount(QModelIndex()) > 0);
+
 		if (ui->chatView->page() != session->getPage()) {
 			ui->chatView->page()->setView(0);
 			ui->chatView->setPage(session->getPage());
@@ -205,7 +213,7 @@ namespace AdiumChat
 		currentIndexChanged(ui->tabBar->currentIndex());
 
 		if (ui->tabBar->count() == 1) {
-			ui->tabBar->setVisible(false);
+			//ui->tabBar->setVisible(false);
 			ui->tabButton->setVisible(false);
 		}
 		if (session && m_remove_session_on_close) {			
@@ -338,8 +346,11 @@ namespace AdiumChat
 			return;
 		
 		if (m_chat_flags & ChatStateIconsOnTabs) {
-			if (!session->unread().count())
-				ui->tabBar->setTabIcon(index,iconForState(state));
+			if (!session->unread().count()) {
+				QIcon icon = iconForState(state);
+				ui->tabBar->setTabIcon(index,icon);
+				ui->tabButton->actions().at(index)->setIcon(icon);
+			}
 		}
 		
 		session->setProperty("currentChatState",static_cast<int>(state));
@@ -439,5 +450,34 @@ namespace AdiumChat
 		ui->tabBar->setCurrentIndex(ui->tabButton->actions().indexOf(act));
 	}
 
+	void ChatWidget::showNextSession()
+	{
+		m_current_index++;
+		if (m_current_index >= m_sessions.count())
+			m_current_index = 0;
+		ui->tabBar->setCurrentIndex(m_current_index);
+	}
+
+	void ChatWidget::showPreviousSession()
+	{
+		m_current_index--;
+		if (m_current_index < 0 )
+			m_current_index = m_sessions.count() - 1;
+		ui->tabBar->setCurrentIndex(m_current_index);
+	}
+
+	void ChatWidget::onBuddiesChanged()
+	{
+		ChatSessionImpl *s = qobject_cast<ChatSessionImpl *>(sender());
+
+		if (!s || (m_sessions.indexOf(s) != m_current_index))
+			return;
+
+		if (qobject_cast<Conference*>(s->getUnit()))
+			ui->contactsView->setVisible(true);
+		else
+			ui->contactsView->setVisible(s->getModel()->rowCount(QModelIndex()) > 0);
+
+	}
 }
 
