@@ -193,6 +193,8 @@ void QuetzalAccount::save()
 
 void QuetzalAccount::save(QuetzalContact *contact)
 {
+	if (!contact)
+		return;
 	ConfigGroup group = config("contactlist");
 	contact->save(group.group(contact->id()));
 	group.sync();
@@ -200,6 +202,8 @@ void QuetzalAccount::save(QuetzalContact *contact)
 
 void QuetzalAccount::remove(QuetzalContact *contact)
 {
+	if (!contact)
+		return;
 	ConfigGroup group = config("contactlist");
 	group.removeGroup(contact->id());
 	group.sync();

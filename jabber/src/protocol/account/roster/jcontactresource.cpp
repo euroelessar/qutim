@@ -39,7 +39,7 @@ namespace Jabber
 		if (Contact *contact = qobject_cast<Contact *>(d->contact)) {
 			return contact->title() % "/" % d->name;
 		} else {
-			return ChatUnit::title();
+			return Buddy::title();
 		}
 	}
 
