@@ -6,7 +6,7 @@ namespace Core
 {
 	static CoreModuleHelper<AesCryptoService> crypto_static(
 			QT_TRANSLATE_NOOP("Plugin", "AES crypto"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM crypto realization. Based on algorithm aes256")
+			QT_TRANSLATE_NOOP("Plugin", "Default qutIM crypto implementation. Based on algorithm aes256")
 			);
 
 	AesCryptoService::AesCryptoService()

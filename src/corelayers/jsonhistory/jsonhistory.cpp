@@ -12,7 +12,7 @@ namespace Core
 {
 	static CoreSingleModuleHelper<JsonHistory> history_static(
 		QT_TRANSLATE_NOOP("Plugin", "Json History"),
-		QT_TRANSLATE_NOOP("Plugin", "Default qutIM history realization, based on JavaScript Object Notation")
+		QT_TRANSLATE_NOOP("Plugin", "Default qutIM history implementation, based on JavaScript Object Notation")
 	);
 
 	JsonHistory::JsonHistory()

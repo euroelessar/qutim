@@ -37,7 +37,7 @@ namespace KineticPopups
 
 	static Core::CoreModuleHelper<Backend> kinetic_popup_static(
 			QT_TRANSLATE_NOOP("Plugin", "Kinetic popups"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM popup realization. Powered by Kinetic")
+			QT_TRANSLATE_NOOP("Plugin", "Default qutIM popup implementation. Powered by Kinetic")
 			);
 
 

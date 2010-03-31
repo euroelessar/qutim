@@ -27,9 +27,9 @@ namespace Core
 {
 	static CoreModuleHelper2<JsonConfigBackend, PListConfigBackend> z_config_static(
 			QT_TRANSLATE_NOOP("Plugin", "JSON config"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM config realization. Based on JSON."),
+			QT_TRANSLATE_NOOP("Plugin", "Default qutIM config implementation. Based on JSON."),
 			QT_TRANSLATE_NOOP("Plugin", "PList config"),
-			QT_TRANSLATE_NOOP("Plugin", "Additional qutIM config realization for Apple plists")
+			QT_TRANSLATE_NOOP("Plugin", "Additional qutIM config implementation for Apple plists")
 			);
 
 	void JsonConfigBackend::generate(const QString& file, const ConfigEntry::Ptr& entry)

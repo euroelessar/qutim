@@ -29,7 +29,7 @@ namespace Core
 	{
 		static CoreSingleModuleHelper<Module> contact_list_static(
 				QT_TRANSLATE_NOOP("Plugin", "Simple ContactList"),
-				QT_TRANSLATE_NOOP("Plugin", "Default qutIM contact list realization. Just simple")
+				QT_TRANSLATE_NOOP("Plugin", "Default qutIM contact list implementation. Just simple")
 				);
 
 		class MyWidget : public QWidget

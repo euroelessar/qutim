@@ -20,7 +20,7 @@
 
 static Core::CoreModuleHelper<XSettingsLayerImpl> xsettings_layer_static(
 		QT_TRANSLATE_NOOP("Plugin", "X Settings dialog"),
-		QT_TRANSLATE_NOOP("Plugin", "Default qutIM settings dialog realization with OS X style top bar")
+		QT_TRANSLATE_NOOP("Plugin", "Default qutIM settings dialog implementation with OS X style top bar")
 		);
 
 XSettingsLayerImpl::XSettingsLayerImpl()

@@ -28,7 +28,7 @@ namespace Core
 
 	static CoreModuleHelper<IconLoaderImpl> icon_loader_static(
 			QT_TRANSLATE_NOOP("Plugin", "Xdg Icon Loader"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM icon loader realization. Based on Q-XDG library")
+			QT_TRANSLATE_NOOP("Plugin", "Default qutIM icon loader implementation. Based on Q-XDG library")
 			);
 
 	IconLoaderImpl::IconLoaderImpl()
