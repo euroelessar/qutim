@@ -47,7 +47,7 @@ namespace AdiumChat
 		ui->tabBar->setDocumentMode(true);
 		ui->tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 		//ui->tabBar->setUsesScrollButtons(false);
-		ui->tabButton->setVisible(false);
+		//ui->tabButton->hide();
 		ui->tabButton->setIcon(Icon("view-list-text"));
 		ui->contactsView->hide();
 		//ui->tabBar->setDrawBase(false);
@@ -146,7 +146,7 @@ namespace AdiumChat
 		ui->tabBar->addTab(icon,session->getUnit()->title());
 		if (ui->tabBar->count() >1) {
 			//ui->tabBar->setVisible(true);
-			ui->tabButton->setVisible(true);
+			//ui->tabButton->show();
 		}
 
 		QAction *act = new QAction(icon,session->getUnit()->title(),this);
@@ -218,7 +218,7 @@ namespace AdiumChat
 
 		if (ui->tabBar->count() == 1) {
 			//ui->tabBar->setVisible(false);
-			ui->tabButton->setVisible(false);
+			//ui->tabButton->hide();
 		}
 		if (session && m_remove_session_on_close) {			
 			session->deleteLater();
