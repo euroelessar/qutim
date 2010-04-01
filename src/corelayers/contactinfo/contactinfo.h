@@ -1,5 +1,5 @@
-#ifndef SIMPLETRAY_H
-#define SIMPLETRAY_H
+#ifndef CONTACTINFO_H
+#define CONTACTINFO_H
 
 #include "QWidget"
 #include "QGroupBox"
@@ -61,4 +61,4 @@ private:
 
 }
 
-#endif // SIMPLETRAY_H
+#endif // CONTACTINFO_H
