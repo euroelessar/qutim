@@ -22,6 +22,7 @@
 #include "capability.h"
 #include "oscarconnection.h"
 #include "feedbag.h"
+#include "qutim/inforequest.h"
 #include <QDateTime>
 
 namespace qutim_sdk_0_3 {
@@ -44,6 +45,23 @@ enum ContactCapabilityFlags
 	html_support      = 0x0001,
 	utf8_support      = 0x0002,
 	srvrelay_support  = 0x0004
+};
+
+class IcqInfoRequest : public InfoRequest
+{
+	Q_OBJECT
+public:
+	IcqInfoRequest(IcqContact *contact);
+	virtual ~IcqInfoRequest();
+	virtual QList<InfoItem> items() const;
+	virtual InfoItem item(const QString &name) const;
+	virtual State state() const;
+private slots:
+	void onDone(bool ok);
+private:
+	QPointer<FullInfoMetaRequest> m_metaReq;
+	MetaInfoValuesHash m_values;
+	State m_state;
 };
 
 struct IcqContactPrivate
