@@ -11,6 +11,7 @@ namespace qutim_sdk_0_3
 	class Account;
 	class Message;
 	class BuddyPrivate;
+	class InfoRequest;
 
 	class LIBQUTIM_EXPORT Buddy : public ChatUnit
 	{
@@ -42,6 +43,7 @@ namespace qutim_sdk_0_3
 		*/
 		virtual void sendMessage(const Message &message) = 0;
 		virtual void setName(const QString &name);
+		virtual InfoRequest *infoRequest() const;
 	signals:
 		void avatarChanged(const QString &path);
 		void statusChanged(const qutim_sdk_0_3::Status &status);

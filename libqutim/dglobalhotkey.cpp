@@ -24,6 +24,10 @@
 	#include <Carbon/Carbon.h>
 #endif
 
+#if defined( Q_WS_WIN ) and !defined( MOD_NOREPEAT )
+	#define MOD_NOREPEAT 0
+#endif
+
 dGlobalHotKey::dGlobalHotKey()
 {
 	QAbstractEventDispatcher::instance()->setEventFilter( eventFilter );
