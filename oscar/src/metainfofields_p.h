@@ -595,6 +595,54 @@ static void init_fields_list(FieldNamesList &list)
 }
 Q_GLOBAL_STATIC_WITH_INITIALIZER(FieldNamesList, fields, init_fields_list(*x));
 
+static void init_fields_name_list(FieldNamesList &list)
+{
+	list.insert(Nick, "nick");
+	list.insert(FirstName, "firstName");
+	list.insert(LastName, "lastName");
+	list.insert(Email, "email");
+	list.insert(HomeCity, "homeCity");
+	list.insert(HomeState, "homeState");
+	list.insert(HomePhone, "homePhone");
+	list.insert(HomeFax, "homeFax");
+	list.insert(HomeAddress, "homeAddress");
+	list.insert(CellPhone, "cellPhone");
+	list.insert(HomeZipCode, "homeZipCode");
+	list.insert(HomeCountry, "homeCountry");
+	list.insert(GMT, "GMT");
+	list.insert(AuthFlag, "authFlag");
+	list.insert(WebawareFlag, "webawareFlag");
+	list.insert(DirectConnectionFlag, "directConnectionFlag");
+	list.insert(PublishPrimaryEmailFlag, "puslishPrimaryEmailFlag");
+	list.insert(Age, "age");
+	list.insert(Gender, "gender");
+	list.insert(Homepage, "homepage");
+	list.insert(Birthday, "birthday");
+	list.insert(Languages, "languages");
+	list.insert(OriginalCity, "originalCity");
+	list.insert(OriginalState, "originalState");
+	list.insert(OriginalCountry, "originalCountry");
+	list.insert(WorkCity, "workCity");
+	list.insert(WorkState, "workState");
+	list.insert(WorkPhone, "workPhone");
+	list.insert(WorkFax, "workFax");
+	list.insert(WorkAddress, "workAddress");
+	list.insert(WorkZip, "workZip");
+	list.insert(WorkCountry, "workCountry");
+	list.insert(WorkCompany, "workCompany");
+	list.insert(WorkDepartment, "workDepartment");
+	list.insert(WorkPosition, "workPosition");
+	list.insert(WorkOccupation, "workOccupation");
+	list.insert(WorkWebpage, "workWebpage");
+	list.insert(Emails, "emails");
+	list.insert(Notes, "notes");
+	list.insert(Interests, "interests");
+	list.insert(Pasts, "pasts");
+	list.insert(Affilations, "affilations");
+
+}
+Q_GLOBAL_STATIC_WITH_INITIALIZER(FieldNamesList, fields_names, init_fields_name_list(*x));
+
 } } // namespace qutim_sdk_0_3::Oscar
 
 #endif // METAINFOFIELDS_H

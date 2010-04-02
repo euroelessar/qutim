@@ -30,6 +30,64 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+IcqInfoRequest::IcqInfoRequest(IcqContact *contact) :
+	m_metaReq(new FullInfoMetaRequest(contact->account(), contact)), m_state(Request)
+{
+	connect(m_metaReq, SIGNAL(done(bool)), SLOT(onDone(bool)));
+	m_metaReq->send();
+}
+
+IcqInfoRequest::~IcqInfoRequest()
+{
+	if (m_metaReq)
+		m_metaReq->deleteLater();
+}
+
+QList<InfoItem> IcqInfoRequest::items() const
+{
+	QList<InfoItem> items;
+	for (int i = FirstMetaField; i <= LastMetaField; ++i) {
+		MetaInfoField field(i);
+		InfoItem item(field.name(), field.toString(), m_values.value(field),
+					LocalizedStringList() << field.group());
+		LocalizedStringList alt = field.titleAlternatives();
+		if (!alt.isEmpty())
+			item.setProperty("titleAlternatives", QVariant::fromValue(alt));
+		alt = field.alternatives();
+		if (!alt.isEmpty())
+			item.setProperty("alternatives", QVariant::fromValue(alt));
+		items << item;
+	}
+	return items;
+}
+
+InfoItem IcqInfoRequest::item(const QString &name) const
+{
+	MetaInfoField field(name);
+	return InfoItem(name, field.toString(), m_values.value(field),
+					QList<LocalizedString>() << field.group());
+}
+
+IcqInfoRequest::State IcqInfoRequest::state() const
+{
+	return m_state;
+}
+
+void IcqInfoRequest::onDone(bool ok)
+{
+	Q_ASSERT(sender());
+	if (m_metaReq != sender())
+		return;
+	if (ok) {
+		m_values = m_metaReq->values();
+		m_state = Done;
+	} else {
+		m_state = Cancel;
+	}
+	emit stateChanged(m_state);
+	m_metaReq->deleteLater();
+}
+
 void IcqContactPrivate::clearCapabilities()
 {
 	flags = 0;
@@ -277,6 +335,11 @@ void IcqContact::setInList(bool inList)
 		foreach (FeedbagItem item, d->items)
 			item.remove();
 	}
+}
+
+InfoRequest *IcqContact::infoRequest() const
+{
+	return new IcqInfoRequest(const_cast<IcqContact*>(this));
 }
 
 void IcqContact::authResponse(const QString &message, bool auth)

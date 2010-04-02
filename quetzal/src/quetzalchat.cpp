@@ -19,6 +19,9 @@
 QuetzalChat::QuetzalChat(PurpleConversation *conv) :
 	QuetzalConversation(conv)
 {
+//	PurpleConvChat *chat = purple_conversation_get_chat_data(conv);
+//	if (account()->protocol()->id() == "msn")
+//		m_id = "QuetzalChat#" + QString::number(chat->id);
 }
 
 void QuetzalChat::addUsers(GList *cbuddies, gboolean new_arrivals)

@@ -53,6 +53,73 @@ QDebug &operator<<(QDebug &dbg, const MetaInfoGenderField &field)
 	return dbg;
 }
 
+MetaInfoField::MetaInfoField(const QString &name)
+{
+	m_name = name;
+	m_value = static_cast<MetaInfoFieldEnum>(fields_names()->key(name));
+}
+
+MetaInfoField::MetaInfoField(int value) :
+	m_value(static_cast<MetaInfoFieldEnum>(value))
+{
+}
+
+MetaInfoField::MetaInfoField(const MetaInfoField &field) :
+	m_value(field.m_value)
+{
+}
+
+QString MetaInfoField::name() const
+{
+	if (m_name.isEmpty())
+		fields_names()->value(m_value);
+	return m_name;
+}
+
+LocalizedString MetaInfoField::group() const
+{
+	if (m_value >= Nick && m_value <= PublishPrimaryEmailFlag)
+		return QT_TRANSLATE_NOOP("MetaInfo", "Basic");
+	else if (m_value >= Age && m_value <= OriginalCountry)
+		return QT_TRANSLATE_NOOP("MetaInfo", "More");
+	else if (m_value >= WorkCity && m_value <= WorkWebpage)
+		return QT_TRANSLATE_NOOP("MetaInfo", "Work");
+	else if (m_value == Pasts || m_value == Affilations)
+		return QT_TRANSLATE_NOOP("MetaInfo", "Affilations");
+	else
+		return fields()->value(m_value);
+}
+
+static inline QList<LocalizedString> getAlternativesList(const FieldNamesList &list)
+{
+	QList<LocalizedString> r;
+	foreach (const QString &str, list)
+		r << str;
+	return r;
+}
+
+QList<LocalizedString> MetaInfoField::titleAlternatives() const
+{
+	if (m_value == Affilations)
+		 return getAlternativesList(*affilations());
+	else if (m_value == Interests)
+		return getAlternativesList(*interests());
+	else if (m_value == Pasts)
+		return getAlternativesList(*pasts());
+	return QList<LocalizedString>();
+}
+
+QList<LocalizedString> MetaInfoField::alternatives() const
+{
+	if (m_value == HomeCountry || m_value == OriginalCountry || m_value == WorkCountry)
+		return getAlternativesList(*countries());
+	else if (m_value == WorkOccupation)
+		return getAlternativesList(*occupations());
+	else if (m_value == Languages)
+		return getAlternativesList(*languages());
+	return QList<LocalizedString>();
+}
+
 QString MetaInfoField::toString() const
 {
 	return fields()->value(m_value);
@@ -140,8 +207,7 @@ void ShortInfoMetaRequestPrivate::readString(MetaInfoFieldEnum value, const Data
 void ShortInfoMetaRequestPrivate::readFlag(MetaInfoFieldEnum value, const DataUnit &data)
 {
 	bool f = static_cast<bool>(data.read<quint8>());
-	if (f)
-		values.insert(value, f);
+	values.insert(value, f);
 }
 
 void ShortInfoMetaRequestPrivate::dump()

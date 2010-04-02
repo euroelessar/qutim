@@ -8,6 +8,8 @@ namespace Jabber
 	class JContactResourcePrivate
 	{
 	public:
+		JContactResourcePrivate() :
+				contact(0), presence(gloox::Presence::Unavailable), priority(0) {}
 		qutim_sdk_0_3::ChatUnit *contact;
 		QString id;
 		QString name;

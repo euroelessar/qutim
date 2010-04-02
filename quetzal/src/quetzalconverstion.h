@@ -32,7 +32,7 @@ public:
 	virtual void sendMessage(const Message &message);
 	PurpleConversation *conv() { return m_conv; }
 	virtual void update(PurpleConvUpdateType type);
-private:
+protected:
 	PurpleConversation *m_conv;
 	QString m_id;
 	QString m_title;

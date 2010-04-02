@@ -389,30 +389,25 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 		}
 	}
 	if (error == FeedbagError::NoError) {
-		bool updateConfig = account->status() != Status::Connecting;
-		ConfigGroup cfg = account->config("feedbag");
 		if (type == Feedbag::Remove) {
 			if (itemsItr != items.end()) {
 				itemsItr->remove(id);
 				if (itemsItr->isEmpty())
 					items.erase(itemsItr);
-				if (updateConfig) {
-					cfg.group("cache").removeGroup(QString::number(item.d->id2()));
-				}
 			}
 		} else {
 			if (itemsItr == items.end())
 				itemsItr = items.insert(item.type(), ItemsHash());
 			itemsItr->insertMulti(id, item);
-			if (updateConfig) {
-				cfg = cfg.group("cache");
-				saveItem(item, cfg);
-				account->config().sync();
-			}
 		}
-		if (updateConfig) {
-			lastUpdateTime = QDateTime::currentDateTime().toTime_t();
-			cfg.setValue("lastUpdateTime", lastUpdateTime);
+		if (account->status() != Status::Connecting && account->status() != Status::Offline) {
+			ConfigGroup cfg = account->config("feedbag").group("cache");
+			if (type == Feedbag::Remove)
+				cfg.removeGroup(QString::number(item.d->id2()));
+			else
+				saveItem(item, cfg);
+			//lastUpdateTime = QDateTime::currentDateTime().toTime_t();
+			//cfg.setValue("lastUpdateTime", lastUpdateTime);
 			cfg.sync();
 		}
 	}

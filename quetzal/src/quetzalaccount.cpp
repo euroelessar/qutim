@@ -150,6 +150,7 @@ void QuetzalAccount::load(Config cfg)
 		}
 		PurpleGroup *group = purple_group_new(tag.constData());
 		buddy->node.parent->parent = PURPLE_BLIST_NODE(group);
+		m_contacts.insert(qc->id(), qc);
 		ContactList::instance()->addContact(qc);
 	}
 	ConfigGroup bookmarks = cfg.group("bookmarks");
@@ -192,6 +193,8 @@ void QuetzalAccount::save()
 
 void QuetzalAccount::save(QuetzalContact *contact)
 {
+	if (!contact)
+		return;
 	ConfigGroup group = config("contactlist");
 	contact->save(group.group(contact->id()));
 	group.sync();
@@ -199,6 +202,8 @@ void QuetzalAccount::save(QuetzalContact *contact)
 
 void QuetzalAccount::remove(QuetzalContact *contact)
 {
+	if (!contact)
+		return;
 	ConfigGroup group = config("contactlist");
 	group.removeGroup(contact->id());
 	group.sync();
