@@ -31,7 +31,6 @@ namespace AdiumChat
 	class ChatLayerImpl : public ChatLayer
 	{
 		Q_OBJECT
-		Q_CLASSINFO("Service", "ChatLayer")
 	public:
 		virtual QList<ChatSession* > sessions();
 		ChatLayerImpl();

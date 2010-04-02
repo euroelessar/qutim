@@ -24,7 +24,6 @@ using namespace qutim_sdk_0_3;
 class XSettingsLayerImpl : public SettingsLayer
 {
 	Q_OBJECT
-	Q_CLASSINFO("Service", "SettingsLayer")
 public:
 	XSettingsLayerImpl();
 	virtual ~XSettingsLayerImpl();

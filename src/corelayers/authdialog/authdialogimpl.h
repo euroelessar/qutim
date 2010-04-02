@@ -11,7 +11,6 @@ namespace Core {
 	class AuthDialogImpl : public AuthorizationDialog
 	{
 		Q_OBJECT
-		Q_CLASSINFO("Service", "AuthorizationDialog")
 	public:
 		AuthDialogImpl();
 		virtual void setContact(Contact* contact, const QString& text);

@@ -54,6 +54,7 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT PopupBackend : public QObject
 	{
 		Q_OBJECT
+		//Q_CLASSINFO("Service", "Popups")
 	public:
 		virtual void show(Notifications::Type type,
 						  QObject *sender,

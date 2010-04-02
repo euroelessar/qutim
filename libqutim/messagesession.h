@@ -63,6 +63,7 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT ChatLayer : public QObject
 	{
 		Q_OBJECT
+		Q_CLASSINFO("Service", "ChatLayer")
 	public:
 		static ChatLayer *instance();
 
