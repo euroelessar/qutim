@@ -440,7 +440,7 @@ namespace Jabber
 			emit joinConference(p->currentMenuItem.jid());
 			close();
 		} else {
-			p->account->conferenceManager()->openJoinWindow(p->currentMenuItem.jid(), p->account->nick(), "");
+			p->account->conferenceManager()->openJoinWindow(p->currentMenuItem.jid(), p->account->name(), "");
 		}
 	}
 

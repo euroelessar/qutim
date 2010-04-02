@@ -48,7 +48,7 @@ namespace Jabber
 
 	void JMUCJoin::setConference(const QString &conference)
 	{
-		setConference(conference, d_ptr->account->nick(), "");
+		setConference(conference, d_ptr->account->name(), "");
 	}
 
 	void JMUCJoin::setEditConference(const QString &name, const QString &conference,
