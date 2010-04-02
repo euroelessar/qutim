@@ -16,16 +16,15 @@
 #include "dglobalhotkey_p.h"
 
 #if defined( Q_WS_WIN )
-	#include <qt_windows.h>
+# include <qt_windows.h>
+# ifndef MOD_NOREPEAT
+#  define MOD_NOREPEAT 0x4000
+# endif // MOD_NOREPEAT
 #elif defined( Q_WS_X11 )
-	#include <QX11Info>
-	#include <X11/Xlib.h>
+# include <QX11Info>
+# include <X11/Xlib.h>
 #elif defined( Q_WS_MAC )
-	#include <Carbon/Carbon.h>
-#endif
-
-#if defined( Q_WS_WIN ) and !defined( MOD_NOREPEAT )
-	#define MOD_NOREPEAT 0
+# include <Carbon/Carbon.h>
 #endif
 
 dGlobalHotKey::dGlobalHotKey()

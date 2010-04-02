@@ -79,12 +79,6 @@ namespace Core
 									"ContactListWidget",
 									QKeySequence("Ctrl+S")
 									);
-			//TODO move to separated startup module
-			Shortcut::registerSequence("find",
-									QT_TRANSLATE_NOOP("qutIM", "Find"),
-									"ContactListWidget",
-									QKeySequence(QKeySequence::Find)
-									);
 			Shortcut::registerSequence("contactListActivateMainMenu",
 									QT_TRANSLATE_NOOP("ContactList", "Activate main menu"),
 									"ContactListWidget",

@@ -57,17 +57,92 @@ struct ShortcutSelf
 
 void ShortcutSelf::init()
 {
-	struct Info
+	struct _Info
 	{
 		const char *id;
 		LocalizedString name;
-		LocalizedString group;
-		QKeySequence key;
-		bool global;
+		QKeySequence::StandardKey key;
 		Qt::ShortcutContext context;
-	} infos [] = {
 	};
-	Q_UNUSED(infos);
+	typedef struct _Info Info;
+	Info infos [] = {
+//		{ "helpContents", QT_TRANSLATE_NOOP("Shortcut", "HelpContents"), QKeySequence::HelpContents, Qt::WindowShortcut },
+//		{ "whatsThis", QT_TRANSLATE_NOOP("Shortcut", "WhatsThis"), QKeySequence::WhatsThis, Qt::WindowShortcut },
+//		{ "open", QT_TRANSLATE_NOOP("Shortcut", "Open"), QKeySequence::Open, Qt::WindowShortcut },
+		{ "close", QT_TRANSLATE_NOOP("Shortcut", "Close"), QKeySequence::Close, Qt::WindowShortcut },
+//		{ "save", QT_TRANSLATE_NOOP("Shortcut", "Save"), QKeySequence::Save, Qt::WindowShortcut },
+//		{ "new", QT_TRANSLATE_NOOP("Shortcut", "New"), QKeySequence::New, Qt::WindowShortcut },
+//		{ "delete", QT_TRANSLATE_NOOP("Shortcut", "Delete"), QKeySequence::Delete, Qt::WindowShortcut },
+//		{ "cut", QT_TRANSLATE_NOOP("Shortcut", "Cut"), QKeySequence::Cut, Qt::WindowShortcut },
+//		{ "copy", QT_TRANSLATE_NOOP("Shortcut", "Copy"), QKeySequence::Copy, Qt::WindowShortcut },
+//		{ "paste", QT_TRANSLATE_NOOP("Shortcut", "Paste"), QKeySequence::Paste, Qt::WindowShortcut },
+//		{ "undo", QT_TRANSLATE_NOOP("Shortcut", "Undo"), QKeySequence::Undo, Qt::WindowShortcut },
+//		{ "redo", QT_TRANSLATE_NOOP("Shortcut", "Redo"), QKeySequence::Redo, Qt::WindowShortcut },
+//		{ "back", QT_TRANSLATE_NOOP("Shortcut", "Back"), QKeySequence::Back, Qt::WindowShortcut },
+//		{ "forward", QT_TRANSLATE_NOOP("Shortcut", "Forward"), QKeySequence::Forward, Qt::WindowShortcut },
+//		{ "refresh", QT_TRANSLATE_NOOP("Shortcut", "Refresh"), QKeySequence::Refresh, Qt::WindowShortcut },
+//		{ "zoomIn", QT_TRANSLATE_NOOP("Shortcut", "ZoomIn"), QKeySequence::ZoomIn, Qt::WindowShortcut },
+//		{ "zoomOut", QT_TRANSLATE_NOOP("Shortcut", "ZoomOut"), QKeySequence::ZoomOut, Qt::WindowShortcut },
+//		{ "print", QT_TRANSLATE_NOOP("Shortcut", "Print"), QKeySequence::Print, Qt::WindowShortcut },
+//		{ "addTab", QT_TRANSLATE_NOOP("Shortcut", "AddTab"), QKeySequence::AddTab, Qt::WindowShortcut },
+		{ "nextChild", QT_TRANSLATE_NOOP("Shortcut", "Next child"), QKeySequence::NextChild, Qt::WindowShortcut },
+		{ "previousChild", QT_TRANSLATE_NOOP("Shortcut", "Previous child"), QKeySequence::PreviousChild, Qt::WindowShortcut },
+		{ "find", QT_TRANSLATE_NOOP("Shortcut", "Find"), QKeySequence::Find, Qt::WindowShortcut },
+		{ "findNext", QT_TRANSLATE_NOOP("Shortcut", "Find next"), QKeySequence::FindNext, Qt::WindowShortcut },
+		{ "findPrevious", QT_TRANSLATE_NOOP("Shortcut", "Find previous"), QKeySequence::FindPrevious, Qt::WindowShortcut },
+//		{ "replace", QT_TRANSLATE_NOOP("Shortcut", "Replace"), QKeySequence::Replace, Qt::WindowShortcut },
+//		{ "selectAll", QT_TRANSLATE_NOOP("Shortcut", "SelectAll"), QKeySequence::SelectAll, Qt::WindowShortcut },
+//		{ "bold", QT_TRANSLATE_NOOP("Shortcut", "Bold"), QKeySequence::Bold, Qt::WindowShortcut },
+//		{ "italic", QT_TRANSLATE_NOOP("Shortcut", "Italic"), QKeySequence::Italic, Qt::WindowShortcut },
+//		{ "underline", QT_TRANSLATE_NOOP("Shortcut", "Underline"), QKeySequence::Underline, Qt::WindowShortcut },
+//		{ "moveToNextChar", QT_TRANSLATE_NOOP("Shortcut", "MoveToNextChar"), QKeySequence::MoveToNextChar, Qt::WindowShortcut },
+//		{ "moveToPreviousChar", QT_TRANSLATE_NOOP("Shortcut", "MoveToPreviousChar"), QKeySequence::MoveToPreviousChar, Qt::WindowShortcut },
+//		{ "moveToNextWord", QT_TRANSLATE_NOOP("Shortcut", "MoveToNextWord"), QKeySequence::MoveToNextWord, Qt::WindowShortcut },
+//		{ "moveToPreviousWord", QT_TRANSLATE_NOOP("Shortcut", "MoveToPreviousWord"), QKeySequence::MoveToPreviousWord, Qt::WindowShortcut },
+//		{ "moveToNextLine", QT_TRANSLATE_NOOP("Shortcut", "MoveToNextLine"), QKeySequence::MoveToNextLine, Qt::WindowShortcut },
+//		{ "moveToPreviousLine", QT_TRANSLATE_NOOP("Shortcut", "MoveToPreviousLine"), QKeySequence::MoveToPreviousLine, Qt::WindowShortcut },
+//		{ "moveToNextPage", QT_TRANSLATE_NOOP("Shortcut", "MoveToNextPage"), QKeySequence::MoveToNextPage, Qt::WindowShortcut },
+//		{ "moveToPreviousPage", QT_TRANSLATE_NOOP("Shortcut", "MoveToPreviousPage"), QKeySequence::MoveToPreviousPage, Qt::WindowShortcut },
+//		{ "moveToStartOfLine", QT_TRANSLATE_NOOP("Shortcut", "MoveToStartOfLine"), QKeySequence::MoveToStartOfLine, Qt::WindowShortcut },
+//		{ "moveToEndOfLine", QT_TRANSLATE_NOOP("Shortcut", "MoveToEndOfLine"), QKeySequence::MoveToEndOfLine, Qt::WindowShortcut },
+//		{ "moveToStartOfBlock", QT_TRANSLATE_NOOP("Shortcut", "MoveToStartOfBlock"), QKeySequence::MoveToStartOfBlock, Qt::WindowShortcut },
+//		{ "moveToEndOfBlock", QT_TRANSLATE_NOOP("Shortcut", "MoveToEndOfBlock"), QKeySequence::MoveToEndOfBlock, Qt::WindowShortcut },
+//		{ "moveToStartOfDocument", QT_TRANSLATE_NOOP("Shortcut", "MoveToStartOfDocument"), QKeySequence::MoveToStartOfDocument, Qt::WindowShortcut },
+//		{ "moveToEndOfDocument", QT_TRANSLATE_NOOP("Shortcut", "MoveToEndOfDocument"), QKeySequence::MoveToEndOfDocument, Qt::WindowShortcut },
+//		{ "selectNextChar", QT_TRANSLATE_NOOP("Shortcut", "SelectNextChar"), QKeySequence::SelectNextChar, Qt::WindowShortcut },
+//		{ "selectPreviousChar", QT_TRANSLATE_NOOP("Shortcut", "SelectPreviousChar"), QKeySequence::SelectPreviousChar, Qt::WindowShortcut },
+//		{ "selectNextWord", QT_TRANSLATE_NOOP("Shortcut", "SelectNextWord"), QKeySequence::SelectNextWord, Qt::WindowShortcut },
+//		{ "selectPreviousWord", QT_TRANSLATE_NOOP("Shortcut", "SelectPreviousWord"), QKeySequence::SelectPreviousWord, Qt::WindowShortcut },
+//		{ "selectNextLine", QT_TRANSLATE_NOOP("Shortcut", "SelectNextLine"), QKeySequence::SelectNextLine, Qt::WindowShortcut },
+//		{ "selectPreviousLine", QT_TRANSLATE_NOOP("Shortcut", "SelectPreviousLine"), QKeySequence::SelectPreviousLine, Qt::WindowShortcut },
+//		{ "selectNextPage", QT_TRANSLATE_NOOP("Shortcut", "SelectNextPage"), QKeySequence::SelectNextPage, Qt::WindowShortcut },
+//		{ "selectPreviousPage", QT_TRANSLATE_NOOP("Shortcut", "SelectPreviousPage"), QKeySequence::SelectPreviousPage, Qt::WindowShortcut },
+//		{ "selectStartOfLine", QT_TRANSLATE_NOOP("Shortcut", "SelectStartOfLine"), QKeySequence::SelectStartOfLine, Qt::WindowShortcut },
+//		{ "selectEndOfLine", QT_TRANSLATE_NOOP("Shortcut", "SelectEndOfLine"), QKeySequence::SelectEndOfLine, Qt::WindowShortcut },
+//		{ "selectStartOfBlock", QT_TRANSLATE_NOOP("Shortcut", "SelectStartOfBlock"), QKeySequence::SelectStartOfBlock, Qt::WindowShortcut },
+//		{ "selectEndOfBlock", QT_TRANSLATE_NOOP("Shortcut", "SelectEndOfBlock"), QKeySequence::SelectEndOfBlock, Qt::WindowShortcut },
+//		{ "selectStartOfDocument", QT_TRANSLATE_NOOP("Shortcut", "SelectStartOfDocument"), QKeySequence::SelectStartOfDocument, Qt::WindowShortcut },
+//		{ "selectEndOfDocument", QT_TRANSLATE_NOOP("Shortcut", "SelectEndOfDocument"), QKeySequence::SelectEndOfDocument, Qt::WindowShortcut },
+//		{ "deleteStartOfWord", QT_TRANSLATE_NOOP("Shortcut", "DeleteStartOfWord"), QKeySequence::DeleteStartOfWord, Qt::WindowShortcut },
+//		{ "deleteEndOfWord", QT_TRANSLATE_NOOP("Shortcut", "DeleteEndOfWord"), QKeySequence::DeleteEndOfWord, Qt::WindowShortcut },
+//		{ "deleteEndOfLine", QT_TRANSLATE_NOOP("Shortcut", "DeleteEndOfLine"), QKeySequence::DeleteEndOfLine, Qt::WindowShortcut },
+//		{ "insertParagraphSeparator", QT_TRANSLATE_NOOP("Shortcut", "InsertParagraphSeparator"), QKeySequence::InsertParagraphSeparator, Qt::WindowShortcut },
+//		{ "insertLineSeparator", QT_TRANSLATE_NOOP("Shortcut", "InsertLineSeparator"), QKeySequence::InsertLineSeparator, Qt::WindowShortcut },
+//		{ "saveAs", QT_TRANSLATE_NOOP("Shortcut", "SaveAs"), QKeySequence::SaveAs, Qt::WindowShortcut },
+		{ "preferences", QT_TRANSLATE_NOOP("Shortcut", "Preferences"), QKeySequence::Preferences, Qt::ApplicationShortcut },
+		{ "quit", QT_TRANSLATE_NOOP("Shortcut", "Quit"), QKeySequence::Quit, Qt::ApplicationShortcut }
+	};
+	LocalizedString group = QT_TRANSLATE_NOOP("Shortcut", "System");
+	for (int i = 0, size = sizeof(infos)/sizeof(Info); i < size; i++) {
+		const Info &it = infos[i];
+		ShortcutInfo *info = new ShortcutInfo();
+		info->name = it.name;
+		info->group = group;
+		info->context = it.context;
+		info->key = QKeySequence(it.key);
+		info->inited = true;
+		hash.insert(QLatin1String(it.id), info);
+	}
 }
 
 Q_GLOBAL_STATIC_WITH_INITIALIZER(ShortcutSelf, self, x->init())
