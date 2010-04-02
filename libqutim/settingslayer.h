@@ -140,12 +140,14 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT SettingsLayer : public QObject
 	{
 		Q_OBJECT
+		Q_CLASSINFO("Service", "SettingsLayer")
 	public:
 		virtual void show(const SettingsItemList &settings) = 0;
 		virtual void close() = 0;
 	protected:
 		SettingsLayer();
 		virtual ~SettingsLayer();
+		virtual void virtual_hook(int id, void *data);
 	};
 }
 

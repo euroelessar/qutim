@@ -223,4 +223,10 @@ namespace qutim_sdk_0_3
 		else if(p->changed_num == 1 && !equal)
 			emit modifiedChanged(true);
 	}
+
+	void SettingsWidget::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
+	}
 }

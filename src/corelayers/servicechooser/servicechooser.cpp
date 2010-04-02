@@ -1,5 +1,5 @@
 /****************************************************************************
- *  emoticonssettings.cpp
+ *  servicechooser.cpp
  *
  *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
  *
@@ -13,24 +13,26 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "emoticonssettings.h"
-#include <libqutim/libqutim_global.h>
+#include "servicechooser.h"
 #include "modulemanagerimpl.h"
-#include "emoticonsselector.h"
+#include "servicechooserwidget.h"
+#include "protocolchooserwidget.h"
 #include <libqutim/settingslayer.h>
 #include <libqutim/icon.h>
 
 namespace Core
 {
-	static CoreModuleHelper<EmoticonsSettings, StartupModule> emoticons_settings_static(
-			QT_TRANSLATE_NOOP("Plugin", "Emoticons settings"),
-			QT_TRANSLATE_NOOP("Plugin", "Default settings widget set for emoticons")
+	static CoreModuleHelper<ServiceChooser, StartupModule> service_shooser_static(
+			QT_TRANSLATE_NOOP("Plugin", "Service shooser"),
+			QT_TRANSLATE_NOOP("Plugin", "TODO")
 			);
 
-	EmoticonsSettings::EmoticonsSettings()
+	ServiceChooser::ServiceChooser(QObject* parent): QObject(parent)
 	{
-		GeneralSettingsItem<EmoticonsSelector> *item = new GeneralSettingsItem<EmoticonsSelector>(Settings::Appearance, Icon("emoticon"), QT_TRANSLATE_NOOP("Settings","Emoticons"));
+		GeneralSettingsItem<ServiceChooserWidget> *item = new GeneralSettingsItem<ServiceChooserWidget>(Settings::Plugin, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Service Chooser"));
 		Settings::registerItem(item);
+		GeneralSettingsItem<ProtocolChooserWidget> *item2 = new GeneralSettingsItem<ProtocolChooserWidget>(Settings::Protocol, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Protocol chooser"));
+		Settings::registerItem(item2);
 		deleteLater();
 	}
 

@@ -490,4 +490,10 @@ namespace qutim_sdk_0_3
 			proto->loadAccounts();
 		Notifications::sendNotification(Notifications::Startup, 0);
 	}
+
+	void ModuleManager::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
+	}
 }

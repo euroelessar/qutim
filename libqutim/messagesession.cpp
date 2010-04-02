@@ -38,6 +38,12 @@ namespace qutim_sdk_0_3
 	ChatSession::~ChatSession()
 	{
 	}
+
+	void ChatSession::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
+	}
 	
 	ChatLayer::ChatLayer()
 	{
@@ -87,5 +93,11 @@ namespace qutim_sdk_0_3
 	ChatSession* ChatLayer::get(ChatUnit* unit, bool create)
 	{
 		return instance() ? instance()->getSession(unit,create) : 0;
+	}
+
+	void ChatLayer::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
 	}
 }

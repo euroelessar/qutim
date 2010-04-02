@@ -71,4 +71,10 @@ namespace qutim_sdk_0_3
 			return;
 		p->self->showHistory(unit);
 	}
+
+	void History::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
+	}
 }

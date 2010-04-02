@@ -162,6 +162,7 @@ void MyObject::onAction()
 #ifndef Q_QDOC
 		virtual QList<Action> dynamicActions() const;
 #endif
+		virtual void virtual_hook(int id, void *data);
 		QScopedPointer<MenuControllerPrivate> d_ptr;
 	};
 

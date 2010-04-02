@@ -1,7 +1,7 @@
 /****************************************************************************
- *  abstractwizardpage.h
+ *  servicedelegate.h
  *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,30 +13,26 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef ABSTRACTWIZARDPAGE_H
-#define ABSTRACTWIZARDPAGE_H
+#ifndef SERVICEDELEGATE_H
+#define SERVICEDELEGATE_H
 
-#include "libqutim_global.h"
+#include <QAbstractItemDelegate>
 
-namespace qutim_sdk_0_3
+namespace Core
 {
-	class LIBQUTIM_EXPORT AbstractWizardPage : public QObject
+
+	class ServiceDelegate : public QAbstractItemDelegate
 	{
 		Q_OBJECT
 	public:
-		enum WidgetType { SeparateWindow, WizardPage };
-		virtual QWidget *widget() = 0;
-		virtual WidgetType widgetType() { return WizardPage; }
-		virtual bool isComplete() = 0;
-		virtual QString title() = 0;
-		virtual QString subTitle() = 0;
-	signals:
-		void completeChanged();
-	protected:
-		AbstractWizardPage();
-		virtual void virtual_hook(int id, void *data);
-		virtual ~AbstractWizardPage();
+		ServiceDelegate(QObject* parent = 0);
+		virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+		virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
+	private:
+		virtual bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index);
+		int m_vertical_padding;
+		int m_horizontal_padding;
 	};
-}
 
-#endif // ABSTRACTWIZARDPAGE_H
+}
+#endif // SERVICEDELEGATE_H

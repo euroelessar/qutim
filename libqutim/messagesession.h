@@ -56,6 +56,7 @@ namespace qutim_sdk_0_3
 	protected:
 		ChatSession(ChatLayer *chat);
 		virtual ~ChatSession();
+		virtual void virtual_hook(int id, void *data);
 	private:
 		QScopedPointer<ChatSessionPrivate> p;
 	};
@@ -63,6 +64,7 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT ChatLayer : public QObject
 	{
 		Q_OBJECT
+		Q_CLASSINFO("Service", "ChatLayer")
 	public:
 		static ChatLayer *instance();
 
@@ -78,6 +80,7 @@ namespace qutim_sdk_0_3
 		ChatUnit *getUnitForSession(ChatUnit *unit) const;
 		ChatLayer();
 		virtual ~ChatLayer();
+		virtual void virtual_hook(int id, void *data);
 	};
 }
 

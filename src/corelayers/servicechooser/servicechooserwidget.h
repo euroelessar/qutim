@@ -1,5 +1,5 @@
 /****************************************************************************
- *  emoticonsselector.h
+ *  servicechooserwidget.h
  *
  *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
  *
@@ -13,33 +13,47 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef EMOTICONSSELECTOR_H
-#define EMOTICONSSELECTOR_H
+#ifndef SERVICECHOOSERWIDGET_H
+#define SERVICECHOOSERWIDGET_H
 #include <libqutim/settingswidget.h>
-#include "emoticonssettings.h"
+#include <QHash>
 
-namespace Ui {
-class emoticonsSelector;
+namespace qutim_sdk_0_3 
+{
+	class ExtensionInfo;
 }
 
-using namespace qutim_sdk_0_3;
-
-class EmoticonsSelector : public SettingsWidget
+namespace Ui
 {
-	Q_OBJECT
-public:
-	EmoticonsSelector();
-    virtual void loadImpl();
-    virtual void cancelImpl();
-    virtual void saveImpl();	
-    virtual ~EmoticonsSelector();
-private slots:
-	void currentIndexChanged(const QString &text);
-	void clearEmoticonsPreview();
-private:
-	Ui::emoticonsSelector *ui;
-	QWidgetList m_active_emoticons;
-	QString m_selected_theme;
-};
+	class ServiceChooser;
+}
 
-#endif // EMOTICONSSELECTOR_H
+class QStandardItem;
+class QStandardItemModel;
+namespace Core
+{
+
+	class ServiceItem;
+	using namespace qutim_sdk_0_3;
+
+	class ServiceChooserWidget : public SettingsWidget
+	{
+		Q_OBJECT
+	public:
+		ServiceChooserWidget();
+		virtual void loadImpl();
+		virtual void saveImpl();
+		virtual void cancelImpl();
+		virtual ~ServiceChooserWidget();
+	private slots:
+		void onItemChanged(QStandardItem*);
+	private:
+		QString html(const ExtensionInfo &info);
+		void clear();
+		Ui::ServiceChooser *ui;
+		QStandardItemModel *m_model; 
+		QHash<const char *, ServiceItem *> m_service_items;
+	};
+
+}
+#endif // SERVICECHOOSERWIDGET_H

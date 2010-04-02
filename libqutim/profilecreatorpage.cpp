@@ -35,4 +35,10 @@ namespace qutim_sdk_0_3
 	{
 		return property("protocolinfo").value<ExtensionInfo>();
 	}
+
+	void ProfileCreatorPage::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
+	}
 }

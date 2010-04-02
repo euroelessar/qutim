@@ -1,7 +1,7 @@
 /****************************************************************************
- *  abstractwizardpage.h
+ *  serviceitem.h
  *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,30 +13,38 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef ABSTRACTWIZARDPAGE_H
-#define ABSTRACTWIZARDPAGE_H
+#ifndef SERVICEITEM_H
+#define SERVICEITEM_H
 
-#include "libqutim_global.h"
+#include <QStandardItem>
 
 namespace qutim_sdk_0_3
 {
-	class LIBQUTIM_EXPORT AbstractWizardPage : public QObject
-	{
-		Q_OBJECT
-	public:
-		enum WidgetType { SeparateWindow, WizardPage };
-		virtual QWidget *widget() = 0;
-		virtual WidgetType widgetType() { return WizardPage; }
-		virtual bool isComplete() = 0;
-		virtual QString title() = 0;
-		virtual QString subTitle() = 0;
-	signals:
-		void completeChanged();
-	protected:
-		AbstractWizardPage();
-		virtual void virtual_hook(int id, void *data);
-		virtual ~AbstractWizardPage();
-	};
+	class ExtensionInfo;
 }
 
-#endif // ABSTRACTWIZARDPAGE_H
+namespace Core
+{
+	using namespace qutim_sdk_0_3;
+
+	class ServiceItem : public QStandardItem
+	{
+	public:
+		enum ServiceItemRole {
+			GroupRole = Qt::UserRole,
+			ExclusiveRole,
+			ClassNameRole
+		};
+		ServiceItem(const QIcon &icon,const QString &text, bool exclusive = false);
+		virtual QVariant data(int role = Qt::UserRole + 1) const;
+		virtual void setData(const QVariant& value, int role = Qt::UserRole + 1);
+		void setServiceClassName(const char *name);
+	private:
+		bool m_exclusive;
+		QString m_service_classname;
+	};
+
+	const char *className(const ExtensionInfo &info);
+	
+}
+#endif // SERVICEITEM_H

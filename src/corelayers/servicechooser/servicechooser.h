@@ -1,7 +1,7 @@
 /****************************************************************************
- *  abstractwizardpage.h
+ *  servicechooser.h
  *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,30 +13,19 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef ABSTRACTWIZARDPAGE_H
-#define ABSTRACTWIZARDPAGE_H
+#ifndef SERVICECHOOSER_H
+#define SERVICECHOOSER_H
 
-#include "libqutim_global.h"
+#include <QObject>
 
-namespace qutim_sdk_0_3
+namespace Core
 {
-	class LIBQUTIM_EXPORT AbstractWizardPage : public QObject
+	class ServiceChooser : public QObject
 	{
 		Q_OBJECT
 	public:
-		enum WidgetType { SeparateWindow, WizardPage };
-		virtual QWidget *widget() = 0;
-		virtual WidgetType widgetType() { return WizardPage; }
-		virtual bool isComplete() = 0;
-		virtual QString title() = 0;
-		virtual QString subTitle() = 0;
-	signals:
-		void completeChanged();
-	protected:
-		AbstractWizardPage();
-		virtual void virtual_hook(int id, void *data);
-		virtual ~AbstractWizardPage();
+		ServiceChooser(QObject* parent = 0);
 	};
-}
 
-#endif // ABSTRACTWIZARDPAGE_H
+}
+#endif // SERVICECHOOSER_H

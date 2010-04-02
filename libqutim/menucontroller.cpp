@@ -199,4 +199,10 @@ namespace qutim_sdk_0_3
 	{
 		return QList<Action>();
 	}
+
+	void MenuController::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
+	}
 }

@@ -10,6 +10,7 @@ namespace Core
 	class IconLoaderImpl : public IconLoader
 	{
 		Q_OBJECT
+		Q_CLASSINFO("Service", "IconLoader")
 	public:
 		IconLoaderImpl();
 		virtual QIcon loadIcon(const QString &name);
