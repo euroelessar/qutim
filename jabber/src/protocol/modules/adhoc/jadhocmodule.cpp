@@ -3,6 +3,7 @@
 #include "../../account/roster/jcontact.h"
 #include "../../account/jaccount.h"
 #include "../../account/roster/jresourceactiongenerator.h"
+#include "../../account/roster/jcontactresource.h"
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/icon.h>

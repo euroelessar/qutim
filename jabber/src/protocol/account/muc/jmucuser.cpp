@@ -2,6 +2,7 @@
 #include "jmucsession.h"
 #include "../jaccount.h"
 #include "../roster/jcontactresource_p.h"
+#include "../vcard/jinforequest.h"
 #include <QStringBuilder>
 
 namespace Jabber
@@ -55,5 +56,10 @@ namespace Jabber
 		int length = d->avatar.length() - pos;
 		d->hash = QStringRef(&d->avatar, pos, length);
 		emit avatarChanged(d->avatar);
+	}
+
+	InfoRequest *JMUCUser::infoRequest()
+	{
+		return new JInfoRequest(static_cast<JAccount *>(account())->connection()->vCardManager(), id());
 	}
 }

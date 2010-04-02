@@ -2,7 +2,7 @@
 #define JCONTACT_H
 
 #include <qutim/contact.h>
-#include "jcontactresource.h"
+#include <gloox/presence.h>
 
 namespace Jabber
 {
@@ -23,7 +23,9 @@ namespace Jabber
 			QString id() const;
 			void sendMessage(const qutim_sdk_0_3::Message &message);
 			void setName(const QString &name);
+			void setContactName(const QString &name);
 			void setTags(const QSet<QString> &tags);
+			void setContactTags(const QSet<QString> &tags);
 			void setStatus(const QString &resource, gloox::Presence::PresenceType presence, int priority,
 					const QString &text = QString());
 			QString name() const;
@@ -31,6 +33,7 @@ namespace Jabber
 			Status status() const;
 			bool isInList() const;
 			void setInList(bool inList);
+			void setContactInList(bool inList);
 			bool hasResource(const QString &resource);
 			void addResource(const QString &resource);
 			void removeResource(const QString &resource);
@@ -40,6 +43,7 @@ namespace Jabber
 			QString avatar() const;
 			QString avatarHash() const;
 			void setAvatar(const QString &hex);
+			InfoRequest *infoRequest();
 		protected:
 			void fillMaxResource();
 			virtual bool event(QEvent *event);

@@ -1,5 +1,7 @@
+#include "jcontactresource.h"
 #include "jcontactresource_p.h"
 #include "jcontact.h"
+#include "../vcard/jinforequest.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
 #include <qutim/status.h>
@@ -123,5 +125,13 @@ namespace Jabber
 	QString JContactResource::text() const
 	{
 		return d_func()->text;
+	}
+
+	InfoRequest *JContactResource::infoRequest()
+	{
+		if (JContact *contact = qobject_cast<JContact *>(d_func()->contact))
+			return contact->infoRequest();
+		else
+			return 0;
 	}
 }
