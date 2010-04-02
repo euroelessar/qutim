@@ -37,6 +37,7 @@ namespace qutim_sdk_0_3
 		ExtensionInfo info() const;
 	protected:
 		void setInfo(const ExtensionInfo &info);
+		virtual void virtual_hook(int id, void *data);
 	};
 
 	class LIBQUTIM_EXPORT Protocol : public QObject
@@ -53,6 +54,8 @@ namespace qutim_sdk_0_3
 		virtual Account *account(const QString &id) const = 0;
 	signals:
 		void accountCreated(qutim_sdk_0_3::Account *);
+	protected:
+		virtual void virtual_hook(int id, void *data);
 	private:
 		virtual void loadAccounts() = 0;
 		friend class ModuleManager;

@@ -163,6 +163,7 @@ namespace qutim_sdk_0_3
 		* @return Generated object
 		*/
 		virtual QObject *generateHelper() const = 0;
+		virtual void virtual_hook(int id, void *data);
 		QScopedPointer<ObjectGeneratorPrivate> d_ptr;
 #ifndef Q_QDOC
 	public:

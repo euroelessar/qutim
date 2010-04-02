@@ -36,6 +36,7 @@ namespace qutim_sdk_0_3
 		MessageList read(const ChatUnit *unit, int max_num) { return read(unit, QDateTime(), QDateTime::currentDateTime(), max_num); }
 	public slots:
 		virtual void showHistory(const ChatUnit *unit);
+		virtual void virtual_hook(int id, void *data);
 	};
 }
 

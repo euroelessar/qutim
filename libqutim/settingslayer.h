@@ -147,6 +147,7 @@ namespace qutim_sdk_0_3
 	protected:
 		SettingsLayer();
 		virtual ~SettingsLayer();
+		virtual void virtual_hook(int id, void *data);
 	};
 }
 

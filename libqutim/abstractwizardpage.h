@@ -34,6 +34,7 @@ namespace qutim_sdk_0_3
 		void completeChanged();
 	protected:
 		AbstractWizardPage();
+		virtual void virtual_hook(int id, void *data);
 		virtual ~AbstractWizardPage();
 	};
 }

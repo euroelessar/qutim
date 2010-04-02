@@ -31,6 +31,8 @@ namespace qutim_sdk_0_3
 		// Creators with higher priority are shown earlier, default is 0.0
 		virtual double priority() const;
 		virtual QList<QWizardPage *> pages(QWidget *parent) = 0;
+	protected:
+		virtual void virtual_hook(int id, void *data);
 	};
 }
 

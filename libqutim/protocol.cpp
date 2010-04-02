@@ -41,6 +41,12 @@ namespace qutim_sdk_0_3
 		setProperty("protocolinfo", qVariantFromValue(info));
 	}
 
+	void AccountCreationWizard::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
+	}
+
 	struct ProtocolPrivate
 	{
 		mutable QString id;
@@ -69,5 +75,11 @@ namespace qutim_sdk_0_3
 		if(p->id.isNull())
 			p->id = QString::fromUtf8(metaInfo(metaObject(), "Protocol"));
 		return p->id;
+	}
+
+	void Protocol::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
 	}
 }

@@ -24,4 +24,10 @@ namespace qutim_sdk_0_3
 	AbstractWizardPage::~AbstractWizardPage()
 	{
 	}
+
+	void AbstractWizardPage::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
+	}
 }

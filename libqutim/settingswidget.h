@@ -46,6 +46,7 @@ namespace qutim_sdk_0_3
 		virtual void cancelImpl() = 0;
 		void listenChildrenStates(const QWidgetList &exceptions = QWidgetList());
 		const char *lookForWidgetState(QWidget *widget, const char *property = 0, const char *signal = 0);
+		virtual void virtual_hook(int id, void *data);
 	private slots:
 		void onStateChanged(int index);
 	private:
