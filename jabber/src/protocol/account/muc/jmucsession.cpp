@@ -19,6 +19,7 @@
 #include "../roster/jmessagesession.h"
 #include "../roster/jmessagehandler.h"
 #include "../vcard/jvcardmanager.h"
+#include "jbookmarkmanager.h"
 #include <gloox/uniquemucroom.h>
 #include <qutim/message.h>
 #include <gloox/message.h>
@@ -42,6 +43,7 @@ namespace Jabber
 		gloox::MUCRoom *room;
 		gloox::JID jid;
 		QString nick;
+		QString title;
 		QHash<std::string, quint64> messages;
 		QHash<QString, JMUCUser *> users;
 		bool isJoined;
@@ -298,12 +300,23 @@ namespace Jabber
 
 	void JMUCSession::setBookmarkIndex(int index)
 	{
-		d_func()->bookmarkIndex = index;
+		Q_D(JMUCSession);
+		d->bookmarkIndex = index;
+		if (index != -1)
+			d->title = d->account->conferenceManager()->bookmarkManager()->bookmarks()[index].name;
+		else
+			d->title = id();
+		emit titleChanged(d->title);
 	}
 
 	int JMUCSession::bookmarkIndex()
 	{
 		return d_func()->bookmarkIndex;
+	}
+
+	QString JMUCSession::title() const
+	{
+		return d_func()->title;
 	}
 
 	void JMUCSession::showConfigDialog()
