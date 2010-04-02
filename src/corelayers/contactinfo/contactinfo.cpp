@@ -104,8 +104,11 @@ MainWindow::MainWindow() :
 	m_layout = new QVBoxLayout(widget);
 }
 
-void MainWindow::setBuddy(Buddy *buddy)
+void MainWindow::setBuddy(Buddy *buddy, InfoRequest *req)
 {
+	if (request)
+		request->deleteLater();
+	request = req;
 	if (!m_groups.isEmpty()) {
 		qDeleteAll(m_groups);
 		m_groups.clear();
@@ -113,9 +116,6 @@ void MainWindow::setBuddy(Buddy *buddy)
 		if (spacer)
 			delete spacer;
 	}
-	if (request)
-		request->deleteLater();
-	request = buddy->infoRequest();
 	setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About contact %1 <%2>")
 					.toString()
 					.arg(buddy->name())
@@ -170,6 +170,9 @@ ContactInfo::ContactInfo()
 
 void ContactInfo::show(Buddy *buddy)
 {
+	InfoRequest *request = buddy->infoRequest();
+	if (!request)
+		return;
 	if (!info) {
 		info = new MainWindow();
 		info->show();
@@ -177,8 +180,7 @@ void ContactInfo::show(Buddy *buddy)
 	} else {
 		info->raise();
 	}
-	info->setBuddy(buddy);
-
+	info->setBuddy(buddy, request);
 }
 
 void ContactInfo::onShow()

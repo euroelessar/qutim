@@ -33,7 +33,7 @@ class MainWindow : public QScrollArea
 	Q_OBJECT
 public:
 	MainWindow();
-	void setBuddy(Buddy *buddy);
+	void setBuddy(Buddy *buddy, InfoRequest *request);
 private slots:
 	void onRequestStateChanged(InfoRequest::State state);
 private:
