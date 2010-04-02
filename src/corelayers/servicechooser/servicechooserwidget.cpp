@@ -132,7 +132,7 @@ namespace Core
 	
 	void ServiceChooserWidget::clear()
 	{
-		qDeleteAll(m_service_items);
+		m_model->clear();
 		m_service_items.clear();
 	}
 	

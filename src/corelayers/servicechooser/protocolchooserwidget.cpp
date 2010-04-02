@@ -124,7 +124,7 @@ namespace Core
 	
 	void ProtocolChooserWidget::clear()
 	{
-		qDeleteAll(m_protocol_items);
+		m_model->clear();
 		m_protocol_items.clear();
 	}
 	
