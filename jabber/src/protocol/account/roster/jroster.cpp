@@ -1,5 +1,7 @@
 #include "jroster.h"
-#include "jcontact_p.h"
+#include "../jaccount.h"
+#include "jcontact.h"
+#include "jcontactresource.h"
 #include "../vcard/jvcardmanager.h"
 #include <QFile>
 #include <gloox/vcardupdate.h>
@@ -137,22 +139,15 @@ namespace Jabber
 					continue;
 			} else if (!p->contacts.contains(jid)) {
 				JContact *contact = new JContact(jid, p->account);
-				JContactPrivate *c_d = contact->d_func();
 				RosterItem *item = items->second;
-				c_d->name = QString::fromStdString(item->name());
+				contact->setContactName(QString::fromStdString(item->name()));
 				QSet<QString> tags;
 				StringList groups = item->groups();
 				StringList::const_iterator group = groups.begin();
 				for(; group != groups.end(); ++group)
 					tags.insert(QString::fromStdString(*group));
-				c_d->tags = tags;
-				//QMap<std::string, Resource *> resources(item->resources());
-				//foreach (std::string key, resources.keys())
-				/*std::map<std::string, Resource *>::const_iterator resource = item->resources().begin();
-				for(; resource != item->resources().end(); ++resource) {
-					contact->addResource(QString::fromStdString(resource->first));
-				}*/
-				c_d->inList = true;
+				contact->setContactTags(tags);
+				contact->setContactInList(true);
 				ContactList::instance()->addContact(contact);
 				p->contacts.insert(jid, contact);
 			}
@@ -173,14 +168,14 @@ namespace Jabber
 			 return;
 		if (!p->contacts.contains(jid)) {
 			JContact *contact = new JContact(jid, p->account);
-			JContactPrivate *c_d = contact->d_func();
-			c_d->name = QString::fromStdString(presence.from().username());
-			c_d->inList = false;
+			contact->setContactName(QString::fromStdString(presence.from().username()));
+			contact->setContactInList(false);
 			ContactList::instance()->addContact(contact);
 			p->contacts.insert(jid, contact);
 		}
 		if (!resource.isEmpty())
-			p->contacts.value(jid)->setStatus(resource, presence.presence(), presence.priority());
+			p->contacts.value(jid)->setStatus(resource, presence.presence(), presence.priority(),
+					QString::fromStdString(presence.status()));
 		if (presence.presence() != Presence::Unavailable && !presence.error()) {
 			const VCardUpdate *vcard = presence.findExtension<VCardUpdate>(ExtVCardUpdate);
 			if(vcard) {

@@ -1,4 +1,6 @@
-#include "jcontact_p.h"
+#include "jcontact.h"
+#include "jcontactresource.h"
+#include "../vcard/jinforequest.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
 #include <gloox/message.h>
@@ -6,12 +8,31 @@
 #include <gloox/rostermanager.h>
 #include <gloox/rosteritem.h>
 #include <QStringBuilder>
+#include "qutim/tooltip.h"
+#include "qutim/extensionicon.h"
 #include <qutim/debug.h>
 
 using namespace gloox;
 
 namespace Jabber
 {
+	struct JContactPrivate
+	{
+		~JContactPrivate()
+		{
+			qDeleteAll(resources);
+		}
+		JAccount *account;
+		QHash<QString, JContactResource *> resources;
+		QStringList currentResources;
+		QSet<QString> tags;
+		QString name;
+		QString jid;
+		bool inList;
+		QString avatar;
+		QStringRef hash;
+	};
+
 	JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_ptr(new JContactPrivate)
 	{
 		Q_D(JContact);
@@ -35,17 +56,24 @@ namespace Jabber
 	void JContact::setName(const QString &name)
 	{
 		Q_D(JContact);
+		if (d->name == name)
+			return;
+		setContactName(name);
 		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
 		RosterItem *item = rosterManager->getRosterItem(d->jid.toStdString());
 		if (!item)
 			return;
 		item->setName(name.toStdString());
 		rosterManager->synchronize();
-		d->name = name;
 		emit nameChanged(name);
 	}
 
-	QString JContact::name() const
+	void JContact::setContactName(const QString &name)
+	{
+		d_func()->name = name;
+	}
+
+	QString JContact::JContact::name() const
 	{
 		return d_func()->name;
 	}
@@ -55,7 +83,7 @@ namespace Jabber
 		Q_D(JContact);
 		if (d->tags == tags)
 			return;
-		d->tags = tags;
+		setContactTags(tags);
 		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
 		RosterItem *item = rosterManager->getRosterItem(JID(d->jid.toStdString()));
 		if(!item)
@@ -69,6 +97,11 @@ namespace Jabber
 		emit tagsChanged(tags);
 	}
 
+	void JContact::setContactTags(const QSet<QString> &tags)
+	{
+		d_func()->tags = tags;
+	}
+
 	QSet<QString> JContact::tags() const
 	{
 		return d_func()->tags;
@@ -79,11 +112,17 @@ namespace Jabber
 		return d_func()->inList;
 	}
 
+	void JContact::setContactInList(bool inList)
+	{
+		d_func()->inList = inList;
+	}
+
 	void JContact::setInList(bool inList)
 	{
 		Q_D(JContact);
 		if (d->inList == inList)
 			return;
+		setContactInList(inList);
 		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
 		if (inList)
 			rosterManager->add(d->jid.toStdString(), d->name.toStdString(), StringList());
@@ -120,6 +159,20 @@ namespace Jabber
 			gmes.addExtension(new gloox::ChatState(qutIM2gloox(chatEvent->chatState())));
 			client->send(gmes);
 			return true;
+		} else if (ev->type() == ToolTipEvent::eventType()) {
+			Q_D(JContact);
+			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+			foreach (QString id, d->resources.keys()) {
+				JContactResource *resource = d->resources.value(id);
+				event->appendField(QString(), QString());
+				if (!resource->text().isEmpty())
+					event->appendField(resource->text(), QString());
+				event->appendField(QT_TRANSLATE_NOOP("Contact", "Resource"),
+						QString("%1 (%2)").arg(id).arg(resource->priority()));
+				if (false)
+					event->appendField(QT_TRANSLATE_NOOP("Contact", "Possible client"), resource->id());
+			}
+			return true;
 		}
 		return Contact::event(ev);
 	}
@@ -135,7 +188,7 @@ namespace Jabber
 		d_func()->resources.insert(resource, res);
 	}
 
-	void JContact::setStatus(const QString &resource, Presence::PresenceType presence, int priority)
+	void JContact::setStatus(const QString &resource, Presence::PresenceType presence, int priority, const QString &text)
 	{
 		Q_D(JContact);
 		Status oldStatus = status();
@@ -151,7 +204,7 @@ namespace Jabber
 		} else {
 			if (!d->resources.contains(resource))
 				addResource(resource);
-			d->resources.value(resource)->setStatus(presence, priority);
+			d->resources.value(resource)->setStatus(presence, priority, text);
 			fillMaxResource();
 		}
 		Status newStatus = status();
@@ -230,5 +283,10 @@ namespace Jabber
 		int length = d->avatar.length() - pos;
 		d->hash = QStringRef(&d->avatar, pos, length);
 		emit avatarChanged(d->avatar);
+	}
+
+	InfoRequest *JContact::infoRequest() const
+	{
+		return new JInfoRequest(d_func()->account->connection()->vCardManager(), id());
 	}
 }

@@ -532,4 +532,13 @@ XtrazResponse Xtraz::response()
 	return *d->response;
 }
 
+Xtraz::Xtraz()
+{
+}
+
+Xtraz::Xtraz(const Xtraz &xtraz)
+{
+	d = xtraz.d;
+}
+
 } } // namespace qutim_sdk_0_3::oscar

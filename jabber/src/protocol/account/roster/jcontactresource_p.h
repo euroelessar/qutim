@@ -1,7 +1,8 @@
 #ifndef JCONTACTRESOURCE_P_H
 #define JCONTACTRESOURCE_P_H
 
-#include "jcontactresource.h"
+#include <qutim/contact.h>
+#include <gloox/presence.h>
 
 namespace Jabber
 {
@@ -16,6 +17,7 @@ namespace Jabber
 		gloox::Presence::PresenceType presence;
 		int priority;
 		QSet<QString> features;
+		QString text;
 	};
 }
 

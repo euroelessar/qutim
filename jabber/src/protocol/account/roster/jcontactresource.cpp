@@ -1,5 +1,7 @@
+#include "jcontactresource.h"
 #include "jcontactresource_p.h"
 #include "jcontact.h"
+#include "../vcard/jinforequest.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
 #include <qutim/status.h>
@@ -57,11 +59,12 @@ namespace Jabber
 		return d_func()->priority;
 	}
 
-	void JContactResource::setStatus(Presence::PresenceType presence, int priority)
+	void JContactResource::setStatus(Presence::PresenceType presence, int priority, const QString &text)
 	{
 		Q_D(JContactResource);
 		d->presence = presence;
 		d->priority = priority;
+		d->text = text;
 		emit statusChanged(JProtocol::presenceToStatus(presence));
 	}
 
@@ -96,17 +99,17 @@ namespace Jabber
 
 	bool JContactResource::checkFeature(const QLatin1String &feature) const
 	{
-        return d_ptr->features.contains(feature);
+		return d_ptr->features.contains(feature);
 	}
 
 	bool JContactResource::checkFeature(const QString &feature) const
 	{
-        return d_ptr->features.contains(feature);
+		return d_ptr->features.contains(feature);
 	}
 
 	bool JContactResource::checkFeature(const std::string &feature) const
 	{
-        return d_ptr->features.contains(QString::fromStdString(feature));
+		return d_ptr->features.contains(QString::fromStdString(feature));
 	}
 
 	ChatUnit *JContactResource::upperUnit()
@@ -117,5 +120,18 @@ namespace Jabber
 	QString JContactResource::avatar() const
 	{
 		return qobject_cast<JContact *>(d_func()->contact)->avatar();
+	}
+
+	QString JContactResource::text() const
+	{
+		return d_func()->text;
+	}
+
+	InfoRequest *JContactResource::infoRequest() const
+	{
+		if (JContact *contact = qobject_cast<JContact *>(d_func()->contact))
+			return contact->infoRequest();
+		else
+			return 0;
 	}
 }

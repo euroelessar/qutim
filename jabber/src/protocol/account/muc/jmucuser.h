@@ -21,10 +21,7 @@ namespace Jabber
 		QString avatar() const;
 		QString avatarHash() const;
 		void setAvatar(const QString &hex);
-	signals:
-
-	public slots:
-
+		InfoRequest *infoRequest() const;
 	};
 }
 

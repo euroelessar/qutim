@@ -784,17 +784,31 @@ void ClientIdentify::identify_Qip()
 
 void ClientIdentify::identify_QipInfium()
 {
-	const Capability ICQ_CAPABILITY_QIPINFxVER   (0x7C, 0x73, 0x75, 0x02, 0xC3, 0xBE,
-	                                              0x4F, 0x3E, 0xA6, 0x9F, 0x00, 0x00,
-	                                              0x00, 0x00, 0x00, 0x00);
+	static const Capability ICQ_CAPABILITY_QIPINFxVER   (0x7C, 0x73, 0x75, 0x02, 0xC3, 0xBE,
+														 0x4F, 0x3E, 0xA6, 0x9F, 0x00, 0x00,
+														 0x00, 0x00, 0x00, 0x00);
 
-	if (m_client_caps.match(ICQ_CAPABILITY_QIPINFxVER)) {
-		m_client_id += "QIP Infium";
+
+	static const Capability ICQ_CAPABILITY_QIP2010xVER  (0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f,
+														 0x0a, 0x03, 0x0b, 0x04, 0x01, 0x53,
+														 0x13, 0x43, 0x1e, 0x1a);
+
+	bool qipInfium = m_client_caps.match(ICQ_CAPABILITY_QIPINFxVER);
+	bool qip2010 = m_client_caps.match(ICQ_CAPABILITY_QIP2010xVER);
+
+	if (qip2010 || qipInfium) {
+		QString icon = "qip-infium";
+		if (qipInfium) {
+			m_client_id = "QIP Infium";
+		} else {
+			m_client_id  = "QIP 2010";
+			icon += "-2010";
+		}
 		if (m_info)
 			m_client_id += QString(" (Build %1)").arg((unsigned)m_info);
 		if (m_ext_status_info == 0x0000000B)
 			m_client_id += " Beta";
-		setClientIcon("qipinf");
+		setClientIcon(icon);
 	}
 }
 

@@ -2,10 +2,9 @@
 #define JROSTER_H
 
 #include <qutim/contactlist.h>
+#include <qutim/configbase.h>
 #include <gloox/rostermanager.h>
 #include <gloox/presencehandler.h>
-#include "../jaccount.h"
-#include "jcontact.h"
 
 namespace Jabber
 {

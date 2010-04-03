@@ -52,6 +52,7 @@ namespace Jabber
 			bool enabledConfiguring();
 			qutim_sdk_0_3::Buddy *me() const;
 			ChatUnit *participant(const QString &nick);
+			QString title() const;
 		protected:
 			void loadSettings();
 			// MUCRoomHandler

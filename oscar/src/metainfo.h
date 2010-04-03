@@ -43,6 +43,7 @@ enum MetaInfoFieldEnum {
 	Uin,
 	// Basic info
 	Nick,
+	FirstMetaField = Nick,
 	FirstName,
 	LastName,
 	Email,
@@ -87,6 +88,7 @@ enum MetaInfoFieldEnum {
 	Interests,
 	Pasts,
 	Affilations,
+	LastMetaField = Affilations,
 
 	Ages,
 	Whitepages,
@@ -96,12 +98,13 @@ enum MetaInfoFieldEnum {
 class LIBOSCAR_EXPORT MetaInfoField
 {
 public:
-	MetaInfoField(int value) :
-		m_value(static_cast<MetaInfoFieldEnum>(value))
-	{}
-	MetaInfoField(const MetaInfoField &field) :
-		m_value(field.m_value)
-	{}
+	MetaInfoField(const QString &name);
+	MetaInfoField(int value);
+	MetaInfoField(const MetaInfoField &field);
+	QString name() const;
+	LocalizedString group() const;
+	QList<LocalizedString> titleAlternatives() const;
+	QList<LocalizedString> alternatives() const;
 	MetaInfoFieldEnum value() const { return m_value; };
 	QString toString() const;
 	operator QString() const { return toString(); }
@@ -111,6 +114,7 @@ public:
 	bool operator==(const MetaInfoField &value) const { return m_value == value.m_value; }
 	bool operator!=(const MetaInfoField &value) const { return m_value != value.m_value; }
 private:
+	QString m_name;
 	MetaInfoFieldEnum m_value;
 };
 typedef QHash<MetaInfoField, QVariant> MetaInfoValuesHash;

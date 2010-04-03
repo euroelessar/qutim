@@ -94,6 +94,8 @@ public:
 	XtrazRequest request();
 	XtrazResponse response();
 private:
+	Xtraz();
+	Xtraz(const Xtraz &xtraz);
 	QSharedDataPointer<XtrazPrivate> d;
 };
 

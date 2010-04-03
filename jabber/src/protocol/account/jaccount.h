@@ -32,7 +32,7 @@ namespace Jabber {
 			ChatUnit *getUnit(const QString &unitId, bool create = false);
 			void beginChangeStatus(Presence::PresenceType presence);
 			void endChangeStatus(Presence::PresenceType presence);
-			const QString &nick();
+			QString name() const;
 			void setNick(const QString &nick);
 			const QString &password(bool *ok = 0);
 			void autoconnect();

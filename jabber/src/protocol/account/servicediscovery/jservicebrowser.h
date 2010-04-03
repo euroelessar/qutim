@@ -48,13 +48,10 @@ namespace Jabber
 			void filterItem(const QString &mask);
 			void closeEvent(QCloseEvent*);
 			void on_searchButton_clicked();
-			void on_closeButton_clicked();
 			void on_clearButton_clicked();
-
 			void onExecute();
 			void onJoin();
 			void onAddToRoster();
-
 			/*void on_registerButton_clicked();
 			void on_searchFormButton_clicked();
 			void on_executeButton_clicked();
@@ -64,7 +61,6 @@ namespace Jabber
 			bool eventFilter(QObject *obj, QEvent *event);
 			void searchServer(const QString &server);
 			void getInfo(QTreeWidgetItem *item);
-			//void hideControls();
 			void setItemVisible(QTreeWidgetItem *item, bool visibility);
 			QList<QTreeWidgetItem *> findItems(QTreeWidgetItem *item, const QString &text);
 			void setBranchVisible(QList<QTreeWidgetItem *> items);
@@ -73,8 +69,7 @@ namespace Jabber
 			QScopedPointer<JServiceBrowserPrivate> p;
 		signals:
 			void joinConference(const QString &conference);
-			/*void finishSearch();
-			void registerTransport(const QString &transport);
+			/*void registerTransport(const QString &transport);
 			void executeCommand(const QString &command, const QString &node);
 			void showVCard(const QString &jid);
 			void addProxy(const JID &proxy);

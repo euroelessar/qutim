@@ -106,7 +106,7 @@ namespace Jabber {
 		return p->discoManager;
 	}
 
-	const QString &JAccount::nick()
+	QString JAccount::name() const
 	{
 		return p->nick;
 	}
@@ -117,6 +117,7 @@ namespace Jabber {
 		general.setValue("nick", nick);
 		general.sync();
 		p->nick = nick;
+		emit nameChanged(nick);
 	}
 
 	const QString &JAccount::password(bool *ok)

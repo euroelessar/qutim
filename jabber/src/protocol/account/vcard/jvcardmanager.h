@@ -15,6 +15,7 @@ namespace Jabber
 	using namespace gloox;
 
 	class JAccount;
+	class JInfoRequest;
 	struct JVCardManagerPrivate;
 
 	class JVCardManager : public QObject, public VCardHandler
@@ -24,7 +25,7 @@ namespace Jabber
 		public:
 			JVCardManager(JAccount *account, Client *client, QObject *parent = 0);
 			~JVCardManager();
-			void fetchVCard(const QString &contact);
+			void fetchVCard(const QString &contact, JInfoRequest *request = 0);
 			void storeVCard(VCard *vcard);
 			void handleVCard(const JID &jid, const VCard *fetchedVCard);
 			void handleVCardResult(VCardContext context, const JID &jid, StanzaError se);

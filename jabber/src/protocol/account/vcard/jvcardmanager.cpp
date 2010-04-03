@@ -1,4 +1,5 @@
 #include "jvcardmanager.h"
+#include "jinforequest.h"
 #include "../muc/jmucuser.h"
 #include "../roster/jcontact.h"
 #include "../roster/jroster.h"
@@ -7,6 +8,7 @@
 #include <gloox/client.h>
 #include <gloox/vcardmanager.h>
 #include <gloox/sha.h>
+#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -14,7 +16,7 @@ namespace Jabber
 	{
 		JAccount *account;
 		VCardManager *manager;
-		QStringList contacts;
+		QHash<QString, JInfoRequest *> contacts;
 	};
 
 	JVCardManager::JVCardManager(JAccount *account, Client *client, QObject *parent)
@@ -35,11 +37,11 @@ namespace Jabber
 		return d_ptr->manager;
 	}
 
-	void JVCardManager::fetchVCard(const QString &contact)
+	void JVCardManager::fetchVCard(const QString &contact, JInfoRequest *request)
 	{
 		Q_D(JVCardManager);
 		if (!d->contacts.contains(contact)) {
-			d->contacts << contact;
+			d->contacts.insert(contact, request);
 			d->manager->fetchVCard(contact.toStdString(), this);
 		}
 	}
@@ -55,19 +57,19 @@ namespace Jabber
 		Q_D(JVCardManager);
 		QString id = QString::fromStdString(jid.full());
 		QString avatar;
-		const VCard *vcard = (!fetchedVCard) ? new VCard() : fetchedVCard;
+		const VCard *vcard = (!fetchedVCard) ? new VCard() : new VCard(fetchedVCard->tag());
 		const VCard::Photo &photo = vcard->photo();
-		if(!photo.binval.empty()) {
+		if (!photo.binval.empty()) {
 			QByteArray data(photo.binval.c_str(), photo.binval.length());
 			SHA sha;
 			sha.feed(photo.binval);
 			sha.finalize();
 			avatar = QString::fromStdString(sha.hex());
 			QDir dir(d->account->getAvatarPath());
-			if(!dir.exists())
+			if (!dir.exists())
 				dir.mkpath(dir.absolutePath());
 			QFile file(dir.absoluteFilePath(avatar));
-			if(file.open(QIODevice::WriteOnly)) {
+			if (file.open(QIODevice::WriteOnly)) {
 				file.write(data);
 				file.close();
 			}
@@ -78,7 +80,7 @@ namespace Jabber
 				nick = QString::fromStdString(vcard->formattedname());
 			if(nick.isEmpty())
 				nick = d->account->id();
-			if (d->account->nick() != nick)
+			if (d->account->name() != nick)
 				d->account->setNick(nick);
 			d->account->connection()->setAvatar(avatar);
 		} else {
@@ -87,7 +89,12 @@ namespace Jabber
 			if (JMUCUser *contact = qobject_cast<JMUCUser *>(d->account->getUnit(id)))
 				contact->setAvatar(avatar);
 		}
-		d->contacts.removeOne(id);
+		debug() << "fetched...";
+		if (JInfoRequest *request = d->contacts.value(id))
+			request->setFetchedVCard(vcard);
+		else
+			delete vcard;
+		d->contacts.remove(id);
 	}
 
 	void JVCardManager::handleVCardResult(VCardContext context, const JID &jid, StanzaError se)
