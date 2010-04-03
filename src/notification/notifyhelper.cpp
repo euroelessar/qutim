@@ -15,21 +15,27 @@
 */
 
 #include "notifyhelper.h"
+#include <qutim/messagesession.h>
 #include <QDebug>
 
-NotifyHelper::NotifyHelper(const TreeModelItem& tree_model_item) {
-	m_contact_item = tree_model_item;
+NotifyHelper::NotifyHelper(ChatUnit *unit, const QVariant &data) : m_unit(unit)
+{
+	Q_UNUSED(data);
 }
 
-void NotifyHelper::registerNotification(KNotification* notification) {
+void NotifyHelper::registerNotification(KNotification* notification)
+{
 	m_notification = notification;
 }
 
 void NotifyHelper::startChatSlot()
 {
-	SystemsCity::PluginSystem()->createChat(m_contact_item);
+	if (m_unit)
+		ChatLayer::get(m_unit, true)->setActive(true);
 }
-void NotifyHelper::closeSlot() {
+
+void NotifyHelper::closeSlot()
+{
 }
 
 

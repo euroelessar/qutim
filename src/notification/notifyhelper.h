@@ -18,21 +18,21 @@
 #define NOTIFYHELPER_H
 
 #include <QObject>
-#include <qutim/layerscity.h>
+#include <qutim/chatunit.h>
 #include <knotification.h>
 
 
-using namespace qutim_sdk_0_2;
+using namespace qutim_sdk_0_3;
 
 class NotifyHelper : public QObject
 {
 	Q_OBJECT
 public:
-	NotifyHelper (const TreeModelItem &tree_model_item);
+	NotifyHelper (ChatUnit *unit, const QVariant &data);
 	void registerNotification (KNotification*);
 	~NotifyHelper();
 private: 	
-	TreeModelItem m_contact_item;
+	QPointer<ChatUnit> m_unit;
 	KNotification *m_notification;
 public slots:
  	void startChatSlot (); //открываем окно чата

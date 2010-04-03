@@ -29,6 +29,7 @@ class KdeSpellerLayer : public QObject
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "SpellChecker")
+	Q_CLASSINFO("Uses", "ChatLayer")
 public:
 	KdeSpellerLayer();
 	~KdeSpellerLayer();
@@ -41,7 +42,6 @@ protected slots:
 	void loadSettings();
 	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
 private:
-//	QMap<QTextDocument *, QPointer<Highlighter> > m_highlighters;
 	bool m_autodetect;
 	QString m_dictionary;
 };
