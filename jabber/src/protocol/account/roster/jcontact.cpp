@@ -285,7 +285,7 @@ namespace Jabber
 		emit avatarChanged(d->avatar);
 	}
 
-	InfoRequest *JContact::infoRequest()
+	InfoRequest *JContact::infoRequest() const
 	{
 		return new JInfoRequest(d_func()->account->connection()->vCardManager(), id());
 	}

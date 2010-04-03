@@ -43,7 +43,7 @@ namespace Jabber
 			ChatUnit *upperUnit();
 			QString avatar() const;
 			QString text() const;
-			InfoRequest *infoRequest();
+			InfoRequest *infoRequest() const;
 		protected:
 			QScopedPointer<JContactResourcePrivate> d_ptr;
 	};

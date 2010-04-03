@@ -58,8 +58,8 @@ namespace Jabber
 		emit avatarChanged(d->avatar);
 	}
 
-	InfoRequest *JMUCUser::infoRequest()
+	InfoRequest *JMUCUser::infoRequest() const
 	{
-		return new JInfoRequest(static_cast<JAccount *>(account())->connection()->vCardManager(), id());
+		return new JInfoRequest(((JAccount *) account())->connection()->vCardManager(), id());
 	}
 }

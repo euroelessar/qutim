@@ -127,7 +127,7 @@ namespace Jabber
 		return d_func()->text;
 	}
 
-	InfoRequest *JContactResource::infoRequest()
+	InfoRequest *JContactResource::infoRequest() const
 	{
 		if (JContact *contact = qobject_cast<JContact *>(d_func()->contact))
 			return contact->infoRequest();

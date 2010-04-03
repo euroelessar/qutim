@@ -8,6 +8,7 @@
 #include <gloox/client.h>
 #include <gloox/vcardmanager.h>
 #include <gloox/sha.h>
+#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -56,7 +57,7 @@ namespace Jabber
 		Q_D(JVCardManager);
 		QString id = QString::fromStdString(jid.full());
 		QString avatar;
-		const VCard *vcard = (!fetchedVCard) ? new VCard() : fetchedVCard;
+		const VCard *vcard = (!fetchedVCard) ? new VCard() : new VCard(fetchedVCard->tag());
 		const VCard::Photo &photo = vcard->photo();
 		if (!photo.binval.empty()) {
 			QByteArray data(photo.binval.c_str(), photo.binval.length());
@@ -88,6 +89,7 @@ namespace Jabber
 			if (JMUCUser *contact = qobject_cast<JMUCUser *>(d->account->getUnit(id)))
 				contact->setAvatar(avatar);
 		}
+		debug() << "fetched...";
 		if (JInfoRequest *request = d->contacts.value(id))
 			request->setFetchedVCard(vcard);
 		else

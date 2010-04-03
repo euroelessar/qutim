@@ -21,7 +21,7 @@ namespace Jabber
 		QString avatar() const;
 		QString avatarHash() const;
 		void setAvatar(const QString &hex);
-		InfoRequest *infoRequest();
+		InfoRequest *infoRequest() const;
 	};
 }
 
