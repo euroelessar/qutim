@@ -189,8 +189,9 @@ namespace AdiumChat
 		generalSkeleton = generalSkeleton.replace("%chatName%", session->getId());
 		generalSkeleton = generalSkeleton.replace("%sourceName%", Qt::escape(session->getAccount()->name() ));
 		generalSkeleton = generalSkeleton.replace("%destinationName%", Qt::escape(session->getUnit()->title()));
+		const Buddy *c = qobject_cast< const Buddy *>(session->getUnit());
 		QString _ownerIconPath = session->getAccount()->property("avatar").toString();
-		QString _partnerIconPath = session->getUnit()->property("avatar").toString();
+		QString _partnerIconPath = c ? c->avatar() : QString();
 
 		if(_ownerIconPath == "")
 			generalSkeleton = generalSkeleton.replace("%outgoingIconPath%", "outgoing_icon.png");
@@ -236,11 +237,27 @@ namespace AdiumChat
 		// Replace %sender% to name
 		//FIXME
 		QString sender_name;
-		if (qobject_cast<Conference *>(session->getUnit()))
+		QString sender_id;
+		if (qobject_cast<Conference *>(session->getUnit())) {
 			sender_name = mes.chatUnit()->title();
-		else
-			sender_name = mes.isIncoming() ? mes.chatUnit()->title() : mes.chatUnit()->account()->name();
-		QString sender_id = mes.isIncoming() ? mes.chatUnit()->id() : mes.chatUnit()->account()->id();
+			sender_id = mes.chatUnit()->id();
+		}
+		if (!mes.isIncoming()) {
+			const Conference *conf = qobject_cast<const Conference*>(mes.chatUnit());
+			if (conf && conf->me()) {
+				sender_name = conf->me()->title();
+				sender_id = conf->me()->id();
+			}
+			else {
+				sender_name = mes.chatUnit()->account()->name();
+				sender_id = mes.chatUnit()->account()->id();
+			}
+		}
+		else {
+			sender_name = mes.chatUnit()->title();
+			sender_id = mes.chatUnit()->id();
+		}
+
 		html = html.replace("%sender%", Qt::escape(sender_name));
 		// Replace %senderScreenName% to name
 		html = html.replace("%senderScreenName%", Qt::escape(sender_id));
