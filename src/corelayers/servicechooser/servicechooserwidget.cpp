@@ -22,7 +22,9 @@
 #include <QStringBuilder>
 #include "servicedelegate.h"
 #include "serviceitem.h"
+#include "servicechooser.h"
 #include <libqutim/configbase.h>
+#include <libqutim/notificationslayer.h>
 
 namespace Core
 {
@@ -75,12 +77,12 @@ namespace Core
 			QIcon icon = !info.icon().name().isEmpty() ? info.icon() : Icon("help-hint");
 			ServiceItem *item = new ServiceItem(icon,info.name());
 
-			item->setToolTip(html(info));
+			item->setToolTip(ServiceChooser::html(info));
 			item->setCheckable(true);
-			if (selected.value(serviceName).toString() == className(info))
+			if (selected.value(serviceName).toString() == ServiceChooser::className(info))
 				item->setCheckState(Qt::Checked);
 			item->setData(false,Qt::UserRole);
-			item->setServiceClassName(className(info));
+			item->setServiceClassName(ServiceChooser::className(info));
 			
 			QList <QStandardItem *> items; //workaround
 			items.append(item);
@@ -88,7 +90,6 @@ namespace Core
 			m_service_items.value(serviceName)->appendRows(items);
 			}
 		}
-		ui->treeView->expandAll();
 	}
 	void ServiceChooserWidget::cancelImpl()
 	{
@@ -112,22 +113,7 @@ namespace Core
 		}
 		group.setValue("list", selected);
 		group.sync();
-	}
-
-	QString ServiceChooserWidget::html(const qutim_sdk_0_3::ExtensionInfo& info)
-	{
-		QString html = tr("<b>Name: </b> %1 <br />").arg(info.name());
-		html += tr("<b>Description: </b> %1 <br />").arg(info.description());
-		
-		html += "<blockoute>";
-		foreach (const PersonInfo &person, info.authors()) {
-			html += tr("<b>Name:</b> %1</br>").arg(person.name());
-			html += tr("<b>Task:</b> %1</br>").arg(person.task());
-			html += tr("<b>Email:</b> <a href=\"mailto:%1\">%1</a></br>").arg(person.email());
-			html += tr("<b>Webpage:</b> <a href=\"%1\">%1</a></br>").arg(person.web());
-		}
-		html += "</blockoute>";
-		return html;
+		Notifications::sendNotification(tr("To take effect you must restart qutIM"));
 	}
 	
 	void ServiceChooserWidget::clear()

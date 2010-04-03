@@ -48,7 +48,6 @@ namespace Core
 	private slots:
 		void onItemChanged(QStandardItem*);
 	private:
-		QString html(const ExtensionInfo &info);
 		void clear();
 		Ui::ServiceChooser *ui;
 		QStandardItemModel *m_model; 
