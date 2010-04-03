@@ -31,7 +31,6 @@ protected:
 private:
 	QMenu *m_context_menu;
 private slots:
-	void onAnimationActionTriggered(bool checked);
 	int getSizePos (const int &size);
 	void onSizeActionTriggered(QAction *action);
 	void onToolButtonStyleActionTriggered(QAction *action);

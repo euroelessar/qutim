@@ -18,15 +18,8 @@
 
 #include <QStandardItem>
 
-namespace qutim_sdk_0_3
-{
-	class ExtensionInfo;
-}
-
 namespace Core
 {
-	using namespace qutim_sdk_0_3;
-
 	class ServiceItem : public QStandardItem
 	{
 	public:
@@ -43,8 +36,5 @@ namespace Core
 		bool m_exclusive;
 		QString m_service_classname;
 	};
-
-	const char *className(const ExtensionInfo &info);
-	
 }
 #endif // SERVICEITEM_H

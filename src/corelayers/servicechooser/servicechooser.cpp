@@ -19,6 +19,7 @@
 #include "protocolchooserwidget.h"
 #include <libqutim/settingslayer.h>
 #include <libqutim/icon.h>
+#include <libqutim/extensioninfo.h>
 
 namespace Core
 {
@@ -35,5 +36,26 @@ namespace Core
 		Settings::registerItem(item2);
 		deleteLater();
 	}
+
+	const char *ServiceChooser::className(const ExtensionInfo &info)
+	{
+		return info.generator()->metaObject()->className();
+	}
+	
+	QString ServiceChooser::html(const qutim_sdk_0_3::ExtensionInfo& info)
+	{
+		QString html = tr("<b>Name: </b> %1 <br />").arg(info.name());
+		html += tr("<b>Description: </b> %1 <br />").arg(info.description());
+		
+		html += "<blockoute>";
+		foreach (const PersonInfo &person, info.authors()) {
+			html += tr("<b>Name:</b> %1</br>").arg(person.name());
+			html += tr("<b>Task:</b> %1</br>").arg(person.task());
+			html += tr("<b>Email:</b> <a href=\"mailto:%1\">%1</a></br>").arg(person.email());
+			html += tr("<b>Webpage:</b> <a href=\"%1\">%1</a></br>").arg(person.web());
+		}
+		html += "</blockoute>";
+		return html;
+	}	
 
 }

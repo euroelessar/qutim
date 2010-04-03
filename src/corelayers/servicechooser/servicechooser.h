@@ -18,13 +18,23 @@
 
 #include <QObject>
 
+namespace qutim_sdk_0_3
+{
+	class ExtensionInfo;
+}
+
+
 namespace Core
 {
+	using namespace qutim_sdk_0_3;
+
 	class ServiceChooser : public QObject
 	{
 		Q_OBJECT
 	public:
 		ServiceChooser(QObject* parent = 0);
+		static const char *className(const ExtensionInfo &info);
+		static QString html(const ExtensionInfo &info);
 	};
 
 }

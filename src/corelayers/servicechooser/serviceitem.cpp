@@ -14,16 +14,10 @@
 *****************************************************************************/
 
 #include "serviceitem.h"
-#include <libqutim/extensioninfo.h>
 #include <libqutim/icon.h>
 
 namespace Core
 {
-	const char *className(const ExtensionInfo &info)
-	{
-		return info.generator()->metaObject()->className();
-	}
-	
 	ServiceItem::ServiceItem(const QIcon& icon, const QString& text, bool exclusive) :
 	m_exclusive(exclusive)
 	{

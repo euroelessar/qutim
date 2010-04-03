@@ -22,8 +22,9 @@
 #include <QStringBuilder>
 #include <QDateTime>
 #include <QDebug>
-#include "libqutim/history.h"
-#include "libqutim/notificationslayer.h"
+#include <libqutim/history.h>
+#include <libqutim/notificationslayer.h>
+#include <libqutim/conference.h>
 #include "chatlayerimpl.h"
 #include "chatsessionmodel.h"
 #include <QApplication>
@@ -46,7 +47,8 @@ namespace AdiumChat
 		m_skipOneMerge = true;
 		m_active = false;
 		m_model = new ChatSessionModel(this);
-		loadHistory();
+		if (!qobject_cast<const Conference *> (unit))
+			loadHistory();
 		if (Contact *c = qobject_cast<Contact *>(unit))
 			statusChanged(c,true);
 		else {

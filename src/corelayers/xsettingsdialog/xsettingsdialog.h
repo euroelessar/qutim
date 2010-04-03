@@ -35,12 +35,8 @@ public:
 	//void setSettingsList(const SettingsItemList &settings);//TODO
 protected:
 	void changeEvent(QEvent *e);
-	virtual void showEvent(QShowEvent* );
 	virtual void closeEvent(QCloseEvent* );
-signals:
-	void showed();
 protected slots:
-	void showState();
 	void onActionTriggered(QAction *action);
 	void onWidgetModifiedChanged(bool haveChanges);
 	void onWidgetModifiedChanged(SettingsWidget *widget);
@@ -48,17 +44,11 @@ protected slots:
 	void onSaveButtonTriggered();
 	void onCancelButtonTriggered();
 private:
-	inline void initAnimation();
 	inline void addAction(QAction* action, Settings::Type type);
 	Ui::XSettingsDialog *ui;
-	QStateMachine *m_machine;
-	QState *m_hide_state;
-	QState *m_show_state;
 	QVector<SettingsItemList> m_settings_items;
 	QVector<XSettingsGroup *> m_group_widgets;
 	QList<SettingsWidget *> m_modified_widgets;
-	//configuration
-	bool animated;
 };
 
 #endif // XSETTINGSDIALOG_H
