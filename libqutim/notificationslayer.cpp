@@ -39,9 +39,6 @@ namespace qutim_sdk_0_3
 	{
 		QPointer<PopupBackend> popup_backend;
 		QPointer<SoundBackend> sound_backend;
-		const ObjectGenerator *popup_gen;
-		const ObjectGenerator *sound_gen;
-		bool inited;
 	};
 
 	static NotificationsLayerPrivate *p = 0;
@@ -49,9 +46,6 @@ namespace qutim_sdk_0_3
 	void ensure_notifications_private_helper()
 	{
 		p = new NotificationsLayerPrivate;
-		p->inited = false;
-		p->popup_gen = 0;
-		p->sound_gen = 0;
 	}
 
 	inline void ensure_notifications_private()
@@ -68,17 +62,10 @@ namespace qutim_sdk_0_3
 			//TODO add checks
 			if (!isCoreInited())
 				return;
-			if (!p->inited)
-			{
-				GeneratorList popup_backends = moduleGenerators<PopupBackend>();
-				p->popup_gen = popup_backends.size() ? popup_backends.first() : 0;
 
-				GeneratorList sound_backends = moduleGenerators<SoundBackend>();
-				p->sound_gen = sound_backends.size() ? sound_backends.first() : 0;
-				p->inited = true;
+			if(p->popup_backend.isNull()) {
+				p->popup_backend = qobject_cast<PopupBackend *>(getService("PopupBackend"));
 			}
-			if (p->popup_backend.isNull() && p->popup_gen)
-				p->popup_backend = p->popup_gen->generate<PopupBackend>();
 
 			if (p->popup_backend)
 				p->popup_backend->show(type, sender, body, data);
