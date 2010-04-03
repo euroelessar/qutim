@@ -125,7 +125,7 @@ namespace AdiumChat
 		if (!sess)
 			return;
 		ChatUnit *key = m_chat_sessions.key(sess);
-		debug() << "session removed" << sess << "unit:" << key;
+//		debug() << "session removed" << sess << "unit:" << key;
 		if (key)
 			m_chat_sessions.remove(key);
 	}

@@ -54,7 +54,7 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT PopupBackend : public QObject
 	{
 		Q_OBJECT
-		//Q_CLASSINFO("Service", "Popups")
+		Q_CLASSINFO("Service", "Popup")
 	public:
 		virtual void show(Notifications::Type type,
 						  QObject *sender,
@@ -64,12 +64,15 @@ namespace qutim_sdk_0_3
 		virtual void virtual_hook(int type, void *data);
 	};
 
-	class LIBQUTIM_EXPORT SoundBackend
+	class LIBQUTIM_EXPORT SoundBackend : public QObject
 	{
+		Q_OBJECT
+//		Q_CLASSINFO("Service", "Sound")
 	public:
+		SoundBackend();
+		virtual ~SoundBackend() {};
 		virtual void playSound(const QString &filename) = 0;
 		virtual QStringList supportedFormats() = 0;
-		virtual ~SoundBackend() {};
 	protected:
 		virtual void virtual_hook(int type, void *data);
 	};

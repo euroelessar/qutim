@@ -52,7 +52,7 @@ namespace Core
 		void clear();
 		Ui::ServiceChooser *ui;
 		QStandardItemModel *m_model; 
-		QHash<const char *, ServiceItem *> m_service_items;
+		QHash<QByteArray, ServiceItem *> m_service_items;
 	};
 
 }

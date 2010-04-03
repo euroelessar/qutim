@@ -51,18 +51,12 @@ namespace qutim_sdk_0_3
 	
 	ChatLayer::~ChatLayer()
 	{
-		if(p->self == this)
-			p->self = NULL;
 	}
 	
 	ChatLayer *ChatLayer::instance()
 	{
 		if(p->self.isNull() && isCoreInited())
-		{
-			GeneratorList list = moduleGenerators<ChatLayer>();
-			if(!list.isEmpty())
-				p->self = list.first()->generate<ChatLayer>();
-		}
+			p->self = qobject_cast<ChatLayer*>(getService("ChatLayer"));
 		return p->self;
 	}
 	

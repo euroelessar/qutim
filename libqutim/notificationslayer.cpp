@@ -29,6 +29,10 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(data);
 	}
 
+	SoundBackend::SoundBackend()
+	{
+	}
+
 	void SoundBackend::virtual_hook(int type, void *data)
 	{
 		Q_UNUSED(type);
@@ -70,8 +74,7 @@ namespace qutim_sdk_0_3
 				return;
 			if (!p->inited)
 			{
-				GeneratorList popup_backends = moduleGenerators<PopupBackend>();
-				p->popup_gen = popup_backends.size() ? popup_backends.first() : 0;
+				p->popup_backend = qobject_cast<PopupBackend*>(getService("Popup"));
 
 				GeneratorList sound_backends = moduleGenerators<SoundBackend>();
 				p->sound_gen = sound_backends.size() ? sound_backends.first() : 0;

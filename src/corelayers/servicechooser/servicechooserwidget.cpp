@@ -98,7 +98,7 @@ namespace Core
 	{
 		ConfigGroup group = Config().group("services");
 		QVariantMap selected;
-		QHash<const char *, ServiceItem *>::const_iterator it;
+		QHash<QByteArray, ServiceItem *>::const_iterator it;
 		for (it = m_service_items.constBegin();it!=m_service_items.constEnd();it++) {
 			QVariant service;
 			for (int i =0;i!=it.value()->rowCount();i++) {

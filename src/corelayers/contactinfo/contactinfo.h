@@ -49,6 +49,7 @@ class ContactInfo : public QObject
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "ContactInfo")
+	Q_CLASSINFO("Uses", "IconLoader")
 public:
 	ContactInfo();
 public slots:

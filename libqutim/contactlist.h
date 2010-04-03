@@ -28,6 +28,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 		Q_CLASSINFO("Service", "ContactList")
+		Q_CLASSINFO("Uses", "IconLoader")
 	public:
 		static ContactList *instance();
 	public slots:

@@ -382,7 +382,7 @@ namespace qutim_sdk_0_3
 			QMetaClassInfo info = meta->classInfo(i);
 			selected.insert(stringName, QString::fromLatin1(meta->className()));
 			if (!qstrcmp(info.name(), "Uses"))
-				initService(name, services, hash, used, selected);
+				initService(info.value(), services, hash, used, selected);
 		}
 		services.insert(name, gen->generate<QObject>());
 	}
