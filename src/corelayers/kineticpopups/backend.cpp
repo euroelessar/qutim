@@ -45,32 +45,6 @@ namespace KineticPopups
 	{
 		GeneralSettingsItem<Core::PopupAppearance> *appearance = new GeneralSettingsItem<Core::PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
 		Settings::registerItem(appearance);
-		ActionGenerator *action = new ActionGenerator(Icon("roll"), QByteArray(), this, SLOT(onButtonClick()));
-		ContactList::instance()->metaObject()->invokeMethod(ContactList::instance(), "addButton", Q_ARG(ActionGenerator*, action));
-	}
-
-	void Backend::onButtonClick()
-	{
-		static QList<Contact*> contacts;
-		if (contacts.isEmpty()) {
-			QList<Contact*> cList;
-			foreach (Protocol *proto, allProtocols()) {
-				cList.append(proto->findChildren<Contact*>());
-			}
-			for (int i = 0; i < 5; i++) {
-				contacts << cList.takeAt(qrand() % cList.size());
-			}
-		}
-		static int num = 0;
-		Message mess(QString::number(++num, 16));
-		mess.setChatUnit(contacts.at(qrand() % contacts.size()));
-		mess.setIncoming(true);
-		Notifications::sendNotification(mess);
-		if (qobject_cast<QAction*>(sender())) {
-			QTimer::singleShot(200, this, SLOT(onButtonClick()));
-			QTimer::singleShot(700, this, SLOT(onButtonClick()));
-			QTimer::singleShot(1200, this, SLOT(onButtonClick()));
-		}
 	}
 
 	void Backend::show(Notifications::Type type, QObject* sender, const QString& body,

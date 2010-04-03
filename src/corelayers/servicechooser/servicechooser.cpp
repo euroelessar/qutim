@@ -24,7 +24,7 @@
 namespace Core
 {
 	static CoreModuleHelper<ServiceChooser, StartupModule> service_shooser_static(
-			QT_TRANSLATE_NOOP("Plugin", "Service shooser"),
+			QT_TRANSLATE_NOOP("Plugin", "Service chooser"),
 			QT_TRANSLATE_NOOP("Plugin", "TODO")
 			);
 

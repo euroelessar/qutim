@@ -22,6 +22,7 @@
 #include <libqutim/settingslayer.h>
 #include <libqutim/icon.h>
 #include <libqutim/shortcut.h>
+#include <libqutim/conference.h>
 
 namespace AdiumChat
 {
@@ -138,7 +139,14 @@ namespace AdiumChat
 	QString ChatLayerImpl::getWidgetId(ChatSessionImpl* sess) const
 	{
 		QString key;
-		//QString key = acc->id() + "/" + id; //simple variant
+
+		//TODO add configuration
+
+		if (qobject_cast<const Conference *>(sess->getUnit()))
+			key = "conference";
+		else
+			key = "chat";
+
 		key = "adiumchat"; //all session in one window
 		return key;
 	}

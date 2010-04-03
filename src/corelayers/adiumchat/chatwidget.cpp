@@ -459,7 +459,7 @@ namespace AdiumChat
 		m_current_index++;
 		if (m_current_index >= m_sessions.count())
 			m_current_index = 0;
-		ui->tabBar->setCurrentIndex(m_current_index);
+		activate(m_sessions.at(m_current_index));
 	}
 
 	void ChatWidget::showPreviousSession()
@@ -467,7 +467,7 @@ namespace AdiumChat
 		m_current_index--;
 		if (m_current_index < 0 )
 			m_current_index = m_sessions.count() - 1;
-		ui->tabBar->setCurrentIndex(m_current_index);
+		activate(m_sessions.at(m_current_index));
 	}
 
 	void ChatWidget::onBuddiesChanged()
