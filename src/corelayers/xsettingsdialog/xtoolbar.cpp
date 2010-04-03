@@ -101,15 +101,8 @@ XToolBar::XToolBar ( QWidget* parent ) : ActionToolBar ( parent )
 	toolButtonStyleMenu->addAction(toolButtonFollowStyle);
 	connect(toolButtonStyleGroup,SIGNAL(triggered(QAction*)),SLOT(onToolButtonStyleActionTriggered(QAction*)));
 
-	QAction *animated = new QAction(tr("Animated"),m_context_menu);
-	ConfigGroup general_group = Config("appearance/xsettings").group("general");
-	animated->setCheckable(true);
-	animated->setChecked(general_group.value<bool>("animated",true));
-	connect(animated,SIGNAL(triggered(bool)),SLOT(onAnimationActionTriggered(bool)));
-
 	m_context_menu->addMenu(sizeMenu);
 	m_context_menu->addMenu(toolButtonStyleMenu);
-	m_context_menu->addAction(animated);
 
 }
 
@@ -119,15 +112,6 @@ void XToolBar::contextMenuEvent(QContextMenuEvent* e)
 	m_context_menu->exec(e->globalPos());
     QWidget::contextMenuEvent(e);
 }
-
-
-void XToolBar::onAnimationActionTriggered(bool checked)
-{
-	ConfigGroup general_group = Config("appearance").group("xsettings/general");
-	general_group.setValue("animated",checked);
-	general_group.sync();
-}
-
 
 int XToolBar::getSizePos(const int& size)
 {

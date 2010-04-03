@@ -35,7 +35,6 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	centerizeWidget(this);
 	//load settings
 	ConfigGroup general_group = Config("appearance").group("xsettings/general");
-	animated = general_group.value<bool>("animated", true);
 	//init toolbar
 	connect(ui->xtoolBar,SIGNAL(actionTriggered(QAction*)),SLOT(onActionTriggered(QAction*)));
 
@@ -86,8 +85,6 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 		m_settings_items[item->type()].append(item);
 	}
 	general->trigger();
-	if (animated)
-		initAnimation();
 }
 
 XSettingsDialog::~XSettingsDialog()
@@ -103,37 +100,6 @@ void XSettingsDialog::addAction (QAction* action, Settings::Type type)
 	ui->xtoolBar->addAction(action);
 }
 
-
-void XSettingsDialog::initAnimation()
-{
-	//init state machine
-	ConfigGroup animation_group = Config("appearance").group("xsettings/animation");
-	m_machine = new QStateMachine(this);
-	QPropertyAnimation *animation = new QPropertyAnimation (ui->xtoolBar,"geometry",this);
-	animation->setDuration(animation_group.value<int>("duration",500));
-	animation->setEasingCurve(static_cast<QEasingCurve::Type>(animation_group.value<int>("easingCurve",QEasingCurve::OutSine)));
-	m_machine->addDefaultAnimation(animation);
-	//init states
-	m_hide_state = new QState(m_machine);
-	m_show_state = new QState(m_machine);
-
-	m_hide_state->assignProperty(ui->xtoolBar,
-								 "geometry",
-								 QRect(0,-ui->xtoolBar->sizeHint().height(),width(),ui->xtoolBar->sizeHint().height())
-								 );
-
-	m_show_state->assignProperty(ui->xtoolBar,
-								 "geometry",
-								 QRect(0,0,width(),ui->xtoolBar->sizeHint().height())
-								 );
-	//init transitions
-	m_hide_state->addTransition(this,SIGNAL(showed()),m_show_state);
-	connect(m_show_state,SIGNAL(entered()),SLOT(showState()));
-	//start machine
-	m_machine->setInitialState(m_show_state);
-	m_machine->start();
-}
-
 void XSettingsDialog::changeEvent(QEvent *e)
 {
 	QDialog::changeEvent(e);
@@ -143,28 +109,6 @@ void XSettingsDialog::changeEvent(QEvent *e)
 		break;
 	default:
 		break;
-	}
-}
-
-
-void XSettingsDialog::showEvent(QShowEvent* e)
-{
-	if (animated)
-	{
-		layout()->setEnabled(false);
-		ui->xtoolBar->setGeometry(0,-ui->xtoolBar->sizeHint().height(),width(),ui->xtoolBar->sizeHint().height());
-	}
-	QDialog::showEvent(e);
-	emit showed();
-}
-
-void XSettingsDialog::showState()
-{
-	if (animated)
-	{
-		layout()->setEnabled(true);
-		updateGeometry();
-		animated = false;
 	}
 }
 
