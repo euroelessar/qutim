@@ -18,6 +18,10 @@
 #include "icq_global.h"
 #include "util.h"
 #include "icqaccount.h"
+#include <qutim/icon.h>
+#include "ui/icqmainsettings.h"
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
 #include <QStringList>
 #include <QPointer>
 
@@ -32,6 +36,10 @@ IcqProtocol::IcqProtocol() :
 {
 	Q_ASSERT(!self);
 	self = this;
+	Settings::registerItem(new GeneralSettingsItem<IcqMainSettings>(
+			Settings::Protocol,
+			Icon("im-icq"),
+			QT_TRANSLATE_NOOP_UTF8("Settings", "Icq")));
 	updateSettings();
 }
 

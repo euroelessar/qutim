@@ -59,10 +59,6 @@ void OscarPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "MetaInfo icq service"),
 				 new SingletonGenerator<MetaInfo, SNACHandler>(),
 				 ExtensionIcon("im-icq"));
-	Settings::registerItem(new GeneralSettingsItem<IcqMainSettings>(
-						 Settings::Protocol,
-						 Icon("im-icq"),
-						 QT_TRANSLATE_NOOP_UTF8("Settings", "Icq")));
 }
 
 bool OscarPlugin::load()
