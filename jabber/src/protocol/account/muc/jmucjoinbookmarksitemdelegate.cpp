@@ -22,6 +22,12 @@
 
 namespace Jabber
 {
+	QString description(const QModelIndex& index)
+	{
+		JBookmark bookmark = index.data(Qt::UserRole+1).value<JBookmark>();
+		return QString(bookmark.conference + "\n" + bookmark.nick);
+	};
+	
 	JMUCJoinBookmarksItemDelegate::JMUCJoinBookmarksItemDelegate(QObject* parent): 
 		QAbstractItemDelegate(parent)
 	{
@@ -53,9 +59,7 @@ namespace Jabber
 						  title
 						);
 						
-		JBookmark bookmark = index.data(Qt::UserRole+1).value<JBookmark>();
-		QString description = bookmark.conference + "\n" + bookmark.nick;
-		
+		QString desc = description(index);
 		QFont description_font = painter_font;
 		description_font.setPointSize(painter_font.pointSize() -1);
 		painter->setFont(description_font);
@@ -63,7 +67,7 @@ namespace Jabber
 		
 		painter->drawText(rect,
 						  Qt::AlignBottom | Qt::AlignLeft | Qt::TextWordWrap,
-						  description);
+						  desc);
 						  
 		painter->setPen(painter_pen);
 		painter->setFont(painter_font);
@@ -71,8 +75,21 @@ namespace Jabber
 
 	QSize JMUCJoinBookmarksItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 	{
-		int width = option.rect.width();		
-		int height = 36; //TODO
+		int width = option.rect.width();
+		QFontMetrics metrics = option.fontMetrics;
+		int height = metrics.boundingRect(option.rect,
+										  Qt::TextWordWrap,
+										  index.data(Qt::DisplayRole).toString()
+										  ).height();
+		
+		QFont desc_font = option.font;
+		desc_font.setPointSize(desc_font.pointSize() -1);
+		metrics = QFontMetrics(desc_font);
+										  
+		height += metrics.boundingRect(option.rect,
+									   Qt::TextWordWrap,
+									   description(index)
+									   ).height();
 		QSize size (width,height);
 		return size;
 	}
