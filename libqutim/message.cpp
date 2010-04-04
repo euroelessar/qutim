@@ -266,7 +266,7 @@ namespace qutim_sdk_0_3
 	QString unescape(const QString &html)
 	{
 		if (document()->isNull())
-			document() = new QTextDocument;
+			(*document()) = new QTextDocument;
 		(*document())->setHtml(html);
 		return (*document())->toPlainText();
 	}
