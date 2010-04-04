@@ -2,6 +2,7 @@
 #include "../jaccount.h"
 #include "../../jprotocol.h"
 #include "../muc/jmucsession.h"
+#include "../vcard/jvcardmanager.h"
 #include <qutim/notificationslayer.h>
 #include <qutim/messagesession.h>
 #include <QDebug>
@@ -25,6 +26,7 @@ namespace Jabber
 
 	void JConnectionListener::onConnect()
 	{
+		p->account->connection()->vCardManager()->fetchVCard(p->account->id());
 		//p->account->endChangeStatus(p->account->client()->presence().presence()); //doesn't work correctly((
 	}
 

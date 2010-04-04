@@ -47,12 +47,14 @@ namespace Jabber
 	void JMUCManager::bookmarksChanged()
 	{
 		foreach (QString conference, p->rooms.keys())
-			p->rooms.value(conference)->setBookmarkIndex(-1);
-		for (int num = 0; num < p->bookmarkManager->bookmarks().count(); num++) {
-			JBookmark bookmark = p->bookmarkManager->bookmarks()[num];
-			if (p->rooms.keys().contains(bookmark.conference)
-					&& p->rooms.value(bookmark.conference)->me()->name() == bookmark.nick)
-				p->rooms.value(bookmark.conference)->setBookmarkIndex(num);
+		{
+			JBookmark room("", conference, p->rooms.value(conference)->me()->name(), "");
+			if (p->bookmarkManager->bookmarks().contains(room)) {
+				int num = p->rooms.keys().indexOf(conference);
+				p->rooms.value(conference)->setBookmarkIndex(num);
+			} else {
+				p->rooms.value(conference)->setBookmarkIndex(-1);
+			}
 		}
 	}
 

@@ -23,7 +23,6 @@ namespace Jabber
 		public:
 			JInfoRequest(JVCardManager *manager, const QString &contact);
 			~JInfoRequest();
-			QList<InfoItem> items() const;
 			InfoItem item(const QString &name) const;
 			State state() const;
 			void setFetchedVCard(const VCard *vcard);

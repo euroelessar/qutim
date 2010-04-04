@@ -77,6 +77,7 @@ namespace Jabber
 				SLOT(filterItem(const QString&)));
 		connect(p->ui->serviceTree, SIGNAL(customContextMenuRequested(QPoint)),
 				SLOT(showContextMenu(QPoint)));
+		connect(p->ui->serviceTree, SIGNAL(itemSelectionChanged()), SLOT(showFeatures()));
 		p->ui->serviceTree->setColumnWidth(0, p->ui->serviceTree->width());
 		/*QMovie *movie = new QMovie(p->ui->labelLoader);
 		movie->setFileName("loader");
@@ -151,15 +152,6 @@ namespace Jabber
 						   % identity.type % QLatin1Literal(")<br/>");
 			}
 		}
-		/*if (!di.features().isEmpty()) {
-			QString tooltipText;
-			tooltipText = QLatin1Literal("<br/><b>") % tr("Features:") % QLatin1Literal("</b><br/>");
-			QStringList features = QStringList::fromSet(di.features());
-			features.sort();
-			foreach(QString feature, features)
-				tooltipText += feature % QLatin1Literal("<br/>");
-			p->ui->featuresView->setHtml(tooltipText);
-		}*/
 		item->setToolTip(0, tooltip);
 		if (di.isExpandable())
 			item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
@@ -297,6 +289,23 @@ namespace Jabber
 		} else {
 			return QObject::eventFilter(obj, event);
 		}
+	}
+
+	void JServiceBrowser::showFeatures()
+	{
+		QTreeWidgetItem *item = p->ui->serviceTree->selectedItems().first();
+		if (!item)
+			return;
+		JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
+		QString featuresText;
+		if (!di.features().isEmpty()) {
+			featuresText = QLatin1Literal("<b>") % tr("Features:") % QLatin1Literal("</b><br/>");
+			QStringList features = QStringList::fromSet(di.features());
+			features.sort();
+			foreach(QString feature, features)
+				featuresText += feature % QLatin1Literal("<br/>");
+		}
+		p->ui->featuresView->setHtml(featuresText);
 	}
 
 	QString JServiceBrowser::setServiceIcon(const JDiscoItem &di)
