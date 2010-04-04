@@ -82,6 +82,7 @@ namespace AdiumChat
 
 	ChatLayerImpl::ChatLayerImpl()
 	{
+		qRegisterMetaType<QWidgetList>("QWidgetList");
 	}
 
 
@@ -137,9 +138,12 @@ namespace AdiumChat
 
 	QString ChatLayerImpl::getWidgetId(ChatSessionImpl* sess) const
 	{
+		Q_UNUSED(sess);
 		QString key;
 		//QString key = acc->id() + "/" + id; //simple variant
-		key = "adiumchat"; //all session in one window
+		// for p2p talks
+		key = "private"; //all session in one window
+		// when you'll add separete conference window use "conference"
 		return key;
 	}
 
@@ -196,6 +200,14 @@ namespace AdiumChat
 	{
 		ChatWidget *widget = findWidget(session);
 		return widget ? widget->getInputField() : 0;
+	}
+
+	QWidgetList ChatLayerImpl::chatWidgets()
+	{
+		QWidgetList list;
+		foreach (QWidget *widget, m_chatwidgets)
+			list << widget;
+		return list;
 	}
 
 }

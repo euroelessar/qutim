@@ -40,15 +40,15 @@ namespace qutim_sdk_0_3
 	public slots:
 		virtual void addContact(qutim_sdk_0_3::Buddy *c) = 0;
 		virtual void removeContact(qutim_sdk_0_3::Buddy *c) = 0;
-		virtual void appendMessage(const qutim_sdk_0_3::Message &message) = 0;
+		virtual qint64 appendMessage(qutim_sdk_0_3::Message &message) = 0;
 		virtual bool isActive() = 0;
 		virtual void setActive(bool active) = 0;
 		inline void activate() { setActive(true); }
-		inline void appendMessage(const QString &text)
-		{ appendMessage(Message(text)); }
+		inline qint64 appendMessage(const QString &text)
+		{ Message msg(text); return appendMessage(msg); }
 	signals:
-		void messageReceived(const Message &message);
-		void messageSended(const Message &message);
+		void messageReceived(qutim_sdk_0_3::Message *message);
+		void messageSended(qutim_sdk_0_3::Message *message);
 		void contactAdded(qutim_sdk_0_3::Buddy *c);
 		void contactRemoved(qutim_sdk_0_3::Buddy *c);
 		void activated(bool active);

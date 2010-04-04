@@ -19,6 +19,7 @@
 #include <QScriptEngine>
 #include <QScriptValue>
 #include <QScriptValueIterator>
+#include <QTextDocument>
 #include "chatunit.h"
 #include "account.h"
 #include "protocol.h"
@@ -258,5 +259,15 @@ namespace qutim_sdk_0_3
 	{
 		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 101));
 		return type;
+	}
+
+	Q_GLOBAL_STATIC(QPointer<QTextDocument>, document)
+
+	QString unescape(const QString &html)
+	{
+		if (document()->isNull())
+			document() = new QTextDocument;
+		(*document())->setHtml(html);
+		return (*document())->toPlainText();
 	}
 }

@@ -70,6 +70,8 @@ namespace qutim_sdk_0_3
 		bool s;
 	};
 
+	LIBQUTIM_EXPORT QString unescape(const QString &html);
+
 	typedef QList<Message> MessageList;
 }
 

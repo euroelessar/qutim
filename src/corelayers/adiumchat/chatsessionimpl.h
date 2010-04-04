@@ -33,7 +33,7 @@ namespace AdiumChat
 		ChatSessionImpl (ChatUnit *unit, ChatLayer* chat );
 		virtual ~ChatSessionImpl();
 		virtual void addContact ( Buddy* c );
-		virtual void appendMessage ( const Message& message );		
+		virtual qint64 appendMessage(Message &message);
 		virtual void removeContact ( Buddy* c );
 		QWebPage *getPage() const;
 		Account *getAccount() const;

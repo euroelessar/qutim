@@ -16,6 +16,7 @@ namespace Core
 		class Module : public ContactList
 		{
 			Q_OBJECT
+			Q_PROPERTY(QWidget* widget READ widget)
 		public:
 			Module();
 			virtual ~Module();
@@ -23,6 +24,7 @@ namespace Core
 			virtual void removeContact(ChatUnit *contact);
 			virtual void removeAccount(Account *account);
 			Q_INVOKABLE void addButton(ActionGenerator *generator);
+			Q_INVOKABLE QWidget *widget();
 		public slots:
 			void show();
 			void hide();

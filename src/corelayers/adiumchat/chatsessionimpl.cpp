@@ -104,40 +104,47 @@ namespace AdiumChat
 		emit buddiesChanged();
 	}
 
-	void ChatSessionImpl::appendMessage(const Message &message)
+	qint64 ChatSessionImpl::appendMessage(Message &message)
 	{
-		Message tmp_message = message;
-		if (!tmp_message.chatUnit()) {
-			qWarning() << tr("Message %1 must have a ChatUnit").arg(tmp_message.text());
-			tmp_message.setChatUnit(getUnit());
+		if (!message.chatUnit()) {
+			qWarning() << tr("Message %1 must have a ChatUnit").arg(message.text());
+			message.setChatUnit(getUnit());
 		}
 		if (!isActive()) {
 			m_unread.append(message);
 			unreadChanged(m_unread);
 		}
+
+		if (message.isIncoming())
+			messageReceived(&message);
+		else
+			messageSended(&message);
+
+		if (message.property("spam", false) || message.property("hide", false))
+			return message.id();
 		
 		if (!message.isIncoming())
 			setChatState(ChatStateActive);
 
 		bool same_from = false;
-		bool service = tmp_message.property("service").isValid();
+		bool service = message.property("service").isValid();
 		QString item;
-		if(tmp_message.text().startsWith("/me ")) {
-			tmp_message.setText(tmp_message.text().mid(3));
-			tmp_message.setProperty("title",tmp_message.isIncoming() ? tmp_message.chatUnit()->title() : tmp_message.chatUnit()->account()->name());
-			item = m_chat_style_output->makeAction(this,tmp_message);
+		if(message.text().startsWith("/me ")) {
+			message.setText(message.text().mid(3));
+			message.setProperty("title",message.isIncoming() ? message.chatUnit()->title() : message.chatUnit()->account()->name());
+			item = m_chat_style_output->makeAction(this,message);
 			m_previous_sender = 0;
 			m_skipOneMerge = true;
 		}
 		else if (service) {
-			item = m_chat_style_output->makeStatus(this,tmp_message);
+			item = m_chat_style_output->makeStatus(this,message);
 			m_previous_sender = 0;
 			m_skipOneMerge = true;
 		}
 		else {
-			const ChatUnit *currentSender = tmp_message.isIncoming() ? tmp_message.chatUnit() : 0;
+			const ChatUnit *currentSender = message.isIncoming() ? message.chatUnit() : 0;
 			same_from = (!m_skipOneMerge) && (m_previous_sender == currentSender);
-			item = m_chat_style_output->makeMessage(this, tmp_message, same_from);
+			item = m_chat_style_output->makeMessage(this, message, same_from);
 			m_previous_sender = currentSender;
 			m_skipOneMerge = false;
 		}
@@ -148,14 +155,15 @@ namespace AdiumChat
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
 				validateCpp(result), same_from?"Next":"");
-		bool isHistory = tmp_message.property("history", false);
-		bool silent = tmp_message.property("silent", false);
+		bool isHistory = message.property("history", false);
+		bool silent = message.property("silent", false);
 		if (!isHistory && !silent) {
-			Notifications::sendNotification(tmp_message);
+			Notifications::sendNotification(message);
 		}
-		if (tmp_message.property("store", true) && (!service || (service && m_store_service_messages)))
+		if (message.property("store", true) && (!service || (service && m_store_service_messages)))
 			History::instance()->store(message);
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
+		return message.id();
 	}
 
 	void ChatSessionImpl::removeContact(Buddy *c)

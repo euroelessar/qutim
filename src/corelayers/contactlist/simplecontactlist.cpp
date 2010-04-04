@@ -211,6 +211,11 @@ namespace Core
 		{
 		}
 
+		QWidget *Module::widget()
+		{
+			return p->widget;
+		}
+
 		void Module::addContact(ChatUnit *unit)
 		{
 			if(Contact *contact = qobject_cast<Contact *>(unit))

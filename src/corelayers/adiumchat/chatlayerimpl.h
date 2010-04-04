@@ -38,6 +38,7 @@ namespace AdiumChat
 		virtual ~ChatLayerImpl();
 		virtual ChatSession* getSession(ChatUnit* unit, bool create = true);
 		QTextDocument *getInputField(ChatSession *session);
+		Q_INVOKABLE QWidgetList chatWidgets();
 	private slots:
 		void onChatWidgetDestroyed(QObject *object);
 		void onSessionActivated(bool active);
