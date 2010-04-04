@@ -339,7 +339,10 @@ void MessagesHandler::handleMessage(const SNAC &snac)
 		m.setIncoming(true);
 		ChatSession *session = ChatLayer::instance()->getSession(m_account, contact);
 		m.setChatUnit(session->getUnit());
-		m.setText(message);
+		QString plain = unescape(message);
+		m.setText(plain);
+		if (plain != message)
+			m.setProperty("html", message);
 		session->appendMessage(m);
 	}
 }
