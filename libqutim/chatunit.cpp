@@ -78,6 +78,22 @@ namespace qutim_sdk_0_3
 		if (state == ChatStateComposing)
 			Notifications::sendNotification(Notifications::Typing,this);
 	}
+
+	ChatUnit *ChatUnit::buddy()
+	{
+		ChatUnit *u = this;
+		while (u) {
+			if (qobject_cast<Buddy*>(u))
+				return u;
+			u = u->upperUnit();
+		}
+		return this;
+	}
+
+	const ChatUnit *ChatUnit::buddy() const
+	{
+		return const_cast<ChatUnit*>(this)->buddy();
+	}
 	
 	ChatStateEvent::ChatStateEvent(ChatState state) :
 			QEvent(eventType()), m_state(state)

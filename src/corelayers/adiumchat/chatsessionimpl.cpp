@@ -130,8 +130,11 @@ namespace AdiumChat
 		bool service = message.property("service").isValid();
 		QString item;
 		if(message.text().startsWith("/me ")) {
-			message.setText(message.text().mid(3));
+			// FIXME we shouldn't copy data there
+			QString text = message.text();
+			message.setText(text.mid(3));
 			item = m_chat_style_output->makeAction(this,message);
+			message.setText(text);
 			m_previous_sender = 0;
 			m_skipOneMerge = true;
 		}

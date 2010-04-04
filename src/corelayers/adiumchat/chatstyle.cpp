@@ -63,8 +63,8 @@ namespace AdiumChat
 			style.outgoingActionHtml = readStyleFile(outgoingActionFile, &fileAccess);
 			style.statusHtml = readStyleFile(statusFile, &fileAccess);
 			style.mainCSS = readStyleFile(mainCSSFile, &fileAccess);
-
-			style.incomingActionHtml.replace("%message%","%sender% %message%");
+//			Who has done it?
+//			style.incomingActionHtml.replace("%message%","%sender% %message%");
 		}
 		void listVariants()
 		{

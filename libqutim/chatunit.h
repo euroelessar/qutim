@@ -102,6 +102,9 @@ namespace qutim_sdk_0_3
 		* @return Pointer to upper chatunit
 		*/
 		virtual ChatUnit *upperUnit();
+
+		ChatUnit *buddy();
+		const ChatUnit *buddy() const;
 	public slots:
 		void sendMessage(const QString &text);
 		/**

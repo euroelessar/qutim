@@ -15,6 +15,8 @@
 
 #include "history.h"
 #include "objectgenerator.h"
+#include "buddy.h"
+#include "metacontact.h"
 
 namespace qutim_sdk_0_3
 {
@@ -76,5 +78,28 @@ namespace qutim_sdk_0_3
 	{
 		Q_UNUSED(id);
 		Q_UNUSED(data);
+	}
+
+	const ChatUnit *History::historyUnit(const ChatUnit *unit) const
+	{
+		ChatUnit *u = const_cast<ChatUnit*>(unit);
+		ChatUnit *buddy = 0;
+		if (qobject_cast<Contact*>(u))
+			return u;
+		else if (qobject_cast<Buddy*>(u))
+			buddy = u;
+		ChatUnit *p;
+		while (p = u->upperUnit()) {
+			if (qobject_cast<MetaContact*>(p)) {
+				break;
+			} else if (qobject_cast<Contact*>(p)) {
+				buddy = p;
+				break;
+			} else if (qobject_cast<Buddy*>(p) && !buddy) {
+				buddy = p;
+			}
+			u = p;
+		}
+		return buddy ? buddy : unit;
 	}
 }

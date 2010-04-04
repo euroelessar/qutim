@@ -271,7 +271,7 @@ namespace Core
 		void Module::onAccountCreated(Account *account)
 		{
 			//TODO add account icon
-			QAction *action = new QAction(account->status().icon(), account->name(), p->status_btn);
+			QAction *action = new QAction(account->status().icon(), account->id(), p->status_btn);
 			connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
 					this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
 			p->actions.insert(account, action);
