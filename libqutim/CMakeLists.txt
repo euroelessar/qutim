@@ -64,7 +64,7 @@ ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/" "${CMAKE_CURRE
 # ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/qtdwm/")
 
 # This project will generate library
-ADD_LIBRARY( libqutim SHARED ${SRC} ${MOC_SRC} )
+ADD_LIBRARY( libqutim SHARED ${SRC} ${MOC_SRC} ${HDR} )
 
 # Set tagret properties
 SET_TARGET_PROPERTIES ( libqutim PROPERTIES PREFIX "")

@@ -94,7 +94,7 @@ macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir libs_to_link )
     #QT4_ADD_RESOURCES (${plugin_name}_RCC ${${plugin_name}_RES})
 
     # This project will generate library
-    ADD_LIBRARY( ${plugin_name} SHARED ${${plugin_name}_SRC} ${${plugin_name}_MOC_SRC} ${${plugin_name}_UI_H} )
+	ADD_LIBRARY( ${plugin_name} SHARED ${${plugin_name}_SRC} ${${plugin_name}_MOC_SRC} ${${plugin_name}_HDR} ${${plugin_name}_UI_H} )
     if( CMAKE_COMPILER_IS_GNUCXX )
         set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "-Wall -Werror" )
     endif( CMAKE_COMPILER_IS_GNUCXX )
