@@ -81,6 +81,8 @@ namespace Jabber
 		Q_D(JMUCJoin);
 		d->ui->comboEditBookmarks->clear();
 		d->ui->comboEnterBookmarks->clear();
+		d->ui->comboEditBookmarks->addItem("");
+		d->ui->comboEnterBookmarks->addItem("");
 		foreach (JBookmark bookmark, d->conferenceManager->bookmarkManager()->bookmarks()) {
 			d->ui->comboEnterBookmarks->addItem(bookmark.name);
 			d->ui->comboEnterBookmarks->setItemData(d->ui->comboEnterBookmarks->count() - 1,
