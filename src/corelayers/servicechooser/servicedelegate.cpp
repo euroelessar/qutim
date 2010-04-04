@@ -24,7 +24,7 @@ namespace Core
 	ServiceDelegate::ServiceDelegate(QObject* parent):
 		QAbstractItemDelegate(parent),
 		m_vertical_padding(6),
-		m_horizontal_padding(6)
+		m_horizontal_padding(9)
 	{
 
 	}
