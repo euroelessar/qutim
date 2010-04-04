@@ -177,6 +177,8 @@ namespace Jabber
 		coreMsg.setIncoming(true);
 		if (const DelayedDelivery *when = msg.when())
 			coreMsg.setTime(stamp2date(when->stamp()));
+		else
+			coreMsg.setTime(QDateTime::currentDateTime());
 		if (!msg.subject().empty())
 			coreMsg.setProperty("subject", QString::fromStdString(msg.subject()));
 		ChatLayer::get(this, true)->appendMessage(coreMsg);
