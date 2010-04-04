@@ -43,29 +43,35 @@ IcqInfoRequest::~IcqInfoRequest()
 		m_metaReq->deleteLater();
 }
 
-QList<InfoItem> IcqInfoRequest::items() const
-{
-	QList<InfoItem> items;
-	for (int i = FirstMetaField; i <= LastMetaField; ++i) {
-		MetaInfoField field(i);
-		InfoItem item(field.name(), field.toString(), m_values.value(field),
-					LocalizedStringList() << field.group());
-		LocalizedStringList alt = field.titleAlternatives();
-		if (!alt.isEmpty())
-			item.setProperty("titleAlternatives", QVariant::fromValue(alt));
-		alt = field.alternatives();
-		if (!alt.isEmpty())
-			item.setProperty("alternatives", QVariant::fromValue(alt));
-		items << item;
-	}
-	return items;
-}
-
 InfoItem IcqInfoRequest::item(const QString &name) const
 {
-	MetaInfoField field(name);
-	return InfoItem(name, field.toString(), m_values.value(field),
-					QList<LocalizedString>() << field.group());
+	if (name.isEmpty()) {
+		QList<InfoItem> groups;
+		QString lastName;
+		for (int i = FirstMetaField; i <= LastMetaField; ++i) {
+			MetaInfoField field(i);
+			LocalizedString groupName = field.group();
+			if (lastName != groupName) {
+				groups.push_back(InfoItem(groupName.original(), groupName, QVariant()));
+				lastName = groupName.original();
+			}
+			InfoItem item(field.name(), field.toString(), m_values.value(field));
+			LocalizedStringList alt = field.titleAlternatives();
+			if (!alt.isEmpty())
+				item.setProperty("titleAlternatives", QVariant::fromValue(alt));
+			alt = field.alternatives();
+			if (!alt.isEmpty())
+				item.setProperty("alternatives", QVariant::fromValue(alt));
+			groups.last().addSubitem(item);
+		}
+		InfoItem item;
+		foreach (const InfoItem &i, groups)
+			item.addSubitem(i);
+		return item;
+	} else {
+		MetaInfoField field(name);
+		return InfoItem(name, field.toString(), m_values.value(field));
+	}
 }
 
 IcqInfoRequest::State IcqInfoRequest::state() const

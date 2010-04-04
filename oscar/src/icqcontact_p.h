@@ -53,8 +53,7 @@ class IcqInfoRequest : public InfoRequest
 public:
 	IcqInfoRequest(IcqContact *contact);
 	virtual ~IcqInfoRequest();
-	virtual QList<InfoItem> items() const;
-	virtual InfoItem item(const QString &name) const;
+	virtual InfoItem item(const QString &name = QString()) const;
 	virtual State state() const;
 private slots:
 	void onDone(bool ok);
