@@ -224,6 +224,9 @@ namespace AdiumChat
 			session->deleteLater();
 			debug () << "session removed" << index;
 		}
+
+		if (m_sessions.isEmpty())
+			close();
 	}
 
 	void ChatWidget::onSessionDestroyed(QObject* object)

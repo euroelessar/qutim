@@ -110,8 +110,6 @@ namespace AdiumChat
 		ChatSessionHash::const_iterator it;
 		for (it=m_chat_sessions.constBegin();it!=m_chat_sessions.constEnd();it++)
 			list.append(it.value());
-// 		foreach (ChatSession *sess, m_chat_sessions)
-// 			list.append(sess);
 		return list;
 	}
 
@@ -127,7 +125,6 @@ namespace AdiumChat
 		if (!sess)
 			return;
 		ChatUnit *key = m_chat_sessions.key(sess);
-//		debug() << "session removed" << sess << "unit:" << key;
 		if (key)
 			m_chat_sessions.remove(key);
 	}

@@ -317,6 +317,12 @@ namespace AdiumChat
 		Message tmp_msg = mes;
 		QString html = m_current_style.statusHtml;
 		makeTime(html, mes.time());
+		QString title = tmp_msg.property("title").toString();
+		if (!title.isEmpty()) {
+			QString txt = tmp_msg.text();
+			tmp_msg.setText(txt.isEmpty() ? title : QString("%1: %2").arg(title,txt));
+		}
+
 		processMessage(html,session,tmp_msg);
 		return html;
 	}

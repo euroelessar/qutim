@@ -29,6 +29,11 @@ XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings
 	uint icon_size = general.value<int>("iconSize",16);
 	ui->listWidget->setIconSize(QSize(icon_size,icon_size));
 
+	QList<int> sizes;
+	sizes.append(80);
+	sizes.append(250);
+	ui->splitter->setSizes(sizes);
+
 	foreach (SettingsItem *settings_item, m_setting_list) {
 		QListWidgetItem *list_item = new QListWidgetItem (settings_item->icon(),
 														  settings_item->text(),
