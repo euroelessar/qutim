@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>IdleStatusWidget</class>
+ <widget class="QWidget" name="IdleStatusWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>342</width>
+    <height>292</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QCheckBox" name="awayCheckBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>20</y>
+     <width>241</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Set status away after:</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="naCheckBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>110</y>
+     <width>241</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Set status not available after:</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="awaySpinBox">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>20</y>
+     <width>54</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="suffix">
+    <string comment="seconds">s</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="naSpinBox">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>110</y>
+     <width>54</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="suffix">
+    <string comment="seconds">s</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="awayTextBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>46</y>
+     <width>321</width>
+     <height>61</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="naTextBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>140</y>
+     <width>321</width>
+     <height>61</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>awayCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>awayTextBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>52</x>
+     <y>30</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>99</x>
+     <y>58</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>awayCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>awaySpinBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>32</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>33</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>naCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>naTextBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>25</x>
+     <y>124</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>96</x>
+     <y>152</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>naCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>naSpinBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>145</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>287</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

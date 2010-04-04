@@ -26,11 +26,14 @@
 #include <QDateTime>
 #include <QTimer>
 
+namespace Psi
+{
 class IdlePlatform;
 
 class Idle : public QObject
 {
 	Q_OBJECT
+	Q_CLASSINFO("Service", "Idle")
 public:
 	Idle();
 	~Idle();
@@ -79,5 +82,6 @@ public:
 	QDateTime startTime;
 	QTimer checkTimer;
 };
+}
 
 #endif

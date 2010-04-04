@@ -19,13 +19,23 @@
  */
 
 #include "idle.h"
+#include "src/modulemanagerimpl.h"
+
+static Core::CoreSingleModuleHelper<Psi::Idle> history_static(
+	QT_TRANSLATE_NOOP("Plugin", "Idle detector"),
+	QT_TRANSLATE_NOOP("Plugin", "Native idle detector, based on system api")
+);
 
 #include <QCursor>
 #include <QDateTime>
 #include <QTimer>
 
+namespace Psi
+{
 static IdlePlatform *platform = 0;
 static int platform_ref = 0;
+
+
 
 Idle::Idle()
 {
@@ -45,6 +55,7 @@ Idle::Idle()
 		++platform_ref;
 
 	connect(&d->checkTimer, SIGNAL(timeout()), SLOT(doCheck()));
+	start();
 }
 
 Idle::~Idle()
@@ -127,4 +138,5 @@ int Idle::secondsIdle()
 void Idle::doCheck()
 {
 	secondsIdle(secondsIdle());
+}
 }

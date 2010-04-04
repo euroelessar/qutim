@@ -32,6 +32,8 @@ typedef struct __tagLASTINPUTINFO {
  } __LASTINPUTINFO, *__PLASTINPUTINFO;
 #endif
 
+namespace Psi
+{
 class IdlePlatform::Private
 {
 public:
@@ -102,6 +104,7 @@ int IdlePlatform::secondsIdle()
 		return 0;
 
 	return (GetTickCount() - i) / 1000;
+}
 }
 
 #endif

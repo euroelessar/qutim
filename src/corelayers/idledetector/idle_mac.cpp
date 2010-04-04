@@ -23,7 +23,6 @@
 #ifdef Q_OS_MAC
 #include <Carbon/Carbon.h>
 
-
 // Why does Apple have to make this so complicated?
 static OSStatus LoadFrameworkBundle(CFStringRef framework, CFBundleRef *bundlePtr) {
 	OSStatus  err;
@@ -79,6 +78,8 @@ static OSStatus LoadFrameworkBundle(CFStringRef framework, CFBundleRef *bundlePt
 }
 
 
+namespace Psi
+{
 class IdlePlatform::Private {
 public:
 	EventLoopTimerRef mTimerRef;
@@ -159,6 +160,7 @@ bool IdlePlatform::init() {
 
 int IdlePlatform::secondsIdle() {
 	return d->mSecondsIdle;
+}
 }
 
 #endif

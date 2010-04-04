@@ -24,11 +24,13 @@
 
 #ifndef HAVE_XSS
 
+namespace Psi
+{
 IdlePlatform::IdlePlatform() {}
 IdlePlatform::~IdlePlatform() {}
 bool IdlePlatform::init() { return false; }
 int IdlePlatform::secondsIdle() { return 0; }
-
+}
 #else
 
 #include <qapplication.h>
@@ -49,6 +51,8 @@ extern "C" int xerrhandler(Display* dpy, XErrorEvent* err)
 	return (*old_handler)(dpy, err);
 }
 
+namespace Psi
+{
 class IdlePlatform::Private
 {
 public:
@@ -96,6 +100,7 @@ int IdlePlatform::secondsIdle()
 	if(!XScreenSaverQueryInfo(QX11Info::display(), QX11Info::appRootWindow(), d->ss_info))
 		return 0;
 	return d->ss_info->idle / 1000;
+}
 }
 
 #endif
