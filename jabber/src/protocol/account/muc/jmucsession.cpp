@@ -19,6 +19,7 @@
 #include "../roster/jmessagesession.h"
 #include "../roster/jmessagehandler.h"
 #include "../vcard/jvcardmanager.h"
+#include "../../jprotocol.h"
 #include "jbookmarkmanager.h"
 #include <gloox/uniquemucroom.h>
 #include <qutim/message.h>
@@ -100,6 +101,10 @@ namespace Jabber
 		if (d->isJoined) {
 			d->room->setPresence(pres.subtype(), pres.status());
 		} else {
+			foreach (JMUCUser *muc, d->users.values()) {
+				ChatLayer::get(this, true)->removeContact(muc);
+				delete muc;
+			}
 			d->users.clear();
 			d->messages.clear();
 			if (d->lastMessage.isValid())
@@ -112,6 +117,7 @@ namespace Jabber
 	void JMUCSession::leave()
 	{
 		d_func()->room->leave();
+		d_func()->isJoined = false;
 	}
 
 	QString JMUCSession::id() const
@@ -339,6 +345,6 @@ namespace Jabber
 
 	void JMUCSession::loadSettings()
 	{
-		d_func()->avatarsAutoLoad = d_func()->account->config().group("general").value("getavatars", true);
+		d_func()->avatarsAutoLoad = JProtocol::instance()->config("general").value("getavatars", true);
 	}
 }

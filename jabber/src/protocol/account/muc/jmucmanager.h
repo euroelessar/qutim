@@ -3,10 +3,12 @@
 
 #include <QObject>
 #include <qutim/chatunit.h>
+#include <gloox/presence.h>
 
 namespace Jabber
 {
 	using namespace qutim_sdk_0_3;
+	using namespace gloox;
 
 	class JAccount;
 	class JBookmarkManager;
@@ -26,7 +28,7 @@ namespace Jabber
 			void openJoinWindow();
 			void syncBookmarks();
 			void join(const QString &conference, const QString &nick = QString(), const QString &password = QString());
-			void setPresenceToRooms();
+			void setPresenceToRooms(Presence::PresenceType presence);
 			void leave(const QString &room);
 			bool event(QEvent *event);
 		private slots:

@@ -103,16 +103,20 @@ namespace Jabber
 			join(room->id());
 	}
 
-	void JMUCManager::setPresenceToRooms()
+	void JMUCManager::setPresenceToRooms(Presence::PresenceType presence)
 	{
-		foreach (JMUCSession *room, p->rooms)
-			room->join();
+		if (presence == Presence::Unavailable)
+			foreach (JMUCSession *room, p->rooms)
+				room->leave();
+		else
+			foreach (JMUCSession *room, p->rooms)
+				room->join();
 	}
 
 	void JMUCManager::leave(const QString &room)
 	{
-		JMUCSession *muc = p->rooms.take(room);
-		muc->deleteLater();
+		JMUCSession *muc = p->rooms.value(room);
+		muc->leave();
 	}
 
 	void JMUCManager::leave()
