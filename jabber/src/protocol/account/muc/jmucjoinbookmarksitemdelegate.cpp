@@ -29,7 +29,8 @@ namespace Jabber
 	};
 	
 	JMUCJoinBookmarksItemDelegate::JMUCJoinBookmarksItemDelegate(QObject* parent): 
-		QAbstractItemDelegate(parent)
+		QAbstractItemDelegate(parent),
+		m_padding(4)
 	{
 
 	}
@@ -47,6 +48,9 @@ namespace Jabber
 		
 		QString title = index.data(Qt::DisplayRole).toString();
 		QRect rect = option.rect;
+		rect.setTop(rect.top() + m_padding);
+		rect.setLeft(rect.left() + m_padding);
+		rect.setBottom(rect.bottom() - m_padding);
 		
 		const QFont painter_font = painter->font();
 		const QPen painter_pen = painter->pen();
@@ -90,6 +94,7 @@ namespace Jabber
 									   Qt::TextWordWrap,
 									   description(index)
 									   ).height();
+		height += 2*m_padding;
 		QSize size (width,height);
 		return size;
 	}
