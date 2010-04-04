@@ -45,6 +45,7 @@ namespace Jabber
 		private slots:
 			void getItems(QTreeWidgetItem *item);
 			void showContextMenu(const QPoint &pos);
+			void showFeatures();
 			void filterItem(const QString &mask);
 			void closeEvent(QCloseEvent*);
 			void on_searchButton_clicked();
