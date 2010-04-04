@@ -1,4 +1,5 @@
 #include "jprotocol.h"
+#include "jmainsettings.h"
 #include "account/jaccount.h"
 #include <qutim/icon.h>
 #include "account/roster/jresourceactiongenerator.h"
@@ -6,6 +7,7 @@
 #include <gloox/dataform.h>
 #include "account/dataform/jdataform.h"
 #include <qutim/statusactiongenerator.h>
+#include <qutim/settingslayer.h>
 
 namespace Jabber
 {
@@ -23,6 +25,10 @@ namespace Jabber
 	{
 		Q_ASSERT(!self);
 		self = this;
+		Settings::registerItem(new GeneralSettingsItem<JMainSettings>(
+				Settings::Protocol,
+				Icon("im-jabber"),
+				QT_TRANSLATE_NOOP("Settings", "Jabber")));
 	}
 
 	JProtocol::~JProtocol()

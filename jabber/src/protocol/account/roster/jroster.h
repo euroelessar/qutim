@@ -18,7 +18,7 @@ namespace Jabber
 	{
 		Q_OBJECT
 		public:
-			JRoster(JAccount *account, const Config &config);
+			JRoster(JAccount *account);
 			~JRoster();
 			ChatUnit *contact(const QString &jid, bool create = false);
 			void setOffline();

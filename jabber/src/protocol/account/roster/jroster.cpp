@@ -1,5 +1,6 @@
 #include "jroster.h"
 #include "../jaccount.h"
+#include "../../jprotocol.h"
 #include "jcontact.h"
 #include "jcontactresource.h"
 #include "../vcard/jvcardmanager.h"
@@ -16,13 +17,11 @@ namespace Jabber
 		RosterManager *rosterManager;
 		QHash<QString, JContact*> contacts;
 		bool avatarsAutoLoad;
-		Config config;
 	};
 
-	JRoster::JRoster(JAccount *account, const Config &config) : p(new JRosterPrivate)
+	JRoster::JRoster(JAccount *account) : p(new JRosterPrivate)
 	{
 		loadSettings();
-		p->config = config;
 		p->account = account;
 		p->rosterManager = p->account->connection()->client()->rosterManager();
 		p->rosterManager->registerRosterListener(this, false);
@@ -216,7 +215,7 @@ namespace Jabber
 
 	void JRoster::loadSettings()
 	{
-		p->avatarsAutoLoad = p->config.group("general").value("getavatars", true);
+		p->avatarsAutoLoad = JProtocol::instance()->config("general").value("getavatars", true);
 	}
 
 	void JRoster::setOffline()

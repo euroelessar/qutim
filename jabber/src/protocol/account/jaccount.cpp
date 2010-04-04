@@ -33,7 +33,7 @@ namespace Jabber {
 		p->discoManager = 0;
 		p->connection = new JConnection(this);
 		p->connectionListener = new JConnectionListener(this);
-		p->roster = new JRoster(this, config());
+		p->roster = new JRoster(this);
 		p->messageHandler = new JMessageHandler(this);
 		p->conferenceManager = new JMUCManager(this);
 		p->connection->initExtensions();

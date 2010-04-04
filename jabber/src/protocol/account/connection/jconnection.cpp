@@ -145,7 +145,7 @@ namespace Jabber
 		{
 			group = JProtocol::instance()->config().group("priority");
 			p->priority.insert(Presence::Available, group.value("online", 3));
-			p->priority.insert(Presence::Chat, group.value("online", 3));
+			p->priority.insert(Presence::Chat, group.value("ffchat", 3));
 			p->priority.insert(Presence::Away, group.value("away", 2));
 			p->priority.insert(Presence::XA, group.value("na", 1));
 			p->priority.insert(Presence::DND, group.value("dnd", -1));
