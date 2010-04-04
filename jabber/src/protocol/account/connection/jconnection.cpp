@@ -203,23 +203,24 @@ namespace Jabber
 
 	void JConnection::setConnectionPresence(Presence::PresenceType presence)
 	{
-		if (p->password.isEmpty()) {
-			bool ok;
-			p->password = p->account->password(&ok);
-			if (ok)
-				p->client->setPassword(p->password.toStdString());
-			else
-				return;
-		}
-		p->client->setPresence(presence, p->autoPriority
-				? p->priority.value(presence) : p->priority.value(Presence::Invalid));
-		if (p->client->state() == StateDisconnected) {
-			p->client->setXmlLang(QLocale().name().section('_', 0, 0).toStdString());
-			p->client->connect(false);
-		}
 		if (presence == Presence::Unavailable) {
 			p->client->disconnect();
 			p->account->endChangeStatus(presence);
+		} else {
+			if (p->password.isEmpty()) {
+				bool ok;
+				p->password = p->account->password(&ok);
+				if (ok)
+					p->client->setPassword(p->password.toStdString());
+				else
+					return;
+			}
+			p->client->setPresence(presence, p->autoPriority
+					? p->priority.value(presence) : p->priority.value(Presence::Invalid));
+			if (p->client->state() == StateDisconnected) {
+				p->client->setXmlLang(QLocale().name().section('_', 0, 0).toStdString());
+				p->client->connect(false);
+			}
 		}
 	}
 	

@@ -201,6 +201,6 @@ namespace Jabber
 	ChatUnit *JMessageSession::upperUnit()
 	{
 		Q_D(JMessageSession);
-		return d->unit ? d->unit->upperUnit() : 0;
+		return d->unit;
 	}
 }
