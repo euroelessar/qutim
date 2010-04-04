@@ -53,22 +53,12 @@ void InfoGroup::addItem(const InfoItem &item)
 	m_layout->addWidget(title, m_row, 0, 1, 1, Qt::AlignRight | Qt::AlignTop);
 
 	QVariant::Type type = item.data().type();
-#if 0
+
 	if (type == QVariant::Date) {
-		addDataWidget(new QDateEdit(item.data().toDate(), this));
+		addLabel(item.data().toDate().toString(Qt::SystemLocaleLongDate));
 	} else if (type == QVariant::DateTime) {
-		addDataWidget(new QDateTimeEdit(item.data().toDateTime(), this));
-	} else if (type == QVariant::Int || type == QVariant::LongLong || type == QVariant::UInt) {
-		QSpinBox *d = new QSpinBox(this);
-		d->setValue(item.data().toInt());
-		addDataWidget(d);
-	} else if (type == QVariant::Double) {
-		QDoubleSpinBox *d = new QDoubleSpinBox(this);
-		d->setValue(item.data().toDouble());
-		addDataWidget(d);
-	} else
-#endif
-	if (type == QVariant::Image) {
+		addLabel(item.data().toDateTime().toString(Qt::SystemLocaleLongDate));
+	} else if (type == QVariant::Image) {
 		QLabel *d = new QLabel(this);
 		d->setPixmap(QPixmap::fromImage(item.data().value<QImage>()));
 		addDataWidget(d);
@@ -76,6 +66,10 @@ void InfoGroup::addItem(const InfoItem &item)
 		QLabel *d = new QLabel(this);
 		d->setPixmap(item.data().value<QPixmap>());
 		addDataWidget(d);
+	} else if (type == QVariant::Bool) {
+		addLabel(item.data().toBool() ?
+				 QT_TRANSLATE_NOOP("ContactInfo", "yes") :
+				 QT_TRANSLATE_NOOP("ContactInfo", "no"));
 	} else if (item.data().canConvert(QVariant::StringList)) {
 		foreach (const QString &i, item.data().toStringList())
 			addLabel(i);
