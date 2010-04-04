@@ -6,6 +6,7 @@
 #include "../servicediscovery/jservicebrowser.h"
 #include "ui_jmucjoin.h"
 #include "jmucmanager.h"
+#include "jmucjoinbookmarksitemdelegate.h"
 
 namespace Jabber
 {
@@ -44,6 +45,9 @@ namespace Jabber
 			setEditConference(name, conference, nick, password);
 			d->ui->buttonBookmark->setChecked(true);
 		}
+		JMUCJoinBookmarksItemDelegate *delegate = new JMUCJoinBookmarksItemDelegate(this);
+		d->ui->comboEditBookmarks->setItemDelegate(delegate);
+		d->ui->comboEnterBookmarks->setItemDelegate(delegate);
 	}
 
 	void JMUCJoin::setConference(const QString &conference)
@@ -80,8 +84,7 @@ namespace Jabber
 		d->ui->comboEditBookmarks->addItem("");
 		d->ui->comboEnterBookmarks->addItem("");
 		foreach (JBookmark bookmark, d->conferenceManager->bookmarkManager()->bookmarks()) {
-			d->ui->comboEnterBookmarks->addItem(bookmark.name
-					%"\n<font color=#808080>"%bookmark.conference%"\n"%bookmark.nick%"</font>");
+			d->ui->comboEnterBookmarks->addItem(bookmark.name);
 			d->ui->comboEnterBookmarks->setItemData(d->ui->comboEnterBookmarks->count() - 1,
 					qVariantFromValue(bookmark), Qt::UserRole+1);
 			d->ui->comboEditBookmarks->addItem(bookmark.name);
@@ -93,7 +96,7 @@ namespace Jabber
 		foreach (JBookmark bookmark, d->conferenceManager->bookmarkManager()->recent()) {
 			if (d->conferenceManager->bookmarkManager()->bookmarks().contains(bookmark))
 				continue;
-			d->ui->comboEnterBookmarks->addItem(bookmark.conference%"\n<font color=#808080>"%bookmark.nick%"</font>");
+			d->ui->comboEnterBookmarks->addItem(bookmark.conference);
 			d->ui->comboEnterBookmarks->setItemData(d->ui->comboEnterBookmarks->count() - 1,
 					qVariantFromValue(bookmark), Qt::UserRole+1);
 			isRecent = true;
