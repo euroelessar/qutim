@@ -45,7 +45,7 @@ namespace qutim_sdk_0_3
 		virtual QString iconPath(const QString &name, uint iconSize) = 0;
 		virtual QString moviePath(const QString &name, uint iconSize) = 0;
 	protected:
-		void virtual_hook(int id, void *data);
+		virtual void virtual_hook(int id, void *data);
 	};
 }
 

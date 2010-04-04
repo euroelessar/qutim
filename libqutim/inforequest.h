@@ -13,10 +13,8 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		InfoItem();
-		InfoItem(const QString &name, const LocalizedString &title, const QVariant &data,
-				 const LocalizedStringList &group = LocalizedStringList());
-		InfoItem(const LocalizedString &title, const QVariant &data,
-				 const LocalizedStringList &group = LocalizedStringList());
+		InfoItem(const QString &name, const LocalizedString &title, const QVariant &data);
+		InfoItem(const LocalizedString &title, const QVariant &data = QVariant());
 		InfoItem(const InfoItem &item);
 		~InfoItem();
 		InfoItem &operator=(const InfoItem &item);
@@ -29,6 +27,12 @@ namespace qutim_sdk_0_3
 		QVariant data() const;
 		void setData(const QVariant &data);
 		bool isNull() const;
+		QList<InfoItem> subitems() const;
+		void addSubitem(const InfoItem &item);
+		bool hasSubitems() const;
+		void setMultiple(int maxCount = -1);
+		bool isMultiple() const;
+		int maxCount() const;
 		QVariant property(const char *name, const QVariant &def = QVariant()) const;
 		template<typename T>
 		T property(const char *name, const T &def = T()) const
@@ -50,11 +54,12 @@ namespace qutim_sdk_0_3
 		};
 		InfoRequest();
 		virtual ~InfoRequest();
-		virtual QList<InfoItem> items() const = 0;
-		virtual InfoItem item(const QString &name) const = 0;
+		virtual InfoItem item(const QString &name = QString()) const = 0;
 		virtual State state() const = 0;
 	signals:
 		void stateChanged(InfoRequest::State state);
+	protected:
+		virtual void virtual_hook(int id, void *data);
 	};
 }
 

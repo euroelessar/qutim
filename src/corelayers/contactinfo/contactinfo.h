@@ -20,6 +20,7 @@ class InfoGroup : public QGroupBox
 	Q_OBJECT
 public:
 	InfoGroup(QWidget *parent = 0);
+	void addItems(const QList<InfoItem> &items);
 	void addItem(const InfoItem &item);
 private:
 	void addDataWidget(QWidget *widget);
@@ -37,11 +38,9 @@ public:
 private slots:
 	void onRequestStateChanged(InfoRequest::State state);
 private:
-	void addItems(const QList<InfoItem> &items);
+	void addItems(const InfoItem &items);
 private:
-	InfoGroup *group(const LocalizedString &name);
 	QVBoxLayout *m_layout;
-	QHash<QString, InfoGroup*> m_groups;
 	InfoRequest *request;
 };
 

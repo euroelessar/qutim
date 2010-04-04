@@ -28,6 +28,20 @@ InfoGroup::InfoGroup(QWidget *parent) :
 {
 }
 
+void InfoGroup::addItems(const QList<InfoItem> &items)
+{
+	foreach (const InfoItem &item, items) {
+		if (item.hasSubitems()) {
+			InfoGroup *group = new InfoGroup(this);
+			group->setTitle(item.title());
+			group->addItems(item.subitems());
+			m_layout->addWidget(group, m_row++, 0, 1, 2);
+		} else {
+			addItem(item);
+		}
+	}
+}
+
 void InfoGroup::addItem(const InfoItem &item)
 {
 	QLabel *title = new QLabel(item.title().toString() + ":", this);
@@ -99,9 +113,6 @@ MainWindow::MainWindow() :
 	setMinimumSize(350, 250);
 	setFrameShape(QScrollArea::NoFrame);
 	setWidgetResizable(true);
-	QWidget *widget = new QWidget(this);
-	setWidget(widget);
-	m_layout = new QVBoxLayout(widget);
 }
 
 void MainWindow::setBuddy(Buddy *buddy, InfoRequest *req)
@@ -109,19 +120,17 @@ void MainWindow::setBuddy(Buddy *buddy, InfoRequest *req)
 	if (request)
 		request->deleteLater();
 	request = req;
-	if (!m_groups.isEmpty()) {
-		qDeleteAll(m_groups);
-		m_groups.clear();
-		QLayoutItem *spacer = m_layout->takeAt(0);
-		if (spacer)
-			delete spacer;
-	}
+	if (widget())
+		delete widget();
+	QWidget *w = new QWidget(this);
+	setWidget(w);
+	m_layout = new QVBoxLayout(w);
 	setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About contact %1 <%2>")
 					.toString()
 					.arg(buddy->name())
 					.arg(buddy->id()));
 	if (request->state() == InfoRequest::Done) {
-		addItems(request->items());
+		addItems(request->item());
 		request->deleteLater(); request = 0;
 	} else {
 		connect(request, SIGNAL(stateChanged(InfoRequest::State)), SLOT(onRequestStateChanged(InfoRequest::State)));
@@ -133,32 +142,31 @@ void MainWindow::onRequestStateChanged(InfoRequest::State state)
 	if (request != sender())
 		return;
 	if (state == InfoRequest::Done)
-		addItems(request->items());
+		addItems(request->item());
 	if (state == InfoRequest::Done || state == InfoRequest::Cancel)
 		request->deleteLater(); request = 0;
 }
 
-void MainWindow::addItems(const QList<InfoItem> &items)
+void MainWindow::addItems(const InfoItem &items)
 {
-	foreach (const InfoItem &item, items) {
-		QList<LocalizedString> groups = item.group();
-		LocalizedString name = groups.count() >= 1 ? groups.at(0) : QT_TRANSLATE_NOOP("ContactInfo", "General");
-		group(name)->addItem(item);
+	InfoGroup *general = 0;
+	foreach (const InfoItem &item, items.subitems()) {
+		if (item.hasSubitems()) {
+			InfoGroup *group = new InfoGroup(widget());
+			group->setTitle(item.name());
+			m_layout->addWidget(group);
+			group->addItems(item.subitems());
+		} else {
+			if (!general) {
+				general = new InfoGroup(widget());
+				general->setTitle(QT_TRANSLATE_NOOP("ContactInfo", "General"));
+				m_layout->addWidget(general);
+			}
+			general->addItem(item);
+		}
 	}
 	QSpacerItem *spacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 	m_layout->addItem(spacer);
-}
-
-InfoGroup *MainWindow::group(const LocalizedString &localozedName)
-{
-	QString name = localozedName.original();
-	if (!m_groups.contains(name)) {
-		InfoGroup *group = new InfoGroup(this);
-		group->setTitle(localozedName);
-		m_layout->addWidget(group);
-		m_groups.insert(name, group);
-	}
-	return m_groups.value(name);
 }
 
 ContactInfo::ContactInfo()
