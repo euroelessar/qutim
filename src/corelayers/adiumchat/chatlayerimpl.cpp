@@ -22,6 +22,7 @@
 #include <libqutim/settingslayer.h>
 #include <libqutim/icon.h>
 #include <libqutim/shortcut.h>
+#include <libqutim/conference.h>
 
 namespace AdiumChat
 {
@@ -140,10 +141,14 @@ namespace AdiumChat
 	{
 		Q_UNUSED(sess);
 		QString key;
-		//QString key = acc->id() + "/" + id; //simple variant
-		// for p2p talks
-		key = "private"; //all session in one window
-		// when you'll add separete conference window use "conference"
+
+		//TODO add configuration
+
+		if (qobject_cast<const Conference *>(sess->getUnit()))
+			key = "conference";
+		else
+			key = "chat";
+
 		return key;
 	}
 

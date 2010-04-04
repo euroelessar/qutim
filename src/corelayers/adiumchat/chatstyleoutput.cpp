@@ -238,10 +238,7 @@ namespace AdiumChat
 		//FIXME
 		QString sender_name;
 		QString sender_id;
-		if (qobject_cast<Conference *>(session->getUnit())) {
-			sender_name = mes.chatUnit()->title();
-			sender_id = mes.chatUnit()->id();
-		}
+
 		if (!mes.isIncoming()) {
 			const Conference *conf = qobject_cast<const Conference*>(mes.chatUnit());
 			if (conf && conf->me()) {
@@ -279,11 +276,22 @@ namespace AdiumChat
 
 		//FIXME
 		QString sender_name;
-		if (qobject_cast<Conference *>(session->getUnit()))
+		QString sender_id;
+		if (!mes.isIncoming()) {
+			const Conference *conf = qobject_cast<const Conference*>(mes.chatUnit());
+			if (conf && conf->me()) {
+				sender_name = conf->me()->title();
+				sender_id = conf->me()->id();
+			}
+			else {
+				sender_name = mes.chatUnit()->account()->name();
+				sender_id = mes.chatUnit()->account()->id();
+			}
+		}
+		else {
 			sender_name = mes.chatUnit()->title();
-		else
-			sender_name = mes.isIncoming() ? mes.chatUnit()->title() : mes.chatUnit()->account()->name();
-		QString sender_id = mes.isIncoming() ? mes.chatUnit()->id() : mes.chatUnit()->account()->id();
+			sender_id = mes.chatUnit()->id();
+		}
 
 		// Replace %sender% to name
 		html = html.replace("%sender%", Qt::escape(sender_name));
@@ -309,13 +317,6 @@ namespace AdiumChat
 		Message tmp_msg = mes;
 		QString html = m_current_style.statusHtml;
 		makeTime(html, mes.time());
-		QString title = mes.property("title").toString();
-		QString text;
-		if (title.isEmpty()) 
-			text = mes.text();
-		else 
-			text = mes.text().isEmpty() ? title : QString("<b>%1</b> %2").arg(title,mes.text());
-		tmp_msg.setProperty("html", text);
 		processMessage(html,session,tmp_msg);
 		return html;
 	}

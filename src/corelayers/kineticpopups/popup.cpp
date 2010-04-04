@@ -164,6 +164,14 @@ namespace KineticPopups
 			m_moving_animation->setEndValue(geom);
 			m_moving_animation->start();
 		}
+		//small hack
+		if (m_opacity_animation) {
+			m_opacity_animation->stop();
+			m_opacity_animation->setStartValue(1);
+			m_opacity_animation->setEndValue(1);
+			m_opacity_animation->start();
+		}
+
 		updateGeometry(geom);
 	}
 
@@ -180,7 +188,7 @@ namespace KineticPopups
 	
 	void Popup::onPopupActivated()
 	{
-		disconnect(m_notification_widget,SIGNAL(activated()),this,SLOT(onPopupActivated()));
+		m_notification_widget->disconnect(this);
 		
 		if (m_opacity_animation) {
 			m_show_state->addTransition(m_opacity_animation,SIGNAL(finished()),m_hide_state);

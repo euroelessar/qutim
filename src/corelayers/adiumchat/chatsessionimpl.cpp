@@ -36,7 +36,7 @@ namespace AdiumChat
 {
 
 	ChatSessionImpl::ChatSessionImpl ( ChatUnit* unit, ChatLayer* chat)
-	: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage),m_input(new QTextDocument(this))
+		: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage),m_input(new QTextDocument(this))
 	{
 		setChatUnit(unit);
 		m_input->setDocumentLayout(new QPlainTextDocumentLayout(m_input));
@@ -55,7 +55,7 @@ namespace AdiumChat
 			//if you create a session, it is likely that the chat state is active
 			setProperty("currentChatState",static_cast<int>(ChatStateActive));
 		}
-			
+
 		setChatState(ChatStateActive);
 	}
 
@@ -99,7 +99,7 @@ namespace AdiumChat
 
 	void ChatSessionImpl::addContact(Buddy* c)
 	{
-//		connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(statusChanged(qutim_sdk_0_3::Status)));
+		//		connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(statusChanged(qutim_sdk_0_3::Status)));
 		m_model->addContact(c);
 		emit buddiesChanged();
 	}
@@ -131,7 +131,6 @@ namespace AdiumChat
 		QString item;
 		if(message.text().startsWith("/me ")) {
 			message.setText(message.text().mid(3));
-			message.setProperty("title",message.isIncoming() ? message.chatUnit()->title() : message.chatUnit()->account()->name());
 			item = m_chat_style_output->makeAction(this,message);
 			m_previous_sender = 0;
 			m_skipOneMerge = true;
@@ -247,24 +246,24 @@ namespace AdiumChat
 		QString title = contact->status().name().toString();
 		
 		switch (contact->status().type()) {
-			case Status::Online: {
+		case Status::Online: {
 				ChatStateEvent ev (ChatStateActive);
 				setProperty("currentChatState",static_cast<int>(ChatStateActive));
 				qApp->sendEvent(this, &ev);
 				debug() << "State active";
 				break;
 			}
-			case Status::Offline: {
+		case Status::Offline: {
 				ChatStateEvent ev (ChatStateGone);
 				setProperty("currentChatState",static_cast<int>(ChatStateGone));
 				qApp->sendEvent(this, &ev);
 				type = Notifications::Offline;
 				break;
 			}
-			default:
-				type = Notifications::StatusChange;
-				//title = contact->status().property("title", QVariant()).toString();
-				break;
+		default:
+			type = Notifications::StatusChange;
+			//title = contact->status().property("title", QVariant()).toString();
+			break;
 		}
 		
 		//title = title.isEmpty() ? contact->status().name().toString() : title;
