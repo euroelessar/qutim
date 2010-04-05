@@ -2,6 +2,7 @@
 #include "src/modulemanagerimpl.h"
 #include "libqutim/icon.h"
 #include "libqutim/extensioninfo.h"
+#include <QApplication>
 
 namespace Core
 {
@@ -65,6 +66,7 @@ SimpleTray::SimpleTray()
 
 	setMenuOwner(qobject_cast<MenuController*>(getService("ContactList")));
 	m_icon->setContextMenu(menu(false));
+	qApp->setQuitOnLastWindowClosed(false);
 }
 
 void SimpleTray::onActivated(QSystemTrayIcon::ActivationReason reason)
