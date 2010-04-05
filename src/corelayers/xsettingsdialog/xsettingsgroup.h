@@ -36,7 +36,6 @@ signals:
 private:
 	SettingsItemList m_setting_list;
 	Ui::XSettingsGroup *ui;
-	QSet<SettingsWidget *> m_all_widgets;
 protected slots:
 	void currentRowChanged ( int );
 	void onWidgetModifiedChanged(bool haveChanges);

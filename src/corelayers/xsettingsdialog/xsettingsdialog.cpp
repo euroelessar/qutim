@@ -138,6 +138,7 @@ void XSettingsDialog::onActionTriggered ( QAction* action )
 		if (widget == 0) {
 			return;
 		} else if (ui->settingsStackedWidget->indexOf(widget) == -1) {
+			widget->setParent(this);
 			widget->load();
 			connect(widget,SIGNAL(modifiedChanged(bool)),SLOT(onWidgetModifiedChanged(bool)));
 			ui->settingsStackedWidget->addWidget(widget);

@@ -50,10 +50,10 @@ XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings
 void XSettingsGroup::currentRowChanged ( int index)
 {
 	SettingsWidget *widget = m_setting_list.at(index)->widget();
-	m_all_widgets.insert(widget);
 	if (widget == 0)
 		return;
 	if (ui->stackedWidget->indexOf(widget) == -1) {
+		widget->setParent(this);
 		widget->load();
 		ui->stackedWidget->addWidget(widget);
 		connect(widget,SIGNAL(modifiedChanged(bool)),SLOT(onWidgetModifiedChanged(bool)));
@@ -65,7 +65,6 @@ void XSettingsGroup::currentRowChanged ( int index)
 
 XSettingsGroup::~XSettingsGroup()
 {
-	qDeleteAll(m_all_widgets);
 }
 
 void XSettingsGroup::onWidgetModifiedChanged(bool haveChanges)
