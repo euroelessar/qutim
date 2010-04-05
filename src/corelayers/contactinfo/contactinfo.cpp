@@ -37,6 +37,7 @@ void InfoGroup::addItems(const QList<InfoItem> &items)
 			InfoGroup *group = new InfoGroup(this);
 			group->setTitle(item.title());
 			group->addItems(item.subitems());
+			group->setFlat(true);
 			m_layout->addWidget(group, m_row++, 0, 1, 2);
 		} else {
 			addItem(item);
