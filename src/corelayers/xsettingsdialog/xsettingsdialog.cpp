@@ -17,8 +17,6 @@
 #include "ui_xsettingsdialog.h"
 #include "xtoolbar.h"
 #include <QLayout>
-#include <QPropertyAnimation>
-#include <QStateMachine>
 #include <QDebug>
 #include <libqutim/icon.h>
 #include "xsettingsgroup.h"
@@ -26,12 +24,16 @@
 #include <libqutim/settingswidget.h>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QApplication>
+#include <QDesktopWidget>
 
 XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* parent) :
 		QDialog(parent),    ui(new Ui::XSettingsDialog)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	ui->setupUi(this);
+	QSize desktop_size = qApp->desktop()->size();
+	resize(desktop_size.width()/2,desktop_size.height()*2/3);
 	centerizeWidget(this);
 	//load settings
 	ConfigGroup general_group = Config("appearance").group("xsettings/general");
