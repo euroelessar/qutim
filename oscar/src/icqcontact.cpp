@@ -26,6 +26,8 @@
 #include <QApplication>
 #include <QVariant>
 
+Q_DECLARE_METATYPE(QHostAddress);
+
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
@@ -70,10 +72,30 @@ InfoItem IcqInfoRequest::item(const QString &name) const
 		foreach (const InfoItem &i, groups)
 			item.addSubitem(i);
 		InfoItem otherGroup(QT_TRANSLATE_NOOP("ContactInfo", "Other"));
-		QStringList caps;
-		foreach (const Capability &cap, m_contact->capabilities())
-			caps << cap.name();
-		otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Capabilities"), caps));
+		DirectConnectionInfo info = m_contact->dcInfo();
+		otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Internal IP"), QVariant::fromValue(info.internal_ip)));
+		otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "External IP"), QVariant::fromValue(info.external_ip)));
+		otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Port"), info.port));
+		otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Protocol version"), info.protocol_version));
+		{
+			QStringList caps;
+			foreach (const Capability &cap, m_contact->capabilities())
+				caps << cap.name();
+			otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Capabilities"), caps));
+		}
+		{
+			InfoItem dcGroup(QT_TRANSLATE_NOOP("ContactInfo", "Direct connection extra info"));
+			dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Last info update"),
+										   QString("0x%1").arg(info.info_utime, 0, 16)));
+			dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Last ext info update"),
+										   QString("0x%1").arg(info.extinfo_utime, 0, 16)));
+			dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Last ext status update"),
+										   QString("0x%1").arg(info.extstatus_utime, 0, 16)));
+			dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Client features"),
+										   QString("0x%1").arg(info.client_features, 0, 16)));
+			dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Cookie"), info.auth_cookie));
+			otherGroup.addSubitem(dcGroup);
+		}
 		item.addSubitem(otherGroup);
 		return item;
 	} else {
