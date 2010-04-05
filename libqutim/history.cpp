@@ -89,7 +89,7 @@ namespace qutim_sdk_0_3
 		else if (qobject_cast<Buddy*>(u))
 			buddy = u;
 		ChatUnit *p;
-		while (p = u->upperUnit()) {
+		while ((p = u->upperUnit()) != 0) {
 			if (qobject_cast<MetaContact*>(p)) {
 				break;
 			} else if (qobject_cast<Contact*>(p)) {
