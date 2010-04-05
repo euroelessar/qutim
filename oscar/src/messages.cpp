@@ -418,11 +418,14 @@ QString MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *con
 			}
 			TLVMap tlvs = data.read<TLVMap>();
 			quint16 ack = tlvs.value(0x0A).read<quint16>();
-			/* TLVs:
-			   0x03 – contact external ip;
-			   0x04 – contact internal ip;
-			   0x05 – contact port.
-			*/
+			if (contact) {
+				if (tlvs.contains(0x03))
+					contact->d_func()->dc_info.external_ip = QHostAddress(tlvs.value(0x04).read<quint32>());
+				if (tlvs.contains(0x04))
+					contact->d_func()->dc_info.internal_ip = QHostAddress(tlvs.value(0x04).read<quint32>());
+				if (tlvs.contains(0x04))
+					contact->d_func()->dc_info.port = tlvs.value(0x05).read<quint32>();
+			}
 			if (tlvs.contains(0x2711)) {
 				DataUnit data(tlvs.value(0x2711));
 				return handleTlv2711(data, contact, ack, msgCookie);
@@ -471,7 +474,7 @@ QString MessagesHandler::handleChannel4Message(const SNAC &snac, IcqContact *con
 QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, const Cookie &msgCookie)
 {
 	if (ack == 2 && !msgCookie.unlock()) {
-		debug().nospace() << "Skipped unexpected response message with cookie" << msgCookie.id();
+		debug().nospace() << "Skipped unexpected response message with cookie " << msgCookie.id();
 		return QString();
 	}
 	quint16 id = data.read<quint16>(LittleEndian);
@@ -479,7 +482,9 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 		debug() << "Unknown message id in TLV 2711";
 		return QString();
 	}
-	data.skipData(2); // skipped protocol version
+	quint16 version = data.read<quint16>(LittleEndian);
+	if (contact)
+		contact->d_func()->version = version;
 	Capability guid = data.read<Capability>();
 	data.skipData(9);
 	id = data.read<quint16>(LittleEndian);

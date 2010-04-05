@@ -81,6 +81,7 @@ struct IcqContactPrivate
 	quint16 version;
 	CapabilityFlags flags;
 	Capabilities capabilities;
+	DirectConnectionInfo dc_info;
 	QList<FeedbagItem> items;
 	QStringList tags;
 	ChatState state;

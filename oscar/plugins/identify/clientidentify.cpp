@@ -86,6 +86,10 @@ void ClientIdentify::identify(IcqContact *contact)
 	m_client_id.clear();
 	m_contact = contact;
 	m_client_caps = contact->capabilities();
+	m_client_proto = contact->dcInfo().protocol_version;
+	m_info = contact->dcInfo().info_utime;
+	m_ext_info = contact->dcInfo().extinfo_utime;
+	m_ext_status_info = contact->dcInfo().extstatus_utime;
 
 	foreach(const Capability &capability, m_client_caps)
 	{
@@ -166,18 +170,6 @@ void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TL
 		return;
 	}
 	if (contact->status() == Status::Offline) {
-		if (tlvs.contains(0x000c)) { // direct connection info
-			DataUnit data(tlvs.value(0x000c));
-			data.skipData(4); // ip
-			m_port = data.read<quint32>();
-			data.skipData(1); // dc type
-			m_client_proto = data.read<quint16>();
-			m_auth_cookie = data.read<quint32>();
-			data.skipData(8); // web front port + client futures
-			m_info = data.read<quint32>();
-			m_ext_info = data.read<quint32>();
-			m_ext_status_info = data.read<quint32>();
-		}
 		identify(contact);
 		contact->insertToolTipField(QT_TRANSLATE_NOOP("ContactList", "Possible client"), m_client_id);
 		debug() << contact->name() << "uses" << m_client_id;
@@ -335,7 +327,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 	// VERSION = 0
 	if (m_client_proto == 0) {
 		if (!m_info && !m_ext_status_info && !m_ext_info &&
-			!(m_port) && !(m_auth_cookie))
+			!(m_contact->dcInfo().port) && !(m_contact->dcInfo().auth_cookie))
 		{
 			if (TypingSupport() &&
 				m_client_caps.match(ICQ_CAPABILITY_IS2001) &&
@@ -439,7 +431,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 					(!m_client_caps.match(ICQ_CAPABILITY_ICQJSINxVER)))
 			{
 				if (!m_info && !m_ext_status_info && !m_ext_info) {
-					if (!(m_port)) {
+					if (!(m_contact->dcInfo().port)) {
 						setClientData("GnomeICU 0.99.5+", "unknown");
 					} else {
 						setClientData("IC@", "unknown");

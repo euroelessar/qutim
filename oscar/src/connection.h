@@ -61,6 +61,21 @@ struct LIBOSCAR_EXPORT ClientInfo
 	QByteArray country;
 };
 
+struct LIBOSCAR_EXPORT DirectConnectionInfo
+{
+	QHostAddress internal_ip;
+	QHostAddress external_ip;
+	quint32 port;
+	quint8 dc_type;
+	quint16 protocol_version;
+	quint32 auth_cookie;
+	quint32 web_front_port;
+	quint32 client_features;
+	quint32 info_utime; // last info update time (unix time_t)
+	quint32 extinfo_utime; // last ext info update time (i.e. icqphone status)
+	quint32 extstatus_utime; // last ext status update time (i.e. phonebook)
+};
+
 #ifdef OSCAR_SSL_SUPPORT
 typedef QSslSocket Socket;
 #else

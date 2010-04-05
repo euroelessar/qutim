@@ -384,6 +384,11 @@ const Capabilities &IcqContact::capabilities() const
 	return d_func()->capabilities;
 }
 
+const DirectConnectionInfo &IcqContact::dcInfo() const
+{
+	return d_func()->dc_info;
+}
+
 void IcqContact::setAvatar(const QString &avatar)
 {
 	Q_D(IcqContact);

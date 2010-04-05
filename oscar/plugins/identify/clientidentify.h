@@ -124,9 +124,7 @@ private:
 private:
 	IcqContact *m_contact;
 	Capabilities m_client_caps;
-	quint32 m_port;
 	quint16 m_client_proto;
-	quint32 m_auth_cookie;
 	quint32 m_info;
 	quint32 m_ext_status_info;
 	quint32 m_ext_info;

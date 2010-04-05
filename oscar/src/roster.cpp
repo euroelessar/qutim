@@ -437,7 +437,6 @@ void Roster::handleUserOnline(const SNAC &snac)
 			newCaps.push_back(Capability(data.readData(2)));
 	}
 	contact->d_func()->setCapabilities(newCaps);
-
 	if (tlvs.contains(0x000f))
 		contact->d_func()->onlineSince = QDateTime::fromTime_t(QDateTime::currentDateTime().toTime_t() - tlvs.value<quint32>(0x000f));
 	else if (tlvs.contains(0x0003))
@@ -456,6 +455,27 @@ void Roster::handleUserOnline(const SNAC &snac)
 		contact->d_func()->regTime = QDateTime::fromTime_t(tlvs.value<quint32>(0x0005));
 	else
 		contact->d_func()->regTime = QDateTime();
+
+	if (oldStatus == Status::Offline) {
+		if (tlvs.contains(0x000c)) { // direct connection info
+			DataUnit data(tlvs.value(0x000c));
+			DirectConnectionInfo info =
+			{
+				QHostAddress(data.read<quint32>()),
+				QHostAddress(),
+				data.read<quint32>(),
+				data.read<quint8>(),
+				data.read<quint16>(),
+				data.read<quint32>(),
+				data.read<quint32>(),
+				data.read<quint32>(),
+				data.read<quint32>(),
+				data.read<quint32>(),
+				data.read<quint32>()
+			};
+			contact->d_func()->dc_info = info;
+		}
+	}
 	setStatus(contact, status, tlvs);
 }
 
