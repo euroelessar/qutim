@@ -264,8 +264,9 @@ namespace AdiumChat
 
 	void ChatWidget::activate(AdiumChat::ChatSessionImpl* session)
 	{
-		activateWindow();
 		raise();
+		activateWindow();
+		
 		//TODO customize support
 		int index = m_sessions.indexOf(session);
 		debug() << "active index" << index;
@@ -300,16 +301,7 @@ namespace AdiumChat
 				chatStateChanged(chatEvent->chatState(),qobject_cast<ChatSessionImpl *>(obj));				
 			}
 		} else {
-			if (event->type() == QEvent::KeyPress) {
-				QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-				QString key = QString::number(keyEvent->key(), 16);
-				QString modifiers = QString::number(keyEvent->modifiers(), 16);
-// 				if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
-// 					if ((keyEvent->modifiers() & Qt::ControlModifier)) {
-// 						onSendButtonClicked();
-// 						return true;
-// 					}
-// 				}
+			if (QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event)) {
 				if (keyEvent->matches(QKeySequence::Copy) )
 				{
 					if (QWebView *view = qobject_cast<QWebView*>(obj))
