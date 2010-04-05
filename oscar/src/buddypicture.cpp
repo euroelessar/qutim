@@ -207,10 +207,9 @@ void BuddyPicture::disconnected()
 
 QString BuddyPicture::getAvatarDir() const
 {
-	return QString("%1/%2.%3/avatars/")
+	return QString("%1/avatars/%2")
 			.arg(SystemInfo::getPath(SystemInfo::ConfigDir))
-			.arg(account()->protocol()->id())
-			.arg(account()->id());
+			.arg(account()->protocol()->id());
 }
 
 bool BuddyPicture::setAvatar(QObject *obj, const QByteArray &hash)
