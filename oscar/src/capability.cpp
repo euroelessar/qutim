@@ -22,6 +22,9 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+typedef QHash<Capability, QString> CapName;
+Q_GLOBAL_STATIC(CapName, capName);
+
 Capability::Capability()
 {
 }
@@ -151,6 +154,14 @@ bool Capability::match(const Capability &c, quint8 len) const
 	}
 }
 
+QString Capability::name() const
+{
+	QString name = capName()->value(*this);
+	if (name.isNull())
+		return toString();
+	return name;
+}
+
 const QUuid &Capability::shortUuid()
 {
 	static const QUuid uuid("{09460000-4C7F-11D1-8222-444553540000}");
@@ -176,6 +187,46 @@ Capabilities::const_iterator Capabilities::find(const Capability &capability, qu
 		++itr;
 	}
 	return end_itr;
+}
+
+StandartCapability::StandartCapability(const QString &name, const QString &str) :
+	Capability(str)
+{
+	capName()->insert(*this, name);
+}
+
+StandartCapability::StandartCapability(const QString &name, const QByteArray &data) :
+	Capability(data)
+{
+	capName()->insert(*this, name);
+}
+
+StandartCapability::StandartCapability(const QString &name, quint32 d1, quint32 d2, quint32 d3, quint32 d4) :
+	Capability(d1, d2, d3, d4)
+{
+	capName()->insert(*this, name);
+}
+
+StandartCapability::StandartCapability(const QString &name, uint l, ushort w1, ushort w2, uchar b1,
+									   uchar b2, uchar b3, uchar b4, uchar b5, uchar b6, uchar b7, uchar b8) :
+	Capability(l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8)
+{
+	capName()->insert(*this, name);
+}
+
+StandartCapability::StandartCapability(const QString &name, quint8 d1, quint8 d2, quint8 d3, quint8 d4,
+		   quint8 d5, quint8 d6, quint8 d7, quint8 d8, quint8 d9, quint8 d10,
+		   quint8 d11, quint8 d12, quint8 d13, quint8 d14, quint8 d15, quint8 d16) :
+
+	Capability(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16)
+{
+	capName()->insert(*this, name);
+}
+
+StandartCapability::StandartCapability(const QString &name, quint16 data) :
+	Capability(data)
+{
+	capName()->insert(*this, name);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

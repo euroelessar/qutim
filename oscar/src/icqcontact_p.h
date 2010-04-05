@@ -61,6 +61,7 @@ private:
 	QPointer<FullInfoMetaRequest> m_metaReq;
 	MetaInfoValuesHash m_values;
 	State m_state;
+	IcqContact *m_contact;
 };
 
 struct IcqContactPrivate

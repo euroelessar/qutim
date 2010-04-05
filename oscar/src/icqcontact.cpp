@@ -31,7 +31,9 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 IcqInfoRequest::IcqInfoRequest(IcqContact *contact) :
-	m_metaReq(new FullInfoMetaRequest(contact->account(), contact)), m_state(Request)
+	m_metaReq(new FullInfoMetaRequest(contact->account(), contact)),
+	m_state(Request),
+	m_contact(contact)
 {
 	connect(m_metaReq, SIGNAL(done(bool)), SLOT(onDone(bool)));
 	m_metaReq->send();
@@ -67,6 +69,12 @@ InfoItem IcqInfoRequest::item(const QString &name) const
 		InfoItem item;
 		foreach (const InfoItem &i, groups)
 			item.addSubitem(i);
+		InfoItem otherGroup(QT_TRANSLATE_NOOP("ContactInfo", "Other"));
+		QStringList caps;
+		foreach (const Capability &cap, m_contact->capabilities())
+			caps << cap.name();
+		otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Capabilities"), caps));
+		item.addSubitem(otherGroup);
 		return item;
 	} else {
 		MetaInfoField field(name);
