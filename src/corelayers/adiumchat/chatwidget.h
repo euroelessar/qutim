@@ -31,7 +31,8 @@ namespace AdiumChat
 		AeroThemeIntegration	=	0x01,
 		ChatStateIconsOnTabs	=	0x02,
 		SendTypingNotification	=	0x04,
-		ShowUnreadMessages		=	0x08
+		ShowUnreadMessages		=	0x08,
+		SwitchDesktopOnRaise	=	0x10
 	};
 	Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
 	class ChatSessionImpl;
@@ -45,6 +46,7 @@ namespace AdiumChat
 		virtual ~ChatWidget();
 		bool contains (ChatSessionImpl *session);
 		QTextDocument *getInputField();
+		void raise();
 	public slots:
 		void addSession(ChatSessionImpl *session);
 		void addSession(const ChatSessionList &sessions);
