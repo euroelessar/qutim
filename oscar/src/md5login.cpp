@@ -59,8 +59,10 @@ void Md5Login::login()
 #endif
 	{
 		QHostInfo host = QHostInfo::fromName(cfg.value("host", "login.icq.com").toString());
-		quint16 port = cfg.value("port", 5190);
-		socket()->connectToHost(host.addresses().at(qrand() % host.addresses().size()), port);
+		if (!host.addresses().isEmpty()) {
+			quint16 port = cfg.value("port", 5190);
+			socket()->connectToHost(host.addresses().at(qrand() % host.addresses().size()), port);
+		}
 	}
 }
 
