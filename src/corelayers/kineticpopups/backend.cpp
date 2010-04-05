@@ -23,6 +23,7 @@
 #include "popupwidget.h"
 #include <libqutim/configbase.h>
 #include "settings/popupappearance.h"
+#include "settings/popupbehavior.h"
 #include <libqutim/settingslayer.h>
 #include <libqutim/icon.h>
 #include <libqutim/message.h>
@@ -45,6 +46,8 @@ namespace KineticPopups
 	{
 		GeneralSettingsItem<Core::PopupAppearance> *appearance = new GeneralSettingsItem<Core::PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
 		Settings::registerItem(appearance);
+		GeneralSettingsItem<Core::PopupBehavior> *behavior = new GeneralSettingsItem<Core::PopupBehavior>(Settings::General,Icon("dialog-information"),QT_TRANSLATE_NOOP("Settings","Notifications"));
+		Settings::registerItem(behavior);
 	}
 
 	void Backend::show(Notifications::Type type, QObject* sender, const QString& body,
