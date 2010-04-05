@@ -13,8 +13,11 @@ namespace Core {
 		Q_OBJECT
 	public:
 		AuthDialogImpl();
-		virtual void setContact(Contact* contact, const QString& text);
+		virtual void setContact(Contact* contact, const QString& text, bool incoming);
+		virtual QString text() const;
 		virtual ~AuthDialogImpl();
+	private slots:
+		void onFinished(int);
 	private:
 		QPointer<AuthDialogPrivate> p;
 	};

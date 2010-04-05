@@ -13,19 +13,30 @@ namespace Core {
 		ui(new Ui::AuthDialog)
 		{
 			ui->setupUi(this);
-			connect(ui->buttonBox,SIGNAL(accepted()),SIGNAL(accepted()));
-			connect(ui->buttonBox,SIGNAL(rejected()),SLOT(reject()));
 			setAttribute(Qt::WA_DeleteOnClose);
 		};
-		void show(qutim_sdk_0_3::Contact* contact, const QString& text) {
+		void show(qutim_sdk_0_3::Contact* contact, const QString& text, bool incoming)
+		{
 			ui->requestMessage->setText(text);
-			QString title = tr("Recieved authorizarion request from %1:").arg(contact->title());
+			QString title;
+			if (incoming) {
+				title = QT_TRANSLATE_NOOP("ContactInfo", "Recieved authorizarion request from %1:")
+						.toString().arg(contact->title());
+			} else {
+				title = QT_TRANSLATE_NOOP("ContactInfo", "Send authorizarion request to %1:")
+						.toString().arg(contact->title());
+			}
 			ui->requestTitle->setText(title);
 			setWindowTitle(title);
 			centerizeWidget(this);
 			QDialog::show();
 			raise();
 		}
+		QString text() const
+		{
+			return ui->requestMessage->toPlainText();
+		}
+
 		virtual ~AuthDialogPrivate() {
 			delete ui;
 		};

@@ -5,7 +5,17 @@ namespace qutim_sdk_0_3
 {
 	Q_GLOBAL_STATIC_WITH_ARGS(const ObjectGenerator*, data, (NULL))
 
-	AuthorizationDialog *AuthorizationDialog::request(Contact *contact, const QString &text)
+	class AuthorizationDialogPrivate
+	{
+	public:
+		Contact *contact;
+	};
+
+	AuthorizationDialog::~AuthorizationDialog()
+	{
+	}
+
+	AuthorizationDialog *AuthorizationDialog::request(Contact *contact, const QString &text, bool incoming)
 	{
 		const ObjectGenerator * &gen = *data();
 		if (!gen) {
@@ -16,11 +26,18 @@ namespace qutim_sdk_0_3
 			gen = *list.begin();
 		}
 		AuthorizationDialog *dialog = gen->generate<AuthorizationDialog>();
-		dialog->setContact(contact, text);
+		dialog->d->contact = contact;
+		dialog->setContact(contact, text, incoming);
 		return dialog;
 	}
 
-	AuthorizationDialog::AuthorizationDialog()
+	Contact *AuthorizationDialog::contact() const
+	{
+		return d->contact;
+	}
+
+	AuthorizationDialog::AuthorizationDialog() :
+		d(new AuthorizationDialogPrivate)
 	{
 	}
 

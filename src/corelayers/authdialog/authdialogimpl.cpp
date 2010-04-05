@@ -12,25 +12,35 @@ namespace Core {
 		QT_TRANSLATE_NOOP("Plugin", "Simple authorization dialog")
 	);	
 	
-	void AuthDialogImpl::setContact(qutim_sdk_0_3::Contact* contact, const QString& text)
+	void AuthDialogImpl::setContact(qutim_sdk_0_3::Contact* contact, const QString& text, bool incoming)
 	{
-		debug() << "Auth request from" << contact->title();
-		p->show(contact,text);
+		p->show(contact, text, incoming);
+	}
+
+	QString AuthDialogImpl::text() const
+	{
+		return p->text();
 	}
 
 	AuthDialogImpl::~AuthDialogImpl()
 	{
-		debug() << "Dialog deleted";
 	}
 	
 	AuthDialogImpl::AuthDialogImpl() :
 	p(new AuthDialogPrivate)
 	{
-		connect(p.data(),SIGNAL(accepted()),SIGNAL(accepted()));
-		connect(p.data(),SIGNAL(rejected()),SIGNAL(rejected()));		
-		connect(p.data(),SIGNAL(finished(int)),SLOT(deleteLater()));
+		connect(p.data(),SIGNAL(finished(int)),SLOT(onFinished(int)));
 		connect(p.data(),SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 	}
 
+	void AuthDialogImpl::onFinished(int result)
+	{
+		if (result == QDialog::Accepted)
+			emit accepted();
+		else
+			emit rejected();
+		emit finished(result == QDialog::Accepted);
+		deleteLater();
+	}
 
 }
