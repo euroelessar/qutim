@@ -40,6 +40,7 @@
 #define MESSAGE_SOURCE_APPLICATION    1
 #define MESSAGE_SOURCE_PAGER          2
 #endif //Q_WS_X11
+#include "conferencetabcompletion.h"
 
 namespace AdiumChat
 {
@@ -189,6 +190,17 @@ namespace AdiumChat
 			ui->contactsView->setVisible(true);
 		else
 			ui->contactsView->setVisible(session->getModel()->rowCount(QModelIndex()) > 0);
+		
+		if (ui->contactsView->isVisible()) {
+			
+			if (!m_tab_completion)
+				m_tab_completion = new ConfTabCompletion(this);
+			
+			m_tab_completion->setTextEdit(ui->chatEdit);
+			m_tab_completion->setChatSession(session);
+		}
+		else
+			m_tab_completion->deleteLater();
 
 		if (ui->chatView->page() != session->getPage()) {
 			ui->chatView->page()->setView(0);
@@ -309,7 +321,7 @@ namespace AdiumChat
 		if (obj->metaObject() == &ChatSessionImpl::staticMetaObject) {
 			if (event->type() == ChatStateEvent::eventType()) {
 				ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(event);
-				chatStateChanged(chatEvent->chatState(),qobject_cast<ChatSessionImpl *>(obj));				
+				chatStateChanged(chatEvent->chatState(),qobject_cast<ChatSessionImpl *>(obj));
 			}
 		} else {
 			if (QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event)) {
@@ -319,7 +331,7 @@ namespace AdiumChat
 						view->triggerPageAction(QWebPage::Copy);
 					return true;
 				}
-			}
+			}			 
 		}
 		return QObject::eventFilter(obj, event);
 	}

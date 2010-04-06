@@ -36,6 +36,7 @@ namespace AdiumChat
 	};
 	Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
 	class ChatSessionImpl;
+	class ConfTabCompletion;
 	class ChatWidget : public QMainWindow
 	{
 		Q_OBJECT
@@ -84,6 +85,7 @@ namespace AdiumChat
 		int m_self_chatstate_timer;
 		int m_timeout;
 		QPointer<QTextDocument> m_originalDoc;
+		QPointer<ConfTabCompletion> m_tab_completion;
 	};
 }
 #endif // CHATWIDGET_H
