@@ -6,7 +6,6 @@
 
 #include "connection/jconnection.h"
 #include "connection/jconnectionlistener.h"
-#include "jinputpassword.h"
 
 namespace Jabber {
 

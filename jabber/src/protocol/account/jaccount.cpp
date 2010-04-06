@@ -6,6 +6,7 @@
 #include "../jprotocol.h"
 #include "muc/jmucmanager.h"
 #include <qutim/systeminfo.h>
+#include <qutim/passworddialog.h>
 #include <qutim/debug.h>
 
 namespace Jabber {
@@ -25,6 +26,17 @@ namespace Jabber {
 		Presence::PresenceType status;
 		JMUCManager *conferenceManager;
 		QPointer<JServiceDiscovery> discoManager;
+	};
+
+	class JPasswordValidator : public QValidator
+	{
+		State validate(QString &input, int &pos) const
+		{
+			if (input.isEmpty())
+				return Intermediate;
+			else
+				return Acceptable;
+		}
 	};
 
 	JAccount::JAccount(const QString &jid) : Account(jid, JProtocol::instance()), p(new JAccountPrivate)
@@ -125,21 +137,22 @@ namespace Jabber {
 		if (ok)
 			*ok = true;
 		if (p->passwd.isEmpty()) {
-			JInputPassword *inputPasswd = new JInputPassword(id());
-			if (inputPasswd->exec()) {
-				p->passwd = inputPasswd->passwd();
-				if (inputPasswd->isSave()) {
-					config().group("general").setValue("passwd",
-							p->passwd,
-							Config::Crypted);
+			if (ok)
+				*ok = false;
+			PasswordDialog *dialog = PasswordDialog::request(this);
+			JPasswordValidator *validator = new JPasswordValidator();
+			dialog->setValidator(validator);
+			if (dialog->exec() == PasswordDialog::Accepted) {
+				if (ok)
+					*ok = true;
+				p->passwd = dialog->password();
+				if (dialog->remember()) {
+					config().group("general").setValue("passwd", p->passwd, Config::Crypted);
 					config().sync();
 				}
-			} else {
-				if (ok)
-					*ok = false;
 			}
-			inputPasswd->close();
-			delete inputPasswd;
+			delete validator;
+			delete dialog;
 		}
 		return p->passwd;
 	}
