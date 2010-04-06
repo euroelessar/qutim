@@ -15,6 +15,7 @@
 
 #include <QSet>
 
+#include "mrimaccount.h"
 #include "roster.h"
 #include "mrimcontact.h"
 
@@ -56,7 +57,7 @@ void MrimContact::setTags(const QSet<QString> &tags)
 
 void MrimContact::sendMessage(const Message &message)
 {
-    //TODO:
+    account()->connection()->messages()->send(message);
 }
 
 bool MrimContact::isInList() const

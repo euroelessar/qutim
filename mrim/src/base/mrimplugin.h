@@ -23,6 +23,7 @@ using namespace qutim_sdk_0_3;
 class MrimPlugin : public Plugin
 {
     Q_OBJECT
+    Q_CLASSINFO("DebugName","MRIM")
 public:
     MrimPlugin();
     void init();

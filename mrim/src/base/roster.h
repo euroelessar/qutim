@@ -19,6 +19,7 @@
 #include <QMultiMap>
 #include <QVariant>
 
+#include "mrimcontact.h"
 #include "protoutils.h"
 
 #include "mrimpacket.h"
@@ -59,6 +60,7 @@ public:
     virtual QList<quint32> handledTypes();
     virtual bool handlePacket(MrimPacket& packet);
     QString groupName(quint32 groupId) const;
+    MrimContact *getContact(const QString& id);
 
 protected:
     void addToList(class MrimContact *cnt);

@@ -210,3 +210,7 @@ void Roster::addToList(MrimContact *cnt)
     }
 }
 
+MrimContact *Roster::getContact(const QString& id)
+{
+    return p->contacts.value(id,0);
+}

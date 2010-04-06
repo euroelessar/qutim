@@ -32,6 +32,7 @@ public:
     ChatUnit *getUnit(const QString &unitId, bool create = false);
     MrimConnection *connection() const;
     Roster *roster() const;
+    void setStatus(Status status);
 
 private:
     QScopedPointer<MrimAccountPrivate> p;

@@ -37,10 +37,7 @@ MrimAccount::MrimAccount(const QString& email)
 
 ChatUnit *MrimAccount::getUnit(const QString &unitId, bool create)
 {
-    //TODO: roster functionality
-    Q_UNUSED(unitId);
-    Q_UNUSED(create);
-    return 0;
+    return p->roster->getContact(unitId);
 }
 
 MrimConnection *MrimAccount::connection() const
@@ -48,3 +45,8 @@ MrimConnection *MrimAccount::connection() const
 
 Roster *MrimAccount::roster() const
 { return p->roster.data(); }
+
+void MrimAccount::setStatus(Status status)
+{
+
+}

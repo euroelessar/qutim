@@ -1,6 +1,5 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
 PROJECT( MRIM )
-
+include(QutimPlugin)
 SET( QT_USE_QTNETWORK TRUE )
 ADD_QUTIMPLUGIN( "mrim" "src" )
-	

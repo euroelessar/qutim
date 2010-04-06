@@ -21,12 +21,15 @@
 
 #include <qutim/configbase.h>
 #include <qutim/status.h>
+#include <qutim/message.h>
 
 #include "mrimpacket.h"
+#include "messages.h"
 
 using namespace qutim_sdk_0_3;
 
 class MrimAccount;
+class MrimContact;
 struct MrimConnectionPrivate;
 
 class MrimConnection : public QObject,
@@ -59,7 +62,6 @@ public:
         FeatureFlagLast             =   FeatureFlagGames,
         FeatureFlagUAMask           =   ((FeatureFlagLast << 1) - 1)
     };
-
     Q_DECLARE_FLAGS(FeatureFlags,FeatureFlag)
 
 public:
@@ -75,6 +77,12 @@ public:
     FeatureFlags protoFeatures() const;
 	bool setStatus(const Status &status);
 
+    void sendPacket(MrimPacket &packet);
+    MrimAccount *account() const;
+    Messages *messages() const;
+
+public slots:
+
 protected slots:
     void connected();
     void disconnected();
@@ -82,11 +90,12 @@ protected slots:
     void sendPing();
 
 protected:
-    bool processPacket();
-    void sendGreetings();
-    void login();
+    virtual bool processPacket();
+    virtual void sendGreetings();
+    virtual void login();
     virtual QList<quint32> handledTypes();
     virtual bool handlePacket(class MrimPacket& packet);
+    virtual void loginRejected(const QString& reason);
 
 private:
     Q_DISABLE_COPY(MrimConnection)

@@ -20,10 +20,9 @@
 #include <QDebug>
 
 #include <qutim/contact.h>
-
+#include "mrimconnection.h"
 #include "useragent.h"
 #include "proto.h"
-#include "mrimaccount.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -47,7 +46,7 @@ public:
     Q_DECLARE_FLAGS(ContactFlags,ContactFlag)
 
 public:
-    MrimContact(MrimAccount *account);
+    MrimContact(class MrimAccount *account);
     virtual ~MrimContact();
 
     //from Contact

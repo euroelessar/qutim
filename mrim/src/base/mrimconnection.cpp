@@ -13,6 +13,7 @@
  ***************************************************************************
 *****************************************************************************/
 
+#include <QApplication>
 #include <QStringList>
 #include <QTcpSocket>
 #include <QHostAddress>
@@ -28,6 +29,7 @@
 #include "mrimaccount.h"
 #include "mrimpacket.h"
 #include "useragent.h"
+#include "messages.h"
 
 #include "mrimconnection.h"
 
@@ -60,6 +62,7 @@ struct MrimConnectionPrivate
     QScopedPointer<QTimer> pingTimer;
     QHandlersMap handlers;
     QList<quint32> handledTypes;
+    Messages *messages;
 };
 
 MrimConnection::MrimConnection(MrimAccount *account) : p(new MrimConnectionPrivate(account))
@@ -76,6 +79,7 @@ MrimConnection::MrimConnection(MrimAccount *account) : p(new MrimConnectionPriva
     UserAgent qutimAgent(QApplication::applicationName(),QApplication::applicationVersion(),
                          "(git)",PROTO_VERSION_MAJOR,PROTO_VERSION_MINOR); //TODO: real build version
     p->selfID.set(qutimAgent);
+    p->messages = new Messages(this);
 }
 
 MrimConnection::~MrimConnection()
@@ -85,6 +89,16 @@ MrimConnection::~MrimConnection()
     p->ReadyReadTimer()->disconnect(this);
     p->pingTimer->disconnect(this);
     close();
+}
+
+MrimAccount *MrimConnection::account() const
+{
+    return p->account;
+}
+
+Messages *MrimConnection::messages() const
+{
+    return p->messages;
 }
 
 void MrimConnection::start()
@@ -179,7 +193,8 @@ QList<quint32> MrimConnection::handledTypes()
         p->handledTypes << MRIM_CS_HELLO_ACK
                         << MRIM_CS_LOGIN_ACK
                         << MRIM_CS_LOGIN_REJ
-                        << MRIM_CS_LOGOUT;
+                        << MRIM_CS_LOGOUT
+                        << MRIM_CS_CONNECTION_PARAMS;
     }
     return p->handledTypes;
 }
@@ -199,7 +214,7 @@ bool MrimConnection::handlePacket(MrimPacket& packet)
             {
                 p->pingTimer->stop();
             }
-            p->pingTimer->setInterval(pingTimeout);
+            p->pingTimer->setInterval(pingTimeout*1000);
             login();
         }
         break;
@@ -207,7 +222,11 @@ bool MrimConnection::handlePacket(MrimPacket& packet)
         p->pingTimer->start();
         break;
     case MRIM_CS_LOGIN_REJ:
-        Notifications::sendNotification(Notifications::System,p->account,tr("Authentication failed!"));
+        {
+            QString reason;
+            packet.readTo(&reason);
+            loginRejected(reason);
+        }
         break;        
     case MRIM_CS_LOGOUT:
         {
@@ -220,6 +239,9 @@ bool MrimConnection::handlePacket(MrimPacket& packet)
                 //TODO: do not relogin
             }
         }
+        break;
+    case MRIM_CS_CONNECTION_PARAMS:
+        //do nothing
         break;
     default:
         handled = false;
@@ -390,5 +412,15 @@ void MrimConnection::sendPing()
 bool MrimConnection::setStatus(const Status &status)
 {
     //TODO:
-	return false;
+    return false;
+}
+
+void MrimConnection::loginRejected(const QString& reason)
+{
+    Notifications::sendNotification(Notifications::System,p->account,tr("Authentication failed! Access denied!"));
+}
+
+void MrimConnection::sendPacket(MrimPacket &packet)
+{
+    packet.writeTo(p->IMSocket());
 }
