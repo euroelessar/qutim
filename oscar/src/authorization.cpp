@@ -24,9 +24,12 @@ QObject *AuthorizeActionGenerator::generateHelper() const
 	QAction *action = prepareAction(new QAction(NULL));
 	MenuController *contact = action->data().value<MenuController*>();
 	Q_ASSERT(contact);
-	if (!contact->property("authorizedBy").toBool())
+	if (!contact->property("authorizedBy").toBool()) {
 		return action;
-	return 0;
+	} else {
+		delete action;
+		return 0;
+	}
 }
 
 Authorization::Authorization()
