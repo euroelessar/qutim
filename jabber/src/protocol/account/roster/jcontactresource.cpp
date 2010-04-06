@@ -119,7 +119,9 @@ namespace Jabber
 
 	QString JContactResource::avatar() const
 	{
-		return qobject_cast<JContact *>(d_func()->contact)->avatar();
+		if (Buddy *buddy = qobject_cast<Buddy*>(d_func()->contact))
+			return buddy->avatar();
+		return QString();
 	}
 
 	QString JContactResource::text() const
