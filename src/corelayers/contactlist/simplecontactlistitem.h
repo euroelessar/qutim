@@ -15,9 +15,9 @@ namespace Core
 		enum ItemDataRole
 		{
 			ItemDataType = Qt::UserRole ,
-			ItemStatusText,
-			ItemClientInfo,
-			ItemExtendedStatuses
+			ItemStatusRole,
+			ItemClientInfoRole,
+			ItemExtendedStatusesRole
 		};
 
 		enum ItemType

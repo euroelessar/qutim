@@ -27,13 +27,12 @@
 namespace Core
 {
 	static int m_vertical_padding = 3;
-	static int m_horizontal_padding = 5;
-	static int m_icon_size = 16;
+	static int m_horizontal_padding = 5;	
 	
 	namespace SimpleContactList
 	{
 		SimpleContactListDelegate::SimpleContactListDelegate(QObject *parent) :
-				QStyledItemDelegate(parent)
+				QAbstractItemDelegate(parent)
 		{
 		}
 		
@@ -42,89 +41,69 @@ namespace Core
 			QStyleOptionViewItemV4 opt(option);
 			QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
 			
-			const QAbstractItemModel *model = index.model();
+			ItemType type = static_cast<ItemType>(index.data(ItemDataType).toInt());
+			
+			QString name = index.data(Qt::DisplayRole).toString();
 
-			if (!model)
-				return;
-			
-			ItemType type = static_cast<ItemType>(model->data(index,ItemDataType).toInt());
-			
-			QString name = model->data(index,Qt::DisplayRole).toString();
-			QString status_text = model->data(index,ItemStatusText).toString();
+			QFont original_font = painter->font();
+			QPen original_pen = painter->pen();
+
+			QRect title_rect = option.rect;
+			title_rect.setLeft(title_rect.left() + option.decorationSize.width() + 2*m_horizontal_padding);
+			title_rect.setTop(title_rect.top() + m_vertical_padding);
+			title_rect.setBottom(title_rect.bottom() - m_vertical_padding);
 			
 			switch (type) {
 				case TagType: {
 					style->drawPrimitive(QStyle::PE_PanelButtonBevel,&opt,painter, opt.widget);
 					
-					QPixmap pixmap(option.rect.size());
-					pixmap.fill(Qt::transparent);				
-					QPainter p(&pixmap);
-					p.translate(-option.rect.topLeft());
-					
 					QFont font = opt.font;
 					font.setBold(true);
-					p.setFont(font);
+					painter->setFont(font);
 					
-					p.drawText(option.rect.left() + 2*m_horizontal_padding + m_icon_size,
-							   option.rect.top(),
-							   option.rect.right(),
-							   option.rect.height(),
-							   Qt::AlignLeft | Qt::AlignVCenter,
+					painter->drawText(title_rect,
+							   Qt::AlignVCenter,
 							   name  
 							   );
-					
-					p.end();
-					painter->drawPixmap(option.rect,pixmap);
-					
 					break;
 				}
 				case ContactType: {
 					style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
-					
-					
-					if (!status_text.isEmpty()) {
- 						QPixmap pixmap(option.rect.size());
-						pixmap.fill(Qt::transparent);				
-						QPainter p(&pixmap);
-						p.translate(-option.rect.topLeft());
-				
-						p.setPen(opt.palette.color(QPalette::Shadow));
+					QRect bounding;
+					painter->drawText(title_rect,
+							   Qt::AlignTop,
+							   name,
+							   &bounding
+							   );
+					Status status = index.data(ItemStatusRole).value<Status>();
+					if (!status.text().isEmpty()) {
+						QRect status_rect = title_rect;
+						status_rect.setTop(status_rect.top() + bounding.height());
+						painter->setPen(opt.palette.color(QPalette::Shadow));
 						QFont font = opt.font;
 						font.setPointSize(font.pointSize() - 1);
-						p.setFont(font);
-						p.drawText(option.rect.left() + 2*m_horizontal_padding + m_icon_size,
-								   option.rect.top(),
-								   option.rect.right(),
-								   option.rect.height(),
-								   Qt::AlignBottom,
-								   status_text.remove("\n")
-									);
-						p.end();
-						painter->drawPixmap(option.rect,pixmap);
-						
+						painter->setFont(font);
+						painter->drawText(status_rect,
+								   Qt::AlignTop | Qt::TextWordWrap,
+								   status.text().remove("\n")
+									);			
 					}
-					
-					painter->drawText(option.rect.left() + 2*m_horizontal_padding + m_icon_size,
-									  option.rect.top() + m_vertical_padding,
-									  option.rect.right(),
-									  option.rect.height() - m_vertical_padding,
-									  Qt::AlignTop,
-									  name  
-									);
 					
 					break;
 				}
 				default:
 					break;
 			}
+			painter->setPen(original_pen);
+			painter->setFont(original_font);
 			
-			QIcon item_icon = model->data(index, Qt::DecorationRole).value<QIcon>();
+			QIcon item_icon = index.data(Qt::DecorationRole).value<QIcon>();
 			item_icon.paint(painter,
-							option.rect.left() + m_horizontal_padding, //FIXME
-							option.rect.top(),
-							m_icon_size, //FIXME
-							option.rect.height(),
-							Qt::AlignVCenter);
+							option.rect.left() + m_horizontal_padding,
+							option.rect.top() + m_vertical_padding,
+							option.decorationSize.width(),
+							option.decorationSize.height(),
+							Qt::AlignTop);
 		}
 
 		
@@ -156,20 +135,25 @@ namespace Core
 		
 		QSize SimpleContactListDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 		{
-			QSize size = QStyledItemDelegate::sizeHint(option, index);
+			QRect rect = option.rect;
+			rect.setLeft(rect.left() + 2*m_horizontal_padding + option.decorationSize.width());
+			QFontMetrics metrics = option.fontMetrics;
+			int height = metrics.boundingRect(rect, Qt::TextSingleLine,
+					index.data(Qt::DisplayRole).toString()).height();
 
-			const QAbstractItemModel *model = index.model();
-
-			if (!model)
-				return size;
-
-			int height = m_icon_size + 2 * m_vertical_padding;
-			if (!model->data(index,ItemStatusText).toString().isEmpty())
-				height += option.font.pointSize();
-				
-				
-			height = (model->data(index,ItemDataType).toInt() == TagType) ? m_icon_size + m_vertical_padding : height;
-			size.rheight() = height;	
+			Status status = index.data(ItemStatusRole).value<Status>();
+			if (!status.text().isEmpty()) {
+				QFont desc_font = option.font;
+				desc_font.setPointSize(desc_font.pointSize() -1);
+				metrics = QFontMetrics(desc_font);
+				height += metrics.boundingRect(rect,
+											   Qt::TextSingleLine,
+											   status.text().remove("\n")
+											   ).height();
+			}
+			height = qMax(option.decorationSize.height(),height);
+			height += 2*m_vertical_padding;
+			QSize size (option.rect.width(),height);
 			return size;
 		}
 

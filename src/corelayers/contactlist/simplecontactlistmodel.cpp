@@ -139,8 +139,8 @@ namespace Core
 						return item->data->contact->status().icon();
 					case ItemDataType:
 						return ContactType;
-					case ItemStatusText:
-						return item->data->contact->status().text();
+					case ItemStatusRole:
+						return qVariantFromValue(item->data->contact->status());
 					default:
 						return QVariant();
 					}

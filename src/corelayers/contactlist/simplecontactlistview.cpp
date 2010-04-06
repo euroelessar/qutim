@@ -7,6 +7,8 @@ namespace Core
 {
 	namespace SimpleContactList
 	{
+		static int m_icon_size = 16;
+
 		TreeView::TreeView(QWidget *parent) : QTreeView(parent)
 		{
 			connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onClick(QModelIndex)));
@@ -15,6 +17,7 @@ namespace Core
 			setRootIsDecorated(false);
 			setIndentation(0);
 			setEditTriggers(QAbstractItemView::EditKeyPressed);
+			setIconSize(QSize(m_icon_size,m_icon_size));
 		}
 
 		void TreeView::onClick(const QModelIndex &index)

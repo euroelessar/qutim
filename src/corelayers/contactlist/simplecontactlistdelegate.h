@@ -16,13 +16,13 @@
 #ifndef SIMPLECONTACTLISTDELEGATE_H
 #define SIMPLECONTACTLISTDELEGATE_H
 
-#include <QStyledItemDelegate>
+#include <QAbstractItemDelegate>
 
 namespace Core
 {
 	namespace SimpleContactList
 	{
-		class SimpleContactListDelegate : public QStyledItemDelegate
+		class SimpleContactListDelegate : public QAbstractItemDelegate
 		{
 			Q_OBJECT
 		public:
