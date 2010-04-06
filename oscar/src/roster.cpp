@@ -97,8 +97,6 @@ Roster::Roster(IcqAccount *account):
 {
 	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
 			<< SNACInfo(ListsFamily, ListsError)
-			<< SNACInfo(ListsFamily, ListsAuthRequest)
-			<< SNACInfo(ListsFamily, ListsSrvAuthResponse)
 			<< SNACInfo(ListsFamily, ListsList)
 			<< SNACInfo(BuddyFamily, UserOnline)
 			<< SNACInfo(BuddyFamily, UserOffline)
@@ -164,9 +162,7 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 			// TODO: emit ...
 		}
 		// auth
-		bool new_auth = !item.containsField(SsiBuddyReqAuth);
-		contact->setProperty("authorized", new_auth);
-		// TODO: emit ...
+		contact->setProperty("authorizedBy", !item.containsField(SsiBuddyReqAuth));
 		if (creating) {
 			if (ContactList::instance()) {
 				loadTagsFromFeedbag(contact);
@@ -344,21 +340,6 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 		//              8 = Use reject for not authorized contacts
 		snac.appendTLV<quint16>(0x05, buddyFlags); // mimic ICQ 6
 		m_conn->send(snac);
-		break;
-	}
-	case ListsFamily << 16 | ListsAuthRequest: {
-		sn.skipData(8); // cookie
-		QString uin = sn.read<QString, quint8>();
-		QString reason = sn.read<QString, qint16>();
-		debug() << QString("Authorization request from \"%1\" with reason \"%2").arg(uin).arg(reason);
-		break;
-	}
-	case ListsFamily << 16 | ListsSrvAuthResponse: {
-		sn.skipData(8); // cookie
-		QString uin = sn.read<QString, qint8>();
-		bool is_accepted = sn.read<qint8>();
-		QString reason = sn.read<QString, qint16>();
-		debug() << "Auth response" << uin << is_accepted << reason;
 		break;
 	}
 	case ListsFamily << 16 | ListsList: {

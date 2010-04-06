@@ -52,8 +52,6 @@ public:
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
 	virtual InfoRequest *infoRequest() const;
-	void authResponse(const QString &message, bool auth = true);
-	void authRequest(const QString &message);
 	IcqAccount *account();
 	const Capabilities &capabilities() const;
 	const DirectConnectionInfo &dcInfo() const;

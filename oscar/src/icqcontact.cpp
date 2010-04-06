@@ -378,24 +378,6 @@ InfoRequest *IcqContact::infoRequest() const
 	return new IcqInfoRequest(const_cast<IcqContact*>(this));
 }
 
-void IcqContact::authResponse(const QString &message, bool auth)
-{
-	SNAC snac(ListsFamily, ListsCliAuthResponse);
-	snac.append<qint8>(id()); // uin.
-	snac.append<qint8>(auth ? 0x01 : 0x00); // auth flag.
-	snac.append<qint16>(message);
-	account()->connection()->send(snac);
-}
-
-void IcqContact::authRequest(const QString &message)
-{
-	SNAC snac(ListsFamily, ListsRequestAuth);
-	snac.append<qint8>(id()); // uin.
-	snac.append<qint16>(message);
-	snac.append<quint16>(0);
-	account()->connection()->send(snac);
-}
-
 IcqAccount *IcqContact::account()
 {
 	return d_func()->account;
