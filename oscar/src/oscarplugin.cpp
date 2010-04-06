@@ -18,6 +18,7 @@
 #include "icqprotocol.h"
 #include <metainfo_p.h>
 #include "authorization_p.h"
+#include "privacylists_p.h"
 #include "ui/accountcreator.h"
 #include "filetransfer.h"
 #include <qutim/icon.h>
@@ -63,6 +64,10 @@ void OscarPlugin::init()
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar authorization support"),
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar authorization support"),
 				 new SingletonGenerator<Authorization, SNACHandler>(),
+				 ExtensionIcon("im-icq"));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar privacy lists"),
+				 QT_TRANSLATE_NOOP("Plugin", "Oscar privacy lists"),
+				 new SingletonGenerator<PrivacyLists, FeedbagItemHandler>(),
 				 ExtensionIcon("im-icq"));
 }
 

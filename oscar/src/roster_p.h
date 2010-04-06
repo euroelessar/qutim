@@ -30,26 +30,6 @@ namespace oscar {
 
 class OscarConnection;
 
-class PrivateListActionGenerator : public ActionGenerator
-{
-public:
-	PrivateListActionGenerator(quint16 type, const QIcon &icon,
-				const LocalizedString &text1, const LocalizedString &text2);
-	virtual ~PrivateListActionGenerator();
-protected:
-	virtual QObject *generateHelper() const;
-private:
-	quint16 m_type;
-	LocalizedString m_text2;
-};
-
-class PrivateListActionHandler : public QObject
-{
-	Q_OBJECT
-public slots:
-	void onModifyPrivateList();
-};
-
 class Roster : public QObject, public SNACHandler, public FeedbagItemHandler
 {
 	Q_OBJECT
