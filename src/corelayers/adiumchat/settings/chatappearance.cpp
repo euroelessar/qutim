@@ -14,21 +14,21 @@
 *****************************************************************************/
 #include "chatappearance.h"
 #include "ui_chatappearance.h"
+#include "chatvariable.h"
 #include "../chatstyle.h"
 #include "../chatstyleoutput.h"
-#include <QDebug>
 #include <libqutim/configbase.h>
+#include <libqutim/protocol.h>
+#include <libqutim/account.h>
+#include <libqutim/notificationslayer.h>
+#include <libqutim/libqutim_global.h>
 #include <QWebFrame>
 #include <QLabel>
 #include <QSpacerItem>
 #include <QFormLayout>
-#include <libqutim/protocol.h>
-#include <libqutim/account.h>
-#include <libqutim/notificationslayer.h>
 #include <QDateTime>
-#include <libqutim/libqutim_global.h>
+#include <QStringBuilder>
 #include <QDebug>
-#include "chatvariable.h"
 
 namespace Core
 {
@@ -86,7 +86,6 @@ namespace Core
 			connect(ui->chatBox,SIGNAL(currentIndexChanged(int)),SLOT(onThemeChanged(int)));
 			m_page = m_chat_session->getPage();
 			ui->chatPreview->setPage(m_page);
-			//makePage();
 			connect(this, SIGNAL(destroyed()), account, SLOT(deleteLater()));
 			connect(this, SIGNAL(destroyed()), m_chat_session, SLOT(deleteLater()));
 		}
@@ -127,6 +126,11 @@ namespace Core
 		adium_chat.setValue("name",m_current_style_name);
 		adium_chat.setValue("variant",m_current_variant);
 		adium_chat.sync();
+		ConfigGroup variables = Config("appearance/adiumChat").group(m_current_style_name);
+		int index = 0;
+		foreach (ChatVariable *widget, m_current_variables)
+			variables.at(index++).setValue("value", widget->style().value);
+		variables.sync();
 	}
 
 	void ChatAppearance::getThemes()
@@ -163,12 +167,12 @@ namespace Core
 		QString css;
 		foreach (ChatVariable *widget, m_current_variables)
 			if (widget)
-				css.append(QString("%1 { %2: %3; }")
-						.arg(widget->style().selectors)
+				css.append(QString("%1 { %2: %3; } ")
+						.arg(widget->style().selector)
 						.arg(widget->style().parameter)
 						.arg(widget->style().value));
-		//m_chat_session->setCustomStyle(css);
-		qDebug() << css;
+		QString js = QString("setCustomStylesheet('%1');").arg(css);
+		m_chat_session->evaluateJavaScript(js);
 		emit modifiedChanged(true);
 	}
 
@@ -202,6 +206,7 @@ namespace Core
 	}
 
 	void ChatAppearance::makeSettings() {
+		m_current_variables.clear();
 		if (settingsWidget)
 			delete settingsWidget;
 		settingsWidget = new QWidget();
@@ -228,25 +233,17 @@ namespace Core
 		}
 		Config achat(QStringList() << "appearance/adiumChat" << getThemePath(category,m_current_style_name)
 				.append("/Contents/Resources/custom.json"));
-		qDebug() << getThemePath(category,m_current_style_name).append("/Contents/Resources/custom.json");
-		ConfigGroup variables = achat.group(m_current_style_name);
+		const ConfigGroup variables = achat.group(m_current_style_name);
 		int count = variables.arraySize();
-		qDebug() << m_current_style_name << achat.groupList();
-		try {
-			qDebug() << achat.group("default").groupList();
-		} catch (int e) {
-			qDebug() << e;
-		}
-
 		for (int num = 0; num < count; num++) {
 			ConfigGroup parameter = variables.at(num);
 			QString type = parameter.value("type", QString());
 			CustomChatStyle style;
 			style.parameter = parameter.value("parameter", QString());
-			style.selectors = parameter.value("selectors", QString());
+			style.selector = parameter.value("selector", QString());
 			style.value = parameter.value("value", QString());
 			if (type == "font") {
-				QLabel *label = new QLabel(parameter.value("label", QString()));
+				QLabel *label = new QLabel(parameter.value("label", QString())%":");
 				label->setSizePolicy(sizePolicy);
 				ChatFont *fontField = new ChatFont(style);
 				layout->addRow(label, fontField);
@@ -254,7 +251,7 @@ namespace Core
 				if (ChatVariable *widget = qobject_cast<ChatVariable*>(fontField))
 					m_current_variables.append(widget);
 			} else if (type == "color") {
-				QLabel *label = new QLabel(parameter.value("label", QString()));
+				QLabel *label = new QLabel(parameter.value("label", QString())%":");
 				label->setSizePolicy(sizePolicy);
 				ChatColor *colorField = new ChatColor(style);
 				layout->addRow(label, colorField);
@@ -262,116 +259,33 @@ namespace Core
 				if (ChatVariable *widget = qobject_cast<ChatVariable*>(colorField))
 					m_current_variables.append(widget);
 			} else if (type == "numeric") {
-				QLabel *label = new QLabel(parameter.value("label", QString()));
+				QLabel *label = new QLabel(parameter.value("label", QString())%":");
 				label->setSizePolicy(sizePolicy);
 				double min = parameter.value<double>("min", 0);
-				double max = parameter.value<double>("min", 0);
-				double step = parameter.value<double>("min", 1);
+				double max = parameter.value<double>("max", 0);
+				double step = parameter.value<double>("step", 1);
 				ChatNumeric *numField = new ChatNumeric(style, min, max, step);
 				layout->addRow(label, numField);
-				connect(numField, SIGNAL(changeValue()), SLOT(changeVariable()));
+				connect(numField, SIGNAL(changeValue()), SLOT(onVariableChanged()));
 				if (ChatVariable *widget = qobject_cast<ChatVariable*>(numField))
+					m_current_variables.append(widget);
+			} else if (type == "boolean") {
+				QString trueValue = parameter.value("true", QString());
+				QString falseValue = parameter.value("false", QString());
+				ChatBoolean *boolField = new ChatBoolean(style, trueValue, falseValue);
+				boolField->setText(parameter.value("label", QString()));
+				layout->addRow(boolField);
+				connect(boolField, SIGNAL(changeValue()), SLOT(onVariableChanged()));
+				if (ChatVariable *widget = qobject_cast<ChatVariable*>(boolField))
 					m_current_variables.append(widget);
 			}
 		}
-		/*m_current_style_variables.clear();
-		StyleVariables style_variables;
-		StyleVariable a, b, c;
-		a.desc = "test test";
-		a.label = "Font:";
-		a.name = "messageFont";
-		a.type = FONT;
-		a.value = "italic 12pt Times New Roman";
-		b.desc = "tost tost";
-		b.label = "Animation duration:";
-		b.name = "animationDuration";
-		b.type = NUMERIC;
-		b.value = "1.2";
-		b.range = "0;5;0.1";
-		c.desc = "ti ti";
-		c.label = "Animation color:";
-		c.name = "animationColor";
-		c.type = COLOR;
-		c.value = "#A0FFFF";
-		style_variables << a << b << c;
-		//m_current_style_variables = Config("appearance/adiumChat").group("style");
-		foreach (StyleVariable style, style_variables)
-			{
-				switch (style.type)
-				{
-					case COLOR:
-						{
-							QLabel *label = new QLabel(style.label);
-							label->setSizePolicy(sizePolicy);
-							ChatColor *colorField = new ChatColor(style);
-							layout->addRow(label, colorField);
-							connect(colorField, SIGNAL(changeValue()), SLOT(changeVariable()));
-							ChatVariable *widget = qobject_cast<ChatVariable*>(colorField);
-							if (widget)
-								m_current_style_variables.append(widget);
-						}
-						break;
-					case FONT:
-						{
-							QLabel *label = new QLabel(style.label);
-							label->setSizePolicy(sizePolicy);
-							ChatFont *fontField = new ChatFont(style);
-							layout->addRow(label, fontField);
-							connect(fontField, SIGNAL(changeValue()), SLOT(changeVariable()));
-							ChatVariable *widget = qobject_cast<ChatVariable*>(fontField);
-							if (widget)
-								m_current_style_variables.append(widget);
-							//m_current_style_variables << qobject_cast<QWidget*>(fontField);
-						}
-						break;
-					case BACKGROUND:
-						break;
-					case NUMERIC:
-						{
-							QLabel *label = new QLabel(style.label);
-							label->setSizePolicy(sizePolicy);
-							ChatNumeric *numField = new ChatNumeric(style);
-							layout->addRow(label, numField);
-							connect(numField, SIGNAL(changeValue()), SLOT(changeVariable()));
-							ChatVariable *widget = qobject_cast<ChatVariable*>(numField);
-							if (widget)
-								m_current_style_variables.append(widget);
-							//m_current_style_variables << qobject_cast<QWidget>(numField);
-						}
-						break;
-				}
-			}*/
-			QSpacerItem *space = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
-			layout->addItem(space);
-			ui->scrollAreaLayout->addWidget(settingsWidget);
-		}
+		QSpacerItem *space = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+		layout->addItem(space);
+		ui->scrollAreaLayout->addWidget(settingsWidget);
+	}
 
 
 
 
 }
-
-/*StyleVariants variants = ChatStyleGenerator::listVariants(getThemePath(category,name)
-					.append("/Contents/Resources/Variants"));
-			if (variants.isEmpty()) {
-				ui->chatBox->addItem(name,data);
-				if (!index_found && name == m_current_style_name)
-				{
-					index_found = true;
-					default_index = ui->chatBox->count() - 1;
-				}
-			}
-			else
-			{
-				StyleVariants::const_iterator it;
-				for (it=variants.begin();it!=variants.end();it++) {
-					data["variant"] = it.key();
-					ui->chatBox->addItem(tr("%1 (%2)").arg(name).arg(it.key()),data);
-					if (!index_found && name == m_current_style_name && it.key() == m_current_variant)
-					{
-						index_found = true;
-						default_index = ui->chatBox->count() - 1;
-					}
-				}
-			}*/
-

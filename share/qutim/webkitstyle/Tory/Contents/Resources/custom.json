@@ -1,0 +1,20 @@
+{
+ "Tory": [
+   {
+    "type": "font",
+    "label": "Chat font",
+    "selector": "body",
+    "parameter": "font",
+    "value": "8pt Verdana"
+   },
+   {
+    "type": "boolean",
+    "label": "Animated new messages",
+    "selector": ".message",
+    "parameter": "-webkit-animation-duration",
+    "value": "0s",
+    "true": "1.2s",
+    "false": "0s"
+   }
+ ]
+}

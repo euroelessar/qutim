@@ -101,8 +101,21 @@ namespace AdiumChat
 	void ChatStyleOutput::loadSettings()
 	{
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
-		QString path = getThemePath("webkitstyle", adium_chat.value<QString>("name","default"));
+		QString theme = adium_chat.value<QString>("name","default");
+		QString path = getThemePath("webkitstyle", theme);
 		QString variant = adium_chat.value<QString>("variant", QString());
+		Config achat(QStringList() << "appearance/adiumChat"
+				<< getThemePath("webkitstyle",theme).append("/Contents/Resources/custom.json"));
+		const ConfigGroup variables = achat.group(theme);
+		int count = variables.arraySize();
+		QString css;
+		for (int num = 0; num < count; num++) {
+			ConfigGroup parameter = variables.at(num);
+			css.append(QString("%1 { %2: %3; } ")
+					.arg(parameter.value("parameter", QString()))
+					.arg(parameter.value("selector", QString()))
+					.arg(parameter.value("value", QString())));
+		}
 		loadTheme(path,variant);
 		m_current_datetime_format = adium_chat.value<QString>("datetimeFormat","hh:mm:ss dd/MM/yyyy");
 	}

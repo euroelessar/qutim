@@ -9,12 +9,13 @@
 #include <QColorDialog>
 #include <QColor>
 #include <QDoubleSpinBox>
+#include <QCheckBox>
 
 namespace Core
 {
 	struct CustomChatStyle
 	{
-		QString selectors;
+		QString selector;
 		QString parameter;
 		QString value;
 	};
@@ -76,6 +77,24 @@ namespace Core
 			void onChangeValue();
 		private:
 			CustomChatStyle m_style;
+	};
+
+	class ChatBoolean : public QCheckBox, ChatVariable
+	{
+		Q_OBJECT
+		Q_INTERFACES(Core::ChatVariable)
+		public:
+			ChatBoolean(const CustomChatStyle &style,
+					const QString &trueValue, const QString &falseValue,  QWidget *parent = 0);
+			const CustomChatStyle &style();
+		signals:
+			void changeValue();
+		private slots:
+			void onChangeValue();
+		private:
+			CustomChatStyle m_style;
+			QString m_trueValue;
+			QString m_falseValue;
 	};
 }
 

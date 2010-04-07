@@ -1,4 +1,5 @@
 #include "chatvariable.h"
+#include <QStringBuilder>
 
 namespace Core
 {
@@ -15,35 +16,38 @@ namespace Core
 		connect(changeButton, SIGNAL(clicked()), SLOT(changeCurrentFont()));
 		layout->addWidget(fontLabel);
 		layout->addWidget(changeButton);
-		int sec = 0;
-		QString cvalue = style.value.section(" ", sec, sec);
+		QString cvalue = style.value;
 		QFont fvalue;
+		QRegExp rxBold("(bold)");
+		QRegExp rxItalic("(italic)");
+		QRegExp rxSCaps("(small-caps)");
 		QRegExp rxSize("(\\d+)(pt|px)");
-		while (!cvalue.isEmpty())
-		{
-			if (cvalue == "bold")
-				fvalue.setBold(true);
-			else if (cvalue == "italic")
-				fvalue.setItalic(true);
-			else if (cvalue == "small-caps")
-				fvalue.setCapitalization(QFont::SmallCaps);
-			else if (cvalue.contains(rxSize))
-			{
-				if (rxSize.cap(2) == "pt")
-					fvalue.setPointSize(rxSize.cap(1).toInt());
-				else
-					fvalue.setPixelSize(rxSize.cap(1).toInt());
-				break;
-			}
-			sec++;
-			cvalue = style.value.section(" ", sec, sec);
+		if (cvalue.contains(rxSize)) {
+			if (rxSize.cap(2) == "pt")
+				fvalue.setPointSize(rxSize.cap(1).toInt());
+			else
+				fvalue.setPixelSize(rxSize.cap(1).toInt());
+			cvalue.remove(rxSize);
 		}
-		fvalue.setFamily(style.value.section(" ", ++sec));
+		if (cvalue.contains(rxBold)) {
+			fvalue.setBold(true);
+			cvalue.remove(rxBold);
+		}
+		if (cvalue.contains(rxItalic)) {
+			fvalue.setItalic(true);
+			cvalue.remove(rxItalic);
+		}
+		if (cvalue.contains(rxSCaps)) {
+			fvalue.setCapitalization(QFont::SmallCaps);
+			cvalue.remove(rxBold);
+		}
+		cvalue = cvalue.simplified();
+		fvalue.setFamily(cvalue);
 		fontLabel->setFont(fvalue);
 		fontLabel->setText(QString("%1 %2").arg(fvalue.pointSize() != -1
 				? QString("%1pt").arg(fvalue.pointSize())
 				: QString("%1px").arg(fvalue.pixelSize())).arg(fvalue.family()));
-		m_style.selectors = style.selectors;
+		m_style.selector = style.selector;
 		m_style.parameter = style.parameter;
 	}
 
@@ -53,12 +57,8 @@ namespace Core
 		QString fontSize(fvalue.pointSize() != -1
 				? QString("%1pt ").arg(fvalue.pointSize())
 				: QString("%1px ").arg(fvalue.pixelSize()));
-		m_style.value = QString("%1 %2 %3 %4 %5; }")
-				.arg(fvalue.bold() ? "bold" : "")
-				.arg(fvalue.italic() ? "italic " : "")
-				.arg(fvalue.capitalization() ? "small-caps " : "")
-				.arg(fontSize)
-				.arg(fvalue.family());
+		m_style.value = QString(fvalue.bold() ? "bold " : "") % QString(fvalue.italic() ? "italic " : "")
+				% QString(fvalue.capitalization() ? "small-caps " : "") % fontSize % fvalue.family();
 		return m_style;
 	}
 
@@ -82,7 +82,7 @@ namespace Core
 		color = QColor(style.value);
 		connect(this, SIGNAL(clicked()), SLOT(changeCurrentColor()));
 		setStyleSheet("background: "+color.name());
-		m_style.selectors = style.selectors;
+		m_style.selector = style.selector;
 		m_style.parameter = style.parameter;
 	}
 
@@ -108,13 +108,13 @@ namespace Core
 			double min, double max, double step, QWidget *parent) : QDoubleSpinBox(parent)
 	{
 		connect(this, SIGNAL(valueChanged(double)), SLOT(onChangeValue()));
-		//int dec = m_style.range.section(";", 2, 2).section(".", 1).length();
+		int dec = QString::number(step).section(".", 1).length();
 		setMinimum(min);
 		setMaximum(max);
 		setSingleStep(step);
-		//setDecimals(dec);
+		setDecimals(dec);
 		setValue(style.value.toDouble());
-		m_style.selectors = style.selectors;
+		m_style.selector = style.selector;
 		m_style.parameter = style.parameter;
 	}
 
@@ -125,6 +125,31 @@ namespace Core
 	}
 
 	void ChatNumeric::onChangeValue()
+	{
+		emit changeValue();
+	}
+
+	ChatBoolean::ChatBoolean(const CustomChatStyle &style,
+			const QString &trueValue, const QString &falseValue, QWidget *parent) : QCheckBox(parent)
+	{
+		connect(this, SIGNAL(toggled(bool)), SLOT(onChangeValue()));
+		m_trueValue = trueValue;
+		m_falseValue = falseValue;
+		if (style.value == m_trueValue)
+			setChecked(true);
+		else
+			setChecked(false);
+		m_style.selector = style.selector;
+		m_style.parameter = style.parameter;
+	}
+
+	const CustomChatStyle &ChatBoolean::style()
+	{
+		m_style.value = isChecked() ? m_trueValue : m_falseValue;
+		return m_style;
+	}
+
+	void ChatBoolean::onChangeValue()
 	{
 		emit changeValue();
 	}

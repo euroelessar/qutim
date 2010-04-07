@@ -1,0 +1,34 @@
+@import url("../main.css");
+
+body {
+	background: url('../Images/background.png') repeat;
+}
+
+.in {
+	color: red;
+}
+
+.out {
+	color: blue;
+}
+
+.inAction, .outAction {
+	color: green;
+	padding-left: 14pt;
+	background: url('../Images/action.png') left center no-repeat;
+}
+
+.m_sending {
+	border-left: 2pt solid #FFFFA0;
+	padding-left: 4pt;
+}
+
+.m_sended {
+	border-left: 2pt solid #A0FFA0;
+	padding-left: 4pt;
+}
+
+.m_received {
+	border-left: 2pt solid #FFFFA0;
+	padding-left: 4pt;
+}
