@@ -357,7 +357,13 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 	quint16 id = item.d->id();
 	QHash<quint16, ItemsHash>::iterator itemsItr = items.find(item.type());
 	bool isInList = itemsItr != items.end() && itemsItr->contains(id);
-	item.d->isInList = type != Feedbag::Remove;
+	if (type == Feedbag::Add || (type == Feedbag::AddModify && !isInList)) {
+		item.d->isInList = error == FeedbagError::NoError;
+	} else if (type == Feedbag::Remove) {
+		item.d->isInList = error != FeedbagError::NoError;
+	} else {
+		item.d->isInList = true;
+	}
 	bool found = false;
 	foreach (FeedbagItemHandler *handler, handlers.values(item.type())) {
 		found = found || handler->handleFeedbagItem(q, item, type, error);
