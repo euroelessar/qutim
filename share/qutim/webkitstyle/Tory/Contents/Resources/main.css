@@ -33,7 +33,7 @@ body {
 	color: gray;
 }
 
-.message {
+.highlight {
 	-webkit-animation-name: highlight;
 	-webkit-animation-iteration-count: 1;
 	-webkit-animation-timing-function: linear;
