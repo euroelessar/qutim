@@ -18,7 +18,6 @@
 #define ROSTER_P_H
 
 #include "roster.h"
-#include <QQueue>
 #include "snachandler.h"
 #include "icqcontact.h"
 #include "feedbag.h"
@@ -35,26 +34,24 @@ class Roster : public QObject, public SNACHandler, public FeedbagItemHandler
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler qutim_sdk_0_3::oscar::FeedbagItemHandler)
 public:
-	Roster(IcqAccount *account);
+	Roster();
 protected:
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
-	void handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType type);
-	void handleRemoveCLItem(const FeedbagItem &item);
+	void handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item);
+	void handleRemoveCLItem(IcqAccount *account, const FeedbagItem &item);
 	void loadTagsFromFeedbag(IcqContact *contact);
 	void removeContact(IcqContact *contact);
 	void removeContactFromGroup(IcqContact *contact, quint16 groupId);
 	QStringList readTags(const FeedbagItem &item);
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
-	void handleUserOnline(const SNAC &snac);
-	void handleUserOffline(const SNAC &snac);
+	void handleUserOnline(IcqAccount *account, const SNAC &snac);
+	void handleUserOffline(IcqAccount *account, const SNAC &snac);
 private slots:
-	void statusChanged(qutim_sdk_0_3::Status status);
+	void reloadingStarted();
 	void loginFinished();
+	void accountAdded(qutim_sdk_0_3::Account *account);
 private:
 	void setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &tlvs);
-	IcqAccount *m_account;
-	AbstractConnection *m_conn;
-	bool firstPacket;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

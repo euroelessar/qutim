@@ -35,22 +35,18 @@ namespace oscar {
 
 using namespace Util;
 
-Roster::Roster(IcqAccount *account):
-	QObject(account)
+Roster::Roster()
 {
+	foreach (Account *account, IcqProtocol::instance()->accounts())
+		accountAdded(account);
+	connect(IcqProtocol::instance(),
+			SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+			SLOT(accountAdded(qutim_sdk_0_3::Account*)));
 	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
-			<< SNACInfo(ListsFamily, ListsError)
-			<< SNACInfo(ListsFamily, ListsList)
 			<< SNACInfo(BuddyFamily, UserOnline)
 			<< SNACInfo(BuddyFamily, UserOffline)
-			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy)
-			<< SNACInfo(ExtensionsFamily, ExtensionsMetaError);
+			<< SNACInfo(BuddyFamily, UserSrvReplyBuddy);
 	m_types << SsiBuddy << SsiGroup << SsiTags;
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
-	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
-	m_account = account;
-	m_conn = account->connection();
-	account->feedbag()->registerHandler(this);
 }
 
 bool Roster::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
@@ -58,19 +54,19 @@ bool Roster::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedba
 	if (error != FeedbagError::NoError)
 		return false;
 	if (type == Feedbag::Remove)
-		handleRemoveCLItem(item);
+		handleRemoveCLItem(feedbag->account(), item);
 	else
-		handleAddModifyCLItem(item, type);
+		handleAddModifyCLItem(feedbag->account(), item);
 	return true;
 }
 
-void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType type)
+void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 {
 	switch (item.type()) {
 	case SsiBuddy: {
 		if (item.name().isEmpty())
 			break;
-		IcqContact *contact = m_account->getContact(item.name(), true);
+		IcqContact *contact = account->getContact(item.name(), true);
 		IcqContactPrivate *d = contact->d_func();
 		QList<FeedbagItem>::iterator itr = d->items.begin();
 		QList<FeedbagItem>::iterator endItr = d->items.end();
@@ -84,7 +80,7 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 			++itr;
 		}
 		if (newTag) {
-			if (d->added && m_account->status() == Status::Connecting && d->items.isEmpty())
+			if (d->added && account->status() == Status::Connecting && d->items.isEmpty())
 				loadTagsFromFeedbag(contact);
 			d->items << item;
 			emit contact->tagsChanged(contact->tags());
@@ -115,11 +111,11 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 		break;
 	}
 	case SsiGroup: {
-		FeedbagItem old = m_account->feedbag()->groupItem(item.groupId());
+		FeedbagItem old = account->feedbag()->groupItem(item.groupId());
 		if (old.isInList() && old.name() != item.name()) {
-			foreach (const FeedbagItem &i, m_account->feedbag()->group(item.groupId())) {
+			foreach (const FeedbagItem &i, account->feedbag()->group(item.groupId())) {
 				QSet<QString> groups;
-				IcqContact *contact = m_account->getContact(i.name());
+				IcqContact *contact = account->getContact(i.name());
 				foreach (const FeedbagItem &i, contact->d_func()->items) {
 					if (item.groupId() == i.groupId())
 						groups << item.name();
@@ -137,7 +133,7 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 		break;
 	}
 	case SsiTags: {
-		IcqContact *contact = m_account->getContact(item.name());
+		IcqContact *contact = account->getContact(item.name());
 		if (contact) {
 			contact->d_func()->tags = readTags(item);
 			emit contact->tagsChanged(contact->tags());
@@ -147,11 +143,11 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 	}
 }
 
-void Roster::handleRemoveCLItem(const FeedbagItem &item)
+void Roster::handleRemoveCLItem(IcqAccount *account, const FeedbagItem &item)
 {
 	switch (item.type()) {
 	case SsiBuddy: {
-		IcqContact *contact = m_account->getContact(item.name());
+		IcqContact *contact = account->getContact(item.name());
 		if (!contact) {
 			warning() << "The contact" << item.name() << "does not exist";
 			break;
@@ -160,13 +156,13 @@ void Roster::handleRemoveCLItem(const FeedbagItem &item)
 		break;
 	}
 	case SsiGroup: {
-		foreach (IcqContact *contact, m_account->contacts())
+		foreach (IcqContact *contact, account->contacts())
 			removeContactFromGroup(contact, item.groupId());
 		debug() << "The group" << item.name() << "has been removed";
 		break;
 	}
 	case SsiTags: {
-		IcqContact *contact = m_account->getContact(item.name());
+		IcqContact *contact = account->getContact(item.name());
 		if (contact) {
 			contact->d_func()->tags.clear();
 			emit contact->tagsChanged(contact->tags());
@@ -198,7 +194,7 @@ void Roster::removeContactFromGroup(IcqContact *contact, quint16 groupId)
 		} else {
 			debug().nospace() << "The contact " << contact->id() << " ("
 					<< contact->name() << ") has been removed from "
-					<< m_account->feedbag()->groupItem(groupId).name();
+					<< contact->account()->feedbag()->groupItem(groupId).name();
 			emit contact->tagsChanged(contact->tags());
 		}
 	}
@@ -206,7 +202,7 @@ void Roster::removeContactFromGroup(IcqContact *contact, quint16 groupId)
 
 void Roster::loadTagsFromFeedbag(IcqContact *contact)
 {
-	FeedbagItem tagsItem = m_account->feedbag()->item(SsiTags, contact->id(), 0);
+	FeedbagItem tagsItem = contact->account()->feedbag()->item(SsiTags, contact->id(), 0);
 	if (tagsItem.isInList())
 		contact->d_func()->tags = readTags(tagsItem);
 }
@@ -233,17 +229,16 @@ QStringList Roster::readTags(const FeedbagItem &item)
 	return newTags;
 }
 
-void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
+void Roster::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 {
-	Q_ASSERT(c == m_conn);
 	switch ((sn.family() << 16) | sn.subtype()) {
 	case ServiceFamily << 16 | ServiceServerAsksServices: {
 		quint16 buddyFlags = 0x0002;
-		if (m_account->avatarsSupport()) {
+		if (conn->account()->avatarsSupport()) {
 			// Requesting avatar service
 			SNAC snac(ServiceFamily, ServiceClientNewService);
 			snac.append<quint16>(AvatarFamily);
-			m_conn->send(snac);
+			conn->send(snac);
 			buddyFlags |= 0x0001;
 		}
 
@@ -254,23 +249,14 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 		//              4 = Enable Avatars for offline contacts
 		//              8 = Use reject for not authorized contacts
 		snac.appendTLV<quint16>(0x05, buddyFlags); // mimic ICQ 6
-		m_conn->send(snac);
+		conn->send(snac);
 		break;
-	}
-	case ListsFamily << 16 | ListsList: {
-		if (firstPacket) {
-			firstPacket = false;
-			foreach (IcqContact *contact, m_account->contacts()) {
-				contact->d_func()->items.clear();
-				contact->d_func()->tags.clear();
-			}
-		}
 	}
 	case BuddyFamily << 16 | UserOnline:
-		handleUserOnline(sn);
+		handleUserOnline(conn->account(), sn);
 		break;
 	case BuddyFamily << 16 | UserOffline:
-		handleUserOffline(sn);
+		handleUserOffline(conn->account(), sn);
 		break;
 	case BuddyFamily << 16 | UserSrvReplyBuddy:
 		debug() << IMPLEMENT_ME << "BuddyFamily, UserSrvReplyBuddy";
@@ -278,10 +264,10 @@ void Roster::handleSNAC(AbstractConnection *c, const SNAC &sn)
 	}
 }
 
-void Roster::handleUserOnline(const SNAC &snac)
+void Roster::handleUserOnline(IcqAccount *account, const SNAC &snac)
 {
 	QString uin = snac.read<QString, quint8>();
-	IcqContact *contact = m_account->getContact(uin);
+	IcqContact *contact = account->getContact(uin);
 	// We don't know this contact
 	if (!contact)
 		return;
@@ -375,10 +361,10 @@ void Roster::handleUserOnline(const SNAC &snac)
 	setStatus(contact, status, tlvs);
 }
 
-void Roster::handleUserOffline(const SNAC &snac)
+void Roster::handleUserOffline(IcqAccount *account, const SNAC &snac)
 {
 	QString uin = snac.read<QString, quint8>();
-	IcqContact *contact = m_account->getContact(uin);
+	IcqContact *contact = account->getContact(uin);
 	// We don't know this contact
 	if (!contact)
 		return;
@@ -391,16 +377,22 @@ void Roster::handleUserOffline(const SNAC &snac)
 	setStatus(contact, status, tlvs);
 }
 
-void Roster::statusChanged(qutim_sdk_0_3::Status status)
+void Roster::reloadingStarted()
 {
-	if (status == Status::Connecting)
-		firstPacket = true;
+	Feedbag *feedbag = reinterpret_cast<Feedbag*>(sender());
+	Q_ASSERT(feedbag);
+	foreach (IcqContact *contact, feedbag->account()->contacts()) {
+		contact->d_func()->items.clear();
+		contact->d_func()->tags.clear();
+	}
 }
 
 void Roster::loginFinished()
 {
-	foreach (IcqContact *contact, m_account->contacts()) {
-		if (!m_account->feedbag()->containsItem(SsiBuddy, contact->id())) {
+	IcqAccount *account =  reinterpret_cast<IcqAccount*>(sender());
+	Q_ASSERT(account);
+	foreach (IcqContact *contact, account->contacts()) {
+		if (!account->feedbag()->containsItem(SsiBuddy, contact->id())) {
 			if (ContactList::instance())
 				ContactList::instance()->removeContact(contact);
 			delete contact;
@@ -410,9 +402,16 @@ void Roster::loginFinished()
 	}
 }
 
+void Roster::accountAdded(qutim_sdk_0_3::Account *acc)
+{
+	IcqAccount *account = reinterpret_cast<IcqAccount*>(acc);
+	connect(account->feedbag(), SIGNAL(reloadingStarted()), SLOT(reloadingStarted()));
+	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
+}
+
 void Roster::setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &tlvs)
 {
-	foreach (RosterPlugin *plugin, m_account->d_func()->rosterPlugins)
+	foreach (RosterPlugin *plugin, contact->account()->d_func()->rosterPlugins)
 		plugin->statusChanged(contact, status, tlvs);
 	contact->setStatus(status);
 	debug() << contact->name() << "changed status to " << status.name();

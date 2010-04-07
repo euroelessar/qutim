@@ -56,7 +56,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 	ConfigGroup cfg = config("general");
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
-	d->conn->registerHandler(new Roster(this));
 	d->conn->registerHandler(new BuddyPicture(this, this));
 	{
 		ConfigGroup statusCfg = cfg.group("lastStatus");
