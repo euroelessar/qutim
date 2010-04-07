@@ -365,7 +365,6 @@ void IcqContact::setInList(bool inList)
 		item = f->item(SsiBuddy, id(), d->getNotInListGroup().groupId(),
 					   Feedbag::GenerateId | Feedbag::DontLoadLocal);
 		item.setField<QString>(SsiBuddyNick, id());
-		item.setField(SsiBuddyReqAuth);
 		item.update();
 		f->endModify();
 	} else {

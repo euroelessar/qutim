@@ -38,6 +38,7 @@ Authorization::Authorization()
 	self = this;
 	m_infos << SNACInfo(ListsFamily, ListsAuthRequest)
 			<< SNACInfo(ListsFamily, ListsSrvAuthResponse);
+	m_types << SsiBuddy;
 	MenuController::addAction<IcqContact>(new AuthorizeActionGenerator);
 }
 
@@ -71,6 +72,25 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	}
+}
+
+bool Authorization::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
+{
+	Q_ASSERT(item.type() == SsiBuddy);
+	static const int SsiBuddyReqAuth = 0x0066;
+	if (type == Feedbag::Remove)
+		return false;
+	if (error == FeedbagError::RequiresAuthorization) {
+		Q_ASSERT(!item.isInList());
+		FeedbagItem i = item;
+		i.setField(SsiBuddyReqAuth);
+		i.update();
+	} else if (error != FeedbagError::NoError) {
+		return false;
+	}
+	IcqContact *contact = feedbag->account()->getContact(item.name(), true);
+	contact->setProperty("authorizedBy", !item.containsField(SsiBuddyReqAuth));
+	return false;
 }
 
 void Authorization::sendAuthResponse(bool auth)

@@ -63,7 +63,7 @@ void OscarPlugin::init()
 				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar authorization support"),
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar authorization support"),
-				 new SingletonGenerator<Authorization, SNACHandler>(),
+				 new SingletonGenerator<Authorization, SNACHandler, FeedbagItemHandler>(),
 				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar privacy lists"),
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar privacy lists"),

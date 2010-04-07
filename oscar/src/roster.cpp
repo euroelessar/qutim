@@ -101,8 +101,6 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 			contact->setProperty("comment", new_comment);
 			// TODO: emit ...
 		}
-		// auth
-		contact->setProperty("authorizedBy", !item.containsField(SsiBuddyReqAuth));
 		if (!d->added) {
 			if (ContactList::instance()) {
 				loadTagsFromFeedbag(contact);

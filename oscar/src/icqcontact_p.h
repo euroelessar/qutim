@@ -36,7 +36,6 @@ enum SsiBuddyTlvs
 {
 	SsiBuddyNick = 0x0131,
 	SsiBuddyComment = 0x013c,
-	SsiBuddyReqAuth = 0x0066,
 	SsiBuddyTags = 0x023c
 };
 
