@@ -119,7 +119,9 @@ namespace AdiumChat
 		d->style.baseHref = hrefUrl.toString() + QDir::separator();
 		styleDir.cdUp();
 		Config settings = Config(styleDir.filePath("Info.plist"));
-		QRgb color = settings.value<int>("DefaultBackgroundColor", 0xffffff);
+		QByteArray array = settings.value<QByteArray>("DefaultBackgroundColor", "FFFFFF");
+		bool ok;
+		QRgb color = array.toInt(&ok, 16);
 		d->style.backgroundColor = QColor(color);
 		d->style.backgroundIsTransparent = settings.value<bool>("DefaultBackgroundIsTransparent", false);
 		styleDir.cdUp();

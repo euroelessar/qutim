@@ -30,6 +30,7 @@
 #include <QApplication>
 #include <libqutim/debug.h>
 #include <QPlainTextDocumentLayout>
+#include <QDesktopServices>
 
 namespace AdiumChat
 
@@ -57,6 +58,9 @@ namespace AdiumChat
 		}
 
 		setChatState(ChatStateActive);
+		
+		connect(m_web_page,SIGNAL(linkClicked(QUrl)),SLOT(onLinkClicked(QUrl)));
+		m_web_page->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 	}
 
 	void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)
@@ -344,4 +348,11 @@ namespace AdiumChat
 			debug() << "timer activated";
 		}
 	}
+	
+	void ChatSessionImpl::onLinkClicked(const QUrl& url)
+	{
+		debug() << "link clicked" << url;
+		QDesktopServices::openUrl(url);
+	}
+
 }

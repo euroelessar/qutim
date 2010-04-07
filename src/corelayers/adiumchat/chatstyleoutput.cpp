@@ -89,6 +89,7 @@ namespace AdiumChat
 		text = text.replace("\n","<br />");
 		makeBackground(html);
 		makeUrls(text, message);
+		makeUrls(text);
 		makeUserIcons(message,html);
 		html.replace(QLatin1String("%message%"), text);
 	}
@@ -415,6 +416,28 @@ namespace AdiumChat
 		for (it=urls.begin();it!=urls.end();it++)
 		{
 			html.append("<br /><a href=\"%1\">%2</a>").arg(it->toEncoded(),it->toString());
+		}
+	}
+
+	void ChatStyleOutput::makeUrls(QString &html)
+	{
+		static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
+								  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
+								  Qt::CaseInsensitive);
+		Q_ASSERT(linkRegExp.isValid());
+		int pos = 0;
+		while(((pos = linkRegExp.indexIn(html, pos)) != -1))
+		{
+			QString link = linkRegExp.cap(0);
+			QString tmplink = link;
+			if (tmplink.toLower().startsWith("www."))
+				tmplink.prepend("http://");
+			else if(!tmplink.contains("//"))
+				tmplink.prepend("mailto:");
+			static const QString hrefTemplate( "<a href='%1' target='_blank'>%2</a>" );
+			tmplink = hrefTemplate.arg(tmplink, link);
+			html.replace(pos, link.length(), tmplink);
+			pos += tmplink.count();
 		}
 	}
 }

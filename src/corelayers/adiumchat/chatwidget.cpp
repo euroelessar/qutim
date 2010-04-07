@@ -52,6 +52,7 @@ namespace AdiumChat
 		ui->setupUi(this);
 		centerizeWidget(this);
 		m_originalDoc = ui->chatEdit->document();
+
 		//init tabbar
 		//ui->tabBar->setVisible(false);
 		ui->tabBar->setTabsClosable(true);
@@ -81,7 +82,7 @@ namespace AdiumChat
 		ui->actionToolBar->setStyleSheet("QToolBar{background:none;border:none}");
 		ui->actionToolBar->setIconSize(QSize(16,16));
 		
-			//for testing
+		//for testing
 		QMenu *menu = new QMenu(this);
 		
 		ui->actionToolBar->addAction(new ActionGenerator(Icon("view-history"),

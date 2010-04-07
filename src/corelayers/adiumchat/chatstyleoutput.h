@@ -85,6 +85,7 @@ namespace AdiumChat
 		void makeUserIcons(const Message &mes, QString &source);
 		inline void makeTime (QString &input, const QDateTime& datetime,const QString &regexp = "%time\\{([^}]*)\\}%");
 		void makeUrls(QString& html, const Message& message);//create url list under message body
+		void makeUrls(QString &html); //TODO separate to adiumchat SDK
 		void makeBackground(QString &html);
 		void processMessage(QString &html, const ChatSession *session, const Message &message);
 		void loadSettings();

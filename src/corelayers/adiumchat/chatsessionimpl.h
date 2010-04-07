@@ -63,6 +63,7 @@ namespace AdiumChat
 		virtual void timerEvent(QTimerEvent *event);
 	protected slots:
 		void onStatusChanged(qutim_sdk_0_3::Status);
+		void onLinkClicked(const QUrl &url);
 	private:
 		void statusChanged(Contact *contact, bool silent = false);
 		QPointer<QWebPage> m_web_page;
