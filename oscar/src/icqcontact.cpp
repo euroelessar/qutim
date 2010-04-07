@@ -477,15 +477,15 @@ bool IcqContact::event(QEvent *ev)
 							   .arg(time.time().minute())
 							   .arg(time.time().second()));
 			event->appendField(QT_TRANSLATE_NOOP("ContactList", "Signed on"),
-							   d->onlineSince.toLocalTime().toString("hh:mm:ss dd/MM/yyyy"));
+							   d->onlineSince.toLocalTime().toString(Qt::DefaultLocaleShortDate));
 		}
 		if (!d->awaySince.isNull()) {
 			event->appendField(QT_TRANSLATE_NOOP("ContactList", "Away since"),
-							   d->awaySince.toLocalTime().toString("hh:mm:ss dd/MM/yyyy"));
+							   d->awaySince.toLocalTime().toString(Qt::DefaultLocaleShortDate));
 		}
 		if (!d->regTime.isNull()) {
 			event->appendField(QT_TRANSLATE_NOOP("ContactList", "Reg. date"),
-							   d->regTime.toLocalTime().toString("hh:mm:ss dd/MM/yyyy"));
+							   d->regTime.toLocalTime().toString(Qt::DefaultLocaleShortDate));
 		}
 		foreach (const InfoField &field, d->fields) {
 			event->appendField(field.first, field.second);
