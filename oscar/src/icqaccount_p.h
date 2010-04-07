@@ -41,7 +41,6 @@ struct IcqAccountPrivate
 {
 	OscarConnection *conn;
 	Feedbag *feedbag;
-	MessagesHandler *messagesHandler;
 	QString name;
 	bool avatars;
 	QHash<quint64, Cookie*> cookies;

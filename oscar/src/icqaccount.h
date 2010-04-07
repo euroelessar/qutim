@@ -72,8 +72,6 @@ public:
 	QList<Capability> capabilities();
 	void setVisibility(Visibility visibility);
 	void registerRosterPlugin(RosterPlugin *plugin);
-	void registerMessagePlugin(MessagePlugin *plugin);
-	void registerTlv2711Plugin(Tlv2711Plugin *plugin);
 	QHostAddress localAddress();
 signals:
 	void loginFinished();

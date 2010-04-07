@@ -16,7 +16,8 @@
 
 #include "oscarplugin.h"
 #include "icqprotocol.h"
-#include <metainfo_p.h>
+#include "metainfo_p.h"
+#include "messages_p.h"
 #include "authorization_p.h"
 #include "privacylists_p.h"
 #include "ui/accountcreator.h"
@@ -52,6 +53,10 @@ void OscarPlugin::init()
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "ICQ account creator"),
 				 QT_TRANSLATE_NOOP("Plugin", "Account creator for module-based realization of ICQ protocol"),
 				 new GeneralGenerator<IcqAccountCreationWizard>(),
+				 ExtensionIcon("im-icq"));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar messages"),
+				 QT_TRANSLATE_NOOP("Plugin", "Oscar messages"),
+				 new SingletonGenerator<MessagesHandler, SNACHandler>(),
 				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar file transfer protocol"),
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar file transfer protocol"),

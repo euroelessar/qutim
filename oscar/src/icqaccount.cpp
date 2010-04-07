@@ -58,7 +58,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
 	d->conn->registerHandler(new Roster(this));
 	d->conn->registerHandler(new BuddyPicture(this, this));
-	d->conn->registerHandler(d->messagesHandler = new MessagesHandler(this, this));
 	{
 		ConfigGroup statusCfg = cfg.group("lastStatus");
 		int type = statusCfg.value("type", static_cast<int>(Status::Offline));
@@ -316,18 +315,6 @@ void IcqAccount::registerRosterPlugin(RosterPlugin *plugin)
 {
 	Q_D(IcqAccount);
 	d->rosterPlugins << plugin;
-}
-
-void IcqAccount::registerMessagePlugin(MessagePlugin *plugin)
-{
-	Q_D(IcqAccount);
-	d->messagesHandler->registerMessagePlugin(plugin);
-}
-
-void IcqAccount::registerTlv2711Plugin(Tlv2711Plugin *plugin)
-{
-	Q_D(IcqAccount);
-	d->messagesHandler->registerTlv2711Plugin(plugin);
 }
 
 QHostAddress IcqAccount::localAddress()

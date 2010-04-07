@@ -145,11 +145,13 @@ ServerResponseMessage::ServerResponseMessage(IcqContact *contact, quint16 format
 	append<quint16>(reason);
 }
 
-MessagesHandler::MessagesHandler(IcqAccount *account, QObject *parent) :
-	QObject(parent), m_account(account)
+MessagesHandler::MessagesHandler()
 {
-	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
-	connect(account, SIGNAL(settingsUpdated()), SLOT(settingsUpdated()));
+	foreach (Account *account, IcqProtocol::instance()->accounts())
+		accountAdded(account);
+	connect(IcqProtocol::instance(),
+			SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+			SLOT(accountAdded(qutim_sdk_0_3::Account*)));
 	m_infos << SNACInfo(ServiceFamily, ServiceServerAsksServices)
 			<< SNACInfo(MessageFamily, MessageSrvReplyIcbm)
 			<< SNACInfo(MessageFamily, MessageResponse)
@@ -177,21 +179,8 @@ MessagesHandler::~MessagesHandler()
 {
 }
 
-void MessagesHandler::registerMessagePlugin(MessagePlugin *plugin)
-{
-	foreach(const Capability &cap, plugin->capabilities())
-		m_msg_plugins.insert(cap, plugin);
-}
-
-void MessagesHandler::registerTlv2711Plugin(Tlv2711Plugin *plugin)
-{
-	foreach (Tlv2711Type type, plugin->tlv2711Types())
-		m_tlvs2711Plugins.insert(type, plugin);
-}
-
 void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 {
-	Q_ASSERT((AbstractConnection*)m_account->connection() == conn);
 	switch ((sn.family() << 16) | sn.subtype()) {
 	case ServiceFamily << 16 | ServiceServerAsksServices: {
 		// Sending CLI_REQICBM
@@ -221,10 +210,10 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	case MessageFamily << 16 | MessageSrvRecv:
-		handleMessage(sn);
+		handleMessage(conn->account(), sn);
 		break;
 	case MessageFamily << 16 | MessageResponse:
-		handleResponse(sn);
+		handleResponse(conn->account(), sn);
 		break;
 	case MessageFamily << 16 | MessageSrvAck: {
 		sn.skipData(8); // skip cookie.
@@ -240,7 +229,7 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		Q_UNUSED(channel);
 		QString uin = sn.read<QString, qint8>();
 		quint16 type = sn.read<quint16>();
-		IcqContact *contact = m_account->getContact(uin);
+		IcqContact *contact = conn->account()->getContact(uin);
 		if (contact) {
 			ChatState newState;
 			if (type == MtnFinished) {
@@ -277,7 +266,7 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 				break;
 			case (0x0042):
 				// Delete offline messages from the server.
-				sendMetaInfoRequest(0x003E);
+				sendMetaInfoRequest(conn->account(), 0x003E);
 				break;
 			}
 		}
@@ -296,21 +285,31 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 
 void MessagesHandler::loginFinished()
 {
+	IcqAccount *account = qobject_cast<IcqAccount*>(sender());
+	Q_ASSERT(account);
 	// Offline messages request
-	sendMetaInfoRequest(0x003C);
+	sendMetaInfoRequest(account, 0x003C);
 }
 
 void MessagesHandler::settingsUpdated()
 {
-	m_detectCodec = m_account->protocol()->config("general").value("detectCodec", true);
+	IcqAccount *account = qobject_cast<IcqAccount*>(sender());
+	Q_ASSERT(account);
+	m_detectCodec = account->protocol()->config("general").value("detectCodec", true);
 }
 
-void MessagesHandler::handleMessage(const SNAC &snac)
+void MessagesHandler::accountAdded(Account *account)
+{
+	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
+	connect(account, SIGNAL(settingsUpdated()), SLOT(settingsUpdated()));
+}
+
+void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 {
 	quint64 cookie = snac.read<quint64>();
 	quint16 channel = snac.read<quint16>();
 	QString uin = snac.read<QString, quint8>();
-	IcqContact *contact = m_account->getContact(uin, true);
+	IcqContact *contact = account->getContact(uin, true);
 	quint16 warning = snac.read<quint16>();
 	Q_UNUSED(warning);
 	snac.skipData(2); // unused number of tlvs
@@ -337,7 +336,7 @@ void MessagesHandler::handleMessage(const SNAC &snac)
 		else
 			m.setTime(QDateTime::currentDateTime());
 		m.setIncoming(true);
-		ChatSession *session = ChatLayer::instance()->getSession(m_account, contact);
+		ChatSession *session = ChatLayer::instance()->getSession(account, contact);
 		m.setChatUnit(session->getUnit());
 		QString plain = unescape(message);
 		m.setText(plain);
@@ -347,7 +346,7 @@ void MessagesHandler::handleMessage(const SNAC &snac)
 	}
 }
 
-void MessagesHandler::handleResponse(const SNAC &snac)
+void MessagesHandler::handleResponse(IcqAccount *account, const SNAC &snac)
 {
 	Cookie cookie = snac.read<Cookie>();
 	quint16 format = snac.read<quint16>();
@@ -356,7 +355,7 @@ void MessagesHandler::handleResponse(const SNAC &snac)
 		return;
 	}
 	QString uin = snac.read<QString, quint8>();
-	IcqContact *contact = m_account->getContact(uin);
+	IcqContact *contact = account->getContact(uin);
 	cookie.setContact(contact);
 	if (!contact) {
 		debug() << "Response message from unknown contact" << uin;
@@ -369,7 +368,7 @@ void MessagesHandler::handleResponse(const SNAC &snac)
 
 QString MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *contact, const TLVMap &tlvs)
 {
-	Q_UNUSED(contact);
+	Q_UNUSED(snac);
 	QString message;
 	if (tlvs.contains(0x0002)) {
 		DataUnit data(tlvs.value(0x0002));
@@ -576,19 +575,19 @@ void MessagesHandler::sendChannel2Response(IcqContact *contact, quint8 type, qui
 	responseTlv.appendColors();
 	ServerResponseMessage response(contact, 2, 3, cookie);
 	response.append(responseTlv.data());
-	m_account->connection()->send(response);
+	contact->account()->connection()->send(response);
 }
 
-void MessagesHandler::sendMetaInfoRequest(quint16 type)
+void MessagesHandler::sendMetaInfoRequest(IcqAccount *account, quint16 type)
 {
 	SNAC snac(ExtensionsFamily, ExtensionsMetaCliRequest);
 	DataUnit data;
 	data.append<quint16>(8, LittleEndian); // data chunk size
-	data.append<quint32>(m_account->id().toUInt(), LittleEndian);
+	data.append<quint32>(account->id().toUInt(), LittleEndian);
 	data.append<quint16>(type, LittleEndian); // message request cmd
 	data.append<quint16>(snac.id()); // request sequence number
 	snac.appendTLV(0x01, data);
-	m_account->connection()->send(snac);
+	account->connection()->send(snac);
 }
 
 MessagePlugin::~MessagePlugin()
