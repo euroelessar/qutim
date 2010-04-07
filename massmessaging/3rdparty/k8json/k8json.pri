@@ -1,5 +1,0 @@
-DEPENDPATH += $$PWD
-INCLUDEPATH += $$PWD
-
-HEADERS += $$PWD/k8json.h
-SOURCES += $$PWD/k8json.cpp
