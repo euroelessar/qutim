@@ -2,7 +2,7 @@
 
 namespace Core
 {
-	ChatFont::ChatFont(const QString &selectors, const QString &parameter, const QString &value, QWidget *parent) : QWidget(parent)
+	ChatFont::ChatFont(const CustomChatStyle &style, QWidget *parent) : QWidget(parent)
 	{
 		QHBoxLayout *layout = new QHBoxLayout();
 		layout->setMargin(0);
@@ -16,7 +16,7 @@ namespace Core
 		layout->addWidget(fontLabel);
 		layout->addWidget(changeButton);
 		int sec = 0;
-		QString cvalue = value.section(" ", sec, sec);
+		QString cvalue = style.value.section(" ", sec, sec);
 		QFont fvalue;
 		QRegExp rxSize("(\\d+)(pt|px)");
 		while (!cvalue.isEmpty())
@@ -36,28 +36,29 @@ namespace Core
 				break;
 			}
 			sec++;
-			cvalue = value.section(" ", sec, sec);
+			cvalue = style.value.section(" ", sec, sec);
 		}
-		fvalue.setFamily(value.section(" ", ++sec));
+		fvalue.setFamily(style.value.section(" ", ++sec));
 		fontLabel->setFont(fvalue);
 		fontLabel->setText(QString("%1 %2").arg(fvalue.pointSize() != -1
 				? QString("%1pt").arg(fvalue.pointSize())
 				: QString("%1px").arg(fvalue.pixelSize())).arg(fvalue.family()));
-		m_style = QString("%1 { %2: ").arg(selectors).arg(parameter);
+		m_style.selectors = style.selectors;
+		m_style.parameter = style.parameter;
 	}
 
-	const QString &ChatFont::style()
+	const CustomChatStyle &ChatFont::style()
 	{
 		QFont fvalue(fontLabel->font());
 		QString fontSize(fvalue.pointSize() != -1
 				? QString("%1pt ").arg(fvalue.pointSize())
 				: QString("%1px ").arg(fvalue.pixelSize()));
-		m_style.append(QString("%1 %2 %3 %4 %5; }")
+		m_style.value = QString("%1 %2 %3 %4 %5; }")
 				.arg(fvalue.bold() ? "bold" : "")
 				.arg(fvalue.italic() ? "italic " : "")
 				.arg(fvalue.capitalization() ? "small-caps " : "")
 				.arg(fontSize)
-				.arg(fvalue.family()));
+				.arg(fvalue.family());
 		return m_style;
 	}
 
@@ -76,17 +77,18 @@ namespace Core
 		}
 	}
 
-	ChatColor::ChatColor(const QString &selectors, const QString &parameter, const QString &value, QWidget *parent) : QToolButton(parent)
+	ChatColor::ChatColor(const CustomChatStyle &style, QWidget *parent) : QToolButton(parent)
 	{
-		color = QColor(value);
+		color = QColor(style.value);
 		connect(this, SIGNAL(clicked()), SLOT(changeCurrentColor()));
 		setStyleSheet("background: "+color.name());
-		m_style = QString("%1 { %2: ").arg(selectors).arg(parameter);
+		m_style.selectors = style.selectors;
+		m_style.parameter = style.parameter;
 	}
 
-	const QString &ChatColor::style()
+	const CustomChatStyle &ChatColor::style()
 	{
-		m_style.append(color.name()).append("; }");
+		m_style.value = color.name();
 		return m_style;
 	}
 
@@ -102,8 +104,8 @@ namespace Core
 		}
 	}
 
-	ChatNumeric::ChatNumeric(const QString &selectors, const QString &parameter,
-			double value, double min, double max, double step, QWidget *parent) : QDoubleSpinBox(parent)
+	ChatNumeric::ChatNumeric(const CustomChatStyle &style,
+			double min, double max, double step, QWidget *parent) : QDoubleSpinBox(parent)
 	{
 		connect(this, SIGNAL(valueChanged(double)), SLOT(onChangeValue()));
 		//int dec = m_style.range.section(";", 2, 2).section(".", 1).length();
@@ -111,13 +113,14 @@ namespace Core
 		setMaximum(max);
 		setSingleStep(step);
 		//setDecimals(dec);
-		setValue(value);
-		m_style = QString("%1 { %2: ").arg(selectors).arg(parameter);
+		setValue(style.value.toDouble());
+		m_style.selectors = style.selectors;
+		m_style.parameter = style.parameter;
 	}
 
-	const QString &ChatNumeric::style()
+	const CustomChatStyle &ChatNumeric::style()
 	{
-		m_style.append(QString::number(value())).append("; }");
+		m_style.value = QString::number(value());
 		return m_style;
 	}
 

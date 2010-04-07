@@ -39,6 +39,7 @@ namespace Core
 	private slots:
 		void onThemeChanged(int index);
 		void onVariantChanged(QString variant);
+		void onVariableChanged();
 	protected:
 		void makeSettings();
 	private:

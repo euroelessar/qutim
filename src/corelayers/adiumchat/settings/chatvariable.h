@@ -7,15 +7,22 @@
 #include <QLabel>
 #include <QFontDialog>
 #include <QColorDialog>
+#include <QColor>
 #include <QDoubleSpinBox>
-#include <QLocale>
 
 namespace Core
 {
+	struct CustomChatStyle
+	{
+		QString selectors;
+		QString parameter;
+		QString value;
+	};
+
 	class ChatVariable
 	{
 		public:
-			virtual const QString &style() = 0;
+			virtual const CustomChatStyle &style() = 0;
 	};
 }
 Q_DECLARE_INTERFACE(Core::ChatVariable, "org.qutim.core.ChatVariable")
@@ -27,8 +34,8 @@ namespace Core
 		Q_OBJECT
 		Q_INTERFACES(Core::ChatVariable)
 		public:
-			ChatFont(const QString &selectors, const QString &parameter, const QString &value, QWidget *parent = 0);
-			const QString &style();
+			ChatFont(const CustomChatStyle &style, QWidget *parent = 0);
+			const CustomChatStyle &style();
 		signals:
 			void changeValue();
 		private slots:
@@ -36,7 +43,7 @@ namespace Core
 		private:
 			QLabel *fontLabel;
 			QToolButton *changeButton;
-			QString m_style;
+			CustomChatStyle m_style;
 	};
 
 	class ChatColor : public QToolButton, ChatVariable
@@ -44,15 +51,15 @@ namespace Core
 		Q_OBJECT
 		Q_INTERFACES(Core::ChatVariable)
 		public:
-			ChatColor(const QString &selectors, const QString &parameter, const QString &value, QWidget *parent = 0);
-			const QString &style();
+			ChatColor(const CustomChatStyle &style, QWidget *parent = 0);
+			const CustomChatStyle &style();
 		signals:
 			void changeValue();
 		private slots:
 			void changeCurrentColor();
 		private:
 			QColor color;
-			QString m_style;
+			CustomChatStyle m_style;
 	};
 
 	class ChatNumeric : public QDoubleSpinBox, ChatVariable
@@ -60,17 +67,15 @@ namespace Core
 		Q_OBJECT
 		Q_INTERFACES(Core::ChatVariable)
 		public:
-			ChatNumeric(const QString &selectors, const QString &parameter, double value,
+			ChatNumeric(const CustomChatStyle &style,
 					double min, double max, double step, QWidget *parent = 0);
-			const QString &style();
+			const CustomChatStyle &style();
 		signals:
 			void changeValue();
 		private slots:
 			void onChangeValue();
-		protected:
-			void fill();
 		private:
-			QString m_style;
+			CustomChatStyle m_style;
 	};
 }
 
