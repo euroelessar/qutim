@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
-PROJECT( ASpeller  )
+PROJECT( HistMan )
 
 set(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")
 if(QUTIM_PATH)
@@ -7,13 +7,11 @@ if(QUTIM_PATH)
     set(QUTIM_LIBRARY_DIR ${QUTIM_PATH}/libqutim/)
     set(QUTIM_CMAKE_PLUGIN ${QUTIM_PATH}/cmake/QutimPlugin.cmake)
 else(QUTIM_PATH)
-	set(QUTIM_CMAKE_PLUGIN ${CMAKE_ROOT}/Modules/QutimPlugin.cmake)
+    set(QUTIM_CMAKE_PLUGIN ${CMAKE_ROOT}/Modules/QutimPlugin.cmake)
 endif(QUTIM_PATH)
-
-find_package( ASPELL REQUIRED )
-
-include_directories( ${ASPELL_INCLUDE_DIR} )
-
+include_directories(${CMAKE_SOURCE_DIR})
+SET( QT_USE_QTNETWORK TRUE )
+SET( QT_USE_QTXML TRUE )
+SET( QT_USE_QTSQL TRUE )
 include( ${QUTIM_CMAKE_PLUGIN} )
-
-ADD_QUTIMPLUGIN_EXT2( "aspeller" "src" "" ${ASPELL_LIBRARIES} )
+ADD_QUTIMPLUGIN( "histman" "src" )
