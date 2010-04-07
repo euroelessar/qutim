@@ -58,7 +58,6 @@ namespace AdiumChat
 		QColor backgroundColor;
 		QPair<QString, QString> defaultVariant;
 		StyleVariants variants;
-		StyleVariables variables;
 		bool backgroundIsTransparent;
 		bool isValid();
 	};

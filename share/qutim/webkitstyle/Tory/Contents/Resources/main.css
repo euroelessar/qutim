@@ -1,0 +1,41 @@
+@-webkit-keyframes highlight {
+	0% {
+		background-color: #FFFFA0;
+	}
+	33% {
+		background-color: #FFFFA0;
+	}
+
+	100% {
+		background-color: white;
+	}
+}
+
+body {
+	font: 8pt Verdana;
+}
+
+.remark {
+	margin-top: 0.3em;
+	padding-bottom: 4pt;
+}
+
+.time {
+	font-size: 0.8em;
+	padding-left: 0pt;
+}
+
+.contact {
+	font-weight: bold;
+}
+
+.statusMessage {
+	color: gray;
+}
+
+.message {
+	-webkit-animation-name: highlight;
+	-webkit-animation-iteration-count: 1;
+	-webkit-animation-timing-function: linear;
+	-webkit-animation-duration: 0s;
+}

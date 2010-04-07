@@ -1,16 +1,3 @@
-@-webkit-keyframes highlight {
-	0% {
-		background-color: #FFFFA0;
-	}
-	33% {
-		background-color: #FFFFA0;
-	}
-
-	100% {
-		background-color: white;
-	}
-}
-
 body {
 	font: 10pt Arial;
 }
@@ -41,19 +28,8 @@ body {
 	margin-top: 2pt;
 }
 
-.nickTime {
-	display: none;
-}
-
 .statusMessage {
 	color: gray;
-}
-
-.inMessage, .outMessage {
-	-webkit-animation-name: highlight;
-	-webkit-animation-duration: 1.2s;
-	-webkit-animation-iteration-count: 1;
-	-webkit-animation-timing-function: linear;
 }
 
 .m_received {
@@ -73,4 +49,3 @@ body {
 	padding-left: 6pt;
 	background: url('Images/bullet-received.png') left center no-repeat;
 }
-

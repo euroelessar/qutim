@@ -127,6 +127,19 @@
 			head.appendChild( documentFragment );
 		}
 		
+		function setCustomStylesheet( css ) {
+			var code = "<style id=\"customStyle\" type=\"text/css\" media=\"screen,print\">";
+			if( css.length ) 
+				code += css;
+			code += "</style>";
+			var range = document.createRange();
+			var head = document.getElementsByTagName( "head" ).item(0);
+			range.selectNode( head );
+			var documentFragment = range.createContextualFragment( code );
+			head.removeChild( document.getElementById( "customStyle" ) );
+			head.appendChild( documentFragment );
+		}
+		
 		//Swap an image with its alt-tag text on click, or expand/unexpand an attached image
 		document.onclick = imageCheck;
 		function imageCheck() {		
@@ -191,6 +204,10 @@
 	<!-- Although we call this mainStyle for legacy reasons, it's actually the variant style !-->
 	<style id="mainStyle" type="text/css" media="screen,print">	
 		@import url( "%@" );
+	</style>
+
+	<style id="customStyle" type="text/css" media="screen,print">
+		/* custom style */
 	</style>
 
 </head>

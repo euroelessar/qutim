@@ -6,13 +6,13 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Simple chat style for qutIM</string>
+	<string>Old-style chat style for qutIM</string>
 	<key>CFBundleIdentifier</key>
-	<string>simple.qutIM.style</string>
+	<string>tory.qutIM.style</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>CFBundleName</key>
-	<string>Simple</string>
+	<string>Tory</string>
 	<key>CFBundlePackageType</key>
 	<string>qutIM chat style</string>
 	<key>DefaultBackgroundColor</key>

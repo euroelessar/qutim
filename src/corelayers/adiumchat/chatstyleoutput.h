@@ -47,6 +47,7 @@ namespace AdiumChat
 		QString getVariant() const;
 
 		void setVariant(const QString &_variantName);
+		void setCustomCSS(const QString &css);
 		QString makeMessage(const ChatSessionImpl *session, const Message &mes, bool _sameSender);
 		/*
 		changes keywords to action atributes in html like "Bob is writing on the desk"
@@ -98,6 +99,7 @@ namespace AdiumChat
 		QString m_current_variant;
 		QString m_current_style_path;
 		QString m_current_datetime_format;
+		QString m_current_css;
 	};
 }
 

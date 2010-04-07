@@ -1,0 +1,25 @@
+{
+ "default": [
+   {
+    "type": "font",
+	 "label": "Chat font",
+    "selector": "body",
+    "parameter": "font",
+    "value": "10pt Arial"
+   },
+   {
+    "type": "color",
+    "label": "Contact nick color",
+    "selector": ".inContact, .inActionContact, .inActionMessage",
+    "parameter": "color",
+    "value": "#ff6600",
+   },
+   {
+    "type": "color",
+    "label": "My nick color",
+    "selector": ".outContact, .outActionContact, .outActionMessage",
+    "parameter": "color",
+    "value": "#0078ff",
+   }
+ ]
+}
