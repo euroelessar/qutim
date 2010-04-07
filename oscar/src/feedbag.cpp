@@ -753,6 +753,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			d->items.clear();
 			d->limits.clear();
 			d->firstPacket = false;
+			emit reloadingStarted();
 		}
 		quint8 version = sn.read<quint8>();
 		quint16 count = sn.read<quint16>();

@@ -152,6 +152,7 @@ public:
 	IcqAccount *account() const;
 signals:
 	void loaded();
+	void reloadingStarted();
 protected:
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private:
