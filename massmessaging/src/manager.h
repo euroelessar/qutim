@@ -23,14 +23,21 @@ namespace MassMessaging
 		QAbstractItemModel *model() const;
 	public slots:
 		void reload();
-		void start();
+		void start(const QString &message, int interval = 15000);
 		void stop();
+		bool currentState();
 	signals:
 		void update (const uint &completed, const uint &total, const QString &text);
+		void finished(bool ok);
 	private:
+		virtual void timerEvent(QTimerEvent* ev);
+		QString parseText(const QString &msg,Contact *c);
 		QList<QStandardItem *> m_contacts;
 		QQueue<QStandardItem *> m_recievers;
 		QStandardItemModel *m_model;
+		int m_timer_id; //just simple
+		int m_total_item_count;
+		QString m_message;
 	};
 }
 

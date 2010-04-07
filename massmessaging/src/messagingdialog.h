@@ -36,9 +36,7 @@ namespace MassMessaging
 		void updateProgressBar(const uint &completed, const uint &total, const QString &message);
 	private slots:
 		void onSendButtonClicked();
-		void onStopButtonClicked();
-		void onLoadButtonClicked();
-		void onSaveButtonClicked();
+		void onManagerFinished(bool ok);
 	private:
 		 Ui::Dialog *ui;
 		 Manager *m_manager;

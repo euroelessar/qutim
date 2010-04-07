@@ -4,6 +4,8 @@
 #include <qutim/account.h>
 #include <qutim/icon.h>
 #include <qutim/contact.h>
+#include <qutim/message.h>
+#include <QTime>
 
 namespace MassMessaging
 {
@@ -30,7 +32,7 @@ namespace MassMessaging
 		};
 	};
 	
-	Manager::Manager(QObject* parent): QObject(parent)
+	Manager::Manager(QObject* parent): QObject(parent),m_timer_id(0)
 	{
 		m_model =  new QStandardItemModel(this);
 	}
@@ -68,21 +70,71 @@ namespace MassMessaging
 				delete proto_item;
 		}
 	}
-	void Manager::start()
+		
+	QString Manager::parseText(const QString& msg, Contact* c)
 	{
+		QString parsed_message = msg;
+		parsed_message.replace("{reciever}",c->title());
+		parsed_message.replace("{sender}",c->account()->name());
+		parsed_message.replace("{time}",QTime::currentTime().toString());
+		return parsed_message;
+	}
+
+	
+	void Manager::start(const QString &message, int interval)
+	{
+		m_message = message;
 		foreach (QStandardItem *item, m_contacts) {
 			Qt::CheckState state = static_cast<Qt::CheckState>(item->data(Qt::CheckStateRole).value<int>());
 			if (state == Qt::Checked)
 				m_recievers.enqueue(item);
 		}
+		m_total_item_count = m_recievers.count();
+		if (m_recievers.count()) {
+			m_timer_id = startTimer(interval);
+			QTimerEvent ev(m_timer_id);
+			timerEvent(&ev);
+		}
+		else
+			emit finished(false);
+		
 	}
 	void Manager::stop()
 	{
-
+		killTimer(m_timer_id);
+		m_recievers.clear();
+		emit finished(true);
+		m_timer_id = 0;
 	}
 	Manager::~Manager()
 	{
 
+	}
+	
+	void Manager::timerEvent(QTimerEvent* ev)
+	{
+		if (ev->timerId() == m_timer_id) {
+			if (m_recievers.count()) {
+				QStandardItem *item = m_recievers.dequeue();
+				if (Contact *c = item->data(Qt::UserRole).value<Contact *>()) {
+					Message msg (parseText(m_message,c));
+					c->sendMessage(msg);
+					emit update(m_total_item_count - m_recievers.count(),
+								m_total_item_count,
+								c->title());
+				}
+				if (!m_recievers.count())
+					stop();
+			}
+			else 
+				stop();
+		}
+		QObject::timerEvent(ev);
+	}
+	
+	bool Manager::currentState()
+	{
+		return m_timer_id;
 	}
 
 

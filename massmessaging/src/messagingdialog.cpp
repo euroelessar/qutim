@@ -21,11 +21,13 @@
 #include <QMenu>
 #include "ui_messagingdialog.h"
 #include "manager.h"
+#include <QTime>
 
 namespace MassMessaging
 {
-	MessagingDialog::MessagingDialog() : ui(new Ui::Dialog),m_manager(new Manager)
+	MessagingDialog::MessagingDialog() : ui(new Ui::Dialog)
 	{
+		m_manager = new Manager(this);
 		ui->setupUi(this);
 		setAttribute(Qt::WA_DeleteOnClose);
 		
@@ -39,30 +41,49 @@ namespace MassMessaging
 		
 		ui->treeView->setModel(m_manager->model());
 		m_manager->reload();
+		
+		connect(ui->sendButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
+		connect(m_manager,SIGNAL(finished(bool)),SLOT(onManagerFinished(bool)));
+		connect(m_manager,SIGNAL(update(uint,uint,QString)),SLOT(updateProgressBar(uint,uint,QString)));
 	}
-	void MessagingDialog::onLoadButtonClicked()
-	{
-
-	}
-	void MessagingDialog::onSaveButtonClicked()
-	{
-
-	}
+	
 	void MessagingDialog::onSendButtonClicked()
 	{
-
+		if (!m_manager->currentState()) {
+			ui->progressBar->show();
+			ui->sendButton->setText(tr("Stop"));
+			//ui->progressHint->show();			
+			int interval = ui->intervalEdit->text().toInt()*1000;
+			m_manager->start(ui->messageEdit->toPlainText(),interval);
+		}
+		else
+			m_manager->stop();
 	}
-	void MessagingDialog::onStopButtonClicked()
-	{
-
-	}
+	
 	void MessagingDialog::updateProgressBar(const uint& completed, const uint& total, const QString& message)
 	{
-
+		ui->progressBar->setMaximum(total);
+		ui->progressBar->setValue(completed);
+		ui->progressBar->setFormat(tr("Sending message to %1: %v/%m").arg(message));
+		ui->progressBar->setToolTip(tr("Sending message to %1").arg(message));
+		//progressHint->setText(tr("Sending messages: (%2/%3)").arg(completed).arg(total));
+		int secs = (total-completed)*ui->intervalEdit->text().toInt();
+		QTime time;
+		time = time.addSecs(secs);
+		setWindowTitle(tr("Sending message to %1 (%2/%3), time remains: %4").arg(message).arg(completed).arg(total).arg(time.toString()));
 	}
+	
 	MessagingDialog::~MessagingDialog()
 	{
 		delete ui;
+	}
+	
+	void MessagingDialog::onManagerFinished(bool ok)
+	{
+		ui->progressBar->hide();
+		//ui->progressHint->hide();
+		setWindowTitle("Finished");
+		ui->sendButton->setText(tr("Start"));
 	}
 
 
