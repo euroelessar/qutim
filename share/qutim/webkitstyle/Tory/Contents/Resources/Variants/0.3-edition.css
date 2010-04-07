@@ -8,21 +8,28 @@
 	color: #0078ff;
 }
 
+.message {
+	padding-left: 10pt;
+}
+
 .m_received {
 	display: inline;
 	padding-left: 10pt;
+	margin-left: -10pt;
 	background: url('../Images/bullet-received.png') left center no-repeat;
 }
 
 .m_sending {
 	display: inline;
 	padding-left: 10pt;
+	margin-left: -10pt;
 	background: url('../Images/bullet-send.png') left center no-repeat;
 }
 
 .m_sended {
 	display: inline;
 	padding-left: 10pt;
+	margin-left: -10pt;
 	background: url('../Images/bullet-received.png') left center no-repeat;
 }
 
