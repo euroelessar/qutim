@@ -701,6 +701,11 @@ void Feedbag::registerHandler(FeedbagItemHandler *handler)
 	}
 }
 
+IcqAccount *Feedbag::account() const
+{
+	return d->account;
+}
+
 void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 {
 	Q_ASSERT(conn == d->conn);

@@ -149,6 +149,7 @@ public:
 	bool containsItem(quint16 type, const QString &name) const;
 	quint16 uniqueItemId(quint16 type, quint16 value = 0) const;
 	void registerHandler(FeedbagItemHandler *handler);
+	IcqAccount *account() const;
 signals:
 	void loaded();
 protected:
