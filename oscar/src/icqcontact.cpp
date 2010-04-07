@@ -190,6 +190,7 @@ IcqContact::IcqContact(const QString &uin, IcqAccount *account) :
 	d->status = Status::Offline;
 	d->clearCapabilities();
 	d->state = ChatStateGone;
+	d->added = false;
 }
 
 IcqContact::~IcqContact()

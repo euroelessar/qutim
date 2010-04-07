@@ -70,7 +70,6 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 	case SsiBuddy: {
 		if (item.name().isEmpty())
 			break;
-		bool creating = !m_account->contacts().contains(item.name());
 		IcqContact *contact = m_account->getContact(item.name(), true);
 		IcqContactPrivate *d = contact->d_func();
 		QList<FeedbagItem>::iterator itr = d->items.begin();
@@ -85,7 +84,7 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 			++itr;
 		}
 		if (newTag) {
-			if (!creating && m_account->status() == Status::Connecting && d->items.isEmpty())
+			if (d->added && m_account->status() == Status::Connecting && d->items.isEmpty())
 				loadTagsFromFeedbag(contact);
 			d->items << item;
 			emit contact->tagsChanged(contact->tags());
@@ -104,9 +103,10 @@ void Roster::handleAddModifyCLItem(const FeedbagItem &item, Feedbag::ModifyType 
 		}
 		// auth
 		contact->setProperty("authorizedBy", !item.containsField(SsiBuddyReqAuth));
-		if (creating) {
+		if (!d->added) {
 			if (ContactList::instance()) {
 				loadTagsFromFeedbag(contact);
+				d->added = true;
 				ContactList::instance()->addContact(contact);
 			}
 			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
