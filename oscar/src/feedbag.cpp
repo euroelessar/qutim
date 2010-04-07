@@ -20,7 +20,6 @@
 #include "icqaccount.h"
 #include <QQueue>
 #include <QDateTime>
-#include <qutim/objectgenerator.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -459,8 +458,6 @@ Feedbag::Feedbag(IcqAccount *acc):
 			<< SNACInfo(ListsFamily, ListsCliModifyStart)
 			<< SNACInfo(ListsFamily, ListsCliModifyEnd)
 			<< SNACInfo(ListsFamily, ListsSrvReplyLists);
-	foreach(const ObjectGenerator *gen, moduleGenerators<FeedbagItemHandler>())
-		registerHandler(gen->generate<FeedbagItemHandler>());
 	ConfigGroup config = acc->config("feedbag");
 	d->lastUpdateTime = config.value("lastUpdateTime", 0);
 	config = config.group("cache");
