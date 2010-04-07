@@ -59,6 +59,36 @@ ASpellChecker::ASpellChecker()
 //	}
 //	langs.removeDuplicates();
 //	qDebug() << langs;
+//    struct variantListType
+//    {
+//        const char* variantShortName;
+//        const char* variantEnglishName;
+//    };
+//
+//    const variantListType variantList[] = {
+//        { "40", I18N_NOOP2("dictionary variant", "40") }, // what does 40 mean?
+//        { "60", I18N_NOOP2("dictionary variant", "60") }, // what does 60 mean?
+//        { "80", I18N_NOOP2("dictionary variant", "80") }, // what does 80 mean?
+//        { "ise", I18N_NOOP2("dictionary variant", "-ise suffixes") },
+//        { "ize", I18N_NOOP2("dictionary variant", "-ize suffixes") },
+//        { "ise-w_accents", I18N_NOOP2("dictionary variant", "-ise suffixes and with accents") },
+//        { "ise-wo_accents", I18N_NOOP2("dictionary variant", "-ise suffixes and without accents") },
+//        { "ize-w_accents", I18N_NOOP2("dictionary variant", "-ize suffixes and with accents") },
+//        { "ize-wo_accents", I18N_NOOP2("dictionary variant", "-ize suffixes and without accents") },
+//        { "lrg", I18N_NOOP2("dictionary variant", "large") },
+//        { "med", I18N_NOOP2("dictionary variant", "medium") },
+//        { "sml", I18N_NOOP2("dictionary variant", "small") },
+//        { "variant_0", I18N_NOOP2("dictionary variant", "variant 0") },
+//        { "variant_1", I18N_NOOP2("dictionary variant", "variant 1") },
+//        { "variant_2", I18N_NOOP2("dictionary variant", "variant 2") },
+//        { "wo_accents", I18N_NOOP2("dictionary variant", "without accents") },
+//        { "w_accents", I18N_NOOP2("dictionary variant", "with accents") },
+//        { "ye", I18N_NOOP2("dictionary variant", "with ye") },
+//        { "yeyo", I18N_NOOP2("dictionary variant", "with yeyo") },
+//        { "yo", I18N_NOOP2("dictionary variant", "with yo") },
+//        { "extended", I18N_NOOP2("dictionary variant", "extended") },
+//        { 0, 0 }
+//    };
 }
 
 ASpellChecker::~ASpellChecker()

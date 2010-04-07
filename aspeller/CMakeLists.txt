@@ -7,7 +7,7 @@ if(QUTIM_PATH)
     set(QUTIM_LIBRARY_DIR ${QUTIM_PATH}/libqutim/)
     set(QUTIM_CMAKE_PLUGIN ${QUTIM_PATH}/cmake/QutimPlugin.cmake)
 else(QUTIM_PATH)
-    set(QUTIM_CMAKE_PLUGIN ${CMAKE_ROOT}/Modules/QutimPlugin.cmake)
+	set(QUTIM_CMAKE_PLUGIN ${CMAKE_ROOT}/Modules/QutimPlugin.cmake)
 endif(QUTIM_PATH)
 
 find_package( ASPELL REQUIRED )
