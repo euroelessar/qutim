@@ -14,6 +14,8 @@ PrivateListActionGenerator::PrivateListActionGenerator(quint16 type, const QIcon
 	ActionGenerator(icon, text1, PrivacyLists::instance(), SLOT(onModifyPrivateList())),
 	m_type(type), m_text2(text2)
 {
+	setPriority(45);
+	setType(34563);
 }
 
 PrivateListActionGenerator::~PrivateListActionGenerator()
