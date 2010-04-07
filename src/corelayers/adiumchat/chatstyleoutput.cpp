@@ -136,6 +136,8 @@ namespace AdiumChat
 		js += getVariantCSS();
 		js += "\");";
 		page->currentFrame()->evaluateJavaScript(js);
+		js = QString("setCustomStylesheet(\"%1\")").arg(m_current_css);
+		page->currentFrame()->evaluateJavaScript(js);
 	}
 
 	void ChatStyleOutput::setCustomCSS(const QString &css)
