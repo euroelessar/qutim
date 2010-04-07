@@ -44,6 +44,7 @@ namespace AdiumChat
 		virtual MessageList unread() const;
 		void loadTheme(const QString& path, const QString& variant);
 		void setVariant(const QString& variant);
+		void setCustomCSS(const QString &css);
 		QString getVariant() const;
 		QAbstractItemModel *getModel() const;
 		virtual void setActive(bool active = true);

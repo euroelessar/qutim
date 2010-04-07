@@ -112,10 +112,11 @@ namespace AdiumChat
 		for (int num = 0; num < count; num++) {
 			ConfigGroup parameter = variables.at(num);
 			css.append(QString("%1 { %2: %3; } ")
-					.arg(parameter.value("parameter", QString()))
 					.arg(parameter.value("selector", QString()))
+					.arg(parameter.value("parameter", QString()))
 					.arg(parameter.value("value", QString())));
 		}
+		setCustomCSS(css);
 		loadTheme(path,variant);
 		m_current_datetime_format = adium_chat.value<QString>("datetimeFormat","hh:mm:ss dd/MM/yyyy");
 	}
@@ -135,6 +136,11 @@ namespace AdiumChat
 		js += getVariantCSS();
 		js += "\");";
 		page->currentFrame()->evaluateJavaScript(js);
+	}
+
+	void ChatStyleOutput::setCustomCSS(const QString &css)
+	{
+		m_current_css = css;
 	}
 
 	ChatStyleOutput::~ChatStyleOutput()

@@ -76,6 +76,12 @@ namespace AdiumChat
 		return m_chat_style_output->getVariant();
 	}
 
+	void ChatSessionImpl::setCustomCSS(const QString &css)
+	{
+		m_chat_style_output->setCustomCSS(css);
+		m_chat_style_output->reloadStyle(m_web_page);
+	}
+
 	void ChatSessionImpl::loadHistory()
 	{
 		ConfigGroup adium_chat = Config("appearance/chat").group("general/history");

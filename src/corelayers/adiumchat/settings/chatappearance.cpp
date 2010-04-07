@@ -75,6 +75,9 @@ namespace Core
 	ChatAppearance::ChatAppearance(): ui(new Ui::chatAppearance),m_page(0),m_chat_session(0)
 	{
 		ui->setupUi(this);
+		QList<int> sizes;
+		sizes << 150 << 50;
+		ui->splitter->setSizes(sizes);
 		settingsWidget = 0;
 		if (allProtocols().isEmpty())
 			m_chat_session = 0;
@@ -171,8 +174,7 @@ namespace Core
 						.arg(widget->style().selector)
 						.arg(widget->style().parameter)
 						.arg(widget->style().value));
-		QString js = QString("setCustomStylesheet('%1');").arg(css);
-		m_chat_session->evaluateJavaScript(js);
+		m_chat_session->setCustomCSS(css);
 		emit modifiedChanged(true);
 	}
 
