@@ -25,69 +25,75 @@ static Core::CoreModuleHelper<ContactInfo> contact_info_static(
 	QT_TRANSLATE_NOOP("Plugin", "Default qutIM implementation of the information window")
 );
 
-InfoGroup::InfoGroup(QWidget *parent) :
-	QGroupBox(parent), m_layout(new QGridLayout(this)), m_row(0)
+InfoLayout::InfoLayout(QWidget *parent) :
+	QGridLayout(parent), m_row(0)
 {
 }
 
-void InfoGroup::addItems(const QList<InfoItem> &items)
+InfoLayout::~InfoLayout()
+{
+}
+
+void InfoLayout::addItems(const QList<InfoItem> &items)
 {
 	foreach (const InfoItem &item, items) {
 		if (item.hasSubitems()) {
-			InfoGroup *group = new InfoGroup(this);
-			group->setTitle(item.title());
+			QGroupBox *box = new QGroupBox(parentWidget());
+			box->setTitle(item.title());
+			box->setFlat(true);
+			InfoLayout *group = new InfoLayout(box);
 			group->addItems(item.subitems());
-			group->setFlat(true);
-			m_layout->addWidget(group, m_row++, 0, 1, 2);
+			addWidget(box, m_row++, 0, 1, 2);
 		} else {
 			addItem(item);
 		}
 	}
 }
 
-void InfoGroup::addItem(const InfoItem &item)
+void InfoLayout::addItem(const InfoItem &item)
 {
-	QLabel *title = new QLabel(item.title().toString() + ":", this);
+	QLabel *title = new QLabel(item.title().toString() + ":", parentWidget());
 	title->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 	QFont font;
 	font.setBold(true);
 	title->setFont(font);
 	title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-	m_layout->addWidget(title, m_row, 0, 1, 1, Qt::AlignRight | Qt::AlignTop);
+	addWidget(title, m_row, 0, 1, 1, Qt::AlignRight | Qt::AlignTop);
 
 	QVariant::Type type = item.data().type();
 	if (type == QVariant::Date) {
-		addLabel(item.data().toDate().toString(Qt::SystemLocaleLongDate));
+		addLabel(item.data().toDate().toString(Qt::SystemLocaleLongDate), item.name());
 		return;
 	} else if (type == QVariant::DateTime) {
-		addLabel(item.data().toDateTime().toString(Qt::SystemLocaleLongDate));
+		addLabel(item.data().toDateTime().toString(Qt::SystemLocaleLongDate), item.name());
 		return;
 	} else if (type == QVariant::Image) {
-		QLabel *d = new QLabel(this);
+		QLabel *d = new QLabel();
 		d->setPixmap(QPixmap::fromImage(item.data().value<QImage>()));
-		addDataWidget(d);
+		addDataWidget(d, item.name());
 		return;
 	} else if (type == QVariant::Pixmap) {
-		QLabel *d = new QLabel(this);
+		QLabel *d = new QLabel();
 		d->setPixmap(item.data().value<QPixmap>());
-		addDataWidget(d);
+		addDataWidget(d, item.name());
 		return;
 	} else if (type == QVariant::Bool) {
 		addLabel(item.data().toBool() ?
 				 QT_TRANSLATE_NOOP("ContactInfo", "yes") :
-				 QT_TRANSLATE_NOOP("ContactInfo", "no"));
+				 QT_TRANSLATE_NOOP("ContactInfo", "no"),
+				 item.name());
 		return;
 	} else if (item.data().canConvert<QHostAddress>()) {
 		QHostAddress address = item.data().value<QHostAddress>();
 		if (!address.isNull()) {
-			addLabel(address.toString());
+			addLabel(address.toString(), item.name());
 			return;
 		}
 	} else if (item.data().canConvert(QVariant::StringList)) {
 		QStringList list = item.data().toStringList();
 		if (!list.isEmpty()) {
 			foreach (const QString &i, list)
-				addLabel(i);
+				addLabel(i, item.name());
 			return;
 		}
 	}
@@ -95,51 +101,68 @@ void InfoGroup::addItem(const InfoItem &item)
 	bool enabled = !str.isEmpty();
 	if (!enabled)
 		str = QT_TRANSLATE_NOOP("ContactInfo", "the field is not set");
-	addLabel(str)->setEnabled(enabled);
+	addLabel(str, item.name())->setEnabled(enabled);
 }
 
-void InfoGroup::addDataWidget(QWidget *widget)
+void InfoLayout::addSpacer()
 {
+	QSpacerItem *spacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+	QGridLayout::addItem(spacer, m_row++, 0);
+}
+
+void InfoLayout::addDataWidget(QWidget *widget, const QString &name)
+{
+	widget->setParent(parentWidget());
+	widget->setObjectName(name);
 	widget->setProperty("readOnly", true);
-	widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-	m_layout->addWidget(widget, m_row++, 1, 1, 1, Qt::AlignLeft);
+	widget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+	addWidget(widget, m_row++, 1, 1, 1, Qt::AlignLeft);
 }
 
-QLabel *InfoGroup::addLabel(const QString &data)
+QLabel *InfoLayout::addLabel(const QString &data, const QString &name)
 {
-	QLabel *d = new QLabel(data, this);
+	QLabel *d = new QLabel(data, parentWidget());
 	d->setTextInteractionFlags(Qt::LinksAccessibleByMouse |
 							Qt::LinksAccessibleByKeyboard |
 							Qt::TextSelectableByMouse |
 							Qt::TextSelectableByKeyboard);
-	addDataWidget(d);
+	addDataWidget(d, name);
 	return d;
 }
 
 MainWindow::MainWindow() :
 	request(0)
 {
-	setMinimumSize(350, 250);
-	setFrameShape(QScrollArea::NoFrame);
-	setWidgetResizable(true);
+	ui.setupUi(this);
+	connect(ui.requestButton, SIGNAL(clicked()), SLOT(onRequestButton()));
 }
 
 void MainWindow::setBuddy(Buddy *buddy, InfoRequest *req)
 {
-	if (request)
+	m_buddy = buddy;
+	if (request && req != request)
 		request->deleteLater();
+	int curPage = ui.detailsStackedWidget->currentIndex();
 	request = req;
-	if (widget())
-		delete widget();
-	QWidget *w = new QWidget(this);
-	setWidget(w);
-	m_layout = new QVBoxLayout(w);
+	ui.infoListWidget->clear();
+	QWidget *w;
+	while ((w = ui.detailsStackedWidget->widget(0)) != 0)
+		delete w;
 	setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About contact %1 <%2>")
 					.toString()
 					.arg(buddy->name())
 					.arg(buddy->id()));
-	if (request->state() == InfoRequest::Done) {
-		addItems(request->item());
+	ui.saveButton->setVisible(false);
+	ui.addButton->setVisible(false);
+	ui.removeButton->setVisible(false);
+	QString avatar = buddy->avatar();
+	if (avatar.isEmpty())
+		avatar = ":/icons/qutim_64.png";
+	ui.pictureLabel->setPixmap(QPixmap(avatar).scaled(QSize(64, 64), Qt::KeepAspectRatio));
+	addItems(request->item());
+	if (curPage >= 0)
+		ui.infoListWidget->setCurrentRow(curPage);
+	if (request->state() == InfoRequest::Done || request->state() == InfoRequest::Cancel) {
 		request->deleteLater(); request = 0;
 	} else {
 		connect(request, SIGNAL(stateChanged(InfoRequest::State)), SLOT(onRequestStateChanged(InfoRequest::State)));
@@ -150,32 +173,78 @@ void MainWindow::onRequestStateChanged(InfoRequest::State state)
 {
 	if (request != sender())
 		return;
-	if (state == InfoRequest::Done)
-		addItems(request->item());
-	if (state == InfoRequest::Done || state == InfoRequest::Cancel)
-		request->deleteLater(); request = 0;
+	Q_UNUSED(state);
+	setBuddy(m_buddy, request);
+}
+
+void MainWindow::onRequestButton()
+{
+	InfoRequest *request = m_buddy->infoRequest();
+	if (!request)
+		return;
+	setBuddy(m_buddy, request);
 }
 
 void MainWindow::addItems(const InfoItem &items)
 {
-	InfoGroup *general = 0;
+	// Summary
+	QLabel *w = new QLabel(summary(items), ui.detailsStackedWidget);
+	w->setAlignment(Qt::AlignTop);
+	w->setFrameShape(QFrame::Panel);
+	w->setFrameShadow(QFrame::Sunken);
+	w->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	w->setTextInteractionFlags(Qt::LinksAccessibleByMouse |
+							Qt::LinksAccessibleByKeyboard |
+							Qt::TextSelectableByMouse |
+							Qt::TextSelectableByKeyboard);
+	ui.infoListWidget->addItem(QT_TRANSLATE_NOOP("ContactInfo", "Summary"));
+	ui.detailsStackedWidget->addWidget(w);
+	// Pages
+	InfoLayout *general = 0;
 	foreach (const InfoItem &item, items.subitems()) {
 		if (item.hasSubitems()) {
-			InfoGroup *group = new InfoGroup(widget());
-			group->setTitle(item.name());
-			m_layout->addWidget(group);
+			QFrame *w = new QFrame(ui.detailsStackedWidget);
+			w->setFrameShape(QFrame::Panel);
+			w->setFrameShadow(QFrame::Sunken);
+			InfoLayout *group = new InfoLayout(w);
 			group->addItems(item.subitems());
+			group->addSpacer();
+			ui.infoListWidget->addItem(item.name());
+			ui.detailsStackedWidget->addWidget(w);
 		} else {
 			if (!general) {
-				general = new InfoGroup(widget());
-				general->setTitle(QT_TRANSLATE_NOOP("ContactInfo", "General"));
-				m_layout->addWidget(general);
+				QFrame *w = new QFrame(ui.detailsStackedWidget);
+				w->setFrameShape(QFrame::Panel);
+				w->setFrameShadow(QFrame::Sunken);
+				general = new InfoLayout(w);
+				ui.infoListWidget->addItem(QT_TRANSLATE_NOOP("ContactInfo", "General"));
+				ui.detailsStackedWidget->addWidget(w);
 			}
 			general->addItem(item);
 		}
 	}
-	QSpacerItem *spacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-	m_layout->addItem(spacer);
+	if (general)
+		general->addSpacer();
+}
+
+QString MainWindow::summary(const InfoItem &items)
+{
+	QString text;
+	bool first = true;
+	foreach (const InfoItem &item, items.subitems()) {
+		if (item.property("additional", false))
+			continue;
+		if (item.hasSubitems()) {
+			text += summary(item);
+		} else if (item.data().canConvert(QVariant::String)) {
+			if (first) {
+				text += QString("<b>[%1]:</b><br>").arg(items.title());
+				first = false;
+			}
+			text += QString("<b>%1:</b>  %2<br>").arg(item.title()).arg(item.data().toString());
+		}
+	}
+	return text;
 }
 
 ContactInfo::ContactInfo()
