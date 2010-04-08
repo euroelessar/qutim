@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>636</width>
-    <height>560</height>
+    <width>634</width>
+    <height>558</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -114,13 +114,6 @@
       </property>
      </spacer>
     </item>
-    <item row="2" column="2" colspan="2">
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>Send</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="3">
      <widget class="QToolButton" name="tabButton">
       <property name="sizePolicy">
@@ -140,6 +133,28 @@
       </property>
       <property name="arrowType">
        <enum>Qt::NoArrow</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2" colspan="2">
+     <widget class="QToolButton" name="sendButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="text">
+       <string>Send</string>
+      </property>
+      <property name="popupMode">
+       <enum>QToolButton::MenuButtonPopup</enum>
+      </property>
+      <property name="toolButtonStyle">
+       <enum>Qt::ToolButtonFollowStyle</enum>
       </property>
      </widget>
     </item>

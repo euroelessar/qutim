@@ -355,4 +355,36 @@ namespace AdiumChat
 		QDesktopServices::openUrl(url);
 	}
 
+	QMenu *ChatSessionImpl::menu()
+	{
+		if (!m_menu) {
+			m_menu = new QMenu();
+
+			QAction *act = new QAction(m_menu);
+			act->setText(m_chat_unit->title());
+			act->setData(qVariantFromValue(m_chat_unit.data()));
+			act->setCheckable(true);
+			act->setChecked(true);
+
+			QActionGroup *group = new QActionGroup(m_menu);
+			group->setExclusive(true);
+			group->addAction(act);
+
+			m_menu->addAction(act);
+			m_menu->addSeparator();
+
+			foreach(qutim_sdk_0_3::ChatUnit *u,m_chat_unit->lowerUnits()) {
+				new QAction(m_menu);
+				act->setText(m_chat_unit->title());
+				act->setData(qVariantFromValue(u));
+				act->setCheckable(true);
+				act->setChecked(false);
+				group->addAction(act);
+				m_menu->addAction(act);
+			}
+
+		}
+		return m_menu;
+	}
+
 }

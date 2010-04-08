@@ -50,6 +50,7 @@ namespace AdiumChat
 		virtual void setActive(bool active = true);
 		virtual void setChatUnit(ChatUnit* unit);
 		virtual bool isActive();
+		QMenu *menu();
 		bool event(QEvent *);
 		void setChatState(ChatState state);
 		ChatState getChatState() const {return m_myself_chat_state;};
@@ -69,6 +70,7 @@ namespace AdiumChat
 		QPointer<QWebPage> m_web_page;
 		QPointer<ChatUnit> m_chat_unit;
 		QPointer<QTextDocument> m_input;
+		QPointer<QMenu> m_menu;
 		ChatSessionModel *m_model;
 		//additional info and flags
 		const ChatUnit *m_previous_sender; // zero if outcoming

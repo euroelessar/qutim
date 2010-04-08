@@ -72,7 +72,7 @@ namespace AdiumChat
 		connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 		connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 		connect(ui->tabBar,SIGNAL(customContextMenuRequested(QPoint)),SLOT(onTabContextMenu(QPoint)));
-		connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
+		connect(ui->sendButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
 		
 		ui->chatEdit->installEventFilter(this);
 		ui->chatView->installEventFilter(this);
@@ -119,8 +119,8 @@ namespace AdiumChat
 			}
 		}
 		//init shortcuts
-		Shortcut *key = new Shortcut ("chatSendMessage",ui->pushButton);
-		connect(key,SIGNAL(activated()),ui->pushButton,SLOT(click()));
+		Shortcut *key = new Shortcut ("chatSendMessage",ui->sendButton);
+		connect(key,SIGNAL(activated()),ui->sendButton,SLOT(click()));
 		key = new Shortcut ("chatCloseSession",ui->tabBar);
 		connect(key,SIGNAL(activated()),SLOT(closeCurrentTab()));
 		key = new Shortcut ("chatNext",ui->tabBar);
@@ -225,6 +225,8 @@ namespace AdiumChat
  			m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
 			m_sessions.at(previous_index)->setChatState(m_chatstate);
  		}
+
+		ui->sendButton->setMenu(session->menu());
 		ui->chatEdit->setDocument(session->getInputField());
 	}
 
@@ -357,7 +359,16 @@ namespace AdiumChat
 		if (ui->chatEdit->toPlainText().trimmed().isEmpty() || ui->tabBar->currentIndex() < 0)
 			return;
 		ChatSessionImpl *session = m_sessions.at(ui->tabBar->currentIndex());
-		ChatUnit *unit = session->getUnit();
+		ChatUnit *unit = 0;
+		foreach (QAction *a,ui->sendButton->menu()->actions()) {
+			if (a->isChecked()) {
+				unit = a->data().value<ChatUnit *>();
+				break;
+			}
+		}
+		if (!unit)
+			unit = session->getUnit();
+
 		Message message(ui->chatEdit->toPlainText());
 		if (m_html_message)
 			message.setProperty("html",Qt::escape(message.text()));
@@ -365,7 +376,7 @@ namespace AdiumChat
 		message.setChatUnit(unit);
 		message.setTime(QDateTime::currentDateTime());
 		session->appendMessage(message);
-		session->getUnit()->sendMessage(message);
+		unit->sendMessage(message);
 		ui->chatEdit->clear();
 
 		killTimer(m_self_chatstate_timer);
