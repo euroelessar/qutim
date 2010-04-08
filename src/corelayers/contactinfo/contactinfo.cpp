@@ -52,13 +52,15 @@ void InfoLayout::addItems(const QList<InfoItem> &items)
 
 void InfoLayout::addItem(const InfoItem &item)
 {
-	QLabel *title = new QLabel(item.title().toString() + ":", parentWidget());
-	title->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-	QFont font;
-	font.setBold(true);
-	title->setFont(font);
-	title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-	addWidget(title, m_row, 0, 1, 1, Qt::AlignRight | Qt::AlignTop);
+	if (!item.property("hideTitle", false)) {
+		QLabel *title = new QLabel(item.title().toString() + ":", parentWidget());
+		title->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+		QFont font;
+		font.setBold(true);
+		title->setFont(font);
+		title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+		addWidget(title, m_row, 0, 1, 1, Qt::AlignRight | Qt::AlignTop);
+	}
 
 	QVariant::Type type = item.data().type();
 	if (type == QVariant::Date) {
@@ -187,6 +189,8 @@ void MainWindow::onRequestButton()
 
 void MainWindow::addItems(const InfoItem &items)
 {
+	if (!items.hasSubitems())
+		return;
 	// Summary
 	QLabel *w = new QLabel(summary(items), ui.detailsStackedWidget);
 	w->setAlignment(Qt::AlignTop);
@@ -241,7 +245,19 @@ QString MainWindow::summary(const InfoItem &items)
 				text += QString("<b>[%1]:</b><br>").arg(items.title());
 				first = false;
 			}
-			text += QString("<b>%1:</b>  %2<br>").arg(item.title()).arg(item.data().toString());
+			text += QString("<b>%1:</b>  ").arg(item.title());
+			QVariant::Type type = item.data().type();
+			if (type == QVariant::Date)
+				text += item.data().toDate().toString(Qt::SystemLocaleLongDate);
+			else if (type == QVariant::DateTime)
+				text += item.data().toDateTime().toString(Qt::SystemLocaleLongDate);
+			else if (type == QVariant::Bool)
+				text += item.data().toBool() ?
+						 QT_TRANSLATE_NOOP("ContactInfo", "yes") :
+						 QT_TRANSLATE_NOOP("ContactInfo", "no");
+			else
+				text += item.data().toString();
+			text += "<br>";
 		}
 	}
 	return text;
@@ -261,6 +277,7 @@ void ContactInfo::show(Buddy *buddy)
 		return;
 	if (!info) {
 		info = new MainWindow();
+		centerizeWidget(info);
 		info->show();
 		info->setAttribute(Qt::WA_DeleteOnClose, true);
 	} else {
