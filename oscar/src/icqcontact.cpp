@@ -68,7 +68,8 @@ InfoItem IcqInfoRequest::item(const QString &name) const
 												m_contact->d_func()->regTime.toLocalTime()));
 				QString emailStr = m_values.value(Email).toString();
 				if (!emailStr.isEmpty() && !m_values.value(PublishPrimaryEmailFlag).toBool())
-					emailStr += " (private)";
+					emailStr += QT_TRANSLATE_NOOP("ContactInfo", " (private)");
+				accountInfo.addSubitem(InfoItem("email", QT_TRANSLATE_NOOP("ContactInfo", "Email"), emailStr));
 				general.addSubitem(accountInfo);
 			}
 			item.addSubitem(general);
@@ -144,9 +145,8 @@ InfoItem IcqInfoRequest::item(const QString &name) const
 		{
 			InfoItem about(QT_TRANSLATE_NOOP("ContactInfo", "About"));
 			{
-				InfoItem notes(QT_TRANSLATE_NOOP("ContactInfo", "Notes"));
-				InfoItem n("notes", QT_TRANSLATE_NOOP("ContactInfo", "Notes"), m_values.value(Notes));
-				n.setProperty("hideTitle", true);
+				InfoItem notes("notes", QT_TRANSLATE_NOOP("ContactInfo", "Notes"), m_values.value(Notes));
+				notes.setProperty("hideTitle", true);
 				about.addSubitem(notes);
 			}
 			item.addSubitem(about);
