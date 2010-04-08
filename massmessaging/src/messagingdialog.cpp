@@ -15,121 +15,76 @@
 */
 
 #include "messagingdialog.h"
-#include "manager.h"
+
 #include <QDebug>
-#include <qutim/plugininterface.h>
-#include "buddylistmanager.h"
 #include <QFileDialog>
-#include <qutim/iconmanagerinterface.h>
 #include <QMenu>
+#include "ui_messagingdialog.h"
+#include "manager.h"
+#include <QTime>
 
-MessagingDialog::MessagingDialog(Manager *manager)
+namespace MassMessaging
 {
-    m_manager = manager;
-    setupUi(this);
-    qutim_sdk_0_2::SystemsCity::PluginSystem()->centerizeWidget(this);
-    progressBar->setVisible(false);
-    progressHint->setVisible(false);
-    QFont font;
-    font.setBold(true);
-    progressHint->setFont(font);
-    //treeWidget->setIconSize(baseSize());
-    treeWidget->insertTopLevelItem(0,m_manager->getRootItem());
-    treeWidget->sortItems(0,Qt::AscendingOrder);
-    m_manager->getRootItem()->setExpanded(true);  
+	MessagingDialog::MessagingDialog() : ui(new Ui::Dialog)
+	{
+		m_manager = new Manager(this);
+		ui->setupUi(this);
+		setAttribute(Qt::WA_DeleteOnClose);
+		
+		QList<int> sizes;
+		sizes.append(150);
+		sizes.append(250);
+		ui->splitter->setSizes(sizes);
+		
+		ui->progressBar->hide();
+		ui->progressHint->hide();
+		
+		ui->treeView->setModel(m_manager->model());
+		m_manager->reload();
+		
+		connect(ui->sendButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
+		connect(m_manager,SIGNAL(finished(bool)),SLOT(onManagerFinished(bool)));
+		connect(m_manager,SIGNAL(update(uint,uint,QString)),SLOT(updateProgressBar(uint,uint,QString)));
+	}
+	
+	void MessagingDialog::onSendButtonClicked()
+	{
+		if (!m_manager->currentState()) {
+			ui->progressBar->show();
+			ui->sendButton->setText(tr("Stop"));
+			//ui->progressHint->show();			
+			int interval = ui->intervalEdit->text().toInt()*1000;
+			m_manager->start(ui->messageEdit->toPlainText(),interval);
+		}
+		else
+			m_manager->stop();
+	}
+	
+	void MessagingDialog::updateProgressBar(const uint& completed, const uint& total, const QString& message)
+	{
+		ui->progressBar->setMaximum(total);
+		ui->progressBar->setValue(completed);
+		ui->progressBar->setFormat(tr("Sending message to %1: %v/%m").arg(message));
+		ui->progressBar->setToolTip(tr("Sending message to %1").arg(message));
+		//progressHint->setText(tr("Sending messages: (%2/%3)").arg(completed).arg(total));
+		int secs = (total-completed)*ui->intervalEdit->text().toInt();
+		QTime time;
+		time = time.addSecs(secs);
+		setWindowTitle(tr("Sending message to %1 (%2/%3), time remains: %4").arg(message).arg(completed).arg(total).arg(time.toString()));
+	}
+	
+	MessagingDialog::~MessagingDialog()
+	{
+		delete ui;
+	}
+	
+	void MessagingDialog::onManagerFinished(bool ok)
+	{
+		ui->progressBar->hide();
+		//ui->progressHint->hide();
+		setWindowTitle("Finished");
+		ui->sendButton->setText(tr("Start"));
+	}
 
-    connect(sendButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
-    connect(stopButton,SIGNAL(clicked(bool)),SLOT(onStopButtonClicked()));
-    connect(stopButton,SIGNAL(clicked(bool)),m_manager,SLOT(endSending()));
-    sendButton->setIcon(qutim_sdk_0_2::SystemsCity::IconManager()->getIcon("multiple"));
-    stopButton->setIcon(qutim_sdk_0_2::SystemsCity::IconManager()->getIcon("stop"));
 
-    QMenu *menu = new QMenu(tr("Actions"),this);
-    QAction *loadAction = new QAction(qutim_sdk_0_2::SystemsCity::IconManager()->getIcon("folder"),
-                                      tr("Load buddy list"),
-                                      this);
-    connect(loadAction,SIGNAL(triggered(bool)),SLOT(onLoadButtonClicked()));
-    menu->addAction(loadAction);
-    QAction *saveAction = new QAction(qutim_sdk_0_2::SystemsCity::IconManager()->getIcon("save_all"),
-                                      tr("Save buddy list"),
-                                      this);
-    connect(saveAction,SIGNAL(triggered(bool)),SLOT(onSaveButtonClicked()));
-    menu->addAction(saveAction);
-    actionsButton->setMenu(menu);
-    actionsButton->setIcon(qutim_sdk_0_2::SystemsCity::IconManager()->getIcon("advanced"));
-
-    connect(m_manager,SIGNAL(finished(bool)),SLOT(onStopButtonClicked()));
-    connect(m_manager,SIGNAL(updateProgressBar(uint,uint,QString)),SLOT(updateProgressBar(uint,uint,QString)));
-    connect(treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*,int)),SLOT(onTreeWidgetItemChanged(QTreeWidgetItem*,int)));
 }
-
-MessagingDialog::~MessagingDialog()
-{
-
-}
-
-void MessagingDialog::onSendButtonClicked()
-{
-    progressBar->setVisible(true);
-    messageEdit->setEnabled(false);
-    intervalEdit->setEnabled(false);
-    m_manager->beginSending(messageEdit->toPlainText(),intervalEdit->text().toInt());
-    //progressHint->setVisible(true);
-}
-
-void MessagingDialog::onStopButtonClicked()
-{
-    progressBar->setVisible(false);
-    messageEdit->setEnabled(true);
-    intervalEdit->setEnabled(true);
-    //progressHint->setVisible(false);
-    setWindowTitle(tr("Multiply sending: all jobs finished"));
-}
-
-
-void MessagingDialog::onLoadButtonClicked()
-{
-    QString path = QFileDialog::getOpenFileName(this,
-                                                tr("Load custom buddy list"),
-                                                QDir::homePath(),
-                                                "Json files (*.json)");
-    BuddyListManager buddyListManager (path);
-    m_manager->addCustomBuddyList(buddyListManager.Load());
-}
-
-
-void MessagingDialog::onSaveButtonClicked()
-{
-    QString path = QFileDialog::getSaveFileName(this,
-                                                tr("Save buddy list"),
-                                                QDir::homePath(),
-                                                "Json files (*.json)");
-    BuddyListManager buddyListManager (path);
-    buddyListManager.Save(m_manager->getBuddyList());
-}
-
-
-void MessagingDialog::onTreeWidgetItemChanged(QTreeWidgetItem* item, int )
-{
-    if ( item->childCount() )
-    {
-        Qt::CheckState checkState = item->checkState(0);
-        for ( int i = 0; i < item->childCount(); i++)
-        {
-            item->child(i)->setCheckState(0,checkState);
-        }
-    }
-}
-
-void MessagingDialog::updateProgressBar(const uint& completed, const uint& total, const QString& message)
-{
-    progressBar->setMaximum(total);
-    progressBar->setValue(completed);
-    progressBar->setFormat(tr("Sending message to %1: %v/%m").arg(message));
-    progressBar->setToolTip(tr("Sending message to %1").arg(message));
-    //progressHint->setText(tr("Sending messages: (%2/%3)").arg(completed).arg(total));
-    int secs = (total-completed)*intervalEdit->text().toInt();
-    QTime time (secs/1440, secs/60, secs%60);
-    setWindowTitle(tr("Sending message to %1 (%2/%3), time remains: %4").arg(message).arg(completed).arg(total).arg(time.toString()));
-}
-

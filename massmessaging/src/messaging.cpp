@@ -1,82 +1,39 @@
 #include "messaging.h"
+#include <qutim/actiongenerator.h>
+#include <qutim/icon.h>
+#include <qutim/contactlist.h>
 #include "messagingdialog.h"
-#include "manager.h"
 
-bool Messaging::init ( PluginSystemInterface *plugin_system )
-{
-    qRegisterMetaType<TreeModelItem> ( "TreeModelItem" );
-
-    PluginInterface::init ( plugin_system );
-    return true;
-}
-
-void Messaging::release()
-{
-    delete(m_manager);
-}
-
-void Messaging::processEvent ( PluginEvent &/*event*/ )
+namespace MassMessaging
 {
 
+	void MassMessaging::init()
+	{
+		ActionGenerator *gen = new ActionGenerator(Icon("mail-send"),
+										QT_TRANSLATE_NOOP("MassMessaging", "&Mass Messaging"),
+										this,
+										SLOT(onActionTriggered())
+										);
+		MenuController::addAction<ContactList>(gen);
+	}
+	bool MassMessaging::load()
+	{
+		return true;
+	}
+	bool MassMessaging::unload()
+	{
+		return false;
+	}
+
+	void MassMessaging::onActionTriggered()
+	{
+		if (!m_dialog) {
+			m_dialog = new MessagingDialog();
+			centerizeWidget(m_dialog);
+		}
+		m_dialog->show();
+
+	}
 }
 
-QWidget *Messaging::settingsWidget()
-{
-    QWidget* form = new QWidget;
-    return form;
-}
-
-void Messaging::setProfileName ( const QString &profile_name )
-{
-    m_manager = new Manager(this);
-    SystemsCity::PluginSystem()->registerEventHandler (
-            "Core/ContactList/ItemAdded",
-            m_manager,
-            SLOT(addItem(TreeModelItem,QString))
-            );
-    m_dialog = new MessagingDialog(m_manager); 
-    QAction *messaging_dialog = new QAction(SystemsCity::PluginSystem()->getIcon("multiple"),tr("Multiply Sending"),this);
-    SystemsCity::PluginSystem()->registerMainMenuAction(messaging_dialog);
-    m_profile_name = profile_name;
-    connect(messaging_dialog,SIGNAL(triggered(bool)),SLOT(onMessagingActionTriggered()));
-}
-
-QString Messaging::name()
-{
-    return "Mass Messaging";
-}
-
-QString Messaging::description()
-{
-    return "qutIM Mass messaging plugin";
-}
-
-QIcon *Messaging::icon()
-{
-    return new QIcon();
-}
-
-QString Messaging::type()
-{
-    return "messaging";
-}
-
-
-void Messaging::removeSettingsWidget()
-{
-    //X3
-}
-
-void Messaging::saveSettings()
-{
-    //X3
-}
-
-void Messaging::onMessagingActionTriggered()
-{
-    m_dialog->show();
-}
-
-
-Q_EXPORT_PLUGIN2 ( Messaging,Messaging );
-
+QUTIM_EXPORT_PLUGIN(MassMessaging::MassMessaging)
