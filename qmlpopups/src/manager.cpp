@@ -131,6 +131,9 @@ namespace QmlPopups
 		animationDuration = behavior.value("animationDuration",600);
 		showFlags = static_cast<NotificationTypes>(behavior.value("showFlags", 0xfffffff));
 		margin = behavior.value("margin",20);
+
+		ConfigGroup general = Config("appearance/qmlpopups").group("general");
+		themeName = general.value<QString>("themeName","default");
 	}
 
 }
