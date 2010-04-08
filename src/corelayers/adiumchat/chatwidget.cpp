@@ -150,19 +150,29 @@ namespace AdiumChat
 		connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
 				SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 
+		ChatUnit *u = session->getUnit();
+
 		QIcon icon;
 		if (m_chat_flags & ChatStateIconsOnTabs) {
 			ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
 			icon = iconForState(state);
 		}
 
-		ui->tabBar->addTab(icon,session->getUnit()->title());
-		if (ui->tabBar->count() >1) {
-			//ui->tabBar->setVisible(true);
-			//ui->tabButton->show();
+		int index = ui->tabBar->addTab(icon,u->title());
+
+		QString html;
+		if (Contact *c = qobject_cast<Contact *>(u)) {
+			QString ava = c->avatar().isEmpty() ? QLatin1String(":/icons/qutim_64.png") : c->avatar();
+			html = QString("<img src=\"%1\" width=\"64\">").arg(ava);
 		}
 
-		QAction *act = new QAction(icon,session->getUnit()->title(),this);
+		if (Conference *conf = qobject_cast<Conference *>(u)) {
+			html = QString("<p><b>%1</b></p>").arg(conf->title());
+			html += QString("<p>%2</p>").arg(conf->topic());
+		}
+		ui->tabBar->setTabToolTip(index,html);
+
+		QAction *act = new QAction(icon,u->title(),this);
 		connect(act,SIGNAL(triggered()),this,SLOT(onSessionListActionTriggered()));
 		ui->tabButton->addAction(act);
 	}
