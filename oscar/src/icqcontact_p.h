@@ -57,6 +57,7 @@ public:
 private slots:
 	void onDone(bool ok);
 private:
+	void addItem(const MetaInfoField &field, InfoItem &group) const;
 	QPointer<FullInfoMetaRequest> m_metaReq;
 	MetaInfoValuesHash m_values;
 	State m_state;

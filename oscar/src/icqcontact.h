@@ -68,6 +68,7 @@ private slots:
 protected:
 	friend class Roster;
 	friend class MessagesHandler;
+	friend class IcqInfoRequest;
 	QScopedPointer<IcqContactPrivate> d_ptr;
 };
 

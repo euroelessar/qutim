@@ -50,57 +50,165 @@ IcqInfoRequest::~IcqInfoRequest()
 InfoItem IcqInfoRequest::item(const QString &name) const
 {
 	if (name.isEmpty()) {
-		QList<InfoItem> groups;
-		QString lastName;
-		for (int i = FirstMetaField; i <= LastMetaField; ++i) {
-			MetaInfoField field(i);
-			LocalizedString groupName = field.group();
-			if (lastName != groupName) {
-				groups.push_back(InfoItem(groupName.original(), groupName, QVariant()));
-				lastName = groupName.original();
-			}
-			InfoItem item(field.name(), field.toString(), m_values.value(field));
-			LocalizedStringList alt = field.titleAlternatives();
-			if (!alt.isEmpty())
-				item.setProperty("titleAlternatives", QVariant::fromValue(alt));
-			alt = field.alternatives();
-			if (!alt.isEmpty())
-				item.setProperty("alternatives", QVariant::fromValue(alt));
-			groups.last().addSubitem(item);
-		}
 		InfoItem item;
-		foreach (const InfoItem &i, groups)
-			item.addSubitem(i);
-		InfoItem otherGroup(QT_TRANSLATE_NOOP("ContactInfo", "Other"));
-		DirectConnectionInfo info = m_contact->dcInfo();
-		otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Internal IP"), QVariant::fromValue(info.internal_ip)));
-		otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "External IP"), QVariant::fromValue(info.external_ip)));
-		otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Port"), info.port));
-		otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Protocol version"), info.protocol_version));
+		// General page
 		{
-			QStringList caps;
-			foreach (const Capability &cap, m_contact->capabilities())
-				caps << cap.name();
-			otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Capabilities"), caps));
+			InfoItem general(QT_TRANSLATE_NOOP("ContactInfo", "General"));
+			{
+				InfoItem name(QT_TRANSLATE_NOOP("ContactInfo", "Name"));
+				addItem(Nick, name);
+				addItem(FirstName, name);
+				addItem(LastName, name);
+				general.addSubitem(name);
+			}
+			{
+				InfoItem accountInfo(QT_TRANSLATE_NOOP("ContactInfo", "Account info"));
+				accountInfo.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "UIN"), m_contact->id()));
+				accountInfo.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Registration"),
+												m_contact->d_func()->regTime.toLocalTime()));
+				QString emailStr = m_values.value(Email).toString();
+				if (!emailStr.isEmpty() && !m_values.value(PublishPrimaryEmailFlag).toBool())
+					emailStr += " (private)";
+				general.addSubitem(accountInfo);
+			}
+			item.addSubitem(general);
 		}
+		// Home page
 		{
-			InfoItem dcGroup(QT_TRANSLATE_NOOP("ContactInfo", "Direct connection extra info"));
-			dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Last info update"),
-										   QString("0x%1").arg(info.info_utime, 0, 16)));
-			dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Last ext info update"),
-										   QString("0x%1").arg(info.extinfo_utime, 0, 16)));
-			dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Last ext status update"),
-										   QString("0x%1").arg(info.extstatus_utime, 0, 16)));
-			dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Client features"),
-										   QString("0x%1").arg(info.client_features, 0, 16)));
-			dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Cookie"), info.auth_cookie));
-			otherGroup.addSubitem(dcGroup);
+			InfoItem home(QT_TRANSLATE_NOOP("ContactInfo", "Home"));
+			{
+				InfoItem address(QT_TRANSLATE_NOOP("ContactInfo", "Home address"));
+				addItem(HomeCountry, address);
+				addItem(HomePhone, address);
+				addItem(HomeCity, address);
+				addItem(HomeFax, address);
+				addItem(HomeState, address);
+				addItem(HomeZipCode, address);
+				addItem(CellPhone, address);
+				addItem(HomeAddress, address);
+				home.addSubitem(address);
+			}
+			{
+				InfoItem originally(QT_TRANSLATE_NOOP("ContactInfo", "Originally from"));
+				addItem(OriginalCountry, originally);
+				addItem(OriginalCity, originally);
+				addItem(OriginalState, originally);
+				home.addSubitem(originally);
+			}
+			item.addSubitem(home);
 		}
-		item.addSubitem(otherGroup);
+		// Work page
+		{
+			InfoItem work(QT_TRANSLATE_NOOP("ContactInfo", "Work"));
+			{
+				InfoItem address(QT_TRANSLATE_NOOP("ContactInfo", "Work address"));
+				addItem(WorkCountry, address);
+				addItem(WorkPhone, address);
+				addItem(WorkCity, address);
+				addItem(WorkFax, address);
+				addItem(WorkState, address);
+				addItem(WorkZip, address);
+				addItem(WorkAddress, address);
+				work.addSubitem(address);
+			}
+			{
+				InfoItem company(QT_TRANSLATE_NOOP("ContactInfo", "Company"));
+				addItem(WorkCompany, company);
+				addItem(WorkOccupation, company);
+				addItem(WorkDepartment, company);
+				addItem(WorkPosition, company);
+				addItem(WorkWebpage, company);
+				work.addSubitem(company);
+			}
+			item.addSubitem(work);
+		}
+		// Personal page
+		{
+			InfoItem personal(QT_TRANSLATE_NOOP("ContactInfo", "Personal"));
+			{
+				InfoItem data(QT_TRANSLATE_NOOP("ContactInfo", "Personal"));
+				addItem(Gender, data);
+				addItem(Homepage, data);
+				addItem(Age, data);
+				addItem(Languages, data);
+				personal.addSubitem(data);
+			}
+			{
+				InfoItem interests(QT_TRANSLATE_NOOP("ContactInfo", "Interests"));
+				addItem(Interests, interests);
+				personal.addSubitem(interests);
+			}
+			item.addSubitem(personal);
+		}
+		// About
+		{
+			InfoItem about(QT_TRANSLATE_NOOP("ContactInfo", "About"));
+			{
+				InfoItem notes(QT_TRANSLATE_NOOP("ContactInfo", "Notes"));
+				InfoItem n("notes", QT_TRANSLATE_NOOP("ContactInfo", "Notes"), m_values.value(Notes));
+				n.setProperty("hideTitle", true);
+				about.addSubitem(notes);
+			}
+			item.addSubitem(about);
+		}
+		// Other
+		{
+			InfoItem otherGroup(QT_TRANSLATE_NOOP("ContactInfo", "Other"));
+			otherGroup.setProperty("additional", true);
+			DirectConnectionInfo info = m_contact->dcInfo();
+			otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Internal IP"), QVariant::fromValue(info.internal_ip)));
+			otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "External IP"), QVariant::fromValue(info.external_ip)));
+			otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Port"), info.port));
+			otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Protocol version"), info.protocol_version));
+			{
+				QStringList caps;
+				foreach (const Capability &cap, m_contact->capabilities())
+					caps << cap.name();
+				otherGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Capabilities"), caps));
+			}
+			{
+				InfoItem dcGroup(QT_TRANSLATE_NOOP("ContactInfo", "Direct connection extra info"));
+				dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Last info update"),
+											   QString("0x%1").arg(info.info_utime, 0, 16)));
+				dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Last ext info update"),
+											   QString("0x%1").arg(info.extinfo_utime, 0, 16)));
+				dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Last ext status update"),
+											   QString("0x%1").arg(info.extstatus_utime, 0, 16)));
+				dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Client features"),
+											   QString("0x%1").arg(info.client_features, 0, 16)));
+				dcGroup.addSubitem(InfoItem(QT_TRANSLATE_NOOP("ContactInfo", "Cookie"), info.auth_cookie));
+				otherGroup.addSubitem(dcGroup);
+			}
+			item.addSubitem(otherGroup);
+		}
 		return item;
 	} else {
 		MetaInfoField field(name);
 		return InfoItem(name, field.toString(), m_values.value(field));
+	}
+}
+
+void IcqInfoRequest::addItem(const MetaInfoField &field, InfoItem &group) const
+{
+	QList<InfoItem> items;
+	QVariant data = m_values.value(field);
+	if (data.canConvert<CategoryList>()) {
+		foreach (const Category &cat, data.value<CategoryList>())
+			items << InfoItem(field.name(), cat.category, cat.keyword);
+	} else {
+		items << InfoItem(field.name(), field.toString(), data);
+	}
+	QList<InfoItem>::iterator itr = items.begin();
+	QList<InfoItem>::iterator endItr = items.end();
+	while(itr != endItr) {
+		LocalizedStringList alt = field.titleAlternatives();
+		if (!alt.isEmpty())
+			itr->setProperty("titleAlternatives", QVariant::fromValue(alt));
+		alt = field.alternatives();
+		if (!alt.isEmpty())
+			itr->setProperty("alternatives", QVariant::fromValue(alt));
+		group.addSubitem(*itr);
+		++itr;
 	}
 }
 
