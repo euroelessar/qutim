@@ -203,7 +203,7 @@ namespace Core
 		message.setText(tr("/me is thinking!"));
 		m_chat_session->appendMessage(message);
 		message.setProperty("service",true);
-		message.setText(tr("Vasya is reading you mind"));
+		message.setText(tr("Vasya Pupkin is reading you mind"));
 		m_chat_session->appendMessage(message);
 	}
 
@@ -212,7 +212,7 @@ namespace Core
 		if (settingsWidget)
 			delete settingsWidget;
 		settingsWidget = new QWidget();
-		QFormLayout *layout = new QFormLayout();
+		QFormLayout *layout = new QFormLayout(settingsWidget);
 		layout->setLabelAlignment(Qt::AlignLeft|Qt::AlignVCenter);
 		QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 		settingsWidget->setLayout(layout);
@@ -220,9 +220,9 @@ namespace Core
 		StyleVariants variants = ChatStyleGenerator::listVariants(getThemePath(category, m_current_style_name)
 				.append("/Contents/Resources/Variants"));
 		if (!variants.isEmpty()) {
-			QLabel *label = new QLabel(tr("Style variant:"));
+			QLabel *label = new QLabel(tr("Style variant:"), settingsWidget);
 			label->setSizePolicy(sizePolicy);
-			QComboBox *variantBox = new QComboBox();
+			QComboBox *variantBox = new QComboBox(settingsWidget);
 			layout->addRow(label, variantBox);
 			StyleVariants::const_iterator it;
 			for (it=variants.begin(); it!=variants.end(); it++)
@@ -240,33 +240,35 @@ namespace Core
 		for (int num = 0; num < count; num++) {
 			ConfigGroup parameter = variables.at(num);
 			QString type = parameter.value("type", QString());
+			QString text = parameter.value("label", QString());
+			text = parameter.value(QString("label-").append(QLocale().name()), text);
 			CustomChatStyle style;
 			style.parameter = parameter.value("parameter", QString());
 			style.selector = parameter.value("selector", QString());
 			style.value = parameter.value("value", QString());
 			if (type == "font") {
-				QLabel *label = new QLabel(parameter.value("label", QString())%":");
+				QLabel *label = new QLabel(text % ":", settingsWidget);
 				label->setSizePolicy(sizePolicy);
-				ChatFont *fontField = new ChatFont(style);
+				ChatFont *fontField = new ChatFont(style, settingsWidget);
 				layout->addRow(label, fontField);
 				connect(fontField, SIGNAL(changeValue()), SLOT(onVariableChanged()));
 				if (ChatVariable *widget = qobject_cast<ChatVariable*>(fontField))
 					m_current_variables.append(widget);
 			} else if (type == "color") {
-				QLabel *label = new QLabel(parameter.value("label", QString())%":");
+				QLabel *label = new QLabel(text % ":", settingsWidget);
 				label->setSizePolicy(sizePolicy);
-				ChatColor *colorField = new ChatColor(style);
+				ChatColor *colorField = new ChatColor(style, settingsWidget);
 				layout->addRow(label, colorField);
 				connect(colorField, SIGNAL(changeValue()), SLOT(onVariableChanged()));
 				if (ChatVariable *widget = qobject_cast<ChatVariable*>(colorField))
 					m_current_variables.append(widget);
 			} else if (type == "numeric") {
-				QLabel *label = new QLabel(parameter.value("label", QString())%":");
+				QLabel *label = new QLabel(text % ":", settingsWidget);
 				label->setSizePolicy(sizePolicy);
 				double min = parameter.value<double>("min", 0);
 				double max = parameter.value<double>("max", 0);
 				double step = parameter.value<double>("step", 1);
-				ChatNumeric *numField = new ChatNumeric(style, min, max, step);
+				ChatNumeric *numField = new ChatNumeric(style, min, max, step, settingsWidget);
 				layout->addRow(label, numField);
 				connect(numField, SIGNAL(changeValue()), SLOT(onVariableChanged()));
 				if (ChatVariable *widget = qobject_cast<ChatVariable*>(numField))
@@ -274,14 +276,15 @@ namespace Core
 			} else if (type == "boolean") {
 				QString trueValue = parameter.value("true", QString());
 				QString falseValue = parameter.value("false", QString());
-				ChatBoolean *boolField = new ChatBoolean(style, trueValue, falseValue);
-				boolField->setText(parameter.value("label", QString()));
+				ChatBoolean *boolField = new ChatBoolean(style, trueValue, falseValue, settingsWidget);
+				boolField->setText(text);
 				layout->addRow(boolField);
 				connect(boolField, SIGNAL(changeValue()), SLOT(onVariableChanged()));
 				if (ChatVariable *widget = qobject_cast<ChatVariable*>(boolField))
 					m_current_variables.append(widget);
 			}
 		}
+		onVariableChanged();
 		QSpacerItem *space = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 		layout->addItem(space);
 		ui->scrollAreaLayout->addWidget(settingsWidget);

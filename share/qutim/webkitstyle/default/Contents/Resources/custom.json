@@ -2,7 +2,8 @@
  "default": [
    {
     "type": "font",
-	 "label": "Chat font",
+    "label": "Chat font",
+    "label-ru_RU": "Шрифт сообщений",
     "selector": "body",
     "parameter": "font",
     "value": "10pt Arial"
@@ -10,6 +11,7 @@
    {
     "type": "color",
     "label": "Contact nick color",
+    "label-ru_RU": "Цвет ника собеседника",
     "selector": ".inContact, .inActionContact, .inActionMessage",
     "parameter": "color",
     "value": "#ff6600",
@@ -17,6 +19,7 @@
    {
     "type": "color",
     "label": "My nick color",
+    "label-ru_RU": "Цвет своего ника",
     "selector": ".outContact, .outActionContact, .outActionMessage",
     "parameter": "color",
     "value": "#0078ff",
