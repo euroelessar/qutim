@@ -362,6 +362,9 @@ bool MrimConnection::processPacket()
 MrimConnection::FeatureFlags MrimConnection::protoFeatures() const
 {
     static FeatureFlags supportedFeatures = FeatureFlagBaseSmiles;
+#ifndef NO_RTF_SUPPORT
+    supportedFeatures |= FeatureFlagRtfMessage;
+#endif
     return supportedFeatures;
 }
 

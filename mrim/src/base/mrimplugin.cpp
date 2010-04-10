@@ -29,7 +29,6 @@ MrimPlugin::MrimPlugin()
 
 void MrimPlugin::init()
 {
-    qDebug("%s", Q_FUNC_INFO);
     LocalizedString info = QT_TRANSLATE_NOOP("Plugin", "Module-based realization of Mail.Ru IM protocol");
     LocalizedString plugName = QT_TRANSLATE_NOOP("Plugin", "MRIM");
 

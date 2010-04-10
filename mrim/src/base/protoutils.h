@@ -35,6 +35,7 @@ public:
     static LPString* readLPS(const QByteArray& arr, quint32 pos = 0, bool unicode = false);
     static QString readString(QIODevice& buffer, bool unicode = false);
     static QString readString(const QByteArray& arr, quint32 pos = 0, bool unicode = false);
+    static QByteArray readArray(QIODevice& buffer);
 };
 
 /*
