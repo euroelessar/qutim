@@ -5,6 +5,7 @@
 
 struct VAccountPrivate;
 class VContact;
+class VConnection;
 class LIBVKONTAKTE_EXPORT VAccount : public Account
 {
 	Q_OBJECT
@@ -14,9 +15,12 @@ public:
 	virtual VContact* getContact(const QString& uid, bool create = false);
 	virtual ChatUnit* getUnit(const QString& unitId, bool create = false) {return getUnit(unitId,create);};
 	QString uid() const;
+	QString email() const {return id();}; //alias for id
 	void setUid(const QString &uid);
 	virtual void setStatus(Status status);
 	virtual ~VAccount();
+	VConnection *connection();
+	const VConnection *connection() const;
 public slots:
 	void updateSettings();
 protected:

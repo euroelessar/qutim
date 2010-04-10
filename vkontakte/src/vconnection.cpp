@@ -31,6 +31,27 @@ void VConnectionPrivate::onAuthRequestFinished()
 		q->setConnectionState(Disconnected);
 	}
 	debug() << remixPasswd << sid;
+	reply->deleteLater();
+}
+
+void VConnectionPrivate::onLogoutRequestFinished()
+{
+	Q_Q(VConnection);
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	Q_ASSERT(reply);
+	QByteArray location = reply->rawHeader("Location");
+	int index = location.indexOf("sid=");
+	QString sid = "-1";
+	if (index != -1)
+		sid = location.mid(index + 4);
+
+	if (sid == "-1") {
+		//TODO
+	}
+
+	q->setConnectionState(Disconnected);
+	sid = QString();
+	remixPasswd = QString();
 }
 
 void VConnectionPrivate::onConnectionStateChanged(int state)
@@ -51,19 +72,33 @@ VConnection::VConnection(VAccount* account, QObject* parent): QNetworkAccessMana
 void VConnection::connectToHost(const QString& passwd)
 {
 	Q_D(VConnection);
-    QString sQuery = QString("login=force&site=2&email=%1&pass=").arg(d->account->id()) + passwd;
     QUrl url("http://login.userapi.com/auth?");
-    url.setEncodedQuery(sQuery.toUtf8());
+	url.addEncodedQueryItem("login","force");
+	url.addEncodedQueryItem("site","2");
+	url.addQueryItem("email",d->account->email());
+	url.addQueryItem("pass",passwd);
 	VRequest auth_request(url);
-	debug() <<  auth_request.rawHeaderList() << auth_request.url();
 	QNetworkReply* reply = get(auth_request);
 	connect(reply,SIGNAL(finished()),d,SLOT(onAuthRequestFinished()));
 	setConnectionState(Connecting);
 }
 
-void VConnection::disconnectFromHost()
+void VConnection::disconnectFromHost(bool force)
 {
-	setConnectionState(Disconnected);
+	Q_D(VConnection);
+	if (force) {
+		setConnectionState(Disconnected);
+		d->sid = QString();
+		d->remixPasswd = QString();
+		return;
+	}
+	QUrl url("http://login.userapi.com/auth");
+	url.addEncodedQueryItem("login","force");
+	url.addEncodedQueryItem("site","2");
+	url.addQueryItem("sid",d->sid);
+	VRequest logout_request(url);
+	QNetworkReply* reply = get(logout_request);
+	connect(reply,SIGNAL(finished()),d,SLOT(onLogoutRequestFinished()));
 }
 
 VConnectionState VConnection::connectionState() const

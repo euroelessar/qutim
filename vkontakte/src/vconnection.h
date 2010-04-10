@@ -15,7 +15,7 @@ public:
 	virtual ~VConnection();
 public slots:
 	void connectToHost(const QString &passwd);
-	void disconnectFromHost();
+	void disconnectFromHost(bool force = false);
 signals:
 	void connectionStateChanged(int state);
 protected:

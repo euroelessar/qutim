@@ -88,4 +88,13 @@ void VAccount::setStatus(Status status)
 	Account::setStatus(status);
 }
 
+VConnection *VAccount::connection()
+{
+	return d_func()->connection;
+}
+
+const VConnection *VAccount::connection() const
+{
+	return d_func()->connection;
+}
 
