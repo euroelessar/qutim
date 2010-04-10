@@ -6,6 +6,8 @@
 
 class VRequest : public QNetworkRequest
 {
+public:
+	VRequest(const QUrl& url = QUrl());
 };
 
 #endif // VREQUEST_H

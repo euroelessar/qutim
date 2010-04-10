@@ -3,18 +3,23 @@
 #include <qutim/passworddialog.h>
 #include "vcontact.h"
 #include "vkontakteprotocol.h"
+#include "vconnection.h"
+#include "vconnection_p.h"
 
 struct VAccountPrivate
 {
 	QString name;
+	QString uid;
 	QHash<QString, VContact*> contacts;
+	VConnection *connection;
 };
 
-VAccount::VAccount(const QString& uid) : 
-	Account(uid, VkontakteProtocol::instance()),
+VAccount::VAccount(const QString& email) : 
+	Account(email, VkontakteProtocol::instance()),
 	d_ptr(new VAccountPrivate)
 {
-
+	Q_D(VAccount);
+	d->connection = new VConnection(this,this);
 }
 
 VContact* VAccount::getContact(const QString& uid, bool create)
@@ -51,7 +56,36 @@ QString VAccount::password()
 				config().sync();
 			}
 		}
-		delete dialog;
+		dialog->deleteLater();
 	}
 	return password;
 }
+
+QString VAccount::uid() const
+{
+	return d_func()->uid;
+}
+
+void VAccount::setUid(const QString& uid)
+{
+	d_func()->uid = uid;
+}
+
+void VAccount::setStatus(Status status)
+{
+	Q_D(VAccount);
+	status.initIcon("vkontakte");
+	VConnectionState state = statusToState(status.type());
+	if (state == d->connection->connectionState()) {
+		//TODO create status text setter
+		return;
+	}
+	if (state == Connected && d->connection->connectionState() != Connecting)
+		d->connection->connectToHost(password());
+	else
+		d->connection->disconnectFromHost();
+	
+	Account::setStatus(status);
+}
+
+

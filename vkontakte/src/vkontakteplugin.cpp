@@ -1,6 +1,7 @@
 #include "vkontakteplugin.h"
 #include <qutim/debug.h>
 #include "vkontakteprotocol.h"
+#include "ui/vaccountcreator.h"
 
 void VkontaktePlugin::init()
 {
@@ -15,10 +16,17 @@ void VkontaktePlugin::init()
 // 			  QT_TRANSLATE_NOOP("Task", "Founder"),
 // 			  QLatin1String(""));
 
-	addExtension(QT_TRANSLATE_NOOP("Plugin", "Userapi"),
+	QIcon vicon = ExtensionIcon("im-vkontakte");
+
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "vkontakte"),
 				 QT_TRANSLATE_NOOP("Plugin", "Simple implementation of vkontakte, based on userapi.ru"),
 				 new GeneralGenerator<VkontakteProtocol>(),
-				 ExtensionIcon("im-vkontakte"));
+				 vicon
+				 );
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Vkontakte account creator"),
+				 QT_TRANSLATE_NOOP("Plugin", "Account creator for Vkontakte"),
+				 new GeneralGenerator<VAccountCreator>(),
+				 vicon); 
 	
 }
 bool VkontaktePlugin::load()

@@ -4,13 +4,13 @@
 #include <QNetworkAccessManager>
 
 class VAccount;
-struct VConnectionPrivate;
+class VConnectionPrivate;
 class LIBVKONTAKTE_EXPORT VConnection : public QNetworkAccessManager
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(VConnection)
 public:
-	VConnection(VAccount *account, QObject* parent = 0);
+	explicit VConnection(VAccount *account, QObject* parent = 0);
 	VConnectionState connectionState() const;
 	virtual ~VConnection();
 public slots:
@@ -18,6 +18,8 @@ public slots:
 	void disconnectFromHost();
 signals:
 	void connectionStateChanged(int state);
+protected:
+	void setConnectionState(VConnectionState state);
 private:
 	QScopedPointer<VConnectionPrivate> d_ptr;
 };
