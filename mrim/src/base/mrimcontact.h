@@ -57,7 +57,7 @@ public:
     void setTags(const QSet<QString> &tags);
     bool isInList() const;
     void setInList(bool inList);
-	void setChatState(ChatState state);
+    void setChatState(ChatState state);
     //new
     quint32 contactId() const;
     void setContactId(quint32 id);

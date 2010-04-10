@@ -72,43 +72,11 @@ QString ByteUtils::readString( const QByteArray& arr, quint32 pos, bool unicode 
     return lps.toString();
 }
 
-//MRIMCommonUtils
-/*
-QString MRIMCommonUtils::ConvertToPlainText(QString aRtfMsg)
-{
-    QByteArray unbased = QByteArray::fromBase64(aRtfMsg.toAscii());
-    QByteArray arr;
-    quint32 beLen = qToBigEndian(unbased.length()*10);
-    arr.append(ByteUtils::ConvertULToArray(beLen));
-    arr.append(unbased);
-    QByteArray uncompressed = qUncompress(arr);
-#ifdef DEBUG_LEVEL_DEV
-    qDebug()<<"Unpacked length: "<<uncompressed.count();
-#endif
-    QBuffer buf;
-    buf.open(QIODevice::ReadWrite);
-    buf.write(uncompressed);
-    buf.seek(0);
-    quint32 numLps = ByteUtils::ReadToUL(buf);
-#ifdef DEBUG_LEVEL_DEV
-    qDebug()<<"Number of string-params in message: "<<numLps;
-#endif
-    QString plainText;
-
-    if (numLps > 1)
-    {
-        QString rtfMsg = ByteUtils::ReadToString(buf,false);
-#ifdef DEBUG_LEVEL_DEV
-    qDebug()<<"Unbased and unzipped rtf message: "<<rtfMsg;
-#endif
-        QString color = ByteUtils::ReadToString(buf);//not used now
-        Q_UNUSED(color);
-        RTFImport rtfConverter;
-        plainText = rtfConverter.convert(rtfMsg);
-    }
-    return plainText;
+QByteArray ByteUtils::readArray(QIODevice& buffer) {
+    return buffer.read(ByteUtils::readUint32(buffer));
 }
 
+/*
 QPoint MRIMCommonUtils::DesktopCenter(QSize aWidgetSize)
 {
     QDesktopWidget &desktop = *QApplication::desktop();

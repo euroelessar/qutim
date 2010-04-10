@@ -43,6 +43,7 @@ public:
     virtual bool handlePacket(class MrimPacket& packet);
     quint32 sequence() const;
     void send(const Message &msg, Flags flags = MessageFlagNone);
+    void sendDeliveryReport(const QString& from, quint32 msgId);
 
 signals:
 
@@ -50,6 +51,7 @@ public slots:
 
 protected:
     virtual void handleMessageStatus(MrimPacket &packet);
+    virtual void handleMessageAck(MrimPacket &packet);
 
 private:
     QScopedPointer<MessagesPrivate> p;

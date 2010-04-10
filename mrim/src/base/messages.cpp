@@ -1,9 +1,15 @@
 #include <QApplication>
 
+#include <qutim/debug.h>
 #include <qutim/messagesession.h>
 #include <qutim/notificationslayer.h>
 
 #include "messages.h"
+
+#ifndef NO_RTF_SUPPORT
+#include "rtfutils.h"
+#endif
+
 #include "proto.h"
 #include "mrimdefs.h"
 #include "mrimcontact.h"
@@ -21,6 +27,9 @@ public:
     quint32 msgSeq;
     QPointer<MrimConnection> conn;
     QMap<quint32,MsgIdLink> msgIdLink;
+#ifndef NO_RTF_SUPPORT
+    Rtf *rtf;
+#endif
 };
 
 Messages::Messages(MrimConnection *conn) :
@@ -29,10 +38,16 @@ Messages::Messages(MrimConnection *conn) :
     p->msgSeq = 0;
     p->conn = conn;
     p->conn->registerPacketHandler(this);
+#ifndef NO_RTF_SUPPORT
+    p->rtf = new Rtf("cp1251");
+#endif
 }
 
 Messages::~Messages()
 {
+#ifndef NO_RTF_SUPPORT
+    delete p->rtf;
+#endif
 }
 
 QList<quint32> Messages::handledTypes()
@@ -50,6 +65,9 @@ bool Messages::handlePacket(class MrimPacket& packet)
     switch (packet.msgType()) {
     case MRIM_CS_MESSAGE_STATUS:
         handleMessageStatus(packet);
+        break;
+    case MRIM_CS_MESSAGE_ACK:
+        handleMessageAck(packet);
         break;
     default:
         handled = false;
@@ -130,4 +148,50 @@ void Messages::handleMessageStatus(MrimPacket &packet)
         errString.prepend(tr("Message was not delivered!")+"\n");
         Notifications::sendNotification(Notifications::System,p->conn->account(),errString);
     }
+}
+
+void Messages::handleMessageAck(MrimPacket &packet)
+{
+    quint32 msgId = 0, flags = 0;
+    packet.readTo(msgId);
+    packet.readTo(flags);
+    bool isAuth = (flags & MESSAGE_FLAG_AUTHORIZE);
+    bool isUnicode = !(flags & MESSAGE_FLAG_CP1251);
+#ifndef NO_RTF_SUPPORT
+    bool hasRtf = (flags & MESSAGE_FLAG_RTF);
+#endif
+    bool isTyping = (flags & MESSAGE_FLAG_NOTIFY);
+
+    if (isTyping) {
+        //TODO: typing notifications
+        return;
+    }
+
+    QString from,msg;
+    packet.readTo(&from);
+    packet.readTo(&msg,isUnicode);
+
+    if (!isAuth && !(flags & MESSAGE_FLAG_NORECV)) {
+        sendDeliveryReport(from,msgId);
+    }
+
+#ifndef NO_RTF_SUPPORT
+    if (hasRtf) {
+        QString rtfMsg;
+        packet.readTo(&rtfMsg);
+        msg = p->rtf->toPlainText(rtfMsg);
+    }
+#endif
+
+    ChatLayer::instance()->getSession(p->conn->account(),from)->appendMessage(msg); //TODO: TEMP
+}
+
+void Messages::sendDeliveryReport(const QString& from, quint32 msgId)
+{
+    MrimPacket deliveryPacket(MrimPacket::Compose);
+    deliveryPacket.setMsgType(MRIM_CS_MESSAGE_RECV);
+    deliveryPacket << from;
+    deliveryPacket << msgId;
+    debug(Verbose)<<"Sending delivery report for msg #"<<msgId<<"...";
+    p->conn->sendPacket(deliveryPacket);
 }
