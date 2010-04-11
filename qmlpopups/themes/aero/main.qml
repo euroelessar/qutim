@@ -67,7 +67,7 @@ Rectangle {
 			}
 			onTextChanged: {
 				show_timer.restart();
-				var h = (bodyText.height > avatar.height) ? bodyText.height : avatar.height; //hack, why doesn't work Math.max()?
+				var h = (body.height > avatar.height) ? body.height : avatar.height; //hack, why doesn't work Math.max()?
 				background.height = (body.y + h + 10); //hack
 			}
 
