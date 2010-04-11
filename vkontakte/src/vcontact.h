@@ -10,7 +10,7 @@ public:
 	VContact(const QString &id,Account* account);
 	virtual QString id() const;
 	virtual bool isInList() const;
-	virtual void sendMessage(const qutim_sdk_0_3::Message& message);
+	virtual void sendMessage(const Message& message);
 	virtual void setTags(const QSet< QString >& tags);
 	virtual void setInList(bool inList);
 };

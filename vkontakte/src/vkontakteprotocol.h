@@ -20,6 +20,7 @@ public:
 private:
 	static VkontakteProtocol *self;
 	QScopedPointer<VkontakteProtocolPrivate> d_ptr;
+	friend class VAccountCreator;
 };
 
 #endif // VKONTAKTEPROTOCOL_H

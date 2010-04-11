@@ -1,19 +1,9 @@
 #include "vkontakteprotocol.h"
+#include "vkontakteprotocol_p.h"
 #include <qutim/account.h>
 #include "vaccount.h"
+#include <qutim/statusactiongenerator.h>
 
-struct VkontakteProtocolPrivate
-{
-	inline VkontakteProtocolPrivate() :
-		accounts_hash(new QHash<QString, QPointer<VAccount> > ())
-	{ }
-	inline ~VkontakteProtocolPrivate() { delete accounts_hash; }
-	union
-	{
-		QHash<QString, QPointer<VAccount> > *accounts_hash;
-		QHash<QString, VAccount *> *accounts;
-	};
-};
 
 VkontakteProtocol *VkontakteProtocol::self = 0;
 
@@ -22,6 +12,15 @@ VkontakteProtocol::VkontakteProtocol() :
 {
 	Q_ASSERT(!self);
 	self = this;
+	
+	QList<Status> statuses;
+	statuses << Status(Status::Online)
+			<< Status(Status::Offline);
+
+	foreach (Status status, statuses) {
+		status.initIcon("vkontakte");
+		MenuController::addAction(new StatusActionGenerator(status), &VAccount::staticMetaObject);
+		}
 }
 
 VkontakteProtocol::~VkontakteProtocol()
@@ -51,7 +50,7 @@ void VkontakteProtocol::loadAccounts()
 	foreach(const QString &uid, accounts) {
 		VAccount *acc = new VAccount(uid);
 		d->accounts_hash->insert(uid, acc);
-		//acc->updateSettings();
+		acc->updateSettings();
 		emit accountCreated(acc);
 	}
 }
