@@ -25,10 +25,6 @@ namespace Jabber
 	{
 		Q_ASSERT(!self);
 		self = this;
-		Settings::registerItem(new GeneralSettingsItem<JMainSettings>(
-				Settings::Protocol,
-				Icon("im-jabber"),
-				QT_TRANSLATE_NOOP("Settings", "Jabber")));
 	}
 
 	JProtocol::~JProtocol()
@@ -50,6 +46,11 @@ namespace Jabber
 
 	void JProtocol::loadActions()
 	{
+		Settings::registerItem(new GeneralSettingsItem<JMainSettings>(
+				Settings::Protocol,
+				Icon("im-jabber"),
+				QT_TRANSLATE_NOOP("Settings", "Jabber")));
+
 		QList<Status> statuses;
 		statuses << Status(Status::Online)
 				 << Status(Status::FreeChat)

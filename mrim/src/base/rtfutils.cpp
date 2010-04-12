@@ -40,7 +40,7 @@ Rtf::~Rtf() {
 
 QString Rtf::toPlainText(RtfTextReader *reader, const QString& rtfMsg)
 {
-    QByteArray unbased = QByteArray::fromBase64(rtfMsg.toAscii());
+	QByteArray unbased = QByteArray::fromBase64(rtfMsg.toLatin1());
     QByteArray arr;
     quint32 beLen = qToBigEndian(unbased.length()*10);
     arr.append(ByteUtils::toByteArray(beLen));

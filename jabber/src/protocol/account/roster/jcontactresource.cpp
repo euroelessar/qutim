@@ -18,6 +18,7 @@ namespace Jabber
 		Q_D(JContactResource);
 		d->name = name;
 		d->id = parent->id() % QLatin1Char('/') % name;
+		d->contact = parent;
 		connect(parent, SIGNAL(avatarChanged(QString)), this, SIGNAL(avatarChanged(QString)));
 	}
 

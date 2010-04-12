@@ -8,19 +8,10 @@
 VkontakteProtocol *VkontakteProtocol::self = 0;
 
 VkontakteProtocol::VkontakteProtocol() :
-	d_ptr(new VkontakteProtocolPrivate)
+		d_ptr(new VkontakteProtocolPrivate)
 {
 	Q_ASSERT(!self);
 	self = this;
-	
-	QList<Status> statuses;
-	statuses << Status(Status::Online)
-			<< Status(Status::Offline);
-
-	foreach (Status status, statuses) {
-		status.initIcon("vkontakte");
-		MenuController::addAction(new StatusActionGenerator(status), &VAccount::staticMetaObject);
-		}
 }
 
 VkontakteProtocol::~VkontakteProtocol()
@@ -46,6 +37,13 @@ QList< Account* > VkontakteProtocol::accounts() const
 void VkontakteProtocol::loadAccounts()
 {
 	Q_D(VkontakteProtocol);
+	QList<Status> statuses;
+	statuses << Status(Status::Online)
+			<< Status(Status::Offline);
+	foreach (Status status, statuses) {
+		status.initIcon("vkontakte");
+		MenuController::addAction(new StatusActionGenerator(status), &VAccount::staticMetaObject);
+	}
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &uid, accounts) {
 		VAccount *acc = new VAccount(uid);

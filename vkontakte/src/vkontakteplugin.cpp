@@ -16,7 +16,7 @@ void VkontaktePlugin::init()
 // 			  QT_TRANSLATE_NOOP("Task", "Founder"),
 // 			  QLatin1String(""));
 
-	QIcon vicon = ExtensionIcon("im-vkontakte");
+	ExtensionIcon vicon = ExtensionIcon("im-vkontakte");
 
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "vkontakte"),
 				 QT_TRANSLATE_NOOP("Plugin", "Simple implementation of vkontakte, based on userapi.ru"),
