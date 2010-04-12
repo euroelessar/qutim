@@ -292,16 +292,16 @@ namespace AdiumChat
 	
 	bool ConfTabCompletion::eventFilter(QObject* obj, QEvent* ev)
 	{
-		if (obj->metaObject() == &QPlainTextEdit::staticMetaObject) {
+		if (obj->metaObject() == &QPlainTextEdit::staticMetaObject
+			&& ev->type() == QEvent::KeyPress) {
 			QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
-			if ( keyEvent->key() == Qt::Key_Tab )
-			{
+			if ( keyEvent->key() == Qt::Key_Tab ) {
 				tryComplete();
 				return true;
 			}
 			reset();
 			return false;
-			}
+		}
 		
 		return QObject::eventFilter(obj, ev);
 	}

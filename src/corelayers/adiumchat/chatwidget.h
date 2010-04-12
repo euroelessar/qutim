@@ -19,6 +19,7 @@
 #include <QWidget>
 #include "chatlayerimpl.h"
 #include <QMainWindow>
+#include <QModelIndex>
 
 namespace Ui
 {
@@ -72,6 +73,7 @@ namespace AdiumChat
 		void onShowHistory(); //TODO Move to startup module
 		void showNextSession();
 		void showPreviousSession();
+		void onDoubleClicked(const QModelIndex &index);
 	private:
 		QIcon iconForState(ChatState state);
 		void chatStateChanged(ChatState state, ChatSessionImpl* session);

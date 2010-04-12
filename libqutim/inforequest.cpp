@@ -48,7 +48,8 @@ namespace qutim_sdk_0_3
 			d = new InfoItemPrivate;
 	}
 
-	InfoItem::InfoItem()
+	InfoItem::InfoItem() :
+			d(new InfoItemPrivate)
 	{
 	}
 

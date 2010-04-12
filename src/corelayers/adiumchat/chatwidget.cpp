@@ -28,6 +28,7 @@
 #include <libqutim/history.h>
 #include <libqutim/shortcut.h>
 #include <libqutim/conference.h>
+#include "chatsessionitemdelegate.h"
 #include "ui_chatwidget.h"
 
 #ifdef Q_WS_X11
@@ -73,7 +74,10 @@ namespace AdiumChat
 		connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 		connect(ui->tabBar,SIGNAL(customContextMenuRequested(QPoint)),SLOT(onTabContextMenu(QPoint)));
 		connect(ui->sendButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
-		
+		connect(ui->contactsView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClicked(QModelIndex)));
+		ui->contactsView->setItemDelegate(new ChatSessionItemDelegate(this));
+
+		ui->contactsView->installEventFilter(this);
 		ui->chatEdit->installEventFilter(this);
 		ui->chatView->installEventFilter(this);
 		ui->chatEdit->setFocusPolicy(Qt::StrongFocus);
@@ -331,7 +335,15 @@ namespace AdiumChat
 
 	bool ChatWidget::eventFilter(QObject *obj, QEvent *event)
 	{
-		if (obj->metaObject() == &ChatSessionImpl::staticMetaObject) {
+		if (obj == ui->contactsView) {
+			if (event->type() == QEvent::ContextMenu) {
+				QContextMenuEvent *menuEvent = static_cast<QContextMenuEvent*>(event);
+				QModelIndex index = ui->contactsView->indexAt(menuEvent->pos());
+				Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
+				if (buddy)
+					buddy->showMenu(menuEvent->globalPos());
+			}
+		} else if (obj->metaObject() == &ChatSessionImpl::staticMetaObject) {
 			if (event->type() == ChatStateEvent::eventType()) {
 				ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(event);
 				chatStateChanged(chatEvent->chatState(),qobject_cast<ChatSessionImpl *>(obj));
@@ -508,6 +520,13 @@ namespace AdiumChat
 		if (m_current_index < 0 )
 			m_current_index = m_sessions.count() - 1;
 		activate(m_sessions.at(m_current_index));
+	}
+
+	void ChatWidget::onDoubleClicked(const QModelIndex &index)
+	{
+		Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
+		if (buddy)
+			ChatLayer::get(buddy, true)->activate();
 	}
 
 	void ChatWidget::onBuddiesChanged()

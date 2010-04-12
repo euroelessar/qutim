@@ -39,6 +39,8 @@ QVariant ChatSessionModel::data(const QModelIndex &index, int role) const
 		return buddy->title();
 	case Qt::DecorationRole:
 		return buddy->status().icon();
+	case Qt::UserRole:
+		return qVariantFromValue(buddy);
 	default:
 		return QVariant();
 	}
@@ -50,7 +52,7 @@ bool contactLessThan(Buddy *a, Buddy *b)
 //		return true;
 //	else if (a->status.type() > b->status.type())
 //		return false;
-	return a->title().compare(b->title(), Qt::CaseInsensitive);
+	return a->title().compare(b->title(), Qt::CaseInsensitive) < 0;
 };
 
 void ChatSessionModel::addContact(Buddy *b)
@@ -58,8 +60,8 @@ void ChatSessionModel::addContact(Buddy *b)
 	if (m_units.contains(b))
 		return;
 	int index = qLowerBound(m_units.constBegin(), m_units.constEnd(),
-							   b, contactLessThan) - m_units.constBegin();
-	connect(b, SIGNAL(nameChanged(QString)), this, SLOT(onNameChanged(QString)));
+							b, contactLessThan) - m_units.constBegin();
+	connect(b, SIGNAL(titleChanged(QString)), this, SLOT(onNameChanged(QString)));
 	connect(b, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 	beginInsertRows(QModelIndex(), index, index);
 	m_units.insert(index, b);

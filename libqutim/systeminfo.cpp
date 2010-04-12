@@ -28,6 +28,11 @@
 #include <QStringBuilder>
 #include <QDesktopServices>
 #include <QDebug>
+#include <QLibrary>
+
+#ifdef Q_OS_SYMBIAN
+//#include <hal.h>
+#endif
 
 #if defined(Q_WS_X11) || defined(Q_WS_MAC)
 #include <time.h>
@@ -233,6 +238,7 @@ namespace qutim_sdk_0_3
 #else
 		d->os_type_id = '\0';
 #endif
+		d->os_version_id = 0;
 
 		// Detect
 #if defined(Q_WS_X11) || defined(Q_WS_MAC)
@@ -329,6 +335,28 @@ namespace qutim_sdk_0_3
 			special_info |= SuiteHomeServer;
 		d->os_version_id = (quint8(osvi.dwMajorVersion) << 24) | (quint8(osvi.dwMinorVersion) << 16)
 						   | (quint8(osvi.wProductType) << 8)  | special_info;
+#endif
+#ifdef Q_OS_SYMBIAN
+//		QLibrary hal("hal.dll");
+//		typedef TInt (halGet_*)(HALData::TAttribute,TInt&);
+//		halGet_ halGet = (halGet_) QLibrary::resolve("hal.dll", "HAL::Get");
+//		if (halGet) {
+//			d->os_version_id = (*halGet)()
+//		}
+		d->os_name = "Symbian";
+		QFile modelFile;
+		modelFile.setFileName("z:\resource\versions\model.txt");
+		if (modelFile.open(QFile::ReadOnly)) {
+			d->os_version = QString::fromUtf8(modelFile.readAll());
+		} else {
+			modelFile.setFileName("z:\resource\versions\model.txt");
+			if (modelFile.open(QFile::ReadOnly)) {
+			}
+		}
+		if (d->os_version.isEmpty())
+			d->os_full = d->os_name;
+		else
+			d->os_full = d->os_name + " (" + d->os_version + ")";
 #endif
 	}
 
