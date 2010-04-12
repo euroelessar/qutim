@@ -27,6 +27,15 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT SystemInfo
 	{
 	public:
+		enum Type
+		{
+			WinCE       = 'c',
+			Win32       = 'w',
+			Linux       = 'l',
+			MacOSX      = 'm',
+			Symbian     = 's',
+			Unix        = 'u'
+		};
 		enum DirType { ConfigDir, HistoryDir, ShareDir, SystemConfigDir, SystemShareDir };
 		static QString getFullName();
 		static QString getName();

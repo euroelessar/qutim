@@ -79,7 +79,7 @@ void ProfileDialog::on_loginButton_clicked()
 	QFile file(configDir + "/profilehash");
 	if (file.open(QIODevice::ReadOnly)) {
 		QString password = ui->passwordEdit->text();
-		service->setPassword(password);
+		service->setPassword(password, QVariant());
 		QByteArray data = service->decrypt(file.readAll()).toByteArray();
 		QByteArray passwordHash = QCryptographicHash::hash(password.toUtf8()
 														   + "5667dd05fbe97bb238711a3af63",

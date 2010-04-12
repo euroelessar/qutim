@@ -33,7 +33,8 @@ namespace qutim_sdk_0_3
 		static QVariant decrypt(const QVariant &value);
 		virtual QVariant cryptImpl(const QVariant &value) const = 0;
 		virtual QVariant decryptImpl(const QVariant &value) const = 0;
-		virtual void setPassword(const QString &password) = 0;
+		virtual void setPassword(const QString &password, const QVariant &data) = 0;
+		virtual QVariant generateData(const QString &profile) const = 0;
 	protected:
 		QVariant variantFromData(const QByteArray &data) const;
 		QByteArray dataFromVariant(const QVariant &val) const;

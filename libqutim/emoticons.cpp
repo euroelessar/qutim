@@ -149,7 +149,7 @@ namespace qutim_sdk_0_3
 						  % QString::number(pixmap.width())
 						  % QLatin1Literal("\" height=\"")
 						  % QString::number(pixmap.height())
-						  % QLatin1Literal("\" alt=\"%4\" title=\"%4\"/>");
+						  % QLatin1Literal("\" alt=\"%4\" title=\"%4\"><span style=\"font-size: 0\">%4</span></img>");
 		foreach (const QString &code, codes) {
 			Emoticon e;
 			e.picPath = imgPath;
@@ -326,8 +326,7 @@ namespace qutim_sdk_0_3
 					state = FirstTag;
 				else
 					state = SecondTag;
-			}
-			else if (state == FirstTag || state == SecondTag) {
+			} else if (state == FirstTag || state == SecondTag) {
 				switch(cur.unicode()) {
 				case L'/':
 					state = SecondTag;
@@ -343,14 +342,12 @@ namespace qutim_sdk_0_3
 				default:
 					break;
 				}
-			}
-			else if (state != TagText && at_amp) {
+			} else if (state != TagText && at_amp) {
 				do text += *(chars++);
 				while(!chars->isNull() && *chars != ';');
 				cur = *chars;
 				at_amp = false;
-			}
-			else if (state != TagText) {
+			} else if (state != TagText) {
 				bool found = false;
 				at_amp = cur == '&';
 				if (!(mode & StrictParse) || chars == begin || (chars-1)->isSpace()) {

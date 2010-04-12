@@ -107,10 +107,15 @@ namespace qutim_sdk_0_3
 															  maxLength));
 		}
 
+		struct FunctionPointerHelper
+		{
+			generatorExt gc;
+		};
+
 		bool simpleMethod(void *udata, QString &err, QByteArray &res, const QVariant &val, int indent)
 		{
-			generatorExt cb = reinterpret_cast<generatorExt>(udata);
-			return (*cb)(err, res, val, indent);
+			FunctionPointerHelper *helper = reinterpret_cast<FunctionPointerHelper*>(udata);
+			return (*helper->gc)(err, res, val, indent);
 		}
 
 		bool generate(QByteArray &res, const QVariant &val, int indent, generatorExt cb, QString *err)
@@ -119,7 +124,8 @@ namespace qutim_sdk_0_3
 			if (!err)
 				errPtr.reset(err = new QString());
 			K8JSON::generatorCB gcb = cb ? &simpleMethod : 0;
-			return K8JSON::generateExCB(reinterpret_cast<void *>(cb), gcb, *err, res, val, indent);
+			FunctionPointerHelper helper = { cb };
+			return K8JSON::generateExCB(cb ? &helper : 0, gcb, *err, res, val, indent);
 		}
 
 		bool generate(QByteArray &res, const QVariant &val, int indent, QString *err)

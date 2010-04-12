@@ -69,6 +69,7 @@ bool ProfileCreationPage::validatePage()
 	ExtensionInfo info = ui->cryptoBox->itemData(ui->cryptoBox->currentIndex()).value<ExtensionInfo>();
 	CryptoService *service = info.generator()->generate<CryptoService>();
 	QByteArray data;
+	QVariant serviceData = service->generateData(ui->idEdit->text());
 	{
 		QDataStream out(&data, QIODevice::WriteOnly);
 		// We shouldn't store password as is
@@ -78,7 +79,7 @@ bool ProfileCreationPage::validatePage()
 		out << ui->idEdit->text() << passwordHash
 				<< QByteArray(service->metaObject()->className());
 	}
-	service->setPassword(m_password);
+	service->setPassword(m_password, serviceData);
 	QVariant hash = service->crypt(data);
 	file.write(hash.toByteArray());
 	file.flush();

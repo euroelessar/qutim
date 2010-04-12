@@ -1,6 +1,7 @@
 #include "aescryptoservice.h"
 #include "src/modulemanagerimpl.h"
 #include <QCryptographicHash>
+//#include <QDebug>
 
 namespace Core
 {
@@ -11,6 +12,8 @@ namespace Core
 
 	AesCryptoService::AesCryptoService()
 	{
+//		qDebug() << QCA::Hash::supportedTypes();
+//		qDebug() << QCA::Cipher::supportedTypes();
 		// We use AES-256, so we need vector with length 32
 		m_iv = QByteArray::fromHex("c898e1c1771eb0bc4dc846d5edba0005"
 								   "a54d2bb6f0d24fbfbb3c58a977edc50f");
@@ -40,6 +43,7 @@ namespace Core
 	{
 		if(!m_cipher_dec)
 			return variantFromData(valueVar.toByteArray());
+//		qDebug() << m_cipher_enc->blockSize() << m_cipher_enc->keyLength().minimum() << m_cipher_enc->keyLength().maximum();
 		QByteArray value = valueVar.toByteArray();
 		QByteArray result;
 		for(int i = 0x0; i < value.size(); i += 0x10)
@@ -54,8 +58,9 @@ namespace Core
 		return variantFromData(result);
 	}
 
-	void AesCryptoService::setPassword(const QString &password)
+	void AesCryptoService::setPassword(const QString &password, const QVariant &data)
 	{
+		Q_UNUSED(data);
 		// Pass in utf-8
 		QByteArray pass = password.toUtf8();
 		// 64 bit sault
@@ -67,5 +72,11 @@ namespace Core
 		m_cipher_dec = new QCA::Cipher(QString("aes256"),QCA::Cipher::CBC,
 									   QCA::Cipher::DefaultPadding,
 									   QCA::Decode, m_key, m_iv);
+	}
+
+	QVariant AesCryptoService::generateData(const QString &profile) const
+	{
+		Q_UNUSED(profile);
+		return QVariant();
 	}
 }

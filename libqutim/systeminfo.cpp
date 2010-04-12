@@ -219,17 +219,17 @@ namespace qutim_sdk_0_3
 		d->timezone_str = "N/A";
 		d->os_full = "Unknown";
 #if defined(Q_OS_WINCE)
-		d->os_type_id = 'c';
+		d->os_type_id = SystemInfo::WinCE;
 #elif defined(Q_OS_WIN32)
-		d->os_type_id = 'w';
+		d->os_type_id = SystemInfo::Win32;
 #elif defined(Q_OS_LINUX)
-		d->os_type_id = 'l';
+		d->os_type_id = SystemInfo::Linux;
 #elif defined(Q_OS_MAC)
-		d->os_type_id = 'm';
+		d->os_type_id = SystemInfo::MacOSX;
 #elif defined(Q_OS_SYMBIAN)
-		d->os_type_id = 's';
+		d->os_type_id = SystemInfo::Symbian;
 #elif defined(Q_OS_UNIX)
-		d->os_type_id = 'u';
+		d->os_type_id = SystemInfo::Unix;
 #else
 		d->os_type_id = '\0';
 #endif

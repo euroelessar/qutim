@@ -11,7 +11,6 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT AuthorizationDialog : public QObject
 	{
 		Q_OBJECT
-		Q_CLASSINFO("Service", "AuthorizationDialog")
 		Q_DISABLE_COPY(AuthorizationDialog)
 	public:
 		virtual ~AuthorizationDialog();
@@ -28,6 +27,19 @@ namespace qutim_sdk_0_3
 		void rejected();
 		void finished(bool ok);
 	};
+
+//	class LIBQUTIM_EXPORT AuthorizationManager : public QObject
+//	{
+//		Q_OBJECT
+//		Q_CLASSINFO("Service", "AuthorizationDialog")
+//	public:
+//		static AuthorizationManager *instance();
+//		virtual AuthorizationDialog *request(Contact *contact, const QString &text) = 0;
+//		virtual void virtual_hook(int id, void *data);
+//	protected:
+//		AuthorizationManager();
+//		~AuthorizationManager();
+//	};
 }
 
 #endif // AUTHORIZATIONDIALOG_H

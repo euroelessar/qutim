@@ -182,6 +182,9 @@ bool dGlobalHotKey::shortcut( const QString &s, bool a )
 			keyIDs.remove( id );
 			return !UnregisterEventHotKey( ref );
 		}
+	#else
+		Q_UNUSED(a);
+		return false;
 	#endif
 }
 
@@ -529,6 +532,19 @@ quint32 dGlobalHotKey::nativeKeycode( Qt::Key k )
 		}
 	}
 
+	return 0;
+}
+#else
+
+quint32 dGlobalHotKey::nativeModifiers( Qt::KeyboardModifiers m )
+{
+	Q_UNUSED(m);
+	return 0;
+}
+
+quint32 dGlobalHotKey::nativeKeycode( Qt::Key k )
+{
+	Q_UNUSED(k);
 	return 0;
 }
 
