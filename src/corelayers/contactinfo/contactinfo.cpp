@@ -124,6 +124,7 @@ void InfoLayout::addDataWidget(QWidget *widget, const QString &name)
 QLabel *InfoLayout::addLabel(const QString &data, const QString &name)
 {
 	QLabel *d = new QLabel(data, parentWidget());
+	d->setWordWrap(true);
 	d->setTextInteractionFlags(Qt::LinksAccessibleByMouse |
 							Qt::LinksAccessibleByKeyboard |
 							Qt::TextSelectableByMouse |
@@ -193,6 +194,7 @@ void MainWindow::addItems(const InfoItem &items)
 		return;
 	// Summary
 	QLabel *w = new QLabel(summary(items), ui.detailsStackedWidget);
+	w->setWordWrap(true);
 	w->setAlignment(Qt::AlignTop);
 	w->setFrameShape(QFrame::Panel);
 	w->setFrameShadow(QFrame::Sunken);
@@ -265,7 +267,7 @@ QString MainWindow::summary(const InfoItem &items)
 
 ContactInfo::ContactInfo()
 {
-	MenuController::addAction<Contact>(new ActionGenerator(Icon("dialog-information"),
+	MenuController::addAction<Buddy>(new ActionGenerator(Icon("dialog-information"),
 										QT_TRANSLATE_NOOP("ContactInfo", "Show information"),
 										this, SLOT(onShow())));
 }

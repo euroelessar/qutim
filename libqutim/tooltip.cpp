@@ -25,6 +25,7 @@
 #include <QHelpEvent>
 #include <QStringBuilder>
 #include <QToolTip>
+#include <QTextDocument>
 
 namespace qutim_sdk_0_3
 {
@@ -112,20 +113,20 @@ namespace qutim_sdk_0_3
 			if (ava.isEmpty())
 				ava = QLatin1String(":/icons/qutim_64.png");
 			QString text = QLatin1Literal("<table><tr><td><b>")
-						   % c->name()
+						   % Qt::escape(c->name())
 						   % QLatin1Literal("</b> &lt;")
-						   % c->id()
+						   % Qt::escape(c->id())
 						   % QLatin1Literal("&gt;<br/>")
-						   % c->account()->id()
+						   % Qt::escape(c->account()->id())
 						   % QLatin1Literal("<br/>")
 						   % html(c, true)
 						   % QLatin1Literal("</td><td><img width=\"64\" src=\"")
-						   % ava
+						   % Qt::escape(ava)
 						   % QLatin1Literal("\"/></td></tr>")
 						   % QLatin1Literal("</table>");
 			QToolTip::showText(pos, text, w);
 		} else {
-			ToolTip::hideText();
+			QToolTip::hideText();
 		}
 	}
 
