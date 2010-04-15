@@ -5,6 +5,7 @@
 #include "vkontakteprotocol.h"
 #include "vconnection.h"
 #include "vconnection_p.h"
+#include "vroster.h"
 
 struct VAccountPrivate
 {
@@ -12,6 +13,7 @@ struct VAccountPrivate
 	QString uid;
 	QHash<QString, VContact*> contacts;
 	VConnection *connection;
+	VRoster *roster;
 };
 
 VAccount::VAccount(const QString& email) : 
@@ -20,6 +22,7 @@ VAccount::VAccount(const QString& email) :
 {
 	Q_D(VAccount);
 	d->connection = new VConnection(this,this);
+	d->roster = new VRoster(this,this);
 }
 
 VContact* VAccount::getContact(const QString& uid, bool create)
@@ -76,6 +79,10 @@ void VAccount::setStatus(Status status)
 	Q_D(VAccount);
 	status.initIcon("vkontakte");
 	VConnectionState state = statusToState(status.type());
+	
+	if (d->connection->connectionState() == Connected)
+		d->roster->getFriendList();
+	
 	if (state == d->connection->connectionState()) {
 		//TODO create status text setter
 		return;
@@ -84,7 +91,6 @@ void VAccount::setStatus(Status status)
 		d->connection->connectToHost(password());
 	else
 		d->connection->disconnectFromHost();
-	
 	Account::setStatus(status);
 }
 

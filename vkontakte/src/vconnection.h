@@ -3,6 +3,7 @@
 #include "vkontakte_global.h"
 #include <QNetworkAccessManager>
 
+class VRequest;
 class VAccount;
 class VConnectionPrivate;
 class LIBVKONTAKTE_EXPORT VConnection : public QNetworkAccessManager
@@ -13,6 +14,7 @@ public:
 	explicit VConnection(VAccount *account, QObject* parent = 0);
 	VConnectionState connectionState() const;
 	virtual ~VConnection();
+	QNetworkReply* get(VRequest &request);
 public slots:
 	void connectToHost(const QString &passwd);
 	void disconnectFromHost(bool force = false);

@@ -72,7 +72,7 @@ VConnection::VConnection(VAccount* account, QObject* parent): QNetworkAccessMana
 void VConnection::connectToHost(const QString& passwd)
 {
 	Q_D(VConnection);
-    QUrl url("http://login.userapi.com/auth?");
+    QUrl url("http://login.userapi.com/auth");
 	url.addEncodedQueryItem("login","force");
 	url.addEncodedQueryItem("site","2");
 	url.addQueryItem("email",d->account->email());
@@ -116,3 +116,15 @@ VConnection::~VConnection()
 {
 
 }
+
+QNetworkReply* VConnection::get(VRequest& request)
+{
+	Q_D(VConnection);
+	if (!d->sid.isEmpty()) {
+		QUrl url = request.url();
+		url.addQueryItem("sid",d->sid);
+		request.setUrl(url);
+	}
+	QNetworkAccessManager::get(request);
+}
+
