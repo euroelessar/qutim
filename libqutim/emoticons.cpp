@@ -22,7 +22,6 @@
 #include <QPixmap>
 #include <QStringBuilder>
 #include <QtGui/QTextDocument>
-#include <QtDebug>
 
 namespace qutim_sdk_0_3
 {
@@ -154,12 +153,15 @@ namespace qutim_sdk_0_3
 			Emoticon e;
 			e.picPath = imgPath;
 			e.picHTMLCode = imgHtml;
-			e.matchText = code;
-			e.matchTextEscaped = Qt::escape(code);
+			e.matchText = code.toLower();
+			e.matchTextEscaped = Qt::escape(code).toLower();
 			if (e.matchText.isEmpty() || e.matchTextEscaped.isEmpty())
 				continue;
-			appendEmoticonToHash(p->indexes[code[0]], e);
-			appendEmoticonToHash(p->indexes[e.matchTextEscaped.at(0)], e);
+			QChar c1 = code.at(0);
+			QChar c2 = e.matchTextEscaped.at(0);
+			appendEmoticonToHash(p->indexes[c1], e);
+			if (c1 != c2)
+				appendEmoticonToHash(p->indexes[c2], e);
 		}
 	}
 
@@ -351,7 +353,7 @@ namespace qutim_sdk_0_3
 				bool found = false;
 				at_amp = cur == '&';
 				if (!(mode & StrictParse) || chars == begin || (chars-1)->isSpace()) {
-					const QList<Emoticon> emoticons = allEmoticons.value(cur);
+					const QList<Emoticon> emoticons = allEmoticons.value(cur.toLower());
 					for (it = emoticons.constBegin(); it != emoticons.constEnd(); it++ ) {
 						const Emoticon &emo = *it;
 						int length = emo.matchTextEscaped.length();
@@ -455,12 +457,16 @@ namespace qutim_sdk_0_3
 
 		void setTheme(const QString &name)
 		{
-			Config("appearance").group("emoticons").setValue("theme", name);
+			ConfigGroup group = Config("appearance").group("emoticons");
+			group.setValue("theme", name);
+			group.sync();
 		}
 
 		void setTheme(const EmoticonsTheme &theme)
 		{
-			Config("appearance").group("emoticons").setValue("theme", theme.themeName());
+			ConfigGroup group = Config("appearance").group("emoticons");
+			group.setValue("theme", theme.themeName());
+			group.sync();
 		}
 	}
 }
