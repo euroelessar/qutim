@@ -57,10 +57,9 @@ namespace Jabber
 		Q_D(JVCardManager);
 		QString id = QString::fromStdString(jid.full());
 		QString avatar;
-		const VCard *vcard = (!fetchedVCard) ? new VCard() : new VCard(fetchedVCard->tag());
+		const VCard *vcard = (!fetchedVCard) ? new VCard() : static_cast<VCard*>(fetchedVCard->clone());
 		const VCard::Photo &photo = vcard->photo();
 		if (!photo.binval.empty()) {
-			QByteArray data(photo.binval.c_str(), photo.binval.length());
 			SHA sha;
 			sha.feed(photo.binval);
 			sha.finalize();
@@ -70,7 +69,7 @@ namespace Jabber
 				dir.mkpath(dir.absolutePath());
 			QFile file(dir.absoluteFilePath(avatar));
 			if (file.open(QIODevice::WriteOnly)) {
-				file.write(data);
+				file.write(photo.binval.c_str(), photo.binval.length());
 				file.close();
 			}
 		}
@@ -84,17 +83,17 @@ namespace Jabber
 				d->account->setNick(nick);
 			d->account->connection()->setAvatar(avatar);
 		} else {
-			if (JContact *contact = qobject_cast<JContact *>(d->account->getUnit(id)))
+			ChatUnit *unit = d->account->getUnit(id);
+			if (JContact *contact = qobject_cast<JContact *>(unit))
 				contact->setAvatar(avatar);
-			if (JMUCUser *contact = qobject_cast<JMUCUser *>(d->account->getUnit(id)))
+			else if (JMUCUser *contact = qobject_cast<JMUCUser *>(unit))
 				contact->setAvatar(avatar);
 		}
 		debug() << "fetched...";
-		if (JInfoRequest *request = d->contacts.value(id))
+		if (JInfoRequest *request = d->contacts.take(id))
 			request->setFetchedVCard(vcard);
 		else
 			delete vcard;
-		d->contacts.remove(id);
 	}
 
 	void JVCardManager::handleVCardResult(VCardContext context, const JID &jid, StanzaError se)

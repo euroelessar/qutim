@@ -3,6 +3,8 @@
 #include "../jaccount.h"
 #include "jcontact.h"
 #include "jcontactresource.h"
+#include "../muc/jmucuser.h"
+#include "gloox/message.h"
 
 namespace Jabber
 {
@@ -46,8 +48,12 @@ namespace Jabber
 		if (!!(session = d->unitSessions.value(unit)))
 			return session;
 		if (qobject_cast<JContact *>(unit) || qobject_cast<JContactResource *>(unit)) {
+			int types = ~0;
+			if (qobject_cast<JMUCUser*>(unit))
+				types ^= gloox::Message::Groupchat;
 			MessageSession *glooxSession = new MessageSession(d->account->client(),
-															  unit->id().toStdString());
+															  unit->id().toStdString(),
+															  false, types, true);
 			d->unitSessions.insert(unit, session = new JMessageSession(this, unit, glooxSession));
 			return session;
 		}

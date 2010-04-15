@@ -15,13 +15,17 @@ namespace Jabber
 	JInfoRequest::JInfoRequest(JVCardManager *manager, const QString &contact)
 			: d_ptr(new JInfoRequestPrivate)
 	{
+		Q_D(JInfoRequest);
 		manager->fetchVCard(contact, this);
-		d_func()->state = Request;
+		d->state = Request;
+		d->vcard = 0;
 	}
 
 	JInfoRequest::~JInfoRequest()
 	{
-
+		Q_D(JInfoRequest);
+		if (d->vcard)
+			delete d->vcard;
 	}
 
 	void JInfoRequest::setFetchedVCard(const VCard *vcard)
