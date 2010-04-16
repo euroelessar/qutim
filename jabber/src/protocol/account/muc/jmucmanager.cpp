@@ -50,7 +50,7 @@ namespace Jabber
 		{
 			JBookmark room("", conference, p->rooms.value(conference)->me()->name(), "");
 			if (p->bookmarkManager->bookmarks().contains(room)) {
-				int num = p->rooms.keys().indexOf(conference);
+				int num = p->bookmarkManager->bookmarks().indexOf(room);
 				p->rooms.value(conference)->setBookmarkIndex(num);
 			} else {
 				p->rooms.value(conference)->setBookmarkIndex(-1);
