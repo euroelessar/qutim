@@ -40,7 +40,7 @@ bool VAccountWizardPage::validatePage()
 
 VAccountCreator::VAccountCreator() : AccountCreationWizard(VkontakteProtocol::instance())
 {
-
+	protocol = VkontakteProtocol::instance();
 }
 VAccountCreator::~VAccountCreator()
 {
