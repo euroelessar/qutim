@@ -13,7 +13,6 @@ struct VAccountPrivate
 	QString uid;
 	QHash<QString, VContact*> contacts;
 	VConnection *connection;
-	VRoster *roster;
 };
 
 VAccount::VAccount(const QString& email) : 
@@ -22,7 +21,6 @@ VAccount::VAccount(const QString& email) :
 {
 	Q_D(VAccount);
 	d->connection = new VConnection(this,this);
-	d->roster = new VRoster(this,this);
 }
 
 VContact* VAccount::getContact(const QString& uid, bool create)
@@ -76,22 +74,26 @@ void VAccount::setUid(const QString& uid)
 
 void VAccount::setStatus(Status status)
 {
+	Account::setStatus(status);
 	Q_D(VAccount);
 	status.initIcon("vkontakte");
 	VConnectionState state = statusToState(status.type());
-	
-	if (d->connection->connectionState() == Connected)
-		d->roster->getFriendList();
-	
-	if (state == d->connection->connectionState()) {
-		//TODO create status text setter
-		return;
+
+	switch (state) {
+		case Connected: {
+			if (d->connection->connectionState() == Disconnected)
+				d->connection->connectToHost(password());
+			break;
+		}
+		case Disconnected: {
+			if (d->connection->connectionState() != Disconnected)
+				d->connection->disconnectFromHost();
+			break;
+		}
+		default: {
+			break;
+		}		
 	}
-	if (state == Connected && d->connection->connectionState() != Connecting)
-		d->connection->connectToHost(password());
-	else
-		d->connection->disconnectFromHost();
-	Account::setStatus(status);
 }
 
 VConnection *VAccount::connection()

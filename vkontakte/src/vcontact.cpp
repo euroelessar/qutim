@@ -1,4 +1,7 @@
 #include "vcontact.h"
+#include "vconnection.h"
+#include "vaccount.h"
+#include "vmessages.h"
 
 struct VContactPrivate
 {
@@ -7,12 +10,15 @@ struct VContactPrivate
 	bool inList;
 	QSet<QString> tags;
 	QString name;
+	VAccount *account;
 };
 
 
-VContact::VContact(const QString& id, Account* account): Contact(account), d_ptr(new VContactPrivate)
+VContact::VContact(const QString& id, VAccount* account): Contact(account), d_ptr(new VContactPrivate)
 {
-	d_func()->id = id;
+	Q_D(VContact);
+	d->id = id;
+	d->account = account;
 }
 
 
@@ -28,7 +34,7 @@ bool VContact::isInList() const
 
 void VContact::sendMessage(const Message& message)
 {
-
+	d_func()->account->connection()->messages()->sendMessage(message);
 }
 
 void VContact::setTags(const QSet< QString >& tags)
@@ -50,7 +56,11 @@ Status VContact::status() const
 
 void VContact::setStatus(bool online)
 {
-	d_func()->online = online;
+	Q_D(VContact);
+	if (d->online != online) {
+		d->online = online;
+		emit statusChanged(status());
+	}
 }
 
 VContact::~VContact()

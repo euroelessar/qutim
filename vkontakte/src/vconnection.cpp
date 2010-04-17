@@ -5,6 +5,9 @@
 #include <QNetworkReply>
 #include <QNetworkCookie>
 #include <qutim/debug.h>
+#include <qutim/notificationslayer.h>
+#include "vroster.h"
+#include "vmessages.h"
 
 void VConnectionPrivate::onAuthRequestFinished()
 {
@@ -28,10 +31,9 @@ void VConnectionPrivate::onAuthRequestFinished()
 		q->setConnectionState(Connected);
 	}
 	else {
+		Notifications::sendNotification(tr("Error! (TODO)"));
 		q->setConnectionState(Disconnected);
 	}
-	debug() << remixPasswd << sid;
-	reply->deleteLater();
 }
 
 void VConnectionPrivate::onLogoutRequestFinished()
@@ -51,13 +53,25 @@ void VConnectionPrivate::onLogoutRequestFinished()
 
 	q->setConnectionState(Disconnected);
 	sid = QString();
-	remixPasswd = QString();
+	remixPasswd.clear();
 }
 
-void VConnectionPrivate::onConnectionStateChanged(int state)
+void VConnectionPrivate::onError(QNetworkReply::NetworkError)
 {
-	Status status(stateToStatus(static_cast<VConnectionState>(state)));
-	account->setStatus(status);
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	Q_ASSERT(reply);
+	Notifications::sendNotification(reply->errorString());
+}
+
+void VConnectionPrivate::sendProlongation()
+{
+	Q_Q(VConnection);
+	QUrl url ("http://login.userapi.com/auth");
+	url.addEncodedQueryItem("login","auto");
+	url.addEncodedQueryItem("site","2");
+	VRequest request(url);
+	request.setRawHeader("remixpassword",remixPasswd);
+	q->get(request);
 }
 
 VConnection::VConnection(VAccount* account, QObject* parent): QNetworkAccessManager(parent), d_ptr(new VConnectionPrivate)
@@ -66,7 +80,10 @@ VConnection::VConnection(VAccount* account, QObject* parent): QNetworkAccessMana
 	d->q_ptr = this;
 	d->account = account;
 	d->state = Disconnected;
-	connect(this,SIGNAL(connectionStateChanged(int)),d,SLOT(onConnectionStateChanged(int)));
+	d->roster = new VRoster(this,this);
+	d->messages = new VMessages(this,this);
+	loadSettings();
+	connect(&d->prolongationTimer,SIGNAL(timeout()),d,SLOT(sendProlongation()));
 }
 
 void VConnection::connectToHost(const QString& passwd)
@@ -88,8 +105,8 @@ void VConnection::disconnectFromHost(bool force)
 	Q_D(VConnection);
 	if (force) {
 		setConnectionState(Disconnected);
-		d->sid = QString();
-		d->remixPasswd = QString();
+		d->sid.clear();
+		d->remixPasswd.clear();
 		return;
 	}
 	QUrl url("http://login.userapi.com/auth");
@@ -108,7 +125,13 @@ VConnectionState VConnection::connectionState() const
 
 void VConnection::setConnectionState(VConnectionState state)
 {
-	d_func()->state = state;
+	Q_D(VConnection);
+	if (state == Connected)
+		d->prolongationTimer.start();
+	else
+		d->prolongationTimer.stop();
+	d->state = state;
+	d->account->setStatus(stateToStatus(state));
 	emit connectionStateChanged(state);
 }
 
@@ -125,6 +148,43 @@ QNetworkReply* VConnection::get(VRequest& request)
 		url.addQueryItem("sid",d->sid);
 		request.setUrl(url);
 	}
-	QNetworkAccessManager::get(request);
+	else
+		debug() << "request" << request.url();
+	QNetworkReply *reply = QNetworkAccessManager::get(request);
+	connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),d,SLOT(onError(QNetworkReply::NetworkError)));
+	connect(reply,SIGNAL(finished()),reply,SLOT(deleteLater()));
+	return reply;
 }
+
+ConfigGroup VConnection::config()
+{
+	return d_func()->account->config("connection");
+}
+ConfigGroup VConnection::config(const QString& name)
+{
+	return config().group(name);
+}
+
+
+void VConnection::loadSettings()
+{
+	Q_D(VConnection);
+	d->prolongationTimer.setInterval(config().value<int>("prolongationInterval",90000));
+}
+
+VAccount* VConnection::account() const
+{
+	return d_func()->account;
+}
+
+VMessages* VConnection::messages() const
+{
+	return d_func()->messages;
+}
+
+VRoster* VConnection::roster() const
+{
+	return d_func()->roster;
+}
+
 

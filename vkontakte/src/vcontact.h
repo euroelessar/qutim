@@ -3,13 +3,14 @@
 #include "vkontakte_global.h"
 #include <qutim/contact.h>
 
+class VAccount;
 struct VContactPrivate;
 class LIBVKONTAKTE_EXPORT VContact : public Contact
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(VContact)
 public:
-	VContact(const QString &id,Account* account);
+	VContact(const QString& id, VAccount* account);
 	virtual QString id() const;
 	virtual bool isInList() const;
 	virtual void sendMessage(const Message& message);

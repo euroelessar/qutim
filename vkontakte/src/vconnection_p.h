@@ -2,7 +2,11 @@
 #define VCONNECTION_P_H
 #include <QObject>
 #include "vkontakte_global.h"
+#include <QTimer>
+#include <QNetworkReply>
 
+class VMessages;
+class VRoster;
 class VConnection;
 class VAccount;
 class VConnectionPrivate : public QObject
@@ -11,15 +15,18 @@ class VConnectionPrivate : public QObject
 	Q_DECLARE_PUBLIC(VConnection)
 public:
 	VAccount *account;
-	QString remixPasswd;
-	QString sid;
+	QByteArray remixPasswd;
+	QByteArray sid;
 	VConnectionState state;
 	VConnection *q_ptr;
-	int prolongationTimerId;
+	QTimer prolongationTimer;
+	VRoster *roster;
+	VMessages *messages;
 public slots:
 	void onAuthRequestFinished();
 	void onLogoutRequestFinished();
-	void onConnectionStateChanged(int state);
+	void sendProlongation();
+	void onError(QNetworkReply::NetworkError error);
 };
 
 #endif // VCONNECTION_P_H

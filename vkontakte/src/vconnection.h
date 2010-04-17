@@ -3,6 +3,12 @@
 #include "vkontakte_global.h"
 #include <QNetworkAccessManager>
 
+class VRoster;
+class VMessages;
+namespace qutim_sdk_0_3 {
+	class ConfigGroup;
+}
+
 class VRequest;
 class VAccount;
 class VConnectionPrivate;
@@ -15,11 +21,17 @@ public:
 	VConnectionState connectionState() const;
 	virtual ~VConnection();
 	QNetworkReply* get(VRequest &request);
+	ConfigGroup config();
+	ConfigGroup config(const QString &name);
+	VAccount *account() const;
+	VMessages *messages() const;
+	VRoster *roster() const;
 public slots:
 	void connectToHost(const QString &passwd);
 	void disconnectFromHost(bool force = false);
+	void loadSettings();
 signals:
-	void connectionStateChanged(int state);
+	void connectionStateChanged(VConnectionState state);
 protected:
 	void setConnectionState(VConnectionState state);
 private:

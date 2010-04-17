@@ -15,10 +15,8 @@ void VRosterPrivate::onGetFriendsRequest()
 	Q_ASSERT(reply);
 	QByteArray data = reply->readAll();
 	
-    debug()<<"processProfileData"<<data;
-	
-    data.replace("\\/","/");
-    data.replace("\\t", " ");
+//     data.replace("\\/","/");
+//     data.replace("\\t", " ");
 
     QScriptEngine engine;
     QScriptValue sc_data = engine.evaluate('(' + data + ')');
@@ -26,25 +24,57 @@ void VRosterPrivate::onGetFriendsRequest()
 
     for (int i=0; i<sc_cnt.toInteger(); i++) {
 		QScriptValue sc_item = sc_data.property("friends").property("d").property(i);
-		VContact *c = new VContact(sc_item.property(0).toString(),account);
-		c->setName(sc_item.property(1).toString());
-		QSet<QString> tags;
-		tags << tr("Friends");
-		c->setTags(tags);
-		//f_buddy.m_avatar_url = sc_item.property(2).toString();
-		c->setStatus(sc_item.property(3).toBoolean());
-		c->setInList(true);
-		debug() << c->id() << c->name() << sc_item.property(0).toString();
-		ContactList::instance()->addContact(c);
+		QString id = sc_item.property(0).toString();
+		VContact *c = connection->account()->getContact(id,false);
+		if (c) {
+			c->setStatus(sc_item.property(3).toBoolean());
+			c->setProperty("avatarUrl",sc_item.property(2).toString());
+		}
+		else {
+			VContact *c = connection->account()->getContact(id,true);
+			c->setName(sc_item.property(1).toString());
+			QSet<QString> tags;
+			tags << tr("Friends");
+			c->setTags(tags);
+			c->setProperty("avatarUrl",sc_item.property(2).toString());
+			c->setStatus(sc_item.property(3).toBoolean());
+			c->setInList(true);
+			ContactList::instance()->addContact(c);
+		}
     }
 
 }
 
-VRoster::VRoster(VAccount* account,QObject *parent) : QObject(parent),d_ptr(new VRosterPrivate)
+void VRosterPrivate::onConnectStateChanged(VConnectionState state)
+{
+	Q_Q(VRoster);
+	switch (state) {
+		case Connected: {
+			q->getFriendList();
+			friendListUpdater.start();
+			break;
+		}
+		case Disconnected: {
+			friendListUpdater.stop();
+			foreach (VContact *c,connection->account()->findChildren<VContact *>()) {
+				c->setStatus(false);
+			}
+			break;
+		}
+		default: {
+			break;
+		}		
+	}
+}
+
+VRoster::VRoster(VConnection* connection, QObject* parent) : QObject(parent),d_ptr(new VRosterPrivate)
 {
 	Q_D(VRoster);
-	d->account = account;
+	d->connection = connection;
 	d->q_ptr = this;
+	loadSettings();
+	connect(connection,SIGNAL(connectionStateChanged(VConnectionState)),d,SLOT(onConnectStateChanged(VConnectionState)));
+	connect(&d->friendListUpdater,SIGNAL(timeout()),this,SLOT(getFriendList()));
 }
 
 VRoster::~VRoster()
@@ -58,15 +88,25 @@ void VRoster::getProfile()
 	VRequest request(url);
 }
 
-void VRoster::getFriendList(int limit)
+void VRoster::getFriendList(int start, int limit)
 {
 	Q_D(VRoster);
 	QUrl url("http://userapi.com/data");
-	url.addQueryItem("friends",QString("0-%1").arg(limit));
-	url.addQueryItem("id",d->account->uid());
-	//url.addEncodedQueryItem("back","friends");
+	url.addQueryItem("friends",QString("%1-%2").arg(start).arg(limit));
+	url.addQueryItem("id",d->connection->account()->uid());
 	VRequest request(url);
-	QNetworkReply *reply = d->account->connection()->get(request);
-	debug() << request.url();
+	QNetworkReply *reply = d->connection->get(request);
 	connect(reply,SIGNAL(finished()),d,SLOT(onGetFriendsRequest()));
 }
+
+ConfigGroup VRoster::config()
+{
+	return d_func()->connection->config("roster");
+}
+
+void VRoster::loadSettings()
+{
+	Q_D(VRoster);
+	d->friendListUpdater.setInterval(config().value<int>("friendListUpdateInterval",30000));
+}
+
