@@ -3,9 +3,11 @@
 #include <QObject>
 #include "vkontakte_global.h"
 #include <QTimer>
+#include <QQueue>
 
 class VConnection;
 class VRoster;
+class VContact;
 class VRosterPrivate : QObject
 {
 	Q_OBJECT
@@ -16,9 +18,18 @@ public:
 	int limit;
 	int friendListUpdateInterval;
 	QTimer friendListUpdater;
+	QTimer avatarsUpdater;
+	QTimer activityUpdater;
+	QQueue<VContact *> avatarsQueue;
+	bool fetchAvatars;
+	bool getActivity;
 public slots:
-	void onGetFriendsRequest();
+	void onGetFriendsRequestFinished();
 	void onConnectStateChanged(VConnectionState state);
+	void onAvatarRequestFinished();
+	void onActivityUpdateRequestFinished();
+	void updateAvatar();
+	void updateActivity();
 };
 
 #endif // VROSTER_P_H

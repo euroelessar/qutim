@@ -48,7 +48,7 @@ void VkontakteProtocol::loadAccounts()
 	foreach(const QString &uid, accounts) {
 		VAccount *acc = new VAccount(uid);
 		d->accounts_hash->insert(uid, acc);
-		acc->updateSettings();
+		acc->loadSettings();
 		emit accountCreated(acc);
 	}
 }

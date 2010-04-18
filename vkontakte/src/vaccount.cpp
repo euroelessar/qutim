@@ -6,43 +6,73 @@
 #include "vconnection.h"
 #include "vconnection_p.h"
 #include "vroster.h"
-
-struct VAccountPrivate
-{
-	QString name;
-	QString uid;
-	QHash<QString, VContact*> contacts;
-	VConnection *connection;
-};
+#include "vaccount_p.h"
+#include <qutim/contactlist.h>
 
 VAccount::VAccount(const QString& email) : 
 	Account(email, VkontakteProtocol::instance()),
 	d_ptr(new VAccountPrivate)
 {
 	Q_D(VAccount);
+	setParent(protocol());
 	d->connection = new VConnection(this,this);
 }
 
 VContact* VAccount::getContact(const QString& uid, bool create)
 {
 	Q_D(VAccount);
-	VContact *contact = d->contacts.value(uid);
+	VContact *contact = d->contactsHash.value(uid);
 	if (create && !contact) {
 		contact = new VContact(uid, this);
-		d->contacts.insert(uid, contact);
+		d->contactsHash.insert(uid, contact);
+		d->contactsList.append(contact);
 		emit contactCreated(contact);
 	}
 	return contact;
 }
 
-void VAccount::updateSettings()
+void VAccount::loadSettings()
 {
+	Q_D(VAccount);
+	ConfigGroup contactList = config().group("contactList");
+	for (int index=0;index!=contactList.arraySize();index++) {
+		ConfigGroup item = contactList.at(index);
+		QString id = item.value<QString>("id",QString());
+		if (id.isEmpty())
+			continue;
+		VContact *c = getContact(id,true);
+		c->setInList(item.value<bool>("inList",true));
+		c->setName(item.value<QString>("name",id));
+		c->setAvatar(item.group("avatar").value<QString>("path",QString()));
+		c->setProperty("avatarUrl",item.group("avatar").value<QString>("url",QString()));
+		c->setActivity(item.value<QString>("activity",QString()));
+		debug() << "added contact:" << c->name() << "in list" << c->isInList();
+		if (c->isInList())
+			ContactList::instance()->addContact(c);
+	}
+}
 
+void VAccount::saveSettings()
+{
+	Q_D(VAccount);
+	ConfigGroup contactList = config().group("contactList");
+	for (int i=0;i!=d->contactsList.count();i++) {
+		ConfigGroup item = contactList.at(i);
+		const VContact *c = d->contactsList.at(i);
+		item.setValue("id",c->id());
+		item.setValue("name",c->name());
+		item.setValue("activity",c->status().text());
+		item.setValue("inList",c->isInList());
+		ConfigGroup avatar = item.group("avatar");
+		avatar.setValue("url",c->property("avatarUrl"));
+		avatar.setValue("path",c->avatar());
+	}
+	contactList.sync();
 }
 
 VAccount::~VAccount()
 {
-
+	saveSettings();
 }
 
 QString VAccount::password()
@@ -88,12 +118,15 @@ void VAccount::setStatus(Status status)
 		case Disconnected: {
 			if (d->connection->connectionState() != Disconnected)
 				d->connection->disconnectFromHost();
+				saveSettings();
 			break;
 		}
 		default: {
 			break;
 		}		
 	}
+
+	emit statusChanged(status);
 }
 
 VConnection *VAccount::connection()

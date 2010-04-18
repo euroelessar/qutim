@@ -147,9 +147,8 @@ QNetworkReply* VConnection::get(VRequest& request)
 		QUrl url = request.url();
 		url.addQueryItem("sid",d->sid);
 		request.setUrl(url);
-	}
-	else
 		debug() << "request" << request.url();
+	}
 	QNetworkReply *reply = QNetworkAccessManager::get(request);
 	connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),d,SLOT(onError(QNetworkReply::NetworkError)));
 	connect(reply,SIGNAL(finished()),reply,SLOT(deleteLater()));

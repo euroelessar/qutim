@@ -2,6 +2,8 @@
 #include "vconnection.h"
 #include "vaccount.h"
 #include "vmessages.h"
+#include "vroster.h"
+#include <qutim/tooltip.h>
 
 struct VContactPrivate
 {
@@ -10,6 +12,8 @@ struct VContactPrivate
 	bool inList;
 	QSet<QString> tags;
 	QString name;
+	QString avatar;
+	QString activity;
 	VAccount *account;
 };
 
@@ -51,6 +55,7 @@ Status VContact::status() const
 {
 	Status status (d_func()->online ? Status::Online : Status::Offline);
 	status.initIcon("vkontakte");
+	status.setText(d_func()->activity);
 	return status;
 }
 
@@ -59,6 +64,15 @@ void VContact::setStatus(bool online)
 	Q_D(VContact);
 	if (d->online != online) {
 		d->online = online;
+		emit statusChanged(status());
+	}
+}
+
+void VContact::setActivity(const QString &activity)
+{
+	Q_D(VContact);
+	if (d->activity != activity) {
+		d->activity = activity;
 		emit statusChanged(status());
 	}
 }
@@ -82,3 +96,26 @@ void VContact::setName(const QString& name)
 	d_func()->name = name;
 }
 
+void VContact::setAvatar(const QString &avatar)
+{
+	Q_D(VContact);
+	if (d->avatar != avatar) {
+		d->avatar = avatar;
+		emit avatarChanged(avatar);
+	}
+}
+
+QString VContact::avatar() const
+{
+	return d_func()->avatar;
+}
+
+bool VContact::event(QEvent *ev)
+{
+	if (ev->type() == ToolTipEvent::eventType()) {
+		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+		if (!d_func()->activity.isEmpty())
+			event->appendField(QT_TRANSLATE_NOOP("ContactList","Activity"),d_func()->activity);
+	}
+	return Contact::event(ev);
+}

@@ -1,4 +1,6 @@
 #include "vkontakte_global.h"
+#include "vkontakteprotocol.h"
+#include <qutim/systeminfo.h>
 
 VConnectionState statusToState(Status::Type status)
 {
@@ -29,4 +31,11 @@ Status::Type stateToStatus(VConnectionState state)
 			return Status::Offline;
 	}
 	
+}
+
+QDir getAvatarsDir()
+{
+	return QString("%1/avatars/%2")
+			.arg(SystemInfo::getPath(SystemInfo::ConfigDir))
+			.arg(VkontakteProtocol::instance()->id());
 }

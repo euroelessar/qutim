@@ -12,6 +12,8 @@
 
 using namespace qutim_sdk_0_3;
 
+class QDir;
+
 enum VConnectionState {
 	Invalid = -1,
 	Connected,
@@ -21,5 +23,6 @@ enum VConnectionState {
 
 VConnectionState LIBVKONTAKTE_EXPORT statusToState(Status::Type);
 Status::Type LIBVKONTAKTE_EXPORT stateToStatus(VConnectionState state);
+QDir LIBVKONTAKTE_EXPORT getAvatarsDir();
 
 #endif // VKONTAKTE_GLOBAL_H

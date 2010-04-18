@@ -22,12 +22,14 @@ public:
 	VConnection *connection();
 	const VConnection *connection() const;
 public slots:
-	void updateSettings();
+	void loadSettings();
+	void saveSettings();
 protected:
 	QString password();
 private:
 	QScopedPointer<VAccountPrivate> d_ptr;
 	friend class VConnection;
+	friend class VRosterPrivate;
 };
 
 #endif // VKONTAKTEACCOUNT_H

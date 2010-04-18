@@ -9,7 +9,7 @@ namespace qutim_sdk_0_3 {
 }
 
 class VConnection;
-
+class VContact;
 class VRosterPrivate;
 class VRoster : public QObject
 {
@@ -23,6 +23,8 @@ public slots:
 	void loadSettings();
 	void getProfile();
 	void getFriendList(int start = 0, int limit = 10000); //TODO I think that we need a way to get information on parts	
+	void requestAvatar(VContact *contact);
+	void requestActivity(VContact *contact);
 private:
 	QScopedPointer<VRosterPrivate> d_ptr;
 };
