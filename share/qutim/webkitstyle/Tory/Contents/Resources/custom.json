@@ -4,6 +4,7 @@
     "type": "font",
     "label": "Chat font",
     "label-ru_RU": "Шрифт сообщений",
+    "label-bg_BG": "Шрифт на съобщенията",
     "selector": "body",
     "parameter": "font",
     "value": "8pt Verdana"
@@ -12,6 +13,7 @@
     "type": "boolean",
     "label": "Animated new messages",
     "label-ru_RU": "Анимация новых сообщений",
+    "label-bg_BG": "Анимация на новите съобщения",
     "selector": ".highlight",
     "parameter": "-webkit-animation-duration",
     "value": "0s",
