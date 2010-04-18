@@ -39,7 +39,7 @@ namespace Jabber
 			void removeResource(const QString &resource);
 			QStringList resources();
 			JContactResource *resource(const QString &key);
-			ChatUnitList lowerUnits();
+			virtual ChatUnitList lowerUnits();
 			QString avatar() const;
 			QString avatarHash() const;
 			void setAvatar(const QString &hex);
