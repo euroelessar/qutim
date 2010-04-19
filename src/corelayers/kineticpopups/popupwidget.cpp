@@ -133,15 +133,11 @@ namespace KineticPopups
 
 	void KineticPopups::PopupWidget::onAction1Triggered()
 	{
-		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
-		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(const_cast<ChatUnit *>(unit->getHistoryUnit())))) {
-			sess->setActive(true);
+		if (ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender)) {
+			ChatLayer::get(const_cast<ChatUnit *>(unit->getHistoryUnit()),true)->activate();
 		}
-		else {
-			QWidget *widget = qobject_cast<QWidget *>(m_sender);
-			if (widget)
-				widget->raise();
+		else if (QWidget *widget = qobject_cast<QWidget *>(m_sender)) {
+			widget->raise();
 		}
 	}
 
@@ -149,7 +145,7 @@ namespace KineticPopups
 	{
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
 		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(const_cast<ChatUnit *>(unit->getHistoryUnit()),false))) {
+		if (unit && (sess = ChatLayer::get(unit,false))) {
 
 			if (m_data.canConvert<Message>())
 				sess->markRead(m_data.value<Message>().id());

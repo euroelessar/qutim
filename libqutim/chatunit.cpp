@@ -20,6 +20,7 @@
 #include "message.h"
 #include "notificationslayer.h"
 #include "metacontact.h"
+#include "conference.h"
 
 namespace qutim_sdk_0_3
 {
@@ -123,6 +124,8 @@ namespace qutim_sdk_0_3
 			} else if (qobject_cast<Contact*>(p)) {
 				buddy = p;
 				break;
+			} else if (qobject_cast<Conference*>(p)) {
+				buddy = p;
 			} else if (qobject_cast<Buddy*>(p) && !buddy) {
 				buddy = p;
 			}
