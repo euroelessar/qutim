@@ -9,7 +9,7 @@
 #include "libqutim/icon.h"
 #include "libqutim/settingslayer.h"
 #include <QTreeView>
-#include <QDebug>
+#include <libqutim/debug.h>
 #include <QStringBuilder>
 #include <QVBoxLayout>
 #include <QToolButton>
@@ -37,24 +37,31 @@ namespace Core
 		public:
 			MyWidget()
 			{
-				resize(0,0);//hack
+				resize(150,0);//hack
 				connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 			}
 			void loadGeometry()
 			{
 				QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
 				if (geom.isNull()) {
-					int width = size().width();
 					QRect rect = QApplication::desktop()->availableGeometry(QCursor::pos());
-					rect.setX(rect.right() - width);
-					rect.setWidth(width);
+					//black magic
+					int width = size().width();
+					int x = rect.width() - width;
+					int y = 0;
+					int height = rect.height();
 #ifdef Q_WS_WIN
 					//for stupid windows
-					rect.setY(40);
-					rect.setHeight(rect.height()-40);
-					rect.setX(rect.x()-10);
+					x -= 15;
+					y += 35;
+					height -= 55;
 #endif
-					setGeometry(rect);
+					QRect geometry(x,
+								   y,
+								   width,
+								   height
+								   );
+					setGeometry(geometry);
 				} else {
 					restoreGeometry(geom);
 				}
