@@ -37,8 +37,6 @@ namespace qutim_sdk_0_3
 	public slots:
 		virtual void showHistory(const ChatUnit *unit);
 		virtual void virtual_hook(int id, void *data);
-	protected:
-		const ChatUnit *historyUnit(const ChatUnit *unit) const;
 	};
 }
 

@@ -360,9 +360,13 @@ namespace AdiumChat
 		if (!m_menu) {
 			m_menu = new QMenu();
 
+
+			//for JMessageSession
+			ChatUnit *unit = const_cast<ChatUnit*>(m_chat_unit->getHistoryUnit());
+
 			QAction *act = new QAction(m_menu);
-			act->setText(m_chat_unit->title());
-			act->setData(qVariantFromValue(m_chat_unit.data()));
+			act->setText(QT_TRANSLATE_NOOP("ChatSession", "Auto"));
+			act->setData(qVariantFromValue(unit));
 			act->setCheckable(true);
 			act->setChecked(true);
 
@@ -373,16 +377,16 @@ namespace AdiumChat
 			m_menu->addAction(act);
 			m_menu->addSeparator();
 
-			foreach(qutim_sdk_0_3::ChatUnit *u,m_chat_unit->lowerUnits()) {
-				new QAction(m_menu);
-				act->setText(m_chat_unit->title());
-				act->setData(qVariantFromValue(u));
+			ChatUnitList list = unit->lowerUnits();
+			for (int index=0;index!=list.count();index++) {
+				act = new QAction(m_menu);
+				act->setText(list.at(index)->title());
+				act->setData(qVariantFromValue(list.at(index)));
 				act->setCheckable(true);
-				act->setChecked(false);
+				act->setChecked(list.at(index) == m_chat_unit);
 				group->addAction(act);
 				m_menu->addAction(act);
 			}
-
 		}
 		return m_menu;
 	}
