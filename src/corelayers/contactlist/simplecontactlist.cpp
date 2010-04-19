@@ -42,9 +42,13 @@ namespace Core
 					int width = 160; //TODO: what to do? o.O
 					QRect rect = QApplication::desktop()->availableGeometry(QCursor::pos());
 					rect.setX(rect.right() - width);
-					rect.setY(0);
 					rect.setWidth(width);
-					rect.setHeight(rect.height());
+#ifdef Q_WS_WIN
+					//for stupid windows
+					rect.setY(40);
+					rect.setHeight(rect.height()-40);
+					rect.setX(rect.x()-10);
+#endif
 					setGeometry(rect);
 				} else {
 					restoreGeometry(geom);
