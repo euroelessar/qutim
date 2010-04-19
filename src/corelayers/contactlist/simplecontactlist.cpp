@@ -39,11 +39,12 @@ namespace Core
 			{
 				QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
 				if (geom.isNull()) {
-					int width = 150; //TODO: what to do? o.O
+					int width = 160; //TODO: what to do? o.O
 					QRect rect = QApplication::desktop()->availableGeometry(QCursor::pos());
-					rect.setX(rect.width() - width);
+					rect.setX(rect.right() - width);
+					rect.setY(0);
 					rect.setWidth(width);
-					rect.setHeight(rect.bottom());
+					rect.setHeight(rect.height());
 					setGeometry(rect);
 				} else {
 					restoreGeometry(geom);
