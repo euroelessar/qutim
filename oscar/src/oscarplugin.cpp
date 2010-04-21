@@ -39,7 +39,7 @@ void OscarPlugin::init()
 {
 	debug() << Q_FUNC_INFO;
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Oscar"),
-			QT_TRANSLATE_NOOP("Plugin", "Module-based realization of Oscar protocol"),
+			QT_TRANSLATE_NOOP("Plugin", "Module-based implementation of Oscar protocol"),
 			PLUGIN_VERSION(0, 0, 1, 0));
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 			  QT_TRANSLATE_NOOP("Task", "Author"),
@@ -48,11 +48,11 @@ void OscarPlugin::init()
 			  QT_TRANSLATE_NOOP("Task", "Author"),
 			  QLatin1String("alexey.prokhin@yandex.ru"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "ICQ"),
-				 QT_TRANSLATE_NOOP("Plugin", "Module-based realization of ICQ protocol"),
+				 QT_TRANSLATE_NOOP("Plugin", "Module-based implementation of ICQ protocol"),
 				 new GeneralGenerator<IcqProtocol>(),
 				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "ICQ account creator"),
-				 QT_TRANSLATE_NOOP("Plugin", "Account creator for module-based realization of ICQ protocol"),
+				 QT_TRANSLATE_NOOP("Plugin", "Account creator for module-based implementation of ICQ protocol"),
 				 new GeneralGenerator<IcqAccountCreationWizard>(),
 				 ExtensionIcon("im-icq"));
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar roster"),
