@@ -30,7 +30,8 @@ namespace oscar {
 static QString readSString(const DataUnit &data)
 {
 	QString str = data.read<QString, quint16>(Util::asciiCodec(), LittleEndian);
-	str.chop(1);
+	if (str.endsWith(QChar('\0')))
+		str.chop(1);
 	return str;
 }
 
