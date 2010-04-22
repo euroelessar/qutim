@@ -491,6 +491,8 @@ Feedbag::Feedbag(IcqAccount *acc):
 	config = config.constGroup("cache");
 	foreach (const QString &itemIdStr, config.groupList()) {
 		FeedbagItem item = config.value<FeedbagItem>(itemIdStr);
+		if (item.isNull())
+			continue;
 		item.d->feedbag = this;
 		QHash<quint16, ItemsHash>::iterator itemsItr = d->items.find(item.type());
 		if (itemsItr == d->items.end())
