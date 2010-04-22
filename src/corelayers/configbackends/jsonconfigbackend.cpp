@@ -95,7 +95,7 @@ namespace Core
 					return QVariant(QByteArray::fromBase64(s.toLatin1().mid(11, s.size() - 12)));
 //					return QVariant(s.toLatin1().mid(11, s.size() - 12));
 				} else if (s.startsWith(QLatin1String("@Variant("))) {
-					QByteArray a(s.toLatin1().mid(9));
+					QByteArray a(QByteArray::fromBase64(s.toLatin1().mid(9, s.size() - 10)));
 					QDataStream stream(&a, QIODevice::ReadOnly);
 					stream.setVersion(QDataStream::Qt_4_5);
 					QVariant result;
@@ -233,12 +233,12 @@ namespace Core
 				QByteArray a;
 				{
 					QDataStream s(&a, QIODevice::WriteOnly);
-					s.setVersion(QDataStream::Qt_4_0);
+					s.setVersion(QDataStream::Qt_4_5);
 					s << v;
 				}
 
 				result = QLatin1String("@Variant(");
-				result += QString::fromLatin1(a.constData(), a.size());
+				result += a.toBase64();
 				result += QLatin1Char(')');
 				break;
 			}

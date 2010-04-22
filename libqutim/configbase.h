@@ -44,8 +44,8 @@ namespace qutim_sdk_0_3
 		void removeGroup(const QString &name);
 
 		template<typename T>
-		T value(const QString &key, const T &def, ValueFlags type = Normal) const;
-		QVariant value(const QString &key, const QVariant &def, ValueFlags type = Normal) const;
+		T value(const QString &key, const T &def = T(), ValueFlags type = Normal) const;
+		QVariant value(const QString &key, const QVariant &def = QVariant(), ValueFlags type = Normal) const;
 		void setValue(const QString &key, const QVariant &value, ValueFlags type = Normal);
 
 		virtual void sync() = 0;
@@ -291,7 +291,7 @@ namespace qutim_sdk_0_3
 	template<typename T>
 	Q_INLINE_TEMPLATE T ConfigBase::value(const QString &key, const T &def, Config::ValueFlags type) const
 	{
-		return value(key, QVariant(def), type).value<T>();
+		return value(key, qVariantFromValue(def), type).value<T>();
 	}
 #endif
 }
