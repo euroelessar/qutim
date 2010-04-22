@@ -95,5 +95,6 @@ namespace qutim_sdk_0_3
 
 	InfoRequest *Account::infoRequest() const
 	{
+		return 0;
 	}
 }
