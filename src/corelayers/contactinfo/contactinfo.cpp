@@ -117,14 +117,12 @@ void InfoLayout::addDataWidget(QWidget *widget, const QString &name)
 	widget->setParent(parentWidget());
 	widget->setObjectName(name);
 	widget->setProperty("readOnly", true);
-	widget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 	addWidget(widget, m_row++, 1, 1, 1, Qt::AlignLeft);
 }
 
 QLabel *InfoLayout::addLabel(const QString &data, const QString &name)
 {
 	QLabel *d = new QLabel(data, parentWidget());
-	d->setWordWrap(true);
 	d->setTextInteractionFlags(Qt::LinksAccessibleByMouse |
 							Qt::LinksAccessibleByKeyboard |
 							Qt::TextSelectableByMouse |
@@ -258,7 +256,7 @@ QString MainWindow::summary(const InfoItem &items)
 						 QT_TRANSLATE_NOOP("ContactInfo", "yes") :
 						 QT_TRANSLATE_NOOP("ContactInfo", "no");
 			else
-				text += item.data().toString();
+				text += item.data().toString().replace(QRegExp("[\n|\r|\r\n]"), "<br>");
 			text += "<br>";
 		}
 	}
