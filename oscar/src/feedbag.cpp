@@ -21,6 +21,14 @@
 #include <QQueue>
 #include <QDateTime>
 
+Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::FeedbagItem);
+
+static struct Init {
+	Init() {
+		qRegisterMetaTypeStreamOperators<qutim_sdk_0_3::oscar::FeedbagItem>("qutim_sdk_0_3::oscar::FeedbagItem");
+	}
+} init;
+
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
@@ -38,12 +46,13 @@ QString getCompressedName(const QString &name)
 class FeedbagItemPrivate: public QSharedData
 {
 public:
+	FeedbagItemPrivate();
 	FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item, quint16 group, const QString &name, bool inList = false);
 	FeedbagItemPrivate(Feedbag *bag, const SNAC &snac, bool inList = false);
 	void send(const FeedbagItem &item, Feedbag::ModifyType operation);
 	inline void remove(FeedbagItem item);
 	quint16 id() const { return itemType == SsiGroup ? groupId : itemId; }
-	quint64 id2() const { return (quint64)(itemType << 16 | id()) << 32 | groupId; }
+	QString configId() const { return QString::number((quint64)(itemType << 16 | id()) << 32 | groupId); }
 	QString recordName;
 	quint16 groupId;
 	quint16 itemId;
@@ -75,7 +84,6 @@ public:
 	{}
 	void handleItem(FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	quint16 generateId() const;
-	void saveItem(const FeedbagItem &item, ConfigBase &config);
 	void finishLoading();
 	QHash<quint16, ItemsHash> items;
 	QQueue<FeedbagQueueItem> ssiQueue;
@@ -124,6 +132,11 @@ QString FeedbagError::errorString()
 	else
 		errorStr = QT_TRANSLATE_NOOP("FeedbagError", "Unknown error");
 	return errorStr;
+}
+
+FeedbagItemPrivate::FeedbagItemPrivate() :
+	feedbag(0), isInList(false)
+{
 }
 
 FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item, quint16 group, const QString &name, bool inList):
@@ -188,8 +201,8 @@ FeedbagItem::FeedbagItem(FeedbagItemPrivate *d):
 {
 }
 
-FeedbagItem::FeedbagItem(const FeedbagItem &item):
-	d(new FeedbagItemPrivate(*item.d))
+FeedbagItem::FeedbagItem(const FeedbagItem &item) :
+	d(item.d)
 {
 }
 
@@ -326,6 +339,33 @@ void FeedbagItem::setData(const TLVMap &tlvs)
 	d->tlvs = tlvs;
 }
 
+QDataStream &operator<<(QDataStream &out, const FeedbagItem &item)
+{
+	out << item.d->recordName << item.d->itemId
+		<< item.d->groupId << item.d->itemType
+		<< item.d->tlvs.count();
+	TLVMap::const_iterator itr = item.d->tlvs.constBegin();
+	TLVMap::const_iterator endItr = item.d->tlvs.constEnd();
+	while (itr != endItr) {
+		out << itr.key() << itr.value().data();
+		++itr;
+	}
+}
+
+QDataStream &operator>>(QDataStream &in, FeedbagItem &item)
+{
+	item.d = new FeedbagItemPrivate();
+	in >> item.d->recordName >> item.d->itemId >> item.d->groupId >> item.d->itemType;
+	int count;
+	in >> count;
+	for (int i = 0; i < count; ++i) {
+		quint16 id;
+		QByteArray data;
+		in >> id >> data;
+		item.d->tlvs.insert(id, data);
+	}
+}
+
 QDebug &operator<<(QDebug &stream, const FeedbagItem &item)
 {
 	const FeedbagItemPrivate *d = item.d;
@@ -408,9 +448,9 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 		if (account->status() != Status::Connecting && account->status() != Status::Offline) {
 			ConfigGroup cfg = account->config("feedbag").group("cache");
 			if (type == Feedbag::Remove)
-				cfg.removeGroup(QString::number(item.d->id2()));
+				cfg.removeGroup(item.d->configId());
 			else
-				saveItem(item, cfg);
+				cfg.setValue(item.d->configId(), QVariant::fromValue(item));
 			//lastUpdateTime = QDateTime::currentDateTime().toTime_t();
 			//cfg.setValue("lastUpdateTime", lastUpdateTime);
 			cfg.sync();
@@ -421,18 +461,6 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 quint16 FeedbagPrivate::generateId() const
 {
 	return rand() % 0x03e6;
-}
-
-void FeedbagPrivate::saveItem(const FeedbagItem &item, ConfigBase &config)
-{
-	ConfigGroup cfg = config.group(QString::number(item.d->id2()));
-	cfg.setValue("type", item.type());
-	cfg.setValue("itemId", item.itemId());
-	cfg.setValue("groupId", item.groupId());
-	cfg.setValue("name", item.name());
-	cfg = cfg.group("tlvs");
-	foreach (const TLV &tlv, item.constData())
-		cfg.setValue(QString::number(tlv.type()), tlv.data());
 }
 
 void FeedbagPrivate::finishLoading()
@@ -458,25 +486,12 @@ Feedbag::Feedbag(IcqAccount *acc):
 			<< SNACInfo(ListsFamily, ListsCliModifyStart)
 			<< SNACInfo(ListsFamily, ListsCliModifyEnd)
 			<< SNACInfo(ListsFamily, ListsSrvReplyLists);
-	ConfigGroup config = acc->config("feedbag");
+	ConfigGroup config = acc->config().constGroup("feedbag");
 	d->lastUpdateTime = config.value("lastUpdateTime", 0);
-	config = config.group("cache");
+	config = config.constGroup("cache");
 	foreach (const QString &itemIdStr, config.groupList()) {
-		config = config.group(itemIdStr);
-		FeedbagItem item(new FeedbagItemPrivate(this,
-						 config.value("type", 0),
-						 config.value("itemId", 0),
-						 config.value("groupId", 0),
-						 config.value<QString>("name", ""),
-						 true));
-		config =  config.group("tlvs");
-		foreach (const QString &tlvIdStr, config.groupList()) {
-			quint16 tlvId = tlvIdStr.toInt();
-			if (tlvId > 0) {
-				item.d->tlvs.insert(tlvId, config.value(tlvIdStr, QByteArray()));
-			};
-		}
-		config = config.parent().parent();
+		FeedbagItem item = config.value<FeedbagItem>(itemIdStr);
+		item.d->feedbag = this;
 		QHash<quint16, ItemsHash>::iterator itemsItr = d->items.find(item.type());
 		if (itemsItr == d->items.end())
 			itemsItr = d->items.insert(item.type(), ItemsHash());
@@ -769,7 +784,7 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			config = config.group("cache");
 			foreach (const ItemsHash &hash, d->items)
 				foreach (const FeedbagItem &item, hash)
-					d->saveItem(item, config);
+					config.setValue(item.d->configId(), QVariant::fromValue(item));
 			config.sync();
 			d->finishLoading();
 		}
