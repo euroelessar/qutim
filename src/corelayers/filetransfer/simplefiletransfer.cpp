@@ -17,9 +17,13 @@ static Core::CoreModuleHelper<SimpleFileTransfer> filetransfer_static(
 
 SimpleFileTransfer::SimpleFileTransfer()
 {
-	MenuController::addAction<Buddy>(new ActionGenerator(Icon("document-save"),
-									QT_TRANSLATE_NOOP("FileTransfer", "Send file"),
-									this, SLOT(onSendFile())));
+	static bool init = false;
+	if (!init) {
+		MenuController::addAction<Buddy>(new ActionGenerator(Icon("document-save"),
+															 QT_TRANSLATE_NOOP("FileTransfer", "Send file"),
+															 this, SLOT(onSendFile())));
+		init = true;
+	}
 }
 
 void SimpleFileTransfer::send(ChatUnit *unit, const QStringList &files)
