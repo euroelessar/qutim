@@ -73,7 +73,7 @@ public:
 	template<typename T>
 	T read(ByteOrder bo) const;
 	template<typename T, typename L>
-	T read(ByteOrder bo = BigEndian) const;
+	T read(ByteOrder bo = BigEndian, int = 0) const;
 	template<typename T>
 	T read(QTextCodec *codec) const;
 	template<typename T, typename L>
@@ -364,7 +364,7 @@ T DataUnit::read(ByteOrder bo) const
 }
 
 template<typename T, typename L>
-T DataUnit::read(ByteOrder bo) const
+T DataUnit::read(ByteOrder bo, int) const
 {
 	return fromDataUnitHelper<T>::fromByteArray(*this, read<L>(bo), bo);
 }

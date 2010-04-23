@@ -80,7 +80,7 @@ Account *IcqProtocol::account(const QString &id) const
 void IcqProtocol::updateSettings()
 {
 	Q_D(IcqProtocol);
-	QString codecName = config("general").value("codec", "System").toString();
+	QString codecName = config("general").value("codec", QString("System"));
 	Util::setAsciiCodec(QTextCodec::codecForName(codecName.toLatin1()));
 	foreach (QPointer<IcqAccount> acc, *d->accounts_hash)
 		acc->updateSettings();

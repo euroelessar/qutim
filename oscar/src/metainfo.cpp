@@ -471,7 +471,7 @@ void FindContactsMetaRequestPrivate::addField(quint16 id, MetaInfoFieldEnum valu
 {
 	if (!test || values.contains(value)) {
 		DataUnit tlv;
-		tlv.append<T>(values.value(value).value<T>(), LittleEndian);
+		tlv.append(qVariantValue<T>(values.value(value)), LittleEndian);
 		data.appendTLV(id, tlv, LittleEndian);
 	}
 }
@@ -481,7 +481,7 @@ void FindContactsMetaRequestPrivate::addCategoryId(quint16 id, MetaInfoFieldEnum
 {
 	if (values.contains(value)) {
 		DataUnit tlv;
-		T catId = list->key(values.value(value).value<QString>());
+		T catId = list->key(values.value(value).toString());
 		tlv.append<T>(catId, LittleEndian);
 		data.appendTLV(id, tlv, LittleEndian);
 	}

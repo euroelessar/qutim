@@ -41,13 +41,13 @@ IcqMainSettings::~IcqMainSettings()
 void IcqMainSettings::loadImpl()
 {
 	ConfigGroup config = IcqProtocol::instance()->config().group("general");
-	bool avatars = !config.value("avatars", QVariant(true)).toBool();
+	bool avatars = !config.value("avatars", true);
 	ui->avatarBox->setChecked(avatars);
-	QString codecName = config.value("codec", "System").toString();
+	QString codecName = config.value("codec", QString("System"));
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
 	codecName = codec->name().toLower();
 	config = IcqProtocol::instance()->config().group("reconnect");
-	bool reconnect = config.value("enabled", QVariant(true)).toBool();
+	bool reconnect = config.value("enabled", true);
 	ui->reconnectBox->setChecked(reconnect);
 
 	for (int i = 0; i < ui->codepageBox->count(); ++i) {

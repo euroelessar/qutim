@@ -52,13 +52,13 @@ void Md5Login::login()
 	ConfigGroup cfg = m_conn->account()->config("connection");
 #ifdef OSCAR_SSL_SUPPORT
 	if (m_conn->isSslEnabled()) {
-		QString host = cfg.value("sslhost", "slogin.oscar.aol.com").toString();
+		QString host = cfg.value("sslhost", QString("slogin.oscar.aol.com"));
 		quint16 port = cfg.value("sslport", 443);
 		socket()->connectToHostEncrypted(host, port);
 	} else
 #endif
 	{
-		QHostInfo host = QHostInfo::fromName(cfg.value("host", "login.icq.com").toString());
+		QHostInfo host = QHostInfo::fromName(cfg.value("host", QString("login.icq.com")));
 		if (!host.addresses().isEmpty()) {
 			quint16 port = cfg.value("port", 5190);
 			socket()->connectToHost(host.addresses().at(qrand() % host.addresses().size()), port);
