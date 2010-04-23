@@ -428,7 +428,6 @@ void OftConnection::start()
 	if (state() != StateNotStarted)
 		return;
 	if (direction() == Send) {
-		m_current = m_files.at(++m_currentIndex);
 		m_stage = 1;
 		if (!m_proxy) {
 			sendFileRequest();
@@ -789,9 +788,14 @@ void OftConnection::onHeaderReaded()
 				return;
 			}
 			m_connInited = true;
-			m_remoteFiles.append(m_header.fileName);
-			emit remoteFilesChanged(m_remoteFiles);
 			m_currentIndex = m_header.totalFiles - m_header.filesLeft;
+			if (m_currentIndex < 0 || m_currentIndex >= m_remoteFiles.count()) {
+				debug() << "Sender sent wrong OftPrompt filetransfer request";
+				close(true);
+				break;
+			}
+			m_remoteFiles.replace(m_currentIndex, m_header.fileName);
+			emit remoteFilesChanged(m_remoteFiles);
 			startFileReceiving();
 			break;
 		}
@@ -919,15 +923,18 @@ void OftFileTransferFactory::processMessage(IcqContact *contact, const Capabilit
 		debug() << "Cannot create two oscar file transfer with the same cookie" << cookie;
 		return;
 	}
-	if (reqType == MsgRequest && !conn) {
+	bool newRequest = reqType == MsgRequest && !conn;
+	if (newRequest) {
 		conn = new OftConnection(contact, FileTransferEngine::Receive, cookie, this);
 		m_connections.insert(cookie, conn);
-		FileTransferManager::instance()->receive(conn);
 	}
-	if (conn)
+	if (conn) {
 		conn->handleRendezvous(reqType, tlvs);
-	else
+		if (newRequest)
+			FileTransferManager::instance()->receive(conn);
+	} else {
 		debug() << "Skipped oscar file transfer request with unknown cookie";
+	}
 }
 
 bool OftFileTransferFactory::check(ChatUnit *unit)

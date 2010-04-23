@@ -194,7 +194,7 @@ private:
 	QStringList m_remoteFiles;
 	qint64 m_totalSize;
 	State m_state;
-	quint16 m_currentIndex;
+	int m_currentIndex;
 	bool m_connInited;
 };
 
