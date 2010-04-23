@@ -161,7 +161,7 @@ namespace KineticPopups
 	QSize PopupWidget::sizeHint() const
 	{
 		int width = popup_settings.defaultSize.width();
-		int height = document()->size().height();
+		int height = static_cast<int>(document()->size().height());
 		return QSize(width,height);
 	}
 
