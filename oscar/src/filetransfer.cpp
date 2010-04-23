@@ -108,7 +108,7 @@ void OftHeader::readData(QIODevice *dev)
 	}
 }
 
-void OftHeader:: writeData(QIODevice *dev)
+void OftHeader::writeData(QIODevice *dev)
 {
 	DataUnit data;
 	debug() << "Outgoing oft message with type" << hex << type;
@@ -454,16 +454,17 @@ void OftConnection::cancel()
 
 void OftConnection::close(bool e)
 {
-	if (m_socket)
+	if (m_socket) {
+		if (!e)
+			m_socket->close();
 		m_socket->deleteLater();
+	}
 	if (m_data)
 		m_data.reset();
 	if (e) {
-		if (m_proxy) {
-			Channel2BasicMessageData data(MsgCancel, ICQ_CAPABILITY_AIMSENDFILE, m_cookie);
-			ServerMessage message(m_contact, data);
-			m_contact->account()->connection()->send(message);
-		}
+		Channel2BasicMessageData data(MsgCancel, ICQ_CAPABILITY_AIMSENDFILE, m_cookie);
+		ServerMessage message(m_contact, data);
+		m_contact->account()->connection()->send(message);
 		emit error(ErrorTryNext);
 	}
 }
@@ -575,7 +576,7 @@ void OftConnection::setSocket(OftSocket *socket)
 		connect(m_socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
 				SLOT(onError(QAbstractSocket::SocketError)));
 		connect(m_socket.data(), SIGNAL(headerReaded(OftHeader)), SLOT(onHeaderReaded()));
-		connect(m_socket.data(), SIGNAL(newData()), SLOT(onNewData()));
+		connect(m_socket.data(), SIGNAL(disconnected()), m_socket.data(), SLOT(deleteLater()));
 		if (m_socket->readingState() == OftSocket::ReadData) {
 			onHeaderReaded();
 			if (m_socket->bytesAvailable() > 0)
@@ -649,21 +650,26 @@ void OftConnection::connected()
 
 void OftConnection::onError(QAbstractSocket::SocketError error)
 {
-	bool criticalError = (error == QAbstractSocket::NetworkError) ||
-						 (error == QAbstractSocket::RemoteHostClosedError);
-	if (m_stage == 1 && direction() == Receive && !criticalError) {
+	bool connClosed = error == QAbstractSocket::RemoteHostClosedError;
+	if (m_stage == 1 && direction() == Receive && !connClosed) {
 		m_stage = 2;
 		m_socket->deleteLater();
 		sendFileRequest(false);
-	} else if (m_stage == 2 && !direction() == Send && !criticalError) {
+	} else if (m_stage == 2 && !direction() == Send && !connClosed) {
 		m_stage = 3;
 		m_proxy = true;
 		m_socket->close();
 		initProxyConnection();
 		sendFileRequest(false);
 	} else {
-		debug() << "File transfer connection error" << m_socket->errorString();
-		close();
+		if (connClosed && m_header.bytesReceived == m_header.size && m_header.filesLeft <= 1) {
+			debug() << "File transfer connection closed";
+			setState(StateDone);
+			close(false);
+		} else {
+			debug() << "File transfer connection error" << m_socket->errorString();
+			close();
+		}
 	}
 }
 
@@ -675,7 +681,7 @@ void OftConnection::onNewData()
 	}
 	if (m_socket->bytesAvailable() <= 0)
 		return;
-	QByteArray buf = m_socket->read(m_header.size);
+	QByteArray buf = m_socket->read(m_header.size - m_header.bytesReceived);
 	m_header.receivedChecksum = OftConnection::chunkChecksum(buf.constData(), buf.size(),
 											m_header.receivedChecksum,
 											m_header.bytesReceived);
@@ -683,6 +689,7 @@ void OftConnection::onNewData()
 	m_data->write(buf);
 	emit progressChanged(progress());
 	if (m_header.bytesReceived == m_header.size) {
+		disconnect(m_socket.data(), SIGNAL(newData()), this, SLOT(onNewData()));
 		m_data.reset();
 		m_header.type = OftDone;
 		m_header.writeData(m_socket.data());
@@ -751,14 +758,17 @@ void OftConnection::startFileReceiving()
 		m_header.receivedChecksum = fileChecksum(file);
 		m_header.bytesReceived = file->size();
 		m_header.type = OftReceiverResume;
-		m_socket->dataReaded();
 		m_data->close();
 	} else {
 		m_header.type = OftAcknowledge;
+		onNewData();
 	}
 	m_header.cookie = m_cookie;
 	m_header.writeData(m_socket.data());
+	if (exist)
+		m_socket->dataReaded();
 	setState(StateStarted);
+	connect(m_socket.data(), SIGNAL(newData()), SLOT(onNewData()));
 	emit currentFileChanged(m_currentIndex);
 	emit fileSizeChanged(m_header.size);
 }
@@ -791,7 +801,7 @@ void OftConnection::onHeaderReaded()
 			m_currentIndex = m_header.totalFiles - m_header.filesLeft;
 			if (m_currentIndex < 0 || m_currentIndex >= m_remoteFiles.count()) {
 				debug() << "Sender sent wrong OftPrompt filetransfer request";
-				close(true);
+				close();
 				break;
 			}
 			m_remoteFiles.replace(m_currentIndex, m_header.fileName);
