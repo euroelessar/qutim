@@ -2,6 +2,7 @@
 #define FILETRANSFERDIALOG_H
 
 #include <QDialog>
+#include <QFileInfo>
 #include "libqutim/filetransfer.h"
 
 namespace Ui {
@@ -17,13 +18,18 @@ class FileTransferDialog : public QDialog
 public:
 	FileTransferDialog(FileTransferEngine *engine);
     ~FileTransferDialog();
-
+	void setPath(const QString &path);
 protected:
     void changeEvent(QEvent *e);
-
+private slots:
+	void currentFileUpdated(int current);
+	void totalSizeChanged(qint64 size);
+	void fileSizeChanged(qint64 size);
+	void remoteFilesChanged(QStringList files);
 private:
 	FileTransferEngine *m_engine;
     Ui::FileTransferDialog *ui;
+	QFileInfo m_path;
 };
 }
 
