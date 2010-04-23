@@ -105,6 +105,7 @@ namespace qutim_sdk_0_3
 
 		ChatUnit *buddy();
 		const ChatUnit *buddy() const;
+		virtual const ChatUnit *getHistoryUnit() const;
 	public slots:
 		void sendMessage(const QString &text);
 		/**

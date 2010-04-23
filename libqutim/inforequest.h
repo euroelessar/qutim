@@ -50,12 +50,14 @@ namespace qutim_sdk_0_3
 		enum State {
 			Request,
 			Done,
-			Cancel
+			Cancel,
+			Cache
 		};
 		InfoRequest();
 		virtual ~InfoRequest();
 		virtual InfoItem item(const QString &name = QString()) const = 0;
 		virtual State state() const = 0;
+		virtual void resend() const;
 	signals:
 		void stateChanged(InfoRequest::State state);
 	protected:

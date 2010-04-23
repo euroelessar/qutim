@@ -32,6 +32,7 @@ protected:
 private:
 	QString m_password;
 	Ui::ProfileCreationPage *ui;
+	bool m_is_valid;
 };
 }
 

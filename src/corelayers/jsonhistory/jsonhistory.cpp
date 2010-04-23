@@ -78,7 +78,7 @@ namespace Core
 	{
 		if(!message.chatUnit())
 			return;
-		QFile file(getAccountDir(historyUnit(message.chatUnit())).filePath(getFileName(message)));
+		QFile file(getAccountDir(message.chatUnit()->getHistoryUnit()).filePath(getFileName(message)));
 		bool new_file = !file.exists();
 		if(!file.open(QIODevice::ReadWrite | QIODevice::Text))
 			return;
@@ -130,7 +130,7 @@ namespace Core
 		MessageList items;
 		if(!unit)
 			return items;
-		QDir dir = getAccountDir(historyUnit(unit));
+		QDir dir = getAccountDir(unit->getHistoryUnit());
 		QString filter = quote(unit->id());
 		filter += ".*.json";
 		QStringList files = dir.entryList(QStringList() << filter, QDir::Readable | QDir::Files | QDir::NoDotAndDotDot,QDir::Name);
@@ -210,7 +210,7 @@ namespace Core
 
 	void JsonHistory::showHistory(const ChatUnit *unit)
 	{
-		unit = historyUnit(unit);
+		unit = unit->getHistoryUnit();
 		if (m_history_window) {
 			m_history_window->setUnit(unit);
 			m_history_window->raise();
@@ -287,7 +287,7 @@ namespace Core
 	QString JsonHistory::getFileName(const Message &message) const
 	{
 		QDateTime time = message.time().isValid() ? message.time() : QDateTime::currentDateTime();
-		return quote(historyUnit(message.chatUnit())->id()) % time.toString(".yyyyMM.'json'");
+		return quote(message.chatUnit()->getHistoryUnit()->id()) % time.toString(".yyyyMM.'json'");
 	}
 
 	QDir JsonHistory::getAccountDir(const ChatUnit *unit) const

@@ -41,6 +41,11 @@ void MigrationStartPage::initializePage()
 {
 	// Let's magic begin!
 	QDir configPath = qApp->applicationDirPath();
+	//holy shit
+	QList<QWizard::WizardButton> layout;
+	layout << QWizard::Stretch << QWizard::FinishButton;
+	wizard()->setButtonLayout(layout);
+	
 	if (!configPath.cd("config")) {
 		QString userPath;
 #ifdef Q_OS_WIN
@@ -67,7 +72,8 @@ void MigrationStartPage::initializePage()
 		configPath = userPath;
 	}
 	if (!configPath.exists()) {
-		wizard()->removePage(wizard()->currentId());
+		setSubTitle(tr("Unable to find profile dir"));
+		setEnabled(false);
 	} else {
 		qDebug() << configPath;
 		QFileInfoList list = configPath.entryInfoList(QStringList() << "qutim.*",
@@ -79,7 +85,8 @@ void MigrationStartPage::initializePage()
 			ui->profileBox->addItem(profileName, info.absoluteFilePath());
 		}
 		if (!ui->profileBox->count()) {
-			wizard()->removePage(wizard()->currentId());
+			setSubTitle(tr("Unable to find any profile"));
+			setEnabled(false);
 		} else {
 			on_profileBox_currentIndexChanged(0);
 		}

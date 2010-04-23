@@ -18,7 +18,7 @@ namespace Core
 {
 ProfileCreationPage::ProfileCreationPage(const QString &password, QWidget *parent) :
     QWizardPage(parent),
-    ui(new Ui::ProfileCreationPage)
+    ui(new Ui::ProfileCreationPage),m_is_valid(false)
 {
     ui->setupUi(this);
 	m_password = password;
@@ -55,6 +55,9 @@ ProfileCreationPage::~ProfileCreationPage()
 
 bool ProfileCreationPage::validatePage()
 {
+	//FIXME Elessar, WTF? why the generators are run on several times? 
+	if (m_is_valid)
+		return true; //dummy
 	QDir dir;
 	dir.mkpath(ui->configEdit->text());
 	dir.mkpath(ui->historyEdit->text());
@@ -143,6 +146,7 @@ bool ProfileCreationPage::validatePage()
 	file.write(Json::generate(map));
 	file.flush();
 	file.close();
+	m_is_valid = true;
 	return true;
 }
 

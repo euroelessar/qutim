@@ -9,7 +9,7 @@
 #include "libqutim/icon.h"
 #include "libqutim/settingslayer.h"
 #include <QTreeView>
-#include <QDebug>
+#include <libqutim/debug.h>
 #include <QStringBuilder>
 #include <QVBoxLayout>
 #include <QToolButton>
@@ -37,18 +37,34 @@ namespace Core
 		public:
 			MyWidget()
 			{
+				resize(150,0);//hack
+				connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
+			}
+			void loadGeometry()
+			{
 				QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
 				if (geom.isNull()) {
-					int width = 150; //TODO: what to do? o.O
 					QRect rect = QApplication::desktop()->availableGeometry(QCursor::pos());
-					rect.setX(rect.width() - width);
-					rect.setWidth(width);
-					rect.setHeight(rect.bottom());
-					setGeometry(rect);
+					//black magic
+					int width = size().width();
+					int x = rect.width() - width;
+					int y = 0;
+					int height = rect.height();
+#ifdef Q_WS_WIN
+					//for stupid windows
+					x -= 15;
+					y += 35;
+					height -= 55;
+#endif
+					QRect geometry(x,
+								   y,
+								   width,
+								   height
+								   );
+					setGeometry(geometry);
 				} else {
 					restoreGeometry(geom);
 				}
-				connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 			}
 
 			virtual ~MyWidget()
@@ -61,7 +77,7 @@ namespace Core
 
 		struct ModulePrivate
 		{
-			QWidget *widget;
+			MyWidget *widget;
 			TreeView *view;
 			Model *model;
 			ActionToolBar *main_toolbar;
@@ -142,7 +158,6 @@ namespace Core
 
 			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));
 			p->view->setModel(p->model);
-			p->widget->show();
 
 			QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget);
 
@@ -192,7 +207,9 @@ namespace Core
 			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Offline));
 
 			p->status_btn->menu()->addSeparator();
-
+			
+			p->widget->loadGeometry();
+			p->widget->show();
 		}
 
 		void Module::onStatusChanged()

@@ -48,8 +48,7 @@ namespace qutim_sdk_0_3
 			d = new InfoItemPrivate;
 	}
 
-	InfoItem::InfoItem() :
-			d(new InfoItemPrivate)
+	InfoItem::InfoItem()
 	{
 	}
 
@@ -182,6 +181,10 @@ namespace qutim_sdk_0_3
 	}
 
 	InfoRequest::~InfoRequest()
+	{
+	}
+
+	void InfoRequest::resend() const
 	{
 	}
 

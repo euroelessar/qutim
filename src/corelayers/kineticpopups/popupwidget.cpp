@@ -133,15 +133,11 @@ namespace KineticPopups
 
 	void KineticPopups::PopupWidget::onAction1Triggered()
 	{
-		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
-		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(unit))) {
-			sess->setActive(true);
+		if (ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender)) {
+			ChatLayer::get(const_cast<ChatUnit *>(unit->getHistoryUnit()),true)->activate();
 		}
-		else {
-			QWidget *widget = qobject_cast<QWidget *>(m_sender);
-			if (widget)
-				widget->raise();
+		else if (QWidget *widget = qobject_cast<QWidget *>(m_sender)) {
+			widget->raise();
 		}
 	}
 
@@ -165,7 +161,7 @@ namespace KineticPopups
 	QSize PopupWidget::sizeHint() const
 	{
 		int width = popup_settings.defaultSize.width();
-		int height = document()->size().height();
+		int height = static_cast<int>(document()->size().height());
 		return QSize(width,height);
 	}
 
