@@ -351,6 +351,9 @@ typedef struct mrim_packet_header_t
 	//               uussuussssusuuus
 	#define CONTACT_INTFLAG_NOT_AUTHORIZED	0x0001
 
+#define MRIM_DEFAULT_GROUP_ID 0x0
+#define MRIM_PHONE_GROUP_ID 0x67
+#define MRIM_MAX_GROUPS 20
 
 //old packet cs_login with cs_statistic
 #define MRIM_CS_LOGIN2		0x1038  // C -> S

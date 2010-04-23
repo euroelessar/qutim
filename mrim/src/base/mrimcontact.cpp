@@ -21,14 +21,15 @@
 
 struct MrimContactPrivate
 {
-    quint32 id;
+    qint32 id;
     QString name;
     QString email;
-    quint32 groupId;
+    qint32 groupId;
     quint32 serverFlags;
     MrimContact::ContactFlags contactflags;
     MrimConnection::FeatureFlags featureFlags;
     UserAgent userAgent;
+    Status status;
 };
 
 MrimContact::MrimContact(MrimAccount *account)
@@ -41,7 +42,10 @@ MrimContact::~MrimContact()
 
 //from Contact
 QString MrimContact::id() const
-{ return email(); }
+{ return isPhone() ? email() + QString::number(p->id) : email(); }
+
+QString MrimContact::name() const
+{ return p->name; }
 
 void MrimContact::setName(const QString &name)
 { p->name = name; }
@@ -86,7 +90,12 @@ quint32 MrimContact::groupId() const
 { return p->groupId; }
 
 void MrimContact::setGroupId(quint32 id)
-{ p->groupId = id; }
+{
+    if (id > MRIM_MAX_GROUPS && id != MRIM_PHONE_GROUP_ID) {
+        id = MRIM_DEFAULT_GROUP_ID;
+    }
+    p->groupId = id;
+}
 
 MrimContact::ContactFlags MrimContact::flags() const
 { return p->contactflags; }
@@ -117,6 +126,18 @@ const UserAgent& MrimContact::userAgent() const
 
 void MrimContact::setUserAgent(const UserAgent& agent)
 { p->userAgent.set(agent); }
+
+bool MrimContact::isPhone() const
+{ return p->groupId == MRIM_PHONE_GROUP_ID; }
+
+Status MrimContact::status() const
+{ return p->status; }
+
+void MrimContact::setStatus(const Status& status)
+{
+    p->status = status;
+    emit statusChanged(p->status);
+}
 
 QDebug operator<<(QDebug dbg, const MrimContact &c)
 {

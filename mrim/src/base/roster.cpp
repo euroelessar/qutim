@@ -20,6 +20,7 @@
 #include "mrimdebug.h"
 #include "mrimcontact.h"
 #include "mrimaccount.h"
+#include "mrimstatus.h"
 
 #include "roster.h"
 
@@ -119,32 +120,40 @@ bool Roster::parseContacts(MrimPacket& packet, const QString& mask)
     RosterParseMultiMap parsedContact;
     quint32 paramIndex = 0;
     quint32 contactId = 20;
+    Status status;
+    QString statusText, statusDesc, phones;
     MrimContact *contact = 0;
 
     while(!packet.atEnd())
     {
         parsedContact = parseByMask(packet,mask);
-		// TODO: Learn why is it possible
-		if (parsedContact.isEmpty())
-			break;
+
+        if (parsedContact.isEmpty())
+                break;// TODO: learn why its possible
         contact = new MrimContact(p->account);
-        //common params
+        //generated params
         contact->setContactId(contactId++);
         //numeric params
         paramIndex = 0;
         paramIndex++; //TODO: contact->setFlags(parsedContact.getUint(paramIndex++));
         contact->setGroupId(parsedContact.getUint(paramIndex++));
         paramIndex++; //TODO: contact->setServerFlags(parsedContact.getUint(paramIndex++));
-        paramIndex++; //skip status, TODO
+        paramIndex++; //ignore numeric status, will determine by URI
         paramIndex++; //TODO: contact->setFeatureFlags(parsedContact.getUint(paramIndex)); //last known numeric param
         //string params
         paramIndex = 0;
         contact->setEmail(parsedContact.getString(paramIndex++));
         contact->setName(parsedContact.getString(paramIndex++,true));
-        paramIndex++; //skip phone, TODO
-        paramIndex++; //skip status URI, TODO
-        paramIndex++; //skip status title, TODO
-        paramIndex++; //skip status desc, TODO
+        phones = parsedContact.getString(paramIndex++);
+        status = MrimStatus::fromString(parsedContact.getString(paramIndex++));
+        statusText = parsedContact.getString(paramIndex++,true);//title
+        statusDesc = parsedContact.getString(paramIndex++,true);//desc
+
+        if (!statusDesc.isEmpty()) {
+            statusText += " - " + statusDesc;
+        }
+        status.setText(statusText);
+        contact->setStatus(status);
 
         if (agent.parse(parsedContact.getString(paramIndex++)))
         {

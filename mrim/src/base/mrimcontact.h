@@ -52,6 +52,7 @@ public:
     //from Contact
     QString id() const;
     void sendMessage(const Message &message);
+    QString name() const;
     void setName(const QString &name);
     QSet<QString> tags() const;
     void setTags(const QSet<QString> &tags);
@@ -75,6 +76,9 @@ public:
     void setUserAgent(const UserAgent& agent);
     const MrimAccount *account() const;
     MrimAccount *account();
+    bool isPhone() const;
+    Status status() const;
+    void setStatus(const Status& status);
 
 private:
     Q_DISABLE_COPY(MrimContact);
