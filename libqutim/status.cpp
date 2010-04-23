@@ -99,28 +99,28 @@ namespace qutim_sdk_0_3
 	{
 		switch (type) {
 		case Status::Online:
-			name = LocalizedString("Status", "Online");
+			name = QT_TRANSLATE_NOOP("Status", "Online");
 			break;
 		case Status::FreeChat:
-			name = LocalizedString("Status", "Free for chat");
+			name = QT_TRANSLATE_NOOP("Status", "Free for chat");
 			break;
 		case Status::Away:
-			name = LocalizedString("Status", "Away");
+			name = QT_TRANSLATE_NOOP("Status", "Away");
 			break;
 		case Status::NA:
-			name = LocalizedString("Status", "Not available");
+			name = QT_TRANSLATE_NOOP("Status", "Not available");
 			break;
 		case Status::DND:
-			name = LocalizedString("Status", "Do not disturb");
+			name = QT_TRANSLATE_NOOP("Status", "Do not disturb");
 			break;
 		case Status::Invisible:
-			name = LocalizedString("Status", "Invisible");
+			name = QT_TRANSLATE_NOOP("Status", "Invisible");
 			break;
 		case Status::Offline:
-			name = LocalizedString("Status", "Offline");
+			name = QT_TRANSLATE_NOOP("Status", "Offline");
 			break;
 		default:
-			name = LocalizedString("Status", "Unknown");
+			name = QT_TRANSLATE_NOOP("Status", "Unknown");
 			break;
 		}
 	}
