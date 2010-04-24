@@ -23,6 +23,8 @@ namespace Core
 			ui->setupUi(this);
 			m_action = new QAction(tr("Status"),this);
 			m_action->setMenu(new QMenu(this));
+			m_action->setSoftKeyRole(QAction::NegativeSoftKey);
+			addAction(m_action);
 			showMaximized();
 
 			ActionGenerator *gen = new ActionGenerator(Icon("application-exit"),

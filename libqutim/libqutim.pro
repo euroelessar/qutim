@@ -150,7 +150,7 @@ TARGET = libqutim
 
 #Symbian specific definitions
 symbian: {
-	TARGET.UID3 = 0xEF76E061
+	#TARGET.UID3 = 0xEF76E061
 	TARGET.EPOCALLOWDLLDATA = 1
 #   TARGET.CAPABILITY = ReadDeviceData
 

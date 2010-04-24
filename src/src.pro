@@ -185,7 +185,7 @@ RESOURCES += ../qutim.qrc
 
 symbian { 
     LIBS += -llibqutim
-    TARGET.UID3 = 0xEF76E062
+	#TARGET.UID3 = 0xEF76E062
     TARGET.CAPABILITY = NetworkServices \
         ReadUserData \
         WriteUserData

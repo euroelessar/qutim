@@ -29,6 +29,7 @@ Q_IMPORT_PLUGIN(qjpeg)
 Q_IMPORT_PLUGIN(qgif)
 #endif
 
+
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
