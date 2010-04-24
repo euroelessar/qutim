@@ -1,4 +1,5 @@
 #include <QClipboard>
+#include <QMessageBox>
 #include "../jaccount.h"
 #include "jmucmanager.h"
 #include "jbookmarkmanager.h"
@@ -56,7 +57,7 @@ namespace Jabber
 			} else {
 				muc->setBookmarkIndex(-1);
 				if (!ChatLayer::instance()->getSession(muc, false))
-					emit muc->initClose();
+					closeMUCSession(muc);
 			}
 		}
 	}
@@ -76,8 +77,25 @@ namespace Jabber
 
 	void JMUCManager::join(const QString &conference, const QString &nick, const QString &password)
 	{
-		JMUCSession *room;
-		if (!p->rooms.contains(conference)) {
+		JMUCSession *room = p->rooms.value(conference, 0);
+		if (room && room->isError()) {
+			room->setBookmarkIndex(-1);
+			closeMUCSession(room);
+			room = 0;
+			if (nick.isEmpty())
+				return;
+		}
+		if (room && room->me()->name() != nick) {
+			if (room->isJoined()) {
+				QMessageBox::warning(0, tr("Join groupchat on")+" "+room->id(),
+						tr("You already in conference with another nick"));
+			} else {
+				room->setBookmarkIndex(-1);
+				closeMUCSession(room);
+				room = 0;
+			}
+		}
+		if (!room) {
 			Q_ASSERT(!nick.isEmpty()); // Room doesn't exist. Nickname is required.
 			JID jid = JID(conference.toStdString());
 			jid.setResource(nick.toStdString());
@@ -106,10 +124,18 @@ namespace Jabber
 	void JMUCManager::closeMUCSession()
 	{
 		JMUCSession *room = qobject_cast<JMUCSession *>(sender());
-		if (room && !room->isJoined() && room->bookmarkIndex() == -1) {
-			p->rooms.remove(room->id());
-			room->deleteLater();
-			//TODO: remove conference from roster
+		closeMUCSession(room);
+	}
+
+	void JMUCManager::closeMUCSession(JMUCSession *room)
+	{
+		if (room && !room->isJoined()) {
+			room->clearSinceDate();
+			if (room->bookmarkIndex() == -1) {
+				p->rooms.remove(room->id());
+				room->deleteLater();
+				//TODO: remove conference from roster
+			}
 		}
 	}
 

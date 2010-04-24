@@ -41,6 +41,7 @@ namespace Jabber
 			void copyJIDToClipboard();
 		protected:
 			void createActions(JMUCSession *room);
+			void closeMUCSession(JMUCSession *room);
 		private:
 			QScopedPointer<JMUCManagerPrivate> p;
 	};

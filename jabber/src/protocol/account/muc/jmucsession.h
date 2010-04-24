@@ -51,9 +51,11 @@ namespace Jabber
 			int bookmarkIndex();
 			bool enabledConfiguring();
 			bool isJoined();
+			bool isError();
 			qutim_sdk_0_3::Buddy *me() const;
 			ChatUnit *participant(const QString &nick);
 			QString title() const;
+			void clearSinceDate();
 		protected:
 			void loadSettings();
 			// MUCRoomHandler

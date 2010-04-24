@@ -51,6 +51,7 @@ namespace Jabber
 		int bookmarkIndex;
 		bool isConfiguring;
 		bool avatarsAutoLoad;
+		bool isError;
 		QDateTime lastMessage;
 	};
 
@@ -65,6 +66,7 @@ namespace Jabber
 		d->account = account;
 		d->isJoined = false;
 		d->isConfiguring = false;
+		d->isError = false;
 		loadSettings();
 	}
 
@@ -282,6 +284,7 @@ namespace Jabber
 			QMessageBox::warning(0, tr("Join groupchat on")+" "+d->account->id(), text);
 			d->account->conferenceManager()->leave(QString::fromStdString(d->jid.full()));
 		}
+		d->isError = true;
 	}
 
 	void JMUCSession::handleMUCInfo(MUCRoom *room, int features, const std::string &name, const DataForm *infoForm)
@@ -356,5 +359,15 @@ namespace Jabber
 	void JMUCSession::loadSettings()
 	{
 		d_func()->avatarsAutoLoad = JProtocol::instance()->config("general").value("getavatars", true);
+	}
+
+	void JMUCSession::clearSinceDate()
+	{
+		d_func()->lastMessage = QDateTime();
+	}
+
+	bool JMUCSession::isError()
+	{
+		return d_func()->isError;
 	}
 }
