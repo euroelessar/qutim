@@ -19,6 +19,7 @@ SimpleFileTransfer::SimpleFileTransfer()
 {
 	static bool init = false;
 	if (!init) {
+		//FIXME Many protocols (for example vkontakte) doesn't support filetransfer
 		MenuController::addAction<Buddy>(new ActionGenerator(Icon("document-save"),
 															 QT_TRANSLATE_NOOP("FileTransfer", "Send file"),
 															 this, SLOT(onSendFile())));

@@ -39,7 +39,11 @@ namespace Core
 //		qDebug() << object.toString();
 		loadPlugins();
 		QDialog *dialog = new ProfileDialog(this);
+#if	defined(Q_OS_SYMBIAN)
+		dialog->showMaximized();
+#else
 		dialog->show();
+#endif
 //		QTimer::singleShot(0, this, SLOT(initExtensions()));
 	}
 

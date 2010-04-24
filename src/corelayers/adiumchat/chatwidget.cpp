@@ -55,16 +55,12 @@ namespace AdiumChat
 		m_originalDoc = ui->chatEdit->document();
 
 		//init tabbar
-		//ui->tabBar->setVisible(false);
 		ui->tabBar->setTabsClosable(true);
 		ui->tabBar->setMovable(true);
 		ui->tabBar->setDocumentMode(true);
 		ui->tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
-		//ui->tabBar->setUsesScrollButtons(false);
-		//ui->tabButton->hide();
 		ui->tabButton->setIcon(Icon("view-list-text"));
 		ui->contactsView->hide();
-		//ui->tabBar->setDrawBase(false);
 		//init status and menubar
 		setAttribute(Qt::WA_DeleteOnClose);
 		setAttribute(Qt::WA_MacBrushedMetal);
