@@ -62,4 +62,9 @@ namespace Jabber
 	{
 		return new JInfoRequest(((JAccount *) account())->connection()->vCardManager(), id());
 	}
+
+	ChatUnit *JMUCUser::upperUnit()
+	{
+		return qobject_cast<Conference *>(d_func()->contact);
+	}
 }

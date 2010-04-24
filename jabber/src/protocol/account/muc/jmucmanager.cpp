@@ -85,7 +85,7 @@ namespace Jabber
 			if (nick.isEmpty())
 				return;
 		}
-		if (room && room->me()->name() != nick) {
+		if (room && !nick.isEmpty() && room->me()->name() != nick) {
 			if (room->isJoined()) {
 				QMessageBox::warning(0, tr("Join groupchat on")+" "+room->id(),
 						tr("You already in conference with another nick"));

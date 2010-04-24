@@ -105,6 +105,7 @@ namespace Jabber
 				foreach (JMUCUser *muc, d->users.values())
 					ChatLayer::get(this, true)->addContact(muc);
 			d->room->setPresence(pres.subtype(), pres.status());
+			d->users.value(d->nick)->setStatus(pres.subtype(), pres.priority());
 		} else {
 			foreach (JMUCUser *muc, d->users.values()) {
 				ChatLayer::get(this, true)->removeContact(muc);
@@ -369,5 +370,13 @@ namespace Jabber
 	bool JMUCSession::isError()
 	{
 		return d_func()->isError;
+	}
+
+	ChatUnitList JMUCSession::lowerUnits()
+	{
+		ChatUnitList list;
+		foreach(ChatUnit *unit, d_func()->users)
+			list << unit;
+		return list;
 	}
 }

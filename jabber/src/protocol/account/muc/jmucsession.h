@@ -29,6 +29,8 @@ inline uint qHash(const std::string &str)
 
 namespace Jabber
 {
+	using namespace qutim_sdk_0_3;
+
 	class JMessageSession;
 	class JAccount;
 	class JMUCUser;
@@ -56,6 +58,7 @@ namespace Jabber
 			ChatUnit *participant(const QString &nick);
 			QString title() const;
 			void clearSinceDate();
+			ChatUnitList lowerUnits();
 		protected:
 			void loadSettings();
 			// MUCRoomHandler
