@@ -4,72 +4,28 @@
  <widget class="QWidget" name="AccountCreatorList">
   <property name="geometry">
    <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>300</height>
+	<x>0</x>
+	<y>0</y>
+	<width>400</width>
+	<height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" rowspan="4">
-    <widget class="QTableWidget" name="tableWidget">
-     <property name="columnCount">
-      <number>4</number>
-     </property>
-     <attribute name="horizontalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="horizontalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <column/>
-     <column/>
-     <column/>
-     <column/>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QPushButton" name="addButton">
-     <property name="text">
-      <string>Add</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="upButton">
-     <property name="text">
-      <string>Up</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="downButton">
-     <property name="text">
-      <string>Down</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>60</width>
-       <height>205</height>
-      </size>
-     </property>
-    </spacer>
+   <item row="0" column="0" rowspan="2" colspan="2">
+	<widget class="QListWidget" name="listWidget">
+	 <property name="iconSize">
+	  <size>
+	   <width>22</width>
+	   <height>22</height>
+	  </size>
+	 </property>
+	 <property name="movement">
+	  <enum>QListView::Static</enum>
+	 </property>
+	</widget>
    </item>
   </layout>
  </widget>

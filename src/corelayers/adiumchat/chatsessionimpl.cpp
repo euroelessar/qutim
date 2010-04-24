@@ -218,6 +218,9 @@ namespace AdiumChat
 		if (m_active == active)
 			return;
 		m_active = active;
+		if (Conference *conf = qobject_cast<Conference *> (m_chat_unit)) {
+			conf->join();
+		}
 		emit activated(active);
 	}
 
