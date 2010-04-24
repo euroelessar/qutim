@@ -99,6 +99,9 @@ namespace Jabber
 		Q_D(JMUCSession);
 		Presence &pres = d->account->client()->presence();
 		if (d->isJoined) {
+			if (!ChatLayer::instance()->getSession(this, false))
+				foreach (JMUCUser *muc, d->users.values())
+					ChatLayer::get(this, true)->addContact(muc);
 			d->room->setPresence(pres.subtype(), pres.status());
 		} else {
 			foreach (JMUCUser *muc, d->users.values()) {
@@ -118,6 +121,11 @@ namespace Jabber
 	{
 		d_func()->room->leave();
 		d_func()->isJoined = false;
+	}
+
+	bool JMUCSession::isJoined()
+	{
+		return d_func()->isJoined;
 	}
 
 	QString JMUCSession::id() const
@@ -147,12 +155,14 @@ namespace Jabber
 		if (!user && presence.subtype() != Presence::Unavailable) {
 			user = new JMUCUser(this, nick);
 			d->users.insert(nick, user);
-			ChatLayer::get(this, true)->addContact(user);
+			if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
+				session->addContact(user);
 		} else if (!user) {
 			return;
 		} else if (presence.subtype() == Presence::Unavailable) {
 			d->users.remove(nick);
-			ChatLayer::get(this, true)->removeContact(user);
+			if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
+				session->removeContact(user);
 		}
 		user->setStatus(presence.presence(), presence.priority());
 		if (presence.presence() != Presence::Unavailable && !presence.error()) {

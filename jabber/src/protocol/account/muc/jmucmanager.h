@@ -35,6 +35,7 @@ namespace Jabber
 			void bookmarksChanged();
 			void join();
 			void leave();
+			void closeMUCSession();
 			void saveToBookmarks();
 			void removeFromBookmarks();
 			void copyJIDToClipboard();

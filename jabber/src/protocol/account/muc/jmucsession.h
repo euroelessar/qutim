@@ -50,6 +50,7 @@ namespace Jabber
 			void setBookmarkIndex(int index);
 			int bookmarkIndex();
 			bool enabledConfiguring();
+			bool isJoined();
 			qutim_sdk_0_3::Buddy *me() const;
 			ChatUnit *participant(const QString &nick);
 			QString title() const;
@@ -79,6 +80,8 @@ namespace Jabber
 			void showConfigDialog();
 		private slots:
 			void closeConfigDialog();
+		signals:
+			void initClose();
 		private:
 			QScopedPointer<JMUCSessionPrivate> d_ptr;
 	};

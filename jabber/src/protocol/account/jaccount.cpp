@@ -80,14 +80,11 @@ namespace Jabber {
 	{
 		Status newStatus = JProtocol::presenceToStatus(presence);
 		debug() << "new status" << newStatus << newStatus.text();
-		if (status() == Status::Offline && newStatus != Status::Offline) {
+		if (status() == Status::Offline && newStatus != Status::Offline)
 			p->conferenceManager->syncBookmarks();
-			p->conferenceManager->setPresenceToRooms(presence);
-		}
-		if (status() != Status::Offline && newStatus == Status::Offline) {
-			p->conferenceManager->setPresenceToRooms(presence);
+		if (status() != Status::Offline && newStatus == Status::Offline)
 			p->roster->setOffline();
-		}
+		p->conferenceManager->setPresenceToRooms(presence);
 		Account::setStatus(newStatus);
 		emit statusChanged(newStatus);
 	}

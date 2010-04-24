@@ -48,12 +48,15 @@ namespace Jabber
 	{
 		foreach (QString conference, p->rooms.keys())
 		{
-			JBookmark room("", conference, p->rooms.value(conference)->me()->name(), "");
+			JMUCSession *muc = p->rooms.value(conference);
+			JBookmark room("", conference, muc->me()->name(), "");
 			if (p->bookmarkManager->bookmarks().contains(room)) {
 				int num = p->bookmarkManager->bookmarks().indexOf(room);
-				p->rooms.value(conference)->setBookmarkIndex(num);
+				muc->setBookmarkIndex(num);
 			} else {
-				p->rooms.value(conference)->setBookmarkIndex(-1);
+				muc->setBookmarkIndex(-1);
+				if (!ChatLayer::instance()->getSession(muc, false))
+					emit muc->initClose();
 			}
 		}
 	}
@@ -89,11 +92,25 @@ namespace Jabber
 					break;
 				}
 			p->rooms.insert(conference, room);
+			//TODO: add conference to roster
 		} else {
 			room = p->rooms.value(conference);
 		}
 		room->join();
-		ChatLayer::get(room, true)->activate();
+		ChatSession *session = ChatLayer::get(room, true);
+		connect(session, SIGNAL(destroyed()), room, SIGNAL(initClose()));
+		connect(room, SIGNAL(initClose()), SLOT(closeMUCSession()));
+		session->activate();
+	}
+
+	void JMUCManager::closeMUCSession()
+	{
+		JMUCSession *room = qobject_cast<JMUCSession *>(sender());
+		if (room && !room->isJoined() && room->bookmarkIndex() == -1) {
+			p->rooms.remove(room->id());
+			room->deleteLater();
+			//TODO: remove conference from roster
+		}
 	}
 
 	void JMUCManager::join()
@@ -109,10 +126,12 @@ namespace Jabber
 	{
 		if (presence == Presence::Unavailable)
 			foreach (JMUCSession *room, p->rooms)
-				room->leave();
+				if(room->isJoined())
+					room->leave();
 		else
 			foreach (JMUCSession *room, p->rooms)
-				room->join();
+				if(room->isJoined())
+					room->join();
 	}
 
 	void JMUCManager::leave(const QString &room)
@@ -225,20 +244,18 @@ namespace Jabber
 			JMUCSession *room = MenuController::getController<JMUCSession>(action);
 			switch (p->actions.value(generator)) {
 			case JoinAction:
+				action->setVisible(!room->isJoined());
+				break;
 			case LeaveAction:
+				action->setVisible(room->isJoined());
+				break;
 			case CopyJIDAction:
 				break;
 			case SaveToBookmarkAction:
-				if (room->bookmarkIndex() == -1)
-					action->setVisible(true);
-				else
-					action->setVisible(false);
+				action->setVisible(room->bookmarkIndex() == -1 ? true : false);
 				break;
 			case RemoveFromBookmarkAction:
-				if (room->bookmarkIndex() == -1)
-					action->setVisible(false);
-				else
-					action->setVisible(true);
+				action->setVisible(room->bookmarkIndex() == -1 ? false : true);
 				break;
 			case RoomConfigAction:
 				action->setVisible(room->enabledConfiguring());
