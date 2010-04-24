@@ -28,8 +28,9 @@ DEPENDPATH += . \
     corelayers\adiumchat\actions \
     corelayers\adiumchat\modifiers \
     corelayers\adiumchat\settings \
-    corelayers\contactlist\simpletagseditor
-	symbian/mainwindow/s60mainwindow.h
+	corelayers\contactlist\simpletagseditor \
+	symbian/mainwindow
+
 INCLUDEPATH += . \
     .. \
     ../libqutim/
