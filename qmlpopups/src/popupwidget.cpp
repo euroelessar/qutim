@@ -46,14 +46,14 @@ namespace QmlPopups {
 		}
 
 		setTheme(theme_name);
-		setResizeMode(QDeclarativeView::SizeViewToRootObject);
+		setResizeMode(QDeclarativeView::SizeRootObjectToView);
 		rootContext()->setContextProperty("popupWidget",this);
 		rootContext()->setContextProperty("timeout",Manager::self()->timeout);
     }
     PopupWidget::PopupWidget(const QString &themeName)
     {
 		setTheme(themeName);
-		setResizeMode(QDeclarativeView::SizeViewToRootObject);
+		setResizeMode(QDeclarativeView::SizeRootObjectToView);
     }
 
     void PopupWidget::setTheme(const QString &themeName)
@@ -98,8 +98,10 @@ namespace QmlPopups {
     void PopupWidget::accept()
     {
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
-		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(unit))) {
+		if (unit)
+			unit = const_cast<ChatUnit *>(unit->getHistoryUnit());
+
+		if (ChatSession *sess = ChatLayer::get(unit)) {
 			sess->setActive(true);
 		}
 		else {

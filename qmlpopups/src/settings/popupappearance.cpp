@@ -69,7 +69,7 @@ namespace QmlPopups
 	void PopupAppearance::getThemes()
 	{
 		ui->comboBox->blockSignals(true);
-		QString category = "kineticpopups";
+		QString category = "qmlpopups";
 		QStringList list = listThemes(category);
 		ui->comboBox->clear();
 		int index = -1;
