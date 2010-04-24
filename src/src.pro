@@ -174,7 +174,7 @@ SOURCES += modulemanagerimpl.cpp \
     corelayers/adiumchat/settings/chatsettings.cpp \
     corelayers/adiumchat/settings/chatvariable.cpp \
     symbian/contactlist/simpletagseditor/simpletagseditor.cpp \
-    ../main.cpp \
+	symbian/main.cpp \
     symbian/mobilesettings/mobilesettingslayer.cpp \
     symbian/mobilesettings/mobilesettingsitem.cpp \
     symbian/mobilesettings/mobilesettingsdialog.cpp \
