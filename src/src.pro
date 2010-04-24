@@ -65,11 +65,6 @@ HEADERS += modulemanagerimpl.h \
     corelayers/configbackends/jsonconfigbackend.h \
     corelayers/configbackends/plistconfigbackend.h \
     corelayers/contactinfo/contactinfo.h \
-    symbian/contactlist/simplecontactlist.h \
-    symbian/contactlist/simplecontactlistdelegate.h \
-    symbian/contactlist/simplecontactlistitem.h \
-    symbian/contactlist/simplecontactlistmodel.h \
-    symbian/contactlist/simplecontactlistview.h \
     corelayers/emoticonssettings/emoticonsselector.h \
     corelayers/emoticonssettings/emoticonssettings.h \
     corelayers/filetransfer/filetransferdialog.h \
@@ -96,10 +91,16 @@ HEADERS += modulemanagerimpl.h \
     corelayers/adiumchat/settings/chatappearance.h \
     corelayers/adiumchat/settings/chatsettings.h \
     corelayers/adiumchat/settings/chatvariable.h \
+	symbian/contactlist/simplecontactlist.h \
+	symbian/contactlist/simplecontactlistdelegate.h \
+	symbian/contactlist/simplecontactlistitem.h \
+	symbian/contactlist/simplecontactlistmodel.h \
+	symbian/contactlist/simplecontactlistview.h \
     symbian/contactlist/simpletagseditor/simpletagseditor.h \
     symbian/mobilesettings/mobilesettingslayer.h \
     symbian/mobilesettings/mobilesettingsitem.h \
-	symbian/mobilesettings/mobilesettingsdialog.h
+	symbian/mobilesettings/mobilesettingsdialog.h \
+    symbian/mainwindow/s60mainwindow.h
 
 FORMS += profilecreationpage.ui \
     profiledialog.ui \
