@@ -12,6 +12,8 @@ namespace Jabber
 		public:
 			QString avatar;
 			QStringRef hash;
+			MUCRoomAffiliation affiliation;
+			MUCRoomRole role;
 	};
 
 	JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
@@ -72,5 +74,25 @@ namespace Jabber
 	ChatUnit *JMUCUser::upperUnit()
 	{
 		return qobject_cast<Conference *>(d_func()->contact);
+	}
+
+	MUCRoomAffiliation JMUCUser::affiliation()
+	{
+		return d_func()->affiliation;
+	}
+
+	void JMUCUser::setMUCAffiliation(MUCRoomAffiliation affiliation)
+	{
+		d_func()->affiliation = affiliation;
+	}
+
+	MUCRoomRole JMUCUser::role()
+	{
+		return d_func()->role;
+	}
+
+	void JMUCUser::setMUCRole(MUCRoomRole role)
+	{
+		d_func()->role = role;
 	}
 }

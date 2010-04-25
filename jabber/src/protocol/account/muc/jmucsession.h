@@ -59,6 +59,9 @@ namespace Jabber
 			QString title() const;
 			void clearSinceDate();
 			ChatUnitList lowerUnits();
+			QString topic() const;
+			void setTopic(const QString &topic);
+			void setConferenceTopic(const QString &topic);
 		protected:
 			void loadSettings();
 			// MUCRoomHandler

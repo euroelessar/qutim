@@ -65,12 +65,12 @@ namespace Jabber
 			return;
 		item->setName(name.toStdString());
 		rosterManager->synchronize();
-		emit nameChanged(name);
 	}
 
 	void JContact::setContactName(const QString &name)
 	{
 		d_func()->name = name;
+		emit nameChanged(name);
 	}
 
 	QString JContact::JContact::name() const
@@ -94,12 +94,12 @@ namespace Jabber
 		}
 		item->setGroups(stdGroups);
 		rosterManager->synchronize();
-		emit tagsChanged(tags);
 	}
 
 	void JContact::setContactTags(const QSet<QString> &tags)
 	{
 		d_func()->tags = tags;
+		emit tagsChanged(tags);
 	}
 
 	QSet<QString> JContact::tags() const
@@ -115,6 +115,7 @@ namespace Jabber
 	void JContact::setContactInList(bool inList)
 	{
 		d_func()->inList = inList;
+		emit inListChanged(inList);
 	}
 
 	void JContact::setInList(bool inList)
@@ -128,7 +129,6 @@ namespace Jabber
 			rosterManager->add(d->jid.toStdString(), d->name.toStdString(), StringList());
 		else
 			rosterManager->remove(d->jid.toStdString());
-		emit inListChanged(inList);
 	}
 
 	inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)

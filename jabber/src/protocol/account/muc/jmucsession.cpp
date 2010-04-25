@@ -45,6 +45,7 @@ namespace Jabber
 		gloox::JID jid;
 		QString nick;
 		QString title;
+		QString topic;
 		QHash<std::string, quint64> messages;
 		QHash<QString, JMUCUser *> users;
 		bool isJoined;
@@ -153,7 +154,7 @@ namespace Jabber
 		} else if (message.text().startsWith("/topic ")) {
 			QString topic = message.text().section(' ',1);
 			if (!topic.isEmpty()) {
-				d->room->setSubject(topic.toStdString());
+				setTopic(topic);
 				return;
 			}
 		}
@@ -214,16 +215,18 @@ namespace Jabber
 						: QString("%1 (%2) ").arg(nick).arg(QString::fromStdString(participant.jid->bare()));
 				text += tr("has joined the room");
 				if (participant.affiliation == AffiliationOwner)
-					text += tr(" as owner");
+					text += tr(" as") + tr(" owner");
 				else if (participant.affiliation == AffiliationAdmin)
-					text += tr(" as administrator");
+					text += tr(" as") + tr(" administrator");
 				else if (participant.affiliation == AffiliationMember)
-					text += tr(" as registered member");
+					text += tr(" as") + tr(" registered member");
 				else if (participant.role == RoleParticipant)
-					text += tr(" as member");
+					text += tr(" as") + tr(" member");
 				else if (participant.role == RoleVisitor)
-					text += tr(" as visitor");
+					text += tr(" as") + tr(" visitor");
 				user = new JMUCUser(this, nick);
+				user->setMUCAffiliation(participant.affiliation);
+				user->setMUCRole(participant.role);
 				d->users.insert(nick, user);
 				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
 					session->addContact(user);
@@ -237,6 +240,21 @@ namespace Jabber
 			}
 			//TODO: add affiliation & role to JMUCUser
 			user->setStatus(presence.presence(), presence.priority());
+			if (user->role() != participant.role || user->affiliation() != participant.affiliation) {
+				text = tr("%1 now is").arg(user->name());
+				if (participant.affiliation == AffiliationOwner)
+					text += tr(" owner");
+				else if (participant.affiliation == AffiliationAdmin)
+					text += tr(" administrator");
+				else if (participant.affiliation == AffiliationMember)
+					text += tr(" registered member");
+				else if (participant.role == RoleParticipant)
+					text += tr(" member");
+				else if (participant.role == RoleVisitor)
+					text += tr(" visitor");
+				user->setMUCAffiliation(participant.affiliation);
+				user->setMUCRole(participant.role);
+			}
 			if (presence.presence() != Presence::Unavailable && !presence.error()) {
 				const VCardUpdate *vcard = presence.findExtension<VCardUpdate>(ExtVCardUpdate);
 				if(vcard) {
@@ -252,7 +270,7 @@ namespace Jabber
 			if (!d->isJoined && (presence.from().resource() == d->room->nick()))
 				d->isJoined = true;
 		}
-		if (!text.isEmpty()) {
+		if (!text.isEmpty() && d->isJoined) {
 			qutim_sdk_0_3::Message msg(text);
 			msg.setTime(QDateTime::currentDateTime());
 			msg.setProperty("service", true);
@@ -318,6 +336,14 @@ namespace Jabber
 	void JMUCSession::handleMUCSubject(MUCRoom *room, const std::string &nick, const std::string &subject)
 	{
 		Q_ASSERT(room == d_func()->room);
+		QString topic = QString::fromStdString(subject);
+		qutim_sdk_0_3::Message msg(tr("%1 set subject to:\n%2")
+				.arg(QString::fromStdString(nick)).arg(topic));
+		msg.setTime(QDateTime::currentDateTime());
+		msg.setProperty("service", true);
+		if (ChatSession *chatSession = ChatLayer::get(this, false))
+			chatSession->appendMessage(msg);
+		setConferenceTopic(topic);
 	}
 
 	void JMUCSession::handleMUCInviteDecline(MUCRoom *room, const JID &invitee, const std::string &reason)
@@ -368,6 +394,7 @@ namespace Jabber
 			d->account->conferenceManager()->leave(QString::fromStdString(d->jid.full()));
 		}
 		d->isError = true;
+		leave();
 	}
 
 	void JMUCSession::handleMUCInfo(MUCRoom *room, int features, const std::string &name, const DataForm *infoForm)
@@ -460,5 +487,22 @@ namespace Jabber
 		foreach(ChatUnit *unit, d_func()->users)
 			list << unit;
 		return list;
+	}
+
+	QString JMUCSession::topic() const
+	{
+		return d_func()->topic;
+	}
+
+	void JMUCSession::setTopic(const QString &topic)
+	{
+		setConferenceTopic(topic);
+		d_func()->room->setSubject(topic.toStdString());
+	}
+
+	void JMUCSession::setConferenceTopic(const QString &topic)
+	{
+		d_func()->topic = topic;
+		emit topicChanged(topic);
 	}
 }

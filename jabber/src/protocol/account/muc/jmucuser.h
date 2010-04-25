@@ -2,9 +2,12 @@
 #define JMUCUSER_H
 
 #include "../roster/jcontactresource.h"
+#include <gloox/mucroom.h>
 
 namespace Jabber
 {
+	using namespace gloox;
+
 	class JAccount;
 	class JMUCSession;
 	class JMUCUserPrivate;
@@ -24,6 +27,10 @@ namespace Jabber
 		void setName(const QString &name);
 		InfoRequest *infoRequest() const;
 		ChatUnit *upperUnit();
+		MUCRoomAffiliation affiliation();
+		void setMUCAffiliation(MUCRoomAffiliation affiliation);
+		MUCRoomRole role();
+		void setMUCRole(MUCRoomRole role);
 	};
 }
 
