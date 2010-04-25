@@ -39,6 +39,7 @@ namespace Core
 			{
 				resize(150,0);//hack
 				connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
+				setWindowIcon(QIcon(":/icons/qutim_64")); //FIXME
 			}
 			void loadGeometry()
 			{

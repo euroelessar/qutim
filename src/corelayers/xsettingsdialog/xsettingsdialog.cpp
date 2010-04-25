@@ -35,6 +35,7 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	QSize desktop_size = qApp->desktop()->size();
 	resize(desktop_size.width()/2,desktop_size.height()*2/3);
 	centerizeWidget(this);
+	setWindowIcon(Icon("configure"));
 	//load settings
 	ConfigGroup general_group = Config("appearance").group("xsettings/general");
 	//init toolbar

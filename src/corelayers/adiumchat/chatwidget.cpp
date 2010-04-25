@@ -64,6 +64,7 @@ namespace AdiumChat
 		//init status and menubar
 		setAttribute(Qt::WA_DeleteOnClose);
 		setAttribute(Qt::WA_MacBrushedMetal);
+		setWindowIcon(Icon("view-choose"));
 		
 		connect(ui->tabBar,SIGNAL(currentChanged(int)),SLOT(currentIndexChanged(int)));
 		connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
