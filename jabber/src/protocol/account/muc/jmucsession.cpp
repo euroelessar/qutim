@@ -102,9 +102,11 @@ namespace Jabber
 		Q_D(JMUCSession);
 		Presence &pres = d->account->client()->presence();
 		if (d->isJoined) {
-			if (!ChatLayer::instance()->getSession(this, false))
+			if (!ChatLayer::instance()->getSession(this, false)) {
+				ChatSession *session = ChatLayer::get(this, true);
 				foreach (JMUCUser *muc, d->users.values())
-					ChatLayer::get(this, true)->addContact(muc);
+					session->addContact(muc);
+			}
 			d->room->setPresence(pres.subtype(), pres.status());
 			d->users.value(d->nick)->setStatus(pres.subtype(), pres.priority());
 		} else {
@@ -238,7 +240,6 @@ namespace Jabber
 				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
 					session->removeContact(user);
 			}
-			//TODO: add affiliation & role to JMUCUser
 			user->setStatus(presence.presence(), presence.priority());
 			if (user->role() != participant.role || user->affiliation() != participant.affiliation) {
 				text = tr("%1 now is").arg(user->name());
@@ -337,7 +338,7 @@ namespace Jabber
 	{
 		Q_ASSERT(room == d_func()->room);
 		QString topic = QString::fromStdString(subject);
-		qutim_sdk_0_3::Message msg(tr("%1 set subject to:\n%2")
+		qutim_sdk_0_3::Message msg(tr("Subject:\n%2")
 				.arg(QString::fromStdString(nick)).arg(topic));
 		msg.setTime(QDateTime::currentDateTime());
 		msg.setProperty("service", true);
@@ -463,7 +464,8 @@ namespace Jabber
 
 	bool JMUCSession::enabledConfiguring()
 	{
-		return !d_func()->isConfiguring;
+		Q_D(JMUCSession);
+		return d->users.value(d->nick)->affiliation() == AffiliationOwner && !d->isConfiguring;
 	}
 
 	void JMUCSession::loadSettings()
