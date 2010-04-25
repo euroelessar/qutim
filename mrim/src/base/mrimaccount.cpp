@@ -22,7 +22,8 @@ struct MrimAccountPrivate
 {
     MrimAccountPrivate(MrimAccount *parent)
         : conn(new MrimConnection(parent)), roster(new Roster(parent))
-    { }
+    {
+    }
 
     QScopedPointer<MrimConnection> conn;
     QScopedPointer<Roster> roster;
@@ -31,6 +32,8 @@ struct MrimAccountPrivate
 MrimAccount::MrimAccount(const QString& email)
         : Account(email,MrimProtocol::instance()), p(new MrimAccountPrivate(this))
 {   
+    connect(connection(),SIGNAL(loggedOut()),
+            roster(),SLOT(handleLoggedOut()),Qt::QueuedConnection);
     p->conn->registerPacketHandler(p->roster.data());
     p->conn->start(); //TODO: temporary autologin, for debugging
 }

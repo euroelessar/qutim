@@ -81,6 +81,10 @@ public:
     MrimAccount *account() const;
     Messages *messages() const;
 
+signals:
+    void loggedOut(); //please do a queued connection
+    void loggedIn(); //please do a queued connection
+
 public slots:
 
 protected slots:

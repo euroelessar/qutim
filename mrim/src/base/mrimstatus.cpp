@@ -34,11 +34,12 @@ QString MrimStatus::toString(const Status &status)
     return statusStr;
 }
 
-Status MrimStatus::fromString(const QString &str)
+Status MrimStatus::fromString(const QString &uri, const QString &title,
+                              const QString &desc)
 {
     Status::Type type = Status::Offline;
     quint32 subtype = 0;
-    QString statusStr = str.toLower();
+    QString statusStr = uri.toLower();
     statusStr.remove("status_");
 
     if (statusStr == "offline" || statusStr == "undeterminated") {
@@ -61,9 +62,15 @@ Status MrimStatus::fromString(const QString &str)
         type = ok ? Status::Online : Status::Offline;
     }
 
-    Status st(type);
-    st.setSubtype(subtype);
-    return st;
+    Status status(type);
+    status.setSubtype(subtype);
+    QString statusText = title;
+
+    if (!desc.isEmpty()) {
+        statusText += " - " + desc;
+    }
+    status.setText(statusText);
+    return status;
 }
 
 LocalizedString MrimStatus::defaultName(const Status &status)

@@ -9,7 +9,9 @@ class MrimStatus
 {
 public:
     static QString toString(const Status &status);
-    static Status fromString(const QString &str);
+    static Status fromString(const QString &uri,
+                             const QString &title = QString(),
+                             const QString &desc = QString());
     static LocalizedString defaultName(const Status &status);
 };
 

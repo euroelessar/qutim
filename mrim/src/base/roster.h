@@ -66,9 +66,12 @@ protected:
     void addToList(class MrimContact *cnt);
     bool parseList(MrimPacket& packet);    
     bool parseGroups(MrimPacket& packet, quint32 count, const QString& mask);
-    bool parseContacts(MrimPacket& packet, const QString& mask);
-    
+    bool parseContacts(MrimPacket& packet, const QString& mask);    
     RosterParseMultiMap parseByMask(MrimPacket& packet, const QString& mask);
+    bool handleStatusChanged(MrimPacket &packet);
+
+public slots:
+    void handleLoggedOut();
 
 private:
     Q_DISABLE_COPY(Roster);

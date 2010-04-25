@@ -173,7 +173,7 @@ void MrimConnection::disconnected()
         {
             critical()<<"Oh god! This is epic fail! We didn't recieve any server, so connection couldn't be established!";
         }
-    }
+    } else emit loggedOut();
 }
 
 Config MrimConnection::config()
@@ -220,6 +220,7 @@ bool MrimConnection::handlePacket(MrimPacket& packet)
         break;
     case MRIM_CS_LOGIN_ACK:
         p->pingTimer->start();
+        emit loggedIn();
         break;
     case MRIM_CS_LOGIN_REJ:
         {

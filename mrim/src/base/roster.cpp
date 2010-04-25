@@ -42,11 +42,7 @@ Roster::~Roster()
 {
     //cleanup
     QList<MrimContact*> contacts = p->contacts.values();
-
-    foreach (MrimContact *cnt, contacts)
-    {
-        delete cnt;
-    }
+    qDeleteAllLater(contacts);
 }
 
 QList<quint32> Roster::handledTypes()
@@ -69,7 +65,7 @@ bool Roster::handlePacket(MrimPacket& packet)
         parseList(packet);
         break;
     case MRIM_CS_USER_STATUS:
-        //TODO add status change handling
+        handleStatusChanged(packet);
         break;
     default:
         handled = false;
@@ -120,8 +116,7 @@ bool Roster::parseContacts(MrimPacket& packet, const QString& mask)
     RosterParseMultiMap parsedContact;
     quint32 paramIndex = 0;
     quint32 contactId = 20;
-    Status status;
-    QString statusText, statusDesc, phones;
+    QString statusUri, statusTitle, statusDesc, phones;
     MrimContact *contact = 0;
 
     while(!packet.atEnd())
@@ -145,15 +140,10 @@ bool Roster::parseContacts(MrimPacket& packet, const QString& mask)
         contact->setEmail(parsedContact.getString(paramIndex++));
         contact->setName(parsedContact.getString(paramIndex++,true));
         phones = parsedContact.getString(paramIndex++);
-        status = MrimStatus::fromString(parsedContact.getString(paramIndex++));
-        statusText = parsedContact.getString(paramIndex++,true);//title
+        statusUri = parsedContact.getString(paramIndex++);        
+        statusTitle = parsedContact.getString(paramIndex++,true);//title
         statusDesc = parsedContact.getString(paramIndex++,true);//desc
-
-        if (!statusDesc.isEmpty()) {
-            statusText += " - " + statusDesc;
-        }
-        status.setText(statusText);
-        contact->setStatus(status);
+        contact->setStatus(MrimStatus::fromString(statusUri,statusTitle,statusDesc));
 
         if (agent.parse(parsedContact.getString(paramIndex++)))
         {
@@ -193,6 +183,36 @@ RosterParseMultiMap Roster::parseByMask(MrimPacket& packet, const QString& mask)
     return map;
 }
 
+bool Roster::handleStatusChanged(MrimPacket &packet)
+{
+    bool res = false;
+    quint32 statusNum, comSupport;
+    QString statusUri, statusTitle, statusDescr, email, userAgent;
+
+    packet.readTo(statusNum);
+    packet.readTo(&statusUri);
+    packet.readTo(&statusTitle,true);
+    packet.readTo(&statusDescr,true);
+    packet.readTo(&email);
+    packet.readTo(comSupport);
+    packet.readTo(&userAgent);
+
+    MrimContact *cnt = getContact(email);
+
+    if (cnt) {
+        cnt->setStatus(MrimStatus::fromString(statusUri,statusTitle,statusDescr));        
+        UserAgent ag;
+        ag.parse(userAgent);
+
+        if (!ag.isEmpty()) {
+            cnt->setUserAgent(ag);
+        }
+        //cnt->setFeatureFlags(comSupport);
+        res = true;
+    }
+    return res;
+}
+
 QString Roster::groupName(quint32 groupId) const
 {
     QString group;
@@ -222,4 +242,13 @@ void Roster::addToList(MrimContact *cnt)
 MrimContact *Roster::getContact(const QString& id)
 {
     return p->contacts.value(id,0);
+}
+
+void Roster::handleLoggedOut()
+{
+    Status st(Status::Offline);
+
+    foreach (MrimContact *cnt, p->contacts) {        
+        cnt->setStatus(st);
+    }
 }
