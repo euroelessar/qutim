@@ -218,6 +218,7 @@ namespace AdiumChat
 		if (m_active == active)
 			return;
 		m_active = active;
+		//FIXME move to protocols
 		if (Conference *conf = qobject_cast<Conference *> (m_chat_unit)) {
 			conf->join();
 		}

@@ -137,7 +137,7 @@ namespace AdiumChat
 
 		//TODO add configuration
 
-		if (windows)
+		if (!windows)
 			key = "session";
 		else {
 			if (qobject_cast<const Conference *>(sess->getUnit()))
