@@ -236,14 +236,13 @@ namespace Jabber
 				return;
 			} else if (presence.subtype() == Presence::Unavailable) {
 				text = tr("%1 has left the room").arg(nick);
-				user->setMUCAffiliation(AffiliationNone);
-				user->setMUCRole(RoleNone);
 				d->users.remove(nick);
 				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
 					session->removeContact(user);
 			}
 			user->setStatus(presence.presence(), presence.priority());
-			if (user->role() != participant.role || user->affiliation() != participant.affiliation) {
+			if (presence.subtype() != Presence::Unavailable &&
+					(user->role() != participant.role || user->affiliation() != participant.affiliation)) {
 				text = tr("%1 now is").arg(user->name());
 				if (participant.affiliation == AffiliationOwner)
 					text += tr(" owner");
