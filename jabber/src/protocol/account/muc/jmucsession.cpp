@@ -236,6 +236,8 @@ namespace Jabber
 				return;
 			} else if (presence.subtype() == Presence::Unavailable) {
 				text = tr("%1 has left the room").arg(nick);
+				user->setMUCAffiliation(AffiliationNone);
+				user->setMUCRole(RoleNone);
 				d->users.remove(nick);
 				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
 					session->removeContact(user);
@@ -338,8 +340,7 @@ namespace Jabber
 	{
 		Q_ASSERT(room == d_func()->room);
 		QString topic = QString::fromStdString(subject);
-		qutim_sdk_0_3::Message msg(tr("Subject:\n%2")
-				.arg(QString::fromStdString(nick)).arg(topic));
+		qutim_sdk_0_3::Message msg(tr("Subject:\n%1").arg(topic));
 		msg.setTime(QDateTime::currentDateTime());
 		msg.setProperty("service", true);
 		if (ChatSession *chatSession = ChatLayer::get(this, false))
