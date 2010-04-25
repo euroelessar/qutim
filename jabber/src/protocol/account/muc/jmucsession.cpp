@@ -32,7 +32,6 @@
 #include <QFile>
 #include "jmucmanager.h"
 #include "jconferenceconfig.h"
-#include <qutim/debug.h>
 
 using namespace gloox;
 using namespace qutim_sdk_0_3;
@@ -148,11 +147,6 @@ namespace Jabber
 			if (!nick.isEmpty()) {
 				if (d->users.contains(nick))
 					return;
-				d->users.insert(nick, d->users.value(d->nick));
-				d->users.remove(d->nick);
-				d->nick = nick;
-				me()->setName(nick);
-				emit meChanged(me());
 				d->room->setNick(nick.toStdString());
 			}
 			return;
@@ -175,35 +169,96 @@ namespace Jabber
 		Q_D(JMUCSession);
 		Q_ASSERT(room == d->room);
 		QString nick = QString::fromStdString(participant.nick->resource());
-		debug() << nick;
-		JMUCUser *user = d->users.value(nick, 0);
-		if (!user && presence.subtype() != Presence::Unavailable) {
-			user = new JMUCUser(this, nick);
-			d->users.insert(nick, user);
-			if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
-				session->addContact(user);
-		} else if (!user) {
-			return;
-		} else if (presence.subtype() == Presence::Unavailable) {
+		QString text;
+		if (participant.flags & UserBanned) {
+			text = tr("%1 has been banned").arg(nick);
+			if (nick == d->nick) {
+				leave();
+				QString msgtxt = tr("You has been banned at %1\n")
+						.arg(QString::fromStdString(d->jid.full()));
+				QString reason = QString::fromStdString(participant.reason);
+				if (!reason.isEmpty())
+						msgtxt += tr("with reason: %1").arg(reason).append("\n");
+			}
+		} else if (participant.flags & UserKicked) {
+			text = tr("%1 has been kicked").arg(nick);
+			if (nick == d->nick) {
+				leave();
+				QString msgtxt = tr("You has been kicked from %1\n")
+						.arg(QString::fromStdString(d->jid.full()));
+				QString reason = QString::fromStdString(participant.reason);
+				if (!reason.isEmpty())
+						msgtxt += tr("with reason: %1").arg(reason).append("\n");
+				msgtxt += tr("Do you want to rejoin?");
+				if (QMessageBox::warning(0, tr("You have been kicked"), msgtxt,
+						QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
+					join();
+			}
+		} else if (participant.flags & UserNickChanged) {
+			QString newNick = QString::fromStdString(participant.newNick);
+			if (newNick.isEmpty())
+				return;
+			text = tr("%1 is now known as %2").arg(nick).arg(newNick);
+			d->users.insert(newNick, d->users.value(nick));
 			d->users.remove(nick);
-			if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
-				session->removeContact(user);
-		}
-		user->setStatus(presence.presence(), presence.priority());
-		if (presence.presence() != Presence::Unavailable && !presence.error()) {
-			const VCardUpdate *vcard = presence.findExtension<VCardUpdate>(ExtVCardUpdate);
-			if(vcard) {
-				QString hash = QString::fromStdString(vcard->hash());
-				if (user->avatarHash() != hash) {
-					if(hash.isEmpty() || QFile(d->account->getAvatarPath()%QLatin1Char('/')%hash).exists())
-						user->setAvatar(hash);
-					else if (d->avatarsAutoLoad)
-						d->account->connection()->vCardManager()->fetchVCard(user->id());
+			d->users.value(newNick)->setName(newNick);
+			if (nick == d->nick) {
+				d->nick = newNick;
+				emit meChanged(me());
+			}
+		} else {
+			JMUCUser *user = d->users.value(nick, 0);
+			if (!user && presence.subtype() != Presence::Unavailable) {
+				text = QString::fromStdString(participant.jid->full()).isEmpty()
+						? QString("%1 ").arg(nick)
+						: QString("%1 (%2) ").arg(nick).arg(QString::fromStdString(participant.jid->bare()));
+				text += tr("has joined the room");
+				if (participant.affiliation == AffiliationOwner)
+					text += tr(" as owner");
+				else if (participant.affiliation == AffiliationAdmin)
+					text += tr(" as administrator");
+				else if (participant.affiliation == AffiliationMember)
+					text += tr(" as registered member");
+				else if (participant.role == RoleParticipant)
+					text += tr(" as member");
+				else if (participant.role == RoleVisitor)
+					text += tr(" as visitor");
+				user = new JMUCUser(this, nick);
+				d->users.insert(nick, user);
+				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
+					session->addContact(user);
+			} else if (!user) {
+				return;
+			} else if (presence.subtype() == Presence::Unavailable) {
+				text = tr("%1 has left the room").arg(nick);
+				d->users.remove(nick);
+				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
+					session->removeContact(user);
+			}
+			//TODO: add affiliation & role to JMUCUser
+			user->setStatus(presence.presence(), presence.priority());
+			if (presence.presence() != Presence::Unavailable && !presence.error()) {
+				const VCardUpdate *vcard = presence.findExtension<VCardUpdate>(ExtVCardUpdate);
+				if(vcard) {
+					QString hash = QString::fromStdString(vcard->hash());
+					if (user->avatarHash() != hash) {
+						if(hash.isEmpty() || QFile(d->account->getAvatarPath()%QLatin1Char('/')%hash).exists())
+							user->setAvatar(hash);
+						else if (d->avatarsAutoLoad)
+							d->account->connection()->vCardManager()->fetchVCard(user->id());
+					}
 				}
 			}
+			if (!d->isJoined && (presence.from().resource() == d->room->nick()))
+				d->isJoined = true;
 		}
-		if (!d->isJoined && (presence.from().resource() == d->room->nick()))
-			d->isJoined = true;
+		if (!text.isEmpty()) {
+			qutim_sdk_0_3::Message msg(text);
+			msg.setTime(QDateTime::currentDateTime());
+			msg.setProperty("service", true);
+			if (ChatSession *chatSession = ChatLayer::get(this, false))
+				chatSession->appendMessage(msg);
+		}
 	}
 
 	void JMUCSession::handleMUCMessage(MUCRoom *room, const gloox::Message &msg, bool priv)
@@ -211,7 +266,6 @@ namespace Jabber
 		Q_D(JMUCSession);
 		Q_ASSERT(room == d->room);
 		QString nick = QString::fromStdString(msg.from().resource());
-		debug() << nick << QString::fromStdString(msg.body());
 		JMUCUser *user = d->users.value(nick, 0);
 		if (!user)
 			return;
