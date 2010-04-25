@@ -207,7 +207,14 @@ namespace Jabber
 			coreMsg.setChatUnit(user);
 			coreMsg.setIncoming(msg.from().resource() != d->room->nick());
 			ChatSession *chatSession = ChatLayer::get(this, true);
-			if (!coreMsg.isIncoming()) {
+			const DelayedDelivery *when = msg.when();
+			if (when) {
+				coreMsg.setProperty("history", true);
+				coreMsg.setTime(stamp2date(when->stamp()));
+			} else {
+				coreMsg.setTime(d->lastMessage);
+			}
+			if (!coreMsg.isIncoming() && !when) {
 				QHash<std::string, quint64>::iterator it = d->messages.find(msg.id());
 				if (it != d->messages.end()) {
 					qApp->postEvent(chatSession, new qutim_sdk_0_3::MessageReceiptEvent(it.value(), true));
@@ -215,8 +222,6 @@ namespace Jabber
 				}
 				return;
 			}
-			if (const DelayedDelivery *when = msg.when())
-				coreMsg.setTime(stamp2date(when->stamp()));
 			if (!msg.subject().empty())
 				coreMsg.setProperty("subject", QString::fromStdString(msg.subject()));
 			chatSession->appendMessage(coreMsg);
