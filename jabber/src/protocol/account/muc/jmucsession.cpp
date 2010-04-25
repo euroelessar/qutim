@@ -32,6 +32,7 @@
 #include <QFile>
 #include "jmucmanager.h"
 #include "jconferenceconfig.h"
+#include <qutim/debug.h>
 
 using namespace gloox;
 using namespace qutim_sdk_0_3;
@@ -142,6 +143,26 @@ namespace Jabber
 	void JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
 		Q_D(JMUCSession);
+		if (message.text().startsWith("/nick ")) {
+			QString nick = message.text().section(' ', 1);
+			if (!nick.isEmpty()) {
+				if (d->users.contains(nick))
+					return;
+				d->users.insert(nick, d->users.value(d->nick));
+				d->users.remove(d->nick);
+				d->nick = nick;
+				me()->setName(nick);
+				emit meChanged(me());
+				d->room->setNick(nick.toStdString());
+			}
+			return;
+		} else if (message.text().startsWith("/topic ")) {
+			QString topic = message.text().section(' ',1);
+			if (!topic.isEmpty()) {
+				d->room->setSubject(topic.toStdString());
+				return;
+			}
+		}
 		gloox::Message gMsg(gloox::Message::Groupchat, d->jid, message.text().toStdString());
 		gMsg.setID(d->account->client()->getID());
 		d->messages.insert(gMsg.id(), message.id());
@@ -154,6 +175,7 @@ namespace Jabber
 		Q_D(JMUCSession);
 		Q_ASSERT(room == d->room);
 		QString nick = QString::fromStdString(participant.nick->resource());
+		debug() << nick;
 		JMUCUser *user = d->users.value(nick, 0);
 		if (!user && presence.subtype() != Presence::Unavailable) {
 			user = new JMUCUser(this, nick);
@@ -189,6 +211,7 @@ namespace Jabber
 		Q_D(JMUCSession);
 		Q_ASSERT(room == d->room);
 		QString nick = QString::fromStdString(msg.from().resource());
+		debug() << nick << QString::fromStdString(msg.body());
 		JMUCUser *user = d->users.value(nick, 0);
 		if (!user)
 			return;

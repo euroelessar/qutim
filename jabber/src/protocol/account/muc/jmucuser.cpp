@@ -36,6 +36,12 @@ namespace Jabber
 		return d_ptr->name;
 	}
 
+	void JMUCUser::setName(const QString &name)
+	{
+		d_func()->name = name;
+		emit nameChanged(name);
+	}
+
 	QString JMUCUser::avatar() const
 	{
 		return d_func()->avatar;

@@ -21,6 +21,7 @@ namespace Jabber
 		QString avatar() const;
 		QString avatarHash() const;
 		void setAvatar(const QString &hex);
+		void setName(const QString &name);
 		InfoRequest *infoRequest() const;
 		ChatUnit *upperUnit();
 	};
