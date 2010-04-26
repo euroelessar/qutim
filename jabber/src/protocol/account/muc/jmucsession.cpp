@@ -102,11 +102,6 @@ namespace Jabber
 		Q_D(JMUCSession);
 		Presence &pres = d->account->client()->presence();
 		if (d->isJoined) {
-			if (!ChatLayer::instance()->getSession(this, false)) {
-				ChatSession *session = ChatLayer::get(this, true);
-				foreach (JMUCUser *muc, d->users.values())
-					session->addContact(muc);
-			}
 			d->room->setPresence(pres.subtype(), pres.status());
 			d->users.value(d->nick)->setStatus(pres.subtype(), pres.priority());
 		} else {
