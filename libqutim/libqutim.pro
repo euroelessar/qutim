@@ -150,7 +150,7 @@ TARGET = libqutim
 
 #Symbian specific definitions
 symbian: {
-	#TARGET.UID3 = 0xEF76E061
+	TARGET.UID3 = 0xEF76E161
 	TARGET.EPOCALLOWDLLDATA = 1
 #   TARGET.CAPABILITY = ReadDeviceData
 
@@ -158,8 +158,4 @@ symbian: {
 	#TARGET.EPOCHEAPSIZE = 0x20000 0x1000000 // Min 128kb, Max 16Mb
 
 	BLD_INF_RULES.prj_exports += "libqutim_global.h"
-
-	libqutim.sources = libqutim.dll
-	libqutim.path = /sys/bin
-	DEPLOYMENT += libqutim
 }
