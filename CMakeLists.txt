@@ -107,13 +107,13 @@ FOREACH( LAYER ${CORELAYERS} )
 ENDFOREACH( LAYER )
 
 #TODO fix in future
-#if (MINGW)
-#exec_program(windres
-#ARGS "-i ${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc -o qutim_res.o ")
-#LIST (APPEND SOURCES qutim_res.o)
-#else(MINGW)
-#LIST (APPEND SOURCES qutim.rc)
-#endif(MINGW)
+if (MINGW)
+	exec_program(windres
+		ARGS "-i ${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc -o qutim_res.o ")
+	LIST (APPEND SOURCES qutim_res.o)
+else(MINGW)
+	LIST (APPEND SOURCES qutim.rc)
+endif(MINGW)
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libqutim/" "${CMAKE_CURRENT_BINARY_DIR}/libqutim")
 set( XDG_NOT_BUILD_TEST true )

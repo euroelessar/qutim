@@ -18,6 +18,7 @@
 #include "libqutim/configbase.h"
 #include <QStringBuilder>
 #include <QDebug>
+#include <libqutim/icon.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -40,6 +41,7 @@ namespace Core
 			QListWidgetItem *item = new QListWidgetItem(text, m_ui->languagesList);
 			m_items.insert(lang, item);
 			item->setData(Qt::UserRole, lang);
+			item->setIcon(Icon("preferences-desktop-locale"));
 		}
 		m_ui->languagesList->sortItems();
 		listenChildrenStates();

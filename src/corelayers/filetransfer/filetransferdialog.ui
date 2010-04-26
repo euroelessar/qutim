@@ -4,10 +4,10 @@
  <widget class="QDialog" name="FileTransferDialog">
   <property name="geometry">
    <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>398</width>
-    <height>208</height>
+	<x>0</x>
+	<y>0</y>
+	<width>310</width>
+	<height>96</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,49 +15,53 @@
   </property>
   <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>File name:</string>
-     </property>
-    </widget>
+	<widget class="QLabel" name="label">
+	 <property name="text">
+	  <string>File name:</string>
+	 </property>
+	</widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLabel" name="fileName">
-     <property name="text">
-      <string notr="true">music.mp3</string>
-     </property>
-    </widget>
+	<widget class="QLabel" name="fileName">
+	 <property name="text">
+	  <string notr="true">music.mp3</string>
+	 </property>
+	</widget>
    </item>
    <item row="1" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Total size:</string>
-     </property>
-    </widget>
+	<widget class="QLabel" name="label_3">
+	 <property name="text">
+	  <string>Total size:</string>
+	 </property>
+	</widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLabel" name="totalSize">
-     <property name="text">
-      <string notr="true">135 Mb</string>
-     </property>
-    </widget>
+	<widget class="QLabel" name="totalSize">
+	 <property name="text">
+	  <string notr="true">135 Mb</string>
+	 </property>
+	</widget>
    </item>
    <item row="2" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>File size:</string>
-     </property>
-    </widget>
+	<widget class="QLabel" name="label_4">
+	 <property name="text">
+	  <string>File size:</string>
+	 </property>
+	</widget>
    </item>
    <item row="2" column="1">
-    <widget class="QLabel" name="fileSize">
-     <property name="text">
-      <string notr="true">135 Mb</string>
-     </property>
-    </widget>
+	<widget class="QLabel" name="fileSize">
+	 <property name="text">
+	  <string notr="true">135 Mb</string>
+	 </property>
+	</widget>
    </item>
    <item row="3" column="0" colspan="2">
-    <widget class="QProgressBar" name="progressBar"/>
+	<widget class="QProgressBar" name="progressBar">
+	 <property name="textVisible">
+	  <bool>true</bool>
+	 </property>
+	</widget>
    </item>
   </layout>
  </widget>
