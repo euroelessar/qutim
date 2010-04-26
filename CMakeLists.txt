@@ -126,12 +126,12 @@ QT4_WRAP_UI (UIS_H ${FORMS})
 QT4_ADD_RESOURCES (RCC ${RESOURCES})
 
 # comment for easy development on os X
-if( APPLE )
-	SET (MACOSX_BUNDLE_ICON_FILE icons/qutim.icns)
-	SET (APP_TYPE MACOSX_BUNDLE)
-else( APPLE )
-	SET (APP_TYPE WIN32)
-endif( APPLE )
+# if( APPLE )
+# 	SET (MACOSX_BUNDLE_ICON_FILE icons/qutim.icns)
+# 	SET (APP_TYPE MACOSX_BUNDLE)
+# else( APPLE )
+# 	SET (APP_TYPE WIN32)
+# endif( APPLE )
 
 ADD_EXECUTABLE (qutim ${APP_TYPE} ${SOURCES} ${HEADERS} ${MOC_SRCS} ${UIS_H} ${RCC})
 

@@ -103,7 +103,8 @@ namespace Core
 	bool AccountCreatorList::eventFilter(QObject *obj, QEvent *ev)
 	{
 		if (QListWidget *widget = qobject_cast<QListWidget *>(obj)) {
-			if (QContextMenuEvent *event = static_cast<QContextMenuEvent*>(ev)) {
+			if (ev->type() ==  QEvent::ContextMenu) {
+				QContextMenuEvent *event = static_cast<QContextMenuEvent*>(ev);
 				QModelIndex index = widget->indexAt(event->pos());
 				Account *account = index.data(Qt::UserRole).value<Account *>();
 				if (account) {
