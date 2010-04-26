@@ -96,6 +96,15 @@ namespace Core
 //					return QVariant(s.toLatin1().mid(11, s.size() - 12));
 				} else if (s.startsWith(QLatin1String("@Variant("))) {
 					QByteArray a(QByteArray::fromBase64(s.toLatin1().mid(9, s.size() - 10)));
+					{
+						QDataStream s(&a, QIODevice::ReadOnly);
+						QByteArray name;
+						quint8 is_null;
+						quint32 ver;
+						s >> ver >> is_null >> name;
+						qDebug() << name.constData() << qstrlen(name.constData()) << name.length();
+						qDebug() << QMetaType::type(name);
+					}
 					QDataStream stream(&a, QIODevice::ReadOnly);
 					stream.setVersion(QDataStream::Qt_4_5);
 					QVariant result;

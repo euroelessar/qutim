@@ -15,13 +15,27 @@ static Core::CoreModuleHelper<SimpleFileTransfer> filetransfer_static(
 	QT_TRANSLATE_NOOP("Plugin", "Default qutIM file transfer manager")
 );
 
+class FileTransferActionGenerator : public ActionGenerator
+{
+public:
+	FileTransferActionGenerator(QObject *receiver) :
+			ActionGenerator(Icon("document-save"), QT_TRANSLATE_NOOP("FileTransfer", "Send file"),
+							receiver, SLOT(onSendFile())) {}
+protected:
+	virtual QObject *generateHelper() const
+	{
+		Buddy *buddy = qobject_cast<Buddy*>(const_cast<FileTransferActionGenerator*>(this)->controller());
+		if (buddy && FileTransferManager::instance()->checkAbility(buddy))
+			return ActionGenerator::generateHelper();
+		return 0;
+	}
+};
+
 SimpleFileTransfer::SimpleFileTransfer()
 {
 	static bool init = false;
 	if (!init) {
-		MenuController::addAction<Buddy>(new ActionGenerator(Icon("document-save"),
-															 QT_TRANSLATE_NOOP("FileTransfer", "Send file"),
-															 this, SLOT(onSendFile())));
+		MenuController::addAction<Buddy>(new FileTransferActionGenerator(this));
 		init = true;
 	}
 }

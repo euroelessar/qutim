@@ -79,9 +79,9 @@ public:
 	virtual void setFiles(const QStringList &) = 0;
 	virtual qint64 totalSize() const = 0;
 	virtual qint64 fileSize() const = 0;
-	virtual int localPort() const = 0;
-	virtual int remotePort() const = 0;
-	virtual QHostAddress remoteAddress() const = 0;
+	virtual int localPort() const;
+	virtual int remotePort() const;
+	virtual QHostAddress remoteAddress() const;
 	Direction direction() const;
 	virtual State state() const = 0;
 public slots:

@@ -103,6 +103,11 @@ namespace qutim_sdk_0_3
 		d_func()->controller = controller;
 	}
 
+	MenuController *ActionGenerator::controller() const
+	{
+		return d_func()->controller;
+	}
+
 	void ActionGenerator::addCreationHandler(QObject *obj)
 	{
 		Q_ASSERT(obj);
