@@ -102,8 +102,8 @@ namespace Core
 
 	bool AccountCreatorList::eventFilter(QObject *obj, QEvent *ev)
 	{
-		if (QListWidget *widget = qobject_cast<QListWidget *>(obj)) {
-			if (ev->type() ==  QEvent::ContextMenu) {
+		if (ev->type() ==  QEvent::ContextMenu) {
+			if (QListWidget *widget = qobject_cast<QListWidget *>(obj)) {
 				QContextMenuEvent *event = static_cast<QContextMenuEvent*>(ev);
 				QModelIndex index = widget->indexAt(event->pos());
 				Account *account = index.data(Qt::UserRole).value<Account *>();
@@ -114,6 +114,7 @@ namespace Core
 					act->setText(tr("Edit info"));
 					act->setIcon(Icon("document-properties"));
 					menu->addAction(act);
+
 					act = new QAction(menu);
 					act->setText(tr("Remove account"));
 					act->setIcon(Icon("list-remove-user"));
