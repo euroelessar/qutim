@@ -168,29 +168,31 @@ namespace Jabber
 		Q_ASSERT(room == d->room);
 		QString nick = QString::fromStdString(participant.nick->resource());
 		QString text;
-		if (participant.flags & UserBanned) {
-			text = tr("%1 has been banned").arg(nick);
+		QString reason = QString::fromStdString(participant.reason);
+		if ((participant.flags & UserBanned) || (participant.flags & UserKicked)) {
+			bool isBan = participant.flags & UserBanned;
+			text = (isBan ? tr("%1 has been banned") : tr("%1 has been kicked")).arg(nick);
+			if (!reason.isEmpty())
+				text += " (" + reason + ")";
 			if (nick == d->nick) {
 				leave();
-				QString msgtxt = tr("You has been banned at %1\n")
-						.arg(QString::fromStdString(d->jid.full()));
-				QString reason = QString::fromStdString(participant.reason);
+				QString msgtxt = (isBan ? tr("You has been banned at %1\n") : tr("You has been kicked from %1\n"))
+								 .arg(QString::fromStdString(d->jid.full()));
 				if (!reason.isEmpty())
-						msgtxt += tr("with reason: %1").arg(reason).append("\n");
-			}
-		} else if (participant.flags & UserKicked) {
-			text = tr("%1 has been kicked").arg(nick);
-			if (nick == d->nick) {
-				leave();
-				QString msgtxt = tr("You has been kicked from %1\n")
-						.arg(QString::fromStdString(d->jid.full()));
-				QString reason = QString::fromStdString(participant.reason);
-				if (!reason.isEmpty())
-						msgtxt += tr("with reason: %1").arg(reason).append("\n");
-				msgtxt += tr("Do you want to rejoin?");
-				if (QMessageBox::warning(0, tr("You have been kicked"), msgtxt,
-						QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
-					join();
+					msgtxt += tr("with reason: %1").arg(reason).append("\n");
+				if (!isBan) {
+					msgtxt += tr("Do you want to rejoin?");
+					if (QMessageBox::warning(0, tr("You have been kicked"), msgtxt,
+											 QMessageBox::Yes | QMessageBox::No,
+											 QMessageBox::Yes) == QMessageBox::Yes) {
+						join();
+					}
+				}
+			} else {
+				JMUCUser *user = d->users.value(nick, 0);
+				d->users.remove(nick);
+				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
+					session->removeContact(user);
 			}
 		} else if (participant.flags & UserNickChanged) {
 			QString newNick = QString::fromStdString(participant.newNick);
@@ -476,6 +478,11 @@ namespace Jabber
 	bool JMUCSession::isError()
 	{
 		return d_func()->isError;
+	}
+
+	gloox::MUCRoom *JMUCSession::room()
+	{
+		return d_func()->room;
 	}
 
 	ChatUnitList JMUCSession::lowerUnits()

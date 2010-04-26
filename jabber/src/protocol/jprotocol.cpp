@@ -8,6 +8,9 @@
 #include "account/dataform/jdataform.h"
 #include <qutim/statusactiongenerator.h>
 #include <qutim/settingslayer.h>
+#include "account/muc/jmucuser.h"
+#include "account/muc/jmucsession.h"
+#include <QInputDialog>
 
 namespace Jabber
 {
@@ -51,6 +54,13 @@ namespace Jabber
 				Icon("im-jabber"),
 				QT_TRANSLATE_NOOP("Settings", "Jabber")));
 
+		MenuController::addAction<JMUCUser>(
+				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Kick"),
+									this, SLOT(onKickUser())));
+		MenuController::addAction<JMUCUser>(
+				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Ban"),
+									this, SLOT(onBanUser())));
+
 		QList<Status> statuses;
 		statuses << Status(Status::Online)
 				 << Status(Status::FreeChat)
@@ -63,6 +73,22 @@ namespace Jabber
 			status.initIcon("jabber");
 			MenuController::addAction(new StatusActionGenerator(status), &JAccount::staticMetaObject);
 			}
+	}
+
+	void JProtocol::onKickUser()
+	{
+		JMUCUser *user = MenuController::getController<JMUCUser>(sender());
+		JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
+		QString reason = QInputDialog::getText(0, tr("Kick"), tr("Enter kick reason for %1").arg(user->name()));
+		muc->room()->kick(user->name().toStdString(), reason.toStdString());
+	}
+
+	void JProtocol::onBanUser()
+	{
+		JMUCUser *user = MenuController::getController<JMUCUser>(sender());
+		JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
+		QString reason = QInputDialog::getText(0, tr("Ban"), tr("Enter ban reason for %1").arg(user->name()));
+		muc->room()->ban(user->name().toStdString(), reason.toStdString());
 	}
 
 	void JProtocol::loadAccounts()

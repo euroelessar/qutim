@@ -54,6 +54,7 @@ namespace Jabber
 			bool enabledConfiguring();
 			bool isJoined();
 			bool isError();
+			gloox::MUCRoom *room();
 			qutim_sdk_0_3::Buddy *me() const;
 			ChatUnit *participant(const QString &nick);
 			QString title() const;
