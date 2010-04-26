@@ -48,8 +48,14 @@ namespace AdiumChat
 		m_skipOneMerge = true;
 		m_active = false;
 		m_model = new ChatSessionModel(this);
-		if (!qobject_cast<const Conference *> (unit))
+		if (Conference *conf = qobject_cast<Conference *>(unit)) {
+			foreach (ChatUnit *u, conf->lowerUnits()) {
+				if (Buddy *buddy = qobject_cast<Buddy*>(u))
+					m_model->addContact(buddy);
+			}
+		} else {
 			loadHistory();
+		}
 		if (Contact *c = qobject_cast<Contact *>(unit))
 			statusChanged(c,true);
 		else {
@@ -218,10 +224,6 @@ namespace AdiumChat
 		if (m_active == active)
 			return;
 		m_active = active;
-		//FIXME move to protocols
-		if (Conference *conf = qobject_cast<Conference *> (m_chat_unit)) {
-			conf->join();
-		}
 		emit activated(active);
 	}
 
