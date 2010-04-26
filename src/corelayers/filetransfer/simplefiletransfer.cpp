@@ -24,7 +24,7 @@ public:
 protected:
 	virtual QObject *generateHelper() const
 	{
-		Buddy *buddy = qobject_cast<Buddy*>(const_cast<FileTransferActionGenerator*>(this)->controller());
+		ChatUnit *buddy = qobject_cast<ChatUnit*>(const_cast<FileTransferActionGenerator*>(this)->controller());
 		if (buddy && FileTransferManager::instance()->checkAbility(buddy))
 			return ActionGenerator::generateHelper();
 		return 0;
@@ -35,7 +35,7 @@ SimpleFileTransfer::SimpleFileTransfer()
 {
 	static bool init = false;
 	if (!init) {
-		MenuController::addAction<Buddy>(new FileTransferActionGenerator(this));
+		MenuController::addAction<ChatUnit>(new FileTransferActionGenerator(this));
 		init = true;
 	}
 }
