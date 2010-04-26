@@ -185,9 +185,13 @@ RESOURCES += ../qutim.qrc
 
 symbian { 
     LIBS += -llibqutim
-	#TARGET.UID3 = 0xEF76E062
+	TARGET.UID3 = 0xEF76E162
     TARGET.CAPABILITY = NetworkServices \
         ReadUserData \
         WriteUserData
     ICON = qutim_64.svg
+
+	libqutim.sources = libqutim.dll
+	libqutim.path = /sys/bin
+	DEPLOYMENT += libqutim
 }
