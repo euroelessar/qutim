@@ -289,7 +289,7 @@ namespace qutim_sdk_0_3
 						qWarning("%s", qPrintable(loader->errorString()));
 #if	defined(Q_OS_SYMBIAN)
 						QMessageBox msg;
-						msg.setText(tr("Plugin: %1").arg(lib->errorString()));
+						msg.setText(tr("Plugin: %1").arg(loader->errorString()));
 						msg.exec();
 #endif
 					}
