@@ -55,16 +55,12 @@ namespace AdiumChat
 		m_originalDoc = ui->chatEdit->document();
 
 		//init tabbar
-		//ui->tabBar->setVisible(false);
 		ui->tabBar->setTabsClosable(true);
 		ui->tabBar->setMovable(true);
 		ui->tabBar->setDocumentMode(true);
 		ui->tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
-		//ui->tabBar->setUsesScrollButtons(false);
-		//ui->tabButton->hide();
 		ui->tabButton->setIcon(Icon("view-list-text"));
 		ui->contactsView->hide();
-		//ui->tabBar->setDrawBase(false);
 		//init status and menubar
 		setAttribute(Qt::WA_DeleteOnClose);
 		setAttribute(Qt::WA_MacBrushedMetal);
@@ -201,10 +197,23 @@ namespace AdiumChat
 		}
 		m_current_index = index;
 		ui->contactsView->setModel(session->getModel());
-		if (qobject_cast<Conference*>(session->getUnit()))
+
+		ChatUnit *u = session->getUnit();
+		QIcon icon = Icon("view-choose");
+		QString title = tr("Chat with %1").arg(u->title());
+
+		if (Conference *c = qobject_cast<Conference *>(u)) {
+			icon = Icon("meeting-attending"); //TODO
+			title = tr("Conference %1 (%2)").arg(c->title(),c->id());
 			ui->contactsView->setVisible(true);
-		else
+		} else {
 			ui->contactsView->setVisible(session->getModel()->rowCount(QModelIndex()) > 0);
+			if (Buddy *b = qobject_cast<Buddy*>(u))
+				icon = b->avatar().isEmpty() ? Icon("view-choose") : QIcon(b->avatar());
+		}
+
+		setWindowTitle(title);
+		setWindowIcon(icon);
 		
 		if (ui->contactsView->isVisible()) {
 			
@@ -222,7 +231,6 @@ namespace AdiumChat
 			ui->chatView->setPage(session->getPage());
 			session->getPage()->setView(ui->chatView);
 		}
-		setWindowTitle(tr("Chat with %1").arg(session->getUnit()->title()));
 		
  		if ((m_chat_flags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
 			killTimer(m_self_chatstate_timer);

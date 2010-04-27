@@ -107,13 +107,13 @@ FOREACH( LAYER ${CORELAYERS} )
 ENDFOREACH( LAYER )
 
 #TODO fix in future
-#if (MINGW)
-#exec_program(windres
-#ARGS "-i ${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc -o qutim_res.o ")
-#LIST (APPEND SOURCES qutim_res.o)
-#else(MINGW)
-#LIST (APPEND SOURCES qutim.rc)
-#endif(MINGW)
+if (MINGW)
+	exec_program(windres
+		ARGS "-i ${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc -o qutim_res.o ")
+	LIST (APPEND SOURCES qutim_res.o)
+else(MINGW)
+	LIST (APPEND SOURCES qutim.rc)
+endif(MINGW)
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libqutim/" "${CMAKE_CURRENT_BINARY_DIR}/libqutim")
 set( XDG_NOT_BUILD_TEST true )
@@ -126,12 +126,12 @@ QT4_WRAP_UI (UIS_H ${FORMS})
 QT4_ADD_RESOURCES (RCC ${RESOURCES})
 
 # comment for easy development on os X
-if( APPLE )
-	SET (MACOSX_BUNDLE_ICON_FILE icons/qutim.icns)
-	SET (APP_TYPE MACOSX_BUNDLE)
-else( APPLE )
-	SET (APP_TYPE WIN32)
-endif( APPLE )
+# if( APPLE )
+# 	SET (MACOSX_BUNDLE_ICON_FILE icons/qutim.icns)
+# 	SET (APP_TYPE MACOSX_BUNDLE)
+# else( APPLE )
+# 	SET (APP_TYPE WIN32)
+# endif( APPLE )
 
 ADD_EXECUTABLE (qutim ${APP_TYPE} ${SOURCES} ${HEADERS} ${MOC_SRCS} ${UIS_H} ${RCC})
 

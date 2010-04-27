@@ -67,13 +67,6 @@ namespace AdiumChat
 								   "ChatWidget",
 								   QKeySequence(QKeySequence::PreviousChild)
 								   );
-		
-//		MenuController::addAction<Contact>(generate("1"), "1first");
-//		MenuController::addAction<Contact>(generate("2"), "1first\0""1first");
-//		MenuController::addAction<Contact>(generate("3"), "1first\0""2second");
-//		MenuController::addAction<Contact>(generate("4"), "2second");
-//		MenuController::addAction<Contact>(generate("5"), "2second\0""1first");
-//		MenuController::addAction<Contact>(generate("6"), "3third");
 	}
 
 	static Core::CoreStartupHelper<&init> action_init_static(
@@ -139,12 +132,19 @@ namespace AdiumChat
 		Q_UNUSED(sess);
 		QString key;
 
+		ConfigGroup group = Config("behavior/chat").group("widget");
+		int windows = group.value<int>("windows",0);
+
 		//TODO add configuration
 
-		if (qobject_cast<const Conference *>(sess->getUnit()))
-			key = "conference";
-		else
-			key = "chat";
+		if (!windows)
+			key = "session";
+		else {
+			if (qobject_cast<const Conference *>(sess->getUnit()))
+				key = "conference";
+			else
+				key = "chat";
+		}
 
 		return key;
 	}

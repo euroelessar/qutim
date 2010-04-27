@@ -3,39 +3,43 @@
 #include "libqutim/protocol.h"
 #include "libqutim/account.h"
 #include "ui_accountcreatorlist.h"
+#include <QListWidgetItem>
+#include <QContextMenuEvent>
 
 namespace Core
 {
 	AccountCreatorList::AccountCreatorList() :
-		SettingsWidget(),
-		m_ui(new Ui::AccountCreatorList)
+			SettingsWidget(),
+			ui(new Ui::AccountCreatorList)
 	{
-		m_ui->setupUi(this);
-		m_ui->addButton->setIcon(Icon("list-add-user"));
-		m_ui->upButton->setIcon(Icon("go-up"));
-		m_ui->downButton->setIcon(Icon("go-down"));
-		Icon removeIcon("list-remove-user");
-		int num = 0;
+		ui->setupUi(this);
+
+		ui->listWidget->installEventFilter(this);
+
+		connect(ui->listWidget,
+				SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+				SLOT(listViewClicked(QListWidgetItem*))
+				);
+
+		QListWidgetItem *addItem = new QListWidgetItem(ui->listWidget);
+		addItem->setText(tr("Add new account"));
+		addItem->setToolTip(tr("Just add or create new account"));
+		addItem->setIcon(Icon("list-add-user"));
+
 		foreach(Protocol *protocol, allProtocols())
 		{
-			Icon protoIcon(QLatin1String("im-") + protocol->id());
+			connect(protocol,SIGNAL(accountCreated(Account*)),SLOT(addAccount(Account*)));
 			foreach(Account *account, protocol->accounts())
 			{
-				QTableWidgetItem *accountItem = new QTableWidgetItem(protoIcon, account->id());
-				QTableWidgetItem *removeItem = new QTableWidgetItem;
-				removeItem->setIcon(removeIcon);
-				removeItem->setToolTip(tr("Remove account"));
-				m_ui->tableWidget->insertRow(num);
-				m_ui->tableWidget->setItem(num, 0, accountItem);
-				m_ui->tableWidget->setItem(num, 1, removeItem);
-				num++;
+				addAccount(account);
 			}
 		}
+
 	}
 
 	AccountCreatorList::~AccountCreatorList()
 	{
-		delete m_ui;
+		delete ui;
 	}
 
 	void AccountCreatorList::loadImpl()
@@ -75,10 +79,55 @@ namespace Core
 		switch (e->type())
 		{
 		case QEvent::LanguageChange:
-			m_ui->retranslateUi(this);
+			ui->retranslateUi(this);
 			break;
 		default:
 			break;
 		}
+	}
+
+	void AccountCreatorList::addAccount(Account *account)
+	{
+		Icon protoIcon(QLatin1String("im-user") + account->protocol()->id()); //FIXME wtf?
+
+//		if (protoIcon.isNull())
+			protoIcon = Icon("applications-internet");
+
+		QListWidgetItem *accountItem = new QListWidgetItem(ui->listWidget);
+		accountItem->setText(account->id());
+		accountItem->setToolTip(account->name());
+		accountItem->setIcon(protoIcon);
+		accountItem->setData(Qt::UserRole,qVariantFromValue<Account *>(account));
+	}
+
+	bool AccountCreatorList::eventFilter(QObject *obj, QEvent *ev)
+	{
+		if (QListWidget *widget = qobject_cast<QListWidget *>(obj)) {
+			if (ev->type() ==  QEvent::ContextMenu) {
+				QContextMenuEvent *event = static_cast<QContextMenuEvent*>(ev);
+				QModelIndex index = widget->indexAt(event->pos());
+				Account *account = index.data(Qt::UserRole).value<Account *>();
+				if (account) {
+					QMenu *menu = new QMenu();
+					menu->setAttribute(Qt::WA_DeleteOnClose,true);
+					QAction *act = new QAction(menu);
+					act->setText(tr("Edit info"));
+					act->setIcon(Icon("document-properties"));
+					menu->addAction(act);
+					act = new QAction(menu);
+					act->setText(tr("Remove account"));
+					act->setIcon(Icon("list-remove-user"));
+					menu->addAction(act);
+					menu->popup(QCursor::pos());
+				}
+			}
+		}
+		return SettingsWidget::eventFilter(obj,ev);
+	}
+
+	void AccountCreatorList::listViewClicked(QListWidgetItem *item)
+	{
+		if (!item->data(Qt::UserRole).value<Account *>())
+			on_addButton_clicked();
 	}
 }

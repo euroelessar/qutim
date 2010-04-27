@@ -62,6 +62,7 @@ namespace qutim_sdk_0_3
 		int priority() const;
 		ActionGenerator *setPriority(int priority);
 		void setMenuController(MenuController *controller);
+		MenuController *controller() const;
 		void addCreationHandler(QObject *obj);
 		void setCheckable(bool checkable);
 		void setChecked(bool checked);

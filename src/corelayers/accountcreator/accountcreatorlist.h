@@ -10,6 +10,7 @@ namespace Ui {
 }
 using namespace qutim_sdk_0_3;
 
+class QListWidgetItem;
 namespace Core
 {
 	class AccountCreatorList : public SettingsWidget
@@ -28,9 +29,12 @@ namespace Core
 		virtual void saveImpl();
 		virtual void cancelImpl();
 		void changeEvent(QEvent *e);
-
+		virtual bool eventFilter(QObject *, QEvent *);
+	private slots:
+		void addAccount(Account *account);
+		void listViewClicked(QListWidgetItem *item);
 	private:
-		Ui::AccountCreatorList *m_ui;
+		Ui::AccountCreatorList *ui;
 		QPointer<AccountCreatorWizard> m_wizard;
 	};
 }

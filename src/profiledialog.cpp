@@ -153,7 +153,11 @@ void ProfileDialog::on_createButton_clicked()
 
 	QWidget *wizard = new ProfileCreationWizard(m_manager, ui->nameEdit->text(),
 												ui->originalPasswordEdit->text());
+#if	defined(Q_OS_SYMBIAN)
+	wizard->showMaximized();
+#else
 	wizard->show();
+#endif
 
 	deleteLater(); //FIXME, perhaps this leads to abnormal behavior when creating a profile, Sau
 }

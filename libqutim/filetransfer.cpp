@@ -48,7 +48,7 @@ namespace qutim_sdk_0_3
 	Q_GLOBAL_STATIC_WITH_INITIALIZER(FileTransferData, data, init(x.data()));
 
 	FileTransferEngine::FileTransferEngine(ChatUnit *chatUnit, Direction direction, FileTransferFactory *factory) :
-			d_ptr(new FileTransferEnginePrivate)
+			QObject(factory), d_ptr(new FileTransferEnginePrivate)
 	{
 		Q_D(FileTransferEngine);
 		d->chatUnit = chatUnit;
@@ -63,6 +63,21 @@ namespace qutim_sdk_0_3
 	ChatUnit *FileTransferEngine::chatUnit() const
 	{
 		return d_func()->chatUnit;
+	}
+
+	int FileTransferEngine::localPort() const
+	{
+		return -1;
+	}
+
+	int FileTransferEngine::remotePort() const
+	{
+		return -1;
+	}
+
+	QHostAddress FileTransferEngine::remoteAddress() const
+	{
+		return QHostAddress();
 	}
 
 	FileTransferEngine::Direction FileTransferEngine::direction() const
