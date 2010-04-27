@@ -22,58 +22,25 @@
 #include <QLineEdit>
 #include <libqutim/qtwin.h>
 #include <libqutim/shortcut.h>
-#include <QMainWindow>
-#include <QMenuBar>
 
 namespace Core
 {
 	namespace SimpleContactList
 	{
 		static CoreSingleModuleHelper<Module> contact_list_static(
-				QT_TRANSLATE_NOOP("Plugin", "Simple ContactList"),
-				QT_TRANSLATE_NOOP("Plugin", "Default qutIM contact list implementation. Just simple")
+				QT_TRANSLATE_NOOP("Plugin", "Mobile ContactList"),
+				QT_TRANSLATE_NOOP("Plugin", "Default qutIM contact list implementation for mobile devices")
 				);
 
-		class MyWidget : public QMainWindow
+		class MyWidget : public QWidget
 		{
 		public:
 			MyWidget()
 			{
-				resize(150,0);//hack
-				connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 			}
-			void loadGeometry()
-			{
-				QByteArray geom = Config().group("contactList").value("geometry", QByteArray());
-				if (geom.isNull()) {
-					QRect rect = QApplication::desktop()->availableGeometry(QCursor::pos());
-					//black magic
-					int width = size().width();
-					int x = rect.width() - width;
-					int y = 0;
-					int height = rect.height();
-#ifdef Q_WS_WIN
-					//for stupid windows
-					x -= 15;
-					y += 35;
-					height -= 55;
-#endif
-					QRect geometry(x,
-								   y,
-								   width,
-								   height
-								   );
-					setGeometry(geometry);
-				} else {
-					restoreGeometry(geom);
-				}
-			}
-
 			virtual ~MyWidget()
 			{
-				Config config;
-				config.setValue("contactList/geometry", saveGeometry());
-				config.sync();
+
 			}
 		};
 
@@ -82,45 +49,16 @@ namespace Core
 			MyWidget *widget;
 			TreeView *view;
 			Model *model;
-			ActionToolBar *main_toolbar;
-			QPushButton *search_btn;
 			QLineEdit *search_bar;
 			QHash<Account *, QAction *> actions;
 		};
 
 		Module::Module() : p(new ModulePrivate)
 		{
-			// init shortcuts
-			Shortcut::registerSequence("contactListGlobalStatus",
-									QT_TRANSLATE_NOOP("ContactList", "Change global status"),
-									"ContactListWidget",
-									QKeySequence("Ctrl+S")
-									);
-			Shortcut::registerSequence("contactListActivateMainMenu",
-									QT_TRANSLATE_NOOP("ContactList", "Activate main menu"),
-									"ContactListWidget",
-									QKeySequence("Ctrl+M")
-									);
-
 			p->widget = new MyWidget;
-			p->widget->setCentralWidget(new QWidget(p->widget));
-			QVBoxLayout *layout = new QVBoxLayout(p->widget->centralWidget());
+			QVBoxLayout *layout = new QVBoxLayout(p->widget);
 			layout->setMargin(0);
 			layout->setSpacing(0);
-
-			int size = Config().group("contactList").value("toolBarIconSize",16);
-
-			QSize toolbar_size (size,size);
-
-			p->main_toolbar = new ActionToolBar(p->widget);
-			p->main_toolbar->setIconSize(toolbar_size);
-			//p->widget->addToolBar(Qt::TopToolBarArea,p->main_toolbar);
-
-#ifdef Q_WS_WIN
-			p->main_toolbar->setStyleSheet("QToolBar{background:none;border:none}"); //HACK
-#endif
-
-			layout->addWidget(p->main_toolbar);
 
 			ActionGenerator *gen = new ActionGenerator(Icon("configure"),
 										  QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
@@ -131,50 +69,19 @@ namespace Core
 			gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));
 			addAction(gen);
 
-			gen = new ActionGenerator(Icon("application-exit"),
-									  QT_TRANSLATE_NOOP("ContactList","&Quit"),
-									  qApp,
-									  SLOT(quit()));
-			gen->setPriority(-1);
-			addAction(gen);
-
-			gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), this);
-			addButton(gen);
-
 			p->view = new TreeView(p->widget);
 			layout->addWidget(p->view);
 
 			p->widget->setLayout(layout);
 			p->model = new Model(p->view);
 
-			// TODO: choose another, non-kopete icon
-			gen = new ActionGenerator(Icon("view-user-offline-kopete"), QByteArray(), p->model, SLOT(onHideShowOffline()));
-			gen->setCheckable(true);
-			gen->setChecked(!p->model->showOffline());
-			gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Hide offline"));
-			addButton(gen);
-
 			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));
 			p->view->setModel(p->model);
 
-			QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget);
-
-			p->search_btn = new QPushButton(p->widget);
-			p->search_btn->setIcon(Icon("edit-find"));
-			p->search_btn->setCheckable(true);
-
-			p->search_btn->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Preferred);
-
 			p->search_bar = new QLineEdit(p->widget);
-			p->search_bar->setVisible(false);
-			connect(p->search_btn,SIGNAL(toggled(bool)),SLOT(onSearchButtonToggled(bool)));
 			connect(p->search_bar, SIGNAL(textChanged(QString)), p->model, SLOT(onFilterList(QString)));
 
 			layout->addWidget(p->search_bar);
-			bottom_layout->addWidget(p->search_btn);
-			bottom_layout->setSpacing(0);
-			bottom_layout->setMargin(0);;
-			layout->addLayout(bottom_layout);
 
 			foreach(Protocol *proto, allProtocols()) {
 				connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
@@ -182,19 +89,13 @@ namespace Core
 					onAccountCreated(account);
 				}
 			}
-
-			p->widget->menuBar()->addAction(createGlobalStatusAction(Status::Online));
-			p->widget->menuBar()->addAction(createGlobalStatusAction(Status::FreeChat));
-			p->widget->menuBar()->addAction(createGlobalStatusAction(Status::Away));
-			p->widget->menuBar()->addAction(createGlobalStatusAction(Status::DND));
-			p->widget->menuBar()->addAction(createGlobalStatusAction(Status::NA));
-			p->widget->menuBar()->addAction(createGlobalStatusAction(Status::Invisible));
-			p->widget->menuBar()->addAction(createGlobalStatusAction(Status::Offline));
-
-			p->widget->menuBar()->addSeparator();
-
-			p->widget->loadGeometry();
-			p->widget->showMaximized();
+			p->widget->addAction(createGlobalStatusAction(Status::Online));
+			p->widget->addAction(createGlobalStatusAction(Status::FreeChat));
+			p->widget->addAction(createGlobalStatusAction(Status::Away));
+			p->widget->addAction(createGlobalStatusAction(Status::DND));
+			p->widget->addAction(createGlobalStatusAction(Status::NA));
+			p->widget->addAction(createGlobalStatusAction(Status::Invisible));
+			p->widget->addAction(createGlobalStatusAction(Status::Offline));
 		}
 
 		void Module::onStatusChanged()
@@ -236,11 +137,6 @@ namespace Core
 				removeContact(contact);
 		}
 
-		void Module::addButton(ActionGenerator *generator)
-		{
-			p->main_toolbar->addAction(generator);
-		}
-
 		void Module::show()
 		{
 			p->widget->show();
@@ -279,7 +175,7 @@ namespace Core
 			p->actions.insert(account, action);
 //			connect(action, SIGNAL(triggered()), action, SLOT(toggle()));
 			action->setMenu(account->menu(false));
-			p->widget->menuBar()->addAction(action);
+			p->widget->addAction(action);
 			foreach (Contact *contact, account->findChildren<Contact *>()) {
 				//FIXME
 				addContact(contact);

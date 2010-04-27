@@ -23,7 +23,6 @@ namespace Core
 			virtual void addContact(ChatUnit *contact);
 			virtual void removeContact(ChatUnit *contact);
 			virtual void removeAccount(Account *account);
-			Q_INVOKABLE void addButton(ActionGenerator *generator);
 			Q_INVOKABLE QWidget *widget();
 		public slots:
 			void show();
