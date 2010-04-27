@@ -37,6 +37,11 @@
 #define INSIDE_MODULE_MANAGER
 #include "cryptoservice.cpp"
 
+//Let's show message box with error
+#if	defined(Q_OS_SYMBIAN)
+#include <QMessageBox>
+#endif
+
 namespace qutim_sdk_0_3
 {
 	const char *qutimVersionStr()
@@ -221,7 +226,13 @@ namespace qutim_sdk_0_3
 		plugin_path += QDir::separator();
 		plugin_path += "plugins";
 		paths << plugin_path;
-		// 5. From config
+		// 5. Symbian (ported from Nokia qutIM 0.2beta example for S60)
+		//TODO use more flexible variant?
+#if	defined(Q_OS_SYMBIAN)
+		paths << "c:/resource/qt/plugins/qutimplugins";
+		paths << "e:/resource/qt/plugins/qutimplugins";
+#endif
+		// 6. From config
 		QStringList config_paths = settings.value("General/libpaths", QStringList()).toStringList();
 		paths << config_paths;
 		paths.removeDuplicates();
@@ -249,6 +260,11 @@ namespace qutim_sdk_0_3
 						}
 					} else {
 						qDebug("%s", qPrintable(lib->errorString()));
+#if	defined(Q_OS_SYMBIAN)
+						QMessageBox msg;
+						msg.setText(tr("Library: %1").arg(lib->errorString()));
+						msg.exec();
+#endif
 						continue;
 					}
 				}
@@ -269,8 +285,14 @@ namespace qutim_sdk_0_3
 				} else {
 					if (object)
 						delete object;
-					else
+					else {
 						qWarning("%s", qPrintable(loader->errorString()));
+#if	defined(Q_OS_SYMBIAN)
+						QMessageBox msg;
+						msg.setText(tr("Plugin: %1").arg(loader->errorString()));
+						msg.exec();
+#endif
+					}
 					loader->unload();
 				}
 			}
