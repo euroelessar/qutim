@@ -164,13 +164,15 @@ namespace Jabber
 			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
 			foreach (QString id, d->resources.keys()) {
 				JContactResource *resource = d->resources.value(id);
-				event->appendField(QString(), QString());
+				event->appendField(QString(), QVariant());
 				if (!resource->text().isEmpty())
-					event->appendField(resource->text(), QString());
+					event->appendField(resource->text(), QVariant());
 				event->appendField(QT_TRANSLATE_NOOP("Contact", "Resource"),
 						QString("%1 (%2)").arg(id).arg(resource->priority()));
-				if (false)
-					event->appendField(QT_TRANSLATE_NOOP("Contact", "Possible client"), resource->id());
+				QString client = resource->property("client").toString()
+						% QLatin1Char('/') % resource->property("os").toString();
+				if (!client.isEmpty())
+					event->appendField(QT_TRANSLATE_NOOP("Contact", "Possible client"), client);
 			}
 			return true;
 		}
