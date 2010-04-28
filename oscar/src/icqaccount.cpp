@@ -22,6 +22,7 @@
 #include "buddycaps.h"
 #include "oscarstatus.h"
 #include "buddypicture.h"
+#include "inforequest_p.h"
 #include <qutim/status.h>
 #include <qutim/systeminfo.h>
 #include <qutim/contactlist.h>
@@ -248,6 +249,11 @@ const QHash<QString, IcqContact*> &IcqAccount::contacts() const
 	return d->contacts;
 }
 
+InfoRequest *IcqAccount::infoRequest() const
+{
+	return new IcqInfoRequest(const_cast<IcqAccount*>(this));
+}
+
 bool IcqAccount::avatarsSupport()
 {
 	Q_D(IcqAccount);
@@ -359,6 +365,25 @@ QString IcqAccount::password()
 		delete dialog;
 	}
 	return password;
+}
+
+bool IcqAccount::event(QEvent *ev)
+{
+	if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
+		Status::Type status = this->status().type();
+		if (status >= Status::Online && status <= Status::Invisible) {
+			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
+			event->setSupportType(InfoRequestCheckSupportEvent::ReadWrite);
+			event->accept();
+		} else {
+			ev->ignore();
+		}
+	} else if (ev->type() == InfoRequestEvent::eventType()) {
+		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
+		event->setRequest(new IcqInfoRequest(this));
+		event->accept();
+	}
+	return Account::event(ev);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

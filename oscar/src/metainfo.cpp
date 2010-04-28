@@ -121,6 +121,20 @@ QList<LocalizedString> MetaInfoField::alternatives() const
 	return QList<LocalizedString>();
 }
 
+QVariant MetaInfoField::defaultValue() const
+{
+	if (m_value == Languages)
+		return QStringList();
+	else if (m_value == Interests)
+		return QVariant::fromValue(CategoryList());
+	else if (m_value == Age)
+		return QVariant::Int;
+	else if (m_value >= AuthFlag && m_value <= PublishPrimaryEmailFlag)
+		return QVariant::Bool;
+	else
+		return QString();
+}
+
 QString MetaInfoField::toString() const
 {
 	return fields()->value(m_value);

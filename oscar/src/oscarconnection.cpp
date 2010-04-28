@@ -163,7 +163,6 @@ void OscarConnection::accountInfoReceived(bool ok)
 	Q_ASSERT(req);
 	if (ok)
 		m_account->setName(req->value<QString>(Nick, m_account->id()));
-	req->deleteLater();
 }
 
 void OscarConnection::sendStatus(OscarStatus status)

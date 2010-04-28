@@ -105,6 +105,7 @@ public:
 	LocalizedString group() const;
 	QList<LocalizedString> titleAlternatives() const;
 	QList<LocalizedString> alternatives() const;
+	QVariant defaultValue() const;
 	MetaInfoFieldEnum value() const { return m_value; };
 	QString toString() const;
 	operator QString() const { return toString(); }
