@@ -14,13 +14,14 @@ namespace Core
 {
 using namespace qutim_sdk_0_3;
 
+typedef InfoRequestCheckSupportEvent::SupportType RequestType;
+
 class MainWindow : public QWidget
 {
 	Q_OBJECT
 public:
 	MainWindow();
-	void setBuddy(Buddy *buddy, InfoRequest *request);
-	void setAccount(Account *account, InfoRequest *request);
+	void setObject(QObject *object, RequestType type);
 private slots:
 	void onRequestStateChanged(InfoRequest::State state);
 	void onRequestButton();
@@ -33,11 +34,8 @@ private:
 private:
 	Ui::userInformationClass ui;
 	InfoRequest *request;
-	union {
-		Buddy *m_buddy;
-		Account *m_account;
-	};
-	bool m_accountInfo;
+	QObject *object;
+	bool readWrite;
 };
 
 class ContactInfo : public QObject

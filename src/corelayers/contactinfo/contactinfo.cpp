@@ -24,18 +24,14 @@ MainWindow::MainWindow() :
 	connect(ui.saveButton, SIGNAL(clicked()), SLOT(onSaveButton()));
 }
 
-void MainWindow::setBuddy(Buddy *buddy, InfoRequest *request)
+void MainWindow::setObject(QObject *obj, RequestType type)
 {
-	m_buddy = buddy;
-	m_accountInfo = false;
-	setRequest(request);
-}
-
-void MainWindow::setAccount(Account *account, InfoRequest *request)
-{
-	m_account = account;
-	m_accountInfo = true;
-	setRequest(request);
+	object = obj;
+	readWrite = type == InfoRequestCheckSupportEvent::ReadWrite;
+	InfoRequestEvent event;
+	qApp->sendEvent(object, &event);
+	if (event.request())
+		setRequest(event.request());
 }
 
 void MainWindow::setRequest(InfoRequest *req)
@@ -43,27 +39,40 @@ void MainWindow::setRequest(InfoRequest *req)
 	if (request && req != request)
 		request->deleteLater();
 	int curPage = ui.detailsStackedWidget->currentIndex();
-	request = req;
+	if (request != req) {
+		request = req;
+		connect(request, SIGNAL(stateChanged(InfoRequest::State)),
+				SLOT(onRequestStateChanged(InfoRequest::State)));
+	}
 	ui.infoListWidget->clear();
 	QWidget *w;
 	while ((w = ui.detailsStackedWidget->widget(0)) != 0)
 		delete w;
 	QString avatar;
-	if (!m_accountInfo) {
+	Buddy *buddy = qobject_cast<Buddy*>(object);
+	if (buddy) {
 		setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About contact %1 <%2>")
 						.toString()
-						.arg(m_buddy->name())
-						.arg(m_buddy->id()));
-		avatar = m_buddy->avatar();
+						.arg(buddy->name())
+						.arg(buddy->id()));
+		avatar = buddy->avatar();
 	} else {
-		setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About account %1")
-						.toString()
-						.arg(m_account->name()));
-		avatar = m_account->property("avatar").toString();
+		Account *account = qobject_cast<Account*>(object);
+		if (account) {
+			setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About account %1")
+							.toString()
+							.arg(account->name()));
+		} else {
+			setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About %1 <%2>")
+							.toString()
+							.arg(object->property("name").toString())
+							.arg(object->property("id").toString()));
+		}
+		avatar = account->property("avatar").toString();
 	}
-	ui.saveButton->setVisible(m_accountInfo);
-	ui.addButton->setVisible(m_accountInfo);
-	ui.removeButton->setVisible(m_accountInfo);
+	ui.saveButton->setVisible(readWrite);
+	ui.addButton->setVisible(readWrite);
+	ui.removeButton->setVisible(readWrite);
 	if (avatar.isEmpty())
 		avatar = ":/icons/qutim_64.png";
 	ui.pictureLabel->setPixmap(QPixmap(avatar).scaled(QSize(64, 64), Qt::KeepAspectRatio));
@@ -73,10 +82,8 @@ void MainWindow::setRequest(InfoRequest *req)
 	InfoRequest::State state = request->state();
 	if (state == InfoRequest::Done || state == InfoRequest::Cancel) {
 		request->deleteLater(); request = 0;
-	} else {
-		if (state == InfoRequest::Cache)
-			request->resend();
-		connect(request, SIGNAL(stateChanged(InfoRequest::State)), SLOT(onRequestStateChanged(InfoRequest::State)));
+	} else if (state == InfoRequest::Cache) {
+		request->resend();
 	}
 }
 
@@ -90,14 +97,10 @@ void MainWindow::onRequestStateChanged(InfoRequest::State state)
 
 void MainWindow::onRequestButton()
 {
-	InfoRequest *request;
-	if (m_accountInfo)
-		request = m_account->infoRequest();
-	else
-		request = m_buddy->infoRequest();
-	if (!request)
-		return;
-	setRequest(request);
+	InfoRequestEvent event;
+	qApp->sendEvent(object, &event);
+	if (event.request())
+		setRequest(event.request());
 }
 
 void MainWindow::onSaveButton()
@@ -115,7 +118,8 @@ void MainWindow::onSaveButton()
 			items.addSubitem(layout->item());
 		}
 	}
-	// TODO: send the items back to the account
+	InfoItemUpdatedEvent event(items);
+	qApp->sendEvent(object, &event);
 }
 
 // TODO: maybe move the function to InfoItem class?
@@ -160,7 +164,7 @@ void MainWindow::addItems(const InfoItem &items)
 			w->setFrameShape(QFrame::Panel);
 			w->setFrameShadow(QFrame::Sunken);
 			AbstractInfoLayout *group;
-			if (!m_accountInfo)
+			if (!readWrite)
 				group = new ReadOnlyInfoLayout(w);
 			else
 				group = new EditableInfoLayout(w);
@@ -174,7 +178,7 @@ void MainWindow::addItems(const InfoItem &items)
 				QFrame *w = new QFrame(ui.detailsStackedWidget);
 				w->setFrameShape(QFrame::Panel);
 				w->setFrameShadow(QFrame::Sunken);
-				if (!m_accountInfo)
+				if (!readWrite)
 					general = new ReadOnlyInfoLayout(w);
 				else
 					general = new EditableInfoLayout(w);
@@ -224,34 +228,45 @@ QString MainWindow::summary(const InfoItem &items)
 	return text;
 }
 
+class InfoActionGenerator : public ActionGenerator
+{
+public:
+	InfoActionGenerator(QObject *receiver) :
+		ActionGenerator(Icon("dialog-information"), 0, receiver, SLOT(onShow()))
+	{
+		setPriority(90);
+		setType(90);
+	}
+protected:
+	virtual QObject *generateHelper() const
+	{
+		InfoRequestCheckSupportEvent event;
+		qApp->sendEvent(controller(), &event);
+		if (event.supportType() != InfoRequestCheckSupportEvent::NoSupport) {
+			QAction *action = prepareAction(new QAction(0));
+			if (event.supportType() == InfoRequestCheckSupportEvent::Read)
+				action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Show information"));
+			else if (event.supportType() == InfoRequestCheckSupportEvent::ReadWrite)
+				action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Edit information"));
+			return action;
+		} else {
+			return 0;
+		}
+	}
+};
+
 ContactInfo::ContactInfo()
 {
-	MenuController::addAction<Buddy>(new ActionGenerator(Icon("dialog-information"),
-										QT_TRANSLATE_NOOP("ContactInfo", "Show information"),
-										this, SLOT(onShow())));
-#if 0
-	ActionGenerator *editInfoAction = new ActionGenerator(Icon("dialog-information"),
-										QT_TRANSLATE_NOOP("ContactInfo", "Edit information"),
-										this, SLOT(onShow()));
-	editInfoAction->setPriority(90);
-	editInfoAction->setType(90);
-	MenuController::addAction<Account>(editInfoAction);
-#endif
+	MenuController::addAction<Buddy>(new InfoActionGenerator(this));
+	MenuController::addAction<Account>(new InfoActionGenerator(this));
 }
 
 void ContactInfo::show(QObject *object)
 {
-	Buddy *buddy = qobject_cast<Buddy*>(object);
-	Account *account = 0;
-	InfoRequest *request;
-	if (buddy) {
-		request = buddy->infoRequest();
-	} else {
-		account = qobject_cast<Account*>(object);
-		Q_ASSERT(account);
-		request = account->infoRequest();
-	}
-	if (!request)
+	InfoRequestCheckSupportEvent event;
+	qApp->sendEvent(object, &event);
+	RequestType type = event.supportType();
+	if (type == InfoRequestCheckSupportEvent::NoSupport)
 		return;
 	if (!info) {
 		info = new MainWindow();
@@ -261,10 +276,7 @@ void ContactInfo::show(QObject *object)
 	} else {
 		info->raise();
 	}
-	if (buddy)
-		info->setBuddy(buddy, request);
-	else
-		info->setAccount(account, request);
+	info->setObject(object, type);
 }
 
 void ContactInfo::onShow()
