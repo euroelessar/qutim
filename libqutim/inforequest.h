@@ -30,9 +30,10 @@ namespace qutim_sdk_0_3
 		QList<InfoItem> subitems() const;
 		void addSubitem(const InfoItem &item);
 		bool hasSubitems() const;
-		void setMultiple(int maxCount = -1);
+		void setMultiple(const InfoItem &defaultSubitem, int maxCount = -1);
 		bool isMultiple() const;
 		int maxCount() const;
+		InfoItem defaultSubitem() const;
 		QVariant property(const char *name, const QVariant &def = QVariant()) const;
 		template<typename T>
 		T property(const char *name, const T &def = T()) const

@@ -1,17 +1,22 @@
 #include "inforequest.h"
 #include "dynamicpropertydata_p.h"
 
+Q_DECLARE_METATYPE(qutim_sdk_0_3::InfoItem);
+
 namespace qutim_sdk_0_3
 {
 	class InfoItemPrivate : public DynamicPropertyData
 	{
 	public:
+		InfoItemPrivate()  :
+			maxCount(1) {}
 		QString name;
 		LocalizedStringList group;
 		LocalizedString title;
 		QVariant data;
 		QList<InfoItem> subitems;
 		int maxCount;
+		InfoItem defaultSubitem;
 
 		QVariant getName() const { return QVariant::fromValue(name); }
 		void setName(const QVariant &val) { name = val.value<QString>(); }
@@ -21,6 +26,8 @@ namespace qutim_sdk_0_3
 		void setData(const QVariant &val) { data = val; }
 		QVariant getMaxCount() const { return maxCount; }
 		void setMaxCount(const QVariant &val) { maxCount = val.toInt(); }
+		QVariant getDefaultSubitem() const { return QVariant::fromValue(defaultSubitem); }
+		void setDefaultSubitem(const QVariant &val) { defaultSubitem = val.value<InfoItem>(); }
 	};
 
 	namespace CompiledProperty
@@ -29,17 +36,20 @@ namespace qutim_sdk_0_3
 										 << "name"
 										 << "title"
 										 << "data"
-										 << "maxCount";
+										 << "maxCount"
+										 << "defaultSubitem";
 		static QList<Getter> getters   = QList<Getter>()
 										 << static_cast<Getter>(&InfoItemPrivate::getName)
 										 << static_cast<Getter>(&InfoItemPrivate::getTitle)
 										 << static_cast<Getter>(&InfoItemPrivate::getData)
-										 << static_cast<Getter>(&InfoItemPrivate::getMaxCount);
+										 << static_cast<Getter>(&InfoItemPrivate::getMaxCount)
+										 << static_cast<Getter>(&InfoItemPrivate::getDefaultSubitem);
 		static QList<Setter> setters   = QList<Setter>()
 										 << static_cast<Setter>(&InfoItemPrivate::setName)
 										 << static_cast<Setter>(&InfoItemPrivate::setTitle)
 										 << static_cast<Setter>(&InfoItemPrivate::setData)
-										 << static_cast<Setter>(&InfoItemPrivate::setMaxCount);
+										 << static_cast<Setter>(&InfoItemPrivate::setMaxCount)
+										 << static_cast<Setter>(&InfoItemPrivate::setDefaultSubitem);
 	}
 
 	static inline void ensure_data(QSharedDataPointer<InfoItemPrivate> &d)
@@ -58,7 +68,6 @@ namespace qutim_sdk_0_3
 		d->name = name;
 		d->title = title;
 		d->data = data;
-		d->maxCount = 1;
 	}
 
 	InfoItem::InfoItem(const LocalizedString &title, const QVariant &data) :
@@ -66,7 +75,6 @@ namespace qutim_sdk_0_3
 	{
 		d->title = title;
 		d->data = data;
-		d->maxCount = 1;
 	}
 
 	InfoItem::InfoItem(const InfoItem &item) :
@@ -94,6 +102,7 @@ namespace qutim_sdk_0_3
 
 	void InfoItem::setName(const QString &name)
 	{
+		ensure_data(d);
 		d->name = name;
 	}
 
@@ -150,9 +159,10 @@ namespace qutim_sdk_0_3
 		return !d->subitems.isEmpty();
 	}
 
-	void InfoItem::setMultiple(int maxCount)
+	void InfoItem::setMultiple(const InfoItem &defaultSubitem, int maxCount)
 	{
 		ensure_data(d);
+		d->defaultSubitem = defaultSubitem;
 		d->maxCount = maxCount;
 	}
 
@@ -166,6 +176,11 @@ namespace qutim_sdk_0_3
 		return d->maxCount;
 	}
 
+	InfoItem InfoItem::defaultSubitem() const
+	{
+		return d->defaultSubitem;
+	}
+
 	QVariant InfoItem::property(const char *name, const QVariant &def) const
 	{
 		return d->property(name, def, CompiledProperty::names, CompiledProperty::getters);
@@ -173,6 +188,7 @@ namespace qutim_sdk_0_3
 
 	void InfoItem::setProperty(const char *name, const QVariant &value)
 	{
+		ensure_data(d);
 		d->setProperty(name, value, CompiledProperty::names, CompiledProperty::setters);
 	}
 

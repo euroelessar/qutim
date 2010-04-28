@@ -3,20 +3,11 @@
 #include "libqutim/icon.h"
 #include "libqutim/extensioninfo.h"
 #include "libqutim/contact.h"
+#include "libqutim/account.h"
+#include "readonlyinfolayout.h"
+#include "editableinfolayout.h"
 #include <QDate>
 #include <QDateEdit>
-#include <QComboBox>
-#include <QSpinBox>
-#include <QLabel>
-#include <QTextEdit>
-#include "QGridLayout"
-#include "QVBoxLayout"
-#include <QDesktopWidget>
-#include <QApplication>
-#include <QHostAddress>
-#include "libqutim/debug.h"
-
-Q_DECLARE_METATYPE(QHostAddress);
 
 namespace Core
 {
@@ -25,122 +16,30 @@ static Core::CoreModuleHelper<ContactInfo> contact_info_static(
 	QT_TRANSLATE_NOOP("Plugin", "Default qutIM implementation of the information window")
 );
 
-InfoLayout::InfoLayout(QWidget *parent) :
-	QGridLayout(parent), m_row(0)
-{
-}
-
-InfoLayout::~InfoLayout()
-{
-}
-
-void InfoLayout::addItems(const QList<InfoItem> &items)
-{
-	foreach (const InfoItem &item, items) {
-		if (item.hasSubitems()) {
-			QGroupBox *box = new QGroupBox(parentWidget());
-			box->setTitle(item.title());
-			box->setFlat(true);
-			InfoLayout *group = new InfoLayout(box);
-			group->addItems(item.subitems());
-			addWidget(box, m_row++, 0, 1, 2);
-		} else {
-			addItem(item);
-		}
-	}
-}
-
-void InfoLayout::addItem(const InfoItem &item)
-{
-	if (!item.property("hideTitle", false)) {
-		QLabel *title = new QLabel(item.title().toString() + ":", parentWidget());
-		title->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-		QFont font;
-		font.setBold(true);
-		title->setFont(font);
-		title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-		addWidget(title, m_row, 0, 1, 1, Qt::AlignRight | Qt::AlignTop);
-	}
-
-	QVariant::Type type = item.data().type();
-	if (type == QVariant::Date) {
-		addLabel(item.data().toDate().toString(Qt::SystemLocaleLongDate), item.name());
-		return;
-	} else if (type == QVariant::DateTime) {
-		addLabel(item.data().toDateTime().toString(Qt::SystemLocaleLongDate), item.name());
-		return;
-	} else if (type == QVariant::Image) {
-		QLabel *d = new QLabel();
-		d->setPixmap(QPixmap::fromImage(item.data().value<QImage>()));
-		addDataWidget(d, item.name());
-		return;
-	} else if (type == QVariant::Pixmap) {
-		QLabel *d = new QLabel();
-		d->setPixmap(item.data().value<QPixmap>());
-		addDataWidget(d, item.name());
-		return;
-	} else if (type == QVariant::Bool) {
-		addLabel(item.data().toBool() ?
-				 QT_TRANSLATE_NOOP("ContactInfo", "yes") :
-				 QT_TRANSLATE_NOOP("ContactInfo", "no"),
-				 item.name());
-		return;
-	} else if (item.data().canConvert<QHostAddress>()) {
-		QHostAddress address = item.data().value<QHostAddress>();
-		if (!address.isNull()) {
-			addLabel(address.toString(), item.name());
-			return;
-		}
-	} else if (item.data().canConvert(QVariant::StringList)) {
-		QStringList list = item.data().toStringList();
-		if (!list.isEmpty()) {
-			foreach (const QString &i, list)
-				addLabel(i, item.name());
-			return;
-		}
-	}
-	QString str = item.data().toString();
-	bool enabled = !str.isEmpty();
-	if (!enabled)
-		str = QT_TRANSLATE_NOOP("ContactInfo", "the field is not set");
-	addLabel(str, item.name())->setEnabled(enabled);
-}
-
-void InfoLayout::addSpacer()
-{
-	QSpacerItem *spacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-	QGridLayout::addItem(spacer, m_row++, 0);
-}
-
-void InfoLayout::addDataWidget(QWidget *widget, const QString &name)
-{
-	widget->setParent(parentWidget());
-	widget->setObjectName(name);
-	widget->setProperty("readOnly", true);
-	addWidget(widget, m_row++, 1, 1, 1, Qt::AlignLeft);
-}
-
-QLabel *InfoLayout::addLabel(const QString &data, const QString &name)
-{
-	QLabel *d = new QLabel(data, parentWidget());
-	d->setTextInteractionFlags(Qt::LinksAccessibleByMouse |
-							Qt::LinksAccessibleByKeyboard |
-							Qt::TextSelectableByMouse |
-							Qt::TextSelectableByKeyboard);
-	addDataWidget(d, name);
-	return d;
-}
-
 MainWindow::MainWindow() :
 	request(0)
 {
 	ui.setupUi(this);
 	connect(ui.requestButton, SIGNAL(clicked()), SLOT(onRequestButton()));
+	connect(ui.saveButton, SIGNAL(clicked()), SLOT(onSaveButton()));
 }
 
-void MainWindow::setBuddy(Buddy *buddy, InfoRequest *req)
+void MainWindow::setBuddy(Buddy *buddy, InfoRequest *request)
 {
 	m_buddy = buddy;
+	m_accountInfo = false;
+	setRequest(request);
+}
+
+void MainWindow::setAccount(Account *account, InfoRequest *request)
+{
+	m_account = account;
+	m_accountInfo = true;
+	setRequest(request);
+}
+
+void MainWindow::setRequest(InfoRequest *req)
+{
 	if (request && req != request)
 		request->deleteLater();
 	int curPage = ui.detailsStackedWidget->currentIndex();
@@ -149,14 +48,22 @@ void MainWindow::setBuddy(Buddy *buddy, InfoRequest *req)
 	QWidget *w;
 	while ((w = ui.detailsStackedWidget->widget(0)) != 0)
 		delete w;
-	setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About contact %1 <%2>")
-					.toString()
-					.arg(buddy->name())
-					.arg(buddy->id()));
-	ui.saveButton->setVisible(false);
-	ui.addButton->setVisible(false);
-	ui.removeButton->setVisible(false);
-	QString avatar = buddy->avatar();
+	QString avatar;
+	if (!m_accountInfo) {
+		setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About contact %1 <%2>")
+						.toString()
+						.arg(m_buddy->name())
+						.arg(m_buddy->id()));
+		avatar = m_buddy->avatar();
+	} else {
+		setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About account %1")
+						.toString()
+						.arg(m_account->name()));
+		avatar = m_account->property("avatar").toString();
+	}
+	ui.saveButton->setVisible(m_accountInfo);
+	ui.addButton->setVisible(m_accountInfo);
+	ui.removeButton->setVisible(m_accountInfo);
 	if (avatar.isEmpty())
 		avatar = ":/icons/qutim_64.png";
 	ui.pictureLabel->setPixmap(QPixmap(avatar).scaled(QSize(64, 64), Qt::KeepAspectRatio));
@@ -178,15 +85,53 @@ void MainWindow::onRequestStateChanged(InfoRequest::State state)
 	if (request != sender())
 		return;
 	Q_UNUSED(state);
-	setBuddy(m_buddy, request);
+	setRequest(request);
 }
 
 void MainWindow::onRequestButton()
 {
-	InfoRequest *request = m_buddy->infoRequest();
+	InfoRequest *request;
+	if (m_accountInfo)
+		request = m_account->infoRequest();
+	else
+		request = m_buddy->infoRequest();
 	if (!request)
 		return;
-	setBuddy(m_buddy, request);
+	setRequest(request);
+}
+
+void MainWindow::onSaveButton()
+{
+	InfoItem items;
+	for (int i = 0; i < ui.detailsStackedWidget->count(); ++i) {
+		EditableInfoLayout *layout = qobject_cast<EditableInfoLayout*>(
+				ui.detailsStackedWidget->widget(i)->layout());
+		if (!layout)
+			continue;
+		if (layout->objectName() == "General") {
+			foreach (const InfoItem &item, layout->item().subitems())
+				items.addSubitem(item);
+		} else {
+			items.addSubitem(layout->item());
+		}
+	}
+	// TODO: send the items back to the account
+}
+
+// TODO: maybe move the function to InfoItem class?
+void MainWindow::dump(const InfoItem &items, int ident)
+{
+	if (!items.hasSubitems())
+		return;
+	QString space;
+	for (int i = 0; i < ident; ++i)
+		space += "    ";
+	foreach (const InfoItem &item, items.subitems()) {
+		qDebug() << space.toLatin1().data() << item.name()
+				<< item.title() << item.data();
+		if (item.hasSubitems())
+			dump(item, ident+1);
+	}
 }
 
 void MainWindow::addItems(const InfoItem &items)
@@ -207,13 +152,19 @@ void MainWindow::addItems(const InfoItem &items)
 	ui.infoListWidget->addItem(QT_TRANSLATE_NOOP("ContactInfo", "Summary"));
 	ui.detailsStackedWidget->addWidget(w);
 	// Pages
-	InfoLayout *general = 0;
+	AbstractInfoLayout *general = 0;
 	foreach (const InfoItem &item, items.subitems()) {
 		if (item.hasSubitems()) {
 			QFrame *w = new QFrame(ui.detailsStackedWidget);
+
 			w->setFrameShape(QFrame::Panel);
 			w->setFrameShadow(QFrame::Sunken);
-			InfoLayout *group = new InfoLayout(w);
+			AbstractInfoLayout *group;
+			if (!m_accountInfo)
+				group = new ReadOnlyInfoLayout(w);
+			else
+				group = new EditableInfoLayout(w);
+			group->setObjectName(item.name());
 			group->addItems(item.subitems());
 			group->addSpacer();
 			ui.infoListWidget->addItem(item.name());
@@ -223,7 +174,11 @@ void MainWindow::addItems(const InfoItem &items)
 				QFrame *w = new QFrame(ui.detailsStackedWidget);
 				w->setFrameShape(QFrame::Panel);
 				w->setFrameShadow(QFrame::Sunken);
-				general = new InfoLayout(w);
+				if (!m_accountInfo)
+					general = new ReadOnlyInfoLayout(w);
+				else
+					general = new EditableInfoLayout(w);
+				general->setObjectName("General");
 				ui.infoListWidget->addItem(QT_TRANSLATE_NOOP("ContactInfo", "General"));
 				ui.detailsStackedWidget->addWidget(w);
 			}
@@ -239,11 +194,14 @@ QString MainWindow::summary(const InfoItem &items)
 	QString text;
 	bool first = true;
 	foreach (const InfoItem &item, items.subitems()) {
-		if (item.property("additional", false))
+		if (item.property("additional", false) || item.property("notSet", false))
 			continue;
 		if (item.hasSubitems()) {
 			text += summary(item);
 		} else if (item.data().canConvert(QVariant::String)) {
+			QString str = item.data().toString();
+			if (str.isEmpty())
+				continue;
 			if (first) {
 				text += QString("<b>[%1]:</b><br>").arg(items.title());
 				first = false;
@@ -259,7 +217,7 @@ QString MainWindow::summary(const InfoItem &items)
 						 QT_TRANSLATE_NOOP("ContactInfo", "yes") :
 						 QT_TRANSLATE_NOOP("ContactInfo", "no");
 			else
-				text += item.data().toString().replace(QRegExp("(\r\n|\n|\r)"), "<br>");
+				text += str.replace(QRegExp("(\r\n|\n|\r)"), "<br>");
 			text += "<br>";
 		}
 	}
@@ -271,11 +229,28 @@ ContactInfo::ContactInfo()
 	MenuController::addAction<Buddy>(new ActionGenerator(Icon("dialog-information"),
 										QT_TRANSLATE_NOOP("ContactInfo", "Show information"),
 										this, SLOT(onShow())));
+#if 0
+	ActionGenerator *editInfoAction = new ActionGenerator(Icon("dialog-information"),
+										QT_TRANSLATE_NOOP("ContactInfo", "Edit information"),
+										this, SLOT(onShow()));
+	editInfoAction->setPriority(90);
+	editInfoAction->setType(90);
+	MenuController::addAction<Account>(editInfoAction);
+#endif
 }
 
-void ContactInfo::show(Buddy *buddy)
+void ContactInfo::show(QObject *object)
 {
-	InfoRequest *request = buddy->infoRequest();
+	Buddy *buddy = qobject_cast<Buddy*>(object);
+	Account *account = 0;
+	InfoRequest *request;
+	if (buddy) {
+		request = buddy->infoRequest();
+	} else {
+		account = qobject_cast<Account*>(object);
+		Q_ASSERT(account);
+		request = account->infoRequest();
+	}
 	if (!request)
 		return;
 	if (!info) {
@@ -286,16 +261,17 @@ void ContactInfo::show(Buddy *buddy)
 	} else {
 		info->raise();
 	}
-	info->setBuddy(buddy, request);
+	if (buddy)
+		info->setBuddy(buddy, request);
+	else
+		info->setAccount(account, request);
 }
 
 void ContactInfo::onShow()
 {
 	QAction *action = qobject_cast<QAction *>(sender());
 	Q_ASSERT(action);
-	Buddy *buddy = qobject_cast<Buddy*>(action->data().value<MenuController*>());
-	Q_ASSERT(buddy);
-	show(buddy);
+	show(action->data().value<MenuController*>());
 }
 
 }

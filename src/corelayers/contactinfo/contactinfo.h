@@ -2,8 +2,6 @@
 #define CONTACTINFO_H
 
 #include "QWidget"
-#include "QGroupBox"
-#include "QScrollArea"
 #include "ui_userinformation.h"
 #include <libqutim/buddy.h>
 #include <libqutim/inforequest.h>
@@ -16,42 +14,30 @@ namespace Core
 {
 using namespace qutim_sdk_0_3;
 
-class InfoLayout : public QGridLayout
-{
-public:
-	InfoLayout(QWidget *parent = 0);
-	~InfoLayout();
-	void addItem(const InfoItem &item);
-	void addSpacer();
-	void addItems(const QList<InfoItem> &items);
-protected:
-	void addDataWidget(QWidget *widget, const QString &name);
-	QLabel *addLabel(const QString &data, const QString &name);
-	void addWidget(QWidget *w);
-	void addWidget(QWidget *, int row, int column, Qt::Alignment = 0);
-	void addWidget(QWidget *, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = 0);
-	void addLayout(QLayout *, int row, int column, Qt::Alignment = 0);
-	void addLayout(QLayout *, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = 0);
-private:
-	int m_row;
-};
-
 class MainWindow : public QWidget
 {
 	Q_OBJECT
 public:
 	MainWindow();
 	void setBuddy(Buddy *buddy, InfoRequest *request);
+	void setAccount(Account *account, InfoRequest *request);
 private slots:
 	void onRequestStateChanged(InfoRequest::State state);
 	void onRequestButton();
+	void onSaveButton();
 private:
+	void dump(const InfoItem &item, int ident);
+	void setRequest(InfoRequest *request);
 	void addItems(const InfoItem &items);
 	QString summary(const InfoItem &item);
 private:
 	Ui::userInformationClass ui;
 	InfoRequest *request;
-	Buddy *m_buddy;
+	union {
+		Buddy *m_buddy;
+		Account *m_account;
+	};
+	bool m_accountInfo;
 };
 
 class ContactInfo : public QObject
@@ -62,37 +48,12 @@ class ContactInfo : public QObject
 public:
 	ContactInfo();
 public slots:
-	void show(Buddy *buddy);
+	void show(QObject *object);
 private slots:
 	void onShow();
 private:
 	QPointer<MainWindow> info;
 };
-
-inline void InfoLayout::addWidget(QWidget *w)
-{
-	QGridLayout::addWidget(w);
-}
-
-inline void InfoLayout::addWidget(QWidget *w, int row, int column, Qt::Alignment alignment)
-{
-	QGridLayout::addWidget(w, row, column, alignment);
-}
-
-inline void InfoLayout::addWidget(QWidget *w, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment)
-{
-	QGridLayout::addWidget(w, row, column, rowSpan, columnSpan, alignment);
-}
-
-inline void InfoLayout::addLayout(QLayout *w, int row, int column, Qt::Alignment alignment)
-{
-	QGridLayout::addLayout(w, row, column, alignment);
-}
-
-inline void InfoLayout::addLayout(QLayout *w, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment)
-{
-	QGridLayout::addLayout(w, row, column, rowSpan, columnSpan, alignment);
-}
 
 }
 

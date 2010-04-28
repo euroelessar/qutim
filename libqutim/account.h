@@ -26,6 +26,7 @@ namespace qutim_sdk_0_3
 	class ChatUnit;
 	class Contact;
 	class Protocol;
+	class InfoRequest;
 	class AccountPrivate;
 	class InfoRequest;
 
