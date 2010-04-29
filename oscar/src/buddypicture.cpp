@@ -42,6 +42,8 @@ BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
 	connect(socket(), SIGNAL(disconnected()), SLOT(disconnected()));
 	account->feedbag()->registerHandler(this);
 	account->registerRosterPlugin(this);
+	updateSettings();
+	connect(account, SIGNAL(settingsUpdated()), this, SLOT(updateSettings()));
 
 	typedef QPair<QString, QString> StringPair;
 	ConfigGroup cfg = account->config("avatars").group("hashes");
@@ -76,8 +78,6 @@ void BuddyPicture::sendUpdatePicture(QObject *reqObject, quint16 id, quint8 flag
 	}
 	if (setAvatar(reqObject, hash))
 		return;
-	if (socket()->state() == QTcpSocket::UnconnectedState)
-		return;
 	SNAC snac(AvatarFamily, AvatarGetRequest);
 	snac.append<quint8>(reqObject->property("id").toString());
 	snac.append<quint8>(1); // unknown
@@ -87,7 +87,7 @@ void BuddyPicture::sendUpdatePicture(QObject *reqObject, quint16 id, quint8 flag
 	if (m_is_connected)
 		send(snac);
 	else
-		m_history.push_back(snac);
+		m_history.insert(reqObject, snac);
 }
 
 void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
@@ -102,10 +102,9 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 					"000f 0001 0110 164f"));// AvatarFamily
 			send(snac);
 			m_is_connected = true;
-			while (!m_history.isEmpty()) {
-				SNAC tmp = m_history.takeFirst();
-				send(tmp);
-			}
+			foreach (SNAC snac, m_history)
+				send(snac);
+			m_history.clear();
 		}
 	} else {
 		if (snac.family() == ServiceFamily && snac.subtype() == ServerRedirectService) {
@@ -115,6 +114,13 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				QList<QByteArray> list = tlvs.value(0x05).data().split(':');
 				m_cookie = tlvs.value(0x06).data();
 				socket()->connectToHost(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190);
+			}
+		} else if (snac.family() == ServiceFamily && snac.subtype() == ServiceServerAsksServices) {
+			if (m_avatars) {
+				// Requesting avatar service
+				SNAC snac(ServiceFamily, ServiceClientNewService);
+				snac.append<quint16>(AvatarFamily);
+				conn->send(snac);
 			}
 		}
 	}
@@ -169,7 +175,7 @@ bool BuddyPicture::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 	Q_ASSERT(item.type() == SsiBuddyIcon);
 	if (error != FeedbagError::NoError || type == Feedbag::Remove)
 		return false;
-	if (account()->avatarsSupport() && item.containsField(0x00d5)) {
+	if (m_avatars && item.containsField(0x00d5)) {
 		DataUnit data(item.field(0x00d5));
 		quint8 flags = data.read<quint8>();
 		QByteArray hash = data.read<QByteArray, quint8>();
@@ -184,7 +190,7 @@ void BuddyPicture::statusChanged(IcqContact *contact, Status &status, const TLVM
 {
 	Q_UNUSED(status);
 	if (contact->status() == Status::Offline) {
-		if (account()->avatarsSupport() && tlvs.contains(0x001d)) { // avatar
+		if (m_avatars && tlvs.contains(0x001d)) { // avatar
 			SessionDataItemMap items(tlvs.value(0x001d));
 			foreach (const SessionDataItem &item, items) {
 				if (item.type() != staticAvatar && item.type() != miniAvatar &&
@@ -205,9 +211,18 @@ void BuddyPicture::disconnected()
 	m_history.clear();
 }
 
+void BuddyPicture::updateSettings()
+{
+	m_avatars = account()->protocol()->config("general").value("avatars", true);
+	if (m_avatars)
+		account()->setProperty("rosterFlags", account()->property("rosterFlags").toInt() | 0x0005);
+	else
+		account()->setProperty("rosterFlags", account()->property("rosterFlags").toInt() ^ 0x0005);
+}
+
 QString BuddyPicture::getAvatarDir() const
 {
-	return QString("%1/avatars/%2")
+	return QString("%1/avatars/%2/")
 			.arg(SystemInfo::getPath(SystemInfo::ConfigDir))
 			.arg(account()->protocol()->id());
 }

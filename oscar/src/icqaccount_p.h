@@ -42,7 +42,6 @@ struct IcqAccountPrivate
 	OscarConnection *conn;
 	Feedbag *feedbag;
 	QString name;
-	bool avatars;
 	QHash<quint64, Cookie*> cookies;
 	Capabilities caps;
 	QHash<QString, Capability> typedCaps;

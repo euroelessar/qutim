@@ -49,7 +49,6 @@ class LIBOSCAR_EXPORT IcqAccount: public Account
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(IcqAccount)
 	Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-	Q_PROPERTY(bool avatarsSupport READ avatarsSupport)
 public:
 	IcqAccount(const QString &uin);
 	virtual ~IcqAccount();
@@ -64,7 +63,6 @@ public:
 	IcqContact *getContact(const QString &id, bool create = false);
 	const QHash<QString, IcqContact*> &contacts() const;
 	InfoRequest *infoRequest() const;
-	bool avatarsSupport();
 	void setCapability(const Capability &capability, const QString &type = QString());
 	bool removeCapability(const Capability &capability);
 	bool removeCapability(const QString &type);

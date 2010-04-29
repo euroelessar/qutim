@@ -254,12 +254,6 @@ InfoRequest *IcqAccount::infoRequest() const
 	return new IcqInfoRequest(const_cast<IcqAccount*>(this));
 }
 
-bool IcqAccount::avatarsSupport()
-{
-	Q_D(IcqAccount);
-	return d->avatars;
-}
-
 void IcqAccount::setCapability(const Capability &capability, const QString &type)
 {
 	Q_D(IcqAccount);
@@ -331,8 +325,6 @@ QHostAddress IcqAccount::localAddress()
 
 void IcqAccount::updateSettings()
 {
-	Q_D(IcqAccount);
-	d->avatars = protocol()->config("general").value("avatars", true);
 	emit settingsUpdated();
 }
 

@@ -58,14 +58,16 @@ protected:
 	virtual void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs);
 private slots:
 	void disconnected();
+	void updateSettings();
 private:
 	inline QString getAvatarDir() const;
 	inline bool setAvatar(QObject *obj, const QByteArray &hash);
 	inline void updateData(QObject *obj, const QByteArray &hash, const QString &path);
 private:
-	QList<SNAC> m_history;
+	QHash<QObject*, SNAC> m_history;
 	bool m_is_connected;
 	QByteArray m_cookie;
+	bool m_avatars;
 	static QByteArray emptyHash;
 };
 
