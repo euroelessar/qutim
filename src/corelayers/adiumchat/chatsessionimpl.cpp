@@ -176,7 +176,7 @@ namespace AdiumChat
 		bool isHistory = message.property("history", false);
 		bool silent = message.property("silent", false);
 
-		if (qobject_cast<Conference *>(message.chatUnit()))
+		if (qobject_cast<const Conference *>(message.chatUnit()))
 			silent = true;
 
 		if (!isHistory && !silent) {
