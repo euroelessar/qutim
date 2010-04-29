@@ -25,6 +25,13 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+enum GenderEnum
+{
+	Unknown,
+	Female = 'F',
+	Male = 'M'
+};
+
 class AbstractMetaInfoRequestPrivate : public QSharedData
 {
 public:
@@ -57,7 +64,7 @@ public:
 	void handleWork(const DataUnit &data);
 };
 
-class FindContactsMetaRequestPrivate : public AbstractMetaInfoRequestPrivate
+class TlvBasedMetaInfoRequestPrivate : public AbstractMetaInfoRequestPrivate
 {
 public:
 	void addString(quint16 id, MetaInfoFieldEnum value, DataUnit &data, bool test = true) const;
@@ -68,6 +75,15 @@ public:
 	void addCategoryId(quint16 id, MetaInfoFieldEnum value, DataUnit &data, FieldNamesList *list) const;
 	void addCategory(quint16 id, MetaInfoFieldEnum value, DataUnit &data, FieldNamesList *list) const;
 	MetaInfoValuesHash values;
+};
+
+class UpdateAccountInfoMetaRequestPrivate : public TlvBasedMetaInfoRequestPrivate
+{
+};
+
+class FindContactsMetaRequestPrivate : public TlvBasedMetaInfoRequestPrivate
+{
+public:
 	QHash<QString, FindContactsMetaRequest::FoundContact> contacts;
 };
 

@@ -16,21 +16,25 @@ namespace Jabber
 	{
 		Q_OBJECT
 		Q_DECLARE_PRIVATE(JMUCUser)
-	public:
-		JMUCUser(JMUCSession *muc, const QString &name);
-		~JMUCUser();
-		QString title() const;
-		QString name() const;
-		QString avatar() const;
-		QString avatarHash() const;
-		void setAvatar(const QString &hex);
-		void setName(const QString &name);
-		InfoRequest *infoRequest() const;
-		ChatUnit *upperUnit();
-		MUCRoomAffiliation affiliation();
-		void setMUCAffiliation(MUCRoomAffiliation affiliation);
-		MUCRoomRole role();
-		void setMUCRole(MUCRoomRole role);
+		public:
+			JMUCUser(JMUCSession *muc, const QString &name);
+			~JMUCUser();
+			QString title() const;
+			QString name() const;
+			QString avatar() const;
+			QString avatarHash() const;
+			void setAvatar(const QString &hex);
+			void setName(const QString &name);
+			InfoRequest *infoRequest() const;
+			ChatUnit *upperUnit();
+			MUCRoomAffiliation affiliation();
+			void setMUCAffiliation(MUCRoomAffiliation affiliation);
+			MUCRoomRole role();
+			void setMUCRole(MUCRoomRole role);
+			QString realJid() const;
+			void setRealJid(const QString &jid);
+		protected:
+			bool event(QEvent *ev);
 	};
 }
 

@@ -601,7 +601,7 @@ void OftConnection::sendFileRequest(bool fileinfo)
 		port = m_socket->proxyPort();
 	} else {
 		m_server.listen(); // ???
-		clientAddr = account->localAddress().toIPv4Address();
+		clientAddr = account->connection()->socket()->localAddress().toIPv4Address();
 		proxyAddr = clientAddr;
 		port = m_server.serverPort();
 	}

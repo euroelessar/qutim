@@ -19,7 +19,6 @@
 #include "icqaccount_p.h"
 #include "icqprotocol.h"
 #include "oscarconnection.h"
-#include "buddypicture.h"
 #include "buddycaps.h"
 #include "messages.h"
 #include "xtraz.h"
@@ -233,22 +232,13 @@ void Roster::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 {
 	switch ((sn.family() << 16) | sn.subtype()) {
 	case ServiceFamily << 16 | ServiceServerAsksServices: {
-		quint16 buddyFlags = 0x0002;
-		if (conn->account()->avatarsSupport()) {
-			// Requesting avatar service
-			SNAC snac(ServiceFamily, ServiceClientNewService);
-			snac.append<quint16>(AvatarFamily);
-			conn->send(snac);
-			buddyFlags |= 0x0001;
-		}
-
 		// Requesting client-side contactlist rights
 		SNAC snac(BuddyFamily, UserCliReqBuddy);
 		// Query flags: 1 = Enable Avatars
 		//              2 = Enable offline status message notification
 		//              4 = Enable Avatars for offline contacts
 		//              8 = Use reject for not authorized contacts
-		snac.appendTLV<quint16>(0x05, buddyFlags); // mimic ICQ 6
+		snac.appendTLV<quint16>(0x05, 0x0002 | conn->account()->property("rosterFlags").toInt());
 		conn->send(snac);
 		break;
 	}

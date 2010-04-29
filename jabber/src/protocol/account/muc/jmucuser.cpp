@@ -4,6 +4,7 @@
 #include "../roster/jcontactresource_p.h"
 #include "../vcard/jinforequest.h"
 #include <QStringBuilder>
+#include <qutim/tooltip.h>
 
 namespace Jabber
 {
@@ -14,13 +15,13 @@ namespace Jabber
 			QStringRef hash;
 			MUCRoomAffiliation affiliation;
 			MUCRoomRole role;
+			QString realJid;
 	};
 
 	JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
 		JContactResource(muc, *new JMUCUserPrivate)
 	{
 		Q_D(JMUCUser);
-		d->contact = muc;
 		d->name = name;
 		d->id = muc->id() % QLatin1Char('/') % name;
 	}
@@ -96,5 +97,30 @@ namespace Jabber
 	void JMUCUser::setMUCRole(MUCRoomRole role)
 	{
 		d_func()->role = role;
+	}
+
+	bool JMUCUser::event(QEvent *ev)
+	{
+		if (ev->type() == ToolTipEvent::eventType()) {
+			Q_D(JMUCUser);
+			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+			if (!d->realJid.isEmpty())
+				event->appendField(QT_TRANSLATE_NOOP("Conference", "Real JID"), d->realJid);
+			QString client = property("client").toString();
+			if (!client.isEmpty())
+				event->appendField(QT_TRANSLATE_NOOP("Contact", "Possible client"), client);
+			return true;
+		}
+		return JMUCUser::event(ev);
+	}
+
+	QString JMUCUser::realJid() const
+	{
+		return d_func()->realJid;
+	}
+
+	void JMUCUser::setRealJid(const QString &jid)
+	{
+		d_func()->realJid = jid;
 	}
 }

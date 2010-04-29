@@ -417,12 +417,9 @@ Q_GLOBAL_STATIC_WITH_INITIALIZER(FieldNamesList, pasts, init_pasts_list(*x));
 
 static void init_genders_list(FieldNamesList &list)
 {
-	LocalizedString m = QT_TRANSLATE_NOOP("Gender", "Male");
-	LocalizedString f = QT_TRANSLATE_NOOP("Gender", "Female");
-	list.insert(1, f);
-	list.insert(2, m);
-	list.insert('F', f);
-	list.insert('M', m);
+	list.insert(0, QT_TRANSLATE_NOOP("Gender", "Not specified"));
+	list.insert('M', QT_TRANSLATE_NOOP("Gender", "Male"));
+	list.insert('F', QT_TRANSLATE_NOOP("Gender", "Female"));
 }
 Q_GLOBAL_STATIC_WITH_INITIALIZER(FieldNamesList, genders, init_genders_list(*x));
 

@@ -8,6 +8,14 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+enum Visibility
+{
+	AllowAllUsers    = 1,
+	BlockAllUsers    = 2,
+	AllowPermitList  = 3,
+	BlockDenyList    = 4,
+	AllowContactList = 5
+};
 
 class PrivateListActionGenerator : public ActionGenerator
 {
@@ -30,6 +38,7 @@ public:
     PrivacyLists();
 	static PrivacyLists *instance() { Q_ASSERT(self); return self; }
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
+	void setVisibility(IcqAccount *account, Visibility visibility);
 private slots:
 	void onModifyPrivateList();
 private:

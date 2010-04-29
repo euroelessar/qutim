@@ -168,29 +168,27 @@ namespace Jabber
 		Q_ASSERT(room == d->room);
 		QString nick = QString::fromStdString(participant.nick->resource());
 		QString text;
-		QString reason = QString::fromStdString(participant.reason);
-		if ((participant.flags & UserBanned) || (participant.flags & UserKicked)) {
+		if (participant.flags & (UserBanned | UserKicked)) {
+			QString reason = QString::fromStdString(participant.reason);
 			bool isBan = participant.flags & UserBanned;
-			text = (isBan ? tr("%1 has been banned") : tr("%1 has been kicked")).arg(nick);
+			text = nick % (isBan ? tr(" has been banned") : tr(" has been kicked"));
 			if (!reason.isEmpty())
-				text += " (" + reason + ")";
+				text = text % " (" % reason % ")";
 			if (nick == d->nick) {
 				leave();
-				QString msgtxt = (isBan ? tr("You has been banned at %1\n") : tr("You has been kicked from %1\n"))
-								 .arg(QString::fromStdString(d->jid.full()));
+				QString msgtxt = (isBan ? tr("You has been banned at ") : tr("You has been kicked from ")) % id() % "\n";
 				if (!reason.isEmpty())
-					msgtxt += tr("with reason: %1").arg(reason).append("\n");
+					msgtxt = msgtxt % tr("with reason: ") % reason.append("\n");
 				if (!isBan) {
-					msgtxt += tr("Do you want to rejoin?");
+					msgtxt = msgtxt % tr("Do you want to rejoin?");
 					if (QMessageBox::warning(0, tr("You have been kicked"), msgtxt,
-											 QMessageBox::Yes | QMessageBox::No,
-											 QMessageBox::Yes) == QMessageBox::Yes) {
+							QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
 						join();
-					}
+				} else {
+					QMessageBox::warning(0, tr("You have been banned"), msgtxt, QMessageBox::Ok);
 				}
 			} else {
-				JMUCUser *user = d->users.value(nick, 0);
-				d->users.remove(nick);
+				JMUCUser *user = d->users.take(nick);
 				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
 					session->removeContact(user);
 			}
@@ -198,7 +196,7 @@ namespace Jabber
 			QString newNick = QString::fromStdString(participant.newNick);
 			if (newNick.isEmpty())
 				return;
-			text = tr("%1 is now known as %2").arg(nick).arg(newNick);
+			text = nick % tr(" is now known as ") % newNick;
 			d->users.insert(newNick, d->users.value(nick));
 			d->users.remove(nick);
 			d->users.value(newNick)->setName(newNick);
@@ -209,48 +207,49 @@ namespace Jabber
 		} else {
 			JMUCUser *user = d->users.value(nick, 0);
 			if (!user && presence.subtype() != Presence::Unavailable) {
-				text = QString::fromStdString(participant.jid->full()).isEmpty()
-						? QString("%1 ").arg(nick)
-						: QString("%1 (%2) ").arg(nick).arg(QString::fromStdString(participant.jid->bare()));
-				text += tr("has joined the room");
-				if (participant.affiliation == AffiliationOwner)
-					text += tr(" as") + tr(" owner");
-				else if (participant.affiliation == AffiliationAdmin)
-					text += tr(" as") + tr(" administrator");
-				else if (participant.affiliation == AffiliationMember)
-					text += tr(" as") + tr(" registered member");
-				else if (participant.role == RoleParticipant)
-					text += tr(" as") + tr(" member");
-				else if (participant.role == RoleVisitor)
-					text += tr(" as") + tr(" visitor");
 				user = new JMUCUser(this, nick);
 				user->setMUCAffiliation(participant.affiliation);
 				user->setMUCRole(participant.role);
+				user->setRealJid(QString::fromStdString(participant.jid->full()));
+				text = user->realJid().isEmpty()
+						? nick % " "
+						: nick + " (" % user->realJid() % ") ";
+				text = text % tr(" has joined the room");
+				if (participant.affiliation == AffiliationOwner)
+					text = text % tr(" as") % tr(" owner");
+				else if (participant.affiliation == AffiliationAdmin)
+					text = text % tr(" as") % tr(" administrator");
+				else if (participant.affiliation == AffiliationMember)
+					text = text % tr(" as") % tr(" registered member");
+				else if (participant.role == RoleParticipant)
+					text = text % tr(" as") % tr(" member");
+				else if (participant.role == RoleVisitor)
+					text = text % tr(" as") % tr(" visitor");
 				d->users.insert(nick, user);
 				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
 					session->addContact(user);
 			} else if (!user) {
 				return;
 			} else if (presence.subtype() == Presence::Unavailable) {
-				text = tr("%1 has left the room").arg(nick);
+				text = nick % tr(" has left the room");
 				d->users.remove(nick);
 				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
 					session->removeContact(user);
 			}
-			user->setStatus(presence.presence(), presence.priority());
+			user->setStatus(presence.presence(), presence.priority(), QString::fromStdString(presence.status()));
 			if (presence.subtype() != Presence::Unavailable &&
 					(user->role() != participant.role || user->affiliation() != participant.affiliation)) {
-				text = tr("%1 now is").arg(user->name());
+				text = user->name() % tr(" now is");
 				if (participant.affiliation == AffiliationOwner)
-					text += tr(" owner");
+					text = text % tr(" owner");
 				else if (participant.affiliation == AffiliationAdmin)
-					text += tr(" administrator");
+					text = text % tr(" administrator");
 				else if (participant.affiliation == AffiliationMember)
-					text += tr(" registered member");
+					text = text % tr(" registered member");
 				else if (participant.role == RoleParticipant)
-					text += tr(" member");
+					text = text % tr(" member");
 				else if (participant.role == RoleVisitor)
-					text += tr(" visitor");
+					text = text % tr(" visitor");
 				user->setMUCAffiliation(participant.affiliation);
 				user->setMUCRole(participant.role);
 			}
@@ -269,7 +268,7 @@ namespace Jabber
 			if (!d->isJoined && (presence.from().resource() == d->room->nick()))
 				d->isJoined = true;
 		}
-		if (!text.isEmpty() && d->isJoined) {
+		if (!text.isEmpty() && (d->isJoined || participant.flags & (UserKicked | UserBanned))) {
 			qutim_sdk_0_3::Message msg(text);
 			msg.setTime(QDateTime::currentDateTime());
 			msg.setProperty("service", true);
@@ -284,9 +283,9 @@ namespace Jabber
 		Q_ASSERT(room == d->room);
 		QString nick = QString::fromStdString(msg.from().resource());
 		JMUCUser *user = d->users.value(nick, 0);
-		if (!user)
-			return;
 		if (priv) {
+			if (!user)
+				return;
 			JMessageSession *session = qobject_cast<JMessageSession *>(d->account->getUnitForSession(user));
 			if (!session) {
 				MessageSession *glooxSession = new MessageSession(d->account->client(), msg.from(), false,
@@ -298,7 +297,8 @@ namespace Jabber
 		} else {
 			d->lastMessage = QDateTime::currentDateTime();
 			qutim_sdk_0_3::Message coreMsg(QString::fromStdString(msg.body()));
-			coreMsg.setChatUnit(user);
+			if (user)
+				coreMsg.setChatUnit(user);
 			coreMsg.setIncoming(msg.from().resource() != d->room->nick());
 			ChatSession *chatSession = ChatLayer::get(this, true);
 			const DelayedDelivery *when = msg.when();
@@ -336,7 +336,7 @@ namespace Jabber
 	{
 		Q_ASSERT(room == d_func()->room);
 		QString topic = QString::fromStdString(subject);
-		qutim_sdk_0_3::Message msg(tr("Subject:\n%1").arg(topic));
+		qutim_sdk_0_3::Message msg(tr("Subject:") % "\n" % topic);
 		msg.setTime(QDateTime::currentDateTime());
 		msg.setProperty("service", true);
 		if (ChatSession *chatSession = ChatLayer::get(this, false))
@@ -388,7 +388,7 @@ namespace Jabber
 		if (nnr) {
 
 		} else {
-			QMessageBox::warning(0, tr("Join groupchat on")+" "+d->account->id(), text);
+			QMessageBox::warning(0, tr("Join groupchat on ")%" "%d->account->id(), text);
 			d->account->conferenceManager()->leave(QString::fromStdString(d->jid.full()));
 		}
 		d->isError = true;

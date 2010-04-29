@@ -71,7 +71,9 @@ namespace Jabber
 
 	Status JContactResource::status() const
 	{
-		return JProtocol::presenceToStatus(d_func()->presence);
+		Status status = JProtocol::presenceToStatus(d_func()->presence);
+		status.setProperty("text", d_func()->text);
+		return status;
 	}
 
 	bool JContactResource::event(QEvent *ev)

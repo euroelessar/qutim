@@ -51,7 +51,6 @@ public:
 	void setGroup(const QString &group);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
-	virtual InfoRequest *infoRequest() const;
 	IcqAccount *account();
 	const Capabilities &capabilities() const;
 	const DirectConnectionInfo &dcInfo() const;

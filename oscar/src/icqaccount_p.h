@@ -27,6 +27,7 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+class OscarConnection;
 
 class PasswordValidator: public QValidator
 {
@@ -36,13 +37,14 @@ public:
 	virtual State validate(QString &input, int &pos) const;
 };
 
-
 struct IcqAccountPrivate
 {
+	Q_DECLARE_PUBLIC(IcqAccount);
+	QString password();
+	IcqAccount *q_ptr;
 	OscarConnection *conn;
 	Feedbag *feedbag;
 	QString name;
-	bool avatars;
 	QHash<quint64, Cookie*> cookies;
 	Capabilities caps;
 	QHash<QString, Capability> typedCaps;

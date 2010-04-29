@@ -23,7 +23,7 @@
 #include "messages_p.h"
 #include "oscarstatus_p.h"
 #include "sessiondataitem.h"
-#include "metainfo_p.h"
+#include "metainfo.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/notificationslayer.h>
 #include <QHostInfo>
@@ -162,7 +162,7 @@ void OscarConnection::accountInfoReceived(bool ok)
 	ShortInfoMetaRequest *req = qobject_cast<ShortInfoMetaRequest*>(sender());
 	Q_ASSERT(req);
 	if (ok)
-		m_account->setName(req->value<QString>(Nick, m_account->id()));
+		m_account->d_func()->name = req->value<QString>(Nick, m_account->id());
 	req->deleteLater();
 }
 
