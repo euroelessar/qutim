@@ -175,6 +175,10 @@ namespace AdiumChat
 				validateCpp(result), same_from?"Next":"");
 		bool isHistory = message.property("history", false);
 		bool silent = message.property("silent", false);
+
+		if (qobject_cast<Conference *>(message.chatUnit()))
+			silent = true;
+
 		if (!isHistory && !silent) {
 			Notifications::sendNotification(message);
 		}
