@@ -335,13 +335,13 @@ bool IcqAccount::event(QEvent *ev)
 {
 	if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
 		Status::Type status = this->status().type();
-		//if (status >= Status::Online && status <= Status::Invisible) {
+		if (status >= Status::Online && status <= Status::Invisible) {
 			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
 			event->setSupportType(InfoRequestCheckSupportEvent::ReadWrite);
 			event->accept();
-		//} else {
-		//	ev->ignore();
-		//}
+		} else {
+			ev->ignore();
+		}
 	} else if (ev->type() == InfoRequestEvent::eventType()) {
 		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
 		event->setRequest(new IcqInfoRequest(this));
