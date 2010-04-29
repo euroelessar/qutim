@@ -151,6 +151,7 @@ namespace AdiumChat
 				SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 
 		ChatUnit *u = session->getUnit();
+		connect(u,SIGNAL(titleChanged(QString)),SLOT(onUnitTitleChanged(QString)));
 
 		QIcon icon;
 		if (m_chat_flags & ChatStateIconsOnTabs) {
@@ -549,6 +550,17 @@ namespace AdiumChat
 		else
 			ui->contactsView->setVisible(s->getModel()->rowCount(QModelIndex()) > 0);
 
+	}
+
+	void ChatWidget::onUnitTitleChanged(const QString &title)
+	{
+		ChatUnit *u = qobject_cast<ChatUnit *>(sender());
+		if (!u)
+			return;
+		ChatSessionImpl *s = static_cast<ChatSessionImpl *>(ChatLayerImpl::get(u,false));
+		if (!s)
+			return;
+		ui->tabBar->setTabText(m_sessions.indexOf(s),title);
 	}
 
 	void ChatWidget::raise()

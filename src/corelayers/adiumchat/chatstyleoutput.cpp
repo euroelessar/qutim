@@ -257,25 +257,9 @@ namespace AdiumChat
 				html = sameSender ? m_current_style.nextIncomingHtml : m_current_style.incomingHtml;
 		}
 		// Replace %sender% to name
-		//FIXME
-		QString sender_name;
-		QString sender_id;
 
-		if (!mes.isIncoming()) {
-			const Conference *conf = qobject_cast<const Conference*>(mes.chatUnit());
-			if (conf && conf->me()) {
-				sender_name = conf->me()->title();
-				sender_id = conf->me()->id();
-			}
-			else {
-				sender_name = mes.chatUnit()->account()->name();
-				sender_id = mes.chatUnit()->account()->id();
-			}
-		}
-		else {
-			sender_name = mes.chatUnit()->title();
-			sender_id = mes.chatUnit()->id();
-		}
+		QString sender_name = makeName(mes);
+		QString sender_id = makeId(mes);
 
 		html = html.replace("%sender%", Qt::escape(sender_name));
 		// Replace %senderScreenName% to name
@@ -296,24 +280,8 @@ namespace AdiumChat
 	{
 		QString html = (!mes.isIncoming()) ? m_current_style.outgoingActionHtml : m_current_style.incomingActionHtml;
 
-		//FIXME
-		QString sender_name;
-		QString sender_id;
-		if (!mes.isIncoming()) {
-			const Conference *conf = qobject_cast<const Conference*>(mes.chatUnit());
-			if (conf && conf->me()) {
-				sender_name = conf->me()->title();
-				sender_id = conf->me()->id();
-			}
-			else {
-				sender_name = mes.chatUnit()->account()->name();
-				sender_id = mes.chatUnit()->account()->id();
-			}
-		}
-		else {
-			sender_name = mes.chatUnit()->title();
-			sender_id = mes.chatUnit()->id();
-		}
+		QString sender_name = makeName(mes);
+		QString sender_id = makeId(mes);
 
 		// Replace %sender% to name
 		html = html.replace("%sender%", Qt::escape(sender_name));
@@ -439,6 +407,46 @@ namespace AdiumChat
 			html.replace(pos, link.length(), tmplink);
 			pos += tmplink.count();
 		}
+	}
+
+	QString ChatStyleOutput::makeName(const Message &mes)
+	{
+		QString sender_name = mes.property("senderName",QString());
+		if (sender_name.isEmpty()) {
+			if (!mes.isIncoming()) {
+				const Conference *conf = qobject_cast<const Conference*>(mes.chatUnit());
+				if (conf && conf->me()) {
+					sender_name = conf->me()->title();
+				}
+				else {
+					sender_name = mes.chatUnit()->account()->name();
+				}
+			}
+			else {
+				sender_name = mes.chatUnit()->title();
+			}
+		}
+		return sender_name;
+	}
+
+	QString ChatStyleOutput::makeId(const Message &mes)
+	{
+		QString sender_id = mes.property("senderId",QString());
+		if (sender_id.isEmpty()) {
+			if (!mes.isIncoming()) {
+				const Conference *conf = qobject_cast<const Conference*>(mes.chatUnit());
+				if (conf && conf->me()) {
+					sender_id = conf->me()->id();
+				}
+				else {
+					sender_id = mes.chatUnit()->account()->id();
+				}
+			}
+			else {
+				sender_id = mes.chatUnit()->id();
+			}
+		}
+		return sender_id;
 	}
 }
 

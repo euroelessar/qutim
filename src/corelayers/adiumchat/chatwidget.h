@@ -66,7 +66,7 @@ namespace AdiumChat
 		void onTabMoved(int from,int to);
 		void onSessionDestroyed(QObject* object);
 		void onSendButtonClicked();		
-		void onTextChanged(); //TODO separate from chatlayer
+		void onTextChanged();
 		void onTabContextMenu(const QPoint &pos);
 		void closeCurrentTab();
 		void onSessionListActionTriggered();
@@ -74,6 +74,7 @@ namespace AdiumChat
 		void showNextSession();
 		void showPreviousSession();
 		void onDoubleClicked(const QModelIndex &index);
+		void onUnitTitleChanged(const QString &title);
 	private:
 		QIcon iconForState(ChatState state);
 		void chatStateChanged(ChatState state, ChatSessionImpl* session);
