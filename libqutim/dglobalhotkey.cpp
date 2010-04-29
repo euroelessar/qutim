@@ -76,12 +76,12 @@ OSStatus qxt_mac_handle_hot_key( EventHandlerCallRef /* nextHandler */, EventRef
 
 bool dGlobalHotKey::eventFilter( void *e )
 {
-	#if defined( Q_WS_WIN )
+#if defined( Q_WS_WIN )
 		MSG *m = ( MSG * ) e;
 
 		if ( m->message == WM_HOTKEY )
 			dGlobalHotKey::instance()->hotKeyPressed( HIWORD( m->lParam ) ^ LOWORD( m->lParam ) );
-	#elif defined( Q_WS_X11 )
+#elif defined( Q_WS_X11 )
 		XEvent *event = ( XEvent * ) e;
 
 		if ( event->type == KeyPress )
@@ -89,7 +89,7 @@ bool dGlobalHotKey::eventFilter( void *e )
 			XKeyEvent *key = ( XKeyEvent * ) event;
 			dGlobalHotKey::instance()->hotKeyPressed( key->keycode ^ ( key->state & ( ShiftMask | ControlMask | Mod1Mask | Mod4Mask ) ) );
 		}
-	#elif defined( Q_WS_MAC )
+#elif defined( Q_WS_MAC )
 		EventRef event = ( EventRef ) e;
 		if ( GetEventClass( event ) == kEventClassKeyboard && GetEventKind( event ) == kEventHotKeyPressed )
 		{
@@ -98,7 +98,10 @@ bool dGlobalHotKey::eventFilter( void *e )
 			Identifier id = keyIDs.key( keyID.id );
 			dGlobalHotKey::instance()->hotKeyPressed( id.second ^ id.first );
 		}
-	#endif
+#else
+		//undefined OS
+		Q_UNUSED(e);
+#endif
 
 	return false;
 }
