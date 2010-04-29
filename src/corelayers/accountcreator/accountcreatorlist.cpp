@@ -28,7 +28,7 @@ namespace Core
 
 		foreach(Protocol *protocol, allProtocols())
 		{
-			connect(protocol,SIGNAL(accountCreated(Account*)),SLOT(addAccount(Account*)));
+			connect(protocol,SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),SLOT(addAccount(qutim_sdk_0_3::Account*)));
 			foreach(Account *account, protocol->accounts())
 			{
 				addAccount(account);
@@ -86,7 +86,7 @@ namespace Core
 		}
 	}
 
-	void AccountCreatorList::addAccount(Account *account)
+	void AccountCreatorList::addAccount(qutim_sdk_0_3::Account *account)
 	{
 		Icon protoIcon(QLatin1String("im-user") + account->protocol()->id()); //FIXME wtf?
 

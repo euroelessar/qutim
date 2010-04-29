@@ -26,8 +26,8 @@ namespace qutim_sdk_0_3
 	class ChatUnit;
 	class Contact;
 	class Protocol;
-	class AccountPrivate;
 	class InfoRequest;
+	class AccountPrivate;
 
 	/*!
 	  Account is base class for all account entites.
@@ -99,7 +99,6 @@ namespace qutim_sdk_0_3
 		  If unitId is invalid, i.e. invalid JID, unit won't be created and NULL will be returned.
 		*/
 		virtual ChatUnit *getUnit(const QString &unitId, bool create = false) = 0;
-		virtual InfoRequest *infoRequest() const;
 	signals:
 		/*!
 		  Signal is emitted when new \a contact was created.

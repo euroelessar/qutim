@@ -92,9 +92,4 @@ namespace qutim_sdk_0_3
 	{
 		return unit;
 	}
-
-	InfoRequest *Account::infoRequest() const
-	{
-		return 0;
-	}
 }

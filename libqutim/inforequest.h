@@ -4,6 +4,7 @@
 #include "localizedstring.h"
 #include <QSharedPointer>
 #include <QVariant>
+#include <QEvent>
 
 namespace qutim_sdk_0_3
 {
@@ -30,9 +31,10 @@ namespace qutim_sdk_0_3
 		QList<InfoItem> subitems() const;
 		void addSubitem(const InfoItem &item);
 		bool hasSubitems() const;
-		void setMultiple(int maxCount = -1);
+		void setMultiple(const InfoItem &defaultSubitem, int maxCount = -1);
 		bool isMultiple() const;
 		int maxCount() const;
+		InfoItem defaultSubitem() const;
 		QVariant property(const char *name, const QVariant &def = QVariant()) const;
 		template<typename T>
 		T property(const char *name, const T &def = T()) const
@@ -62,6 +64,43 @@ namespace qutim_sdk_0_3
 		void stateChanged(InfoRequest::State state);
 	protected:
 		virtual void virtual_hook(int id, void *data);
+	};
+
+	class LIBQUTIM_EXPORT InfoRequestCheckSupportEvent : public QEvent
+	{
+	public:
+		enum SupportType {
+			NoSupport,
+			Read,
+			ReadWrite
+		};
+		InfoRequestCheckSupportEvent(SupportType type = NoSupport);
+		static QEvent::Type eventType();
+		SupportType supportType() { return m_supportType; }
+		void setSupportType(SupportType supportType) { m_supportType = supportType; }
+	private:
+		SupportType m_supportType;
+	};
+
+	class LIBQUTIM_EXPORT InfoRequestEvent : public QEvent
+	{
+	public:
+		InfoRequestEvent();
+		static QEvent::Type eventType();
+		InfoRequest *request() { return m_request; }
+		void setRequest(InfoRequest *request) { Q_ASSERT(!m_request); m_request = request; }
+	private:
+		InfoRequest *m_request;
+	};
+
+	class LIBQUTIM_EXPORT InfoItemUpdatedEvent : public QEvent
+	{
+	public:
+		InfoItemUpdatedEvent(const InfoItem &newInfoItem);
+		static QEvent::Type eventType();
+		InfoItem infoItem() { return m_info; };
+	private:
+		InfoItem m_info;
 	};
 }
 
