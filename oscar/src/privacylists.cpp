@@ -101,4 +101,14 @@ bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 	return true;
 }
 
+void PrivacyLists::setVisibility(IcqAccount *account, Visibility visibility)
+{
+	FeedbagItem item = account->feedbag()->type(SsiVisibility, Feedbag::CreateItem).first();
+	TLV data(0x00CA);
+	data.append<quint8>(visibility);
+	item.setField(data);
+	item.setField<qint32>(0x00C9, 0xffffffff);
+	item.update();
+}
+
 } } // namespace qutim_sdk_0_3::oscar

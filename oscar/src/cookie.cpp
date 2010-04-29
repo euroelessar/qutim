@@ -15,7 +15,7 @@
 
 #include "cookie.h"
 #include "icqcontact.h"
-#include "icqaccount.h"
+#include "icqaccount_p.h"
 #include "icq_global.h"
 #include <QDateTime>
 #include <QTimer>
@@ -92,7 +92,7 @@ void Cookie::lock(QObject *receiver, const char *member, int msec) const
 	Q_D(const Cookie);
 	Q_ASSERT(d->account);
 	Cookie *cookie = new Cookie(*this);
-	d->account->cookies().insert(d->id, cookie);
+	d->account->d_func()->cookies.insert(d->id, cookie);
 	if (receiver)
 		QObject::connect(cookie, SIGNAL(timeout()), receiver, member);
 	d->timer.singleShot(msec, cookie, SLOT(onTimeout()));
@@ -102,7 +102,7 @@ bool Cookie::unlock() const
 {
 	Q_D(const Cookie);
 	Q_ASSERT(d->account);
-	Cookie *cookie = d->account->cookies().take(d->id);
+	Cookie *cookie = d->account->d_func()->cookies.take(d->id);
 	if (cookie) {
 		cookie->d_func()->timer.stop();
 		cookie->deleteLater();
@@ -116,7 +116,7 @@ bool Cookie::isLocked() const
 {
 	Q_D(const Cookie);
 	Q_ASSERT(d->account);
-	return d->account->cookies().contains(d->id);
+	return d->account->d_func()->cookies.contains(d->id);
 }
 
 bool Cookie::isEmpty() const

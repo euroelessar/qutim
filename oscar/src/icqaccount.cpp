@@ -26,8 +26,8 @@
 #include <qutim/status.h>
 #include <qutim/systeminfo.h>
 #include <qutim/contactlist.h>
-#include <QTimer>
 #include <qutim/objectgenerator.h>
+#include <QTimer>
 
 namespace qutim_sdk_0_3 {
 
@@ -48,10 +48,32 @@ PasswordValidator::State PasswordValidator::validate(QString &input, int &pos) c
 		return Acceptable;
 }
 
+
+QString IcqAccountPrivate::password()
+{
+	Q_Q(IcqAccount);
+	ConfigGroup cfg = q->config().group("general");
+	QString password = cfg.value("passwd", QString(), Config::Crypted);
+	if (password.isEmpty()) {
+		PasswordDialog *dialog = PasswordDialog::request(q);
+		dialog->setValidator(new PasswordValidator(dialog));
+		if (dialog->exec() == PasswordDialog::Accepted) {
+			password = dialog->password();
+			if (dialog->remember()) {
+				cfg.setValue("passwd", password, Config::Crypted);
+				cfg.sync();
+			}
+		}
+		delete dialog;
+	}
+	return password;
+}
+
 IcqAccount::IcqAccount(const QString &uin) :
 	Account(uin, IcqProtocol::instance()), d_ptr(new IcqAccountPrivate)
 {
 	Q_D(IcqAccount);
+	d->q_ptr = this;
 	d->reconnectTimer.setSingleShot(true);
 	connect(&d->reconnectTimer, SIGNAL(timeout()), SLOT(onReconnectTimeout()));
 	ConfigGroup cfg = config("general");
@@ -176,7 +198,7 @@ void IcqAccount::setStatus(Status status_helper)
 		d->lastStatus = status;
 		if (current == Status::Offline) {
 			d->reconnectTimer.stop();
-			QString pass = password();
+			QString pass = d->password();
 			if (!pass.isEmpty()) {
 				status = Status::Connecting;
 				d->conn->connectToLoginServer(pass);
@@ -218,12 +240,6 @@ QString IcqAccount::name() const
 		return id();
 }
 
-void IcqAccount::setName(const QString &name)
-{
-	Q_D(IcqAccount);
-	d->name = name;
-}
-
 ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
 {
 	return getContact(unitId, create);
@@ -249,11 +265,6 @@ const QHash<QString, IcqContact*> &IcqAccount::contacts() const
 	return d->contacts;
 }
 
-InfoRequest *IcqAccount::infoRequest() const
-{
-	return new IcqInfoRequest(const_cast<IcqAccount*>(this));
-}
-
 void IcqAccount::setCapability(const Capability &capability, const QString &type)
 {
 	Q_D(IcqAccount);
@@ -275,9 +286,9 @@ bool IcqAccount::removeCapability(const QString &type)
 	return d->typedCaps.remove(type) > 0;
 }
 
-bool IcqAccount::containsCapability(const Capability &capability)
+bool IcqAccount::containsCapability(const Capability &capability) const
 {
-	Q_D(IcqAccount);
+	Q_D(const IcqAccount);
 	if (d->caps.contains(capability))
 		return true;
 	foreach (const Capability &cap, d->typedCaps) {
@@ -287,40 +298,25 @@ bool IcqAccount::containsCapability(const Capability &capability)
 	return false;
 }
 
-bool IcqAccount::containsCapability(const QString &type)
+bool IcqAccount::containsCapability(const QString &type) const
 {
-	Q_D(IcqAccount);
+	Q_D(const IcqAccount);
 	return d->typedCaps.contains(type);
 }
 
-QList<Capability> IcqAccount::capabilities()
+QList<Capability> IcqAccount::capabilities() const
 {
-	Q_D(IcqAccount);
+	Q_D(const IcqAccount);
 	QList<Capability> caps = d->caps;
 	foreach (const Capability &cap, d->typedCaps)
 		caps << cap;
 	return caps;
 }
 
-void IcqAccount::setVisibility(Visibility visibility)
-{
-	FeedbagItem item = feedbag()->type(SsiVisibility, Feedbag::CreateItem).first();
-	TLV data(0x00CA);
-	data.append<quint8>(visibility);
-	item.setField(data);
-	item.setField<qint32>(0x00C9, 0xffffffff);
-	item.update();
-}
-
 void IcqAccount::registerRosterPlugin(RosterPlugin *plugin)
 {
 	Q_D(IcqAccount);
 	d->rosterPlugins << plugin;
-}
-
-QHostAddress IcqAccount::localAddress()
-{
-	return d_func()->conn->socket()->localAddress();
 }
 
 void IcqAccount::updateSettings()
@@ -333,30 +329,6 @@ void IcqAccount::onReconnectTimeout()
 	Q_D(IcqAccount);
 	if (status() == Status::Offline)
 		setStatus(d->lastStatus);
-}
-
-QHash<quint64, Cookie*> &IcqAccount::cookies()
-{
-	Q_D(IcqAccount);
-	return d->cookies;
-}
-
-QString IcqAccount::password()
-{
-	QString password = config().group("general").value("passwd", QString(), Config::Crypted);
-	if (password.isEmpty()) {
-		PasswordDialog *dialog = PasswordDialog::request(this);
-		dialog->setValidator(new PasswordValidator(dialog));
-		if (dialog->exec() == PasswordDialog::Accepted) {
-			password = dialog->password();
-			if (dialog->remember()) {
-				config().group("general").setValue("passwd", password, Config::Crypted);
-				config().sync();
-			}
-		}
-		delete dialog;
-	}
-	return password;
 }
 
 bool IcqAccount::event(QEvent *ev)
