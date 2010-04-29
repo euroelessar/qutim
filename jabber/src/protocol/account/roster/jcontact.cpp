@@ -10,6 +10,7 @@
 #include <QStringBuilder>
 #include "qutim/tooltip.h"
 #include "qutim/extensionicon.h"
+#include <qutim/inforequest.h>
 #include <qutim/debug.h>
 
 using namespace gloox;

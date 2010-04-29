@@ -4,6 +4,11 @@
 #include <qutim/contact.h>
 #include <gloox/presence.h>
 
+namespace qutim_sdk_0_3
+{
+	class InfoRequest;
+}
+
 namespace Jabber
 {
 	using namespace qutim_sdk_0_3;

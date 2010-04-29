@@ -5,6 +5,7 @@
 #include "../jaccount.h"
 #include "../../jprotocol.h"
 #include <qutim/status.h>
+#include <qutim/inforequest.h>
 #include <QStringBuilder>
 
 using namespace gloox;

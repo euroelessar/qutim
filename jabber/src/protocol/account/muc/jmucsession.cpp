@@ -297,8 +297,10 @@ namespace Jabber
 		} else {
 			d->lastMessage = QDateTime::currentDateTime();
 			qutim_sdk_0_3::Message coreMsg(QString::fromStdString(msg.body()));
+			coreMsg.setChatUnit(this);
+			coreMsg.setProperty("senderName", nick);
 			if (user)
-				coreMsg.setChatUnit(user);
+				coreMsg.setProperty("senderId", user->id());
 			coreMsg.setIncoming(msg.from().resource() != d->room->nick());
 			ChatSession *chatSession = ChatLayer::get(this, true);
 			const DelayedDelivery *when = msg.when();

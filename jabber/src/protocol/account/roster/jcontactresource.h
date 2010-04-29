@@ -8,6 +8,7 @@
 namespace qutim_sdk_0_3
 {
 	class Status;
+	class InfoRequest;
 }
 
 namespace Jabber
