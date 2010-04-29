@@ -31,7 +31,7 @@ static QComboBox *getComboBox(const QString &value, const LocalizedStringList &a
 		d->addItem(str);
 		++i;
 	}
-	d->setCurrentIndex(i);
+	d->setCurrentIndex(current);
 	return d;
 }
 
@@ -93,7 +93,11 @@ static QWidget *getWidget(const InfoItem &item, bool *twoColumn = 0)
 		d->setDateTime(item.data().toDateTime());
 		return d;
 	}
-	QString str = item.data().toString();
+	QString str;
+	if (item.data().canConvert<LocalizedString>())
+		str = item.data().value<LocalizedString>();
+	else
+		str = item.data().toString();
 	if (item.property("readOnly", false)) {
 		return new QLabel(str);
 	} else {
@@ -208,6 +212,7 @@ InfoItem InfoListWidget::item()
 {
 	InfoItem items;
 	items.setName(objectName());
+	items.setMultiple(m_def, m_max);
 	foreach (const WidgetLine &line, m_widgets)
 		items.addSubitem(getInfoItem(line.title, line.data));
 	return items;
