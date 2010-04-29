@@ -28,6 +28,8 @@ class IcqContact;
 class AbstractMetaInfoRequestPrivate;
 class ShortInfoMetaRequestPrivate;
 class FullInfoMetaRequestPrivate;
+class TlvBasedMetaInfoRequestPrivate;
+class UpdateAccountInfoMetaRequestPrivate;
 class FindContactsMetaRequestPrivate;
 
 typedef QPair<quint16, quint16> AgeRange;
@@ -115,36 +117,10 @@ public:
 	bool operator==(const MetaInfoField &value) const { return m_value == value.m_value; }
 	bool operator!=(const MetaInfoField &value) const { return m_value != value.m_value; }
 private:
-	QString m_name;
+	mutable QString m_name;
 	MetaInfoFieldEnum m_value;
 };
 typedef QHash<MetaInfoField, QVariant> MetaInfoValuesHash;
-
-class LIBOSCAR_EXPORT MetaInfoGenderField
-{
-public:
-	enum Enum
-	{
-		Unknown,
-		Female = 1,
-		Male = 2,
-		Female2 = 'F',
-		Male2 = 'M'
-	};
-	MetaInfoGenderField(int value = Unknown) :
-		m_value(static_cast<Enum>(value))
-	{}
-	Enum value() { return m_value; }
-	bool operator==(int value) { return value == m_value; }
-	bool operator!=(int value) { return value != m_value; }
-	MetaInfoGenderField &operator=(int value) { m_value = static_cast<Enum>(value); return *this; }
-	MetaInfoGenderField &operator=(const MetaInfoGenderField &gender) { m_value = gender.m_value; return *this; }
-	QString toString() const;
-	operator QString() { return toString(); }
-	friend QDebug &operator<<(QDebug &dbg, const MetaInfoGenderField &field);
-private:
-	Enum m_value;
-};
 
 class LIBOSCAR_EXPORT AbstractMetaInfoRequest : public QObject
 {
@@ -213,7 +189,32 @@ protected:
 	virtual bool handleData(quint16 type, const DataUnit &data);
 };
 
-class LIBOSCAR_EXPORT FindContactsMetaRequest : public AbstractMetaInfoRequest
+class LIBOSCAR_EXPORT TlvBasedMetaInfoRequest : public AbstractMetaInfoRequest
+{
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(TlvBasedMetaInfoRequest)
+public:
+	void setValue(const MetaInfoField &field, const QVariant &value);
+protected:
+	TlvBasedMetaInfoRequest(IcqAccount *account, TlvBasedMetaInfoRequestPrivate *d);
+	void sendTlvBasedRequest(quint16 type) const;
+};
+
+class LIBOSCAR_EXPORT UpdateAccountInfoMetaRequest : public TlvBasedMetaInfoRequest
+{
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(UpdateAccountInfoMetaRequest)
+public:
+	UpdateAccountInfoMetaRequest(IcqAccount *account, const MetaInfoValuesHash &values = MetaInfoValuesHash());
+	void setValue(MetaInfoField data, const QVariant &value);
+	virtual void send() const;
+signals:
+	void infoUpdated();
+protected:
+	virtual bool handleData(quint16 type, const DataUnit &data);
+};
+
+class LIBOSCAR_EXPORT FindContactsMetaRequest : public TlvBasedMetaInfoRequest
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(FindContactsMetaRequest)
@@ -231,13 +232,12 @@ public:
 			Online = 1,
 			NonWebaware
 		} status;
-		MetaInfoGenderField gender;
+		QString gender;
 		quint16 age;
 	};
 
 	FindContactsMetaRequest(IcqAccount *account);
 	virtual void send() const;
-	void setValue(const MetaInfoField &field, const QVariant &value);
 	const QHash<QString, FoundContact> &contacts() const;
 signals:
 	void contactFound(const FoundContact &contact);
@@ -263,7 +263,6 @@ inline uint qHash(const qutim_sdk_0_3::oscar::MetaInfoField &field)
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::AgeRange);
-Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::MetaInfoGenderField);
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::Category);
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::CategoryList);
 

@@ -43,17 +43,6 @@ QDebug operator<<(QDebug dbg, const Category &cat)
 
 MetaInfo *MetaInfo::self = 0;
 
-QString MetaInfoGenderField::toString() const
-{
-	return genders()->value(m_value);
-}
-
-QDebug &operator<<(QDebug &dbg, const MetaInfoGenderField &field)
-{
-	dbg << genders()->value(field.m_value);
-	return dbg;
-}
-
 MetaInfoField::MetaInfoField(const QString &name)
 {
 	m_name = name;
@@ -73,7 +62,7 @@ MetaInfoField::MetaInfoField(const MetaInfoField &field) :
 QString MetaInfoField::name() const
 {
 	if (m_name.isEmpty())
-		fields_names()->value(m_value);
+		m_name = fields_names()->value(m_value);
 	return m_name;
 }
 
@@ -118,6 +107,8 @@ QList<LocalizedString> MetaInfoField::alternatives() const
 		return getAlternativesList(*occupations());
 	else if (m_value == Languages)
 		return getAlternativesList(*languages());
+	else if (m_value == Gender)
+		return getAlternativesList(*genders());
 	return QList<LocalizedString>();
 }
 
@@ -131,6 +122,8 @@ QVariant MetaInfoField::defaultValue() const
 		return QVariant::Int;
 	else if (m_value >= AuthFlag && m_value <= PublishPrimaryEmailFlag)
 		return QVariant::Bool;
+	else if (m_value == Gender)
+		return genders()->value(0);
 	else
 		return QString();
 }
@@ -230,9 +223,7 @@ void ShortInfoMetaRequestPrivate::dump()
 	QHashIterator<MetaInfoField, QVariant> itr(values);
 	while (itr.hasNext()) {
 		itr.next();
-		if (itr.value().canConvert<MetaInfoGenderField>())
-			debug() << itr.key().toString() << itr.value().value<MetaInfoGenderField>();
-		else if (itr.value().canConvert<CategoryList>())
+		if (itr.value().canConvert<CategoryList>())
 			debug() << itr.key().toString() << itr.value().value<CategoryList>();
 		else
 			debug() << itr.key().toString() << itr.value();
@@ -283,9 +274,9 @@ bool ShortInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
 	d->readFlag(AuthFlag, data);
 	data.skipData(2); // 0x00 unknown
 	{
-		MetaInfoGenderField gender(data.read<quint8>());
-		if (!gender.toString().isEmpty())
-			d->values.insert(Gender, QVariant::fromValue(gender));
+		quint8 genderId = data.read<quint8>();
+		if (genderId)
+			d->values.insert(Gender, genders()->value(genderId));
 	}
 	debug() << d->uin << "short info:";
 	d->dump();
@@ -331,11 +322,13 @@ void FullInfoMetaRequestPrivate::handleBasicInfo(const DataUnit &data)
 
 void FullInfoMetaRequestPrivate::handleMoreInfo(const DataUnit &data)
 {
-	values.insert(Age, data.read<quint16>(LittleEndian));
+	quint16 age = data.read<quint16>(LittleEndian);
+	if (age != 0)
+		values.insert(Age, age);
 	{
-		MetaInfoGenderField gender(data.read<quint8>());
-		if (!gender.toString().isEmpty())
-			values.insert(Gender, QVariant::fromValue(gender));
+		quint8 genderId = data.read<quint8>();
+		if (genderId)
+			values.insert(Gender, genders()->value(genderId));
 	}
 	readString(Homepage, data);
 	{
@@ -463,7 +456,7 @@ bool FullInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
 	return true;
 }
 
-void FindContactsMetaRequestPrivate::addString(quint16 id, MetaInfoFieldEnum value, DataUnit &data, bool test) const
+void TlvBasedMetaInfoRequestPrivate::addString(quint16 id, MetaInfoFieldEnum value, DataUnit &data, bool test) const
 {
 	if (!test || values.contains(value)) {
 		DataUnit tlv;
@@ -472,7 +465,7 @@ void FindContactsMetaRequestPrivate::addString(quint16 id, MetaInfoFieldEnum val
 	}
 }
 
-void FindContactsMetaRequestPrivate::addString(const QString &str, DataUnit &data) const
+void TlvBasedMetaInfoRequestPrivate::addString(const QString &str, DataUnit &data) const
 {
 	QByteArray d = Util::asciiCodec()->fromUnicode(str);
 	data.append<quint16>(d.size() + 1, LittleEndian);
@@ -481,7 +474,7 @@ void FindContactsMetaRequestPrivate::addString(const QString &str, DataUnit &dat
 }
 
 template <typename T>
-void FindContactsMetaRequestPrivate::addField(quint16 id, MetaInfoFieldEnum value, DataUnit &data, bool test) const
+void TlvBasedMetaInfoRequestPrivate::addField(quint16 id, MetaInfoFieldEnum value, DataUnit &data, bool test) const
 {
 	if (!test || values.contains(value)) {
 		DataUnit tlv;
@@ -491,44 +484,52 @@ void FindContactsMetaRequestPrivate::addField(quint16 id, MetaInfoFieldEnum valu
 }
 
 template <typename T>
-void FindContactsMetaRequestPrivate::addCategoryId(quint16 id, MetaInfoFieldEnum value, DataUnit &data, FieldNamesList *list) const
+void TlvBasedMetaInfoRequestPrivate::addCategoryId(quint16 id, MetaInfoFieldEnum value, DataUnit &data, FieldNamesList *list) const
 {
 	if (values.contains(value)) {
-		DataUnit tlv;
-		T catId = list->key(values.value(value).toString());
-		tlv.append<T>(catId, LittleEndian);
-		data.appendTLV(id, tlv, LittleEndian);
+		foreach (const QString &str, values.value(value).toStringList()) {
+			DataUnit tlv;
+			T catId = list->key(str);
+			tlv.append<T>(catId, LittleEndian);
+			data.appendTLV(id, tlv, LittleEndian);
+		}
 	}
 }
 
-void FindContactsMetaRequestPrivate::addCategory(quint16 id, MetaInfoFieldEnum value, DataUnit &data, FieldNamesList *list) const
+void TlvBasedMetaInfoRequestPrivate::addCategory(quint16 id, MetaInfoFieldEnum value, DataUnit &data, FieldNamesList *list) const
 {
 	if (values.contains(value)) {
-		DataUnit tlv;
-		Category cat = values.value(value).value<Category>();
-		quint16 catId = list->key(cat.category);
-		tlv.append<quint16>(catId, LittleEndian);
-		addString(cat.keyword, tlv);
-		data.appendTLV(id, tlv, LittleEndian);
+		QVariant val = values.value(value);
+		CategoryList categories;
+		if (val.canConvert<Category>())
+			categories << val.value<Category>();
+		else
+			categories = val.value<CategoryList>();
+		foreach (const Category &cat, categories) {
+			DataUnit tlv;
+			quint16 catId = list->key(cat.category);
+			tlv.append<quint16>(catId, LittleEndian);
+			addString(cat.keyword, tlv);
+			data.appendTLV(id, tlv, LittleEndian);
+		}
 	}
 }
 
-FindContactsMetaRequest::FindContactsMetaRequest(IcqAccount *account) :
-	AbstractMetaInfoRequest(account, new FindContactsMetaRequestPrivate)
+TlvBasedMetaInfoRequest::TlvBasedMetaInfoRequest(IcqAccount *account, TlvBasedMetaInfoRequestPrivate *d) :
+	AbstractMetaInfoRequest(account, d)
 {
 }
 
-void FindContactsMetaRequest::send() const
+void TlvBasedMetaInfoRequest::setValue(const MetaInfoField &field, const QVariant &value)
 {
-	Q_D(const FindContactsMetaRequest);
+	d_func()->values.insert(field, value);
+}
+
+void TlvBasedMetaInfoRequest::sendTlvBasedRequest(quint16 type) const
+{
+	Q_D(const TlvBasedMetaInfoRequest);
 	DataUnit data;
-	quint16 type = 0x055F; // CLI_WHITE_PAGES_SEARCH2
-	if (d->values.contains(Email)) {
-		type = 0x0573; // META_SEARCH_BY_EMAIL
-		d->addString(0x015E, Email, data);
-	}
-	if (d->values.contains(Uin)) {
-		type =  0x0569; // META_SEARCH_BY_UIN
+	{
 		DataUnit tlv;
 		quint32 uin = d->values.value(Uin).toUInt();
 		tlv.append<quint32>(uin, LittleEndian);
@@ -536,7 +537,8 @@ void FindContactsMetaRequest::send() const
 	}
 	d->addString(0x0140, FirstName, data);
 	d->addString(0x014A, LastName, data);
-	d->addString(0x015A, Nick, data);
+	d->addString(0x0154, Nick, data);
+	d->addString(0x015E, Email, data);
 	if (d->values.contains(Ages)) {
 		DataUnit tlv;
 		AgeRange range = d->values.value(Age).value<AgeRange>();
@@ -547,13 +549,13 @@ void FindContactsMetaRequest::send() const
 	d->addField<quint16>(0x0172, Age, data);
 	if (d->values.contains(Gender)) {
 		DataUnit tlv;
-		MetaInfoGenderField gender = d->values.value(Gender).value<MetaInfoGenderField>();
-		tlv.append<quint8>(gender.value(), LittleEndian);
+		GenderEnum gender = static_cast<GenderEnum>(genders()->key(d->values.value(Gender).toString()));
+		tlv.append<quint8>(gender, LittleEndian);
 		data.appendTLV(0x017C, tlv, LittleEndian);
 	}
 	d->addCategoryId<quint16>(0x0186, Languages, data, languages());
 	d->addString(0x0190, HomeCity, data);
-	d->addString(0x0194, HomeState, data);
+	d->addString(0x019A, HomeState, data);
 	d->addCategoryId<quint16>(0x01A4, HomeCountry, data, countries());
 	d->addString(0x01AE, WorkCompany, data);
 	d->addString(0x01B8, WorkDepartment, data);
@@ -563,6 +565,12 @@ void FindContactsMetaRequest::send() const
 	d->addCategory(0x01EA, Interests, data, interests());
 	d->addCategory(0x01FE, Pasts, data, pasts());
 	//d->addCategory(0x0212, Homepage, tlvs, ...);
+	{
+		DataUnit tlv;
+		tlv.append<quint16>(0, LittleEndian); // category ?
+		d->addString(d->values.value(Homepage).toString(), tlv);
+		data.appendTLV(0x0212, tlv, LittleEndian);
+	}
 	d->addString(0x0226, Whitepages, data);
 	d->addField<quint8>(0x0230, OnlineFlag, data);
 	if (d->values.contains(Birthday)) {
@@ -579,7 +587,7 @@ void FindContactsMetaRequest::send() const
 	d->addString(0x0276, HomePhone, data);
 	d->addString(0x0280, HomeFax, data);
 	d->addString(0x028A, CellPhone, data);
-	d->addString(0x029A, WorkAddress, data);
+	d->addString(0x0294, WorkAddress, data);
 	d->addString(0x029E, WorkCity, data);
 	d->addString(0x02A8, WorkState, data);
 	d->addCategoryId<quint16>(0x02B2, WorkCountry, data, countries());
@@ -596,9 +604,43 @@ void FindContactsMetaRequest::send() const
 	sendRequest(type, data);
 }
 
-void FindContactsMetaRequest::setValue(const MetaInfoField &field, const QVariant &value)
+UpdateAccountInfoMetaRequest::UpdateAccountInfoMetaRequest(IcqAccount *account, const MetaInfoValuesHash &values) :
+	TlvBasedMetaInfoRequest(account, new UpdateAccountInfoMetaRequestPrivate)
 {
-	d_func()->values.insert(field, value);
+	Q_D(UpdateAccountInfoMetaRequest);
+	d->values = values;
+}
+
+void UpdateAccountInfoMetaRequest::send() const
+{
+	sendTlvBasedRequest(0x0C3A);
+}
+
+bool UpdateAccountInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
+{
+	Q_UNUSED(data);
+	if (type == 0x0c3f) {
+		debug() << "Account info successfully has been updated";
+		emit infoUpdated();
+		return true;
+	}
+	return false;
+}
+
+FindContactsMetaRequest::FindContactsMetaRequest(IcqAccount *account) :
+	TlvBasedMetaInfoRequest(account, new FindContactsMetaRequestPrivate)
+{
+}
+
+void FindContactsMetaRequest::send() const
+{
+	Q_D(const FindContactsMetaRequest);
+	quint16 type = 0x055F; // CLI_WHITE_PAGES_SEARCH2
+	if (d->values.contains(Email))
+		type = 0x0573; // META_SEARCH_BY_EMAIL
+	if (d->values.contains(Uin))
+		type = 0x0569; // META_SEARCH_BY_UIN
+	sendTlvBasedRequest(type);
 }
 
 const QHash<QString, FindContactsMetaRequest::FoundContact> &FindContactsMetaRequest::contacts() const
@@ -620,7 +662,7 @@ bool FindContactsMetaRequest::handleData(quint16 type, const DataUnit &data)
 	contact.email = readSString(data);
 	contact.authFlag = data.read<quint8>();
 	contact.status = static_cast<FoundContact::Status>(data.read<quint16>(LittleEndian));
-	contact.gender = MetaInfoGenderField(data.read<quint8>());
+	contact.gender = genders()->value(data.read<quint8>());
 	contact.age = data.read<quint16>(LittleEndian);
 	debug() << "Contact found" << contact.uin << contact.nick << contact.firstName
 			<< contact.lastName << contact.email << contact.authFlag << contact.status
@@ -659,6 +701,7 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				QHash<quint16, AbstractMetaInfoRequest*>::iterator itr = m_requests.find(reqNumber);
 				quint16 dataType = data.read<quint16>(LittleEndian);
 				quint8 success = data.read<quint8>(LittleEndian);
+
 				if (itr == m_requests.end()) {
 					debug() << "Unexpected metainfo response" << reqNumber;
 					return;
@@ -670,6 +713,8 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 					debug() << "Meta request failed" << hex << success;
 					itr.value()->close(false);
 				}
+			} else if (metaType == 0x07d0) {
+				debug() << data.readAll().toHex();
 			}
 		}
 	} else if (snac.family() == ExtensionsFamily && snac.subtype() == ExtensionsMetaError) {

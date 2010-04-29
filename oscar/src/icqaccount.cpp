@@ -335,16 +335,23 @@ bool IcqAccount::event(QEvent *ev)
 {
 	if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
 		Status::Type status = this->status().type();
-		if (status >= Status::Online && status <= Status::Invisible) {
+		//if (status >= Status::Online && status <= Status::Invisible) {
 			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
 			event->setSupportType(InfoRequestCheckSupportEvent::ReadWrite);
 			event->accept();
-		} else {
-			ev->ignore();
-		}
+		//} else {
+		//	ev->ignore();
+		//}
 	} else if (ev->type() == InfoRequestEvent::eventType()) {
 		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
 		event->setRequest(new IcqInfoRequest(this));
+		event->accept();
+	} else if (ev->type() == InfoItemUpdatedEvent::eventType()) {
+		InfoItemUpdatedEvent *event = static_cast<InfoItemUpdatedEvent*>(ev);
+		MetaInfoValuesHash values = IcqInfoRequest::itemToMetaInfoValuesHash(event->infoItem());
+		UpdateAccountInfoMetaRequest *request = new UpdateAccountInfoMetaRequest(this, values);
+		connect(request, SIGNAL(infoUpdated()), request, SLOT(deleteLater()));
+		request->send();
 		event->accept();
 	}
 	return Account::event(ev);

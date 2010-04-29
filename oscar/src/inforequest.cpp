@@ -55,7 +55,7 @@ InfoItem IcqInfoRequest::item(const QString &name) const
 				} else {
 					accountInfo.addSubitem(InfoItem("email", QT_TRANSLATE_NOOP("ContactInfo", "Email"),
 									m_values.value(Email).toString()));
-					addItem(PublishPrimaryEmailFlag, accountInfo);
+					// addItem(PublishPrimaryEmailFlag, accountInfo); TODO:
 				}
 				general.addSubitem(accountInfo);
 			}
@@ -116,7 +116,7 @@ InfoItem IcqInfoRequest::item(const QString &name) const
 			{
 				InfoItem data(QT_TRANSLATE_NOOP("ContactInfo", "Personal"));
 				addItem(Gender, data);
-				addItem(Homepage, data);
+				//addItem(Homepage, data); TODO: fix saving
 				addItem(Age, data);
 				addItem(Languages, data);
 				personal.addSubitem(data);
@@ -210,6 +210,34 @@ void IcqInfoRequest::addItem(const MetaInfoField &field, InfoItem &group) const
 		item.setData(data);
 	}
 	group.addSubitem(item);
+}
+
+static void itemToMetaInfoValuesHashHelper(const InfoItem &items, MetaInfoValuesHash &hash)
+{
+	foreach (const InfoItem &item, items.subitems()) {
+		if (item.isMultiple()) {
+			CategoryList list;
+			foreach (const InfoItem &catItem, item.subitems()) {
+				Category cat;
+				cat.category = catItem.title();
+				cat.keyword = catItem.data().toString();
+				list << cat;
+			}
+			hash.insert(item.name(), QVariant::fromValue(list));
+		} else if (item.hasSubitems()) {
+			itemToMetaInfoValuesHashHelper(item, hash);
+		} else {
+			hash.insert(item.name(), item.data());
+		}
+	}
+}
+
+MetaInfoValuesHash IcqInfoRequest::itemToMetaInfoValuesHash(const InfoItem &item)
+{
+	Q_ASSERT(!item.isNull());
+	MetaInfoValuesHash hash;
+	itemToMetaInfoValuesHashHelper(item, hash);
+	return hash;
 }
 
 IcqInfoRequest::State IcqInfoRequest::state() const

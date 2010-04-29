@@ -20,6 +20,7 @@ public:
 	virtual ~IcqInfoRequest();
 	virtual InfoItem item(const QString &name = QString()) const;
 	virtual State state() const;
+	static MetaInfoValuesHash itemToMetaInfoValuesHash(const InfoItem &item);
 private slots:
 	void onDone(bool ok);
 private:
