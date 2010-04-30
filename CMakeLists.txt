@@ -110,7 +110,7 @@ ENDFOREACH( LAYER )
 if (MINGW)
 	exec_program(windres
 		ARGS "-i ${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc -o ${CMAKE_CURRENT_BINARY_DIR}/qutim_res.o")
-	#LIST (APPEND SOURCES qutim_res.o)
+	LIST (APPEND SOURCES qutim_res.o)
 else(MINGW)
 	LIST (APPEND SOURCES qutim.rc)
 endif(MINGW)

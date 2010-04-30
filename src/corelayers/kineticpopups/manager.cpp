@@ -121,7 +121,7 @@ namespace KineticPopups
 		ConfigGroup behavior = Config("behavior/notifications").group("popups");
 		maxCount = behavior.value<int>("maxCount",10);
 		maxTextLength = behavior.value<int>("maxTextLength",160);
-		appendMode = behavior.value<bool>("appendMode",true);
+		appendMode = behavior.value<bool>("appendMode",false);
 		updateMode = behavior.value<bool>("updateMode",false);
 		animationDuration = behavior.value("animationDuration",400);
 		showFlags = static_cast<NotificationTypes>(behavior.value<int>("showFlags", 0xfffffff &~ Notifications::MessageSend));

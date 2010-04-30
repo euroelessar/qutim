@@ -42,7 +42,7 @@ namespace KineticPopups
 			);
 
 
-	Backend::Backend ()
+	Backend::Backend () : m_id_counter(0)
 	{
 		GeneralSettingsItem<Core::PopupAppearance> *appearance = new GeneralSettingsItem<Core::PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
 		Settings::registerItem(appearance);
@@ -58,7 +58,6 @@ namespace KineticPopups
 			return;
 		}
 
-		static int id_counter = 0;
 		QString text = Qt::escape(body);
 		QString sender_id = sender ? sender->property("id").toString() : QString();
 		QString sender_name = sender ? sender->property("name").toString() : QString();
@@ -85,7 +84,7 @@ namespace KineticPopups
 				updateMode ? popup->updateMessage(text) : popup->appendMessage(text);
 				return;
 			} else if (sender) {
-				popup_id.append("." + QString::number(id_counter++));
+				popup_id.append("." + QString::number(m_id_counter++));
 			}
 		}
 		popup  = new Popup (popup_id);

@@ -30,6 +30,7 @@
 #include <libqutim/conference.h>
 #include "chatsessionitemdelegate.h"
 #include "ui_chatwidget.h"
+#include <libqutim/tooltip.h>
 
 #ifdef Q_WS_X11
 #include <QX11Info>
@@ -76,6 +77,7 @@ namespace AdiumChat
 		ui->contactsView->installEventFilter(this);
 		ui->chatEdit->installEventFilter(this);
 		ui->chatView->installEventFilter(this);
+		ui->tabBar->installEventFilter(this);
 		ui->chatEdit->setFocusPolicy(Qt::StrongFocus);
 
 		//init toolbar
@@ -159,19 +161,7 @@ namespace AdiumChat
 			icon = iconForState(state);
 		}
 
-		int index = ui->tabBar->addTab(icon,u->title());
-
-		QString html;
-		if (Contact *c = qobject_cast<Contact *>(u)) {
-			QString ava = c->avatar().isEmpty() ? QLatin1String(":/icons/qutim_64.png") : c->avatar();
-			html = QString("<img src=\"%1\" width=\"64\">").arg(ava);
-		}
-
-		if (Conference *conf = qobject_cast<Conference *>(u)) {
-			html = QString("<p><b>%1</b></p>").arg(conf->title());
-			html += QString("<p>%2</p>").arg(conf->topic());
-		}
-		ui->tabBar->setTabToolTip(index,html);
+		ui->tabBar->addTab(icon,u->title());
 
 		QAction *act = new QAction(icon,u->title(),this);
 		connect(act,SIGNAL(triggered()),this,SLOT(onSessionListActionTriggered()));
@@ -357,7 +347,19 @@ namespace AdiumChat
 				ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(event);
 				chatStateChanged(chatEvent->chatState(),qobject_cast<ChatSessionImpl *>(obj));
 			}
-		} else {
+		} else if (QTabBar *bar = qobject_cast<QTabBar*>(obj)){
+			if (QHelpEvent *help = static_cast<QHelpEvent*>(event)) {
+				if (help->type() == QEvent::ToolTip) {
+					int index = bar->tabAt(help->pos());
+					if (index != -1) {
+						ChatUnit *unit = m_sessions.at(index)->getUnit();
+						ToolTip::instance()->showText(help->globalPos(), unit, bar);
+						return true;
+					}
+				}
+			}
+		}
+		else {
 			if (QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event)) {
 				if (keyEvent->matches(QKeySequence::Copy) )
 				{
@@ -500,7 +502,7 @@ namespace AdiumChat
 			close();
 	}
 	
-		
+
 	void ChatWidget::onShowHistory()
 	{
 		ChatUnit *unit = m_sessions.at(m_current_index)->getUnit();
