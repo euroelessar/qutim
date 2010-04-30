@@ -9,15 +9,15 @@ namespace MassMessaging
 
 	void MassMessaging::init()
 	{
+	}
+	bool MassMessaging::load()
+	{
 		ActionGenerator *gen = new ActionGenerator(Icon("mail-send"),
 										QT_TRANSLATE_NOOP("MassMessaging", "&Mass Messaging"),
 										this,
 										SLOT(onActionTriggered())
 										);
 		MenuController::addAction<ContactList>(gen);
-	}
-	bool MassMessaging::load()
-	{
 		return true;
 	}
 	bool MassMessaging::unload()
