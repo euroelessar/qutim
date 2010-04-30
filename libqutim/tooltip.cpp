@@ -16,6 +16,7 @@
 #include "tooltip.h"
 #include "objectgenerator.h"
 #include "buddy.h"
+#include "conference.h"
 #include "account.h"
 #include "protocol.h"
 #include "iconloader.h"
@@ -125,6 +126,17 @@ namespace qutim_sdk_0_3
 						   % QLatin1Literal("\"/></td></tr>")
 						   % QLatin1Literal("</table>");
 			QToolTip::showText(pos, text, w);
+		} else if (Conference *c = qobject_cast<Conference *>(obj)) {
+			QString text = QLatin1Literal("<p><strong>")
+						   % Qt::escape(c->title())
+						   % QLatin1Literal("</strong> &lt;")
+						   % c->id()
+						   % QLatin1Literal("&gt;</p>")
+						   % QLatin1Literal("<p>")
+						   % Qt::escape(c->topic())
+						   % QLatin1Literal("</p>")
+						   % html(c,true);
+			QToolTip::showText(pos,text,w);
 		} else {
 			QToolTip::hideText();
 		}
