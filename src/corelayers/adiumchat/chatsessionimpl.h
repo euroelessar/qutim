@@ -73,7 +73,7 @@ namespace AdiumChat
 		QPointer<QMenu> m_menu;
 		ChatSessionModel *m_model;
 		//additional info and flags
-		const ChatUnit *m_previous_sender; // zero if outcoming
+		QString m_previous_sender; // null if outcoming
 		bool m_skipOneMerge;
 		bool m_active;
 		bool m_store_service_messages;

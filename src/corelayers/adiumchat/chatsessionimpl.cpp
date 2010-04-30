@@ -103,7 +103,7 @@ namespace AdiumChat
 				mess.setChatUnit(getUnit()); 
 			appendMessage(mess);
 		}
-		m_previous_sender = 0;
+		m_previous_sender.clear();
 		m_skipOneMerge = true;
 	}
 
@@ -123,7 +123,7 @@ namespace AdiumChat
 	qint64 ChatSessionImpl::appendMessage(Message &message)
 	{
 		if (!message.chatUnit()) {
-			qWarning() << tr("Message %1 must have a ChatUnit").arg(message.text());
+			qWarning() << QString("Message %1 must have a chatUnit").arg(message.text());
 			message.setChatUnit(getUnit());
 		}
 		if (!isActive()) {
@@ -151,16 +151,19 @@ namespace AdiumChat
 			message.setText(text.mid(3));
 			item = m_chat_style_output->makeAction(this,message);
 			message.setText(text);
-			m_previous_sender = 0;
+			m_previous_sender.clear();
 			m_skipOneMerge = true;
 		}
 		else if (service) {
 			item = m_chat_style_output->makeStatus(this,message);
-			m_previous_sender = 0;
+			m_previous_sender.clear();
 			m_skipOneMerge = true;
 		}
 		else {
-			const ChatUnit *currentSender = message.isIncoming() ? message.chatUnit() : 0;
+			QString currentSender;
+			if (message.isIncoming()) {
+				currentSender = message.property("senderName",message.chatUnit()->title());
+			}
 			same_from = (!m_skipOneMerge) && (m_previous_sender == currentSender);
 			item = m_chat_style_output->makeMessage(this, message, same_from);
 			m_previous_sender = currentSender;
