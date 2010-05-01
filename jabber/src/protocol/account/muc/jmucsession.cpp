@@ -49,6 +49,7 @@ namespace Jabber
 		QHash<std::string, quint64> messages;
 		QHash<QString, JMUCUser *> users;
 		bool isJoined;
+		bool isAutoRejoin;
 		int bookmarkIndex;
 		bool isConfiguring;
 		bool avatarsAutoLoad;
@@ -101,6 +102,7 @@ namespace Jabber
 	{
 		Q_D(JMUCSession);
 		Presence &pres = d->account->client()->presence();
+		d->isAutoRejoin = false;
 		if (d->isJoined) {
 			d->room->setPresence(pres.subtype(), pres.status());
 			d->users.value(d->nick)->setStatus(pres.subtype(), pres.priority());
@@ -240,16 +242,27 @@ namespace Jabber
 			if (presence.subtype() != Presence::Unavailable &&
 					(user->role() != participant.role || user->affiliation() != participant.affiliation)) {
 				text = user->name() % tr(" now is");
-				if (participant.affiliation == AffiliationOwner)
+				if (participant.affiliation == AffiliationOwner) {
 					text = text % tr(" owner");
-				else if (participant.affiliation == AffiliationAdmin)
+				} else if (participant.affiliation == AffiliationAdmin) {
 					text = text % tr(" administrator");
-				else if (participant.affiliation == AffiliationMember)
+					if (participant.role == RoleParticipant)
+						text = text % tr(" and") % tr(" participant");
+					else if (participant.role == RoleVisitor)
+						text = text % tr(" and") % tr(" visitor");
+				} else if (participant.affiliation == AffiliationMember) {
 					text = text % tr(" registered member");
-				else if (participant.role == RoleParticipant)
-					text = text % tr(" member");
-				else if (participant.role == RoleVisitor)
+					if (participant.role == RoleModerator)
+						text = text % tr(" and") % tr(" moderator");
+					else if (participant.role == RoleVisitor)
+						text = text % tr(" and") % tr(" visitor");
+				} else if (participant.role == RoleModerator) {
+					text = text % tr(" moderator");
+				} else if (participant.role == RoleParticipant) {
+					text = text % tr(" participant");
+				} else if (participant.role == RoleVisitor)  {
 					text = text % tr(" visitor");
+				}
 				user->setMUCAffiliation(participant.affiliation);
 				user->setMUCRole(participant.role);
 			}
@@ -510,5 +523,15 @@ namespace Jabber
 	{
 		d_func()->topic = topic;
 		emit topicChanged(topic);
+	}
+
+	bool JMUCSession::isAutoJoin()
+	{
+		return d_func()->isAutoRejoin;
+	}
+
+	void JMUCSession::setAutoJoin(bool join)
+	{
+		d_func()->isAutoRejoin = join;
 	}
 }
