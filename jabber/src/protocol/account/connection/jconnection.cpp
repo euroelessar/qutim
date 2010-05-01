@@ -9,6 +9,8 @@
 #include <gloox/capabilities.h>
 #include <gloox/receipt.h>
 #include <gloox/vcardupdate.h>
+#include <gloox/simanager.h>
+#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -21,6 +23,7 @@ namespace Jabber
 		Adhoc *adhoc;
 		JVCardManager *vCardManager;
 		JConnectionTCPBase *connection;
+		SIManager *siManager;
 		QNetworkProxy proxy;
 		QString resource;
 		bool autoPriority;
@@ -39,6 +42,7 @@ namespace Jabber
 		p->adhoc = new Adhoc(p->client);
 		p->vCardManager = new JVCardManager(p->account, p->client);
 		p->connection = new JConnectionTCPBase(p->client);
+		p->siManager = new SIManager(p->client, true);
 		loadSettings();
 
 		p->client->registerStanzaExtension(new Receipt(Receipt::Invalid));
@@ -49,6 +53,7 @@ namespace Jabber
 		p->client->addPresenceExtension(caps);
 
 		p->client->setConnectionImpl(p->connection);
+		qDebug() << p->client->connectionImpl() << p->connection;
 		p->client->disco()->setVersion("qutIM", qutimVersionStr(),
 									   SystemInfo::getFullName().toStdString());
 		p->client->disco()->setIdentity("client", "pc", "qutIM");
@@ -63,6 +68,7 @@ namespace Jabber
 		form->addField(DataFormField::TypeNone, "software", "qutIM");
 		form->addField(DataFormField::TypeNone, "software_version", qutimVersionStr());
 		p->client->disco()->setForm(form);
+		p->client->logInstance().registerLogHandler(LogLevelDebug, LogAreaAllClasses, this);
 
 		p->client->disco()->addFeature("http://jabber.org/protocol/chatstates");
 //		p->client->disco()->addFeature("http://jabber.org/protocol/bytestreams");
@@ -105,12 +111,23 @@ namespace Jabber
 		return p->vCardManager;
 	}
 
+	SIManager *JConnection::siManager()
+	{
+		return p->siManager;
+	}
+
+	JConnectionBase *JConnection::connection()
+	{
+		return p->connection;
+	}
+
 	void JConnection::initExtensions()
 	{
 		JabberParams params;
 		params.addItem<Client>(p->client);
 		params.addItem<Adhoc>(p->adhoc);
 		params.addItem<VCardManager>(p->vCardManager->manager());
+		params.addItem<SIManager>(p->siManager);
 
 		new JSoftwareDetection(p->account, params);
 
@@ -243,5 +260,10 @@ namespace Jabber
 			p->client->addPresenceExtension(new VCardUpdate(p->avatarHash.toStdString()));
 			p->client->setPresence();
 		}
+	}
+
+	void JConnection::handleLog(LogLevel level, LogArea area, const std::string &message)
+	{
+		debug() << QString::fromStdString(message);
 	}
 }

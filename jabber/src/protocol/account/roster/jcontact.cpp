@@ -172,7 +172,7 @@ namespace Jabber
 						QString("%1 (%2)").arg(id).arg(resource->priority()));
 				QString client = resource->property("client").toString()
 						% QLatin1Char('/') % resource->property("os").toString();
-				if (!client.isEmpty())
+				if (client != "/")
 					event->appendField(QT_TRANSLATE_NOOP("Contact", "Possible client"), client);
 			}
 			return true;

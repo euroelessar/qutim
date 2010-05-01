@@ -148,16 +148,21 @@ namespace Jabber
 			join(room->id());
 	}
 
+#include <QDebug>
+
 	void JMUCManager::setPresenceToRooms(Presence::PresenceType presence)
 	{
-		if (presence == Presence::Unavailable)
+		if (presence == Presence::Unavailable) {
 			foreach (JMUCSession *room, p->rooms)
-				if(room->isJoined())
+				if(room->isJoined()) {
+					room->setAutoJoin(true);
 					room->leave();
-		else
+				}
+		} else {
 			foreach (JMUCSession *room, p->rooms)
-				if(room->isJoined())
+				if(room->isJoined() || room->isAutoJoin())
 					room->join();
+		}
 	}
 
 	void JMUCManager::leave(const QString &room)

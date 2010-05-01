@@ -128,8 +128,6 @@ namespace Jabber
 
 	void JRoster::handleRoster(const Roster &roster)
 	{
-		qDeleteAllLater(p->contacts);
-		p->contacts.clear();
 		std::map<const std::string, RosterItem *>::const_iterator items = roster.begin();
 		for(; items != roster.end(); ++items) {
 			std::string key = items->first;

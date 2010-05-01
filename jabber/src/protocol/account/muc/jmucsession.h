@@ -53,6 +53,8 @@ namespace Jabber
 			int bookmarkIndex();
 			bool enabledConfiguring();
 			bool isJoined();
+			bool isAutoJoin();
+			void setAutoJoin(bool join);
 			bool isError();
 			gloox::MUCRoom *room();
 			qutim_sdk_0_3::Buddy *me() const;

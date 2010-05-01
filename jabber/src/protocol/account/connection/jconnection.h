@@ -5,6 +5,7 @@
 #include <gloox/presencehandler.h>
 #include <gloox/disco.h>
 #include <gloox/adhoc.h>
+#include <gloox/simanager.h>
 
 #include "jconnectiontcpbase.h"
 
@@ -16,7 +17,7 @@ namespace Jabber
 	class JVCardManager;
 	struct JConnectionPrivate;
 
-	class JConnection : public QObject, PresenceHandler
+	class JConnection : public QObject, PresenceHandler, LogHandler
 	{
 		Q_OBJECT
 		public:
@@ -27,8 +28,11 @@ namespace Jabber
 			Client *client();
 			Adhoc *adhoc();
 			JVCardManager *vCardManager();
+			SIManager *siManager();
+			JConnectionBase *connection();
 			void initExtensions();
 			void setAvatar(const QString &hex);
+			virtual void handleLog(LogLevel level, LogArea area, const std::string &message);
 		protected:
 			void handlePresence(const Presence &presence);
 		private:
