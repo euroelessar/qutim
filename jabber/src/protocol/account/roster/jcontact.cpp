@@ -211,7 +211,7 @@ namespace Jabber
 			fillMaxResource();
 		}
 		Status newStatus = status();
-		debug() << oldStatus.type() << newStatus.type();
+//		debug() << oldStatus.type() << newStatus.type();
 		if(oldStatus.type() != newStatus.type())
 			emit statusChanged(newStatus);
 	}
@@ -248,9 +248,9 @@ namespace Jabber
 		}
 	}
 
-	QStringList JContact::resources()
+	QList<JContactResource *> JContact::resources()
 	{
-		return d_func()->resources.keys();
+		return d_func()->resources.values();
 	}
 
 	JContactResource *JContact::resource(const QString &key)
@@ -288,8 +288,8 @@ namespace Jabber
 		emit avatarChanged(d->avatar);
 	}
 
-	InfoRequest *JContact::infoRequest() const
-	{
-		return new JInfoRequest(d_func()->account->connection()->vCardManager(), id());
-	}
+//	InfoRequest *JContact::infoRequest() const
+//	{
+//		return new JInfoRequest(d_func()->account->connection()->vCardManager(), id());
+//	}
 }

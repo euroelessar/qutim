@@ -42,13 +42,13 @@ namespace Jabber
 			bool hasResource(const QString &resource);
 			void addResource(const QString &resource);
 			void removeResource(const QString &resource);
-			QStringList resources();
+			QList<JContactResource *> resources();
 			JContactResource *resource(const QString &key);
 			virtual ChatUnitList lowerUnits();
 			QString avatar() const;
 			QString avatarHash() const;
 			void setAvatar(const QString &hex);
-			InfoRequest *infoRequest() const;
+//			InfoRequest *infoRequest() const;
 		protected:
 			void fillMaxResource();
 			virtual bool event(QEvent *event);

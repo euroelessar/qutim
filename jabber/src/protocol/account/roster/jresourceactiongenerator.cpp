@@ -4,6 +4,7 @@
 #include <qutim/menucontroller.h>
 #include <qutim/icon.h>
 #include <QtGui/QMenu>
+#include <QDebug>
 
 namespace Jabber
 {
@@ -39,6 +40,9 @@ namespace Jabber
 		d_func()->feature = feature;
 	}
 
+	inline bool resource_less_than(JContactResource *r1, JContactResource *r2)
+	{ return r1->name() < r2->name(); }
+
 	QObject *JResourceActionGenerator::generateHelper() const
 	{
 		Q_D(const JResourceActionGenerator);
@@ -48,19 +52,17 @@ namespace Jabber
 			QMenu *menu = new QMenu();
 			QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
 			action->setMenu(menu);
-			QStringList resourceIds = contact->resources();
-			resourceIds.sort();
-			QList<JContactResource *> resources;
-			foreach (const QString &resId, resourceIds) {
-				if (JContactResource *resource = contact->resource(resId)) {
-					if (d->feature.isEmpty() || resource->checkFeature(d->feature)) {
-						resources << resource;
-						QAction *action = menu->addAction(Icon("user-online-jabber"), resId, receiver(), member());
-						action->setData(qVariantFromValue<MenuController *>(resource));
-					}
+			QList<JContactResource *> resources = contact->resources();
+			qSort(resources.begin(), resources.end(), resource_less_than);
+			bool isEmpty = true;
+			foreach (JContactResource *resource, resources) {
+				if (d->feature.isEmpty() || resource->checkFeature(d->feature)) {
+					isEmpty = false;
+					QAction *action = menu->addAction(Icon("user-online-jabber"), resource->name(), receiver(), member());
+					action->setData(qVariantFromValue<MenuController *>(resource));
 				}
 			}
-			if (resources.isEmpty())
+			if (isEmpty)
 				action->setDisabled(true);
 		} else {
 			delete action;

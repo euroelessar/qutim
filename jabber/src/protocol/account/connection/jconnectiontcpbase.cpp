@@ -14,6 +14,16 @@ namespace Jabber
 		createSocket();
 	}
 
+	JConnectionTCPBase::JConnectionTCPBase(QTcpSocket *socket) :
+			JConnectionBase(0), p(new JConnectionTCPBasePrivate)
+	{
+		p->socket = socket;
+		QObject::connect(p->socket, SIGNAL(disconnected()), SLOT(disconnected()));
+		QObject::connect(p->socket, SIGNAL(readyRead()), SLOT(read()));
+		QObject::connect(p->socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
+		QObject::connect(p->socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
+	}
+
 	JConnectionTCPBase::~JConnectionTCPBase()
 	{
 		deleteSocket();

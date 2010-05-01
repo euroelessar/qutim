@@ -23,11 +23,17 @@
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::FeedbagItem);
 
-static struct Init {
-	Init() {
+static struct FeedbagItemInit {
+	FeedbagItemInit() {
+		// ensure that FeedbagItem is registered at MetaType system
+		m_id = qMetaTypeId<qutim_sdk_0_3::oscar::FeedbagItem>();
+		qDebug("%s %d", Q_FUNC_INFO, m_id);
 		qRegisterMetaTypeStreamOperators<qutim_sdk_0_3::oscar::FeedbagItem>("qutim_sdk_0_3::oscar::FeedbagItem");
 	}
+	static int m_id;
 } init;
+
+int FeedbagItemInit::m_id = 0;
 
 namespace qutim_sdk_0_3 {
 

@@ -39,14 +39,14 @@ namespace Jabber
 		QString jid = QString::fromStdString(presence.from().full());
 		ChatUnit *unit = m_account->getUnit(jid, false);
 
-		if (qobject_cast<JContactResource *>(unit)) {
-			if (!unit->property("features").value<QSet<QString> >().isEmpty())
+		if (JContactResource *resource = qobject_cast<JContactResource *>(unit)) {
+			if (!resource->features().isEmpty())
 				return;
 
 			std::string node;
 
 			if (const Capabilities *caps = presence.findExtension<Capabilities>(ExtCaps)) {
-				node = caps->node();
+				node = caps->node() + '#' + caps->ver();
 				QString qNode = QString::fromStdString(node);
 				unit->setProperty("node", qNode);
 				SoftwareInfoHash::iterator it = m_hash.find(qNode);

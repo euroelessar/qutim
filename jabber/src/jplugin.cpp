@@ -4,6 +4,7 @@
 #include "protocol/account/servicediscovery/jservicebrowser.h"
 #include "protocol/modules/xmlconsole/xmlconsole.h"
 #include "protocol/modules/adhoc/jadhocmodule.h"
+#include "protocol/modules/filetransfer/jfiletransfer.h"
 #include "protocol/modules/remotecontrol/remotecontrol.h"
 #include "protocol/account/muc/jmucjoinmodule.h"
 
@@ -17,6 +18,7 @@ namespace Jabber
 	void JPlugin::init()
 	{
 		qDebug("%s", Q_FUNC_INFO);
+		qRegisterMetaType<QSet<QString> >("QSet<QString>");
 		ExtensionIcon jabberIcon("im-jabber");
 		setInfo(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
 			QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
@@ -28,6 +30,9 @@ namespace Jabber
 		addAuthor(QT_TRANSLATE_NOOP("Author", "Nikita Belov"),
 			QT_TRANSLATE_NOOP("Task", "Author"),
 			QLatin1String("zodiac.nv@gmail.com"));
+		addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
+			QT_TRANSLATE_NOOP("Task", "Author"),
+			QLatin1String("euroelessar@ya.ru"));
 		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber"),
 			QT_TRANSLATE_NOOP("Plugin", "Jabber protocol"),
 			new GeneralGenerator<JProtocol>(),
@@ -72,6 +77,10 @@ namespace Jabber
 			QT_TRANSLATE_NOOP("Plugin", "Implementation of groupchat join window"),
 			new GeneralGenerator<JMUCJoinModule, JabberExtension>(),
 			ExtensionIcon(""));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber File Transfer"),
+			QT_TRANSLATE_NOOP("Plugin", "Implementation of XEP-0096"),
+			new GeneralGenerator<JFileTransferFactory>(),
+			ExtensionIcon("document-save"));
 	}
 
 	bool JPlugin::load()

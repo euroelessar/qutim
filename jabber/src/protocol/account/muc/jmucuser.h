@@ -25,7 +25,7 @@ namespace Jabber
 			QString avatarHash() const;
 			void setAvatar(const QString &hex);
 			void setName(const QString &name);
-			InfoRequest *infoRequest() const;
+//			InfoRequest *infoRequest() const;
 			ChatUnit *upperUnit();
 			MUCRoomAffiliation affiliation();
 			void setMUCAffiliation(MUCRoomAffiliation affiliation);

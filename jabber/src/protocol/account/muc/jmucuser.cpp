@@ -69,10 +69,10 @@ namespace Jabber
 		emit avatarChanged(d->avatar);
 	}
 
-	InfoRequest *JMUCUser::infoRequest() const
-	{
-		return new JInfoRequest(((JAccount *) account())->connection()->vCardManager(), id());
-	}
+//	InfoRequest *JMUCUser::infoRequest() const
+//	{
+//		return new JInfoRequest(((JAccount *) account())->connection()->vCardManager(), id());
+//	}
 
 	ChatUnit *JMUCUser::upperUnit()
 	{

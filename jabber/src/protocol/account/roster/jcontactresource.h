@@ -28,6 +28,7 @@ namespace Jabber
 			JContactResource(qutim_sdk_0_3::ChatUnit *parent, const QString &name);
 			JContactResource(qutim_sdk_0_3::ChatUnit *parent, JContactResourcePrivate &ptr);
 			~JContactResource();
+			QString name() const;
 			QString id() const;
 			QString title() const;
 			void sendMessage(const qutim_sdk_0_3::Message &message);
@@ -44,7 +45,7 @@ namespace Jabber
 			ChatUnit *upperUnit();
 			QString avatar() const;
 			QString text() const;
-			InfoRequest *infoRequest() const;
+//			InfoRequest *infoRequest() const;
 		protected:
 			QScopedPointer<JContactResourcePrivate> d_ptr;
 	};

@@ -50,7 +50,9 @@ namespace Jabber
 		foreach (QString conference, p->rooms.keys())
 		{
 			JMUCSession *muc = p->rooms.value(conference);
-			JBookmark room("", conference, muc->me()->name(), "");
+			JBookmark room(QString(), conference,
+						   (muc && muc->me()) ? muc->me()->name() : QString(),
+						   QString());
 			if (p->bookmarkManager->bookmarks().contains(room)) {
 				int num = p->bookmarkManager->bookmarks().indexOf(room);
 				muc->setBookmarkIndex(num);
@@ -293,10 +295,11 @@ namespace Jabber
 				break;
 			case RoomParticipantsAction:
 				action->setVisible(false);
+			default:
 				break;
 			}
 			return true;
 		}
-		return false;
+		return QObject::event(event);
 	}
 }

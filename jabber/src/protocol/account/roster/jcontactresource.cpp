@@ -32,6 +32,11 @@ namespace Jabber
 	{
 	}
 
+	QString JContactResource::name() const
+	{
+		return d_func()->name;
+	}
+
 	QString JContactResource::id() const
 	{
 		return d_func()->id;
@@ -133,11 +138,11 @@ namespace Jabber
 		return d_func()->text;
 	}
 
-	InfoRequest *JContactResource::infoRequest() const
-	{
-		if (JContact *contact = qobject_cast<JContact *>(d_func()->contact))
-			return contact->infoRequest();
-		else
-			return 0;
-	}
+//	InfoRequest *JContactResource::infoRequest() const
+//	{
+//		if (JContact *contact = qobject_cast<JContact *>(d_func()->contact))
+//			return contact->infoRequest();
+//		else
+//			return 0;
+//	}
 }
