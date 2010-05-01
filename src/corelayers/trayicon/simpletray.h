@@ -15,6 +15,7 @@ class SimpleTray : public MenuController
 	Q_OBJECT
 	Q_CLASSINFO("Service", "TrayIcon")
 	Q_CLASSINFO("Uses", "ContactList")
+	Q_CLASSINFO("Uses", "ChatLayer")
 	Q_CLASSINFO("Uses", "IconLoader")
 public:
 	SimpleTray();
