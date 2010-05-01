@@ -35,6 +35,7 @@ namespace Jabber
 			void setRealJid(const QString &jid);
 		protected:
 			bool event(QEvent *ev);
+			friend class JMUCSession;
 	};
 }
 

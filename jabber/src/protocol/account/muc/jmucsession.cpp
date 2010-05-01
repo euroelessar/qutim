@@ -32,6 +32,7 @@
 #include <QFile>
 #include "jmucmanager.h"
 #include "jconferenceconfig.h"
+#include "../roster/jcontactresource_p.h"
 
 using namespace gloox;
 using namespace qutim_sdk_0_3;
@@ -199,9 +200,11 @@ namespace Jabber
 			if (newNick.isEmpty())
 				return;
 			text = nick % tr(" is now known as ") % newNick;
-			d->users.insert(newNick, d->users.value(nick));
+			JMUCUser *user = d->users.value(nick, 0);
+			d->users.insert(newNick, user);
 			d->users.remove(nick);
-			d->users.value(newNick)->setName(newNick);
+			reinterpret_cast<JContactResourcePrivate *>(user->d_func())->name = newNick;
+			emit user->nameChanged(newNick);
 			if (nick == d->nick) {
 				d->nick = newNick;
 				emit meChanged(me());
