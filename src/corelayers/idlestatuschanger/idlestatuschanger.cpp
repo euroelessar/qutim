@@ -5,7 +5,7 @@
 
 namespace Core
 {
-static CoreSingleModuleHelper<IdleStatusChanger, StartupModule> history_static(
+static CoreSingleModuleHelper<IdleStatusChanger> history_static(
 	QT_TRANSLATE_NOOP("Plugin", "Idle status changer"),
 	QT_TRANSLATE_NOOP("Plugin", "Change status of accounts by idle")
 );
