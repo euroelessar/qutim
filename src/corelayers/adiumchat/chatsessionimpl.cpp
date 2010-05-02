@@ -170,21 +170,19 @@ namespace AdiumChat
 			m_skipOneMerge = false;
 		}
 
-		QString result = m_web_page->mainFrame()->evaluateJavaScript(QString("getEditedHtml(\"%1\", \"%2\");")
-																	 .arg(validateCpp(item))
-																	 .arg(message.id())).toString();
+		QString result = m_web_page->mainFrame()->evaluateJavaScript(
+				QString("getEditedHtml(\"%1\", \"%2\");")
+				.arg(validateCpp(item), QString::number(message.id()))).toString();
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
 				validateCpp(result), same_from?"Next":"");
-		bool isHistory = message.property("history", false);
+//		bool isHistory = message.property("history", false);
 		bool silent = message.property("silent", false);
 
 		if (qobject_cast<const Conference *>(message.chatUnit()))
 			silent = true;
 
-		if (!isHistory && !silent) {
 			Notifications::sendNotification(message);
-		}
 		if (message.property("store", true) && (!service || (service && m_store_service_messages)))
 			History::instance()->store(message);
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
@@ -379,7 +377,7 @@ namespace AdiumChat
 
 			QAction *act = new QAction(m_menu);
 			act->setText(QT_TRANSLATE_NOOP("ChatSession", "Auto"));
-			act->setData(qVariantFromValue(unit));
+			act->setData(qVariantFromValue(m_chat_unit.data()));
 			act->setCheckable(true);
 			act->setChecked(true);
 
