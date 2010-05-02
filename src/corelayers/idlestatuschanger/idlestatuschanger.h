@@ -11,6 +11,7 @@ namespace Core
 class IdleStatusChanger : public QObject
 {
 	Q_OBJECT
+	Q_CLASSINFO("Service", "AutoAway")
 public:
 	explicit IdleStatusChanger();
 
