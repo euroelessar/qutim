@@ -182,7 +182,9 @@ namespace AdiumChat
 		if (qobject_cast<const Conference *>(message.chatUnit()))
 			silent = true;
 
+		if (!silent)
 			Notifications::sendNotification(message);
+
 		if (message.property("store", true) && (!service || (service && m_store_service_messages)))
 			History::instance()->store(message);
 		m_web_page->mainFrame()->evaluateJavaScript(jsTask);

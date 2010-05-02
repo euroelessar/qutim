@@ -61,6 +61,7 @@ namespace Core
 		clear();
 		ConfigGroup group = Config().group("services");
 		QVariantMap selected = group.value("list", QVariantMap());
+		QStandardItem *parent_item = m_model->invisibleRootItem();
 		
 		ExtensionInfoList exts = extensionList();
 		for (int i = 0; i < exts.size(); i++) {
@@ -71,7 +72,7 @@ namespace Core
 				if (!m_service_items.contains(serviceName)) {
 					ServiceItem *item = new ServiceItem(Icon(serviceIcon(serviceName)),serviceName,true);
 					item->setData(true,Qt::UserRole);
-					m_model->appendRow(item);
+					parent_item->appendRow(item);
 					m_service_items.insert(serviceName,item);
 				}
 			QIcon icon = !info.icon().name().isEmpty() ? info.icon() : Icon("help-hint");
@@ -83,11 +84,8 @@ namespace Core
 				item->setCheckState(Qt::Checked);
 			item->setData(false,Qt::UserRole);
 			item->setServiceClassName(ServiceChooser::className(info));
-			
-			QList <QStandardItem *> items; //workaround
-			items.append(item);
-			
-			m_service_items.value(serviceName)->appendRows(items);
+
+			m_service_items.value(serviceName)->appendRow(item);
 			}
 		}
 	}

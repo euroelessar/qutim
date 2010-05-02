@@ -50,6 +50,7 @@ namespace Core
 		clear();
 		ConfigGroup group = Config().group("protocols");
 		QVariantMap selected = group.value("list", QVariantMap());
+		QStandardItem *parent_item = m_model->invisibleRootItem();
 		
 		ExtensionInfoList exts = extensionList();
 		for (int i = 0; i < exts.size(); i++) {
@@ -62,7 +63,7 @@ namespace Core
 			if (!m_protocol_items.contains(name)) {
 				ServiceItem *item = new ServiceItem(Icon("applications-system") ,name,true);
 				item->setData(true,Qt::UserRole);
-				m_model->appendRow(item);
+				parent_item->appendRow(item);
 				m_protocol_items.insert(name,item);
 			}
 			QIcon icon = Icon("help-hint");
@@ -76,11 +77,8 @@ namespace Core
 				item->setCheckState(Qt::Checked);
 			item->setData(false,Qt::UserRole);
 			item->setServiceClassName(ServiceChooser::className(info));
-			
-			QList <QStandardItem *> items; //workaround
-			items.append(item);
-			
-			m_protocol_items.value(name)->appendRows(items);
+
+			m_protocol_items.value(name)->appendRow(item);
 			}
 	}
 	void ProtocolChooserWidget::cancelImpl()
