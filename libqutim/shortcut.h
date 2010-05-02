@@ -23,6 +23,14 @@ namespace qutim_sdk_0_3
 {
 class ShortcutPrivate;
 class GlobalShortcutPrivate;
+struct KeySequence
+{
+	QString id;
+	LocalizedString name;
+	LocalizedString group;
+	QKeySequence key;
+};
+
 class LIBQUTIM_EXPORT Shortcut : public QShortcut
 {
 	Q_OBJECT
@@ -34,6 +42,9 @@ public:
 	static bool registerSequence(const QString &id, const LocalizedString &name,
 							   const LocalizedString &group, const QKeySequence &key,
 							   Qt::ShortcutContext context = Qt::WindowShortcut);
+	static QStringList ids();
+	static KeySequence getSequence(const QString &id);
+	static void setSequence(const QString &id,const QKeySequence &key);
 protected:
 	QScopedPointer<ShortcutPrivate> d_ptr;
 };
@@ -48,6 +59,9 @@ public:
 
 	static bool registerSequence(const QString &id, const LocalizedString &name,
 							   const LocalizedString &group, const QKeySequence &key);
+	static QStringList ids();
+	static KeySequence getSequence(const QString &id);
+	static void setSequence(const QString &id,const QKeySequence &key);
 signals:
 	void activated();
 private slots:
