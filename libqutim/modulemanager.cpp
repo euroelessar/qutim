@@ -87,6 +87,7 @@ namespace qutim_sdk_0_3
 		};
 		QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
 		QHash<QByteArray, QObject *> services;
+		QList<QObject*> serviceOrder;
 		QHash<QByteArray, ExtensionInfo> extensionsHash;
 		ExtensionInfoList extensions;
 		QSet<QByteArray> interface_modules;
@@ -180,6 +181,7 @@ namespace qutim_sdk_0_3
 		qApp->setApplicationVersion(qutimVersionStr());
 		qApp->setOrganizationDomain("qutim.org");
 //		qApp->setOrganizationName("qutIM");
+		connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(onQuit()));
 	}
 
 	/**
@@ -383,8 +385,8 @@ namespace qutim_sdk_0_3
 	
 	typedef QHash<QByteArray, const ObjectGenerator*> ServiceHash;
 	void initService(const QByteArray &name, QHash<QByteArray, QObject *> &services,
-					 const ServiceHash &hash, QSet<QByteArray> &used,
-					 QVariantMap &selected)
+					 QList<QObject*> &order, const ServiceHash &hash,
+					 QSet<QByteArray> &used, QVariantMap &selected)
 	{
 		if (used.contains(name))
 			return;
@@ -404,9 +406,11 @@ namespace qutim_sdk_0_3
 			QMetaClassInfo info = meta->classInfo(i);
 			selected.insert(stringName, QString::fromLatin1(meta->className()));
 			if (!qstrcmp(info.name(), "Uses"))
-				initService(info.value(), services, hash, used, selected);
+				initService(info.value(), services, order, hash, used, selected);
 		}
-		services.insert(name, gen->generate<QObject>());
+		QObject *obj = gen->generate<QObject>();
+		order.prepend(obj);
+		services.insert(name, obj);
 	}
 
 	/**
@@ -489,7 +493,7 @@ namespace qutim_sdk_0_3
 			QSet<QByteArray> used;
 			ServiceHash::iterator it;
 			for (it = serviceGens.begin(); it != serviceGens.end(); it++)
-				initService(it.key(), p->services, serviceGens, used, selected);
+				initService(it.key(), p->services, p->serviceOrder, serviceGens, used, selected);
 			qDebug() << "Inited Services" << used;
 			group.setValue("list", selected);
 			group.sync();
@@ -511,6 +515,18 @@ namespace qutim_sdk_0_3
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();
 		Notifications::sendNotification(Notifications::Startup, 0);
+	}
+	
+	void ModuleManager::onQuit()
+	{
+		foreach(Plugin *plugin, p->plugins) {
+			if (plugin)
+				plugin->unload();
+		}
+
+		qDeleteAll(p->serviceOrder);
+		qDeleteAll(*(p->protocols));
+		qDeleteAll(p->plugins);
 	}
 
 	void ModuleManager::virtual_hook(int id, void *data)

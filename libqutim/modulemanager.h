@@ -63,6 +63,8 @@ namespace qutim_sdk_0_3
 		{
 			return static_cast<T *>(initExtension(&T::staticMetaObject));
 		}
+	protected slots:
+		void onQuit();
 	protected:
 		virtual void virtual_hook(int id, void *data);
 	private:
