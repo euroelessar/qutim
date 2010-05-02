@@ -230,7 +230,7 @@ namespace Jabber
 				else if (participant.affiliation == AffiliationMember)
 					text = text % tr(" as") % tr(" registered member");
 				else if (participant.role == RoleParticipant)
-					text = text % tr(" as") % tr(" member");
+					text = text % tr(" as") % tr(" participant");
 				else if (participant.role == RoleVisitor)
 					text = text % tr(" as") % tr(" visitor");
 				d->users.insert(nick, user);
