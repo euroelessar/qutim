@@ -21,7 +21,7 @@ namespace Jabber
 
 		JAccount *account();
 
-		qutim_sdk_0_3::ChatUnit *getSession(qutim_sdk_0_3::ChatUnit *unit);
+		qutim_sdk_0_3::ChatUnit *getSession(qutim_sdk_0_3::ChatUnit *unit, bool create = true);
 		qutim_sdk_0_3::ChatUnit *getSession(const QString &id);
 		void handleMessageSession(gloox::MessageSession *session);
 		void setSessionId(JMessageSession *session, const QString &id);

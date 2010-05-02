@@ -205,6 +205,9 @@ namespace Jabber
 			d->users.remove(nick);
 			reinterpret_cast<JContactResourcePrivate *>(user->d_func())->name = newNick;
 			emit user->nameChanged(newNick);
+//			JMessageSession *session = qobject_cast<JMessageSession*>(d->account->messageHandler()->getSession(user, false));
+//			if (session)
+//				session->session()->setResource(participant.newNick);
 			if (nick == d->nick) {
 				d->nick = newNick;
 				emit meChanged(me());
@@ -480,7 +483,9 @@ namespace Jabber
 	bool JMUCSession::enabledConfiguring()
 	{
 		Q_D(JMUCSession);
-		return d->users.value(d->nick)->affiliation() == AffiliationOwner && !d->isConfiguring;
+		if (JMUCUser *i = d->users.value(d->nick))
+			return i->affiliation() == AffiliationOwner && !d->isConfiguring;
+		return false;
 	}
 
 	void JMUCSession::loadSettings()

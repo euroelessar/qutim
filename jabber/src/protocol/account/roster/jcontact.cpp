@@ -12,6 +12,9 @@
 #include "qutim/extensionicon.h"
 #include <qutim/inforequest.h>
 #include <qutim/debug.h>
+#include <qutim/message.h>
+#include "jmessagesession.h"
+#include "jmessagehandler.h"
 
 using namespace gloox;
 
@@ -19,10 +22,6 @@ namespace Jabber
 {
 	struct JContactPrivate
 	{
-		~JContactPrivate()
-		{
-			qDeleteAll(resources);
-		}
 		JAccount *account;
 		QHash<QString, JContactResource *> resources;
 		QStringList currentResources;
@@ -43,6 +42,7 @@ namespace Jabber
 
 	JContact::~JContact()
 	{
+		qDeleteAll(d_func()->resources);
 	}
 
 	QString JContact::id() const
@@ -52,6 +52,16 @@ namespace Jabber
 
 	void JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
+		qDebug("%s", Q_FUNC_INFO);
+		JAccount *acc = static_cast<JAccount*>(account());
+		JMessageSession *session = qobject_cast<JMessageSession*>(acc->messageHandler()->getSession(this, false));
+		if (session) {
+			session->sendMessage(message);
+		} else {
+			gloox::Message msg(gloox::Message::Chat, id().toStdString(), message.text().toStdString(), 
+							   message.property("subject", QString()).toStdString());
+			acc->client()->send(msg);
+		}
 	}
 
 	void JContact::setName(const QString &name)

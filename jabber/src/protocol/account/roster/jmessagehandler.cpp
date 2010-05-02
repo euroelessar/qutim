@@ -39,7 +39,7 @@ namespace Jabber
 		d->unitSessions.insert(unit, new JMessageSession(this, unit, session));
 	}
 
-	ChatUnit *JMessageHandler::getSession(ChatUnit *unit)
+	ChatUnit *JMessageHandler::getSession(ChatUnit *unit, bool create)
 	{
 		Q_D(JMessageHandler);
 		JMessageSession *session = 0;
@@ -48,6 +48,8 @@ namespace Jabber
 		if (!!(session = d->unitSessions.value(unit)))
 			return session;
 		if (qobject_cast<JContact *>(unit) || qobject_cast<JContactResource *>(unit)) {
+			if (!create)
+				return 0;
 			int types = ~0;
 			if (qobject_cast<JMUCUser*>(unit))
 				types ^= gloox::Message::Groupchat;

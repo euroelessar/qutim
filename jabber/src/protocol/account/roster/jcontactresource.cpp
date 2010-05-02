@@ -4,6 +4,9 @@
 #include "../vcard/jinforequest.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
+#include "jmessagesession.h"
+#include "jmessagehandler.h"
+#include <gloox/message.h>
 #include <qutim/status.h>
 #include <qutim/inforequest.h>
 #include <QStringBuilder>
@@ -54,6 +57,16 @@ namespace Jabber
 
 	void JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
+		qDebug("%s", Q_FUNC_INFO);
+		JAccount *acc = static_cast<JAccount*>(account());
+		JMessageSession *session = qobject_cast<JMessageSession*>(acc->messageHandler()->getSession(this, false));
+		if (session) {
+			session->sendMessage(message);
+		} else {
+			gloox::Message msg(gloox::Message::Chat, id().toStdString(), message.text().toStdString(), 
+							   message.property("subject", QString()).toStdString());
+			acc->client()->send(msg);
+		}
 	}
 
 	void JContactResource::setPriority(int priority)

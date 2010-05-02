@@ -119,6 +119,7 @@ namespace Jabber
 		d->followChanges = session->threadID().empty();
 		d->unit = unit;
 		setMenuOwner(unit);
+		connect(unit, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged(QString)));
 	}
 
 	JMessageSession::JMessageSession(ChatUnit *unit) :
@@ -135,6 +136,7 @@ namespace Jabber
 		d->unit = unit;
 		d->handler->setSessionUnit(this, unit);
 		setMenuOwner(unit);
+		connect(unit, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged(QString)));
 	}
 
 	JMessageSession::~JMessageSession()
@@ -152,6 +154,11 @@ namespace Jabber
 	{
 		Q_D(const JMessageSession);
 		return d->unit ? d->unit->title() : id();
+	}
+	
+	gloox::MessageSession *JMessageSession::session()
+	{
+		return d_func()->session;
 	}
 
 	void JMessageSession::sendMessage(const qutim_sdk_0_3::Message &message)
