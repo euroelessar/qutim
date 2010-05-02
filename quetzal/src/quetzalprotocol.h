@@ -33,6 +33,7 @@ class QuetzalProtocol : public Protocol
     Q_OBJECT
 public:
 	QuetzalProtocol(const QuetzalMetaObject *meta, PurplePlugin *plugin);
+	virtual ~QuetzalProtocol();
     virtual QList<Account *> accounts() const;
     virtual Account *account(const QString &id) const;
 	PurplePlugin *plugin() { return m_plugin; }

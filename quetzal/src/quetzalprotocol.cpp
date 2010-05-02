@@ -29,6 +29,13 @@ QuetzalProtocol::QuetzalProtocol(const QuetzalMetaObject *meta, PurplePlugin *pl
 	protocols().insert(m_plugin, this);
 }
 
+QuetzalProtocol::~QuetzalProtocol()
+{
+	delete static_cast<const QuetzalMetaObject *>(QObject::d_ptr->metaObject);
+	QObject::d_ptr->metaObject = 0;
+	protocols().remove(m_plugin);
+}
+
 QList<Account *> QuetzalProtocol::accounts() const
 {
 	QList<QuetzalAccount *> accounts = m_accounts.values();

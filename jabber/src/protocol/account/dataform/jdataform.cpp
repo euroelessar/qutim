@@ -155,11 +155,12 @@ namespace Jabber
 
 		const StringMultiMap &options = field->options();
 		StringMultiMap::const_iterator it = options.begin();
+		QList<std::string> values = QList<std::string>::fromStdList(field->values());
 		for (; it != options.end(); ++it) {
 			QListWidgetItem *item = new QListWidgetItem(QString::fromStdString((*it).first), list);
 			item->setData(Qt::UserRole, QString::fromStdString((*it).second));
 			item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-			item->setCheckState(Qt::Unchecked);
+			item->setCheckState(values.contains((*it).second) ? Qt::Unchecked : Qt::Checked);
 		}
 	}
 	void dataform_export_value_list_multi(QObject *obj, gloox::DataFormField *field)
@@ -182,6 +183,8 @@ namespace Jabber
 		for (; it != options.end(); ++it) {
 			box->addItem(QString::fromStdString((*it).first),
 						 QString::fromStdString((*it).second));
+			if (field->value() == (*it).second)
+				box->setCurrentIndex(box->count() - 1);
 		}
 	}
 	void dataform_export_value_list_single(QObject *obj, gloox::DataFormField *field)

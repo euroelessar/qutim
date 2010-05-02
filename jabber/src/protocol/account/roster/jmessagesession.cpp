@@ -97,7 +97,7 @@ namespace Jabber
 	struct JMessageSessionPrivate
 	{
 		JMessageHandler *handler;
-		JAccount *account;
+		QPointer<JAccount> account;
 		MessageSession *session;
 		ChatStateFilter *chatStateFilter;
 		JMessageReceiptFilter *messageReceiptFilter;
@@ -142,7 +142,8 @@ namespace Jabber
 	JMessageSession::~JMessageSession()
 	{
 		Q_D(JMessageSession);
-		d->account->client()->disposeMessageSession(d->session);
+		if (d->account)
+			d->account->client()->disposeMessageSession(d->session);
 	}
 
 	QString JMessageSession::id() const
