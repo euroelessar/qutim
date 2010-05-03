@@ -14,8 +14,8 @@
    <string>Form</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::ExpandingFieldsGrow</enum>
+   <property name="margin">
+    <number>0</number>
    </property>
    <item row="0" column="0" colspan="2">
     <widget class="QGroupBox" name="notificationsBox">

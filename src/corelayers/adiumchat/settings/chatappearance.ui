@@ -6,14 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>668</width>
-    <height>762</height>
+    <width>320</width>
+    <height>380</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QComboBox" name="chatBox"/>
    </item>
@@ -65,8 +68,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>656</width>
-         <height>76</height>
+         <width>320</width>
+         <height>69</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="scrollAreaLayout"/>
