@@ -3,6 +3,7 @@
 #include <libqutim/shortcut.h>
 #include <QTreeWidgetItem>
 #include <QStandardItemModel>
+#include "shortcutitemdelegate.h"
 
 namespace Core
 {
@@ -13,6 +14,7 @@ namespace Core
 		ui->setupUi(this);
 		m_model = new QStandardItemModel(ui->treeView);
 		ui->treeView->setModel(m_model);
+		ui->treeView->setItemDelegate(new ShortcutItemDelegate(ui->treeView));
 	}
 
 	ShortcutSettingsWidget::~ShortcutSettingsWidget()
@@ -45,15 +47,21 @@ namespace Core
 			if (!groups.contains(sequence.group)) {
 				group_item = new QStandardItem();
 				group_item->setText(sequence.group);
+				group_item->setData(true,ShortcutItemDelegate::GroupRole);
+				group_item->setEditable(false);
 				groups.insert(sequence.group,group_item);
 				parent_item->appendRow(group_item);
 			} else
 				group_item = groups.value(sequence.group);
 
 			QStandardItem *item = new QStandardItem();
-			item->setText(QString("%1 : %2").arg(sequence.name,sequence.key.toString()));
+			item->setText(sequence.name);
+			item->setData(sequence.key,ShortcutItemDelegate::SequenceRole);
+			item->setData(sequence.id,ShortcutItemDelegate::IdRole);
+			item->setEditable(true);
 			group_item->appendRow(item);
 		}
+		ui->treeView->expandAll();
 	}
 
 	void ShortcutSettingsWidget::saveImpl()
