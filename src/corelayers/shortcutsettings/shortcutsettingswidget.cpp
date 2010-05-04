@@ -15,6 +15,8 @@ namespace Core
 		m_model = new QStandardItemModel(ui->treeView);
 		ui->treeView->setModel(m_model);
 		ui->treeView->setItemDelegate(new ShortcutItemDelegate(ui->treeView));
+	
+		connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
 	}
 
 	ShortcutSettingsWidget::~ShortcutSettingsWidget()
@@ -66,11 +68,24 @@ namespace Core
 
 	void ShortcutSettingsWidget::saveImpl()
 	{
-
+		foreach (QStandardItem *item,m_changed_items) {
+			QString id = item->data(ShortcutItemDelegate::IdRole).toString();
+			bool global = item->data(ShortcutItemDelegate::GlobalRole).toBool();
+			QKeySequence sequence = item->data(ShortcutItemDelegate::SequenceRole).value<QKeySequence>();
+			global ? GlobalShortcut::setSequence(id,sequence) : Shortcut::setSequence(id,sequence);
+		}
 	}
 
 	void ShortcutSettingsWidget::cancelImpl()
 	{
 
 	}
+	
+	void ShortcutSettingsWidget::onItemChanged ( QStandardItem* item )
+	{
+		emit modifiedChanged(true);
+		if (!m_changed_items.contains(item))
+			m_changed_items.append(item);
+	}
+
 }

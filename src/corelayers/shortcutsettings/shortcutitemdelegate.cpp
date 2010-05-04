@@ -2,9 +2,12 @@
 #include <QApplication>
 #include <QPainter>
 #include <QPushButton>
+#include <QMouseEvent>
+#include "keysequencewidget.h"
 
 namespace Core
 {
+	
 	ShortcutItemDelegate::ShortcutItemDelegate(QObject* parent):
 			QAbstractItemDelegate(parent),
 			m_vertical_padding(6),
@@ -33,6 +36,8 @@ namespace Core
 			QFont font = painter_font;
 			font.setBold(true);
 			painter->setFont(font);
+			
+			style->drawPrimitive(QStyle::PE_PanelButtonBevel,&opt,painter, opt.widget);
 		}
 
 		item_icon.paint(painter,
@@ -83,8 +88,9 @@ namespace Core
 
 	QWidget *ShortcutItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 	{
-		QPushButton *input_btn = new QPushButton(parent);
+		KeySequenceWidget *input_btn = new KeySequenceWidget(parent);
 		input_btn->setText(tr("%1 : input").arg(index.data(Qt::DisplayRole).toString()));
+		input_btn->captureSequence();
 		return input_btn;
 	}
 
@@ -92,4 +98,18 @@ namespace Core
 	{
 		editor->setGeometry(option.rect);
 	}
+	
+	void ShortcutItemDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
+	{
+		KeySequenceWidget *button = static_cast<KeySequenceWidget *>(editor);
+		button->setText(index.data(SequenceRole).value<QKeySequence>().toString());
+		QAbstractItemDelegate::setEditorData(editor, index);
+	}
+
+	void ShortcutItemDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
+	{
+		KeySequenceWidget *button = static_cast<KeySequenceWidget *>(editor);
+		model->setData(index,button->sequence(),SequenceRole);
+	}
+
 }

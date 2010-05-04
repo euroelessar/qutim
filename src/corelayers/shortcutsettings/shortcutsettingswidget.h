@@ -8,6 +8,7 @@ namespace Ui {
     class ShortcutSettingsWidget;
 }
 class QStandardItemModel;
+class QStandardItem;
 namespace Core
 {
 	using namespace qutim_sdk_0_3;
@@ -23,10 +24,12 @@ namespace Core
 		virtual void cancelImpl();
 	protected:
 		void changeEvent(QEvent *e);
-
+	private slots:
+		void onItemChanged(QStandardItem *item);
 	private:
 		Ui::ShortcutSettingsWidget *ui;
 		QStandardItemModel *m_model;
+		QList<QStandardItem *> m_changed_items;
 	};
 
 }
