@@ -28,6 +28,7 @@ namespace Core
 		void onItemChanged(QStandardItem *item);
 	private:
 		Ui::ShortcutSettingsWidget *ui;
+		void fillModel(QHash <QString, QStandardItem*> &group, bool global);
 		QStandardItemModel *m_model;
 		QList<QStandardItem *> m_changed_items;
 	};

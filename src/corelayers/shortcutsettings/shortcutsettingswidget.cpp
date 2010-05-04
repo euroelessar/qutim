@@ -39,10 +39,17 @@ namespace Core
 	void ShortcutSettingsWidget::loadImpl()
 	{
 		m_model->clear();
-		QStandardItem *parent_item = m_model->invisibleRootItem();
-		QStringList ids = Shortcut::ids();
 		QHash <QString, QStandardItem*> groups;
+		fillModel(groups,false);
+		fillModel(groups,true);
+		ui->treeView->expandAll();
+	}
 
+	void ShortcutSettingsWidget::fillModel(QHash<QString, QStandardItem *> &groups,
+										   bool global)
+	{
+		QStringList ids = global ? GlobalShortcut::ids() : Shortcut::ids();
+		QStandardItem *parent_item = m_model->invisibleRootItem();
 		foreach (const QString &id,ids) {
 			KeySequence sequence = Shortcut::getSequence(id);
 			QStandardItem *group_item = 0;
@@ -60,10 +67,11 @@ namespace Core
 			item->setText(sequence.name);
 			item->setData(sequence.key,ShortcutItemDelegate::SequenceRole);
 			item->setData(sequence.id,ShortcutItemDelegate::IdRole);
+			item->setData(global,ShortcutItemDelegate::GlobalRole);
 			item->setEditable(true);
 			group_item->appendRow(item);
 		}
-		ui->treeView->expandAll();
+
 	}
 
 	void ShortcutSettingsWidget::saveImpl()
@@ -72,7 +80,10 @@ namespace Core
 			QString id = item->data(ShortcutItemDelegate::IdRole).toString();
 			bool global = item->data(ShortcutItemDelegate::GlobalRole).toBool();
 			QKeySequence sequence = item->data(ShortcutItemDelegate::SequenceRole).value<QKeySequence>();
-			global ? GlobalShortcut::setSequence(id,sequence) : Shortcut::setSequence(id,sequence);
+			if (global)
+				GlobalShortcut::setSequence(id,sequence);
+			else
+				Shortcut::setSequence(id,sequence);
 		}
 	}
 
