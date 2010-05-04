@@ -19,6 +19,9 @@
    </property>
    <item row="0" column="0">
     <widget class="QTreeView" name="treeView">
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
      <property name="animated">
       <bool>true</bool>
      </property>
