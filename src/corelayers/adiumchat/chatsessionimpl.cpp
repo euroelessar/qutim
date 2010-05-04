@@ -126,7 +126,7 @@ namespace AdiumChat
 			qWarning() << QString("Message %1 must have a chatUnit").arg(message.text());
 			message.setChatUnit(getUnit());
 		}
-		if (!isActive()) {
+		if (!isActive() && !message.property("service", false)) {
 			m_unread.append(message);
 			unreadChanged(m_unread);
 		}
