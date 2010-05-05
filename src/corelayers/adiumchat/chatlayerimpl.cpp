@@ -40,12 +40,6 @@ namespace AdiumChat
 
 	void init()
 	{
-		ActionGenerator *action;
-		action = new ActionGenerator(Icon("mail-message-new"),
-									 QT_TRANSLATE_NOOP("ChatLayer", "Send message"),
-									 ChatLayer::instance(), SLOT(onStartChat()));
-		MenuController::addAction<Contact>(action);
-		
 		Shortcut::registerSequence("chatSendMessage",
 								   QT_TRANSLATE_NOOP("ChatLayer", "Send message"),
 								   "ChatWidget",
@@ -172,18 +166,6 @@ namespace AdiumChat
 			if (!widget->contains(session))
 				widget->addSession(session);
 			widget->activate(session);
-		}
-	}
-
-	void ChatLayerImpl::onStartChat()
-	{
-		QAction *action = qobject_cast<QAction *>(sender());
-		Q_ASSERT(action);
-//		QVariant data = action->data();
-		MenuController *menu = action->data().value<MenuController *>();
-		if (ChatUnit *unit = qobject_cast<ChatUnit *>(menu)) {
-			if (ChatSession *session = getSession(unit, true))
-				session->activate();
 		}
 	}
 

@@ -42,7 +42,6 @@ namespace AdiumChat
 	private slots:
 		void onChatWidgetDestroyed(QObject *object);
 		void onSessionActivated(bool active);
-		void onStartChat();
 		void onChatSessionDestroyed(QObject *object);
 	private:
 		inline QString getWidgetId(ChatSessionImpl *sess) const;
