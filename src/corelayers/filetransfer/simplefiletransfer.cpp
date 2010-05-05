@@ -11,7 +11,7 @@ namespace Core
 {
 
 static Core::CoreModuleHelper<SimpleFileTransfer> filetransfer_static(
-	QT_TRANSLATE_NOOP("Plugin", "File transfer menager"),
+	QT_TRANSLATE_NOOP("Plugin", "File transfer manager"),
 	QT_TRANSLATE_NOOP("Plugin", "Default qutIM file transfer manager")
 );
 
