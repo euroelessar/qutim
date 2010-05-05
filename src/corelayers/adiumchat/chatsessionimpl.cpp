@@ -98,7 +98,8 @@ namespace AdiumChat
 		int max_num = adium_chat.value<int>("maxDisplayMessages",5);
 		MessageList messages = History::instance()->read(getUnit(), max_num);
 		foreach (Message mess, messages) {
-			mess.setProperty("history",true);
+			mess.setProperty("silent",true);
+			mess.setProperty("store",false);
 			if (!mess.chatUnit()) //TODO FIXME
 				mess.setChatUnit(getUnit()); 
 			appendMessage(mess);
@@ -176,7 +177,7 @@ namespace AdiumChat
 		QString jsTask = QString("append%2Message(\"%1\");").arg(
 				result.isEmpty() ? item :
 				validateCpp(result), same_from?"Next":"");
-//		bool isHistory = message.property("history", false);
+
 		bool silent = message.property("silent", false);
 
 		if (qobject_cast<const Conference *>(message.chatUnit()))
