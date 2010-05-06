@@ -163,7 +163,7 @@ namespace Core
 			QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget);
 
 			p->status_btn = new QPushButton(Icon("im-user-online"),
-											  "Global status",
+											  tr("Status"),
 											  p->widget);
 			p->status_btn->setMenu(new QMenu(p->widget));
 

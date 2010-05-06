@@ -26,14 +26,14 @@
 
 namespace Core
 {
-	static int m_vertical_padding = 3;
-	static int m_horizontal_padding = 5;	
-	
 	namespace SimpleContactList
 	{
 		SimpleContactListDelegate::SimpleContactListDelegate(QObject *parent) :
 				QAbstractItemDelegate(parent)
 		{
+			m_horizontal_padding = 5;
+			m_vertical_padding = 3;
+			m_show_flags = static_cast<ShowFlags>(ShowStatusText | ShowExtendedStatusIcons);
 		}
 		
 		void SimpleContactListDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
@@ -54,7 +54,7 @@ namespace Core
 			title_rect.setBottom(title_rect.bottom() - m_vertical_padding);
 			
 			switch (type) {
-				case TagType: {
+			case TagType: {
 					style->drawPrimitive(QStyle::PE_PanelButtonBevel,&opt,painter, opt.widget);
 					
 					QFont font = opt.font;
@@ -62,37 +62,39 @@ namespace Core
 					painter->setFont(font);
 					
 					painter->drawText(title_rect,
-							   Qt::AlignVCenter,
-							   name  
-							   );
+									  Qt::AlignVCenter,
+									  name
+									  );
 					break;
 				}
-				case ContactType: {
+			case ContactType: {
 					style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
 					QRect bounding;
 					painter->drawText(title_rect,
-							   Qt::AlignTop,
-							   name,
-							   &bounding
-							   );
-					Status status = index.data(ItemStatusRole).value<Status>();
-					if (!status.text().isEmpty()) {
-						QRect status_rect = title_rect;
-						status_rect.setTop(status_rect.top() + bounding.height());
-						painter->setPen(opt.palette.color(QPalette::Shadow));
-						QFont font = opt.font;
-						font.setPointSize(font.pointSize() - 1);
-						painter->setFont(font);
-						painter->drawText(status_rect,
-								   Qt::AlignTop | Qt::TextWordWrap,
-								   status.text().remove("\n")
-									);			
+									  Qt::AlignTop,
+									  name,
+									  &bounding
+									  );
+					if (m_show_flags & ShowStatusText) {
+						Status status = index.data(ItemStatusRole).value<Status>();
+						if (!status.text().isEmpty()) {
+							QRect status_rect = title_rect;
+							status_rect.setTop(status_rect.top() + bounding.height());
+							painter->setPen(opt.palette.color(QPalette::Shadow));
+							QFont font = opt.font;
+							font.setPointSize(font.pointSize() - 1);
+							painter->setFont(font);
+							painter->drawText(status_rect,
+											  Qt::AlignTop | Qt::TextWordWrap,
+											  status.text().remove("\n")
+											  );
+						}
 					}
 					
 					break;
 				}
-				default:
-					break;
+			default:
+				break;
 			}
 			painter->setPen(original_pen);
 			painter->setFont(original_font);
@@ -108,12 +110,12 @@ namespace Core
 
 		
 		bool SimpleContactListDelegate::helpEvent(QHelpEvent *event,
-					   QAbstractItemView *view,
-					   const QStyleOptionViewItem &option,
-					   const QModelIndex &index)
+												  QAbstractItemView *view,
+												  const QStyleOptionViewItem &option,
+												  const QModelIndex &index)
 		{
 			Q_UNUSED(option);
-		
+
 			if (!event || !view)
 				return false;
 			if (event->type() == QEvent::ToolTip) {
@@ -139,10 +141,15 @@ namespace Core
 			rect.setLeft(rect.left() + 2*m_horizontal_padding + option.decorationSize.width());
 			QFontMetrics metrics = option.fontMetrics;
 			int height = metrics.boundingRect(rect, Qt::TextSingleLine,
-					index.data(Qt::DisplayRole).toString()).height();
+											  index.data(Qt::DisplayRole).toString()).height();
 
 			Status status = index.data(ItemStatusRole).value<Status>();
-			if (!status.text().isEmpty()) {
+
+			ItemType type = static_cast<ItemType>(index.data(ItemDataType).toInt());
+
+			bool isContact = (type == ContactType);
+
+			if (isContact && (m_show_flags & ShowStatusText) && !status.text().isEmpty()) {
 				QFont desc_font = option.font;
 				desc_font.setPointSize(desc_font.pointSize() -1);
 				metrics = QFontMetrics(desc_font);

@@ -26,6 +26,13 @@ namespace Core
 		{
 			Q_OBJECT
 		public:
+			enum ShowFlags
+			{
+				ShowStatusText = 0x1,
+				ShowExtendedStatusIcons = 0x2,
+				ShowClientIcon = 0x4,
+				ShowAvatars = 0x8
+			};
 			explicit SimpleContactListDelegate(QObject *parent = 0);
 			virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 			virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
@@ -35,6 +42,9 @@ namespace Core
 						   const QStyleOptionViewItem &option,
 						   const QModelIndex &index);
 		private:
+			int m_vertical_padding;
+			int m_horizontal_padding;
+			ShowFlags m_show_flags;
 		};
 	}
 }
