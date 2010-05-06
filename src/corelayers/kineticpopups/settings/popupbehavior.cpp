@@ -6,15 +6,15 @@
 #include <QToolButton>
 #include <libqutim/icon.h>
 #include <libqutim/debug.h>
+#include <QStandardItemModel>
 
 namespace Core
 {
 	
 	PopupBehavior::PopupBehavior() :
-	ui(new Ui::BehaviorSettings), m_layout(new QGridLayout)
+	ui(new Ui::BehaviorSettings)
 	{
 		ui->setupUi(this);
-		ui->notificationsBox->setLayout(m_layout);
 		
 		ui->animationSpeed->setItemData(0,0);
 		ui->animationSpeed->setItemData(1,200);
@@ -38,12 +38,23 @@ namespace Core
 			QT_TRANSLATE_NOOP("Notifications", "Count")
 		};
 
+		m_model = new QStandardItemModel(this);
+		QStringList headers;
+		headers.append(QT_TRANSLATE_NOOP("Notifications", "Type"));
+		headers.append(QT_TRANSLATE_NOOP("Notifications", "Play sound"));
+		headers.append(QT_TRANSLATE_NOOP("Notifications", "Show popup"));
+		m_model->setHorizontalHeaderLabels(headers);
+		ui->notificationsView->setModel(m_model);
+
 		for (int i = 0, size = sizeof(strings)/sizeof(LocalizedString); i < size; i++) {
 			addNotification(strings[i], static_cast<Notifications::Type>(i));
 		}
+
+		ui->notificationsView->resizeColumnToContents(0);
 		
 		connect(ui->animationSpeed,SIGNAL(currentIndexChanged(int)),SLOT(onAnimationSpeedIndexChanged(int)));
 		connect(ui->timeout,SIGNAL(textChanged(QString)),SLOT(onTimeoutTextChanged(QString)));
+		connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
 	}
 
 	void PopupBehavior::loadImpl()
@@ -121,56 +132,44 @@ namespace Core
 	void PopupBehavior::addNotification ( const QString& localized_string, int index )
 	{
 		int type = 1 << index;
-		
-		QLabel *label = new QLabel(localized_string);
-		
-		QToolButton *popupBtn = new QToolButton();
-		popupBtn->setIcon(Icon("services"));
-		popupBtn->setCheckable(true);
-		popupBtn->setProperty("notificationType",type);
-		
-		QToolButton *soundBtn = new QToolButton();
-		soundBtn->setIcon(Icon("speaker"));
-		soundBtn->setCheckable(true);
-		soundBtn->setProperty("notificationType",type);
-		
-		m_sound_btn_list.append(soundBtn);
-		m_popup_btn_list.append(popupBtn);
-		
-		m_layout->addWidget(label,index,0);
-		m_layout->addWidget(soundBtn,index,1);
-		m_layout->addWidget(popupBtn,index,2);
-
-		connect(popupBtn,SIGNAL(toggled(bool)),SLOT(onPopupBtnToggled(bool)));
-		connect(soundBtn,SIGNAL(toggled(bool)),SLOT(onSoundBtnToggled(bool)));
-	}
-		
-	void PopupBehavior::onPopupBtnToggled ( bool checked )
-	{
-		emit modifiedChanged(true);
-		int type = sender()->property("notificationType").toInt();
-		if (checked)
-			m_popup_flags |= type;
-		else
-			m_popup_flags &= ~type;
-	}
-
-	void PopupBehavior::onSoundBtnToggled ( bool checked )
-	{
-		emit modifiedChanged(true);
-		int type = sender()->property("notificationType").toInt();
-		if (checked)
-			m_sound_flags |= type;
-		else
-			m_sound_flags &= ~type;
+		QStandardItem *item = new QStandardItem(localized_string);
+		item->setData(type,ItemTypeRole);
+		item->setEditable(false);
+		QList<QStandardItem *> items;
+		items << item;
+		item = new QStandardItem();
+		item->setCheckable(true);
+		items << item;
+		item = new QStandardItem();
+		item->setCheckable(true);
+		items << item;
+		m_model->appendRow(items);
 	}
 
 	void PopupBehavior::loadFlags()
 	{
-		for (int i = 0;i != m_popup_btn_list.count();i++) {
-			m_popup_btn_list.at(i)->setChecked(m_popup_flags & (1 << i));
-			m_sound_btn_list.at(i)->setChecked(m_sound_flags & (1 << i));
+		for (int i = 0;i != m_model->rowCount();i++) {
+			Qt::CheckState popup_checked = (m_popup_flags & (1 << i)) ? Qt::Checked : Qt::Unchecked;
+			Qt::CheckState sound_checked = (m_sound_flags & (1 << i)) ? Qt::Checked : Qt::Unchecked;
+			m_model->item(i,1)->setCheckState(sound_checked);
+			m_model->item(i,2)->setCheckState(popup_checked);
 		}
+	}
+
+	void PopupBehavior::onItemChanged(QStandardItem *item)
+	{
+		Qt::CheckState state = static_cast<Qt::CheckState>(item->data(Qt::CheckStateRole).toInt());
+		int type = 1 << item->row();
+
+		int &flags = (item->column() == 1) ? m_sound_flags : m_popup_flags;
+
+		if (state == Qt::Checked) {
+			flags |= type;
+		}
+		else {
+			flags &= ~type;
+		}
+		emit modifiedChanged(true);
 	}
 
 }

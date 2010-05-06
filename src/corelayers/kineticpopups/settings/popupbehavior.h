@@ -3,8 +3,8 @@
 #include <libqutim/settingswidget.h>
 #include "../backend.h"
 
-class QToolButton;
-class QGridLayout;
+class QStandardItemModel;
+class QStandardItem;
 namespace Ui
 {
 	class BehaviorSettings;
@@ -17,6 +17,12 @@ namespace Core
 	{
 		Q_OBJECT
 	public:
+		enum ItemRole
+		{
+			ItemTypeRole = Qt::UserRole,
+			ItemSoundCheckedRole,
+			ItemPopupCheckedRole
+		};
 		PopupBehavior();
 		virtual ~PopupBehavior();
 		virtual void cancelImpl();
@@ -26,15 +32,12 @@ namespace Core
 		void onAnimationSpeedIndexChanged(int index);
 		void onTimeoutTextChanged(const QString &str);
 		void addNotification(const QString &localized_string, int index);
-		void onPopupBtnToggled(bool checked);
-		void onSoundBtnToggled(bool checked);
+		void onItemChanged(QStandardItem *item);
 	private:
 		int indexOfDuration (int duration);
 		void loadFlags();
 		Ui::BehaviorSettings *ui;
-		QGridLayout *m_layout;
-		QList<QToolButton *> m_popup_btn_list;
-		QList<QToolButton *> m_sound_btn_list;
+		QStandardItemModel *m_model;
 		int m_sound_flags;
 		int m_popup_flags;
 	};

@@ -13,25 +13,18 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QFormLayout" name="formLayout">
+  <layout class="QGridLayout" name="gridLayout">
    <property name="margin">
     <number>0</number>
    </property>
-   <item row="2" column="0">
+   <item row="1" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
       <string>Timeout, msec:</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Animation speed:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
+   <item row="2" column="0">
     <widget class="QLineEdit" name="timeout">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -44,7 +37,14 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Animation speed:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
     <widget class="QComboBox" name="animationSpeed">
      <property name="currentIndex">
       <number>3</number>
@@ -86,12 +86,31 @@
      </item>
     </widget>
    </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="QGroupBox" name="notificationsBox">
-     <property name="title">
-      <string>Notification types</string>
+   <item row="3" column="1">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <property name="flat">
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QTreeView" name="notificationsView">
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>22</width>
+       <height>22</height>
+      </size>
+     </property>
+     <property name="rootIsDecorated">
       <bool>false</bool>
      </property>
     </widget>
