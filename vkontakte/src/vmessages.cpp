@@ -120,7 +120,7 @@ VMessages::VMessages(VConnection* connection, QObject* parent): QObject(parent),
 
 VMessages::~VMessages()
 {
-	saveSettings();
+	//saveSettings();
 }
 
 void VMessages::getLastMessages(int count)

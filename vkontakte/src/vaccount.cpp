@@ -72,7 +72,7 @@ void VAccount::saveSettings()
 
 VAccount::~VAccount()
 {
-	saveSettings();
+	//saveSettings();
 }
 
 QString VAccount::password()
