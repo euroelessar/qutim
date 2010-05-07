@@ -520,13 +520,14 @@ namespace qutim_sdk_0_3
 	void ModuleManager::onQuit()
 	{
 		foreach(Plugin *plugin, p->plugins) {
-			if (plugin)
+			if (plugin) {
 				plugin->unload();
+				plugin->deleteLater();
+			}
 		}
-
-		qDeleteAll(p->serviceOrder);
-		qDeleteAll(*(p->protocols));
-		qDeleteAll(p->plugins);
+		
+		//qDeleteAll(p->serviceOrder); //FIXME it crash qutIM on exit
+		qDeleteAllLater(*(p->protocols));		
 	}
 
 	void ModuleManager::virtual_hook(int id, void *data)
