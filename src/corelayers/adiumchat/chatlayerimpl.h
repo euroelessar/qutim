@@ -27,7 +27,7 @@ namespace AdiumChat
 	class ChatSessionImpl;
 	typedef QHash<ChatUnit *,  ChatSessionImpl *> ChatSessionHash;
 	typedef QList<ChatSessionImpl *> ChatSessionList;
-	typedef QHash<QString, ChatWidget *> ChatWidgetHash;
+	typedef QHash<QString, QPointer<ChatWidget> > ChatWidgetHash;
 	class ChatLayerImpl : public ChatLayer
 	{
 		Q_OBJECT

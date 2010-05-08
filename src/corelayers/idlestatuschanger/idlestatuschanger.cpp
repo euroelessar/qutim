@@ -14,10 +14,7 @@ IdleStatusChanger::IdleStatusChanger() :
 		m_awayStatus(Status::Away), m_naStatus(Status::NA)
 {
 	QObject *idle = getService("Idle");
-	if (!idle) {
-		deleteLater();
-		return;
-	}
+
 	m_awaySecs = 30;
 	m_naSecs   = 120;
 	m_state = Active;

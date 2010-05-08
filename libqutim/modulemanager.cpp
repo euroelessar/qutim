@@ -515,7 +515,6 @@ namespace qutim_sdk_0_3
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();
 		Notifications::sendNotification(Notifications::Startup, 0);
-		qDebug() << p->serviceOrder;
 	}
 	
 	void ModuleManager::onQuit()
@@ -526,11 +525,6 @@ namespace qutim_sdk_0_3
 			}
 		}
 		qDeleteAll(p->plugins);
-		foreach(QObject *obj,p->serviceOrder) {
-			qDebug() << obj;
-			obj->deleteLater();
-		}
-
 		qDeleteAll(p->serviceOrder);
 		qDeleteAll(*(p->protocols));
 	}
