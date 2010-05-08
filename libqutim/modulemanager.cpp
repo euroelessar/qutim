@@ -87,7 +87,7 @@ namespace qutim_sdk_0_3
 		};
 		QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
 		QHash<QByteArray, QObject *> services;
-		QList<QPointer<QObject> > serviceOrder;
+		QObjectList serviceOrder;
 		QHash<QByteArray, ExtensionInfo> extensionsHash;
 		ExtensionInfoList extensions;
 		QSet<QByteArray> interface_modules;
@@ -385,7 +385,7 @@ namespace qutim_sdk_0_3
 	
 	typedef QHash<QByteArray, const ObjectGenerator*> ServiceHash;
 	void initService(const QByteArray &name, QHash<QByteArray, QObject *> &services,
-					 QList<QPointer< QObject> > &order, const ServiceHash &hash,
+					 QObjectList &order, const ServiceHash &hash,
 					 QSet<QByteArray> &used, QVariantMap &selected)
 	{
 		if (used.contains(name))
@@ -515,6 +515,7 @@ namespace qutim_sdk_0_3
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();
 		Notifications::sendNotification(Notifications::Startup, 0);
+		qDebug() << p->serviceOrder;
 	}
 	
 	void ModuleManager::onQuit()
@@ -525,6 +526,11 @@ namespace qutim_sdk_0_3
 			}
 		}
 		qDeleteAll(p->plugins);
+		foreach(QObject *obj,p->serviceOrder) {
+			qDebug() << obj;
+			obj->deleteLater();
+		}
+
 		qDeleteAll(p->serviceOrder);
 		qDeleteAll(*(p->protocols));
 	}

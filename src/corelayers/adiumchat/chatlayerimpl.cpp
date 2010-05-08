@@ -118,7 +118,6 @@ namespace AdiumChat
 
 	ChatLayerImpl::~ChatLayerImpl()
 	{
-		qDeleteAll(m_chat_sessions);
 	}
 
 	QString ChatLayerImpl::getWidgetId(ChatSessionImpl* sess) const

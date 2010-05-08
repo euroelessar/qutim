@@ -12,6 +12,7 @@ class IdleStatusChanger : public QObject
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "AutoAway")
+	Q_CLASSINFO("Uses", "Idle")
 public:
 	explicit IdleStatusChanger();
 
