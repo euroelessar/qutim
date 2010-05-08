@@ -23,6 +23,8 @@ VContact::VContact(const QString& id, VAccount* account): Contact(account), d_pt
 	Q_D(VContact);
 	d->id = id;
 	d->account = account;
+	d->online = false;
+	d->inList = false;
 }
 
 

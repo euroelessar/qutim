@@ -32,7 +32,7 @@ namespace oscar {
 QByteArray BuddyPicture::emptyHash = QByteArray::fromHex("0201d20472");
 
 BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
-	AbstractConnection(account, parent), m_is_connected(false)
+	AbstractConnection(account, parent), m_is_connected(false),m_avatars(false)
 {
 	m_infos << SNACInfo(ServiceFamily, ServerRedirectService)
 			<< SNACInfo(AvatarFamily, AvatarGetReply);
