@@ -335,6 +335,7 @@ namespace AdiumChat
 	void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 	{
 		m_chat_unit = unit;
+		setParent(unit);
 		Contact *c = qobject_cast<Contact *>(unit);
 		if (c) {
 			connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(onStatusChanged(qutim_sdk_0_3::Status)));

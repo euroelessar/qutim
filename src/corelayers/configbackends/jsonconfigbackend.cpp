@@ -21,7 +21,7 @@
 #include "plistconfigbackend.h"
 #include "libqutim/jsonfile.h"
 #include "modulemanagerimpl.h"
-#include <QDebug>
+#include <libqutim/debug.h>
 
 namespace Core
 {
@@ -102,8 +102,6 @@ namespace Core
 						quint8 is_null;
 						quint32 ver;
 						s >> ver >> is_null >> name;
-						qDebug() << name.constData() << qstrlen(name.constData()) << name.length();
-						qDebug() << QMetaType::type(name);
 					}
 					QDataStream stream(&a, QIODevice::ReadOnly);
 					stream.setVersion(QDataStream::Qt_4_5);

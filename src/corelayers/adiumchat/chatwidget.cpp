@@ -182,6 +182,7 @@ namespace AdiumChat
 		}
 		int previous_index = m_current_index;
 		ChatSessionImpl *session = m_sessions.at(index);
+
 		if ((previous_index != -1) && (previous_index != index)) {
 			m_sessions.at(previous_index)->setActive(false);
 			session->activate();
@@ -270,9 +271,7 @@ namespace AdiumChat
 
 	void ChatWidget::onSessionDestroyed(QObject* object)
 	{
-		ChatSessionImpl *sess = static_cast<ChatSessionImpl *>(object);
-		if (!sess)
-			return;
+		ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
 		removeSession(sess);
 	}
 

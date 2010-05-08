@@ -87,7 +87,7 @@ namespace qutim_sdk_0_3
 		};
 		QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
 		QHash<QByteArray, QObject *> services;
-		QList<QObject*> serviceOrder;
+		QList<QPointer<QObject> > serviceOrder;
 		QHash<QByteArray, ExtensionInfo> extensionsHash;
 		ExtensionInfoList extensions;
 		QSet<QByteArray> interface_modules;
@@ -385,7 +385,7 @@ namespace qutim_sdk_0_3
 	
 	typedef QHash<QByteArray, const ObjectGenerator*> ServiceHash;
 	void initService(const QByteArray &name, QHash<QByteArray, QObject *> &services,
-					 QList<QObject*> &order, const ServiceHash &hash,
+					 QList<QPointer< QObject> > &order, const ServiceHash &hash,
 					 QSet<QByteArray> &used, QVariantMap &selected)
 	{
 		if (used.contains(name))
@@ -522,12 +522,11 @@ namespace qutim_sdk_0_3
 		foreach(Plugin *plugin, p->plugins) {
 			if (plugin) {
 				plugin->unload();
-				plugin->deleteLater();
 			}
 		}
-		
-		//qDeleteAll(p->serviceOrder); //FIXME it crash qutIM on exit
-		qDeleteAllLater(*(p->protocols));		
+		qDeleteAll(p->plugins);
+		qDeleteAll(p->serviceOrder);
+		qDeleteAll(*(p->protocols));
 	}
 
 	void ModuleManager::virtual_hook(int id, void *data)
