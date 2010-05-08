@@ -21,8 +21,8 @@ public:
 	AbstractInfoLayout(QWidget *parent = 0);
 	~AbstractInfoLayout();
 	void addSpacer();
-	virtual void addItem(const InfoItem &item) = 0;
-	virtual void addItems(const QList<InfoItem> &items) = 0;
+	virtual bool addItem(const InfoItem &item) = 0;
+	virtual bool addItems(const QList<InfoItem> &items) = 0;
 protected:
 	void addWidget(QWidget *w);
 	void addWidget(QWidget *, int row, int column, Qt::Alignment = 0);

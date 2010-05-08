@@ -8,6 +8,7 @@
 #include "editableinfolayout.h"
 #include <QDate>
 #include <QDateEdit>
+#include <QFileDialog>
 
 namespace Core
 {
@@ -22,6 +23,10 @@ MainWindow::MainWindow() :
 	ui.setupUi(this);
 	connect(ui.requestButton, SIGNAL(clicked()), SLOT(onRequestButton()));
 	connect(ui.saveButton, SIGNAL(clicked()), SLOT(onSaveButton()));
+	connect(ui.addButton, SIGNAL(clicked()), SLOT(onAddAvatar()));
+	connect(ui.removeButton, SIGNAL(clicked()), SLOT(onRemoveAvatar()));
+	ui.addButton->setIcon(Icon("list-add-avatar"));
+	ui.removeButton->setIcon(Icon("list-remove-avatar"));
 }
 
 void MainWindow::setObject(QObject *obj, RequestType type)
@@ -48,14 +53,13 @@ void MainWindow::setRequest(InfoRequest *req)
 	QWidget *w;
 	while ((w = ui.detailsStackedWidget->widget(0)) != 0)
 		delete w;
-	QString avatar;
 	Buddy *buddy = qobject_cast<Buddy*>(object);
 	if (buddy) {
 		setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About contact %1 <%2>")
 						.toString()
 						.arg(buddy->name())
 						.arg(buddy->id()));
-		avatar = buddy->avatar();
+		m_avatar = buddy->avatar();
 	} else {
 		Account *account = qobject_cast<Account*>(object);
 		if (account) {
@@ -68,14 +72,15 @@ void MainWindow::setRequest(InfoRequest *req)
 							.arg(object->property("name").toString())
 							.arg(object->property("id").toString()));
 		}
-		avatar = account->property("avatar").toString();
+		m_avatar = account->property("avatar").toString();
 	}
 	ui.saveButton->setVisible(readWrite);
 	ui.addButton->setVisible(readWrite);
 	ui.removeButton->setVisible(readWrite);
-	if (avatar.isEmpty())
-		avatar = ":/icons/qutim_64.png";
-	ui.pictureLabel->setPixmap(QPixmap(avatar).scaled(QSize(64, 64), Qt::KeepAspectRatio));
+	if (m_avatar.isEmpty())
+		onRemoveAvatar();
+	else
+		updateAvatar();
 	addItems(request->item());
 	if (curPage >= 0)
 		ui.infoListWidget->setCurrentRow(curPage);
@@ -120,6 +125,28 @@ void MainWindow::onSaveButton()
 	}
 	InfoItemUpdatedEvent event(items);
 	qApp->sendEvent(object, &event);
+	object->setProperty("avatar", m_avatar);
+}
+
+void MainWindow::onAddAvatar()
+{
+	QString avatar = QFileDialog::getOpenFileName(
+			this,
+			QT_TRANSLATE_NOOP("ContactInfo", "Open avatar"),
+			QDir::homePath(),
+			QT_TRANSLATE_NOOP("ContactInfo",
+							  "Images (*.gif *.bmp *.jpg *.jpeg *.png);;"\
+							  "All files (*.*)"));
+	if (!avatar.isEmpty()) {
+		m_avatar = avatar;
+		updateAvatar();
+	}
+}
+
+void MainWindow::onRemoveAvatar()
+{
+	m_avatar = ":/icons/qutim_64.png";
+	updateAvatar();
 }
 
 // TODO: maybe move the function to InfoItem class?
@@ -157,10 +184,10 @@ void MainWindow::addItems(const InfoItem &items)
 	ui.detailsStackedWidget->addWidget(w);
 	// Pages
 	AbstractInfoLayout *general = 0;
+	bool addSpacer = true;
 	foreach (const InfoItem &item, items.subitems()) {
 		if (item.hasSubitems()) {
 			QFrame *w = new QFrame(ui.detailsStackedWidget);
-
 			w->setFrameShape(QFrame::Panel);
 			w->setFrameShadow(QFrame::Sunken);
 			AbstractInfoLayout *group;
@@ -169,8 +196,8 @@ void MainWindow::addItems(const InfoItem &items)
 			else
 				group = new EditableInfoLayout(w);
 			group->setObjectName(item.name());
-			group->addItems(item.subitems());
-			group->addSpacer();
+			if (!group->addItems(item.subitems()))
+				group->addSpacer();
 			ui.infoListWidget->addItem(item.name());
 			ui.detailsStackedWidget->addWidget(w);
 		} else {
@@ -186,10 +213,10 @@ void MainWindow::addItems(const InfoItem &items)
 				ui.infoListWidget->addItem(QT_TRANSLATE_NOOP("ContactInfo", "General"));
 				ui.detailsStackedWidget->addWidget(w);
 			}
-			general->addItem(item);
+			addSpacer = (addSpacer && !general->addItem(item));
 		}
 	}
-	if (general)
+	if (general && addSpacer)
 		general->addSpacer();
 }
 
@@ -226,6 +253,11 @@ QString MainWindow::summary(const InfoItem &items)
 		}
 	}
 	return text;
+}
+
+void MainWindow::updateAvatar()
+{
+	ui.pictureLabel->setPixmap(QPixmap(m_avatar).scaled(QSize(64, 64), Qt::KeepAspectRatio));
 }
 
 class InfoActionGenerator : public ActionGenerator

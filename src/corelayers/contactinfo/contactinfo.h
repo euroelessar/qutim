@@ -26,16 +26,20 @@ private slots:
 	void onRequestStateChanged(InfoRequest::State state);
 	void onRequestButton();
 	void onSaveButton();
+	void onAddAvatar();
+	void onRemoveAvatar();
 private:
 	void dump(const InfoItem &item, int ident);
 	void setRequest(InfoRequest *request);
 	void addItems(const InfoItem &items);
 	QString summary(const InfoItem &item);
+	void updateAvatar();
 private:
 	Ui::userInformationClass ui;
 	InfoRequest *request;
 	QObject *object;
 	bool readWrite;
+	QString m_avatar;
 };
 
 class ContactInfo : public QObject

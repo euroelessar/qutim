@@ -15,7 +15,7 @@ AbstractInfoLayout::~AbstractInfoLayout()
 
 void AbstractInfoLayout::addSpacer()
 {
-	QSpacerItem *spacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+	QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
 	QGridLayout::addItem(spacer, m_row++, 0);
 }
 
