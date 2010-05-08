@@ -95,8 +95,8 @@ class EditableInfoLayout : public AbstractInfoLayout, public AbstractInfoGroup
 	Q_INTERFACES(Core::AbstractInfoGroup)
 public:
 	EditableInfoLayout(QWidget *parent = 0);
-	void addItems(const QList<InfoItem> &items);
-	void addItem(const InfoItem &item);
+	bool addItems(const QList<InfoItem> &items);
+	bool addItem(const InfoItem &item);
 	InfoItem item();
 private:
 	struct WidgetLine {

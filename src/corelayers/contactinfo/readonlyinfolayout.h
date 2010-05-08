@@ -10,11 +10,11 @@ class ReadOnlyInfoLayout : public AbstractInfoLayout
 {
 public:
 	ReadOnlyInfoLayout(QWidget *parent = 0);
-	void addItem(const InfoItem &item);
-	void addItems(const QList<InfoItem> &items);
+	bool addItem(const InfoItem &item);
+	bool addItems(const QList<InfoItem> &items);
+	static QWidget *getReadOnlyWidget(const InfoItem &item);
 protected:
-	void addDataWidget(QWidget *widget, const QString &name);
-	QLabel *addLabel(const QString &data, const QString &name);
+	static QLabel *getLabel(const QString &str);
 };
 
 }

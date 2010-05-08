@@ -1,4 +1,5 @@
 #include "editableinfolayout.h"
+#include "readonlyinfolayout.h"
 #include "libqutim/inforequest.h"
 #include "libqutim/icon.h"
 #include <QPushButton>
@@ -38,7 +39,7 @@ static QComboBox *getComboBox(const QString &value, const LocalizedStringList &a
 static QWidget *getTitle(const InfoItem &item)
 {
 	LocalizedStringList alt = item.property("titleAlternatives", LocalizedStringList());
-	if (alt.isEmpty()) {
+	if (item.property("readOnly", false) || alt.isEmpty()) {
 		QLabel *title = new QLabel(item.title() + ":");
 		title->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 		QFont font;
@@ -50,12 +51,15 @@ static QWidget *getTitle(const InfoItem &item)
 	}
 }
 
-static QWidget *getWidget(const InfoItem &item, bool *twoColumn = 0)
+static QWidget *getWidgetHelper(const InfoItem &item, bool *twoColumn, QSizePolicy::Policy &verticalPolicy)
 {
+	verticalPolicy = QSizePolicy::Maximum;
 	if (twoColumn)
 		*twoColumn = false;
 	QVariant::Type type = item.data().type();
-	if (type == QVariant::StringList) {
+	if (item.property("readOnly", false)) {
+		return ReadOnlyInfoLayout::getReadOnlyWidget(item);
+	} else if (type == QVariant::StringList) {
 		return new StringListGroup(item);
 	} else if (item.isMultiple()) {
 		if (twoColumn)
@@ -107,9 +111,18 @@ static QWidget *getWidget(const InfoItem &item, bool *twoColumn = 0)
 		} if (!item.property("multiline", false)) {
 			return new QLineEdit(str);
 		} else {
+			verticalPolicy = QSizePolicy::MinimumExpanding;
 			return new QTextEdit(str);
 		}
 	}
+}
+
+static QWidget *getWidget(const InfoItem &item, bool *twoColumn = 0)
+{
+	QSizePolicy::Policy vertPolicy;
+	QWidget *widget = getWidgetHelper(item, twoColumn, vertPolicy);
+	widget->setSizePolicy(QSizePolicy::Expanding, vertPolicy);
+	return widget;
 }
 
 static QString getTitle(QWidget *title)
@@ -187,7 +200,6 @@ void InfoListWidget::addRow(QWidget *data, QWidget *title)
 	deleteButton->setIcon(Icon("list-remove"));
 	connect(deleteButton, SIGNAL(clicked()), SLOT(onRemoveRow()));
 	deleteButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-	data->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	int row = m_widgets.size();
 	WidgetLine line(deleteButton, data, title);
 	m_widgets.push_back(line);
@@ -334,29 +346,33 @@ EditableInfoLayout::EditableInfoLayout(QWidget *parent) :
 {
 }
 
-void EditableInfoLayout::addItems(const QList<InfoItem> &items)
+bool EditableInfoLayout::addItems(const QList<InfoItem> &items)
 {
+	bool expand = false;
 	foreach (const InfoItem &item, items)
-		addItem(item);
+		expand = expand || addItem(item);
+	return expand;
 }
 
-void EditableInfoLayout::addItem(const InfoItem &item)
+bool EditableInfoLayout::addItem(const InfoItem &item)
 {
 	bool twoColumns;
 	QWidget *widget = getWidget(item, &twoColumns);
 	QWidget *title = 0;
-	if (!twoColumns && !item.property("hideTitle", false)) {
+	twoColumns = twoColumns || item.property("hideTitle", false);
+	if (!twoColumns) {
 		title = getTitle(item);
 		addWidget(title, m_row, 0, 1, 1, Qt::AlignRight | Qt::AlignTop);
 	}
 	widget->setParent(parentWidget());
 	widget->setObjectName(item.name());
-	widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	if (!twoColumns)
 		addWidget(widget, m_row++, 1, 1, 1);
 	else
 		addWidget(widget, m_row++, 0, 1, 2);
 	m_widgets.push_back(WidgetLine(title, widget));
+	QSizePolicy::Policy policy = widget->sizePolicy().verticalPolicy();
+	return policy == QSizePolicy::MinimumExpanding || policy == QSizePolicy::Expanding;
 }
 
 InfoItem EditableInfoLayout::item()
