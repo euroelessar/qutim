@@ -20,7 +20,7 @@
 
 namespace qutim_sdk_0_3
 {
-	struct JsonFilePrivate;
+	class JsonFilePrivate;
 
 	/**
 	* @brief JsonFile provides high-level api for fast writing and reading files with JSON content.

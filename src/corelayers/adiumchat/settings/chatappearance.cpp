@@ -132,7 +132,7 @@ namespace Core
 		ConfigGroup variables = Config("appearance/adiumChat").group(m_current_style_name);
 		int index = 0;
 		foreach (ChatVariable *widget, m_current_variables)
-			variables.at(index++).setValue("value", widget->style().value);
+			variables.at(index++).setValue("value", widget->chatStyle().value);
 		variables.sync();
 	}
 
@@ -171,9 +171,9 @@ namespace Core
 		foreach (ChatVariable *widget, m_current_variables)
 			if (widget)
 				css.append(QString("%1 { %2: %3; } ")
-						.arg(widget->style().selector)
-						.arg(widget->style().parameter)
-						.arg(widget->style().value));
+						.arg(widget->chatStyle().selector)
+						.arg(widget->chatStyle().parameter)
+						.arg(widget->chatStyle().value));
 		m_chat_session->setCustomCSS(css);
 		emit modifiedChanged(true);
 	}

@@ -51,7 +51,7 @@ namespace Core
 		m_style.parameter = style.parameter;
 	}
 
-	const CustomChatStyle &ChatFont::style()
+	const CustomChatStyle &ChatFont::chatStyle()
 	{
 		QFont fvalue(fontLabel->font());
 		QString fontSize(fvalue.pointSize() != -1
@@ -86,7 +86,7 @@ namespace Core
 		m_style.parameter = style.parameter;
 	}
 
-	const CustomChatStyle &ChatColor::style()
+	const CustomChatStyle &ChatColor::chatStyle()
 	{
 		m_style.value = color.name();
 		return m_style;
@@ -118,7 +118,7 @@ namespace Core
 		m_style.parameter = style.parameter;
 	}
 
-	const CustomChatStyle &ChatNumeric::style()
+	const CustomChatStyle &ChatNumeric::chatStyle()
 	{
 		m_style.value = QString::number(value());
 		return m_style;
@@ -143,7 +143,7 @@ namespace Core
 		m_style.parameter = style.parameter;
 	}
 
-	const CustomChatStyle &ChatBoolean::style()
+	const CustomChatStyle &ChatBoolean::chatStyle()
 	{
 		m_style.value = isChecked() ? m_trueValue : m_falseValue;
 		return m_style;

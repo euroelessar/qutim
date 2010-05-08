@@ -23,7 +23,7 @@ namespace Core
 	class ChatVariable
 	{
 		public:
-			virtual const CustomChatStyle &style() = 0;
+			virtual const CustomChatStyle &chatStyle() = 0;
 	};
 }
 Q_DECLARE_INTERFACE(Core::ChatVariable, "org.qutim.core.ChatVariable")
@@ -36,7 +36,7 @@ namespace Core
 		Q_INTERFACES(Core::ChatVariable)
 		public:
 			ChatFont(const CustomChatStyle &style, QWidget *parent = 0);
-			const CustomChatStyle &style();
+			const CustomChatStyle &chatStyle();
 		signals:
 			void changeValue();
 		private slots:
@@ -53,7 +53,7 @@ namespace Core
 		Q_INTERFACES(Core::ChatVariable)
 		public:
 			ChatColor(const CustomChatStyle &style, QWidget *parent = 0);
-			const CustomChatStyle &style();
+			const CustomChatStyle &chatStyle();
 		signals:
 			void changeValue();
 		private slots:
@@ -70,7 +70,7 @@ namespace Core
 		public:
 			ChatNumeric(const CustomChatStyle &style,
 					double min, double max, double step, QWidget *parent = 0);
-			const CustomChatStyle &style();
+			const CustomChatStyle &chatStyle();
 		signals:
 			void changeValue();
 		private slots:
@@ -86,7 +86,7 @@ namespace Core
 		public:
 			ChatBoolean(const CustomChatStyle &style,
 					const QString &trueValue, const QString &falseValue,  QWidget *parent = 0);
-			const CustomChatStyle &style();
+			const CustomChatStyle &chatStyle();
 		signals:
 			void changeValue();
 		private slots:

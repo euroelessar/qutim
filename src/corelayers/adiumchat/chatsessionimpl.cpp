@@ -37,7 +37,12 @@ namespace AdiumChat
 {
 
 	ChatSessionImpl::ChatSessionImpl ( ChatUnit* unit, ChatLayer* chat)
-		: ChatSession ( chat ),m_chat_style_output(new ChatStyleOutput),m_web_page(new QWebPage),m_input(new QTextDocument(this))
+		: ChatSession ( chat ),
+		m_chat_style_output(new ChatStyleOutput),
+		m_web_page(new QWebPage),
+		m_input(new QTextDocument(this)),
+		m_inactive_timer(0),
+		m_myself_chat_state(ChatStateInActive)
 	{
 		setChatUnit(unit);
 		m_input->setDocumentLayout(new QPlainTextDocumentLayout(m_input));

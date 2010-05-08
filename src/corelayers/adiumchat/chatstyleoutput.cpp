@@ -374,15 +374,14 @@ namespace AdiumChat
 		if (data.type() == QVariant::Url)
 			urls.append(data.toUrl());
 		else if (data.type() == QVariant::List) {
-			QList<QVariant> list = data.toList();
+			QVariantList list = data.toList();
 				for (int i = 0; i < list.size(); ++i) {
 				if (list.at(i).type() == QVariant::Url)
 				urls.append(list.at(i).toUrl());
 			}
 		}
 		QList<QUrl>::const_iterator it;
-		for (it=urls.begin();it!=urls.end();it++)
-		{
+		for (it=urls.constBegin();it!=urls.constEnd();it++) {
 			html.append("<br /><a href=\"%1\">%2</a>").arg(it->toEncoded(),it->toString());
 		}
 	}
