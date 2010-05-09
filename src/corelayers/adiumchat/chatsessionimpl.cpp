@@ -119,6 +119,8 @@ namespace AdiumChat
 	{
 		if (m_web_page)
 			m_web_page->deleteLater();
+		if (m_menu)
+			m_menu->deleteLater();
 	}
 
 	void ChatSessionImpl::addContact(Buddy* c)
@@ -377,7 +379,6 @@ namespace AdiumChat
 	{
 		if (!m_menu) {
 			m_menu = new QMenu();
-
 
 			//for JMessageSession
 			ChatUnit *unit = const_cast<ChatUnit*>(m_chat_unit->getHistoryUnit());

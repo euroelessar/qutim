@@ -44,14 +44,21 @@ namespace qutim_sdk_0_3
 	{
 		struct Private
 		{
+			~Private();
 			QHash<QString, EmoticonsThemeData *> cache;
 			QList<EmoticonsBackend *> backends;
 		};
-		static Private *p = NULL;
+		static QScopedPointer<Private> p;
+		
+		Private::~Private()
+		{
+			qDeleteAll(cache);
+			qDeleteAll(backends);
+		}
 
 		void ensurePrivate_helper()
 		{
-			p = new Private;
+			p.reset(new Private);
 			GeneratorList exts = moduleGenerators<EmoticonsBackend>();
 			foreach (const ObjectGenerator *gen, exts)
 				p->backends << gen->generate<EmoticonsBackend>();
@@ -216,7 +223,9 @@ namespace qutim_sdk_0_3
 		if (p->ref.deref()) {
 			// So it's the last one...
 			Emoticons::ensurePrivate();
-			Emoticons::p->cache.remove(p->provider->themeName());
+			EmoticonsThemeData *data = Emoticons::p->cache.take(p->provider->themeName());
+			if (data)
+				delete data;
 		}
 		p->ref.ref();
 	}
