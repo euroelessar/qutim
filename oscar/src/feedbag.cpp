@@ -23,18 +23,6 @@
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::FeedbagItem);
 
-struct FeedbagItemInit {
-	FeedbagItemInit() {
-		// ensure that FeedbagItem is registered at MetaType system
-		m_id = qMetaTypeId<qutim_sdk_0_3::oscar::FeedbagItem>();
-		qDebug("%s %d", Q_FUNC_INFO, m_id);
-		qRegisterMetaTypeStreamOperators<qutim_sdk_0_3::oscar::FeedbagItem>("qutim_sdk_0_3::oscar::FeedbagItem");
-	}
-	int m_id;
-};
-
-static FeedbagItemInit init = FeedbagItemInit();
-
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
@@ -356,6 +344,7 @@ QDataStream &operator<<(QDataStream &out, const FeedbagItem &item)
 		out << itr.key() << itr.value().data();
 		++itr;
 	}
+	return out;
 }
 
 QDataStream &operator>>(QDataStream &in, FeedbagItem &item)
@@ -370,6 +359,7 @@ QDataStream &operator>>(QDataStream &in, FeedbagItem &item)
 		in >> id >> data;
 		item.d->tlvs.insert(id, data);
 	}
+	return in;
 }
 
 QDebug &operator<<(QDebug &stream, const FeedbagItem &item)
