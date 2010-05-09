@@ -205,6 +205,10 @@ void AbstractMetaInfoRequest::close(bool ok)
 		emit done(ok);
 }
 
+AbstractMetaInfoRequest::AbstractMetaInfoRequest(const AbstractMetaInfoRequest &request)
+{
+}
+
 void ShortInfoMetaRequestPrivate::readString(MetaInfoFieldEnum value, const DataUnit &data)
 {
 	QString str = readSString(data);

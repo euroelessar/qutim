@@ -128,7 +128,6 @@ class LIBOSCAR_EXPORT AbstractMetaInfoRequest : public QObject
 	Q_DECLARE_PRIVATE(AbstractMetaInfoRequest)
 public:
 	AbstractMetaInfoRequest();
-	AbstractMetaInfoRequest(const AbstractMetaInfoRequest &request);
 	virtual ~AbstractMetaInfoRequest();
 	quint16 id() const;
 	IcqAccount *account() const;
@@ -147,6 +146,8 @@ protected:
 	void close(bool ok);
 protected:
 	QScopedPointer<AbstractMetaInfoRequestPrivate> d_ptr;
+private:
+	AbstractMetaInfoRequest(const AbstractMetaInfoRequest &request);
 };
 
 class LIBOSCAR_EXPORT ShortInfoMetaRequest : public AbstractMetaInfoRequest
