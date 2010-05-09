@@ -207,6 +207,7 @@ void AbstractMetaInfoRequest::close(bool ok)
 
 AbstractMetaInfoRequest::AbstractMetaInfoRequest(const AbstractMetaInfoRequest &request)
 {
+	Q_UNUSED(request);
 }
 
 void ShortInfoMetaRequestPrivate::readString(MetaInfoFieldEnum value, const DataUnit &data)
