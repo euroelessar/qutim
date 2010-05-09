@@ -370,7 +370,7 @@ bool IcqContact::event(QEvent *ev)
 		QDateTime time;
 		if (!d->onlineSince.isNull()) {
 			time = QDateTime::currentDateTime();
-			time = time.addSecs(-d->onlineSince.toTime_t());
+			time = time.addSecs(-static_cast<int>(d->onlineSince.toTime_t()));
 			time = time.toUTC();
 			event->appendField(QT_TRANSLATE_NOOP("ContactList", "Online time"),
 							   QString("%1d %2h %3m %4s")
@@ -425,7 +425,7 @@ void IcqContact::infoReceived(bool ok)
 	ShortInfoMetaRequest *req = qobject_cast<ShortInfoMetaRequest*>(sender());
 	Q_ASSERT(req);
 	if (ok) {
-		QString name = req->value<QString>(Nick);
+		QString name = req->value(Nick, QString());
 		if (!name.isEmpty())
 			setName(name);
 	}

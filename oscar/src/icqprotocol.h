@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-struct IcqProtocolPrivate;
+class IcqProtocolPrivate;
 class IcqProtocol;
 
 class LIBOSCAR_EXPORT IcqProtocol: public Protocol

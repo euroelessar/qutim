@@ -27,9 +27,8 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 class IcqAccount;
-class DirectConnectionInfo;
-
-struct IcqContactPrivate;
+struct DirectConnectionInfo;
+class IcqContactPrivate;
 
 class LIBOSCAR_EXPORT IcqContact: public Contact
 {

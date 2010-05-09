@@ -27,7 +27,7 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-struct IcqAccountPrivate;
+class IcqAccountPrivate;
 class RosterPlugin;
 class Feedbag;
 class AbstractConnection;
