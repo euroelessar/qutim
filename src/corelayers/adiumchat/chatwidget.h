@@ -20,6 +20,7 @@
 #include "chatlayerimpl.h"
 #include <QMainWindow>
 #include <QModelIndex>
+#include <QTimer>
 
 namespace Ui
 {
@@ -57,7 +58,6 @@ namespace AdiumChat
 		void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 	protected:
 		bool eventFilter(QObject *obj, QEvent *event);
-		virtual void timerEvent(QTimerEvent* );
 		virtual bool event(QEvent *event);
 	private slots:
 		void currentIndexChanged (int index);
@@ -75,6 +75,7 @@ namespace AdiumChat
 		void showPreviousSession();
 		void onDoubleClicked(const QModelIndex &index);
 		void onUnitTitleChanged(const QString &title);
+		void onChatStateTimeout();
 	private:
 		QIcon iconForState(ChatState state);
 		void chatStateChanged(ChatState state, ChatSessionImpl* session);
@@ -85,8 +86,7 @@ namespace AdiumChat
 		bool m_html_message;
 		bool m_remove_session_on_close;
 		ChatState m_chatstate;
-		int m_self_chatstate_timer;
-		int m_timeout;
+		QTimer m_self_chatstate_timer;
 		QPointer<QTextDocument> m_originalDoc;
 		QPointer<ConfTabCompletion> m_tab_completion;
 	};

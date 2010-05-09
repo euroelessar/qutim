@@ -106,13 +106,15 @@ namespace AdiumChat
 		//load settings
 		m_html_message = Config("appearance/adiumChat").group("behavior/widget").value<bool>("htmlMessage",false);
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("behavior/widget");
-		m_chat_flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",ChatStateIconsOnTabs | SendTypingNotification | ShowUnreadMessages | SwitchDesktopOnRaise));
+		m_chat_flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",SendTypingNotification | ChatStateIconsOnTabs | ShowUnreadMessages | SwitchDesktopOnRaise));
 		
-		if (m_chat_flags & SendTypingNotification) {
-			connect(ui->chatEdit,SIGNAL(textChanged()),SLOT(onTextChanged()));
-			m_chatstate = ChatStateActive;
-			m_timeout = 5000;
-		}
+ 		if (m_chat_flags & SendTypingNotification) {
+ 			connect(ui->chatEdit,SIGNAL(textChanged()),SLOT(onTextChanged()));
+ 			m_chatstate = ChatStateActive;
+ 			m_self_chatstate_timer.setInterval(5000);
+			m_self_chatstate_timer.setSingleShot(true);
+			connect(&m_self_chatstate_timer,SIGNAL(timeout()),SLOT(onChatStateTimeout()));
+ 		}
 		//init aero integration for win		
 		if (m_chat_flags & AeroThemeIntegration) {
 			if (QtWin::isCompositionEnabled()) {
@@ -225,7 +227,7 @@ namespace AdiumChat
 		}
 		
  		if ((m_chat_flags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
-			killTimer(m_self_chatstate_timer);
+			m_self_chatstate_timer.stop();
  			m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
 			m_sessions.at(previous_index)->setChatState(m_chatstate);
  		}
@@ -401,7 +403,7 @@ namespace AdiumChat
 		unit->sendMessage(message);
 		ui->chatEdit->clear();
 
-		killTimer(m_self_chatstate_timer);
+		m_self_chatstate_timer.stop();
 		m_chatstate = ChatStateActive;
 	}
 
@@ -429,20 +431,18 @@ namespace AdiumChat
 	
 	void ChatWidget::onTextChanged()
 	{
-		killTimer(m_self_chatstate_timer);
-		m_self_chatstate_timer = startTimer(m_timeout);
+		m_self_chatstate_timer.stop();
+		m_self_chatstate_timer.start();
 		if ((m_chatstate != ChatStateComposing) && (!ui->chatEdit->toPlainText().isEmpty())) {
 			m_chatstate = ChatStateComposing;
 			 m_sessions.at(ui->tabBar->currentIndex())->setChatState(m_chatstate);
 		}
 	}
-
-	void ChatWidget::timerEvent(QTimerEvent* e)
+	
+	void ChatWidget::onChatStateTimeout()
 	{
 		m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
 		m_sessions.at(ui->tabBar->currentIndex())->setChatState(m_chatstate);
-		killTimer(m_self_chatstate_timer);
-		QObject::timerEvent(e);
 	}
 
 	bool ChatWidget::event(QEvent *event)

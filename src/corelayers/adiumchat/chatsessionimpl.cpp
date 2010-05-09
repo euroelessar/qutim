@@ -41,7 +41,6 @@ namespace AdiumChat
 		m_chat_style_output(new ChatStyleOutput),
 		m_web_page(new QWebPage),
 		m_input(new QTextDocument(this)),
-		m_inactive_timer(0),
 		m_myself_chat_state(ChatStateInActive)
 	{
 		setChatUnit(unit);
@@ -69,8 +68,11 @@ namespace AdiumChat
 		}
 
 		setChatState(ChatStateActive);
+		m_inactive_timer.setInterval(120000);
+		m_inactive_timer.setSingleShot(true);
 		
 		connect(m_web_page,SIGNAL(linkClicked(QUrl)),SLOT(onLinkClicked(QUrl)));
+		connect(&m_inactive_timer,SIGNAL(timeout()),SLOT(onActiveTimeout()));
 		m_web_page->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 	}
 
@@ -347,15 +349,12 @@ namespace AdiumChat
 		}
 	}
 
-	void ChatSessionImpl::timerEvent(QTimerEvent *event)
+	void ChatSessionImpl::onActiveTimeout()
 	{
-		if (event->timerId() == m_inactive_timer) {
-			debug() << "set inactive state";
-			setChatState(ChatStateInActive);
-			killTimer(m_inactive_timer);
-		}
-		QObject::timerEvent(event);
+		debug() << "set inactive state";
+		setChatState(ChatStateInActive);
 	}
+
 
 	void ChatSessionImpl::setChatState(ChatState state)
 	{
@@ -363,8 +362,7 @@ namespace AdiumChat
 		qApp->sendEvent(m_chat_unit,&event);
 		m_myself_chat_state = state;
 		if ((state != ChatStateInActive) && (state != ChatStateGone) && (state != ChatStateComposing)) {
-			killTimer(m_inactive_timer);
-			m_inactive_timer = startTimer(120000);
+			m_inactive_timer.start();
 			debug() << "timer activated";
 		}
 	}

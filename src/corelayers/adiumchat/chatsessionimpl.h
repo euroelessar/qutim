@@ -18,6 +18,7 @@
 #include <libqutim/messagesession.h>
 #include <QTextDocument>
 #include <QPointer>
+#include <QTimer>
 
 class QAbstractItemModel;
 class QWebPage;
@@ -61,10 +62,10 @@ namespace AdiumChat
 	protected:
 		QScopedPointer<ChatStyleOutput> m_chat_style_output;
 		void loadHistory();
-		virtual void timerEvent(QTimerEvent *event);
 	protected slots:
 		void onStatusChanged(qutim_sdk_0_3::Status);
 		void onLinkClicked(const QUrl &url);
+		void onActiveTimeout();
 	private:
 		void statusChanged(Contact *contact, bool silent = false);
 		QPointer<QWebPage> m_web_page;
@@ -77,7 +78,7 @@ namespace AdiumChat
 		bool m_skipOneMerge;
 		bool m_active;
 		bool m_store_service_messages;
-		int m_inactive_timer;
+		QTimer m_inactive_timer;
 		MessageList m_unread;
 		ChatState m_myself_chat_state;
 	};
