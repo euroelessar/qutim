@@ -108,11 +108,15 @@ void SimpleTray::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
 	if (empty == m_sessions.isEmpty())
 		return;
 	if (m_sessions.isEmpty()) {
-		killTimer(m_iconTimerId);
+		if (m_iconTimerId) {
+			killTimer(m_iconTimerId);
+			m_iconTimerId = 0;
+		}
 		m_icon->setIcon(m_currentIcon);
 		m_isMail = false;
 	} else {
-		m_iconTimerId = startTimer(500);
+		if (!m_iconTimerId)
+			m_iconTimerId = startTimer(500);
 		m_icon->setIcon(m_mailIcon);
 		m_isMail = true;
 	}

@@ -1,0 +1,71 @@
+/****************************************************************************
+ *
+ *  This file is part of qutIM
+ *
+ *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This file is part of free software; you can redistribute it and/or    *
+ *   modify it under the terms of the GNU General Public License as        *
+ *   published by the Free Software Foundation; either version 2 of the    *
+ *   License, or (at your option) any later version.                       *
+ *                                                                         *
+ ***************************************************************************
+ ****************************************************************************/
+
+#include "oldsoundthemebackend.h"
+#include <QStringList>
+#include <QDomDocument>
+#include <QFile>
+#include <QDir>
+#include <QStringBuilder>
+#include "modulemanagerimpl.h"
+
+static Core::CoreModuleHelper<Core::OldSoundThemeBackend> sound_theme_static(
+		QT_TRANSLATE_NOOP("Plugin", "qutIM sound themes"),
+		QT_TRANSLATE_NOOP("Plugin", "Default qutIM sound theme engine")
+		); 
+
+namespace Core
+{
+QStringList OldSoundThemeBackend::themeList()
+{
+	QStringList themes = listThemes("sounds");
+	QStringList themeList;
+	foreach (const QString &name, themes) {
+		QDir dir(getThemePath("sounds", name));
+		QStringList entries = dir.entryList(QStringList("*.xml"), QDir::Files);
+		if (entries.isEmpty())
+			continue;
+		bool single = entries.size() == 1;
+		foreach (const QString &entry, entries) {
+			QFile file(dir.filePath(entry));
+			if (!file.open(QIODevice::ReadOnly))
+				continue;
+			QDomDocument doc;
+			doc.setContent(&file);
+			if (doc.doctype().name() == QLatin1String("qutimsounds")) {
+				if (single) {
+					themeList << name;
+				} else {
+					themeList << (name % " (" % entry.mid(0, entry.length() - 4) % ")");
+				}
+			}
+		}
+	}
+	return themeList;
+}
+
+SoundThemeProvider *OldSoundThemeBackend::loadTheme(const QString &name)
+{
+	QString themeName = name;
+	QString themeVariant;
+	if (name.endsWith(")") && name.contains(" (")) {
+		int index = name.indexOf(" (");
+		themeName = name.mid(0, index);
+		themeVariant = name.mid(index + 2, name.length() - 3 - index);
+	}
+	return new OldSoundThemeProvider(name, getThemePath("sounds", themeName), themeVariant);
+}
+}

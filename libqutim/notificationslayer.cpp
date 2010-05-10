@@ -20,6 +20,7 @@
 #include "contact.h"
 #include "message.h"
 #include "configbase.h"
+#include <QFileInfo>
 
 namespace qutim_sdk_0_3
 {
@@ -41,8 +42,23 @@ namespace qutim_sdk_0_3
 
 	struct NotificationsLayerPrivate
 	{
-		QPointer<PopupBackend> popup_backend;
-		QPointer<SoundBackend> sound_backend;
+		QPointer<PopupBackend> popupBackend;
+		QPointer<SoundBackend> soundBackend;
+		QList<SoundThemeBackend*> soundThemeBackends;
+		QHash<QString, SoundThemeData*> soundThemeCache;
+		bool soundIsInited;
+		void initSound()
+		{
+			if (!isCoreInited())
+				return;
+			soundBackend = qobject_cast<SoundBackend*>(getService("Sound"));
+			GeneratorList exts = moduleGenerators<SoundThemeBackend>();
+			foreach (const ObjectGenerator *gen, exts)
+				soundThemeBackends << gen->generate<SoundThemeBackend>();
+			soundIsInited = true;
+		}
+		
+		inline void ensureSound() { if (!soundIsInited) initSound(); }
 	};
 
 	static NotificationsLayerPrivate *p = 0;
@@ -50,6 +66,7 @@ namespace qutim_sdk_0_3
 	void ensure_notifications_private_helper()
 	{
 		p = new NotificationsLayerPrivate;
+		p->soundIsInited = false;
 	}
 
 	inline void ensure_notifications_private()
@@ -66,11 +83,12 @@ namespace qutim_sdk_0_3
 			//TODO add checks
 			if (!isCoreInited())
 				return;
-			if (p->popup_backend.isNull())
-				p->popup_backend = qobject_cast<PopupBackend*>(getService("Popup"));
+			if (p->popupBackend.isNull())
+				p->popupBackend = qobject_cast<PopupBackend*>(getService("Popup"));
 
-			if (p->popup_backend)
-				p->popup_backend->show(type, sender, body, data);
+			if (p->popupBackend)
+				p->popupBackend->show(type, sender, body, data);
+			Sound::play(type);
 		}
 
 
@@ -136,70 +154,59 @@ namespace qutim_sdk_0_3
 
 	}
 
-	class SoundThemePrivate
+	class SoundThemeData : public QSharedData
 	{
-		// 	public:
-		// 		QString themeName;
-		// 		QHash<Notifications::Type , QString> themeHash;
-		// 		static SoundThemePrivate *self()
-		// 		{
-		// 			if ( !instance )
-		// 				instance = new SoundThemePrivate();
-		// 			return instance;
-		// 		};
-		// 	private:
-		// 		static SoundThemePrivate *instance;
+	public:
+		SoundThemeData() : provider(0) {}
+		SoundThemeData(const SoundThemeData &o) : QSharedData(o), provider(o.provider) {}
+		~SoundThemeData() { delete provider; }
+		SoundThemeProvider *provider;
 	};
 
-	SoundTheme::SoundTheme(const QString name)
+	SoundTheme::SoundTheme(const QString name) : d(Sound::theme(name).d)
 	{
-		Q_UNUSED(name);
-		// 		QString themeName = name;
-		// 		if (themeName .isEmpty()) {
-		// 			themeName  = Config().group("sounds").value<QString>("theme", QString());
-		// 		}
-		// 		if (SoundThemePrivate::self()->themeName != themeName) {
-		// 			SoundThemePrivate::self()->themeName = themeName;
-		// 			load();
-		// 		}
+	}
+	
+	SoundTheme::SoundTheme(SoundThemeData *data) : d(data)
+	{
+	}
+	
+	SoundTheme::SoundTheme(const SoundTheme &other) : d(other.d)
+	{
+	}
+	
+	SoundTheme::~SoundTheme()
+	{
+	}
+	
+	SoundTheme &SoundTheme::operator =(const SoundTheme &other)
+	{
+		d = other.d;
 	}
 
-	void SoundTheme::load()
+	QString SoundTheme::path(Notifications::Type type) const
 	{
-		//TODO
+		return isNull() ? QString() : d->provider->soundPath(type);
 	}
 
-	QString SoundTheme::path(Notifications::Type type)
+	void SoundTheme::play(Notifications::Type type) const
 	{
-		Q_UNUSED(type);
-		return QString();
+		QString filePath = path(type);
+		if (filePath.isEmpty())
+			return;
+		QFileInfo info(filePath);
+		if (p->soundBackend && p->soundBackend->supportedFormats().contains(info.suffix()))
+				p->soundBackend->playSound(filePath);
+	}
+	
+	bool SoundTheme::isNull() const
+	{
+		return !d || !d->provider;
 	}
 
-	void SoundTheme::play(Notifications::Type type)
+	bool SoundTheme::save()
 	{
-		Q_UNUSED(type);
-		// 		ensure_notifications_private();
-		// 		if (!isCoreInited())
-		// 			return;
-		// 		if (!p->inited)
-		// 		{
-		// 			GeneratorList popup_backends = moduleGenerators<PopupBackend>();
-		// 			p->popup_gen = popup_backends.size() ? popup_backends.first() : 0;
-		//
-		// 			GeneratorList sound_backends = moduleGenerators<SoundBackend>();
-		// 			p->sound_gen = sound_backends.size() ? sound_backends.first() : 0;
-		// 			p->inited = true;
-		// 		}
-		// 		if (p->sound_backend.isNull() && p->sound_gen)
-		// 			p->sound_backend = p->sound_gen->generate<SoundBackend>();
-		//
-		// 		if (p->sound_backend)
-		// 			p->sound_backend->playSound(SoundThemePrivate::self()->themeHash.value(type));
-	}
-
-	void SoundTheme::save()
-	{
-
+		return !isNull() && d->provider->saveTheme();
 	}
 
 	void SoundTheme::setPath(Notifications::Type type, QString path)
@@ -208,10 +215,121 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(path);
 	}
 
-	QString SoundTheme::title()
+	QString SoundTheme::themeName() const
 	{
-		return QString();
+		return isNull() ? QString() : d->provider->themeName();
+	}
+	
+	class SoundThemeProviderPrivate
+	{
+	public:
+	};
+	
+	SoundThemeProvider::SoundThemeProvider()
+	{
 	}
 
+	SoundThemeProvider::~SoundThemeProvider()
+	{
+	}
+
+	bool SoundThemeProvider::setSoundPath(Notifications::Type sound, const QString &file)
+	{
+		Q_UNUSED(sound);
+		Q_UNUSED(file);
+		return false;
+	}
+
+	bool SoundThemeProvider::saveTheme()
+	{
+		return false;
+	}
+
+	void SoundThemeProvider::virtual_hook(int type, void *data)
+	{
+		Q_UNUSED(type);
+		Q_UNUSED(data);
+	}
+	
+	namespace Sound
+	{
+		SoundTheme theme(const QString &name)
+		{
+			if (name.isEmpty()) {
+				QString currentName = currentThemeName();
+				if (currentName.isEmpty())
+					return SoundTheme(0);
+				else
+					return theme(currentName);
+			} else {
+				p->ensureSound();
+			}
+			
+			// Firstly look at cache
+			if (SoundThemeData *data = p->soundThemeCache.value(name))
+				return SoundTheme(data);
+
+			// Then try a chance in different backends
+			foreach (SoundThemeBackend *backend, p->soundThemeBackends) {
+				if (backend->themeList().contains(name)) {
+					SoundThemeData *data = new SoundThemeData;
+					data->provider = backend->loadTheme(name);
+					Q_ASSERT(data->provider);
+					Q_ASSERT(data->provider->themeName() == name);
+					data->ref.ref();
+					p->soundThemeCache.insert(name, data);
+					return SoundTheme(data);
+				}
+			}
+
+			// So.. there is no such theme... create null one
+			return SoundTheme(0);
+		}
+
+		void play(Notifications::Type type)
+		{
+			theme().play(type);
+		}
+
+		QString currentThemeName()
+		{
+			p->ensureSound();
+			ConfigGroup config = Config("appearance").group("sound");
+			QString name = config.value<QString>("theme", QString());
+			if (name.isEmpty()) {
+				QStringList themes = themeList();
+				if (themes.isEmpty() || themes.contains(QLatin1String("default")))
+					name = QLatin1String("default");
+				else
+					name = themes.first();
+				config.setValue("theme", name);
+				config.sync();
+			}
+			return name;
+		}
+
+		QStringList themeList()
+		{
+			p->ensureSound();
+			QSet<QString> themes;
+			foreach (SoundThemeBackend *backend, p->soundThemeBackends) {
+				foreach (const QString &theme, backend->themeList())
+					themes << theme;
+			}
+			return themes.toList();
+		}
+
+		void setTheme(const QString &name)
+		{
+			ConfigGroup group = Config("appearance").group("sound");
+			group.setValue("theme", name);
+			group.sync();
+		}
+
+		void setTheme(const SoundTheme &theme)
+		{
+			setTheme(theme.themeName());
+		}
+	}
 }
 

@@ -18,6 +18,7 @@
 #define POPUPWIDGET_H
 
 #include <QTextBrowser>
+#include <QTimer>
 #include "themehelper.h"
 
 class QTextBrowser;
@@ -51,7 +52,7 @@ namespace KineticPopups
 		void init(const ThemeHelper::PopupSettings &popupSettings);
 		QObject *m_sender;
 		QVariant m_data;
-		int m_timer_id;
+		QTimer m_timer;
 	};
 }
 #endif // POPUPWIDGET_H

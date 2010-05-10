@@ -42,7 +42,8 @@ namespace KineticPopups
 
 	void PopupWidget::init (const ThemeHelper::PopupSettings &popupSettings)
 	{
-		m_timer_id = 0;
+		m_timer.setSingleShot(true);
+		connect(&m_timer, SIGNAL(timeout()), this, SIGNAL(activated()));
 		//init browser
 		setTheme(popupSettings);
 		if (popupSettings.popupFlags & ThemeHelper::Preview) {
@@ -99,9 +100,9 @@ namespace KineticPopups
 		Manager *manager = Manager::self();
 		
 		if (manager->timeout > 0) {
-			if (m_timer_id)
-				killTimer(m_timer_id);
-			m_timer_id = startTimer(manager->timeout);
+			if (m_timer.isActive())
+				m_timer.stop();
+			m_timer.start(manager->timeout);
 		}
 	}
 

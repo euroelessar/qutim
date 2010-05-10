@@ -20,6 +20,7 @@
 #include "libqutim_global.h"
 #include <QPointer>
 #include <QVariant>
+#include <QSharedDataPointer>
 
 namespace qutim_sdk_0_3
 {
@@ -67,7 +68,7 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT SoundBackend : public QObject
 	{
 		Q_OBJECT
-//		Q_CLASSINFO("Service", "Sound")
+		Q_CLASSINFO("Service", "Sound")
 	public:
 		SoundBackend();
 		virtual ~SoundBackend() {};
@@ -77,31 +78,58 @@ namespace qutim_sdk_0_3
 		virtual void virtual_hook(int type, void *data);
 	};
 
-	class SoundThemePrivate;
+	class SoundThemeData;
 	class SoundTheme
 	{
 	public:
-		SoundTheme (const QString name = QString());
-		QString path(Notifications::Type type);
-		void setPath(Notifications::Type  type, QString path);
-		void play(Notifications::Type type);
-		QString title();
-		void load();
-		void save();
+		SoundTheme(const QString name = QString());
+		SoundTheme(const SoundTheme &other);
+		SoundTheme(SoundThemeData *data);
+		~SoundTheme();
+		SoundTheme &operator =(const SoundTheme &other);
+		QString path(Notifications::Type type) const;
+		void setPath(Notifications::Type type, QString path);
+		void play(Notifications::Type type) const;
+		bool isNull() const;
+		QString themeName() const;
+		bool save();
+	protected:
+		QSharedDataPointer<SoundThemeData> d;
 	};
 
-	class LIBQUTIM_EXPORT SoundThemeProvider : public QObject
+	class SoundThemeProviderPrivate;
+	class LIBQUTIM_EXPORT SoundThemeProvider
 	{
-		//TODO
-// 		Q_OBJECT
-// 	public:
-// 		virtual bool init(const QString &path) = 0;
-// 		virtual void setSound(Notifications::Type sound, const QString &file) = 0;
-// 		virtual QString sound(Notifications::Type sound) = 0;
-// 	protected:
-// 		virtual void virtual_hook(int type, void *data);
+		Q_DISABLE_COPY(SoundThemeProvider)
+ 	public:
+		SoundThemeProvider();
+		~SoundThemeProvider();
+ 		virtual bool setSoundPath(Notifications::Type sound, const QString &file);
+ 		virtual QString soundPath(Notifications::Type sound) = 0;
+		virtual QString themeName() = 0;
+		virtual bool saveTheme();
+ 	protected:
+ 		virtual void virtual_hook(int type, void *data);
+		QScopedPointer<SoundThemeProviderPrivate> p;
 	};
 
+	class LIBQUTIM_EXPORT SoundThemeBackend : public QObject
+	{
+		Q_OBJECT
+	public:
+		virtual QStringList themeList() = 0;
+		virtual SoundThemeProvider *loadTheme(const QString &name) = 0;
+	};
+	
+	namespace Sound
+	{
+		LIBQUTIM_EXPORT SoundTheme theme(const QString &name = QString());
+		LIBQUTIM_EXPORT void play(Notifications::Type type);
+		LIBQUTIM_EXPORT QString currentThemeName();
+		LIBQUTIM_EXPORT QStringList themeList();
+		LIBQUTIM_EXPORT void setTheme(const QString &name);
+		LIBQUTIM_EXPORT void setTheme(const SoundTheme &theme);
+	}
 }
 
 #endif // NOTIFICATIONSLAYER_H

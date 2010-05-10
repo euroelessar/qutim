@@ -407,14 +407,16 @@ namespace qutim_sdk_0_3
 		QString currentThemeName()
 		{
 			ensurePrivate();
-			QString name = Config("appearance").group("emoticons").value<QString>("theme", QString());
+			ConfigGroup config = Config("appearance").group("emoticons");
+			QString name = config.value<QString>("theme", QString());
 			if (name.isEmpty()) {
 				QStringList themes = themeList();
-				if (themes.isEmpty())
+				if (themes.isEmpty() || themes.contains(QLatin1String("default")))
 					name = QLatin1String("default");
 				else
 					name = themes.first();
-				setTheme(name);
+				config.setValue("theme", name);
+				config.sync();
 			}
 			return name;
 //			return Config().group("emoticons").value<QString>("theme", "default");
