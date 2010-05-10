@@ -182,6 +182,7 @@ namespace qutim_sdk_0_3
 	SoundTheme &SoundTheme::operator =(const SoundTheme &other)
 	{
 		d = other.d;
+		return *this;
 	}
 
 	QString SoundTheme::path(Notifications::Type type) const
