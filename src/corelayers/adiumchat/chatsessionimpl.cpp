@@ -39,7 +39,7 @@ namespace AdiumChat
 	ChatSessionImpl::ChatSessionImpl ( ChatUnit* unit, ChatLayer* chat)
 		: ChatSession ( chat ),
 		m_chat_style_output(new ChatStyleOutput),
-		m_web_page(new QWebPage),
+		m_web_page(new QWebPage(this)),
 		m_input(new QTextDocument(this)),
 		m_myself_chat_state(ChatStateInActive)
 	{
@@ -117,8 +117,6 @@ namespace AdiumChat
 
 	ChatSessionImpl::~ChatSessionImpl()
 	{
-		if (m_web_page)
-			m_web_page->deleteLater();
 		if (m_menu)
 			m_menu->deleteLater();
 	}
