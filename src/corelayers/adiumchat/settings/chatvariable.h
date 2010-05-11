@@ -24,6 +24,7 @@ namespace Core
 	{
 		public:
 			virtual const CustomChatStyle &chatStyle() = 0;
+			virtual ~ChatVariable() {}
 	};
 }
 Q_DECLARE_INTERFACE(Core::ChatVariable, "org.qutim.core.ChatVariable")

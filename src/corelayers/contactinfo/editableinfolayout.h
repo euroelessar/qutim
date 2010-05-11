@@ -11,6 +11,7 @@ class AbstractInfoGroup
 {
 public:
 	virtual InfoItem item() = 0;
+	virtual ~AbstractInfoGroup() {}
 };
 
 }
@@ -29,7 +30,7 @@ class InfoListWidget : public QWidget, public AbstractInfoGroup
 public:
 	InfoListWidget(QWidget *parent = 0);
 	InfoListWidget(const InfoItem &def, QWidget *parent = 0);
-	~InfoListWidget();
+	virtual ~InfoListWidget();
 	void addRow(QWidget *data, QWidget *title = 0);
 	void addRow(const InfoItem &item);
 	InfoItem item();

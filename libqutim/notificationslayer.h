@@ -103,7 +103,7 @@ namespace qutim_sdk_0_3
 		Q_DISABLE_COPY(SoundThemeProvider)
  	public:
 		SoundThemeProvider();
-		~SoundThemeProvider();
+		virtual ~SoundThemeProvider();
  		virtual bool setSoundPath(Notifications::Type sound, const QString &file);
  		virtual QString soundPath(Notifications::Type sound) = 0;
 		virtual QString themeName() = 0;
