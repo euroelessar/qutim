@@ -379,6 +379,7 @@ namespace AdiumChat
 			m_menu = new QMenu();
 
 			//for JMessageSession
+			//FIXME maybe need to move to the protocols
 			ChatUnit *unit = const_cast<ChatUnit*>(m_chat_unit->getHistoryUnit());
 
 			QAction *act = new QAction(m_menu);
@@ -395,14 +396,15 @@ namespace AdiumChat
 			m_menu->addSeparator();
 
 			ChatUnitList list = unit->lowerUnits();
-			for (int index=0;index!=list.count();index++) {
+			foreach (ChatUnit *u, list) {
 				act = new QAction(m_menu);
-				act->setText(list.at(index)->title());
-				act->setData(qVariantFromValue(list.at(index)));
+				act->setText(u->title());
+				act->setData(qVariantFromValue(u));
 				act->setCheckable(true);
-				act->setChecked(list.at(index) == m_chat_unit);
+				act->setChecked(u == m_chat_unit);
 				group->addAction(act);
 				m_menu->addAction(act);
+				connect(u,SIGNAL(destroyed()),act,SLOT(deleteLater()));
 			}
 		}
 		return m_menu;
