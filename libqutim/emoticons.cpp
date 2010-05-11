@@ -32,6 +32,7 @@ namespace qutim_sdk_0_3
 		~EmoticonsThemeData() { delete provider; }
 		EmoticonsProvider *provider;
 	};
+	typedef QExplicitlySharedDataPointer<EmoticonsThemeData> EmoticonsThemeDataPtr;
 
 	struct EmoticonsProviderPrivate
 	{
@@ -45,14 +46,13 @@ namespace qutim_sdk_0_3
 		struct Private
 		{
 			~Private();
-			QHash<QString, EmoticonsThemeData *> cache;
+			QHash<QString, EmoticonsThemeDataPtr> cache;
 			QList<EmoticonsBackend *> backends;
 		};
 		static QScopedPointer<Private> p;
 		
 		Private::~Private()
 		{
-			qDeleteAll(cache);
 			qDeleteAll(backends);
 		}
 
@@ -208,7 +208,8 @@ namespace qutim_sdk_0_3
 	{
 	}
 
-	EmoticonsTheme::EmoticonsTheme(EmoticonsThemeData *data) : p(data)
+	EmoticonsTheme::EmoticonsTheme(const QExplicitlySharedDataPointer<EmoticonsThemeData> &data) :
+		p(data)
 	{
 	}
 
@@ -223,9 +224,7 @@ namespace qutim_sdk_0_3
 		if (p->ref.deref()) {
 			// So it's the last one...
 			Emoticons::ensurePrivate();
-			EmoticonsThemeData *data = Emoticons::p->cache.take(p->provider->themeName());
-			if (data)
-				delete data;
+			Emoticons::p->cache.remove(p->provider->themeName());
 		}
 		p->ref.ref();
 	}
@@ -435,13 +434,13 @@ namespace qutim_sdk_0_3
 				ensurePrivate();
 
 			// Firstly look at cache
-			if (EmoticonsThemeData *data = p->cache.value(name))
+			if (EmoticonsThemeDataPtr data = p->cache.value(name))
 				return EmoticonsTheme(data);
 
 			// Then try a chance in different backends
 			foreach (EmoticonsBackend *backend, p->backends) {
 				if (backend->themeList().contains(name)) {
-					EmoticonsThemeData *data = new EmoticonsThemeData;
+					EmoticonsThemeDataPtr data(new EmoticonsThemeData);
 					data->provider = backend->loadTheme(name);
 					Q_ASSERT(data->provider);
 					Q_ASSERT(data->provider->themeName() == name);
