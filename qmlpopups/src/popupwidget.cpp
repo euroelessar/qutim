@@ -93,6 +93,8 @@ namespace QmlPopups {
 		context->setContextProperty("popupBody",body);
 		QString image_path = sender ? sender->property("avatar").toString() : QString();
 		context->setContextProperty("popupImage",image_path);
+		if (status() == QDeclarativeView::Error)
+			emit activated();
     }
 
     void PopupWidget::accept()
