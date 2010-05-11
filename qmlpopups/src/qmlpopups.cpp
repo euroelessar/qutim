@@ -16,14 +16,14 @@ namespace QmlPopups
 				QT_TRANSLATE_NOOP("Plugin", "Modern popups, based on power of Qt Quick"),
 			    PLUGIN_VERSION(0, 1, 0, 0));
 		addExtension<Backend>(QT_TRANSLATE_NOOP("plugin","Qml popups"),QT_TRANSLATE_NOOP("plugin","Modern popups, based on power of Qt Quick"));
-	    GeneralSettingsItem<PopupBehavior> *behavior = new GeneralSettingsItem<PopupBehavior>(Settings::General,Icon("dialog-information"),QT_TRANSLATE_NOOP("Settings","Notifications"));
-	    Settings::registerItem(behavior);
-	    GeneralSettingsItem<PopupAppearance> *appearance = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
-	    Settings::registerItem(appearance);
 	}
 
 	bool QmlPopupsPlugin::load()
 	{
+		GeneralSettingsItem<PopupBehavior> *behavior = new GeneralSettingsItem<PopupBehavior>(Settings::General,Icon("dialog-information"),QT_TRANSLATE_NOOP("Settings","Notifications"));
+		Settings::registerItem(behavior);
+		GeneralSettingsItem<PopupAppearance> *appearance = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
+		Settings::registerItem(appearance);
 		return true;
 	}
 

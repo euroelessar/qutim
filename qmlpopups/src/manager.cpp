@@ -118,7 +118,7 @@ namespace QmlPopups
 
 	void Manager::loadSettings()
 	{
-		ConfigGroup behavior = Config("behavior/popups").group("general");
+		ConfigGroup behavior = Config("behavior/notifications").group("popups");
 		themeName = behavior.value<QString>("themeName","default");
 		updatePosition = behavior.value<bool>("updatePosition",true);
 		animation = static_cast<AnimationFlags>(behavior.value<int>("animationFlags",Opacity));
