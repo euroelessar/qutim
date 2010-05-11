@@ -135,7 +135,7 @@ namespace KineticPopups
 	void KineticPopups::PopupWidget::onAction1Triggered()
 	{
 		if (ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender)) {
-			ChatLayer::get(const_cast<ChatUnit *>(unit->getHistoryUnit()),true)->activate();
+			ChatLayer::get(unit,true)->activate();
 		}
 		else if (QWidget *widget = qobject_cast<QWidget *>(m_sender)) {
 			widget->raise();
