@@ -100,9 +100,6 @@ namespace QmlPopups {
     void PopupWidget::accept()
     {
 		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
-		if (unit)
-			unit = const_cast<ChatUnit *>(unit->getHistoryUnit());
-
 		if (ChatSession *sess = ChatLayer::get(unit)) {
 			sess->setActive(true);
 		}
