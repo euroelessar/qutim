@@ -22,6 +22,7 @@
 #include <QLineEdit>
 #include <libqutim/qtwin.h>
 #include <libqutim/shortcut.h>
+#include <QMainWindow>
 
 namespace Core
 {
@@ -32,7 +33,7 @@ namespace Core
 				QT_TRANSLATE_NOOP("Plugin", "Default qutIM contact list implementation. Just simple")
 				);
 
-		class MyWidget : public QWidget
+		class MyWidget : public QMainWindow
 		{
 		public:
 			MyWidget()
@@ -103,7 +104,9 @@ namespace Core
 									);
 			
 			p->widget = new MyWidget;
-			QVBoxLayout *layout = new QVBoxLayout(p->widget);
+			p->widget->setCentralWidget(new QWidget(p->widget));
+			p->widget->setUnifiedTitleAndToolBarOnMac(true);
+			QVBoxLayout *layout = new QVBoxLayout(p->widget->centralWidget());
 			layout->setMargin(0);
 			layout->setSpacing(0);
 
@@ -115,15 +118,15 @@ namespace Core
 			int size = Config().group("contactList").value("toolBarIconSize",16);
 			
 			QSize toolbar_size (size,size);
-			
+
 			p->main_toolbar = new ActionToolBar(p->widget);
+			p->widget->addToolBar(Qt::TopToolBarArea,p->main_toolbar);
 			p->main_toolbar->setIconSize(toolbar_size);
+			p->main_toolbar->setFloatable(false);
 
 #ifdef Q_WS_WIN
-			p->main_toolbar->setStyleSheet("QToolBar{background:none;border:none}"); //HACK
+			p->main_toolbar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
 #endif
-			
-			layout->addWidget(p->main_toolbar);
 			
 			ActionGenerator *gen = new ActionGenerator(Icon("configure"),
 										  QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
