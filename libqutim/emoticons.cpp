@@ -451,7 +451,7 @@ namespace qutim_sdk_0_3
 			}
 
 			// So.. there is no such theme... create null one
-			return EmoticonsTheme(0);
+			return EmoticonsTheme(EmoticonsThemeDataPtr());
 		}
 
 		QStringList themeList()
