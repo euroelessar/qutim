@@ -120,9 +120,11 @@ namespace Core
 			QSize toolbar_size (size,size);
 
 			p->main_toolbar = new ActionToolBar(p->widget);
+			p->main_toolbar->setWindowTitle(tr("Main Toolbar"));
 			p->widget->addToolBar(Qt::TopToolBarArea,p->main_toolbar);
 			p->main_toolbar->setIconSize(toolbar_size);
 			p->main_toolbar->setFloatable(false);
+			p->main_toolbar->setMovable(false);
 
 #ifdef Q_WS_WIN
 			p->main_toolbar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK

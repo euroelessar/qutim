@@ -292,7 +292,7 @@ namespace qutim_sdk_0_3
 		Gestalt(gestaltSystemVersionBugFix, &bug_fix);
 		d->os_version_id = (quint8(major_version) << 24) | (quint8(minor_version) << 16) | (quint8(bug_fix) << 8);
 		d->os_name = "MacOS X";
-		d->os_version = QString("%1.%2.%3").arg(major_version, minor_version, bug_fix);
+		d->os_version = QString("%1.%2.%3").arg(major_version).arg(minor_version).arg(bug_fix);
 		d->os_full = d->os_name;
 		d->os_full += " ";
 		d->os_full += d->os_version;

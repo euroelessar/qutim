@@ -59,10 +59,8 @@ namespace Core
 
 					buttonOption.state = option.state;					
 #ifdef Q_WS_MAC
-					buttonOption.state |= QStyle::State_Raised;
 					buttonOption.features = QStyleOptionButton::Flat;
 #endif
-					buttonOption.state &= ~QStyle::State_HasFocus;
 
 					buttonOption.rect = option.rect;
 					buttonOption.palette = option.palette;
@@ -91,7 +89,11 @@ namespace Core
 						if (!status.text().isEmpty()) {
 							QRect status_rect = title_rect;
 							status_rect.setTop(status_rect.top() + bounding.height());
+#ifdef Q_WS_MAC
 							painter->setPen(opt.palette.color(QPalette::Inactive, QPalette::WindowText));
+#else
+							painter->setPen(opt.palette.color(QPalette::Shadow));
+#endif
 							QFont font = opt.font;
 							font.setPointSize(font.pointSize() - 1);
 							painter->setFont(font);
