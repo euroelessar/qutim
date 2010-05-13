@@ -211,6 +211,19 @@ namespace Jabber
 		act->setCheckable(true);
 		connect(act,SIGNAL(toggled(bool)),SLOT(switchScene(bool)));
 		d->ui->toolBar->addAction(act);
+
+#ifdef Q_WS_WIN
+		d->ui->toolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
+
+//		if (QtWin::isCompositionEnabled()) {
+//			QtWin::extendFrameIntoClientArea(this,layout()->margin(),
+//											 layout()->margin(),
+//											 d->ui->toolBar->size().height()+ d->ui->toolBar->geometry().y(),
+//											 layout()->margin());
+//			d->ui->stackedWidget->setAutoFillBackground(true);
+//		}
+
+#endif
 	}
 
 	void JMUCJoin::switchScene(bool state)
