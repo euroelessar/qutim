@@ -23,6 +23,7 @@
 #include <libqutim/qtwin.h>
 #include <libqutim/shortcut.h>
 #include <QMainWindow>
+#include "simplestatusdialog.h"
 
 namespace Core
 {
@@ -87,21 +88,22 @@ namespace Core
 			QPushButton *search_btn;
 			QLineEdit *search_bar;
 			QHash<Account *, QAction *> actions;
+			QAction *status_action;
 		};
 
 		Module::Module() : p(new ModulePrivate)
 		{
 			// init shortcuts
 			Shortcut::registerSequence("contactListGlobalStatus",
-									QT_TRANSLATE_NOOP("ContactList", "Change global status"),
-									"ContactListWidget",
-									QKeySequence("Ctrl+S")
-									);
+									   QT_TRANSLATE_NOOP("ContactList", "Change global status"),
+									   "ContactListWidget",
+									   QKeySequence("Ctrl+S")
+									   );
 			Shortcut::registerSequence("contactListActivateMainMenu",
-									QT_TRANSLATE_NOOP("ContactList", "Activate main menu"),
-									"ContactListWidget",
-									QKeySequence("Ctrl+M")
-									);
+									   QT_TRANSLATE_NOOP("ContactList", "Activate main menu"),
+									   "ContactListWidget",
+									   QKeySequence("Ctrl+M")
+									   );
 			
 			p->widget = new MyWidget;
 			p->widget->setCentralWidget(new QWidget(p->widget));
@@ -131,10 +133,10 @@ namespace Core
 #endif
 			
 			ActionGenerator *gen = new ActionGenerator(Icon("configure"),
-										  QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
-										  this,
-										  SLOT(onConfigureClicked())
-										  );
+													   QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
+													   this,
+													   SLOT(onConfigureClicked())
+													   );
 			gen->setPriority(1);
 			gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));
 			addAction(gen);
@@ -168,8 +170,8 @@ namespace Core
 			QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget);
 
 			p->status_btn = new QPushButton(Icon("im-user-online"),
-											  tr("Status"),
-											  p->widget);
+											tr("Status"),
+											p->widget);
 			p->status_btn->setMenu(new QMenu(p->widget));
 
 			p->search_btn = new QPushButton(p->widget);
@@ -210,7 +212,19 @@ namespace Core
 			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::DND));
 			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::NA));
 			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Invisible));
-			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Offline));
+			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Offline));			
+
+			p->status_btn->menu()->addSeparator();
+
+			p->status_action = p->status_btn->menu()->addAction(Icon("im-status-message-edit"),
+																tr("Set Status Text"),
+																this,
+																SLOT(showStatusDialog())
+																);
+
+			QString last_status = Config().group("contactList").value("lastStatus",QString());
+			p->status_btn->setToolTip(last_status);
+			p->status_action->setData(last_status);
 
 			p->status_btn->menu()->addSeparator();
 			
@@ -221,12 +235,16 @@ namespace Core
 		void Module::onStatusChanged()
 		{
 			if (QAction *a = qobject_cast<QAction *>(sender())) {
-				Status status= a->data().value<Status>();
+				Status::Type type = static_cast<Status::Type>(a->data().value<int>());
+				QString text = p->status_action->data().toString();
 				foreach(Protocol *proto, allProtocols()) {
 					foreach(Account *account, proto->accounts()) {
+						Status status = account->status();
+						status.setType(type);
+						status.setText(text);
 						account->setStatus(status);
 					}
-			}
+				}
 			}
 		}
 
@@ -274,7 +292,7 @@ namespace Core
 
 		void Module::changeVisibility()
 		{
-//			if (p->widget->isVisible() && !p->widget->isMinimized()) {
+			//			if (p->widget->isVisible() && !p->widget->isMinimized()) {
 			if (p->widget->isActiveWindow()) {
 				QTimer::singleShot( 0, p->widget, SLOT(hide()) );
 			} else {
@@ -298,7 +316,7 @@ namespace Core
 			connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
 					this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
 			p->actions.insert(account, action);
-//			connect(action, SIGNAL(triggered()), action, SLOT(toggle()));
+			//			connect(action, SIGNAL(triggered()), action, SLOT(toggle()));
 			action->setMenu(account->menu(false));
 			p->status_btn->menu()->addAction(action);
 			foreach (Contact *contact, account->findChildren<Contact *>()) {
@@ -318,9 +336,9 @@ namespace Core
 
 		QAction *Module::createGlobalStatusAction(Status::Type type)
 		{
-			Status s (type);
+			Status s = Status(type);
 			QAction *act = new QAction(s.icon(),s.name(),p->status_btn);
-			act->setData(QVariant::fromValue(s));
+			act->setData(type);
 			connect(act,SIGNAL(triggered()),SLOT(onStatusChanged()));
 			return act;
 		}
@@ -333,6 +351,34 @@ namespace Core
 			}
 			else
 				p->search_bar->clear();
+		}
+
+		void Module::showStatusDialog()
+		{
+			QString text = p->status_action->data().toString();
+			SimpleStatusDialog *dialog = new SimpleStatusDialog(text);
+			connect(dialog,SIGNAL(accepted()),SLOT(changeStatusTextAccepted()));
+			centerizeWidget(dialog);
+			dialog->show();
+		}
+
+		void Module::changeStatusTextAccepted()
+		{
+			SimpleStatusDialog *dialog = qobject_cast<SimpleStatusDialog *>(sender());
+			Q_ASSERT(dialog);
+			QString text = dialog->statusText();
+			p->status_action->setData(text);
+			p->status_btn->setToolTip(text);
+			foreach(Protocol *proto, allProtocols()) {
+				foreach(Account *account, proto->accounts()) {
+					Status status = account->status();
+					status.setText(text);
+					account->setStatus(status);
+				}
+			}
+			Config config;
+			config.setValue("contactList/lastStatus",text);
+			config.sync();
 		}
 	}
 }
