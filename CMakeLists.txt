@@ -126,13 +126,15 @@ QT4_WRAP_CPP (MOC_SRCS ${HEADERS})
 QT4_WRAP_UI (UIS_H ${FORMS})
 QT4_ADD_RESOURCES (RCC ${RESOURCES})
 
-# comment for easy development on os X
-# if( APPLE )
-# 	SET (MACOSX_BUNDLE_ICON_FILE icons/qutim.icns)
-# 	SET (APP_TYPE MACOSX_BUNDLE)
-# else( APPLE )
-# 	SET (APP_TYPE WIN32)
-# endif( APPLE )
+# For Apple set the icns file containing icons
+IF(APPLE)
+  # set how it shows up in the Info.plist file
+  SET(MACOSX_BUNDLE_ICON_FILE qutim.icns)
+  # set where in the bundle to put the icns file
+  SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/icons/qutim.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+  # include the icns file in the target
+  SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/icons/qutim.icns)
+ENDIF(APPLE)
 
 ADD_EXECUTABLE (qutim ${GUI_TYPE} ${SOURCES} ${HEADERS} ${MOC_SRCS} ${UIS_H} ${RCC})
 
