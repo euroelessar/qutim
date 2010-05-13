@@ -37,7 +37,17 @@ namespace Core
 			font.setBold(true);
 			painter->setFont(font);
 			
-			style->drawPrimitive(QStyle::PE_PanelButtonBevel,&opt,painter, opt.widget);
+			QStyleOptionButton buttonOption;
+			buttonOption.state = option.state;
+#ifdef Q_WS_MAC
+			buttonOption.state |= QStyle::State_Raised;
+			buttonOption.features = QStyleOptionButton::Flat;
+#endif
+			buttonOption.state &= ~QStyle::State_HasFocus;
+
+			buttonOption.rect = option.rect;
+			buttonOption.palette = option.palette;
+			style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
 		}
 
 		item_icon.paint(painter,
