@@ -42,8 +42,8 @@ namespace Core
 #ifdef Q_WS_MAC
 			buttonOption.state |= QStyle::State_Raised;
 			buttonOption.features = QStyleOptionButton::Flat;
-#endif
 			buttonOption.state &= ~QStyle::State_HasFocus;
+#endif
 
 			buttonOption.rect = option.rect;
 			buttonOption.palette = option.palette;
