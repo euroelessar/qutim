@@ -43,7 +43,6 @@ namespace Jabber
 		} else {
 			d->ui->comboEditBookmarks->setCurrentIndex(0);
 			setEditConference(name, conference, nick, password);
-			d->ui->buttonBookmark->setChecked(true);
 		}
 		JMUCJoinBookmarksItemDelegate *delegate = new JMUCJoinBookmarksItemDelegate(this);
 		d->ui->comboEditBookmarks->setItemDelegate(delegate);
@@ -193,22 +192,33 @@ namespace Jabber
 		Q_D(JMUCJoin);
 		d->ui = new Ui::JMUCJoin();
 		d->ui->setupUi(this);
-		d->ui->buttonEnter->setIcon(Icon(""));
-		d->ui->buttonBookmark->setIcon(Icon(""));
-		connect(d->ui->buttonEnter, SIGNAL(toggled(bool)), SLOT(switchScene(bool)));
-		connect(d->ui->buttonBookmark, SIGNAL(toggled(bool)), SLOT(switchScene(bool)));
+		centerizeWidget(this);
+		d->ui->stackedWidget->setCurrentIndex(0);
+		d->ui->toolBar->setIconSize(QSize(32,32));
+		d->ui->toolBar->setToolButtonStyle(Qt::ToolButtonFollowStyle);
+
+		QActionGroup *group = new QActionGroup (this);
+		group->setExclusive(true);
+
+		QAction *act = new QAction(Icon("meeting-attending"),tr("Enter"),group);
+		act->setCheckable(true);
+		act->setChecked(true);
+		act->setData(0);
+		connect(act,SIGNAL(toggled(bool)),SLOT(switchScene(bool)));
+		d->ui->toolBar->addAction(act);
+		act = new QAction(Icon("bookmarks-organize"),tr("Edit Bookmarks"),group);
+		act->setData(1);
+		act->setCheckable(true);
+		connect(act,SIGNAL(toggled(bool)),SLOT(switchScene(bool)));
+		d->ui->toolBar->addAction(act);
 	}
 
 	void JMUCJoin::switchScene(bool state)
 	{
 		if (state) {
-			if (sender()->objectName() == "buttonEnter") {
-				d_ptr->ui->stackedWidget->setCurrentIndex(0);
-				d_ptr->ui->buttonBookmark->setChecked(false);
-			} else if (sender()->objectName() == "buttonBookmark") {
-				d_ptr->ui->stackedWidget->setCurrentIndex(1);
-				d_ptr->ui->buttonEnter->setChecked(false);
-			}
+			QAction *act = qobject_cast<QAction*>(sender());
+			Q_ASSERT(act);
+			d_ptr->ui->stackedWidget->setCurrentIndex(act->data().toInt());
 		}
 	}
 
