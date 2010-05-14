@@ -16,7 +16,6 @@
 #include "chatlayerimpl.h"
 #include <libqutim/account.h>
 #include "chatsessionimpl.h"
-#include "chatwidget.h"
 #include "modulemanagerimpl.h"
 #include <libqutim/debug.h>
 #include <libqutim/settingslayer.h>
@@ -85,7 +84,6 @@ namespace Core
 			if(!session && create)
 			{
 				session = new ChatSessionImpl(unit,this);
-				connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
 				connect(session,SIGNAL(destroyed(QObject*)),SLOT(onChatSessionDestroyed(QObject*)));
 				m_chat_sessions.insert(unit,session);
 				emit sessionCreated(session);
@@ -102,17 +100,9 @@ namespace Core
 			return list;
 		}
 
-		void ChatLayerImpl::onChatWidgetDestroyed(QObject* object)
-		{
-			ChatWidget *widget = reinterpret_cast < ChatWidget* >(object);
-			QString key = m_chatwidgets.key(widget);
-			m_chatwidgets.remove(key);
-		}
 		void ChatLayerImpl::onChatSessionDestroyed(QObject *object)
 		{
 			ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
-			if (!sess)
-				return;
 			ChatUnit *key = m_chat_sessions.key(sess);
 			if (key)
 				m_chat_sessions.remove(key);
@@ -120,80 +110,6 @@ namespace Core
 
 		ChatLayerImpl::~ChatLayerImpl()
 		{
-			qDeleteAllLater(m_chatwidgets);
-		}
-
-		QString ChatLayerImpl::getWidgetId(ChatSessionImpl* sess) const
-		{
-			Q_UNUSED(sess);
-			QString key;
-
-			ConfigGroup group = Config("behavior/chat").group("widget");
-			int windows = group.value<int>("windows",0);
-
-			//TODO add configuration
-
-			if (!windows)
-				key = "session";
-			else {
-				if (qobject_cast<const Conference *>(sess->getUnit()))
-					key = "conference";
-				else
-					key = "chat";
-			}
-
-			return key;
-		}
-
-		void ChatLayerImpl::onSessionActivated(bool active)
-		{
-			debug() << "session activated";
-			//init or update chat widget(s)
-			ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
-			if (!session)
-				return;
-			QString key = getWidgetId(session);
-			ChatWidget *widget = m_chatwidgets.value(key,0);
-			if (!widget)
-			{
-				if (!active)
-					return;
-				widget = new ChatWidget(true);
-				m_chatwidgets.insert(key,widget);
-				connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
-				widget->show();
-			}
-			if (active)
-			{
-				if (!widget->contains(session))
-					widget->addSession(session);
-				widget->activate(session);
-			}
-		}
-
-		ChatWidget *AdiumChat::ChatLayerImpl::findWidget(ChatSession *sess) const
-		{
-			ChatWidgetHash::const_iterator it;
-			ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sess);
-			for (it=m_chatwidgets.constBegin();it!=m_chatwidgets.constEnd();it++) {
-				if (it.value()->contains(session))
-					return it.value();
-			}
-			return 0;
-		}
-
-		QTextDocument *ChatLayerImpl::getInputField(ChatSession *session)
-		{
-			ChatWidget *widget = findWidget(session);
-			return widget ? widget->getInputField() : 0;
-		}
-
-		QWidgetList ChatLayerImpl::chatWidgets()
-		{
-			QWidgetList list;
-			foreach (QWidget *widget, m_chatwidgets)
-				list << widget;
-			return list;
 		}
 
 	}

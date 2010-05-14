@@ -13,8 +13,8 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "chatwidget.h"
-#include "chatsessionimpl.h"
+#include "classicchatwidget.h"
+#include "../chatsessionimpl.h"
 #include <libqutim/account.h>
 #include <libqutim/icon.h>
 #include <libqutim/menucontroller.h>
@@ -24,12 +24,12 @@
 #include <libqutim/qtwin.h>
 #include <qshortcut.h>
 #include <QWidgetAction>
-#include "actions/chatemoticonswidget.h"
+#include "../actions/chatemoticonswidget.h"
 #include <libqutim/history.h>
 #include <libqutim/shortcut.h>
 #include <libqutim/conference.h>
-#include "chatsessionitemdelegate.h"
-#include "ui_chatwidget.h"
+#include "../chatsessionitemdelegate.h"
+#include "ui_classicchatwidget.h"
 #include <libqutim/tooltip.h>
 
 #ifdef Q_WS_X11
@@ -42,13 +42,13 @@
 #define MESSAGE_SOURCE_APPLICATION    1
 #define MESSAGE_SOURCE_PAGER          2
 #endif //Q_WS_X11
-#include "conferencetabcompletion.h"
+#include "../conferencetabcompletion.h"
 namespace Core
 {
 	namespace AdiumChat
 	{
-		ChatWidget::ChatWidget(bool removeSessionOnClose):
-				ui(new Ui::AdiumChatForm),m_remove_session_on_close(removeSessionOnClose)
+		ClassicChatWidget::ClassicChatWidget(bool removeSessionOnClose):
+				ui(new Ui::ClassicChatForm),m_remove_session_on_close(removeSessionOnClose)
 		{
 			m_current_index = -1;
 
@@ -134,7 +134,7 @@ namespace Core
 			connect(key,SIGNAL(activated()),SLOT(showPreviousSession()));
 		}
 
-		ChatWidget::~ChatWidget()
+		ClassicChatWidget::~ClassicChatWidget()
 		{
 			if (m_remove_session_on_close) {
 				foreach (ChatSessionImpl *s,m_sessions) {
@@ -145,7 +145,7 @@ namespace Core
 			delete ui;
 		}
 
-		void ChatWidget::addSession(ChatSessionImpl* session)
+		void ClassicChatWidget::addSession(ChatSessionImpl* session)
 		{
 			if(m_sessions.contains(session))
 				return;
@@ -171,13 +171,13 @@ namespace Core
 			ui->tabButton->addAction(act);
 		}
 
-		void ChatWidget::addSession(const ChatSessionList &sessions)
+		void ClassicChatWidget::addSession(const ChatSessionList &sessions)
 		{
 			for (int i = 0; i!=sessions.count(); i++)
 				addSession(sessions.at(i));
 		}
 
-		void ChatWidget::currentIndexChanged(int index)
+		void ClassicChatWidget::currentIndexChanged(int index)
 		{
 			if (index == -1) {
 				ui->chatEdit->setDocument(m_originalDoc);
@@ -237,7 +237,7 @@ namespace Core
 			ui->chatEdit->setDocument(session->getInputField());
 		}
 
-		void ChatWidget::clear()
+		void ClassicChatWidget::clear()
 		{
 			int count = m_sessions.count();
 			for (int i = 0;i!=count;i++)
@@ -247,7 +247,7 @@ namespace Core
 			m_sessions.clear();
 		}
 
-		void ChatWidget::removeSession(ChatSessionImpl* session)
+		void ClassicChatWidget::removeSession(ChatSessionImpl* session)
 		{
 			int index = m_sessions.indexOf(session);
 			if (index == -1)
@@ -272,23 +272,23 @@ namespace Core
 				close();
 		}
 
-		void ChatWidget::onSessionDestroyed(QObject* object)
+		void ClassicChatWidget::onSessionDestroyed(QObject* object)
 		{
 			ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
 			removeSession(sess);
 		}
 
-		ChatSessionList ChatWidget::getSessionList() const
+		ChatSessionList ClassicChatWidget::getSessionList() const
 		{
 			return m_sessions;
 		}
 
-		void ChatWidget::onCloseRequested(int index)
+		void ClassicChatWidget::onCloseRequested(int index)
 		{
 			removeSession(m_sessions.at(index));
 		}
 
-		void ChatWidget::onTabMoved(int from, int to)
+		void ClassicChatWidget::onTabMoved(int from, int to)
 		{
 			m_sessions.move(from,to);
 
@@ -303,7 +303,7 @@ namespace Core
 			debug() << "moved session" << from << to;
 		}
 
-		void ChatWidget::activate(AdiumChat::ChatSessionImpl* session)
+		void ClassicChatWidget::activate(AdiumChat::ChatSessionImpl* session)
 		{
 			raise();
 			activateWindow();
@@ -319,7 +319,7 @@ namespace Core
 			}
 		}
 
-		void ChatWidget::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
+		void ClassicChatWidget::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
 		{
 			ChatSessionImpl *session = static_cast<ChatSessionImpl*>(sender());
 			int index = m_sessions.indexOf(session);
@@ -334,7 +334,7 @@ namespace Core
 			}
 		}
 
-		bool ChatWidget::eventFilter(QObject *obj, QEvent *event)
+		bool ClassicChatWidget::eventFilter(QObject *obj, QEvent *event)
 		{
 			if (obj == ui->contactsView) {
 				if (event->type() == QEvent::ContextMenu) {
@@ -374,12 +374,12 @@ namespace Core
 			return QObject::eventFilter(obj, event);
 		}
 
-		bool ChatWidget::contains(ChatSessionImpl* session)
+		bool ClassicChatWidget::contains(ChatSessionImpl* session)
 		{
 			return m_sessions.contains(session);
 		}
 
-		void ChatWidget::onSendButtonClicked()
+		void ClassicChatWidget::onSendButtonClicked()
 		{
 			if (ui->chatEdit->toPlainText().trimmed().isEmpty() || ui->tabBar->currentIndex() < 0)
 				return;
@@ -408,7 +408,7 @@ namespace Core
 			m_chatstate = ChatStateActive;
 		}
 
-		void ChatWidget::chatStateChanged(ChatState state, ChatSessionImpl *session)
+		void ClassicChatWidget::chatStateChanged(ChatState state, ChatSessionImpl *session)
 		{
 			int index = m_sessions.indexOf(session);
 			if (index == -1)
@@ -425,12 +425,12 @@ namespace Core
 			session->setProperty("currentChatState",static_cast<int>(state));
 		}
 
-		QTextDocument *ChatWidget::getInputField()
+		QTextDocument *ClassicChatWidget::getInputField()
 		{
 			return ui->chatEdit->document();
 		}
 
-		void ChatWidget::onTextChanged()
+		void ClassicChatWidget::onTextChanged()
 		{
 			m_self_chatstate_timer.stop();
 			m_self_chatstate_timer.start();
@@ -440,13 +440,13 @@ namespace Core
 			}
 		}
 
-		void ChatWidget::onChatStateTimeout()
+		void ClassicChatWidget::onChatStateTimeout()
 		{
 			m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
 			m_sessions.at(ui->tabBar->currentIndex())->setChatState(m_chatstate);
 		}
 
-		bool ChatWidget::event(QEvent *event)
+		bool ClassicChatWidget::event(QEvent *event)
 		{
 			if (event->type() == QEvent::WindowActivate
 				|| event->type() == QEvent::WindowDeactivate) {
@@ -458,7 +458,7 @@ namespace Core
 			return QMainWindow::event(event);
 		}
 
-		void ChatWidget::onTabContextMenu(const QPoint &pos)
+		void ClassicChatWidget::onTabContextMenu(const QPoint &pos)
 		{
 			int index = ui->tabBar->tabAt(pos);
 			if (index != -1) {
@@ -468,7 +468,7 @@ namespace Core
 			}
 		}
 
-		QIcon ChatWidget::iconForState(ChatState state)
+		QIcon ClassicChatWidget::iconForState(ChatState state)
 		{
 			QString icon_name;
 			switch (state) {
@@ -494,7 +494,7 @@ namespace Core
 			return Icon(icon_name);
 		}
 
-		void ChatWidget::closeCurrentTab()
+		void ClassicChatWidget::closeCurrentTab()
 		{
 			if (ui->tabBar->count() > 1)
 				removeSession(m_sessions.at(ui->tabBar->currentIndex()));
@@ -503,13 +503,13 @@ namespace Core
 		}
 
 
-		void ChatWidget::onShowHistory()
+		void ClassicChatWidget::onShowHistory()
 		{
 			ChatUnit *unit = m_sessions.at(m_current_index)->getUnit();
 			History::instance()->showHistory(unit);
 		}
 
-		void ChatWidget::onSessionListActionTriggered()
+		void ClassicChatWidget::onSessionListActionTriggered()
 		{
 			QAction *act = qobject_cast<QAction *>(sender());
 			Q_ASSERT(act);
@@ -517,7 +517,7 @@ namespace Core
 			ui->tabBar->setCurrentIndex(ui->tabButton->actions().indexOf(act));
 		}
 
-		void ChatWidget::showNextSession()
+		void ClassicChatWidget::showNextSession()
 		{
 			m_current_index++;
 			if (m_current_index >= m_sessions.count())
@@ -525,7 +525,7 @@ namespace Core
 			activate(m_sessions.at(m_current_index));
 		}
 
-		void ChatWidget::showPreviousSession()
+		void ClassicChatWidget::showPreviousSession()
 		{
 			m_current_index--;
 			if (m_current_index < 0 )
@@ -533,14 +533,14 @@ namespace Core
 			activate(m_sessions.at(m_current_index));
 		}
 
-		void ChatWidget::onDoubleClicked(const QModelIndex &index)
+		void ClassicChatWidget::onDoubleClicked(const QModelIndex &index)
 		{
 			Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
 			if (buddy)
 				ChatLayer::get(buddy, true)->activate();
 		}
 
-		void ChatWidget::onBuddiesChanged()
+		void ClassicChatWidget::onBuddiesChanged()
 		{
 			ChatSessionImpl *s = qobject_cast<ChatSessionImpl *>(sender());
 
@@ -554,7 +554,7 @@ namespace Core
 
 		}
 
-		void ChatWidget::onUnitTitleChanged(const QString &title)
+		void ClassicChatWidget::onUnitTitleChanged(const QString &title)
 		{
 			ChatUnit *u = qobject_cast<ChatUnit *>(sender());
 			if (!u)
@@ -565,7 +565,7 @@ namespace Core
 			ui->tabBar->setTabText(m_sessions.indexOf(s),title);
 		}
 
-		void ChatWidget::raise()
+		void ClassicChatWidget::raise()
 		{
 #ifdef Q_WS_X11
 			if (m_chat_flags & SwitchDesktopOnRaise) {

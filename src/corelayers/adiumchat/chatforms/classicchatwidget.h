@@ -1,5 +1,5 @@
 /****************************************************************************
- *  chatwidget.h
+ *  classicchatwidget.h
  *
  *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *
@@ -13,18 +13,18 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef CHATWIDGET_H
-#define CHATWIDGET_H
+#ifndef CLASSICCHATWIDGET_H
+#define CLASSICCHATWIDGET_H
 
 #include <QWidget>
-#include "chatlayerimpl.h"
+#include "../chatlayerimpl.h"
 #include <QMainWindow>
 #include <QModelIndex>
 #include <QTimer>
 
 namespace Ui
 {
-	class AdiumChatForm;
+	class ClassicChatForm;
 }
 namespace Core
 {
@@ -41,14 +41,14 @@ namespace Core
 		Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
 		class ChatSessionImpl;
 		class ConfTabCompletion;
-		class ChatWidget : public QMainWindow
+		class ClassicChatWidget : public QMainWindow
 		{
 			Q_OBJECT
 		public:
-			ChatWidget(bool removeSessionOnClose);
+			ClassicChatWidget(bool removeSessionOnClose);
 			void clear();//remove all sessions
 			ChatSessionList getSessionList() const;
-			virtual ~ChatWidget();
+			virtual ~ClassicChatWidget();
 			bool contains (ChatSessionImpl *session);
 			QTextDocument *getInputField();
 			void raise();
@@ -83,7 +83,7 @@ namespace Core
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
 			ChatSessionList m_sessions;
 			int m_current_index;
-			Ui::AdiumChatForm *ui;
+			Ui::ClassicChatForm *ui;
 			ChatFlags m_chat_flags;
 			bool m_html_message;
 			bool m_remove_session_on_close;
@@ -94,4 +94,4 @@ namespace Core
 		};
 	}
 }
-#endif // CHATWIDGET_H
+#endif // CLASSICCHATWIDGET_H
