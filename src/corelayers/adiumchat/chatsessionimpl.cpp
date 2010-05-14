@@ -31,383 +31,416 @@
 #include <libqutim/debug.h>
 #include <QPlainTextDocumentLayout>
 #include <QDesktopServices>
+#include "chatsessionimpl_p.h"
 
-namespace AdiumChat
-
+namespace Core
 {
-
-	ChatSessionImpl::ChatSessionImpl ( ChatUnit* unit, ChatLayer* chat)
-		: ChatSession ( chat ),
-		m_chat_style_output(new ChatStyleOutput),
-		m_web_page(new QWebPage(this)),
-		m_input(new QTextDocument(this)),
-		m_myself_chat_state(ChatStateInActive)
+	namespace AdiumChat
 	{
-		setChatUnit(unit);
-		m_input->setDocumentLayout(new QPlainTextDocumentLayout(m_input));
-		qDebug() << "create session" << m_chat_unit->title();
-		connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
-		m_store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", false);
-		m_chat_style_output->preparePage(m_web_page,this);
-		m_skipOneMerge = true;
-		m_active = false;
-		m_model = new ChatSessionModel(this);
-		if (Conference *conf = qobject_cast<Conference *>(unit)) {
-			foreach (ChatUnit *u, conf->lowerUnits()) {
-				if (Buddy *buddy = qobject_cast<Buddy*>(u))
-					m_model->addContact(buddy);
+		ChatSessionImplPrivate::ChatSessionImplPrivate()
+			: chat_style_output(new ChatStyleOutput),
+			web_page(new QWebPage(this)),
+			input(new QTextDocument(this)),
+			myself_chat_state(ChatStateInActive)
+		{
+		}
+
+		ChatSessionImplPrivate::~ChatSessionImplPrivate()
+		{
+			delete chat_style_output;
+		}
+
+		ChatSessionImpl::ChatSessionImpl ( ChatUnit* unit, ChatLayer* chat)
+			: ChatSession ( chat ),
+			d_ptr(new ChatSessionImplPrivate)
+		{
+			Q_D(ChatSessionImpl);
+			d->model = new ChatSessionModel(this);
+			d->q_ptr = this;
+			setChatUnit(unit);
+			d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
+			qDebug() << "create session" << d->chat_unit->title();
+			connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
+			d->store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", false);
+			d->chat_style_output->preparePage(d->web_page,this);
+			d->skipOneMerge = true;
+			d->active = false;
+			if (Conference *conf = qobject_cast<Conference *>(unit)) {
+				foreach (ChatUnit *u, conf->lowerUnits()) {
+					if (Buddy *buddy = qobject_cast<Buddy*>(u))
+						d->model->addContact(buddy);
+				}
+			} else {
+				d->loadHistory();
 			}
-		} else {
-			loadHistory();
-		}
-		if (Contact *c = qobject_cast<Contact *>(unit))
-			statusChanged(c,true);
-		else {
-			//if you create a session, it is likely that the chat state is active
-			setProperty("currentChatState",static_cast<int>(ChatStateActive));
-		}
-
-		setChatState(ChatStateActive);
-		m_inactive_timer.setInterval(120000);
-		m_inactive_timer.setSingleShot(true);
-		
-		connect(m_web_page,SIGNAL(linkClicked(QUrl)),SLOT(onLinkClicked(QUrl)));
-		connect(&m_inactive_timer,SIGNAL(timeout()),SLOT(onActiveTimeout()));
-		m_web_page->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-	}
-
-	void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)
-	{
-		m_chat_style_output->loadTheme(path,variant);
-		m_chat_style_output->preparePage(m_web_page,this);
-	}
-
-	void ChatSessionImpl::setVariant(const QString& variant)
-	{
-		m_chat_style_output->setVariant(variant);
-		m_chat_style_output->reloadStyle(m_web_page);
-	}
-
-	QString ChatSessionImpl::getVariant() const
-	{
-		return m_chat_style_output->getVariant();
-	}
-
-	void ChatSessionImpl::setCustomCSS(const QString &css)
-	{
-		m_chat_style_output->setCustomCSS(css);
-		m_chat_style_output->reloadStyle(m_web_page);
-	}
-
-	void ChatSessionImpl::loadHistory()
-	{
-		ConfigGroup adium_chat = Config("appearance/chat").group("general/history");
-		int max_num = adium_chat.value<int>("maxDisplayMessages",5);
-		MessageList messages = History::instance()->read(getUnit(), max_num);
-		foreach (Message mess, messages) {
-			mess.setProperty("silent",true);
-			mess.setProperty("store",false);
-			if (!mess.chatUnit()) //TODO FIXME
-				mess.setChatUnit(getUnit()); 
-			appendMessage(mess);
-		}
-		m_previous_sender.clear();
-		m_skipOneMerge = true;
-	}
-
-	ChatSessionImpl::~ChatSessionImpl()
-	{
-		if (m_menu)
-			m_menu->deleteLater();
-	}
-
-	void ChatSessionImpl::addContact(Buddy* c)
-	{
-		//		connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(statusChanged(qutim_sdk_0_3::Status)));
-		m_model->addContact(c);
-		emit buddiesChanged();
-	}
-
-	qint64 ChatSessionImpl::appendMessage(Message &message)
-	{
-		if (!message.chatUnit()) {
-			qWarning() << QString("Message %1 must have a chatUnit").arg(message.text());
-			message.setChatUnit(getUnit());
-		}
-		if (!isActive() && !message.property("service", false)) {
-			m_unread.append(message);
-			unreadChanged(m_unread);
-		}
-
-		if (message.isIncoming())
-			messageReceived(&message);
-		else
-			messageSended(&message);
-
-		if (message.property("spam", false) || message.property("hide", false))
-			return message.id();
-		
-		if (!message.isIncoming())
-			setChatState(ChatStateActive);
-
-		bool same_from = false;
-		bool service = message.property("service").isValid();
-		QString item;
-		if(message.text().startsWith("/me ")) {
-			// FIXME we shouldn't copy data there
-			QString text = message.text();
-			message.setText(text.mid(3));
-			item = m_chat_style_output->makeAction(this,message);
-			message.setText(text);
-			m_previous_sender.clear();
-			m_skipOneMerge = true;
-		}
-		else if (service) {
-			item = m_chat_style_output->makeStatus(this,message);
-			m_previous_sender.clear();
-			m_skipOneMerge = true;
-		}
-		else {
-			QString currentSender;
-			if (message.isIncoming()) {
-				currentSender = message.property("senderName",message.chatUnit()->title());
-			}
-			same_from = (!m_skipOneMerge) && (m_previous_sender == currentSender);
-			item = m_chat_style_output->makeMessage(this, message, same_from);
-			m_previous_sender = currentSender;
-			m_skipOneMerge = false;
-		}
-
-		QString result = m_web_page->mainFrame()->evaluateJavaScript(
-				QString("getEditedHtml(\"%1\", \"%2\");")
-				.arg(validateCpp(item), QString::number(message.id()))).toString();
-		QString jsTask = QString("append%2Message(\"%1\");").arg(
-				result.isEmpty() ? item :
-				validateCpp(result), same_from?"Next":"");
-
-		bool silent = message.property("silent", false);
-
-		if (qobject_cast<const Conference *>(message.chatUnit()))
-			silent = true;
-
-		if (!silent)
-			Notifications::sendNotification(message);
-
-		if (message.property("store", true) && (!service || (service && m_store_service_messages)))
-			History::instance()->store(message);
-		m_web_page->mainFrame()->evaluateJavaScript(jsTask);
-		return message.id();
-	}
-
-	void ChatSessionImpl::removeContact(Buddy *c)
-	{
-		m_model->removeContact(c);
-		emit buddiesChanged();
-	}
-
-
-	QWebPage* ChatSessionImpl::getPage() const
-	{
-		return m_web_page;
-	}
-
-	Account* ChatSessionImpl::getAccount() const
-	{
-		return m_chat_unit->account();
-	}
-
-	QString ChatSessionImpl::getId() const
-	{
-		return m_chat_unit->id();
-	}
-
-
-	ChatUnit* ChatSessionImpl::getUnit() const
-	{
-		return m_chat_unit;
-	}
-
-	QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
-	{
-		if(m_web_page.isNull())
-			return QVariant();
-		return m_web_page->mainFrame()->evaluateJavaScript(scriptSource);
-	}
-
-	void ChatSessionImpl::setActive(bool active)
-	{
-		if (m_active == active)
-			return;
-		m_active = active;
-		emit activated(active);
-	}
-
-	bool ChatSessionImpl::isActive()
-	{
-		return m_active;
-	}
-
-	bool ChatSessionImpl::event(QEvent *ev)
-	{
-		if (ev->type() == MessageReceiptEvent::eventType()) {
-			MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
-			m_web_page->mainFrame()->evaluateJavaScript(QLatin1Literal("messageDlvrd(\"")
-														% QString::number(msgEvent->id())
-														% QLatin1Literal("\");"));
-			return true;
-		} else {
-			return ChatSession::event(ev);
-		}
-	}
-
-	QAbstractItemModel* ChatSessionImpl::getModel() const
-	{
-		return m_model;
-	}
-	
-	void ChatSessionImpl::onStatusChanged(qutim_sdk_0_3::Status status)
-	{
-		Contact *contact = qobject_cast<Contact *>(sender());
-		if (!contact)
-			return;
-		statusChanged(contact,contact->property("silent").toBool());
-	}
-	
-	void ChatSessionImpl::statusChanged(Contact* contact, bool silent)
-	{
-		Message msg;		
-		Notifications::Type type = Notifications::Online;
-		QString title = contact->status().name().toString();
-		
-		switch (contact->status().type()) {
-		case Status::Online: {
-				ChatStateEvent ev (ChatStateActive);
+			if (Contact *c = qobject_cast<Contact *>(unit))
+				d->statusChanged(c,true);
+			else {
+				//if you create a session, it is likely that the chat state is active
 				setProperty("currentChatState",static_cast<int>(ChatStateActive));
-				qApp->sendEvent(this, &ev);
-				debug() << "State active";
-				break;
 			}
-		case Status::Offline: {
-				ChatStateEvent ev (ChatStateGone);
-				setProperty("currentChatState",static_cast<int>(ChatStateGone));
-				qApp->sendEvent(this, &ev);
-				type = Notifications::Offline;
-				break;
-			}
-		default:
-			type = Notifications::StatusChange;
-			//title = contact->status().property("title", QVariant()).toString();
-			break;
-		}
-		
-		//title = title.isEmpty() ? contact->status().name().toString() : title;
-		
-		msg.setChatUnit(contact);
-		msg.setIncoming(true);
-		msg.setProperty("service",type);
-		msg.setProperty("title",title);
-		msg.setTime(QDateTime::currentDateTime());
-		msg.setText(contact->status().text());
-		msg.setProperty("silent",silent);
-		appendMessage(msg);
-	}
-	
-	QTextDocument* ChatSessionImpl::getInputField()
-	{
-		return m_input;
-	}
 
-	void ChatSessionImpl::markRead(quint64 id)
-	{
-		if (id == Q_UINT64_C(0xffffffffffffffff)) {
-			m_unread.clear();
-			unreadChanged(m_unread);
-			return;
+			setChatState(ChatStateActive);
+			d->inactive_timer.setInterval(120000);
+			d->inactive_timer.setSingleShot(true);
+
+			connect(d->web_page,SIGNAL(linkClicked(QUrl)),d,SLOT(onLinkClicked(QUrl)));
+			connect(&d->inactive_timer,SIGNAL(timeout()),d,SLOT(onActiveTimeout()));
+			d->web_page->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 		}
-		MessageList::iterator it = m_unread.begin();
-		for (; it != m_unread.end(); it++) {
-			if (it->id() == id) {
-				m_unread.erase(it);
-				unreadChanged(m_unread);
+
+		void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)
+		{
+			Q_D(ChatSessionImpl);
+			d->chat_style_output->loadTheme(path,variant);
+			d->chat_style_output->preparePage(d->web_page,this);
+		}
+
+		void ChatSessionImpl::setVariant(const QString& variant)
+		{
+			Q_D(ChatSessionImpl);
+			d->chat_style_output->setVariant(variant);
+			d->chat_style_output->reloadStyle(d->web_page);
+		}
+
+		QString ChatSessionImpl::getVariant() const
+		{
+			return d_func()->chat_style_output->getVariant();
+		}
+
+		void ChatSessionImpl::setCustomCSS(const QString &css)
+		{
+			Q_D(ChatSessionImpl);
+			d->chat_style_output->setCustomCSS(css);
+			d->chat_style_output->reloadStyle(d->web_page);
+		}
+
+		void ChatSessionImplPrivate::loadHistory()
+		{
+			Q_Q(ChatSessionImpl);
+			ConfigGroup adium_chat = Config("appearance/chat").group("general/history");
+			int max_num = adium_chat.value<int>("maxDisplayMessages",5);
+			MessageList messages = History::instance()->read(q->getUnit(), max_num);
+			foreach (Message mess, messages) {
+				mess.setProperty("silent",true);
+				mess.setProperty("store",false);
+				if (!mess.chatUnit()) //TODO FIXME
+					mess.setChatUnit(q->getUnit());
+				q->appendMessage(mess);
+			}
+			previous_sender.clear();
+			skipOneMerge = true;
+		}
+
+		ChatSessionImpl::~ChatSessionImpl()
+		{
+			Q_D(ChatSessionImpl);
+			if (d->menu)
+				d->menu->deleteLater();
+		}
+
+		void ChatSessionImpl::addContact(Buddy* c)
+		{
+			//		connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(statusChanged(qutim_sdk_0_3::Status)));
+			d_func()->model->addContact(c);
+			emit buddiesChanged();
+		}
+
+		qint64 ChatSessionImpl::appendMessage(Message &message)
+		{
+			Q_D(ChatSessionImpl);
+			if (!message.chatUnit()) {
+				qWarning() << QString("Message %1 must have a chatUnit").arg(message.text());
+				message.setChatUnit(getUnit());
+			}
+			if (!isActive() && !message.property("service", false)) {
+				d->unread.append(message);
+				unreadChanged(d->unread);
+			}
+
+			if (message.isIncoming())
+				messageReceived(&message);
+			else
+				messageSended(&message);
+
+			if (message.property("spam", false) || message.property("hide", false))
+				return message.id();
+
+			if (!message.isIncoming())
+				setChatState(ChatStateActive);
+
+			bool same_from = false;
+			bool service = message.property("service").isValid();
+			QString item;
+			if(message.text().startsWith("/me ")) {
+				// FIXME we shouldn't copy data there
+				QString text = message.text();
+				message.setText(text.mid(3));
+				item = d->chat_style_output->makeAction(this,message);
+				message.setText(text);
+				d->previous_sender.clear();
+				d->skipOneMerge = true;
+			}
+			else if (service) {
+				item =  d->chat_style_output->makeStatus(this,message);
+				d->previous_sender.clear();
+				d->skipOneMerge = true;
+			}
+			else {
+				QString currentSender;
+				if (message.isIncoming()) {
+					currentSender = message.property("senderName",message.chatUnit()->title());
+				}
+				same_from = (!d->skipOneMerge) && (d->previous_sender == currentSender);
+				item =  d->chat_style_output->makeMessage(this, message, same_from);
+				d->previous_sender = currentSender;
+				d->skipOneMerge = false;
+			}
+
+			QString result = d->web_page->mainFrame()->evaluateJavaScript(
+					QString("getEditedHtml(\"%1\", \"%2\");")
+					.arg(validateCpp(item), QString::number(message.id()))).toString();
+			QString jsTask = QString("append%2Message(\"%1\");").arg(
+					result.isEmpty() ? item :
+					validateCpp(result), same_from?"Next":"");
+
+			bool silent = message.property("silent", false);
+
+			if (qobject_cast<const Conference *>(message.chatUnit()))
+				silent = true;
+
+			if (!silent)
+				Notifications::sendNotification(message);
+
+			if (message.property("store", true) && (!service || (service && d->store_service_messages)))
+				History::instance()->store(message);
+			d->web_page->mainFrame()->evaluateJavaScript(jsTask);
+			return message.id();
+		}
+
+		void ChatSessionImpl::removeContact(Buddy *c)
+		{
+			d_func()->model->removeContact(c);
+			emit buddiesChanged();
+		}
+
+
+		QWebPage* ChatSessionImpl::getPage() const
+		{
+			return d_func()->web_page;
+		}
+
+		Account* ChatSessionImpl::getAccount() const
+		{
+			return d_func()->chat_unit->account();
+		}
+
+		QString ChatSessionImpl::getId() const
+		{
+			return d_func()->chat_unit->id();
+		}
+
+
+		ChatUnit* ChatSessionImpl::getUnit() const
+		{
+			return d_func()->chat_unit;
+		}
+
+		QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
+		{
+			Q_D(ChatSessionImpl);
+			if(d->web_page.isNull())
+				return QVariant();
+			return d->web_page->mainFrame()->evaluateJavaScript(scriptSource);
+		}
+
+		void ChatSessionImpl::setActive(bool active)
+		{
+			Q_D(ChatSessionImpl);
+			if (d->active == active)
+				return;
+			d->active = active;
+			emit activated(active);
+		}
+
+		bool ChatSessionImpl::isActive()
+		{
+			return d_func()->active;
+		}
+
+		bool ChatSessionImpl::event(QEvent *ev)
+		{
+			Q_D(ChatSessionImpl);
+			if (ev->type() == MessageReceiptEvent::eventType()) {
+				MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
+				d->web_page->mainFrame()->evaluateJavaScript(QLatin1Literal("messageDlvrd(\"")
+															% QString::number(msgEvent->id())
+															% QLatin1Literal("\");"));
+				return true;
+			} else {
+				return ChatSession::event(ev);
+			}
+		}
+
+		QAbstractItemModel* ChatSessionImpl::getModel() const
+		{
+			return d_func()->model;
+		}
+
+		void ChatSessionImplPrivate::onStatusChanged(qutim_sdk_0_3::Status status)
+		{
+			Contact *contact = qobject_cast<Contact *>(sender());
+			if (!contact)
+				return;
+			statusChanged(contact,contact->property("silent").toBool());
+		}
+
+		void ChatSessionImplPrivate::statusChanged(Contact* contact, bool silent)
+		{
+			Q_Q(ChatSessionImpl);
+			Message msg;
+			Notifications::Type type = Notifications::Online;
+			QString title = contact->status().name().toString();
+
+			switch (contact->status().type()) {
+			case Status::Online: {
+					ChatStateEvent ev (ChatStateActive);
+					setProperty("currentChatState",static_cast<int>(ChatStateActive));
+					qApp->sendEvent(this, &ev);
+					debug() << "State active";
+					break;
+				}
+			case Status::Offline: {
+					ChatStateEvent ev (ChatStateGone);
+					setProperty("currentChatState",static_cast<int>(ChatStateGone));
+					qApp->sendEvent(this, &ev);
+					type = Notifications::Offline;
+					break;
+				}
+			default:
+				type = Notifications::StatusChange;
+				//title = contact->status().property("title", QVariant()).toString();
+				break;
+			}
+
+			//title = title.isEmpty() ? contact->status().name().toString() : title;
+
+			msg.setChatUnit(contact);
+			msg.setIncoming(true);
+			msg.setProperty("service",type);
+			msg.setProperty("title",title);
+			msg.setTime(QDateTime::currentDateTime());
+			msg.setText(contact->status().text());
+			msg.setProperty("silent",silent);
+			q->appendMessage(msg);
+		}
+
+		QTextDocument* ChatSessionImpl::getInputField()
+		{
+			return d_func()->input;
+		}
+
+		void ChatSessionImpl::markRead(quint64 id)
+		{
+			Q_D(ChatSessionImpl);
+			if (id == Q_UINT64_C(0xffffffffffffffff)) {
+				d->unread.clear();
+				unreadChanged(d->unread);
 				return;
 			}
-		}
-	}
-
-	MessageList ChatSessionImpl::unread() const
-	{
-		return m_unread;
-	}
-
-	void ChatSessionImpl::setChatUnit(ChatUnit* unit)
-	{
-		m_chat_unit = unit;
-		setParent(unit);
-		Contact *c = qobject_cast<Contact *>(unit);
-		if (c) {
-			connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
-		}
-	}
-
-	void ChatSessionImpl::onActiveTimeout()
-	{
-		debug() << "set inactive state";
-		setChatState(ChatStateInActive);
-	}
-
-
-	void ChatSessionImpl::setChatState(ChatState state)
-	{
-		ChatStateEvent event(state);
-		qApp->sendEvent(m_chat_unit,&event);
-		m_myself_chat_state = state;
-		if ((state != ChatStateInActive) && (state != ChatStateGone) && (state != ChatStateComposing)) {
-			m_inactive_timer.start();
-			debug() << "timer activated";
-		}
-	}
-	
-	void ChatSessionImpl::onLinkClicked(const QUrl& url)
-	{
-		debug() << "link clicked" << url;
-		QDesktopServices::openUrl(url);
-	}
-
-	QMenu *ChatSessionImpl::menu()
-	{
-		if (!m_menu) {
-			m_menu = new QMenu();
-
-			//for JMessageSession
-			//FIXME maybe need to move to the protocols
-			ChatUnit *unit = const_cast<ChatUnit*>(m_chat_unit->getHistoryUnit());
-
-			QAction *act = new QAction(m_menu);
-			act->setText(QT_TRANSLATE_NOOP("ChatSession", "Auto"));
-			act->setData(qVariantFromValue(m_chat_unit.data()));
-			act->setCheckable(true);
-			act->setChecked(true);
-
-			QActionGroup *group = new QActionGroup(m_menu);
-			group->setExclusive(true);
-			group->addAction(act);
-
-			m_menu->addAction(act);
-			m_menu->addSeparator();
-
-			ChatUnitList list = unit->lowerUnits();
-			foreach (ChatUnit *u, list) {
-				act = new QAction(m_menu);
-				act->setText(u->title());
-				act->setData(qVariantFromValue(u));
-				act->setCheckable(true);
-				act->setChecked(u == m_chat_unit);
-				group->addAction(act);
-				m_menu->addAction(act);
-				connect(u,SIGNAL(destroyed()),act,SLOT(deleteLater()));
+			MessageList::iterator it = d->unread.begin();
+			for (; it != d->unread.end(); it++) {
+				if (it->id() == id) {
+					d->unread.erase(it);
+					unreadChanged(d->unread);
+					return;
+				}
 			}
 		}
-		return m_menu;
-	}
 
+		MessageList ChatSessionImpl::unread() const
+		{
+			return d_func()->unread;
+		}
+
+		void ChatSessionImpl::setChatUnit(ChatUnit* unit)
+		{
+			d_func()->chat_unit = unit;
+			setParent(unit);
+			Contact *c = qobject_cast<Contact *>(unit);
+			if (c) {
+				connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+			}
+		}
+
+		void ChatSessionImplPrivate::onActiveTimeout()
+		{
+			debug() << "set inactive state";
+			q_func()->setChatState(ChatStateInActive);
+		}
+
+
+		void ChatSessionImpl::setChatState(ChatState state)
+		{
+			Q_D(ChatSessionImpl);
+			ChatStateEvent event(state);
+			qApp->sendEvent(d->chat_unit,&event);
+			d->myself_chat_state = state;
+			if ((state != ChatStateInActive) && (state != ChatStateGone) && (state != ChatStateComposing)) {
+				d->inactive_timer.start();
+				debug() << "timer activated";
+			}
+		}
+
+		void ChatSessionImplPrivate::onLinkClicked(const QUrl& url)
+		{
+			debug() << "link clicked" << url;
+			QDesktopServices::openUrl(url);
+		}
+
+		QMenu *ChatSessionImpl::menu()
+		{
+			Q_D(ChatSessionImpl);
+			if (!d->menu) {
+				d->menu = new QMenu();
+
+				//for JMessageSession
+				//FIXME maybe need to move to the protocols
+				ChatUnit *unit = const_cast<ChatUnit*>(d->chat_unit->getHistoryUnit());
+
+				QAction *act = new QAction(d->menu);
+				act->setText(QT_TRANSLATE_NOOP("ChatSession", "Auto"));
+				act->setData(qVariantFromValue(d->chat_unit.data()));
+				act->setCheckable(true);
+				act->setChecked(true);
+
+				QActionGroup *group = new QActionGroup(d->menu);
+				group->setExclusive(true);
+				group->addAction(act);
+
+				d->menu->addAction(act);
+				d->menu->addSeparator();
+
+				ChatUnitList list = unit->lowerUnits();
+				foreach (ChatUnit *u, list) {
+					act = new QAction(d->menu);
+					act->setText(u->title());
+					act->setData(qVariantFromValue(u));
+					act->setCheckable(true);
+					act->setChecked(u == d->chat_unit);
+					group->addAction(act);
+					d->menu->addAction(act);
+					connect(u,SIGNAL(destroyed()),act,SLOT(deleteLater()));
+				}
+			}
+			return d->menu;
+		}
+		
+		ChatState ChatSessionImpl::getChatState() const
+		{
+			return d_func()->myself_chat_state;
+		}
+
+
+	}
 }

@@ -20,35 +20,38 @@
 
 using namespace qutim_sdk_0_3;
 
-namespace AdiumChat
+namespace Core
 {
-
-	class ChatWidget;
-	class ChatSessionImpl;
-	typedef QHash<ChatUnit *,  ChatSessionImpl *> ChatSessionHash;
-	typedef QList<ChatSessionImpl *> ChatSessionList;
-	typedef QHash<QString, QPointer<ChatWidget> > ChatWidgetHash;
-	class ChatLayerImpl : public ChatLayer
+	namespace AdiumChat
 	{
-		Q_OBJECT
-		Q_CLASSINFO("Uses", "IconLoader")
-	public:
-		virtual QList<ChatSession* > sessions();
-		ChatLayerImpl();
-		virtual ~ChatLayerImpl();
-		virtual ChatSession* getSession(ChatUnit* unit, bool create = true);
-		QTextDocument *getInputField(ChatSession *session);
-		Q_INVOKABLE QWidgetList chatWidgets();
-	private slots:
-		void onChatWidgetDestroyed(QObject *object);
-		void onSessionActivated(bool active);
-		void onChatSessionDestroyed(QObject *object);
-	private:
-		inline QString getWidgetId(ChatSessionImpl *sess) const;
-		ChatWidget *findWidget(ChatSession *sess) const;
-		ChatSessionHash  m_chat_sessions;
-		ChatWidgetHash m_chatwidgets;
-	};
 
+		class ChatWidget;
+		class ChatSessionImpl;
+		typedef QHash<ChatUnit *,  ChatSessionImpl *> ChatSessionHash;
+		typedef QList<ChatSessionImpl *> ChatSessionList;
+		typedef QHash<QString, QPointer<ChatWidget> > ChatWidgetHash;
+		class ChatLayerImpl : public ChatLayer
+		{
+			Q_OBJECT
+			Q_CLASSINFO("Uses", "IconLoader")
+		public:
+					virtual QList<ChatSession* > sessions();
+			ChatLayerImpl();
+			virtual ~ChatLayerImpl();
+			virtual ChatSession* getSession(ChatUnit* unit, bool create = true);
+			QTextDocument *getInputField(ChatSession *session);
+			Q_INVOKABLE QWidgetList chatWidgets();
+		private slots:
+			void onChatWidgetDestroyed(QObject *object);
+			void onSessionActivated(bool active);
+			void onChatSessionDestroyed(QObject *object);
+		private:
+			inline QString getWidgetId(ChatSessionImpl *sess) const;
+			ChatWidget *findWidget(ChatSession *sess) const;
+			ChatSessionHash  m_chat_sessions;
+			ChatWidgetHash m_chatwidgets;
+		};
+
+	}
 }
 #endif // CHATLAYERIMPL_H

@@ -24,18 +24,19 @@ namespace qutim_sdk_0_3
 	class ChatSession;
 	class Message;
 }
-
-namespace AdiumChat
+namespace Core
 {
-	class MessageModifier
+	namespace AdiumChat
 	{
-	public:
-		virtual ~MessageModifier() {}
-		virtual QString getValue(const ChatSession *session, const Message &message, const QString &name, const QString &value) = 0;
-		virtual QStringList supportedNames() const = 0;
-	};
+		class MessageModifier
+		{
+		public:
+			virtual ~MessageModifier() {}
+			virtual QString getValue(const ChatSession *session, const Message &message, const QString &name, const QString &value) = 0;
+			virtual QStringList supportedNames() const = 0;
+		};
+	}
 }
-
-Q_DECLARE_INTERFACE(AdiumChat::MessageModifier, "org.qutim.AdiumChat.MessageModifier")
+Q_DECLARE_INTERFACE(Core::AdiumChat::MessageModifier, "org.qutim.AdiumChat.MessageModifier")
 
 #endif // ADIUMMESSAGEMODIFIER_H

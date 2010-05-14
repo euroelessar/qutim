@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright (C) 2001-2008 Justin Karneges, Martin Hostettler
  *
  * This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  *
  */
 
- // Generic tab completion support code.
+// Generic tab completion support code.
 
 #ifndef CONFERENCETABCOMPLETION_H_
 #define CONFERENCETABCOMPLETION_H_
@@ -24,63 +24,66 @@
 #include <QObject>
 #include <QPlainTextEdit>
 #include "chatsessionimpl.h"
-
-namespace AdiumChat
+namespace Core
 {
-	
-	class ConfTabCompletion : public QObject
+
+	namespace AdiumChat
 	{
-		Q_OBJECT
 
-	public:
-		ConfTabCompletion(QObject *parent = 0);
-		virtual ~ConfTabCompletion();
+		class ConfTabCompletion : public QObject
+		{
+			Q_OBJECT
 
-		void setTextEdit(QPlainTextEdit* conferenceTextEdit);
-		QPlainTextEdit* getTextEdit();
+		public:
+			ConfTabCompletion(QObject *parent = 0);
+			virtual ~ConfTabCompletion();
 
-		virtual void reset();
-		void tryComplete();
+			void setTextEdit(QPlainTextEdit* conferenceTextEdit);
+			QPlainTextEdit* getTextEdit();
 
-		void setup(QString str, int pos, int &start, int &end);
-		QStringList possibleCompletions();
-		QStringList allChoices(QString &guess);
+			virtual void reset();
+			void tryComplete();
 
-		QStringList getUsers();
+			void setup(QString str, int pos, int &start, int &end);
+			QStringList possibleCompletions();
+			QStringList allChoices(QString &guess);
 
-		void setChatSession(ChatSessionImpl  *session);
-		void setLastReferrer(QString last_referrer);
-	private:
-		QString nickSep;
+			QStringList getUsers();
 
-		QString toComplete_;
-		bool atStart_;
+			void setChatSession(ChatSessionImpl  *session);
+			void setLastReferrer(QString last_referrer);
+		private:
+			QString nickSep;
 
-		virtual void highlight(bool set);
-		QColor highlight_;
+			QString toComplete_;
+			bool atStart_;
 
-		QString longestCommonPrefix(QStringList list);
-		QString suggestCompletion(bool *replaced);
-		virtual bool eventFilter(QObject* , QEvent* );
+			virtual void highlight(bool set);
+			QColor highlight_;
 
-		void moveCursorToOffset(QTextCursor &cur, int offset, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
+			QString longestCommonPrefix(QStringList list);
+			QString suggestCompletion(bool *replaced);
+			virtual bool eventFilter(QObject* , QEvent* );
 
-		enum TypingStatus {
-			Typing_Normal,
-			Typing_TabPressed,	// initial completion
-			Typing_TabbingCompletions, // switch to tab through multiple
-			Typing_MultipleSuggestions
+			void moveCursorToOffset(QTextCursor &cur, int offset, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
+
+			enum TypingStatus {
+				Typing_Normal,
+				Typing_TabPressed,	// initial completion
+				Typing_TabbingCompletions, // switch to tab through multiple
+				Typing_MultipleSuggestions
+			};
+
+			QTextCursor replacementCursor_;
+			TypingStatus typingStatus_;
+			QStringList suggestedCompletion_;
+			int  suggestedIndex_;
+
+			QPlainTextEdit* textEdit_;
+			ChatSessionImpl *chat_session_;
+			QString last_referrer_;
 		};
 
-		QTextCursor replacementCursor_;
-		TypingStatus typingStatus_;
-		QStringList suggestedCompletion_;
-		int  suggestedIndex_;
-
-		QPlainTextEdit* textEdit_;
-		ChatSessionImpl *chat_session_;
-		QString last_referrer_;
-	};
-
+	}
 }
 #endif /* CONFERENCETABCOMPLETION_H_ */

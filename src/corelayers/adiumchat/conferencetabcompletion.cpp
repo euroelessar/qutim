@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright (C) 2001-2008 Justin Karneges, Martin Hostettler
  *
  * This program is free software; you can redistribute it and/or
@@ -16,56 +16,57 @@
  *
  */
 
- // Generic tab completion support code.
+// Generic tab completion support code.
 
 #include "conferencetabcompletion.h"
 #include <QAbstractItemModel>
 
 #include <QObject>
-
-namespace AdiumChat
+namespace Core
 {
-	
-	ConfTabCompletion::ConfTabCompletion(QObject *parent)
-	: QObject(parent)
+	namespace AdiumChat
 	{
-		typingStatus_ = Typing_Normal;
-		textEdit_ = 0;
-		nickSep = ":";
-	}
 
-	ConfTabCompletion::~ConfTabCompletion()
-	{
-	}
-
-	void ConfTabCompletion::setChatSession(ChatSessionImpl  *session){
-		chat_session_ = session;
-	}
-
-	void ConfTabCompletion::setLastReferrer(QString last_referrer){
-		last_referrer_ = last_referrer;
-	}
-
-	void ConfTabCompletion::setTextEdit(QPlainTextEdit* conferenceTextEdit) {
-		textEdit_ = conferenceTextEdit;
-		QColor editBackground(textEdit_->palette().color(QPalette::Active, QPalette::Base));
-
-		if (editBackground.value() < 128) {
-			highlight_ = editBackground.lighter(125);
-		} else {
-			highlight_ = editBackground.darker(125);
+		ConfTabCompletion::ConfTabCompletion(QObject *parent)
+			: QObject(parent)
+		{
+			typingStatus_ = Typing_Normal;
+			textEdit_ = 0;
+			nickSep = ":";
 		}
-		
-		textEdit_->installEventFilter(this);
-	}
 
-	QPlainTextEdit* ConfTabCompletion::getTextEdit() {
-		return textEdit_;
-	}
+		ConfTabCompletion::~ConfTabCompletion()
+		{
+		}
 
-	void ConfTabCompletion::highlight(bool set) {
-		Q_UNUSED(set);
-	/*
+		void ConfTabCompletion::setChatSession(ChatSessionImpl  *session){
+			chat_session_ = session;
+		}
+
+		void ConfTabCompletion::setLastReferrer(QString last_referrer){
+			last_referrer_ = last_referrer;
+		}
+
+		void ConfTabCompletion::setTextEdit(QPlainTextEdit* conferenceTextEdit) {
+			textEdit_ = conferenceTextEdit;
+			QColor editBackground(textEdit_->palette().color(QPalette::Active, QPalette::Base));
+
+			if (editBackground.value() < 128) {
+				highlight_ = editBackground.lighter(125);
+			} else {
+				highlight_ = editBackground.darker(125);
+			}
+
+			textEdit_->installEventFilter(this);
+		}
+
+		QPlainTextEdit* ConfTabCompletion::getTextEdit() {
+			return textEdit_;
+		}
+
+		void ConfTabCompletion::highlight(bool set) {
+			Q_UNUSED(set);
+			/*
 		if (set) {
 			QTextEdit::ExtraSelection es;
 			es.cursor = replacementCursor_;
@@ -74,105 +75,105 @@ namespace AdiumChat
 		} else {
 			if (textEdit_) textEdit_->setExtraSelections(QList<QTextEdit::ExtraSelection>());
 		}*/
-	}
-
-	void ConfTabCompletion::moveCursorToOffset(QTextCursor &cur, int offset, QTextCursor::MoveMode mode) {
-		cur.movePosition(QTextCursor::Start, mode);
-		for (int i = 0; i < offset; i++) { // some sane limit on iterations
-			if (cur.position() >= offset) break; // done our work
-			if (!cur.movePosition(QTextCursor::NextCharacter, mode)) break; // failed?
 		}
-	}
 
-	/** Find longest common (case insensitive) prefix of \a list.
+		void ConfTabCompletion::moveCursorToOffset(QTextCursor &cur, int offset, QTextCursor::MoveMode mode) {
+			cur.movePosition(QTextCursor::Start, mode);
+			for (int i = 0; i < offset; i++) { // some sane limit on iterations
+				if (cur.position() >= offset) break; // done our work
+				if (!cur.movePosition(QTextCursor::NextCharacter, mode)) break; // failed?
+			}
+		}
+
+		/** Find longest common (case insensitive) prefix of \a list.
 		*/
-	QString ConfTabCompletion::longestCommonPrefix(QStringList list) {
-		QString candidate = list.first().toLower();
-		int len = candidate.length();
-		while (len > 0) {
-			bool found = true;
-			foreach(QString str, list) {
-				if (str.left(len).toLower() != candidate) {
-					found = false;
+		QString ConfTabCompletion::longestCommonPrefix(QStringList list) {
+			QString candidate = list.first().toLower();
+			int len = candidate.length();
+			while (len > 0) {
+				bool found = true;
+				foreach(QString str, list) {
+					if (str.left(len).toLower() != candidate) {
+						found = false;
+						break;
+					}
+				}
+
+				if (found) {
+					break;
+				}
+
+				--len;
+				candidate = candidate.left(len);
+			}
+			return candidate;
+		}
+
+		void ConfTabCompletion::setup(QString text, int pos, int &start, int &end) {
+			if (text.isEmpty() || pos==0) {
+				atStart_ = true;
+				toComplete_ = "";
+				start = 0;
+				end = 0;
+				return;
+			}
+			end = pos;
+			int i;
+			for (i = pos - 1; i > 0; --i) {
+				if (text[i].isSpace()) {
 					break;
 				}
 			}
+			if (!text[i].isSpace()) {
+				atStart_ = true;
+				start = 0;
+			} else {
+				atStart_ = false;
+				start = i+1;
+			}
+			toComplete_ = text.mid(start, end-start);
+		}
 
-			if (found) {
-				break;
+		QString ConfTabCompletion::suggestCompletion(bool *replaced) {
+
+			suggestedCompletion_ = possibleCompletions();
+			suggestedIndex_ = -1;
+
+			QString newText;
+			if (suggestedCompletion_.count() == 1) {
+				*replaced = true;
+				newText = suggestedCompletion_.first();
+			} else if (suggestedCompletion_.count() > 1) {
+				newText = longestCommonPrefix(suggestedCompletion_);
+				if (newText.isEmpty()) {
+					return toComplete_; // FIXME is this right?
+				}
+
+				typingStatus_ = Typing_MultipleSuggestions;
+				// TODO: display a tooltip that will contain all suggestedCompletion
+				// Hm.. And where and how should it be displayed?
+				*replaced = true;
 			}
 
-			--len;
-			candidate = candidate.left(len);
-		}
-		return candidate;
-	}
 
-	void ConfTabCompletion::setup(QString text, int pos, int &start, int &end) {
-		if (text.isEmpty() || pos==0) {
-			atStart_ = true;
-			toComplete_ = "";
-			start = 0;
-			end = 0;
-			return;
-		}
-		end = pos;
-		int i;
-		for (i = pos - 1; i > 0; --i) {
-			if (text[i].isSpace()) {
-				break;
-			}
-		}
-		if (!text[i].isSpace()) {
-			atStart_ = true;
-			start = 0;
-		} else {
-			atStart_ = false;
-			start = i+1;
-		}
-		toComplete_ = text.mid(start, end-start);
-	}
-
-	QString ConfTabCompletion::suggestCompletion(bool *replaced) {
-
-		suggestedCompletion_ = possibleCompletions();
-		suggestedIndex_ = -1;
-
-		QString newText;
-		if (suggestedCompletion_.count() == 1) {
-			*replaced = true;
-			newText = suggestedCompletion_.first();
-		} else if (suggestedCompletion_.count() > 1) {
-			newText = longestCommonPrefix(suggestedCompletion_);
-			if (newText.isEmpty()) {
-				return toComplete_; // FIXME is this right?
-			}
-
-			typingStatus_ = Typing_MultipleSuggestions;
-			// TODO: display a tooltip that will contain all suggestedCompletion
-			// Hm.. And where and how should it be displayed?
-			*replaced = true;
+			return newText;
 		}
 
 
-		return newText;
-	}
 
+		void ConfTabCompletion::reset() {
+			typingStatus_ = Typing_Normal;
+			highlight(false);
+		}
 
-
-	void ConfTabCompletion::reset() {
-		typingStatus_ = Typing_Normal;
-		highlight(false);
-	}
-
-	/** Handle tab completion.
+		/** Handle tab completion.
 		* User interface uses a dual model, first tab completes upto the
 		* longest common (case insensitiv) match, further tabbing cycles through all
 		* possible completions. When doing a tab completion without something to complete
 		* possibly offers a special guess first.
 		*/
-	void ConfTabCompletion::tryComplete() {
-		switch (typingStatus_) {
+		void ConfTabCompletion::tryComplete() {
+			switch (typingStatus_) {
 			case Typing_Normal:
 				typingStatus_ = Typing_TabPressed;
 				break;
@@ -181,130 +182,131 @@ namespace AdiumChat
 				break;
 			default:
 				break;
-		}
-
-
-		QString newText;
-		bool replaced = false;
-
-		if (typingStatus_ == Typing_MultipleSuggestions) {
-			if (!suggestedCompletion_.isEmpty()) {
-				suggestedIndex_++;
-				if (suggestedIndex_ >= (int)suggestedCompletion_.count()) {
-					suggestedIndex_ = 0;
-				}
-				newText = suggestedCompletion_[suggestedIndex_];
-				replaced = true;
 			}
-		} else {
-			QTextCursor cursor = textEdit_->textCursor();
-			QString wholeText = textEdit_->toPlainText();
 
-			int begin, end;
-			setup(wholeText, cursor.position(), begin, end);
-			replacementCursor_ = QTextCursor(textEdit_->document());
-			moveCursorToOffset(replacementCursor_, begin);
-			moveCursorToOffset(replacementCursor_, end, QTextCursor::KeepAnchor);
 
-			if (toComplete_.isEmpty() && typingStatus_ == Typing_TabbingCompletions) {
-				typingStatus_ = Typing_MultipleSuggestions;
+			QString newText;
+			bool replaced = false;
 
-				QString guess;
-				suggestedCompletion_ = allChoices(guess);
-
-				if ( !guess.isEmpty() ) {
-					suggestedIndex_ = -1;
-					newText = guess;
-					replaced = true;
-				} else if (!suggestedCompletion_.isEmpty()) {
-					suggestedIndex_ = 0;
-					newText = suggestedCompletion_.first();
+			if (typingStatus_ == Typing_MultipleSuggestions) {
+				if (!suggestedCompletion_.isEmpty()) {
+					suggestedIndex_++;
+					if (suggestedIndex_ >= (int)suggestedCompletion_.count()) {
+						suggestedIndex_ = 0;
+					}
+					newText = suggestedCompletion_[suggestedIndex_];
 					replaced = true;
 				}
 			} else {
-				newText = suggestCompletion(&replaced);
+				QTextCursor cursor = textEdit_->textCursor();
+				QString wholeText = textEdit_->toPlainText();
+
+				int begin, end;
+				setup(wholeText, cursor.position(), begin, end);
+				replacementCursor_ = QTextCursor(textEdit_->document());
+				moveCursorToOffset(replacementCursor_, begin);
+				moveCursorToOffset(replacementCursor_, end, QTextCursor::KeepAnchor);
+
+				if (toComplete_.isEmpty() && typingStatus_ == Typing_TabbingCompletions) {
+					typingStatus_ = Typing_MultipleSuggestions;
+
+					QString guess;
+					suggestedCompletion_ = allChoices(guess);
+
+					if ( !guess.isEmpty() ) {
+						suggestedIndex_ = -1;
+						newText = guess;
+						replaced = true;
+					} else if (!suggestedCompletion_.isEmpty()) {
+						suggestedIndex_ = 0;
+						newText = suggestedCompletion_.first();
+						replaced = true;
+					}
+				} else {
+					newText = suggestCompletion(&replaced);
+				}
 			}
-		}
 
-		if (replaced) {
-			textEdit_->setUpdatesEnabled(false);
+			if (replaced) {
+				textEdit_->setUpdatesEnabled(false);
 
-			int start = qMin(replacementCursor_.anchor(), replacementCursor_.position());
+				int start = qMin(replacementCursor_.anchor(), replacementCursor_.position());
 
-			replacementCursor_.beginEditBlock();
-			replacementCursor_.insertText(newText);
-			replacementCursor_.endEditBlock();
+				replacementCursor_.beginEditBlock();
+				replacementCursor_.insertText(newText);
+				replacementCursor_.endEditBlock();
 
-			QTextCursor newPos(replacementCursor_);
+				QTextCursor newPos(replacementCursor_);
 
-			moveCursorToOffset(replacementCursor_, start, QTextCursor::KeepAnchor);
-
-
-			newPos.clearSelection();
-
-			textEdit_->setTextCursor(newPos);
-
-			textEdit_->setUpdatesEnabled(true);
-			textEdit_->viewport()->update();
-		}
-		highlight(typingStatus_ == Typing_MultipleSuggestions);
-	}
+				moveCursorToOffset(replacementCursor_, start, QTextCursor::KeepAnchor);
 
 
-	QStringList ConfTabCompletion::possibleCompletions() {
-		QStringList suggestedNicks;
-		QStringList nicks = getUsers();
+				newPos.clearSelection();
 
-		QString postAdd = atStart_ ? nickSep + " " : "";
+				textEdit_->setTextCursor(newPos);
 
-		foreach(QString nick, nicks) {
-			if (nick.left(toComplete_.length()).toLower() == toComplete_.toLower()) {
-				suggestedNicks << nick + postAdd;
+				textEdit_->setUpdatesEnabled(true);
+				textEdit_->viewport()->update();
 			}
-		}
-		return suggestedNicks;
-	}
-
-	QStringList ConfTabCompletion::allChoices(QString &guess) {
-		guess = last_referrer_;
-		if (!guess.isEmpty() && atStart_) {
-			guess += nickSep + " ";
+			highlight(typingStatus_ == Typing_MultipleSuggestions);
 		}
 
-		QStringList all = getUsers();
 
-		if (atStart_) {
-			QStringList::Iterator it = all.begin();
-			for ( ; it != all.end(); ++it) {
-				*it = *it + nickSep + " ";
+		QStringList ConfTabCompletion::possibleCompletions() {
+			QStringList suggestedNicks;
+			QStringList nicks = getUsers();
+
+			QString postAdd = atStart_ ? nickSep + " " : "";
+
+			foreach(QString nick, nicks) {
+				if (nick.left(toComplete_.length()).toLower() == toComplete_.toLower()) {
+					suggestedNicks << nick + postAdd;
+				}
 			}
+			return suggestedNicks;
 		}
-		return all;
-	}
-	QStringList ConfTabCompletion::getUsers(){
-		QStringList users;
-		QAbstractItemModel *model = chat_session_->getModel();
-		for (int i =0;i!=model->rowCount();i++) 
-			users.append(model->index(i,0).data(Qt::DisplayRole).toString());
 
-		return users;
-	}
-	
-	bool ConfTabCompletion::eventFilter(QObject* obj, QEvent* ev)
-	{
-		if (obj->metaObject() == &QPlainTextEdit::staticMetaObject
-			&& ev->type() == QEvent::KeyPress) {
-			QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
-			if ( keyEvent->key() == Qt::Key_Tab ) {
-				tryComplete();
-				return true;
+		QStringList ConfTabCompletion::allChoices(QString &guess) {
+			guess = last_referrer_;
+			if (!guess.isEmpty() && atStart_) {
+				guess += nickSep + " ";
 			}
-			reset();
-			return false;
+
+			QStringList all = getUsers();
+
+			if (atStart_) {
+				QStringList::Iterator it = all.begin();
+				for ( ; it != all.end(); ++it) {
+					*it = *it + nickSep + " ";
+				}
+			}
+			return all;
 		}
-		
-		return QObject::eventFilter(obj, ev);
+		QStringList ConfTabCompletion::getUsers(){
+			QStringList users;
+			QAbstractItemModel *model = chat_session_->getModel();
+			for (int i =0;i!=model->rowCount();i++)
+				users.append(model->index(i,0).data(Qt::DisplayRole).toString());
+
+			return users;
+		}
+
+		bool ConfTabCompletion::eventFilter(QObject* obj, QEvent* ev)
+		{
+			if (obj->metaObject() == &QPlainTextEdit::staticMetaObject
+				&& ev->type() == QEvent::KeyPress) {
+				QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
+				if ( keyEvent->key() == Qt::Key_Tab ) {
+					tryComplete();
+					return true;
+				}
+				reset();
+				return false;
+			}
+
+			return QObject::eventFilter(obj, ev);
+		}
+
+
 	}
-
-
 }

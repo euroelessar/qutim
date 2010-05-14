@@ -24,175 +24,177 @@
 #include <libqutim/shortcut.h>
 #include <libqutim/conference.h>
 
-namespace AdiumChat
+namespace Core
 {
-	static Core::CoreModuleHelper<ChatLayerImpl> chat_layer_static(
-		QT_TRANSLATE_NOOP("Plugin", "Webkit chat layer"),
-		QT_TRANSLATE_NOOP("Plugin", "Default qutIM chat implementation, based on Adium chat styles")
-	);
-
-//	inline ActionGenerator *generate(const char *name)
-//	{
-//		return new ActionGenerator(Icon("mail-message-new"),
-//								   LocalizedString("ChatLayer", name),
-//								   ChatLayer::instance(), SLOT(onStartChat()));
-//	}
-
-	void init()
+	namespace AdiumChat
 	{
-		Shortcut::registerSequence("chatSendMessage",
-								   QT_TRANSLATE_NOOP("ChatLayer", "Send message"),
-								   "ChatWidget",
-								   QKeySequence("Ctrl+Return")
-								   );
-								   
-		Shortcut::registerSequence("chatCloseSession",
-								   QT_TRANSLATE_NOOP("ChatLayer", "Close chat"),
-								   "ChatWidget",
-								   QKeySequence(QKeySequence::Close)
-								   );   
-		Shortcut::registerSequence("chatNext",
-								   QT_TRANSLATE_NOOP("ChatLayer", "Next chat"),
-								   "ChatWidget",
-								   QKeySequence(QKeySequence::NextChild)
-								   );
-		Shortcut::registerSequence("chatPrevious",
-								   QT_TRANSLATE_NOOP("ChatLayer", "Previous chat"),
-								   "ChatWidget",
-								   QKeySequence(QKeySequence::PreviousChild)
-								   );
-	}
+		static Core::CoreModuleHelper<ChatLayerImpl> chat_layer_static(
+				QT_TRANSLATE_NOOP("Plugin", "Webkit chat layer"),
+				QT_TRANSLATE_NOOP("Plugin", "Default qutIM chat implementation, based on Adium chat styles")
+				);
 
-	static Core::CoreStartupHelper<&init> action_init_static(
-		QT_TRANSLATE_NOOP("Plugin", "Helper for chat layer"),
-		QT_TRANSLATE_NOOP("Plugin", "Adds \"Start chat\" action to conact's menu")
-	);
+		//	inline ActionGenerator *generate(const char *name)
+		//	{
+		//		return new ActionGenerator(Icon("mail-message-new"),
+		//								   LocalizedString("ChatLayer", name),
+		//								   ChatLayer::instance(), SLOT(onStartChat()));
+		//	}
 
-	ChatLayerImpl::ChatLayerImpl()
-	{
-		qRegisterMetaType<QWidgetList>("QWidgetList");
-	}
-
-
-	ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
-	{
-		//find or create session
- 		if(!(unit = getUnitForSession(unit)))
- 			return 0;
-		ChatSessionImpl *session = m_chat_sessions.value(unit);
-		if(!session && create)
+		void init()
 		{
-			session = new ChatSessionImpl(unit,this);
-			connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
-			connect(session,SIGNAL(destroyed(QObject*)),SLOT(onChatSessionDestroyed(QObject*)));
-			m_chat_sessions.insert(unit,session);
-			emit sessionCreated(session);
-		}
-		return session;
-	}
+			Shortcut::registerSequence("chatSendMessage",
+									   QT_TRANSLATE_NOOP("ChatLayer", "Send message"),
+									   "ChatWidget",
+									   QKeySequence("Ctrl+Return")
+									   );
 
-	QList<ChatSession* > ChatLayerImpl::sessions()
-	{
-		QList<ChatSession* >  list;
-		ChatSessionHash::const_iterator it;
-		for (it=m_chat_sessions.constBegin();it!=m_chat_sessions.constEnd();it++)
-			list.append(it.value());
-		return list;
-	}
-
-	void ChatLayerImpl::onChatWidgetDestroyed(QObject* object)
-	{
-		ChatWidget *widget = reinterpret_cast < ChatWidget* >(object);
-		QString key = m_chatwidgets.key(widget);
-		m_chatwidgets.remove(key);
-	}
-	void ChatLayerImpl::onChatSessionDestroyed(QObject *object)
-	{
-		ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
-		if (!sess)
-			return;
-		ChatUnit *key = m_chat_sessions.key(sess);
-		if (key)
-			m_chat_sessions.remove(key);
-	}
-
-	ChatLayerImpl::~ChatLayerImpl()
-	{
-		qDeleteAllLater(m_chatwidgets);
-	}
-
-	QString ChatLayerImpl::getWidgetId(ChatSessionImpl* sess) const
-	{
-		Q_UNUSED(sess);
-		QString key;
-
-		ConfigGroup group = Config("behavior/chat").group("widget");
-		int windows = group.value<int>("windows",0);
-
-		//TODO add configuration
-
-		if (!windows)
-			key = "session";
-		else {
-			if (qobject_cast<const Conference *>(sess->getUnit()))
-				key = "conference";
-			else
-				key = "chat";
+			Shortcut::registerSequence("chatCloseSession",
+									   QT_TRANSLATE_NOOP("ChatLayer", "Close chat"),
+									   "ChatWidget",
+									   QKeySequence(QKeySequence::Close)
+									   );
+			Shortcut::registerSequence("chatNext",
+									   QT_TRANSLATE_NOOP("ChatLayer", "Next chat"),
+									   "ChatWidget",
+									   QKeySequence(QKeySequence::NextChild)
+									   );
+			Shortcut::registerSequence("chatPrevious",
+									   QT_TRANSLATE_NOOP("ChatLayer", "Previous chat"),
+									   "ChatWidget",
+									   QKeySequence(QKeySequence::PreviousChild)
+									   );
 		}
 
-		return key;
-	}
+		static Core::CoreStartupHelper<&init> action_init_static(
+				QT_TRANSLATE_NOOP("Plugin", "Helper for chat layer"),
+				QT_TRANSLATE_NOOP("Plugin", "Adds \"Start chat\" action to conact's menu")
+				);
 
-	void ChatLayerImpl::onSessionActivated(bool active)
-	{
-		debug() << "session activated";
-		//init or update chat widget(s)
-		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
-		if (!session)
-			return;
-		QString key = getWidgetId(session);
-		ChatWidget *widget = m_chatwidgets.value(key,0);
-		if (!widget)
+		ChatLayerImpl::ChatLayerImpl()
 		{
-			if (!active)
+			qRegisterMetaType<QWidgetList>("QWidgetList");
+		}
+
+
+		ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
+		{
+			//find or create session
+			if(!(unit = getUnitForSession(unit)))
+				return 0;
+			ChatSessionImpl *session = m_chat_sessions.value(unit);
+			if(!session && create)
+			{
+				session = new ChatSessionImpl(unit,this);
+				connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
+				connect(session,SIGNAL(destroyed(QObject*)),SLOT(onChatSessionDestroyed(QObject*)));
+				m_chat_sessions.insert(unit,session);
+				emit sessionCreated(session);
+			}
+			return session;
+		}
+
+		QList<ChatSession* > ChatLayerImpl::sessions()
+		{
+			QList<ChatSession* >  list;
+			ChatSessionHash::const_iterator it;
+			for (it=m_chat_sessions.constBegin();it!=m_chat_sessions.constEnd();it++)
+				list.append(it.value());
+			return list;
+		}
+
+		void ChatLayerImpl::onChatWidgetDestroyed(QObject* object)
+		{
+			ChatWidget *widget = reinterpret_cast < ChatWidget* >(object);
+			QString key = m_chatwidgets.key(widget);
+			m_chatwidgets.remove(key);
+		}
+		void ChatLayerImpl::onChatSessionDestroyed(QObject *object)
+		{
+			ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
+			if (!sess)
 				return;
-			widget = new ChatWidget(true);
-			m_chatwidgets.insert(key,widget);
-			connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
-			widget->show();
+			ChatUnit *key = m_chat_sessions.key(sess);
+			if (key)
+				m_chat_sessions.remove(key);
 		}
-		if (active)
+
+		ChatLayerImpl::~ChatLayerImpl()
 		{
-			if (!widget->contains(session))
-				widget->addSession(session);
-			widget->activate(session);
+			qDeleteAllLater(m_chatwidgets);
 		}
-	}
 
-	ChatWidget *AdiumChat::ChatLayerImpl::findWidget(ChatSession *sess) const
-	{
-		ChatWidgetHash::const_iterator it;
-		ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sess);
-		for (it=m_chatwidgets.constBegin();it!=m_chatwidgets.constEnd();it++) {
-			if (it.value()->contains(session))
-				return it.value();
+		QString ChatLayerImpl::getWidgetId(ChatSessionImpl* sess) const
+		{
+			Q_UNUSED(sess);
+			QString key;
+
+			ConfigGroup group = Config("behavior/chat").group("widget");
+			int windows = group.value<int>("windows",0);
+
+			//TODO add configuration
+
+			if (!windows)
+				key = "session";
+			else {
+				if (qobject_cast<const Conference *>(sess->getUnit()))
+					key = "conference";
+				else
+					key = "chat";
+			}
+
+			return key;
 		}
-		return 0;
-	}
 
-	QTextDocument *ChatLayerImpl::getInputField(ChatSession *session)
-	{
-		ChatWidget *widget = findWidget(session);
-		return widget ? widget->getInputField() : 0;
-	}
+		void ChatLayerImpl::onSessionActivated(bool active)
+		{
+			debug() << "session activated";
+			//init or update chat widget(s)
+			ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
+			if (!session)
+				return;
+			QString key = getWidgetId(session);
+			ChatWidget *widget = m_chatwidgets.value(key,0);
+			if (!widget)
+			{
+				if (!active)
+					return;
+				widget = new ChatWidget(true);
+				m_chatwidgets.insert(key,widget);
+				connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
+				widget->show();
+			}
+			if (active)
+			{
+				if (!widget->contains(session))
+					widget->addSession(session);
+				widget->activate(session);
+			}
+		}
 
-	QWidgetList ChatLayerImpl::chatWidgets()
-	{
-		QWidgetList list;
-		foreach (QWidget *widget, m_chatwidgets)
-			list << widget;
-		return list;
-	}
+		ChatWidget *AdiumChat::ChatLayerImpl::findWidget(ChatSession *sess) const
+		{
+			ChatWidgetHash::const_iterator it;
+			ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sess);
+			for (it=m_chatwidgets.constBegin();it!=m_chatwidgets.constEnd();it++) {
+				if (it.value()->contains(session))
+					return it.value();
+			}
+			return 0;
+		}
 
+		QTextDocument *ChatLayerImpl::getInputField(ChatSession *session)
+		{
+			ChatWidget *widget = findWidget(session);
+			return widget ? widget->getInputField() : 0;
+		}
+
+		QWidgetList ChatLayerImpl::chatWidgets()
+		{
+			QWidgetList list;
+			foreach (QWidget *widget, m_chatwidgets)
+				list << widget;
+			return list;
+		}
+
+	}
 }
-

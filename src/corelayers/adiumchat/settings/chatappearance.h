@@ -24,9 +24,9 @@ namespace Ui
 	class chatAppearance;
 }
 class QWebPage;
-using namespace AdiumChat;
 namespace Core
 {
+	using namespace AdiumChat;
 	class ChatVariable;
 
 	class ChatAppearance : public SettingsWidget

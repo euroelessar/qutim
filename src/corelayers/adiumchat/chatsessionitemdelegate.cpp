@@ -6,23 +6,26 @@
 
 using namespace qutim_sdk_0_3;
 
-namespace AdiumChat
+namespace Core
 {
-ChatSessionItemDelegate::ChatSessionItemDelegate(QObject *parent) :
-		QStyledItemDelegate(parent)
-{
-}
+	namespace AdiumChat
+	{
+		ChatSessionItemDelegate::ChatSessionItemDelegate(QObject *parent) :
+				QStyledItemDelegate(parent)
+		{
+		}
 
-bool ChatSessionItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
-										const QStyleOptionViewItem &option,
-										const QModelIndex &index)
-{
-	if (event->type() == QEvent::ToolTip) {
-		Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
-		ToolTip::instance()->showText(event->globalPos(), buddy, view);
-		return true;
-	} else {
-		return QAbstractItemDelegate::helpEvent(event, view, option, index);
+		bool ChatSessionItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
+												const QStyleOptionViewItem &option,
+												const QModelIndex &index)
+		{
+			if (event->type() == QEvent::ToolTip) {
+				Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
+				ToolTip::instance()->showText(event->globalPos(), buddy, view);
+				return true;
+			} else {
+				return QAbstractItemDelegate::helpEvent(event, view, option, index);
+			}
+		}
 	}
-}
 }

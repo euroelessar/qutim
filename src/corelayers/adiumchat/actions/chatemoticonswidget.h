@@ -3,27 +3,30 @@
 
 #include <QScrollArea>
 
-namespace AdiumChat
+namespace Core
 {
-
-	class ChatEmoticonsWidget : public QScrollArea
+	namespace AdiumChat
 	{
-		Q_OBJECT
-	public:
-		ChatEmoticonsWidget(QWidget *parent = 0);
-	public slots:
-		void loadTheme();
-		void clearEmoticonsPreview();
-	protected:
-		void showEvent(QShowEvent *);
-		void hideEvent(QHideEvent *);
-		bool eventFilter(QObject *, QEvent *);
-	signals:
-		void insertSmile(const QString &code);
-	private:
-		QWidgetList m_active_emoticons;
-	};
 
+		class ChatEmoticonsWidget : public QScrollArea
+		{
+			Q_OBJECT
+		public:
+			ChatEmoticonsWidget(QWidget *parent = 0);
+		public slots:
+			void loadTheme();
+			void clearEmoticonsPreview();
+		protected:
+			void showEvent(QShowEvent *);
+			void hideEvent(QHideEvent *);
+			bool eventFilter(QObject *, QEvent *);
+		signals:
+			void insertSmile(const QString &code);
+		private:
+			QWidgetList m_active_emoticons;
+		};
+
+	}
 }
 #endif // CHATEMOTICONSWIDGET_H
 
