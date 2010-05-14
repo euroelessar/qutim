@@ -102,5 +102,10 @@ namespace Core
 			connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
 		}
 
+		AdiumChatForm::~AdiumChatForm()
+		{
+			qDeleteAll(m_chatwidgets);
+		}
+
 	}
 }

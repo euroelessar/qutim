@@ -59,7 +59,9 @@ namespace Core
 			m_originalDoc = ui->chatEdit->document();
 
 			//init tabbar
-			//		ui->tabBar->setTabsClosable(true);
+#if !defined(Q_WS_MAC)
+			ui->tabBar->setTabsClosable(true);
+#endif
 			ui->tabBar->setMovable(true);
 			//		ui->tabBar->setDocumentMode(true);
 			ui->tabBar->setShape(QTabBar::RoundedSouth);
@@ -88,7 +90,7 @@ namespace Core
 
 			//init toolbar
 			m_toolbar->setIconSize(QSize(22,22));
-			m_toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+			//m_toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
 			//for testing
 			QMenu *menu = new QMenu(this);
@@ -108,10 +110,18 @@ namespace Core
 			menu->addAction(emoticons_widget_act);
 			connect(emoticons_widget,SIGNAL(insertSmile(QString)),ui->chatEdit,SLOT(appendPlainText(QString)));
 
+			m_toolbar->addSeparator();
+
 			m_reciever_selector = new QAction(Icon("view-choose"),tr("Destination"),this);
-			m_reciever_selector->setMenu(new QMenu(this)); //hack
+			m_reciever_selector->setMenu(new QMenu()); //HACK
 			m_toolbar->addAction(m_reciever_selector);
 			m_reciever_selector->menu()->deleteLater();
+
+
+			QWidget* spacer = new QWidget(this);
+			spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+			// toolBar is a pointer to an existing toolbar
+			m_toolbar->addWidget(spacer);
 
 			m_session_list = new QAction(Icon("view-list-tree"),tr("Session list"),this);
 			m_session_list->setMenu(new QMenu(this));
@@ -121,7 +131,11 @@ namespace Core
 			//load settings
 			m_html_message = Config("appearance/adiumChat").group("behavior/widget").value<bool>("htmlMessage",false);
 			ConfigGroup adium_chat = Config("appearance/adiumChat").group("behavior/widget");
-			m_chat_flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",SendTypingNotification | ChatStateIconsOnTabs | ShowUnreadMessages | SwitchDesktopOnRaise));
+			m_chat_flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",SendTypingNotification |
+																		ChatStateIconsOnTabs |
+																		ShowUnreadMessages |
+																		SwitchDesktopOnRaise |
+																		AeroThemeIntegration));
 
 			if (m_chat_flags & SendTypingNotification) {
 				connect(ui->chatEdit,SIGNAL(textChanged()),SLOT(onTextChanged()));
@@ -133,7 +147,15 @@ namespace Core
 			//init aero integration for win
 			if (m_chat_flags & AeroThemeIntegration) {
 				if (QtWin::isCompositionEnabled()) {
-					QtWin::extendFrameIntoClientArea(this);
+					m_toolbar->setStyleSheet("QToolBar{background:none;border:none;}");
+					ui->centralwidget->setAutoFillBackground(true);
+					QRect geom = m_toolbar->geometry();
+					QtWin::extendFrameIntoClientArea(this,
+													 0,
+													 0,
+													 m_toolbar->sizeHint().height(),
+													 0
+													 );
 					setContentsMargins(0, 0, 0, 0);
 				}
 			}

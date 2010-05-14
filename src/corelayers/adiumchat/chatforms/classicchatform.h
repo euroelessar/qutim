@@ -26,6 +26,7 @@ namespace Core
 			Q_CLASSINFO("Uses", "IconLoader")
 		public:
 			explicit ClassicChatForm();
+			~ClassicChatForm();
 			Q_INVOKABLE QWidgetList chatWidgets();
 		private slots:
 			void onSessionCreated(qutim_sdk_0_3::ChatSession*);

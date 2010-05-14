@@ -102,5 +102,10 @@ namespace Core
 			connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
 		}
 
+		ClassicChatForm::~ClassicChatForm()
+		{
+			qDeleteAll(m_chatwidgets);
+		}
+
 	}
 }
