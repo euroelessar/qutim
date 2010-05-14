@@ -356,7 +356,7 @@ namespace Core
 		void Module::showStatusDialog()
 		{
 			QString text = p->status_action->data().toString();
-			SimpleStatusDialog *dialog = new SimpleStatusDialog(text);
+			SimpleStatusDialog *dialog = new SimpleStatusDialog(text,p->widget);
 			connect(dialog,SIGNAL(accepted()),SLOT(changeStatusTextAccepted()));
 			centerizeWidget(dialog);
 			dialog->show();

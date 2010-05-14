@@ -17,7 +17,7 @@ namespace Core
 			Q_OBJECT
 
 		public:
-			explicit SimpleStatusDialog(const QString &status);
+			explicit SimpleStatusDialog(const QString &status, QWidget *parent = 0);
 			~SimpleStatusDialog();
 			QString statusText() const;
 		protected:

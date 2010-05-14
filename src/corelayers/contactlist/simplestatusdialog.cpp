@@ -7,7 +7,8 @@ namespace Core
 	namespace SimpleContactList
 	{
 
-		SimpleStatusDialog::SimpleStatusDialog(const QString &status) :
+		SimpleStatusDialog::SimpleStatusDialog(const QString &status, QWidget *parent) :
+				QDialog(parent),
 				ui(new Ui::SimpleStatusDialog)
 		{
 			ui->setupUi(this);
