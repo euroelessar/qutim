@@ -1,6 +1,6 @@
-#include "classicchatform.h"
+#include "adiumchatform.h"
 #include "modulemanagerimpl.h"
-#include "classicchatwidget.h"
+#include "adiumchatwidget.h"
 #include <libqutim/configbase.h>
 #include <libqutim/conference.h>
 #include <libqutim/debug.h>
@@ -10,26 +10,26 @@ namespace Core
 {
 	namespace AdiumChat
 	{
-		static CoreModuleHelper<ClassicChatForm> classic_chatform_static(
-				QT_TRANSLATE_NOOP("Plugin", "Classic"),
-				QT_TRANSLATE_NOOP("Plugin", "Default qutIM chatform implementation for adiumchat")
+		static CoreModuleHelper<AdiumChatForm> classic_chatform_static(
+				QT_TRANSLATE_NOOP("Plugin", "Adium"),
+				QT_TRANSLATE_NOOP("Plugin", "Adium-like chatform implementation for adiumchat")
 				);
 		
-		ClassicChatForm::ClassicChatForm()
+		AdiumChatForm::AdiumChatForm()
 		{
 			connect(ChatLayerImpl::instance(),SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*))
 					);
 		}
 
-		void ClassicChatForm::onChatWidgetDestroyed(QObject* object)
+		void AdiumChatForm::onChatWidgetDestroyed(QObject* object)
 		{
-			ClassicChatWidget *widget = reinterpret_cast<ClassicChatWidget*>(object);
+			AdiumChatWidget *widget = reinterpret_cast<AdiumChatWidget*>(object);
 			QString key = m_chatwidgets.key(widget);
 			m_chatwidgets.remove(key);
 		}
 
 
-		QString ClassicChatForm::getWidgetId(ChatSessionImpl* sess) const
+		QString AdiumChatForm::getWidgetId(ChatSessionImpl* sess) const
 		{
 			QString key;
 
@@ -50,7 +50,7 @@ namespace Core
 			return key;
 		}
 		
-		void ClassicChatForm::onSessionActivated(bool active)
+		void AdiumChatForm::onSessionActivated(bool active)
 		{
 			debug() << "session activated";
 			//init or update chat widget(s)
@@ -58,12 +58,12 @@ namespace Core
 			if (!session)
 				return;
 			QString key = getWidgetId(session);
-			ClassicChatWidget *widget = m_chatwidgets.value(key,0);
+			AdiumChatWidget *widget = m_chatwidgets.value(key,0);
 			if (!widget)
 			{
 				if (!active)
 					return;
-				widget = new ClassicChatWidget(true);
+				widget = new AdiumChatWidget(true);
 				m_chatwidgets.insert(key,widget);
 				connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
 				widget->show();
@@ -76,7 +76,7 @@ namespace Core
 			}
 		}
 
-		ClassicChatWidget *ClassicChatForm::findWidget(ChatSession *sess) const
+		AdiumChatWidget *AdiumChatForm::findWidget(ChatSession *sess) const
 		{
 			ChatWidgetHash::const_iterator it;
 			ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sess);
@@ -88,7 +88,7 @@ namespace Core
 		}
 		
 
-		QWidgetList ClassicChatForm::chatWidgets()
+		QWidgetList AdiumChatForm::chatWidgets()
 		{
 			QWidgetList list;
 			foreach (QWidget *widget, m_chatwidgets)
@@ -96,7 +96,7 @@ namespace Core
 			return list;
 		}
 		
-		void ClassicChatForm::onSessionCreated(ChatSession* session)
+		void AdiumChatForm::onSessionCreated(ChatSession* session)
 		{
 			debug() << "Chatform: session created";
 			connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));

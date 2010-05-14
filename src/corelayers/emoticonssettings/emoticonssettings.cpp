@@ -29,7 +29,7 @@ namespace Core
 
 	EmoticonsSettings::EmoticonsSettings()
 	{
-		GeneralSettingsItem<EmoticonsSelector> *item = new GeneralSettingsItem<EmoticonsSelector>(Settings::Appearance, Icon("emoticon"), QT_TRANSLATE_NOOP("Settings","Emoticons"));
+		GeneralSettingsItem<EmoticonsSelector> *item = new GeneralSettingsItem<EmoticonsSelector>(Settings::Appearance, Icon("face-smile"), QT_TRANSLATE_NOOP("Settings","Emoticons"));
 		Settings::registerItem(item);
 		deleteLater();
 	}
