@@ -197,7 +197,7 @@ namespace Core
 			QIcon icon;
 			if (m_chat_flags & ChatStateIconsOnTabs) {
 				ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
-				icon = iconForState(state);
+				icon = ChatLayerImpl::iconForState(state);
 			}
 
 			ui->tabBar->addTab(icon,u->title());
@@ -363,7 +363,7 @@ namespace Core
 				return;
 			if (unread.isEmpty()) {
 				ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
-				QIcon icon = iconForState(state);
+				QIcon icon =  ChatLayerImpl::iconForState(state);
 				ui->tabBar->setTabIcon(index, icon);
 			} else if (m_chat_flags & ShowUnreadMessages) {
 				ui->tabBar->setTabIcon(index, Icon("mail-unread-new"));
@@ -452,7 +452,7 @@ namespace Core
 
 			if (m_chat_flags & ChatStateIconsOnTabs) {
 				if (!session->unread().count()) {
-					QIcon icon = iconForState(state);
+					QIcon icon =  ChatLayerImpl::iconForState(state);
 					ui->tabBar->setTabIcon(index,icon);
 					m_session_list->menu()->actions().at(index)->setIcon(icon);
 				}
@@ -502,32 +502,6 @@ namespace Core
 					session->showMenu(ui->tabBar->mapToGlobal(pos));
 				}
 			}
-		}
-
-		QIcon AdiumChatWidget::iconForState(ChatState state)
-		{
-			QString icon_name;
-			switch (state) {
-				//FIXME icon names
-			case ChatStateActive:
-				icon_name = "im-user";
-				break;
-			case ChatStateInActive:
-				icon_name = "im-user-away";
-				break;
-			case ChatStateGone:
-				icon_name =  "im-user-offline";
-				break;
-			case ChatStateComposing:
-				icon_name = "im-status-message-edit";
-				break;
-			case ChatStatePaused:
-				icon_name = "mail-unread";
-				break;
-			default:
-				break;
-			}
-			return Icon(icon_name);
 		}
 
 		void AdiumChatWidget::closeCurrentTab()

@@ -112,5 +112,30 @@ namespace Core
 		{
 		}
 
+		QIcon ChatLayerImpl::iconForState(ChatState state)
+		{
+			QString icon_name;
+			switch (state) {
+				//FIXME icon names
+			case ChatStateActive:
+				icon_name = "im-user";
+				break;
+			case ChatStateInActive:
+				icon_name = "im-user-away";
+				break;
+			case ChatStateGone:
+				icon_name =  "im-user-offline";
+				break;
+			case ChatStateComposing:
+				icon_name = "im-status-message-edit";
+				break;
+			case ChatStatePaused:
+				icon_name = "mail-unread";
+				break;
+			default:
+				break;
+			}
+			return Icon(icon_name);
+		}
 	}
 }

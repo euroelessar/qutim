@@ -38,13 +38,13 @@ namespace Core
 			ChatLayerImpl();
 			virtual ~ChatLayerImpl();
 			virtual ChatSession* getSession(ChatUnit* unit, bool create = true);
+			static QIcon iconForState(ChatState state);
 		private slots:
 			void onChatSessionDestroyed(QObject *object);
 		private:
 			ChatSessionHash  m_chat_sessions;
 
 		};
-
 	}
 }
 #endif // CHATLAYERIMPL_H

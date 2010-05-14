@@ -79,7 +79,6 @@ namespace Core
 			void onUnitTitleChanged(const QString &title);
 			void onChatStateTimeout();
 		private:
-			QIcon iconForState(ChatState state);
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
 			ChatSessionList m_sessions;
 			int m_current_index;
