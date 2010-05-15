@@ -70,9 +70,10 @@ namespace Core
 					if (Buddy *buddy = qobject_cast<Buddy*>(u))
 						d->model->addContact(buddy);
 				}
-			} else {
-				d->loadHistory();
 			}
+
+			d->loadHistory();
+
 			if (Contact *c = qobject_cast<Contact *>(unit))
 				d->statusChanged(c,true);
 			else {

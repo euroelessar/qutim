@@ -130,8 +130,11 @@ namespace Core
 		MessageList items;
 		if(!unit)
 			return items;
-		QDir dir = getAccountDir(unit->getHistoryUnit());
-		QString filter = quote(unit->id());
+
+		const ChatUnit *u = unit->getHistoryUnit();
+
+		QDir dir = getAccountDir(u);
+		QString filter = quote(u->id());
 		filter += ".*.json";
 		QStringList files = dir.entryList(QStringList() << filter, QDir::Readable | QDir::Files | QDir::NoDotAndDotDot,QDir::Name);
 		if(files.isEmpty())
