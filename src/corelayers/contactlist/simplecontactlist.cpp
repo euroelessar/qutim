@@ -212,7 +212,9 @@ namespace Core
 			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::DND));
 			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::NA));
 			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Invisible));
-			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Offline));			
+			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Offline));
+
+			p->status_btn->setText(Status(Status::Offline).name());
 
 			p->status_btn->menu()->addSeparator();
 
@@ -236,6 +238,7 @@ namespace Core
 		{
 			if (QAction *a = qobject_cast<QAction *>(sender())) {
 				Status::Type type = static_cast<Status::Type>(a->data().value<int>());
+				p->status_btn->setText(Status(type).name());
 				QString text = p->status_action->data().toString();
 				foreach(Protocol *proto, allProtocols()) {
 					foreach(Account *account, proto->accounts()) {
