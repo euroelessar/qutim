@@ -29,10 +29,11 @@ private slots:
 	void onAddAvatar();
 	void onRemoveAvatar();
 private:
-	void dump(const InfoItem &item, int ident);
+	void dump(const DataItem &item, int ident);
 	void setRequest(InfoRequest *request);
-	void addItems(const InfoItem &items);
-	QString summary(const InfoItem &item);
+	void addItems(const DataItem &items);
+	QWidget *getPage(DataItem item);
+	QString summary(const DataItem &item);
 	void updateAvatar();
 private:
 	Ui::userInformationClass ui;
@@ -47,6 +48,7 @@ class ContactInfo : public QObject
 	Q_OBJECT
 	Q_CLASSINFO("Service", "ContactInfo")
 	Q_CLASSINFO("Uses", "IconLoader")
+	Q_CLASSINFO("Uses", "DataFormsBackend")
 public:
 	ContactInfo();
 public slots:

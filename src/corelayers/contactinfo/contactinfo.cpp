@@ -4,8 +4,7 @@
 #include "libqutim/extensioninfo.h"
 #include "libqutim/contact.h"
 #include "libqutim/account.h"
-#include "readonlyinfolayout.h"
-#include "editableinfolayout.h"
+#include "libqutim/dataforms.h"
 #include <QDate>
 #include <QDateEdit>
 #include <QFileDialog>
@@ -110,17 +109,16 @@ void MainWindow::onRequestButton()
 
 void MainWindow::onSaveButton()
 {
-	InfoItem items;
+	DataItem items;
 	for (int i = 0; i < ui.detailsStackedWidget->count(); ++i) {
-		EditableInfoLayout *layout = qobject_cast<EditableInfoLayout*>(
-				ui.detailsStackedWidget->widget(i)->layout());
-		if (!layout)
+		AbstractDataForm *dataFrom = qobject_cast<AbstractDataForm*>(ui.detailsStackedWidget->widget(i));
+		if (!dataFrom)
 			continue;
-		if (layout->objectName() == "General") {
-			foreach (const InfoItem &item, layout->item().subitems())
+		if (dataFrom->objectName() == "General") {
+			foreach (const DataItem &item, dataFrom->item().subitems())
 				items.addSubitem(item);
 		} else {
-			items.addSubitem(layout->item());
+			items.addSubitem(dataFrom->item());
 		}
 	}
 	InfoItemUpdatedEvent event(items);
@@ -149,23 +147,7 @@ void MainWindow::onRemoveAvatar()
 	updateAvatar();
 }
 
-// TODO: maybe move the function to InfoItem class?
-void MainWindow::dump(const InfoItem &items, int ident)
-{
-	if (!items.hasSubitems())
-		return;
-	QString space;
-	for (int i = 0; i < ident; ++i)
-		space += "    ";
-	foreach (const InfoItem &item, items.subitems()) {
-		qDebug() << space.toLatin1().data() << item.name()
-				<< item.title() << item.data();
-		if (item.hasSubitems())
-			dump(item, ident+1);
-	}
-}
-
-void MainWindow::addItems(const InfoItem &items)
+void MainWindow::addItems(const DataItem &items)
 {
 	if (items.isNull() || !items.hasSubitems())
 		return;
@@ -183,48 +165,41 @@ void MainWindow::addItems(const InfoItem &items)
 	ui.infoListWidget->addItem(QT_TRANSLATE_NOOP("ContactInfo", "Summary"));
 	ui.detailsStackedWidget->addWidget(w);
 	// Pages
-	AbstractInfoLayout *general = 0;
-	bool addSpacer = true;
-	foreach (const InfoItem &item, items.subitems()) {
+	DataItem general;
+	foreach (const DataItem &item, items.subitems()) {
 		if (item.hasSubitems()) {
-			QFrame *w = new QFrame(ui.detailsStackedWidget);
-			w->setFrameShape(QFrame::Panel);
-			w->setFrameShadow(QFrame::Sunken);
-			AbstractInfoLayout *group;
-			if (!readWrite)
-				group = new ReadOnlyInfoLayout(w);
-			else
-				group = new EditableInfoLayout(w);
-			group->setObjectName(item.name());
-			if (!group->addItems(item.subitems()))
-				group->addSpacer();
-			ui.infoListWidget->addItem(item.name());
-			ui.detailsStackedWidget->addWidget(w);
+			QWidget *page = getPage(item);
+			ui.infoListWidget->addItem(item.title());
+			ui.detailsStackedWidget->addWidget(page);
 		} else {
-			if (!general) {
-				QFrame *w = new QFrame(ui.detailsStackedWidget);
-				w->setFrameShape(QFrame::Panel);
-				w->setFrameShadow(QFrame::Sunken);
-				if (!readWrite)
-					general = new ReadOnlyInfoLayout(w);
-				else
-					general = new EditableInfoLayout(w);
-				general->setObjectName("General");
-				ui.infoListWidget->addItem(QT_TRANSLATE_NOOP("ContactInfo", "General"));
-				ui.detailsStackedWidget->addWidget(w);
-			}
-			addSpacer = (addSpacer && !general->addItem(item));
+			general.addSubitem(item);
 		}
 	}
-	if (general && addSpacer)
-		general->addSpacer();
+	if (!general.isNull()) {
+		QWidget *page = getPage(general);
+		ui.infoListWidget->insertItem(0, QT_TRANSLATE_NOOP("ContactInfo", "General"));
+		ui.detailsStackedWidget->insertWidget(0, page);
+	}
 }
 
-QString MainWindow::summary(const InfoItem &items)
+QWidget *MainWindow::getPage(DataItem item)
+{
+	if (!readWrite)
+		item.setReadOnly(true);
+	AbstractDataForm *data = AbstractDataForm::get(item);
+	if (data) {
+		data->setParent(ui.detailsStackedWidget);
+		data->setFrameShape(QFrame::Panel);
+		data->setFrameShadow(QFrame::Sunken);
+	}
+	return data;
+}
+
+QString MainWindow::summary(const DataItem &items)
 {
 	QString text;
 	bool first = true;
-	foreach (const InfoItem &item, items.subitems()) {
+	foreach (const DataItem &item, items.subitems()) {
 		if (item.property("additional", false) || item.property("notSet", false))
 			continue;
 		if (item.hasSubitems()) {
