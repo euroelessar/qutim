@@ -62,7 +62,7 @@ namespace Core
 			d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
 			qDebug() << "create session" << d->chat_unit->title();
 			connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
-			d->store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", false);
+			d->store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", true);
 			d->chat_style_output->preparePage(d->web_page,this);
 			d->skipOneMerge = true;
 			d->active = false;
