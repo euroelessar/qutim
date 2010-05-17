@@ -30,12 +30,13 @@ namespace Core
 		class ChatStyleOutput;
 		class ChatSessionModel;
 		class ChatSessionImplPrivate;
+		
 		class ChatSessionImpl : public ChatSession
 		{
 			Q_OBJECT
 			Q_DECLARE_PRIVATE(ChatSessionImpl)
 		public:
-					ChatSessionImpl (ChatUnit *unit, ChatLayer* chat );
+			ChatSessionImpl (ChatUnit *unit, ChatLayer* chat );
 			virtual ~ChatSessionImpl();
 			virtual void addContact ( Buddy* c );
 			virtual qint64 appendMessage(Message &message);

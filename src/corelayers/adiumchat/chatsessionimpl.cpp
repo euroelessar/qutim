@@ -32,6 +32,7 @@
 #include <QPlainTextDocumentLayout>
 #include <QDesktopServices>
 #include "chatsessionimpl_p.h"
+#include "javascriptclient.h"
 
 namespace Core
 {
@@ -88,6 +89,10 @@ namespace Core
 			connect(d->web_page,SIGNAL(linkClicked(QUrl)),d,SLOT(onLinkClicked(QUrl)));
 			connect(&d->inactive_timer,SIGNAL(timeout()),d,SLOT(onActiveTimeout()));
 			d->web_page->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+			JavaScriptClient *client = new JavaScriptClient(this);
+			d->web_page->mainFrame()->addToJavaScriptWindowObject(client->objectName(), client);
+			connect(d->web_page->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
+					client, SLOT(helperCleared()));
 		}
 
 		void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)

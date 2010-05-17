@@ -232,13 +232,15 @@ namespace Core
 			ChatUnit *u = session->getUnit();
 			QIcon icon = Icon("view-choose");
 			QString title = tr("Chat with %1").arg(u->title());
+			
+			bool isContactsViewVisible;
 
 			if (Conference *c = qobject_cast<Conference *>(u)) {
 				icon = Icon("meeting-attending"); //TODO
 				title = tr("Conference %1 (%2)").arg(c->title(),c->id());
-				ui->contactsView->setVisible(true);
+				isContactsViewVisible = true;
 			} else {
-				ui->contactsView->setVisible(session->getModel()->rowCount(QModelIndex()) > 0);
+				isContactsViewVisible = session->getModel()->rowCount(QModelIndex()) > 0;
 				if (Buddy *b = qobject_cast<Buddy*>(u))
 					icon = b->avatar().isEmpty() ? Icon("view-choose") : QIcon(b->avatar());
 			}
@@ -259,6 +261,7 @@ namespace Core
 
 			if (ui->chatView->page() != session->getPage()) {
 				ui->chatView->page()->setView(0);
+				ui->contactsView->setVisible(isContactsViewVisible);
 				ui->chatView->setPage(session->getPage());
 				session->getPage()->setView(ui->chatView);
 			}
@@ -461,9 +464,14 @@ namespace Core
 			session->setProperty("currentChatState",static_cast<int>(state));
 		}
 
-		QTextDocument *AdiumChatWidget::getInputField()
+		QPlainTextEdit *AdiumChatWidget::getInputField()
 		{
-			return ui->chatEdit->document();
+			return ui->chatEdit;
+		}
+
+		ChatSessionImpl *AdiumChatWidget::currentSession()
+		{
+			return m_sessions.at(m_current_index);
 		}
 
 		void AdiumChatWidget::onTextChanged()

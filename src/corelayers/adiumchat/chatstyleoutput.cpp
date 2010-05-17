@@ -2,6 +2,7 @@
  *  chatstyleoutput.cpp
  *
  *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
+ *                        Ruslan Nigmatullin <euroelessar@gmail.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -89,6 +90,7 @@ namespace Core
 				text = Qt::escape(message.text());
 			text = Emoticons::theme().parseEmoticons(text);
 			text = text.replace("\n","<br />");
+			makeSenderColors(html, message);
 			makeBackground(html);
 			makeUrls(text, message);
 			makeUrls(text);
@@ -368,6 +370,13 @@ namespace Core
 				input.replace(pos, timeRegExp.cap(0).length(), Qt::escape(convertTimeDate(timeRegExp.cap(1), datetime)));
 			// Replace %message%'s, replacing last to avoid errors if messages contains tags
 		}
+		
+		void ChatStyleOutput::makeSenderColors(QString &html, const Message &message)
+		{
+			const QStringList &senderColors = m_current_style.senderColors;
+			int id = qHash(makeName(message)) % senderColors.size();
+			html.replace(QLatin1String("%senderColor%"), senderColors.at(id));
+		}
 
 		void ChatStyleOutput::makeUrls(QString &html,const Message& message)
 		{
@@ -442,8 +451,7 @@ namespace Core
 					else {
 						sender_id = mes.chatUnit()->account()->id();
 					}
-				}
-				else {
+				} else {
 					sender_id = mes.chatUnit()->id();
 				}
 			}

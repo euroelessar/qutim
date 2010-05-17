@@ -25,6 +25,7 @@
 namespace qutim_sdk_0_3 {
 	class ActionToolBar;
 }
+class QPlainTextEdit;
 
 namespace Ui
 {
@@ -54,7 +55,8 @@ namespace Core
 			ChatSessionList getSessionList() const;
 			virtual ~AdiumChatWidget();
 			bool contains (ChatSessionImpl *session);
-			QTextDocument *getInputField();
+			QPlainTextEdit *getInputField();
+			ChatSessionImpl *currentSession();
 			void raise();
 		public slots:
 			void addSession(ChatSessionImpl *session);

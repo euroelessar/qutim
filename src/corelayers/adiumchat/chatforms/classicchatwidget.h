@@ -26,6 +26,7 @@ namespace Ui
 {
 	class ClassicChatForm;
 }
+class QPlainTextEdit;
 namespace Core
 {
 	namespace AdiumChat
@@ -50,7 +51,8 @@ namespace Core
 			ChatSessionList getSessionList() const;
 			virtual ~ClassicChatWidget();
 			bool contains (ChatSessionImpl *session);
-			QTextDocument *getInputField();
+			QPlainTextEdit *getInputField();
+			ChatSessionImpl *currentSession();
 			void raise();
 		public slots:
 			void addSession(ChatSessionImpl *session);

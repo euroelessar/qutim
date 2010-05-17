@@ -1,7 +1,7 @@
 /****************************************************************************
  *  chatstyle.cpp
  *
- *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
+ *  Copyright (c) 2010 by Sidorov Aleksey <sauroncitadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -27,6 +27,34 @@ namespace Core
 {
 	namespace AdiumChat
 	{
+		void initColors(QStringList &list) {
+			const char *validColors[] = { 
+				"aqua", "aquamarine", "blue", "blueviolet", "brown", "burlywood", "cadetblue", 
+				"chartreuse", "chocolate", "coral", "cornflowerblue", "crimson", "cyan", 
+				"darkblue", "darkcyan", "darkgoldenrod", "darkgreen", "darkgrey", "darkkhaki",
+				"darkmagenta", "darkolivegreen", "darkorange", "darkorchid", "darkred", 
+				"darksalmon", "darkseagreen", "darkslateblue", "darkslategrey", "darkturquoise",
+				"darkviolet", "deeppink", "deepskyblue", "dimgrey", "dodgerblue", "firebrick", 
+				"forestgreen", "fuchsia", "gold", "goldenrod", "green", "greenyellow", "grey",
+				"hotpink", "indianred", "indigo", "lawngreen", "lightblue", "lightcoral", 
+				"lightgreen", "lightgrey", "lightpink", "lightsalmon", "lightseagreen", 
+				"lightskyblue", "lightslategrey", "lightsteelblue", "lime", "limegreen", 
+				"magenta", "maroon", "mediumaquamarine", "mediumblue", "mediumorchid", 
+				"mediumpurple", "mediumseagreen", "mediumslateblue", "mediumspringgreen", 
+				"mediumturquoise", "mediumvioletred", "midnightblue", "navy", "olive", 
+				"olivedrab", "orange", "orangered", "orchid", "palegreen", "paleturquoise", 
+				"palevioletred", "peru", "pink", "plum", "powderblue", "purple", "red",
+				"rosybrown", "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen", 
+				"sienna", "silver", "skyblue", "slateblue", "slategrey", "springgreen", 
+				"steelblue", "tan", "teal", "thistle", "tomato", "turquoise", "violet",
+				"yellowgreen", 0
+			};
+			for (int i = 0; validColors[i]; i++)
+				list << QLatin1String(validColors[i]);
+		}
+		
+		Q_GLOBAL_STATIC_WITH_INITIALIZER(QStringList, defaultSenderColors, initColors(*x))
+		
 		struct ChatStyleGeneratorPrivate
 		{
 			void readStyleFiles()
@@ -87,6 +115,7 @@ namespace Core
 				}
 				return out;
 			}
+			QStringList senderColors;
 			ChatStyle style;
 		};
 
@@ -120,7 +149,7 @@ namespace Core
 			d->style.baseHref = hrefUrl.toString() + QDir::separator();
 			styleDir.cdUp();
 			Config settings = Config(styleDir.filePath("Info.plist"));
-			QByteArray array = settings.value<QByteArray>("DefaultBackgroundColor", "FFFFFF");
+			QByteArray array = settings.value<QString>("DefaultBackgroundColor", "FFFFFF").toLatin1();
 			bool ok;
 			QRgb color = array.toInt(&ok, 16);
 			d->style.backgroundColor = QColor(color);
@@ -148,10 +177,25 @@ namespace Core
 			d->style.defaultVariant.first = variant;
 			d->style.defaultVariant.second = path;
 		}
+		
+		const QStringList &ChatStyleGenerator::getSenderColors() const
+		{
+			if (d->senderColors.isEmpty()) {
+				QFile file(d->style.basePath + QLatin1String("Incoming/SenderColors.txt"));
+				if (file.open(QFile::ReadOnly)) {
+					d->senderColors = QString::fromUtf8(file.readAll()).split(":");
+					file.close();
+				}
+				if (d->senderColors.isEmpty())
+					d->senderColors = *defaultSenderColors();
+			}
+			return d->senderColors;
+		}
 
-		ChatStyle ChatStyleGenerator::getChatStyle () const
+		const ChatStyle &ChatStyleGenerator::getChatStyle () const
 		{
 			d->readStyleFiles();
+			d->style.senderColors = getSenderColors();
 			return d->style;
 		}
 

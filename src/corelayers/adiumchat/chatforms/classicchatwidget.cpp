@@ -417,9 +417,14 @@ namespace Core
 			session->setProperty("currentChatState",static_cast<int>(state));
 		}
 
-		QTextDocument *ClassicChatWidget::getInputField()
+		QPlainTextEdit *ClassicChatWidget::getInputField()
 		{
-			return ui->chatEdit->document();
+			return ui->chatEdit;
+		}
+
+		ChatSessionImpl *ClassicChatWidget::currentSession()
+		{
+			return m_sessions.at(m_current_index);
 		}
 
 		void ClassicChatWidget::onTextChanged()

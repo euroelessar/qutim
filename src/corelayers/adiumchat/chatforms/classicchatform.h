@@ -8,6 +8,7 @@
 namespace qutim_sdk_0_3 {
 	class ChatSession;
 }
+class QTextEdit;
 
 namespace Core
 {
@@ -27,6 +28,7 @@ namespace Core
 		public:
 			explicit ClassicChatForm();
 			~ClassicChatForm();
+			Q_INVOKABLE QObject *textEdit(qutim_sdk_0_3::ChatSession *session);
 			Q_INVOKABLE QWidgetList chatWidgets();
 		private slots:
 			void onSessionCreated(qutim_sdk_0_3::ChatSession*);

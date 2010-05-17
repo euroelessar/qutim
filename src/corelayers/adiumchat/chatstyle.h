@@ -15,7 +15,7 @@
 
 #ifndef CHATSTYLE_H
 #define CHATSTYLE_H
-#include <QString>
+#include <QStringList>
 #include <QColor>
 #include <QMap>
 #include <QPair>
@@ -58,6 +58,7 @@ namespace Core
 			QString statusHtml;
 			QString mainCSS;
 			QColor backgroundColor;
+			QStringList senderColors;
 			QPair<QString, QString> defaultVariant;
 			StyleVariants variants;
 			bool backgroundIsTransparent;
@@ -70,7 +71,8 @@ namespace Core
 		public:
 			ChatStyleGenerator (const QString &stylePath, const QString &variant = QString());
 			~ChatStyleGenerator();
-			ChatStyle getChatStyle () const;
+			const QStringList &getSenderColors() const;
+			const ChatStyle &getChatStyle () const;
 			StyleVariants getVariants() const;
 			static StyleVariants listVariants (const QString &path);
 		private:

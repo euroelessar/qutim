@@ -5,6 +5,7 @@
 #include <libqutim/conference.h>
 #include <libqutim/debug.h>
 #include "../chatsessionimpl.h"
+#include <QPlainTextEdit>
 
 namespace Core
 {
@@ -86,7 +87,14 @@ namespace Core
 			}
 			return 0;
 		}
-		
+
+		QObject *AdiumChatForm::textEdit(ChatSession *session)
+		{
+			AdiumChatWidget *widget = findWidget(session);
+			if (widget && widget->currentSession() == session)
+				return widget->getInputField();
+			return 0;
+		}
 
 		QWidgetList AdiumChatForm::chatWidgets()
 		{

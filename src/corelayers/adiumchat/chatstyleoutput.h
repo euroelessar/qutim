@@ -2,6 +2,7 @@
  *  chatstyleoutput.h
  *
  *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
+ *                        Ruslan Nigmatullin <euroelessar@gmail.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -85,6 +86,7 @@ namespace Core
 			QString makeSkeleton(const ChatSessionImpl *session, const QDateTime &datetime);
 			void makeUserIcons(const Message &mes, QString &source);
 			inline void makeTime (QString &input, const QDateTime& datetime,const QString &regexp = "%time\\{([^}]*)\\}%");
+			void makeSenderColors(QString &html, const Message &message);
 			void makeUrls(QString& html, const Message& message);//create url list under message body
 			void makeUrls(QString &html); //TODO separate to adiumchat SDK
 			QString makeName(const Message &mes);
