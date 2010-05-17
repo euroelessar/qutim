@@ -44,30 +44,34 @@ void MultimediaSoundBackend::playSound(const QString &filename)
 	quint32 fmt_str  = 0x20746D66;
 	quint32 data_str = 0x61746164;
 	
-	QDataStream in(file.data());
-	in.setByteOrder(QDataStream::LittleEndian);
-	
 	quint32 riffId, riffLength, waveId, waveFmt, waveLength;
-	in >> riffId >> riffLength >> waveId >> waveFmt >> waveLength;
-	if (riffId != RIFF_str || waveId != WAVE_str || waveFmt != fmt_str) {
-		qWarning() << filename << "is not valid WAV file";
-		return;
-	}
-	
 	quint16 type, channels, align, bitsPerSample;
 	quint32 frequency, bytesPerSec;
-	in >> type >> channels >> frequency >> bytesPerSec >> align >> bitsPerSample;
-	in.skipRawData(waveLength - 16);
-	if (type != 1) {
-		qWarning("Unsupported WAV type: 0x%s", qPrintable(QString::number(type, 16)));
-		return;
-	}
 	quint32 dataId, dataSize;
-	in >> dataId >> dataSize;
-	if (dataId != data_str) {
-		qWarning() << filename << "is not valid WAV file";
-		return;
+	
+	{
+		QDataStream in(file.data());
+		in.setByteOrder(QDataStream::LittleEndian);
+		
+		in >> riffId >> riffLength >> waveId >> waveFmt >> waveLength;
+		if (riffId != RIFF_str || waveId != WAVE_str || waveFmt != fmt_str) {
+			qWarning() << filename << "is not valid WAV file";
+			return;
+		}
+		
+		in >> type >> channels >> frequency >> bytesPerSec >> align >> bitsPerSample;
+		in.skipRawData(waveLength - 16);
+		if (type != 1) {
+			qWarning("Unsupported WAV compression type: 0x%s", qPrintable(QString::number(type, 16)));
+			return;
+		}
+		in >> dataId >> dataSize;
+		if (dataId != data_str) {
+			qWarning() << filename << "is not valid WAV file";
+			return;
+		}
 	}
+	
 	QAudioFormat format;
 	format.setChannels(channels);
 	format.setFrequency(frequency);
@@ -76,12 +80,12 @@ void MultimediaSoundBackend::playSound(const QString &filename)
 	format.setSampleType(bitsPerSample == 8 ? QAudioFormat::UnSignedInt : QAudioFormat::SignedInt);
 	format.setCodec("audio/pcm");
 	QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-	
+
 	if (!info.isFormatSupported(format)) {
-		qWarning() << "Raw audio format not supported by backend, cannot play audio.";
+		qWarning() << "Audio format not supported by backend, cannot play audio";
 		return;
 	}
-	QAudioOutput *audio = new QAudioOutput(format, this);
+	QAudioOutput *audio = new QAudioOutput(info, format, this);
 	file->setParent(audio);
 	connect(audio, SIGNAL(stateChanged(QAudio::State)), SLOT(finishedPlaying(QAudio::State)));
 	audio->start(file.take());
@@ -96,8 +100,11 @@ void MultimediaSoundBackend::finishedPlaying(QAudio::State state)
 {   
 	if(state == QAudio::IdleState) {
 		QAudioOutput *audio = qobject_cast<QAudioOutput*>(sender());
+		QFile *file = audio->findChild<QFile*>();
 		audio->stop();
-		delete audio;
+		file->close();
+		audio->deleteLater();
+		file->deleteLater();
 	}
 }
 }
