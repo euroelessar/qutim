@@ -77,6 +77,7 @@ class ContactSearch : public QObject
 	Q_OBJECT
 	Q_CLASSINFO("Service", "ContactSearch")
 	Q_CLASSINFO("Uses", "IconLoader")
+	Q_CLASSINFO("Uses", "ContactList")
 public:
     ContactSearch();
 public slots:
