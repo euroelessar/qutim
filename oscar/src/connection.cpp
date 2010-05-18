@@ -28,9 +28,9 @@ ProtocolError::ProtocolError(const SNAC &snac)
 {
 	m_code = snac.read<qint16>();
 	m_subcode = 0;
-	TLVMap tlvs = snac.read<TLVMap>();
-	if (tlvs.contains(0x08)) {
-		DataUnit data(tlvs.value(0x08));
+	m_tlvs = snac.read<TLVMap>();
+	if (m_tlvs.contains(0x08)) {
+		DataUnit data(m_tlvs.value(0x08));
 		m_subcode = data.read<qint16>();
 	}
 }

@@ -417,9 +417,12 @@ Q_GLOBAL_STATIC_WITH_INITIALIZER(FieldNamesList, pasts, init_pasts_list(*x));
 
 static void init_genders_list(FieldNamesList &list)
 {
-	list.insert(0, QT_TRANSLATE_NOOP("Gender", "Not specified"));
-	list.insert('M', QT_TRANSLATE_NOOP("Gender", "Male"));
-	list.insert('F', QT_TRANSLATE_NOOP("Gender", "Female"));
+	LocalizedString maleStr = QT_TRANSLATE_NOOP("Gender", "Male");
+	LocalizedString femaleStr = QT_TRANSLATE_NOOP("Gender", "Female");
+	list.insert(1, femaleStr);
+	list.insert(2, maleStr);
+	list.insert('M', maleStr);
+	list.insert('F', femaleStr);
 }
 Q_GLOBAL_STATIC_WITH_INITIALIZER(FieldNamesList, genders, init_genders_list(*x));
 
@@ -588,7 +591,9 @@ static void init_fields_list(FieldNamesList &list)
 	list.insert(Interests, QT_TRANSLATE_NOOP("MetaInfo", "Interests"));
 	list.insert(Pasts, QT_TRANSLATE_NOOP("MetaInfo", "Pasts"));
 	list.insert(Affilations, QT_TRANSLATE_NOOP("MetaInfo", "Affilations"));
-
+	list.insert(Uin, QT_TRANSLATE_NOOP("MetaInfo", "UIN"));
+	list.insert(AgeRange, QT_TRANSLATE_NOOP("MetaInfo", "Age"));
+	list.insert(OnlineFlag, QT_TRANSLATE_NOOP("MetaInfo", "online only"));
 }
 Q_GLOBAL_STATIC_WITH_INITIALIZER(FieldNamesList, fields, init_fields_list(*x));
 
@@ -636,7 +641,9 @@ static void init_fields_name_list(FieldNamesList &list)
 	list.insert(Interests, "interests");
 	list.insert(Pasts, "pasts");
 	list.insert(Affilations, "affilations");
-
+	list.insert(Uin, "uin");
+	list.insert(AgeRange, "ages");
+	list.insert(OnlineFlag, "online");
 }
 Q_GLOBAL_STATIC_WITH_INITIALIZER(FieldNamesList, fields_names, init_fields_name_list(*x));
 

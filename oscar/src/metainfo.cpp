@@ -66,6 +66,50 @@ QString MetaInfoField::name() const
 	return m_name;
 }
 
+DataItem MetaInfoField::toDataItem(const QVariant &data_helper, bool allowMultiItems) const
+{
+	DataItem item;
+	item.setName(name());
+	LocalizedStringList alt = titleAlternatives();
+	if (!alt.isEmpty())
+		item.setProperty("titleAlternatives", QVariant::fromValue(alt));
+	alt = alternatives();
+	if (!alt.isEmpty())
+		item.setProperty("alternatives", QVariant::fromValue(alt));
+	DataItem def = item;
+	QVariant data = data_helper;
+	if (data.isNull()) {
+		data = defaultValue();
+		item.setProperty("notSet", true);
+	}
+	item.setTitle(toString());
+	if (allowMultiItems) {
+		if (data.type() == QVariant::StringList) {
+			def.setData(QVariant(QVariant::String));
+			def.setProperty("hideTitle", true);
+			item.setMultiple(def, 3);
+		}
+		if (data.canConvert<CategoryList>()) {
+			foreach (const Category &cat, data.value<CategoryList>()) {
+				DataItem subitem = def;
+				subitem.setName(name());
+				subitem.setTitle(cat.category);
+				subitem.setData(cat.keyword);
+				item.addSubitem(subitem);
+			}
+			def.setTitle(QString());
+			item.setMultiple(def, 3);
+		} else {
+			item.setData(data);
+		}
+	} else {
+		if (data.type() == QVariant::StringList || data.canConvert<CategoryList>())
+			data = QVariant::String;
+		item.setData(data);
+	}
+	return item;
+}
+
 LocalizedString MetaInfoField::group() const
 {
 	if (m_value >= Nick && m_value <= PublishPrimaryEmailFlag)
@@ -80,11 +124,13 @@ LocalizedString MetaInfoField::group() const
 		return fields()->value(m_value);
 }
 
-static inline QList<LocalizedString> getAlternativesList(const FieldNamesList &list)
+template <typename T>
+static inline QList<LocalizedString> getAlternativesList(const T &list)
 {
 	QList<LocalizedString> r;
 	foreach (const QString &str, list)
 		r << str;
+	qSort(r);
 	return r;
 }
 
@@ -101,14 +147,20 @@ QList<LocalizedString> MetaInfoField::titleAlternatives() const
 
 QList<LocalizedString> MetaInfoField::alternatives() const
 {
-	if (m_value == HomeCountry || m_value == OriginalCountry || m_value == WorkCountry)
+	if (m_value == HomeCountry || m_value == OriginalCountry || m_value == WorkCountry) {
 		return getAlternativesList(*countries());
-	else if (m_value == WorkOccupation)
+	} else if (m_value == WorkOccupation) {
 		return getAlternativesList(*occupations());
-	else if (m_value == Languages)
+	} else if (m_value == Languages) {
 		return getAlternativesList(*languages());
-	else if (m_value == Gender)
-		return getAlternativesList(*genders());
+	}else if (m_value == Gender) {
+		QList<LocalizedString>  list;
+		list << genders()->value(Male);
+		list << genders()->value(Female);
+		return list;
+	} else if (m_value == AgeRange) {
+		return getAlternativesList(*ages());
+	}
 	return QList<LocalizedString>();
 }
 
@@ -120,7 +172,7 @@ QVariant MetaInfoField::defaultValue() const
 		return QVariant::fromValue(CategoryList());
 	else if (m_value == Age)
 		return QVariant::Int;
-	else if (m_value >= AuthFlag && m_value <= PublishPrimaryEmailFlag)
+	else if ((m_value >= AuthFlag && m_value <= PublishPrimaryEmailFlag) || m_value == OnlineFlag)
 		return QVariant::Bool;
 	else if (m_value == Gender)
 		return genders()->value(0);
@@ -131,6 +183,48 @@ QVariant MetaInfoField::defaultValue() const
 QString MetaInfoField::toString() const
 {
 	return fields()->value(m_value);
+}
+
+static void dataItemToHashHelper(const DataItem &items, MetaInfoValuesHash &hash)
+{
+	foreach (const DataItem &item, items.subitems()) {
+		if (item.isMultiple()) {
+			if (item.hasSubitems()) {
+				CategoryList list;
+				foreach (const DataItem &catItem, item.subitems()) {
+					Category cat;
+					cat.category = catItem.title();
+					cat.keyword = catItem.data().toString();
+					list << cat;
+				}
+				hash.insert(item.name(), QVariant::fromValue(list));
+			}
+		} else if (item.hasSubitems()) {
+			dataItemToHashHelper(item, hash);
+		} else {
+			static QSet<MetaInfoFieldEnum> hasTitleAlternatives = QSet<MetaInfoFieldEnum>()
+																  << Affilations << Interests << Pasts;
+			MetaInfoField field(item.name());
+			if (hasTitleAlternatives.contains(field.value())) {
+				Category cat;
+				cat.category = item.title();
+				cat.keyword = item.data().toString();
+				if (!cat.category.isEmpty())
+					hash.insert(field, QVariant::fromValue(cat));
+			} else {
+				if (!item.data().isNull())
+					hash.insert(field, item.data());
+			}
+		}
+	}
+}
+
+MetaInfoValuesHash MetaInfoField::dataItemToHash(const DataItem &items)
+{
+	Q_ASSERT(!items.isNull());
+	MetaInfoValuesHash hash;
+	dataItemToHashHelper(items, hash);
+	return hash;
 }
 
 AbstractMetaInfoRequest::AbstractMetaInfoRequest()
@@ -534,7 +628,7 @@ void TlvBasedMetaInfoRequest::sendTlvBasedRequest(quint16 type) const
 {
 	Q_D(const TlvBasedMetaInfoRequest);
 	DataUnit data;
-	{
+	if (d->values.contains(Uin)){
 		DataUnit tlv;
 		quint32 uin = d->values.value(Uin).toUInt();
 		tlv.append<quint32>(uin, LittleEndian);
@@ -544,12 +638,14 @@ void TlvBasedMetaInfoRequest::sendTlvBasedRequest(quint16 type) const
 	d->addString(0x014A, LastName, data);
 	d->addString(0x0154, Nick, data);
 	d->addString(0x015E, Email, data);
-	if (d->values.contains(Ages)) {
+	if (d->values.contains(AgeRange)) {
 		DataUnit tlv;
-		AgeRange range = d->values.value(Age).value<AgeRange>();
-		tlv.append<quint16>(range.first, LittleEndian);
-		tlv.append<quint16>(range.second, LittleEndian);
-		data.appendTLV(0x0168, tlv, LittleEndian);
+		QString rangeStr = d->values.value(AgeRange).toString();
+		quint32 range = ages()->key(rangeStr, 0);
+		if (range) {
+			tlv.append<quint32>(range, LittleEndian);
+			data.appendTLV(0x0168, tlv, LittleEndian);
+		}
 	}
 	d->addField<quint16>(0x0172, Age, data);
 	if (d->values.contains(Gender)) {
@@ -570,7 +666,7 @@ void TlvBasedMetaInfoRequest::sendTlvBasedRequest(quint16 type) const
 	d->addCategory(0x01EA, Interests, data, interests());
 	d->addCategory(0x01FE, Pasts, data, pasts());
 	//d->addCategory(0x0212, Homepage, tlvs, ...);
-	{
+	if (d->values.contains(Homepage)){
 		DataUnit tlv;
 		tlv.append<quint16>(0, LittleEndian); // category ?
 		d->addString(d->values.value(Homepage).toString(), tlv);
@@ -632,9 +728,16 @@ bool UpdateAccountInfoMetaRequest::handleData(quint16 type, const DataUnit &data
 	return false;
 }
 
-FindContactsMetaRequest::FindContactsMetaRequest(IcqAccount *account) :
+FindContactsMetaRequest::FoundContact::FoundContact() :
+	status(NonWebaware), authFlag(false), age(0)
+{
+}
+
+FindContactsMetaRequest::FindContactsMetaRequest(IcqAccount *account, const MetaInfoValuesHash &values) :
 	TlvBasedMetaInfoRequest(account, new FindContactsMetaRequestPrivate)
 {
+	Q_D(FindContactsMetaRequest);
+	d->values = values;
 }
 
 void FindContactsMetaRequest::send() const
@@ -666,7 +769,7 @@ bool FindContactsMetaRequest::handleData(quint16 type, const DataUnit &data)
 	contact.lastName = readSString(data);
 	contact.email = readSString(data);
 	contact.authFlag = data.read<quint8>();
-	contact.status = static_cast<FoundContact::Status>(data.read<quint16>(LittleEndian));
+	contact.status = static_cast<Status>(data.read<quint16>(LittleEndian));
 	contact.gender = genders()->value(data.read<quint8>());
 	contact.age = data.read<quint16>(LittleEndian);
 	debug() << "Contact found" << contact.uin << contact.nick << contact.firstName
@@ -699,14 +802,13 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 		TLVMap tlvs = snac.read<TLVMap>();
 		if (tlvs.contains(0x01)) {
 			DataUnit data(tlvs.value(0x01));
-			data.skipData(6); // skip length field + my uin
+			data.skipData(6); // skip field length + my uin
 			quint16 metaType = data.read<quint16>(LittleEndian);
 			if (metaType == 0x07da) {
 				quint16 reqNumber = data.read<quint16>(LittleEndian);
 				QHash<quint16, AbstractMetaInfoRequest*>::iterator itr = m_requests.find(reqNumber);
 				quint16 dataType = data.read<quint16>(LittleEndian);
 				quint8 success = data.read<quint8>(LittleEndian);
-
 				if (itr == m_requests.end()) {
 					debug() << "Unexpected metainfo response" << reqNumber;
 					return;
@@ -718,16 +820,26 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 					debug() << "Meta request failed" << hex << success;
 					itr.value()->close(false);
 				}
-			} else if (metaType == 0x07d0) {
-				debug() << data.readAll().toHex();
 			}
 		}
 	} else if (snac.family() == ExtensionsFamily && snac.subtype() == ExtensionsMetaError) {
 		ProtocolError error(snac);
-		debug() << QString("Error (%1, %2): %3")
+		debug() << QString("MetaInfo service error (%1, %2): %3")
 				.arg(error.code(), 2, 16)
 				.arg(error.subcode(), 2, 16)
 				.arg(error.errorString());
+		if (error.tlvs().contains(0x21)) {
+			DataUnit data(error.tlvs().value(0x21));
+			data.skipData(6); // skip field length + my uin
+			quint16 metaType = data.read<quint16>(LittleEndian);
+			if (metaType == 0x07d0) {
+				quint16 reqNumber = data.read<quint16>(LittleEndian);
+				AbstractMetaInfoRequest *request = m_requests.value(reqNumber);
+				if (request) {
+					request->close(false);
+				}
+			}
+		}
 	}
 }
 

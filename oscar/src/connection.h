@@ -43,9 +43,11 @@ public:
 	qint16 code() { return m_code; }
 	qint16 subcode() { return m_subcode; }
 	QString errorString();
+	TLVMap tlvs() const { return m_tlvs; }
 protected:
 	qint16 m_code;
 	qint16 m_subcode;
+	TLVMap m_tlvs;
 };
 
 struct LIBOSCAR_EXPORT ClientInfo

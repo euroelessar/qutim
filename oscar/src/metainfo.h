@@ -17,6 +17,7 @@
 #define METAINFO_H_
 
 #include "snachandler.h"
+#include <qutim/inforequest.h>
 #include <QHash>
 
 namespace qutim_sdk_0_3 {
@@ -32,7 +33,6 @@ class TlvBasedMetaInfoRequestPrivate;
 class UpdateAccountInfoMetaRequestPrivate;
 class FindContactsMetaRequestPrivate;
 
-typedef QPair<quint16, quint16> AgeRange;
 struct Category
 {
 	QString category;
@@ -92,7 +92,7 @@ enum MetaInfoFieldEnum {
 	Affilations,
 	LastMetaField = Affilations,
 
-	Ages,
+	AgeRange,
 	Whitepages,
 	OnlineFlag
 };
@@ -104,6 +104,7 @@ public:
 	MetaInfoField(int value);
 	MetaInfoField(const MetaInfoField &field);
 	QString name() const;
+	DataItem toDataItem(const QVariant &data = QVariant(), bool allowMultiItems = true) const;
 	LocalizedString group() const;
 	QList<LocalizedString> titleAlternatives() const;
 	QList<LocalizedString> alternatives() const;
@@ -116,6 +117,7 @@ public:
 	bool operator!=(int value) const { return m_value != value; }
 	bool operator==(const MetaInfoField &value) const { return m_value == value.m_value; }
 	bool operator!=(const MetaInfoField &value) const { return m_value != value.m_value; }
+	static QHash<MetaInfoField, QVariant> dataItemToHash(const DataItem &items);
 private:
 	mutable QString m_name;
 	MetaInfoFieldEnum m_value;
@@ -207,7 +209,6 @@ class LIBOSCAR_EXPORT UpdateAccountInfoMetaRequest : public TlvBasedMetaInfoRequ
 	Q_DECLARE_PRIVATE(UpdateAccountInfoMetaRequest)
 public:
 	UpdateAccountInfoMetaRequest(IcqAccount *account, const MetaInfoValuesHash &values = MetaInfoValuesHash());
-	void setValue(MetaInfoField data, const QVariant &value);
 	virtual void send() const;
 signals:
 	void infoUpdated();
@@ -220,28 +221,30 @@ class LIBOSCAR_EXPORT FindContactsMetaRequest : public TlvBasedMetaInfoRequest
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(FindContactsMetaRequest)
 public:
+	enum Status {
+		Offline = 0,
+		Online = 1,
+		NonWebaware
+	};
 	struct FoundContact
 	{
+		FoundContact();
 		QString uin;
 		QString nick;
 		QString firstName;
 		QString lastName;
 		QString email;
 		bool authFlag;
-		enum Status {
-			Offline = 0,
-			Online = 1,
-			NonWebaware
-		} status;
+		Status status;
 		QString gender;
 		quint16 age;
 	};
 
-	FindContactsMetaRequest(IcqAccount *account);
+	FindContactsMetaRequest(IcqAccount *account, const MetaInfoValuesHash &values = MetaInfoValuesHash());
 	virtual void send() const;
 	const QHash<QString, FoundContact> &contacts() const;
 signals:
-	void contactFound(const FoundContact &contact);
+	void contactFound(const FindContactsMetaRequest::FoundContact &contact);
 protected:
 	virtual bool handleData(quint16 type, const DataUnit &data);
 };
@@ -263,7 +266,6 @@ inline uint qHash(const qutim_sdk_0_3::oscar::MetaInfoField &field)
 	return qHash(static_cast<int>(field.value()));
 }
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::AgeRange);
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::Category);
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::CategoryList);
 

@@ -28,8 +28,10 @@ namespace oscar {
 enum GenderEnum
 {
 	Unknown,
-	Female = 'F',
-	Male = 'M'
+	Female = 1,
+	Male = 2,
+	Female2 = 'F',
+	Male2 = 'M'
 };
 
 class AbstractMetaInfoRequestPrivate : public QSharedData

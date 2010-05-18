@@ -23,6 +23,7 @@
 #include "privacylists_p.h"
 #include "ui/accountcreator.h"
 #include "filetransfer.h"
+#include "contactsearch_p.h"
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 
@@ -77,6 +78,10 @@ void OscarPlugin::init()
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar privacy lists"),
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar privacy lists"),
 				 new SingletonGenerator<PrivacyLists, FeedbagItemHandler>(),
+				 ExtensionIcon("im-icq"));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar contact search"),
+				 QT_TRANSLATE_NOOP("Plugin", "Oscar contact search implementation"),
+				 new GeneralGenerator<OscarContactSearchFactory>(),
 				 ExtensionIcon("im-icq"));
 }
 

@@ -18,13 +18,12 @@ public:
 	IcqInfoRequest(IcqAccount *account);
 	IcqInfoRequest(IcqContact *contact);
 	virtual ~IcqInfoRequest();
-	virtual InfoItem item(const QString &name = QString()) const;
+	virtual DataItem item(const QString &name = QString()) const;
 	virtual State state() const;
-	static MetaInfoValuesHash itemToMetaInfoValuesHash(const InfoItem &item);
 private slots:
 	void onDone(bool ok);
 private:
-	void addItem(const MetaInfoField &field, InfoItem &group) const;
+	void addItem(const MetaInfoField &field, DataItem &group) const;
 	void init();
 	QPointer<FullInfoMetaRequest> m_metaReq;
 	MetaInfoValuesHash m_values;
