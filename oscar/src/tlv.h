@@ -113,7 +113,12 @@ template<typename T>
 Q_INLINE_TEMPLATE T TLVMap::value(quint16 type, const T &def) const
 {
 	TLVMap::const_iterator it = find(type);
-	return it == constEnd() ? def : it->read<T>();
+	if (it != constEnd()) {
+		it->resetState();
+		return it->read<T>();
+	} else {
+		return def;
+	}
 }
 
 template<typename T>
