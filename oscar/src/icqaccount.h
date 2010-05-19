@@ -62,6 +62,7 @@ public slots:
 	void updateSettings();
 private slots:
 	void onReconnectTimeout();
+	void onPasswordEntered(const QString &password, bool remember);
 protected:
 	virtual bool event(QEvent *ev);
 private:

@@ -52,6 +52,7 @@ struct IcqAccountPrivate
 	QTimer reconnectTimer;
 	QHash<QString, IcqContact *> contacts;
 	QList<RosterPlugin*> rosterPlugins;
+	QString passwd;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

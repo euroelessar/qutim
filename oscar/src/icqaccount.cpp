@@ -52,21 +52,37 @@ PasswordValidator::State PasswordValidator::validate(QString &input, int &pos) c
 QString IcqAccountPrivate::password()
 {
 	Q_Q(IcqAccount);
-	ConfigGroup cfg = q->config().group("general");
-	QString password = cfg.value("passwd", QString(), Config::Crypted);
-	if (password.isEmpty()) {
-		PasswordDialog *dialog = PasswordDialog::request(q);
-		dialog->setValidator(new PasswordValidator(dialog));
-		if (dialog->exec() == PasswordDialog::Accepted) {
-			password = dialog->password();
-			if (dialog->remember()) {
-				cfg.setValue("passwd", password, Config::Crypted);
-				cfg.sync();
-			}
+	QString password;
+	if (!passwd.isEmpty()) {
+		password = passwd;
+		passwd.clear();
+	} else {
+		ConfigGroup cfg = q->config().group("general");
+		password = cfg.value("passwd", QString(), Config::Crypted);
+		if (password.isEmpty()) {
+			PasswordDialog *dialog = PasswordDialog::request(q);
+			dialog->setValidator(new PasswordValidator(dialog));
+			QObject::connect(dialog, SIGNAL(entered(QString,bool)), q, SLOT(onPasswordEntered(QString,bool)));
+			QObject::connect(dialog, SIGNAL(rejected()), dialog, SLOT(deleteLater()));
 		}
-		delete dialog;
 	}
 	return password;
+}
+
+void IcqAccount::onPasswordEntered(const QString &password, bool remember)
+{
+	Q_D(IcqAccount);
+	PasswordDialog *dialog = qobject_cast<PasswordDialog*>(sender());
+	if (!dialog)
+		return;
+	if (remember) {
+		ConfigGroup cfg = config().group("general");
+		cfg.setValue("passwd", password, Config::Crypted);
+		cfg.sync();
+	}
+	dialog->deleteLater();
+	d->passwd = password;
+	setStatus(d->lastStatus);
 }
 
 IcqAccount::IcqAccount(const QString &uin) :
