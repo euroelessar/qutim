@@ -949,7 +949,8 @@ void OftFileTransferFactory::processMessage(IcqContact *contact, const Capabilit
 
 bool OftFileTransferFactory::check(ChatUnit *unit)
 {
-	return qobject_cast<IcqContact*>(unit) != 0;
+	IcqContact *contact = qobject_cast<IcqContact*>(unit);
+	return contact && contact->capabilities().match(ICQ_CAPABILITY_AIMSENDFILE);
 }
 
 FileTransferEngine *OftFileTransferFactory::create(ChatUnit *unit)
