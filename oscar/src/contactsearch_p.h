@@ -33,7 +33,7 @@ private:
 	IcqAccount *m_account;
 };
 
-class LIBQUTIM_EXPORT OscarContactSearchFactory : public GeneralContactSearchFactory
+class OscarContactSearchFactory : public GeneralContactSearchFactory
 {
 	Q_OBJECT
 public:
