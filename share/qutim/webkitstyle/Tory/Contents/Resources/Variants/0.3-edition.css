@@ -12,24 +12,16 @@
 	padding-left: 10pt;
 }
 
-.m_received {
+.delivered {
 	display: inline;
 	padding-left: 10pt;
 	margin-left: -10pt;
 	background: url('../Images/bullet-received.png') left center no-repeat;
 }
 
-.m_sending {
+.notDelivered {
 	display: inline;
 	padding-left: 10pt;
 	margin-left: -10pt;
 	background: url('../Images/bullet-send.png') left center no-repeat;
 }
-
-.m_sended {
-	display: inline;
-	padding-left: 10pt;
-	margin-left: -10pt;
-	background: url('../Images/bullet-received.png') left center no-repeat;
-}
-

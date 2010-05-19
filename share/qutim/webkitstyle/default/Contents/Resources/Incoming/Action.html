@@ -1,6 +1,6 @@
 <div class="remark">
 	<span class="inTime">(%time{%H:%M:%S}%)&nbsp;</span>
-	<span class="inActionContact">%sender%</span>
+	<span class="inActionContact" oncontextmenu="client.contextMenu('%sender%'); return false" onclick="client.appendNick('%sender%')">%sender%</span>
 	<span class="inActionMessage">%message%</span>
 </div>
 <div id="insert"></div>

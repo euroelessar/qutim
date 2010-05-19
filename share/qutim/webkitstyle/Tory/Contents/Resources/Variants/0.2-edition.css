@@ -18,17 +18,12 @@ body {
 	background: url('../Images/action.png') left center no-repeat;
 }
 
-.m_sending {
+.notDelivered {
 	border-left: 2pt solid #FFFFA0;
 	padding-left: 4pt;
 }
 
-.m_sended {
+.delivered {
 	border-left: 2pt solid #A0FFA0;
-	padding-left: 4pt;
-}
-
-.m_received {
-	border-left: 2pt solid #FFFFA0;
 	padding-left: 4pt;
 }

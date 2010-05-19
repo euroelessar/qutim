@@ -203,9 +203,6 @@ namespace Core
 				d->skipOneMerge = false;
 			}
 
-			QString result = d->web_page->mainFrame()->evaluateJavaScript(
-					QString("getEditedHtml(\"%1\", \"%2\");")
-					.arg(validateCpp(item), QString::number(message.id()))).toString();
 			QString jsTask = QString("append%2Message(\"%1\");").arg(
 					result.isEmpty() ? item :
 					validateCpp(result), same_from?"Next":"");
@@ -279,9 +276,9 @@ namespace Core
 			Q_D(ChatSessionImpl);
 			if (ev->type() == MessageReceiptEvent::eventType()) {
 				MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
-				d->web_page->mainFrame()->evaluateJavaScript(QLatin1Literal("messageDlvrd(\"")
-															% QString::number(msgEvent->id())
-															% QLatin1Literal("\");"));
+				QWebElement elem = d->web_page->mainFrame()->findFirstElement("#message" + msgEvent->id());
+				elem.removeClass("notDelivered");
+				elem.addClass("delivered");
 				return true;
 			} else {
 				return ChatSession::event(ev);
