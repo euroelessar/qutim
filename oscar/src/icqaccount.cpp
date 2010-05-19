@@ -238,8 +238,8 @@ void IcqAccount::setStatus(Status status_helper)
 		}
 		config().sync();
 	}
-	Account::setStatus(status);
 	emit statusChanged(status);
+	Account::setStatus(status);
 }
 
 void IcqAccount::setStatus(OscarStatusEnum status)

@@ -6,10 +6,15 @@
 
 namespace qutim_sdk_0_3 {
 
+class Account;
+
 namespace oscar {
+
+class IcqAccount;
 
 enum Visibility
 {
+	NoVisibility     = 0,
 	AllowAllUsers    = 1,
 	BlockAllUsers    = 2,
 	AllowPermitList  = 3,
@@ -30,6 +35,26 @@ private:
 	LocalizedString m_text2;
 };
 
+class PrivacyActionGenerator : public ActionGenerator
+{
+public:
+	PrivacyActionGenerator(Visibility visibility, bool invisibleMode = false);
+	virtual ~PrivacyActionGenerator();
+protected:
+	virtual QObject *generateHelper() const;
+private:
+	Visibility m_visibility;
+	bool m_invisibleMode;
+};
+
+class SeparatorGenerator : public ActionGenerator
+{
+public:
+	SeparatorGenerator(const LocalizedString &text, int priority, int type);
+protected:
+	virtual QObject *generateHelper() const;
+};
+
 class PrivacyLists : public QObject, public FeedbagItemHandler
 {
 	Q_OBJECT
@@ -38,9 +63,13 @@ public:
     PrivacyLists();
 	static PrivacyLists *instance() { Q_ASSERT(self); return self; }
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
-	void setVisibility(IcqAccount *account, Visibility visibility);
+	void setVisibility(IcqAccount *account, int visibility);
+	int getCurrentMode(IcqAccount *account, bool invisibleMode);
 private slots:
 	void onModifyPrivateList();
+	void onModifyPrivacy();
+	void accountAdded(qutim_sdk_0_3::Account *account);
+	void statusChanged(const qutim_sdk_0_3::Status &status);
 private:
 	static PrivacyLists *self;
 };
