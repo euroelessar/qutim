@@ -91,7 +91,6 @@ namespace Core
 			ChatState m_chatstate;
 			QTimer m_self_chatstate_timer;
 			QPointer<QTextDocument> m_originalDoc;
-			QPointer<ConfTabCompletion> m_tab_completion;
 		};
 	}
 }

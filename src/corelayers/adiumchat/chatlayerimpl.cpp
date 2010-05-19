@@ -22,6 +22,7 @@
 #include <libqutim/icon.h>
 #include <libqutim/shortcut.h>
 #include <libqutim/conference.h>
+#include "conferencetabcompletion.h"
 
 namespace Core
 {
@@ -87,6 +88,7 @@ namespace Core
 				connect(session,SIGNAL(destroyed(QObject*)),SLOT(onChatSessionDestroyed(QObject*)));
 				m_chat_sessions.insert(unit,session);
 				emit sessionCreated(session);
+				connect(session,SIGNAL(activated(bool)),SLOT(onChatSessionActivated(bool)));
 			}
 			return session;
 		}
@@ -105,7 +107,7 @@ namespace Core
 			ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
 			ChatUnit *key = m_chat_sessions.key(sess);
 			if (key)
-				m_chat_sessions.remove(key);
+				m_chat_sessions.remove(key);			
 		}
 
 		ChatLayerImpl::~ChatLayerImpl()
@@ -136,6 +138,36 @@ namespace Core
 				break;
 			}
 			return Icon(icon_name);
+		}
+
+		void ChatLayerImpl::onChatSessionActivated(bool activated)
+		{
+			if (!activated)
+				return;
+
+			ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
+			Q_ASSERT(session);
+
+			if (qobject_cast<Conference*>(session->getUnit())) {
+				QObject *form = getService("ChatForm");
+				QObject *obj = 0;
+				if (QMetaObject::invokeMethod(form, "textEdit", Q_RETURN_ARG(QObject*, obj),
+											  Q_ARG(qutim_sdk_0_3::ChatSession*, session)) && obj) {
+					if (QPlainTextEdit *edit = qobject_cast<QPlainTextEdit*>(obj)) {
+						if (m_tab_completion.isNull()) {
+							m_tab_completion = new ConfTabCompletion(this);
+						}
+
+						m_tab_completion->setTextEdit(edit);
+						m_tab_completion->setChatSession(session);
+						return;
+					}
+				}
+			}
+			else if (!m_tab_completion.isNull()) {
+				m_tab_completion->deleteLater();
+			}
+
 		}
 	}
 }

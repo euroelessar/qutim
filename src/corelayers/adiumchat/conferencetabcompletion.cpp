@@ -28,7 +28,9 @@ namespace Core
 	{
 
 		ConfTabCompletion::ConfTabCompletion(QObject *parent)
-			: QObject(parent)
+			: QObject(parent),
+			textEdit_(0),
+			chat_session_(0)
 		{
 			typingStatus_ = Typing_Normal;
 			textEdit_ = 0;
@@ -41,6 +43,7 @@ namespace Core
 
 		void ConfTabCompletion::setChatSession(ChatSessionImpl  *session){
 			chat_session_ = session;
+			setParent(session);
 		}
 
 		void ConfTabCompletion::setLastReferrer(QString last_referrer){
@@ -48,16 +51,20 @@ namespace Core
 		}
 
 		void ConfTabCompletion::setTextEdit(QPlainTextEdit* conferenceTextEdit) {
-			textEdit_ = conferenceTextEdit;
-			QColor editBackground(textEdit_->palette().color(QPalette::Active, QPalette::Base));
+			if (textEdit_ != conferenceTextEdit) {
+				if (textEdit_)
+					textEdit_->removeEventFilter(this);
+				textEdit_ = conferenceTextEdit;
+				QColor editBackground(textEdit_->palette().color(QPalette::Active, QPalette::Base));
 
-			if (editBackground.value() < 128) {
-				highlight_ = editBackground.lighter(125);
-			} else {
-				highlight_ = editBackground.darker(125);
+				if (editBackground.value() < 128) {
+					highlight_ = editBackground.lighter(125);
+				} else {
+					highlight_ = editBackground.darker(125);
+				}
+				textEdit_->installEventFilter(this);
 			}
 
-			textEdit_->installEventFilter(this);
 		}
 
 		QPlainTextEdit* ConfTabCompletion::getTextEdit() {

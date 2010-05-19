@@ -42,7 +42,6 @@
 #define MESSAGE_SOURCE_APPLICATION    1
 #define MESSAGE_SOURCE_PAGER          2
 #endif //Q_WS_X11
-#include "../conferencetabcompletion.h"
 namespace Core
 {
 	namespace AdiumChat
@@ -176,13 +175,13 @@ namespace Core
 				return;
 			}
 			int previous_index = m_current_index;
+			m_current_index = index;
 			ChatSessionImpl *session = m_sessions.at(index);
 
 			if ((previous_index != -1) && (previous_index != index)) {
 				m_sessions.at(previous_index)->setActive(false);
 				session->activate();
 			}
-			m_current_index = index;
 			ui->contactsView->setModel(session->getModel());
 
 			ChatUnit *u = session->getUnit();
@@ -201,17 +200,6 @@ namespace Core
 
 			setWindowTitle(title);
 			setWindowIcon(icon);
-
-			if (ui->contactsView->isVisible()) {
-
-				if (!m_tab_completion)
-					m_tab_completion = new ConfTabCompletion(this);
-
-				m_tab_completion->setTextEdit(ui->chatEdit);
-				m_tab_completion->setChatSession(session);
-			}
-			else
-				m_tab_completion->deleteLater();
 
 			if (ui->chatView->page() != session->getPage()) {
 				ui->chatView->page()->setView(0);

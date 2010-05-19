@@ -27,6 +27,7 @@ namespace Core
 
 		class ChatWidget;
 		class ChatSessionImpl;
+		class ConfTabCompletion;
 		typedef QHash<ChatUnit *,  ChatSessionImpl *> ChatSessionHash;
 		typedef QList<ChatSessionImpl *> ChatSessionList;
 		class ChatLayerImpl : public ChatLayer
@@ -41,9 +42,10 @@ namespace Core
 			static QIcon iconForState(ChatState state);
 		private slots:
 			void onChatSessionDestroyed(QObject *object);
+			void onChatSessionActivated(bool activated);
 		private:
 			ChatSessionHash  m_chat_sessions;
-
+			QPointer<ConfTabCompletion> m_tab_completion;
 		};
 	}
 }
