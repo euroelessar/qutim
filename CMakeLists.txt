@@ -5,9 +5,9 @@ endif(COMMAND cmake_policy )
 project( meta-qutim )
 set(QT_MIN_VERSION "4.6.0")
 
-set( QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" )
-set( QUTIM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" )
-set( QUTIM_LIBRARY libqutim )
+set( QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" CACHE FILEPATH "Path to qutim sources")
+set( QUTIM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
+set( QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")
 
 add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/core/" "${CMAKE_CURRENT_BINARY_DIR}/core" )
 add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/protocols/" "${CMAKE_CURRENT_BINARY_DIR}/protocols" )
