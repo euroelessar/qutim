@@ -1,2 +1,2 @@
-<div><div id="%messageId%" class="notDelivered">&nbsp;<span class="outTime">(%time{%H:%M:%S}%)&nbsp;</span>%message%</div></div>
+<div><div class="delivered" onmouseover="startTimeout(true, this);" onmouseout="startTimeout(false);"><span style="display: none">&gt; %sender%<br></span>&nbsp;<span class="outTime">(%time{%H:%M:%S}%)&nbsp;</span>%message%</div></div>
 <div id="insert"></div>

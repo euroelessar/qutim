@@ -27,6 +27,7 @@ body {
 
 .contact {
 	font-weight: bold;
+	cursor: pointer;
 }
 
 .statusMessage {

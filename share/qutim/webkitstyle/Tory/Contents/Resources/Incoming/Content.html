@@ -1,5 +1,5 @@
 <div class="remark">
 	<div class="in"><span class="contact" oncontextmenu="client.contextMenu('%sender%'); return false" onclick="client.appendNick('%sender%')">%sender%</span><span class="time"> (%time{%H:%M}%)</span></div>
-	<div class="message highlight"><div class="delivered">%message%</div></div>
+	<div class="message highlight"><div class="delivered" onmouseover="startTimeout(true, this);" onmouseout="startTimeout(false);"><span style="display: none">&gt; %sender% (%time{%H:%M}%)<br></span>%message%</div></div>
 	<div id="insert"></div>
 </div>

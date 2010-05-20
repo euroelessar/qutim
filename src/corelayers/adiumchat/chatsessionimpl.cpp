@@ -17,6 +17,7 @@
 #include "chatstyleoutput.h"
 #include <QWebPage>
 #include <QWebFrame>
+#include <QWebElement>
 #include "libqutim/message.h"
 #include "libqutim/account.h"
 #include <QStringBuilder>
@@ -204,8 +205,7 @@ namespace Core
 			}
 
 			QString jsTask = QString("append%2Message(\"%1\");").arg(
-					result.isEmpty() ? item :
-					validateCpp(result), same_from?"Next":"");
+					validateCpp(item), same_from?"Next":"");
 
 			bool silent = message.property("silent", false);
 
@@ -276,7 +276,8 @@ namespace Core
 			Q_D(ChatSessionImpl);
 			if (ev->type() == MessageReceiptEvent::eventType()) {
 				MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
-				QWebElement elem = d->web_page->mainFrame()->findFirstElement("#message" + msgEvent->id());
+				QWebElement elem = d->web_page->mainFrame()->findFirstElement("#message" + QString::number(msgEvent->id()));
+				qDebug() << elem.toPlainText();
 				elem.removeClass("notDelivered");
 				elem.addClass("delivered");
 				return true;

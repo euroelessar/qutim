@@ -265,7 +265,7 @@ namespace Core
 			QString sender_name = makeName(mes);
 			QString sender_id = makeId(mes);
 
-			html = html.replace("%messageId%", "message"+QString::number(message.id()));
+			html = html.replace("%messageId%", "message"+QString::number(mes.id()));
 			html = html.replace("%sender%", Qt::escape(sender_name));
 			// Replace %senderScreenName% to name
 			html = html.replace("%senderScreenName%", Qt::escape(sender_id));

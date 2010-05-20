@@ -1,1 +1,30 @@
+<script type="text/ecmascript">
+	var interval = 800;
+	
+	function startTimeout(show, obj) {
+		clearTimeout(timeout);
+		if (show)
+			timeout = setTimeout(showMenu, interval, obj);
+		else
+			timeout = setTimeout(hideMenu, interval);
+	}
 
+</script>
+<style type="text/css" media="screen,print">
+	.toolbar {
+		position: absolute;
+	}
+	.quote {
+		margin: 3px;
+		background-color: #E0E0E0;
+		border: 1pt solid #B0B0B0;
+	}
+	.quote:hover {
+		margin: 3px;
+		background-color: #A0A0A0;
+		border: 1pt solid #B0B0B0;
+	}
+</style>
+<div id="toolbar" class="toolbar" onmouseover="clearTimeout(timeout);" onmouseout="startTimeout(false);">
+	<img src="Images/quote.png" class="quote" onclick="quoteMessage();">
+</div>

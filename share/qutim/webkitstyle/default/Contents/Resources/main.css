@@ -9,6 +9,7 @@ body {
 
 .inContact, .outContact, .inActionContact, .outActionContact {
 	font-weight: bold;
+	cursor: pointer;
 }
 
 .inContact, .inActionContact, .inActionMessage {
