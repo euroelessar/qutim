@@ -65,9 +65,14 @@ DefaultDataFormsBackend::DefaultDataFormsBackend()
 {
 }
 
-AbstractDataForm *DefaultDataFormsBackend::get(const DataItem &item, AbstractDataForm::StandardButtons standartButtons, const AbstractDataForm::Buttons &buttons)
+QWidget *DefaultDataFormsBackend::get(const DataItem &item, AbstractDataForm::StandardButtons standartButtons, const AbstractDataForm::Buttons &buttons)
 {
-	return new DefaultDataForm(item, standartButtons, buttons);
+	if (item.isNull())
+		return 0;
+	if (!item.hasSubitems() && standartButtons == AbstractDataForm::NoButton && buttons.isEmpty())
+		return EditableDataLayout::getEditableWidget(item);
+	else
+		return new DefaultDataForm(item, standartButtons, buttons);
 }
 
 }

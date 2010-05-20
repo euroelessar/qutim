@@ -14,7 +14,9 @@ ReadOnlyDataLayout::ReadOnlyDataLayout(QWidget *parent) :
 
 bool ReadOnlyDataLayout::addItem(const DataItem &item)
 {
-	if (!item.property("hideTitle", false)) {
+	bool twoColumns;
+	QWidget *widget = getReadOnlyWidget(item, &twoColumns);
+	if (!twoColumns && !item.property("hideTitle", false)) {
 		QLabel *title = new QLabel(item.title().toString() + ":", parentWidget());
 		title->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 		QFont font = title->font();
@@ -23,32 +25,29 @@ bool ReadOnlyDataLayout::addItem(const DataItem &item)
 		title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 		addWidget(title, m_row, 0, 1, 1, Qt::AlignRight | Qt::AlignTop);
 	}
-	QWidget *widget = getReadOnlyWidget(item);
 	widget->setParent(parentWidget());
 	widget->setObjectName(item.name());
-	addWidget(widget, m_row++, 1, 1, 1, Qt::AlignLeft);
+	if (!twoColumns)
+		addWidget(widget, m_row++, 1, 1, 1, Qt::AlignLeft);
+	else
+		addWidget(widget, m_row++, 0, 1, 2);
 	return false;
 }
 
-bool ReadOnlyDataLayout::addItems(const QList<DataItem> &items)
+QWidget *ReadOnlyDataLayout::getReadOnlyWidget(const DataItem &item, bool *twoColumn)
 {
-	foreach (const DataItem &item, items) {
-		if (item.hasSubitems()) {
-			QGroupBox *box = new QGroupBox(parentWidget());
-			box->setTitle(item.title());
-			box->setFlat(true);
-			ReadOnlyDataLayout *group = new ReadOnlyDataLayout(box);
-			group->addItems(item.subitems());
-			addWidget(box, m_row++, 0, 1, 2);
-		} else {
-			addItem(item);
-		}
+	if (twoColumn)
+		*twoColumn = false;
+	if (item.hasSubitems()) {
+		QGroupBox *box = new QGroupBox();
+		box->setTitle(item.title());
+		box->setFlat(true);
+		ReadOnlyDataLayout *group = new ReadOnlyDataLayout(box);
+		group->addItems(item.subitems());
+		if (twoColumn)
+			*twoColumn = true;
+		return box;
 	}
-	return false;
-}
-
-QWidget *ReadOnlyDataLayout::getReadOnlyWidget(const DataItem &item)
-{
 	bool enabled = true;
 	QVariant::Type type = item.data().type();
 	if (item.property("notSet", false)) {

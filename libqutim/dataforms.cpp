@@ -191,7 +191,13 @@ namespace qutim_sdk_0_3
 		d->setProperty(name, value, CompiledProperty::names, CompiledProperty::setters);
 	}
 
-	AbstractDataForm *AbstractDataForm::get(const DataItem &item, StandardButtons standartButtons,
+	void AbstractDataWidget::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
+	}
+
+	QWidget *AbstractDataForm::get(const DataItem &item, StandardButtons standartButtons,
 							const AbstractDataForm::Buttons &buttons)
 	{
 		DataFormsBackend *b = DataFormsBackend::instance();

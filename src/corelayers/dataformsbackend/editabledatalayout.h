@@ -7,33 +7,19 @@
 namespace Core
 {
 
-class AbstractDataGroup
-{
-public:
-	virtual DataItem item() = 0;
-	virtual ~AbstractDataGroup() {}
-};
-
-}
-
-Q_DECLARE_INTERFACE(Core::AbstractDataGroup, "org.qutim.core.AbstractDataGroup");
-
-namespace Core
-{
-
 class EditableDataLayout;
 
-class DataListWidget : public QWidget, public AbstractDataGroup
+class DataListWidget : public QWidget, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(Core::AbstractDataGroup)
+	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
 public:
 	DataListWidget(QWidget *parent = 0);
 	DataListWidget(const DataItem &def, QWidget *parent = 0);
 	virtual ~DataListWidget();
 	void addRow(QWidget *data, QWidget *title = 0);
 	void addRow(const DataItem &item);
-	DataItem item();
+	DataItem item() const;
 	int maxItemsCount() { return m_max; }
 	void setMaxItemsCount(int max) { m_max = max; }
 private slots:
@@ -58,26 +44,26 @@ private:
 	void init();
 };
 
-class DataListGroup : public QGroupBox, public AbstractDataGroup
+class DataListGroup : public QGroupBox, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(Core::AbstractDataGroup)
+	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
 public:
 	DataListGroup(const DataItem &item, QWidget *parent = 0);
 	DataListWidget *dataWidget() { return m_widget; };
-	DataItem item();
+	DataItem item() const;
 private:
 	DataListWidget *m_widget;
 };
 
-class DataGroup : public QGroupBox, public AbstractDataGroup
+class DataGroup : public QGroupBox, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(Core::AbstractDataGroup)
+	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
 public:
 	DataGroup(const DataItem &item, QWidget *parent = 0);
 	EditableDataLayout *infoLayout() { return m_layout; }
-	DataItem item();
+	DataItem item() const;
 private:
 	EditableDataLayout *m_layout;
 };
@@ -87,18 +73,17 @@ class StringListGroup : public DataListWidget
 	Q_OBJECT
 public:
 	StringListGroup(const DataItem &item, QWidget *parent = 0);
-	DataItem item();
+	DataItem item() const;
 };
 
-class EditableDataLayout : public AbstractDataLayout, public AbstractDataGroup
+class EditableDataLayout : public AbstractDataLayout, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(Core::AbstractDataGroup)
+	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
 public:
 	EditableDataLayout(QWidget *parent = 0);
 	bool addItem(const DataItem &item);
-	bool addItems(const QList<DataItem> &items);
-	DataItem item();
+	DataItem item() const;
 	static QWidget *getEditableWidget(const DataItem &item);
 private:
 	struct WidgetLine {

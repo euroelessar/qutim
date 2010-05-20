@@ -186,11 +186,14 @@ QWidget *MainWindow::getPage(DataItem item)
 {
 	if (!readWrite)
 		item.setReadOnly(true);
-	AbstractDataForm *data = AbstractDataForm::get(item);
+	QWidget *data = AbstractDataForm::get(item);
 	if (data) {
 		data->setParent(ui.detailsStackedWidget);
-		data->setFrameShape(QFrame::Panel);
-		data->setFrameShadow(QFrame::Sunken);
+		QFrame *frame = qobject_cast<QFrame*>(data);
+		if (frame) {
+			frame->setFrameShape(QFrame::Panel);
+			frame->setFrameShadow(QFrame::Sunken);
+		}
 	}
 	return data;
 }

@@ -67,7 +67,7 @@ private:
 	};
 	QList<RequestBoxItem> m_requestItems;
 	RequestPtr m_currentRequest;
-	QPointer<AbstractDataForm> m_searchWidget;
+	QPointer<QWidget> m_searchWidget;
 	ContactModel m_contactModel;
 	bool requestListUpdating;
 };

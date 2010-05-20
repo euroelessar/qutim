@@ -21,7 +21,7 @@ public:
 	AbstractDataLayout(QWidget *parent = 0);
 	~AbstractDataLayout();
 	virtual bool addItem(const DataItem &item) = 0;
-	virtual bool addItems(const QList<DataItem> &items) = 0;
+	bool addItems(const QList<DataItem> &items);
 	void addSpacer();
 	void addWidget(QWidget *w);
 protected:

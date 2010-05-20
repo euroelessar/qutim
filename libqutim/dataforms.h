@@ -45,7 +45,15 @@ namespace qutim_sdk_0_3
 		QSharedDataPointer<DataItemPrivate> d;
 	};
 
-	class LIBQUTIM_EXPORT AbstractDataForm : public QFrame
+	class LIBQUTIM_EXPORT AbstractDataWidget
+	{
+	public:
+		virtual DataItem item() const = 0;
+	protected:
+		virtual void virtual_hook(int id, void *data);
+	};
+
+	class LIBQUTIM_EXPORT AbstractDataForm : public QFrame, public AbstractDataWidget
 	{
 		Q_OBJECT
 	public:
@@ -92,8 +100,7 @@ namespace qutim_sdk_0_3
 			ButtonRole role;
 		};
 		typedef QList<Button> Buttons;
-		virtual DataItem item() const = 0;
-		static AbstractDataForm *get(const DataItem &item, StandardButtons standartButtons = NoButton,
+		static QWidget *get(const DataItem &item, StandardButtons standartButtons = NoButton,
 							 const Buttons &buttons = Buttons());
 	signals:
 		void accepted();
@@ -106,12 +113,13 @@ namespace qutim_sdk_0_3
 	{
 		Q_OBJECT
 	public:
-		virtual AbstractDataForm *get(const DataItem &item,
+		virtual QWidget *get(const DataItem &item,
 							  AbstractDataForm::StandardButtons standartButtons = AbstractDataForm::NoButton,
 							  const AbstractDataForm::Buttons &buttons = AbstractDataForm::Buttons()) = 0;
 		static DataFormsBackend *instance();
 	};
-
 }
+
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::AbstractDataWidget, "org.qutim.core.AbstractDataWidget");
 
 #endif // DATAFORMS_H

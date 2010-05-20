@@ -11,8 +11,7 @@ class ReadOnlyDataLayout : public AbstractDataLayout
 public:
 	ReadOnlyDataLayout(QWidget *parent = 0);
 	bool addItem(const DataItem &item);
-	bool addItems(const QList<DataItem> &items);
-	static QWidget *getReadOnlyWidget(const DataItem &item);
+	static QWidget *getReadOnlyWidget(const DataItem &item, bool *twoColumn = 0);
 protected:
 	static QLabel *getLabel(const QString &str);
 };

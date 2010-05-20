@@ -2,29 +2,19 @@
 #include "readonlydatalayout.h"
 #include "libqutim/icon.h"
 #include <QPushButton>
-#include <QGroupBox>
-#include <QDate>
-#include <QDateEdit>
-#include <QComboBox>
-#include <QSpinBox>
-#include <QLabel>
-#include <QTextEdit>
-#include <QLineEdit>
 #include <QGridLayout>
 #include <QVBoxLayout>
-#include <QCheckBox>
 #include <QDesktopWidget>
 #include <QApplication>
+#include "editablewidgets.h"
 #include "libqutim/debug.h"
 
 namespace Core
 {
 
-static LocalizedString notSpecifiedStr = QT_TRANSLATE_NOOP("DataForms", "Not specified");
-
-static QComboBox *getComboBox(const QString &value, const LocalizedStringList &alt)
+static ComboBox *getComboBox(const QString &value, const LocalizedStringList &alt)
 {
-	QComboBox *d = new QComboBox();
+	ComboBox *d = new ComboBox();
 	int current = -1;
 	int i = 0;
 	d->addItem(notSpecifiedStr);
@@ -60,7 +50,7 @@ static QWidget *getWidgetHelper(const DataItem &item, bool *twoColumn, QSizePoli
 		*twoColumn = false;
 	QVariant::Type type = item.data().type();
 	if (item.property("readOnly", false)) {
-		return ReadOnlyDataLayout::getReadOnlyWidget(item);
+		return ReadOnlyDataLayout::getReadOnlyWidget(item, twoColumn);
 	} else if (type == QVariant::StringList) {
 		return new StringListGroup(item);
 	} else if (item.isMultiple()) {
@@ -72,30 +62,34 @@ static QWidget *getWidgetHelper(const DataItem &item, bool *twoColumn, QSizePoli
 			*twoColumn = true;
 		return new DataGroup(item);
 	} else if (type == QVariant::Bool) {
-		QCheckBox *d = new QCheckBox();
+		CheckBox *d = new CheckBox();
 		d->setText(item.title());
 		d->setChecked(item.data().toBool());
 		if (twoColumn)
 			*twoColumn = true;
 		return d;
 	} else if (type == QVariant::Date) {
-		return new QDateEdit(item.data().toDate());
-	} else if (type == QVariant::DateTime) {
-		return new QDateTimeEdit(item.data().toDateTime());
-	} else if (type == QVariant::Int || type == QVariant::LongLong || type == QVariant::UInt) {
-		QSpinBox *d = new QSpinBox();
-		d->setValue(item.data().toInt());
-		return d;
-	} else if (type == QVariant::Double) {
-		QDoubleSpinBox *d = new QDoubleSpinBox();
-		d->setValue(item.data().toDouble());
-		return d;
-	} else if (type == QVariant::Date) {
-		QDateEdit *d = new QDateEdit();
+		DateEdit *d = new DateEdit();
 		d->setDate(item.data().toDate());
 		return d;
 	} else if (type == QVariant::DateTime) {
-		QDateTimeEdit *d = new QDateTimeEdit();
+		DateTimeEdit *d = new DateTimeEdit();
+		d->setDateTime(item.data().toDateTime());
+		return d;
+	} else if (type == QVariant::Int || type == QVariant::LongLong || type == QVariant::UInt) {
+		SpinBox *d = new SpinBox();
+		d->setValue(item.data().toInt());
+		return d;
+	} else if (type == QVariant::Double) {
+		DoubleSpinBox *d = new DoubleSpinBox();
+		d->setValue(item.data().toDouble());
+		return d;
+	} else if (type == QVariant::Date) {
+		DateEdit *d = new DateEdit();
+		d->setDate(item.data().toDate());
+		return d;
+	} else if (type == QVariant::DateTime) {
+		DateTimeEdit *d = new DateTimeEdit();
 		d->setDateTime(item.data().toDateTime());
 		return d;
 	}
@@ -111,10 +105,14 @@ static QWidget *getWidgetHelper(const DataItem &item, bool *twoColumn, QSizePoli
 		if (!alt.isEmpty()) {
 			return getComboBox(str, alt);
 		} if (!item.property("multiline", false)) {
-			return new QLineEdit(str);
+			LineEdit *d = new LineEdit();
+			d->setText(str);
+			return d;
 		} else {
 			verticalPolicy = QSizePolicy::MinimumExpanding;
-			return new QTextEdit(str);
+			TextEdit *d = new TextEdit();
+			d->setText(str);
+			return d;
 		}
 	}
 }
@@ -141,39 +139,17 @@ static QString getTitle(QWidget *title)
 	return QString();
 }
 
-#define TEST_DATA_TYPE(Type, Method, ValueType, Condition)\
-{\
-	Type *w = qobject_cast< Type *>(data); \
-	if (w)  {\
-		ValueType value = w-> Method ();  \
-		QVariant d; \
-		if ( Condition ) \
-			d = value; \
-		return DataItem(data->objectName(), titleStr, d); \
-	} \
-}
-
 static DataItem getDataItem(QWidget *title, QWidget *data)
 {
 	QString titleStr = getTitle(title);
-	AbstractDataGroup *dataGroup = qobject_cast<AbstractDataGroup*>(data);
+	AbstractDataWidget *dataGroup = qobject_cast<AbstractDataWidget*>(data);
 	if (dataGroup) {
 		DataItem item = dataGroup->item();
 		item.setTitle(titleStr);
 		return item;
 	}
-	TEST_DATA_TYPE(QCheckBox, isChecked, bool, value);
-	TEST_DATA_TYPE(QComboBox, currentText, QString, !value.isEmpty() && value != notSpecifiedStr);
-	TEST_DATA_TYPE(QDateTimeEdit, dateTime, QDateTime, value.isValid());
-	TEST_DATA_TYPE(QDateEdit, date, QDate, value.isValid());
-	TEST_DATA_TYPE(QSpinBox, value, int, value != 0);
-	TEST_DATA_TYPE(QDoubleSpinBox, value, double, value != 0.0);
-	TEST_DATA_TYPE(QTextEdit, toPlainText, QString, !value.isEmpty());
-	TEST_DATA_TYPE(QLineEdit, text, QString, !value.isEmpty());
-	return DataItem(data->objectName(), titleStr);
+	return DataItem(data->objectName(), titleStr, QVariant());
 }
-
-#undef TEST_DATA_TYPE
 
 DataListWidget::DataListWidget(QWidget *parent) :
 	QWidget(parent)
@@ -230,7 +206,7 @@ void DataListWidget::addRow(const DataItem &item)
 	addRow(data, title);
 }
 
-DataItem DataListWidget::item()
+DataItem DataListWidget::item() const
 {
 	DataItem items;
 	items.setName(objectName());
@@ -299,7 +275,7 @@ DataListGroup::DataListGroup(const DataItem &item, QWidget *parent) :
 	layout->addWidget(m_widget);
 }
 
-DataItem DataListGroup::item()
+DataItem DataListGroup::item() const
 {
 	DataItem item = m_widget->item();
 	item.setName(objectName());
@@ -316,7 +292,7 @@ DataGroup::DataGroup(const DataItem &items, QWidget *parent) :
 	m_layout->addItems(items.subitems());
 }
 
-DataItem DataGroup::item()
+DataItem DataGroup::item() const
 {
 	DataItem item = m_layout->item();
 	item.setName(objectName());
@@ -340,7 +316,7 @@ StringListGroup::StringListGroup(const DataItem &item, QWidget *parent) :
 	}
 }
 
-DataItem StringListGroup::item()
+DataItem StringListGroup::item() const
 {
 	QStringList list;
 	foreach (const WidgetLine &line, m_widgets)
@@ -377,15 +353,7 @@ bool EditableDataLayout::addItem(const DataItem &item)
 	return policy == QSizePolicy::MinimumExpanding || policy == QSizePolicy::Expanding;
 }
 
-bool EditableDataLayout::addItems(const QList<DataItem> &items)
-{
-	bool expand = false;
-	foreach (const DataItem &item, items)
-		expand = expand || addItem(item);
-	return expand;
-}
-
-DataItem EditableDataLayout::item()
+DataItem EditableDataLayout::item() const
 {
 	DataItem items;
 	items.setName(objectName());

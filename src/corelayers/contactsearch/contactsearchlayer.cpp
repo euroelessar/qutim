@@ -124,10 +124,13 @@ void ContactSearchForm::startSearch()
 	if (!m_searchWidget)
 		return;
 	Q_ASSERT(m_currentRequest);
-	setState(true);
-	m_contactModel.beginResetModel();
-	m_currentRequest->start(m_searchWidget->item());
-	m_contactModel.endResetModel();
+	AbstractDataWidget *dataWidget = qobject_cast<AbstractDataWidget*>(m_searchWidget.data());
+	if (dataWidget) {
+		setState(true);
+		m_contactModel.beginResetModel();
+		m_currentRequest->start(dataWidget->item());
+		m_contactModel.endResetModel();
+	}
 }
 
 void ContactSearchForm::updateRequest(int index)

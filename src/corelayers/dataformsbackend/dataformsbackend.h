@@ -29,7 +29,7 @@ class DefaultDataFormsBackend : public DataFormsBackend
 	Q_CLASSINFO("Service", "DataFormsBackend")
 public:
 	DefaultDataFormsBackend();
-	virtual AbstractDataForm *get(const DataItem &item, AbstractDataForm::StandardButtons standartButtons = AbstractDataForm::NoButton,
+	virtual QWidget *get(const DataItem &item, AbstractDataForm::StandardButtons standartButtons = AbstractDataForm::NoButton,
 						  const AbstractDataForm::Buttons &buttons = AbstractDataForm::Buttons());
 };
 
