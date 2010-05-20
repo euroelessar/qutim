@@ -165,14 +165,20 @@
 			}
 			
 			function quoteMessage() {
-				var text = message.innerHTML;
-				text = text.replace(/<br>/mg, "\n&gt; ");
-				text = text.replace(/<\/?[^>]+>/g, '');
-				var tarea = document.createElement('textarea');
-				tarea.innerHTML = text;
-				text = tarea.value;
-				client.appendText(text + "\n");
-				tarea.parentNode.removeChild(tarea);
+				var text = window.getSelection().toString();
+				if (text != "") {
+					text = "> " + text.replace(/\n/mg, "\n> ");
+					client.appendText(text + "\n");
+				} else {
+					text = message.innerHTML;
+					text = text.replace(/<br>/mg, "\n&gt; ");
+					text = text.replace(/<\/?[^>]+>/g, '');
+					var tarea = document.createElement('textarea');
+					tarea.innerHTML = text;
+					text = tarea.value;
+					client.appendText(text + "\n");
+					tarea.parentNode.removeChild(tarea);
+				}
 			}
 		</script>
 		<style type="text/css">

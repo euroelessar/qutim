@@ -14,17 +14,17 @@
 	.toolbar {
 		position: absolute;
 	}
-	.quote {
+	.button {
 		margin: 3px;
 		background-color: #E0E0E0;
 		border: 1pt solid #B0B0B0;
 	}
-	.quote:hover {
+	.button:hover {
 		margin: 3px;
 		background-color: #A0A0A0;
 		border: 1pt solid #B0B0B0;
 	}
 </style>
 <div id="toolbar" class="toolbar" onmouseover="clearTimeout(timeout);" onmouseout="startTimeout(false);">
-	<img src="Images/quote.png" class="quote" onclick="quoteMessage();">
+	<img src="Images/quote.png" class="button" title="Quote message" onclick="quoteMessage();">
 </div>
