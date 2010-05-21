@@ -166,7 +166,7 @@
 			
 			function quoteMessage() {
 				var text = window.getSelection().toString();
-				if (text != "") {
+				if (window.getSelection().containsNode(message, true) && text != "") {
 					text = "> " + text.replace(/\n/mg, "\n> ");
 					client.appendText(text + "\n");
 				} else {
