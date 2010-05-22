@@ -293,6 +293,7 @@ namespace Jabber
 			qutim_sdk_0_3::Message msg(text);
 			msg.setTime(QDateTime::currentDateTime());
 			msg.setProperty("service", true);
+			msg.setProperty("silent", true);
 			if (ChatSession *chatSession = ChatLayer::get(this, false))
 				chatSession->appendMessage(msg);
 		}
@@ -322,6 +323,7 @@ namespace Jabber
 			coreMsg.setProperty("senderName", nick);
 			if (user)
 				coreMsg.setProperty("senderId", user->id());
+			coreMsg.setProperty("silent", true);
 			coreMsg.setIncoming(msg.from().resource() != d->room->nick());
 			ChatSession *chatSession = ChatLayer::get(this, true);
 			const DelayedDelivery *when = msg.when();

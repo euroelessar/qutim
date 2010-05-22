@@ -5,6 +5,7 @@
 #include <qutim/configbase.h>
 #include <gloox/rostermanager.h>
 #include <gloox/presencehandler.h>
+#include <gloox/subscriptionhandler.h>
 
 namespace Jabber
 {
@@ -14,7 +15,7 @@ namespace Jabber
 	class JAccount;
 	struct JRosterPrivate;
 
-	class JRoster : public QObject, public RosterListener, public PresenceHandler
+	class JRoster : public QObject, public RosterListener, public PresenceHandler, public SubscriptionHandler
 	{
 		Q_OBJECT
 		public:
@@ -40,6 +41,9 @@ namespace Jabber
 			bool handleUnsubscriptionRequest(const JID &jid, const std::string &msg);
 			void handleNonrosterPresence(const Presence &presence);
 			void handleRosterError(const IQ &iq);
+			void handleSubscription(const Subscription &subscription);
+		private slots:
+			void sendAuthResponse(bool answer);
 		private:
 			QScopedPointer<JRosterPrivate> p;
 	};

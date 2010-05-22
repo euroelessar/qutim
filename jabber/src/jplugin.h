@@ -10,6 +10,7 @@ namespace Jabber
 	class JPlugin : public Plugin
 	{
 		Q_OBJECT
+		Q_CLASSINFO("DebugName", "Jabber")
 		public:
 			JPlugin();
 			void init();

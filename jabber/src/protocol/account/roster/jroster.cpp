@@ -6,8 +6,12 @@
 #include "../vcard/jvcardmanager.h"
 #include <QFile>
 #include <gloox/vcardupdate.h>
+#include <gloox/subscription.h>
+#include <gloox/nickname.h>
 #include <QFile>
 #include <QStringBuilder>
+#include <qutim/authorizationdialog.h>
+#include <qutim/notificationslayer.h>
 
 namespace Jabber
 {
@@ -26,6 +30,7 @@ namespace Jabber
 		p->rosterManager = p->account->connection()->client()->rosterManager();
 		p->rosterManager->registerRosterListener(this, false);
 		p->account->connection()->client()->registerPresenceHandler(this);
+		p->account->connection()->client()->registerSubscriptionHandler(this);
 	}
 
 	JRoster::~JRoster()
@@ -165,6 +170,9 @@ namespace Jabber
 		if (!p->contacts.contains(jid)) {
 			JContact *contact = new JContact(jid, p->account);
 			contact->setContactName(QString::fromStdString(presence.from().username()));
+			QSet<QString> tags;
+			tags.insert(tr("Not in list"));
+			contact->setContactTags(tags);
 			contact->setContactInList(false);
 			ContactList::instance()->addContact(contact);
 			p->contacts.insert(jid, contact);
@@ -219,5 +227,73 @@ namespace Jabber
 	{
 		foreach (JContact *contact, p->contacts)
 			contact->setStatus("", Presence::Unavailable, 0);
+	}
+
+#include <QDebug>
+	void JRoster::handleSubscription(const Subscription &subscription)
+	{
+		QString jid = QString::fromStdString(subscription.from().bare());
+		qDebug() << jid << subscription.subtype();
+		QString name;
+		JContact *contact = p->contacts.value(jid);
+		if (contact) {
+			name = contact->name();
+		} else {
+			const Nickname *nickname = subscription.findExtension<Nickname>(ExtNickname);
+			name = nickname ? QString::fromStdString(nickname->nick()) : "";
+		}
+		QString text;
+		switch (subscription.subtype()) {
+		case Subscription::Subscribe:
+			if (!contact) {
+				contact = new JContact(jid, p->account);
+				contact->setContactName(name);
+				contact->setContactInList(false);
+			}
+			{
+				qDebug() << contact->id();
+				AuthorizationDialog *dialog = AuthorizationDialog::request(contact,
+						QString::fromStdString(subscription.status()));
+				connect(dialog, SIGNAL(finished(bool)), SLOT(sendAuthResponse(bool)));
+			}
+			break;
+		case Subscription::Subscribed:
+			text = tr("You were authorized");
+			break;
+		case Subscription::Unsubscribed:
+			text = tr("Your authorization was removed");
+			break;
+		case Subscription::Unsubscribe:
+			text = tr("Contacts's authorization was removed");
+			break;
+		case Subscription::Invalid:
+		default:
+			text = "";
+		}
+		if (!text.isEmpty()) {
+			QObject *sender = new QObject();
+			sender->setProperty("id", jid);
+			sender->setProperty("name", name);
+			Notifications::sendNotification(Notifications::System, sender, text);
+			sender->deleteLater();
+		}
+	}
+
+	void JRoster::sendAuthResponse(bool answer)
+	{
+		AuthorizationDialog *dialog = qobject_cast<AuthorizationDialog *>(sender());
+		Q_ASSERT(dialog);
+		JContact *contact = qobject_cast<JContact*>(dialog->contact());
+		p->rosterManager->ackSubscriptionRequest(JID(contact->id().toStdString()), answer);
+		qDebug() << "#####################################" << contact->id() << answer;
+		if (!contact->isInList()) {
+			if (answer) {
+				contact->setContactInList(true);
+				ContactList::instance()->addContact(contact);
+				p->contacts.insert(contact->id(), contact);
+			} else {
+				contact->deleteLater();
+			}
+		}
 	}
 }
