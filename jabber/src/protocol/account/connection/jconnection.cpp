@@ -23,6 +23,7 @@ namespace Jabber
 		Adhoc *adhoc;
 		JVCardManager *vCardManager;
 		JConnectionTCPBase *connection;
+		JSoftwareDetection *softwareDetection;
 		SIManager *siManager;
 		QNetworkProxy proxy;
 		QString resource;
@@ -37,6 +38,7 @@ namespace Jabber
 	{
 		p->account = account;
 		p->password = QString();
+		p->softwareDetection = 0;
 		JID jid = JID(account->id().toStdString());
 		p->client = new Client(jid, p->password.toStdString());
 		p->adhoc = new Adhoc(p->client);
@@ -120,6 +122,11 @@ namespace Jabber
 	{
 		return p->connection;
 	}
+	
+	JSoftwareDetection *JConnection::softwareDetection()
+	{
+		return p->softwareDetection;
+	}
 
 	void JConnection::initExtensions()
 	{
@@ -129,7 +136,7 @@ namespace Jabber
 		params.addItem<VCardManager>(p->vCardManager->manager());
 		params.addItem<SIManager>(p->siManager);
 
-		new JSoftwareDetection(p->account, params);
+		p->softwareDetection = new JSoftwareDetection(p->account, params);
 
 		foreach (const ObjectGenerator *gen, moduleGenerators<JabberExtension>()) {
 			if (JabberExtension *ext = gen->generate<JabberExtension>()) {

@@ -15,6 +15,7 @@ namespace Jabber
 
 	class JAccount;
 	class JVCardManager;
+	class JSoftwareDetection;
 	struct JConnectionPrivate;
 
 	class JConnection : public QObject, PresenceHandler, LogHandler
@@ -30,6 +31,7 @@ namespace Jabber
 			JVCardManager *vCardManager();
 			SIManager *siManager();
 			JConnectionBase *connection();
+			JSoftwareDetection *softwareDetection();
 			void initExtensions();
 			void setAvatar(const QString &hex);
 			virtual void handleLog(LogLevel level, LogArea area, const std::string &message);

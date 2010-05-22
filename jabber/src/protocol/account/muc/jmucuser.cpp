@@ -107,9 +107,15 @@ namespace Jabber
 			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
 			if (!d->realJid.isEmpty())
 				event->appendField(QT_TRANSLATE_NOOP("Conference", "Real JID"), d->realJid);
-			QString client = property("client").toString() % QLatin1Char('/') % property("os").toString();;
-			if (client != "/")
+			QString client = property("client").toString();
+			if (!client.isEmpty()) {
+				QString os = property("os").toString();
+				if (!os.isEmpty()) {
+					client += " / ";
+					client += os;
+				}
 				event->appendField(QT_TRANSLATE_NOOP("Contact", "Possible client"), client);
+			}
 			return true;
 		}
 		return JContactResource::event(ev);

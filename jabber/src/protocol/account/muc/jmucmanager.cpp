@@ -1,5 +1,6 @@
 #include <QClipboard>
 #include <QMessageBox>
+#include <QDebug>
 #include "../jaccount.h"
 #include "jmucmanager.h"
 #include "jbookmarkmanager.h"
@@ -9,6 +10,7 @@
 #include <qutim/messagesession.h>
 #include <qutim/contactlist.h>
 #include <qutim/icon.h>
+#include "../roster/jsoftwaredetection.h"
 
 namespace Jabber
 {
@@ -117,6 +119,8 @@ namespace Jabber
 			room = p->rooms.value(conference);
 		}
 		room->join();
+		p->account->client()->registerPresenceHandler(JID(conference.toStdString()),
+													  p->account->connection()->softwareDetection());
 		ChatSession *session = ChatLayer::get(room, true);
 		connect(session, SIGNAL(destroyed()), room, SIGNAL(initClose()));
 		connect(room, SIGNAL(initClose()), SLOT(closeMUCSession()));
@@ -133,6 +137,8 @@ namespace Jabber
 	{
 		if (room && !room->isJoined()) {
 			room->clearSinceDate();
+			p->account->client()->removePresenceHandler(room->id().toStdString(), 
+														p->account->connection()->softwareDetection());
 			if (room->bookmarkIndex() == -1) {
 				p->rooms.remove(room->id());
 				room->deleteLater();
@@ -149,8 +155,6 @@ namespace Jabber
 		if (room)
 			join(room->id());
 	}
-
-#include <QDebug>
 
 	void JMUCManager::setPresenceToRooms(Presence::PresenceType presence)
 	{

@@ -52,9 +52,15 @@ namespace Jabber
 				SoftwareInfoHash::iterator it = m_hash.find(qNode);
 				if (it != m_hash.end()) {
 					SoftwareInfo &info = *it;
-					unit->setProperty("features", qVariantFromValue(info.features));
-					unit->setProperty("client", info.name);
-					unit->setProperty("os", info.os);
+					resource->setFeatures(info.features);
+					if (info.name.isEmpty()) {
+						IQ iq(IQ::Get, presence.from());
+						iq.addExtension(new SoftwareVersion());
+						m_account->client()->send(iq, this, RequestSoftware);
+					} else {
+						unit->setProperty("client", (info.name + " " + info.version).trimmed());
+						unit->setProperty("os", info.os);
+					}
 					return;
 				}
 			}
@@ -78,6 +84,10 @@ namespace Jabber
 					QString software = QString::fromStdString(soft->name());
 					QString softwareVersion = QString::fromStdString(soft->version());
 					QString os = QString::fromStdString(soft->os());
+					unit->setProperty("client", (software + " " + softwareVersion).trimmed());
+					unit->setProperty("software", software);
+					unit->setProperty("softwareVersion", softwareVersion);
+					unit->setProperty("os", os);
 					SoftwareInfoHash::iterator it = m_hash.find(node);
 					if (it != m_hash.end()) {
 						SoftwareInfo &info = (*it);
@@ -138,7 +148,7 @@ namespace Jabber
 
 		m_hash.insert(node, info);
 
-		if (ChatUnit *unit = m_account->getUnit(jid, false)) {
+		if (JContactResource *unit = qobject_cast<JContactResource*>(m_account->getUnit(jid, false))) {
 			if (unit->property("node").isNull())
 				unit->setProperty("node", node);
 
@@ -147,7 +157,7 @@ namespace Jabber
 				iq.addExtension(new SoftwareVersion());
 				m_account->client()->send(iq, this, RequestSoftware);
 			}
-			unit->setProperty("features", qVariantFromValue(info.features));
+			unit->setFeatures(info.features);
 		}
 	}
 

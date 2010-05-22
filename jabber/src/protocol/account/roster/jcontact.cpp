@@ -180,10 +180,15 @@ namespace Jabber
 					event->appendField(resource->text(), QVariant());
 				event->appendField(QT_TRANSLATE_NOOP("Contact", "Resource"),
 						QString("%1 (%2)").arg(id).arg(resource->priority()));
-				QString client = resource->property("client").toString()
-						% QLatin1Char('/') % resource->property("os").toString();
-				if (client != "/")
+				QString client = resource->property("client").toString();
+				if (!client.isEmpty()) {
+					QString os = resource->property("os").toString();
+					if (!os.isEmpty()) {
+						client += " / ";
+						client += os;
+					}
 					event->appendField(QT_TRANSLATE_NOOP("Contact", "Possible client"), client);
+				}
 			}
 			return true;
 		}
