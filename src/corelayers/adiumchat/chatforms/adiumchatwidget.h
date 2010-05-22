@@ -50,7 +50,7 @@ namespace Core
 		{
 			Q_OBJECT
 		public:
-			AdiumChatWidget(bool removeSessionOnClose);
+			AdiumChatWidget(const QString &key, bool removeSessionOnClose);
 			void clear();//remove all sessions
 			ChatSessionList getSessionList() const;
 			virtual ~AdiumChatWidget();
@@ -87,6 +87,7 @@ namespace Core
 		private:
 			QIcon iconForState(ChatState state);
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
+			QString m_key;
 			ChatSessionList m_sessions;
 			int m_current_index;
 			Ui::AdiumChatForm *ui;

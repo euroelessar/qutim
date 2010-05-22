@@ -46,13 +46,26 @@ namespace Core
 {
 	namespace AdiumChat
 	{
-		ClassicChatWidget::ClassicChatWidget(bool removeSessionOnClose):
+		ClassicChatWidget::ClassicChatWidget(const QString &widgetKey, bool removeSessionOnClose):
 				ui(new Ui::ClassicChatForm),m_remove_session_on_close(removeSessionOnClose)
 		{
 			m_current_index = -1;
+			m_key = widgetKey;
 
 			ui->setupUi(this);
-			centerizeWidget(this);
+			ConfigGroup group = Config("appearance/adiumChat").group("behavior/widget");
+			ConfigGroup keysGroup = group.group("keys");
+			if (keysGroup.hasGroup(m_key)) {
+				ConfigGroup keyGroup = keysGroup.group(m_key);
+				QByteArray geom = keyGroup.value("geometry", QByteArray());
+				restoreGeometry(geom);
+				geom = keyGroup.value("splitterState", QByteArray());
+				ui->splitter->restoreState(geom);
+				geom = keyGroup.value("splitterState2", QByteArray());
+				ui->splitter_2->restoreState(geom);
+			} else {
+				centerizeWidget(this);
+			}
 			m_originalDoc = ui->chatEdit->document();
 
 			//init tabbar
@@ -102,9 +115,11 @@ namespace Core
 
 			//
 			//load settings
-			m_html_message = Config("appearance/adiumChat").group("behavior/widget").value<bool>("htmlMessage",false);
-			ConfigGroup adium_chat = Config("appearance/adiumChat").group("behavior/widget");
-			m_chat_flags = static_cast<ChatFlag> (adium_chat.value<int>("widgetFlags",SendTypingNotification | ChatStateIconsOnTabs | ShowUnreadMessages | SwitchDesktopOnRaise));
+			m_html_message = group.value<bool>("htmlMessage",false);
+			m_chat_flags = static_cast<ChatFlag>(group.value<int>("widgetFlags",SendTypingNotification
+																  | ChatStateIconsOnTabs
+																  | ShowUnreadMessages
+																  | SwitchDesktopOnRaise));
 
 			if (m_chat_flags & SendTypingNotification) {
 				connect(ui->chatEdit,SIGNAL(textChanged()),SLOT(onTextChanged()));
@@ -127,6 +142,11 @@ namespace Core
 
 		ClassicChatWidget::~ClassicChatWidget()
 		{
+			ConfigGroup group = Config("appearance/adiumChat").group("behavior/widget/keys").group(m_key);
+			group.setValue("geometry", saveGeometry());
+			group.setValue("splitterState", ui->splitter->saveState());
+			group.setValue("splitterState2", ui->splitter_2->saveState());
+			group.sync();
 			if (m_remove_session_on_close) {
 				foreach (ChatSessionImpl *s,m_sessions) {
 					s->disconnect(this);

@@ -381,16 +381,17 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 						history_date_time = QDateTime::fromString(message.value("datetime").toString(), Qt::ISODate);
 						history_in = message.value("in", false).toBool();
 						history_message = message.value("text").toString();
+						QVariant sender = message.value("senderName", history_in ? from_nickname : account_nickname);
 
 						if ( history_date_time.date().day() == day )
 						{
 							QString history_html_2;
 							history_in ? in++ : out++;
-							history_html_2 += history_in ? "<b><font color='blue'>" : "<b><font color='red'>";
-							history_html_2 += history_in ? from_nickname : account_nickname;
-							history_html_2 += " ( ";
+							history_html_2 += history_in ? "<b><font color='red'>" : "<b><font color='blue'>";
+							history_html_2 += sender.toString();
+							history_html_2 += " (";
 							history_html_2 += history_date_time.time().toString();
-							history_html_2 += " )</font></b><br>";
+							history_html_2 += ")</font></b><br>";
 							if ( search_word.isEmpty() )
 							{
 								history_html_2 += history_message;

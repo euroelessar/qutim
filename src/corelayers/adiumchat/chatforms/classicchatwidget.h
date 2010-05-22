@@ -46,7 +46,7 @@ namespace Core
 		{
 			Q_OBJECT
 		public:
-			ClassicChatWidget(bool removeSessionOnClose);
+			ClassicChatWidget(const QString &key, bool removeSessionOnClose);
 			void clear();//remove all sessions
 			ChatSessionList getSessionList() const;
 			virtual ~ClassicChatWidget();
@@ -82,6 +82,7 @@ namespace Core
 			void onChatStateTimeout();
 		private:
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
+			QString m_key;
 			ChatSessionList m_sessions;
 			int m_current_index;
 			Ui::ClassicChatForm *ui;

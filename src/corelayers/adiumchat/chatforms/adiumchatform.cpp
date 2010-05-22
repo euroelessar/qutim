@@ -64,7 +64,7 @@ namespace Core
 			{
 				if (!active)
 					return;
-				widget = new AdiumChatWidget(true);
+				widget = new AdiumChatWidget(key, true);
 				m_chatwidgets.insert(key,widget);
 				connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
 				widget->show();

@@ -64,7 +64,7 @@ namespace Core
 			{
 				if (!active)
 					return;
-				widget = new ClassicChatWidget(true);
+				widget = new ClassicChatWidget(key, true);
 				m_chatwidgets.insert(key,widget);
 				connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
 				widget->show();
