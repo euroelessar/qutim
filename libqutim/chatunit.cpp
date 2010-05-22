@@ -17,6 +17,7 @@
 #include "account.h"
 #include "messagesession.h"
 #include <QCoreApplication>
+#include <QSet>
 #include "message.h"
 #include "notificationslayer.h"
 #include "metacontact.h"
@@ -24,18 +25,40 @@
 
 namespace qutim_sdk_0_3
 {
+#ifndef QT_NO_DEBUG
+	Q_GLOBAL_STATIC(QSet<ChatUnit*>, all_chat_units)
+#endif
+	
+	LIBQUTIM_EXPORT QSet<ChatUnit*> get_all_chat_units()
+	{
+#ifndef QT_NO_DEBUG
+		return *all_chat_units();
+#else
+		return QSet<ChatUnit*>();
+#endif
+	}
+
 	ChatUnit::ChatUnit(Account *account) : MenuController(*new ChatUnitPrivate(this), account)
 	{
 		d_func()->account = account;
+#ifndef QT_NO_DEBUG
+		all_chat_units()->insert(this);
+#endif
 	}
 
 	ChatUnit::ChatUnit(ChatUnitPrivate &d, Account *account) : MenuController(d, account)
 	{
 		d_func()->account = account;
+#ifndef QT_NO_DEBUG
+		all_chat_units()->insert(this);
+#endif
 	}
 
 	ChatUnit::~ChatUnit()
 	{
+#ifndef QT_NO_DEBUG
+		all_chat_units()->remove(this);
+#endif
 	}
 
 	QString ChatUnit::title() const
@@ -64,11 +87,12 @@ namespace qutim_sdk_0_3
 		return 0;
 	}
 
-	void ChatUnit::sendMessage(const QString &text)
+	quint64 ChatUnit::sendMessage(const QString &text)
 	{
 		Message message(text);
 		message.setIncoming(false);
 		sendMessage(message);
+		return message.id();
 	}
 
 	void ChatUnit::setChatState(ChatState state)

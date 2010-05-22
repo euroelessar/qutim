@@ -32,6 +32,7 @@
 #include <libqutim/debug.h>
 #include <QPlainTextDocumentLayout>
 #include <QDesktopServices>
+#include <QWebElement>
 #include "chatsessionimpl_p.h"
 #include "javascriptclient.h"
 
@@ -42,7 +43,7 @@ namespace Core
 		ChatSessionImplPrivate::ChatSessionImplPrivate()
 			: chat_style_output(new ChatStyleOutput),
 			web_page(new QWebPage(this)),
-			input(new QTextDocument(this)),
+			input(new QTextDocument),
 			myself_chat_state(ChatStateInActive)
 		{
 		}
@@ -94,6 +95,17 @@ namespace Core
 			d->web_page->mainFrame()->addToJavaScriptWindowObject(client->objectName(), client);
 			connect(d->web_page->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
 					client, SLOT(helperCleared()));
+			bool isConference = !!qobject_cast<Conference*>(d->chat_unit);
+			QWebFrame *frame = d->web_page->mainFrame();
+			QWebElement chatElem = frame->findFirstElement("#Chat");
+			if (!chatElem.isNull()) {
+				if (isConference != chatElem.hasClass("groupchat")) {
+					if (isConference)
+						chatElem.addClass("groupchat");
+					else
+						chatElem.removeClass("groupchat");
+				}
+			}
 		}
 
 		void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)
@@ -144,6 +156,7 @@ namespace Core
 			Q_D(ChatSessionImpl);
 			if (d->menu)
 				d->menu->deleteLater();
+			d->input->deleteLater();
 		}
 
 		void ChatSessionImpl::addContact(Buddy* c)

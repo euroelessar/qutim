@@ -107,7 +107,7 @@ namespace qutim_sdk_0_3
 		const ChatUnit *buddy() const;
 		virtual const ChatUnit *getHistoryUnit() const;
 	public slots:
-		void sendMessage(const QString &text);
+		quint64 sendMessage(const QString &text);
 		/**
 		* @brief Sets a new chat state
 		*

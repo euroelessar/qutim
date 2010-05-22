@@ -279,8 +279,8 @@ namespace Core
 			int index = m_sessions.indexOf(session);
 			if (index == -1)
 				return;
-			ui->tabBar->removeTab(index);
 			m_sessions.removeAt(index);
+			ui->tabBar->removeTab(index);
 			m_session_list->menu()->removeAction(m_session_list->menu()->actions().at(index));
 			session->disconnect(this);
 
