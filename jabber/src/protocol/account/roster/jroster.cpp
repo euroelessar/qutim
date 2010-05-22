@@ -130,13 +130,12 @@ namespace Jabber
 	{
 		std::map<const std::string, RosterItem *>::const_iterator items = roster.begin();
 		for(; items != roster.end(); ++items) {
-			std::string key = items->first;
-			QString jid(QString::fromStdString(JID(key).bare()));
+			RosterItem *item = items->second;
+			QString jid(QString::fromStdString(item->jidJID().bare()));
 			if (jid == p->account->id()) {
-					continue;
+				continue;
 			} else if (!p->contacts.contains(jid)) {
 				JContact *contact = new JContact(jid, p->account);
-				RosterItem *item = items->second;
 				contact->setContactName(QString::fromStdString(item->name()));
 				QSet<QString> tags;
 				StringList groups = item->groups();

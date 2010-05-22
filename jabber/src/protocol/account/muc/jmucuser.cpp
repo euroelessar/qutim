@@ -22,6 +22,7 @@ namespace Jabber
 		JContactResource(muc, *new JMUCUserPrivate)
 	{
 		Q_D(JMUCUser);
+		d->contact = muc;
 		d->name = name;
 		d->id = muc->id() % QLatin1Char('/') % name;
 	}

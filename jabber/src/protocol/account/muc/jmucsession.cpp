@@ -110,7 +110,7 @@ namespace Jabber
 		} else {
 			foreach (JMUCUser *muc, d->users.values()) {
 				ChatLayer::get(this, true)->removeContact(muc);
-				delete muc;
+				muc->deleteLater();
 			}
 			d->users.clear();
 			d->messages.clear();
@@ -194,6 +194,7 @@ namespace Jabber
 				JMUCUser *user = d->users.take(nick);
 				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
 					session->removeContact(user);
+				user->deleteLater();
 			}
 		} else if (participant.flags & UserNickChanged) {
 			QString newNick = QString::fromStdString(participant.newNick);
@@ -243,6 +244,7 @@ namespace Jabber
 				d->users.remove(nick);
 				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
 					session->removeContact(user);
+				user->deleteLater();
 			}
 			user->setStatus(presence.presence(), presence.priority(), QString::fromStdString(presence.status()));
 			if (presence.subtype() != Presence::Unavailable &&
