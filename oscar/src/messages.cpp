@@ -309,6 +309,11 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 	quint64 cookie = snac.read<quint64>();
 	quint16 channel = snac.read<quint16>();
 	QString uin = snac.read<QString, quint8>();
+	if (uin.isEmpty()) {
+		debug() << "Received a broken message packet";
+		debug(VeryVerbose) << "The packet:" << snac.data().toHex();
+		return;
+	}
 	IcqContact *contact = account->getContact(uin, true);
 	quint16 warning = snac.read<quint16>();
 	Q_UNUSED(warning);
