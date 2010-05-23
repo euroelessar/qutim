@@ -84,7 +84,7 @@ namespace Jabber
 		emit nameChanged(name);
 	}
 
-	QString JContact::JContact::name() const
+	QString JContact::name() const
 	{
 		return d_func()->name;
 	}
