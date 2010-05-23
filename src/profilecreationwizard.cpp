@@ -11,10 +11,11 @@ inline bool creatorsLessThan(ProfileCreatorPage *a, ProfileCreatorPage *b)
 }
 
 ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
-											 const QString &id, const QString &password)
+											 const QString &id, const QString &password,
+											 bool singleProfile)
 {
 	m_manager = parent;
-	addPage(new ProfileCreationPage(password, this));
+	addPage(new ProfileCreationPage(password, singleProfile, this));
 	setField("id", id);
 	setField("name", id);
 	QList<ProfileCreatorPage *> creators;

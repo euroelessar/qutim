@@ -16,9 +16,9 @@ namespace qutim_sdk_0_3
 
 namespace Core
 {
-ProfileCreationPage::ProfileCreationPage(const QString &password, QWidget *parent) :
+ProfileCreationPage::ProfileCreationPage(const QString &password, bool singleProfile, QWidget *parent) :
     QWizardPage(parent),
-    ui(new Ui::ProfileCreationPage),m_is_valid(false)
+    ui(new Ui::ProfileCreationPage), m_singleProfile(singleProfile), m_is_valid(false)
 {
     ui->setupUi(this);
 	m_password = password;
@@ -28,24 +28,40 @@ ProfileCreationPage::ProfileCreationPage(const QString &password, QWidget *paren
 	registerField("configDir", ui->configEdit);
 	registerField("historyDir", ui->historyEdit);
 	registerField("dataDir", ui->dataEdit);
-	registerField("crypto", ui->cryptoBox);
 	bool first = true;
+	if (!m_singleProfile) {
+		registerField("crypto", ui->cryptoBox);
+	} else {
+		ui->label_6->hide();
+		ui->cryptoBox->hide();
+		ui->cryptoDescription->hide();
+	}
 	foreach (const ObjectGenerator *gen, moduleGenerators<CryptoService>()) {
 		const ExtensionInfo info = gen->info();
-		ui->cryptoBox->addItem(info.icon(), info.name(), qVariantFromValue(info));
-		if (first) {
-			ui->cryptoBox->setCurrentIndex(0);
-			ui->cryptoDescription->setText(info.description());
+		if (!m_singleProfile 
+			|| info.generator()->metaObject()->className() == QLatin1String("Core::NoCryptoService")) {
+			ui->cryptoBox->addItem(info.icon(), info.name(), qVariantFromValue(info));
+			if (first) {
+				ui->cryptoBox->setCurrentIndex(0);
+				ui->cryptoDescription->setText(info.description());
+				first = false;
+			}
 		}
 	}
+	Q_ASSERT(ui->cryptoBox->count() > 0);
+	first = true;
 	foreach (const ObjectGenerator *gen, moduleGenerators<ConfigBackend>()) {
 		const ExtensionInfo info = gen->info();
 		ui->configBox->addItem(info.icon(), info.name(), qVariantFromValue(info));
 		if (first) {
 			ui->configBox->setCurrentIndex(0);
 			ui->configDescription->setText(info.description());
+			first = false;
 		}
 	}
+	Q_ASSERT(ui->configBox->count() > 0);
+	if (m_singleProfile)
+		rebaseDirs();
 }
 
 ProfileCreationPage::~ProfileCreationPage()
@@ -174,30 +190,33 @@ void ProfileCreationPage::on_configBox_currentIndexChanged(int index)
 
 void ProfileCreationPage::rebaseDirs()
 {
+	QString profiles = QLatin1String(m_singleProfile ? "" : "profiles/");
+	if (!m_singleProfile)
+		profiles += ui->idEdit->text();
 	if (ui->portableBox->isChecked()) {
 		QDir dir = qApp->applicationDirPath();
 		ui->dataEdit->setText(dir.absoluteFilePath("share"));
-		dir = QDir::cleanPath(dir.absolutePath() % "/profiles/" % ui->idEdit->text());
+		dir = QDir::cleanPath(dir.absolutePath() % "/" % profiles);
 		ui->configEdit->setText(dir.absoluteFilePath("config"));
 		ui->historyEdit->setText(dir.absoluteFilePath("history"));
 	} else {
 #if defined(Q_OS_WIN)
 		QDir dir = QString::fromLocal8Bit(qgetenv("APPDATA"));
 		ui->dataEdit->setText(dir.absolutePath() % "/qutim/share/");
-		dir = QDir::cleanPath(dir.absolutePath() % "/qutim/profiles/" % ui->idEdit->text());
-		ui->configEdit->setText(dir.absoluteFilePath("config"));
+		dir = QDir::cleanPath(dir.absolutePath() % "/qutim/" % profiles);
+		ui->configEdit->setText(m_singleProfile ? dir.absolutePath() : dir.absoluteFilePath("config"));
 		ui->historyEdit->setText(dir.absoluteFilePath("history"));
 #elif defined(Q_OS_MAC)
 		QDir dir = QDir::homePath() + "/Library/Application Support/qutIM";
 		ui->dataEdit->setText(dir.absoluteFilePath("share"));
-		dir = QDir::cleanPath(dir.absolutePath() % "/profiles/" % ui->idEdit->text());
+		dir = QDir::cleanPath(dir.absolutePath() % "/" % profiles);
 		ui->configEdit->setText(dir.absoluteFilePath("config"));
 		ui->historyEdit->setText(dir.absoluteFilePath("history"));
 #elif defined(Q_OS_UNIX)
 		QDir dir = QDir::home();
 		ui->dataEdit->setText(dir.absoluteFilePath(".local/share/qutim"));
-		dir = dir.absoluteFilePath(".config/qutim/profiles/" + ui->idEdit->text());
-		ui->configEdit->setText(dir.absoluteFilePath("config"));
+		dir = dir.absoluteFilePath(".config/qutim/" % profiles);
+		ui->configEdit->setText(m_singleProfile ? dir.absolutePath() : dir.absoluteFilePath("config"));
 		ui->historyEdit->setText(dir.absoluteFilePath("history"));
 #else
 # error Strange os.. yeah..

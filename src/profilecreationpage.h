@@ -14,7 +14,7 @@ class ProfileCreationPage : public QWizardPage
 {
 	Q_OBJECT
 public:
-	ProfileCreationPage(const QString &password, QWidget *parent = 0);
+	ProfileCreationPage(const QString &password, bool singleProfile, QWidget *parent = 0);
 	~ProfileCreationPage();
 
 	virtual bool validatePage();
@@ -32,6 +32,7 @@ protected:
 private:
 	QString m_password;
 	Ui::ProfileCreationPage *ui;
+	bool m_singleProfile;
 	bool m_is_valid;
 };
 }

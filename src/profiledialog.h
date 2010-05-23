@@ -14,8 +14,10 @@ class ProfileDialog : public QDialog
 {
     Q_OBJECT
 public:
-	ProfileDialog(ModuleManager *parent = 0);
+	ProfileDialog(const QVariantMap &value, ModuleManager *parent = 0);
     ~ProfileDialog();
+	static QVariantMap profilesInfo();
+	static bool acceptProfileInfo(const QVariantMap &map, const QString &password);
 
 protected slots:
 	void on_loginButton_clicked();

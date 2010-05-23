@@ -12,7 +12,8 @@ class ProfileCreationWizard : public QWizard
 	Q_OBJECT
 public:
 	explicit ProfileCreationWizard(ModuleManager *parent,
-								   const QString &id, const QString &password);
+								   const QString &id, const QString &password,
+								   bool singleProfile = false);
 private:
 	ModuleManager *m_manager;
 };

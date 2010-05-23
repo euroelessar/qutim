@@ -8,43 +8,44 @@
 #include <QTimer>
 #include "libqutim/protocol.h"
 #include "profiledialog.h"
+#include "profilecreationwizard.h"
 
 namespace Core
 {
 	ModuleManagerImpl::ModuleManagerImpl()
 	{
-//		QVariantMap map;
-//		{
-//			QVariantMap profiles;
-//			profiles.insert("list", QVariantList()
-//							<< "234" << "EuroElessar" << "EuroElessar2"
-//							<< "EuroElessar3" << "EuroElessar4");
-//			profiles.insert("current", 1);
-//			map.insert("profiles", profiles);
-//		}
-//		{
-//			QVariantMap general;
-//			general.insert("libpaths", QVariantList() << "/home/elessar/qutim/plugins");
-//			map.insert("general", general);
-//		}
-//		QVariant object = map;
-//		JsonFile file("/home/elessar/.config/qutim/settings.json");
-//		file.save(object);
-//		file.load(object);
-//		qDebug() << object.toMap()["profiles"].toMap()["list"].toStringList();
-//		QScriptEngine engine;
-//		QFile file("/home/elessar/.config/qutim/settings.json");
-//		file.open(QIODevice::ReadOnly);
-//		QScriptValue object = engine.evaluate(QString::fromUtf8(file.readAll()));
-//		qDebug() << object.toString();
 		loadPlugins();
-		QDialog *dialog = new ProfileDialog(this);
-#if	defined(Q_OS_SYMBIAN)
-		dialog->showMaximized();
+		
+		QVariantMap value = ProfileDialog::profilesInfo();
+		bool singleProfile = value.value("singleProfile",
+#ifdef Q_OS_WIN
+										 false
 #else
-		dialog->show();
+										 true
 #endif
-//		QTimer::singleShot(0, this, SLOT(initExtensions()));
+										 ).toBool();
+		if (singleProfile) {
+			QVariantMap map = value.value("profile").toMap();
+			if (map.isEmpty()) {
+				QWidget *wizard = new ProfileCreationWizard(this, QString(), QString(), true);
+#if	defined(Q_OS_SYMBIAN)
+				wizard->showMaximized();
+#else
+				wizard->show();
+#endif
+			} else if(ProfileDialog::acceptProfileInfo(map, QString())) {
+				QTimer::singleShot(0, this, SLOT(initExtensions()));
+			} else {
+				qWarning("Can't login");
+			}
+		} else {
+			QDialog *dialog = new ProfileDialog(value, this);
+#if	defined(Q_OS_SYMBIAN)
+			dialog->showMaximized();
+#else
+			dialog->show();
+#endif
+		}
 	}
 
 	ExtensionInfoList ModuleManagerImpl::coreExtensions() const

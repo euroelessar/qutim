@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include "profilecreationwizard.h"
 #include "libqutim/objectgenerator.h"
+#include "libqutim/jsonfile.h"
 #include "libqutim/cryptoservice.h"
 #include "libqutim/configbase_p.h"
 #include <QCryptographicHash>
@@ -17,12 +18,31 @@ namespace qutim_sdk_0_3
 
 namespace Core
 {
-ProfileDialog::ProfileDialog(ModuleManager *parent) :
+ProfileDialog::ProfileDialog(const QVariantMap &value, ModuleManager *parent) :
     ui(new Ui::ProfileDialog)
 {
 	m_manager = parent;
 	ui->setupUi(this);
+	
+	if (value.isEmpty()) {
+		ui->toolBox->setCurrentIndex(1);
+		ui->toolBox->setItemEnabled(0, false);
+	} else {
+		foreach (QVariant var, value.value("list").toList()) {
+			QVariantMap map = var.toMap();
+			ui->profilesBox->addItem(map.value("id").toString(), QVariant(map));
+		}
+	}
+	setAttribute(Qt::WA_DeleteOnClose, true);
+}
 
+ProfileDialog::~ProfileDialog()
+{
+    delete ui;
+}
+
+QVariantMap ProfileDialog::profilesInfo()
+{
 	QDir dir = qApp->applicationDirPath();
 	if (dir.exists("profiles")) {
 		dir.cd("profiles");
@@ -42,29 +62,17 @@ ProfileDialog::ProfileDialog(ModuleManager *parent) :
 	}
 	QFileInfo profilesInfo(dir.filePath("profiles.json"));
 	if (!profilesInfo.exists() || !profilesInfo.isFile()) {
-		ui->toolBox->setCurrentIndex(1);
-		ui->toolBox->setItemEnabled(0, false);
+		return QVariantMap();
 	} else {
-		QFile file(profilesInfo.absoluteFilePath());
-		file.open(QIODevice::ReadOnly);
-		QVariantMap value = Json::parse(file.readAll()).toMap();
-//		QString last = value.value("last").toString();
-		foreach (QVariant var, value.value("list").toList()) {
-			QVariantMap map = var.toMap();
-			ui->profilesBox->addItem(map.value("id").toString(), QVariant(map));
-		}
+		JsonFile file(profilesInfo.absoluteFilePath());
+		QVariant var;
+		file.load(var);
+		return var.toMap();
 	}
-	setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
-ProfileDialog::~ProfileDialog()
+bool ProfileDialog::acceptProfileInfo(const QVariantMap &map, const QString &password)
 {
-    delete ui;
-}
-
-void ProfileDialog::on_loginButton_clicked()
-{
-	QVariantMap map = ui->profilesBox->itemData(ui->profilesBox->currentIndex()).toMap();
 	QString crypto = map.value("crypto").toString();
 	GeneratorList gens = moduleGenerators<CryptoService>();
 	CryptoService *service = 0;
@@ -77,8 +85,7 @@ void ProfileDialog::on_loginButton_clicked()
 
 	QString configDir = map.value("configDir").toString();
 	QFile file(configDir + "/profilehash");
-	if (file.open(QIODevice::ReadOnly)) {
-		QString password = ui->passwordEdit->text();
+	if (service && file.open(QIODevice::ReadOnly)) {
 		service->setPassword(password, QVariant());
 		QByteArray data = service->decrypt(file.readAll()).toByteArray();
 		QByteArray passwordHash = QCryptographicHash::hash(password.toUtf8()
@@ -99,7 +106,7 @@ void ProfileDialog::on_loginButton_clicked()
 			|| QLatin1String(cryptoCheck) != crypto
 			|| id != map.value("id").toString()) {
 			delete service;
-			return;
+			return false;
 		}
 
 		QVector<QDir> &systemDirs = *system_info_dirs();
@@ -125,12 +132,21 @@ void ProfileDialog::on_loginButton_clicked()
 			else
 				ConfigPrivate::config_backends.append(back);
 		}
-
-		QTimer::singleShot(0, m_manager, SLOT(initExtensions()));
-		deleteLater();
+		return true;
 	} else {
 		qCritical("Can't open file with hash");
 		delete service;
+		return false;
+	}
+}
+
+void ProfileDialog::on_loginButton_clicked()
+{
+	QVariantMap map = ui->profilesBox->itemData(ui->profilesBox->currentIndex()).toMap();
+	QString password = ui->passwordEdit->text();
+	if (acceptProfileInfo(map, password)) {
+		QTimer::singleShot(0, m_manager, SLOT(initExtensions()));
+		deleteLater();
 	}
 }
 
