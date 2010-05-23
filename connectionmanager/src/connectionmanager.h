@@ -4,6 +4,11 @@
 #include <QObject>
 #include <qutim/plugin.h>
 
+namespace qutim_sdk_0_3
+{
+	class Account;
+}
+
 class QNetworkConfigurationManager;
 namespace ConnectionManager
 {
@@ -21,6 +26,7 @@ namespace ConnectionManager
 		virtual bool unload();
 	protected slots:
 		void onOnlineStateChanged( bool isOnline );
+		void onAccountCreated(qutim_sdk_0_3::Account *account); //autoconnect on startup
 	private:
 		QScopedPointer<QNetworkConfigurationManager> m_network_conf_manager;
 	};
