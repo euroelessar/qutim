@@ -126,9 +126,9 @@ namespace KineticPopups
 		animationDuration = behavior.value("animationDuration",400);
 		showFlags = static_cast<NotificationTypes>(behavior.value<int>("showFlags", 0xfffffff &~ Notifications::MessageSend));
 		updatePosition = behavior.value<bool>("updatePosition",true);
-		animation = animationDuration ? static_cast<AnimationFlags>(behavior.value<int>("animationFlags", Opacity)) : NoAnimation;
+		animation = animationDuration ? behavior.value("animationFlags", Opacity) : NoAnimation;
 		timeout = behavior.value<int>("timeout",5000);
-		easingCurve.setType(static_cast<QEasingCurve::Type>(behavior.value<int>("easingCurve",QEasingCurve::OutSine)));
+		easingCurve.setType(behavior.value("easingCurve",QEasingCurve::OutSine));
 	}
 
 	void Manager::loadTheme(const QString& themeName)

@@ -23,6 +23,95 @@
 namespace qutim_sdk_0_3
 {
 #ifndef Q_QDOC
+	namespace EnumDetectorHelper
+	{
+		typedef quint8 Yes;
+		typedef quint16 No;
+		
+		// Check if type can be casted to int
+		template <typename T> Yes is_int_type(int) { return Yes(); }
+		template <typename T> No is_int_type(...) { return No(); }
+		
+		template <int Defined, int Size>
+		class Helper
+		{
+		public:
+			static No value() { return No(); }
+		};
+		
+		template <>
+		class Helper<0, sizeof(Yes)>
+		{
+		public:
+			static Yes value() { return Yes(); }
+		};
+		
+		template <typename T, int IsEnum>
+		class VariantCastHelper
+		{
+		public:
+			static QVariant convertToVariant(const T &t)
+			{ return qVariantFromValue(t); }
+			static T convertFromVariant(const QVariant &t)
+			{ return qVariantValue<T>(t); }
+		};
+		
+		template <typename T>
+		class VariantCastHelper <T, sizeof(Yes)>
+		{
+		public:
+			static QVariant convertToVariant(const T &t)
+			{ return qVariantFromValue(int(t)); }
+			static T convertFromVariant(const QVariant &v)
+			{ return static_cast<T>(v.toInt()); }
+		};
+		
+		template <typename T, int Defined>
+		class VariantCastHelper3
+		{
+		public:
+			static QVariant convertToVariant(const T &t)
+			{
+				return VariantCastHelper<T, sizeof(No)>::convertToVariant(t);
+			}
+			static T convertFromVariant(const QVariant &v)
+			{
+				return VariantCastHelper<T, sizeof(No)>::convertFromVariant(v);
+			}
+		};
+		
+		// Enums are not registered in Qt meta system and they can be casted to int easily
+		template <typename T>
+		class VariantCastHelper3 <T, 0>
+		{
+		public:
+			static QVariant convertToVariant(const T &t)
+			{
+				return VariantCastHelper<T, sizeof(Helper<QMetaTypeId2<T>::Defined, sizeof(is_int_type<T>(*reinterpret_cast<T*>(0)))>::value())>::convertToVariant(t);
+			}
+			static T convertFromVariant(const QVariant &v)
+			{
+				return VariantCastHelper<T, sizeof(Helper<QMetaTypeId2<T>::Defined, sizeof(is_int_type<T>(*reinterpret_cast<T*>(0)))>::value())>::convertFromVariant(v);
+			}
+		};
+		
+		// Enums are not registered in Qt meta system, so check it before possibility of cast to int
+		// because QByteArray has "operator int()" in private section
+		template <typename T>
+		class VariantCastHelper2
+		{
+		public:
+			static QVariant convertToVariant(const T &t)
+			{
+				return VariantCastHelper3<T, QMetaTypeId2<T>::Defined>::convertToVariant(t);
+			}
+			static T convertFromVariant(const QVariant &v)
+			{
+				return VariantCastHelper3<T, QMetaTypeId2<T>::Defined>::convertFromVariant(v);
+			}
+		};
+	}
+	
 	class ConfigGroup;
 	class ConfigBasePrivate;
 	class ConfigGroupPrivate;
@@ -46,10 +135,20 @@ namespace qutim_sdk_0_3
 		template<typename T>
 		T value(const QString &key, const T &def = T(), ValueFlags type = Normal) const;
 		QVariant value(const QString &key, const QVariant &def = QVariant(), ValueFlags type = Normal) const;
+		template<typename T>
+		void setValue(const QString &key, const T &value, ValueFlags type = Normal);
 		void setValue(const QString &key, const QVariant &value, ValueFlags type = Normal);
 
 		virtual void sync() = 0;
 	protected:
+		template <typename T>
+		QVariant convertToVariant(const T &t) const
+		{ return EnumDetectorHelper::VariantCastHelper2<T>::convertToVariant(t); }
+		
+		template <typename T>
+		T convertFromVariant(const QVariant &v) const
+		{ return EnumDetectorHelper::VariantCastHelper2<T>::convertFromVariant(v); }
+		
 		ConfigBase();
 		virtual ~ConfigBase();
 		bool isGroup() const;
@@ -291,8 +390,15 @@ namespace qutim_sdk_0_3
 	template<typename T>
 	Q_INLINE_TEMPLATE T ConfigBase::value(const QString &key, const T &def, Config::ValueFlags type) const
 	{
-		return value(key, qVariantFromValue(def), type).value<T>();
+		return convertFromVariant<T>(value(key, convertToVariant(def), type));
 	}
+	
+	template<typename T>
+	Q_INLINE_TEMPLATE void ConfigBase::setValue(const QString &key, const T &value, Config::ValueFlags type)
+	{
+		setValue(key, convertToVariant(value), type);
+	}
+
 #endif
 }
 
