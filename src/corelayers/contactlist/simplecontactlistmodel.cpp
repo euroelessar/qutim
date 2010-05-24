@@ -21,7 +21,7 @@ namespace Core
 			QList<TagItem *> tags;
 			QHash<QString, TagItem *> tagsHash;
 			QMap<Contact *, ContactData::Ptr> contacts;
-			QSet<QString> openTags;
+			QSet<QString> closedTags;
 			QString lastFilter;
 			bool showOffline;
 		};
@@ -33,7 +33,7 @@ namespace Core
 			connect(p->view, SIGNAL(expanded(QModelIndex)), this, SLOT(onExpanded(QModelIndex)));
 			ConfigGroup group = Config().group("contactList");
 			p->showOffline = group.value("showOffline", true);
-			p->openTags = group.value("openTags", QStringList()).toSet();
+			p->closedTags = group.value("closedTags", QStringList()).toSet();
 			ActionGenerator *gen = new ActionGenerator(Icon("user-properties"),
 													   QT_TRANSLATE_NOOP("ContactList", "Rename contact"),
 													   this, SLOT(onContactRenameAction()));
@@ -51,7 +51,7 @@ namespace Core
 		Model::~Model()
 		{
 			ConfigGroup group = Config().group("contactList");
-			group.setValue("openTags", QStringList(p->openTags.toList()));
+			group.setValue("closedTags", QStringList(p->closedTags.toList()));
 			group.sync();
 		}
 
@@ -528,7 +528,11 @@ namespace Core
 				return;
 			SimpleTagsEditor *editor = new SimpleTagsEditor (contact);
 			centerizeWidget(editor);
-			editor->setTags(p->openTags); //TODO
+			QSet<QString> tags;
+			foreach (const TagItem *tag,p->tags)
+				tags.insert(tag->name);
+
+			editor->setTags(tags);
 			editor->load();
 			editor->show();
 		}
@@ -544,7 +548,7 @@ namespace Core
 		{
 			if (getItemType(index) == TagType) {
 				TagItem *tag = reinterpret_cast<TagItem*>(index.internalPointer());
-				p->openTags.remove(tag->name);
+				p->closedTags.insert(tag->name);
 			}
 		}
 
@@ -552,7 +556,7 @@ namespace Core
 		{
 			if (getItemType(index) == TagType) {
 				TagItem *tag = reinterpret_cast<TagItem*>(index.internalPointer());
-				p->openTags.insert(tag->name);
+				p->closedTags.remove(tag->name);
 			}
 		}
 
@@ -623,7 +627,7 @@ namespace Core
 				p->tags << tag;
 				endInsertRows();
 				p->view->setRowHidden(index, QModelIndex(), true);
-				if (p->openTags.contains(name))
+				if (!p->closedTags.contains(name))
 					p->view->setExpanded(createIndex(index, 0, tag), true);
 			}
 			return tag;
