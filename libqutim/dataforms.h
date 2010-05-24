@@ -49,6 +49,7 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		virtual DataItem item() const = 0;
+		virtual ~AbstractDataWidget() {}
 	protected:
 		virtual void virtual_hook(int id, void *data);
 	};
