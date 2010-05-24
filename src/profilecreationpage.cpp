@@ -152,11 +152,16 @@ bool ProfileCreationPage::validatePage()
 			profile.insert("historyDir", SystemInfo::getPath(SystemInfo::HistoryDir));
 			profile.insert("shareDir", SystemInfo::getPath(SystemInfo::ShareDir));
 		}
-		profiles.append(profile);
+		if (m_singleProfile)
+			map.insert("profile", profile);
+		else
+			profiles.append(profile);
 	}
-	map.insert("list", profiles);
-	if (!map.value("current").isValid()) {
-		map.insert("current", ui->idEdit->text());
+	if (!m_singleProfile) {
+		map.insert("list", profiles);
+		if (!map.value("current").isValid()) {
+			map.insert("current", ui->idEdit->text());
+		}
 	}
 	file.open(QFile::WriteOnly);
 	file.write(Json::generate(map));
