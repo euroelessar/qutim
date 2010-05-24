@@ -132,6 +132,7 @@ namespace Core
 
 			QWidget* spacer = new QWidget(this);
 			spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+			spacer->setAttribute(Qt::WA_TransparentForMouseEvents);
 			// toolBar is a pointer to an existing toolbar
 			m_toolbar->addWidget(spacer);
 
