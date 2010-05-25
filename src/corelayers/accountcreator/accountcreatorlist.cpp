@@ -54,19 +54,7 @@ namespace Core
 	{
 	}
 
-	void AccountCreatorList::on_addButton_clicked()
-	{
-		if (!m_wizard.isNull())
-			return;
-		QWidget *parent = window();
-		if (parent)
-			window()->setEnabled(false);
-		AccountCreatorWizard *wizard = new AccountCreatorWizard();
-		connect(wizard, SIGNAL(destroyed()), this, SLOT(on_wizard_destroyed()));
-		wizard->show();
-	}
-
-	void AccountCreatorList::on_wizard_destroyed()
+	void AccountCreatorList::onWizardDestroyed()
 	{
 		QWidget *parent = window();
 		if (parent)
@@ -128,7 +116,16 @@ namespace Core
 
 	void AccountCreatorList::listViewClicked(QListWidgetItem *item)
 	{
-		if (!item->data(Qt::UserRole).value<Account *>())
-			on_addButton_clicked();
+		if (item->data(Qt::UserRole).value<Account *>())
+			return;
+
+		if (!m_wizard.isNull())
+			return;
+		QWidget *parent = window();
+		if (parent)
+			window()->setEnabled(false);
+		AccountCreatorWizard *wizard = new AccountCreatorWizard();
+		connect(wizard,SIGNAL(destroyed()),SLOT(onWizardDestroyed()));
+		wizard->show();
 	}
 }

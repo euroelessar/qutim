@@ -24,11 +24,6 @@ namespace Core
 	public:
 		AccountCreatorList();
 		~AccountCreatorList();
-
-	public slots:
-		void on_addButton_clicked();
-		void on_wizard_destroyed();
-
 	protected:
 		virtual void loadImpl();
 		virtual void saveImpl();
@@ -38,6 +33,7 @@ namespace Core
 	private slots:
 		void addAccount(qutim_sdk_0_3::Account *account);
 		void listViewClicked(QListWidgetItem *item);
+		void onWizardDestroyed();
 	private:
 		Ui::AccountCreatorList *ui;
 		QPointer<AccountCreatorWizard> m_wizard;

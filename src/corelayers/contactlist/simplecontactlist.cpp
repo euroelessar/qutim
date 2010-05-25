@@ -154,7 +154,6 @@ namespace Core
 			p->view = new TreeView(p->widget);
 			layout->addWidget(p->view);
 
-			p->widget->setLayout(layout);
 			p->model = new Model(p->view);
 
 			// TODO: choose another, non-kopete icon
@@ -167,7 +166,7 @@ namespace Core
 			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));
 			p->view->setModel(p->model);
 
-			QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget);
+			QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget->centralWidget());
 
 			p->status_btn = new QPushButton(Icon("im-user-online"),
 											tr("Status"),
@@ -328,6 +327,22 @@ namespace Core
 			}
 		}
 
+		inline bool isStatusChange(const qutim_sdk_0_3::Status &status)
+		{
+			if (status.type() == Status::Offline) {
+				foreach(Protocol *proto, allProtocols()) {
+					foreach(Account *a, proto->accounts()) {
+						debug() << a->status().name() << a->status().type();
+						if (a->status().type()!=Status::Offline)
+							return false;
+					}
+				}
+				return true;
+			}
+			else
+				return true;
+		}
+
 		void Module::onAccountStatusChanged(const qutim_sdk_0_3::Status &status)
 		{
 			Account *account = qobject_cast<Account *>(sender());
@@ -335,6 +350,9 @@ namespace Core
 			QAction *action = p->actions.value(account);
 			Q_ASSERT(action);
 			action->setIcon(status.icon());
+
+			if (isStatusChange(status))
+				p->status_btn->setText(status.name());
 		}
 
 		QAction *Module::createGlobalStatusAction(Status::Type type)
