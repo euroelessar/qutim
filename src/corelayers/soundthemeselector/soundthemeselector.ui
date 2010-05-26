@@ -21,17 +21,23 @@
     <widget class="QComboBox" name="themeSelector"/>
    </item>
    <item row="1" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+    <widget class="QTreeView" name="treeView">
+     <property name="alternatingRowColors">
+      <bool>true</bool>
      </property>
-     <property name="sizeHint" stdset="0">
+     <property name="iconSize">
       <size>
-       <width>20</width>
-       <height>40</height>
+       <width>22</width>
+       <height>22</height>
       </size>
      </property>
-    </spacer>
+     <property name="indentation">
+      <number>0</number>
+     </property>
+     <property name="rootIsDecorated">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

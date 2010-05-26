@@ -79,7 +79,7 @@ namespace qutim_sdk_0_3
 	};
 
 	class SoundThemeData;
-	class SoundTheme
+	class LIBQUTIM_EXPORT SoundTheme
 	{
 	public:
 		SoundTheme(const QString name = QString());

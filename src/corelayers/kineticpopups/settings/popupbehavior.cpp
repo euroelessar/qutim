@@ -23,6 +23,7 @@ namespace Core
 		ui->animationSpeed->setItemData(4,1000);
 		ui->animationSpeed->setItemData(5,1500);
 		
+		//TODO move to libqutim
 		LocalizedString strings[] = 
 		{
 			QT_TRANSLATE_NOOP("Notifications", "User online"),
