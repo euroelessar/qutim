@@ -51,7 +51,6 @@ struct IcqContactPrivate
 	void clearCapabilities();
 	void requestNick();
 	void setCapabilities(const Capabilities &caps);
-	void setChatState(ChatState state);
 	FeedbagItem getNotInListGroup();
 	Q_DECLARE_FLAGS(CapabilityFlags, ContactCapabilityFlags)
 	IcqAccount *account;

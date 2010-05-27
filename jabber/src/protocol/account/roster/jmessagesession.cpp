@@ -7,6 +7,7 @@
 #include <gloox/message.h>
 #include <gloox/receipt.h>
 #include <gloox/chatstatefilter.h>
+#include <qutim/debug.h>
 
 using namespace gloox;
 using namespace qutim_sdk_0_3;
@@ -205,7 +206,7 @@ namespace Jabber
 	void JMessageSession::handleChatState(const JID &from, gloox::ChatStateType state)
 	{
 		Q_UNUSED(from);
-		qApp->postEvent(ChatLayer::get(this, true), new ChatStateEvent (gloox2qutIM(state)));
+		setChatState(gloox2qutIM(state));
 	}
 
 	ChatUnit *JMessageSession::upperUnit()

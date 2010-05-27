@@ -62,13 +62,6 @@ void IcqContactPrivate::setCapabilities(const Capabilities &caps)
 	capabilities = caps;
 }
 
-void IcqContactPrivate::setChatState(ChatState state)
-{
-	Q_Q(IcqContact);
-	state = state;
-	qApp->postEvent(ChatLayer::get(q, true), new ChatStateEvent(state));
-}
-
 FeedbagItem IcqContactPrivate::getNotInListGroup()
 {
 	const QString groupNameStr = QT_TRANSLATE_NOOP("ContactList", "General");
