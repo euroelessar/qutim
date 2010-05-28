@@ -29,8 +29,8 @@ namespace qutim_sdk_0_3
 		typedef quint16 No;
 		
 		// Check if type can be casted to int
-		template <typename T> Yes is_int_type(int) { return Yes(); }
-		template <typename T> No is_int_type(...) { return No(); }
+		inline Yes is_int_type(int) { return Yes(); }
+		inline No is_int_type(...) { return No(); }
 		
 		template <int Defined, int Size>
 		class Helper
@@ -87,11 +87,11 @@ namespace qutim_sdk_0_3
 		public:
 			static QVariant convertToVariant(const T &t)
 			{
-				return VariantCastHelper<T, sizeof(Helper<QMetaTypeId2<T>::Defined, sizeof(is_int_type<T>(*reinterpret_cast<T*>(0)))>::value())>::convertToVariant(t);
+				return VariantCastHelper<T, sizeof(Helper<QMetaTypeId2<T>::Defined, sizeof(is_int_type(*reinterpret_cast<T*>(0)))>::value())>::convertToVariant(t);
 			}
 			static T convertFromVariant(const QVariant &v)
 			{
-				return VariantCastHelper<T, sizeof(Helper<QMetaTypeId2<T>::Defined, sizeof(is_int_type<T>(*reinterpret_cast<T*>(0)))>::value())>::convertFromVariant(v);
+				return VariantCastHelper<T, sizeof(Helper<QMetaTypeId2<T>::Defined, sizeof(is_int_type(*reinterpret_cast<T*>(0)))>::value())>::convertFromVariant(v);
 			}
 		};
 		

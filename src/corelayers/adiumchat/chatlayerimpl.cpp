@@ -42,12 +42,6 @@ namespace Core
 
 		void init()
 		{
-			Shortcut::registerSequence("chatSendMessage",
-									   QT_TRANSLATE_NOOP("ChatLayer", "Send message"),
-									   "ChatWidget",
-									   QKeySequence("Ctrl+Return")
-									   );
-
 			Shortcut::registerSequence("chatCloseSession",
 									   QT_TRANSLATE_NOOP("ChatLayer", "Close chat"),
 									   "ChatWidget",

@@ -373,6 +373,8 @@ namespace Core
 				int from = contacts.indexOf(item);
 				
 				QModelIndex parentIndex = createIndex(p->tags.indexOf(item->parent), 0, item->parent);
+				
+				debug() << item->data->contact->id() << from << to << show;
 	
 				if (from == to) {
 					QModelIndex index = createIndex(item->index(), 0, item);

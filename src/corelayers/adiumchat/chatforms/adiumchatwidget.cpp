@@ -49,25 +49,12 @@ namespace Core
 	namespace AdiumChat
 	{
 		AdiumChatWidget::AdiumChatWidget(const QString &widgetKey, bool removeSessionOnClose):
-				ui(new Ui::AdiumChatForm),m_remove_session_on_close(removeSessionOnClose)
+				AbstractChatWidget(widgetKey, removeSessionOnClose),
+				ui(new Ui::AdiumChatForm)
 		{
 			m_current_index = -1;
-			m_key = widgetKey;
 
 			ui->setupUi(this);
-			ConfigGroup group = Config("appearance/adiumChat").group("behavior/widget");
-			ConfigGroup keysGroup = group.group("keys");
-			if (keysGroup.hasGroup(m_key)) {
-				ConfigGroup keyGroup = keysGroup.group(m_key);
-				QByteArray geom = keyGroup.value("geometry", QByteArray());
-				restoreGeometry(geom);
-				geom = keyGroup.value("splitterState", QByteArray());
-				ui->splitter->restoreState(geom);
-				geom = keyGroup.value("splitterState2", QByteArray());
-				ui->splitter_2->restoreState(geom);
-			} else {
-				centerizeWidget(this);
-			}
 			m_originalDoc = ui->chatEdit->document();
 
 			//init tabbar
@@ -142,26 +129,20 @@ namespace Core
 
 			//
 			//load settings
-			m_html_message = group.value<bool>("htmlMessage",false);
-			m_chat_flags = static_cast<ChatFlag> (group.value<int>("widgetFlags",SendTypingNotification |
-																		ChatStateIconsOnTabs |
-																		ShowUnreadMessages |
-																		SwitchDesktopOnRaise |
-																		AeroThemeIntegration));
+			onLoad();
 
-			if (m_chat_flags & SendTypingNotification) {
+			if (m_chatFlags & SendTypingNotification) {
 				connect(ui->chatEdit,SIGNAL(textChanged()),SLOT(onTextChanged()));
 				m_chatstate = ChatStateActive;
-				m_self_chatstate_timer.setInterval(5000);
-				m_self_chatstate_timer.setSingleShot(true);
-				connect(&m_self_chatstate_timer,SIGNAL(timeout()),SLOT(onChatStateTimeout()));
+				m_chatstateTimer.setInterval(5000);
+				m_chatstateTimer.setSingleShot(true);
+				connect(&m_chatstateTimer,SIGNAL(timeout()),SLOT(onChatStateTimeout()));
 			}
 			//init aero integration for win
-			if (m_chat_flags & AeroThemeIntegration) {
+			if (m_chatFlags & AeroThemeIntegration) {
 				if (QtWin::isCompositionEnabled()) {
 					m_toolbar->setStyleSheet("QToolBar{background:none;border:none;}");
 					ui->centralwidget->setAutoFillBackground(true);
-					QRect geom = m_toolbar->geometry();
 					QtWin::extendFrameIntoClientArea(this,
 													 0,
 													 0,
@@ -172,9 +153,7 @@ namespace Core
 				}
 			}
 			//init shortcuts
-			Shortcut *key = new Shortcut ("chatSendMessage",this);
-			connect(key,SIGNAL(activated()),this,SLOT(onSendButtonClicked()));
-			key = new Shortcut ("chatCloseSession",ui->tabBar);
+			Shortcut *key = new Shortcut ("chatCloseSession",ui->tabBar);
 			connect(key,SIGNAL(activated()),SLOT(closeCurrentTab()));
 			key = new Shortcut ("chatNext",ui->tabBar);
 			connect(key,SIGNAL(activated()),SLOT(showNextSession()));
@@ -184,17 +163,6 @@ namespace Core
 
 		AdiumChatWidget::~AdiumChatWidget()
 		{
-			ConfigGroup group = Config("appearance/adiumChat").group("behavior/widget/keys").group(m_key);
-			group.setValue("geometry", saveGeometry());
-			group.setValue("splitterState", ui->splitter->saveState());
-			group.setValue("splitterState2", ui->splitter_2->saveState());
-			group.sync();
-			if (m_remove_session_on_close) {
-				foreach (ChatSessionImpl *s,m_sessions) {
-					s->disconnect(this);
-					s->deleteLater();
-				}
-			}
 			delete ui;
 		}
 
@@ -212,7 +180,7 @@ namespace Core
 			connect(u,SIGNAL(titleChanged(QString)),SLOT(onUnitTitleChanged(QString)));
 
 			QIcon icon;
-			if (m_chat_flags & ChatStateIconsOnTabs) {
+			if (m_chatFlags & ChatStateIconsOnTabs) {
 				ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
 				icon = ChatLayerImpl::iconForState(state);
 			}
@@ -272,8 +240,8 @@ namespace Core
 				session->getPage()->setView(ui->chatView);
 			}
 
-			if ((m_chat_flags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
-				m_self_chatstate_timer.stop();
+			if ((m_chatFlags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
+				m_chatstateTimer.stop();
 				m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
 				m_sessions.at(previous_index)->setChatState(m_chatstate);
 			}
@@ -287,7 +255,7 @@ namespace Core
 			int count = m_sessions.count();
 			for (int i = 0;i!=count;i++)
 				ui->tabBar->removeTab(i);
-			if (m_remove_session_on_close)
+			if (m_removeSessionOnClose)
 				qDeleteAll(m_sessions);
 			m_sessions.clear();
 		}
@@ -304,7 +272,7 @@ namespace Core
 
 			currentIndexChanged(ui->tabBar->currentIndex());
 
-			if (session && m_remove_session_on_close) {
+			if (session && m_removeSessionOnClose) {
 				session->deleteLater();
 			}
 
@@ -354,7 +322,7 @@ namespace Core
 			if (ui->tabBar->currentIndex() != index)
 				ui->tabBar->setCurrentIndex(index);
 
-			if ((m_chat_flags & ShowUnreadMessages) && !session->unread().isEmpty()) {
+			if ((m_chatFlags & ShowUnreadMessages) && !session->unread().isEmpty()) {
 				session->markRead();
 			}
 		}
@@ -369,83 +337,9 @@ namespace Core
 				ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
 				QIcon icon =  ChatLayerImpl::iconForState(state);
 				ui->tabBar->setTabIcon(index, icon);
-			} else if (m_chat_flags & ShowUnreadMessages) {
+			} else if (m_chatFlags & ShowUnreadMessages) {
 				ui->tabBar->setTabIcon(index, Icon("mail-unread-new"));
 			}
-		}
-
-		bool AdiumChatWidget::eventFilter(QObject *obj, QEvent *event)
-		{
-			if (obj == ui->contactsView) {
-				if (event->type() == QEvent::ContextMenu) {
-					QContextMenuEvent *menuEvent = static_cast<QContextMenuEvent*>(event);
-					QModelIndex index = ui->contactsView->indexAt(menuEvent->pos());
-					Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
-					if (buddy)
-						buddy->showMenu(menuEvent->globalPos());
-				}
-			} else if (obj->metaObject() == &ChatSessionImpl::staticMetaObject) {
-				if (event->type() == ChatStateEvent::eventType()) {
-					ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(event);
-					chatStateChanged(chatEvent->chatState(),qobject_cast<ChatSessionImpl *>(obj));
-				}
-			} else if (QTabBar *bar = qobject_cast<QTabBar*>(obj)){
-				if (QHelpEvent *help = static_cast<QHelpEvent*>(event)) {
-					if (help->type() == QEvent::ToolTip) {
-						int index = bar->tabAt(help->pos());
-						if (index != -1) {
-							ChatUnit *unit = m_sessions.at(index)->getUnit();
-							ToolTip::instance()->showText(help->globalPos(), unit, bar);
-							return true;
-						}
-					}
-				}
-			}
-			else {
-				if (QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event)) {
-					if (keyEvent->matches(QKeySequence::Copy) )
-					{
-						if (QWebView *view = qobject_cast<QWebView*>(obj))
-							view->triggerPageAction(QWebPage::Copy);
-						return true;
-					}
-				}
-			}
-			return QObject::eventFilter(obj, event);
-		}
-
-		bool AdiumChatWidget::contains(ChatSessionImpl* session)
-		{
-			return m_sessions.contains(session);
-		}
-
-		void AdiumChatWidget::onSendButtonClicked()
-		{
-			if (ui->chatEdit->toPlainText().trimmed().isEmpty() || ui->tabBar->currentIndex() < 0)
-				return;
-			ChatSessionImpl *session = m_sessions.at(ui->tabBar->currentIndex());
-			ChatUnit *unit = 0;
-			foreach (QAction *a,m_reciever_selector->menu()->actions()) {
-				if (a->isChecked()) {
-					unit = a->data().value<ChatUnit *>();
-					break;
-				}
-			}
-			if (!unit)
-				unit = session->getUnit();
-
-			Message message(ui->chatEdit->toPlainText());
-			if (m_html_message)
-				message.setProperty("html",Qt::escape(message.text()));
-			message.setIncoming(false);
-			message.setChatUnit(unit);
-			message.setTime(QDateTime::currentDateTime());
-			session->appendMessage(message);
-			unit->sendMessage(message);
-			ui->chatEdit->clear();
-
-			m_self_chatstate_timer.stop();
-			m_chatstate = ChatStateActive;
 		}
 
 		void AdiumChatWidget::chatStateChanged(ChatState state, ChatSessionImpl *session)
@@ -454,7 +348,7 @@ namespace Core
 			if (index == -1)
 				return;
 
-			if (m_chat_flags & ChatStateIconsOnTabs) {
+			if (m_chatFlags & ChatStateIconsOnTabs) {
 				if (!session->unread().count()) {
 					QIcon icon =  ChatLayerImpl::iconForState(state);
 					ui->tabBar->setTabIcon(index,icon);
@@ -469,6 +363,16 @@ namespace Core
 		{
 			return ui->chatEdit;
 		}
+		
+		QTabBar *AdiumChatWidget::getTabBar()
+		{
+			return ui->tabBar;
+		}
+		
+		QListView *AdiumChatWidget::getContactsView()
+		{
+			return ui->contactsView;
+		}
 
 		ChatSessionImpl *AdiumChatWidget::currentSession()
 		{
@@ -477,8 +381,8 @@ namespace Core
 
 		void AdiumChatWidget::onTextChanged()
 		{
-			m_self_chatstate_timer.stop();
-			m_self_chatstate_timer.start();
+			m_chatstateTimer.stop();
+			m_chatstateTimer.start();
 			if ((m_chatstate != ChatStateComposing) && (!ui->chatEdit->toPlainText().isEmpty())) {
 				m_chatstate = ChatStateComposing;
 				m_sessions.at(ui->tabBar->currentIndex())->setChatState(m_chatstate);
@@ -583,33 +487,6 @@ namespace Core
 				return;
 			ui->tabBar->setTabText(m_sessions.indexOf(s),title);
 		}
-
-		void AdiumChatWidget::raise()
-		{
-#ifdef Q_WS_X11
-			if (m_chat_flags & SwitchDesktopOnRaise) {
-				static Atom         NET_ACTIVE_WINDOW = 0;
-				XClientMessageEvent xev;
-
-				if(NET_ACTIVE_WINDOW == 0)
-				{
-					Display *dpy      = QX11Info::display();
-					NET_ACTIVE_WINDOW = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
-				}
-
-				xev.type         = ClientMessage;
-				xev.window       = winId();
-				xev.message_type = NET_ACTIVE_WINDOW;
-				xev.format       = 32;
-				xev.data.l[0]    = MESSAGE_SOURCE_PAGER;
-				xev.data.l[1]    = QX11Info::appUserTime();
-				xev.data.l[2]    = xev.data.l[3] = xev.data.l[4] = 0;
-
-				XSendEvent(QX11Info::display(), QX11Info::appRootWindow(), False, SubstructureNotifyMask | SubstructureRedirectMask, (XEvent*)&xev);
-			}
-#endif//Q_WS_X11
-			QWidget::raise();
-		};
 	}
 }
 

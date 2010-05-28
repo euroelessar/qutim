@@ -18,6 +18,7 @@
 
 #include <QWidget>
 #include "../chatlayerimpl.h"
+#include "abstractchatwidget.h"
 #include <QMainWindow>
 #include <QModelIndex>
 #include <QTimer>
@@ -35,18 +36,9 @@ namespace Core
 {
 	namespace AdiumChat
 	{
-		enum ChatFlag
-		{
-			AeroThemeIntegration	=	0x01,
-			ChatStateIconsOnTabs	=	0x02,
-			SendTypingNotification	=	0x04,
-			ShowUnreadMessages		=	0x08,
-			SwitchDesktopOnRaise	=	0x10
-									};
-		Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
 		class ChatSessionImpl;
 		class ConfTabCompletion;
-		class AdiumChatWidget : public QMainWindow
+		class AdiumChatWidget : public AbstractChatWidget
 		{
 			Q_OBJECT
 		public:
@@ -54,10 +46,10 @@ namespace Core
 			void clear();//remove all sessions
 			ChatSessionList getSessionList() const;
 			virtual ~AdiumChatWidget();
-			bool contains (ChatSessionImpl *session);
 			QPlainTextEdit *getInputField();
+			QTabBar *getTabBar();
+			QListView *getContactsView();
 			ChatSessionImpl *currentSession();
-			void raise();
 		public slots:
 			void addSession(ChatSessionImpl *session);
 			void addSession(const ChatSessionList &sessions);
@@ -65,7 +57,6 @@ namespace Core
 			void activate(AdiumChat::ChatSessionImpl* session);
 			void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 		protected:
-			bool eventFilter(QObject *obj, QEvent *event);
 			virtual bool event(QEvent *event);
 		private slots:
 			void currentIndexChanged (int index);
@@ -73,7 +64,6 @@ namespace Core
 			void onCloseRequested(int index);
 			void onTabMoved(int from,int to);
 			void onSessionDestroyed(QObject* object);
-			void onSendButtonClicked();
 			void onTextChanged();
 			void onTabContextMenu(const QPoint &pos);
 			void closeCurrentTab();
@@ -87,18 +77,12 @@ namespace Core
 		private:
 			QIcon iconForState(ChatState state);
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
-			QString m_key;
-			ChatSessionList m_sessions;
+			int m_send_key;
 			int m_current_index;
 			Ui::AdiumChatForm *ui;
 			ActionToolBar *m_toolbar;
 			QAction *m_session_list;
 			QAction *m_reciever_selector;
-			ChatFlags m_chat_flags;
-			bool m_html_message;
-			bool m_remove_session_on_close;
-			ChatState m_chatstate;
-			QTimer m_self_chatstate_timer;
 			QPointer<QTextDocument> m_originalDoc;
 		};
 	}
