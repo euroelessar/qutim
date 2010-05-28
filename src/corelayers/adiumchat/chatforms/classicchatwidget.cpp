@@ -259,13 +259,8 @@ namespace Core
 
 			currentIndexChanged(ui->tabBar->currentIndex());
 
-			if (ui->tabBar->count() == 1) {
-				//ui->tabBar->setVisible(false);
-				//ui->tabButton->hide();
-			}
 			if (session && m_remove_session_on_close) {
 				session->deleteLater();
-				debug () << "session removed" << index;
 			}
 
 			if (m_sessions.isEmpty())

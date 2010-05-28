@@ -249,7 +249,7 @@ namespace Core
 			ChatUnit *u = session->getUnit();
 			QIcon icon = Icon("view-choose");
 			QString title = tr("Chat with %1").arg(u->title());
-			
+
 			bool isContactsViewVisible;
 
 			if (Conference *c = qobject_cast<Conference *>(u)) {
@@ -297,20 +297,15 @@ namespace Core
 			int index = m_sessions.indexOf(session);
 			if (index == -1)
 				return;
-			m_sessions.removeAt(index);
 			ui->tabBar->removeTab(index);
+			m_sessions.removeAt(index);
 			m_session_list->menu()->removeAction(m_session_list->menu()->actions().at(index));
 			session->disconnect(this);
 
 			currentIndexChanged(ui->tabBar->currentIndex());
 
-			if (ui->tabBar->count() == 1) {
-				//ui->tabBar->setVisible(false);
-				//ui->tabButton->hide();
-			}
 			if (session && m_remove_session_on_close) {
 				session->deleteLater();
-				debug () << "session removed" << index;
 			}
 
 			if (m_sessions.isEmpty())
