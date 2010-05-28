@@ -53,6 +53,7 @@ namespace Core
 
 	QMovie *IconLoaderImpl::loadMovie(const QString &name)
 	{
+		Q_UNUSED(name);
 		return 0;
 	}
 
