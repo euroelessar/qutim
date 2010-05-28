@@ -23,6 +23,7 @@
 #include <QApplication>
 #include <libqutim/debug.h>
 #include <QPainter>
+#include <libqutim/icon.h>
 
 namespace Core
 {
@@ -96,13 +97,63 @@ namespace Core
 			case ContactType: {
 					style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
 					QRect bounding;
+					Status status = index.data(ItemStatusRole).value<Status>();
+
+					if (m_show_flags & ShowExtendedStatusIcons)
+					{
+						QVariantHash extStatuses = status.property("extendedStatuses", QVariantHash());
+
+						QVariantHash::const_iterator it;
+						foreach (const QVariant &data, extStatuses)
+						{
+							ExtensionIcon ext_icon = data.value<QVariantHash>().value("icon").value<ExtensionIcon>();
+							QIcon icon = ext_icon.toIcon();
+							if (!icon.isNull()) {
+								debug() << "draw icon" << ext_icon.name();
+								icon.paint(painter,
+										   option.rect.left() + m_horizontal_padding,
+										   option.rect.top() + m_vertical_padding,
+										   title_rect.right() - m_horizontal_padding,
+										   option.decorationSize.height(), //FIXME
+										   Qt::AlignTop |
+										   Qt::AlignRight);
+								title_rect.setWidth(title_rect.width()-option.decorationSize.width());
+							}
+						}
+
+						//stress test
+//						QIcon icons [] = {
+//							Icon("user-xstatus-music"),
+//							Icon("user-xstatus-studying"),
+//							Icon("user-xstatus-love"),
+//							Icon("user-xstatus-hamlet"),
+//							QIcon(),
+//							Icon("user-xstatus-coffee")
+//						};
+
+//						for (int number=0;number!=2;number++) {
+//							QIcon icon = icons[rand() % 5];
+//							if (!icon.isNull()) {
+//								icon.paint(painter,
+//										   option.rect.left() + m_horizontal_padding,
+//										   option.rect.top() + m_vertical_padding,
+//										   title_rect.right() - m_horizontal_padding,
+//										   option.decorationSize.height(), //FIXME
+//										   Qt::AlignTop |
+//										   Qt::AlignRight);
+//								title_rect.setWidth(title_rect.width()-option.decorationSize.width());
+//							}
+//						}
+
+					}
+
 					painter->drawText(title_rect,
 									  Qt::AlignTop,
 									  name,
 									  &bounding
 									  );
-					if (m_show_flags & ShowStatusText) {
-						Status status = index.data(ItemStatusRole).value<Status>();
+
+					if (m_show_flags & ShowStatusText) {						
 						if (!status.text().isEmpty()) {
 							QRect status_rect = title_rect;
 							status_rect.setTop(status_rect.top() + bounding.height());
