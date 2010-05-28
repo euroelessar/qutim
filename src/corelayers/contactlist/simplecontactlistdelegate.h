@@ -17,6 +17,7 @@
 #define SIMPLECONTACTLISTDELEGATE_H
 
 #include <QAbstractItemDelegate>
+#include <QTreeView>
 
 namespace Core
 {
@@ -33,7 +34,7 @@ namespace Core
 				ShowClientIcon = 0x4,
 				ShowAvatars = 0x8
 			};
-			explicit SimpleContactListDelegate(QObject *parent = 0);
+			explicit SimpleContactListDelegate(QTreeView *parent = 0);
 			virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 			virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
 		public Q_SLOTS:

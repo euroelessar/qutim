@@ -28,7 +28,7 @@ namespace Core
 {
 	namespace SimpleContactList
 	{
-		SimpleContactListDelegate::SimpleContactListDelegate(QObject *parent) :
+		SimpleContactListDelegate::SimpleContactListDelegate(QTreeView *parent) :
 				QAbstractItemDelegate(parent)
 		{
 			m_horizontal_padding = 5;
@@ -39,6 +39,7 @@ namespace Core
 		void SimpleContactListDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 		{			
 			QStyleOptionViewItemV4 opt(option);
+			painter->save();
 			QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
 			
 			ItemType type = static_cast<ItemType>(index.data(ItemDataType).toInt());
@@ -67,6 +68,20 @@ namespace Core
 					buttonOption.rect = option.rect;
 					buttonOption.palette = option.palette;
 					style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
+
+					QStyleOption branchOption;
+					static const int i = 9; // ### hardcoded in qcommonstyle.cpp
+					QRect r = option.rect;
+					branchOption.rect = QRect(r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
+					branchOption.palette = option.palette;
+					branchOption.state = QStyle::State_Children;
+
+					QTreeView *view = static_cast<QTreeView *>(parent());
+
+					if (view->isExpanded(index))
+						branchOption.state |= QStyle::State_Open;
+
+					style->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, view);
 					
 					QFont font = opt.font;
 					font.setBold(true);
@@ -104,6 +119,15 @@ namespace Core
 											  status.text().remove("\n")
 											  );
 						}
+
+						QIcon item_icon = index.data(Qt::DecorationRole).value<QIcon>();
+						item_icon.paint(painter,
+										option.rect.left() + m_horizontal_padding,
+										option.rect.top() + m_vertical_padding,
+										option.decorationSize.width(),
+										option.decorationSize.height(),
+										Qt::AlignTop);
+
 					}
 					
 					break;
@@ -111,16 +135,7 @@ namespace Core
 			default:
 				break;
 			}
-			painter->setPen(original_pen);
-			painter->setFont(original_font);
-			
-			QIcon item_icon = index.data(Qt::DecorationRole).value<QIcon>();
-			item_icon.paint(painter,
-							option.rect.left() + m_horizontal_padding,
-							option.rect.top() + m_vertical_padding,
-							option.decorationSize.width(),
-							option.decorationSize.height(),
-							Qt::AlignTop);
+			painter->restore();
 		}
 
 		
