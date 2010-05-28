@@ -44,14 +44,11 @@ ProfileDialog::~ProfileDialog()
 QVariantMap ProfileDialog::profilesInfo()
 {
 	QDir dir = qApp->applicationDirPath();
-	if (dir.exists("profiles")) {
-		dir.cd("profiles");
-	} else {
-
+	if (!dir.exists("profiles") || !dir.cd("profiles")) {
 #if defined(Q_OS_WIN)
 		dir = QString::fromLocal8Bit(qgetenv("APPDATA"));
 #elif defined(Q_OS_MAC)
-		dir = QDir::homePath() + "/Library/Application Support";
+		dir = QDir::home().absoluteFilePath("Library/Application Support");
 #elif defined(Q_OS_UNIX)
 		dir = QDir::home().absoluteFilePath(".config");
 #else
