@@ -22,8 +22,6 @@
 #include <ctime>
 
 #include "src/modulemanagerimpl.h"
-#include "libqutim/cryptoservice.h"
-#include "libqutim/configbase.h"
 
 #if defined(STATIC_IMAGE_PLUGINS)
 Q_IMPORT_PLUGIN(qjpeg)
