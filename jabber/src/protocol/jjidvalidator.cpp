@@ -46,11 +46,11 @@ namespace Jabber
 		} else {
 			std::string jidNode = str.toStdString();
 			if (str.indexOf('@') != -1) {
-				jid.setJID(jidNode);
-				jid.setServer(d->server);
+				if (jid.setJID(jidNode))
+					jid.setServer(d->server);
 			} else {
-				jid.setUsername(jidNode);
-				jid.setServer(d->server);
+				if (jid.setUsername(jidNode))
+					jid.setServer(d->server);
 			}
 			if (!jid)
 				return Invalid;
@@ -64,18 +64,18 @@ namespace Jabber
 		Q_D(const JJidValidator);
 		gloox::JID jid;
 		if (d->server.empty()) {
-			jid.setJID(str.toStdString());
-			str = QString::fromStdString(jid.bare());
+			if (jid.setJID(str.toStdString()))
+				str = QString::fromStdString(jid.bare());
 		} else {
 			std::string jidNode = str.toStdString();
 			if (str.indexOf('@') != -1) {
-				jid.setJID(jidNode);
-				jid.setServer(d->server);
+				if (jid.setJID(jidNode))
+					jid.setServer(d->server);
 			} else {
-				jid.setUsername(jidNode);
-				jid.setServer(d->server);
+				if (jid.setUsername(jidNode))
+					jid.setServer(d->server);
 			}
-			str = QString::fromStdString(jid.username());
+			str = jid ? QString::fromStdString(jid.username()) : str;
 		}
 	}
 }
