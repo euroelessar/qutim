@@ -28,6 +28,8 @@ namespace Core
 			QVariantMap map = value.value("profile").toMap();
 			if (map.isEmpty()) {
 				QWidget *wizard = new ProfileCreationWizard(this, QString(), QString(), true);
+				wizard->setAttribute(Qt::WA_DeleteOnClose, true);
+				wizard->setAttribute(Qt::WA_QuitOnClose, false);
 #if	defined(Q_OS_SYMBIAN)
 				wizard->showMaximized();
 #else

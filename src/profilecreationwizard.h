@@ -14,8 +14,11 @@ public:
 	explicit ProfileCreationWizard(ModuleManager *parent,
 								   const QString &id, const QString &password,
 								   bool singleProfile = false);
+protected:
+    void done(int result);
 private:
 	ModuleManager *m_manager;
+	bool m_singleProfile;
 };
 }
 

@@ -33,7 +33,6 @@ ProfileDialog::ProfileDialog(const QVariantMap &value, ModuleManager *parent) :
 			ui->profilesBox->addItem(map.value("id").toString(), QVariant(map));
 		}
 	}
-	setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 ProfileDialog::~ProfileDialog()
@@ -164,15 +163,16 @@ void ProfileDialog::on_createButton_clicked()
 		return;
 	}
 
-	QWidget *wizard = new ProfileCreationWizard(m_manager, ui->nameEdit->text(),
+	QWizard *wizard = new ProfileCreationWizard(m_manager, ui->nameEdit->text(),
 												ui->originalPasswordEdit->text());
 #if	defined(Q_OS_SYMBIAN)
 	wizard->showMaximized();
 #else
 	wizard->show();
 #endif
-
-	deleteLater(); //FIXME, perhaps this leads to abnormal behavior when creating a profile, Sau
+	connect(wizard, SIGNAL(accepted()), this, SLOT(deleteLater()));
+	connect(wizard, SIGNAL(rejected()), this, SLOT(show()));
+	hide();
 }
 
 void ProfileDialog::changeEvent(QEvent *e)

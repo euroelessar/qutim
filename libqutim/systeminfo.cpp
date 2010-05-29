@@ -218,8 +218,13 @@ namespace qutim_sdk_0_3
 		d->dirs[SystemInfo::ConfigDir]         = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/config");
 		d->dirs[SystemInfo::HistoryDir]        = QDir::homePath() % QLatin1Literal("/.qutim/profiles/default/history");
 		d->dirs[SystemInfo::ShareDir]          = QDir::homePath() % QLatin1Literal("/.qutim/share");
+#if defined(Q_OS_WIN32)
+		d->dirs[SystemInfo::SystemConfigDir]   = qApp->applicationDirPath() % QLatin1Literal("/config");
+		d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath();
+#else
 		d->dirs[SystemInfo::SystemConfigDir]   = QLatin1String("/etc/qutim");
-		d->dirs[SystemInfo::SystemShareDir]    = QDir::currentPath() % QLatin1Literal("/../share");
+		d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../share");
+#endif
 		d->timezone_offset = 0;
 		d->timezone_str = "N/A";
 		d->os_full = "Unknown";

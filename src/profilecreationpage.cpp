@@ -30,7 +30,7 @@ ProfileCreationPage::ProfileCreationPage(const QString &password, bool singlePro
 	registerField("dataDir", ui->dataEdit);
 	bool first = true;
 	if (!m_singleProfile) {
-		registerField("crypto", ui->cryptoBox);
+		registerField("crypto", ui->cryptoBox, "currentText");
 	} else {
 		ui->label_6->hide();
 		ui->cryptoBox->hide();
@@ -82,21 +82,21 @@ bool ProfileCreationPage::validatePage()
 	systemDirs[SystemInfo::ConfigDir] = QDir::cleanPath(ui->configEdit->text());
 	systemDirs[SystemInfo::HistoryDir] = QDir::cleanPath(ui->historyEdit->text());
 	systemDirs[SystemInfo::ShareDir] = QDir::cleanPath(ui->dataEdit->text());
-	QFile file(QDir(ui->configEdit->text()).absoluteFilePath("profilehash"));
-	if (!file.open(QIODevice::WriteOnly))
+	QFile file(SystemInfo::getDir(SystemInfo::ConfigDir).absoluteFilePath("profilehash"));
+	if (file.exists() || !file.open(QIODevice::WriteOnly))
 		return false;
 	ExtensionInfo info = ui->cryptoBox->itemData(ui->cryptoBox->currentIndex()).value<ExtensionInfo>();
 	CryptoService *service = info.generator()->generate<CryptoService>();
 	QByteArray data;
 	QVariant serviceData = service->generateData(ui->idEdit->text());
+	m_cryptoName = service->metaObject()->className();
 	{
 		QDataStream out(&data, QIODevice::WriteOnly);
 		// We shouldn't store password as is
 		QByteArray passwordHash = QCryptographicHash::hash(m_password.toUtf8()
 														   + "5667dd05fbe97bb238711a3af63",
 														   QCryptographicHash::Sha1);
-		out << ui->idEdit->text() << passwordHash
-				<< QByteArray(service->metaObject()->className());
+		out << ui->idEdit->text() << passwordHash << m_cryptoName;
 	}
 	service->setPassword(m_password, serviceData);
 	QVariant hash = service->crypt(data);
@@ -104,25 +104,6 @@ bool ProfileCreationPage::validatePage()
 	file.flush();
 	file.close();
 	m_password.clear();
-	if (ui->portableBox->isChecked()) {
-		dir = qApp->applicationDirPath();
-	} else {
-#if defined(Q_OS_WIN)
-		dir = QString::fromLocal8Bit(qgetenv("APPDATA")) + "/qutim";
-#elif defined(Q_OS_MAC)
-		dir = QDir::homePath() + "/Library/Application Support/qutIM";
-#elif defined(Q_OS_UNIX)
-		dir = QDir::home().absoluteFilePath(".config/qutim");
-#else
-# Undefined OS
-#endif
-	}
-	file.setFileName(dir.absoluteFilePath("profiles/profiles.json"));
-	QVariantMap map;
-	if (file.open(QFile::ReadOnly))
-		map = Json::parse(file.readAll()).toMap();
-	file.close();
-	QVariantList profiles = map.value("list").toList();
 	info = ui->configBox->itemData(ui->configBox->currentIndex()).value<ExtensionInfo>();
 	for (int i = 0; i < ui->configBox->count(); i++) {
 		ExtensionInfo extInfo = ui->configBox->itemData(i).value<ExtensionInfo>();
@@ -134,39 +115,6 @@ bool ProfileCreationPage::validatePage()
 		else
 			ConfigPrivate::config_backends.append(back);
 	}
-	{
-		QVariantMap profile;
-		profile.insert("name", ui->nameEdit->text());
-		profile.insert("id", ui->idEdit->text());
-		profile.insert("crypto", QLatin1String(service->metaObject()->className()));
-		profile.insert("config", QLatin1String(ConfigPrivate::config_backends.first()
-											   .second->metaObject()->className()));
-		profile.insert("portable", ui->portableBox->isChecked());
-		if (ui->portableBox->isChecked()) {
-			QDir app = qApp->applicationDirPath();
-			profile.insert("configDir", app.relativeFilePath(SystemInfo::getPath(SystemInfo::ConfigDir)));
-			profile.insert("historyDir", app.relativeFilePath(SystemInfo::getPath(SystemInfo::HistoryDir)));
-			profile.insert("shareDir", app.relativeFilePath(SystemInfo::getPath(SystemInfo::ShareDir)));
-		} else {
-			profile.insert("configDir", SystemInfo::getPath(SystemInfo::ConfigDir));
-			profile.insert("historyDir", SystemInfo::getPath(SystemInfo::HistoryDir));
-			profile.insert("shareDir", SystemInfo::getPath(SystemInfo::ShareDir));
-		}
-		if (m_singleProfile)
-			map.insert("profile", profile);
-		else
-			profiles.append(profile);
-	}
-	if (!m_singleProfile) {
-		map.insert("list", profiles);
-		if (!map.value("current").isValid()) {
-			map.insert("current", ui->idEdit->text());
-		}
-	}
-	file.open(QFile::WriteOnly);
-	file.write(Json::generate(map));
-	file.flush();
-	file.close();
 	m_is_valid = true;
 	return true;
 }

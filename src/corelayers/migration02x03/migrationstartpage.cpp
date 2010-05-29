@@ -74,21 +74,31 @@ void MigrationStartPage::initializePage()
 	if (!configPath.exists()) {
 		setSubTitle(tr("Unable to find profile dir"));
 		setEnabled(false);
+		ui->importBox->setChecked(false);
 	} else {
 		qDebug() << configPath;
 		QFileInfoList list = configPath.entryInfoList(QStringList() << "qutim.*",
 													  QDir::Dirs | QDir::NoDotAndDotDot);
+		QSettings settings(configPath.filePath("qutimsettings.ini"), QSettings::IniFormat);
+		settings.beginGroup("profiles");
+		QStringList knownProfiles = settings.value("list").toStringList();
+		QString currentProfile = knownProfiles.value(settings.value("last", -1).toInt());
+		qDebug() << knownProfiles << currentProfile << configPath.filePath("qutimsettings.ini");
+		// We have list of profiles but it may be corrupted so check every path
 		foreach (const QFileInfo &info, list) {
 			QString profileName = info.fileName().section('.', 1);
 			if (profileName.isEmpty())
 				continue;
 			ui->profileBox->addItem(profileName, info.absoluteFilePath());
+			if (profileName == currentProfile)
+				ui->profileBox->setCurrentIndex(ui->profileBox->count() - 1);
 		}
 		if (!ui->profileBox->count()) {
 			setSubTitle(tr("Unable to find any profile"));
 			setEnabled(false);
+			ui->importBox->setChecked(false);
 		} else {
-			on_profileBox_currentIndexChanged(0);
+			ui->importBox->setChecked(true);
 		}
 	}
 }
@@ -127,7 +137,10 @@ void MigrationStartPage::on_profileBox_currentIndexChanged(int index)
 
 bool MigrationStartPage::validatePage()
 {
+	if (!ui->importBox->isChecked())
+		return true;
 //	Firstly copy accounts
+	qDebug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
 	for (int i = 0; i < ui->accountsList->count(); i++) {
 		QListWidgetItem *item = ui->accountsList->item(i);
 		if (item->checkState() != Qt::Checked)

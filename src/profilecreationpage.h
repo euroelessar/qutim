@@ -18,6 +18,7 @@ public:
 	~ProfileCreationPage();
 
 	virtual bool validatePage();
+	inline QByteArray cryptoName() const { return m_cryptoName; }
 
 protected slots:
 	void on_portableBox_toggled(bool portable);
@@ -31,6 +32,7 @@ protected:
 
 private:
 	QString m_password;
+	QByteArray m_cryptoName;
 	Ui::ProfileCreationPage *ui;
 	bool m_singleProfile;
 	bool m_is_valid;
