@@ -16,15 +16,18 @@
 
 #include "config.h"
 #include "../cryptoservice.h"
+#include "../systeminfo.h"
 #include <QStringList>
 #include <QFileInfo>
-#include "../jsonfile.h"
-#include "../systeminfo.h"
 
 namespace qutim_sdk_0_3
 {
 	namespace Game
 	{
+		Q_GLOBAL_STATIC(QList<ConfigBackend*>, all_config_backends)
+		LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends()
+		{ return *all_config_backends(); }
+		
 		struct ConfigLevel
 		{
 			inline ConfigLevel() : deleteOnDestroy(false), typeMap(true), arrayElement(false), list(0) {}
@@ -49,14 +52,26 @@ namespace qutim_sdk_0_3
 		class ConfigPrivate : public QSharedData
 		{
 		public:
-			inline ConfigPrivate() { levels << new ConfigLevel(); }
-			inline ~ConfigPrivate() { qDeleteAll(levels); }
+			inline ConfigPrivate() : backend(0) { levels << new ConfigLevel(); }
+			inline ~ConfigPrivate() { sync(); qDeleteAll(levels); }
 			inline ConfigLevel *current() const { return levels.at(0); }
+			void sync();
 			QList<ConfigLevel *> levels;
 			QString fileName;
+			ConfigBackend *backend;
 		private:
 			Q_DISABLE_COPY(ConfigPrivate)
 		};
+		
+		void ConfigPrivate::sync()
+		{
+			if (backend) {
+				if (current()->typeMap)
+					backend->save(fileName, *(current()->map));
+				else
+					backend->save(fileName, *(current()->list));
+			}
+		}
 		
 		Config::Config(const QVariantList &list) : d_ptr(new ConfigPrivate)
 		{
@@ -89,23 +104,40 @@ namespace qutim_sdk_0_3
 		Config::Config(const QString &path) : d_ptr(new ConfigPrivate)
 		{
 			Q_D(Config);
-			QFileInfo info(path);
-			JsonFile file;
-			if (info.isAbsolute())
-				d->fileName = path;
-			else
-				d->fileName = SystemInfo::getDir(SystemInfo::ConfigDir).filePath(path);
-			file.setFileName(d->fileName);
-			QVariant var;
-			file.load(var);
+			const QList<ConfigBackend*> &backends = *all_config_backends();
 			d->current()->deleteOnDestroy = true;
-			if (var.type() == QVariant::Map) {
-				d->current()->map = new QVariantMap(var.toMap());
-			} else if (var.type() == QVariant::List) {
-				d->current()->typeMap = false;
-				d->current()->list = new QVariantList(var.toList());
-			} else {
+			if (backends.isEmpty()) {
 				d->current()->map = new QVariantMap();
+			} else {
+				d->fileName = path;
+				QFileInfo info(d->fileName);
+				if (!info.isAbsolute()) {
+					d->fileName = SystemInfo::getDir(SystemInfo::ConfigDir).filePath(path);
+				}
+				QByteArray suffix = info.suffix().toLatin1().toLower();
+				if (!suffix.isEmpty()) {
+					for (int i = 0; i < backends.size(); i++) {
+						if (backends.at(i)->name() == suffix) {
+							d->backend = backends.at(i);
+							break;
+						}
+					}
+				}
+				if (!d->backend) {
+					d->backend = backends.at(0);
+					d->fileName += QLatin1Char('.');
+					d->fileName += QLatin1String(d->backend->name());
+				}
+				d->fileName = QDir::cleanPath(d->fileName);
+				QVariant var = d->backend->load(d->fileName);
+				if (var.type() == QVariant::Map) {
+					d->current()->map = new QVariantMap(var.toMap());
+				} else if (var.type() == QVariant::List) {
+					d->current()->typeMap = false;
+					d->current()->list = new QVariantList(var.toList());
+				} else {
+					d->current()->map = new QVariantMap();
+				}
 			}
 		}
 		
@@ -121,8 +153,6 @@ namespace qutim_sdk_0_3
 
 		Config::~Config()
 		{
-			sync();
-			qDeleteAll(d_func()->levels);
 		}
 
 		Config Config::group(const QString &name)
@@ -222,6 +252,7 @@ namespace qutim_sdk_0_3
 				var.setValue(QVariantList());
 			l->list = reinterpret_cast<QVariantList*>(var.data());
 			d->levels.prepend(l);
+			return l->list->size();
 		}
 
 		void Config::endArray()
@@ -236,6 +267,15 @@ namespace qutim_sdk_0_3
 				Q_ASSERT(d->levels.size() > 1);
 				delete d->levels.takeFirst();
 			}
+		}
+		
+		int Config::arraySize() const
+		{
+			Q_D(const Config);
+			if (d->current()->typeMap)
+				return 0;
+			else
+				return d->current()->list->size();
 		}
 
 		void Config::setArrayIndex(int index)
@@ -296,16 +336,37 @@ namespace qutim_sdk_0_3
 
 		void Config::sync()
 		{
-			Q_D(Config);
-			if (!d->fileName.isEmpty()) {
-				JsonFile file;
-				file.setFileName(d->fileName);
-				if (d->current()->typeMap)
-					file.save(*d->current()->map);
-				else
-					file.save(*d->current()->list);
-			}
+			d_func()->sync();
+		}
+		
+		class ConfigBackendPrivate
+		{
+		public:
+			mutable QByteArray extension;
+		};
+		
+		ConfigBackend::ConfigBackend() : d_ptr(new ConfigBackendPrivate)
+		{
 		}
 
+		ConfigBackend::~ConfigBackend()
+		{
+		}
+		
+		QByteArray ConfigBackend::name() const
+		{
+			Q_D(const ConfigBackend);
+			if(d->extension.isNull()) {
+				d->extension = metaInfo(metaObject(), "Extension");
+				d->extension = d->extension.toLower();
+			}
+			return d->extension;
+		}
+		
+		void ConfigBackend::virtual_hook(int id, void *data)
+		{
+			Q_UNUSED(id);
+			Q_UNUSED(data);
+		}
 	}
 }

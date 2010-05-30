@@ -21,6 +21,7 @@
 #define PLISTCONFIGBACKEND_H
 
 #include "libqutim/configbackend.h"
+#include "libqutim/game/config.h"
 
 class QDomDocument;
 class QDomNode;
@@ -29,6 +30,21 @@ using namespace qutim_sdk_0_3;
 
 namespace Core
 {
+	namespace Game
+	{
+		class PListConfigBackend : public qutim_sdk_0_3::Game::ConfigBackend
+		{
+			Q_OBJECT
+			Q_CLASSINFO("Extension", "plist")
+		public:
+			virtual QVariant load(const QString &file);
+			virtual void save(const QString &file, const QVariant &entry);
+		protected:
+			QVariant generateConfigEntry (const QDomNode &val);
+			QDomElement generateQDomElement (const QVariant &entry, QDomDocument &root);
+		};
+	}
+	
 	class PListConfigBackend : public ConfigBackend
 	{
 		Q_OBJECT

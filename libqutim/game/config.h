@@ -26,6 +26,7 @@ namespace qutim_sdk_0_3
 	namespace Game
 	{
 		class ConfigPrivate;
+		class ConfigBackendPrivate;
 		
 		class LIBQUTIM_EXPORT Config
 		{
@@ -53,6 +54,7 @@ namespace qutim_sdk_0_3
 			Config arrayElement(int index);
 			int beginArray(const QString &name);
 			void endArray();
+			int arraySize() const;
 			void setArrayIndex(int index);
 			void remove(int index);
 			
@@ -62,6 +64,24 @@ namespace qutim_sdk_0_3
 			void sync();
 		private:
 			QExplicitlySharedDataPointer<ConfigPrivate> d_ptr;
+		};
+	
+		class LIBQUTIM_EXPORT ConfigBackend : public QObject
+		{
+			Q_OBJECT
+			Q_DECLARE_PRIVATE(ConfigBackend)
+		public:
+			ConfigBackend();
+			virtual ~ConfigBackend();
+			
+			virtual QVariant load(const QString &file) = 0;
+			virtual void save(const QString &file, const QVariant &entry) = 0;
+			
+			QByteArray name() const;
+		protected:
+			virtual void virtual_hook(int id, void *data);
+		private:
+			QScopedPointer<ConfigBackendPrivate> d_ptr;
 		};
 	}
 }

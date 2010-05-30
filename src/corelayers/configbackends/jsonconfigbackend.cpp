@@ -20,12 +20,21 @@
 #include "jsonconfigbackend.h"
 #include "plistconfigbackend.h"
 #include "libqutim/jsonfile.h"
+#include "libqutim/json.h"
+#include <QFile>
 #include "modulemanagerimpl.h"
 #include <libqutim/debug.h>
 
 namespace Core
 {
 	static CoreModuleHelper2<JsonConfigBackend, PListConfigBackend> z_config_static(
+			QT_TRANSLATE_NOOP("Plugin", "JSON config"),
+			QT_TRANSLATE_NOOP("Plugin", "Default qutIM config implementation. Based on JSON."),
+			QT_TRANSLATE_NOOP("Plugin", "PList config"),
+			QT_TRANSLATE_NOOP("Plugin", "Additional qutIM config implementation for Apple plists")
+			);
+	
+	static CoreModuleHelper2<Game::JsonConfigBackend, Game::PListConfigBackend> y_config_static(
 			QT_TRANSLATE_NOOP("Plugin", "JSON config"),
 			QT_TRANSLATE_NOOP("Plugin", "Default qutIM config implementation. Based on JSON."),
 			QT_TRANSLATE_NOOP("Plugin", "PList config"),
@@ -87,7 +96,7 @@ namespace Core
 		return result;
 	}
 
-	inline QVariant variantFromString(const QString &s)
+	QVariant variantFromString(const QString &s)
 	{
 		if (s.startsWith(QLatin1Char('@'))) {
 			if (s.endsWith(")")) {
@@ -283,5 +292,135 @@ namespace Core
 			val = variantToString(entry->value);
 		}
 		return val;
+	}
+	
+	namespace Game
+	{
+		bool variantGeneratorExt(QString &err, QByteArray &result, const QVariant &val, int indent)
+		{
+			Q_UNUSED(err);
+			Q_UNUSED(indent);
+			switch (val.type()) {
+				case QVariant::ByteArray: {
+					QByteArray a = val.toByteArray();
+					result = "@ByteArray(";
+					result += a.toBase64();
+	//				result += QString::fromLatin1(a.constData(), a.size());
+					result += ')';
+					break;
+				}
+				case QVariant::KeySequence: {
+					QString tmp = val.toString();
+					if (tmp.startsWith(QLatin1Char('@')))
+						tmp.prepend(QLatin1Char('@'));
+					result += tmp.toUtf8();
+					break;
+				}
+				case QVariant::Rect: {
+					QRect r = qvariant_cast<QRect>(val);
+					result += "@Rect(";
+					result += QByteArray::number(r.x());
+					result += ' ';
+					result += QByteArray::number(r.y());
+					result += ' ';
+					result += QByteArray::number(r.width());
+					result += ' ';
+					result += QByteArray::number(r.height());
+					result += ')';
+					break;
+				}
+				case QVariant::Size: {
+					QSize s = qvariant_cast<QSize>(val);
+					result += "@Size(";
+					result += QByteArray::number(s.width());
+					result += ' ';
+					result += QByteArray::number(s.height());
+					result += ')';
+					break;
+				}
+				case QVariant::Point: {
+					QPoint p = qvariant_cast<QPoint>(val);
+					result += "@Point(";
+					result += QByteArray::number(p.x());
+					result += ' ';
+					result += QByteArray::number(p.y());
+					result += ')';
+					break;
+				}
+	
+				default: {
+					QByteArray a;
+					{
+						QDataStream s(&a, QIODevice::WriteOnly);
+						s.setVersion(QDataStream::Qt_4_5);
+						s << val;
+					}
+	
+					result = "@Variant(";
+					result += a.toBase64();
+					result += ')';
+					break;
+				}
+			}
+			return true;
+		}
+		
+		void validateVariant(QVariant *var) 
+		{
+			switch (var->type()) {
+			case QVariant::String: {
+				var->setValue(variantFromString(var->toString()));
+				break;
+			} 
+			case QVariant::Map: {
+				QVariantMap *map = reinterpret_cast<QVariantMap*>(var->data());
+				QVariantMap::iterator it = map->begin();
+				for (; it != map->end(); it++) {
+					QVariant &value = it.value();
+					if (value.type() == QVariant::Map || value.type() == QVariant::List 
+						|| value.type() == QVariant::String) {
+						validateVariant(&value);
+					}
+				}
+				break;
+			}
+			case QVariant::List: {
+				QVariantList *list = reinterpret_cast<QVariantList*>(var->data());
+				for (int i = 0; i < list->size(); i++) {
+					QVariant &value = (*list)[i];
+					if (value.type() == QVariant::Map || value.type() == QVariant::List 
+						|| value.type() == QVariant::String) {
+						validateVariant(&value);
+					}
+				}
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		QVariant JsonConfigBackend::load(const QString &fileName)
+		{
+			JsonFile file(fileName);
+			QVariant var;
+			file.load(var);
+			if (var.type() == QVariant::Map || var.type() == QVariant::List 
+				|| var.type() == QVariant::String) {
+				validateVariant(&var);
+			}
+			return var;
+		}
+
+		void JsonConfigBackend::save(const QString &fileName, const QVariant &entry)
+		{
+			QFile file(fileName);
+			if (file.open(QFile::WriteOnly | QIODevice::Text)) {
+				QByteArray data;
+				Json::generate(data, entry, 2, variantGeneratorExt);
+				file.write(data);
+				file.close();
+			}
+		}
 	}
 }
