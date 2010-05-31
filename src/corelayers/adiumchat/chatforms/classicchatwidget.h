@@ -69,7 +69,6 @@ namespace Core
 			void showPreviousSession();
 			void onDoubleClicked(const QModelIndex &index);
 			void onUnitTitleChanged(const QString &title);
-			void onChatStateTimeout();
 		private:
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
 			int m_current_index;

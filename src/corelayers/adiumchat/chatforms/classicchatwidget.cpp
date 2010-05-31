@@ -95,14 +95,6 @@ namespace Core
 			//load settings
 			onLoad();
 
-			if (m_chatFlags & SendTypingNotification) {
-				connect(ui->chatEdit,SIGNAL(textChanged()),SLOT(onTextChanged()));
-				m_chatstate = ChatStateActive;
-				m_chatstateTimer.setInterval(5000);
-				m_chatstateTimer.setSingleShot(true);
-				connect(&m_chatstateTimer,SIGNAL(timeout()),SLOT(onChatStateTimeout()));
-			}
-
 			//init shortcuts
 			Shortcut *key = new Shortcut ("chatCloseSession",ui->tabBar);
 			connect(key,SIGNAL(activated()),SLOT(closeCurrentTab()));
@@ -335,12 +327,6 @@ namespace Core
 				m_chatstate = ChatStateComposing;
 				m_sessions.at(ui->tabBar->currentIndex())->setChatState(m_chatstate);
 			}
-		}
-
-		void ClassicChatWidget::onChatStateTimeout()
-		{
-			m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
-			m_sessions.at(ui->tabBar->currentIndex())->setChatState(m_chatstate);
 		}
 
 		bool ClassicChatWidget::event(QEvent *event)

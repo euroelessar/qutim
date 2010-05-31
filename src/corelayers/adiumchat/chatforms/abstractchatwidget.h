@@ -66,6 +66,8 @@ namespace Core
 			virtual void activate(AdiumChat::ChatSessionImpl* session) = 0;
 		protected slots:
 			void onSendButtonClicked();
+			void onChatStateTimeout();
+			void onTextChanged();
 		public slots:
 			void raise();
 		protected:

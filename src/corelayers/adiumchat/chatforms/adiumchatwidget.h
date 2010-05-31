@@ -64,7 +64,6 @@ namespace Core
 			void onCloseRequested(int index);
 			void onTabMoved(int from,int to);
 			void onSessionDestroyed(QObject* object);
-			void onTextChanged();
 			void onTabContextMenu(const QPoint &pos);
 			void closeCurrentTab();
 			void onSessionListActionTriggered();
@@ -72,10 +71,8 @@ namespace Core
 			void showNextSession();
 			void showPreviousSession();
 			void onDoubleClicked(const QModelIndex &index);
-			void onUnitTitleChanged(const QString &title);
-			void onChatStateTimeout();
+			void onUnitTitleChanged(const QString &title);			
 		private:
-			QIcon iconForState(ChatState state);
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
 			int m_send_key;
 			int m_current_index;

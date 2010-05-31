@@ -148,6 +148,14 @@ namespace Core
 																  | SwitchDesktopOnRaise
 																  | AeroThemeIntegration));
 			m_sendKey = group.value("sendKey", SendCtrlEnter);
+
+			if (m_chatFlags & SendTypingNotification) {
+				connect(getInputField(),SIGNAL(textChanged()),SLOT(onTextChanged()));
+				m_chatstate = ChatStateActive;
+				m_chatstateTimer.setInterval(5000);
+				m_chatstateTimer.setSingleShot(true);
+				connect(&m_chatstateTimer,SIGNAL(timeout()),SLOT(onChatStateTimeout()));
+			}
 		}
 		
 		bool AbstractChatWidget::eventFilter(QObject *obj, QEvent *event)
@@ -223,5 +231,22 @@ namespace Core
 			}
 			return QObject::eventFilter(obj, event);
 		}
-	} 
+
+		void AbstractChatWidget::onChatStateTimeout()
+		{
+			m_chatstate = getInputField()->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
+			m_sessions.at(getTabBar()->currentIndex())->setChatState(m_chatstate);
+		}
+
+		void AbstractChatWidget::onTextChanged()
+		{
+			m_chatstateTimer.stop();
+			m_chatstateTimer.start();
+			if ((m_chatstate != ChatStateComposing) && (!getInputField()->toPlainText().isEmpty())) {
+				m_chatstate = ChatStateComposing;
+				m_sessions.at(getTabBar()->currentIndex())->setChatState(m_chatstate);
+			}
+		}
+
+	}
 }
