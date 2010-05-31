@@ -181,7 +181,7 @@ namespace Core
 			if (message.isIncoming())
 				messageReceived(&message);
 			else
-				messageSended(&message);
+				messageSent(&message);
 
 			if (message.property("spam", false) || message.property("hide", false))
 				return message.id();

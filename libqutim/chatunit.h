@@ -38,7 +38,7 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 		Q_PROPERTY(QString id READ id CONSTANT)
 		Q_PROPERTY(QString title READ title NOTIFY titleChanged)
-		Q_PROPERTY(Account* account READ account CONSTANT)
+		Q_PROPERTY(qutim_sdk_0_3::Account* account READ account CONSTANT)
 	public:
 		/**
 		* @brief default ChatUnit's contructor
@@ -113,7 +113,7 @@ namespace qutim_sdk_0_3
 		*
 		* @param state New ChatState
 		*/
-		void setChatState(ChatState state);
+		void setChatState(qutim_sdk_0_3::ChatState state);
 	signals:
 		/*!
 		  Notify that ChatUnit's \a title is changed, may be because of
