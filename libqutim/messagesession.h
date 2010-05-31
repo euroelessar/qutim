@@ -48,7 +48,7 @@ namespace qutim_sdk_0_3
 		{ Message msg(text); return appendMessage(msg); }
 	signals:
 		void messageReceived(qutim_sdk_0_3::Message *message);
-		void messageSended(qutim_sdk_0_3::Message *message);
+		void messageSent(qutim_sdk_0_3::Message *message);
 		void contactAdded(qutim_sdk_0_3::Buddy *c);
 		void contactRemoved(qutim_sdk_0_3::Buddy *c);
 		void activated(bool active);
