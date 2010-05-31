@@ -53,19 +53,22 @@ namespace qutim_sdk_0_3
 		{
 		public:
 			inline ConfigPrivate() : backend(0) { levels << new ConfigLevel(); }
-			inline ~ConfigPrivate() { sync(); qDeleteAll(levels); }
+			inline ~ConfigPrivate() { if (!memoryGuard) sync(); qDeleteAll(levels); }
 			inline ConfigLevel *current() const { return levels.at(0); }
 			void sync();
 			QList<ConfigLevel *> levels;
 			QString fileName;
 			ConfigBackend *backend;
+			QExplicitlySharedDataPointer<ConfigPrivate> memoryGuard;
 		private:
 			Q_DISABLE_COPY(ConfigPrivate)
 		};
 		
 		void ConfigPrivate::sync()
 		{
-			if (backend) {
+			if (memoryGuard) {
+				memoryGuard->sync();
+			} else if (backend) {
 				if (current()->typeMap)
 					backend->save(fileName, *(current()->map));
 				else
@@ -163,7 +166,9 @@ namespace qutim_sdk_0_3
 			if (var.type() != QVariant::Map)
 				var.setValue(QVariantMap());
 			QVariantMap *map = reinterpret_cast<QVariantMap*>(var.data());
-			return Config(map);
+			Config cfg(map);
+			cfg.d_func()->memoryGuard = d_ptr;
+			return cfg;
 		}
 
 		QStringList Config::childGroups() const
@@ -237,7 +242,9 @@ namespace qutim_sdk_0_3
 			if (var.type() != QVariant::Map)
 				var.setValue(QVariantMap());
 			QVariantMap *map = reinterpret_cast<QVariantMap*>(var.data());
-			return Config(map);
+			Config cfg(map);
+			cfg.d_func()->memoryGuard = d_ptr;
+			return cfg;
 		}
 
 		int Config::beginArray(const QString &name)

@@ -32,10 +32,7 @@ namespace qutim_sdk_0_3
 	{
 		static QPointer<IconLoader> self;
 		if(self.isNull() && isCoreInited())
-		{
 			self = qobject_cast<IconLoader*>(getService("IconLoader"));
-			qDebug() << Q_FUNC_INFO << self.data();
-		}
 		return self.data();
 	}
 
