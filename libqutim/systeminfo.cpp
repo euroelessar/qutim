@@ -220,7 +220,7 @@ namespace qutim_sdk_0_3
 		d->dirs[SystemInfo::ShareDir]          = QDir::homePath() % QLatin1Literal("/.qutim/share");
 #if defined(Q_OS_WIN32)
 		d->dirs[SystemInfo::SystemConfigDir]   = qApp->applicationDirPath() % QLatin1Literal("/config");
-		d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath();
+		d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../share");
 #else
 		d->dirs[SystemInfo::SystemConfigDir]   = QLatin1String("/etc/qutim");
 		d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../share");
