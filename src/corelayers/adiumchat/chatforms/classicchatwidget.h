@@ -20,7 +20,6 @@
 #include "../chatlayerimpl.h"
 #include "abstractchatwidget.h"
 #include <QMainWindow>
-#include <QModelIndex>
 #include <QTimer>
 
 namespace Ui
@@ -56,18 +55,13 @@ namespace Core
 			virtual bool event(QEvent *event);
 		private slots:
 			void currentIndexChanged (int index);
-			void onBuddiesChanged();
 			void onCloseRequested(int index);
 			void onTabMoved(int from,int to);
 			void onSessionDestroyed(QObject* object);
 			void onTextChanged();
 			void onTabContextMenu(const QPoint &pos);
-			void closeCurrentTab();
 			void onSessionListActionTriggered();
 			void onShowHistory(); //TODO Move to startup module
-			void showNextSession();
-			void showPreviousSession();
-			void onDoubleClicked(const QModelIndex &index);
 			void onUnitTitleChanged(const QString &title);
 		private:
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);

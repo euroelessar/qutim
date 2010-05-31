@@ -24,7 +24,7 @@
 
 class QPlainTextEdit;
 class QListView;
-
+class QModelIndex;
 namespace Core
 {
 	namespace AdiumChat
@@ -36,7 +36,7 @@ namespace Core
 			SendTypingNotification	=	0x04,
 			ShowUnreadMessages		=	0x08,
 			SwitchDesktopOnRaise	=	0x10
-		};
+									};
 		Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
 		enum SendMessageKey
 		{
@@ -50,8 +50,8 @@ namespace Core
 			Q_OBJECT
 		public:
 			explicit AbstractChatWidget(const QString &key, bool removeSessionOnClose);
-//			void clear();//remove all sessions
-//			ChatSessionList getSessionList() const;
+			//			void clear();//remove all sessions
+			//			ChatSessionList getSessionList() const;
 			virtual ~AbstractChatWidget();
 			bool contains(ChatSessionImpl *session);
 			virtual QPlainTextEdit *getInputField() = 0;
@@ -68,6 +68,11 @@ namespace Core
 			void onSendButtonClicked();
 			void onChatStateTimeout();
 			void onTextChanged();
+			void showNextSession();
+			void showPreviousSession();
+			void closeCurrentTab();
+			void onBuddiesChanged();
+			void onDoubleClicked(const QModelIndex &index);
 		public slots:
 			void raise();
 		protected:
@@ -83,6 +88,7 @@ namespace Core
 			int m_entersNumber;
 			QTextCursor m_enterPosition;
 			QTimer m_chatstateTimer;
+			int m_current_index;
 		};
 	}
 }

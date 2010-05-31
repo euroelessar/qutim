@@ -26,7 +26,6 @@
 #include <QWidgetAction>
 #include "../actions/chatemoticonswidget.h"
 #include <libqutim/history.h>
-#include <libqutim/shortcut.h>
 #include <libqutim/conference.h>
 #include "../chatsessionitemdelegate.h"
 #include "ui_classicchatwidget.h"
@@ -40,7 +39,6 @@ namespace Core
 				AbstractChatWidget(widgetKey, removeSessionOnClose),
 				ui(new Ui::ClassicChatForm)
 		{
-			m_current_index = -1;
 
 			ui->setupUi(this);
 			
@@ -53,14 +51,12 @@ namespace Core
 			ui->tabButton->setIcon(Icon("view-list-text"));
 			ui->contactsView->hide();
 			//init status and menubar
-			setAttribute(Qt::WA_DeleteOnClose);
 
 			connect(ui->tabBar,SIGNAL(currentChanged(int)),SLOT(currentIndexChanged(int)));
 			connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 			connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 			connect(ui->tabBar,SIGNAL(customContextMenuRequested(QPoint)),SLOT(onTabContextMenu(QPoint)));
 			connect(ui->sendButton,SIGNAL(clicked(bool)),SLOT(onSendButtonClicked()));
-			connect(ui->contactsView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClicked(QModelIndex)));
 			ui->contactsView->setItemDelegate(new ChatSessionItemDelegate(this));
 
 			ui->contactsView->installEventFilter(this);
@@ -94,14 +90,6 @@ namespace Core
 			//
 			//load settings
 			onLoad();
-
-			//init shortcuts
-			Shortcut *key = new Shortcut ("chatCloseSession",ui->tabBar);
-			connect(key,SIGNAL(activated()),SLOT(closeCurrentTab()));
-			key = new Shortcut ("chatNext",ui->tabBar);
-			connect(key,SIGNAL(activated()),SLOT(showNextSession()));
-			key = new Shortcut ("chatPrevious",ui->tabBar);
-			connect(key,SIGNAL(activated()),SLOT(showPreviousSession()));
 		}
 
 		ClassicChatWidget::~ClassicChatWidget()
@@ -351,15 +339,6 @@ namespace Core
 			}
 		}
 
-		void ClassicChatWidget::closeCurrentTab()
-		{
-			if (ui->tabBar->count() > 1)
-				removeSession(m_sessions.at(ui->tabBar->currentIndex()));
-			else
-				close();
-		}
-
-
 		void ClassicChatWidget::onShowHistory()
 		{
 			ChatUnit *unit = m_sessions.at(m_current_index)->getUnit();
@@ -372,43 +351,6 @@ namespace Core
 			Q_ASSERT(act);
 
 			ui->tabBar->setCurrentIndex(ui->tabButton->actions().indexOf(act));
-		}
-
-		void ClassicChatWidget::showNextSession()
-		{
-			m_current_index++;
-			if (m_current_index >= m_sessions.count())
-				m_current_index = 0;
-			activate(m_sessions.at(m_current_index));
-		}
-
-		void ClassicChatWidget::showPreviousSession()
-		{
-			m_current_index--;
-			if (m_current_index < 0 )
-				m_current_index = m_sessions.count() - 1;
-			activate(m_sessions.at(m_current_index));
-		}
-
-		void ClassicChatWidget::onDoubleClicked(const QModelIndex &index)
-		{
-			Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
-			if (buddy)
-				ChatLayer::get(buddy, true)->activate();
-		}
-
-		void ClassicChatWidget::onBuddiesChanged()
-		{
-			ChatSessionImpl *s = qobject_cast<ChatSessionImpl *>(sender());
-
-			if (!s || (m_sessions.indexOf(s) != m_current_index))
-				return;
-
-			if (qobject_cast<Conference*>(s->getUnit()))
-				ui->contactsView->setVisible(true);
-			else
-				ui->contactsView->setVisible(s->getModel()->rowCount(QModelIndex()) > 0);
-
 		}
 
 		void ClassicChatWidget::onUnitTitleChanged(const QString &title)

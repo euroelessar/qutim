@@ -26,7 +26,6 @@
 #include <QWidgetAction>
 #include "../actions/chatemoticonswidget.h"
 #include <libqutim/history.h>
-#include <libqutim/shortcut.h>
 #include <libqutim/conference.h>
 #include "../chatsessionitemdelegate.h"
 #include "ui_adiumchatwidget.h"
@@ -52,7 +51,6 @@ namespace Core
 				AbstractChatWidget(widgetKey, removeSessionOnClose),
 				ui(new Ui::AdiumChatForm)
 		{
-			m_current_index = -1;
 
 			ui->setupUi(this);
 			m_originalDoc = ui->chatEdit->document();
@@ -67,13 +65,11 @@ namespace Core
 			ui->tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 			ui->contactsView->hide();
 			//init status and menubar
-			setAttribute(Qt::WA_DeleteOnClose);
 
 			connect(ui->tabBar,SIGNAL(currentChanged(int)),SLOT(currentIndexChanged(int)));
 			connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 			connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 			connect(ui->tabBar,SIGNAL(customContextMenuRequested(QPoint)),SLOT(onTabContextMenu(QPoint)));
-			connect(ui->contactsView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClicked(QModelIndex)));
 			ui->contactsView->setItemDelegate(new ChatSessionItemDelegate(this));
 
 			ui->contactsView->installEventFilter(this);
@@ -145,13 +141,6 @@ namespace Core
 					setContentsMargins(0, 0, 0, 0);
 				}
 			}
-			//init shortcuts
-			Shortcut *key = new Shortcut ("chatCloseSession",ui->tabBar);
-			connect(key,SIGNAL(activated()),SLOT(closeCurrentTab()));
-			key = new Shortcut ("chatNext",ui->tabBar);
-			connect(key,SIGNAL(activated()),SLOT(showNextSession()));
-			key = new Shortcut ("chatPrevious",ui->tabBar);
-			connect(key,SIGNAL(activated()),SLOT(showPreviousSession()));
 		}
 
 		AdiumChatWidget::~AdiumChatWidget()
@@ -394,14 +383,6 @@ namespace Core
 			}
 		}
 
-		void AdiumChatWidget::closeCurrentTab()
-		{
-			if (ui->tabBar->count() > 1)
-				removeSession(m_sessions.at(ui->tabBar->currentIndex()));
-			else
-				close();
-		}
-
 
 		void AdiumChatWidget::onShowHistory()
 		{
@@ -417,42 +398,6 @@ namespace Core
 			ui->tabBar->setCurrentIndex(m_session_list->menu()->actions().indexOf(act));
 		}
 
-		void AdiumChatWidget::showNextSession()
-		{
-			m_current_index++;
-			if (m_current_index >= m_sessions.count())
-				m_current_index = 0;
-			activate(m_sessions.at(m_current_index));
-		}
-
-		void AdiumChatWidget::showPreviousSession()
-		{
-			m_current_index--;
-			if (m_current_index < 0 )
-				m_current_index = m_sessions.count() - 1;
-			activate(m_sessions.at(m_current_index));
-		}
-
-		void AdiumChatWidget::onDoubleClicked(const QModelIndex &index)
-		{
-			Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
-			if (buddy)
-				ChatLayer::get(buddy, true)->activate();
-		}
-
-		void AdiumChatWidget::onBuddiesChanged()
-		{
-			ChatSessionImpl *s = qobject_cast<ChatSessionImpl *>(sender());
-
-			if (!s || (m_sessions.indexOf(s) != m_current_index))
-				return;
-
-			if (qobject_cast<Conference*>(s->getUnit()))
-				ui->contactsView->setVisible(true);
-			else
-				ui->contactsView->setVisible(s->getModel()->rowCount(QModelIndex()) > 0);
-
-		}
 
 		void AdiumChatWidget::onUnitTitleChanged(const QString &title)
 		{

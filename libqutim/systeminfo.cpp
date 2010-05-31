@@ -226,7 +226,7 @@ namespace qutim_sdk_0_3
 		d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../Resources/share");
 #else
 		d->dirs[SystemInfo::SystemConfigDir]   = QLatin1String("/etc/qutim");
-		d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../Resources/share");
+		d->dirs[SystemInfo::SystemShareDir]    = qApp->applicationDirPath() % QLatin1Literal("/../share");
 #endif
 		d->timezone_offset = 0;
 		d->timezone_str = "N/A";

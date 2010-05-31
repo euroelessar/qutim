@@ -24,6 +24,8 @@
 #include <QListView>
 #include <QWebView>
 #include "libqutim/tooltip.h"
+#include <libqutim/shortcut.h>
+#include <libqutim/conference.h>
 
 #ifdef Q_WS_X11
 # include <QX11Info>
@@ -44,8 +46,9 @@ namespace Core
 	{
 		AbstractChatWidget::AbstractChatWidget(const QString &key, bool removeSessionOnClose)
 			: m_key(key), m_removeSessionOnClose(removeSessionOnClose),
-			m_htmlMessage(false), m_chatstate(ChatStateActive), m_entersNumber(0)
+			m_htmlMessage(false), m_chatstate(ChatStateActive), m_entersNumber(0),m_current_index(-1)
 		{
+			setAttribute(Qt::WA_DeleteOnClose);
 		}
 		
 		AbstractChatWidget::~AbstractChatWidget()
@@ -156,6 +159,17 @@ namespace Core
 				m_chatstateTimer.setSingleShot(true);
 				connect(&m_chatstateTimer,SIGNAL(timeout()),SLOT(onChatStateTimeout()));
 			}
+
+			//init shortcuts
+			Shortcut *key = new Shortcut ("chatCloseSession",getTabBar());
+			connect(key,SIGNAL(activated()),SLOT(closeCurrentTab()));
+			key = new Shortcut ("chatNext",getTabBar());
+			connect(key,SIGNAL(activated()),SLOT(showNextSession()));
+			key = new Shortcut ("chatPrevious",getTabBar());
+			connect(key,SIGNAL(activated()),SLOT(showPreviousSession()));
+
+			connect(getContactsView(), SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClicked(QModelIndex)));
+
 		}
 		
 		bool AbstractChatWidget::eventFilter(QObject *obj, QEvent *event)
@@ -246,6 +260,53 @@ namespace Core
 				m_chatstate = ChatStateComposing;
 				m_sessions.at(getTabBar()->currentIndex())->setChatState(m_chatstate);
 			}
+		}
+
+
+		void AbstractChatWidget::showNextSession()
+		{
+			m_current_index++;
+			if (m_current_index >= m_sessions.count())
+				m_current_index = 0;
+			activate(m_sessions.at(m_current_index));
+		}
+
+		void AbstractChatWidget::showPreviousSession()
+		{
+			m_current_index--;
+			if (m_current_index < 0 )
+				m_current_index = m_sessions.count() - 1;
+			activate(m_sessions.at(m_current_index));
+		}
+
+
+		void AbstractChatWidget::closeCurrentTab()
+		{
+			if (getTabBar()->count() > 1)
+				removeSession(m_sessions.at(getTabBar()->currentIndex()));
+			else
+				close();
+		}
+
+		void AbstractChatWidget::onBuddiesChanged()
+		{
+			ChatSessionImpl *s = qobject_cast<ChatSessionImpl *>(sender());
+
+			if (!s || (m_sessions.indexOf(s) != m_current_index))
+				return;
+
+			if (qobject_cast<Conference*>(s->getUnit()))
+				getContactsView()->setVisible(true);
+			else
+				getContactsView()->setVisible(s->getModel()->rowCount(QModelIndex()) > 0);
+
+		}
+
+		void AbstractChatWidget::onDoubleClicked(const QModelIndex &index)
+		{
+			Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
+			if (buddy)
+				ChatLayer::get(buddy, true)->activate();
 		}
 
 	}

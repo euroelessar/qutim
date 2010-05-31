@@ -20,7 +20,6 @@
 #include "../chatlayerimpl.h"
 #include "abstractchatwidget.h"
 #include <QMainWindow>
-#include <QModelIndex>
 #include <QTimer>
 
 namespace qutim_sdk_0_3 {
@@ -60,22 +59,16 @@ namespace Core
 			virtual bool event(QEvent *event);
 		private slots:
 			void currentIndexChanged (int index);
-			void onBuddiesChanged();
-			void onCloseRequested(int index);
 			void onTabMoved(int from,int to);
+			void onCloseRequested(int index);
 			void onSessionDestroyed(QObject* object);
 			void onTabContextMenu(const QPoint &pos);
-			void closeCurrentTab();
 			void onSessionListActionTriggered();
 			void onShowHistory(); //TODO Move to startup module
-			void showNextSession();
-			void showPreviousSession();
-			void onDoubleClicked(const QModelIndex &index);
-			void onUnitTitleChanged(const QString &title);			
+			void onUnitTitleChanged(const QString &title);
 		private:
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
 			int m_send_key;
-			int m_current_index;
 			Ui::AdiumChatForm *ui;
 			ActionToolBar *m_toolbar;
 			QAction *m_session_list;
