@@ -9,7 +9,10 @@ namespace Antispam
 	void AntispamPlugin::init()
 	{
 		debug() << Q_FUNC_INFO;
-		//addAuthor(); //TODO
+		addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
+				  QT_TRANSLATE_NOOP("Task","Author"),
+				  QLatin1String("sauron@citadelspb.com"),
+				  QLatin1String("sauron.me"));
 	}
 	bool AntispamPlugin::load()
 	{
