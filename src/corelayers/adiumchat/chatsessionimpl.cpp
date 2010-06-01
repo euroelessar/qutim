@@ -387,7 +387,7 @@ namespace Core
 			setParent(unit);
 			Contact *c = qobject_cast<Contact *>(unit);
 			if (c) {
-				connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),d,SLOT(onStatusChanged(Status)));
+				connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),d,SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 			}
 		}
 
