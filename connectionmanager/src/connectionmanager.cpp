@@ -28,7 +28,6 @@ namespace ConnectionManager
 	ConnectionManager::ConnectionManager() :
 		m_network_conf_manager(new QNetworkConfigurationManager(this))
 	{
-		//addAuthor(); //TODO
 	}
 
 	ConnectionManager::~ConnectionManager()
@@ -39,6 +38,12 @@ namespace ConnectionManager
 	void ConnectionManager::init()
 	{
 		debug() << Q_FUNC_INFO;
+
+		addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
+				  QT_TRANSLATE_NOOP("Task","Author"),
+				  QLatin1String("sauron@citadelspb.com"),
+				  QLatin1String("sauron.me"));
+
 		connect(m_network_conf_manager.data(),SIGNAL(onlineStateChanged(bool)),SLOT(onOnlineStateChanged(bool)));
 	}
 
