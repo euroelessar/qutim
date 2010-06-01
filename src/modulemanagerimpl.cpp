@@ -9,6 +9,7 @@
 #include "libqutim/protocol.h"
 #include "profiledialog.h"
 #include "profilecreationwizard.h"
+#include "libqutim/game/config.h"
 
 namespace Core
 {
@@ -16,17 +17,13 @@ namespace Core
 	{
 		loadPlugins();
 		
-		QVariantMap value = ProfileDialog::profilesInfo();
-		bool singleProfile = value.value("singleProfile",
+		Game::Config config = ProfileDialog::profilesInfo();
 #ifdef Q_OS_WIN
-										 false
+		if (config.value("singleProfile", false)) {
 #else
-										 true
+		if (config.value("singleProfile", true)) {
 #endif
-										 ).toBool();
-		if (singleProfile) {
-			QVariantMap map = value.value("profile").toMap();
-			if (map.isEmpty()) {
+			if (!config.hasChildGroup("profile")) {
 				QWidget *wizard = new ProfileCreationWizard(this, QString(), QString(), true);
 				wizard->setAttribute(Qt::WA_DeleteOnClose, true);
 				wizard->setAttribute(Qt::WA_QuitOnClose, false);
@@ -35,13 +32,17 @@ namespace Core
 #else
 				wizard->show();
 #endif
-			} else if(ProfileDialog::acceptProfileInfo(map, QString())) {
-				QTimer::singleShot(0, this, SLOT(initExtensions()));
 			} else {
-				qWarning("Can't login");
+				config.beginGroup("profile");
+				if(ProfileDialog::acceptProfileInfo(config, QString())) {
+					QTimer::singleShot(0, this, SLOT(initExtensions()));
+				} else {
+					qWarning("Can't login");
+				}
+				config.endGroup();
 			}
 		} else {
-			QDialog *dialog = new ProfileDialog(value, this);
+			QDialog *dialog = new ProfileDialog(config, this);
 #if	defined(Q_OS_SYMBIAN)
 			dialog->showMaximized();
 #else

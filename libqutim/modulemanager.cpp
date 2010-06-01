@@ -18,6 +18,7 @@
 #include "deprecatedplugin_p.h"
 #include "cryptoservice.h"
 #include "configbase_p.h"
+#include "game/config.h"
 #include "protocol.h"
 #include "contactlist.h"
 #include "notificationslayer.h"
@@ -44,6 +45,11 @@
 
 namespace qutim_sdk_0_3
 {
+	namespace Game
+	{
+		LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
+	}
+	
 	const char *qutimVersionStr()
 	{
 		return QUTIM_VERSION_STR;
@@ -418,7 +424,23 @@ namespace qutim_sdk_0_3
 	 */
 	void ModuleManager::initExtensions()
 	{
-//		qutim_sdk_0_3::managerSelf = initExtension<CryptoService>();
+		// TODO: remove old API and this hack
+		QList<Game::ConfigBackend*> &configBackends = Game::get_config_backends();
+		if (configBackends.isEmpty()) {
+			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions<Game::ConfigBackend>();
+			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
+			for(; it != exts.end(); it++)
+			{
+				const QMetaObject *meta = it.value().generator()->metaObject();
+				QByteArray name = metaInfo(meta, "Extension");
+				if (name.isEmpty()) {
+					qWarning("%s has no 'Extension' class info", meta->className());
+					continue;
+				}
+				qDebug("Found '%s' for '%s'", meta->className(), name.constData());
+				configBackends << it.value().generator()->generate<Game::ConfigBackend>();
+			}
+		}
 		if (ConfigPrivate::config_backends.isEmpty()) {
 			// Is it really possible?.. May be we should remove it?
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions<ConfigBackend>();

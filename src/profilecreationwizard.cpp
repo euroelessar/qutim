@@ -5,6 +5,7 @@
 #include "profilecreationpage.h"
 #include "libqutim/jsonfile.h"
 #include "libqutim/configbase_p.h"
+#include "libqutim/game/config.h"
 #include <QMessageBox>
 #include <QTimer>
 #include <QApplication>
@@ -100,37 +101,38 @@ void ProfileCreationWizard::done(int result)
 		QVariant var;
 		if (file.load(var))
 			map = var.toMap();
-		QVariantList profiles = map.value("list").toList();
 		{
-			QVariantMap profile;
-			profile.insert("name", field("name").toString());
-			profile.insert("id", field("id").toString());
-			profile.insert("crypto", QLatin1String(page->cryptoName()));
-			profile.insert("config", QLatin1String(ConfigPrivate::config_backends.first()
-												   .second->metaObject()->className()));
-			profile.insert("portable", field("portable").toBool());
+			Game::Config config(&map);
+			if (m_singleProfile) {
+				config.beginGroup("profile");
+			} else {
+				int size = config.beginArray("list");
+				config.setArrayIndex(size);
+			}
+			config.setValue("name", field("name"));
+			config.setValue("id", field("id"));
+			config.setValue("crypto", QLatin1String(page->cryptoName()));
+			config.setValue("config", QLatin1String(ConfigPrivate::config_backends.first()
+													.second->metaObject()->className()));
+			config.setValue("portable", field("portable"));
 			if (field("portable").toBool()) {
 				QDir app = qApp->applicationDirPath();
-				profile.insert("configDir", app.relativeFilePath(SystemInfo::getPath(SystemInfo::ConfigDir)));
-				profile.insert("historyDir", app.relativeFilePath(SystemInfo::getPath(SystemInfo::HistoryDir)));
-				profile.insert("shareDir", app.relativeFilePath(SystemInfo::getPath(SystemInfo::ShareDir)));
+				config.setValue("configDir", app.relativeFilePath(SystemInfo::getPath(SystemInfo::ConfigDir)));
+				config.setValue("historyDir", app.relativeFilePath(SystemInfo::getPath(SystemInfo::HistoryDir)));
+				config.setValue("shareDir", app.relativeFilePath(SystemInfo::getPath(SystemInfo::ShareDir)));
 			} else {
-				profile.insert("configDir", SystemInfo::getPath(SystemInfo::ConfigDir));
-				profile.insert("historyDir", SystemInfo::getPath(SystemInfo::HistoryDir));
-				profile.insert("shareDir", SystemInfo::getPath(SystemInfo::ShareDir));
+				config.setValue("configDir", SystemInfo::getPath(SystemInfo::ConfigDir));
+				config.setValue("historyDir", SystemInfo::getPath(SystemInfo::HistoryDir));
+				config.setValue("shareDir", SystemInfo::getPath(SystemInfo::ShareDir));
 			}
-			if (m_singleProfile)
-				map.insert("profile", profile);
-			else
-				profiles.append(profile);
-		}
-		if (!m_singleProfile) {
-			map.insert("list", profiles);
-			if (!map.value("current").isValid()) {
-				map.insert("current", field("id").toString());
+			if (m_singleProfile) {
+				config.endGroup();
+			} else {
+				config.endArray();
+				if (config.value("current").isNull())
+					config.setValue("current", field("id"));
 			}
 		}
-		file.setFileName(dir.absoluteFilePath("profiles/profiles.json"));
 		if (!file.save(map)) {
 //			QMessageBox::critical(this, tr(""))
 			qWarning("Can not open file '%s' for writing", 

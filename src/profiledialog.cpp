@@ -10,6 +10,7 @@
 #include "libqutim/jsonfile.h"
 #include "libqutim/cryptoservice.h"
 #include "libqutim/configbase_p.h"
+#include "libqutim/game/config.h"
 #include <QCryptographicHash>
 #include <QTimer>
 
@@ -18,21 +19,23 @@ namespace qutim_sdk_0_3
 
 namespace Core
 {
-ProfileDialog::ProfileDialog(const QVariantMap &value, ModuleManager *parent) :
+ProfileDialog::ProfileDialog(Game::Config &config, ModuleManager *parent) :
     ui(new Ui::ProfileDialog)
 {
 	m_manager = parent;
 	ui->setupUi(this);
 	
-	if (value.isEmpty()) {
+	int size = config.beginArray("list");
+	if (size == 0) {
 		ui->toolBox->setCurrentIndex(1);
 		ui->toolBox->setItemEnabled(0, false);
 	} else {
-		foreach (QVariant var, value.value("list").toList()) {
-			QVariantMap map = var.toMap();
-			ui->profilesBox->addItem(map.value("id").toString(), QVariant(map));
+		for (int i = 0; i < size; i++) {
+			Game::Config group = config.arrayElement(i);
+			ui->profilesBox->addItem(group.value("id", QString()), qVariantFromValue(group));
 		}
 	}
+	config.endArray();
 }
 
 ProfileDialog::~ProfileDialog()
@@ -40,7 +43,7 @@ ProfileDialog::~ProfileDialog()
     delete ui;
 }
 
-QVariantMap ProfileDialog::profilesInfo()
+Game::Config ProfileDialog::profilesInfo()
 {
 	QDir dir = qApp->applicationDirPath();
 	if (!dir.exists("profiles") || !dir.cd("profiles")) {
@@ -58,18 +61,18 @@ QVariantMap ProfileDialog::profilesInfo()
 	}
 	QFileInfo profilesInfo(dir.filePath("profiles.json"));
 	if (!profilesInfo.exists() || !profilesInfo.isFile()) {
-		return QVariantMap();
+		return Game::Config(QVariantMap());
 	} else {
 		JsonFile file(profilesInfo.absoluteFilePath());
 		QVariant var;
 		file.load(var);
-		return var.toMap();
+		return Game::Config(var.toMap());
 	}
 }
 
-bool ProfileDialog::acceptProfileInfo(const QVariantMap &map, const QString &password)
+bool ProfileDialog::acceptProfileInfo(Game::Config &config, const QString &password)
 {
-	QString crypto = map.value("crypto").toString();
+	QString crypto = config.value("crypto", QString());
 	GeneratorList gens = moduleGenerators<CryptoService>();
 	CryptoService *service = 0;
 	foreach (const ObjectGenerator *gen, gens) {
@@ -79,7 +82,7 @@ bool ProfileDialog::acceptProfileInfo(const QVariantMap &map, const QString &pas
 		}
 	}
 
-	QString configDir = map.value("configDir").toString();
+	QString configDir = config.value("configDir", QString());
 	QFile file(configDir + "/profilehash");
 	if (service && file.open(QIODevice::ReadOnly)) {
 		service->setPassword(password, QVariant());
@@ -96,34 +99,34 @@ bool ProfileDialog::acceptProfileInfo(const QVariantMap &map, const QString &pas
 			qCritical("Wrong password");
 		if (QLatin1String(cryptoCheck) != crypto)
 			qCritical("Wrong crypto service");
-		if (id != map.value("id").toString())
+		if (id != config.value("id", QString()))
 			qCritical("Wrong profile id");
 		if (passwordHash != hash
 			|| QLatin1String(cryptoCheck) != crypto
-			|| id != map.value("id").toString()) {
+			|| id != config.value("id", QString())) {
 			delete service;
 			return false;
 		}
 
 		QVector<QDir> &systemDirs = *system_info_dirs();
-		if (map.value("portable").toBool()) {
+		if (config.value("portable", false)) {
 			QDir dir = qApp->applicationDirPath();
-			systemDirs[SystemInfo::ConfigDir] = dir.absoluteFilePath(map.value("configDir").toString());
-			systemDirs[SystemInfo::HistoryDir] = dir.absoluteFilePath(map.value("historyDir").toString());
-			systemDirs[SystemInfo::ShareDir] = dir.absoluteFilePath(map.value("shareDir").toString());
+			systemDirs[SystemInfo::ConfigDir] = dir.absoluteFilePath(config.value("configDir", QString()));
+			systemDirs[SystemInfo::HistoryDir] = dir.absoluteFilePath(config.value("historyDir", QString()));
+			systemDirs[SystemInfo::ShareDir] = dir.absoluteFilePath(config.value("shareDir", QString()));
 		} else {
-			systemDirs[SystemInfo::ConfigDir] = QDir::cleanPath(map.value("configDir").toString());
-			systemDirs[SystemInfo::HistoryDir] = QDir::cleanPath(map.value("historyDir").toString());
-			systemDirs[SystemInfo::ShareDir] = QDir::cleanPath(map.value("shareDir").toString());
+			systemDirs[SystemInfo::ConfigDir] = QDir::cleanPath(config.value("configDir", QString()));
+			systemDirs[SystemInfo::HistoryDir] = QDir::cleanPath(config.value("historyDir", QString()));
+			systemDirs[SystemInfo::ShareDir] = QDir::cleanPath(config.value("shareDir", QString()));
 		}
 
-		QString config = map.value("config").toString();
+		QString configName = config.value("config", QString());
 		foreach (const ObjectGenerator *gen, moduleGenerators<ConfigBackend>()) {
 			const ExtensionInfo info = gen->info();
 			ConfigBackend *backend = info.generator()->generate<ConfigBackend>();
 			ConfigBackendInfo back = ConfigBackendInfo(metaInfo(backend->metaObject(),
 																"Extension"), backend);
-			if (config == QLatin1String(backend->metaObject()->className()))
+			if (configName == QLatin1String(backend->metaObject()->className()))
 				ConfigPrivate::config_backends.prepend(back);
 			else
 				ConfigPrivate::config_backends.append(back);
@@ -138,9 +141,10 @@ bool ProfileDialog::acceptProfileInfo(const QVariantMap &map, const QString &pas
 
 void ProfileDialog::on_loginButton_clicked()
 {
-	QVariantMap map = ui->profilesBox->itemData(ui->profilesBox->currentIndex()).toMap();
+	QVariant variant = ui->profilesBox->itemData(ui->profilesBox->currentIndex());
+	Game::Config config = variant.value<Game::Config>();
 	QString password = ui->passwordEdit->text();
-	if (acceptProfileInfo(map, password)) {
+	if (acceptProfileInfo(config, password)) {
 		QTimer::singleShot(0, m_manager, SLOT(initExtensions()));
 		deleteLater();
 	}

@@ -76,6 +76,13 @@ namespace qutim_sdk_0_3
 			}
 		}
 		
+		Config::Config()
+		{
+			Q_D(Config);
+			d->current()->deleteOnDestroy = true;
+			d->current()->map = new QVariantMap();
+		}
+		
 		Config::Config(const QVariantList &list) : d_ptr(new ConfigPrivate)
 		{
 			Q_D(Config);
@@ -197,6 +204,24 @@ namespace qutim_sdk_0_3
 					groups << it.key();
 			}
 			return groups;
+		}
+		
+		bool Config::hasChildGroup(const QString &name) const
+		{
+			Q_D(const Config);
+			if (!d->current()->typeMap)
+				return false;
+			QVariantMap::iterator it = d->current()->map->find(name);
+			return (it != d->current()->map->end() && it.value().type() == QVariant::Map);
+		}
+		
+		bool Config::hasChildKey(const QString &name) const
+		{
+			Q_D(const Config);
+			if (!d->current()->typeMap)
+				return false;
+			QVariantMap::iterator it = d->current()->map->find(name);
+			return (it != d->current()->map->end() && it.value().type() != QVariant::Map);
 		}
 
 		void Config::beginGroup(const QString &name)

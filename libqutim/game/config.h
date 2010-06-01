@@ -35,6 +35,7 @@ namespace qutim_sdk_0_3
 			enum ValueFlag { Normal = 0x00, Crypted = 0x01 };
 			Q_DECLARE_FLAGS(ValueFlags, ValueFlag)
 			
+			Config();
 			Config(const QVariantList &list);
 			Config(QVariantList *list);
 			Config(const QVariantMap &map);
@@ -47,6 +48,8 @@ namespace qutim_sdk_0_3
 			Config group(const QString &name);
 			QStringList childGroups() const;
 			QStringList childKeys() const;
+			bool hasChildGroup(const QString &name) const;
+			bool hasChildKey(const QString &name) const;
 			void beginGroup(const QString &name);
 			void endGroup();
 			void remove(const QString &name);
@@ -58,8 +61,16 @@ namespace qutim_sdk_0_3
 			void setArrayIndex(int index);
 			void remove(int index);
 			
+			template<typename T>
+			T value(const QString &key, const T &def = T(), ValueFlags type = Normal) const;
 			QVariant value(const QString &key, const QVariant &def = QVariant(), ValueFlags type = Normal) const;
+			inline QString value(const QString &key, const QLatin1String &def, ValueFlags type = Normal) const;
+			inline QString value(const QString &key, const char *def, ValueFlags type = Normal) const;
+			template<typename T>
+			void setValue(const QString &key, const T &value, ValueFlags type = Normal);
 			void setValue(const QString &key, const QVariant &value, ValueFlags type = Normal);
+			inline void setValue(const QString &key, const QLatin1String &value, ValueFlags type = Normal);
+			inline void setValue(const QString &key, const char *value, ValueFlags type = Normal);
 			
 			void sync();
 		private:
@@ -83,7 +94,41 @@ namespace qutim_sdk_0_3
 		private:
 			QScopedPointer<ConfigBackendPrivate> d_ptr;
 		};
+		
+		template<typename T>
+		Q_INLINE_TEMPLATE T Config::value(const QString &key, const T &def, Config::ValueFlags type) const
+		{
+			return value(key, qVariantFromValue(def), type).value<T>();
+		}
+		
+		template<typename T>
+		Q_INLINE_TEMPLATE void Config::setValue(const QString &key, const T &value, Config::ValueFlags type)
+		{
+			setValue(key, qVariantFromValue(value), type);
+		}
+		
+		QString Config::value(const QString &key, const QLatin1String &def, ValueFlags type) const
+		{
+			return value(key, QString(def), type);
+		}
+		
+		QString Config::value(const QString &key, const char *def, ValueFlags type) const
+		{
+			return value(key, QString::fromUtf8(def), type);
+		}
+		
+		void Config::setValue(const QString &key, const QLatin1String &value, ValueFlags type)
+		{
+			setValue(key, QString(value), type);
+		}
+
+		void Config::setValue(const QString &key, const char *value, ValueFlags type)
+		{
+			setValue(key, QString::fromUtf8(value), type);
+		}
 	}
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::Game::Config)
 
 #endif // CONFIG_H

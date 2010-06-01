@@ -4,6 +4,14 @@
 #include <QDialog>
 #include "modulemanagerimpl.h"
 
+namespace qutim_sdk_0_3
+{
+	namespace Game
+	{
+		class Config;
+	}
+}
+
 namespace Ui {
     class ProfileDialog;
 }
@@ -14,10 +22,10 @@ class ProfileDialog : public QDialog
 {
     Q_OBJECT
 public:
-	ProfileDialog(const QVariantMap &value, ModuleManager *parent = 0);
+	ProfileDialog(Game::Config &config, ModuleManager *parent = 0);
     ~ProfileDialog();
-	static QVariantMap profilesInfo();
-	static bool acceptProfileInfo(const QVariantMap &map, const QString &password);
+	static Game::Config profilesInfo();
+	static bool acceptProfileInfo(Game::Config &config, const QString &password);
 
 protected slots:
 	void on_loginButton_clicked();
