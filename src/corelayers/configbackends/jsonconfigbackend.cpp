@@ -69,13 +69,6 @@ namespace Core
 //					return QVariant(s.toLatin1().mid(11, s.size() - 12));
 				} else if (s.startsWith(QLatin1String("@Variant("))) {
 					QByteArray a(QByteArray::fromBase64(s.toLatin1().mid(9, s.size() - 10)));
-					{
-						QDataStream s(&a, QIODevice::ReadOnly);
-						QByteArray name;
-						quint8 is_null;
-						quint32 ver;
-						s >> ver >> is_null >> name;
-					}
 					QDataStream stream(&a, QIODevice::ReadOnly);
 					stream.setVersion(QDataStream::Qt_4_5);
 					QVariant result;
@@ -108,10 +101,11 @@ namespace Core
 	{
 		Q_UNUSED(err);
 		Q_UNUSED(indent);
+		result += '\"';
 		switch (val.type()) {
 			case QVariant::ByteArray: {
 				QByteArray a = val.toByteArray();
-				result = "@ByteArray(";
+				result += "@ByteArray(";
 				result += a.toBase64();
 //				result += QString::fromLatin1(a.constData(), a.size());
 				result += ')';
@@ -164,12 +158,13 @@ namespace Core
 					s << val;
 				}
 
-				result = "@Variant(";
+				result += "@Variant(";
 				result += a.toBase64();
 				result += ')';
 				break;
 			}
 		}
+		result += '\"';
 		return true;
 	}
 	
