@@ -243,7 +243,7 @@ void BuddyPicture::updateData(QObject *obj, const QByteArray &hash, const QStrin
 {
 	obj->setProperty("iconHash", hash);
 	obj->setProperty("avatar", path);
-	ConfigGroup cfg = account()->config("avatars").group("hashes");
+	Config cfg = account()->config("avatars").group("hashes");
 	cfg.setValue(obj->property("id").toString(), QString::fromLatin1(hash.toHex()));
 	cfg.sync();
 }

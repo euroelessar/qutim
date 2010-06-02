@@ -32,7 +32,7 @@ namespace Jabber
 			account->config().group("general").setValue("passwd", page->passwd(), Config::Crypted);
 			account->config().sync();
 		}
-		ConfigGroup cfg = protocol->config().group("general");
+		Config cfg = protocol->config().group("general");
 		QStringList accounts = cfg.value("accounts", QStringList());
 		accounts << account->id();
 		cfg.setValue("accounts", accounts);

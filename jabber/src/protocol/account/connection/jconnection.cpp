@@ -156,7 +156,7 @@ namespace Jabber
 	{
 		// TODO: FIXME: Protocol settings must be fallback for account everywhere %)
 		QString defaultResource = JProtocol::instance()->config().group("general").value("defaultresource", QString("qutIM"));
-		ConfigGroup group = p->account->config().group("general");
+		Config group = p->account->config().group("general");
 		p->resource = group.value("resource", defaultResource);
 		p->avatarHash = group.value("avatarhash", QString());
 		p->client->setResource(p->resource.toStdString());
@@ -250,7 +250,7 @@ namespace Jabber
 	{
 		if (p->avatarHash != hex) {
 			p->avatarHash = hex;
-			ConfigGroup general = p->account->config("general");
+			Config general = p->account->config("general");
 			general.setValue("avatarhash", p->avatarHash);
 			general.sync();
 			

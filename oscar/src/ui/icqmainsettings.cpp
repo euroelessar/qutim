@@ -40,7 +40,7 @@ IcqMainSettings::~IcqMainSettings()
 
 void IcqMainSettings::loadImpl()
 {
-	ConfigGroup config = IcqProtocol::instance()->config().group("general");
+	Config config = IcqProtocol::instance()->config().group("general");
 	bool avatars = !config.value("avatars", true);
 	ui->avatarBox->setChecked(avatars);
 	QString codecName = config.value("codec", QString("System"));
@@ -75,7 +75,7 @@ void IcqMainSettings::cancelImpl()
 
 void IcqMainSettings::saveImpl()
 {
-	ConfigGroup config = IcqProtocol::instance()->config().group("general");
+	Config config = IcqProtocol::instance()->config().group("general");
 	config.setValue("avatars", !ui->avatarBox->isChecked());
 	config.setValue("codec", ui->codepageBox->currentText());
 	config = IcqProtocol::instance()->config().group("reconnect");

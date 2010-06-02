@@ -244,8 +244,9 @@ namespace Jabber
 		Config c = Config(p->account->protocol()->id() + QLatin1Char('.') + p->account->id() + QLatin1String("/certificates"));
 		QString s = QString::fromStdString(info.server);
 
-		if (c.hasGroup(s))
-			return c.value(s, true);
+		QVariant value = c.value(s);
+		if (value.canConvert(QVariant::Bool))
+			return value.toBool();
 
 		if (!p->account->config().group("connect").value("viewCertInfo", false))
 			return true;

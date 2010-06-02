@@ -84,7 +84,7 @@ namespace Jabber
 		movie->start();
 		p->ui->labelLoader->setMovie(movie);*/
 		p->ui->labelLoader->setVisible(false);
-		ConfigGroup group = account->protocol()->config("serviceBrowser");
+		Config group = account->protocol()->config("serviceBrowser");
 		p->showFeatures = group.value("showFeatures", false);
 		QStringList items = group.value("servers", QStringList());
 		p->ui->serviceServer->addItems(items);
@@ -230,7 +230,7 @@ namespace Jabber
 		p->ui->serviceServer->removeItem(p->ui->serviceServer->findText(server));
 		p->ui->serviceServer->insertItem(0, server);
 		p->ui->serviceServer->setCurrentIndex(0);
-		ConfigGroup group = p->account->protocol()->config().group("serviceBrowser");
+		Config group = p->account->protocol()->config().group("serviceBrowser");
 		QStringList items;
 		for (int num = 0; num < p->ui->serviceServer->count(); num++)
 			items << p->ui->serviceServer->itemText(num);

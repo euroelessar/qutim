@@ -122,7 +122,7 @@ namespace Jabber {
 
 	void JAccount::setNick(const QString &nick)
 	{
-		ConfigGroup general = config("general");
+		Config general = config("general");
 		general.setValue("nick", nick);
 		general.sync();
 		p->nick = nick;
