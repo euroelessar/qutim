@@ -76,7 +76,7 @@ namespace qutim_sdk_0_3
 			}
 		}
 		
-		Config::Config()
+		Config::Config() : d_ptr(new ConfigPrivate)
 		{
 			Q_D(Config);
 			d->current()->deleteOnDestroy = true;
@@ -165,14 +165,33 @@ namespace qutim_sdk_0_3
 		{
 		}
 
-		Config Config::group(const QString &name)
+		Config Config::group(const QString &fullName)
 		{
 			Q_D(Config);
 			Q_ASSERT(d->current()->typeMap);
-			QVariant &var = (*(d->current()->map))[name];
-			if (var.type() != QVariant::Map)
-				var.setValue(QVariantMap());
-			QVariantMap *map = reinterpret_cast<QVariantMap*>(var.data());
+			Q_ASSERT(!fullName.isEmpty());
+			
+			int first = 0;
+			QVariant *finalVar = 0;
+			do {
+				int last = fullName.indexOf('/', first);
+				QString name = fullName.mid(first, last != -1 ? last - first : last);
+				if (name.isEmpty()) {
+					first = last + 1;
+					continue;
+				}
+				QVariant &var = (*(d->current()->map))[name];
+				if (var.type() != QVariant::Map)
+					var.setValue(QVariantMap());
+				finalVar = &var;
+				first = last + 1;
+			} while(first != 0);
+			Q_ASSERT(finalVar != NULL);
+			QVariantMap *map;
+			if (finalVar)
+				map = reinterpret_cast<QVariantMap*>(finalVar->data());
+			else
+				map = d->current()->map;
 			Config cfg(map);
 			cfg.d_func()->memoryGuard = d_ptr;
 			return cfg;
@@ -224,16 +243,33 @@ namespace qutim_sdk_0_3
 			return (it != d->current()->map->end() && it.value().type() != QVariant::Map);
 		}
 
-		void Config::beginGroup(const QString &name)
+		void Config::beginGroup(const QString &fullName)
 		{
 			Q_D(Config);
 			Q_ASSERT(d->current()->typeMap);
+			Q_ASSERT(!fullName.isEmpty());
 			ConfigLevel * const l = new ConfigLevel;
 			l->deleteOnDestroy = false;
-			QVariant &var = (*(d->current()->map))[name];
-			if (var.type() != QVariant::Map)
-				var.setValue(QVariantMap());
-			l->map = reinterpret_cast<QVariantMap*>(var.data());
+			int first = 0;
+			QVariant *finalVar = 0;
+			do {
+				int last = fullName.indexOf('/', first);
+				QString name = fullName.mid(first, last != -1 ? last - first : last);
+				if (name.isEmpty()) {
+					first = last + 1;
+					continue;
+				}
+				QVariant &var = (*(d->current()->map))[name];
+				if (var.type() != QVariant::Map)
+					var.setValue(QVariantMap());
+				finalVar = &var;
+				first = last + 1;
+			} while(first != 0);
+			Q_ASSERT(finalVar != NULL);
+			if (finalVar)
+				l->map = reinterpret_cast<QVariantMap*>(finalVar->data());
+			else
+				l->map = d->current()->map;
 			d->levels.prepend(l);
 		}
 

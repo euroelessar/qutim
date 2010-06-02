@@ -45,32 +45,36 @@ namespace qutim_sdk_0_3
 			Config &operator =(const Config &other);
 			virtual ~Config();
 			
-			Config group(const QString &name);
-			QStringList childGroups() const;
-			QStringList childKeys() const;
-			bool hasChildGroup(const QString &name) const;
-			bool hasChildKey(const QString &name) const;
+			Config group(const QString &name) Q_REQUIRED_RESULT;
+			QStringList childGroups() const Q_REQUIRED_RESULT;
+			QStringList childKeys() const Q_REQUIRED_RESULT;
+			bool hasChildGroup(const QString &name) const Q_REQUIRED_RESULT;
+			bool hasChildKey(const QString &name) const Q_REQUIRED_RESULT;
 			void beginGroup(const QString &name);
 			void endGroup();
 			void remove(const QString &name);
 			
-			Config arrayElement(int index);
-			int beginArray(const QString &name);
+			Config arrayElement(int index) Q_REQUIRED_RESULT;
+			int beginArray(const QString &name) Q_REQUIRED_RESULT;
 			void endArray();
-			int arraySize() const;
+			int arraySize() const Q_REQUIRED_RESULT;
 			void setArrayIndex(int index);
 			void remove(int index);
 			
 			template<typename T>
-			T value(const QString &key, const T &def = T(), ValueFlags type = Normal) const;
-			QVariant value(const QString &key, const QVariant &def = QVariant(), ValueFlags type = Normal) const;
-			inline QString value(const QString &key, const QLatin1String &def, ValueFlags type = Normal) const;
-			inline QString value(const QString &key, const char *def, ValueFlags type = Normal) const;
+			T value(const QString &key, const T &def = T(), ValueFlags type = Normal) const Q_REQUIRED_RESULT;
+			QVariant value(const QString &key, const QVariant &def = QVariant(), ValueFlags type = Normal) const Q_REQUIRED_RESULT;
+			inline QString value(const QString &key, const QLatin1String &def, ValueFlags type = Normal) const Q_REQUIRED_RESULT;
+			inline QString value(const QString &key, const char *def, ValueFlags type = Normal) const Q_REQUIRED_RESULT;
+			template <int N>
+			QString value(const QString &key, const char (&def)[N], ValueFlags type = Normal) const Q_REQUIRED_RESULT;
 			template<typename T>
 			void setValue(const QString &key, const T &value, ValueFlags type = Normal);
 			void setValue(const QString &key, const QVariant &value, ValueFlags type = Normal);
 			inline void setValue(const QString &key, const QLatin1String &value, ValueFlags type = Normal);
 			inline void setValue(const QString &key, const char *value, ValueFlags type = Normal);
+			template <int N>
+			void setValue(const QString &key, const char (&value)[N], ValueFlags type = Normal);
 			
 			void sync();
 		private:
@@ -117,6 +121,12 @@ namespace qutim_sdk_0_3
 			return value(key, QString::fromUtf8(def), type);
 		}
 		
+		template <int N>
+		Q_INLINE_TEMPLATE QString Config::value(const QString &key, const char (&def)[N], ValueFlags type) const
+		{
+			return value(key, QString::fromUtf8(def, N-1), type);
+		}
+		
 		void Config::setValue(const QString &key, const QLatin1String &value, ValueFlags type)
 		{
 			setValue(key, QString(value), type);
@@ -125,6 +135,12 @@ namespace qutim_sdk_0_3
 		void Config::setValue(const QString &key, const char *value, ValueFlags type)
 		{
 			setValue(key, QString::fromUtf8(value), type);
+		}
+		
+		template <int N>
+		Q_INLINE_TEMPLATE void Config::setValue(const QString &key, const char (&value)[N], ValueFlags type)
+		{
+			setValue(key, QString::fromUtf8(value, N-1), type);
 		}
 	}
 }
