@@ -57,8 +57,8 @@ namespace Jabber
 			if (p->bookmarks.contains(bookmark))
 				p->bookmarks[p->bookmarks.indexOf(bookmark)].password = bookmark.password;
 		writeToCache("bookmarks", p->bookmarks);
-		Config config = p->account->config().group("urlmarks");
-		int num = 0;
+		Config config = p->account->config();
+		int num = config.beginArray("urlmarks");
 		foreach (const BookmarkListItem &item, bList) {
 			Config configBookmarks = config.arrayElement(num);
 			configBookmarks.setValue("name", QString::fromStdString(item.name));
@@ -147,10 +147,9 @@ namespace Jabber
 	{
 		Config config = p->account->config();
 		config.remove(type);
-		Config configBookmarks = config.group(type);
-		int num = 0;
+		int num = config.beginArray(type);
 		foreach (const JBookmark &bookmark, list) {
-			Config configBookmark = configBookmarks.arrayElement(num);
+			Config configBookmark = config.arrayElement(num);
 			configBookmark.setValue("name", bookmark.name);
 			configBookmark.setValue("conference", bookmark.conference);
 			configBookmark.setValue("nick", bookmark.nick);

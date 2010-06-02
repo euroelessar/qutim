@@ -101,11 +101,14 @@ namespace Jabber {
 
 	void JAccount::loadSettings()
 	{
-		p->passwd = config().group("general").value("passwd", QString(), Config::Crypted);
-		p->autoConnect = config().group("general").value("autoconnect", false);
-		p->keepStatus = config().group("general").value("keepstatus", true);
-		p->nick = config().group("general").value("nick", id());
-		p->status = static_cast<Presence::PresenceType>(config().group("general").value("prevstatus", 8));
+		Config general = config();
+		general.beginGroup("general");
+		p->passwd = general.value("passwd", QString(), Config::Crypted);
+		p->autoConnect = general.value("autoconnect", false);
+		p->keepStatus = general.value("keepstatus", true);
+		p->nick = general.value("nick", id());
+		p->status = static_cast<Presence::PresenceType>(general.value("prevstatus", 8));
+		general.endGroup();
 	}
 
 	JServiceDiscovery *JAccount::discoManager()
