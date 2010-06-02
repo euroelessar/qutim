@@ -16,7 +16,7 @@ namespace Core
 	ModuleManagerImpl::ModuleManagerImpl()
 	{
 		loadPlugins();
-		
+
 		Game::Config config = ProfileDialog::profilesInfo();
 #ifdef Q_OS_WIN
 		if (config.value("singleProfile", false)) {

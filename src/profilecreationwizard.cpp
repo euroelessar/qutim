@@ -10,6 +10,10 @@
 #include <QTimer>
 #include <QApplication>
 #include <QDebug>
+#include <QTextCodec>
+#ifdef Q_OS_UNIX
+# include <pwd.h>
+#endif
 
 namespace qutim_sdk_0_3
 { LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs(); }
@@ -53,8 +57,24 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 	qDebug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
 	
 	addPage(new ProfileCreationPage(password, singleProfile, this));
-	setField("id", id);
-	setField("name", id);
+	QString realId;
+	QString realName;
+#ifdef Q_OS_UNIX
+	if (id.isEmpty()) {
+		QT_TRY {
+			struct passwd *userInfo = getpwuid(getuid());
+			QTextCodec *codec = QTextCodec::codecForLocale();
+			realId = codec->toUnicode(userInfo->pw_name);
+			realName = codec->toUnicode(userInfo->pw_gecos).section(',', 0, 0);
+		} QT_CATCH(...) {
+		}
+	} else {
+		realId = id;
+		realName = id;
+	}
+#endif
+	setField("id", realId);
+	setField("name", realName);
 	QList<ProfileCreatorPage *> creators;
 	foreach (const ObjectGenerator *gen, moduleGenerators<ProfileCreatorPage>()) {
 		ProfileCreatorPage *creator = gen->generate<ProfileCreatorPage>();
