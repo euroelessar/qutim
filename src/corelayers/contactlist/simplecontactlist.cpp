@@ -285,6 +285,9 @@ namespace Core
 		void Module::show()
 		{
 			p->widget->show();
+			p->widget->setWindowState(p->widget->windowState() & ~Qt::WindowMinimized);
+			p->widget->activateWindow();
+			p->widget->raise();
 		}
 
 		void Module::hide()
