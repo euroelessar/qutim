@@ -33,28 +33,27 @@ class IndicatorService : public qutim_sdk_0_3::MenuController
 	Q_CLASSINFO("Uses", "ContactList")
 	Q_CLASSINFO("Uses", "ChatLayer")
 	Q_CLASSINFO("Uses", "IconLoader")
-	public:
-		explicit IndicatorService();
-		virtual ~IndicatorService();
-	protected slots:
-		/* Tray layer slots */
-		void onSessionCreated(qutim_sdk_0_3::ChatSession*);
-		void onSessionDestroyed();
-		void onUnreadChanged(const qutim_sdk_0_3::MessageList&);
-		////// void onActivated(QSystemTrayIcon::ActivationReason);
-		void onAccountCreated(qutim_sdk_0_3::Account *);
-		void onAccountDestroyed(QObject *obj);
-		////// void onStatusChanged(const qutim_sdk_0_3::Status &);
-		void loadSettings();
-
-		/* Indicator stuff */
-		void onSessionActivated(bool);
-		void onIndicatorDisplay(QIndicate::Indicator*);
-		void showMainWindow();
-	private:
-		QIndicate::Server* indicateServer;
-		HashIndicator sessionIndicators;
-		QString desktopName;
+public:
+	explicit IndicatorService();
+	virtual ~IndicatorService();
+protected slots:
+	/* Tray layer slots */
+	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
+	void onSessionDestroyed();
+	void onUnreadChanged(const qutim_sdk_0_3::MessageList&);
+	////// void onActivated(QSystemTrayIcon::ActivationReason);
+	void onAccountCreated(qutim_sdk_0_3::Account *);
+	void onAccountDestroyed(QObject *obj);
+	////// void onStatusChanged(const qutim_sdk_0_3::Status &);
+	void loadSettings();
+	/* Indicator stuff */
+	void onSessionActivated(bool);
+	void onIndicatorDisplay(QIndicate::Indicator*);
+	void showMainWindow();
+private:
+	QIndicate::Server* indicateServer;
+	HashIndicator sessionIndicators;
+	QString desktopName;
 };
 
 #endif /* end of include guard: INDICATORSERVICE_23DW9H42 */

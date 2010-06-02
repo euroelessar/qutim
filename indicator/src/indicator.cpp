@@ -43,7 +43,6 @@ bool IndicatorPlugin::load ()
 	return true;
 }
 
-
 bool IndicatorPlugin::unload ()
 {
 	qDebug() << "[Indicator] Plugin unload";

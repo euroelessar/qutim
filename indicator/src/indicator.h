@@ -21,11 +21,11 @@
 class IndicatorPlugin : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
-	public:
-		explicit IndicatorPlugin ();
-		virtual void init();
-		virtual bool load();
-		virtual bool unload();
+public:
+	explicit IndicatorPlugin ();
+	virtual void init();
+	virtual bool load();
+	virtual bool unload();
 };
 
 #endif /* end of include guard: INDICATOR_GS5D2FLA */
