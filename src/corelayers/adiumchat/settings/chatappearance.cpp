@@ -125,15 +125,20 @@ namespace Core
 
 	void ChatAppearance::saveImpl()
 	{
-		ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
-		adium_chat.setValue("name",m_current_style_name);
-		adium_chat.setValue("variant",m_current_variant);
-		adium_chat.sync();
-		ConfigGroup variables = Config("appearance/adiumChat").group(m_current_style_name);
-		int index = 0;
-		foreach (ChatVariable *widget, m_current_variables)
-			variables.at(index++).setValue("value", widget->chatStyle().value);
-		variables.sync();
+		Config config("appearance/adiumChat");
+		config.beginGroup("style");
+		config.setValue("name",m_current_style_name);
+		config.setValue("variant",m_current_variant);
+		config.endGroup();
+		int oldSize = config.beginArray(m_current_style_name);
+		for (int i = 0; i < m_current_variables.size(); i++) {
+			config.setArrayIndex(i);
+			config.setValue("value", m_current_variables.at(i)->chatStyle().value);
+		}
+		for (int size = m_current_variables.size(); size < oldSize; size++)
+			config.remove(size);
+		config.endArray();
+		config.sync();
 	}
 
 	void ChatAppearance::getThemes()
@@ -233,12 +238,13 @@ namespace Core
 			variantBox->setCurrentIndex(index);
 			onVariantChanged(m_current_variant);
 		}
-		Config achat(QStringList() << "appearance/adiumChat" << getThemePath(category,m_current_style_name)
-				.append("/Contents/Resources/custom.json"));
-		const ConfigGroup variables = achat.group(m_current_style_name);
-		int count = variables.arraySize();
+		Config achat(getThemePath(category,m_current_style_name).append("/Contents/Resources/custom.json"));
+//		QStringList() << "appearance/adiumChat" << getThemePath(category,m_current_style_name)
+//				.append("/Contents/Resources/custom.json"));
+		ConfigGroup variables = achat;
+		int count = variables.beginArray(m_current_style_name);
 		for (int num = 0; num < count; num++) {
-			ConfigGroup parameter = variables.at(num);
+			ConfigGroup parameter = variables.arrayElement(num);
 			QString type = parameter.value("type", QString());
 			QString text = parameter.value("label", QString());
 			text = parameter.value(QString("label-").append(QLocale().name()), text);

@@ -8,11 +8,14 @@
 #include <QCryptographicHash>
 #include "libqutim/json.h"
 #include "libqutim/systeminfo.h"
-#include "libqutim/configbase_p.h"
+#include "libqutim/config.h"
 
 using namespace qutim_sdk_0_3;
 namespace qutim_sdk_0_3
-{ LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs(); }
+{
+	LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs();
+	LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
+}
 
 namespace Core
 {
@@ -105,15 +108,14 @@ bool ProfileCreationPage::validatePage()
 	file.close();
 	m_password.clear();
 	info = ui->configBox->itemData(ui->configBox->currentIndex()).value<ExtensionInfo>();
+	QList<ConfigBackend*> &configBackends = get_config_backends();
 	for (int i = 0; i < ui->configBox->count(); i++) {
 		ExtensionInfo extInfo = ui->configBox->itemData(i).value<ExtensionInfo>();
 		ConfigBackend *backend = extInfo.generator()->generate<ConfigBackend>();
-		ConfigBackendInfo back = ConfigBackendInfo(metaInfo(backend->metaObject(),
-															"Extension"), backend);
 		if (i == ui->configBox->currentIndex())
-			ConfigPrivate::config_backends.prepend(back);
+			configBackends.prepend(backend);
 		else
-			ConfigPrivate::config_backends.append(back);
+			configBackends.append(backend);
 	}
 	m_is_valid = true;
 	return true;

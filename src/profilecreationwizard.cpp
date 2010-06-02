@@ -4,8 +4,7 @@
 #include "libqutim/systeminfo.h"
 #include "profilecreationpage.h"
 #include "libqutim/jsonfile.h"
-#include "libqutim/configbase_p.h"
-#include "libqutim/game/config.h"
+#include "libqutim/config.h"
 #include <QMessageBox>
 #include <QTimer>
 #include <QApplication>
@@ -16,7 +15,10 @@
 #endif
 
 namespace qutim_sdk_0_3
-{ LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs(); }
+{
+	LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs();
+	LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
+}
 
 namespace Core
 {
@@ -118,11 +120,12 @@ void ProfileCreationWizard::done(int result)
 		QVariantMap map;
 		JsonFile file;
 		file.setFileName(dir.absoluteFilePath("profiles/profiles.json"));
+		QList<ConfigBackend*> &configBackends = get_config_backends();
 		QVariant var;
 		if (file.load(var))
 			map = var.toMap();
 		{
-			Game::Config config(&map);
+			Config config(&map);
 			if (m_singleProfile) {
 				config.beginGroup("profile");
 			} else {
@@ -132,8 +135,7 @@ void ProfileCreationWizard::done(int result)
 			config.setValue("name", field("name"));
 			config.setValue("id", field("id"));
 			config.setValue("crypto", QLatin1String(page->cryptoName()));
-			config.setValue("config", QLatin1String(ConfigPrivate::config_backends.first()
-													.second->metaObject()->className()));
+			config.setValue("config", QLatin1String(configBackends.first()->metaObject()->className()));
 			config.setValue("portable", field("portable"));
 			if (field("portable").toBool()) {
 				QDir app = qApp->applicationDirPath();

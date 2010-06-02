@@ -4,7 +4,7 @@ IF (COMMAND cmake_policy)
 ENDIF (COMMAND cmake_policy)
 PROJECT( qutim )
 SET(QT_MIN_VERSION "4.6.0")
- 
+
 ADD_DEFINITIONS ( -DLIBQUTIM_LIBRARY )
 
 if( UNIX )

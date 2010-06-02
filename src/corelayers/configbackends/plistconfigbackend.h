@@ -20,8 +20,7 @@
 #ifndef PLISTCONFIGBACKEND_H
 #define PLISTCONFIGBACKEND_H
 
-#include "libqutim/configbackend.h"
-#include "libqutim/game/config.h"
+#include "libqutim/config.h"
 
 class QDomDocument;
 class QDomNode;
@@ -30,32 +29,16 @@ using namespace qutim_sdk_0_3;
 
 namespace Core
 {
-	namespace Game
-	{
-		class PListConfigBackend : public qutim_sdk_0_3::Game::ConfigBackend
-		{
-			Q_OBJECT
-			Q_CLASSINFO("Extension", "plist")
-		public:
-			virtual QVariant load(const QString &file);
-			virtual void save(const QString &file, const QVariant &entry);
-		protected:
-			QVariant generateConfigEntry (const QDomNode &val);
-			QDomElement generateQDomElement (const QVariant &entry, QDomDocument &root);
-		};
-	}
-	
-	class PListConfigBackend : public ConfigBackend
+	class PListConfigBackend : public qutim_sdk_0_3::ConfigBackend
 	{
 		Q_OBJECT
 		Q_CLASSINFO("Extension", "plist")
 	public:
-		Q_INVOKABLE PListConfigBackend() {}
-		virtual ConfigEntry::Ptr parse(const QString &file);
-		virtual void generate(const QString &file, const ConfigEntry::Ptr &entry);
+		virtual QVariant load(const QString &file);
+		virtual void save(const QString &file, const QVariant &entry);
 	protected:
-		ConfigEntry::Ptr generateConfigEntry (const QDomNode& val);
-		QDomElement generateQDomElement (const ConfigEntry::Ptr& entry, QDomDocument &root);
+		QVariant generateConfigEntry (const QDomNode &val);
+		QDomElement generateQDomElement (const QVariant &entry, QDomDocument &root);
 	};
 }
 using namespace Core;

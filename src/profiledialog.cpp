@@ -9,17 +9,19 @@
 #include "libqutim/objectgenerator.h"
 #include "libqutim/jsonfile.h"
 #include "libqutim/cryptoservice.h"
-#include "libqutim/configbase_p.h"
-#include "libqutim/game/config.h"
+#include "libqutim/config.h"
 #include <QCryptographicHash>
 #include <QTimer>
 
 namespace qutim_sdk_0_3
-{ LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs(); }
+{ 
+	LIBQUTIM_EXPORT QVector<QDir> *system_info_dirs(); 
+	LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends();
+}
 
 namespace Core
 {
-ProfileDialog::ProfileDialog(Game::Config &config, ModuleManager *parent) :
+ProfileDialog::ProfileDialog(Config &config, ModuleManager *parent) :
     ui(new Ui::ProfileDialog)
 {
 	m_manager = parent;
@@ -31,7 +33,7 @@ ProfileDialog::ProfileDialog(Game::Config &config, ModuleManager *parent) :
 		ui->toolBox->setItemEnabled(0, false);
 	} else {
 		for (int i = 0; i < size; i++) {
-			Game::Config group = config.arrayElement(i);
+			Config group = config.arrayElement(i);
 			ui->profilesBox->addItem(group.value("id", QString()), qVariantFromValue(group));
 		}
 	}
@@ -43,7 +45,7 @@ ProfileDialog::~ProfileDialog()
     delete ui;
 }
 
-Game::Config ProfileDialog::profilesInfo()
+Config ProfileDialog::profilesInfo()
 {
 	QDir dir = qApp->applicationDirPath();
 	if (!dir.exists("profiles") || !dir.cd("profiles")) {
@@ -61,16 +63,16 @@ Game::Config ProfileDialog::profilesInfo()
 	}
 	QFileInfo profilesInfo(dir.filePath("profiles.json"));
 	if (!profilesInfo.exists() || !profilesInfo.isFile()) {
-		return Game::Config(QVariantMap());
+		return Config(QVariantMap());
 	} else {
 		JsonFile file(profilesInfo.absoluteFilePath());
 		QVariant var;
 		file.load(var);
-		return Game::Config(var.toMap());
+		return Config(var.toMap());
 	}
 }
 
-bool ProfileDialog::acceptProfileInfo(Game::Config &config, const QString &password)
+bool ProfileDialog::acceptProfileInfo(Config &config, const QString &password)
 {
 	QString crypto = config.value("crypto", QString());
 	GeneratorList gens = moduleGenerators<CryptoService>();
@@ -121,15 +123,14 @@ bool ProfileDialog::acceptProfileInfo(Game::Config &config, const QString &passw
 		}
 
 		QString configName = config.value("config", QString());
+		QList<ConfigBackend*> &configBackends = get_config_backends();
 		foreach (const ObjectGenerator *gen, moduleGenerators<ConfigBackend>()) {
 			const ExtensionInfo info = gen->info();
 			ConfigBackend *backend = info.generator()->generate<ConfigBackend>();
-			ConfigBackendInfo back = ConfigBackendInfo(metaInfo(backend->metaObject(),
-																"Extension"), backend);
 			if (configName == QLatin1String(backend->metaObject()->className()))
-				ConfigPrivate::config_backends.prepend(back);
+				configBackends.prepend(backend);
 			else
-				ConfigPrivate::config_backends.append(back);
+				configBackends.append(backend);
 		}
 		return true;
 	} else {
@@ -142,7 +143,7 @@ bool ProfileDialog::acceptProfileInfo(Game::Config &config, const QString &passw
 void ProfileDialog::on_loginButton_clicked()
 {
 	QVariant variant = ui->profilesBox->itemData(ui->profilesBox->currentIndex());
-	Game::Config config = variant.value<Game::Config>();
+	Config config = variant.value<Config>();
 	QString password = ui->passwordEdit->text();
 	if (acceptProfileInfo(config, password)) {
 		QTimer::singleShot(0, m_manager, SLOT(initExtensions()));

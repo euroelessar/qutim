@@ -6,10 +6,7 @@
 
 namespace qutim_sdk_0_3
 {
-	namespace Game
-	{
-		class Config;
-	}
+	class Config;
 }
 
 namespace Ui {
@@ -22,10 +19,10 @@ class ProfileDialog : public QDialog
 {
     Q_OBJECT
 public:
-	ProfileDialog(Game::Config &config, ModuleManager *parent = 0);
+	ProfileDialog(Config &config, ModuleManager *parent = 0);
     ~ProfileDialog();
-	static Game::Config profilesInfo();
-	static bool acceptProfileInfo(Game::Config &config, const QString &password);
+	static Config profilesInfo();
+	static bool acceptProfileInfo(Config &config, const QString &password);
 
 protected slots:
 	void on_loginButton_clicked();

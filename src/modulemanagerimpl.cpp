@@ -9,7 +9,7 @@
 #include "libqutim/protocol.h"
 #include "profiledialog.h"
 #include "profilecreationwizard.h"
-#include "libqutim/game/config.h"
+#include "libqutim/config.h"
 
 namespace Core
 {
@@ -17,7 +17,7 @@ namespace Core
 	{
 		loadPlugins();
 
-		Game::Config config = ProfileDialog::profilesInfo();
+		Config config = ProfileDialog::profilesInfo();
 #ifdef Q_OS_WIN
 		if (config.value("singleProfile", false)) {
 #else

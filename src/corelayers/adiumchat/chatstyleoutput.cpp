@@ -109,13 +109,14 @@ namespace Core
 			QString theme = adium_chat.value<QString>("name","default");
 			QString path = getThemePath("webkitstyle", theme);
 			QString variant = adium_chat.value<QString>("variant", QString());
-			Config achat(QStringList() << "appearance/adiumChat"
-						 << getThemePath("webkitstyle",theme).append("/Contents/Resources/custom.json"));
-			const ConfigGroup variables = achat.group(theme);
-			int count = variables.arraySize();
+			Config achat(
+//					QStringList() << "appearance/adiumChat" << 
+					getThemePath("webkitstyle",theme).append("/Contents/Resources/custom.json"));
+			ConfigGroup variables = achat;
+			int count = variables.beginArray(theme);
 			QString css;
 			for (int num = 0; num < count; num++) {
-				ConfigGroup parameter = variables.at(num);
+				ConfigGroup parameter = variables.arrayElement(num);
 				css.append(QString("%1 { %2: %3; } ")
 						   .arg(parameter.value("selector", QString()))
 						   .arg(parameter.value("parameter", QString()))

@@ -38,9 +38,9 @@ namespace Adium
 			path = getThemePath("protocolicons", themes.first());
 		}
 		Config theme(path + "/Icons.plist");
-		foreach (const QString &groupName, theme.groupList()) {
+		foreach (const QString &groupName, theme.childGroups()) {
 			ConfigGroup group = theme.group(groupName);
-			QStringList protocols = group.groupList();
+			QStringList protocols = group.childGroups();
 			foreach (const QString &protocol, protocols) {
 				QString iconPath = group.value(protocol, QString());
 				if (iconPath.isEmpty())

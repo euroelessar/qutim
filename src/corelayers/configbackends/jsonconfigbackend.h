@@ -20,8 +20,7 @@
 #ifndef JSONCONFIGBACKEND_H
 #define JSONCONFIGBACKEND_H
 
-#include "libqutim/configbackend.h"
-#include "libqutim/game/config.h"
+#include "libqutim/config.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -32,24 +31,9 @@ namespace Core
 		Q_OBJECT
 		Q_CLASSINFO("Extension", "json")
 	public:
-		Q_INVOKABLE JsonConfigBackend() {}
-		virtual ConfigEntry::Ptr parse(const QString &file);
-		virtual void generate(const QString &file, const ConfigEntry::Ptr &entry);
-	protected:
-		ConfigEntry::Ptr generateConfigEntry (const QVariant &val);
-		QVariant generateQVariant(const ConfigEntry::Ptr& entry);
+		virtual QVariant load(const QString &file);
+		virtual void save(const QString &file, const QVariant &entry);
 	};
-	namespace Game
-	{
-		class JsonConfigBackend : public qutim_sdk_0_3::Game::ConfigBackend
-		{
-			Q_OBJECT
-			Q_CLASSINFO("Extension", "json")
-		public:
-			virtual QVariant load(const QString &file);
-			virtual void save(const QString &file, const QVariant &entry);
-		};
-	}
 }
 using namespace Core;
 

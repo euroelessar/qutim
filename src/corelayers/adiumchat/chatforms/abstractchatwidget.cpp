@@ -132,7 +132,7 @@ namespace Core
 		{
 			ConfigGroup group = Config("appearance").group("adiumChat/behavior/widget");
 			ConfigGroup keysGroup = group.group("keys");
-			if (keysGroup.hasGroup(m_key)) {
+			if (keysGroup.hasChildGroup(m_key)) {
 				ConfigGroup keyGroup = keysGroup.group(m_key);
 				QByteArray geom = keyGroup.value("geometry", QByteArray());
 				restoreGeometry(geom);
