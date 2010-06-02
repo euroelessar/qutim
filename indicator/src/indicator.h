@@ -13,17 +13,10 @@
  ****************************************************************************/
 
 #ifndef INDICATOR_GS5D2FLA
-
 #define INDICATOR_GS5D2FLA
-
-#define QUTIM_DESKTOP_FILE DESKTOPDIR "/qutim.desktop"
 	
-#include <qindicateindicator.h>
-#include <qindicateserver.h>
 #include <qutim/plugin.h>
-#include <qutim/messagesession.h>
-
-typedef QHash<qutim_sdk_0_3::ChatSession*, QIndicate::Indicator*> HashIndicator;
+#include "indicatorservice.h"
 
 class IndicatorPlugin : public qutim_sdk_0_3::Plugin
 {
@@ -33,17 +26,6 @@ class IndicatorPlugin : public qutim_sdk_0_3::Plugin
 		virtual void init();
 		virtual bool load();
 		virtual bool unload();
-	protected slots:
-		void onSessionCreated(qutim_sdk_0_3::ChatSession*);
-		void onSessionDestroyed(QObject*);
-		void onSessionActivated(bool);
-		void onUnreadChanged(const qutim_sdk_0_3::MessageList&);
-		void onIndicatorDisplay(QIndicate::Indicator*);
-		void showMainWindow();
-	private:
-		QIndicate::Server* indicateServer;
-		HashIndicator sessionIndicators;
-		QString desktopName;
 };
 
 #endif /* end of include guard: INDICATOR_GS5D2FLA */
