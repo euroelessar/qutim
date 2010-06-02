@@ -15,12 +15,15 @@
 #include <qindicateindicator.h>
 #include "indicatorservice.h"
 #include <qutim/debug.h>
+#include <qutim/icon.h>
 #include <QDateTime>
+#include <QApplication>
 
 IndicatorService::IndicatorService() :
-	desktopName( QUTIM_DESKTOP_FILE )
+	desktopName( QUTIM_DESKTOP_FILE ),
+	indicateServer(QIndicate::Server::defaultInstance()),
+	quitButton(new QIndicate::Indicator)
 {
-	indicateServer = QIndicate::Server::defaultInstance();
 	indicateServer->setType("message.im");
 	indicateServer->setDesktopFile(desktopName);
 	indicateServer->show();
@@ -28,10 +31,19 @@ IndicatorService::IndicatorService() :
 	connect(qutim_sdk_0_3::ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 
 	//QImage icon = qutim_sdk_0_3::Icon("qutim").pixmap(64).toImage();
+
+	/* Quit Button */
+	quitButton->setNameProperty(QT_TRANSLATE_NOOP("Plugin", "Close qutIM"));
+	QImage icon = qutim_sdk_0_3::Icon("application-exit").pixmap(64).toImage();
+	connect(quitButton, SIGNAL(display(QIndicate::Indicator*)), qApp, SLOT(quit()));
+	quitButton->setIconProperty(icon);
+	quitButton->show();
 }
 
 IndicatorService::~IndicatorService()
 {
+	quitButton->hide();
+	delete quitButton;
 	disconnect(indicateServer, SIGNAL(serverDisplay()), this, SLOT(showMainWindow()));
 	disconnect(qutim_sdk_0_3::ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	qDeleteAll(sessionIndicators);
@@ -135,5 +147,10 @@ void IndicatorService::showMainWindow()
 {
 	qDebug() << "[Indicator] showMainWindow";
 	if (QObject *obj = qutim_sdk_0_3::getService("ContactList"))
+	{
 		obj->metaObject()->invokeMethod(obj, "show");
+		QWidget *objWidget = qobject_cast<QWidget*>(obj);
+		if (objWidget)
+			objWidget->raise();
+	}
 }

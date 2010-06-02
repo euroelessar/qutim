@@ -51,9 +51,10 @@ protected slots:
 	void onIndicatorDisplay(QIndicate::Indicator*);
 	void showMainWindow();
 private:
-	QIndicate::Server* indicateServer;
 	HashIndicator sessionIndicators;
 	QString desktopName;
+	QIndicate::Server* indicateServer;
+	QIndicate::Indicator *quitButton;
 };
 
 #endif /* end of include guard: INDICATORSERVICE_23DW9H42 */
