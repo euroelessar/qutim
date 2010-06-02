@@ -134,7 +134,7 @@ namespace UrlPreview
         QByteArray typeheader;
         QString type;
         QByteArray sizeheader;
-        qint64 size=-1;
+		quint64 size=0;
         QRegExp hrx; hrx.setCaseSensitivity(Qt::CaseInsensitive);
         foreach (QString header, reply->rawHeaderList()) {
             if (type.isEmpty()) {
@@ -169,7 +169,7 @@ namespace UrlPreview
 		QString pstr;
 		bool show_preview_head=true;
 		QRegExp typerx("^text/html");
-		if (typerx.indexIn(type)!=0 && (m_flags & DisableTextHtml)) {
+		if (type.contains(typerx)) {
 			show_preview_head=false;
 		}
 
@@ -189,14 +189,14 @@ namespace UrlPreview
 		}
 
 		if (show_preview_head) {
-			QString sizestr = (size>0) ? QString::number(size) : tr("Unknown");
+			QString sizestr = size ? QString::number(size) : tr("Unknown");
 			pstr = m_template;
 			pstr.replace("%TYPE%", type);
 			pstr.replace("%SIZE%", sizestr);
 		}
 
 		typerx.setPattern("^image/");
-		if (typerx.indexIn(type)==0 && size>0 && size<m_maxfilesize) {
+		if (type.contains(typerx) && size<m_maxfilesize) {
 			QString amsg = m_image_template;
 			amsg.replace("%URL%", url);
 			amsg.replace("%UID%", uid);

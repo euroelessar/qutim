@@ -61,7 +61,7 @@ namespace UrlPreview {
 		QString m_image_template;
 		QString m_youtube_template;
 		QSize m_max_image_size;
-		qint64 m_maxfilesize;
+		quint64 m_maxfilesize;
 	};
 }
 #endif
