@@ -50,13 +50,14 @@ namespace qutim_sdk_0_3
 	class ConfigPrivate : public QSharedData
 	{
 	public:
-		inline ConfigPrivate() : backend(0) { levels << new ConfigLevel(); }
-		inline ~ConfigPrivate() { if (!memoryGuard) sync(); qDeleteAll(levels); }
+		inline ConfigPrivate() : backend(0), dirty(new bool(false)) { levels << new ConfigLevel(); }
+		inline ~ConfigPrivate() { if (!memoryGuard) { sync(); delete dirty; } qDeleteAll(levels); }
 		inline ConfigLevel *current() const { return levels.at(0); }
 		void sync();
 		QList<ConfigLevel *> levels;
 		QString fileName;
 		ConfigBackend *backend;
+		bool *dirty;
 		QExplicitlySharedDataPointer<ConfigPrivate> memoryGuard;
 	private:
 		Q_DISABLE_COPY(ConfigPrivate)
@@ -66,11 +67,12 @@ namespace qutim_sdk_0_3
 	{
 		if (memoryGuard) {
 			memoryGuard->sync();
-		} else if (backend) {
+		} else if (backend && *dirty) {
 			if (current()->typeMap)
 				backend->save(fileName, *(current()->map));
 			else
 				backend->save(fileName, *(current()->list));
+			*dirty = false;
 		}
 	}
 
@@ -174,8 +176,10 @@ namespace qutim_sdk_0_3
 				continue;
 			}
 			QVariant &var = (*(d->current()->map))[name];
-			if (var.type() != QVariant::Map)
+			if (var.type() != QVariant::Map) {
+				*(d->dirty) = true;
 				var.setValue(QVariantMap());
+			}
 			finalVar = &var;
 			first = last + 1;
 		} while(first != 0);
@@ -186,7 +190,10 @@ namespace qutim_sdk_0_3
 		else
 			map = d->current()->map;
 		Config cfg(map);
-		cfg.d_func()->memoryGuard = d_ptr;
+		ConfigPrivate *p = cfg.d_func();
+		delete p->dirty;
+		p->dirty = d->dirty;
+		p->memoryGuard = d_ptr;
 		return cfg;
 	}
 
@@ -253,8 +260,10 @@ namespace qutim_sdk_0_3
 				continue;
 			}
 			QVariant &var = (*(d->current()->map))[name];
-			if (var.type() != QVariant::Map)
+			if (var.type() != QVariant::Map) {
+				*(d->dirty) = true;
 				var.setValue(QVariantMap());
+			}
 			finalVar = &var;
 			first = last + 1;
 		} while(first != 0);
@@ -278,7 +287,8 @@ namespace qutim_sdk_0_3
 	{
 		Q_D(Config);
 		Q_ASSERT(d->current()->typeMap);
-		d->current()->map->remove(name);
+		if (d->current()->map->remove(name) != 0)
+			*(d->dirty) = true;
 	}
 
 	Config Config::arrayElement(int index)
@@ -292,12 +302,21 @@ namespace qutim_sdk_0_3
 		} else if (!d->current()->typeMap) {
 			l = d->current();
 		}
+		while (l->list->size() <= index) {
+			*(d->dirty) = true;
+			l->list->append(QVariantMap());
+		}
 		QVariant &var = (*(d->current()->list))[index];
-		if (var.type() != QVariant::Map)
+		if (var.type() != QVariant::Map) {
+			*(d->dirty) = true;
 			var.setValue(QVariantMap());
+		}
 		QVariantMap *map = reinterpret_cast<QVariantMap*>(var.data());
 		Config cfg(map);
-		cfg.d_func()->memoryGuard = d_ptr;
+		ConfigPrivate *p = cfg.d_func();
+		delete p->dirty;
+		p->dirty = d->dirty;
+		p->memoryGuard = d_ptr;
 		return cfg;
 	}
 
@@ -309,8 +328,10 @@ namespace qutim_sdk_0_3
 		l->deleteOnDestroy = false;
 		l->typeMap = false;
 		QVariant &var = (*(d->current()->map))[name];
-		if (var.type() != QVariant::List)
+		if (var.type() != QVariant::List) {
+			*(d->dirty) = true;
 			var.setValue(QVariantList());
+		}
 		l->list = reinterpret_cast<QVariantList*>(var.data());
 		d->levels.prepend(l);
 		return l->list->size();
@@ -354,11 +375,15 @@ namespace qutim_sdk_0_3
 			ConfigLevel * const l = d->levels.at(1);
 			Q_ASSERT(!l->typeMap);
 			Q_ASSERT(index >= 0 && index < l->list->size());
-			while (l->list->size() <= index)
+			while (l->list->size() <= index) {
+				*(d->dirty) = true;
 				l->list->append(QVariantMap());
+			}
 			QVariant &var = (*(l->list))[index];
-			if (var.type() != QVariant::Map)
+			if (var.type() != QVariant::Map) {
+				*(d->dirty) = true;
 				var.setValue(QVariantMap());
+			}
 			d->current()->map = reinterpret_cast<QVariantMap*>(var.data());
 		}
 	}
@@ -367,6 +392,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_D(Config);
 		Q_ASSERT(d->current()->arrayElement || !d->current()->typeMap);
+		*(d->dirty) = true;
 		if (d->current()->arrayElement) {
 			Q_ASSERT(d->levels.size() > 1);
 			delete d->levels.takeFirst();
@@ -391,6 +417,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_D(Config);
 		Q_ASSERT(d->current()->typeMap);
+		*(d->dirty) = true;
 		QVariant var = (type & Config::Crypted) ? CryptoService::crypt(value) : value;
 		d->current()->map->insert(key, var);
 	}
