@@ -68,10 +68,11 @@ namespace qutim_sdk_0_3
 		if (memoryGuard) {
 			memoryGuard->sync();
 		} else if (backend && *dirty) {
-			if (current()->typeMap)
-				backend->save(fileName, *(current()->map));
+			const ConfigLevel * const level = levels.last();
+			if (level->typeMap)
+				backend->save(fileName, *(level->map));
 			else
-				backend->save(fileName, *(current()->list));
+				backend->save(fileName, *(level->list));
 			*dirty = false;
 		}
 	}
@@ -302,11 +303,12 @@ namespace qutim_sdk_0_3
 		} else if (!d->current()->typeMap) {
 			l = d->current();
 		}
+		Q_ASSERT(!l->typeMap);
 		while (l->list->size() <= index) {
 			*(d->dirty) = true;
 			l->list->append(QVariantMap());
 		}
-		QVariant &var = (*(d->current()->list))[index];
+		QVariant &var = (*(l->list))[index];
 		if (var.type() != QVariant::Map) {
 			*(d->dirty) = true;
 			var.setValue(QVariantMap());
@@ -366,7 +368,7 @@ namespace qutim_sdk_0_3
 		Q_ASSERT(d->current()->arrayElement || !d->current()->typeMap);
 		if (!d->current()->typeMap) {
 			ConfigLevel * const l = new ConfigLevel();
-			l->typeMap = false;
+			l->typeMap = true;
 			l->arrayElement = true;
 			d->levels.prepend(l);
 		}
@@ -374,7 +376,6 @@ namespace qutim_sdk_0_3
 			Q_ASSERT(d->levels.size() > 1);
 			ConfigLevel * const l = d->levels.at(1);
 			Q_ASSERT(!l->typeMap);
-			Q_ASSERT(index >= 0 && index < l->list->size());
 			while (l->list->size() <= index) {
 				*(d->dirty) = true;
 				l->list->append(QVariantMap());

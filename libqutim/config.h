@@ -143,7 +143,7 @@ namespace qutim_sdk_0_3
 		void remove(const QString &name);
 		
 		Config arrayElement(int index) Q_REQUIRED_RESULT;
-		int beginArray(const QString &name) Q_REQUIRED_RESULT;
+		int beginArray(const QString &name);
 		void endArray();
 		int arraySize() const Q_REQUIRED_RESULT;
 		void setArrayIndex(int index);

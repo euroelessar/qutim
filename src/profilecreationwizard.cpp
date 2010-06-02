@@ -10,6 +10,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QTextCodec>
+#include <QLibrary>
 #ifdef Q_OS_UNIX
 # include <pwd.h>
 #endif
@@ -61,8 +62,8 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 	addPage(new ProfileCreationPage(password, singleProfile, this));
 	QString realId;
 	QString realName;
-#ifdef Q_OS_UNIX
 	if (id.isEmpty()) {
+#if defined(Q_OS_UNIX)
 		QT_TRY {
 			struct passwd *userInfo = getpwuid(getuid());
 			QTextCodec *codec = QTextCodec::codecForLocale();
@@ -70,11 +71,30 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 			realName = codec->toUnicode(userInfo->pw_gecos).section(',', 0, 0);
 		} QT_CATCH(...) {
 		}
+#elif defined(Q_OS_WIN32)
+		enum ExtendedNameFormat
+		{
+			NameSamCompatible = 2,
+			NameDisplay = 3
+		};
+		typedef int (*pGetUserName)(char, wchar_t*, unsigned long*);
+		pGetUserName GetUserName = reinterpret_cast<pGetUserName>(QLibrary::resolve("Secur32", "GetUserNameExW"));
+		if (GetUserName) {
+			QVector<wchar_t> buffer(255);
+			unsigned long size = buffer.size();
+			GetUserName(NameSamCompatible, buffer.data(), &size);
+			realId = QString::fromWCharArray(buffer.constData(), int(size)).section('\\', 0, -1);
+			size = buffer.size();
+			GetUserName(NameDisplay, buffer.data(), &size);
+			realName = QString::fromWCharArray(buffer.constData(), int(size));
+		}
+#endif
+		if (realName.isEmpty())
+			realName = realId;
 	} else {
 		realId = id;
 		realName = id;
 	}
-#endif
 	setField("id", realId);
 	setField("name", realName);
 	QList<ProfileCreatorPage *> creators;
