@@ -6,7 +6,7 @@
 class VRoster;
 class VMessages;
 namespace qutim_sdk_0_3 {
-	class ConfigGroup;
+	class Config;
 }
 
 class VRequest;
@@ -21,8 +21,8 @@ public:
 	VConnectionState connectionState() const;
 	virtual ~VConnection();
 	QNetworkReply* get(VRequest &request);
-	ConfigGroup config();
-	ConfigGroup config(const QString &name);
+	Config config();
+	Config config(const QString &name);
 	VAccount *account() const;
 	VMessages *messages() const;
 	VRoster *roster() const;

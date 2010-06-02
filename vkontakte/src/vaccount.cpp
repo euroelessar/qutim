@@ -36,7 +36,7 @@ void VAccount::loadSettings()
 	Q_D(VAccount);
 	ConfigGroup contactList = config().group("contactList");
 	for (int index=0;index!=contactList.arraySize();index++) {
-		ConfigGroup item = contactList.at(index);
+		ConfigGroup item = contactList.arrayElement(index);
 		QString id = item.value<QString>("id",QString());
 		if (id.isEmpty())
 			continue;
@@ -57,7 +57,7 @@ void VAccount::saveSettings()
 	Q_D(VAccount);
 	ConfigGroup contactList = config().group("contactList");
 	for (int i=0;i!=d->contactsList.count();i++) {
-		ConfigGroup item = contactList.at(i);
+		ConfigGroup item = contactList.arrayElement(i);
 		const VContact *c = d->contactsList.at(i);
 		item.setValue("id",c->id());
 		item.setValue("name",c->name());

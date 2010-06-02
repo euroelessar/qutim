@@ -5,7 +5,7 @@
 #include "vkontakte_global.h"
 
 namespace qutim_sdk_0_3 {
-	class ConfigGroup;
+	class Config;
 	class Message;
 }
 
@@ -21,7 +21,7 @@ public:
 	virtual ~VMessages();
 	void getLastMessages(int count);
 	void sendMessage(const Message &message);
-	ConfigGroup config();
+	Config config();
 public slots:
 	void getHistory();
 	void loadSettings();

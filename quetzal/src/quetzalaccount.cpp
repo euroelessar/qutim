@@ -132,7 +132,7 @@ void QuetzalAccount::load(Config cfg)
 {
 	ConfigGroup group = cfg.group("contactlist");
 	QByteArray general = tr("General").toUtf8();
-	foreach (const QString &id, group.groupList()) {
+	foreach (const QString &id, group.childGroups()) {
 		ConfigGroup contact = group.group(id);
 		QString name = contact.value("name", QString());
 		PurpleContact *pc = purple_contact_new();
@@ -154,10 +154,10 @@ void QuetzalAccount::load(Config cfg)
 		ContactList::instance()->addContact(qc);
 	}
 	ConfigGroup bookmarks = cfg.group("bookmarks");
-	foreach (const QString &name, bookmarks.groupList()) {
+	foreach (const QString &name, bookmarks.childGroups()) {
 		ConfigGroup chat = bookmarks.group(name);
 		GHashTable *table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-		foreach (const QString &id, chat.groupList()) {
+		foreach (const QString &id, chat.childGroups()) {
 			g_hash_table_insert(table,
 								g_strdup(id.toUtf8().constData()),
 								g_strdup(chat.value(id, QString()).toUtf8().constData()));
@@ -205,7 +205,7 @@ void QuetzalAccount::remove(QuetzalContact *contact)
 	if (!contact)
 		return;
 	ConfigGroup group = config("contactlist");
-	group.removeGroup(contact->id());
+	group.remove(contact->id());
 	group.sync();
 	m_contacts.remove(contact->id());
 	ContactList::instance()->removeContact(contact);
@@ -225,7 +225,7 @@ void QuetzalAccount::remove(PurpleChat *chat)
 {
 	debug() << Q_FUNC_INFO << chat->alias;
 	ConfigGroup bookmarks = config("bookmarks");
-	bookmarks.removeGroup(chat->alias);
+	bookmarks.remove(chat->alias);
 	bookmarks.sync();
 }
 

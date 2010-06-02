@@ -5,7 +5,7 @@
 #include "vkontakte_global.h"
 
 namespace qutim_sdk_0_3 {
-	class ConfigGroup;
+	class Config;
 }
 
 class VConnection;
@@ -18,7 +18,7 @@ class VRoster : public QObject
 public:
 	VRoster(VConnection *connection, QObject *parent = 0);
 	virtual ~VRoster();
-	ConfigGroup config();
+	Config config();
 public slots:
 	void loadSettings();
 	void getProfile();
