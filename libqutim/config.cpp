@@ -117,9 +117,8 @@ namespace qutim_sdk_0_3
 			if (d->fileName.isEmpty())
 				d->fileName = QLatin1String("profile");
 			QFileInfo info(d->fileName);
-			if (!info.isAbsolute()) {
+			if (!info.isAbsolute())
 				d->fileName = SystemInfo::getDir(SystemInfo::ConfigDir).filePath(path);
-			}
 			QByteArray suffix = info.suffix().toLatin1().toLower();
 			if (!suffix.isEmpty()) {
 				for (int i = 0; i < backends.size(); i++) {
@@ -135,6 +134,10 @@ namespace qutim_sdk_0_3
 				d->fileName += QLatin1String(d->backend->name());
 			}
 			d->fileName = QDir::cleanPath(d->fileName);
+			info.setFile(d->fileName);
+			QDir dir = info.absoluteDir();
+			if (!dir.exists())
+				dir.mkpath(info.absolutePath());
 			QVariant var = d->backend->load(d->fileName);
 			if (var.type() == QVariant::Map) {
 				d->current()->map = new QVariantMap(var.toMap());
