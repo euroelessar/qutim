@@ -249,7 +249,7 @@ void AbstractConnection::loadProxy()
 {
 	Q_D(AbstractConnection);
 	QNetworkProxy proxy(QNetworkProxy::NoProxy);
-	ConfigGroup cfg = d->account->config("connection");
+	Config cfg = d->account->config("connection");
 	if (cfg.value("useproxy", false)) {
 		cfg = d->account->config("proxy");
 		QNetworkProxy::ProxyType type;
@@ -269,8 +269,7 @@ void AbstractConnection::loadProxy()
 					type = QNetworkProxy::NoProxy;
 				if (!typeStr.isNull())
 					cfg.setValue("type", typeStr);
-				cfg.removeGroup("proxyType");
-				cfg.sync();
+				cfg.remove("proxyType");
 			}
 		} else if (typeStr == "socks5") {
 			type = QNetworkProxy::Socks5Proxy;

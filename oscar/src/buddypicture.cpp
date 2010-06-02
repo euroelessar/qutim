@@ -46,24 +46,24 @@ BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
 	connect(account, SIGNAL(settingsUpdated()), this, SLOT(updateSettings()));
 
 	typedef QPair<QString, QString> StringPair;
-	ConfigGroup cfg = account->config("avatars").group("hashes");
+	Config cfg = account->config("avatars");
+	Config hashesCfg = cfg.group("hashes");
 	QList<StringPair > newList;
-	foreach (const QString &id, cfg.groupList()) {
+	foreach (const QString &id, hashesCfg.childKeys()) {
 		IcqContact *contact = account->getContact(id);
 		if (contact) {
-			QString hash = cfg.value(id, QString());
+			QString hash = hashesCfg.value(id, QString());
 			if (setAvatar(contact, QByteArray::fromHex(hash.toLatin1())))
 				newList.push_back(StringPair(id, hash));
 		}
 	}
-	cfg = cfg.parent();
-	cfg.removeGroup("hashes");
+	cfg.remove("hashes");
 	if (!newList.isEmpty()) {
-		cfg = cfg.group("hashes");
+		cfg.beginGroup("hashes");
 		foreach (const StringPair &itr, newList)
 			cfg.setValue(itr.first, itr.second);
+		cfg.endGroup();
 	}
-	cfg.sync();
 }
 
 BuddyPicture::~BuddyPicture()

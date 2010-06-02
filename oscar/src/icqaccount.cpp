@@ -57,7 +57,7 @@ QString IcqAccountPrivate::password()
 		password = passwd;
 		passwd.clear();
 	} else {
-		ConfigGroup cfg = q->config().group("general");
+		Config cfg = q->config("general");
 		password = cfg.value("passwd", QString(), Config::Crypted);
 		if (password.isEmpty()) {
 			PasswordDialog *dialog = PasswordDialog::request(q);
@@ -76,9 +76,8 @@ void IcqAccount::onPasswordEntered(const QString &password, bool remember)
 	if (!dialog)
 		return;
 	if (remember) {
-		ConfigGroup cfg = config().group("general");
+		Config cfg = config("general");
 		cfg.setValue("passwd", password, Config::Crypted);
-		cfg.sync();
 	}
 	dialog->deleteLater();
 	d->passwd = password;
@@ -92,21 +91,21 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->q_ptr = this;
 	d->reconnectTimer.setSingleShot(true);
 	connect(&d->reconnectTimer, SIGNAL(timeout()), SLOT(onReconnectTimeout()));
-	ConfigGroup cfg = config("general");
+	Config cfg = config("general");
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
 	foreach(const ObjectGenerator *gen, moduleGenerators<FeedbagItemHandler>())
 		d->feedbag->registerHandler(gen->generate<FeedbagItemHandler>());
 	d->conn->registerHandler(new BuddyPicture(this, this));
 	{
-		ConfigGroup statusCfg = cfg.group("lastStatus");
+		Config statusCfg = cfg.group("lastStatus");
 		int type = statusCfg.value("type", static_cast<int>(Status::Offline));
 		if (type >= Status::Online && type <= Status::Offline) {
 			OscarStatus status;
 			status.setType(static_cast<Status::Type>(type));
 			status.setSubtype(statusCfg.value("subtype", 0));
 			statusCfg = statusCfg.group("capabilities");
-			foreach (const QString &type, statusCfg.groupList()) {
+			foreach (const QString &type, statusCfg.childKeys()) {
 				Capability cap(statusCfg.value("subtype", QString()));
 				status.setCapability(cap, type);
 			}
@@ -193,7 +192,7 @@ void IcqAccount::setStatus(Status status_helper)
 				   d->conn->error() == AbstractConnection::ReservationLinkError ||
 				   d->conn->error() == AbstractConnection::ReservationMapError)
 		{
-			ConfigGroup config = protocol()->config().group("reconnect");
+			Config config = protocol()->config().group("reconnect");
 			if (config.value("enabled", true)) {
 				quint32 time = config.value("time", 3000);
 				d->reconnectTimer.start(time);
@@ -226,17 +225,16 @@ void IcqAccount::setStatus(Status status_helper)
 		}
 	}
 	{
-		ConfigGroup statusCfg = config().group("general").group("lastStatus");
+		Config statusCfg = config().group("general/lastStatus");
 		statusCfg.setValue("type", d->lastStatus.type());
 		statusCfg.setValue("subtype", d->lastStatus.subtype());
-		statusCfg.removeGroup("capabilities");
+		statusCfg.remove("capabilities");
 		statusCfg = statusCfg.group("capabilities");
 		QHashIterator<QString, Capability> itr(d->lastStatus.capabilities());
 		while (itr.hasNext()) {
 			itr.next();
 			statusCfg.setValue(itr.key(), itr.value().toString());
 		}
-		config().sync();
 	}
 	emit statusChanged(status);
 	Account::setStatus(status);

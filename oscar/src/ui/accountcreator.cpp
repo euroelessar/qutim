@@ -90,15 +90,13 @@ void IcqAccountCreationWizard::finished()
 {
 	IcqAccount *account = new IcqAccount(p->page->uin());
 	if (p->page->isSavePassword()) {
-		ConfigGroup cfg = account->config().group("general");
+		Config cfg = account->config("general");
 		cfg.setValue("passwd", p->page->password(), Config::Crypted);
-		cfg.sync();
 	}
-	ConfigGroup cfg = p->protocol->config().group("general");
+	Config cfg = p->protocol->config("general");
 	QStringList accounts = cfg.value("accounts", QStringList());
 	accounts << account->id();
 	cfg.setValue("accounts", accounts);
-	cfg.sync();
 	p->protocol->d_func()->accounts_hash->insert(account->id(), account);
 	delete p->page;
 	emit p->protocol->accountCreated(account);

@@ -49,7 +49,7 @@ void Md5Login::login()
 	m_port = 0;
 	m_cookie.clear();
 	// Connecting to login server
-	ConfigGroup cfg = m_conn->account()->config("connection");
+	Config cfg = m_conn->account()->config("connection");
 #ifdef OSCAR_SSL_SUPPORT
 	if (m_conn->isSslEnabled()) {
 		QString host = cfg.value("sslhost", QString("slogin.oscar.aol.com"));

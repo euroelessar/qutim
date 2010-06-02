@@ -103,7 +103,7 @@ void PrivacyLists::onModifyPrivacy()
 	Q_ASSERT(action);
 	IcqAccount *account = qobject_cast<IcqAccount*>(action->data().value<MenuController*>());
 	Q_ASSERT(account);
-	ConfigGroup cfg = account->config("privacy");
+	Config cfg = account->config("privacy");
 	Visibility visibility = static_cast<Visibility>(action->property("visibility").toInt());
 	bool invisibleMode = action->property("invisibleMode").toBool();
 	if (invisibleMode) {
@@ -113,7 +113,6 @@ void PrivacyLists::onModifyPrivacy()
 		account->setProperty("visibility", visibility);
 		cfg.setValue("visibility", static_cast<int>(visibility));
 	}
-	cfg.sync();
 	if (invisibleMode == (account->status() == Status::Invisible))
 		setVisibility(account, visibility);
 }
@@ -230,7 +229,7 @@ int PrivacyLists::getCurrentMode(IcqAccount *account, bool invisibleMode)
 		QVariant currentVariant = invisibleMode ? account->property("invisibleMode") :
 								  account->property("visibility");
 		if (currentVariant.isNull()) {
-			ConfigGroup cfg = account->config("privacy");
+			Config cfg = account->config("privacy");
 			if (invisibleMode) {
 				current = cfg.value("invisibleMode", static_cast<int>(AllowPermitList));
 				account->setProperty("invisibleMode", current);

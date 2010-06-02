@@ -442,14 +442,13 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 			itemsItr->insertMulti(id, item);
 		}
 		if (account->status() != Status::Connecting && account->status() != Status::Offline) {
-			ConfigGroup cfg = account->config("feedbag").group("cache");
+			Config cfg = account->config("feedbag/cache");
 			if (type == Feedbag::Remove)
-				cfg.removeGroup(item.d->configId());
+				cfg.remove(item.d->configId());
 			else
 				cfg.setValue(item.d->configId(), QVariant::fromValue(item));
 			//lastUpdateTime = QDateTime::currentDateTime().toTime_t();
 			//cfg.setValue("lastUpdateTime", lastUpdateTime);
-			cfg.sync();
 		}
 	}
 }
@@ -482,10 +481,10 @@ Feedbag::Feedbag(IcqAccount *acc):
 			<< SNACInfo(ListsFamily, ListsCliModifyStart)
 			<< SNACInfo(ListsFamily, ListsCliModifyEnd)
 			<< SNACInfo(ListsFamily, ListsSrvReplyLists);
-	ConfigGroup config = acc->config().constGroup("feedbag");
+	Config config = acc->config("feedbag");
 	d->lastUpdateTime = config.value("lastUpdateTime", 0);
-	config = config.constGroup("cache");
-	foreach (const QString &itemIdStr, config.groupList()) {
+	config = config.group("cache");
+	foreach (const QString &itemIdStr, config.childKeys()) {
 		FeedbagItem item = config.value<FeedbagItem>(itemIdStr);
 		if (item.isNull())
 			continue;
@@ -776,14 +775,14 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		if (isLast) {
 			d->firstPacket = true;
 			d->lastUpdateTime = sn.read<quint32>();
-			d->account->config().removeGroup("feedbag");
-			ConfigGroup config = d->account->config("feedbag");
+			d->account->config().remove("feedbag");
+			Config config = d->account->config("feedbag");
 			config.setValue("lastUpdateTime", d->lastUpdateTime);
-			config = config.group("cache");
+			config.beginGroup("cache");
 			foreach (const ItemsHash &hash, d->items)
 				foreach (const FeedbagItem &item, hash)
 					config.setValue(item.d->configId(), QVariant::fromValue(item));
-			config.sync();
+			config.endGroup();
 			d->finishLoading();
 		}
 		break;
