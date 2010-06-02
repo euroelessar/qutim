@@ -129,10 +129,10 @@ namespace Jabber
 	QList<JBookmark> JBookmarkManager::readFromCache(const QString &type)
 	{
 		QList<JBookmark> list;
-		Config configBookmarks = p->account->config().group(type);
-		int count = configBookmarks.arraySize();
+		Config config = p->account->config();
+		int count = config.beginArray(type);
 		for (int num = 0; num < count; num++) {
-			Config configBookmark = configBookmarks.arrayElement(num);
+			Config configBookmark = config.arrayElement(num);
 			JBookmark bookmark(configBookmark.value("name", QString()),
 					configBookmark.value("conference", QString()),
 					configBookmark.value("nick", QString()),
@@ -147,16 +147,17 @@ namespace Jabber
 	{
 		Config config = p->account->config();
 		config.remove(type);
-		int num = config.beginArray(type);
-		foreach (const JBookmark &bookmark, list) {
-			Config configBookmark = config.arrayElement(num);
-			configBookmark.setValue("name", bookmark.name);
-			configBookmark.setValue("conference", bookmark.conference);
-			configBookmark.setValue("nick", bookmark.nick);
-			configBookmark.setValue("password", bookmark.password, Config::Crypted);
-			configBookmark.setValue("autojoin", bookmark.autojoin);
-			++num;
+		config.beginArray(type);
+		for (int i = 0; i < list.size(); i++) {
+			config.setArrayIndex(i);
+			const JBookmark &bookmark = list.at(i);
+			config.setValue("name", bookmark.name);
+			config.setValue("conference", bookmark.conference);
+			config.setValue("nick", bookmark.nick);
+			config.setValue("password", bookmark.password, Config::Crypted);
+			config.setValue("autojoin", bookmark.autojoin);
 		}
+		config.endArray();
 		if (type == "bookmarks")
 			emit bookmarksChanged();
 	}
