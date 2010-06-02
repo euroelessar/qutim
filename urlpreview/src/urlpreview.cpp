@@ -60,7 +60,7 @@ namespace UrlPreview
 		m_template = "<br><b>"+tr("URL Preview")+"</b>: <i>%TYPE%, %SIZE% "+tr("bytes")+"</i><br>";
 		m_image_template = "<img src=\"%URL%\" style=\"display: none;\" onload=\"if (this.width>%MAXW%) this.style.width='%MAXW%px'; if (this.height>%MAXH%) { this.style.width=''; this.style.height='%MAXH%px'; } this.style.display='';\"><br>";
 		m_youtube_template = "<img src=\"http://img.youtube.com/vi/%YTID%/1.jpg\"> <img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\"> <img src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
-				
+
 		return false;
 	}
 	
@@ -89,11 +89,9 @@ namespace UrlPreview
 		if (html.isEmpty())
 			html = message->text();
 		
-		QString source_html = html;
-		
 		static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
-									"(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
-									Qt::CaseInsensitive);
+								  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
+								  Qt::CaseInsensitive);
 		Q_ASSERT(linkRegExp.isValid());
 		int pos = 0;
 		while(((pos = linkRegExp.indexIn(html, pos)) != -1))
@@ -102,10 +100,10 @@ namespace UrlPreview
 			QString tmplink = link;
 			if (tmplink.toLower().startsWith("www."))
 				tmplink.prepend("http://");
-		
+
 			QRegExp urlrx("youtube\\.com/watch\\?v\\=([^\\&]*)");
 			if (urlrx.indexIn(tmplink)>-1 && (m_flags)) {
-			  tmplink = "http://www.youtube.com/v/"+urlrx.cap(1);
+				tmplink = "http://www.youtube.com/v/"+urlrx.cap(1);
 			}
 			
 			QString uid = QString::number(message->id());
@@ -124,9 +122,8 @@ namespace UrlPreview
 			
 		}
 		message->setProperty("html",html);
-		debug() << "Process message" << html;
 	}
-		
+
 	void UrlPreviewPlugin::authenticationRequired(QNetworkReply* , QAuthenticator* )
 	{
 
@@ -156,24 +153,27 @@ namespace UrlPreview
         if (!typeheader.isEmpty()) {
             hrx.setPattern("^([^\\;]+)");
             if (hrx.indexIn(reply->rawHeader(typeheader))>=0)
-            type = hrx.cap(1);
+				type = hrx.cap(1);
         }
         if (!sizeheader.isEmpty()) {
             hrx.setPattern("(\\d+)");
             if (hrx.indexIn(reply->rawHeader(sizeheader))>=0)
                 size = hrx.cap(1).toInt();
         }
+
+		if (type.isNull())
+			return;
         
         QString uid = reply->property("uid").toString();
 		
 		QString pstr;
 		bool show_preview_head=true;
 		QRegExp typerx("^text/html");
-		if (typerx.indexIn(type)==0 && (m_flags & DisableTextHtml)) {
+		if (typerx.indexIn(type)!=0 && (m_flags & DisableTextHtml)) {
 			show_preview_head=false;
 		}
 
-						QRegExp urlrx("^http://www\\.youtube\\.com/v/([\\w\\-]+)");
+		QRegExp urlrx("^http://www\\.youtube\\.com/v/([\\w\\-]+)");
 		if (urlrx.indexIn(url)==0 && (m_flags & PreviewYoutube)) {
 			pstr = m_template;
 			if (type == "application/x-shockwave-flash") {
@@ -181,22 +181,22 @@ namespace UrlPreview
 				pstr.replace("%TYPE%", tr("YouTube video"));
 				pstr += m_youtube_template;
 				pstr.replace("%YTID%", urlrx.cap(1));
-										pstr.replace("%SIZE%", tr("Unknown"));
+				pstr.replace("%SIZE%", tr("Unknown"));
 			}
-								else {
-										pstr.replace("%SIZE%", QString::number(size));
-								}
+			else {
+				pstr.replace("%SIZE%", QString::number(size));
+			}
 		}
 
 		if (show_preview_head) {
-								QString sizestr = (size>0) ? QString::number(size) : tr("Unknown");
+			QString sizestr = (size>0) ? QString::number(size) : tr("Unknown");
 			pstr = m_template;
 			pstr.replace("%TYPE%", type);
-								pstr.replace("%SIZE%", sizestr);
+			pstr.replace("%SIZE%", sizestr);
 		}
 
 		typerx.setPattern("^image/");
-						if (typerx.indexIn(type)==0 && size>0 && size<m_maxfilesize) {
+		if (typerx.indexIn(type)==0 && size>0 && size<m_maxfilesize) {
 			QString amsg = m_image_template;
 			amsg.replace("%URL%", url);
 			amsg.replace("%UID%", uid);
@@ -212,7 +212,6 @@ namespace UrlPreview
 											"evaluateJavaScript",
 											Q_ARG(QString,js)
 											);
-		debug() << "JS" << js;
 	}
 	void UrlPreviewPlugin::netmanSslErrors(QNetworkReply* , const QList< QSslError >& )
 	{
