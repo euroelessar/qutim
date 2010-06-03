@@ -27,10 +27,14 @@ PrivateListActionGenerator::~PrivateListActionGenerator()
 
 QObject *PrivateListActionGenerator::generateHelper() const
 {
-	QAction *action = prepareAction(new QAction(NULL));
 	IcqContact *contact = qobject_cast<IcqContact*>(controller());
 	Q_ASSERT(contact);
-	if (contact->account()->feedbag()->containsItem(m_type, contact->id()))
+	IcqAccount *account = contact->account();
+	Status::Type status = account->status().type();
+	if (status == Status::Offline || status == Status::Connecting)
+		return 0;
+	QAction *action = prepareAction(new QAction(NULL));
+	if (account->feedbag()->containsItem(m_type, contact->id()))
 		action->setText(m_text2);
 	action->setProperty("itemType", m_type);
 	return action;

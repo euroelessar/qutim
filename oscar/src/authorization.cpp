@@ -21,15 +21,15 @@ AuthorizeActionGenerator::AuthorizeActionGenerator() :
 
 QObject *AuthorizeActionGenerator::generateHelper() const
 {
-	QAction *action = prepareAction(new QAction(NULL));
-	MenuController *contact = action->data().value<MenuController*>();
-	Q_ASSERT(contact);
-	if (!contact->property("authorizedBy").toBool()) {
-		return action;
-	} else {
-		delete action;
-		return 0;
+	Q_ASSERT(qobject_cast<IcqContact*>(controller()) != 0);
+	IcqContact *contact = reinterpret_cast<IcqContact*>(controller());
+	Status::Type status = contact->account()->status().type();
+	if (status != Status::Offline && status != Status::Connecting &&
+		contact->property("authorizedBy").toBool())
+	{
+		return prepareAction(new QAction(NULL));
 	}
+	return 0;
 }
 
 Authorization::Authorization()
