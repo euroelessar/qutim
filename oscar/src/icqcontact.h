@@ -21,6 +21,7 @@
 #include <qutim/contact.h>
 #include <capability.h>
 #include <cookie.h>
+#include <feedbag.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -57,6 +58,7 @@ public:
 	ChatState chatState() const;
 	void insertToolTipField(const LocalizedString &title, const QVariant &data);
 	void removeToolTipField(const QString &title);
+	QList<FeedbagItem> feedbagItems() const;
 private:
 	virtual bool event(QEvent *);
 	void setAvatar(const QString &avatar);

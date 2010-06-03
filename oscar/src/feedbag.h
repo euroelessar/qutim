@@ -87,6 +87,7 @@ public:
 	TLVMap &data();
 	const TLVMap &constData() const;
 	void setData(const TLVMap &tlvs);
+	bool operator==(const FeedbagItem &rhs) const;
 protected:
 	FeedbagItem(FeedbagItemPrivate *d);
 private:

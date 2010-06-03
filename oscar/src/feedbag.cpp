@@ -333,6 +333,14 @@ void FeedbagItem::setData(const TLVMap &tlvs)
 	d->tlvs = tlvs;
 }
 
+bool FeedbagItem::operator==(const FeedbagItem &rhs) const
+{
+	const FeedbagItemPrivate *rd = rhs.d;
+	return (d->itemType == rd->itemType &&
+			d->itemId == rd->itemId &&
+			d->groupId == rd->groupId);
+}
+
 QDataStream &operator<<(QDataStream &out, const FeedbagItem &item)
 {
 	out << item.d->recordName << item.d->itemId

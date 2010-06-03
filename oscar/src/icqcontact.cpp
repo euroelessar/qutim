@@ -322,6 +322,11 @@ void IcqContact::removeToolTipField(const QString &title)
 	d_func()->fields.remove(title);
 }
 
+QList<FeedbagItem> IcqContact::feedbagItems() const
+{
+	return d_func()->items;
+}
+
 bool IcqContact::event(QEvent *ev)
 {
 	Q_D(IcqContact);

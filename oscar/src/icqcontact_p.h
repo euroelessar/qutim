@@ -21,7 +21,6 @@
 
 #include "capability.h"
 #include "oscarconnection.h"
-#include "feedbag.h"
 #include <QDateTime>
 
 namespace qutim_sdk_0_3 {
