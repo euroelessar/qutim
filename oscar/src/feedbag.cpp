@@ -409,7 +409,7 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 	}
 	bool found = false;
 	foreach (FeedbagItemHandler *handler, handlers.values(item.type())) {
-		found = found || handler->handleFeedbagItem(q, item, type, error);
+		found = handler->handleFeedbagItem(q, item, type, error) || found;
 	}
 	if (!found) {
 		if (error == FeedbagError::NoError) {
