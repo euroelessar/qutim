@@ -9,6 +9,15 @@ namespace Core
 	namespace SimpleContactList
 	{
 		struct ModelPrivate;
+		class Model;
+		
+		class AddRemoveContactActionGenerator : public ActionGenerator
+		{
+		public:
+			AddRemoveContactActionGenerator(Model *model);
+		protected:
+			virtual QObject *generateHelper() const;
+		};
 
 		class Model : public QAbstractItemModel
 		{
@@ -43,6 +52,7 @@ namespace Core
 			void onFilterList(const QString &filter);
 			void onContactRenameAction();
 			void onContactRenameResult(const QString &name);
+			void onContactAddRemoveAction();
 			void onCollapsed(const QModelIndex &index);
 			void onTagsEditAction();
 			void onExpanded(const QModelIndex &index);

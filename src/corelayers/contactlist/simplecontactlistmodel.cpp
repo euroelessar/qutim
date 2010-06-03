@@ -26,6 +26,27 @@ namespace Core
 			bool showOffline;
 		};
 
+		AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
+			ActionGenerator(QIcon(), "", model, SLOT(onContactAddRemoveAction()))
+		{
+		}
+
+		QObject *AddRemoveContactActionGenerator::generateHelper() const
+		{
+			Contact *contact = qobject_cast<Contact*>(controller());
+			if (!contact)
+				return 0;
+			QAction *action = prepareAction(new QAction(0));
+			if (contact->isInList()) {
+				action->setIcon(Icon("list-remove"));
+				action->setText(QT_TRANSLATE_NOOP("ContactList", "Remove contact"));
+			} else {
+				action->setIcon(Icon("list-add"));
+				action->setText(QT_TRANSLATE_NOOP("ContactList", "Add to contact list"));
+			}
+			return action;
+		}
+
 		Model::Model(QObject *parent) : QAbstractItemModel(parent), p(new ModelPrivate)
 		{
 			p->view = static_cast<QTreeView*>(parent);
@@ -42,6 +63,7 @@ namespace Core
 													   QT_TRANSLATE_NOOP("ContactList", "Edit tags"),
 													   this, SLOT(onTagsEditAction()));
 			MenuController::addAction<Contact>(gen);
+			MenuController::addAction<Contact>(new AddRemoveContactActionGenerator(this));
 
 			p->view->setDragEnabled(true);
 			p->view->setAcceptDrops(true);
@@ -521,6 +543,14 @@ namespace Core
 			dialog->setProperty("contact", qVariantFromValue(contact));
 			centerizeWidget(dialog);
 			dialog->open(this, SLOT(onContactRenameResult(QString)));
+		}
+
+		void Model::onContactAddRemoveAction()
+		{
+			Contact *contact = MenuController::getController<Contact>(sender());
+			if (!contact)
+				return;
+			contact->setInList(!contact->isInList());
 		}
 
 		void Model::onTagsEditAction()
