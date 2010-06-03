@@ -319,7 +319,6 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 	Q_UNUSED(warning);
 	snac.skipData(2); // unused number of tlvs
 	TLVMap tlvs = snac.read<TLVMap>();
-
 	QString message;
 	switch (channel) {
 	case 0x0001: // message
@@ -342,12 +341,18 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 			m.setTime(QDateTime::currentDateTime());
 		m.setIncoming(true);
 		ChatSession *session = ChatLayer::instance()->getSession(account, contact);
+		// If the contact is not contained in the server contact list,
+		// it should be removed after destroying its session.
+		if (!contact->isInList())
+			connect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
 		m.setChatUnit(session->getUnit());
 		QString plain = unescape(message);
 		m.setText(plain);
 		if (plain != message)
 			m.setProperty("html", message);
 		session->appendMessage(m);
+	} else if (!contact->isInList()) {
+		contact->deleteLater();
 	}
 }
 

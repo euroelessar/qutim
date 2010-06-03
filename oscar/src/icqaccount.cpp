@@ -266,6 +266,7 @@ IcqContact *IcqAccount::getContact(const QString &id, bool create)
 	if (create && !contact) {
 		contact = new IcqContact(id, this);
 		d->contacts.insert(id, contact);
+		connect(contact, SIGNAL(destroyed()), SLOT(onContactRemoved()));
 		emit contactCreated(contact);
 		//if (ContactList::instance())
 		//	ContactList::instance()->addContact(contact);
@@ -343,6 +344,20 @@ void IcqAccount::onReconnectTimeout()
 	Q_D(IcqAccount);
 	if (status() == Status::Offline)
 		setStatus(d->lastStatus);
+}
+
+void IcqAccount::onContactRemoved()
+{
+	Q_D(IcqAccount);
+	IcqContact *contact = reinterpret_cast<IcqContact*>(sender());
+	QHash<QString, IcqContact *>::iterator itr = d->contacts.begin();
+	QHash<QString, IcqContact *>::iterator endItr = d->contacts.end();
+	while (itr != endItr) {
+		if (*itr == contact)
+			break;
+		++itr;
+	}
+	Q_ASSERT(itr != endItr);
 }
 
 bool IcqAccount::event(QEvent *ev)

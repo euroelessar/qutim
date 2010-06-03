@@ -69,7 +69,6 @@ struct IcqContactPrivate
 	QDateTime onlineSince;
 	QDateTime awaySince;
 	QDateTime regTime;
-	bool added;
 	IcqContact *q_ptr;
 };
 

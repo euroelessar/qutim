@@ -78,12 +78,29 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 			}
 			++itr;
 		}
+		bool added = false;
 		if (newTag) {
-			if (d->added && account->status() == Status::Connecting && d->items.isEmpty())
+			if (account->status() == Status::Connecting && d->items.isEmpty())
 				loadTagsFromFeedbag(contact);
+			if (d->items.isEmpty()) {
+				// Now, the contact should not be removed after destroying its session
+				// as it was added to the server contact list.
+				ChatSession *session = ChatLayer::instance()->getSession(account, contact, false);
+				if (session)
+					disconnect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
+				// Add the contact to the contact list.
+				if (ContactList::instance()) {
+					loadTagsFromFeedbag(contact);
+					ContactList::instance()->addContact(contact);
+				}
+				debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
+				added = true;
+			}
 			d->items << item;
 			emit contact->tagsChanged(contact->tags());
 		}
+		if (!added)
+			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
 		// name
 		QString new_name = item.field<QString>(SsiBuddyNick);
 		if (!new_name.isEmpty() && new_name != contact->d_func()->name) {
@@ -95,17 +112,6 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 		if (!new_comment.isEmpty() && new_comment != contact->property("comment").toString()) {
 			contact->setProperty("comment", new_comment);
 			// TODO: emit ...
-		}
-		if (!d->added) {
-			if (ContactList::instance()) {
-				loadTagsFromFeedbag(contact);
-				d->added = true;
-				ContactList::instance()->addContact(contact);
-			}
-			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
-			return;
-		} else {
-			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
 		}
 		break;
 	}
@@ -208,12 +214,16 @@ void Roster::loadTagsFromFeedbag(IcqContact *contact)
 
 void Roster::removeContact(IcqContact *contact)
 {
-/*
 	if (ContactList::instance())
 		ContactList::instance()->removeContact(contact);
-	delete contact;
-*/
-	emit contact->tagsChanged(contact->tags());
+	ChatSession *session = ChatLayer::instance()->getSession(contact->account(), contact, false);
+	if (session)
+		// The contact has been removed, but its session still exists,
+		// thus we have to wait until the session is destroyed.
+		connect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
+	else
+		// Well... There is no need in this contact.
+		contact->deleteLater();
 }
 
 QStringList Roster::readTags(const FeedbagItem &item)

@@ -63,6 +63,7 @@ public slots:
 private slots:
 	void onReconnectTimeout();
 	void onPasswordEntered(const QString &password, bool remember);
+	void onContactRemoved();
 protected:
 	virtual bool event(QEvent *ev);
 private:
