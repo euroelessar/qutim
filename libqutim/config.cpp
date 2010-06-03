@@ -179,12 +179,14 @@ namespace qutim_sdk_0_3
 				first = last + 1;
 				continue;
 			}
-			QVariant &var = (*(d->current()->map))[name];
-			if (var.type() != QVariant::Map) {
+			if (finalVar)
+				finalVar = &(*reinterpret_cast<QVariantMap*>(finalVar->data()))[name];
+			else
+				finalVar = &(*(d->current()->map))[name];
+			if (finalVar->type() != QVariant::Map) {
 				*(d->dirty) = true;
-				var.setValue(QVariantMap());
+				finalVar->setValue(QVariantMap());
 			}
-			finalVar = &var;
 			first = last + 1;
 		} while(first != 0);
 		Q_ASSERT(finalVar != NULL);
