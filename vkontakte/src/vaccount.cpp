@@ -7,7 +7,6 @@
 #include "vconnection_p.h"
 #include "vroster.h"
 #include "vaccount_p.h"
-#include <qutim/contactlist.h>
 
 VAccount::VAccount(const QString& email) : 
 	Account(email, VkontakteProtocol::instance()),
@@ -47,8 +46,6 @@ void VAccount::loadSettings()
 		c->setProperty("avatarUrl",item.group("avatar").value<QString>("url",QString()));
 		c->setActivity(item.value<QString>("activity",QString()));
 		debug() << "added contact:" << c->name() << "in list" << c->isInList();
-		if (c->isInList())
-			ContactList::instance()->addContact(c);
 	}
 }
 

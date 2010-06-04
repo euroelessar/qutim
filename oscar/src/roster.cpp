@@ -24,7 +24,6 @@
 #include "xtraz.h"
 #include "feedbag.h"
 #include "sessiondataitem.h"
-#include <qutim/contactlist.h>
 #include <qutim/messagesession.h>
 #include <qutim/notificationslayer.h>
 
@@ -89,10 +88,7 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 				if (session)
 					disconnect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
 				// Add the contact to the contact list.
-				if (ContactList::instance()) {
-					loadTagsFromFeedbag(contact);
-					ContactList::instance()->addContact(contact);
-				}
+				loadTagsFromFeedbag(contact);
 				debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
 				emit contact->inListChanged(true);
 				added = true;
@@ -215,8 +211,6 @@ void Roster::loadTagsFromFeedbag(IcqContact *contact)
 
 void Roster::removeContact(IcqContact *contact)
 {
-	if (ContactList::instance())
-		ContactList::instance()->removeContact(contact);
 	emit contact->inListChanged(false);
 	// Remove tags.
 	FeedbagItem item = contact->account()->feedbag()->item(SsiTags, contact->id(), 0);
@@ -399,8 +393,6 @@ void Roster::loginFinished()
 	Q_ASSERT(account);
 	foreach (IcqContact *contact, account->contacts()) {
 		if (!account->feedbag()->containsItem(SsiBuddy, contact->id())) {
-			if (ContactList::instance())
-				ContactList::instance()->removeContact(contact);
 			delete contact;
 		} else {
 			contact->d_func()->requestNick();

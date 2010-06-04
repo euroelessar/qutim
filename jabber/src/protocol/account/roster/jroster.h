@@ -1,7 +1,7 @@
 #ifndef JROSTER_H
 #define JROSTER_H
 
-#include <qutim/contactlist.h>
+#include <qutim/contact.h>
 #include <qutim/configbase.h>
 #include <gloox/rostermanager.h>
 #include <gloox/presencehandler.h>

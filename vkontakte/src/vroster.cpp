@@ -37,7 +37,6 @@ void VRosterPrivate::onGetFriendsRequestFinished()
 			tags << tr("Friends");
 			c->setTags(tags);
 			c->setInList(true);
-			ContactList::instance()->addContact(c);
 		}
 		QString current_avatar = c->property("avatarUrl").toString();
 		QString new_avatar = sc_item.property(2).toString();

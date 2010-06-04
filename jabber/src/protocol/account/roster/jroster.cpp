@@ -149,7 +149,6 @@ namespace Jabber
 					tags.insert(QString::fromStdString(*group));
 				contact->setContactTags(tags);
 				contact->setContactInList(true);
-				ContactList::instance()->addContact(contact);
 				p->contacts.insert(jid, contact);
 			}
 		}
@@ -174,8 +173,6 @@ namespace Jabber
 			tags.insert(tr("Not in list"));
 			contact->setContactTags(tags);
 			contact->setContactInList(false);
-			ContactList::instance()->addContact(contact);
-			p->contacts.insert(jid, contact);
 		}
 		if (!resource.isEmpty())
 			p->contacts.value(jid)->setStatus(resource, presence.presence(), presence.priority(),
@@ -289,7 +286,6 @@ namespace Jabber
 		if (!contact->isInList()) {
 			if (answer) {
 				contact->setContactInList(true);
-				ContactList::instance()->addContact(contact);
 				p->contacts.insert(contact->id(), contact);
 			} else {
 				contact->deleteLater();

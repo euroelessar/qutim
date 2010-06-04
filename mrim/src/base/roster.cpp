@@ -15,7 +15,7 @@
 
 #include <QVariant>
 
-#include <qutim/contactlist.h>
+#include <qutim/contact.h>
 
 #include "mrimdebug.h"
 #include "mrimcontact.h"
@@ -232,11 +232,6 @@ void Roster::addToList(MrimContact *cnt)
 {
     Q_ASSERT(cnt);
     p->contacts.insertMulti(cnt->email(),cnt);
-
-    if (ContactList::instance())
-    {
-        ContactList::instance()->addContact(cnt);
-    }
 }
 
 MrimContact *Roster::getContact(const QString& id)
