@@ -85,16 +85,15 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 			if (d->items.isEmpty()) {
 				// Now, the contact should not be removed after destroying its session
 				// as it was added to the server contact list.
-				ChatSession *session = ChatLayer::instance()->get(contact,false);
-//				ChatSession *session = ChatLayer::instance()->getSession(account, contact, false);
+				ChatSession *session = ChatLayer::instance()->get(contact, false);
 				if (session)
 					disconnect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
-//				// Add the contact to the contact list.
+				// Add the contact to the contact list.
 				if (ContactList::instance()) {
 					loadTagsFromFeedbag(contact);
 					ContactList::instance()->addContact(contact);
 				}
-				//debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
+				debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
 				added = true;
 			}
 			d->items << item;
@@ -217,7 +216,7 @@ void Roster::removeContact(IcqContact *contact)
 {
 	if (ContactList::instance())
 		ContactList::instance()->removeContact(contact);
-	ChatSession *session = ChatLayer::instance()->getSession(contact->account(), contact, false);
+	ChatSession *session = ChatLayer::instance()->get(contact, false);
 	if (session)
 		// The contact has been removed, but its session still exists,
 		// thus we have to wait until the session is destroyed.

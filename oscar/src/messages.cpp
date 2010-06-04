@@ -340,7 +340,7 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 		else
 			m.setTime(QDateTime::currentDateTime());
 		m.setIncoming(true);
-		ChatSession *session = ChatLayer::instance()->getSession(account, contact);
+		ChatSession *session = ChatLayer::instance()->get(contact);
 		// If the contact is not contained in the server contact list,
 		// it should be removed after destroying its session.
 		if (!contact->isInList())
@@ -554,7 +554,7 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 			DataUnit pluginData = data.read<DataUnit, quint32>(LittleEndian);
 			if (pluginType.isNull()) {
 				if (ack == 2) {
-					ChatSession *session = ChatLayer::instance()->getSession(contact, false);
+					ChatSession *session = ChatLayer::instance()->get(contact, false);
 					if (session) {
 						QApplication::instance()->postEvent(session, new MessageReceiptEvent(msgCookie.id(), true));
 						debug() << "Message with id" << msgCookie.id() << "has been delivered";

@@ -410,7 +410,7 @@ void IcqContact::messageTimeout()
 {
 	Cookie *cookie = qobject_cast<Cookie*>(sender());
 	Q_ASSERT(cookie);
-	ChatSession *session = ChatLayer::instance()->getSession(cookie->contact(), false);
+	ChatSession *session = ChatLayer::instance()->get(cookie->contact(), false);
 	if (session) {
 		QApplication::instance()->postEvent(session, new MessageReceiptEvent(cookie->id(), false));
 		debug() << "Message with id" << cookie->id() << "has not been delivered";
