@@ -52,7 +52,7 @@ class ChatSessionModel;
 			ChatState myself_chat_state;
 			ChatSessionImpl *q_ptr;
 		public slots:
-			void onStatusChanged(Status);
+			void onStatusChanged(qutim_sdk_0_3::Status);
 			void onLinkClicked(const QUrl &url);
 			void onActiveTimeout();
 		};
