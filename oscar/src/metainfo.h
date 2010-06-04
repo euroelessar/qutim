@@ -117,7 +117,7 @@ public:
 	bool operator!=(int value) const { return m_value != value; }
 	bool operator==(const MetaInfoField &value) const { return m_value == value.m_value; }
 	bool operator!=(const MetaInfoField &value) const { return m_value != value.m_value; }
-	static QHash<MetaInfoField, QVariant> dataItemToHash(const DataItem &items);
+	static QHash<MetaInfoField, QVariant> dataItemToHash(const DataItem &items, bool allItems = false);
 private:
 	mutable QString m_name;
 	MetaInfoFieldEnum m_value;

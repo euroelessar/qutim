@@ -185,11 +185,11 @@ QString MetaInfoField::toString() const
 	return fields()->value(m_value);
 }
 
-static void dataItemToHashHelper(const DataItem &items, MetaInfoValuesHash &hash)
+static void dataItemToHashHelper(const DataItem &items, MetaInfoValuesHash &hash, bool allItems)
 {
 	foreach (const DataItem &item, items.subitems()) {
 		if (item.isMultiple()) {
-			if (item.hasSubitems()) {
+			if (allItems || item.hasSubitems()) {
 				CategoryList list;
 				foreach (const DataItem &catItem, item.subitems()) {
 					Category cat;
@@ -200,7 +200,7 @@ static void dataItemToHashHelper(const DataItem &items, MetaInfoValuesHash &hash
 				hash.insert(item.name(), QVariant::fromValue(list));
 			}
 		} else if (item.hasSubitems()) {
-			dataItemToHashHelper(item, hash);
+			dataItemToHashHelper(item, hash, allItems);
 		} else {
 			static QSet<MetaInfoFieldEnum> hasTitleAlternatives = QSet<MetaInfoFieldEnum>()
 																  << Affilations << Interests << Pasts;
@@ -209,21 +209,21 @@ static void dataItemToHashHelper(const DataItem &items, MetaInfoValuesHash &hash
 				Category cat;
 				cat.category = item.title();
 				cat.keyword = item.data().toString();
-				if (!cat.category.isEmpty())
+				if (allItems || !cat.category.isEmpty())
 					hash.insert(field, QVariant::fromValue(cat));
 			} else {
-				if (!item.data().isNull())
+				if (allItems || !item.data().isNull())
 					hash.insert(field, item.data());
 			}
 		}
 	}
 }
 
-MetaInfoValuesHash MetaInfoField::dataItemToHash(const DataItem &items)
+MetaInfoValuesHash MetaInfoField::dataItemToHash(const DataItem &items, bool allItems)
 {
 	Q_ASSERT(!items.isNull());
 	MetaInfoValuesHash hash;
-	dataItemToHashHelper(items, hash);
+	dataItemToHashHelper(items, hash, allItems);
 	return hash;
 }
 
@@ -586,10 +586,17 @@ template <typename T>
 void TlvBasedMetaInfoRequestPrivate::addCategoryId(quint16 id, MetaInfoFieldEnum value, DataUnit &data, FieldNamesList *list) const
 {
 	if (values.contains(value)) {
-		foreach (const QString &str, values.value(value).toStringList()) {
+		QStringList d = values.value(value).toStringList();
+		if (!d.isEmpty()) {
+			foreach (const QString &str, d) {
+				DataUnit tlv;
+				T catId = list->key(str);
+				tlv.append<T>(catId, LittleEndian);
+				data.appendTLV(id, tlv, LittleEndian);
+			}
+		} else {
 			DataUnit tlv;
-			T catId = list->key(str);
-			tlv.append<T>(catId, LittleEndian);
+			tlv.append<T>(0, LittleEndian);
 			data.appendTLV(id, tlv, LittleEndian);
 		}
 	}
@@ -604,11 +611,18 @@ void TlvBasedMetaInfoRequestPrivate::addCategory(quint16 id, MetaInfoFieldEnum v
 			categories << val.value<Category>();
 		else
 			categories = val.value<CategoryList>();
-		foreach (const Category &cat, categories) {
+		if (!categories.isEmpty()) {
+			foreach (const Category &cat, categories) {
+				DataUnit tlv;
+				quint16 catId = list->key(cat.category);
+				tlv.append<quint16>(catId, LittleEndian);
+				addString(cat.keyword, tlv);
+				data.appendTLV(id, tlv, LittleEndian);
+			}
+		} else {
 			DataUnit tlv;
-			quint16 catId = list->key(cat.category);
-			tlv.append<quint16>(catId, LittleEndian);
-			addString(cat.keyword, tlv);
+			tlv.append<quint16>(0, LittleEndian);
+			addString("", tlv);
 			data.appendTLV(id, tlv, LittleEndian);
 		}
 	}

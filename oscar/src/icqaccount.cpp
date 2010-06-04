@@ -379,7 +379,7 @@ bool IcqAccount::event(QEvent *ev)
 		event->accept();
 	} else if (ev->type() == InfoItemUpdatedEvent::eventType()) {
 		InfoItemUpdatedEvent *event = static_cast<InfoItemUpdatedEvent*>(ev);
-		MetaInfoValuesHash values = MetaInfoField::dataItemToHash(event->infoItem());
+		MetaInfoValuesHash values = MetaInfoField::dataItemToHash(event->infoItem(), true);
 		UpdateAccountInfoMetaRequest *request = new UpdateAccountInfoMetaRequest(this, values);
 		connect(request, SIGNAL(infoUpdated()), request, SLOT(deleteLater()));
 		request->send();
