@@ -14,13 +14,13 @@ public:
 	virtual QString id() const;
 	virtual bool isInList() const;
 	virtual void sendMessage(const Message& message);
-	virtual void setTags(const QSet< QString >& tags);
+	virtual void setTags(const QStringList& tags);
 	virtual void setInList(bool inList);
 	void setStatus(bool online);
 	void setActivity(const QString &activity);
 	virtual Status status() const;
 	virtual ~VContact();
-	virtual QSet< QString > tags() const;
+	virtual QStringList tags() const;
 	virtual QString name() const;
 	virtual void setName(const QString& name);
 	void setAvatar(const QString &avatar);

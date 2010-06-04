@@ -124,9 +124,7 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 					else
 						groups << i.name();
 				}
-				foreach (const QString &tag,  contact->d_func()->tags)
-					groups.insert(tag);
-				emit contact->tagsChanged(groups);
+				emit contact->tagsChanged(contact->d_func()->tags);
 			}
 			debug(Verbose) << "The group" << old.name() << "has been renamed to" << item.name();
 		} else {

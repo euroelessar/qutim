@@ -97,17 +97,17 @@ IcqContact::~IcqContact()
 
 }
 
-QSet<QString> IcqContact::tags() const
+QStringList IcqContact::tags() const
 {
 	Q_D(const IcqContact);
-	QSet<QString> groups;
+	QStringList groups;
 	foreach (const FeedbagItem &item, d->items) {
 		FeedbagItem group = d->account->feedbag()->groupItem(item.groupId());
 		if (!group.isNull() && group.groupId() != not_in_list_group)
 			groups << group.name();
 	}
 	foreach (const QString &tag, d->tags)
-		groups.insert(tag);
+		groups.append(tag);
 	return groups;
 }
 
@@ -193,7 +193,7 @@ void IcqContact::setName(const QString &name)
 	}
 }
 
-void IcqContact::setTags(const QSet<QString> &tags)
+void IcqContact::setTags(const QStringList &tags)
 {
 	Q_D(IcqContact);
 	if (!isInList())
@@ -201,7 +201,7 @@ void IcqContact::setTags(const QSet<QString> &tags)
 	Feedbag *f = d->account->feedbag();
 	FeedbagItem group = f->groupItem(d->items.first().groupId());
 	if (!group.isNull() && !tags.contains(group.name()))
-		setGroup(tags.isEmpty() ? QString() : tags.toList().first());
+		setGroup(tags.isEmpty() ? QString() : tags.first());
 	DataUnit tagsData;
 	foreach (const QString &tag, tags)
 		tagsData.append<quint16>(tag);

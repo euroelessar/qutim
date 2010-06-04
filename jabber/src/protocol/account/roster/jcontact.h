@@ -29,12 +29,12 @@ namespace Jabber
 			void sendMessage(const qutim_sdk_0_3::Message &message);
 			void setName(const QString &name);
 			void setContactName(const QString &name);
-			void setTags(const QSet<QString> &tags);
-			void setContactTags(const QSet<QString> &tags);
+			void setTags(const QStringList &tags);
+			void setContactTags(const QStringList &tags);
 			void setStatus(const QString &resource, gloox::Presence::PresenceType presence, int priority,
 					const QString &text = QString());
 			QString name() const;
-			QSet<QString> tags() const;
+			QStringList tags() const;
 			Status status() const;
 			bool isInList() const;
 			void setInList(bool inList);

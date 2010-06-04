@@ -10,7 +10,7 @@ struct VContactPrivate
 	bool online;
 	QString id;
 	bool inList;
-	QSet<QString> tags;
+	QStringList tags;
 	QString name;
 	QString avatar;
 	QString activity;
@@ -43,7 +43,7 @@ void VContact::sendMessage(const Message& message)
 	d_func()->account->connection()->messages()->sendMessage(message);
 }
 
-void VContact::setTags(const QSet< QString >& tags)
+void VContact::setTags(const QStringList& tags)
 {
 	d_func()->tags = tags;
 }
@@ -84,7 +84,7 @@ VContact::~VContact()
 
 }
 
-QSet< QString > VContact::tags() const
+QStringList VContact::tags() const
 {
 	return d_func()->tags;
 }

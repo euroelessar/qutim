@@ -8,7 +8,6 @@
 #include <QNetworkReply>
 #include <qutim/debug.h>
 #include <QtScript/QScriptEngine>
-#include <qutim/contactlist.h>
 #include <QCryptographicHash>
 #include <QFile>
 #include <QDir>
@@ -33,7 +32,7 @@ void VRosterPrivate::onGetFriendsRequestFinished()
 		if (!c) {
 			c = connection->account()->getContact(id,true);
 			c->setName(sc_item.property(1).toString());
-			QSet<QString> tags;
+			QStringList tags;
 			tags << tr("Friends");
 			c->setTags(tags);
 			c->setInList(true);

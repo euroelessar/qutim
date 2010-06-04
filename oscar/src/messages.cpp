@@ -22,7 +22,6 @@
 #include "buddycaps.h"
 #include "connection.h"
 #include <qutim/objectgenerator.h>
-#include <qutim/contactlist.h>
 #include <qutim/notificationslayer.h>
 #include <QHostAddress>
 #include <QApplication>

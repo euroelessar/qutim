@@ -8,7 +8,6 @@
 #include "jmucjoin.h"
 #include "jmucsession.h"
 #include <qutim/messagesession.h>
-#include <qutim/contactlist.h>
 #include <qutim/icon.h>
 #include "../roster/jsoftwaredetection.h"
 

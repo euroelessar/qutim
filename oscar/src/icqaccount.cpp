@@ -25,7 +25,6 @@
 #include "inforequest_p.h"
 #include <qutim/status.h>
 #include <qutim/systeminfo.h>
-#include <qutim/contactlist.h>
 #include <qutim/objectgenerator.h>
 #include <QTimer>
 

@@ -50,10 +50,10 @@ QString MrimContact::name() const
 void MrimContact::setName(const QString &name)
 { p->name = name; }
 
-QSet<QString> MrimContact::tags() const
-{ return QSet<QString>() << account()->roster()->groupName(p->groupId); }
+QStringList MrimContact::tags() const
+{ return QStringList() << account()->roster()->groupName(p->groupId); }
 
-void MrimContact::setTags(const QSet<QString> &tags)
+void MrimContact::setTags(const QStringList &tags)
 {
     Q_UNUSED(tags);
     //do nothing

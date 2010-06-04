@@ -40,14 +40,14 @@ class LIBOSCAR_EXPORT IcqContact: public Contact
 public:
 	IcqContact(const QString &uin, IcqAccount *account);
 	~IcqContact();
-	virtual QSet<QString> tags() const;
+	virtual QStringList tags() const;
 	virtual QString id() const;
 	virtual QString name() const;
 	virtual Status status() const;
 	virtual  QString avatar() const;
 	virtual void sendMessage(const Message &message);
 	virtual void setName(const QString &name);
-	virtual void setTags(const QSet<QString> &tags);
+	virtual void setTags(const QStringList &tags);
 	void setGroup(const QString &group);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);

@@ -142,11 +142,11 @@ namespace Jabber
 			} else if (!p->contacts.contains(jid)) {
 				JContact *contact = new JContact(jid, p->account);
 				contact->setContactName(QString::fromStdString(item->name()));
-				QSet<QString> tags;
+				QStringList tags;
 				StringList groups = item->groups();
 				StringList::const_iterator group = groups.begin();
 				for(; group != groups.end(); ++group)
-					tags.insert(QString::fromStdString(*group));
+					tags.append(QString::fromStdString(*group));
 				contact->setContactTags(tags);
 				contact->setContactInList(true);
 				p->contacts.insert(jid, contact);
@@ -169,8 +169,8 @@ namespace Jabber
 		if (!p->contacts.contains(jid)) {
 			JContact *contact = new JContact(jid, p->account);
 			contact->setContactName(QString::fromStdString(presence.from().username()));
-			QSet<QString> tags;
-			tags.insert(tr("Not in list"));
+			QStringList tags;
+			tags.append(tr("Not in list"));
 			contact->setContactTags(tags);
 			contact->setContactInList(false);
 		}

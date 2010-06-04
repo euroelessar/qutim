@@ -25,7 +25,7 @@ namespace Jabber
 		JAccount *account;
 		QHash<QString, JContactResource *> resources;
 		QStringList currentResources;
-		QSet<QString> tags;
+		QStringList tags;
 		QString name;
 		QString jid;
 		bool inList;
@@ -89,7 +89,7 @@ namespace Jabber
 		return d_func()->name;
 	}
 
-	void JContact::setTags(const QSet<QString> &tags)
+	void JContact::setTags(const QStringList &tags)
 	{
 		Q_D(JContact);
 		if (d->tags == tags)
@@ -107,13 +107,13 @@ namespace Jabber
 		rosterManager->synchronize();
 	}
 
-	void JContact::setContactTags(const QSet<QString> &tags)
+	void JContact::setContactTags(const QStringList &tags)
 	{
 		d_func()->tags = tags;
 		emit tagsChanged(tags);
 	}
 
-	QSet<QString> JContact::tags() const
+	QStringList JContact::tags() const
 	{
 		return d_func()->tags;
 	}

@@ -54,8 +54,8 @@ public:
     void sendMessage(const Message &message);
     QString name() const;
     void setName(const QString &name);
-    QSet<QString> tags() const;
-    void setTags(const QSet<QString> &tags);
+	QStringList tags() const;
+	void setTags(const QStringList &tags);
     bool isInList() const;
     void setInList(bool inList);
     void setChatState(ChatState state);
