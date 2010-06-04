@@ -353,8 +353,10 @@ void IcqAccount::onContactRemoved()
 	QHash<QString, IcqContact *>::iterator itr = d->contacts.begin();
 	QHash<QString, IcqContact *>::iterator endItr = d->contacts.end();
 	while (itr != endItr) {
-		if (*itr == contact)
+		if (*itr == contact) {
+			d->contacts.erase(itr);
 			break;
+		}
 		++itr;
 	}
 	Q_ASSERT(itr != endItr);

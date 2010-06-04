@@ -94,6 +94,7 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 					ContactList::instance()->addContact(contact);
 				}
 				debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
+				emit contact->inListChanged(true);
 				added = true;
 			}
 			d->items << item;
@@ -216,6 +217,11 @@ void Roster::removeContact(IcqContact *contact)
 {
 	if (ContactList::instance())
 		ContactList::instance()->removeContact(contact);
+	emit contact->inListChanged(false);
+	// Remove tags.
+	FeedbagItem item = contact->account()->feedbag()->item(SsiTags, contact->id(), 0);
+	if (!item.isNull())
+		item.remove();
 	ChatSession *session = ChatLayer::instance()->get(contact, false);
 	if (session)
 		// The contact has been removed, but its session still exists,
