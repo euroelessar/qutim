@@ -1,7 +1,6 @@
 #ifndef SIMPLETRAY_H
 #define SIMPLETRAY_H
 
-#include "libqutim/contactlist.h"
 #include "libqutim/messagesession.h"
 #include "libqutim/account.h"
 #include "libqutim/protocol.h"

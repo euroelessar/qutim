@@ -19,7 +19,6 @@
 #include "cryptoservice.h"
 #include "config.h"
 #include "protocol.h"
-#include "contactlist.h"
 #include "notificationslayer.h"
 #include "systeminfo.h"
 #include <QPluginLoader>

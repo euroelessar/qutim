@@ -28,7 +28,6 @@
 #include <libqutim/icon.h>
 #include <libqutim/message.h>
 #include <libqutim/chatunit.h>
-#include "libqutim/contactlist.h"
 #include "libqutim/contact.h"
 #include "libqutim/protocol.h"
 #include <QTimer>
