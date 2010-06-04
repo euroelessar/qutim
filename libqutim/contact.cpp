@@ -41,8 +41,8 @@ namespace qutim_sdk_0_3
 //		}
 	}
 
-	QSet<QString> Contact::tags() const
+	QStringList Contact::tags() const
 	{
-		return QSet<QString>();
+		return QStringList();
 	}
 }

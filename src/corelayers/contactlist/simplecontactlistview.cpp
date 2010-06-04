@@ -71,15 +71,14 @@ namespace Core
 		{
 			Model *m = static_cast<Model *>(model());
 			Q_ASSERT(m);
-			QSet<QString> tags;
-			m->onFilterList(tags);
+			m->onFilterList(QStringList());
 		}
 
 		void TreeView::onSelectTagsTriggered()
 		{
 			Model *m = static_cast<Model *>(model());
 			Q_ASSERT(m);
-			QSet<QString> tags = m->tags();
+			QStringList tags = m->tags();
 			TagsFilterDialog *dialog = new TagsFilterDialog(tags,this);
 			if (!m->selectedTags().isEmpty())
 				tags = m->selectedTags();

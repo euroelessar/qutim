@@ -33,7 +33,7 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT Contact : public Buddy
 	{
 		Q_OBJECT
-		Q_PROPERTY(QSet<QString> tags READ tags WRITE setTags NOTIFY tagsChanged)
+		Q_PROPERTY(QStringList tags READ tags WRITE setTags NOTIFY tagsChanged)
 		Q_PROPERTY(bool inList READ isInList WRITE setInList NOTIFY inListChanged)
 	public:
 		/**
@@ -51,13 +51,13 @@ namespace qutim_sdk_0_3
 		*
 		* @return QSet<QString> tags
 		*/
-		virtual QSet<QString> tags() const;
+		virtual QStringList tags() const;
 		/**
 		* @brief set a set of tags
 		*
 		* @param tags
 		*/
-		virtual void setTags(const QSet<QString> &tags) = 0;
+		virtual void setTags(const QStringList &tags) = 0;
 		/**
 		* @brief Returns membership contact to contactlist
 		*
@@ -82,7 +82,7 @@ namespace qutim_sdk_0_3
 		void avatarChanged(const QString &path);
 		void statusChanged(const qutim_sdk_0_3::Status &status);
 		void nameChanged(const QString &name);
-		void tagsChanged(const QSet<QString> &tags);
+		void tagsChanged(const QStringList &tags);
 		void inListChanged(bool inList);
 	};
 }

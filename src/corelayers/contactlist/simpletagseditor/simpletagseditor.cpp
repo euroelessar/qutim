@@ -36,7 +36,7 @@ namespace Core {
 
 	void SimpleTagsEditor::load()
 	{
-		QSet<QString> tags = m_contact->tags();
+		QStringList tags = m_contact->tags();
 		ui->listWidget->clear();
 		foreach (const QString &tag, tags) {
 			QListWidgetItem *item = new QListWidgetItem(tag,ui->listWidget);
@@ -58,10 +58,10 @@ namespace Core {
 			if (ui->listWidget->item(index)->checkState() == Qt::Checked)
 				tags << ui->listWidget->item(index)->text();
 		}
-		m_contact->setTags(tags);
+		m_contact->setTags(tags.toList());
 	}
 
-	void SimpleTagsEditor::setTags(QSet<QString>tags)
+	void SimpleTagsEditor::setTags(QStringList tags)
 	{
 		m_additional_tags = tags;
 	}

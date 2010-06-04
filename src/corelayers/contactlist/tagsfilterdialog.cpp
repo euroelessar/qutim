@@ -8,7 +8,7 @@ namespace Core
 	{
 		using namespace qutim_sdk_0_3;
 
-		TagsFilterDialog::TagsFilterDialog(QSet<QString> tags,QWidget *parent) :
+		TagsFilterDialog::TagsFilterDialog(const QStringList &tags,QWidget *parent) :
 				QDialog(parent),
 				ui(new Ui::TagsFilterDialog)
 		{
@@ -39,18 +39,18 @@ namespace Core
 			}
 		}
 
-		QSet<QString> TagsFilterDialog::selectedTags() const
+		QStringList TagsFilterDialog::selectedTags() const
 		{
-			QSet<QString> selected_tags;
+			QStringList selected_tags;
 			for (int i = 0;i!=ui->listWidget->count();i++) {
 				QListWidgetItem *item = ui->listWidget->item(i);
 				if (item->checkState() == Qt::Checked)
-					selected_tags.insert(item->text());
+					selected_tags.append(item->text());
 			}
 			return selected_tags;
 		}
 
-		void TagsFilterDialog::setSelectedTags(QSet<QString> tags)
+		void TagsFilterDialog::setSelectedTags(const QStringList &tags)
 		{
 			foreach (QString tag,tags) {
 				m_items[tag]->setCheckState(Qt::Checked);

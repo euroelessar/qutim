@@ -43,10 +43,10 @@ namespace Core
 			bool dropMimeData(const QMimeData *data, Qt::DropAction action,
 							  int row, int column, const QModelIndex &parent);
 			bool showOffline() const;
-			QSet<QString> tags() const;
-			QSet<QString> selectedTags() const;
+			QStringList tags() const;
+			QStringList selectedTags() const;
 		public slots:
-			void onFilterList(const QSet<QString> &tags);
+			void onFilterList(const QStringList &tags);
 		protected slots:
 			void contactDeleted(QObject *obj);
 			void contactStatusChanged(qutim_sdk_0_3::Status status);
@@ -64,7 +64,7 @@ namespace Core
 			void filterAllList();
 			bool isVisible(ContactItem *item);
 			void hideContact(int index, const QModelIndex &tagIndex, bool hide);
-			void removeFromContactList(Contact *contact);
+			void removeFromContactList(Contact *contact, bool deleted);
 			void recheckTag(TagItem *item, int index = -1);
 			TagItem *ensureTag(const QString &name);
 //			QModelIndex createIndex(

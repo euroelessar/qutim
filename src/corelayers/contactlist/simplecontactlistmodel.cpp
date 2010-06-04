@@ -23,7 +23,7 @@ namespace Core
 			QMap<Contact *, ContactData::Ptr> contacts;
 			QSet<QString> closedTags;
 			QString lastFilter;
-			QSet<QString> filteredTags;
+			QStringList filteredTags;
 			bool showOffline;			
 		};
 
@@ -203,15 +203,15 @@ namespace Core
             connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(contactStatusChanged(qutim_sdk_0_3::Status)));
             connect(contact, SIGNAL(nameChanged(QString)), SLOT(contactNameChanged(QString)));
 			connect(contact, SIGNAL(tagsChanged(QSet<QString>)), SLOT(contactTagsChanged(QSet<QString>)));
-			QSet<QString> tags = contact->tags();
+			QStringList tags = contact->tags();
 			if(tags.isEmpty())
 				tags << QLatin1String("Default");
 			ContactData::Ptr item_data(new ContactData);
 			item_data->contact = contact;
-			item_data->tags = tags;
+			item_data->tags = QSet<QString>::fromList(tags);
 			item_data->status = contact->status();
 			p->contacts.insert(contact, item_data);
-			for(QSet<QString>::const_iterator it = tags.constBegin(); it != tags.constEnd(); it++)
+			for(QStringList::const_iterator it = tags.constBegin(); it != tags.constEnd(); it++)
 			{
 				TagItem *tag = ensureTag(*it);
 				int tagIndex = p->tags.indexOf(tag);
@@ -324,14 +324,14 @@ namespace Core
 			QSet<QString> tags = item->data->tags;
 			tags.remove(item->parent->name);
 			tags.insert(tag->name);
-			item->data->contact->setTags(tags);
+			item->data->contact->setTags(tags.toList());
 			debug() << "Moving contact from" << item->data->tags << "to" << tags;
 
 			// We should return false
 			return false;
 		}
 
-		void Model::removeFromContactList(Contact *contact)
+		void Model::removeFromContactList(Contact *contact, bool deleted)
 		{
 			ContactData::Ptr item_data = p->contacts.value(contact);
 			if(!item_data)
@@ -353,7 +353,7 @@ namespace Core
 					p->tagsHash.remove(p->tags.at(tagIndex)->name);
 					p->tags.removeAt(tagIndex);
 					endRemoveRows();
-				} else if (isVisible(item)) {
+				} else if (!deleted && isVisible(item)) {
 					item->parent->visible--;
 					recheckTag(item->parent, tagIndex);
 				}
@@ -364,14 +364,14 @@ namespace Core
 		void Model::contactDeleted(QObject *obj)
 		{
 				Contact *contact = reinterpret_cast<Contact *>(obj);
-				removeFromContactList(contact);
+				removeFromContactList(contact,true);
 		}
 
 		void Model::removeContact(Contact *contact)
 		{
 			Q_ASSERT(contact);
 			contact->disconnect(this);
-			removeFromContactList(contact);
+			removeFromContactList(contact,false);
 		}
 
 		void Model::contactStatusChanged(Status status)
@@ -528,7 +528,7 @@ namespace Core
 			filterAllList();
 		}
 
-		void Model::onFilterList(const QSet<QString> &tags)
+		void Model::onFilterList(const QStringList &tags)
 		{
 			if (tags == p->filteredTags)
 				return;
@@ -558,15 +558,15 @@ namespace Core
 			contact->deleteLater();
 		}
 
-		QSet<QString> Model::tags() const
+		QStringList Model::tags() const
 		{
-			QSet<QString> all_tags;
+			QStringList all_tags;
 			foreach (const TagItem *tag,p->tags)
-				all_tags.insert(tag->name);
+				all_tags.append(tag->name);
 			return all_tags;
 		}
 
-		QSet<QString> Model::selectedTags() const
+		QStringList Model::selectedTags() const
 		{
 			return p->filteredTags;
 		}

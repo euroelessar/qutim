@@ -20,10 +20,10 @@ namespace Core
 			Q_OBJECT
 
 		public:
-			explicit TagsFilterDialog(QSet<QString> tags, QWidget *parent = 0);
+			explicit TagsFilterDialog(const QStringList &tags, QWidget *parent = 0);
 			~TagsFilterDialog();
-			QSet<QString> selectedTags() const;
-			void setSelectedTags(QSet<QString>);
+			QStringList selectedTags() const;
+			void setSelectedTags(const QStringList &);
 		protected:
 			void changeEvent(QEvent *e);
 

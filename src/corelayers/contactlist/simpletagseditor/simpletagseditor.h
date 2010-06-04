@@ -23,7 +23,7 @@ namespace Core
 	public:
 		SimpleTagsEditor(Contact *contact);
 		~SimpleTagsEditor();
-		void setTags (QSet<QString> tags);
+		void setTags (QStringList tags);
 	public slots:
 		void load();
 	private slots:
@@ -34,7 +34,7 @@ namespace Core
 	private:
 		Ui::SimpleTagsEditor *ui;
 		Contact *m_contact;
-		QSet<QString> m_additional_tags;
+		QStringList m_additional_tags;
 	};
 
 }
