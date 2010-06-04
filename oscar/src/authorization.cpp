@@ -25,7 +25,7 @@ QObject *AuthorizeActionGenerator::generateHelper() const
 	IcqContact *contact = reinterpret_cast<IcqContact*>(controller());
 	Status::Type status = contact->account()->status().type();
 	if (status != Status::Offline && status != Status::Connecting &&
-		contact->property("authorizedBy").toBool())
+		!contact->property("authorizedBy").toBool())
 	{
 		return prepareAction(new QAction(NULL));
 	}
