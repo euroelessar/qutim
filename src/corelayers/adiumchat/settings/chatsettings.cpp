@@ -15,9 +15,9 @@ namespace Core
 	
 	ChatSettings::ChatSettings()
 	{
-		GeneralSettingsItem<ChatAppearance> *item = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat appearance"));
+		GeneralSettingsItem<ChatAppearance> *item = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat"));
 		Settings::registerItem(item);
-		Settings::registerItem(new GeneralSettingsItem<ChatBehavior>(Settings::General, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat behavior")));
+		Settings::registerItem(new GeneralSettingsItem<ChatBehavior>(Settings::General, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat")));
 		deleteLater();
 	}
 

@@ -29,7 +29,7 @@
    <item row="0" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>SendKey</string>
+      <string>Send Key</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2"/>
     </widget>
@@ -44,7 +44,7 @@
    <item row="2" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Number of recent messages:</string>
+      <string>Number of shown previous messages:</string>
      </property>
     </widget>
    </item>
