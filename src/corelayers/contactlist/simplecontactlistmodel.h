@@ -60,6 +60,7 @@ namespace Core
 			void filterAllList();
 			bool isVisible(ContactItem *item);
 			void hideContact(int index, const QModelIndex &tagIndex, bool hide);
+			void removeFromContactList(Contact *contact);
 			void recheckTag(TagItem *item, int index = -1);
 			TagItem *ensureTag(const QString &name);
 //			QModelIndex createIndex(

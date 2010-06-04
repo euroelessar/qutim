@@ -23,7 +23,7 @@ namespace Core
 			QMap<Contact *, ContactData::Ptr> contacts;
 			QSet<QString> closedTags;
 			QString lastFilter;
-			bool showOffline;
+			bool showOffline;			
 		};
 
 		AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
@@ -237,37 +237,6 @@ namespace Core
 			}
 		}
 
-		void Model::removeContact(Contact *contact)
-		{
-			contact->disconnect(this);
-			ContactData::Ptr item_data = p->contacts.value(contact);
-			if(!item_data)
-				return;
-			int counter = item_data->status.type() == Status::Offline ? -1 : 0;
-			for(int i = 0; i < item_data->items.size(); i++)
-			{
-				ContactItem *item = item_data->items.at(i);
-				item->parent->online += counter;
-				int index = item->index();
-				beginRemoveRows(createIndex(p->tags.indexOf(item->parent), 0, item->parent), index, index);
-				item->parent->contacts.removeAt(index);
-				endRemoveRows();
-
-				int tagIndex = p->tags.indexOf(item->parent);
-
-				if (item->parent->contacts.empty()) {
-					beginRemoveRows(QModelIndex(),tagIndex,tagIndex);
-					p->tagsHash.remove(p->tags.at(tagIndex)->name);
-					p->tags.removeAt(tagIndex);
-					endRemoveRows();
-				} else if (isVisible(item)) {
-					item->parent->visible--;
-					recheckTag(item->parent, tagIndex);
-				}
-			}
-			p->contacts.remove(contact);
-		}
-
 		bool Model::containsContact(Contact *contact) const
 		{
 			return p->contacts.contains(contact);
@@ -361,10 +330,47 @@ namespace Core
 			return false;
 		}
 
+		void Model::removeFromContactList(Contact *contact)
+		{
+			ContactData::Ptr item_data = p->contacts.value(contact);
+			if(!item_data)
+				return;
+			int counter = item_data->status.type() == Status::Offline ? -1 : 0;
+			for(int i = 0; i < item_data->items.size(); i++)
+			{
+				ContactItem *item = item_data->items.at(i);
+				item->parent->online += counter;
+				int index = item->index();
+				beginRemoveRows(createIndex(p->tags.indexOf(item->parent), 0, item->parent), index, index);
+				item->parent->contacts.removeAt(index);
+				endRemoveRows();
+
+				int tagIndex = p->tags.indexOf(item->parent);
+
+				if (item->parent->contacts.empty()) {
+					beginRemoveRows(QModelIndex(),tagIndex,tagIndex);
+					p->tagsHash.remove(p->tags.at(tagIndex)->name);
+					p->tags.removeAt(tagIndex);
+					endRemoveRows();
+				} else if (isVisible(item)) {
+					item->parent->visible--;
+					recheckTag(item->parent, tagIndex);
+				}
+			}
+			p->contacts.remove(contact);
+		}
+
 		void Model::contactDeleted(QObject *obj)
 		{
-			if (Contact *contact = qobject_cast<Contact *>(obj))
-				removeContact(contact);
+				Contact *contact = reinterpret_cast<Contact *>(obj);
+				removeFromContactList(contact);
+		}
+
+		void Model::removeContact(Contact *contact)
+		{
+			Q_ASSERT(contact);
+			contact->disconnect(this);
+			removeFromContactList(contact);
 		}
 
 		void Model::contactStatusChanged(Status status)
@@ -413,16 +419,6 @@ namespace Core
 				}
 				hideContact(to, parentIndex, !show);
 			}
-			//if (ChatLayer::get(contact,false))
-			//	return; //TODO FIXME
-// 			Notifications::Type notify;
-// 			if(status.type() == Status::Offline)
-// 				notify = Notifications::Offline;
-// 			else if(item_data->status.type() == Status::Offline)
-// 				notify = Notifications::Online;
-// 			else
-// 				notify = Notifications::StatusChange;
-// 			Notifications::sendNotification(notify, contact);
 		}
 
 		void Model::contactNameChanged(const QString &name)
