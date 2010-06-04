@@ -43,6 +43,10 @@ namespace Core
 			bool dropMimeData(const QMimeData *data, Qt::DropAction action,
 							  int row, int column, const QModelIndex &parent);
 			bool showOffline() const;
+			QSet<QString> tags() const;
+			QSet<QString> selectedTags() const;
+		public slots:
+			void onFilterList(const QSet<QString> &tags);
 		protected slots:
 			void contactDeleted(QObject *obj);
 			void contactStatusChanged(qutim_sdk_0_3::Status status);

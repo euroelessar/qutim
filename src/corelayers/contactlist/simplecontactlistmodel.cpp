@@ -23,6 +23,7 @@ namespace Core
 			QMap<Contact *, ContactData::Ptr> contacts;
 			QSet<QString> closedTags;
 			QString lastFilter;
+			QSet<QString> filteredTags;
 			bool showOffline;			
 		};
 
@@ -527,6 +528,14 @@ namespace Core
 			filterAllList();
 		}
 
+		void Model::onFilterList(const QSet<QString> &tags)
+		{
+			if (tags == p->filteredTags)
+				return;
+			p->filteredTags = tags;
+			filterAllList();
+		}
+
 		void Model::onContactRenameAction()
 		{
 			Contact *contact = MenuController::getController<Contact>(sender());
@@ -546,7 +555,20 @@ namespace Core
 			Contact *contact = MenuController::getController<Contact>(sender());
 			if (!contact)
 				return;
-			contact->setInList(!contact->isInList());
+			contact->deleteLater();
+		}
+
+		QSet<QString> Model::tags() const
+		{
+			QSet<QString> all_tags;
+			foreach (const TagItem *tag,p->tags)
+				all_tags.insert(tag->name);
+			return all_tags;
+		}
+
+		QSet<QString> Model::selectedTags() const
+		{
+			return p->filteredTags;
 		}
 
 		void Model::onTagsEditAction()
@@ -556,11 +578,9 @@ namespace Core
 				return;
 			SimpleTagsEditor *editor = new SimpleTagsEditor (contact);
 			centerizeWidget(editor);
-			QSet<QString> tags;
-			foreach (const TagItem *tag,p->tags)
-				tags.insert(tag->name);
 
-			editor->setTags(tags);
+
+			editor->setTags(tags());
 			editor->load();
 			editor->show();
 		}
@@ -601,6 +621,12 @@ namespace Core
 					if (p->view->isRowHidden(j, index) == show)
 						p->view->setRowHidden(j, index, !show);
 				}
+
+				if (!p->filteredTags.isEmpty()) {
+					if (!p->filteredTags.contains(tag->name))
+						tag->visible = 0;
+				}
+
 				index = QModelIndex();
 				if (p->view->isRowHidden(i, index) == !!tag->visible)
 					p->view->setRowHidden(i, index, !tag->visible);
@@ -663,8 +689,12 @@ namespace Core
 		
 		QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 		{
-			if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section==0)
-				return tr("All tags");
+			if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section==0) {
+				if (p->filteredTags.isEmpty())
+					return tr("All tags");
+				else
+					return tr("Custom tags");
+			}
 
 			return QVariant();
 		}

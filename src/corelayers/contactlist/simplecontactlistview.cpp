@@ -1,7 +1,11 @@
 #include "simplecontactlistview.h"
 #include "simplecontactlistitem.h"
+#include "simplecontactlistmodel.h"
 #include "libqutim/messagesession.h"
+#include "tagsfilterdialog.h"
 #include <QtGui/QContextMenuEvent>
+#include <QHeaderView>
+#include <libqutim/icon.h>
 
 namespace Core
 {
@@ -18,6 +22,8 @@ namespace Core
 			setIndentation(0);
 			setEditTriggers(QAbstractItemView::EditKeyPressed);
 			setIconSize(QSize(m_icon_size,m_icon_size));
+			header()->setContextMenuPolicy(Qt::DefaultContextMenu);
+			header()->installEventFilter(this);
 		}
 
 		void TreeView::onClick(const QModelIndex &index)
@@ -41,6 +47,49 @@ namespace Core
 				qDebug("%s", qPrintable(contact->id()));
 				contact->menu(true)->popup(event->globalPos());
 			}
+		}
+
+		bool TreeView::eventFilter(QObject *obj, QEvent *e)
+		{
+			if (obj->metaObject() == &QHeaderView::staticMetaObject) {
+				if (e->type() == QEvent::ContextMenu) {
+					QContextMenuEvent *event = static_cast<QContextMenuEvent*>(e);
+					QMenu *menu = new QMenu(this);
+					menu->setAttribute(Qt::WA_DeleteOnClose);
+					QAction *act = menu->addAction(Icon("feed-subscribe"),tr("Select tags"));
+					connect(act,SIGNAL(triggered()),SLOT(onSelectTagsTriggered()));
+					act = menu->addAction(tr("Reset"));
+					connect(act,SIGNAL(triggered()),SLOT(onResetTagsTriggered()));
+					menu->popup(event->globalPos());
+					return true;
+				}
+			}
+			return QObject::eventFilter(obj, e);
+		}
+
+		void TreeView::onResetTagsTriggered()
+		{
+			Model *m = static_cast<Model *>(model());
+			Q_ASSERT(m);
+			QSet<QString> tags;
+			m->onFilterList(tags);
+		}
+
+		void TreeView::onSelectTagsTriggered()
+		{
+			Model *m = static_cast<Model *>(model());
+			Q_ASSERT(m);
+			QSet<QString> tags = m->tags();
+			TagsFilterDialog *dialog = new TagsFilterDialog(tags,this);
+			if (!m->selectedTags().isEmpty())
+				tags = m->selectedTags();
+			dialog->setSelectedTags(tags);
+			dialog->show();
+			centerizeWidget(dialog);
+			if (dialog->exec()) {
+				m->onFilterList(dialog->selectedTags());
+			}
+			dialog->deleteLater();
 		}
 	}
 }

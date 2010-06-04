@@ -14,8 +14,11 @@ namespace Core
 			TreeView(QWidget *parent = 0);
 		protected:
 			void contextMenuEvent(QContextMenuEvent *);
+			virtual bool eventFilter(QObject *, QEvent *);
 		protected slots:
 			void onClick(const QModelIndex &index);
+			void onResetTagsTriggered();
+			void onSelectTagsTriggered();
 		};
 	}
 }
