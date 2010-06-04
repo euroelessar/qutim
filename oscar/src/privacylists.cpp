@@ -29,6 +29,8 @@ QObject *PrivateListActionGenerator::generateHelper() const
 {
 	IcqContact *contact = qobject_cast<IcqContact*>(controller());
 	Q_ASSERT(contact);
+	if (!contact->isInList())
+		return 0;
 	IcqAccount *account = contact->account();
 	Status::Type status = account->status().type();
 	if (status == Status::Offline || status == Status::Connecting)
