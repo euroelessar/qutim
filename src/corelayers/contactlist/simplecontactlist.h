@@ -1,9 +1,9 @@
 #ifndef SIMPLECONTACTLIST_H
 #define SIMPLECONTACTLIST_H
 
-#include "libqutim/contactlist.h"
 #include "libqutim/actiontoolbar.h"
 #include "libqutim/status.h"
+#include "libqutim/contact.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -13,22 +13,22 @@ namespace Core
 	{
 		struct ModulePrivate;
 
-		class Module : public ContactList
+		class Module : public MenuController
 		{
 			Q_OBJECT
 			Q_PROPERTY(QWidget* widget READ widget)
+					Q_CLASSINFO("Service", "ContactList")
+					Q_CLASSINFO("Uses", "IconLoader")
 		public:
 			Module();
-			virtual ~Module();
-			virtual void addContact(ChatUnit *contact);
-			virtual void removeContact(ChatUnit *contact);
-			virtual void removeAccount(Account *account);
+			virtual ~Module();			
 			Q_INVOKABLE void addButton(ActionGenerator *generator);
 			Q_INVOKABLE QWidget *widget();
 		public slots:
 			void show();
 			void hide();
 			void changeVisibility();
+			void addContact(qutim_sdk_0_3::Contact *contact);
 		private slots:
 			void onConfigureClicked();
 			void onAccountCreated(qutim_sdk_0_3::Account *account);

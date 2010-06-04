@@ -259,22 +259,9 @@ namespace Core
 			return p->widget;
 		}
 
-		void Module::addContact(ChatUnit *unit)
-		{
-			if(Contact *contact = qobject_cast<Contact *>(unit))
-				p->model->addContact(contact);
-		}
-
-		void Module::removeContact(ChatUnit *unit)
-		{
-			if(Contact *contact = qobject_cast<Contact *>(unit))
-				p->model->removeContact(contact);
-		}
-
-		void Module::removeAccount(Account *account)
-		{
-			foreach(Contact *contact, account->findChildren<Contact *>())
-				removeContact(contact);
+		void Module::addContact(qutim_sdk_0_3::Contact *contact)
+		{			
+			p->model->addContact(contact);
 		}
 
 		void Module::addButton(ActionGenerator *generator)
@@ -328,6 +315,7 @@ namespace Core
 				//FIXME
 				addContact(contact);
 			}
+			connect(account,SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),SLOT(addContact(qutim_sdk_0_3::Contact*)));
 		}
 
 		inline bool isStatusChange(const qutim_sdk_0_3::Status &status)
