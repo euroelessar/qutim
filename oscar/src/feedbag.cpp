@@ -373,8 +373,9 @@ QDataStream &operator>>(QDataStream &in, FeedbagItem &item)
 QDebug &operator<<(QDebug &stream, const FeedbagItem &item)
 {
 	const FeedbagItemPrivate *d = item.d;
-	if (!d->recordName.isEmpty())
-		stream.nospace() << "Name: " << d->recordName << "; type: ";
+	QString name = qPrintable(d->recordName);
+	if (!name.isEmpty())
+		stream.nospace() << "Name: " << name << "; type: ";
 	else
 		stream.nospace() << "Type: ";
 	stream.nospace() << d->itemType << "; ";
