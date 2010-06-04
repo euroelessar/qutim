@@ -130,7 +130,7 @@ namespace Core
 		
 		void AbstractChatWidget::onLoad()
 		{
-			ConfigGroup group = Config("appearance").group("adiumChat/behavior/widget");
+			ConfigGroup group = Config("appearance").group("chat/behavior/widget");
 			ConfigGroup keysGroup = group.group("keys");
 			if (keysGroup.hasChildGroup(m_key)) {
 				ConfigGroup keyGroup = keysGroup.group(m_key);

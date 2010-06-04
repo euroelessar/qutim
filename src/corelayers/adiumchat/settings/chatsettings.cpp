@@ -1,5 +1,6 @@
 #include "chatsettings.h"
 #include "chatappearance.h"
+#include "chatbehavior.h"
 #include "../chatlayerimpl.h"
 #include "modulemanagerimpl.h"
 #include <libqutim/settingslayer.h>
@@ -16,6 +17,7 @@ namespace Core
 	{
 		GeneralSettingsItem<ChatAppearance> *item = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat appearance"));
 		Settings::registerItem(item);
+		Settings::registerItem(new GeneralSettingsItem<ChatBehavior>(Settings::General, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat behavior")));
 		deleteLater();
 	}
 

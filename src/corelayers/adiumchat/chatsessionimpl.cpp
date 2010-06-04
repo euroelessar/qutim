@@ -64,7 +64,7 @@ namespace Core
 			d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
 			qDebug() << "create session" << d->chat_unit->title();
 			connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
-			d->store_service_messages = Config("appearance/chat").group("general/history").value<bool>("storeServiceMessages", true);
+			d->store_service_messages = Config("appearance").group("chat/history").value<bool>("storeServiceMessages", true);
 			d->chat_style_output->preparePage(d->web_page,this);
 			d->skipOneMerge = true;
 			d->active = false;
@@ -137,7 +137,7 @@ namespace Core
 		void ChatSessionImplPrivate::loadHistory()
 		{
 			Q_Q(ChatSessionImpl);
-			ConfigGroup adium_chat = Config("appearance/chat").group("general/history");
+			ConfigGroup adium_chat = Config("appearance").group("chat/history");
 			int max_num = adium_chat.value<int>("maxDisplayMessages",5);
 			MessageList messages = History::instance()->read(q->getUnit(), max_num);
 			foreach (Message mess, messages) {
