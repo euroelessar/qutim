@@ -19,7 +19,6 @@
 #include "quetzaljoinchatdialog.h"
 #include <qutim/passworddialog.h>
 #include <qutim/debug.h>
-#include <qutim/contactlist.h>
 #include <QFile>
 #include <qutim/json.h>
 #include "quetzalactiongenerator.h"
@@ -124,7 +123,7 @@ void QuetzalAccount::createNode(PurpleBlistNode *node)
 			return;
 		QuetzalContact *contact = new QuetzalContact(buddy);
 		m_contacts.insert(contact->id(), contact);
-		ContactList::instance()->addContact(contact);
+		emit contactCreated(contact);
 	}
 }
 
@@ -141,7 +140,7 @@ void QuetzalAccount::load(Config cfg)
 											  name.toUtf8().constData());
 		buddy->node.parent = PURPLE_BLIST_NODE(pc);
 		QuetzalContact *qc = new QuetzalContact(buddy);
-		qc->m_tags = contact.value("tags", QStringList()).toSet();
+		qc->m_tags = contact.value("tags", QStringList());
 		QByteArray tag;
 		if (qc->m_tags.isEmpty()) {
 			tag = general;
@@ -151,7 +150,7 @@ void QuetzalAccount::load(Config cfg)
 		PurpleGroup *group = purple_group_new(tag.constData());
 		buddy->node.parent->parent = PURPLE_BLIST_NODE(group);
 		m_contacts.insert(qc->id(), qc);
-		ContactList::instance()->addContact(qc);
+		emit contactCreated(qc);
 	}
 	ConfigGroup bookmarks = cfg.group("bookmarks");
 	foreach (const QString &name, bookmarks.childGroups()) {
@@ -208,7 +207,6 @@ void QuetzalAccount::remove(QuetzalContact *contact)
 	group.remove(contact->id());
 	group.sync();
 	m_contacts.remove(contact->id());
-	ContactList::instance()->removeContact(contact);
 	contact->deleteLater();
 }
 

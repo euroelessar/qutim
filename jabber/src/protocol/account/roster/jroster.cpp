@@ -150,6 +150,7 @@ namespace Jabber
 				contact->setContactTags(tags);
 				contact->setContactInList(true);
 				p->contacts.insert(jid, contact);
+				emit p->account->contactCreated(contact);
 			}
 		}
 	}

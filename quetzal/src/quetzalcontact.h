@@ -36,12 +36,12 @@ public:
 	virtual QString avatar() const;
 	virtual QString id() const;
 	virtual QString name() const;
-	virtual QSet<QString> tags() const;
+	virtual QStringList tags() const;
 	virtual Status status() const;
 //	virtual QIcon statusIcon() const;
 	virtual void sendMessage(const Message &message);
 	virtual void setName(const QString &name);
-	virtual void setTags(const QSet<QString> &tags);
+	virtual void setTags(const QStringList &tags);
 	virtual bool isInList() const;
 	virtual void setInList(bool inList);
 
@@ -54,7 +54,7 @@ private:
 	virtual bool event(QEvent *);
 private:
 	Status m_status;
-	QSet<QString> m_tags;
+	QStringList m_tags;
 	QString m_id;
 	QString m_name;
 	PurpleBuddy *m_buddy;

@@ -161,27 +161,29 @@ QuetzalContact::QuetzalContact(PurpleBuddy *buddy) :
 	while (!!(node = node->parent)) {
 		if (PURPLE_BLIST_NODE_IS_GROUP(node)) {
 			PurpleGroup *group = PURPLE_GROUP(node);
-			m_tags.insert(group->name);
+			m_tags.append(group->name);
 		}
 	}
+	m_tags.removeDuplicates();
 }
 
 void QuetzalContact::save(ConfigGroup group)
 {
 	group.setValue("name", m_name);
-	group.setValue("tags", QStringList(m_tags.toList()));
+	group.setValue("tags", m_tags);
 }
 
 void QuetzalContact::update()
 {
-	QSet<QString> tags_;
+	QStringList tags_;
 	PurpleBlistNode *node = &m_buddy->node;
 	while (!!(node = node->parent)) {
 		if (PURPLE_BLIST_NODE_IS_GROUP(node)) {
 			PurpleGroup *group = PURPLE_GROUP(node);
-			tags_.insert(group->name);
+			tags_.append(group->name);
 		}
 	}
+	tags_.removeDuplicates();
 	if (m_tags != tags_) {
 		m_tags = tags_;
 		tagsChanged(m_tags);
@@ -226,7 +228,7 @@ QString QuetzalContact::name() const
 	return m_name;
 }
 
-QSet<QString> QuetzalContact::tags() const
+QStringList QuetzalContact::tags() const
 {
 	return m_tags;
 }
@@ -257,19 +259,19 @@ void QuetzalContact::setName(const QString &name)
 	serv_alias_buddy(m_buddy);
 }
 
-void QuetzalContact::setTags(const QSet<QString> &tags)
+void QuetzalContact::setTags(const QStringList &tags)
 {
 	if (!m_buddy->account->gc)
 		return;
 	PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
 	if (!prpl->group_buddy || tags.isEmpty())
 		return;
-	QString group = tags.values().value(0);
+	QString group = tags.value(0);
 	if (m_tags.contains(group))
 		return;
-	debug() << Q_FUNC_INFO << m_buddy->account->gc << m_id << m_tags.values().value(0) << group;
+	debug() << Q_FUNC_INFO << m_buddy->account->gc << m_id << m_tags.value(0) << group;
 	prpl->group_buddy(m_buddy->account->gc, m_id.toUtf8().constData(),
-					  m_tags.values().value(0).toUtf8().constData(),
+					  m_tags.value(0).toUtf8().constData(),
 					  group.toUtf8().constData());
 }
 

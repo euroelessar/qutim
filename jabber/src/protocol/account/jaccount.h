@@ -46,6 +46,7 @@ namespace Jabber {
 		protected:
 			void loadSettings();
 		private:
+			friend class JRoster;
 			QScopedPointer<JAccountPrivate> p;
 	};
 } // Jabber namespace
