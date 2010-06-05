@@ -171,30 +171,20 @@ namespace qutim_sdk_0_3
 		Q_ASSERT(!fullName.isEmpty());
 		
 		int first = 0;
-		QVariant *finalVar = 0;
+		QVariantMap *map = d->current()->map;
 		do {
 			int last = fullName.indexOf('/', first);
 			QString name = fullName.mid(first, last != -1 ? last - first : last);
-			if (name.isEmpty()) {
-				first = last + 1;
-				continue;
-			}
-			if (finalVar)
-				finalVar = &(*reinterpret_cast<QVariantMap*>(finalVar->data()))[name];
-			else
-				finalVar = &(*(d->current()->map))[name];
-			if (finalVar->type() != QVariant::Map) {
-				*(d->dirty) = true;
-				finalVar->setValue(QVariantMap());
-			}
 			first = last + 1;
+			if (name.isEmpty())
+				continue;
+			QVariant &var = (*map)[name];
+			if (var.type() != QVariant::Map) {
+				*(d->dirty) = true;
+				var.setValue(QVariantMap());
+			}
+			map = reinterpret_cast<QVariantMap*>(var.data());
 		} while(first != 0);
-		Q_ASSERT(finalVar != NULL);
-		QVariantMap *map;
-		if (finalVar)
-			map = reinterpret_cast<QVariantMap*>(finalVar->data());
-		else
-			map = d->current()->map;
 		Config cfg(map);
 		ConfigPrivate *p = cfg.d_func();
 		delete p->dirty;
@@ -257,27 +247,20 @@ namespace qutim_sdk_0_3
 		ConfigLevel * const l = new ConfigLevel;
 		l->deleteOnDestroy = false;
 		int first = 0;
-		QVariant *finalVar = 0;
+		l->map = d->current()->map;
 		do {
 			int last = fullName.indexOf('/', first);
 			QString name = fullName.mid(first, last != -1 ? last - first : last);
-			if (name.isEmpty()) {
-				first = last + 1;
+			first = last + 1;
+			if (name.isEmpty())
 				continue;
-			}
-			QVariant &var = (*(d->current()->map))[name];
+			QVariant &var = (*(l->map))[name];
 			if (var.type() != QVariant::Map) {
 				*(d->dirty) = true;
 				var.setValue(QVariantMap());
 			}
-			finalVar = &var;
-			first = last + 1;
+			l->map = reinterpret_cast<QVariantMap*>(var.data());
 		} while(first != 0);
-		Q_ASSERT(finalVar != NULL);
-		if (finalVar)
-			l->map = reinterpret_cast<QVariantMap*>(finalVar->data());
-		else
-			l->map = d->current()->map;
 		d->levels.prepend(l);
 	}
 
