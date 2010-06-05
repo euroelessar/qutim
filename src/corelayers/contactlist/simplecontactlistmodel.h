@@ -60,6 +60,7 @@ namespace Core
 			void onCollapsed(const QModelIndex &index);
 			void onTagsEditAction();
 			void onExpanded(const QModelIndex &index);
+			void onContactInListChanged(bool isInList);
 		private:
 			void filterAllList();
 			bool isVisible(ContactItem *item);

@@ -203,6 +203,7 @@ namespace Core
             connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(contactStatusChanged(qutim_sdk_0_3::Status)));
             connect(contact, SIGNAL(nameChanged(QString)), SLOT(contactNameChanged(QString)));
 			connect(contact, SIGNAL(tagsChanged(QSet<QString>)), SLOT(contactTagsChanged(QSet<QString>)));
+			connect(contact, SIGNAL(inListChanged(bool)),SLOT(onContactInListChanged(bool)));
 			QStringList tags = contact->tags();
 			if(tags.isEmpty())
 				tags << QLatin1String("Default");
@@ -211,7 +212,7 @@ namespace Core
 			item_data->tags = QSet<QString>::fromList(tags);
 			item_data->status = contact->status();
 			p->contacts.insert(contact, item_data);
-			for(QStringList::const_iterator it = tags.constBegin(); it != tags.constEnd(); it++)
+			for(QSet<QString>::const_iterator it = item_data->tags.constBegin(); it != item_data->tags.constEnd(); it++)
 			{
 				TagItem *tag = ensureTag(*it);
 				int tagIndex = p->tags.indexOf(tag);
@@ -456,6 +457,11 @@ namespace Core
 					endMoveRows();
 				}
 			}
+		}
+
+		void Model::onContactInListChanged(bool isInList)
+		{
+			//TODO
 		}
 
 		void Model::contactTagsChanged(const QSet<QString> &tags_helper)
