@@ -137,49 +137,6 @@
 				alignChat(true/*nearBottom()*/); //nearBottom buggy with inactive tabs
 			}
 			window.onresize = windowDidResize;
-
-			var menu;
-			var timeout;
-			var message;
-			
-			function init() {
-				menu = document.getElementById("toolbar");
-				hideMenu();
-				menu.style.zIndex = 1;
-				alignChat(true);
-			}
-
-			function showMenu(obj) {
-				clearTimeout(timeout);
-				if (message == obj)
-					return;
-				menu.style.top = (obj.offsetTop + 5) + "px";
-				menu.style.left = (obj.offsetLeft + 10) + "px";
-				menu.style.display = "";
-				message = obj;
-			}
-			
-			function hideMenu() {
-				menu.style.display = "none";
-				message = 0;
-			}
-			
-			function quoteMessage() {
-				var text = window.getSelection().toString();
-				if (window.getSelection().containsNode(message, true) && text != "") {
-					text = "> " + text.replace(/\n/mg, "\n> ");
-					client.appendText(text + "\n");
-				} else {
-					text = message.innerHTML;
-					text = text.replace(/<br>/mg, "\n&gt; ");
-					text = text.replace(/<\/?[^>]+>/g, '');
-					var tarea = document.createElement('textarea');
-					tarea.innerHTML = text;
-					text = tarea.value;
-					client.appendText(text + "\n");
-					tarea.parentNode.removeChild(tarea);
-				}
-			}
 		</script>
 		<style type="text/css">
 			.actionMessageUserName { display:none; }
@@ -199,7 +156,7 @@
 			/* custom style */
 		</style>
 	</head>
-	<body onload="init();" style="==bodyBackground==">
+	<body onload="alignChat(true);" style="==bodyBackground==">
 		%@
 		<div id="Chat">
 		</div>
