@@ -44,8 +44,8 @@ namespace Core
 			: chat_style_output(new ChatStyleOutput),
 			web_page(new QWebPage(this)),
 			input(new QTextDocument),
-			myself_chat_state(ChatStateInActive),
-			separator(false)
+			separator(true),
+			myself_chat_state(ChatStateInActive)
 		{
 		}
 
@@ -195,10 +195,10 @@ namespace Core
 			bool service = message.property("service").isValid();
 			QString item;
 			if (!isActive()) {
-				if (!d->separator && !message.property("service", false) && qobject_cast<Conference *>(message.chatUnit())) {
-					QString jsInactive = "separator = document.getElementById(\"separator\");"
-							% "if (separator) separator.parentNode.removeChild(separator);"
-							% "appendMessage(\"<hr id='separator'><div id='insert'></div>\");";
+				if (!d->separator && !message.property("service", false) && qobject_cast<const Conference *>(message.chatUnit())) {
+					QString jsInactive = QString("separator = document.getElementById(\"separator\");")
+							% QString("if (separator) separator.parentNode.removeChild(separator);")
+							% QString("appendMessage(\"<hr id='separator'><div id='insert'></div>\");");
 					d->web_page->mainFrame()->evaluateJavaScript(jsInactive);
 					d->previous_sender.clear();
 					d->separator = true;
