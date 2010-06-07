@@ -174,6 +174,7 @@ namespace Jabber
 			tags.append(tr("Not in list"));
 			contact->setContactTags(tags);
 			contact->setContactInList(false);
+			p->contacts.insert(jid, contact);
 		}
 		if (!resource.isEmpty())
 			p->contacts.value(jid)->setStatus(resource, presence.presence(), presence.priority(),
