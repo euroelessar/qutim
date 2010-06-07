@@ -47,6 +47,7 @@ class ChatSessionModel;
 			bool skipOneMerge;
 			bool active;
 			bool store_service_messages;
+			bool separator;
 			QTimer inactive_timer;
 			MessageList unread;
 			ChatState myself_chat_state;

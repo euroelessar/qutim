@@ -44,7 +44,8 @@ namespace Core
 			: chat_style_output(new ChatStyleOutput),
 			web_page(new QWebPage(this)),
 			input(new QTextDocument),
-			myself_chat_state(ChatStateInActive)
+			myself_chat_state(ChatStateInActive),
+			separator(false)
 		{
 		}
 
@@ -143,6 +144,7 @@ namespace Core
 			foreach (Message mess, messages) {
 				mess.setProperty("silent",true);
 				mess.setProperty("store",false);
+				mess.setProperty("history",true);
 				if (!mess.chatUnit()) //TODO FIXME
 					mess.setChatUnit(q->getUnit());
 				q->appendMessage(mess);
@@ -192,6 +194,18 @@ namespace Core
 			bool same_from = false;
 			bool service = message.property("service").isValid();
 			QString item;
+			if (!isActive()) {
+				if (!d->separator && !message.property("service", false) && qobject_cast<Conference *>(message.chatUnit())) {
+					QString jsInactive = "separator = document.getElementById(\"separator\");"
+							% "if (separator) separator.parentNode.removeChild(separator);"
+							% "appendMessage(\"<hr id='separator'><div id='insert'></div>\");";
+					d->web_page->mainFrame()->evaluateJavaScript(jsInactive);
+					d->previous_sender.clear();
+					d->separator = true;
+				}
+			} else {
+				d->separator = false;
+			}
 			if(message.text().startsWith("/me ")) {
 				// FIXME we shouldn't copy data there
 				QString text = message.text();
