@@ -66,6 +66,7 @@ namespace Core
 			qDebug() << "create session" << d->chat_unit->title();
 			connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 			d->store_service_messages = Config("appearance").group("chat/history").value<bool>("storeServiceMessages", true);
+			d->groupUntil = Config("appearance").group("chat").value<int>("groupUntil", 900);
 			d->chat_style_output->preparePage(d->web_page,this);
 			d->skipOneMerge = true;
 			d->active = false;
@@ -226,6 +227,11 @@ namespace Core
 					currentSender = message.property("senderName",message.chatUnit()->title());
 				}
 				same_from = (!d->skipOneMerge) && (d->previous_sender == currentSender);
+				if (d->lastDate.isNull())
+					d->lastDate = message.time();
+				if (d->lastDate.secsTo(message.time()) > d->groupUntil)
+					same_from = false;
+				d->lastDate = message.time();
 				item =  d->chat_style_output->makeMessage(this, message, same_from);
 				d->previous_sender = currentSender;
 				d->skipOneMerge = false;

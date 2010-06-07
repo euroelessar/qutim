@@ -25,6 +25,7 @@ namespace Core
 		connect(m_group,SIGNAL(buttonClicked(int)),SLOT(onButtonClicked(int)));
 		connect(ui->storeBox,SIGNAL(clicked(bool)),SIGNAL(modifiedChanged(bool)));
 		connect(ui->recentBox,SIGNAL(valueChanged(int)),SLOT(onValueChanged(int)));
+		connect(ui->groupUntil,SIGNAL(valueChanged(int)),SLOT(onValueChanged(int)));
 	}
 
 	ChatBehavior::~ChatBehavior()
@@ -53,6 +54,8 @@ namespace Core
 		Config history = appearance.group("chat/history");
 		ui->storeBox->setChecked(history.value<bool>("storeServiceMessages", true));
 		ui->recentBox->setValue(history.value<int>("maxDisplayMessages",5));
+		Config chat = appearance.group("chat");
+		ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
 	}
 
 	void ChatBehavior::saveImpl()
@@ -63,6 +66,8 @@ namespace Core
 		Config history = appearance.group("chat/history");
 		history.setValue("storeServiceMessages",ui->storeBox->isChecked());
 		history.setValue("maxDisplayMessages",ui->recentBox->value());
+		Config chat = appearance.group("chat");
+		chat.setValue("groupUntil",ui->groupUntil->value());
 		appearance.sync();
 	}
 

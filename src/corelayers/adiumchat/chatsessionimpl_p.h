@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QTimer>
+#include <QDateTime>
 #include <libqutim/message.h>
 #include <libqutim/status.h>
 
@@ -48,6 +49,8 @@ class ChatSessionModel;
 			bool active;
 			bool store_service_messages;
 			bool separator;
+			QDateTime lastDate;
+			int groupUntil;
 			QTimer inactive_timer;
 			MessageList unread;
 			ChatState myself_chat_state;
