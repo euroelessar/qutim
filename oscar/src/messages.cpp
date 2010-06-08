@@ -365,11 +365,11 @@ void MessagesHandler::handleResponse(IcqAccount *account, const SNAC &snac)
 	}
 	QString uin = snac.read<QString, quint8>();
 	IcqContact *contact = account->getContact(uin);
-	cookie.setContact(contact);
 	if (!contact) {
 		debug() << "Response message from unknown contact" << uin;
 		return;
 	}
+	cookie.setContact(contact);
 	//quint16 reason = snac.read<quint16>();
 	snac.skipData(2);
 	handleTlv2711(snac, contact, 2, cookie);
