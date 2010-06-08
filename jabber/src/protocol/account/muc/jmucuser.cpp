@@ -105,9 +105,43 @@ namespace Jabber
 		if (ev->type() == ToolTipEvent::eventType()) {
 			Q_D(JMUCUser);
 			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+			if (!d->text.isEmpty())
+				event->appendField(d->text, QVariant());
 			if (!d->realJid.isEmpty())
 				event->appendField(QT_TRANSLATE_NOOP("Conference", "Real JID"), d->realJid);
 			QString client = property("client").toString();
+			QString affiliation;
+			switch (d->affiliation) {
+			case AffiliationOwner:
+				affiliation = "Owner";
+				break;
+			case AffiliationAdmin:
+				affiliation = "Administrator";
+				break;
+			case AffiliationMember:
+				affiliation = "Registered member";
+				break;
+			default:
+				affiliation = "";
+			}
+			if (!affiliation.isEmpty())
+				event->appendField(QT_TRANSLATE_NOOP("Conference", "Affiliation"), affiliation);
+			QString role;
+			switch (d->role) {
+			case RoleModerator:
+				role = "Moderator";
+				break;
+			case RoleParticipant:
+				role = "Participant";
+				break;
+			case RoleVisitor:
+				role = "Visitor";
+				break;
+			default:
+				role = "";
+			}
+			if (!role.isEmpty())
+				event->appendField(QT_TRANSLATE_NOOP("Conference", "Role"), role);
 			if (!client.isEmpty()) {
 				QString os = property("os").toString();
 				if (!os.isEmpty()) {
