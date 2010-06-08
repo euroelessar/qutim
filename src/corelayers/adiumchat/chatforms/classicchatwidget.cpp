@@ -39,6 +39,7 @@ namespace Core
 				AbstractChatWidget(widgetKey, removeSessionOnClose),
 				ui(new Ui::ClassicChatForm)
 		{
+			m_current_index = -1;
 
 			ui->setupUi(this);
 			
