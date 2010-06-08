@@ -204,8 +204,6 @@ namespace Core
 					d->previous_sender.clear();
 					d->separator = true;
 				}
-			} else {
-				d->separator = false;
 			}
 			if(message.text().startsWith("/me ")) {
 				// FIXME we shouldn't copy data there
@@ -296,6 +294,8 @@ namespace Core
 			if (d->active == active)
 				return;
 			d->active = active;
+			if (!active)
+				d->separator = false;
 			emit activated(active);
 		}
 
