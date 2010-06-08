@@ -42,7 +42,7 @@ namespace Core
 			return ChatAppearance::tr("Vasya Pupkin");
 		}
 
-		virtual void sendMessage(const qutim_sdk_0_3::Message& message) {}
+		virtual bool sendMessage(const qutim_sdk_0_3::Message& message) {return true;}
 
 		virtual QString id() const
 		{

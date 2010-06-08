@@ -89,7 +89,7 @@ namespace qutim_sdk_0_3
 		*
 		* @param message Message, which to be sent to the recipient
 		*/
-		virtual void sendMessage(const Message &message) = 0;
+		virtual bool sendMessage(const Message &message) = 0;
 		/**
 		* @brief Returns TODO
 		*

@@ -40,7 +40,7 @@ namespace qutim_sdk_0_3
 		virtual QString name() const;
 		virtual Status status() const;
 		MetaContact *metaContact();
-		virtual void sendMessage(const Message &message) = 0;
+		virtual bool sendMessage(const Message &message) = 0;
 		virtual void setName(const QString &name) = 0;
 	signals:
 		void statusChanged(const Status &status);

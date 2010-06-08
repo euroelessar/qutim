@@ -26,6 +26,9 @@
 #include "libqutim/tooltip.h"
 #include <libqutim/shortcut.h>
 #include <libqutim/conference.h>
+#include <libqutim/notificationslayer.h>
+#include <libqutim/account.h>
+#include <libqutim/status.h>
 
 #ifdef Q_WS_X11
 # include <QX11Info>
@@ -38,6 +41,9 @@
 # define MESSAGE_SOURCE_OLD            0
 # define MESSAGE_SOURCE_APPLICATION    1
 # define MESSAGE_SOURCE_PAGER          2
+#ifdef Status
+# undef Status
+#endif
 #endif //Q_WS_X11
 
 namespace Core
@@ -48,6 +54,7 @@ namespace Core
 			: m_key(key), m_removeSessionOnClose(removeSessionOnClose),
 			m_htmlMessage(false), m_chatstate(ChatStateActive), m_entersNumber(0),m_current_index(-1)
 		{
+			setProperty("name",tr("Chat"));
 			setAttribute(Qt::WA_DeleteOnClose);
 		}
 		
@@ -88,14 +95,30 @@ namespace Core
 			}
 
 			Message message(edit->toPlainText());
+
+			//some checks
+			if (message.text().isEmpty()) {
+				Notifications::sendNotification(Notifications::System,
+												this,
+												tr("Unable to send empty message!"));
+				return;
+			}
+
 			if (m_htmlMessage)
 				message.setProperty("html", Qt::escape(message.text()));
 			message.setIncoming(false);
 			message.setChatUnit(unit);
 			message.setTime(QDateTime::currentDateTime());
-			session->appendMessage(message);
-			unit->sendMessage(message);
-			edit->clear();
+
+			if (!unit->sendMessage(message)) {
+				Notifications::sendNotification(Notifications::System,
+												this,
+												tr("Unable to send message to %1").arg(unit->title()));
+			}
+			else {
+				session->appendMessage(message);
+				edit->clear();
+			}
 
 			m_chatstateTimer.stop();
 			m_chatstate = ChatStateActive;
