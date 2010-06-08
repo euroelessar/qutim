@@ -58,7 +58,10 @@ static QWidget *getWidgetHelper2(const DataItem &item, bool *twoColumn, QSizePol
 	} else if (type == QVariant::Double) {
 		return new DoubleSpinBox(item);
 	} else if (type == QVariant::Icon || type == QVariant::Pixmap || type == QVariant::Image) {
-		return new IconWidget(item);
+		if (item.property("alternatives").isNull())
+			return new IconWidget(item);
+		else
+			return new IconListWidget(item);
 	}
 	QString str;
 	if (item.data().canConvert<LocalizedString>())

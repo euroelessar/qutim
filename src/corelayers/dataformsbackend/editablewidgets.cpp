@@ -3,6 +3,10 @@
 #include <QFileDialog>
 #include "abstractdatalayout.h"
 
+Q_DECLARE_METATYPE(QList<QIcon>);
+Q_DECLARE_METATYPE(QList<QPixmap>);
+Q_DECLARE_METATYPE(QList<QImage>);
+
 namespace Core
 {
 
@@ -136,6 +140,68 @@ DataItem DoubleSpinBox::item() const
 	double val = value();
 	QVariant d;
 	if (val != 0)
+		d = val;
+	return DataItem(objectName(), LocalizedString(), d);
+}
+
+IconListWidget::IconListWidget(const DataItem &item)
+{
+	setViewMode(IconMode);
+	QSize size = item.property("imageSize", QSize(128, 128));
+	QVariant altVariant = item.property("alternatives");
+	QPixmap pixmap;
+	quint64 cacheKey;
+	QList<QPixmap> alt;
+	QList<quint64> altCacheKeys;
+	QVariant data = item.data();
+	int type = data.type();
+	if (type == QVariant::Icon) {
+		QIcon icon = data.value<QIcon>();
+		cacheKey = icon.cacheKey();
+		pixmap = icon.pixmap(size);
+		foreach (const QIcon &val, altVariant.value<QList<QIcon> >()) {
+			altCacheKeys << val.cacheKey();
+			alt << val.pixmap(size);
+		}
+	} else if (type == QVariant::Pixmap) {
+		pixmap = data.value<QPixmap>();
+		cacheKey = pixmap.cacheKey();
+		if (!pixmap.isNull())
+			pixmap = pixmap.scaled(size, Qt::KeepAspectRatio);
+		foreach (const QPixmap &val, altVariant.value<QList<QPixmap> >()) {
+			altCacheKeys << val.cacheKey();
+			alt << val.scaled(size, Qt::KeepAspectRatio);
+		}
+	} else if (type == QVariant::Image) {
+		QImage image = data.value<QImage>();
+		cacheKey = image.cacheKey();
+		pixmap = QPixmap::fromImage(image);
+		if (!pixmap.isNull())
+			pixmap = pixmap.scaled(size, Qt::KeepAspectRatio);
+		foreach (const QImage &val, altVariant.value<QList<QImage> >()) {
+			altCacheKeys << val.cacheKey();
+			alt << QPixmap::fromImage(val).scaled(size, Qt::KeepAspectRatio);
+		}
+	}
+	QListWidgetItem *currentItem = 0;
+	foreach(const QIcon &icon, alt) {
+		QListWidgetItem *tmp = new QListWidgetItem(this);
+		tmp->setIcon(icon);
+		addItem(tmp);
+		quint64 altCacheKey = altCacheKeys.takeFirst();
+		if (currentItem == 0 && cacheKey == altCacheKey)
+			currentItem = tmp;
+	}
+	if (currentItem)
+		setCurrentItem(currentItem);
+}
+
+DataItem IconListWidget::item() const
+{
+	QListWidgetItem *current = currentItem();
+	QIcon val = current ? currentItem()->icon() : QIcon();
+	QVariant d;
+	if (!val.isNull())
 		d = val;
 	return DataItem(objectName(), LocalizedString(), d);
 }

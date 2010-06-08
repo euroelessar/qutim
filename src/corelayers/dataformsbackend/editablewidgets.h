@@ -93,6 +93,15 @@ public:
 	virtual DataItem item() const;
 };
 
+class IconListWidget : public QListWidget, public AbstractDataWidget
+{
+	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+public:
+	IconListWidget(const DataItem &item);
+	virtual DataItem item() const;
+};
+
 class IconWidget : public QWidget, public AbstractDataWidget
 {
 	Q_OBJECT
