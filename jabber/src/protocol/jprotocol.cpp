@@ -71,8 +71,9 @@ namespace Jabber
 
 		foreach (Status status, statuses) {
 			status.initIcon("jabber");
+			Status::remember(status, "jabber");
 			MenuController::addAction(new StatusActionGenerator(status), &JAccount::staticMetaObject);
-			}
+		}
 	}
 
 	void JProtocol::onKickUser()
@@ -187,7 +188,7 @@ namespace Jabber
 
 	Status JProtocol::presenceToStatus(Presence::PresenceType presence)
 	{
-		Status status;
+		Status::Type status;
 		switch (presence) {
 		case Presence::Available:
 			status = Status::Online;
@@ -208,6 +209,6 @@ namespace Jabber
 		default:
 			status = Status::Offline;
 		}
-		return status;
+		return Status::instance(status, "jabber");
 	}
 }

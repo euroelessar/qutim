@@ -42,6 +42,7 @@ namespace Jabber {
 	JAccount::JAccount(const QString &jid) : Account(jid, JProtocol::instance()), p(new JAccountPrivate)
 	{
 		loadSettings();
+		setStatus(Status::instance(Status::Offline, "jabber"));
 		p->discoManager = 0;
 		p->connection = new JConnection(this);
 		p->connectionListener = new JConnectionListener(this);

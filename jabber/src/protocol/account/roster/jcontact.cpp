@@ -241,7 +241,8 @@ namespace Jabber
 	{
 		Q_D(const JContact);
 		return d->currentResources.isEmpty()
-				? Status::Offline : d->resources.value(d->currentResources.first())->status();
+				? Status::instance(Status::Offline, "jabber")
+					: d->resources.value(d->currentResources.first())->status();
 	}
 
 	void JContact::fillMaxResource()
