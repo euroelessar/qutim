@@ -163,15 +163,20 @@ namespace Jabber
 		return d_func()->session;
 	}
 
-	void JMessageSession::sendMessage(const qutim_sdk_0_3::Message &message)
+	bool JMessageSession::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
 		Q_D(JMessageSession);
+
+		if (account()->status() == Status::Offline)
+			return false;
+
 		d->messageReceiptFilter->setNextId(message.id());
 		d->session->send(message.text().toStdString(), message.property("subject").toString().toStdString());
 		if (d->followChanges) {
 			d->handler->setSessionId(this, id());
 			d->followChanges = false;
 		}
+		return true;
 	}
 
 	void JMessageSession::handleMessage(const gloox::Message &msg, MessageSession *session)

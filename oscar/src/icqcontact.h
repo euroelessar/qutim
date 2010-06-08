@@ -45,7 +45,7 @@ public:
 	virtual QString name() const;
 	virtual Status status() const;
 	virtual  QString avatar() const;
-	virtual void sendMessage(const Message &message);
+	virtual bool sendMessage(const Message &message);
 	virtual void setName(const QString &name);
 	virtual void setTags(const QStringList &tags);
 	void setGroup(const QString &group);

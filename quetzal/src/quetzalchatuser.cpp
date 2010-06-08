@@ -25,8 +25,9 @@ QuetzalChatUser::QuetzalChatUser(PurpleConvChatBuddy *user, QuetzalChat *chat) :
 	m_name = user->alias;
 }
 
-void QuetzalChatUser::sendMessage(const Message &message)
+bool QuetzalChatUser::sendMessage(const Message &message)
 {
+	return false;
 }
 
 Status QuetzalChatUser::status() const

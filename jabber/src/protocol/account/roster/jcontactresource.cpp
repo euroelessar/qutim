@@ -55,10 +55,14 @@ namespace Jabber
 		}
 	}
 
-	void JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
+	bool JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
 		qDebug("%s", Q_FUNC_INFO);
 		JAccount *acc = static_cast<JAccount*>(account());
+
+		if (acc->status() == Status::Offline)
+			return false;
+
 		JMessageSession *session = qobject_cast<JMessageSession*>(acc->messageHandler()->getSession(this, false));
 		if (session) {
 			session->sendMessage(message);
@@ -67,6 +71,7 @@ namespace Jabber
 							   message.property("subject", QString()).toStdString());
 			acc->client()->send(msg);
 		}
+		return true;
 	}
 
 	void JContactResource::setPriority(int priority)

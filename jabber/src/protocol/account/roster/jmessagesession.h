@@ -25,7 +25,7 @@ namespace Jabber
 		virtual QString id() const;
 		virtual QString title() const;
 		gloox::MessageSession *session();
-		virtual void sendMessage(const qutim_sdk_0_3::Message &message);
+		virtual bool sendMessage(const qutim_sdk_0_3::Message &message);
 		virtual void handleMessage(const gloox::Message &msg, gloox::MessageSession* session = 0);
 		virtual void handleChatState(const gloox::JID &from, gloox::ChatStateType state);
 		ChatUnit *upperUnit();

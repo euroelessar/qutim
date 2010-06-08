@@ -238,19 +238,20 @@ Status QuetzalContact::status() const
 	return m_status;
 }
 
-void QuetzalContact::sendMessage(const Message &message)
+bool QuetzalContact::sendMessage(const Message &message)
 {
 	PurpleConversation *conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, m_buddy->name, m_buddy->account);
 	if (!conv) {
 		if (!m_buddy->account->gc)
-			return;
+			return false;
 
 		PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
 		prpl->send_im(m_buddy->account->gc, m_buddy->name, message.text().toUtf8().constData(),
 					  static_cast<PurpleMessageFlags>(0));
-		return;
+		return false;
 	}
 	purple_conv_im_send(conv->u.im, message.text().toUtf8().constData());
+	return true;
 }
 
 void QuetzalContact::setName(const QString &name)

@@ -13,7 +13,7 @@ public:
 	VContact(const QString& id, VAccount* account);
 	virtual QString id() const;
 	virtual bool isInList() const;
-	virtual void sendMessage(const Message& message);
+	virtual bool sendMessage(const Message& message);
 	virtual void setTags(const QStringList& tags);
 	virtual void setInList(bool inList);
 	void setStatus(bool online);

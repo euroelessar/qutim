@@ -50,7 +50,7 @@ namespace Jabber
 		return d_func()->jid;
 	}
 
-	void JContact::sendMessage(const qutim_sdk_0_3::Message &message)
+	bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
 		qDebug("%s", Q_FUNC_INFO);
 		JAccount *acc = static_cast<JAccount*>(account());
@@ -62,6 +62,7 @@ namespace Jabber
 							   message.property("subject", QString()).toStdString());
 			acc->client()->send(msg);
 		}
+		return (account()->status() != Status::Offline); //TODO
 	}
 
 	void JContact::setName(const QString &name)

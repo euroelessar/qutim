@@ -48,7 +48,7 @@ namespace Jabber
 			JMUCSession(JMessageSession *session);
 			~JMUCSession();
 			QString id() const;
-			void sendMessage(const qutim_sdk_0_3::Message &message);
+			bool sendMessage(const qutim_sdk_0_3::Message &message);
 			void setBookmarkIndex(int index);
 			int bookmarkIndex();
 			bool enabledConfiguring();

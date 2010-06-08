@@ -140,28 +140,33 @@ namespace Jabber
 				% QString::fromStdString(d->room->service());
 	}
 
-	void JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
+	bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
 		Q_D(JMUCSession);
+
+		if (account()->status() == Status::Offline)
+			return false;
+
 		if (message.text().startsWith("/nick ")) {
 			QString nick = message.text().section(' ', 1);
 			if (!nick.isEmpty()) {
 				if (d->users.contains(nick))
-					return;
+					return false;
 				d->room->setNick(nick.toStdString());
 			}
-			return;
+			return true;
 		} else if (message.text().startsWith("/topic ")) {
 			QString topic = message.text().section(' ',1);
 			if (!topic.isEmpty()) {
 				setTopic(topic);
-				return;
+				return true;
 			}
 		}
 		gloox::Message gMsg(gloox::Message::Groupchat, d->jid, message.text().toStdString());
 		gMsg.setID(d->account->client()->getID());
 		d->messages.insert(gMsg.id(), message.id());
 		d->account->client()->send(gMsg);
+		return true;
 	}
 
 	void JMUCSession::handleMUCParticipantPresence(MUCRoom *room, const MUCRoomParticipant participant,

@@ -30,7 +30,7 @@ public:
 
 	virtual QString id() const { return m_id; }
 	virtual QString title() const { return m_name.isEmpty() ? m_id : m_name; }
-	virtual void sendMessage(const Message &message);
+	virtual bool sendMessage(const Message &message);
 	virtual Status status() const;
 
 	void update();

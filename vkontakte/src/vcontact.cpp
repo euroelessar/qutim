@@ -38,9 +38,13 @@ bool VContact::isInList() const
 	return d_func()->inList;
 }
 
-void VContact::sendMessage(const Message& message)
+bool VContact::sendMessage(const Message& message)
 {
+	Q_D(VContact);
+	if (d->account->connection()->connectionState() != Connected)
+		return false;
 	d_func()->account->connection()->messages()->sendMessage(message);
+	return true;
 }
 
 void VContact::setTags(const QStringList& tags)

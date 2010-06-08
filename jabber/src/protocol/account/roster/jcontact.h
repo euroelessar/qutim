@@ -26,7 +26,7 @@ namespace Jabber
 			JContact(const QString &jid, JAccount *account);
 			~JContact();
 			QString id() const;
-			void sendMessage(const qutim_sdk_0_3::Message &message);
+			bool sendMessage(const qutim_sdk_0_3::Message &message);
 			void setName(const QString &name);
 			void setContactName(const QString &name);
 			void setTags(const QStringList &tags);

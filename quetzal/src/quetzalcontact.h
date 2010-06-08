@@ -39,7 +39,7 @@ public:
 	virtual QStringList tags() const;
 	virtual Status status() const;
 //	virtual QIcon statusIcon() const;
-	virtual void sendMessage(const Message &message);
+	virtual bool sendMessage(const Message &message);
 	virtual void setName(const QString &name);
 	virtual void setTags(const QStringList &tags);
 	virtual bool isInList() const;

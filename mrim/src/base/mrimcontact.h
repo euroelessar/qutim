@@ -51,7 +51,7 @@ public:
 
     //from Contact
     QString id() const;
-    void sendMessage(const Message &message);
+	bool sendMessage(const Message &message);
     QString name() const;
     void setName(const QString &name);
 	QStringList tags() const;

@@ -31,7 +31,7 @@ namespace Jabber
 			QString name() const;
 			QString id() const;
 			QString title() const;
-			void sendMessage(const qutim_sdk_0_3::Message &message);
+			bool sendMessage(const qutim_sdk_0_3::Message &message);
 			void setPriority(int priority);
 			int priority();
 			void setStatus(gloox::Presence::PresenceType presence, int priority, const QString &text = QString());

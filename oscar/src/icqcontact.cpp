@@ -144,9 +144,13 @@ bool IcqContact::isInList() const
 	return !d->items.isEmpty();
 }
 
-void IcqContact::sendMessage(const Message &message)
+bool IcqContact::sendMessage(const Message &message)
 {
 	Q_D(IcqContact);
+
+	if (account()->status() == Status::Offline)
+		return false;
+
 	QString msgText;
 	quint8 channel = 2;
 	Cookie cookie(this, message.id());
@@ -177,6 +181,7 @@ void IcqContact::sendMessage(const Message &message)
 	debug().nospace() << "Message is sent on channel " << channel
 			<< ", ID:" << message.id()
 			<< ", text:" << message.text();
+	return true;
 }
 
 void IcqContact::setName(const QString &name)

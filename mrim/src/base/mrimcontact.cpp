@@ -59,9 +59,12 @@ void MrimContact::setTags(const QStringList &tags)
     //do nothing
 }
 
-void MrimContact::sendMessage(const Message &message)
+bool MrimContact::sendMessage(const Message &message)
 {
+	if (account()->status() == Status::Offline)
+		return false;
     account()->connection()->messages()->send(message);
+	return true;
 }
 
 bool MrimContact::isInList() const
