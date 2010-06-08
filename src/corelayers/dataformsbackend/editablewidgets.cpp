@@ -1,4 +1,7 @@
 #include "editablewidgets.h"
+#include <libqutim/icon.h>
+#include <QFileDialog>
+#include "abstractdatalayout.h"
 
 namespace Core
 {
@@ -135,6 +138,69 @@ DataItem DoubleSpinBox::item() const
 	if (val != 0)
 		d = val;
 	return DataItem(objectName(), LocalizedString(), d);
+}
+
+IconWidget::IconWidget(const DataItem &item)
+{
+	m_size = item.property("imageSize", QSize(128, 128));
+	QPixmap pixmap = variantToPixmap(item.data(), m_size);
+	m_default = variantToPixmap(item.property("defaultImage"), m_size);
+	if (m_default.isNull())
+		m_default = pixmap;
+	QGridLayout *layout = new QGridLayout(this);
+	m_pixmapWidget = new QLabel(this);
+	m_pixmapWidget->setFrameShape(QFrame::Panel);
+	m_pixmapWidget->setFrameShadow(QFrame::Sunken);
+	m_pixmapWidget->setAlignment(Qt::AlignCenter);
+	m_pixmapWidget->setPixmap(pixmap.isNull() ? m_default : pixmap);
+	QPushButton *setButton = new QPushButton(QIcon(), QString(), this);
+	setButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	setButton->setIcon(Icon("list-add"));
+	connect(setButton, SIGNAL(clicked()), SLOT(setIcon()));
+	QPushButton *removeButton = new QPushButton(QIcon(), QString(), this);
+	connect(removeButton, SIGNAL(clicked()), SLOT(removeIcon()));
+	removeButton->setIcon(Icon("list-remove"));
+	layout->addWidget(m_pixmapWidget, 0, 0, 3, 1);
+	layout->addWidget(setButton, 0, 1);
+	layout->addItem(new QSpacerItem(1, 1, QSizePolicy::Preferred, QSizePolicy::Expanding), 2, 1);
+	layout->addWidget(removeButton, 2, 1, Qt::AlignBottom);
+}
+
+DataItem IconWidget::item() const
+{
+	QVariant d;
+	if (!m_path.isEmpty())	{
+		if (m_type == QVariant::Icon)
+			d.fromValue(QIcon(m_path));
+		else if (m_type == QVariant::Pixmap)
+			d.fromValue(QPixmap(m_path));
+		else if (m_type == QVariant::Image)
+			d.fromValue(QImage(m_path));
+	}
+	DataItem item(objectName(), LocalizedString(), d);
+	item.setProperty("imagePath", m_path);
+	return item;
+}
+
+void IconWidget::setIcon()
+{
+	m_path = QFileDialog::getOpenFileName(
+			this,
+			QT_TRANSLATE_NOOP("DataForms", "Open image"),
+			QDir::homePath(),
+			QT_TRANSLATE_NOOP("DataForms",
+							  "Images (*.gif *.bmp *.jpg *.jpeg *.png);;"
+							  "All files (*.*)"));
+	if (!m_path.isEmpty())
+		m_pixmapWidget->setPixmap(QPixmap(m_path).scaled(m_size, Qt::KeepAspectRatio));
+	else
+		removeIcon();
+}
+
+void IconWidget::removeIcon()
+{
+	m_pixmapWidget->setPixmap(m_default);
+	m_path.clear();
 }
 
 }

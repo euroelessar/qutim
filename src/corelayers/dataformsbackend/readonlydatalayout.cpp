@@ -56,13 +56,16 @@ QWidget *ReadOnlyDataLayout::getReadOnlyWidget(const DataItem &item, bool *twoCo
 		return getLabel(item.data().toDate().toString(Qt::SystemLocaleLongDate));
 	} else if (type == QVariant::DateTime) {
 		return getLabel(item.data().toDateTime().toString(Qt::SystemLocaleLongDate));
-	} else if (type == QVariant::Image) {
+	} else if (type == QVariant::Icon || type == QVariant::Pixmap || type == QVariant::Image) {
 		QLabel *d = new QLabel();
-		d->setPixmap(QPixmap::fromImage(item.data().value<QImage>()));
-		return d;
-	} else if (type == QVariant::Pixmap) {
-		QLabel *d = new QLabel();
-		d->setPixmap(item.data().value<QPixmap>());
+		QSize size = item.property("imageSize", QSize(128, 128));
+		QPixmap pixmap = variantToPixmap(item.data(), size);
+		if (!pixmap.isNull())
+			pixmap = variantToPixmap(item.property("defaultImage"), size);
+		d->setPixmap(pixmap);
+		d->setFrameShape(QFrame::Panel);
+		d->setFrameShadow(QFrame::Sunken);
+		d->setAlignment(Qt::AlignCenter);
 		return d;
 	} else if (type == QVariant::Bool) {
 		return getLabel(item.data().toBool() ?

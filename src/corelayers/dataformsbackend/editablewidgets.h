@@ -9,6 +9,9 @@
 #include <QLabel>
 #include <QTextEdit>
 #include <QLineEdit>
+#include <QListWidget>
+#include <QGridLayout>
+#include <QPushButton>
 #include <libqutim/dataforms.h>
 
 namespace Core
@@ -88,6 +91,24 @@ class DoubleSpinBox : public QDoubleSpinBox, public AbstractDataWidget
 public:
 	DoubleSpinBox(const DataItem &item);
 	virtual DataItem item() const;
+};
+
+class IconWidget : public QWidget, public AbstractDataWidget
+{
+	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+public:
+	IconWidget(const DataItem &item);
+	virtual DataItem item() const;
+public slots:
+	void setIcon();
+	void removeIcon();
+private:
+	int m_type;
+	QString m_path;
+	QLabel *m_pixmapWidget;
+	QPixmap m_default;
+	QSize m_size;
 };
 
 }
