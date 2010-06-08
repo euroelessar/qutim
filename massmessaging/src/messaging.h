@@ -16,6 +16,7 @@ namespace MassMessaging
 	{
 		Q_OBJECT
 		Q_CLASSINFO("DebugName", "MassMessaging")
+		Q_CLASSINFO("Uses", "ContactList")
 	public:
 		virtual void init();
 		virtual bool load();

@@ -1,7 +1,7 @@
 #include "messaging.h"
 #include <qutim/actiongenerator.h>
 #include <qutim/icon.h>
-#include <qutim/contactlist.h>
+#include <qutim/menucontroller.h>
 #include "messagingdialog.h"
 
 namespace MassMessaging
@@ -10,6 +10,7 @@ namespace MassMessaging
 	void MassMessaging::init()
 	{
 	}
+
 	bool MassMessaging::load()
 	{
 		ActionGenerator *gen = new ActionGenerator(Icon("mail-send"),
@@ -17,7 +18,8 @@ namespace MassMessaging
 										this,
 										SLOT(onActionTriggered())
 										);
-		MenuController::addAction<ContactList>(gen);
+		qobject_cast<MenuController*>(getService("ContactList"))->addAction(gen);
+
 		return true;
 	}
 	bool MassMessaging::unload()
