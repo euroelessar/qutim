@@ -8,6 +8,7 @@
 #include <QDate>
 #include <QDateEdit>
 #include <QFileDialog>
+#include <QLabel>
 
 namespace Core
 {
@@ -22,10 +23,6 @@ MainWindow::MainWindow() :
 	ui.setupUi(this);
 	connect(ui.requestButton, SIGNAL(clicked()), SLOT(onRequestButton()));
 	connect(ui.saveButton, SIGNAL(clicked()), SLOT(onSaveButton()));
-	connect(ui.addButton, SIGNAL(clicked()), SLOT(onAddAvatar()));
-	connect(ui.removeButton, SIGNAL(clicked()), SLOT(onRemoveAvatar()));
-	ui.addButton->setIcon(Icon("list-add-avatar"));
-	ui.removeButton->setIcon(Icon("list-remove-avatar"));
 }
 
 void MainWindow::setObject(QObject *obj, RequestType type)
@@ -53,12 +50,13 @@ void MainWindow::setRequest(InfoRequest *req)
 	while ((w = ui.detailsStackedWidget->widget(0)) != 0)
 		delete w;
 	Buddy *buddy = qobject_cast<Buddy*>(object);
+	QString avatar;
 	if (buddy) {
 		setWindowTitle(QT_TRANSLATE_NOOP("ContactInfo", "About contact %1 <%2>")
 						.toString()
 						.arg(buddy->name())
 						.arg(buddy->id()));
-		m_avatar = buddy->avatar();
+		avatar = buddy->avatar();
 	} else {
 		Account *account = qobject_cast<Account*>(object);
 		if (account) {
@@ -71,15 +69,23 @@ void MainWindow::setRequest(InfoRequest *req)
 							.arg(object->property("name").toString())
 							.arg(object->property("id").toString()));
 		}
-		m_avatar = account->property("avatar").toString();
+		avatar = account->property("avatar").toString();
 	}
 	ui.saveButton->setVisible(readWrite);
-	ui.addButton->setVisible(readWrite);
-	ui.removeButton->setVisible(readWrite);
-	if (m_avatar.isEmpty())
-		onRemoveAvatar();
-	else
-		updateAvatar();
+	{ // avatar field
+		DataItem avatarItem(QT_TRANSLATE_NOOP("ContactInfo", "Avatar"), QPixmap(avatar));
+		avatarItem.setProperty("hideTitle", true);
+		avatarItem.setProperty("imageSize", QSize(64, 64));
+		avatarItem.setProperty("defaultImage", QPixmap(":/icons/qutim_64.png"));
+		if (!readWrite)
+			avatarItem.setReadOnly(true);
+		avatarWidget.reset(AbstractDataForm::get(avatarItem));
+		if (avatarWidget) {
+			avatarWidget->setParent(this);
+			avatarWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			ui.gridLayout->addWidget(avatarWidget.data(), 0, 0, Qt::AlignCenter);
+		}
+	}
 	addItems(request->item());
 	if (curPage >= 0)
 		ui.infoListWidget->setCurrentRow(curPage);
@@ -123,28 +129,9 @@ void MainWindow::onSaveButton()
 	}
 	InfoItemUpdatedEvent event(items);
 	qApp->sendEvent(object, &event);
-	object->setProperty("avatar", m_avatar);
-}
-
-void MainWindow::onAddAvatar()
-{
-	QString avatar = QFileDialog::getOpenFileName(
-			this,
-			QT_TRANSLATE_NOOP("ContactInfo", "Open avatar"),
-			QDir::homePath(),
-			QT_TRANSLATE_NOOP("ContactInfo",
-							  "Images (*.gif *.bmp *.jpg *.jpeg *.png);;"\
-							  "All files (*.*)"));
-	if (!avatar.isEmpty()) {
-		m_avatar = avatar;
-		updateAvatar();
-	}
-}
-
-void MainWindow::onRemoveAvatar()
-{
-	m_avatar = ":/icons/qutim_64.png";
-	updateAvatar();
+	AbstractDataWidget *avatarDataWidget = qobject_cast<AbstractDataWidget*>(avatarWidget.data());
+	if (avatarDataWidget)
+		object->setProperty("avatar", avatarDataWidget->item().property("imagePath", QString()));
 }
 
 void MainWindow::addItems(const DataItem &items)
@@ -231,11 +218,6 @@ QString MainWindow::summary(const DataItem &items)
 		}
 	}
 	return text;
-}
-
-void MainWindow::updateAvatar()
-{
-	ui.pictureLabel->setPixmap(QPixmap(m_avatar).scaled(QSize(64, 64), Qt::KeepAspectRatio));
 }
 
 class InfoActionGenerator : public ActionGenerator
