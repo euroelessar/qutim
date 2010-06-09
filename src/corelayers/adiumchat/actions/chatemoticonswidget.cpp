@@ -6,6 +6,7 @@
 #include "3rdparty/flowlayout/flowlayout.h"
 #include "libqutim/emoticons.h"
 #include <QEvent>
+#include <libqutim/debug.h>
 
 namespace Core
 {
@@ -16,12 +17,14 @@ namespace Core
 		ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 				QScrollArea(parent)
 		{
-			new FlowLayout(this);
-
-			setFrameStyle(QFrame::NoFrame);
-			setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 			resize(400,200);
 			setMinimumSize(size());
+			setFrameStyle(QFrame::NoFrame);
+			setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+			setWidget(new QWidget(this));
+
+			new FlowLayout(widget());
 		}
 
 		void ChatEmoticonsWidget::loadTheme()
@@ -34,7 +37,7 @@ namespace Core
 				QMovie *emoticon = new QMovie (it.key(), QByteArray(), label);
 				label->setMovie(emoticon);
 				label->setToolTip(it.value().first());
-				layout()->addWidget(label);
+				widget()->layout()->addWidget(label);
 				m_active_emoticons.append(label);
 
 				label->installEventFilter(this);
@@ -55,6 +58,9 @@ namespace Core
 				QLabel *label = static_cast<QLabel *>(widget);
 				label->movie()->start();
 			}
+			FlowLayout *layout = static_cast<FlowLayout *>(widget()->layout());
+			widget()->resize(width(),layout->heightForWidth(width()));
+			debug() << layout->heightForWidth(width());
 		}
 
 		void ChatEmoticonsWidget::hideEvent(QHideEvent *)
