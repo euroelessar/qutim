@@ -184,7 +184,7 @@ IconListWidget::IconListWidget(const DataItem &item)
 	QSize size = item.property("imageSize", QSize(128, 128));
 	QVariant altVariant = item.property("alternatives");
 	QPixmap pixmap;
-	quint64 cacheKey;
+	quint64 cacheKey = 0;
 	QList<QPixmap> alt;
 	QList<quint64> altCacheKeys;
 	QVariant data = item.data();
