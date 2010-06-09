@@ -55,6 +55,10 @@ ComboBox::ComboBox(const QString &value, const LocalizedStringList &alt, const D
 		++i;
 	}
 	setCurrentIndex(current + 1);
+	QValidator *validator = getValidator(item.property("validator"), this);
+	if (validator)
+		setValidator(validator);
+	setEditable(item.property("editable", false));
 }
 
 DataItem ComboBox::item() const
