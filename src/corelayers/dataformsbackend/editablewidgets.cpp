@@ -1,17 +1,32 @@
 #include "editablewidgets.h"
 #include <libqutim/icon.h>
 #include <QFileDialog>
+#include <QRegExpValidator>
 #include "abstractdatalayout.h"
 
 Q_DECLARE_METATYPE(QList<QIcon>);
 Q_DECLARE_METATYPE(QList<QPixmap>);
 Q_DECLARE_METATYPE(QList<QImage>);
 Q_DECLARE_METATYPE(QLineEdit::EchoMode);
+Q_DECLARE_METATYPE(QValidator*);
 
 namespace Core
 {
 
 using namespace qutim_sdk_0_3;
+
+static QValidator *getValidator(const QVariant &validator, QWidget *object)
+{
+	if (!validator.isNull()) {
+		QValidator *d;
+		if (validator.canConvert<QValidator*>())
+			d = validator.value<QValidator*>();
+		else
+			d = new QRegExpValidator(validator.toRegExp(), object);
+		return d;
+	}
+	return 0;
+}
 
 CheckBox::CheckBox(const DataItem &item)
 {
@@ -117,6 +132,9 @@ LineEdit::LineEdit(const DataItem &item)
 			mode = static_cast<EchoMode>(passwordMode.toInt());
 		setEchoMode(mode);
 	}
+	QValidator *validator = getValidator(item.property("validator"), this);
+	if (validator)
+		setValidator(validator);
 }
 
 DataItem LineEdit::item() const
