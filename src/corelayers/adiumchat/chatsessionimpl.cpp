@@ -35,7 +35,6 @@
 #include <QWebElement>
 #include "chatsessionimpl_p.h"
 #include "javascriptclient.h"
-#include "chatforms/abstractchatform.h"
 
 namespace Core
 {
@@ -243,19 +242,8 @@ namespace Core
 
 			bool silent = message.property("silent", false);
 
-			if (const Conference *c = qobject_cast<const Conference *>(message.chatUnit())) {
+			if (qobject_cast<const Conference *>(message.chatUnit()))
 				silent = true;
-				QString sender = c->me() ? c->me()->name() : QString();
-				if (message.text().contains(sender)) {
-					AbstractChatForm *form = qobject_cast<AbstractChatForm*>(getService("ChatForm"));
-					if (form) {
-						QWidget *widget = form->chatWidget(this);
-						if (widget) {
-							widget->raise();
-						}
-					}
-				}
-			}
 
 			if (!silent)
 				Notifications::sendNotification(message);
