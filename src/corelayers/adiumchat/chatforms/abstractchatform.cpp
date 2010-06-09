@@ -111,7 +111,12 @@ namespace Core
 				list << widget;
 			return list;
 		}
-		
+
+		QWidget *AbstractChatForm::chatWidget(qutim_sdk_0_3::ChatSession *sess) const
+		{
+			return findWidget(sess);
+		}
+
 		void AbstractChatForm::onSessionCreated(ChatSession *session)
 		{
 			debug() << "Chatform: session created";

@@ -85,7 +85,7 @@ namespace KineticPopups
 		if(image_path.isEmpty())
 			image_path = QLatin1String(":/icons/qutim_64");
 		QString popup_data = popup_settings.content;
-		QString text = Emoticons::theme().parseEmoticons(body);
+		QString text = Emoticons::theme().parseEmoticons(Qt::escape(body));
 		if (text.length() > Manager::self()->maxTextLength) {
 			text.truncate(Manager::self()->maxTextLength);
 			text.append("...");

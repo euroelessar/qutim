@@ -43,6 +43,7 @@ namespace Core
 			~AbstractChatForm();
 			Q_INVOKABLE QObject *textEdit(qutim_sdk_0_3::ChatSession *session);
 			Q_INVOKABLE QWidgetList chatWidgets();
+			Q_INVOKABLE QWidget *chatWidget(qutim_sdk_0_3::ChatSession *sess)  const;
 		protected:
 			virtual AbstractChatWidget *createWidget(const QString &key, bool removeSessionOnClose) = 0;
 		private slots:
