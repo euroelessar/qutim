@@ -20,6 +20,7 @@
 #include <QNetworkRequest>
 #include <QNetworkAccessManager>
 #include <qnetworkreply.h>
+#include <QTextDocument>
 
 namespace UrlPreview
 {
@@ -87,7 +88,7 @@ namespace UrlPreview
 		//TODO may be need refinement
 		QString html = message->property("html").toString();
 		if (html.isEmpty())
-			html = message->text();
+			html = Qt::escape(message->text());
 		
 		static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
 								  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
