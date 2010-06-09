@@ -6,6 +6,7 @@
 Q_DECLARE_METATYPE(QList<QIcon>);
 Q_DECLARE_METATYPE(QList<QPixmap>);
 Q_DECLARE_METATYPE(QList<QImage>);
+Q_DECLARE_METATYPE(QLineEdit::EchoMode);
 
 namespace Core
 {
@@ -105,6 +106,17 @@ LineEdit::LineEdit(const DataItem &item)
 	else
 		str = item.data().toString();
 	setText(str);
+	QVariant passwordMode = item.property("passwordMode");
+	if (!passwordMode.isNull()) {
+		EchoMode mode = Normal;
+		if (passwordMode.type() == QVariant::Bool)
+			mode = Password;
+		else if (passwordMode.canConvert<EchoMode>())
+			mode = passwordMode.value<EchoMode>();
+		else if (passwordMode.canConvert(QVariant::Int))
+			mode = static_cast<EchoMode>(passwordMode.toInt());
+		setEchoMode(mode);
+	}
 }
 
 DataItem LineEdit::item() const
