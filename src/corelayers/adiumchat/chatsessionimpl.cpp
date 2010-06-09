@@ -245,16 +245,18 @@ namespace Core
 
 			bool silent = message.property("silent", false);
 
-			if (qobject_cast<const Conference *>(message.chatUnit())) {
-				if (message.text().contains(d->chat_unit->account()->name())) {
+			if (const Conference *c = qobject_cast<const Conference *>(message.chatUnit())) {
+				silent = true;
+				QString sender = c->me() ? c->me()->name() : QString();
+				if (message.text().contains(sender)) {
 					AbstractChatForm *form = qobject_cast<AbstractChatForm*>(getService("ChatForm"));
-					if (form) { 
-						QWidget *w = form->chatWidget(this);
-						if (w)
-							w->raise();
+					if (form) {
+						QWidget *widget = form->chatWidget(this);
+						if (widget) {
+							widget->raise();
+						}
 					}
 				}
-				silent = true;
 			}
 
 			if (!silent)
