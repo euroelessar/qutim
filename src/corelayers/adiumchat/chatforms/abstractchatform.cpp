@@ -112,6 +112,12 @@ namespace Core
 			return list;
 		}
 		
+		QWidget* AbstractChatForm::chatWidget(ChatSession* session) const
+		{
+			return findWidget(session);
+		}
+
+		
 		void AbstractChatForm::onSessionCreated(ChatSession *session)
 		{
 			debug() << "Chatform: session created";

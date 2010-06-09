@@ -1,5 +1,6 @@
 #include "abstractdatalayout.h"
 #include <QSpacerItem>
+#include <QIcon>
 
 namespace Core
 {
@@ -30,6 +31,22 @@ void AbstractDataLayout::addSpacer()
 void  AbstractDataLayout::addWidget(QWidget *w)
 {
 	QGridLayout::addWidget(w, m_row++, 0, 1, 2);
+}
+
+QPixmap variantToPixmap(const QVariant &data, const QSize &size)
+{
+	int type = data.type();
+	QPixmap pixmap;
+	if (type == QVariant::Icon)
+		return data.value<QIcon>().pixmap(size); // The pixmap can be returned as its size is correct.
+	else if (type == QVariant::Pixmap)
+		pixmap = data.value<QPixmap>();
+	else if (type == QVariant::Image)
+		pixmap = QPixmap::fromImage(data.value<QImage>());
+	if (!pixmap.isNull())
+		return pixmap.scaled(size, Qt::KeepAspectRatio);
+	else
+		return pixmap;
 }
 
 }

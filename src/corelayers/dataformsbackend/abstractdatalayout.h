@@ -52,6 +52,8 @@ inline void AbstractDataLayout::addLayout(QLayout *w, int row, int column, int r
 	QGridLayout::addLayout(w, row, column, rowSpan, columnSpan, alignment);
 }
 
+QPixmap variantToPixmap(const QVariant &data, const QSize &size);
+
 }
 
 #endif // ABSTRACTDATALAYOUT_H

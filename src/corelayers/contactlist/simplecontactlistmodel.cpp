@@ -202,7 +202,7 @@ namespace Core
 			connect(contact, SIGNAL(destroyed(QObject*)), this, SLOT(contactDeleted(QObject*)));
             connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(contactStatusChanged(qutim_sdk_0_3::Status)));
             connect(contact, SIGNAL(nameChanged(QString)), SLOT(contactNameChanged(QString)));
-			connect(contact, SIGNAL(tagsChanged(QSet<QString>)), SLOT(contactTagsChanged(QSet<QString>)));
+			connect(contact, SIGNAL(tagsChanged(QStringList)), SLOT(contactTagsChanged(QStringList)));
 			connect(contact, SIGNAL(inListChanged(bool)),SLOT(onContactInListChanged(bool)));
 			QStringList tags = contact->tags();
 			if(tags.isEmpty())
@@ -464,14 +464,15 @@ namespace Core
 			//TODO
 		}
 
-		void Model::contactTagsChanged(const QSet<QString> &tags_helper)
+		void Model::contactTagsChanged(const QStringList &tags_helper)
 		{
 			Contact *contact = qobject_cast<Contact *>(sender());
 			ContactData::Ptr item_data = p->contacts.value(contact);
 			if(!item_data)
 				return;
 			bool show = isVisible(item_data->items.value(0));
-			QSet<QString> tags = tags_helper;
+			QSet<QString> tags;
+			tags.fromList(tags_helper);
 			if(tags.isEmpty())
 				tags << QLatin1String("Default");
 			QSet<QString> to_add = tags - item_data->tags;
@@ -661,6 +662,7 @@ namespace Core
 				item->visible += hide ? -1 : 1;
 				p->view->setRowHidden(index, tagIndex, hide);
 				recheckTag(item, tagIndex.row());
+				emit dataChanged(tagIndex,tagIndex);
 			}
 		}
 

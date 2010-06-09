@@ -84,7 +84,7 @@ public:
 	EditableDataLayout(QWidget *parent = 0);
 	bool addItem(const DataItem &item);
 	DataItem item() const;
-	static QWidget *getEditableWidget(const DataItem &item);
+	static QWidget *getWidget(const DataItem &item);
 private:
 	struct WidgetLine {
 		WidgetLine(QWidget *t, QWidget *d) :

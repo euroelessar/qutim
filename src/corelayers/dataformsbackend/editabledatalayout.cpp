@@ -12,23 +12,7 @@
 namespace Core
 {
 
-static ComboBox *getComboBox(const QString &value, const LocalizedStringList &alt)
-{
-	ComboBox *d = new ComboBox();
-	int current = -1;
-	int i = 0;
-	d->addItem(notSpecifiedStr);
-	foreach (const LocalizedString &str, alt) {
-		if (value == str)
-			current = i;
-		d->addItem(str);
-		++i;
-	}
-	d->setCurrentIndex(current + 1);
-	return d;
-}
-
-static QWidget *getTitle(const DataItem &item)
+static QWidget *getTitleHelper(const DataItem &item)
 {
 	LocalizedStringList alt = item.property("titleAlternatives", LocalizedStringList());
 	if (item.property("readOnly", false) || alt.isEmpty()) {
@@ -39,11 +23,11 @@ static QWidget *getTitle(const DataItem &item)
 		title->setFont(font);
 		return title;
 	} else {
-		return getComboBox(item.title(), alt);
+		return new ComboBox(item.title(), alt, item);
 	}
 }
 
-static QWidget *getWidgetHelper(const DataItem &item, bool *twoColumn, QSizePolicy::Policy &verticalPolicy)
+static QWidget *getWidgetHelper2(const DataItem &item, bool *twoColumn, QSizePolicy::Policy &verticalPolicy)
 {
 	verticalPolicy = QSizePolicy::Maximum;
 	if (twoColumn)
@@ -62,86 +46,61 @@ static QWidget *getWidgetHelper(const DataItem &item, bool *twoColumn, QSizePoli
 			*twoColumn = true;
 		return new DataGroup(item);
 	} else if (type == QVariant::Bool) {
-		CheckBox *d = new CheckBox();
-		d->setText(item.title());
-		d->setChecked(item.data().toBool());
 		if (twoColumn)
 			*twoColumn = true;
-		return d;
+		return new CheckBox(item);
 	} else if (type == QVariant::Date) {
-		DateEdit *d = new DateEdit();
-		d->setDate(item.data().toDate());
-		return d;
+		return new DateEdit(item);
 	} else if (type == QVariant::DateTime) {
-		DateTimeEdit *d = new DateTimeEdit();
-		d->setDateTime(item.data().toDateTime());
-		return d;
+		return new DateTimeEdit(item);
 	} else if (type == QVariant::Int || type == QVariant::LongLong || type == QVariant::UInt) {
-		SpinBox *d = new SpinBox();
-		d->setValue(item.data().toInt());
-		return d;
+		return new SpinBox(item);
 	} else if (type == QVariant::Double) {
-		DoubleSpinBox *d = new DoubleSpinBox();
-		d->setValue(item.data().toDouble());
-		return d;
-	} else if (type == QVariant::Date) {
-		DateEdit *d = new DateEdit();
-		d->setDate(item.data().toDate());
-		return d;
-	} else if (type == QVariant::DateTime) {
-		DateTimeEdit *d = new DateTimeEdit();
-		d->setDateTime(item.data().toDateTime());
-		return d;
+		return new DoubleSpinBox(item);
+	} else if (type == QVariant::Icon || type == QVariant::Pixmap || type == QVariant::Image) {
+		if (item.property("alternatives").isNull())
+			return new IconWidget(item);
+		else
+			return new IconListWidget(item);
 	}
 	QString str;
 	if (item.data().canConvert<LocalizedString>())
 		str = item.data().value<LocalizedString>();
 	else
 		str = item.data().toString();
-	if (item.property("readOnly", false)) {
-		return new QLabel(str);
+	LocalizedStringList alt = item.property("alternatives", LocalizedStringList());
+	if (!alt.isEmpty()) {
+		return new ComboBox(str, alt, item);
+	} if (!item.property("multiline", false)) {
+		return new LineEdit(item);
 	} else {
-		LocalizedStringList alt = item.property("alternatives", LocalizedStringList());
-		if (!alt.isEmpty()) {
-			return getComboBox(str, alt);
-		} if (!item.property("multiline", false)) {
-			LineEdit *d = new LineEdit();
-			d->setText(str);
-			return d;
-		} else {
-			verticalPolicy = QSizePolicy::MinimumExpanding;
-			TextEdit *d = new TextEdit();
-			d->setText(str);
-			return d;
-		}
+		verticalPolicy = QSizePolicy::MinimumExpanding;
+		return new TextEdit(item);
 	}
 }
 
-static QWidget *getWidget(const DataItem &item, bool *twoColumn = 0)
+static QWidget *getWidgetHelper(const DataItem &item, bool *twoColumn = 0)
 {
 	QSizePolicy::Policy vertPolicy;
-	QWidget *widget = getWidgetHelper(item, twoColumn, vertPolicy);
+	QWidget *widget = getWidgetHelper2(item, twoColumn, vertPolicy);
 	widget->setSizePolicy(QSizePolicy::Expanding, vertPolicy);
 	return widget;
 }
 
-static QString getTitle(QWidget *title)
-{
-	QLabel *label = qobject_cast<QLabel*>(title);
-	if (label)
-		return label->text();
-	QComboBox *box = qobject_cast<QComboBox*>(title);
-	if (box) {
-		QString text = box->currentText();
-		if (!text.isEmpty() && text != notSpecifiedStr)
-			return text;
-	}
-	return QString();
-}
-
 static DataItem getDataItem(QWidget *title, QWidget *data)
 {
-	QString titleStr = getTitle(title);
+	QString titleStr;
+	QLabel *label = qobject_cast<QLabel*>(title);
+	if (label)
+		titleStr = label->text();
+	else {
+		QComboBox *box = qobject_cast<QComboBox*>(title);
+		if (box) {
+			QString text = box->currentText();
+			if (!text.isEmpty() && text != notSpecifiedStr)
+				titleStr = text;
+		}
+	}
 	AbstractDataWidget *dataGroup = qobject_cast<AbstractDataWidget*>(data);
 	if (dataGroup) {
 		DataItem item = dataGroup->item();
@@ -199,10 +158,10 @@ void DataListWidget::addRow(const DataItem &item)
 {
 	QWidget *title = 0;
 	bool twoColumn;
-	QWidget *data = getWidget(item, &twoColumn);
+	QWidget *data = getWidgetHelper(item, &twoColumn);
 	data->setObjectName(item.name());
 	if (!twoColumn && !item.property("hideTitle", false))
-		title = getTitle(item);
+		title = getTitleHelper(item);
 	addRow(data, title);
 }
 
@@ -310,9 +269,9 @@ StringListGroup::StringListGroup(const DataItem &item, QWidget *parent) :
 	LocalizedStringList alt = item.property("alternatives", LocalizedStringList());
 	foreach (const QString &str, item.data().toStringList()) {
 		if (!alt.isEmpty())
-			addRow(getComboBox(str, alt));
+			addRow(new ComboBox(str, alt, item));
 		else
-			addRow(new QLineEdit(str));
+			addRow(new LineEdit(item));
 	}
 }
 
@@ -335,11 +294,11 @@ EditableDataLayout::EditableDataLayout(QWidget *parent) :
 bool EditableDataLayout::addItem(const DataItem &item)
 {
 	bool twoColumns;
-	QWidget *widget = getWidget(item, &twoColumns);
+	QWidget *widget = getWidgetHelper(item, &twoColumns);
 	QWidget *title = 0;
 	twoColumns = twoColumns || item.property("hideTitle", false);
 	if (!twoColumns) {
-		title = getTitle(item);
+		title = getTitleHelper(item);
 		addWidget(title, m_row, 0, 1, 1, Qt::AlignRight | Qt::AlignTop);
 	}
 	widget->setParent(parentWidget());
@@ -362,9 +321,9 @@ DataItem EditableDataLayout::item() const
 	return items;
 }
 
-QWidget *EditableDataLayout::getEditableWidget(const DataItem &item)
+QWidget *EditableDataLayout::getWidget(const DataItem &item)
 {
-	return getWidget(item);
+	return getWidgetHelper(item);
 }
 
 }

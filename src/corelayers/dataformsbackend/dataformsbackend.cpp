@@ -70,7 +70,7 @@ QWidget *DefaultDataFormsBackend::get(const DataItem &item, AbstractDataForm::St
 	if (item.isNull())
 		return 0;
 	if (!item.hasSubitems() && standartButtons == AbstractDataForm::NoButton && buttons.isEmpty())
-		return EditableDataLayout::getEditableWidget(item);
+		return EditableDataLayout::getWidget(item);
 	else
 		return new DefaultDataForm(item, standartButtons, buttons);
 }

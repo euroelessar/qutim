@@ -35,6 +35,7 @@
 #include <QWebElement>
 #include "chatsessionimpl_p.h"
 #include "javascriptclient.h"
+#include "chatforms/abstractchatform.h"
 
 namespace Core
 {
@@ -204,12 +205,14 @@ namespace Core
 					d->previous_sender.clear();
 					d->separator = true;
 				}
-			} else {
-				d->separator = false;
 			}
 			if(message.text().startsWith("/me ")) {
-				// FIXME we shouldn't copy data there
-				QString text = message.text();
+				// FIXME we shouldn't copy data there				
+				QString text = message.property("html").toString();
+				if (text.startsWith("/me ")) {
+					message.setProperty("html",text.mid(3));
+				}
+				text = message.text();
 				message.setText(text.mid(3));
 				item = d->chat_style_output->makeAction(this,message);
 				message.setText(text);
@@ -242,8 +245,17 @@ namespace Core
 
 			bool silent = message.property("silent", false);
 
-			if (qobject_cast<const Conference *>(message.chatUnit()))
+			if (qobject_cast<const Conference *>(message.chatUnit())) {
+				if (message.text().contains(d->chat_unit->account()->name())) {
+					AbstractChatForm *form = qobject_cast<AbstractChatForm*>(getService("ChatForm"));
+					if (form) { 
+						QWidget *w = form->chatWidget(this);
+						if (w)
+							w->raise();
+					}
+				}
 				silent = true;
+			}
 
 			if (!silent)
 				Notifications::sendNotification(message);
@@ -296,6 +308,8 @@ namespace Core
 			if (d->active == active)
 				return;
 			d->active = active;
+			if (!active)
+				d->separator = false;
 			emit activated(active);
 		}
 
