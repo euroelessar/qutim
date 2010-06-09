@@ -51,7 +51,7 @@ namespace Core
 			void contactDeleted(QObject *obj);
 			void contactStatusChanged(qutim_sdk_0_3::Status status);
 			void contactNameChanged(const QString &name);
-			void contactTagsChanged(const QSet<QString> &tags);
+			void contactTagsChanged(const QStringList &tags);
 			void onHideShowOffline();
 			void onFilterList(const QString &filter);
 			void onContactRenameAction();
