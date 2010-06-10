@@ -301,7 +301,7 @@ void Roster::handleUserOnline(IcqAccount *account, const SNAC &snac)
 		}
 		if (!codec)
 			codec = utf8Codec();
-		status.setText(codec->toUnicode(note_data));
+		status.setText(unescape(codec->toUnicode(note_data)));
 		debug() << "status note" << status.text();
 	}
 	// Updating capabilities

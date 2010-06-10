@@ -21,6 +21,7 @@
 #include "qutim/icon.h"
 #include <qutim/extensionicon.h>
 #include <qutim/statusactiongenerator.h>
+#include <qutim/message.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -297,10 +298,10 @@ void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const
 	QVariantHash extStatuses = status.property("extendedStatuses", QVariantHash());
 	QVariantHash extStatus;
 	extStatus.insert("id", QT_TRANSLATE_NOOP("XStatus", "X-Status").toString());
-	extStatus.insert("title", title);
+	extStatus.insert("title", unescape(title));
 	extStatus.insert("icon", QVariant::fromValue(icon));
 	if (!desc.isNull())
-		extStatus.insert("desc", desc);
+		extStatus.insert("desc", unescape(desc));
 	extStatuses.insert("xstatus", extStatus);
 	status.setProperty("extendedStatuses", extStatuses);
 	contact->setStatus(status);
