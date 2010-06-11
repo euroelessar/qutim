@@ -472,7 +472,7 @@ namespace Core
 				return;
 			bool show = isVisible(item_data->items.value(0));
 			QSet<QString> tags;
-			tags.fromList(tags_helper);
+			tags = QSet<QString>::fromList(tags_helper);
 			if(tags.isEmpty())
 				tags << QLatin1String("Default");
 			QSet<QString> to_add = tags - item_data->tags;
