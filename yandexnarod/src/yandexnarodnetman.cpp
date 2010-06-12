@@ -91,12 +91,13 @@ void YandexNarodNetMan::loadSettings() {
 }
 
 void YandexNarodNetMan::loadCookies() {
-	const ConfigGroup cookies = Config().group("yandex").group("cookies");
+	Config cookies = Config().group("yandex");
 	QNetworkCookieJar *netcookjar = m_networkManager->cookieJar();
 	QList<QNetworkCookie> cookieList;
-	for (int i = 0, size = cookies.arraySize(); i < size; i++) {
+	int count = cookies.beginArray("cookies");
+	for (int i = 0;i < count; i++) {
 		QNetworkCookie netcook;
-		const ConfigGroup cookie = cookies.at(i);
+		Config cookie = cookies.arrayElement(i);
 		netcook.setDomain(cookie.value("domain", QString()));
 		QString date = cookie.value("expirationDate", QString());
 		if (!date.isEmpty())
@@ -112,16 +113,16 @@ void YandexNarodNetMan::loadCookies() {
 }
 
 void YandexNarodNetMan::saveCookies() {
-	ConfigGroup group = Config().group("yandexnarod");
-	group.removeGroup("cookies");
-	ConfigGroup cookies = group.group("cookies");
+	Config group = Config().group("yandexnarod");
+	group.remove("cookies");
+	group.beginArray("cookies");
 
 	QNetworkCookieJar *netcookjar = m_networkManager->cookieJar();
 	int i = 0;
 	foreach (QNetworkCookie netcook, netcookjar->cookiesForUrl(QUrl("http://narod.yandex.ru"))) {
 		if (netcook.isSessionCookie())
 			continue;
-		ConfigGroup cookie = cookies.at(i++);
+		Config cookie = group.arrayElement(i++);
 		cookie.setValue("domain", netcook.domain());
 		cookie.setValue("expirationDate", netcook.expirationDate().toString(Qt::ISODate));
 		cookie.setValue("httpOnly", netcook.isHttpOnly());

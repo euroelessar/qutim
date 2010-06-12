@@ -25,8 +25,6 @@ YandexNarodSettings::YandexNarodSettings()
 	ui.setupUi(this);
 	ui.labelStatus->setText(NULL);
 
-	ui.labelAbout->setText(ui.labelAbout->text().replace("%VERSION%", VERSION));
-
 	connect(ui.btnTest, SIGNAL(clicked()), this,  SLOT(onTestClick()));
 
 	lookForWidgetState(ui.editLogin);
@@ -41,8 +39,8 @@ YandexNarodSettings::~YandexNarodSettings()
 
 void YandexNarodSettings::loadImpl()
 {
-	ConfigGroup group = Config().group("yandex");
-	ConfigGroup narod = group.group("narod");
+	Config group = Config().group("yandex");
+	Config narod = group.group("narod");
 	ui.editLogin->setText(group.value("login", QString()));
 	ui.editPasswd->setText(group.value("passwd", QString(), Config::Crypted));
 	ui.textTpl->setText(narod.value("template", QString("File sent: %N (%S bytes)\n%U")));
@@ -50,8 +48,8 @@ void YandexNarodSettings::loadImpl()
 
 void YandexNarodSettings::saveImpl()
 {
-	ConfigGroup group = Config().group("yandex");
-	ConfigGroup narod = group.group("narod");
+	Config group = Config().group("yandex");
+	Config narod = group.group("narod");
 	group.setValue("login", ui.editLogin->text());
 	group.setValue("passwd", ui.editPasswd->text(), Config::Crypted);
 	narod.setValue("template", ui.textTpl->toPlainText());

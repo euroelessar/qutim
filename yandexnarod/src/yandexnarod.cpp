@@ -22,7 +22,6 @@
 #include <qutim/message.h>
 #include <qutim/account.h>
 #include <qutim/settingslayer.h>
-#include <qutim/contactlist.h>
 #include <qutim/configbase.h>
 #include <qutim/debug.h>
 
@@ -32,6 +31,16 @@ void YandexNarodPlugin::init()
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Yandex Narod"),
 			QT_TRANSLATE_NOOP("Plugin", "Send files via Yandex.Narod filehosting service"),
 			PLUGIN_VERSION(0, 2, 0, 0));
+	addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
+			  QT_TRANSLATE_NOOP("Task","Developer"),
+			  QLatin1String("sauron@citadelspb.com"),
+			  QLatin1String("sauron.me"));
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
+			  QT_TRANSLATE_NOOP("Task", "Developer"),
+			  QLatin1String("euroelessar@gmail.com"));
+	addAuthor(QT_TRANSLATE_NOOP("Author","Alexander Kazarin"),
+			  QT_TRANSLATE_NOOP("Task","Author"),
+			  QLatin1String("boiler@co.ru"));
 }
 
 bool YandexNarodPlugin::load()
@@ -58,7 +67,6 @@ bool YandexNarodPlugin::load()
 	connect(m_authorizator, SIGNAL(needSaveCookies()), SLOT(saveCookies()));
 	connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(saveCookies()));
 
-	new YandexNarodUploadDialog(m_networkManager, m_authorizator);
 	return true;
 }
 
@@ -69,12 +77,13 @@ bool YandexNarodPlugin::unload()
 
 void YandexNarodPlugin::loadCookies()
 {
-	const ConfigGroup cookies = Config().group("yandex").group("cookies");
+	Config cookies = Config().group("yandex");
 	QNetworkCookieJar *cookieJar = m_networkManager->cookieJar();
 	QList<QNetworkCookie> cookieList;
-	for (int i = 0, size = cookies.arraySize(); i < size; i++) {
+	int count = cookies.beginArray("cookies");
+	for (int i = 0; i < count; i++) {
 		QNetworkCookie netcook;
-		const ConfigGroup cookie = cookies.at(i);
+		const Config cookie = cookies.arrayElement(i);
 		netcook.setDomain(cookie.value("domain", QString()));
 		QString date = cookie.value("expirationDate", QString());
 		if (!date.isEmpty())
@@ -94,16 +103,16 @@ void YandexNarodPlugin::loadCookies()
 
 void YandexNarodPlugin::saveCookies()
 {
-	ConfigGroup group = Config().group("yandex");
-	group.removeGroup("cookies");
-	ConfigGroup cookies = group.group("cookies");
+	Config cookies = Config().group("yandex");
+	cookies.remove("cookies");
+	cookies.beginArray("cookies");
 
 	QNetworkCookieJar *cookieJar = m_networkManager->cookieJar();
 	int i = 0;
 	foreach (QNetworkCookie netcook, cookieJar->cookiesForUrl(QUrl("http://narod.yandex.ru"))) {
 		if (netcook.isSessionCookie())
 			continue;
-		ConfigGroup cookie = cookies.at(i++);
+		ConfigGroup cookie = cookies.arrayElement(i++);
 		cookie.setValue("domain", netcook.domain());
 		cookie.setValue("expirationDate", netcook.expirationDate().toString(Qt::ISODate));
 		cookie.setValue("httpOnly", netcook.isHttpOnly());
@@ -112,7 +121,7 @@ void YandexNarodPlugin::saveCookies()
 		cookie.setValue("path", netcook.path());
 		cookie.setValue("value", netcook.value(), Config::Crypted);
 	}
-	group.sync();
+	cookies.sync();
 }
 
 void YandexNarodPlugin::onActionClicked()
