@@ -101,15 +101,13 @@ namespace Core
 
 					if (m_show_flags & ShowExtendedStatusIcons)
 					{
-						QVariantHash extStatuses = status.property("extendedStatuses", QVariantHash());
+						QVariantHash extStatuses = status.extendedStatuses();
 
-						QVariantHash::const_iterator it;
 						foreach (const QVariant &data, extStatuses)
 						{
 							ExtensionIcon ext_icon = data.value<QVariantHash>().value("icon").value<ExtensionIcon>();
 							QIcon icon = ext_icon.toIcon();
 							if (!icon.isNull()) {
-								debug() << "draw icon" << ext_icon.name();
 								icon.paint(painter,
 										   option.rect.left() + m_horizontal_padding,
 										   option.rect.top() + m_vertical_padding,

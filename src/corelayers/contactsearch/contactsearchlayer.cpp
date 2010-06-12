@@ -266,7 +266,7 @@ ContactSearch::ContactSearch()
 		static QScopedPointer<ActionGenerator> button(new ActionGenerator(Icon("edit-find-contact"),
 										QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
 										this, SLOT(show())));
-		QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, button.data()));
+		//QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, button.data()));
 		MenuController *controller = qobject_cast<MenuController*>(contactList);
 		if (controller)
 			controller->addAction(button.data());

@@ -33,6 +33,7 @@ namespace qutim_sdk_0_3
 		QIcon icon;
 		Status::Type type;
 		int subtype;
+		QVariantHash extStatuses;
 
 		QVariant getText() const { return text; }
 		void setText(const QVariant &val) { text = val.toString(); }
@@ -44,6 +45,8 @@ namespace qutim_sdk_0_3
 		void setType(const QVariant &val) { subtype = static_cast<Status::Type>(val.toInt()); }
 		QVariant getSubtype() const { return type; }
 		void setSubtype(const QVariant &val) { subtype = val.toInt(); }
+		QVariant getExtendedStatuses() const { return extStatuses; }
+		void setExtendedStatuses(const QVariant &val) { extStatuses = val.toHash(); }
 
 		void generateName();
 	};
@@ -80,19 +83,22 @@ namespace qutim_sdk_0_3
 										 << "name"
 										 << "icon"
 										 << "type"
-										 << "subtype";
+										 << "subtype"
+										 << "extendedStatuses";
 		static QList<Getter> getters   = QList<Getter>()
 										 << static_cast<Getter>(&StatusPrivate::getText)
 										 << static_cast<Getter>(&StatusPrivate::getName)
 										 << static_cast<Getter>(&StatusPrivate::getIcon)
 										 << static_cast<Getter>(&StatusPrivate::getType)
-										 << static_cast<Getter>(&StatusPrivate::getSubtype);
+										 << static_cast<Getter>(&StatusPrivate::getSubtype)
+										 << static_cast<Getter>(&StatusPrivate::getExtendedStatuses);
 		static QList<Setter> setters   = QList<Setter>()
 										 << static_cast<Setter>(&StatusPrivate::setText)
 										 << static_cast<Setter>(&StatusPrivate::setName)
 										 << static_cast<Setter>(&StatusPrivate::setIcon)
 										 << static_cast<Setter>(&StatusPrivate::setType)
-										 << static_cast<Setter>(&StatusPrivate::setSubtype);
+										 << static_cast<Setter>(&StatusPrivate::setSubtype)
+										 << static_cast<Setter>(&StatusPrivate::setExtendedStatuses);
 	}
 
 	void StatusPrivate::generateName()
@@ -288,6 +294,22 @@ namespace qutim_sdk_0_3
 		statusHash()->insert(key, status);
 		return true;
 	}
+
+	void Status::setExtendedStatus(const QString &name, const QVariantMap &status)
+	{
+		d->extStatuses.insert(name,status);
+	}
+
+	void Status::removeExtendedStatus(const QString &name)
+	{
+		d->extStatuses.remove(name);
+	}
+
+	QVariantHash Status::extendedStatuses() const
+	{
+		return d->extStatuses;
+	}
+
 }
 
 QDebug operator<<(QDebug dbg, qutim_sdk_0_3::Status::Type status)
