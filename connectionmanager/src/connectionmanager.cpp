@@ -3,6 +3,9 @@
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 #include <qutim/debug.h>
+#include <qutim/settingslayer.h>
+#include "managersettings.h"
+#include <qutim/icon.h>
 
 namespace ConnectionManager
 {
@@ -50,11 +53,14 @@ namespace ConnectionManager
 	bool ConnectionManager::load()
 	{
 		foreach (Protocol *protocol,allProtocols()) {
-			debug() << "protocol" << protocol->id();
 			connect(protocol,
 					SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 					SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 		}
+
+		GeneralSettingsItem<ManagerSettings> *item = new GeneralSettingsItem<ManagerSettings>(Settings::Plugin, Icon("network-wireless"), QT_TRANSLATE_NOOP("Settings","Connection manager"));
+		Settings::registerItem(item);
+
 		return true;
 	}
 
@@ -65,7 +71,6 @@ namespace ConnectionManager
 
 	void ConnectionManager::onOnlineStateChanged(bool isOnline)
 	{
-		debug() << "onlineStateChanged" << isOnline;
 		foreach (Protocol *protocol,allProtocols()) {
 			foreach (Account *account,protocol->accounts())
 				changeState(account,isOnline);
