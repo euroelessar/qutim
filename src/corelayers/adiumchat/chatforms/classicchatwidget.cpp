@@ -254,6 +254,8 @@ namespace Core
 			if ((m_chatFlags & ShowUnreadMessages) && !session->unread().isEmpty()) {
 				session->markRead();
 			}
+
+			ui->chatEdit->setFocus(Qt::ActiveWindowFocusReason);
 		}
 
 		void ClassicChatWidget::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
