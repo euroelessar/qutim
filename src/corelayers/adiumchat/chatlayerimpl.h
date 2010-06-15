@@ -39,7 +39,7 @@ namespace Core
 			ChatLayerImpl();
 			virtual ~ChatLayerImpl();
 			virtual ChatSession* getSession(ChatUnit* unit, bool create = true);
-			static QIcon iconForState(ChatState state);
+			static QIcon iconForState(ChatState state, const ChatUnit *unit = 0);
 		private slots:
 			void onChatSessionDestroyed(QObject *object);
 			void onChatSessionActivated(bool activated);

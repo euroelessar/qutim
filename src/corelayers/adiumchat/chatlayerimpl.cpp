@@ -108,8 +108,12 @@ namespace Core
 		{
 		}
 
-		QIcon ChatLayerImpl::iconForState(ChatState state)
+		QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 		{
+			if (qobject_cast<const Conference *>(unit)) {
+				return Icon("meeting-attending");
+			}
+
 			QString icon_name;
 			switch (state) {
 				//FIXME icon names

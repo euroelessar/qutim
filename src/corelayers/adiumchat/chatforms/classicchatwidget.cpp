@@ -114,7 +114,7 @@ namespace Core
 			QIcon icon;
 			if (m_chatFlags & ChatStateIconsOnTabs) {
 				ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
-				icon =  ChatLayerImpl::iconForState(state);
+				icon =  ChatLayerImpl::iconForState(state,session->getUnit());
 			}
 
 			ui->tabBar->addTab(icon,u->title());
@@ -266,7 +266,7 @@ namespace Core
 				return;
 			if (unread.isEmpty()) {
 				ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
-				QIcon icon =  ChatLayerImpl::iconForState(state);
+				QIcon icon =  ChatLayerImpl::iconForState(state,session->getUnit());
 				ui->tabBar->setTabIcon(index, icon);
 			} else if (m_chatFlags & ShowUnreadMessages) {
 				ui->tabBar->setTabIcon(index, Icon("mail-unread-new"));
@@ -281,7 +281,7 @@ namespace Core
 
 			if (m_chatFlags & ChatStateIconsOnTabs) {
 				if (!session->unread().count()) {
-					QIcon icon =  ChatLayerImpl::iconForState(state);
+					QIcon icon =  ChatLayerImpl::iconForState(state,session->getUnit());
 					ui->tabBar->setTabIcon(index,icon);
 					ui->tabButton->actions().at(index)->setIcon(icon);
 				}
