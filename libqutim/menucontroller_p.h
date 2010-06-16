@@ -64,6 +64,7 @@ namespace qutim_sdk_0_3
 		void onAboutToHide();
 	private:
 		const MenuControllerPrivate * const m_d;
+		bool m_showed;
 	};
 }
 

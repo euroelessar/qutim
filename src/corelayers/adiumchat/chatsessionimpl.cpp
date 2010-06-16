@@ -253,7 +253,7 @@ namespace Core
 					if (form) {
 						QWidget *widget = form->chatWidget(this);
 						if (widget) {
-							widget->raise();
+							widget->activateWindow();
 						}
 					}
 				}

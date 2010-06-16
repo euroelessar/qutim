@@ -84,6 +84,7 @@ namespace Core
 			m_toolbar = new ActionToolBar();
 			addToolBar(Qt::TopToolBarArea,m_toolbar);
 			m_toolbar->setMovable(false);
+			m_toolbar->setWindowTitle(tr("Chat actions"));
 			setUnifiedTitleAndToolBarOnMac(true);
 
 			//init toolbar

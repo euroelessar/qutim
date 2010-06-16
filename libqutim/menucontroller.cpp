@@ -109,7 +109,7 @@ namespace qutim_sdk_0_3
 	}
 
 	DynamicMenu::DynamicMenu(const MenuControllerPrivate *d) :
-			m_d(d)
+			m_d(d),m_showed(false)
 	{
 		connect(this, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
 		connect(this, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
@@ -118,7 +118,7 @@ namespace qutim_sdk_0_3
 	void DynamicMenu::onAboutToShow()
 	{
 		QList<ActionInfo> actions = m_d->allActions();
-		if (actions.isEmpty())
+		if (actions.isEmpty() || m_showed)
 			return;
 		qSort(actions.begin(), actions.end(), actionLessThan);
 		int lastType = actions[0].gen->type();
@@ -141,16 +141,20 @@ namespace qutim_sdk_0_3
 				currentEntry->menu->addAction(action);
 			}
 		}
+		m_showed = true;
 	}
 
 	void DynamicMenu::onAboutToHide()
 	{
+		if (!m_showed)
+			return;
 		qDeleteAll(m_d->temporary);
 		m_d->temporary.clear();
 		foreach (QAction *action, actions()) {
 			action->deleteLater();
 			removeAction(action);
 		}
+		m_showed = false;
 	}
 
 	QMenu *MenuController::menu(bool deleteOnClose) const
