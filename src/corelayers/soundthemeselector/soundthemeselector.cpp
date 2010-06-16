@@ -107,7 +107,7 @@ namespace Core
 			item->setIcon(Icon("media-playback-start"));
 			item->setToolTip(QT_TRANSLATE_NOOP("SoundTheme","Play"));
 			item->setEnabled(!theme.path(type).isNull());
-			item->setData(Qt::UserRole,type);
+			item->setData(type,Qt::UserRole);
 			items << item;
 
 			m_model->appendRow(items);
@@ -117,9 +117,10 @@ namespace Core
 
 	void SoundThemeSelector::onClicked(const QModelIndex &index)
 	{
-		if (!index.data(Qt::ItemIsEnabled).toBool())
+		if ((index.column() != 2) || !index.data(Qt::ItemIsEnabled).toBool())
 			return;
 		int type = index.data(Qt::UserRole).value<int>();
+
 		if (type) {
 			SoundTheme theme =  Sound::theme(ui->themeSelector->currentText());
 			theme.play(static_cast<Notifications::Type>(type));
