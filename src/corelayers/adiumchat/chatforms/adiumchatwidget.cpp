@@ -58,6 +58,10 @@ namespace Core
 			//init tabbar
 #if !defined(Q_WS_MAC)
 			ui->tabBar->setTabsClosable(true);
+#else
+			centralWidget()->layout()->setMargin(0);
+			centralWidget()->layout()->setSpacing(0);
+			ui->tabBar->setDrawBase(false);
 #endif
 			ui->tabBar->setMovable(true);
 			//		ui->tabBar->setDocumentMode(true);
