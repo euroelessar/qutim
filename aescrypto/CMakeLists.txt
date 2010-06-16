@@ -1,0 +1,25 @@
+CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
+PROJECT( AesCryptoService )
+
+set(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")
+if(QUTIM_PATH)
+    set(QUTIM_INCLUDE_DIRS ${QUTIM_PATH}/libqutim/include)
+    set(QUTIM_LIBRARY_DIR ${QUTIM_PATH}/libqutim/)
+    set(QUTIM_CMAKE_PLUGIN ${QUTIM_PATH}/cmake/QutimPlugin.cmake)
+else(QUTIM_PATH)
+    set(QUTIM_CMAKE_PLUGIN ${CMAKE_ROOT}/Modules/QutimPlugin.cmake)
+endif(QUTIM_PATH)
+
+SET(QT_MIN_VERSION "4.6.0")
+SET( QT_USE_QTNETWORK TRUE )
+
+LIST (APPEND CMAKE_MODULE_PATH "cmake")
+LIST (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+FIND_PACKAGE (QCA2 REQUIRED)
+
+include( ${QUTIM_CMAKE_PLUGIN} )
+
+include_directories(${QCA2_INCLUDE_DIR})
+
+ADD_QUTIMPLUGIN( "aescryptosercive" "src" "" "${QCA2_LIBRARIES}")

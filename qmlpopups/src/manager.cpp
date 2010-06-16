@@ -26,7 +26,7 @@
 
 namespace QmlPopups
 {
-// the universe's only Notification manager
+	// the universe's only Notification manager
 	Manager *Manager::instance = 0;
 
 	Manager::Manager()

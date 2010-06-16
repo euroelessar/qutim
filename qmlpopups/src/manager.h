@@ -32,13 +32,13 @@ namespace QmlPopups
 		NoAnimation = 0x0,
 		Slide = 0x1,
 		Opacity = 0x2
-	};
+			  };
 	Q_DECLARE_FLAGS (AnimationFlags, AnimationFlag)
 	class Manager
 	{
 		Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
 	public:
-		Manager();
+				Manager();
 		Popup *getById (const QString &id) const;
 		Popup *getByNumber (const int &number) const;
 		void loadSettings();

@@ -24,11 +24,11 @@ namespace QmlPopups
     class Popup;
     class Backend : public PopupBackend
     {
-	Q_OBJECT
+		Q_OBJECT
     public:
-	virtual void show(Notifications::Type type, QObject* sender,
-			  const QString& body, const QVariant& data);
-	Backend ();
+		virtual void show(Notifications::Type type, QObject* sender,
+						  const QString& body, const QVariant& data);
+		Backend ();
     };
 
 }

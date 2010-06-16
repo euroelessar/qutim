@@ -1,7 +1,6 @@
 #include "qmlpopups.h"
 #include <qutim/debug.h>
 #include "backend.h"
-#include "settings/popupbehavior.h"
 #include "settings/popupappearance.h"
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
@@ -20,8 +19,6 @@ namespace QmlPopups
 
 	bool QmlPopupsPlugin::load()
 	{
-		GeneralSettingsItem<PopupBehavior> *behavior = new GeneralSettingsItem<PopupBehavior>(Settings::General,Icon("dialog-information"),QT_TRANSLATE_NOOP("Settings","Notifications"));
-		Settings::registerItem(behavior);
 		GeneralSettingsItem<PopupAppearance> *appearance = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
 		Settings::registerItem(appearance);
 		return true;
