@@ -12,7 +12,7 @@ namespace QmlPopups
 		Preview = 0x1,
 		AeroBackground = 0x2,
 		Transparent = 0x4,
-		AeroBlurBehind = 0x6,
+		AeroBlurBehind = 0x8
     };
     Q_DECLARE_FLAGS(PopupWidgetFlags,PopupWidgetFlag)
 
@@ -28,6 +28,7 @@ namespace QmlPopups
 					 const QString& body,
 					 QObject *sender,
 					 const QVariant &data); //size of textbrowser
+		Q_INVOKABLE QString parseEmoticons(const QString &text); //wrapper for qml
     public slots:
 		void accept();
 		void ignore();

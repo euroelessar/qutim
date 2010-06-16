@@ -10,6 +10,7 @@
 #include <qutim/messagesession.h>
 #include <QMouseEvent>
 #include <qutim/qtwin.h>
+#include <qutim/emoticons.h>
 #include "manager.h"
 
 namespace QmlPopups {
@@ -89,6 +90,7 @@ namespace QmlPopups {
 		m_data = data;
 
 		QDeclarativeContext *context = rootContext();
+
 		context->setContextProperty("popupTitle",title);
 		context->setContextProperty("popupBody",body);
 		QString image_path = sender ? sender->property("avatar").toString() : QString();
@@ -122,6 +124,11 @@ namespace QmlPopups {
 		}
 		emit activated();
     }
+
+	QString PopupWidget::parseEmoticons(const QString &text)
+	{
+		return Emoticons::theme().parseEmoticons(text);
+	}
 
 
 }

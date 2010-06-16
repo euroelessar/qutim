@@ -118,7 +118,7 @@ namespace QmlPopups
 
 	void Manager::loadSettings()
 	{
-		ConfigGroup behavior = Config("behavior/notifications").group("popups");
+		Config behavior = Config("behavior/notifications").group("popups");
 		themeName = behavior.value<QString>("themeName","default");
 		updatePosition = behavior.value<bool>("updatePosition",true);
 		animation = static_cast<AnimationFlags>(behavior.value<int>("animationFlags",Opacity));
@@ -129,10 +129,10 @@ namespace QmlPopups
 		appendMode = behavior.value<bool>("appendMode",true);
 		updateMode = behavior.value<bool>("updateMode",false);
 		animationDuration = behavior.value("animationDuration",600);
-		showFlags = static_cast<NotificationTypes>(behavior.value("showFlags", 0xfffffff));
+		showFlags = static_cast<NotificationTypes>(behavior.value("showFlags", 0xfffffff &~ Notifications::MessageSend));
 		margin = behavior.value("margin",20);
 
-		ConfigGroup general = Config("appearance/qmlpopups").group("general");
+		Config general = Config("appearance/qmlpopups").group("general");
 		themeName = general.value<QString>("themeName","default");
 	}
 

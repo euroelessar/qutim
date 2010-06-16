@@ -23,13 +23,17 @@
 #include <qutim/message.h>
 #include <qutim/chatunit.h>
 #include  <QTextDocument>
+#include "settings/popupappearance.h"
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
 
 namespace QmlPopups
 {
 
     Backend::Backend ()
     {
-		debug() << "backend inited";
+		GeneralSettingsItem<PopupAppearance> *appearance = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
+		Settings::registerItem(appearance);
     }
 
     void Backend::show(Notifications::Type type, QObject* sender, const QString& body,
