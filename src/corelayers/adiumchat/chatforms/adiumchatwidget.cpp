@@ -61,10 +61,9 @@ namespace Core
 #else
 			centralWidget()->layout()->setMargin(0);
 			centralWidget()->layout()->setSpacing(0);
-			ui->tabBar->setDrawBase(false);
+			//ui->tabBar->setDrawBase(false);
 #endif
 			ui->tabBar->setMovable(true);
-			//		ui->tabBar->setDocumentMode(true);
 			ui->tabBar->setShape(QTabBar::RoundedSouth);
 			ui->tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 			ui->contactsView->hide();

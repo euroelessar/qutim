@@ -78,7 +78,11 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QListView" name="contactsView"/>
+      <widget class="QListView" name="contactsView">
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+      </widget>
      </widget>
     </item>
     <item row="1" column="0">
