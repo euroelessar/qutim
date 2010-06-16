@@ -35,5 +35,12 @@ int main(int argc, char *argv[])
 
 	Core::ModuleManagerImpl core_init;
 
+	// At first time use current time with pointers to initiators
+	qsrand(uint(std::time(0)) ^ (qHash(&core_init) ^ (qHash(&app))));
+	// At second random value
+	qsrand(uint(qrand()));
+	// It looks like Qt doesn't always use srand as backend of qsrand
+	srand(uint(qrand()));
+
 	return app.exec();
 }

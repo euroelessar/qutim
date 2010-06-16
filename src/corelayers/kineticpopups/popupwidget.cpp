@@ -75,6 +75,8 @@ namespace KineticPopups
 
 	void PopupWidget::setData ( const QString& title, const QString& body, QObject *sender,const QVariant &data)
 	{
+		Manager *manager = Manager::self();
+
 		m_sender = sender;
 		m_data = data;
 
@@ -85,9 +87,12 @@ namespace KineticPopups
 		if(image_path.isEmpty())
 			image_path = QLatin1String(":/icons/qutim_64");
 		QString popup_data = popup_settings.content;
-		QString text = Emoticons::theme().parseEmoticons(Qt::escape(body));
-		if (text.length() > Manager::self()->maxTextLength) {
-			text.truncate(Manager::self()->maxTextLength);
+		QString text = Qt::escape(body);
+		if (manager->parseEmoticons)
+			text = Emoticons::theme().parseEmoticons(text);
+
+		if (text.length() > manager->maxTextLength) {
+			text.truncate(manager->maxTextLength);
 			text.append("...");
 		}
 		popup_data.replace ( "{title}", popup_title );
@@ -96,8 +101,6 @@ namespace KineticPopups
 		document()->setTextWidth(popup_settings.defaultSize.width());
 		document()->setHtml(popup_data);
 		emit sizeChanged(sizeHint());
-		
-		Manager *manager = Manager::self();
 		
 		if (manager->timeout > 0) {
 			if (m_timer.isActive())

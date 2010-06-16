@@ -114,11 +114,11 @@ namespace KineticPopups
 
 	void Manager::loadSettings()
 	{
-		ConfigGroup general = Config("appearance/kineticpopups").group("general");
+		Config general = Config("appearance/kineticpopups").group("general");
 		QString theme_name = general.value<QString>("themeName","default");
 		loadTheme(theme_name);
 		
-		ConfigGroup behavior = Config("behavior/notifications").group("popups");
+		Config behavior = Config("behavior/notifications").group("popups");
 		maxCount = behavior.value<int>("maxCount",10);
 		maxTextLength = behavior.value<int>("maxTextLength",160);
 		appendMode = behavior.value<bool>("appendMode",true);
@@ -129,6 +129,7 @@ namespace KineticPopups
 		animation = animationDuration ? behavior.value("animationFlags", Opacity) : NoAnimation;
 		timeout = behavior.value<int>("timeout",5000);
 		easingCurve.setType(behavior.value("easingCurve",QEasingCurve::OutSine));
+		parseEmoticons = behavior.value("parseEmoticons",false);
 	}
 
 	void Manager::loadTheme(const QString& themeName)

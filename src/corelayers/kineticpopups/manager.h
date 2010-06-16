@@ -59,6 +59,7 @@ namespace KineticPopups
 		int maxCount;
 		int maxTextLength;
 		ThemeHelper::PopupSettings popupSettings;
+		bool parseEmoticons;
 	private:
 		QList<Popup *> active_notifications;
 		static Manager *instance;

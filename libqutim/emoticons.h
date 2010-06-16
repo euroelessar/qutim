@@ -32,7 +32,7 @@ namespace qutim_sdk_0_3
 		enum ParseModeFlag
 		{
 			DefaultParse = 0,
-			StrictParse  = 0x01
+			StrictParse  = 0x01,
 		};
 		Q_DECLARE_FLAGS(ParseMode, ParseModeFlag)
 
