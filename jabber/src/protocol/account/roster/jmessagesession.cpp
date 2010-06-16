@@ -107,7 +107,7 @@ namespace Jabber
 	};
 
 	JMessageSession::JMessageSession(JMessageHandler *handler, ChatUnit *unit, gloox::MessageSession *session)
-			: ChatUnit(handler->account()), d_ptr(new JMessageSessionPrivate)
+			: Buddy(handler->account()), d_ptr(new JMessageSessionPrivate)
 	{
 		Q_D(JMessageSession);
 		d->account = handler->account();
@@ -124,7 +124,7 @@ namespace Jabber
 	}
 
 	JMessageSession::JMessageSession(ChatUnit *unit) :
-			ChatUnit(unit->account()), d_ptr(new JMessageSessionPrivate)
+			Buddy(unit->account()), d_ptr(new JMessageSessionPrivate)
 	{
 		Q_D(JMessageSession);
 		d->account = static_cast<JAccount *>(unit->account());
@@ -157,7 +157,7 @@ namespace Jabber
 		Q_D(const JMessageSession);
 		return d->unit ? d->unit->title() : id();
 	}
-	
+
 	gloox::MessageSession *JMessageSession::session()
 	{
 		return d_func()->session;

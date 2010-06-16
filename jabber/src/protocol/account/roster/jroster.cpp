@@ -46,8 +46,11 @@ namespace Jabber
 		if (!resourceId.isEmpty()) {
 			if (!contact) {
 				if (create) {
-					// TODO: implement logic
-					return 0;
+					contact = new JContact(id,p->account);
+					p->contacts.insert(id,contact);
+					contact->setContactInList(false);
+					emit p->account->contactCreated(contact);
+					return contact;
 				} else {
 					return 0;
 				}
@@ -55,14 +58,16 @@ namespace Jabber
 			if (JContactResource *resource = contact->resource(resourceId))
 				return resource;
 			if (create) {
-				// TODO: implement logic
-				return 0;
+				return contact;
 			}
 		} else if (contact) {
 			return contact;
 		} else if (create) {
-			// TODO: implement logic
-			return 0;
+			contact = new JContact(id,p->account);
+			p->contacts.insert(id,contact);
+			contact->setContactInList(false);
+			emit p->account->contactCreated(contact);
+			return contact;
 		}
 		return 0;
 	}

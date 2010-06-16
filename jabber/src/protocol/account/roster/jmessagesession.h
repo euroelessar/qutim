@@ -1,7 +1,7 @@
 #ifndef JMESSAGESESSION_H
 #define JMESSAGESESSION_H
 
-#include <qutim/chatunit.h>
+#include <qutim/buddy.h>
 #include <gloox/messagesession.h>
 #include <gloox/messagehandler.h>
 #include <gloox/chatstatehandler.h>
@@ -12,7 +12,7 @@ namespace Jabber
 	class JMessageHandler;
 
 	class JMessageSession
-			: public qutim_sdk_0_3::ChatUnit,
+			: public qutim_sdk_0_3::Buddy,
 			public gloox::MessageHandler,
 			public gloox::ChatStateHandler
 	{
