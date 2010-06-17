@@ -293,7 +293,8 @@ namespace Jabber
 
 	void JServiceBrowser::showFeatures()
 	{
-		QTreeWidgetItem *item = p->ui->serviceTree->selectedItems().first();
+		QTreeWidgetItem *item = !p->ui->serviceTree->selectedItems().isEmpty()
+				? p->ui->serviceTree->selectedItems().first() : 0;
 		if (!item)
 			return;
 		JDiscoItem di = item->data(0, Qt::UserRole+1).value<JDiscoItem>();
