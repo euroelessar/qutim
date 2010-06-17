@@ -29,6 +29,7 @@
 #include <libqutim/notificationslayer.h>
 #include <libqutim/account.h>
 #include <libqutim/status.h>
+#include <libqutim/debug.h>
 
 #ifdef Q_WS_X11
 # include <QX11Info>
@@ -240,7 +241,8 @@ namespace Core
 						buddy->showMenu(menuEvent->globalPos());
 				}
 			} else if (meta == &ChatSessionImpl::staticMetaObject) {
-				if (event->type() == ChatStateEvent::eventType()) {
+				if (event->type() == ChatStateEvent::eventType()) {					
+					debug() << "chat state changed";
 					ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(event);
 					chatStateChanged(chatEvent->chatState(), qobject_cast<ChatSessionImpl *>(obj));
 				}

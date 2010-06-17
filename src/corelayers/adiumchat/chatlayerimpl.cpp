@@ -111,7 +111,7 @@ namespace Core
 		QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 		{
 			if (qobject_cast<const Conference *>(unit)) {
-				return Icon("meeting-attending");
+				return Icon("im-user"); //TODO find icon
 			}
 
 			QString icon_name;

@@ -37,7 +37,7 @@ class ChatSessionModel;
 			virtual ~ChatSessionImplPrivate();
 			void loadHistory();
 			ChatStyleOutput *chat_style_output;
-			void statusChanged(Contact *contact, bool silent = false);
+			void statusChanged(const Status &status,Contact *contact, bool silent = false);
 			QPointer<QWebPage> web_page;
 			QPointer<ChatUnit> chat_unit;
 			QPointer<QTextDocument> input;
@@ -55,6 +55,7 @@ class ChatSessionModel;
 			MessageList unread;
 			ChatState myself_chat_state;
 			ChatSessionImpl *q_ptr;
+			ChatState statusToState(Status::Type type);
 		public slots:
 			void onStatusChanged(qutim_sdk_0_3::Status);
 			void onLinkClicked(const QUrl &url);

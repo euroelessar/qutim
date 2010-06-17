@@ -80,14 +80,16 @@ namespace Core
 
 			d->loadHistory();
 
-			if (Contact *c = qobject_cast<Contact *>(unit))
-				d->statusChanged(c,true);
+			if (Contact *c = qobject_cast<Contact *>(unit)) {
+				d->statusChanged(c->status(),c,true);
+				setProperty("currentChatState",d->statusToState(c->status().type()));
+			}
 			else {
 				//if you create a session, it is likely that the chat state is active
 				setProperty("currentChatState",static_cast<int>(ChatStateActive));
+				setChatState(ChatStateActive);
 			}
 
-			setChatState(ChatStateActive);
 			d->inactive_timer.setInterval(120000);
 			d->inactive_timer.setSingleShot(true);
 
@@ -345,36 +347,66 @@ namespace Core
 			Contact *contact = qobject_cast<Contact *>(sender());
 			if (!contact)
 				return;
-			statusChanged(contact,contact->property("silent").toBool());
+			statusChanged(status,contact,contact->property("silent").toBool());
 		}
 
-		void ChatSessionImplPrivate::statusChanged(Contact* contact, bool silent)
+		ChatState ChatSessionImplPrivate::statusToState(Status::Type type)
+		{
+			//TODO may be need to move to protocols?
+			switch(type) {
+				case Status::Offline: {
+					return ChatStateGone;
+					break;
+				}
+				case Status::NA: {
+					return ChatStateInActive;
+					break;
+				}
+				case Status::Away: {
+					return ChatStateInActive;
+					break;
+				}
+				case Status::DND: {
+					return ChatStateInActive;
+					break;
+				}
+				case Status::Online: {
+					return ChatStateActive;
+					break;
+				}
+				default: {
+					break;
+				}
+			}
+			//It is a good day to die!
+			return ChatStateActive;
+		}
+
+		void ChatSessionImplPrivate::statusChanged(const Status &status,Contact* contact, bool silent)
 		{
 			Q_Q(ChatSessionImpl);
 			Message msg;
-			Notifications::Type type = Notifications::Online;
+			Notifications::Type type = Notifications::StatusChange;
 			QString title = contact->status().name().toString();
 
-			switch (contact->status().type()) {
-			case Status::Online: {
-					ChatStateEvent ev (ChatStateActive);
-					setProperty("currentChatState",static_cast<int>(ChatStateActive));
-					qApp->sendEvent(this, &ev);
-					debug() << "State active";
-					break;
-				}
-			case Status::Offline: {
-					ChatStateEvent ev (ChatStateGone);
-					setProperty("currentChatState",static_cast<int>(ChatStateGone));
-					qApp->sendEvent(this, &ev);
+
+			switch(status.type()) {
+				case Status::Offline: {
 					type = Notifications::Offline;
 					break;
 				}
-			default:
-				type = Notifications::StatusChange;
-				//title = contact->status().property("title", QVariant()).toString();
-				break;
+				case Status::Online: {
+					type = Notifications::Online;
+					break;
+				}
+				default: {
+					break;
+				}
 			}
+
+			debug() << "chat state event sended";
+			ChatStateEvent ev(statusToState(status.type()));
+			qApp->sendEvent(q,&ev);
 
 			//title = title.isEmpty() ? contact->status().name().toString() : title;
 
