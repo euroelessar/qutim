@@ -33,7 +33,7 @@ namespace Jabber
 		if (m_useDns) { //FIX IT
 			static LogSink emptyLogSync;
 			DNS::HostMap hosts = DNS::resolve(m_server, emptyLogSync);
-			qutim_sdk_0_3::debug() << "server" << m_server;
+			qutim_sdk_0_3::debug() << "server" << QString::fromStdString(m_server);
 			DNS::HostMap::iterator h = hosts.begin();
 			for (; h!=hosts.end(); h++) {				
 				QString host = QString::fromStdString(h->first);
