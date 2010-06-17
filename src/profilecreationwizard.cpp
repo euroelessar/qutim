@@ -63,7 +63,7 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 	QString realId;
 	QString realName;
 	if (id.isEmpty()) {
-#if defined(Q_OS_UNIX)
+#if defined(Q_OS_UNIX) && !defined(Q_OS_SYMBIAN)
 		QT_TRY {
 			struct passwd *userInfo = getpwuid(getuid());
 			QTextCodec *codec = QTextCodec::codecForLocale();

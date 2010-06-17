@@ -353,11 +353,11 @@ namespace qutim_sdk_0_3
 //		}
 		d->os_name = "Symbian";
 		QFile modelFile;
-		modelFile.setFileName("z:\resource\versions\model.txt");
+		modelFile.setFileName("z:/resource/versions/model.txt");
 		if (modelFile.open(QFile::ReadOnly)) {
 			d->os_version = QString::fromUtf8(modelFile.readAll());
 		} else {
-			modelFile.setFileName("z:\resource\versions\model.txt");
+			modelFile.setFileName("z:/resource/versions/model.txt");
 			if (modelFile.open(QFile::ReadOnly)) {
 			}
 		}
