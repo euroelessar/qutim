@@ -1,4 +1,5 @@
 #include "jconnectionbase.h"
+#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -32,14 +33,17 @@ namespace Jabber
 		if (m_useDns) { //FIX IT
 			static LogSink emptyLogSync;
 			DNS::HostMap hosts = DNS::resolve(m_server, emptyLogSync);
+			qutim_sdk_0_3::debug() << "server" << m_server;
 			DNS::HostMap::iterator h = hosts.begin();
-			for (; h!=hosts.end(); h++) {
+			for (; h!=hosts.end(); h++) {				
 				QString host = QString::fromStdString(h->first);
+				qutim_sdk_0_3::debug() << "hosts" << host << h->second;
 				QString hostr = host;
 				hostr.remove(QRegExp("((\\w|-)+\\.)*(\\w|-)+"));
 				if (hostr.isEmpty() || !QHostAddress( host ).isNull()) {
 					m_server = host.toStdString();
 					m_port = h->second;
+					qutim_sdk_0_3::debug() << "resolved host" << host << h->second;
 					break;
 				}
 			}
