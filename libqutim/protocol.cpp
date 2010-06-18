@@ -82,4 +82,10 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(id);
 		Q_UNUSED(data);
 	}
+
+	QString Protocol::nameId()
+	{
+		QString id = "ID";
+		return id;
+	}
 }

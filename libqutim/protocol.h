@@ -52,6 +52,7 @@ namespace qutim_sdk_0_3
 		QString id() const;
 		virtual QList<Account *> accounts() const = 0;
 		virtual Account *account(const QString &id) const = 0;
+		virtual QString nameId();
 	signals:
 		void accountCreated(qutim_sdk_0_3::Account *);
 	protected:
