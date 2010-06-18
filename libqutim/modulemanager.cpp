@@ -39,6 +39,7 @@
 //Let's show message box with error
 #if	defined(Q_OS_SYMBIAN)
 #include <QMessageBox>
+#include <QLibraryInfo>
 #endif
 
 namespace qutim_sdk_0_3
@@ -198,6 +199,59 @@ namespace qutim_sdk_0_3
 	 */
 	void ModuleManager::loadPlugins(const QStringList &additional_paths)
 	{
+#if	defined(Q_OS_SYMBIAN)
+		//simple S60 plugins loader
+		QDir pluginsDir(QLibraryInfo::location(QLibraryInfo::PluginsPath));
+
+		// "qutim" is the folder where you are exported plugins
+		// by Qt macro Q_EXPORT_PLUGIN2(qutim, YourPlugin);
+		pluginsDir.cd("qutim");
+		p->extensions << coreExtensions();
+
+		foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+			// Create plugin loader
+			QPluginLoader* pluginLoader = new QPluginLoader(pluginsDir.absoluteFilePath(fileName));
+			// Load plugin
+			if (!pluginLoader->load()) {
+				QMessageBox msg;
+				msg.setText(tr("Could not load plugin: \n %1").arg(fileName));
+				msg.exec();
+				//continue;
+			}
+			else {
+				QMessageBox msg;
+				msg.setText(tr("Loaded plugin: \n %1").arg(fileName));
+				msg.exec();
+			}
+			// init plugin
+			QObject *object = pluginLoader->instance();
+			if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
+				plugin->info().data()->fileName = fileName;
+				plugin->init();
+				if (plugin->p->validate()) {
+					plugin->p->is_inited = true;
+					p->plugins.append(plugin);
+					p->extensions << plugin->avaiableExtensions();
+					QMessageBox msg;
+					msg.setText(tr("Inited plugin: \n %1").arg(fileName));
+					msg.exec();
+				} else {
+					delete object;
+				}
+			} else {
+				if (object)
+					delete object;
+				else {
+					qWarning("%s", qPrintable(pluginLoader->errorString()));
+					QMessageBox msg;
+					msg.setText(tr("Could not init plugin: \n %1").arg(pluginLoader->errorString()));
+					msg.exec();
+				}
+				pluginLoader->unload();
+			}
+		}
+
+#else
 		QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim", "qutimsettings");
 
 		QStringList paths = additional_paths;
@@ -229,12 +283,6 @@ namespace qutim_sdk_0_3
 		plugin_path += QDir::separator();
 		plugin_path += "plugins";
 		paths << plugin_path;
-		// 5. Symbian (ported from Nokia qutIM 0.2beta example for S60)
-		//TODO use more flexible variant?
-#if	defined(Q_OS_SYMBIAN)
-		paths << "c:/resource/qt/plugins/qutimplugins";
-		paths << "e:/resource/qt/plugins/qutimplugins";
-#endif
 		// 6. From config
 		QStringList config_paths = settings.value("General/libpaths", QStringList()).toStringList();
 		paths << config_paths;
@@ -263,11 +311,6 @@ namespace qutim_sdk_0_3
 						}
 					} else {
 						qDebug("%s", qPrintable(lib->errorString()));
-#if	defined(Q_OS_SYMBIAN)
-						QMessageBox msg;
-						msg.setText(tr("Library: %1").arg(lib->errorString()));
-						msg.exec();
-#endif
 						continue;
 					}
 				}
@@ -290,16 +333,14 @@ namespace qutim_sdk_0_3
 						delete object;
 					else {
 						qWarning("%s", qPrintable(loader->errorString()));
-#if	defined(Q_OS_SYMBIAN)
-						QMessageBox msg;
-						msg.setText(tr("Plugin: %1").arg(loader->errorString()));
-						msg.exec();
-#endif
 					}
 					loader->unload();
 				}
 			}
 		}
+
+#endif
+
 		foreach (const ExtensionInfo &info, p->extensions)
 			p->extensionsHash.insert(info.generator()->metaObject()->className(), info);
 	}
