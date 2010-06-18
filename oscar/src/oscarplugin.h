@@ -18,8 +18,6 @@
 #define OSCARPLUGIN_H
 
 #include <qutim/plugin.h>
-#include "ui/icqmainsettings.h"
-#include "qutim/settingslayer.h"
 
 namespace qutim_sdk_0_3 {
 

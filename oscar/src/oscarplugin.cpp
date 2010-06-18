@@ -26,6 +26,8 @@
 #include "contactsearch_p.h"
 #include <qutim/icon.h>
 #include <qutim/debug.h>
+#include "ui/icqmainsettings.h"
+#include <qutim/settingslayer.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -97,4 +99,4 @@ bool OscarPlugin::unload()
 
 } } // namespace qutim_sdk_0_3::oscar
 
-QUTIM_EXPORT_PLUGIN(qutim_sdk_0_3::oscar::OscarPlugin)
+QUTIM_EXPORT_PLUGIN2(oscar,qutim_sdk_0_3::oscar::OscarPlugin)
