@@ -1,5 +1,6 @@
 #include "jaccount.h"
 #include "roster/jroster.h"
+#include "roster/jcontact.h"
 #include "roster/jmessagehandler.h"
 #include "servicediscovery/jservicebrowser.h"
 #include "servicediscovery/jservicediscovery.h"
@@ -181,6 +182,17 @@ namespace Jabber {
 	void JAccount::setStatus(Status status)
 	{
 		beginChangeStatus(JProtocol::statusToPresence(status));
+	}
+
+	Contact *JAccount::getContact(const QString &id)
+	{
+		return new JContact(id, this);
+	}
+
+	void JAccount::addContact(Contact *contact)
+	{
+		debug() << "added contact to roster";
+		p->roster->addContact(static_cast<JContact *>(contact));
 	}
 
 	QString JAccount::getAvatarPath()

@@ -13,6 +13,7 @@ namespace Jabber
 	using namespace gloox;
 
 	class JAccount;
+	class JContact;
 	struct JRosterPrivate;
 
 	class JRoster : public QObject, public RosterListener, public PresenceHandler, public SubscriptionHandler
@@ -23,6 +24,7 @@ namespace Jabber
 			~JRoster();
 			ChatUnit *contact(const QString &jid, bool create = false);
 			void setOffline();
+			void addContact(JContact *contact);
 		protected:
 			void loadSettings();
 			void handleItemAdded(const JID &jid);

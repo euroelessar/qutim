@@ -23,7 +23,7 @@ namespace Jabber
 	};
 
 	JProtocol *JProtocol::self = 0;
-
+			
 	JProtocol::JProtocol() : p(new JProtocolPrivate)
 	{
 		Q_ASSERT(!self);
@@ -156,6 +156,12 @@ namespace Jabber
 		p->accounts->insert(account->id(), account);
 		if (isEmit)
 			emit accountCreated(account);
+	}
+	
+	QString JProtocol::nameId()
+	{
+		QString id = "Jabber ID";
+		return id;
 	}
 
 	Presence::PresenceType JProtocol::statusToPresence(const Status &status)

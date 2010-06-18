@@ -20,7 +20,7 @@ namespace Jabber {
 	class JMUCManager;
 
 	class JAccount : public Account
-	{
+ 	{
 		Q_OBJECT
 		public:
 			JAccount(const QString &jid);
@@ -43,12 +43,14 @@ namespace Jabber {
 			virtual void setStatus(Status status);
 			QString getAvatarPath();
 			void setAvatar(const QString &hex);
+			virtual Contact *getContact(const QString &id);
+			virtual void addContact(Contact *contact);
 		protected:
 			void loadSettings();
 		private:
 			friend class JRoster;
 			QScopedPointer<JAccountPrivate> p;
 	};
-} // Jabber namespace
+ } // Jabber namespace
 
 #endif // JACCOUNT_H
