@@ -2,8 +2,8 @@
 
 body {
 	direction: %messageDirection%;
-    /*background: url("Images/bg.gif") fixed;*/
-    background: #FFFFFF;
+	/*background: url("Images/bg.gif") fixed;*/
+	background: #FFFFFF;
 	font: 10pt Arial;
 }
 
@@ -15,8 +15,6 @@ a:link { color: #007fff; text-decoration: none;}
 a:visited { color: #eb3fa5; text-decoration: none;}
 a:hover { text-decoration: underline; }
 a:active { color: #6D98AB; text-decoration: none; }
-
-original { display:none; } 
 
 .inСontext,
 .inNextСontext,
@@ -33,15 +31,13 @@ original { display:none; }
 
 .inNextContentTime,
 .outNextContentTime{
-color: #464451;
+	color: #464451;
 }
-
-
 
 .inContentTime,
 .statusTime,
 .outContentTime   {
-color: black;
+	color: black;
 }
 .outAction,
 .inAction  {
