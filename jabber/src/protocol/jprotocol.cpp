@@ -158,7 +158,7 @@ namespace Jabber
 			emit accountCreated(account);
 	}
 	
-	QVariant JProtocol::data(Protocol::DataType type)
+	QVariant JProtocol::data(DataType type)
 	{
 		switch (type) {
 			case ProtocolIdName:

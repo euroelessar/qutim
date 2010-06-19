@@ -20,7 +20,7 @@ else (IDN_INCLUDEDIR AND IDN_LIBRARIES)
 		if(PKG_CONFIG_EXECUTABLE)
 			pkg_check_modules(IDN libidn)
 		endif(PKG_CONFIG_EXECUTABLE)
-	endif (NOT WIN32 NOT APPLE)
+	endif (NOT WIN32 AND NOT APPLE)
 
 	if(NOT IDN_FOUND)
 		find_path(IDN_INCLUDEDIR idna.h)
