@@ -158,10 +158,15 @@ namespace Jabber
 			emit accountCreated(account);
 	}
 	
-	QString JProtocol::nameId()
+	QVariant JProtocol::data(Protocol::DataType type)
 	{
-		QString id = "Jabber ID";
-		return id;
+		switch (type) {
+			case ProtocolIdName:
+				return "Jabber ID";
+				break;
+			default:
+				return QVariant();
+		}
 	}
 
 	Presence::PresenceType JProtocol::statusToPresence(const Status &status)

@@ -29,7 +29,7 @@ namespace Jabber
 			void addAccount(JAccount *account, bool isEmit = false);
 			static Presence::PresenceType statusToPresence(const Status &status);
 			static Status presenceToStatus(Presence::PresenceType presence);
-			virtual QString nameId();
+			virtual QVariant data(Protocol::DataType type);
 		private slots:
 			void onKickUser();
 			void onBanUser();
