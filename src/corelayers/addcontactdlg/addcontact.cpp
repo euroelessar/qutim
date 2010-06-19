@@ -49,16 +49,17 @@ namespace Core {
 		} else {
 			d->ui->stackedWidget->setCurrentIndex(0);
 			foreach (Protocol *protocol, allProtocols())
-				foreach (Account *acc, protocol->accounts()) {
-					d->accounts.insert(acc->id(), acc);
-					QToolButton *button = new QToolButton(d->ui->accountPage);
-					button->setText(acc->id());
-					QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-					button->setSizePolicy(sizePolicy);
-					button->setAutoRaise(true);
-					connect(button, SIGNAL(clicked()), this, SLOT(setAccount()));
-					d->ui->accountLayout->insertWidget(d->ui->accountLayout->count()-1, button);
-				}
+				if (!protocol->accounts().isEmpty())
+					foreach (Account *acc, protocol->accounts()) {
+						d->accounts.insert(acc->id(), acc);
+						QToolButton *button = new QToolButton(d->ui->accountPage);
+						button->setText(acc->id());
+						QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+						button->setSizePolicy(sizePolicy);
+						button->setAutoRaise(true);
+						connect(button, SIGNAL(clicked()), this, SLOT(setAccount()));
+						d->ui->accountLayout->insertWidget(d->ui->accountLayout->count()-1, button);
+					}
 			if (d->accounts.count() == 1)
 				setAccount(d->accounts.values().at(0));
 		}

@@ -83,7 +83,7 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(data);
 	}
 
-	QVariant Protocol::data(Protocol::DataType type)
+	QVariant Protocol::data(DataType type)
 	{
 		switch (type) {
 		case ProtocolIdName:
