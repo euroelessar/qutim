@@ -1,0 +1,82 @@
+﻿/*   */
+
+body {
+	direction: %messageDirection%;
+    /*background: url("Images/bg.gif") fixed;*/
+    background: #FFFFFF;
+	font: 10pt Arial;
+}
+
+div {
+	overflow: auto;
+}
+
+a:link { color: #007fff; text-decoration: none;}
+a:visited { color: #eb3fa5; text-decoration: none;}
+a:hover { text-decoration: underline; }
+a:active { color: #6D98AB; text-decoration: none; }
+
+original { display:none; } 
+
+.inСontext,
+.inNextСontext,
+.outСontext,
+.outNextСontext{
+	color: grey;
+	font: 8pt Arial;
+}
+
+.statusMessage{
+	color: #3caa3c;
+
+}
+
+.inNextContentTime,
+.outNextContentTime{
+color: #464451;
+}
+
+
+
+.inContentTime,
+.statusTime,
+.outContentTime   {
+color: black;
+}
+.outAction,
+.inAction  {
+	margin-top: 4px;
+	margin-bottom: 4px;
+	font-style: italic;
+	/*text-align: left;
+	margin-left: 20px;
+	margin-right: 20px;*/
+	background: transparent;
+	color: #303ae6;
+}
+
+.inContentSender,
+.inNextContentSender {
+	color: #005afa;
+	 /*text-align: right; */
+}
+
+.outContentSender,
+.outNextContentSender  {
+color: #ff0052;
+text-align: right;
+}
+.outContentMessage,
+.outNextContentMessage {
+	color: #20060f;
+}
+
+
+.inContentMessage,
+.inNextContentMessage {
+	 color: #20060f; 
+}
+
+.randomNick12 {
+color: #000000;
+}
