@@ -82,4 +82,15 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(id);
 		Q_UNUSED(data);
 	}
+
+	QVariant Protocol::data(Protocol::DataType type)
+	{
+		switch (type) {
+		case ProtocolIdName:
+			return "ID";
+			break;
+		default:
+			return QVariant();
+		}
+	}
 }
