@@ -216,12 +216,7 @@ namespace qutim_sdk_0_3
 				QMessageBox msg;
 				msg.setText(tr("Could not load plugin: \n %1").arg(fileName));
 				msg.exec();
-				//continue;
-			}
-			else {
-				QMessageBox msg;
-				msg.setText(tr("Loaded plugin: \n %1").arg(fileName));
-				msg.exec();
+				continue;
 			}
 			// init plugin
 			QObject *object = pluginLoader->instance();
@@ -232,9 +227,6 @@ namespace qutim_sdk_0_3
 					plugin->p->is_inited = true;
 					p->plugins.append(plugin);
 					p->extensions << plugin->avaiableExtensions();
-					QMessageBox msg;
-					msg.setText(tr("Inited plugin: \n %1").arg(fileName));
-					msg.exec();
 				} else {
 					delete object;
 				}
