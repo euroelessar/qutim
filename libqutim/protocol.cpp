@@ -83,9 +83,14 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(data);
 	}
 
-	QString Protocol::nameId()
+	QVariant Protocol::data(Protocol::DataType type)
 	{
-		QString id = "ID";
-		return id;
+		switch (type) {
+		case ProtocolIdName:
+			return "ID";
+			break;
+		default:
+			return QVariant();
+		}
 	}
 }

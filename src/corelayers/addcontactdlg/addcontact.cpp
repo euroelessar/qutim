@@ -65,6 +65,10 @@ namespace Core {
 
 	}
 
+	AddContact::~AddContact()
+	{
+	}
+
 	void AddContact::setAccount()
 	{
 		if (QToolButton *button = qobject_cast<QToolButton *>(sender()))
@@ -76,7 +80,7 @@ namespace Core {
 		Q_D(AddContact);
 		d->account = account;
 		d->ui->stackedWidget->setCurrentIndex(1);
-		d->ui->IDLabel->setText(account->protocol()->nameId());
+		d->ui->IDLabel->setText(account->protocol()->data(Protocol::ProtocolIdName).toString());
 		d->accounts.clear();
 	}
 	

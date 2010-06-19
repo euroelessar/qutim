@@ -45,6 +45,9 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 		Q_PROPERTY(QString id READ id)
 	public:
+		enum DataType {
+			ProtocolIdName
+		};
 		Protocol();
 		virtual ~Protocol();
 		Config config();
@@ -52,7 +55,7 @@ namespace qutim_sdk_0_3
 		QString id() const;
 		virtual QList<Account *> accounts() const = 0;
 		virtual Account *account(const QString &id) const = 0;
-		virtual QString nameId();
+		virtual QVariant data(Protocol::DataType type);
 	signals:
 		void accountCreated(qutim_sdk_0_3::Account *);
 	protected:
