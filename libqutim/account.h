@@ -99,8 +99,7 @@ namespace qutim_sdk_0_3
 		  If unitId is invalid, i.e. invalid JID, unit won't be created and NULL will be returned.
 		*/
 		virtual ChatUnit *getUnit(const QString &unitId, bool create = false) = 0;
-		virtual Contact *getContact(const QString &id) {return 0;};
-		virtual void addContact(Contact *contact) {};
+		virtual void addContact(Contact *contact);
 	signals:
 		/*!
 		  Signal is emitted when new \a contact was created.

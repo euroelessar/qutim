@@ -88,10 +88,10 @@ namespace Core {
 	void AddContact::on_okButton_clicked()
 	{
 		Q_D(AddContact);
-		Contact *contact = d->account->getContact(d->ui->editId->text());
+		Contact *contact = qobject_cast<Contact *>(d->account->getUnit(d->ui->editId->text(), true));
 		if (contact) {
-			contact->setName(d->ui->editName->text());
 			d->account->addContact(contact);
+			contact->setName(d->ui->editName->text());
 		}
 		deleteLater();
 	}
