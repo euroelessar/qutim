@@ -184,14 +184,8 @@ namespace Jabber {
 		beginChangeStatus(JProtocol::statusToPresence(status));
 	}
 
-	Contact *JAccount::getContact(const QString &id)
-	{
-		return new JContact(id, this);
-	}
-
 	void JAccount::addContact(Contact *contact)
 	{
-		debug() << "added contact to roster";
 		p->roster->addContact(static_cast<JContact *>(contact));
 	}
 

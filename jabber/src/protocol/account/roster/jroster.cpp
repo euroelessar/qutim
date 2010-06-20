@@ -74,14 +74,8 @@ namespace Jabber
 
 	void JRoster::addContact(JContact *contact)
 	{
-		JID jid(contact->id().toStdString());
-		StringList tags;
-		foreach (QString tag, contact->tags())
-			tags.push_back(tag.toStdString());
-		p->rosterManager->subscribe(jid, contact->name().toStdString(), tags);
-		p->contacts.insert(contact->id(), contact);
+		p->rosterManager->subscribe(JID(contact->id().toStdString()));
 		contact->setContactInList(true);
-		emit p->account->contactCreated(contact);
 	}
 
 	void JRoster::handleItemAdded(const JID &jid)
