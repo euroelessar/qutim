@@ -224,7 +224,8 @@ namespace Jabber
 				user = new JMUCUser(this, nick);
 				user->setMUCAffiliation(participant.affiliation);
 				user->setMUCRole(participant.role);
-				user->setRealJid(QString::fromStdString(participant.jid->full()));
+				if (participant.jid)
+					user->setRealJid(QString::fromStdString(participant.jid->full()));
 				text = user->realJid().isEmpty()
 						? nick % " "
 						: nick + " (" % user->realJid() % ") ";
