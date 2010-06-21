@@ -39,6 +39,7 @@ public:
 	static inline IcqProtocol *instance() { if (!self) qWarning("IcqProtocol isn't created"); return self; }
 	virtual QList<Account *> accounts() const;
 	virtual Account *account(const QString &id) const;
+	virtual QVariant data(DataType type);
 public slots:
 	void updateSettings();
 protected:

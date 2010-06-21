@@ -163,7 +163,8 @@ namespace Jabber
 		switch (type) {
 			case ProtocolIdName:
 				return "Jabber ID";
-				break;
+			case ProtocolContainsContacts:
+				return true;
 			default:
 				return QVariant();
 		}

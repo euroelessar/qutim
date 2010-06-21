@@ -43,7 +43,6 @@ namespace Jabber {
 			virtual void setStatus(Status status);
 			QString getAvatarPath();
 			void setAvatar(const QString &hex);
-			virtual void addContact(Contact *contact);
 		protected:
 			void loadSettings();
 		private:

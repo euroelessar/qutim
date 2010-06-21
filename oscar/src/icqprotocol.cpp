@@ -87,4 +87,15 @@ void IcqProtocol::updateSettings()
 		acc->updateSettings();
 }
 
+QVariant IcqProtocol::data(DataType type)
+{
+	switch (type) {
+		case ProtocolIdName:
+			return "UIN";
+		case ProtocolContainsContacts:
+			return true;
+		default:
+			return QVariant();
+	}
+}
 } } // namespace qutim_sdk_0_3::oscar

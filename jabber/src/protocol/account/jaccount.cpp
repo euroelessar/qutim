@@ -184,11 +184,6 @@ namespace Jabber {
 		beginChangeStatus(JProtocol::statusToPresence(status));
 	}
 
-	void JAccount::addContact(Contact *contact)
-	{
-		p->roster->addContact(static_cast<JContact *>(contact));
-	}
-
 	QString JAccount::getAvatarPath()
 	{
 		return QString("%1/avatars/%2")

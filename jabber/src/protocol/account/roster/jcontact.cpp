@@ -138,7 +138,7 @@ namespace Jabber
 		setContactInList(inList);
 		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
 		if (inList)
-			rosterManager->add(d->jid.toStdString(), d->name.toStdString(), StringList());
+			rosterManager->subscribe(d->jid.toStdString());
 		else
 			rosterManager->remove(d->jid.toStdString());
 	}

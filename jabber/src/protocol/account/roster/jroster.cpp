@@ -72,35 +72,8 @@ namespace Jabber
 		return 0;
 	}
 
-	void JRoster::addContact(JContact *contact)
-	{
-		p->rosterManager->subscribe(JID(contact->id().toStdString()));
-		contact->setContactInList(true);
-	}
-
 	void JRoster::handleItemAdded(const JID &jid)
 	{
-		/*QString key(QString::fromStdString(jid.bare()));
-		QString resource(QString::fromStdString(jid.resource()));
-		if (!p->contacts.contains(key)) {
-			//p->contacts.value(key)->addResource(resource);
-		//} else {
-			if (key != p->account->jid()) {
-				JContact *contact = new JContact(p->account);
-				contact->setName(QString::fromStdString(jid.username()));
-				RosterItem *item = p->rosterManager->getRosterItem(jid);
-				QSet<QString> tags;
-				StringList groups = item->groups();
-				StringList::const_iterator group = groups.begin();
-				for(; group != groups.end(); ++group)
-					tags.insert(QString::fromStdString(*group));
-				contact->setTags(tags);
-				//contact->addResource(key);
-				contact->addToList();
-				ContactList::instance()->addContact(contact);
-				p->contacts.insert(key, contact);
-			}
-		}*/
 	}
 
 	void JRoster::handleItemSubscribed(const JID &jid)
@@ -109,33 +82,10 @@ namespace Jabber
 
 	void JRoster::handleItemRemoved(const JID &jid)
 	{
-		/*QString key(QString::fromStdString(jid.bare()));
-		QString resource(QString::fromStdString(jid.resource()));
-		if (p->contacts.contains(key)) {
-			if (!resource.isEmpty()) {
-				p->contacts.value(key)->removeResource(resource);
-				if (p->contacts.value(key)->resources().isEmpty())
-					delete p->contacts.take(key);
-			} else {
-				delete p->contacts.take(key);
-			}
-		}*/
 	}
 
 	void JRoster::handleItemUpdated(const JID &jid)
 	{
-		/*RosterItem *item = p->rosterManager->getRosterItem(jid);
-		QString key(QString::fromStdString(jid.bare()));
-		if (p->contacts.contains(key)) {
-			JContact *contact = p->contacts.value(key);
-			contact->setName(QString::fromStdString(item->name()));
-			QSet<QString> tags;
-			StringList groups = item->groups();
-			StringList::const_iterator group = groups.begin();
-			for(; group != groups.end(); ++group)
-				tags.insert(QString::fromStdString(*group));
-			contact->setTags(tags);
-		}*/
 	}
 
 	void JRoster::handleItemUnsubscribed(const JID &jid)
@@ -239,11 +189,9 @@ namespace Jabber
 			contact->setStatus("", Presence::Unavailable, 0);
 	}
 
-#include <QDebug>
 	void JRoster::handleSubscription(const Subscription &subscription)
 	{
 		QString jid = QString::fromStdString(subscription.from().bare());
-		qDebug() << jid << subscription.subtype();
 		QString name;
 		JContact *contact = p->contacts.value(jid);
 		if (contact) {
@@ -261,7 +209,6 @@ namespace Jabber
 				contact->setContactInList(false);
 			}
 			{
-				qDebug() << contact->id();
 				AuthorizationDialog *dialog = AuthorizationDialog::request(contact,
 						QString::fromStdString(subscription.status()));
 				connect(dialog, SIGNAL(finished(bool)), SLOT(sendAuthResponse(bool)));
@@ -295,7 +242,6 @@ namespace Jabber
 		Q_ASSERT(dialog);
 		JContact *contact = qobject_cast<JContact*>(dialog->contact());
 		p->rosterManager->ackSubscriptionRequest(JID(contact->id().toStdString()), answer);
-		qDebug() << "#####################################" << contact->id() << answer;
 		if (!contact->isInList()) {
 			if (answer) {
 				contact->setContactInList(true);
