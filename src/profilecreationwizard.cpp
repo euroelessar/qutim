@@ -13,6 +13,11 @@
 #include <QLibrary>
 #ifdef Q_OS_UNIX
 # include <pwd.h>
+#elif defined( Q_OS_WIN )
+# define SECURITY_WIN32
+# include <lmcons.h>
+# include <windows.h>
+# include <security.h>
 #endif
 
 namespace qutim_sdk_0_3
@@ -72,22 +77,23 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 		} QT_CATCH(...) {
 		}
 #elif defined(Q_OS_WIN32)
-		enum ExtendedNameFormat
-		{
-			NameSamCompatible = 2,
-			NameDisplay = 3
-		};
-		typedef int (*pGetUserName)(char, wchar_t*, unsigned long*);
-		pGetUserName GetUserName = reinterpret_cast<pGetUserName>(QLibrary::resolve("Secur32", "GetUserNameExW"));
-		if (GetUserName) {
-			QVector<wchar_t> buffer(255);
-			unsigned long size = buffer.size();
-			GetUserName(NameSamCompatible, buffer.data(), &size);
-			realId = QString::fromWCharArray(buffer.constData(), int(size)).section('\\', 0, -1);
-			size = buffer.size();
-			GetUserName(NameDisplay, buffer.data(), &size);
-			realName = QString::fromWCharArray(buffer.constData(), int(size));
-		}
+		TCHAR wTId[UNLEN + 1];
+		DWORD wSId = sizeof(wTId);
+		if (GetUserName(wTId, &wSId))
+			#if defined(UNICODE)
+			realid= QString::fromUtf16((ushort*)wTId);
+			#else
+			realId = QString::fromLocal8Bit(wTId);
+			#endif
+
+		TCHAR wTName[1024];
+		DWORD wSName = 1024;
+		if (GetUserNameEx(NameDisplay, wTName, &wSName))
+			#if defined( UNICODE )
+			realName = QString::fromUtf16((ushort*)wTName);
+			#else
+			realName = QString::fromLocal8Bit(wTName);
+			#endif
 #endif
 		if (realName.isEmpty())
 			realName = realId;
