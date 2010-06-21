@@ -4,7 +4,7 @@
 #include <libqutim/protocol.h>
 #include <libqutim/contact.h>
 #include <libqutim/icon.h>
-#include <libqutim/debug.h>
+#include <QStringBuilder>
 #include <QToolButton>
 
 namespace Core {
@@ -16,6 +16,7 @@ namespace Core {
 	struct AddContactPrivate
 	{
 		QHash<QString, Account *> accounts;
+		QHash<QString, QToolButton *> buttons;
 		Account *account;
 		Ui::AddContact *ui;
 	};
@@ -49,16 +50,19 @@ namespace Core {
 		} else {
 			d->ui->stackedWidget->setCurrentIndex(0);
 			foreach (Protocol *protocol, allProtocols())
-				if (!protocol->accounts().isEmpty())
+				if (protocol->data(Protocol::ProtocolContainsContacts).toBool() && !protocol->accounts().isEmpty())
 					foreach (Account *acc, protocol->accounts()) {
-						d->accounts.insert(acc->id(), acc);
 						QToolButton *button = new QToolButton(d->ui->accountPage);
 						button->setText(acc->id());
 						QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 						button->setSizePolicy(sizePolicy);
 						button->setAutoRaise(true);
-						connect(button, SIGNAL(clicked()), this, SLOT(setAccount()));
+						connect(button, SIGNAL(clicked()), SLOT(setAccount()));
 						d->ui->accountLayout->insertWidget(d->ui->accountLayout->count()-1, button);
+						d->accounts.insert(acc->id(), acc);
+						d->buttons.insert(acc->id(), button);
+						changeState(acc);
+						connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(changeState()));
 					}
 			if (d->accounts.count() == 1)
 				setAccount(d->accounts.values().at(0));
@@ -77,12 +81,11 @@ namespace Core {
 	}
 
 	void AddContact::setAccount(Account *account)
-	{
+	{ 
 		Q_D(AddContact);
 		d->account = account;
 		d->ui->stackedWidget->setCurrentIndex(1);
-		d->ui->IDLabel->setText(account->protocol()->data(Protocol::ProtocolIdName).toString());
-		d->accounts.clear();
+		d->ui->IDLabel->setText(account->protocol()->data(Protocol::ProtocolIdName).toString() % QLatin1Literal(":"));
 	}
 	
 	void AddContact::on_okButton_clicked()
@@ -90,7 +93,7 @@ namespace Core {
 		Q_D(AddContact);
 		Contact *contact = qobject_cast<Contact *>(d->account->getUnit(d->ui->editId->text(), true));
 		if (contact) {
-			d->account->addContact(contact);
+			contact->setInList(true);
 			contact->setName(d->ui->editName->text());
 		}
 		deleteLater();
@@ -99,5 +102,24 @@ namespace Core {
 	void AddContact::on_cancelButton_clicked()
 	{
 		deleteLater();
+	}
+
+	void AddContact::changeState()
+	{
+		if (Account *account = qobject_cast<Account *>(sender()))
+			changeState(account);
+	}
+
+	void AddContact::changeState(Account *account)
+	{
+		if (QToolButton *button = d_func()->buttons.value(account->id())) {
+			if (account->status() == Status::Connecting || account->status() == Status::Offline) {
+				button->setEnabled(false);
+				button->setToolTip(tr("Account must be online"));
+			} else {
+				button->setEnabled(true);
+				button->setToolTip("");
+			}
+		}
 	}
 }

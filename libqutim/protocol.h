@@ -46,7 +46,7 @@ namespace qutim_sdk_0_3
 		Q_PROPERTY(QString id READ id)
 	public:
 		enum DataType {
-			ProtocolIdName
+			ProtocolIdName, ProtocolContainsContacts
 		};
 		Protocol();
 		virtual ~Protocol();

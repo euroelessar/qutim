@@ -88,7 +88,8 @@ namespace qutim_sdk_0_3
 		switch (type) {
 		case ProtocolIdName:
 			return "ID";
-			break;
+		case ProtocolContainsContacts:
+			return false;
 		default:
 			return QVariant();
 		}

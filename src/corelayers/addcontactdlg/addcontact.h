@@ -17,10 +17,12 @@ namespace Core {
 			~AddContact();
 		protected:
 			void setAccount(Account *account);
+			void changeState(Account *account);
 		private slots:
 			void on_okButton_clicked();
 			void on_cancelButton_clicked();
 			void setAccount();
+			void changeState();
 		private:
 			QScopedPointer<AddContactPrivate> d_ptr;
 	};
