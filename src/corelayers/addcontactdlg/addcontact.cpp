@@ -61,8 +61,8 @@ namespace Core {
 						d->ui->accountLayout->insertWidget(d->ui->accountLayout->count()-1, button);
 						d->accounts.insert(acc->id(), acc);
 						d->buttons.insert(acc->id(), button);
-						changeState(acc);
-						connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(changeState()));
+						changeState(acc, acc->status());
+						connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(changeState(qutim_sdk_0_3::Status)));
 					}
 			if (d->accounts.count() == 1)
 				setAccount(d->accounts.values().at(0));
@@ -104,16 +104,16 @@ namespace Core {
 		deleteLater();
 	}
 
-	void AddContact::changeState()
+	void AddContact::changeState(const qutim_sdk_0_3::Status &status)
 	{
 		if (Account *account = qobject_cast<Account *>(sender()))
-			changeState(account);
+			changeState(account, status);
 	}
 
-	void AddContact::changeState(Account *account)
+	void AddContact::changeState(Account *account, const qutim_sdk_0_3::Status &status)
 	{
 		if (QToolButton *button = d_func()->buttons.value(account->id())) {
-			if (account->status() == Status::Connecting || account->status() == Status::Offline) {
+			if (status == Status::Connecting || status == Status::Offline) {
 				button->setEnabled(false);
 				button->setToolTip(tr("Account must be online"));
 			} else {

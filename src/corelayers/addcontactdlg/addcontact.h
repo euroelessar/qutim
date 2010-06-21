@@ -17,12 +17,12 @@ namespace Core {
 			~AddContact();
 		protected:
 			void setAccount(Account *account);
-			void changeState(Account *account);
+			void changeState(Account *account, const qutim_sdk_0_3::Status &status);
 		private slots:
 			void on_okButton_clicked();
 			void on_cancelButton_clicked();
 			void setAccount();
-			void changeState();
+			void changeState(const qutim_sdk_0_3::Status &status);
 		private:
 			QScopedPointer<AddContactPrivate> d_ptr;
 	};
