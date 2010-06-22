@@ -119,7 +119,7 @@ XtrazRequestPacket::XtrazRequestPacket(IcqContact *contact, const QString &query
 	XtrazData data(body);
 	Cookie cookie = data.cookie();
 	cookie.setContact(contact);
-	cookie.lock();
+	setCookie(cookie);
 	init(contact, 2, cookie);
 	appendTLV(0x05, Channel2MessageData(1, data).data());
 	appendTLV(0x03);

@@ -175,7 +175,7 @@ bool IcqContact::sendMessage(const Message &message)
 		if (d->flags & utf8_support)
 			tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
 		ServerMessage msgData(this, Channel2MessageData(0, tlv));
-		cookie.lock(this, SLOT(messageTimeout()));
+		msgData.setCookie(cookie, this, SLOT(messageTimeout()));
 		d->account->connection()->send(msgData, 80);
 	}
 	debug().nospace() << "Message is sent on channel " << channel

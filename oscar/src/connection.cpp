@@ -433,6 +433,7 @@ quint32 AbstractConnection::sendSnac(SNAC &snac)
 	quint32 id = d->nextId();
 	snac.setId(id);
 	flap.append(snac.toByteArray());
+	snac.lock();
 	send(flap);
 	return id;
 }

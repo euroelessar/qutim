@@ -43,7 +43,7 @@ public:
 	Cookie(const Cookie &cookie);
 	Cookie &operator=(const Cookie &cookie);
 	virtual ~Cookie();
-	void lock(QObject *receiver = 0, const char *member = "", int msec = 30000) const;
+	void lock(QObject *receiver = 0, const char *member = 0, int msec = 30000) const;
 	bool unlock() const;
 	bool isLocked() const;
 	bool isEmpty() const;

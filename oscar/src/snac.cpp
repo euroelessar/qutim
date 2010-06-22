@@ -21,6 +21,18 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+SNAC::SNAC(quint16 family, quint16 subtype) :
+	m_member(0), m_receiver(0)
+{
+	reset(family, subtype);
+}
+
+SNAC::~SNAC()
+{
+	if (m_member)
+		delete [] m_member;
+}
+
 void SNAC::reset(quint16 family, quint16 subtype)
 {
 	m_family = family;
@@ -56,6 +68,25 @@ QByteArray SNAC::header() const
 	data.append<quint16>(m_flags);
 	data.append<quint32>(m_id);
 	return data.data();
+}
+
+void SNAC::setCookie(const Cookie &cookie, QObject *receiver, const char *member, int msec)
+{
+	m_cookie = cookie;
+	m_receiver = receiver;
+	if (m_member) {
+		m_member = new char [strlen(member) + 1];
+		strcpy(m_member, member);
+	}
+	m_msec = msec;
+}
+
+void SNAC::lock()
+{
+	if (!m_cookie.isEmpty()) {
+		m_cookie.lock(m_receiver, m_member, m_msec);
+		delete [] m_member; m_member = 0;
+	}
 }
 
 } } // namespace qutim_sdk_0_3::oscar
