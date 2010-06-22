@@ -100,14 +100,12 @@ IcqContact::~IcqContact()
 QStringList IcqContact::tags() const
 {
 	Q_D(const IcqContact);
-	QStringList groups;
+	QStringList groups = d->tags;
 	foreach (const FeedbagItem &item, d->items) {
 		FeedbagItem group = d->account->feedbag()->groupItem(item.groupId());
-		if (!group.isNull() && group.groupId() != not_in_list_group)
+		if (!group.isNull() && group.groupId() != not_in_list_group && !d->tags.contains(group.name(), Qt::CaseSensitive))
 			groups << group.name();
 	}
-	foreach (const QString &tag, d->tags)
-		groups.append(tag);
 	return groups;
 }
 
@@ -204,22 +202,24 @@ void IcqContact::setTags(const QStringList &tags)
 	if (!isInList())
 		return;
 	Feedbag *f = d->account->feedbag();
-	FeedbagItem group = f->groupItem(d->items.first().groupId());
-	if (!group.isNull() && !tags.contains(group.name()))
-		setGroup(tags.isEmpty() ? QString() : tags.first());
+	f->beginModify();
+	setGroup(tags.isEmpty() ? QString() : tags.first());
 	DataUnit tagsData;
 	foreach (const QString &tag, tags)
 		tagsData.append<quint16>(tag);
 	FeedbagItem tagsItem = f->item(SsiTags, id(), 0, Feedbag::GenerateId);
 	tagsItem.setField(SsiBuddyTags, tagsData);
 	tagsItem.update();
+	f->endModify();
 }
 
 void IcqContact::setGroup(const QString &group)
 {
 	Q_D(IcqContact);
 	Feedbag *f = d->account->feedbag();
-	f->beginModify();
+	bool modify = !f->isModifyStarted();
+	if (modify)
+		f->beginModify();
 	bool found = false;
 	QList<FeedbagItem> items = d->items;
 	FeedbagItem newGroup;
@@ -254,7 +254,8 @@ void IcqContact::setGroup(const QString &group)
 		if (f->group(item.groupId()).count() <= 1)
 			f->removeItem(SsiGroup, item.groupId());
 	}
-	f->endModify();
+	if (modify)
+		f->endModify();
 }
 
 void IcqContact::setInList(bool inList)
