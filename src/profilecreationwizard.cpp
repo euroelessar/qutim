@@ -15,8 +15,8 @@
 # include <pwd.h>
 #elif defined( Q_OS_WIN )
 # define SECURITY_WIN32
-# include <lmcons.h>
 # include <windows.h>
+# include <lmcons.h>
 # include <security.h>
 #endif
 
