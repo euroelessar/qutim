@@ -111,27 +111,26 @@ void OscarRate::update(quint32 groupId, const SNAC &sn)
 	m_maxLevel = sn.read<quint32>();
 	m_lastTimeDiff = sn.read<quint32>();
 	m_currentState = sn.read<quint8>();
-
-	if (m_windowSize > 1) {
-		m_time = QDateTime::currentDateTime();
-		m_levelMultiplier = (m_windowSize - 1) / (double) m_windowSize;
-		m_timeMultiplier = 1 / (double) m_windowSize;
-	}
+	m_time = QDateTime::currentDateTime().addMSecs(-m_lastTimeDiff);
+	quint32 diff = m_maxLevel - m_clearLevel;
+	m_priorityDiff = diff / 100;
+	m_defaultPriority = m_clearLevel + diff / 2;
 }
 
-void OscarRate::send(const SNAC &snac, bool priority)
+void OscarRate::send(const SNAC &snac, quint8 priority)
 {
-	if (priority)
-		m_priorQueue.push_back(snac);
-	else
-		m_queue.push_back(snac);
-	if (m_priorQueue.size() + m_queue.size() == 1)
+	Q_ASSERT(priority <= 100);
+	quint8 oldPriority = m_queue.isEmpty() ? 100 : m_queue.begin().key();
+	m_queue.insert(100 - priority, snac);
+	if (priority < oldPriority) {
+		m_timer.stop();
 		sendNextPackets();
+	}
 }
 
 void OscarRate::sendNextPackets()
 {
-	Q_ASSERT(!m_priorQueue.isEmpty() || !m_queue.isEmpty());
+	Q_ASSERT(!m_queue.isEmpty());
 	QDateTime dateTime = QDateTime::currentDateTime();
 	quint32 timeDiff;
 	if (dateTime.date() == m_time.date())
@@ -141,27 +140,37 @@ void OscarRate::sendNextPackets()
 	else // That should never happen
 		timeDiff = 86400000;
 
-	double levelInc = m_timeMultiplier * (double) timeDiff;
-	quint32 newLevel = m_currentLevel * m_levelMultiplier + levelInc;
-	while (newLevel >= m_clearLevel) {
-		SNAC snac;
-		if (!m_priorQueue.isEmpty())
-			snac = m_priorQueue.takeFirst();
-		else if (!m_queue.isEmpty())
-			snac = m_queue.takeFirst();
-		if (snac.isEmpty())
+	quint32 newLevel;
+	while (!m_queue.isEmpty()) {
+		newLevel = (m_currentLevel * (m_windowSize - 1) + timeDiff) / m_windowSize;
+		if (newLevel < minLevel())
 			break;
-		m_currentLevel = newLevel;
+		SNAC snac = *m_queue.begin();
+		m_queue.erase(m_queue.begin());
+		m_lastTimeDiff = timeDiff;
+		m_time = dateTime;
+		timeDiff = 0;
+		m_currentLevel = qMin(newLevel, m_maxLevel);
 		m_conn->sendSnac(snac);
-		newLevel = newLevel * m_levelMultiplier;
 	}
-	m_currentLevel = qMin(m_currentLevel, m_maxLevel);
-	m_time = dateTime;
-	m_lastTimeDiff = timeDiff;
-	if (!m_priorQueue.isEmpty() || !m_queue.isEmpty()) {
-		Q_ASSERT(m_clearLevel > newLevel);
-		quint32 timeout = (m_clearLevel - newLevel) / m_levelMultiplier / m_timeMultiplier;
+	if (!m_queue.isEmpty()) {
+		quint32 timeout = (minLevel() - (m_currentLevel * (m_windowSize - 1) / m_windowSize)) * m_windowSize;
 		m_timer.start(timeout);
+	}
+}
+
+quint32 OscarRate::minLevel()
+{
+	quint8 priority = m_queue.begin().key();
+	switch (priority) {
+	case 100:
+		return m_maxLevel;
+	case 50:
+		return m_defaultPriority;
+	case 0:
+		return m_clearLevel;
+	default:
+		return m_clearLevel + priority * m_priorityDiff;
 	}
 }
 
@@ -394,7 +403,7 @@ const FLAP &AbstractConnection::flap()
 	return d_func()->flap;
 }
 
-void AbstractConnection::send(SNAC &snac, bool priority)
+void AbstractConnection::send(SNAC &snac, quint8 priority)
 {
 	Q_D(AbstractConnection);
 	OscarRate *rate = d->ratesHash.value(snac.family() << 16 | snac.subtype());

@@ -262,7 +262,7 @@ void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TL
 		request.setValue("trans", "1");
 		request.setValue("senderId", account->id());
 		SNAC snac = request.snac(contact);
-		account->connection()->send(snac);
+		account->connection()->send(snac, 10);
 	}
 	foreach (const Capability &cap, contact->capabilities()) {
 		if (qipstatuses.contains(cap)) {

@@ -45,7 +45,7 @@ public:
 	{
 		return m_groupId;
 	}
-	void send(const SNAC &snac, bool priority);
+	void send(const SNAC &snac, quint8 priority);
 	bool isEmpty()
 	{
 		return m_windowSize <= 1;
@@ -53,6 +53,7 @@ public:
 private slots:
 	void sendNextPackets();
 private:
+	quint32 minLevel();
 	quint16 m_groupId;
 	quint32 m_windowSize;
 	quint32 m_clearLevel;
@@ -65,11 +66,10 @@ private:
 	quint8 m_currentState;
 	QDateTime m_time;
 	QList<quint32> m_snacTypes;
-	QList<SNAC> m_priorQueue;
-	QList<SNAC> m_queue;
-	double m_levelMultiplier;
-	double m_timeMultiplier;
+	QMultiMap<quint8, SNAC> m_queue;
 	QTimer m_timer;
+	quint32 m_priorityDiff;
+	quint32 m_defaultPriority;
 	AbstractConnection *m_conn;
 };
 

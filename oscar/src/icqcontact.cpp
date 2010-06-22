@@ -160,7 +160,7 @@ bool IcqContact::sendMessage(const Message &message)
 		msgText = message.text();
 	if (!(d->flags & srvrelay_support)) {
 		ServerMessage msgData(this, Channel1MessageData(msgText, CodecUtf16Be), cookie);
-		d->account->connection()->send(msgData);
+		d->account->connection()->send(msgData, 80);
 		channel = 1;
 	} else {
 		QTextCodec *codec;
@@ -176,7 +176,7 @@ bool IcqContact::sendMessage(const Message &message)
 			tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
 		ServerMessage msgData(this, Channel2MessageData(0, tlv));
 		cookie.lock(this, SLOT(messageTimeout()));
-		d->account->connection()->send(msgData);
+		d->account->connection()->send(msgData, 80);
 	}
 	debug().nospace() << "Message is sent on channel " << channel
 			<< ", ID:" << message.id()

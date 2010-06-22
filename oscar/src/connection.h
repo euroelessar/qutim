@@ -131,7 +131,7 @@ public:
 	explicit AbstractConnection(IcqAccount *account, QObject *parent = 0);
 	virtual ~AbstractConnection();
 	void registerHandler(SNACHandler *handler);
-	void send(SNAC &snac, bool priority = true);
+	void send(SNAC &snac, quint8 priority = 50);
 	void disconnectFromHost(bool force = false);
 	const QHostAddress &externalIP() const;
 	const QList<quint16> &servicesList();
