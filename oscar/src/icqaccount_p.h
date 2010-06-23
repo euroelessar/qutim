@@ -21,6 +21,7 @@
 #include "icqaccount.h"
 #include "messages_p.h"
 #include <QTimer>
+#include "buddypicture.h"
 #include <qutim/passworddialog.h>
 
 namespace qutim_sdk_0_3 {
@@ -44,7 +45,9 @@ struct IcqAccountPrivate
 	IcqAccount *q_ptr;
 	OscarConnection *conn;
 	Feedbag *feedbag;
+	BuddyPicture *buddyPicture;
 	QString name;
+	QString avatar;
 	QHash<quint64, Cookie*> cookies;
 	Capabilities caps;
 	QHash<QString, Capability> typedCaps;

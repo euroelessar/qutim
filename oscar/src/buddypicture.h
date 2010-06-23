@@ -49,6 +49,7 @@ public:
 	BuddyPicture(IcqAccount *account, QObject *parent = 0);
 	virtual ~BuddyPicture();
 	void sendUpdatePicture(QObject *reqObject, quint16 icon_id, quint8 icon_flags, const QByteArray &icon_hash);
+	void setAccountAvatar(const QString &avatar);
 protected:
 	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 	void connectToServ(const QString &addr, quint16 port, const QByteArray &cookie);
@@ -63,11 +64,14 @@ private:
 	inline QString getAvatarDir() const;
 	inline bool setAvatar(QObject *obj, const QByteArray &hash);
 	inline void updateData(QObject *obj, const QByteArray &hash, const QString &path);
+	void saveImage(QObject *obj, const QByteArray &image, const QByteArray &hash);
 private:
 	QHash<QObject*, SNAC> m_history;
 	bool m_is_connected;
 	QByteArray m_cookie;
 	bool m_avatars;
+	QByteArray m_accountAvatar;
+	QByteArray m_avatarHash;
 	static QByteArray emptyHash;
 };
 

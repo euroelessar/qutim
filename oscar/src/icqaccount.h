@@ -36,12 +36,15 @@ class LIBOSCAR_EXPORT IcqAccount: public Account
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(IcqAccount)
+	Q_PROPERTY(QString avatar WRITE setAvatar READ avatar NOTIFY avatarChanged)
 public:
 	IcqAccount(const QString &uin);
 	virtual ~IcqAccount();
 	virtual void setStatus(Status status);
 	void setStatus(OscarStatusEnum status);
 	virtual QString name() const;
+	QString avatar() const;
+	void setAvatar(const QString &avatar);
 	Feedbag *feedbag();
 	AbstractConnection *connection();
 	const AbstractConnection *connection() const;
@@ -56,6 +59,7 @@ public:
 	QList<Capability> capabilities() const;
 	void registerRosterPlugin(RosterPlugin *plugin);
 signals:
+	void avatarChanged(const QString &avatar);
 	void loginFinished();
 	void settingsUpdated();
 public slots:
@@ -70,6 +74,7 @@ private:
 	friend class Roster;
 	friend class Cookie;
 	friend class OscarConnection;
+	friend class BuddyPicture;
 	QScopedPointer<IcqAccountPrivate> d_ptr;
 };
 

@@ -17,13 +17,14 @@
 #include "qutim/systeminfo.h"
 #include "qutim/protocol.h"
 #include <qutim/debug.h>
-#include "icqaccount.h"
+#include "icqaccount_p.h"
 #include "sessiondataitem.h"
 #include <QSet>
 #include <QDir>
 #include <QFile>
 #include <QImage>
 #include <QNetworkProxy>
+#include <QCryptographicHash>
 
 namespace qutim_sdk_0_3 {
 
@@ -34,15 +35,17 @@ QByteArray BuddyPicture::emptyHash = QByteArray::fromHex("0201d20472");
 BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
 	AbstractConnection(account, parent), m_is_connected(false),m_avatars(false)
 {
+	updateSettings();
 	m_infos << SNACInfo(ServiceFamily, ServerRedirectService)
-			<< SNACInfo(AvatarFamily, AvatarGetReply);
+			<< SNACInfo(ServiceFamily, ServiceServerExtstatus)
+			<< SNACInfo(AvatarFamily, AvatarGetReply)
+			<< SNACInfo(AvatarFamily, AvatarUploadAck);
 	m_types << SsiBuddyIcon;
 	registerHandler(this);
 	socket()->setProxy(account->connection()->socket()->proxy());
 	connect(socket(), SIGNAL(disconnected()), SLOT(disconnected()));
 	account->feedbag()->registerHandler(this);
 	account->registerRosterPlugin(this);
-	updateSettings();
 	connect(account, SIGNAL(settingsUpdated()), this, SLOT(updateSettings()));
 
 	typedef QPair<QString, QString> StringPair;
@@ -72,10 +75,6 @@ BuddyPicture::~BuddyPicture()
 
 void BuddyPicture::sendUpdatePicture(QObject *reqObject, quint16 id, quint8 flags, const QByteArray &hash)
 {
-	if (hash == emptyHash) {
-		reqObject->setProperty("avatar", "");
-		return;
-	}
 	if (setAvatar(reqObject, hash))
 		return;
 	SNAC snac(AvatarFamily, AvatarGetRequest);
@@ -88,6 +87,26 @@ void BuddyPicture::sendUpdatePicture(QObject *reqObject, quint16 id, quint8 flag
 		send(snac);
 	else
 		m_history.insert(reqObject, snac);
+}
+
+void BuddyPicture::setAccountAvatar(const QString &avatar)
+{
+	m_accountAvatar.clear();
+	QFile image(avatar);
+	if (!image.open(QIODevice::ReadOnly))
+		return;
+	m_accountAvatar = image.read(8178); // TODO: notify user if the image size limit is exceeded
+	// Md5 hash.
+	m_avatarHash = QCryptographicHash::hash(m_accountAvatar, QCryptographicHash::Md5);
+	// Request for update of avatar.
+	FeedbagItem item = account()->feedbag()->type(SsiBuddyIcon, Feedbag::GenerateId).first();
+	TLV data(0x00d5);
+	data.append<quint8>(1);
+	data.append<quint8>(m_avatarHash);
+	item.setField(data);
+	if (!item.isInList())
+		item.setName("1");
+	item.update();
 }
 
 void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
@@ -138,18 +157,39 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 		QByteArray hash = snac.read<QByteArray, quint8>();
 		snac.skipData(21);
 		QByteArray image = snac.read<QByteArray, quint16>();
-		if (!image.isEmpty()) {
-			QString imagePath = getAvatarDir();
-			QDir dir(imagePath);
-			if (!dir.exists())
-				dir.mkpath(imagePath);
-			imagePath += hash.toHex();
-			QFile iconFile(imagePath);
-			if (!iconFile.exists() && iconFile.open(QIODevice::WriteOnly)) {
-				iconFile.write(image);
-				updateData(obj, hash, imagePath);
+		saveImage(obj, image, hash);
+		break;
+	}
+	case ServiceFamily << 16 | ServiceServerExtstatus: { // account avatar changed
+		TLVMap tlvs = snac.read<TLVMap>();
+		if (tlvs.contains(0x0200)) {
+			TLV tlv = tlvs.value(0x0200);
+			quint8 type = tlv.read<quint8>();
+			if (type == 0x0001) {
+				quint8 flags = tlv.read<quint8>();
+				QByteArray hash = tlv.read<QByteArray, quint8>();
+				if (flags >> 6 & 0x1 && !m_accountAvatar.isEmpty()) { // does it really work???
+					SNAC snac(AvatarFamily, AvatarUploadRequest);
+					snac.append<quint16>(1); // reference number ?
+					snac.append<quint16>(m_accountAvatar);
+					send(snac);
+				}
+				setAvatar(account(), hash);
 			}
 		}
+		break;
+	}
+	case AvatarFamily << 16 | AvatarUploadAck: { // avatar uploaded
+		snac.skipData(4); // unknown
+		QByteArray hash = snac.read<QByteArray, quint8>();
+		if (hash == m_avatarHash) {
+			saveImage(account(), m_accountAvatar, hash);
+			debug() << "Account's avatar has been successfully updated";
+		} else {
+			debug() << "Error occurred when updating account avatar";
+		}
+		m_avatarHash.clear();
+		m_accountAvatar.clear();
 		break;
 	}
 	}
@@ -175,13 +215,12 @@ bool BuddyPicture::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 	Q_ASSERT(item.type() == SsiBuddyIcon);
 	if (error != FeedbagError::NoError || type == Feedbag::Remove)
 		return false;
-	if (m_avatars && item.containsField(0x00d5)) {
+	if (m_avatars && m_accountAvatar.isEmpty() && item.containsField(0x00d5)) {
 		DataUnit data(item.field(0x00d5));
 		quint8 flags = data.read<quint8>();
 		QByteArray hash = data.read<QByteArray, quint8>();
-		IcqContact *contact = account()->getContact(item.name());
-		if (contact)
-			sendUpdatePicture(contact, 1, flags, hash);
+		if (m_avatarHash.isEmpty())
+			sendUpdatePicture(account(), 1, flags, hash);
 	}
 	return true;
 }
@@ -209,6 +248,8 @@ void BuddyPicture::disconnected()
 {
 	m_is_connected = false;
 	m_history.clear();
+	m_avatarHash.clear();
+	m_accountAvatar.clear();
 }
 
 void BuddyPicture::updateSettings()
@@ -231,10 +272,15 @@ bool BuddyPicture::setAvatar(QObject *obj, const QByteArray &hash)
 {
 	if (obj->property("iconHash").toByteArray() == hash)
 		return true;
-	QFileInfo file(getAvatarDir() + hash.toHex());
-	if (file.exists()) {
-		updateData(obj, hash, file.filePath());
+	if (hash == emptyHash) {
+		updateData(obj, hash, "");
 		return true;
+	} else {
+		QFileInfo file(getAvatarDir() + hash.toHex());
+		if (file.exists()) {
+			updateData(obj, hash, file.filePath());
+			return true;
+		}
 	}
 	return false;
 }
@@ -242,10 +288,31 @@ bool BuddyPicture::setAvatar(QObject *obj, const QByteArray &hash)
 void BuddyPicture::updateData(QObject *obj, const QByteArray &hash, const QString &path)
 {
 	obj->setProperty("iconHash", hash);
-	obj->setProperty("avatar", path);
+	if (IcqAccount *account = qobject_cast<IcqAccount*>(obj)) {
+		account->d_func()->avatar = path;
+		emit account->avatarChanged(path);
+	} else {
+		obj->setProperty("avatar", path);
+	}
 	Config cfg = account()->config("avatars").group("hashes");
 	cfg.setValue(obj->property("id").toString(), QString::fromLatin1(hash.toHex()));
 	cfg.sync();
+}
+
+void BuddyPicture::saveImage(QObject *obj, const QByteArray &image, const QByteArray &hash)
+{
+	if (!image.isEmpty()) {
+		QString imagePath = getAvatarDir();
+		QDir dir(imagePath);
+		if (!dir.exists())
+			dir.mkpath(imagePath);
+		imagePath += hash.toHex();
+		QFile iconFile(imagePath);
+		if (!iconFile.exists() && iconFile.open(QIODevice::WriteOnly)) {
+			iconFile.write(image);
+			updateData(obj, hash, imagePath);
+		}
+	}
 }
 
 } } // namespace qutim_sdk_0_3::oscar

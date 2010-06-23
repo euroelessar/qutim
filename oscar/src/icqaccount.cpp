@@ -21,7 +21,6 @@
 #include "roster_p.h"
 #include "buddycaps.h"
 #include "oscarstatus.h"
-#include "buddypicture.h"
 #include "inforequest_p.h"
 #include <qutim/status.h>
 #include <qutim/systeminfo.h>
@@ -95,7 +94,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
 	foreach(const ObjectGenerator *gen, moduleGenerators<FeedbagItemHandler>())
 		d->feedbag->registerHandler(gen->generate<FeedbagItemHandler>());
-	d->conn->registerHandler(new BuddyPicture(this, this));
+	d->conn->registerHandler(d->buddyPicture = new BuddyPicture(this, this));
 	{
 		Config statusCfg = cfg.group("lastStatus");
 		int type = statusCfg.value("type", static_cast<int>(Status::Offline));
@@ -251,6 +250,16 @@ QString IcqAccount::name() const
 		return d->name;
 	else
 		return id();
+}
+
+QString IcqAccount::avatar() const
+{
+	return d_func()->avatar;
+}
+
+void IcqAccount::setAvatar(const QString &avatar)
+{
+	d_func()->buddyPicture->setAccountAvatar(avatar);
 }
 
 ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
