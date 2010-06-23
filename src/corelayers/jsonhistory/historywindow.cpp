@@ -356,6 +356,7 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 				if ( from_nickname.contains( "-" ) )
 					from_nickname.remove( QRegExp( ".*-\\s" ) );
 				QString history_html;
+				bool history_service;
 				QDateTime history_date_time;
 				bool history_in;
 				QString history_message;
@@ -378,17 +379,25 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 					else
 					{
 						QVariantMap message = val.toMap();
+						history_service = message.value("service", false).toBool();
 						history_date_time = QDateTime::fromString(message.value("datetime").toString(), Qt::ISODate);
 						history_in = message.value("in", false).toBool();
-						history_message = message.value("text").toString();
+						history_message = message.value("html").toString();
+						if (history_message.isEmpty())
+							history_message = message.value("text").toString();;
 						QVariant sender = message.value("senderName", history_in ? from_nickname : account_nickname);
 
 						if ( history_date_time.date().day() == day )
 						{
 							QString history_html_2;
 							history_in ? in++ : out++;
-							history_html_2 += history_in ? "<b><font color='red'>" : "<b><font color='blue'>";
-							history_html_2 += sender.toString();
+							if (history_service)
+								history_html_2 += "<b><font color='green'>" + tr("Service message");
+							else
+							{
+								history_html_2 += history_in ? "<b><font color='red'>" : "<b><font color='blue'>";
+								history_html_2 += sender.toString();
+							}
 							history_html_2 += " (";
 							history_html_2 += history_date_time.time().toString();
 							history_html_2 += ")</font></b><br>";
