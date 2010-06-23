@@ -82,6 +82,7 @@ macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir libs_to_link )
     file( GLOB_RECURSE ${plugin_name}_SRC "${CMAKE_CURRENT_SOURCE_DIR}/${src_dir}/*.cpp" )
     file( GLOB_RECURSE ${plugin_name}_HDR "${CMAKE_CURRENT_SOURCE_DIR}/${src_dir}/*.h" )
     file( GLOB_RECURSE ${plugin_name}_UI "${CMAKE_CURRENT_SOURCE_DIR}/${src_dir}/*.ui" )
+    file( GLOB_RECURSE ${plugin_name}_RES "${CMAKE_CURRENT_SOURCE_DIR}/*.qrc" )	
     message( "${${plugin_name}_SRC}" )
 
     INCLUDE_DIRECTORIES ( ${hdr_dir} )
@@ -91,10 +92,10 @@ macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir libs_to_link )
 
     QT4_WRAP_CPP (${plugin_name}_MOC_SRC ${${plugin_name}_HDR})
     QT4_WRAP_UI (${plugin_name}_UI_H ${${plugin_name}_UI})
-    #QT4_ADD_RESOURCES (${plugin_name}_RCC ${${plugin_name}_RES})
+    QT4_ADD_RESOURCES (${plugin_name}_RCC ${${plugin_name}_RES})
 
     # This project will generate library
-	ADD_LIBRARY( ${plugin_name} SHARED ${${plugin_name}_SRC} ${${plugin_name}_MOC_SRC} ${${plugin_name}_HDR} ${${plugin_name}_UI_H} )
+	ADD_LIBRARY( ${plugin_name} SHARED ${${plugin_name}_SRC} ${${plugin_name}_MOC_SRC} ${${plugin_name}_HDR} ${${plugin_name}_UI_H} ${${plugin_name}_RCC} )
     if( CMAKE_COMPILER_IS_GNUCXX )
         set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "-Wall -Werror" )
     endif( CMAKE_COMPILER_IS_GNUCXX )
