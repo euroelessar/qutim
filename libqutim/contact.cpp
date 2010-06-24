@@ -13,20 +13,18 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "contact.h"
-#include "buddy_p.h"
+#include "contact_p.h"
 #include "account.h"
-#include <libqutim/icon.h>
+#include "icon.h"
+#include "metacontact.h"
 
 namespace qutim_sdk_0_3
 {
-	class ContactPrivate : public BuddyPrivate
-	{
-	public:
-		ContactPrivate(Contact *c) : BuddyPrivate(c) {}
-	};
-
 	Contact::Contact(Account *account) : Buddy(*new ContactPrivate(this), account)
+	{
+	}
+	
+	Contact::Contact(ContactPrivate &d, Account *account) : Buddy(d, account)
 	{
 	}
 
@@ -44,5 +42,19 @@ namespace qutim_sdk_0_3
 	QStringList Contact::tags() const
 	{
 		return QStringList();
+	}
+	
+	ChatUnit *Contact::upperUnit()
+	{
+		return d_func()->metaContact;
+	}
+	
+	bool Contact::event(QEvent *e)
+	{
+		if (e->type() == MetaContactChangeEvent::eventType()) {
+			MetaContactChangeEvent *metaEvent = static_cast<MetaContactChangeEvent*>(e);
+			d_func()->metaContact = metaEvent->newMetaContact();
+		}
+		return QObject::event(e);
 	}
 }

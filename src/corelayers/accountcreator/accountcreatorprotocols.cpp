@@ -3,6 +3,7 @@
 #include "libqutim/extensioninfo.h"
 #include "libqutim/icon.h"
 #include "ui_accountcreatorprotocols.h"
+#include <QDebug>
 
 namespace Core
 {
@@ -12,6 +13,10 @@ namespace Core
 		m_wizard(parent)
 	{
 		m_ui->setupUi(this);
+		
+		connect(m_ui->protocolsBox, SIGNAL(currentIndexChanged(int)),
+				this, SIGNAL(completeChanged()));
+		qDebug() << Q_FUNC_INFO;
 		m_lastId = Id;
 		QSet<QByteArray> protocols;
 		foreach (Protocol *protocol, allProtocols()) {
@@ -58,14 +63,21 @@ namespace Core
 
 	bool AccountCreatorProtocols::isComplete() const
 	{
+		qDebug() << Q_FUNC_INFO << (m_ui->protocolsBox->currentIndex() != -1);
 		return m_ui->protocolsBox->currentIndex() != -1;
 	}
 
 	int AccountCreatorProtocols::nextId() const
 	{
+		qDebug() << Q_FUNC_INFO << (m_ui->protocolsBox->count() == 0)
+				<< (const_cast<AccountCreatorProtocols *>(this)->ensureCurrentProtocol() == m_wizardIds.end())
+				<< (const_cast<AccountCreatorProtocols *>(this)->ensureCurrentProtocol() == m_wizardIds.end()
+					? m_lastId + 1 : const_cast<AccountCreatorProtocols *>(this)->ensureCurrentProtocol().value());
+		if (m_ui->protocolsBox->count() == 0)
+			return -1;
 		QMap<AccountCreationWizard *, int>::iterator it
 				= const_cast<AccountCreatorProtocols *>(this)->ensureCurrentProtocol();
-		return it == m_wizardIds.end() ? -1 : it.value();
+		return (it == m_wizardIds.end()  || it.value() == -1) ? m_lastId + 1 : it.value();
 	}
 
 	void AccountCreatorProtocols::on_protocolsBox_currentIndexChanged(int index)

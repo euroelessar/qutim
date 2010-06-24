@@ -22,6 +22,7 @@
 #include <QLineEdit>
 #include <libqutim/qtwin.h>
 #include <libqutim/shortcut.h>
+#include "libqutim/metacontactmanager.h"
 #include <QMainWindow>
 #include "simplestatusdialog.h"
 
@@ -199,6 +200,9 @@ namespace Core
 			bottom_layout->setSpacing(0);
 			bottom_layout->setMargin(0);;
 			layout->addLayout(bottom_layout);
+
+			connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
+					this, SLOT(addContact(qutim_sdk_0_3::Contact*)));			
 
 			foreach(Protocol *proto, allProtocols()) {
 				connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));

@@ -34,6 +34,7 @@ namespace Core
 		{
 			Q_OBJECT
 			Q_CLASSINFO("Uses", "IconLoader")
+			Q_CLASSINFO("Uses", "MetaContactManager")
 		public:
 			virtual QList<ChatSession* > sessions();
 			ChatLayerImpl();

@@ -24,6 +24,8 @@ namespace qutim_sdk_0_3
 	class Account;
 	class MetaContact;
 	class Message;
+	class ContactPrivate;
+
 	typedef QPair<LocalizedString, QVariant> InfoField;
 	typedef QList<InfoField> InfoFieldList;
 
@@ -33,6 +35,7 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT Contact : public Buddy
 	{
 		Q_OBJECT
+		Q_DECLARE_PRIVATE(Contact)
 		Q_PROPERTY(QStringList tags READ tags WRITE setTags NOTIFY tagsChanged)
 		Q_PROPERTY(bool inList READ isInList WRITE setInList NOTIFY inListChanged)
 	public:
@@ -42,6 +45,7 @@ namespace qutim_sdk_0_3
 		* @param account Pointer to chatunit's account
 		*/
 		Contact(Account *account);
+		Contact(ContactPrivate &d, Account *account);
 		/**
 		* @brief Contact's destructor
 		*/
@@ -78,12 +82,17 @@ namespace qutim_sdk_0_3
 		* @brief remove contact from contactlist, see also setInList(bool inList)
 		*/
 		void removeFromList() { setInList(false); }
+		virtual ChatUnit *upperUnit();
+	protected:
+		bool event(QEvent *);
 	signals:
 		void avatarChanged(const QString &path);
 		void statusChanged(const qutim_sdk_0_3::Status &status);
 		void nameChanged(const QString &name);
 		void tagsChanged(const QStringList &tags);
 		void inListChanged(bool inList);
+	private:
+		friend class MetaContact;
 	};
 }
 

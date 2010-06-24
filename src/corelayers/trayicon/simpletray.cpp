@@ -15,7 +15,7 @@ class ProtocolSeparatorActionGenerator : public ActionGenerator
 {
 public:
 	ProtocolSeparatorActionGenerator(Protocol *proto, const ExtensionInfo &info) :
-			ActionGenerator(info.icon(), info.name(), 0, 0)
+			ActionGenerator(info.icon(), metaInfo(info.generator()->metaObject(),"Protocol"), 0, 0)
 	{
 		setType(-1);
 		m_proto = proto;

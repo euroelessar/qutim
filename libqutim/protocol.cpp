@@ -13,7 +13,7 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "protocol.h"
+#include "protocol_p.h"
 #include "account.h"
 #include "contact.h"
 #include "extensioninfo.h"
@@ -47,12 +47,11 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(data);
 	}
 
-	struct ProtocolPrivate
+	Protocol::Protocol() : d_ptr(new ProtocolPrivate)
 	{
-		mutable QString id;
-	};
-
-	Protocol::Protocol() : p(new ProtocolPrivate)
+	}
+	
+	Protocol::Protocol(ProtocolPrivate &p) : d_ptr(&p)
 	{
 	}
 
@@ -72,9 +71,10 @@ namespace qutim_sdk_0_3
 
 	QString Protocol::id() const
 	{
-		if(p->id.isNull())
-			p->id = QString::fromUtf8(metaInfo(metaObject(), "Protocol"));
-		return p->id;
+		Q_D(const Protocol);
+		if(d->id.isNull())
+			d->id = QString::fromUtf8(metaInfo(metaObject(), "Protocol"));
+		return d->id;
 	}
 
 	void Protocol::virtual_hook(int id, void *data)

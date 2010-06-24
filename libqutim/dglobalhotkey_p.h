@@ -48,6 +48,7 @@ private:
 
 	quint32 nativeModifiers( Qt::KeyboardModifiers m );
 	quint32 nativeKeycode( Qt::Key k );
+	static QAbstractEventDispatcher::EventFilter eventDispatcherFilter;
 };
 
 #endif // DGLOBALHOTKEY_H

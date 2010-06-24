@@ -46,6 +46,7 @@ namespace qutim_sdk_0_3
 		  XMPP or UIN for ICQ.
 		*/
 		Account(const QString &id, Protocol *protocol);
+		Account(AccountPrivate &p, Protocol *protocol);
 		/*!
 		  Account destructor
 		*/

@@ -7,14 +7,26 @@
 #include <libqutim/icon.h>
 #include "libqutim/configbase.h"
 #include "libqutim/debug.h"
+#include "libqutim/metacontact.h"
+#include "libqutim/metacontactmanager.h"
+#include <QBasicTimer>
 #include <QInputDialog>
 #include <QMimeData>
+#include <QMessageBox>
 #include "simpletagseditor/simpletagseditor.h"
 
 namespace Core
 {
 	namespace SimpleContactList
 	{
+		struct ChangeEvent
+		{
+			enum Type { ChangeTags, MergeContacts } type;
+			void *child;
+			void *parent;
+			
+		};
+		
 		struct ModelPrivate
 		{
 			QTreeView *view;
@@ -22,6 +34,8 @@ namespace Core
 			QHash<QString, TagItem *> tagsHash;
 			QMap<Contact *, ContactData::Ptr> contacts;
 			QSet<QString> closedTags;
+			QList<ChangeEvent*> events;
+			QBasicTimer timer;
 			QString lastFilter;
 			QStringList filteredTags;
 			bool showOffline;			
@@ -199,14 +213,36 @@ namespace Core
 		{
 			if(p->contacts.contains(contact))
 				return;
+
+			MetaContact *meta = qobject_cast<MetaContact*>(contact);
+
+			if (!meta) {
+				meta = qobject_cast<MetaContact*>(contact->upperUnit());
+				if (meta && p->contacts.contains(meta))
+					return;
+				else if (meta)
+					contact = meta;
+			}
+			
+			if (meta) {
+				meta->installEventFilter(this);
+				foreach (ChatUnit *unit, meta->lowerUnits()) {
+					Contact *subContact = qobject_cast<Contact*>(unit);
+					if (subContact && p->contacts.contains(subContact))
+						removeContact(subContact);
+				}
+			}
+
 			connect(contact, SIGNAL(destroyed(QObject*)), this, SLOT(contactDeleted(QObject*)));
-            connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(contactStatusChanged(qutim_sdk_0_3::Status)));
-            connect(contact, SIGNAL(nameChanged(QString)), SLOT(contactNameChanged(QString)));
+			connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(contactStatusChanged(qutim_sdk_0_3::Status)));
+			connect(contact, SIGNAL(nameChanged(QString)), SLOT(contactNameChanged(QString)));
 			connect(contact, SIGNAL(tagsChanged(QStringList)), SLOT(contactTagsChanged(QStringList)));
 			connect(contact, SIGNAL(inListChanged(bool)),SLOT(onContactInListChanged(bool)));
+
 			QStringList tags = contact->tags();
 			if(tags.isEmpty())
 				tags << QLatin1String("Default");
+
 			ContactData::Ptr item_data(new ContactData);
 			item_data->contact = contact;
 			item_data->tags = QSet<QString>::fromList(tags);
@@ -262,7 +298,7 @@ namespace Core
 			if (type == TagType)
 				flags |= Qt::ItemIsDropEnabled;
 			else if (type == ContactType)
-				flags |= Qt::ItemIsDragEnabled | Qt::ItemIsEditable;
+				flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
 
 			return flags;
 		}
@@ -314,19 +350,22 @@ namespace Core
 			stream >> row >> column >> internalId;
 
 			QModelIndex index = createIndex(row, column, reinterpret_cast<void*>(internalId));
-			if (getItemType(index) != ContactType || getItemType(parent) != TagType)
+			qDebug() << Q_FUNC_INFO;
+			if (getItemType(index) != ContactType
+				|| (getItemType(parent) != ContactType && getItemType(parent) != TagType)) {
 				return false;
-
-			ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
-			TagItem *tag = reinterpret_cast<TagItem*>(parent.internalPointer());
-			if (tag->name == item->parent->name)
-				return false;
-
-			QSet<QString> tags = item->data->tags;
-			tags.remove(item->parent->name);
-			tags.insert(tag->name);
-			item->data->contact->setTags(tags.toList());
-			debug() << "Moving contact from" << item->data->tags << "to" << tags;
+			}
+			
+			ChangeEvent *ev = new ChangeEvent;
+			ev->child = index.internalPointer();
+			ev->parent = parent.internalPointer();
+			qDebug() << ev->type;
+			if (getItemType(parent) == TagType)
+				ev->type = ChangeEvent::ChangeTags;
+			else if(getItemType(parent) == ContactType)
+				ev->type = ChangeEvent::MergeContacts;
+			p->events << ev;
+			p->timer.start(1, this);
 
 			// We should return false
 			return false;
@@ -364,13 +403,21 @@ namespace Core
 
 		void Model::contactDeleted(QObject *obj)
 		{
-				Contact *contact = reinterpret_cast<Contact *>(obj);
-				removeFromContactList(contact,true);
+			Contact *contact = reinterpret_cast<Contact *>(obj);
+			removeFromContactList(contact,true);
 		}
 
 		void Model::removeContact(Contact *contact)
 		{
 			Q_ASSERT(contact);
+			if (MetaContact *meta = qobject_cast<MetaContact*>(contact)) {
+				contact->removeEventFilter(this);
+				foreach (ChatUnit *unit, meta->lowerUnits()) {
+					Contact *subContact = qobject_cast<Contact*>(unit);
+					if (subContact && !p->contacts.contains(subContact))
+						addContact(subContact);
+				}
+			}
 			contact->disconnect(this);
 			removeFromContactList(contact,false);
 		}
@@ -576,6 +623,92 @@ namespace Core
 		QStringList Model::selectedTags() const
 		{
 			return p->filteredTags;
+		}
+		
+		void Model::processEvent(ChangeEvent *ev)
+		{
+			ContactItem *item = reinterpret_cast<ContactItem*>(ev->child);
+			if (ev->type == ChangeEvent::ChangeTags) {
+				TagItem *tag = reinterpret_cast<TagItem*>(ev->parent);
+				if (tag->name == item->parent->name)
+					return;
+	
+				QSet<QString> tags = item->data->tags;
+				tags.remove(item->parent->name);
+				tags.insert(tag->name);
+				item->data->contact->setTags(tags.toList());
+				debug() << "Moving contact from" << item->data->tags << "to" << tags;
+			} else if (ev->type == ChangeEvent::MergeContacts) { // MetaContacts
+				ContactItem *parentItem = reinterpret_cast<ContactItem*>(ev->parent);
+				MetaContact *childMeta = qobject_cast<MetaContact*>(item->data->contact);
+				MetaContact *meta = qobject_cast<MetaContact*>(parentItem->data->contact);
+				
+				QString text;
+				if (!childMeta && !meta) {
+					text = tr("Would you like to merge contacts \"%1\" <%2> and \"%3\" <%4>?");
+					text = text.arg(item->data->contact->name(),
+									item->data->contact->id(),
+									parentItem->data->contact->name(),
+									parentItem->data->contact->id());
+				} else if (childMeta && meta) {
+					text = tr("Would you like to merge metacontacts \"%1\" and \"%2\"?");
+					text = text.arg(childMeta->title(), meta->title());
+				} else {
+					text = tr("Would you like to add \"%1\" <%2> to metacontact \"%3\"?");
+					Contact *c = (meta ? item : parentItem)->data->contact;
+					MetaContact *m = meta ? meta : childMeta;
+					text = text.arg(c->name(), c->id(), m->name());
+				}
+				
+				if (QMessageBox::Yes == QMessageBox::question(qobject_cast<QWidget*>(QObject::parent()),
+															  tr("Contacts' merging"), text,
+															  QMessageBox::Yes | QMessageBox::No)) {
+					if (childMeta && !meta) {
+						meta = childMeta;
+						childMeta = 0;
+					} else if (!meta) {
+						meta = MetaContactManager::instance()->createContact();
+						meta->addContact(parentItem->data->contact);
+					} else if (childMeta && meta) {
+						foreach (ChatUnit *unit, childMeta->lowerUnits()) {
+							Contact *contact = qobject_cast<Contact*>(unit);
+							if (contact)
+								meta->addContact(contact);
+						}
+						childMeta->deleteLater();
+						return;
+					}
+					if (!childMeta)
+						meta->addContact(item->data->contact);
+				}
+			}
+		}
+		
+		void Model::timerEvent(QTimerEvent *timerEvent)
+		{
+			if (timerEvent->timerId() == p->timer.timerId()) {
+				for (int i = 0; i < p->events.size(); i++) {
+					processEvent(p->events.at(i));
+					delete p->events.at(i);
+				}
+				p->events.clear();
+				p->timer.stop();
+				return;
+			}
+			QAbstractItemModel::timerEvent(timerEvent);
+		}
+
+		bool Model::eventFilter(QObject *obj, QEvent *ev)
+		{
+			if (ev->type() == MetaContactChangeEvent::eventType()) {
+				MetaContactChangeEvent *metaEvent = static_cast<MetaContactChangeEvent*>(ev);
+				if (metaEvent->oldMetaContact() && !metaEvent->newMetaContact())
+					addContact(metaEvent->contact());
+				else if (!metaEvent->oldMetaContact() && metaEvent->newMetaContact())
+					removeContact(metaEvent->contact());
+				return false;
+			}
+			return QAbstractItemModel::eventFilter(obj, ev);
 		}
 
 		void Model::onTagsEditAction()

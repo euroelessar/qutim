@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3
 	class ExtensionInfo;
 	class Contact;
 	class Account;
-	struct ProtocolPrivate;
+	class ProtocolPrivate;
 
 	class LIBQUTIM_EXPORT AccountCreationWizard : public QObject
 	{
@@ -43,12 +43,14 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT Protocol : public QObject
 	{
 		Q_OBJECT
+		Q_DECLARE_PRIVATE(Protocol)
 		Q_PROPERTY(QString id READ id)
 	public:
 		enum DataType {
 			ProtocolIdName, ProtocolContainsContacts
 		};
 		Protocol();
+		Protocol(ProtocolPrivate &p);
 		virtual ~Protocol();
 		Config config();
 		ConfigGroup config(const QString &group);
@@ -63,7 +65,8 @@ namespace qutim_sdk_0_3
 	private:
 		virtual void loadAccounts() = 0;
 		friend class ModuleManager;
-		QScopedPointer<ProtocolPrivate> p;
+	protected:
+		QScopedPointer<ProtocolPrivate> d_ptr;
 	};
 }
 

@@ -21,6 +21,8 @@
 #include "protocol.h"
 #include "notificationslayer.h"
 #include "systeminfo.h"
+#include "metacontactmanager.h"
+#include "libqutim/icon.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
@@ -41,6 +43,8 @@
 #include <QMessageBox>
 #include <QLibraryInfo>
 #endif
+
+#define NO_COMMANDS 1
 
 namespace qutim_sdk_0_3
 {
@@ -170,6 +174,41 @@ namespace qutim_sdk_0_3
 		return map;
 	}
 
+#ifndef NO_COMMANDS
+	QString formatVersion(quint32 version)
+	{
+		QString str;
+		str += QString::number((version & 0xff000000) >> 24);
+		str += QLatin1Char('.');
+		str += QString::number((version & 0x00ff0000) >> 16);
+		str += QLatin1Char('.');
+		str += QString::number((version & 0x0000ff00) >> 8);
+		str += QLatin1Char('.');
+		str += QString::number( version & 0x000000ff);
+		return str;
+	}
+	
+	static void printVersion()
+	{
+		QString version;
+		QTextStream str(&version);
+		str << "\n  " << qApp->applicationName() << ' ' << qutimVersionStr()
+				<< " based on Qt " << qVersion() << "\n\n";
+		foreach (Plugin *plugin, p->plugins) {
+			PluginInfo info = plugin->info();
+			str << "  " << info.name() << ' ' << formatVersion(info.version())
+					<< ' ' << info.description() <<  '\n';
+		}
+
+		str << "\n  " << "GPL v2 or any later" << '\n';
+		qDebug("%s", qPrintable(version));
+	}
+	
+	static void printHelp(const QList<CommandArgumentsHandler*> &handlers)
+	{
+	}
+#endif // NO_COMMANDS
+
 	/**
 	 * This is ModuleManager constructor.
 	 */
@@ -203,7 +242,7 @@ namespace qutim_sdk_0_3
 		//simple S60 plugins loader
 		QDir pluginsDir(QLibraryInfo::location(QLibraryInfo::PluginsPath));
 
-		// "qutim" is the folder where you are exported plugins
+		// "qutim" is the folder where plugins are exported
 		// by Qt macro Q_EXPORT_PLUGIN2(qutim, YourPlugin);
 		pluginsDir.cd("qutim");
 		p->extensions << coreExtensions();
@@ -216,6 +255,7 @@ namespace qutim_sdk_0_3
 				QMessageBox msg;
 				msg.setText(tr("Could not load plugin: \n %1").arg(fileName));
 				msg.exec();
+				delete pluginLoader;
 				continue;
 			}
 			// init plugin
@@ -240,10 +280,11 @@ namespace qutim_sdk_0_3
 					msg.exec();
 				}
 				pluginLoader->unload();
+				delete pluginLoader;
 			}
 		}
 
-#else
+#else // defined(Q_OS_SYMBIAN)
 		QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim", "qutimsettings");
 
 		QStringList paths = additional_paths;
@@ -331,7 +372,38 @@ namespace qutim_sdk_0_3
 			}
 		}
 
-#endif
+#ifndef NO_COMMANDS	
+		QStringList args = qApp->arguments();
+		if (args.size() > 1) {
+			QList<CommandArgumentsHandler*> handlers;
+			foreach (Plugin *plugin, p->plugins) {
+				CommandArgumentsHandler *handler = qobject_cast<CommandArgumentsHandler*>(plugin);
+				if (handler)
+					handlers << handler;
+			}
+
+			QStringList::iterator it = args.begin();
+			QStringList::iterator itend = args.end();
+			// Skip program name
+			it++;
+			for (; it != itend; it++) {
+				if (*it == QLatin1String("-v")
+					|| *it == QLatin1String("--version")) {
+					printVersion();
+					qApp->quit();
+					return;
+				}
+				if (*it == QLatin1String("-h")
+					|| *it == QLatin1String("--help")) {
+					printHelp(handlers);
+					qApp->quit();
+					return;
+				}
+			}
+		}
+#endif // NO_COMMANDS
+
+#endif // defined(Q_OS_SYMBIAN)
 
 		foreach (const ExtensionInfo &info, p->extensions)
 			p->extensionsHash.insert(info.generator()->metaObject()->className(), info);
@@ -528,6 +600,7 @@ namespace qutim_sdk_0_3
 			group.setValue("list", selected);
 			group.sync();
 		}
+		qApp->setWindowIcon(Icon("qutim"));
 		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(qobject_interface_iid<StartupModule *>());
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
@@ -544,6 +617,9 @@ namespace qutim_sdk_0_3
 
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();
+		if (MetaContactManager *manager = MetaContactManager::instance())
+			manager->loadContacts();
+		Event("startup").send();
 		Notifications::sendNotification(Notifications::Startup, 0);
 	}
 	
