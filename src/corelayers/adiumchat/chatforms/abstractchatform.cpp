@@ -90,7 +90,7 @@ namespace Core
 			QHash<QString, QPointer<AbstractChatWidget> >::const_iterator it;
 			ChatSessionImpl *session = qobject_cast<ChatSessionImpl*>(sess);
 			for (it=m_chatwidgets.constBegin();it!=m_chatwidgets.constEnd();it++) {
-				if (it.value()->contains(session))
+				if ((*it) && it.value()->contains(session))
 					return it.value();
 			}
 			return 0;

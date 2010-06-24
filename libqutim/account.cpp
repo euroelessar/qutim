@@ -15,28 +15,22 @@
 
 #include <QPointer>
 #include <QStringBuilder>
-#include "menucontroller_p.h"
-#include "account.h"
+#include "account_p.h"
 #include "contact.h"
-#include "protocol.h"
-#include "status.h"
 
 namespace qutim_sdk_0_3
 {
-	class AccountPrivate : public MenuControllerPrivate
-	{
-	public:
-		AccountPrivate(Account *a) : MenuControllerPrivate(a) {}
-		QPointer<Protocol> protocol;
-		QString id;
-		Status status;
-	};
-
 	Account::Account(const QString &id, Protocol *protocol) : MenuController(*new AccountPrivate(this), protocol)
 	{
 		Q_D(Account);
 		d->protocol = protocol;
 		d->id = id;
+	}
+
+	Account::Account(AccountPrivate &p, Protocol *protocol) : MenuController(p, protocol)
+	{
+		Q_D(Account);
+		d->protocol = protocol;
 	}
 
 	Account::~Account()

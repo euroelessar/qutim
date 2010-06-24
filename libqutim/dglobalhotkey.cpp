@@ -26,10 +26,13 @@
 #elif defined( Q_WS_MAC )
 # include <Carbon/Carbon.h>
 #endif
+#include <cwchar>
+
+QAbstractEventDispatcher::EventFilter dGlobalHotKey::eventDispatcherFilter = 0;
 
 dGlobalHotKey::dGlobalHotKey()
 {
-	QAbstractEventDispatcher::instance()->setEventFilter( eventFilter );
+	eventDispatcherFilter = QAbstractEventDispatcher::instance()->setEventFilter( eventFilter );
 }
 
 dGlobalHotKey::~dGlobalHotKey()
@@ -103,6 +106,8 @@ bool dGlobalHotKey::eventFilter( void *e )
 		Q_UNUSED(e);
 #endif
 
+	if (eventDispatcherFilter)
+		return eventDispatcherFilter(e);
 	return false;
 }
 

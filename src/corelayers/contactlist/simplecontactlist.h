@@ -19,6 +19,7 @@ namespace Core
 			Q_PROPERTY(QWidget* widget READ widget)
 			Q_CLASSINFO("Service", "ContactList")
 			Q_CLASSINFO("Uses", "IconLoader")
+			Q_CLASSINFO("Uses", "MetaContactManager")
 		public:
 			Module();
 			virtual ~Module();			

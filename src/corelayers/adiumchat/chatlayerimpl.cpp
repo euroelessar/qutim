@@ -17,6 +17,7 @@
 #include <libqutim/account.h>
 #include "chatsessionimpl.h"
 #include "modulemanagerimpl.h"
+#include "libqutim/metacontact.h"
 #include <libqutim/debug.h>
 #include <libqutim/settingslayer.h>
 #include <libqutim/icon.h>
@@ -72,6 +73,11 @@ namespace Core
 
 		ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
 		{
+			// TODO: Think, is it good idea or we need smth more intellegent?
+			if (Contact *contact = qobject_cast<Contact*>(unit)) {
+				if (MetaContact *meta = qobject_cast<MetaContact*>(contact->upperUnit()))
+					unit = meta;
+			}
 			//find or create session
 			if(!(unit = getUnitForSession(unit)))
 				return 0;

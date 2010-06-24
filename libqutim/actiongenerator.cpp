@@ -27,7 +27,7 @@ namespace qutim_sdk_0_3
 
 	QEvent::Type ActionCreatedEvent::eventType()
 	{
-		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 103));
+		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 102));
 		return type;
 	}
 

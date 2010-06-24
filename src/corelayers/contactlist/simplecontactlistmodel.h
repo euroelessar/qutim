@@ -11,6 +11,8 @@ namespace Core
 		struct ModelPrivate;
 		class Model;
 		
+		struct ChangeEvent;
+		
 		class AddRemoveContactActionGenerator : public ActionGenerator
 		{
 		public:
@@ -45,6 +47,9 @@ namespace Core
 			bool showOffline() const;
 			QStringList tags() const;
 			QStringList selectedTags() const;
+
+			void processEvent(ChangeEvent *ev);
+			bool eventFilter(QObject *obj, QEvent *ev);
 		public slots:
 			void onFilterList(const QStringList &tags);
 		protected slots:
@@ -61,6 +66,8 @@ namespace Core
 			void onTagsEditAction();
 			void onExpanded(const QModelIndex &index);
 			void onContactInListChanged(bool isInList);
+		protected:
+			void timerEvent(QTimerEvent *ev);
 		private:
 			void filterAllList();
 			bool isVisible(ContactItem *item);

@@ -59,6 +59,23 @@ namespace qutim_sdk_0_3
 		Data *data();
 #endif
 	};
+	
+	struct LIBQUTIM_EXPORT CommandArgumentDescription
+	{
+		QString name;
+		QString parameter;
+		QString description;
+	};
+	
+	typedef QList<CommandArgumentDescription> CommandArgumentDescriptions;
+	
+	class LIBQUTIM_EXPORT CommandArgumentsHandler
+	{
+	public:
+		virtual ~CommandArgumentsHandler() {}
+		virtual CommandArgumentDescriptions descriptions() = 0;
+		virtual void addArgument(const QString &arg) = 0;
+	};
 
 #ifndef Q_QDOC
 	typedef void ( /*QObject::*/ *ModuleInit)();
@@ -105,17 +122,6 @@ namespace qutim_sdk_0_3
 	};
 }
 
-#define QUTIM_EXPORT_PLUGIN(Plugin) \
-	Q_EXPORT_PLUGIN(Plugin) \
-	static const char *qutim_plugin_verification_data = \
-	"pattern=""QUTIM_PLUGIN_VERIFICATION_DATA""\n" \
-	"libqutim="QUTIM_VERSION_STR"\0"; \
-	Q_EXTERN_C Q_DECL_EXPORT \
-	const char * Q_STANDARD_CALL qutim_plugin_query_verification_data() \
-	{ return qutim_plugin_verification_data; } \
-	LIBQUTIM_NO_EXPORT qptrdiff qutim_plugin_id() \
-	{ return reinterpret_cast<qptrdiff>(&Plugin::staticMetaObject); }
-
 #define QUTIM_EXPORT_PLUGIN2(Plugin,Class) \
 	Q_EXPORT_PLUGIN2(Plugin,Class) \
 	static const char *qutim_plugin_verification_data = \
@@ -126,5 +132,10 @@ namespace qutim_sdk_0_3
 	{ return qutim_plugin_verification_data; } \
 	LIBQUTIM_NO_EXPORT qptrdiff qutim_plugin_id() \
 	{ return reinterpret_cast<qptrdiff>(&Class::staticMetaObject); }
+	
+#define QUTIM_EXPORT_PLUGIN(Plugin) \
+	QUTIM_EXPORT_PLUGIN2(Plugin, Plugin)
+			
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::CommandArgumentsHandler, "org.qutim.CommandArgumentsHandler")
 
 #endif // PLUGIN_H

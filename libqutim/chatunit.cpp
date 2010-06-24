@@ -91,8 +91,8 @@ namespace qutim_sdk_0_3
 	{
 		Message message(text);
 		message.setIncoming(false);
-		sendMessage(message);
-		return message.id();
+		bool ok = sendMessage(message);
+		return ok ? message.id() : -1;
 	}
 
 	void ChatUnit::setChatState(ChatState state)
