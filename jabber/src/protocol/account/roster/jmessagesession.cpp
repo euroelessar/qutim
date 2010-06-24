@@ -75,24 +75,34 @@ namespace Jabber
 
 	void JMessageReceiptFilter::filter(gloox::Message &msg)
 	{
-		QHash<QByteArray, quint64>::iterator it = m_messages.find(QByteArray(msg.id().data(), msg.id().size()));
-		if (it == m_messages.end()) {
-			if (const Receipt *receipt = msg.findExtension<Receipt>(ExtReceipt)) {
-				if (receipt->rcpt() == Receipt::Request) {
-					gloox::Message message(msg.subtype(), msg.from());
-					message.setID(msg.id());
-					message.addExtension(new Receipt(Receipt::Received));
-					send(message);
-				}
-			}
-			return;
-		}
 		if (const Receipt *receipt = msg.findExtension<Receipt>(ExtReceipt)) {
-			QEvent *ev = new qutim_sdk_0_3::MessageReceiptEvent(it.value(), receipt->rcpt() == Receipt::Received);
-			if (ChatSession *session = ChatLayer::get(m_session, false))
-				qApp->postEvent(session, ev);
+			if (receipt->rcpt() == Receipt::Request) {
+				gloox::Message message(msg.subtype(), msg.from());
+#if 0
+				// It's correct behaviour
+				Client *client = static_cast<JAccount*>(m_session->account())->client();
+				message.setID(client->getID());
+#else
+				// And it's legacy one, but compatible with qutIM 0.2 and other clients
+				message.setID(msg.id());
+#endif
+				message.addExtension(new Receipt(Receipt::Received, msg.id()));
+				send(message);
+				return;
+			}
+			QHash<QByteArray, quint64>::iterator it = m_messages.find(QByteArray(receipt->id().data(), receipt->id().size()));
+			if (it == m_messages.end())
+				it = m_messages.find(QByteArray(msg.id().data(), msg.id().size()));
+			if (it == m_messages.end())
+				return;
+			if (receipt->rcpt() == Receipt::Received) {
+				QEvent *ev = new qutim_sdk_0_3::MessageReceiptEvent(it.value(), true);
+				if (ChatSession *session = ChatLayer::get(m_session, false))
+					qApp->postEvent(session, ev);
+				m_messages.erase(it);
+				return;
+			}
 		}
-		m_messages.erase(it);
 	}
 
 	struct JMessageSessionPrivate

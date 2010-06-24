@@ -30,29 +30,27 @@ static QTextCodec *_asciiCodec;
 class CodecWrapper : public QTextCodec
 {
 public:
-	CodecWrapper()
-	{
-		utf8 = 0;
-		utf8 = static_cast<CodecWrapper*>(QTextCodec::codecForName("UTF-8"));
-	}
+	inline CodecWrapper() {}
 protected:
-	QByteArray name() const { return utf8 ? utf8->name() + " wrapper": "wrapper"; }
+	QByteArray name() const { return utf8Codec()->name() + " wrapper"; }
+	
 	QString convertToUnicode(const char *chars, int len, ConverterState *state) const
 	{
-		if (Json::isValidUtf8(chars, len, false)) {
-			return utf8->convertToUnicode(chars, len, state);
-		} else {
-			return static_cast<CodecWrapper*>(_asciiCodec)->convertToUnicode(chars, len, state);
-		}
+		if (Json::isValidUtf8(chars, len, false))
+			return utf8Codec()->toUnicode(chars, len, state);
+		else
+			return _asciiCodec->toUnicode(chars, len, state);
 	}
+	
 	QByteArray convertFromUnicode(const QChar *input, int number, ConverterState *state) const
 	{
-		return utf8->convertFromUnicode(input, number, state);
+		return utf8Codec()->fromUnicode(input, number, state);
 	}
-	int mibEnum() const { return utf8->mibEnum(); }
-private:
-	CodecWrapper *utf8;
+	
+	int mibEnum() const { return utf8Codec()->mibEnum(); }
 };
+
+Q_GLOBAL_STATIC(CodecWrapper, codecWrapper)
 
 extern QTextCodec *asciiCodec()
 {
@@ -85,8 +83,7 @@ extern QTextCodec *defaultCodec()
 
 extern QTextCodec *detectCodec()
 {
-	static CodecWrapper codec;
-	return &codec;
+	return codecWrapper();
 }
 
 } } } // namespace qutim_sdk_0_3::oscar::Util

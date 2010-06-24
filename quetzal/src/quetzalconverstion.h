@@ -29,7 +29,7 @@ public:
 
 	virtual QString id() const;
 	virtual QString title() const;
-	virtual void sendMessage(const Message &message);
+	virtual bool sendMessage(const Message &message);
 	PurpleConversation *conv() { return m_conv; }
 	virtual void update(PurpleConvUpdateType type);
 protected:

@@ -40,7 +40,7 @@ struct QuetzalScopedPointerDeleter
 	static inline void cleanup(void *pointer) { if (pointer) g_free(pointer); }
 };
 
-void QuetzalConversation::sendMessage(const Message &message)
+bool QuetzalConversation::sendMessage(const Message &message)
 {
 	if (m_conv->type == PURPLE_CONV_TYPE_IM) {
 		purple_conv_im_send(m_conv->u.im, message.text().toUtf8().constData());
@@ -59,6 +59,7 @@ void QuetzalConversation::sendMessage(const Message &message)
 //		}
 		purple_conv_chat_send(m_conv->u.chat, message.text().toUtf8().constData());
 	}
+	return true;
 }
 
 void QuetzalConversation::update(PurpleConvUpdateType type)
