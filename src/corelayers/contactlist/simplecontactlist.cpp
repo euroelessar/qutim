@@ -42,7 +42,7 @@ namespace Core
 				resize(150,0);//hack
 				connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 				setWindowIcon(Icon("qutim"));
-				setAttribute( Qt::WA_AlwaysShowToolTips );
+				setAttribute(Qt::WA_AlwaysShowToolTips);
 			}
 			void loadGeometry()
 			{
