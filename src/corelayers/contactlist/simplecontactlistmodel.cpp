@@ -381,7 +381,7 @@ namespace Core
 			ContactData::Ptr item_data = p->contacts.value(contact);
 			if(!item_data)
 				return;
-			if(status.type() == item_data->status.type())
+			if(status.type() == item_data->status.type() && status.text() == item_data->status.text())
 				return;
 			int counter = 0;
 			if (status.type() == Status::Offline)
