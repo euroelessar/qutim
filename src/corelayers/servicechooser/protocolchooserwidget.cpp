@@ -68,7 +68,7 @@ namespace Core
 			}
 			QIcon icon = Icon("help-hint");
 			//TODO Make normal names for the implementation of protocols			
-			ServiceItem *item = new ServiceItem(icon,ServiceChooser::className(info));
+			ServiceItem *item = new ServiceItem(icon,info.name());
 			//ServiceItem *item = new ServiceItem(icon,info.name());
 
 			item->setToolTip(ServiceChooser::html(info));
