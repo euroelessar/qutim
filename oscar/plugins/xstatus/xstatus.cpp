@@ -211,8 +211,7 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 			return;
 		}
 		IcqAccount *account = contact->account();
-		QVariantHash extStatuses = account->status().property("extendedStatuses", QVariantHash());
-		QVariantHash extStatus = extStatuses.value("xstatus", QVariantHash()).value<QVariantHash>();
+		QVariantMap extStatus = account->status().extendedStatus("xstatus");
 		XtrazResponse response("cAwaySrv", "OnRemoteNotification");
 		response.setValue("CASXtraSetAwayMessage", "");
 		response.setValue("uin", account->id());
@@ -295,15 +294,13 @@ void XStatusHandler::removeXStatuses(Capabilities &caps)
 void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon , const QString &desc)
 {
 	Status status = contact->status();
-	QVariantHash extStatuses = status.property("extendedStatuses", QVariantHash());
-	QVariantHash extStatus;
+	QVariantMap extStatus;
 	extStatus.insert("id", QT_TRANSLATE_NOOP("XStatus", "X-Status").toString());
 	extStatus.insert("title", unescape(title));
 	extStatus.insert("icon", QVariant::fromValue(icon));
 	if (!desc.isNull())
 		extStatus.insert("desc", unescape(desc));
-	extStatuses.insert("xstatus", extStatus);
-	status.setProperty("extendedStatuses", extStatuses);
+	status.setExtendedStatus("xstatus", extStatus);
 	contact->setStatus(status);
 }
 

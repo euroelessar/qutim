@@ -359,10 +359,10 @@ bool IcqContact::event(QEvent *ev)
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-		QVariantHash extStatuses = status().property("extendedStatuses", QVariantHash());
+		QVariantHash extStatuses = d->status.extendedStatuses();
 		if (!extStatuses.isEmpty()) {
 			foreach (const QVariant &itr, extStatuses) {
-				QVariantHash extStatus = itr.toHash();
+				QVariantMap extStatus = itr.toMap();
 				event->appendField(extStatus.value("title").toString(),
 								   extStatus.value("desc").toString(),
 								   extStatus.value("icon").value<ExtensionIcon>());
