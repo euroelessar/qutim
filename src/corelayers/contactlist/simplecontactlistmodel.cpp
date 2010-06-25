@@ -609,7 +609,7 @@ namespace Core
 			Contact *contact = MenuController::getController<Contact>(sender());
 			if (!contact)
 				return;
-			contact->deleteLater();
+			contact->setInList(!contact->isInList());
 		}
 
 		QStringList Model::tags() const
