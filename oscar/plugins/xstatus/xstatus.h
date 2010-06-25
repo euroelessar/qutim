@@ -25,6 +25,8 @@
 
 namespace qutim_sdk_0_3 {
 
+class Account;
+
 namespace oscar {
 
 enum QipStatusEnum
@@ -48,14 +50,16 @@ struct XStatus
 {
 	XStatus() { }
 	XStatus(const LocalizedString &status, const QString &icon,
-			qint8 mood, const Capability &capability);
-	LocalizedString status;
+			qint8 mood = -1, const Capability &capability = Capability());
+	QString name;
+	LocalizedString value;
 	ExtensionIcon icon;
 	qint8 mood;
 	Capability capability;
 };
 
 typedef QList<XStatus> XStatusList;
+XStatusList *xstatusList();
 
 class XStatusHandler: public Plugin, public Tlv2711Plugin, public RosterPlugin
 {
@@ -72,7 +76,13 @@ public:
 	bool handelXStatusCapabilities(IcqContact *contact, qint8 mood);
 	void removeXStatuses(Capabilities &caps);
 	void setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
+	void setXstatus(OscarStatus &status, int index, const QString &title, const ExtensionIcon &icon, const QString &desc);
 	static QHash<Capability, OscarStatus> qipstatuses;
+private slots:
+	void onSetCustomStatus();
+	void onCustomDialogAccepted();
+	void onAccountAdded(qutim_sdk_0_3::Account *account);
+	void onAccountStatusAboutToBeChanged(OscarStatus &newStatus);
 };
 
 } } // namespace qutim_sdk_0_3::oscar

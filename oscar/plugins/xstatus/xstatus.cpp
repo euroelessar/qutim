@@ -18,6 +18,8 @@
 #include "icqaccount.h"
 #include "oscarconnection.h"
 #include "sessiondataitem.h"
+#include "statusdialog.h"
+#include "icqprotocol.h"
 #include "qutim/icon.h"
 #include <qutim/extensionicon.h>
 #include <qutim/statusactiongenerator.h>
@@ -29,9 +31,10 @@ namespace oscar {
 
 QHash<Capability, OscarStatus> XStatusHandler::qipstatuses;
 
-static void init_xstatus_list(XStatusList &list)
+static XStatusList init_xstatus_list()
 {
-	list << XStatus()
+	XStatusList list;
+	list << XStatus("", "none")
 	    << XStatus(QT_TRANSLATE_NOOP("XStatus", "Angry"), "angry", 23,
 		       Capability(0x01, 0xD8, 0xD7, 0xEE, 0xAC, 0x3B, 0x49, 0x2A,
 				  0xA5, 0x8D, 0xD3, 0xD8, 0x77, 0xE6, 0x6B, 0x92))
@@ -128,8 +131,14 @@ static void init_xstatus_list(XStatusList &list)
 	    << XStatus(QT_TRANSLATE_NOOP("XStatus", "Love"), "love", -1,
 		       Capability(0xdd, 0xcf, 0x0e, 0xa9, 0x71, 0x95, 0x40, 0x48,
 				  0xa9, 0xc6, 0x41, 0x32, 0x06, 0xd6, 0xf2, 0x80));
+	return list;
 }
-Q_GLOBAL_STATIC_WITH_INITIALIZER(XStatusList, xstatusList, init_xstatus_list(*x));
+
+XStatusList *xstatusList()
+{
+	static QScopedPointer<XStatusList> list(new XStatusList(init_xstatus_list()));
+	return list.data();
+}
 
 QipExtendedStatus::QipExtendedStatus(quint16 status, const QString &iconName, const LocalizedString &name, quint16 id):
 	OscarStatus(status)
@@ -143,7 +152,7 @@ QipExtendedStatus::QipExtendedStatus(quint16 status, const QString &iconName, co
 
 XStatus::XStatus(const LocalizedString &status_, const QString &icon_,
 				 qint8 mood_, const Capability &capability_) :
-	status(status_), icon(QLatin1String("user-xstatus-") + icon_),
+	name(icon_), value(status_), icon(QLatin1String("user-xstatus-") + icon_ + "-icq"),
 	mood(mood_), capability(capability_)
 {
 }
@@ -184,6 +193,14 @@ bool XStatusHandler::load()
 					  QT_TRANSLATE_NOOP("Status", "Eating"), 0x0578);
 	foreach (Status status, qipstatuses)
 		MenuController::addAction(new StatusActionGenerator(status), &IcqAccount::staticMetaObject);
+
+	MenuController::addAction<Account>(new ActionGenerator(Icon("user-xstatus-icon"),
+					QT_TRANSLATE_NOOP("Status", "Custom status"),
+					this, SLOT(onSetCustomStatus())), "Additional");
+	foreach (Account *account, IcqProtocol::instance()->accounts())
+		onAccountAdded(account);
+	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+			SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
 	return true;
 }
 
@@ -234,7 +251,7 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 					   response.value("title"),
 					   xstatusList()->at(index).icon,
 					   response.value("desc"));
-			debug() << "xstatus" << contact->name() << index << xstatusList()->at(index).status;
+			debug() << "xstatus" << contact->name() << index << xstatusList()->at(index).value;
 		}
 	}
 }
@@ -278,7 +295,7 @@ bool XStatusHandler::handelXStatusCapabilities(IcqContact *contact, qint8 mood)
 	foreach(const XStatus &status, *xstatusList())
 	{
 		if (caps.match(status.capability) || (mood != -1 && status.mood == mood)) {
-			setXstatus(contact, status.status.toString(), status.icon);
+			setXstatus(contact, status.value.toString(), status.icon);
 			return true;
 		}
 	}
@@ -291,7 +308,7 @@ void XStatusHandler::removeXStatuses(Capabilities &caps)
 		caps.removeAll(xstatus.capability);
 }
 
-void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon , const QString &desc)
+void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc)
 {
 	Status status = contact->status();
 	QVariantMap extStatus;
@@ -302,6 +319,90 @@ void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const
 		extStatus.insert("desc", unescape(desc));
 	status.setExtendedStatus("xstatus", extStatus);
 	contact->setStatus(status);
+}
+
+void XStatusHandler::setXstatus(OscarStatus &status, int index, const QString &title, const ExtensionIcon &icon, const QString &desc)
+{
+	QVariantMap extStatus;
+	extStatus.insert("id", QT_TRANSLATE_NOOP("XStatus", "X-Status").toString());
+	extStatus.insert("index", index);
+	extStatus.insert("title", title);
+	extStatus.insert("icon", icon.toIcon());
+	extStatus.insert("desc", desc);
+	status.setExtendedStatus("xstatus", extStatus);
+	status.setCapability(xstatusList()->value(index).capability, "xstatus");
+}
+
+void XStatusHandler::onSetCustomStatus()
+{
+	QAction *action = qobject_cast<QAction *>(sender());
+	Q_ASSERT(action);
+	IcqAccount *account = qobject_cast<IcqAccount*>(action->data().value<MenuController*>());
+	Q_ASSERT(account);
+	CustomStatusDialog *dialog = new CustomStatusDialog(account);
+	connect(dialog, SIGNAL(accepted()), SLOT(onCustomDialogAccepted()));
+	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
+	dialog->show();
+}
+
+void XStatusHandler::onCustomDialogAccepted()
+{
+	// An user updated his/her xstatus.
+	Q_ASSERT(qobject_cast<CustomStatusDialog*>(sender()));
+	CustomStatusDialog *dialog = reinterpret_cast<CustomStatusDialog*>(sender());
+	IcqAccount *account = dialog->account();
+	XStatus xstatus = dialog->status();
+	account->setProperty("xstatusIndex", dialog->index());
+	account->setProperty("xstatusCaption", dialog->caption());
+	account->setProperty("xstatusMessage", dialog->message());
+	OscarStatus status = account->status();
+	setXstatus(status, dialog->index(), dialog->caption(), xstatus.icon, dialog->message());
+	account->setStatus(status);
+}
+
+void XStatusHandler::onAccountAdded(qutim_sdk_0_3::Account *account)
+{
+	// The following code loads a last xstatus from config when creating a new oscar account
+	// (in most cases at qutIM startup).
+	Config config = account->config("xstatus");
+	QString last = config.value("last", QString());
+	int i = 0;
+	foreach (const XStatus &status, *xstatusList()) {
+		if (status.name == last)
+			break;
+		++i;
+	}
+	if (i == 0 || i >= xstatusList()->size())
+		return;
+	XStatus xstatus = xstatusList()->value(i);
+	config.beginGroup(last);
+	QString cap = config.value("caption", QString());
+	if (cap.isEmpty())
+		cap = xstatus.value;
+	QString message = config.value("message", QString());
+	config.endGroup();
+	account->setProperty("xstatusIndex", i);
+	account->setProperty("xstatusCaption", cap);
+	account->setProperty("xstatusMessage", message);
+	OscarStatus status = account->status();
+	if (status != Status::Offline && status != Status::Connecting) {
+		setXstatus(status, i, cap, xstatus.icon, message);
+		account->setStatus(status);
+	}
+	connect(account, SIGNAL(statusAboutToBeChanged(OscarStatus&,OscarStatus)),
+			SLOT(onAccountStatusAboutToBeChanged(OscarStatus&)));
+}
+
+void XStatusHandler::onAccountStatusAboutToBeChanged(OscarStatus &newStatus)
+{
+	// Account's status has been changed and we need to reset last xstatus.
+	Q_ASSERT(qobject_cast<IcqAccount*>(sender()));
+	IcqAccount *account = reinterpret_cast<IcqAccount*>(sender());
+	int index = account->property("xstatusIndex").toInt();
+	QString cap = account->property("xstatusCaption").toString();
+	QString message = account->property("xstatusMessage").toString();
+	XStatus xstatus = xstatusList()->value(index);
+	setXstatus(newStatus, index, cap, xstatus.icon, message);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

@@ -175,13 +175,14 @@ void IcqAccount::setStatus(Status status_helper)
 	Q_D(IcqAccount);
 	OscarStatus status(status_helper);
 	Status current = this->status();
-	if (current.type() == status.type()) {
-		if (status.type() == Status::Offline) {
-			d->lastStatus = status;
-			d->reconnectTimer.stop();
-			return;
-		}
+	if (current.type() == status.type() && status.type() == Status::Offline) {
+		emit statusAboutToBeChanged(status, current);
+		d->reconnectTimer.stop();
+		emit statusChanged(status);
+		Account::setStatus(status);
+		return;
 	}
+	emit statusAboutToBeChanged(status, current);
 	if (status.type() == Status::Offline) {
 		if (d->conn->isConnected()) {
 			d->conn->disconnectFromHost(false);

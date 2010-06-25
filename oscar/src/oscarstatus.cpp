@@ -101,8 +101,6 @@ OscarStatus::OscarStatus(Status::Type status) :
 OscarStatus::OscarStatus(const Status &status):
 	Status(status)
 {
-	setSubtype(status.subtype());
-	setStatusType(status.type());
 }
 
 OscarStatus::OscarStatus(const OscarStatus &status):
@@ -134,7 +132,7 @@ void OscarStatus::setCapability(const Capability &capability, const QString &typ
 	setProperty("capabilities", QVariant::fromValue(caps));
 }
 
-QHash<QString, Capability> OscarStatus::capabilities()
+QHash<QString, Capability> OscarStatus::capabilities() const
 {
 	return property<CapsList>("capabilities", CapsList());
 }

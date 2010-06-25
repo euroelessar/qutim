@@ -51,7 +51,7 @@ public:
 	OscarStatus &operator=(Status::Type status);
 	virtual ~OscarStatus();
 	void setCapability(const Capability &capability, const QString &type);
-	QHash<QString, Capability> capabilities();
+	QHash<QString, Capability> capabilities() const;
 	static void registerStatus(quint16 statusId, OscarStatus oscarStatus);
 protected:
 	void setStatusType(Status::Type status);
