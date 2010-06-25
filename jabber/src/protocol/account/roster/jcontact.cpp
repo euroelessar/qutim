@@ -15,6 +15,7 @@
 #include <qutim/message.h>
 #include "jmessagesession.h"
 #include "jmessagehandler.h"
+#include <qutim/metacontact.h>
 
 using namespace gloox;
 
@@ -174,7 +175,7 @@ namespace Jabber
 		} else if (ev->type() == ToolTipEvent::eventType()) {
 			Q_D(JContact);
 			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-			foreach (QString id, d->resources.keys()) {
+			foreach (const QString &id, d->resources.keys()) {
 				JContactResource *resource = d->resources.value(id);
 				event->appendField(QString(), QVariant());
 				if (!resource->text().isEmpty())

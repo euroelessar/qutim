@@ -8,6 +8,8 @@
 #include <gloox/vcardupdate.h>
 #include <gloox/subscription.h>
 #include <gloox/nickname.h>
+#include <qutim/metacontact.h>
+#include <qutim/metacontactmanager.h>
 #include <QFile>
 #include <QStringBuilder>
 #include <qutim/authorizationdialog.h>
@@ -19,14 +21,20 @@ namespace Jabber
 	{
 		JAccount *account;
 		RosterManager *rosterManager;
+		MetaContactsStorage *metaStorage;
+		QMap<JContact*, MetaContact*> metaContacts;
 		QHash<QString, JContact*> contacts;
 		bool avatarsAutoLoad;
+		bool atMetaContactsLoad;
 	};
 
 	JRoster::JRoster(JAccount *account) : p(new JRosterPrivate)
 	{
 		loadSettings();
+		p->atMetaContactsLoad = false;
 		p->account = account;
+		p->metaStorage = new MetaContactsStorage(p->account->connection()->client());
+		p->metaStorage->registerMetaContactHandler(this);
 		p->rosterManager = p->account->connection()->client()->rosterManager();
 		p->rosterManager->registerRosterListener(this, false);
 		p->account->connection()->client()->registerPresenceHandler(this);
@@ -47,6 +55,7 @@ namespace Jabber
 			if (!contact) {
 				if (create) {
 					contact = new JContact(id,p->account);
+					contact->installEventFilter(this);
 					p->contacts.insert(id,contact);
 					contact->setContactInList(false);
 					emit p->account->contactCreated(contact);
@@ -64,6 +73,7 @@ namespace Jabber
 			return contact;
 		} else if (create) {
 			contact = new JContact(id,p->account);
+			contact->installEventFilter(this);
 			p->contacts.insert(id,contact);
 			contact->setContactInList(false);
 			emit p->account->contactCreated(contact);
@@ -102,6 +112,7 @@ namespace Jabber
 				continue;
 			} else if (!p->contacts.contains(jid)) {
 				JContact *contact = new JContact(jid, p->account);
+				contact->installEventFilter(this);
 				contact->setContactName(QString::fromStdString(item->name()));
 				QStringList tags;
 				StringList groups = item->groups();
@@ -114,12 +125,16 @@ namespace Jabber
 				emit p->account->contactCreated(contact);
 			}
 		}
+		p->metaStorage->requestMetaContacts();
 	}
 
-	void JRoster::handleRosterPresence(const RosterItem &item,
-			const std::string &resource, Presence::PresenceType presence,
-			const std::string &msg)
+	void JRoster::handleRosterPresence(const RosterItem &item, const std::string &resource,
+									   Presence::PresenceType presence, const std::string &msg)
 	{
+		Q_UNUSED(item);
+		Q_UNUSED(resource);
+		Q_UNUSED(presence);
+		Q_UNUSED(msg);
 	}
 
 	void JRoster::handlePresence(const Presence &presence)
@@ -130,6 +145,7 @@ namespace Jabber
 			 return;
 		if (!p->contacts.contains(jid)) {
 			JContact *contact = new JContact(jid, p->account);
+			contact->installEventFilter(this);
 			contact->setContactName(QString::fromStdString(presence.from().username()));
 			QStringList tags;
 			tags.append(tr("Not in list"));
@@ -205,6 +221,7 @@ namespace Jabber
 		case Subscription::Subscribe:
 			if (!contact) {
 				contact = new JContact(jid, p->account);
+				contact->installEventFilter(this);
 				contact->setContactName(name);
 				contact->setContactInList(false);
 			}
@@ -250,5 +267,53 @@ namespace Jabber
 				contact->deleteLater();
 			}
 		}
+	}
+	
+	void JRoster::handleMetaContact(const MetaContactList &mcList)
+	{
+		p->atMetaContactsLoad = true;
+		p->metaContacts.clear();
+		foreach (const MetaContactListItem &item, mcList) {
+			QString jid = QString::fromStdString(JID(item.jid).bare());
+			JContact *contact = p->contacts.value(jid);
+			if (!contact)
+				continue;
+			QString tag = QString::fromStdString(item.tag);
+			MetaContact *metaContact = qobject_cast<MetaContact*>(contact->upperUnit());
+			if (metaContact && metaContact->id() == tag)
+				continue;
+			ChatUnit *unit = MetaContactManager::instance()->getUnit(tag, true);
+			metaContact = qobject_cast<MetaContact*>(unit);
+			Q_ASSERT(metaContact);
+			metaContact->addContact(contact);
+			p->metaContacts.insert(contact, metaContact);
+		}
+		p->atMetaContactsLoad = false;
+	}
+	
+	bool JRoster::eventFilter(QObject *obj, QEvent *event)
+	{
+		if (!p->atMetaContactsLoad && event->type() == MetaContactChangeEvent::eventType()) {
+			JContact *contact = static_cast<JContact*>(obj);
+			MetaContactChangeEvent *metaEvent = static_cast<MetaContactChangeEvent*>(event);
+			Q_ASSERT(metaEvent->contact() == contact);
+			if (metaEvent->newMetaContact())
+				p->metaContacts.insert(contact, metaEvent->newMetaContact());
+			else
+				p->metaContacts.remove(contact);
+			QMap<JContact*, MetaContact*>::iterator it = p->metaContacts.begin();
+			QMap<JContact*, MetaContact*>::iterator endit = p->metaContacts.end();
+			MetaContactList list;
+			for (; it != endit; it++) {
+				MetaContactListItem item;
+				item.jid = it.key()->id().toStdString();
+				item.tag = it.value()->id().toStdString();
+				item.order = it.value()->lowerUnits().indexOf(it.key());
+				list.push_back(item);
+			}
+			p->metaStorage->storeMetaContacts(list);
+			return false;
+		}
+		return QObject::eventFilter(obj, event);
 	}
 }

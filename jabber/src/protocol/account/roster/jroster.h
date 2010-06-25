@@ -6,6 +6,7 @@
 #include <gloox/rostermanager.h>
 #include <gloox/presencehandler.h>
 #include <gloox/subscriptionhandler.h>
+#include "metacontacts.h"
 
 namespace Jabber
 {
@@ -16,7 +17,9 @@ namespace Jabber
 	class JContact;
 	struct JRosterPrivate;
 
-	class JRoster : public QObject, public RosterListener, public PresenceHandler, public SubscriptionHandler
+	class JRoster : 
+			public QObject, public RosterListener, public PresenceHandler,
+			public SubscriptionHandler, public MetaContactHandler
 	{
 		Q_OBJECT
 		public:
@@ -43,6 +46,8 @@ namespace Jabber
 			void handleNonrosterPresence(const Presence &presence);
 			void handleRosterError(const IQ &iq);
 			void handleSubscription(const Subscription &subscription);
+			void handleMetaContact(const MetaContactList &mcList);
+			bool eventFilter(QObject *obj, QEvent *ev);
 		private slots:
 			void sendAuthResponse(bool answer);
 		private:

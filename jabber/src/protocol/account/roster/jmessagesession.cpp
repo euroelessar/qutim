@@ -112,7 +112,7 @@ namespace Jabber
 		MessageSession *session;
 		ChatStateFilter *chatStateFilter;
 		JMessageReceiptFilter *messageReceiptFilter;
-		ChatUnit *unit;
+		QPointer<ChatUnit> unit;
 		bool followChanges;
 	};
 
