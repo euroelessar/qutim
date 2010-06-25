@@ -54,7 +54,8 @@ namespace Jabber
 		foreach (Disco::Identity *identity, info.identities())
 			addDiscoIdentity(di, identity);
 		setActions(di);
-		p->receivers.take(context)->setInfo(context);
+		if (JServiceReceiver *receiver = p->receivers.take(context))
+			receiver->setInfo(context);
 	}
 
 	void JServiceDiscovery::handleDiscoItems(const JID &from, const Disco::Items &items, int context)
@@ -69,7 +70,8 @@ namespace Jabber
 			discoItems << di;
 		}
 		p->items.remove(context);
-		p->receivers.take(context)->setItems(context, discoItems);
+		if (JServiceReceiver *receiver = p->receivers.take(context))
+			receiver->setItems(context, discoItems);
 	}
 
 	void JServiceDiscovery::handleDiscoError(const JID &from, const Error *error, int context)
@@ -163,7 +165,8 @@ namespace Jabber
 			}
 			di.setError(errorText);
 		}
-		p->receivers.take(context)->setError(context);
+		if (JServiceReceiver *receiver = p->receivers.take(context))
+			receiver->setError(context);
 	}
 
 	bool JServiceDiscovery::handleDiscoSet(const IQ &iq)
