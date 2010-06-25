@@ -62,33 +62,16 @@ namespace Core
 			Q_D(ChatSessionImpl);
 			d->model = new ChatSessionModel(this);
 			d->q_ptr = this;
-			setChatUnit(unit);
+			d->chat_unit = unit;
 			d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
-			qDebug() << "create session" << d->chat_unit->title();
-			connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
+			qDebug() << "create session" << unit->title();
 			d->store_service_messages = Config("appearance").group("chat/history").value<bool>("storeServiceMessages", true);
 			d->groupUntil = Config("appearance").group("chat").value<int>("groupUntil", 900);
 			d->chat_style_output->preparePage(d->web_page,this);
 			d->skipOneMerge = true;
 			d->active = false;
-			if (Conference *conf = qobject_cast<Conference *>(unit)) {
-				foreach (ChatUnit *u, conf->lowerUnits()) {
-					if (Buddy *buddy = qobject_cast<Buddy*>(u))
-						d->model->addContact(buddy);
-				}
-			}
-
+			
 			d->loadHistory();
-
-			if (Contact *c = qobject_cast<Contact *>(unit)) {
-				d->statusChanged(c->status(),c,true);
-				setProperty("currentChatState",d->statusToState(c->status().type()));
-			}
-			else {
-				//if you create a session, it is likely that the chat state is active
-				setProperty("currentChatState",static_cast<int>(ChatStateActive));
-				setChatState(ChatStateActive);
-			}
 
 			d->inactive_timer.setInterval(120000);
 			d->inactive_timer.setSingleShot(true);
@@ -100,17 +83,8 @@ namespace Core
 			d->web_page->mainFrame()->addToJavaScriptWindowObject(client->objectName(), client);
 			connect(d->web_page->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
 					client, SLOT(helperCleared()));
-			bool isConference = !!qobject_cast<Conference*>(d->chat_unit);
-			QWebFrame *frame = d->web_page->mainFrame();
-			QWebElement chatElem = frame->findFirstElement("#Chat");
-			if (!chatElem.isNull()) {
-				if (isConference != chatElem.hasClass("groupchat")) {
-					if (isConference)
-						chatElem.addClass("groupchat");
-					else
-						chatElem.removeClass("groupchat");
-				}
-			}
+			d->chat_unit = 0;
+			setChatUnit(unit);
 		}
 
 		void ChatSessionImpl::loadTheme(const QString& path, const QString& variant)
@@ -406,7 +380,7 @@ namespace Core
 
 			debug() << "chat state event sended";
 			ChatStateEvent ev(statusToState(status.type()));
-			qApp->sendEvent(q,&ev);
+			qApp->sendEvent(q, &ev);
 
 			//title = title.isEmpty() ? contact->status().name().toString() : title;
 
@@ -451,11 +425,49 @@ namespace Core
 		void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 		{
 			Q_D(ChatSessionImpl);
+			if (d->chat_unit)
+				disconnect(d->chat_unit, 0, this, 0);
+			ChatUnit *oldUnit = d->chat_unit;
+			static_cast<ChatLayerImpl*>(ChatLayer::instance())->onUnitChanged(oldUnit, unit);
 			d->chat_unit = unit;
+			connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 			setParent(unit);
-			Contact *c = qobject_cast<Contact *>(unit);
-			if (c) {
-				connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),d,SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+			
+			if (Contact *c = qobject_cast<Contact *>(unit)) {
+				connect(c, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
+						d, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+				d->statusChanged(c->status(),c,true);
+				setProperty("currentChatState",d->statusToState(c->status().type()));
+			} else {
+				//if you create a session, it is likely that the chat state is active
+				setProperty("currentChatState",static_cast<int>(ChatStateActive));
+				setChatState(ChatStateActive);
+				
+				Conference *conf;
+				if (!!(conf = qobject_cast<Conference *>(oldUnit))) {
+					foreach (ChatUnit *u, conf->lowerUnits()) {
+						if (Buddy *buddy = qobject_cast<Buddy*>(u))
+							removeContact(buddy);
+					}
+				}
+				if (!!(conf = qobject_cast<Conference *>(unit))) {
+					foreach (ChatUnit *u, conf->lowerUnits()) {
+						if (Buddy *buddy = qobject_cast<Buddy*>(u))
+							addContact(buddy);
+					}
+				}
+			}
+			
+			bool isConference = !!qobject_cast<Conference*>(unit);
+			QWebFrame *frame = d->web_page->mainFrame();
+			QWebElement chatElem = frame->findFirstElement("#Chat");
+			if (!chatElem.isNull()) {
+				if (isConference != chatElem.hasClass("groupchat")) {
+					if (isConference)
+						chatElem.addClass("groupchat");
+					else
+						chatElem.removeClass("groupchat");
+				}
 			}
 		}
 

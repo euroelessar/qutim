@@ -107,6 +107,7 @@ namespace Core
 			connect(session, SIGNAL(destroyed(QObject*)), SLOT(onSessionDestroyed(QObject*)));
 			connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
 					SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+			connect(session, SIGNAL(buddiesChanged()), SLOT(onBuddiesChanged()));
 
 			ChatUnit *u = session->getUnit();
 			connect(u,SIGNAL(titleChanged(QString)),SLOT(onUnitTitleChanged(QString)));
