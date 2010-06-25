@@ -26,7 +26,8 @@ namespace qutim_sdk_0_3
 		StatusPrivate() : type(Status::Offline), subtype(0) {}
 		StatusPrivate(const StatusPrivate &o) :
 				DynamicPropertyData(o), text(o.text), name(o.name),
-				icon(o.icon), type(o.type), subtype(o.subtype) {}
+				icon(o.icon), type(o.type), subtype(o.subtype),
+				extStatuses(o.extStatuses) {}
 		~StatusPrivate() {}
 		QString text;
 		LocalizedString name;
@@ -303,6 +304,11 @@ namespace qutim_sdk_0_3
 	void Status::removeExtendedStatus(const QString &name)
 	{
 		d->extStatuses.remove(name);
+	}
+
+	QVariantMap Status::extendedStatus(const QString &name) const
+	{
+		return d->extStatuses.value(name).value<QVariantMap>();
 	}
 
 	QVariantHash Status::extendedStatuses() const
