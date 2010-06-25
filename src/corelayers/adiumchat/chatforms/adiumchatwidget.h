@@ -57,6 +57,7 @@ namespace Core
 			void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 		protected:
 			virtual bool event(QEvent *event);
+			void loadSettings();
 		private slots:
 			void currentIndexChanged (int index);
 			void onTabMoved(int from,int to);

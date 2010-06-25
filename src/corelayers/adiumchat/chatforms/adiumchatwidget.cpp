@@ -55,18 +55,11 @@ namespace Core
 			ui->setupUi(this);
 			m_originalDoc = ui->chatEdit->document();
 
-			//init tabbar
-#if !defined(Q_WS_MAC)
-			ui->tabBar->setTabsClosable(true);
-#else
-			centralWidget()->layout()->setMargin(0);
-			centralWidget()->layout()->setSpacing(0);
-			//ui->tabBar->setDrawBase(false);
-#endif
-			ui->tabBar->setMovable(true);
 			ui->tabBar->setShape(QTabBar::RoundedSouth);
 			ui->tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 			ui->contactsView->hide();
+
+			loadSettings();
 			//init status and menubar
 
 			connect(ui->tabBar,SIGNAL(currentChanged(int)),SLOT(currentIndexChanged(int)));
@@ -150,6 +143,26 @@ namespace Core
 		AdiumChatWidget::~AdiumChatWidget()
 		{
 			delete ui;
+		}
+
+		void AdiumChatWidget::loadSettings()
+		{
+			ConfigGroup group = Config("appearance").group("adiumChat/chatForm/adiumForm");
+			bool tabUp = group.value("tabUp", false);
+			//init tabbar
+			ui->tabBar->setTabsClosable(true);
+			ui->tabBar->setMovable(true);
+#if defined(Q_WS_MAC)
+			centralWidget()->layout()->setMargin(0);
+			centralWidget()->layout()->setSpacing(0);
+			if (tabUp) {
+				ui->centralLayout->insertWidget(0, ui->tabBar);
+				ui->tabBar->setDocumentMode(true);
+				ui->tabBar->setIconSize(QSize(0,0));
+			} else {
+				ui->tabBar->setTabsClosable(false);
+			}
+#endif
 		}
 
 		void AdiumChatWidget::addSession(ChatSessionImpl* session)
