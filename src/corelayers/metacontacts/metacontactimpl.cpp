@@ -43,7 +43,7 @@ namespace Core
 		
 		MetaContactImpl::~MetaContactImpl()
 		{
-			static_cast<Manager*>(account())->removeContact(m_id);
+//			static_cast<Manager*>(account())->removeContact(m_id);
 		}
 		
 		QString MetaContactImpl::id() const

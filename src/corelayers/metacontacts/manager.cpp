@@ -42,6 +42,7 @@ namespace Core
 				cfg.setArrayIndex(i);
 				MetaContactImpl *metaContact = contacts.at(i);
 				cfg.setValue("id", metaContact->id());
+				cfg.setValue("name", metaContact->name());
 				cfg.beginArray("subItems");
 				for (int j = 0; j < metaContact->contacts().size(); j++) {
 					cfg.setArrayIndex(j);
@@ -73,6 +74,7 @@ namespace Core
 			for (int i = 0; i < size; i++) {
 				cfg.setArrayIndex(i);
 				QString id = cfg.value("id", QString());
+				QString name = cfg.value("name", QString());
 				MetaContactImpl *metaContact = 0;
 				int subItemCount = cfg.beginArray("subItems");
 				for (int j = 0; j < subItemCount; j++) {
@@ -85,13 +87,17 @@ namespace Core
 						continue;
 					ChatUnit *unit = account->getUnit(cfg.value("id", QString()));
 					if (Contact *contact = qobject_cast<Contact*>(unit)) {
-						if (!metaContact)
+						if (!metaContact) {
 							metaContact = new MetaContactImpl(id);
+							metaContact->setName(name);
+						}
 						metaContact->addContact(contact);
 					}
 				}
-				m_contacts.insert(id, metaContact);
-				emit contactCreated(metaContact);
+				if (metaContact) {
+					m_contacts.insert(id, metaContact);
+					emit contactCreated(metaContact);
+				}
 				cfg.endArray();
 			}
 		}
