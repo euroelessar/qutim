@@ -6,6 +6,7 @@
 #include <gloox/rostermanager.h>
 #include <gloox/presencehandler.h>
 #include <gloox/subscriptionhandler.h>
+#include <qutim/messagesession.h>
 #include "metacontacts.h"
 
 namespace Jabber
@@ -50,6 +51,7 @@ namespace Jabber
 			bool eventFilter(QObject *obj, QEvent *ev);
 		private slots:
 			void sendAuthResponse(bool answer);
+			void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 		private:
 			QScopedPointer<JRosterPrivate> p;
 	};

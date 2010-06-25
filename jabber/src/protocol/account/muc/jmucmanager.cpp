@@ -145,6 +145,12 @@ namespace Jabber
 			}
 		}
 	}
+	
+	void JMUCManager::appendMUCSession(JMUCSession *room)
+	{
+		Q_ASSERT(room);
+		p->rooms.insert(room->id(), room);
+	}
 
 	void JMUCManager::join()
 	{

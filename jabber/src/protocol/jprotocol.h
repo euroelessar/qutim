@@ -33,6 +33,7 @@ namespace Jabber
 		private slots:
 			void onKickUser();
 			void onBanUser();
+			void onConvertToMuc();
 		private:
 			void loadActions();
 			virtual void loadAccounts();

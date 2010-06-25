@@ -316,4 +316,13 @@ namespace Jabber
 		}
 		return QObject::eventFilter(obj, event);
 	}
+	
+	void JRoster::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+	{
+		Q_UNUSED(session);
+//		ChatUnit *unit = session->getUnit();
+//		if (MetaContact *meta = qobject_cast<MetaContact*>(unit)) {
+//			
+//		}
+	}
 }

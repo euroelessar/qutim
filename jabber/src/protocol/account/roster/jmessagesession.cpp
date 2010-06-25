@@ -1,13 +1,13 @@
-#include "jmessagesession.h"
+#include "jmessagesession_p.h"
 #include "jmessagehandler.h"
-#include "../jaccount.h"
+#include "../muc/jmucsession.h"
+#include "jcontact.h"
 #include "jabber_global.h"
-#include <qutim/message.h>
 #include <qutim/messagesession.h>
 #include <gloox/message.h>
 #include <gloox/receipt.h>
-#include <gloox/chatstatefilter.h>
 #include <qutim/debug.h>
+#include "../muc/jsessionconvertor.h"
 
 using namespace gloox;
 using namespace qutim_sdk_0_3;
@@ -105,17 +105,6 @@ namespace Jabber
 		}
 	}
 
-	struct JMessageSessionPrivate
-	{
-		JMessageHandler *handler;
-		QPointer<JAccount> account;
-		MessageSession *session;
-		ChatStateFilter *chatStateFilter;
-		JMessageReceiptFilter *messageReceiptFilter;
-		QPointer<ChatUnit> unit;
-		bool followChanges;
-	};
-
 	JMessageSession::JMessageSession(JMessageHandler *handler, ChatUnit *unit, gloox::MessageSession *session)
 			: Buddy(handler->account()), d_ptr(new JMessageSessionPrivate)
 	{
@@ -129,6 +118,7 @@ namespace Jabber
 		d->session->registerMessageHandler(this);
 		d->followChanges = session->threadID().empty();
 		d->unit = unit;
+		d->atDeathState = false;
 		setMenuOwner(unit);
 		connect(unit, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged(QString)));
 	}
@@ -148,13 +138,27 @@ namespace Jabber
 		d->handler->setSessionUnit(this, unit);
 		setMenuOwner(unit);
 		connect(unit, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged(QString)));
+		connect(unit, SIGNAL(destroyed()), this, SLOT(onUnitDeath()));
 	}
 
 	JMessageSession::~JMessageSession()
 	{
 		Q_D(JMessageSession);
-		if (d->account)
+		if (d->account) {
 			d->account->client()->disposeMessageSession(d->session);
+			d->account->messageHandler()->messageSessionKiled(this);
+		}
+	}
+	
+	void JMessageSession::convertToMuc()
+	{
+		Q_D(JMessageSession);
+		if (d->atDeathState)
+			return;
+		new JSessionConvertor(this);
+//		JMUCSession *session = * new JMUCSession(this);
+//		ChatLayer::get(this, true)->setChatUnit(session);
+		d->atDeathState = true;
 	}
 
 	QString JMessageSession::id() const
@@ -177,8 +181,10 @@ namespace Jabber
 	{
 		Q_D(JMessageSession);
 
-		if (account()->status() == Status::Offline)
+		if (d->atDeathState || account()->status() == Status::Offline)
 			return false;
+		
+		d->messages << message;
 
 		d->messageReceiptFilter->setNextId(message.id());
 		d->session->send(message.text().toStdString(), message.property("subject").toString().toStdString());
@@ -205,6 +211,7 @@ namespace Jabber
 			coreMsg.setTime(QDateTime::currentDateTime());
 		if (!msg.subject().empty())
 			coreMsg.setProperty("subject", QString::fromStdString(msg.subject()));
+		d->messages << coreMsg;
 		ChatLayer::get(this, true)->appendMessage(coreMsg);
 	}
 
@@ -216,6 +223,19 @@ namespace Jabber
 			return true;
 		}
 		return QObject::event(ev);
+	}
+	
+	void JMessageSession::onUnitDeath()
+	{
+		Q_D(JMessageSession);
+		QString id = QString::fromStdString(d->session->target().bare());
+		JContact *contact = qobject_cast<JContact*>(d->account->getUnit(id));
+		if (contact) {
+			d->session->resetResource();
+			d->unit = contact;
+		} else {
+			deleteLater();
+		}
 	}
 
 	void JMessageSession::handleChatState(const JID &from, gloox::ChatStateType state)

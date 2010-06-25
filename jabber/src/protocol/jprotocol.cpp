@@ -10,6 +10,7 @@
 #include <qutim/settingslayer.h>
 #include "account/muc/jmucuser.h"
 #include "account/muc/jmucsession.h"
+#include "account/roster/jmessagesession.h"
 #include <QInputDialog>
 
 namespace Jabber
@@ -60,6 +61,9 @@ namespace Jabber
 		MenuController::addAction<JMUCUser>(
 				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Ban"),
 									this, SLOT(onBanUser())));
+		MenuController::addAction<JMessageSession>(
+				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
+									this, SLOT(onConvertToMuc())));
 
 		QList<Status> statuses;
 		statuses << Status(Status::Online)
@@ -90,6 +94,12 @@ namespace Jabber
 		JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
 		QString reason = QInputDialog::getText(0, tr("Ban"), tr("Enter ban reason for %1").arg(user->name()));
 		muc->room()->ban(user->name().toStdString(), reason.toStdString());
+	}
+	
+	void JProtocol::onConvertToMuc()
+	{
+		JMessageSession *session = MenuController::getController<JMessageSession>(sender());
+		session->convertToMuc();
 	}
 
 	void JProtocol::loadAccounts()

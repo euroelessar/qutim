@@ -1,6 +1,10 @@
 #include "jinvitemanager.h"
 #include "../jaccount.h"
 #include "jmucmanager.h"
+#include "jmucsession.h"
+#include "../roster/jmessagehandler.h"
+#include "../roster/jmessagesession.h"
+#include <gloox/mucroom.h>
 #include <QStringBuilder>
 #include <QMessageBox>
 
@@ -23,8 +27,23 @@ namespace Jabber
 	}
 
 	void JInviteManager::handleMUCInvitation(const JID &room, const JID &from, const std::string &reason,
-			const std::string &, const std::string &password, bool, const std::string &)
+			const std::string &, const std::string &password, bool cont, const std::string &thread)
 	{
+		if (cont) {
+			QString threadId = QString::fromStdString(thread);
+			ChatUnit *unit = p->account->messageHandler()->getSession(threadId);
+			if (JMessageSession *session = static_cast<JMessageSession*>(unit)) {
+				JID jid = room;
+				jid.setResource(p->account->name().toStdString());
+				MUCRoom *room = new MUCRoom(p->account->client(), jid, 0, 0);
+				JMUCSession *mucSession = new JMUCSession(p->account, room, thread);
+				ChatLayer::get(session, true)->setChatUnit(mucSession);
+				session->deleteLater();
+				mucSession->join();
+				return;
+			}
+		}
+		
 		QString inviterName(QString::fromStdString(from.bare()));
 		if (inviterName.isEmpty())
 			return;

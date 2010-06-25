@@ -31,6 +31,7 @@ namespace Jabber
 			void setPresenceToRooms(Presence::PresenceType presence);
 			void leave(const QString &room);
 			bool event(QEvent *event);
+			void appendMUCSession(JMUCSession *room);
 		private slots:
 			void bookmarksChanged();
 			void join();

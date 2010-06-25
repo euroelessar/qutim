@@ -10,6 +10,7 @@ namespace Jabber
 {
 	struct JMessageSessionPrivate;
 	class JMessageHandler;
+	class JSessionConvertor;
 
 	class JMessageSession
 			: public qutim_sdk_0_3::Buddy,
@@ -22,6 +23,7 @@ namespace Jabber
 		JMessageSession(JMessageHandler *handler, ChatUnit *unit, gloox::MessageSession *session);
 		JMessageSession(ChatUnit *unit);
 		~JMessageSession();
+		void convertToMuc();
 		virtual QString id() const;
 		virtual QString title() const;
 		gloox::MessageSession *session();
@@ -30,8 +32,11 @@ namespace Jabber
 		virtual void handleChatState(const gloox::JID &from, gloox::ChatStateType state);
 		ChatUnit *upperUnit();
 		bool event(QEvent *);
+	private slots:
+		void onUnitDeath();
 	private:
 		QScopedPointer<JMessageSessionPrivate> d_ptr;
+		friend class JSessionConvertor;
 	};
 }
 

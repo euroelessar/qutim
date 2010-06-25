@@ -56,9 +56,11 @@ namespace Jabber
 		bool avatarsAutoLoad;
 		bool isError;
 		QDateTime lastMessage;
+		std::string *thread;
 	};
 
-	JMUCSession::JMUCSession(const JID &room, const QString &password, JAccount *account) : Conference(account), d_ptr(new JMUCSessionPrivate)
+	JMUCSession::JMUCSession(const JID &room, const QString &password, JAccount *account) :
+			Conference(account), d_ptr(new JMUCSessionPrivate)
 	{
 		Q_D(JMUCSession);
 		d->jid = room.bareJID();
@@ -70,17 +72,26 @@ namespace Jabber
 		d->isJoined = false;
 		d->isConfiguring = false;
 		d->isError = false;
+		d->thread = 0;
 		loadSettings();
 	}
 
-	JMUCSession::JMUCSession(JMessageSession *session) : Conference(session->account())
+	JMUCSession::JMUCSession(JAccount *account, gloox::MUCRoom *room, const std::string &thread) :
+			Conference(account), d_ptr(new JMUCSessionPrivate)
 	{
-		Q_ASSERT(!"Not yet implemented");
 		Q_D(JMUCSession);
-//		d->jid = JID();
-		d->account = static_cast<JAccount *>(session->account());
-		d->room = new UniqueMUCRoom(d->account->client(), EmptyString, this);
-		join();
+		d->account = account;
+		d->room = room;
+		d->jid.setServer(room->service());
+		d->jid.setUsername(room->name());
+		d->nick = QString::fromStdString(room->nick());
+		d->thread = new std::string(thread);
+		d->isJoined = true;
+		d->isConfiguring = false;
+		d->isError = false;
+		d->account->conferenceManager()->appendMUCSession(this);
+		room->registerMUCRoomHandler(this);
+		room->registerMUCRoomConfigHandler(this);
 	}
 
 	JMUCSession::~JMUCSession()
@@ -309,6 +320,12 @@ namespace Jabber
 	{
 		Q_D(JMUCSession);
 		Q_ASSERT(room == d->room);
+		if (d->thread && msg.thread() == *(d->thread)) {
+			return;
+		} else if (d->thread) {
+			delete d->thread;
+			d->thread = 0;
+		}
 		QString nick = QString::fromStdString(msg.from().resource());
 		JMUCUser *user = d->users.value(nick, 0);
 		if (priv) {

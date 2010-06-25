@@ -38,6 +38,12 @@ namespace Jabber
 		ChatUnit *unit = d->account->getUnit(QString::fromStdString(session->target().full()), true);
 		d->unitSessions.insert(unit, new JMessageSession(this, unit, session));
 	}
+	
+	void JMessageHandler::messageSessionKiled(JMessageSession *session)
+	{
+		Q_D(JMessageHandler);
+		d->unitSessions.remove(d->unitSessions.key(session));
+	}
 
 	ChatUnit *JMessageHandler::getSession(ChatUnit *unit, bool create)
 	{

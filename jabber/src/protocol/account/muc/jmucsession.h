@@ -35,6 +35,7 @@ namespace Jabber
 	class JAccount;
 	class JMUCUser;
 	struct JMUCSessionPrivate;
+	class JSessionConvertor;
 
 	class JMUCSession :
 			public qutim_sdk_0_3::Conference,
@@ -45,7 +46,7 @@ namespace Jabber
 		Q_DECLARE_PRIVATE(JMUCSession)
 		public:
 			JMUCSession(const gloox::JID &room, const QString &password, JAccount *account);
-			JMUCSession(JMessageSession *session);
+			JMUCSession(JAccount *account, gloox::MUCRoom *room, const std::string &thread);
 			~JMUCSession();
 			QString id() const;
 			bool sendMessage(const qutim_sdk_0_3::Message &message);
@@ -95,6 +96,7 @@ namespace Jabber
 			void initClose();
 		private:
 			QScopedPointer<JMUCSessionPrivate> d_ptr;
+			friend class JSessionConvertor;
 	};
 }
 
