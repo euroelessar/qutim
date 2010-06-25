@@ -77,6 +77,7 @@ namespace qutim_sdk_0_3
 		static bool remember(const Status &status, const char *proto);
 		void setExtendedStatus(const QString &name, const QVariantMap &status);
 		void removeExtendedStatus(const QString &name);
+		QVariantMap extendedStatus(const QString &name) const;
 		QVariantHash extendedStatuses() const;
 	private:
 		QSharedDataPointer<StatusPrivate> d;
