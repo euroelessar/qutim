@@ -14,8 +14,10 @@ namespace Core
 	{
 		m_ui->setupUi(this);
 		
-		connect(m_ui->protocolsBox, SIGNAL(currentIndexChanged(int)),
-				this, SIGNAL(completeChanged()));
+		connect(m_ui->protocolList, SIGNAL(currentRowChanged(int)),
+				SIGNAL(completeChanged()));
+		connect(m_ui->protocolList,SIGNAL(currentRowChanged(int)),
+				SLOT(onCurrentRowChanged(int)));
 		qDebug() << Q_FUNC_INFO;
 		m_lastId = Id;
 		QSet<QByteArray> protocols;
@@ -36,11 +38,15 @@ namespace Core
 			QIcon icon = info.icon();
 			if (icon.isNull())
 				icon = Icon(QLatin1String("im-") + info.name().original().toLower());
-			m_ui->protocolsBox->addItem(info.icon(), info.name(), QVariant::fromValue(info));
-			m_ui->protocolsBox->setItemData(m_ui->protocolsBox->count() - 1,
-											reinterpret_cast<qptrdiff>(wizard),
-											Qt::UserRole + 1);
+
+			QListWidgetItem *item = new QListWidgetItem(icon,
+														info.name(),
+														m_ui->protocolList);
+			item->setData(Qt::UserRole + 1,reinterpret_cast<qptrdiff>(wizard));
+			item->setData(Qt::UserRole + 2,qVariantFromValue(info));
+			item->setToolTip(info.description());
 		}
+		setTitle(tr("Select protocol"));
 	}
 
 	AccountCreatorProtocols::~AccountCreatorProtocols()
@@ -51,8 +57,8 @@ namespace Core
 
 	bool AccountCreatorProtocols::validatePage()
 	{
-		int index = m_ui->protocolsBox->currentIndex();
-		qptrdiff wizardPtr = m_ui->protocolsBox->itemData(index, Qt::UserRole + 1).value<qptrdiff>();
+		QListWidgetItem *item = m_ui->protocolList->currentItem();
+		qptrdiff wizardPtr = item->data(Qt::UserRole + 1).value<qptrdiff>();
 		AccountCreationWizard *wizard = reinterpret_cast<AccountCreationWizard *>(wizardPtr);
 		if (!wizard)
 			return false;
@@ -63,34 +69,26 @@ namespace Core
 
 	bool AccountCreatorProtocols::isComplete() const
 	{
-		qDebug() << Q_FUNC_INFO << (m_ui->protocolsBox->currentIndex() != -1);
-		return m_ui->protocolsBox->currentIndex() != -1;
+		return m_ui->protocolList->currentIndex().row() != -1;
 	}
 
 	int AccountCreatorProtocols::nextId() const
 	{
-		qDebug() << Q_FUNC_INFO << (m_ui->protocolsBox->count() == 0)
-				<< (const_cast<AccountCreatorProtocols *>(this)->ensureCurrentProtocol() == m_wizardIds.end())
-				<< (const_cast<AccountCreatorProtocols *>(this)->ensureCurrentProtocol() == m_wizardIds.end()
-					? m_lastId + 1 : const_cast<AccountCreatorProtocols *>(this)->ensureCurrentProtocol().value());
-		if (m_ui->protocolsBox->count() == 0)
+		if (m_ui->protocolList->count() == 0)
 			return -1;
 		QMap<AccountCreationWizard *, int>::iterator it
 				= const_cast<AccountCreatorProtocols *>(this)->ensureCurrentProtocol();
 		return (it == m_wizardIds.end()  || it.value() == -1) ? m_lastId + 1 : it.value();
 	}
 
-	void AccountCreatorProtocols::on_protocolsBox_currentIndexChanged(int index)
-	{
-		ExtensionInfo info = m_ui->protocolsBox->itemData(index).value<ExtensionInfo>();
-		m_ui->protocolDescription->setText(info.description());
-	}
-
 	QMap<AccountCreationWizard *, int>::iterator AccountCreatorProtocols::ensureCurrentProtocol()
 	{
-		int index = m_ui->protocolsBox->currentIndex();
-		qptrdiff wizardPtr = m_ui->protocolsBox->itemData(index, Qt::UserRole + 1).value<qptrdiff>();
-		AccountCreationWizard *wizard = reinterpret_cast<AccountCreationWizard *>(wizardPtr);
+		QListWidgetItem *item = m_ui->protocolList->currentItem();
+
+		if (!item)
+			return m_wizardIds.end();
+
+		qptrdiff wizardPtr = item->data(Qt::UserRole + 1).value<qptrdiff>();	AccountCreationWizard *wizard = reinterpret_cast<AccountCreationWizard *>(wizardPtr);
 		if (!wizard)
 			return m_wizardIds.end();
 
@@ -119,4 +117,12 @@ namespace Core
 			break;
 		}
 	}
+
+	void AccountCreatorProtocols::onCurrentRowChanged(int row)
+	{
+		QListWidgetItem *item = m_ui->protocolList->item(row);
+		ExtensionInfo info = item->data(Qt::UserRole+2).value<ExtensionInfo>();
+		setSubTitle(info.description());
+	}
+
 }

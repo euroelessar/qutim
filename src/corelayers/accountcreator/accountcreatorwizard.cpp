@@ -7,5 +7,6 @@ namespace Core
 		setAttribute(Qt::WA_DeleteOnClose, true);
 		AccountCreatorProtocols *protocolsPage = new AccountCreatorProtocols(this);
 		setPage(AccountCreatorProtocols::Id, protocolsPage);
+		setWindowTitle(tr("Add a new account"));
 	}
 }

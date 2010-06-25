@@ -16,11 +16,17 @@ namespace Core
 
 		ui->listWidget->installEventFilter(this);
 
+#if defined(Q_OS_SYMBIAN)
+		connect(ui->listWidget,
+				SIGNAL(itemClicked(QListWidgetItem*)),
+				SLOT(listViewClicked(QListWidgetItem*))
+				);
+#else
 		connect(ui->listWidget,
 				SIGNAL(itemDoubleClicked(QListWidgetItem*)),
 				SLOT(listViewClicked(QListWidgetItem*))
 				);
-
+#endif
 		QListWidgetItem *addItem = new QListWidgetItem(ui->listWidget);
 		addItem->setText(tr("Add new account"));
 		addItem->setToolTip(tr("Just add or create new account"));
@@ -126,6 +132,10 @@ namespace Core
 			window()->setEnabled(false);
 		AccountCreatorWizard *wizard = new AccountCreatorWizard();
 		connect(wizard,SIGNAL(destroyed()),SLOT(onWizardDestroyed()));
+#if defined(Q_OS_SYMBIAN)
+		wizard->showMaximized();
+#else
 		wizard->show();
+#endif
 	}
 }

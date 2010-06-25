@@ -10,6 +10,8 @@ namespace Ui {
     class AccountCreatorProtocols;
 }
 
+class QListWidgetItem;
+
 namespace Core
 {
 	class AccountCreatorWizard;
@@ -26,7 +28,7 @@ namespace Core
 		virtual int nextId() const;
 
 	public slots:
-		void on_protocolsBox_currentIndexChanged(int index);
+		void onCurrentRowChanged(int row);
 
 	protected:
 		QMap<AccountCreationWizard *, int>::iterator ensureCurrentProtocol();
