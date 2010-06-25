@@ -6,10 +6,10 @@
 namespace Jabber
 {
 	struct JServicePrivate
-	{
+ 	{
 		JAccount *account;
 		QMap<int, JDiscoItem> items;
-		QMap<int, JServiceReceiver *> receivers;
+		QMap<int, QObject *> receivers;
 		int context;
 	};
 
@@ -24,7 +24,8 @@ namespace Jabber
 	{
 	}
 
-	int JServiceDiscovery::getInfo(JServiceReceiver *receiver, const JDiscoItem &di)
+	//int JServiceDiscovery::getInfo(JServiceReceiver *receiver, const JDiscoItem &di)
+	int JServiceDiscovery::getInfo(QObject *receiver, const JDiscoItem &di)
 	{
 		int id = p->context++;
 		p->receivers.insert(id, receiver);
@@ -34,7 +35,8 @@ namespace Jabber
 		return id;
 	}
 
-	int JServiceDiscovery::getItems(JServiceReceiver *receiver, const JDiscoItem &di)
+	//int JServiceDiscovery::getItems(JServiceReceiver *receiver, const JDiscoItem &di)
+	int JServiceDiscovery::getItems(QObject *receiver, const JDiscoItem &di)
 	{
 		int id = p->context++;
 		p->receivers.insert(id, receiver);
@@ -54,7 +56,7 @@ namespace Jabber
 		foreach (Disco::Identity *identity, info.identities())
 			addDiscoIdentity(di, identity);
 		setActions(di);
-		if (JServiceReceiver *receiver = p->receivers.take(context))
+		if (JServiceReceiver *receiver = qobject_cast<JServiceReceiver *>(p->receivers.take(context)))
 			receiver->setInfo(context);
 	}
 
@@ -70,7 +72,8 @@ namespace Jabber
 			discoItems << di;
 		}
 		p->items.remove(context);
-		if (JServiceReceiver *receiver = p->receivers.take(context))
+		//if (JServiceReceiver *receiver = p->receivers.take(context))
+		if (JServiceReceiver *receiver = qobject_cast<JServiceReceiver *>(p->receivers.take(context)))
 			receiver->setItems(context, discoItems);
 	}
 
@@ -165,7 +168,7 @@ namespace Jabber
 			}
 			di.setError(errorText);
 		}
-		if (JServiceReceiver *receiver = p->receivers.take(context))
+		if (JServiceReceiver *receiver = qobject_cast<JServiceReceiver *>(p->receivers.take(context)))
 			receiver->setError(context);
 	}
 

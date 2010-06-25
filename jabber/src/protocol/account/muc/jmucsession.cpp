@@ -440,7 +440,6 @@ namespace Jabber
 			d->account->conferenceManager()->leave(QString::fromStdString(d->jid.full()));
 		}
 		d->isError = true;
-		leave();
 	}
 
 	void JMUCSession::handleMUCInfo(MUCRoom *room, int features, const std::string &name, const DataForm *infoForm)

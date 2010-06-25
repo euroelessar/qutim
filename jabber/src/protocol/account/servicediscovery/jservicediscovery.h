@@ -20,8 +20,10 @@ namespace Jabber
 		public:
 			JServiceDiscovery(JAccount *account);
 			~JServiceDiscovery();
-			int getInfo(JServiceReceiver *receiver, const JDiscoItem &di);
-			int getItems(JServiceReceiver *receiver, const JDiscoItem &di);
+			//int getInfo(JServiceReceiver *receiver, const JDiscoItem &di);
+			//int getItems(JServiceReceiver *receiver, const JDiscoItem &di);
+			int getInfo(QObject *receiver, const JDiscoItem &di);
+			int getItems(QObject *receiver, const JDiscoItem &di);
 			void handleDiscoInfo(const JID &from, const Disco::Info &info, int context);
 			void handleDiscoItems(const JID &from, const Disco::Items &items, int context);
 			void handleDiscoError(const JID &from, const Error *error, int context);

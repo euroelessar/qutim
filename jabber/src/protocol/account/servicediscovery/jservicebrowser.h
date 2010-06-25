@@ -36,6 +36,7 @@ namespace Jabber
 	class JServiceBrowser : public QWidget, public JServiceReceiver
 	{
 		Q_OBJECT
+		Q_INTERFACES(Jabber::JServiceReceiver)
 		public:
 			JServiceBrowser(JAccount *account, bool isConference = false, QWidget *parent = 0);
 			~JServiceBrowser();
