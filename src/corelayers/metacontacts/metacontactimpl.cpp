@@ -188,5 +188,10 @@ namespace Core
 			if (index == 0 || oldIndex == 0)
 				resetStatus();
 		}
+
+		qutim_sdk_0_3::ChatUnitList MetaContactImpl::lowerUnits()
+		{
+			return *reinterpret_cast<ChatUnitList*>(&m_contacts); //black magic
+		}
 	}
 }
