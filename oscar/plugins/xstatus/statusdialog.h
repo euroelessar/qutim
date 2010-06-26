@@ -34,13 +34,13 @@ public:
 	IcqAccount *account() { return m_account; }
 	QString caption() const { return ui.captionEdit->text(); }
 	QString message() const { return ui.awayEdit->toPlainText(); }
-	XStatus status() const { return xstatusList()->value(index()); }
-	int index() const { return ui.iconList->currentRow(); }
+	XStatus status() const { return xstatusList()->value(ui.iconList->currentRow()); }
 private slots:
 	void onCurrentItemChanged(QListWidgetItem * current);
 	void onChooseClicked();
 	void onAwayTextChanged();
 private:
+	void setCurrentRow(int row);
 	Ui::statusDialogClass ui;
 	IcqAccount *m_account;
 };

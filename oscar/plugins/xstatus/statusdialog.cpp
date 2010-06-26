@@ -36,19 +36,16 @@ CustomStatusDialog::CustomStatusDialog(IcqAccount *account, QWidget *parent) :
 	ui.birthBox->setVisible(false);
 	ui.birthBox->setChecked(config.value("birth", false));
 
-	QString last = config.value("last", QString());
-	QListWidgetItem *current = 0;
 	foreach (const XStatus &status, *xstatusList()) {
 		QListWidgetItem *tmp = new QListWidgetItem(ui.iconList);
 		tmp->setIcon(status.icon);
 		tmp->setToolTip(status.value);
-		if (last == status.name)
-			current = tmp;
 	}
-	if (!current)
-		current = ui.iconList->item(0);
-	ui.iconList->setCurrentItem(current);
-	onCurrentItemChanged(current);
+
+	QVariantMap xstatus = m_account->status().extendedStatus("xstatus");
+	int current = xstatusIndexByName(xstatus.value("name").toString());
+	ui.iconList->setCurrentRow(current);
+	setCurrentRow(current);
 
 	connect(ui.iconList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), SLOT(onChooseClicked()));
 	connect(ui.iconList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
@@ -63,7 +60,11 @@ CustomStatusDialog::~CustomStatusDialog()
 
 void CustomStatusDialog::onCurrentItemChanged(QListWidgetItem *current)
 {
-	int row = ui.iconList->row(current);
+	setCurrentRow(ui.iconList->row(current));
+}
+
+void CustomStatusDialog::setCurrentRow(int row)
+{
 	XStatus status = xstatusList()->value(row);
 	if (row == 0) {
 		ui.captionEdit->clear();
@@ -89,7 +90,6 @@ void CustomStatusDialog::onChooseClicked()
 	XStatus status = this->status();
 	if (!status.name.isEmpty()) {
 		Config config = m_account->config("xstatus");
-		config.setValue("last", status.name);
 		config.beginGroup(status.name);
 		config.setValue("caption", caption());
 		config.setValue("message", message());

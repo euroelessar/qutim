@@ -99,17 +99,36 @@ IcqAccount::IcqAccount(const QString &uin) :
 		Config statusCfg = cfg.group("lastStatus");
 		int type = statusCfg.value("type", static_cast<int>(Status::Offline));
 		if (type >= Status::Online && type <= Status::Offline) {
-			OscarStatus status;
-			status.setType(static_cast<Status::Type>(type));
-			status.setSubtype(statusCfg.value("subtype", 0));
-			statusCfg = statusCfg.group("capabilities");
+			OscarStatus status(Status::Offline);
+			OscarStatus lastStatus;
+			lastStatus.setType(static_cast<Status::Type>(type));
+			lastStatus.setSubtype(statusCfg.value("subtype", 0));
+			statusCfg.beginGroup("capabilities");
 			foreach (const QString &type, statusCfg.childKeys()) {
 				Capability cap(statusCfg.value("subtype", QString()));
-				status.setCapability(cap, type);
+				lastStatus.setCapability(cap, type);
 			}
+			statusCfg.endGroup();
+			statusCfg.beginArray("extendedStatuses");
+			for (int i = 0; i < statusCfg.arraySize(); ++i) {
+				statusCfg.setArrayIndex(i);
+				QString key = statusCfg.value("id").toString();
+				if (key.isEmpty())
+					continue;
+				QVariantMap extendedStatus;
+				statusCfg.beginGroup("data");
+				foreach (const QString &key, statusCfg.childKeys())
+					extendedStatus.insert(key, statusCfg.value(key));
+				statusCfg.endGroup();
+				lastStatus.setExtendedStatus(key, extendedStatus);
+				status.setExtendedStatus(key, extendedStatus);
+			}
+			statusCfg.endArray();
+			d->lastStatus = lastStatus;
+			Account::setStatus(status);
 		}
 	}
-	d->lastStatus = static_cast<Status::Type>(cfg.value<int>("lastStatus", Status::Offline));
+
 
 	// ICQ UTF8 Support
 	d->caps.append(ICQ_CAPABILITY_UTF8);
@@ -228,12 +247,31 @@ void IcqAccount::setStatus(Status status_helper)
 		statusCfg.setValue("type", d->lastStatus.type());
 		statusCfg.setValue("subtype", d->lastStatus.subtype());
 		statusCfg.remove("capabilities");
-		statusCfg = statusCfg.group("capabilities");
+		statusCfg.beginGroup("capabilities");
 		QHashIterator<QString, Capability> itr(d->lastStatus.capabilities());
 		while (itr.hasNext()) {
 			itr.next();
 			statusCfg.setValue(itr.key(), itr.value().toString());
 		}
+		statusCfg.endGroup();
+		statusCfg.remove("extendedStatuses");
+		statusCfg.beginArray("extendedStatuses");
+		int i = 0;
+		QHashIterator<QString, QVariant> extStatusItr(d->lastStatus.extendedStatuses());
+		while (extStatusItr.hasNext()) {
+			extStatusItr.next();
+			statusCfg.setArrayIndex(i);
+			statusCfg.setValue("id", extStatusItr.key());
+			statusCfg.beginGroup("data");
+			QVariantMap extStatus = extStatusItr.value().toMap();
+			QMapIterator<QString, QVariant> itr(extStatus);
+			while (itr.hasNext()) {
+				itr.next();
+				statusCfg.setValue(itr.key(), itr.value());
+			}
+			statusCfg.endGroup();
+		}
+		statusCfg.endArray();
 	}
 	emit statusChanged(status);
 	Account::setStatus(status);

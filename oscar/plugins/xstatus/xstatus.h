@@ -60,6 +60,7 @@ struct XStatus
 
 typedef QList<XStatus> XStatusList;
 XStatusList *xstatusList();
+int xstatusIndexByName(const QString &name);
 
 class XStatusHandler: public Plugin, public Tlv2711Plugin, public RosterPlugin
 {
@@ -76,13 +77,12 @@ public:
 	bool handelXStatusCapabilities(IcqContact *contact, qint8 mood);
 	void removeXStatuses(Capabilities &caps);
 	void setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
-	void setXstatus(OscarStatus &status, int index, const QString &title, const ExtensionIcon &icon, const QString &desc);
 	static QHash<Capability, OscarStatus> qipstatuses;
 private slots:
 	void onSetCustomStatus();
 	void onCustomDialogAccepted();
 	void onAccountAdded(qutim_sdk_0_3::Account *account);
-	void onAccountStatusAboutToBeChanged(OscarStatus &newStatus);
+	void onAccountStatusAboutToBeChanged(OscarStatus &newStatus, OscarStatus current);
 };
 
 } } // namespace qutim_sdk_0_3::oscar
