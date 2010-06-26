@@ -116,14 +116,14 @@ void WManager::finished( QNetworkReply *reply )
 		for ( int i = 0, size = elements.size(); i < size ; i++ )
 		{
 			QDomElement element( elements.at( i ).toElement() );
-			QHash < QString, QString > hash;
+			QHash < QString, QString > *hash = new QHash < QString, QString >;
 
 			int d = ( element.hasAttribute( "d" ) ? element.attribute( "d" ).toInt() : -1 );
 
 			if ( element.hasAttribute( "t" ) )
-				hash.insert( "t", element.attribute( "t" ) );
+				hash->insert( "t", element.attribute( "t" ) );
 			if ( element.hasAttribute( "dt" ) )
-				hash.insert( "dt", element.attribute( "dt" ) );
+				hash->insert( "dt", element.attribute( "dt" ) );
 
 			QDomNodeList celements = element.childNodes();
 
@@ -134,13 +134,15 @@ void WManager::finished( QNetworkReply *reply )
 					QDomNodeList ccelements = celement.childNodes();
 
 					if ( ccelements.size() > 1 )
-						fillData( ccelements, hash, celement.attribute( "p" ) );
+						fillData( ccelements, *hash, celement.attribute( "p" ) );
 					else
-						hash.insert( celement.tagName(), celement.text() );
+						hash->insert( celement.tagName(), celement.text() );
 				}
 			else
-				hash.insert( element.tagName(), element.text() );
+				hash->insert( element.tagName(), element.text() );
 
+			if ( m_dayf.contains( d ) )
+				delete m_dayf.value( d );
 			m_dayf.insert( d, hash );
 		}
 	}
@@ -167,7 +169,7 @@ const QHash< QString, QString > *WManager::getCC()
 
 const QHash< QString, QString > *WManager::getDayF( int day )
 {
-	return &m_dayf.value( day );
+	return m_dayf.value( day );
 }
 
 QString WManager::getUnit( QString key )
@@ -187,5 +189,5 @@ QString WManager::getCC( QString key )
 
 QString WManager::getDayF( int day, QString key )
 {
-	return m_dayf.value( day ).value( key );
+	return m_dayf.value( day )->value( key );
 }

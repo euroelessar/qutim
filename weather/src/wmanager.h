@@ -58,7 +58,7 @@ private:
 	QHash< QString, QString > m_units; // set of units ( key, value )
 	QHash< QString, QString > m_loc; // location info ( key, value )
 	QHash< QString, QString > m_cc; // current conditions ( key, value )
-	QHash< int, QHash< QString, QString > > m_dayf; // multi-day forecast information ( day, ( day part _ key, value ) )
+	QHash< int, QHash< QString, QString > * > m_dayf; // multi-day forecast information ( day, ( day part _ key, value ) )
 };
 
 #endif // WMANAGER_H
