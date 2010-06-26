@@ -113,7 +113,7 @@ static XStatusList init_xstatus_list()
 	    << XStatus(QT_TRANSLATE_NOOP("XStatus", "Cooking"), "cooking", -1,
 		       Capability(0x10, 0x11, 0x17, 0xC9, 0xA3, 0xB0, 0x40, 0xF9,
 				  0x81, 0xAC, 0x49, 0xE1, 0x59, 0xFB, 0xD5, 0xD4))
-	    << XStatus(QT_TRANSLATE_NOOP("XStatus", "Smoking"), "smoking", -1,
+		<< XStatus(QT_TRANSLATE_NOOP("XStatus", "Mobile"), "mobile", -1,
 		       Capability(0x16, 0x0C, 0x60, 0xBB, 0xDD, 0x44, 0x43, 0xF3,
 				  0x91, 0x40, 0x05, 0x0F, 0x00, 0xE6, 0xC0, 0x09))
 	    << XStatus(QT_TRANSLATE_NOOP("XStatus", "I'm high"), "high", -1,
@@ -130,7 +130,28 @@ static XStatusList init_xstatus_list()
 				  0xa1, 0xff, 0xcf, 0x4c, 0xc1, 0x93, 0x97, 0x97))
 	    << XStatus(QT_TRANSLATE_NOOP("XStatus", "Love"), "love", -1,
 		       Capability(0xdd, 0xcf, 0x0e, 0xa9, 0x71, 0x95, 0x40, 0x48,
-				  0xa9, 0xc6, 0x41, 0x32, 0x06, 0xd6, 0xf2, 0x80));
+				  0xa9, 0xc6, 0x41, 0x32, 0x06, 0xd6, 0xf2, 0x80))
+		<< XStatus(QT_TRANSLATE_NOOP("XStatus", "?"), "g", -1,
+			   Capability(0xd4, 0xe2, 0xb0, 0xba, 0x33, 0x4e, 0x4f, 0xa5,
+				  0x98, 0xd0, 0x11, 0x7d, 0xbf, 0x4d, 0x3c, 0xc8))
+		<< XStatus(QT_TRANSLATE_NOOP("XStatus", "Writing"), "notebook", -1,
+			   Capability(0x00, 0x72, 0xd9, 0x08, 0x4a, 0xd1, 0x43, 0xdd,
+				  0x91, 0x99, 0x6f, 0x02, 0x69, 0x66, 0x02, 0x6f))
+		<< XStatus(QT_TRANSLATE_NOOP("XStatus", "Sex"), "sex", 33,
+			   Capability(0xe6, 0x01, 0xe4, 0x1c, 0x33, 0x73, 0x4b, 0xd1,
+				  0xbc, 0x06, 0x81, 0x1d, 0x6c, 0x32, 0x3d, 0x82))
+		<< XStatus(QT_TRANSLATE_NOOP("XStatus", "Smoking"), "smoking", 32,
+			   Capability(0x3F, 0xB0, 0xBD, 0x36, 0xAF, 0x3B, 0x4A, 0x60,
+				  0x9E, 0xEF, 0xCF, 0x19, 0x0F, 0x6A, 0x5A, 0x7E))
+#if 0 // disabled as plugin does not support icq moods.
+		<< XStatus(QT_TRANSLATE_NOOP("XStatus", "Cold"), "cold", 60)
+		<< XStatus(QT_TRANSLATE_NOOP("XStatus", "Crying"), "crying", 61)
+		<< XStatus(QT_TRANSLATE_NOOP("XStatus", "Fear"), "fear", 62)
+		<< XStatus(QT_TRANSLATE_NOOP("XStatus", "Reading"), "reading", 63)
+		<< XStatus(QT_TRANSLATE_NOOP("XStatus", "Sport"), "sport", 64)
+		<< XStatus(QT_TRANSLATE_NOOP("XStatus", "In tansport"), "transport", 65)
+#endif
+		;
 	return list;
 }
 
@@ -294,7 +315,7 @@ bool XStatusHandler::handelXStatusCapabilities(IcqContact *contact, qint8 mood)
 	const Capabilities &caps = contact->capabilities();
 	foreach(const XStatus &status, *xstatusList())
 	{
-		if (caps.match(status.capability) || (mood != -1 && status.mood == mood)) {
+		if ((!status.capability.isNull() && caps.match(status.capability)) || (mood != -1 && status.mood == mood)) {
 			setXstatus(contact, status.value.toString(), status.icon);
 			return true;
 		}
