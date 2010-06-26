@@ -1,0 +1,115 @@
+/****************************************************************************
+ * waccount.cpp
+ *
+ *  Copyright (c) 2010 by Belov Nikita <null@deltaz.org>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
+#include "waccount.h"
+
+WAccount::WAccount( WProtocol *protocol ) : Account( "Weather", ( Protocol * )protocol )
+{
+	SettingsItem *settings = new GeneralSettingsItem< WSettings >( Settings::Plugin, QIcon( ":/icons/weather.png" ), QT_TRANSLATE_NOOP( "Weather", "Weather" ) );
+	Settings::registerItem( settings );
+
+	connect( settings->widget(), SIGNAL( saved() ), this, SLOT( loadSettings() ) );
+
+	m_timer = new QTimer();
+	connect( m_timer, SIGNAL( timeout() ), this, SLOT( updateAll() ) );
+
+	loadSettings();
+}
+
+WAccount::~WAccount()
+{
+}
+
+ChatUnit *WAccount::getUnitForSession( ChatUnit *unit )
+{
+	return unit;
+}
+
+ChatUnit *WAccount::getUnit( const QString &unitId, bool create )
+{
+	Q_UNUSED( unitId );
+	Q_UNUSED( create );
+
+	return 0;
+}
+
+QString WAccount::name() const
+{
+	return "You";
+}
+
+QString WAccount::getThemePath()
+{
+	return s_themePath;
+}
+
+bool WAccount::getShowStatusRow()
+{
+	return s_showStatusRow;
+}
+
+void WAccount::setStatus( Status status )
+{
+	Q_UNUSED( status );
+}
+
+void WAccount::loadSettings()
+{
+	Config mainGroup = Config( "weather" ).group( "main" );
+
+	m_timer->stop();
+	m_timer->start( mainGroup.value( "interval", 25 ) * 1000 );
+
+	s_showStatusRow = ( mainGroup.value( "showStatus", true ) ? Qt::Checked : Qt::Unchecked );
+	s_themePath = ( mainGroup.value( "useDefaultTheme", true ) ? ":/themes/default/" : mainGroup.value( "themePath", QString() ) );
+
+	loadContacts();
+}
+
+void WAccount::updateAll()
+{
+	foreach( WContact *v, m_contacts )
+		v->update();
+}
+
+void WAccount::loadContacts()
+{
+	Config mainGroup = Config( "weather" ).group( "main" );
+	QHash< QString, WContact * > contacts;
+
+	for ( int i = 0, count = mainGroup.value( "countItems", 0 ); i < count; i++ )
+	{
+		QString cityCode = mainGroup.value( "item_" + QString::number( i ), QString() );
+
+		if ( m_contacts.contains( cityCode ) )
+		{
+			contacts.insert( cityCode, m_contacts.value( cityCode ) );
+			m_contacts.value( cityCode )->updateStatus();
+			m_contacts.remove( cityCode );
+		}
+		else
+		{
+			WContact *cityContact = new WContact( cityCode, this );
+
+			contacts.insert( cityCode, cityContact );
+			cityContact->update();
+		}
+	}
+
+	foreach( WContact *v, m_contacts )
+		delete v;
+
+	m_contacts = contacts;
+}

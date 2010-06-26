@@ -1,0 +1,266 @@
+/****************************************************************************
+ * wcontact.cpp
+ *
+ *  Copyright (c) 2010 by Belov Nikita <null@deltaz.org>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
+#include "waccount.h"
+#include "wcontact.h"
+
+WContact::WContact( const QString &city, Account *account ) : Contact ( account )
+{
+	m_city = city;
+	m_tags << "Weather";
+
+	m_status.setType( Status::Online );
+	m_status.setIcon( QIcon( ":/icons/weather.png" ) );
+	emit statusChanged( m_status );
+
+	addToList();
+	QMetaObject::invokeMethod( getService( "ContactList" ), "addContact", Q_ARG( qutim_sdk_0_3::Contact *, this ) );
+
+	m_menu = new QMenu();
+	m_menu->addAction( QIcon( ":/icons/weather.png" ), "Get weather", this, SLOT( getWeather() ) );
+	m_menu->addAction( QIcon( ":/icons/weather.png" ), "Get weather forecast", this, SLOT( getForecast() ) );
+
+	MenuController::addAction< WContact >( new ActionGenerator( QIcon(), "", this, "" ) );
+
+	m_wmanager = new WManager( m_city );
+	connect( m_wmanager, SIGNAL( finished() ), this, SLOT( finished() ) );
+	m_forecast = false;
+	m_forStatus = false;
+}
+
+WContact::~WContact()
+{
+	m_wmanager->deleteLater();
+}
+
+
+bool WContact::event( QEvent *ev )
+{
+	if ( ev->type() == ToolTipEvent::eventType() )
+	{
+		ToolTipEvent *event = static_cast< ToolTipEvent * >( ev );
+		if ( !m_wmanager->getUnit( "ut" ).isEmpty() )
+			event->appendField( "Weather", QString::fromUtf8( "%1 °%2" ).arg( m_wmanager->getCC( "tmp" ) ).arg( m_wmanager->getUnit( "ut" ) ) );
+
+		return true;
+	}
+	else if ( ev->type() == 67 )
+	{
+		foreach ( QWidget *widget, QApplication::allWidgets() )
+			if ( qobject_cast< QMenu * >( widget ) && widget->isVisible() )
+			{
+				widget->hide();
+				m_menu->popup( QCursor::pos() );
+			}
+	}
+
+	return Contact::event( ev );
+}
+
+void WContact::update()
+{
+	m_forStatus = true;
+	m_menu->setDisabled( true );
+
+	m_wmanager->update();
+}
+
+void WContact::updateStatus()
+{
+	if ( ( ( WAccount * )account() )->getShowStatusRow() )
+		update();
+	else
+	{
+		m_status.setText( QString() );
+		emit statusChanged( m_status );
+	}
+}
+
+void WContact::finished()
+{
+	m_menu->setDisabled( false );
+
+	if ( m_name.isEmpty() )
+		setNamev2( m_wmanager->getLoc( "dnam" ) );
+
+	QString msgWeatherT = getFileData( "weatherT.html" );
+	QString msgWeatherHtmlT = getFileData( "weatherHtmlT.html" );
+	QString msgForecastT, msgForecastHtmlT;
+
+	QHashIterator< QString, QString > it( *m_wmanager->getCC() );
+	while ( it.hasNext() )
+	{
+		it.next();
+
+		msgWeatherT.replace( "%" + it.key() + "%", it.value() );
+		msgWeatherHtmlT.replace( "%" + it.key() + "%", it.value() );
+	}
+
+	if ( m_forecast )
+	{
+		QString tMsgForecastT, tMsgForecastHtmlT;
+
+		msgForecastT = getFileData( "forecastTitle.html" );
+		msgForecastHtmlT = getFileData( "forecastHtmlTitle.html" ).arg( m_wmanager->getDayF( -1, "lsup" ) );
+
+		for ( int i = 0; i <= 4; i++ )
+		{
+			QHash<QString, QString> h = *m_wmanager->getDayF( i );
+			it = h;
+
+			tMsgForecastT = getFileData( "forecastT.html" );
+			tMsgForecastHtmlT = getFileData( "forecastHtmlT.html" );
+
+			while ( it.hasNext() )
+			{
+				it.next();
+
+				tMsgForecastT.replace( "%" + it.key() + "%", it.value() );
+				tMsgForecastHtmlT.replace( "%" + it.key() + "%", it.value() );
+			}
+
+			msgForecastT += tMsgForecastT;
+			msgForecastHtmlT += tMsgForecastHtmlT;
+		}
+	}
+	else
+	{
+		m_status.setIcon( QIcon( QString( ":/icons/%1.png" ).arg( m_wmanager->getCC( "icon" ) ) ) );
+		if ( ( ( WAccount * )account() )->getShowStatusRow() )
+			m_status.setText( QString::fromUtf8( "Weather: %1 °%2" ).arg( m_wmanager->getCC( "tmp" ) ).arg( m_wmanager->getUnit( "ut" ) ) );
+		emit statusChanged( m_status );
+	}
+
+	it = *m_wmanager->getLoc();
+	while ( it.hasNext() )
+	{
+		it.next();
+
+		msgWeatherT.replace( "%loc_" + it.key() + "%", it.value() );
+		msgWeatherHtmlT.replace( "%loc_" + it.key() + "%", it.value() );
+
+		msgForecastT.replace( "%loc_" + it.key() + "%", it.value() );
+		msgForecastHtmlT.replace( "%loc_" + it.key() + "%", it.value() );
+	}
+
+	it = *m_wmanager->getUnit();
+	while ( it.hasNext() )
+	{
+		it.next();
+
+		msgWeatherT.replace( "%unit_" + it.key() + "%", it.value() );
+		msgWeatherHtmlT.replace( "%unit_" + it.key() + "%", it.value() );
+
+		msgForecastT.replace( "%unit_" + it.key() + "%", it.value() );
+		msgForecastHtmlT.replace( "%unit_" + it.key() + "%", it.value() );
+	}
+
+	Message message( m_forecast ? msgForecastT : msgWeatherT );
+	message.setProperty( "html", m_forecast ? msgForecastHtmlT : msgWeatherHtmlT ); 
+	message.setIncoming( 1 );
+	message.setTime( QDateTime::currentDateTime() );
+	message.setChatUnit( this );
+
+	if ( !m_forStatus )
+		ChatLayer::get( this, true )->appendMessage( message );
+
+	m_forecast = false;
+	m_forStatus = false;
+}
+
+void WContact::getWeather()
+{
+	m_menu->setDisabled( true );
+
+	m_wmanager->update();
+}
+
+void WContact::getForecast()
+{
+	m_forecast = true;
+	m_menu->setDisabled( true );
+
+	m_wmanager->update( 5 );
+}
+
+bool WContact::sendMessage( const Message &message )
+{
+	return false;
+}
+
+void WContact::setName( const QString &name )
+{
+	emit nameChanged( m_name );
+}
+
+void WContact::setNamev2( const QString &name )
+{
+	m_name = name;
+	emit nameChanged( m_name );
+}
+
+void WContact::setTags( const QStringList &tags )
+{
+	emit tagsChanged( m_tags );
+}
+
+QString WContact::id() const
+{
+	return m_city;
+}
+
+QString WContact::name() const
+{
+	return m_name;
+}
+
+QString WContact::title() const
+{
+	return m_name;
+}
+
+QStringList WContact::tags() const
+{
+	return m_tags;
+}
+
+Status WContact::status() const
+{
+	return m_status;
+}
+
+bool WContact::isInList() const
+{
+	return m_inList;
+}
+
+void WContact::setInList( bool inList )
+{
+	m_inList = inList;
+
+	emit inListChanged( m_inList );
+}
+
+QString WContact::avatar() const
+{
+	return ":/icons/weather_big.png";
+}
+
+QString WContact::getFileData( const QString &path )
+{
+	QFile file( ( ( WAccount * )account() )->getThemePath() + path );
+	file.open( QFile::ReadOnly );
+	return QString::fromUtf8( file.readAll() ).remove( "\n" );
+}
