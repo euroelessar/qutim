@@ -24,6 +24,7 @@ AWNService::AWNService()
     m_item = 0;
     m_activeAccount = 0;
     m_iconTimer = 0;
+    m_cws = 0;
     m_awn = new QDBusInterface("org.freedesktop.DockManager",
                               "/org/freedesktop/DockManager",
                               "org.freedesktop.DockManager");
