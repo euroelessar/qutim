@@ -147,12 +147,12 @@ namespace Core
 
 		void AdiumChatWidget::loadSettings()
 		{
-			ConfigGroup group = Config("appearance").group("adiumChat/chatForm/adiumForm");
-			bool tabUp = group.value("tabUp", false);
 			//init tabbar
 			ui->tabBar->setTabsClosable(true);
-			ui->tabBar->setMovable(true);
+
 #if defined(Q_WS_MAC)
+			ConfigGroup group = Config("appearance").group("adiumChat/chatForm/adiumForm");
+			bool tabUp = group.value("tabUp", false);
 			centralWidget()->layout()->setMargin(0);
 			centralWidget()->layout()->setSpacing(0);
 			if (tabUp) {
@@ -162,6 +162,8 @@ namespace Core
 			} else {
 				ui->tabBar->setTabsClosable(false);
 			}
+#else
+			ui->tabBar->setMovable(true);
 #endif
 		}
 
