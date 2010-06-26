@@ -27,7 +27,7 @@ private:
 	ChatWindowController *m_cwc;
 	QDBusInterface *m_awn;
 	QDBusInterface *m_item;
-	QTimer *m_icon_timer;
+	QTimer *m_iconTimer;
 	QList<ChatSession*> m_sessions;
 	QList<int> m_menus;
 	QList<Account*> m_accounts;

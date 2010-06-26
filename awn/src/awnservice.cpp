@@ -23,6 +23,7 @@ AWNService::AWNService()
     m_uread = 0;
     m_item = 0;
     m_activeAccount = 0;
+    m_iconTimer = 0;
     m_awn = new QDBusInterface("org.freedesktop.DockManager",
                               "/org/freedesktop/DockManager",
                               "org.freedesktop.DockManager");
@@ -67,9 +68,9 @@ AWNService::AWNService()
     generateIcons();
     m_firstIcon = "qutim";
     m_currentIcon = "qutim";
-    m_icon_timer = new QTimer(this);
-    connect(m_icon_timer,SIGNAL(timeout()),this,SLOT(nextIcon()));
-    m_icon_timer->start(500);
+    m_iconTimer = new QTimer(this);
+    connect(m_iconTimer,SIGNAL(timeout()),this,SLOT(nextIcon()));
+    m_iconTimer->start(500);
     m_cwc = new ChatWindowController(this);
     qApp->installEventFilter(this);
     connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
@@ -85,7 +86,8 @@ AWNService::AWNService()
 
 AWNService::~AWNService()
 {
-    m_icon_timer->stop();
+    if (m_iconTimer)
+        m_iconTimer->stop();
     setDockIcon("qutim");
     foreach(int id, m_menus)
         removeDockMenu(id);
@@ -95,8 +97,6 @@ AWNService::~AWNService()
         delete m_item;
     if(m_cwc)
         delete m_cwc;
-    if(m_icon_timer)
-        delete m_icon_timer;
     QDir t(QDir::tempPath()+"/qutim-awn");
     foreach(QString s,t.entryList(QDir::Files|QDir::NoDotAndDotDot))
         QFile::remove(t.absoluteFilePath(s));
