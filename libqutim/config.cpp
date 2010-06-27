@@ -46,9 +46,24 @@ namespace qutim_sdk_0_3
 		else if (deleteOnDestroy && !typeMap)
 			delete list;
 	}
+	
+	class ConfigSource : public QSharedData
+	{
+		Q_DISABLE_COPY(ConfigSource)
+	public:
+		inline ConfigSource() : backend(0), dirty(new bool(false)) {}
+		inline ~ConfigSource() {}
+		
+		QList<ConfigLevel *> levels;
+		QString fileName;
+		ConfigBackend *backend;
+		bool *dirty;
+		QExplicitlySharedDataPointer<ConfigSource> memoryGuard;
+	};
 
 	class ConfigPrivate : public QSharedData
 	{
+		Q_DISABLE_COPY(ConfigPrivate)
 	public:
 		inline ConfigPrivate() : backend(0), dirty(new bool(false)) { levels << new ConfigLevel(); }
 		inline ~ConfigPrivate() { if (!memoryGuard) { sync(); delete dirty; } qDeleteAll(levels); }
@@ -59,8 +74,6 @@ namespace qutim_sdk_0_3
 		ConfigBackend *backend;
 		bool *dirty;
 		QExplicitlySharedDataPointer<ConfigPrivate> memoryGuard;
-	private:
-		Q_DISABLE_COPY(ConfigPrivate)
 	};
 	
 	void ConfigPrivate::sync()
@@ -118,7 +131,7 @@ namespace qutim_sdk_0_3
 				d->fileName = QLatin1String("profile");
 			QFileInfo info(d->fileName);
 			if (!info.isAbsolute())
-				d->fileName = SystemInfo::getDir(SystemInfo::ConfigDir).filePath(path);
+				d->fileName = SystemInfo::getDir(SystemInfo::ConfigDir).filePath(d->fileName);
 			QByteArray suffix = info.suffix().toLatin1().toLower();
 			if (!suffix.isEmpty()) {
 				for (int i = 0; i < backends.size(); i++) {
