@@ -85,6 +85,24 @@ namespace Core
 			}
 		}
 		
+		void AbstractChatForm::onAppearanceSettingsChanged()
+		{
+			qDebug("%s", Q_FUNC_INFO);
+			foreach (AbstractChatWidget *widget, m_chatwidgets) {
+				if (widget)
+					widget->loadAppearanceSettings();
+			}
+		}
+
+		void AbstractChatForm::onBehaviorSettingsChanged()
+		{
+			qDebug("%s", Q_FUNC_INFO);
+			foreach (AbstractChatWidget *widget, m_chatwidgets) {
+				if (widget)
+					widget->loadBehaviorSettings();
+			}
+		}
+		
 		AbstractChatWidget *AbstractChatForm::findWidget(ChatSession *sess) const
 		{
 			QHash<QString, QPointer<AbstractChatWidget> >::const_iterator it;

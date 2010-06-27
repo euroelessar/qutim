@@ -58,6 +58,8 @@ namespace Core
 			virtual QTabBar *getTabBar() = 0;
 			virtual QListView *getContactsView() = 0;
 			virtual ChatSessionImpl *currentSession() = 0;
+			virtual void loadAppearanceSettings();
+			virtual void loadBehaviorSettings();
 			virtual bool eventFilter(QObject *obj, QEvent *event);
 		public slots:
 			virtual void addSession(ChatSessionImpl *session) = 0;
@@ -89,8 +91,12 @@ namespace Core
 			QTextCursor m_enterPosition;
 			QTimer m_chatstateTimer;
 			int m_current_index;
+		private:
+			bool atLoad;
 		};
 	}
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::AdiumChat::ChatFlags)
 
 #endif // ABSTRACTCHATWIDGET_H

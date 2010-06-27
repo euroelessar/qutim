@@ -57,11 +57,12 @@ namespace Core
 		{
 			setProperty("name",tr("Chat"));
 			setAttribute(Qt::WA_DeleteOnClose);
+			atLoad = true;
 		}
 		
 		AbstractChatWidget::~AbstractChatWidget()
 		{
-			ConfigGroup group = Config("appearance").group("adiumChat/behavior/widget/keys").group(m_key);
+			ConfigGroup group = Config("appearance").group("chat/behavior/widget/keys").group(m_key);
 			group.setValue("geometry", saveGeometry());
 			foreach (QSplitter *splitter, findChildren<QSplitter*>()) {
 				group.setValue(splitter->objectName(), splitter->saveState());
@@ -154,36 +155,8 @@ namespace Core
 		
 		void AbstractChatWidget::onLoad()
 		{
-			ConfigGroup group = Config("appearance").group("chat/behavior/widget");
-			ConfigGroup keysGroup = group.group("keys");
-			if (keysGroup.hasChildGroup(m_key)) {
-				ConfigGroup keyGroup = keysGroup.group(m_key);
-				QByteArray geom = keyGroup.value("geometry", QByteArray());
-				restoreGeometry(geom);
-				foreach (QSplitter *splitter, findChildren<QSplitter*>()) {
-					geom = keyGroup.value(splitter->objectName(), QByteArray());
-					splitter->restoreState(geom);
-				}
-			} else {
-				centerizeWidget(this);
-			}
-			m_htmlMessage = group.value("htmlMessage", false);
-			// We need api for loading QFlags ;)
-			m_chatFlags = static_cast<ChatFlag>(group.value<int>("widgetFlags", SendTypingNotification
-																  | ChatStateIconsOnTabs
-																  | ShowUnreadMessages
-																  | SwitchDesktopOnRaise
-																  | AeroThemeIntegration));
-			m_sendKey = group.value("sendKey", SendCtrlEnter);
-
-			if (m_chatFlags & SendTypingNotification) {
-				connect(getInputField(),SIGNAL(textChanged()),SLOT(onTextChanged()));
-				m_chatstate = ChatStateActive;
-				m_chatstateTimer.setInterval(5000);
-				m_chatstateTimer.setSingleShot(true);
-				connect(&m_chatstateTimer,SIGNAL(timeout()),SLOT(onChatStateTimeout()));
-			}
-
+			loadAppearanceSettings();
+			loadBehaviorSettings();
 			//init shortcuts
 			Shortcut *key = new Shortcut ("chatCloseSession",getTabBar());
 			connect(key,SIGNAL(activated()),SLOT(closeCurrentTab()));
@@ -194,6 +167,49 @@ namespace Core
 
 			connect(getContactsView(), SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClicked(QModelIndex)));
 
+		}
+		
+		void AbstractChatWidget::loadAppearanceSettings()
+		{
+		}
+		
+		void AbstractChatWidget::loadBehaviorSettings()
+		{
+			ConfigGroup cfg = Config("appearance");
+			cfg.beginGroup("chat/behavior/widget");
+			if (atLoad) {
+				ConfigGroup keyGroup = cfg.group("keys");
+				if (keyGroup.hasChildGroup(m_key)) {
+					keyGroup.beginGroup(m_key);
+					QByteArray geom = keyGroup.value("geometry", QByteArray());
+					restoreGeometry(geom);
+					foreach (QSplitter *splitter, findChildren<QSplitter*>()) {
+						geom = keyGroup.value(splitter->objectName(), QByteArray());
+						splitter->restoreState(geom);
+					}
+					keyGroup.endGroup();
+				} else {
+					centerizeWidget(this);
+				}
+				atLoad = false;
+			}
+			m_htmlMessage = cfg.value("htmlMessage", false);
+			m_chatFlags = cfg.value("widgetFlags", SendTypingNotification
+									| ChatStateIconsOnTabs
+									| ShowUnreadMessages
+									| SwitchDesktopOnRaise
+									| AeroThemeIntegration);
+			m_sendKey = cfg.value("sendKey", SendCtrlEnter);
+
+			if (m_chatFlags & SendTypingNotification) {
+				connect(getInputField(),SIGNAL(textChanged()),SLOT(onTextChanged()));
+				m_chatstate = ChatStateActive;
+				m_chatstateTimer.setInterval(5000);
+				m_chatstateTimer.setSingleShot(true);
+				connect(&m_chatstateTimer, SIGNAL(timeout()), SLOT(onChatStateTimeout()));
+			} else {
+				disconnect(getInputField(), SIGNAL(textChanged()), this, SLOT(onTextChanged()));
+			}
 		}
 		
 		bool AbstractChatWidget::eventFilter(QObject *obj, QEvent *event)
@@ -219,7 +235,7 @@ namespace Core
 							} else if (m_sendKey == SendDoubleEnter) {
 								m_entersNumber++;
 								if (m_entersNumber > 1) {
-									m_enterPosition.deleteChar();
+									m_enterPosition.deletePreviousChar();
 									m_entersNumber = 0;
 									onSendButtonClicked();
 									return true;

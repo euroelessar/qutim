@@ -15,9 +15,20 @@ namespace Core
 	
 	ChatSettings::ChatSettings()
 	{
-		GeneralSettingsItem<ChatAppearance> *item = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat"));
+		QObject *obj = getService("ChatForm");
+		if (!obj) {
+			deleteLater();
+			return;
+		}
+		SettingsItem *item;
+		item = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"),
+													   QT_TRANSLATE_NOOP("Settings","Chat"));
+		item->connect(SIGNAL(saved()), obj, SLOT(onAppearanceSettingsChanged()));
 		Settings::registerItem(item);
-		Settings::registerItem(new GeneralSettingsItem<ChatBehavior>(Settings::General, Icon("view-choose"), QT_TRANSLATE_NOOP("Settings","Chat")));
+		item = new GeneralSettingsItem<ChatBehavior>(Settings::General, Icon("view-choose"),
+													 QT_TRANSLATE_NOOP("Settings","Chat"));
+		item->connect(SIGNAL(saved()), obj, SLOT(onBehaviorSettingsChanged()));
+		Settings::registerItem(item);
 		deleteLater();
 	}
 

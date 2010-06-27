@@ -50,6 +50,8 @@ namespace Core
 			void onSessionCreated(qutim_sdk_0_3::ChatSession*);
 			void onChatWidgetDestroyed(QObject *object);
 			void onSessionActivated(bool active);
+			void onBehaviorSettingsChanged();
+			void onAppearanceSettingsChanged();
 		private:
 			QHash<QString, QPointer<AbstractChatWidget> > m_chatwidgets;
 			QString getWidgetId(ChatSessionImpl *sess) const;

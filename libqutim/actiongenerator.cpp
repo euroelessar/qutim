@@ -130,8 +130,9 @@ namespace qutim_sdk_0_3
 		action->setToolTip(d->toolTip);
 		if (d->controller)
 			action->setData(QVariant::fromValue(const_cast<MenuController *>(d->controller)));
-		if (d->receiver)
-			QObject::connect(action, SIGNAL(triggered()), d->receiver, d->member);
+		if (d->member.constData() && (d->receiver || d->controller))
+			QObject::connect(action, SIGNAL(triggered()),
+							 d->receiver ? d->receiver : d->controller, d->member);
 		return action;
 	}
 
