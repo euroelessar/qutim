@@ -34,18 +34,31 @@ XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings
 	sizes.append(250);
 	ui->splitter->setSizes(sizes);
 
-	foreach (SettingsItem *settings_item, m_setting_list) {
-		QListWidgetItem *list_item = new QListWidgetItem (settings_item->icon(),
-														  settings_item->text(),
-														  ui->listWidget
-														  );
-		Q_UNUSED(list_item);
+	foreach (SettingsItem *settingsItem, m_setting_list) {
+		QListWidgetItem *listItem = new QListWidgetItem(settingsItem->icon(),
+														settingsItem->text(),
+														ui->listWidget);
+		listItem->setData(Qt::UserRole, reinterpret_cast<qptrdiff>(settingsItem));
+		Q_UNUSED(listItem);
 		//list_item->setToolTip(settings_item->description()); //TODO need short description!
 	}
 	connect(ui->listWidget,SIGNAL(currentRowChanged(int)),SLOT(currentRowChanged(int)));
 	currentRowChanged(0);
 }
 
+void XSettingsGroup::changeEvent(QEvent *ev)
+{
+	if (ev->type() == QEvent::LanguageChange) {
+		int size = ui->listWidget->count();
+		for (int i = 0; i < size; i++) {
+			QListWidgetItem *item = ui->listWidget->item(i);
+			qptrdiff tmp = item->data(Qt::UserRole).value<qptrdiff>();
+			SettingsItem *settingItem = reinterpret_cast<SettingsItem*>(tmp);
+			if (settingItem)
+				item->setText(settingItem->text());
+		}
+	}
+}
 
 void XSettingsGroup::currentRowChanged ( int index)
 {

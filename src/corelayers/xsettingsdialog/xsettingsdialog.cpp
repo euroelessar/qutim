@@ -16,6 +16,8 @@
 #include "xsettingsdialog.h"
 #include "ui_xsettingsdialog.h"
 #include "xtoolbar.h"
+#include "libqutim/actiongenerator.h"
+#include "libqutim/localizedstring.h"
 #include <QLayout>
 #include <QDebug>
 #include <libqutim/icon.h>
@@ -47,31 +49,44 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 
 	//init actions
 	//TODO FIXME get rid of copypaste
-
+	struct
+	{
+		const char *icon;
+		Settings::Type type;
+		LocalizedString name;
+		LocalizedString tooltip;
+	} groups [] = {
+		{ "preferences-system", Settings::General,
+		  QT_TRANSLATE_NOOP("XSettingsDialog", "General"),
+		  QT_TRANSLATE_NOOP("XSettingsDialog", "General configuration") },
+		{ "applications-internet", Settings::Protocol,
+		  QT_TRANSLATE_NOOP("XSettingsDialog", "Protocols"),
+		  QT_TRANSLATE_NOOP("XSettingsDialog", "Accounts and protocols settings") },
+		{ "applications-graphics", Settings::Appearance,
+		  QT_TRANSLATE_NOOP("XSettingsDialog", "Appearance"),
+		  QT_TRANSLATE_NOOP("XSettingsDialog", "Appearance settings") },
+		{ "applications-other", Settings::Plugin,
+		  QT_TRANSLATE_NOOP("XSettingsDialog", "Plugins"),
+		  QT_TRANSLATE_NOOP("XSettingsDialog", "Additional plugins settings") }
+	};
+	
+	m_group_widgets.resize(sizeof(groups) / sizeof(groups[0]));
 	QActionGroup *group = new QActionGroup(this);
-
-	QAction *general =  new QAction(Icon("preferences-system"),tr("General"),ui->xtoolBar);
-	general->setToolTip(tr("General configuration"));
-	addAction(general,Settings::General);
-	group->addAction(general);
-
-	ui->xtoolBar->addSeparator();
-
-	QAction *protocols =  new QAction(Icon("applications-internet"),tr("Protocols"),ui->xtoolBar);
-	protocols->setToolTip(tr("Accounts and protocols settings"));
-	addAction(protocols,Settings::Protocol);
-	group->addAction(protocols);
-
-	QAction *appearance =  new QAction(Icon("applications-graphics"),tr("Appearance"),ui->xtoolBar);
-	appearance->setToolTip(tr("Appearance settings"));
-	addAction(appearance,Settings::Appearance);
-	group->addAction(appearance);
-
-	QAction *plugins =  new QAction(Icon("applications-other"),tr("Plugins"),ui->xtoolBar);
-	plugins->setToolTip(tr("Additional plugins settings"));
-	addAction(plugins,Settings::Plugin);
-	m_group_widgets.resize(ui->xtoolBar->actions().count());
-	group->addAction(plugins);
+	QAction *general = 0;
+	for (int i = 0; i < m_group_widgets.size(); i++) {
+		// ActionGenerator for localization support
+		ActionGenerator *gen = new ActionGenerator(Icon(QLatin1String(groups[i].icon)),
+												   groups[i].name, 0, 0);
+		gen->setToolTip(groups[i].tooltip);
+		QAction *action = ui->xtoolBar->addAction(gen);
+		action->setProperty("category", groups[i].type);
+		action->setCheckable(true);
+		group->addAction(action);
+		if (i == 0) {
+			general = action;
+			ui->xtoolBar->addSeparator();
+		}
+	}
 
 	group->setExclusive(true);
 

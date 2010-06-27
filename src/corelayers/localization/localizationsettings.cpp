@@ -31,15 +31,6 @@ namespace Core
 	{
 		m_ui->setupUi(this);
 		QStringList langs = listThemes("languages");
-		struct
-		{
-			const char *source;
-			const char *comment;
-		} l10nStrings[] = {
-		QT_TRANSLATE_NOOP3("Localization", "<Language>", "Localized language name"),
-		QT_TRANSLATE_NOOP3("Localization", "<Country>",
-						   "Localized country name, empty if localization is country-independent")
-		};
 		Icon icon("preferences-desktop-locale");
 		if (!langs.contains(QLatin1String("en_EN"))) {
 			QListWidgetItem *item = new QListWidgetItem(icon, QLatin1String("English"),
@@ -52,16 +43,13 @@ namespace Core
 			QDir dir = getThemePath("languages", lang);
 			if (dir.exists("core.qm")) {
 				QTranslator translator;
-				translator.load(dir.filePath("core.qm"));
-				QString language = translator.translate("Localization",
-														l10nStrings[0].source,
-														l10nStrings[0].comment);
-				if (language != QLatin1String("<Language>")) {
+				translator.load(QLatin1String("core.qm"), dir.absolutePath());
+				QString language = translator.translate("Localization", "<Language>", "Localized language name");
+				if (!language.isEmpty()) {
 					text = language;
-					QString country = translator.translate("Localization",
-														   l10nStrings[1].source,
-														   l10nStrings[1].comment);
-					if (country != QLatin1String("<Country>") && !country.isEmpty()) {
+					QString country = translator.translate("Localization", "<Country>",
+														   "Localized country name, empty if localization is country-independent");
+					if (!country.isEmpty()) {
 						text += QLatin1String(" (");
 						text += country;
 						text += QLatin1String(")");

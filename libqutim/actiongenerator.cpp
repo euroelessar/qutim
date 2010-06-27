@@ -17,9 +17,44 @@
 #include "menucontroller.h"
 #include <QtGui/QIcon>
 #include <QtGui/QAction>
+#include <QtCore/QCoreApplication>
 
 namespace qutim_sdk_0_3
 {
+	Q_GLOBAL_STATIC(ActionGeneratorLocalizationHelper, localizationHelper)
+	
+	ActionGeneratorLocalizationHelper::ActionGeneratorLocalizationHelper()
+	{
+		qApp->installEventFilter(this);
+	}
+
+	bool ActionGeneratorLocalizationHelper::eventFilter(QObject *, QEvent *ev)
+	{
+		if (ev->type() == QEvent::LanguageChange) {
+			QMap<QAction*, const ActionGeneratorPrivate*>::iterator it = m_actions.begin();
+			QMap<QAction*, const ActionGeneratorPrivate*>::iterator endit = m_actions.end();
+			for (; it != endit; it++) {
+				QAction *action = it.key();
+				const ActionGeneratorPrivate *data = it.value();
+				action->setText(data->text);
+				action->setToolTip(data->toolTip);
+			}
+		}
+		return false;
+	}
+
+	void ActionGeneratorLocalizationHelper::addAction(QAction *action,
+													  const ActionGeneratorPrivate *data)
+	{
+		m_actions.insert(action, data);
+		connect(action, SIGNAL(destroyed(QObject*)), this, SLOT(onActionDeath(QObject*)));
+	}
+
+	void ActionGeneratorLocalizationHelper::onActionDeath(QObject *obj)
+	{
+		m_actions.remove(static_cast<QAction*>(obj));
+	}
+	
 	ActionCreatedEvent::ActionCreatedEvent(QAction *action, ActionGenerator *gen) :
 			QEvent(eventType()), m_action(action), m_gen(gen)
 	{
@@ -128,11 +163,15 @@ namespace qutim_sdk_0_3
 		action->setCheckable(d->checkable);
 		action->setChecked(d->checked);
 		action->setToolTip(d->toolTip);
-		if (d->controller)
+		localizationHelper()->addAction(action, d);
+		QObject *receiver = d->receiver;
+		if (d->controller) {
 			action->setData(QVariant::fromValue(const_cast<MenuController *>(d->controller)));
-		if (d->member.constData() && (d->receiver || d->controller))
-			QObject::connect(action, SIGNAL(triggered()),
-							 d->receiver ? d->receiver : d->controller, d->member);
+			if (!receiver)
+				receiver = d->controller;
+		}
+		if (!d->member.isEmpty() && receiver)
+			QObject::connect(action, SIGNAL(triggered()), receiver, d->member);
 		return action;
 	}
 

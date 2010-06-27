@@ -30,6 +30,7 @@ class XSettingsGroup : public QWidget
 public:
 	XSettingsGroup (const SettingsItemList &settings,QWidget* parent = 0);
 	virtual ~XSettingsGroup();
+	void changeEvent(QEvent *ev);
 signals:
 	void modifiedChanged(SettingsWidget *item);
 	void titleChanged(const QString &title);

@@ -23,6 +23,19 @@ namespace qutim_sdk_0_3
 		bool checked;
 		LocalizedString toolTip;
 	};
+	
+	class ActionGeneratorLocalizationHelper : public QObject
+	{
+		Q_OBJECT
+	public:
+		ActionGeneratorLocalizationHelper();
+		virtual bool eventFilter(QObject *obj, QEvent *ev);
+		void addAction(QAction *action, const ActionGeneratorPrivate *data);
+	public slots:
+		void onActionDeath(QObject *obj);
+	private:
+		QMap<QAction*, const ActionGeneratorPrivate*> m_actions;
+	};
 }
 
 #endif // ACTIONGENERATOR_P_H
