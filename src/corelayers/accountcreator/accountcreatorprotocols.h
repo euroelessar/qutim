@@ -28,7 +28,9 @@ namespace Core
 		virtual int nextId() const;
 
 	public slots:
-		void onCurrentRowChanged(int row);
+		void protocolSelected();
+		void on_upButton_clicked();
+		void on_downButton_clicked();
 
 	protected:
 		QMap<AccountCreationWizard *, int>::iterator ensureCurrentProtocol();
@@ -39,6 +41,7 @@ namespace Core
 		AccountCreatorWizard *m_wizard;
 		QMultiMap<QString, AccountCreationWizard *> m_wizards;
 		QMap<AccountCreationWizard *, int> m_wizardIds;
+		QHash<QPushButton *, QListWidgetItem *> m_items;
 		int m_lastId;
 	};
 }

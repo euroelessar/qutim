@@ -4,6 +4,8 @@
 #include "libqutim/icon.h"
 #include "ui_accountcreatorprotocols.h"
 #include <QDebug>
+#include <QPushButton>
+#include <QScrollBar>
 
 namespace Core
 {
@@ -16,8 +18,6 @@ namespace Core
 		
 		connect(m_ui->protocolList, SIGNAL(currentRowChanged(int)),
 				SIGNAL(completeChanged()));
-		connect(m_ui->protocolList,SIGNAL(currentRowChanged(int)),
-				SLOT(onCurrentRowChanged(int)));
 		qDebug() << Q_FUNC_INFO;
 		m_lastId = Id;
 		QSet<QByteArray> protocols;
@@ -33,6 +33,18 @@ namespace Core
 			m_wizards.insert(wizard->info().name(), wizard);
 		}
 
+		m_ui->upButton->setIcon( Icon("arrow-up") );
+		m_ui->downButton->setIcon( Icon("arrow-down") );
+
+		int h = ( height() - 180 < height() - 120 ? 180 : 120 );
+		m_ui->protocolList->setGridSize( QSize( 0, 60 ) );
+		m_ui->protocolList->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+		m_ui->protocolList->setFrameStyle( QFrame::NoFrame );
+		m_ui->protocolList->setMinimumSize( m_ui->protocolList->minimumSize().width(), h );
+		m_ui->protocolList->setMaximumSize( m_ui->protocolList->maximumSize().width(), h );
+		m_ui->protocolList->setSelectionRectVisible(false);
+		m_ui->upButton->setDisabled( true );
+
 		foreach (AccountCreationWizard *wizard, m_wizards) {
 			ExtensionInfo info = wizard->info();
 			QIcon icon = info.icon();
@@ -40,11 +52,19 @@ namespace Core
 				icon = Icon(QLatin1String("im-") + info.name().original().toLower());
 
 			QListWidgetItem *item = new QListWidgetItem(icon,
-														info.name(),
+														"",
 														m_ui->protocolList);
 			item->setData(Qt::UserRole + 1,reinterpret_cast<qptrdiff>(wizard));
 			item->setData(Qt::UserRole + 2,qVariantFromValue(info));
-			item->setToolTip(info.description());
+			item->setFlags(Qt::NoItemFlags);
+
+			QPushButton *b = new QPushButton(icon, info.name());
+			connect(b, SIGNAL(clicked()), this, SLOT(protocolSelected()));
+			b->setMinimumSize( b->minimumSize().width(), 60 );
+			b->setToolTip(info.description());
+			m_ui->protocolList->setItemWidget( item, b );
+
+			m_items.insert(b, item);
 		}
 		setTitle(tr("Select protocol"));
 	}
@@ -57,19 +77,21 @@ namespace Core
 
 	bool AccountCreatorProtocols::validatePage()
 	{
-		QListWidgetItem *item = m_ui->protocolList->currentItem();
-		qptrdiff wizardPtr = item->data(Qt::UserRole + 1).value<qptrdiff>();
-		AccountCreationWizard *wizard = reinterpret_cast<AccountCreationWizard *>(wizardPtr);
-		if (!wizard)
-			return false;
+		//QListWidgetItem *item = m_ui->protocolList->currentItem();
+		//qptrdiff wizardPtr = item->data(Qt::UserRole + 1).value<qptrdiff>();
+		//AccountCreationWizard *wizard = reinterpret_cast<AccountCreationWizard *>(wizardPtr);
+		//if (!wizard)
+		//	return false;
 
-		QMap<AccountCreationWizard *, int>::iterator it = ensureCurrentProtocol();
-		return it.value() != -1;
+		//QMap<AccountCreationWizard *, int>::iterator it = ensureCurrentProtocol();
+		//return it.value() != -1;
+		return true;
 	}
 
 	bool AccountCreatorProtocols::isComplete() const
 	{
-		return m_ui->protocolList->currentIndex().row() != -1;
+		//return m_ui->protocolList->currentIndex().row() != -1;
+		return false;
 	}
 
 	int AccountCreatorProtocols::nextId() const
@@ -118,11 +140,42 @@ namespace Core
 		}
 	}
 
-	void AccountCreatorProtocols::onCurrentRowChanged(int row)
+	void AccountCreatorProtocols::protocolSelected()
 	{
-		QListWidgetItem *item = m_ui->protocolList->item(row);
-		ExtensionInfo info = item->data(Qt::UserRole+2).value<ExtensionInfo>();
-		setSubTitle(info.description());
+		m_ui->protocolList->setCurrentItem(m_items.value(qobject_cast<QPushButton *>(sender())));
+		wizard()->next();
+	}
+
+	void AccountCreatorProtocols::on_upButton_clicked()
+	{
+		int val = m_ui->protocolList->verticalScrollBar()->value() - 1;
+		int minimum = m_ui->protocolList->verticalScrollBar()->minimum();
+		int maximum = m_ui->protocolList->verticalScrollBar()->maximum();
+		if ( val < minimum )
+			val = minimum;
+		else if ( val > maximum )
+			val = maximum;
+		m_ui->protocolList->verticalScrollBar()->setValue( val );
+		if ( val == minimum )
+			m_ui->upButton->setDisabled( true );
+		if ( val != maximum )
+			m_ui->downButton->setDisabled( false );
+	}
+
+	void AccountCreatorProtocols::on_downButton_clicked()
+	{
+		int val = m_ui->protocolList->verticalScrollBar()->value() + 1;
+		int minimum = m_ui->protocolList->verticalScrollBar()->minimum();
+		int maximum = m_ui->protocolList->verticalScrollBar()->maximum();
+		if ( val < minimum )
+			val = minimum;
+		else if ( val > maximum )
+			val = maximum;
+		m_ui->protocolList->verticalScrollBar()->setValue( val );
+		if ( val != minimum )
+			m_ui->upButton->setDisabled( false );
+		if ( val == maximum )
+			m_ui->downButton->setDisabled( true );
 	}
 
 }
