@@ -18,6 +18,8 @@
 #include "libqutim/configbase.h"
 #include <QStringBuilder>
 #include <QDebug>
+#include <QDir>
+#include <QTranslator>
 #include <libqutim/icon.h>
 
 using namespace qutim_sdk_0_3;
@@ -29,19 +31,55 @@ namespace Core
 	{
 		m_ui->setupUi(this);
 		QStringList langs = listThemes("languages");
+		struct
+		{
+			const char *source;
+			const char *comment;
+		} l10nStrings[] = {
+		QT_TRANSLATE_NOOP3("Localization", "<Language>", "Localized language name"),
+		QT_TRANSLATE_NOOP3("Localization", "<Country>",
+						   "Localized country name, empty if localization is country-independent")
+		};
+		Icon icon("preferences-desktop-locale");
+		if (!langs.contains(QLatin1String("en_EN"))) {
+			QListWidgetItem *item = new QListWidgetItem(icon, QLatin1String("English"),
+														m_ui->languagesList);
+			m_items.insert(QLatin1String("en_EN"), item);
+			item->setData(Qt::UserRole, QLatin1String("en_EN"));
+		}
 		foreach (const QString &lang, langs) {
-			QLocale locale(lang);
-			QString text = QLocale::languageToString(locale.language());
-			qDebug() << Q_FUNC_INFO << lang << locale.name() << text;
-			if (locale.country() != QLocale::AnyCountry) {
-				text += QString(QLatin1Literal(" (")
-						 % QLocale::countryToString(locale.country())
-						 % QLatin1Literal(")"));
+			QString text;
+			QDir dir = getThemePath("languages", lang);
+			if (dir.exists("core.qm")) {
+				QTranslator translator;
+				translator.load(dir.filePath("core.qm"));
+				QString language = translator.translate("Localization",
+														l10nStrings[0].source,
+														l10nStrings[0].comment);
+				if (language != QLatin1String("<Language>")) {
+					text = language;
+					QString country = translator.translate("Localization",
+														   l10nStrings[1].source,
+														   l10nStrings[1].comment);
+					if (country != QLatin1String("<Country>") && !country.isEmpty()) {
+						text += QLatin1String(" (");
+						text += country;
+						text += QLatin1String(")");
+					}
+				}
 			}
-			QListWidgetItem *item = new QListWidgetItem(text, m_ui->languagesList);
+			if (text.isEmpty()) {
+				QLocale locale(lang);
+				text = QLocale::languageToString(locale.language());
+				if (locale.country() != QLocale::AnyCountry) {
+					text += QString(QLatin1Literal(" (")
+							 % QLocale::countryToString(locale.country())
+							 % QLatin1Literal(")"));
+				}
+			}
+			QListWidgetItem *item = new QListWidgetItem(icon, text, m_ui->languagesList);
 			m_items.insert(lang, item);
 			item->setData(Qt::UserRole, lang);
-			item->setIcon(Icon("preferences-desktop-locale"));
 		}
 		m_ui->languagesList->sortItems();
 		listenChildrenStates();
@@ -54,14 +92,18 @@ namespace Core
 
 	void LocalizationSettings::loadImpl()
 	{
-		QString lang = Config().group("localization").value("lang", QString());
+		Config cfg;
+		cfg.beginGroup("localization");
+		QString lang = cfg.value("lang", QString());
 		m_ui->languagesList->setCurrentItem(m_items.value(lang, 0));
 	}
 
 	void LocalizationSettings::saveImpl()
 	{
 		if (QListWidgetItem *item = m_ui->languagesList->currentItem()) {
-			Config().group("localization").setValue("lang", item->data(Qt::UserRole));
+			Config cfg;
+			cfg.beginGroup("localization");
+			cfg.setValue("lang", item->data(Qt::UserRole));
 		}
 	}
 

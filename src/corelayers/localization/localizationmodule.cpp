@@ -46,7 +46,7 @@ namespace Core
 		// TODO: Check if it works correct
 		QStringList langs = listThemes("languages");
 		QString lang = Config().group("localization").value("lang", QString());
-		if (langs.contains(lang)) {
+		if (langs.contains(lang) || lang == QLatin1String("en_EN")) {
 			loadLanguage(lang);
 		} else {
 			QLocale locale;
@@ -77,8 +77,13 @@ namespace Core
 		qDeleteAll(m_translators);
 		m_translators.clear();
 
-		QDir dir = getThemePath("languages", lang);
-		QString path = dir.absolutePath();
+		QString path = getThemePath("languages", lang);
+		if (path.isEmpty()) {
+			QLocale::setDefault(QLocale::c());
+			return;
+		}
+		
+		QDir dir = path;
 		QStringList files = dir.entryList(QStringList() << "*.qm", QDir::Files);
 
 		// For jabber's xml:lang
