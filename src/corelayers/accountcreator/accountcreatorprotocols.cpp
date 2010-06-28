@@ -3,7 +3,6 @@
 #include "libqutim/extensioninfo.h"
 #include "libqutim/icon.h"
 #include "ui_accountcreatorprotocols.h"
-#include <QDebug>
 #include <QPushButton>
 #include <QScrollBar>
 
@@ -16,9 +15,8 @@ namespace Core
 	{
 		m_ui->setupUi(this);
 		
-		connect(m_ui->protocolList, SIGNAL(currentRowChanged(int)),
-				SIGNAL(completeChanged()));
-		qDebug() << Q_FUNC_INFO;
+		connect(m_ui->protocolList->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(sliderMoved(int)));
+
 		m_lastId = Id;
 		QSet<QByteArray> protocols;
 		foreach (Protocol *protocol, allProtocols()) {
@@ -33,17 +31,16 @@ namespace Core
 			m_wizards.insert(wizard->info().name(), wizard);
 		}
 
-		m_ui->upButton->setIcon( Icon("arrow-up") );
-		m_ui->downButton->setIcon( Icon("arrow-down") );
+		m_ui->upButton->setIcon(Icon("arrow-up"));
+		m_ui->downButton->setIcon(Icon("arrow-down"));
 
-		int h = ( height() - 180 < height() - 120 ? 180 : 120 );
-		m_ui->protocolList->setGridSize( QSize( 0, 60 ) );
-		m_ui->protocolList->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-		m_ui->protocolList->setFrameStyle( QFrame::NoFrame );
-		m_ui->protocolList->setMinimumSize( m_ui->protocolList->minimumSize().width(), h );
-		m_ui->protocolList->setMaximumSize( m_ui->protocolList->maximumSize().width(), h );
-		m_ui->protocolList->setSelectionRectVisible(false);
-		m_ui->upButton->setDisabled( true );
+		int h = (height() - 180 < height() - 120 ? 180 : 120);
+		m_ui->protocolList->setGridSize(QSize(0, 60));
+		m_ui->protocolList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		m_ui->protocolList->setFrameStyle(QFrame::NoFrame);
+		m_ui->protocolList->setMinimumSize(m_ui->protocolList->minimumSize().width(), h);
+		m_ui->protocolList->setMaximumSize(m_ui->protocolList->maximumSize().width(), h);
+		m_ui->upButton->setDisabled(true);
 
 		foreach (AccountCreationWizard *wizard, m_wizards) {
 			ExtensionInfo info = wizard->info();
@@ -51,18 +48,18 @@ namespace Core
 			if (icon.isNull())
 				icon = Icon(QLatin1String("im-") + info.name().original().toLower());
 
-			QListWidgetItem *item = new QListWidgetItem(icon,
-														"",
-														m_ui->protocolList);
+			QListWidgetItem *item = new QListWidgetItem(m_ui->protocolList);
 			item->setData(Qt::UserRole + 1,reinterpret_cast<qptrdiff>(wizard));
 			item->setData(Qt::UserRole + 2,qVariantFromValue(info));
 			item->setFlags(Qt::NoItemFlags);
+			item->setSizeHint(QSize( 0, 60 ));
 
 			QPushButton *b = new QPushButton(icon, info.name());
 			connect(b, SIGNAL(clicked()), this, SLOT(protocolSelected()));
-			b->setMinimumSize( b->minimumSize().width(), 60 );
+			b->setMinimumSize(b->minimumSize().width(), 60);
+			b->setFocusPolicy(Qt::ClickFocus);
 			b->setToolTip(info.description());
-			m_ui->protocolList->setItemWidget( item, b );
+			m_ui->protocolList->setItemWidget(item, b);
 
 			m_items.insert(b, item);
 		}
@@ -77,20 +74,11 @@ namespace Core
 
 	bool AccountCreatorProtocols::validatePage()
 	{
-		//QListWidgetItem *item = m_ui->protocolList->currentItem();
-		//qptrdiff wizardPtr = item->data(Qt::UserRole + 1).value<qptrdiff>();
-		//AccountCreationWizard *wizard = reinterpret_cast<AccountCreationWizard *>(wizardPtr);
-		//if (!wizard)
-		//	return false;
-
-		//QMap<AccountCreationWizard *, int>::iterator it = ensureCurrentProtocol();
-		//return it.value() != -1;
 		return true;
 	}
 
 	bool AccountCreatorProtocols::isComplete() const
 	{
-		//return m_ui->protocolList->currentIndex().row() != -1;
 		return false;
 	}
 
@@ -110,7 +98,8 @@ namespace Core
 		if (!item)
 			return m_wizardIds.end();
 
-		qptrdiff wizardPtr = item->data(Qt::UserRole + 1).value<qptrdiff>();	AccountCreationWizard *wizard = reinterpret_cast<AccountCreationWizard *>(wizardPtr);
+		qptrdiff wizardPtr = item->data(Qt::UserRole + 1).value<qptrdiff>();
+		AccountCreationWizard *wizard = reinterpret_cast<AccountCreationWizard *>(wizardPtr);
 		if (!wizard)
 			return m_wizardIds.end();
 
@@ -132,11 +121,11 @@ namespace Core
 	{
 		QWizardPage::changeEvent(e);
 		switch (e->type()) {
-		case QEvent::LanguageChange:
-			m_ui->retranslateUi(this);
-			break;
-		default:
-			break;
+			case QEvent::LanguageChange:
+				m_ui->retranslateUi(this);
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -148,34 +137,30 @@ namespace Core
 
 	void AccountCreatorProtocols::on_upButton_clicked()
 	{
-		int val = m_ui->protocolList->verticalScrollBar()->value() - 1;
-		int minimum = m_ui->protocolList->verticalScrollBar()->minimum();
-		int maximum = m_ui->protocolList->verticalScrollBar()->maximum();
-		if ( val < minimum )
-			val = minimum;
-		else if ( val > maximum )
-			val = maximum;
-		m_ui->protocolList->verticalScrollBar()->setValue( val );
-		if ( val == minimum )
-			m_ui->upButton->setDisabled( true );
-		if ( val != maximum )
-			m_ui->downButton->setDisabled( false );
+		m_ui->protocolList->verticalScrollBar()->setValue(m_ui->protocolList->verticalScrollBar()->value() - 1);
 	}
 
 	void AccountCreatorProtocols::on_downButton_clicked()
 	{
-		int val = m_ui->protocolList->verticalScrollBar()->value() + 1;
-		int minimum = m_ui->protocolList->verticalScrollBar()->minimum();
-		int maximum = m_ui->protocolList->verticalScrollBar()->maximum();
-		if ( val < minimum )
-			val = minimum;
-		else if ( val > maximum )
-			val = maximum;
-		m_ui->protocolList->verticalScrollBar()->setValue( val );
-		if ( val != minimum )
-			m_ui->upButton->setDisabled( false );
-		if ( val == maximum )
-			m_ui->downButton->setDisabled( true );
+		m_ui->protocolList->verticalScrollBar()->setValue(m_ui->protocolList->verticalScrollBar()->value() + 1);
 	}
 
+	void AccountCreatorProtocols::sliderMoved(int val)
+	{
+		if (val == m_ui->protocolList->verticalScrollBar()->minimum())
+		{
+			m_ui->upButton->setDisabled(true);
+			m_ui->downButton->setDisabled(false);
+		}
+		else if (val == m_ui->protocolList->verticalScrollBar()->maximum())
+		{
+			m_ui->upButton->setDisabled(false);
+			m_ui->downButton->setDisabled(true);
+		}
+		else
+		{
+			m_ui->upButton->setDisabled(false);
+			m_ui->downButton->setDisabled(false);
+		}
+	}
 }
