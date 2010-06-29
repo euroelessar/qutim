@@ -41,7 +41,7 @@ bool WeatherPlugin::load()
 
 bool WeatherPlugin::unload()
 {
-	delete m_protocol;
+	m_protocol->deleteLater();
 
 	return true;
 }
