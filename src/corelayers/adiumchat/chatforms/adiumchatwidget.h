@@ -49,6 +49,7 @@ namespace Core
 			QTabBar *getTabBar();
 			QListView *getContactsView();
 			ChatSessionImpl *currentSession();
+			QWebView* getChatView();
 		public slots:
 			void addSession(ChatSessionImpl *session);
 			void addSession(const ChatSessionList &sessions);
@@ -74,7 +75,6 @@ namespace Core
 			ActionToolBar *m_toolbar;
 			QAction *m_session_list;
 			QAction *m_reciever_selector;
-			QPointer<QTextDocument> m_originalDoc;
 		};
 	}
 }

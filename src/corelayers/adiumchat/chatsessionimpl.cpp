@@ -391,6 +391,7 @@ namespace Core
 			msg.setTime(QDateTime::currentDateTime());
 			msg.setText(contact->status().text());
 			msg.setProperty("silent",silent);
+			msg.setProperty("store",!silent);
 			q->appendMessage(msg);
 		}
 

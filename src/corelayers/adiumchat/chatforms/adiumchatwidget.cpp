@@ -203,53 +203,12 @@ namespace Core
 		void AdiumChatWidget::currentIndexChanged(int index)
 		{
 			if (index == -1) {
-				ui->chatEdit->setDocument(m_originalDoc);
+				getInputField()->setDocument(m_originalDoc);
 				return;
-			}
-			int previous_index = m_current_index;
-			m_current_index = index;
+			}			
+			AbstractChatWidget::currentIndexChanged(index);
 			ChatSessionImpl *session = m_sessions.at(index);
-
-			if ((previous_index != -1) && (previous_index != index)) {
-				m_sessions.at(previous_index)->setActive(false);
-				session->activate();
-			}
-			ui->contactsView->setModel(session->getModel());
-
-			ChatUnit *u = session->getUnit();
-			QIcon icon = Icon("view-choose");
-			QString title = tr("Chat with %1").arg(u->title());
-
-			bool isContactsViewVisible;
-
-			if (Conference *c = qobject_cast<Conference *>(u)) {
-				icon = Icon("meeting-attending"); //TODO
-				title = tr("Conference %1 (%2)").arg(c->title(),c->id());
-				isContactsViewVisible = true;
-			} else {
-				isContactsViewVisible = session->getModel()->rowCount(QModelIndex()) > 0;
-				if (Buddy *b = qobject_cast<Buddy*>(u))
-					icon = b->avatar().isEmpty() ? Icon("view-choose") : QIcon(b->avatar());
-			}
-
-			setWindowTitle(title);
-			setWindowIcon(icon);
-
-			if (ui->chatView->page() != session->getPage()) {
-				ui->chatView->page()->setView(0);
-				ui->contactsView->setVisible(isContactsViewVisible);
-				ui->chatView->setPage(session->getPage());
-				session->getPage()->setView(ui->chatView);
-			}
-
-			if ((m_chatFlags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
-				m_chatstateTimer.stop();
-				m_chatstate = ui->chatEdit->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
-				m_sessions.at(previous_index)->setChatState(m_chatstate);
-			}
-
 			m_reciever_selector->setMenu(session->menu());
-			ui->chatEdit->setDocument(session->getInputField());
 		}
 
 		void AdiumChatWidget::clear()
@@ -267,19 +226,8 @@ namespace Core
 			int index = m_sessions.indexOf(session);
 			if (index == -1)
 				return;
-			ui->tabBar->removeTab(index);
-			m_sessions.removeAt(index);
 			m_session_list->menu()->removeAction(m_session_list->menu()->actions().at(index));
-			session->disconnect(this);
-
-			currentIndexChanged(ui->tabBar->currentIndex());
-
-			if (session && m_removeSessionOnClose) {
-				session->deleteLater();
-			}
-
-			if (m_sessions.isEmpty())
-				close();
+			AbstractChatWidget::removeSession(session);
 		}
 
 		void AdiumChatWidget::onSessionDestroyed(QObject* object)
@@ -431,6 +379,12 @@ namespace Core
 				return;
 			ui->tabBar->setTabText(m_sessions.indexOf(s),title);
 		}
+		
+		QWebView* AdiumChatWidget::getChatView()
+		{
+			return ui->chatView;
+		}
+
 	}
 }
 

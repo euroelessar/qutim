@@ -22,6 +22,7 @@
 #include <QTextCursor>
 #include "../chatlayerimpl.h"
 
+class QWebView;
 class QPlainTextEdit;
 class QListView;
 class QModelIndex;
@@ -58,13 +59,14 @@ namespace Core
 			virtual QTabBar *getTabBar() = 0;
 			virtual QListView *getContactsView() = 0;
 			virtual ChatSessionImpl *currentSession() = 0;
+			virtual QWebView *getChatView() = 0; 
 			virtual void loadAppearanceSettings();
 			virtual void loadBehaviorSettings();
 			virtual bool eventFilter(QObject *obj, QEvent *event);
 		public slots:
 			virtual void addSession(ChatSessionImpl *session) = 0;
 			virtual void addSession(const ChatSessionList &sessions) = 0;
-			virtual void removeSession(ChatSessionImpl *session) = 0;
+			virtual void removeSession(ChatSessionImpl *session);
 			virtual void activate(AdiumChat::ChatSessionImpl* session) = 0;
 		protected slots:
 			void onSendButtonClicked();
@@ -75,6 +77,7 @@ namespace Core
 			void closeCurrentTab();
 			void onBuddiesChanged();
 			void onDoubleClicked(const QModelIndex &index);
+			virtual void currentIndexChanged (int index);
 		public slots:
 			void raise();
 		protected:
@@ -91,6 +94,7 @@ namespace Core
 			QTextCursor m_enterPosition;
 			QTimer m_chatstateTimer;
 			int m_current_index;
+			QPointer<QTextDocument> m_originalDoc;
 		private:
 			bool atLoad;
 		};
