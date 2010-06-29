@@ -505,7 +505,8 @@ namespace Core
 
 				//for JMessageSession
 				//FIXME maybe need to move to the protocols
-				ChatUnit *unit = const_cast<ChatUnit*>(d->chat_unit->getHistoryUnit());
+				//ChatUnit *unit = const_cast<ChatUnit*>(d->chat_unit->getHistoryUnit());
+				ChatUnit *unit = d->chat_unit;
 
 				QAction *act = new QAction(d->menu);
 				act->setText(QT_TRANSLATE_NOOP("ChatSession", "Auto"));

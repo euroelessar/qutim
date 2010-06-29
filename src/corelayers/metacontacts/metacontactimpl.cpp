@@ -16,6 +16,7 @@
 
 #include "metacontactimpl.h"
 #include "manager.h"
+#include <libqutim/debug.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -54,11 +55,11 @@ namespace Core
 		QString MetaContactImpl::avatar() const
 		{
 			QString currentAvatar;
-			for (int i = 0; i < m_contacts.size(); i++) {
-				currentAvatar = m_contacts.at(i)->avatar();
-				if (!currentAvatar.isEmpty())
-					return currentAvatar;
-			}
+// 			for (int i = 0; i < m_contacts.size(); i++) {
+// 				currentAvatar = m_contacts.at(i)->avatar();
+// 				if (!currentAvatar.isEmpty())
+// 					return currentAvatar;
+// 			}
 			return QString();
 		}
 		
@@ -85,6 +86,7 @@ namespace Core
 
 		bool MetaContactImpl::sendMessage(const Message &message)
 		{
+			//implement logic
 			for (int i = 0; i < m_contacts.size(); i++) {
 				if (m_contacts.at(i)->sendMessage(message))
 					return true;
@@ -94,7 +96,7 @@ namespace Core
 		
 		void MetaContactImpl::addContact(Contact *contact)
 		{
-			if (m_contacts.contains(contact))
+			if (m_contacts.contains(contact) || (contact == this))
 				return;
 			
 			QStringList contactTags = contact->tags();
@@ -117,6 +119,8 @@ namespace Core
 				resetStatus();
 			if (m_contacts.size() == 1 || m_name.isEmpty())
 				resetName();
+			
+			//setMenuOwner(contact); TODO, implement logic!
 		}
 		
 		void MetaContactImpl::removeContact(Contact *contact)
@@ -191,7 +195,17 @@ namespace Core
 
 		qutim_sdk_0_3::ChatUnitList MetaContactImpl::lowerUnits()
 		{
-			return *reinterpret_cast<ChatUnitList*>(&m_contacts); //black magic
+			ChatUnitList list;
+			for (int i = 0;i!=m_contacts.count();i++) 
+				list.append(m_contacts.at(i));
+			return list;
 		}
+		
+		const qutim_sdk_0_3::ChatUnit* MetaContactImpl::getHistoryUnit() const
+		{
+			//implement logic
+			return m_contacts.first();
+		}
+
 	}
 }
