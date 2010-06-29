@@ -16,8 +16,6 @@
 #include "xsettingsdialog.h"
 #include "ui_xsettingsdialog.h"
 #include "xtoolbar.h"
-#include "libqutim/actiongenerator.h"
-#include "libqutim/localizedstring.h"
 #include <QLayout>
 #include <QDebug>
 #include <libqutim/icon.h>
@@ -49,45 +47,32 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 
 	//init actions
 	//TODO FIXME get rid of copypaste
-	struct
-	{
-		const char *icon;
-		Settings::Type type;
-		LocalizedString name;
-		LocalizedString tooltip;
-	} groups [] = {
-		{ "preferences-system", Settings::General,
-		  QT_TRANSLATE_NOOP("XSettingsDialog", "General"),
-		  QT_TRANSLATE_NOOP("XSettingsDialog", "General configuration") },
-		{ "applications-internet", Settings::Protocol,
-		  QT_TRANSLATE_NOOP("XSettingsDialog", "Protocols"),
-		  QT_TRANSLATE_NOOP("XSettingsDialog", "Accounts and protocols settings") },
-		{ "applications-graphics", Settings::Appearance,
-		  QT_TRANSLATE_NOOP("XSettingsDialog", "Appearance"),
-		  QT_TRANSLATE_NOOP("XSettingsDialog", "Appearance settings") },
-		{ "applications-other", Settings::Plugin,
-		  QT_TRANSLATE_NOOP("XSettingsDialog", "Plugins"),
-		  QT_TRANSLATE_NOOP("XSettingsDialog", "Additional plugins settings") }
-	};
-	
-	m_group_widgets.resize(sizeof(groups) / sizeof(groups[0]));
-	QActionGroup *group = new QActionGroup(this);
-	QAction *general = 0;
-	for (int i = 0; i < m_group_widgets.size(); i++) {
-		// ActionGenerator for localization support
-		ActionGenerator *gen = new ActionGenerator(Icon(QLatin1String(groups[i].icon)),
-												   groups[i].name, 0, 0);
-		gen->setToolTip(groups[i].tooltip);
-		QAction *action = ui->xtoolBar->addAction(gen);
-		action->setProperty("category", groups[i].type);
-		action->setCheckable(true);
-		group->addAction(action);
-		if (i == 0) {
-			general = action;
-			ui->xtoolBar->addSeparator();
-		}
-	}
 
+	QActionGroup *group = new QActionGroup(this);
+
+	QAction *general =  new QAction(Icon("preferences-system"),tr("General"),ui->xtoolBar);
+	general->setToolTip(tr("General configuration"));
+	addAction(general,Settings::General);
+	group->addAction(general);
+
+	ui->xtoolBar->addSeparator();
+
+	QAction *protocols =  new QAction(Icon("applications-internet"),tr("Protocols"),ui->xtoolBar);
+	protocols->setToolTip(tr("Accounts and protocols settings"));
+	addAction(protocols,Settings::Protocol);
+	group->addAction(protocols);
+
+	QAction *appearance =  new QAction(Icon("applications-graphics"),tr("Appearance"),ui->xtoolBar);
+	appearance->setToolTip(tr("Appearance settings"));
+	addAction(appearance,Settings::Appearance);
+	group->addAction(appearance);
+
+	QAction *plugins =  new QAction(Icon("applications-other"),tr("Plugins"),ui->xtoolBar);
+	plugins->setToolTip(tr("Additional plugins settings"));
+	addAction(plugins,Settings::Plugin);
+	m_group_widgets.resize(ui->xtoolBar->actions().count());
+	group->addAction(plugins);
+	m_current_action = general;
 	group->setExclusive(true);
 
 	//init button box
@@ -97,11 +82,7 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	
 	//init categories
 
-	foreach (SettingsItem *item, settings) {
-		if (item->type() >= m_settings_items.size())
-			m_settings_items.resize(item->type()+1);
-		m_settings_items[item->type()].append(item);
-	}
+	update(settings);
 	general->trigger();
 }
 
@@ -110,6 +91,17 @@ XSettingsDialog::~XSettingsDialog()
 	delete ui;
 }
 
+void XSettingsDialog::update(const SettingsItemList &settings)
+{
+	m_settings_items.clear();
+	foreach (SettingsItem *item, settings) {
+		if (item->type() >= m_settings_items.size())
+			m_settings_items.resize(item->type()+1);
+		m_settings_items[item->type()].append(item);
+	}
+	if (m_current_action)
+		onActionTriggered(m_current_action);
+}
 
 void XSettingsDialog::addAction (QAction* action, Settings::Type type)
 {
@@ -132,19 +124,22 @@ void XSettingsDialog::changeEvent(QEvent *e)
 
 void XSettingsDialog::onActionTriggered ( QAction* action )
 {
+	m_current_action = action;
 	Settings::Type type = static_cast<Settings::Type>(action->property("category").toInt());
 	SettingsItemList setting_items = m_settings_items.value(type);
 	if (setting_items.count()>1) { // ==0 or >=0 need for testing, for normally usage use >1
 		//TODO need way to add custom group
-		XSettingsGroup *group = m_group_widgets.value(type);
-		if (!group) {
+			XSettingsGroup *group = m_group_widgets.value(type);
+
+			ui->settingsStackedWidget->removeWidget(m_group_widgets.value(type));
+			m_group_widgets.remove(type);
+
 			group = new XSettingsGroup(setting_items,this);
 			ui->settingsStackedWidget->addWidget(group);
 			connect(group,SIGNAL(modifiedChanged(SettingsWidget*)),SLOT(onWidgetModifiedChanged(SettingsWidget*)));
 			connect(group,SIGNAL(titleChanged(QString)),SLOT(onTitleChanged(QString)));
 			m_group_widgets.insert(type,group);
-		}
-		ui->settingsStackedWidget->setCurrentWidget(group);
+			ui->settingsStackedWidget->setCurrentWidget(group);
 	} else {
 		if (setting_items.count() == 0) {
 			ui->settingsStackedWidget->setCurrentIndex(0);

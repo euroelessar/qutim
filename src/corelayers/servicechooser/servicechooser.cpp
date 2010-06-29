@@ -17,6 +17,7 @@
 #include "modulemanagerimpl.h"
 #include "servicechooserwidget.h"
 #include "protocolchooserwidget.h"
+#include "pluginchooserwidget.h"
 #include <libqutim/settingslayer.h>
 #include <libqutim/icon.h>
 #include <libqutim/extensioninfo.h>
@@ -30,10 +31,12 @@ namespace Core
 
 	ServiceChooser::ServiceChooser(QObject* parent): QObject(parent)
 	{
-		GeneralSettingsItem<ServiceChooserWidget> *item = new GeneralSettingsItem<ServiceChooserWidget>(Settings::Plugin, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Service Chooser"));
+		GeneralSettingsItem<ServiceChooserWidget> *item = new GeneralSettingsItem<ServiceChooserWidget>(Settings::Plugin, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Service chooser"));
 		Settings::registerItem(item);
 		GeneralSettingsItem<ProtocolChooserWidget> *item2 = new GeneralSettingsItem<ProtocolChooserWidget>(Settings::Protocol, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Protocol chooser"));
 		Settings::registerItem(item2);
+		GeneralSettingsItem<PluginChooserWidget> *item3 = new GeneralSettingsItem<PluginChooserWidget>(Settings::Plugin, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Plugin chooser"));
+		Settings::registerItem(item3);
 		deleteLater();
 	}
 
@@ -49,10 +52,14 @@ namespace Core
 		
 		html += "<blockoute>";
 		foreach (const PersonInfo &person, info.authors()) {
-			html += tr("<b>Name:</b> %1</br>").arg(person.name());
-			html += tr("<b>Task:</b> %1</br>").arg(person.task());
-			html += tr("<b>Email:</b> <a href=\"mailto:%1\">%1</a></br>").arg(person.email());
-			html += tr("<b>Webpage:</b> <a href=\"%1\">%1</a></br>").arg(person.web());
+			html += "<br/>";
+			html += tr("<b>Name:</b> %1<br/>").arg(person.name());
+			if ( !person.task().toString().isEmpty() )
+				html += tr("<b>Task:</b> %1<br/>").arg(person.task());
+			if ( !person.email().isEmpty() )
+				html += tr("<b>Email:</b> <a href=\"mailto:%1\">%1</a><br/>").arg(person.email());
+			if ( !person.web().isEmpty() )
+				html += tr("<b>Webpage:</b> <a href=\"%1\">%1</a><br/>").arg(person.web());
 		}
 		html += "</blockoute>";
 		return html;

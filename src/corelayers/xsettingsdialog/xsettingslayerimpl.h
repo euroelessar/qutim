@@ -28,7 +28,8 @@ public:
 	XSettingsLayerImpl();
 	virtual ~XSettingsLayerImpl();
 	virtual void close();
-	virtual void show ( const SettingsItemList& settings );
+	virtual void show (const SettingsItemList& settings);
+	virtual void update(const SettingsItemList &settings);
 private:
 	QPointer<XSettingsDialog> m_dialog;
 };

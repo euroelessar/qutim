@@ -47,6 +47,7 @@ namespace qutim_sdk_0_3
 		//                        QT_TRANSLATE_NOOP_UTF8("Settings", "Popup theme")));
 
 		LIBQUTIM_EXPORT void registerItem(SettingsItem *item);
+		LIBQUTIM_EXPORT void removeItem(SettingsItem *item);
 		LIBQUTIM_EXPORT void showWidget();
 		LIBQUTIM_EXPORT void closeWidget();
 	}
@@ -144,6 +145,7 @@ namespace qutim_sdk_0_3
 	public:
 		virtual void show(const SettingsItemList &settings) = 0;
 		virtual void close() = 0;
+		virtual void update(const SettingsItemList &settings) = 0;
 	protected:
 		SettingsLayer();
 		virtual ~SettingsLayer();

@@ -42,6 +42,12 @@ void XSettingsLayerImpl::show (const SettingsItemList& settings )
 	m_dialog->show();
 }
 
+void XSettingsLayerImpl::update (const SettingsItemList& settings )
+{
+	if (m_dialog.isNull())
+		return;
+	m_dialog->update(settings);
+}
 
 void XSettingsLayerImpl::close()
 {

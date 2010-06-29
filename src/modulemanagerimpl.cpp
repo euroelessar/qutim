@@ -15,8 +15,6 @@ namespace Core
 {
 	ModuleManagerImpl::ModuleManagerImpl()
 	{
-		loadPlugins();
-
 		Config config = ProfileDialog::profilesInfo();
 #ifdef Q_OS_WIN
 		if (config.value("singleProfile", false)) {
@@ -58,6 +56,7 @@ namespace Core
 
 	void ModuleManagerImpl::initExtensions()
 	{
+		ModuleManager::loadPlugins();
 		ModuleManager::initExtensions();
 	}
 }

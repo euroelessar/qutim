@@ -85,7 +85,7 @@ namespace qutim_sdk_0_3
 	public:
 		inline ModuleManagerPrivate() : is_inited(false), protocols_hash(new QHash<QString, QPointer<Protocol> >()) {}
 		inline ~ModuleManagerPrivate() { delete protocols_hash; }
-		QList<QPointer<Plugin> > plugins;
+		QList<QPointer<Plugin>> plugins;
 		bool is_inited;
 		union { // This union is intended to be used as reinterpret_cast =)
 			QHash<QString, QPointer<Protocol> > *protocols_hash;
@@ -95,6 +95,7 @@ namespace qutim_sdk_0_3
 		QHash<QByteArray, QObject *> services;
 		QObjectList serviceOrder;
 		QHash<QByteArray, ExtensionInfo> extensionsHash;
+		QHash<QString, Plugin*> extsPlugins;
 		ExtensionInfoList extensions;
 		QSet<QByteArray> interface_modules;
 		QSet<const QMetaObject *> meta_modules;
@@ -109,6 +110,11 @@ namespace qutim_sdk_0_3
 	ExtensionInfoList extensionList()
 	{
 		return (managerSelf && p && p->is_inited) ? p->extensions : ExtensionInfoList();
+	}
+
+	QList<QPointer<Plugin> > pluginsList()
+	{
+		return (managerSelf && p && p->is_inited) ? p->plugins : QList<QPointer<Plugin> >();
 	}
 
 	/**
@@ -347,17 +353,19 @@ namespace qutim_sdk_0_3
 						continue;
 					}
 				}
+
 				QPluginLoader *loader = new QPluginLoader(filename);
 				if (filename.contains("quetzal"))
 					loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
 				QObject *object = loader->instance();
 				if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
-					plugin->info().data()->fileName = filename;
 					plugin->init();
 					if (plugin->p->validate()) {
 						plugin->p->is_inited = true;
 						p->plugins.append(plugin);
 						p->extensions << plugin->avaiableExtensions();
+						foreach(ExtensionInfo info, plugin->avaiableExtensions())
+							p->extsPlugins.insert(info.name(), plugin);
 					} else {
 						delete object;
 					}
@@ -542,6 +550,7 @@ namespace qutim_sdk_0_3
 			}
 		}
 		{
+			Config pluginsConfig = Config().group("plugins").group("list");
 			const QHash<QByteArray, ExtensionInfo> &extsHash = p->extensionsHash;
 			ConfigGroup group = Config().group("protocols");
 			QVariantMap selected = group.value("list", QVariantMap());
@@ -549,6 +558,9 @@ namespace qutim_sdk_0_3
 			QVariantMap::const_iterator it = selected.constBegin();
 			for (; it != selected.constEnd(); it++) {
 				const ExtensionInfo info = extsHash.value(it.value().toString().toLatin1());
+				if (!pluginsConfig.value(p->extsPlugins.value(info.name())->info().name(), true))
+					continue;
+
 				if (info.generator() && info.generator()->extends<Protocol>()) {
 					const QMetaObject *meta = info.generator()->metaObject();
 					QByteArray name = metaInfo(meta, "Protocol");
@@ -561,6 +573,10 @@ namespace qutim_sdk_0_3
 			const ExtensionInfoList &exts = p->extensions;
 			ExtensionInfoList::const_iterator it2 = exts.constBegin();
 			for(; it2 != exts.end(); it2++) {
+				if (p->extsPlugins.value(it2->name()))
+					if (!pluginsConfig.value(p->extsPlugins.value(it2->name())->info().name(), true))
+						continue;
+
 				const ObjectGenerator *gen = it2->generator();
 				const QMetaObject *meta = gen->metaObject();
 				if (!gen->extends<Protocol>())
@@ -610,8 +626,9 @@ namespace qutim_sdk_0_3
 				it.value().generator()->generate<StartupModule>();
 			}
 		}
+		Config pluginsConfig = Config().group("plugins").group("list");
 		foreach(Plugin *plugin, p->plugins) {
-			if (plugin)
+			if (plugin && pluginsConfig.value(plugin->info().name(), true))
 				plugin->load();
 		}
 

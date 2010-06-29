@@ -120,6 +120,8 @@ namespace qutim_sdk_0_3
 		friend class ModuleManager;
 #endif
 	};
+
+	LIBQUTIM_EXPORT QList<QPointer<Plugin> > pluginsList();
 }
 
 #define QUTIM_EXPORT_PLUGIN2(Plugin,Class) \

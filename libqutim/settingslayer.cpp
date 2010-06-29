@@ -281,6 +281,16 @@ namespace qutim_sdk_0_3
 		{
 			ensure_settings_private();
 			p->items.append(item);
+			if(!p->widget.isNull())
+				p->widget->update(p->items);
+		}
+
+		void removeItem(SettingsItem *item)
+		{
+			ensure_settings_private();
+			p->items.removeAll(item);
+			if(!p->widget.isNull())
+				p->widget->update(p->items);
 		}
 
 		void showWidget()

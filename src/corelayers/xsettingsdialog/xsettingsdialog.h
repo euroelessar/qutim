@@ -32,6 +32,7 @@ class XSettingsDialog : public QDialog {
 public:
 	XSettingsDialog(const SettingsItemList &settings,QWidget *parent = 0);
 	~XSettingsDialog();
+	void update(const SettingsItemList &settings);
 	//void setSettingsList(const SettingsItemList &settings);//TODO
 protected:
 	void changeEvent(QEvent *e);
@@ -46,6 +47,7 @@ protected slots:
 private:
 	inline void addAction(QAction* action, Settings::Type type);
 	Ui::XSettingsDialog *ui;
+	QAction *m_current_action;
 	QVector<SettingsItemList> m_settings_items;
 	QVector<XSettingsGroup *> m_group_widgets;
 	QList<SettingsWidget *> m_modified_widgets;
