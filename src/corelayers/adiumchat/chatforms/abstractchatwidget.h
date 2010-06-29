@@ -58,7 +58,7 @@ namespace Core
 			virtual QPlainTextEdit *getInputField() = 0;
 			virtual QTabBar *getTabBar() = 0;
 			virtual QListView *getContactsView() = 0;
-			virtual ChatSessionImpl *currentSession() = 0;
+			virtual ChatSessionImpl *currentSession();
 			virtual QWebView *getChatView() = 0; 
 			virtual void loadAppearanceSettings();
 			virtual void loadBehaviorSettings();

@@ -415,5 +415,11 @@ namespace Core
 			if (m_sessions.isEmpty())
 				close();
 		}
+		
+		ChatSessionImpl* AbstractChatWidget::currentSession()
+		{
+			return (m_current_index == -1) ? 0 : m_sessions.at(m_current_index);
+		}
+
 	}
 }

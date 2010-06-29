@@ -257,11 +257,6 @@ namespace Core
 			return ui->contactsView;
 		}
 
-		ChatSessionImpl *ClassicChatWidget::currentSession()
-		{
-			return m_sessions.at(m_current_index);
-		}
-
 		void ClassicChatWidget::onTextChanged()
 		{
 			m_chatstateTimer.stop();

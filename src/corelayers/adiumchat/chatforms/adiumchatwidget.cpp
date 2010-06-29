@@ -326,11 +326,6 @@ namespace Core
 			return ui->contactsView;
 		}
 
-		ChatSessionImpl *AdiumChatWidget::currentSession()
-		{
-			return m_sessions.at(m_current_index);
-		}
-
 		bool AdiumChatWidget::event(QEvent *event)
 		{
 			if (event->type() == QEvent::WindowActivate

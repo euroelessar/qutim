@@ -48,7 +48,6 @@ namespace Core
 			QPlainTextEdit *getInputField();
 			QTabBar *getTabBar();
 			QListView *getContactsView();
-			ChatSessionImpl *currentSession();
 			QWebView* getChatView();
 		public slots:
 			void addSession(ChatSessionImpl *session);
