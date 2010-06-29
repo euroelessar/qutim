@@ -46,6 +46,7 @@
 # undef Status
 #endif
 #endif //Q_WS_X11
+#include <libqutim/icon.h>
 
 namespace Core
 {
@@ -348,6 +349,76 @@ namespace Core
 			Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
 			if (buddy)
 				ChatLayer::get(buddy, true)->activate();
+		}
+		
+		void AbstractChatWidget::currentIndexChanged(int index)
+		{
+			int previous_index = m_current_index;
+			m_current_index = index;
+			ChatSessionImpl *session = m_sessions.at(index);
+
+			if ((previous_index != -1) && (previous_index != index) && (previous_index < m_sessions.count())) {
+				m_sessions.at(previous_index)->setActive(false);
+				session->activate();
+			}
+			
+			getContactsView()->setModel(session->getModel());
+
+			ChatUnit *u = session->getUnit();
+			QIcon icon = Icon("view-choose");
+			QString title = tr("Chat with %1").arg(u->title());
+
+			bool isContactsViewVisible;
+
+			if (Conference *c = qobject_cast<Conference *>(u)) {
+				icon = Icon("meeting-attending"); //TODO
+				title = tr("Conference %1 (%2)").arg(c->title(),c->id());
+				isContactsViewVisible = true;
+			} else {
+				isContactsViewVisible = session->getModel()->rowCount(QModelIndex()) > 0;
+				if (Buddy *b = qobject_cast<Buddy*>(u))
+					icon = b->avatar().isEmpty() ? Icon("view-choose") : QIcon(b->avatar());
+			}
+
+			setWindowTitle(title);
+			setWindowIcon(icon);
+			
+			QWebView *chatView = getChatView();
+
+			if (chatView->page() != session->getPage()) {
+				chatView->page()->setView(0);
+				getContactsView()->setVisible(isContactsViewVisible);
+				chatView->setPage(session->getPage());
+				session->getPage()->setView(chatView);
+			}
+
+			if ((m_chatFlags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
+				m_chatstateTimer.stop();
+				m_chatstate = getInputField()->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
+				m_sessions.at(previous_index)->setChatState(m_chatstate);
+			}
+			
+			getInputField()->setDocument(session->getInputField());			
+		}
+
+		void AbstractChatWidget::removeSession(ChatSessionImpl* session)
+		{
+			int index = m_sessions.indexOf(session);
+	
+			m_sessions.removeAt(index);
+			getTabBar()->removeTab(index);
+			session->disconnect(this);
+
+			if (session && m_removeSessionOnClose) {
+				session->deleteLater();
+			}
+			if (m_sessions.isEmpty())
+				close();
+		}
+		
+		ChatSessionImpl* AbstractChatWidget::currentSession()
+		{
+			return (m_current_index == -1) ? 0 : m_sessions.at(m_current_index);
 		}
 
 	}

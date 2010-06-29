@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
-    <height>546</height>
+    <width>559</width>
+    <height>455</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,6 +23,9 @@
       <widget class="QSplitter" name="splitter">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
+       </property>
+       <property name="childrenCollapsible">
+        <bool>false</bool>
        </property>
        <widget class="QWidget" name="gridLayoutWidget">
         <layout class="QGridLayout" name="gridLayout">
@@ -73,7 +76,14 @@
           <number>0</number>
          </property>
          <item row="0" column="0" colspan="2">
-          <widget class="QPlainTextEdit" name="chatEdit"/>
+          <widget class="QPlainTextEdit" name="chatEdit">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>29</height>
+            </size>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -85,16 +95,6 @@
       </widget>
      </widget>
     </item>
-    <item>
-     <widget class="QTabBar" name="tabBar" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
  </widget>
@@ -103,12 +103,6 @@
    <class>QWebView</class>
    <extends>QWidget</extends>
    <header>QtWebKit/QWebView</header>
-  </customwidget>
-  <customwidget>
-   <class>QTabBar</class>
-   <extends>QWidget</extends>
-   <header>qtabbar.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

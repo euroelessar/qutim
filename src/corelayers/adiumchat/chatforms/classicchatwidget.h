@@ -44,7 +44,7 @@ namespace Core
 			QPlainTextEdit *getInputField();
 			QTabBar *getTabBar();
 			QListView *getContactsView();
-			ChatSessionImpl *currentSession();
+			QWebView* getChatView();
 		public slots:
 			void addSession(ChatSessionImpl *session);
 			void addSession(const ChatSessionList &sessions);
@@ -67,7 +67,6 @@ namespace Core
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
 			int m_current_index;
 			Ui::ClassicChatForm *ui;
-			QPointer<QTextDocument> m_originalDoc;
 		};
 	}
 }

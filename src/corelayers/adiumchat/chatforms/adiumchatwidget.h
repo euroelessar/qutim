@@ -26,6 +26,7 @@ namespace qutim_sdk_0_3 {
 	class ActionToolBar;
 }
 class QPlainTextEdit;
+class TabBar;
 
 namespace Ui
 {
@@ -48,7 +49,7 @@ namespace Core
 			QPlainTextEdit *getInputField();
 			QTabBar *getTabBar();
 			QListView *getContactsView();
-			ChatSessionImpl *currentSession();
+			QWebView* getChatView();
 		public slots:
 			void addSession(ChatSessionImpl *session);
 			void addSession(const ChatSessionList &sessions);
@@ -70,11 +71,11 @@ namespace Core
 		private:
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
 			int m_send_key;
+			TabBar *tabBar;
 			Ui::AdiumChatForm *ui;
 			ActionToolBar *m_toolbar;
 			QAction *m_session_list;
 			QAction *m_reciever_selector;
-			QPointer<QTextDocument> m_originalDoc;
 		};
 	}
 }
