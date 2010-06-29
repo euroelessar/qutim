@@ -11,6 +11,7 @@ namespace Ui {
 }
 
 class QListWidgetItem;
+class QCommandLinkButton;
 
 namespace Core
 {
@@ -36,13 +37,14 @@ namespace Core
 	protected:
 		QMap<AccountCreationWizard *, int>::iterator ensureCurrentProtocol();
 		void changeEvent(QEvent *e);
+		void resizeEvent(QResizeEvent *e);
 
 	private:
 		Ui::AccountCreatorProtocols *m_ui;
 		AccountCreatorWizard *m_wizard;
 		QMultiMap<QString, AccountCreationWizard *> m_wizards;
 		QMap<AccountCreationWizard *, int> m_wizardIds;
-		QHash<QPushButton *, QListWidgetItem *> m_items;
+		QHash<QCommandLinkButton *, QListWidgetItem *> m_items;
 		int m_lastId;
 	};
 }

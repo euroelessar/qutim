@@ -2,6 +2,7 @@
 #define PROFILEDIALOG_H
 
 #include <QDialog>
+#include <QListWidgetItem>
 #include "modulemanagerimpl.h"
 
 namespace qutim_sdk_0_3
@@ -25,11 +26,16 @@ public:
 	static bool acceptProfileInfo(Config &config, const QString &password);
 
 protected slots:
-	void on_loginButton_clicked();
-	void on_createButton_clicked();
+	void login(const QString &password);
+	void on_profilesButton_clicked();
+	void on_upButton_clicked();
+	void on_downButton_clicked();
+	void sliderMoved(int val);
+	void currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
 
 protected:
     void changeEvent(QEvent *e);
+	void resizeEvent(QResizeEvent *e);
 
 private:
 	ModuleManager *m_manager;
