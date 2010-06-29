@@ -17,7 +17,7 @@
 
 WAccount::WAccount( WProtocol *protocol ) : Account( "Weather", ( Protocol * )protocol )
 {
-	SettingsItem *settings = new GeneralSettingsItem< WSettings >( Settings::Plugin, QIcon( ":/icons/weather.png" ), QT_TRANSLATE_NOOP( "Weather", "Weather" ) );
+	settings = new GeneralSettingsItem< WSettings >( Settings::Plugin, QIcon( ":/icons/weather.png" ), QT_TRANSLATE_NOOP( "Weather", "Weather" ) );
 	Settings::registerItem( settings );
 
 	connect( settings->widget(), SIGNAL( saved() ), this, SLOT( loadSettings() ) );

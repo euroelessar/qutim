@@ -52,6 +52,8 @@ private slots:
 private:
 	void loadContacts();
 
+	SettingsItem *settings;
+
 	QHash< QString, WContact * > m_contacts;
 
 	QTimer *m_timer;
