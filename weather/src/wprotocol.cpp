@@ -22,6 +22,7 @@ WProtocol::WProtocol()
 
 WProtocol::~WProtocol()
 {
+	m_account->deleteLater();
 }
 
 QList< Account * > WProtocol::accounts() const

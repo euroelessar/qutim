@@ -30,6 +30,10 @@ WAccount::WAccount( WProtocol *protocol ) : Account( "Weather", ( Protocol * )pr
 
 WAccount::~WAccount()
 {
+	Settings::removeItem( settings );
+	delete settings;
+	foreach( WContact *v, m_contacts )
+		v->deleteLater();
 }
 
 ChatUnit *WAccount::getUnitForSession( ChatUnit *unit )
