@@ -32,6 +32,7 @@ WAccount::~WAccount()
 {
 	Settings::removeItem( settings );
 	delete settings;
+
 	foreach( WContact *v, m_contacts )
 		v->deleteLater();
 }
