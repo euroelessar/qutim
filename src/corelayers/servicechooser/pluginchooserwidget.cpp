@@ -55,7 +55,7 @@ namespace Core
 		Config group = Config().group("plugins").group("list");
 		QStandardItem *parent_item = m_model->invisibleRootItem();
 
-		QList<QPointer<Plugin>> plugins = pluginsList();
+		QList<QPointer<Plugin> > plugins = pluginsList();
 		for (int i = 0; i < plugins.size(); i++)
 		{
 			const PluginInfo &info = plugins.at(i)->info();
@@ -91,7 +91,7 @@ namespace Core
 
 			group.setValue(it.key(), newValue);
 
-			int unloadFails = 0;
+			//int unloadFails = 0;
 
 			if ( oldValue && !newValue )
 			{
