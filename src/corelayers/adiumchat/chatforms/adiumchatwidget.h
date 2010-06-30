@@ -26,6 +26,7 @@ namespace qutim_sdk_0_3 {
 	class ActionToolBar;
 }
 class QPlainTextEdit;
+class TabBar;
 
 namespace Ui
 {
@@ -70,6 +71,7 @@ namespace Core
 		private:
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
 			int m_send_key;
+			TabBar *tabBar;
 			Ui::AdiumChatForm *ui;
 			ActionToolBar *m_toolbar;
 			QAction *m_session_list;

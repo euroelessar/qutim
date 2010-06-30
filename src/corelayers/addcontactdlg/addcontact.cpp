@@ -95,8 +95,8 @@ namespace Core {
 		if (contact) {
 			contact->setInList(true);
 			contact->setName(d->ui->editName->text());
+			deleteLater();
 		}
-		deleteLater();
 	}
 
 	void AddContact::on_cancelButton_clicked()

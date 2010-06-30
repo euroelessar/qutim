@@ -3,7 +3,7 @@
 #include "libqutim/extensioninfo.h"
 #include "libqutim/icon.h"
 #include "ui_accountcreatorprotocols.h"
-#include <QPushButton>
+#include <QCommandLinkButton>
 #include <QScrollBar>
 
 namespace Core
@@ -34,35 +34,34 @@ namespace Core
 		m_ui->upButton->setIcon(Icon("arrow-up"));
 		m_ui->downButton->setIcon(Icon("arrow-down"));
 
-		int h = (height() - 180 < height() - 120 ? 180 : 120);
-		m_ui->protocolList->setGridSize(QSize(0, 60));
-		m_ui->protocolList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		int itemHeight = 50;
+		m_ui->protocolList->setGridSize(QSize(0, itemHeight));
 		m_ui->protocolList->setFrameStyle(QFrame::NoFrame);
-		m_ui->protocolList->setMinimumSize(m_ui->protocolList->minimumSize().width(), h);
-		m_ui->protocolList->setMaximumSize(m_ui->protocolList->maximumSize().width(), h);
-		m_ui->upButton->setDisabled(true);
+		m_ui->protocolList->setMinimumSize(m_ui->protocolList->minimumSize().width(), itemHeight);
 
 		foreach (AccountCreationWizard *wizard, m_wizards) {
 			ExtensionInfo info = wizard->info();
 			QIcon icon = info.icon();
 			if (icon.isNull())
-				icon = Icon(QLatin1String("im-") + info.name().original().toLower());
+				icon = Icon(QLatin1String("im-") + info.name());
 
 			QListWidgetItem *item = new QListWidgetItem(m_ui->protocolList);
 			item->setData(Qt::UserRole + 1,reinterpret_cast<qptrdiff>(wizard));
 			item->setData(Qt::UserRole + 2,qVariantFromValue(info));
 			item->setFlags(Qt::NoItemFlags);
-			item->setSizeHint(QSize( 0, 60 ));
+			item->setSizeHint(QSize(0, itemHeight));
 
-			QPushButton *b = new QPushButton(icon, info.name());
+			QCommandLinkButton *b = new QCommandLinkButton(info.name(), info.description());
 			connect(b, SIGNAL(clicked()), this, SLOT(protocolSelected()));
-			b->setMinimumSize(b->minimumSize().width(), 60);
+			b->setMinimumSize(b->minimumSize().width(), itemHeight);
 			b->setFocusPolicy(Qt::ClickFocus);
-			b->setToolTip(info.description());
+			if (icon.availableSizes().count())
+				b->setIcon(icon);
 			m_ui->protocolList->setItemWidget(item, b);
-
+			resizeEvent(0);
 			m_items.insert(b, item);
 		}
+		
 		setTitle(tr("Select protocol"));
 	}
 
@@ -129,9 +128,17 @@ namespace Core
 		}
 	}
 
+	void AccountCreatorProtocols::resizeEvent(QResizeEvent *e)
+	{
+		Q_UNUSED(e);
+		if (!m_ui->protocolList->verticalScrollBar()->maximum() && m_wizards.count() * 50 > m_ui->protocolList->height())
+			m_ui->protocolList->verticalScrollBar()->setMaximum(1);
+		sliderMoved(m_ui->protocolList->verticalScrollBar()->value());
+	}
+
 	void AccountCreatorProtocols::protocolSelected()
 	{
-		m_ui->protocolList->setCurrentItem(m_items.value(qobject_cast<QPushButton *>(sender())));
+		m_ui->protocolList->setCurrentItem(m_items.value(qobject_cast<QCommandLinkButton *>(sender())));
 		wizard()->next();
 	}
 
@@ -148,19 +155,12 @@ namespace Core
 	void AccountCreatorProtocols::sliderMoved(int val)
 	{
 		if (val == m_ui->protocolList->verticalScrollBar()->minimum())
-		{
 			m_ui->upButton->setDisabled(true);
-			m_ui->downButton->setDisabled(false);
-		}
-		else if (val == m_ui->protocolList->verticalScrollBar()->maximum())
-		{
-			m_ui->upButton->setDisabled(false);
-			m_ui->downButton->setDisabled(true);
-		}
 		else
-		{
 			m_ui->upButton->setDisabled(false);
+		if (val == m_ui->protocolList->verticalScrollBar()->maximum())
+			m_ui->downButton->setDisabled(true);
+		else
 			m_ui->downButton->setDisabled(false);
-		}
 	}
 }

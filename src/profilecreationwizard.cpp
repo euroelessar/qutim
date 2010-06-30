@@ -177,8 +177,7 @@ void ProfileCreationWizard::done(int result)
 				config.endGroup();
 			} else {
 				config.endArray();
-				if (config.value("current").isNull())
-					config.setValue("current", field("id"));
+				config.setValue("current", field("id"));
 			}
 		}
 		if (!file.save(map)) {

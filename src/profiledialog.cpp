@@ -1,17 +1,21 @@
 #include "profiledialog.h"
+#include "profilelistwidget.h"
 #include "ui_profiledialog.h"
 #include "libqutim/systeminfo.h"
 #include "libqutim/json.h"
 #include <QCoreApplication>
 #include <QDebug>
 #include <QMessageBox>
+#include <QInputDialog>
 #include "profilecreationwizard.h"
 #include "libqutim/objectgenerator.h"
 #include "libqutim/jsonfile.h"
 #include "libqutim/cryptoservice.h"
 #include "libqutim/config.h"
+#include "libqutim/icon.h"
 #include <QCryptographicHash>
 #include <QTimer>
+#include <QScrollBar>
 
 namespace qutim_sdk_0_3
 { 
@@ -26,18 +30,52 @@ ProfileDialog::ProfileDialog(Config &config, ModuleManager *parent) :
 {
 	m_manager = parent;
 	ui->setupUi(this);
+
+	connect(ui->profileList->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(sliderMoved(int)));
+	connect(ui->profileList, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)), this, SLOT(currentItemChanged(QListWidgetItem *, QListWidgetItem *)));
+
+	ui->upButton->setIcon(Icon("arrow-up"));
+	ui->downButton->setIcon(Icon("arrow-down"));
+
+	ui->upButton->setIcon(QIcon(":/icons/qutim_64.png"));
+	ui->downButton->setIcon(QIcon(":/icons/qutim_64.png"));
 	
+	QString current = config.value("current", QString());
 	int size = config.beginArray("list");
+	int itemHeight = 70;
+
+	ui->profileList->setGridSize(QSize(0, itemHeight));
+	ui->profileList->setFrameStyle(QFrame::NoFrame);
+	ui->profileList->setMinimumSize(ui->profileList->minimumSize().width(), itemHeight);
+	
 	if (size == 0) {
-		ui->toolBox->setCurrentIndex(1);
-		ui->toolBox->setItemEnabled(0, false);
+		// TODO
 	} else {
+		int cid = 0;
 		for (int i = 0; i < size; i++) {
 			Config group = config.arrayElement(i);
-			ui->profilesBox->addItem(group.value("id", QString()), qVariantFromValue(group));
+
+			QListWidgetItem *item = new QListWidgetItem(ui->profileList);
+			item->setSizeHint(QSize(0, itemHeight));
+			item->setData(Qt::UserRole + 1, qVariantFromValue(group));
+
+			QString id = group.value("id", QString());
+			if (id == current)
+				cid = ui->profileList->count() - 1;
+			ProfileListWidget *w = new ProfileListWidget(id, group.value("configDir", QString()));
+			connect(w, SIGNAL(submit(const QString &)), this, SLOT(login(const QString &)));
+			w->setMinimumSize(w->minimumSize().width(), itemHeight);
+			ui->profileList->setItemWidget(item, w);
 		}
+		ui->profileList->setCurrentRow(cid);
+		if (size * itemHeight > ui->profileList->height())
+			ui->profileList->verticalScrollBar()->setMaximum(1);
+		sliderMoved(ui->profileList->verticalScrollBar()->value());
 	}
 	config.endArray();
+
+	// Temporary
+	ui->profilesButton->setText("Add profile");
 }
 
 ProfileDialog::~ProfileDialog()
@@ -132,6 +170,7 @@ bool ProfileDialog::acceptProfileInfo(Config &config, const QString &password)
 			else
 				configBackends.append(backend);
 		}
+
 		return true;
 	} else {
 		qCritical("Can't open file with hash");
@@ -140,36 +179,38 @@ bool ProfileDialog::acceptProfileInfo(Config &config, const QString &password)
 	}
 }
 
-void ProfileDialog::on_loginButton_clicked()
+void ProfileDialog::login(const QString &password)
 {
-	QVariant variant = ui->profilesBox->itemData(ui->profilesBox->currentIndex());
+	QVariant variant = ui->profileList->currentItem()->data(Qt::UserRole + 1);
 	Config config = variant.value<Config>();
-	QString password = ui->passwordEdit->text();
 	if (acceptProfileInfo(config, password)) {
 		QTimer::singleShot(0, m_manager, SLOT(initExtensions()));
 		deleteLater();
 	}
 }
 
-void ProfileDialog::on_createButton_clicked()
+void ProfileDialog::on_profilesButton_clicked()
 {
-	if (ui->nameEdit->text().isEmpty()) {
+	QString name = QInputDialog::getText(this, tr("Enter name"), tr("Profile name:"), QLineEdit::Normal);
+	if (name.isEmpty()) {
 		QMessageBox::critical(this, tr("Invalid name"), tr("Name can not be empty!"));
 		return;
 	}
 
-	if (ui->originalPasswordEdit->text() != ui->repeatPasswordEdit->text()) {
+	QString pass = QInputDialog::getText(this, tr("Enter password"), tr("Password:"), QLineEdit::Password);
+	QString passr = QInputDialog::getText(this, tr("Repeat password"), tr("Repeat password:"), QLineEdit::Password);
+
+	if (pass != passr) {
 		QMessageBox::critical(this, tr("Incorrect password"), tr("Passwords doesn't match each other"));
 		return;
 	}
 
-	if (ui->originalPasswordEdit->text().isEmpty()) {
+	if (pass.isEmpty()) {
 		QMessageBox::critical(this, tr("Incorrect password"), tr("Password can not be empty!"));
 		return;
 	}
 
-	QWizard *wizard = new ProfileCreationWizard(m_manager, ui->nameEdit->text(),
-												ui->originalPasswordEdit->text());
+	QWizard *wizard = new ProfileCreationWizard(m_manager, name, pass);
 #if	defined(Q_OS_SYMBIAN)
 	wizard->showMaximized();
 #else
@@ -190,5 +231,43 @@ void ProfileDialog::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void ProfileDialog::resizeEvent(QResizeEvent *e)
+{
+	Q_UNUSED(e);
+	if (!ui->profileList->verticalScrollBar()->maximum() && ui->profileList->count() * 70 > ui->profileList->height())
+		ui->profileList->verticalScrollBar()->setMaximum(1);
+	sliderMoved(ui->profileList->verticalScrollBar()->value());
+}
+
+void ProfileDialog::on_upButton_clicked()
+{
+	ui->profileList->verticalScrollBar()->setValue(ui->profileList->verticalScrollBar()->value() - 1);
+}
+
+void ProfileDialog::on_downButton_clicked()
+{
+	ui->profileList->verticalScrollBar()->setValue(ui->profileList->verticalScrollBar()->value() + 1);
+}
+
+void ProfileDialog::sliderMoved(int val)
+{
+	if (val == ui->profileList->verticalScrollBar()->minimum())
+		ui->upButton->setDisabled(true);
+	else
+		ui->upButton->setDisabled(false);
+	if (val == ui->profileList->verticalScrollBar()->maximum())
+		ui->downButton->setDisabled(true);
+	else
+		ui->downButton->setDisabled(false);
+}
+
+void ProfileDialog::currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+{
+	if (previous)
+		((ProfileListWidget*)ui->profileList->itemWidget(previous))->activate(false);
+	if (current)
+		((ProfileListWidget*)ui->profileList->itemWidget(current))->activate(true);
 }
 }

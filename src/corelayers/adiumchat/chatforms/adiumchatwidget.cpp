@@ -14,6 +14,7 @@
 *****************************************************************************/
 
 #include "adiumchatwidget.h"
+#include "tabbar.h"
 #include "../chatsessionimpl.h"
 #include <libqutim/account.h>
 #include <libqutim/icon.h>
@@ -54,24 +55,33 @@ namespace Core
 
 			ui->setupUi(this);
 			m_originalDoc = ui->chatEdit->document();
+			tabBar = new TabBar(ui->centralwidget);
+			tabBar->setObjectName(QString::fromUtf8("tabBar"));
+			QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Preferred);
+			sizePolicy1.setHorizontalStretch(0);
+			sizePolicy1.setVerticalStretch(0);
+			sizePolicy1.setHeightForWidth(tabBar->sizePolicy().hasHeightForWidth());
+			tabBar->setSizePolicy(sizePolicy1);
+			ui->centralLayout->addWidget(tabBar);
 
-			ui->tabBar->setShape(QTabBar::RoundedSouth);
-			ui->tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
+			tabBar->setShape(QTabBar::RoundedSouth);
+
+			tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 			ui->contactsView->hide();
 
 			loadSettings();
 			//init status and menubar
 
-			connect(ui->tabBar,SIGNAL(currentChanged(int)),SLOT(currentIndexChanged(int)));
-			connect(ui->tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
-			connect(ui->tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
-			connect(ui->tabBar,SIGNAL(customContextMenuRequested(QPoint)),SLOT(onTabContextMenu(QPoint)));
+			connect(tabBar,SIGNAL(currentChanged(int)),SLOT(currentIndexChanged(int)));
+			connect(tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
+			connect(tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
+			connect(tabBar,SIGNAL(customContextMenuRequested(QPoint)),SLOT(onTabContextMenu(QPoint)));
 			ui->contactsView->setItemDelegate(new ChatSessionItemDelegate(this));
 
 			ui->contactsView->installEventFilter(this);
 			ui->chatEdit->installEventFilter(this);
 			ui->chatView->installEventFilter(this);
-			ui->tabBar->installEventFilter(this);
+			tabBar->installEventFilter(this);
 			ui->chatEdit->setFocusPolicy(Qt::StrongFocus);
 
 			m_toolbar = new ActionToolBar();
@@ -148,22 +158,22 @@ namespace Core
 		void AdiumChatWidget::loadSettings()
 		{
 			//init tabbar
-			ui->tabBar->setTabsClosable(true);
-
+			tabBar->setTabsClosable(true);
+			tabBar->setMovable(true);
 #if defined(Q_WS_MAC)
-			ConfigGroup group = Config("appearance").group("adiumChat/chatForm/adiumForm");
-			bool tabUp = group.value("tabUp", false);
 			centralWidget()->layout()->setMargin(0);
 			centralWidget()->layout()->setSpacing(0);
+			ConfigGroup group = Config("appearance").group("adiumChat/chatForm/adiumForm");
+			bool tabUp = group.value("tabUp", false);
 			if (tabUp) {
-				ui->centralLayout->insertWidget(0, ui->tabBar);
-				ui->tabBar->setDocumentMode(true);
-				ui->tabBar->setIconSize(QSize(0,0));
+				ui->centralLayout->insertWidget(0, tabBar);
+				tabBar->setDocumentMode(true);
+				tabBar->setClosableActiveTab(true);
 			} else {
-				ui->tabBar->setTabsClosable(false);
+				tabBar->setTabsClosable(false);
 			}
 #else
-			ui->tabBar->setMovable(true);
+			tabBar->setMovable(true);
 #endif
 		}
 
@@ -187,7 +197,15 @@ namespace Core
 				icon = ChatLayerImpl::iconForState(state,session->getUnit());
 			}
 
-			ui->tabBar->addTab(icon,u->title());
+			tabBar->addTab(icon,u->title());
+
+#if defined(Q_WS_MAC)
+			if (tabBar->closableActiveTab()) {
+				QTabBar::ButtonPosition closeSide = (QTabBar::ButtonPosition)style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, 0, tabBar);
+				if (QWidget *button = tabBar->tabButton(tabBar->count()-1, closeSide))
+					button->setVisible(false);
+			}
+#endif
 
 			QAction *act = new QAction(icon,u->title(),this);
 			connect(act,SIGNAL(triggered()),this,SLOT(onSessionListActionTriggered()));
@@ -215,7 +233,7 @@ namespace Core
 		{
 			int count = m_sessions.count();
 			for (int i = 0;i!=count;i++)
-				ui->tabBar->removeTab(i);
+				tabBar->removeTab(i);
 			if (m_removeSessionOnClose)
 				qDeleteAll(m_sessions);
 			m_sessions.clear();
@@ -269,8 +287,8 @@ namespace Core
 			//TODO customize support
 			int index = m_sessions.indexOf(session);
 			debug() << "active index" << index;
-			if (ui->tabBar->currentIndex() != index)
-				ui->tabBar->setCurrentIndex(index);
+			if (tabBar->currentIndex() != index)
+				tabBar->setCurrentIndex(index);
 
 			if ((m_chatFlags & ShowUnreadMessages) && !session->unread().isEmpty()) {
 				session->markRead();
@@ -288,9 +306,9 @@ namespace Core
 			if (unread.isEmpty()) {
 				ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());
 				QIcon icon =  ChatLayerImpl::iconForState(state,session->getUnit());
-				ui->tabBar->setTabIcon(index, icon);
+				tabBar->setTabIcon(index, icon);
 			} else if (m_chatFlags & ShowUnreadMessages) {
-				ui->tabBar->setTabIcon(index, Icon("mail-unread-new"));
+				tabBar->setTabIcon(index, Icon("mail-unread-new"));
 			}
 		}
 
@@ -303,7 +321,7 @@ namespace Core
 			if (m_chatFlags & ChatStateIconsOnTabs) {
 				if (!session->unread().count()) {
 					QIcon icon =  ChatLayerImpl::iconForState(state,session->getUnit());
-					ui->tabBar->setTabIcon(index,icon);
+					tabBar->setTabIcon(index,icon);
 					m_session_list->menu()->actions().at(index)->setIcon(icon);
 				}
 			}
@@ -318,7 +336,7 @@ namespace Core
 		
 		QTabBar *AdiumChatWidget::getTabBar()
 		{
-			return ui->tabBar;
+			return tabBar;
 		}
 		
 		QListView *AdiumChatWidget::getContactsView()
@@ -331,19 +349,19 @@ namespace Core
 			if (event->type() == QEvent::WindowActivate
 				|| event->type() == QEvent::WindowDeactivate) {
 				bool active = event->type() == QEvent::WindowActivate;
-				if (ui->tabBar->currentIndex() == -1)
+				if (tabBar->currentIndex() == -1)
 					return false;
-				m_sessions.at(ui->tabBar->currentIndex())->setActive(active);
+				m_sessions.at(tabBar->currentIndex())->setActive(active);
 			}
 			return QMainWindow::event(event);
 		}
 
 		void AdiumChatWidget::onTabContextMenu(const QPoint &pos)
 		{
-			int index = ui->tabBar->tabAt(pos);
+			int index = tabBar->tabAt(pos);
 			if (index != -1) {
 				if (MenuController *session = m_sessions.value(index)->getUnit()) {
-					session->showMenu(ui->tabBar->mapToGlobal(pos));
+					session->showMenu(tabBar->mapToGlobal(pos));
 				}
 			}
 		}
@@ -360,7 +378,7 @@ namespace Core
 			QAction *act = qobject_cast<QAction *>(sender());
 			Q_ASSERT(act);
 
-			ui->tabBar->setCurrentIndex(m_session_list->menu()->actions().indexOf(act));
+			tabBar->setCurrentIndex(m_session_list->menu()->actions().indexOf(act));
 		}
 
 
@@ -372,7 +390,7 @@ namespace Core
 			ChatSessionImpl *s = static_cast<ChatSessionImpl *>(ChatLayerImpl::get(u,false));
 			if (!s)
 				return;
-			ui->tabBar->setTabText(m_sessions.indexOf(s),title);
+			tabBar->setTabText(m_sessions.indexOf(s),title);
 		}
 		
 		QWebView* AdiumChatWidget::getChatView()
