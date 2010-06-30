@@ -91,8 +91,6 @@ namespace Core
 
 			group.setValue(it.key(), newValue);
 
-			//int unloadFails = 0;
-
 			if ( oldValue && !newValue )
 			{
 				if( m_plugins.value(it.key())->avaiableExtensions().count() )
