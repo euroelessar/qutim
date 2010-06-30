@@ -25,6 +25,7 @@
 #include "libqutim/metacontactmanager.h"
 #include <QMainWindow>
 #include "simplestatusdialog.h"
+#include <QClipboard>
 
 namespace Core
 {
@@ -165,6 +166,12 @@ namespace Core
 			gen->setChecked(!p->model->showOffline());
 			gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Hide offline"));
 			addButton(gen);
+			
+			//TODO move to another class
+			gen = new ActionGenerator(Icon("edit-copy"),QT_TRANSLATE_NOOP("ContactList", "Copy id to clipboard"),this,SLOT(onCopyIdTriggered()));
+			gen->setPriority(-100);
+			gen->setType(32); //FIXME
+			MenuController::addAction<ChatUnit>(gen);
 
 			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));
 			p->view->setModel(p->model);
@@ -400,5 +407,16 @@ namespace Core
 			config.setValue("contactList/lastStatus",text);
 			config.sync();
 		}
+		
+		void Module::onCopyIdTriggered()
+		{
+			QAction *action = qobject_cast<QAction *>(sender());
+			Q_ASSERT(action);
+			ChatUnit *unit = qobject_cast<ChatUnit*>(action->data().value<MenuController*>());
+			Q_ASSERT(unit);
+			QClipboard *clipboard = QApplication::clipboard();
+			clipboard->setText(unit->id());
+		}
+
 	}
 }

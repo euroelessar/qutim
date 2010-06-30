@@ -640,10 +640,12 @@ namespace Core
 				debug() << "Moving contact from" << item->data->tags << "to" << tags;
 			} else if (ev->type == ChangeEvent::MergeContacts) { // MetaContacts
 				ContactItem *parentItem = reinterpret_cast<ContactItem*>(ev->parent);
+				if (item->data->contact == parentItem->data->contact)
+					return;
 				MetaContact *childMeta = qobject_cast<MetaContact*>(item->data->contact);
 				MetaContact *meta = qobject_cast<MetaContact*>(parentItem->data->contact);
 				
-				QString text;
+				QString text;				
 				if (!childMeta && !meta) {
 					text = tr("Would you like to merge contacts \"%1\" <%2> and \"%3\" <%4>?");
 					text = text.arg(item->data->contact->name(),

@@ -43,6 +43,7 @@ namespace Core
 			virtual void removeContact(Contact *contact);
 			virtual qutim_sdk_0_3::ChatUnitList lowerUnits();
 			inline const QList<Contact*> &contacts() const { return m_contacts; }
+			virtual const qutim_sdk_0_3::ChatUnit* getHistoryUnit() const;
 		protected:
 			void resetName();
 			void resetStatus();
