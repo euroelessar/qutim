@@ -85,7 +85,7 @@ namespace qutim_sdk_0_3
 	public:
 		inline ModuleManagerPrivate() : is_inited(false), protocols_hash(new QHash<QString, QPointer<Protocol> >()) {}
 		inline ~ModuleManagerPrivate() { delete protocols_hash; }
-		QList<QPointer<Plugin>> plugins;
+		QList<QPointer<Plugin> > plugins;
 		bool is_inited;
 		union { // This union is intended to be used as reinterpret_cast =)
 			QHash<QString, QPointer<Protocol> > *protocols_hash;
