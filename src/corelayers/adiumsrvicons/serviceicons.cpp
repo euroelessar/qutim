@@ -40,7 +40,7 @@ namespace Adium
 		Config theme(path + "/Icons.plist");
 		foreach (const QString &groupName, theme.childGroups()) {
 			ConfigGroup group = theme.group(groupName);
-			QStringList protocols = group.childGroups();
+			QStringList protocols = group.childKeys();
 			foreach (const QString &protocol, protocols) {
 				QString iconPath = group.value(protocol, QString());
 				if (iconPath.isEmpty())
