@@ -19,7 +19,7 @@ namespace qutim_sdk_0_3
 		StatusActionHandler(QObject *parent = 0);
 		QByteArray memberName() { return m_memberName; }
 	public slots:
-		void changeStatus();
+		void changeStatus(QAction *action,QObject *controller);
 	private:
 		QByteArray m_memberName;
 	};

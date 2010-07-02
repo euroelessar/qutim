@@ -38,7 +38,7 @@ namespace Core
 			void onSearchButtonToggled(bool toggled);
 			void showStatusDialog();
 			void changeStatusTextAccepted();
-			void onCopyIdTriggered();
+			void onCopyIdTriggered(QObject *obj);
 		private:
 			QAction *createGlobalStatusAction(Status::Type type); //FIXME, temporary. Will be replaced by metacontact manager
 			QScopedPointer<ModulePrivate> p;

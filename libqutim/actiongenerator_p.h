@@ -50,6 +50,7 @@ namespace qutim_sdk_0_3
 		
 		static ActionGeneratorPrivate *get(ActionGenerator *gen) { return gen->d_func(); }
 		static const ActionGeneratorPrivate *get(const ActionGenerator *gen) { return gen->d_func(); }
+		void ensureConnectionType();
 	};
 	
 	class ActionGeneratorLocalizationHelper : public QObject

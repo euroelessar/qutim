@@ -6,16 +6,13 @@ namespace qutim_sdk_0_3
 	Q_GLOBAL_STATIC(StatusActionHandler, statusActionHandler);
 
 	StatusActionHandler::StatusActionHandler(QObject *parent) :
-			QObject(parent), m_memberName(SLOT(changeStatus()))
+			QObject(parent), m_memberName(SLOT(changeStatus(QAction*,QObject*)))
 	{
 	}
 
-	void StatusActionHandler::changeStatus()
+	void StatusActionHandler::changeStatus(QAction *action, QObject *controller)
 	{
-		QAction *action = qobject_cast<QAction *>(sender());
-		Q_ASSERT(action);
-		MenuController *item = action->data().value<MenuController *>();
-		if (Account *account = qobject_cast<Account *>(item)) {
+		if (Account *account = qobject_cast<Account *>(controller)) {
 			account->setStatus(action->property("status").value<Status>());
 		}
 	}
@@ -34,6 +31,7 @@ namespace qutim_sdk_0_3
 		}
 		d->receiver = statusActionHandler();
 		d->member = statusActionHandler()->memberName();
+		d->ensureConnectionType();
 		d->icon = d->status.icon();
 		d->text = d->status.name();
 		d->type = ActionGenerator::StatusType;

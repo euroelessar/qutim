@@ -18,6 +18,7 @@
 #include <QMap>
 #include <QDebug>
 #include <QMetaMethod>
+#include "debug.h"
 
 namespace qutim_sdk_0_3
 {
@@ -246,19 +247,16 @@ namespace qutim_sdk_0_3
 	
 	void DynamicMenu::onActionTriggered(QAction *action)
 	{
-		qptrdiff tmp = action->data().value<qptrdiff>();
-		const ActionGenerator *gen = reinterpret_cast<ActionGenerator*>(tmp);
+		const ActionGenerator *gen = action->data().value<ActionGenerator*>();
 		if (!gen) {
 			qWarning("DynamicMenu::onActionTriggered: Invalid ActionGenerator");
 			return;
 		}
 		const ActionGeneratorPrivate *d = ActionGeneratorPrivate::get(gen);
-		QObject *obj = d->receiver;
-		if (!obj)
-			obj = m_owners.value(gen);
+		QObject *controller = m_owners.value(gen);
+		QObject *obj = d->receiver ? d->receiver.data() : controller;
 		const QMetaObject *meta = obj->metaObject();
-		// TODO: Find why index always is -1
-		int index = meta->indexOfMethod(d->member.constData());
+		int index = meta->indexOfMethod(d->member.constData() + 1);
 		if (index == -1) {
 			qWarning("DynamicMenu::onActionTriggered: No such method %s::%s",
 					 meta->className(), d->member.constData() + 1);
@@ -266,17 +264,16 @@ namespace qutim_sdk_0_3
 		}
 		QMetaMethod method = meta->method(index);
 		qDebug("DynamicMenu::onActionTriggered: Trying %s::%s",
-			   meta->className(), d->member.constData() + 1);
-		// TODO: test it
+			   meta->className(), d->member.constData() + 1);		
 		switch (d->connectionType) {
 		case ActionConnectionObjectOnly:
-			method.invoke(obj, Q_ARG(QObject*, obj));
+			method.invoke(obj, Q_ARG(QObject*, controller));
 			break;
 		case ActionConnectionActionOnly:
 			method.invoke(obj, Q_ARG(QAction*, action));
 			break;
 		case ActionConnectionFull:
-			method.invoke(obj, Q_ARG(QAction*, action), Q_ARG(QObject*, obj));
+			method.invoke(obj, Q_ARG(QAction*, action), Q_ARG(QObject*, controller));
 			break;
 		case ActionConnectionSimple:
 			method.invoke(obj);

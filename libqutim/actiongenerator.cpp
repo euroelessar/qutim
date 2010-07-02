@@ -67,6 +67,18 @@ namespace qutim_sdk_0_3
 		return type;
 	}
 
+	void ActionGeneratorPrivate::ensureConnectionType()
+	{
+		if (QMetaObject::checkConnectArgs(member, SLOT(test(QAction*,QObject*))))
+			connectionType = ActionConnectionFull;
+		else if (QMetaObject::checkConnectArgs(member, SLOT(test(QObject*))))
+			connectionType = ActionConnectionObjectOnly;
+		else if (QMetaObject::checkConnectArgs(member, SLOT(test(QAction*))))
+			connectionType = ActionConnectionActionOnly;
+		else
+			connectionType = ActionConnectionLegacy;
+	}
+
 	ActionGenerator::ActionGenerator(const QIcon &icon, const LocalizedString &text,
 									 const QObject *receiver, const char *member)
 			  : ObjectGenerator(*new ActionGeneratorPrivate)
@@ -78,12 +90,7 @@ namespace qutim_sdk_0_3
 		d->member = QMetaObject::normalizedSignature(member);
 		char type = d->member[0];
 		d->member[0] = '0' + QSIGNAL_CODE;
-		if (QMetaObject::checkConnectArgs(d->member, SLOT(test(QAction*,QObject*))))
-			d->connectionType = ActionConnectionFull;
-		else if (QMetaObject::checkConnectArgs(d->member, SLOT(test(QObject*))))
-			d->connectionType = ActionConnectionObjectOnly;
-		else
-			d->connectionType = ActionConnectionLegacy;
+		d->ensureConnectionType();
 		d->member[0] = type;
 		if (d->connectionType == ActionConnectionLegacy) {
 			d->legacyData = new LegacyActionData;
@@ -101,10 +108,7 @@ namespace qutim_sdk_0_3
 		d->member = QMetaObject::normalizedSignature(member);
 		char type = d->member[0];
 		d->member[0] = '0' + QSIGNAL_CODE;
-		if (QMetaObject::checkConnectArgs(d->member, SLOT(test(QAction*))))
-			d->connectionType = ActionConnectionActionOnly;
-		else
-			d->connectionType = ActionConnectionSimple;
+		d->ensureConnectionType();
 		d->member[0] = type;
 		d->data = new ActionData;
 	}
@@ -219,7 +223,7 @@ namespace qutim_sdk_0_3
 			if (!d->member.isEmpty() && receiver)
 				QObject::connect(action, SIGNAL(triggered()), receiver, d->member);
 		} else {
-			action->setData(reinterpret_cast<qptrdiff>(this));
+			action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
 		}
 		return action;
 	}
