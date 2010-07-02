@@ -24,6 +24,8 @@ namespace qutim_sdk_0_3
 			ActionGenerator(*new StatusActionGeneratorPrivate)
 	{
 		Q_D(StatusActionGenerator);
+		d->connectionType = ActionConnectionLegacy;
+		d->legacyData = new LegacyActionData;
 		d->status = status;
 		if (d->status.icon().isNull()) {
 			QIcon icon = Status::createIcon(status.type());

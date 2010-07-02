@@ -15,6 +15,7 @@
 
 #include "actiongenerator_p.h"
 #include "menucontroller.h"
+#include <QMetaMethod>
 #include <QtGui/QIcon>
 #include <QtGui/QAction>
 #include <QtCore/QCoreApplication>
@@ -71,11 +72,41 @@ namespace qutim_sdk_0_3
 			  : ObjectGenerator(*new ActionGeneratorPrivate)
 	{
 		Q_D(ActionGenerator);
-//		Q_ASSERT(receiver && member && *member);
 		d->icon = icon;
 		d->text = text;
 		d->receiver = const_cast<QObject *>(receiver);
-		d->member = member;
+		d->member = QMetaObject::normalizedSignature(member);
+		char type = d->member[0];
+		d->member[0] = '0' + QSIGNAL_CODE;
+		if (QMetaObject::checkConnectArgs(d->member, SLOT(test(QAction*,QObject*))))
+			d->connectionType = ActionConnectionFull;
+		else if (QMetaObject::checkConnectArgs(d->member, SLOT(test(QObject*))))
+			d->connectionType = ActionConnectionObjectOnly;
+		else
+			d->connectionType = ActionConnectionLegacy;
+		d->member[0] = type;
+		if (d->connectionType == ActionConnectionLegacy) {
+			d->legacyData = new LegacyActionData;
+		} else {
+			d->data = new ActionData;
+		}
+	}
+	
+	ActionGenerator::ActionGenerator(const QIcon &icon, const LocalizedString &text, const char *member)
+		: ObjectGenerator(*new ActionGeneratorPrivate)
+	{
+		Q_D(ActionGenerator);
+		d->icon = icon;
+		d->text = text;
+		d->member = QMetaObject::normalizedSignature(member);
+		char type = d->member[0];
+		d->member[0] = '0' + QSIGNAL_CODE;
+		if (QMetaObject::checkConnectArgs(d->member, SLOT(test(QAction*))))
+			d->connectionType = ActionConnectionActionOnly;
+		else
+			d->connectionType = ActionConnectionSimple;
+		d->member[0] = type;
+		d->data = new ActionData;
 	}
 
 	ActionGenerator::ActionGenerator(ActionGeneratorPrivate &priv) : ObjectGenerator(priv)
@@ -84,6 +115,11 @@ namespace qutim_sdk_0_3
 
 	ActionGenerator::~ActionGenerator()
 	{
+		Q_D(ActionGenerator);
+		if (d->connectionType == ActionConnectionLegacy)
+			delete d->legacyData;
+		else
+			delete d->data;
 	}
 
 	QIcon ActionGenerator::icon() const
@@ -135,18 +171,25 @@ namespace qutim_sdk_0_3
 
 	void ActionGenerator::setMenuController(MenuController *controller)
 	{
-		d_func()->controller = controller;
+		Q_D(ActionGenerator);
+		if (d->connectionType == ActionConnectionLegacy)
+			d->legacyData->controller = controller;
 	}
 
 	MenuController *ActionGenerator::controller() const
 	{
-		return d_func()->controller;
+		Q_D(const ActionGenerator);
+		if (d->connectionType == ActionConnectionLegacy)
+			return d->legacyData->controller;
+		return 0;
 	}
 
 	void ActionGenerator::addCreationHandler(QObject *obj)
 	{
 		Q_ASSERT(obj);
-		d_func()->handlers.append(obj);
+		Q_D(ActionGenerator);
+		if (d->connectionType == ActionConnectionLegacy)
+			d->legacyData->handlers.append(obj);
 	}
 
 	QAction *ActionGenerator::prepareAction(QAction *action) const
@@ -160,18 +203,24 @@ namespace qutim_sdk_0_3
 			action->setParent(d->receiver);
 		action->setIcon(d->icon);
 		action->setText(d->text);
-		action->setCheckable(d->checkable);
-		action->setChecked(d->checked);
+		if (d->connectionType == ActionConnectionLegacy) {
+			action->setCheckable(d->legacyData->checkable);
+			action->setChecked(d->legacyData->checked);
+		}
 		action->setToolTip(d->toolTip);
 		localizationHelper()->addAction(action, d);
-		QObject *receiver = d->receiver;
-		if (d->controller) {
-			action->setData(QVariant::fromValue(const_cast<MenuController *>(d->controller)));
-			if (!receiver)
-				receiver = d->controller;
+		if (d->connectionType == ActionConnectionLegacy) {
+			QObject *receiver = d->receiver;
+			if (d->legacyData->controller) {
+				action->setData(QVariant::fromValue(const_cast<MenuController *>(d->legacyData->controller)));
+				if (!receiver)
+					receiver = d->legacyData->controller;
+			}
+			if (!d->member.isEmpty() && receiver)
+				QObject::connect(action, SIGNAL(triggered()), receiver, d->member);
+		} else {
+			action->setData(reinterpret_cast<qptrdiff>(this));
 		}
-		if (!d->member.isEmpty() && receiver)
-			QObject::connect(action, SIGNAL(triggered()), receiver, d->member);
 		return action;
 	}
 
@@ -197,7 +246,9 @@ namespace qutim_sdk_0_3
 		Q_D(ActionGenerator);
 		d->icon = icon;
 		d->text = text;
-		d->menu = menu;
+		d->connectionType = ActionConnectionLegacy;
+		d->legacyData = new LegacyActionData;
+		d->legacyData->menu = menu;
 	}
 
 	MenuActionGenerator::MenuActionGenerator(const QIcon &icon, const LocalizedString &text, MenuController *controller) :
@@ -206,7 +257,9 @@ namespace qutim_sdk_0_3
 		Q_D(ActionGenerator);
 		d->icon = icon;
 		d->text = text;
-		d->controller = controller;
+		d->connectionType = ActionConnectionLegacy;
+		d->legacyData = new LegacyActionData;
+		d->legacyData->controller = controller;
 	}
 
 	MenuActionGenerator::~MenuActionGenerator()
@@ -217,10 +270,10 @@ namespace qutim_sdk_0_3
 	{
 		Q_D(const ActionGenerator);
 		QAction *action = prepareAction(new QAction(NULL));
-		if (d->menu) {
-			action->setMenu(d->menu);
-		} else if (d->controller) {
-			QMenu *menu = d->controller->menu(false);
+		if (d->legacyData->menu) {
+			action->setMenu(d->legacyData->menu);
+		} else if (d->legacyData->controller) {
+			QMenu *menu = d->legacyData->controller->menu(false);
 			QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
 			action->setMenu(menu);
 		}
@@ -229,12 +282,12 @@ namespace qutim_sdk_0_3
 	
 	void ActionGenerator::setCheckable(bool checkable)
 	{
-		d_func()->checkable = checkable;
+		d_func()->legacyData->checkable = checkable;
 	}
 
 	void ActionGenerator::setChecked(bool checked)
 	{
-		d_func()->checked = checked;
+		d_func()->legacyData->checked = checked;
 	}
 
 	void ActionGenerator::setToolTip(const LocalizedString& toolTip)

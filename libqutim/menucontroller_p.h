@@ -22,12 +22,14 @@ namespace qutim_sdk_0_3
 {
 	struct ActionInfo
 	{
-		ActionInfo(const ActionGenerator *g, const QList<QByteArray> &m) : gen(g), menu(m)
+		ActionInfo(const ActionGenerator *g, const ActionGeneratorPrivate *g_p,
+				   const QList<QByteArray> &m) : gen(g), gen_p(g_p), menu(m)
 		{
 			for (int i = 0; i < menu.size(); i++)
 				hash << qHash(menu.at(i));
 		}
 		const ActionGenerator *gen;
+		const ActionGeneratorPrivate *gen_p;
 		QList<QByteArray> menu;
 		QList<uint> hash;
 	};
@@ -37,20 +39,22 @@ namespace qutim_sdk_0_3
 		inline ActionEntry(QMenu *m) : menu(m) {}
 		inline ActionEntry(QAction *action) : menu(action->menu()) {}
 
-		QMenu *menu;
+		QPointer<QMenu> menu;
 		QMap<uint, ActionEntry> entries;
 	};
 
 	class MenuControllerPrivate
 	{
-		Q_DECLARE_PUBLIC(MenuController)
 	public:
+		Q_DECLARE_PUBLIC(MenuController)
 		MenuControllerPrivate(MenuController *c) : owner(0), q_ptr(c) {}
 		QList<ActionInfo> actions;
 		mutable QList<ActionGenerator *> temporary;
 		MenuController *owner;
 		MenuController *q_ptr;
-		QList<ActionInfo> allActions() const;
+		inline QList<MenuController::Action> dynamicActions() const { return q_func()->dynamicActions(); }
+		static MenuControllerPrivate *get(MenuController *gen) { return gen->d_func(); }
+		static const MenuControllerPrivate *get(const MenuController *gen) { return gen->d_func(); }
 	};
 
 	class DynamicMenu : public QMenu
@@ -58,13 +62,20 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 	public:
 		DynamicMenu(const MenuControllerPrivate *d);
-		ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info);
+		virtual ~DynamicMenu();
+		ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info, bool legacy);
 	private slots:
 		void onAboutToShow();
 		void onAboutToHide();
+		void onActionTriggered(QAction *action);
 	private:
+		QList<ActionInfo> allActions(bool legacy) const;
 		const MenuControllerPrivate * const m_d;
 		bool m_showed;
+		QActionGroup *m_group;
+		QList<QAction*> m_temporary;
+		ActionEntry m_entry;
+		mutable QMap<const ActionGenerator*, QObject*> m_owners;
 	};
 }
 
