@@ -117,7 +117,7 @@ namespace qutim_sdk_0_3
 		}
 		QSet<const QMetaObject *> metaObjects;
 		while (owner) {
-			foreach (const ActionInfo &info, m_d->actions) {
+			foreach (const ActionInfo &info, MenuControllerPrivate::get(owner)->actions) {
 				if ((info.gen_p->connectionType == ActionConnectionLegacy) == legacy)
 					actions << info;
 			}
