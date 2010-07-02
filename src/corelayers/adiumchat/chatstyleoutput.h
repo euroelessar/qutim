@@ -97,7 +97,7 @@ namespace Core
 			/*
 		style used for output generation
 		*/
-			ChatStyle m_current_style;
+			ChatStyleStruct m_current_style;
 			QScopedPointer<ChatStyleGenerator> m_chat_style_generator;
 			/*
 		remembers current variant name

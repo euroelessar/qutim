@@ -53,7 +53,7 @@ namespace Core
 			void onBehaviorSettingsChanged();
 			void onAppearanceSettingsChanged();
 		private:
-			QHash<QString, QPointer<AbstractChatWidget> > m_chatwidgets;
+			QHash<QString, AbstractChatWidget*> m_chatwidgets;
 			QString getWidgetId(ChatSessionImpl *sess) const;
 			AbstractChatWidget *findWidget(qutim_sdk_0_3::ChatSession *sess) const;
 		};

@@ -20,10 +20,17 @@
 #include <QMap>
 #include <QPair>
 
+namespace qutim_sdk_0_3
+{
+	class Message;
+}
+
 namespace Core
 {
 	namespace AdiumChat
 	{
+		class ChatSessionImpl;
+		
 		typedef QMap<QString,QString> StyleVariants;
 		enum StyleVariableType {COLOR, FONT, BACKGROUND, NUMERIC};
 		struct StyleVariable
@@ -36,7 +43,7 @@ namespace Core
 			QString range;
 		};
 		typedef QList<StyleVariable> StyleVariables;
-		struct ChatStyle
+		struct ChatStyleStruct
 		{
 			QString styleName;
 			QString baseHref;
@@ -72,11 +79,48 @@ namespace Core
 			ChatStyleGenerator (const QString &stylePath, const QString &variant = QString());
 			~ChatStyleGenerator();
 			const QStringList &getSenderColors() const;
-			const ChatStyle &getChatStyle () const;
+			const ChatStyleStruct &getChatStyle () const;
 			StyleVariants getVariants() const;
 			static StyleVariants listVariants (const QString &path);
 		private:
 			QScopedPointer<ChatStyleGeneratorPrivate> d;
+		};
+		
+		class ChatStylePrivate;
+		class ChatStyleFactoryPrivate;
+		
+		class ChatStyle
+		{
+			Q_DISABLE_COPY(ChatStyle)
+			Q_DECLARE_PRIVATE(ChatStyle)
+		public:
+			ChatStyle(ChatSessionImpl *impl, const QString &stylePath, const QString &variant);
+			~ChatStyle();
+			
+			QMap<QString, QString> variants() const;
+			QString variant() const;
+			void setVariant(const QString &variant);
+			
+			void appendMessage(const qutim_sdk_0_3::Message &msg, bool sameSender);
+		private:
+			QScopedPointer<ChatStylePrivate> d_ptr;
+		};
+		
+		class ChatStyleFactory
+		{
+			Q_DISABLE_COPY(ChatStyleFactory)
+			Q_DECLARE_PRIVATE(ChatStyleFactory)
+		public:
+			static ChatStyleFactory *instance();
+			
+			QStringList styles() const;
+			ChatStyle *create(ChatSessionImpl *impl, const QString &stylePath,
+							  const QString &variant = QString());
+		private:
+			ChatStyleFactory();
+			~ChatStyleFactory();
+			QScopedPointer<ChatStyleFactoryPrivate> d_ptr;
+			friend class QGlobalStaticDeleter<ChatStyleFactory>;
 		};
 	}
 }

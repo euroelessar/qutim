@@ -14,6 +14,7 @@
 *****************************************************************************/
 
 #include "chatstyle.h"
+#include "chatsessionimpl.h"
 #include <QMap>
 #include <QDir>
 #include <QTextStream>
@@ -22,6 +23,7 @@
 #include <QDebug>
 #include <QUrl>
 #include <QStringBuilder>
+#include <QWebPage>
 #include "chatlayerimpl.h"
 namespace Core
 {
@@ -116,10 +118,10 @@ namespace Core
 				return out;
 			}
 			QStringList senderColors;
-			ChatStyle style;
+			ChatStyleStruct style;
 		};
 
-		bool ChatStyle::isValid()
+		bool ChatStyleStruct::isValid()
 		{
 			if (this->headerHtml.isEmpty() || this->footerHtml.isEmpty() || (!this->backgroundColor.isValid()) || this->basePath.isEmpty())
 				return false;
@@ -192,7 +194,7 @@ namespace Core
 			return d->senderColors;
 		}
 
-		const ChatStyle &ChatStyleGenerator::getChatStyle () const
+		const ChatStyleStruct &ChatStyleGenerator::getChatStyle () const
 		{
 			d->readStyleFiles();
 			d->style.senderColors = getSenderColors();
@@ -232,7 +234,85 @@ namespace Core
 			d->listVariants();
 			return d->style.variants;
 		}
+// new api
+		class ChatStyleData
+		{
+		public:
+		};
+		
+		class ChatStylePrivate
+		{
+		public:
+			QSharedPointer<ChatStyleData> data;
+			ChatSessionImpl *session;
+			QWebPage *page;
+		};
 
+		class ChatStyleFactoryPrivate
+		{
+		public:
+			QMap<QString, QWeakPointer<ChatStyleData> > datas;
+		};
 
+		ChatStyle::ChatStyle(ChatSessionImpl *session, const QString &stylePath, const QString &variant) : 
+				d_ptr(new ChatStylePrivate)
+		{
+			Q_D(ChatStyle);
+			d->session = session;
+			d->page = session->getPage();
+		}
+
+		ChatStyle::~ChatStyle()
+		{
+		}
+		
+		QMap<QString, QString> ChatStyle::variants() const
+		{
+			return QMap<QString, QString>();
+		}
+		
+		QString ChatStyle::variant() const
+		{
+			return QString();
+		}
+		
+		void ChatStyle::setVariant(const QString &variant)
+		{
+		}
+		
+		void ChatStyle::appendMessage(const qutim_sdk_0_3::Message &msg, bool sameSender)
+		{
+		}
+		
+		ChatStyleFactory *ChatStyleFactory::instance()
+		{
+			static QGlobalStatic<ChatStyleFactory> self = { Q_BASIC_ATOMIC_INITIALIZER(0), false };
+			if (!self.pointer && !self.destroyed) {
+				ChatStyleFactory *x = new ChatStyleFactory;
+				if (!self.pointer.testAndSetOrdered(0, x))
+					delete x;
+				else
+					static QGlobalStaticDeleter<ChatStyleFactory> cleanup(self);
+			}
+			return self.pointer; 
+		}
+		
+		QStringList ChatStyleFactory::styles() const
+		{
+			return QStringList();
+		}
+		
+		ChatStyle *ChatStyleFactory::create(ChatSessionImpl *impl, const QString &stylePath, const QString &variant)
+		{
+			return 0;
+		}
+
+		ChatStyleFactory::ChatStyleFactory() : d_ptr(new ChatStyleFactoryPrivate)
+		{
+		}
+
+		ChatStyleFactory::~ChatStyleFactory()
+		{
+		}
 	}
 }

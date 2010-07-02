@@ -105,7 +105,7 @@ namespace Core
 		
 		AbstractChatWidget *AbstractChatForm::findWidget(ChatSession *sess) const
 		{
-			QHash<QString, QPointer<AbstractChatWidget> >::const_iterator it;
+			QHash<QString, AbstractChatWidget*>::const_iterator it;
 			ChatSessionImpl *session = qobject_cast<ChatSessionImpl*>(sess);
 			for (it=m_chatwidgets.constBegin();it!=m_chatwidgets.constEnd();it++) {
 				if ((*it) && it.value()->contains(session))
