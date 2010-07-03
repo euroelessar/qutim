@@ -558,8 +558,9 @@ namespace qutim_sdk_0_3
 			QVariantMap::const_iterator it = selected.constBegin();
 			for (; it != selected.constEnd(); it++) {
 				const ExtensionInfo info = extsHash.value(it.value().toString().toLatin1());
-				if (!pluginsConfig.value(p->extsPlugins.value(info.name())->info().name(), true))
-					continue;
+				if(p->extsPlugins.value(info.name()))
+					if (!pluginsConfig.value(p->extsPlugins.value(info.name())->info().name(), true))
+						continue;
 
 				if (info.generator() && info.generator()->extends<Protocol>()) {
 					const QMetaObject *meta = info.generator()->metaObject();

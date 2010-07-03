@@ -31,21 +31,13 @@ ProfileDialog::ProfileDialog(Config &config, ModuleManager *parent) :
 	m_manager = parent;
 	ui->setupUi(this);
 
-	connect(ui->profileList->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(sliderMoved(int)));
 	connect(ui->profileList, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)), this, SLOT(currentItemChanged(QListWidgetItem *, QListWidgetItem *)));
 
-	ui->upButton->setIcon(Icon("arrow-up"));
-	ui->downButton->setIcon(Icon("arrow-down"));
-
-	ui->upButton->setIcon(QIcon(":/icons/qutim_64.png"));
-	ui->downButton->setIcon(QIcon(":/icons/qutim_64.png"));
-	
 	QString current = config.value("current", QString());
 	int size = config.beginArray("list");
 	int itemHeight = 70;
 
 	ui->profileList->setGridSize(QSize(0, itemHeight));
-	ui->profileList->setFrameStyle(QFrame::NoFrame);
 	ui->profileList->setMinimumSize(ui->profileList->minimumSize().width(), itemHeight);
 	
 	if (size == 0) {
@@ -68,9 +60,6 @@ ProfileDialog::ProfileDialog(Config &config, ModuleManager *parent) :
 			ui->profileList->setItemWidget(item, w);
 		}
 		ui->profileList->setCurrentRow(cid);
-		if (size * itemHeight > ui->profileList->height())
-			ui->profileList->verticalScrollBar()->setMaximum(1);
-		sliderMoved(ui->profileList->verticalScrollBar()->value());
 	}
 	config.endArray();
 
@@ -231,36 +220,6 @@ void ProfileDialog::changeEvent(QEvent *e)
     default:
         break;
     }
-}
-
-void ProfileDialog::resizeEvent(QResizeEvent *e)
-{
-	Q_UNUSED(e);
-	if (!ui->profileList->verticalScrollBar()->maximum() && ui->profileList->count() * 70 > ui->profileList->height())
-		ui->profileList->verticalScrollBar()->setMaximum(1);
-	sliderMoved(ui->profileList->verticalScrollBar()->value());
-}
-
-void ProfileDialog::on_upButton_clicked()
-{
-	ui->profileList->verticalScrollBar()->setValue(ui->profileList->verticalScrollBar()->value() - 1);
-}
-
-void ProfileDialog::on_downButton_clicked()
-{
-	ui->profileList->verticalScrollBar()->setValue(ui->profileList->verticalScrollBar()->value() + 1);
-}
-
-void ProfileDialog::sliderMoved(int val)
-{
-	if (val == ui->profileList->verticalScrollBar()->minimum())
-		ui->upButton->setDisabled(true);
-	else
-		ui->upButton->setDisabled(false);
-	if (val == ui->profileList->verticalScrollBar()->maximum())
-		ui->downButton->setDisabled(true);
-	else
-		ui->downButton->setDisabled(false);
 }
 
 void ProfileDialog::currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)

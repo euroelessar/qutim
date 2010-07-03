@@ -5,6 +5,7 @@
 #include "ui_accountcreatorprotocols.h"
 #include <QCommandLinkButton>
 #include <QScrollBar>
+#include <QDebug>
 
 namespace Core
 {
@@ -15,8 +16,6 @@ namespace Core
 	{
 		m_ui->setupUi(this);
 		
-		connect(m_ui->protocolList->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(sliderMoved(int)));
-
 		m_lastId = Id;
 		QSet<QByteArray> protocols;
 		foreach (Protocol *protocol, allProtocols()) {
@@ -31,12 +30,9 @@ namespace Core
 			m_wizards.insert(wizard->info().name(), wizard);
 		}
 
-		m_ui->upButton->setIcon(Icon("arrow-up"));
-		m_ui->downButton->setIcon(Icon("arrow-down"));
-
 		int itemHeight = 50;
 		m_ui->protocolList->setGridSize(QSize(0, itemHeight));
-		m_ui->protocolList->setFrameStyle(QFrame::NoFrame);
+		//m_ui->protocolList->setFrameStyle(QFrame::NoFrame);
 		m_ui->protocolList->setMinimumSize(m_ui->protocolList->minimumSize().width(), itemHeight);
 
 		foreach (AccountCreationWizard *wizard, m_wizards) {
@@ -46,19 +42,17 @@ namespace Core
 				icon = Icon(QLatin1String("im-") + info.name());
 
 			QListWidgetItem *item = new QListWidgetItem(m_ui->protocolList);
-			item->setData(Qt::UserRole + 1,reinterpret_cast<qptrdiff>(wizard));
-			item->setData(Qt::UserRole + 2,qVariantFromValue(info));
+			item->setData(Qt::UserRole + 1, reinterpret_cast<qptrdiff>(wizard));
+			item->setData(Qt::UserRole + 2, qVariantFromValue(info));
 			item->setFlags(Qt::NoItemFlags);
 			item->setSizeHint(QSize(0, itemHeight));
 
 			QCommandLinkButton *b = new QCommandLinkButton(info.name(), info.description());
 			connect(b, SIGNAL(clicked()), this, SLOT(protocolSelected()));
 			b->setMinimumSize(b->minimumSize().width(), itemHeight);
-			b->setFocusPolicy(Qt::ClickFocus);
 			if (icon.availableSizes().count())
 				b->setIcon(icon);
 			m_ui->protocolList->setItemWidget(item, b);
-			resizeEvent(0);
 			m_items.insert(b, item);
 		}
 		
@@ -128,39 +122,9 @@ namespace Core
 		}
 	}
 
-	void AccountCreatorProtocols::resizeEvent(QResizeEvent *e)
-	{
-		Q_UNUSED(e);
-		if (!m_ui->protocolList->verticalScrollBar()->maximum() && m_wizards.count() * 50 > m_ui->protocolList->height())
-			m_ui->protocolList->verticalScrollBar()->setMaximum(1);
-		sliderMoved(m_ui->protocolList->verticalScrollBar()->value());
-	}
-
 	void AccountCreatorProtocols::protocolSelected()
 	{
 		m_ui->protocolList->setCurrentItem(m_items.value(qobject_cast<QCommandLinkButton *>(sender())));
 		wizard()->next();
-	}
-
-	void AccountCreatorProtocols::on_upButton_clicked()
-	{
-		m_ui->protocolList->verticalScrollBar()->setValue(m_ui->protocolList->verticalScrollBar()->value() - 1);
-	}
-
-	void AccountCreatorProtocols::on_downButton_clicked()
-	{
-		m_ui->protocolList->verticalScrollBar()->setValue(m_ui->protocolList->verticalScrollBar()->value() + 1);
-	}
-
-	void AccountCreatorProtocols::sliderMoved(int val)
-	{
-		if (val == m_ui->protocolList->verticalScrollBar()->minimum())
-			m_ui->upButton->setDisabled(true);
-		else
-			m_ui->upButton->setDisabled(false);
-		if (val == m_ui->protocolList->verticalScrollBar()->maximum())
-			m_ui->downButton->setDisabled(true);
-		else
-			m_ui->downButton->setDisabled(false);
 	}
 }

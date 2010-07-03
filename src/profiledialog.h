@@ -21,21 +21,17 @@ class ProfileDialog : public QDialog
     Q_OBJECT
 public:
 	ProfileDialog(Config &config, ModuleManager *parent = 0);
-    ~ProfileDialog();
+	~ProfileDialog();
 	static Config profilesInfo();
 	static bool acceptProfileInfo(Config &config, const QString &password);
 
 protected slots:
 	void login(const QString &password);
 	void on_profilesButton_clicked();
-	void on_upButton_clicked();
-	void on_downButton_clicked();
-	void sliderMoved(int val);
 	void currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
 
 protected:
     void changeEvent(QEvent *e);
-	void resizeEvent(QResizeEvent *e);
 
 private:
 	ModuleManager *m_manager;

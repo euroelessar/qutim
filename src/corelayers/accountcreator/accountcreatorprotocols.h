@@ -30,14 +30,10 @@ namespace Core
 
 	public slots:
 		void protocolSelected();
-		void on_upButton_clicked();
-		void on_downButton_clicked();
-		void sliderMoved(int val);
 
 	protected:
 		QMap<AccountCreationWizard *, int>::iterator ensureCurrentProtocol();
 		void changeEvent(QEvent *e);
-		void resizeEvent(QResizeEvent *e);
 
 	private:
 		Ui::AccountCreatorProtocols *m_ui;
