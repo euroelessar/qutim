@@ -16,6 +16,7 @@
 #include "actiontoolbar.h"
 #include <QAction>
 #include <QToolButton>
+#include <QMouseEvent>
 
 namespace qutim_sdk_0_3
 {
@@ -24,16 +25,20 @@ namespace qutim_sdk_0_3
 		QList<ActionGenerator *> generators;
 		QList<QPointer<QAction> > actions;
 		QVariant data;
+		QPoint dragPos;
+		bool moveHookEnabled;
 	};
 
 	ActionToolBar::ActionToolBar(const QString &title, QWidget *parent)
 			: QToolBar(title, parent), p(new ActionToolBarPrivate)
 	{
+		p->moveHookEnabled = false;
 	}
 
 	ActionToolBar::ActionToolBar(QWidget *parent)
 			: QToolBar(parent), p(new ActionToolBarPrivate)
 	{
+		p->moveHookEnabled = false;
 	}
 
 	ActionToolBar::~ActionToolBar()
@@ -81,5 +86,22 @@ namespace qutim_sdk_0_3
 	QVariant ActionToolBar::data() const
 	{
 		return p->data;
+	}
+
+	void ActionToolBar::mousePressEvent(QMouseEvent *event)
+	{
+		if(p->moveHookEnabled && event->button() == Qt::LeftButton)
+			p->dragPos = event->globalPos() - QWidget::window()->frameGeometry().topLeft();
+	}
+
+	void ActionToolBar::mouseMoveEvent(QMouseEvent *event)
+	{
+		if(p->moveHookEnabled && event->buttons() & Qt::LeftButton)
+			QWidget::window()->move(event->globalPos() - p->dragPos);
+	}
+
+	void ActionToolBar::setMoveHookEnabled(bool enabled)
+	{
+		p->moveHookEnabled = enabled;
 	}
 }

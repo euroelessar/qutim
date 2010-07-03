@@ -131,6 +131,7 @@ namespace Core
 			p->main_toolbar->setIconSize(toolbar_size);
 			p->main_toolbar->setFloatable(false);
 			p->main_toolbar->setMovable(false);
+			p->main_toolbar->setMoveHookEnabled(true);
 
 #ifdef Q_WS_WIN
 			p->main_toolbar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK

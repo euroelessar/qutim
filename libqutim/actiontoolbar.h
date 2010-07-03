@@ -39,6 +39,13 @@ namespace qutim_sdk_0_3
 		// created by addAction(ActionGenerator *generator) method
 		void setData(const QVariant &var);
 		QVariant data() const;
+
+		void setMoveHookEnabled(bool enabled = true);
+
+	protected:
+		void mouseMoveEvent(QMouseEvent* event);
+		void mousePressEvent(QMouseEvent* event);
+
 	private:
 		QScopedPointer<ActionToolBarPrivate> p;
 	};
