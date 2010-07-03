@@ -77,7 +77,6 @@ namespace qutim_sdk_0_3
 		QList<ActionInfo> allActions(bool legacy) const;
 		const MenuControllerPrivate * const m_d;
 		bool m_showed;
-		QActionGroup *m_group;
 		QList<QAction*> m_temporary;
 		ActionEntry m_entry;
 		mutable QMap<const ActionGenerator*, QObject*> m_owners;

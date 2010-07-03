@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3
 {
 
 	typedef QMap<const QMetaObject *, ActionInfo> MenuActionMap;
-	typedef QMap<const ActionGenerator*,QPointer<QAction> > ActionGeneratorMap; //FIXME remove QPointer
+	typedef QMap<const ActionGenerator*,QAction* > ActionGeneratorMap; //FIXME remove QPointer
 
 	Q_GLOBAL_STATIC(MenuActionMap, globalActions)
 	Q_GLOBAL_STATIC(ActionGeneratorMap,actionsCache);
@@ -144,11 +144,11 @@ namespace qutim_sdk_0_3
 	}
 
 	DynamicMenu::DynamicMenu(const MenuControllerPrivate *d) :
-			m_d(d), m_showed(false), m_group(new QActionGroup(this)), m_entry(this)
+			m_d(d), m_showed(false), m_entry(this)
 	{
 		connect(this, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
 		connect(this, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
-		connect(m_group, SIGNAL(triggered(QAction*)), this, SLOT(onActionTriggered(QAction*)));
+		connect(this, SIGNAL(triggered(QAction*)), this, SLOT(onActionTriggered(QAction*)));
 		QList<ActionInfo> actions = allActions(false);
 		if (actions.isEmpty()) {
 			return;
@@ -167,9 +167,6 @@ namespace qutim_sdk_0_3
 			
 			QAction *action = actionsCache()->value(act.gen);
 			
-			if (m_group->actions().contains(action))
-				continue;
-			
 			if (!isEqualMenu(lastMenu, act.hash)) {
 				lastType = act.gen->type();
 				lastMenu = act.hash;
@@ -183,11 +180,9 @@ namespace qutim_sdk_0_3
 			
 			if (!action) {
 				action = act.gen->generate<QAction>();
-
 				actionsCache()->insert(act.gen,action);
 			}
-			if (action) {				
-				m_group->addAction(action);
+			if (action) {
 				currentEntry->menu->addAction(action);
 			}
 		}
@@ -195,14 +190,6 @@ namespace qutim_sdk_0_3
 
 	void DynamicMenu::onActionAdded(const ActionInfo &info)
 	{
-		//EPIC FAIL 
-// 		qDeleteAllLater(m_group->actions());
-// 		QList<ActionInfo> actions = allActions(false);
-// 		if (actions.isEmpty()) {
-// 			return;
-// 		}
-// 		qSort(actions.begin(), actions.end(), actionLessThan);
-// 		addActions(actions);
 		addActions(allActions(false));
 	}
 	
@@ -214,8 +201,10 @@ namespace qutim_sdk_0_3
 	
 	DynamicMenu::~DynamicMenu()
 	{
-		foreach (QAction *action, actions())
-			action->deleteLater();
+		foreach (QAction *action, actions()) {			
+			if (!actionsCache()->key(action))
+				action->deleteLater();
+		}
 	}
 
 	void DynamicMenu::onAboutToShow()
@@ -243,7 +232,6 @@ namespace qutim_sdk_0_3
 				currentEntry->menu->addAction(action);
 				m_temporary << action;
 			}
-			debug() << "action" << act.gen_p->text << act.gen_p->type << lastType;
 		}
 		m_showed = true;
 	}
@@ -285,6 +273,7 @@ namespace qutim_sdk_0_3
 	
 	void DynamicMenu::onActionTriggered(QAction *action)
 	{
+		debug() << "action triggered" << action;
 		const ActionGenerator *gen = action->data().value<ActionGenerator*>();
 		if (!gen) {
 			qWarning("DynamicMenu::onActionTriggered: Invalid ActionGenerator");
