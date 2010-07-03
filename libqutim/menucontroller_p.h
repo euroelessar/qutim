@@ -2,6 +2,7 @@
  *  menucontroller_p.h
  *
  *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -67,10 +68,11 @@ namespace qutim_sdk_0_3
 		ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info, bool legacy);
 	public slots:
 		void onActionAdded(const ActionInfo &info);
+		void onMenuOwnerChanged(const MenuController *owner);
 	private slots:
 		void onAboutToShow();
 		void onAboutToHide();
-		void onActionTriggered(QAction *action);		
+		void onActionTriggered(QAction *action);
 	private:
 		QList<ActionInfo> allActions(bool legacy) const;
 		const MenuControllerPrivate * const m_d;
@@ -79,6 +81,17 @@ namespace qutim_sdk_0_3
 		QList<QAction*> m_temporary;
 		ActionEntry m_entry;
 		mutable QMap<const ActionGenerator*, QObject*> m_owners;
+	};
+	
+	class ActionContainerPrivate : public QSharedData
+	{
+		Q_DISABLE_COPY(ActionContainerPrivate)
+	public:
+		inline ActionContainerPrivate() : controller(0),filterType(ActionContainer::TypeMatch),filterData(QVariant()) {}
+		inline ~ActionContainerPrivate() {}
+		MenuController *controller;
+		ActionContainer::ActionFilter filterType;
+		QVariant filterData;		
 	};
 }
 

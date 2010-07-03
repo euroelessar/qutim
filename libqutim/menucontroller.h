@@ -2,6 +2,7 @@
  *  menucontroller.h
  *
  *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -168,6 +169,7 @@ void MyObject::onAction()
 	signals:
 		//FIXME move to private (maybe)
 		void actionAdded(const ActionInfo &info);
+		void menuOwnerChanged(const MenuController *controller);
 	};
 	
 	// TODO: Implement class
@@ -175,31 +177,31 @@ void MyObject::onAction()
 	// Notice: You should use QActionGroup as at DynamicMenu for actions triggering
 	// Think: May be wh should use this container inside DynamicMenu?
 	// Think: May be we should use filters also for menus?
-//	class ActionContainerPrivate;
-//	class ActionContainer
-//	{
-//		Q_DECLARE_PRIVATE(ActionContainer)
-//	public:
-//		enum ActionFilter { TypeMatch, TypeMismatch }
-//		// Constructor
-//		// Get all actions
-//		ActionContainer(MenuController *controller);
-//		// Get only actions, which satisfy filter, i.e. filter=TypeMatch, data=1
-//		// for getting all actions with type == 1
-//		ActionContainer(MenuController *controller, ActionFilter filter, const QVariant &data);
-//		// Destructor, I think it shouldn't be virtual
-//		~ActionContainer();
-//		// Copy constructor and method
-//		ActionContainer(const ActionContainer &);
-//		ActionContainer &operator =(const ActionContainer &);
-//		// Access to actions, they should be sorted by qutim_sdk_0_3::actionLessThan
-//		int count() const;
-//		inline int size() const { return count(); }
-//		QAction *action(int index) const;
-//		QList<QByteArray> menu(int index) const;
-//	private:
-//		QExplicitlySharedDataPointer<ActionContainerPrivate> d_ptr;
-//	};
+	class ActionContainerPrivate;
+	class ActionContainer
+	{
+		Q_DECLARE_PRIVATE(ActionContainer)
+	public:
+		enum ActionFilter { TypeMatch, TypeMismatch };
+		// Constructor
+		// Get all actions
+		ActionContainer(MenuController *controller);
+		// Get only actions, which satisfy filter, i.e. filter=TypeMatch, data=1
+		// for getting all actions with type == 1
+		ActionContainer(MenuController *controller, ActionFilter filter, const QVariant &data);
+		// Destructor, I think it shouldn't be virtual
+		~ActionContainer();
+		// Copy constructor and method
+		ActionContainer(const ActionContainer &);
+		ActionContainer &operator =(const ActionContainer &);
+		// Access to actions, they should be sorted by qutim_sdk_0_3::actionLessThan
+		int count() const;
+		inline int size() const { return count(); }
+		QAction *action(int index) const;
+		QList<QByteArray> menu(int index) const;
+	private:
+		QExplicitlySharedDataPointer<ActionContainerPrivate> d_ptr;
+	};
 
 	template <int N>
 	Q_INLINE_TEMPLATE void MenuController::addAction(const ActionGenerator *gen, const char (&menu)[N])

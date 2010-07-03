@@ -2,6 +2,7 @@
  *  menucontroller.cpp
  *
  *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -24,8 +25,10 @@ namespace qutim_sdk_0_3
 {
 
 	typedef QMap<const QMetaObject *, ActionInfo> MenuActionMap;
+	typedef QMap<const ActionGenerator*,QPointer<QAction> > ActionGeneratorMap; //FIXME remove QPointer
 
 	Q_GLOBAL_STATIC(MenuActionMap, globalActions)
+	Q_GLOBAL_STATIC(ActionGeneratorMap,actionsCache);
 
 	MenuController::MenuController(QObject *parent) : QObject(parent), d_ptr(new MenuControllerPrivate(this))
 	{
@@ -136,6 +139,7 @@ namespace qutim_sdk_0_3
 			}
 			owner = MenuControllerPrivate::get(owner)->owner;
 		}
+		qSort(actions.begin(), actions.end(), actionLessThan);
 		return actions;
 	}
 
@@ -149,7 +153,6 @@ namespace qutim_sdk_0_3
 		if (actions.isEmpty()) {
 			return;
 		}
-		qSort(actions.begin(), actions.end(), actionLessThan);
 		addActions(actions);
 	}
 
@@ -161,6 +164,12 @@ namespace qutim_sdk_0_3
 		ActionEntry *currentEntry = &m_entry;
 		for (int i = 0; i < actions.size(); i++) {
 			const ActionInfo &act = actions[i];
+			
+			QAction *action = actionsCache()->value(act.gen);
+			
+			if (m_group->actions().contains(action))
+				continue;
+			
 			if (!isEqualMenu(lastMenu, act.hash)) {
 				lastType = act.gen->type();
 				lastMenu = act.hash;
@@ -169,32 +178,39 @@ namespace qutim_sdk_0_3
 				lastType = act.gen->type();
 				currentEntry->menu->addSeparator();
 			}
+			
 			const_cast<ActionGenerator *>(act.gen)->setMenuController(const_cast<MenuController *>(m_d->q_ptr));
-			// TODO: create static global QMap<ActionGenerator*, QAction*>,
-			// use it as cache and doesn't assign parent to QAction's created there
-			if (QAction *action = act.gen->generate<QAction>()) {
-				action->setParent(currentEntry->menu);
-				currentEntry->menu->addAction(action);
+			
+			if (!action) {
+				action = act.gen->generate<QAction>();
+
+				actionsCache()->insert(act.gen,action);
+			}
+			if (action) {				
 				m_group->addAction(action);
+				currentEntry->menu->addAction(action);
 			}
 		}
 	}
 
-	void DynamicMenu::onActionAdded(const ActionInfo &)
+	void DynamicMenu::onActionAdded(const ActionInfo &info)
 	{
-//		for (int i=0;i!=m_group->actions().count();i++) {
-//			QAction *act = m_group->actions().at(i);
-//			act->deleteLater();
-//			m_group->removeAction();
-//		}
-		qDeleteAllLater(m_group->actions());
-		QList<ActionInfo> actions = allActions(false);
-		if (actions.isEmpty()) {
-			return;
-		}
-		qSort(actions.begin(), actions.end(), actionLessThan);
-		addActions(actions);
+		//EPIC FAIL 
+// 		qDeleteAllLater(m_group->actions());
+// 		QList<ActionInfo> actions = allActions(false);
+// 		if (actions.isEmpty()) {
+// 			return;
+// 		}
+// 		qSort(actions.begin(), actions.end(), actionLessThan);
+// 		addActions(actions);
+		addActions(allActions(false));
 	}
+	
+	void DynamicMenu::onMenuOwnerChanged(const MenuController *controller)
+	{
+		//epic fail v2
+		//addActions(allActions(false));
+	}	
 	
 	DynamicMenu::~DynamicMenu()
 	{
@@ -310,6 +326,7 @@ namespace qutim_sdk_0_3
 		DynamicMenu *menu = new DynamicMenu(d_func());
 		menu->setAttribute(Qt::WA_DeleteOnClose, deleteOnClose);
 		connect(this,SIGNAL(actionAdded(ActionInfo)),menu,SLOT(onActionAdded(ActionInfo)));
+		connect(this,SIGNAL(menuOwnerChanged(const MenuController*)),menu,SLOT(onMenuOwnerChanged(const MenuController*)));
 		return menu;
 	}
 
@@ -348,6 +365,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_D(MenuController);
 		d->owner = controller;
+		emit menuOwnerChanged(controller);
 	}
 
 	QList<MenuController::Action> MenuController::dynamicActions() const
@@ -360,4 +378,55 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(id);
 		Q_UNUSED(data);
 	}
+		
+	ActionContainer::ActionContainer(MenuController* controller) : 
+		d_ptr(new ActionContainerPrivate)
+	{
+		Q_D(ActionContainer);
+		d->controller = controller;
+		d->filterType = TypeMatch;
+	}
+
+	ActionContainer::ActionContainer(MenuController* controller, ActionContainer::ActionFilter filter, const QVariant& data) :
+		d_ptr(new ActionContainerPrivate)
+	{
+		Q_D(ActionContainer);
+		d->controller = controller;
+		d->filterType = filter;
+		d->filterData = data;
+	}
+	QAction* ActionContainer::action(int index) const
+	{
+
+	}
+
+	ActionContainer::ActionContainer(const qutim_sdk_0_3::ActionContainer& other) : d_ptr(other.d_ptr)
+	{
+
+	}
+
+	int ActionContainer::count() const
+	{
+
+	}
+
+	QList< QByteArray > ActionContainer::menu(int index) const
+	{
+		//TODO implement logic
+		Q_UNUSED(index);
+		QList<QByteArray> itemlist;
+		return itemlist;
+	}
+
+	ActionContainer& ActionContainer::operator=(const qutim_sdk_0_3::ActionContainer &other)
+	{
+		d_ptr = other.d_ptr;
+		return *this;
+	}
+
+	ActionContainer::~ActionContainer()
+	{
+
+	}
+
 }
