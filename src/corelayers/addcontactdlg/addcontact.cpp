@@ -26,14 +26,14 @@ namespace Core {
 		QObject *contactList = getService("ContactList");
 		if (contactList) {
 			static QScopedPointer<ActionGenerator> button(new ActionGenerator(Icon("list-add-user"),
-					QT_TRANSLATE_NOOP("AddContact", "Add contact"), this, SLOT(show())));
+					QT_TRANSLATE_NOOP("AddContact", "Add contact"), this, SLOT(show(QObject*))));
 			MenuController *controller = qobject_cast<MenuController*>(contactList);
 			if (controller)
 				controller->addAction(button.data());
 		}
 	}
 
-	void AddContactModule::show()
+	void AddContactModule::show(QObject*)
 	{
 		AddContact *addContact = new AddContact();
 		centerizeWidget(addContact);

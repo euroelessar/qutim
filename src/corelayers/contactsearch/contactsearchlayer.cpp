@@ -265,7 +265,7 @@ ContactSearch::ContactSearch()
 	if (contactList) {
 		static QScopedPointer<ActionGenerator> button(new ActionGenerator(Icon("edit-find-contact"),
 										QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
-										this, SLOT(show())));
+										this, SLOT(show(QObject*))));
 		//QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, button.data()));
 		MenuController *controller = qobject_cast<MenuController*>(contactList);
 		if (controller)
@@ -273,7 +273,7 @@ ContactSearch::ContactSearch()
 	}
 }
 
-void ContactSearch::show()
+void ContactSearch::show(QObject*)
 {
 	if (searchContactForm) {
 		searchContactForm->raise();

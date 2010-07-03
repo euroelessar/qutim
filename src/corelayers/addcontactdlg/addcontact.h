@@ -12,19 +12,19 @@ namespace Core {
 	{
 		Q_OBJECT
 		Q_DECLARE_PRIVATE(AddContact)
-		public:
-			AddContact(Account *account = 0, QWidget *parent = 0);
-			~AddContact();
-		protected:
-			void setAccount(Account *account);
-			void changeState(Account *account, const qutim_sdk_0_3::Status &status);
-		private slots:
-			void on_okButton_clicked();
-			void on_cancelButton_clicked();
-			void setAccount();
-			void changeState(const qutim_sdk_0_3::Status &status);
-		private:
-			QScopedPointer<AddContactPrivate> d_ptr;
+	public:
+				AddContact(Account *account = 0, QWidget *parent = 0);
+		~AddContact();
+	protected:
+		void setAccount(Account *account);
+		void changeState(Account *account, const qutim_sdk_0_3::Status &status);
+	private slots:
+		void on_okButton_clicked();
+		void on_cancelButton_clicked();
+		void setAccount();
+		void changeState(const qutim_sdk_0_3::Status &status);
+	private:
+		QScopedPointer<AddContactPrivate> d_ptr;
 	};
 
 	class AddContactModule : public QObject
@@ -33,10 +33,10 @@ namespace Core {
 		Q_CLASSINFO("Service", "AddContact")
 		Q_CLASSINFO("Uses", "IconLoader")
 		Q_CLASSINFO("Uses", "ContactList")
-		public:
+	public:
    		AddContactModule();
-		private slots:
-			void show();
+	private slots:
+		void show(QObject*);
 	};
 }
 #endif // ADDCONTACT_H

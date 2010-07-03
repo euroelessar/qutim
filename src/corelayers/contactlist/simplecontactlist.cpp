@@ -139,7 +139,7 @@ namespace Core
 			ActionGenerator *gen = new ActionGenerator(Icon("configure"),
 													   QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
 													   this,
-													   SLOT(onConfigureClicked())
+													   SLOT(onConfigureClicked(QObject*))
 													   );
 			gen->setPriority(1);
 			gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));
@@ -147,9 +147,10 @@ namespace Core
 
 			gen = new ActionGenerator(Icon("application-exit"),
 									  QT_TRANSLATE_NOOP("ContactList","&Quit"),
-									  qApp,
-									  SLOT(quit()));
-			gen->setPriority(-1);
+									  this,
+									  SLOT(onQuitTriggered(QObject*)));
+			gen->setPriority(-127);
+			gen->setType(512);
 			addAction(gen);
 
 			gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), this);
@@ -309,7 +310,7 @@ namespace Core
 
 		}
 
-		void Module::onConfigureClicked()
+		void Module::onConfigureClicked(QObject*)
 		{
 			Settings::showWidget();
 		}
@@ -414,6 +415,11 @@ namespace Core
 			Q_ASSERT(unit);
 			QClipboard *clipboard = QApplication::clipboard();
 			clipboard->setText(unit->id());
+		}
+
+		void Module::onQuitTriggered(QObject *)
+		{
+			qApp->quit();
 		}
 
 	}

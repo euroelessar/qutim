@@ -81,7 +81,7 @@ class ContactSearch : public QObject
 public:
     ContactSearch();
 public slots:
-	void show();
+	void show(QObject*);
 private:
 	QPointer<ContactSearchForm> searchContactForm;
 };

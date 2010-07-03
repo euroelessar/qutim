@@ -31,7 +31,7 @@ namespace Core
 			void changeVisibility();
 			void addContact(qutim_sdk_0_3::Contact *contact);
 		private slots:
-			void onConfigureClicked();
+			void onConfigureClicked(QObject*);
 			void onAccountCreated(qutim_sdk_0_3::Account *account);
 			void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
 			void onStatusChanged();
@@ -39,6 +39,7 @@ namespace Core
 			void showStatusDialog();
 			void changeStatusTextAccepted();
 			void onCopyIdTriggered(QObject *obj);
+			void onQuitTriggered(QObject*);
 		private:
 			QAction *createGlobalStatusAction(Status::Type type); //FIXME, temporary. Will be replaced by metacontact manager
 			QScopedPointer<ModulePrivate> p;

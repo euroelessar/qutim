@@ -22,6 +22,7 @@
 namespace qutim_sdk_0_3
 {
 	class MenuControllerPrivate;
+	class ActionInfo;
 
 	/*!
 	  MenuController is base type for objects which are able
@@ -164,6 +165,9 @@ void MyObject::onAction()
 #endif
 		virtual void virtual_hook(int id, void *data);
 		QScopedPointer<MenuControllerPrivate> d_ptr;
+	signals:
+		//FIXME move to private (maybe)
+		void actionAdded(const ActionInfo &info);
 	};
 	
 	// TODO: Implement class

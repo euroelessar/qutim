@@ -149,8 +149,13 @@ namespace qutim_sdk_0_3
 		if (actions.isEmpty()) {
 			return;
 		}
-		// Stable actions, they use new api and are always at memory
 		qSort(actions.begin(), actions.end(), actionLessThan);
+		addActions(actions);
+	}
+
+	void DynamicMenu::addActions(const QList<ActionInfo> &actions)
+	{
+		// Stable actions, they use new api and are always at memory
 		int lastType = actions[0].gen->type();
 		QList<uint> lastMenu;
 		ActionEntry *currentEntry = &m_entry;
@@ -165,14 +170,30 @@ namespace qutim_sdk_0_3
 				currentEntry->menu->addSeparator();
 			}
 			const_cast<ActionGenerator *>(act.gen)->setMenuController(const_cast<MenuController *>(m_d->q_ptr));
-			// TODO: create static global QMap<ActionGenerator*, QAction*>, 
-			// use it as cashe and doesn't assign parent to QAction's created there
+			// TODO: create static global QMap<ActionGenerator*, QAction*>,
+			// use it as cache and doesn't assign parent to QAction's created there
 			if (QAction *action = act.gen->generate<QAction>()) {
 				action->setParent(currentEntry->menu);
 				currentEntry->menu->addAction(action);
 				m_group->addAction(action);
 			}
 		}
+	}
+
+	void DynamicMenu::onActionAdded(const ActionInfo &)
+	{
+//		for (int i=0;i!=m_group->actions().count();i++) {
+//			QAction *act = m_group->actions().at(i);
+//			act->deleteLater();
+//			m_group->removeAction();
+//		}
+		qDeleteAllLater(m_group->actions());
+		QList<ActionInfo> actions = allActions(false);
+		if (actions.isEmpty()) {
+			return;
+		}
+		qSort(actions.begin(), actions.end(), actionLessThan);
+		addActions(actions);
 	}
 	
 	DynamicMenu::~DynamicMenu()
@@ -187,7 +208,7 @@ namespace qutim_sdk_0_3
 		if (actions.isEmpty() || m_showed)
 			return;
 		qSort(actions.begin(), actions.end(), actionLessThan);
-		int lastType = actions[0].gen->type();
+		int lastType = allActions(false).last().gen->type();
 		QList<uint> lastMenu;
 		ActionEntry *currentEntry = &m_entry;
 		for (int i = 0; i < actions.size(); i++) {
@@ -206,6 +227,7 @@ namespace qutim_sdk_0_3
 				currentEntry->menu->addAction(action);
 				m_temporary << action;
 			}
+			debug() << "action" << act.gen_p->text << act.gen_p->type << lastType;
 		}
 		m_showed = true;
 	}
@@ -285,8 +307,9 @@ namespace qutim_sdk_0_3
 
 	QMenu *MenuController::menu(bool deleteOnClose) const
 	{
-		QMenu *menu = new DynamicMenu(d_func());
+		DynamicMenu *menu = new DynamicMenu(d_func());
 		menu->setAttribute(Qt::WA_DeleteOnClose, deleteOnClose);
+		connect(this,SIGNAL(actionAdded(ActionInfo)),menu,SLOT(onActionAdded(ActionInfo)));
 		return menu;
 	}
 
@@ -298,7 +321,9 @@ namespace qutim_sdk_0_3
 	void MenuController::addAction(const ActionGenerator *gen, const QList<QByteArray> &menu)
 	{
 		Q_ASSERT(gen);
-		d_func()->actions.append(ActionInfo(gen, gen->d_func(), menu));
+		ActionInfo info = ActionInfo(gen, gen->d_func(), menu);
+		d_func()->actions.append(info);
+		emit actionAdded(info);
 	}
 
 	bool MenuController::removeAction(const ActionGenerator *gen)

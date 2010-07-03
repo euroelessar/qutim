@@ -72,11 +72,11 @@ namespace Core
 			p->closedTags = group.value("closedTags", QStringList()).toSet();
 			ActionGenerator *gen = new ActionGenerator(Icon("user-properties"),
 													   QT_TRANSLATE_NOOP("ContactList", "Rename contact"),
-													   this, SLOT(onContactRenameAction()));
+													   this, SLOT(onContactRenameAction(QObject*)));
 			MenuController::addAction<Contact>(gen);
 			gen = new ActionGenerator(Icon("feed-subscribe"),
 													   QT_TRANSLATE_NOOP("ContactList", "Edit tags"),
-													   this, SLOT(onTagsEditAction()));
+													   this, SLOT(onTagsEditAction(QObject*)));
 			MenuController::addAction<Contact>(gen);
 			MenuController::addAction<Contact>(new AddRemoveContactActionGenerator(this));
 
@@ -590,9 +590,9 @@ namespace Core
 			filterAllList();
 		}
 
-		void Model::onContactRenameAction()
+		void Model::onContactRenameAction(QObject *controller)
 		{
-			Contact *contact = MenuController::getController<Contact>(sender());
+			Contact *contact = qobject_cast<Contact*>(controller);
 			if (!contact)
 				return;
 			QInputDialog *dialog = new QInputDialog(p->view);
@@ -713,9 +713,9 @@ namespace Core
 			return QAbstractItemModel::eventFilter(obj, ev);
 		}
 
-		void Model::onTagsEditAction()
+		void Model::onTagsEditAction(QObject *controller)
 		{
-			Contact *contact = MenuController::getController<Contact>(sender());
+			Contact *contact = qobject_cast<Contact*>(controller);
 			if (!contact)
 				return;
 			SimpleTagsEditor *editor = new SimpleTagsEditor (contact);

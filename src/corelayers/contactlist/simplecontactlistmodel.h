@@ -59,11 +59,11 @@ namespace Core
 			void contactTagsChanged(const QStringList &tags);
 			void onHideShowOffline();
 			void onFilterList(const QString &filter);
-			void onContactRenameAction();
+			void onContactRenameAction(QObject*);
 			void onContactRenameResult(const QString &name);
 			void onContactAddRemoveAction();
 			void onCollapsed(const QModelIndex &index);
-			void onTagsEditAction();
+			void onTagsEditAction(QObject*);
 			void onExpanded(const QModelIndex &index);
 			void onContactInListChanged(bool isInList);
 		protected:
