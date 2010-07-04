@@ -273,7 +273,6 @@ namespace qutim_sdk_0_3
 	
 	void DynamicMenu::onActionTriggered(QAction *action)
 	{
-		debug() << "action triggered" << action;
 		const ActionGenerator *gen = action->data().value<ActionGenerator*>();
 		if (!gen) {
 			qWarning("DynamicMenu::onActionTriggered: Invalid ActionGenerator");
@@ -386,7 +385,8 @@ namespace qutim_sdk_0_3
 	}
 	QAction* ActionContainer::action(int index) const
 	{
-
+		//TODO implement me
+		return 0;
 	}
 
 	ActionContainer::ActionContainer(const qutim_sdk_0_3::ActionContainer& other) : d_ptr(other.d_ptr)
@@ -396,7 +396,8 @@ namespace qutim_sdk_0_3
 
 	int ActionContainer::count() const
 	{
-
+		//TODO implement me
+		return 0;
 	}
 
 	QList< QByteArray > ActionContainer::menu(int index) const
