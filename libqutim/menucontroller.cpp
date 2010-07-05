@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3
 {
 
 	typedef QMap<const QMetaObject *, ActionInfo> MenuActionMap;
-	typedef QMap<const ActionGenerator*,QAction* > ActionGeneratorMap; //FIXME remove QPointer
+	typedef QMap<const ActionGenerator*,QMap<const QObject*, QAction*> > ActionGeneratorMap; //FIXME remove QPointer
 
 	Q_GLOBAL_STATIC(MenuActionMap, globalActions)
 	Q_GLOBAL_STATIC(ActionGeneratorMap,actionsCache);
@@ -164,9 +164,7 @@ namespace qutim_sdk_0_3
 		ActionEntry *currentEntry = &m_entry;
 		for (int i = 0; i < actions.size(); i++) {
 			const ActionInfo &act = actions[i];
-			
-			QAction *action = actionsCache()->value(act.gen);
-			
+		
 			if (!isEqualMenu(lastMenu, act.hash)) {
 				lastType = act.gen->type();
 				lastMenu = act.hash;
@@ -175,12 +173,15 @@ namespace qutim_sdk_0_3
 				lastType = act.gen->type();
 				currentEntry->menu->addSeparator();
 			}
-			
-			const_cast<ActionGenerator *>(act.gen)->setMenuController(const_cast<MenuController *>(m_d->q_ptr));
-			
+
+			const ActionGeneratorPrivate *d = ActionGeneratorPrivate::get(act.gen);
+			QObject *controller = m_owners.value(act.gen);
+			QAction *action = actionsCache()->value(act.gen).value(controller);
 			if (!action) {
+
 				action = act.gen->generate<QAction>();
-				actionsCache()->insert(act.gen,action);
+				actionsCache()->operator[](act.gen).insert(controller,action);
+				//actionsCache()->insert(act.gen,action);
 			}
 			if (action) {
 				currentEntry->menu->addAction(action);
@@ -202,10 +203,10 @@ namespace qutim_sdk_0_3
 	
 	DynamicMenu::~DynamicMenu()
 	{
-		foreach (QAction *action, actions()) {			
-			if (!actionsCache()->key(action))
-				action->deleteLater();
-		}
+// 		foreach (QAction *action, actions()) {			
+// 			if (!actionsCache()->key(action))
+// 				action->deleteLater();
+// 		}
 	}
 
 	void DynamicMenu::onAboutToShow()
@@ -238,7 +239,7 @@ namespace qutim_sdk_0_3
 		foreach (QAction *action,this->actions()) {
 			ActionGenerator *gen = action->data().value<ActionGenerator*>();
 			if (!gen) {
-				qWarning("DynamicMenu::Invalid ActionGenerator");
+				qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
 				continue;
 			}
 			QObject *controller = m_owners.value(gen);
@@ -309,7 +310,8 @@ namespace qutim_sdk_0_3
 		}
 		QMetaMethod method = meta->method(index);
 		qDebug("DynamicMenu::onActionTriggered: Trying %s::%s",
-			   meta->className(), d->member.constData() + 1);		
+			   meta->className(), d->member.constData() + 1);
+		debug() << gen->text() << gen << action << controller;
 		switch (d->connectionType) {
 		case ActionConnectionObjectOnly:
 			method.invoke(obj, Q_ARG(QObject*, controller));
