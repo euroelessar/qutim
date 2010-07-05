@@ -174,7 +174,6 @@ namespace qutim_sdk_0_3
 				currentEntry->menu->addSeparator();
 			}
 
-			const ActionGeneratorPrivate *d = ActionGeneratorPrivate::get(act.gen);
 			QObject *controller = m_owners.value(act.gen);
 			QAction *action = actionsCache()->value(act.gen).value(controller);
 			if (!action) {
@@ -189,13 +188,13 @@ namespace qutim_sdk_0_3
 		}
 	}
 
-	void DynamicMenu::onActionAdded(const ActionInfo &info)
+	void DynamicMenu::onActionAdded(const ActionInfo &)
 	{
 		//TODO epic fail  
 		addActions(allActions(false));
 	}
 	
-	void DynamicMenu::onMenuOwnerChanged(const MenuController *controller)
+	void DynamicMenu::onMenuOwnerChanged(const MenuController *)
 	{
 		//epic fail v2
 		//addActions(allActions(false));
@@ -406,6 +405,7 @@ namespace qutim_sdk_0_3
 	}
 	QAction* ActionContainer::action(int index) const
 	{
+		Q_UNUSED(index)
 		//TODO implement me
 		return 0;
 	}
