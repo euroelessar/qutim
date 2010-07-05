@@ -50,7 +50,7 @@ public:
 public slots:
 	void show(QObject *object);
 private slots:
-	void onShow();
+	void onShow(QObject *controller);
 private:
 	QPointer<MainWindow> info;
 };

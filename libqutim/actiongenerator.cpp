@@ -298,5 +298,15 @@ namespace qutim_sdk_0_3
 	{
 		d_func()->toolTip = toolTip;
 	}
+	
+	void ActionGenerator::showImpl(QAction*,QObject*)
+	{
+
+	}
+
+	void ActionGenerator::hideImpl(QAction*, QObject*)
+	{
+
+	}
 
 }

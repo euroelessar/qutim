@@ -190,6 +190,7 @@ namespace qutim_sdk_0_3
 
 	void DynamicMenu::onActionAdded(const ActionInfo &info)
 	{
+		//TODO epic fail  
 		addActions(allActions(false));
 	}
 	
@@ -234,6 +235,15 @@ namespace qutim_sdk_0_3
 			}
 		}
 		m_showed = true;
+		foreach (QAction *action,this->actions()) {
+			ActionGenerator *gen = action->data().value<ActionGenerator*>();
+			if (!gen) {
+				qWarning("DynamicMenu::Invalid ActionGenerator");
+				continue;
+			}
+			QObject *controller = m_owners.value(gen);
+			gen->showImpl(action,controller);
+		}
 	}
 
 	void DynamicMenu::onAboutToHide()
@@ -269,6 +279,15 @@ namespace qutim_sdk_0_3
 		}
 		m_temporary.clear();
 		m_showed = false;
+		foreach (QAction *action,this->actions()) {
+			ActionGenerator *gen = action->data().value<ActionGenerator*>();
+			if (!gen) {
+				qWarning("DynamicMenu::Invalid ActionGenerator");
+				continue;
+			}
+			QObject *controller = m_owners.value(gen);
+			gen->hideImpl(action,controller);
+		}
 	}
 	
 	void DynamicMenu::onActionTriggered(QAction *action)
@@ -418,5 +437,6 @@ namespace qutim_sdk_0_3
 	{
 
 	}
+	
 
 }

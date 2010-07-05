@@ -224,27 +224,33 @@ class InfoActionGenerator : public ActionGenerator
 {
 public:
 	InfoActionGenerator(QObject *receiver) :
-		ActionGenerator(Icon("dialog-information"), 0, receiver, SLOT(onShow()))
+		ActionGenerator(Icon("dialog-information"), 0, receiver, SLOT(onShow(QObject*)))
 	{
 		setPriority(90);
 		setType(90);
 	}
 protected:
-	virtual QObject *generateHelper() const
+    virtual void showImpl(QAction *action, QObject *controller)
 	{
 		InfoRequestCheckSupportEvent event;
-		qApp->sendEvent(controller(), &event);
+		qApp->sendEvent(controller, &event);
 		if (event.supportType() != InfoRequestCheckSupportEvent::NoSupport) {
-			QAction *action = prepareAction(new QAction(0));
 			if (event.supportType() == InfoRequestCheckSupportEvent::Read)
 				action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Show information"));
 			else if (event.supportType() == InfoRequestCheckSupportEvent::ReadWrite)
 				action->setText(QT_TRANSLATE_NOOP("ContactInfo", "Edit information"));
-			return action;
+			action->setVisible(true);
 		} else {
-			return 0;
+			action->setVisible(false);
+			return;
 		}
 	}
+	virtual QObject *generateHelper() const
+	{
+		QAction *action = prepareAction(new QAction(0));
+		action->setVisible(false);
+		return action;
+	}	
 };
 
 ContactInfo::ContactInfo()
@@ -271,11 +277,9 @@ void ContactInfo::show(QObject *object)
 	info->setObject(object, type);
 }
 
-void ContactInfo::onShow()
+void ContactInfo::onShow(QObject *controller)
 {
-	QAction *action = qobject_cast<QAction *>(sender());
-	Q_ASSERT(action);
-	show(action->data().value<MenuController*>());
+	show(controller);
 }
 
 }
