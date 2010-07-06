@@ -32,7 +32,7 @@ namespace Core
 
 		int itemHeight = 50;
 		m_ui->protocolList->setGridSize(QSize(0, itemHeight));
-		//m_ui->protocolList->setFrameStyle(QFrame::NoFrame);
+		m_ui->protocolList->setFrameStyle(QFrame::NoFrame);
 		m_ui->protocolList->setMinimumSize(m_ui->protocolList->minimumSize().width(), itemHeight);
 
 		foreach (AccountCreationWizard *wizard, m_wizards) {
