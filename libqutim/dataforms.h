@@ -25,9 +25,16 @@ namespace qutim_sdk_0_3
 		LocalizedString title() const;
 		void setTitle(const LocalizedString &title);
 		QVariant data() const;
+		template<typename T>
+		T data(const T &def = T()) const
+		{
+			QVariant d = data();
+			return d.canConvert<T>() ? d.value<T>() : def;
+		}
 		void setData(const QVariant &data);
 		bool isNull() const;
 		QList<DataItem> subitems() const;
+		DataItem subitem(const QString &name, bool recursive = false) const;
 		void addSubitem(const DataItem &item);
 		bool hasSubitems() const;
 		void setMultiple(const DataItem &defaultSubitem, int maxCount = -1);
@@ -103,6 +110,9 @@ namespace qutim_sdk_0_3
 		typedef QList<Button> Buttons;
 		static QWidget *get(const DataItem &item, StandardButtons standartButtons = NoButton,
 							 const Buttons &buttons = Buttons());
+	public slots:
+		void accept();
+		void reject();
 	signals:
 		void accepted();
 		void rejected();
@@ -119,6 +129,9 @@ namespace qutim_sdk_0_3
 							  const AbstractDataForm::Buttons &buttons = AbstractDataForm::Buttons()) = 0;
 		static DataFormsBackend *instance();
 	};
+
+	Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::ButtonRoles);
+	Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractDataForm::StandardButtons);
 }
 
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::AbstractDataWidget, "org.qutim.core.AbstractDataWidget");

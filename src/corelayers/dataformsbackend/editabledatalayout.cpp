@@ -83,6 +83,7 @@ static QWidget *getWidgetHelper(const DataItem &item, bool *twoColumn = 0)
 {
 	QSizePolicy::Policy vertPolicy;
 	QWidget *widget = getWidgetHelper2(item, twoColumn, vertPolicy);
+	widget->setWindowTitle(item.title());
 	widget->setSizePolicy(QSizePolicy::Expanding, vertPolicy);
 	return widget;
 }
