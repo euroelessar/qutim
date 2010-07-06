@@ -79,7 +79,7 @@ public:
 	void setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
 	static QHash<Capability, OscarStatus> qipstatuses;
 private slots:
-	void onSetCustomStatus();
+	void onSetCustomStatus(QObject *object);
 	void onCustomDialogAccepted();
 	void onAccountAdded(qutim_sdk_0_3::Account *account);
 	void onAccountStatusAboutToBeChanged(OscarStatus &newStatus, OscarStatus current);

@@ -13,23 +13,19 @@ Authorization *Authorization::self = 0;
 
 AuthorizeActionGenerator::AuthorizeActionGenerator() :
 	ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("ContactList", "Ask authorization"),
-					Authorization::instance(), SLOT(onSendRequestClicked()))
+					Authorization::instance(), SLOT(onSendRequestClicked(QAction*, QObject*)))
 {
 	setPriority(50);
 	setType(34644);
 }
 
-QObject *AuthorizeActionGenerator::generateHelper() const
+void AuthorizeActionGenerator::showImpl(QAction *action, QObject *object)
 {
-	Q_ASSERT(qobject_cast<IcqContact*>(controller()) != 0);
-	IcqContact *contact = reinterpret_cast<IcqContact*>(controller());
+	Q_ASSERT(qobject_cast<IcqContact*>(object) != 0);
+	IcqContact *contact = reinterpret_cast<IcqContact*>(object);
 	Status::Type status = contact->account()->status().type();
-	if (status != Status::Offline && status != Status::Connecting &&
-		!contact->property("authorizedBy").toBool())
-	{
-		return prepareAction(new QAction(NULL));
-	}
-	return 0;
+	action->setVisible(status != Status::Offline && status != Status::Connecting &&
+					   !contact->property("authorizedBy").toBool());
 }
 
 Authorization::Authorization()
@@ -105,12 +101,10 @@ void Authorization::sendAuthResponse(bool auth)
 	contact->account()->connection()->send(snac);
 }
 
-void Authorization::onSendRequestClicked()
+void Authorization::onSendRequestClicked(QAction *action, QObject *object)
 {
-	QAction *action = qobject_cast<QAction *>(sender());
-	Q_ASSERT(action);
-	IcqContact *contact = qobject_cast<IcqContact*>(action->data().value<MenuController*>());
-	Q_ASSERT(contact);
+	Q_ASSERT(qobject_cast<IcqContact*>(object) != 0);
+	IcqContact *contact = reinterpret_cast<IcqContact*>(object);
 	AuthorizationDialog *dialog = AuthorizationDialog::request(contact, QT_TRANSLATE_NOOP("ContactList", "Please, authorize me"), false);
 	connect(dialog, SIGNAL(finished(bool)), SLOT(sendAuthRequest()));
 }

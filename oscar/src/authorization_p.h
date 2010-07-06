@@ -14,7 +14,7 @@ class AuthorizeActionGenerator : public ActionGenerator
 public:
 	AuthorizeActionGenerator();
 protected:
-	virtual QObject *generateHelper() const;
+	virtual void showImpl(QAction *action, QObject *object);
 };
 
 class Authorization : public QObject, public SNACHandler, public FeedbagItemHandler
@@ -29,7 +29,7 @@ protected:
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 private slots:
 	void sendAuthResponse(bool auth);
-	void onSendRequestClicked();
+	void onSendRequestClicked(QAction *action, QObject *object);
 	void sendAuthRequest();
 private:
 	static Authorization *self;

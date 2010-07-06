@@ -29,9 +29,10 @@ public:
 				const LocalizedString &text1, const LocalizedString &text2);
 	virtual ~PrivateListActionGenerator();
 protected:
-	virtual QObject *generateHelper() const;
+	virtual void showImpl(QAction*, QObject*);
 private:
 	quint16 m_type;
+	LocalizedString m_text;
 	LocalizedString m_text2;
 };
 
@@ -42,6 +43,7 @@ public:
 	virtual ~PrivacyActionGenerator();
 protected:
 	virtual QObject *generateHelper() const;
+	virtual void showImpl(QAction *action, QObject *object);
 private:
 	Visibility m_visibility;
 	bool m_invisibleMode;
@@ -66,8 +68,8 @@ public:
 	void setVisibility(IcqAccount *account, int visibility);
 	int getCurrentMode(IcqAccount *account, bool invisibleMode);
 private slots:
-	void onModifyPrivateList();
-	void onModifyPrivacy();
+	void onModifyPrivateList(QAction *action, QObject *object);
+	void onModifyPrivacy(QAction *action, QObject *object);
 	void accountAdded(qutim_sdk_0_3::Account *account);
 	void statusChanged(const qutim_sdk_0_3::Status &status);
 private:

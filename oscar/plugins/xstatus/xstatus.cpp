@@ -227,7 +227,7 @@ bool XStatusHandler::load()
 
 	MenuController::addAction<IcqAccount>(new ActionGenerator(Icon("user-xstatus-icon"),
 					QT_TRANSLATE_NOOP("Status", "Custom status"),
-					this, SLOT(onSetCustomStatus())), "Additional");
+					this, SLOT(onSetCustomStatus(QObject*))), "Additional");
 	foreach (Account *account, IcqProtocol::instance()->accounts())
 		onAccountAdded(account);
 	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
@@ -353,12 +353,10 @@ void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const
 	contact->setStatus(status);
 }
 
-void XStatusHandler::onSetCustomStatus()
+void XStatusHandler::onSetCustomStatus(QObject *object)
 {
-	QAction *action = qobject_cast<QAction *>(sender());
-	Q_ASSERT(action);
-	IcqAccount *account = qobject_cast<IcqAccount*>(action->data().value<MenuController*>());
-	Q_ASSERT(account);
+	Q_ASSERT(qobject_cast<IcqAccount*>(object) != 0);
+	IcqAccount *account = reinterpret_cast<IcqAccount*>(object);
 	CustomStatusDialog *dialog = new CustomStatusDialog(account);
 	connect(dialog, SIGNAL(accepted()), SLOT(onCustomDialogAccepted()));
 	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
