@@ -38,6 +38,7 @@ ProfileDialog::ProfileDialog(Config &config, ModuleManager *parent) :
 	int itemHeight = 70;
 
 	ui->profileList->setGridSize(QSize(0, itemHeight));
+	ui->profileList->setFrameStyle(QFrame::NoFrame);
 	ui->profileList->setMinimumSize(ui->profileList->minimumSize().width(), itemHeight);
 	
 	if (size == 0) {

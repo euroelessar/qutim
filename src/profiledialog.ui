@@ -28,7 +28,11 @@
     </spacer>
    </item>
    <item row="1" column="0" colspan="3">
-    <widget class="QListWidget" name="profileList"/>
+    <widget class="QListWidget" name="profileList">
+     <property name="tabKeyNavigation">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="2" column="1">
     <spacer name="horizontalSpacer">
@@ -47,6 +51,9 @@
     <widget class="QPushButton" name="profilesButton">
      <property name="text">
       <string>Profiles</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
