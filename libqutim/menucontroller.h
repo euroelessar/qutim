@@ -23,7 +23,7 @@
 namespace qutim_sdk_0_3
 {
 	class MenuControllerPrivate;
-	class ActionInfo;
+	struct ActionInfo;
 
 	/*!
 	  MenuController is base type for objects which are able
