@@ -37,10 +37,12 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 			QPushButton *btn = buttonsBox->addButton(button.name, static_cast<QDialogButtonBox::ButtonRole>(button.role));
 			btn->setObjectName(button.name.original());
 		}
-		connect(buttonsBox, SIGNAL(accepted()), SIGNAL(accepted()));
-		connect(buttonsBox, SIGNAL(rejected()), SIGNAL(rejected()));
+		connect(buttonsBox, SIGNAL(accepted()), SLOT(accept()));
+		connect(buttonsBox, SIGNAL(rejected()), SLOT(reject()));
 		connect(buttonsBox, SIGNAL(helpRequested()), SIGNAL(helpRequested()));
 		connect(buttonsBox, SIGNAL(clicked(QAbstractButton*)), SLOT(onButtonClicked(QAbstractButton*)));
+		connect(this, SIGNAL(accepted()), SLOT(close()));
+		connect(this, SIGNAL(rejected()), SLOT(close()));
 		m_layout->addWidget(buttonsBox);
 	}
 }

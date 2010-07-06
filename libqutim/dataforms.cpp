@@ -118,6 +118,7 @@ namespace qutim_sdk_0_3
 
 	QVariant DataItem::data() const
 	{
+		if (!d) return QVariant();
 		return d->data;
 	}
 
@@ -135,6 +136,22 @@ namespace qutim_sdk_0_3
 	QList<DataItem> DataItem::subitems() const
 	{
 		return d->subitems;
+	}
+
+	DataItem DataItem::subitem(const QString &name, bool recursive) const
+	{
+		if (!d)
+			return DataItem();
+		foreach (const DataItem &item, d->subitems) {
+			if (item.name() == name)
+				return item;
+			if (recursive) {
+				DataItem res = item.subitem(name);
+				if (!res.isNull())
+					return res;
+			}
+		}
+		return DataItem();
 	}
 
 	void DataItem::addSubitem(const DataItem &item)
@@ -205,6 +222,16 @@ namespace qutim_sdk_0_3
 			return b->get(item, standartButtons, buttons);
 		else
 			return 0;
+	}
+
+	void AbstractDataForm::accept()
+	{
+		emit accepted();
+	}
+
+	void AbstractDataForm::reject()
+	{
+		emit rejected();
 	}
 
 	DataFormsBackend *DataFormsBackend::instance()
