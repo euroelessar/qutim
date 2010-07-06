@@ -145,7 +145,7 @@ namespace qutim_sdk_0_3
 	}
 
 	DynamicMenu::DynamicMenu(const MenuControllerPrivate *d) :
-			m_d(d), m_group(this), m_showed(false), m_entry(this)
+			m_d(d), m_showed(false), m_entry(this), m_group(this)
 	{
 		connect(this, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
 		connect(this, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
@@ -336,7 +336,7 @@ namespace qutim_sdk_0_3
 	QMenu *MenuController::menu(bool deleteOnClose) const
 	{
 		DynamicMenu *menu = new DynamicMenu(d_func());
-		//menu->setAttribute(Qt::WA_DeleteOnClose, deleteOnClose);
+		menu->setAttribute(Qt::WA_DeleteOnClose, deleteOnClose);
 		connect(this,SIGNAL(actionAdded(ActionInfo)),menu,SLOT(onActionAdded(ActionInfo)));
 		connect(this,SIGNAL(menuOwnerChanged(const MenuController*)),menu,SLOT(onMenuOwnerChanged(const MenuController*)));
 		return menu;

@@ -61,7 +61,7 @@ namespace qutim_sdk_0_3
 			if (d->info.data())
 				obj->setProperty("extensioninfo", QVariant::fromValue(d->info));
 			if (dynamic_cast<const ActionGenerator*>(this) && qobject_cast<QAction*>(obj)) {
-				const ActionGeneratorPrivate *p = static_cast<const ActionGeneratorPrivate*>(d);
+//				const ActionGeneratorPrivate *p = static_cast<const ActionGeneratorPrivate*>(d);
 //				if (p->connectionType == ActionConnectionLegacy) {
 //					const QList<QPointer<QObject> > &handlers = p->legacyData->handlers;
 //					ActionGenerator *gen = const_cast<ActionGenerator*>(static_cast<const ActionGenerator*>(this));
