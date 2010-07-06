@@ -18,7 +18,7 @@ namespace Core
 		public:
 			AddRemoveContactActionGenerator(Model *model);
 		protected:
-			virtual QObject *generateHelper() const;
+			virtual void showImpl(QAction* action, QObject* obj);
 		};
 
 		class Model : public QAbstractItemModel
@@ -61,7 +61,7 @@ namespace Core
 			void onFilterList(const QString &filter);
 			void onContactRenameAction(QObject*);
 			void onContactRenameResult(const QString &name);
-			void onContactAddRemoveAction();
+			void onContactAddRemoveAction(QObject*);
 			void onCollapsed(const QModelIndex &index);
 			void onTagsEditAction(QObject*);
 			void onExpanded(const QModelIndex &index);

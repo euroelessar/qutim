@@ -17,7 +17,7 @@ public:
 	virtual void send(ChatUnit *unit, const QStringList &files);
 	virtual void receive(FileTransferEngine *engine);
 private slots:
-	void onSendFile();
+	void onSendFile(QObject *controller);
 };
 
 }

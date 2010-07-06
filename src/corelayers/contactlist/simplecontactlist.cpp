@@ -364,9 +364,8 @@ namespace Core
 		QAction *Module::createGlobalStatusAction(Status::Type type)
 		{
 			Status s = Status(type);
-			ActionGenerator *gen = new ActionGenerator(s.icon(), s.name(),
-													   this, SLOT(onStatusChanged()));
-			QAction *act = gen->generate<QAction>();
+			QAction *act = new QAction(s.icon(),s.name(),p->status_btn);
+			connect(act,SIGNAL(triggered(bool)),SLOT(onStatusChanged()));
 			act->setParent(p->status_btn);
 			act->setData(type);
 			return act;

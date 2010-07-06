@@ -89,7 +89,7 @@ namespace qutim_sdk_0_3
 		virtual QObject *generateHelper() const;
 		virtual const QMetaObject *metaObject() const;
 		virtual bool hasInterface(const char *id) const;
-		virtual void showImpl(QAction*, QObject*); //obj usally is controller, default implementation do nothing
+		virtual void showImpl(QAction *action,QObject *obj); //obj usally is controller, default implementation do nothing
 		virtual void hideImpl(QAction *action,QObject *obj);		
 	private:
 		friend class MenuController;

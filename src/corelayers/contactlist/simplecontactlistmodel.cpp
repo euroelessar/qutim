@@ -42,16 +42,15 @@ namespace Core
 		};
 
 		AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
-			ActionGenerator(QIcon(), "", model, SLOT(onContactAddRemoveAction()))
+			ActionGenerator(QIcon(), "", model, SLOT(onContactAddRemoveAction(QObject*)))
 		{
 		}
-
-		QObject *AddRemoveContactActionGenerator::generateHelper() const
+		
+		void AddRemoveContactActionGenerator::showImpl(QAction* action, QObject* obj)
 		{
-			Contact *contact = qobject_cast<Contact*>(controller());
+			Contact *contact = qobject_cast<Contact*>(obj);
 			if (!contact)
-				return 0;
-			QAction *action = prepareAction(new QAction(0));
+				return;
 			if (contact->isInList()) {
 				action->setIcon(Icon("list-remove"));
 				action->setText(QT_TRANSLATE_NOOP("ContactList", "Remove contact"));
@@ -59,8 +58,10 @@ namespace Core
 				action->setIcon(Icon("list-add"));
 				action->setText(QT_TRANSLATE_NOOP("ContactList", "Add to contact list"));
 			}
-			return action;
+			action->setEnabled(contact->account()->status() != qutim_sdk_0_3::Status::Offline); //experiment
+				
 		}
+
 
 		Model::Model(QObject *parent) : QAbstractItemModel(parent), p(new ModelPrivate)
 		{
@@ -604,9 +605,9 @@ namespace Core
 			dialog->open(this, SLOT(onContactRenameResult(QString)));
 		}
 
-		void Model::onContactAddRemoveAction()
+		void Model::onContactAddRemoveAction(QObject *obj)
 		{
-			Contact *contact = MenuController::getController<Contact>(sender());
+			Contact *contact = qobject_cast<Contact*>(obj);
 			if (!contact)
 				return;
 			contact->setInList(!contact->isInList());

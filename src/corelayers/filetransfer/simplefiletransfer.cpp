@@ -20,7 +20,7 @@ class FileTransferActionGenerator : public ActionGenerator
 public:
 	FileTransferActionGenerator(QObject *receiver) :
 			ActionGenerator(Icon("document-save"), QT_TRANSLATE_NOOP("FileTransfer", "Send file"),
-							receiver, SLOT(onSendFile())) {}
+							receiver, SLOT(onSendFile(QObject*))) {}
 protected:
 	virtual QObject *generateHelper() const
 	{
@@ -68,12 +68,9 @@ void SimpleFileTransfer::receive(FileTransferEngine *engine)
 	}
 }
 
-void SimpleFileTransfer::onSendFile()
+void SimpleFileTransfer::onSendFile(QObject *controller)
 {
-	Q_ASSERT(qobject_cast<QAction*>(sender()));
-	QAction *action = reinterpret_cast<QAction *>(sender());
-	Q_ASSERT(action);
-	ChatUnit *unit = qobject_cast<ChatUnit*>(action->data().value<MenuController*>());
+	ChatUnit *unit = qobject_cast<ChatUnit*>(controller);
 	Q_ASSERT(unit);
 	QStringList files = QFileDialog::getOpenFileNames(0, QString(), QDir::homePath());
 	if (!files.isEmpty()) {

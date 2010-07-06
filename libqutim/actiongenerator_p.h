@@ -18,7 +18,11 @@ namespace qutim_sdk_0_3
 	
 	struct ActionData
 	{
-		ActionData() {}
+		ActionData() : controller(0),menu(0),checkable(0),checked(0) {}
+		MenuController *controller;
+		QMenu *menu;
+		bool checkable;
+		bool checked;
 	};
 	
 	enum ActionConnectionType
@@ -42,12 +46,10 @@ namespace qutim_sdk_0_3
 		int type;
 		int priority;
 		ActionConnectionType connectionType;
-		union
-		{
-			LegacyActionData *legacyData;
+		union {
 			ActionData *data;
+			LegacyActionData *legacyData;
 		};
-		
 		static ActionGeneratorPrivate *get(ActionGenerator *gen) { return gen->d_func(); }
 		static const ActionGeneratorPrivate *get(const ActionGenerator *gen) { return gen->d_func(); }
 		void ensureConnectionType();

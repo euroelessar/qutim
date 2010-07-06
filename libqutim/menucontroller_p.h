@@ -21,6 +21,7 @@
 
 namespace qutim_sdk_0_3
 {
+
 	struct ActionInfo
 	{
 		ActionInfo(const ActionGenerator *g, const ActionGeneratorPrivate *g_p,
@@ -44,6 +45,8 @@ namespace qutim_sdk_0_3
 		QMap<uint, ActionEntry> entries;
 	};
 
+	
+	class DynamicMenu;
 	class MenuControllerPrivate
 	{
 	public:
@@ -64,7 +67,7 @@ namespace qutim_sdk_0_3
 	public:
 		DynamicMenu(const MenuControllerPrivate *d);
 		virtual ~DynamicMenu();
-		void addActions(const QList<ActionInfo> &actions);
+		void addActions(const QList<ActionInfo> &actions); //TODO need redesign
 		ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info, bool legacy);
 	public slots:
 		void onActionAdded(const ActionInfo &info);
@@ -79,6 +82,7 @@ namespace qutim_sdk_0_3
 		bool m_showed;
 		QList<QAction*> m_temporary;
 		ActionEntry m_entry;
+		QActionGroup m_group; //temporary hack
 		mutable QMap<const ActionGenerator*, QObject*> m_owners;
 	};
 	

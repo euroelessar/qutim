@@ -144,11 +144,11 @@ namespace qutim_sdk_0_3
 	}
 
 	DynamicMenu::DynamicMenu(const MenuControllerPrivate *d) :
-			m_d(d), m_showed(false), m_entry(this)
+			m_d(d), m_group(this), m_showed(false), m_entry(this)
 	{
 		connect(this, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
 		connect(this, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
-		connect(this, SIGNAL(triggered(QAction*)), this, SLOT(onActionTriggered(QAction*)));
+		connect(&m_group, SIGNAL(triggered(QAction*)), this, SLOT(onActionTriggered(QAction*)));
 		QList<ActionInfo> actions = allActions(false);
 		if (actions.isEmpty()) {
 			return;
@@ -184,6 +184,8 @@ namespace qutim_sdk_0_3
 				//actionsCache()->insert(act.gen,action);
 			}
 			if (action) {
+				if (!m_group.actions().contains(action))
+					m_group.addAction(action);
 				currentEntry->menu->addAction(action);
 			}
 		}
@@ -209,8 +211,18 @@ namespace qutim_sdk_0_3
 // 		}
 	}
 
-	void DynamicMenu::onAboutToShow()
+	void DynamicMenu::onAboutToShow()	
 	{
+		foreach (QAction *action,m_group.actions()) {
+			ActionGenerator *gen = action->data().value<ActionGenerator*>();
+			if (!gen) {
+				qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
+				continue;
+			}
+			QObject *controller = m_owners.value(gen);
+			gen->showImpl(action,controller);
+		}
+
 		QList<ActionInfo> actions = allActions(true);
 		if (actions.isEmpty() || m_showed)
 			return;
@@ -236,15 +248,6 @@ namespace qutim_sdk_0_3
 			}
 		}
 		m_showed = true;
-		foreach (QAction *action,this->actions()) {
-			ActionGenerator *gen = action->data().value<ActionGenerator*>();
-			if (!gen) {
-				qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
-				continue;
-			}
-			QObject *controller = m_owners.value(gen);
-			gen->showImpl(action,controller);
-		}
 	}
 
 	void DynamicMenu::onAboutToHide()
