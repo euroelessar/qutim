@@ -15,8 +15,14 @@
 
 #include "ircprotocol_p.h"
 #include "ircaccount.h"
+#include "ircchannel.h"
 #include <QStringList>
 #include <QPointer>
+#include <qutim/dataforms.h>
+#include <qutim/actiongenerator.h>
+#include <qutim/messagesession.h>
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::irc::IrcAccount*);
 
 namespace qutim_sdk_0_3 {
 
@@ -29,6 +35,9 @@ IrcProtocol::IrcProtocol() :
 {
 	Q_ASSERT(!self);
 	self = this;
+	MenuController::addAction<IrcAccount>(new ActionGenerator(QIcon(),
+					QT_TRANSLATE_NOOP("IRC", "Join channel"),
+					this, SLOT(onJoinChannelWindow(QObject*))));
 	updateSettings();
 }
 
@@ -85,9 +94,42 @@ QVariant IrcProtocol::data(DataType type)
 		case ProtocolIdName:
 			return "Nick";
 		case ProtocolContainsContacts:
-			return true;
+			return false;
 		default:
 			return QVariant();
 	}
 }
+
+void IrcProtocol::onJoinChannelWindow(QObject *object)
+{
+	Q_ASSERT(qobject_cast<IrcAccount*>(object) != 0);
+	IrcAccount *account = reinterpret_cast<IrcAccount*>(object);
+	DataItem item(QT_TRANSLATE_NOOP("Plugin", "Channel"));
+	item.addSubitem(DataItem("channel", QT_TRANSLATE_NOOP("Plugin", "Channel"), "#"));
+	QWidget *form = AbstractDataForm::get(item, AbstractDataForm::Ok | AbstractDataForm::Cancel);
+	if (!form)
+		return;
+	form->setProperty("account", QVariant::fromValue(account));
+	connect(form, SIGNAL(accepted()), SLOT(onJoinChannel()));
+	form->setAttribute(Qt::WA_DeleteOnClose);
+	centerizeWidget(form);
+	form->show();
+}
+
+void IrcProtocol::onJoinChannel()
+{
+	AbstractDataForm *form = qobject_cast<AbstractDataForm*>(sender());
+	if (!form)
+		return;
+	IrcAccount *account = form->property("account").value<IrcAccount*>();
+	Q_ASSERT(account);
+	DataItem item = form->item();
+	QString channelName = item.subitem("channel").data<QString>();
+	if (channelName.length() <= 1)
+		return;
+	IrcChannel *channel = account->getChannel(channelName, true);
+	channel->join();
+	ChatLayer::instance()->getSession(channel, true)->activate();
+}
+
 } } // namespace qutim_sdk_0_3::irc

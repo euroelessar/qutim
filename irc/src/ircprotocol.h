@@ -19,6 +19,8 @@
 #include <qutim/protocol.h>
 #include <ircglobal.h>
 
+class QAction;
+
 namespace qutim_sdk_0_3 {
 
 namespace irc {
@@ -42,6 +44,9 @@ public slots:
 	void updateSettings();
 protected:
 	void loadAccounts();
+private slots:
+	void onJoinChannelWindow(QObject *object);
+	void onJoinChannel();
 private:
 	QScopedPointer<IrcProtocolPrivate> d;
 	static IrcProtocol *self;
