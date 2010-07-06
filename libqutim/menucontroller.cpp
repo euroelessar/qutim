@@ -335,11 +335,11 @@ namespace qutim_sdk_0_3
 
 	QMenu *MenuController::menu(bool deleteOnClose) const
 	{
-		DynamicMenu *menu = new DynamicMenu(d_func());
-		menu->setAttribute(Qt::WA_DeleteOnClose, deleteOnClose);
-		connect(this,SIGNAL(actionAdded(ActionInfo)),menu,SLOT(onActionAdded(ActionInfo)));
-		connect(this,SIGNAL(menuOwnerChanged(const MenuController*)),menu,SLOT(onMenuOwnerChanged(const MenuController*)));
-		return menu;
+		Q_UNUSED(deleteOnClose);
+		if (!d_func()->menu) {
+			d_func()->menu = new DynamicMenu(d_func());
+		}
+		return d_func()->menu;
 	}
 
 	void MenuController::showMenu(const QPoint &pos)
@@ -349,10 +349,12 @@ namespace qutim_sdk_0_3
 
 	void MenuController::addAction(const ActionGenerator *gen, const QList<QByteArray> &menu)
 	{
+		Q_D(MenuController);
 		Q_ASSERT(gen);
 		ActionInfo info = ActionInfo(gen, gen->d_func(), menu);
 		d_func()->actions.append(info);
-		emit actionAdded(info);
+		if (d->menu)
+			d->menu->onActionAdded(info);
 	}
 
 	bool MenuController::removeAction(const ActionGenerator *gen)
@@ -377,7 +379,8 @@ namespace qutim_sdk_0_3
 	{
 		Q_D(MenuController);
 		d->owner = controller;
-		emit menuOwnerChanged(controller);
+		if (d->menu)
+			d->menu->onMenuOwnerChanged(controller);
 	}
 
 	QList<MenuController::Action> MenuController::dynamicActions() const

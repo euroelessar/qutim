@@ -56,6 +56,7 @@ namespace qutim_sdk_0_3
 		mutable QList<ActionGenerator *> temporary;
 		MenuController *owner;
 		MenuController *q_ptr;
+		mutable QPointer<DynamicMenu> menu;
 		inline QList<MenuController::Action> dynamicActions() const { return q_func()->dynamicActions(); }
 		static MenuControllerPrivate *get(MenuController *gen) { return gen->d_func(); }
 		static const MenuControllerPrivate *get(const MenuController *gen) { return gen->d_func(); }

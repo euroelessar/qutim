@@ -166,10 +166,6 @@ void MyObject::onAction()
 #endif
 		virtual void virtual_hook(int id, void *data);
 		QScopedPointer<MenuControllerPrivate> d_ptr;
-	signals:
-		//FIXME move to private (maybe)
-		void actionAdded(const ActionInfo &info);
-		void menuOwnerChanged(const MenuController *controller);
 	};
 	
 	// TODO: Implement class
