@@ -36,6 +36,24 @@ namespace Core
 				QT_TRANSLATE_NOOP("Plugin", "Default qutIM contact list implementation. Just simple")
 				);
 
+		class CopyIdGenerator : public ActionGenerator
+		{
+		public:
+			CopyIdGenerator(QObject *obj) : 
+				ActionGenerator(Icon("edit-copy"),QT_TRANSLATE_NOOP("ContactList", "Copy id to clipboard"),obj,SLOT(onCopyIdTriggered(QObject*)))
+			{
+				
+			}
+		protected:
+			virtual void showImpl(QAction* action, QObject* obj)
+			{
+				ChatUnit *unit = qobject_cast<ChatUnit*>(obj);
+				Q_ASSERT(unit);
+				QString id =  unit->account()->protocol()->data(Protocol::ProtocolIdName).toString();
+				action->setText(QObject::tr("Copy %1 to clipboard").arg(id));
+			}
+		};
+		
 		class MyWidget : public QMainWindow
 		{
 		public:
@@ -170,7 +188,7 @@ namespace Core
 			addButton(gen);
 			
 			//TODO move to another class
-			gen = new ActionGenerator(Icon("edit-copy"),QT_TRANSLATE_NOOP("ContactList", "Copy id to clipboard"),this,SLOT(onCopyIdTriggered(QObject*)));
+			gen = new CopyIdGenerator(this);
 			gen->setPriority(-100);
 			gen->setType(32); //FIXME
 			MenuController::addAction<ChatUnit>(gen);

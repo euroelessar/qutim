@@ -263,7 +263,7 @@ namespace Core
 					ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(event);
 					chatStateChanged(chatEvent->chatState(), qobject_cast<ChatSessionImpl *>(obj));
 				}
-			} else if (meta == &QTabBar::staticMetaObject) {
+			} else if (qobject_cast<QTabBar*>(obj)) {
 				if (event->type() == QEvent::ToolTip) {
 					if (QHelpEvent *help = static_cast<QHelpEvent*>(event)) {
 						QTabBar *bar = getTabBar();
