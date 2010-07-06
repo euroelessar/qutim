@@ -48,13 +48,7 @@ bool YandexNarodPlugin::load()
 	MenuController::addAction<Contact>(
 			new ActionGenerator(QIcon(),
 								QT_TRANSLATE_NOOP("Yandex", "Send file via Yandex.Narod"),
-								this, SLOT(onActionClicked())));
-//	ActionGenerator *gen = new ActionGenerator(QIcon(),
-//											   QT_TRANSLATE_NOOP("Yandex", "Manage Yandex.Narod files"),
-//											   this, SLOT(onManageClicked()));
-//	ContactList *contactList = ContactList::instance();
-//	contactList->metaObject()->invokeMethod(contactList,
-//											"addButton", Q_ARG(ActionGenerator*, gen));
+								this, SLOT(onActionClicked(QObject*))));
 	SettingsItem *settings = new GeneralSettingsItem<YandexNarodSettings>(
 			Settings::Plugin,
 			QIcon(),
@@ -124,11 +118,9 @@ void YandexNarodPlugin::saveCookies()
 	cookies.sync();
 }
 
-void YandexNarodPlugin::onActionClicked()
+void YandexNarodPlugin::onActionClicked(QObject *obj)
 {
-	QAction *action = qobject_cast<QAction *>(sender());
-	Q_ASSERT(action);
-	Contact *contact = qobject_cast<Contact *>(action->data().value<MenuController *>());
+	Contact *contact = qobject_cast<Contact *>(obj);
 	Q_ASSERT(contact);
 
 	new YandexNarodUploadDialog(m_networkManager, m_authorizator, contact);

@@ -44,7 +44,7 @@ private:
 
 private slots:
 	void saveCookies();
-	void onActionClicked();
+	void onActionClicked(QObject*);
 	void onManageClicked();
 	void on_btnTest_clicked();
 	void on_TestFinished();
