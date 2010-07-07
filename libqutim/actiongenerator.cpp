@@ -168,20 +168,16 @@ namespace qutim_sdk_0_3
 
 	void ActionGenerator::setMenuController(MenuController *controller)
 	{
-		Q_D(ActionGenerator);
 		Q_UNUSED(controller);
 	}
 
 	MenuController *ActionGenerator::controller() const
 	{
-		Q_D(const ActionGenerator);
 		return 0;
 	}
 
 	void ActionGenerator::addCreationHandler(QObject *obj)
 	{
-		Q_ASSERT(obj);
-		Q_D(ActionGenerator);
 		Q_UNUSED(obj);
 	}
 
