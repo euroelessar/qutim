@@ -41,6 +41,7 @@ Channel1MessageData::Channel1MessageData(const QString &message, Channel1Codec c
 		codec = asciiCodec();
 	DataUnit msgData;
 	msgData.append<quint16>(charset);
+	msgData.append<quint16>(0);
 	msgData.append(message, codec);
 
 	appendTLV(0x0501, (quint32) 0x0106);
