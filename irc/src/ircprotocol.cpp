@@ -21,6 +21,7 @@
 #include <qutim/dataforms.h>
 #include <qutim/actiongenerator.h>
 #include <qutim/messagesession.h>
+#include <QRegExp>
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::irc::IrcAccount*);
 
@@ -36,7 +37,7 @@ IrcProtocol::IrcProtocol() :
 	Q_ASSERT(!self);
 	self = this;
 	MenuController::addAction<IrcAccount>(new ActionGenerator(QIcon(),
-					QT_TRANSLATE_NOOP("IRC", "Join channel"),
+					QT_TRANSLATE_NOOP("IRC", "Join channel..."),
 					this, SLOT(onJoinChannelWindow(QObject*))));
 	updateSettings();
 }
@@ -104,8 +105,17 @@ void IrcProtocol::onJoinChannelWindow(QObject *object)
 {
 	Q_ASSERT(qobject_cast<IrcAccount*>(object) != 0);
 	IrcAccount *account = reinterpret_cast<IrcAccount*>(object);
-	DataItem item(QT_TRANSLATE_NOOP("Plugin", "Channel"));
-	item.addSubitem(DataItem("channel", QT_TRANSLATE_NOOP("Plugin", "Channel"), "#"));
+	DataItem item(QT_TRANSLATE_NOOP("IRC", "Join channel"));
+	{
+		DataItem channelItem("channel", QT_TRANSLATE_NOOP("IRC", "Channel"), "#");
+		channelItem.setProperty("validator", QRegExp("^(#|&|!|\\+)[^\\s0x0007,]{1,50}"));
+		item.addSubitem(channelItem);
+	}
+	{
+		DataItem passwordItem("password", QT_TRANSLATE_NOOP("IRC", "Password"), QString());
+		passwordItem.setProperty("passwordMode", true);
+		item.addSubitem(passwordItem);
+	}
 	QWidget *form = AbstractDataForm::get(item, AbstractDataForm::Ok | AbstractDataForm::Cancel);
 	if (!form)
 		return;
@@ -128,7 +138,7 @@ void IrcProtocol::onJoinChannel()
 	if (channelName.length() <= 1)
 		return;
 	IrcChannel *channel = account->getChannel(channelName, true);
-	channel->join();
+	channel->join(item.subitem("password").data<QString>());
 	ChatLayer::instance()->getSession(channel, true)->activate();
 }
 

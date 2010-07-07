@@ -36,6 +36,7 @@ public:
 	~IrcChannel();
 	virtual Buddy *me() const;
 	virtual void join();
+	void join(const QString &pass);
 	virtual void leave();
 	virtual QString id() const;
 	virtual bool sendMessage(const Message &message);

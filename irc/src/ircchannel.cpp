@@ -51,7 +51,17 @@ Buddy *IrcChannel::me() const
 
 void IrcChannel::join()
 {
-	account()->send(QString("JOIN %1").arg(d->name));
+	join(QString());
+}
+
+void IrcChannel::join(const QString &pass)
+{
+	QString cmd;
+	if (!pass.isEmpty())
+		cmd = QString("JOIN %1 :%2").arg(d->name).arg(pass);
+	else
+		cmd = QString("JOIN %1").arg(d->name);
+	account()->send(cmd);
 }
 
 void IrcChannel::leave()
