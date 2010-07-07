@@ -167,6 +167,7 @@ void MainWindow::addItems(const DataItem &items)
 		ui.infoListWidget->insertItem(0, QT_TRANSLATE_NOOP("ContactInfo", "General"));
 		ui.detailsStackedWidget->insertWidget(0, page);
 	}
+	ui.infoListWidget->setVisible(ui.infoListWidget->count() > 1);
 }
 
 QWidget *MainWindow::getPage(DataItem item)
