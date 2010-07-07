@@ -101,6 +101,14 @@ OscarStatus::OscarStatus(Status::Type status) :
 OscarStatus::OscarStatus(const Status &status):
 	Status(status)
 {
+	initIcon("icq");
+	foreach (const OscarStatusPair &itr, *statusList()) {
+		if (itr.second.type() == status.type()) {
+			setSubtype(itr.second.subtype());
+			setProperty("capabilities", itr.second.property("capabilities", QVariant()));
+			break;
+		}
+	}
 }
 
 OscarStatus::OscarStatus(const OscarStatus &status):
