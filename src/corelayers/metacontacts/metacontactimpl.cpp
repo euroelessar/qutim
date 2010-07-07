@@ -17,6 +17,9 @@
 #include "metacontactimpl.h"
 #include "manager.h"
 #include <libqutim/debug.h>
+#include <libqutim/tooltip.h>
+#include <QApplication>
+#include <libqutim/protocol.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -206,6 +209,23 @@ namespace Core
 			//implement logic
 			return m_contacts.first();
 		}
+		
+		bool MetaContactImpl::event(QEvent* ev)
+		{
+			if (ev->type() == ToolTipEvent::eventType()) {
+				ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+				foreach (Contact *contact,m_contacts) {
+					//small hack
+					Status status = contact->status();
+					QString icon = Status::iconName(status.type(),contact->account()->protocol()->id());
+					QString body = QString("%1 (%2)").arg(contact->id(),contact->account()->name());
+					event->appendField(contact->title(),body,icon);
+					qApp->sendEvent(contact,event);
+				}
+			}			
+			return qutim_sdk_0_3::Contact::event(ev);
+		}
+
 
 	}
 }

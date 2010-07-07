@@ -231,6 +231,11 @@ namespace qutim_sdk_0_3
 
 	QIcon Status::createIcon(Type type, const QString &protocol)
 	{
+		return Icon(iconName(type,protocol));
+	}
+	
+	QString Status::iconName(Type type, const QString &protocol)
+	{
 		QString name = QLatin1String("user-");
 
 		switch (type) {
@@ -259,14 +264,15 @@ namespace qutim_sdk_0_3
 			name += QLatin1String("network-connect");
 			break;
 		default:
-			return QIcon();
+			return QString();
 		}
 		if (!protocol.isEmpty()) {
 			name += QLatin1Char('-');
 			name += protocol;
 		}
-		return Icon(name);
+		return name;
 	}
+
 
 	typedef QHash<QByteArray, Status> StatusHash;
 	Q_GLOBAL_STATIC(StatusHash, statusHash);

@@ -50,6 +50,7 @@ namespace Core
 		protected slots:
 			void onContactStatusChanged();
 		private:
+			virtual bool event(QEvent *ev);			
 			QString m_id;
 			QString m_name;
 			qutim_sdk_0_3::Status m_status;
