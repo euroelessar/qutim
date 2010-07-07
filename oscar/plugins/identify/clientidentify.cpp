@@ -319,11 +319,12 @@ void ClientIdentify::identify_by_ProtoVersion()
 	static const Capability ICQ_CAPABILITY_NETVIGATOR  (0x4C, 0x6B, 0x90, 0xA3, 0x3D, 0x2D,
 	                                                    0x48, 0x0E, 0x89, 0xD6, 0x2E, 0x4B,
 	                                                    0x2C, 0x10, 0xD9, 0x9F);
-	static const Capability ICQ_CAPABILITY_TZERS       (0xb2, 0xec, 0x8f, 0x16, 0x7c, 0x6f,
-	                                                    0x45, 0x1b, 0xbd, 0x79, 0xdc, 0x58,
-	                                                    0x49, 0x78, 0x88, 0xb9);
 
 	static const Capability ICQ_CAPABILITY_DIGSBY      (0x0002);
+
+	static const Capability ICQ_CAPABILITY_ICQLITENEW  (0xC8, 0x95, 0x3A, 0x9F, 0x21, 0xF1,
+														0x4f, 0xAA, 0xB0, 0xB2, 0x6D, 0xE6,
+														0x63, 0xAB, 0xF5, 0xB7);
 
 	// VERSION = 0
 	if (m_client_proto == 0) {
@@ -453,23 +454,25 @@ void ClientIdentify::identify_by_ProtoVersion()
 		if (XtrazSupport()) {
 			if (SendFileSupport()) {
 				QString icon;
-				if (m_client_caps.match(ICQ_CAPABILITY_TZERS)) {
+				if (m_client_caps.match(ICQ_CAPABILITY_ICQLITENEW)) {
+					m_client_id = "ICQ 7";
+					icon = "icq-v70";
+				} else if (m_client_caps.match(ICQ_CAPABILITY_TZERS)) {
 					if (m_client_caps.match(ICQ_CAPABILITY_HTMLMSGS)) {
 						if (RtfSupport()) {
 							m_client_id = "MDC";
 							icon = "mdc";
 						} else {
 							m_client_id = "ICQ 6";
-							icon = "icq60";
+							icon = "icq-v60";
 						}
 					} else {
 						m_client_id = "ICQ 5.1";
-						icon = "icq51";
+						icon = "icq-v51";
 					}
-				}
-				else {
+				} else {
 					m_client_id = "ICQ 5";
-					icon = "icq50";
+					icon = "icq-v50";
 				}
 				if (m_client_caps.match(ICQ_CAPABILITY_RAMBLER))
 					m_client_id += " (Rambler)";

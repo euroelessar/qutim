@@ -157,8 +157,13 @@ bool Capability::match(const Capability &c, quint8 len) const
 QString Capability::name() const
 {
 	QString name = capName()->value(*this);
-	if (name.isNull())
-		return toString();
+	if (name.isNull()) {
+		if (isShort()) {
+			return toString();
+		} else {
+			return QString::number(data1 & 0xffff, 16);
+		}
+	}
 	return name;
 }
 
