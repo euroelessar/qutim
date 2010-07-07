@@ -19,6 +19,8 @@ public:
 	virtual DataItem item() const;
 private slots:
 	void onButtonClicked(QAbstractButton *button);
+protected:
+	void keyPressEvent(QKeyEvent *e);
 private:
 	AbstractDataLayout *m_layout;
 };

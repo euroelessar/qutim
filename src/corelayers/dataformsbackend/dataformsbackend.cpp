@@ -4,6 +4,7 @@
 #include "src/modulemanagerimpl.h"
 #include <QDialogButtonBox>
 #include <QPushButton>
+#include <QKeyEvent>
 
 namespace Core
 {
@@ -61,6 +62,37 @@ DataItem DefaultDataForm::item() const
 void DefaultDataForm::onButtonClicked(QAbstractButton *button)
 {
 	emit clicked(button->objectName());
+}
+
+void DefaultDataForm::keyPressEvent(QKeyEvent *e)
+{
+#ifdef Q_WS_MAC
+	if(e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_Period) {
+		e->accept();
+		reject();
+	} else
+#endif
+	if (!e->modifiers() || (e->modifiers() & Qt::KeypadModifier && e->key() == Qt::Key_Enter)) {
+		switch (e->key()) {
+		case Qt::Key_Enter:
+		case Qt::Key_Return: {
+			foreach (QPushButton *btn, qFindChildren<QPushButton*>(this)) {
+				if (btn->isDefault() && btn->isVisible()) {
+					if (btn->isEnabled())
+						btn->click();
+					e->accept();
+					break;
+				}
+			}
+			return;
+		}
+		case Qt::Key_Escape:
+			e->accept();
+			reject();
+			break;
+		}
+	}
+	AbstractDataForm::keyPressEvent(e);
 }
 
 DefaultDataFormsBackend::DefaultDataFormsBackend()
