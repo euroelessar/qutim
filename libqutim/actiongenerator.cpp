@@ -92,11 +92,7 @@ namespace qutim_sdk_0_3
 		d->member[0] = '0' + QSIGNAL_CODE;
 		d->ensureConnectionType();
 		d->member[0] = type;
-		if (d->connectionType == ActionConnectionLegacy) {
-			d->legacyData = new LegacyActionData;
-		} else {
-			d->data = new ActionData;
-		}
+		d->data = new ActionData;
 	}
 	
 	ActionGenerator::ActionGenerator(const QIcon &icon, const LocalizedString &text, const char *member)
@@ -120,10 +116,7 @@ namespace qutim_sdk_0_3
 	ActionGenerator::~ActionGenerator()
 	{
 		Q_D(ActionGenerator);
-		if (d->connectionType == ActionConnectionLegacy)
-			delete d->legacyData;
-		else
-			delete d->data;
+		delete d->data;
 	}
 
 	QIcon ActionGenerator::icon() const
@@ -176,15 +169,12 @@ namespace qutim_sdk_0_3
 	void ActionGenerator::setMenuController(MenuController *controller)
 	{
 		Q_D(ActionGenerator);
-		if (d->connectionType == ActionConnectionLegacy)
-			d->legacyData->controller = controller;
+		Q_UNUSED(controller);
 	}
 
 	MenuController *ActionGenerator::controller() const
 	{
 		Q_D(const ActionGenerator);
-		if (d->connectionType == ActionConnectionLegacy)
-			return d->legacyData->controller;
 		return 0;
 	}
 
@@ -192,8 +182,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_ASSERT(obj);
 		Q_D(ActionGenerator);
-		if (d->connectionType == ActionConnectionLegacy)
-			d->legacyData->handlers.append(obj);
+		Q_UNUSED(obj);
 	}
 
 	QAction *ActionGenerator::prepareAction(QAction *action) const
@@ -207,25 +196,12 @@ namespace qutim_sdk_0_3
 			action->setParent(d->receiver);
 		action->setIcon(d->icon);
 		action->setText(d->text);
-		if (d->connectionType == ActionConnectionLegacy) {
-			action->setCheckable(d->legacyData->checkable);
-			action->setChecked(d->legacyData->checked);
-		}
 		action->setCheckable(d->data->checkable);
 		action->setChecked(d->data->checked);
 		action->setToolTip(d->toolTip);
 		localizationHelper()->addAction(action, d);
-/*		if (d->connectionType == ActionConnectionLegacy) {
-			QObject *receiver = d->receiver;
-			if (d->legacyData->controller) {
-				action->setData(QVariant::fromValue(const_cast<MenuController *>(d->legacyData->controller)));
-				if (!receiver)
-					receiver = d->legacyData->controller;
-			}
-			if (!d->member.isEmpty() && receiver)
-				QObject::connect(action, SIGNAL(triggered()), receiver, d->member);
-		}*/
 		if (d->connectionType == ActionConnectionSimple) {
+			//temporary, only for actiontoolbars
 			if (!d->member.isEmpty() && d->receiver)
 				QObject::connect(action, SIGNAL(triggered()), d->receiver, d->member);
 		} else {

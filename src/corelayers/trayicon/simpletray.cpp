@@ -5,6 +5,7 @@
 #include <QApplication>
 #include <QWidgetAction>
 #include <QToolButton>
+#include <libqutim/debug.h>
 
 namespace Core
 {
@@ -144,6 +145,17 @@ namespace Core
 		}
 	}
 
+	void StatusAction::onStatusChanged(Status status)
+	{
+		setIcon(status.icon());
+	}
+
+	StatusAction::StatusAction(QObject* parent): QAction(parent)
+	{
+
+	}
+
+
 	class AccountMenuActionGenerator : public ActionGenerator
 	{
 	public:
@@ -156,10 +168,15 @@ namespace Core
 
 		virtual QObject *generateHelper() const
 		{
-			QAction *action = prepareAction(new QAction(NULL));
+			StatusAction *action = new StatusAction(0);
+			prepareAction(action);
 			action->setIcon(m_account->status().icon());
 			QMenu *menu = m_account->menu(false);
 			QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
+			QObject::connect(m_account,
+							 SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
+							 action,SLOT(onStatusChanged(qutim_sdk_0_3::Status))
+							);
 			action->setMenu(menu);
 			return action;
 		}

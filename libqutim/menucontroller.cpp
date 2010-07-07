@@ -87,7 +87,7 @@ namespace qutim_sdk_0_3
 		*a = (h - *b) >> 32;
 	}
 
-	ActionEntry *DynamicMenu::findEntry(ActionEntry &entries, const ActionInfo &info, bool legacy)
+	ActionEntry *DynamicMenu::findEntry(ActionEntry &entries, const ActionInfo &info)
 	{
 		ActionEntry *current = &entries;
 		for (int i = 0; i < info.menu.size(); i++) {
@@ -96,10 +96,6 @@ namespace qutim_sdk_0_3
 				QMenu *menu = current->menu->addMenu(QString::fromUtf8(info.menu.at(i), info.menu.at(i).size()));
 				QAction *action = menu->menuAction();
 				action->setData(pack_helper(info.hash.at(i), info.hash.size()));
-				if (legacy) {
-					m_temporary << action;
-					connect(this, SIGNAL(aboutToHide()), menu, SLOT(deleteLater()));
-				}
 				it = current->entries.insert(info.hash.at(i), ActionEntry(menu));
 			}
 			current = &it.value();
@@ -108,32 +104,22 @@ namespace qutim_sdk_0_3
 	}
 
 	// Move method somewhere outside the DynamicMenu
-	QList<ActionInfo> DynamicMenu::allActions(bool legacy) const
+	QList<ActionInfo> DynamicMenu::allActions() const
 	{
 		const MenuController *owner = m_d->q_func();
 		QList<ActionInfo> actions;
-		if (legacy) {
-			foreach (const MenuController::Action &act, m_d->dynamicActions()) {
-				actions << ActionInfo(act.first, ActionGeneratorPrivate::get(act.first), act.second);
-				m_d->temporary << act.first;
-				m_owners.insert(act.first, const_cast<MenuController*>(owner));
-			}
-		}
 		QSet<const QMetaObject *> metaObjects;
 		while (owner) {
 			foreach (const ActionInfo &info, MenuControllerPrivate::get(owner)->actions) {
-				if ((info.gen_p->connectionType == ActionConnectionLegacy) == legacy)
-					actions << info;
+				actions << info;
 			}
 			const QMetaObject *meta = owner->metaObject();
 			while (meta) {
 				if (metaObjects.contains(meta))
 					break;
 				foreach (const ActionInfo &info, globalActions()->values(meta)) {
-					if ((info.gen_p->connectionType == ActionConnectionLegacy) == legacy) {
-						actions << info;
-						m_owners.insert(info.gen, const_cast<MenuController*>(owner));
-					}
+					actions << info;
+					m_owners.insert(info.gen, const_cast<MenuController*>(owner));
 				}
 				metaObjects.insert(meta);
 				meta = meta->superClass();
@@ -150,7 +136,7 @@ namespace qutim_sdk_0_3
 		connect(this, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
 		connect(this, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
 		connect(&m_group, SIGNAL(triggered(QAction*)), this, SLOT(onActionTriggered(QAction*)));
-		QList<ActionInfo> actions = allActions(false);
+		QList<ActionInfo> actions = allActions();
 		if (actions.isEmpty()) {
 			return;
 		}
@@ -169,7 +155,7 @@ namespace qutim_sdk_0_3
 			if (!isEqualMenu(lastMenu, act.hash)) {
 				lastType = act.gen->type();
 				lastMenu = act.hash;
-				currentEntry = findEntry(m_entry, act, false);
+				currentEntry = findEntry(m_entry, act);
 			} else if (lastType != act.gen->type()) {
 				lastType = act.gen->type();
 				currentEntry->menu->addSeparator();
@@ -194,7 +180,7 @@ namespace qutim_sdk_0_3
 	void DynamicMenu::onActionAdded(const ActionInfo &)
 	{
 		//TODO epic fail  
-		addActions(allActions(false));
+		addActions(allActions());
 	}
 	
 	void DynamicMenu::onMenuOwnerChanged(const MenuController *)

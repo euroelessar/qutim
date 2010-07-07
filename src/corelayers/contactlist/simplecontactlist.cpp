@@ -342,7 +342,7 @@ namespace Core
 					this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
 			p->actions.insert(account, action);
 			//			connect(action, SIGNAL(triggered()), action, SLOT(toggle()));
-			action->setMenu(account->menu(false));
+			action->setMenu(account->menu());
 			p->status_btn->menu()->addAction(action);
 			foreach (Contact *contact, account->findChildren<Contact *>()) {
 				//FIXME

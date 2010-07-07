@@ -9,6 +9,18 @@
 namespace Core
 {
 	using namespace qutim_sdk_0_3;
+	
+		
+	class StatusAction: public QAction
+	{
+		Q_OBJECT
+	public:
+		StatusAction(QObject* parent);
+
+	public slots:
+		void onStatusChanged(qutim_sdk_0_3::Status status);
+	};
+	
 	class SimpleTray : public MenuController
 	{
 		Q_OBJECT

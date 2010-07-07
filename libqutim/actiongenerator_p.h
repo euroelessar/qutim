@@ -27,7 +27,6 @@ namespace qutim_sdk_0_3
 	
 	enum ActionConnectionType
 	{
-		ActionConnectionLegacy,		// methodName()
 		ActionConnectionObjectOnly,	// methodName(QObject*)
 		ActionConnectionActionOnly,	// methodName(QAction*)
 		ActionConnectionFull,		// methodName(QAction*,QObject*)
@@ -37,7 +36,7 @@ namespace qutim_sdk_0_3
 	class ActionGeneratorPrivate : public ObjectGeneratorPrivate
 	{
 	public:
-		ActionGeneratorPrivate() : type(0), priority(0), connectionType(ActionConnectionLegacy) {}
+		ActionGeneratorPrivate() : type(0), priority(0), connectionType(ActionConnectionSimple) {}
 		QIcon icon;
 		LocalizedString text;
 		LocalizedString toolTip;
@@ -46,10 +45,7 @@ namespace qutim_sdk_0_3
 		int type;
 		int priority;
 		ActionConnectionType connectionType;
-		union {
-			ActionData *data;
-			LegacyActionData *legacyData;
-		};
+		ActionData *data;
 		static ActionGeneratorPrivate *get(ActionGenerator *gen) { return gen->d_func(); }
 		static const ActionGeneratorPrivate *get(const ActionGenerator *gen) { return gen->d_func(); }
 		void ensureConnectionType();

@@ -69,7 +69,7 @@ namespace qutim_sdk_0_3
 		DynamicMenu(const MenuControllerPrivate *d);
 		virtual ~DynamicMenu();
 		void addActions(const QList<ActionInfo> &actions); //TODO need redesign
-		ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info, bool legacy);
+		ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info);
 	public slots:
 		void onActionAdded(const ActionInfo &info);
 		void onMenuOwnerChanged(const MenuController *owner);
@@ -78,7 +78,7 @@ namespace qutim_sdk_0_3
 		void onAboutToHide();
 		void onActionTriggered(QAction *action);
 	private:
-		QList<ActionInfo> allActions(bool legacy) const;
+		QList<ActionInfo> allActions() const;
 		const MenuControllerPrivate * const m_d;
 		bool m_showed;
 		QList<QAction*> m_temporary;
