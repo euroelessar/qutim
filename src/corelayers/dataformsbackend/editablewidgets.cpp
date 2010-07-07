@@ -36,11 +36,7 @@ CheckBox::CheckBox(const DataItem &item)
 
 DataItem CheckBox::item() const
 {
-	bool val = isChecked();
-	QVariant d;
-	if (val)
-		d = val;
-	return DataItem(objectName(), LocalizedString(), d);
+	return DataItem(objectName(), LocalizedString(), isChecked());
 }
 
 ComboBox::ComboBox(const QString &value, const LocalizedStringList &alt, const DataItem &item)
@@ -64,9 +60,7 @@ ComboBox::ComboBox(const QString &value, const LocalizedStringList &alt, const D
 DataItem ComboBox::item() const
 {
 	QString val = currentText();
-	QVariant d;
-	if (!val.isEmpty() && val != notSpecifiedStr)
-		d = val;
+	QVariant d = (!val.isEmpty() && val != notSpecifiedStr) ? val : QString();
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
@@ -78,9 +72,7 @@ DateTimeEdit::DateTimeEdit(const DataItem &item)
 DataItem DateTimeEdit::item() const
 {
 	QDateTime val = dateTime();
-	QVariant d;
-	if (val.isValid())
-		d = val;
+	QVariant d = val.isValid() ? val : QDateTime();
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
@@ -92,9 +84,7 @@ DateEdit::DateEdit(const DataItem &item)
 DataItem DateEdit::item() const
 {
 	QDate val = date();
-	QVariant d;
-	if (val.isValid())
-		d = val;
+	QVariant d = val.isValid() ? val : QDate();
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
@@ -111,9 +101,7 @@ TextEdit::TextEdit(const DataItem &item)
 DataItem TextEdit::item() const
 {
 	QString val = toPlainText();
-	QVariant d;
-	if (!val.isEmpty())
-		d = val;
+	QVariant d = !val.isEmpty() ? val : QString();
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
@@ -144,9 +132,7 @@ LineEdit::LineEdit(const DataItem &item)
 DataItem LineEdit::item() const
 {
 	QString val = text();
-	QVariant d;
-	if (!val.isEmpty())
-		d = val;
+	QVariant d = !val.isEmpty() ? val : QString();
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
@@ -157,11 +143,7 @@ SpinBox::SpinBox(const DataItem &item)
 
 DataItem SpinBox::item() const
 {
-	int val = value();
-	QVariant d;
-	if (val != 0)
-		d = val;
-	return DataItem(objectName(), LocalizedString(), d);
+	return DataItem(objectName(), LocalizedString(), value());
 }
 
 DoubleSpinBox::DoubleSpinBox(const DataItem &item)
@@ -171,11 +153,7 @@ DoubleSpinBox::DoubleSpinBox(const DataItem &item)
 
 DataItem DoubleSpinBox::item() const
 {
-	double val = value();
-	QVariant d;
-	if (val != 0)
-		d = val;
-	return DataItem(objectName(), LocalizedString(), d);
+	return DataItem(objectName(), LocalizedString(), value());
 }
 
 IconListWidget::IconListWidget(const DataItem &item)
@@ -234,9 +212,7 @@ DataItem IconListWidget::item() const
 {
 	QListWidgetItem *current = currentItem();
 	QIcon val = current ? currentItem()->icon() : QIcon();
-	QVariant d;
-	if (!val.isNull())
-		d = val;
+	QVariant d = !val.isNull() ? val : QIcon();
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
