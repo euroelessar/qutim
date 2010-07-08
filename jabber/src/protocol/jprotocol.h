@@ -32,8 +32,8 @@ namespace Jabber
 			virtual QVariant data(DataType type);
 		private slots:
 			void onKickUser(QObject* obj);
-			void onBanUser();
-			void onConvertToMuc();
+			void onBanUser(QObject* obj);
+			void onConvertToMuc(QObject* obj);
 		private:
 			void loadActions();
 			virtual void loadAccounts();

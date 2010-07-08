@@ -41,7 +41,7 @@ namespace Jabber
 		delete page;
 	}
 
-	LJAccountWizard::LJAccountWizard()
+	LJAccountWizard::LJAccountWizard() : JAccountWizard()
 	{
 		type = AccountTypeLivejournal;
 		ExtensionInfo info("LiveJournal", "Add LiveJournal account");
@@ -52,7 +52,7 @@ namespace Jabber
 	{
 	}
 
-	GTAccountWizard::GTAccountWizard()
+	GTAccountWizard::GTAccountWizard() : JAccountWizard()
 	{
 		type = AccountTypeGoogletalk;
 		ExtensionInfo info("GoogleTalk", "Add GoogleTalk account");
@@ -63,7 +63,7 @@ namespace Jabber
 	{
 	}
 
-	YAccountWizard::YAccountWizard()
+	YAccountWizard::YAccountWizard() : JAccountWizard()
 	{
 		type = AccountTypeYandex;
 		ExtensionInfo info("Yandex.Online", "Add Yandex.Online account");
@@ -74,7 +74,7 @@ namespace Jabber
 	{
 	}
 
-	QIPAccountWizard::QIPAccountWizard()
+	QIPAccountWizard::QIPAccountWizard() : JAccountWizard()
 	{
 		type = AccountTypeQip;
 		ExtensionInfo info("QIP", "Add QIP account");
