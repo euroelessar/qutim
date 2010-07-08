@@ -33,6 +33,7 @@ namespace Jabber
 
 	JProtocol::~JProtocol()
 	{
+		self = 0;
 	}
 
 	QList<Account *> JProtocol::accounts() const
