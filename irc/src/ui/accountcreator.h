@@ -45,6 +45,7 @@ public:
 	QString networkName() const;
 	QList<ServerData> servers() const { return m_servers; }
 	bool validatePage();
+	bool isComplete() const;
 private slots:
 	void onAddServer();
 	void onEditServer();
@@ -67,20 +68,13 @@ class IrcNickWizardPage: public QWizardPage
 public:
 	IrcNickWizardPage(IrcAccountCreationWizard *accountWizard, QWidget *parent = 0);
 	~IrcNickWizardPage();
+	QString fullName() const;
 	QStringList nicks() const;
+	QString password() const;
 	QString encoding() const;
 	bool validatePage();
-private slots:
-	void onAddNick();
-	void onRemoveNick();
-	void onUpdateNick();
-	void onMoveNickUp();
-	void onMoveNickDown();
-	void onCurrentNickChanged(int row);
 private:
-	void moveNick(int row, int newRow);
 	Ui::EditNickForm *ui;
-	QList<ServerData> m_servers;
 	IrcAccountCreationWizard *m_accountWizard;
 };
 

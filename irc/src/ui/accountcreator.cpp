@@ -48,6 +48,9 @@ IrcAccWizardPage::IrcAccWizardPage(IrcAccountCreationWizard *accountWizard, QWid
 	ui->serversWidget->addItem(item);
 
 	ui->networkEdit->setFocus();
+
+	registerField("networkName*", ui->networkEdit);
+	registerField("servers", ui->serversWidget);
 }
 
 IrcAccWizardPage::~IrcAccWizardPage()
@@ -62,10 +65,15 @@ QString IrcAccWizardPage::networkName() const
 
 bool IrcAccWizardPage::validatePage()
 {
+	return isComplete();
+}
+
+bool IrcAccWizardPage::isComplete() const
+{
 	QString network = networkName();
 	if (network.isEmpty() || IrcProtocol::instance()->account(network) || m_servers.isEmpty())
 		return false;
-	return true;
+	return QWizardPage::isComplete();
 }
 
 void IrcAccWizardPage::onAddServer()
@@ -77,6 +85,8 @@ void IrcAccWizardPage::onAddServer()
 	ui->serversWidget->addItem(nullItem);
 	m_servers.push_back(server);
 	ui->serversWidget->setCurrentItem(item);
+	onCurrentServerChanged(ui->serversWidget->row(item));
+	emit completeChanged();
 }
 
 void IrcAccWizardPage::onEditServer()
@@ -94,6 +104,7 @@ void IrcAccWizardPage::onRemoveServer()
 	Q_ASSERT(row >= 0 && row < m_servers.size());
 	m_servers.removeAt(row);
 	delete ui->serversWidget->currentItem();
+	emit completeChanged();
 }
 
 void IrcAccWizardPage::onMoveUpServer()
@@ -165,17 +176,11 @@ IrcNickWizardPage::IrcNickWizardPage(IrcAccountCreationWizard *accountWizard, QW
 	QWizardPage(parent), ui(new Ui::EditNickForm), m_accountWizard(accountWizard)
 {
 	ui->setupUi(this);
-	ui->addNickButton->setIcon(Icon("list-add-nick-irc"));
-	ui->removeNickButton->setIcon(Icon("list-remove-nick-irc"));
-	ui->updateNickButton->setIcon(Icon("document-edit-nick-irc"));
-	ui->moveNickUpButton->setIcon(Icon("arrow-up-nick-irc"));
-	ui->moveNickDownButton->setIcon(Icon("arrow-down-nick-irc"));
-	connect(ui->addNickButton, SIGNAL(clicked()), SLOT(onAddNick()));
-	connect(ui->updateNickButton, SIGNAL(clicked()), SLOT(onUpdateNick()));
-	connect(ui->removeNickButton, SIGNAL(clicked()), SLOT(onRemoveNick()));
-	connect(ui->moveNickUpButton, SIGNAL(clicked()), SLOT(onMoveNickUp()));
-	connect(ui->moveNickDownButton, SIGNAL(clicked()), SLOT(onMoveNickDown()));
-	connect(ui->nicksWidget, SIGNAL(currentRowChanged(int)), SLOT(onCurrentNickChanged(int)));
+	registerField("fullName", ui->fullNameEdit);
+	registerField("nick*", ui->nickEdit);
+	registerField("alternativeNick", ui->alternativeNickEdit);
+	registerField("nickPassword", ui->passwordEdit);
+	registerField("encoding", ui->encodingBox);
 }
 
 IrcNickWizardPage::~IrcNickWizardPage()
@@ -183,14 +188,26 @@ IrcNickWizardPage::~IrcNickWizardPage()
 	delete ui;
 }
 
+QString IrcNickWizardPage::fullName() const
+{
+	return ui->fullNameEdit->text();
+}
+
 QStringList IrcNickWizardPage::nicks() const
 {
 	QStringList list;
-	for (int i = 0, count = ui->nicksWidget->count(); i < count; ++i) {
-		QListWidgetItem *item = ui->nicksWidget->item(i);
-		list << item->text();
-	}
+	QString s = ui->nickEdit->text();
+	if (!s.isEmpty())
+		list << s;
+	s = ui->alternativeNickEdit->text();
+	if (!s.isEmpty())
+		list << s;
 	return list;
+}
+
+QString IrcNickWizardPage::password() const
+{
+	return ui->passwordEdit->text();
 }
 
 QString IrcNickWizardPage::encoding() const
@@ -200,64 +217,11 @@ QString IrcNickWizardPage::encoding() const
 
 bool IrcNickWizardPage::validatePage()
 {
-	if (ui->nicksWidget->count()) {
+	if (!ui->nickEdit->text().isEmpty()) {
 		m_accountWizard->finished();
 		return true;
 	}
 	return false;
-}
-
-void IrcNickWizardPage::onAddNick()
-{
-	QListWidgetItem *item = new QListWidgetItem(ui->nickEdit->text(), ui->nicksWidget);
-	ui->nicksWidget->addItem(item);
-	ui->nicksWidget->setCurrentItem(item);
-}
-
-void IrcNickWizardPage::onRemoveNick()
-{
-	delete ui->nicksWidget->currentItem();
-}
-
-void IrcNickWizardPage::onUpdateNick()
-{
-	QListWidgetItem *item = ui->nicksWidget->currentItem();
-	if (item)
-		item->setText(ui->nickEdit->text());
-}
-
-void IrcNickWizardPage::onMoveNickUp()
-{
-	int row = ui->nicksWidget->currentRow();
-	moveNick(row, row-1);
-}
-
-void IrcNickWizardPage::onMoveNickDown()
-{
-	int row = ui->nicksWidget->currentRow();
-	moveNick(row, row+1);
-}
-
-void IrcNickWizardPage::onCurrentNickChanged(int row)
-{
-	QListWidgetItem *item = ui->nicksWidget->currentItem();
-	if (item)
-		ui->nickEdit->setText(item->text());
-	int nicksCount = ui->nicksWidget->count();
-	bool isNickChecked = row >= 0 && row < nicksCount;
-	ui->updateNickButton->setEnabled(isNickChecked);
-	ui->removeNickButton->setEnabled(isNickChecked);
-	ui->moveNickUpButton->setEnabled(row >= 1 && row < nicksCount);
-	ui->moveNickDownButton->setEnabled(row >= 0 && row < nicksCount-1);
-}
-
-void IrcNickWizardPage::moveNick(int row, int newRow)
-{
-	Q_ASSERT(row >= 0 && row < ui->nicksWidget->count());
-	Q_ASSERT(newRow >= 0 && newRow < ui->nicksWidget->count());
-	QListWidgetItem *item = ui->nicksWidget->takeItem(row);
-	ui->nicksWidget->insertItem(newRow, item);
-	ui->nicksWidget->setCurrentItem(item);
 }
 
 IrcAccountCreationWizard::IrcAccountCreationWizard() :
@@ -295,7 +259,9 @@ void IrcAccountCreationWizard::finished()
 			cfg.setValue("password", server.password, Config::Crypted);
 	}
 	cfg.endArray();
+	cfg.setValue("fullName", m_nicksPage->fullName());
 	cfg.setValue("nicks", m_nicksPage->nicks());
+	cfg.setValue("nickPassword", m_nicksPage->password(), Config::Crypted);
 	cfg.setValue("codec", m_nicksPage->encoding());
 	// Protocol config.
 	cfg = IrcProtocol::instance()->config("general");
