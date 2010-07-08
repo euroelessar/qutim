@@ -31,7 +31,7 @@ namespace Jabber
 			static Status presenceToStatus(Presence::PresenceType presence);
 			virtual QVariant data(DataType type);
 		private slots:
-			void onKickUser();
+			void onKickUser(QObject* obj);
 			void onBanUser();
 			void onConvertToMuc();
 		private:

@@ -57,13 +57,13 @@ namespace Jabber
 
 		MenuController::addAction<JMUCUser>(
 				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Kick"),
-									this, SLOT(onKickUser())));
+									this, SLOT(onKickUser(QObject*))));
 		MenuController::addAction<JMUCUser>(
 				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Ban"),
-									this, SLOT(onBanUser())));
+									this, SLOT(onBanUser(QObject*))));
 		MenuController::addAction<JMessageSession>(
 				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
-									this, SLOT(onConvertToMuc())));
+									this, SLOT(onConvertToMuc(QObject*))));
 
 		QList<Status> statuses;
 		statuses << Status(Status::Online)
@@ -80,25 +80,28 @@ namespace Jabber
 		}
 	}
 
-	void JProtocol::onKickUser()
+	void JProtocol::onKickUser(QObject *obj)
 	{
-		JMUCUser *user = MenuController::getController<JMUCUser>(sender());
+		JMUCUser *user = qobject_cast<JMUCUser*>(obj);
+		Q_ASSERT(user);
 		JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
 		QString reason = QInputDialog::getText(0, tr("Kick"), tr("Enter kick reason for %1").arg(user->name()));
 		muc->room()->kick(user->name().toStdString(), reason.toStdString());
 	}
 
-	void JProtocol::onBanUser()
+	void JProtocol::onBanUser(QObject *obj)
 	{
-		JMUCUser *user = MenuController::getController<JMUCUser>(sender());
+		JMUCUser *user = qobject_cast<JMUCUser*>(obj);
+		Q_ASSERT(user);
 		JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
 		QString reason = QInputDialog::getText(0, tr("Ban"), tr("Enter ban reason for %1").arg(user->name()));
 		muc->room()->ban(user->name().toStdString(), reason.toStdString());
 	}
 	
-	void JProtocol::onConvertToMuc()
+	void JProtocol::onConvertToMuc(QObject *obj)
 	{
-		JMessageSession *session = MenuController::getController<JMessageSession>(sender());
+		JMessageSession *session = qobject_cast<JMessageSession*>(obj);
+		Q_ASSERT(session);
 		session->convertToMuc();
 	}
 
