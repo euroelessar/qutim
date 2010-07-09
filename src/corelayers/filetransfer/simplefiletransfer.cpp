@@ -22,12 +22,10 @@ public:
 			ActionGenerator(Icon("document-save"), QT_TRANSLATE_NOOP("FileTransfer", "Send file"),
 							receiver, SLOT(onSendFile(QObject*))) {}
 protected:
-	virtual QObject *generateHelper() const
+    virtual void showImpl(QAction *action, QObject *obj)
 	{
-		ChatUnit *buddy = qobject_cast<ChatUnit*>(const_cast<FileTransferActionGenerator*>(this)->controller());
-		if (buddy && FileTransferManager::instance()->checkAbility(buddy))
-			return ActionGenerator::generateHelper();
-		return 0;
+		ChatUnit *buddy = qobject_cast<ChatUnit*>(obj);
+		action->setVisible(buddy && FileTransferManager::instance()->checkAbility(buddy));
 	}
 };
 

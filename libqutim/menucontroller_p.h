@@ -53,11 +53,9 @@ namespace qutim_sdk_0_3
 		Q_DECLARE_PUBLIC(MenuController)
 		MenuControllerPrivate(MenuController *c) : owner(0), q_ptr(c) {}
 		QList<ActionInfo> actions;
-		mutable QList<ActionGenerator *> temporary;
 		MenuController *owner;
 		MenuController *q_ptr;
 		mutable QPointer<DynamicMenu> menu;
-		inline QList<MenuController::Action> dynamicActions() const { return q_func()->dynamicActions(); }
 		static MenuControllerPrivate *get(MenuController *gen) { return gen->d_func(); }
 		static const MenuControllerPrivate *get(const MenuController *gen) { return gen->d_func(); }
 	};
@@ -76,14 +74,10 @@ namespace qutim_sdk_0_3
 	private slots:
 		void onAboutToShow();
 		void onAboutToHide();
-		void onActionTriggered(QAction *action);
 	private:
 		QList<ActionInfo> allActions() const;
 		const MenuControllerPrivate * const m_d;
-		bool m_showed;
-		QList<QAction*> m_temporary;
 		ActionEntry m_entry;
-		QActionGroup m_group; //temporary hack
 		mutable QMap<const ActionGenerator*, QObject*> m_owners;
 	};
 	
@@ -95,7 +89,22 @@ namespace qutim_sdk_0_3
 		inline ~ActionContainerPrivate() {}
 		MenuController *controller;
 		ActionContainer::ActionFilter filterType;
-		QVariant filterData;		
+		QVariant filterData;
+		QList<QAction*> actions;
+		void ensureActions();
+		inline bool checkTypeMask(const ActionInfo& info, int typeMask);
+		inline void ensureAction(const ActionInfo& info);
+	};
+	//TODO create common handler for DynamicMenu and ActionContainer
+	class ActionHandler : public QActionGroup
+	{
+		Q_OBJECT
+	public:
+		ActionHandler();
+		QAction *addAction(QAction *action);
+	public slots:
+		void onActionTriggered(QAction *action);
+		void onActionDestoyed(QObject *obj);
 	};
 }
 

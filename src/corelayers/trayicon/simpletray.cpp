@@ -22,6 +22,7 @@ namespace Core
 		{
 			setType(-1);
 			m_proto = proto;
+			m_btn = new QToolButton();
 		}
 
 		virtual QObject *generateHelper() const
@@ -34,15 +35,20 @@ namespace Core
 			font.setBold(true);
 			action->setFont(font);
 			
-			QWidgetAction *widget = new QWidgetAction(action);
-			QToolButton *btn = new QToolButton();			
-			widget->setDefaultWidget(btn);
-			btn->setDefaultAction(action);
-			btn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+			QWidgetAction *widget = new QWidgetAction(action);	
+			widget->setDefaultWidget(m_btn);
+			m_btn->setDefaultAction(action);
+			m_btn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 			return widget;
+		}
+		virtual ~ProtocolSeparatorActionGenerator()
+		{
+			if (m_btn)
+				m_btn->deleteLater();
 		}
 	private:
 		Protocol *m_proto;
+		QToolButton *m_btn;
 	};
 
 	SimpleTray::SimpleTray()

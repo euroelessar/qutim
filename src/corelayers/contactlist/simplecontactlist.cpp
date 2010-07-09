@@ -277,6 +277,7 @@ namespace Core
 						Status status = account->status();
 						status.setType(type);
 						status.setText(text);
+						status.setSubtype(0);
 						account->setStatus(status);
 					}
 				}

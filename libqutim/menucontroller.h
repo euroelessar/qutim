@@ -161,9 +161,6 @@ void MyObject::onAction()
 		  Add to menu of this object also actions from another \a controller.
 		*/
 		void setMenuOwner(MenuController *controller);
-#ifndef Q_QDOC
-		virtual QList<Action> dynamicActions() const;
-#endif
 		virtual void virtual_hook(int id, void *data);
 		QScopedPointer<MenuControllerPrivate> d_ptr;
 	};

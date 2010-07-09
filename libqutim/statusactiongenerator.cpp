@@ -13,7 +13,11 @@ namespace qutim_sdk_0_3
 	void StatusActionHandler::changeStatus(QAction *action, QObject *controller)
 	{
 		if (Account *account = qobject_cast<Account *>(controller)) {
-			account->setStatus(action->property("status").value<Status>());
+			Status current = account->status();
+			Status origin = action->property("status").value<Status>();
+			current.setType(origin.type());
+			current.setSubtype(origin.subtype());
+			account->setStatus(current);
 		}
 	}
 
@@ -33,7 +37,6 @@ namespace qutim_sdk_0_3
 		d->ensureConnectionType();
 		d->icon = d->status.icon();
 		d->text = d->status.name();
-		d->type = ActionGenerator::StatusType;
 		d->priority = -status.type();
 	}
 

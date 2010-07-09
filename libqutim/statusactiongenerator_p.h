@@ -10,6 +10,7 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		Status status;
+		Status::Type type;
 	};
 
 	class StatusActionHandler : public QObject
