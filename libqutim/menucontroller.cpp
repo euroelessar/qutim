@@ -461,7 +461,7 @@ namespace qutim_sdk_0_3
 	QAction *ActionHandler::addAction(QAction *action)
 	{
 		connect(action,SIGNAL(destroyed(QObject*)),SLOT(onActionDestoyed(QObject*)));
-		QActionGroup::addAction(action);
+		return QActionGroup::addAction(action);
 	}
 
 }
