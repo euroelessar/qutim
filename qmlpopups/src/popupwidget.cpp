@@ -101,14 +101,14 @@ namespace QmlPopups {
 
     void PopupWidget::accept()
     {
-		ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
-		if (ChatSession *sess = ChatLayer::get(unit)) {
-			sess->setActive(true);
+		if (ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender)) {
+			ChatUnit *metaContact = unit->metaContact();
+			if (metaContact)
+				unit = metaContact;
+			ChatLayer::get(unit,true)->activate();
 		}
-		else {
-			QWidget *widget = qobject_cast<QWidget *>(m_sender);
-			if (widget)
-				widget->raise();
+		else if (QWidget *widget = qobject_cast<QWidget *>(m_sender)) {
+			widget->raise();
 		}
 		emit activated();
     }
