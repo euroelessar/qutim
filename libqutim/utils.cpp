@@ -391,8 +391,11 @@ namespace qutim_sdk_0_3
 	QString getThemePath ( const QString& category, const QString &themeName )
 	{
 		QString themePath = getThemePath(SystemInfo::getDir(SystemInfo::ShareDir),themeName,category);
-		if (themePath.isEmpty())
+		if (themePath.isEmpty()) {
 			themePath = getThemePath(SystemInfo::getDir(SystemInfo::SystemShareDir),themeName,category);
+			if (themePath.isEmpty())
+				themePath = getThemePath(QDir(":/"),themeName,category);
+		}
 		return themePath;
 	}
 
@@ -409,6 +412,7 @@ namespace qutim_sdk_0_3
 		QStringList theme_list;
 		theme_list << listThemes(SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::ShareDir),category);
 		theme_list << listThemes(SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::SystemShareDir),category);
+		theme_list << listThemes(QDir(":/"),category);
 		theme_list.removeDuplicates();
 		return theme_list;
 	}

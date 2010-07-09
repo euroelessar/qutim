@@ -28,6 +28,17 @@ namespace qutim_sdk_0_3
 	class ActionGeneratorPrivate;
 	class MenuController;
 
+	//TBD list of all action roles
+	enum ActionType
+	{
+		ActionTypeContactList = 0x01, //Actions in contactlist
+		ActionTypeChatButton = 0x02, //Chat buttons
+		ActionTypeAdditional = 0x04, //Additional modifier
+		ActionTypeAccountSettings = 0x8, //Must be shown if accounts configuration dialog
+		ActionTypePreferences = 0x10, //QAction::PreferencesRole
+		ActionTypeContactInfo = 0x20
+	};
+
 	class LIBQUTIM_EXPORT ActionCreatedEvent : public QEvent
 	{
 	public:

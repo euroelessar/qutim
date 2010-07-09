@@ -121,6 +121,23 @@ namespace qutim_sdk_0_3
 		return const_cast<ChatUnit*>(this)->buddy();
 	}
 	
+	ChatUnit* ChatUnit::metaContact()
+	{
+		ChatUnit *u = this;
+		while (u) {
+			if (qobject_cast<MetaContact*>(u))
+				return u;
+			u = u->upperUnit();
+		}
+		return 0;
+	}
+
+	const ChatUnit* ChatUnit::metaContact() const
+	{
+		return const_cast<ChatUnit*>(this)->metaContact();
+	}
+
+	
 	ChatStateEvent::ChatStateEvent(ChatState state) :
 			QEvent(eventType()), m_state(state)
 	{

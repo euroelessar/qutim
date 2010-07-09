@@ -22,6 +22,8 @@
 
 namespace qutim_sdk_0_3
 {
+
+	class MetaContact;
 	class Account;
 	class Message;
 	class ChatUnit;
@@ -102,9 +104,20 @@ namespace qutim_sdk_0_3
 		* @return Pointer to upper chatunit
 		*/
 		virtual ChatUnit *upperUnit();
-
+		/**
+		* @brief Returns TODO
+		*
+		* @return Pointer to upper buddy
+		*/
 		ChatUnit *buddy();
 		const ChatUnit *buddy() const;
+		/**
+		* @brief Returns TODO
+		*
+		* @return Pointer to upper metaContact or 0 if upper metaContact doesn't exist.
+		*/		
+		ChatUnit *metaContact();
+		const ChatUnit *metaContact() const;
 		virtual const ChatUnit *getHistoryUnit() const;
 	public slots:
 		quint64 sendMessage(const QString &text);

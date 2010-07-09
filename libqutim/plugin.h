@@ -27,7 +27,7 @@ namespace qutim_sdk_0_3
 {
 	class ModuleManager;
 	class PluginInfoData;
-	class PluginPrivate;
+	struct PluginPrivate;
 
 	class LIBQUTIM_EXPORT PluginInfo
 	{
