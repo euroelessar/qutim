@@ -95,8 +95,10 @@ ChatUnit *IrcAccount::getUnit(const QString &name, bool create)
 IrcChannel *IrcAccount::getChannel(const QString &name, bool create)
 {
 	IrcChannel *channel = d->channels.value(name);
-	if (create && !channel)
+	if (create && !channel) {
 		channel = d->newChannel(name);
+		emit conferenceCreated(channel);
+	}
 	return channel;
 }
 

@@ -18,6 +18,7 @@
 #include "ircprotocol.h"
 #include "ircchannel.h"
 #include "irccontact_p.h"
+#include "ircchannelparticipant.h"
 #include <QHostInfo>
 #include <QTextCodec>
 #include <QRegExp>

@@ -100,9 +100,17 @@ IrcAccount *IrcChannel::account()
 	return reinterpret_cast<IrcAccount*>(Conference::account());
 }
 
-ChatUnit *IrcChannel::participant(const QString &nick)
+IrcChannelParticipant *IrcChannel::participant(const QString &nick)
 {
 	return d->users.value(nick).data();
+}
+
+QList<IrcChannelParticipant*> IrcChannel::participants()
+{
+	QList<IrcChannelParticipant*> users;
+	foreach (const QSharedPointer<IrcChannelParticipant> &user, d->users)
+		users << user.data();
+	return users;
 }
 
 void IrcChannel::onMyNickChanged(const QString &nick)
@@ -162,8 +170,11 @@ void IrcChannel::handleUserList(const QStringList &users)
 		QChar first = userNick.at(0);
 		if (first == '+' || first == '@') // TODO: set mode to user
 			userNick = userNick.mid(1);
+		bool isMe = userNick == myNick;
+		if ((isMe && me()) || (!isMe && d->users.contains(userNick)))
+			continue;
 		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, userNick));
-		if (userNick == myNick) {
+		if (isMe) {
 			connect(user.data(), SIGNAL(nameChanged(QString)), SLOT(onMyNickChanged(QString)));
 			d->me = user;
 		} else {

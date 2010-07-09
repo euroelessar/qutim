@@ -26,6 +26,7 @@ class ChatSession;
 namespace irc {
 
 class IrcChannelPrivate;
+class IrcChannelParticipant;
 class IrcAccount;
 
 class IrcChannel : public Conference
@@ -43,7 +44,8 @@ public:
 	virtual QString topic() const;
 	const IrcAccount *account() const;
 	IrcAccount *account();
-	ChatUnit *participant(const QString &nick);
+	IrcChannelParticipant *participant(const QString &nick);
+	QList<IrcChannelParticipant*> participants();
 private slots:
 	void onMyNickChanged(const QString &nick);
 	void onParticipantNickChanged(const QString &nick);

@@ -23,6 +23,8 @@ class QAction;
 
 namespace qutim_sdk_0_3 {
 
+class ChatSession;
+
 namespace irc {
 
 class IrcProtocolPrivate;
@@ -47,6 +49,7 @@ protected:
 private slots:
 	void onJoinChannelWindow(QObject *object);
 	void onJoinChannel();
+	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 private:
 	QScopedPointer<IrcProtocolPrivate> d;
 	static IrcProtocol *self;

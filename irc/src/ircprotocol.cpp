@@ -16,6 +16,7 @@
 #include "ircprotocol_p.h"
 #include "ircaccount.h"
 #include "ircchannel.h"
+#include "ircchannelparticipant.h"
 #include <QStringList>
 #include <QPointer>
 #include <qutim/dataforms.h>
@@ -49,6 +50,8 @@ IrcProtocol::~IrcProtocol()
 
 void IrcProtocol::loadAccounts()
 {
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
+			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &network, accounts) {
 		IrcAccount *acc = new IrcAccount(network);
@@ -140,6 +143,17 @@ void IrcProtocol::onJoinChannel()
 	IrcChannel *channel = account->getChannel(channelName, true);
 	channel->join(item.subitem("password").data<QString>());
 	ChatLayer::instance()->getSession(channel, true)->activate();
+}
+
+void IrcProtocol::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+{
+	IrcChannel *channel = qobject_cast<IrcChannel*>(session->getUnit());
+	if (channel) {
+		foreach (IrcChannelParticipant *participant, channel->participants())
+			session->addContact(participant);
+		if (channel->me())
+			session->addContact(channel->me());
+	}
 }
 
 } } // namespace qutim_sdk_0_3::irc
