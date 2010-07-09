@@ -29,7 +29,7 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-QHash<Capability, OscarStatus> XStatusHandler::qipstatuses;
+QHash<Capability, OscarStatusData> XStatusHandler::qipstatuses;
 
 static XStatusList init_xstatus_list()
 {
@@ -171,13 +171,11 @@ int xstatusIndexByName(const QString &name)
 	return hash.value(name);
 }
 
-QipExtendedStatus::QipExtendedStatus(quint16 status, const QString &iconName, const LocalizedString &name, quint16 id):
-	OscarStatus(status)
+QipExtendedStatus::QipExtendedStatus(int statusId, quint16 status, const QString &iconName, const LocalizedString &name, quint16 id):
+	OscarStatusData(statusId, status == OscarAway ? Status::Away : Status::Online, status, iconName, name)
 {
 	Capability cap(0xb7074378, 0xf50c7777, 0x97775778, (quint32)0x502d << 16 | id);
-	setIcon(Icon(iconName));
-	setName(name);
-	setCapability(cap, "qipstatus");
+	caps.insert("qipstatus", cap);
 	XStatusHandler::qipstatuses.insert(cap, *this);
 }
 
@@ -206,32 +204,28 @@ bool XStatusHandler::load()
 {
 	{
 		Capability cap(0xb7074378, 0xf50c7777, 0x97775778, 0x502d0575);
-		OscarStatus status(Status::FreeChat);
-		status.setSubtype(OscarOnline);
-		status.setCapability(cap, "qipstatus");
+		OscarStatusData status(OscarFFC, Status::FreeChat);
+		status.flag = 0;
+		status.caps.insert("qipstatus", cap);
 		qipstatuses.insert(cap, status);
-		OscarStatus::registerStatus(OscarFFC, status);
 	}
-	QipExtendedStatus(OscarOnline, "user-online-angry-icq",
+	QipExtendedStatus(OscarEvil, OscarOnline, "online-angry",
 					  QT_TRANSLATE_NOOP("Status", "Angry"), 0x0579);
-	QipExtendedStatus(OscarOnline, "user-online-depression-icq",
+	QipExtendedStatus(OscarDepress, OscarOnline, "online-depression",
 					  QT_TRANSLATE_NOOP("Status", "Depression"), 0x0570);
-	QipExtendedStatus(OscarOnline, "user-online-athome-icq",
+	QipExtendedStatus(OscarHome, OscarOnline, "online-athome",
 					  QT_TRANSLATE_NOOP("Status", "At home"), 0x0576);
-	QipExtendedStatus(OscarOnline, "user-online-atwork-icq",
+	QipExtendedStatus(OscarWork, OscarOnline, "online-atwork",
 					  QT_TRANSLATE_NOOP("Status", "At work"), 0x0577);
-	QipExtendedStatus(OscarAway, "user-away-eating-icq",
+	QipExtendedStatus(OscarLunch, OscarAway, "away-eating",
 					  QT_TRANSLATE_NOOP("Status", "Eating"), 0x0578);
-	foreach (Status status, qipstatuses)
-		MenuController::addAction(new StatusActionGenerator(status), &IcqAccount::staticMetaObject);
-
+	foreach (const OscarStatusData &data, qipstatuses) {
+		OscarStatus::registerStatus(data);
+		MenuController::addAction<IcqAccount>(new StatusActionGenerator(OscarStatus(data)));
+	}
 	MenuController::addAction<IcqAccount>(new ActionGenerator(Icon("user-xstatus-icon"),
 					QT_TRANSLATE_NOOP("Status", "Custom status"),
 					this, SLOT(onSetCustomStatus(QObject*))), "Additional");
-	foreach (Account *account, IcqProtocol::instance()->accounts())
-		onAccountAdded(account);
-	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-			SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
 	return true;
 }
 
@@ -380,30 +374,6 @@ void XStatusHandler::onCustomDialogAccepted()
 	status.setExtendedStatus("xstatus", extStatus);
 	status.setCapability(xstatus.capability, "xstatus");
 	account->setStatus(status);
-}
-
-void XStatusHandler::onAccountAdded(qutim_sdk_0_3::Account *account)
-{
-	connect(account, SIGNAL(statusAboutToBeChanged(OscarStatus&,OscarStatus)),
-			SLOT(onAccountStatusAboutToBeChanged(OscarStatus&,OscarStatus)));
-}
-
-void XStatusHandler::onAccountStatusAboutToBeChanged(OscarStatus &newStatus, OscarStatus current)
-{
-	QVariantMap extStatus;
-	if (!newStatus.extendedStatuses().contains("xstatus")) {
-		if (current.extendedStatuses().contains("xstatus")) {
-			extStatus = current.extendedStatus("xstatus");
-			newStatus.setExtendedStatus("xstatus", extStatus);
-		}
-	} else {
-		extStatus = newStatus.extendedStatus("xstatus");
-	}
-	if (extStatus.isEmpty())
-		return;
-	int index = xstatusIndexByName(extStatus.value("name").toString());
-	XStatus xstatus = xstatusList()->value(index);
-	newStatus.setCapability(xstatus.capability, "xstatus");
 }
 
 } } // namespace qutim_sdk_0_3::oscar

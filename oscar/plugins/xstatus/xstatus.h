@@ -32,6 +32,7 @@ namespace oscar {
 enum QipStatusEnum
 {
 	// QIP Extended Status flags
+	OscarFFC            = 0x0020,
 	OscarEvil           = 0x3000,
 	OscarDepress        = 0x4000,
 	OscarHome           = 0x5000,
@@ -39,10 +40,9 @@ enum QipStatusEnum
 	OscarLunch          = 0x2001
 };
 
-class QipExtendedStatus : public OscarStatus
+struct QipExtendedStatus : public OscarStatusData
 {
-public:
-	QipExtendedStatus(quint16 status, const QString &iconName,
+	QipExtendedStatus(int statusId, quint16 status, const QString &iconName,
 					  const LocalizedString &name, quint16 id);
 };
 
@@ -77,12 +77,10 @@ public:
 	bool handelXStatusCapabilities(IcqContact *contact, qint8 mood);
 	void removeXStatuses(Capabilities &caps);
 	void setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
-	static QHash<Capability, OscarStatus> qipstatuses;
+	static QHash<Capability, OscarStatusData> qipstatuses;
 private slots:
 	void onSetCustomStatus(QObject *object);
 	void onCustomDialogAccepted();
-	void onAccountAdded(qutim_sdk_0_3::Account *account);
-	void onAccountStatusAboutToBeChanged(OscarStatus &newStatus, OscarStatus current);
 };
 
 } } // namespace qutim_sdk_0_3::oscar

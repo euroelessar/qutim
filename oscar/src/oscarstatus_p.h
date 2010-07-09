@@ -23,18 +23,16 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 typedef QSet<QString> CapsTypes;
-typedef QHash<QString, Capability> CapsList;
 CapsTypes &capsTypes();
-typedef QPair<quint16, Status> OscarStatusPair;
 
-class OscarStatusList : public QList<OscarStatusPair>
+class OscarStatusList : public QList<OscarStatusData>
 {
 public:
-	void insert(quint16 id, const Status &status);
+	void insert(const OscarStatusData &status);
 };
 
 } } // namespace qutim_sdk_0_3::oscar
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::CapsList);
+Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::CapabilityHash);
 
 #endif // OSCARSTATUS_P_H

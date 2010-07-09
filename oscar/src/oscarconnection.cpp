@@ -169,7 +169,7 @@ void OscarConnection::accountInfoReceived(bool ok)
 void OscarConnection::sendStatus(OscarStatus status)
 {
 	SNAC snac(ServiceFamily, ServiceClientSetStatus);
-	snac.appendTLV<quint32>(0x06, (m_status_flags << 16) | status.subtype()); // Status mode and security flags
+	snac.appendTLV<quint32>(0x06, (m_status_flags << 16) | status.flag()); // Status mode and security flags
 	snac.appendTLV<quint16>(0x08, 0x0000); // Error code
 	// Status item
 	DataUnit statusData;
@@ -188,10 +188,12 @@ void OscarConnection::sendStatus(OscarStatus status)
 
 	bool changedCapsList = false;
 	CapsTypes types = capsTypes();
-	CapsList caps = status.property<CapsList>("capabilities", CapsList());
-	CapsList::const_iterator itr = caps.constBegin();
-	CapsList::const_iterator endItr = caps.constEnd();
+	CapabilityHash caps = status.capabilities();
+	CapabilityHash::const_iterator itr = caps.constBegin();
+	CapabilityHash::const_iterator endItr = caps.constEnd();
 	while (itr != endItr) {
+		if (itr->isNull())
+			continue;
 		types.remove(itr.key());
 		m_account->setCapability(itr.value(), itr.key());
 		changedCapsList = true;

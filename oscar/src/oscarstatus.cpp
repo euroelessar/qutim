@@ -25,44 +25,40 @@ namespace oscar {
 
 static void init_status_list(OscarStatusList &list)
 {
-	list.insert(OscarAway, Status(Status::Away));
-	list.insert(OscarInvisible, Status(Status::Invisible));
-	list.insert(OscarDND, Status(Status::DND));
-	list.insert(OscarNA, Status(Status::NA));
-	list.insert(OscarOnline, Status(Status::Online));
-	list.insert(OscarOffline, Status(Status::Offline));
-	OscarStatusList::iterator itr = list.begin();
-	OscarStatusList::iterator endItr = list.end();
-	while (itr != endItr) {
-		itr->second.initIcon(QLatin1String("icq"));
-		itr->second.setSubtype(itr->first);
-		++itr;
-	}
-	{
-		Status status(Status::DND);
-		status.setSubtype(OscarOccupied);
-		status.setIcon(Icon(QLatin1String("user-busy-occupied-icq")));
-		status.setName(QT_TRANSLATE_NOOP("Status", "Busy"));
-		list.insert(OscarOccupied, status);
-	}
-	foreach (const OscarStatusPair &status, list)
-		MenuController::addAction(new StatusActionGenerator(status.second), &IcqAccount::staticMetaObject);
+	list.insert(OscarStatusData(OscarAway, Status::Away));
+	list.insert(OscarStatusData(OscarInvisible, Status::Invisible));
+	list.insert(OscarStatusData(OscarDND, Status::DND));
+	list.insert(OscarStatusData(OscarNA, Status::NA));
+	list.insert(OscarStatusData(OscarOnline, Status::Online));
+	list.insert(OscarStatusData(OscarOffline, Status::Offline));
+	list.insert(OscarStatusData(OscarOccupied,
+								Status::DND,
+								OscarOccupied,
+								"busy-occupied",
+								QT_TRANSLATE_NOOP("Status", "Busy")));
+	foreach (const OscarStatusData &data, list)
+		MenuController::addAction<IcqAccount>(new StatusActionGenerator(OscarStatus(data)));
 }
 Q_GLOBAL_STATIC_WITH_INITIALIZER(OscarStatusList, statusList, init_status_list(*x));
 
-void OscarStatusList::insert(quint16 id, const Status &status)
+void OscarStatusList::insert(const OscarStatusData &data)
 {
-	OscarStatusPair data(id, status);
 	iterator itr = begin();
 	iterator endItr = end();
 	while (itr != endItr) {
-		if (id > itr->first) {
-			QList<OscarStatusPair>::insert(itr, data);
+		if (itr->flag > data.flag) {
+			QList<OscarStatusData>::insert(itr, data);
 			return;
 		}
 		++itr;
 	}
 	push_back(data);
+}
+
+CapsTypes &statusDataCapsTypes()
+{
+	static CapsTypes capsTypes;
+	return capsTypes;
 }
 
 CapsTypes &capsTypes()
@@ -71,42 +67,46 @@ CapsTypes &capsTypes()
 	return capsTypes;
 }
 
-qutim_sdk_0_3::Status oscarStatusToQutim(quint16 status)
+OscarStatusData::OscarStatusData()
 {
-	foreach (const OscarStatusPair &itr, *statusList()) {
-		if (status & itr.first)
-			return itr.second;
-	}
-	return statusList()->last().second;
 }
 
-OscarStatus::OscarStatus(quint16 status) :
-	Status(oscarStatusToQutim(status))
+OscarStatusData::OscarStatusData(int _id, Status::Type _type, quint16 _flag, const QString &_icon,
+								 const LocalizedString &_name, const CapabilityHash &_caps):
+	id (_id), type(_type), flag(_flag), iconName(_icon), name(_name), caps(_caps)
 {
-	initIcon("icq");
+	if (flag == 0)
+		flag = id;
+}
+
+OscarStatus::OscarStatus(quint16 status)
+{
+	setStatusFlag(status);
+}
+
+OscarStatus::OscarStatus(const OscarStatusData &data)
+{
+	setData(data);
 }
 
 OscarStatus::OscarStatus(Status::Type status) :
 	Status(status)
 {
-	initIcon("icq");
-	foreach (const OscarStatusPair &itr, *statusList()) {
-		if (itr.second.type() == status) {
-			*reinterpret_cast<Status*>(this) = itr.second;
-			break;
-		}
-	}
+	setStatusType(status);
 }
 
 OscarStatus::OscarStatus(const Status &status):
 	Status(status)
 {
 	initIcon("icq");
-	foreach (const OscarStatusPair &itr, *statusList()) {
-		if (itr.second.type() == status.type()) {
-			setSubtype(itr.second.subtype());
-			setProperty("capabilities", itr.second.property("capabilities", QVariant()));
-			break;
+	if (subtype() == 0) {
+		setStatusType(status.type());
+	} else {
+		foreach (const OscarStatusData &data, *statusList()) {
+			if (data.id == subtype()) {
+				setData(data);
+				break;
+			}
 		}
 	}
 }
@@ -120,9 +120,51 @@ OscarStatus::~OscarStatus()
 {
 }
 
+void OscarStatus::setData(const OscarStatusData &data)
+{
+	setType(data.type);
+	setSubtype(data.id);
+	if (!data.iconName.isEmpty())
+		setIcon(Icon(QString("user-%1-icq").arg(data.iconName)));
+	if (!data.name.original().isEmpty())
+		setName(data.name);
+	setProperty("statusFlag", data.flag);
+	// Capabilities...
+	CapabilityHash caps = capabilities();
+	CapsTypes types = statusDataCapsTypes();
+	CapabilityHash::const_iterator itr = data.caps.constBegin();
+	CapabilityHash::const_iterator endItr = data.caps.constEnd();
+	while (itr != endItr) {
+		types.remove(itr.key());
+		caps.insert(itr.key(), itr.value());
+		++itr;
+	}
+	foreach (const QString &type, types)
+		caps.remove(type);
+	setProperty("capabilities", QVariant::fromValue(caps));
+}
+
+quint16 OscarStatus::flag() const
+{
+	return property<quint16>("statusFlag", 0);
+}
+
+CapabilityHash OscarStatus::capabilities() const
+{
+	return property<CapabilityHash>("capabilities", CapabilityHash());
+}
+
+void OscarStatus::setCapability(const Capability &capability, const QString &type)
+{
+	capsTypes().insert(type);
+	CapabilityHash caps = capabilities();
+	caps.insert(type, capability);
+	setProperty("capabilities", QVariant::fromValue(caps));
+}
+
 OscarStatus &OscarStatus::operator=(quint16 status)
 {
-	*this = OscarStatus(oscarStatusToQutim(status));
+	setStatusFlag(status);
 	return *this;
 }
 
@@ -132,36 +174,47 @@ OscarStatus &OscarStatus::operator=(Status::Type status)
 	return *this;
 }
 
-void OscarStatus::setCapability(const Capability &capability, const QString &type)
+void OscarStatus::registerStatus(OscarStatusData statusData)
 {
-	capsTypes().insert(type);
-	CapsList caps = capabilities();
-	caps.insert(type, capability);
-	setProperty("capabilities", QVariant::fromValue(caps));
+	CapabilityHash::const_iterator itr = statusData.caps.constBegin();
+	CapabilityHash::const_iterator endItr = statusData.caps.constEnd();
+	while (itr != endItr) {
+		statusDataCapsTypes().insert(itr.key());
+		capsTypes().insert(itr.key());
+		++itr;
+	}
+	statusList()->insert(statusData);
 }
 
-QHash<QString, Capability> OscarStatus::capabilities() const
+void OscarStatus::setStatusFlag(quint16 status)
 {
-	return property<CapsList>("capabilities", CapsList());
-}
-
-void OscarStatus::registerStatus(quint16 statusId, OscarStatus oscarStatus)
-{
-	statusList()->insert(statusId, oscarStatus);
+	initIcon("icq");
+	foreach (const OscarStatusData &data, *statusList()) {
+		if ((status == 0 && data.flag == 0) || (data.flag & status)) {
+			setData(data);
+			break;
+		}
+	}
 }
 
 void OscarStatus::setStatusType(Status::Type status)
 {
-	if (subtype() == 0 && status != Online && status != Connecting) {
-		foreach (const OscarStatusPair &itr, *statusList()) {
-			if (itr.second.type() == status) {
-				*reinterpret_cast<Status*>(this) = itr.second;
-				return;
-			}
+	initIcon("icq");
+	foreach (const OscarStatusData &data, *statusList()) {
+		if (data.type == status) {
+			setData(data);
+			break;
 		}
 	}
-	setType(status);
-	initIcon("icq");
+}
+
+OscarStatusData OscarStatus::getStatusData(int id)
+{
+	foreach (const OscarStatusData &data, *statusList()) {
+		if (data.id == id)
+			return data;
+	}
+	return OscarStatusData();
 }
 
 } } // namespace qutim_sdk_0_3::oscar
