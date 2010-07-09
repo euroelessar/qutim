@@ -171,7 +171,7 @@ void MyObject::onAction()
 	// Think: May be wh should use this container inside DynamicMenu?
 	// Think: May be we should use filters also for menus?
 	class ActionContainerPrivate;
-	class ActionContainer
+	class LIBQUTIM_EXPORT ActionContainer
 	{
 		Q_DECLARE_PRIVATE(ActionContainer)
 	public:

@@ -283,6 +283,7 @@ namespace qutim_sdk_0_3
 		Q_D(ActionContainer);
 		d->controller = controller;
 		d->filterType = TypeMatch;
+		d->ensureActions();
 	}
 
 	ActionContainer::ActionContainer(MenuController* controller, ActionContainer::ActionFilter filter, const QVariant& data) :
@@ -292,6 +293,7 @@ namespace qutim_sdk_0_3
 		d->controller = controller;
 		d->filterType = filter;
 		d->filterData = data;
+		d->ensureActions();
 	}
 	QAction* ActionContainer::action(int index) const
 	{
@@ -330,11 +332,32 @@ namespace qutim_sdk_0_3
 	void ActionContainerPrivate::ensureActions()
 	{
 		actions.clear();
-		MenuControllerPrivate *p = MenuControllerPrivate::get(controller);
-		
-		foreach (ActionInfo info,p->actions) {
+
+		QList<ActionInfo> actions;
+		QSet<const QMetaObject *> metaObjects;
+		const MenuController *owner = controller;
+		while (owner) {
+			foreach (const ActionInfo &info, MenuControllerPrivate::get(owner)->actions) {
+				actions << info;
+			}
+			const QMetaObject *meta = owner->metaObject();
+			while (meta) {
+				if (metaObjects.contains(meta))
+					break;
+				foreach (const ActionInfo &info, globalActions()->values(meta)) {
+					actions << info;
+					//m_owners.insert(info.gen, const_cast<MenuController*>(owner));
+				}
+				metaObjects.insert(meta);
+				meta = meta->superClass();
+			}
+			owner = MenuControllerPrivate::get(owner)->owner;
+		}
+
+		foreach (ActionInfo info,actions) {
 			if (filterData.canConvert(QVariant::Int)) {
 				int typeMask = filterData.toInt();
+				debug() << checkTypeMask(info,typeMask);
 				if (checkTypeMask(info,typeMask)) {
 					ensureAction(info);
 				}
@@ -342,6 +365,7 @@ namespace qutim_sdk_0_3
 			else if (filterData.isNull()) {
 				ensureAction(info);
 			}
+			debug() << filterData;
 		}
 	}
 	
@@ -350,7 +374,8 @@ namespace qutim_sdk_0_3
 		QAction *action = actionsCache()->value(info.gen).value(controller);
 		if (!action) {
 			action = info.gen->generate<QAction>();
-			Q_ASSERT(action);
+			if (!action)
+				return;
 			actionsCache()->operator[](info.gen).insert(controller,action);
 			handler()->addAction(action);
 		}

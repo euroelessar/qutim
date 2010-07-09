@@ -76,6 +76,7 @@ namespace Core
 			ActionToolBar *m_toolbar;
 			QAction *m_session_list;
 			QAction *m_reciever_selector;
+			//QList<QAction*> m_unit_actions;
 		};
 	}
 }

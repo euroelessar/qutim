@@ -220,13 +220,20 @@ namespace Core
 		}
 
 		void AdiumChatWidget::currentIndexChanged(int index)
-		{
+		{		
 			if (index == -1) {
 				getInputField()->setDocument(m_originalDoc);
 				return;
-			}			
+			}
 			AbstractChatWidget::currentIndexChanged(index);
 			ChatSessionImpl *session = m_sessions.at(index);
+//			ActionContainer container(session->getUnit());
+//			qDeleteAll(m_unit_actions);
+//			m_unit_actions.clear();
+//			for (int i = 0;i!=container.count();i++) {
+//				m_toolbar->insertAction(m_toolbar->actions().at(0),container.action(i));
+//				m_unit_actions.append(container.action(i));
+//			}
 			m_reciever_selector->setMenu(session->menu());
 		}
 

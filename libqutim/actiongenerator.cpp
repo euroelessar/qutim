@@ -171,10 +171,10 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(controller);
 	}
 
-	MenuController *ActionGenerator::controller() const
-	{
-		return 0;
-	}
+// 	MenuController *ActionGenerator::controller() const
+// 	{
+// 		return 0;
+// 	}
 
 	void ActionGenerator::addCreationHandler(QObject *obj)
 	{
