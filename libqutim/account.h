@@ -26,7 +26,7 @@ namespace qutim_sdk_0_3
 	class ChatUnit;
 	class Contact;
 	class Protocol;
-	class InfoRequest;
+	class Conference;
 	class AccountPrivate;
 
 	/*!
@@ -105,6 +105,10 @@ namespace qutim_sdk_0_3
 		  Signal is emitted when new \a contact was created.
 		*/
 		void contactCreated(qutim_sdk_0_3::Contact *contact);
+		/*!
+		  Signal is emitted when new \a conference was created.
+		*/
+		void conferenceCreated(qutim_sdk_0_3::Conference *conference);
 		/*!
 		  Signal is emitted when account's \a name was changed.
 		*/
