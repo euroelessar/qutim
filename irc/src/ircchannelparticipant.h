@@ -30,6 +30,13 @@ class IrcChannelParticipant : public Buddy
 {
 	Q_OBJECT
 public:
+	enum IrcParticipantFlag
+	{
+		Voice,
+		HalfOp,
+		Op
+	};
+	Q_DECLARE_FLAGS(IrcParticipantFlags, IrcParticipantFlag);
 	IrcChannelParticipant(IrcChannel *channel, const QString &nick);
 	~IrcChannelParticipant();
 	virtual bool sendMessage(const Message &message);
@@ -37,11 +44,13 @@ public:
 	virtual QString name() const;
 	IrcContact *contact();
 	const IrcContact *contact() const;
+	void setFlag(QChar flag);
 signals:
 	void quit(const QString &message);
 private:
 	QScopedPointer<IrcChannelParticipantPrivate> d;
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(IrcChannelParticipant::IrcParticipantFlags)
 
 } } // namespace qutim_sdk_0_3::irc
 

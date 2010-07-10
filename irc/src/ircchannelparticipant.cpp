@@ -26,6 +26,7 @@ class IrcChannelParticipantPrivate
 {
 public:
 	QPointer<IrcContact> contact;
+	IrcChannelParticipant::IrcParticipantFlags flags;
 };
 
 IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString &nick) :
@@ -68,4 +69,15 @@ const IrcContact *IrcChannelParticipant::contact() const
 {
 	return d->contact;
 }
+
+void IrcChannelParticipant::setFlag(QChar flag)
+{
+	if (flag == '+')
+		d->flags |= Voice;
+	else if (flag == '%')
+		d->flags |= HalfOp;
+	else if (flag == '@')
+		d->flags |= Op;
+}
+
 } } // namespace qutim_sdk_0_3::irc

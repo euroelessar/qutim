@@ -166,13 +166,23 @@ void IrcChannel::handleUserList(const QStringList &users)
 	ChatSession *session = ChatLayer::instance()->getSession(this, true);
 	QString myNick = account()->name();
 	foreach (QString userNick, users) {
+		static QSet<QChar> flags = QSet<QChar>() << '+' << '%' << '@';
 		Q_ASSERT(!userNick.isEmpty());
-		QChar first = userNick.at(0);
-		if (first == '+' || first == '@') // TODO: set mode to user
+		QChar flag = userNick.at(0);
+		bool isFlag = flags.contains(flag);
+		if (isFlag)
 			userNick = userNick.mid(1);
 		bool isMe = userNick == myNick;
-		if ((isMe && me()) || (!isMe && d->users.contains(userNick)))
+		if (isMe && d->me) {
+			if (isFlag)
+				d->me->setFlag(flag);
 			continue;
+		}
+		if (!isMe && d->users.contains(userNick)) {
+			if (isFlag)
+				d->users.value(userNick)->setFlag(flag);
+			continue;
+		}
 		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, userNick));
 		if (isMe) {
 			connect(user.data(), SIGNAL(nameChanged(QString)), SLOT(onMyNickChanged(QString)));
@@ -182,6 +192,8 @@ void IrcChannel::handleUserList(const QStringList &users)
 			connect(user.data(), SIGNAL(quit(QString)), SLOT(onContactQuit(QString)));
 			d->users.insert(userNick, user);
 		}
+		if (isFlag)
+			user->setFlag(flag);
 		if (session)
 			session->addContact(user.data());
 	}
