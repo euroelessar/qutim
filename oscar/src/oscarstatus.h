@@ -41,7 +41,7 @@ class OscarStatusPrivate;
 
 typedef QHash<QString, Capability> CapabilityHash;
 
-struct OscarStatusData
+struct LIBOSCAR_EXPORT OscarStatusData
 {
 	OscarStatusData();
 	OscarStatusData(int id, Status::Type type, quint16 flag = 0,

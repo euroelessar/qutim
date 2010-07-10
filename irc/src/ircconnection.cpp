@@ -131,6 +131,7 @@ void IrcConnection::handleMessage(class IrcAccount *account, const QString &name
 		QString channelName = params.value(0);
 		if (name == m_account->name()) { // We has been connected to the channel.
 			IrcChannel *channel = account->getChannel(channelName, true);
+			emit channel->joined();
 			ChatSession *session = ChatLayer::instance()->getSession(channel, true);
 			session->activate();
 		} else { // Someone has joined the channel.
