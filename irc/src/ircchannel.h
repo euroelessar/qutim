@@ -55,9 +55,11 @@ private:
 	void handleUserList(const QStringList &users);
 	void handleJoin(const QString &nick, const QString &host);
 	void handlePart(const QString &nick, const QString &message);
+	void handleKick(const QString &nick, const QString &by, const QString &message);
 	void handleTopic(const QString &topic);
 	void handleTopicInfo(const QString &user, const QString &timeStr);
 	void addSystemMessage(const QString &message, ChatSession *session);
+	void clear(ChatSession *session);
 private:
 	QScopedPointer<IrcChannelPrivate> d;
 };

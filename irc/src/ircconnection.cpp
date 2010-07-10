@@ -53,7 +53,8 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< "NICK"
 		<< "QUIT"
 		<< 332  // RPL_TOPIC
-		<< 333; // RPL_TOPIC_INFO
+		<< 333  // RPL_TOPIC_INFO
+		<< "KICK";
 	registerHandler(this);
 }
 
@@ -174,6 +175,12 @@ void IrcConnection::handleMessage(class IrcAccount *account, const QString &name
 			channel->handleTopicInfo(params.value(2), params.value(3));
 		else
 			channelIsNotJoinedError("RPL_TOPIC_INFO", params.value(1));
+	} else if (cmd == "KICK") {
+		IrcChannel *channel = account->getChannel(params.value(0), false);
+		if (channel)
+			channel->handleKick(params.value(1), name, params.value(2));
+		else
+			channelIsNotJoinedError(cmd, params.value(0));
 	}
 }
 

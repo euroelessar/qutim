@@ -223,22 +223,59 @@ void IrcChannel::handleJoin(const QString &nick, const QString &host)
 
 void IrcChannel::handlePart(const QString &nick, const QString &leaveMessage)
 {
-	if (nick == account()->name())
-		return;
-	if (ParticipantPointer user = d->users.take(nick)) {
+	if (nick == account()->name()) {
+		ChatSession *session = ChatLayer::instance()->getSession(this, false);
+		if (session) {
+			QString text;
+			if (!leaveMessage.isEmpty())
+				text = QT_TRANSLATE_NOOP("IrcChannel", "You left this channel");
+			else
+				text = QT_TRANSLATE_NOOP("IrcChannel", "You left this channel (%1)");
+			text = text.arg(leaveMessage);
+			addSystemMessage(text, session);
+		}
+		clear(session);
+	} else if (ParticipantPointer user = d->users.take(nick)) {
 		ChatSession *session = ChatLayer::instance()->getSession(this, false);
 		if (session) {
 			session->removeContact(user.data());
 			QString text;
 			if (!leaveMessage.isEmpty())
-				text = QT_TRANSLATE_NOOP("IrcChannel", "%1 has left this channel (%2)")
-						.toString()
-						.arg(nick)
-						.arg(leaveMessage);
+				text = QT_TRANSLATE_NOOP("IrcChannel", "%1 has left this channel (%2)");
 			else
-				text = QT_TRANSLATE_NOOP("IrcChannel", "%1 has left this channel")
-						.toString()
-						.arg(nick);
+				text = QT_TRANSLATE_NOOP("IrcChannel", "%1 has left this channel");
+			text = text.arg(nick).arg(leaveMessage);
+			addSystemMessage(text, session);
+		}
+	} else {
+		debug() << nick << "does not present in" << d->name;
+	}
+}
+
+void IrcChannel::handleKick(const QString &nick, const QString &by, const QString &leaveMessage)
+{
+	if (nick == account()->name()) {
+		ChatSession *session = ChatLayer::instance()->getSession(this, false);
+		if (session) {
+			QString text;
+			if (!leaveMessage.isEmpty())
+				text = QT_TRANSLATE_NOOP("IrcChannel", "%1 has kicked you from the channel (%2)");
+			else
+				text = QT_TRANSLATE_NOOP("IrcChannel", "%1 has kicked you from the channel");
+			text = text.arg(by).arg(leaveMessage);
+			addSystemMessage(text, session);
+		}
+		clear(session);
+	} else if (ParticipantPointer user = d->users.take(nick)) {
+		ChatSession *session = ChatLayer::instance()->getSession(this, false);
+		if (session) {
+			session->removeContact(user.data());
+			QString text;
+			if (!leaveMessage.isEmpty())
+				text = QT_TRANSLATE_NOOP("IrcChannel", "%1 has kicked %2 (%3)");
+			else
+				text = QT_TRANSLATE_NOOP("IrcChannel", "%1 has kicked %2");
+			text = text.arg(by).arg(nick).arg(leaveMessage);
 			addSystemMessage(text, session);
 		}
 	} else {
@@ -281,6 +318,19 @@ void IrcChannel::addSystemMessage(const QString &message, ChatSession *session)
 	msg.setProperty("service", true);
 	msg.setTime(QDateTime::currentDateTime());
 	session->appendMessage(msg);
+}
+
+void IrcChannel::clear(ChatSession *session)
+{
+	if (session)
+		session->removeContact(d->me.data());
+	d->me = ParticipantPointer();
+	emit meChanged(0);
+	foreach (const ParticipantPointer &user, d->users) {
+		if (session)
+			session->removeContact(user.data());
+	}
+	d->users.clear();
 }
 
 } } // namespace qutim_sdk_0_3::irc
