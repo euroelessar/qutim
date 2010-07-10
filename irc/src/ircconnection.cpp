@@ -124,7 +124,10 @@ void IrcConnection::handleMessage(class IrcAccount *account, const QString &name
 				return;
 			}
 			session = ChatLayer::instance()->getSession(channel, true);
-			msg.setChatUnit(channel->participant(name));
+			msg.setChatUnit(channel);
+			msg.setProperty("senderName", name);
+			msg.setProperty("senderId", name);
+			msg.setProperty("silent", true);
 		}
 		session->appendMessage(msg);
 	} else if (cmd == "JOIN") {
