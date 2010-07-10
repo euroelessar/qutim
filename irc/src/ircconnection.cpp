@@ -22,6 +22,7 @@
 #include <QHostInfo>
 #include <QTextCodec>
 #include <QRegExp>
+#include <QDateTime>
 #include <qutim/objectgenerator.h>
 #include <qutim/messagesession.h>
 
@@ -109,6 +110,7 @@ void IrcConnection::handleMessage(class IrcAccount *account, const QString &name
 		bool isPrivate = (to == m_account->name());
 		Message msg(text);
 		msg.setIncoming(true);
+		msg.setTime(QDateTime::currentDateTime());
 		ChatSession *session;
 		if (isPrivate) {
 			IrcContact *contact = account->getContact(name, true);
