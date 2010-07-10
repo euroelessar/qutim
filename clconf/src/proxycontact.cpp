@@ -18,12 +18,14 @@
 #include "clconfplugin.h"
 
 ProxyContact::ProxyContact(Conference *conf) :
-	Contact(ClConfPlugin::instance()->account(conf->account())), m_conf(conf)
+	Contact(ClConfPlugin::instance()->account(conf->account())), m_conf(conf), m_conn(false)
 {
 	connect(conf, SIGNAL(destroyed()), SLOT(deleteLater()));
 	setMenuOwner(m_conf);
 	connect(m_conf, SIGNAL(nameChanged(QString)), SIGNAL(nameChanged(QString)));
 	connect(m_conf, SIGNAL(titleChanged(QString)), SIGNAL(titleChanged(QString)));
+	connect(m_conf, SIGNAL(joined()), SLOT(onJoined()));
+	connect(m_conf, SIGNAL(leaved()), SLOT(onLeaved()));
 }
 
 QStringList ProxyContact::tags() const
@@ -63,10 +65,22 @@ QString ProxyContact::name() const
 
 Status ProxyContact::status() const
 {
-	return Status(Status::Online);
+	return Status(m_conn ? Status::Online : Status::Offline);
 }
 
 bool ProxyContact::sendMessage(const Message &message)
 {
 	return m_conf->sendMessage(message);
+}
+
+void ProxyContact::onJoined()
+{
+	m_conn = true;
+	emit statusChanged(status());
+}
+
+void ProxyContact::onLeaved()
+{
+	m_conn = false;
+	emit statusChanged(status());
 }

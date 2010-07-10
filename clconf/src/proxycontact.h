@@ -36,8 +36,12 @@ public:
 	virtual Status status() const;
 	virtual bool sendMessage(const Message &message);
 	Conference *conference() const { return m_conf; }
+private slots:
+	void onJoined();
+	void onLeaved();
 private:
 	Conference *m_conf;
+	bool m_conn;
 };
 
 #endif // PROXYCONTACT_H
