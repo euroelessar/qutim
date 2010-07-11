@@ -22,7 +22,7 @@ ProxyContact::ProxyContact(Conference *conf) :
 {
 	connect(conf, SIGNAL(destroyed()), SLOT(deleteLater()));
 	setMenuOwner(m_conf);
-	connect(m_conf, SIGNAL(nameChanged(QString)), SIGNAL(nameChanged(QString)));
+	connect(m_conf, SIGNAL(titleChanged(QString)), this, SIGNAL(nameChanged(QString)));
 	connect(m_conf, SIGNAL(titleChanged(QString)), SIGNAL(titleChanged(QString)));
 	connect(m_conf, SIGNAL(joined()), SLOT(onJoined()));
 	connect(m_conf, SIGNAL(leaved()), SLOT(onLeaved()));
@@ -60,7 +60,7 @@ QString ProxyContact::title() const
 
 QString ProxyContact::name() const
 {
-	return m_conf->id();
+	return m_conf->title();
 }
 
 Status ProxyContact::status() const
