@@ -50,6 +50,8 @@ namespace Jabber {
 		p->roster = new JRoster(this);
 		p->messageHandler = new JMessageHandler(this);
 		p->conferenceManager = new JMUCManager(this);
+		connect(p->conferenceManager, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)), 
+				SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
 		p->connection->initExtensions();
 		autoconnect();
 	}

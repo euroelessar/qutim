@@ -113,7 +113,7 @@ namespace Jabber
 					break;
 				}
 			p->rooms.insert(conference, room);
-			//TODO: add conference to roster
+			emit conferenceCreated(room);
 		} else {
 			room = p->rooms.value(conference);
 		}

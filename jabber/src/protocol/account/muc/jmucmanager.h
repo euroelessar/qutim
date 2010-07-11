@@ -5,6 +5,11 @@
 #include <qutim/chatunit.h>
 #include <gloox/presence.h>
 
+namespace qutim_sdk_0_3 
+{
+	class Conference;
+}
+
 namespace Jabber
 {
 	using namespace qutim_sdk_0_3;
@@ -32,6 +37,8 @@ namespace Jabber
 			void leave(const QString &room);
 			bool event(QEvent *event);
 			void appendMUCSession(JMUCSession *room);
+		signals:
+			void conferenceCreated(qutim_sdk_0_3::Conference*);
 		private slots:
 			void bookmarksChanged();
 			void join();
