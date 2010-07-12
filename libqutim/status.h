@@ -76,10 +76,10 @@ namespace qutim_sdk_0_3
 		static QString iconName(Type type, const QString &protocol = QString());
 		static Status instance(Type type, const char *proto, int subtype = 0);
 		static bool remember(const Status &status, const char *proto);
-		void setExtendedStatus(const QString &name, const QVariantMap &status);
-		void removeExtendedStatus(const QString &name);
-		QVariantMap extendedStatus(const QString &name) const;
-		QVariantHash extendedStatuses() const;
+		void setExtendedInfo(const QString &name, const QVariantMap &status);
+		void removeExtendedInfo(const QString &name);
+		QVariantMap extendedInfo(const QString &name) const;
+		QVariantHash extendedInfos() const;
 	private:
 		QSharedDataPointer<StatusPrivate> d;
 	};

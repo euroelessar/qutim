@@ -302,22 +302,22 @@ namespace qutim_sdk_0_3
 		return true;
 	}
 
-	void Status::setExtendedStatus(const QString &name, const QVariantMap &status)
+	void Status::setExtendedInfo(const QString &name, const QVariantMap &status)
 	{
 		d->extStatuses.insert(name,status);
 	}
 
-	void Status::removeExtendedStatus(const QString &name)
+	void Status::removeExtendedInfo(const QString &name)
 	{
 		d->extStatuses.remove(name);
 	}
 
-	QVariantMap Status::extendedStatus(const QString &name) const
+	QVariantMap Status::extendedInfo(const QString &name) const
 	{
 		return d->extStatuses.value(name).value<QVariantMap>();
 	}
 
-	QVariantHash Status::extendedStatuses() const
+	QVariantHash Status::extendedInfos() const
 	{
 		return d->extStatuses;
 	}

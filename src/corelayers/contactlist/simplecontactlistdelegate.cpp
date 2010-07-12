@@ -29,6 +29,12 @@ namespace Core
 {
 	namespace SimpleContactList
 	{
+		bool infoLessThan (const QVariant &a,const QVariant &b) {
+			int p1 = a.toMap().value("priority").toInt();
+			int p2 = b.toMap().value("priority").toInt();
+			return p1 < p2;
+		};
+
 		SimpleContactListDelegate::SimpleContactListDelegate(QTreeView *parent) :
 				QAbstractItemDelegate(parent)
 		{
@@ -101,10 +107,21 @@ namespace Core
 
 					if (m_show_flags & ShowExtendedStatusIcons)
 					{
-						QVariantHash extStatuses = status.extendedStatuses();
-						foreach (const QVariant &data, extStatuses)
+						QVariantHash extStatuses = status.extendedInfos();
+
+						QVariantList list;
+						foreach (const QVariant &data,extStatuses) {
+							QVariantList::iterator search_it =
+							qLowerBound(list.begin(), list.end(), data, infoLessThan);
+							list.insert(search_it,data);
+						}
+
+						foreach (const QVariant &data, list)
 						{
-							QVariant extIconVar = data.value<QVariantMap>().value("icon");
+							QVariantMap map = data.value<QVariantMap>();
+							if (!map.value("showIcon",true).toBool())
+								continue;
+							QVariant extIconVar = map.value("icon");
 							QIcon icon;
 							if (extIconVar.canConvert<ExtensionIcon>())
 								icon = extIconVar.value<ExtensionIcon>().toIcon();

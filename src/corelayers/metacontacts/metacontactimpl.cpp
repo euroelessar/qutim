@@ -171,13 +171,13 @@ namespace Core
 			m_status.setText(contactStatus.text());
 			QSet<QString> keys;
 			for (int i = 0; i < m_contacts.size(); i++) {
-				QVariantHash hash = m_contacts.at(i)->status().extendedStatuses();
+				QVariantHash hash = m_contacts.at(i)->status().extendedInfos();
 				QVariantHash::const_iterator it = hash.constBegin();
 				QVariantHash::const_iterator endit = hash.constEnd();
 				for (; it != endit; it++) {
 					if (!keys.contains(it.key())) {
 						keys << it.key();
-						m_status.setExtendedStatus(it.key(), it.value().toMap());
+						m_status.setExtendedInfo(it.key(), it.value().toMap());
 					}
 				}
 			}
