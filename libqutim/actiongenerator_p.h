@@ -30,7 +30,8 @@ namespace qutim_sdk_0_3
 		ActionConnectionObjectOnly,	// methodName(QObject*)
 		ActionConnectionActionOnly,	// methodName(QAction*)
 		ActionConnectionFull,		// methodName(QAction*,QObject*)
-		ActionConnectionSimple		// methodName()
+		ActionConnectionSimple,		// methodName()
+		ActionConnectionNone		// member is null
 	};
 
 	class ActionGeneratorPrivate : public ObjectGeneratorPrivate

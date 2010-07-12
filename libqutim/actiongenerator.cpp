@@ -90,7 +90,10 @@ namespace qutim_sdk_0_3
 		d->member = QMetaObject::normalizedSignature(member);
 		char type = d->member[0];
 		d->member[0] = '0' + QSIGNAL_CODE;
-		d->ensureConnectionType();
+		if (!member)
+			d->connectionType = ActionConnectionNone;
+		else
+			d->ensureConnectionType();
 		d->member[0] = type;
 		d->data = new ActionData;
 	}
@@ -104,7 +107,10 @@ namespace qutim_sdk_0_3
 		d->member = QMetaObject::normalizedSignature(member);
 		char type = d->member[0];
 		d->member[0] = '0' + QSIGNAL_CODE;
-		d->ensureConnectionType();
+		if (!member)
+			d->connectionType = ActionConnectionNone;
+		else
+			d->ensureConnectionType();
 		d->member[0] = type;
 		d->data = new ActionData;
 	}
