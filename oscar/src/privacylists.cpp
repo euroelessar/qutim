@@ -62,9 +62,9 @@ PrivacyActionGenerator::PrivacyActionGenerator(Visibility visibility, bool invis
 	m_visibility(visibility), m_invisibleMode(invisibleMode)
 {
 	if (invisibleMode)
-		setType(actionType+0x10000);
+		setType(actionType+0x20000);
 	else
-		setType(actionType+0x100000);
+		setType(actionType+0x10000);
 	setPriority(100 - visibility);
 }
 
@@ -166,13 +166,13 @@ PrivacyLists::PrivacyLists()
 		MenuController::addAction<IcqContact>(action.data());
 	static QList<ActionPointer> accountMenuList;
 	accountMenuList
-			<< ActionPointer(new SeparatorGenerator(QT_TRANSLATE_NOOP("Privacy", "Visible mode:"), 105, actionType+1))
+			<< ActionPointer(new SeparatorGenerator(QT_TRANSLATE_NOOP("Privacy", "Visible mode:"), 105, actionType+0x10000))
 			<< ActionPointer(new PrivacyActionGenerator(AllowAllUsers))
 			<< ActionPointer(new PrivacyActionGenerator(BlockAllUsers))
 			<< ActionPointer(new PrivacyActionGenerator(AllowPermitList))
 			<< ActionPointer(new PrivacyActionGenerator(BlockDenyList))
 			<< ActionPointer(new PrivacyActionGenerator(AllowContactList))
-			<< ActionPointer(new SeparatorGenerator(QT_TRANSLATE_NOOP("Privacy", "Invisible mode:"), 105, actionType+2))
+			<< ActionPointer(new SeparatorGenerator(QT_TRANSLATE_NOOP("Privacy", "Invisible mode:"), 105, actionType+0x20000))
 			<< ActionPointer(new PrivacyActionGenerator(AllowPermitList, true))
 			<< ActionPointer(new PrivacyActionGenerator(BlockAllUsers, true));
 	Q_UNUSED(QT_TRANSLATE_NOOP("MetaController", "Additional"));
