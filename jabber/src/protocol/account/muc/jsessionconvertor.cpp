@@ -123,12 +123,14 @@ namespace Jabber
 		Q_ASSERT(d->room == room);
 		Q_UNUSED(msg);
 		Q_UNUSED(priv);
+		Q_UNUSED(d);
 	}
 
 	bool JSessionConvertor::handleMUCRoomCreation(MUCRoom *room)
 	{
 		Q_D(JSessionConvertor);
 		Q_ASSERT(d->room == room);
+		Q_UNUSED(d);
 		return true;
 	}
 
@@ -139,6 +141,7 @@ namespace Jabber
 		Q_ASSERT(d->room == room);
 		Q_UNUSED(nick);
 		Q_UNUSED(subject);
+		Q_UNUSED(d);
 	}
 
 	void JSessionConvertor::handleMUCInviteDecline(MUCRoom *room, const JID &invitee,
@@ -148,6 +151,7 @@ namespace Jabber
 		Q_ASSERT(d->room == room);
 		Q_UNUSED(invitee);
 		Q_UNUSED(reason);
+		Q_UNUSED(d);
 	}
 
 	void JSessionConvertor::handleMUCError(MUCRoom *room, StanzaError error)
@@ -155,6 +159,7 @@ namespace Jabber
 		Q_D(JSessionConvertor);
 		Q_ASSERT(d->room == room);
 		Q_UNUSED(error);
+		Q_UNUSED(d);
 	}
 
 	void JSessionConvertor::handleMUCInfo(MUCRoom *room, int features, const std::string &name,
@@ -165,6 +170,7 @@ namespace Jabber
 		Q_UNUSED(features);
 		Q_UNUSED(name);
 		Q_UNUSED(infoForm);
+		Q_UNUSED(d);
 	}
 
 	void JSessionConvertor::handleMUCItems(MUCRoom *room, const Disco::ItemList &items)
@@ -172,6 +178,7 @@ namespace Jabber
 		Q_D(JSessionConvertor);
 		Q_ASSERT(d->room == room);
 		Q_UNUSED(items);
+		Q_UNUSED(d);
 	}
 	
 	void JSessionConvertor::processServer(const QString &server)
