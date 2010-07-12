@@ -18,6 +18,8 @@ public:
 
 public slots:
 	void onIdle(int secs);
+	void reloadSettings();
+
 private:
 	void refillAccounts();
 	enum State
@@ -26,6 +28,8 @@ private:
 		Away,
 		Inactive
 	};
+	bool m_awayEnabled;
+	bool m_naEnabled;
 	State m_state;
 	int m_awaySecs;
 	Status m_awayStatus;

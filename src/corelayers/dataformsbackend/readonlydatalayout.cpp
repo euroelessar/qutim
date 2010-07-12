@@ -60,7 +60,7 @@ QWidget *ReadOnlyDataLayout::getReadOnlyWidget(const DataItem &item, bool *twoCo
 		QLabel *d = new QLabel();
 		QSize size = item.property("imageSize", QSize(128, 128));
 		QPixmap pixmap = variantToPixmap(item.data(), size);
-		if (!pixmap.isNull())
+		if (pixmap.isNull())
 			pixmap = variantToPixmap(item.property("defaultImage"), size);
 		d->setPixmap(pixmap);
 		d->setFrameShape(QFrame::Panel);
