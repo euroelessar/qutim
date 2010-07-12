@@ -43,9 +43,11 @@ namespace qutim_sdk_0_3
 
 	ActionToolBar::~ActionToolBar()
 	{
+		qDeleteAllLater(p->generators);
+		qDeleteAllLater(p->actions);
 	}
-
-	QAction *ActionToolBar::addAction(ActionGenerator *generator)
+	
+	QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator)
 	{
 		Q_ASSERT(generator);
 		int index = p->generators.indexOf(generator);
@@ -56,7 +58,7 @@ namespace qutim_sdk_0_3
 		p->generators << generator;
 		p->actions << action;
 		bool hasMenu = !!action->menu();
-		QWidget::addAction(action);
+		QWidget::insertAction(before,action);
 		if (hasMenu) {
 			QList<QToolButton *> buttons = findChildren<QToolButton*>();
 			for (int i = buttons.size() - 1; i >= 0; i--) {
@@ -67,6 +69,13 @@ namespace qutim_sdk_0_3
 			}
 		}
 		return action;
+	}
+
+
+	QAction *ActionToolBar::addAction(ActionGenerator *generator)
+	{
+		Q_ASSERT(generator);
+		return insertAction(0,generator);
 	}
 
 	void ActionToolBar::setData(const QVariant &var)

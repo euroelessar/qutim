@@ -34,10 +34,12 @@ namespace qutim_sdk_0_3
 		ActionTypeContactList = 0x01, //Actions in contactlist
 		ActionTypeChatButton = 0x02, //Chat buttons
 		ActionTypeAdditional = 0x04, //Additional modifier
-		ActionTypeAccountSettings = 0x8, //Must be shown if accounts configuration dialog
+		ActionTypeAccount = 0x8, 
 		ActionTypePreferences = 0x10, //QAction::PreferencesRole
 		ActionTypeContactInfo = 0x20
 	};
+	
+	Q_DECLARE_FLAGS(ActionsType,ActionType)
 
 	class LIBQUTIM_EXPORT ActionCreatedEvent : public QEvent
 	{
@@ -106,6 +108,7 @@ namespace qutim_sdk_0_3
 		friend class MenuController;
 		friend class MenuControllerPrivate;
 		friend class DynamicMenu;
+		friend class ActionContainerPrivate;
 	};
 
 	class LIBQUTIM_EXPORT MenuActionGenerator : public ActionGenerator
