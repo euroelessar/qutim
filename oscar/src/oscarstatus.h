@@ -44,7 +44,8 @@ typedef QHash<QString, Capability> CapabilityHash;
 struct LIBOSCAR_EXPORT OscarStatusData
 {
 	OscarStatusData();
-	OscarStatusData(int id, Status::Type type, quint16 flag = 0,
+	OscarStatusData(int id, Status::Type type);
+	OscarStatusData(int id, Status::Type type, quint16 flag,
 					const QString &iconName = QString(),
 					const LocalizedString &name = LocalizedString(),
 					const CapabilityHash &caps = CapabilityHash());

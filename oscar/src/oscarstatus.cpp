@@ -71,12 +71,15 @@ OscarStatusData::OscarStatusData()
 {
 }
 
+OscarStatusData::OscarStatusData(int _id, Status::Type _type) :
+	id (_id), type(_type), flag(_id)
+{
+}
+
 OscarStatusData::OscarStatusData(int _id, Status::Type _type, quint16 _flag, const QString &_icon,
 								 const LocalizedString &_name, const CapabilityHash &_caps):
 	id (_id), type(_type), flag(_flag), iconName(_icon), name(_name), caps(_caps)
 {
-	if (flag == 0)
-		flag = id;
 }
 
 OscarStatus::OscarStatus(quint16 status)
@@ -123,6 +126,7 @@ OscarStatus::~OscarStatus()
 void OscarStatus::setData(const OscarStatusData &data)
 {
 	setType(data.type);
+	initIcon("icq");
 	setSubtype(data.id);
 	if (!data.iconName.isEmpty())
 		setIcon(Icon(QString("user-%1-icq").arg(data.iconName)));
@@ -188,7 +192,6 @@ void OscarStatus::registerStatus(OscarStatusData statusData)
 
 void OscarStatus::setStatusFlag(quint16 status)
 {
-	initIcon("icq");
 	foreach (const OscarStatusData &data, *statusList()) {
 		if ((status == 0 && data.flag == 0) || (data.flag & status)) {
 			setData(data);
@@ -199,7 +202,6 @@ void OscarStatus::setStatusFlag(quint16 status)
 
 void OscarStatus::setStatusType(Status::Type status)
 {
-	initIcon("icq");
 	foreach (const OscarStatusData &data, *statusList()) {
 		if (data.type == status) {
 			setData(data);
