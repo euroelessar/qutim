@@ -20,12 +20,15 @@ class FileTransferActionGenerator : public ActionGenerator
 public:
 	FileTransferActionGenerator(QObject *receiver) :
 			ActionGenerator(Icon("document-save"), QT_TRANSLATE_NOOP("FileTransfer", "Send file"),
-							receiver, SLOT(onSendFile(QObject*))) {}
+							receiver, SLOT(onSendFile(QObject*))) 
+	{
+		setType(ActionTypeChatButton|ActionTypeContactList);
+	}
 protected:
     virtual void showImpl(QAction *action, QObject *obj)
 	{
 		ChatUnit *buddy = qobject_cast<ChatUnit*>(obj);
-		action->setVisible(buddy && FileTransferManager::instance()->checkAbility(buddy));
+		action->setEnabled(buddy && FileTransferManager::instance()->checkAbility(buddy));
 	}
 };
 

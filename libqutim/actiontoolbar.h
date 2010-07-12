@@ -33,6 +33,8 @@ namespace qutim_sdk_0_3
 
 		using QToolBar::addAction;
 		QAction *addAction(ActionGenerator *generator);
+		using QToolBar::insertAction;
+		QAction *insertAction(QAction *before,ActionGenerator *generator);
 
 		// This is done for Stacked toolbars like one in tabbed
 		// chat window. This method calls setData(data) to every action,

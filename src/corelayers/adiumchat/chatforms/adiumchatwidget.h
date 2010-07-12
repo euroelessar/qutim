@@ -50,6 +50,7 @@ namespace Core
 			QTabBar *getTabBar();
 			QListView *getContactsView();
 			QWebView* getChatView();
+			virtual ActionToolBar* getToolBar();
 		public slots:
 			void addSession(ChatSessionImpl *session);
 			void addSession(const ChatSessionList &sessions);
@@ -66,7 +67,6 @@ namespace Core
 			void onSessionDestroyed(QObject* object);
 			void onTabContextMenu(const QPoint &pos);
 			void onSessionListActionTriggered();
-			void onShowHistory(); //TODO Move to startup module
 			void onUnitTitleChanged(const QString &title);
 		private:
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
@@ -76,7 +76,7 @@ namespace Core
 			ActionToolBar *m_toolbar;
 			QAction *m_session_list;
 			QAction *m_reciever_selector;
-			//QList<QAction*> m_unit_actions;
+			QAction *m_before;
 		};
 	}
 }

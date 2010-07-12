@@ -24,6 +24,6 @@ namespace Core
 		AbstractChatWidget *AdiumChatForm::createWidget(const QString &key, bool removeSessionOnClose)
 		{
 			return new AdiumChatWidget(key, removeSessionOnClose);
-		}
+		}		
 	}
 }

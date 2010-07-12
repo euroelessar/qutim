@@ -42,7 +42,7 @@ namespace Core
 			CopyIdGenerator(QObject *obj) : 
 				ActionGenerator(Icon("edit-copy"),QT_TRANSLATE_NOOP("ContactList", "Copy id to clipboard"),obj,SLOT(onCopyIdTriggered(QObject*)))
 			{
-				
+				setType(ActionTypeContactList|ActionTypeAdditional);
 			}
 		protected:
 			virtual void showImpl(QAction* action, QObject* obj)
@@ -190,7 +190,6 @@ namespace Core
 			//TODO move to another class
 			gen = new CopyIdGenerator(this);
 			gen->setPriority(-100);
-			gen->setType(32); //FIXME
 			MenuController::addAction<ChatUnit>(gen);
 
 			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));

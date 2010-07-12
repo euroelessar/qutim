@@ -256,8 +256,12 @@ protected:
 
 ContactInfo::ContactInfo()
 {
-	MenuController::addAction<Buddy>(new InfoActionGenerator(this));
-	MenuController::addAction<Account>(new InfoActionGenerator(this));
+	ActionGenerator *gen = new InfoActionGenerator(this);
+	gen->setType(ActionTypeContactList|ActionTypeChatButton|ActionTypeContactInfo);
+	MenuController::addAction<Buddy>(gen);
+	gen = new InfoActionGenerator(this);
+	gen->setType(ActionTypeContactList|ActionTypeContactInfo);
+	MenuController::addAction<Account>(gen);
 }
 
 void ContactInfo::show(QObject *object)

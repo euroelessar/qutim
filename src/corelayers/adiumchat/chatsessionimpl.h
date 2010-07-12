@@ -64,6 +64,7 @@ namespace Core
 			void buddiesChanged();
 		public slots:
 			QVariant evaluateJavaScript(const QString &scriptSource);
+			void clearChat();
 		private:
 			QScopedPointer<ChatSessionImplPrivate> d_ptr;
 		};

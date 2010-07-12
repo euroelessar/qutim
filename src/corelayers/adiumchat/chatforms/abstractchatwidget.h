@@ -22,6 +22,10 @@
 #include <QTextCursor>
 #include "../chatlayerimpl.h"
 
+namespace qutim_sdk_0_3 {
+	class ActionToolBar;
+}
+
 class QWebView;
 class QPlainTextEdit;
 class QListView;
@@ -59,7 +63,8 @@ namespace Core
 			virtual QTabBar *getTabBar() = 0;
 			virtual QListView *getContactsView() = 0;
 			virtual ChatSessionImpl *currentSession();
-			virtual QWebView *getChatView() = 0; 
+			virtual QWebView *getChatView() = 0;
+			virtual ActionToolBar *getToolBar() = 0;
 			virtual void loadAppearanceSettings();
 			virtual void loadBehaviorSettings();
 			virtual bool eventFilter(QObject *obj, QEvent *event);
@@ -78,6 +83,7 @@ namespace Core
 			void onBuddiesChanged();
 			void onDoubleClicked(const QModelIndex &index);
 			virtual void currentIndexChanged (int index);
+			void onClearTriggered();
 		public slots:
 			void raise();
 		protected:
@@ -95,6 +101,7 @@ namespace Core
 			QTimer m_chatstateTimer;
 			int m_current_index;
 			QPointer<QTextDocument> m_originalDoc;
+			QList<QAction *> m_actions;
 		private:
 			bool atLoad;
 		};

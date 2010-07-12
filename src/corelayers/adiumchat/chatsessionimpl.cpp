@@ -105,6 +105,12 @@ namespace Core
 		{
 			return d_func()->chat_style_output->getVariant();
 		}
+		
+		void ChatSessionImpl::clearChat()
+		{
+			Q_D(ChatSessionImpl);
+			d->chat_style_output->preparePage(d->web_page,this);
+		}
 
 		void ChatSessionImpl::setCustomCSS(const QString &css)
 		{

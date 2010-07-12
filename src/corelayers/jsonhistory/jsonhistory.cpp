@@ -7,9 +7,27 @@
 #include "libqutim/json.h"
 #include <QStringBuilder>
 #include "historywindow.h"
+#include <libqutim/icon.h>
 
 namespace Core
 {
+	void init()
+	{
+		History *history = History::instance();
+		ActionGenerator *gen = new ActionGenerator(Icon("view-history"),
+											QT_TRANSLATE_NOOP("Chat", "View History"),
+											history,
+											SLOT(onHistoryActionTriggered(QObject*)));
+		gen->setType(ActionTypeChatButton|ActionTypeContactList);
+		gen->setPriority(512);
+		MenuController::addAction<ChatUnit>(gen);
+	}
+
+	static Core::CoreStartupHelper<&init> history_action_init_static(
+			QT_TRANSLATE_NOOP("Plugin", "Helper for history layer"),
+			QT_TRANSLATE_NOOP("Plugin", "Adds \"View history\" action to contact's menu")
+			);
+	
 	static CoreSingleModuleHelper<JsonHistory> history_static(
 		QT_TRANSLATE_NOOP("Plugin", "Json History"),
 		QT_TRANSLATE_NOOP("Plugin", "Default qutIM history implementation, based on JavaScript Object Notation")
@@ -17,6 +35,7 @@ namespace Core
 
 	JsonHistory::JsonHistory()
 	{
+
 	}
 
 	JsonHistory::~JsonHistory()
@@ -303,4 +322,11 @@ namespace Core
 			history_dir.mkpath(path);
 		return history_dir.filePath(path);
 	}
+	
+	void JsonHistory::onHistoryActionTriggered(QObject* object)
+	{
+		ChatUnit *unit = qobject_cast<ChatUnit*>(object);
+		showHistory(unit);
+	}
+
 }

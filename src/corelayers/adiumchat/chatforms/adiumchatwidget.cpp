@@ -24,8 +24,6 @@
 #include <QTime>
 #include <libqutim/qtwin.h>
 #include <qshortcut.h>
-#include <QWidgetAction>
-#include "../actions/chatemoticonswidget.h"
 #include <libqutim/history.h>
 #include <libqutim/conference.h>
 #include "../chatsessionitemdelegate.h"
@@ -95,25 +93,8 @@ namespace Core
 			m_toolbar->setIconSize(QSize(22,22));
 			//m_toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
-			//for testing
-			QMenu *menu = new QMenu(this);
-
-			m_toolbar->addAction(new ActionGenerator(Icon("view-history"),
-													 QT_TRANSLATE_NOOP("Chat", "View History"),
-													 this,
-													 SLOT(onShowHistory())));
-
-			m_toolbar->addAction(new MenuActionGenerator(Icon("face-smile"),
-														 QT_TRANSLATE_NOOP("Chat", "Emoticons"),
-														 menu));
-			QWidgetAction *emoticons_widget_act = new QWidgetAction(this);
-			ChatEmoticonsWidget *emoticons_widget = new ChatEmoticonsWidget(this);
-			emoticons_widget->loadTheme();
-			emoticons_widget_act->setDefaultWidget(emoticons_widget);
-			menu->addAction(emoticons_widget_act);
-			connect(emoticons_widget,SIGNAL(insertSmile(QString)),ui->chatEdit,SLOT(appendPlainText(QString)));
-
 			m_toolbar->addSeparator();
+			m_before = m_toolbar->addSeparator();
 
 			m_reciever_selector = new QAction(Icon("view-choose"),tr("Destination"),this);
 			m_reciever_selector->setMenu(new QMenu()); //HACK
@@ -227,13 +208,17 @@ namespace Core
 			}
 			AbstractChatWidget::currentIndexChanged(index);
 			ChatSessionImpl *session = m_sessions.at(index);
-//			ActionContainer container(session->getUnit());
-//			qDeleteAll(m_unit_actions);
-//			m_unit_actions.clear();
-//			for (int i = 0;i!=container.count();i++) {
-//				m_toolbar->insertAction(m_toolbar->actions().at(0),container.action(i));
-//				m_unit_actions.append(container.action(i));
-//			}
+			ActionContainer container(session->getUnit(),ActionContainer::TypeMatch,ActionTypeChatButton);
+			qDeleteAll(m_actions);
+			m_actions.clear();
+			//fixme
+			QAction *before = m_before;
+			for (int i = 0;i!=container.count();i++) {
+				QAction *current = container.action(i);
+				m_toolbar->insertAction(before,current);
+				m_actions.append(current);
+				before = current;
+			}
 			m_reciever_selector->setMenu(session->menu());
 		}
 
@@ -265,6 +250,11 @@ namespace Core
 		ChatSessionList AdiumChatWidget::getSessionList() const
 		{
 			return m_sessions;
+		}
+		
+		ActionToolBar* AdiumChatWidget::getToolBar()
+		{
+			return m_toolbar;
 		}
 
 		void AdiumChatWidget::onCloseRequested(int index)
@@ -372,13 +362,6 @@ namespace Core
 					session->showMenu(tabBar->mapToGlobal(pos));
 				}
 			}
-		}
-
-
-		void AdiumChatWidget::onShowHistory()
-		{
-			ChatUnit *unit = m_sessions.at(m_current_index)->getUnit();
-			History::instance()->showHistory(unit);
 		}
 
 		void AdiumChatWidget::onSessionListActionTriggered()

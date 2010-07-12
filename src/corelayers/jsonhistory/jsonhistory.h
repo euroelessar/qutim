@@ -22,6 +22,8 @@ namespace Core
 		virtual void showHistory(const ChatUnit *unit);
 		static QString quote(const QString &str);
 		static QString unquote(const QString &str);
+	private slots:
+		void onHistoryActionTriggered(QObject *object);
 	private:
 		QString getFileName(const Message &message) const;
 		QDir getAccountDir(const ChatUnit *unit) const;

@@ -23,14 +23,6 @@
 
 namespace qutim_sdk_0_3
 {
-
-	typedef QMap<const QMetaObject *, ActionInfo> MenuActionMap;
-	typedef QMap<const ActionGenerator*,QMap<const QObject*, QAction*> > ActionGeneratorMap;
-
-	Q_GLOBAL_STATIC(MenuActionMap, globalActions)
-	Q_GLOBAL_STATIC(ActionGeneratorMap,actionsCache);
-	Q_GLOBAL_STATIC(ActionHandler,handler);
-
 	MenuController::MenuController(QObject *parent) : QObject(parent), d_ptr(new MenuControllerPrivate(this))
 	{
 	}
@@ -213,7 +205,6 @@ namespace qutim_sdk_0_3
 		foreach (QAction *action,this->actions()) {
 			ActionGenerator *gen = action->data().value<ActionGenerator*>();
 			if (!gen) {
-				qWarning("DynamicMenu::Invalid ActionGenerator");
 				continue;
 			}
 			QObject *controller = m_owners.value(gen);
@@ -346,7 +337,6 @@ namespace qutim_sdk_0_3
 					break;
 				foreach (const ActionInfo &info, globalActions()->values(meta)) {
 					actions << info;
-					//m_owners.insert(info.gen, const_cast<MenuController*>(owner));
 				}
 				metaObjects.insert(meta);
 				meta = meta->superClass();
@@ -354,10 +344,11 @@ namespace qutim_sdk_0_3
 			owner = MenuControllerPrivate::get(owner)->owner;
 		}
 
+		qSort(actions.begin(), actions.end(), actionLessThan);
+
 		foreach (ActionInfo info,actions) {
 			if (filterData.canConvert(QVariant::Int)) {
 				int typeMask = filterData.toInt();
-				debug() << checkTypeMask(info,typeMask);
 				if (checkTypeMask(info,typeMask)) {
 					ensureAction(info);
 				}
@@ -365,7 +356,6 @@ namespace qutim_sdk_0_3
 			else if (filterData.isNull()) {
 				ensureAction(info);
 			}
-			debug() << filterData;
 		}
 	}
 	
@@ -381,6 +371,8 @@ namespace qutim_sdk_0_3
 		}
 		else if (!handler()->actions().contains(action))
 			handler()->addAction(action);
+		//small hack
+		const_cast<ActionGenerator*>(info.gen)->showImpl(action,controller);
 		actions.append(action);
 	}
 	

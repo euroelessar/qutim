@@ -30,6 +30,10 @@
 #include <libqutim/account.h>
 #include <libqutim/status.h>
 #include <libqutim/debug.h>
+#include <QWidgetAction>
+#include "../actions/chatemoticonswidget.h"
+#include <libqutim/icon.h>
+#include <libqutim/actiontoolbar.h>
 
 #ifdef Q_WS_X11
 # include <QX11Info>
@@ -46,15 +50,16 @@
 # undef Status
 #endif
 #endif //Q_WS_X11
-#include <libqutim/icon.h>
+
 
 namespace Core
 {
 	namespace AdiumChat
 	{
-		AbstractChatWidget::AbstractChatWidget(const QString &key, bool removeSessionOnClose)
+		AbstractChatWidget::AbstractChatWidget(const QString& key, bool removeSessionOnClose)
 			: m_key(key), m_removeSessionOnClose(removeSessionOnClose),
-			m_htmlMessage(false), m_chatstate(ChatStateActive), m_entersNumber(0),m_current_index(-1)
+			m_htmlMessage(false), m_chatstate(ChatStateActive), m_entersNumber(0),
+			m_current_index(-1)
 		{
 			setProperty("name",tr("Chat"));
 			setAttribute(Qt::WA_DeleteOnClose);
@@ -167,7 +172,29 @@ namespace Core
 			connect(key,SIGNAL(activated()),SLOT(showPreviousSession()));
 
 			connect(getContactsView(), SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClicked(QModelIndex)));
+			
+			//for testing
+			QMenu *menu = new QMenu(this);
 
+			QAction *before = 0;
+			ActionToolBar *toolBar = getToolBar();
+			if (toolBar->actions().count())
+				before = toolBar->actions().first();
+			toolBar->insertAction(before,new MenuActionGenerator(Icon("face-smile"),
+																 QT_TRANSLATE_NOOP("Chat", "Emoticons"),
+																 menu));
+			QWidgetAction *emoticons_widget_act = new QWidgetAction(this);
+			ChatEmoticonsWidget *emoticons_widget = new ChatEmoticonsWidget(this);
+			emoticons_widget->loadTheme();
+			emoticons_widget_act->setDefaultWidget(emoticons_widget);
+			menu->addAction(emoticons_widget_act);
+			connect(emoticons_widget,SIGNAL(insertSmile(QString)),getInputField(),SLOT(appendPlainText(QString)));
+			
+			getToolBar()->insertAction(before,new ActionGenerator(Icon("edit-clear-list"),
+									QT_TRANSLATE_NOOP("Chat", "Clear chat field"),
+									this,
+									SLOT(onClearTriggered())
+   									));
 		}
 		
 		void AbstractChatWidget::loadAppearanceSettings()
@@ -420,6 +447,12 @@ namespace Core
 		{
 			return (m_current_index == -1) ? 0 : m_sessions.at(m_current_index);
 		}
-
+		
+		void AbstractChatWidget::onClearTriggered()
+		{
+			if (m_current_index == -1)
+				return;
+			m_sessions.at(m_current_index)->clearChat();
+		}
 	}
 }

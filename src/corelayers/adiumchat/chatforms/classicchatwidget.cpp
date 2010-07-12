@@ -23,8 +23,6 @@
 #include <QTime>
 #include <libqutim/qtwin.h>
 #include <qshortcut.h>
-#include <QWidgetAction>
-#include "../actions/chatemoticonswidget.h"
 #include <libqutim/history.h>
 #include <libqutim/conference.h>
 #include "../chatsessionitemdelegate.h"
@@ -35,8 +33,8 @@ namespace Core
 {
 	namespace AdiumChat
 	{
-		ClassicChatWidget::ClassicChatWidget(const QString &widgetKey, bool removeSessionOnClose):
-				AbstractChatWidget(widgetKey, removeSessionOnClose),
+		ClassicChatWidget::ClassicChatWidget(const QString& key, bool removeSessionOnClose):
+				AbstractChatWidget(key, removeSessionOnClose),
 				ui(new Ui::ClassicChatForm)
 		{
 			m_current_index = -1;
@@ -69,25 +67,6 @@ namespace Core
 			//init toolbar
 			ui->actionToolBar->setStyleSheet("QToolBar{background:none;border:none}");
 			ui->actionToolBar->setIconSize(QSize(16,16));
-
-			//for testing
-			QMenu *menu = new QMenu(this);
-
-			ui->actionToolBar->addAction(new ActionGenerator(Icon("view-history"),
-															 QT_TRANSLATE_NOOP("Chat", "View History"),
-															 this,
-															 SLOT(onShowHistory())));
-
-			ui->actionToolBar->addAction(new MenuActionGenerator(Icon("face-smile"),
-																 QT_TRANSLATE_NOOP("Chat", "Emoticons"),
-																 menu));
-			QWidgetAction *emoticons_widget_act = new QWidgetAction(this);
-			ChatEmoticonsWidget *emoticons_widget = new ChatEmoticonsWidget(this);
-			emoticons_widget->loadTheme();
-			emoticons_widget_act->setDefaultWidget(emoticons_widget);
-			menu->addAction(emoticons_widget_act);
-			connect(emoticons_widget,SIGNAL(insertSmile(QString)),ui->chatEdit,SLOT(appendPlainText(QString)));
-
 			//
 			//load settings
 			onLoad();
@@ -140,6 +119,21 @@ namespace Core
 			AbstractChatWidget::currentIndexChanged(index);
 			ChatSessionImpl *session = m_sessions.at(index);
 			ui->sendButton->setMenu(session->menu());
+			
+			ActionContainer container(session->getUnit(),ActionContainer::TypeMatch,ActionTypeChatButton);
+			qDeleteAll(m_actions);
+			m_actions.clear();
+			//fixme
+			for (int i = 0;i!=container.count();i++) {
+				QAction *current = container.action(i);
+				ui->actionToolBar->addAction(current);
+				m_actions.append(current);
+			}
+		}
+		
+		ActionToolBar* ClassicChatWidget::getToolBar()
+		{
+			return ui->actionToolBar;
 		}
 
 		void ClassicChatWidget::clear()
@@ -287,12 +281,6 @@ namespace Core
 					session->showMenu(ui->tabBar->mapToGlobal(pos));
 				}
 			}
-		}
-
-		void ClassicChatWidget::onShowHistory()
-		{
-			ChatUnit *unit = m_sessions.at(m_current_index)->getUnit();
-			History::instance()->showHistory(unit);
 		}
 
 		void ClassicChatWidget::onSessionListActionTriggered()

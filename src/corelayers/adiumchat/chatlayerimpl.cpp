@@ -62,7 +62,7 @@ namespace Core
 
 		static Core::CoreStartupHelper<&init> action_init_static(
 				QT_TRANSLATE_NOOP("Plugin", "Helper for chat layer"),
-				QT_TRANSLATE_NOOP("Plugin", "Adds \"Start chat\" action to conact's menu")
+				QT_TRANSLATE_NOOP("Plugin", "Adds \"Start chat\" action to contact's menu")
 				);
 
 		ChatLayerImpl::ChatLayerImpl()

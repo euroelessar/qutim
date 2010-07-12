@@ -37,7 +37,7 @@ namespace Core
 		{
 			Q_OBJECT
 		public:
-			ClassicChatWidget(const QString &key, bool removeSessionOnClose);
+			ClassicChatWidget(const QString& key, bool removeSessionOnClose);
 			void clear();//remove all sessions
 			ChatSessionList getSessionList() const;
 			virtual ~ClassicChatWidget();
@@ -45,6 +45,7 @@ namespace Core
 			QTabBar *getTabBar();
 			QListView *getContactsView();
 			QWebView* getChatView();
+			virtual ActionToolBar* getToolBar();
 		public slots:
 			void addSession(ChatSessionImpl *session);
 			void addSession(const ChatSessionList &sessions);
@@ -61,7 +62,6 @@ namespace Core
 			void onTextChanged();
 			void onTabContextMenu(const QPoint &pos);
 			void onSessionListActionTriggered();
-			void onShowHistory(); //TODO Move to startup module
 			void onUnitTitleChanged(const QString &title);
 		private:
 			void chatStateChanged(ChatState state, ChatSessionImpl* session);
