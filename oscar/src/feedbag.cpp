@@ -18,8 +18,10 @@
 #include "snac.h"
 #include "oscarconnection.h"
 #include "icqaccount.h"
+#include <qutim/protocol.h>
 #include <QQueue>
 #include <QDateTime>
+#include <QLatin1String>
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::oscar::FeedbagItem);
 
@@ -451,7 +453,7 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 			itemsItr->insertMulti(id, item);
 		}
 		if (account->status() != Status::Connecting && account->status() != Status::Offline) {
-			Config cfg = account->config("feedbag/cache");
+			Config cfg = q->config("feedbag/cache");
 			if (type == Feedbag::Remove)
 				cfg.remove(item.d->configId());
 			else
@@ -490,11 +492,11 @@ Feedbag::Feedbag(IcqAccount *acc):
 			<< SNACInfo(ListsFamily, ListsCliModifyStart)
 			<< SNACInfo(ListsFamily, ListsCliModifyEnd)
 			<< SNACInfo(ListsFamily, ListsSrvReplyLists);
-	Config config = acc->config("feedbag");
-	d->lastUpdateTime = config.value("lastUpdateTime", 0);
-	config = config.group("cache");
-	foreach (const QString &itemIdStr, config.childKeys()) {
-		FeedbagItem item = config.value<FeedbagItem>(itemIdStr);
+	Config cfg = config("feedbag");
+	d->lastUpdateTime = cfg.value("lastUpdateTime", 0);
+	cfg.beginGroup("cache");
+	foreach (const QString &itemIdStr, cfg.childKeys()) {
+		FeedbagItem item = cfg.value<FeedbagItem>(itemIdStr);
 		if (item.isNull())
 			continue;
 		item.d->feedbag = this;
@@ -503,6 +505,7 @@ Feedbag::Feedbag(IcqAccount *acc):
 			itemsItr = d->items.insert(item.type(), ItemsHash());
 		itemsItr->insert(item.d->id(), item);
 	}
+	cfg.endGroup();
 }
 
 Feedbag::~Feedbag()
@@ -730,6 +733,18 @@ IcqAccount *Feedbag::account() const
 	return d->account;
 }
 
+Config Feedbag::config()
+{
+	return Config(QString("%1.%2/feedbag")
+				  .arg(d->account->protocol()->id())
+				  .arg(d->account->id()));
+}
+
+Config Feedbag::config(const QString &group)
+{
+	return config().group(group);
+}
+
 void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 {
 	Q_ASSERT(conn == d->conn);
@@ -784,14 +799,16 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		if (isLast) {
 			d->firstPacket = true;
 			d->lastUpdateTime = sn.read<quint32>();
-			d->account->config().remove("feedbag");
-			Config config = d->account->config("feedbag");
-			config.setValue("lastUpdateTime", d->lastUpdateTime);
-			config.beginGroup("cache");
+			d->account->config().remove("feedbag"); // TODO: remove it.
+			Config cfg = config();
+			cfg.remove("feedbag");
+			cfg = cfg.group("feedbag");
+			cfg.setValue("lastUpdateTime", d->lastUpdateTime);
+			cfg.beginGroup("cache");
 			foreach (const ItemsHash &hash, d->items)
 				foreach (const FeedbagItem &item, hash)
-					config.setValue(item.d->configId(), QVariant::fromValue(item));
-			config.endGroup();
+					cfg.setValue(item.d->configId(), QVariant::fromValue(item));
+			cfg.endGroup();
 			d->finishLoading();
 		}
 		break;

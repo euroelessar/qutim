@@ -20,6 +20,7 @@
 #include <snachandler.h>
 #include "tlv.h"
 #include <QSharedData>
+#include <qutim/config.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -153,6 +154,8 @@ public:
 	quint16 uniqueItemId(quint16 type, quint16 value = 0) const;
 	void registerHandler(FeedbagItemHandler *handler);
 	IcqAccount *account() const;
+	Config config();
+	Config config(const QString &group);
 signals:
 	void loaded();
 	void reloadingStarted();
