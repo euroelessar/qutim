@@ -8,7 +8,7 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-const int actionType = 34563;
+const int actionType = ActionTypeContactList;
 
 PrivacyLists *PrivacyLists::self = 0;
 
@@ -62,9 +62,9 @@ PrivacyActionGenerator::PrivacyActionGenerator(Visibility visibility, bool invis
 	m_visibility(visibility), m_invisibleMode(invisibleMode)
 {
 	if (invisibleMode)
-		setType(actionType+2);
+		setType(actionType+0x10000);
 	else
-		setType(actionType+1);
+		setType(actionType+0x100000);
 	setPriority(100 - visibility);
 }
 
