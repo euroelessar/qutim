@@ -376,8 +376,9 @@ bool IcqContact::event(QEvent *ev)
 				addedExtStatus = true;
 			}
 		}
-		if (!addedExtStatus)
-			event->appendField(QString(), status().text());
+		QString statusText = status().text();
+		if (!addedExtStatus && !statusText.isEmpty())
+			event->appendField(QString(), statusText);
 		QDateTime time;
 		if (!d->onlineSince.isNull()) {
 			time = QDateTime::currentDateTime();
