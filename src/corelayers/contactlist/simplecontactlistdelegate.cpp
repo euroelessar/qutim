@@ -119,50 +119,23 @@ namespace Core
 						foreach (const QVariant &data, list)
 						{
 							QVariantMap map = data.value<QVariantMap>();
-							if (!map.value("showIcon",true).toBool())
-								continue;
 							QVariant extIconVar = map.value("icon");
 							QIcon icon;
 							if (extIconVar.canConvert<ExtensionIcon>())
 								icon = extIconVar.value<ExtensionIcon>().toIcon();
 							else if (extIconVar.canConvert(QVariant::Icon))
 								icon = extIconVar.value<QIcon>();
-							if (!icon.isNull()) {
-								icon.paint(painter,
-										   option.rect.left() + m_horizontal_padding,
-										   option.rect.top() + m_vertical_padding,
-										   title_rect.right() - m_horizontal_padding,
-										   option.decorationSize.height(), //FIXME
-										   Qt::AlignTop |
-										   Qt::AlignRight);
-								title_rect.setWidth(title_rect.width()-option.decorationSize.width());
-							}
+							if (!map.value("showIcon",true).toBool() || icon.isNull())
+								continue;
+							icon.paint(painter,
+									   option.rect.left() + m_horizontal_padding,
+									   option.rect.top() + m_vertical_padding,
+									   title_rect.right() - m_horizontal_padding,
+									   option.decorationSize.height(), //FIXME
+									   Qt::AlignTop |
+									   Qt::AlignRight);
+							title_rect.setWidth(title_rect.width()-option.decorationSize.width());
 						}
-
-						//stress test
-//						QIcon icons [] = {
-//							Icon("user-xstatus-music"),
-//							Icon("user-xstatus-studying"),
-//							Icon("user-xstatus-love"),
-//							Icon("user-xstatus-hamlet"),
-//							QIcon(),
-//							Icon("user-xstatus-coffee")
-//						};
-
-//						for (int number=0;number!=2;number++) {
-//							QIcon icon = icons[rand() % 5];
-//							if (!icon.isNull()) {
-//								icon.paint(painter,
-//										   option.rect.left() + m_horizontal_padding,
-//										   option.rect.top() + m_vertical_padding,
-//										   title_rect.right() - m_horizontal_padding,
-//										   option.decorationSize.height(), //FIXME
-//										   Qt::AlignTop |
-//										   Qt::AlignRight);
-//								title_rect.setWidth(title_rect.width()-option.decorationSize.width());
-//							}
-//						}
-
 					}
 
 					painter->drawText(title_rect,
