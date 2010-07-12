@@ -233,7 +233,8 @@ void IcqAccount::setStatus(Status status_helper)
 			d->reconnectTimer.stop();
 			QString pass = d->password();
 			if (!pass.isEmpty()) {
-				status = Status::Connecting;
+				status.setType(Status::Connecting);
+				status.initIcon("icq");
 				d->conn->connectToLoginServer(pass);
 			} else {
 				status = Status::Offline;

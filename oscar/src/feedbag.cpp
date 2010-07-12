@@ -452,7 +452,8 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 				itemsItr = items.insert(item.type(), ItemsHash());
 			itemsItr->insertMulti(id, item);
 		}
-		if (account->status() != Status::Connecting && account->status() != Status::Offline) {
+		Status::Type status = account->status().type();
+		if (status != Status::Connecting && status != Status::Offline) {
 			Config cfg = q->config("feedbag/cache");
 			if (type == Feedbag::Remove)
 				cfg.remove(item.d->configId());
