@@ -212,12 +212,10 @@ namespace Core
 			qDeleteAll(m_actions);
 			m_actions.clear();
 			//fixme
-			QAction *before = m_before;
 			for (int i = 0;i!=container.count();i++) {
 				QAction *current = container.action(i);
-				m_toolbar->insertAction(before,current);
+				m_toolbar->insertAction(m_before,current);
 				m_actions.append(current);
-				before = current;
 			}
 			m_reciever_selector->setMenu(session->menu());
 		}

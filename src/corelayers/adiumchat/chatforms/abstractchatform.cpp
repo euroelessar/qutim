@@ -35,7 +35,7 @@ namespace Core
 		
 		void AbstractChatForm::onChatWidgetDestroyed(QObject *object)
 		{
-			AbstractChatWidget *widget = static_cast<AbstractChatWidget*>(object);
+			AbstractChatWidget *widget = reinterpret_cast<AbstractChatWidget*>(object);
 			QString key = m_chatwidgets.key(widget);
 			m_chatwidgets.remove(key);
 		}
