@@ -348,6 +348,7 @@ void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const
 	extStatus.insert("icon", QVariant::fromValue(icon));
 	if (!desc.isNull())
 		extStatus.insert("desc", unescape(desc));
+	extStatus.insert("showInTooltip", true);
 	status.setExtendedStatus("xstatus", extStatus);
 	contact->setStatus(status);
 }

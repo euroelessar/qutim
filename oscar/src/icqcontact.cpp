@@ -31,6 +31,12 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+InfoField::InfoField(const LocalizedString &title_, const QVariant &data_,
+					 const ExtensionIcon &icon_) :
+	title(title_), data(data_), icon(icon_)
+{
+}
+
 void IcqContactPrivate::clearCapabilities()
 {
 	flags = 0;
@@ -318,9 +324,9 @@ ChatState IcqContact::chatState() const
 	return d_func()->state;
 }
 
-void IcqContact::insertToolTipField(const LocalizedString &title, const QVariant &data)
+void IcqContact::insertToolTipField(const LocalizedString &title, const QVariant &data, const ExtensionIcon &icon)
 {
-	d_func()->fields.insert(title.original(), InfoField(title, data));
+	d_func()->fields.insert(title.original(), InfoField(title, data, icon));
 }
 
 void IcqContact::removeToolTipField(const QString &title)
@@ -360,16 +366,18 @@ bool IcqContact::event(QEvent *ev)
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
 		QVariantHash extStatuses = d->status.extendedStatuses();
-		if (!extStatuses.isEmpty()) {
-			foreach (const QVariant &itr, extStatuses) {
-				QVariantMap extStatus = itr.toMap();
+		bool addedExtStatus;
+		foreach (const QVariant &itr, extStatuses) {
+			QVariantMap extStatus = itr.toMap();
+			if (extStatus.value("showInTooltip", false).toBool()) {
 				event->appendField(extStatus.value("title").toString(),
 								   extStatus.value("desc").toString(),
 								   extStatus.value("icon").value<ExtensionIcon>());
+				addedExtStatus = true;
 			}
-		} else if (!status().text().isEmpty()) {
-			event->appendField(QString(), status().text());
 		}
+		if (!addedExtStatus)
+			event->appendField(QString(), status().text());
 		QDateTime time;
 		if (!d->onlineSince.isNull()) {
 			time = QDateTime::currentDateTime();
@@ -393,7 +401,7 @@ bool IcqContact::event(QEvent *ev)
 							   d->regTime.toLocalTime().toString(Qt::DefaultLocaleShortDate));
 		}
 		foreach (const InfoField &field, d->fields) {
-			event->appendField(field.first, field.second);
+			event->appendField(field.title, field.data, field.icon);
 		}
 	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
 		Status::Type status = account()->status().type();

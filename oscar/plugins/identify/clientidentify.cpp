@@ -168,11 +168,23 @@ void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TL
 {
 	if (status == Status::Offline) {
 		contact->removeToolTipField("Possible client");
+		contact->setProperty("client", QVariant());
+		status.removeExtendedStatus("client");
 		return;
 	}
+	QVariantMap client = contact->property("client").toMap();
+	if (!client.isEmpty())
+		status.setExtendedStatus("client", client);
 	if (contact->status() == Status::Offline) {
 		identify(contact);
-		contact->insertToolTipField(QT_TRANSLATE_NOOP("ContactList", "Possible client"), m_client_id);
+		contact->insertToolTipField(QT_TRANSLATE_NOOP("ContactList", "Possible client"), m_client_id, m_client_icon);
+		QVariantMap clientInfo;
+		clientInfo.insert("id", QT_TRANSLATE_NOOP("ClientIdentify", "Possible client").toString());
+		clientInfo.insert("icon", QVariant::fromValue(m_client_icon));
+		clientInfo.insert("description", m_client_id);
+		clientInfo.insert("showInTooltip", false);
+		contact->setProperty("client", clientInfo);
+		status.setExtendedStatus("client", clientInfo);
 		debug() << contact->name() << "uses" << m_client_id;
 	}
 }
@@ -192,10 +204,7 @@ inline void ClientIdentify::setClientData(const QString &id, const QString &icon
 
 inline void ClientIdentify::setClientIcon(const QString &icon)
 {
-	QVariantMap clientInfo;
-	clientInfo.insert("icon", QString("user-client-%1-icq").arg(icon));
-	clientInfo.insert("description", m_client_id);
-	m_contact->setProperty("client", clientInfo);
+	m_client_icon = ExtensionIcon(QString("user-client-%1-icq").arg(icon));
 }
 
 void ClientIdentify::identify_by_DCInfo()
@@ -246,7 +255,7 @@ void ClientIdentify::identify_by_DCInfo()
 			m_client_id = "libicq2000";
 			if (Utf8Support())
 				m_client_id += " (Unicode)";
-			setClientIcon("icq2000");
+			setClientIcon("icq-2000");
 		}
 	}
 	else if ((m_info == 0x3ba8dbaf) && (m_client_proto == 2)) {
@@ -391,14 +400,14 @@ void ClientIdentify::identify_by_ProtoVersion()
 			if (!m_info && !m_ext_status_info && !m_ext_info) {
 				setClientData("&RQ", "RQ");
 			} else {
-				setClientData("ICQ 2000", "icq2000");
+				setClientData("ICQ 2000", "icq-2000");
 			}
 		} else if (Utf8Support()) {
 			if (TypingSupport())
 				m_client_id = "Icq2Go! (Java)";
 			else
 				m_client_id = "Icq2Go! (Flash)";
-			setClientIcon("icq2go");
+			setClientIcon("icq-2go");
 		}
 	}
 
@@ -424,10 +433,10 @@ void ClientIdentify::identify_by_ProtoVersion()
 						setClientData("ICQ for Pocket PC", "unknown");
 					}
 				} else {
-					setClientData("ICQ 2001", "icq2001");
+					setClientData("ICQ 2001", "icq-2001");
 				}
 			} else if (m_client_caps.match(ICQ_CAPABILITY_IS2002)) {
-				setClientData("ICQ 2002", "icq");
+				setClientData("ICQ 2002", "icq-2002");
 			} else if (SrvRelaySupport() && Utf8Support() && RtfSupport() &&
 					(!m_client_caps.match(ICQ_CAPABILITY_ICQJS7xVER)) &&
 					(!m_client_caps.match(ICQ_CAPABILITY_ICQJSINxVER)))
@@ -439,7 +448,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 						setClientData("IC@", "unknown");
 					}
 				} else {
-					setClientData("ICQ 2002/2003a", "icq");
+					setClientData("ICQ 2002/2003a", "icq-2002");
 				}
 			} else if (SrvRelaySupport() && Utf8Support() && TypingSupport()) {
 				if (!m_info && !m_ext_status_info && !m_ext_info) {
@@ -456,7 +465,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 				QString icon;
 				if (m_client_caps.match(ICQ_CAPABILITY_ICQLITENEW)) {
 					m_client_id = "ICQ 7";
-					icon = "icq-v70";
+					icon = "icq-70";
 				} else if (m_client_caps.match(ICQ_CAPABILITY_TZERS)) {
 					if (m_client_caps.match(ICQ_CAPABILITY_HTMLMSGS)) {
 						if (RtfSupport()) {
@@ -464,15 +473,15 @@ void ClientIdentify::identify_by_ProtoVersion()
 							icon = "mdc";
 						} else {
 							m_client_id = "ICQ 6";
-							icon = "icq-v60";
+							icon = "icq-60";
 						}
 					} else {
 						m_client_id = "ICQ 5.1";
-						icon = "icq-v51";
+						icon = "icq-51";
 					}
 				} else {
 					m_client_id = "ICQ 5";
-					icon = "icq-v50";
+					icon = "icq-50";
 				}
 				if (m_client_caps.match(ICQ_CAPABILITY_RAMBLER))
 					m_client_id += " (Rambler)";
@@ -496,13 +505,13 @@ void ClientIdentify::identify_by_ProtoVersion()
 				}
 			} else {
 				m_client_id = "ICQ Lite v4";
-				setClientIcon("icq4lite");
+				setClientIcon("icq-4lite");
 			}
 		} else if(Utf8Support() && SendFileSupport() && IconSupport() && AimChatSupport()
 				&& m_contact->capabilities().match(ICQ_CAPABILITY_BUDDY_LIST))
 		{
 			m_client_id = "ICQ Lite";
-			setClientIcon("icq4lite");
+			setClientIcon("icq-4lite");
 		}
 		else if (!DirectSupport() && Utf8Support() && !RtfSupport()) {
 			m_client_id = "PyICQ-t Jabber Transport";
@@ -514,7 +523,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 	else if (m_client_proto == 0xA)
 	{
 		if (RtfSupport() && Utf8Support() && TypingSupport() && DirectSupport() && SrvRelaySupport())
-			setClientData("ICQ 2003b Pro", "icq2003pro");
+			setClientData("ICQ 2003b Pro", "icq-2003pro");
 		else if (!RtfSupport() && !Utf8Support())
 			setClientData("QNext", "unknown");
 		else if (!RtfSupport() && Utf8Support() && !m_info && !m_ext_status_info && !m_ext_info)
@@ -585,7 +594,7 @@ void ClientIdentify::identify_k8qutIM()
 		unsigned char rel1 = cap_str[4];
 		m_client_id = QString("k8qutIM v%1.%2.%3.%4").arg(ver0).arg(ver1).arg(ver2).arg((unsigned int)((rel0 << 8) | rel1));
 		m_client_id += os;
-		setClientIcon("k8qutim");
+		setClientIcon("qutim-k8");
 	}
 }
 
@@ -774,7 +783,7 @@ void ClientIdentify::identify_Qip()
 					.arg((unsigned)(m_info >> 0x08) & 0xFF)
 					.arg((unsigned)m_info & 0xFF);
 		}
-		setClientIcon("qip");
+		setClientIcon("qip-2005");
 	}
 }
 
@@ -815,7 +824,7 @@ void ClientIdentify::identify_QipPDA()
 	                                              ' ', ' ', '!');
 
 	if (m_client_caps.match(ICQ_CAPABILITY_QIPPDAxVER, 0x10))
-		setClientData("QIP PDA (Windows)", "qippda");
+		setClientData("QIP PDA (Windows)", "qip-pda");
 }
 
 void ClientIdentify::identify_QipMobile()
@@ -833,7 +842,7 @@ void ClientIdentify::identify_QipMobile()
 	else if (m_client_caps.match(ICQ_CAPABILITY_QIPSYMBxVER, 0x10))
 		m_client_id = "QIP Mobile (Symbian)";
 	if(!m_client_id.isEmpty())
-		setClientIcon("qipsymb");
+		setClientIcon("qip-symbian");
 }
 
 void ClientIdentify::identify_Sim()
@@ -1078,7 +1087,7 @@ void ClientIdentify::identify_AndRQ()
 		unsigned ver3 = cap_str[0xA];
 		unsigned ver4 = cap_str[9];
 		m_client_id = QString("&RQ %1.%2.%3.%4").arg(ver1).arg(ver2).arg(ver3).arg(ver4);
-		setClientIcon("RQ");
+		setClientIcon("rq");
 	}
 }
 
@@ -1167,7 +1176,7 @@ void ClientIdentify::identify_Macicq()
 	                                                   0x4b, 0x9b, 0x4b, 0x7d);
 
 	if (m_client_caps.match(ICQ_CAPABILITY_MACICQxVER, 0x10))
-		setClientData("ICQ for Mac", "icq_mac");
+		setClientData("ICQ for Mac", "icq-mac");
 }
 
 void ClientIdentify::identify_Anastasia()

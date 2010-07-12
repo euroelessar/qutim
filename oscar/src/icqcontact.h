@@ -22,6 +22,7 @@
 #include <capability.h>
 #include <cookie.h>
 #include <feedbag.h>
+#include <qutim/extensionicon.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -56,7 +57,8 @@ public:
 	const DirectConnectionInfo &dcInfo() const;
 	void setStatus(Status status);
 	ChatState chatState() const;
-	void insertToolTipField(const LocalizedString &title, const QVariant &data);
+	void insertToolTipField(const LocalizedString &title, const QVariant &data,
+							const ExtensionIcon &icon = ExtensionIcon());
 	void removeToolTipField(const QString &title);
 	QList<FeedbagItem> feedbagItems() const;
 private:

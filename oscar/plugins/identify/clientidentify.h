@@ -129,6 +129,7 @@ private:
 	quint32 m_ext_status_info;
 	quint32 m_ext_info;
 	QString m_client_id;
+	ExtensionIcon m_client_icon;
 	CapabilityFlags m_flags;
 	QString m_client;
 private:
