@@ -365,7 +365,7 @@ bool IcqContact::event(QEvent *ev)
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-		QVariantHash extStatuses = d->status.extendedStatuses();
+		QVariantHash extStatuses = d->status.extendedInfos();
 		bool addedExtStatus;
 		foreach (const QVariant &itr, extStatuses) {
 			QVariantMap extStatus = itr.toMap();

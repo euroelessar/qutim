@@ -253,7 +253,7 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 			return;
 		}
 		IcqAccount *account = contact->account();
-		QVariantMap extStatus = account->status().extendedStatus("xstatus");
+		QVariantMap extStatus = account->status().extendedInfo("xstatus");
 		int index = xstatusIndexByName(extStatus.value("name").toString());
 		XtrazResponse response("cAwaySrv", "OnRemoteNotification");
 		response.setValue("CASXtraSetAwayMessage", "");
@@ -349,7 +349,7 @@ void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const
 	if (!desc.isNull())
 		extStatus.insert("desc", unescape(desc));
 	extStatus.insert("showInTooltip", true);
-	status.setExtendedStatus("xstatus", extStatus);
+	status.setExtendedInfo("xstatus", extStatus);
 	contact->setStatus(status);
 }
 
@@ -377,7 +377,7 @@ void XStatusHandler::onCustomDialogAccepted()
 	extStatus.insert("title", dialog->caption());
 	extStatus.insert("icon", xstatus.icon.toIcon());
 	extStatus.insert("desc", dialog->message());
-	status.setExtendedStatus("xstatus", extStatus);
+	status.setExtendedInfo("xstatus", extStatus);
 	status.setCapability(xstatus.capability, "xstatus");
 	account->setStatus(status);
 }

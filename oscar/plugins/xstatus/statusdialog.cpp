@@ -42,7 +42,7 @@ CustomStatusDialog::CustomStatusDialog(IcqAccount *account, QWidget *parent) :
 		tmp->setToolTip(status.value);
 	}
 
-	QVariantMap xstatus = m_account->status().extendedStatus("xstatus");
+	QVariantMap xstatus = m_account->status().extendedInfo("xstatus");
 	int current = xstatusIndexByName(xstatus.value("name").toString());
 	ui.iconList->setCurrentRow(current);
 	setCurrentRow(current);

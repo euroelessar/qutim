@@ -120,8 +120,8 @@ IcqAccount::IcqAccount(const QString &uin) :
 				foreach (const QString &key, statusCfg.childKeys())
 					extendedStatus.insert(key, statusCfg.value(key));
 				statusCfg.endGroup();
-				lastStatus.setExtendedStatus(key, extendedStatus);
-				status.setExtendedStatus(key, extendedStatus);
+				lastStatus.setExtendedInfo(key, extendedStatus);
+				status.setExtendedInfo(key, extendedStatus);
 			}
 			statusCfg.endArray();
 			d->lastStatus = lastStatus;
@@ -258,7 +258,7 @@ void IcqAccount::setStatus(Status status_helper)
 		statusCfg.remove("extendedStatuses");
 		statusCfg.beginArray("extendedStatuses");
 		int i = 0;
-		QHashIterator<QString, QVariant> extStatusItr(d->lastStatus.extendedStatuses());
+		QHashIterator<QString, QVariant> extStatusItr(d->lastStatus.extendedInfos());
 		while (extStatusItr.hasNext()) {
 			extStatusItr.next();
 			statusCfg.setArrayIndex(i);

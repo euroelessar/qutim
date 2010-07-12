@@ -169,12 +169,12 @@ void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TL
 	if (status == Status::Offline) {
 		contact->removeToolTipField("Possible client");
 		contact->setProperty("client", QVariant());
-		status.removeExtendedStatus("client");
+		status.removeExtendedInfo("client");
 		return;
 	}
 	QVariantMap client = contact->property("client").toMap();
 	if (!client.isEmpty())
-		status.setExtendedStatus("client", client);
+		status.setExtendedInfo("client", client);
 	if (contact->status() == Status::Offline) {
 		identify(contact);
 		contact->insertToolTipField(QT_TRANSLATE_NOOP("ContactList", "Possible client"), m_client_id, m_client_icon);
@@ -183,8 +183,9 @@ void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TL
 		clientInfo.insert("icon", QVariant::fromValue(m_client_icon));
 		clientInfo.insert("description", m_client_id);
 		clientInfo.insert("showInTooltip", false);
+		clientInfo.insert("priority",-1);
 		contact->setProperty("client", clientInfo);
-		status.setExtendedStatus("client", clientInfo);
+		status.setExtendedInfo("client", clientInfo);
 		debug() << contact->name() << "uses" << m_client_id;
 	}
 }
