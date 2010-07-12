@@ -299,12 +299,17 @@ void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TL
 		}
 	}
 	if (handelXStatusCapabilities(contact, moodIndex)) {
-		XtrazRequest request("cAwaySrv", "srvMng");
-		request.setValue("id", "AwayStat");
-		request.setValue("trans", "1");
-		request.setValue("senderId", account->id());
-		SNAC snac = request.snac(contact);
-		account->connection()->send(snac, 10);
+		QDateTime lastTime = contact->property("lastXStatusRequestTime").toDateTime();
+		QDateTime currentTime = QDateTime::currentDateTime();
+		if (!lastTime.isValid() || lastTime.secsTo(currentTime) > 30) {
+			contact->setProperty("lastXStatusRequestTime", currentTime);
+			XtrazRequest request("cAwaySrv", "srvMng");
+			request.setValue("id", "AwayStat");
+			request.setValue("trans", "1");
+			request.setValue("senderId", account->id());
+			SNAC snac = request.snac(contact);
+			account->connection()->send(snac, 10);
+		}
 	}
 	foreach (const Capability &cap, contact->capabilities()) {
 		if (qipstatuses.contains(cap)) {
