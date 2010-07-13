@@ -346,7 +346,8 @@ namespace Jabber
 			coreMsg.setProperty("senderName", nick);
 			if (user)
 				coreMsg.setProperty("senderId", user->id());
-			coreMsg.setProperty("silent", true);
+			if (!coreMsg.text().contains(QString::fromStdString(d->room->nick())))
+				coreMsg.setProperty("silent", true);
 			coreMsg.setIncoming(msg.from().resource() != d->room->nick());
 			ChatSession *chatSession = ChatLayer::get(this, true);
 			const DelayedDelivery *when = msg.when();

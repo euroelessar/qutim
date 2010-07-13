@@ -128,7 +128,8 @@ void IrcConnection::handleMessage(class IrcAccount *account, const QString &name
 			msg.setChatUnit(channel);
 			msg.setProperty("senderName", name);
 			msg.setProperty("senderId", name);
-			msg.setProperty("silent", true);
+			if (!text.contains(m_nick))
+				msg.setProperty("silent", true);
 		}
 		session->appendMessage(msg);
 	} else if (cmd == "JOIN") {
