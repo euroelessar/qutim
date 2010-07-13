@@ -92,6 +92,16 @@ QString IrcChannel::topic() const
 	return d->topic;
 }
 
+ChatUnitList IrcChannel::lowerUnits()
+{
+	ChatUnitList users;
+	if (d->me)
+		users << d->me.data();
+	foreach (const QSharedPointer<IrcChannelParticipant> &user, d->users)
+		users << user.data();
+	return users;
+}
+
 const IrcAccount *IrcChannel::account() const
 {
 	Q_ASSERT(qobject_cast<const IrcAccount*>(Conference::account()));

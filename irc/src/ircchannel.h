@@ -42,6 +42,7 @@ public:
 	virtual QString id() const;
 	virtual bool sendMessage(const Message &message);
 	virtual QString topic() const;
+	virtual ChatUnitList lowerUnits();
 	const IrcAccount *account() const;
 	IrcAccount *account();
 	IrcChannelParticipant *participant(const QString &nick);

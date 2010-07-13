@@ -152,13 +152,6 @@ void IrcProtocol::onJoinChannel()
 void IrcProtocol::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 {
 	connect(session, SIGNAL(activated(bool)), this, SLOT(onSessionActivated(bool)));
-	IrcChannel *channel = qobject_cast<IrcChannel*>(session->getUnit());
-	if (channel) {
-		foreach (IrcChannelParticipant *participant, channel->participants())
-			session->addContact(participant);
-		if (channel->me())
-			session->addContact(channel->me());
-	}
 }
 
 void IrcProtocol::onSessionActivated(bool active)

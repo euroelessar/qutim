@@ -136,7 +136,7 @@ const IrcProtocol *IrcAccount::protocol() const
 ChatSession *IrcAccount::activeSession() const
 {
 	ChatSession *session = protocol()->activeSession();
-	return session->getUnit()->account() == this ? session : 0;
+	return session && session->getUnit()->account() == this ? session : 0;
 }
 
 void IrcAccount::updateSettings()
