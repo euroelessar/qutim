@@ -45,6 +45,8 @@ public:
 	IrcContact *contact();
 	const IrcContact *contact() const;
 	void setFlag(QChar flag);
+	void setMode(QChar mode);
+	void removeMode(QChar mode);
 signals:
 	void quit(const QString &message);
 private:

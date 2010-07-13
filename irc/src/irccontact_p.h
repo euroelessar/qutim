@@ -17,6 +17,7 @@
 #define IRCCONTACT_P_H
 
 #include <irccontact.h>
+#include <QSet>
 
 namespace qutim_sdk_0_3 {
 
@@ -35,6 +36,7 @@ private:
 	friend class IrcContact;
 	IrcContact *q;
 	QString nick;
+	QSet<QChar> modes;
 	mutable QAtomicInt m_ref;
 };
 

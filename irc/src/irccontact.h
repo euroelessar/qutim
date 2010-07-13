@@ -36,6 +36,7 @@ public:
 	virtual bool sendMessage(const Message &message);
 	const IrcAccount *account() const;
 	IrcAccount *account();
+	QSet<QChar> modes();
 signals:
 	void quit(const QString &message);
 private slots:
@@ -44,6 +45,7 @@ private:
 	friend class IrcContactPrivate;
 	friend class IrcChannelParticipant;
 	friend class IrcConnection;
+	void handleMode(const QString &who, const QString &mode, const QString &param);
 	QScopedPointer<IrcContactPrivate> d;
 };
 

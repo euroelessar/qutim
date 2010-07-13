@@ -55,7 +55,8 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< "QUIT"
 		<< 332  // RPL_TOPIC
 		<< 333  // RPL_TOPIC_INFO
-		<< "KICK";
+		<< "KICK"
+		<< "MODE";
 	registerHandler(this);
 }
 
@@ -187,6 +188,12 @@ void IrcConnection::handleMessage(class IrcAccount *account, const QString &name
 			channel->handleKick(params.value(1), name, params.value(2));
 		else
 			channelIsNotJoinedError(cmd, params.value(0));
+	} else if (cmd == "MODE") {
+		QString object = params.value(0);
+		if (IrcChannel *channel = account->getChannel(object, false))
+			channel->handleMode(name, params.value(1), params.value(2));
+		else if (IrcContact *contact = account->getContact(name, false))
+			contact->handleMode(name, params.value(1), params.value(2));
 	}
 }
 

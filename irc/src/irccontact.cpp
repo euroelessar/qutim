@@ -82,10 +82,32 @@ IrcAccount *IrcContact::account()
 	return reinterpret_cast<IrcAccount*>(acc);
 }
 
+QSet<QChar> IrcContact::modes()
+{
+	return d->modes;
+}
+
 void IrcContact::onSessionDestroyed()
 {
 	if (d->m_ref == 0)
 		deleteLater();
+}
+
+void IrcContact::handleMode(const QString &who, const QString &mode, const QString &param)
+{
+	Q_UNUSED(who);
+	Q_UNUSED(param);
+	QChar action = mode[0];
+	if (action == '+') {
+		for (int i = 1; i < mode.size(); ++i)
+			d->modes.insert(mode[i]);
+	} else if (action == '-') {
+		for (int i = 1; i < mode.size(); ++i)
+			d->modes.remove(mode[i]);
+	} else {
+		foreach (QChar m, mode)
+			d->modes.insert(m);
+	}
 }
 
 } } // namespace qutim_sdk_0_3::irc

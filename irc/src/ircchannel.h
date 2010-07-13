@@ -58,6 +58,9 @@ private:
 	void handleKick(const QString &nick, const QString &by, const QString &message);
 	void handleTopic(const QString &topic);
 	void handleTopicInfo(const QString &user, const QString &timeStr);
+	void handleMode(const QString &who, const QString &mode, const QString &param);
+	void setMode(const QString &who, QChar mode, const QString &param);
+	void removeMode(const QString &who, QChar mode, const QString &param);
 	void addSystemMessage(const QString &message, ChatSession *session);
 	void clear(ChatSession *session);
 private:

@@ -80,4 +80,24 @@ void IrcChannelParticipant::setFlag(QChar flag)
 		d->flags |= Op;
 }
 
+void IrcChannelParticipant::setMode(QChar mode)
+{
+	if (mode == 'v')
+		d->flags |= Voice;
+	else if (mode == 'h')
+		d->flags |= HalfOp;
+	else if (mode == 'o')
+		d->flags |= Op;
+}
+
+void IrcChannelParticipant::removeMode(QChar mode)
+{
+	if (mode == 'v')
+		d->flags ^= Voice;
+	else if (mode == 'h')
+		d->flags ^= HalfOp;
+	else if (mode == 'o')
+		d->flags ^= Op;
+}
+
 } } // namespace qutim_sdk_0_3::irc

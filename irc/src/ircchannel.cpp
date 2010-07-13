@@ -102,6 +102,8 @@ IrcAccount *IrcChannel::account()
 
 IrcChannelParticipant *IrcChannel::participant(const QString &nick)
 {
+	if (d->me && nick == d->me->name())
+		return d->me.data();
 	return d->users.value(nick).data();
 }
 
@@ -308,6 +310,71 @@ void IrcChannel::handleTopicInfo(const QString &user, const QString &timeStr)
 						 .arg(user)
 						 .arg(time.toString(Qt::SystemLocaleShortDate)),
 						 session);
+	}
+}
+
+void IrcChannel::handleMode(const QString &who, const QString &mode, const QString &param)
+{
+	QChar action = mode[0];
+	if (action == '+') {
+		for (int i = 1; i < mode.size(); ++i)
+			setMode(who, mode[i], param);
+	} else if (action == '-') {
+		for (int i = 1; i < mode.size(); ++i)
+			removeMode(who, mode[i], param);
+	} else {
+		foreach (QChar m, mode)
+			setMode(who, m, param);
+	}
+}
+
+void IrcChannel::setMode(const QString &who, QChar mode, const QString &param)
+{
+	ChatSession *session = ChatLayer::instance()->getSession(this, false);
+	if (mode == 'o' || mode == 'h' || mode == 'v') {
+		IrcChannelParticipant *user = participant(param);
+		if (user) {
+			user->setMode(mode);
+			if (session) {
+				QString msg;
+				if (mode == 'o')
+					msg = QT_TRANSLATE_NOOP("IrcChannel", "%1 gives channel operator privileges to %2.");
+				else if (mode == 'h')
+					msg = QT_TRANSLATE_NOOP("IrcChannel", "%1 gives channel halfop privileges to %2.");
+				else
+					msg = QT_TRANSLATE_NOOP("IrcChannel", "%1 gives %2 the permission to talk.");
+				addSystemMessage(msg.arg(who).arg(param), session);
+			}
+		} else {
+			debug() << "Unknown paricipant" << param << "on the channel" << id();
+		}
+	} else {
+		debug() << "Unknown mode" << mode;
+	}
+}
+
+void IrcChannel::removeMode(const QString &who, QChar mode, const QString &param)
+{
+	ChatSession *session = ChatLayer::instance()->getSession(this, false);
+	if (mode == 'o' || mode == 'h' || mode == 'v') {
+		IrcChannelParticipant *user = participant(param);
+		if (user) {
+			user->removeMode(mode);
+			if (session) {
+				QString msg;
+				if (mode == 'o')
+					msg = QT_TRANSLATE_NOOP("IrcChannel", "%1 takes channel operator privileges from %2.");
+				else if (mode == 'h')
+					msg = QT_TRANSLATE_NOOP("IrcChannel", "%1 takes channel halfop privileges from %2.");
+				else
+					msg = QT_TRANSLATE_NOOP("IrcChannel", "%1 takes the permission to talk from %2.");
+				addSystemMessage(msg.arg(who).arg(param), session);
+			}
+		} else {
+			debug() << "Unknown paricipant" << param << "on the channel" << id();
+		}
+	} else {
+		debug() << "Unknown mode" << mode;
 	}
 }
 
