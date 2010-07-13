@@ -19,6 +19,7 @@
 #include "ircchannel.h"
 #include "ircchannelparticipant.h"
 #include <qutim/status.h>
+#include <qutim/messagesession.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -118,6 +119,24 @@ void IrcAccount::send(const QString &command) const
 void IrcAccount::setName(const QString &name) const
 {
 	send(QString("NICK %1").arg(name));
+}
+
+IrcProtocol *IrcAccount::protocol()
+{
+	Q_ASSERT(qobject_cast<IrcProtocol*>(Account::protocol()));
+	return reinterpret_cast<IrcProtocol*>(Account::protocol());
+}
+
+const IrcProtocol *IrcAccount::protocol() const
+{
+	Q_ASSERT(qobject_cast<const IrcProtocol*>(Account::protocol()));
+	return reinterpret_cast<const IrcProtocol*>(Account::protocol());
+}
+
+ChatSession *IrcAccount::activeSession() const
+{
+	ChatSession *session = protocol()->activeSession();
+	return session->getUnit()->account() == this ? session : 0;
 }
 
 void IrcAccount::updateSettings()

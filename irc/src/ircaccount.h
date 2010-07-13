@@ -22,10 +22,13 @@
 
 namespace qutim_sdk_0_3 {
 
+class ChatSession;
+
 namespace irc {
 
 class IrcAccountPrivate;
 class IrcChannel;
+class IrcProtocol;
 
 class IrcAccount: public Account
 {
@@ -41,6 +44,9 @@ public:
 	IrcContact *getContact(const QString &nick, bool create = false);
 	void send(const QString &command) const;
 	void setName(const QString &name) const;
+	IrcProtocol *protocol();
+	const IrcProtocol *protocol() const;
+	ChatSession *activeSession() const;
 public slots:
 	void updateSettings();
 protected:

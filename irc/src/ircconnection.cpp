@@ -335,9 +335,25 @@ void IrcConnection::readData()
 			QString host = rx.cap(3);
 			if (host.startsWith('!'))
 				host = host.mid(1);
-			QString cmd = rx.cap(4);
-			foreach (IrcServerMessageHandler *handler, m_handlers.values(cmd))
+			IrcCommand cmd(rx.cap(4));
+			bool handled = false;
+			foreach (IrcServerMessageHandler *handler, m_handlers.values(cmd)) {
+				handled = true;
 				handler->handleMessage(m_account, name, host, cmd, paramList);
+			}
+			if (!handled) {
+				if (cmd.code() >= 400 && cmd.code() <= 502) { // Error
+					ChatSession *session = m_account->activeSession();
+					if (session) {
+						Message msg(paramList.last());
+						msg.setChatUnit(session->getUnit());
+						msg.setProperty("service", true);
+						msg.setTime(QDateTime::currentDateTime());
+						session->appendMessage(msg);
+					}
+				}
+
+			}
 		}
 	}
 }

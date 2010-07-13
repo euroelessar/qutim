@@ -42,6 +42,7 @@ public:
 	virtual Account *account(const QString &id) const;
 	virtual QVariant data(DataType type);
 	IrcAccount *getAccount(const QString &id, bool create = false);
+	ChatSession *activeSession() const;
 public slots:
 	void updateSettings();
 protected:
@@ -50,6 +51,7 @@ private slots:
 	void onJoinChannelWindow(QObject *object);
 	void onJoinChannel();
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+	void onSessionActivated(bool active);
 private:
 	QScopedPointer<IrcProtocolPrivate> d;
 	static IrcProtocol *self;

@@ -18,6 +18,7 @@
 
 #include "ircaccount.h"
 #include "ircprotocol.h"
+#include <qutim/messagesession.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -34,6 +35,7 @@ struct IrcProtocolPrivate
 		QHash<QString, QPointer<IrcAccount> > *accounts_hash;
 		QHash<QString, IrcAccount *> *accounts;
 	};
+	QPointer<ChatSession> activeSession;
 };
 
 } } // namespace qutim_sdk_0_3::irc

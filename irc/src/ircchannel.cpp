@@ -79,7 +79,11 @@ bool IrcChannel::sendMessage(const Message &message)
 	Status::Type status = account()->status().type();
 	if (status == Status::Connecting || status == Status::Offline)
 		return false;
-	account()->send(QString("PRIVMSG %1 :%2").arg(d->name).arg(message.text()));
+	QString text = message.text();
+	if (text.startsWith('/'))
+		account()->send(text.mid(1));
+	else
+		account()->send(QString("PRIVMSG %1 :%2").arg(d->name).arg(text));
 	return true;
 }
 

@@ -21,7 +21,6 @@
 #include <QPointer>
 #include <qutim/dataforms.h>
 #include <qutim/actiongenerator.h>
-#include <qutim/messagesession.h>
 #include <QRegExp>
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::irc::IrcAccount*);
@@ -86,6 +85,11 @@ IrcAccount *IrcProtocol::getAccount(const QString &id, bool create)
 	return account;
 }
 
+ChatSession *IrcProtocol::activeSession() const
+{
+	return d->activeSession;
+}
+
 void IrcProtocol::updateSettings()
 {
 	foreach (QPointer<IrcAccount> acc, *d->accounts_hash)
@@ -147,6 +151,7 @@ void IrcProtocol::onJoinChannel()
 
 void IrcProtocol::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 {
+	connect(session, SIGNAL(activated(bool)), this, SLOT(onSessionActivated(bool)));
 	IrcChannel *channel = qobject_cast<IrcChannel*>(session->getUnit());
 	if (channel) {
 		foreach (IrcChannelParticipant *participant, channel->participants())
@@ -154,6 +159,13 @@ void IrcProtocol::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 		if (channel->me())
 			session->addContact(channel->me());
 	}
+}
+
+void IrcProtocol::onSessionActivated(bool active)
+{
+	ChatSession *session = qobject_cast<ChatSession*>(sender());
+	if (session && active && qobject_cast<IrcChannel*>(session->getUnit()))
+		d->activeSession = session;
 }
 
 } } // namespace qutim_sdk_0_3::irc
