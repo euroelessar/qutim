@@ -37,7 +37,6 @@ public:
 	friend class IrcAccount;
 	IrcAccount *q;
 	IrcConnection *conn;
-	QString name;
 	QHash<QString, IrcContact *> contacts;
 	QHash<QString, IrcChannel *> channels;
 };

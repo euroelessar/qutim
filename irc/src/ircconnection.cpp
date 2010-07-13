@@ -154,7 +154,7 @@ void IrcConnection::handleMessage(class IrcAccount *account, const QString &name
 	} else if (cmd == "NICK") { // Someone has changed his nick
 		QString newNick = params.value(0);
 		if (name == account->name()) {
-			account->d->name = newNick;
+			m_nick = newNick;
 			emit account->nameChanged(newNick);
 		}
 		IrcContact *contact = account->getContact(name, false);
