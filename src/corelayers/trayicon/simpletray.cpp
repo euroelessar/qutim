@@ -112,10 +112,18 @@ namespace Core
 		onUnreadChanged(MessageList());
 	}
 
-	void SimpleTray::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
+	void SimpleTray::onUnreadChanged(qutim_sdk_0_3::MessageList unread)
 	{
 		ChatSession *session = static_cast<ChatSession*>(sender());
 		Q_ASSERT(session != NULL);
+		MessageList::iterator itr = unread.begin();
+		MessageList::iterator endItr = unread.end();
+		while (itr != endItr) {
+			if (itr->property("silent", false))
+				itr = unread.erase(itr);
+			else
+				++itr;
+		}
 		bool empty = m_sessions.isEmpty();
 		if (unread.isEmpty()) {
 			m_sessions.removeOne(session);

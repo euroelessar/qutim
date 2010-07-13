@@ -35,7 +35,7 @@ namespace Core
 		void onActivated(QSystemTrayIcon::ActivationReason);
 		void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 		void onSessionDestroyed();
-		void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
+		void onUnreadChanged(qutim_sdk_0_3::MessageList unread);
 		void onAccountDestroyed(QObject *obj);
 		void onAccountCreated(qutim_sdk_0_3::Account *);
 		void onStatusChanged(const qutim_sdk_0_3::Status &);
