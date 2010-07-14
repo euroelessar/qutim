@@ -56,9 +56,11 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< 332  // RPL_TOPIC
 		<< 333  // RPL_TOPIC_INFO
 		<< "KICK"
-		<< "MODE";
+		<< "MODE"
+		<< "NOTICE";
 	registerHandler(this);
 	IrcAccount::registerLogMsgColor("ERROR", "red");
+	IrcAccount::registerLogMsgColor("Notice", "magenta");
 }
 
 IrcConnection::~IrcConnection()
@@ -196,6 +198,9 @@ void IrcConnection::handleMessage(class IrcAccount *account, const QString &name
 			channel->handleMode(name, params.value(1), params.value(2));
 		else if (IrcContact *contact = account->getContact(name, false))
 			contact->handleMode(name, params.value(1), params.value(2));
+	} else if (cmd == "NOTICE") {
+		QString msg = QString("%1: %2").arg(name).arg(params.value(1));
+		m_account->log(msg, true, "Notice");
 	}
 }
 
