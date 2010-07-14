@@ -9,7 +9,7 @@ TARGET = $$qtLibraryTarget(logger)
 INCLUDEPATH += . \
 			   ../../.. \
 			   ../../../qutim/libqutim/ \
-			   ../../../qutim/libqutim/include
+			   ../../qutim/libqutim/include
 
 # Input
 HEADERS += src/logger.h
@@ -22,7 +22,7 @@ symbian: {
 	TARGET.CAPABILITY = NetworkServices ReadUserData WriteUserData
 
 	logger.sources = logger.dll
-	logger.path = $$QT_PLUGINS_BASE_DIR/qutim
+	logger.path = /resource/qt/plugins/qutim
 	DEPLOYMENT += logger
 
 	LIBS += -llibqutim
