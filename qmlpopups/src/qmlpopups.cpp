@@ -9,7 +9,7 @@ namespace QmlPopups
 	void QmlPopupsPlugin::init()
 	{
 	    debug() << Q_FUNC_INFO;
-	    setInfo(QT_TRANSLATE_NOOP("Plugin", "Qml popups"),
+		setInfo(QT_TRANSLATE_NOOP("Plugin", "QmlPopups"),
 				QT_TRANSLATE_NOOP("Plugin", "Modern popups, based on power of Qt Quick"),
 			    PLUGIN_VERSION(0, 1, 0, 0));
 		addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),

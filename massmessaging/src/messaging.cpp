@@ -1,6 +1,7 @@
 #include "messaging.h"
 #include <qutim/actiongenerator.h>
 #include <qutim/icon.h>
+#include <qutim/debug.h>
 #include <qutim/menucontroller.h>
 #include "messagingdialog.h"
 
@@ -9,10 +10,7 @@ namespace MassMessaging
 
 	void MassMessaging::init()
 	{
-	}
-
-	bool MassMessaging::load()
-	{
+		debug() << Q_FUNC_INFO;
 		addAuthor(QT_TRANSLATE_NOOP("Author","Aleksey Sidorov"),
 				  QT_TRANSLATE_NOOP("Task","Author"),
 				  QLatin1String("sauron@citadelspb.com"),
@@ -20,6 +18,10 @@ namespace MassMessaging
 		setInfo(QT_TRANSLATE_NOOP("Plugin", "MassMessaging"),
 				QT_TRANSLATE_NOOP("Plugin", "Simple messaging to contact list"),
 				PLUGIN_VERSION(0, 1, 0, 0));
+	}
+
+	bool MassMessaging::load()
+	{
 		ActionGenerator *gen = new ActionGenerator(Icon("mail-send"),
 										QT_TRANSLATE_NOOP("MassMessaging", "&Mass Messaging"),
 										this,
