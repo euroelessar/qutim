@@ -21,6 +21,7 @@
 #include <QPointer>
 #include <qutim/dataforms.h>
 #include <qutim/actiongenerator.h>
+#include <qutim/statusactiongenerator.h>
 #include <QRegExp>
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::irc::IrcAccount*);
@@ -36,9 +37,6 @@ IrcProtocol::IrcProtocol() :
 {
 	Q_ASSERT(!self);
 	self = this;
-	MenuController::addAction<IrcAccount>(new ActionGenerator(QIcon(),
-					QT_TRANSLATE_NOOP("IRC", "Join channel..."),
-					this, SLOT(onJoinChannelWindow(QObject*))));
 	updateSettings();
 }
 
@@ -51,6 +49,21 @@ void IrcProtocol::loadAccounts()
 {
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	// Register actions.
+	ActionGenerator *gen = new ActionGenerator(QIcon(),
+					QT_TRANSLATE_NOOP("IRC", "Join channel..."),
+					this, SLOT(onJoinChannelWindow(QObject*)));
+	gen->setPriority(30);
+	gen->setType(ActionTypeContactList | 0x2000);
+	MenuController::addAction<IrcAccount>(gen);
+	// Register status actions.
+	Status status(Status::Online);
+	status.initIcon("irc");
+	MenuController::addAction<IrcAccount>(new StatusActionGenerator(status));
+	status.setType(Status::Away);
+	status.initIcon("irc");
+	MenuController::addAction<IrcAccount>(new StatusActionGenerator(status));
+	// Load accounts.
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &network, accounts) {
 		IrcAccount *acc = new IrcAccount(network);
