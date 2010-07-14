@@ -45,7 +45,11 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	m_cmds
 		<< 432  // ERR_ERRONEUSNICKNAME
 		<< 433  // ERR_NICKNAMEINUSE
-		<< 001  // WELCOME
+		<< 001  // RPL_WELCOME
+		<< 002  // RPL_YOURHOST
+		<< 003  // RPL_CREATED
+		<< 004  // RPL_MYINFO
+		<< 005  // RPL_BOUNCE
 		<< 353  // RPL_NAMREPLY
 		<< "PING"
 		<< "PRIVMSG"
@@ -65,6 +69,8 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	IrcAccount::registerLogMsgColor("ERROR", "red");
 	IrcAccount::registerLogMsgColor("Notice", "magenta");
 	IrcAccount::registerLogMsgColor("MOTD", "green");
+	IrcAccount::registerLogMsgColor("Welcome", "green");
+	IrcAccount::registerLogMsgColor("Support", "green");
 }
 
 IrcConnection::~IrcConnection()
@@ -90,10 +96,24 @@ void IrcConnection::handleMessage(class IrcAccount *account, const QString &name
 	if (status == Status::Connecting)  {
 		if (cmd == 432 || cmd == 433) // ERR_ERRONEUSNICKNAME or ERR_NICKNAMEINUSE
 			tryNextNick();
-		else if (cmd == 1)// WELCOME
-			account->setStatus(Status::Online);
 	}
-	if (cmd == 353) { // RPL_NAMREPLY
+	if (cmd == 1 || cmd == 2 || cmd == 3 || cmd == 4) { // WELCOME
+		if (status == Status::Connecting)
+			account->setStatus(Status::Online);
+		QString msg;
+		if (cmd == 4) {
+			msg = tr("Server %1 (Version %2), User modes: %3, Channel modes: %4");
+			for (int i = 1; i <= 4; ++i)
+				msg = msg.arg(params.value(i));
+		} else {
+			msg = params.value(1);
+		}
+		account->log(msg, false, "Welcome");
+	} else if (cmd == 5) { // RPL_BOUNCE
+		QStringList list = params;
+		list.removeFirst();
+		account->log(list.join(" "), false, "Support");
+	} else if (cmd == 353) { // RPL_NAMREPLY
 		QString channelName = params.value(2);
 		if (channelName.isEmpty())
 			debug() << "Incorrect RPL_NAMREPLY reply";
