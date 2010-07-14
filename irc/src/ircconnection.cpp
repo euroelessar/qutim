@@ -71,6 +71,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	IrcAccount::registerLogMsgColor("MOTD", "green");
 	IrcAccount::registerLogMsgColor("Welcome", "green");
 	IrcAccount::registerLogMsgColor("Support", "green");
+	IrcAccount::registerLogMsgColor("Users", "green");
 }
 
 IrcConnection::~IrcConnection()
@@ -379,8 +380,15 @@ void IrcConnection::readData()
 				handler->handleMessage(m_account, name, host, cmd, paramList);
 			}
 			if (!handled) {
-				if (cmd.code() >= 400 && cmd.code() <= 502)// Error
+				if (cmd.code() >= 400 && cmd.code() <= 502) { // Error
 					m_account->log(paramList.last(), true, "ERROR");
+				} else if ((cmd.code() >= 250 && cmd.code() <= 255) || cmd == 265 || cmd == 266) {
+					paramList.removeFirst();
+					m_account->log(paramList.join(" "), false, "Users");
+				} else {
+					paramList.removeFirst();
+					m_account->log(paramList.join(" "), true, cmd);
+				}
 			}
 		}
 	}
