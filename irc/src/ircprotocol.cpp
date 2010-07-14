@@ -56,6 +56,13 @@ void IrcProtocol::loadAccounts()
 	gen->setPriority(30);
 	gen->setType(ActionTypeContactList | 0x2000);
 	MenuController::addAction<IrcAccount>(gen);
+
+	gen = new ActionGenerator(QIcon(),
+					QT_TRANSLATE_NOOP("IRC", "Show console..."),
+					SLOT(showConsole()));
+	gen->setPriority(35);
+	gen->setType(ActionTypeContactList | 0x2000);
+	MenuController::addAction<IrcAccount>(gen);
 	// Register status actions.
 	Status status(Status::Online);
 	status.initIcon("irc");

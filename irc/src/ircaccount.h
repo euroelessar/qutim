@@ -47,8 +47,11 @@ public:
 	IrcProtocol *protocol();
 	const IrcProtocol *protocol() const;
 	ChatSession *activeSession() const;
+	void log(const QString &msg, bool addToActiveSession = false, const QString &type = QString());
+	static void registerLogMsgColor(const QString &type, const QString &color);
 public slots:
 	void updateSettings();
+	void showConsole();
 protected:
 	virtual bool event(QEvent *ev);
 private slots:

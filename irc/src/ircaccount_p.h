@@ -20,6 +20,7 @@
 #include "ircaccount.h"
 #include <QEvent>
 #include "irccontact.h"
+#include "ui/ircconsole.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -39,6 +40,9 @@ public:
 	IrcConnection *conn;
 	QHash<QString, IrcContact *> contacts;
 	QHash<QString, IrcChannel *> channels;
+	QPointer<IrcConsoleFrom> consoleForm;
+	QString log;
+	static QHash<QString, QString> logMsgColors;
 };
 
 } } // namespace qutim_sdk_0_3::irc

@@ -58,6 +58,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< "KICK"
 		<< "MODE";
 	registerHandler(this);
+	IrcAccount::registerLogMsgColor("ERROR", "red");
 }
 
 IrcConnection::~IrcConnection()
@@ -343,17 +344,8 @@ void IrcConnection::readData()
 				handler->handleMessage(m_account, name, host, cmd, paramList);
 			}
 			if (!handled) {
-				if (cmd.code() >= 400 && cmd.code() <= 502) { // Error
-					ChatSession *session = m_account->activeSession();
-					if (session) {
-						Message msg(paramList.last());
-						msg.setChatUnit(session->getUnit());
-						msg.setProperty("service", true);
-						msg.setTime(QDateTime::currentDateTime());
-						session->appendMessage(msg);
-					}
-				}
-
+				if (cmd.code() >= 400 && cmd.code() <= 502)// Error
+					m_account->log(paramList.last(), true, "ERROR");
 			}
 		}
 	}

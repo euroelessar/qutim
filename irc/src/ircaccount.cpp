@@ -20,10 +20,13 @@
 #include "ircchannelparticipant.h"
 #include <qutim/status.h>
 #include <qutim/messagesession.h>
+#include <QTime>
 
 namespace qutim_sdk_0_3 {
 
 namespace irc {
+
+QHash<QString, QString> IrcAccountPrivate::logMsgColors;
 
 IrcContact *IrcAccountPrivate::newContact(const QString &nick)
 {
@@ -158,9 +161,57 @@ ChatSession *IrcAccount::activeSession() const
 	return session && session->getUnit()->account() == this ? session : 0;
 }
 
+void IrcAccount::log(const QString &msg, bool addToActiveSession, const QString &type)
+{
+	// Add to an active session.
+	if (addToActiveSession) {
+		ChatSession *session = activeSession();
+		if (session) {
+			Message message(msg);
+			message.setChatUnit(session->getUnit());
+			message.setProperty("service", true);
+			message.setTime(QDateTime::currentDateTime());
+			session->appendMessage(message);
+		}
+	}
+	// Add to the account console.
+	QString str = QString("[%1] ").arg(QTime::currentTime().toString(Qt::SystemLocaleShortDate));
+	if (!type.isEmpty()) {
+		QString color = d->logMsgColors.value(type);
+		if (!color.isEmpty())
+			str += QString("<font color='%1'>[%2] %3 </font>").arg(color).arg(type).arg(msg);
+		else
+			str += QString("[%1] %2").arg(type).arg(msg);
+	} else {
+		str += msg;
+	}
+	if (d->consoleForm)
+		d->consoleForm->appendMessage(str);
+	if (!d->log.isEmpty())
+		d->log += "<br>";
+	d->log += str;
+}
+
+void IrcAccount::registerLogMsgColor(const QString &type, const QString &color)
+{
+	IrcAccountPrivate::logMsgColors.insert(type, color);
+}
+
 void IrcAccount::updateSettings()
 {
 	d->conn->loadSettings();
+}
+
+void IrcAccount::showConsole()
+{
+	if (d->consoleForm) {
+		d->consoleForm->raise();
+	} else {
+		d->consoleForm = new IrcConsoleFrom(this, d->log);
+		d->consoleForm->setAttribute(Qt::WA_DeleteOnClose);
+		centerizeWidget(d->consoleForm);
+		d->consoleForm->show();
+	}
 }
 
 bool IrcAccount::event(QEvent *ev)
