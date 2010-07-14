@@ -25,7 +25,7 @@ ProxyContact::ProxyContact(Conference *conf) :
 	connect(m_conf, SIGNAL(titleChanged(QString)), this, SIGNAL(nameChanged(QString)));
 	connect(m_conf, SIGNAL(titleChanged(QString)), SIGNAL(titleChanged(QString)));
 	connect(m_conf, SIGNAL(joined()), SLOT(onJoined()));
-	connect(m_conf, SIGNAL(leaved()), SLOT(onLeaved()));
+	connect(m_conf, SIGNAL(left()), SLOT(onLeft()));
 }
 
 QStringList ProxyContact::tags() const
@@ -79,7 +79,7 @@ void ProxyContact::onJoined()
 	emit statusChanged(status());
 }
 
-void ProxyContact::onLeaved()
+void ProxyContact::onLeft()
 {
 	m_conn = false;
 	emit statusChanged(status());

@@ -38,7 +38,7 @@ public:
 	Conference *conference() const { return m_conf; }
 private slots:
 	void onJoined();
-	void onLeaved();
+	void onLeft();
 private:
 	Conference *m_conf;
 	bool m_conn;
