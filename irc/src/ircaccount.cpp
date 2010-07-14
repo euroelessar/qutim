@@ -55,20 +55,39 @@ IrcAccount::~IrcAccount()
 void IrcAccount::setStatus(Status status)
 {
 	Status current = this->status();
-	if (current.type() == status.type())
+	if (status == Status::Connecting)
 		return;
+	// Prepare status.
+	if (current == Status::Connecting) {
+		status.setType(current.text().isEmpty() ? Status::Online : Status::Away);
+		status.setText(current.text());
+	} else if (status == Status::Offline || status == Status::Online) {
+		status.setText(QString());
+	} else if (status == Status::Invisible || status == Status::FreeChat) {
+		status.setType(Status::Online);
+		status.setText(QString());
+	} else {
+		if (status != Status::Away)
+			status.setType(Status::Away);
+		if (status.text().isEmpty())
+			status.setText(tr("Away"));
+	}
+	// Send status.
 	if (status == Status::Offline) {
-		if (d->conn->isConnected()) {
+		if (d->conn->isConnected())
 			d->conn->disconnectFromHost(false);
-		}
 	} else {
 		if (current == Status::Offline) {
-			status = Status::Connecting;
+			status.setType(Status::Connecting);
 			d->conn->connectToNetwork();
-		} else {
-			// Reseting away message.
+		} else if (current == Status::Away && status == Status::Online) {
+			// It is a little weird but the following command sets status to Online.
+			d->conn->send("AWAY");
 		}
+		if (status.type() == Status::Away)
+			d->conn->send(QString("AWAY %1").arg(status.text()));
 	}
+	status.initIcon("irc");
 	emit statusChanged(status);
 	Account::setStatus(status);
 }
