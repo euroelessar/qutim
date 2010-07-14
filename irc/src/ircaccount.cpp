@@ -79,6 +79,8 @@ void IrcAccount::setStatus(Status status)
 	if (status == Status::Offline) {
 		if (d->conn->isConnected())
 			d->conn->disconnectFromHost(false);
+		foreach (IrcChannel *channel, d->channels)
+			channel->leave(true);
 	} else {
 		if (current == Status::Offline) {
 			status.setType(Status::Connecting);

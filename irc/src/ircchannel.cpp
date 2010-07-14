@@ -66,7 +66,15 @@ void IrcChannel::join(const QString &pass)
 
 void IrcChannel::leave()
 {
-	account()->send(QString("PART %1").arg(d->name));
+	leave(false);
+}
+
+void IrcChannel::leave(bool force)
+{
+	if (force)
+		clear(ChatLayer::instance()->getSession(this, false));
+	else
+		account()->send(QString("PART %1").arg(d->name));
 }
 
 QString IrcChannel::id() const

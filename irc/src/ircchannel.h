@@ -39,6 +39,7 @@ public:
 	virtual void join();
 	void join(const QString &pass);
 	virtual void leave();
+	void leave(bool force);
 	virtual QString id() const;
 	virtual bool sendMessage(const Message &message);
 	virtual QString topic() const;
