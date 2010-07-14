@@ -36,10 +36,10 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	resize(desktop_size.width()/2,desktop_size.height()*2/3);
 	centerizeWidget(this);
 	setWindowIcon(Icon("configure"));
-	//load settings
-	ConfigGroup general_group = Config("appearance").group("xsettings/general");
 	//init toolbar
-	connect(ui->xtoolBar,SIGNAL(actionTriggered(QAction*)),SLOT(onActionTriggered(QAction*)));
+	ui->xtoolBar->setIconSize(QSize(32,32));
+	ui->xtoolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	connect(ui->xtoolBar,SIGNAL(actionTriggered(QAction*)),SLOT(onActionTriggered(QAction*)));	
 
 #ifdef Q_WS_WIN
 	ui->xtoolBar->setStyleSheet("QToolBar{background:none;border:none}"); //HACK

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>663</width>
-    <height>708</height>
+    <width>661</width>
+    <height>706</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <widget class="XToolBar" name="xtoolBar" native="true"/>
+    <widget class="ActionToolBar" name="xtoolBar" native="true"/>
    </item>
    <item row="1" column="0">
     <layout class="QGridLayout" name="gridLayout">
@@ -99,9 +99,9 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>XToolBar</class>
+   <class>ActionToolBar</class>
    <extends>QWidget</extends>
-   <header>src/corelayers/xsettingsdialog/xtoolbar.h</header>
+   <header location="global">libqutim/actiontoolbar.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

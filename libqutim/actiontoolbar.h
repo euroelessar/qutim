@@ -2,6 +2,7 @@
  *  actiontoolbar.h
  *
  *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -21,11 +22,12 @@
 
 namespace qutim_sdk_0_3
 {
-	struct ActionToolBarPrivate;
+	class ActionToolBarPrivate;
 
 	class LIBQUTIM_EXPORT ActionToolBar : public QToolBar
 	{
 		Q_OBJECT
+		Q_DECLARE_PRIVATE(ActionToolBar)
 	public:
 		explicit ActionToolBar(const QString &title, QWidget *parent = 0);
 		explicit ActionToolBar(QWidget *parent = 0);
@@ -43,13 +45,14 @@ namespace qutim_sdk_0_3
 		QVariant data() const;
 
 		void setMoveHookEnabled(bool enabled = true);
-
+		// Toolbar id for appearance settings, by default id is "common"
+// 		void setId(const QString& id);
 	protected:
 		void mouseMoveEvent(QMouseEvent* event);
 		void mousePressEvent(QMouseEvent* event);
-
+		void contextMenuEvent(QContextMenuEvent* event);
 	private:
-		QScopedPointer<ActionToolBarPrivate> p;
+		QScopedPointer<ActionToolBarPrivate> d_ptr;
 	};
 }
 

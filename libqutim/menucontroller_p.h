@@ -21,6 +21,13 @@
 
 namespace qutim_sdk_0_3
 {
+
+	typedef QMap<const QMetaObject *, ActionInfo> MenuActionMap;
+	typedef QMap<const ActionGenerator*,QMap<const QObject*, QAction*> > ActionGeneratorMap;
+
+	Q_GLOBAL_STATIC(MenuActionMap, globalActions)
+	Q_GLOBAL_STATIC(ActionGeneratorMap,actionsCache);
+
 	struct ActionInfo
 	{
 		ActionInfo(const ActionGenerator *g, const ActionGeneratorPrivate *g_p,
@@ -84,7 +91,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_DISABLE_COPY(ActionContainerPrivate)
 	public:
-		inline ActionContainerPrivate() : controller(0),filterType(ActionContainer::TypeMatch),filterData(QVariant()) {}
+				inline ActionContainerPrivate() : controller(0),filterType(ActionContainer::TypeMatch),filterData(QVariant()) {}
 		inline ~ActionContainerPrivate() {}
 		MenuController *controller;
 		ActionContainer::ActionFilter filterType;
@@ -94,7 +101,7 @@ namespace qutim_sdk_0_3
 		inline bool checkTypeMask(const ActionInfo& info, int typeMask);
 		inline void ensureAction(const ActionInfo& info);
 	};
-	//TODO create common handler for DynamicMenu and ActionContainer
+	//TODO create common handler for DynamicMenu, ActionContainer and ActionToolbar
 	class ActionHandler : public QActionGroup
 	{
 		Q_OBJECT
@@ -105,6 +112,8 @@ namespace qutim_sdk_0_3
 		void onActionTriggered(QAction *action);
 		void onActionDestoyed(QObject *obj);
 	};
+
+	Q_GLOBAL_STATIC(ActionHandler,handler);
 
 }
 
