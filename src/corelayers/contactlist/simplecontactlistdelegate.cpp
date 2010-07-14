@@ -134,7 +134,7 @@ namespace Core
 									   option.decorationSize.height(), //FIXME
 									   Qt::AlignTop |
 									   Qt::AlignRight);
-							title_rect.setWidth(title_rect.width()-option.decorationSize.width());
+							title_rect.setWidth(title_rect.width()-option.decorationSize.width()- m_horizontal_padding/2);
 						}
 					}
 

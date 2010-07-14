@@ -206,9 +206,8 @@ namespace qutim_sdk_0_3
 			//temporary, only for actiontoolbars
 			if (!d->member.isEmpty() && d->receiver)
 				QObject::connect(action, SIGNAL(triggered()), d->receiver, d->member);
-		} else {
-			action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
 		}
+		action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
 		return action;
 	}
 

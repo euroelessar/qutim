@@ -74,10 +74,8 @@ namespace Core
 		ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
 		{
 			// TODO: Think, is it good idea or we need smth more intellegent?
-			if (Contact *contact = qobject_cast<Contact*>(unit)) {
-				if (MetaContact *meta = qobject_cast<MetaContact*>(contact->upperUnit()))
+				if (ChatUnit *meta = unit->metaContact())
 					unit = meta;
-			}
 			//find or create session
 			if(!(unit = getUnitForSession(unit)))
 				return 0;

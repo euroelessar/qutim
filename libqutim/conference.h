@@ -27,7 +27,7 @@ namespace qutim_sdk_0_3
 	signals:
 		void topicChanged(const QString &);
 		void meChanged(qutim_sdk_0_3::Buddy *me);
-		void leaved();
+		void left();
 		void joined();
 	};
 }
