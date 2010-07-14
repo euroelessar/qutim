@@ -57,10 +57,14 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< 333  // RPL_TOPIC_INFO
 		<< "KICK"
 		<< "MODE"
-		<< "NOTICE";
+		<< "NOTICE"
+		<< 375  // RPL_MOTDSTART
+		<< 372  // RPL_MOTD
+		<< 376; // RPL_ENDOFMOTD
 	registerHandler(this);
 	IrcAccount::registerLogMsgColor("ERROR", "red");
 	IrcAccount::registerLogMsgColor("Notice", "magenta");
+	IrcAccount::registerLogMsgColor("MOTD", "green");
 }
 
 IrcConnection::~IrcConnection()
@@ -201,6 +205,12 @@ void IrcConnection::handleMessage(class IrcAccount *account, const QString &name
 	} else if (cmd == "NOTICE") {
 		QString msg = QString("%1: %2").arg(name).arg(params.value(1));
 		m_account->log(msg, true, "Notice");
+	} else if (cmd == 375) { // RPL_MOTDSTART
+		m_account->log(tr("Message of the day:"), false, "MOTD");
+	} else if (cmd == 376) { // RPL_ENDOFMOTD
+		m_account->log(tr("End of message of the day"), false, "MOTD");
+	} else if (cmd == 372) { //RPL_MOTD
+		m_account->log(params.value(1), false, "MOTD");
 	}
 }
 
