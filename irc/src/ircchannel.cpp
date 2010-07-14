@@ -412,7 +412,7 @@ void IrcChannel::clear(ChatSession *session)
 			session->removeContact(user.data());
 	}
 	d->users.clear();
-	emit leaved();
+	emit left();
 }
 
 } } // namespace qutim_sdk_0_3::irc
