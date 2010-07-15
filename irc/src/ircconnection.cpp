@@ -55,6 +55,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< 004  // RPL_MYINFO
 		<< 005  // RPL_BOUNCE
 		<< 353  // RPL_NAMREPLY
+		<< 366  // RPL_ENDOFNAMES
 		<< "PING"
 		<< "PRIVMSG"
 		<< "JOIN"
