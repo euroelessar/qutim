@@ -117,8 +117,7 @@ namespace Core
 		ChatSession *session = static_cast<ChatSession*>(sender());
 		Q_ASSERT(session != NULL);
 		MessageList::iterator itr = unread.begin();
-		MessageList::iterator endItr = unread.end();
-		while (itr != endItr) {
+		while (itr != unread.end()) {
 			if (itr->property("silent", false))
 				itr = unread.erase(itr);
 			else

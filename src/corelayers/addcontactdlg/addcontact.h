@@ -23,6 +23,7 @@ namespace Core {
 		void on_cancelButton_clicked();
 		void setAccount();
 		void changeState(const qutim_sdk_0_3::Status &status);
+		void currentChanged(int index);
 	private:
 		QScopedPointer<AddContactPrivate> d_ptr;
 	};
@@ -34,7 +35,7 @@ namespace Core {
 		Q_CLASSINFO("Uses", "IconLoader")
 		Q_CLASSINFO("Uses", "ContactList")
 	public:
-   		AddContactModule();
+		AddContactModule();
 	private slots:
 		void show(QObject*);
 	};

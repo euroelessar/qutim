@@ -115,6 +115,14 @@ namespace qutim_sdk_0_3
 
 	Q_GLOBAL_STATIC(ActionHandler,handler);
 
+	//hack for stupid gcc!
+
+	static inline void gccHack() {
+		Q_UNUSED(globalActions())
+		Q_UNUSED(actionsCache())
+		Q_UNUSED(handler())
+	}
+
 }
 
 #endif // MENUCONTROLLER_P_H

@@ -11,8 +11,8 @@ namespace Core {
 	static Core::CoreModuleHelper<AddContactModule> add_contact_module_static(
 		QT_TRANSLATE_NOOP("Plugin", "Add contact dialog"),
 		QT_TRANSLATE_NOOP("Plugin", "Simple add contact dialog")
-	);	
-	
+	);
+
 	struct AddContactPrivate
 	{
 		QHash<QString, Account *> accounts;
@@ -37,7 +37,11 @@ namespace Core {
 	{
 		AddContact *addContact = new AddContact();
 		centerizeWidget(addContact);
+#ifdef Q_OS_SYMBIAN
+		addContact->showMaximized();
+#else
 		addContact->show();
+#endif
 	}
 
 	AddContact::AddContact(Account *account, QWidget *parent) : QDialog(parent), d_ptr(new AddContactPrivate())
@@ -56,7 +60,9 @@ namespace Core {
 						button->setText(acc->id());
 						QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 						button->setSizePolicy(sizePolicy);
+#if !defined(Q_OS_SYMBIAN)
 						button->setAutoRaise(true);
+#endif
 						connect(button, SIGNAL(clicked()), SLOT(setAccount()));
 						d->ui->accountLayout->insertWidget(d->ui->accountLayout->count()-1, button);
 						d->accounts.insert(acc->id(), acc);
@@ -68,6 +74,13 @@ namespace Core {
 				setAccount(d->accounts.values().at(0));
 		}
 
+#if defined(Q_OS_SYMBIAN)
+		d->ui->buttonBox->setStandardButtons(QDialogButtonBox::Close);
+#endif
+
+		connect(d->ui->buttonBox,SIGNAL(accepted()),SLOT(on_okButton_clicked()));
+		connect(d->ui->buttonBox,SIGNAL(rejected()),SLOT(on_cancelButton_clicked()));
+		connect(d->ui->stackedWidget,SIGNAL(currentChanged(int)),SLOT(currentChanged(int)));
 	}
 
 	AddContact::~AddContact()
@@ -81,13 +94,13 @@ namespace Core {
 	}
 
 	void AddContact::setAccount(Account *account)
-	{ 
+	{
 		Q_D(AddContact);
 		d->account = account;
 		d->ui->stackedWidget->setCurrentIndex(1);
 		d->ui->IDLabel->setText(account->protocol()->data(Protocol::ProtocolIdName).toString() % QLatin1Literal(":"));
 	}
-	
+
 	void AddContact::on_okButton_clicked()
 	{
 		Q_D(AddContact);
@@ -120,6 +133,13 @@ namespace Core {
 				button->setEnabled(true);
 				button->setToolTip("");
 			}
+		}
+	}
+
+	void AddContact::currentChanged(int index)
+	{
+		if (index == 1) {
+			d_func()->ui->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 		}
 	}
 }
