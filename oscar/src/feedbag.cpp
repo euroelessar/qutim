@@ -400,6 +400,10 @@ QDebug &operator<<(QDebug &stream, const FeedbagItem &item)
 void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
 {
 	Q_Q(Feedbag);
+	if (!handlers.contains(item.type())) {
+		debug() << "The feedbag item ignored:" << item;
+		return;
+	}
 	quint16 id = item.d->id();
 	QHash<quint16, ItemsHash>::iterator itemsItr = items.find(item.type());
 	bool isInList = itemsItr != items.end() && itemsItr->contains(id);

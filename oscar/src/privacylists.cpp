@@ -146,7 +146,7 @@ PrivacyLists::PrivacyLists()
 {
 	Q_ASSERT(!self);
 	self = this;
-	m_types << SsiPermit << SsiDeny << SsiIgnore;
+	m_types << SsiPermit << SsiDeny << SsiIgnore << SsiVisibility;
 	foreach (Account *account, IcqProtocol::instance()->accounts())
 		accountAdded(account);
 	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), SLOT(accountAdded(qutim_sdk_0_3::Account*)));
