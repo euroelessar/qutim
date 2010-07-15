@@ -126,6 +126,9 @@ namespace qutim_sdk_0_3
 		case Status::Offline:
 			name = QT_TRANSLATE_NOOP("Status", "Offline");
 			break;
+		case Status::Connecting:
+			name = QT_TRANSLATE_NOOP("Status", "Connecting");
+			break;
 		default:
 			name = QT_TRANSLATE_NOOP("Status", "Unknown");
 			break;
@@ -199,6 +202,7 @@ namespace qutim_sdk_0_3
 	void Status::setType(Status::Type type)
 	{
 		d->type = type;
+		d->subtype = 0;
 		QSharedDataPointer<StatusPrivate> p = get_status_private(type);
 		d->name = p->name;
 		d->icon = p->icon;
