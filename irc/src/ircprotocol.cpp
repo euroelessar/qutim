@@ -177,7 +177,9 @@ void IrcProtocol::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
 void IrcProtocol::onSessionActivated(bool active)
 {
 	ChatSession *session = qobject_cast<ChatSession*>(sender());
-	if (session && active && qobject_cast<IrcChannel*>(session->getUnit()))
+	if (!active && session == d->activeSession)
+		d->activeSession = 0;
+	else if (session && active && qobject_cast<IrcChannel*>(session->getUnit()))
 		d->activeSession = session;
 }
 
