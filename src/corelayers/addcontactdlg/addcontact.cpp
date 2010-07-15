@@ -37,7 +37,11 @@ namespace Core {
 	{
 		AddContact *addContact = new AddContact();
 		centerizeWidget(addContact);
+#ifdef Q_WS_SYMBIAN
+		addContact->showMaximized();
+#else
 		addContact->show();
+#endif
 	}
 
 	AddContact::AddContact(Account *account, QWidget *parent) : QDialog(parent), d_ptr(new AddContactPrivate())
@@ -67,6 +71,9 @@ namespace Core {
 			if (d->accounts.count() == 1)
 				setAccount(d->accounts.values().at(0));
 		}
+
+		connect(d->ui->buttonBox,SIGNAL(accepted()),SLOT(on_okButton_clicked()));
+		connect(d->ui->buttonBox,SIGNAL(rejected()),SLOT(on_cancelButton_clicked()));
 
 	}
 
