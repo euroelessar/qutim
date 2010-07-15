@@ -77,7 +77,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	IrcAccount::registerLogMsgColor("Support", "green");
 	IrcAccount::registerLogMsgColor("Users", "green");
 
-	m_ctpcCmds << "PING" << "PONG";
+	m_ctpcCmds << "PING" << "PONG" << "ACTION";
 	registerCtpcHandler(this);
 }
 
@@ -143,7 +143,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 			debug() << "Incorrect PING request";		
 	} else if (cmd == "PRIVMSG") {
 		QString text = params.value(1);
-		if (ctpcRx.indexIn(text) == 0) {
+		if (ctpcRx.indexIn(text) == 0) { // Is it CTPC request?
 			bool handled = false;
 			QString ctpcCmd = ctpcRx.cap(1);
 			foreach (IrcCtpcHandler *handler, m_ctpcHandlers.values(ctpcCmd)) {
@@ -154,31 +154,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 				debug() << "Unknown CTPC request" << ctpcCmd << "from" << name;
 			return;
 		}
-		QString to = params.value(0); // It can be an account's nick or a channel name.
-		bool isPrivate = (to == m_account->name());
-		Message msg(text);
-		msg.setIncoming(true);
-		msg.setTime(QDateTime::currentDateTime());
-		ChatSession *session;
-		if (isPrivate) {
-			IrcContact *contact = account->getContact(name, true);
-			msg.setChatUnit(contact);
-			session = ChatLayer::instance()->getSession(contact, true);
-			connect(session, SIGNAL(destroyed()), contact, SLOT(onSessionDestroyed()));
-		} else {
-			IrcChannel *channel = account->getChannel(to, false);
-			if (!channel) {
-				channelIsNotJoinedError(cmd, to);
-				return;
-			}
-			session = ChatLayer::instance()->getSession(channel, true);
-			msg.setChatUnit(channel);
-			msg.setProperty("senderName", name);
-			msg.setProperty("senderId", name);
-			if (!text.contains(m_nick))
-				msg.setProperty("silent", true);
-		}
-		session->appendMessage(msg);
+		handleTextMessage(name, params.value(0), params.value(1));
 	} else if (cmd == "JOIN") {
 		QString channelName = params.value(0);
 		if (name == m_account->name()) { // We has been connected to the channel.
@@ -279,6 +255,8 @@ void IrcConnection::handleCtpcRequest(IrcAccount *account, const QString &sender
 		QString timeStamp = QString("%1.%2").arg(current.toTime_t()).arg(current.time().msec());
 		sendCtpcRequest(sender, "PING", timeStamp);
 #endif
+	} else if (cmd == "ACTION") {
+		handleTextMessage(sender, receiver, QLatin1String("/me ") + params);
 	}
 }
 
@@ -413,6 +391,34 @@ void IrcConnection::tryNextNick()
 	m_nick = m_nicks.at(m_currentNick);
 	send(QString("NICK %1").arg(m_nick));
 	send(QString("USER %1 %2 * :%3").arg(m_nick).arg(0).arg(m_fullName.isEmpty() ? m_nick : m_fullName));
+}
+
+void IrcConnection::handleTextMessage(const QString &who, const QString &to, const QString &text)
+{
+	bool isPrivate = (to == m_nick);
+	Message msg(text);
+	msg.setIncoming(true);
+	msg.setTime(QDateTime::currentDateTime());
+	ChatSession *session;
+	if (isPrivate) {
+		IrcContact *contact = m_account->getContact(who, true);
+		msg.setChatUnit(contact);
+		session = ChatLayer::instance()->getSession(contact, true);
+		connect(session, SIGNAL(destroyed()), contact, SLOT(onSessionDestroyed()));
+	} else {
+		IrcChannel *channel = m_account->getChannel(to, false);
+		if (!channel) {
+			channelIsNotJoinedError("PRIVMSG", to);
+			return;
+		}
+		session = ChatLayer::instance()->getSession(channel, true);
+		msg.setChatUnit(channel);
+		msg.setProperty("senderName", who);
+		msg.setProperty("senderId", who);
+		if (!text.contains(m_nick))
+			msg.setProperty("silent", true);
+	}
+	session->appendMessage(msg);
 }
 
 void IrcConnection::channelIsNotJoinedError(const QString &cmd, const QString &channel, bool reply)

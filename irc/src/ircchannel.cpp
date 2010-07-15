@@ -400,6 +400,11 @@ void IrcChannel::removeMode(const QString &who, QChar mode, const QString &param
 	}
 }
 
+void IrcChannel::handleAction(const QString &nick, const QString &message)
+{
+
+}
+
 void IrcChannel::addSystemMessage(const QString &message, ChatSession *session)
 {
 	Message msg(message);

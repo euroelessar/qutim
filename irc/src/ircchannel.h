@@ -63,6 +63,7 @@ private:
 	void handleMode(const QString &who, const QString &mode, const QString &param);
 	void setMode(const QString &who, QChar mode, const QString &param);
 	void removeMode(const QString &who, QChar mode, const QString &param);
+	void handleAction(const QString &nick, const QString &message);
 	void addSystemMessage(const QString &message, ChatSession *session);
 	void clear(ChatSession *session);
 private:
