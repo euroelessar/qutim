@@ -44,7 +44,6 @@ class FeedbagItemPrivate: public QSharedData
 public:
 	FeedbagItemPrivate();
 	FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item, quint16 group, const QString &name, bool inList = false);
-	FeedbagItemPrivate(Feedbag *bag, const SNAC &snac, bool inList = false);
 	void send(const FeedbagItem &item, Feedbag::ModifyType operation);
 	inline void remove(FeedbagItem item);
 	quint16 id() const { return itemType == SsiGroup ? groupId : itemId; }
@@ -81,6 +80,7 @@ public:
 	void handleItem(FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	quint16 generateId() const;
 	void finishLoading();
+	FeedbagItemPrivate *getFeedbagItemPrivate(const SNAC &snac);
 	QHash<quint16, ItemsHash> items;
 	QQueue<FeedbagQueueItem> ssiQueue;
 	IcqAccount *account;
@@ -142,16 +142,6 @@ FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, quint16 type, quint16 item,
 	itemId = item;
 	groupId = group;
 	recordName = name;
-}
-
-FeedbagItemPrivate::FeedbagItemPrivate(Feedbag *bag, const SNAC &snac, bool inList):
-	feedbag(bag), isInList(inList)
-{
-	recordName = snac.read<QString, quint16>();
-	groupId = snac.read<quint16>();
-	itemId = snac.read<quint16>();
-	itemType = snac.read<quint16>();
-	tlvs = snac.read<DataUnit, quint16>().read<TLVMap>();
 }
 
 void FeedbagItemPrivate::send(const FeedbagItem &item, Feedbag::ModifyType operation)
@@ -488,6 +478,23 @@ void FeedbagPrivate::finishLoading()
 	emit q->loaded();
 }
 
+FeedbagItemPrivate *FeedbagPrivate::getFeedbagItemPrivate(const SNAC &snac)
+{
+	QString recordName = snac.read<QString, quint16>();
+	quint16 groupId = snac.read<quint16>();
+	quint16 itemId = snac.read<quint16>();
+	quint16 itemType = snac.read<quint16>();
+	if (!handlers.contains(itemType)) {
+		// TODO: add better debugging.
+		debug() << "The feedbag item ignored with type" << itemType;
+		snac.skipData(snac.read<quint16>());
+		return 0;
+	}
+	FeedbagItemPrivate *item = new FeedbagItemPrivate(q_func(), itemType, itemId, groupId, recordName);
+	item->tlvs = snac.read<DataUnit, quint16>().read<TLVMap>();
+	return item;
+}
+
 Feedbag::Feedbag(IcqAccount *acc):
 	QObject(acc), d(new FeedbagPrivate(acc, this))
 {
@@ -803,8 +810,11 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		bool isLast = !(sn.flags() & 0x0001);
 		debug() << "SSI: number of entries is" << count << "version is" << version;
 		for (uint i = 0; i < count; i++) {	
-			FeedbagItem item(new FeedbagItemPrivate(this, sn));
-			d->handleItem(item, AddModify, FeedbagError::NoError);
+			FeedbagItemPrivate *itemPrivate = d->getFeedbagItemPrivate(sn);
+			if (itemPrivate) {
+				FeedbagItem item(itemPrivate);
+				d->handleItem(item, AddModify, FeedbagError::NoError);
+			}
 		}
 		if (isLast) {
 			d->firstPacket = true;
@@ -827,8 +837,11 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case ListsFamily << 16 | ListsAddToList: // Server sends new items
 	case ListsFamily << 16 | ListsRemoveFromList: { // Items have been removed
 		while (sn.dataSize() != 0) {
-			FeedbagItem item(new FeedbagItemPrivate(this, sn));
-			d->handleItem(item, static_cast<ModifyType>(sn.subtype()), FeedbagError::NoError);
+			FeedbagItemPrivate *itemPrivate = d->getFeedbagItemPrivate(sn);
+			if (itemPrivate) {
+				FeedbagItem item(itemPrivate);
+				d->handleItem(item, static_cast<ModifyType>(sn.subtype()), FeedbagError::NoError);
+			}
 		}
 		break;
 	}
