@@ -405,19 +405,22 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 		return;
 	}
 	quint16 id = item.d->id();
-	QHash<quint16, ItemsHash>::iterator itemsItr = items.find(item.type());
-	bool isInList = itemsItr != items.end() && itemsItr->contains(id);
-	if (type == Feedbag::Add || (type == Feedbag::AddModify && !isInList)) {
+	// Iterator on a ItemsHash that contains feedbag items with matched type.
+	QHash<quint16, ItemsHash>::iterator itemsGroupItr = items.find(item.type());
+	bool isItemGroupItrCreated = itemsGroupItr != items.end();
+	// Is the item in the feedbag list?
+	bool isInList = isItemGroupItrCreated && itemsGroupItr->contains(id);
+	// Prepare isInList flag of the item.
+	if (type == Feedbag::Add || (type == Feedbag::AddModify && !isInList))
 		item.d->isInList = error == FeedbagError::NoError;
-	} else if (type == Feedbag::Remove) {
+	else if (type == Feedbag::Remove)
 		item.d->isInList = error != FeedbagError::NoError;
-	} else {
+	else
 		item.d->isInList = true;
-	}
+	// Handle the item.
 	bool found = false;
-	foreach (FeedbagItemHandler *handler, handlers.values(item.type())) {
+	foreach (FeedbagItemHandler *handler, handlers.values(item.type()))
 		found = handler->handleFeedbagItem(q, item, type, error) || found;
-	}
 	if (!found) {
 		if (error == FeedbagError::NoError) {
 			if (type == Feedbag::Remove) {
@@ -445,17 +448,19 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 		}
 	}
 	if (error == FeedbagError::NoError) {
+		// Update the feedbag list.
 		if (type == Feedbag::Remove) {
-			if (itemsItr != items.end()) {
-				itemsItr->remove(id);
-				if (itemsItr->isEmpty())
-					items.erase(itemsItr);
+			if (isItemGroupItrCreated) {
+				itemsGroupItr->remove(id);
+				if (itemsGroupItr->isEmpty())
+					items.erase(itemsGroupItr);
 			}
 		} else {
-			if (itemsItr == items.end())
-				itemsItr = items.insert(item.type(), ItemsHash());
-			itemsItr->insertMulti(id, item);
+			if (!isItemGroupItrCreated)
+				itemsGroupItr = items.insert(item.type(), ItemsHash());
+			itemsGroupItr->insertMulti(id, item);
 		}
+		// Update the feedbag config.
 		Status::Type status = account->status().type();
 		if (status != Status::Connecting && status != Status::Offline) {
 			Config cfg = q->config("feedbag/cache");
