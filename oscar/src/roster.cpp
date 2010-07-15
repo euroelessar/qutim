@@ -410,12 +410,14 @@ void Roster::loginFinished()
 	foreach (IcqContact *contact, d->connectingInfo->removedContacts)
 		removeContact(contact);
 	// Update contacts' tags.
-	QHashIterator<IcqContact*, QStringList> itr(d->connectingInfo->oldTags);
-	while (itr.hasNext()) {
-		itr.next();
+	typedef QHash<IcqContact*, QStringList>::const_iterator OldTagsItr;
+	OldTagsItr itr = d->connectingInfo->oldTags.constBegin();
+	OldTagsItr end = d->connectingInfo->oldTags.constEnd();
+	while (itr != end) {
 		QStringList tags = itr.key()->tags();
 		if (tags != itr.value()) // Tags are updated!
 			emit itr.key()->tagsChanged(tags);
+		++itr;
 	}
 	foreach (IcqContact *contact, d->connectingInfo->createdContacts) {
 		emit contact->inListChanged(true);
