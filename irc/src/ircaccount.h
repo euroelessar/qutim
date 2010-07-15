@@ -43,6 +43,8 @@ public:
 	IrcChannel *getChannel(const QString &name, bool create = false);
 	IrcContact *getContact(const QString &nick, bool create = false);
 	void send(const QString &command) const;
+	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params);
+	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params);
 	void setName(const QString &name) const;
 	IrcProtocol *protocol();
 	const IrcProtocol *protocol() const;

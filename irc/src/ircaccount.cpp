@@ -140,6 +140,16 @@ void IrcAccount::send(const QString &command) const
 	d->conn->send(command);
 }
 
+void IrcAccount::sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params)
+{
+	d->conn->sendCtpcRequest(contact, cmd, params);
+}
+
+void IrcAccount::sendCtpcReply(const QString &contact, const QString &cmd, const QString &params)
+{
+	d->conn->sendCtpcReply(contact, cmd, params);
+}
+
 void IrcAccount::setName(const QString &name) const
 {
 	send(QString("NICK %1").arg(name));

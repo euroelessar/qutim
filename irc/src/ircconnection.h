@@ -17,6 +17,7 @@
 #define iRCCONNECTION_H
 
 #include "ircservermessagehandler.h"
+#include "ircctpchandler.h"
 #include <QTcpSocket>
 
 namespace qutim_sdk_0_3 {
@@ -32,22 +33,29 @@ struct IrcServer
 	//bool ssl;
 };
 
-class IrcConnection : public QObject, public IrcServerMessageHandler
+class IrcConnection : public QObject, public IrcServerMessageHandler, public IrcCtpcHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::irc::IrcServerMessageHandler)
+	Q_INTERFACES(qutim_sdk_0_3::irc::IrcServerMessageHandler qutim_sdk_0_3::irc::IrcCtpcHandler)
 public:
 	explicit IrcConnection(IrcAccount *account, QObject *parent = 0);
 	virtual ~IrcConnection();
 	void connectToNetwork();
 	void registerHandler(IrcServerMessageHandler *handler);
+	void registerCtpcHandler(IrcCtpcHandler *handler);
 	void send(const QString &command) const;
+	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params);
+	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params);
 	void disconnectFromHost(bool force = false);
 	QTcpSocket *socket();
 	bool isConnected();
 	void loadSettings();
-	void handleMessage(class IrcAccount *account, const QString &name, const QString &host,
+	void handleMessage(IrcAccount *account, const QString &name, const QString &host,
 					   const IrcCommand &cmd, const QStringList &params);
+	void handleCtpcRequest(IrcAccount *account, const QString &sender, const QString &senderHost,
+						   const QString &receiver, const QString &cmd, const QString &params);
+	void handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
+							const QString &receiver, const QString &cmd, const QString &params);
 	const QString &nick() const { return m_nick; }
 private:
 	void tryConnectToNextServer();
@@ -60,6 +68,7 @@ private slots:
 private:
 	QTcpSocket *m_socket;
 	QMultiMap<QString, IrcServerMessageHandler*> m_handlers;
+	QMultiMap<QString, IrcCtpcHandler*> m_ctpcHandlers;
 	IrcAccount *m_account;
 	QList<IrcServer> m_servers;
 	int m_currentServer;
