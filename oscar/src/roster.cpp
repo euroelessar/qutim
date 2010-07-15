@@ -64,8 +64,17 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 	case SsiBuddy: {
 		if (item.name().isEmpty())
 			break;
-		IcqContact *contact = account->getContact(item.name(), true);
+		ConnectingInfo *connInfo = account->d_func()->connectingInfo.data();
+		IcqContact *contact = account->getContact(item.name());
+		if (!contact) {
+			contact = account->getContact(item.name(), true, true);
+			if (connInfo)
+				connInfo->createdContacts << contact;
+		}
 		IcqContactPrivate *d = contact->d_func();
+		// There is no need to remove the contact after connecting.
+		if (connInfo)
+			connInfo->removedContacts.remove(contact->id());
 		QList<FeedbagItem>::iterator itr = d->items.begin();
 		QList<FeedbagItem>::iterator endItr = d->items.end();
 		bool newTag = true;
@@ -79,8 +88,6 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 		}
 		bool added = false;
 		if (newTag) {
-			if (account->status() == Status::Connecting && d->items.isEmpty())
-				loadTagsFromFeedbag(contact);
 			if (d->items.isEmpty()) {
 				// Now, the contact should not be removed after destroying its session
 				// as it was added to the server contact list.
@@ -90,11 +97,13 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 				// Add the contact to the contact list.
 				loadTagsFromFeedbag(contact);
 				debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
-				emit contact->inListChanged(true);
+				if (!connInfo)
+					emit contact->inListChanged(true);
 				added = true;
 			}
 			d->items << item;
-			emit contact->tagsChanged(contact->tags());
+			if (!connInfo)
+				emit contact->tagsChanged(contact->tags());
 		}
 		if (!added)
 			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
@@ -136,7 +145,8 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 		IcqContact *contact = account->getContact(item.name());
 		if (contact) {
 			contact->d_func()->tags = readTags(item);
-			emit contact->tagsChanged(contact->tags());
+			if (!account->d_func()->connectingInfo)
+				emit contact->tagsChanged(contact->tags());
 		}
 		break;
 	}
@@ -377,9 +387,15 @@ void Roster::handleUserOffline(IcqAccount *account, const SNAC &snac)
 
 void Roster::reloadingStarted()
 {
+	Q_ASSERT(qobject_cast<Feedbag*>(sender()));
 	Feedbag *feedbag = reinterpret_cast<Feedbag*>(sender());
-	Q_ASSERT(feedbag);
+	IcqAccountPrivate *d = feedbag->account()->d_func();
+	d->connectingInfo.reset(new ConnectingInfo);
+	// We will remove all contacts that still in the contact list
+	// from this hash in Roster::handleAddModifyCLItem.
+	d->connectingInfo->removedContacts = d->contacts;
 	foreach (IcqContact *contact, feedbag->account()->contacts()) {
+		d->connectingInfo->oldTags.insert(contact, contact->tags());
 		contact->d_func()->items.clear();
 		contact->d_func()->tags.clear();
 	}
@@ -387,15 +403,25 @@ void Roster::reloadingStarted()
 
 void Roster::loginFinished()
 {
+	Q_ASSERT(qobject_cast<IcqAccount*>(sender()));
 	IcqAccount *account =  reinterpret_cast<IcqAccount*>(sender());
-	Q_ASSERT(account);
-	foreach (IcqContact *contact, account->contacts()) {
-		if (!account->feedbag()->containsItem(SsiBuddy, contact->id())) {
-			delete contact;
-		} else {
-			contact->d_func()->requestNick();
-		}
+	IcqAccountPrivate *d = account->d_func();
+	// Remove contacts that deleted from the server contact list.
+	foreach (IcqContact *contact, d->connectingInfo->removedContacts)
+		removeContact(contact);
+	// Update contacts' tags.
+	QHashIterator<IcqContact*, QStringList> itr(d->connectingInfo->oldTags);
+	while (itr.hasNext()) {
+		itr.next();
+		QStringList tags = itr.key()->tags();
+		if (tags != itr.value()) // Tags are updated!
+			emit itr.key()->tagsChanged(tags);
 	}
+	foreach (IcqContact *contact, d->connectingInfo->createdContacts) {
+		emit contact->inListChanged(true);
+		emit contact->tagsChanged(contact->tags());
+	}
+	d->connectingInfo.reset();
 }
 
 void Roster::accountAdded(qutim_sdk_0_3::Account *acc)

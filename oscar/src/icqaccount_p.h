@@ -38,6 +38,16 @@ public:
 	virtual State validate(QString &input, int &pos) const;
 };
 
+struct ConnectingInfo
+{
+	// At the end of connecting the variable contains all removed contacts.
+	QHash<QString, IcqContact*> removedContacts;
+	// Tags that were before connecting.
+	QHash<IcqContact*, QStringList> oldTags;
+	// Contacts that were created while connecting.
+	QList<IcqContact*> createdContacts;
+};
+
 struct IcqAccountPrivate
 {
 	Q_DECLARE_PUBLIC(IcqAccount);
@@ -56,6 +66,7 @@ struct IcqAccountPrivate
 	QHash<QString, IcqContact *> contacts;
 	QList<RosterPlugin*> rosterPlugins;
 	QString passwd;
+	QScopedPointer<ConnectingInfo> connectingInfo;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

@@ -784,10 +784,10 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	}
 	case ListsFamily << 16 | ListsList: { // Server sends contactlist
 		if (d->firstPacket) {
+			emit reloadingStarted();
 			d->items.clear();
 			d->limits.clear();
 			d->firstPacket = false;
-			emit reloadingStarted();
 		}
 		quint8 version = sn.read<quint8>();
 		quint16 count = sn.read<quint16>();

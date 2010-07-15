@@ -307,10 +307,14 @@ ChatUnit *IcqAccount::getUnit(const QString &unitId, bool create)
 	return getContact(unitId, create);
 }
 
-IcqContact *IcqAccount::getContact(const QString &id, bool create)
+IcqContact *IcqAccount::getContact(const QString &id, bool create, bool forceCreating)
 {
 	Q_D(IcqAccount);
-	IcqContact *contact = d->contacts.value(id);
+	IcqContact *contact = 0;
+	if (!forceCreating)
+		contact = d->contacts.value(id);
+	else
+		Q_ASSERT(!d->contacts.contains(id));
 	if (create && !contact) {
 		contact = new IcqContact(id, this);
 		d->contacts.insert(id, contact);

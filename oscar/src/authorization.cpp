@@ -84,8 +84,9 @@ bool Authorization::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item,
 	} else if (error != FeedbagError::NoError) {
 		return false;
 	}
-	IcqContact *contact = feedbag->account()->getContact(item.name(), true);
-	contact->setProperty("authorizedBy", !item.containsField(SsiBuddyReqAuth));
+	IcqContact *contact = feedbag->account()->getContact(item.name());
+	if (contact) // TODO: fix it
+		contact->setProperty("authorizedBy", !item.containsField(SsiBuddyReqAuth));
 	return false;
 }
 

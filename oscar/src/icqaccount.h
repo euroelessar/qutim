@@ -49,7 +49,7 @@ public:
 	AbstractConnection *connection();
 	const AbstractConnection *connection() const;
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
-	IcqContact *getContact(const QString &id, bool create = false);
+	IcqContact *getContact(const QString &id, bool create = false, bool forceCreating = false);
 	const QHash<QString, IcqContact*> &contacts() const;
 	void setCapability(const Capability &capability, const QString &type = QString());
 	bool removeCapability(const Capability &capability);
