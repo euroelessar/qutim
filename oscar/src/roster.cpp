@@ -406,24 +406,26 @@ void Roster::loginFinished()
 	Q_ASSERT(qobject_cast<IcqAccount*>(sender()));
 	IcqAccount *account =  reinterpret_cast<IcqAccount*>(sender());
 	IcqAccountPrivate *d = account->d_func();
-	// Remove contacts that deleted from the server contact list.
-	foreach (IcqContact *contact, d->connectingInfo->removedContacts)
-		removeContact(contact);
-	// Update contacts' tags.
-	typedef QHash<IcqContact*, QStringList>::const_iterator OldTagsItr;
-	OldTagsItr itr = d->connectingInfo->oldTags.constBegin();
-	OldTagsItr end = d->connectingInfo->oldTags.constEnd();
-	while (itr != end) {
-		QStringList tags = itr.key()->tags();
-		if (tags != itr.value()) // Tags are updated!
-			emit itr.key()->tagsChanged(tags);
-		++itr;
+	if (d->connectingInfo) {
+		// Remove contacts that deleted from the server contact list.
+		foreach (IcqContact *contact, d->connectingInfo->removedContacts)
+			removeContact(contact);
+		// Update contacts' tags.
+		typedef QHash<IcqContact*, QStringList>::const_iterator OldTagsItr;
+		OldTagsItr itr = d->connectingInfo->oldTags.constBegin();
+		OldTagsItr end = d->connectingInfo->oldTags.constEnd();
+		while (itr != end) {
+			QStringList tags = itr.key()->tags();
+			if (tags != itr.value()) // Tags are updated!
+				emit itr.key()->tagsChanged(tags);
+			++itr;
+		}
+		foreach (IcqContact *contact, d->connectingInfo->createdContacts) {
+			emit contact->inListChanged(true);
+			emit contact->tagsChanged(contact->tags());
+		}
+		d->connectingInfo.reset();
 	}
-	foreach (IcqContact *contact, d->connectingInfo->createdContacts) {
-		emit contact->inListChanged(true);
-		emit contact->tagsChanged(contact->tags());
-	}
-	d->connectingInfo.reset();
 }
 
 void Roster::accountAdded(qutim_sdk_0_3::Account *acc)
