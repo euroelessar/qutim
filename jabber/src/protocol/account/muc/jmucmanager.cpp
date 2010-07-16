@@ -70,12 +70,16 @@ namespace Jabber
 	{
 		JMUCJoin *joinConference = new JMUCJoin(p->account);
 		joinConference->setConference(conference, nick, password, name);
+#if defined (Q_OS_SYMBIAN)
+		joinConference->showMaximized();
+#else
 		joinConference->show();
+#endif
 	}
 
 	void JMUCManager::openJoinWindow()
 	{
-		openJoinWindow("", "", "");
+		openJoinWindow(QString(), QString(), QString());
 	}
 
 	void JMUCManager::join(const QString &conference, const QString &nick, const QString &password)
