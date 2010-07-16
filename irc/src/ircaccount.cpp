@@ -135,9 +135,9 @@ IrcContact *IrcAccount::getContact(const QString &nick, bool create)
 	return contact;
 }
 
-void IrcAccount::send(const QString &command) const
+void IrcAccount::send(const QString &command, IrcCommandAlias::Type aliasType, const QHash<QChar, QString> &extParams) const
 {
-	d->conn->send(command);
+	d->conn->send(command, aliasType, extParams);
 }
 
 void IrcAccount::sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params)

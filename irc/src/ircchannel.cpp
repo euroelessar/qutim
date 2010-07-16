@@ -88,10 +88,13 @@ bool IrcChannel::sendMessage(const Message &message)
 	if (status == Status::Connecting || status == Status::Offline)
 		return false;
 	QString text = message.text();
-	if (text.startsWith('/'))
-		account()->send(text.mid(1));
-	else
+	if (text.startsWith('/')) {
+		QHash<QChar, QString> extParams;
+		extParams.insert('n', d->name);
+		account()->send(text.mid(1), IrcCommandAlias::Channel, extParams);
+	} else {
 		account()->send(QString("PRIVMSG %1 :%2").arg(d->name).arg(text));
+	}
 	return true;
 }
 

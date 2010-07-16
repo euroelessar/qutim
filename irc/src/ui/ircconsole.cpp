@@ -29,7 +29,8 @@ void IrcConsoleFrom::appendMessage(const QString &msg)
 
 void IrcConsoleFrom::sendCommand()
 {
-	m_account->send(ui->cmdEdit->text());
+	m_account->log(ui->cmdEdit->text());
+	m_account->send(ui->cmdEdit->text(), IrcCommandAlias::Console);
 	ui->cmdEdit->clear();
 }
 

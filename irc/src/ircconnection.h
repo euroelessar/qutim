@@ -18,6 +18,7 @@
 
 #include "ircservermessagehandler.h"
 #include "ircctpchandler.h"
+#include "ircprotocol.h"
 #include <QTcpSocket>
 
 namespace qutim_sdk_0_3 {
@@ -43,7 +44,8 @@ public:
 	void connectToNetwork();
 	void registerHandler(IrcServerMessageHandler *handler);
 	void registerCtpcHandler(IrcCtpcHandler *handler);
-	void send(const QString &command) const;
+	void send(QString command, IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
+			  const QHash<QChar, QString> &extParams = QHash<QChar, QString>()) const;
 	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params);
 	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params);
 	void disconnectFromHost(bool force = false);
@@ -57,6 +59,8 @@ public:
 	void handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
 							const QString &receiver, const QString &cmd, const QString &params);
 	const QString &nick() const { return m_nick; }
+	static void registerAlias(const IrcCommandAlias &alias) { m_aliases.insert(alias.name, alias); }
+	static void removeAlias(const QString &name) { m_aliases.remove(name); }
 private:
 	void tryConnectToNextServer();
 	void tryNextNick();
@@ -78,6 +82,7 @@ private:
 	int m_currentNick;
 	QString m_fullName;
 	QTextCodec *m_codec;
+	static QMultiHash<QString, IrcCommandAlias> m_aliases;
 };
 
 } } // namespace qutim_sdk_0_3::irc

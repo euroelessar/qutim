@@ -30,6 +30,23 @@ namespace irc {
 class IrcProtocolPrivate;
 class IrcAccount;
 
+struct IrcCommandAlias
+{
+	enum Type {
+		Disabled     = 0x0000,
+		Channel      = 0x0001,
+		PrivateChat  = 0x0002,
+		Console      = 0x0004,
+		All          = Channel | PrivateChat | Console
+	};
+	Q_DECLARE_FLAGS(Types, Type);
+	IrcCommandAlias(const QString &name, const QString &command, Types types = All);
+	QString name;
+	QString command;
+	Types types;
+};
+Q_DECLARE_OPERATORS_FOR_FLAGS(IrcCommandAlias::Types);
+
 class IrcProtocol: public Protocol
 {
 	Q_OBJECT
@@ -43,6 +60,8 @@ public:
 	virtual QVariant data(DataType type);
 	IrcAccount *getAccount(const QString &id, bool create = false);
 	ChatSession *activeSession() const;
+	static void registerCommandAlias(const IrcCommandAlias &alias);
+	static void removeCommandAlias(const QString &name);
 public slots:
 	void updateSettings();
 protected:

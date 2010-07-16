@@ -17,6 +17,7 @@
 #include "ircaccount.h"
 #include "ircchannel.h"
 #include "ircchannelparticipant.h"
+#include "ircconnection.h"
 #include <QStringList>
 #include <QPointer>
 #include <qutim/dataforms.h>
@@ -31,6 +32,11 @@ namespace qutim_sdk_0_3 {
 namespace irc {
 
 IrcProtocol *IrcProtocol::self = 0;
+
+IrcCommandAlias::IrcCommandAlias(const QString &_name, const QString &_command, Types _types) :
+	name(_name), command(_command), types(_types)
+{
+}
 
 IrcProtocol::IrcProtocol() :
 	d(new IrcProtocolPrivate)
@@ -108,6 +114,16 @@ IrcAccount *IrcProtocol::getAccount(const QString &id, bool create)
 ChatSession *IrcProtocol::activeSession() const
 {
 	return d->activeSession;
+}
+
+void IrcProtocol::registerCommandAlias(const IrcCommandAlias &alias)
+{
+	IrcConnection::registerAlias(alias);
+}
+
+void IrcProtocol::removeCommandAlias(const QString &name)
+{
+	IrcConnection::removeAlias(name);
 }
 
 void IrcProtocol::updateSettings()

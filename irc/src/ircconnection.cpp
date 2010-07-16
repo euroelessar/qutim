@@ -31,6 +31,7 @@ namespace qutim_sdk_0_3 {
 namespace irc {
 
 static QRegExp ctpcRx("^\\001(\\S+)( (.*)|)\\001");
+QMultiHash<QString, IrcCommandAlias> IrcConnection::m_aliases;
 
 IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	QObject(parent)
@@ -71,15 +72,31 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< 372  // RPL_MOTD
 		<< 376; // RPL_ENDOFMOTD
 	registerHandler(this);
-	IrcAccount::registerLogMsgColor("ERROR", "red");
-	IrcAccount::registerLogMsgColor("Notice", "magenta");
-	IrcAccount::registerLogMsgColor("MOTD", "green");
-	IrcAccount::registerLogMsgColor("Welcome", "green");
-	IrcAccount::registerLogMsgColor("Support", "green");
-	IrcAccount::registerLogMsgColor("Users", "green");
 
 	m_ctpcCmds << "PING" << "PONG" << "ACTION";
 	registerCtpcHandler(this);
+
+	static bool init = false;
+	if (!init) {
+		IrcAccount::registerLogMsgColor("ERROR", "red");
+		IrcAccount::registerLogMsgColor("Notice", "magenta");
+		IrcAccount::registerLogMsgColor("MOTD", "green");
+		IrcAccount::registerLogMsgColor("Welcome", "green");
+		IrcAccount::registerLogMsgColor("Support", "green");
+		IrcAccount::registerLogMsgColor("Users", "green");
+
+		registerAlias(IrcCommandAlias("ctpc", "PRIVMSG %1 :\001%2-\001",
+									  IrcCommandAlias::Console));
+		registerAlias(IrcCommandAlias("ctpc", "PRIVMSG %n :\001%0\001",
+									  IrcCommandAlias::Channel | IrcCommandAlias::PrivateChat));
+		registerAlias(IrcCommandAlias("me", "PRIVMSG %1 :\001ACTION %2-\001",
+									  IrcCommandAlias::Console));
+		registerAlias(IrcCommandAlias("me", "PRIVMSG %n :\001ACTION %0\001",
+									  IrcCommandAlias::Channel | IrcCommandAlias::PrivateChat));
+		registerAlias(IrcCommandAlias("cs", "PRIVMSG ChanServ :%0"));
+		registerAlias(IrcCommandAlias("ns", "PRIVMSG NickServ :%0"));
+		init = true;
+	}
 }
 
 IrcConnection::~IrcConnection()
@@ -281,8 +298,66 @@ void IrcConnection::handleCtpcResponse(IrcAccount *account, const QString &sende
 	}
 }
 
-void IrcConnection::send(const QString &command) const
+void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const QHash<QChar, QString> &extParams) const
 {
+	if (aliasType != IrcCommandAlias::Disabled) {
+		bool found;
+		for (int i = 0; i < 10; ++i) {
+			found = false;
+			foreach (const IrcCommandAlias &alias, m_aliases) {
+				if (!(alias.types & aliasType))
+					continue;
+				if (command.startsWith(alias.name, Qt::CaseInsensitive)) {
+					QString tmp = command.mid(alias.name.length(), 1);
+					if (!tmp.isEmpty() && tmp.at(0) != ' ')
+						continue;
+					static QRegExp paramRx("%([0-9]{1,2}|[a-zA-Z])(-|)");
+					QString oldParamsStr = command.mid(alias.name.length() + 1);
+					QString newParamsStr = alias.command;
+					QStringList params;
+					params << oldParamsStr;
+					params += oldParamsStr.split(' ', QString::SkipEmptyParts);
+					int pos = 0;
+					while ((pos = paramRx.indexIn(newParamsStr, pos)) != -1) {
+						bool isIndex;
+						int index = paramRx.cap(1).toInt(&isIndex);
+						QString param;
+						if (isIndex) {
+							Q_ASSERT(index >= 0);
+							if (index >= params.size()) {
+								m_account->log(tr("Not enough parameters for command %1").arg(alias.name));
+								return;
+							}
+							if (paramRx.cap(2) != "-") {
+								param = params.at(index);
+							} else {
+								for (int i = index, c = params.size(); i < c; ++i) {
+									if (i != index)
+										param += " ";
+									param += params.at(i);
+								}
+							}
+						} else {
+							QChar extParamIndex = paramRx.cap(1).at(0);
+							if (extParams.contains(extParamIndex)) {
+								param = extParams.value(extParamIndex);
+							} else {
+								pos += paramRx.matchedLength();
+								continue;
+							}
+						}
+						newParamsStr.replace(pos, paramRx.matchedLength(), param);
+						pos += param.size();
+					}
+					command = newParamsStr;
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				break;
+		}
+	}
 	QByteArray data = m_codec->fromUnicode(command) + "\r\n";
 	debug(VeryVerbose) << ">>>>" << data.trimmed();
 	m_socket->write(data);

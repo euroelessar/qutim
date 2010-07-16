@@ -19,6 +19,7 @@
 #include <qutim/account.h>
 #include <QHostAddress>
 #include "irccontact.h"
+#include "ircprotocol.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -28,7 +29,6 @@ namespace irc {
 
 class IrcAccountPrivate;
 class IrcChannel;
-class IrcProtocol;
 
 class IrcAccount: public Account
 {
@@ -42,7 +42,8 @@ public:
 	virtual ChatUnit *getUnit(const QString &unitId, bool create = false);
 	IrcChannel *getChannel(const QString &name, bool create = false);
 	IrcContact *getContact(const QString &nick, bool create = false);
-	void send(const QString &command) const;
+	void send(const QString &command, IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
+			  const QHash<QChar, QString> &extParams = QHash<QChar, QString>()) const;
 	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params);
 	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params);
 	void setName(const QString &name) const;
