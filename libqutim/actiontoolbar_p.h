@@ -52,7 +52,7 @@ namespace qutim_sdk_0_3
 		QString id;
 	public slots:
 		void sizeActionTriggered(QAction*);
-		void styleActionTriggered(QAction*);
+		void styleActionTriggered(QAction*);	
 	};
 
 	SizeMap *sizeMap();

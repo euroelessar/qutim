@@ -153,10 +153,13 @@ namespace qutim_sdk_0_3
 			action = generator->generate<QAction>();
 			Q_ASSERT(action);
 			actionsCache()->operator[](generator).insert(this,action);
-			handler()->addAction(action);
 		}
 
-		action->setData(d->data);
+		if (!handler()->actions().contains(action))
+			handler()->addAction(action);
+
+		//action->setData(d->data);
+
 		d->generators << generator;
 		d->actions << action;
 		bool hasMenu = !!action->menu();
