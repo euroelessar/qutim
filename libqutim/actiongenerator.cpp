@@ -202,11 +202,11 @@ namespace qutim_sdk_0_3
 		action->setChecked(d->data->checked);
 		action->setToolTip(d->toolTip);
 		localizationHelper()->addAction(action, d);
-		if (d->connectionType == ActionConnectionSimple) {
-			//temporary, only for actiontoolbars
-			if (!d->member.isEmpty() && d->receiver)
-				QObject::connect(action, SIGNAL(triggered()), d->receiver, d->member);
-		}
+//		if (d->connectionType == ActionConnectionSimple) {
+//			//temporary, only for actiontoolbars
+//			if (!d->member.isEmpty() && d->receiver)
+//				QObject::connect(action, SIGNAL(triggered()), d->receiver, d->member);
+//		}
 		action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
 		return action;
 	}

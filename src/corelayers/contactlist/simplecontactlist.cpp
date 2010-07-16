@@ -181,7 +181,7 @@ namespace Core
 			p->model = new Model(p->view);
 
 			// TODO: choose another, non-kopete icon
-			gen = new ActionGenerator(Icon("view-user-offline-kopete"), QByteArray(), p->model, SLOT(onHideShowOffline()));
+			gen = new ActionGenerator(Icon("view-user-offline-kopete"),QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), p->model, SLOT(onHideShowOffline()));
 			gen->setCheckable(true);
 			gen->setChecked(!p->model->showOffline());
 			gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Hide offline"));

@@ -398,6 +398,7 @@ namespace qutim_sdk_0_3
 	
 	ActionHandler::ActionHandler() : QActionGroup(0)
 	{
+		setExclusive(false);
 		connect(this,SIGNAL(triggered(QAction*)),SLOT(onActionTriggered(QAction*)));
 	}
 	
@@ -405,7 +406,7 @@ namespace qutim_sdk_0_3
 	{
 		const ActionGenerator *gen = action->data().value<ActionGenerator*>();
 		if (!gen) {
-			qWarning("DynamicMenu::onActionTriggered: Invalid ActionGenerator");
+			qWarning("ActionHandler::onActionTriggered: Invalid ActionGenerator");
 			return;
 		}
 		const ActionGeneratorPrivate *d = ActionGeneratorPrivate::get(gen);
@@ -414,7 +415,7 @@ namespace qutim_sdk_0_3
 		const QMetaObject *meta = obj->metaObject();
 		int index = meta->indexOfMethod(d->member.constData() + 1);
 		if (index == -1) {
-			qWarning("DynamicMenu::onActionTriggered: No such method %s::%s",
+			qWarning("ActionHandler::onActionTriggered: No such method %s::%s",
 					 meta->className(), d->member.constData() + 1);
 			return;
 		}
