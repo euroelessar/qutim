@@ -218,7 +218,7 @@ namespace Core
 			MetaContact *meta = qobject_cast<MetaContact*>(contact);
 
 			if (!meta) {
-				meta = qobject_cast<MetaContact*>(contact->upperUnit());
+				meta = static_cast<MetaContact*>(contact->metaContact());
 				if (meta && p->contacts.contains(meta))
 					return;
 				else if (meta)
