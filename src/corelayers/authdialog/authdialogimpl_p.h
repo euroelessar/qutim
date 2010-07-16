@@ -29,7 +29,11 @@ namespace Core {
 			ui->requestTitle->setText(title);
 			setWindowTitle(title);
 			centerizeWidget(this);
+#if defined(Q_OS_SYMBIAN)
+			QDialog::showMaximized();
+#else
 			QDialog::show();
+#endif
 			raise();
 		}
 		QString text() const
