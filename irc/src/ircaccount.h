@@ -51,6 +51,8 @@ public:
 	const IrcProtocol *protocol() const;
 	ChatSession *activeSession() const;
 	void log(const QString &msg, bool addToActiveSession = false, const QString &type = QString());
+	static QString ircFormatToHtml(const QString &msg, QString *plainText = 0);
+	static QString ircFormatToPlainText(const QString &msg);
 	static void registerLogMsgColor(const QString &type, const QString &color);
 public slots:
 	void updateSettings();

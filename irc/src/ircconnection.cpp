@@ -176,7 +176,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 				debug() << "Unknown CTPC request" << ctpcCmd << "from" << name;
 			return;
 		}
-		handleTextMessage(name, params.value(0), params.value(1));
+		handleTextMessage(name, params.value(0),params.value(1));
 	} else if (cmd == "JOIN") {
 		QString channelName = params.value(0);
 		if (name == m_account->name()) { // We has been connected to the channel.
@@ -477,10 +477,13 @@ void IrcConnection::tryNextNick()
 
 void IrcConnection::handleTextMessage(const QString &who, const QString &to, const QString &text)
 {
+	QString plainText;
+	QString html = IrcAccount::ircFormatToHtml(text, &plainText);
 	bool isPrivate = (to == m_nick);
-	Message msg(text);
+	Message msg(plainText);
 	msg.setIncoming(true);
 	msg.setTime(QDateTime::currentDateTime());
+	msg.setProperty("html", html);
 	ChatSession *session;
 	if (isPrivate) {
 		IrcContact *contact = m_account->getContact(who, true);
