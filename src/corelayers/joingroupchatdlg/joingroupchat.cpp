@@ -28,6 +28,9 @@ namespace Core
 		m_positive_softkey->setSoftKeyRole(QAction::PositiveSoftKey);
 		m_negative_softkey = new QAction(this);
 		m_negative_softkey->setSoftKeyRole(QAction::NegativeSoftKey);
+
+		addAction(m_positive_button);
+		addAction(m_negative_button);
 		
 		connect(m_positive_softkey,SIGNAL(triggered(bool)),SLOT(onPositiveActTriggered()));
 		connect(m_negative_softkey,SIGNAL(triggered(bool)),SLOT(onNegativeActTriggered()));
