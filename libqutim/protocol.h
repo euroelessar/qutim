@@ -47,7 +47,9 @@ namespace qutim_sdk_0_3
 		Q_PROPERTY(QString id READ id)
 	public:
 		enum DataType {
-			ProtocolIdName, ProtocolContainsContacts
+			ProtocolIdName = 0x01,
+			ProtocolContainsContacts = 0x02,
+			ProtocolSupportGroupChat = 0x04
 		};
 		Protocol();
 		Protocol(ProtocolPrivate &p);
