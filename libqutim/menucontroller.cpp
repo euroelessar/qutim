@@ -88,7 +88,8 @@ namespace qutim_sdk_0_3
 			if (it == current->entries.end()) {
 				QMenu *menu = current->menu->addMenu(QString::fromUtf8(info.menu.at(i), info.menu.at(i).size()));
 				QAction *action = menu->menuAction();
-				action->setData(pack_helper(info.hash.at(i), info.hash.size()));
+				action->setData(qVariantFromValue(const_cast<ActionGenerator*>(info.gen)));
+				//action->setData(pack_helper(info.hash.at(i), info.hash.size()));
 				it = current->entries.insert(info.hash.at(i), ActionEntry(menu));
 			}
 			current = &it.value();

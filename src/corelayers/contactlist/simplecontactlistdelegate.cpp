@@ -93,10 +93,15 @@ namespace Core
 					QFont font = opt.font;
 					font.setBold(true);
 					painter->setFont(font);
+
+					QString count = index.data(ItemContactsCountRole).toString();
+					QString online_count = index.data(ItemOnlineContactsCountRole).toString();
+
+					QString txt = name.append(" (%1/%2)").arg(online_count,count);
 					
 					painter->drawText(title_rect,
 									  Qt::AlignVCenter,
-									  name
+									  txt
 									  );
 					break;
 				}

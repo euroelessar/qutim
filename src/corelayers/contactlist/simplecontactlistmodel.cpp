@@ -194,6 +194,10 @@ namespace Core
 						return TagType;
 					case Qt::DecorationRole:
 						return Icon("feed-subscribe");
+					case ItemContactsCountRole:
+						return item->contacts.count();
+					case ItemOnlineContactsCountRole:
+						return item->online;
 					default:
 						return QVariant();
 					}
