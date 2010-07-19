@@ -95,6 +95,10 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 									  IrcCommandAlias::Channel | IrcCommandAlias::PrivateChat));
 		registerAlias(IrcCommandAlias("cs", "PRIVMSG ChanServ :%0"));
 		registerAlias(IrcCommandAlias("ns", "PRIVMSG NickServ :%0"));
+		registerAlias(IrcCommandAlias("kick", "KICK %n %0",
+									  IrcCommandAlias::Channel));
+		registerAlias(IrcCommandAlias("ban", "MODE %n +b %0",
+									  IrcCommandAlias::Channel));
 		init = true;
 	}
 }
@@ -302,39 +306,40 @@ void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const
 {
 	if (aliasType != IrcCommandAlias::Disabled) {
 		bool found;
+		QString lastCmdName;
 		for (int i = 0; i < 10; ++i) {
-			found = false;
+			found = false;			
+			QString cmdName = command.mid(0, command.indexOf(' '));
+			if (cmdName.compare(lastCmdName, Qt::CaseInsensitive) == 0) // To avoid recursion
+				break;
+			QString cmdParams = command.mid(cmdName.length() + 1);
+			QStringList cmdParamsList;
+			cmdParamsList << cmdParams;
+			cmdParamsList += cmdParams.split(' ', QString::SkipEmptyParts);
 			foreach (const IrcCommandAlias &alias, m_aliases) {
 				if (!(alias.types & aliasType))
 					continue;
-				if (command.startsWith(alias.name, Qt::CaseInsensitive)) {
-					QString tmp = command.mid(alias.name.length(), 1);
-					if (!tmp.isEmpty() && tmp.at(0) != ' ')
-						continue;
+				if (cmdName.compare(alias.name, Qt::CaseInsensitive) == 0) {
 					static QRegExp paramRx("%([0-9]{1,2}|[a-zA-Z])(-|)");
-					QString oldParamsStr = command.mid(alias.name.length() + 1);
-					QString newParamsStr = alias.command;
-					QStringList params;
-					params << oldParamsStr;
-					params += oldParamsStr.split(' ', QString::SkipEmptyParts);
+					QString newParams = alias.command;
 					int pos = 0;
-					while ((pos = paramRx.indexIn(newParamsStr, pos)) != -1) {
+					while ((pos = paramRx.indexIn(newParams, pos)) != -1) {
 						bool isIndex;
 						int index = paramRx.cap(1).toInt(&isIndex);
 						QString param;
 						if (isIndex) {
 							Q_ASSERT(index >= 0);
-							if (index >= params.size()) {
+							if (index >= cmdParamsList.size()) {
 								m_account->log(tr("Not enough parameters for command %1").arg(alias.name));
 								return;
 							}
 							if (paramRx.cap(2) != "-") {
-								param = params.at(index);
+								param = cmdParamsList.at(index);
 							} else {
-								for (int i = index, c = params.size(); i < c; ++i) {
+								for (int i = index, c = cmdParamsList.size(); i < c; ++i) {
 									if (i != index)
 										param += " ";
-									param += params.at(i);
+									param += cmdParamsList.at(i);
 								}
 							}
 						} else {
@@ -346,10 +351,11 @@ void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const
 								continue;
 							}
 						}
-						newParamsStr.replace(pos, paramRx.matchedLength(), param);
+						newParams.replace(pos, paramRx.matchedLength(), param);
 						pos += param.size();
 					}
-					command = newParamsStr;
+					command = newParams;
+					lastCmdName = cmdName;
 					found = true;
 					break;
 				}
