@@ -30,7 +30,7 @@ namespace Jabber
 		JBookmarkManager *bookmarkManager;
 		JInviteManager *inviteManager;
 		QHash<QString, JMUCSession *> rooms;
-		QMap<ActionGenerator*, JMUCActionType> actions;
+		QList<ActionGenerator*> generators;
 	};
 
 	JMUCManager::JMUCManager(JAccount *account, QObject *parent) : QObject(parent), p(new JMUCManagerPrivate)
@@ -43,7 +43,7 @@ namespace Jabber
 
 	JMUCManager::~JMUCManager()
 	{
-
+		qDeleteAll(p->generators);
 	}
 
 	void JMUCManager::bookmarksChanged()
@@ -156,11 +156,10 @@ namespace Jabber
 		p->rooms.insert(room->id(), room);
 	}
 
-	void JMUCManager::join()
+	void JMUCManager::join(QObject *obj)
 	{
-		QAction *action = qobject_cast<QAction *>(sender());
-		Q_ASSERT(action);
-		JMUCSession *room = MenuController::getController<JMUCSession>(action);
+		JMUCSession *room = qobject_cast<JMUCSession*>(obj);
+		Q_ASSERT(room);
 		if (room)
 			join(room->id());
 	}
@@ -178,20 +177,6 @@ namespace Jabber
 				if(room->isJoined() || room->isAutoJoin())
 					room->join();
 		}
-	}
-
-	void JMUCManager::leave(const QString &room)
-	{
-		JMUCSession *muc = p->rooms.value(room);
-		muc->leave();
-	}
-
-	void JMUCManager::leave()
-	{
-		QAction *action = qobject_cast<QAction *>(sender());
-		Q_ASSERT(action);
-		JMUCSession *room = MenuController::getController<JMUCSession>(action);
-		leave(room->id());
 	}
 
 	ChatUnit *JMUCManager::muc(const QString &jid)
@@ -217,107 +202,78 @@ namespace Jabber
 		p->bookmarkManager->sync();
 	}
 
-	void JMUCManager::saveToBookmarks()
+	void JMUCManager::saveToBookmarks(QObject *obj)
 	{
-		QAction *action = qobject_cast<QAction *>(sender());
-		Q_ASSERT(action);
-		JMUCSession *room = MenuController::getController<JMUCSession>(action);
+		JMUCSession *room = qobject_cast<JMUCSession*>(obj);
+		Q_ASSERT(room);
 		openJoinWindow(room->id(), room->me()->name(), "", room->id());
 	}
 
-	void JMUCManager::removeFromBookmarks()
+	void JMUCManager::removeFromBookmarks(QObject *obj)
 	{
-		QAction *action = qobject_cast<QAction *>(sender());
-		Q_ASSERT(action);
-		JMUCSession *room = MenuController::getController<JMUCSession>(action);
+		JMUCSession *room = qobject_cast<JMUCSession*>(obj);
+		Q_ASSERT(room);
 		p->bookmarkManager->removeBookmark(room->bookmarkIndex());
-	}
-
-	void JMUCManager::copyJIDToClipboard()
-	{
-		QAction *action = qobject_cast<QAction *>(sender());
-		Q_ASSERT(action);
-		JMUCSession *room = MenuController::getController<JMUCSession>(action);
-		QApplication::clipboard()->setText(room->id());
 	}
 
 	void JMUCManager::createActions(JMUCSession *room)
 	{
+		//TODO, Rewrite! Only one action generator for protocol is needed!
 		ActionGenerator *generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Join to conference"),
-				this, SLOT(join()));
+				this, SLOT(join(QObject*)));
 		generator->addCreationHandler(this);
 		generator->setType(0);
 		generator->setPriority(4);
-		p->actions.insert(generator, JoinAction);
 		room->addAction(generator);
-		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Leave from conference"),
-				this, SLOT(leave()));
-		generator->addCreationHandler(this);
-		generator->setType(0);
-		generator->setPriority(3);
-		p->actions.insert(generator, LeaveAction);
-		room->addAction(generator);
-		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Copy room address to clipboard"),
-				this, SLOT(copyJIDToClipboard()));
-		generator->addCreationHandler(this);
-		generator->setType(0);
-		generator->setPriority(2);
-		p->actions.insert(generator, CopyJIDAction);
-		room->addAction(generator);
+		p->generators.append(generator);
 		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks"),
-				this, SLOT(saveToBookmarks()));
+				this, SLOT(saveToBookmarks(QObject*)));
 		generator->addCreationHandler(this);
 		generator->setType(0);
 		generator->setPriority(1);
-		p->actions.insert(generator, SaveToBookmarkAction);
 		room->addAction(generator);
+		p->generators.append(generator);
 		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"),
-				this, SLOT(removeFromBookmarks()));
+				this, SLOT(removeFromBookmarks(QObject*)));
 		generator->addCreationHandler(this);
 		generator->setType(0);
 		generator->setPriority(0);
-		p->actions.insert(generator, RemoveFromBookmarkAction);
 		room->addAction(generator);
-		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
-				room, SLOT(showConfigDialog()));
-		generator->addCreationHandler(this);
-		generator->setType(1);
-		p->actions.insert(generator, RoomConfigAction);
-		room->addAction(generator);
+		p->generators.append(generator);
 	}
 
 	bool JMUCManager::event(QEvent *event)
 	{
-		if (event->type() == ActionCreatedEvent::eventType()) {
-			ActionCreatedEvent *actionEvent = static_cast<ActionCreatedEvent*>(event);
-			ActionGenerator *generator = actionEvent->generator();
-			QAction *action = actionEvent->action();
-			JMUCSession *room = MenuController::getController<JMUCSession>(action);
-			switch (p->actions.value(generator)) {
-			case JoinAction:
-				action->setVisible(!room->isJoined());
-				break;
-			case LeaveAction:
-				action->setVisible(room->isJoined());
-				break;
-			case CopyJIDAction:
-				break;
-			case SaveToBookmarkAction:
-				action->setVisible(room->bookmarkIndex() == -1 ? true : false);
-				break;
-			case RemoveFromBookmarkAction:
-				action->setVisible(room->bookmarkIndex() == -1 ? false : true);
-				break;
-			case RoomConfigAction:
-				action->setVisible(room->enabledConfiguring());
-				break;
-			case RoomParticipantsAction:
-				action->setVisible(false);
-			default:
-				break;
-			}
-			return true;
-		}
+// 		if (event->type() == ActionCreatedEvent::eventType()) {
+// 			ActionCreatedEvent *actionEvent = static_cast<ActionCreatedEvent*>(event);
+// 			ActionGenerator *generator = actionEvent->generator();
+// 			QAction *action = actionEvent->action();
+// 			JMUCSession *room = MenuController::getController<JMUCSession>(action);
+// 			switch (p->actions.value(generator)) {
+// 			case JoinAction:
+// 				action->setVisible(!room->isJoined());
+// 				break;
+// 			case LeaveAction:
+// 				action->setVisible(room->isJoined());
+// 				break;
+// 			case CopyJIDAction:
+// 				break;
+// 			case SaveToBookmarkAction:
+// 				action->setVisible(room->bookmarkIndex() == -1 ? true : false);
+// 				break;
+// 			case RemoveFromBookmarkAction:
+// 				action->setVisible(room->bookmarkIndex() == -1 ? false : true);
+// 				break;
+// 			case RoomConfigAction:
+// 				action->setVisible(room->enabledConfiguring());
+// 				break;
+// 			case RoomParticipantsAction:
+// 				action->setVisible(false);
+// 			default:
+// 				break;
+// 			}
+// 			return true;
+// 		}
 		return QObject::event(event);
 	}
 }

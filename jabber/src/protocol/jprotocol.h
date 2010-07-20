@@ -34,6 +34,8 @@ namespace Jabber
 			void onKickUser(QObject* obj);
 			void onBanUser(QObject* obj);
 			void onConvertToMuc(QObject* obj);
+			void leave(QObject *obj);
+			void showConfigDialog(QObject *obj);			
 		private:
 			void loadActions();
 			virtual void loadAccounts();

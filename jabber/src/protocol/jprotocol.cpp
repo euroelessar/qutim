@@ -12,6 +12,7 @@
 #include "account/muc/jmucsession.h"
 #include "account/roster/jmessagesession.h"
 #include <QInputDialog>
+#include "account/muc/jmucactions.h"
 
 namespace Jabber
 {
@@ -65,6 +66,18 @@ namespace Jabber
 		MenuController::addAction<JMessageSession>(
 				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
 									this, SLOT(onConvertToMuc(QObject*))));
+		
+		ActionGenerator *generator  = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Leave from conference"),
+				this, SLOT(leave(QObject*)));
+		generator->addCreationHandler(this);
+		generator->setType(0);
+		generator->setPriority(3);
+		MenuController::addAction<JMUCSession>(generator);
+		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
+				this, SLOT(showConfigDialog(QObject*)));
+		generator->addCreationHandler(this);
+		generator->setType(1);
+		MenuController::addAction<JMUCSession>(generator);
 
 		QList<Status> statuses;
 		statuses << Status(Status::Online)
@@ -79,6 +92,8 @@ namespace Jabber
 			Status::remember(status, "jabber");
 			MenuController::addAction(new StatusActionGenerator(status), &JAccount::staticMetaObject);
 		}
+		
+		
 	}
 
 	void JProtocol::onKickUser(QObject *obj)
@@ -104,6 +119,20 @@ namespace Jabber
 		JMessageSession *session = qobject_cast<JMessageSession*>(obj);
 		Q_ASSERT(session);
 		session->convertToMuc();
+	}
+		
+	void JProtocol::leave(QObject* obj)
+	{
+		JMUCSession *room = qobject_cast<JMUCSession*>(obj);
+		Q_ASSERT(room);
+		room->leave();
+	}
+
+	void JProtocol::showConfigDialog(QObject* obj)
+	{
+		JMUCSession *room = qobject_cast<JMUCSession*>(obj);
+		Q_ASSERT(room);
+		room->showConfigDialog();
 	}
 
 	void JProtocol::loadAccounts()

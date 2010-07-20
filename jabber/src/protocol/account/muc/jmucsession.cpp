@@ -119,15 +119,20 @@ namespace Jabber
 			d->room->setPresence(pres.subtype(), pres.status());
 			d->users.value(d->nick)->setStatus(pres.subtype(), pres.priority());
 		} else {
-			foreach (JMUCUser *muc, d->users.values()) {
-				ChatLayer::get(this, true)->removeContact(muc);
-				muc->deleteLater();
+			ChatSession *session = ChatLayer::get(this, false);
+			if (session) {
+				foreach (JMUCUser *muc, d->users.values()) {
+					session->removeContact(muc);
+					muc->deleteLater();
+				}
 			}
 			d->users.clear();
 			d->messages.clear();
 			if (d->lastMessage.isValid())
 				d->room->setRequestHistory(d->lastMessage.toUTC()
 						.toString("yyyy-MM-ddThh:mm:ss.zzzZ").toStdString());
+//			uncomment for perfomance testing
+//			d->room->setRequestHistory(0,MUCRoom::HistoryMaxStanzas);
 			d->room->join(pres.subtype(), pres.status(), pres.priority());
 		}
 	}
@@ -208,7 +213,7 @@ namespace Jabber
 				}
 			} else {
 				JMUCUser *user = d->users.take(nick);
-				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
+				if (ChatSession *session = ChatLayer::get(this, false))
 					session->removeContact(user);
 				user->deleteLater();
 			}
@@ -238,8 +243,9 @@ namespace Jabber
 				if (participant.jid)
 					user->setRealJid(QString::fromStdString(participant.jid->full()));
 				text = user->realJid().isEmpty()
-						? nick % " "
-						: nick + " (" % user->realJid() % ") ";
+						? nick % QLatin1Literal(" ")
+						: nick + QLatin1Literal(" (") % user->realJid()
+						% QLatin1Literal(") ");
 				text = text % tr(" has joined the room");
 				if (participant.affiliation == AffiliationOwner)
 					text = text % tr(" as") % tr(" owner");
@@ -252,14 +258,14 @@ namespace Jabber
 				else if (participant.role == RoleVisitor)
 					text = text % tr(" as") % tr(" visitor");
 				d->users.insert(nick, user);
-				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
+				if (ChatSession *session = ChatLayer::get(this, false))
 					session->addContact(user);
 			} else if (!user) {
 				return;
 			} else if (presence.subtype() == Presence::Unavailable) {
 				text = nick % tr(" has left the room");
 				d->users.remove(nick);
-				if (ChatSession *session = ChatLayer::instance()->getSession(this, false))
+				if (ChatSession *session = ChatLayer::get(this, false))
 					session->removeContact(user);
 				user->deleteLater();
 			}

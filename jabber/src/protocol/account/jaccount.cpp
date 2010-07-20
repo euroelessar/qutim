@@ -77,7 +77,13 @@ namespace Jabber {
 
 	void JAccount::beginChangeStatus(Presence::PresenceType presence)
 	{
-		p->connection->setConnectionPresence(presence);
+		p->connection->setConnectionPresence(presence);				
+		Status origin = status();
+		if (origin.type() == Status::Offline) {
+			origin.setType(Status::Connecting);
+			Account::setStatus(origin);
+			emit statusChanged(origin);
+		}
 	}
 
 	void JAccount::endChangeStatus(Presence::PresenceType presence)

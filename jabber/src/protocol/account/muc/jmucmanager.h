@@ -41,12 +41,10 @@ namespace Jabber
 			void conferenceCreated(qutim_sdk_0_3::Conference*);
 		private slots:
 			void bookmarksChanged();
-			void join();
-			void leave();
+			void join(QObject*);
 			void closeMUCSession();
-			void saveToBookmarks();
-			void removeFromBookmarks();
-			void copyJIDToClipboard();
+			void saveToBookmarks(QObject*);
+			void removeFromBookmarks(QObject*);
 		protected:
 			void createActions(JMUCSession *room);
 			void closeMUCSession(JMUCSession *room);

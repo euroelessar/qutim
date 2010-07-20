@@ -62,9 +62,8 @@ namespace Jabber
 
 		QString desc = description(index);
 		QFont description_font = painter_font;
-		description_font.setPointSize(painter_font.pointSize() -1);
+		description_font.setPointSize(painter_font.pointSize() -2);
 		painter->setFont(description_font);
-		painter->setPen(opt.palette.color(QPalette::Shadow));
 		painter->drawText(rect, Qt::AlignBottom | Qt::AlignLeft | Qt::TextWordWrap, desc);
 		painter->setPen(painter_pen);
 		painter->setFont(painter_font);
@@ -78,7 +77,7 @@ namespace Jabber
 				index.data(Qt::DisplayRole).toString()).height();
 		
 		QFont desc_font = option.font;
-		desc_font.setPointSize(desc_font.pointSize() -1);
+		desc_font.setPointSize(desc_font.pointSize() -2);
 		metrics = QFontMetrics(desc_font);
 										  
 		height += metrics.boundingRect(option.rect,
