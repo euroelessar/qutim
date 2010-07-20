@@ -139,7 +139,8 @@ namespace Core
 			bool support = 	p->data(qutim_sdk_0_3::Protocol::ProtocolSupportGroupChat).toBool();
 			if (support) {
 				foreach (Account *a,p->accounts()) {
-					ui->accountBox->addItem(a->id(),qVariantFromValue(a));
+					if (a->status() != Status::Offline)
+						ui->accountBox->addItem(a->id(),qVariantFromValue(a));
 				}
 			}
 		}
