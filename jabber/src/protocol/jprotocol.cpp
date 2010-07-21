@@ -12,7 +12,6 @@
 #include "account/muc/jmucsession.h"
 #include "account/roster/jmessagesession.h"
 #include <QInputDialog>
-#include "account/muc/jmucactions.h"
 
 namespace Jabber
 {
