@@ -276,4 +276,10 @@ namespace Jabber
 // 		}
 		return QObject::event(event);
 	}
+
+	void JMUCManager::leave(const QString &room)
+	{
+		JMUCSession *muc = p->rooms.value(room);
+		muc->leave();
+	}
 }
