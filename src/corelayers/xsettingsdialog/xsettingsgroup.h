@@ -37,6 +37,7 @@ signals:
 private:
 	SettingsItemList m_setting_list;
 	Ui::XSettingsGroup *ui;
+	bool m_animated;
 protected slots:
 	void currentRowChanged ( int );
 	void onWidgetModifiedChanged(bool haveChanges);

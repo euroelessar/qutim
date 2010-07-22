@@ -75,13 +75,10 @@ INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	.
 		src
-		src/3rdparty/qtsolutions
 		3rdparty/q-xdg
-		src/plugins
-		src/idle
+		3rdparty/flowlayout
+		3rdparty/slidingstackedwidget
 		include
-		sdk02
-		sdk02/include
 	)
 
 
@@ -133,6 +130,14 @@ FOREACH( LAYER ${CORELAYERS} )
         ENDIF( ${LAYER_NAME} )
     ENDIF( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}" )
 ENDFOREACH( LAYER )
+
+# Add SlidingStackedWidget
+LIST( APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/slidingstackedwidget/slidingstackedwidget.cpp" )
+LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/slidingstackedwidget/slidingstackedwidget.h" )
+
+# Add flowlayout code
+LIST( APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/flowlayout/flowlayout.cpp" )
+LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/flowlayout/flowlayout.h" )
 
 #TODO fix in future
 if (MINGW)

@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/" >
-        <file>icons/qutim_64.png</file>
+    <qresource prefix="/">
+        <file alias="icons/qutim_64.png">share/icons/hicolor/64x64/apps/qutim.png</file>
     </qresource>
 </RCC>

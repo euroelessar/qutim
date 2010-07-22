@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>670</width>
-    <height>669</height>
+    <width>668</width>
+    <height>667</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -33,7 +33,7 @@
        </sizepolicy>
       </property>
      </widget>
-     <widget class="QStackedWidget" name="stackedWidget">
+     <widget class="SlidingStackedWidget" name="stackedWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -48,6 +48,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SlidingStackedWidget</class>
+   <extends>QStackedWidget</extends>
+   <header>slidingstackedwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

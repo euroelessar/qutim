@@ -33,6 +33,8 @@ namespace qutim_sdk_0_3
 
 	MenuController::~MenuController()
 	{
+//		foreach (ActionInfo info,d_func()->actions)
+//			delete info.gen;
 	}
 
 	bool actionLessThan(const ActionInfo &a, const ActionInfo &b)
@@ -105,6 +107,7 @@ namespace qutim_sdk_0_3
 		QSet<const QMetaObject *> metaObjects;
 		while (owner) {
 			foreach (const ActionInfo &info, MenuControllerPrivate::get(owner)->actions) {
+				m_owners.insert(info.gen, const_cast<MenuController*>(owner));
 				actions << info;
 			}
 			const QMetaObject *meta = owner->metaObject();
@@ -155,6 +158,7 @@ namespace qutim_sdk_0_3
 			}
 
 			QObject *controller = m_owners.value(act.gen);
+			Q_ASSERT(controller);
 			QAction *action = actionsCache()->value(act.gen).value(controller);
 			if (!action) {
 				action = act.gen->generate<QAction>();

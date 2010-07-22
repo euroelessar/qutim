@@ -20,14 +20,18 @@
 #include <QDebug>
 
 XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings, QWidget* parent )
-: QWidget (parent ), ui (new Ui::XSettingsGroup)
+: QWidget (parent ), ui (new Ui::XSettingsGroup),m_animated(true)
 {
 	m_setting_list = settings;
 	ui->setupUi(this);
 	//appearance
 	ConfigGroup general = Config("appearance").group("xsettings/general");
 	uint icon_size = general.value<int>("iconSize",16);
+	m_animated = general.value<bool>("animated",false);
+
 	ui->listWidget->setIconSize(QSize(icon_size,icon_size));
+	ui->stackedWidget->setVerticalMode(true);
+	ui->stackedWidget->setSpeed(750);
 
 	QList<int> sizes;
 	sizes.append(80);
@@ -71,7 +75,10 @@ void XSettingsGroup::currentRowChanged ( int index)
 		ui->stackedWidget->addWidget(widget);
 		connect(widget,SIGNAL(modifiedChanged(bool)),SLOT(onWidgetModifiedChanged(bool)));
 	}
-	ui->stackedWidget->setCurrentWidget(widget);
+	if (m_animated)
+		ui->stackedWidget->slideInIdx(ui->stackedWidget->indexOf(widget));
+	else
+		ui->stackedWidget->setCurrentWidget(widget);
 	emit titleChanged(m_setting_list.at(index)->text());
 }
 

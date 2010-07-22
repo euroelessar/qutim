@@ -15,7 +15,6 @@
 
 #include "xsettingsdialog.h"
 #include "ui_xsettingsdialog.h"
-#include "xtoolbar.h"
 #include <QLayout>
 #include <QDebug>
 #include <libqutim/icon.h>
