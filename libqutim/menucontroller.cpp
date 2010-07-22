@@ -165,8 +165,6 @@ namespace qutim_sdk_0_3
 				actionsCache()->operator[](act.gen).insert(controller,action);
 			}
 			if (action) {
-				if (!handler()->actions().contains(action))
-					handler()->addAction(action);
 				currentEntry->menu->addAction(action);
 			}
 		}
@@ -372,10 +370,7 @@ namespace qutim_sdk_0_3
 			if (!action)
 				return;
 			actionsCache()->operator[](info.gen).insert(controller,action);
-			handler()->addAction(action);
 		}
-		else if (!handler()->actions().contains(action))
-			handler()->addAction(action);
 		//small hack
 		const_cast<ActionGenerator*>(info.gen)->showImpl(action,controller);
 		actions.append(action);

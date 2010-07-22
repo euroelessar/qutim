@@ -15,6 +15,7 @@
 
 #include "actiongenerator_p.h"
 #include "menucontroller.h"
+#include "menucontroller_p.h"
 #include <QMetaMethod>
 #include <QtGui/QIcon>
 #include <QtGui/QAction>
@@ -61,11 +62,33 @@ namespace qutim_sdk_0_3
 	{
 	}
 
+//	MenuController *ActionCreatedEvent::controller() const
+//	{
+//		if (generator()->type() | ActionConnectionObjectOnly) {
+//			QObject *obj = const_cast<QObject*>(actionsCache()->value(m_gen).key(m_action));
+//			return qobject_cast<MenuController*>(obj);
+//		}
+//		return 0;
+//	}
+
 	QEvent::Type ActionCreatedEvent::eventType()
 	{
 		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 102));
 		return type;
 	}
+	
+	ActionVisibilityChangedEvent::ActionVisibilityChangedEvent (QAction* action, QObject* controller, bool isVisible) :
+			QEvent(eventType()),m_action(action),m_controller(controller),m_visible(isVisible)
+	{
+
+	}
+
+	QEvent::Type ActionVisibilityChangedEvent::eventType()
+	{
+		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 202));
+		return type;
+	}
+
 
 	void ActionGeneratorPrivate::ensureConnectionType()
 	{
@@ -184,8 +207,26 @@ namespace qutim_sdk_0_3
 
 	void ActionGenerator::addCreationHandler(QObject *obj)
 	{
-		Q_UNUSED(obj);
+		addHandler(ActionCreatedHandler,obj);
 	}
+	
+	void ActionGenerator::removeCreationHandler(QObject* obj)
+	{
+		removeHandler(ActionCreatedHandler,obj);
+	}
+
+	void ActionGenerator::addHandler(int type, QObject* obj)
+	{
+		Q_D(ActionGenerator);
+		d->subcribers[type].append(obj);
+	}
+
+	void ActionGenerator::removeHandler(int type, QObject* obj)
+	{
+		Q_D(ActionGenerator);
+		d->subcribers[type].removeAll(obj);
+	}
+
 
 	QAction *ActionGenerator::prepareAction(QAction *action) const
 	{
@@ -203,6 +244,15 @@ namespace qutim_sdk_0_3
 		action->setToolTip(d->toolTip);
 		localizationHelper()->addAction(action, d);
 		action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
+
+		foreach (QObject *subcriber,d->subcribers.value(ActionCreatedHandler)) {
+			ActionCreatedEvent event(action,const_cast<ActionGenerator*>(this));
+			qApp->sendEvent(subcriber,&event);
+		}
+		
+		if (!handler()->actions().contains(action))
+			handler()->addAction(action);		
+
 		return action;
 	}
 
@@ -279,14 +329,20 @@ namespace qutim_sdk_0_3
 		d_func()->toolTip = toolTip;
 	}
 	
-	void ActionGenerator::showImpl(QAction*,QObject*)
-	{
-
+	void ActionGenerator::showImpl(QAction *act,QObject *con)
+	{		
+		foreach (QObject *subcriber, d_func()->subcribers.value(ActionVisibilityChangedHandler)) {
+			ActionVisibilityChangedEvent ev(act,con);
+			qApp->sendEvent(subcriber,&ev);	
+		}
 	}
 
-	void ActionGenerator::hideImpl(QAction*, QObject*)
+	void ActionGenerator::hideImpl(QAction *act,QObject *con)
 	{
-
+		foreach (QObject *subcriber, d_func()->subcribers.value(ActionVisibilityChangedHandler)) {
+			ActionVisibilityChangedEvent ev(act,con,false);
+			qApp->sendEvent(subcriber,&ev);
+		}
 	}
 
 }

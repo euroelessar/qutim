@@ -154,10 +154,6 @@ namespace qutim_sdk_0_3
 			Q_ASSERT(action);
 			actionsCache()->operator[](generator).insert(this,action);
 		}
-
-		if (!handler()->actions().contains(action))
-			handler()->addAction(action);
-
 		//action->setData(d->data);
 
 		d->generators << generator;

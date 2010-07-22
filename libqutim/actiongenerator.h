@@ -40,6 +40,14 @@ namespace qutim_sdk_0_3
 	};
 	
 	Q_DECLARE_FLAGS(ActionsType,ActionType)
+	
+	enum ActionHandlerType
+	{
+		ActionCreatedHandler,
+		ActionVisibilityChangedHandler
+	};
+	
+	Q_DECLARE_FLAGS(ActionHandlerTypes,ActionHandlerType)
 
 	class LIBQUTIM_EXPORT ActionCreatedEvent : public QEvent
 	{
@@ -48,9 +56,26 @@ namespace qutim_sdk_0_3
 		static QEvent::Type eventType();
 		QAction *action() const { return m_action; }
 		ActionGenerator *generator() const { return m_gen; }
+//		MenuController *controller() const;
 	private:
 		QAction *m_action;
 		ActionGenerator *m_gen;
+//		MenuController *m_con;
+	};
+
+	class LIBQUTIM_EXPORT ActionVisibilityChangedEvent : public QEvent
+	{
+	public:
+		ActionVisibilityChangedEvent(QAction *action,QObject *controller, bool isVisible = true);
+		static QEvent::Type eventType();
+		QAction *action() const { return m_action; }
+		QObject *controller() const { return m_controller; }
+		bool isVisible() const { return m_visible; }
+	private:
+		QAction *m_action;
+		QObject *m_controller;
+		bool m_visible;
+
 	};
 
 	// TODO: Resolve problem with action groups, checkable actions and so one
@@ -93,7 +118,10 @@ namespace qutim_sdk_0_3
 		ActionGenerator *setPriority(int priority);
 		void setMenuController(MenuController *controller);
 		//MenuController *controller() const;
+		void addHandler(int type,QObject *obj);
+		void removeHandler(int type,QObject *obj);
 		void addCreationHandler(QObject *obj);
+		void removeCreationHandler(QObject *obj);
 		void setCheckable(bool checkable);
 		void setChecked(bool checked);
 		void setToolTip(const LocalizedString &toolTip);

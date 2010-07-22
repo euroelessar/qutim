@@ -27,11 +27,11 @@ namespace qutim_sdk_0_3
 	
 	enum ActionConnectionType
 	{
-		ActionConnectionObjectOnly,	// methodName(QObject*)
-		ActionConnectionActionOnly,	// methodName(QAction*)
-		ActionConnectionFull,		// methodName(QAction*,QObject*)
-		ActionConnectionSimple,		// methodName()
-		ActionConnectionNone		// member is null
+		ActionConnectionNone		= 0x01,		// member is null
+		ActionConnectionSimple		= 0x02,	// methodName()
+		ActionConnectionObjectOnly	= 0x04,	// methodName(QObject*)
+		ActionConnectionActionOnly	= 0x08,	// methodName(QAction*)
+		ActionConnectionFull		= 0x0C	// methodName(QAction*,QObject*)
 	};
 
 	class ActionGeneratorPrivate : public ObjectGeneratorPrivate
@@ -42,6 +42,7 @@ namespace qutim_sdk_0_3
 		LocalizedString text;
 		LocalizedString toolTip;
 		QPointer<QObject> receiver;
+		QHash<int, QObjectList> subcribers;
 		QByteArray member;
 		int type;
 		int priority;
