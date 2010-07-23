@@ -30,12 +30,14 @@ namespace Jabber
 			static Presence::PresenceType statusToPresence(const Status &status);
 			static Status presenceToStatus(Presence::PresenceType presence);
 			virtual QVariant data(DataType type);
+			bool event(QEvent *ev);
 		private slots:
 			void onKickUser(QObject* obj);
 			void onBanUser(QObject* obj);
 			void onConvertToMuc(QObject* obj);
-			void leave(QObject *obj);
-			void showConfigDialog(QObject *obj);			
+			void onJoinLeave(QObject *obj);
+			void onShowConfigDialog(QObject *obj);
+			void onSaveRemoveBookmarks(QObject *obj);
 		private:
 			void loadActions();
 			virtual void loadAccounts();

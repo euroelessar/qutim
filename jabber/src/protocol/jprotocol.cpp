@@ -10,11 +10,21 @@
 #include <qutim/settingslayer.h>
 #include "account/muc/jmucuser.h"
 #include "account/muc/jmucsession.h"
+#include "account/muc/jmucmanager.h"
+#include "account/muc/jbookmarkmanager.h"
 #include "account/roster/jmessagesession.h"
 #include <QInputDialog>
 
 namespace Jabber
 {
+
+	enum JMUCActionType
+	{
+		JoinLeaveAction,
+		SaveRemoveBookmarkAction,
+		RoomConfigAction,
+		RoomParticipantsAction
+	};
 
 	struct JProtocolPrivate
 	{
@@ -66,16 +76,25 @@ namespace Jabber
 				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
 									this, SLOT(onConvertToMuc(QObject*))));
 		
-		ActionGenerator *generator  = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Leave from conference"),
-				this, SLOT(leave(QObject*)));
-		generator->addCreationHandler(this);
+		ActionGenerator *generator  = new ActionGenerator(Icon(""),QT_TRANSLATE_NOOP("Jabber", "Join to conference"),
+				this, SLOT(onJoinLeave(QObject*)));
+		generator->addHandler(ActionVisibilityChangedHandler,this);
 		generator->setType(0);
 		generator->setPriority(3);
+		generator->addProperty("actionType",JoinLeaveAction);
 		MenuController::addAction<JMUCSession>(generator);
 		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
-				this, SLOT(showConfigDialog(QObject*)));
-		generator->addCreationHandler(this);
+				this, SLOT(onShowConfigDialog(QObject*)));
+		generator->addHandler(ActionVisibilityChangedHandler,this);
 		generator->setType(1);
+		generator->addProperty("actionType",RoomConfigAction);
+		MenuController::addAction<JMUCSession>(generator);
+		generator = new ActionGenerator(Icon(""), QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks") ,
+				this, SLOT(onSaveRemoveBookmarks(QObject*)));
+		generator->addHandler(ActionVisibilityChangedHandler,this);
+		generator->setType(0);
+		generator->setPriority(0);
+		generator->addProperty("actionType",SaveRemoveBookmarkAction);
 		MenuController::addAction<JMUCSession>(generator);
 
 		QList<Status> statuses;
@@ -120,18 +139,36 @@ namespace Jabber
 		session->convertToMuc();
 	}
 		
-	void JProtocol::leave(QObject* obj)
+	void JProtocol::onJoinLeave(QObject* obj)
 	{
 		JMUCSession *room = qobject_cast<JMUCSession*>(obj);
 		Q_ASSERT(room);
-		room->leave();
+		if (!room->isJoined()) {
+			JAccount *account = static_cast<JAccount*>(room->account());
+			account->conferenceManager()->join(room->id());
+		}
+		else
+			room->leave();
 	}
 
-	void JProtocol::showConfigDialog(QObject* obj)
+	void JProtocol::onShowConfigDialog(QObject* obj)
 	{
 		JMUCSession *room = qobject_cast<JMUCSession*>(obj);
 		Q_ASSERT(room);
-		room->showConfigDialog();
+		if (room->enabledConfiguring())
+			room->showConfigDialog();
+	}
+
+	void JProtocol::onSaveRemoveBookmarks(QObject *obj)
+	{
+		JMUCSession *room = qobject_cast<JMUCSession*>(obj);
+		Q_ASSERT(room);
+		JAccount *account = static_cast<JAccount*>(room->account());
+		//FIXME,  WTF room->bookmarkIndex() == -1?
+		if (room->bookmarkIndex() == -1)
+			account->conferenceManager()->openJoinWindow(room->id(), room->me()->name(), "", room->id());
+		else
+			account->conferenceManager()->bookmarkManager()->removeBookmark(room->bookmarkIndex());
 	}
 
 	void JProtocol::loadAccounts()
@@ -142,55 +179,6 @@ namespace Jabber
 			JID jid(id.toStdString());
 			addAccount(new JAccount(QString::fromStdString(jid.bare())), true);
 		}
-
-		/*MenuController::addAction<JContact>(
-				new JResourceActionGenerator(QIcon(),
-											 QT_TRANSLATE_NOOP("Test", "Test action"),
-											 this, SLOT(onStatusActionPressed())));
-		gloox::DataForm *form = new gloox::DataForm(gloox::TypeForm, "cool title");
-		form->addField(DataFormField::TypeTextSingle, "text-single", "uau, value", "cool label");
-		form->addField(DataFormField::TypeJidSingle, "jid-single", "test@qutim.org", "jid label");
-		{
-			DataFormField *field = new DataFormField(DataFormField::TypeListSingle);
-			field->setName("list-single");
-			field->setLabel("hello! choose me!");
-			field->addOption("1231", "1231");
-			field->addOption("1232", "1232");
-			field->addOption("1233", "1233");
-			form->addField(field);
-		}
-		{
-			DataFormField *field = new DataFormField(DataFormField::TypeListMulti);
-			field->setName("list-multi");
-			field->setLabel("hello! this is List!");
-			field->addOption("101", "1231");
-			field->addOption("102", "1232");
-			field->addOption("103", "1233");
-			form->addField(field);
-		}
-		{
-			DataFormField *field = new DataFormField(DataFormField::TypeJidMulti);
-			field->setName("jid-multi");
-			field->setLabel("JID List!");
-			field->addValue("test@qutim.org");
-			field->addValue("test2@qutim.org");
-			field->addValue("test3@qutim.org");
-			form->addField(field);
-		}
-		{
-			DataFormField *field = new DataFormField(DataFormField::TypeFixed);
-			field->setName("fixed");
-			field->addValue("hello! this is long, very long Text for test!");
-			form->addField(field);
-		}
-		{
-			DataFormField *field = new DataFormField(DataFormField::TypeBoolean);
-			field->setName("boolean");
-			field->setLabel("hello! this is long caption for boolean widget!");
-			form->addField(field);
-		}
-		JDataForm *jForm = new JDataForm(form, false);
-		jForm->show();*/
 	}
 
 	void JProtocol::addAccount(JAccount *account, bool isEmit)
@@ -264,5 +252,41 @@ namespace Jabber
 			status = Status::Offline;
 		}
 		return Status::instance(status, "jabber");
+	}
+
+	bool JProtocol::event(QEvent *ev)
+	{
+		if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
+			ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
+			QAction *action = event->action();
+			JMUCSession *room = qobject_cast<JMUCSession*>(event->controller());
+			Q_ASSERT(room);
+			JMUCActionType type = static_cast<JMUCActionType>(action->property("actionType").toInt());
+			if (event->isVisible()) {
+				switch (type) {
+				case JoinLeaveAction: {
+					if (!room->isJoined())
+						action->setText(QT_TRANSLATE_NOOP("Jabber", "Join to conference"));
+					else
+						action->setText(QT_TRANSLATE_NOOP("Jabber", "Leave from conference"));
+					break;
+					}
+				case RoomConfigAction: {
+					action->setVisible(room->enabledConfiguring());
+					break;
+				}
+				case SaveRemoveBookmarkAction: {
+					if (room->bookmarkIndex() == -1)
+						action->setText(QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks"));
+					else
+						action->setText(QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"));
+					break;
+				}
+				default:
+					break;
+				}
+			}
+		}
+		return QObject::event(ev);
 	}
 }
