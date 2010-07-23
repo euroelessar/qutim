@@ -67,10 +67,10 @@ namespace Jabber
 				QT_TRANSLATE_NOOP("Settings", "Jabber")));
 
 		MenuController::addAction<JMUCUser>(
-				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Kick"),
+				new ActionGenerator(Icon("im-kick-user"), QT_TRANSLATE_NOOP("Conference", "Kick"),
 									this, SLOT(onKickUser(QObject*))));
 		MenuController::addAction<JMUCUser>(
-				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Ban"),
+				new ActionGenerator(Icon("im-ban-user"), QT_TRANSLATE_NOOP("Conference", "Ban"),
 									this, SLOT(onBanUser(QObject*))));
 		MenuController::addAction<JMessageSession>(
 				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
