@@ -42,7 +42,7 @@ namespace qutim_sdk_0_3
 		LocalizedString text;
 		LocalizedString toolTip;
 		QPointer<QObject> receiver;
-		QHash<int, QObjectList> subcribers;
+		QMap<int, QList<QObject*> > subcribers;
 		QByteArray member;
 		int type;
 		int priority;

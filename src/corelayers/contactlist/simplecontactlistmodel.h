@@ -17,8 +17,6 @@ namespace Core
 		{
 		public:
 			AddRemoveContactActionGenerator(Model *model);
-		protected:
-			virtual void showImpl(QAction* action, QObject* obj);
 		};
 
 		class Model : public QAbstractItemModel
@@ -50,6 +48,7 @@ namespace Core
 
 			void processEvent(ChangeEvent *ev);
 			bool eventFilter(QObject *obj, QEvent *ev);
+			bool event(QEvent *ev);
 		public slots:
 			void onFilterList(const QStringList &tags);
 		protected slots:

@@ -44,14 +44,6 @@ namespace Core
 			{
 				setType(ActionTypeContactList|ActionTypeAdditional);
 			}
-		protected:
-			virtual void showImpl(QAction* action, QObject* obj)
-			{
-				ChatUnit *unit = qobject_cast<ChatUnit*>(obj);
-				Q_ASSERT(unit);
-				QString id =  unit->account()->protocol()->data(Protocol::ProtocolIdName).toString();
-				action->setText(QObject::tr("Copy %1 to clipboard").arg(id));
-			}
 		};
 		
 		class MyWidget : public QMainWindow
@@ -190,6 +182,7 @@ namespace Core
 			//TODO move to another class
 			gen = new CopyIdGenerator(this);
 			gen->setPriority(-100);
+			gen->addHandler(ActionVisibilityChangedHandler,this);
 			MenuController::addAction<ChatUnit>(gen);
 
 			p->view->setItemDelegate(new SimpleContactListDelegate(p->view));
@@ -438,6 +431,21 @@ namespace Core
 		void Module::onQuitTriggered(QObject *)
 		{
 			qApp->quit();
+		}
+
+		bool Module::event(QEvent *ev)
+		{
+			if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
+				ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
+				if (event->isVisible()) {
+					QAction *action = event->action();
+					ChatUnit *unit = qobject_cast<ChatUnit*>(event->controller());
+					Q_ASSERT(unit);
+					QString id =  unit->account()->protocol()->data(Protocol::ProtocolIdName).toString();
+					action->setText(QObject::tr("Copy %1 to clipboard").arg(id));
+				}
+			}
+			return QObject::event(ev);
 		}
 
 	}

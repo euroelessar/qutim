@@ -42,26 +42,10 @@ namespace Core
 		};
 
 		AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
-			ActionGenerator(QIcon(), "", model, SLOT(onContactAddRemoveAction(QObject*)))
+				ActionGenerator(QIcon(), "", model, SLOT(onContactAddRemoveAction(QObject*)))
 		{
+			addHandler(ActionVisibilityChangedHandler,model);
 		}
-		
-		void AddRemoveContactActionGenerator::showImpl(QAction* action, QObject* obj)
-		{
-			Contact *contact = qobject_cast<Contact*>(obj);
-			if (!contact)
-				return;
-			if (contact->isInList()) {
-				action->setIcon(Icon("list-remove"));
-				action->setText(QT_TRANSLATE_NOOP("ContactList", "Remove contact"));
-			} else {
-				action->setIcon(Icon("list-add"));
-				action->setText(QT_TRANSLATE_NOOP("ContactList", "Add to contact list"));
-			}
-			action->setEnabled(contact->account()->status() != qutim_sdk_0_3::Status::Offline); //experiment
-				
-		}
-
 
 		Model::Model(QObject *parent) : QAbstractItemModel(parent), p(new ModelPrivate)
 		{
@@ -76,8 +60,8 @@ namespace Core
 													   this, SLOT(onContactRenameAction(QObject*)));
 			MenuController::addAction<Contact>(gen);
 			gen = new ActionGenerator(Icon("feed-subscribe"),
-													   QT_TRANSLATE_NOOP("ContactList", "Edit tags"),
-													   this, SLOT(onTagsEditAction(QObject*)));
+									  QT_TRANSLATE_NOOP("ContactList", "Edit tags"),
+									  this, SLOT(onTagsEditAction(QObject*)));
 			MenuController::addAction<Contact>(gen);
 			MenuController::addAction<Contact>(new AddRemoveContactActionGenerator(this));
 
@@ -100,10 +84,10 @@ namespace Core
 			switch(getItemType(parent))
 			{
 			case TagType: {
-				TagItem *item = reinterpret_cast<TagItem *>(parent.internalPointer());
-				if(item->contacts.size() <= row)
-					return QModelIndex();
-				return createIndex(row, 0, item->contacts.at(row));
+					TagItem *item = reinterpret_cast<TagItem *>(parent.internalPointer());
+					if(item->contacts.size() <= row)
+						return QModelIndex();
+					return createIndex(row, 0, item->contacts.at(row));
 				}
 			case ContactType:
 				return QModelIndex();
@@ -119,8 +103,8 @@ namespace Core
 			switch(getItemType(child))
 			{
 			case ContactType: {
-				ContactItem *item = reinterpret_cast<ContactItem *>(child.internalPointer());
-				return createIndex(p->tags.indexOf(item->parent), 0, item->parent);
+					ContactItem *item = reinterpret_cast<ContactItem *>(child.internalPointer());
+					return createIndex(p->tags.indexOf(item->parent), 0, item->parent);
 				}
 			case TagType:
 			default:
@@ -170,9 +154,9 @@ namespace Core
 					{
 					case Qt::EditRole:
 					case Qt::DisplayRole: {
-						QString name = item->data->contact->name();
-						return name.isEmpty() ? item->data->contact->id() : name;
-					}
+							QString name = item->data->contact->name();
+							return name.isEmpty() ? item->data->contact->id() : name;
+						}
 					case Qt::DecorationRole:
 						return item->data->contact->status().icon();
 					case ItemDataType:
@@ -457,7 +441,7 @@ namespace Core
 				QModelIndex parentIndex = createIndex(p->tags.indexOf(item->parent), 0, item->parent);
 				
 				debug() << item->data->contact->id() << from << to << show;
-	
+
 				if (from == to) {
 					QModelIndex index = createIndex(item->index(), 0, item);
 					dataChanged(index, index);					
@@ -637,7 +621,7 @@ namespace Core
 				TagItem *tag = reinterpret_cast<TagItem*>(ev->parent);
 				if (tag->name == item->parent->name)
 					return;
-	
+
 				QSet<QString> tags = item->data->tags;
 				tags.remove(item->parent->name);
 				tags.insert(tag->name);
@@ -718,6 +702,29 @@ namespace Core
 			return QAbstractItemModel::eventFilter(obj, ev);
 		}
 
+		bool Model::event(QEvent *ev)
+		{
+			if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
+				ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
+				if (event->isVisible()) {
+					QAction *action = event->action();
+					Contact *contact = qobject_cast<Contact*>(event->controller());
+					if (!contact)
+						return false;
+					if (contact->isInList()) {
+						action->setIcon(Icon("list-remove"));
+						action->setText(QT_TRANSLATE_NOOP("ContactList", "Remove contact"));
+					} else {
+						action->setIcon(Icon("list-add"));
+						action->setText(QT_TRANSLATE_NOOP("ContactList", "Add to contact list"));
+					}
+					action->setEnabled(contact->account()->status() != qutim_sdk_0_3::Status::Offline); //experiment
+					return true;
+				}
+			}
+			return QObject::event(ev);
+		}
+
 		void Model::onTagsEditAction(QObject *controller)
 		{
 			Contact *contact = qobject_cast<Contact*>(controller);
@@ -789,7 +796,7 @@ namespace Core
 			Contact *contact = item->data->contact;
 			if (!p->lastFilter.isEmpty()) {
 				return contact->id().contains(p->lastFilter,Qt::CaseInsensitive)
-				|| contact->name().contains(p->lastFilter,Qt::CaseInsensitive);
+						|| contact->name().contains(p->lastFilter,Qt::CaseInsensitive);
 			} else {
 				return p->showOffline || contact->status().type() != Status::Offline;
 			}

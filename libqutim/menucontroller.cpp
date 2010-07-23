@@ -396,10 +396,9 @@ namespace qutim_sdk_0_3
 		return false;
 	}
 	
-	ActionHandler::ActionHandler() : QActionGroup(0)
-	{
-		setExclusive(false);
-		connect(this,SIGNAL(triggered(QAction*)),SLOT(onActionTriggered(QAction*)));
+	ActionHandler::ActionHandler() : QObject(0)
+	{		
+
 	}
 	
 	void ActionHandler::onActionTriggered(QAction *action)
@@ -444,6 +443,7 @@ namespace qutim_sdk_0_3
 	void ActionHandler::onActionDestoyed(QObject *obj)
 	{
 		QAction *action = reinterpret_cast<QAction*>(obj);
+		m_actions.removeAll(action);
 		ActionGeneratorMap::iterator it;
 		for (it = actionsCache()->begin();it!=actionsCache()->end();it++) {
 			if (const QObject *key = it->key(action))
@@ -454,7 +454,15 @@ namespace qutim_sdk_0_3
 	QAction *ActionHandler::addAction(QAction *action)
 	{
 		connect(action,SIGNAL(destroyed(QObject*)),SLOT(onActionDestoyed(QObject*)));
-		return QActionGroup::addAction(action);
+		connect(action,SIGNAL(triggered()),SLOT(actionTriggered()));
+		m_actions.append(action);
+	}
+
+	void ActionHandler::actionTriggered()
+	{
+		QAction *action = qobject_cast<QAction*>(sender());
+		Q_ASSERT(action);
+		onActionTriggered(action);
 	}
 
 }

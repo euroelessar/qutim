@@ -102,15 +102,22 @@ namespace qutim_sdk_0_3
 		inline void ensureAction(const ActionInfo& info);
 	};
 	//TODO create common handler for DynamicMenu, ActionContainer and ActionToolbar
-	class ActionHandler : public QActionGroup
+
+	typedef QList<QAction*> QActionList;
+
+	class ActionHandler : public QObject
 	{
 		Q_OBJECT
 	public:
 		ActionHandler();
 		QAction *addAction(QAction *action);
-	public slots:
 		void onActionTriggered(QAction *action);
+		QActionList actions() const {return m_actions;}
+	private slots:
 		void onActionDestoyed(QObject *obj);
+		void actionTriggered();
+	private:
+		QActionList m_actions;
 	};
 
 	Q_GLOBAL_STATIC(ActionHandler,handler);

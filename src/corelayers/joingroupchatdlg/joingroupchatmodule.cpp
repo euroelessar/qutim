@@ -7,9 +7,9 @@
 namespace Core
 {
 	static Core::CoreModuleHelper<JoinGroupChatModule> join_groupchat_module_static(
-		QT_TRANSLATE_NOOP("Plugin", "Join GroupChat dialog"),
-		QT_TRANSLATE_NOOP("Plugin", "Simple groupchat join dialog")
-	);	
+			QT_TRANSLATE_NOOP("Plugin", "Join GroupChat dialog"),
+			QT_TRANSLATE_NOOP("Plugin", "Simple groupchat join dialog")
+			);
 	
 	JoinGroupChatModule::JoinGroupChatModule()
 	{
@@ -41,17 +41,12 @@ namespace Core
 	}
 
 	JoinGroupChatGenerator::JoinGroupChatGenerator(QObject* module):
-		ActionGenerator(Icon("meeting-attending"),
-						QT_TRANSLATE_NOOP("JoinGroupChat", "Join groupchat"),
-						module,
-						SLOT(onJoinGroupChatTriggered())
-					   )
+			ActionGenerator(Icon("meeting-attending"),
+							QT_TRANSLATE_NOOP("JoinGroupChat", "Join groupchat"),
+							module,
+							SLOT(onJoinGroupChatTriggered())
+							)
 	{
 
-	}
-
-	void JoinGroupChatGenerator::showImpl(QAction* action, QObject* obj)
-	{
-		qutim_sdk_0_3::ActionGenerator::showImpl(action, obj);
 	}
 }

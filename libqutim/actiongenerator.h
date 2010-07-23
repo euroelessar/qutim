@@ -120,8 +120,8 @@ namespace qutim_sdk_0_3
 		//MenuController *controller() const;
 		void addHandler(int type,QObject *obj);
 		void removeHandler(int type,QObject *obj);
-		void addCreationHandler(QObject *obj);
-		void removeCreationHandler(QObject *obj);
+		Q_DECL_DEPRECATED void addCreationHandler(QObject *obj);
+		Q_DECL_DEPRECATED void removeCreationHandler(QObject *obj);
 		void setCheckable(bool checkable);
 		void setChecked(bool checked);
 		void setToolTip(const LocalizedString &toolTip);
@@ -130,8 +130,8 @@ namespace qutim_sdk_0_3
 		virtual QObject *generateHelper() const;
 		virtual const QMetaObject *metaObject() const;
 		virtual bool hasInterface(const char *id) const;
-		virtual void showImpl(QAction *action,QObject *obj); //obj usally is controller, default implementation do nothing
-		virtual void hideImpl(QAction *action,QObject *obj);		
+		Q_DECL_DEPRECATED virtual void showImpl(QAction *action,QObject *obj); //obj usally is controller, default implementation do nothing
+		Q_DECL_DEPRECATED virtual void hideImpl(QAction *action,QObject *obj);
 	private:
 		friend class MenuController;
 		friend class MenuControllerPrivate;
