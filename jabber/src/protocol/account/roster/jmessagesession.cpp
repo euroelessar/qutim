@@ -116,6 +116,7 @@ namespace Jabber
 		d->messageReceiptFilter = new JMessageReceiptFilter(this, d->session);
 		d->chatStateFilter->registerChatStateHandler(this);
 		d->session->registerMessageHandler(this);
+		d->handler->prepareMessageSession(this);
 		d->followChanges = session->threadID().empty();
 		d->unit = unit;
 		d->atDeathState = false;
@@ -133,6 +134,7 @@ namespace Jabber
 		d->chatStateFilter = new ChatStateFilter(d->session);
 		d->chatStateFilter->registerChatStateHandler(this);
 		d->session->registerMessageHandler(this);
+		d->handler->prepareMessageSession(this);
 		d->followChanges = true;
 		d->unit = unit;
 		d->handler->setSessionUnit(this, unit);

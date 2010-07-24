@@ -6,6 +6,9 @@
 #include "protocol/modules/adhoc/jadhocmodule.h"
 #include "protocol/modules/filetransfer/jfiletransfer.h"
 #include "protocol/modules/remotecontrol/remotecontrol.h"
+#include "protocol/modules/pep/jpersoneventsupport.h"
+#include "protocol/modules/moodpep/jpersonmoodconverter.h"
+#include "protocol/modules/tunepep/jpersontuneconverter.h"
 #include "protocol/account/muc/jmucjoinmodule.h"
 
 namespace Jabber
@@ -81,6 +84,22 @@ namespace Jabber
 			QT_TRANSLATE_NOOP("Plugin", "Implementation of XEP-0096"),
 			new GeneralGenerator<JFileTransferFactory>(),
 			ExtensionIcon("document-save"));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support"),
+			QT_TRANSLATE_NOOP("Plugin", "Implementation of personal events protocol"),
+			new GeneralGenerator<JPersonEventSupport, JabberExtension>(),
+			ExtensionIcon(""));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support (Message filter factory)"),
+			QT_TRANSLATE_NOOP("Plugin", "Implementation detail for Jabber Personal Events support"),
+			new GeneralGenerator<JPersonalEventFilterFactory, MessageFilterFactory>(),
+			ExtensionIcon(""));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Mood support"),
+			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of mood to Qt data types"),
+			new GeneralGenerator<JPersonMoodConverter, PersonEventConverter>(),
+			ExtensionIcon(""));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Tune support"),
+			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of tune to Qt data types"),
+			new GeneralGenerator<JPersonTuneConverter, PersonEventConverter>(),
+			ExtensionIcon(""));
 	}
 
 	bool JPlugin::load()

@@ -18,6 +18,7 @@ namespace Jabber
 	{
 		JConnectionPrivate() {}
 		~JConnectionPrivate() {}
+		JabberParams params;
 		JAccount *account;
 		Client *client;
 		Adhoc *adhoc;
@@ -127,21 +128,25 @@ namespace Jabber
 	{
 		return p->softwareDetection;
 	}
+	
+	JabberParams JConnection::params() const
+	{
+		return p->params;
+	}
 
 	void JConnection::initExtensions()
 	{
-		JabberParams params;
-		params.addItem<Client>(p->client);
-		params.addItem<Adhoc>(p->adhoc);
-		params.addItem<VCardManager>(p->vCardManager->manager());
-		params.addItem<SIManager>(p->siManager);
+		p->params.addItem<Client>(p->client);
+		p->params.addItem<Adhoc>(p->adhoc);
+		p->params.addItem<VCardManager>(p->vCardManager->manager());
+		p->params.addItem<SIManager>(p->siManager);
 
-		p->softwareDetection = new JSoftwareDetection(p->account, params);
+		p->softwareDetection = new JSoftwareDetection(p->account, p->params);
 
 		foreach (const ObjectGenerator *gen, moduleGenerators<JabberExtension>()) {
 			if (JabberExtension *ext = gen->generate<JabberExtension>()) {
 				p->extensions.append(ext);
-				ext->init(p->account, params);
+				ext->init(p->account, p->params);
 			}
 		}
 	}

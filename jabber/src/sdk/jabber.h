@@ -2,11 +2,12 @@
 #define JABBER_SDK_0_3_H
 
 #include <QtCore/QObject>
-#include <QtCore/QMap>
+#include <QtCore/QVariantMap>
 
 namespace gloox
 {
 	class Client;
+	class Tag;
 	class Adhoc;
 	class VCardManager;
 	class MessageFilter;
@@ -94,12 +95,27 @@ namespace Jabber
 		MessageFilterFactory() {}
 		virtual ~MessageFilterFactory() {}
 
-		virtual gloox::MessageFilter *create(gloox::MessageSession *parent) = 0;
+		virtual gloox::MessageFilter *create(qutim_sdk_0_3::Account *account,
+											 const JabberParams &params,
+											 gloox::MessageSession *session) = 0;
+	};
+	
+	/*!
+	  See JPersonMoodConverter as example
+	*/
+	class PersonEventConverter
+	{
+	public:
+		virtual std::string feature() const = 0;
+		virtual QString name() const = 0;
+		virtual gloox::Tag *toXml(const QVariantMap &map) const = 0;
+		virtual QVariantMap fromXml(gloox::Tag *tag) const = 0;
 	};
 }
 
 Q_DECLARE_INTERFACE(Jabber::JabberExtension,		"org.qutim.jabber.JabberExtension")
 Q_DECLARE_INTERFACE(Jabber::MessageFilterFactory,	"org.qutim.jabber.MessageFilterFactory")
+Q_DECLARE_INTERFACE(Jabber::PersonEventConverter,	"org.qutim.jabber.PersonEventConverter")
 Q_DECLARE_INTERFACE(gloox::Client,			"net.camaya.gloox.Client")
 Q_DECLARE_INTERFACE(gloox::Adhoc,			"net.camaya.gloox.Adhoc")
 Q_DECLARE_INTERFACE(gloox::VCardManager,	"net.camaya.gloox.VCardManager")

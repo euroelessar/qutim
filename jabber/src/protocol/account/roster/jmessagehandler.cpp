@@ -5,6 +5,7 @@
 #include "jcontactresource.h"
 #include "../muc/jmucuser.h"
 #include "gloox/message.h"
+#include "../../../sdk/jabber.h"
 
 namespace Jabber
 {
@@ -13,6 +14,7 @@ namespace Jabber
 		JAccount *account;
 		QHash<QString, JMessageSession *> sessions;
 		QHash<ChatUnit *, JMessageSession *> unitSessions;
+		QList<MessageFilterFactory*> filterFactories;
 	};
 
 	JMessageHandler::JMessageHandler(JAccount *account) : QObject(account), d_ptr(new JMessageHandlerPrivate)
@@ -20,6 +22,8 @@ namespace Jabber
 		Q_D(JMessageHandler);
 		d->account = account;
 		d->account->connection()->client()->registerMessageSessionHandler(this);
+		foreach (const ObjectGenerator *ext, moduleGenerators<MessageFilterFactory>())
+			d->filterFactories << ext->generate<MessageFilterFactory>();
 	}
 
 	JMessageHandler::~JMessageHandler()
@@ -37,6 +41,16 @@ namespace Jabber
 		// FIXME: Double conversion from JID to QString and from QString to JID
 		ChatUnit *unit = d->account->getUnit(QString::fromStdString(session->target().full()), true);
 		d->unitSessions.insert(unit, new JMessageSession(this, unit, session));
+	}
+	
+	void JMessageHandler::prepareMessageSession(JMessageSession *session)
+	{
+		Q_D(JMessageHandler);
+		JabberParams params = d->account->connection()->params();
+		foreach (MessageFilterFactory *factory, d->filterFactories) {
+			MessageFilter *filter = factory->create(d->account, params, session->session());
+			Q_UNUSED(filter);
+		}
 	}
 	
 	void JMessageHandler::messageSessionKiled(JMessageSession *session)
