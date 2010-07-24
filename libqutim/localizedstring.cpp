@@ -15,9 +15,30 @@
 
 #include "localizedstring.h"
 #include <QtCore/QCoreApplication>
+#include <QSharedData>
 
 namespace qutim_sdk_0_3
 {
+	// It may be usefull for localizable XMPP string
+	// i.e. Message with body in several languages
+	class LocalizationEngine
+	{
+	public:
+		virtual QString text() const = 0;
+	};
+	// Args are usefull sometimes, i.e. at strings like
+	// LocalizedString("", "Hello, %1").arg("Tom"), where
+	// there may be several unlocalizable arguments
+	// which should be inserted after translation
+	class LocalizedStringData : public QSharedData
+	{
+	public:
+		LocalizationEngine *engine;
+		QByteArray ctx;
+		QByteArray str;
+		QList<QString> args;
+	};
+	
 	QString LocalizedString::toString() const
 	{
 		if (m_ctx.isEmpty())
