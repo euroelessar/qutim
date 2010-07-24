@@ -30,6 +30,7 @@ namespace Jabber
 			void setOffline();
 		protected:
 			void loadSettings();
+			void fillContact(JContact *contact, const RosterItem &item);
 			void handleItemAdded(const JID &jid);
 			void handleItemSubscribed(const JID &jid);
 			void handleItemRemoved(const JID &jid);

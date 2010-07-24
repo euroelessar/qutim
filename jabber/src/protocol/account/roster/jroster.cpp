@@ -30,15 +30,15 @@ namespace Jabber
 
 	JRoster::JRoster(JAccount *account) : p(new JRosterPrivate)
 	{
-		loadSettings();
-		p->atMetaContactsLoad = false;
 		p->account = account;
+		p->atMetaContactsLoad = false;
 		p->metaStorage = new MetaContactsStorage(p->account->connection()->client());
 		p->metaStorage->registerMetaContactHandler(this);
 		p->rosterManager = p->account->connection()->client()->rosterManager();
 		p->rosterManager->registerRosterListener(this, false);
 		p->account->connection()->client()->registerPresenceHandler(this);
 		p->account->connection()->client()->registerSubscriptionHandler(this);
+		loadSettings();
 	}
 
 	JRoster::~JRoster()
@@ -82,20 +82,45 @@ namespace Jabber
 		return 0;
 	}
 
-	void JRoster::handleItemAdded(const JID &jid)
+	void JRoster::handleItemAdded(const JID &nativeJid)
 	{
+		QString jid = QString::fromStdString(nativeJid.bare());
+		if (jid == p->account->id())
+			return;
+		JContact *contact;
+		RosterItem *item = p->rosterManager->getRosterItem(nativeJid);
+		if (!(contact = p->contacts.value(jid))) {
+			contact = new JContact(jid, p->account);
+			contact->installEventFilter(this);
+			p->contacts.insert(jid, contact);
+			fillContact(contact, *item);
+			emit p->account->contactCreated(contact);
+		} else {
+			fillContact(contact, *item);
+		}
 	}
 
 	void JRoster::handleItemSubscribed(const JID &jid)
 	{
 	}
 
-	void JRoster::handleItemRemoved(const JID &jid)
+	void JRoster::handleItemRemoved(const JID &nativeJid)
 	{
+		QString jid = QString::fromStdString(nativeJid.bare());
+		if (jid == p->account->id())
+			return;
+		JContact *contact = p->contacts.value(jid);
+		contact->setContactInList(false);
 	}
 
-	void JRoster::handleItemUpdated(const JID &jid)
+	void JRoster::handleItemUpdated(const JID &nativeJid)
 	{
+		QString jid = QString::fromStdString(nativeJid.bare());
+		if (jid == p->account->id())
+			return;
+		RosterItem *item = p->rosterManager->getRosterItem(nativeJid);
+		JContact *contact = p->contacts.value(jid);
+		fillContact(contact, *item);
 	}
 
 	void JRoster::handleItemUnsubscribed(const JID &jid)
@@ -104,26 +129,32 @@ namespace Jabber
 
 	void JRoster::handleRoster(const Roster &roster)
 	{
+		Config config = p->account->config();
+		config.remove(QLatin1String("contactlist"));
+		config.beginGroup(QLatin1String("contactlist"));
+		QSet<QString> oldRoster = p->contacts.keys().toSet();
+		QSet<QString> newRoster;
 		std::map<const std::string, RosterItem *>::const_iterator items = roster.begin();
 		for(; items != roster.end(); ++items) {
 			RosterItem *item = items->second;
-			QString jid(QString::fromStdString(item->jidJID().bare()));
-			if (jid == p->account->id()) {
+			QString jid = QString::fromStdString(item->jidJID().bare());
+			if (jid == p->account->id())
 				continue;
-			} else if (!p->contacts.contains(jid)) {
-				JContact *contact = new JContact(jid, p->account);
+			newRoster << jid;
+			JContact *contact;
+			if (!(contact = p->contacts.value(jid))) {
+				contact = new JContact(jid, p->account);
 				contact->installEventFilter(this);
-				contact->setContactName(QString::fromStdString(item->name()));
-				QStringList tags;
-				StringList groups = item->groups();
-				StringList::const_iterator group = groups.begin();
-				for(; group != groups.end(); ++group)
-					tags.append(QString::fromStdString(*group));
-				contact->setContactTags(tags);
-				contact->setContactInList(true);
 				p->contacts.insert(jid, contact);
+				fillContact(contact, *item);
 				emit p->account->contactCreated(contact);
+			} else {
+				fillContact(contact, *item);
 			}
+			config.beginGroup(jid);
+			config.setValue("name", contact->name());
+			config.setValue("tags", contact->tags());
+			config.endGroup();
 		}
 		p->metaStorage->requestMetaContacts();
 	}
@@ -193,10 +224,40 @@ namespace Jabber
 	void JRoster::handleRosterError(const IQ &iq)
 	{
 	}
+	
+	void JRoster::fillContact(JContact *contact, const RosterItem &item)
+	{
+		QString name = QString::fromStdString(item.name());
+		if (contact->name() != name)
+			contact->setContactName(name);
+		QStringList tags;
+		StringList groups = item.groups();
+		StringList::const_iterator group = groups.begin();
+		for(; group != groups.end(); ++group)
+			tags.append(QString::fromStdString(*group));
+		if (contact->tags() != tags)
+			contact->setContactTags(tags);
+		if (!contact->isInList())
+			contact->setContactInList(true);
+	}
 
 	void JRoster::loadSettings()
 	{
 		p->avatarsAutoLoad = JProtocol::instance()->config("general").value("getavatars", true);
+		Config config = p->account->config(QLatin1String("contactlist"));
+		foreach (const QString &jid, config.childGroups()) {
+			if (p->contacts.contains(jid))
+				continue;
+			JContact *contact = new JContact(jid, p->account);
+			contact->installEventFilter(this);
+			config.beginGroup(jid);
+			contact->setContactName(config.value("name", QString()));
+			contact->setContactTags(config.value("tags", QStringList()));
+			config.endGroup();
+			contact->setContactInList(true);
+			p->contacts.insert(jid, contact);
+			emit p->account->contactCreated(contact);
+		}
 	}
 
 	void JRoster::setOffline()
