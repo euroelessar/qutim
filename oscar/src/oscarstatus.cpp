@@ -158,11 +158,18 @@ CapabilityHash OscarStatus::capabilities() const
 	return property<CapabilityHash>("capabilities", CapabilityHash());
 }
 
-void OscarStatus::setCapability(const Capability &capability, const QString &type)
+void OscarStatus::setCapability(const QString &type, const Capability &capability)
 {
 	capsTypes().insert(type);
 	CapabilityHash caps = capabilities();
 	caps.insert(type, capability);
+	setProperty("capabilities", QVariant::fromValue(caps));
+}
+
+void OscarStatus::removeCapability(const QString &type)
+{
+	CapabilityHash caps = capabilities();
+	caps.remove(type);
 	setProperty("capabilities", QVariant::fromValue(caps));
 }
 

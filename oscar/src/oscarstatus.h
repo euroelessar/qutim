@@ -71,7 +71,8 @@ public:
 	void setData(const OscarStatusData &data);
 	quint16 flag() const;
 	CapabilityHash capabilities() const;
-	void setCapability(const Capability &capability, const QString &type);
+	void setCapability(const QString &type, const Capability &capability);
+	void removeCapability(const QString &type);
 	static void registerStatus(OscarStatusData statusData);
 protected:
 	void setStatusFlag(quint16 status);

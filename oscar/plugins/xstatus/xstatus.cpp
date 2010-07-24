@@ -226,6 +226,10 @@ bool XStatusHandler::load()
 	MenuController::addAction<IcqAccount>(new ActionGenerator(Icon("user-xstatus-icon"),
 					QT_TRANSLATE_NOOP("Status", "Custom status"),
 					this, SLOT(onSetCustomStatus(QObject*))), "Additional");
+	foreach (Account *account, IcqProtocol::instance()->accounts())
+		onAccountAdded(account);
+	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+			SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
 	return true;
 }
 
@@ -378,9 +382,27 @@ void XStatusHandler::onCustomDialogAccepted()
 	extStatus.insert("icon", xstatus.icon.toIcon());
 	extStatus.insert("desc", dialog->message());
 	status.setExtendedInfo("xstatus", extStatus);
-	status.setCapability(xstatus.capability, "xstatus");
 	account->setStatus(status);
 }
+
+void XStatusHandler::onAccountAdded(qutim_sdk_0_3::Account *account)
+{
+	connect(account, SIGNAL(statusAboutToBeChanged(qutim_sdk_0_3::oscar::OscarStatus&, qutim_sdk_0_3::oscar::OscarStatus)),
+			SLOT(onAccountStatusAboutToBeChanged(qutim_sdk_0_3::oscar::OscarStatus&)));
+}
+
+void XStatusHandler::onAccountStatusAboutToBeChanged(OscarStatus &status)
+{
+	if (!status.extendedInfos().contains("xstatus"))
+		return;
+	QVariantMap extStatus = status.extendedInfo("xstatus");
+	int index = xstatusIndexByName(extStatus.value("name").toString());
+	if (index > 0 && index < xstatusList()->count())
+		status.setCapability("xstatus", xstatusList()->at(index).capability);
+	else
+		status.removeCapability("xstatus");
+}
+
 
 } } // namespace qutim_sdk_0_3::oscar
 
