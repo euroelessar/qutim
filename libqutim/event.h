@@ -40,7 +40,7 @@ namespace qutim_sdk_0_3
 		static const char *getId(quint16 id);
 
 		template<typename T>
-		T at(int index) const { args[index].value<T>(); }
+		T at(int index) const { return args[index].value<T>(); }
 		void send();
 
 		quint16 id;
@@ -55,7 +55,7 @@ namespace qutim_sdk_0_3
 	}
 
 	Event::Event(quint16 id, const QVariant &arg0, const QVariant &arg1, const QVariant &arg2,
-		  const QVariant &arg3, const QVariant &arg4) : QEvent(eventType()), args(10)
+		  const QVariant &arg3, const QVariant &arg4) : QEvent(eventType()), args(5)
 	{
 		this->id = id;
 		args[0] = arg0; args[1] = arg1; args[2] = arg2; args[3] = arg3; args[4] = arg4;
