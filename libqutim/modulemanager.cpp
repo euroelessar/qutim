@@ -638,7 +638,6 @@ namespace qutim_sdk_0_3
 		if (MetaContactManager *manager = MetaContactManager::instance())
 			manager->loadContacts();
 		Event("startup").send();
-		Notifications::sendNotification(Notifications::Startup, 0);
 	}
 	
 	void ModuleManager::onQuit()

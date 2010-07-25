@@ -199,7 +199,7 @@ namespace qutim_sdk_0_3
 				continue;
 			}
 			QObject *controller = m_owners.value(gen);
-			gen->showImpl(action,controller);
+			ActionGeneratorPrivate::get(gen)->show(action,controller);
 		}
 	}
 
@@ -211,7 +211,7 @@ namespace qutim_sdk_0_3
 				continue;
 			}
 			QObject *controller = m_owners.value(gen);
-			gen->hideImpl(action,controller);
+			ActionGeneratorPrivate::get(gen)->hide(action,controller);
 		}
 	}
 	
@@ -451,11 +451,16 @@ namespace qutim_sdk_0_3
 		}
 	}
 	
-	QAction *ActionHandler::addAction(QAction *action)
+	QAction *ActionHandler::addAction(QAction* action)
 	{
 		connect(action,SIGNAL(destroyed(QObject*)),SLOT(onActionDestoyed(QObject*)));
 		connect(action,SIGNAL(triggered()),SLOT(actionTriggered()));
 		m_actions.append(action);
+		ActionGenerator *gen = action->data().value<ActionGenerator*>();
+		if (!gen) {
+			warning() << "invalid action generator:" << action->text();
+			return action;
+		}
 	}
 
 	void ActionHandler::actionTriggered()

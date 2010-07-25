@@ -10,6 +10,7 @@
 #include "profiledialog.h"
 #include "profilecreationwizard.h"
 #include "libqutim/config.h"
+#include <libqutim/notificationslayer.h>
 
 namespace Core
 {
@@ -58,5 +59,6 @@ namespace Core
 	{
 		ModuleManager::loadPlugins();
 		ModuleManager::initExtensions();
+		Notifications::sendNotification(Notifications::Startup, 0);
 	}
 }

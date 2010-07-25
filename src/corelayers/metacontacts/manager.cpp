@@ -17,6 +17,9 @@
 #include "manager.h"
 #include "modulemanagerimpl.h"
 #include "libqutim/protocol.h"
+#include <libqutim/debug.h>
+#include <libqutim/actiongenerator.h>
+#include <libqutim/icon.h>
 
 namespace Core
 {
@@ -29,6 +32,9 @@ namespace Core
 		
 		Manager::Manager()
 		{
+			ActionGenerator *gen = new ActionGenerator(Icon("list-remove-user"),QT_TRANSLATE_NOOP("MetaContact","Split Metacontact"),this,SLOT(onSplitTriggered(QObject*)));
+			gen->setType(ActionTypeContactList);
+			MenuController::addAction<MetaContactImpl>(gen);
 		}
 		
 		Manager::~Manager()
@@ -101,5 +107,15 @@ namespace Core
 				cfg.endArray();
 			}
 		}
-}
+
+		void Manager::onSplitTriggered(QObject *object)
+		{
+			//TODO implement logic
+			MetaContactImpl *metacontact = qobject_cast<MetaContactImpl*>(object);
+			removeContact(metacontact->id());
+			metacontact->deleteLater();
+		}
+
+	}
+
 }

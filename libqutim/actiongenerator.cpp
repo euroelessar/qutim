@@ -85,7 +85,7 @@ namespace qutim_sdk_0_3
 
 	QEvent::Type ActionVisibilityChangedEvent::eventType()
 	{
-		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 202));
+		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 103));
 		return type;
 	}
 
@@ -107,6 +107,7 @@ namespace qutim_sdk_0_3
 			  : ObjectGenerator(*new ActionGeneratorPrivate)
 	{
 		Q_D(ActionGenerator);
+		d->q_ptr = this;
 		d->icon = icon;
 		d->text = text;
 		d->receiver = const_cast<QObject *>(receiver);
@@ -125,6 +126,7 @@ namespace qutim_sdk_0_3
 		: ObjectGenerator(*new ActionGeneratorPrivate)
 	{
 		Q_D(ActionGenerator);
+		d->q_ptr = this;
 		d->icon = icon;
 		d->text = text;
 		d->member = QMetaObject::normalizedSignature(member);
@@ -218,13 +220,13 @@ namespace qutim_sdk_0_3
 	void ActionGenerator::addHandler(int type, QObject* obj)
 	{
 		Q_D(ActionGenerator);
-		d->subcribers[type].append(obj);
+		d->subcribers.operator[](type).append(obj);
 	}
 
 	void ActionGenerator::removeHandler(int type, QObject* obj)
 	{
 		Q_D(ActionGenerator);
-		d->subcribers[type].removeAll(obj);
+		d->subcribers.operator[](type).removeAll(obj);
 	}
 
 
@@ -276,6 +278,7 @@ namespace qutim_sdk_0_3
 			ActionGenerator(*new ActionGeneratorPrivate)
 	{
 		Q_D(ActionGenerator);
+		d->q_ptr = this;
 		d->icon = icon;
 		d->text = text;
 		d->connectionType = ActionConnectionSimple;
@@ -287,6 +290,7 @@ namespace qutim_sdk_0_3
 			ActionGenerator(*new ActionGeneratorPrivate)
 	{
 		Q_D(ActionGenerator);
+		d->q_ptr = this;
 		d->icon = icon;
 		d->text = text;
 		d->connectionType = ActionConnectionSimple;
@@ -330,19 +334,29 @@ namespace qutim_sdk_0_3
 	}
 	
 	void ActionGenerator::showImpl(QAction *act,QObject *con)
-	{		
-		foreach (QObject *subcriber, d_func()->subcribers.value(ActionVisibilityChangedHandler)) {
-			ActionVisibilityChangedEvent ev(act,con);
-			qApp->sendEvent(subcriber,&ev);	
-		}
+	{
 	}
 
 	void ActionGenerator::hideImpl(QAction *act,QObject *con)
 	{
-		foreach (QObject *subcriber, d_func()->subcribers.value(ActionVisibilityChangedHandler)) {
+	}
+	
+	void ActionGeneratorPrivate::show(QAction *act,QObject *con)
+	{
+		foreach (QObject *subcriber,subcribers.value(ActionVisibilityChangedHandler)) {
+			ActionVisibilityChangedEvent ev(act,con);
+			qApp->sendEvent(subcriber,&ev);
+		}
+		q_ptr->showImpl(act,con);
+	}
+
+	void ActionGeneratorPrivate::hide(QAction *act,QObject *con)
+	{
+		foreach (QObject *subcriber,subcribers.value(ActionVisibilityChangedHandler)) {
 			ActionVisibilityChangedEvent ev(act,con,false);
 			qApp->sendEvent(subcriber,&ev);
 		}
+		q_ptr->hideImpl(act,con);
 	}
 
 }

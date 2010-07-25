@@ -117,6 +117,7 @@ namespace Core
 						- m_contacts.begin();
 			m_contacts.insert(index, contact);
 			MetaContact::addContact(contact);
+			connect(contact,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(onContactStatusChanged()));
 			
 			if (index == 0)
 				resetStatus();
@@ -190,7 +191,7 @@ namespace Core
 			int oldIndex = m_contacts.indexOf(contact);
 			int index = qUpperBound(m_contacts.begin(), m_contacts.end(), contact, contactLessThan)
 						- m_contacts.begin();
-			if (index != oldIndex)
+			if (index != oldIndex && index != m_contacts.count())
 				m_contacts.move(oldIndex, index);
 			if (index == 0 || oldIndex == 0)
 				resetStatus();

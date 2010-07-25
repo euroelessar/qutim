@@ -25,6 +25,7 @@ namespace qutim_sdk_0_3
 			ActionGenerator(*new StatusActionGeneratorPrivate)
 	{
 		Q_D(StatusActionGenerator);
+		d->q_ptr = this;
 		d->data = new ActionData;
 		d->status = status;
 		if (d->status.icon().isNull()) {

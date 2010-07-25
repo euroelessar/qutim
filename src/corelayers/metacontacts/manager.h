@@ -34,6 +34,8 @@ namespace Core
 			void removeContact(const QString &id) { m_contacts.remove(id); }
 		protected:
 			virtual void loadContacts();
+		private slots:
+			void onSplitTriggered(QObject*);
 		private:
 			QHash<QString, MetaContactImpl*> m_contacts;
 		};

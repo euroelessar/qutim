@@ -37,7 +37,8 @@ namespace qutim_sdk_0_3
 	class ActionGeneratorPrivate : public ObjectGeneratorPrivate
 	{
 	public:
-		ActionGeneratorPrivate() : type(0), priority(0), connectionType(ActionConnectionSimple) {}
+		ActionGeneratorPrivate() : q_ptr(0),type(0), priority(0), connectionType(ActionConnectionSimple) {}
+		ActionGenerator *q_ptr;
 		QIcon icon;
 		LocalizedString text;
 		LocalizedString toolTip;
@@ -51,6 +52,8 @@ namespace qutim_sdk_0_3
 		static ActionGeneratorPrivate *get(ActionGenerator *gen) { return gen->d_func(); }
 		static const ActionGeneratorPrivate *get(const ActionGenerator *gen) { return gen->d_func(); }
 		void ensureConnectionType();
+		void show(QAction *act,QObject *con);
+		void hide(QAction *act,QObject *con);
 	};
 	
 	class ActionGeneratorLocalizationHelper : public QObject
