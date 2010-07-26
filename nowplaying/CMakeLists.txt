@@ -11,6 +11,7 @@ else(QUTIM_PATH)
 endif(QUTIM_PATH)
 
 SET( QT_USE_QTDBUS TRUE )
+SET( QT_USE_QTTEST TRUE )
 
 include( ${QUTIM_CMAKE_PLUGIN} )
 ADD_QUTIMPLUGIN( "nowplaying" "src" )
