@@ -17,31 +17,31 @@ namespace Jabber
 	{
 		Q_OBJECT
 		Q_CLASSINFO("Protocol", "jabber")
-		public:
-			JProtocol();
-			virtual ~JProtocol();
-			static inline JProtocol *instance() {
-				if(!self) qWarning("JProtocol isn't created");
-				return self;
-			}
-			virtual QList<Account *> accounts() const;
-			virtual Account *account(const QString &id) const;
-			void addAccount(JAccount *account, bool isEmit = false);
-			static Presence::PresenceType statusToPresence(const Status &status);
-			static Status presenceToStatus(Presence::PresenceType presence);
-			virtual QVariant data(DataType type);
-			bool event(QEvent *ev);
-		private slots:
-			void onKickUser(QObject* obj);
-			void onBanUser(QObject* obj);
-			void onConvertToMuc(QObject* obj);
-			void onJoinLeave(QObject *obj);
-			void onShowConfigDialog(QObject *obj);
-			void onSaveRemoveBookmarks(QObject *obj);
-		private:
-			void loadActions();
-			virtual void loadAccounts();
-			static JProtocol *self;
+	public:
+				JProtocol();
+		virtual ~JProtocol();
+		static inline JProtocol *instance() {
+			if(!self) qWarning("JProtocol isn't created");
+			return self;
+		}
+		virtual QList<Account *> accounts() const;
+		virtual Account *account(const QString &id) const;
+		void addAccount(JAccount *account, bool isEmit = false);
+		static Presence::PresenceType statusToPresence(const Status &status);
+		static Status presenceToStatus(Presence::PresenceType presence);
+		virtual QVariant data(DataType type);
+		bool event(QEvent *ev);
+	private slots:
+		void onKickUser(QObject* obj);
+		void onBanUser(QObject* obj);
+		void onConvertToMuc(QObject* obj);
+		void onJoinLeave(QObject *obj);
+		void onShowConfigDialog(QObject *obj);
+		void onSaveRemoveBookmarks(QObject *obj);
+	private:
+		void loadActions();
+		virtual void loadAccounts();
+		static JProtocol *self;
 		QScopedPointer<JProtocolPrivate> p;
 	};
 } // Jabber namespace

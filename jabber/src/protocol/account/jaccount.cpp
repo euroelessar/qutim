@@ -23,6 +23,7 @@ namespace Jabber {
 		JRoster *roster;
 		JConnectionListener *connectionListener;
 		JMessageHandler *messageHandler;
+		QVariantList toVariant(const QList<JBookmark> &list);
 		QString passwd;
 		QString nick;
 		bool keepStatus;
@@ -202,11 +203,27 @@ namespace Jabber {
 			.arg(protocol()->id());
 	}
 
+	QVariantList JAccountPrivate::toVariant(const QList<JBookmark> &list)
+	{
+		QVariantList items;
+		foreach (const JBookmark &bookmark, list) {
+			QVariantMap item;
+			item.insert("name",bookmark.name);
+			QVariantMap data;
+			data.insert(QT_TRANSLATE_NOOP("Jabber", "Conference"),bookmark.conference);
+			data.insert(QT_TRANSLATE_NOOP("Jabber", "Nick"),bookmark.nick);
+			item.insert("fields",data);
+			items.append(item);
+		}
+		return items;
+	}
+
 	bool JAccount::event(QEvent *ev)
 	{
 		if (ev->type() == qutim_sdk_0_3::Event::eventType()) {
 			qutim_sdk_0_3::Event *event = static_cast<qutim_sdk_0_3::Event*>(ev);
 			const char *id = qutim_sdk_0_3::Event::getId(event->id);
+			debug() << event;
 			if (!qstrcmp(id,"groupchat-fields")) {
 				event->args[0] = qVariantFromValue(conferenceManager()->fields());
 				return true;
@@ -219,20 +236,10 @@ namespace Jabber {
 				QString password = item.subitem("password").data<QString>();
 				conferenceManager()->join(conference,nickname,password);
 				return true;
-			} else if (!qstrcmp(id,"groupchat-bookmarks")) {
-				QVariantList items;
-				foreach (const JBookmark &bookmark, conferenceManager()->bookmarkManager()->bookmarks()) {
-					//FIXME, may be need rewrite on DataItem
-					QVariantMap map;
-					map.insert("name",bookmark.name);
-//					QVariantMap fields;
-//					fields.insert("conference",bookmark->conference);
-//					fields.insert("nickname",bookmark->nick);
-//					fields.insert("password",bookmark->password);
-//					map.insert("fields",fields);
-					items.append(map);
-				}
-				event->args[0] = items;
+			} else if (!qstrcmp(id,"groupchat-bookmark-list")) {
+				JBookmarkManager *manager = conferenceManager()->bookmarkManager();
+				event->args[0] = p->toVariant(manager->bookmarks());
+				event->args[1] = p->toVariant(manager->recent());
 				return true;
 			}
 		}
