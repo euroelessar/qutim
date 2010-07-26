@@ -30,7 +30,7 @@ void RghostUploaderPlugin::init(){
 
 bool RghostUploaderPlugin::load(){
     m_transfer_manager = new QNetworkAccessManager(this);
-    MenuController::addAction<Contact>(new ActionGenerator(QIcon(":images/images/logo.ico"),QT_TRANSLATE_NOOP("rghost", "Send file via rghost.ru"),this, SLOT(uploadMenuClicked())));
+    MenuController::addAction<Contact>(new ActionGenerator(QIcon(":images/images/logo.ico"),QT_TRANSLATE_NOOP("rghost", "Send file via rghost.ru"),this, SLOT(uploadMenuClicked(QObject*))));
     return true;
 }
 
@@ -38,9 +38,8 @@ bool RghostUploaderPlugin::unload(){
     return false;
 }
 
-void RghostUploaderPlugin::uploadMenuClicked(){
-    QAction* action = qobject_cast<QAction*>(sender());
-    Contact* contact = qobject_cast<Contact*>(action->data().value<MenuController*>());
+void RghostUploaderPlugin::uploadMenuClicked(QObject* obj){
+    Contact* contact = qobject_cast<Contact*>(obj);
     QString file_name = QFileDialog::getOpenFileName(0, tr("Choose file"));
     if (file_name.isEmpty()){
         return;
@@ -56,10 +55,7 @@ void RghostUploaderPlugin::fileUploaded(QString message){
     Contact* contact = m_uploads.value(uploader, NULL);
     m_uploads.remove(uploader);
     if (message != "!!!ERROR!!!"){
-        Message mes(message);
-        ChatSession *session = ChatLayer::instance()->get(contact);
-        mes.setChatUnit(session->getUnit());
-        session->appendMessage(mes);
+        contact->account()->getUnitForSession(contact)->sendMessage(Message(message));
     }
     delete uploader;
     uploader = NULL;

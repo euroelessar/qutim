@@ -48,7 +48,7 @@ private:
     QHash<DataUploader*, Contact* > m_uploads;
     QNetworkAccessManager* m_transfer_manager;
 private slots:
-    void uploadMenuClicked();
+    void uploadMenuClicked(QObject*);
     void fileUploaded(QString message);
 };
 
