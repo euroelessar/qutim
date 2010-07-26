@@ -28,18 +28,14 @@ namespace Core
 		void onPositiveActTriggered();
 		void onNegativeActTriggered();
 		void onCurrentChanged(int);
+		void onAccountBoxActivated(int index);
 		void fillBookmarks();
 		void fillAccounts();
 	private:
 		Ui::JoinGroupChat *ui;
-#if defined (Q_OS_SYMBIAN)
-		//in S60 just use softkey actions
 		QAction *m_positive_softkey;
 		QAction *m_negative_softkey;
-#else
-		QPushButton *m_positive_button;
-		QPushButton *m_negative_button;
-#endif
+		QPointer<QWidget> m_dataform_widget;
 	};
 
 }

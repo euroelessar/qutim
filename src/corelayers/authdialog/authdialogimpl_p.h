@@ -29,7 +29,7 @@ namespace Core {
 			ui->requestTitle->setText(title);
 			setWindowTitle(title);
 			centerizeWidget(this);
-#if defined(Q_OS_SYMBIAN)
+#ifdef QUTIM_MOBILE_UI
 			QDialog::showMaximized();
 #else
 			QDialog::show();

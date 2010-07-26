@@ -4,15 +4,9 @@
 #include <libqutim/protocol.h>
 #include <libqutim/account.h>
 #include <libqutim/icon.h>
+#include <libqutim/event.h>
+#include <libqutim/dataforms.h>
 #include <QPushButton>
-
-#if defined (Q_OS_SYMBIAN)
-#	define positive_key m_positive_softkey
-#	define negative_key m_negative_softkey
-#else
-#	define positive_key m_positive_button
-#	define negative_key m_negative_button
-#endif
 
 namespace Core
 {
@@ -23,31 +17,17 @@ namespace Core
 	{
 		ui->setupUi(this);
 		
-#if defined (Q_OS_SYMBIAN)
 		m_positive_softkey = new QAction(this);
 		m_positive_softkey->setSoftKeyRole(QAction::PositiveSoftKey);
 		m_negative_softkey = new QAction(this);
 		m_negative_softkey->setSoftKeyRole(QAction::NegativeSoftKey);
 
-		addAction(m_positive_softkey);
-		addAction(m_negative_softkey);
+		ui->actionBox->addAction(m_positive_softkey);
+		ui->actionBox->addAction(m_negative_softkey);
 		
 		connect(m_positive_softkey,SIGNAL(triggered(bool)),SLOT(onPositiveActTriggered()));
 		connect(m_negative_softkey,SIGNAL(triggered(bool)),SLOT(onNegativeActTriggered()));
-#else
-		QHBoxLayout *hbox_layout = new QHBoxLayout(this);
-		hbox_layout->setMargin(6);
-		layout()->addItem(hbox_layout);
-		m_positive_button = new QPushButton(this);
-		m_negative_button = new QPushButton(this);
-		
-		hbox_layout->addWidget(m_negative_button);
-		hbox_layout->addWidget(m_positive_button);
-		
-		connect(m_positive_button,SIGNAL(toggled(bool)),SLOT(onPositiveActTriggered()));
-		connect(m_negative_button,SIGNAL(toggled(bool)),SLOT(onNegativeActTriggered()));
-#endif
-		
+
 		ui->toolBar->setIconSize(QSize(32,32));
 		ui->toolBar->setToolButtonStyle(Qt::ToolButtonFollowStyle);
 		ui->stackedWidget->setCurrentIndex(0);
@@ -70,6 +50,7 @@ namespace Core
 		group->setExclusive(true);
 		connect(group,SIGNAL(triggered(QAction*)),SLOT(onToolBarActTriggered(QAction*)));
 		connect(ui->stackedWidget,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
+		connect(ui->accountBox,SIGNAL(activated(int)),SLOT(onAccountBoxActivated(int)));
 		
 		onCurrentChanged(0);
 	}
@@ -111,18 +92,26 @@ namespace Core
 
 	void JoinGroupChat::onPositiveActTriggered()
 	{
-
+		if (!ui->stackedWidget->currentIndex()) {
+			if (m_dataform_widget) {
+				Event event("groupchat-join",qVariantFromValue(m_dataform_widget.data()));
+				int index = ui->accountBox->currentIndex();
+				Account *account = ui->accountBox->itemData(index).value<Account*>();
+				Q_ASSERT(account);
+				qApp->sendEvent(account,&event);
+			}
+		}
 	}
 	
 	void JoinGroupChat::onCurrentChanged( int index)
 	{
 		if (!index) {
-			positive_key->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Join"));
-			negative_key->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Search"));
+			m_positive_softkey->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Join"));
+			m_negative_softkey->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Search"));
 		}
 		else {
-			positive_key->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Save"));
-			negative_key->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Delete"));
+			m_positive_softkey->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Save"));
+			m_negative_softkey->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Delete"));
 		}
 	}
 	
@@ -143,6 +132,37 @@ namespace Core
 						ui->accountBox->addItem(a->id(),qVariantFromValue(a));
 				}
 			}
+		}
+		if (ui->accountBox->count())
+			onAccountBoxActivated(0);
+	}
+
+	void JoinGroupChat::onAccountBoxActivated(int index)
+	{
+		Account *account = ui->accountBox->itemData(index).value<Account*>();
+		Q_ASSERT(account);
+		Event event("groupchat-fields");
+		qApp->sendEvent(account,&event);
+		DataItem items = event.at<DataItem>(0);
+
+		if (m_dataform_widget)
+			m_dataform_widget->deleteLater();
+
+		m_dataform_widget = AbstractDataForm::get(items);
+		if (m_dataform_widget) {
+			m_dataform_widget->setParent(this);
+			m_dataform_widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+			ui->joinPageLayout->insertWidget(0, m_dataform_widget.data());
+		}
+
+		ui->bookmarksBox->clear();
+		event = Event("groupchat-bookmarks");
+		qApp->sendEvent(account,&event);
+		QVariantList bookmarks = event.at<QVariantList>(0);
+		foreach (const QVariant &data,bookmarks) {
+			QVariantMap item = data.toMap();
+			QString name = item.value("name").toString();
+			ui->bookmarksBox->addItem(name,item.value("fields"));
 		}
 	}
 

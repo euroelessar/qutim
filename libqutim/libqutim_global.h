@@ -35,6 +35,11 @@
 #  define LIBQUTIM_EXPORT Q_DECL_IMPORT
 #endif
 
+#ifdef Q_OS_SYMBIAN
+#	define QUTIM_SOFTKEYS_SUPPORT
+#	define QUTIM_MOBILE_UI
+#endif
+
 #define QUTIM_VERSION_STR "0.2.60.0"
 #define QUTIM_VERSION 0x00023c00
 #define QUTIM_VERSION_CHECK(major, minor, secminor, patch) ((major<<24)|(minor<<16)|(secminor<<8)|(patch))

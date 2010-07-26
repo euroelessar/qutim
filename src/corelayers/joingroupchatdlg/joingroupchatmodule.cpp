@@ -32,7 +32,7 @@ namespace Core
 		if (!m_chat)
 			m_chat = new JoinGroupChat();
 		
-#if defined (Q_OS_SYMBIAN)
+#if defined (QUTIM_MOBILE_UI)
 		m_chat->showMaximized();
 #else
 		m_chat->show();

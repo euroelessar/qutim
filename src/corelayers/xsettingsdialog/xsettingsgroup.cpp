@@ -27,7 +27,7 @@ XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings
 	//appearance
 	ConfigGroup general = Config("appearance").group("xsettings/general");
 	uint icon_size = general.value<int>("iconSize",16);
-	m_animated = general.value<bool>("animated",false);
+	m_animated = general.value<bool>("animated",true);
 
 	ui->listWidget->setIconSize(QSize(icon_size,icon_size));
 	ui->stackedWidget->setVerticalMode(true);

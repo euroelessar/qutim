@@ -135,5 +135,6 @@ namespace qutim_sdk_0_3
 }
 
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::AbstractDataWidget, "org.qutim.core.AbstractDataWidget");
+Q_DECLARE_METATYPE(qutim_sdk_0_3::DataItem);
 
 #endif // DATAFORMS_H

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>254</width>
-    <height>443</height>
+    <width>318</width>
+    <height>354</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,6 +34,9 @@
    </item>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="spacing">
+      <number>6</number>
+     </property>
      <property name="leftMargin">
       <number>6</number>
      </property>
@@ -65,14 +68,14 @@
      </item>
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
        <widget class="QWidget" name="joinPage">
-        <layout class="QVBoxLayout" name="verticalLayout_3">
+        <layout class="QVBoxLayout" name="joinPageLayout">
          <property name="margin">
           <number>0</number>
          </property>
-         <item>
-          <layout class="QFormLayout" name="formLayout"/>
-         </item>
          <item>
           <spacer name="verticalSpacer">
            <property name="orientation">
@@ -105,6 +108,9 @@
        <widget class="QWidget" name="bookmarksPage"/>
       </widget>
      </item>
+     <item>
+      <widget class="ActionBox" name="actionBox" native="true"/>
+     </item>
     </layout>
    </item>
   </layout>
@@ -114,6 +120,12 @@
    <class>qutim_sdk_0_3::ActionToolBar</class>
    <extends>QWidget</extends>
    <header location="global">libqutim/actiontoolbar.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ActionBox</class>
+   <extends>QWidget</extends>
+   <header>actionbox.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

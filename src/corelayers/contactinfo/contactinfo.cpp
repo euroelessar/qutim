@@ -262,7 +262,11 @@ namespace Core
 		if (!info) {
 			info = new MainWindow();
 			centerizeWidget(info);
+#ifdef QUTIM_MOBILE_UI
+			info->showMaximized();
+#else
 			info->show();
+#endif
 			info->setAttribute(Qt::WA_DeleteOnClose, true);
 		} else {
 			info->raise();

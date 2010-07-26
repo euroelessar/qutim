@@ -2,8 +2,6 @@
 #include "dynamicpropertydata_p.h"
 #include <QPointer>
 
-Q_DECLARE_METATYPE(qutim_sdk_0_3::DataItem);
-
 namespace qutim_sdk_0_3
 {
 	class DataItemPrivate : public DynamicPropertyData

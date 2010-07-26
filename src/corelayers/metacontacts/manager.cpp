@@ -111,9 +111,11 @@ namespace Core
 		void Manager::onSplitTriggered(QObject *object)
 		{
 			//TODO implement logic
-			MetaContactImpl *metacontact = qobject_cast<MetaContactImpl*>(object);
-			removeContact(metacontact->id());
-			metacontact->deleteLater();
+			MetaContactImpl *metaContact = qobject_cast<MetaContactImpl*>(object);
+			foreach (ChatUnit *unit, metaContact->lowerUnits()) {
+				if (Contact *contact = qobject_cast<Contact*>(unit))
+					metaContact->removeContact(contact);
+			}
 		}
 
 	}

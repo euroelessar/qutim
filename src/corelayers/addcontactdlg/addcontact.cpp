@@ -37,7 +37,7 @@ namespace Core {
 	{
 		AddContact *addContact = new AddContact();
 		centerizeWidget(addContact);
-#ifdef Q_OS_SYMBIAN
+#ifdef QUTIM_MOBILE_UI
 		addContact->showMaximized();
 #else
 		addContact->show();
@@ -74,7 +74,7 @@ namespace Core {
 				setAccount(d->accounts.values().at(0));
 		}
 
-#if defined(Q_OS_SYMBIAN)
+#ifdef QUTIM_MOBILE_UI
 		d->ui->buttonBox->setStandardButtons(QDialogButtonBox::Close);
 #endif
 

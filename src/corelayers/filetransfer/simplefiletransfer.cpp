@@ -44,7 +44,11 @@ namespace Core
 		engine->setFiles(files);
 		engine->start();
 		FileTransferDialog *dialog = new FileTransferDialog(engine);
+#ifdef QUTIM_MOBILE_UI
+		dialog->showMaximized();
+#else
 		dialog->show();
+#endif
 	}
 
 	void SimpleFileTransfer::receive(FileTransferEngine *engine)
