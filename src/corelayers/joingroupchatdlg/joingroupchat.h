@@ -32,6 +32,7 @@ namespace Core
 		void fillBookmarks();
 		void fillAccounts();
 	private:
+		void fillBookmarks(const QVariantList &items, bool recent = false);
 		Ui::JoinGroupChat *ui;
 		QAction *m_positive_softkey;
 		QAction *m_negative_softkey;

@@ -7,6 +7,7 @@
 #include <libqutim/event.h>
 #include <libqutim/dataforms.h>
 #include <QPushButton>
+#include <libqutim/debug.h>
 
 namespace Core
 {
@@ -16,6 +17,8 @@ namespace Core
 		ui(new Ui::JoinGroupChat)
 	{
 		ui->setupUi(this);
+
+		setAttribute(Qt::WA_DeleteOnClose);
 		
 		m_positive_softkey = new QAction(this);
 		m_positive_softkey->setSoftKeyRole(QAction::PositiveSoftKey);
@@ -99,6 +102,7 @@ namespace Core
 				Account *account = ui->accountBox->itemData(index).value<Account*>();
 				Q_ASSERT(account);
 				qApp->sendEvent(account,&event);
+				close();
 			}
 		}
 	}
@@ -137,6 +141,16 @@ namespace Core
 			onAccountBoxActivated(0);
 	}
 
+	void JoinGroupChat::fillBookmarks(const QVariantList &items, bool recent)
+	{
+		Q_UNUSED(recent);
+		foreach (const QVariant &data,items) {
+			QVariantMap item = data.toMap();
+			QString name = item.value("name").toString();
+			ui->bookmarksBox->addItem(name,item.value("fields"));
+		}
+	}
+
 	void JoinGroupChat::onAccountBoxActivated(int index)
 	{
 		Account *account = ui->accountBox->itemData(index).value<Account*>();
@@ -156,14 +170,16 @@ namespace Core
 		}
 
 		ui->bookmarksBox->clear();
-		event = Event("groupchat-bookmarks");
+		event = Event("groupchat-bookmark-list");
 		qApp->sendEvent(account,&event);
+		//Bookmarks
 		QVariantList bookmarks = event.at<QVariantList>(0);
-		foreach (const QVariant &data,bookmarks) {
-			QVariantMap item = data.toMap();
-			QString name = item.value("name").toString();
-			ui->bookmarksBox->addItem(name,item.value("fields"));
-		}
+		fillBookmarks(bookmarks);
+		//Recent items
+		bookmarks = event.at<QVariantList>(1);
+		if (bookmarks.count())
+			ui->bookmarksBox->insertSeparator(ui->bookmarksBox->count());
+		fillBookmarks(bookmarks,true);
 	}
 
 
