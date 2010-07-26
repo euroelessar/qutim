@@ -6,9 +6,12 @@
 #include "servicediscovery/jservicediscovery.h"
 #include "../jprotocol.h"
 #include "muc/jmucmanager.h"
+#include "muc/jbookmarkmanager.h"
 #include <qutim/systeminfo.h>
 #include <qutim/passworddialog.h>
 #include <qutim/debug.h>
+#include <qutim/event.h>
+#include <qutim/dataforms.h>
 
 namespace Jabber {
 
@@ -197,5 +200,42 @@ namespace Jabber {
 		return QString("%1/avatars/%2")
 			.arg(SystemInfo::getPath(SystemInfo::ConfigDir))
 			.arg(protocol()->id());
+	}
+
+	bool JAccount::event(QEvent *ev)
+	{
+		if (ev->type() == qutim_sdk_0_3::Event::eventType()) {
+			qutim_sdk_0_3::Event *event = static_cast<qutim_sdk_0_3::Event*>(ev);
+			const char *id = qutim_sdk_0_3::Event::getId(event->id);
+			if (!qstrcmp(id,"groupchat-fields")) {
+				event->args[0] = qVariantFromValue(conferenceManager()->fields());
+				return true;
+			} else if (!qstrcmp(id,"groupchat-join")) {
+				AbstractDataForm *form = qobject_cast<AbstractDataForm*>(event->at<QWidget*>(0));
+				Q_ASSERT(form);
+				qutim_sdk_0_3::DataItem item = form->item();
+				QString conference = item.subitem("conference").data<QString>();
+				QString nickname = item.subitem("nickname").data<QString>();
+				QString password = item.subitem("password").data<QString>();
+				conferenceManager()->join(conference,nickname,password);
+				return true;
+			} else if (!qstrcmp(id,"groupchat-bookmarks")) {
+				QVariantList items;
+				foreach (const JBookmark &bookmark, conferenceManager()->bookmarkManager()->bookmarks()) {
+					//FIXME, may be need rewrite on DataItem
+					QVariantMap map;
+					map.insert("name",bookmark.name);
+//					QVariantMap fields;
+//					fields.insert("conference",bookmark->conference);
+//					fields.insert("nickname",bookmark->nick);
+//					fields.insert("password",bookmark->password);
+//					map.insert("fields",fields);
+					items.append(map);
+				}
+				event->args[0] = items;
+				return true;
+			}
+		}
+		return Account::event(ev);
 	}
 } // Jabber namespace

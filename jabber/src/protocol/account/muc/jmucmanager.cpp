@@ -196,4 +196,25 @@ namespace Jabber
 		JMUCSession *muc = p->rooms.value(room);
 		muc->leave();
 	}
+
+	DataItem JMUCManager::fields()
+	{
+		qutim_sdk_0_3::DataItem item(QT_TRANSLATE_NOOP("Jabber", "Join groupchat"));
+		{
+			qutim_sdk_0_3::DataItem conferenceItem("conference", QT_TRANSLATE_NOOP("Jabber", "conference"), "talks@conference.qutim.org");
+			//TODO, add validator
+			//conferenceItem.setProperty("validator", QRegExp("^(#|&|!|\\+)[^\\s0x0007,]{1,50}"));
+			item.addSubitem(conferenceItem);
+		}
+		{
+			qutim_sdk_0_3::DataItem nickItem("nickname", QT_TRANSLATE_NOOP("Jabber", "Nick"), p->account->name());
+			item.addSubitem(nickItem);
+		}
+		{
+			qutim_sdk_0_3::DataItem passwordItem("password", QT_TRANSLATE_NOOP("Jabber", "Password"), QString());
+			passwordItem.setProperty("passwordMode", true);
+			item.addSubitem(passwordItem);
+		}
+		return item;
+	}
 }

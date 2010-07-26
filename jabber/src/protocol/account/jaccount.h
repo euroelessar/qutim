@@ -43,6 +43,7 @@ namespace Jabber {
 			virtual void setStatus(Status status);
 			QString getAvatarPath();
 			void setAvatar(const QString &hex);
+			bool event(QEvent *);
 		protected:
 			void loadSettings();
 		private:

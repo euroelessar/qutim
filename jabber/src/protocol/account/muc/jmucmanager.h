@@ -4,6 +4,7 @@
 #include <QObject>
 #include <qutim/chatunit.h>
 #include <gloox/presence.h>
+#include <qutim/dataforms.h>
 
 namespace qutim_sdk_0_3 
 {
@@ -37,6 +38,7 @@ namespace Jabber
 			void leave(const QString &room);
 			bool event(QEvent *event);
 			void appendMUCSession(JMUCSession *room);
+			qutim_sdk_0_3::DataItem fields();
 		signals:
 			void conferenceCreated(qutim_sdk_0_3::Conference*);
 		private slots:
