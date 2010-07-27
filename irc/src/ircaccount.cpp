@@ -212,7 +212,7 @@ void IrcAccount::log(const QString &msg, bool addToActiveSession, const QString 
 	d->log += str;
 }
 
-static QRegExp formatRx("(\\002|\\037|\\026|\\017|\003(\\d+,\\d+))");
+static QRegExp formatRx("(\\002|\\037|\\026|\\017|\\003(\\d+(,\\d+|)|))");
 
 QString IrcAccount::ircFormatToHtml(const QString &msg_helper, QString *plainText)
 {
@@ -315,6 +315,18 @@ void IrcAccount::showConsole()
 		d->consoleForm->setAttribute(Qt::WA_DeleteOnClose);
 		centerizeWidget(d->consoleForm);
 		d->consoleForm->show();
+	}
+}
+
+void IrcAccount::showChannelList()
+{
+	if (d->channelListForm) {
+		d->channelListForm->raise();
+	} else {
+		d->channelListForm = new IrcChannelListForm(this);
+		d->channelListForm->setAttribute(Qt::WA_DeleteOnClose);
+		centerizeWidget(d->channelListForm);
+		d->channelListForm->show();
 	}
 }
 

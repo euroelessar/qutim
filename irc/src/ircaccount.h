@@ -57,6 +57,7 @@ public:
 public slots:
 	void updateSettings();
 	void showConsole();
+	void showChannelList();
 protected:
 	virtual bool event(QEvent *ev);
 private slots:

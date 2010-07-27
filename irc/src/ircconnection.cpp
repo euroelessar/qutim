@@ -63,6 +63,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< "PART"
 		<< "NICK"
 		<< "QUIT"
+		<< "ERROR"
 		<< 332  // RPL_TOPIC
 		<< 333  // RPL_TOPIC_INFO
 		<< "KICK"
@@ -70,7 +71,12 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< "NOTICE"
 		<< 375  // RPL_MOTDSTART
 		<< 372  // RPL_MOTD
-		<< 376; // RPL_ENDOFMOTD
+		<< 376  // RPL_ENDOFMOTD
+		<< 321  // RPL_LISTSTART
+		<< 322  // RPL_LIST
+		<< 323  // RPL_LISTEND
+		<< 521  // ERR_LISTSYNTAX
+		<< 263; // RPL_TRYAGAIN
 	registerHandler(this);
 
 	m_ctpcCmds << "PING" << "PONG" << "ACTION";
@@ -99,6 +105,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 									  IrcCommandAlias::Channel));
 		registerAlias(IrcCommandAlias("ban", "MODE %n +b %0",
 									  IrcCommandAlias::Channel));
+		registerAlias(IrcCommandAlias("msg", "PRIVMSG %0"));
 		init = true;
 	}
 }
@@ -216,6 +223,9 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		} else {
 			debug() << "QUIT message from the unknown contact" << name;
 		}
+	} else if (cmd == "ERROR") {
+		m_account->log(params.value(0), false, "ERROR");
+		m_account->setStatus(Status(Status::Offline));
 	} else if (cmd == 332) { // RPL_TOPIC
 		IrcChannel *channel = account->getChannel(params.value(1), false);
 		if (channel)
@@ -259,8 +269,39 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		m_account->log(tr("Message of the day:"), false, "MOTD");
 	} else if (cmd == 376) { // RPL_ENDOFMOTD
 		m_account->log(tr("End of message of the day"), false, "MOTD");
-	} else if (cmd == 372) { //RPL_MOTD
+	} else if (cmd == 372) { // RPL_MOTD
 		m_account->log(params.value(1), false, "MOTD");
+	} else if (cmd == 321) { // RPL_LISTSTART
+		if (m_account->d->channelListForm)
+			m_account->d->channelListForm->listStarted();
+		m_account->log(tr("End of /LIST"), true, "LIST");
+	} else if (cmd == 322) { // RPL_LIST
+		QString channel = params.value(1);
+		QString users = params.value(2);
+		// TODO: add support for html topics
+		QString topic = IrcAccount::ircFormatToPlainText(params.value(3));
+		if (m_account->d->channelListForm)
+			m_account->d->channelListForm->addChannel(channel, users, topic);
+		m_account->log(QString("Channel: %1 Users: %2 Topic: %3")
+					   .arg(channel)
+					   .arg(users)
+					   .arg(topic),
+					   true,
+					   "LIST");
+	} else if (cmd == 323) { // RPL_LISTEND
+		if (m_account->d->channelListForm)
+			m_account->d->channelListForm->listEnded();
+		m_account->log(tr("End of /LIST"), true, "LIST");
+	} else if (cmd == 521) { // ERR_LISTSYNTAX
+		QString error = tr("Bad list syntax, type /QUOTE HELP LIST");
+		if (m_account->d->channelListForm)
+			m_account->d->channelListForm->error(error);
+		m_account->log(error, true, "ERROR");
+	} else if (cmd == 263) { // RPL_TRYAGAIN
+		QString error = tr("Server load is temporarily too heavy.\nPlease wait a while and try again.");
+		if (m_account->d->channelListForm)
+			m_account->d->channelListForm->error(error);
+		m_account->log(error, true, "ERROR");
 	}
 }
 

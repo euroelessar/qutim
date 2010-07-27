@@ -21,6 +21,7 @@
 #include <QEvent>
 #include "irccontact.h"
 #include "ui/ircconsole.h"
+#include "ui/ircchannellist.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -46,6 +47,7 @@ public:
 		int groupChatFields;
 		int groupChatJoin;
 	} eventTypes;
+	QPointer<IrcChannelListForm> channelListForm;
 	static QHash<QString, QString> logMsgColors;
 };
 
