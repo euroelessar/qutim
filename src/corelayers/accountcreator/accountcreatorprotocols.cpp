@@ -30,11 +30,7 @@ namespace Core
 			m_wizards.insert(wizard->info().name(), wizard);
 		}
 
-		int itemHeight = 50;
-		m_ui->protocolList->setGridSize(QSize(0, itemHeight));
 		m_ui->protocolList->setFrameStyle(QFrame::NoFrame);
-		m_ui->protocolList->setMinimumSize(m_ui->protocolList->minimumSize().width(), itemHeight);
-
 		foreach (AccountCreationWizard *wizard, m_wizards) {
 			ExtensionInfo info = wizard->info();
 			QIcon icon = info.icon();
@@ -45,14 +41,14 @@ namespace Core
 			item->setData(Qt::UserRole + 1, reinterpret_cast<qptrdiff>(wizard));
 			item->setData(Qt::UserRole + 2, qVariantFromValue(info));
 			item->setFlags(Qt::NoItemFlags);
-			item->setSizeHint(QSize(0, itemHeight));
 
 			QCommandLinkButton *b = new QCommandLinkButton(info.name(), info.description());
 			connect(b, SIGNAL(clicked()), this, SLOT(protocolSelected()));
-			b->setMinimumSize(b->minimumSize().width(), itemHeight);
+			b->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 			if (icon.availableSizes().count())
 				b->setIcon(icon);
 			m_ui->protocolList->setItemWidget(item, b);
+			item->setSizeHint(b->size());
 			m_items.insert(b, item);
 		}
 		

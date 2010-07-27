@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>272</width>
-    <height>381</height>
+    <width>270</width>
+    <height>379</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,10 +69,13 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="joinPage">
         <layout class="QVBoxLayout" name="joinPageLayout">
+         <property name="spacing">
+          <number>6</number>
+         </property>
          <property name="margin">
           <number>0</number>
          </property>
@@ -105,7 +108,29 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="bookmarksPage"/>
+       <widget class="QWidget" name="bookmarksPage">
+        <layout class="QVBoxLayout" name="bookmarksPageLayout">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
      <item>

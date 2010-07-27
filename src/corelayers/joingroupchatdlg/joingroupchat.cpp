@@ -54,6 +54,7 @@ namespace Core
 		connect(group,SIGNAL(triggered(QAction*)),SLOT(onToolBarActTriggered(QAction*)));
 		connect(ui->stackedWidget,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
 		connect(ui->accountBox,SIGNAL(activated(int)),SLOT(onAccountBoxActivated(int)));
+		connect(ui->bookmarksBox,SIGNAL(activated(int)),SLOT(onBookmarksBoxActivated(int)));
 		
 		onCurrentChanged(0);
 	}
@@ -117,6 +118,7 @@ namespace Core
 			m_positive_softkey->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Save"));
 			m_negative_softkey->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Delete"));
 		}
+		onAccountBoxActivated(ui->accountBox->currentIndex());
 	}
 	
 	void JoinGroupChat::fillBookmarks()
@@ -149,28 +151,16 @@ namespace Core
 			QString name = item.value("name").toString();
 			ui->bookmarksBox->addItem(name,item.value("fields"));
 		}
+		onBookmarksBoxActivated(0);
 	}
 
 	void JoinGroupChat::onAccountBoxActivated(int index)
 	{
 		Account *account = ui->accountBox->itemData(index).value<Account*>();
-		Q_ASSERT(account);
-		Event event("groupchat-fields");
-		qApp->sendEvent(account,&event);
-		DataItem items = event.at<DataItem>(0);
-
-		if (m_dataform_widget)
-			m_dataform_widget->deleteLater();
-
-		m_dataform_widget = AbstractDataForm::get(items);
-		if (m_dataform_widget) {
-			m_dataform_widget->setParent(this);
-			m_dataform_widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-			ui->joinPageLayout->insertWidget(0, m_dataform_widget.data());
-		}
-
+		if (!account)
+			return;
 		ui->bookmarksBox->clear();
-		event = Event("groupchat-bookmark-list");
+		Event event ("groupchat-bookmark-list");
 		qApp->sendEvent(account,&event);
 		//Bookmarks
 		QVariantList bookmarks = event.at<QVariantList>(0);
@@ -180,6 +170,34 @@ namespace Core
 		if (bookmarks.count())
 			ui->bookmarksBox->insertSeparator(ui->bookmarksBox->count());
 		fillBookmarks(bookmarks,true);
+	}
+
+	void JoinGroupChat::onBookmarksBoxActivated(int index)
+	{
+		int current_index = ui->accountBox->currentIndex();
+		Account *account = ui->accountBox->itemData(current_index).value<Account*>();
+		if (!account)
+			return;
+		Event event("groupchat-bookmark-fields");
+		event.args[1] = ui->bookmarksBox->itemText(index);
+		event.args[2] = ui->stackedWidget->currentIndex();
+		qApp->sendEvent(account,&event);
+		DataItem items = event.at<DataItem>(0);
+		updateDataForm(items);
+	}
+
+	void JoinGroupChat::updateDataForm(const DataItem &items)
+	{
+		if (m_dataform_widget)
+			m_dataform_widget->deleteLater();
+
+		m_dataform_widget = AbstractDataForm::get(items);
+		if (m_dataform_widget) {
+			m_dataform_widget->setParent(this);
+			m_dataform_widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+			QVBoxLayout *layout = static_cast<QVBoxLayout*>(ui->stackedWidget->currentWidget()->layout());
+			layout->insertWidget(0, m_dataform_widget.data());
+		}
 	}
 
 

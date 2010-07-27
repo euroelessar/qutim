@@ -10,6 +10,11 @@ namespace Ui {
     class JoinGroupChat;
 }
 
+namespace qutim_sdk_0_3
+{
+	class DataItem;
+}
+
 namespace Core
 {
 	using namespace qutim_sdk_0_3;
@@ -29,10 +34,12 @@ namespace Core
 		void onNegativeActTriggered();
 		void onCurrentChanged(int);
 		void onAccountBoxActivated(int index);
+		void onBookmarksBoxActivated(int index);
 		void fillBookmarks();
 		void fillAccounts();
 	private:
 		void fillBookmarks(const QVariantList &items, bool recent = false);
+		void updateDataForm(const DataItem &item);
 		Ui::JoinGroupChat *ui;
 		QAction *m_positive_softkey;
 		QAction *m_negative_softkey;
