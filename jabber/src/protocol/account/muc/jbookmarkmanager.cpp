@@ -21,12 +21,17 @@ namespace Jabber
 		conference = o_conference;
 		nick = o_nick;
 		password = o_password;
-		autojoin =o_autojoin;
+		autojoin =o_autojoin;		
 	}
 
 	bool JBookmark::operator==(const JBookmark &other) const
 	{
 		return (this->conference == other.conference) && (this->nick == other.nick);
+	}
+
+	bool JBookmark::isEmpty()
+	{
+		return name.isEmpty();
 	}
 
 	JBookmarkManager::JBookmarkManager(JAccount *account) : p(new JBookmarkManagerPrivate)
@@ -73,12 +78,12 @@ namespace Jabber
 		emit serverBookmarksChanged();
 	}
 
-	QList<JBookmark> JBookmarkManager::bookmarks()
+	QList<JBookmark> JBookmarkManager::bookmarks() const
 	{
 		return p->bookmarks;
 	}
 
-	QList<JBookmark> JBookmarkManager::recent()
+	QList<JBookmark> JBookmarkManager::recent() const
 	{
 		return p->recent;
 	}
@@ -183,5 +188,15 @@ namespace Jabber
 			urlList << serverUrlmark;
 		}
 		p->storage->storeBookmarks(urlList.toStdList(), confList.toStdList());
+	}
+
+	JBookmark JBookmarkManager::find(const QString &name, bool recent) const
+	{
+		QList<JBookmark> bookmarks = recent ? p->recent : p->bookmarks;
+				foreach (const JBookmark &item,bookmarks) {
+			if (item.name == name)
+				return item;
+		}
+		return JBookmark();
 	}
 }

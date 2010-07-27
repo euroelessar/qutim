@@ -241,6 +241,17 @@ namespace Jabber {
 				event->args[0] = p->toVariant(manager->bookmarks());
 				event->args[1] = p->toVariant(manager->recent());
 				return true;
+			} else if (!qstrcmp(id,"groupchat-bookmark-fields")) {
+				QString name = event->args[1].toString();
+				bool isBookmark = event->args[2].toBool();
+				JBookmarkManager *manager = conferenceManager()->bookmarkManager();
+				JBookmark bookmark = manager->find(name);
+				if (bookmark.isEmpty())
+					bookmark = manager->find(name,true);
+				QVariant data = bookmark.isEmpty() ? QVariant() : qVariantFromValue(bookmark);
+				event->args[0] = qVariantFromValue(conferenceManager()->fields(data,isBookmark));
+				debug() << event;
+				return true;
 			}
 		}
 		return Account::event(ev);

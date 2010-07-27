@@ -18,11 +18,12 @@ namespace Jabber {
 					 const QString &o_nick, const QString &o_password, bool o_autojoin = false);
 		inline JBookmark() {}
 		bool operator==(const JBookmark &other) const;
+		bool isEmpty();
 		QString name;
 		QString conference;
 		QString nick;
 		QString password;
-		bool autojoin;
+		bool autojoin;		
 	};
 
 	class JBookmarkManager : public QObject, public BookmarkHandler
@@ -31,13 +32,15 @@ namespace Jabber {
 		public:
 			JBookmarkManager(JAccount *account);
 			~JBookmarkManager();
-			QList<JBookmark> bookmarks();
-			QList<JBookmark> recent();
+			QList<JBookmark> bookmarks() const;
+			QList<JBookmark> recent() const;
+			JBookmark find(const QString &name, bool recent = false) const;
 			void saveBookmark(int index, const QString &name, const QString &conference,
 					const QString &nick, const QString &password, bool autojoin = false);
 			void saveRecent(const QString &conference, const QString &nick, const QString &password);
 			void removeBookmark(int index);
 			void sync();
+
 		signals:
 			void serverBookmarksChanged();
 			void bookmarksChanged();

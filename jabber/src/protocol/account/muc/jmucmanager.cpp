@@ -197,23 +197,36 @@ namespace Jabber
 		muc->leave();
 	}
 
-	DataItem JMUCManager::fields()
+	DataItem JMUCManager::fields(const QVariant &data, bool isBookmark)
 	{
+		JBookmark bookmark = data.value<JBookmark>();
 		qutim_sdk_0_3::DataItem item(QT_TRANSLATE_NOOP("Jabber", "Join groupchat"));
+		if (isBookmark)
 		{
-			qutim_sdk_0_3::DataItem conferenceItem("conference", QT_TRANSLATE_NOOP("Jabber", "Conference"), "talks@conference.qutim.org");
+			qutim_sdk_0_3::DataItem nickItem("nickname", QT_TRANSLATE_NOOP("Jabber", "Name"), bookmark.name);
+			item.addSubitem(nickItem);
+		}
+		{
+			QString conference = bookmark.conference.isEmpty() ? QString("talks@conference.qutim.org") : bookmark.conference;
+			qutim_sdk_0_3::DataItem conferenceItem("conference", QT_TRANSLATE_NOOP("Jabber", "Conference"), conference);
 			//TODO, add validator
 			//conferenceItem.setProperty("validator", QRegExp("^(#|&|!|\\+)[^\\s0x0007,]{1,50}"));
 			item.addSubitem(conferenceItem);
 		}
 		{
-			qutim_sdk_0_3::DataItem nickItem("nickname", QT_TRANSLATE_NOOP("Jabber", "Nick"), p->account->name());
+			QString name = bookmark.nick.isEmpty() ? p->account->name() : bookmark.nick;
+			qutim_sdk_0_3::DataItem nickItem("nickname", QT_TRANSLATE_NOOP("Jabber", "Nick"), name);
 			item.addSubitem(nickItem);
 		}
 		{
-			qutim_sdk_0_3::DataItem passwordItem("password", QT_TRANSLATE_NOOP("Jabber", "Password"), QString());
+			qutim_sdk_0_3::DataItem passwordItem("password", QT_TRANSLATE_NOOP("Jabber", "Password"), bookmark.password);
 			passwordItem.setProperty("passwordMode", true);
 			item.addSubitem(passwordItem);
+		}
+		if (isBookmark)
+		{
+			qutim_sdk_0_3::DataItem autoJoinItem("autojoin",QT_TRANSLATE_NOOP("Jabber", "Auto-join"),QVariant(bookmark.autojoin));
+			item.addSubitem(autoJoinItem);
 		}
 		return item;
 	}
