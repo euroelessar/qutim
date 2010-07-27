@@ -53,7 +53,7 @@ namespace Jabber
 	}
 
 	void JMUCManager::openJoinWindow(const QString &conference, const QString &nick, const QString &password,
-			const QString &name)
+									 const QString &name)
 	{
 		JMUCJoin *joinConference = new JMUCJoin(p->account);
 		joinConference->setConference(conference, nick, password, name);
@@ -69,6 +69,14 @@ namespace Jabber
 		openJoinWindow(QString(), QString(), QString());
 	}
 
+	void JMUCManager::join(const qutim_sdk_0_3::DataItem &item)
+	{
+		QString conference = item.subitem("conference").data<QString>();
+		QString nickname = item.subitem("nickname").data<QString>();
+		QString password = item.subitem("password").data<QString>();
+		join(conference,nickname,password);
+	}
+
 	void JMUCManager::join(const QString &conference, const QString &nick, const QString &password)
 	{
 		JMUCSession *room = p->rooms.value(conference, 0);
@@ -82,7 +90,7 @@ namespace Jabber
 		if (room && room->me() && !nick.isEmpty() && room->me()->name() != nick) {
 			if (room->isJoined()) {
 				QMessageBox::warning(0, tr("Join groupchat on")+" "+room->id(),
-						tr("You already in conference with another nick"));
+									 tr("You already in conference with another nick"));
 			} else {
 				room->setBookmarkIndex(-1);
 				closeMUCSession(room);
@@ -99,10 +107,10 @@ namespace Jabber
 			room->setBookmarkIndex(-1);
 			for (int num = 0; num < count; num++)
 				if (p->bookmarkManager->bookmarks()[num].conference == conference
-						&& p->bookmarkManager->bookmarks()[num].nick == nick) {
-					room->setBookmarkIndex(num);
-					break;
-				}
+					&& p->bookmarkManager->bookmarks()[num].nick == nick) {
+				room->setBookmarkIndex(num);
+				break;
+			}
 			p->rooms.insert(conference, room);
 			emit conferenceCreated(room);
 		} else {
@@ -148,9 +156,9 @@ namespace Jabber
 		if (presence == Presence::Unavailable) {
 			foreach (JMUCSession *room, p->rooms)
 				if(room->isJoined()) {
-					room->setAutoJoin(true);
-					room->leave();
-				}
+				room->setAutoJoin(true);
+				room->leave();
+			}
 		} else {
 			foreach (JMUCSession *room, p->rooms)
 				if(room->isJoined() || room->isAutoJoin())
@@ -203,7 +211,7 @@ namespace Jabber
 		qutim_sdk_0_3::DataItem item(QT_TRANSLATE_NOOP("Jabber", "Join groupchat"));
 		if (isBookmark)
 		{
-			qutim_sdk_0_3::DataItem nickItem("nickname", QT_TRANSLATE_NOOP("Jabber", "Name"), bookmark.name);
+			qutim_sdk_0_3::DataItem nickItem("name", QT_TRANSLATE_NOOP("Jabber", "Name"), bookmark.name);
 			item.addSubitem(nickItem);
 		}
 		{

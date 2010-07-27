@@ -5,6 +5,11 @@
 #include <gloox/bookmarkhandler.h>
 #include <QMetaType>
 
+namespace qutim_sdk_0_3
+{
+	class DataItem;
+}
+
 namespace Jabber {
 
 	using namespace gloox;
@@ -35,8 +40,10 @@ namespace Jabber {
 			QList<JBookmark> bookmarks() const;
 			QList<JBookmark> recent() const;
 			JBookmark find(const QString &name, bool recent = false) const;
+			int indexOfBookmark(const QString &name);
 			void saveBookmark(int index, const QString &name, const QString &conference,
 					const QString &nick, const QString &password, bool autojoin = false);
+			bool saveBookmark(const qutim_sdk_0_3::DataItem &item, const QString &oldName = QString());
 			void saveRecent(const QString &conference, const QString &nick, const QString &password);
 			void removeBookmark(int index);
 			void sync();

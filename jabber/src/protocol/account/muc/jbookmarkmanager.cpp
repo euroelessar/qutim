@@ -2,6 +2,7 @@
 #include "jmucmanager.h"
 #include "../jaccount.h"
 #include <gloox/bookmarkstorage.h>
+#include <qutim/dataforms.h>
 
 namespace Jabber
 {
@@ -15,7 +16,7 @@ namespace Jabber
 	};
 
 	JBookmark::JBookmark(const QString &o_name, const QString &o_conference,
-				 const QString &o_nick, const QString &o_password, bool o_autojoin)
+						 const QString &o_nick, const QString &o_password, bool o_autojoin)
 	{
 		name = o_name;
 		conference = o_conference;
@@ -57,7 +58,7 @@ namespace Jabber
 		p->bookmarks.clear();
 		foreach (ConferenceListItem conf, confList)
 			p->bookmarks << JBookmark(QString::fromStdString(conf.name), QString::fromStdString(conf.jid),
-					QString::fromStdString(conf.nick), QString::fromStdString(conf.password), conf.autojoin);
+									  QString::fromStdString(conf.nick), QString::fromStdString(conf.password), conf.autojoin);
 		foreach (JBookmark bookmark, tmpList)
 			if (p->bookmarks.contains(bookmark))
 				p->bookmarks[p->bookmarks.indexOf(bookmark)].password = bookmark.password;
@@ -89,15 +90,34 @@ namespace Jabber
 	}
 
 	void JBookmarkManager::saveBookmark(int index, const QString &name, const QString &conference,
-			const QString &nick, const QString &password, bool autojoin)
+										const QString &nick, const QString &password, bool autojoin)
 	{
 		JBookmark bookmark(name, conference, nick, password, autojoin);
-		if (index == p->bookmarks.count())
+		if (index == p->bookmarks.count() || index == -1)
 			p->bookmarks << bookmark;
 		else
 			p->bookmarks.replace(index, bookmark);
 		writeToCache("bookmarks", p->bookmarks);
 		saveToServer();
+	}
+
+	bool JBookmarkManager::saveBookmark(const qutim_sdk_0_3::DataItem &item, const QString &oldName)
+	{
+		QString name = item.subitem("name").data<QString>();
+		QString conference = item.subitem("conference").data<QString>();
+		QString nick = item.subitem("nickname").data<QString>();
+		QString password = item.subitem("password").data<QString>();
+		bool autojoin = item.subitem("autojoin").data<bool>();
+		//some checks
+		if (name.isEmpty())
+			name = conference;
+		if (conference.isEmpty())
+			return false;
+		if (name != oldName && !oldName.isEmpty())
+			removeBookmark(indexOfBookmark(oldName));
+		int index = indexOfBookmark(name);
+		saveBookmark(index,name,conference,nick,password,autojoin);
+		return true;
 	}
 
 	void JBookmarkManager::saveRecent(const QString &conference, const QString &nick, const QString &password)
@@ -121,6 +141,8 @@ namespace Jabber
 
 	void JBookmarkManager::removeBookmark(int index)
 	{
+		if (index == -1)
+			return;
 		p->bookmarks.removeAt(index);
 		writeToCache("bookmarks", p->bookmarks);
 		saveToServer();
@@ -139,10 +161,10 @@ namespace Jabber
 		for (int num = 0; num < count; num++) {
 			Config configBookmark = config.arrayElement(num);
 			JBookmark bookmark(configBookmark.value("name", QString()),
-					configBookmark.value("conference", QString()),
-					configBookmark.value("nick", QString()),
-					configBookmark.value("password", QString(), Config::Crypted),
-					configBookmark.value("autojoin", false));
+							   configBookmark.value("conference", QString()),
+							   configBookmark.value("nick", QString()),
+							   configBookmark.value("password", QString(), Config::Crypted),
+							   configBookmark.value("autojoin", false));
 			list << bookmark;
 		}
 		return list;
@@ -193,10 +215,15 @@ namespace Jabber
 	JBookmark JBookmarkManager::find(const QString &name, bool recent) const
 	{
 		QList<JBookmark> bookmarks = recent ? p->recent : p->bookmarks;
-				foreach (const JBookmark &item,bookmarks) {
+		foreach (const JBookmark &item,bookmarks) {
 			if (item.name == name)
 				return item;
 		}
 		return JBookmark();
+	}
+
+	int JBookmarkManager::indexOfBookmark(const QString &name)
+	{
+		return p->bookmarks.indexOf(find(name,false));
 	}
 }
