@@ -456,11 +456,7 @@ namespace qutim_sdk_0_3
 		connect(action,SIGNAL(destroyed(QObject*)),SLOT(onActionDestoyed(QObject*)));
 		connect(action,SIGNAL(triggered()),SLOT(actionTriggered()));
 		m_actions.append(action);
-		ActionGenerator *gen = action->data().value<ActionGenerator*>();
-		if (!gen) {
-			warning() << "invalid action generator:" << action->text();
-			return action;
-		}
+		return action;
 	}
 
 	void ActionHandler::actionTriggered()

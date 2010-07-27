@@ -18,10 +18,11 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include "actionbox_p.h"
+#include <libqutim/libqutim_global.h>
 #include <QDebug>
 
 ActionBox::ActionBox(QWidget *parent) :
-	QWidget(parent),d_ptr(new ActionBoxPrivate)
+		QWidget(parent),d_ptr(new ActionBoxPrivate)
 {
 	Q_D(ActionBox);
 	d->q_ptr = this;
@@ -53,12 +54,12 @@ void ActionBox::addAction(QAction *action)
 		d->layout->insertWidget(0,button);
 	else /*if (action->softKeyRole() == QAction::NegativeSoftKey)*/
 		d->layout->addWidget(button);
-//	TODO
-//	else {
-//		int index = d->layout->count() - 2;
-//		if (index >= 0)
-//			d->la
-//	}
+	//	TODO
+	//	else {
+	//		int index = d->layout->count() - 2;
+	//		if (index >= 0)
+	//			d->la
+	//	}
 #endif
 	QWidget::addAction(action);
 }
@@ -76,10 +77,10 @@ ActionBox::~ActionBox()
 
 void ActionBox::removeAction(QAction *action)
 {
-	#ifndef QUTIM_SOFTKEYS_SUPPORT
+#ifndef QUTIM_SOFTKEYS_SUPPORT
 	Q_D(ActionBox);
 	d->buttons.take(action)->deleteLater();
-	#endif
+#endif
 	QWidget::removeAction(action);
 }
 
@@ -92,7 +93,11 @@ void ActionBox::removeActions(QList<QAction *> actions)
 
 void ActionBox::setVisible(QAction *action, bool visible)
 {
+#ifndef QUTIM_SOFTKEYS_SUPPORT
 	d_func()->buttons.value(action)->setVisible(visible);
+#else
+	action->setVisible(visible);
+#endif
 }
 
 

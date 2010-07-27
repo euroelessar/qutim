@@ -20,18 +20,12 @@ namespace Core
 	{
 		ui->setupUi(this);
 
-#ifdef Q_WS_MAC
-		layout()->setMargin(0);
-#endif
-
 		setAttribute(Qt::WA_DeleteOnClose);
-		ui->stackedWidget->setCurrentIndex(0);
-		
+
 		connect(ui->stackedWidget,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
 		connect(ui->accountBox,SIGNAL(currentIndexChanged(int)),SLOT(onAccountBoxActivated(int)));
 		connect(ui->bookmarksBox,SIGNAL(currentIndexChanged(int)),SLOT(onBookmarksBoxActivated(int)));
-		
-		onCurrentChanged(0);
+
 #ifdef QUTIM_MOBILE_UI
 		QAction *close_action = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Close"),this);
 		close_action->setSoftKeyRole(QAction::NegativeSoftKey);
@@ -49,7 +43,7 @@ namespace Core
 	{
 		delete ui;
 	}
-	
+
 	void JoinGroupChat::changeEvent(QEvent *e)
 	{
 		QDialog::changeEvent(e);
@@ -61,11 +55,12 @@ namespace Core
 			break;
 		}
 	}
-	
+
 	void JoinGroupChat::showEvent(QShowEvent *ev)
 	{
 		QDialog::showEvent(ev);
 		fillAccounts();
+//		onCurrentChanged(0);
 	}
 
 	void JoinGroupChat::onToolBarActTriggered(QAction *act)
