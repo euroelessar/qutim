@@ -74,6 +74,9 @@ void IrcProtocol::loadAccounts()
 	status.setType(Status::Away);
 	status.initIcon("irc");
 	MenuController::addAction<IrcAccount>(new StatusActionGenerator(status));
+	status.setType(Status::Offline);
+	status.initIcon("irc");
+	MenuController::addAction<IrcAccount>(new StatusActionGenerator(status));
 	// Load accounts.
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &network, accounts) {
