@@ -956,12 +956,16 @@ void ClientIdentify::identify_Micq()
 void ClientIdentify::identify_LibGaim()
 {
 	int newver = 0;
-	if (AimChatSupport())
-		newver = TypingSupport() ? 2 : 1;
+	if (AimChatSupport()) {
+		if (TypingSupport())
+			newver = XtrazSupport() && SrvRelaySupport() ? 5 : 2;
+		else
+			newver = 1;
+	}
 
 	if (SendFileSupport() && AimImageSupport() &&
 		IconSupport() && Utf8Support() &&
-		(m_client_caps.size() == (4 + newver)))
+		(m_client_caps.size() <= (4 + newver)))
 	{
 		if (newver >= 1)
 			setClientData("Pidgin/AdiumX", "pidgin");

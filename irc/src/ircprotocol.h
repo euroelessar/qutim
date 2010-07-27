@@ -67,8 +67,6 @@ public slots:
 protected:
 	void loadAccounts();
 private slots:
-	void onJoinChannelWindow(QObject *object);
-	void onJoinChannel();
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onSessionActivated(bool active);
 private:
