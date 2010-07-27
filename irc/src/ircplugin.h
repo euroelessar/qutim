@@ -25,7 +25,7 @@ namespace irc {
 class IrcPlugin: public Plugin
 {
 	Q_OBJECT
-	Q_CLASSINFO("DebugName", "IRQ")
+	Q_CLASSINFO("DebugName", "IRС")
 public:
 	IrcPlugin();
 	void init();
