@@ -10,6 +10,8 @@
 class QLabel;
 Q_DECLARE_METATYPE(QHostAddress);
 
+#define QUTIM_MOBILE_UI
+
 namespace Core
 {
 using namespace qutim_sdk_0_3;
@@ -26,6 +28,7 @@ public:
 	void addRow(QWidget *title, QWidget *widget, Qt::Alignment widgetAligment = 0);
 protected:
 	QStyle* getStyle() const;
+	Qt::Alignment labelAlignment() { return m_labelAlignment; };
 private:
 	Qt::Alignment m_labelAlignment;
 	mutable QPointer<QStyle> m_style;
