@@ -171,7 +171,7 @@ IF(APPLE)
   # set where in the bundle to put the icns file
   SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/icons/qutim.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
   # include the icns file in the target
-  SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/icons/qutim.icns)
+  SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns)
 ENDIF(APPLE)
 
 ADD_EXECUTABLE (qutim ${GUI_TYPE} ${SOURCES} ${HEADERS} ${MOC_SRCS} ${UIS_H} ${RCC})

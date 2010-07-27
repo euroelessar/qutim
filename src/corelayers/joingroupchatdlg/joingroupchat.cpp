@@ -20,6 +20,10 @@ namespace Core
 	{
 		ui->setupUi(this);
 
+#ifdef Q_WS_MAC
+		layout()->setMargin(0);
+#endif
+
 		setAttribute(Qt::WA_DeleteOnClose);
 		ui->stackedWidget->setCurrentIndex(0);
 		
