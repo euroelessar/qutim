@@ -71,6 +71,21 @@ ActionBox::~ActionBox()
 
 }
 
+void ActionBox::removeAction(QAction *action)
+{
+	#ifndef QUTIM_SOFTKEYS_SUPPORT
+	Q_D(ActionBox);
+	d->buttons.take(action)->deleteLater();
+	#endif
+	QWidget::removeAction(action);
+}
+
+void ActionBox::removeActions(QList<QAction *> actions)
+{
+	foreach (QAction *action,actions)
+		removeAction(action);
+}
+
 void ActionBoxPrivate::updateButton(QPushButton *button,const QAction *action)
 {
 	button->setText(action->text());
@@ -94,3 +109,5 @@ void ActionBoxPrivate::onActionDestroyed(QObject *obj)
 	QAction *action = reinterpret_cast<QAction*>(obj);
 	buttons.take(action)->deleteLater();
 }
+
+

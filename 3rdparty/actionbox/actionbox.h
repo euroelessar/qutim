@@ -28,6 +28,8 @@ public:
 	explicit ActionBox(QWidget *parent);
 	void addAction(QAction *action);
 	void addActions(QList<QAction*> actions);
+	void removeAction(QAction *action);
+	void removeActions(QList<QAction*> actions);
 	~ActionBox();
 private:
 	QScopedPointer<ActionBoxPrivate> d_ptr;
