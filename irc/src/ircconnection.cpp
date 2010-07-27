@@ -99,6 +99,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 									  IrcCommandAlias::Channel));
 		registerAlias(IrcCommandAlias("ban", "MODE %n +b %0",
 									  IrcCommandAlias::Channel));
+		registerAlias(IrcCommandAlias("msg", "PRIVMSG %0"));
 		init = true;
 	}
 }
