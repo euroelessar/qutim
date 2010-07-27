@@ -16,12 +16,15 @@ public:
 	virtual bool sendMessage(const Message& message);
 	virtual void setTags(const QStringList& tags);
 	virtual void setInList(bool inList);
+	void setContactTags(const QStringList& tags);
+	void setContactInList(bool inList);
 	void setStatus(bool online);
 	void setActivity(const QString &activity);
 	virtual Status status() const;
 	virtual ~VContact();
 	virtual QStringList tags() const;
 	virtual QString name() const;
+	void setContactName(const QString& name);
 	virtual void setName(const QString& name);
 	void setAvatar(const QString &avatar);
 	virtual QString avatar() const;

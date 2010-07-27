@@ -20,7 +20,8 @@ public:
 	explicit VConnection(VAccount *account, QObject* parent = 0);
 	VConnectionState connectionState() const;
 	virtual ~VConnection();
-	QNetworkReply* get(VRequest &request);
+	QNetworkReply *get(VRequest &request);
+	QNetworkReply *get(const QString &method, const QVariantMap &args = QVariantMap());
 	Config config();
 	Config config(const QString &name);
 	VAccount *account() const;
@@ -30,6 +31,7 @@ public slots:
 	void connectToHost(const QString &passwd);
 	void disconnectFromHost(bool force = false);
 	void loadSettings();
+	void onLoadFinished(bool);
 signals:
 	void connectionStateChanged(VConnectionState state);
 protected:

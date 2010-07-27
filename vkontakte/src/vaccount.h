@@ -15,6 +15,8 @@ public:
 	virtual VContact* getContact(const QString& uid, bool create = false);
 	virtual ChatUnit* getUnit(const QString& unitId, bool create = false) {return getUnit(unitId,create);};
 	QString uid() const;
+	virtual QString name() const;
+	void setAccountName(const QString &name);
 	QString email() const {return id();}; //alias for id
 	void setUid(const QString &uid);
 	virtual void setStatus(Status status);

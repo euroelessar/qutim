@@ -17,7 +17,7 @@ public:
 	VMessages *q_ptr;
 	int unreadMessageCount;
 	QTimer historyTimer;
-	void markAsRead(const QString &messages);
+	void markAsRead(const QStringList &messages);
 public slots:
 	void onConnectStateChanged(VConnectionState state);
 	void onHistoryRecieved(); //TODO move to vconnection

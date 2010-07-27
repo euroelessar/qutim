@@ -4,6 +4,8 @@
 #include "vkontakte_global.h"
 #include <QTimer>
 #include <QNetworkReply>
+#include <QtWebKit/QWebView>
+#include <QPointer>
 
 class VMessages;
 class VRoster;
@@ -15,13 +17,15 @@ class VConnectionPrivate : public QObject
 	Q_DECLARE_PUBLIC(VConnection)
 public:
 	VAccount *account;
-	QByteArray remixPasswd;
-	QByteArray sid;
+	QString secret;
+	QString sid;
+	QString mid;
 	VConnectionState state;
 	VConnection *q_ptr;
 	QTimer prolongationTimer;
 	VRoster *roster;
 	VMessages *messages;
+	QPointer<QWebView> webView;
 public slots:
 	void onAuthRequestFinished();
 	void onLogoutRequestFinished();

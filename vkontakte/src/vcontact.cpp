@@ -11,6 +11,7 @@ struct VContactPrivate
 	QString id;
 	bool inList;
 	QStringList tags;
+	QList<int> tagIds;
 	QString name;
 	QString avatar;
 	QString activity;
@@ -49,12 +50,30 @@ bool VContact::sendMessage(const Message& message)
 
 void VContact::setTags(const QStringList& tags)
 {
-	d_func()->tags = tags;
+//	d_func()->tags = tags;
 }
 
 void VContact::setInList(bool inList)
 {
-	d_func()->inList = inList;
+//	d_func()->inList = inList;
+}
+
+void VContact::setContactTags(const QStringList& tags)
+{
+	Q_D(VContact);
+	if (d->tags != tags) {
+		d_func()->tags = tags;
+		emit tagsChanged(tags);
+	}
+}
+
+void VContact::setContactInList(bool inList)
+{
+	Q_D(VContact);
+	if (d->inList != inList) {
+		d->inList = inList;
+		emit inListChanged(d->inList);
+	}
 }
 
 Status VContact::status() const
@@ -97,9 +116,16 @@ QString VContact::name() const
 {
 	return d_func()->name;
 }
-void VContact::setName(const QString& name)
+
+void VContact::setContactName(const QString& name)
 {
 	d_func()->name = name;
+}
+
+void VContact::setName(const QString& name)
+{
+	Q_UNUSED(name);
+//	d_func()->name = name;
 }
 
 void VContact::setAvatar(const QString &avatar)

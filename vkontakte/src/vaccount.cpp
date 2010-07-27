@@ -72,6 +72,20 @@ VAccount::~VAccount()
 	//saveSettings();
 }
 
+QString VAccount::name() const
+{
+	return d_func()->name;
+}
+
+void VAccount::setAccountName(const QString &name)
+{
+	Q_D(VAccount);
+	if (d->name != name) {
+		d->name = name;
+		emit nameChanged(name);
+	}
+}
+
 QString VAccount::password()
 {
 	QString password = config().group("general").value("passwd", QString(), Config::Crypted);
@@ -109,7 +123,7 @@ void VAccount::setStatus(Status status)
 	switch (state) {
 		case Connected: {
 			if (d->connection->connectionState() == Disconnected)
-				d->connection->connectToHost(password());
+				d->connection->connectToHost(QString() /*password()*/);
 			break;
 		}
 		case Disconnected: {

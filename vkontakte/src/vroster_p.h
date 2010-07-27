@@ -3,6 +3,7 @@
 #include <QObject>
 #include "vkontakte_global.h"
 #include <QTimer>
+#include <QDateTime>
 #include <QQueue>
 
 class VConnection;
@@ -20,10 +21,17 @@ public:
 	QTimer friendListUpdater;
 	QTimer avatarsUpdater;
 	QTimer activityUpdater;
-	QQueue<VContact *> avatarsQueue;
+	QQueue<QObject*> avatarsQueue;
 	bool fetchAvatars;
 	bool getActivity;
+	QMap<QString, QString> tags;
+	QDateTime lastActivityTime;
+	
+	void checkPhoto(QObject *obj, const QString &photoUrl);
+	QString photoHash(const QString &path);
 public slots:
+	void onGetProfileRequestFinished();
+	void onGetTagListRequestFinished();
 	void onGetFriendsRequestFinished();
 	void onConnectStateChanged(VConnectionState state);
 	void onAvatarRequestFinished();

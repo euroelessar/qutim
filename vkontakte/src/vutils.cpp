@@ -35,7 +35,5 @@ Status::Type stateToStatus(VConnectionState state)
 
 QDir getAvatarsDir()
 {
-	return QString("%1/avatars/%2")
-			.arg(SystemInfo::getPath(SystemInfo::ConfigDir))
-			.arg(VkontakteProtocol::instance()->id());
+	return SystemInfo::getDir(SystemInfo::ConfigDir).filePath(QLatin1String("avatars/vkontakte"));
 }

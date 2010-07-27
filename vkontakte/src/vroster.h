@@ -22,8 +22,9 @@ public:
 public slots:
 	void loadSettings();
 	void getProfile();
+	void getTagList();
 	void getFriendList(int start = 0, int limit = 10000); //TODO I think that we need a way to get information on parts	
-	void requestAvatar(VContact *contact);
+	void requestAvatar(QObject *contact);
 	void requestActivity(VContact *contact);
 private:
 	QScopedPointer<VRosterPrivate> d_ptr;
