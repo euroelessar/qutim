@@ -63,6 +63,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< "PART"
 		<< "NICK"
 		<< "QUIT"
+		<< "ERROR"
 		<< 332  // RPL_TOPIC
 		<< 333  // RPL_TOPIC_INFO
 		<< "KICK"
@@ -222,6 +223,9 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		} else {
 			debug() << "QUIT message from the unknown contact" << name;
 		}
+	} else if (cmd == "ERROR") {
+		m_account->log(params.value(0), false, "ERROR");
+		m_account->setStatus(Status(Status::Offline));
 	} else if (cmd == 332) { // RPL_TOPIC
 		IrcChannel *channel = account->getChannel(params.value(1), false);
 		if (channel)
