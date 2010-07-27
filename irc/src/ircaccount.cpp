@@ -212,7 +212,7 @@ void IrcAccount::log(const QString &msg, bool addToActiveSession, const QString 
 	d->log += str;
 }
 
-static QRegExp formatRx("(\\002|\\037|\\026|\\017|\003(\\d+,\\d+))");
+static QRegExp formatRx("(\\002|\\037|\\026|\\017|\\003(\\d+(,\\d+|)|))");
 
 QString IrcAccount::ircFormatToHtml(const QString &msg_helper, QString *plainText)
 {
