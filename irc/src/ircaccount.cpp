@@ -318,6 +318,18 @@ void IrcAccount::showConsole()
 	}
 }
 
+void IrcAccount::showChannelList()
+{
+	if (d->channelListForm) {
+		d->channelListForm->raise();
+	} else {
+		d->channelListForm = new IrcChannelListForm(this);
+		d->channelListForm->setAttribute(Qt::WA_DeleteOnClose);
+		centerizeWidget(d->channelListForm);
+		d->channelListForm->show();
+	}
+}
+
 bool IrcAccount::event(QEvent *ev)
 {
 	if (ev->type() == Event::eventType()) {
