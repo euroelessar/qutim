@@ -44,8 +44,11 @@ void ActionBox::addAction(QAction *action)
 	button->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	d->buttons.insert(action,button);
 	d->updateButton(button,action);
+
 	connect(action,SIGNAL(changed()),d,SLOT(onActionChanged()));
 	connect(button,SIGNAL(clicked()),action,SIGNAL(triggered()));
+	connect(action,SIGNAL(destroyed(QObject*)),d,SLOT(onActionDestroyed(QObject*)));
+
 	if (action->softKeyRole() == QAction::PositiveSoftKey)
 		d->layout->insertWidget(0,button);
 	else /*if (action->softKeyRole() == QAction::NegativeSoftKey)*/
