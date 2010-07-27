@@ -44,7 +44,7 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 		connect(buttonsBox, SIGNAL(clicked(QAbstractButton*)), SLOT(onButtonClicked(QAbstractButton*)));
 		connect(this, SIGNAL(accepted()), SLOT(close()));
 		connect(this, SIGNAL(rejected()), SLOT(close()));
-		m_layout->addWidget(buttonsBox);
+		m_layout->addRow(buttonsBox);
 	}
 }
 

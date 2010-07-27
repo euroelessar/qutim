@@ -4,6 +4,8 @@
 #include "abstractdatalayout.h"
 #include <QGroupBox>
 
+class QPushButton;
+
 namespace Core
 {
 
@@ -42,6 +44,9 @@ protected:
 private:
 	void setRow(const WidgetLine &line, int row);
 	void init();
+	QStyle* getStyle() const;
+	Qt::Alignment m_labelAlignment;
+	mutable QPointer<QStyle> m_style;
 };
 
 class DataListGroup : public QGroupBox, public AbstractDataWidget

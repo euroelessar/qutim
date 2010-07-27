@@ -15,22 +15,19 @@ ReadOnlyDataLayout::ReadOnlyDataLayout(QWidget *parent) :
 bool ReadOnlyDataLayout::addItem(const DataItem &item)
 {
 	bool twoColumns;
+	QLabel *title = 0;
 	QWidget *widget = getReadOnlyWidget(item, &twoColumns);
 	if (!twoColumns && !item.property("hideTitle", false)) {
-		QLabel *title = new QLabel(item.title().toString() + ":", parentWidget());
+		title = new QLabel(item.title().toString() + ":", parentWidget());
 		title->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 		QFont font = title->font();
 		font.setBold(true);
 		title->setFont(font);
 		title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-		addWidget(title, m_row, 0, 1, 1, Qt::AlignRight | Qt::AlignTop);
 	}
 	widget->setParent(parentWidget());
 	widget->setObjectName(item.name());
-	if (!twoColumns)
-		addWidget(widget, m_row++, 1, 1, 1, Qt::AlignLeft);
-	else
-		addWidget(widget, m_row++, 0, 1, 2);
+	addRow(title, widget, Qt::AlignLeft);
 	return false;
 }
 

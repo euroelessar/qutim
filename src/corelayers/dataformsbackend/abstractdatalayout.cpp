@@ -1,13 +1,16 @@
 #include "abstractdatalayout.h"
 #include <QSpacerItem>
 #include <QIcon>
+#include <QStyle>
+#include <QApplication>
 
 namespace Core
 {
 
 AbstractDataLayout::AbstractDataLayout(QWidget *parent) :
-	QGridLayout(parent), m_row(0)
+	QGridLayout(parent), m_style(0), m_row(0)
 {
+	m_labelAlignment = Qt::Alignment(getStyle()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
 }
 
 AbstractDataLayout::~AbstractDataLayout()
@@ -28,9 +31,34 @@ void AbstractDataLayout::addSpacer()
 	QGridLayout::addItem(spacer, m_row++, 0);
 }
 
-void  AbstractDataLayout::addWidget(QWidget *w)
+void AbstractDataLayout::addRow(QWidget *title, QWidget *widget, Qt::Alignment widgetAligment)
 {
-	QGridLayout::addWidget(w, m_row++, 0, 1, 2);
+	if (title) {
+		addWidget(title, m_row, 0, m_labelAlignment);
+#ifdef QUTIM_MOBILE_UI
+		++m_row;
+		addWidget(widget, m_row++, 0, widgetAligment);
+#else
+		addWidget(widget, m_row++, 1, widgetAligment);
+#endif
+	} else {
+#ifdef QUTIM_MOBILE_UI
+		addWidget(widget, m_row++, 0);
+#else
+		addWidget(widget, m_row++, 0, 1, 2);
+#endif
+	}
+}
+
+QStyle* AbstractDataLayout::getStyle() const
+{
+	if (!m_style) {
+		if (QWidget *parent = parentWidget())
+			m_style = parent->style();
+		else
+			m_style = QApplication::style();
+	}
+	return m_style.data();
 }
 
 QPixmap variantToPixmap(const QVariant &data, const QSize &size)

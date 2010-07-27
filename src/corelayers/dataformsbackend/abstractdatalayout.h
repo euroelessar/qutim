@@ -4,11 +4,10 @@
 #include <QWidget>
 #include <QGridLayout>
 #include <QHostAddress>
+#include <QPointer>
 #include <libqutim/dataforms.h>
 
 class QLabel;
-class QPushButton;
-
 Q_DECLARE_METATYPE(QHostAddress);
 
 namespace Core
@@ -23,34 +22,15 @@ public:
 	virtual bool addItem(const DataItem &item) = 0;
 	bool addItems(const QList<DataItem> &items);
 	void addSpacer();
-	void addWidget(QWidget *w);
+	void addRow(QWidget *widget) { addRow(0, widget); }
+	void addRow(QWidget *title, QWidget *widget, Qt::Alignment widgetAligment = 0);
 protected:
-	void addWidget(QWidget *, int row, int column, Qt::Alignment = 0);
-	void addWidget(QWidget *, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = 0);
-	void addLayout(QLayout *, int row, int column, Qt::Alignment = 0);
-	void addLayout(QLayout *, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = 0);
+	QStyle* getStyle() const;
+private:
+	Qt::Alignment m_labelAlignment;
+	mutable QPointer<QStyle> m_style;
 	int m_row;
 };
-
-inline void AbstractDataLayout::addWidget(QWidget *w, int row, int column, Qt::Alignment alignment)
-{
-	QGridLayout::addWidget(w, row, column, alignment);
-}
-
-inline void AbstractDataLayout::addWidget(QWidget *w, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment)
-{
-	QGridLayout::addWidget(w, row, column, rowSpan, columnSpan, alignment);
-}
-
-inline void AbstractDataLayout::addLayout(QLayout *w, int row, int column, Qt::Alignment alignment)
-{
-	QGridLayout::addLayout(w, row, column, alignment);
-}
-
-inline void AbstractDataLayout::addLayout(QLayout *w, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment)
-{
-	QGridLayout::addLayout(w, row, column, rowSpan, columnSpan, alignment);
-}
 
 QPixmap variantToPixmap(const QVariant &data, const QSize &size);
 

@@ -123,6 +123,10 @@ DataListWidget::DataListWidget(const DataItem &def, QWidget *parent) :
 	init();
 }
 
+DataListWidget::~DataListWidget()
+{
+}
+
 void DataListWidget::init()
 {
 	m_max = -1;
@@ -131,10 +135,18 @@ void DataListWidget::init()
 	m_addButton->setIcon(Icon("list-add"));
 	connect(m_addButton, SIGNAL(clicked()), SLOT(onAddRow()));
 	m_layout->addWidget(m_addButton, 0, 1, 1, 1);
+	m_labelAlignment = Qt::Alignment(getStyle()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
 }
 
-DataListWidget::~DataListWidget()
+QStyle* DataListWidget::getStyle() const
 {
+	if (!m_style) {
+		if (QWidget *parent = parentWidget())
+			m_style = parent->style();
+		else
+			m_style = QApplication::style();
+	}
+	return m_style.data();
 }
 
 void DataListWidget::addRow(QWidget *data, QWidget *title)
@@ -151,8 +163,12 @@ void DataListWidget::addRow(QWidget *data, QWidget *title)
 	m_widgets.push_back(line);
 	m_layout->removeWidget(m_addButton);
 	setRow(line, row);
+#ifdef QUTIM_MOBILE_UI
+	m_layout->addWidget(m_addButton, row*2 + 2, 1);
+#else
 	m_layout->addWidget(m_addButton, ++row, 2, 1, 1);
-	m_addButton->setVisible(m_max < 0 || m_max > row);
+#endif
+	m_addButton->setVisible(m_max < 0 || m_max > m_widgets.count());
 }
 
 void DataListWidget::addRow(const DataItem &item)
@@ -205,19 +221,30 @@ void DataListWidget::onRemoveRow()
 		setRow(*itr, row++);
 		itr++;
 	}
-	if (m_max < 0 || m_max > row)
+	if (m_max < 0 || m_max > m_widgets.count())
 		m_addButton->setVisible(true);
 }
 
 void DataListWidget::setRow(const WidgetLine &line, int row)
 {
+#ifdef QUTIM_MOBILE_UI
+	row *= 2;
 	if (line.title) {
-		m_layout->addWidget(line.title, row, 0);
+		m_layout->addWidget(line.title, row++, 0, 1, 2, m_labelAlignment);
+		m_layout->addWidget(line.data, row, 0);
+	} else {
+		m_layout->addWidget(line.data, row, 0);
+	}
+	m_layout->addWidget(line.deleteButton, row, 1);
+#else
+	if (line.title) {
+		m_layout->addWidget(line.title, row, 0, m_labelAlignment);
 		m_layout->addWidget(line.data, row, 1);
 	} else {
 		m_layout->addWidget(line.data, row, 0, 1, 2);
 	}
 	m_layout->addWidget(line.deleteButton, row, 2);
+#endif
 }
 
 DataListGroup::DataListGroup(const DataItem &item, QWidget *parent) :
@@ -298,16 +325,11 @@ bool EditableDataLayout::addItem(const DataItem &item)
 	QWidget *widget = getWidgetHelper(item, &twoColumns);
 	QWidget *title = 0;
 	twoColumns = twoColumns || item.property("hideTitle", false);
-	if (!twoColumns) {
+	if (!twoColumns)
 		title = getTitleHelper(item);
-		addWidget(title, m_row, 0, 1, 1, Qt::AlignRight | Qt::AlignTop);
-	}
 	widget->setParent(parentWidget());
 	widget->setObjectName(item.name());
-	if (!twoColumns)
-		addWidget(widget, m_row++, 1, 1, 1);
-	else
-		addWidget(widget, m_row++, 0, 1, 2);
+	addRow(title, widget);
 	m_widgets.push_back(WidgetLine(title, widget));
 	QSizePolicy::Policy policy = widget->sizePolicy().verticalPolicy();
 	return policy == QSizePolicy::MinimumExpanding || policy == QSizePolicy::Expanding;
