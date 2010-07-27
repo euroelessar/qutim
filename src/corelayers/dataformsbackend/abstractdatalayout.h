@@ -10,8 +10,6 @@
 class QLabel;
 Q_DECLARE_METATYPE(QHostAddress);
 
-#define QUTIM_MOBILE_UI
-
 namespace Core
 {
 using namespace qutim_sdk_0_3;
