@@ -111,7 +111,11 @@ void VConnection::connectToHost(const QString& passwd)
 	url.addQueryItem("type", "browser");
 	url.addQueryItem("settings", QString::number(0xffff));
 	d->webView->page()->mainFrame()->load(url);
+#ifdef QUTIM_MOBILE_UI
+	d->webView->showMaximized();
+#else
 	d->webView->show();
+#endif
 	connect(d->webView->page(), SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
 	setConnectionState(Connecting);
 }

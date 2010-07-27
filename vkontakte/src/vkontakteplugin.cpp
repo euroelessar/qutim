@@ -19,7 +19,7 @@ void VkontaktePlugin::init()
 	ExtensionIcon vicon = ExtensionIcon("im-vkontakte");
 
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "vkontakte"),
-				 QT_TRANSLATE_NOOP("Plugin", "Simple implementation of vkontakte, based on userapi.ru"),
+				 QT_TRANSLATE_NOOP("Plugin", "Simple implementation of vkontakte, based on desktop.api"),
 				 new GeneralGenerator<VkontakteProtocol>(),
 				 vicon
 				 );
