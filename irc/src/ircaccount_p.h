@@ -42,6 +42,10 @@ public:
 	QHash<QString, IrcChannel *> channels;
 	QPointer<IrcConsoleFrom> consoleForm;
 	QString log;
+	struct {
+		int groupChatFields;
+		int groupChatJoin;
+	} eventTypes;
 	static QHash<QString, QString> logMsgColors;
 };
 

@@ -20,6 +20,8 @@
 #include "ircchannelparticipant.h"
 #include <qutim/status.h>
 #include <qutim/messagesession.h>
+#include <qutim/event.h>
+#include <qutim/dataforms.h>
 #include <QTime>
 #include <QTextDocument>
 
@@ -50,6 +52,8 @@ IrcAccount::IrcAccount(const QString &network) :
 {
 	d->q = this;
 	d->conn = new IrcConnection(this, this);
+	d->eventTypes.groupChatFields = Event::registerType("groupchat-fields");
+	d->eventTypes.groupChatJoin = Event::registerType("groupchat-join");
 }
 
 IrcAccount::~IrcAccount()
@@ -316,6 +320,35 @@ void IrcAccount::showConsole()
 
 bool IrcAccount::event(QEvent *ev)
 {
+	if (ev->type() == Event::eventType()) {
+		qutim_sdk_0_3::Event *event = static_cast<qutim_sdk_0_3::Event*>(ev);
+		if (event->id == d->eventTypes.groupChatFields) {
+			DataItem item(QT_TRANSLATE_NOOP("IRC", "Join channel"));
+			{
+				DataItem channelItem("channel", QT_TRANSLATE_NOOP("IRC", "Channel"), "#");
+				channelItem.setProperty("validator", QRegExp("^(#|&|!|\\+)[^\\s0x0007,]{1,50}"));
+				item.addSubitem(channelItem);
+			}
+			{
+				DataItem passwordItem("password", QT_TRANSLATE_NOOP("IRC", "Password"), QString());
+				passwordItem.setProperty("passwordMode", true);
+				item.addSubitem(passwordItem);
+			}
+			event->args[0] = qVariantFromValue(item);
+			return true;
+		} else if (event->id == d->eventTypes.groupChatJoin) {
+			AbstractDataForm *form = qobject_cast<AbstractDataForm*>(event->at<QWidget*>(0));
+			Q_ASSERT(form);
+			DataItem item = form->item();
+			QString channelName = item.subitem("channel").data<QString>();
+			if (channelName.length() <= 1)
+				return false;
+			IrcChannel *channel = getChannel(channelName, true);
+			channel->join(item.subitem("password").data<QString>());
+			ChatLayer::instance()->getSession(channel, true)->activate();
+			return true;
+		}
+	}
 	return Account::event(ev);
 }
 
