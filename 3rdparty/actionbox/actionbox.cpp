@@ -89,6 +89,13 @@ void ActionBox::removeActions(QList<QAction *> actions)
 		removeAction(action);
 }
 
+
+void ActionBox::setVisible(QAction *action, bool visible)
+{
+	d_func()->buttons.value(action)->setVisible(visible);
+}
+
+
 void ActionBoxPrivate::updateButton(QPushButton *button,const QAction *action)
 {
 	button->setText(action->text());
@@ -112,5 +119,4 @@ void ActionBoxPrivate::onActionDestroyed(QObject *obj)
 	QAction *action = reinterpret_cast<QAction*>(obj);
 	buttons.take(action)->deleteLater();
 }
-
 

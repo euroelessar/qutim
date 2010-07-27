@@ -30,6 +30,7 @@ public:
 	void addActions(QList<QAction*> actions);
 	void removeAction(QAction *action);
 	void removeActions(QList<QAction*> actions);
+	void setVisible(QAction *action,bool visible = true);
 	~ActionBox();
 private:
 	QScopedPointer<ActionBoxPrivate> d_ptr;

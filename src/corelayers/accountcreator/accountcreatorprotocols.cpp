@@ -7,6 +7,8 @@
 #include <QScrollBar>
 #include <QDebug>
 
+static const int buttonMinimumHeight = 50;
+
 namespace Core
 {
 	AccountCreatorProtocols::AccountCreatorProtocols(AccountCreatorWizard *parent) :
@@ -45,6 +47,7 @@ namespace Core
 			QCommandLinkButton *b = new QCommandLinkButton(info.name(), info.description());
 			connect(b, SIGNAL(clicked()), this, SLOT(protocolSelected()));
 			b->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+			b->setMinimumHeight(buttonMinimumHeight);
 			if (icon.availableSizes().count())
 				b->setIcon(icon);
 			m_ui->protocolList->setItemWidget(item, b);

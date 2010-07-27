@@ -5,6 +5,8 @@
 #include <libqutim/actiongenerator.h>
 
 class QHBoxLayout;
+class QListWidgetItem;
+class QCommandLinkButton;
 
 namespace Ui {
     class JoinGroupChat;
@@ -13,11 +15,22 @@ namespace Ui {
 namespace qutim_sdk_0_3
 {
 	class DataItem;
+	class Account;
 }
 
 namespace Core
 {
 	using namespace qutim_sdk_0_3;
+
+	enum ButtonType
+	{
+		ButtonTypeNew,
+		ButtonTypeEditBookmarks,
+		ButtonTypeBookmark,
+		ButtonTypeSeparator
+	};
+
+	Q_DECLARE_FLAGS(ButtonTypes,ButtonType);
 	
 	class JoinGroupChat : public QDialog
 	{
@@ -26,24 +39,30 @@ namespace Core
 		explicit JoinGroupChat(QWidget *parent = 0);
 		~JoinGroupChat();
 		virtual void showEvent(QShowEvent* );
+		virtual void closeEvent(QCloseEvent *);
 	protected:
 		virtual void changeEvent(QEvent* );
 	private slots:
 		void onToolBarActTriggered(QAction*);
-		void onPositiveActTriggered();
-		void onNegativeActTriggered();
 		void onCurrentChanged(int);
 		void onAccountBoxActivated(int index);
 		void onBookmarksBoxActivated(int index);
-		void fillBookmarks();
 		void fillAccounts();
+		void fillBookmarks(Account *account);
+		void onCommandButtonClicked();
+		void onCommandButtonDestroyed(QObject *obj);
+		void onCloseRequested();
+		void onActionTriggered();
+		void updateBookmark(bool remove = false);
 	private:
 		void fillBookmarks(const QVariantList &items, bool recent = false);
-		void updateDataForm(const DataItem &item);
+		void updateDataForm(const DataItem &item, int pos = 0);
+		Account *currentAccount();
+		QListWidgetItem *createItem(const QString &name,const QString &description = QString());
 		Ui::JoinGroupChat *ui;
-		QAction *m_positive_softkey;
-		QAction *m_negative_softkey;
 		QPointer<QWidget> m_dataform_widget;
+		QMap<QObject*, QListWidgetItem*> m_items;
+		QAction *m_action;
 	};
 
 }
