@@ -110,6 +110,7 @@ namespace Jabber
 		virtual QString name() const = 0;
 		virtual gloox::Tag *toXml(const QVariantMap &map) const = 0;
 		virtual QVariantMap fromXml(gloox::Tag *tag) const = 0;
+		virtual ~PersonEventConverter() {}
 	};
 }
 
