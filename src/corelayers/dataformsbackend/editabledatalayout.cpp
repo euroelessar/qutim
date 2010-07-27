@@ -12,15 +12,17 @@
 namespace Core
 {
 
-static QWidget *getTitleHelper(const DataItem &item)
+static QWidget *getTitleHelper(const DataItem &item, Qt::Alignment labelAlignment)
 {
 	LocalizedStringList alt = item.property("titleAlternatives", LocalizedStringList());
 	if (item.property("readOnly", false) || alt.isEmpty()) {
 		QLabel *title = new QLabel(item.title() + ":");
-		title->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+		title->setAlignment(labelAlignment);
+#ifndef QUTIM_MOBILE_UI
 		QFont font;
 		font.setBold(true);
 		title->setFont(font);
+#endif
 		return title;
 	} else {
 		return new ComboBox(item.title(), alt, item);
@@ -178,7 +180,7 @@ void DataListWidget::addRow(const DataItem &item)
 	QWidget *data = getWidgetHelper(item, &twoColumn);
 	data->setObjectName(item.name());
 	if (!twoColumn && !item.property("hideTitle", false))
-		title = getTitleHelper(item);
+		title = getTitleHelper(item, m_labelAlignment);
 	addRow(data, title);
 }
 
@@ -326,7 +328,7 @@ bool EditableDataLayout::addItem(const DataItem &item)
 	QWidget *title = 0;
 	twoColumns = twoColumns || item.property("hideTitle", false);
 	if (!twoColumns)
-		title = getTitleHelper(item);
+		title = getTitleHelper(item, labelAlignment());
 	widget->setParent(parentWidget());
 	widget->setObjectName(item.name());
 	addRow(title, widget);

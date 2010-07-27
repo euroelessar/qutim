@@ -19,10 +19,12 @@ bool ReadOnlyDataLayout::addItem(const DataItem &item)
 	QWidget *widget = getReadOnlyWidget(item, &twoColumns);
 	if (!twoColumns && !item.property("hideTitle", false)) {
 		title = new QLabel(item.title().toString() + ":", parentWidget());
-		title->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+		title->setAlignment(labelAlignment());
+#ifndef QUTIM_MOBILE_UI
 		QFont font = title->font();
 		font.setBold(true);
 		title->setFont(font);
+#endif
 		title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 	}
 	widget->setParent(parentWidget());
