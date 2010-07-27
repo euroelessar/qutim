@@ -129,7 +129,7 @@ namespace Jabber
 	void JPersonEventSupport::handleTag(const std::string &jid, gloox::Tag *tag)
 	{
 		QString unicodeJid = QString::fromStdString(jid);
-		QObject *receiver;
+		QObject *receiver = 0;
 		if (unicodeJid == m_account->id())
 			receiver = m_account;
 		else if (ChatUnit *unit = m_account->getUnit(unicodeJid, false))
