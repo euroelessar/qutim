@@ -168,12 +168,12 @@ namespace Core
 		ui->listWidget->clear();
 
 		QListWidgetItem *item = createItem(QT_TRANSLATE_NOOP("JoinGroupChat", "Join"),
-										   qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Join to a new groupchat")
+										   qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Join an existing or create a new groupchat")
 															 ));
 		item->setData(Qt::UserRole,ButtonTypeNew);
 		item->setIcon(Icon("meeting-attending"));
 		item = createItem(QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),
-						  qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Edit saved bookmarks"))
+						  qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Create, edit, or delete saved bookmarks"))
 						  );
 		item->setData(Qt::UserRole,ButtonTypeEditBookmarks);
 		item->setIcon(Icon("bookmark-new-list"));

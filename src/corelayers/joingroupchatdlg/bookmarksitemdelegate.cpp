@@ -46,14 +46,14 @@ namespace Core
 		}
 		return desc;
 	};
-	
+
 	ItemDelegate::ItemDelegate(QObject* parent):
 			QAbstractItemDelegate(parent),
 			m_padding(6)
 	{
 
 	}
-	
+
 	ItemDelegate::~ItemDelegate()
 	{
 
@@ -117,7 +117,7 @@ namespace Core
 		QFontMetrics metrics = option.fontMetrics;
 		int height = metrics.boundingRect(rect, Qt::TextWordWrap,
 										  index.data(Qt::DisplayRole).toString()).height();
-		
+
 		if (!isSeparator(index)) {
 			QFont desc_font = option.font;
 			desc_font.setPointSize(desc_font.pointSize() - 1);
