@@ -411,6 +411,8 @@ namespace qutim_sdk_0_3
 		const ActionGeneratorPrivate *d = ActionGeneratorPrivate::get(gen);
 		QObject *controller = const_cast<QObject*>(actionsCache()->value(gen).key(action)); //fixme
 		QObject *obj = d->receiver ? d->receiver.data() : controller;
+		if (!obj)
+			return;
 		const QMetaObject *meta = obj->metaObject();
 		int index = meta->indexOfMethod(d->member.constData() + 1);
 		if (index == -1) {
