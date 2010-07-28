@@ -72,7 +72,10 @@ namespace Core
 			painter->drawText(option.rect, Qt::AlignCenter, title);
 		}
 		else {
+#ifndef Q_OS_SYMBIAN
+			//disable very ugly appearance
 			style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
+#endif
 			QRect rect = option.rect;
 
 			rect.setTop(rect.top() + m_padding);
