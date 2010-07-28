@@ -56,7 +56,7 @@ namespace qutim_sdk_0_3
 		};
 
 		EmoticonsTheme(const QString &name = QString());
-		EmoticonsTheme(const QExplicitlySharedDataPointer<EmoticonsThemeData> &data);
+		EmoticonsTheme(EmoticonsThemeData *data);
 		EmoticonsTheme(const EmoticonsTheme &theme);
 		~EmoticonsTheme();
 		EmoticonsTheme &operator =(const EmoticonsTheme &theme);
