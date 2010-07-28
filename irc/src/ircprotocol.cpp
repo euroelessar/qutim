@@ -23,6 +23,7 @@
 #include <qutim/actiongenerator.h>
 #include <qutim/statusactiongenerator.h>
 #include <QRegExp>
+#include <QTextDocument>
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::irc::IrcAccount*);
 
@@ -31,6 +32,7 @@ namespace qutim_sdk_0_3 {
 namespace irc {
 
 IrcProtocol *IrcProtocol::self = 0;
+bool IrcProtocolPrivate::enableColoring;
 
 IrcCommandAlias::IrcCommandAlias(const QString &_name, const QString &_command, Types _types) :
 	name(_name), command(_command), types(_types)
@@ -127,8 +129,135 @@ void IrcProtocol::removeCommandAlias(const QString &name)
 	IrcConnection::removeAlias(name);
 }
 
+static QRegExp formatRx("(\\002|\\037|\\026|\\017|\\003((\\d{0,2})(,\\d{1,2}|)|))");
+
+QString IrcProtocolPrivate::getColorByMircCode(const QString &code)
+{
+	static QStringList colors = QStringList()
+								<< "white"
+								<< "black"
+								<< "blue"
+								<< "green"
+								<< "#FA5A5A" //lightred
+								<< "brown"
+								<< "purple"
+								<< "orange"
+								<< "yellow"
+								<< "lightgreen"
+								<< "cyan"
+								<< "lightcyan"
+								<< "lightblue"
+								<< "pink"
+								<< "grey"
+								<< "lightgrey";
+	bool ok;
+	int c = code.toInt(&ok);
+	if (ok)
+		return colors.value(c);
+	else
+		return QString();
+}
+
+QString IrcProtocol::ircFormatToHtml(const QString &msg_helper, QString *plainText)
+{
+	// \002 bold
+	// \037 underlined
+	// \026 italic
+	// \017 normal
+	// \003xx,xx color
+	QString msg = Qt::escape(msg_helper);
+	QString result;
+	result.reserve(msg.size() + 20);
+	if (plainText) {
+		plainText->clear();
+		plainText->reserve(msg.size());
+	}
+	QStringList resettingTags; // list of tags for resetting format
+	bool bold = false;
+	bool underlined = false;
+	bool italic = false;
+	int pos = 0, oldPos = 0;
+	while ((pos = formatRx.indexIn(msg, pos)) != -1) {
+		QString tmp = msg.mid(oldPos, pos - oldPos);
+		if (plainText) *plainText += tmp;
+		result += tmp;
+		QChar f = formatRx.cap(1).at(0);
+		if (f == '\002') { // bold
+			if (!bold) {
+				result += "<b>";
+				resettingTags.prepend("</b>");
+			} else {
+				result += "</b>";
+				resettingTags.removeOne("</b>");
+			}
+			bold = !bold;
+		} else if (f == '\037') { // underlined
+			if (!underlined) {
+				result += "<u>";
+				resettingTags.prepend("</u>");
+			} else {
+				result += "</u>";
+				resettingTags.removeOne("</u>");
+			}
+			underlined = !underlined;
+		} else if (f == '\026') { // italic
+			if (!italic) {
+				result += "<i>";
+				resettingTags.prepend("</i>");
+			} else {
+				result += "</i>";
+				resettingTags.removeOne("</i>");
+			}
+			italic = !italic;
+		} else if (f == '\017') { // normal
+			result += resettingTags.join("");
+			resettingTags.clear();
+		} else { // color
+			if (IrcProtocolPrivate::enableColoring) {
+				QString fontColor = IrcProtocolPrivate::getColorByMircCode(formatRx.cap(3));
+				QString backgroundColor = IrcProtocolPrivate::getColorByMircCode(formatRx.cap(4).mid(1));
+				// Resetting all colors
+				if (resettingTags.removeOne("</font>"))
+					result += "</font>";
+				if (!fontColor.isEmpty() || !backgroundColor.isEmpty()) {
+					result += "<span style=\"";
+					if (!fontColor.isEmpty())
+						result += "color: " + fontColor + ";";
+					if (!backgroundColor.isEmpty())
+						result += "background-color: " + backgroundColor + ";";
+					result += "\">";
+					resettingTags.prepend("</font>");
+				}
+			}
+		}
+		pos += formatRx.matchedLength();
+		oldPos = pos;
+	}
+	QString tmp = msg.mid(oldPos);
+	if (plainText) *plainText += tmp;
+	result += tmp;
+	return result;
+}
+
+QString IrcProtocol::ircFormatToPlainText(const QString &msg_helper)
+{
+	QString msg = Qt::escape(msg_helper);
+	QString result;
+	result.reserve(msg.size());
+	int pos = 0, oldPos = 0;
+	while ((pos = formatRx.indexIn(msg, pos)) != -1) {
+		result += msg.mid(oldPos, pos - oldPos);
+		pos += formatRx.matchedLength();
+		oldPos = pos;
+	}
+	result += msg.mid(oldPos);
+	return result;
+}
+
 void IrcProtocol::updateSettings()
 {
+	Config cfg = config("general");
+	d->enableColoring = cfg.value("enableColoring", true);
 	foreach (QPointer<IrcAccount> acc, *d->accounts_hash)
 		acc->updateSettings();
 }

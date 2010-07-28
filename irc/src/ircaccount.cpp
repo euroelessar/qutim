@@ -23,7 +23,6 @@
 #include <qutim/event.h>
 #include <qutim/dataforms.h>
 #include <QTime>
-#include <QTextDocument>
 
 namespace qutim_sdk_0_3 {
 
@@ -181,7 +180,7 @@ ChatSession *IrcAccount::activeSession() const
 void IrcAccount::log(const QString &msg, bool addToActiveSession, const QString &type)
 {
 	QString plainText;
-	QString html = ircFormatToHtml(msg, &plainText);
+	QString html = IrcProtocol::ircFormatToHtml(msg, &plainText);
 	// Add to an active session.
 	if (addToActiveSession) {
 		ChatSession *session = activeSession();
@@ -210,90 +209,6 @@ void IrcAccount::log(const QString &msg, bool addToActiveSession, const QString 
 	if (!d->log.isEmpty())
 		d->log += "<br>";
 	d->log += str;
-}
-
-static QRegExp formatRx("(\\002|\\037|\\026|\\017|\\003(\\d+(,\\d+|)|))");
-
-QString IrcAccount::ircFormatToHtml(const QString &msg_helper, QString *plainText)
-{
-	// \002 bold
-	// \037 underlined
-	// \026 italic
-	// \017 normal
-	// \003xx,xx color
-	QString msg = Qt::escape(msg_helper);
-	QString result;
-	result.reserve(msg.size() + 20);
-	if (plainText) {
-		plainText->clear();
-		plainText->reserve(msg.size());
-	}
-	QStringList resettingTags; // list of tags for resetting format
-	bool bold = false;
-	bool underlined = false;
-	bool italic = false;
-	int pos = 0, oldPos = 0;
-	while ((pos = formatRx.indexIn(msg, pos)) != -1) {
-		QString tmp = msg.mid(oldPos, pos - oldPos);
-		if (plainText) *plainText += tmp;
-		result += tmp;
-		QChar f = formatRx.cap(1).at(0);
-		if (f == '\002') { // bold
-			if (!bold) {
-				result += "<b>";
-				resettingTags.prepend("</b>");
-			} else {
-				result += "</b>";
-				resettingTags.removeOne("</b>");
-			}
-			bold = !bold;
-		} else if (f == '\037') { // underlined
-			if (!underlined) {
-				result += "<u>";
-				resettingTags.prepend("</u>");
-			} else {
-				result += "</u>";
-				resettingTags.removeOne("</u>");
-			}
-			underlined = !underlined;
-		} else if (f == '\026') { // italic
-			if (!italic) {
-				result += "<i>";
-				resettingTags.prepend("</i>");
-			} else {
-				result += "</i>";
-				resettingTags.removeOne("</i>");
-			}
-			italic = !italic;
-		} else if (f == '\017') { // normal
-			result += resettingTags.join("");
-			resettingTags.clear();
-		} else { // color
-			// TODO:
-			result.replace(pos, formatRx.matchedLength(), "");
-		}
-		pos += formatRx.matchedLength();
-		oldPos = pos;
-	}
-	QString tmp = msg.mid(oldPos);
-	if (plainText) *plainText += tmp;
-	result += tmp;
-	return result;
-}
-
-QString IrcAccount::ircFormatToPlainText(const QString &msg_helper)
-{
-	QString msg = Qt::escape(msg_helper);
-	QString result;
-	result.reserve(msg.size());
-	int pos = 0, oldPos = 0;
-	while ((pos = formatRx.indexIn(msg, pos)) != -1) {
-		result += msg.mid(oldPos, pos - oldPos);
-		pos += formatRx.matchedLength();
-		oldPos = pos;
-	}
-	result += msg.mid(oldPos);
-	return result;
 }
 
 void IrcAccount::registerLogMsgColor(const QString &type, const QString &color)

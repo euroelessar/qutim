@@ -62,6 +62,8 @@ public:
 	ChatSession *activeSession() const;
 	static void registerCommandAlias(const IrcCommandAlias &alias);
 	static void removeCommandAlias(const QString &name);
+	static QString ircFormatToHtml(const QString &msg, QString *plainText = 0);
+	static QString ircFormatToPlainText(const QString &msg);
 public slots:
 	void updateSettings();
 protected:

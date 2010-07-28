@@ -278,7 +278,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 	} else if (cmd == 322) { // RPL_LIST
 		QString channel = params.value(1);
 		QString users = params.value(2);
-		QString topic = IrcAccount::ircFormatToHtml(params.value(3));
+		QString topic = IrcProtocol::ircFormatToHtml(params.value(3));
 		if (m_account->d->channelListForm)
 			m_account->d->channelListForm->addChannel(channel, users, topic);
 		m_account->log(QString("Channel: %1 Users: %2 Topic: %3")
@@ -518,7 +518,7 @@ void IrcConnection::tryNextNick()
 void IrcConnection::handleTextMessage(const QString &who, const QString &to, const QString &text)
 {
 	QString plainText;
-	QString html = IrcAccount::ircFormatToHtml(text, &plainText);
+	QString html = IrcProtocol::ircFormatToHtml(text, &plainText);
 	bool isPrivate = (to == m_nick);
 	Message msg(plainText);
 	msg.setIncoming(true);
