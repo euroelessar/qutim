@@ -291,23 +291,26 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 	} else if (cmd == 321) { // RPL_LISTSTART
 		if (m_account->d->channelListForm)
 			m_account->d->channelListForm->listStarted();
-		m_account->log(tr("End of /LIST"), true, "LIST");
+		else
+			m_account->log(tr("End of /LIST"), true, "LIST");
 	} else if (cmd == 322) { // RPL_LIST
 		QString channel = params.value(1);
 		QString users = params.value(2);
 		QString topic = IrcProtocol::ircFormatToHtml(params.value(3));
 		if (m_account->d->channelListForm)
 			m_account->d->channelListForm->addChannel(channel, users, topic);
-		m_account->log(QString("Channel: %1 Users: %2 Topic: %3")
-					   .arg(channel)
-					   .arg(users)
-					   .arg(topic),
-					   true,
-					   "LIST");
+		else
+			m_account->log(QString("Channel: %1 Users: %2 Topic: %3")
+						   .arg(channel)
+						   .arg(users)
+						   .arg(topic),
+						   true,
+						   "LIST");
 	} else if (cmd == 323) { // RPL_LISTEND
 		if (m_account->d->channelListForm)
 			m_account->d->channelListForm->listEnded();
-		m_account->log(tr("End of /LIST"), true, "LIST");
+		else
+			m_account->log(tr("End of /LIST"), true, "LIST");
 	} else if (cmd == 521) { // ERR_LISTSYNTAX
 		QString error = tr("Bad list syntax, type /QUOTE HELP LIST");
 		if (m_account->d->channelListForm)
