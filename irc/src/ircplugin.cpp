@@ -53,6 +53,11 @@ bool IrcPlugin::unload()
 	return false;
 }
 
+QString qutimIrcVersionStr()
+{
+	return QUTIM_IRC_VERSION_STR;
+}
+
 } } // namespace qutim_sdk_0_3::irc
 
 QUTIM_EXPORT_PLUGIN2(irc, qutim_sdk_0_3::irc::IrcPlugin)

@@ -19,9 +19,13 @@
 #include <qutim/libqutim_global.h>
 #include <qutim/debug.h>
 
+#define QUTIM_IRC_VERSION_STR "0.1.0.0"
+
 namespace qutim_sdk_0_3 {
 
 namespace irc {
+
+QString qutimIrcVersionStr();
 
 } } // namespace qutim_sdk_0_3::irc
 
