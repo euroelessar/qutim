@@ -6,7 +6,7 @@
 
 class QHBoxLayout;
 class QListWidgetItem;
-class QCommandLinkButton;
+class QModelIndex;
 
 namespace Ui {
     class JoinGroupChat;
@@ -49,8 +49,7 @@ namespace Core
 		void onBookmarksBoxActivated(int index);
 		void fillAccounts();
 		void fillBookmarks(Account *account);
-		void onCommandButtonClicked();
-		void onCommandButtonDestroyed(QObject *obj);
+		void onItemActivated(const QModelIndex &index);
 		void onCloseRequested();
 		void onActionTriggered();
 		void updateBookmark(bool remove = false);
@@ -58,10 +57,9 @@ namespace Core
 		void fillBookmarks(const QVariantList &items, bool recent = false);
 		void updateDataForm(const DataItem &item, int pos = 0);
 		Account *currentAccount();
-		QListWidgetItem *createItem(const QString &name,const QString &description = QString());
+		QListWidgetItem *createItem(const QString &name,const QVariant &description = QVariant());
 		Ui::JoinGroupChat *ui;
 		QPointer<QWidget> m_dataform_widget;
-		QMap<QObject*, QListWidgetItem*> m_items;
 		QAction *m_action;
 	};
 

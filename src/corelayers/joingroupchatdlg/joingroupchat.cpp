@@ -10,6 +10,8 @@
 #include <libqutim/debug.h>
 #include <QCommandLinkButton>
 #include <QLatin1Literal>
+#include <libqutim/icon.h>
+#include "bookmarksitemdelegate.h"
 
 namespace Core
 {
@@ -19,12 +21,15 @@ namespace Core
 			ui(new Ui::JoinGroupChat)
 	{
 		ui->setupUi(this);
+		ui->listWidget->setItemDelegate(new BookmarksItemDelegate(this));
+		ui->bookmarksBox->setItemDelegate(ui->listWidget->itemDelegate());
 
 		setAttribute(Qt::WA_DeleteOnClose);
 
 		connect(ui->stackedWidget,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
 		connect(ui->accountBox,SIGNAL(currentIndexChanged(int)),SLOT(onAccountBoxActivated(int)));
 		connect(ui->bookmarksBox,SIGNAL(currentIndexChanged(int)),SLOT(onBookmarksBoxActivated(int)));
+		connect(ui->listWidget,SIGNAL(activated(QModelIndex)),SLOT(onItemActivated(QModelIndex)));
 
 #ifdef QUTIM_MOBILE_UI
 		QAction *close_action = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Close"),this);
@@ -112,23 +117,18 @@ namespace Core
 		QListWidgetItem *list_item = new QListWidgetItem(txt,ui->listWidget);
 		ui->listWidget->addItem(list_item);
 		list_item->setData(Qt::UserRole,ButtonTypeSeparator);
-		if (recent)
-			ui->bookmarksBox->insertSeparator(ui->bookmarksBox->count());
 		foreach (const QVariant &data,items) {
 			QVariantMap item = data.toMap();
 			QString name = item.value("name").toString();
 			QVariantMap fields = item.value("fields").toMap();
-			QString description;
-			QVariantMap::const_iterator it;
-			for (it = fields.constBegin();it!=fields.constEnd();it++) {
-				description += it.key() % QLatin1Literal(": ") % it.value().toString() % QLatin1Literal(" \n");
-			}
-			description.remove(description.length()-2,2); //remove last \n
-			list_item = createItem(name,description);
+			list_item = createItem(name,fields);
 			list_item->setData(Qt::UserRole,ButtonTypeBookmark);
+			list_item->setIcon(Icon("bookmarks"));
 
-			ui->bookmarksBox->addItem(name,fields);
-			ui->bookmarksBox->setItemData(ui->bookmarksBox->count()-1,!recent,Qt::UserRole+1);
+			int index = ui->bookmarksBox->count()-1;
+			ui->bookmarksBox->addItem(Icon("bookmarks"),name,fields);
+			ui->bookmarksBox->setItemData(index,!recent,Qt::UserRole+1);
+			//ui->bookmarksBox->setItemData(index,fields,Qt::UserRole+2);
 		}
 	}
 
@@ -139,10 +139,16 @@ namespace Core
 			return;
 		ui->listWidget->clear();
 
-		QListWidgetItem *item = createItem(QT_TRANSLATE_NOOP("JoinGroupChat", "New groupchat"));
+		QListWidgetItem *item = createItem(QT_TRANSLATE_NOOP("JoinGroupChat", "Join"),
+										   qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Join to a new groupchat")
+										   ));
 		item->setData(Qt::UserRole,ButtonTypeNew);
-		item = createItem(QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),QT_TRANSLATE_NOOP("JoinGroupChat", ""));
+		item->setIcon(Icon("meeting-attending"));
+		item = createItem(QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),
+						  qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Edit saved bookmarks"))
+						  );
 		item->setData(Qt::UserRole,ButtonTypeEditBookmarks);
+		item->setIcon(Icon("bookmark-new-list"));
 		fillBookmarks(account);
 	}
 
@@ -156,6 +162,12 @@ namespace Core
 		//Bookmarks
 		QVariantList bookmarks = event.at<QVariantList>(0);
 		fillBookmarks(bookmarks);
+
+		//Nice hack
+		int index = ui->bookmarksBox->count();
+		ui->bookmarksBox->insertSeparator(index);
+		ui->bookmarksBox->setItemData(index,qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Recent")),Qt::DisplayRole);
+
 		//Recent items
 		bookmarks = event.at<QVariantList>(1);
 		fillBookmarks(bookmarks,true);
@@ -175,33 +187,38 @@ namespace Core
 		}
 	}
 
-	QListWidgetItem *JoinGroupChat::createItem(const QString &name, const QString &description)
+	QListWidgetItem *JoinGroupChat::createItem(const QString &name, const QVariant &data)
 	{
-		QListWidgetItem *item = new QListWidgetItem (ui->listWidget);
-		item->setFlags(Qt::NoItemFlags);
-		QCommandLinkButton *button = new QCommandLinkButton(name,description,ui->listWidget);
-		ui->listWidget->setItemWidget(item,button);
-		item->setSizeHint(button->size());
+//		QString description;
+//		if (data.canConvert<QVariantMap>()) {
+//			QVariantMap fields = data.toMap();
+//			QVariantMap::const_iterator it;
+//			for (it = fields.constBegin();it!=fields.constEnd();it++) {
+//				description += it.key() % QLatin1Literal(": ") % it.value().toString() % QLatin1Literal(" \n");
+//			}
+//			description.remove(description.length()-2,2); //remove last \n
+//		} else
+//			description = data.toString();
 
-		m_items.insert(button,item);
-		connect(button,SIGNAL(clicked()),SLOT(onCommandButtonClicked()));
-		connect(button,SIGNAL(destroyed(QObject*)),SLOT(onCommandButtonDestroyed(QObject*)));
+		QListWidgetItem *item = new QListWidgetItem (name,ui->listWidget);
+		item->setData(Qt::UserRole+2,data);
+//		QCommandLinkButton *button = new QCommandLinkButton(name,description,ui->listWidget);
+//		ui->listWidget->setItemWidget(item,button);
+//		item->setSizeHint(button->size());
 		return item;
 	}
 
-	void JoinGroupChat::onCommandButtonClicked()
+	void JoinGroupChat::onItemActivated(const QModelIndex &index)
 	{
 		Account *account = currentAccount();
 		if (!account)
-			return;
-		QCommandLinkButton *button = qobject_cast<QCommandLinkButton*>(sender());
-		QListWidgetItem *item = m_items.value(button);
-		ButtonTypes type = static_cast<ButtonTypes>(item->data(Qt::UserRole).toInt());
+			return;		
+		ButtonTypes type = static_cast<ButtonTypes>(index.data(Qt::UserRole).toInt());
 		switch (type) {
 		case ButtonTypeBookmark: {
 				//fill data
 				Event event("groupchat-fields");
-				event.args[1] = button->text();
+				event.args[1] = index.data().toString();
 				event.args[2] = false;
 				qApp->sendEvent(account,&event);
 				DataItem item = event.at<DataItem>(0);
@@ -220,12 +237,6 @@ namespace Core
 				break;
 			}
 		}
-	}
-
-
-	void JoinGroupChat::onCommandButtonDestroyed(QObject *obj)
-	{
-		m_items.remove(obj);
 	}
 
 	Account *JoinGroupChat::currentAccount()
