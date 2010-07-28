@@ -170,6 +170,13 @@ namespace Jabber
 		return list;
 	}
 
+	void JBookmarkManager::clearRecent()
+	{
+		Config config = p->account->config();
+		config.remove(QString("recent"));
+		config.sync();
+	}
+
 	void JBookmarkManager::writeToCache(const QString &type, const QList<JBookmark> &list)
 	{
 		Config config = p->account->config();
@@ -217,6 +224,8 @@ namespace Jabber
 		QList<JBookmark> bookmarks = recent ? p->recent : p->bookmarks;
 		foreach (const JBookmark &item,bookmarks) {
 			if (item.name == name)
+				return item;
+			else if (item.conference == name) //also looking for items that do not specify the name
 				return item;
 		}
 		return JBookmark();

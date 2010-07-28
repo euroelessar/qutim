@@ -47,7 +47,7 @@ namespace Jabber {
 			void saveRecent(const QString &conference, const QString &nick, const QString &password);
 			void removeBookmark(int index);
 			void sync();
-
+			void clearRecent();
 		signals:
 			void serverBookmarksChanged();
 			void bookmarksChanged();

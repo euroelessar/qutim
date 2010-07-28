@@ -54,8 +54,13 @@ namespace Jabber
 		if (!reasonMessage.isEmpty())
 			message = message % tr("\nwith reason \"%1\"").arg(reasonMessage);
 		message = message % tr("\nAccept invitation?");
-		if (QMessageBox(QMessageBox::Question, tr("Invite to groupchat"), message, QMessageBox::Yes | QMessageBox::No).exec()
-				== QMessageBox::Yes)
-			p->account->conferenceManager()->openJoinWindow(conferenceName, p->account->name(), passwordRoom);
+
+		QMessageBox box (QMessageBox::Question,
+						tr("Invite to groupchat"),
+						message,
+						QMessageBox::Yes | QMessageBox::No
+						);
+		if (box.exec() == QMessageBox::Yes)
+			p->account->conferenceManager()->join(conferenceName,p->account->name(),passwordRoom);
 	}
 }

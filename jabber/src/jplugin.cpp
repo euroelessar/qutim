@@ -9,7 +9,6 @@
 #include "protocol/modules/pep/jpersoneventsupport.h"
 #include "protocol/modules/moodpep/jpersonmoodconverter.h"
 #include "protocol/modules/tunepep/jpersontuneconverter.h"
-#include "protocol/account/muc/jmucjoinmodule.h"
 
 namespace Jabber
 {
@@ -76,10 +75,6 @@ namespace Jabber
 			QT_TRANSLATE_NOOP("Plugin", "Implementation of service browser"),
 			new GeneralGenerator<JServiceBrowserModule, JabberExtension>(),
 			ExtensionIcon("services"));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber MUC Join Window"),
-			QT_TRANSLATE_NOOP("Plugin", "Implementation of groupchat join window"),
-			new GeneralGenerator<JMUCJoinModule, JabberExtension>(),
-			ExtensionIcon(""));
 		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber File Transfer"),
 			QT_TRANSLATE_NOOP("Plugin", "Implementation of XEP-0096"),
 			new GeneralGenerator<JFileTransferFactory>(),

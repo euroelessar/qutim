@@ -161,12 +161,17 @@ namespace Jabber
 
 	void JProtocol::onSaveRemoveBookmarks(QObject *obj)
 	{
+		//TODO move to joingroupchat module
 		JMUCSession *room = qobject_cast<JMUCSession*>(obj);
 		Q_ASSERT(room);
 		JAccount *account = static_cast<JAccount*>(room->account());
 		//FIXME,  WTF room->bookmarkIndex() == -1?
 		if (room->bookmarkIndex() == -1)
-			account->conferenceManager()->openJoinWindow(room->id(), room->me()->name(), "", room->id());
+			//Rewrite on event system, something like
+			//Event event("groupchat-join-request");
+			//QObject *obj = getService("JoinGroupChat");
+			//qApp->sendEvent(obj,&event);
+			account->conferenceManager();
 		else
 			account->conferenceManager()->bookmarkManager()->removeBookmark(room->bookmarkIndex());
 	}

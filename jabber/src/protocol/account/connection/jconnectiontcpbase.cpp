@@ -133,6 +133,7 @@ namespace Jabber
 
 		QByteArray data = p->socket->read(ba);
 		m_totalBytesIn += data.size();
+		Q_ASSERT(m_handler); //WTF?
 		m_handler->handleReceivedData(this, std::string(data.data(), data.size()));
 	}
 

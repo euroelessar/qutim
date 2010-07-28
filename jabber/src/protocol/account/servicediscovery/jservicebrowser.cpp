@@ -450,7 +450,11 @@ namespace Jabber
 			emit joinConference(p->currentMenuItem.jid());
 			close();
 		} else {
-			p->account->conferenceManager()->openJoinWindow(p->currentMenuItem.jid(), p->account->name(), "");
+			//Rewrite on event system, something like
+			//Event event("groupchat-join-request");
+			//QObject *obj = getService("JoinGroupChat");
+			//qApp->sendEvent(obj,&event);
+			//p->account->conferenceManager()->openJoinWindow(p->currentMenuItem.jid(), p->account->name(), "");
 		}
 	}
 

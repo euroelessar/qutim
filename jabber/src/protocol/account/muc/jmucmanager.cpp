@@ -5,7 +5,6 @@
 #include "jmucmanager.h"
 #include "jbookmarkmanager.h"
 #include "jinvitemanager.h"
-#include "jmucjoin.h"
 #include "jmucsession.h"
 #include <qutim/messagesession.h>
 #include <qutim/icon.h>
@@ -50,23 +49,6 @@ namespace Jabber
 					closeMUCSession(muc);
 			}
 		}
-	}
-
-	void JMUCManager::openJoinWindow(const QString &conference, const QString &nick, const QString &password,
-									 const QString &name)
-	{
-		JMUCJoin *joinConference = new JMUCJoin(p->account);
-		joinConference->setConference(conference, nick, password, name);
-#if defined (Q_OS_SYMBIAN)
-		joinConference->showMaximized();
-#else
-		joinConference->show();
-#endif
-	}
-
-	void JMUCManager::openJoinWindow()
-	{
-		openJoinWindow(QString(), QString(), QString());
 	}
 
 	void JMUCManager::join(const qutim_sdk_0_3::DataItem &item)
@@ -123,6 +105,8 @@ namespace Jabber
 		connect(session, SIGNAL(destroyed()), room, SIGNAL(initClose()));
 		connect(room, SIGNAL(initClose()), SLOT(closeMUCSession()));
 		session->activate();
+
+		bookmarkManager()->saveRecent(conference,nick,password);
 	}
 
 	void JMUCManager::closeMUCSession()

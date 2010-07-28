@@ -29,9 +29,6 @@ namespace Jabber
 			~JMUCManager();
 			ChatUnit *muc(const QString &jid);
 			JBookmarkManager *bookmarkManager();
-			void openJoinWindow(const QString &conference, const QString &nick, const QString &password,
-					const QString &name = "");
-			void openJoinWindow();
 			void syncBookmarks();
 			void join(const QString &conference, const QString &nick = QString(), const QString &password = QString());
 			void join(const qutim_sdk_0_3::DataItem &item);
