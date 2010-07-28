@@ -15,6 +15,7 @@
 
 namespace Core
 {
+	const static int m_max_recent_count = 4;
 
 	JoinGroupChat::JoinGroupChat(QWidget *parent) :
 			QDialog(parent),
@@ -127,8 +128,9 @@ namespace Core
 		QListWidgetItem *list_item = new QListWidgetItem(txt,ui->listWidget);
 		ui->listWidget->addItem(list_item);
 		list_item->setData(Qt::UserRole,ButtonTypeSeparator);
-		foreach (const QVariant &data,items) {
-			QVariantMap item = data.toMap();
+		QVariantList::const_iterator it;
+		for (it=items.constBegin();it!=items.constEnd();it++) {
+			QVariantMap item = it->toMap();
 			QString name = item.value("name").toString();
 			QVariantMap fields = item.value("fields").toMap();
 			list_item = createItem(name,fields);
@@ -139,6 +141,8 @@ namespace Core
 			ui->bookmarksBox->addItem(Icon("bookmarks"),name,fields);
 			ui->bookmarksBox->setItemData(index,!recent,Qt::UserRole+1);
 			ui->bookmarksBox->setItemData(index,fields,Qt::UserRole+2);
+			if (recent && ((it - items.constBegin()) >= m_max_recent_count))
+				return;
 		}
 	}
 
