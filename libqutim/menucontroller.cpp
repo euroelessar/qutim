@@ -169,10 +169,6 @@ namespace qutim_sdk_0_3
 				currentEntry->menu->addAction(action);
 			}
 		}
-#ifdef Q_OS_SYMBIAN
-		//workaround about buggy softkeys
-		onAboutToShow();
-#endif
 	}
 
 	void DynamicMenu::onActionAdded(const ActionInfo &)
@@ -226,6 +222,10 @@ namespace qutim_sdk_0_3
 		if (!d_func()->menu) {
 			d_func()->menu = new DynamicMenu(d_func());
 		}
+#ifdef Q_OS_SYMBIAN
+		//workaround about buggy softkeys
+		d_func()->menu->onAboutToShow();
+#endif
 		return d_func()->menu;
 	}
 

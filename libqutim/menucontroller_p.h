@@ -85,6 +85,7 @@ namespace qutim_sdk_0_3
 		const MenuControllerPrivate * const m_d;
 		ActionEntry m_entry;
 		mutable QMap<const ActionGenerator*, QObject*> m_owners;
+		friend class MenuController;
 	};
 	
 	class ActionContainerPrivate : public QSharedData
