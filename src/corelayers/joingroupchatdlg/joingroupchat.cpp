@@ -31,17 +31,16 @@ namespace Core
 		connect(ui->bookmarksBox,SIGNAL(currentIndexChanged(int)),SLOT(onBookmarksBoxActivated(int)));
 		connect(ui->listWidget,SIGNAL(activated(QModelIndex)),SLOT(onItemActivated(QModelIndex)));
 
-#ifdef QUTIM_MOBILE_UI
-		QAction *close_action = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Close"),this);
-		close_action->setSoftKeyRole(QAction::NegativeSoftKey);
-		ui->actionBox->addAction(close_action);
-		connect(close_action,SIGNAL(triggered()),SLOT(onCloseRequested()));
-#endif
-		m_action = new QAction(this);
-		m_action->setSoftKeyRole(QAction::PositiveSoftKey);
-		connect(m_action,SIGNAL(triggered()),SLOT(onActionTriggered()));
-		ui->actionBox->addAction(m_action);
-		ui->actionBox->setVisible(m_action,false);
+		m_negative_action = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Close"),this);
+		m_negative_action->setSoftKeyRole(QAction::NegativeSoftKey);
+		ui->actionBox->addAction(m_negative_action);
+		connect(m_negative_action,SIGNAL(triggered()),SLOT(onNegativeActionTriggered()));
+
+		m_positive_action = new QAction(this);
+		m_positive_action->setSoftKeyRole(QAction::PositiveSoftKey);
+		connect(m_positive_action,SIGNAL(triggered()),SLOT(onPositiveActionTriggered()));
+		ui->actionBox->addAction(m_positive_action);
+		m_positive_action->setVisible(false);
 	}
 
 	JoinGroupChat::~JoinGroupChat()
@@ -65,7 +64,7 @@ namespace Core
 	{
 		QDialog::showEvent(ev);
 		fillAccounts();
-//		onCurrentChanged(0);
+		onCurrentChanged(0);
 	}
 
 	void JoinGroupChat::onToolBarActTriggered(QAction *act)
@@ -82,16 +81,26 @@ namespace Core
 		//1 - join page
 		//2 - bookmarks page
 		//TODO rewrite on enums
-		if (index == 1) {
-			Event event("groupchat-fields");
-			qApp->sendEvent(account,&event);
-			DataItem item = event.at<DataItem>(0);
-			updateDataForm(item);
-			m_action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Join"));
-			ui->actionBox->setVisible(m_action,true);
-		} else if (index == 2) {
-			onBookmarksBoxActivated(ui->bookmarksBox->currentIndex());
-			ui->actionBox->setVisible(m_action,true);
+		if (!index) {
+			m_positive_action->setVisible(false);
+			m_negative_action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Close"));
+#ifndef QUTIM_MOBILE_UI
+			m_negative_action->setVisible(false);
+#endif
+		}
+		else {
+			m_negative_action->setVisible(true);
+			m_positive_action->setVisible(true);
+			m_negative_action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Back"));
+			if (index == 1) {
+				Event event("groupchat-fields");
+				qApp->sendEvent(account,&event);
+				DataItem item = event.at<DataItem>(0);
+				updateDataForm(item);
+				m_positive_action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Join"));
+			} else if (index == 2) {
+				onBookmarksBoxActivated(ui->bookmarksBox->currentIndex());
+			}
 		}
 	}
 
@@ -102,8 +111,9 @@ namespace Core
 			bool support = p->data(qutim_sdk_0_3::Protocol::ProtocolSupportGroupChat).toBool();
 			if (support) {
 				foreach (Account *a,p->accounts()) {
-					if (a->status() != Status::Offline)
-						ui->accountBox->addItem(a->id(),qVariantFromValue(a));
+					if (a->status() != Status::Offline) {
+						ui->accountBox->addItem(a->status().icon(),a->id(),qVariantFromValue(a));
+					}
 				}
 			}
 		}
@@ -125,10 +135,10 @@ namespace Core
 			list_item->setData(Qt::UserRole,ButtonTypeBookmark);
 			list_item->setIcon(Icon("bookmarks"));
 
-			int index = ui->bookmarksBox->count()-1;
+			int index = ui->bookmarksBox->count();
 			ui->bookmarksBox->addItem(Icon("bookmarks"),name,fields);
 			ui->bookmarksBox->setItemData(index,!recent,Qt::UserRole+1);
-			//ui->bookmarksBox->setItemData(index,fields,Qt::UserRole+2);
+			ui->bookmarksBox->setItemData(index,fields,Qt::UserRole+2);
 		}
 	}
 
@@ -141,7 +151,7 @@ namespace Core
 
 		QListWidgetItem *item = createItem(QT_TRANSLATE_NOOP("JoinGroupChat", "Join"),
 										   qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Join to a new groupchat")
-										   ));
+															 ));
 		item->setData(Qt::UserRole,ButtonTypeNew);
 		item->setIcon(Icon("meeting-attending"));
 		item = createItem(QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),
@@ -189,22 +199,22 @@ namespace Core
 
 	QListWidgetItem *JoinGroupChat::createItem(const QString &name, const QVariant &data)
 	{
-//		QString description;
-//		if (data.canConvert<QVariantMap>()) {
-//			QVariantMap fields = data.toMap();
-//			QVariantMap::const_iterator it;
-//			for (it = fields.constBegin();it!=fields.constEnd();it++) {
-//				description += it.key() % QLatin1Literal(": ") % it.value().toString() % QLatin1Literal(" \n");
-//			}
-//			description.remove(description.length()-2,2); //remove last \n
-//		} else
-//			description = data.toString();
+		//		QString description;
+		//		if (data.canConvert<QVariantMap>()) {
+		//			QVariantMap fields = data.toMap();
+		//			QVariantMap::const_iterator it;
+		//			for (it = fields.constBegin();it!=fields.constEnd();it++) {
+		//				description += it.key() % QLatin1Literal(": ") % it.value().toString() % QLatin1Literal(" \n");
+		//			}
+		//			description.remove(description.length()-2,2); //remove last \n
+		//		} else
+		//			description = data.toString();
 
 		QListWidgetItem *item = new QListWidgetItem (name,ui->listWidget);
 		item->setData(Qt::UserRole+2,data);
-//		QCommandLinkButton *button = new QCommandLinkButton(name,description,ui->listWidget);
-//		ui->listWidget->setItemWidget(item,button);
-//		item->setSizeHint(button->size());
+		//		QCommandLinkButton *button = new QCommandLinkButton(name,description,ui->listWidget);
+		//		ui->listWidget->setItemWidget(item,button);
+		//		item->setSizeHint(button->size());
 		return item;
 	}
 
@@ -245,9 +255,12 @@ namespace Core
 		return (ui->accountBox->itemData(index)).value<Account*>();
 	}
 
-	void JoinGroupChat::onCloseRequested()
+	void JoinGroupChat::onNegativeActionTriggered()
 	{
-		close();
+		if (!ui->stackedWidget->currentIndex())
+			close();
+		else
+			ui->stackedWidget->setCurrentIndex(0);
 	}
 
 	void JoinGroupChat::closeEvent(QCloseEvent *)
@@ -256,7 +269,7 @@ namespace Core
 			updateBookmark(false);
 	}
 
-	void JoinGroupChat::onActionTriggered()
+	void JoinGroupChat::onPositiveActionTriggered()
 	{
 		Account *account = currentAccount();
 		if (!account)
@@ -303,9 +316,9 @@ namespace Core
 			return;
 
 		if (!ui->bookmarksBox->itemData(index,Qt::UserRole+1).toBool())
-			m_action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Add"));
+			m_positive_action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Add"));
 		else
-			m_action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Remove"));
+			m_positive_action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Remove"));
 
 		Event event("groupchat-fields");
 		event.args[1] = ui->bookmarksBox->itemText(index);

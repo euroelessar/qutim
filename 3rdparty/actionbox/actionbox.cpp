@@ -15,7 +15,7 @@
 
 #include "actionbox.h"
 #include <QAction>
-#include <QPushButton>
+#include <QToolButton>
 #include <QHBoxLayout>
 #include "actionbox_p.h"
 #include <libqutim/libqutim_global.h>
@@ -41,16 +41,15 @@ void ActionBox::addAction(QAction *action)
 #ifdef QUTIM_SOFTKEYS_SUPPORT
 	static_cast<QWidget*>(parent())->addAction(action);
 #else
-	QPushButton *button = new QPushButton(this);
+	QToolButton *button = new QToolButton(this);
 	button->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+	button->setDefaultAction(action);
 	d->buttons.insert(action,button);
-	d->updateButton(button,action);
 
-	connect(action,SIGNAL(changed()),d,SLOT(onActionChanged()));
-	connect(button,SIGNAL(clicked()),action,SIGNAL(triggered()));
-	connect(action,SIGNAL(destroyed(QObject*)),d,SLOT(onActionDestroyed(QObject*)));
+	connect(action,SIGNAL(changed()),d,SLOT(onChanged()));
+	connect(button,SIGNAL(destroyed(QObject*)),d,SLOT(onButtonDestroyed(QObject*)));
 
-	if (action->softKeyRole() == QAction::PositiveSoftKey)
+	if (action->softKeyRole() == QAction::NegativeSoftKey)
 		d->layout->insertWidget(0,button);
 	else /*if (action->softKeyRole() == QAction::NegativeSoftKey)*/
 		d->layout->addWidget(button);
@@ -90,38 +89,20 @@ void ActionBox::removeActions(QList<QAction *> actions)
 		removeAction(action);
 }
 
-
-void ActionBox::setVisible(QAction *action, bool visible)
+void ActionBoxPrivate::onButtonDestroyed(QObject *obj)
 {
-#ifndef QUTIM_SOFTKEYS_SUPPORT
-	d_func()->buttons.value(action)->setVisible(visible);
-#else
-	action->setVisible(visible);
-#endif
+	QToolButton *button = reinterpret_cast<QToolButton*>(obj);
+	QAction *action = buttons.key(button);
+	buttons.remove(action);
 }
 
-
-void ActionBoxPrivate::updateButton(QPushButton *button,const QAction *action)
+void ActionBoxPrivate::onChanged()
 {
-	button->setText(action->text());
-	button->setIcon(action->icon());
-	button->setToolTip(action->toolTip());
-	button->setShortcut(action->shortcut());
-	button->setMenu(action->menu());
-}
-
-void ActionBoxPrivate::onActionChanged()
-{
+	//small hack
 	QAction *action = qobject_cast<QAction*>(sender());
 	Q_ASSERT(action);
-	QPushButton *button = buttons.value(action);
+	QToolButton *button = buttons.value(action);
 	Q_ASSERT(button);
-	updateButton(button,action);
-}
-
-void ActionBoxPrivate::onActionDestroyed(QObject *obj)
-{
-	QAction *action = reinterpret_cast<QAction*>(obj);
-	buttons.take(action)->deleteLater();
+	button->setVisible(action->isVisible());
 }
 

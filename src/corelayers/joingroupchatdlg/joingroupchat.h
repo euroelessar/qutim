@@ -50,8 +50,8 @@ namespace Core
 		void fillAccounts();
 		void fillBookmarks(Account *account);
 		void onItemActivated(const QModelIndex &index);
-		void onCloseRequested();
-		void onActionTriggered();
+		void onNegativeActionTriggered();
+		void onPositiveActionTriggered();
 		void updateBookmark(bool remove = false);
 	private:
 		void fillBookmarks(const QVariantList &items, bool recent = false);
@@ -60,7 +60,8 @@ namespace Core
 		QListWidgetItem *createItem(const QString &name,const QVariant &description = QVariant());
 		Ui::JoinGroupChat *ui;
 		QPointer<QWidget> m_dataform_widget;
-		QAction *m_action;
+		QAction *m_positive_action;
+		QAction *m_negative_action;
 	};
 
 }

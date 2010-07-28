@@ -22,7 +22,6 @@ namespace Core
 		{
 			setType(-1);
 			m_proto = proto;
-			m_btn = new QToolButton();
 		}
 
 		virtual QObject *generateHelper() const
@@ -34,17 +33,17 @@ namespace Core
 			QFont font = action->font();
 			font.setBold(true);
 			action->setFont(font);
-			
-			QWidgetAction *widget = new QWidgetAction(action);	
+
+			QToolButton *m_btn = new QToolButton();
+			QWidgetAction *widget = new QWidgetAction(action);
 			widget->setDefaultWidget(m_btn);
+			QObject::connect(action,SIGNAL(destroyed()),widget,SLOT(deleteLater()));
 			m_btn->setDefaultAction(action);
 			m_btn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 			return widget;
 		}
 		virtual ~ProtocolSeparatorActionGenerator()
 		{
-			if (m_btn)
-				m_btn->deleteLater();
 		}
 	private:
 		Protocol *m_proto;
@@ -84,7 +83,7 @@ namespace Core
 		}
 
 		setMenuOwner(qobject_cast<MenuController*>(getService("ContactList")));
-		m_icon->setContextMenu(menu(false));
+		m_icon->setContextMenu(menu());
 		qApp->setQuitOnLastWindowClosed(false);
 	}
 

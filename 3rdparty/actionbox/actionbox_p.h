@@ -19,7 +19,7 @@
 #include <QMap>
 
 class ActionBox;
-class QPushButton;
+class QToolButton;
 class QAction;
 class QHBoxLayout;
 class ActionBoxPrivate : public QObject
@@ -29,12 +29,11 @@ class ActionBoxPrivate : public QObject
 public:
 	ActionBoxPrivate() : QObject(),q_ptr(0),layout(0) {}
 	ActionBox *q_ptr;
-	void updateButton(QPushButton *button,const QAction *action);
-	QMap<QAction*,QPushButton*> buttons;
+	QMap<QAction*,QToolButton*> buttons;
 	QHBoxLayout *layout;
 public slots:
-	void onActionChanged();
-	void onActionDestroyed(QObject *obj);
+	void onButtonDestroyed(QObject *obj);
+	void onChanged();
 };
 
 #endif // ACTIONBOX_P_H
