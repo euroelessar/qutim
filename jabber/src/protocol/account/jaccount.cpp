@@ -213,6 +213,8 @@ namespace Jabber {
 			QVariantMap data;
 			data.insert(QT_TRANSLATE_NOOP("Jabber", "Conference"),bookmark.conference);
 			data.insert(QT_TRANSLATE_NOOP("Jabber", "Nick"),bookmark.nick);
+			if (bookmark.autojoin)
+				data.insert(QT_TRANSLATE_NOOP("Jabber", "Autojoin"),(QT_TRANSLATE_NOOP("Jabber", "Yes")).toString());
 			item.insert("fields",data);
 			items.append(item);
 		}
