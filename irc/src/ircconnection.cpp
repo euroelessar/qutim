@@ -91,10 +91,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		IrcAccount::registerLogMsgColor("Support", "green");
 		IrcAccount::registerLogMsgColor("Users", "green");
 
-		registerAlias(IrcCommandAlias("ctpc", "PRIVMSG %1 :\001%2-\001",
-									  IrcCommandAlias::Console));
-		registerAlias(IrcCommandAlias("ctpc", "PRIVMSG %n :\001%0\001",
-									  IrcCommandAlias::Channel | IrcCommandAlias::PrivateChat));
+		registerAlias(IrcCommandAlias("ctpc", "PRIVMSG %1 :\001%2-\001"));
 		registerAlias(IrcCommandAlias("me", "PRIVMSG %1 :\001ACTION %2-\001",
 									  IrcCommandAlias::Console));
 		registerAlias(IrcCommandAlias("me", "PRIVMSG %n :\001ACTION %0\001",
