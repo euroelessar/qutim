@@ -79,7 +79,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< 263; // RPL_TRYAGAIN
 	registerHandler(this);
 
-	m_ctpcCmds << "PING" << "PONG" << "ACTION";
+	m_ctpcCmds << "PING" << "ACTION" << "CLIENTINFO";
 	registerCtpcHandler(this);
 
 	static bool init = false;
@@ -106,6 +106,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		registerAlias(IrcCommandAlias("ban", "MODE %n +b %0",
 									  IrcCommandAlias::Channel));
 		registerAlias(IrcCommandAlias("msg", "PRIVMSG %0"));
+		registerAlias(IrcCommandAlias("clientinfo", "PRIVMSG %1 :\001CLIENTINFO\001"));
 		init = true;
 	}
 }
@@ -319,6 +320,11 @@ void IrcConnection::handleCtpcRequest(IrcAccount *account, const QString &sender
 #endif
 	} else if (cmd == "ACTION") {
 		handleTextMessage(sender, receiver, QLatin1String("/me ") + params);
+	} else if (cmd == "CLIENTINFO") {
+		QStringList tags = m_ctpcHandlers.keys();
+		QString params = QString("IRC plugin for qutIM %1 - http://qutim.org - Supported tags: %2")
+						 .arg(qutimVersionStr()).arg(tags.join(","));
+		sendCtpcReply(sender, "CLIENTINFO", params);
 	}
 }
 
@@ -328,7 +334,7 @@ void IrcConnection::handleCtpcResponse(IrcAccount *account, const QString &sende
 	Q_UNUSED(account);
 	Q_UNUSED(senderHost);
 	Q_UNUSED(receiver);
-	if (cmd == "PING" || cmd == "PONG") {
+	if (cmd == "PING") {
 		QDateTime current = QDateTime::currentDateTime();
 		double receivedStamp = params.toDouble();
 		if (receivedStamp >= 0) {
@@ -339,6 +345,11 @@ void IrcConnection::handleCtpcResponse(IrcAccount *account, const QString &sende
 						 .arg(diff, 0, 'f', 3),
 						 true, "CTPC");
 		}
+	} else if (cmd == "CLIENTINFO") {
+		account->log(tr("Received CTCP-CLIENTINFO reply from %1: %2 ")
+					 .arg(sender)
+					 .arg(params),
+					 true, "CTPC");
 	}
 }
 
