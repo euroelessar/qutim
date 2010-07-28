@@ -3,6 +3,8 @@
 #include <libqutim/icon.h>
 #include <libqutim/menucontroller.h>
 #include "joingroupchat.h"
+#include <libqutim/account.h>
+#include <libqutim/protocol.h>
 
 namespace Core
 {
@@ -10,6 +12,22 @@ namespace Core
 			QT_TRANSLATE_NOOP("Plugin", "Join GroupChat dialog"),
 			QT_TRANSLATE_NOOP("Plugin", "Simple groupchat join dialog")
 			);
+
+
+	bool isSupportGroupchat()
+	{
+		foreach (Protocol *p,allProtocols()) {
+			bool support = p->data(qutim_sdk_0_3::Protocol::ProtocolSupportGroupChat).toBool();
+			if (support) {
+				foreach (Account *a,p->accounts()) {
+					if (a->status() != Status::Offline) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 	
 	JoinGroupChatModule::JoinGroupChatModule()
 	{
@@ -48,5 +66,10 @@ namespace Core
 							)
 	{
 
+	}
+
+	void JoinGroupChatGenerator::showImpl(QAction *action, QObject *)
+	{
+		action->setEnabled(isSupportGroupchat());
 	}
 }

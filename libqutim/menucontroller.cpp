@@ -33,8 +33,8 @@ namespace qutim_sdk_0_3
 
 	MenuController::~MenuController()
 	{
-//		foreach (ActionInfo info,d_func()->actions)
-//			delete info.gen;
+		//		foreach (ActionInfo info,d_func()->actions)
+		//			delete info.gen;
 	}
 
 	bool actionLessThan(const ActionInfo &a, const ActionInfo &b)
@@ -75,7 +75,7 @@ namespace qutim_sdk_0_3
 	{
 		return (quint64(a) << 32) | quint64(b);
 	}
-	
+
 	inline void unpack_helper(quint64 h, quint32 *a, quint32 *b)
 	{
 		*b = h & Q_INT64_C(0xffffffff);
@@ -147,7 +147,7 @@ namespace qutim_sdk_0_3
 		ActionEntry *currentEntry = &m_entry;
 		for (int i = 0; i < actions.size(); i++) {
 			const ActionInfo &act = actions[i];
-		
+
 			if (!isEqualMenu(lastMenu, act.hash)) {
 				lastType = act.gen->type();
 				lastMenu = act.hash;
@@ -163,34 +163,39 @@ namespace qutim_sdk_0_3
 			if (!action) {
 				action = act.gen->generate<QAction>();
 				actionsCache()->operator[](act.gen).insert(controller,action);
+
 			}
 			if (action) {
 				currentEntry->menu->addAction(action);
 			}
 		}
+#ifdef Q_OS_SYMBIAN
+		//workaround about buggy softkeys
+		onAboutToShow();
+#endif
 	}
 
 	void DynamicMenu::onActionAdded(const ActionInfo &)
 	{
-		//TODO epic fail  
+		//TODO epic fail
 		addActions(allActions());
 	}
-	
+
 	void DynamicMenu::onMenuOwnerChanged(const MenuController *)
 	{
 		//epic fail v2
 		//addActions(allActions(false));
-	}	
-	
-	DynamicMenu::~DynamicMenu()
-	{
-// 		foreach (QAction *action, actions()) {			
-// 			if (!actionsCache()->key(action))
-// 				action->deleteLater();
-// 		}
 	}
 
-	void DynamicMenu::onAboutToShow()	
+	DynamicMenu::~DynamicMenu()
+	{
+		// 		foreach (QAction *action, actions()) {
+		// 			if (!actionsCache()->key(action))
+		// 				action->deleteLater();
+		// 		}
+	}
+
+	void DynamicMenu::onAboutToShow()
 	{
 		foreach (QAction *action,this->actions()) {
 			ActionGenerator *gen = action->data().value<ActionGenerator*>();
@@ -214,7 +219,7 @@ namespace qutim_sdk_0_3
 			ActionGeneratorPrivate::get(gen)->hide(action,controller);
 		}
 	}
-	
+
 	QMenu *MenuController::menu(bool deleteOnClose) const
 	{
 		Q_UNUSED(deleteOnClose);
@@ -270,9 +275,9 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(id);
 		Q_UNUSED(data);
 	}
-		
-	ActionContainer::ActionContainer(MenuController* controller) : 
-		d_ptr(new ActionContainerPrivate)
+
+	ActionContainer::ActionContainer(MenuController* controller) :
+			d_ptr(new ActionContainerPrivate)
 	{
 		Q_D(ActionContainer);
 		d->controller = controller;
@@ -281,7 +286,7 @@ namespace qutim_sdk_0_3
 	}
 
 	ActionContainer::ActionContainer(MenuController* controller, ActionContainer::ActionFilter filter, const QVariant& data) :
-		d_ptr(new ActionContainerPrivate)
+			d_ptr(new ActionContainerPrivate)
 	{
 		Q_D(ActionContainer);
 		d->controller = controller;
@@ -313,7 +318,7 @@ namespace qutim_sdk_0_3
 	}
 
 	ActionContainer& ActionContainer::operator=(const qutim_sdk_0_3::ActionContainer &other)
-	{
+											   {
 		d_ptr = other.d_ptr;
 		return *this;
 	}
@@ -322,7 +327,7 @@ namespace qutim_sdk_0_3
 	{
 		//TODO may be need a delete created actions
 	}
-	
+
 	void ActionContainerPrivate::ensureActions()
 	{
 		actions.clear();
@@ -361,7 +366,7 @@ namespace qutim_sdk_0_3
 			}
 		}
 	}
-	
+
 	void ActionContainerPrivate::ensureAction(const ActionInfo &info)
 	{
 		QAction *action = actionsCache()->value(info.gen).value(controller);
@@ -375,32 +380,32 @@ namespace qutim_sdk_0_3
 		const_cast<ActionGenerator*>(info.gen)->showImpl(action,controller);
 		actions.append(action);
 	}
-	
+
 	bool ActionContainerPrivate::checkTypeMask(const ActionInfo &info,int typeMask)
 	{
 		switch (filterType) {
-			case ActionContainer::TypeMatch: {
+		case ActionContainer::TypeMatch: {
 				if (info.gen_p->type & typeMask) {
 					return true;
 				}
 				break;
 			}
-			case ActionContainer::TypeMismatch: {
+		case ActionContainer::TypeMismatch: {
 				if (!(info.gen_p->type & typeMask))
 					return true;
 				break;
 			}
-			default:
-				break;
+		default:
+			break;
 		}
 		return false;
 	}
-	
+
 	ActionHandler::ActionHandler() : QObject(0)
-	{		
+	{
 
 	}
-	
+
 	void ActionHandler::onActionTriggered(QAction *action)
 	{
 		const ActionGenerator *gen = action->data().value<ActionGenerator*>();
@@ -440,8 +445,8 @@ namespace qutim_sdk_0_3
 		default:
 			break;
 		}
-	}	
-	
+	}
+
 	void ActionHandler::onActionDestoyed(QObject *obj)
 	{
 		QAction *action = reinterpret_cast<QAction*>(obj);
@@ -452,7 +457,7 @@ namespace qutim_sdk_0_3
 				it->remove(key);
 		}
 	}
-	
+
 	QAction *ActionHandler::addAction(QAction* action)
 	{
 		connect(action,SIGNAL(destroyed(QObject*)),SLOT(onActionDestoyed(QObject*)));

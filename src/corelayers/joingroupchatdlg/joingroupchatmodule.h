@@ -28,6 +28,7 @@ namespace Core
 	{
 	public:
 		JoinGroupChatGenerator(QObject *module);
+		void showImpl(QAction *action, QObject *obj);
 	};	
 	
 }

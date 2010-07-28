@@ -153,6 +153,7 @@ namespace Core
 													   SLOT(onConfigureClicked(QObject*))
 													   );
 			gen->setPriority(1);
+			gen->setType(ActionTypeAdditional);
 			gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));
 			addAction(gen);
 
