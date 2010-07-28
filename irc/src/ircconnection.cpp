@@ -79,7 +79,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< 263; // RPL_TRYAGAIN
 	registerHandler(this);
 
-	m_ctpcCmds << "PING" << "ACTION" << "CLIENTINFO" << "VERSION";
+	m_ctpcCmds << "PING" << "ACTION" << "CLIENTINFO" << "VERSION" << "TIME";
 	registerCtpcHandler(this);
 
 	static bool init = false;
@@ -105,6 +105,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		registerAlias(IrcCommandAlias("msg", "PRIVMSG %0"));
 		registerAlias(IrcCommandAlias("clientinfo", "PRIVMSG %1 :\001CLIENTINFO\001"));
 		registerAlias(IrcCommandAlias("version", "PRIVMSG %1 :\001VERSION\001"));
+		registerAlias(IrcCommandAlias("time", "PRIVMSG %1 :\001TIME\001"));
 		init = true;
 	}
 }
@@ -328,6 +329,8 @@ void IrcConnection::handleCtpcRequest(IrcAccount *account, const QString &sender
 						 .arg(qutimIrcVersionStr())
 						 .arg(qutimVersionStr());
 		sendCtpcReply(sender, "VERSION", params);
+	} else if (cmd == "TIME") {
+		sendCtpcReply(sender, "TIME", QDateTime::currentDateTime().toString("ddd MMM dd hh:mm:ss yyyy"));
 	}
 }
 
@@ -348,7 +351,7 @@ void IrcConnection::handleCtpcResponse(IrcAccount *account, const QString &sende
 						 .arg(diff, 0, 'f', 3),
 						 true, "CTPC");
 		}
-	} else if (cmd == "CLIENTINFO" || cmd == "VERSION") {
+	} else if (cmd == "CLIENTINFO" || cmd == "VERSION" || "TIME") {
 		account->log(tr("Received CTCP-%1 reply from %2: %3")
 					 .arg(cmd)
 					 .arg(sender)
