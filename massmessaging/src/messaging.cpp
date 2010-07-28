@@ -27,6 +27,7 @@ namespace MassMessaging
 										this,
 										SLOT(onActionTriggered())
 										);
+		gen->setType(ActionTypeAdditional);
 		qobject_cast<MenuController*>(getService("ContactList"))->addAction(gen);
 
 		return true;
