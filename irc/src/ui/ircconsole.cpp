@@ -44,8 +44,9 @@ void IrcConsoleFrom::appendMessage(const QString &msg)
 
 void IrcConsoleFrom::sendCommand()
 {
-	m_account->log(ui->cmdEdit->text());
-	m_account->send(ui->cmdEdit->text(), IrcCommandAlias::Console);
+	QString cmd = ui->cmdEdit->text();
+	m_account->log(cmd);
+	m_account->send(cmd.startsWith('/') ? cmd.mid(1) : cmd, IrcCommandAlias::Console);
 	ui->cmdEdit->clear();
 }
 

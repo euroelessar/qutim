@@ -385,12 +385,15 @@ void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const
 	if (aliasType != IrcCommandAlias::Disabled) {
 		bool found;
 		QString lastCmdName;
-		for (int i = 0; i < 10; ++i) {
+		QString cmdName; // Current command name
+		QString cmdParamsStr; // Current parameters
+		int i = 0;
+		for (; i < 10; ++i) {
 			found = false;			
-			QString cmdName = command.mid(0, command.indexOf(' '));
+			cmdName = command.mid(0, command.indexOf(' '));
 			if (cmdName.compare(lastCmdName, Qt::CaseInsensitive) == 0) // To avoid recursion
 				break;
-			QString cmdParamsStr = command.mid(cmdName.length() + 1);
+			cmdParamsStr = command.mid(cmdName.length() + 1);
 			QStringList params; // Parameters from the command line
 			params << cmdParamsStr;
 			params += cmdParamsStr.split(' ', QString::SkipEmptyParts);
@@ -412,6 +415,8 @@ void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const
 			if (!found)
 				break;
 		}
+		if (i == 0 && !found) // A suitable alias has not found
+			command = cmdName.toUpper() + " " + cmdParamsStr;
 	}
 	QByteArray data = m_codec->fromUnicode(command) + "\r\n";
 	debug(VeryVerbose) << ">>>>" << data.trimmed();
