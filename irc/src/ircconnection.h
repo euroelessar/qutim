@@ -24,6 +24,14 @@
 namespace qutim_sdk_0_3 {
 
 namespace irc {
+
+class IrcPingAlias : public IrcCommandAlias
+{
+public:
+	IrcPingAlias();
+	virtual QString generate(IrcCommandAlias::Type aliasType, const QStringList &params,
+							 const QHash<QChar, QString> &extParams, QString *error = 0) const;
+};
 	
 struct IrcServer
 {

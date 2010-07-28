@@ -33,6 +33,22 @@ namespace irc {
 static QRegExp ctpcRx("^\\001(\\S+)( (.*)|)\\001");
 QMultiHash<QString, IrcCommandAlias*> IrcConnection::m_aliases;
 
+IrcPingAlias::IrcPingAlias() :
+	IrcCommandAlias("ping", QString())
+{
+}
+
+QString IrcPingAlias::generate(IrcCommandAlias::Type aliasType, const QStringList &params,
+							   const QHash<QChar, QString> &extParams, QString *error) const
+{
+	Q_UNUSED(aliasType);
+	Q_UNUSED(error);
+	Q_UNUSED(extParams);
+	QDateTime current = QDateTime::currentDateTime();
+	QString timeStamp = QString("%1.%2").arg(current.toTime_t()).arg(current.time().msec());
+	return QString("PRIVMSG %1 :\001PING %2\001").arg(params.value(0)).arg(timeStamp);
+}
+
 IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	QObject(parent)
 {
@@ -106,6 +122,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		registerAlias(new IrcCommandAlias("clientinfo", "PRIVMSG %1 :\001CLIENTINFO\001"));
 		registerAlias(new IrcCommandAlias("version", "PRIVMSG %1 :\001VERSION\001"));
 		registerAlias(new IrcCommandAlias("time", "PRIVMSG %1 :\001TIME\001"));
+		registerAlias(new IrcPingAlias);
 		init = true;
 	}
 }
@@ -312,11 +329,6 @@ void IrcConnection::handleCtpcRequest(IrcAccount *account, const QString &sender
 	Q_UNUSED(receiver);
 	if (cmd == "PING") {
 		sendCtpcReply(sender, "PING", params);
-#if 0
-		QDateTime current = QDateTime::currentDateTime();
-		QString timeStamp = QString("%1.%2").arg(current.toTime_t()).arg(current.time().msec());
-		sendCtpcRequest(sender, "PING", timeStamp);
-#endif
 	} else if (cmd == "ACTION") {
 		handleTextMessage(sender, receiver, QLatin1String("/me ") + params);
 	} else if (cmd == "CLIENTINFO") {
