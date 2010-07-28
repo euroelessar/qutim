@@ -278,8 +278,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 	} else if (cmd == 322) { // RPL_LIST
 		QString channel = params.value(1);
 		QString users = params.value(2);
-		// TODO: add support for html topics
-		QString topic = IrcAccount::ircFormatToPlainText(params.value(3));
+		QString topic = IrcAccount::ircFormatToHtml(params.value(3));
 		if (m_account->d->channelListForm)
 			m_account->d->channelListForm->addChannel(channel, users, topic);
 		m_account->log(QString("Channel: %1 Users: %2 Topic: %3")

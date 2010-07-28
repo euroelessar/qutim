@@ -19,20 +19,149 @@
 #include <ircchannel.h>
 #include <qutim/icon.h>
 #include <qutim/messagesession.h>
+#include <QAbstractTextDocumentLayout>
+#include <QPainter>
+
+Q_DECLARE_METATYPE(QTextDocument *);
 
 namespace qutim_sdk_0_3 {
 
 namespace irc {
 
+ChannelsModel::ChannelsModel(QObject *parent) :
+	QAbstractListModel(parent)
+{
+}
+
+ChannelsModel::~ChannelsModel()
+{
+}
+
+void ChannelsModel::addChannel(const QString &name, const QString &users, const QString &topic)
+{
+	int pos = 0;
+	foreach (const Channel &channel, m_channels) {
+		if (QString::localeAwareCompare(name, channel.name) < 0)
+			break;
+		++pos;
+	}
+	beginInsertRows(QModelIndex(), pos, pos);
+	Channel channel = { name, users, new QTextDocument(this) };
+	channel.topic->setHtml(topic);
+	m_channels.insert(pos, channel);
+	endInsertRows();
+}
+
+void ChannelsModel::clear()
+{
+	int count = m_channels.count();
+	beginRemoveRows(QModelIndex(), 0, count);
+	m_channels.clear();
+	endRemoveRows();
+}
+
+int ChannelsModel::rowCount(const QModelIndex &parent) const
+{
+	Q_UNUSED(parent);
+	return m_channels.count();
+}
+
+int ChannelsModel::columnCount(const QModelIndex &parent) const
+{
+	Q_UNUSED(parent);
+	return 3;
+}
+
+QVariant ChannelsModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+	if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
+		return QVariant();
+	switch (section) {
+	case 0:
+		return tr("Channel");
+	case 1:
+		return tr("Users");
+	case 2:
+		return tr("Topic");
+	}
+	return QVariant();
+}
+
+QVariant ChannelsModel::data(const QModelIndex &index, int role) const
+{
+	if (!index.isValid())
+		return QVariant();
+	if (role == Qt::DisplayRole) {
+		Channel channel = m_channels.value(index.row());
+		switch(index.column()) {
+		case 0:
+			return channel.name;
+		case 1:
+			return channel.users;
+		case 2:
+			return qVariantFromValue(channel.topic);
+		}
+	} else if (role == Qt::ToolTipRole) {
+		Channel channel = m_channels.value(index.row());
+		QString text = QLatin1String("<b>") + channel.name + QLatin1String("</b>");
+		QString html = channel.topic->toHtml();
+		if (!html.isEmpty())
+			text += QLatin1String("</br>") + html;
+		return text;
+	}
+	return QVariant();
+}
+
+ChannelsDelegate::ChannelsDelegate(QWidget *parent) :
+		QStyledItemDelegate(parent)
+{
+}
+
+void ChannelsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
+						  const QModelIndex &index) const
+{
+	QVariant data = index.data();
+	if (qVariantCanConvert<QTextDocument *>(data)) {
+		QTextDocument *textDocument = qVariantValue<QTextDocument *>(data);
+		QStyleOptionViewItemV4 option(opt);
+		QStyle *style = option.widget ? option.widget->style() : QApplication::style();
+		painter->save();
+		// Draw background.
+		style->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, painter, option.widget);
+		// Draw text using QTextDocument.
+		int pad = 1;
+		QRect textRect = option.rect.adjusted(pad, pad, -pad, -pad);
+		QRect clipRect(0, 0, textRect.width(), textRect.height());
+		painter->translate(textRect.x(), textRect.y());
+		painter->setClipRect(clipRect);
+		QAbstractTextDocumentLayout::PaintContext ctx;
+		ctx.palette = option.palette;
+		ctx.clip = QRect(clipRect);
+		textDocument->documentLayout()->draw(painter, ctx);
+		painter->restore();
+	} else {
+		QStyledItemDelegate::paint(painter, opt, index);
+	}
+}
+
+QSize ChannelsDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+	return QStyledItemDelegate::sizeHint(option, index);
+}
+
 IrcChannelListForm::IrcChannelListForm(IrcAccount *account,QWidget *parent) :
-	QWidget(parent), ui(new Ui::IrcChannelListForm), m_account(account)
+	QWidget(parent),
+	ui(new Ui::IrcChannelListForm),
+	m_account(account),
+	m_model(new ChannelsModel(this))
 {
     ui->setupUi(this);
 	connect(ui->startButton, SIGNAL(clicked()), SLOT(onStartSearch()));
 	connect(ui->filterEdit, SIGNAL(returnPressed()), SLOT(onStartSearch()));
-	connect(ui->channelsWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
-			SLOT(onItemClicked(QTreeWidgetItem*)));
+	connect(ui->channelsView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDoubleClick(QModelIndex)));
 	ui->startButton->setIcon(Icon("media-playback-start"));
+	ui->channelsView->setModel(m_model);
+	ui->channelsView->setItemDelegate(new ChannelsDelegate(this));
 }
 
 IrcChannelListForm::~IrcChannelListForm()
@@ -42,7 +171,7 @@ IrcChannelListForm::~IrcChannelListForm()
 
 void IrcChannelListForm::listStarted()
 {
-	ui->channelsWidget->clear();
+	m_model->clear();
 	ui->startButton->setEnabled(false);
 	ui->filterEdit->setEnabled(false);
 	m_count = 0;
@@ -51,7 +180,6 @@ void IrcChannelListForm::listStarted()
 
 void IrcChannelListForm::listEnded()
 {
-	ui->channelsWidget->sortByColumn(0, Qt::AscendingOrder);
 	ui->startButton->setEnabled(true);
 	ui->filterEdit->setEnabled(true);
 	ui->infoLabel->setText(tr("Channels list loaded. (%1)").arg(m_count));
@@ -60,11 +188,7 @@ void IrcChannelListForm::listEnded()
 void IrcChannelListForm::addChannel(const QString &channel, const QString &users, const QString &topic)
 {
 	ui->infoLabel->setText(tr("Fetching channels list... (%1)").arg(++m_count));
-	QTreeWidgetItem *item = new QTreeWidgetItem(ui->channelsWidget);
-	item->setText(0, channel);
-	item->setText(1, users);
-	item->setText(2, topic);
-	ui->channelsWidget->addTopLevelItem(item);
+	m_model->addChannel(channel, users, topic);
 }
 
 void IrcChannelListForm::error(const QString &error)
@@ -75,12 +199,13 @@ void IrcChannelListForm::error(const QString &error)
 void IrcChannelListForm::onStartSearch()
 {
 	m_account->send(QString("LIST :%1").arg(ui->filterEdit->text()));
-
 }
 
-void IrcChannelListForm::onItemClicked(QTreeWidgetItem *item)
+void IrcChannelListForm::onDoubleClick(const QModelIndex &index)
 {
-	QString channelName = item->text(0);
+	if (!index.isValid())
+		return;
+	QString channelName = m_model->channels().value(index.row()).name;
 	if (!channelName.isEmpty()) {
 		IrcChannel *channel = m_account->getChannel(channelName, true);
 		channel->join();

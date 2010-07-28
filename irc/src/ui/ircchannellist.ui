@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>581</width>
-    <height>383</height>
+    <width>577</width>
+    <height>379</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,31 +40,6 @@
        </widget>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item row="1" column="1" colspan="2">
-    <widget class="QTreeWidget" name="channelsWidget">
-     <attribute name="headerDefaultSectionSize">
-      <number>100</number>
-     </attribute>
-     <attribute name="headerDefaultSectionSize">
-      <number>100</number>
-     </attribute>
-     <column>
-      <property name="text">
-       <string>Channel</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Users</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Topic</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item row="0" column="2">
@@ -103,6 +78,37 @@
        </spacer>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="QTableView" name="channelsView">
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="showGrid">
+      <bool>false</bool>
+     </property>
+     <attribute name="horizontalHeaderHighlightSections">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderHighlightSections">
+      <bool>true</bool>
+     </attribute>
     </widget>
    </item>
   </layout>
