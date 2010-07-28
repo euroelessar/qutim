@@ -264,9 +264,8 @@ bool IrcAccount::event(QEvent *ev)
 			event->args[0] = qVariantFromValue(item);
 			return true;
 		} else if (event->id == d->eventTypes.groupChatJoin) {
-			AbstractDataForm *form = qobject_cast<AbstractDataForm*>(event->at<QWidget*>(0));
-			Q_ASSERT(form);
-			DataItem item = form->item();
+			DataItem item = event->at<DataItem>(0);
+			Q_ASSERT(!item.isNull());
 			QString channelName = item.subitem("channel").data<QString>();
 			if (channelName.length() <= 1)
 				return false;
