@@ -31,7 +31,7 @@ namespace qutim_sdk_0_3 {
 namespace irc {
 
 static QRegExp ctpcRx("^\\001(\\S+)( (.*)|)\\001");
-QMultiHash<QString, IrcCommandAlias> IrcConnection::m_aliases;
+QMultiHash<QString, IrcCommandAlias*> IrcConnection::m_aliases;
 
 IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	QObject(parent)
@@ -91,21 +91,21 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		IrcAccount::registerLogMsgColor("Support", "green");
 		IrcAccount::registerLogMsgColor("Users", "green");
 
-		registerAlias(IrcCommandAlias("ctpc", "PRIVMSG %1 :\001%2-\001"));
-		registerAlias(IrcCommandAlias("me", "PRIVMSG %1 :\001ACTION %2-\001",
+		registerAlias(new IrcCommandAlias("ctpc", "PRIVMSG %1 :\001%2-\001"));
+		registerAlias(new IrcCommandAlias("me", "PRIVMSG %1 :\001ACTION %2-\001",
 									  IrcCommandAlias::Console));
-		registerAlias(IrcCommandAlias("me", "PRIVMSG %n :\001ACTION %0\001",
+		registerAlias(new IrcCommandAlias("me", "PRIVMSG %n :\001ACTION %0\001",
 									  IrcCommandAlias::Channel | IrcCommandAlias::PrivateChat));
-		registerAlias(IrcCommandAlias("cs", "PRIVMSG ChanServ :%0"));
-		registerAlias(IrcCommandAlias("ns", "PRIVMSG NickServ :%0"));
-		registerAlias(IrcCommandAlias("kick", "KICK %n %0",
+		registerAlias(new IrcCommandAlias("cs", "PRIVMSG ChanServ :%0"));
+		registerAlias(new IrcCommandAlias("ns", "PRIVMSG NickServ :%0"));
+		registerAlias(new IrcCommandAlias("kick", "KICK %n %0",
 									  IrcCommandAlias::Channel));
-		registerAlias(IrcCommandAlias("ban", "MODE %n +b %0",
+		registerAlias(new IrcCommandAlias("ban", "MODE %n +b %0",
 									  IrcCommandAlias::Channel));
-		registerAlias(IrcCommandAlias("msg", "PRIVMSG %0"));
-		registerAlias(IrcCommandAlias("clientinfo", "PRIVMSG %1 :\001CLIENTINFO\001"));
-		registerAlias(IrcCommandAlias("version", "PRIVMSG %1 :\001VERSION\001"));
-		registerAlias(IrcCommandAlias("time", "PRIVMSG %1 :\001TIME\001"));
+		registerAlias(new IrcCommandAlias("msg", "PRIVMSG %0"));
+		registerAlias(new IrcCommandAlias("clientinfo", "PRIVMSG %1 :\001CLIENTINFO\001"));
+		registerAlias(new IrcCommandAlias("version", "PRIVMSG %1 :\001VERSION\001"));
+		registerAlias(new IrcCommandAlias("time", "PRIVMSG %1 :\001TIME\001"));
 		init = true;
 	}
 }
@@ -360,6 +360,26 @@ void IrcConnection::handleCtpcResponse(IrcAccount *account, const QString &sende
 	}
 }
 
+void IrcConnection::removeAlias(const QString &name)
+{
+	qDeleteAll(m_aliases.values(name));
+	m_aliases.remove(name);
+}
+
+void IrcConnection::removeAlias(IrcCommandAlias *alias)
+{
+	QHash<QString, IrcCommandAlias*>::iterator itr = m_aliases.begin();
+	QHash<QString, IrcCommandAlias*>::iterator endItr = m_aliases.end();
+	while (itr != endItr) {
+		if (*itr == alias) {
+			delete alias;
+			m_aliases.erase(itr);
+			return;
+		}
+		++itr;
+	}
+}
+
 void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const QHash<QChar, QString> &extParams) const
 {
 	if (aliasType != IrcCommandAlias::Disabled) {
@@ -370,51 +390,22 @@ void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const
 			QString cmdName = command.mid(0, command.indexOf(' '));
 			if (cmdName.compare(lastCmdName, Qt::CaseInsensitive) == 0) // To avoid recursion
 				break;
-			QString cmdParams = command.mid(cmdName.length() + 1);
-			QStringList cmdParamsList;
-			cmdParamsList << cmdParams;
-			cmdParamsList += cmdParams.split(' ', QString::SkipEmptyParts);
-			foreach (const IrcCommandAlias &alias, m_aliases) {
-				if (!(alias.types & aliasType))
-					continue;
-				if (cmdName.compare(alias.name, Qt::CaseInsensitive) == 0) {
-					static QRegExp paramRx("%([0-9]{1,2}|[a-zA-Z])(-|)");
-					QString newParams = alias.command;
-					int pos = 0;
-					while ((pos = paramRx.indexIn(newParams, pos)) != -1) {
-						bool isIndex;
-						int index = paramRx.cap(1).toInt(&isIndex);
-						QString param;
-						if (isIndex) {
-							Q_ASSERT(index >= 0);
-							if (index >= cmdParamsList.size()) {
-								m_account->log(tr("Not enough parameters for command %1").arg(alias.name));
-								return;
-							}
-							if (paramRx.cap(2) != "-") {
-								param = cmdParamsList.at(index);
-							} else {
-								for (int i = index, c = cmdParamsList.size(); i < c; ++i) {
-									if (i != index)
-										param += " ";
-									param += cmdParamsList.at(i);
-								}
-							}
-						} else {
-							QChar extParamIndex = paramRx.cap(1).at(0);
-							if (extParams.contains(extParamIndex)) {
-								param = extParams.value(extParamIndex);
-							} else {
-								pos += paramRx.matchedLength();
-								continue;
-							}
-						}
-						newParams.replace(pos, paramRx.matchedLength(), param);
-						pos += param.size();
+			QString cmdParamsStr = command.mid(cmdName.length() + 1);
+			QStringList params; // Parameters from the command line
+			params << cmdParamsStr;
+			params += cmdParamsStr.split(' ', QString::SkipEmptyParts);
+			foreach (IrcCommandAlias *alias, m_aliases) {
+				if (cmdName.compare(alias->name(), Qt::CaseInsensitive) == 0) {
+					QString error;
+					QString newCommand = alias->generate(aliasType, params, extParams, &error);
+					if (!error.isEmpty()) {
+						m_account->log(error, true, "ERROR");
+						return;
+					} else if (!newCommand.isEmpty()) {
+						command = newCommand;
+						lastCmdName = cmdName;
+						found = true;
 					}
-					command = newParams;
-					lastCmdName = cmdName;
-					found = true;
 					break;
 				}
 			}

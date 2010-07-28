@@ -59,8 +59,9 @@ public:
 	void handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
 							const QString &receiver, const QString &cmd, const QString &params);
 	const QString &nick() const { return m_nick; }
-	static void registerAlias(const IrcCommandAlias &alias) { m_aliases.insert(alias.name, alias); }
-	static void removeAlias(const QString &name) { m_aliases.remove(name); }
+	static void registerAlias(IrcCommandAlias *alias) { m_aliases.insert(alias->name(), alias); }
+	static void removeAlias(const QString &name);
+	static void removeAlias(IrcCommandAlias *alias);
 private:
 	void tryConnectToNextServer();
 	void tryNextNick();
@@ -82,7 +83,7 @@ private:
 	int m_currentNick;
 	QString m_fullName;
 	QTextCodec *m_codec;
-	static QMultiHash<QString, IrcCommandAlias> m_aliases;
+	static QMultiHash<QString, IrcCommandAlias*> m_aliases;
 };
 
 } } // namespace qutim_sdk_0_3::irc

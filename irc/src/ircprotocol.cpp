@@ -34,11 +34,6 @@ namespace irc {
 IrcProtocol *IrcProtocol::self = 0;
 bool IrcProtocolPrivate::enableColoring;
 
-IrcCommandAlias::IrcCommandAlias(const QString &_name, const QString &_command, Types _types) :
-	name(_name), command(_command), types(_types)
-{
-}
-
 IrcProtocol::IrcProtocol() :
 	d(new IrcProtocolPrivate)
 {
@@ -119,7 +114,7 @@ ChatSession *IrcProtocol::activeSession() const
 	return d->activeSession;
 }
 
-void IrcProtocol::registerCommandAlias(const IrcCommandAlias &alias)
+void IrcProtocol::registerCommandAlias(IrcCommandAlias *alias)
 {
 	IrcConnection::registerAlias(alias);
 }
@@ -127,6 +122,11 @@ void IrcProtocol::registerCommandAlias(const IrcCommandAlias &alias)
 void IrcProtocol::removeCommandAlias(const QString &name)
 {
 	IrcConnection::removeAlias(name);
+}
+
+void IrcProtocol::removeCommandAlias(IrcCommandAlias *alias)
+{
+	IrcConnection::removeAlias(alias);
 }
 
 static QRegExp formatRx("(\\002|\\037|\\026|\\017|\\003((\\d{0,2})(,\\d{1,2}|)|))");
