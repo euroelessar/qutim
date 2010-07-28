@@ -1,3 +1,18 @@
+/****************************************************************************
+ *  joingroupchat.cpp
+ *
+ *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
 #include "joingroupchat.h"
 #include "ui_joingroupchat.h"
 #include <QEvent>
@@ -22,7 +37,7 @@ namespace Core
 			ui(new Ui::JoinGroupChat)
 	{
 		ui->setupUi(this);
-		ui->listWidget->setItemDelegate(new BookmarksItemDelegate(this));
+		ui->listWidget->setItemDelegate(new ItemDelegate(this));
 		ui->bookmarksBox->setItemDelegate(ui->listWidget->itemDelegate());
 
 		setAttribute(Qt::WA_DeleteOnClose);
@@ -127,20 +142,19 @@ namespace Core
 		QString txt = recent ? QT_TRANSLATE_NOOP("JoinGroupChat", "Recent") : QT_TRANSLATE_NOOP("JoinGroupChat", "Bookmarks");
 		QListWidgetItem *list_item = new QListWidgetItem(txt,ui->listWidget);
 		ui->listWidget->addItem(list_item);
-		list_item->setData(Qt::UserRole,ButtonTypeSeparator);
+		list_item->setData(SeparatorRole,true);
 		QVariantList::const_iterator it;
 		for (it=items.constBegin();it!=items.constEnd();it++) {
 			QVariantMap item = it->toMap();
 			QString name = item.value("name").toString();
 			QVariantMap fields = item.value("fields").toMap();
 			list_item = createItem(name,fields);
+			list_item->setIcon(Icon(recent ? "view-history" : "bookmarks"));
 			list_item->setData(Qt::UserRole,ButtonTypeBookmark);
-			list_item->setIcon(Icon("bookmarks"));
 
 			int index = ui->bookmarksBox->count();
-			ui->bookmarksBox->addItem(Icon("bookmarks"),name,fields);
-			ui->bookmarksBox->setItemData(index,!recent,Qt::UserRole+1);
-			ui->bookmarksBox->setItemData(index,fields,Qt::UserRole+2);
+			ui->bookmarksBox->addItem(Icon(recent ? "view-history" : "bookmarks"),name,fields);
+			ui->bookmarksBox->setItemData(index,fields,DescriptionRole);
 			if (recent && ((it - items.constBegin()) >= m_max_recent_count))
 				return;
 		}
@@ -215,7 +229,7 @@ namespace Core
 		//			description = data.toString();
 
 		QListWidgetItem *item = new QListWidgetItem (name,ui->listWidget);
-		item->setData(Qt::UserRole+2,data);
+		item->setData(DescriptionRole,data);
 		//		QCommandLinkButton *button = new QCommandLinkButton(name,description,ui->listWidget);
 		//		ui->listWidget->setItemWidget(item,button);
 		//		item->setSizeHint(button->size());
@@ -225,8 +239,8 @@ namespace Core
 	void JoinGroupChat::onItemActivated(const QModelIndex &index)
 	{
 		Account *account = currentAccount();
-		if (!account)
-			return;		
+		if (!account || index.data(SeparatorRole).toBool())
+			return;
 		ButtonTypes type = static_cast<ButtonTypes>(index.data(Qt::UserRole).toInt());
 		switch (type) {
 		case ButtonTypeBookmark: {

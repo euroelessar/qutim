@@ -1,5 +1,5 @@
 /****************************************************************************
- *  jmucjoinbookmarksitemdelegate.cpp
+ *  jmucjoinItemDelegate.cpp
  *
  *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *
@@ -19,18 +19,20 @@
 #include <QApplication>
 #include <QLatin1Literal>
 #include <qtextlayout.h>
-#include "joingroupchat.h"
+#include <libqutim/localizedstring.h>
 
 namespace Core
 {
+	using namespace qutim_sdk_0_3;
+
 	//small hack from Qt sources
 	bool isSeparator(const QModelIndex &index) {
-		return index.data(Qt::AccessibleDescriptionRole).toString() == QLatin1String("separator");
+		return index.data(Qt::AccessibleDescriptionRole).toString() == QLatin1String("separator") || index.data(SeparatorRole).toBool();
 	}
 
 	QString description(const QModelIndex& index)
 	{
-		QVariant data = index.data(Qt::UserRole+2);
+		QVariant data = index.data(DescriptionRole);
 		QString desc = data.toString();
 		if (data.canConvert<LocalizedString>()) {
 			desc = data.value<LocalizedString>();
@@ -45,30 +47,29 @@ namespace Core
 		return desc;
 	};
 	
-	BookmarksItemDelegate::BookmarksItemDelegate(QObject* parent):
+	ItemDelegate::ItemDelegate(QObject* parent):
 			QAbstractItemDelegate(parent),
 			m_padding(6)
 	{
 
 	}
 	
-	BookmarksItemDelegate::~BookmarksItemDelegate()
+	ItemDelegate::~ItemDelegate()
 	{
 
 	}
 
-	void BookmarksItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
+	void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 									  const QModelIndex& index) const
 	{
 		QStyleOptionViewItemV4 opt(option);
 		QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
-		ButtonTypes type = static_cast<ButtonTypes>(index.data(Qt::UserRole).toInt());
 		QString title = index.data(Qt::DisplayRole).toString();
 		//fix trouble with localized strings
 		if (title.isEmpty())
 			title = index.data(Qt::DisplayRole).value<LocalizedString>();
 
-		if (type == ButtonTypeSeparator || isSeparator(index)) {
+		if (isSeparator(index)) {
 			painter->drawText(option.rect, Qt::AlignCenter, title);
 		}
 		else {
@@ -107,7 +108,7 @@ namespace Core
 		}
 	}
 
-	QSize BookmarksItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
+	QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 	{
 		QRect rect = option.rect;
 		int width = rect.width();
@@ -117,8 +118,7 @@ namespace Core
 		int height = metrics.boundingRect(rect, Qt::TextWordWrap,
 										  index.data(Qt::DisplayRole).toString()).height();
 		
-		ButtonTypes type = static_cast<ButtonTypes>(index.data(Qt::UserRole).toInt());
-		if (type != ButtonTypeSeparator) {
+		if (!isSeparator(index)) {
 			QFont desc_font = option.font;
 			desc_font.setPointSize(desc_font.pointSize() - 1);
 			metrics = QFontMetrics(desc_font);
@@ -128,7 +128,7 @@ namespace Core
 										   description(index)
 										   ).height();
 		}
-		height += 2*m_padding;
+		height += 2.5*m_padding;
 		QSize size (width,height);
 		return size;
 	}

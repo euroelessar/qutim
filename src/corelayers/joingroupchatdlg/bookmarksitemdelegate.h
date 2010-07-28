@@ -12,19 +12,27 @@
  *                                                                         *
  ***************************************************************************
 *****************************************************************************/
-#ifndef BOOKMARKSITEMDELEGATE_H
-#define BOOKMARKSITEMDELEGATE_H
+#ifndef ITEMDELEGATE_H
+#define ITEMDELEGATE_H
 
 #include <QAbstractItemDelegate>
 
 namespace Core
 {
-	class BookmarksItemDelegate : public QAbstractItemDelegate
+	enum ItemRole
+	{
+		DescriptionRole = Qt::UserRole + 1,
+		SeparatorRole
+	};
+
+	Q_DECLARE_FLAGS(ItemRoles,ItemRole);
+
+	class ItemDelegate : public QAbstractItemDelegate
 	{
 		Q_OBJECT
 	public:
-		BookmarksItemDelegate(QObject* parent = 0);
-		virtual ~BookmarksItemDelegate();
+		ItemDelegate(QObject* parent = 0);
+		virtual ~ItemDelegate();
 		virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
 		virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 	private:
@@ -32,4 +40,4 @@ namespace Core
 	};
 
 }
-#endif // BOOKMARKSITEMDELEGATE_H
+#endif // ITEMDELEGATE_H
