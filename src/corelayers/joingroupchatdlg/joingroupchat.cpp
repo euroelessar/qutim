@@ -26,7 +26,7 @@
 #include <QCommandLinkButton>
 #include <QLatin1Literal>
 #include <libqutim/icon.h>
-#include "bookmarksitemdelegate.h"
+#include "itemdelegate.h"
 
 namespace Core
 {

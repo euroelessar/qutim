@@ -14,7 +14,7 @@
 *****************************************************************************/
 
 #include <libqutim/debug.h>
-#include "bookmarksitemdelegate.h"
+#include "itemdelegate.h"
 #include <QPainter>
 #include <QApplication>
 #include <QLatin1Literal>

@@ -79,6 +79,7 @@ INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 		3rdparty/flowlayout
 		3rdparty/actionbox
 		3rdparty/slidingstackedwidget
+		3rdparty/itemdelegate
 		include
 	)
 
@@ -144,6 +145,10 @@ LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/flowlayout/flowlayout
 LIST( APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/actionbox/actionbox.cpp" )
 LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/actionbox/actionbox_p.h" )
 LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/actionbox/actionbox.h" )
+
+# Add itemdelegate
+LIST( APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/itemdelegate/itemdelegate.cpp" )
+LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/itemdelegate/itemdelegate.h" )
 
 #TODO fix in future
 if (MINGW)
