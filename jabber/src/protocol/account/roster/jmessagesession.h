@@ -8,6 +8,8 @@
 
 namespace Jabber
 {
+	using namespace qutim_sdk_0_3;
+
 	struct JMessageSessionPrivate;
 	class JMessageHandler;
 	class JSessionConvertor;
@@ -31,9 +33,11 @@ namespace Jabber
 		virtual void handleMessage(const gloox::Message &msg, gloox::MessageSession* session = 0);
 		virtual void handleChatState(const gloox::JID &from, gloox::ChatStateType state);
 		ChatUnit *upperUnit();
+		ChatUnitList lowerUnits();
 		bool event(QEvent *);
 	private slots:
 		void onUnitDeath();
+		void onLowerUnitAdded(ChatUnit *unit);
 	private:
 		QScopedPointer<JMessageSessionPrivate> d_ptr;
 		friend class JSessionConvertor;

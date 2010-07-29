@@ -314,6 +314,7 @@ namespace Jabber
 		}
 		if (!text.isEmpty() && (d->isJoined || participant.flags & (UserKicked | UserBanned))) {
 			qutim_sdk_0_3::Message msg(text);
+			msg.setChatUnit(this);
 			msg.setTime(QDateTime::currentDateTime());
 			msg.setProperty("service", true);
 			msg.setProperty("silent", true);
@@ -392,6 +393,7 @@ namespace Jabber
 		Q_ASSERT(room == d_func()->room);
 		QString topic = QString::fromStdString(subject);
 		qutim_sdk_0_3::Message msg(tr("Subject:") % "\n" % topic);
+		msg.setChatUnit(this);
 		msg.setTime(QDateTime::currentDateTime());
 		msg.setProperty("service", true);
 		if (ChatSession *chatSession = ChatLayer::get(this, false))

@@ -206,6 +206,7 @@ namespace Jabber
 	{
 		JContactResource *res = new JContactResource(this, resource);
 		d_func()->resources.insert(resource, res);
+		emit lowerUnitAdded(res);
 	}
 
 	void JContact::setStatus(const QString &resource, Presence::PresenceType presence, int priority, const QString &text)

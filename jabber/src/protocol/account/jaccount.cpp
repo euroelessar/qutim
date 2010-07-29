@@ -1,12 +1,14 @@
 #include "jaccount.h"
 #include "roster/jroster.h"
 #include "roster/jcontact.h"
+#include "roster/jcontactresource.h"
 #include "roster/jmessagehandler.h"
 #include "servicediscovery/jservicebrowser.h"
 #include "servicediscovery/jservicediscovery.h"
 #include "../jprotocol.h"
 #include "muc/jmucmanager.h"
 #include "muc/jbookmarkmanager.h"
+#include "muc/jmucuser.h"
 #include <qutim/systeminfo.h>
 #include <qutim/passworddialog.h>
 #include <qutim/debug.h>
@@ -66,6 +68,9 @@ namespace Jabber {
 
 	ChatUnit *JAccount::getUnitForSession(ChatUnit *unit)
 	{
+		ChatUnit *upper = unit->upperUnit();
+		if (qobject_cast<JContactResource*>(upper) && !qobject_cast<JMUCUser*>(upper))
+			unit = upper->upperUnit();
 		return p->messageHandler->getSession(unit);
 	}
 

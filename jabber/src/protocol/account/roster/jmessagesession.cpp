@@ -122,6 +122,8 @@ namespace Jabber
 		d->atDeathState = false;
 		setMenuOwner(unit);
 		connect(unit, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged(QString)));
+		connect(unit, SIGNAL(lowerUnitAdded(ChatUnit*)), SLOT(onLowerUnitAdded(ChatUnit*)));
+		connect(unit, SIGNAL(destroyed()), this, SLOT(onUnitDeath()));
 	}
 
 	JMessageSession::JMessageSession(ChatUnit *unit) :
@@ -140,6 +142,7 @@ namespace Jabber
 		d->handler->setSessionUnit(this, unit);
 		setMenuOwner(unit);
 		connect(unit, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged(QString)));
+		connect(unit, SIGNAL(lowerUnitAdded(ChatUnit*)), SLOT(onLowerUnitAdded(ChatUnit*)));
 		connect(unit, SIGNAL(destroyed()), this, SLOT(onUnitDeath()));
 	}
 
@@ -206,6 +209,14 @@ namespace Jabber
 			d->followChanges = false;
 		}
 		qutim_sdk_0_3::Message coreMsg(QString::fromStdString(msg.body()));
+#if 1
+		// Workaround for a problem when messages from different resources of a contact
+		// are handled by one JMessageSession.
+		ChatUnit *sender = d->account->getUnit(QString::fromStdString(msg.from().full()), false);
+		coreMsg.setChatUnit(d->account->getUnitForSession(sender ? sender : d->unit.data()));
+#else
+		coreMsg.setChatUnit(this);
+#endif
 		coreMsg.setIncoming(true);
 		if (const DelayedDelivery *when = msg.when())
 			coreMsg.setTime(stamp2date(when->stamp()));
@@ -240,6 +251,12 @@ namespace Jabber
 		}
 	}
 
+	void JMessageSession::onLowerUnitAdded(ChatUnit *unit)
+	{
+		ChatUnit *lower = d_func()->handler->getSession(unit, false);
+		emit lowerUnitAdded(lower ? lower : unit);
+	}
+
 	void JMessageSession::handleChatState(const JID &from, gloox::ChatStateType state)
 	{
 		Q_UNUSED(from);
@@ -250,5 +267,16 @@ namespace Jabber
 	{
 		Q_D(JMessageSession);
 		return d->unit;
+	}
+
+	ChatUnitList JMessageSession::lowerUnits()
+	{
+		Q_D(JMessageSession);
+		ChatUnitList units;
+		foreach (ChatUnit *unit, d->unit->lowerUnits()) {
+			ChatUnit *lower = d->handler->getSession(unit, false);
+			units.push_back(lower ? lower : unit);
+		}
+		return units;
 	}
 }
