@@ -94,4 +94,17 @@ namespace qutim_sdk_0_3
 			return QVariant();
 		}
 	}
+
+	void Protocol::removeAccount(Account *account, RemoveFlag flags)
+	{
+		Config general = config().group("general");
+		QStringList accounts = general.value("accounts",QStringList());
+		accounts.removeAll(account->id());
+		general.setValue("accounts",accounts);
+		general.sync();
+		emit accountRemoved(account);
+
+		if (flags & DeleteAccount)
+			account->deleteLater();
+	}
 }

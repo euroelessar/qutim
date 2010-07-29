@@ -35,6 +35,7 @@ namespace Core
 			void onConfigureClicked(QObject*);
 			void onAccountCreated(qutim_sdk_0_3::Account *account);
 			void onAccountStatusChanged(const qutim_sdk_0_3::Status &status);
+			void onAccountDestroyed(QObject *obj);
 			void onStatusChanged();
 			void onSearchButtonToggled(bool toggled);
 			void showStatusDialog();

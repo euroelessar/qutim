@@ -6,6 +6,8 @@
 #include <QListWidgetItem>
 #include <QContextMenuEvent>
 #include "itemdelegate.h"
+#include <QMessageBox>
+#include <libqutim/debug.h>
 
 namespace Core
 {
@@ -37,6 +39,7 @@ namespace Core
 		foreach(Protocol *protocol, allProtocols())
 		{
 			connect(protocol,SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),SLOT(addAccount(qutim_sdk_0_3::Account*)));
+			connect(protocol,SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),SLOT(removeAccount(qutim_sdk_0_3::Account*)));
 			foreach(Account *account, protocol->accounts())
 			{
 				addAccount(account);
@@ -86,8 +89,8 @@ namespace Core
 	{
 		Icon protoIcon(QLatin1String("im-user") + account->protocol()->id()); //FIXME wtf?
 
-//		if (protoIcon.isNull())
-			protoIcon = Icon("applications-internet");
+		//		if (protoIcon.isNull())
+		protoIcon = Icon("applications-internet");
 
 		QListWidgetItem *accountItem = new QListWidgetItem(ui->listWidget);
 		accountItem->setText(account->name());
@@ -99,6 +102,19 @@ namespace Core
 		QString id = account->protocol()->data(Protocol::ProtocolIdName).toString();
 		fields.insert(id,account->id());
 		accountItem->setData(DescriptionRole,fields);
+	}
+
+	void AccountCreatorList::removeAccount(qutim_sdk_0_3::Account *removed)
+	{
+		for (int index = 0; index != ui->listWidget->count();index++) {
+			QListWidgetItem *item = ui->listWidget->item(index);
+			Account *account = item->data(Qt::UserRole).value<Account*>();
+			if (account == removed) {
+				debug() << "removed account";
+				delete item;
+				return;
+			}
+		}
 	}
 
 	bool AccountCreatorList::eventFilter(QObject *obj, QEvent *ev)
@@ -119,6 +135,8 @@ namespace Core
 					act = new QAction(menu);
 					act->setText(tr("Remove account"));
 					act->setIcon(Icon("list-remove-user"));
+					act->setData(qVariantFromValue(account));
+					connect(act,SIGNAL(triggered()),SLOT(onAccountRemoveTriggered()));
 					menu->addAction(act);
 					menu->popup(QCursor::pos());
 				}
@@ -139,10 +157,26 @@ namespace Core
 			window()->setEnabled(false);
 		AccountCreatorWizard *wizard = new AccountCreatorWizard();
 		connect(wizard,SIGNAL(destroyed()),SLOT(onWizardDestroyed()));
-#if defined(Q_OS_SYMBIAN)
+#if defined(QUTIM_MOBILE_UI)
 		wizard->showMaximized();
 #else
 		wizard->show();
 #endif
+	}
+
+	void AccountCreatorList::onAccountRemoveTriggered()
+	{
+		QAction *action = qobject_cast<QAction*>(sender());
+		Q_ASSERT(action);
+		Account *account = action->data().value<Account*>();
+		if (!account)
+			return;
+
+		int ret = QMessageBox::question(this, tr("Delete account"),
+								tr("Are you sure want to delete %1").arg(account->name()),
+								QMessageBox::Yes | QMessageBox::No,
+								QMessageBox::No);
+		if (ret == QMessageBox::Yes)
+			account->protocol()->removeAccount(account);
 	}
 }

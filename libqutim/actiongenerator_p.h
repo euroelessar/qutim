@@ -43,7 +43,7 @@ namespace qutim_sdk_0_3
 		LocalizedString text;
 		LocalizedString toolTip;
 		QPointer<QObject> receiver;
-		QMap<int, QList<QObject*> > subcribers;
+		QMap<int, QList<QObject* > > subcribers;
 		QByteArray member;
 		int type;
 		int priority;
@@ -64,10 +64,20 @@ namespace qutim_sdk_0_3
 		virtual bool eventFilter(QObject *obj, QEvent *ev);
 		void addAction(QAction *action, const ActionGeneratorPrivate *data);
 	public slots:
-		void onActionDeath(QObject *obj);
+		void onActionDeath(QObject *obj);		
 	private:
 		QMap<QAction*, const ActionGeneratorPrivate*> m_actions;
 	};
+
+//	class SubscribersHandler : public QObject
+//	{
+//		Q_OBJECT
+//	public:
+//		SubscribersHandler(ActionGeneratorPrivate *gen_p);
+//		ActionGeneratorPrivate *p;
+//	public slots:
+//		void onSubscriberDeath(QObject *subscriber);
+//	};
 }
 
 #endif // ACTIONGENERATOR_P_H

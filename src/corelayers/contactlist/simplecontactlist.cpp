@@ -334,6 +334,7 @@ namespace Core
 			QAction *action = new QAction(account->status().icon(), account->id(), p->status_btn);
 			connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
 					this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
+			connect(account, SIGNAL(destroyed(QObject*)),SLOT(onAccountDestroyed(QObject*)));
 			p->actions.insert(account, action);
 			//			connect(action, SIGNAL(triggered()), action, SLOT(toggle()));
 			action->setMenu(account->menu());
@@ -447,6 +448,12 @@ namespace Core
 				}
 			}
 			return QObject::event(ev);
+		}
+
+		void Module::onAccountDestroyed(QObject *obj)
+		{
+			Account *account = reinterpret_cast<Account*>(obj);
+			p->actions.take(account)->deleteLater();
 		}
 
 	}

@@ -32,8 +32,10 @@ namespace Core
 		virtual bool eventFilter(QObject *, QEvent *);
 	private slots:
 		void addAccount(qutim_sdk_0_3::Account *account);
+		void removeAccount(qutim_sdk_0_3::Account *account);
 		void listViewClicked(QListWidgetItem *item);
 		void onWizardDestroyed();
+		void onAccountRemoveTriggered();
 	private:
 		Ui::AccountCreatorList *ui;
 		QPointer<AccountCreatorWizard> m_wizard;

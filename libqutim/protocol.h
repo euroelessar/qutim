@@ -45,12 +45,19 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 		Q_DECLARE_PRIVATE(Protocol)
 		Q_PROPERTY(QString id READ id)
+//		Q_FLAGS(DataType DataTypes)
+//		Q_FLAGS(RemoveFlag RemoveFlags)
 	public:
 		enum DataType {
 			ProtocolIdName = 0x01,
 			ProtocolContainsContacts = 0x02,
 			ProtocolSupportGroupChat = 0x04
 		};
+		enum RemoveFlag {
+			DeleteAccount = 0x01,
+		};
+//		Q_DECLARE_FLAGS(RemoveFlags, RemoveFlag)
+//		Q_DECLARE_FLAGS(DataTypes, DataType)
 		Protocol();
 		Protocol(ProtocolPrivate &p);
 		virtual ~Protocol();
@@ -60,8 +67,15 @@ namespace qutim_sdk_0_3
 		virtual QList<Account *> accounts() const = 0;
 		virtual Account *account(const QString &id) const = 0;
 		virtual QVariant data(DataType type);
+		/*!
+		  Remove account from qutIM, protocols can reimplement this method.
+		  Be careful, this method actually delete your account.
+		  It is recommended to display a confirmation dialog box.
+		*/
+		virtual void removeAccount(Account *account, RemoveFlag flags = DeleteAccount);
 	signals:
 		void accountCreated(qutim_sdk_0_3::Account *);
+		void accountRemoved(qutim_sdk_0_3::Account *);
 	protected:
 		virtual void virtual_hook(int id, void *data);
 	private:
