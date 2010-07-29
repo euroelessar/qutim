@@ -19,17 +19,25 @@
 #include <QPointer>
 
 class VAccount;
-struct VkontakteProtocolPrivate
+class VkontakteProtocol;
+class VkontakteProtocolPrivate : public QObject
 {
-	inline VkontakteProtocolPrivate() :
+	Q_OBJECT
+	Q_DECLARE_PUBLIC(VkontakteProtocol)
+public:
+	VkontakteProtocolPrivate() :
 		accounts_hash(new QHash<QString, QPointer<VAccount> > ())
 	{ }
-	inline ~VkontakteProtocolPrivate() { delete accounts_hash; }
+	~VkontakteProtocolPrivate() { delete accounts_hash; }
 	union
 	{
 		QHash<QString, QPointer<VAccount> > *accounts_hash;
 		QHash<QString, VAccount *> *accounts;
 	};
+	VkontakteProtocol *q_ptr;
+public slots:
+	void onAccountDestroyed(QObject *obj);
+
 };
 
 #endif // VKONTAKTEPROTOCOL_P_H

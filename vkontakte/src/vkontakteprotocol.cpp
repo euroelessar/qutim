@@ -27,6 +27,7 @@ VkontakteProtocol::VkontakteProtocol() :
 {
 	Q_ASSERT(!self);
 	self = this;
+	d_func()->q_ptr = this;
 }
 
 VkontakteProtocol::~VkontakteProtocol()
@@ -64,6 +65,21 @@ void VkontakteProtocol::loadAccounts()
 		VAccount *acc = new VAccount(uid);
 		d->accounts_hash->insert(uid, acc);
 		acc->loadSettings();
+		connect(acc,SIGNAL(destroyed(QObject*)),d,SLOT(onAccountDestroyed(QObject*)));
 		emit accountCreated(acc);
 	}
 }
+
+QVariant VkontakteProtocol::data(DataType type)
+{
+	if (type == Protocol::ProtocolIdName)
+		return tr("Email");
+	return QVariant();
+}
+
+void VkontakteProtocolPrivate::onAccountDestroyed(QObject *obj)
+{
+	VAccount *acc = reinterpret_cast<VAccount*>(obj);
+	accounts->remove(accounts->key(acc));
+}
+
