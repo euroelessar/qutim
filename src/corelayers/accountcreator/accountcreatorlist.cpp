@@ -5,6 +5,7 @@
 #include "ui_accountcreatorlist.h"
 #include <QListWidgetItem>
 #include <QContextMenuEvent>
+#include "itemdelegate.h"
 
 namespace Core
 {
@@ -15,22 +16,23 @@ namespace Core
 		ui->setupUi(this);
 
 		ui->listWidget->installEventFilter(this);
+		ItemDelegate *delegate = new ItemDelegate(this);
+		delegate->setCommandLinkStyle();
+		ui->listWidget->setItemDelegate(delegate);
 
-#if defined(Q_OS_SYMBIAN)
 		connect(ui->listWidget,
-				SIGNAL(itemClicked(QListWidgetItem*)),
+				SIGNAL(itemActivated(QListWidgetItem*)),
 				SLOT(listViewClicked(QListWidgetItem*))
 				);
-#else
-		connect(ui->listWidget,
-				SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-				SLOT(listViewClicked(QListWidgetItem*))
-				);
-#endif
 		QListWidgetItem *addItem = new QListWidgetItem(ui->listWidget);
-		addItem->setText(tr("Add new account"));
-		addItem->setToolTip(tr("Just add or create new account"));
+		addItem->setText(QT_TRANSLATE_NOOP("Account","Add new account"));
+		addItem->setToolTip(QT_TRANSLATE_NOOP("Account","Just add or create new account"));
+		addItem->setData(DescriptionRole,addItem->toolTip());
 		addItem->setIcon(Icon("list-add-user"));
+
+		addItem = new QListWidgetItem(ui->listWidget);
+		addItem->setText(QT_TRANSLATE_NOOP("Account","Accounts"));
+		addItem->setData(SeparatorRole,true);
 
 		foreach(Protocol *protocol, allProtocols())
 		{
@@ -88,10 +90,15 @@ namespace Core
 			protoIcon = Icon("applications-internet");
 
 		QListWidgetItem *accountItem = new QListWidgetItem(ui->listWidget);
-		accountItem->setText(account->id());
+		accountItem->setText(account->name());
 		accountItem->setToolTip(account->name());
 		accountItem->setIcon(protoIcon);
 		accountItem->setData(Qt::UserRole,qVariantFromValue<Account *>(account));
+
+		QVariantMap fields;
+		QString id = account->protocol()->data(Protocol::ProtocolIdName).toString();
+		fields.insert(id,account->id());
+		accountItem->setData(DescriptionRole,fields);
 	}
 
 	bool AccountCreatorList::eventFilter(QObject *obj, QEvent *ev)
@@ -122,7 +129,7 @@ namespace Core
 
 	void AccountCreatorList::listViewClicked(QListWidgetItem *item)
 	{
-		if (item->data(Qt::UserRole).value<Account *>())
+		if (item->data(SeparatorRole).toBool() || item->data(Qt::UserRole).value<Account *>())
 			return;
 
 		if (!m_wizard.isNull())

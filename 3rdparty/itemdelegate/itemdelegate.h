@@ -35,8 +35,10 @@ namespace Core
 		virtual ~ItemDelegate();
 		virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
 		virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+		void setCommandLinkStyle(bool style = true);
 	private:
 		int m_padding;
+		bool m_command_link_style;
 	};
 
 }

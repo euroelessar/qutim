@@ -49,7 +49,7 @@ namespace Core
 
 	ItemDelegate::ItemDelegate(QObject* parent):
 			QAbstractItemDelegate(parent),
-			m_padding(6)
+			m_padding(6),m_command_link_style(false)
 	{
 
 	}
@@ -60,7 +60,7 @@ namespace Core
 	}
 
 	void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
-									  const QModelIndex& index) const
+							 const QModelIndex& index) const
 	{
 		QStyleOptionViewItemV4 opt(option);
 		QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
@@ -73,10 +73,23 @@ namespace Core
 			painter->drawText(option.rect, Qt::AlignCenter, title);
 		}
 		else {
+			if (m_command_link_style) {
+				QStyleOptionButton buttonOption;
+
+				buttonOption.state = option.state;
+				buttonOption.rect = option.rect;
+				buttonOption.palette = option.palette;
+				buttonOption.features |= QStyleOptionButton::CommandLinkButton;
+
+				style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
+			}
+			else {
 #ifndef Q_OS_SYMBIAN
-			//disable very ugly appearance
-			style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
+				//disable very ugly appearance
+				style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
 #endif
+			}
+
 			QRect rect = option.rect;
 
 			rect.setTop(rect.top() + m_padding);
@@ -118,18 +131,24 @@ namespace Core
 		int height = metrics.boundingRect(rect, Qt::TextWordWrap,
 										  index.data(Qt::DisplayRole).toString()).height();
 
-		if (!isSeparator(index)) {
+		QString desc = description(index);
+		if (!isSeparator(index) && !desc.isEmpty()) {
 			QFont desc_font = option.font;
 			desc_font.setPointSize(desc_font.pointSize() - 1);
 			metrics = QFontMetrics(desc_font);
 
 			height += metrics.boundingRect(rect,
 										   Qt::TextWordWrap,
-										   description(index)
+										   desc
 										   ).height();
 		}
 		height += 2.5*m_padding;
 		QSize size (width,height);
 		return size;
+	}
+
+	void ItemDelegate::setCommandLinkStyle(bool style)
+	{
+		m_command_link_style = style;
 	}
 }
