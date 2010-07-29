@@ -19,17 +19,19 @@
 #include <libqutim/configbase.h>
 #include <QDebug>
 
-XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings, QWidget* parent )
-: QWidget (parent ), ui (new Ui::XSettingsGroup),m_animated(true)
+XSettingsGroup::XSettingsGroup(const qutim_sdk_0_3::SettingsItemList& settings, QWidget* parent ) :
+	QWidget(parent),
+	m_setting_list(settings),
+	ui(new Ui::XSettingsGroup),
+	m_animated(false)
 {
-	m_setting_list = settings;
 	ui->setupUi(this);
 	//appearance
 	ConfigGroup general = Config("appearance").group("xsettings/general");
-	uint icon_size = general.value<int>("iconSize",16);
-	m_animated = general.value<bool>("animated",false);
+	uint icon_size = general.value<int>("iconSize", 16);
+	m_animated = general.value<bool>("animated", false);
 
-	ui->listWidget->setIconSize(QSize(icon_size,icon_size));
+	ui->listWidget->setIconSize(QSize(icon_size, icon_size));
 	ui->stackedWidget->setVerticalMode(true);
 	ui->stackedWidget->setSpeed(750);
 
@@ -46,8 +48,25 @@ XSettingsGroup::XSettingsGroup ( const qutim_sdk_0_3::SettingsItemList& settings
 		Q_UNUSED(listItem);
 		//list_item->setToolTip(settings_item->description()); //TODO need short description!
 	}
-	connect(ui->listWidget,SIGNAL(currentRowChanged(int)),SLOT(currentRowChanged(int)));
+	connect(ui->listWidget, SIGNAL(currentRowChanged(int)), SLOT(currentRowChanged(int)));
 	currentRowChanged(0);
+}
+
+XSettingsGroup::~XSettingsGroup()
+{
+}
+
+SettingsWidget *XSettingsGroup::currentWidget() const
+{
+	return qobject_cast<SettingsWidget*>(ui->stackedWidget->currentWidget());
+}
+
+void XSettingsGroup::updateCurrentWidget()
+{
+	int index = ui->listWidget->currentRow();
+	if (index == -1)
+		index = 0;
+	currentRowChanged(index);
 }
 
 void XSettingsGroup::changeEvent(QEvent *ev)
@@ -64,32 +83,36 @@ void XSettingsGroup::changeEvent(QEvent *ev)
 	}
 }
 
-void XSettingsGroup::currentRowChanged ( int index)
+void XSettingsGroup::currentRowChanged(int index)
 {
 	SettingsWidget *widget = m_setting_list.at(index)->widget();
 	if (widget == 0)
 		return;
+	SettingsWidget *current = currentWidget();
+	if (current && current != widget && !current->isModified()) {
+		if (m_animated)
+			connect(ui->stackedWidget, SIGNAL(animationFinished()), current, SLOT(deleteLater()));
+		else
+			current->deleteLater();
+	}
 	if (ui->stackedWidget->indexOf(widget) == -1) {
 		widget->setParent(this);
 		widget->load();
 		ui->stackedWidget->addWidget(widget);
-		connect(widget,SIGNAL(modifiedChanged(bool)),SLOT(onWidgetModifiedChanged(bool)));
+		connect(widget, SIGNAL(modifiedChanged(bool)), SLOT(onWidgetModifiedChanged(bool)));
 	}
-	if (m_animated)
+	if (m_animated) {
+		disconnect(ui->stackedWidget, SIGNAL(animationFinished()), widget, SLOT(deleteLater()));
 		ui->stackedWidget->slideInIdx(ui->stackedWidget->indexOf(widget));
-	else
+	} else {
 		ui->stackedWidget->setCurrentWidget(widget);
+	}
 	emit titleChanged(m_setting_list.at(index)->text());
-}
-
-
-XSettingsGroup::~XSettingsGroup()
-{
 }
 
 void XSettingsGroup::onWidgetModifiedChanged(bool haveChanges)
 {
-	SettingsWidget *widget = qobject_cast< SettingsWidget* >(sender());
+	SettingsWidget *widget = qobject_cast<SettingsWidget*>(sender());
 	if (!widget)
 		return;
 	if (haveChanges)

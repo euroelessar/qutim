@@ -27,7 +27,8 @@
 #include <QDesktopWidget>
 
 XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* parent) :
-		QDialog(parent),    ui(new Ui::XSettingsDialog)
+	QDialog(parent),
+	ui(new Ui::XSettingsDialog)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	ui->setupUi(this);
@@ -76,8 +77,8 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 
 	//init button box
 	ui->buttonsWidget->setVisible(false);
-	connect(ui->buttonBox,SIGNAL(accepted()),SLOT(onSaveButtonTriggered()));
-	connect(ui->buttonBox,SIGNAL(rejected()),SLOT(onCancelButtonTriggered()));
+	connect(ui->buttonBox, SIGNAL(accepted()), SLOT(onSaveButtonTriggered()));
+	connect(ui->buttonBox, SIGNAL(rejected()), SLOT(onCancelButtonTriggered()));
 	
 	//init categories
 
@@ -102,7 +103,7 @@ void XSettingsDialog::update(const SettingsItemList &settings)
 		onActionTriggered(m_current_action);
 }
 
-void XSettingsDialog::addAction (QAction* action, Settings::Type type)
+void XSettingsDialog::addAction(QAction* action, Settings::Type type)
 {
 	action->setProperty("category",type);
 	action->setCheckable(true);
@@ -121,24 +122,31 @@ void XSettingsDialog::changeEvent(QEvent *e)
 	}
 }
 
-void XSettingsDialog::onActionTriggered ( QAction* action )
+void XSettingsDialog::onActionTriggered(QAction* action)
 {
+	// Remove the old page.
+	QWidget *currentWidget = ui->settingsStackedWidget->currentWidget();
+	XSettingsGroup *group = qobject_cast<XSettingsGroup *>(currentWidget);
+	SettingsWidget *page = group ? group->currentWidget() : qobject_cast<SettingsWidget *>(currentWidget);
+	if (page && !page->isModified())
+		page->deleteLater();
+	// Set the new page
 	m_current_action = action;
 	Settings::Type type = static_cast<Settings::Type>(action->property("category").toInt());
 	SettingsItemList setting_items = m_settings_items.value(type);
-	if (setting_items.count()>1) { // ==0 or >=0 need for testing, for normally usage use >1
-		//TODO need way to add custom group
-			XSettingsGroup *group = m_group_widgets.value(type);
-
-			ui->settingsStackedWidget->removeWidget(m_group_widgets.value(type));
-			m_group_widgets.remove(type);
-
-			group = new XSettingsGroup(setting_items,this);
+	if (setting_items.count() > 1) { // ==0 or >=0 need for testing, for normally usage use >1
+		// TODO: need a way to add custom groups
+		XSettingsGroup *group = m_group_widgets.value(type);
+		if (!group) {
+			group = new XSettingsGroup(setting_items, this);
 			ui->settingsStackedWidget->addWidget(group);
-			connect(group,SIGNAL(modifiedChanged(SettingsWidget*)),SLOT(onWidgetModifiedChanged(SettingsWidget*)));
-			connect(group,SIGNAL(titleChanged(QString)),SLOT(onTitleChanged(QString)));
+			connect(group, SIGNAL(modifiedChanged(SettingsWidget*)), SLOT(onWidgetModifiedChanged(SettingsWidget*)));
+			connect(group, SIGNAL(titleChanged(QString)), SLOT(onTitleChanged(QString)));
 			m_group_widgets.insert(type,group);
-			ui->settingsStackedWidget->setCurrentWidget(group);
+		} else {
+			group->updateCurrentWidget();
+		}
+		ui->settingsStackedWidget->setCurrentWidget(group);
 	} else {
 		if (setting_items.count() == 0) {
 			ui->settingsStackedWidget->setCurrentIndex(0);
@@ -151,7 +159,7 @@ void XSettingsDialog::onActionTriggered ( QAction* action )
 			widget->setParent(this);
 			widget->load();
 			widget->layout()->setMargin(9);
-			connect(widget,SIGNAL(modifiedChanged(bool)),SLOT(onWidgetModifiedChanged(bool)));
+			connect(widget, SIGNAL(modifiedChanged(bool)), SLOT(onWidgetModifiedChanged(bool)));
 			ui->settingsStackedWidget->addWidget(widget);
 		}
 		ui->settingsStackedWidget->setCurrentWidget(widget);
@@ -160,7 +168,7 @@ void XSettingsDialog::onActionTriggered ( QAction* action )
 }
 
 
-void XSettingsDialog::onWidgetModifiedChanged ( bool haveChanges )
+void XSettingsDialog::onWidgetModifiedChanged(bool haveChanges)
 {
 	SettingsWidget *widget = qobject_cast< SettingsWidget* >(sender());
 	if (!widget)
@@ -185,23 +193,31 @@ void XSettingsDialog::onTitleChanged(const QString& title)
 	setWindowTitle(tr("qutIM settings - %1").arg(title));
 }
 
-
 void XSettingsDialog::onSaveButtonTriggered()
 {
+	XSettingsGroup *currentGroup = qobject_cast<XSettingsGroup*>(ui->settingsStackedWidget->currentWidget());
+	SettingsWidget *currentWidget = currentGroup ? currentGroup->currentWidget() : 0;
 	while (m_modified_widgets.count()) {
 		SettingsWidget *widget = m_modified_widgets.takeFirst();
 		qDebug() << "Saved config for:" << widget->objectName();
 		widget->save();
+		if (currentWidget != widget)
+			widget->deleteLater();
 	}
 	ui->buttonsWidget->setVisible(false);
 }
 
 void XSettingsDialog::onCancelButtonTriggered()
 {
+	XSettingsGroup *currentGroup = qobject_cast<XSettingsGroup*>(ui->settingsStackedWidget->currentWidget());
+	SettingsWidget *currentWidget = currentGroup ? currentGroup->currentWidget() : 0;
 	while (m_modified_widgets.count()) {
 		SettingsWidget *widget = m_modified_widgets.takeFirst();
 		qDebug() << "Canceled:" << widget->objectName();
-		widget->cancel();
+		if (currentWidget != widget)
+			widget->deleteLater();
+		else
+			widget->cancel();
 	}
 	ui->buttonsWidget->setVisible(false);
 }

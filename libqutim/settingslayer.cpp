@@ -45,6 +45,8 @@ namespace qutim_sdk_0_3
 	SettingsItem::~SettingsItem()
 	{
 		clearWidget();
+		if (p->gen)
+			delete p->gen;
 	}
 
 	Settings::Type SettingsItem::type() const
