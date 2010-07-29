@@ -19,7 +19,6 @@ namespace Core
 
 		ui->listWidget->installEventFilter(this);
 		ItemDelegate *delegate = new ItemDelegate(this);
-		delegate->setCommandLinkStyle();
 		ui->listWidget->setItemDelegate(delegate);
 
 		connect(ui->listWidget,
