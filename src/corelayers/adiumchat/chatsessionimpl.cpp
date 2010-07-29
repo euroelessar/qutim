@@ -44,7 +44,7 @@ namespace Core
 		ChatSessionImplPrivate::ChatSessionImplPrivate()
 			: chat_style_output(new ChatStyleOutput),
 			web_page(new QWebPage(this)),
-			input(new QTextDocument),
+			input(new QTextDocument(this)),
 			separator(true),
 			myself_chat_state(ChatStateInActive)
 		{
@@ -142,7 +142,6 @@ namespace Core
 			Q_D(ChatSessionImpl);
 			if (d->menu)
 				d->menu->deleteLater();
-			d->input->deleteLater();
 		}
 
 		void ChatSessionImpl::addContact(Buddy* c)
@@ -546,7 +545,5 @@ namespace Core
 		{
 			return d_func()->myself_chat_state;
 		}
-
-
 	}
 }

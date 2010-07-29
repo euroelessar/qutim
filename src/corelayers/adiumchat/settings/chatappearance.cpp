@@ -42,7 +42,11 @@ namespace Core
 			return ChatAppearance::tr("Vasya Pupkin");
 		}
 
-		virtual bool sendMessage(const qutim_sdk_0_3::Message& message) {return true;}
+		virtual bool sendMessage(const qutim_sdk_0_3::Message& message)
+		{
+			Q_UNUSED(message);
+			return true;
+		}
 
 		virtual QString id() const
 		{
@@ -64,10 +68,18 @@ namespace Core
 			m_unit->deleteLater();
 		}
 
-		virtual ChatUnit* getUnit(const QString& unitId, bool create = true)
+		virtual ChatUnit* getUnit(const QString &unitId, bool create = true)
+		{
+			Q_UNUSED(unitId);
+			Q_UNUSED(create);
+			return m_unit;
+		}
+
+		virtual FakeChatUnit *getFakeUnit()
 		{
 			return m_unit;
 		}
+
 	private:
 		FakeChatUnit *m_unit;
 	};
@@ -84,7 +96,7 @@ namespace Core
 		else
 		{
 			FakeAccount *account = new FakeAccount("Noname", allProtocols().begin().value());
-			FakeChatUnit *unit = new FakeChatUnit(account);
+			FakeChatUnit *unit = account->getFakeUnit();
 			m_chat_session = new ChatSessionImpl(unit, ChatLayer::instance());
 			connect(ui->chatBox,SIGNAL(currentIndexChanged(int)),SLOT(onThemeChanged(int)));
 			m_page = m_chat_session->getPage();
@@ -147,7 +159,7 @@ namespace Core
 		QString category = "webkitstyle";
 		QStringList themes = listThemes(category);
 		ui->chatBox->clear();
-		foreach (QString name, themes)
+		foreach (const QString &name, themes)
 			ui->chatBox->addItem(name);
 		ui->chatBox->blockSignals(false);
 	}
@@ -216,7 +228,7 @@ namespace Core
 		m_current_variables.clear();
 		if (settingsWidget)
 			delete settingsWidget;
-		settingsWidget = new QWidget();
+		settingsWidget = new QWidget(this);
 		QFormLayout *layout = new QFormLayout(settingsWidget);
 		layout->setLabelAlignment(Qt::AlignLeft|Qt::AlignVCenter);
 		QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
