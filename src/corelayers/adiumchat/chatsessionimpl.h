@@ -36,7 +36,7 @@ namespace Core
 			Q_OBJECT
 			Q_DECLARE_PRIVATE(ChatSessionImpl)
 		public:
-			ChatSessionImpl (ChatUnit *unit, ChatLayer* chat );
+			ChatSessionImpl(ChatUnit *unit, ChatLayer *chat);
 			virtual ~ChatSessionImpl();
 			virtual void addContact ( Buddy* c );
 			virtual qint64 appendMessage(Message &message);
@@ -45,6 +45,7 @@ namespace Core
 			Account *getAccount() const;
 			QString getId() const;
 			ChatUnit *getUnit() const;
+			ChatUnit *getCurrentUnit() const; // Returns unit chosen by user as receiver
 			virtual QTextDocument *getInputField();
 			virtual void markRead(quint64 id = Q_UINT64_C(0xffffffffffffffff));
 			virtual MessageList unread() const;

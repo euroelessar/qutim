@@ -21,12 +21,13 @@
 #include <QDateTime>
 #include <libqutim/message.h>
 #include <libqutim/status.h>
+#include <libqutim/chatunit.h>
 
 class QMenu;
 class QTextDocument;
+class QActionGroup;
 namespace qutim_sdk_0_3 {
 class Contact;
-class ChatUnit;
 }
 
 class QWebPage;
@@ -36,10 +37,9 @@ namespace Core
 	namespace AdiumChat
 	{
 
-class ChatSessionModel;
-
 		using namespace qutim_sdk_0_3;
 
+		class ChatSessionModel;
 		class ChatStyleOutput;
 		class ChatSessionImpl;
 
@@ -51,12 +51,15 @@ class ChatSessionModel;
 			ChatSessionImplPrivate();
 			virtual ~ChatSessionImplPrivate();
 			void loadHistory();
-			ChatStyleOutput *chat_style_output;
 			void statusChanged(const Status &status,Contact *contact, bool silent = false);
+			void fillMenu(QMenu *menu, ChatUnit *unit, const ChatUnitList &lowerUnits);
+			ChatStyleOutput *chat_style_output;
 			QPointer<QWebPage> web_page;
 			QPointer<ChatUnit> chat_unit;
+			QPointer<ChatUnit> current_unit; // unit chosen by user as receiver
 			QPointer<QTextDocument> input;
 			QPointer<QMenu> menu;
+			QPointer<QActionGroup> group;
 			ChatSessionModel *model;
 			//additional info and flags
 			QString previous_sender; // null if outcoming
@@ -75,6 +78,9 @@ class ChatSessionModel;
 			void onStatusChanged(qutim_sdk_0_3::Status);
 			void onLinkClicked(const QUrl &url);
 			void onActiveTimeout();
+			void onResourceChosen(bool active);
+			void onLowerUnitAdded();
+			void refillMenu();
 		};
 
 	}

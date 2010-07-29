@@ -133,6 +133,10 @@ namespace qutim_sdk_0_3
 		  changes in name
 		*/
 		void titleChanged(const QString &title);
+		/**
+		  Notifies that new lower unit is added.
+		 */
+		void lowerUnitAdded(ChatUnit *unit);
 	};
 	/**
 	* @brief The ChatStateEvent class provides events for change chat state

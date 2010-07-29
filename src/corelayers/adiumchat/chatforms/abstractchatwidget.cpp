@@ -94,13 +94,7 @@ namespace Core
 			if (edit->toPlainText().trimmed().isEmpty() || tabBar->currentIndex() < 0)
 				return;
 			ChatSessionImpl *session = currentSession();
-			ChatUnit *unit = session->getUnit();
-			foreach (QAction *a, session->menu()->actions()) {
-				if (a->isChecked()) {
-					unit = a->data().value<ChatUnit *>();
-					break;
-				}
-			}
+			ChatUnit *unit = session->getCurrentUnit();
 
 			Message message(edit->toPlainText());
 

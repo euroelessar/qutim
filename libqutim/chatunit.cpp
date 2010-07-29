@@ -166,7 +166,7 @@ namespace qutim_sdk_0_3
 				buddy = p;
 				break;
 			} else if (qobject_cast<Conference*>(p)) {
-				buddy = p;
+				break;
 			} else if (qobject_cast<Buddy*>(p) && !buddy) {
 				buddy = p;
 			}

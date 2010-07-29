@@ -74,14 +74,13 @@ namespace Core
 		ChatSession* ChatLayerImpl::getSession(ChatUnit* unit, bool create)
 		{
 			// TODO: Think, is it good idea or we need smth more intellegent?
-				if (ChatUnit *meta = unit->metaContact())
-					unit = meta;
+			if (ChatUnit *meta = unit->metaContact())
+				unit = meta;
 			//find or create session
 			if(!(unit = getUnitForSession(unit)))
 				return 0;
 			ChatSessionImpl *session = m_chat_sessions.value(unit);
-			if(!session && create)
-			{
+			if(!session && create) {
 				session = new ChatSessionImpl(unit,this);
 				connect(session,SIGNAL(destroyed(QObject*)),SLOT(onChatSessionDestroyed(QObject*)));
 				m_chat_sessions.insert(unit,session);

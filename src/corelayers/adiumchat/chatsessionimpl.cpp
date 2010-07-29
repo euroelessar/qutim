@@ -55,8 +55,8 @@ namespace Core
 			delete chat_style_output;
 		}
 
-		ChatSessionImpl::ChatSessionImpl ( ChatUnit* unit, ChatLayer* chat)
-			: ChatSession ( chat ),
+		ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
+			: ChatSession(chat),
 			d_ptr(new ChatSessionImplPrivate)
 		{
 			Q_D(ChatSessionImpl);
@@ -65,8 +65,9 @@ namespace Core
 			d->chat_unit = unit;
 			d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
 			qDebug() << "create session" << unit->title();
-			d->store_service_messages = Config("appearance").group("chat/history").value<bool>("storeServiceMessages", true);
-			d->groupUntil = Config("appearance").group("chat").value<int>("groupUntil", 900);
+			Config cfg = Config("appearance").group("chat");
+			d->store_service_messages = cfg.group("history").value<bool>("storeServiceMessages", true);
+			d->groupUntil = cfg.value<int>("groupUntil", 900);
 			d->chat_style_output->preparePage(d->web_page,this);
 			d->skipOneMerge = true;
 			d->active = false;
@@ -277,6 +278,12 @@ namespace Core
 			return d_func()->chat_unit;
 		}
 
+		ChatUnit* ChatSessionImpl::getCurrentUnit() const
+		{
+			Q_D(const ChatSessionImpl);
+			return d->current_unit ? d->current_unit : d->chat_unit;
+		}
+
 		QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
 		{
 			Q_D(ChatSessionImpl);
@@ -475,6 +482,8 @@ namespace Core
 						chatElem.removeClass("groupchat");
 				}
 			}
+			if (d->menu)
+				d->refillMenu();
 		}
 
 		void ChatSessionImplPrivate::onActiveTimeout()
@@ -482,7 +491,6 @@ namespace Core
 			debug() << "set inactive state";
 			q_func()->setChatState(ChatStateInActive);
 		}
-
 
 		void ChatSessionImpl::setChatState(ChatState state)
 		{
@@ -502,41 +510,91 @@ namespace Core
 			QDesktopServices::openUrl(url);
 		}
 
+		void ChatSessionImplPrivate::onResourceChosen(bool active)
+		{
+			if (!active)
+				return;
+			Q_ASSERT(qobject_cast<QAction*>(sender()));
+			QAction *action = reinterpret_cast<QAction*>(sender());
+			current_unit = qVariantValue<ChatUnit*>(action->data());
+		}
+
+		void ChatSessionImplPrivate::onLowerUnitAdded()
+		{
+			if (!menu)
+				return;
+			if (menu->isVisible())
+				connect(menu.data(), SIGNAL(aboutToHide()), SLOT(refillMenu()));
+			else
+				refillMenu();
+		}
+
+		void ChatSessionImplPrivate::refillMenu()
+		{
+			Q_Q(ChatSessionImpl);
+			if (menu) {
+				qDeleteAll(group->actions());
+				ChatUnit *unit = chat_unit;
+				fillMenu(menu, unit, unit->lowerUnits());
+			} else {
+				Q_UNUSED(q->menu());
+			}
+		}
+
+		void ChatSessionImplPrivate::fillMenu(QMenu *menu, ChatUnit *unit, const ChatUnitList &lowerUnits)
+		{
+			Q_Q(ChatSessionImpl);
+			QAction *act = new QAction(menu);
+			act->setText(QT_TRANSLATE_NOOP("ChatSession", "Auto"));
+			act->setData(qVariantFromValue(unit));
+			act->setCheckable(true);
+			act->setChecked(unit == q->getCurrentUnit());
+			group->addAction(act);
+			connect(act, SIGNAL(toggled(bool)), SLOT(onResourceChosen(bool)));
+
+			menu->addAction(act);
+			menu->addSeparator();
+
+			foreach (ChatUnit *lower, lowerUnits) {
+				connect(lower, SIGNAL(lowerUnitAdded(ChatUnit*)), SLOT(onLowerUnitAdded()));
+				ChatUnitList lowerLowerUnits = lower->lowerUnits();
+				if (lowerLowerUnits.isEmpty()) {
+					// That unit does not have any lower units
+					// so just create an action for it.
+					act = new QAction(menu);
+					act->setText(lower->title());
+					act->setData(qVariantFromValue(lower));
+					act->setCheckable(true);
+					act->setChecked(lower == q->getCurrentUnit());
+					group->addAction(act);
+					menu->addAction(act);
+					connect(lower, SIGNAL(destroyed()), act, SLOT(deleteLater()));
+					connect(act, SIGNAL(toggled(bool)), SLOT(onResourceChosen(bool)));
+				} else {
+					// That unit has lower units and we need to create a submenu for it.
+					QMenu *submenu = new QMenu(lower->title(), menu);
+					fillMenu(submenu, lower, lowerLowerUnits);
+					menu->addMenu(submenu);
+					connect(lower, SIGNAL(destroyed()), submenu, SLOT(deleteLater()));
+				}
+			}
+		}
+
 		QMenu *ChatSessionImpl::menu()
 		{
 			Q_D(ChatSessionImpl);
-			if (!d->menu) {
+			//for JMessageSession
+			//FIXME maybe need to move to the protocols
+			//ChatUnit *unit = const_cast<ChatUnit*>(d->chat_unit->getHistoryUnit());
+			ChatUnit *unit = d->chat_unit;
+			if (!d->menu && qobject_cast<Conference*>(unit) == 0) {
 				d->menu = new QMenu();
-
-				//for JMessageSession
-				//FIXME maybe need to move to the protocols
-				//ChatUnit *unit = const_cast<ChatUnit*>(d->chat_unit->getHistoryUnit());
-				ChatUnit *unit = d->chat_unit;
-
-				QAction *act = new QAction(d->menu);
-				act->setText(QT_TRANSLATE_NOOP("ChatSession", "Auto"));
-				act->setData(qVariantFromValue(d->chat_unit.data()));
-				act->setCheckable(true);
-				act->setChecked(true);
-
-				QActionGroup *group = new QActionGroup(d->menu);
-				group->setExclusive(true);
-				group->addAction(act);
-
-				d->menu->addAction(act);
-				d->menu->addSeparator();
-
-				ChatUnitList list = unit->lowerUnits();
-				foreach (ChatUnit *u, list) {
-					act = new QAction(d->menu);
-					act->setText(u->title());
-					act->setData(qVariantFromValue(u));
-					act->setCheckable(true);
-					act->setChecked(u == d->chat_unit);
-					group->addAction(act);
-					d->menu->addAction(act);
-					connect(u,SIGNAL(destroyed()),act,SLOT(deleteLater()));
+				if (!d->group) {
+					d->group = new QActionGroup(d->menu);
+					d->group->setExclusive(true);
 				}
+				d->fillMenu(d->menu, unit, unit->lowerUnits());
+				connect(unit, SIGNAL(lowerUnitAdded(ChatUnit*)), d, SLOT(onLowerUnitAdded()));
 			}
 			return d->menu;
 		}
