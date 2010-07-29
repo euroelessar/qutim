@@ -4,6 +4,7 @@
 #include <qutim/buddy.h>
 #include <gloox/presence.h>
 #include <QSet>
+#include "../roster/jmessagesessionowner.h"
 
 namespace qutim_sdk_0_3
 {
@@ -19,11 +20,12 @@ namespace Jabber
 	class JContact;
 	class JContactResourcePrivate;
 
-	class JContactResource : public qutim_sdk_0_3::Buddy
+	class JContactResource : public qutim_sdk_0_3::Buddy, public JMessageSessionOwner
 	{
 		Q_PROPERTY(QSet<QString> features READ features WRITE setFeatures)
 		Q_DECLARE_PRIVATE(JContactResource)
 		Q_OBJECT
+		Q_INTERFACES(Jabber::JMessageSessionOwner)
 		public:
 			JContactResource(qutim_sdk_0_3::ChatUnit *parent, const QString &name);
 			JContactResource(qutim_sdk_0_3::ChatUnit *parent, JContactResourcePrivate &ptr);

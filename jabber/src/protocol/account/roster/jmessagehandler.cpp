@@ -6,6 +6,7 @@
 #include "../muc/jmucuser.h"
 #include "gloox/message.h"
 #include "../../../sdk/jabber.h"
+#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -13,7 +14,6 @@ namespace Jabber
 	{
 		JAccount *account;
 		QHash<QString, JMessageSession *> sessions;
-		QHash<ChatUnit *, JMessageSession *> unitSessions;
 		QList<MessageFilterFactory*> filterFactories;
 	};
 
@@ -35,12 +35,21 @@ namespace Jabber
 		return d_func()->account;
 	}
 
+	JMessageSession *JMessageHandler::getSession(const QString &id)
+	{
+		return d_func()->sessions.value(id);
+	}
+
 	void JMessageHandler::handleMessageSession(MessageSession *session)
 	{
 		Q_D(JMessageHandler);
 		// FIXME: Double conversion from JID to QString and from QString to JID
 		ChatUnit *unit = d->account->getUnit(QString::fromStdString(session->target().full()), true);
-		d->unitSessions.insert(unit, new JMessageSession(this, unit, session));
+		if (qobject_cast<JMessageSessionOwner*>(unit)) {
+			Q_UNUSED(new JMessageSession(this, unit, session));
+		} else {
+			debug() << "Cannot create JMessageSession for" << unit->id();
+		}
 	}
 	
 	void JMessageHandler::prepareMessageSession(JMessageSession *session)
@@ -52,48 +61,31 @@ namespace Jabber
 			Q_UNUSED(filter);
 		}
 	}
-	
-	void JMessageHandler::messageSessionKiled(JMessageSession *session)
-	{
-		Q_D(JMessageHandler);
-		d->unitSessions.remove(d->unitSessions.key(session));
-	}
-
-	ChatUnit *JMessageHandler::getSession(ChatUnit *unit, bool create)
-	{
-		Q_D(JMessageHandler);
-		JMessageSession *session = 0;
-		if (!!(session = qobject_cast<JMessageSession *>(unit)))
-			return session;
-		if (!!(session = d->unitSessions.value(unit)))
-			return session;
-		if (qobject_cast<JContact *>(unit) || qobject_cast<JContactResource *>(unit)) {
-			if (!create)
-				return 0;
-			int types = ~0;
-			if (qobject_cast<JMUCUser*>(unit))
-				types ^= gloox::Message::Groupchat;
-			MessageSession *glooxSession = new MessageSession(d->account->client(),
-															  unit->id().toStdString(),
-															  false, types, true);
-			d->unitSessions.insert(unit, session = new JMessageSession(this, unit, glooxSession));
-			return session;
-		}
-		return unit;
-	}
-
-	ChatUnit *JMessageHandler::getSession(const QString &id)
-	{
-		return d_func()->sessions.value(id);
-	}
 
 	void JMessageHandler::setSessionId(JMessageSession *session, const QString &id)
 	{
 		d_func()->sessions.insert(id, session);
 	}
 
-	void JMessageHandler::setSessionUnit(JMessageSession *session, qutim_sdk_0_3::ChatUnit *unit)
+	void JMessageHandler::removeSessionId(const QString &id)
 	{
-		d_func()->unitSessions.insert(unit, session);
+		d_func()->sessions.remove(id);
 	}
+
+	void JMessageHandler::createSession(ChatUnit *unit)
+	{
+		Q_D(JMessageHandler);
+		if (qobject_cast<JMessageSessionOwner*>(unit)) {
+			int types = ~0;
+			if (qobject_cast<JMUCUser*>(unit))
+				types ^= gloox::Message::Groupchat;
+			MessageSession *glooxSession = new MessageSession(d->account->client(),
+															  unit->id().toStdString(),
+															  false, types, true);
+			Q_UNUSED(new JMessageSession(this, unit, glooxSession));
+		} else {
+			debug() << "Cannot create JMessageSession for" << unit->id();
+		}
+	}
+
 }

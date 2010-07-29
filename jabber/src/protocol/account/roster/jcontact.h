@@ -3,6 +3,8 @@
 
 #include <qutim/contact.h>
 #include <gloox/presence.h>
+#include "../roster/jmessagesessionowner.h"
+
 
 namespace qutim_sdk_0_3
 {
@@ -18,10 +20,11 @@ namespace Jabber
 	class JAccount;
 	class JRoster;
 
-	class JContact : public Contact
+	class JContact : public Contact, public JMessageSessionOwner
 	{
 		Q_OBJECT
 		Q_DECLARE_PRIVATE(JContact)
+		Q_INTERFACES(Jabber::JMessageSessionOwner)
 		public:
 			JContact(const QString &jid, JAccount *account);
 			~JContact();

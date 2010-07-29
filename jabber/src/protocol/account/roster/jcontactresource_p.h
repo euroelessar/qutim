@@ -1,6 +1,7 @@
 #ifndef JCONTACTRESOURCE_P_H
 #define JCONTACTRESOURCE_P_H
 
+#include "jcontactresource.h"
 #include <qutim/contact.h>
 #include <gloox/presence.h>
 

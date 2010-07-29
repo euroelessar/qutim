@@ -1,4 +1,5 @@
 #include "jmessagesession_p.h"
+#include "jmessagesession.h"
 #include "jmessagehandler.h"
 #include "../muc/jmucsession.h"
 #include "jcontact.h"
@@ -97,7 +98,7 @@ namespace Jabber
 				return;
 			if (receipt->rcpt() == Receipt::Received) {
 				QEvent *ev = new qutim_sdk_0_3::MessageReceiptEvent(it.value(), true);
-				if (ChatSession *session = ChatLayer::get(m_session, false))
+				if (ChatSession *session = ChatLayer::get(m_session->upperUnit(), false))
 					qApp->postEvent(session, ev);
 				m_messages.erase(it);
 				return;
@@ -106,7 +107,7 @@ namespace Jabber
 	}
 
 	JMessageSession::JMessageSession(JMessageHandler *handler, ChatUnit *unit, gloox::MessageSession *session)
-			: Buddy(handler->account()), d_ptr(new JMessageSessionPrivate)
+			: d_ptr(new JMessageSessionPrivate)
 	{
 		Q_D(JMessageSession);
 		d->account = handler->account();
@@ -120,14 +121,14 @@ namespace Jabber
 		d->followChanges = session->threadID().empty();
 		d->unit = unit;
 		d->atDeathState = false;
-		setMenuOwner(unit);
-		connect(unit, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged(QString)));
-		connect(unit, SIGNAL(lowerUnitAdded(ChatUnit*)), SLOT(onLowerUnitAdded(ChatUnit*)));
-		connect(unit, SIGNAL(destroyed()), this, SLOT(onUnitDeath()));
+		d->id = QString::fromStdString(d_func()->session->threadID());
+		JMessageSessionOwner *owner = qobject_cast<JMessageSessionOwner*>(d->unit);
+		Q_ASSERT(owner);
+		owner->messageSessionCreated(this);
 	}
 
 	JMessageSession::JMessageSession(ChatUnit *unit) :
-			Buddy(unit->account()), d_ptr(new JMessageSessionPrivate)
+			d_ptr(new JMessageSessionPrivate)
 	{
 		Q_D(JMessageSession);
 		d->account = static_cast<JAccount *>(unit->account());
@@ -139,20 +140,19 @@ namespace Jabber
 		d->handler->prepareMessageSession(this);
 		d->followChanges = true;
 		d->unit = unit;
-		d->handler->setSessionUnit(this, unit);
-		setMenuOwner(unit);
-		connect(unit, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged(QString)));
-		connect(unit, SIGNAL(lowerUnitAdded(ChatUnit*)), SLOT(onLowerUnitAdded(ChatUnit*)));
-		connect(unit, SIGNAL(destroyed()), this, SLOT(onUnitDeath()));
+		d->id = QString::fromStdString(d_func()->session->threadID());
+		JMessageSessionOwner *owner = qobject_cast<JMessageSessionOwner*>(d->unit);
+		Q_ASSERT(owner);
+		owner->messageSessionCreated(this);
 	}
 
 	JMessageSession::~JMessageSession()
 	{
 		Q_D(JMessageSession);
-		if (d->account) {
+		if (d->account)
 			d->account->client()->disposeMessageSession(d->session);
-			d->account->messageHandler()->messageSessionKiled(this);
-		}
+		if (d->handler)
+			d->handler->removeSessionId(d->id);
 	}
 	
 	void JMessageSession::convertToMuc()
@@ -168,13 +168,7 @@ namespace Jabber
 
 	QString JMessageSession::id() const
 	{
-		return QString::fromStdString(d_func()->session->threadID());
-	}
-
-	QString JMessageSession::title() const
-	{
-		Q_D(const JMessageSession);
-		return d->unit ? d->unit->title() : id();
+		return d_func()->id;
 	}
 
 	gloox::MessageSession *JMessageSession::session()
@@ -186,7 +180,7 @@ namespace Jabber
 	{
 		Q_D(JMessageSession);
 
-		if (d->atDeathState || account()->status() == Status::Offline)
+		if (d->atDeathState || d->account->status() == Status::Offline)
 			return false;
 		
 		d->messages << message;
@@ -194,7 +188,7 @@ namespace Jabber
 		d->messageReceiptFilter->setNextId(message.id());
 		d->session->send(message.text().toStdString(), message.property("subject").toString().toStdString());
 		if (d->followChanges) {
-			d->handler->setSessionId(this, id());
+			d->handler->setSessionId(this, d->id);
 			d->followChanges = false;
 		}
 		return true;
@@ -205,7 +199,7 @@ namespace Jabber
 		Q_D(JMessageSession);
 		Q_ASSERT((!session) || (d->session == session));
 		if (d->followChanges) {
-			d->handler->setSessionId(this, id());
+			d->handler->setSessionId(this, d->id);
 			d->followChanges = false;
 		}
 		qutim_sdk_0_3::Message coreMsg(QString::fromStdString(msg.body()));
@@ -213,9 +207,9 @@ namespace Jabber
 		// Workaround for a problem when messages from different resources of a contact
 		// are handled by one JMessageSession.
 		ChatUnit *sender = d->account->getUnit(QString::fromStdString(msg.from().full()), false);
-		coreMsg.setChatUnit(d->account->getUnitForSession(sender ? sender : d->unit.data()));
+		coreMsg.setChatUnit(sender ? sender : d->unit.data());
 #else
-		coreMsg.setChatUnit(this);
+		coreMsg.setChatUnit(d->unit.data());
 #endif
 		coreMsg.setIncoming(true);
 		if (const DelayedDelivery *when = msg.when())
@@ -225,7 +219,7 @@ namespace Jabber
 		if (!msg.subject().empty())
 			coreMsg.setProperty("subject", QString::fromStdString(msg.subject()));
 		d->messages << coreMsg;
-		ChatLayer::get(this, true)->appendMessage(coreMsg);
+		ChatLayer::get(d->unit, true)->appendMessage(coreMsg);
 	}
 
 	bool JMessageSession::event(QEvent *ev)
@@ -237,48 +231,16 @@ namespace Jabber
 		}
 		return QObject::event(ev);
 	}
-	
-	void JMessageSession::onUnitDeath()
-	{
-		Q_D(JMessageSession);
-		if (d->account) {
-			QString id = QString::fromStdString(d->session->target().bare());
-			JContact *contact = qobject_cast<JContact*>(d->account->getUnit(id));
-			if (contact) {
-				d->session->resetResource();
-				d->unit = contact;
-			}
-			return;
-		}
-		deleteLater();
-	}
-
-	void JMessageSession::onLowerUnitAdded(ChatUnit *unit)
-	{
-		ChatUnit *lower = d_func()->handler->getSession(unit, false);
-		emit lowerUnitAdded(lower ? lower : unit);
-	}
 
 	void JMessageSession::handleChatState(const JID &from, gloox::ChatStateType state)
 	{
+		Q_D(JMessageSession);
 		Q_UNUSED(from);
-		setChatState(gloox2qutIM(state));
+		d->unit->setChatState(gloox2qutIM(state));
 	}
 
 	ChatUnit *JMessageSession::upperUnit()
 	{
-		Q_D(JMessageSession);
-		return d->unit;
-	}
-
-	ChatUnitList JMessageSession::lowerUnits()
-	{
-		Q_D(JMessageSession);
-		ChatUnitList units;
-		foreach (ChatUnit *unit, d->unit->lowerUnits()) {
-			ChatUnit *lower = d->handler->getSession(unit, false);
-			units.push_back(lower ? lower : unit);
-		}
-		return units;
+		return d_func()->unit;
 	}
 }

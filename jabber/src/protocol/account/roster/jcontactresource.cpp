@@ -1,4 +1,3 @@
-#include "jcontactresource.h"
 #include "jcontactresource_p.h"
 #include "jcontact.h"
 #include "../vcard/jinforequest.h"
@@ -57,15 +56,13 @@ namespace Jabber
 
 	bool JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
-		qDebug("%s", Q_FUNC_INFO);
 		JAccount *acc = static_cast<JAccount*>(account());
 
 		if (acc->status() == Status::Offline)
 			return false;
 
-		JMessageSession *session = qobject_cast<JMessageSession*>(acc->messageHandler()->getSession(this, false));
-		if (session) {
-			session->sendMessage(message);
+		if (session()) {
+			session()->sendMessage(message);
 		} else {
 			gloox::Message msg(gloox::Message::Chat, id().toStdString(), message.text().toStdString(), 
 							   message.property("subject", QString()).toStdString());
@@ -163,4 +160,5 @@ namespace Jabber
 //		else
 //			return 0;
 //	}
+
 }

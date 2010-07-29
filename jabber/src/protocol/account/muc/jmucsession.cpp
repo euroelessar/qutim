@@ -343,7 +343,6 @@ namespace Jabber
 				MessageSession *glooxSession = new MessageSession(d->account->client(), msg.from(), false,
 																  gloox::Message::Chat | gloox::Message::Normal);
 				session = new JMessageSession(d->account->messageHandler(), user, glooxSession);
-				d->account->messageHandler()->setSessionUnit(session, user);
 				session->handleMessage(msg, glooxSession);
 			}
 		} else {

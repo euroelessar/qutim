@@ -68,18 +68,15 @@ namespace Jabber {
 
 	ChatUnit *JAccount::getUnitForSession(ChatUnit *unit)
 	{
-		ChatUnit *upper = unit->upperUnit();
-		if (qobject_cast<JContactResource*>(upper) && !qobject_cast<JMUCUser*>(upper))
-			unit = upper->upperUnit();
-		return p->messageHandler->getSession(unit);
+		if (qobject_cast<JContactResource*>(unit) && !qobject_cast<JMUCUser*>(unit))
+			unit = unit->upperUnit();
+		return unit;
 	}
 
 	ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 	{
 		ChatUnit *unit = 0;
 		if (!!(unit = p->conferenceManager->muc(unitId)))
-			return unit;
-		if (!!(unit = p->messageHandler->getSession(unitId)))
 			return unit;
 		return p->roster->contact(unitId, create);
 	}

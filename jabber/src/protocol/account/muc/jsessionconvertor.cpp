@@ -101,7 +101,7 @@ namespace Jabber
 			const JID &outJid = d->account->client()->jid();
 			std::string thread = d->session->d_func()->session->threadID();
 			JMUCSession *session = new JMUCSession(d->account, d->room, thread);
-			ChatLayer::get(d->session, true)->setChatUnit(session);
+			ChatLayer::get(d->session->upperUnit(), true)->setChatUnit(session);
 			foreach (const qutim_sdk_0_3::Message &msg, d->session->d_func()->messages) {
 				gloox::Message gMsg(gloox::Message::Groupchat, jid, msg.text().toStdString(),
 									gloox::EmptyString, thread);

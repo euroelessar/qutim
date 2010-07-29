@@ -5,8 +5,14 @@
 #include <gloox/messagesessionhandler.h>
 #include <qutim/messagesession.h>
 
+namespace qutim_sdk_0_3
+{
+	class ChatUnit;
+}
+
 namespace Jabber
 {
+	using qutim_sdk_0_3::ChatUnit;
 	class JAccount;
 	class JMessageSession;
 	struct JMessageHandlerPrivate;
@@ -18,16 +24,13 @@ namespace Jabber
 	public:
 		JMessageHandler(JAccount *account);
 		~JMessageHandler();
-
 		JAccount *account();
-
-		qutim_sdk_0_3::ChatUnit *getSession(qutim_sdk_0_3::ChatUnit *unit, bool create = true);
-		qutim_sdk_0_3::ChatUnit *getSession(const QString &id);
+		JMessageSession *getSession(const QString &id);
 		void handleMessageSession(gloox::MessageSession *session);
 		void prepareMessageSession(JMessageSession *session);
-		void messageSessionKiled(JMessageSession *session);
 		void setSessionId(JMessageSession *session, const QString &id);
-		void setSessionUnit(JMessageSession *session, qutim_sdk_0_3::ChatUnit *unit);
+		void removeSessionId(const QString &id);
+		void createSession(ChatUnit *unit);
 	private:
 		QScopedPointer<JMessageHandlerPrivate> d_ptr;
 	};

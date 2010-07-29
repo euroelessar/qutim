@@ -17,7 +17,6 @@
 #ifndef JMESSAGESESSION_P_H
 #define JMESSAGESESSION_P_H
 
-#include "jmessagesession.h"
 #include "../jaccount.h"
 #include <qutim/message.h>
 #include <gloox/chatstatefilter.h>
@@ -28,7 +27,7 @@ namespace Jabber
 	
 	struct JMessageSessionPrivate
 	{
-		JMessageHandler *handler;
+		QPointer<JMessageHandler> handler;
 		QPointer<JAccount> account;
 		MessageSession *session;
 		ChatStateFilter *chatStateFilter;
@@ -37,6 +36,7 @@ namespace Jabber
 		bool followChanges;
 		MessageList messages;
 		bool atDeathState;
+		QString id;
 	};
 }
 #endif // JMESSAGESESSION_P_H

@@ -31,13 +31,13 @@ namespace Jabber
 	{
 		if (cont) {
 			QString threadId = QString::fromStdString(thread);
-			ChatUnit *unit = p->account->messageHandler()->getSession(threadId);
-			if (JMessageSession *session = static_cast<JMessageSession*>(unit)) {
+			JMessageSession *session = p->account->messageHandler()->getSession(threadId);
+			if (session) {
 				JID jid = room;
 				jid.setResource(p->account->name().toStdString());
 				MUCRoom *room = new MUCRoom(p->account->client(), jid, 0, 0);
 				JMUCSession *mucSession = new JMUCSession(p->account, room, thread);
-				ChatLayer::get(session, true)->setChatUnit(mucSession);
+				ChatLayer::get(session->upperUnit(), true)->setChatUnit(mucSession);
 				session->deleteLater();
 				mucSession->join();
 				return;
