@@ -68,6 +68,7 @@ namespace Core
 			Config cfg = Config("appearance").group("chat");
 			d->store_service_messages = cfg.group("history").value<bool>("storeServiceMessages", true);
 			d->groupUntil = cfg.value<int>("groupUntil", 900);
+			d->rememberLastSender = cfg.value("rememberLastSender", true);
 			d->chat_style_output->preparePage(d->web_page,this);
 			d->skipOneMerge = true;
 			d->active = false;
@@ -177,6 +178,19 @@ namespace Core
 
 			bool same_from = false;
 			bool service = message.property("service").isValid();
+			const Conference *conf = qobject_cast<const Conference *>(message.chatUnit());
+			if (d->rememberLastSender && !service && !conf
+				&& message.chatUnit() != d->current_unit
+				&& !message.property("history", false))
+			{
+				d->current_unit = const_cast<ChatUnit*>(message.chatUnit());
+				if (d->group) {
+					foreach (QAction *action, d->group->actions()) {
+						if (qVariantValue<ChatUnit*>(action->data()) == d->current_unit.data())
+							action->setChecked(true);
+					}
+				}
+			}
 			QString item;
 			if (!isActive()) {
 				if (!d->separator && !message.property("service", false) && qobject_cast<const Conference *>(message.chatUnit())) {
@@ -227,9 +241,9 @@ namespace Core
 
 			bool silent = message.property("silent", false);
 
-			if (const Conference *c = qobject_cast<const Conference *>(message.chatUnit())) {
+			if (conf) {
 				silent = true;
-				QString sender = c->me() ? c->me()->name() : QString();
+				QString sender = conf->me() ? conf->me()->name() : QString();
 				if (message.text().contains(sender)) {
 					AbstractChatForm *form = qobject_cast<AbstractChatForm*>(getService("ChatForm"));
 					if (form) {

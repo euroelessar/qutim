@@ -69,6 +69,7 @@ namespace Core
 			bool separator;
 			QDateTime lastDate;
 			int groupUntil;
+			bool rememberLastSender;
 			QTimer inactive_timer;
 			MessageList unread;
 			ChatState myself_chat_state;
