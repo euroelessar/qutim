@@ -1,76 +1,25 @@
+/****************************************************************************
+ *  contactsearchlayer.h
+ *
+ *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+ *****************************************************************************/
+
 #ifndef CONTACTSEARCHLAYER_H
 #define CONTACTSEARCHLAYER_H
 
-#include <QWidget>
-#include <QPointer>
-#include <QSharedPointer>
-#include "libqutim/debug.h"
-#include "libqutim/contactsearch.h"
-#include "ui_searchcontactform.h"
+#include "contactsearchform.h"
 
 namespace Core
 {
-using namespace qutim_sdk_0_3;
-
-typedef QSharedPointer<ContactSearchFactory> FactoryPtr;
-typedef QSharedPointer<ContactSearchRequest> RequestPtr;
-
-class ContactModel : public QAbstractTableModel
-{
-	Q_OBJECT
-public:
-	RequestPtr request() { return m_request; }
-	void setRequest(const RequestPtr &request);
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-private slots:
-	void contactAboutToBeAdded(int row);
-	void contactAdded(int row);
-private:
-	friend class ContactSearchForm;
-	RequestPtr m_request;
-};
-
-class ContactSearchForm : public QWidget
-{
-	Q_OBJECT
-public:
-	ContactSearchForm(QWidget *parent = 0);
-private slots:
-	void updateRequestBox();
-	void startSearch();
-	void updateRequest(int index);
-	void updateFields();
-	void clearFields();
-	void cancelSearch();
-	void done(bool ok);
-	void addContact();
-	void updateService();
-	void updateServiceBox();
-protected:
-	bool event(QEvent *e);
-	void setState(bool search);
-private:
-	void addContact(int row);
-	Ui::SearchContactForm ui;
-	QList<FactoryPtr> m_factories;
-	struct RequestBoxItem
-	{
-		RequestBoxItem() {}
-		RequestBoxItem(const FactoryPtr &f, const QString &n) :
-			factory(f), name(n)
-		{}
-		FactoryPtr factory;
-		QString name;
-	};
-	QList<RequestBoxItem> m_requestItems;
-	RequestPtr m_currentRequest;
-	QPointer<QWidget> m_searchWidget;
-	ContactModel m_contactModel;
-	bool requestListUpdating;
-};
 
 class ContactSearch : public QObject
 {

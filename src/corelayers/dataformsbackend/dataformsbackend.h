@@ -14,6 +14,7 @@ using namespace qutim_sdk_0_3;
 class DefaultDataForm : public AbstractDataForm
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
 public:
 	DefaultDataForm(const DataItem &item, StandardButtons standartButtons = NoButton,  const Buttons &buttons = Buttons());
 	virtual DataItem item() const;
