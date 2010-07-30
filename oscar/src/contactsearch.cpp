@@ -39,11 +39,8 @@ void OscarContactSearch::addField(DataItem &item, const MetaInfoField &field) co
 void OscarContactSearch::start(const DataItem &fields)
 {
 	m_contacts.clear();
-	m_uin.clear();
 	Status::Type status = m_account->status().type();
 	MetaInfoValuesHash values = MetaInfoField::dataItemToHash(fields);
-	if (values.count() == 1 && values.contains(Uin))
-		m_uin = values.value(Uin).toString();
 	if (status >= Status::Online && status <= Status::Invisible) {
 		Q_ASSERT(!m_request);
 		m_request.reset(new FindContactsMetaRequest(m_account, values));
@@ -52,7 +49,6 @@ void OscarContactSearch::start(const DataItem &fields)
 		connect(m_request.data(), SIGNAL(done(bool)), SLOT(onDone(bool)));
 		m_request->send();
 	} else {
-		testResult();
 		emit done(false);
 	}
 }
@@ -127,7 +123,7 @@ QVariant OscarContactSearch::data(int row, int column, int role)
 		case 5:
 			return contact.gender;
 		case 6:
-			return contact.age;
+			return contact.age > 0 ? contact.age : QVariant();
 		}
 	}
 	return QVariant();
@@ -152,18 +148,7 @@ void OscarContactSearch::onNewContact(const FindContactsMetaRequest::FoundContac
 void OscarContactSearch::onDone(bool ok)
 {
 	m_request.reset();
-	testResult();
 	emit done(ok);
-}
-
-void OscarContactSearch::testResult()
-{
-	if (!m_uin.isEmpty() && m_contacts.count() == 0) {
-		// Just give chance to add a contact by uin if the server returned nothing
-		FindContactsMetaRequest::FoundContact contact;
-		contact.uin = m_uin;
-		onNewContact(contact);
-	}
 }
 
 OscarContactSearchFactory::OscarContactSearchFactory() :

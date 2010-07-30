@@ -26,7 +26,6 @@ private slots:
 	void onDone(bool ok);
 private:
 	void addField(DataItem &item, const MetaInfoField &field) const;
-	void testResult();
 	QScopedPointer<FindContactsMetaRequest> m_request;
 	QList<FindContactsMetaRequest::FoundContact> m_contacts;
 	QString m_uin;
