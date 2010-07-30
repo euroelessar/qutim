@@ -59,7 +59,6 @@ QVariant ContactsModel::data(const QModelIndex &index, int role) const
 				continue;
 			if (data.canConvert(QVariant::String) && data.toString().isEmpty())
 				continue;
-			debug() << data;
 			fields.insert(m_request->headerData(i, Qt::DisplayRole).toString(), data);
 		}
 		return fields;
