@@ -147,7 +147,8 @@ namespace qutim_sdk_0_3
 	ActionGenerator::~ActionGenerator()
 	{
 		Q_D(ActionGenerator);
-		actionsCache()->remove(this);
+		if (actionsCache())
+			actionsCache()->remove(this);
 		delete d->data;
 	}
 

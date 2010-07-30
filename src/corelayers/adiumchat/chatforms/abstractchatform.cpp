@@ -146,7 +146,7 @@ namespace Core
 		{
 			foreach (AbstractChatWidget *widget,m_chatwidgets) {
 				widget->disconnect(this);
-				widget->deleteLater();
+				delete widget;
 			}
 		}
 		
