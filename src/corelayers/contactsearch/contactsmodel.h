@@ -39,9 +39,11 @@ public:
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+signals:
+	void contactAdded(int row);
 private slots:
 	void contactAboutToBeAdded(int row);
-	void contactAdded(int row);
+	void onContactAdded(int row);
 private:
 	friend class ContactSearchForm;
 	RequestPtr m_request;

@@ -85,7 +85,6 @@ namespace Core
 
 			virtual ~MyWidget()
 			{
-				qDebug() << Q_FUNC_INFO << saveGeometry();
 				Config config;
 				config.beginGroup("contactList");
 				config.setValue("geometry", saveGeometry());

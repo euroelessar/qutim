@@ -26,7 +26,7 @@ void ContactsModel::setRequest(const RequestPtr &request)
 	m_request = request;
 	if (m_request) {
 		connect(m_request.data(), SIGNAL(contactAboutToBeAdded(int)), SLOT(contactAboutToBeAdded(int)));
-		connect(m_request.data(), SIGNAL(contactAdded(int)), SLOT(contactAdded(int)));
+		connect(m_request.data(), SIGNAL(contactAdded(int)), SLOT(onContactAdded(int)));
 	}
 	endResetModel();
 }
@@ -81,10 +81,11 @@ void ContactsModel::contactAboutToBeAdded(int row)
 	beginInsertRows(QModelIndex(), row, row);
 }
 
-void ContactsModel::contactAdded(int row)
+void ContactsModel::onContactAdded(int row)
 {
 	Q_UNUSED(row);
 	endInsertRows();
+	emit contactAdded(row);
 }
 
 

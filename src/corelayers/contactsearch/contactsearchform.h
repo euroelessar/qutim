@@ -58,6 +58,7 @@ private:
 	QPointer<QWidget> m_searchWidget;
 	ContactsModel m_contactModel;
 	bool requestListUpdating;
+	bool m_done;
 };
 
 } // namespace Core

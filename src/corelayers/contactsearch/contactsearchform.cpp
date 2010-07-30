@@ -25,7 +25,7 @@ ContactSearchForm::ContactSearchForm(QWidget *parent) :
 	QWidget(parent), requestListUpdating(false)
 {
 	ui.setupUi(this);
-	ui.splitter->setStretchFactor(1, 2);
+	setWindowIcon(Icon("edit-find-contact"));
 	ui.updateServiceButton->setIcon(Icon("view-refresh"));
 	ui.serviceBox->setVisible(false);
 	ui.updateServiceButton->setVisible(false);
@@ -82,6 +82,8 @@ void ContactSearchForm::startSearch()
 		m_contactModel.beginResetModel();
 		m_currentRequest->start(dataWidget->item());
 		m_contactModel.endResetModel();
+		ui.stackedWidget->setCurrentIndex(1);
+		m_done = false;
 	}
 }
 
@@ -103,6 +105,8 @@ void ContactSearchForm::updateRequest(int index)
 	connect(m_currentRequest.data(), SIGNAL(done(bool)), SLOT(done(bool)));
 	connect(m_currentRequest.data(), SIGNAL(fieldsUpdated()), SLOT(updateFields()));
 	connect(m_currentRequest.data(), SIGNAL(servicesUpdated()), SLOT(updateServiceBox()));
+	connect(&m_contactModel, SIGNAL(contactAdded(int)),
+			ui.contactsView, SLOT(resizeRowToContents(int)));
 	m_contactModel.setRequest(m_currentRequest);
 	updateFields();
 	updateServiceBox();
@@ -127,16 +131,17 @@ void ContactSearchForm::clearFields()
 
 void ContactSearchForm::cancelSearch()
 {
-	Q_ASSERT(m_currentRequest);
-	m_currentRequest->cancel();
+	if (m_currentRequest && !m_done)
+		m_currentRequest->cancel();
 	setState(false);
+	ui.stackedWidget->setCurrentIndex(0);
 }
 
 void ContactSearchForm::done(bool ok)
 {
 	Q_UNUSED(ok);
 	setState(false);
-	ui.contactsView->resizeRowsToContents();
+	m_done = true;
 }
 
 void ContactSearchForm::addContact()
@@ -194,7 +199,6 @@ void ContactSearchForm::updateServiceBox()
 void ContactSearchForm::setState(bool search)
 {
 	ui.searchButton->setEnabled(!search);
-	ui.cancelButton->setEnabled(search);
 	ui.requestBox->setEnabled(!search);
 	ui.progressBar->setVisible(search);
 	if (m_searchWidget)
