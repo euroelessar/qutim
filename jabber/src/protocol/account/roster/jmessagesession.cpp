@@ -241,14 +241,16 @@ namespace Jabber
 	void JMessageSession::onUnitDeath()
 	{
 		Q_D(JMessageSession);
-		QString id = QString::fromStdString(d->session->target().bare());
-		JContact *contact = qobject_cast<JContact*>(d->account->getUnit(id));
-		if (contact) {
-			d->session->resetResource();
-			d->unit = contact;
-		} else {
-			deleteLater();
+		if (d->account) {
+			QString id = QString::fromStdString(d->session->target().bare());
+			JContact *contact = qobject_cast<JContact*>(d->account->getUnit(id));
+			if (contact) {
+				d->session->resetResource();
+				d->unit = contact;
+			}
+			return;
 		}
+		deleteLater();
 	}
 
 	void JMessageSession::onLowerUnitAdded(ChatUnit *unit)
