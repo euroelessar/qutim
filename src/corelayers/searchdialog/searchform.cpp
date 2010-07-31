@@ -42,6 +42,8 @@ SearchForm::SearchForm(QMetaObject *factory, const QString &title, const QIcon &
 	connect(ui.requestBox, SIGNAL(currentIndexChanged(int)),
 			SLOT(updateRequest(int)));
 	connect(ui.updateServiceButton, SIGNAL(clicked()), SLOT(updateService()));
+	if (m_requestsModel->rowCount() > 0)
+		updateRequest(0);
 }
 
 SearchForm::~SearchForm()

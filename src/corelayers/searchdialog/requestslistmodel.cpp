@@ -80,18 +80,28 @@ int RequestsListModel::findPlaceForRequest(FactoryPtr factory, const QString &re
 {
 	bool factoryFound = false;
 	int count = m_requestItems.count();
+	QString requestTitle;
 	for (int i = 0; i < count; ++i) {
 		const RequestItem &item = m_requestItems.at(i);
 		if (!factoryFound) {
 			// First, we need to find the factory in the items list.
-			if (item.factory == factory)
+			if (item.factory == factory) {
 				factoryFound = true;
-			else
+				requestTitle = factory->data(request).toString();
+			} else {
 				continue;
+			}
 		}
 		// The factory has been found, hence we can look for a suitable place for our item.
-		if (item.factory != factory || QString::localeAwareCompare(item.name, request) > 0)
+		if (item.factory == factory) {
+			if (item.name == request)
+				return i;
+			QString itemTitle = item.factory->data(item.name).toString();
+			if (QString::localeAwareCompare(itemTitle, requestTitle) > 0)
+				return i;
+		} else {
 			return i;
+		}
 	}
 	return count;
 }
@@ -133,10 +143,17 @@ void RequestsListModel::requestUpdated(const QString &request)
 {
 	Q_ASSERT(qobject_cast<FactoryPtr>(sender()));
 	FactoryPtr factory = reinterpret_cast<FactoryPtr>(sender());
-	int pos = findRequestIndex(factory, request);
-	if (pos != -1) {
-		QModelIndex i = index(pos, 0);
-		dataChanged(i, i);
+	int oldPos = findRequestIndex(factory, request);
+	if (oldPos != -1) {
+		int newPos = findPlaceForRequest(factory, request);
+		if (oldPos == newPos) {
+			QModelIndex i = index(oldPos, 0);
+			emit dataChanged(i, i);
+		} else {
+			beginMoveRows(QModelIndex(), oldPos, oldPos, QModelIndex(), newPos);
+			m_requestItems.insert(newPos, m_requestItems.takeAt(oldPos));
+			endMoveRows();
+		}
 	}
 }
 
