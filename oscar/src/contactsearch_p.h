@@ -18,7 +18,7 @@ public:
 	virtual void cancel();
 	virtual int columnCount() const;
 	virtual QVariant headerData(int column, int role = Qt::DisplayRole);
-	virtual int contactCount() const;
+	virtual int rowCount() const;
 	virtual QVariant data(int row, int column, int role = Qt::DisplayRole);
 	virtual Contact *contact(int row);
 private slots:

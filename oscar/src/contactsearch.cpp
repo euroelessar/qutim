@@ -85,7 +85,7 @@ QVariant OscarContactSearch::headerData(int column, int role)
 	}
 }
 
-int OscarContactSearch::contactCount() const
+int OscarContactSearch::rowCount() const
 {
 	return m_contacts.count();
 }
@@ -140,9 +140,9 @@ Contact *OscarContactSearch::contact(int row)
 void OscarContactSearch::onNewContact(const FindContactsMetaRequest::FoundContact &contact)
 {
 	int row = m_contacts.count();
-	emit contactAboutToBeAdded(row);
+	emit rowAboutToBeAdded(row);
 	m_contacts.push_back(contact);
-	emit contactAdded(row);
+	emit rowAdded(row);
 }
 
 void OscarContactSearch::onDone(bool ok)
