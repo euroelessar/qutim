@@ -2,6 +2,7 @@
  *  vcontact.cpp
  *
  *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+ *                     by Ruslan Nigmatullin <euroelessar@gmail.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -18,7 +19,9 @@
 #include "vaccount.h"
 #include "vmessages.h"
 #include "vroster.h"
+#include "vinforequest.h"
 #include <qutim/tooltip.h>
+#include <qutim/inforequest.h>
 
 struct VContactPrivate
 {
@@ -93,9 +96,9 @@ void VContact::setContactInList(bool inList)
 
 Status VContact::status() const
 {
-	Status status (d_func()->online ? Status::Online : Status::Offline);
-	status.initIcon("vkontakte");
-	status.setText(d_func()->activity);
+	Q_D(const VContact);
+	Status status = Status::instance(d->online ? Status::Online : Status::Offline, "vkontakte");
+	status.setText(d->activity);
 	return status;
 }
 
@@ -117,6 +120,11 @@ void VContact::setActivity(const QString &activity)
 	}
 }
 
+QString VContact::activity() const
+{
+	return d_func()->activity;
+}
+
 VContact::~VContact()
 {
 
@@ -134,7 +142,11 @@ QString VContact::name() const
 
 void VContact::setContactName(const QString& name)
 {
-	d_func()->name = name;
+	Q_D(VContact);
+	if (d->name != name) {
+		d->name = name;
+		emit nameChanged(name);
+	}
 }
 
 void VContact::setName(const QString& name)
@@ -163,6 +175,19 @@ bool VContact::event(QEvent *ev)
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
 		if (!d_func()->activity.isEmpty())
 			event->appendField(QT_TRANSLATE_NOOP("ContactList","Activity"),d_func()->activity);
+	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
+		Status::Type status = account()->status().type();
+		if (status >= Status::Online && status <= Status::Invisible) {
+			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
+			event->setSupportType(InfoRequestCheckSupportEvent::Read);
+			event->accept();
+		} else {
+			ev->ignore();
+		}
+	} else if (ev->type() == InfoRequestEvent::eventType()) {
+		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
+		event->setRequest(new VInfoRequest(this));
+		event->accept();
 	}
 	return Contact::event(ev);
 }

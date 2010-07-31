@@ -40,6 +40,7 @@ public:
 	bool fetchAvatars;
 	bool getActivity;
 	QMap<QString, QString> tags;
+	QHash<QString, VContact*> contacts;
 	QDateTime lastActivityTime;
 	
 	void checkPhoto(QObject *obj, const QString &photoUrl);

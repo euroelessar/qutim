@@ -2,6 +2,7 @@
  *  vroster.cpp
  *
  *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+ *                     by Ruslan Nigmatullin <euroelessar@gmail.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -78,7 +79,7 @@ void VRosterPrivate::onGetFriendsRequestFinished()
 	foreach (const QVariant &var, friends) {
 		QVariantMap data = var.toMap();
 		QString id = data.value("uid").toString();
-		VContact *c = connection->account()->getContact(id, false);
+		VContact *c = contacts.value(id, 0);
 		bool shouldInit = false;
 		if (!c) {
 			c = connection->account()->getContact(id, true);
@@ -164,6 +165,7 @@ void VRosterPrivate::onAvatarRequestFinished()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	Q_ASSERT(reply);
+	reply->deleteLater();
 	QObject *obj = reinterpret_cast<QObject*>(reply->property("object").value<qptrdiff>());
 	QString hash = reply->property("hash").toString();
 	Q_ASSERT(obj);
@@ -266,6 +268,18 @@ VRoster::~VRoster()
 
 }
 
+VContact* VRoster::getContact(const QString &uid, bool create)
+{
+	Q_D(VRoster);
+	VContact *contact = d->contacts.value(uid);
+	if (create && !contact) {
+		contact = new VContact(uid, d->connection->account());
+		d->contacts.insert(uid, contact);
+		emit d->connection->account()->contactCreated(contact);
+	}
+	return contact;
+}
+
 void VRoster::getProfile()
 {
 	Q_D(VRoster);
@@ -335,14 +349,54 @@ void VRoster::loadSettings()
 {
 	Q_D(VRoster);
 	int interval;
-	d->friendListUpdater.setInterval(config().value<int>("friendListUpdateInterval",30000));
-	ConfigGroup avatars = config().group("avatars");
-	interval = avatars.value<int>("interval",5000);
+	Config cfg = config();
+	int size = cfg.beginArray("list");
+	for (int i = 0; i < size; i++) {
+		cfg.setArrayIndex(i);
+		QString id = cfg.value("id", QString());
+		if (id.isEmpty())
+			continue;
+		VContact *contact = getContact(id, true);
+		contact->setContactInList(cfg.value("inList",true));
+		contact->setContactName(cfg.value("name", QString()));
+		contact->setContactTags(cfg.value("tags", QStringList()));
+		cfg.beginGroup("avatar");
+		contact->setAvatar(cfg.value("path", QString()));
+		contact->setProperty("avatarUrl", cfg.value("url", QString()));
+		cfg.endGroup();
+		contact->setActivity(cfg.value("activity", QString()));
+	}
+	cfg.endArray();
+	d->friendListUpdater.setInterval(cfg.value("friendListUpdateInterval", 3600000));
+	cfg.beginGroup("avatars");
+	interval = cfg.value("interval", 5000);
 	d->fetchAvatars = (interval > 0);
 	d->avatarsUpdater.setInterval(interval);
-	ConfigGroup activity = config().group("activity");
-	interval = activity.value<int>("interval",5000);
+	cfg.endGroup();
+	cfg.beginGroup("activity");
+	interval = cfg.value("interval", 5000);
 	d->getActivity = (interval > 0);
 	d->activityUpdater.setInterval(interval);
+}
+
+void VRoster::saveSettings()
+{
+	Q_D(VRoster);
+	Config cfg = config();
+	cfg.remove("list");
+	cfg.beginArray("list");
+	int index = 0;
+	foreach (VContact *contact, d->contacts) {
+		cfg.setArrayIndex(index++);
+		cfg.setValue("id", contact->id());
+		cfg.setValue("name", contact->name());
+		cfg.setValue("tags", contact->tags());
+		cfg.setValue("activity", contact->activity());
+		cfg.setValue("inList", contact->isInList());
+		cfg.beginGroup("avatar");
+		cfg.setValue("url", contact->property("avatarUrl"));
+		cfg.setValue("path", contact->avatar());
+		cfg.endGroup();
+	}
 }
 

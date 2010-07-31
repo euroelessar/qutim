@@ -32,6 +32,8 @@ VkontakteProtocol::VkontakteProtocol() :
 
 VkontakteProtocol::~VkontakteProtocol()
 {
+	foreach (VAccount *acc, *d_func()->accounts)
+		acc->saveSettings();
 	self = 0;
 }
 
@@ -58,6 +60,7 @@ void VkontakteProtocol::loadAccounts()
 			<< Status(Status::Offline);
 	foreach (Status status, statuses) {
 		status.initIcon("vkontakte");
+		Status::remember(status, "vkontakte");
 		MenuController::addAction(new StatusActionGenerator(status), &VAccount::staticMetaObject);
 	}
 	QStringList accounts = config("general").value("accounts", QStringList());

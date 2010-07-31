@@ -2,6 +2,7 @@
  *  vmessages.cpp
  *
  *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+ *                     by Ruslan Nigmatullin <euroelessar@gmail.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -46,7 +47,7 @@ void VMessagesPrivate::onHistoryRecieved()
 		Message mess;
 		mess.setText(unescape(html));
 		mess.setProperty("html", html);
-		mess.setProperty("topic", map.value("topic"));
+		mess.setProperty("subject", map.value("topic"));
 		mess.setIncoming(true);
 		QString id = map.value("uid").toString();
 		messIds << map.value("mid").toString();
@@ -62,7 +63,7 @@ void VMessagesPrivate::onHistoryRecieved()
 		ChatLayer::get(contact, true)->appendMessage(mess);
 	}
 	if (!messIds.isEmpty())
-		markAsRead(messIds);
+		q->markAsRead(messIds);
 	
 //    QScriptEngine engine;
 //    QScriptValue sc_data = engine.evaluate('(' + data + ')');
@@ -126,12 +127,12 @@ void VMessagesPrivate::onMessagesRecieved()
 //	}
 }
 
-void VMessagesPrivate::markAsRead(const QStringList &messages)
+void VMessages::markAsRead(const QStringList &messages)
 {
 #ifdef HAVE_ADVANCED_API
 	QVariantMap data;
 	data.insert("mids", messages);
-	connection->get("messages.markAsRead", data);
+	d_func()->connection->get("messages.markAsRead", data);
 #else
 	Q_UNUSED(messages);
 #endif
@@ -143,11 +144,11 @@ void VMessagesPrivate::onConnectStateChanged(VConnectionState state)
 	switch (state) {
 		case Connected: {
 			q->getHistory();
-			historyTimer.start();
+//			historyTimer.start();
 			break;
 		}
 		case Disconnected: {
-			historyTimer.stop();
+//			historyTimer.stop();
 			}
 			break;
 		default:
@@ -163,7 +164,7 @@ VMessages::VMessages(VConnection* connection, QObject* parent): QObject(parent),
 	d->unreadMessageCount = 0;
 	loadSettings();
 	connect(connection,SIGNAL(connectionStateChanged(VConnectionState)),d,SLOT(onConnectStateChanged(VConnectionState)));
-	connect(&d->historyTimer,SIGNAL(timeout()),SLOT(getHistory()));
+//	connect(&d->historyTimer,SIGNAL(timeout()),SLOT(getHistory()));
 }
 
 VMessages::~VMessages()
@@ -222,17 +223,17 @@ ConfigGroup VMessages::config()
 
 void VMessages::loadSettings()
 {
-	Q_D(VMessages);
-	ConfigGroup history = config().group("history");
-	d->historyTimer.setInterval(history.value<int>("updateInterval",15000));
-	d->historyTimer.setProperty("timeStamp",history.value("timeStamp",0));
+//	Q_D(VMessages);
+//	ConfigGroup history = config().group("history");
+//	d->historyTimer.setInterval(history.value<int>("updateInterval",15000));
+//	d->historyTimer.setProperty("timeStamp",history.value("timeStamp",0));
 }
 
 void VMessages::saveSettings()
 {
-	Q_D(VMessages);
-	ConfigGroup history = config().group("history");
-	history.setValue("timeStamp",d->historyTimer.property("timeStamp"));
-	history.sync();
+//	Q_D(VMessages);
+//	ConfigGroup history = config().group("history");
+//	history.setValue("timeStamp",d->historyTimer.property("timeStamp"));
+//	history.sync();
 }
 

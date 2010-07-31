@@ -21,6 +21,7 @@
 struct VAccountPrivate;
 class VContact;
 class VConnection;
+class VRoster;
 class LIBVKONTAKTE_EXPORT VAccount : public Account
 {
 	Q_OBJECT
@@ -28,7 +29,7 @@ class LIBVKONTAKTE_EXPORT VAccount : public Account
 public:
 	VAccount(const QString& email);
 	virtual VContact* getContact(const QString& uid, bool create = false);
-	virtual ChatUnit* getUnit(const QString& unitId, bool create = false) {return getUnit(unitId,create);};
+	virtual ChatUnit* getUnit(const QString& unitId, bool create = false);
 	QString uid() const;
 	virtual QString name() const;
 	void setAccountName(const QString &name);
@@ -47,6 +48,7 @@ private:
 	QScopedPointer<VAccountPrivate> d_ptr;
 	friend class VConnection;
 	friend class VRosterPrivate;
+	friend class VRoster;
 };
 
 #endif // VKONTAKTEACCOUNT_H

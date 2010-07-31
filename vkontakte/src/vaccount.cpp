@@ -34,57 +34,26 @@ VAccount::VAccount(const QString& email) :
 
 VContact* VAccount::getContact(const QString& uid, bool create)
 {
-	Q_D(VAccount);
-	VContact *contact = d->contactsHash.value(uid);
-	if (create && !contact) {
-		contact = new VContact(uid, this);
-		d->contactsHash.insert(uid, contact);
-		d->contactsList.append(contact);
-		emit contactCreated(contact);
-	}
-	return contact;
+	return d_func()->connection->roster()->getContact(uid, create);
+}
+
+ChatUnit* VAccount::getUnit(const QString& unitId, bool create)
+{
+	return getContact(unitId,create);
 }
 
 void VAccount::loadSettings()
 {
-	Q_D(VAccount);
-	ConfigGroup contactList = config().group("contactList");
-	for (int index=0;index!=contactList.arraySize();index++) {
-		ConfigGroup item = contactList.arrayElement(index);
-		QString id = item.value<QString>("id",QString());
-		if (id.isEmpty())
-			continue;
-		VContact *c = getContact(id,true);
-		c->setInList(item.value<bool>("inList",true));
-		c->setName(item.value<QString>("name",id));
-		c->setAvatar(item.group("avatar").value<QString>("path",QString()));
-		c->setProperty("avatarUrl",item.group("avatar").value<QString>("url",QString()));
-		c->setActivity(item.value<QString>("activity",QString()));
-		debug() << "added contact:" << c->name() << "in list" << c->isInList();
-	}
 }
 
 void VAccount::saveSettings()
 {
-	Q_D(VAccount);
-	ConfigGroup contactList = config().group("contactList");
-	for (int i=0;i!=d->contactsList.count();i++) {
-		ConfigGroup item = contactList.arrayElement(i);
-		const VContact *c = d->contactsList.at(i);
-		item.setValue("id",c->id());
-		item.setValue("name",c->name());
-		item.setValue("activity",c->status().text());
-		item.setValue("inList",c->isInList());
-		ConfigGroup avatar = item.group("avatar");
-		avatar.setValue("url",c->property("avatarUrl"));
-		avatar.setValue("path",c->avatar());
-	}
-	contactList.sync();
+	d_func()->connection->saveSettings();
 }
 
 VAccount::~VAccount()
 {
-	//saveSettings();
+//	saveSettings();
 }
 
 QString VAccount::name() const

@@ -17,6 +17,7 @@
 #define VCONNECTION_H
 #include "vkontakte_global.h"
 #include <QNetworkAccessManager>
+#include "vreply.h"
 
 class VRoster;
 class VMessages;
@@ -37,6 +38,7 @@ public:
 	virtual ~VConnection();
 	QNetworkReply *get(VRequest &request);
 	QNetworkReply *get(const QString &method, const QVariantMap &args = QVariantMap());
+	VReply *request(const QString &method, const QVariantMap &args = QVariantMap());
 	Config config();
 	Config config(const QString &name);
 	VAccount *account() const;
@@ -45,6 +47,7 @@ public:
 public slots:
 	void connectToHost(const QString &passwd);
 	void disconnectFromHost(bool force = false);
+	void saveSettings();
 	void loadSettings();
 	void onLoadFinished(bool);
 signals:
@@ -54,5 +57,10 @@ protected:
 private:
 	QScopedPointer<VConnectionPrivate> d_ptr;
 };
+
+inline VReply *VConnection::request(const QString &method, const QVariantMap &args)
+{
+	return new VReply(get(method, args));
+}
 
 #endif // VCONNECTION_H

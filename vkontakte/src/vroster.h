@@ -33,9 +33,11 @@ class VRoster : public QObject
 public:
 	VRoster(VConnection *connection, QObject *parent = 0);
 	virtual ~VRoster();
+	VContact *getContact(const QString &uid, bool create);
 	Config config();
 public slots:
 	void loadSettings();
+	void saveSettings();
 	void getProfile();
 	void getTagList();
 	void getFriendList(int start = 0, int limit = 10000); //TODO I think that we need a way to get information on parts	

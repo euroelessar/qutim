@@ -2,6 +2,7 @@
  *  vconnection.cpp
  *
  *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+ *                     by Ruslan Nigmatullin <euroelessar@gmail.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -28,8 +29,9 @@
 #include <qutim/json.h>
 #include "vroster.h"
 #include "vmessages.h"
+#include "vlongpollclient.h"
 
-Q_GLOBAL_STATIC_WITH_ARGS(QString, appId, (QLatin1String("1912927"))) // 1865463")))
+Q_GLOBAL_STATIC_WITH_ARGS(QString, appId, (QLatin1String("1912927"))) // 1865463"))) // 
 
 void VConnectionPrivate::onAuthRequestFinished()
 {
@@ -104,6 +106,7 @@ VConnection::VConnection(VAccount* account, QObject* parent): QNetworkAccessMana
 	d->state = Disconnected;
 	d->roster = new VRoster(this,this);
 	d->messages = new VMessages(this,this);
+	new VLongPollClient(this);
 	loadSettings();
 	connect(&d->prolongationTimer,SIGNAL(timeout()),d,SLOT(sendProlongation()));
 }
@@ -116,6 +119,7 @@ void VConnection::connectToHost(const QString& passwd)
 		return;
 	d->webView = new QWebView;
 	d->webView->page()->setNetworkAccessManager(this);
+	d->webView->setWindowTitle(tr("qutIM - VKontakte authorization"));
 	QUrl url("http://vkontakte.ru/login.php");
 	url.addQueryItem("app", *appId());
 #ifdef QUTIM_MOBILE_UI
@@ -124,13 +128,8 @@ void VConnection::connectToHost(const QString& passwd)
 	url.addQueryItem("layout", "popup");
 #endif
 	url.addQueryItem("type", "browser");
-	url.addQueryItem("settings", QString::number(0xffff));
+	url.addQueryItem("settings", QString::number(255));
 	d->webView->page()->mainFrame()->load(url);
-#ifdef QUTIM_MOBILE_UI
-	d->webView->showMaximized();
-#else
-	d->webView->show();
-#endif
 	connect(d->webView->page(), SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
 	setConnectionState(Connecting);
 }
@@ -150,6 +149,13 @@ void VConnection::onLoadFinished(bool ok)
 			QWebElement pass = d->webView->page()->mainFrame()->findFirstElement("#pass");
 			pass.setAttribute("value", password);
 		}
+		if (!d->webView->isVisible()) {
+#ifdef QUTIM_MOBILE_UI
+			d->webView->showMaximized();
+#else
+			d->webView->show();
+#endif
+		}
 	} else if (path == QLatin1String("/api/login_success.html")) {
 		d->webView->hide();
 		d->webView->deleteLater();
@@ -162,6 +168,8 @@ void VConnection::onLoadFinished(bool ok)
 		d->secret = map.value("secret").toString();
 		setConnectionState(Connected);
 	} else {
+		d->webView->hide();
+		d->webView->deleteLater();
 		setConnectionState(Disconnected);
 	}
 }
@@ -170,6 +178,9 @@ void VConnection::disconnectFromHost(bool force)
 {
 	Q_D(VConnection);
 	Q_UNUSED(force);
+	setConnectionState(Disconnected);
+	foreach (QNetworkReply *reply, findChildren<QNetworkReply*>())
+		reply->abort();
 //	if (force) {
 //		setConnectionState(Disconnected);
 //		d->sid.clear();
@@ -204,7 +215,6 @@ void VConnection::setConnectionState(VConnectionState state)
 
 VConnection::~VConnection()
 {
-
 }
 
 QNetworkReply* VConnection::get(VRequest& request)
@@ -237,7 +247,7 @@ QNetworkReply *VConnection::get(const QString &method, const QVariantMap &args)
 	for (; it != args.constEnd(); it++) {
 		QVariant value = it.value();
 		if (value.canConvert<QStringList>())
-			map.insert(it.key(), value.toStringList().join(","));
+			map.insert(it.key(), value.toStringList().join(QLatin1String(",")));
 		else
 			map.insert(it.key(), value.toString());
 	}
@@ -269,11 +279,27 @@ ConfigGroup VConnection::config(const QString& name)
 	return config().group(name);
 }
 
+void VConnection::saveSettings()
+{
+	QVariantList cookies;
+	foreach (const QNetworkCookie &cookie,
+			 cookieJar()->cookiesForUrl(QUrl("http://vkontakte.ru"))) {
+		cookies << cookie.toRawForm(QNetworkCookie::Full);
+	}
+	config().setValue("cookies", cookies, Config::Crypted);
+	d_func()->roster->saveSettings();
+}
 
 void VConnection::loadSettings()
 {
 	Q_D(VConnection);
-	d->prolongationTimer.setInterval(config().value<int>("prolongationInterval",90000));
+	Config cfg = config();
+	d->prolongationTimer.setInterval(cfg.value("prolongationInterval", 90000));
+	
+	QList<QNetworkCookie> cookies;
+	foreach (const QVariant &var, cfg.value("cookies", QVariantList(), Config::Crypted))
+		cookies << QNetworkCookie::parseCookies(var.toByteArray());
+	cookieJar()->setCookiesFromUrl(cookies, QUrl("http://vkontakte.ru"));
 }
 
 VAccount* VConnection::account() const

@@ -35,6 +35,7 @@ public:
 	void setContactInList(bool inList);
 	void setStatus(bool online);
 	void setActivity(const QString &activity);
+	QString activity() const;
 	virtual Status status() const;
 	virtual ~VContact();
 	virtual QStringList tags() const;
