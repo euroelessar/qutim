@@ -1,5 +1,5 @@
 /****************************************************************************
- *  contactsearchform.h
+ *  searchform.h
  *
  *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
@@ -13,54 +13,47 @@
  ***************************************************************************
  *****************************************************************************/
 
-#ifndef CONTACTSEARCHFORM_H
-#define CONTACTSEARCHFORM_H
+#ifndef SEARCHFORM_H
+#define SEARCHFORM_H
 
-#include "contactsmodel.h"
-#include "ui_searchcontactform.h"
+#include "resultmodel.h"
+#include "ui_searchform.h"
+#include <QListView>
 
 namespace Core {
 
-class ContactSearchForm : public QWidget
+class SearchForm : public QWidget
 {
 	Q_OBJECT
 public:
-	ContactSearchForm(QWidget *parent = 0);
+	explicit SearchForm(QMetaObject *factory, const QString &title = QString(),
+						const QIcon &icon = QIcon(), QWidget *parent = 0);
+	~SearchForm();
 private slots:
-	void updateRequestBox();
 	void startSearch();
-	void updateRequest(int index);
+	void updateRequest(int row);
 	void updateFields();
 	void clearFields();
 	void cancelSearch();
 	void done(bool ok);
-	void addContact();
+	void actionButtonClicked();
 	void updateService();
 	void updateServiceBox();
+	void updateActionButtons();
 protected:
 	bool event(QEvent *e);
 	void setState(bool search);
 private:
-	void addContact(int row);
-	Ui::SearchContactForm ui;
-	QList<FactoryPtr> m_factories;
-	struct RequestBoxItem
-	{
-		RequestBoxItem() {}
-		RequestBoxItem(const FactoryPtr &f, const QString &n) :
-				factory(f), name(n)
-		{}
-		FactoryPtr factory;
-		QString name;
-	};
-	QList<RequestBoxItem> m_requestItems;
+	void actionButtonClicked(int actionIndex, int row);
+	Ui::SearchForm ui;
 	RequestPtr m_currentRequest;
 	QPointer<QWidget> m_searchWidget;
-	ContactsModel m_contactModel;
-	bool requestListUpdating;
+	ResultModel m_resultModel;
+	RequestsListModel *m_requestsModel;
 	bool m_done;
+	QList<QPushButton*> m_actionButtons;
 };
 
 } // namespace Core
 
-#endif // CONTACTSEARCHFORM_H
+#endif // EARCHFORM_H

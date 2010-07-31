@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SearchContactForm</class>
- <widget class="QWidget" name="SearchContactForm">
+ <class>SearchForm</class>
+ <widget class="QWidget" name="SearchForm">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>310</width>
-    <height>425</height>
+    <width>339</width>
+    <height>433</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Search contact</string>
+   <string>Search window</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
@@ -82,7 +82,7 @@
      <widget class="QWidget" name="page_2">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QTableView" name="contactsView">
+        <widget class="QTableView" name="resultView">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -134,11 +134,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="addContactButton">
-           <property name="text">
-            <string>Add contact</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="actionLayout"/>
          </item>
          <item>
           <widget class="QProgressBar" name="progressBar">

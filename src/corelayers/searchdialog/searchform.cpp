@@ -1,5 +1,5 @@
 /****************************************************************************
- *  contactsearchform.cpp
+ * searchform.cpp
  *
  *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
@@ -13,65 +13,43 @@
  ***************************************************************************
  *****************************************************************************/
 
-#include "contactsearchform.h"
-#include "libqutim/contact.h"
+#include "searchform.h"
 #include "libqutim/icon.h"
 #include <QKeyEvent>
 #include "3rdparty/itemdelegate/itemdelegate.h"
 
 namespace Core {
 
-ContactSearchForm::ContactSearchForm(QWidget *parent) :
-	QWidget(parent), requestListUpdating(false)
+SearchForm::SearchForm(QMetaObject *factory, const QString &title, const QIcon &icon, QWidget *parent) :
+	QWidget(parent)
 {
 	ui.setupUi(this);
-	setWindowIcon(Icon("edit-find-contact"));
+	if (!icon.isNull())
+		setWindowIcon(icon);
+	if (!title.isEmpty())
+		setWindowTitle(title);
 	ui.updateServiceButton->setIcon(Icon("view-refresh"));
 	ui.serviceBox->setVisible(false);
 	ui.updateServiceButton->setVisible(false);
 	ui.progressBar->setVisible(false);
-	ui.contactsView->setModel(&m_contactModel);
-	ui.contactsView->setItemDelegate(new ItemDelegate(this));
-	ui.contactsView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-	foreach(const ObjectGenerator *gen, moduleGenerators<ContactSearchFactory>()) {
-		FactoryPtr factory(gen->generate<ContactSearchFactory>());
-		m_factories << factory;
-		connect(factory.data(), SIGNAL(requestListUpdated()), SLOT(updateRequestBox()));
-	}
+	ui.resultView->setModel(&m_resultModel);
+	ui.resultView->setItemDelegate(new ItemDelegate(this));
+	ui.resultView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+	m_requestsModel = new RequestsListModel(factory);
+	ui.requestBox->setModel(m_requestsModel);
 	connect(ui.searchButton, SIGNAL(clicked()), SLOT(startSearch()));
 	connect(ui.cancelButton, SIGNAL(clicked()), SLOT(cancelSearch()));
-	connect(ui.requestBox, SIGNAL(currentIndexChanged(int)), SLOT(updateRequest(int)));
-	connect(ui.addContactButton, SIGNAL(clicked()), SLOT(addContact()));
+	connect(ui.requestBox, SIGNAL(currentIndexChanged(int)),
+			SLOT(updateRequest(int)));
 	connect(ui.updateServiceButton, SIGNAL(clicked()), SLOT(updateService()));
-	updateRequestBox();
 }
 
-void ContactSearchForm::updateRequestBox()
+SearchForm::~SearchForm()
 {
-	requestListUpdating = true;
-	RequestBoxItem currentItem = m_requestItems.value(ui.requestBox->currentIndex());
-	m_requestItems.clear();
-	ui.requestBox->clear();
-	int i = 0;
-	int newIndex = -1;
-	foreach (const FactoryPtr &factory, m_factories) {
-		foreach (const LocalizedString &request, factory->requestList()) {
-			ui.requestBox->addItem(request);
-			m_requestItems << RequestBoxItem(factory, request.original());
-			if (newIndex == -1 && factory == currentItem.factory && request.original() == currentItem.name)
-				newIndex = i;
-			++i;
-		}
-	}
-	if (newIndex == -1) {
-		m_currentRequest = RequestPtr();
-		clearFields();
-	}
-	ui.requestBox->setCurrentIndex(newIndex);
-	requestListUpdating = false;
+	delete m_requestsModel;
 }
 
-void ContactSearchForm::startSearch()
+void SearchForm::startSearch()
 {
 	if (!m_searchWidget)
 		return;
@@ -79,40 +57,40 @@ void ContactSearchForm::startSearch()
 	AbstractDataWidget *dataWidget = qobject_cast<AbstractDataWidget*>(m_searchWidget.data());
 	if (dataWidget) {
 		setState(true);
-		m_contactModel.beginResetModel();
+		m_resultModel.beginResetModel();
 		m_currentRequest->start(dataWidget->item());
-		m_contactModel.endResetModel();
+		m_resultModel.endResetModel();
 		ui.stackedWidget->setCurrentIndex(1);
 		m_done = false;
 	}
 }
 
-void ContactSearchForm::updateRequest(int index)
+void SearchForm::updateRequest(int row)
 {
-	if (requestListUpdating)
-		return;
-	RequestBoxItem currentItem = m_requestItems.value(index);
 	if (m_currentRequest)
 		m_currentRequest->disconnect(this);
-	m_currentRequest = RequestPtr();
-	if (currentItem.factory)
-		m_currentRequest = RequestPtr(currentItem.factory->request(currentItem.name));
-	if (m_currentRequest.isNull()) {
+	m_currentRequest = m_requestsModel->request(row);
+	if (!m_currentRequest) {
 		ui.searchButton->setEnabled(false);
+		if (m_searchWidget)
+			m_searchWidget->deleteLater();
+		qDeleteAllLater(m_actionButtons);
 		return;
 	}
 	ui.searchButton->setEnabled(true);
 	connect(m_currentRequest.data(), SIGNAL(done(bool)), SLOT(done(bool)));
 	connect(m_currentRequest.data(), SIGNAL(fieldsUpdated()), SLOT(updateFields()));
 	connect(m_currentRequest.data(), SIGNAL(servicesUpdated()), SLOT(updateServiceBox()));
-	connect(&m_contactModel, SIGNAL(contactAdded(int)),
-			ui.contactsView, SLOT(resizeRowToContents(int)));
-	m_contactModel.setRequest(m_currentRequest);
+	connect(m_currentRequest.data(), SIGNAL(actionsUpdated()), SLOT(updateActionButtons()));
+	connect(&m_resultModel, SIGNAL(rowAdded(int)),
+			ui.resultView, SLOT(resizeRowToContents(int)));
+	m_resultModel.setRequest(m_currentRequest);
 	updateFields();
 	updateServiceBox();
+	updateActionButtons();
 }
 
-void ContactSearchForm::updateFields()
+void SearchForm::updateFields()
 {
 	clearFields();
 	m_searchWidget = AbstractDataForm::get(m_currentRequest->fields());
@@ -123,13 +101,13 @@ void ContactSearchForm::updateFields()
 	}
 }
 
-void ContactSearchForm::clearFields()
+void SearchForm::clearFields()
 {
 	if (m_searchWidget)
 		m_searchWidget->deleteLater();
 }
 
-void ContactSearchForm::cancelSearch()
+void SearchForm::cancelSearch()
 {
 	if (m_currentRequest && !m_done)
 		m_currentRequest->cancel();
@@ -137,39 +115,39 @@ void ContactSearchForm::cancelSearch()
 	ui.stackedWidget->setCurrentIndex(0);
 }
 
-void ContactSearchForm::done(bool ok)
+void SearchForm::done(bool ok)
 {
 	Q_UNUSED(ok);
 	setState(false);
 	m_done = true;
 }
 
-void ContactSearchForm::addContact()
+void SearchForm::actionButtonClicked()
 {
-	if (!m_contactModel.request())
+	Q_ASSERT(qobject_cast<QPushButton*>(sender()));
+	if (!m_resultModel.request())
 		return;
-	if (m_contactModel.request()->contactCount() == 1) {
-		addContact(0);
+	int actionIndex = sender()->property("actionIndex").toInt();
+	if (m_resultModel.request()->rowCount() == 1) {
+		actionButtonClicked(actionIndex, 0);
 	} else {
-		foreach (const QModelIndex &index, ui.contactsView->selectionModel()->selectedRows())
-			addContact(index.row());
+		foreach (const QModelIndex &index, ui.resultView->selectionModel()->selectedRows())
+			actionButtonClicked(actionIndex, index.row());
 	}
 }
 
-void ContactSearchForm::addContact(int row)
+void SearchForm::actionButtonClicked(int actionIndex, int row)
 {
-	Contact *contact = m_contactModel.request()->contact(row);
-	if (contact)
-		contact->addToList();
+	m_resultModel.request()->actionActivated(actionIndex, row);
 }
 
-void ContactSearchForm::updateService()
+void SearchForm::updateService()
 {
 	Q_ASSERT(m_currentRequest);
 	m_currentRequest->setService(ui.serviceBox->currentText());
 }
 
-void ContactSearchForm::updateServiceBox()
+void SearchForm::updateServiceBox()
 {
 	Q_ASSERT(m_currentRequest);
 	QSet<QString> services = m_currentRequest->services();
@@ -196,7 +174,23 @@ void ContactSearchForm::updateServiceBox()
 	}
 }
 
-void ContactSearchForm::setState(bool search)
+void SearchForm::updateActionButtons()
+{
+	Q_ASSERT(m_currentRequest);
+	qDeleteAllLater(m_actionButtons);
+	for (int i = 0, c = m_currentRequest->actionCount(); i < c; ++i) {
+		QIcon icon = m_currentRequest->actionData(i, Qt::DecorationRole).value<QIcon>();
+		QVariant textVar = m_currentRequest->actionData(i, Qt::DisplayRole);
+		QString text = textVar.canConvert<LocalizedString>() ? textVar.value<LocalizedString>().toString() : textVar.toString();
+		QPushButton *button = new QPushButton(icon, text);
+		m_actionButtons << button;
+		button->setProperty("actionIndex", i);
+		connect(button, SIGNAL(clicked()), SLOT(actionButtonClicked()));
+		ui.actionLayout->addWidget(button);
+	}
+}
+
+void SearchForm::setState(bool search)
 {
 	ui.searchButton->setEnabled(!search);
 	ui.requestBox->setEnabled(!search);
@@ -205,7 +199,7 @@ void ContactSearchForm::setState(bool search)
 		m_searchWidget->setEnabled(!search);
 }
 
-bool ContactSearchForm::event(QEvent *e)
+bool SearchForm::event(QEvent *e)
 {
 	if (e->type() == QEvent::KeyPress) {
 		QKeyEvent *event = static_cast<QKeyEvent*>(e);

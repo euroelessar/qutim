@@ -1,5 +1,5 @@
 /****************************************************************************
- *  contactsearchlayer.h
+ *  searchdialoglayer.h
  *
  *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
@@ -13,28 +13,32 @@
  ***************************************************************************
  *****************************************************************************/
 
-#ifndef CONTACTSEARCHLAYER_H
-#define CONTACTSEARCHLAYER_H
+#ifndef SEARCHDIALOGLAYER_H
+#define SEARCHDIALOGLAYER_H
 
-#include "contactsearchform.h"
+#include "searchform.h"
 
 namespace Core
 {
 
-class ContactSearch : public QObject
+class SearchLayer : public QObject
 {
 	Q_OBJECT
-	Q_CLASSINFO("Service", "ContactSearch")
+	Q_CLASSINFO("Service", "SearchDialog")
 	Q_CLASSINFO("Uses", "IconLoader")
 	Q_CLASSINFO("Uses", "ContactList")
 public:
-    ContactSearch();
+	SearchLayer();
+	~SearchLayer();
 public slots:
-	void show(QObject*);
+	void showContactSearch(QObject*);
+	QWidget *show(QMetaObject *factory, const QString &title = QString(), const QIcon &icon = QIcon());
+private slots:
+	void formDestroyed(QObject *obj);
 private:
-	QPointer<ContactSearchForm> searchContactForm;
+	QHash<QMetaObject*, SearchForm*> forms;
 };
 
 }
 
-#endif // CONTACTSEARCHLAYER_H
+#endif // SEARCHDIALOGLAYER_H

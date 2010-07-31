@@ -1,5 +1,5 @@
 /****************************************************************************
- *  contactsmodel.h
+ *  requestslistmodel.h
  *
  *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
@@ -13,42 +13,54 @@
  ***************************************************************************
  *****************************************************************************/
 
-#ifndef CONTACTSMODEL_H
-#define CONTACTSMODEL_H
+#ifndef REQUESTSLISTMODEL_H
+#define REQUESTSLISTMODEL_H
 
-#include <QAbstractListModel>
-#include <QPointer>
 #include <QSharedPointer>
 #include "libqutim/debug.h"
 #include "libqutim/contactsearch.h"
+#include <QAbstractListModel>
 
 namespace Core {
 
 using namespace qutim_sdk_0_3;
 
-typedef QSharedPointer<ContactSearchFactory> FactoryPtr;
-typedef QSharedPointer<ContactSearchRequest> RequestPtr;
+typedef AbstractSearchFactory *FactoryPtr;
+typedef QSharedPointer<AbstractSearchRequest> RequestPtr;
 
-class ContactsModel : public QAbstractListModel
+class RequestsListModel : public QAbstractListModel
 {
 	Q_OBJECT
 public:
-	RequestPtr request() { return m_request; }
-	void setRequest(const RequestPtr &request);
+	explicit RequestsListModel(QMetaObject *factory, QObject *parent = 0);
+	~RequestsListModel();
+	RequestPtr request(int row);
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-signals:
-	void contactAdded(int row);
-private slots:
-	void contactAboutToBeAdded(int row);
-	void onContactAdded(int row);
 private:
-	friend class ContactSearchForm;
-	RequestPtr m_request;
+	void addRequest(FactoryPtr factory, const QString &request);
+	int findPlaceForRequest(FactoryPtr factory, const QString &request);
+	int findRequestIndex(FactoryPtr factory, const QString &request);
+private slots:
+	void requestAdded(const QString &request);
+	void requestRemoved(const QString &request);
+	void requestUpdated(const QString &request);
+private:
+	QList<FactoryPtr> m_factories;
+	struct RequestItem
+	{
+		RequestItem() :
+			factory(0)
+		{}
+		RequestItem(const FactoryPtr &f, const QString &n) :
+			factory(f), name(n)
+		{}
+		FactoryPtr factory;
+		QString name;
+	};
+	QList<RequestItem> m_requestItems;
 };
 
-} // namespace Core
+}
 
-#endif // CONTACTSMODEL_H
+#endif // REQUESTSLISTMODEL_H
