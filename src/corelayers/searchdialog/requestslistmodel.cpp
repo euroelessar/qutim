@@ -18,14 +18,10 @@
 
 namespace Core {
 
-RequestsListModel::RequestsListModel(QMetaObject *factory, QObject *parent) :
-	QAbstractListModel(parent)
+RequestsListModel::RequestsListModel(QList<AbstractSearchFactory*> factories, QObject *parent) :
+	QAbstractListModel(parent), m_factories(factories)
 {
-	foreach(const ObjectGenerator *gen, moduleGenerators(factory)) {
-		AbstractSearchFactory *factory = gen->generate<AbstractSearchFactory>();
-		if (!factory)
-			continue;
-		m_factories << factory;
+	foreach (AbstractSearchFactory *factory, factories) {
 		connect(factory, SIGNAL(requestAdded(QString)),
 				SLOT(requestAdded(QString)));
 		connect(factory, SIGNAL(requestRemoved(QString)),
@@ -39,10 +35,6 @@ RequestsListModel::RequestsListModel(QMetaObject *factory, QObject *parent) :
 
 RequestsListModel::~RequestsListModel()
 {
-	foreach (FactoryPtr factory, m_factories) {
-		disconnect(factory, 0, this, 0);
-		delete factory;
-	}
 }
 
 RequestPtr RequestsListModel::request(int row)

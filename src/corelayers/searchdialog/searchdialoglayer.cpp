@@ -17,6 +17,7 @@
 #include "libqutim/contact.h"
 #include "libqutim/icon.h"
 #include "src/modulemanagerimpl.h"
+#include "libqutim/config.h"
 
 namespace Core
 {
@@ -28,6 +29,8 @@ static Core::CoreModuleHelper<SearchLayer> search_dialog_static(
 
 SearchLayer::SearchLayer()
 {
+	foreach(const ObjectGenerator *gen, moduleGenerators<ContactSearchFactory>())
+		m_contactSearchFactories << gen->generate<ContactSearchFactory>();
 	QObject *contactList = getService("ContactList");
 	if (contactList) {
 		static QScopedPointer<ActionGenerator> button(new ActionGenerator(Icon("edit-find-contact"),
@@ -42,48 +45,37 @@ SearchLayer::SearchLayer()
 
 SearchLayer::~SearchLayer()
 {
-	foreach (SearchForm *form, forms)
-		delete form;
+	delete m_contactSearchDialog;
+	qDeleteAll(m_contactSearchFactories);
 }
 
 void SearchLayer::showContactSearch(QObject*)
 {
-	show(const_cast<QMetaObject*>(&ContactSearchFactory::staticMetaObject),
-		 QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
-		 Icon("edit-find-contact"));
-}
-
-QWidget *SearchLayer::show(QMetaObject *factory, const QString &title, const QIcon &icon)
-{
-	SearchForm *form = forms.value(factory);
-	if (form) {
-		if (!title.isEmpty())
-			form->setWindowTitle(title);
-		if (!icon.isNull())
-			form->setWindowIcon(icon);
-		form->raise();
-	} else {
-		form = new SearchForm(factory, title, icon);
+	AbstractSearchForm *form = m_contactSearchDialog.data();
+	if (!form) {
+		AbstractSearchFormFactory *f = AbstractSearchFormFactory::instance();
+		if (f)
+			form = f->createForm(m_contactSearchFactories,
+								 QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
+								 Icon("edit-find-contact"));
+		if (!form)
+			return;
 		centerizeWidget(form);
 		form->show();
 		form->setAttribute(Qt::WA_DeleteOnClose, true);
-		connect(form, SIGNAL(destroyed(QObject*)), SLOT(formDestroyed(QObject*)));
-		forms.insert(factory, form);
+		m_contactSearchDialog = form;
+	} else {
+		form->raise();
 	}
-	return form;
 }
 
-void SearchLayer::formDestroyed(QObject *obj)
+QWidget *SearchLayer::createSearchDialog(const QList<AbstractSearchFactory*> &factories,
+										 const QString &title,
+										 const QIcon &icon,
+										 QWidget *parent)
 {
-	QHash<QMetaObject*, SearchForm*>::iterator itr = forms.begin();
-	QHash<QMetaObject*, SearchForm*>::iterator endItr = forms.end();
-	while (itr != endItr) {
-		if (*itr == obj) {
-			forms.erase(itr);
-			break;
-		}
-		++itr;
-	}
+	AbstractSearchFormFactory *f = AbstractSearchFormFactory::instance();
+	return f ? f->createForm(factories, title, icon, parent) : 0;
 }
 
 }

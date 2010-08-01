@@ -18,6 +18,11 @@
 
 namespace Core {
 
+ResultModel::ResultModel(QObject *parent) :
+	QAbstractListModel(parent)
+{
+}
+
 void ResultModel::setRequest(const RequestPtr &request)
 {
 	beginResetModel();
@@ -43,7 +48,9 @@ int ResultModel::rowCount(const QModelIndex &parent) const
 int ResultModel::columnCount(const QModelIndex &parent) const
 {
 	Q_UNUSED(parent);
-	return 1;
+	if (m_request)
+		return m_request->columnCount();
+	return 0;
 }
 
 QVariant ResultModel::data(const QModelIndex &index, int role) const
@@ -66,17 +73,15 @@ QVariant ResultModel::data(const QModelIndex &index, int role) const
 			return fields;
 		}
 		return fieldsVar;
-	} else if (index.column() == 0) {
-		return m_request->data(index.row(), 0, role);
+	} else {
+		return m_request->data(index.row(), index.column(), role);
 	}
-	return QVariant();
 }
 
 QVariant ResultModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	Q_UNUSED(section);
-	Q_UNUSED(orientation);
-	Q_UNUSED(role);
+	if (m_request && orientation == Qt::Horizontal)
+		return m_request->headerData(section, role);
 	return QVariant();
 }
 

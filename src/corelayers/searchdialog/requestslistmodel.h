@@ -32,8 +32,8 @@ class RequestsListModel : public QAbstractListModel
 {
 	Q_OBJECT
 public:
-	explicit RequestsListModel(QMetaObject *factory, QObject *parent = 0);
-	~RequestsListModel();
+	explicit RequestsListModel(QList<AbstractSearchFactory*> factories, QObject *parent = 0);
+	virtual ~RequestsListModel();
 	RequestPtr request(int row);
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

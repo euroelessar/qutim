@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SearchForm</class>
- <widget class="QWidget" name="SearchForm">
+ <class>DefaultSearchForm</class>
+ <widget class="QWidget" name="DefaultSearchForm">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>339</width>
-    <height>433</height>
+    <width>775</width>
+    <height>557</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,11 +21,17 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QStackedWidget" name="stackedWidget">
-     <property name="currentIndex">
-      <number>0</number>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QWidget" name="page_1">
+     <widget class="QFrame" name="frame">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
       <layout class="QVBoxLayout" name="generalLayout">
        <item>
         <widget class="QComboBox" name="requestBox"/>
@@ -68,19 +74,39 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="searchButton">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Search</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QPushButton" name="searchButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Search</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cancelButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Cancel</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_2">
-      <layout class="QVBoxLayout" name="verticalLayout">
+     <widget class="QFrame" name="frame_2">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
         <widget class="QTableView" name="resultView">
          <property name="sizePolicy">
@@ -98,14 +124,11 @@
          <property name="showGrid">
           <bool>false</bool>
          </property>
-         <attribute name="horizontalHeaderVisible">
-          <bool>false</bool>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>10</number>
          </attribute>
-         <attribute name="horizontalHeaderCascadingSectionResizes">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="horizontalHeaderStretchLastSection">
-          <bool>true</bool>
+         <attribute name="horizontalHeaderMinimumSectionSize">
+          <number>10</number>
          </attribute>
          <attribute name="verticalHeaderVisible">
           <bool>false</bool>
@@ -113,29 +136,16 @@
          <attribute name="verticalHeaderVisible">
           <bool>false</bool>
          </attribute>
-         <attribute name="horizontalHeaderStretchLastSection">
-          <bool>true</bool>
+         <attribute name="horizontalHeaderMinimumSectionSize">
+          <number>10</number>
          </attribute>
-         <attribute name="horizontalHeaderCascadingSectionResizes">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="horizontalHeaderVisible">
-          <bool>false</bool>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>10</number>
          </attribute>
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QPushButton" name="cancelButton">
-           <property name="text">
-            <string>Back</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="actionLayout"/>
-         </item>
+        <layout class="QHBoxLayout" name="actionLayout">
          <item>
           <widget class="QProgressBar" name="progressBar">
            <property name="maximum">

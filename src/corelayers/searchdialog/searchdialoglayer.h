@@ -16,7 +16,7 @@
 #ifndef SEARCHDIALOGLAYER_H
 #define SEARCHDIALOGLAYER_H
 
-#include "searchform.h"
+#include "abstractsearchform.h"
 
 namespace Core
 {
@@ -24,7 +24,7 @@ namespace Core
 class SearchLayer : public QObject
 {
 	Q_OBJECT
-	Q_CLASSINFO("Service", "SearchDialog")
+	Q_CLASSINFO("Service", "SearchLayer")
 	Q_CLASSINFO("Uses", "IconLoader")
 	Q_CLASSINFO("Uses", "ContactList")
 public:
@@ -32,11 +32,13 @@ public:
 	~SearchLayer();
 public slots:
 	void showContactSearch(QObject*);
-	QWidget *show(QMetaObject *factory, const QString &title = QString(), const QIcon &icon = QIcon());
-private slots:
-	void formDestroyed(QObject *obj);
+	QWidget *createSearchDialog(const QList<AbstractSearchFactory*> &factories,
+								const QString &title = QString(),
+								const QIcon &icon = QIcon(),
+								QWidget *parent = 0);
 private:
-	QHash<QMetaObject*, SearchForm*> forms;
+	QPointer<AbstractSearchForm> m_contactSearchDialog;
+	QList<AbstractSearchFactory*> m_contactSearchFactories;
 };
 
 }

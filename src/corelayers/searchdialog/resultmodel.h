@@ -26,6 +26,7 @@ class ResultModel : public QAbstractListModel
 {
 	Q_OBJECT
 public:
+	explicit ResultModel(QObject *parent = 0);
 	RequestPtr request() { return m_request; }
 	void setRequest(const RequestPtr &request);
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -38,7 +39,7 @@ private slots:
 	void onRowAboutToBeAdded(int row);
 	void onRowAdded(int row);
 private:
-	friend class SearchForm;
+	friend class AbstractSearchForm;
 	RequestPtr m_request;
 };
 
