@@ -19,26 +19,24 @@ RCC_DIR = build/rcc
 DEFINES += NOWPLAYING_LIBRARY
 
 INCLUDEPATH += /usr/local/include \
-               src/
+               include
 
 RESOURCES += \
     res.qrc
 
 OTHER_FILES += \
     CMakeLists.txt \
-    GPL_v3
 
 HEADERS += \
-    src/trackinfo.h \
-    src/player.h \
-    src/amarok.h \
+    include/trackinfo.h \
+    include/player.h \
+    players/amarok/amarok.h \
     src/settingsui.h \
     src/nowplaying.h \
     src/settings_structures.h
 
 SOURCES += \
-    src/player.cpp \
-    src/amarok.cpp \
+    players/amarok/amarok.cpp \
     src/settingsui.cpp \
     src/nowplaying.cpp
 

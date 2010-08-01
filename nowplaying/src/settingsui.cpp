@@ -1,4 +1,9 @@
 #include "settingsui.h"
+#include "player.h"
+#include <qutim/objectgenerator.h>
+
+namespace qutim_sdk_0_3 {
+namespace nowplaying{
 
 SettingsUI::SettingsUI(){
     ui.setupUi(this);
@@ -13,62 +18,56 @@ void SettingsUI::loadImpl(){
     QString proto_id;
     QString acc_id;
     m_accounts.insert("oscar", "icq");
-    m_oscar_accs.insert("oscar", new Oscar(this));
     m_accounts.insert("mrim", "mrim");
-    m_mrim_accs.insert("mrim", new MRIM(this));
     m_accounts.insert("jabber", "jabber");
-    m_jabber_accs.insert("jabber", new Jabber(this));
     foreach (Protocol* proto, allProtocols()) {
         foreach(Account* acc, proto->accounts()){
             proto_id = proto->id();
             acc_id = acc->id();
             m_accounts.insert(acc_id, proto_id);
             ui.accounts->addItem(acc_id);
-            //qDebug()<<proto_id;
-            if (proto_id == "icq"){
-                m_oscar_accs.insert(acc_id, new Oscar(this));
-            } else if (proto_id == "mrim"){
-                m_mrim_accs.insert(acc_id, new MRIM(this));
-            } else if (proto_id == "jabber"){
-                m_jabber_accs.insert(acc_id, new Jabber(this));
-            }
         }
     }
     Config group = Config().group("nowplaying");
     Config global = group.group("global");
     m_is_working = global.value("is_working", false);
     ui.players->setCurrentIndex(ui.players->findText(global.value("player", QString("Amarok"))));
-    ui.time_period->setText(global.value("check_period", QString("1")));
     ui.for_all_accounts->setChecked(global.value("for_all_accounts", true));
 
-    foreach (QString acc, m_oscar_accs.keys()){
-        Config oscar = group.group(acc);
-        m_oscar_accs.value(acc)->deactivated = oscar.value("deactivated", false);
-        m_oscar_accs.value(acc)->sets_current_status = oscar.value("sets_current_status", false);
-        m_oscar_accs.value(acc)->sets_music_status = oscar.value("sets_music_status", true);
-        m_oscar_accs.value(acc)->mask_1 = oscar.value("mask_1", QString("Now playing: %artist - %title"));
-        m_oscar_accs.value(acc)->mask_2 = oscar.value("mask_2", QString("%artist - %title"));
+    foreach (QString acc, m_accounts.keys()){
+        QString proto_id = m_accounts.value(acc);
+        if (proto_id == "icq"){
+            Config saved_config = group.group(acc);
+            Oscar config;
+            config.deactivated = saved_config.value("deactivated", false);
+            config.sets_current_status = saved_config.value("sets_current_status", false);
+            config.sets_music_status = saved_config.value("sets_music_status", true);
+            config.mask_1 = saved_config.value("mask_1", QString("Now playing: %artist - %title"));
+            config.mask_2 = saved_config.value("mask_2", QString("%artist - %title"));
+            m_oscar_accs.insert(acc, config);
+        } else if (proto_id == "mrim"){
+            Config saved_config = group.group(acc);
+            MRIM config;
+            config.deactivated = saved_config.value("deactivated", false);
+            config.sets_current_status = saved_config.value("sets_current_status", false);
+            config.sets_music_status = saved_config.value("sets_music_status", true);
+            config.mask_1 = saved_config.value("mask_1", QString("Now playing: %artist - %title"));
+            config.mask_2 = saved_config.value("mask_2", QString("%artist - %title"));
+            m_mrim_accs.insert(acc, config);
+        } else if (proto_id == "jabber"){
+            Config saved_config = group.group(acc);
+            Jabber config;
+            config.deactevated = saved_config.value("deactevated", false);
+            config.artist = saved_config.value("artist", true);
+            config.title = saved_config.value("title", true);
+            config.album = saved_config.value("album", false);
+            config.length = saved_config.value("length", false);
+            config.number = saved_config.value("number", false);
+            config.uri = saved_config.value("uri", false);
+            m_jabber_accs.insert(acc, config);
+        }
     }
 
-    foreach (QString acc, m_mrim_accs.keys()){
-        Config mrim = group.group(acc);
-        m_mrim_accs.value(acc)->deactivated = mrim.value("deactivated", false);
-        m_mrim_accs.value(acc)->sets_current_status = mrim.value("sets_current_status", false);
-        m_mrim_accs.value(acc)->sets_music_status = mrim.value("sets_music_status", true);
-        m_mrim_accs.value(acc)->mask_1 = mrim.value("mask_1", QString("Now playing: %artist - %title"));
-        m_mrim_accs.value(acc)->mask_2 = mrim.value("mask_2", QString("%artist - %title"));
-    }
-
-    foreach (QString acc, m_jabber_accs.keys()){
-        Config jabber = group.group(acc);
-        m_jabber_accs.value(acc)->deactevated = jabber.value("deactevated", false);
-        m_jabber_accs.value(acc)->artist = jabber.value("artist", true);
-        m_jabber_accs.value(acc)->title = jabber.value("title", true);
-        m_jabber_accs.value(acc)->album = jabber.value("album", false);
-        m_jabber_accs.value(acc)->length = jabber.value("length", false);
-        m_jabber_accs.value(acc)->number = jabber.value("number", false);
-        m_jabber_accs.value(acc)->uri = jabber.value("uri", false);
-    }
     m_current_account = ui.accounts->currentText();
     initFormValues();
     connect(ui.accounts, SIGNAL(currentIndexChanged(QString)), this, SLOT(accountChanged(QString)));
@@ -93,6 +92,14 @@ void SettingsUI::loadImpl(){
     lookForWidgetState(ui.jabber_title);
     lookForWidgetState(ui.jabber_track_number);
     lookForWidgetState(ui.jabber_uri);
+
+    foreach(const ObjectGenerator *gen, moduleGenerators<Player>()){
+        Player* player =  gen->generate<Player>();
+        QString name = player->playerName();
+        if (ui.players->findText(name) == -1)
+            ui.players->addItem(name);
+    }
+
 }
 
 void SettingsUI::saveImpl(){
@@ -107,36 +114,38 @@ void SettingsUI::saveImpl(){
     Config global = group.group("global");
     global.setValue("is_working", m_is_working);
     global.setValue("player", ui.players->currentText());
-    global.setValue("check_period",ui.time_period->text());
     global.setValue("for_all_accounts", ui.for_all_accounts->isChecked());
 
     foreach (QString acc, m_oscar_accs.keys()){
-        Config oscar = group.group(acc);
-        oscar.setValue("deactivated", m_oscar_accs.value(acc)->deactivated);
-        oscar.setValue("sets_current_status", m_oscar_accs.value(acc)->sets_current_status);
-        oscar.setValue("sets_music_status", m_oscar_accs.value(acc)->sets_music_status);
-        oscar.setValue("mask_1", m_oscar_accs.value(acc)->mask_1);
-        oscar.setValue("mask_2", m_oscar_accs.value(acc)->mask_2);
+        Config saved_config = group.group(acc);
+        Oscar config = m_oscar_accs.value(acc);
+        saved_config.setValue("deactivated", config.deactivated);
+        saved_config.setValue("sets_current_status", config.sets_current_status);
+        saved_config.setValue("sets_music_status", config.sets_music_status);
+        saved_config.setValue("mask_1", config.mask_1);
+        saved_config.setValue("mask_2", config.mask_2);
     }
 
     foreach (QString acc, m_mrim_accs.keys()){
-        Config mrim = group.group(acc);
-        mrim.setValue("deactivated", m_mrim_accs.value(acc)->deactivated);
-        mrim.setValue("sets_current_status", m_mrim_accs.value(acc)->sets_current_status);
-        mrim.setValue("sets_music_status", m_mrim_accs.value(acc)->sets_music_status);
-        mrim.setValue("mask_1", m_mrim_accs.value(acc)->mask_1);
-        mrim.setValue("mask_2", m_mrim_accs.value(acc)->mask_2);
+        Config saved_config = group.group(acc);
+        MRIM config = m_mrim_accs.value(acc);
+        saved_config.setValue("deactivated", config.deactivated);
+        saved_config.setValue("sets_current_status", config.sets_current_status);
+        saved_config.setValue("sets_music_status", config.sets_music_status);
+        saved_config.setValue("mask_1", config.mask_1);
+        saved_config.setValue("mask_2", config.mask_2);
     }
 
     foreach (QString acc, m_jabber_accs.keys()){
-        Config jabber = group.group(acc);
-        jabber.setValue("deactevated", m_jabber_accs.value(acc)->deactevated);
-        jabber.setValue("artist", m_jabber_accs.value(acc)->artist);
-        jabber.setValue("title", m_jabber_accs.value(acc)->title);
-        jabber.setValue("album", m_jabber_accs.value(acc)->album);
-        jabber.setValue("length", m_jabber_accs.value(acc)->length);
-        jabber.setValue("number", m_jabber_accs.value(acc)->number);
-        jabber.setValue("uri", m_jabber_accs.value(acc)->uri);
+        Config saved_config = group.group(acc);
+        Jabber config = m_jabber_accs.value(acc);
+        saved_config.setValue("deactevated", config.deactevated);
+        saved_config.setValue("artist", config.artist);
+        saved_config.setValue("title", config.title);
+        saved_config.setValue("album", config.album);
+        saved_config.setValue("length", config.length);
+        saved_config.setValue("number", config.number);
+        saved_config.setValue("uri", config.uri);
     }
     group.sync();
     emit configSaved();
@@ -180,56 +189,65 @@ void SettingsUI::initFormValues(){
 }
 
 void SettingsUI::initOscarFormFields(const QString& acc){
-    ui.oscar_deactevated->setChecked(m_oscar_accs.value(acc)->deactivated);
-    ui.oscar_change_current->setChecked(m_oscar_accs.value(acc)->sets_current_status);
-    ui.oscar_change_music_status->setChecked(m_oscar_accs.value(acc)->sets_music_status);
-    ui.oscar_mask_1->setText(m_oscar_accs.value(acc)->mask_1);
-    ui.oscar_mask_2->setText(m_oscar_accs.value(acc)->mask_2);
+    Oscar config = m_oscar_accs.value(acc);
+    ui.oscar_deactevated->setChecked(config.deactivated);
+    ui.oscar_change_current->setChecked(config.sets_current_status);
+    ui.oscar_change_music_status->setChecked(config.sets_music_status);
+    ui.oscar_mask_1->setText(config.mask_1);
+    ui.oscar_mask_2->setText(config.mask_2);
 }
 
 void SettingsUI::saveOscarFormFields(const QString& acc){
-    m_oscar_accs.value(acc)->deactivated = ui.oscar_deactevated->isChecked();
-    m_oscar_accs.value(acc)->sets_current_status = ui.oscar_change_current->isChecked();
-    m_oscar_accs.value(acc)->sets_music_status = ui.oscar_change_music_status->isChecked();
-    m_oscar_accs.value(acc)->mask_1 = ui.oscar_mask_1->text();
-    m_oscar_accs.value(acc)->mask_2 = ui.oscar_mask_2->text();
+    Oscar config;
+    config.deactivated = ui.oscar_deactevated->isChecked();
+    config.sets_current_status = ui.oscar_change_current->isChecked();
+    config.sets_music_status = ui.oscar_change_music_status->isChecked();
+    config.mask_1 = ui.oscar_mask_1->text();
+    config.mask_2 = ui.oscar_mask_2->text();
+    m_oscar_accs.insert(acc, config);
 }
 
 void SettingsUI::initMRIMFormFields(const QString& acc){
-    ui.mrim_deactevated->setChecked(m_mrim_accs.value(acc)->deactivated);
-    ui.mrim_change_current->setChecked(m_mrim_accs.value(acc)->sets_current_status);
-    ui.mrim_change_music_status->setChecked(m_mrim_accs.value(acc)->sets_music_status);
-    ui.mrim_mask_1->setText(m_mrim_accs.value(acc)->mask_1);
-    ui.mrim_mask_2->setText(m_mrim_accs.value(acc)->mask_2);
+    MRIM config = m_mrim_accs.value(acc);
+    ui.mrim_deactevated->setChecked(config.deactivated);
+    ui.mrim_change_current->setChecked(config.sets_current_status);
+    ui.mrim_change_music_status->setChecked(config.sets_music_status);
+    ui.mrim_mask_1->setText(config.mask_1);
+    ui.mrim_mask_2->setText(config.mask_2);
 }
 
 void SettingsUI::saveMRIMFormFields(const QString& acc){
-    m_mrim_accs.value(acc)->deactivated = ui.mrim_deactevated->isChecked();
-    m_mrim_accs.value(acc)->sets_current_status = ui.mrim_change_current->isChecked();
-    m_mrim_accs.value(acc)->sets_music_status = ui.mrim_change_music_status->isChecked();
-    m_mrim_accs.value(acc)->mask_1 = ui.mrim_mask_1->text();
-    m_mrim_accs.value(acc)->mask_2 = ui.mrim_mask_2->text();
+    MRIM config;
+    config.deactivated = ui.mrim_deactevated->isChecked();
+    config.sets_current_status = ui.mrim_change_current->isChecked();
+    config.sets_music_status = ui.mrim_change_music_status->isChecked();
+    config.mask_1 = ui.mrim_mask_1->text();
+    config.mask_2 = ui.mrim_mask_2->text();
+    m_mrim_accs.insert(acc, config);
 }
 
 void SettingsUI::initJabberFormFields(const QString& acc){
-    ui.jabber_deactivated->setChecked(m_jabber_accs.value(acc)->deactevated);
-    ui.jabber_activated->setChecked(!(m_jabber_accs.value(acc)->deactevated));
-    ui.jabber_artist->setChecked(m_jabber_accs.value(acc)->artist);
-    ui.jabber_title->setChecked(m_jabber_accs.value(acc)->title);
-    ui.jabber_album->setChecked(m_jabber_accs.value(acc)->album);
-    ui.jabber_track_number->setChecked(m_jabber_accs.value(acc)->number);
-    ui.jabber_length->setChecked(m_jabber_accs.value(acc)->length);
-    ui.jabber_uri->setChecked(m_jabber_accs.value(acc)->uri);
+    Jabber config = m_jabber_accs.value(acc);
+    ui.jabber_deactivated->setChecked(config.deactevated);
+    ui.jabber_activated->setChecked(!(config.deactevated));
+    ui.jabber_artist->setChecked(config.artist);
+    ui.jabber_title->setChecked(config.title);
+    ui.jabber_album->setChecked(config.album);
+    ui.jabber_track_number->setChecked(config.number);
+    ui.jabber_length->setChecked(config.length);
+    ui.jabber_uri->setChecked(config.uri);
 }
 
 void SettingsUI::saveJabberFormFields(const QString& acc){
-    m_jabber_accs.value(acc)->deactevated = ui.jabber_deactivated->isChecked();
-    m_jabber_accs.value(acc)->artist = ui.jabber_artist->isChecked();
-    m_jabber_accs.value(acc)->title = ui.jabber_title->isChecked();
-    m_jabber_accs.value(acc)->album = ui.jabber_album->isChecked();
-    m_jabber_accs.value(acc)->number = ui.jabber_track_number->isChecked();
-    m_jabber_accs.value(acc)->length = ui.jabber_length->isChecked();
-    m_jabber_accs.value(acc)->uri = ui.jabber_uri->isChecked();
+    Jabber config;
+    config.deactevated = ui.jabber_deactivated->isChecked();
+    config.artist = ui.jabber_artist->isChecked();
+    config.title = ui.jabber_title->isChecked();
+    config.album = ui.jabber_album->isChecked();
+    config.number = ui.jabber_track_number->isChecked();
+    config.length = ui.jabber_length->isChecked();
+    config.uri = ui.jabber_uri->isChecked();
+    m_jabber_accs.insert(acc, config);
 }
 
 void SettingsUI::initAccountFormField(const QString& acc){
@@ -290,3 +308,5 @@ void SettingsUI::forAllAccsClicked(){
         initFormValues();
     }
 }
+
+}}

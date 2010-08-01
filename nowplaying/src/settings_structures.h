@@ -1,21 +1,18 @@
 #ifndef SETTINGS_STRUCTURES_H
 #define SETTINGS_STRUCTURES_H
 
-#include <QObject>
 #include <QString>
 
-class Global : public QObject{
-public:
-    Global(QObject* parent = 0):QObject(parent){}
+namespace qutim_sdk_0_3 {
+namespace nowplaying{
+
+struct Global{
     bool is_working;
-    bool for_all_accounts;
+    bool for_all_accs;
     QString player;
-    QString check_period;
 };
 
-struct Oscar : public QObject{
-public:
-    Oscar(QObject* parent = 0):QObject(parent){}
+struct Oscar{
     bool deactivated;
     bool sets_current_status;
     bool sets_music_status;
@@ -25,9 +22,7 @@ public:
 
 typedef Oscar MRIM;
 
-struct Jabber : public QObject{
-public:
-    Jabber(QObject* parent = 0):QObject(parent){}
+struct Jabber{
     bool deactevated;
     bool artist;
     bool title;
@@ -36,5 +31,7 @@ public:
     bool length;
     bool uri;
 };
+
+}}
 
 #endif // SETTINGS_STRUCTURES_H

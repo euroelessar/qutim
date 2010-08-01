@@ -9,9 +9,7 @@ if(QUTIM_PATH)
 else(QUTIM_PATH)
     set(QUTIM_CMAKE_PLUGIN ${CMAKE_ROOT}/Modules/QutimPlugin.cmake)
 endif(QUTIM_PATH)
-
+include_directories(${CMAKE_SOURCE_DIR})
 SET( QT_USE_QTDBUS TRUE )
-SET( QT_USE_QTTEST TRUE )
-
 include( ${QUTIM_CMAKE_PLUGIN} )
 ADD_QUTIMPLUGIN( "nowplaying" "src" )

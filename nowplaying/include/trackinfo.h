@@ -3,6 +3,9 @@
 
 #include <QString>
 
+namespace qutim_sdk_0_3 {
+namespace nowplaying{
+
 struct TrackInfo{
     QString artist;
     QString title;
@@ -13,4 +16,5 @@ struct TrackInfo{
     QString uri;
 };
 
+}}
 #endif // TRACKINFO_H

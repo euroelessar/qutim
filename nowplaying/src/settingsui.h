@@ -11,7 +11,8 @@
 #include <QHash>
 #include <QDebug>
 
-using namespace qutim_sdk_0_3;
+namespace qutim_sdk_0_3 {
+namespace nowplaying{
 
 class SettingsUI : public SettingsWidget{
 
@@ -26,9 +27,9 @@ public:
 private:
         Ui::settingsUi ui;
         QHash<QString, QString> m_accounts;
-        QHash<QString, Oscar*> m_oscar_accs;
-        QHash<QString, MRIM*> m_mrim_accs;
-        QHash<QString, Jabber*> m_jabber_accs;
+        QHash<QString, Oscar> m_oscar_accs;
+        QHash<QString, MRIM> m_mrim_accs;
+        QHash<QString, Jabber> m_jabber_accs;
         bool m_is_working;
         QString m_current_account;
         void initFormValues();
@@ -49,6 +50,7 @@ public slots:
         void forAllAccsClicked();
 };
 
+}}
 #endif
 
 
