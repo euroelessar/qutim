@@ -417,11 +417,10 @@ namespace Core
 			ContactData::Ptr item_data = p->contacts.value(contact);
 			if(!item_data)
 				return;
-			if(status.type() == item_data->status.type() && status.text() == item_data->status.text())
-				return;
+			bool statusTypeChanged = status.type() != item_data->status.type();
 			int counter = 0;
 			if (status.type() == Status::Offline)
-				counter = -1;
+				counter = statusTypeChanged ? -1 : 0;
 			else if (item_data->status == Status::Offline)
 				counter = +1;
 			item_data->status = status;
@@ -431,20 +430,25 @@ namespace Core
 			{
 				ContactItem *item = items.at(i);
 				item->parent->online += counter;
+
 				QList<ContactItem *> contacts = item->parent->contacts;
-				QList<ContactItem *>::const_iterator it =
-						qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-				
-				int to = it - contacts.constBegin();
-				int from = contacts.indexOf(item);
-				
 				QModelIndex parentIndex = createIndex(p->tags.indexOf(item->parent), 0, item->parent);
-				
-				debug() << item->data->contact->id() << from << to << show;
+				int from = contacts.indexOf(item);
+				int to;
+				if (statusTypeChanged) {
+					QList<ContactItem *>::const_iterator it =
+							qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
+					to = it - contacts.constBegin();
+					hideContact(from, parentIndex, !show);
+				} else {
+					to = from;
+				}
 
 				if (from == to) {
-					QModelIndex index = createIndex(item->index(), 0, item);
-					dataChanged(index, index);					
+					if (show) {
+						QModelIndex index = createIndex(item->index(), 0, item);
+						dataChanged(index, index);
+					}
 				}
 				else {
 					if (to == -1 || to >= contacts.count())
@@ -455,7 +459,6 @@ namespace Core
 					//item_data->items.move(from,to); //FIXME
 					endMoveRows();	
 				}
-				hideContact(to, parentIndex, !show);
 			}
 		}
 
