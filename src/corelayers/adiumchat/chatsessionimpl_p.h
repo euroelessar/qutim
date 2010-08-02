@@ -52,11 +52,12 @@ namespace Core
 			virtual ~ChatSessionImplPrivate();
 			void loadHistory();
 			void statusChanged(const Status &status,Contact *contact, bool silent = false);
-			void fillMenu(QMenu *menu, ChatUnit *unit, const ChatUnitList &lowerUnits);
+			void fillMenu(QMenu *menu, ChatUnit *unit, const ChatUnitList &lowerUnits, bool root = true);
 			ChatStyleOutput *chat_style_output;
 			QPointer<QWebPage> web_page;
 			QPointer<ChatUnit> chat_unit;
-			QPointer<ChatUnit> current_unit; // unit chosen by user as receiver
+			QPointer<ChatUnit> current_unit; // the unit chosen by user as receiver
+			QPointer<ChatUnit> last_active_unit; // the unit a last message was from
 			QPointer<QTextDocument> input;
 			QPointer<QMenu> menu;
 			QPointer<QActionGroup> group;
@@ -69,7 +70,7 @@ namespace Core
 			bool separator;
 			QDateTime lastDate;
 			int groupUntil;
-			bool rememberLastSender;
+			bool sendToLastActiveResource;
 			QTimer inactive_timer;
 			MessageList unread;
 			ChatState myself_chat_state;
@@ -80,6 +81,7 @@ namespace Core
 			void onLinkClicked(const QUrl &url);
 			void onActiveTimeout();
 			void onResourceChosen(bool active);
+			void onSendToLastActiveResourceActivated(bool active);
 			void onLowerUnitAdded();
 			void refillMenu();
 		};

@@ -68,7 +68,6 @@ namespace Core
 			Config cfg = Config("appearance").group("chat");
 			d->store_service_messages = cfg.group("history").value<bool>("storeServiceMessages", true);
 			d->groupUntil = cfg.value<int>("groupUntil", 900);
-			d->rememberLastSender = cfg.value("rememberLastSender", true);
 			d->chat_style_output->preparePage(d->web_page,this);
 			d->skipOneMerge = true;
 			d->active = false;
@@ -179,17 +178,12 @@ namespace Core
 			bool same_from = false;
 			bool service = message.property("service").isValid();
 			const Conference *conf = qobject_cast<const Conference *>(message.chatUnit());
-			if (d->rememberLastSender && !service && !conf
+			if (!service && !conf
 				&& message.chatUnit() != d->current_unit
+				&& message.isIncoming()
 				&& !message.property("history", false))
 			{
-				d->current_unit = const_cast<ChatUnit*>(message.chatUnit());
-				if (d->group) {
-					foreach (QAction *action, d->group->actions()) {
-						if (qVariantValue<ChatUnit*>(action->data()) == d->current_unit.data())
-							action->setChecked(true);
-					}
-				}
+				d->last_active_unit = const_cast<ChatUnit*>(message.chatUnit());
 			}
 			QString item;
 			if (!isActive()) {
@@ -295,7 +289,10 @@ namespace Core
 		ChatUnit* ChatSessionImpl::getCurrentUnit() const
 		{
 			Q_D(const ChatSessionImpl);
-			return d->current_unit ? d->current_unit : d->chat_unit;
+			if (d->sendToLastActiveResource)
+				return d->last_active_unit ? d->last_active_unit : d->chat_unit;
+			else
+				return d->current_unit ? d->current_unit : d->chat_unit;
 		}
 
 		QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
@@ -533,6 +530,11 @@ namespace Core
 			current_unit = qVariantValue<ChatUnit*>(action->data());
 		}
 
+		void ChatSessionImplPrivate::onSendToLastActiveResourceActivated(bool active)
+		{
+			sendToLastActiveResource = active;
+		}
+
 		void ChatSessionImplPrivate::onLowerUnitAdded()
 		{
 			if (!menu)
@@ -555,7 +557,7 @@ namespace Core
 			}
 		}
 
-		void ChatSessionImplPrivate::fillMenu(QMenu *menu, ChatUnit *unit, const ChatUnitList &lowerUnits)
+		void ChatSessionImplPrivate::fillMenu(QMenu *menu, ChatUnit *unit, const ChatUnitList &lowerUnits, bool root)
 		{
 			Q_Q(ChatSessionImpl);
 			QAction *act = new QAction(menu);
@@ -565,8 +567,18 @@ namespace Core
 			act->setChecked(unit == q->getCurrentUnit());
 			group->addAction(act);
 			connect(act, SIGNAL(toggled(bool)), SLOT(onResourceChosen(bool)));
-
 			menu->addAction(act);
+
+			if (root) {
+				act = new QAction(menu);
+				act->setText(QT_TRANSLATE_NOOP("ChatSession", "Last active"));
+				act->setCheckable(true);
+				act->setChecked(sendToLastActiveResource);
+				group->addAction(act);
+				connect(act, SIGNAL(toggled(bool)), SLOT(onSendToLastActiveResourceActivated(bool)));
+				menu->addAction(act);
+			}
+
 			menu->addSeparator();
 
 			foreach (ChatUnit *lower, lowerUnits) {
@@ -587,7 +599,7 @@ namespace Core
 				} else {
 					// That unit has lower units and we need to create a submenu for it.
 					QMenu *submenu = new QMenu(lower->title(), menu);
-					fillMenu(submenu, lower, lowerLowerUnits);
+					fillMenu(submenu, lower, lowerLowerUnits, false);
 					menu->addMenu(submenu);
 					connect(lower, SIGNAL(destroyed()), submenu, SLOT(deleteLater()));
 				}
