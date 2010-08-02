@@ -462,18 +462,6 @@ namespace Core
 
 				if (statusTypeChanged) {
 					hideContact(to, parentIndex, !show);
-#if 1
-					// Hack for a bug when offline contacts are showed in the 'hide offine' mode.
-					// NOTE: when you remove the hack, do not forget to remove a 'test' parameter of
-					// hideContact() as well.
-					int lastRow = contacts.count()-1;
-					if (show && to != lastRow) {
-						ContactItem *last = contacts.last();
-						bool hideLast = !isVisible(last);
-						if (hideLast)
-							hideContact(lastRow, parentIndex, true, true);
-					}
-#endif
 				}
 			}
 		}
@@ -821,12 +809,11 @@ namespace Core
 			}
 		}
 
-		void Model::hideContact(int index, const QModelIndex &tagIndex, bool hide, bool test)
+		void Model::hideContact(int index, const QModelIndex &tagIndex, bool hide)
 		{
 			TagItem *item = reinterpret_cast<TagItem*>(tagIndex.internalPointer());
 			if (p->view->isRowHidden(index, tagIndex) != hide) {
-				if (!test)
-					item->visible += hide ? -1 : 1;
+				item->visible += hide ? -1 : 1;
 				p->view->setRowHidden(index, tagIndex, hide);
 				recheckTag(item, tagIndex.row());
 				emit dataChanged(tagIndex,tagIndex);
