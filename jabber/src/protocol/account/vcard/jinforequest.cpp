@@ -6,10 +6,65 @@
 
 namespace Jabber
 {
+	void init_names(QStringList &names)
+	{
+		const char *cnames[] = {
+			"nick",
+			"firstName",
+			"middleName",
+			"lastName",
+			"gender",
+			"birthday",
+			"city",
+			"country",
+			"photo",
+			"homePhone",
+			"mobilePhone",
+			"university",
+			"faculty",
+			"graduation"
+		};
+		for (int i = 0, size = sizeof(cnames)/sizeof(char*); i < size; i++)
+			names << QLatin1String(cnames[i]);
+	}
+	
+	Q_GLOBAL_STATIC_WITH_INITIALIZER(QStringList, names, init_names(*x))
+	
+	void init_titles(QList<LocalizedString> &titles)
+	{
+		titles << QT_TRANSLATE_NOOP("ContactInfo", "Nickname")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "First name")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Middle name")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Last name")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Gender")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Birthday")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "City")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Country")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Photo")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Home phone")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Mobile phone")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "University")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Faculty")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Graduation year");
+	}
+	
+	Q_GLOBAL_STATIC_WITH_INITIALIZER(QList<LocalizedString>, titles, init_titles(*x))
+	
+//	void init_genders(QList<LocalizedString> &genders)
+//	{
+//		genders << QT_TRANSLATE_NOOP("ContactInfo", "Undefined")
+//				<< QT_TRANSLATE_NOOP("ContactInfo", "Female")
+//				<< QT_TRANSLATE_NOOP("ContactInfo", "Male");
+//	}
+//	
+//	Q_GLOBAL_STATIC_WITH_INITIALIZER(QList<LocalizedString>, genders, init_genders(*x))
+	
 	struct JInfoRequestPrivate
 	{
 		InfoRequest::State state;
 		const VCard *vcard;
+		DataItem *item;
+		QMap<QString, DataItem> items;
 	};
 
 	JInfoRequest::JInfoRequest(JVCardManager *manager, const QString &contact)
@@ -19,6 +74,7 @@ namespace Jabber
 		manager->fetchVCard(contact, this);
 		d->state = Request;
 		d->vcard = 0;
+		d->item = 0;
 	}
 
 	JInfoRequest::~JInfoRequest()
@@ -31,6 +87,21 @@ namespace Jabber
 	void JInfoRequest::setFetchedVCard(const VCard *vcard)
 	{
 		Q_D(JInfoRequest);
+		DataItem item;
+		// General page
+		{
+			DataItem general(QT_TRANSLATE_NOOP("ContactInfo", "General"));
+			{
+				DataItem name(QT_TRANSLATE_NOOP("ContactInfo", "Name"));
+				addItemList(Nick, name, vcard->nickname());
+				addItemList(FirstName, name, vcard->name().given);
+				addItemList(MiddleName, name, vcard->name().middle);
+				addItemList(LastName, name, vcard->name().family);
+				general.addSubitem(name);
+			}
+			item.addSubitem(general);
+		}
+		
 		//updatePhoto(avatarUrl, (avatarUrl != ""));
 		/*InfoItem general = InfoItem(LocalizedString("General"));
 		if (!QString::fromStdString(vcard->formattedname()).isEmpty()) {
@@ -121,18 +192,51 @@ namespace Jabber
 			addTitle(QString::fromStdString(vcard->title()));
 		if (QString::fromStdString(vcard->role()) != "")
 			addRole(QString::fromStdString(vcard->role()));*/
+
+		d->item = new DataItem(item);
 		d->vcard = vcard;
 		d->state = Done;
 		emit stateChanged(d->state);
 	}
 
-	InfoItem JInfoRequest::item(const QString &name) const
+	DataItem JInfoRequest::item(const QString &name) const
 	{
-		return InfoItem();
+		Q_D(const JInfoRequest);
+		if (!d->item)
+			return DataItem();
+		else if (!name.isEmpty())
+			return d->items.value(name);
+		else
+			return *d->item;
 	}
 
 	InfoRequest::State JInfoRequest::state() const
 	{
 		return d_func()->state;
+	}
+	
+	void JInfoRequest::addItem(DataType type, DataItem &group, const QVariant &data)
+	{
+		DataItem item(names()->at(type), titles()->at(type), data);
+		d_func()->items.insert(item.name(), item);
+		group.addSubitem(item);
+	}
+
+	void JInfoRequest::addItem(DataType type, DataItem &group, const std::string &data)
+	{
+		addItem(type, group, QString::fromStdString(data));
+	}
+	
+	void JInfoRequest::addItemList(DataType type, DataItem &group, const std::string &data)
+	{
+		addItem(type, group, QString::fromStdString(data).split(','));
+	}
+
+	void JInfoRequest::addItem(DataType type, DataItem &group, const StringList &data)
+	{
+		QStringList result;
+		foreach (const std::string &str, data)
+			result << QString::fromStdString(str);
+		addItem(type, group, result);
 	}
 }

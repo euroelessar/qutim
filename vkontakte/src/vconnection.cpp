@@ -31,7 +31,7 @@
 #include "vmessages.h"
 #include "vlongpollclient.h"
 
-Q_GLOBAL_STATIC_WITH_ARGS(QString, appId, (QLatin1String("1912927"))) // 1865463"))) // 
+Q_GLOBAL_STATIC_WITH_ARGS(QString, appId, (QLatin1String("1865463"))) // 1912927"))) // 
 
 void VConnectionPrivate::onAuthRequestFinished()
 {
@@ -128,7 +128,7 @@ void VConnection::connectToHost(const QString& passwd)
 	url.addQueryItem("layout", "popup");
 #endif
 	url.addQueryItem("type", "browser");
-	url.addQueryItem("settings", QString::number(255));
+	url.addQueryItem("settings", QString::number(0xffff));
 	d->webView->page()->mainFrame()->load(url);
 	connect(d->webView->page(), SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
 	setConnectionState(Connecting);

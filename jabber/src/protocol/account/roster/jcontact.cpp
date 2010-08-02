@@ -193,6 +193,21 @@ namespace Jabber
 				}
 			}
 			return true;
+		} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
+			Status::Type status = account()->status().type();
+			if (status >= Status::Online && status <= Status::Invisible) {
+				InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
+				event->setSupportType(InfoRequestCheckSupportEvent::Read);
+				event->accept();
+			} else {
+				ev->ignore();
+			}
+		} else if (ev->type() == InfoRequestEvent::eventType()) {
+			Q_D(JContact);
+			InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
+			event->setRequest(new JInfoRequest(d->account->connection()->vCardManager(),
+											   d->jid));
+			event->accept();
 		}
 		return Contact::event(ev);
 	}
