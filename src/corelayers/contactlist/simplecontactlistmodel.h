@@ -70,7 +70,7 @@ namespace Core
 		private:
 			void filterAllList();
 			bool isVisible(ContactItem *item);
-			void hideContact(int index, const QModelIndex &tagIndex, bool hide);
+			void hideContact(int index, const QModelIndex &tagIndex, bool hide, bool test = false);
 			void removeFromContactList(Contact *contact, bool deleted);
 			void recheckTag(TagItem *item, int index = -1);
 			TagItem *ensureTag(const QString &name);

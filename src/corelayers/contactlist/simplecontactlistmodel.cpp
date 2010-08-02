@@ -236,6 +236,7 @@ namespace Core
 			item_data->contact = contact;
 			item_data->tags = QSet<QString>::fromList(tags);
 			item_data->status = contact->status();
+			int counter = item_data->status.type() == Status::Offline ? 0 : 1;
 			p->contacts.insert(contact, item_data);
 			for(QSet<QString>::const_iterator it = item_data->tags.constBegin(); it != item_data->tags.constEnd(); it++)
 			{
@@ -257,6 +258,7 @@ namespace Core
 				bool show = isVisible(item);
 				// hideContact will decrease it by one
 				tag->visible++;
+				tag->online += counter;
 				if (show)
 					recheckTag(tag, tagIndex);
 				else
@@ -365,7 +367,7 @@ namespace Core
 			ContactData::Ptr item_data = p->contacts.value(contact);
 			if(!item_data)
 				return;
-			int counter = item_data->status.type() == Status::Offline ? -1 : 0;
+			int counter = item_data->status.type() == Status::Offline ? 0 : -1;
 			for(int i = 0; i < item_data->items.size(); i++)
 			{
 				ContactItem *item = item_data->items.at(i);
@@ -431,7 +433,7 @@ namespace Core
 				ContactItem *item = items.at(i);
 				item->parent->online += counter;
 
-				QList<ContactItem *> contacts = item->parent->contacts;
+				QList<ContactItem *> &contacts = item->parent->contacts;
 				QModelIndex parentIndex = createIndex(p->tags.indexOf(item->parent), 0, item->parent);
 				int from = contacts.indexOf(item);
 				int to;
@@ -439,7 +441,6 @@ namespace Core
 					QList<ContactItem *>::const_iterator it =
 							qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
 					to = it - contacts.constBegin();
-					hideContact(from, parentIndex, !show);
 				} else {
 					to = from;
 				}
@@ -449,15 +450,30 @@ namespace Core
 						QModelIndex index = createIndex(item->index(), 0, item);
 						dataChanged(index, index);
 					}
-				}
-				else {
+				} else {
 					if (to == -1 || to >= contacts.count())
 						continue;					
 
 					beginMoveRows(parentIndex, from, from, parentIndex, to);
-					item->parent->contacts.move(from,to);
+					contacts.move(from,to);
 					//item_data->items.move(from,to); //FIXME
-					endMoveRows();	
+					endMoveRows();
+				}
+
+				if (statusTypeChanged) {
+					hideContact(to, parentIndex, !show);
+#if 1
+					// Hack for a bug when offline contacts are showed in the 'hide offine' mode.
+					// NOTE: when you remove the hack, do not forget to remove a 'test' parameter of
+					// hideContact() as well.
+					int lastRow = contacts.count()-1;
+					if (show && to != lastRow) {
+						ContactItem *last = contacts.last();
+						bool hideLast = !isVisible(last);
+						if (hideLast)
+							hideContact(lastRow, parentIndex, true, true);
+					}
+#endif
 				}
 			}
 		}
@@ -805,14 +821,16 @@ namespace Core
 			}
 		}
 
-		void Model::hideContact(int index, const QModelIndex &tagIndex, bool hide)
+		void Model::hideContact(int index, const QModelIndex &tagIndex, bool hide, bool test)
 		{
 			TagItem *item = reinterpret_cast<TagItem*>(tagIndex.internalPointer());
 			if (p->view->isRowHidden(index, tagIndex) != hide) {
-				item->visible += hide ? -1 : 1;
+				if (!test)
+					item->visible += hide ? -1 : 1;
 				p->view->setRowHidden(index, tagIndex, hide);
 				recheckTag(item, tagIndex.row());
 				emit dataChanged(tagIndex,tagIndex);
+
 			}
 		}
 
