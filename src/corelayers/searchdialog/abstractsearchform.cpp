@@ -1,5 +1,5 @@
 /****************************************************************************
- * abstractsearchform.cpp
+ *  abstractsearchform.cpp
  *
  *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
@@ -17,6 +17,8 @@
 #include "libqutim/icon.h"
 #include <QKeyEvent>
 #include "3rdparty/itemdelegate/itemdelegate.h"
+#include <QComboBox>
+#include <QPushButton>
 
 namespace Core {
 

@@ -42,7 +42,7 @@ namespace Core {
 		void actionButtonClicked();
 	private:
 		void setState(bool search);
-		Ui::SearchForm ui;
+		Ui::MobileSearchForm ui;
 		QList<QPushButton*> m_actionButtons;
 	};
 

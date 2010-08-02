@@ -17,8 +17,10 @@
 #define SEARCHFORM_H
 
 #include "resultmodel.h"
-#include "ui_searchform.h"
 #include <QListView>
+
+class QComboBox;
+class QPushButton;
 
 namespace Core {
 
