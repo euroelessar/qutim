@@ -250,7 +250,9 @@ namespace Core
 											   status.text().remove("\n")
 											   ).height();
 			}
-			height = qMax(option.decorationSize.height(),height);
+			if (isContact)
+				height = qMax(option.decorationSize.height(),height);
+
 			height += 2*m_vertical_padding;
 			QSize size (option.rect.width(),height);
 			return size;

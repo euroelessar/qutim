@@ -33,10 +33,11 @@ namespace qutim_sdk_0_3
 		QPixmap result;
 		if(!source.isNull())
 		{
+			result = source.scaled(p->defaultSize,p->mode,Qt::SmoothTransformation);
 			static QPixmap alpha;
 			if( alpha.size() != p->defaultSize )
 			{
-				alpha = QPixmap(p->defaultSize);
+				alpha = QPixmap(result.size());
 				alpha.fill(QColor(0,0,0));
 				QPainter painter(&alpha);
 				QPen pen(QColor(127,127,127));
@@ -47,7 +48,6 @@ namespace qutim_sdk_0_3
 				painter.drawRoundedRect(QRectF(QPointF(0,0),QSize(p->defaultSize.width()-1,p->defaultSize.height()-1)),5,5);
 				painter.end();
 			}
-			result = source.scaled(p->defaultSize,p->mode,Qt::SmoothTransformation);
 			result.setAlphaChannel(alpha);
 
 			QSize size = overlay.size();
