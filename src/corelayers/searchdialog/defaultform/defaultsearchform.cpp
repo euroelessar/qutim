@@ -27,10 +27,10 @@ namespace Core {
 			);
 
 	DefaultSearchForm::DefaultSearchForm(const QList<AbstractSearchFactory*> &factories,
-									   const QString &title,
-									   const QIcon &icon,
-									   QWidget *parent) :
-		AbstractSearchForm(factories, title, icon, parent)
+										 const QString &title,
+										 const QIcon &icon,
+										 QWidget *parent) :
+	AbstractSearchForm(factories, title, icon, parent)
 	{
 		ui.setupUi(this);
 		setTitle(title, icon);
@@ -126,7 +126,7 @@ namespace Core {
 		QAction *action = qobject_cast<QAction*>(sender());
 		Q_ASSERT(action);
 		AbstractSearchForm::actionButtonClicked(action,
-										ui.resultView->selectionModel()->selectedRows());
+												ui.resultView->selectionModel()->selectedRows());
 	}
 
 	void DefaultSearchForm::setState(bool search)
@@ -140,9 +140,9 @@ namespace Core {
 	}
 
 	AbstractSearchForm *DefaultSearchFormFactory::createForm(const QList<AbstractSearchFactory*> &factories,
-															const QString &title,
-															const QIcon &icon,
-															QWidget *parent)
+															 const QString &title,
+															 const QIcon &icon,
+															 QWidget *parent)
 	{
 		return new DefaultSearchForm(factories, title, icon, parent);
 	}
