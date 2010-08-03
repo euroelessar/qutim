@@ -47,14 +47,14 @@ namespace QmlPopups {
 		}
 
 		setTheme(theme_name);
-		setResizeMode(QDeclarativeView::SizeRootObjectToView);
+		setResizeMode(QDeclarativeView::SizeViewToRootObject);
 		rootContext()->setContextProperty("popupWidget",this);
 		rootContext()->setContextProperty("timeout",Manager::self()->timeout);
     }
     PopupWidget::PopupWidget(const QString &themeName)
     {
 		setTheme(themeName);
-		setResizeMode(QDeclarativeView::SizeRootObjectToView);
+		setResizeMode(QDeclarativeView::SizeViewToRootObject);
     }
 
     void PopupWidget::setTheme(const QString &themeName)

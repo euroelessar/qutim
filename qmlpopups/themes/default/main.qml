@@ -1,4 +1,4 @@
-import Qt 4.6
+import Qt 4.7
 
 BorderImage {
 	id: background
@@ -14,7 +14,7 @@ BorderImage {
 		text: popupTitle
 		color: "white"
 		font.pointSize: 10
-		wrap: true
+		wrapMode: "WordWrap"
 		font.bold: true
 		anchors {
 			left: parent.left
@@ -66,7 +66,7 @@ BorderImage {
 			text: popupBody
 			color: "#DDD"
 			font.pointSize: 10
-			wrap: true
+			wrapMode: "WordWrap"
 			anchors {
 				left: avatar.right
 				leftMargin: 5

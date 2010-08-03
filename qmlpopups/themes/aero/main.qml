@@ -1,4 +1,4 @@
-import Qt 4.6
+import Qt 4.7
 
 Rectangle {
 	id: background
@@ -11,7 +11,7 @@ Rectangle {
 		text: popupTitle
 		color: "black"
 		font.pointSize: 10
-		wrap: true
+		wrapMode: "WordWrap"
 		font.bold: true
 		style: Text.Outline; styleColor: "#CCC"
 		anchors {
@@ -50,7 +50,7 @@ Rectangle {
 			text: popupBody
 			color: "black"
 			font.pointSize: 10
-			wrap: true
+			wrapMode: "WordWrap"
 			anchors {
 				left: avatar.right
 				leftMargin: 5
@@ -64,12 +64,12 @@ Rectangle {
 				background.height = (body.y + body.height + 15); //hack
 			}
 
-			effect: DropShadow {
-				color: "white"
-				blurRadius: 8
-				offset.x: 0
-				offset.y: 0
-			}
+//			effect: DropShadow {
+//				color: "white"
+//				blurRadius: 8
+//				offset.x: 0
+//				offset.y: 0
+//			}
 			style: Text.Outline; styleColor: "#CCC"
 		}
 	}
