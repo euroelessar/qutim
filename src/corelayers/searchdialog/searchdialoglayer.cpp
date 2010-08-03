@@ -34,10 +34,11 @@ namespace Core
 		QObject *contactList = getService("ContactList");
 		if (contactList) {
 			static ActionGenerator button(Icon("edit-find-contact"),
-											QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
-											this,
-											SLOT(showContactSearch(QObject*)));
+										  QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
+										  this,
+										  SLOT(showContactSearch(QObject*)));
 			//QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, button.data()));
+			button.addHandler(ActionVisibilityChangedHandler,this);
 			MenuController *controller = qobject_cast<MenuController*>(contactList);
 			if (controller)
 				controller->addAction(&button);
@@ -77,6 +78,26 @@ namespace Core
 	{
 		AbstractSearchFormFactory *f = AbstractSearchFormFactory::instance();
 		return f ? f->createForm(factories, title, icon, parent) : 0;
+	}
+
+	bool SearchLayer::event(QEvent *ev)
+	{
+		if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
+			ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
+			if (event->isVisible()) {
+				bool enabled = false;
+				foreach (AbstractSearchFactory *factory, m_contactSearchFactories) {
+					enabled = !factory->requestList().isEmpty();
+					if (enabled)
+						break;
+				}
+				event->action()->setEnabled(enabled);
+				event->accept();
+			} else {
+				event->ignore();
+			}
+		}
+		return QObject::event(ev);
 	}
 
 }

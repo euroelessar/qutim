@@ -30,6 +30,7 @@ namespace Core
 	public:
 		SearchLayer();
 		~SearchLayer();
+		bool event(QEvent *ev);
 	public slots:
 		void showContactSearch(QObject*);
 		QWidget *createSearchDialog(const QList<AbstractSearchFactory*> &factories,
