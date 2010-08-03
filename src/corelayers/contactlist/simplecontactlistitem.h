@@ -17,7 +17,8 @@ namespace Core
 			ItemDataType = Qt::UserRole ,
 			ItemStatusRole,
 			ItemContactsCountRole,
-			ItemOnlineContactsCountRole
+			ItemOnlineContactsCountRole,
+			ItemAvatarRole
 		};
 
 		enum ItemType

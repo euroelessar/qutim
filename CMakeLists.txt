@@ -80,6 +80,7 @@ INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 		3rdparty/actionbox
 		3rdparty/slidingstackedwidget
 		3rdparty/itemdelegate
+		3rdparty/avatarfilter
 		include
 	)
 
@@ -149,6 +150,10 @@ LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/actionbox/actionbox.h
 # Add itemdelegate
 LIST( APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/itemdelegate/itemdelegate.cpp" )
 LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/itemdelegate/itemdelegate.h" )
+
+# Add avatarfilter
+LIST( APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/avatarfilter/avatarfilter.cpp" )
+LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/avatarfilter/avatarfilter.h" )
 
 #TODO fix in future
 if (MINGW)

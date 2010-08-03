@@ -163,6 +163,8 @@ namespace Core
 						return ContactType;
 					case ItemStatusRole:
 						return qVariantFromValue(item->data->contact->status());
+					case ItemAvatarRole:
+						return item->data->contact->avatar();
 					default:
 						return QVariant();
 					}
