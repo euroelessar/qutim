@@ -296,7 +296,12 @@ namespace qutim_sdk_0_3
 	}
 	QAction* ActionContainer::action(int index) const
 	{
-		return d_func()->actions.at(index);
+		Q_D(const ActionContainer);
+		QAction *action = d->actions.at(index);
+		ActionGenerator *gen = action->data().value<ActionGenerator*>();
+		if (gen)
+			ActionGeneratorPrivate::get(gen)->show(action,d->controller);
+		return action;
 	}
 
 	ActionContainer::ActionContainer(const qutim_sdk_0_3::ActionContainer& other) : d_ptr(other.d_ptr)
