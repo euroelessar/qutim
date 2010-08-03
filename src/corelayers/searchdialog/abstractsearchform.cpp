@@ -16,8 +16,9 @@
 #include "abstractsearchform.h"
 #include "libqutim/icon.h"
 #include <QKeyEvent>
-#include "3rdparty/itemdelegate/itemdelegate.h"
+#include "itemdelegate.h"
 #include <QComboBox>
+#include <QAction>
 #include <QPushButton>
 
 namespace Core {
@@ -78,7 +79,7 @@ void AbstractSearchForm::setCurrentRequest(RequestPtr request)
 	if (!m_currentRequest) {
 		if (m_searchFieldsWidget)
 			m_searchFieldsWidget->deleteLater();
-		qDeleteAllLater(m_actionButtons);
+		qDeleteAllLater(m_actions);
 	} else {
 		m_resultModel->setRequest(m_currentRequest);
 		connect(m_currentRequest.data(), SIGNAL(done(bool)), SLOT(done(bool)));
@@ -128,25 +129,27 @@ void AbstractSearchForm::updateSearchFieldsWidget()
 		searchFieldsWidget()->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
 
-QPushButton *AbstractSearchForm::getActionButton(int i)
+QAction *AbstractSearchForm::actionAt(int i)
 {
 	Q_ASSERT(m_currentRequest);
 	QIcon icon = m_currentRequest->actionData(i, Qt::DecorationRole).value<QIcon>();
 	QVariant textVar = m_currentRequest->actionData(i, Qt::DisplayRole);
 	QString text = textVar.canConvert<LocalizedString>() ? textVar.value<LocalizedString>().toString() : textVar.toString();
-	QPushButton *button = new QPushButton(icon, text);
-	m_actionButtons << button;
+	QAction *button = new QAction(icon, text,this);
+	m_actions << button;
 	button->setProperty("actionIndex", i);
+	int soft_key_role = m_currentRequest->actionData(i,Qt::UserRole).toInt();
+	button->setSoftKeyRole(soft_key_role ? static_cast<QAction::SoftKeyRole>(soft_key_role) : QAction::PositiveSoftKey); //FIXME
 	return button;
 }
 
 void AbstractSearchForm::clearActionButtons()
 {
-	qDeleteAll(m_actionButtons);
-	m_actionButtons.clear();
+	qDeleteAll(m_actions);
+	m_actions.clear();
 }
 
-void AbstractSearchForm::actionButtonClicked(QPushButton *button, const QList<QModelIndex> &selected)
+void AbstractSearchForm::actionButtonClicked(QAction *button, const QList<QModelIndex> &selected)
 {
 	if (!m_resultModel->request())
 		return;

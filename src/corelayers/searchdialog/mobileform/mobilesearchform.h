@@ -25,6 +25,13 @@ namespace Core {
 	{
 		Q_OBJECT
 	public:
+		enum SearchState
+		{
+			SearchingState,
+			ReadyState,
+			ErrorState,
+			DoneState
+		};
 		MobileSearchForm(const QList<AbstractSearchFactory*> &factories,
 						 const QString &title = QString(),
 						 const QIcon &icon = QIcon(),
@@ -40,10 +47,13 @@ namespace Core {
 		void updateServiceBox();
 		void updateActionButtons();	
 		void actionButtonClicked();
+		void onNegativeActionTriggered();
 	private:
-		void setState(bool search);
+		void setState(SearchState search);
 		Ui::MobileSearchForm ui;
-		QList<QPushButton*> m_actionButtons;
+		QAction *m_negative_action;
+		QList<QAction *> m_actions;
+		SearchState m_search_state;
 	};
 
 	class MobileSearchFormFactory : public AbstractSearchFormFactory

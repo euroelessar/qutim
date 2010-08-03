@@ -17,6 +17,7 @@
 #include "itemdelegate.h"
 #include "libqutim/icon.h"
 #include "modulemanagerimpl.h"
+#include <QToolButton>
 
 namespace Core {
 
@@ -111,16 +112,20 @@ namespace Core {
 		Q_ASSERT(currentRequest());
 		clearActionButtons();
 		for (int i = 0, c = currentRequest()->actionCount(); i < c; ++i) {
-			QPushButton *button = getActionButton(i);
+			QAction *action = actionAt(i);
+			QToolButton *button = new QToolButton(this);
+			button->setDefaultAction(action);
+			button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 			ui.actionLayout->addWidget(button);
-			connect(button, SIGNAL(clicked()), SLOT(actionButtonClicked()));
+			connect(action, SIGNAL(triggered()), SLOT(actionButtonClicked()));
 		}
 	}
 
 	void DefaultSearchForm::actionButtonClicked()
 	{
-		Q_ASSERT(qobject_cast<QPushButton*>(sender()));
-		AbstractSearchForm::actionButtonClicked(reinterpret_cast<QPushButton*>(sender()),
+		QAction *action = qobject_cast<QAction*>(sender());
+		Q_ASSERT(action);
+		AbstractSearchForm::actionButtonClicked(action,
 										ui.resultView->selectionModel()->selectedRows());
 	}
 

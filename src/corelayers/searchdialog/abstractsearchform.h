@@ -41,13 +41,13 @@ protected:
 	void setService(const QString &service);
 	void updateServiceBox(QComboBox *serviceBox, QPushButton *updateServiceButton);
 	void updateSearchFieldsWidget();
-	QPushButton *getActionButton(int index);
+	QAction *actionAt(int index);
 	RequestPtr currentRequest() { return m_currentRequest; }
 	RequestsListModel *requestsModel() { return m_requestsModel; }
 	ResultModel *resultModel() { return m_resultModel; }
 	QWidget *searchFieldsWidget() { return m_searchFieldsWidget; }
 	void clearActionButtons();
-	void actionButtonClicked(QPushButton *button, const QList<QModelIndex> &selected);
+	void actionButtonClicked(QAction *button, const QList<QModelIndex> &selected);
 private slots:
 	void done(bool ok);
 protected:
@@ -58,7 +58,7 @@ private:
 	ResultModel *m_resultModel;
 	RequestsListModel *m_requestsModel;
 	bool m_done;
-	QList<QPushButton*> m_actionButtons;
+	QList<QAction*> m_actions;
 };
 
 class AbstractSearchFormFactory : public QObject
