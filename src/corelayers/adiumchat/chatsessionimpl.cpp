@@ -67,6 +67,7 @@ namespace Core
 			qDebug() << "create session" << unit->title();
 			Config cfg = Config("appearance").group("chat");
 			d->store_service_messages = cfg.group("history").value<bool>("storeServiceMessages", true);
+			d->sendToLastActiveResource = cfg.value<bool>("sendToLastActiveResource", false);
 			d->groupUntil = cfg.value<int>("groupUntil", 900);
 			d->chat_style_output->preparePage(d->web_page,this);
 			d->skipOneMerge = true;
@@ -564,7 +565,7 @@ namespace Core
 			act->setText(QT_TRANSLATE_NOOP("ChatSession", "Auto"));
 			act->setData(qVariantFromValue(unit));
 			act->setCheckable(true);
-			act->setChecked(unit == q->getCurrentUnit());
+			act->setChecked(!sendToLastActiveResource && unit == q->getCurrentUnit());
 			group->addAction(act);
 			connect(act, SIGNAL(toggled(bool)), SLOT(onResourceChosen(bool)));
 			menu->addAction(act);
@@ -591,7 +592,7 @@ namespace Core
 					act->setText(lower->title());
 					act->setData(qVariantFromValue(lower));
 					act->setCheckable(true);
-					act->setChecked(lower == q->getCurrentUnit());
+					act->setChecked(!sendToLastActiveResource && lower == q->getCurrentUnit());
 					group->addAction(act);
 					menu->addAction(act);
 					connect(lower, SIGNAL(destroyed()), act, SLOT(deleteLater()));
