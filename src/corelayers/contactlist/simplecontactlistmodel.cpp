@@ -446,6 +446,9 @@ namespace Core
 				} else {
 					to = from;
 				}
+				
+				if (statusTypeChanged)
+					hideContact(from, parentIndex, !show);
 
 				if (from == to) {
 					if (show) {
@@ -456,14 +459,13 @@ namespace Core
 					if (to == -1 || to >= contacts.count())
 						continue;
 
-					beginMoveRows(parentIndex, from, from, parentIndex, to);
-					contacts.move(from,to);
-					//item_data->items.move(from,to); //FIXME
-					endMoveRows();
-				}
-
-				if (statusTypeChanged) {
-					hideContact(to, parentIndex, !show);
+					if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
+						if (from < to)
+							--to;
+						contacts.move(from,to);
+						//item_data->items.move(from,to); //FIXME
+						endMoveRows();
+					}
 				}
 			}
 		}
@@ -495,10 +497,13 @@ namespace Core
 					if (to == -1 || to >= contacts.count())
 						continue;
 
-					beginMoveRows(parentIndex, from, from, parentIndex, to);
-					item->parent->contacts.move(from, to);
-					//item_data->items.move(from,to); //FIXME
-					endMoveRows();
+					if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
+						if (from < to)
+							--to;
+						contacts.move(from,to);
+						//item_data->items.move(from,to); //FIXME
+						endMoveRows();
+					}
 				}
 			}
 		}
