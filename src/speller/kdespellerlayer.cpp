@@ -29,6 +29,7 @@ KdeSpellerLayer::KdeSpellerLayer()
 			QT_TRANSLATE_NOOP("Settings", "Spell checker")));
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	loadSettings();
 }
 
 KdeSpellerLayer::~KdeSpellerLayer()
