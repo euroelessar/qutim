@@ -119,7 +119,8 @@ void VLongPollClient::onDataReceived()
 			qutim_sdk_0_3::Message message;
 			message.setChatUnit(contact);
 			message.setProperty("subject", subject);
-			message.setText(text);
+			message.setText(unescape(text));
+			//message.setProperty("html",text);
 			message.setTime(QDateTime::currentDateTime());
 			message.setIncoming(true);
 			ChatLayer::get(contact, true)->appendMessage(message);
