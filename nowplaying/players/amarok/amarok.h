@@ -26,6 +26,7 @@ public:
 
     QString playerName();
     TrackInfo trackInfo();
+    void init();
     bool isPlaying();
     void startWatching();
     void stopWatching();

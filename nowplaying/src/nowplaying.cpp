@@ -6,7 +6,6 @@
 #include <qutim/configbase.h>
 #include <QVariantMap>
 #include <QDebug>
-#include <QTest>
 
 namespace qutim_sdk_0_3 {
 namespace nowplaying{
@@ -46,12 +45,33 @@ bool NowPlaying::load(){
     connect(m_oscar_protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(accountCreated(qutim_sdk_0_3::Account*)));
     connect(m_jabber_protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(accountCreated(qutim_sdk_0_3::Account*)));
     connect(m_mrim_protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(accountCreated(qutim_sdk_0_3::Account*)));
+
+    m_stop_start_action = new StopStartActionGenerator(this,
+                                                       (m_global_settings.is_working) ? tr("Stop now playing") : tr("Start now playing"));
+    qobject_cast<MenuController*>(getService("ContactList"))->addAction(m_stop_start_action);
+
     return true;
 }
 
 bool NowPlaying::unload(){
     setEmptyStatuses();
     return true;
+}
+
+void NowPlaying::stopStartActionTrigged(){
+    bool is_working;
+    if (m_global_settings.is_working){
+        is_working = false;
+        m_stop_start_action->setText(tr("Start now playing"));
+    } else{
+        is_working = true;
+        m_stop_start_action->setText(tr("Stop now playing"));
+    }
+    Config group = Config().group("nowplaying");
+    Config global = group.group("global");
+    global.setValue("is_working", is_working);
+    group.sync();
+    statusChanged(is_working);
 }
 
 void NowPlaying::loadSettings(){
@@ -160,6 +180,7 @@ void NowPlaying::createPlayer(){
     if (m_player != NULL){
         connect(m_player, SIGNAL(playingStatusChanged(bool)), this, SLOT(playingStatusChanged(bool)));
         connect(m_player, SIGNAL(trackChanged(const TrackInfo&)), this, SLOT(trackChanged(const TrackInfo&)));
+        m_player->init();
     }
 }
 
@@ -411,6 +432,19 @@ bool NowPlaying::isAccountNeedsInSettingStatus(const QString& acc, bool empty){
         return false;
     }
     return false;
+}
+
+StopStartActionGenerator::StopStartActionGenerator(QObject* module, const QString& text):
+        ActionGenerator(QIcon(":images/images/logo.png"),
+                        QT_TRANSLATE_NOOP("NowPlaying", text.toUtf8()),
+                        module,
+                        SLOT(stopStartActionTrigged())
+                        ){
+    m_text = text;
+}
+
+void StopStartActionGenerator::showImpl(QAction *action, QObject* /*obj*/){
+    action->setText(m_text);
 }
 
 }}

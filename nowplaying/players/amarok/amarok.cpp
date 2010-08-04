@@ -6,6 +6,13 @@
 namespace qutim_sdk_0_3 {
 namespace nowplaying{
 
+    void Amarok::init(){
+        qDBusRegisterMetaType<DBusStatus>();
+        m_dbus_interface = new QDBusInterface("org.mpris.amarok", "/Player", "org.freedesktop.MediaPlayer", QDBusConnection::sessionBus(), this);
+        m_timer = new QTimer(this);
+        connect (m_timer, SIGNAL(timeout()), this, SLOT(isPlayingCheck()));
+    }
+
     QString Amarok::playerName(){
         return QString("Amarok");
     }
@@ -26,12 +33,14 @@ namespace nowplaying{
 
      bool Amarok::isPlaying(){
         QDBusReply<DBusStatus> reply = m_dbus_interface->call("GetStatus");
-        return reply.value().Play == 0;
+        if (reply.isValid()){
+            return reply.value().Play == 0;
+        } else{
+            return false;
+        }
     }
 
     void Amarok::startWatching(){
-        qDBusRegisterMetaType<DBusStatus>();
-        m_dbus_interface = new QDBusInterface("org.mpris.amarok", "/Player", "org.freedesktop.MediaPlayer", QDBusConnection::sessionBus(), this);
         m_is_playing = isPlaying();
         m_dbus_interface->connection().connect("org.mpris.amarok",
                                                "/Player",
@@ -48,19 +57,23 @@ namespace nowplaying{
                                                SLOT(statusChanged(DBusStatus))
                                                );
           */
-        m_timer = new QTimer(this);
-        connect (m_timer, SIGNAL(timeout()), this, SLOT(isPlayingCheck()));
         m_timer->start(1000);
     }
 
     void Amarok::stopWatching(){
-        delete m_dbus_interface;
-        delete m_timer;
+        m_timer->stop();
+        m_dbus_interface->connection().disconnect("org.mpris.amarok",
+                                                  "/Player",
+                                                  "org.freedesktop.MediaPlayer",
+                                                  "TrackChange",
+                                                  this,
+                                                  SLOT(trackChanged())
+                                                  );
     }
 
     void Amarok::trackChanged(){
         TrackInfo info = trackInfo();
-        if (!info.uri.isEmpty() && info.time != "0:00:00"){
+        if (!info.uri.isEmpty() && (info.time != "0:00:00" || info.time.isEmpty())){
             emit Player::trackChanged(info);
         }
         m_track_changed = true;

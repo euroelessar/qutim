@@ -10,6 +10,8 @@
 namespace qutim_sdk_0_3 {
     namespace nowplaying{
 
+        class StopStartActionGenerator;
+
         class NowPlaying : public Plugin{
             Q_OBJECT
             Q_CLASSINFO("DebugInfo", "NowPlaying")
@@ -19,6 +21,7 @@ namespace qutim_sdk_0_3 {
             bool load();
             bool unload();
         private:
+            StopStartActionGenerator* m_stop_start_action;
             void loadSettings();
             Protocol* m_oscar_protocol;
             Protocol* m_mrim_protocol;
@@ -40,6 +43,7 @@ namespace qutim_sdk_0_3 {
             bool isAccountNeedsInSettingStatus(const QString& acc, bool empty = false);
 
         public slots:
+            void stopStartActionTrigged();
             void configChanged();
             void statusChanged(bool);
             void playingStatusChanged(bool);
@@ -47,6 +51,14 @@ namespace qutim_sdk_0_3 {
             void accountCreated(qutim_sdk_0_3::Account*);
             void statusChanged(qutim_sdk_0_3::Status);
             void accountDeleted();
+        };
+
+        class StopStartActionGenerator : public ActionGenerator{
+        public:
+            StopStartActionGenerator(QObject *module, const QString& text);
+            void showImpl(QAction *action, QObject *obj);
+            void setText(const QString& text){m_text = text;}
+            QString m_text;
         };
     }
 }

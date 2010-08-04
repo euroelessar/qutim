@@ -14,7 +14,7 @@ public:
     virtual ~Player(){}
     virtual QString playerName() = 0;
     virtual TrackInfo trackInfo() = 0;
-
+    virtual void init() = 0;
     /* isPlaying()
      * must return true if track is playing
      * if paused or stopped return false
