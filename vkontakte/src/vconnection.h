@@ -36,7 +36,6 @@ public:
 	explicit VConnection(VAccount *account, QObject* parent = 0);
 	VConnectionState connectionState() const;
 	virtual ~VConnection();
-	QNetworkReply *get(VRequest &request);
 	QNetworkReply *get(const QString &method, const QVariantMap &args = QVariantMap());
 	VReply *request(const QString &method, const QVariantMap &args = QVariantMap());
 	Config config();

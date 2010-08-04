@@ -37,14 +37,12 @@ public:
 	QString mid;
 	VConnectionState state;
 	VConnection *q_ptr;
-	QTimer prolongationTimer;
 	VRoster *roster;
 	VMessages *messages;
 	QPointer<QWebView> webView;
 public slots:
 	void onAuthRequestFinished();
 	void onLogoutRequestFinished();
-	void sendProlongation();
 	void onError(QNetworkReply::NetworkError error);
 };
 

@@ -42,6 +42,8 @@ Status::Type stateToStatus(VConnectionState state)
 			return Status::Online;
 		case Connecting:
 			return Status::Connecting;
+		case Authorization:
+			return Status::Connecting; //TODO
 		default:
 			return Status::Offline;
 	}

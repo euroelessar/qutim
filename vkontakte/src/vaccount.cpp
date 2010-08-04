@@ -22,6 +22,8 @@
 #include "vconnection_p.h"
 #include "vroster.h"
 #include "vaccount_p.h"
+#include <qutim/inforequest.h>
+#include "vinforequest.h"
 
 VAccount::VAccount(const QString& email) : 
 	Account(email, VkontakteProtocol::instance()),
@@ -108,6 +110,8 @@ void VAccount::setStatus(Status status)
 		case Connected: {
 			if (d->connection->connectionState() == Disconnected)
 				d->connection->connectToHost(QString() /*password()*/);
+			else if(d->connection->connectionState() == Connected)
+				d->connection->roster()->setActivity(status);
 			break;
 		}
 		case Disconnected: {
@@ -132,5 +136,24 @@ VConnection *VAccount::connection()
 const VConnection *VAccount::connection() const
 {
 	return d_func()->connection;
+}
+
+bool VAccount::event(QEvent *ev)
+{
+	if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
+		Status::Type status = this->status().type();
+		if (status >= Status::Online && status <= Status::Invisible) {
+			InfoRequestCheckSupportEvent *event = static_cast<InfoRequestCheckSupportEvent*>(ev);
+			event->setSupportType(InfoRequestCheckSupportEvent::Read);
+			event->accept();
+		} else {
+			ev->ignore();
+		}
+	} else if (ev->type() == InfoRequestEvent::eventType()) {
+		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
+		event->setRequest(new VInfoRequest(this));
+		event->accept();
+	}
+	return Account::event(ev);
 }
 

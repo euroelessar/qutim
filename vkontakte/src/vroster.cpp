@@ -65,17 +65,17 @@ void VRosterPrivate::onGetTagListRequestFinished()
 	QVariantMap::const_iterator it = tagData.constBegin();
 	for (; it != tagData.constEnd(); it++)
 		tags.insert(it.key(), it.value().toString());
-	q->getFriendList(0, 0);
+	q->getFriendList();
 }
 
 void VRosterPrivate::onGetFriendsRequestFinished()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-//	qDebug() << reply->url();
+	//	qDebug() << reply->url();
 	QByteArray rawData = reply->readAll();
-//	qDebug() << rawData;
+	//	qDebug() << rawData;
 	QVariantList friends = Json::parse(rawData).toMap().value("response").toList();
-//	qDebug() << friends;
+	//	qDebug() << friends;
 	foreach (const QVariant &var, friends) {
 		QVariantMap data = var.toMap();
 		QString id = data.value("uid").toString();
@@ -91,7 +91,7 @@ void VRosterPrivate::onGetFriendsRequestFinished()
 			QString firstName = data.value("first_name").toString();
 			QString lastName = data.value("last_name").toString();
 			c->setContactName(firstName + " " + lastName);
-//			qDebug() << data.value("lists") << tags;
+			//			qDebug() << data.value("lists") << tags;
 			QStringList contactTags;
 			foreach (const QString &tagId, data.value("lists").toStringList())
 				contactTags << tags.value(tagId);
@@ -102,36 +102,36 @@ void VRosterPrivate::onGetFriendsRequestFinished()
 		c->setStatus(data.value("online").toInt() == 1);
 	}
 
-//    QScriptEngine engine;
-//    QScriptValue sc_data = engine.evaluate('(' + data + ')');
-//    QScriptValue sc_cnt = sc_data.property("friends").property("n");
-//
-//	if (fetchAvatars)
-//		avatarsUpdater.stop();
-//
-//    for (int i=0; i<sc_cnt.toInteger(); i++) {
-//		QScriptValue sc_item = sc_data.property("friends").property("d").property(i);
-//		QString id = sc_item.property(0).toString();
-//		VContact *c = connection->account()->getContact(id,false);
-//		if (!c) {
-//			c = connection->account()->getContact(id,true);
-//			c->setName(sc_item.property(1).toString());
-//			QStringList tags;
-//			tags << tr("Friends");
-//			c->setTags(tags);
-//			c->setInList(true);
-//		}
-//		QString current_avatar = c->property("avatarUrl").toString();
-//		QString new_avatar = sc_item.property(2).toString();
-//		if (current_avatar != new_avatar) {
-//			c->setProperty("avatarUrl",new_avatar);
-//			if (fetchAvatars && !avatarsQueue.contains(c))
-//				avatarsQueue.append(c);
-//		}
-//		c->setStatus(sc_item.property(3).toBoolean());
-//    }
-//	if (!avatarsQueue.isEmpty() && !avatarsUpdater.isActive())
-//		avatarsUpdater.start();
+	//    QScriptEngine engine;
+	//    QScriptValue sc_data = engine.evaluate('(' + data + ')');
+	//    QScriptValue sc_cnt = sc_data.property("friends").property("n");
+	//
+	//	if (fetchAvatars)
+	//		avatarsUpdater.stop();
+	//
+	//    for (int i=0; i<sc_cnt.toInteger(); i++) {
+	//		QScriptValue sc_item = sc_data.property("friends").property("d").property(i);
+	//		QString id = sc_item.property(0).toString();
+	//		VContact *c = connection->account()->getContact(id,false);
+	//		if (!c) {
+	//			c = connection->account()->getContact(id,true);
+	//			c->setName(sc_item.property(1).toString());
+	//			QStringList tags;
+	//			tags << tr("Friends");
+	//			c->setTags(tags);
+	//			c->setInList(true);
+	//		}
+	//		QString current_avatar = c->property("avatarUrl").toString();
+	//		QString new_avatar = sc_item.property(2).toString();
+	//		if (current_avatar != new_avatar) {
+	//			c->setProperty("avatarUrl",new_avatar);
+	//			if (fetchAvatars && !avatarsQueue.contains(c))
+	//				avatarsQueue.append(c);
+	//		}
+	//		c->setStatus(sc_item.property(3).toBoolean());
+	//    }
+	//	if (!avatarsQueue.isEmpty() && !avatarsUpdater.isActive())
+	//		avatarsUpdater.start();
 }
 
 void VRosterPrivate::onActivityUpdateRequestFinished()
@@ -192,7 +192,6 @@ void VRosterPrivate::updateAvatar()
 {
 	Q_Q(VRoster);
 	if (avatarsQueue.isEmpty()) {
-//		avatarsUpdater.stop();
 		return;
 	}
 
@@ -213,22 +212,32 @@ void VRosterPrivate::updateActivity()
 	QNetworkReply *reply = connection->get("activity.getNews", data);
 	connect(reply, SIGNAL(finished()), this, SLOT(onActivityUpdateRequestFinished()));
 	
-//	QList<VContact *> contact_list = connection->account()->d_func()->contactsList;
-//	if (contact_list.isEmpty())
-//		return;
-//	int index =  activityUpdater.property("index").toInt();
-//	q->requestActivity(contact_list.at(index));
-//	index++;
-//	if (index == contact_list.count())
-//		index = 0;
-//	activityUpdater.setProperty("index",QVariant(index));
+	//	QList<VContact *> contact_list = connection->account()->d_func()->contactsList;
+	//	if (contact_list.isEmpty())
+	//		return;
+	//	int index =  activityUpdater.property("index").toInt();
+	//	q->requestActivity(contact_list.at(index));
+	//	index++;
+	//	if (index == contact_list.count())
+	//		index = 0;
+	//	activityUpdater.setProperty("index",QVariant(index));
+}
+
+void VRosterPrivate::onSetActivityRequestFinished()
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	Q_ASSERT(reply);
+	QVariantMap map = Json::parse(reply->readAll()).toMap();
+
+	QString response = map.value("response").toString();
+	Q_UNUSED(response); //i don't know, what it makes
 }
 
 void VRosterPrivate::onConnectStateChanged(VConnectionState state)
 {
 	Q_Q(VRoster);
 	switch (state) {
-		case Connected: {
+	case Connected: {
 			q->getTagList();
 			q->getProfile();
 			friendListUpdater.start();
@@ -236,16 +245,16 @@ void VRosterPrivate::onConnectStateChanged(VConnectionState state)
 				activityUpdater.start();
 			break;
 		}
-		case Disconnected: {
+	case Disconnected: {
 			friendListUpdater.stop();
 			activityUpdater.stop();
-//			avatarsUpdater.stop();
+			//			avatarsUpdater.stop();
 			foreach (VContact *c,connection->account()->findChildren<VContact *>()) {
 				c->setStatus(false);
 			}
 			break;
 		}
-		default: {
+	default: {
 			break;
 		}		
 	}
@@ -297,11 +306,9 @@ void VRoster::getTagList()
 	connect(reply,SIGNAL(finished()),d,SLOT(onGetTagListRequestFinished()));
 }
 
-void VRoster::getFriendList(int start, int limit)
+void VRoster::getFriendList()
 {
 	Q_D(VRoster);
-	Q_UNUSED(start);
-	Q_UNUSED(limit);
 	QVariantMap data;
 	data.insert("fields", "uid,first_name,last_name,nickname,bdate,photo_medium,online,lists");
 	QNetworkReply *reply = d->connection->get("friends.get", data);
@@ -326,18 +333,14 @@ void VRoster::requestAvatar(QObject *obj)
 	connect(reply, SIGNAL(finished()), d, SLOT(onAvatarRequestFinished()));
 }
 
-void VRoster::requestActivity(VContact *contact)
+void VRoster::setActivity(const Status &activity)
 {
-//	Q_D(VRoster);
-//	QUrl url("http://userapi.com/data");
-//	url.addEncodedQueryItem("act","activity");
-//	url.addQueryItem("id",contact->id());
-//	url.addEncodedQueryItem("from","0");
-//	url.addEncodedQueryItem("to","1");
-//	VRequest request(url);
-//	QNetworkReply *reply = d->connection->get(request);
-//	reply->setProperty("count",1);
-//	connect(reply,SIGNAL(finished()),d,SLOT(onActivityUpdateRequestFinished()));
+	Q_D(VRoster);
+	QVariantMap data;
+	data.insert("text", activity.text());
+	//WTF?
+	//QNetworkReply *reply = d->connection->get("activity.set", data);
+	//connect(reply,SIGNAL(finished()),d,SLOT(onSetActivityRequestFinished()));
 }
 
 ConfigGroup VRoster::config()

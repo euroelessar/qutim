@@ -18,7 +18,10 @@
 #include <qutim/account.h>
 #include "vaccount.h"
 #include <qutim/statusactiongenerator.h>
-
+#include "vcontact.h"
+#include <QDesktopServices>
+#include <QUrl>
+#include <qutim/icon.h>
 
 VkontakteProtocol *VkontakteProtocol::self = 0;
 
@@ -63,6 +66,14 @@ void VkontakteProtocol::loadAccounts()
 		Status::remember(status, "vkontakte");
 		MenuController::addAction(new StatusActionGenerator(status), &VAccount::staticMetaObject);
 	}
+
+	static ActionGenerator gen(Icon("applications-internet"),
+							   QT_TRANSLATE_NOOP("Vkontakte","Open homepage"),
+							   d,
+							   SLOT(onOpenWebPageTriggered(QObject*)));
+	gen.setType(ActionTypeContactList);
+	MenuController::addAction<VContact>(&gen);
+
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &uid, accounts) {
 		VAccount *acc = new VAccount(uid);
@@ -75,14 +86,27 @@ void VkontakteProtocol::loadAccounts()
 
 QVariant VkontakteProtocol::data(DataType type)
 {
-	if (type == Protocol::ProtocolIdName)
-		return tr("Email");
-	return QVariant();
+	switch (type) {
+		case ProtocolIdName:
+			return tr("email");
+		case ProtocolContainsContacts:
+			return true;
+		default:
+			return QVariant();
+	}
 }
 
 void VkontakteProtocolPrivate::onAccountDestroyed(QObject *obj)
 {
 	VAccount *acc = reinterpret_cast<VAccount*>(obj);
 	accounts->remove(accounts->key(acc));
+}
+
+void VkontakteProtocolPrivate::onOpenWebPageTriggered(QObject *obj)
+{
+	VContact *con = qobject_cast<VContact*>(obj);
+	Q_ASSERT(obj);
+	QUrl url ("http://vkontakte.ru/id" + con->id());
+	QDesktopServices::openUrl(url);
 }
 

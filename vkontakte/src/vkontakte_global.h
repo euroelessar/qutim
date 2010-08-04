@@ -33,7 +33,8 @@ enum VConnectionState {
 	Invalid = -1,
 	Connected,
 	Connecting,
-	Disconnected
+	Disconnected,
+	Authorization
 };
 
 VConnectionState LIBVKONTAKTE_EXPORT statusToState(Status::Type);

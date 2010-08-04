@@ -19,6 +19,7 @@
 #include <QPointer>
 
 class VAccount;
+class QAction;
 class VkontakteProtocol;
 class VkontakteProtocolPrivate : public QObject
 {
@@ -37,7 +38,7 @@ public:
 	VkontakteProtocol *q_ptr;
 public slots:
 	void onAccountDestroyed(QObject *obj);
-
+	void onOpenWebPageTriggered(QObject *obj);
 };
 
 #endif // VKONTAKTEPROTOCOL_P_H

@@ -52,6 +52,7 @@ public slots:
 	void onConnectStateChanged(VConnectionState state);
 	void onAvatarRequestFinished();
 	void onActivityUpdateRequestFinished();
+	void onSetActivityRequestFinished();
 	void updateAvatar();
 	void updateActivity();
 };

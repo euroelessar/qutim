@@ -87,16 +87,6 @@ void VConnectionPrivate::onError(QNetworkReply::NetworkError)
 	Notifications::sendNotification(reply->errorString());
 }
 
-void VConnectionPrivate::sendProlongation()
-{
-//	Q_Q(VConnection);
-//	QUrl url ("http://login.userapi.com/auth");
-//	url.addEncodedQueryItem("login","auto");
-//	url.addEncodedQueryItem("site","2");
-//	VRequest request(url);
-//	request.setRawHeader("remixpassword",remixPasswd);
-//	q->get(request);
-}
 
 VConnection::VConnection(VAccount* account, QObject* parent): QNetworkAccessManager(parent), d_ptr(new VConnectionPrivate)
 {
@@ -108,7 +98,6 @@ VConnection::VConnection(VAccount* account, QObject* parent): QNetworkAccessMana
 	d->messages = new VMessages(this,this);
 	new VLongPollClient(this);
 	loadSettings();
-	connect(&d->prolongationTimer,SIGNAL(timeout()),d,SLOT(sendProlongation()));
 }
 
 void VConnection::connectToHost(const QString& passwd)
@@ -156,6 +145,7 @@ void VConnection::onLoadFinished(bool ok)
 			d->webView->show();
 #endif
 		}
+		setConnectionState(Authorization);
 	} else if (path == QLatin1String("/api/login_success.html")) {
 		d->webView->hide();
 		d->webView->deleteLater();
@@ -204,34 +194,16 @@ VConnectionState VConnection::connectionState() const
 void VConnection::setConnectionState(VConnectionState state)
 {
 	Q_D(VConnection);
-	if (state == Connected)
-		d->prolongationTimer.start();
-	else
-		d->prolongationTimer.stop();
+
+	Status origin = d->account->status();
 	d->state = state;
-	d->account->setStatus(stateToStatus(state));
+	origin.setType(stateToStatus(state));
+	d->account->setStatus(origin);
 	emit connectionStateChanged(state);
 }
 
 VConnection::~VConnection()
 {
-}
-
-QNetworkReply* VConnection::get(VRequest& request)
-{
-	Q_UNUSED(request);
-//	Q_D(VConnection);
-//	if (!d->sid.isEmpty()) {
-//		QUrl url = request.url();
-//		url.addQueryItem("sid",d->sid);
-//		request.setUrl(url);
-//		debug() << "request" << request.url();
-//	}
-//	QNetworkReply *reply = QNetworkAccessManager::get(request);
-//	connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),d,SLOT(onError(QNetworkReply::NetworkError)));
-//	connect(reply,SIGNAL(finished()),reply,SLOT(deleteLater()));
-//	return reply;
-	return 0;
 }
 
 QNetworkReply *VConnection::get(const QString &method, const QVariantMap &args)
@@ -294,8 +266,6 @@ void VConnection::loadSettings()
 {
 	Q_D(VConnection);
 	Config cfg = config();
-	d->prolongationTimer.setInterval(cfg.value("prolongationInterval", 90000));
-	
 	QList<QNetworkCookie> cookies;
 	foreach (const QVariant &var, cfg.value("cookies", QVariantList(), Config::Crypted))
 		cookies << QNetworkCookie::parseCookies(var.toByteArray());

@@ -31,7 +31,6 @@ public:
 	VConnection *connection;
 	VMessages *q_ptr;
 	int unreadMessageCount;
-//	QTimer historyTimer;
 public slots:
 	void onConnectStateChanged(VConnectionState state);
 	void onHistoryRecieved(); //TODO move to vconnection
