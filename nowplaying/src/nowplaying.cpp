@@ -370,7 +370,7 @@ void NowPlaying::statusChanged(qutim_sdk_0_3::Status status){
             if (m_accounts.value(acc) == "icq"){
                 QString name = status.extendedInfo("xstatus").value("name").toString();
                 QString cur_name = m_current_status_name.value(acc);
-                if (name != cur_name){
+                if ((name != cur_name) && !cur_name.isEmpty()){
                     qDebug()<<"!!!!!!!!!!!!!!!! x status changed by user";
                     Config config = account->config("xstatus");
                     config.beginGroup(cur_name);
