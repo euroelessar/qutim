@@ -22,7 +22,7 @@ namespace Core
 		Q_OBJECT
 	public:
 		enum { Id = 1 };
-		AccountCreatorProtocols(AccountCreatorWizard *parent = 0);
+		AccountCreatorProtocols(QWizard *parent = 0);
 		~AccountCreatorProtocols();
 		virtual bool validatePage();
 		virtual bool isComplete() const;
@@ -37,7 +37,7 @@ namespace Core
 
 	private:
 		Ui::AccountCreatorProtocols *m_ui;
-		AccountCreatorWizard *m_wizard;
+		QWizard *m_wizard;
 		QMultiMap<QString, AccountCreationWizard *> m_wizards;
 		QMap<AccountCreationWizard *, int> m_wizardIds;
 		QHash<QCommandLinkButton *, QListWidgetItem *> m_items;

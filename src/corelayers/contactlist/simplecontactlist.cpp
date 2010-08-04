@@ -40,7 +40,7 @@ namespace Core
 		{
 		public:
 			CopyIdGenerator(QObject *obj) : 
-				ActionGenerator(Icon("edit-copy"),QT_TRANSLATE_NOOP("ContactList", "Copy id to clipboard"),obj,SLOT(onCopyIdTriggered(QObject*)))
+					ActionGenerator(Icon("edit-copy"),QT_TRANSLATE_NOOP("ContactList", "Copy id to clipboard"),obj,SLOT(onCopyIdTriggered(QObject*)))
 			{
 				setType(ActionTypeContactList|ActionTypeAdditional);
 			}
@@ -102,6 +102,7 @@ namespace Core
 			QLineEdit *search_bar;
 			QHash<Account *, QAction *> actions;
 			QAction *status_action;
+			QList<QAction *> status_actions;
 		};
 
 		Module::Module() : p(new ModulePrivate)
@@ -121,6 +122,7 @@ namespace Core
 			p->widget = new MyWidget;
 			p->widget->setCentralWidget(new QWidget(p->widget));
 			p->widget->setUnifiedTitleAndToolBarOnMac(true);
+			p->widget->installEventFilter(this);
 			QVBoxLayout *layout = new QVBoxLayout(p->widget->centralWidget());
 			layout->setMargin(0);
 			layout->setSpacing(0);
@@ -238,7 +240,9 @@ namespace Core
 			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Invisible));
 			p->status_btn->menu()->addAction(createGlobalStatusAction(Status::Offline));
 
-			p->status_btn->setText(Status(Status::Offline).name());
+			Status status = Status(Status::Offline);
+			p->status_btn->setText(status.name());
+			p->status_btn->setProperty("lastStatus",qVariantFromValue(status));
 
 			p->status_btn->menu()->addSeparator();
 
@@ -369,8 +373,10 @@ namespace Core
 			Q_ASSERT(action);
 			action->setIcon(status.icon());
 
-			if (isStatusChange(status))
+			if (isStatusChange(status)) {
+				p->status_btn->setProperty("lastStatus",qVariantFromValue(status));
 				p->status_btn->setText(status.name());
+			}
 		}
 
 		QAction *Module::createGlobalStatusAction(Status::Type type)
@@ -380,6 +386,7 @@ namespace Core
 			connect(act,SIGNAL(triggered(bool)),SLOT(onStatusChanged()));
 			act->setParent(p->status_btn);
 			act->setData(type);
+			p->status_actions.append(act);
 			return act;
 		}
 
@@ -416,8 +423,8 @@ namespace Core
 					account->setStatus(status);
 				}
 			}
-			Config config;
-			config.setValue("contactList/lastStatus",text);
+			Config config = Config().group("contactList");
+			config.setValue("lastStatus",text);
 			config.sync();
 		}
 		
@@ -453,6 +460,23 @@ namespace Core
 		{
 			Account *account = reinterpret_cast<Account*>(obj);
 			p->actions.take(account)->deleteLater();
+		}
+
+		bool Module::eventFilter(QObject *obj, QEvent *event)
+		{
+			if (obj->metaObject() == &QMainWindow::staticMetaObject) {
+				if (event->type() == QEvent::LanguageChange) {
+					foreach (QAction *action,p->status_actions) {
+						Status last = p->status_btn->property("lastStatus").value<Status>();
+						p->status_btn->setText(last.name());
+						Status::Type type = static_cast<Status::Type>(action->data().toInt());
+						action->setText(Status(type).name());
+					}
+					p->status_action->setText(tr("Set Status Text"));
+					event->accept();
+				}
+			}
+			return MenuController::eventFilter(obj,event);
 		}
 
 	}

@@ -9,9 +9,24 @@
 
 namespace Core {
 	static Core::CoreModuleHelper<AddContactModule> add_contact_module_static(
-		QT_TRANSLATE_NOOP("Plugin", "Add contact dialog"),
-		QT_TRANSLATE_NOOP("Plugin", "Simple add contact dialog")
-	);
+			QT_TRANSLATE_NOOP("Plugin", "Add contact dialog"),
+			QT_TRANSLATE_NOOP("Plugin", "Simple add contact dialog")
+			);
+
+	bool isSupportAddContact()
+	{
+		foreach (Protocol *p,allProtocols()) {
+			bool support = p->data(qutim_sdk_0_3::Protocol::ProtocolContainsContacts).toBool();
+			if (support) {
+				foreach (Account *a,p->accounts()) {
+					if (a->status() != Status::Offline) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 
 	struct AddContactPrivate
 	{
@@ -25,15 +40,31 @@ namespace Core {
 	{
 		QObject *contactList = getService("ContactList");
 		if (contactList) {
-			static QScopedPointer<ActionGenerator> button(new ActionGenerator(Icon("list-add-user"),
-					QT_TRANSLATE_NOOP("AddContact", "Add contact"), this, SLOT(show(QObject*))));
+			static ActionGenerator button (Icon("list-add-user"),
+										   QT_TRANSLATE_NOOP("AddContact", "Add contact"),
+										   this,
+										   SLOT(show()));
 			MenuController *controller = qobject_cast<MenuController*>(contactList);
+			button.addHandler(ActionVisibilityChangedHandler,this);
 			if (controller)
-				controller->addAction(button.data());
+				controller->addAction(&button);
 		}
 	}
 
-	void AddContactModule::show(QObject*)
+
+	bool AddContactModule::event(QEvent *ev)
+	{
+		if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
+			ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
+			if (event->isVisible()) {
+				event->action()->setEnabled(isSupportAddContact());
+			}
+			ev->accept();
+		}
+		return QObject::event(ev);
+	}
+
+	void AddContactModule::show()
 	{
 		AddContact *addContact = new AddContact();
 		centerizeWidget(addContact);
@@ -56,20 +87,20 @@ namespace Core {
 			foreach (Protocol *protocol, allProtocols())
 				if (protocol->data(Protocol::ProtocolContainsContacts).toBool() && !protocol->accounts().isEmpty())
 					foreach (Account *acc, protocol->accounts()) {
-						QToolButton *button = new QToolButton(d->ui->accountPage);
-						button->setText(acc->id());
-						QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-						button->setSizePolicy(sizePolicy);
+				QToolButton *button = new QToolButton(d->ui->accountPage);
+				button->setText(acc->id());
+				QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+				button->setSizePolicy(sizePolicy);
 #if !defined(Q_OS_SYMBIAN)
-						button->setAutoRaise(true);
+				button->setAutoRaise(true);
 #endif
-						connect(button, SIGNAL(clicked()), SLOT(setAccount()));
-						d->ui->accountLayout->insertWidget(d->ui->accountLayout->count()-1, button);
-						d->accounts.insert(acc->id(), acc);
-						d->buttons.insert(acc->id(), button);
-						changeState(acc, acc->status());
-						connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(changeState(qutim_sdk_0_3::Status)));
-					}
+				connect(button, SIGNAL(clicked()), SLOT(setAccount()));
+				d->ui->accountLayout->insertWidget(d->ui->accountLayout->count()-1, button);
+				d->accounts.insert(acc->id(), acc);
+				d->buttons.insert(acc->id(), button);
+				changeState(acc, acc->status());
+				connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(changeState(qutim_sdk_0_3::Status)));
+			}
 			if (d->accounts.count() == 1)
 				setAccount(d->accounts.values().at(0));
 		}

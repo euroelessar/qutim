@@ -25,7 +25,9 @@ namespace Core
 			virtual ~Module();			
 			Q_INVOKABLE void addButton(ActionGenerator *generator);
 			Q_INVOKABLE QWidget *widget();
+		protected:
 			bool event(QEvent *);
+			bool eventFilter(QObject *, QEvent *);
 		public slots:
 			void show();
 			void hide();

@@ -11,7 +11,7 @@ static const int buttonMinimumHeight = 50;
 
 namespace Core
 {
-	AccountCreatorProtocols::AccountCreatorProtocols(AccountCreatorWizard *parent) :
+	AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 		QWizardPage(parent),
 		m_ui(new Ui::AccountCreatorProtocols),
 		m_wizard(parent)

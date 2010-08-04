@@ -36,8 +36,10 @@ namespace Core {
 		Q_CLASSINFO("Uses", "ContactList")
 	public:
 		AddContactModule();
+	protected:
+		bool event(QEvent *ev);
 	private slots:
-		void show(QObject*);
+		void show();
 	};
 }
 #endif // ADDCONTACT_H

@@ -159,7 +159,9 @@ namespace Core
 #if defined(QUTIM_MOBILE_UI)
 		wizard->showMaximized();
 #else
+		centerizeWidget(wizard);
 		wizard->show();
+		wizard->raise();
 #endif
 	}
 
