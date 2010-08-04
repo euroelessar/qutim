@@ -22,6 +22,7 @@ struct VAccountPrivate;
 class VContact;
 class VConnection;
 class VRoster;
+class VWallSession;
 class LIBVKONTAKTE_EXPORT VAccount : public Account
 {
 	Q_OBJECT
@@ -30,10 +31,11 @@ public:
 	VAccount(const QString& email);
 	virtual VContact* getContact(const QString& uid, bool create = false);
 	virtual ChatUnit* getUnit(const QString& unitId, bool create = false);
+	VWallSession *getWall(const QString &id,bool create = false);
 	QString uid() const;
 	virtual QString name() const;
 	void setAccountName(const QString &name);
-	QString email() const {return id();}; //alias for id
+	QString email() const {return id();} //alias for id
 	void setUid(const QString &uid);
 	virtual void setStatus(Status status);
 	virtual ~VAccount();

@@ -39,6 +39,7 @@ public:
 public slots:
 	void onAccountDestroyed(QObject *obj);
 	void onOpenWebPageTriggered(QObject *obj);
+	void onViewWallTriggered(QObject *obj);
 };
 
 #endif // VKONTAKTEPROTOCOL_P_H

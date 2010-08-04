@@ -24,12 +24,14 @@
 #include "vaccount_p.h"
 #include <qutim/inforequest.h>
 #include "vinforequest.h"
+#include "vwallsession.h"
 
 VAccount::VAccount(const QString& email) : 
 	Account(email, VkontakteProtocol::instance()),
 	d_ptr(new VAccountPrivate)
 {
 	Q_D(VAccount);
+	d->q_ptr = this;
 	setParent(protocol());
 	d->connection = new VConnection(this,this);
 }
@@ -43,6 +45,18 @@ ChatUnit* VAccount::getUnit(const QString& unitId, bool create)
 {
 	return getContact(unitId,create);
 }
+
+VWallSession* VAccount::getWall(const QString& id, bool create)
+{
+	Q_D(VAccount);
+	VWallSession *wall = d->walls.value(id);
+	if (create && !wall) {
+		wall = new VWallSession(id,this);
+		connect(wall,SIGNAL(destroyed(QObject*)),d,SLOT(onWallDestroyed(QObject*)));
+	}
+	return wall;
+}
+
 
 void VAccount::loadSettings()
 {
@@ -157,3 +171,8 @@ bool VAccount::event(QEvent *ev)
 	return Account::event(ev);
 }
 
+void VAccountPrivate::onWallDestroyed(QObject *wall)
+{
+	VWallSession *session = reinterpret_cast<VWallSession*>(wall);
+	walls.remove(walls.key(session));
+}

@@ -43,6 +43,7 @@ public slots:
 	void getFriendList(); //TODO I think that we need a way to get information on parts
 	void setActivity(const Status &activity); //TBD i think that we need a create a separated class
 	void requestAvatar(QObject *contact);
+	void updateProfile(VContact *contact);
 private:
 	QScopedPointer<VRosterPrivate> d_ptr;
 };

@@ -22,6 +22,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <qutim/icon.h>
+#include "vwallsession.h"
 
 VkontakteProtocol *VkontakteProtocol::self = 0;
 
@@ -67,12 +68,19 @@ void VkontakteProtocol::loadAccounts()
 		MenuController::addAction(new StatusActionGenerator(status), &VAccount::staticMetaObject);
 	}
 
-	static ActionGenerator gen(Icon("applications-internet"),
+	static ActionGenerator homepage_gen(Icon("applications-internet"),
 							   QT_TRANSLATE_NOOP("Vkontakte","Open homepage"),
 							   d,
 							   SLOT(onOpenWebPageTriggered(QObject*)));
-	gen.setType(ActionTypeContactList);
-	MenuController::addAction<VContact>(&gen);
+	homepage_gen.setType(ActionTypeContactList);
+	MenuController::addAction<VContact>(&homepage_gen);
+
+	static ActionGenerator wall_gen(QIcon(),
+									QT_TRANSLATE_NOOP("Vkontakte","View wall"),
+									d,
+									SLOT(onViewWallTriggered(QObject*)));
+	wall_gen.setType(ActionTypeContactList);
+	MenuController::addAction<VContact>(&wall_gen);
 
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &uid, accounts) {
@@ -88,7 +96,7 @@ QVariant VkontakteProtocol::data(DataType type)
 {
 	switch (type) {
 		case ProtocolIdName:
-			return tr("email");
+			return tr("id");
 		case ProtocolContainsContacts:
 			return true;
 		default:
@@ -110,3 +118,10 @@ void VkontakteProtocolPrivate::onOpenWebPageTriggered(QObject *obj)
 	QDesktopServices::openUrl(url);
 }
 
+void VkontakteProtocolPrivate::onViewWallTriggered(QObject *obj)
+{
+	VContact *con = qobject_cast<VContact*>(obj);
+	Q_ASSERT(obj);
+	VWallSession *wall = static_cast<VAccount*>(con->account())->getWall(con->id(),true);
+	wall->join();
+}

@@ -403,3 +403,27 @@ void VRoster::saveSettings()
 	}
 }
 
+void VRoster::updateProfile(VContact *contact)
+{
+	Q_D(VRoster);
+	QString id = contact->id();
+	QVariantMap data;
+	data.insert("uids",id) ;
+	data.insert("fields", "first_name,last_name,nickname,photo_medium");
+	QNetworkReply *reply = d->connection->get("getProfiles", data);
+	reply->setProperty("contact",qVariantFromValue(contact));
+	connect(reply,SIGNAL(finished()),d,SLOT(onUpdateProfileFinished()));
+}
+
+void VRosterPrivate::onUpdateProfileFinished()
+{
+	Q_Q(VRoster);
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	VContact *contact = reply->property("contact").value<VContact*>();
+	QByteArray rawData = reply->readAll();
+	qDebug() << Q_FUNC_INFO << rawData;
+	QVariantMap data = Json::parse(rawData).toMap().value("response").toList().value(0).toMap();
+	QString name = data.value("first_name").toString() + " " + data.value("last_name").toString();
+	contact->setContactName(name);
+	checkPhoto(contact, data.value("photo_medium").toString());
+}

@@ -15,18 +15,25 @@
 
 #ifndef VACCOUNT_P_H
 #define VACCOUNT_P_H
-#include <QList>
 #include <QHash>
+#include <QString>
 
+class VWallSession;
 class VConnection;
 class VContact;
-struct VAccountPrivate
+class VAccount;
+class VAccountPrivate : public QObject
 {
+	Q_OBJECT
+	Q_DECLARE_PUBLIC(VAccount)
+public:
 	QString name;
 	QString uid;
-	QHash<QString, VContact*> contactsHash;
-	QList<VContact *> contactsList;
+	QHash<QString, VWallSession*> walls;
 	VConnection *connection;
+	VAccount *q_ptr;
+public slots:
+	void onWallDestroyed(QObject *wall);
 };
 
 #endif // VACCOUNT_P_H

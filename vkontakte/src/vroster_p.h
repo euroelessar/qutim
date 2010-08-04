@@ -53,8 +53,9 @@ public slots:
 	void onAvatarRequestFinished();
 	void onActivityUpdateRequestFinished();
 	void onSetActivityRequestFinished();
+	void onUpdateProfileFinished();
 	void updateAvatar();
-	void updateActivity();
+	void updateActivity();	
 };
 
 #endif // VROSTER_P_H
