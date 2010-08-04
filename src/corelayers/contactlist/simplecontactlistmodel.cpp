@@ -163,6 +163,8 @@ namespace Core
 						return ContactType;
 					case ItemStatusRole:
 						return qVariantFromValue(item->data->contact->status());
+					case ItemAvatarRole:
+						return item->data->contact->avatar();
 					default:
 						return QVariant();
 					}
@@ -436,33 +438,25 @@ namespace Core
 				QList<ContactItem *> &contacts = item->parent->contacts;
 				QModelIndex parentIndex = createIndex(p->tags.indexOf(item->parent), 0, item->parent);
 				int from = contacts.indexOf(item);
-				int to;
+				int to = from;
 				if (statusTypeChanged) {
 					QList<ContactItem *>::const_iterator it =
 							qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
 					to = it - contacts.constBegin();
-				} else {
-					to = from;
 				}
 
-				if (from == to) {
-					if (show) {
-						QModelIndex index = createIndex(item->index(), 0, item);
-						dataChanged(index, index);
-					}
-				} else {
+				hideContact(from,parentIndex,!show);
+
+				if (to != from) {
+
 					if (to == -1 || to >= contacts.count())
-						continue;					
+						continue;
 
 					beginMoveRows(parentIndex, from, from, parentIndex, to);
 					contacts.move(from,to);
-					//item_data->items.move(from,to); //FIXME
 					endMoveRows();
 				}
 
-				if (statusTypeChanged) {
-					hideContact(to, parentIndex, !show);
-				}
 			}
 		}
 
@@ -488,7 +482,7 @@ namespace Core
 
 				if (from == to) {
 					QModelIndex index = createIndex(item->index(), 0, item);
-					dataChanged(index, index);
+					emit dataChanged(index, index);
 				}
 				else {
 					if (to == -1 || to >= contacts.count())
@@ -496,7 +490,6 @@ namespace Core
 
 					beginMoveRows(parentIndex, from, from, parentIndex, to);
 					item->parent->contacts.move(from, to);
-					//item_data->items.move(from,to); //FIXME
 					endMoveRows();
 				}
 			}
@@ -817,7 +810,6 @@ namespace Core
 				p->view->setRowHidden(index, tagIndex, hide);
 				recheckTag(item, tagIndex.row());
 				emit dataChanged(tagIndex,tagIndex);
-
 			}
 		}
 

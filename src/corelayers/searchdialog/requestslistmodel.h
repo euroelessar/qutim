@@ -23,43 +23,43 @@
 
 namespace Core {
 
-using namespace qutim_sdk_0_3;
+	using namespace qutim_sdk_0_3;
 
-typedef AbstractSearchFactory *FactoryPtr;
-typedef QSharedPointer<AbstractSearchRequest> RequestPtr;
+	typedef AbstractSearchFactory *FactoryPtr;
+	typedef QSharedPointer<AbstractSearchRequest> RequestPtr;
 
-class RequestsListModel : public QAbstractListModel
-{
-	Q_OBJECT
-public:
-	explicit RequestsListModel(QList<AbstractSearchFactory*> factories, QObject *parent = 0);
-	virtual ~RequestsListModel();
-	RequestPtr request(int row);
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-private:
-	void addRequest(FactoryPtr factory, const QString &request);
-	int findPlaceForRequest(FactoryPtr factory, const QString &request);
-	int findRequestIndex(FactoryPtr factory, const QString &request);
-private slots:
-	void requestAdded(const QString &request);
-	void requestRemoved(const QString &request);
-	void requestUpdated(const QString &request);
-private:
-	QList<FactoryPtr> m_factories;
-	struct RequestItem
+	class RequestsListModel : public QAbstractListModel
 	{
-		RequestItem() :
-			factory(0)
-		{}
-		RequestItem(const FactoryPtr &f, const QString &n) :
-			factory(f), name(n)
-		{}
-		FactoryPtr factory;
-		QString name;
+		Q_OBJECT
+	public:
+		explicit RequestsListModel(QList<AbstractSearchFactory*> factories, QObject *parent = 0);
+		virtual ~RequestsListModel();
+		RequestPtr request(int row);
+		virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+		virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+	private:
+		void addRequest(FactoryPtr factory, const QString &request);
+		int findPlaceForRequest(FactoryPtr factory, const QString &request);
+		int findRequestIndex(FactoryPtr factory, const QString &request);
+	private slots:
+		void requestAdded(const QString &request);
+		void requestRemoved(const QString &request);
+		void requestUpdated(const QString &request);
+	private:
+		QList<FactoryPtr> m_factories;
+		struct RequestItem
+		{
+			RequestItem() :
+					factory(0)
+			{}
+			RequestItem(const FactoryPtr &f, const QString &n) :
+					factory(f), name(n)
+			{}
+			FactoryPtr factory;
+			QString name;
+		};
+		QList<RequestItem> m_requestItems;
 	};
-	QList<RequestItem> m_requestItems;
-};
 
 }
 

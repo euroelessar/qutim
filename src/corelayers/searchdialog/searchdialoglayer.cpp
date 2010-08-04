@@ -22,60 +22,82 @@
 namespace Core
 {
 
-static Core::CoreModuleHelper<SearchLayer> search_dialog_static(
-		QT_TRANSLATE_NOOP("Plugin", "Search window"),
-		QT_TRANSLATE_NOOP("Plugin", "Default qutIM implementation of search window")
-);
+	static Core::CoreModuleHelper<SearchLayer> search_dialog_static(
+			QT_TRANSLATE_NOOP("Plugin", "Search window"),
+			QT_TRANSLATE_NOOP("Plugin", "Default qutIM implementation of search window")
+			);
 
-SearchLayer::SearchLayer()
-{
-	foreach(const ObjectGenerator *gen, moduleGenerators<ContactSearchFactory>())
-		m_contactSearchFactories << gen->generate<ContactSearchFactory>();
-	QObject *contactList = getService("ContactList");
-	if (contactList) {
-		static QScopedPointer<ActionGenerator> button(new ActionGenerator(Icon("edit-find-contact"),
-										QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
-										this, SLOT(showContactSearch(QObject*))));
-		//QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, button.data()));
-		MenuController *controller = qobject_cast<MenuController*>(contactList);
-		if (controller)
-			controller->addAction(button.data());
+	SearchLayer::SearchLayer()
+	{
+		foreach(const ObjectGenerator *gen, moduleGenerators<ContactSearchFactory>())
+			m_contactSearchFactories << gen->generate<ContactSearchFactory>();
+		QObject *contactList = getService("ContactList");
+		if (contactList) {
+			static ActionGenerator button(Icon("edit-find-contact"),
+										  QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
+										  this,
+										  SLOT(showContactSearch(QObject*)));
+			//QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, button.data()));
+			button.addHandler(ActionVisibilityChangedHandler,this);
+			MenuController *controller = qobject_cast<MenuController*>(contactList);
+			if (controller)
+				controller->addAction(&button);
+		}
 	}
-}
 
-SearchLayer::~SearchLayer()
-{
-	delete m_contactSearchDialog;
-	qDeleteAll(m_contactSearchFactories);
-}
+	SearchLayer::~SearchLayer()
+	{
+		delete m_contactSearchDialog;
+		qDeleteAll(m_contactSearchFactories);
+	}
 
-void SearchLayer::showContactSearch(QObject*)
-{
-	AbstractSearchForm *form = m_contactSearchDialog.data();
-	if (!form) {
+	void SearchLayer::showContactSearch(QObject*)
+	{
+		AbstractSearchForm *form = m_contactSearchDialog.data();
+		if (!form) {
+			AbstractSearchFormFactory *f = AbstractSearchFormFactory::instance();
+			if (f)
+				form = f->createForm(m_contactSearchFactories,
+									 QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
+									 Icon("edit-find-contact"));
+			if (!form)
+				return;
+			centerizeWidget(form);
+			form->show();
+			form->setAttribute(Qt::WA_DeleteOnClose, true);
+			m_contactSearchDialog = form;
+		} else {
+			form->raise();
+		}
+	}
+
+	QWidget *SearchLayer::createSearchDialog(const QList<AbstractSearchFactory*> &factories,
+											 const QString &title,
+											 const QIcon &icon,
+											 QWidget *parent)
+	{
 		AbstractSearchFormFactory *f = AbstractSearchFormFactory::instance();
-		if (f)
-			form = f->createForm(m_contactSearchFactories,
-								 QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),
-								 Icon("edit-find-contact"));
-		if (!form)
-			return;
-		centerizeWidget(form);
-		form->show();
-		form->setAttribute(Qt::WA_DeleteOnClose, true);
-		m_contactSearchDialog = form;
-	} else {
-		form->raise();
+		return f ? f->createForm(factories, title, icon, parent) : 0;
 	}
-}
 
-QWidget *SearchLayer::createSearchDialog(const QList<AbstractSearchFactory*> &factories,
-										 const QString &title,
-										 const QIcon &icon,
-										 QWidget *parent)
-{
-	AbstractSearchFormFactory *f = AbstractSearchFormFactory::instance();
-	return f ? f->createForm(factories, title, icon, parent) : 0;
-}
+	bool SearchLayer::event(QEvent *ev)
+	{
+		if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
+			ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
+			if (event->isVisible()) {
+				bool enabled = false;
+				foreach (AbstractSearchFactory *factory, m_contactSearchFactories) {
+					enabled = !factory->requestList().isEmpty();
+					if (enabled)
+						break;
+				}
+				event->action()->setEnabled(enabled);
+				event->accept();
+			} else {
+				event->ignore();
+			}
+		}
+		return QObject::event(ev);
+	}
 
 }

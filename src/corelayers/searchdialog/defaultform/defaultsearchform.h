@@ -26,9 +26,9 @@ namespace Core {
 		Q_OBJECT
 	public:
 		DefaultSearchForm(const QList<AbstractSearchFactory*> &factories,
-						 const QString &title = QString(),
-						 const QIcon &icon = QIcon(),
-						 QWidget *parent = 0);
+						  const QString &title = QString(),
+						  const QIcon &icon = QIcon(),
+						  QWidget *parent = 0);
 
 	private slots:
 		void startSearch();

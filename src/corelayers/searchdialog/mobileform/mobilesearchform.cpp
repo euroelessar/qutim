@@ -29,10 +29,12 @@ namespace Core {
 									   const QString &title,
 									   const QIcon &icon,
 									   QWidget *parent) :
-		AbstractSearchForm(factories, title, icon, parent)
+	AbstractSearchForm(factories, title, icon, parent),
+	m_negative_action(new QAction(this)),
+	m_search_state(ReadyState)
 	{
 		ui.setupUi(this);
-		setTitle(title, icon);
+		setTitle(title, icon);		
 		ui.updateServiceButton->setIcon(Icon("view-refresh"));
 		ui.serviceBox->setVisible(false);
 		ui.updateServiceButton->setVisible(false);
@@ -41,10 +43,14 @@ namespace Core {
 		ui.resultView->setItemDelegate(new ItemDelegate(this));
 		ui.resultView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 		ui.requestBox->setModel(requestsModel());
-		connect(ui.searchButton, SIGNAL(clicked()), SLOT(startSearch()));
-		connect(ui.cancelButton, SIGNAL(clicked()), SLOT(cancelSearch()));
+
+		m_negative_action->setSoftKeyRole(QAction::NegativeSoftKey);
+		m_negative_action->setText(QT_TRANSLATE_NOOP("SearchForm","Search"));
+		ui.actionBox->addAction(m_negative_action);
+
 		connect(ui.requestBox, SIGNAL(currentIndexChanged(int)), SLOT(updateRequest(int)));
 		connect(ui.updateServiceButton, SIGNAL(clicked()), SLOT(updateService()));
+		connect(m_negative_action,SIGNAL(triggered()),SLOT(onNegativeActionTriggered()));
 		if (requestsModel()->rowCount() > 0)
 			updateRequest(0);
 	}
@@ -52,16 +58,14 @@ namespace Core {
 	void MobileSearchForm::startSearch()
 	{
 		if (AbstractSearchForm::startSearch()) {
-			setState(true);
-			ui.stackedWidget->setCurrentIndex(1);
+			setState(SearchingState);
 		}
 	}
 
 	void MobileSearchForm::cancelSearch()
 	{
 		if (AbstractSearchForm::cancelSearch()) {
-			setState(false);
-			ui.stackedWidget->setCurrentIndex(0);
+			setState(ReadyState);
 		}
 	}
 
@@ -69,7 +73,6 @@ namespace Core {
 	{
 		setCurrentRequest(requestsModel()->request(row));
 		if (currentRequest()) {
-			ui.searchButton->setEnabled(true);
 			connect(currentRequest().data(), SIGNAL(done(bool)), SLOT(done(bool)));
 			connect(currentRequest().data(), SIGNAL(fieldsUpdated()), SLOT(updateFields()));
 			connect(currentRequest().data(), SIGNAL(servicesUpdated()), SLOT(updateServiceBox()));
@@ -81,7 +84,6 @@ namespace Core {
 			updateServiceBox();
 			updateActionButtons();
 		} else {
-			ui.searchButton->setEnabled(false);
 			if (searchFieldsWidget())
 				searchFieldsWidget()->deleteLater();
 			clearActionButtons();
@@ -96,7 +98,7 @@ namespace Core {
 	void MobileSearchForm::done(bool ok)
 	{
 		Q_UNUSED(ok);
-		setState(false);
+		setState(DoneState);
 	}
 
 	void MobileSearchForm::updateFields()
@@ -116,26 +118,46 @@ namespace Core {
 		Q_ASSERT(currentRequest());
 		clearActionButtons();
 		for (int i = 0, c = currentRequest()->actionCount(); i < c; ++i) {
-			QPushButton *button = getActionButton(i);
-			ui.actionLayout->addWidget(button);
-			connect(button, SIGNAL(clicked()), SLOT(actionButtonClicked()));
+			QAction *button = actionAt(i);
+			m_actions.append(button);
+			connect(button, SIGNAL(triggered()), SLOT(actionButtonClicked()));
 		}
 	}
 
 	void MobileSearchForm::actionButtonClicked()
 	{
-		Q_ASSERT(qobject_cast<QPushButton*>(sender()));
-		AbstractSearchForm::actionButtonClicked(reinterpret_cast<QPushButton*>(sender()),
-										ui.resultView->selectionModel()->selectedRows());
+		Q_ASSERT(qobject_cast<QAction*>(sender()));
+		AbstractSearchForm::actionButtonClicked(reinterpret_cast<QAction*>(sender()),
+												ui.resultView->selectionModel()->selectedRows());
 	}
 
-	void MobileSearchForm::setState(bool search)
+	void MobileSearchForm::setState(SearchState search)
 	{
-		ui.searchButton->setEnabled(!search);
-		ui.requestBox->setEnabled(!search);
-		ui.progressBar->setVisible(search);
+		m_search_state = search;
+		if (search == ReadyState) {
+			m_negative_action->setText(QT_TRANSLATE_NOOP("SearchForm","Search"));
+			ui.actionBox->removeActions(m_actions);
+			ui.stackedWidget->setCurrentIndex(0);
+		}
+		else {
+			m_negative_action->setText(QT_TRANSLATE_NOOP("SearchForm","Back"));
+			ui.actionBox->addActions(m_actions);
+			ui.stackedWidget->setCurrentIndex(1);
+		}
+
+		ui.requestBox->setEnabled(search == ReadyState);
+		ui.progressBar->setVisible(search == SearchingState);
 		if (searchFieldsWidget())
-			searchFieldsWidget()->setEnabled(!search);
+			searchFieldsWidget()->setEnabled(search != SearchingState);
+
+	}
+
+	void MobileSearchForm::onNegativeActionTriggered()
+	{
+		if (m_search_state != ReadyState)
+			cancelSearch();
+		else
+			startSearch();
 	}
 
 	AbstractSearchForm *MobileSearchFormFactory::createForm(const QList<AbstractSearchFactory*> &factories,

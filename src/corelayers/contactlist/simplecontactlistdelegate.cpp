@@ -24,6 +24,7 @@
 #include <libqutim/debug.h>
 #include <QPainter>
 #include <libqutim/icon.h>
+#include "avatarfilter.h"
 
 namespace Core
 {
@@ -40,7 +41,7 @@ namespace Core
 		{
 			m_horizontal_padding = 5;
 			m_vertical_padding = 3;
-			m_show_flags = static_cast<ShowFlags>(ShowStatusText | ShowExtendedStatusIcons);
+			m_show_flags = static_cast<ShowFlags>(ShowStatusText | ShowExtendedStatusIcons | ShowAvatars);
 		}
 		
 		void SimpleContactListDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
@@ -52,9 +53,6 @@ namespace Core
 			ItemType type = static_cast<ItemType>(index.data(ItemDataType).toInt());
 			
 			QString name = index.data(Qt::DisplayRole).toString();
-
-			QFont original_font = painter->font();
-			QPen original_pen = painter->pen();
 
 			QRect title_rect = option.rect;
 			title_rect.setLeft(title_rect.left() + option.decorationSize.width() + 2*m_horizontal_padding);
@@ -117,7 +115,7 @@ namespace Core
 						QVariantList list;
 						foreach (const QVariant &data,extStatuses) {
 							QVariantList::iterator search_it =
-							qLowerBound(list.begin(), list.end(), data, infoLessThan);
+									qLowerBound(list.begin(), list.end(), data, infoLessThan);
 							list.insert(search_it,data);
 						}
 
@@ -168,12 +166,29 @@ namespace Core
 						}
 
 						QIcon item_icon = index.data(Qt::DecorationRole).value<QIcon>();
-						item_icon.paint(painter,
-										option.rect.left() + m_horizontal_padding,
-										option.rect.top() + m_vertical_padding,
-										option.decorationSize.width(),
-										option.decorationSize.height(),
-										Qt::AlignTop);
+						bool hasAvatar = false;
+						if (m_show_flags & ShowAvatars) {
+							QSize avatarSize (option.decorationSize.width()+m_horizontal_padding,option.decorationSize.height()+m_vertical_padding);
+							AvatarFilter filter(avatarSize);
+							QPixmap avatar = filter.draw(index.data(ItemAvatarRole).toString(),item_icon);
+							if (!avatar.isNull()) {
+								painter->drawPixmap(option.rect.left()+m_horizontal_padding/2,
+													option.rect.top()+m_vertical_padding/2,
+													avatarSize.width(),
+													avatarSize.height(),
+													avatar
+													);
+								hasAvatar = true;
+							}
+						}
+
+						if (!hasAvatar)
+							item_icon.paint(painter,
+											option.rect.left() + m_horizontal_padding,
+											option.rect.top() + m_vertical_padding,
+											option.decorationSize.width(),
+											option.decorationSize.height(),
+											Qt::AlignTop);
 
 					}
 					
@@ -235,7 +250,9 @@ namespace Core
 											   status.text().remove("\n")
 											   ).height();
 			}
-			height = qMax(option.decorationSize.height(),height);
+			if (isContact)
+				height = qMax(option.decorationSize.height(),height);
+
 			height += 2*m_vertical_padding;
 			QSize size (option.rect.width(),height);
 			return size;

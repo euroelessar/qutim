@@ -41,24 +41,22 @@ void ActionBox::addAction(QAction *action)
 #ifdef QUTIM_SOFTKEYS_SUPPORT
 	static_cast<QWidget*>(parent())->addAction(action);
 #else
+	if (actions().contains(action))
+		return;
 	QToolButton *button = new QToolButton(this);
 	button->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	button->setDefaultAction(action);
+	button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	d->buttons.insert(action,button);
 
 	connect(action,SIGNAL(changed()),d,SLOT(onChanged()));
 	connect(button,SIGNAL(destroyed(QObject*)),d,SLOT(onButtonDestroyed(QObject*)));
+	connect(action,SIGNAL(destroyed()),button,SLOT(deleteLater()));
 
 	if (action->softKeyRole() == QAction::NegativeSoftKey)
 		d->layout->insertWidget(0,button);
-	else /*if (action->softKeyRole() == QAction::NegativeSoftKey)*/
+	else
 		d->layout->addWidget(button);
-	//	TODO
-	//	else {
-	//		int index = d->layout->count() - 2;
-	//		if (index >= 0)
-	//			d->la
-	//	}
 #endif
 	QWidget::addAction(action);
 }
