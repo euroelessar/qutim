@@ -1,7 +1,6 @@
 #include "contactinfo.h"
 #include "src/modulemanagerimpl.h"
 #include "libqutim/icon.h"
-#include "libqutim/extensioninfo.h"
 #include "libqutim/contact.h"
 #include "libqutim/account.h"
 #include "libqutim/dataforms.h"
@@ -70,7 +69,7 @@ namespace Core
 							   .arg(object->property("name").toString())
 							   .arg(object->property("id").toString()));
 			}
-			avatar = account->property("avatar").toString();
+			avatar = object->property("avatar").toString();
 		}
 		ui.saveButton->setVisible(readWrite);
 		{ // avatar field
@@ -222,32 +221,14 @@ namespace Core
 		return text;
 	}
 
-	class InfoActionGenerator : public ActionGenerator
-	{
-	public:
-		InfoActionGenerator(QObject *receiver) :
-				ActionGenerator(Icon("dialog-information"), 0, receiver, SLOT(onShow(QObject*)))
-		{
-			setPriority(90);
-			setType(90);
-		}
-	protected:
-		virtual QObject *generateHelper() const
-		{
-			QAction *action = prepareAction(new QAction(0));
-			action->setVisible(false);
-			return action;
-		}
-	};
-
 	ContactInfo::ContactInfo()
 	{
-		ActionGenerator *gen = new InfoActionGenerator(this);
-		gen->setType(ActionTypeContactList|ActionTypeChatButton|ActionTypeContactInfo);
+		ActionGenerator *gen = new ActionGenerator(Icon("dialog-information"), LocalizedString(), this, SLOT(onShow(QObject*)));
+		gen->setType(ActionTypeContactList | ActionTypeChatButton | ActionTypeContactInfo | 0x7000);
 		gen->addHandler(ActionVisibilityChangedHandler,this);
 		MenuController::addAction<Buddy>(gen);
-		gen = new InfoActionGenerator(this);
-		gen->setType(ActionTypeContactList|ActionTypeContactInfo);
+		gen = new ActionGenerator(Icon("dialog-information"), LocalizedString(), this, SLOT(onShow(QObject*)));
+		gen->setType(ActionTypeContactList | ActionTypeContactInfo | 0x7000);
 		gen->addHandler(ActionVisibilityChangedHandler,this);
 		MenuController::addAction<Account>(gen);
 	}
