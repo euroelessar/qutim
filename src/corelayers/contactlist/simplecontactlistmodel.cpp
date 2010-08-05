@@ -202,6 +202,10 @@ namespace Core
 
 		void Model::addContact(Contact *contact)
 		{
+			//TODO implement more powerfull logic
+//			if (!contact->isInList())
+//				return;
+
 			if(p->contacts.contains(contact))
 				return;
 

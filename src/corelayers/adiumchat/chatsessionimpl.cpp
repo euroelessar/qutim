@@ -250,7 +250,7 @@ namespace Core
 				}
 			}
 
-			if (!silent)
+			if (!silent && !d->active)
 				Notifications::sendNotification(message);
 
 			if (message.property("store", true) && (!service || (service && d->store_service_messages)))
