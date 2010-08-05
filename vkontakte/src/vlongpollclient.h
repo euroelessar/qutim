@@ -20,9 +20,16 @@
 #include <QObject>
 #include <QUrl>
 #include "vkontakte_global.h"
+#include <qutim/message.h>
 
 class VConnection;
 
+namespace qutim_sdk_0_3
+{
+	class ChatSession;
+}
+
+//TODO make pimpl interface
 class VLongPollClient : public QObject
 {
 	Q_OBJECT
@@ -68,10 +75,11 @@ protected slots:
 	void onConnectionStateChanged(VConnectionState state);
 	void onServerDataReceived();
 	void onDataReceived();
-	
+	void onUnreadChanged(const qutim_sdk_0_3::MessageList &list);
 private:
 	VConnection *m_connection;
 	QUrl m_url;
+	QHash<ChatSession*,MessageList>m_unread_mess;
 };
 
 #endif // VLONGPOLLCLIENT_H

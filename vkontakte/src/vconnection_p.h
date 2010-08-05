@@ -40,10 +40,10 @@ public:
 	VRoster *roster;
 	VMessages *messages;
 	QPointer<QWebView> webView;
+	bool logMode;
 public slots:
-	void onAuthRequestFinished();
-	void onLogoutRequestFinished();
 	void onError(QNetworkReply::NetworkError error);
+	void onReplyFinished();
 };
 
 #endif // VCONNECTION_P_H

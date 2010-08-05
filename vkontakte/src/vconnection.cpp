@@ -33,58 +33,27 @@
 
 Q_GLOBAL_STATIC_WITH_ARGS(QString, appId, (QLatin1String("1865463"))) // 1912927"))) // 
 
-void VConnectionPrivate::onAuthRequestFinished()
-{
-//	Q_Q(VConnection);
-//	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-//	Q_ASSERT(reply);
-//	QList<QNetworkCookie> cookie_list = reply->manager()->cookieJar()->cookiesForUrl(QUrl("http://login.userapi.com"));
-//	QByteArray location = reply->rawHeader("Location");
-//	int index = location.indexOf("sid=");
-//	if (index != -1) {
-//	    foreach(QNetworkCookie cookie, cookie_list)
-//	    {
-//		if ( cookie.name() == "remixpassword" && cookie.value() != "deleted" )
-//		{
-//		    remixPasswd = cookie.value();
-//		    sid = location.mid(index + 4);
-//		}
-//		if ( cookie.name() == "remixmid" )
-//		    account->setUid(cookie.value());
-//	    }
-//		q->setConnectionState(Connected);
-//	}
-//	else {
-//		Notifications::sendNotification(tr("Error! (TODO)"));
-//		q->setConnectionState(Disconnected);
-//	}
-}
-
-void VConnectionPrivate::onLogoutRequestFinished()
-{
-//	Q_Q(VConnection);
-//	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-//	Q_ASSERT(reply);
-//	QByteArray location = reply->rawHeader("Location");
-//	int index = location.indexOf("sid=");
-//	QString sid = "-1";
-//	if (index != -1)
-//		sid = location.mid(index + 4);
-//
-//	if (sid == "-1") {
-//		//TODO
-//	}
-//
-//	q->setConnectionState(Disconnected);
-//	sid = QString();
-//	remixPasswd.clear();
-}
-
 void VConnectionPrivate::onError(QNetworkReply::NetworkError)
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	Q_ASSERT(reply);
 	Notifications::sendNotification(reply->errorString());
+}
+
+void VConnectionPrivate::onReplyFinished()
+{
+	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	Q_ASSERT(reply);
+	if (logMode) {
+		QByteArray rawData = reply->readAll();
+		debug() << "Request:" << reply->url();
+		debug() << "Data:" << rawData;
+		QVariantMap map = Json::parse(rawData).toMap();
+		QVariantMap error = map.value("error").toMap();
+		if (!error.isEmpty())
+			Notifications::sendNotification(error.value("error_msg").toString());
+	}
+	reply->deleteLater();
 }
 
 
@@ -96,6 +65,7 @@ VConnection::VConnection(VAccount* account, QObject* parent): QNetworkAccessMana
 	d->state = Disconnected;
 	d->roster = new VRoster(this,this);
 	d->messages = new VMessages(this,this);
+	d->logMode = false;
 	new VLongPollClient(this);
 	loadSettings();
 }
@@ -171,19 +141,6 @@ void VConnection::disconnectFromHost(bool force)
 	setConnectionState(Disconnected);
 	foreach (QNetworkReply *reply, findChildren<QNetworkReply*>())
 		reply->abort();
-//	if (force) {
-//		setConnectionState(Disconnected);
-//		d->sid.clear();
-//		d->remixPasswd.clear();
-//		return;
-//	}
-//	QUrl url("http://login.userapi.com/auth");
-//	url.addEncodedQueryItem("login","force");
-//	url.addEncodedQueryItem("site","2");
-//	url.addQueryItem("sid",d->sid);
-//	VRequest logout_request(url);
-//	QNetworkReply* reply = get(logout_request);
-//	connect(reply,SIGNAL(finished()),d,SLOT(onLogoutRequestFinished()));
 }
 
 VConnectionState VConnection::connectionState() const
@@ -238,7 +195,7 @@ QNetworkReply *VConnection::get(const QString &method, const QVariantMap &args)
 	QNetworkRequest request(url);
 	QNetworkReply *reply = QNetworkAccessManager::get(request);
 	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), d, SLOT(onError(QNetworkReply::NetworkError)));
-	connect(reply, SIGNAL(finished()), reply, SLOT(deleteLater()));
+	connect(reply, SIGNAL(finished()), d, SLOT(onReplyFinished()));
 	return reply;
 }
 
@@ -270,6 +227,7 @@ void VConnection::loadSettings()
 	foreach (const QVariant &var, cfg.value("cookies", QVariantList(), Config::Crypted))
 		cookies << QNetworkCookie::parseCookies(var.toByteArray());
 	cookieJar()->setCookiesFromUrl(cookies, QUrl("http://vkontakte.ru"));
+	d->logMode = cfg.value("logMode",false);
 }
 
 VAccount* VConnection::account() const

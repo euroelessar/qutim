@@ -40,7 +40,6 @@ void VMessagesPrivate::onHistoryRecieved()
 	QByteArray rawData = reply->readAll();
 	qDebug() << rawData;
 	QVariantList data = Json::parse(rawData).toMap().value("response").toList();
-	QStringList messIds;
 	for (int i = 1; i < data.size(); i++) {
 		QVariantMap map = data.at(i).toMap();
 		QString html = map.value("body").toString();
@@ -50,7 +49,7 @@ void VMessagesPrivate::onHistoryRecieved()
 		mess.setProperty("subject", map.value("topic"));
 		mess.setIncoming(true);
 		QString id = map.value("uid").toString();
-		messIds << map.value("mid").toString();
+		mess.setProperty("mid",map.value("mid"));
 		QDateTime time = QDateTime::fromTime_t(map.value("date").toInt());
 		mess.setTime(time);
 		VContact *contact = connection->account()->getContact(id, false);
@@ -60,16 +59,11 @@ void VMessagesPrivate::onHistoryRecieved()
 			contact->setContactName(name);
 		}
 		mess.setChatUnit(contact);
-		ChatLayer::get(contact, true)->appendMessage(mess);
+		ChatSession *s = ChatLayer::get(contact, true);
+		s->appendMessage(mess);
+		unreadMess[s].append(mess);
+		connect(s,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 	}
-	if (!messIds.isEmpty())
-		q->markAsRead(messIds);
-	
-//    QScriptEngine engine;
-//    QScriptValue sc_data = engine.evaluate('(' + data + ')');
-//	int count = sc_data.property("nm").toInteger();
-//	q->getLastMessages(count);
-//	historyTimer.setProperty("timeStamp",QVariant(QDateTime::currentDateTime().toTime_t()));
 }
 
 void VMessagesPrivate::onMessageSended()
@@ -161,7 +155,6 @@ VMessages::VMessages(VConnection* connection, QObject* parent): QObject(parent),
 	Q_D(VMessages);
 	d->q_ptr = this;
 	d->connection = connection;
-	d->unreadMessageCount = 0;
 	loadSettings();
 	connect(connection,SIGNAL(connectionStateChanged(VConnectionState)),d,SLOT(onConnectStateChanged(VConnectionState)));
 //	connect(&d->historyTimer,SIGNAL(timeout()),SLOT(getHistory()));
@@ -237,3 +230,17 @@ void VMessages::saveSettings()
 //	history.sync();
 }
 
+void VMessagesPrivate::onUnreadChanged(const qutim_sdk_0_3::MessageList &list)
+{
+	ChatSession *s = qobject_cast<ChatSession*>(sender());
+	Q_ASSERT(s);
+	Q_UNUSED(list);
+	QStringList messageIds;
+	//TODO resolve problem with containers
+	MessageList unread = unreadMess.value(s);
+	foreach (const Message &m, unread) {
+		messageIds << m.property("mid").toString();
+	}
+	unreadMess[s].clear();
+	connection->messages()->markAsRead(messageIds);
+}

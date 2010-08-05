@@ -19,9 +19,15 @@
 #include <QObject>
 #include "vkontakte_global.h"
 #include <QTimer>
+#include <qutim/message.h>
 
 class VMessages;
 class VConnection;
+
+namespace qutim_sdk_0_3
+{
+	class ChatSession;
+}
 
 class VMessagesPrivate : public QObject
 {
@@ -30,12 +36,13 @@ class VMessagesPrivate : public QObject
 public:
 	VConnection *connection;
 	VMessages *q_ptr;
-	int unreadMessageCount;
+	QHash<ChatSession*,MessageList> unreadMess;
 public slots:
 	void onConnectStateChanged(VConnectionState state);
 	void onHistoryRecieved(); //TODO move to vconnection
 	void onMessagesRecieved();
 	void onMessageSended();
+	void onUnreadChanged(const qutim_sdk_0_3::MessageList &list);
 };
 
 #endif // VMESSAGES_P_H

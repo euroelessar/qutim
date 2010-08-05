@@ -71,11 +71,15 @@ void VRosterPrivate::onGetTagListRequestFinished()
 void VRosterPrivate::onGetFriendsRequestFinished()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-	//	qDebug() << reply->url();
+	Q_ASSERT(reply);
 	QByteArray rawData = reply->readAll();
-	//	qDebug() << rawData;
 	QVariantList friends = Json::parse(rawData).toMap().value("response").toList();
-	//	qDebug() << friends;
+	//debug() << rawData;
+
+	//hack
+	if (friends.isEmpty())
+		QTimer::singleShot(5000,q_func(),SLOT(getFriendList()));
+
 	foreach (const QVariant &var, friends) {
 		QVariantMap data = var.toMap();
 		QString id = data.value("uid").toString();
@@ -91,47 +95,15 @@ void VRosterPrivate::onGetFriendsRequestFinished()
 			QString firstName = data.value("first_name").toString();
 			QString lastName = data.value("last_name").toString();
 			c->setContactName(firstName + " " + lastName);
-			//			qDebug() << data.value("lists") << tags;
 			QStringList contactTags;
 			foreach (const QString &tagId, data.value("lists").toStringList())
 				contactTags << tags.value(tagId);
 			c->setContactTags(contactTags);
 			c->setContactInList(true);
 		}
-		checkPhoto(c, data.value("photo_rec").toString());
+		checkPhoto(c, data.value("photo_medium").toString());
 		c->setStatus(data.value("online").toInt() == 1);
 	}
-
-	//    QScriptEngine engine;
-	//    QScriptValue sc_data = engine.evaluate('(' + data + ')');
-	//    QScriptValue sc_cnt = sc_data.property("friends").property("n");
-	//
-	//	if (fetchAvatars)
-	//		avatarsUpdater.stop();
-	//
-	//    for (int i=0; i<sc_cnt.toInteger(); i++) {
-	//		QScriptValue sc_item = sc_data.property("friends").property("d").property(i);
-	//		QString id = sc_item.property(0).toString();
-	//		VContact *c = connection->account()->getContact(id,false);
-	//		if (!c) {
-	//			c = connection->account()->getContact(id,true);
-	//			c->setName(sc_item.property(1).toString());
-	//			QStringList tags;
-	//			tags << tr("Friends");
-	//			c->setTags(tags);
-	//			c->setInList(true);
-	//		}
-	//		QString current_avatar = c->property("avatarUrl").toString();
-	//		QString new_avatar = sc_item.property(2).toString();
-	//		if (current_avatar != new_avatar) {
-	//			c->setProperty("avatarUrl",new_avatar);
-	//			if (fetchAvatars && !avatarsQueue.contains(c))
-	//				avatarsQueue.append(c);
-	//		}
-	//		c->setStatus(sc_item.property(3).toBoolean());
-	//    }
-	//	if (!avatarsQueue.isEmpty() && !avatarsUpdater.isActive())
-	//		avatarsUpdater.start();
 }
 
 void VRosterPrivate::onActivityUpdateRequestFinished()
@@ -330,7 +302,7 @@ void VRoster::getFriendList()
 {
 	Q_D(VRoster);
 	QVariantMap data;
-	data.insert("fields", "uid,first_name,last_name,nickname,bdate,photo_rec,online,lists");
+	data.insert("fields", "uid,first_name,last_name,nickname,bdate,photo_medium,online,lists");
 	QNetworkReply *reply = d->connection->get("friends.get", data);
 	connect(reply,SIGNAL(finished()),d,SLOT(onGetFriendsRequestFinished()));
 }
@@ -356,11 +328,12 @@ void VRoster::requestAvatar(QObject *obj)
 void VRoster::setActivity(const Status &activity)
 {
 	Q_D(VRoster);
+	if (activity.text().isEmpty())
+		return;
 	QVariantMap data;
 	data.insert("text", activity.text());
-	//WTF?
-	//QNetworkReply *reply = d->connection->get("activity.set", data);
-	//connect(reply,SIGNAL(finished()),d,SLOT(onSetActivityRequestFinished()));
+	QNetworkReply *reply = d->connection->get("activity.set", data);
+	connect(reply,SIGNAL(finished()),d,SLOT(onSetActivityRequestFinished()));
 }
 
 ConfigGroup VRoster::config()
@@ -390,7 +363,7 @@ void VRoster::loadSettings()
 		contact->setActivity(cfg.value("activity", QString()));
 	}
 	cfg.endArray();
-	d->friendListUpdater.setInterval(cfg.value("friendListUpdateInterval", 3600000));
+	d->friendListUpdater.setInterval(cfg.value("friendListUpdateInterval", 600000));
 	cfg.beginGroup("avatars");
 	interval = cfg.value("interval", 5000);
 	d->fetchAvatars = (interval > 0);

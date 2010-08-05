@@ -24,7 +24,7 @@
 #include <QNetworkReply>
 #include <QDateTime>
 #include <QTimer>
-#include <QDebug>
+#include <qutim/debug.h>
 
 VLongPollClient::VLongPollClient(VConnection *connection) :
 		QObject(connection), m_connection(connection)
@@ -99,46 +99,62 @@ void VLongPollClient::onDataReceived()
 		return;
 	}
 	QVariantList updates = data.value("updates").toList();
-	QStringList messageIds;
 	for (int i = 0; i < updates.size(); i++) {
 		QVariantList update = updates.at(i).toList();
 		int updateType = update.value(0, -1).toInt();
 		switch (updateType) {
 		case MessageAdded: {
-			MessageFlags flags(update.value(2).toInt());
-			if (flags & MessageOutbox)
-				continue;
-			QString id = update.value(3).toString();
-			QString messageId = update.value(1).toString();
-			QString subject = update.value(5).toString();
-			QString text = update.value(6).toString();
-			
-			messageIds << messageId;
-			
-			VContact *contact = m_connection->account()->getContact(id, true);
-			qutim_sdk_0_3::Message message;
-			message.setChatUnit(contact);
-			message.setProperty("subject", subject);
-			message.setText(unescape(text));
-			//message.setProperty("html",text);
-			message.setTime(QDateTime::currentDateTime());
-			message.setIncoming(true);
-			ChatLayer::get(contact, true)->appendMessage(message);
-			break;
-		}
+				MessageFlags flags(update.value(2).toInt());
+				if (flags & MessageOutbox)
+					continue;
+				QString id = update.value(3).toString();
+				QString messageId = update.value(1).toString();
+				QString subject = update.value(5).toString();
+				QString text = update.value(6).toString();
+
+				VContact *contact = m_connection->account()->getContact(id, true);
+				qutim_sdk_0_3::Message message;
+				message.setChatUnit(contact);
+				message.setProperty("subject", subject);
+				message.setText(unescape(text));
+				message.setProperty("mid",messageId);
+				//message.setProperty("html",text);
+				message.setTime(QDateTime::currentDateTime());
+				message.setIncoming(true);
+				ChatSession *s = ChatLayer::get(contact, true);
+				s->appendMessage(message);
+				connect(s,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+				m_unread_mess[s].append(message);
+				break;
+			}
 		case UserOnline:
 		case UserOffline: {
-			// WTF? Why VKontakte sends minus as first char of id?
-			QString id = update.value(1).toString().mid(1);
-			VContact *contact = m_connection->account()->getContact(id, false);
-			if (contact)
-				contact->setStatus(updateType == UserOnline);
-			break;
-		}
+				// WTF? Why VKontakte sends minus as first char of id?
+				QString id = update.value(1).toString().mid(1);
+				VContact *contact = m_connection->account()->getContact(id, false);
+				if (contact)
+					contact->setStatus(updateType == UserOnline);
+				break;
+			}
 		}
 	}
-	m_connection->messages()->markAsRead(messageIds);
+
 	
 	if (m_connection->connectionState() == Connected)
 		requestData(data.value("ts").toString());
+}
+
+void VLongPollClient::onUnreadChanged(const qutim_sdk_0_3::MessageList &list)
+{
+	ChatSession *s = qobject_cast<ChatSession*>(sender());
+	Q_ASSERT(s);
+	Q_UNUSED(list);
+	QStringList messageIds;
+	//TODO resolve problem with containers
+	MessageList unread = m_unread_mess.value(s);
+	foreach (const Message &m, unread) {
+		messageIds << m.property("mid").toString();
+	}
+	m_unread_mess[s].clear();
+	m_connection->messages()->markAsRead(messageIds);
 }
