@@ -142,9 +142,12 @@ namespace Core {
 				QModelIndex i = index(oldPos, 0);
 				emit dataChanged(i, i);
 			} else {
-				beginMoveRows(QModelIndex(), oldPos, oldPos, QModelIndex(), newPos);
-				m_requestItems.insert(newPos, m_requestItems.takeAt(oldPos));
-				endMoveRows();
+				if (beginMoveRows(QModelIndex(), oldPos, oldPos, QModelIndex(), newPos)) {
+					if (oldPos < newPos)
+						--newPos;
+					m_requestItems.move(oldPos, newPos);
+					endMoveRows();
+				}
 			}
 		}
 	}
