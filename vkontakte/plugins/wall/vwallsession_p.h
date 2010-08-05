@@ -2,10 +2,12 @@
 #define VWALLSESSION_P_H
 #include <QObject>
 #include <QTimer>
+#include <QVariantMap>
 
 namespace qutim_sdk_0_3 {
 	class Buddy;
 	class Contact;
+	class Message;
 }
 
 class VAccount;
@@ -30,6 +32,7 @@ public:
 	int historyCount;
 	QTimer updateTimer;
 	int timeStamp;
+	void processMultimediaMessage(qutim_sdk_0_3::Message &mess, const QVariantMap &data);
 public slots:
 	void getHistory();
 	void onGetHistoryFinished();

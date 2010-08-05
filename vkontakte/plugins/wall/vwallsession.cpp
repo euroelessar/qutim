@@ -78,11 +78,6 @@ bool VWallSession::sendMessage(const qutim_sdk_0_3::Message& message)
 
 VWallSession::~VWallSession()
 {
-	Q_D(VWallSession);
-	leave();
-
-	if (!d->owner->isInList())
-		d->owner->deleteLater();
 }
 
 VAccount *VWallSessionPrivate::account()
@@ -92,19 +87,8 @@ VAccount *VWallSessionPrivate::account()
 
 void VWallSessionPrivate::getHistory()
 {
-	//TODO rewrite with http://vk.com/developers.php?o=-1&p=execute
 	QVariantMap data;
-//	data.insert("owner_id", id);
-//	data.insert("offset", 0); //test
-//	data.insert("count", historyCount);
-//	QNetworkReply *reply = account()->connection()->get("wall.get", data);
 
-//	QString query = "var messages=API.wall.get({\"owner_id\":" + id +
-//		",\"offset\":0,\"count\":" + historyCount + " }); " +
-//		"var ids=messages@.from_id; " +
-//		"var profiles=API.getProfiles({\"uids\":ids," +
-//		"\"fields\":\"first_name,last_name,nickname,photo_medium\"}); " +
-//		"return {\"messages\":messages,profiles:profiles};";
 	QString query("\
 		var query = ({\"owner_id\":%1,\"offset\":0,\"count\":%2}); \
 		var messages = API.wall.get(query); \
@@ -130,9 +114,6 @@ void VWallSessionPrivate::onGetHistoryFinished()
 	QVariantMap responce = data.value("response").toMap();
 	QVariantList messages = responce.value("messages").toList();
 	QVariantList profiles = responce.value("profiles").toList();
-
-	debug() << messages;
-	debug() << profiles;
 
 	ChatSession *session = ChatLayer::get(q,false);
 	if (!session || !messages.count())
@@ -167,7 +148,7 @@ void VWallSessionPrivate::onGetHistoryFinished()
 			continue;
 
 
-		Message mess(msg_item.value("text").toString());
+		Message mess(unescape(msg_item.value("text").toString()));
 		mess.setChatUnit(q);
 		mess.setProperty("senderName",name);
 		mess.setProperty("silent",true);
@@ -175,12 +156,39 @@ void VWallSessionPrivate::onGetHistoryFinished()
 
 		QVariantMap media = msg_item.value("media").toMap();
 		if (!media.isEmpty()) {
-			mess.setProperty("service",Notifications::System);
-			mess.setText(tr("Multimedia messages is unsupported"));
+			processMultimediaMessage(mess,media);
 		}
 
 		mess.setTime(QDateTime::fromTime_t(timeStamp));
 		mess.setIncoming(true);
 		session->appendMessage(mess);
 	}
+}
+
+void VWallSessionPrivate::processMultimediaMessage(Message &mess, const QVariantMap &data)
+{
+	QString orig_type = data.value("type").toString();
+	QString type = tr("Unknown");
+	if (orig_type == QLatin1String("audio"))
+		type = tr("Audio");
+	else if (orig_type == QLatin1String("video"))
+		type = tr("Video");
+	else if (orig_type == QLatin1String("app"))
+		type = tr("Application");
+	else if (orig_type == QLatin1String("graffiti"))
+		type = tr("Graffiti");
+	else if (orig_type == QLatin1String("photo"))
+		type = tr("Photo");
+	else if (orig_type == QLatin1String("posted_photo"))
+		type = tr("Posted photo");
+
+	QString html = tr("Multimedia message: %1").arg(orig_type) + QLatin1String("\n") + mess.text();
+	QString thumb_src = data.value("thumb_src").toString();
+	if (thumb_src.isEmpty()) {
+		mess.setProperty("title",mess.property("senderName"));
+		mess.setProperty("service",Notifications::System);
+	}
+
+	html += thumb_src;
+	mess.setText(html);
 }
