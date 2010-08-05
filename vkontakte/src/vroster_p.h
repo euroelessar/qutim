@@ -55,7 +55,8 @@ public slots:
 	void onSetActivityRequestFinished();
 	void onUpdateProfileFinished();
 	void updateAvatar();
-	void updateActivity();	
+	void updateActivity();
+	void onContactDestroyed(QObject *obj);
 };
 
 #endif // VROSTER_P_H

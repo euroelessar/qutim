@@ -30,7 +30,6 @@ public:
 	int historyCount;
 	QTimer updateTimer;
 	int timeStamp;
-	QList<qutim_sdk_0_3::Contact*> contacts;
 public slots:
 	void getHistory();
 	void onGetHistoryFinished();

@@ -34,6 +34,7 @@ public:
 	VRoster(VConnection *connection, QObject *parent = 0);
 	virtual ~VRoster();
 	VContact *getContact(const QString &uid, bool create);
+	VContact *getContact(const QVariantMap &data, bool create);
 	Config config();
 public slots:
 	void loadSettings();

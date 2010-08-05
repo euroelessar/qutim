@@ -31,7 +31,6 @@ public:
 	VAccount(const QString& email);
 	virtual VContact* getContact(const QString& uid, bool create = false);
 	virtual ChatUnit* getUnit(const QString& unitId, bool create = false);
-	VWallSession *getWall(const QString &id,bool create = false);
 	QString uid() const;
 	virtual QString name() const;
 	void setAccountName(const QString &name);

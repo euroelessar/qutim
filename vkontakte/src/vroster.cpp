@@ -285,8 +285,28 @@ VContact* VRoster::getContact(const QString &uid, bool create)
 		contact = new VContact(uid, d->connection->account());
 		d->contacts.insert(uid, contact);
 		emit d->connection->account()->contactCreated(contact);
+		connect(contact,SIGNAL(destroyed(QObject*)),d,SLOT(onContactDestroyed(QObject*)));
 	}
 	return contact;
+}
+
+VContact* VRoster::getContact(const QVariantMap &data, bool create)
+{
+	Q_D(VRoster);
+	QString id = data.value("uid").toString();
+	VContact *c = d->contacts.value(id, 0);
+	if (!c) {
+		if (create)
+			c = getContact(id, true);
+		else
+			return 0;
+	}
+
+	QString firstName = data.value("first_name").toString();
+	QString lastName = data.value("last_name").toString();
+	c->setContactName(firstName + " " + lastName);
+	d->checkPhoto(c, data.value("photo_rec").toString());
+	return c;
 }
 
 void VRoster::getProfile()
@@ -426,4 +446,10 @@ void VRosterPrivate::onUpdateProfileFinished()
 	QString name = data.value("first_name").toString() + " " + data.value("last_name").toString();
 	contact->setContactName(name);
 	checkPhoto(contact, data.value("photo_medium").toString());
+}
+
+void VRosterPrivate::onContactDestroyed(QObject *obj)
+{
+	VContact *contact = reinterpret_cast<VContact*>(obj);
+	contacts.remove(contacts.key(contact));
 }

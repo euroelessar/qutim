@@ -32,8 +32,6 @@ public:
 	QHash<QString, VWallSession*> walls;
 	VConnection *connection;
 	VAccount *q_ptr;
-public slots:
-	void onWallDestroyed(QObject *wall);
 };
 
 #endif // VACCOUNT_P_H
