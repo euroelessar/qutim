@@ -49,6 +49,7 @@ QWidget *ReadOnlyDataLayout::getReadOnlyWidget(const DataItem &item, bool *twoCo
 	}
 	bool enabled = true;
 	QVariant::Type type = item.data().type();
+	QString value;
 	if (item.property("notSet", false)) {
 		enabled = false;
 	} else if (type == QVariant::Date) {
@@ -75,16 +76,27 @@ QWidget *ReadOnlyDataLayout::getReadOnlyWidget(const DataItem &item, bool *twoCo
 		if (!address.isNull())
 			return getLabel(address.toString());
 	} else if (type == QVariant::StringList) {
-		return getLabel(item.data().toStringList().join("<br>"));
+		value = item.data().toStringList().join("<br>");
+	} else if (item.data().canConvert<LocalizedString>()) {
+		value = item.data().value<LocalizedString>();
+	} else if (item.data().canConvert<LocalizedStringList>()) {
+		bool first = true;
+		foreach (const LocalizedString &str, item.data().value<LocalizedStringList>()) {
+			if (!first)
+				first = false;
+			else
+				value += "<br>";
+			value += str;
+		}
 	}
-	QString str;
 	if (enabled) {
-		str = item.data().toString();
-		enabled = !str.isEmpty();
+		if (value.isEmpty())
+			value = item.data().toString();
+		enabled = !value.isEmpty();
 	}
 	if (!enabled)
-		str = QT_TRANSLATE_NOOP("DataForms", "the field is not set");
-	QLabel *label = getLabel(str);
+		value = QT_TRANSLATE_NOOP("DataForms", "the field is not set");
+	QLabel *label = getLabel(value);
 	label->setEnabled(enabled);
 	return label;
 }

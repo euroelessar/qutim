@@ -77,4 +77,14 @@ QPixmap variantToPixmap(const QVariant &data, const QSize &size)
 		return pixmap;
 }
 
+QStringList variantToStringList(const QVariant &data)
+{
+	QStringList list = qVariantValue<QStringList>(data);
+	if (list.isEmpty()) {
+		foreach (const LocalizedString &str, qVariantValue<LocalizedStringList>(data))
+			list << str;
+	}
+	return list;
+}
+
 }

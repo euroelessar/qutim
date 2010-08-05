@@ -35,7 +35,8 @@ class ComboBox : public QComboBox, public AbstractDataWidget
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
 public:
-	ComboBox(const QString &value, const LocalizedStringList &alternatives, const DataItem &item);
+	ComboBox(const QString &value, const QStringList &alternatives,
+			 const char *validatorProperty, const DataItem &item);
 	virtual DataItem item() const;
 };
 

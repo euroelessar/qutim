@@ -14,7 +14,7 @@ namespace Core
 
 static QWidget *getTitleHelper(const DataItem &item, Qt::Alignment labelAlignment)
 {
-	LocalizedStringList alt = item.property("titleAlternatives", LocalizedStringList());
+	QStringList alt = variantToStringList(item.property("titleAlternatives"));
 	if (item.property("readOnly", false) || alt.isEmpty()) {
 		QLabel *title = new QLabel(item.title() + ":");
 		title->setAlignment(labelAlignment);
@@ -25,7 +25,7 @@ static QWidget *getTitleHelper(const DataItem &item, Qt::Alignment labelAlignmen
 #endif
 		return title;
 	} else {
-		return new ComboBox(item.title(), alt, item);
+		return new ComboBox(item.title(), alt, "validator", item);
 	}
 }
 
@@ -37,7 +37,7 @@ static QWidget *getWidgetHelper2(const DataItem &item, bool *twoColumn, QSizePol
 	QVariant::Type type = item.data().type();
 	if (item.property("readOnly", false)) {
 		return ReadOnlyDataLayout::getReadOnlyWidget(item, twoColumn);
-	} else if (type == QVariant::StringList) {
+	} else if (type == QVariant::StringList || item.data().canConvert<LocalizedStringList>()) {
 		return new StringListGroup(item);
 	} else if (item.isMultiple()) {
 		if (twoColumn)
@@ -70,9 +70,9 @@ static QWidget *getWidgetHelper2(const DataItem &item, bool *twoColumn, QSizePol
 		str = item.data().value<LocalizedString>();
 	else
 		str = item.data().toString();
-	LocalizedStringList alt = item.property("alternatives", LocalizedStringList());
+	QStringList alt = variantToStringList(item.property("alternatives"));
 	if (!alt.isEmpty()) {
-		return new ComboBox(str, alt, item);
+		return new ComboBox(str, alt, "validator", item);
 	} if (!item.property("multiline", false)) {
 		return new LineEdit(item);
 	} else {
@@ -296,10 +296,10 @@ StringListGroup::StringListGroup(const DataItem &item, QWidget *parent) :
 	m_def.setData(QVariant(QVariant::String));
 	m_def.setProperty("hideTitle", true);
 	m_def.setMultiple(DataItem(), 1);
-	LocalizedStringList alt = item.property("alternatives", LocalizedStringList());
-	foreach (const QString &str, item.data().toStringList()) {
+	QStringList alt = variantToStringList(item.property("alternatives"));
+	foreach (const QString &str, variantToStringList(item.data())) {
 		if (!alt.isEmpty())
-			addRow(new ComboBox(str, alt, item));
+			addRow(new ComboBox(str, alt, "validator", item));
 		else
 			addRow(new LineEdit(item));
 	}

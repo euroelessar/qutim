@@ -39,7 +39,8 @@ DataItem CheckBox::item() const
 	return DataItem(objectName(), LocalizedString(), isChecked());
 }
 
-ComboBox::ComboBox(const QString &value, const LocalizedStringList &alt, const DataItem &item)
+ComboBox::ComboBox(const QString &value, const QStringList &alt,
+				   const char *validatorProperty, const DataItem &item)
 {
 	int current = -1;
 	int i = 0;
@@ -51,7 +52,7 @@ ComboBox::ComboBox(const QString &value, const LocalizedStringList &alt, const D
 		++i;
 	}
 	setCurrentIndex(current + 1);
-	QValidator *validator = getValidator(item.property("validator"), this);
+	QValidator *validator = getValidator(item.property(validatorProperty), this);
 	if (validator)
 		setValidator(validator);
 	setEditable(item.property("editable", false));
@@ -139,6 +140,13 @@ DataItem LineEdit::item() const
 SpinBox::SpinBox(const DataItem &item)
 {
 	setValue(item.data().toInt());
+	bool ok;
+	int value = item.property("maxValue").toInt(&ok);
+	if (ok)
+		setMaximum(value);
+	value = item.property("minValue").toInt(&ok);
+	if (ok)
+		setMinimum(value);
 }
 
 DataItem SpinBox::item() const
@@ -149,6 +157,13 @@ DataItem SpinBox::item() const
 DoubleSpinBox::DoubleSpinBox(const DataItem &item)
 {
 	setValue(item.data().toDouble());
+	bool ok;
+	int value = item.property("maxValue").toDouble(&ok);
+	if (ok)
+		setMaximum(value);
+	value = item.property("minValue").toDouble(&ok);
+	if (ok)
+		setMinimum(value);
 }
 
 DataItem DoubleSpinBox::item() const

@@ -34,6 +34,7 @@ private:
 };
 
 QPixmap variantToPixmap(const QVariant &data, const QSize &size);
+QStringList variantToStringList(const QVariant &data);
 
 }
 
