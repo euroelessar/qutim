@@ -98,7 +98,7 @@ void VRosterPrivate::onGetFriendsRequestFinished()
 			c->setContactTags(contactTags);
 			c->setContactInList(true);
 		}
-		checkPhoto(c, data.value("photo_medium").toString());
+		checkPhoto(c, data.value("photo_rec").toString());
 		c->setStatus(data.value("online").toInt() == 1);
 	}
 
@@ -330,7 +330,7 @@ void VRoster::getFriendList()
 {
 	Q_D(VRoster);
 	QVariantMap data;
-	data.insert("fields", "uid,first_name,last_name,nickname,bdate,photo_medium,online,lists");
+	data.insert("fields", "uid,first_name,last_name,nickname,bdate,photo_rec,online,lists");
 	QNetworkReply *reply = d->connection->get("friends.get", data);
 	connect(reply,SIGNAL(finished()),d,SLOT(onGetFriendsRequestFinished()));
 }

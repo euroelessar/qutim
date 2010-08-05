@@ -26,7 +26,7 @@ namespace qutim_sdk_0_3 {
 class VConnection;
 class VContact;
 class VRosterPrivate;
-class VRoster : public QObject
+class LIBVKONTAKTE_EXPORT VRoster : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(VRoster)
