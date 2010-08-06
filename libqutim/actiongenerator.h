@@ -99,7 +99,16 @@ namespace qutim_sdk_0_3
 		Q_DISABLE_COPY(ActionGenerator)
 	public:
 		enum Type { StatusType = 0, GeneralType };
-		
+		/*
+		 * \code
+void MyObject::onAction(QObject *obj)
+{
+	Account *account = qobject_cast<Account*>(obj);
+	Q_ASSERT(account);
+	doStuff();
+}
+		  \endcode
+		 */ 
 		ActionGenerator(const QIcon &icon, const LocalizedString &text, const QObject *receiver, const char *member);
 		// Convience constructor for menus
 		ActionGenerator(const QIcon &icon, const LocalizedString &text, const char *member);

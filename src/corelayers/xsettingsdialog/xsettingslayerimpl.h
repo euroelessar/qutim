@@ -27,11 +27,11 @@ class XSettingsLayerImpl : public SettingsLayer
 public:
 	XSettingsLayerImpl();
 	virtual ~XSettingsLayerImpl();
-	virtual void close();
-	virtual void show (const SettingsItemList& settings);
-	virtual void update(const SettingsItemList &settings);
+	virtual void close(const QObject* controller = 0);
+    virtual void show(const qutim_sdk_0_3::SettingsItemList& settings, const QObject* controller = 0);
+    virtual void update(const qutim_sdk_0_3::SettingsItemList& settings, const QObject* controller = 0);
 private:
-	QPointer<XSettingsDialog> m_dialog;
+	QHash<const QObject *,QPointer<XSettingsDialog> > m_dialogs;
 };
 
 #endif // XSETTINGSLAYERIMPL_H

@@ -26,9 +26,41 @@
 #include <QApplication>
 #include <QDesktopWidget>
 
+struct ActionEntry
+{
+	ActionEntry(const LocalizedString &t,const QIcon &i)
+	{
+		text = t;
+		icon = i;
+	}
+	ActionEntry() {}
+	LocalizedString text;
+	QIcon icon;
+};
+
+typedef QMap<Settings::Type,ActionEntry> ActionEntryMap;
+
+static ActionEntryMap init_entry_map()
+{
+	ActionEntryMap map;
+	map.insert(Settings::General,ActionEntry(QT_TRANSLATE_NOOP("Settings","General"),Icon("preferences-system")));
+	map.insert(Settings::Protocol,ActionEntry(QT_TRANSLATE_NOOP("Settings","Protocols"),Icon("applications-internet")));
+	map.insert(Settings::Appearance,ActionEntry(QT_TRANSLATE_NOOP("Settings","Appearance"),Icon("applications-graphics")));
+	map.insert(Settings::Plugin,ActionEntry(QT_TRANSLATE_NOOP("Settings","Plugins"),Icon("applications-other")));
+	map.insert(Settings::Special,ActionEntry(QT_TRANSLATE_NOOP("Settings","Special"),QIcon()));
+	return map;
+}
+
+ActionEntryMap *entries()
+{
+	static ActionEntryMap map (init_entry_map());
+	return &map;
+}
+
 XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* parent) :
 	QDialog(parent),
-	ui(new Ui::XSettingsDialog)
+	ui(new Ui::XSettingsDialog),
+	m_group(new QActionGroup(this))
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	ui->setupUi(this);
@@ -45,35 +77,7 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	ui->xtoolBar->setStyleSheet("QToolBar{background:none;border:none}"); //HACK
 #endif
 
-	//init actions
-	//TODO FIXME get rid of copypaste
-
-	QActionGroup *group = new QActionGroup(this);
-
-	QAction *general =  new QAction(Icon("preferences-system"),tr("General"),ui->xtoolBar);
-	general->setToolTip(tr("General configuration"));
-	addAction(general,Settings::General);
-	group->addAction(general);
-
-	ui->xtoolBar->addSeparator();
-
-	QAction *protocols =  new QAction(Icon("applications-internet"),tr("Protocols"),ui->xtoolBar);
-	protocols->setToolTip(tr("Accounts and protocols settings"));
-	addAction(protocols,Settings::Protocol);
-	group->addAction(protocols);
-
-	QAction *appearance =  new QAction(Icon("applications-graphics"),tr("Appearance"),ui->xtoolBar);
-	appearance->setToolTip(tr("Appearance settings"));
-	addAction(appearance,Settings::Appearance);
-	group->addAction(appearance);
-
-	QAction *plugins =  new QAction(Icon("applications-other"),tr("Plugins"),ui->xtoolBar);
-	plugins->setToolTip(tr("Additional plugins settings"));
-	addAction(plugins,Settings::Plugin);
-	m_group_widgets.resize(ui->xtoolBar->actions().count());
-	group->addAction(plugins);
-	m_current_action = general;
-	group->setExclusive(true);
+	m_group->setExclusive(true);
 
 	//init button box
 	ui->buttonsWidget->setVisible(false);
@@ -83,7 +87,6 @@ XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* pare
 	//init categories
 
 	update(settings);
-	general->trigger();
 }
 
 XSettingsDialog::~XSettingsDialog()
@@ -93,21 +96,36 @@ XSettingsDialog::~XSettingsDialog()
 
 void XSettingsDialog::update(const SettingsItemList &settings)
 {
-	m_settings_items.clear();
+	m_settings_items.clear();	
+	qDeleteAllLater(m_group->actions());
+
 	foreach (SettingsItem *item, settings) {
-		if (item->type() >= m_settings_items.size())
-			m_settings_items.resize(item->type()+1);
 		m_settings_items[item->type()].append(item);
 	}
-	if (m_current_action)
-		onActionTriggered(m_current_action);
+
+	QMap<Settings::Type,SettingsItemList>::const_iterator it;
+	for (it = m_settings_items.constBegin();it != m_settings_items.constEnd();it++) {
+		QAction *action = create(it.key());
+		m_group->addAction(action);
+		ui->xtoolBar->addAction(action);
+
+		//small spike
+		if (it.key() == Settings::General)
+			ui->xtoolBar->addSeparator();
+	}
+
+	ui->xtoolBar->setVisible(m_group->actions().count() > 1);
+	if (m_group->actions().count())
+		m_group->actions().first()->trigger();
 }
 
-void XSettingsDialog::addAction(QAction* action, Settings::Type type)
+QAction *XSettingsDialog::create(Settings::Type type)
 {
+	ActionEntry entry = entries()->value(type);
+	QAction *action = new QAction(entry.icon,entry.text.toString(),this);
 	action->setProperty("category",type);
 	action->setCheckable(true);
-	ui->xtoolBar->addAction(action);
+	return action;
 }
 
 void XSettingsDialog::changeEvent(QEvent *e)
@@ -131,7 +149,6 @@ void XSettingsDialog::onActionTriggered(QAction* action)
 	if (page && !page->isModified())
 		page->deleteLater();
 	// Set the new page
-	m_current_action = action;
 	Settings::Type type = static_cast<Settings::Type>(action->property("category").toInt());
 	SettingsItemList setting_items = m_settings_items.value(type);
 	if (setting_items.count() > 1) { // ==0 or >=0 need for testing, for normally usage use >1

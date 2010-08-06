@@ -20,6 +20,7 @@
 #include <QDebug>
 #include <QMetaMethod>
 #include "debug.h"
+#include "settingslayer.h"
 
 namespace qutim_sdk_0_3
 {
@@ -275,6 +276,13 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(id);
 		Q_UNUSED(data);
 	}
+	
+	void MenuController::addSettingsItem(const qutim_sdk_0_3::SettingsItem* item, const QMetaObject* meta)
+	{
+		Q_ASSERT(item && meta);
+		globalSettings()->insert(meta,item);
+	}
+
 
 	ActionContainer::ActionContainer(MenuController* controller) :
 			d_ptr(new ActionContainerPrivate)

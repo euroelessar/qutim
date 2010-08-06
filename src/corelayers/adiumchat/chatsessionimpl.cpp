@@ -210,6 +210,11 @@ namespace Core
 				d->previous_sender.clear();
 				d->skipOneMerge = true;
 			}
+			else if (message.property("action").toBool()) {
+				item = d->chat_style_output->makeAction(this,message);
+				d->previous_sender.clear();
+				d->skipOneMerge = true;
+			}
 			else if (service) {
 				item =  d->chat_style_output->makeStatus(this,message);
 				d->previous_sender.clear();

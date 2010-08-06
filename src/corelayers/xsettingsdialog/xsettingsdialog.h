@@ -20,8 +20,7 @@
 #include "xsettingslayerimpl.h"
 
 class XSettingsGroup;
-class QStateMachine;
-class QState;
+class QActionGroup;
 class XToolBar;
 namespace Ui {
 	class XSettingsDialog;
@@ -45,11 +44,11 @@ protected slots:
 	void onSaveButtonTriggered();
 	void onCancelButtonTriggered();
 private:
-	inline void addAction(QAction* action, Settings::Type type);
+	QAction* create(Settings::Type type);
 	Ui::XSettingsDialog *ui;
-	QAction *m_current_action;
-	QVector<SettingsItemList> m_settings_items;
-	QVector<XSettingsGroup *> m_group_widgets;
+	QActionGroup *m_group;
+	QMap<Settings::Type,SettingsItemList> m_settings_items;
+	QMap<Settings::Type,XSettingsGroup *> m_group_widgets; //TODO use only one group widget
 	QList<SettingsWidget *> m_modified_widgets;
 };
 

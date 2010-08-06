@@ -33,11 +33,12 @@ namespace qutim_sdk_0_3
 	{
 		enum Type
 		{
-			Invalid,
-			General,
-			Appearance,
-			Plugin,
-			Protocol
+			Invalid = 0,
+			General = 1,
+			Appearance = 2,
+			Plugin = 3,
+			Protocol = 4,
+			Special = 5
 		};
 
 		// Exmample of usage:
@@ -70,7 +71,7 @@ namespace qutim_sdk_0_3
 		virtual const ObjectGenerator *generator() const = 0;
 		QScopedPointer<SettingsItemPrivate> p;
 	};
-
+	
 	template<typename T>
 	class GeneralSettingsItem : public SettingsItem
 	{
@@ -143,9 +144,9 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 		Q_CLASSINFO("Service", "SettingsLayer")
 	public:
-		virtual void show(const SettingsItemList &settings) = 0;
-		virtual void close() = 0;
-		virtual void update(const SettingsItemList &settings) = 0;
+		virtual void show(const SettingsItemList &settings, const QObject *controller = 0) = 0;
+		virtual void close(const QObject* controller = 0) = 0;
+		virtual void update(const SettingsItemList &settings, const QObject *controller = 0) = 0;
 	protected:
 		SettingsLayer();
 		virtual ~SettingsLayer();

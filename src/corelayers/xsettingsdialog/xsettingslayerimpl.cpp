@@ -35,21 +35,29 @@ XSettingsLayerImpl::~XSettingsLayerImpl()
 }
 
 
-void XSettingsLayerImpl::show (const SettingsItemList& settings )
+void XSettingsLayerImpl::show (const SettingsItemList& settings, const QObject* controller )
 {
-	if (m_dialog.isNull())
-		m_dialog =  new XSettingsDialog(settings);
-	m_dialog->show();
+	XSettingsDialog *d = m_dialogs.value(controller);
+	if (!d) {
+		d = new XSettingsDialog(settings);
+		m_dialogs[controller] = d;
+	}
+	d->show();
 }
 
-void XSettingsLayerImpl::update (const SettingsItemList& settings )
+void XSettingsLayerImpl::update (const SettingsItemList& settings, const QObject* controller )
 {
-	if (m_dialog.isNull())
+	XSettingsDialog *d = m_dialogs.value(controller);
+	if (!d)
 		return;
-	m_dialog->update(settings);
+	d->update(settings);
 }
 
-void XSettingsLayerImpl::close()
+void XSettingsLayerImpl::close(const QObject *controller)
 {
-	m_dialog->deleteLater();
+	XSettingsDialog *d = m_dialogs.value(controller);
+	if (d) {
+		d->deleteLater();
+		m_dialogs.remove(d);
+	}
 }

@@ -22,6 +22,10 @@
 
 namespace qutim_sdk_0_3
 {
+
+	class SettingsItem;
+	typedef QList<SettingsItem *> SettingsItemList;
+	
 	class MenuControllerPrivate;
 	struct ActionInfo;
 
@@ -88,6 +92,7 @@ MyObject::onAction()
 		  If \a menu is not empty action will be situated not in the root of
 		  menu, but in the submenu hierarchy; \a menu contains untranslated
 		  names of submenus in the tree.
+		  \a deleteOnClose \deprecated 
 		*/
 		void addAction(const ActionGenerator *gen, const QList<QByteArray> &menu = QList<QByteArray>());
 		/*!
@@ -150,6 +155,19 @@ void MyObject::onAction()
 		*/
 		template <typename T>
 		static T *getController(QObject *obj);
+		/*!
+		  Returns list of SettingsItem, \warning each generated widget settings, should have a menucontroller as parent.
+		*/
+		SettingsItemList settings();
+		/*!
+		  Add settings \a item to every object with QMetaObject \a meta.
+		*/		
+		static void addSettingsItem(const SettingsItem *item, const QMetaObject *meta);
+		/*!
+		  Add settings \a item to every object of type \a T.
+		*/		
+		template <typename T>
+		static void addSettingsItem(const SettingsItem *item);
 	public slots:
 		/*!
 		  Show menu at position \a pos and delete it after closing.
@@ -192,6 +210,7 @@ void MyObject::onAction()
 		inline int size() const { return count(); }
 		QAction *action(int index) const;
 		QList<QByteArray> menu(int index) const;
+		
 	private:
 		QExplicitlySharedDataPointer<ActionContainerPrivate> d_ptr;
 	};
@@ -221,6 +240,12 @@ void MyObject::onAction()
 	{
 		addAction(gen, meta, QByteArray::fromRawData(menu, N - 1).split('\0'));
 	}
+	template <typename T>
+	void MenuController::addSettingsItem(const qutim_sdk_0_3::SettingsItem* item)
+	{
+		addSettings(item,&T::staticMetaObject);
+	}
+
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::MenuController*)
