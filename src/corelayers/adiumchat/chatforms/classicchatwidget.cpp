@@ -119,10 +119,10 @@ namespace Core
 			AbstractChatWidget::currentIndexChanged(index);
 			ChatSessionImpl *session = m_sessions.at(index);
 			ui->sendButton->setMenu(session->menu());
-			
-			ActionContainer container(session->getUnit(),ActionContainer::TypeMatch,ActionTypeChatButton);
+
 			qDeleteAll(m_actions);
 			m_actions.clear();
+			ActionContainer container(session->getUnit(),ActionContainer::TypeMatch,ActionTypeChatButton);
 			//fixme
 			for (int i = 0;i!=container.count();i++) {
 				QAction *current = container.action(i);
