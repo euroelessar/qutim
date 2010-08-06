@@ -69,8 +69,9 @@ void VAccount::setAccountName(const QString &name)
 {
 	Q_D(VAccount);
 	if (d->name != name) {
+		QString previous = d->name;
 		d->name = name;
-		emit nameChanged(name);
+		emit nameChanged(name, previous);
 	}
 }
 
@@ -103,6 +104,7 @@ void VAccount::setUid(const QString& uid)
 
 void VAccount::setStatus(Status status)
 {
+	Status previous = this->status();
 	Account::setStatus(status);
 	Q_D(VAccount);
 	status.initIcon("vkontakte");
@@ -127,7 +129,7 @@ void VAccount::setStatus(Status status)
 		}		
 	}
 
-	emit statusChanged(status);
+	emit statusChanged(status, previous);
 }
 
 VConnection *VAccount::connection()

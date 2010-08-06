@@ -185,13 +185,15 @@ void QuetzalContact::update()
 	}
 	tags_.removeDuplicates();
 	if (m_tags != tags_) {
+		QStringList previous = m_tags;
 		m_tags = tags_;
-		tagsChanged(m_tags);
+		tagsChanged(m_tags, previous);
 	}
 	QString name = purple_buddy_get_alias(m_buddy);
 	if (name != m_name) {
+		QString previous = m_name;
 		m_name = name;
-		emit nameChanged(m_name);
+		emit nameChanged(m_name, previous);
 	}
 	Status status = quetzal_get_status(m_buddy->presence);
 //	debug() << Q_FUNC_INFO << m_buddy->name << m_status << status;
@@ -199,8 +201,9 @@ void QuetzalContact::update()
 		|| m_status.subtype() != status.subtype()
 		|| m_status.text() != status.text()) {
 //		debug() << Q_FUNC_INFO << m_id << status;
+		Status previous = m_status;
 		m_status = status;
-		emit statusChanged(m_status);
+		emit statusChanged(m_status, previous);
 	}
 }
 

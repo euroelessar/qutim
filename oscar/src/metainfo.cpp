@@ -869,7 +869,7 @@ bool MetaInfo::removeRequest(AbstractMetaInfoRequest *request)
 
 void MetaInfo::onNewAccount(qutim_sdk_0_3::Account *account)
 {
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
 }
 

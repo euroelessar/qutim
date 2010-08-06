@@ -84,16 +84,18 @@ namespace Jabber {
 	void JAccount::beginChangeStatus(Presence::PresenceType presence)
 	{
 		p->connection->setConnectionPresence(presence);				
-		Status origin = status();
-		if (origin.type() == Status::Offline) {
-			origin.setType(Status::Connecting);
-			Account::setStatus(origin);
-			emit statusChanged(origin);
+		Status previous = status();
+		if (previous.type() == Status::Offline) {
+			Status newStatus = previous;
+			newStatus.setType(Status::Connecting);
+			Account::setStatus(newStatus);
+			emit statusChanged(newStatus, previous);
 		}
 	}
 
 	void JAccount::endChangeStatus(Presence::PresenceType presence)
 	{
+		Status previous = status();
 		Status newStatus = JProtocol::presenceToStatus(presence);
 		debug() << "new status" << newStatus << newStatus.text();
 		if (status() == Status::Offline && newStatus != Status::Offline)
@@ -102,7 +104,7 @@ namespace Jabber {
 			p->roster->setOffline();
 		p->conferenceManager->setPresenceToRooms(presence);
 		Account::setStatus(newStatus);
-		emit statusChanged(newStatus);
+		emit statusChanged(newStatus, previous);
 	}
 
 	void JAccount::autoconnect()
@@ -144,8 +146,9 @@ namespace Jabber {
 		Config general = config("general");
 		general.setValue("nick", nick);
 		general.sync();
+		QString previous = p->nick;
 		p->nick = nick;
-		emit nameChanged(nick);
+		emit nameChanged(nick, previous);
 	}
 
 	const QString &JAccount::password(bool *ok)

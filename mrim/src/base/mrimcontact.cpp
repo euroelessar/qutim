@@ -138,8 +138,9 @@ Status MrimContact::status() const
 
 void MrimContact::setStatus(const Status& status)
 {
+	Status previous = p->status;
     p->status = status;
-    emit statusChanged(p->status);
+	emit statusChanged(p->status, previous);
 }
 
 QDebug operator<<(QDebug dbg, const MrimContact &c)

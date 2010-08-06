@@ -80,8 +80,9 @@ void VContact::setContactTags(const QStringList& tags)
 {
 	Q_D(VContact);
 	if (d->tags != tags) {
-		d_func()->tags = tags;
-		emit tagsChanged(tags);
+		QStringList previous = d->tags;
+		d->tags = tags;
+		emit tagsChanged(tags, previous);
 	}
 }
 
@@ -106,8 +107,9 @@ void VContact::setStatus(bool online)
 {
 	Q_D(VContact);
 	if (d->online != online) {
+		Status previous = status();
 		d->online = online;
-		emit statusChanged(status());
+		emit statusChanged(status(), previous);
 	}
 }
 
@@ -115,8 +117,9 @@ void VContact::setActivity(const QString &activity)
 {
 	Q_D(VContact);
 	if (d->activity != activity) {
+		Status previous = status();
 		d->activity = activity;
-		emit statusChanged(status());
+		emit statusChanged(status(), previous);
 	}
 }
 
@@ -144,8 +147,9 @@ void VContact::setContactName(const QString& name)
 {
 	Q_D(VContact);
 	if (d->name != name) {
+		QString previous = d->name;
 		d->name = name;
-		emit nameChanged(name);
+		emit nameChanged(name, previous);
 	}
 }
 

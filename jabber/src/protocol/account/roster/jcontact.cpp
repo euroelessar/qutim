@@ -84,8 +84,10 @@ namespace Jabber
 
 	void JContact::setContactName(const QString &name)
 	{
-		d_func()->name = name;
-		emit nameChanged(name);
+		Q_D(JContact);
+		QString previous = d->name;
+		d->name = name;
+		emit nameChanged(name, previous);
 	}
 
 	QString JContact::name() const
@@ -113,8 +115,10 @@ namespace Jabber
 
 	void JContact::setContactTags(const QStringList &tags)
 	{
-		d_func()->tags = tags;
-		emit tagsChanged(tags);
+		Q_D(JContact);
+		QStringList previous = d->tags;
+		d->tags = tags;
+		emit tagsChanged(tags, previous);
 	}
 
 	QStringList JContact::tags() const
@@ -248,7 +252,7 @@ namespace Jabber
 		Status newStatus = status();
 //		debug() << oldStatus.type() << newStatus.type();
 		if(oldStatus.type() != newStatus.type())
-			emit statusChanged(newStatus);
+			emit statusChanged(newStatus, oldStatus);
 	}
 
 	void JContact::removeResource(const QString &resource)

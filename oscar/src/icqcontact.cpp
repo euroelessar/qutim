@@ -309,6 +309,7 @@ void IcqContact::setAvatar(const QString &avatar)
 void IcqContact::setStatus(Status status)
 {
 	Q_D(IcqContact);
+	Status previous = d->status;
 	d->status = status;
 	if (status == Status::Offline) {
 		d->clearCapabilities();
@@ -316,7 +317,7 @@ void IcqContact::setStatus(Status status)
 		d->awaySince = QDateTime();
 		d->regTime = QDateTime();
 	}
-	emit statusChanged(status);
+	emit statusChanged(status, previous);
 }
 
 ChatState IcqContact::chatState() const

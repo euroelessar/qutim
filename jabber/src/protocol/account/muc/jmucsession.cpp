@@ -225,8 +225,9 @@ namespace Jabber
 			JMUCUser *user = d->users.value(nick, 0);
 			d->users.insert(newNick, user);
 			d->users.remove(nick);
+			QString previous = user->name();
 			reinterpret_cast<JContactResourcePrivate *>(user->d_func())->name = newNick;
-			emit user->nameChanged(newNick);
+			emit user->nameChanged(newNick, previous);
 //			JMessageSession *session = qobject_cast<JMessageSession*>(d->account->messageHandler()->getSession(user, false));
 //			if (session)
 //				session->session()->setResource(participant.newNick);
@@ -483,12 +484,13 @@ namespace Jabber
 	void JMUCSession::setBookmarkIndex(int index)
 	{
 		Q_D(JMUCSession);
+		QString previous = d->title;
 		d->bookmarkIndex = index;
 		if (index != -1)
 			d->title = d->account->conferenceManager()->bookmarkManager()->bookmarks()[index].name;
 		else
 			d->title = id();
-		emit titleChanged(d->title);
+		emit titleChanged(d->title, previous);
 	}
 
 	int JMUCSession::bookmarkIndex()

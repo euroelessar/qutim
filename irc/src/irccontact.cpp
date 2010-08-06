@@ -39,8 +39,9 @@ void IrcContactPrivate::deref()
 
 void IrcContactPrivate::updateNick(const QString &newNick)
 {
+	QString previous = nick;
 	nick = newNick;
-	emit q->nameChanged(nick);
+	emit q->nameChanged(nick, previous);
 }
 
 IrcContact::IrcContact(IrcAccount *account, const QString &nick) :

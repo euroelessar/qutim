@@ -252,9 +252,10 @@ extern Status quetzal_get_status(PurpleStatus *status, const QString &proto);
 
 void QuetzalAccount::setStatusChanged(PurpleStatus *status)
 {
+	Status current = this->status();
 	Status stat = quetzal_get_status(status, protocol()->id());
 	Account::setStatus(stat);
-	statusChanged(stat);
+	statusChanged(stat, current);
 }
 
 struct QuetzalAccountPasswordInfo

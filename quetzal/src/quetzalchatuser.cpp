@@ -45,6 +45,6 @@ void QuetzalChatUser::rename(const QString &id, const QString &name)
 	m_id = id;
 	m_name = name;
 	if (old_title != title()) {
-		titleChanged(title());
+		titleChanged(title(), old_title);
 	}
 }

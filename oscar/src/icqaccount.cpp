@@ -197,7 +197,7 @@ void IcqAccount::setStatus(Status status_helper)
 	if (current.type() == status.type() && status.type() == Status::Offline) {
 		emit statusAboutToBeChanged(status, current);
 		d->reconnectTimer.stop();
-		emit statusChanged(status);
+		emit statusChanged(status, current);
 		Account::setStatus(status);
 		return;
 	}
@@ -274,7 +274,7 @@ void IcqAccount::setStatus(Status status_helper)
 		}
 		statusCfg.endArray();
 	}
-	emit statusChanged(status);
+	emit statusChanged(status, current);
 	Account::setStatus(status);
 }
 

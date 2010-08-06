@@ -88,6 +88,9 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 		}
 		bool added = false;
 		if (newTag) {
+			QStringList previous;
+			if (!connInfo)
+				previous = contact->tags();
 			if (d->items.isEmpty()) {
 				// Now, the contact should not be removed after destroying its session
 				// as it was added to the server contact list.
@@ -103,15 +106,16 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 			}
 			d->items << item;
 			if (!connInfo)
-				emit contact->tagsChanged(contact->tags());
+				emit contact->tagsChanged(contact->tags(), previous);
 		}
 		if (!added)
 			debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been updated";
 		// name
 		QString new_name = item.field<QString>(SsiBuddyNick);
 		if (!new_name.isEmpty() && new_name != contact->d_func()->name) {
+			QString previous = contact->d_func()->name;
 			contact->d_func()->name = new_name;
-			emit contact->nameChanged(new_name);
+			emit contact->nameChanged(new_name, previous);
 		}
 		// comment
 		QString new_comment = item.field<QString>(SsiBuddyComment);
@@ -127,13 +131,14 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 			foreach (const FeedbagItem &i, account->feedbag()->group(item.groupId())) {
 				QSet<QString> groups;
 				IcqContact *contact = account->getContact(i.name());
+				QStringList previous = contact->tags();
 				foreach (const FeedbagItem &i, contact->d_func()->items) {
 					if (item.groupId() == i.groupId())
 						groups << item.name();
 					else
 						groups << i.name();
 				}
-				emit contact->tagsChanged(contact->d_func()->tags);
+				emit contact->tagsChanged(contact->tags(), previous);
 			}
 			debug(Verbose) << "The group" << old.name() << "has been renamed to" << item.name();
 		} else {
@@ -144,9 +149,10 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 	case SsiTags: {
 		IcqContact *contact = account->getContact(item.name());
 		if (contact) {
+			QStringList previous = contact->tags();
 			contact->d_func()->tags = readTags(item);
 			if (!account->d_func()->connectingInfo)
-				emit contact->tagsChanged(contact->tags());
+				emit contact->tagsChanged(contact->tags(), previous);
 		}
 		break;
 	}
@@ -174,8 +180,9 @@ void Roster::handleRemoveCLItem(IcqAccount *account, const FeedbagItem &item)
 	case SsiTags: {
 		IcqContact *contact = account->getContact(item.name());
 		if (contact) {
+			QStringList previous = contact->tags();
 			contact->d_func()->tags.clear();
-			emit contact->tagsChanged(contact->tags());
+			emit contact->tagsChanged(contact->tags(), previous);
 		}
 		break;
 	}
@@ -184,6 +191,7 @@ void Roster::handleRemoveCLItem(IcqAccount *account, const FeedbagItem &item)
 
 void Roster::removeContactFromGroup(IcqContact *contact, quint16 groupId)
 {
+	QStringList previous = contact->tags();
 	QList<FeedbagItem> &items = contact->d_func()->items;
 	QList<FeedbagItem>::iterator itr = items.begin();
 	QList<FeedbagItem>::iterator endItr = items.end();
@@ -205,7 +213,7 @@ void Roster::removeContactFromGroup(IcqContact *contact, quint16 groupId)
 			debug().nospace() << "The contact " << contact->id() << " ("
 					<< contact->name() << ") has been removed from "
 					<< contact->account()->feedbag()->groupItem(groupId).name();
-			emit contact->tagsChanged(contact->tags());
+			emit contact->tagsChanged(contact->tags(), previous);
 		}
 	}
 }
@@ -417,12 +425,12 @@ void Roster::loginFinished()
 		while (itr != end) {
 			QStringList tags = itr.key()->tags();
 			if (tags != itr.value()) // Tags are updated!
-				emit itr.key()->tagsChanged(tags);
+				emit itr.key()->tagsChanged(tags, itr.value());
 			++itr;
 		}
 		foreach (IcqContact *contact, d->connectingInfo->createdContacts) {
 			emit contact->inListChanged(true);
-			emit contact->tagsChanged(contact->tags());
+			emit contact->tagsChanged(contact->tags(), QStringList());
 		}
 		d->connectingInfo.reset();
 	}

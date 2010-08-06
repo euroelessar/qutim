@@ -254,7 +254,8 @@ int PrivacyLists::getCurrentMode(IcqAccount *account, bool invisibleMode)
 
 void PrivacyLists::accountAdded(qutim_sdk_0_3::Account *account)
 {
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(statusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			SLOT(statusChanged(qutim_sdk_0_3::Status)));
 }
 
 void PrivacyLists::statusChanged(const qutim_sdk_0_3::Status &status)

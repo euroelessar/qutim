@@ -84,10 +84,11 @@ namespace Jabber
 	void JContactResource::setStatus(Presence::PresenceType presence, int priority, const QString &text)
 	{
 		Q_D(JContactResource);
+		Status current = status();
 		d->presence = presence;
 		d->priority = priority;
 		d->text = text;
-		emit statusChanged(JProtocol::presenceToStatus(presence));
+		emit statusChanged(status(), current);
 	}
 
 	Status JContactResource::status() const

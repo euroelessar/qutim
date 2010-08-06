@@ -34,7 +34,8 @@ IrcContact *IrcAccountPrivate::newContact(const QString &nick)
 {
 	IrcContact *contact = new IrcContact(q, nick);
 	q->connect(contact, SIGNAL(destroyed()), SLOT(onContactRemoved()));
-	q->connect(contact, SIGNAL(nameChanged(QString)), SLOT(onContactNickChanged(QString)));
+	q->connect(contact, SIGNAL(nameChanged(QString,QString)),
+			   SLOT(onContactNickChanged(QString)));
 	contacts.insert(nick, contact);
 	return contact;
 }
@@ -97,8 +98,8 @@ void IrcAccount::setStatus(Status status)
 			d->conn->send(QString("AWAY %1").arg(status.text()));
 	}
 	status.initIcon("irc");
-	emit statusChanged(status);
 	Account::setStatus(status);
+	emit statusChanged(status, current);
 }
 
 QString IrcAccount::name() const
