@@ -280,8 +280,9 @@ void IrcChannel::handleKick(const QString &nick, const QString &by, const QStrin
 
 void IrcChannel::handleTopic(const QString &topic)
 {
+	QString previous = d->topic;
 	d->topic = topic;
-	emit topicChanged(topic);
+	emit topicChanged(topic, previous);
 	addSystemMessage(tr("The channel topic is \"%1\"").arg(topic));
 }
 

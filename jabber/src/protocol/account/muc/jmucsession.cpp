@@ -565,8 +565,10 @@ namespace Jabber
 
 	void JMUCSession::setConferenceTopic(const QString &topic)
 	{
-		d_func()->topic = topic;
-		emit topicChanged(topic);
+		Q_D(JMUCSession);
+		QString previous = d->topic;
+		d->topic = topic;
+		emit topicChanged(topic, previous);
 	}
 
 	bool JMUCSession::isAutoJoin()
