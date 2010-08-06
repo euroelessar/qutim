@@ -112,11 +112,11 @@ namespace qutim_sdk_0_3
 		/*!
 		  Signal is emitted when account's \a name was changed.
 		*/
-		void nameChanged(const QString &name);
+		void nameChanged(const QString &current, const QString &previous);
 		/*!
 		  Signal is emitted when account's \a status was changed.
 		*/
-		void statusChanged(const qutim_sdk_0_3::Status &status);
+		void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
 	};
 }
 

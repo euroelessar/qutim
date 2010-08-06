@@ -171,7 +171,7 @@ namespace Core
 			connect(session, SIGNAL(buddiesChanged()), SLOT(onBuddiesChanged()));
 
 			ChatUnit *u = session->getUnit();
-			connect(u,SIGNAL(titleChanged(QString)),SLOT(onUnitTitleChanged(QString)));
+			connect(u,SIGNAL(titleChanged(QString,QString)),SLOT(onUnitTitleChanged(QString)));
 
 			QIcon icon;
 			if (m_chatFlags & ChatStateIconsOnTabs) {

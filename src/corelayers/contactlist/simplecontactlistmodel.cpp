@@ -228,11 +228,16 @@ namespace Core
 				}
 			}
 
-			connect(contact, SIGNAL(destroyed(QObject*)), this, SLOT(contactDeleted(QObject*)));
-			connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(contactStatusChanged(qutim_sdk_0_3::Status)));
-			connect(contact, SIGNAL(nameChanged(QString)), SLOT(contactNameChanged(QString)));
-			connect(contact, SIGNAL(tagsChanged(QStringList)), SLOT(contactTagsChanged(QStringList)));
-			connect(contact, SIGNAL(inListChanged(bool)),SLOT(onContactInListChanged(bool)));
+			connect(contact, SIGNAL(destroyed(QObject*)),
+					SLOT(contactDeleted(QObject*)));
+			connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+					SLOT(contactStatusChanged(qutim_sdk_0_3::Status)));
+			connect(contact, SIGNAL(nameChanged(QString,QString)),
+					SLOT(contactNameChanged(QString)));
+			connect(contact, SIGNAL(tagsChanged(QStringList,QStringList)),
+					SLOT(contactTagsChanged(QStringList)));
+			connect(contact, SIGNAL(inListChanged(bool)),
+					SLOT(onContactInListChanged(bool)));
 
 			QStringList tags = contact->tags();
 			if(tags.isEmpty())

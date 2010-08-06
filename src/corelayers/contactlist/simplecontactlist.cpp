@@ -335,7 +335,7 @@ namespace Core
 		{
 			//TODO add account icon
 			QAction *action = new QAction(account->status().icon(), account->id(), p->status_btn);
-			connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
+			connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 					this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status)));
 			connect(account, SIGNAL(destroyed(QObject*)),SLOT(onAccountDestroyed(QObject*)));
 			p->actions.insert(account, action);

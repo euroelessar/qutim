@@ -148,7 +148,7 @@ namespace Core
 
 		void ChatSessionImpl::addContact(Buddy* c)
 		{
-			//		connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(statusChanged(qutim_sdk_0_3::Status)));
+			//		connect(c,SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),SLOT(statusChanged(qutim_sdk_0_3::Status)));
 			d_func()->model->addContact(c);
 			emit buddiesChanged();
 		}
@@ -459,7 +459,7 @@ namespace Core
 			setParent(unit);
 			
 			if (Contact *c = qobject_cast<Contact *>(unit)) {
-				connect(c, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
+				connect(c, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 						d, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 				d->statusChanged(c->status(),c,true);
 				setProperty("currentChatState",d->statusToState(c->status().type()));

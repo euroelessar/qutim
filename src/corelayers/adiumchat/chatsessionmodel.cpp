@@ -63,8 +63,9 @@ namespace Core
 				return;
 			int index = qLowerBound(m_units.constBegin(), m_units.constEnd(),
 									b, contactLessThan) - m_units.constBegin();
-			connect(b, SIGNAL(titleChanged(QString)), this, SLOT(onNameChanged(QString)));
-			connect(b, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
+			connect(b, SIGNAL(titleChanged(QString,QString)), this, SLOT(onNameChanged(QString)));
+			connect(b, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+					this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 			beginInsertRows(QModelIndex(), index, index);
 			m_units.insert(index, b);
 			endInsertRows();
