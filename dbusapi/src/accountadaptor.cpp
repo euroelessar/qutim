@@ -39,9 +39,10 @@ AccountAdaptor::AccountAdaptor(const QDBusConnection &dbus, const QDBusObjectPat
 	hash.addData(account->id().toUtf8());
 	path += QLatin1String(hash.result().toHex());
 	m_path = QDBusObjectPath(path);
-	connect(account, SIGNAL(nameChanged(QString)), this, SIGNAL(nameChanged(QString)));
-	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
-			this, SIGNAL(statusChanged(qutim_sdk_0_3::Status)));
+	connect(account, SIGNAL(nameChanged(QString,QString)),
+			this, SIGNAL(nameChanged(QString,QString)));
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
 			this, SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
 	accountHash()->insert(account, m_path);

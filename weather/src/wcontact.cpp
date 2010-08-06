@@ -23,7 +23,7 @@ WContact::WContact( const QString &city, Account *account ) : Contact ( account 
 
 	m_status.setType( Status::Online );
 	m_status.setIcon( QIcon( ":/icons/weather.png" ) );
-	emit statusChanged( m_status );
+	emit statusChanged( m_status, Status(Status::Offline) );
 
 	addToList();
 	QMetaObject::invokeMethod( getService( "ContactList" ), "addContact", Q_ARG( qutim_sdk_0_3::Contact *, this ) );
@@ -83,8 +83,9 @@ void WContact::updateStatus()
 		update();
 	else
 	{
+		Status current = m_status;
 		m_status.setText( QString() );
-		emit statusChanged( m_status );
+		emit statusChanged( m_status, current );
 	}
 }
 
@@ -137,10 +138,11 @@ void WContact::finished()
 	}
 	else
 	{
+		Status previous = m_status;
 		m_status.setIcon( QIcon( QString( ":/icons/%1.png" ).arg( m_wmanager->getCC( "icon" ) ) ) );
 		if ( ( ( WAccount * )account() )->getShowStatusRow() )
 			m_status.setText( QString::fromUtf8( "Weather: %1 °%2" ).arg( m_wmanager->getCC( "tmp" ) ).arg( m_wmanager->getUnit( "ut" ) ) );
-		emit statusChanged( m_status );
+		emit statusChanged( m_status, previous );
 	}
 
 	it = *m_wmanager->getLoc();
@@ -202,18 +204,19 @@ bool WContact::sendMessage( const Message &message )
 
 void WContact::setName( const QString &name )
 {
-	emit nameChanged( m_name );
+	emit nameChanged( m_name, m_name );
 }
 
 void WContact::setNamev2( const QString &name )
 {
+	QString previous = m_name;
 	m_name = name;
-	emit nameChanged( m_name );
+	emit nameChanged( m_name, previous );
 }
 
 void WContact::setTags( const QStringList &tags )
 {
-	emit tagsChanged( m_tags );
+	emit tagsChanged( m_tags, m_tags );
 }
 
 QString WContact::id() const

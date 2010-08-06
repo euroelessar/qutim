@@ -49,8 +49,8 @@ public slots:
 	QDBusObjectPath chatUnit(const QString &unitId, bool create = false);
 	QStringList contacts() const;
 signals:
-	void nameChanged(const QString &);
-	void statusChanged(const qutim_sdk_0_3::Status &status);
+	void nameChanged(const QString &current, const QString &previous);
+	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
 	void contactCreated(const QDBusObjectPath &path, const QString &id);
 private slots:
 	void onContactCreated(qutim_sdk_0_3::Contact *contact);

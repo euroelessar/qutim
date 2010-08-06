@@ -24,7 +24,7 @@ AWNService::AWNService()
     m_item = 0;
     m_activeAccount = 0;
     m_iconTimer = 0;
-    m_cws = 0;
+	//m_cws = 0;
     m_awn = new QDBusInterface("org.freedesktop.DockManager",
                               "/org/freedesktop/DockManager",
                               "org.freedesktop.DockManager");
@@ -359,7 +359,7 @@ void AWNService::onAccountCreated(qutim_sdk_0_3::Account *account)
     if (m_accounts.contains(account))
         return;
     m_accounts << account;
-    connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
             this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
     connect(account, SIGNAL(destroyed(QObject*)), this, SLOT(onAccountDestroyed(QObject*)));
     if (!m_activeAccount) {

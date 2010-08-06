@@ -49,7 +49,7 @@ public slots:
 	QStringList lowerUnits();
 	QDBusObjectPath upperUnit();
 signals:
-	void titleChanged(const QString &);
+	void titleChanged(const QString &current, const QString &previous);
 private:
 	ChatUnit *m_chatUnit;
 	QDBusConnection m_dbus;

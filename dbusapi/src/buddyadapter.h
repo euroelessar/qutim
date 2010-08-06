@@ -39,8 +39,8 @@ public:
 	inline Status status() const { return self()->status(); }
 signals:
 	void avatarChanged(const QString &path);
-	void statusChanged(const qutim_sdk_0_3::Status &status);
-	void nameChanged(const QString &name);
+	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+	void nameChanged(const QString &current, const QString &previous);
 private:
 	inline Buddy *self() const { return static_cast<Buddy*>(parent()); }
 };

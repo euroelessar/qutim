@@ -22,8 +22,8 @@ ProxyContact::ProxyContact(Conference *conf) :
 {
 	connect(conf, SIGNAL(destroyed()), SLOT(deleteLater()));
 	setMenuOwner(m_conf);
-	connect(m_conf, SIGNAL(titleChanged(QString)), this, SIGNAL(nameChanged(QString)));
-	connect(m_conf, SIGNAL(titleChanged(QString)), SIGNAL(titleChanged(QString)));
+	connect(m_conf, SIGNAL(titleChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
+	connect(m_conf, SIGNAL(titleChanged(QString,QString)), SIGNAL(titleChanged(QString,QString)));
 	connect(m_conf, SIGNAL(joined()), SLOT(onJoined()));
 	connect(m_conf, SIGNAL(left()), SLOT(onLeft()));
 }
@@ -65,7 +65,7 @@ QString ProxyContact::name() const
 
 Status ProxyContact::status() const
 {
-	return Status(m_conn ? Status::Online : Status::Offline);
+	return Status(m_conn ? Status::Online : Status::DND);
 }
 
 bool ProxyContact::sendMessage(const Message &message)
@@ -75,12 +75,18 @@ bool ProxyContact::sendMessage(const Message &message)
 
 void ProxyContact::onJoined()
 {
+	if (m_conn)
+		return;
+	Status previous = status();
 	m_conn = true;
-	emit statusChanged(status());
+	emit statusChanged(status(), previous);
 }
 
 void ProxyContact::onLeft()
 {
+	if (!m_conn)
+		return;
+	Status previous = status();
 	m_conn = false;
-	emit statusChanged(status());
+	emit statusChanged(status(), previous);
 }

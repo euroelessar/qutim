@@ -19,6 +19,8 @@
 ContactAdaptor::ContactAdaptor(Contact *contact) :
 		QDBusAbstractAdaptor(contact)
 {
-	connect(contact, SIGNAL(tagsChanged(QStringList)), this, SIGNAL(tagsChanged(QStringList)));
-	connect(contact, SIGNAL(inListChanged(bool)), this, SIGNAL(inListChanged(bool)));
+	connect(contact, SIGNAL(tagsChanged(QStringList,QStringList)),
+			this, SIGNAL(tagsChanged(QStringList,QStringList)));
+	connect(contact, SIGNAL(inListChanged(bool)),
+			this, SIGNAL(inListChanged(bool)));
 }

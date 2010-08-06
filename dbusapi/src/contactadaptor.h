@@ -40,7 +40,7 @@ public slots:
 	inline void addToList() { setInList(true); }
 	inline void removeFromList() { setInList(false); }
 signals:
-	void tagsChanged(const QStringList &tags);
+	void tagsChanged(const QStringList &current, const QStringList &previous);
 	void inListChanged(bool inList);
 private:
 	inline Contact *self() const { return static_cast<Contact*>(parent()); }

@@ -62,7 +62,7 @@ ChatUnitAdaptor::ChatUnitAdaptor(const QDBusConnection &dbus, const QDBusObjectP
 	path += QLatin1String(hash.result().toHex());
 	m_path = QDBusObjectPath(path);
 	chatUnitHash()->insert(m_chatUnit, m_path);
-	connect(unit, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged(QString)));
+	connect(unit, SIGNAL(titleChanged(QString,QString)), this, SIGNAL(titleChanged(QString,QString)));
 }
 
 ChatUnitAdaptor::~ChatUnitAdaptor()

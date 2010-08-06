@@ -19,8 +19,10 @@
 BuddyAdapter::BuddyAdapter(Buddy *buddy) :
 		QDBusAbstractAdaptor(buddy)
 {
-	connect(buddy, SIGNAL(nameChanged(QString)), this, SIGNAL(nameChanged(QString)));
-	connect(buddy, SIGNAL(avatarChanged(QString)), this, SIGNAL(nameChanged(QString)));
-	connect(buddy, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
-			this, SIGNAL(statusChanged(qutim_sdk_0_3::Status)));
+	connect(buddy, SIGNAL(nameChanged(QString,QString)),
+			this, SIGNAL(nameChanged(QString,QString)));
+	connect(buddy, SIGNAL(avatarChanged(QString)),
+			this, SIGNAL(avatarChanged(QString)));
+	connect(buddy, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 }
