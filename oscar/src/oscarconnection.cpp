@@ -151,8 +151,13 @@ void OscarConnection::onDisconnect()
 
 void OscarConnection::onError(ConnectionError error)
 {
-	if (error != NoError)
-		Notifications::sendNotification(Notifications::System, m_account, errorString());
+	if (error != NoError &&
+		!(m_account->status().type() == Status::Offline &&
+		  error == SocketError &&
+		  socket()->error() == QAbstractSocket::RemoteHostClosedError))
+	{
+		Notifications::sendNotification(errorString());
+	}
 }
 
 void OscarConnection::md5Error(ConnectionError e)
