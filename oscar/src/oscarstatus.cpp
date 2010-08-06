@@ -209,6 +209,8 @@ void OscarStatus::setStatusFlag(quint16 status)
 
 void OscarStatus::setStatusType(Status::Type status)
 {
+	if (status == Connecting)
+		return;
 	foreach (const OscarStatusData &data, *statusList()) {
 		if (data.type == status) {
 			setData(data);

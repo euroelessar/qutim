@@ -104,12 +104,18 @@ namespace Jabber
 				m_state = StateConnecting;
 				break;
 			case QAbstractSocket::ConnectedState:
-				m_state = StateConnected;
+				if (m_state != StateConnected) {
+					m_state = StateConnected;
+					connected();
+				}
 				break;
 			case QAbstractSocket::UnconnectedState:
 			case QAbstractSocket::ClosingState:
 			default:
-				m_state = StateDisconnected;
+				if (m_state != StateDisconnected) {
+					m_state = StateDisconnected;
+					disconnected();
+				}
 				break;
 		}
 

@@ -125,7 +125,8 @@ public:
 		IcqNetworkError = 0x1e,
 		InvalidSecirID = 0x20,
 		AgeLimit = 0x22,
-		AnotherClientLogined = 0x80
+		AnotherClientLogined = 0x80,
+		SocketError = 0x81
 	};
 public:
 	explicit AbstractConnection(IcqAccount *account, QObject *parent = 0);
@@ -145,6 +146,7 @@ public:
 	bool isSslEnabled();
 signals:
 	void error(ConnectionError error);
+	void disconnected();
 protected:
 	AbstractConnection(AbstractConnectionPrivate *d);
 	const FLAP &flap();
@@ -153,7 +155,9 @@ protected:
 	void setSeqNum(quint16 seqnum);
 	virtual void processNewConnection();
 	virtual void processCloseConnection();
-	void setError(ConnectionError error);
+	virtual void onDisconnect();
+	virtual void onError(ConnectionError error);
+	void setError(ConnectionError error, const QString &errorStr = QString());
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 	static quint16 generateFlapSequence();
 protected slots:

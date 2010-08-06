@@ -40,7 +40,6 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 {
 	m_infos << SNACInfo(LocationFamily, LocationRightsReply)
 			<< SNACInfo(BosFamily, PrivacyRightsReply);
-	connect(socket(), SIGNAL(disconnected()), this, SLOT(disconnected()));
 	m_account = parent;
 	m_status_flags = 0x0000;
 	registerHandler(this);
@@ -52,10 +51,11 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 void OscarConnection::connectToLoginServer(const QString &password)
 {
 	setError(NoError);
-	Md5Login *md5login = new Md5Login(password, account());
-	connect(md5login->socket(), SIGNAL(disconnected()), md5login, SLOT(deleteLater()));
-	connect(md5login, SIGNAL(error(ConnectionError)), this, SLOT(md5Error(ConnectionError)));
-	md5login->login();
+	m_md5login = new Md5Login(password, account());
+	connect(m_md5login, SIGNAL(disconnected()), m_md5login, SLOT(deleteLater()));
+	connect(m_md5login, SIGNAL(error(ConnectionError)), this, SLOT(md5Error(ConnectionError)));
+	// Start connecting after the status has been updated.
+	QTimer::singleShot(0, m_md5login, SLOT(login()));
 }
 
 void OscarConnection::processNewConnection()
@@ -89,9 +89,6 @@ void OscarConnection::processCloseConnection()
 		DataUnit data(tlvs.value(0x0008));
 		setError(static_cast<ConnectionError>(data.read<quint16>()));
 	}
-	if (error() != NoError)
-		Notifications::sendNotification(errorString());
-	socket()->close();
 	//AbstractConnection::processCloseConnection();
 }
 
@@ -145,16 +142,23 @@ void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QBy
 	}
 }
 
-void OscarConnection::disconnected()
+void OscarConnection::onDisconnect()
 {
-	m_account->setStatus(OscarOffline);
+	Status status = m_account->status();
+	status.setType(Status::Offline);
+	m_account->setStatus(status);
+}
+
+void OscarConnection::onError(ConnectionError error)
+{
+	if (error != NoError)
+		Notifications::sendNotification(Notifications::System, m_account, errorString());
 }
 
 void OscarConnection::md5Error(ConnectionError e)
 {
-	setError(e);
-	if (e != NoError)
-		emit error(e);
+	setError(e, m_md5login->errorString());
+	onDisconnect();
 }
 
 void OscarConnection::accountInfoReceived(bool ok)

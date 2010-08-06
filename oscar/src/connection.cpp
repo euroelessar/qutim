@@ -299,6 +299,10 @@ void AbstractConnection::loadProxy()
 QString AbstractConnection::errorString()
 {
 	Q_D(AbstractConnection);
+	if (d->error == NoError)
+		return QString();
+	if (!d->errorStr.isEmpty())
+		return d->errorStr;
 	switch (d->error) {
 	case InvalidNickOrPassword:
 		return QCoreApplication::translate("ConnectionError", "Invalid nick or password");
@@ -364,6 +368,8 @@ QString AbstractConnection::errorString()
 		return QCoreApplication::translate("ConnectionError", "Account suspended because of your age (age < 13)");
 	case AnotherClientLogined:
 		return QCoreApplication::translate("ConnectionError", "Another client is loggin with this uin");
+	case SocketError:
+		return d_func()->socket->errorString();
 	default:
 		return QCoreApplication::translate("ConnectionError", "Unknown error");
 	}
@@ -465,12 +471,25 @@ void AbstractConnection::processCloseConnection()
 	socket()->disconnectFromHost();
 }
 
-void AbstractConnection::setError(ConnectionError e)
+void AbstractConnection::onDisconnect()
+{
+}
+
+void AbstractConnection::onError(ConnectionError error)
+{
+	if (error != NoError)
+		d_func()->socket->close();
+}
+
+void AbstractConnection::setError(ConnectionError e, const QString &errorStr)
 {
 	Q_D(AbstractConnection);
 	d->error = e;
-	if (d->error != NoError)
-		emit error(d->error);
+	d->errorStr = errorStr;
+	if (d->error != NoError) {
+		onError(e);
+		emit error(e);
+	}
 }
 
 void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
@@ -660,10 +679,15 @@ void AbstractConnection::readData()
 void AbstractConnection::stateChanged(QAbstractSocket::SocketState state)
 {
 	debug(Verbose) << "New connection state" << state << this->metaObject()->className();
+	if (state == QAbstractSocket::UnconnectedState) {
+		onDisconnect();
+		emit disconnected();
+	}
 }
 
 void AbstractConnection::error(QAbstractSocket::SocketError error)
 {
+	setError(SocketError);
 	debug() << "Connection error:" << error << errorString();
 }
 

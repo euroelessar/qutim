@@ -18,7 +18,6 @@ namespace Jabber
 			JConnectionBase(0), p(new JConnectionTCPBasePrivate)
 	{
 		p->socket = socket;
-		QObject::connect(p->socket, SIGNAL(disconnected()), SLOT(disconnected()));
 		QObject::connect(p->socket, SIGNAL(readyRead()), SLOT(read()));
 		QObject::connect(p->socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
 		QObject::connect(p->socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
@@ -102,8 +101,6 @@ namespace Jabber
 		if (m_proxy)
 			p->socket->setProxy(*m_proxy);
 
-		QObject::connect(p->socket, SIGNAL(connected()), SLOT(connected()));
-		QObject::connect(p->socket, SIGNAL(disconnected()), SLOT(disconnected()));
 		QObject::connect(p->socket, SIGNAL(hostFound()), SLOT(hostFound()));
 		QObject::connect(p->socket, SIGNAL(readyRead()), SLOT(read()));
 		QObject::connect(p->socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
