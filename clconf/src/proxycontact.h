@@ -41,6 +41,8 @@ private slots:
 	void onLeft();
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
 								const qutim_sdk_0_3::Status &previous);
+protected:
+	bool event(QEvent *ev);
 private:
 	void updateStatus();
 	Status m_status;
