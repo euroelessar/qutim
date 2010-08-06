@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3
 		virtual void join() = 0;
 		virtual void leave() = 0;
 	signals:
-		void topicChanged(const QString &);
+		void topicChanged(const QString &current, const QString &previous);
 		void meChanged(qutim_sdk_0_3::Buddy *me);
 		void left();
 		void joined();
