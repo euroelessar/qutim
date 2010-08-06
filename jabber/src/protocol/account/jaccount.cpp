@@ -85,7 +85,7 @@ namespace Jabber {
 	{
 		p->connection->setConnectionPresence(presence);				
 		Status previous = status();
-		if (previous.type() == Status::Offline) {
+		if (previous.type() == Status::Offline && presence != Presence::Unavailable) {
 			Status newStatus = previous;
 			newStatus.setType(Status::Connecting);
 			Account::setStatus(newStatus);
