@@ -51,7 +51,7 @@ namespace Core
 
 	void PopupAppearance::loadImpl()
 	{
-		ConfigGroup general = Config("appearance/kineticpopups").group("general");
+		ConfigGroup general = Config("appearance").group("kineticpopups/general");
 		m_current_theme = general.value<QString>("themeName","default");
 		getThemes();
 	}

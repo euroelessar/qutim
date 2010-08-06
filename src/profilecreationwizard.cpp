@@ -77,23 +77,23 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 		} QT_CATCH(...) {
 		}
 #elif defined(Q_OS_WIN32)
-		TCHAR wTId[UNLEN + 1];
-		DWORD wSId = sizeof(wTId);
-		if (GetUserName(wTId, &wSId))
-			#if defined(UNICODE)
-			realid= QString::fromUtf16((ushort*)wTId);
-			#else
-			realId = QString::fromLocal8Bit(wTId);
-			#endif
+//		TCHAR wTId[UNLEN + 1];
+//		DWORD wSId = sizeof(wTId);
+//		if (GetUserName(wTId, &wSId))
+//			#if defined(UNICODE)
+//			realid= QString::fromUtf16((ushort*)wTId);
+//			#else
+//			realId = QString::fromLocal8Bit(wTId);
+//			#endif
 
-		TCHAR wTName[1024];
-		DWORD wSName = 1024;
-		if (GetUserNameEx(NameDisplay, wTName, &wSName))
-			#if defined( UNICODE )
-			realName = QString::fromUtf16((ushort*)wTName);
-			#else
-			realName = QString::fromLocal8Bit(wTName);
-			#endif
+//		TCHAR wTName[1024];
+//		DWORD wSName = 1024;
+//		if (GetUserNameEx(NameDisplay, wTName, &wSName))
+//			#if defined( UNICODE )
+//			realName = QString::fromUtf16((ushort*)wTName);
+//			#else
+//			realName = QString::fromLocal8Bit(wTName);
+//			#endif
 #endif
 		if (realName.isEmpty())
 			realName = realId;

@@ -32,7 +32,7 @@ ProfileListWidget::ProfileListWidget(const QString &id, const QString &configDir
 
 	QPixmap photo(configDir + "/avatars/profilephoto");
 	if (photo.isNull())
-		photo.load(":/icons/qutim_64.png");
+		photo.load(":/icons/user-identity.png");
 	photoLabel->setPixmap(photo);
 	idLabel->setText("<h2>" + id + "</h2>");
 	loginButton->setText(">");

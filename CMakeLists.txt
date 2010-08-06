@@ -134,6 +134,16 @@ FOREACH( LAYER ${CORELAYERS} )
     ENDIF( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}" )
 ENDFOREACH( LAYER )
 
+#TODO make it automaticaly
+IF (${QUTIM_MOBILE_UI})
+	ADD_DEFINITIONS( -DQUTIM_MOBILE_UI )
+	MESSAGE( ">> qutIM will be compiled with mobile ui" )
+ENDIF (${QUTIM_MOBILE_UI})
+IF (${QUTIM_SINGLE_PROFILE})
+	ADD_DEFINITIONS( -DQUTIM_SINGLE_PROFILE )
+	MESSAGE( ">> qutIM will be compiled without multiply profiles support" )
+ENDIF (${QUTIM_SINGLE_PROFILE})
+
 # Add SlidingStackedWidget
 LIST( APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/slidingstackedwidget/slidingstackedwidget.cpp" )
 LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/slidingstackedwidget/slidingstackedwidget.h" )

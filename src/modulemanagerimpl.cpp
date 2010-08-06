@@ -17,16 +17,16 @@ namespace Core
 	ModuleManagerImpl::ModuleManagerImpl()
 	{
 		Config config = ProfileDialog::profilesInfo();
-#ifdef Q_OS_WIN
-		if (config.value("singleProfile", false)) {
-#else
+#ifdef QUTIM_SINGLE_PROFILE
 		if (config.value("singleProfile", true)) {
+#else
+		if (config.value("singleProfile", false)) {
 #endif
 			if (!config.hasChildGroup("profile")) {
 				QWidget *wizard = new ProfileCreationWizard(this, QString(), QString(), true);
 				wizard->setAttribute(Qt::WA_DeleteOnClose, true);
 				wizard->setAttribute(Qt::WA_QuitOnClose, false);
-#if	defined(Q_OS_SYMBIAN)
+#if	defined(QUTIM_MOBILE_UI)
 				wizard->showMaximized();
 #else
 				wizard->show();
@@ -42,7 +42,7 @@ namespace Core
 			}
 		} else {
 			QDialog *dialog = new ProfileDialog(config, this);
-#if	defined(Q_OS_SYMBIAN)
+#if	defined(QUTIM_MOBILE_UI)
 			dialog->showMaximized();
 #else
 			dialog->show();

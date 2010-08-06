@@ -145,7 +145,7 @@ namespace Core
 #if defined(Q_WS_MAC)
 			centralWidget()->layout()->setMargin(0);
 			centralWidget()->layout()->setSpacing(0);
-			ConfigGroup group = Config("appearance").group("adiumChat/chatForm/adiumForm");
+			ConfigGroup group = Config("appearance").group("chat/chatForm/adiumForm");
 			bool tabUp = group.value("tabUp", false);
 			if (tabUp) {
 				ui->centralLayout->insertWidget(0, tabBar);

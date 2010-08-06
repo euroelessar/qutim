@@ -114,11 +114,11 @@ namespace KineticPopups
 
 	void Manager::loadSettings()
 	{
-		Config general = Config("appearance/kineticpopups").group("general");
+		Config general = Config("appearance").group("kineticpopups/eneral");
 		QString theme_name = general.value<QString>("themeName","default");
 		loadTheme(theme_name);
 		
-		Config behavior = Config("behavior/notifications").group("popups");
+		Config behavior = Config("behavior").group("notifications/popups");
 		maxCount = behavior.value<int>("maxCount",10);
 		maxTextLength = behavior.value<int>("maxTextLength",160);
 		appendMode = behavior.value<bool>("appendMode",true);
