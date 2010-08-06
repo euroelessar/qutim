@@ -115,7 +115,7 @@ void OscarConnection::finishLogin()
 		"000a 0001 0110 164f"
 		"000b 0001 0110 164f"));
 	send(snac);
-	m_account->setStatus(m_account->d_func()->lastStatus);
+	m_account->finishLogin();
 	emit m_account->loginFinished();
 	ShortInfoMetaRequest *req = new ShortInfoMetaRequest(m_account); // Requesting own information.
 	connect(req, SIGNAL(done(bool)), this, SLOT(accountInfoReceived(bool)));

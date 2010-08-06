@@ -189,19 +189,34 @@ const AbstractConnection *IcqAccount::connection() const
 	return d_func()->conn;
 }
 
+void IcqAccount::finishLogin()
+{
+	Q_D(IcqAccount);
+	Status current = status();
+	emit statusAboutToBeChanged(d->lastStatus, (OscarStatus) current);
+	emit statusAboutToBeChanged((Status&) d->lastStatus, current);
+	d->conn->sendStatus(d->lastStatus);
+	emit statusChanged(d->lastStatus, current);
+	Account::setStatus(d->lastStatus);
+}
+
 void IcqAccount::setStatus(Status status_helper)
 {
 	Q_D(IcqAccount);
 	OscarStatus status(status_helper);
 	Status current = this->status();
-	if (current.type() == status.type() && status.type() == Status::Offline) {
-		emit statusAboutToBeChanged(status, current);
-		d->reconnectTimer.stop();
-		emit statusChanged(status, current);
-		Account::setStatus(status);
+	if (current.type() == Status::Connecting && status.type() != Status::Offline) {
+		d->lastStatus = status;
 		return;
 	}
-	emit statusAboutToBeChanged(status, current);
+	emit statusAboutToBeChanged(status, (OscarStatus) current);
+	emit statusAboutToBeChanged((Status&) status, current);
+	if (current.type() == status.type() && status.type() == Status::Offline) {
+		d->reconnectTimer.stop(); // Disable reconnecting
+		Account::setStatus(status);
+		emit statusChanged(status, current);
+		return;
+	}
 	if (status.type() == Status::Offline) {
 		if (d->conn->isConnected()) {
 			d->conn->disconnectFromHost(false);
