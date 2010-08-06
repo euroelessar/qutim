@@ -39,7 +39,11 @@ public:
 private slots:
 	void onJoined();
 	void onLeft();
+	void onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
+								const qutim_sdk_0_3::Status &previous);
 private:
+	void updateStatus();
+	Status m_status;
 	Conference *m_conf;
 	bool m_conn;
 };

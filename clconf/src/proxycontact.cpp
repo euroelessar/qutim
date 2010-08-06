@@ -26,6 +26,9 @@ ProxyContact::ProxyContact(Conference *conf) :
 	connect(m_conf, SIGNAL(titleChanged(QString,QString)), SIGNAL(titleChanged(QString,QString)));
 	connect(m_conf, SIGNAL(joined()), SLOT(onJoined()));
 	connect(m_conf, SIGNAL(left()), SLOT(onLeft()));
+	connect(m_conf->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	updateStatus();
 }
 
 QStringList ProxyContact::tags() const
@@ -65,7 +68,7 @@ QString ProxyContact::name() const
 
 Status ProxyContact::status() const
 {
-	return Status(m_conn ? Status::Online : Status::DND);
+	return m_status;
 }
 
 bool ProxyContact::sendMessage(const Message &message)
@@ -75,18 +78,36 @@ bool ProxyContact::sendMessage(const Message &message)
 
 void ProxyContact::onJoined()
 {
-	if (m_conn)
-		return;
-	Status previous = status();
-	m_conn = true;
-	emit statusChanged(status(), previous);
+	if (!m_conn) {
+		updateStatus();
+		m_conn = true;
+	}
 }
 
 void ProxyContact::onLeft()
 {
-	if (!m_conn)
-		return;
-	Status previous = status();
-	m_conn = false;
-	emit statusChanged(status(), previous);
+	if (m_conn) {
+		updateStatus();
+		m_conn = false;
+	}
+}
+
+void ProxyContact::onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
+										  const qutim_sdk_0_3::Status &previous)
+{
+	if (previous.type() != Status::Offline && current.type() == Status::Offline)
+		updateStatus();
+	else if (previous.type() == Status::Offline && current.type() != Status::Offline)
+		updateStatus();
+}
+
+void ProxyContact::updateStatus()
+{
+	Status previous = m_status;
+	if (account()->status().type() == Status::Offline)
+		m_status.setType(Status::Offline);
+	else
+		m_status.setType(m_conn ? Status::Online : Status::DND);
+	m_status.initIcon(QLatin1String("conference-") + metaInfo(metaObject(), "Protocol"));
+	emit statusChanged(m_status, previous);
 }
