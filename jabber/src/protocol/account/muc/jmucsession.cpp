@@ -139,8 +139,10 @@ namespace Jabber
 
 	void JMUCSession::leave()
 	{
-		d_func()->room->leave();
-		d_func()->isJoined = false;
+		Q_D(JMUCSession);
+		d->room->leave();
+		d->isJoined = false;
+		emit left();
 	}
 
 	bool JMUCSession::isJoined()
@@ -310,8 +312,10 @@ namespace Jabber
 					}
 				}
 			}
-			if (!d->isJoined && (presence.from().resource() == d->room->nick()))
+			if (!d->isJoined && (presence.from().resource() == d->room->nick())) {
 				d->isJoined = true;
+				emit joined();
+			}
 		}
 		if (!text.isEmpty() && (d->isJoined || participant.flags & (UserKicked | UserBanned))) {
 			qutim_sdk_0_3::Message msg(text);
