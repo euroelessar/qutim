@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>632</width>
-    <height>556</height>
+    <width>630</width>
+    <height>554</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -91,20 +91,13 @@
       <widget class="QListView" name="contactsView"/>
      </widget>
     </item>
-    <item row="2" column="0">
-     <widget class="ActionToolBar" name="actionToolBar" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
     <item row="2" column="1">
      <spacer name="horizontalSpacer">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Expanding</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -158,6 +151,16 @@
       </property>
       <property name="toolButtonStyle">
        <enum>Qt::ToolButtonFollowStyle</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="ActionToolBar" name="actionToolBar" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
      </widget>
     </item>

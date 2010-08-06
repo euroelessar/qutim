@@ -272,6 +272,8 @@ namespace Core
 				m_session_list->menu()->removeAction(a);
 			m_session_list->menu()->addActions(actions);
 
+			currentIndexChanged(from);
+
 			debug() << "moved session" << from << to;
 		}
 

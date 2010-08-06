@@ -183,6 +183,8 @@ namespace Core
 				ui->tabButton->removeAction(a);
 			ui->tabButton->addActions(actions);
 
+			currentIndexChanged(from);
+
 			debug() << "moved session" << from << to;
 		}
 
