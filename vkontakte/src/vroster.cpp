@@ -82,6 +82,7 @@ void VRosterPrivate::onGetFriendsRequestFinished()
 
 	foreach (const QVariant &var, friends) {
 		QVariantMap data = var.toMap();
+		debug() << data;
 		QString id = data.value("uid").toString();
 		VContact *c = contacts.value(id, 0);
 		bool shouldInit = false;
@@ -103,6 +104,7 @@ void VRosterPrivate::onGetFriendsRequestFinished()
 		}
 		checkPhoto(c, data.value("photo_medium").toString());
 		c->setStatus(data.value("online").toInt() == 1);
+		c->setProperty("mobilePhone",data.value("mobile_phone"));
 	}
 }
 
@@ -302,7 +304,7 @@ void VRoster::getFriendList()
 {
 	Q_D(VRoster);
 	QVariantMap data;
-	data.insert("fields", "uid,first_name,last_name,nickname,bdate,photo_medium,online,lists");
+	data.insert("fields", "uid,first_name,last_name,nickname,bdate,photo_medium,online,lists,contacts,mobile_phone");
 	QNetworkReply *reply = d->connection->get("friends.get", data);
 	connect(reply,SIGNAL(finished()),d,SLOT(onGetFriendsRequestFinished()));
 }

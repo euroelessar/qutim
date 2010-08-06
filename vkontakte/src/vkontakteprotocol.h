@@ -33,6 +33,8 @@ public:
 	virtual QList< Account* > accounts() const;
 	static inline VkontakteProtocol *instance() { if (!self) warning() << "IcqProtocol isn't created"; return self; }
 	QVariant data(DataType type);
+protected:
+	bool event(QEvent *ev);
 private:
 	static VkontakteProtocol *self;
 	QScopedPointer<VkontakteProtocolPrivate> d_ptr;

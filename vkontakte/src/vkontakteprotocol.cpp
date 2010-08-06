@@ -22,6 +22,12 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <qutim/icon.h>
+#include <QInputDialog>
+#include <qutim/message.h>
+#include <QDateTime>
+#include <qutim/messagesession.h>
+#include "vmessages.h"
+#include "vconnection.h"
 
 VkontakteProtocol *VkontakteProtocol::self = 0;
 
@@ -74,6 +80,13 @@ void VkontakteProtocol::loadAccounts()
 	homepage_gen.setType(ActionTypeContactList);
 	MenuController::addAction<VContact>(&homepage_gen);
 
+//	static ActionGenerator sms_gen(Icon("phone"),
+//							   QT_TRANSLATE_NOOP("Vkontakte","Send sms"),
+//							   d,
+//							   SLOT(onSendSmsTriggered(QObject*)));
+//	sms_gen.setType(ActionTypeContactList);
+//	MenuController::addAction<VContact>(&sms_gen);
+
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &uid, accounts) {
 		VAccount *acc = new VAccount(uid);
@@ -108,4 +121,32 @@ void VkontakteProtocolPrivate::onOpenWebPageTriggered(QObject *obj)
 	Q_ASSERT(obj);
 	QUrl url ("http://vkontakte.ru/id" + con->id());
 	QDesktopServices::openUrl(url);
+}
+
+void VkontakteProtocolPrivate::onSendSmsTriggered(QObject *obj)
+{
+	VContact *con = qobject_cast<VContact*>(obj);
+	Q_ASSERT(obj);
+	Q_UNUSED(con);
+	 bool ok;
+	 QWidget *widget = 0;
+	 QString text = QInputDialog::getText(widget, tr("Send sms"),
+										  tr("text:"), QLineEdit::Normal,
+										  QString()
+										  , &ok);
+	 if (ok && !text.count() <= 160) {
+		Message msg(text);
+		msg.setChatUnit(con);
+		msg.setProperty("title",tr("sms"));
+		msg.setProperty("action",true);
+		msg.setTime(QDateTime::currentDateTime());
+		ChatLayer::get(con,true)->appendMessage(msg);
+		VAccount *account = static_cast<VAccount*>(con->account());
+		account->connection()->messages()->sendSms(msg);
+	 }
+}
+
+bool VkontakteProtocol::event(QEvent *ev)
+{
+	return Protocol::event(ev);
 }

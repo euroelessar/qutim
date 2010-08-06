@@ -68,12 +68,12 @@ bool VContact::sendMessage(const Message& message)
 
 void VContact::setTags(const QStringList& tags)
 {
-//	d_func()->tags = tags;
+	//	d_func()->tags = tags;
 }
 
 void VContact::setInList(bool inList)
 {
-//	d_func()->inList = inList;
+	//	d_func()->inList = inList;
 }
 
 void VContact::setContactTags(const QStringList& tags)
@@ -156,7 +156,7 @@ void VContact::setContactName(const QString& name)
 void VContact::setName(const QString& name)
 {
 	Q_UNUSED(name);
-//	d_func()->name = name;
+	//	d_func()->name = name;
 }
 
 void VContact::setAvatar(const QString &avatar)
@@ -175,10 +175,18 @@ QString VContact::avatar() const
 
 bool VContact::event(QEvent *ev)
 {
+	Q_D(VContact);
 	if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-		if (!d_func()->activity.isEmpty())
-			event->appendField(QT_TRANSLATE_NOOP("ContactList","Activity"),d_func()->activity);
+		QString mobile = property("mobilePhone").toString();
+		if (!mobile.isEmpty())
+			event->appendField(QT_TRANSLATE_NOOP("ContactInfo", "Mobile phone"),
+							   mobile,
+							   ExtensionIcon("phone")
+							   );
+		if (!d->activity.isEmpty())
+			event->appendField(QT_TRANSLATE_NOOP("ContactInfo","Activity")
+							   ,d->activity);
 	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
 		Status::Type status = account()->status().type();
 		if (status >= Status::Online && status <= Status::Invisible) {
