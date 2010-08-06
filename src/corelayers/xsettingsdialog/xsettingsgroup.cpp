@@ -19,11 +19,12 @@
 #include <libqutim/configbase.h>
 #include <QDebug>
 
-XSettingsGroup::XSettingsGroup(const qutim_sdk_0_3::SettingsItemList& settings, QWidget* parent ) :
+XSettingsGroup::XSettingsGroup(const SettingsItemList& settings, QObject *controller, QWidget* parent ) :
 	QWidget(parent),
 	m_setting_list(settings),
 	ui(new Ui::XSettingsGroup),
-	m_animated(false)
+	m_animated(false),
+	m_controller(controller)
 {
 	ui->setupUi(this);
 	//appearance
@@ -98,6 +99,7 @@ void XSettingsGroup::currentRowChanged(int index)
 	if (ui->stackedWidget->indexOf(widget) == -1) {
 		widget->setParent(this);
 		widget->load();
+		widget->setController(m_controller);
 		ui->stackedWidget->addWidget(widget);
 		connect(widget, SIGNAL(modifiedChanged(bool)), SLOT(onWidgetModifiedChanged(bool)));
 	}

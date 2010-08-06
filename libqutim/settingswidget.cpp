@@ -61,6 +61,7 @@ namespace qutim_sdk_0_3
 		uint changed_num;
 		bool sleep; // Used to block signal sending on widget changing it's status
 		void clearValues();
+		QObject *controller;
 	};
 
 	void SettingsWidgetPrivate::clearValues()
@@ -83,6 +84,7 @@ namespace qutim_sdk_0_3
 		connect(p->mapper, SIGNAL(mapped(int)), this, SLOT(onStateChanged(int)));
 		p->changed_num = 0;
 		p->sleep = true;
+		p->controller = 0;
 	}
 
 	SettingsWidget::~SettingsWidget()
@@ -230,5 +232,15 @@ namespace qutim_sdk_0_3
 	{
 		Q_UNUSED(id);
 		Q_UNUSED(data);
+	}
+
+	void SettingsWidget::setController(QObject *controller)
+	{
+		p->controller = controller;
+	}
+
+	QObject *SettingsWidget::controller() const
+	{
+		return p->controller;
 	}
 }

@@ -51,7 +51,7 @@ namespace qutim_sdk_0_3
 
 	Settings::Type SettingsItem::type() const
 	{
-		if(p->type < Settings::General || p->type > Settings::Protocol)
+		if(p->type < Settings::General || p->type > Settings::Special)
 			return Settings::Invalid;
 		return p->type;
 	}

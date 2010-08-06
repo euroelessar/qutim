@@ -25,6 +25,7 @@
 #include <QCloseEvent>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <libqutim/debug.h>
 
 struct ActionEntry
 {
@@ -48,6 +49,7 @@ static ActionEntryMap init_entry_map()
 	map.insert(Settings::Appearance,ActionEntry(QT_TRANSLATE_NOOP("Settings","Appearance"),Icon("applications-graphics")));
 	map.insert(Settings::Plugin,ActionEntry(QT_TRANSLATE_NOOP("Settings","Plugins"),Icon("applications-other")));
 	map.insert(Settings::Special,ActionEntry(QT_TRANSLATE_NOOP("Settings","Special"),QIcon()));
+	map.insert(Settings::Invalid,ActionEntry(QT_TRANSLATE_NOOP("Settings","Invalid"),QIcon()));
 	return map;
 }
 
@@ -57,10 +59,11 @@ ActionEntryMap *entries()
 	return &map;
 }
 
-XSettingsDialog::XSettingsDialog(const SettingsItemList& settings, QWidget* parent) :
+XSettingsDialog::XSettingsDialog(const SettingsItemList& settings,QObject *controller, QWidget* parent) :
 	QDialog(parent),
 	ui(new Ui::XSettingsDialog),
-	m_group(new QActionGroup(this))
+	m_group(new QActionGroup(this)),
+	m_controller(controller)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	ui->setupUi(this);
@@ -108,7 +111,6 @@ void XSettingsDialog::update(const SettingsItemList &settings)
 		QAction *action = create(it.key());
 		m_group->addAction(action);
 		ui->xtoolBar->addAction(action);
-
 		//small spike
 		if (it.key() == Settings::General)
 			ui->xtoolBar->addSeparator();
@@ -155,10 +157,10 @@ void XSettingsDialog::onActionTriggered(QAction* action)
 		// TODO: need a way to add custom groups
 		XSettingsGroup *group = m_group_widgets.value(type);
 		if (!group) {
-			group = new XSettingsGroup(setting_items, this);
+			group = new XSettingsGroup(setting_items,m_controller,this);
 			ui->settingsStackedWidget->addWidget(group);
 			connect(group, SIGNAL(modifiedChanged(SettingsWidget*)), SLOT(onWidgetModifiedChanged(SettingsWidget*)));
-			connect(group, SIGNAL(titleChanged(QString,QString)), SLOT(onTitleChanged(QString)));
+			connect(group, SIGNAL(titleChanged(QString)), SLOT(onTitleChanged(QString)));
 			m_group_widgets.insert(type,group);
 		} else {
 			group->updateCurrentWidget();
@@ -174,6 +176,7 @@ void XSettingsDialog::onActionTriggered(QAction* action)
 			return;
 		} else if (ui->settingsStackedWidget->indexOf(widget) == -1) {
 			widget->setParent(this);
+			widget->setController(m_controller);
 			widget->load();
 			widget->layout()->setMargin(9);
 			connect(widget, SIGNAL(modifiedChanged(bool)), SLOT(onWidgetModifiedChanged(bool)));

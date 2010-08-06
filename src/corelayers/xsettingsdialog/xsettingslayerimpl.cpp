@@ -35,17 +35,17 @@ XSettingsLayerImpl::~XSettingsLayerImpl()
 }
 
 
-void XSettingsLayerImpl::show (const SettingsItemList& settings, const QObject* controller )
+void XSettingsLayerImpl::show (const SettingsItemList& settings, QObject* controller )
 {
 	XSettingsDialog *d = m_dialogs.value(controller);
 	if (!d) {
-		d = new XSettingsDialog(settings);
+		d = new XSettingsDialog(settings,controller);
 		m_dialogs[controller] = d;
 	}
 	d->show();
 }
 
-void XSettingsLayerImpl::update (const SettingsItemList& settings, const QObject* controller )
+void XSettingsLayerImpl::update (const SettingsItemList& settings, QObject* controller )
 {
 	XSettingsDialog *d = m_dialogs.value(controller);
 	if (!d)
@@ -53,7 +53,7 @@ void XSettingsLayerImpl::update (const SettingsItemList& settings, const QObject
 	d->update(settings);
 }
 
-void XSettingsLayerImpl::close(const QObject *controller)
+void XSettingsLayerImpl::close(QObject *controller)
 {
 	XSettingsDialog *d = m_dialogs.value(controller);
 	if (d) {

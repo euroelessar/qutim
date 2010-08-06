@@ -34,11 +34,11 @@ namespace qutim_sdk_0_3
 		enum Type
 		{
 			Invalid = 0,
-			General = 1,
-			Appearance = 2,
-			Plugin = 3,
-			Protocol = 4,
-			Special = 5
+			General,
+			Protocol,
+			Appearance,
+			Plugin,
+			Special
 		};
 
 		// Exmample of usage:
@@ -144,9 +144,9 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 		Q_CLASSINFO("Service", "SettingsLayer")
 	public:
-		virtual void show(const SettingsItemList &settings, const QObject *controller = 0) = 0;
-		virtual void close(const QObject* controller = 0) = 0;
-		virtual void update(const SettingsItemList &settings, const QObject *controller = 0) = 0;
+		virtual void show(const SettingsItemList &settings, QObject *controller = 0) = 0;
+		virtual void close(QObject* controller = 0) = 0;
+		virtual void update(const SettingsItemList &settings, QObject *controller = 0) = 0;
 	protected:
 		SettingsLayer();
 		virtual ~SettingsLayer();

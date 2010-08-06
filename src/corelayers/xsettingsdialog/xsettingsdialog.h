@@ -29,7 +29,7 @@ namespace Ui {
 class XSettingsDialog : public QDialog {
 	Q_OBJECT
 public:
-	XSettingsDialog(const SettingsItemList &settings,QWidget *parent = 0);
+	XSettingsDialog(const SettingsItemList &settings,QObject *controller,QWidget *widget = 0);
 	~XSettingsDialog();
 	void update(const SettingsItemList &settings);
 	//void setSettingsList(const SettingsItemList &settings);//TODO
@@ -50,6 +50,7 @@ private:
 	QMap<Settings::Type,SettingsItemList> m_settings_items;
 	QMap<Settings::Type,XSettingsGroup *> m_group_widgets; //TODO use only one group widget
 	QList<SettingsWidget *> m_modified_widgets;
+	QObject *m_controller;
 };
 
 #endif // XSETTINGSDIALOG_H

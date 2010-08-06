@@ -27,9 +27,9 @@ class XSettingsLayerImpl : public SettingsLayer
 public:
 	XSettingsLayerImpl();
 	virtual ~XSettingsLayerImpl();
-	virtual void close(const QObject* controller = 0);
-    virtual void show(const qutim_sdk_0_3::SettingsItemList& settings, const QObject* controller = 0);
-    virtual void update(const qutim_sdk_0_3::SettingsItemList& settings, const QObject* controller = 0);
+	virtual void close(QObject* controller = 0);
+	virtual void show(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller = 0);
+	virtual void update(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller = 0);
 private:
 	QHash<const QObject *,QPointer<XSettingsDialog> > m_dialogs;
 };

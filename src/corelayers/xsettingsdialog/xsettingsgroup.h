@@ -28,7 +28,7 @@ class XSettingsGroup : public QWidget
 {
 	Q_OBJECT
 public:
-	XSettingsGroup(const SettingsItemList &settings, QWidget* parent = 0);
+	XSettingsGroup(const SettingsItemList &settings,QObject *controller, QWidget* parent = 0);
 	virtual ~XSettingsGroup();
 	SettingsWidget *currentWidget() const;
 	void updateCurrentWidget();
@@ -36,13 +36,14 @@ public:
 signals:
 	void modifiedChanged(SettingsWidget *item);
 	void titleChanged(const QString &title);
+protected slots:
+	void currentRowChanged(int index);	
+	void onWidgetModifiedChanged(bool haveChanges);
 private:
 	SettingsItemList m_setting_list;
 	Ui::XSettingsGroup *ui;
 	bool m_animated;
-protected slots:
-	void currentRowChanged(int index);
-	void onWidgetModifiedChanged(bool haveChanges);
+	QObject *m_controller;
 };
 
 #endif // XSETTINGSGROUP_H
