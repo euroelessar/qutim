@@ -141,7 +141,7 @@ void XSettingsDialog::onActionTriggered(QAction* action)
 			group = new XSettingsGroup(setting_items, this);
 			ui->settingsStackedWidget->addWidget(group);
 			connect(group, SIGNAL(modifiedChanged(SettingsWidget*)), SLOT(onWidgetModifiedChanged(SettingsWidget*)));
-			connect(group, SIGNAL(titleChanged(QString)), SLOT(onTitleChanged(QString)));
+			connect(group, SIGNAL(titleChanged(QString,QString)), SLOT(onTitleChanged(QString)));
 			m_group_widgets.insert(type,group);
 		} else {
 			group->updateCurrentWidget();

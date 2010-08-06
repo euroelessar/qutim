@@ -44,8 +44,8 @@ namespace qutim_sdk_0_3
 		virtual void setName(const QString &name);
 	signals:
 		void avatarChanged(const QString &path);
-		void statusChanged(const qutim_sdk_0_3::Status &status);
-		void nameChanged(const QString &name);
+		void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+		void nameChanged(const QString &current, const QString &previous);
 	};
 }
 

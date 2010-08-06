@@ -185,10 +185,8 @@ namespace Core
 			action->setIcon(m_account->status().icon());
 			QMenu *menu = m_account->menu(false);
 			QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
-			QObject::connect(m_account,
-							 SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
-							 action,SLOT(onStatusChanged(qutim_sdk_0_3::Status))
-							);
+			QObject::connect(m_account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+							 action, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 			action->setMenu(menu);
 			return action;
 		}
@@ -213,7 +211,7 @@ namespace Core
 		m_actions.insert(account, gen);
 		addAction(gen);
 		connect(account, SIGNAL(destroyed(QObject*)), this, SLOT(onAccountDestroyed(QObject*)));
-		connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
+		connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 				this, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
 		if (!m_activeAccount) {
 			if (account->status().type() != Status::Offline)

@@ -70,8 +70,9 @@ namespace Core
 		{
 			if (m_name == name)
 				return;
+			QString previous = m_name;
 			m_name = name;
-			emit nameChanged(m_name);
+			emit nameChanged(m_name, previous);
 		}
 		
 		Status MetaContactImpl::status() const
@@ -81,10 +82,11 @@ namespace Core
 		
 		void MetaContactImpl::setTags(const QStringList &tags)
 		{
+			QStringList previous = m_tags;
 			m_tags = tags;
 			for (int i = 0; i < m_contacts.size(); i++)
 				m_contacts.at(i)->setTags(tags);
-			emit tagsChanged(tags);
+			emit tagsChanged(tags, previous);
 		}
 
 		bool MetaContactImpl::sendMessage(const Message &message)
@@ -102,6 +104,7 @@ namespace Core
 			if (m_contacts.contains(contact) || (contact == this))
 				return;
 			
+			QStringList previous = m_tags;
 			QStringList contactTags = contact->tags();
 			bool haveChanges = false;
 			for (int i = 0; i < contactTags.size(); i++) {
@@ -110,14 +113,15 @@ namespace Core
 					haveChanges = true;
 				}
 			}
-			emit tagsChanged(m_tags);
+			emit tagsChanged(m_tags, previous);
 			
 			haveChanges = false;
 			int index = qUpperBound(m_contacts.begin(), m_contacts.end(), contact, contactLessThan)
 						- m_contacts.begin();
 			m_contacts.insert(index, contact);
 			MetaContact::addContact(contact);
-			connect(contact,SIGNAL(statusChanged(qutim_sdk_0_3::Status)),SLOT(onContactStatusChanged()));
+			connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+					SLOT(onContactStatusChanged()));
 			
 			if (index == 0)
 				resetStatus();
@@ -148,8 +152,9 @@ namespace Core
 					break;
 			}
 			if (currentName != m_name) {
+				QString previous = m_name;
 				m_name = currentName;
-				emit nameChanged(m_name);
+				emit nameChanged(m_name, previous);
 			}
 		}
 		
@@ -158,10 +163,12 @@ namespace Core
 			if (m_contacts.isEmpty()) {
 				if (m_status.type() == Status::Offline)
 					return;
+				Status previous = m_status;
 				m_status = Status();
-				emit statusChanged(m_status);
+				emit statusChanged(m_status, previous);
 				return;
 			}
+			Status previous = m_status;
 			Status contactStatus = m_contacts.first()->status();
 			if (contactStatus.type() == m_status.type()
 				&& contactStatus.text() == m_status.text()) {
@@ -182,7 +189,7 @@ namespace Core
 					}
 				}
 			}
-			emit statusChanged(m_status);
+			emit statusChanged(m_status, previous);
 		}
 		
 		void MetaContactImpl::onContactStatusChanged()

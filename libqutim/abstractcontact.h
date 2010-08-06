@@ -43,8 +43,8 @@ namespace qutim_sdk_0_3
 		virtual bool sendMessage(const Message &message) = 0;
 		virtual void setName(const QString &name) = 0;
 	signals:
-		void statusChanged(const Status &status);
-		void nameChanged(const QString &name);
+		void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+		void nameChanged(const QString &current, const QString &previous);
 	private:
 		QScopedPointer<AbstractContactPrivate> p;
 	};

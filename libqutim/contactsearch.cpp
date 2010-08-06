@@ -96,7 +96,7 @@ namespace qutim_sdk_0_3
 		accounts.insert(item.id, item);
 		QObject::connect(account, SIGNAL(destroyed()),
 						 q, SLOT(accountRemoved()));
-		QObject::connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status)),
+		QObject::connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 						 q, SLOT(accountStatusChanged(qutim_sdk_0_3::Status)));
 		return item;
 	}

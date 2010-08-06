@@ -86,10 +86,7 @@ namespace qutim_sdk_0_3
 	protected:
 		bool event(QEvent *);
 	signals:
-		void avatarChanged(const QString &path);
-		void statusChanged(const qutim_sdk_0_3::Status &status);
-		void nameChanged(const QString &name);
-		void tagsChanged(const QStringList &tags);
+		void tagsChanged(const QStringList &current, const QStringList &previous);
 		void inListChanged(bool inList);
 	private:
 		friend class MetaContact;

@@ -5,7 +5,7 @@
 #include <QScrollArea>
 #include <libqutim/buddy.h>
 #include <libqutim/inforequest.h>
-#include <libqutim/actiontoolbar.h>
+#include <3rdparty/actionbox/actionbox.h>
 
 class QLabel;
 class QGridLayout;
@@ -40,7 +40,7 @@ namespace Core
 		QScrollArea *scrollArea;
 		QScopedPointer<QWidget> avatarWidget;
 		QScopedPointer<QWidget> dataWidget;
-		ActionToolBar *toolBar;
+		ActionBox *actionBox;
 		QAction *saveAction;
 	};
 

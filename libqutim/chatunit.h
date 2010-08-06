@@ -132,7 +132,7 @@ namespace qutim_sdk_0_3
 		  Notify that ChatUnit's \a title is changed, may be because of
 		  changes in name
 		*/
-		void titleChanged(const QString &title);
+		void titleChanged(const QString &current, const QString &previous);
 		/**
 		  Notifies that new lower unit is added.
 		 */

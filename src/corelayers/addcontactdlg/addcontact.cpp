@@ -99,7 +99,8 @@ namespace Core {
 				d->accounts.insert(acc->id(), acc);
 				d->buttons.insert(acc->id(), button);
 				changeState(acc, acc->status());
-				connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status)), SLOT(changeState(qutim_sdk_0_3::Status)));
+				connect(acc, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+						SLOT(changeState(qutim_sdk_0_3::Status)));
 			}
 			if (d->accounts.count() == 1)
 				setAccount(d->accounts.values().at(0));

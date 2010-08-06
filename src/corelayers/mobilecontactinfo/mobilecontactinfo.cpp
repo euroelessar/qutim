@@ -18,7 +18,7 @@ namespace Core
 
 	MobileContactInfoWindow::MobileContactInfoWindow() :
 			request(0),
-			toolBar(new ActionToolBar(this))
+			actionBox(new ActionBox(this))
 	{
 		scrollArea = new QScrollArea(this);
 		scrollArea->setWidgetResizable(true);
@@ -29,16 +29,16 @@ namespace Core
 		scrollArea->setWidget(scrollWidget);
 		QVBoxLayout *l = new QVBoxLayout(this);
 		l->addWidget(scrollArea);
-		l->addWidget(toolBar, 0, Qt::AlignCenter);
+		l->addWidget(actionBox, 0, Qt::AlignCenter);
 		l->setMargin(0);
 		resize(400, 500);
 
-		QAction *action = new QAction(tr("Request details"), toolBar);
+		QAction *action = new QAction(tr("Request details"), actionBox);
 		connect(action, SIGNAL(triggered()), SLOT(onRequestButton()));
-		toolBar->addAction(action);
-		saveAction = new QAction(tr("Save"), toolBar);
+		actionBox->addAction(action);
+		saveAction = new QAction(tr("Save"), actionBox);
 		connect(saveAction, SIGNAL(triggered()), SLOT(onSaveButton()));
-		toolBar->addAction(saveAction);
+		actionBox->addAction(saveAction);
 	}
 
 	void MobileContactInfoWindow::setObject(QObject *obj, RequestType type)
