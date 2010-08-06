@@ -79,16 +79,16 @@ bool ProxyContact::sendMessage(const Message &message)
 void ProxyContact::onJoined()
 {
 	if (!m_conn) {
-		updateStatus();
 		m_conn = true;
+		updateStatus();
 	}
 }
 
 void ProxyContact::onLeft()
 {
 	if (m_conn) {
-		updateStatus();
 		m_conn = false;
+		updateStatus();
 	}
 }
 
