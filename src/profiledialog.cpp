@@ -75,6 +75,19 @@ ProfileDialog::~ProfileDialog()
 
 Config ProfileDialog::profilesInfo()
 {
+	QFileInfo profilesInfo(ProfilesConfigPath());
+	if (!profilesInfo.exists() || !profilesInfo.isFile()) {
+		return Config(QVariantMap());
+	} else {
+		JsonFile file(profilesInfo.absoluteFilePath());
+		QVariant var;
+		file.load(var);
+		return Config(var.toMap());
+	}
+}
+
+QString ProfileDialog::ProfilesConfigPath()
+{
 	QDir dir = qApp->applicationDirPath();
 	if (!dir.exists("profiles") || !dir.cd("profiles")) {
 #if defined(Q_OS_WIN)
@@ -89,15 +102,7 @@ Config ProfileDialog::profilesInfo()
 		dir.mkpath("qutim/profiles");
 		dir.cd("qutim/profiles");
 	}
-	QFileInfo profilesInfo(dir.filePath("profiles.json"));
-	if (!profilesInfo.exists() || !profilesInfo.isFile()) {
-		return Config(QVariantMap());
-	} else {
-		JsonFile file(profilesInfo.absoluteFilePath());
-		QVariant var;
-		file.load(var);
-		return Config(var.toMap());
-	}
+	return dir.filePath("profiles.json");
 }
 
 bool ProfileDialog::acceptProfileInfo(Config &config, const QString &password)
@@ -173,6 +178,13 @@ void ProfileDialog::login(const QString &password)
 {
 	QVariant variant = ui->profileList->currentItem()->data(Qt::UserRole + 1);
 	Config config = variant.value<Config>();
+	JsonFile file(ProfilesConfigPath());
+	QVariant var;
+	QVariantMap varMap;
+	file.load(var);
+	varMap = var.toMap();
+	Config(&varMap).setValue("current", config.value("id", QString()));
+	file.save(varMap);
 	if (acceptProfileInfo(config, password)) {
 		QTimer::singleShot(0, m_manager, SLOT(initExtensions()));
 		deleteLater();

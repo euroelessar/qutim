@@ -34,8 +34,9 @@ protected:
     void changeEvent(QEvent *e);
 
 private:
+	static QString ProfilesConfigPath();
 	ModuleManager *m_manager;
-    Ui::ProfileDialog *ui;
+	Ui::ProfileDialog *ui;
 };
 }
 
