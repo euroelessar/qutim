@@ -32,6 +32,7 @@ class IcqAccount;
 class BuddyPicture;
 class Roster;
 class Feedbag;
+class Md5Login;
 
 class OscarConnection: public AbstractConnection
 {
@@ -45,7 +46,8 @@ public:
 protected:
 	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private slots:
-	void disconnected();
+	void onDisconnect();
+	void onError(ConnectionError error);
 	void md5Error(ConnectionError error);
 	void accountInfoReceived(bool ok);
 private:
@@ -57,6 +59,7 @@ private:
 	quint16 m_status_flags;
 	QByteArray m_auth_cookie;
 	bool m_is_idle;
+	Md5Login *m_md5login;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

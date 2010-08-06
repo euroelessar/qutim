@@ -138,10 +138,11 @@ namespace Jabber
 	void JMUCManager::setPresenceToRooms(Presence::PresenceType presence)
 	{
 		if (presence == Presence::Unavailable) {
-			foreach (JMUCSession *room, p->rooms)
+			foreach (JMUCSession *room, p->rooms) {
 				if(room->isJoined()) {
-				room->setAutoJoin(true);
-				room->leave();
+					room->setAutoJoin(true);
+					room->leave();
+				}
 			}
 		} else {
 			foreach (JMUCSession *room, p->rooms)

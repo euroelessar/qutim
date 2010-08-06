@@ -90,6 +90,7 @@ public:
 	QHash<quint16, OscarRate*> rates;
 	QHash<quint32, OscarRate*> ratesHash;
 	AbstractConnection::ConnectionError error;
+	QString errorStr;
 	IcqAccount *account;
 };
 

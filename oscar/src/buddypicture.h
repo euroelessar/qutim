@@ -57,8 +57,8 @@ protected:
 	void processCloseConnection();
 	virtual bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	virtual void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs);
+	void onDisconnect();
 private slots:
-	void disconnected();
 	void updateSettings();
 private:
 	inline QString getAvatarDir() const;

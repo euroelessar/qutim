@@ -29,6 +29,7 @@ class Md5Login: public AbstractConnection
 public:
 	Md5Login(const QString &password, IcqAccount *account);
 	virtual ~Md5Login();
+public slots:
 	void login();
 protected:
 	virtual void processNewConnection();

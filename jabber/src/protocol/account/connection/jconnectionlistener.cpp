@@ -33,6 +33,7 @@ namespace Jabber
 	void JConnectionListener::onDisconnect(ConnectionError error)
 	{
 //		p->account->client()->setCompression();
+		p->account->endChangeStatus(Presence::Unavailable);
 		if (error != ConnNoError && error != ConnUserDisconnected && error != ConnNotConnected) {
 			QString s;
 			switch (error) {

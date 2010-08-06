@@ -43,7 +43,6 @@ BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
 	m_types << SsiBuddyIcon;
 	registerHandler(this);
 	socket()->setProxy(account->connection()->socket()->proxy());
-	connect(socket(), SIGNAL(disconnected()), SLOT(disconnected()));
 	account->feedbag()->registerHandler(this);
 	account->registerRosterPlugin(this);
 	connect(account, SIGNAL(settingsUpdated()), this, SLOT(updateSettings()));
@@ -244,7 +243,7 @@ void BuddyPicture::statusChanged(IcqContact *contact, Status &status, const TLVM
 	}
 }
 
-void BuddyPicture::disconnected()
+void BuddyPicture::onDisconnect()
 {
 	m_is_connected = false;
 	m_history.clear();
