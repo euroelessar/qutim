@@ -85,7 +85,7 @@ namespace qutim_sdk_0_3
 	}
 
 	DataItem &DataItem::operator=(const DataItem &item)
-								 {
+	{
 		d = item.d;
 		return *this;
 	}
@@ -136,6 +136,12 @@ namespace qutim_sdk_0_3
 		return d->subitems;
 	}
 
+	void DataItem::setSubitems(const QList<DataItem> &subitems)
+	{
+		ensure_data(d);
+		d->subitems = subitems;
+	}
+
 	DataItem DataItem::subitem(const QString &name, bool recursive) const
 	{
 		if (!d)
@@ -172,6 +178,8 @@ namespace qutim_sdk_0_3
 
 	bool DataItem::isMultiple() const
 	{
+		if (d->data.type() == QVariant::StringList || d->data.canConvert<LocalizedStringList>())
+			return false;
 		return d->maxCount != 1;
 	}
 

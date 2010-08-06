@@ -34,6 +34,7 @@ namespace qutim_sdk_0_3
 		void setData(const QVariant &data);
 		bool isNull() const;
 		QList<DataItem> subitems() const;
+		void setSubitems(const QList<DataItem> &subitems);
 		DataItem subitem(const QString &name, bool recursive = false) const;
 		void addSubitem(const DataItem &item);
 		bool hasSubitems() const;

@@ -56,6 +56,8 @@ ComboBox::ComboBox(const QString &value, const QStringList &alt,
 	if (validator)
 		setValidator(validator);
 	setEditable(item.property("editable", false));
+	setMinimumContentsLength(12);
+	setSizeAdjustPolicy(AdjustToMinimumContentsLength);
 }
 
 DataItem ComboBox::item() const
