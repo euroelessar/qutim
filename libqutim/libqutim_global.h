@@ -110,6 +110,9 @@ namespace qutim_sdk_0_3
 	//NOTE it's return themename not themepath!
 	LIBQUTIM_EXPORT void centerizeWidget(QWidget *widget); //move widget to center of current screen
 	LIBQUTIM_EXPORT QObject *getService(const QByteArray &name);
+	template<typename T>
+	LIBQUTIM_EXPORT T getService(const QByteArray &name)
+	{return qobject_cast<T>(getService(name));}
 	LIBQUTIM_EXPORT QList<QByteArray> getServiceNames();
 
 

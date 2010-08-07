@@ -28,6 +28,7 @@ namespace qutim_sdk_0_3
 	class SettingsWidget;
 	class SettingsItem;
 	class SettingsItemPrivate;
+	class MenuController;
 
 	namespace Settings
 	{
@@ -147,6 +148,7 @@ namespace qutim_sdk_0_3
 		virtual void show(const SettingsItemList &settings, QObject *controller = 0) = 0;
 		virtual void close(QObject* controller = 0) = 0;
 		virtual void update(const SettingsItemList &settings, QObject *controller = 0) = 0;
+		void show (MenuController *controller);
 	protected:
 		SettingsLayer();
 		virtual ~SettingsLayer();

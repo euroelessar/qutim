@@ -21,6 +21,7 @@
 #include <QCheckBox>
 #include <QRadioButton>
 #include "configbase.h"
+#include "menucontroller.h"
 
 namespace qutim_sdk_0_3
 {
@@ -327,6 +328,11 @@ namespace qutim_sdk_0_3
 	{
 		Q_UNUSED(id);
 		Q_UNUSED(data);
+	}
+
+	void SettingsLayer::show(MenuController *controller)
+	{
+		show(controller->settings(),controller);
 	}
 
 }

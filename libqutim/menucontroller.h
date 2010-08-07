@@ -162,12 +162,12 @@ void MyObject::onAction()
 		/*!
 		  Add settings \a item to every object with QMetaObject \a meta.
 		*/		
-		static void addSettingsItem(const SettingsItem *item, const QMetaObject *meta);
+		static void addSettingsItem(SettingsItem *item, const QMetaObject *meta);
 		/*!
 		  Add settings \a item to every object of type \a T.
 		*/		
 		template <typename T>
-		static void addSettingsItem(const SettingsItem *item);
+		static void addSettingsItem(SettingsItem *item);
 	public slots:
 		/*!
 		  Show menu at position \a pos and delete it after closing.
@@ -241,7 +241,7 @@ void MyObject::onAction()
 		addAction(gen, meta, QByteArray::fromRawData(menu, N - 1).split('\0'));
 	}
 	template <typename T>
-	void MenuController::addSettingsItem(const qutim_sdk_0_3::SettingsItem* item)
+	void MenuController::addSettingsItem(qutim_sdk_0_3::SettingsItem* item)
 	{
 		addSettings(item,&T::staticMetaObject);
 	}

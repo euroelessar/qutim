@@ -36,6 +36,7 @@ namespace Core
 		void listViewClicked(QListWidgetItem *item);
 		void onWizardDestroyed();
 		void onAccountRemoveTriggered();
+		void onAccountPropertiesTriggered();
 	private:
 		Ui::AccountCreatorList *ui;
 		QPointer<AccountCreatorWizard> m_wizard;

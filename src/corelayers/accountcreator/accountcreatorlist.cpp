@@ -8,6 +8,7 @@
 #include "itemdelegate.h"
 #include <QMessageBox>
 #include <libqutim/debug.h>
+#include <libqutim/settingslayer.h>
 
 namespace Core
 {
@@ -127,8 +128,10 @@ namespace Core
 					QMenu *menu = new QMenu();
 					menu->setAttribute(Qt::WA_DeleteOnClose,true);
 					QAction *act = new QAction(menu);
-					act->setText(tr("Edit info"));
+					act->setText(tr("Properties"));
 					act->setIcon(Icon("document-properties"));
+					act->setData(qVariantFromValue(account));
+					connect(act,SIGNAL(triggered()),SLOT(onAccountPropertiesTriggered()));
 					menu->addAction(act);
 
 					act = new QAction(menu);
@@ -179,5 +182,17 @@ namespace Core
 								QMessageBox::No);
 		if (ret == QMessageBox::Yes)
 			account->protocol()->removeAccount(account);
+	}
+
+	void AccountCreatorList::onAccountPropertiesTriggered()
+	{
+		QAction *action = qobject_cast<QAction*>(sender());
+		Q_ASSERT(action);
+		Account *account = action->data().value<Account*>();
+		if (!account)
+			return;
+		SettingsLayer *layer = getService<SettingsLayer*>("SettingsLayer");
+		debug() << "showed";
+		layer->show(account);
 	}
 }

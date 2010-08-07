@@ -22,7 +22,8 @@ namespace Core
 	enum ItemRole
 	{
 		DescriptionRole = Qt::UserRole + 1,
-		SeparatorRole
+		SeparatorRole,
+		ActionRole //TODO
 	};
 
 	Q_DECLARE_FLAGS(ItemRoles,ItemRole);

@@ -23,7 +23,7 @@ namespace qutim_sdk_0_3
 {
 
 	typedef QMap<const QMetaObject *, ActionInfo> MenuActionMap;
-	typedef QMap<const QMetaObject *,const SettingsItem*> MenuSettingsMap;
+	typedef QMap<const QMetaObject *,SettingsItem*> MenuSettingsMap;
 	typedef QMap<const ActionGenerator*,QMap<const QObject*, QAction*> > ActionGeneratorMap;
 
 	Q_GLOBAL_STATIC(MenuActionMap, globalActions)
