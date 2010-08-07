@@ -76,7 +76,7 @@ namespace Jabber
 				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
 									this, SLOT(onConvertToMuc(QObject*))));
 		
-		ActionGenerator *generator  = new ActionGenerator(Icon(""),QT_TRANSLATE_NOOP("Jabber", "Join to conference"),
+		ActionGenerator *generator  = new ActionGenerator(Icon(""),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
 				this, SLOT(onJoinLeave(QObject*)));
 		generator->addHandler(ActionVisibilityChangedHandler,this);
 		generator->setType(0);
@@ -273,9 +273,9 @@ namespace Jabber
 				switch (type) {
 				case JoinLeaveAction: {
 					if (!room->isJoined())
-						action->setText(QT_TRANSLATE_NOOP("Jabber", "Join to conference"));
+						action->setText(QT_TRANSLATE_NOOP("Jabber", "Join conference"));
 					else
-						action->setText(QT_TRANSLATE_NOOP("Jabber", "Leave from conference"));
+						action->setText(QT_TRANSLATE_NOOP("Jabber", "Leave conference"));
 					break;
 					}
 				case RoomConfigAction: {
