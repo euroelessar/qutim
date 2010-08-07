@@ -17,6 +17,10 @@
 #include <qutim/debug.h>
 #include "vkontakteprotocol.h"
 #include "ui/vaccountcreator.h"
+#include "ui/vaccountsettings.h"
+#include <qutim/settingslayer.h>
+#include <qutim/menucontroller.h>
+#include "vaccount.h"
 
 void VkontaktePlugin::init()
 {
@@ -41,7 +45,9 @@ void VkontaktePlugin::init()
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Vkontakte account creator"),
 				 QT_TRANSLATE_NOOP("Plugin", "Account creator for Vkontakte"),
 				 new GeneralGenerator<VAccountCreator>(),
-				 vicon); 
+				 vicon);
+	GeneralSettingsItem<VAccountSettings> *item = new GeneralSettingsItem<VAccountSettings>(Settings::Special,QIcon(),QT_TRANSLATE_NOOP("Vkontakte","Account settings"));
+	MenuController::addSettingsItem<VAccount>(item);
 	
 }
 bool VkontaktePlugin::load()
