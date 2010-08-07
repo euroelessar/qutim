@@ -47,5 +47,6 @@ namespace qutim_sdk_0_3
 				event->addHtml(text, 90);
 			}
 		}
+		return ChatUnit::event(ev);
 	}
 }
