@@ -66,16 +66,16 @@ namespace qutim_sdk_0_3
 	{
 		QString text;
 		bool dataEmpty = data.toString().isEmpty();
+		if (!icon.isEmpty()) {
+			QString iconPath = IconLoader::instance()->iconPath(icon, 16);
+			if (!iconPath.isEmpty())
+				text += "<img src='" + iconPath + "'>";
+		}
 		if (!title.toString().isEmpty()) {
 			text += QLatin1Literal("<b>") % title.toString();
 			if (!dataEmpty)
 				text += ":";
 			text += "</b>";
-		}
-		if (!icon.isEmpty()) {
-			QString iconPath = IconLoader::instance()->iconPath(icon, 16);
-			if (!iconPath.isEmpty())
-				text += " <img src='" + iconPath + "'>";
 		}
 		if (!dataEmpty) {
 			if (!text.isEmpty())
