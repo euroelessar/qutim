@@ -22,6 +22,7 @@
 #include "buddycaps.h"
 #include "oscarstatus.h"
 #include "inforequest_p.h"
+#include "metainfo/updateaccountinfometarequest.h"
 #include <qutim/status.h>
 #include <qutim/systeminfo.h>
 #include <qutim/objectgenerator.h>
@@ -446,7 +447,7 @@ bool IcqAccount::event(QEvent *ev)
 		event->accept();
 	} else if (ev->type() == InfoItemUpdatedEvent::eventType()) {
 		InfoItemUpdatedEvent *event = static_cast<InfoItemUpdatedEvent*>(ev);
-		MetaInfoValuesHash values = MetaInfoField::dataItemToHash(event->infoItem(), true);
+		MetaInfoValuesHash values = MetaField::dataItemToHash(event->infoItem(), true);
 		UpdateAccountInfoMetaRequest *request = new UpdateAccountInfoMetaRequest(this, values);
 		connect(request, SIGNAL(infoUpdated()), request, SLOT(deleteLater()));
 		request->send();

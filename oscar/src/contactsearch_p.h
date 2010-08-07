@@ -2,7 +2,7 @@
 #define OSCARCONTACTSEARCH_H
 
 #include "qutim/contactsearch.h"
-#include "metainfo.h"
+#include "metainfo/findcontactsmetarequest.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -25,7 +25,7 @@ private slots:
 	void onNewContact(const FindContactsMetaRequest::FoundContact &contact);
 	void onDone(bool ok);
 private:
-	void addField(DataItem &item, const MetaInfoField &field) const;
+	void addField(DataItem &item, const MetaField &field) const;
 	QScopedPointer<FindContactsMetaRequest> m_request;
 	QList<FindContactsMetaRequest::FoundContact> m_contacts;
 	QString m_uin;

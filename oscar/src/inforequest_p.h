@@ -2,7 +2,7 @@
 #define OSCAR_INFOREQUEST_H
 
 #include "qutim/inforequest.h"
-#include "metainfo.h"
+#include "metainfo/infometarequest.h"
 #include <QPointer>
 
 namespace qutim_sdk_0_3 {
@@ -23,7 +23,7 @@ public:
 private slots:
 	void onDone(bool ok);
 private:
-	void addItem(const MetaInfoField &field, DataItem &group) const;
+	void addItem(const MetaField &field, DataItem &group) const;
 	void init();
 	QPointer<FullInfoMetaRequest> m_metaReq;
 	MetaInfoValuesHash m_values;

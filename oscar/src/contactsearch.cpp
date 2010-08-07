@@ -31,7 +31,7 @@ DataItem OscarContactSearch::fields() const
 	return item;
 }
 
-void OscarContactSearch::addField(DataItem &item, const MetaInfoField &field) const
+void OscarContactSearch::addField(DataItem &item, const MetaField &field) const
 {
 	item.addSubitem(field.toDataItem(QVariant(), false));
 }
@@ -40,7 +40,7 @@ void OscarContactSearch::start(const DataItem &fields)
 {
 	m_contacts.clear();
 	Status::Type status = m_account->status().type();
-	MetaInfoValuesHash values = MetaInfoField::dataItemToHash(fields);
+	MetaInfoValuesHash values = MetaField::dataItemToHash(fields);
 	if (status >= Status::Online && status <= Status::Invisible) {
 		Q_ASSERT(!m_request);
 		m_request.reset(new FindContactsMetaRequest(m_account, values));

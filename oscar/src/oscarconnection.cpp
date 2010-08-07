@@ -23,7 +23,7 @@
 #include "messages_p.h"
 #include "oscarstatus_p.h"
 #include "sessiondataitem.h"
-#include "metainfo.h"
+#include "metainfo/infometarequest.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/notificationslayer.h>
 #include <QHostInfo>

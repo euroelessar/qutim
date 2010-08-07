@@ -17,7 +17,7 @@
 #include "oscarplugin.h"
 #include "icqprotocol.h"
 #include "roster_p.h"
-#include "metainfo_p.h"
+#include "metainfo/metainfo_p.h"
 #include "messages_p.h"
 #include "authorization_p.h"
 #include "privacylists_p.h"

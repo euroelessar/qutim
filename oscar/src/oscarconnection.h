@@ -18,7 +18,6 @@
 #define OSCARCONNECTION_H
 
 #include "connection.h"
-#include "metainfo.h"
 #include "oscarstatus.h"
 
 namespace qutim_sdk_0_3 {

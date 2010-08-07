@@ -18,7 +18,7 @@ IcqInfoRequest::IcqInfoRequest(IcqAccount *account) :
 IcqInfoRequest::IcqInfoRequest(IcqContact *contact) :
 	m_accountInfo(false), m_contact(contact)
 {
-	m_metaReq = new FullInfoMetaRequest(contact->account(), contact);
+	m_metaReq = new FullInfoMetaRequest(contact);
 	init();
 }
 
@@ -169,12 +169,12 @@ DataItem IcqInfoRequest::item(const QString &name) const
 		}
 		return item;
 	} else {
-		MetaInfoField field(name);
+		MetaField field(name);
 		return DataItem(name, field.toString(), m_values.value(field));
 	}
 }
 
-void IcqInfoRequest::addItem(const MetaInfoField &field, DataItem &group) const
+void IcqInfoRequest::addItem(const MetaField &field, DataItem &group) const
 {
 	group.addSubitem(field.toDataItem(m_values.value(field)));
 }

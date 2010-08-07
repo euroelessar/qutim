@@ -18,7 +18,7 @@
 #include "messages.h"
 #include "buddycaps.h"
 #include "icqaccount.h"
-#include "metainfo.h"
+#include "metainfo/infometarequest.h"
 #include "inforequest_p.h"
 #include "qutim/messagesession.h"
 #include "qutim/notificationslayer.h"
@@ -47,7 +47,7 @@ void IcqContactPrivate::requestNick()
 {
 	Q_Q(IcqContact);
 	if (name.isEmpty()) {
-		ShortInfoMetaRequest *req = new ShortInfoMetaRequest(account, q);
+		ShortInfoMetaRequest *req = new ShortInfoMetaRequest(q);
 		QObject::connect(req, SIGNAL(done(bool)), q, SLOT(infoReceived(bool)));
 		req->send();
 	}
