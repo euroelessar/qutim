@@ -114,7 +114,7 @@ namespace KineticPopups
 
 	void Manager::loadSettings()
 	{
-		Config general = Config("appearance").group("kineticpopups/eneral");
+		Config general = Config("appearance").group("kineticpopups/general");
 		QString theme_name = general.value<QString>("themeName","default");
 		loadTheme(theme_name);
 		

@@ -60,7 +60,7 @@ namespace Core
 
 	void PopupBehavior::loadImpl()
 	{
-		Config behavior = Config("behavior/notifications").group("popups");
+		Config behavior = Config("behavior").group("notifications/popups");
 		int animationDuration = behavior.value<int>("animationDuration",600);
 		int timeout = behavior.value<int>("timeout",5000);
 		m_popup_flags = behavior.value<int>("showFlags",0xfffffff);
@@ -83,7 +83,7 @@ namespace Core
 
 	void PopupBehavior::saveImpl()
 	{
-		Config behavior = Config("behavior/notifications").group("popups");
+		Config behavior = Config("behavior").group("notifications/popups");
 		behavior.setValue("animationDuration",ui->animationSpeed->itemData(ui->animationSpeed->currentIndex()));
 		behavior.setValue("timeout",ui->timeout->text().toInt());
 		behavior.setValue("showFlags",m_popup_flags);

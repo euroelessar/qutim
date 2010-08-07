@@ -59,7 +59,7 @@ namespace Core
 
 	void PopupAppearance::saveImpl()
 	{
-		ConfigGroup general = Config("appearance/kineticpopups").group("general");
+		ConfigGroup general = Config("appearance").group("kineticpopups/general");
 		general.setValue("themeName",m_current_theme);
 		general.sync();
 		Manager::self()->loadTheme(m_current_theme);
