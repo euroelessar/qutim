@@ -1,9 +1,0 @@
-TARGET = urlpreview
-HEADERS += urlpreview.h settings.h
-SOURCES += urlpreview.cpp settings.cpp
-INCLUDEPATH += /usr/include ../../include
-CONFIG += qt plugin
-QT += core gui network
-TEMPLATE = lib
-RESOURCES += urlpreview.qrc
-FORMS += settings.ui
