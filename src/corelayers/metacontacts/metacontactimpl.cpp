@@ -20,6 +20,7 @@
 #include <libqutim/tooltip.h>
 #include <QApplication>
 #include <libqutim/protocol.h>
+#include <QLatin1Literal>
 
 using namespace qutim_sdk_0_3;
 
@@ -221,17 +222,21 @@ namespace Core
 		bool MetaContactImpl::event(QEvent* ev)
 		{
 			if (ev->type() == ToolTipEvent::eventType()) {
-				ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-				foreach (Contact *contact,m_contacts) {
-					//small hack
-					Status status = contact->status();
-					QString icon = Status::iconName(status.type(),contact->account()->protocol()->id());
-					QString body = QString("%1 (%2)").arg(contact->id(),contact->account()->name());
-					event->appendField(contact->title(),body,icon);
-					qApp->sendEvent(contact,event);
+				if (ev->type() == ToolTipEvent::eventType()) {
+					ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+					if (event->fieldsTypes() & ToolTipEvent::GenerateBorder)
+						Contact::event(ev);
+					foreach (ChatUnit *contact, m_contacts) {
+						ToolTipEvent contactEvent(ToolTipEvent::GenerateFields);
+						qApp->sendEvent(contact, &contactEvent);
+						QString text = contactEvent.html();
+						if (!text.isEmpty())
+							event->addHtml(QLatin1Literal("<br/><br/>") % text);
+					}
+					return true;
 				}
 			}			
-			return qutim_sdk_0_3::Contact::event(ev);
+			return qutim_sdk_0_3::MetaContact::event(ev);
 		}
 
 

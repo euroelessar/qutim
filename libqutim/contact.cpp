@@ -55,6 +55,6 @@ namespace qutim_sdk_0_3
 			MetaContactChangeEvent *metaEvent = static_cast<MetaContactChangeEvent*>(e);
 			d_func()->metaContact = metaEvent->newMetaContact();
 		}
-		return QObject::event(e);
+		return Buddy::event(e);
 	}
 }

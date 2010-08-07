@@ -29,6 +29,8 @@ namespace qutim_sdk_0_3
 		void meChanged(qutim_sdk_0_3::Buddy *me);
 		void left();
 		void joined();
+	protected:
+		bool event(QEvent *ev);
 	};
 }
 

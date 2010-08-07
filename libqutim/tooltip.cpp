@@ -30,46 +30,82 @@
 
 namespace qutim_sdk_0_3
 {
-	struct InfoField
-	{
-		LocalizedString name;
-		QVariant data;
-		QString icon;
-	};
-	typedef QList<InfoField> InfoFieldList;
+	typedef QMultiMap<quint8, QString> FieldsMap;
 
 	class ToolTipEventPrivate
 	{
 	public:
-		InfoFieldList list;
-		bool extra;
+		FieldsMap fields;
+		ToolTipEvent::FieldsTypes types;
 	};
 
-	ToolTipEvent::ToolTipEvent(bool extra) :
+	ToolTipEvent::ToolTipEvent(ToolTipEvent::FieldsTypes types) :
 		QEvent(eventType()), d(new ToolTipEventPrivate)
 	{
-		d->extra = extra;
+		d->types = types;
 	}
 
-	void ToolTipEvent::appendField(const LocalizedString &title, const QVariant &data, const QString &icon)
+
+	ToolTipEvent::~ToolTipEvent()
 	{
-		InfoField field = { title, data, icon };
-		d->list.append(field);
 	}
 
-	void ToolTipEvent::appendField(const LocalizedString &title, const QVariant &data, const ExtensionIcon &icon)
+	void ToolTipEvent::addHtml(const QString &html, quint8 priority)
 	{
-		appendField(title, data, icon.name());
+		d->fields.insert(priority, html);
 	}
 
-        ToolTipEvent::~ToolTipEvent()
-        {
-
-        }
-
-	bool ToolTipEvent::extra() const
+	void ToolTipEvent::addField(const LocalizedString &title, const LocalizedString &data,
+								quint8 priority)
 	{
-		return d->extra;
+		addField(title, data, QString(), priority);
+	}
+
+	void ToolTipEvent::addField(const LocalizedString &title, const LocalizedString &data,
+								const QString &icon, quint8 priority)
+	{
+		QString text;
+		bool dataEmpty = data.toString().isEmpty();
+		if (!title.toString().isEmpty()) {
+			text += QLatin1Literal("<b>") % title.toString();
+			if (!dataEmpty)
+				text += ":";
+			text += "</b>";
+		}
+		if (!icon.isEmpty()) {
+			QString iconPath = IconLoader::instance()->iconPath(icon, 16);
+			if (!iconPath.isEmpty())
+				text += " <img src='" + iconPath + "'>";
+		}
+		if (!dataEmpty) {
+			if (!text.isEmpty())
+				text += " ";
+			text += data.toString();
+		}
+		if (!text.isEmpty())
+			text.prepend("<br/>");
+		d->fields.insert(priority, text);
+	}
+
+	void ToolTipEvent::addField(const LocalizedString &title, const LocalizedString &data,
+								const ExtensionIcon &icon, quint8 priority)
+	{
+		addField(title, data, icon.name(), priority);
+	}
+
+	ToolTipEvent::FieldsTypes ToolTipEvent::fieldsTypes() const
+	{
+		return d->types;
+	}
+
+	QString ToolTipEvent::html() const
+	{
+		QString text;
+		QMapIterator<quint8, QString> i(d->fields);
+		i.toBack();
+		while (i.hasPrevious())
+			text += i.previous().value();
+		return text;
 	}
 
 	QEvent::Type ToolTipEvent::eventType()
@@ -109,37 +145,13 @@ namespace qutim_sdk_0_3
 
 	void ToolTip::showText(const QPoint &pos, QObject *obj, QWidget *w)
 	{
-		if (Buddy *c = qobject_cast<Buddy *>(obj)) {
-			QString ava = c->avatar();
-			if (ava.isEmpty())
-				ava = QLatin1String(":/icons/qutim_64.png");
-			QString text = QLatin1Literal("<table><tr><td><b>")
-						   % Qt::escape(c->name())
-						   % QLatin1Literal("</b> &lt;")
-						   % Qt::escape(c->id())
-						   % QLatin1Literal("&gt;<br/>")
-						   % Qt::escape(c->account()->id())
-						   % QLatin1Literal("<br/>")
-						   % html(c, true)
-						   % QLatin1Literal("</td><td><img width=\"64\" src=\"")
-						   % Qt::escape(ava)
-						   % QLatin1Literal("\"/></td></tr>")
-						   % QLatin1Literal("</table>");
-			QToolTip::showText(pos, text, w);
-		} else if (Conference *c = qobject_cast<Conference *>(obj)) {
-			QString text = QLatin1Literal("<p><strong>")
-						   % Qt::escape(c->title())
-						   % QLatin1Literal("</strong> &lt;")
-						   % c->id()
-						   % QLatin1Literal("&gt;</p>")
-						   % QLatin1Literal("<p>")
-						   % Qt::escape(c->topic())
-						   % QLatin1Literal("</p>")
-						   % html(c,true);
-			QToolTip::showText(pos,text,w);
-		} else {
+		ToolTipEvent event(ToolTipEvent::GenerateAll);
+		qApp->sendEvent(obj, &event);
+		QString text = event.html();
+		if (text.isEmpty())
 			QToolTip::hideText();
-		}
+		else
+			QToolTip::showText(pos, text, w);
 	}
 
 	bool ToolTip::eventFilter(QObject *obj, QEvent *ev)
@@ -164,31 +176,4 @@ namespace qutim_sdk_0_3
 		return QObject::eventFilter(obj, ev);
 	}
 
-	QString ToolTip::html(QObject *object, bool extra)
-	{
-		ToolTipEvent event(extra);
-		qApp->sendEvent(object, &event);
-		const InfoFieldList &list = event.d->list;
-		QString text;
-		foreach (const InfoField &field, list) {
-			if (!text.isNull())
-				text += QLatin1String("<br/>");
-			if (!field.icon.isEmpty()) {
-				QString icon = IconLoader::instance()->iconPath(field.icon, 16);
-				if (!icon.isEmpty())
-					text += "<img src='" + icon + "'> ";
-			}
-			if (!field.data.canConvert<QString>()) {
-				text += QLatin1Literal("<b>")
-						% field.name.toString()
-						% QLatin1Literal("</b>");
-			} else {
-				text += QLatin1Literal("<b>")
-						% field.name.toString()
-						% QLatin1Literal("</b>: ")
-						% field.data.toString();
-			}
-		}
-		return text;
-	}
 }

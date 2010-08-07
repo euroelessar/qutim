@@ -31,16 +31,38 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT ToolTipEvent : public QEvent
 	{
 	public:
-		ToolTipEvent(bool extra = false);
-		void appendField(const LocalizedString &title, const QVariant &data, const QString &icon = QString());
-		void appendField(const LocalizedString &title, const QVariant &data, const ExtensionIcon &icon);
-		bool extra() const;
-		static QEvent::Type eventType();
+		enum FieldType
+		{	//! Generate fields
+			GenerateFields = 0x0001,
+			//!< Generate border
+			GenerateBorder = 0x0002,
+			//!< Generate all fields and border
+			GenerateAll = GenerateBorder | GenerateFields
+		};
+		Q_DECLARE_FLAGS(FieldsTypes, FieldType)
+
+		ToolTipEvent(FieldsTypes types = GenerateAll);
 		~ToolTipEvent();
+		void addHtml(const QString &html, quint8 priority = 60);
+		void addField(const LocalizedString &title,
+					  const LocalizedString &data = LocalizedString(),
+					  quint8 priority = 60);
+		void addField(const LocalizedString &title,
+					  const LocalizedString &data,
+					  const QString &icon,
+					  quint8 priority = 60);
+		void addField(const LocalizedString &title,
+					  const LocalizedString &data,
+					  const ExtensionIcon &icon,
+					  quint8 priority = 60);
+		FieldsTypes fieldsTypes() const;
+		QString html() const;
+		static QEvent::Type eventType();
 	protected:
 		friend class ToolTip;
 		QScopedPointer<ToolTipEventPrivate> d;
 	};
+	Q_DECLARE_OPERATORS_FOR_FLAGS(ToolTipEvent::FieldsTypes);
 
 	class LIBQUTIM_EXPORT ToolTip : public QObject
 	{
@@ -51,7 +73,6 @@ namespace qutim_sdk_0_3
 		inline void hideText() { showText(QPoint(), 0); }
 	protected:
 		ToolTip(QObject *parent = 0);
-		QString html(QObject *object, bool extra);
 		bool eventFilter(QObject *, QEvent *);
 	};
 }
