@@ -181,24 +181,24 @@ namespace Jabber
 		} else if (ev->type() == ToolTipEvent::eventType()) {
 			Q_D(JContact);
 			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-			foreach (const QString &id, d->resources.keys()) {
-				JContactResource *resource = d->resources.value(id);
-				event->appendField(QString(), QVariant());
-				if (!resource->text().isEmpty())
-					event->appendField(resource->text(), QVariant());
-				event->appendField(QT_TRANSLATE_NOOP("Contact", "Resource"),
-						QString("%1 (%2)").arg(id).arg(resource->priority()));
-				QString client = resource->property("client").toString();
-				if (!client.isEmpty()) {
-					QString os = resource->property("os").toString();
-					if (!os.isEmpty()) {
-						client += " / ";
-						client += os;
+			if (event->fieldsTypes() & ToolTipEvent::GenerateFields) {
+				foreach (const QString &id, d->resources.keys()) {
+					JContactResource *resource = d->resources.value(id);
+					if (!resource->text().isEmpty())
+						event->addField(resource->text(), QString(), 80);
+					event->addField(QT_TRANSLATE_NOOP("Contact", "Resource"),
+									QString("%1 (%2)").arg(id).arg(resource->priority()), 75);
+					QString client = resource->property("client").toString();
+					if (!client.isEmpty()) {
+						QString os = resource->property("os").toString();
+						if (!os.isEmpty()) {
+							client += " / ";
+							client += os;
+						}
+						event->addField(QT_TRANSLATE_NOOP("Contact", "Possible client"), client, 30);
 					}
-					event->appendField(QT_TRANSLATE_NOOP("Contact", "Possible client"), client);
 				}
 			}
-			return true;
 		} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
 			Status::Type status = account()->status().type();
 			if (status >= Status::Online && status <= Status::Invisible) {

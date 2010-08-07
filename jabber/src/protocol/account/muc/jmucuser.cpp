@@ -106,9 +106,9 @@ namespace Jabber
 			Q_D(JMUCUser);
 			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
 			if (!d->text.isEmpty())
-				event->appendField(d->text, QVariant());
+				event->addField(d->text, QString());
 			if (!d->realJid.isEmpty())
-				event->appendField(QT_TRANSLATE_NOOP("Conference", "Real JID"), d->realJid);
+				event->addField(QT_TRANSLATE_NOOP("Conference", "Real JID"), d->realJid);
 			QString client = property("client").toString();
 			QString affiliation;
 			switch (d->affiliation) {
@@ -125,7 +125,7 @@ namespace Jabber
 				affiliation = "";
 			}
 			if (!affiliation.isEmpty())
-				event->appendField(QT_TRANSLATE_NOOP("Conference", "Affiliation"), affiliation);
+				event->addField(QT_TRANSLATE_NOOP("Conference", "Affiliation"), affiliation, 30);
 			QString role;
 			switch (d->role) {
 			case RoleModerator:
@@ -141,16 +141,15 @@ namespace Jabber
 				role = "";
 			}
 			if (!role.isEmpty())
-				event->appendField(QT_TRANSLATE_NOOP("Conference", "Role"), role);
+				event->addField(QT_TRANSLATE_NOOP("Conference", "Role"), role, 30);
 			if (!client.isEmpty()) {
 				QString os = property("os").toString();
 				if (!os.isEmpty()) {
 					client += " / ";
 					client += os;
 				}
-				event->appendField(QT_TRANSLATE_NOOP("Contact", "Possible client"), client);
+				event->addField(QT_TRANSLATE_NOOP("Contact", "Possible client"), client, 30);
 			}
-			return true;
 		}
 		return JContactResource::event(ev);
 	}

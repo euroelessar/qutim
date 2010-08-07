@@ -366,44 +366,51 @@ bool IcqContact::event(QEvent *ev)
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-		QVariantHash extStatuses = d->status.extendedInfos();
-		bool addedExtStatus;
-		foreach (const QVariant &itr, extStatuses) {
-			QVariantMap extStatus = itr.toMap();
-			if (extStatus.value("showInTooltip", false).toBool()) {
-				event->appendField(extStatus.value("title").toString(),
-								   extStatus.value("desc").toString(),
-								   extStatus.value("icon").value<ExtensionIcon>());
-				addedExtStatus = true;
+		if (event->fieldsTypes() & ToolTipEvent::GenerateFields) {
+			QVariantHash extStatuses = d->status.extendedInfos();
+			bool addedExtStatus;
+			foreach (const QVariant &itr, extStatuses) {
+				QVariantMap extStatus = itr.toMap();
+				if (extStatus.value("showInTooltip", false).toBool()) {
+					event->addField(extStatus.value("title").toString(),
+									extStatus.value("desc").toString(),
+									extStatus.value("icon").value<ExtensionIcon>(),
+									80);
+					addedExtStatus = true;
+				}
 			}
-		}
-		QString statusText = status().text();
-		if (!addedExtStatus && !statusText.isEmpty())
-			event->appendField(QString(), statusText);
-		QDateTime time;
-		if (!d->onlineSince.isNull()) {
-			time = QDateTime::currentDateTime();
-			time = time.addSecs(-static_cast<int>(d->onlineSince.toTime_t()));
-			time = time.toUTC();
-			event->appendField(QT_TRANSLATE_NOOP("ContactList", "Online time"),
-							   QString("%1d %2h %3m %4s")
-							   .arg(time.date().day() - 1)
-							   .arg(time.time().hour())
-							   .arg(time.time().minute())
-							   .arg(time.time().second()));
-			event->appendField(QT_TRANSLATE_NOOP("ContactList", "Signed on"),
-							   d->onlineSince.toLocalTime().toString(Qt::DefaultLocaleShortDate));
-		}
-		if (!d->awaySince.isNull()) {
-			event->appendField(QT_TRANSLATE_NOOP("ContactList", "Away since"),
-							   d->awaySince.toLocalTime().toString(Qt::DefaultLocaleShortDate));
-		}
-		if (!d->regTime.isNull()) {
-			event->appendField(QT_TRANSLATE_NOOP("ContactList", "Reg. date"),
-							   d->regTime.toLocalTime().toString(Qt::DefaultLocaleShortDate));
-		}
-		foreach (const InfoField &field, d->fields) {
-			event->appendField(field.title, field.data, field.icon);
+			QString statusText = status().text();
+			if (!addedExtStatus && !statusText.isEmpty())
+				event->addField(QString(), statusText, 80);
+			QDateTime time;
+			if (!d->onlineSince.isNull()) {
+				time = QDateTime::currentDateTime();
+				time = time.addSecs(-static_cast<int>(d->onlineSince.toTime_t()));
+				time = time.toUTC();
+				event->addField(QT_TRANSLATE_NOOP("ContactList", "Online time"),
+								QString("%1d %2h %3m %4s")
+								.arg(time.date().day() - 1)
+								.arg(time.time().hour())
+								.arg(time.time().minute())
+								.arg(time.time().second()),
+								30);
+				event->addField(QT_TRANSLATE_NOOP("ContactList", "Signed on"),
+								d->onlineSince.toLocalTime().toString(Qt::DefaultLocaleShortDate),
+								30);
+			}
+			if (!d->awaySince.isNull()) {
+				event->addField(QT_TRANSLATE_NOOP("ContactList", "Away since"),
+								d->awaySince.toLocalTime().toString(Qt::DefaultLocaleShortDate),
+								30);
+			}
+			if (!d->regTime.isNull()) {
+				event->addField(QT_TRANSLATE_NOOP("ContactList", "Reg. date"),
+								d->regTime.toLocalTime().toString(Qt::DefaultLocaleShortDate),
+								30);
+			}
+			foreach (const InfoField &field, d->fields) {
+				event->addField(field.title, field.data.toString(), field.icon, 30);
+			}
 		}
 	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
 		Status::Type status = account()->status().type();
