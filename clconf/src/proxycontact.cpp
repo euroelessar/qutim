@@ -17,6 +17,7 @@
 #include "proxyaccount.h"
 #include "clconfplugin.h"
 #include <qutim/tooltip.h>
+#include <QApplication>
 
 ProxyContact::ProxyContact(Conference *conf) :
 	Contact(ClConfPlugin::instance()->account(conf->account())), m_conf(conf), m_conn(false)
@@ -116,6 +117,6 @@ void ProxyContact::updateStatus()
 bool ProxyContact::event(QEvent *ev)
 {
 	if (ev->type() == ToolTipEvent::eventType())
-		return m_conf->event(ev);
+		return qApp->sendEvent(m_conf, ev);
 	return Contact::event(ev);
 }
