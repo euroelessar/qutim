@@ -57,9 +57,6 @@ public:
 	const DirectConnectionInfo &dcInfo() const;
 	void setStatus(Status status);
 	ChatState chatState() const;
-	void insertToolTipField(const LocalizedString &title, const QVariant &data,
-							const ExtensionIcon &icon = ExtensionIcon());
-	void removeToolTipField(const QString &title);
 	QList<FeedbagItem> feedbagItems() const;
 private:
 	virtual bool event(QEvent *);

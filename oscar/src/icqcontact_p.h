@@ -27,17 +27,6 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-struct InfoField
-{
-	InfoField(const LocalizedString &title, const QVariant &data,
-			  const ExtensionIcon &icon = ExtensionIcon());
-	LocalizedString title;
-	QVariant data;
-	ExtensionIcon icon;
-};
-
-typedef QHash<QString, InfoField> InfoFieldList;
-
 enum SsiBuddyTlvs
 {
 	SsiBuddyNick = 0x0131,
@@ -72,7 +61,6 @@ struct IcqContactPrivate
 	QList<FeedbagItem> items;
 	QStringList tags;
 	ChatState state;
-	InfoFieldList fields;
 	QDateTime onlineSince;
 	QDateTime awaySince;
 	QDateTime regTime;

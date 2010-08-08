@@ -15,6 +15,7 @@
  *****************************************************************************/
 
 #include "icqprotocol_p.h"
+#include "icqaccount_p.h"
 #include "icq_global.h"
 #include "util.h"
 #include "icqaccount.h"
@@ -58,6 +59,7 @@ void IcqProtocol::loadAccounts()
 		d->accounts_hash->insert(uin, acc);
 		acc->updateSettings();
 		emit accountCreated(acc);
+		acc->d_func()->loadRoster();
 	}
 }
 

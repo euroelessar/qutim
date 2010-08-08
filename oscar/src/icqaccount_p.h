@@ -51,6 +51,7 @@ struct ConnectingInfo
 struct IcqAccountPrivate
 {
 	Q_DECLARE_PUBLIC(IcqAccount);
+	void loadRoster();
 	QString password();
 	IcqAccount *q_ptr;
 	OscarConnection *conn;

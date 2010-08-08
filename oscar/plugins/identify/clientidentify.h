@@ -25,6 +25,9 @@
 
 namespace qutim_sdk_0_3 {
 
+class Account;
+class Contact;
+
 namespace oscar {
 
 class IcqContact;
@@ -61,7 +64,12 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
-
+private slots:
+	void onAccountCreated(qutim_sdk_0_3::Account *account);
+	void onContactCreated(qutim_sdk_0_3::Contact *contact);
+protected:
+	bool eventFilter(QObject *obj, QEvent *ev);
+private:
 	bool RtfSupport() const;
 	bool HtmlSupport() const;
 	bool TypingSupport() const;
@@ -132,6 +140,7 @@ private:
 	ExtensionIcon m_client_icon;
 	CapabilityFlags m_flags;
 	QString m_client;
+
 private:
 	static const Capability ICQ_CAPABILITY_ICQJSINxVER;
 	static const Capability ICQ_CAPABILITY_ICQJS7xVER;

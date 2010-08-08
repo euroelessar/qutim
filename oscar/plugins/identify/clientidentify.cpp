@@ -24,6 +24,10 @@
 #include "clientidentify.h"
 #include "oscarconnection.h"
 #include "xtraz.h"
+#include "icqprotocol.h"
+#include "icqaccount.h"
+#include <qutim/tooltip.h>
+#include <qutim/contact.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -48,12 +52,43 @@ void ClientIdentify::init()
 
 bool ClientIdentify::load()
 {
+	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
+			SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 	return true;
 }
 
 bool ClientIdentify::unload()
 {
 	return false;
+}
+
+void ClientIdentify::onAccountCreated(qutim_sdk_0_3::Account* account)
+{
+	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
+			this, SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
+}
+
+void ClientIdentify::onContactCreated(qutim_sdk_0_3::Contact *contact)
+{
+	contact->installEventFilter(this);
+}
+
+bool ClientIdentify::eventFilter(QObject *obj, QEvent *ev)
+{
+	if (ev->type() == ToolTipEvent::eventType()) {
+		IcqContact *contact = qobject_cast<IcqContact*>(obj);
+		if (contact) {
+			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+			QVariantMap map = contact->status().extendedInfo("client");
+			if (map.isEmpty())
+				return false;
+			event->addField(map.value("id").toString(),
+							map.value("description").toString(),
+							map.value("icon").value<ExtensionIcon>().name(),
+							30);
+		}
+	}
+	return Plugin::eventFilter(obj, ev);
 }
 
 const Capability ClientIdentify::ICQ_CAPABILITY_ICQJSINxVER  ('s', 'i', 'n', 'j',  0x00, 0x00,
@@ -167,7 +202,6 @@ void ClientIdentify::identify(IcqContact *contact)
 void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
 {
 	if (status == Status::Offline) {
-		contact->removeToolTipField("Possible client");
 		contact->setProperty("client", QVariant());
 		status.removeExtendedInfo("client");
 		return;
@@ -177,19 +211,16 @@ void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TL
 		status.setExtendedInfo("client", client);
 	if (contact->status() == Status::Offline) {
 		identify(contact);
-		contact->insertToolTipField(QT_TRANSLATE_NOOP("ContactList", "Possible client"), m_client_id, m_client_icon);
 		QVariantMap clientInfo;
 		clientInfo.insert("id", QT_TRANSLATE_NOOP("ClientIdentify", "Possible client").toString());
 		clientInfo.insert("icon", QVariant::fromValue(m_client_icon));
 		clientInfo.insert("description", m_client_id);
 		clientInfo.insert("showInTooltip", false);
 		clientInfo.insert("priority",-1);
-		contact->setProperty("client", clientInfo);
 		status.setExtendedInfo("client", clientInfo);
 		debug() << contact->name() << "uses" << m_client_id;
 	}
 }
-
 
 void ClientIdentify::virtual_hook(int type, void *data)
 {

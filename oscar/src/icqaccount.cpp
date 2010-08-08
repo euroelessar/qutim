@@ -68,6 +68,20 @@ QString IcqAccountPrivate::password()
 	return password;
 }
 
+void IcqAccountPrivate::loadRoster()
+{
+	Q_Q(IcqAccount);
+	foreach(const ObjectGenerator *gen, moduleGenerators<FeedbagItemHandler>())
+		feedbag->registerHandler(gen->generate<FeedbagItemHandler>());
+
+	conn->registerHandler(buddyPicture = new BuddyPicture(q, q));
+
+	foreach(const ObjectGenerator *gen, moduleGenerators<RosterPlugin>()) {
+		RosterPlugin *plugin = gen->generate<RosterPlugin>();
+		rosterPlugins << plugin;
+	}
+}
+
 void IcqAccount::onPasswordEntered(const QString &password, bool remember)
 {
 	Q_D(IcqAccount);
@@ -93,9 +107,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 	Config cfg = config("general");
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
-	foreach(const ObjectGenerator *gen, moduleGenerators<FeedbagItemHandler>())
-		d->feedbag->registerHandler(gen->generate<FeedbagItemHandler>());
-	d->conn->registerHandler(d->buddyPicture = new BuddyPicture(this, this));
 	{
 		Config statusCfg = cfg.group("lastStatus");
 		int type = statusCfg.value("type", static_cast<int>(Status::Offline));
@@ -130,7 +141,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 		}
 	}
 
-
 	// ICQ UTF8 Support
 	d->caps.append(ICQ_CAPABILITY_UTF8);
 	// Buddy Icon
@@ -160,11 +170,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 	version.append<quint32>(SystemInfo::getSystemVersionID());
 	version.append<quint8>(0x00); // 5 bytes more to 16
 	d->caps.append(Capability(version.data()));
-
-	foreach(const ObjectGenerator *gen, moduleGenerators<RosterPlugin>()) {
-		RosterPlugin *plugin = gen->generate<RosterPlugin>();
-		d->rosterPlugins << plugin;
-	}
 
 	if (cfg.value("autoconnect", false))
 		setStatus(d->lastStatus);

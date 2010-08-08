@@ -80,6 +80,7 @@ private:
 	friend class Cookie;
 	friend class OscarConnection;
 	friend class BuddyPicture;
+	friend class IcqProtocol;
 	QScopedPointer<IcqAccountPrivate> d_ptr;
 };
 

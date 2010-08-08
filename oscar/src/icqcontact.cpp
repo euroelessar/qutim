@@ -31,12 +31,6 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-InfoField::InfoField(const LocalizedString &title_, const QVariant &data_,
-					 const ExtensionIcon &icon_) :
-	title(title_), data(data_), icon(icon_)
-{
-}
-
 void IcqContactPrivate::clearCapabilities()
 {
 	flags = 0;
@@ -325,16 +319,6 @@ ChatState IcqContact::chatState() const
 	return d_func()->state;
 }
 
-void IcqContact::insertToolTipField(const LocalizedString &title, const QVariant &data, const ExtensionIcon &icon)
-{
-	d_func()->fields.insert(title.original(), InfoField(title, data, icon));
-}
-
-void IcqContact::removeToolTipField(const QString &title)
-{
-	d_func()->fields.remove(title);
-}
-
 QList<FeedbagItem> IcqContact::feedbagItems() const
 {
 	return d_func()->items;
@@ -407,9 +391,6 @@ bool IcqContact::event(QEvent *ev)
 				event->addField(QT_TRANSLATE_NOOP("ContactList", "Reg. date"),
 								d->regTime.toLocalTime().toString(Qt::DefaultLocaleShortDate),
 								30);
-			}
-			foreach (const InfoField &field, d->fields) {
-				event->addField(field.title, field.data.toString(), field.icon, 30);
 			}
 		}
 	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
