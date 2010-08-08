@@ -279,11 +279,27 @@ namespace qutim_sdk_0_3
 
 		inline void ensure_settings_private()
 		{ if(!p) ensure_settings_private_helper();}
+		
+		bool itemLessThan(const SettingsItem *a,const SettingsItem *b)
+		{
+			if (a->type() != b->type())
+				return (a->type() < b->type());
+			
+			if (a->priority() != b->priority())
+				return a->priority() < b->priority();
+			
+			return a->text().toString().compare(b->text().toString(), Qt::CaseInsensitive) >= 0;
+		}
 
 		void registerItem(SettingsItem *item)
 		{
 			ensure_settings_private();
-			p->items.append(item);
+			SettingsItemList::iterator before = qLowerBound(p->items.begin(),
+																  p->items.end(),
+																  item,
+																  itemLessThan
+																 );
+			p->items.insert(before,item);
 			if(!p->widget.isNull())
 				p->widget->update(p->items);
 		}
@@ -334,5 +350,16 @@ namespace qutim_sdk_0_3
 	{
 		show(controller->settings(),controller);
 	}
+	
+	int SettingsItem::priority() const
+	{
+		return p->priority;
+	}
+
+	void SettingsItem::setPriority(int priority)
+	{
+		p->priority = priority;
+	}
+
 
 }

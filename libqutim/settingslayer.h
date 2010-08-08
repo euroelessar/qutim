@@ -68,6 +68,8 @@ namespace qutim_sdk_0_3
 		SettingsWidget *widget() const;
 		void clearWidget();
 		void connect(const char *signal, QObject *receiver, const char *member);
+		int priority() const;
+		void setPriority(int priority);
 	protected:
 		virtual const ObjectGenerator *generator() const = 0;
 		QScopedPointer<SettingsItemPrivate> p;

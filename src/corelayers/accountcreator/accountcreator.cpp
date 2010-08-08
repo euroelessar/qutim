@@ -22,6 +22,7 @@ namespace Core
 		SettingsItem *item = new GeneralSettingsItem<AccountCreatorList>(
 				Settings::General, Icon("meeting-attending"),
 				QT_TRANSLATE_NOOP("Settings", "Accounts"));
+		item->setPriority(100);
 		Settings::registerItem(item);
 		deleteLater();
 

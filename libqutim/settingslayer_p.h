@@ -34,13 +34,14 @@ namespace qutim_sdk_0_3
 	class SettingsItemPrivate
 	{
 	public:
-		SettingsItemPrivate() : gen(0), type(Settings::Invalid) {}
+		SettingsItemPrivate() : gen(0), type(Settings::Invalid),priority(50) {}
 		mutable const ObjectGenerator *gen;
 		Settings::Type type;
 		QIcon icon;
 		LocalizedString text; // should be inserted by QT_TRANSLATE_NOOP_UTF8("Settings", "Contact list")
 		mutable QPointer<SettingsWidget> widget;
 		QList<ConnectInfo> connections;
+		int priority;
 	};
 
 	class AutoSettingsItemPrivate : public SettingsItemPrivate

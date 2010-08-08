@@ -18,7 +18,10 @@
 
 #include "libqutim/settingslayer.h"
 
-class XSettingsDialog;
+namespace Core
+{
+
+class XSettingsWindow;
 using namespace qutim_sdk_0_3;
 
 class XSettingsLayerImpl : public SettingsLayer
@@ -31,7 +34,8 @@ public:
 	virtual void show(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller = 0);
 	virtual void update(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller = 0);
 private:
-	QHash<const QObject *,QPointer<XSettingsDialog> > m_dialogs;
+	QHash<const QObject *,QPointer<XSettingsWindow> > m_dialogs;
 };
 
+}
 #endif // XSETTINGSLAYERIMPL_H

@@ -14,11 +14,14 @@
 *****************************************************************************/
 
 #include "xsettingslayerimpl.h"
-#include "xsettingsdialog.h"
 #include "src/modulemanagerimpl.h"
 #include <libqutim/icon.h>
+#include "xsettingswindow.h"
 
-static Core::CoreModuleHelper<XSettingsLayerImpl> xsettings_layer_static(
+namespace Core
+{
+	
+static CoreModuleHelper<XSettingsLayerImpl> xsettings_layer_static(
 		QT_TRANSLATE_NOOP("Plugin", "X Settings dialog"),
 		QT_TRANSLATE_NOOP("Plugin", "Default qutIM settings dialog implementation with OS X style top bar")
 		);
@@ -37,9 +40,9 @@ XSettingsLayerImpl::~XSettingsLayerImpl()
 
 void XSettingsLayerImpl::show (const SettingsItemList& settings, QObject* controller )
 {
-	XSettingsDialog *d = m_dialogs.value(controller);
+	XSettingsWindow *d = m_dialogs.value(controller);
 	if (!d) {
-		d = new XSettingsDialog(settings,controller);
+		d = new XSettingsWindow(settings,controller);
 		m_dialogs[controller] = d;
 	}
 	d->show();
@@ -47,7 +50,7 @@ void XSettingsLayerImpl::show (const SettingsItemList& settings, QObject* contro
 
 void XSettingsLayerImpl::update (const SettingsItemList& settings, QObject* controller )
 {
-	XSettingsDialog *d = m_dialogs.value(controller);
+	XSettingsWindow *d = m_dialogs.value(controller);
 	if (!d)
 		return;
 	d->update(settings);
@@ -55,9 +58,11 @@ void XSettingsLayerImpl::update (const SettingsItemList& settings, QObject* cont
 
 void XSettingsLayerImpl::close(QObject *controller)
 {
-	XSettingsDialog *d = m_dialogs.value(controller);
+	XSettingsWindow *d = m_dialogs.value(controller);
 	if (d) {
 		d->deleteLater();
 		m_dialogs.remove(d);
 	}
+}
+
 }
