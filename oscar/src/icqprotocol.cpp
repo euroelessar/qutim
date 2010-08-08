@@ -21,6 +21,7 @@
 #include "icqaccount.h"
 #include <qutim/icon.h>
 #include "ui/icqmainsettings.h"
+#include "ui/icqaccountmainsettings.h"
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 #include <QStringList>
@@ -41,6 +42,12 @@ IcqProtocol::IcqProtocol() :
 			Settings::Protocol,
 			Icon("im-icq"),
 			QT_TRANSLATE_NOOP_UTF8("Settings", "Icq")));
+	MenuController::addSettingsItem<IcqAccount>(
+			new GeneralSettingsItem<IcqAccountMainSettingsWindget>(
+			Settings::Protocol,
+			Icon("im-icq"),
+			QT_TRANSLATE_NOOP_UTF8("Settings", "Icq account settings")));
+
 	updateSettings();
 }
 
@@ -77,6 +84,18 @@ Account *IcqProtocol::account(const QString &id) const
 {
 	Q_D(const IcqProtocol);
 	return d->accounts_hash->value(id);
+}
+
+void IcqProtocol::addAccount(IcqAccount *account)
+{
+	Q_D(IcqProtocol);
+	Config cfg = config("general");
+	QStringList accounts = cfg.value("accounts", QStringList());
+	accounts << account->id();
+	cfg.setValue("accounts", accounts);
+	account->updateSettings();
+	d->accounts_hash->insert(account->id(), account);
+	emit accountCreated(account);
 }
 
 void IcqProtocol::updateSettings()

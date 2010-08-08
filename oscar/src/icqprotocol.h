@@ -27,6 +27,7 @@ namespace oscar {
 
 class IcqProtocolPrivate;
 class IcqProtocol;
+class IcqAccount;
 
 class LIBOSCAR_EXPORT IcqProtocol: public Protocol
 {
@@ -39,13 +40,13 @@ public:
 	static inline IcqProtocol *instance() { if (!self) qWarning("IcqProtocol isn't created"); return self; }
 	virtual QList<Account *> accounts() const;
 	virtual Account *account(const QString &id) const;
+	void addAccount(IcqAccount *account);
 	virtual QVariant data(DataType type);
 public slots:
 	void updateSettings();
 protected:
 	void loadAccounts();
 private:
-	friend class IcqAccountCreationWizard;
 	QScopedPointer<IcqProtocolPrivate> d_ptr;
 	static IcqProtocol *self;
 };

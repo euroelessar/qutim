@@ -14,92 +14,52 @@
  *****************************************************************************/
 
 #include "accountcreator.h"
-#include "icqprotocol_p.h"
-#include <QWizard>
-#include <QWizardPage>
-#include <QRegExp>
-#include <QValidator>
-#include "ui_addaccountform.h"
+#include "icqaccountmainsettings.h"
+#include <QVBoxLayout>
+#include "icqprotocol.h"
 
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-class IcqAccWizardPage;
-
-struct IcqAccWizardPrivate
+IcqAccWizardPage::IcqAccWizardPage(QWidget *parent) :
+	QWizardPage(parent),
+	m_settingsWidget(new IcqAccountMainSettings(0, this))
 {
-	IcqAccWizardPage *page;
-	IcqProtocol *protocol;
-};
-
-class IcqAccWizardPage: public QWizardPage
-{
-public:
-	IcqAccWizardPage(IcqAccountCreationWizard *account_wizard);
-	bool validatePage();
-	QString uin() { return ui.uinEdit->text(); }
-	QString password() { return ui.passwordEdit->text(); }
-	bool isSavePassword() { return ui.passwordBox->isChecked(); }
-private:
-	IcqAccountCreationWizard *m_account_wizard;
-	Ui::AddAccountForm ui;
-};
-
-IcqAccWizardPage::IcqAccWizardPage(IcqAccountCreationWizard *account_wizard) :
-	m_account_wizard(account_wizard)
-{
-	ui.setupUi(this);
-	{
-		QRegExp rx("[1-9][0-9]{1,9}");
-		QValidator *validator = new QRegExpValidator(rx, this);
-		ui.uinEdit->setValidator(validator);
-	}
-	ui.uinEdit->setFocus();
-	ui.passwordEdit->setMaxLength(8);
+	QVBoxLayout *layout = new QVBoxLayout(this);
+	layout->addWidget(m_settingsWidget);
+	connect(m_settingsWidget, SIGNAL(completeChanged()),
+			SIGNAL(completeChanged()));
 }
 
 bool IcqAccWizardPage::validatePage()
 {
-	if (uin().isEmpty() || (isSavePassword() && password().isEmpty()))
+	if (!m_settingsWidget->isComplete())
 		return false;
-	m_account_wizard->finished();
+	m_settingsWidget->saveSettings();
 	return true;
 }
 
-IcqAccountCreationWizard::IcqAccountCreationWizard() :
-	AccountCreationWizard(IcqProtocol::instance()), p(new IcqAccWizardPrivate)
+bool IcqAccWizardPage::isComplete() const
 {
-	p->protocol = IcqProtocol::instance();
+	return m_settingsWidget->isComplete();
+}
+
+IcqAccountCreationWizard::IcqAccountCreationWizard() :
+	AccountCreationWizard(IcqProtocol::instance())
+{
 }
 
 IcqAccountCreationWizard::~IcqAccountCreationWizard()
 {
-
 }
 
 QList<QWizardPage *> IcqAccountCreationWizard::createPages(QWidget *parent)
 {
-	p->page = new IcqAccWizardPage(this);
+	m_page = new IcqAccWizardPage(parent);
 	QList<QWizardPage *> pages;
-	pages << p->page;
+	pages << m_page;
 	return pages;
-}
-
-void IcqAccountCreationWizard::finished()
-{
-	IcqAccount *account = new IcqAccount(p->page->uin());
-	if (p->page->isSavePassword()) {
-		Config cfg = account->config("general");
-		cfg.setValue("passwd", p->page->password(), Config::Crypted);
-	}
-	Config cfg = p->protocol->config("general");
-	QStringList accounts = cfg.value("accounts", QStringList());
-	accounts << account->id();
-	cfg.setValue("accounts", accounts);
-	p->protocol->d_func()->accounts_hash->insert(account->id(), account);
-	delete p->page;
-	emit p->protocol->accountCreated(account);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

@@ -17,12 +17,25 @@
 #define ACCOUNTCREATOR_H
 
 #include "qutim/protocol.h"
+#include <QWizardPage>
 
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-struct IcqAccWizardPrivate;
+class IcqAccountMainSettings;
+class IcqAccountCreationWizard;
+
+class IcqAccWizardPage : public QWizardPage
+{
+	Q_SIGNAL
+public:
+	IcqAccWizardPage(QWidget *parent = 0);
+	bool validatePage();
+	bool isComplete() const;
+private:
+	IcqAccountMainSettings *m_settingsWidget;
+};
 
 class IcqAccountCreationWizard: public AccountCreationWizard
 {
@@ -32,9 +45,8 @@ public:
 	IcqAccountCreationWizard();
 	~IcqAccountCreationWizard();
 	QList<QWizardPage *> createPages(QWidget *parent);
-	void finished();
 private:
-	QScopedPointer<IcqAccWizardPrivate> p;
+	IcqAccWizardPage *m_page;
 };
 
 } } // namespace qutim_sdk_0_3::oscar
