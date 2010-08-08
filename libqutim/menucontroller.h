@@ -241,9 +241,9 @@ void MyObject::onAction()
 		addAction(gen, meta, QByteArray::fromRawData(menu, N - 1).split('\0'));
 	}
 	template <typename T>
-	void MenuController::addSettingsItem(qutim_sdk_0_3::SettingsItem* item)
+	Q_INLINE_TEMPLATE void MenuController::addSettingsItem(qutim_sdk_0_3::SettingsItem* item)
 	{
-		addSettings(item,&T::staticMetaObject);
+		addSettingsItem(item,&T::staticMetaObject);
 	}
 
 }
