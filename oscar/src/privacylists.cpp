@@ -142,7 +142,8 @@ QObject *SeparatorGenerator::generateHelper() const
 	return action;
 }
 
-PrivacyLists::PrivacyLists()
+PrivacyLists::PrivacyLists() :
+	FeedbagItemHandler(30)
 {
 	Q_ASSERT(!self);
 	self = this;
@@ -153,13 +154,13 @@ PrivacyLists::PrivacyLists()
 	typedef QSharedPointer<ActionGenerator> ActionPointer;
 	static QList<ActionPointer> contactMenuList;
 	contactMenuList
-			<< ActionPointer(new PrivateListActionGenerator(SsiPermit, Icon("visible-icq"),
+			<< ActionPointer(new PrivateListActionGenerator(SsiPermit, Icon("im-visible-contact-icq"),
 						QT_TRANSLATE_NOOP("ContactList", "Add to visible list"),
 						QT_TRANSLATE_NOOP("ContactList", "Remove from visible list")))
-			<< ActionPointer(new PrivateListActionGenerator(SsiDeny, Icon("invisible-icq"),
+			<< ActionPointer(new PrivateListActionGenerator(SsiDeny, Icon("im-invisible-contact-icq"),
 						QT_TRANSLATE_NOOP("ContactList", "Add to invisible list"),
 						QT_TRANSLATE_NOOP("ContactList", "Remove from invisible list")))
-			<< ActionPointer(new PrivateListActionGenerator(SsiIgnore, Icon("ignore-icq"),
+			<< ActionPointer(new PrivateListActionGenerator(SsiIgnore, Icon("im-ignore-contact-icq"),
 						QT_TRANSLATE_NOOP("ContactList", "Add to ignore list"),
 						QT_TRANSLATE_NOOP("ContactList", "Remove from ignore list")));
 	foreach (const ActionPointer &action, contactMenuList)
@@ -186,31 +187,56 @@ bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 	Q_UNUSED(feedbag);
 	if (error != FeedbagError::NoError)
 		return false;
+	QString name;
+	QString icon;
 	switch (item.type()) {
 	case SsiPermit: {
-		if (type != Feedbag::Remove)
+		name = "visible";
+		if (type != Feedbag::Remove) {
+			icon = "im-visible-contact-icq";
 			debug() << item.name() << "has been added to visible list";
-		else
+		} else {
 			debug() << item.name() << "has been removed from visible list";
+		}
 		break;
 	}
 	case SsiDeny: {
-		if (type != Feedbag::Remove)
+		name = "invisible";
+		if (type != Feedbag::Remove) {
+			icon = "im-invisible-contact-icq";
 			debug() << item.name() << "has been added to invisible list";
-		else
+		} else {
 			debug() << item.name() << "has been removed from invisible list";
+		}
 		break;
 	}
 	case SsiIgnore: {
-		if (type != Feedbag::Remove)
+		name = "im-ignore-contact-icq";
+		if (type != Feedbag::Remove) {
+			icon = "im-ignore-contact-icq";
 			debug() << item.name() << "has been added to ignore list";
-		else
+		} else {
 			debug() << item.name() << "has been removed from ignore list";
+		}
 		break;
 	default:
 		return false;
 	}
 	}
+	IcqContact *contact = feedbag->account()->getContact(item.name());
+	if (!contact)
+		return true;
+	Status status = contact->status();
+	if (!icon.isEmpty()) {
+		QVariantMap clientInfo;
+		clientInfo.insert("icon", qVariantFromValue(ExtensionIcon(icon)));
+		clientInfo.insert("showInTooltip", false);
+		clientInfo.insert("priority", 20);
+		status.setExtendedInfo(name, clientInfo);
+	} else {
+		status.removeExtendedInfo(name);
+	}
+	contact->setStatus(status);
 	return true;
 }
 
