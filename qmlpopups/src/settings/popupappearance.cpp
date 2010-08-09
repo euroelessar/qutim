@@ -47,7 +47,7 @@ namespace QmlPopups
 
 	void PopupAppearance::loadImpl()
 	{
-		ConfigGroup general = Config("appearance/qmlpopups").group("general");
+		Config general = Config("appearance").group("qmlpopups/general");
 		m_current_theme = general.value<QString>("themeName","default");		
 		getThemes();
 	}
@@ -55,7 +55,7 @@ namespace QmlPopups
 
 	void PopupAppearance::saveImpl()
 	{
-		ConfigGroup general = Config("appearance/qmlpopups").group("general");
+		Config general = Config("appearance").group("qmlpopups/general");
 		general.setValue("themeName",m_current_theme);
 		general.sync();
 		Manager::self()->loadSettings();

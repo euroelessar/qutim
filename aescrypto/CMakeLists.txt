@@ -22,4 +22,4 @@ include( ${QUTIM_CMAKE_PLUGIN} )
 
 include_directories(${QCA2_INCLUDE_DIR})
 
-ADD_QUTIMPLUGIN( "aescryptosercive" "src" "" "${QCA2_LIBRARIES}")
+ADD_QUTIMPLUGIN_EXT2( "aescryptosercive" "src" "" "${QCA2_LIBRARIES}")

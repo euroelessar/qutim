@@ -54,7 +54,7 @@ namespace QmlPopups {
     PopupWidget::PopupWidget(const QString &themeName)
     {
 		setTheme(themeName);
-		setResizeMode(QDeclarativeView::SizeViewToRootObject);
+		setResizeMode(QDeclarativeView::SizeRootObjectToView);
     }
 
     void PopupWidget::setTheme(const QString &themeName)

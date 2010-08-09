@@ -1,53 +1,48 @@
 import Qt 4.7
 
-BorderImage {
+Rectangle {
 	id: background
-	source: "images/background.png"
 	width: 250
-	border.left: 35
-	border.top: 35
-	border.bottom: 35
-	border.right: 35
+	height: 60
+	color:palatte.shadow
+	SystemPalette { id: palatte; colorGroup: SystemPalette.Active }
+
+	Rectangle {
+		id: frameBorder
+		anchors {
+			fill:background
+			margins: 1
+		}
+		color:palatte.base
+	}
 
 	Text {
 		id: title
 		text: popupTitle
-		color: "white"
+		color: palatte.text
 		font.pointSize: 10
 		wrapMode: "WordWrap"
 		font.bold: true
+		style: Text.Outline; styleColor: palatte.mid
 		anchors {
 			left: parent.left
 			right: parent.right
 			top: parent.top
-			topMargin: 15
 			leftMargin: 15
 			rightMargin: 15
+			topMargin:5
 		}
 	}
 
-	Rectangle {
-		id: separator
-		height: 1
-		color: "#595959"
-		anchors {
-			left: parent.left
-			right: parent.right
-			top: title.bottom
-			topMargin: 5
-			leftMargin: 7
-			rightMargin: 7
-
-		}
-	}
 
 	Item {
 		id: body
 		anchors {
-			top: separator.bottom
+			top: title.bottom
 			left: parent.left
 			right: parent.right
 			bottom: parent.bottom
+			topMargin: 10
 		}
 		Image {
 			id: avatar
@@ -64,7 +59,7 @@ BorderImage {
 		Text {
 			id: bodyText
 			text: popupBody
-			color: "#DDD"
+			color: palatte.text
 			font.pointSize: 10
 			wrapMode: "WordWrap"
 			anchors {
@@ -79,27 +74,35 @@ BorderImage {
 				show_timer.restart();
 				background.height = (body.y + body.height + 15); //hack
 			}
+
+//			effect: DropShadow {
+//				color: "white"
+//				blurRadius: 8
+//				offset.x: 0
+//				offset.y: 0
+//			}
+			style: Text.Outline; styleColor: palatte.mid
+		}
+	}
+
+	MouseArea {
+		anchors.fill: parent
+		acceptedButtons: Qt.LeftButton | Qt.RightButton
+		onClicked: {
+			if (mouse.button == Qt.LeftButton)
+				popupWidget.accept();
+			else
+				popupWidget.ignore();
+		}
+	}
+
+	Timer {
+		id: show_timer
+		running:true
+		interval: timeout
+		onTriggered: {
+			popupWidget.activated();
 		}
 
-		MouseArea {
-			anchors.fill: parent
-			acceptedButtons: Qt.LeftButton | Qt.RightButton
-			onClicked: {
-				if (mouse.button == Qt.LeftButton)
-					popupWidget.accept();
-				else
-					popupWidget.ignore();
-			}
-		}
-
-		Timer {
-			id: show_timer
-			running:true
-			interval: timeout
-			onTriggered: {
-				popupWidget.activated();
-			}
-
-		}
 	}
 }
