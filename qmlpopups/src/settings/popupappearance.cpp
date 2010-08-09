@@ -94,9 +94,9 @@ namespace QmlPopups
 	void PopupAppearance::onTestButtonClicked(bool )
 	{
 		Manager::self()->themeName = ui->comboBox->itemData(ui->comboBox->currentIndex()).toString();
-		Notifications::sendNotification(tr("Preview"),tr("This is a simple popup"));
-		Notifications::sendNotification(qutim_sdk_0_3::Notifications::MessageGet,this,tr("Simple message"));
-		Notifications::sendNotification(qutim_sdk_0_3::Notifications::MessageGet,this,tr("Another message"));
+		Notifications::send(tr("Preview"),tr("This is a simple popup"));
+		Notifications::send(qutim_sdk_0_3::Notifications::MessageGet,this,tr("Simple message"));
+		Notifications::send(qutim_sdk_0_3::Notifications::MessageGet,this,tr("Another message"));
 		Manager::self()->themeName = m_current_theme;
 	}
 
