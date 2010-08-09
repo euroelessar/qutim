@@ -236,7 +236,7 @@ inline void ClientIdentify::setClientData(const QString &id, const QString &icon
 
 inline void ClientIdentify::setClientIcon(const QString &icon)
 {
-	m_client_icon = ExtensionIcon(QString("user-client-%1-icq").arg(icon));
+	m_client_icon = ExtensionIcon(icon + "-icq");
 }
 
 void ClientIdentify::identify_by_DCInfo()
