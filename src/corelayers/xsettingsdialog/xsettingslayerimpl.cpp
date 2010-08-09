@@ -45,6 +45,8 @@ void XSettingsLayerImpl::show (const SettingsItemList& settings, QObject* contro
 		d = new XSettingsWindow(settings,controller);
 		m_dialogs[controller] = d;
 	}
+	d->activateWindow();
+	d->raise();
 	d->show();
 }
 

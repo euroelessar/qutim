@@ -42,6 +42,16 @@ namespace qutim_sdk_0_3
 			Special
 		};
 
+//		struct TypeEntry
+//		{
+//			TypeEntry(const QIcon &icon,const LocalizedString &title,const LocalizedString &description = LocalizedString());
+//			TypeEntry() {}
+//			LocalizedString text;
+//			QIcon icon;
+//		};
+
+//		typedef QMap<Settings::Type,TypeEntry> TypeEntryMap;
+
 		// Exmample of usage:
 		// Settings::registerItem(new SettingsWidget<MyCoolPopupSettings>(
 		//                        Settings::Appearance,
@@ -52,6 +62,12 @@ namespace qutim_sdk_0_3
 		LIBQUTIM_EXPORT void removeItem(SettingsItem *item);
 		LIBQUTIM_EXPORT void showWidget();
 		LIBQUTIM_EXPORT void closeWidget();
+		//TODO,
+//		LIBQUTIM_EXPORT TypeEntryMap *entries();
+//		LIBQUTIM_EXPORT quint16 registerType(const char *id,
+//													const QIcon &icon,
+//													const LocalizedString &text,
+//													const LocalizedString &description = LocalizedString());
 	}
 	
 	class LIBQUTIM_EXPORT SettingsItem

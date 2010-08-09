@@ -112,6 +112,7 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	p->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 	addToolBar(Qt::TopToolBarArea,p->toolBar);
 	setUnifiedTitleAndToolBarOnMac(true);
+	p->toolBar->setMovable(false);
 	p->group = new QActionGroup(w);
 	p->group->setExclusive(true);
 	//connections
