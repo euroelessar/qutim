@@ -178,16 +178,14 @@ bool VContact::event(QEvent *ev)
 	Q_D(VContact);
 	if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-		if (event->fieldsTypes() & ToolTipEvent::GenerateFields) {
-			QString mobile = property("mobilePhone").toString();
-			if (!mobile.isEmpty())
-				event->addField(QT_TRANSLATE_NOOP("ContactInfo", "Mobile phone"),
-								   mobile,
-								   ExtensionIcon("phone"));
-			if (!d->activity.isEmpty())
-				event->addField(QT_TRANSLATE_NOOP("ContactInfo","Activity"),
-								   d->activity);
-		}
+		QString mobile = property("mobilePhone").toString();
+		if (!mobile.isEmpty())
+			event->addField(QT_TRANSLATE_NOOP("ContactInfo", "Mobile phone"),
+							mobile,
+							ExtensionIcon("phone"));
+		if (!d->activity.isEmpty())
+			event->addField(QT_TRANSLATE_NOOP("ContactInfo","Activity"),
+							d->activity);
 	} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
 		Status::Type status = account()->status().type();
 		if (status >= Status::Online && status <= Status::Invisible) {

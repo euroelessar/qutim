@@ -330,21 +330,19 @@ bool QuetzalContact::event(QEvent *ev)
 		if (!m_buddy->account->gc)
 			return false;
 
-		if (event->fieldsTypes() & ToolTipEvent::GenerateFields) {
-			PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
-			if (prpl->tooltip_text) {
-				PurpleNotifyUserInfo *user_info = purple_notify_user_info_new();
-				prpl->tooltip_text(PURPLE_BUDDY(m_buddy), user_info, true);
-				GList *it = purple_notify_user_info_get_entries(user_info);
-				for (; it; it = it->next) {
-					PurpleNotifyUserInfoEntry *entry =
-							reinterpret_cast<PurpleNotifyUserInfoEntry *>(it->data);
-					LocalizedString label = purple_notify_user_info_entry_get_label(entry);
-					QString data = purple_notify_user_info_entry_get_value(entry);
-					event->addField(label, data);
-				}
-				purple_notify_user_info_destroy(user_info);
+		PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
+		if (prpl->tooltip_text) {
+			PurpleNotifyUserInfo *user_info = purple_notify_user_info_new();
+			prpl->tooltip_text(PURPLE_BUDDY(m_buddy), user_info, true);
+			GList *it = purple_notify_user_info_get_entries(user_info);
+			for (; it; it = it->next) {
+				PurpleNotifyUserInfoEntry *entry =
+						reinterpret_cast<PurpleNotifyUserInfoEntry *>(it->data);
+				LocalizedString label = purple_notify_user_info_entry_get_label(entry);
+				QString data = purple_notify_user_info_entry_get_value(entry);
+				event->addField(label, data);
 			}
+			purple_notify_user_info_destroy(user_info);
 		}
 	}
 	return Contact::event(ev);
