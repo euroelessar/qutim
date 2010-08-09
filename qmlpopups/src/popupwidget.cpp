@@ -78,7 +78,7 @@ namespace QmlPopups {
     {
 		return QDeclarativeView::sizeHint();
 		//return m_size_hint;
-    }
+	}
 
     void PopupWidget::setData ( const QString& title,
 								const QString& body,
@@ -92,7 +92,7 @@ namespace QmlPopups {
 		QDeclarativeContext *context = rootContext();
 
 		context->setContextProperty("popupTitle",title);
-		context->setContextProperty("popupBody",body);
+		context->setContextProperty("popupBody",unescape(body));
 		QString image_path = sender ? sender->property("avatar").toString() : QString();
 		context->setContextProperty("popupImage",image_path);
 		if (status() == QDeclarativeView::Error)

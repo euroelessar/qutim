@@ -3,18 +3,16 @@ import Qt 4.7
 Rectangle {
 	id: background
 	width: 250
-	height: 60
+	height: 75
 	color:palatte.shadow
-	SystemPalette { id: palatte; colorGroup: SystemPalette.Active }
-
-	Rectangle {
-		id: frameBorder
-		anchors {
-			fill:background
-			margins: 1
-		}
-		color:palatte.base
+	gradient: Gradient {
+		GradientStop { position: 0.0; color: Qt.lighter(palatte.highlight,1.65) }
+		GradientStop { position: 1.0; color: palatte.base }
 	}
+	border.width: 1
+	border.color: palatte.shadow
+
+	SystemPalette { id: palatte; colorGroup: SystemPalette.Active }
 
 	Text {
 		id: title
@@ -23,7 +21,7 @@ Rectangle {
 		font.pointSize: 10
 		wrapMode: "WordWrap"
 		font.bold: true
-		style: Text.Outline; styleColor: palatte.mid
+		style: Text.Outline; styleColor: palatte.light
 		anchors {
 			left: parent.left
 			right: parent.right
@@ -51,7 +49,7 @@ Rectangle {
 			height: 32
 			fillMode: Image.PreserveAspectCrop
 			anchors {
-				verticalCenter: parent.verticalCenter
+				top: parent.top
 				left: parent.left
 				leftMargin: 10
 			}
@@ -81,7 +79,6 @@ Rectangle {
 //				offset.x: 0
 //				offset.y: 0
 //			}
-			style: Text.Outline; styleColor: palatte.mid
 		}
 	}
 
