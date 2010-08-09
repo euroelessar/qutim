@@ -111,7 +111,7 @@ namespace Core
 		}
 		group.setValue("list", selected);
 		group.sync();
-		Notifications::sendNotification(tr("To take effect you must restart qutIM"));
+		Notifications::send(tr("To take effect you must restart qutIM"));
 	}
 	
 	void ServiceChooserWidget::clear()

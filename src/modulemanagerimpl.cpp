@@ -59,6 +59,6 @@ namespace Core
 	{
 		ModuleManager::loadPlugins();
 		ModuleManager::initExtensions();
-		Notifications::sendNotification(Notifications::Startup, 0);
+		Notifications::send(Notifications::Startup, 0);
 	}
 }

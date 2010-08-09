@@ -165,33 +165,34 @@ namespace SimpleContactList
 											status.text().remove("\n")
 											);
 					}
-
-					QIcon item_icon = index.data(Qt::DecorationRole).value<QIcon>();
-					bool hasAvatar = false;
-					if (m_show_flags & ShowAvatars) {
-						QSize avatarSize (option.decorationSize.width()+m_horizontal_padding,option.decorationSize.height()+m_vertical_padding);
-						AvatarFilter filter(avatarSize);
-						QPixmap avatar = filter.draw(index.data(ItemAvatarRole).toString(),item_icon);
-						if (!avatar.isNull()) {
-							painter->drawPixmap(option.rect.left()+m_horizontal_padding/2,
-												option.rect.top()+m_vertical_padding/2,
-												avatarSize.width(),
-												avatarSize.height(),
-												avatar
-												);
-							hasAvatar = true;
-						}
-					}
-
-					if (!hasAvatar)
-						item_icon.paint(painter,
-										option.rect.left() + m_horizontal_padding,
-										option.rect.top() + m_vertical_padding,
-										option.decorationSize.width(),
-										option.decorationSize.height(),
-										Qt::AlignTop);
-
 				}
+
+				QIcon item_icon = index.data(Qt::DecorationRole).value<QIcon>();
+				bool hasAvatar = false;
+				if (m_show_flags & ShowAvatars) {
+					QSize avatarSize (option.decorationSize.width()+m_horizontal_padding,option.decorationSize.height()+m_vertical_padding);
+					AvatarFilter filter(avatarSize);
+					QPixmap avatar = filter.draw(index.data(ItemAvatarRole).toString(),item_icon);
+					if (!avatar.isNull()) {
+						painter->drawPixmap(option.rect.left()+m_horizontal_padding/2,
+											option.rect.top()+m_vertical_padding/2,
+											avatarSize.width(),
+											avatarSize.height(),
+											avatar
+											);
+						hasAvatar = true;
+					}
+				}
+
+				if (!hasAvatar)
+					item_icon.paint(painter,
+									option.rect.left() + m_horizontal_padding,
+									option.rect.top() + m_vertical_padding,
+									option.decorationSize.width(),
+									option.decorationSize.height(),
+									Qt::AlignTop);
+
+				
 				
 				break;
 			}

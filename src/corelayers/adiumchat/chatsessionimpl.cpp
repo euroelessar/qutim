@@ -256,7 +256,7 @@ namespace Core
 			}
 
 			if (!silent && !d->active)
-				Notifications::sendNotification(message);
+				Notifications::send(message);
 
 			if (message.property("store", true) && (!service || (service && d->store_service_messages)))
 				History::instance()->store(message);

@@ -123,7 +123,7 @@ namespace Core
 	void ChatAppearance::loadImpl()
 	{
 		if (!m_chat_session) {
-			Notifications::sendNotification(Notifications::System,this,tr("Unable to create chat session"));
+			Notifications::send(Notifications::System,this,tr("Unable to create chat session"));
 			return;
 		}
 		ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
@@ -198,7 +198,7 @@ namespace Core
 	void ChatAppearance::makePage()
 	{
 		if (!m_chat_session) {
-			Notifications::sendNotification(Notifications::System,this,tr("Unable to create chat session"));
+			Notifications::send(Notifications::System,this,tr("Unable to create chat session"));
 			return;
 		}
 		Message message(tr("Preview message"));

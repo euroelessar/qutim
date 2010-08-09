@@ -107,7 +107,7 @@ namespace Core
 			}
 		}
 		if (needRestart)
-			Notifications::sendNotification(tr("To take effect you must restart qutIM"));
+			Notifications::send(tr("To take effect you must restart qutIM"));
 	}
 
 	void PluginChooserWidget::clear()

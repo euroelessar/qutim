@@ -44,11 +44,11 @@ namespace qutim_sdk_0_3
 			BlockedMessage = 0x200,
 			Count = 0x400
 		};
-		LIBQUTIM_EXPORT void sendNotification(const QString &body,const QVariant &data = QVariant());
-		LIBQUTIM_EXPORT void sendNotification(Type type, QObject *sender,
+		LIBQUTIM_EXPORT void send(const QString &body,const QVariant &data = QVariant());
+		LIBQUTIM_EXPORT void send(Type type, QObject *sender,
 											  const QString &body = QString(),
 											  const QVariant &data = QVariant());
-		LIBQUTIM_EXPORT void sendNotification(const Message &message);
+		LIBQUTIM_EXPORT void send(const Message &message);
 		LIBQUTIM_EXPORT QString toString(Notifications::Type type);
 	}
 

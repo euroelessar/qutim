@@ -76,7 +76,7 @@ namespace qutim_sdk_0_3
 
 	namespace Notifications
 	{
-		void sendNotification(Type type, QObject *sender,
+		void send(Type type, QObject *sender,
 							  const QString &body, const QVariant &data)
 		{
 			ensure_notifications_private();
@@ -92,18 +92,18 @@ namespace qutim_sdk_0_3
 		}
 
 
-		void sendNotification(const QString &body, const QVariant &data)
+		void send(const QString &body, const QVariant &data)
 		{
-			sendNotification(System, 0, body, data);
+			send(System, 0, body, data);
 		}
 
 
-		void sendNotification(const Message& message)
+		void send(const Message& message)
 		{
 			Type type = static_cast<Type>(message.property("service").toInt());
 			if (!type)
 				type = message.isIncoming() ? MessageGet : MessageSend;
-			sendNotification(type, const_cast<ChatUnit *>(message.chatUnit()->buddy()),
+			send(type, const_cast<ChatUnit *>(message.chatUnit()->buddy()),
 							 message.text(),
 							 QVariant::fromValue(message));
 		}

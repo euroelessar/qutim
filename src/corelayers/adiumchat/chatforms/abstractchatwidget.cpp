@@ -100,7 +100,7 @@ namespace Core
 
 			//some checks
 			if (message.text().isEmpty()) {
-				Notifications::sendNotification(Notifications::System,
+				Notifications::send(Notifications::System,
 												this,
 												tr("Unable to send empty message!"));
 				return;
@@ -113,7 +113,7 @@ namespace Core
 			message.setTime(QDateTime::currentDateTime());
 
 			if (!unit->sendMessage(message)) {
-				Notifications::sendNotification(Notifications::System,
+				Notifications::send(Notifications::System,
 												this,
 												tr("Unable to send message to %1").arg(unit->title()));
 			}

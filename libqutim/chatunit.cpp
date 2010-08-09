@@ -102,7 +102,7 @@ namespace qutim_sdk_0_3
 			qApp->sendEvent(s,&event);
 		}
 		if (state == ChatStateComposing)
-			Notifications::sendNotification(Notifications::Typing,this);
+			Notifications::send(Notifications::Typing,this);
 	}
 
 	ChatUnit *ChatUnit::buddy()
