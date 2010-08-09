@@ -3,23 +3,26 @@ import Qt 4.7
 Rectangle {
 	id: background
 	width: 250
-	height: 60
+	height: 75
 	color:"transparent"
+
+	SystemPalette { id: palatte; colorGroup: SystemPalette.Active }
 
 	Text {
 		id: title
 		text: popupTitle
-		color: "black"
+		color: palatte.text
 		font.pointSize: 10
 		wrapMode: "WordWrap"
 		font.bold: true
-		style: Text.Outline; styleColor: "#CCC"
+		style: Text.Outline; styleColor: palatte.light
 		anchors {
 			left: parent.left
 			right: parent.right
 			top: parent.top
 			leftMargin: 15
 			rightMargin: 15
+			topMargin:5
 		}
 	}
 
@@ -40,7 +43,7 @@ Rectangle {
 			height: 32
 			fillMode: Image.PreserveAspectCrop
 			anchors {
-				verticalCenter: parent.verticalCenter
+				top: parent.top
 				left: parent.left
 				leftMargin: 10
 			}
@@ -48,7 +51,7 @@ Rectangle {
 		Text {
 			id: bodyText
 			text: popupBody
-			color: "black"
+			color: palatte.text
 			font.pointSize: 10
 			wrapMode: "WordWrap"
 			anchors {
@@ -63,6 +66,8 @@ Rectangle {
 				show_timer.restart();
 				background.height = (body.y + body.height + 15); //hack
 			}
+			style: Text.Outline; styleColor: palatte.light
+
 
 //			effect: DropShadow {
 //				color: "white"
@@ -70,7 +75,6 @@ Rectangle {
 //				offset.x: 0
 //				offset.y: 0
 //			}
-			style: Text.Outline; styleColor: "#CCC"
 		}
 	}
 
