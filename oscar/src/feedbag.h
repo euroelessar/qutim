@@ -176,8 +176,12 @@ public:
 	virtual ~FeedbagItemHandler();
 	const QSet<quint16> &types() { return m_types; }
 	virtual bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error) = 0;
+	quint16 priority() { return m_priority; }
 protected:
+	FeedbagItemHandler(quint16 priority = 50);
 	QSet<quint16> m_types;
+private:
+	quint16 m_priority;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

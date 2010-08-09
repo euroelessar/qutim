@@ -387,6 +387,11 @@ QDebug &operator<<(QDebug &stream, const FeedbagItem &item)
 	return stream;
 }
 
+static bool handlerLessThan(FeedbagItemHandler *lhs, FeedbagItemHandler *rhs)
+{
+	return lhs->priority() > rhs->priority();
+}
+
 void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
 {
 	Q_Q(Feedbag);
@@ -409,7 +414,10 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 		item.d->isInList = true;
 	// Handle the item.
 	bool found = false;
-	foreach (FeedbagItemHandler *handler, handlers.values(item.type()))
+	QList<FeedbagItemHandler*> suitableHandlers = handlers.values(item.type());
+	if (suitableHandlers.count() > 1)
+		qSort(suitableHandlers.begin(), suitableHandlers.end(), &handlerLessThan);
+	foreach (FeedbagItemHandler *handler, suitableHandlers)
 		found = handler->handleFeedbagItem(q, item, type, error) || found;
 	if (!found) {
 		if (error == FeedbagError::NoError) {
@@ -728,9 +736,11 @@ void Feedbag::registerHandler(FeedbagItemHandler *handler)
 	const QSet<quint16> &types = handler->types();
 	foreach (quint16 type, types)
 		d->handlers.insertMulti(type, handler);
-	foreach (const FeedbagItem &item, d->items.value(SsiGroup)) {
-		if (types.contains(item.type()))
-			handler->handleFeedbagItem(this, item, AddModify, FeedbagError::NoError);
+	if (types.contains(SsiGroup)) {
+		foreach (const FeedbagItem &item, d->items.value(SsiGroup)) {
+			if (types.contains(item.type()))
+				handler->handleFeedbagItem(this, item, AddModify, FeedbagError::NoError);
+		}
 	}
 	QHash<quint16, ItemsHash>::const_iterator itr = d->items.constBegin();
 	QHash<quint16, ItemsHash>::const_iterator endItr = d->items.constEnd();
@@ -874,6 +884,11 @@ void Feedbag::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 }
 
 FeedbagItemHandler::~FeedbagItemHandler()
+{
+}
+
+FeedbagItemHandler::FeedbagItemHandler(quint16 priority) :
+	m_priority(priority)
 {
 }
 

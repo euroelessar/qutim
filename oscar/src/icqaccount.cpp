@@ -71,8 +71,15 @@ QString IcqAccountPrivate::password()
 void IcqAccountPrivate::loadRoster()
 {
 	Q_Q(IcqAccount);
-	foreach(const ObjectGenerator *gen, moduleGenerators<FeedbagItemHandler>())
-		feedbag->registerHandler(gen->generate<FeedbagItemHandler>());
+	QMultiMap<quint16, FeedbagItemHandler*> handlers;
+	foreach (const ObjectGenerator *gen, moduleGenerators<FeedbagItemHandler>()) {
+		FeedbagItemHandler *handler = gen->generate<FeedbagItemHandler>();
+		handlers.insert(handler->priority(), handler);
+	}
+	QMapIterator<quint16, FeedbagItemHandler*> i(handlers);
+	i.toBack();
+	while (i.hasPrevious())
+		feedbag->registerHandler(i.previous().value());
 
 	conn->registerHandler(buddyPicture = new BuddyPicture(q, q));
 

@@ -294,12 +294,12 @@ void Roster::handleUserOnline(IcqAccount *account, const SNAC &snac)
 	Status oldStatus = contact->status();
 	quint16 statusId = 0;
 	quint16 statusFlags = 0;
-	OscarStatus status(OscarOnline);
+	OscarStatus status = contact->status();
 	if (tlvs.contains(0x06)) {
 		DataUnit status_data(tlvs.value(0x06));
 		statusFlags = status_data.read<quint16>();
 		statusId = status_data.read<quint16>();
-		status = static_cast<OscarStatusEnum>(statusId);
+		status.setStatusFlag(statusId);
 	}
 	// Status note
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));

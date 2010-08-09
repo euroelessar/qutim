@@ -28,7 +28,8 @@ void AuthorizeActionGenerator::showImpl(QAction *action, QObject *object)
 					   !contact->property("authorizedBy").toBool());
 }
 
-Authorization::Authorization()
+Authorization::Authorization() :
+	FeedbagItemHandler(30)
 {
 	Q_ASSERT(!self);
 	self = this;
@@ -85,8 +86,8 @@ bool Authorization::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item,
 		return false;
 	}
 	IcqContact *contact = feedbag->account()->getContact(item.name());
-	if (contact) // TODO: fix it
-		contact->setProperty("authorizedBy", !item.containsField(SsiBuddyReqAuth));
+	Q_ASSERT(contact);
+	contact->setProperty("authorizedBy", !item.containsField(SsiBuddyReqAuth));
 	return false;
 }
 
