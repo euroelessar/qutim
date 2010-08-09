@@ -44,8 +44,9 @@ namespace Core
 			void changeStatusTextAccepted();
 			void onCopyIdTriggered(QObject *obj);
 			void onQuitTriggered(QObject*);
+			void reloadSettings();
 		private:
-			QAction *createGlobalStatusAction(Status::Type type); //FIXME, temporary. Will be replaced by metacontact manager
+			QAction *createGlobalStatusAction(Status::Type type);
 			QScopedPointer<ModulePrivate> p;
 		};
 	}

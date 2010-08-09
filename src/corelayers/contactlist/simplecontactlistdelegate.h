@@ -23,7 +23,7 @@ namespace Core
 {
 	namespace SimpleContactList
 	{
-		class SimpleContactListDelegate : public QAbstractItemDelegate
+		class Delegate : public QAbstractItemDelegate
 		{
 			Q_OBJECT
 		public:
@@ -34,9 +34,10 @@ namespace Core
 				ShowClientIcon = 0x4,
 				ShowAvatars = 0x8
 			};
-			explicit SimpleContactListDelegate(QTreeView *parent = 0);
+			explicit Delegate(QTreeView *parent = 0);
 			virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 			virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
+			void setShowFlags(ShowFlags flags);
 		public Q_SLOTS:
 			bool helpEvent(QHelpEvent *event,
 						   QAbstractItemView *view,

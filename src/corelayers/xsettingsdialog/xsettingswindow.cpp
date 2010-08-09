@@ -204,7 +204,9 @@ void XSettingsWindow::onGroupActionTriggered(QAction *a )
 		p->listWidget->show();
 	else
 		p->listWidget->hide();
-	p->listWidget->setCurrentRow(0); //TODO save current row
+	int currentRow = 0; //TODO save current row
+	p->listWidget->setCurrentRow(currentRow);
+	onCurrentItemChanged(p->listWidget->currentItem()); //if current row = 0	
 }
 
 void XSettingsWindow::onCurrentItemChanged(QListWidgetItem *item)
