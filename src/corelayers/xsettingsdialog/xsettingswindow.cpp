@@ -84,9 +84,7 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	p->controller = controller;
 	//setup ui
 	QWidget *w = new QWidget(this);
-	setCentralWidget(w);
 	QVBoxLayout *l = new QVBoxLayout(w);
-	w->setLayout(l);
 	QSize desktop_size = qApp->desktop()->size();
 	resize(desktop_size.width()/2,desktop_size.height()*2/3);
 	centerizeWidget(this);
@@ -107,6 +105,11 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	l->addWidget(p->buttonBox);
 	p->buttonBox->hide();
 	//init actiontoolbar
+#ifdef Q_WS_MAC
+	l->setContentsMargins(0,0,0,0);
+	p->listWidget->setIconSize(QSize(22,22));
+#endif
+	setCentralWidget(w);
 	p->toolBar = new ActionToolBar(w);
 	p->toolBar->setIconSize(QSize(32,32));
 	p->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
