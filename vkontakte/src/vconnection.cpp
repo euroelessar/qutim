@@ -37,7 +37,7 @@ void VConnectionPrivate::onError(QNetworkReply::NetworkError)
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	Q_ASSERT(reply);
-	Notifications::sendNotification(reply->errorString());
+	Notifications::send(reply->errorString());
 }
 
 void VConnectionPrivate::onReplyFinished()
@@ -51,7 +51,7 @@ void VConnectionPrivate::onReplyFinished()
 		QVariantMap map = Json::parse(rawData).toMap();
 		QVariantMap error = map.value("error").toMap();
 		if (!error.isEmpty())
-			Notifications::sendNotification(error.value("error_msg").toString());
+			Notifications::send(error.value("error_msg").toString());
 	}
 	reply->deleteLater();
 }

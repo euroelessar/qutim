@@ -219,7 +219,7 @@ namespace Jabber
 					break;
 			}
 			// somes actions with s
-			Notifications::sendNotification(s, tr("System error"));
+			Notifications::send(s, tr("System error"));
 			qDebug() << "ERROR" << s;
 		}
 	}

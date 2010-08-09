@@ -63,7 +63,7 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		if (contact) {
 			if (isAccepted)
 				contact->setProperty("authorizedBy", true);
-			Notifications::sendNotification(Notifications::System, contact, reason); // TODO:
+			Notifications::send(Notifications::System, contact, reason); // TODO:
 		}
 		debug() << "Auth response" << uin << isAccepted << reason;
 		break;

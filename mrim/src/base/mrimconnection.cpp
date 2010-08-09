@@ -236,7 +236,7 @@ bool MrimConnection::handlePacket(MrimPacket& packet)
 
             if (reason == LOGOUT_NO_RELOGIN_FLAG)
             {
-                Notifications::sendNotification(Notifications::System,p->account,tr("Another client with same login connected!"));
+				Notifications::send(Notifications::System,p->account,tr("Another client with same login connected!"));
                 //TODO: do not relogin
             }
         }
@@ -421,7 +421,7 @@ bool MrimConnection::setStatus(const Status &status)
 
 void MrimConnection::loginRejected(const QString& reason)
 {
-    Notifications::sendNotification(Notifications::System,p->account,tr("Authentication failed! Access denied!"));
+	Notifications::send(Notifications::System,p->account,tr("Authentication failed! Access denied!"));
 }
 
 void MrimConnection::sendPacket(MrimPacket &packet)

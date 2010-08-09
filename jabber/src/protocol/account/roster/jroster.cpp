@@ -309,7 +309,7 @@ namespace Jabber
 			QObject *sender = new QObject();
 			sender->setProperty("id", jid);
 			sender->setProperty("name", name);
-			Notifications::sendNotification(Notifications::System, sender, text);
+			Notifications::send(Notifications::System, sender, text);
 			sender->deleteLater();
 		}
 	}

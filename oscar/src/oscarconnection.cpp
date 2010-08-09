@@ -158,7 +158,7 @@ void OscarConnection::onError(ConnectionError error)
 		  error == SocketError &&
 		  socket()->error() == QAbstractSocket::RemoteHostClosedError))
 	{
-		Notifications::sendNotification(errorString());
+		Notifications::send(errorString());
 	}
 }
 
