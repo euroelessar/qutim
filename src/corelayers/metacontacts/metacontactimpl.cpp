@@ -224,10 +224,10 @@ namespace Core
 			if (ev->type() == ToolTipEvent::eventType()) {
 				if (ev->type() == ToolTipEvent::eventType()) {
 					ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-					if (event->fieldsTypes() & ToolTipEvent::GenerateBorder)
+					if (event->generateLayout())
 						Contact::event(ev);
 					foreach (ChatUnit *contact, m_contacts) {
-						ToolTipEvent contactEvent(ToolTipEvent::GenerateFields);
+						ToolTipEvent contactEvent(false);
 						qApp->sendEvent(contact, &contactEvent);
 						QString text = contactEvent.html();
 						if (!text.isEmpty())

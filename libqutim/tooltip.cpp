@@ -36,13 +36,13 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		FieldsMap fields;
-		ToolTipEvent::FieldsTypes types;
+		bool generateLayout;
 	};
 
-	ToolTipEvent::ToolTipEvent(ToolTipEvent::FieldsTypes types) :
+	ToolTipEvent::ToolTipEvent(bool generateLayout) :
 		QEvent(eventType()), d(new ToolTipEventPrivate)
 	{
-		d->types = types;
+		d->generateLayout = generateLayout;
 	}
 
 
@@ -69,7 +69,7 @@ namespace qutim_sdk_0_3
 		if (!icon.isEmpty()) {
 			QString iconPath = IconLoader::instance()->iconPath(icon, 16);
 			if (!iconPath.isEmpty())
-				text += "<img src='" + iconPath + "'>";
+				text += "<img src='" + iconPath + "'> ";
 		}
 		if (!title.toString().isEmpty()) {
 			text += QLatin1Literal("<b>") % title.toString();
@@ -93,9 +93,9 @@ namespace qutim_sdk_0_3
 		addField(title, data, icon.name(), priority);
 	}
 
-	ToolTipEvent::FieldsTypes ToolTipEvent::fieldsTypes() const
+	bool ToolTipEvent::generateLayout() const
 	{
-		return d->types;
+		return d->generateLayout;
 	}
 
 	QString ToolTipEvent::html() const
@@ -145,7 +145,7 @@ namespace qutim_sdk_0_3
 
 	void ToolTip::showText(const QPoint &pos, QObject *obj, QWidget *w)
 	{
-		ToolTipEvent event(ToolTipEvent::GenerateAll);
+		ToolTipEvent event;
 		qApp->sendEvent(obj, &event);
 		QString text = event.html();
 		if (text.isEmpty())

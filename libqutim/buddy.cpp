@@ -79,7 +79,7 @@ namespace qutim_sdk_0_3
 	{
 		if (ev->type() == ToolTipEvent::eventType()) {
 			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-			if (event->fieldsTypes() & ToolTipEvent::GenerateBorder) {
+			if (event->generateLayout()) {
 				event->addHtml("<table><tr><td>", 98);
 				QString ava = avatar();
 				if (ava.isEmpty())
@@ -89,17 +89,15 @@ namespace qutim_sdk_0_3
 							   % QLatin1Literal("\"/></td></tr></table>");
 				event->addHtml(text, 5);
 			}
-			if (event->fieldsTypes() & ToolTipEvent::GenerateFields) {
-				event->addHtml("<font size=-1>", 50);
-				QString text = QLatin1Literal("<b>")
-							   % Qt::escape(name())
-							   % QLatin1Literal("</b> &lt;")
-							   % Qt::escape(id())
-							   % QLatin1Literal("&gt;");
-				event->addHtml("</font>", 10);
-				event->addHtml(text, 90);
-				event->addField(QT_TRANSLATE_NOOP("ToolTip", "Account"), account()->id(), QIcon(), 90);
-			}
+			event->addHtml("<font size=-1>", 50);
+			QString text = QLatin1Literal("<b>")
+						   % Qt::escape(name())
+						   % QLatin1Literal("</b> &lt;")
+						   % Qt::escape(id())
+						   % QLatin1Literal("&gt;");
+			event->addHtml("</font>", 10);
+			event->addHtml(text, 90);
+			event->addField(QT_TRANSLATE_NOOP("ToolTip", "Account"), account()->id(), QIcon(), 90);
 		}
 		return ChatUnit::event(ev);
 	}

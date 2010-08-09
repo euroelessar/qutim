@@ -35,17 +35,15 @@ namespace qutim_sdk_0_3
 	{
 		if (ev->type() == ToolTipEvent::eventType()) {
 			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-			if (event->fieldsTypes() & ToolTipEvent::GenerateFields) {
-				QString text = QLatin1Literal("<p><strong>")
-							   % Qt::escape(title())
-							   % QLatin1Literal("</strong> &lt;")
-							   % id()
-							   % QLatin1Literal("&gt;</p>")
-							   % QLatin1Literal("<p>")
-							   % Qt::escape(topic())
-							   % QLatin1Literal("</p>");
-				event->addHtml(text, 90);
-			}
+			QString text = QLatin1Literal("<p><strong>")
+						   % Qt::escape(title())
+						   % QLatin1Literal("</strong> &lt;")
+						   % id()
+						   % QLatin1Literal("&gt;</p>")
+						   % QLatin1Literal("<p>")
+						   % Qt::escape(topic())
+						   % QLatin1Literal("</p>");
+			event->addHtml(text, 90);
 		}
 		return ChatUnit::event(ev);
 	}

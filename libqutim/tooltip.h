@@ -31,17 +31,7 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT ToolTipEvent : public QEvent
 	{
 	public:
-		enum FieldType
-		{	//! Generate fields
-			GenerateFields = 0x0001,
-			//!< Generate border
-			GenerateBorder = 0x0002,
-			//!< Generate all fields and border
-			GenerateAll = GenerateBorder | GenerateFields
-		};
-		Q_DECLARE_FLAGS(FieldsTypes, FieldType)
-
-		ToolTipEvent(FieldsTypes types = GenerateAll);
+		ToolTipEvent(bool generateLayout = true);
 		~ToolTipEvent();
 		void addHtml(const QString &html, quint8 priority = 60);
 		void addField(const LocalizedString &title,
@@ -55,14 +45,13 @@ namespace qutim_sdk_0_3
 					  const LocalizedString &data,
 					  const ExtensionIcon &icon,
 					  quint8 priority = 60);
-		FieldsTypes fieldsTypes() const;
+		bool generateLayout() const;
 		QString html() const;
 		static QEvent::Type eventType();
 	protected:
 		friend class ToolTip;
 		QScopedPointer<ToolTipEventPrivate> d;
 	};
-	Q_DECLARE_OPERATORS_FOR_FLAGS(ToolTipEvent::FieldsTypes);
 
 	class LIBQUTIM_EXPORT ToolTip : public QObject
 	{
