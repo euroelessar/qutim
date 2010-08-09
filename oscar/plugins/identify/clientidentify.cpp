@@ -800,7 +800,7 @@ void ClientIdentify::identify_Qip()
 	                                                     0x00, 0x00, 0x00);
 
 	Capabilities::const_iterator cap;
-	if ((cap = m_client_caps.find(ICQ_CAPABILITY_QIPxVER/*, 0x0e*/)) != m_client_caps.constEnd()) {
+	if ((cap = m_client_caps.find(ICQ_CAPABILITY_QIPxVER)) != m_client_caps.constEnd()) {
 		const QByteArray &cap_data = cap->data();
 		m_client_id = "QIP ";
 		if (m_ext_info == 0x0F)
@@ -822,8 +822,8 @@ void ClientIdentify::identify_Qip()
 void ClientIdentify::identify_QipInfium()
 {
 	static const Capability ICQ_CAPABILITY_QIPINFxVER   (0x7C, 0x73, 0x75, 0x02, 0xC3, 0xBE,
-														 0x4F, 0x3E, 0xA6, 0x9F, 0x00, 0x00,
-														 0x00, 0x00, 0x00, 0x00);
+														 0x4F, 0x3E, 0xA6, 0x9F, 0x01, 0x53,
+														 0x13, 0x43, 0x1E, 0x1A);
 
 
 	static const Capability ICQ_CAPABILITY_QIP2010xVER  (0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f,
@@ -855,7 +855,7 @@ void ClientIdentify::identify_QipPDA()
 	                                              0x41, 'Q', 'I', 'P', ' ', ' ', ' ',
 	                                              ' ', ' ', '!');
 
-	if (m_client_caps.match(ICQ_CAPABILITY_QIPPDAxVER, 0x10))
+	if (m_client_caps.match(ICQ_CAPABILITY_QIPPDAxVER))
 		setClientData("QIP PDA (Windows)", "qip-pda");
 }
 
@@ -1053,12 +1053,12 @@ void ClientIdentify::identify_Mip()
 void ClientIdentify::identify_Trillian()
 {
 	static const Capability ICQ_CAPABILITY_TRILLIANxVER (0x97, 0xb1, 0x27, 0x51, 0x24, 0x3c,
-	                                                     0x43, 0x34, 0xad, 0x22, 0x00, 0x00,
-	                                                     0x00, 0x00, 0x00, 0x00);
+														 0x43, 0x34, 0xad, 0x22, 0xd6, 0xab,
+														 0xf7, 0x3f, 0x14, 0x09 );
 
 	static const Capability ICQ_CAPABILITY_TRILCRPTxVER (0xf2, 0xe7, 0xc7, 0xf4, 0xfe, 0xad,
-	                                                     0x4d, 0xfb, 0xb2, 0x35, 0x00, 0x00,
-	                                                     0x00, 0x00, 0x00, 0x00);
+														 0x4d, 0xfb, 0xb2, 0x35, 0x36, 0x79,
+														 0x8b, 0xdf, 0x00, 0x00 );
 
 	if (m_client_caps.match(ICQ_CAPABILITY_TRILLIANxVER) ||
 		m_client_caps.match(ICQ_CAPABILITY_TRILCRPTxVER))
@@ -1102,8 +1102,8 @@ void ClientIdentify::identify_Climm()
 void ClientIdentify::identify_Im2()
 {
 	static const Capability ICQ_CAPABILITY_IM2xVER (0x74, 0xED, 0xC3, 0x36, 0x44, 0xDF,
-	                                                0x48, 0x5B, 0x8B, 0x1C, 0x00, 0x00,
-	                                                0x00, 0x00, 0x00, 0x00);
+													0x48, 0x5B, 0x8B, 0x1C, 0x67, 0x1A,
+													0x1F, 0x86, 0x09, 0x9F);
 
 	if (m_client_caps.match(ICQ_CAPABILITY_IM2xVER))
 		setClientData("IM2", "im2");
@@ -1218,8 +1218,8 @@ void ClientIdentify::identify_Macicq()
 void ClientIdentify::identify_Anastasia()
 {
 	static const Capability ICQ_CAPABILITY_ANSTxVER (0x44, 0xE5, 0xBF, 0xCE, 0xB0, 0x96,
-	                                                 0xE5, 0x47, 0xBD, 0x65, 0x00, 0x00,
-	                                                 0x00, 0x00, 0x00, 0x00);
+													 0xE5, 0x47, 0xBD, 0x65, 0xEF, 0xD6,
+													 0xA3, 0x7E, 0x36, 0x02);
 
 	if (m_client_caps.match(ICQ_CAPABILITY_ANSTxVER))
 		setClientData("Anastasia", "anastasia");
