@@ -80,6 +80,7 @@ namespace qutim_sdk_0_3
 		void removeExtendedInfo(const QString &name);
 		QVariantMap extendedInfo(const QString &name) const;
 		QVariantHash extendedInfos() const;
+		void setExtendedInfos(const QVariantHash &extInfos);
 	private:
 		QSharedDataPointer<StatusPrivate> d;
 	};

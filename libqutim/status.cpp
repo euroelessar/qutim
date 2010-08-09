@@ -326,6 +326,11 @@ namespace qutim_sdk_0_3
 		return d->extStatuses;
 	}
 
+	void Status::setExtendedInfos(const QVariantHash &extInfos)
+	{
+		d->extStatuses = extInfos;
+	}
+
 }
 
 QDebug operator<<(QDebug dbg, qutim_sdk_0_3::Status::Type status)
