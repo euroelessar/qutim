@@ -181,7 +181,7 @@ namespace qutim_sdk_0_3
 	void DynamicMenu::onMenuOwnerChanged(const MenuController *)
 	{
 		//epic fail v2
-		//addActions(allActions(false));
+		//addActions(allActions());
 	}
 
 	DynamicMenu::~DynamicMenu()

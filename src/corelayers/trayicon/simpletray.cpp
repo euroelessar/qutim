@@ -29,11 +29,11 @@ namespace Core
 			if (m_proto->accounts().isEmpty())
 				return NULL;
 			QAction *action = prepareAction(new QAction(NULL));
-			
+
 			QFont font = action->font();
 			font.setBold(true);
 			action->setFont(font);
-
+#ifndef Q_WS_MAC
 			QToolButton *m_btn = new QToolButton();
 			QWidgetAction *widget = new QWidgetAction(action);
 			widget->setDefaultWidget(m_btn);
@@ -41,6 +41,9 @@ namespace Core
 			m_btn->setDefaultAction(action);
 			m_btn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 			return widget;
+#else
+			return action;
+#endif
 		}
 		virtual ~ProtocolSeparatorActionGenerator()
 		{
