@@ -55,6 +55,8 @@ namespace Jabber
 		protected:
 			void fillMaxResource();
 			virtual bool event(QEvent *event);
+		private slots:
+			void resourceStatusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
 		private:
 			friend class JRoster;
 			QScopedPointer<JContactPrivate> d_ptr;

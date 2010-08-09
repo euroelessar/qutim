@@ -18,6 +18,7 @@
 #include "jcontactresource.h"
 #include <gloox/dataform.h>
 #include <gloox/capabilities.h>
+#include <qutim/extensionicon.h>
 
 using namespace qutim_sdk_0_3;
 using namespace gloox;
@@ -58,8 +59,7 @@ namespace Jabber
 						iq.addExtension(new SoftwareVersion());
 						m_account->client()->send(iq, this, RequestSoftware);
 					} else {
-						unit->setProperty("client", (info.name + " " + info.version).trimmed());
-						unit->setProperty("os", info.os);
+						updateClientData(unit, info.description, info.name, info.version, info.os, info.icon);
 					}
 					return;
 				}
@@ -84,17 +84,21 @@ namespace Jabber
 					QString software = QString::fromStdString(soft->name());
 					QString softwareVersion = QString::fromStdString(soft->version());
 					QString os = QString::fromStdString(soft->os());
-					unit->setProperty("client", (software + " " + softwareVersion).trimmed());
-					unit->setProperty("software", software);
-					unit->setProperty("softwareVersion", softwareVersion);
-					unit->setProperty("os", os);
+					QString icon = software.toLower() + "-jabber";
+					QString client = software;
+					if (!softwareVersion.isEmpty())
+						client += " " + softwareVersion;
+					if (!os.isEmpty())
+						client += " / " + os;
+					updateClientData(unit, client, software, softwareVersion, os, icon);
 					SoftwareInfoHash::iterator it = m_hash.find(node);
 					if (it != m_hash.end()) {
 						SoftwareInfo &info = (*it);
 						info.name = software;
 						info.version = softwareVersion;
 						info.os = os;
-						info.icon = info.name.toLower();
+						info.icon = icon;
+						info.description = client;
 					}
 				}
 			}
@@ -174,4 +178,24 @@ namespace Jabber
 		Q_UNUSED(error);
 		Q_UNUSED(context);
 	}
+
+	void JSoftwareDetection::updateClientData(ChatUnit *unit, const QString &client, 
+											  const QString &software, const QString &softwareVersion,
+											  const QString &os, const QString &icon)
+	{
+		unit->setProperty("client", client);
+		unit->setProperty("software", software);
+		unit->setProperty("softwareVersion", softwareVersion);
+		unit->setProperty("os", os);
+		unit->setProperty("clientIcon", icon);
+		if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
+			QVariantMap clientInfo;
+			clientInfo.insert("id", tr("Possible client"));
+			clientInfo.insert("icon", QVariant::fromValue(ExtensionIcon(icon)));
+			clientInfo.insert("description", client);
+			clientInfo.insert("priority", -1);
+			resource->setExtendedInfo("client", clientInfo);
+		}
+	}
+
 }

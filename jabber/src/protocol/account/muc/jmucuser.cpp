@@ -142,14 +142,11 @@ namespace Jabber
 			}
 			if (!role.isEmpty())
 				event->addField(QT_TRANSLATE_NOOP("Conference", "Role"), role, 30);
-			if (!client.isEmpty()) {
-				QString os = property("os").toString();
-				if (!os.isEmpty()) {
-					client += " / ";
-					client += os;
-				}
-				event->addField(QT_TRANSLATE_NOOP("Contact", "Possible client"), client, 30);
-			}
+			if (!client.isEmpty())
+				event->addField(QT_TRANSLATE_NOOP("Contact", "Possible client"),
+								client,
+								property("clientIcon").toString(),
+								30);
 		}
 		return JContactResource::event(ev);
 	}

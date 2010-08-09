@@ -24,6 +24,10 @@
 #include <gloox/discohandler.h>
 #include "sdk/jabber.h"
 
+namespace qutim_sdk_0_3 {
+	class ChatUnit;
+}
+
 namespace Jabber
 {
 	class JAccount;
@@ -43,6 +47,7 @@ namespace Jabber
 			QString version;
 			QString os;
 			QString icon;
+			QString description;
 		};
 		typedef QHash<QString, SoftwareInfo> SoftwareInfoHash;
 
@@ -55,6 +60,10 @@ namespace Jabber
 		void handleDiscoInfo(const gloox::JID &from, const gloox::Disco::Info &info, int context);
 		void handleDiscoItems(const gloox::JID &from, const gloox::Disco::Items &items, int context);
 		void handleDiscoError(const gloox::JID &from, const gloox::Error *error, int context);
+	private:
+		void updateClientData(qutim_sdk_0_3::ChatUnit *unit, const QString &client,
+							  const QString &software, const QString &softwareVersion,
+							  const QString &os, const QString &clientIcon);
 	private:
 		JAccount *m_account;
 		QHash<QString, SoftwareInfo> m_hash;

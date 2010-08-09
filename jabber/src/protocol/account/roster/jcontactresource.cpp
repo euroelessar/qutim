@@ -93,8 +93,10 @@ namespace Jabber
 
 	Status JContactResource::status() const
 	{
+		Q_D(const JContactResource);
 		Status status = JProtocol::presenceToStatus(d_func()->presence);
-		status.setProperty("text", d_func()->text);
+		status.setProperty("text", d->text);
+		status.setExtendedInfos(d->extStatuses);
 		return status;
 	}
 
@@ -152,6 +154,20 @@ namespace Jabber
 	QString JContactResource::text() const
 	{
 		return d_func()->text;
+	}
+
+	void JContactResource::setExtendedInfo(const QString &name, const QVariantMap &extStatus)
+	{
+		Status current = status();
+		d_func()->extStatuses.insert(name, extStatus);
+		emit statusChanged(status(), current);
+	}
+
+	void JContactResource::removeExtendedInfo(const QString &name)
+	{
+		Status current = status();
+		d_func()->extStatuses.remove(name);
+		emit statusChanged(status(), current);
 	}
 
 //	InfoRequest *JContactResource::infoRequest() const

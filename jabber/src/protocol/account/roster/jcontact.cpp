@@ -186,16 +186,13 @@ namespace Jabber
 				if (!resource->text().isEmpty())
 					event->addField(resource->text(), QString(), 80);
 				event->addField(QT_TRANSLATE_NOOP("Contact", "Resource"),
-								QString("%1 (%2)").arg(id).arg(resource->priority()), 75);
+								QString("%1 (%2)").arg(id).arg(resource->priority()), 30);
 				QString client = resource->property("client").toString();
-				if (!client.isEmpty()) {
-					QString os = resource->property("os").toString();
-					if (!os.isEmpty()) {
-						client += " / ";
-						client += os;
-					}
-					event->addField(QT_TRANSLATE_NOOP("Contact", "Possible client"), client, 30);
-				}
+				if (!client.isEmpty())
+					event->addField(QT_TRANSLATE_NOOP("Contact", "Possible client"),
+									client,
+									resource->property("clientIcon").toString(),
+									30);
 			}
 		} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
 			Status::Type status = account()->status().type();
@@ -224,6 +221,8 @@ namespace Jabber
 	void JContact::addResource(const QString &resource)
 	{
 		JContactResource *res = new JContactResource(this, resource);
+		connect(res, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+				SLOT(resourceStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 		d_func()->resources.insert(resource, res);
 		emit lowerUnitAdded(res);
 	}
@@ -324,6 +323,15 @@ namespace Jabber
 		int length = d->avatar.length() - pos;
 		d->hash = QStringRef(&d->avatar, pos, length);
 		emit avatarChanged(d->avatar);
+	}
+
+	void JContact::resourceStatusChanged(const Status &current, const Status &previous)
+	{
+		Q_D(JContact);
+		if (d->currentResources.isEmpty())
+			return;
+		if (d->resources.value(d->currentResources.first()) == sender())
+			emit statusChanged(current, previous);
 	}
 
 //	InfoRequest *JContact::infoRequest() const
