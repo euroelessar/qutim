@@ -416,6 +416,9 @@ void IcqAccount::registerRosterPlugin(RosterPlugin *plugin)
 
 void IcqAccount::updateSettings()
 {
+	Q_D(IcqAccount);
+	Config cfg = config("general");
+	d->name = cfg.value("nick", QString());
 	emit settingsUpdated();
 }
 
