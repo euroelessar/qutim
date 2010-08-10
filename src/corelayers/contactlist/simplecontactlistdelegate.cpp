@@ -42,7 +42,7 @@ namespace SimpleContactList
 	{
 		m_horizontal_padding = 5;
 		m_vertical_padding = 3;
-		m_show_flags = static_cast<ShowFlags>(ShowStatusText | ShowExtendedStatusIcons | ShowAvatars);
+		m_show_flags = static_cast<ShowFlags>(ShowStatusText | ShowExtendedInfoIcons | ShowAvatars);
 	}
 	
 	void Delegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
@@ -109,7 +109,7 @@ namespace SimpleContactList
 				QRect bounding;
 				Status status = index.data(ItemStatusRole).value<Status>();
 
-				if (m_show_flags & ShowExtendedStatusIcons)
+				if (m_show_flags & ShowExtendedInfoIcons)
 				{
 					QVariantHash extStatuses = status.extendedInfos();
 

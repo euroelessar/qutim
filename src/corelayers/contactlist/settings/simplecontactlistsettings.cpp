@@ -49,7 +49,7 @@ void SimpleContactlistSettings::loadImpl()
 	reloadCombobox();
 	Config config = Config("appearance").group("contactList");
 	m_flags = static_cast<Delegate::ShowFlags>(config.value("showFlags",Delegate::ShowStatusText |
-																			 Delegate::ShowExtendedStatusIcons |
+																			 Delegate::ShowExtendedInfoIcons |
 																			 Delegate::ShowAvatars));
 	int size = config.value("iconSize",0);
 	SizeMap::const_iterator it;
@@ -67,7 +67,7 @@ void SimpleContactlistSettings::loadImpl()
 	else
 		ui->sizesBox->setCurrentIndex(index);
 	ui->avatarsBox->setChecked(m_flags & Delegate::ShowAvatars);
-	ui->extendedInfoBox->setChecked(m_flags & Delegate::ShowExtendedStatusIcons);
+	ui->extendedInfoBox->setChecked(m_flags & Delegate::Delegate::ShowExtendedInfoIcons);
 	ui->statusBox->setChecked(m_flags & Delegate::ShowStatusText);
 }
 
@@ -109,7 +109,7 @@ void SimpleContactlistSettings::onAvatarBoxToggled(bool toggled)
 }
 void SimpleContactlistSettings::onExtendedInfoBoxToggled(bool toggled)
 {
-	setFlag(Delegate::ShowExtendedStatusIcons,toggled);	
+	setFlag(Delegate::ShowExtendedInfoIcons,toggled);
 	emit modifiedChanged(true);
 }
 void SimpleContactlistSettings::onStatusBoxToggled(bool toggled)

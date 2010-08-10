@@ -23,6 +23,7 @@ namespace Core
 	{
 		DescriptionRole = Qt::UserRole + 1,
 		SeparatorRole,
+		TitleRole, //NOTE: in title and separator description and decoration roles will be ignored
 		ActionRole //TODO
 	};
 
@@ -43,4 +44,7 @@ namespace Core
 	};
 
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::ItemRoles);
+
 #endif // ITEMDELEGATE_H

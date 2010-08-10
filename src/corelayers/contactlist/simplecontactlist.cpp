@@ -41,7 +41,7 @@ static CoreSingleModuleHelper<Module> contact_list_static(
 class CopyIdGenerator : public ActionGenerator
 {
 public:
-	CopyIdGenerator(QObject *obj) : 
+	CopyIdGenerator(QObject *obj) :
 			ActionGenerator(Icon("edit-copy"),QT_TRANSLATE_NOOP("ContactList", "Copy id to clipboard"),obj,SLOT(onCopyIdTriggered(QObject*)))
 	{
 		setType(ActionTypeContactList|ActionTypeAdditional);
@@ -75,10 +75,10 @@ public:
 			height -= 55;
 #endif
 			QRect geometry(x,
-							y,
-							width,
-							height
-							);
+						   y,
+						   width,
+						   height
+						   );
 			setGeometry(geometry);
 		} else {
 			restoreGeometry(geom);
@@ -112,16 +112,16 @@ Module::Module() : p(new ModulePrivate)
 {
 	// init shortcuts
 	Shortcut::registerSequence("contactListGlobalStatus",
-								QT_TRANSLATE_NOOP("ContactList", "Change global status"),
-								"ContactListWidget",
-								QKeySequence("Ctrl+S")
-								);
+							   QT_TRANSLATE_NOOP("ContactList", "Change global status"),
+							   "ContactListWidget",
+							   QKeySequence("Ctrl+S")
+							   );
 	Shortcut::registerSequence("contactListActivateMainMenu",
-								QT_TRANSLATE_NOOP("ContactList", "Activate main menu"),
-								"ContactListWidget",
-								QKeySequence("Ctrl+M")
-								);
-	
+							   QT_TRANSLATE_NOOP("ContactList", "Activate main menu"),
+							   "ContactListWidget",
+							   QKeySequence("Ctrl+M")
+							   );
+
 	SettingsItem *item = new GeneralSettingsItem<SimpleContactlistSettings>(Settings::General,
 																			Icon("preferences-contact-list"),
 																			QT_TRANSLATE_NOOP("ContactList","ContactList"));
@@ -139,9 +139,9 @@ Module::Module() : p(new ModulePrivate)
 		QtWin::extendFrameIntoClientArea(p->widget);
 		p->widget->setContentsMargins(0, 0, 0, 0);
 	}
-	
+
 	int size = Config().group("contactList").value("toolBarIconSize",16);
-	
+
 	QSize toolbar_size (size,size);
 
 	p->mainToolBar = new ActionToolBar(p->widget);
@@ -155,21 +155,21 @@ Module::Module() : p(new ModulePrivate)
 #ifdef Q_WS_WIN
 	p->mainToolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
 #endif
-	
+
 	ActionGenerator *gen = new ActionGenerator(Icon("configure"),
-												QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
-												this,
-												SLOT(onConfigureClicked(QObject*))
-												);
+											   QT_TRANSLATE_NOOP("ContactList", "&Settings..."),
+											   this,
+											   SLOT(onConfigureClicked(QObject*))
+											   );
 	gen->setPriority(1);
 	gen->setType(ActionTypeAdditional);
 	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Main menu"));
 	addAction(gen);
 
 	gen = new ActionGenerator(Icon("application-exit"),
-								QT_TRANSLATE_NOOP("ContactList","&Quit"),
-								this,
-								SLOT(onQuitTriggered(QObject*)));
+							  QT_TRANSLATE_NOOP("ContactList","&Quit"),
+							  this,
+							  SLOT(onQuitTriggered(QObject*)));
 	gen->setPriority(-127);
 	gen->setType(512);
 	addAction(gen);
@@ -188,7 +188,7 @@ Module::Module() : p(new ModulePrivate)
 	gen->setChecked(!p->model->showOffline());
 	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Hide offline"));
 	addButton(gen);
-	
+
 	//TODO move to another class
 	gen = new CopyIdGenerator(this);
 	gen->setPriority(-100);
@@ -203,8 +203,8 @@ Module::Module() : p(new ModulePrivate)
 	QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget->centralWidget());
 
 	p->statusBtn = new QPushButton(Icon("im-user-online"),
-									tr("Status"),
-									p->widget);
+								   tr("Status"),
+								   p->widget);
 	p->statusBtn->setMenu(new QMenu(p->widget));
 
 	p->searchBtn = new QPushButton(p->widget);
@@ -234,7 +234,7 @@ Module::Module() : p(new ModulePrivate)
 	layout->addLayout(bottom_layout);
 
 	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));			
+			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
 
 	foreach(Protocol *proto, allProtocols()) {
 		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
@@ -257,17 +257,17 @@ Module::Module() : p(new ModulePrivate)
 	p->statusBtn->menu()->addSeparator();
 
 	p->status_action = p->statusBtn->menu()->addAction(Icon("im-status-message-edit"),
-														tr("Set Status Text"),
-														this,
-														SLOT(showStatusDialog())
-														);
+													   tr("Set Status Text"),
+													   this,
+													   SLOT(showStatusDialog())
+													   );
 
 	QString last_status = Config().group("contactList").value("lastStatus",QString());
 	p->statusBtn->setToolTip(last_status);
 	p->status_action->setData(last_status);
 
 	p->statusBtn->menu()->addSeparator();
-	
+
 	p->widget->loadGeometry();
 	p->widget->show();
 }
@@ -300,7 +300,7 @@ QWidget *Module::widget()
 }
 
 void Module::addContact(qutim_sdk_0_3::Contact *contact)
-{			
+{
 	p->model->addContact(contact);
 }
 
@@ -493,10 +493,10 @@ void Module::reloadSettings()
 {
 	int icon_size = Config("appearance").group("contactList").value("iconSize",16);
 	p->view->setIconSize(QSize(icon_size,icon_size));
-	int flags = Config("appearance").group("contactList").value("showFlags",Delegate::ShowStatusText |
-															Delegate::ShowExtendedStatusIcons |
-															Delegate::ShowAvatars);
-	p->delegate->setShowFlags(static_cast<Delegate::ShowFlags>(flags));
+	Delegate::ShowFlags flags = Config("appearance").group("contactList").value("showFlags",Delegate::ShowStatusText |
+																				Delegate::ShowExtendedInfoIcons |
+																				Delegate::ShowAvatars);
+	p->delegate->setShowFlags(flags);
 }
 
 
