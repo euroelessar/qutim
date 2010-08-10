@@ -8,6 +8,7 @@
 #include <gloox/message.h>
 #include <qutim/status.h>
 #include <qutim/inforequest.h>
+#include <qutim/tooltip.h>
 #include <QStringBuilder>
 
 using namespace gloox;
@@ -110,6 +111,22 @@ namespace Jabber
 			//gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
 			//gmes.addExtension(new gloox::ChatState(qutIM2gloox(chatEvent->chatState())));
 			//client->send(gmes);
+		} else if (ev->type() == ToolTipEvent::eventType()) {
+			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+			event->addField(QT_TRANSLATE_NOOP("ContactResource", "Resource"),
+							QString("%1 (%2)").arg(id()).arg(priority()), 75);
+			if (!text().isEmpty())
+				event->addField(text(), QString());
+			event->addHtml("<font size=-1>", 50);
+			QString client = property("client").toString();
+			if (!client.isEmpty()) {
+				event->addField(QT_TRANSLATE_NOOP("ContactResource", "Possible client"),
+								client,
+								property("clientIcon").toString(),
+								30);
+			}
+			event->addHtml("</font>", 10);
+			return true;
 		}
 		return Buddy::event(ev);
 	}

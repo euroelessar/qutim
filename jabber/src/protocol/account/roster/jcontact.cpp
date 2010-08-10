@@ -183,16 +183,9 @@ namespace Jabber
 			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
 			foreach (const QString &id, d->resources.keys()) {
 				JContactResource *resource = d->resources.value(id);
-				if (!resource->text().isEmpty())
-					event->addField(resource->text(), QString(), 80);
-				event->addField(QT_TRANSLATE_NOOP("Contact", "Resource"),
-								QString("%1 (%2)").arg(id).arg(resource->priority()), 30);
-				QString client = resource->property("client").toString();
-				if (!client.isEmpty())
-					event->addField(QT_TRANSLATE_NOOP("Contact", "Possible client"),
-									client,
-									resource->property("clientIcon").toString(),
-									30);
+				ToolTipEvent resourceEvent(false);
+				qApp->sendEvent(resource, &resourceEvent);
+				event->addHtml("<br/>" + resourceEvent.html());
 			}
 		} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
 			Status::Type status = account()->status().type();

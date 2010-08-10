@@ -147,6 +147,8 @@ namespace Jabber
 								client,
 								property("clientIcon").toString(),
 								30);
+			Buddy::event(ev);
+			return true;
 		}
 		return JContactResource::event(ev);
 	}
