@@ -103,7 +103,7 @@ void IcqAccountMainSettings::saveSettings()
 	Config cfg = m_account->config();
 	cfg.beginGroup("general");
 	QString newPassword = ui->passwordEdit->text();
-	if (newPassword.isEmpty())
+	if (!newPassword.isEmpty())
 		cfg.setValue("passwd", newPassword, Config::Crypted);
 	else
 		cfg.remove("passwd");
