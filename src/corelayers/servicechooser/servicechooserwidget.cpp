@@ -20,7 +20,7 @@
 #include <libqutim/debug.h>
 #include <libqutim/icon.h>
 #include <QStringBuilder>
-#include "servicedelegate.h"
+#include "itemdelegate.h"
 #include "serviceitem.h"
 #include "servicechooser.h"
 #include <libqutim/configbase.h>
@@ -33,10 +33,8 @@ namespace Core
 	m_model(new QStandardItemModel)
 	{
 		ui->setupUi(this);
-		ui->toolButton->hide();
-		ui->serviceInfo->hide();
 		ui->treeView->setModel(m_model);
-		ui->treeView->setItemDelegate(new ServiceDelegate(this));
+		ui->treeView->setItemDelegate(new ItemDelegate(this));
 		
 		connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
 	}
@@ -70,20 +68,20 @@ namespace Core
 			
 			if (serviceName && *serviceName) {
 				if (!m_service_items.contains(serviceName)) {
-					ServiceItem *item = new ServiceItem(Icon(serviceIcon(serviceName)),serviceName,true);
-					item->setData(true,Qt::UserRole);
+					ServiceItem *item = new ServiceItem(Icon(serviceIcon(serviceName)),serviceName);
+					item->setData(true,ServiceItem::ExclusiveRole);
 					parent_item->appendRow(item);
 					m_service_items.insert(serviceName,item);
 				}
-			QIcon icon = !info.icon().name().isEmpty() ? info.icon() : Icon("help-hint");
+			QIcon icon = !info.icon().name().isEmpty() ? info.icon() : Icon("applications-system");
 			ServiceItem *item = new ServiceItem(icon,info.name());
 
 			item->setToolTip(ServiceChooser::html(info));
 			item->setCheckable(true);
+			//item->setData(info.description().toString(),DescriptionRole);
 			if (selected.value(serviceName).toString() == ServiceChooser::className(info))
 				item->setCheckState(Qt::Checked);
-			item->setData(false,Qt::UserRole);
-			item->setServiceClassName(ServiceChooser::className(info));
+			item->setData(ServiceChooser::className(info),ServiceItem::ClassNameRole);
 
 			m_service_items.value(serviceName)->appendRow(item);
 			}

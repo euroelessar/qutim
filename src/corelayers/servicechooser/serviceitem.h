@@ -24,17 +24,11 @@ namespace Core
 	{
 	public:
 		enum ServiceItemRole {
-			GroupRole = Qt::UserRole,
-			ExclusiveRole,
+			ExclusiveRole = Qt::UserRole + 32,
 			ClassNameRole
 		};
-		ServiceItem(const QIcon &icon,const QString &text, bool exclusive = false);
-		virtual QVariant data(int role = Qt::UserRole + 1) const;
+		ServiceItem(const QIcon &icon,const QString &text);
 		virtual void setData(const QVariant& value, int role = Qt::UserRole + 1);
-		void setServiceClassName(const char *name);
-	private:
-		bool m_exclusive;
-		QString m_service_classname;
 	};
 }
 #endif // SERVICEITEM_H

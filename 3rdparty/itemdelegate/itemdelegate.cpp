@@ -136,7 +136,38 @@ namespace Core
 #endif
 			}
 			QRect rect = option.rect;
-			rect.translate(2*m_padding + option.decorationSize.width(),m_padding);
+			rect.translate(m_padding,m_padding);
+
+			QVariant value = index.data(Qt::CheckStateRole);
+			if (value.isValid()) {
+				Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
+				QStyleOptionViewItem checkOption(option);
+				checkOption.state = checkOption.state & ~QStyle::State_HasFocus;
+				checkOption.rect = checkRect(index,opt,rect);
+				switch (state) {
+				case Qt::Unchecked:
+					checkOption.state |= QStyle::State_Off;
+					break;
+				case Qt::PartiallyChecked:
+					checkOption.state |= QStyle::State_NoChange;
+					break;
+				case Qt::Checked:
+					checkOption.state |= QStyle::State_On;
+					break;
+				}
+				style->drawPrimitive(QStyle::PE_IndicatorViewItemCheck, &checkOption, painter,opt.widget);
+				rect.translate(checkOption.rect.width(),0);
+			}
+
+			rect.translate(m_padding,0);
+			QIcon item_icon = index.data(Qt::DecorationRole).value<QIcon>();
+			item_icon.paint(painter,
+							rect.left(),
+							rect.top(),
+							option.decorationSize.width(),
+							option.decorationSize.height(),
+							Qt::AlignTop);
+			rect.translate(m_padding + option.decorationSize.width(),0);
 			rect.setBottom(rect.bottom() - m_padding);
 
 			const QFont orig_font = painter->font();
@@ -157,22 +188,14 @@ namespace Core
 			painter->drawText(rect, Qt::AlignTop | Qt::AlignLeft | Qt::TextWordWrap, desc);
 			painter->setFont(orig_font);
 			painter->setPen(orig_pen);
-
-			QIcon item_icon = index.data(Qt::DecorationRole).value<QIcon>();
-			item_icon.paint(painter,
-							option.rect.left() + m_padding,
-							option.rect.top() + m_padding,
-							option.decorationSize.width(),
-							option.decorationSize.height(),
-							Qt::AlignTop);
 		}
 	}
 
 	QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 	{
 		QRect rect = option.rect;
-		int width = rect.width();
-		rect.setLeft(rect.left() + 2*m_padding + option.decorationSize.width());
+		QRect check = checkRect(index,option,rect);
+		rect.translate(check.width() + 3*m_padding + option.decorationSize.width(),m_padding);
 
 		QFontMetrics metrics = option.fontMetrics;
 		int height = metrics.boundingRect(rect, Qt::TextWordWrap,
@@ -191,12 +214,80 @@ namespace Core
 			height += 1.5*m_padding;
 		}
 		height += m_padding;
-		QSize size (width,height);
+		QSize size (rect.width(),qMax(option.decorationSize.height() + 2*m_padding,height));
 		return size;
+	}
+
+	QRect ItemDelegate::checkRect(const QModelIndex& index,const QStyleOptionViewItem &o, const QRect &rect) const
+	{
+		QVariant value = index.data(Qt::CheckStateRole);
+		if (!value.isValid())
+			return QRect();
+		QStyleOptionViewItemV4 option(o);
+		QSize size = option.decorationSize;
+		QRect result (rect.left() + size.width()/2,
+			  rect.top() + size.height()/2,
+			  size.width(),
+			  size.height()
+			  );
+		QStyleOptionButton opt;
+		opt.QStyleOption::operator=(option);
+		opt.rect = rect;
+		const QWidget *widget = option.widget;
+		QStyle *style = widget ? widget->style() : QApplication::style();
+		QRect checkRect = style->subElementRect(QStyle::SE_ViewItemCheckIndicator, &opt, widget);
+		result.translate(-checkRect.width()/2,-checkRect.height()/2);
+		return result;
 	}
 
 	void ItemDelegate::setCommandLinkStyle(bool style)
 	{
 		m_command_link_style = style;
 	}
+	
+	bool ItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, 
+								   const QStyleOptionViewItem& option, const QModelIndex& index)
+	{
+		//ported from Qt sources
+		Q_ASSERT(event);
+		Q_ASSERT(model);
+
+		// make sure that the item is checkable
+		Qt::ItemFlags flags = model->flags(index);
+		if (!(flags & Qt::ItemIsUserCheckable) || !(option.state & QStyle::State_Enabled)
+			|| !(flags & Qt::ItemIsEnabled))
+			return false;
+
+		// make sure that we have a check state
+		QVariant value = index.data(Qt::CheckStateRole);
+		if (!value.isValid())
+			return false;
+
+		// make sure that we have the right event type
+		if ((event->type() == QEvent::MouseButtonRelease)
+			|| (event->type() == QEvent::MouseButtonDblClick)) {
+			QRect rect = option.rect;
+			rect.translate(m_padding,m_padding);
+			QRect check = checkRect(index,option, rect);
+			QMouseEvent *me = static_cast<QMouseEvent*>(event);
+			if (me->button() != Qt::LeftButton || !check.contains(me->pos()))
+				return false;
+
+			// eat the double click events inside the check rect
+			if (event->type() == QEvent::MouseButtonDblClick)
+				return true;
+
+		} else if (event->type() == QEvent::KeyPress) {
+			if (static_cast<QKeyEvent*>(event)->key() != Qt::Key_Space
+			&& static_cast<QKeyEvent*>(event)->key() != Qt::Key_Select)
+				return false;
+		} else {
+			return false;
+		}
+
+		Qt::CheckState state = (static_cast<Qt::CheckState>(value.toInt()) == Qt::Checked
+								? Qt::Unchecked : Qt::Checked);
+		return model->setData(index, state, Qt::CheckStateRole);
+	}
+
 }

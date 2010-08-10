@@ -20,7 +20,7 @@
 #include <libqutim/debug.h>
 #include <libqutim/icon.h>
 #include <QStringBuilder>
-#include "servicedelegate.h"
+#include "itemdelegate.h"
 #include "serviceitem.h"
 #include "servicechooser.h"
 #include <libqutim/configbase.h>
@@ -33,10 +33,8 @@ namespace Core
 	m_model(new QStandardItemModel)
 	{
 		ui->setupUi(this);
-		ui->toolButton->hide();
-		ui->serviceInfo->hide();
 		ui->treeView->setModel(m_model);
-		ui->treeView->setItemDelegate(new ServiceDelegate(this));
+		ui->treeView->setItemDelegate(new  ItemDelegate(ui->treeView));
 		
 		connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
 	}
@@ -61,23 +59,22 @@ namespace Core
 				continue;
 			
 			if (!m_protocol_items.contains(name)) {
-				ServiceItem *item = new ServiceItem(Icon("applications-system") ,name,true);
-				item->setData(true,Qt::UserRole);
+				ServiceItem *item = new ServiceItem(Icon("applications-system") ,name);
+				item->setData(true,ServiceItem::ExclusiveRole);
 				parent_item->appendRow(item);
 				m_protocol_items.insert(name,item);
 			}
-			QIcon icon = Icon("help-hint");
+			QIcon icon = Icon("applications-system");
 			//TODO Make normal names for the implementation of protocols			
 			ServiceItem *item = new ServiceItem(icon,info.name());
 			//ServiceItem *item = new ServiceItem(icon,info.name());
 
 			item->setToolTip(ServiceChooser::html(info));
 			item->setCheckable(true);
+			//item->setData(info.description().toString(),DescriptionRole);
 			if (selected.value(name).toString() == ServiceChooser::className(info))
 				item->setCheckState(Qt::Checked);
-			item->setData(false,Qt::UserRole);
-			item->setServiceClassName(ServiceChooser::className(info));
-
+			item->setData(ServiceChooser::className(info),ServiceItem::ClassNameRole);
 			m_protocol_items.value(name)->appendRow(item);
 			}
 	}

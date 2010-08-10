@@ -38,7 +38,12 @@ namespace Core
 		virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
 		virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 		void setCommandLinkStyle(bool style = true);
+	protected:
+		//TODO split paint to set of virtual functions
+		virtual bool editorEvent(QEvent* event, QAbstractItemModel* model,
+								 const QStyleOptionViewItem& option, const QModelIndex& index);
 	private:
+		QRect checkRect(const QModelIndex& index,const QStyleOptionViewItem& option,const QRect &rect) const;
 		int m_padding;
 		bool m_command_link_style;
 	};

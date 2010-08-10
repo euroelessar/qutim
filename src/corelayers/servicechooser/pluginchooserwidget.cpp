@@ -21,7 +21,7 @@
 #include <libqutim/debug.h>
 #include <libqutim/icon.h>
 #include <QStringBuilder>
-#include "servicedelegate.h"
+#include "itemdelegate.h"
 #include "serviceitem.h"
 #include "servicechooser.h"
 #include <libqutim/configbase.h>
@@ -36,10 +36,8 @@ namespace Core
 	m_model(new QStandardItemModel)
 	{
 		ui->setupUi(this);
-		ui->toolButton->hide();
-		ui->serviceInfo->hide();
 		ui->treeView->setModel(m_model);
-		ui->treeView->setItemDelegate(new ServiceDelegate(this));
+		ui->treeView->setItemDelegate(new ItemDelegate(ui->treeView));
 		ui->treeView->setIndentation(0);
 
 		connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
@@ -63,11 +61,12 @@ namespace Core
 			{
 				QIcon icon = info.icon();
 				if (icon.isNull() || !icon.availableSizes().count())
-					icon = Icon("help-hint");
-				ServiceItem *item = new ServiceItem(icon, info.name(), true);
+					icon = Icon("applications-system");
+				ServiceItem *item = new ServiceItem(icon, info.name());
 				item->setToolTip(html(info));
 				item->setCheckable(true);
-				item->setData(false, Qt::UserRole);
+				item->setData(true,ServiceItem::ExclusiveRole);
+				//item->setData(info.description().toString(), DescriptionRole);
 				item->setCheckState((group.value(info.name(), true) ? Qt::Checked : Qt::Unchecked));
 				parent_item->appendRow(item);
 				m_plugin_items.insert(info.name(), item);

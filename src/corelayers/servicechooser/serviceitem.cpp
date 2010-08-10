@@ -18,27 +18,12 @@
 
 namespace Core
 {
-	ServiceItem::ServiceItem(const QIcon& icon, const QString& text, bool exclusive) :
-	m_exclusive(exclusive)
+	ServiceItem::ServiceItem(const QIcon& icon, const QString& text)
 	{
 		setText(text);
 		setIcon(icon);
 	}
 
-	QVariant ServiceItem::data(int role) const
-	{
-		switch (role) {
-			case ExclusiveRole:
-				return QVariant(m_exclusive);
-				break;
-			case ClassNameRole:
-				return QVariant(m_service_classname);
-				break;
-			default:
-				return QStandardItem::data(role);
-		}
-	}
-	
 	void ServiceItem::setData(const QVariant& value, int role)
 	{
 		if (role == Qt::CheckStateRole && parent() && parent()->data(ExclusiveRole).toBool()) {
@@ -60,11 +45,5 @@ namespace Core
 		
 		QStandardItem::setData(value, role);
 	}
-	void ServiceItem::setServiceClassName(const char* name)
-	{
-		m_service_classname = name;
-	}
-
-
 
 }
