@@ -12,7 +12,7 @@ namespace qutim_sdk_0_3
 	class AvatarFilter
 	{
 	public:
-		AvatarFilter(const QSize &defaultSize, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio);
+		AvatarFilter(const QSize &defaultSize/*, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio*/);
 		QPixmap draw(const QString &path,const QIcon &overlayIcon);
 		QPixmap draw(const QPixmap &source, const QPixmap &overlay);
 		~AvatarFilter();

@@ -10,10 +10,10 @@ namespace qutim_sdk_0_3
 		Qt::AspectRatioMode mode;
 	};
 	
-	AvatarFilter::AvatarFilter(const QSize& defaultSize, Qt::AspectRatioMode mode) : p(new AvatarFilterPrivate)
+	AvatarFilter::AvatarFilter(const QSize& defaultSize/*, Qt::AspectRatioMode mode*/) : p(new AvatarFilterPrivate)
 	{
 		p->defaultSize =defaultSize;
-		p->mode = mode;
+		p->mode = Qt::IgnoreAspectRatio;
 	}
 	
 	AvatarFilter::~AvatarFilter()
@@ -33,7 +33,10 @@ namespace qutim_sdk_0_3
 		QPixmap result;
 		if(!source.isNull())
 		{
-			result = source.scaled(p->defaultSize,p->mode,Qt::SmoothTransformation);
+			//lets crop pixmap
+			int cropSize = qMin(source.width(),source.height());
+			result = source.copy(QRect(0,0,cropSize,cropSize));
+			result = result.scaled(p->defaultSize,p->mode,Qt::SmoothTransformation);
 			static QPixmap alpha;
 			if( alpha.size() != p->defaultSize )
 			{
