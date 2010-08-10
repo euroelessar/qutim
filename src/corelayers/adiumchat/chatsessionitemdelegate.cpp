@@ -36,7 +36,8 @@ namespace Core
 		{
 			if (event->type() == QEvent::ToolTip) {
 				Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
-				ToolTip::instance()->showText(event->globalPos(), buddy, view);
+				if (buddy)
+					ToolTip::instance()->showText(event->globalPos(), buddy, view);
 				return true;
 			} else {
 				return QAbstractItemDelegate::helpEvent(event, view, option, index);

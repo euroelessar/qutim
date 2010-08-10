@@ -204,9 +204,9 @@ namespace SimpleContactList
 
 	
 	bool Delegate::helpEvent(QHelpEvent *event,
-												QAbstractItemView *view,
-												const QStyleOptionViewItem &option,
-												const QModelIndex &index)
+							 QAbstractItemView *view,
+							 const QStyleOptionViewItem &option,
+							 const QModelIndex &index)
 	{
 		Q_UNUSED(option);
 
@@ -216,8 +216,9 @@ namespace SimpleContactList
 			QHelpEvent *he = static_cast<QHelpEvent*>(event);
 			if (getItemType(index) == ContactType) {
 				ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
-				qutim_sdk_0_3::ToolTip::instance()->showText(he->globalPos(),
-																item->data->contact, view);
+				if (item)
+					qutim_sdk_0_3::ToolTip::instance()->showText(he->globalPos(),
+																 item->data->contact, view);
 				return true;
 			}
 			QVariant tooltip = index.data(Qt::ToolTipRole);

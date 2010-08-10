@@ -145,6 +145,7 @@ namespace qutim_sdk_0_3
 
 	void ToolTip::showText(const QPoint &pos, QObject *obj, QWidget *w)
 	{
+		Q_ASSERT(obj);
 		ToolTipEvent event;
 		qApp->sendEvent(obj, &event);
 		QString text = event.html();
