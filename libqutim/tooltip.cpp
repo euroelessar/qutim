@@ -35,9 +35,22 @@ namespace qutim_sdk_0_3
 	class ToolTipEventPrivate
 	{
 	public:
+		inline void addIcon(QString &text, const QString &icon);
 		FieldsMap fields;
 		bool generateLayout;
 	};
+
+	void ToolTipEventPrivate::addIcon(QString &text, const QString &icon)
+	{
+		if (!icon.isEmpty()) {
+			QString iconPath = IconLoader::instance()->iconPath(icon, 16);
+			if (!iconPath.isEmpty()) {
+				if (!text.isEmpty())
+					text += " ";
+				text += "<img src='" + iconPath + "'> ";
+			}
+		}
+	}
 
 	ToolTipEvent::ToolTipEvent(bool generateLayout) :
 		QEvent(eventType()), d(new ToolTipEventPrivate)
@@ -55,42 +68,53 @@ namespace qutim_sdk_0_3
 		d->fields.insert(priority, html);
 	}
 
-	void ToolTipEvent::addField(const LocalizedString &title, const LocalizedString &data,
+	void ToolTipEvent::addField(const LocalizedString &title, const LocalizedString &description,
 								quint8 priority)
 	{
-		addField(title, data, QString(), priority);
+		addField(title, description, QString(), IconBeforeTitle, priority);
 	}
 
-	void ToolTipEvent::addField(const LocalizedString &title, const LocalizedString &data,
+	void ToolTipEvent::addField(const LocalizedString &title, const LocalizedString &description,
 								const QString &icon, quint8 priority)
 	{
+		addField(title, description, icon, IconBeforeTitle, priority);
+	}
+
+	void ToolTipEvent::addField(const LocalizedString &title, const LocalizedString &description,
+								const ExtensionIcon &icon, quint8 priority)
+	{
+		addField(title, description, icon.name(), IconBeforeTitle, priority);
+	}
+
+	void ToolTipEvent::addField(const LocalizedString &title, const LocalizedString &description,
+								const QString &icon, IconPosition iconPosition, quint8 priority)
+	{
 		QString text;
-		bool dataEmpty = data.toString().isEmpty();
-		if (!icon.isEmpty()) {
-			QString iconPath = IconLoader::instance()->iconPath(icon, 16);
-			if (!iconPath.isEmpty())
-				text += "<img src='" + iconPath + "'> ";
-		}
+		bool descriptionEmpty = description.toString().isEmpty();
+		if (iconPosition == IconBeforeTitle)
+			d->addIcon(text, icon);
 		if (!title.toString().isEmpty()) {
 			text += QLatin1Literal("<b>") % title.toString();
-			if (!dataEmpty)
+			if (!descriptionEmpty)
 				text += ":";
 			text += "</b>";
 		}
-		if (!dataEmpty) {
+		if (iconPosition == IconBeforeDescription)
+			d->addIcon(text, icon);
+		if (!descriptionEmpty) {
 			if (!text.isEmpty())
 				text += " ";
-			text += data.toString();
+			text += description.toString();
 		}
 		if (!text.isEmpty())
 			text.prepend("<br/>");
 		d->fields.insert(priority, text);
 	}
 
-	void ToolTipEvent::addField(const LocalizedString &title, const LocalizedString &data,
-								const ExtensionIcon &icon, quint8 priority)
+	void ToolTipEvent::addField(const LocalizedString &title, const LocalizedString &description,
+								const ExtensionIcon &icon, IconPosition iconPosition, quint8 priority)
 	{
-		addField(title, data, icon.name(), priority);
+		addField(title, description, icon.name(), iconPosition, priority);
 	}
 
 	bool ToolTipEvent::generateLayout() const

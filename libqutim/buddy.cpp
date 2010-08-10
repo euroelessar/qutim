@@ -97,7 +97,7 @@ namespace qutim_sdk_0_3
 						   % QLatin1Literal("&gt;");
 			event->addHtml("</font>", 10);
 			event->addHtml(text, 90);
-			event->addField(QT_TRANSLATE_NOOP("ToolTip", "Account"), account()->id(), QIcon(), 90);
+			event->addField(QT_TRANSLATE_NOOP("ToolTip", "Account"), account()->id(), 90);
 		}
 		return ChatUnit::event(ev);
 	}

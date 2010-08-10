@@ -31,19 +31,34 @@ namespace qutim_sdk_0_3
 	class LIBQUTIM_EXPORT ToolTipEvent : public QEvent
 	{
 	public:
+		enum IconPosition {
+			IconBeforeTitle,
+			IconBeforeDescription
+		};
+
 		ToolTipEvent(bool generateLayout = true);
 		~ToolTipEvent();
 		void addHtml(const QString &html, quint8 priority = 60);
 		void addField(const LocalizedString &title,
-					  const LocalizedString &data = LocalizedString(),
+					  const LocalizedString &description = LocalizedString(),
 					  quint8 priority = 60);
 		void addField(const LocalizedString &title,
-					  const LocalizedString &data,
+					  const LocalizedString &description,
 					  const QString &icon,
 					  quint8 priority = 60);
 		void addField(const LocalizedString &title,
-					  const LocalizedString &data,
+					  const LocalizedString &description,
 					  const ExtensionIcon &icon,
+					  quint8 priority = 60);
+		void addField(const LocalizedString &title,
+					  const LocalizedString &description,
+					  const QString &icon,
+					  IconPosition iconPosition,
+					  quint8 priority = 60);
+		void addField(const LocalizedString &title,
+					  const LocalizedString &description,
+					  const ExtensionIcon &icon,
+					  IconPosition iconPosition,
 					  quint8 priority = 60);
 		bool generateLayout() const;
 		QString html() const;
