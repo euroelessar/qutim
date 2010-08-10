@@ -85,11 +85,7 @@ namespace Jabber
 					QString softwareVersion = QString::fromStdString(soft->version());
 					QString os = QString::fromStdString(soft->os());
 					QString icon = software.toLower() + "-jabber";
-					QString client = software;
-					if (!softwareVersion.isEmpty())
-						client += " " + softwareVersion;
-					if (!os.isEmpty())
-						client += " / " + os;
+					QString client = getClientDescription(software, softwareVersion, os);
 					updateClientData(unit, client, software, softwareVersion, os, icon);
 					SoftwareInfoHash::iterator it = m_hash.find(node);
 					if (it != m_hash.end()) {
@@ -124,7 +120,6 @@ namespace Jabber
 				QString softwareVersion;
 				QString os;
 				QString osVersion;
-				QString softwareIcon;
 				foreach(DataFormField *field, form->fields()) {
 					if (field->name() == "os") {
 						os = QString::fromStdString(field->value());
@@ -136,8 +131,10 @@ namespace Jabber
 						softwareVersion = QString::fromStdString(field->value());
 					}
 				}
+				QString icon = software.toLower() + "-jabber";
+				QString client = getClientDescription(software, softwareVersion, os);
 				if (!software.isEmpty()) {
-					info.icon = software.toLower();
+					info.icon = icon;
 					info.name = software;
 					if (!softwareVersion.isEmpty())
 						info.version = softwareVersion;
@@ -147,6 +144,7 @@ namespace Jabber
 					if (!osVersion.isEmpty())
 						info.os.append(" ").append(osVersion);
 				}
+				info.description = client;
 			}
 		}
 
@@ -196,6 +194,17 @@ namespace Jabber
 			clientInfo.insert("priority", -1);
 			resource->setExtendedInfo("client", clientInfo);
 		}
+	}
+
+	QString JSoftwareDetection::getClientDescription(const QString &software, const QString &softwareVersion,
+													 const QString &os)
+	{
+		QString desc = software;
+		if (!softwareVersion.isEmpty())
+			desc += " " + softwareVersion;
+		if (!os.isEmpty())
+			desc += " / " + os;
+		return desc;
 	}
 
 }

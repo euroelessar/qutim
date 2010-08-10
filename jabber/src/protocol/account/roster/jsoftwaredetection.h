@@ -64,6 +64,7 @@ namespace Jabber
 		void updateClientData(qutim_sdk_0_3::ChatUnit *unit, const QString &client,
 							  const QString &software, const QString &softwareVersion,
 							  const QString &os, const QString &clientIcon);
+		QString getClientDescription(const QString &software, const QString &softwareVersion, const QString &os);
 	private:
 		JAccount *m_account;
 		QHash<QString, SoftwareInfo> m_hash;
