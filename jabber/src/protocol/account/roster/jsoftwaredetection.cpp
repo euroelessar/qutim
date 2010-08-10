@@ -211,6 +211,8 @@ namespace Jabber
 			return QString();
 		if (software == "Miranda IM Jabber")
 			return "miranda-jabber";
+		else if (software == "Psi+")
+			return "psi";
 		return software.toLower().replace(' ', '-') + "-jabber";
 	}
 
