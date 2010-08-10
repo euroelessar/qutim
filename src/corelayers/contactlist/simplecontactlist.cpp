@@ -153,7 +153,7 @@ Module::Module() : p(new ModulePrivate)
 	p->mainToolBar->setMoveHookEnabled(true);
 
 #ifdef Q_WS_WIN
-	p->main_toolbar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
+	p->mainToolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK
 #endif
 	
 	ActionGenerator *gen = new ActionGenerator(Icon("configure"),
