@@ -142,11 +142,16 @@ namespace Jabber
 			}
 			if (!role.isEmpty())
 				event->addField(QT_TRANSLATE_NOOP("Conference", "Role"), role, 30);
-			if (!client.isEmpty())
-				event->addField(QT_TRANSLATE_NOOP("Contact", "Possible client"),
+			if (!client.isEmpty()) {
+				event->addField(QT_TRANSLATE_NOOP("Conference", "Possible client"),
 								client,
 								property("clientIcon").toString(),
-								30);
+								ToolTipEvent::IconBeforeDescription,
+								25);
+				QString os = property("os").toString();
+				if (!os.isEmpty())
+					event->addField(QT_TRANSLATE_NOOP("Conference", "OS"), os, 25);
+			}
 			Buddy::event(ev);
 			return true;
 		}

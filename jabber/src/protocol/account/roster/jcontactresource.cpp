@@ -123,7 +123,11 @@ namespace Jabber
 				event->addField(QT_TRANSLATE_NOOP("ContactResource", "Possible client"),
 								client,
 								property("clientIcon").toString(),
-								30);
+								ToolTipEvent::IconBeforeDescription,
+								25);
+				QString os = property("os").toString();
+				if (!os.isEmpty())
+					event->addField(QT_TRANSLATE_NOOP("ContactResource", "OS"), os, 25);
 			}
 			event->addHtml("</font>", 10);
 			return true;

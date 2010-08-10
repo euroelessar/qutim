@@ -84,6 +84,7 @@ bool ClientIdentify::eventFilter(QObject *obj, QEvent *ev)
 			event->addField(map.value("id").toString(),
 							map.value("description").toString(),
 							map.value("icon").value<ExtensionIcon>().name(),
+							ToolTipEvent::IconBeforeDescription,
 							25);
 		}
 	}

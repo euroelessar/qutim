@@ -84,7 +84,7 @@ namespace Jabber
 					QString software = QString::fromStdString(soft->name());
 					QString softwareVersion = QString::fromStdString(soft->version());
 					QString os = QString::fromStdString(soft->os());
-					QString icon = software.toLower() + "-jabber";
+					QString icon = getClientIcon(software);;
 					QString client = getClientDescription(software, softwareVersion, os);
 					updateClientData(unit, client, software, softwareVersion, os, icon);
 					SoftwareInfoHash::iterator it = m_hash.find(node);
@@ -131,7 +131,7 @@ namespace Jabber
 						softwareVersion = QString::fromStdString(field->value());
 					}
 				}
-				QString icon = software.toLower() + "-jabber";
+				QString icon = getClientIcon(software);
 				QString client = getClientDescription(software, softwareVersion, os);
 				if (!software.isEmpty()) {
 					info.icon = icon;
@@ -202,9 +202,16 @@ namespace Jabber
 		QString desc = software;
 		if (!softwareVersion.isEmpty())
 			desc += " " + softwareVersion;
-		if (!os.isEmpty())
-			desc += " / " + os;
 		return desc;
+	}
+
+	QString JSoftwareDetection::getClientIcon(const QString &software)
+	{
+		if (software.isEmpty())
+			return QString();
+		if (software == "Miranda IM Jabber")
+			return "miranda-jabber";
+		return software.toLower().replace(' ', '-') + "-jabber";
 	}
 
 }

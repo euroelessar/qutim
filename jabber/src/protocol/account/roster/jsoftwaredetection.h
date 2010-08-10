@@ -65,6 +65,7 @@ namespace Jabber
 							  const QString &software, const QString &softwareVersion,
 							  const QString &os, const QString &clientIcon);
 		QString getClientDescription(const QString &software, const QString &softwareVersion, const QString &os);
+		QString getClientIcon(const QString &software);
 	private:
 		JAccount *m_account;
 		QHash<QString, SoftwareInfo> m_hash;
