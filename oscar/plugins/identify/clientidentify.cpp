@@ -35,7 +35,6 @@ namespace oscar {
 
 void ClientIdentify::init()
 {
-	debug() << Q_FUNC_INFO;
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "OscarIdentify"),
 			QT_TRANSLATE_NOOP("Plugin", "Client identificaton for oscar contacts"),
 			PLUGIN_VERSION(0, 0, 1, 0));
@@ -252,11 +251,11 @@ void ClientIdentify::identify_by_DCInfo()
 			m_client_id += "/SSL";
 		setClientIcon("licq");
 	} else if (m_info == 0xffffffff) {
-		if (m_ext_status_info == 0xffffffff)
+		if (m_ext_info == 0xffffffff)
 			setClientData("Gaim", "gaim");
-		else if ((!m_ext_status_info) && (m_client_proto == 7))
+		else if ((!m_ext_info) && (m_client_proto == 7))
 			setClientData("WebICQ", "webicq");
-		else if ((!m_ext_status_info) && (m_ext_info == 0x3b7248ed))
+		else if ((!m_ext_info) && (m_ext_status_info == 0x3b7248ed))
 			setClientData("Spam Bot", "bot");
 		else
 			parseMirandaVersionInDCInfo();
@@ -273,14 +272,14 @@ void ClientIdentify::identify_by_DCInfo()
 	} else if (m_info == 0xffffffab) {
 		setClientData("YSM", "unknown");
 	} else if (m_info == 0xffffffbe) {
-		int ver1 = (m_ext_status_info >> 0x18) & 0xff;
-		int ver2 = (m_ext_status_info >> 0x10) & 0xff;
-		int ver3 = (m_ext_status_info >> 0x08) & 0xff;
+		int ver1 = (m_ext_info >> 0x18) & 0xff;
+		int ver2 = (m_ext_info >> 0x10) & 0xff;
+		int ver3 = (m_ext_info >> 0x08) & 0xff;
 		m_client_id = QString("Alicq %1.%2.%3").arg(ver1).arg(ver2).arg(ver3);
 		setClientIcon("unknown");
 	} else if (m_info == 0x04031980) {
 		setClientData("vICQ", "unknown");
-	} else if ((m_info == 0x3aa773ee) && (m_ext_status_info == 0x3aa66380)) {
+	} else if ((m_info == 0x3aa773ee) && (m_ext_info == 0x3aa66380)) {
 		if (RtfSupport()) {
 			setClientData("Centericq", "centericq");
 		} else {
@@ -292,47 +291,47 @@ void ClientIdentify::identify_by_DCInfo()
 	}
 	else if ((m_info == 0x3ba8dbaf) && (m_client_proto == 2)) {
 		setClientData("stICQ", "sticq");
-	} else if ((m_info == 0xfffffffe) && (m_ext_info == 0xfffffffe)) {
+	} else if ((m_info == 0xfffffffe) && (m_ext_status_info == 0xfffffffe)) {
 		setClientData("Jimm", "jimm");
-	} else if ((m_info == 0x3ff19beb) && (m_ext_info == 0x3ff19beb)) {
+	} else if ((m_info == 0x3ff19beb) && (m_ext_status_info == 0x3ff19beb)) {
 		setClientData("IM2", "im2");
-	} else if ((m_info == 0xddddeeff) && (!m_ext_status_info) && (!m_ext_info)) {
+	} else if ((m_info == 0xddddeeff) && (!m_ext_info) && (!m_ext_status_info)) {
 		setClientData("SmartICQ", "unknown");
-	} else if (((m_info & 0xfffffff0) == 0x494d2b00) && (!m_ext_status_info) && (!m_ext_info)) {
+	} else if (((m_info & 0xfffffff0) == 0x494d2b00) && (!m_ext_info) && (!m_ext_status_info)) {
 		setClientData("IM+", "implus");
-	} else if ((m_info == 0x3b4c4c0c) && (!m_ext_status_info) && (m_ext_info == 0x3b7248ed)) {
+	} else if ((m_info == 0x3b4c4c0c) && (!m_ext_info) && (m_ext_status_info == 0x3b7248ed)) {
 		setClientData("KXicq2", "kxicq");
-	} else if ((m_info == 0xfffff666)/* && (!lastExtInfo)*/) {
+	} else if ((m_info == 0xfffff666)) {
 		m_client_id = QString("R&Q %1").arg((unsigned int)m_ext_info);
 		setClientIcon("rnq");
-	} else if ((m_info == 0x66666666) && (m_ext_info == 0x66666666)) {
+	} else if ((m_info == 0x66666666) && (m_ext_status_info == 0x66666666)) {
 		m_client_id = "D[i]Chat";
-		if (m_ext_status_info == 0x10000)
+		if (m_ext_info == 0x10000)
 			m_client_id += " v.0.1a";
-		else if (m_ext_status_info == 0x22)
+		else if (m_ext_info == 0x22)
 			m_client_id += " v.0.2b";
 		setClientIcon("di_chat");
-	} else if ((m_info == 0x44F523B0) && (m_ext_status_info == 0x44F523A6) &&
-			(m_ext_info == 0x44F523A6) && (m_client_proto == 8)) {
+	} else if ((m_info == 0x44F523B0) && (m_ext_info == 0x44F523A6) &&
+			(m_ext_status_info == 0x44F523A6) && (m_client_proto == 8)) {
 		setClientData("Virus", "unknown");
 	}
 }
 
 void ClientIdentify::parseMirandaVersionInDCInfo()
 {
-	quint8 ver1 = (m_ext_status_info >> 0x18) & 0xFF;
-	quint8 ver2 = (m_ext_status_info >> 0x10) & 0xFF;
-	quint8 ver3 = (m_ext_status_info >> 0x08) & 0xFF;
-	quint8 ver4 = m_ext_status_info & 0xFF;
+	quint8 ver1 = (m_ext_info >> 0x18) & 0xFF;
+	quint8 ver2 = (m_ext_info >> 0x10) & 0xFF;
+	quint8 ver3 = (m_ext_info >> 0x08) & 0xFF;
+	quint8 ver4 = m_ext_info & 0xFF;
 
 	if(ver1 & 0x80)
 		m_client_id = QString("Miranda IM (ICQ 0.%1.%2.%3 alpha)").arg(ver2).arg(ver3).arg(ver4);
 	else
 		m_client_id = QString("Miranda IM (ICQ %1.%2.%3.%4)").arg(ver1).arg(ver2).arg(ver3).arg(ver4);
 
-	if (m_ext_info == 0x5AFEC0DE)
+	if (m_ext_status_info == 0x5AFEC0DE)
 		m_client_id += " (SecureIM)";
-	else if ((m_ext_info >> 0x18) == 0x80)
+	else if ((m_ext_status_info >> 0x18) == 0x80)
 		m_client_id += " (Unicode)";
 	setClientIcon("miranda");
 }
@@ -369,7 +368,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 
 	// VERSION = 0
 	if (m_client_proto == 0) {
-		if (!m_info && !m_ext_status_info && !m_ext_info &&
+		if (!m_info && !m_ext_info && !m_ext_status_info &&
 			!(m_contact->dcInfo().port) && !(m_contact->dcInfo().auth_cookie))
 		{
 			if (TypingSupport() &&
@@ -419,8 +418,8 @@ void ClientIdentify::identify_by_ProtoVersion()
 		if (RtfSupport()) {
 			if (SrvRelaySupport() && DirectSupport() &&
 				(m_info == 0x3aa773ee) &&
-				(m_ext_status_info == 0x3aa66380) &&
-				(m_ext_info == 0x3a877a42))
+				(m_ext_info == 0x3aa66380) &&
+				(m_ext_status_info == 0x3a877a42))
 			{
 				setClientData("centerim", "centericq");
 			}
@@ -429,7 +428,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 				setClientData("GnomeICU", "unknown");
 			}
 		} else if (SrvRelaySupport()) {
-			if (!m_info && !m_ext_status_info && !m_ext_info) {
+			if (!m_info && !m_ext_info && !m_ext_status_info) {
 				setClientData("&RQ", "RQ");
 			} else {
 				setClientData("ICQ 2000", "icq-2000");
@@ -458,7 +457,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 		}
 		else if (m_client_caps.match(ICQ_CAPABILITY_COMM20012) || SrvRelaySupport()) {
 			if (m_client_caps.match(ICQ_CAPABILITY_IS2001)) {
-				if (!m_info && !m_ext_status_info && !m_ext_info) {
+				if (!m_info && !m_ext_info && !m_ext_status_info) {
 					if (RtfSupport()) {
 						setClientData("TICQClient", "unknown"); // possibly also older GnomeICU
 					} else {
@@ -473,7 +472,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 					(!m_client_caps.match(ICQ_CAPABILITY_ICQJS7xVER)) &&
 					(!m_client_caps.match(ICQ_CAPABILITY_ICQJSINxVER)))
 			{
-				if (!m_info && !m_ext_status_info && !m_ext_info) {
+				if (!m_info && !m_ext_info && !m_ext_status_info) {
 					if (!(m_contact->dcInfo().port)) {
 						setClientData("GnomeICU 0.99.5+", "unknown");
 					} else {
@@ -483,7 +482,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 					setClientData("ICQ 2002/2003a", "icq-2002");
 				}
 			} else if (SrvRelaySupport() && Utf8Support() && TypingSupport()) {
-				if (!m_info && !m_ext_status_info && !m_ext_info) {
+				if (!m_info && !m_ext_info && !m_ext_status_info) {
 					setClientData("PreludeICQ", "unknown");
 				}
 			}
@@ -558,7 +557,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 			setClientData("ICQ 2003b Pro", "icq-2003pro");
 		else if (!RtfSupport() && !Utf8Support())
 			setClientData("QNext", "unknown");
-		else if (!RtfSupport() && Utf8Support() && !m_info && !m_ext_status_info && !m_ext_info)
+		else if (!RtfSupport() && Utf8Support() && !m_info && !m_ext_info && !m_ext_status_info)
 			setClientData("NanoICQ", "unknown");
 	}
 }
@@ -681,7 +680,7 @@ void ClientIdentify::identify_Miranda()
 		unsigned secure  = cap_str[0xc] & 0xff;
 		unsigned ModVer  = cap_str[0x3] & 0xff;
 
-		unsigned Unicode = (m_ext_info >> 24) & 0xff;
+		unsigned Unicode = (m_ext_status_info >> 24) & 0xff;
 		if ((mver1 < 20) && (iver1 < 20)) {
 			m_client_id +=  "Miranda IM ";
 			if (mver0 == 0x80) {
@@ -713,7 +712,7 @@ void ClientIdentify::identify_Miranda()
 			else
 				m_client_id += QString(" %1.%2.%3.%4)").arg(iver0).arg(iver1).arg(iver2).arg(iver3);
 
-			if (((secure != 0) && (secure != 20)) || (m_ext_info == 0x5AFEC0DE))
+			if (((secure != 0) && (secure != 20)) || (m_ext_status_info == 0x5AFEC0DE))
 				m_client_id += " (SecureIM)";
 			else if (m_client_caps.match(ICQ_CAPABILITY_ICQJS7SxVER, 0x10))
 				m_client_id += "Miranda IM (ICQ SSS & S7)(SecureIM)";
@@ -748,7 +747,7 @@ void ClientIdentify::identify_Miranda()
 			if ((mver3 != 0x00) && (mver3 != 0x64))
 				m_client_id += QString(" alpha build #%1").arg(mver3);
 		}
-		if ((m_info == 0x7fffffff) || ((unsigned)((m_ext_info >> 24) & 0xFF) == 0x80))
+		if ((m_info == 0x7fffffff) || ((unsigned)((m_ext_status_info >> 24) & 0xFF) == 0x80))
 			m_client_id += " Unicode";
 		m_client_id += " (ICQ ";
 		if (m_client_caps.match(ICQ_CAPABILITY_ICQJS7OxVER, 0x10) || m_client_caps.match(ICQ_CAPABILITY_ICQJS7SxVER, 0x10))
@@ -786,7 +785,7 @@ void ClientIdentify::identify_Miranda()
 			m_client_id += QString("%1.%2.%3.%4)").arg(iver0).arg(iver1).arg(iver2).arg(iver3);
 			break;
 		}
-		if ((m_ext_info == 0x5AFEC0DE) || m_client_caps.match(ICQ_CAPABILITY_ICQJS7SxVER, 0x10))
+		if ((m_ext_status_info == 0x5AFEC0DE) || m_client_caps.match(ICQ_CAPABILITY_ICQJS7SxVER, 0x10))
 			m_client_id += " (SecureIM)";
 	}
 	if(!m_client_id.isEmpty())
@@ -803,12 +802,12 @@ void ClientIdentify::identify_Qip()
 	if ((cap = m_client_caps.find(ICQ_CAPABILITY_QIPxVER)) != m_client_caps.constEnd()) {
 		const QByteArray &cap_data = cap->data();
 		m_client_id = "QIP ";
-		if (m_ext_info == 0x0F)
+		if (m_ext_status_info == 0x0F)
 			m_client_id += "2005";
 		else
 			m_client_id += QString::fromUtf8(cap_data.mid(11, 5));
 
-		if ((m_ext_status_info == 0x0000000e) && (m_ext_info == 0x0000000f)) {
+		if ((m_ext_info == 0x0000000e) && (m_ext_status_info == 0x0000000f)) {
 			m_client_id += QString(" (Build %1%2%3%4)")
 					.arg((unsigned)m_info >> 0x18)
 					.arg((unsigned)(m_info >> 0x10) & 0xFF)
@@ -843,7 +842,7 @@ void ClientIdentify::identify_QipInfium()
 		}
 		if (m_info)
 			m_client_id += QString(" (Build %1)").arg((unsigned)m_info);
-		if (m_ext_status_info == 0x0000000B)
+		if (m_ext_info == 0x0000000B)
 			m_client_id += " Beta";
 		setClientIcon(icon);
 	}
@@ -1091,9 +1090,9 @@ void ClientIdentify::identify_Climm()
 		m_client_id = QString("climm %1.%2.%3.%4").arg(ver1).arg(ver2).arg(ver3).arg(ver4);
 		if ((ver1 & 0x80) == 0x80)
 			m_client_id += " alpha";
-		if (m_ext_info == 0x02000020)
+		if (m_ext_status_info == 0x02000020)
 			m_client_id += "/Win32";
-		else if (m_ext_info == 0x03000800)
+		else if (m_ext_status_info == 0x03000800)
 			m_client_id += "/MacOS X";
 		setClientIcon("unknown"); // ???
 	}
@@ -1179,8 +1178,8 @@ void ClientIdentify::identify_CorePager()
 	Capabilities::const_iterator cap;
 	if ((cap = m_client_caps.find(ICQ_CAPABILITY_COREPGRxVER)) != m_client_caps.constEnd()) {
 		m_client_id += "CORE Pager";
-		if ((m_ext_status_info == 0x0FFFF0011) &&
-			(m_ext_info == 0x1100FFFF) &&
+		if ((m_ext_info == 0x0FFFF0011) &&
+			(m_ext_status_info == 0x1100FFFF) &&
 			(m_info >> 0x18))
 		{
 			m_client_id += QString(" %1.%2").arg((unsigned)m_info >> 0x18).arg((unsigned)(m_info >> 0x10) & 0xFF);

@@ -134,8 +134,8 @@ private:
 	Capabilities m_client_caps;
 	quint16 m_client_proto;
 	quint32 m_info;
-	quint32 m_ext_status_info;
 	quint32 m_ext_info;
+	quint32 m_ext_status_info;
 	QString m_client_id;
 	ExtensionIcon m_client_icon;
 	CapabilityFlags m_flags;
