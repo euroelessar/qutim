@@ -67,11 +67,8 @@ DataItem MetaField::toDataItem(const QVariant &data_helper, bool allowMultiItems
 	}
 	item.setTitle(toString());
 	if (allowMultiItems) {
-		if (data.type() == QVariant::StringList) {
-			def.setData(QVariant(QVariant::String));
-			def.setProperty("hideTitle", true);
-			item.setMultiple(def, 3);
-		}
+		if (data.type() == QVariant::StringList)
+			item.setProperty("maxStringsCount", 3);
 		if (data.canConvert<CategoryList>()) {
 			foreach (const Category &cat, data.value<CategoryList>()) {
 				DataItem subitem = def;
@@ -81,7 +78,7 @@ DataItem MetaField::toDataItem(const QVariant &data_helper, bool allowMultiItems
 				item.addSubitem(subitem);
 			}
 			def.setTitle(QString());
-			item.setMultiple(def, 3);
+			item.allowModifySubitems(def, 3);
 		} else {
 			item.setData(data);
 		}
@@ -171,7 +168,7 @@ QString MetaField::toString() const
 static void dataItemToHashHelper(const DataItem &items, MetaInfoValuesHash &hash, bool allItems)
 {
 	foreach (const DataItem &item, items.subitems()) {
-		if (item.isMultiple()) {
+		if (item.isAllowedModifySubitems()) {
 			if (allItems || item.hasSubitems()) {
 				CategoryList list;
 				foreach (const DataItem &catItem, item.subitems()) {
