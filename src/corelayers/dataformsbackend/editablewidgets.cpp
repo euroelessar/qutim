@@ -69,7 +69,7 @@ DataItem ComboBox::item() const
 
 DateTimeEdit::DateTimeEdit(const DataItem &item)
 {
-	setDate(item.data().toDate());
+	setDateTime(item.data().toDateTime());
 }
 
 DataItem DateTimeEdit::item() const
@@ -108,13 +108,17 @@ DataItem TextEdit::item() const
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
-LineEdit::LineEdit(const DataItem &item)
+LineEdit::LineEdit(const DataItem &item, const QString &textHint)
 {
 	QString str;
-	if (item.data().canConvert<LocalizedString>())
-		str = item.data().value<LocalizedString>();
-	else
-		str = item.data().toString();
+	if (textHint.isEmpty()) {
+		if (item.data().canConvert<LocalizedString>())
+			str = item.data().value<LocalizedString>();
+		else
+			str = item.data().toString();
+	} else {
+		str = textHint;
+	}
 	setText(str);
 	QVariant passwordMode = item.property("passwordMode");
 	if (!passwordMode.isNull()) {
@@ -176,7 +180,7 @@ DataItem DoubleSpinBox::item() const
 IconListWidget::IconListWidget(const DataItem &item)
 {
 	setViewMode(IconMode);
-	QSize size = item.property("imageSize", QSize(128, 128));
+	QSize size = item.property("imageSize", QSize(32, 32));
 	QVariant altVariant = item.property("alternatives");
 	QPixmap pixmap;
 	quint64 cacheKey = 0;
@@ -235,7 +239,7 @@ DataItem IconListWidget::item() const
 
 IconWidget::IconWidget(const DataItem &item)
 {
-	m_size = item.property("imageSize", QSize(128, 128));
+	m_size = item.property("imageSize", QSize(32, 32));
 	QPixmap pixmap = variantToPixmap(item.data(), m_size);
 	m_default = variantToPixmap(item.property("defaultImage"), m_size);
 	if (m_default.isNull())

@@ -72,7 +72,7 @@ class LineEdit : public QLineEdit, public AbstractDataWidget
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
 public:
-	LineEdit(const DataItem &item);
+	LineEdit(const DataItem &item, const QString &textHint = QString());
 	virtual DataItem item() const;
 };
 

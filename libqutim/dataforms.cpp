@@ -2,6 +2,11 @@
 #include "dynamicpropertydata_p.h"
 #include <QPointer>
 
+Q_DECLARE_METATYPE(QList<QIcon>);
+Q_DECLARE_METATYPE(QList<QPixmap>);
+Q_DECLARE_METATYPE(QList<QImage>);
+Q_DECLARE_METATYPE(QValidator*);
+
 namespace qutim_sdk_0_3
 {
 	class DataItemPrivate : public DynamicPropertyData
@@ -75,8 +80,8 @@ namespace qutim_sdk_0_3
 		d->data = data;
 	}
 
-	DataItem::DataItem(const DataItem &item) :
-			d(item.d)
+	DataItem::DataItem(const DataItem &other) :
+			d(other.d)
 	{
 	}
 
@@ -84,24 +89,21 @@ namespace qutim_sdk_0_3
 	{
 	}
 
-	DataItem &DataItem::operator=(const DataItem &item)
+	DataItem &DataItem::operator=(const DataItem &other)
 	{
-		d = item.d;
+		d = other.d;
 		return *this;
 	}
 
 	QString DataItem::name() const
 	{
-		if (d->name.isEmpty())
-			return d->title.original();
-		else
-			return d->name;
+		return d->name;
 	}
 
-	void DataItem::setName(const QString &name)
+	void DataItem::setName(const QString &itemName)
 	{
 		ensure_data(d);
-		d->name = name;
+		d->name = itemName;
 	}
 
 	LocalizedString DataItem::title() const
@@ -109,9 +111,9 @@ namespace qutim_sdk_0_3
 		return d->title;
 	}
 
-	void DataItem::setTitle(const LocalizedString &title)
+	void DataItem::setTitle(const LocalizedString &itemTitle)
 	{
-		d->title = title;
+		d->title = itemTitle;
 	}
 
 	QVariant DataItem::data() const
@@ -120,10 +122,10 @@ namespace qutim_sdk_0_3
 		return d->data;
 	}
 
-	void DataItem::setData(const QVariant &data)
+	void DataItem::setData(const QVariant &itemData)
 	{
 		ensure_data(d);
-		d->data = data;
+		d->data = itemData;
 	}
 
 	bool DataItem::isNull() const
@@ -136,10 +138,10 @@ namespace qutim_sdk_0_3
 		return d->subitems;
 	}
 
-	void DataItem::setSubitems(const QList<DataItem> &subitems)
+	void DataItem::setSubitems(const QList<DataItem> &newSubitems)
 	{
 		ensure_data(d);
-		d->subitems = subitems;
+		d->subitems = newSubitems;
 	}
 
 	DataItem DataItem::subitem(const QString &name, bool recursive) const
@@ -158,10 +160,10 @@ namespace qutim_sdk_0_3
 		return DataItem();
 	}
 
-	void DataItem::addSubitem(const DataItem &item)
+	void DataItem::addSubitem(const DataItem &subitem)
 	{
 		ensure_data(d);
-		d->subitems << item;
+		d->subitems << subitem;
 	}
 
 	bool DataItem::hasSubitems() const
@@ -169,21 +171,19 @@ namespace qutim_sdk_0_3
 		return !d->subitems.isEmpty();
 	}
 
-	void DataItem::setMultiple(const DataItem &defaultSubitem, int maxCount)
+	void DataItem::allowModifySubitems(const DataItem &defaultSubitem, int maxSubitemsCount)
 	{
 		ensure_data(d);
 		d->defaultSubitem = defaultSubitem;
-		d->maxCount = maxCount;
+		d->maxCount = maxSubitemsCount;
 	}
 
-	bool DataItem::isMultiple() const
+	bool DataItem::isAllowedModifySubitems() const
 	{
-		if (d->data.type() == QVariant::StringList || d->data.canConvert<LocalizedStringList>())
-			return false;
 		return d->maxCount != 1;
 	}
 
-	int DataItem::maxCount() const
+	int DataItem::maxSubitemsCount() const
 	{
 		return d->maxCount;
 	}
@@ -203,6 +203,13 @@ namespace qutim_sdk_0_3
 		setProperty("readOnly", readOnly);
 	}
 
+	DataItem &DataItem::operator<<(const DataItem &subitem)
+	{
+		ensure_data(d);
+		d->subitems << subitem;
+		return *this;
+	}
+
 	QVariant DataItem::property(const char *name, const QVariant &def) const
 	{
 		return d->property(name, def, CompiledProperty::names, CompiledProperty::getters);
@@ -212,6 +219,219 @@ namespace qutim_sdk_0_3
 	{
 		ensure_data(d);
 		d->setProperty(name, value, CompiledProperty::names, CompiledProperty::setters);
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const QStringList &data) :
+		DataItem(title, data)
+	{
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const LocalizedStringList &data) :
+		DataItem(title, qVariantFromValue(data))
+	{
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, bool data) :
+		DataItem(title, data)
+	{
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const QDate &data) :
+		DataItem(title, data)
+	{
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const QDateTime &data) :
+		DataItem(title, data)
+	{
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, int data) :
+		DataItem(title, data)
+	{
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, uint data) :
+		DataItem(title, data)
+	{
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, double data) :
+		DataItem(title, data)
+	{
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const QIcon &data) :
+		DataItem(title, data)
+	{
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const QImage &data) :
+		DataItem(title, data)
+	{
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const QPixmap &data) :
+		DataItem(title, data)
+	{
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const QString &data) :
+		DataItem(title, data)
+	{
+	}
+
+	ReadOnlyDataItem::ReadOnlyDataItem(const LocalizedString &title, const LocalizedString &data) :
+		DataItem(title, qVariantFromValue(data))
+	{
+	}
+
+	StringListDataItem::StringListDataItem(const QString &name, const LocalizedString &title,
+										   const QStringList &data, int maxStringsCount) :
+		DataItem(name, title, data)
+	{
+		setProperty("maxStringsCount", maxStringsCount);
+	}
+
+	StringListDataItem::StringListDataItem(const QString &name, const LocalizedString &title,
+										   const LocalizedStringList &data, int maxStringsCount) :
+		DataItem(name, title, qVariantFromValue(data))
+	{
+		setProperty("maxStringsCount", maxStringsCount);
+	}
+
+	IntDataItem::IntDataItem(const QString &name, const LocalizedString &title, int data,
+							 int minValue, int maxValue) :
+		DataItem(name, title, data)
+	{
+		setProperty("minValue", minValue);
+		setProperty("maxValue", maxValue);
+	}
+
+	DoubleDataItem::DoubleDataItem(const QString &name, const LocalizedString &title, double data,
+								   double minValue, double maxValue) :
+		DataItem(name, title, data)
+	{
+		setProperty("minValue", minValue);
+		setProperty("maxValue", maxValue);
+	}
+
+	IconDataItem::IconDataItem(const QString &name, const LocalizedString &title, const QIcon &data,
+							   const QSize &imageSize, const QList<QIcon> &alternatives) :
+		DataItem(name, title, data)
+	{
+		setProperty("imageSize", imageSize);
+		setProperty("alternatives", qVariantFromValue(alternatives));
+	}
+
+	ImageDataItem::ImageDataItem(const QString &name, const LocalizedString &title, const QImage &data,
+								 const QSize &imageSize, const QList<QImage> &alternatives) :
+		DataItem(name, title, data)
+	{
+		setProperty("imageSize", imageSize);
+		setProperty("alternatives", qVariantFromValue(alternatives));
+	}
+
+	PixmapDataItem::PixmapDataItem(const QString &name, const LocalizedString &title, const QPixmap &data,
+								   const QSize &imageSize, const QList<QPixmap> &alternatives) :
+		DataItem(name, title, data)
+	{
+		setProperty("imageSize", imageSize);
+		setProperty("alternatives", qVariantFromValue(alternatives));
+	}
+
+	StringChooserDataItem::StringChooserDataItem(const QString &name, const LocalizedString &title,
+												 const QStringList &alternatives, const QString &data,
+												 bool editable, QValidator *validator) :
+		DataItem(name, title, data)
+	{
+		setProperty("alternatives", qVariantFromValue(alternatives));
+		setProperty("editable", editable);
+		if (validator)
+			setProperty("validator", qVariantFromValue(validator));
+	}
+
+	StringChooserDataItem::StringChooserDataItem(const QString &name, const LocalizedString &title,
+												 const QStringList &alternatives, const QString &data,
+												 bool editable, QRegExp validator) :
+		DataItem(name, title, data)
+	{
+		setProperty("alternatives", qVariantFromValue(alternatives));
+		setProperty("editable", editable);
+		if (!validator.isEmpty())
+			setProperty("validator", qVariantFromValue(validator));
+	}
+
+	StringChooserDataItem::StringChooserDataItem(const QString &name, const LocalizedString &title,
+												 const LocalizedStringList &alternatives, const LocalizedString &data,
+												 bool editable, QValidator *validator) :
+		DataItem(name, title, qVariantFromValue(data))
+	{
+		setProperty("alternatives", qVariantFromValue(alternatives));
+		setProperty("editable", editable);
+		if (validator)
+			setProperty("validator", qVariantFromValue(validator));
+	}
+
+	StringChooserDataItem::StringChooserDataItem(const QString &name, const LocalizedString &title,
+												 const LocalizedStringList &alternatives, const LocalizedString &data,
+												 bool editable, QRegExp validator) :
+		DataItem(name, title, qVariantFromValue(data))
+	{
+		setProperty("alternatives", qVariantFromValue(alternatives));
+		setProperty("editable", editable);
+		if (!validator.isEmpty())
+			setProperty("validator", qVariantFromValue(validator));
+	}
+
+	MultiLineStringDataItem::MultiLineStringDataItem(const QString &name, const LocalizedString &title,
+													 const QString &data) :
+		DataItem(name, title, data)
+	{
+		setProperty("multiline", true);
+	}
+
+	MultiLineStringDataItem::MultiLineStringDataItem(const QString &name, const LocalizedString &title,
+													 const LocalizedString &data) :
+		DataItem(name, title, qVariantFromValue(data))
+	{
+		setProperty("multiline", true);
+	}
+
+	StringDataItem::StringDataItem(const QString &name, const LocalizedString &title,
+								   const QString &data, QValidator *validator, bool password) :
+		DataItem(name, title, data)
+	{
+		if (validator)
+			setProperty("validator", qVariantFromValue(validator));
+		setProperty("password", password);
+	}
+
+	StringDataItem::StringDataItem(const QString &name, const LocalizedString &title,
+								   const QString &data, QRegExp validator, bool password) :
+		DataItem(name, title, data)
+	{
+		if (!validator.isEmpty())
+			setProperty("validator", qVariantFromValue(validator));
+		setProperty("password", password);
+	}
+
+	StringDataItem::StringDataItem(const QString &name, const LocalizedString &title,
+								   const LocalizedString &data, QValidator *validator, bool password) :
+		DataItem(name, title, qVariantFromValue(data))
+	{
+		if (validator)
+			setProperty("validator", qVariantFromValue(validator));
+		setProperty("password", true);
+	}
+
+	StringDataItem::StringDataItem(const QString &name, const LocalizedString &title,
+								   const LocalizedString &data, QRegExp validator, bool password) :
+		DataItem(name, title, qVariantFromValue(data))
+	{
+		if (!validator.isEmpty())
+			setProperty("validator", qVariantFromValue(validator));
+		setProperty("password", true);
 	}
 
 	void AbstractDataWidget::virtual_hook(int id, void *data)

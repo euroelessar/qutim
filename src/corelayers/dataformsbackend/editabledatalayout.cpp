@@ -18,11 +18,6 @@ static QWidget *getTitleHelper(const DataItem &item, Qt::Alignment labelAlignmen
 	if (item.property("readOnly", false) || alt.isEmpty()) {
 		QLabel *title = new QLabel(item.title() + ":");
 		title->setAlignment(labelAlignment);
-#ifndef QUTIM_MOBILE_UI
-		QFont font;
-		font.setBold(true);
-		title->setFont(font);
-#endif
 		return title;
 	} else {
 		return new ComboBox(item.title(), alt, "validator", item);
@@ -39,7 +34,7 @@ static QWidget *getWidgetHelper2(const DataItem &item, bool *twoColumn, QSizePol
 		return ReadOnlyDataLayout::getReadOnlyWidget(item, twoColumn);
 	} else if (type == QVariant::StringList || item.data().canConvert<LocalizedStringList>()) {
 		return new StringListGroup(item);
-	} else if (item.isMultiple()) {
+	} else if (item.isAllowedModifySubitems()) {
 		if (twoColumn)
 			*twoColumn = true;
 		return new DataListGroup(item);
@@ -188,7 +183,7 @@ DataItem DataListWidget::item() const
 {
 	DataItem items;
 	items.setName(objectName());
-	items.setMultiple(m_def, m_max);
+	items.allowModifySubitems(m_def, m_max);
 	foreach (const WidgetLine &line, m_widgets)
 		items.addSubitem(getDataItem(line.title, line.data));
 	return items;
@@ -254,11 +249,10 @@ DataListGroup::DataListGroup(const DataItem &item, QWidget *parent) :
 {
 	setObjectName(item.name());
 	setTitle(item.title());
-	setFlat(true);
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	m_widget = new DataListWidget(item.defaultSubitem());
-	m_widget->setMaxItemsCount(item.maxCount());
+	m_widget->setMaxItemsCount(item.maxSubitemsCount());
 	foreach (const DataItem &subitem, item.subitems())
 		m_widget->addRow(subitem);
 	layout->addWidget(m_widget);
@@ -275,7 +269,6 @@ DataGroup::DataGroup(const DataItem &items, QWidget *parent) :
 	QGroupBox(parent)
 {
 	setTitle(items.title());
-	setFlat(true);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	m_layout = new EditableDataLayout(this);
 	m_layout->addItems(items.subitems());
@@ -291,17 +284,17 @@ DataItem DataGroup::item() const
 StringListGroup::StringListGroup(const DataItem &item, QWidget *parent) :
 	DataListWidget(parent)
 {
-	m_max = item.maxCount() == 1 ? -1 : item.maxCount();
+	m_max = item.property("maxStringsCount", -1);
 	m_def = item;
 	m_def.setData(QVariant(QVariant::String));
 	m_def.setProperty("hideTitle", true);
-	m_def.setMultiple(DataItem(), 1);
+	m_def.allowModifySubitems(DataItem(), 1);
 	QStringList alt = variantToStringList(item.property("alternatives"));
 	foreach (const QString &str, variantToStringList(item.data())) {
 		if (!alt.isEmpty())
 			addRow(new ComboBox(str, alt, "validator", item));
 		else
-			addRow(new LineEdit(item));
+			addRow(new LineEdit(item, str));
 	}
 }
 

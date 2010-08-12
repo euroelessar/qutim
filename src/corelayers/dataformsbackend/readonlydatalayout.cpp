@@ -20,11 +20,6 @@ bool ReadOnlyDataLayout::addItem(const DataItem &item)
 	if (!twoColumns && !item.property("hideTitle", false)) {
 		title = new QLabel(item.title().toString() + ":", parentWidget());
 		title->setAlignment(labelAlignment());
-#ifndef QUTIM_MOBILE_UI
-		QFont font = title->font();
-		font.setBold(true);
-		title->setFont(font);
-#endif
 		title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 	}
 	widget->setParent(parentWidget());
@@ -40,7 +35,6 @@ QWidget *ReadOnlyDataLayout::getReadOnlyWidget(const DataItem &item, bool *twoCo
 	if (item.hasSubitems()) {
 		QGroupBox *box = new QGroupBox();
 		box->setTitle(item.title());
-		box->setFlat(true);
 		ReadOnlyDataLayout *group = new ReadOnlyDataLayout(box);
 		group->addItems(item.subitems());
 		if (twoColumn)

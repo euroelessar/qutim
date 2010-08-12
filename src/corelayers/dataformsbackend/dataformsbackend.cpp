@@ -5,6 +5,10 @@
 #include <QPushButton>
 #include <QKeyEvent>
 
+#include <libqutim/icon.h>
+
+Q_DECLARE_METATYPE(QList<QIcon>);
+
 namespace Core
 {
 DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartButtons,  const Buttons &buttons)

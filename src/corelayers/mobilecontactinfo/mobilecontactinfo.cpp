@@ -120,7 +120,7 @@ namespace Core
 		DataItem result = item;
 		result.setSubitems(QList<DataItem>());
 		foreach (const DataItem &subitem, item.subitems()) {
-			if (subitem.isMultiple()) {
+			if (subitem.isAllowedModifySubitems()) {
 				if (!readOnly || subitem.hasSubitems())
 					result.addSubitem(subitem);
 			} else if (subitem.hasSubitems()) {
@@ -140,7 +140,7 @@ namespace Core
 		DataItem group = item;
 		group.setSubitems(QList<DataItem>());
 		foreach (const DataItem &subitem, item.subitems()) {
-			if (subitem.isMultiple()) {
+			if (subitem.isAllowedModifySubitems()) {
 				if (!readOnly || subitem.hasSubitems())
 					result.addSubitem(subitem);
 			} else if (subitem.hasSubitems()) {
