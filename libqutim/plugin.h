@@ -120,6 +120,14 @@ namespace qutim_sdk_0_3
 		friend class ModuleManager;
 #endif
 	};
+	
+	class LIBQUTIM_EXPORT PluginFactory
+	{
+	public:
+		virtual ~PluginFactory() {}
+		// Will be called after ::load() method
+		virtual QList<Plugin*> loadPlugins() = 0;
+	};
 
 	LIBQUTIM_EXPORT QList<QPointer<Plugin> > pluginsList();
 }
@@ -138,6 +146,7 @@ namespace qutim_sdk_0_3
 #define QUTIM_EXPORT_PLUGIN(Plugin) \
 	QUTIM_EXPORT_PLUGIN2(Plugin, Plugin)
 			
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::PluginFactory, "org.qutim.PluginFactory")
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::CommandArgumentsHandler, "org.qutim.CommandArgumentsHandler")
 
 #endif // PLUGIN_H

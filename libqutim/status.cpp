@@ -43,7 +43,7 @@ namespace qutim_sdk_0_3
 		QVariant getIcon() const { return icon; }
 		void setIcon(const QVariant &val) { icon = val.value<QIcon>(); }
 		QVariant getType() const { return type; }
-		void setType(const QVariant &val) { subtype = static_cast<Status::Type>(val.toInt()); }
+		void setType(const QVariant &val) { type = static_cast<Status::Type>(val.toInt()); }
 		QVariant getSubtype() const { return type; }
 		void setSubtype(const QVariant &val) { subtype = val.toInt(); }
 		QVariant getExtendedStatuses() const { return extStatuses; }

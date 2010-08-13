@@ -64,15 +64,15 @@ namespace qutim_sdk_0_3
 		Config config();
 		ConfigGroup config(const QString &group);
 		QString id() const;
-		virtual QList<Account *> accounts() const = 0;
-		virtual Account *account(const QString &id) const = 0;
+		Q_INVOKABLE virtual QList<qutim_sdk_0_3::Account*> accounts() const = 0;
+		Q_INVOKABLE virtual qutim_sdk_0_3::Account *account(const QString &id) const = 0;
 		virtual QVariant data(DataType type);
 		/*!
 		  Remove account from qutIM, protocols can reimplement this method.
 		  Be careful, this method actually delete your account.
 		  It is recommended to display a confirmation dialog box.
 		*/
-		virtual void removeAccount(Account *account, RemoveFlag flags = DeleteAccount);
+		virtual void removeAccount(qutim_sdk_0_3::Account *account, RemoveFlag flags = DeleteAccount);
 	signals:
 		void accountCreated(qutim_sdk_0_3::Account *);
 		void accountRemoved(qutim_sdk_0_3::Account *);

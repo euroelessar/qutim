@@ -94,5 +94,6 @@ namespace qutim_sdk_0_3
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Contact*)
+Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::Contact*>)
 
 #endif // CONTACT_H

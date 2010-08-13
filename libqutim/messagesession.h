@@ -33,7 +33,8 @@ namespace qutim_sdk_0_3
 		Q_PROPERTY(qutim_sdk_0_3::MessageList unread READ unread NOTIFY unreadChanged)
 	public:
 		virtual ChatUnit *getUnit() const = 0;
-		virtual void setChatUnit(qutim_sdk_0_3::ChatUnit* unit) = 0;
+		Q_INVOKABLE inline qutim_sdk_0_3::ChatUnit *unit() const { return getUnit(); }
+		Q_INVOKABLE virtual void setChatUnit(qutim_sdk_0_3::ChatUnit* unit) = 0;
 		virtual QTextDocument *getInputField() = 0;
 		virtual void markRead(quint64 id) = 0;
 		virtual MessageList unread() const = 0;
@@ -72,8 +73,9 @@ namespace qutim_sdk_0_3
 		ChatSession *getSession(QObject *obj, bool create = true);
 		ChatSession *getSession(Account *acc, const QString &id, bool create = true);
 		virtual ChatSession *getSession(ChatUnit *unit, bool create = true) = 0;
+		Q_INVOKABLE inline qutim_sdk_0_3::ChatSession *session(QObject *obj, bool create = true);
 		static ChatSession *get(ChatUnit *unit, bool create = true);
-		virtual QList<ChatSession*> sessions() = 0;
+		Q_INVOKABLE virtual QList<qutim_sdk_0_3::ChatSession*> sessions() = 0;
 	signals:
 		void sessionCreated(qutim_sdk_0_3::ChatSession *session);
 	protected:
@@ -82,6 +84,14 @@ namespace qutim_sdk_0_3
 		virtual ~ChatLayer();
 		virtual void virtual_hook(int id, void *data);
 	};
+	
+	ChatSession *ChatLayer::session(QObject *obj, bool create)
+	{
+		return getSession(obj, create);
+	}
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::ChatSession*)
+Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::ChatSession*>)
 
 #endif // LIBQUTIM_MESSAGESESSION_H

@@ -100,6 +100,8 @@ namespace qutim_sdk_0_3
 		  If unitId is invalid, i.e. invalid JID, unit won't be created and NULL will be returned.
 		*/
 		virtual ChatUnit *getUnit(const QString &unitId, bool create = false) = 0;
+		
+		Q_INVOKABLE inline qutim_sdk_0_3::ChatUnit *unit(const QString &unitId, bool create = false);
 	signals:
 		/*!
 		  Signal is emitted when new \a contact was created.
@@ -118,8 +120,14 @@ namespace qutim_sdk_0_3
 		*/
 		void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
 	};
+	
+	ChatUnit *Account::unit(const QString &unitId, bool create)
+	{
+		return getUnit(unitId, create);
+	}
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Account*)
+Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::Account*>)
 
 #endif // ACCOUNT_H

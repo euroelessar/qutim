@@ -26,14 +26,16 @@
 #include <libqutim/icon.h>
 #include "avatarfilter.h"
 #include <libqutim/config.h>
+#include <QStringBuilder>
 
 namespace Core
 {
 namespace SimpleContactList
 {
 	bool infoLessThan (const QVariant &a,const QVariant &b) {
-		int p1 = a.toMap().value("priority").toInt();
-		int p2 = b.toMap().value("priority").toInt();
+		QString priority = QLatin1String("priority");
+		int p1 = a.toMap().value(priority).toInt();
+		int p2 = b.toMap().value(priority).toInt();
 		return p1 < p2;
 	};
 
@@ -42,7 +44,7 @@ namespace SimpleContactList
 	{
 		m_horizontal_padding = 5;
 		m_vertical_padding = 3;
-		m_show_flags = static_cast<ShowFlags>(ShowStatusText | ShowExtendedInfoIcons | ShowAvatars);
+		m_show_flags = ShowStatusText | ShowExtendedInfoIcons | ShowAvatars;
 	}
 	
 	void Delegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
@@ -96,7 +98,11 @@ namespace SimpleContactList
 				QString count = index.data(ItemContactsCountRole).toString();
 				QString online_count = index.data(ItemOnlineContactsCountRole).toString();
 
-				QString txt = name.append(" (%1/%2)").arg(online_count,count);
+				QString txt = name % QLatin1Literal(" (")
+							  % online_count
+							  % QLatin1Char('/')
+							  % count
+							  % QLatin1Char(')');
 				
 				painter->drawText(title_rect,
 									Qt::AlignVCenter,
@@ -120,16 +126,15 @@ namespace SimpleContactList
 						list.insert(search_it,data);
 					}
 
-					foreach (const QVariant &data, list)
-					{
+					foreach (const QVariant &data, list) {
 						QVariantMap map = data.value<QVariantMap>();
-						QVariant extIconVar = map.value("icon");
+						QVariant extIconVar = map.value(QLatin1String("icon"));
 						QIcon icon;
 						if (extIconVar.canConvert<ExtensionIcon>())
 							icon = extIconVar.value<ExtensionIcon>().toIcon();
 						else if (extIconVar.canConvert(QVariant::Icon))
 							icon = extIconVar.value<QIcon>();
-						if (!map.value("showIcon",true).toBool() || icon.isNull())
+						if (!map.value(QLatin1String("showIcon"),true).toBool() || icon.isNull())
 							continue;
 						icon.paint(painter,
 									option.rect.left() + m_horizontal_padding,
@@ -162,7 +167,7 @@ namespace SimpleContactList
 						painter->setFont(font);
 						painter->drawText(status_rect,
 											Qt::AlignTop | Qt::TextWordWrap,
-											status.text().remove("\n")
+											status.text().remove(QLatin1Char('\n'))
 											);
 					}
 				}
@@ -250,7 +255,9 @@ namespace SimpleContactList
 			metrics = QFontMetrics(desc_font);
 			height += metrics.boundingRect(rect,
 											Qt::TextSingleLine,
-											status.text().remove("\n")
+											// There is no differ what text to use, but shotter is better
+											QLatin1String(".")
+//											status.text().remove(QLatin1Char('\n'))
 											).height();
 		}
 		if (isContact)

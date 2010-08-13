@@ -35,5 +35,6 @@ namespace qutim_sdk_0_3
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Conference*)
+Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::Conference*>)
 
 #endif // CONFERENCE_H

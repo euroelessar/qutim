@@ -33,7 +33,7 @@ namespace Core
 				ShowExtendedInfoIcons = 0x2,
 				ShowAvatars = 0x4
 			};
-			Q_DECLARE_FLAGS(ShowFlags,ShowFlag);
+			Q_DECLARE_FLAGS(ShowFlags, ShowFlag);
 			explicit Delegate(QTreeView *parent = 0);
 			virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 			virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;

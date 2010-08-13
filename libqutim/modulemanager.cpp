@@ -23,6 +23,7 @@
 #include "systeminfo.h"
 #include "metacontactmanager.h"
 #include "libqutim/icon.h"
+#include "varianthook_p.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
@@ -222,6 +223,7 @@ namespace qutim_sdk_0_3
 	{
 		qDebug() << QIcon::themeSearchPaths();
 		Q_ASSERT_X(!managerSelf, "ModuleManager", "Only one instance of ModuleManager can be created");
+		VariantHook::init();
 		p = new ModuleManagerPrivate;
 		managerSelf = this;
 		qApp->setApplicationName("qutIM");
@@ -628,9 +630,19 @@ namespace qutim_sdk_0_3
 			}
 		}
 		Config pluginsConfig = Config().group("plugins").group("list");
-		foreach(Plugin *plugin, p->plugins) {
-			if (plugin && pluginsConfig.value(plugin->info().name(), true))
+		for (int i = 0; i < p->plugins.size(); i++) {
+			Plugin *plugin = p->plugins.at(i);
+			if (plugin && pluginsConfig.value(plugin->info().name(), true)) {
 				plugin->load();
+				if (PluginFactory *factory = qobject_cast<PluginFactory*>(plugin)) {
+					QList<Plugin*> plugins = factory->loadPlugins();
+					for (int j = 0; j < plugins.size(); j++) {
+						plugins.at(j)->init();
+						p->plugins << plugins.at(j);
+					}
+				}
+			}
+			qDebug("%d %d %s", i, p->plugins.size(), p->plugins.at(i)->metaObject()->className());
 		}
 
 		foreach(Protocol *proto, allProtocols())

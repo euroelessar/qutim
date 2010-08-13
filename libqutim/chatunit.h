@@ -91,19 +91,19 @@ namespace qutim_sdk_0_3
 		*
 		* @param message Message, which to be sent to the recipient
 		*/
-		virtual bool sendMessage(const Message &message) = 0;
+		Q_INVOKABLE virtual bool sendMessage(const qutim_sdk_0_3::Message &message) = 0;
 		/**
 		* @brief Returns TODO
 		*
 		* @return ChatUnitList
 		*/
-		virtual ChatUnitList lowerUnits();
+		Q_INVOKABLE virtual QList<qutim_sdk_0_3::ChatUnit*> lowerUnits();
 		/**
 		* @brief Returns TODO
 		*
 		* @return Pointer to upper chatunit
 		*/
-		virtual ChatUnit *upperUnit();
+		Q_INVOKABLE virtual qutim_sdk_0_3::ChatUnit *upperUnit();
 		/**
 		* @brief Returns TODO
 		*
@@ -168,5 +168,6 @@ namespace qutim_sdk_0_3
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::ChatUnit*)
+Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::ChatUnit*>)
 
 #endif // CHATUNIT_H

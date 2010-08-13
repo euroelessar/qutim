@@ -52,5 +52,6 @@ namespace qutim_sdk_0_3
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Buddy*)
+Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::Buddy*>)
 
 #endif // BUDDY_H

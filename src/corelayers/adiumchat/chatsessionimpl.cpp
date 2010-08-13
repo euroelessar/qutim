@@ -160,10 +160,6 @@ namespace Core
 				qWarning() << QString("Message %1 must have a chatUnit").arg(message.text());
 				message.setChatUnit(getUnit());
 			}
-			if ((!isActive() && !message.property("service", false))/* || !message.property("history",false)*/) {
-				d->unread.append(message);
-				unreadChanged(d->unread);
-			}
 
 			if (message.isIncoming())
 				messageReceived(&message);
@@ -172,6 +168,11 @@ namespace Core
 
 			if (message.property("spam", false) || message.property("hide", false))
 				return message.id();
+			
+			if ((!isActive() && !message.property("service", false))/* || !message.property("history",false)*/) {
+				d->unread.append(message);
+				unreadChanged(d->unread);
+			}
 
 			if (!message.isIncoming())
 				setChatState(ChatStateActive);

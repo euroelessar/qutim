@@ -112,7 +112,7 @@ namespace qutim_sdk_0_3
 
 	struct AutoSettingsItemPrivate;
 
-	class AutoSettingsItem : public SettingsItem
+	class LIBQUTIM_EXPORT AutoSettingsItem : public SettingsItem
 	{
 	public:
 		class EntryPrivate;
@@ -146,7 +146,7 @@ namespace qutim_sdk_0_3
 		virtual const ObjectGenerator *generator() const;
 	};
 
-	class AutoSettingsComboBox : public QComboBox
+	class LIBQUTIM_EXPORT AutoSettingsComboBox : public QComboBox
 	{
 		Q_PROPERTY(QStringList items READ items WRITE setItems)
 		Q_OBJECT
