@@ -89,7 +89,7 @@ QDBusArgument &operator<<(QDBusArgument &argument, const Message &msg)
 		
 		argument.beginMapEntry();
 		ChatUnit *unit = const_cast<ChatUnit*>(msg.chatUnit());
-		QDBusObjectPath path = ChatUnitAdaptor::hash().value(unit);
+		QDBusObjectPath path = ChatUnitAdaptor::ensurePath(QDBusConnection::sessionBus(), unit);
 		argument << QString::fromLatin1("chatUnit") << QDBusVariant(qVariantFromValue(path));
 		argument.endMapEntry();
 		
