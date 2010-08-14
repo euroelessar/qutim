@@ -173,16 +173,16 @@ namespace SimpleContactList
 				}
 
 				QIcon itemIcon = index.data(Qt::DecorationRole).value<QIcon>();
-//				bool hasAvatar = false;
+				bool hasAvatar = false;
 				if (m_show_flags & ShowAvatars) {
 					QSize avatarSize (option.decorationSize.width()+m_horizontal_padding,
 									  option.decorationSize.height()+m_vertical_padding);
 					AvatarFilter filter(avatarSize);
-					filter.draw(painter,
-								option.rect.left()+m_horizontal_padding/2,
-								option.rect.top()+m_vertical_padding/2,
-								index.data(ItemAvatarRole).toString(),
-								itemIcon);
+					hasAvatar = filter.draw(painter,
+											option.rect.left()+m_horizontal_padding/2,
+											option.rect.top()+m_vertical_padding/2,
+											index.data(ItemAvatarRole).toString(),
+											itemIcon);
 //					QPixmap avatar = filter.draw(index.data(ItemAvatarRole).toString(),item_icon);
 //					if (!avatar.isNull()) {
 //						painter->drawPixmap(option.rect.left()+m_horizontal_padding/2,
@@ -193,7 +193,8 @@ namespace SimpleContactList
 //											);
 //						hasAvatar = true;
 //					}
-				} else {
+				} 
+				if (!hasAvatar) {
 					itemIcon.paint(painter,
 									option.rect.left() + m_horizontal_padding,
 									option.rect.top() + m_vertical_padding,

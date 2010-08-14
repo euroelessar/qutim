@@ -3,6 +3,7 @@
 #include <QIcon>
 #include <QStringBuilder>
 #include <QPixmapCache>
+#include <QDebug>
 
 namespace qutim_sdk_0_3
 {
@@ -25,14 +26,12 @@ namespace qutim_sdk_0_3
 
 	}
 
-	void AvatarFilter::draw(QPainter *painter, int x, int y,
+	bool AvatarFilter::draw(QPainter *painter, int x, int y,
 							const QString &path, const QIcon &overlayIcon) const
 	{
 		Q_D(const AvatarFilter);
-		if (path.isEmpty()) {
-			painter->drawPixmap(x, y, overlayIcon.pixmap(d->defaultSize));
-			return;
-		}
+		if (path.isEmpty())
+			return false;
 		
 		QString key = QLatin1Literal("qutim_avatar_")
 					  % QString::number(d->defaultSize.width())
@@ -42,10 +41,8 @@ namespace qutim_sdk_0_3
 					  % path;
 		QPixmap pixmap;
 		if (!QPixmapCache::find(key, &pixmap)) {
-			if (!pixmap.load(path)) {
-				painter->drawPixmap(x, y, overlayIcon.pixmap(d->defaultSize));
-				return;
-			}
+			if (!pixmap.load(path))
+				return false;
 			QString alphaKey = QLatin1Literal("qutim_avatar_alpha_")
 							   % QString::number(d->defaultSize.width())
 							   % QLatin1Char('_')
@@ -75,8 +72,12 @@ namespace qutim_sdk_0_3
 		}
 		painter->drawPixmap(x, y, pixmap.width(), pixmap.height(), pixmap);
 		QSize overlaySize = d->defaultSize / 2;
+		QPixmap overlayPixmap = overlayIcon.pixmap(overlaySize);
+		overlaySize = overlayPixmap.size();
 		painter->drawPixmap(x + d->defaultSize.width() - overlaySize.width(),
 							y + d->defaultSize.height() - overlaySize.height(),
-							overlayIcon.pixmap(overlaySize));
+							overlayPixmap
+							);
+		return true;
 	}
 }

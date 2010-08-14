@@ -15,7 +15,7 @@ namespace qutim_sdk_0_3
 	public:
 		AvatarFilter(const QSize &defaultSize/*, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio*/);
 		~AvatarFilter();
-		void draw(QPainter *painter, int x, int y,
+		bool draw(QPainter *painter, int x, int y,
 				  const QString &path,const QIcon &overlayIcon) const;
 	private:
 		QScopedPointer<AvatarFilterPrivate> d_ptr;
