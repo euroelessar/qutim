@@ -116,7 +116,7 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		class EntryPrivate;
-		class Entry
+		class LIBQUTIM_EXPORT Entry
 		{
 		public:
 			Entry(const LocalizedString &text, const ObjectGenerator *gen);
