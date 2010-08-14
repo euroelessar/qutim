@@ -19,7 +19,7 @@
 #include <QStringList>
 #include <QSet>
 #include <QHash>
-#include <QPixmap>
+#include <QImageReader>
 #include <QStringBuilder>
 #include <QtGui/QTextDocument>
 
@@ -143,17 +143,21 @@ namespace qutim_sdk_0_3
 	{
 		if (codes.isEmpty())
 			return;
-		QPixmap pixmap;
-		if (!pixmap.load(imgPath))
-			return;
+		QImageReader reader(imgPath);
+		QSize size = reader.size();
+		if (!size.isValid()) {
+			size = reader.read().size();
+			if (!size.isValid())
+				return;
+		}
 		p->order.append(imgPath);
 		p->map.insert(imgPath, codes);
 		QString imgHtml = QLatin1Literal("<img src=\"")
 						  % imgPath
 						  % QLatin1Literal("\" width=\"")
-						  % QString::number(pixmap.width())
+						  % QString::number(size.width())
 						  % QLatin1Literal("\" height=\"")
-						  % QString::number(pixmap.height())
+						  % QString::number(size.height())
 						  % QLatin1Literal("\" alt=\"%4\" title=\"%4\"><span style=\"font-size: 0\">%4</span></img>");
 		foreach (const QString &code, codes) {
 			Emoticon e;
