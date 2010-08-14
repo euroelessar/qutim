@@ -10,9 +10,8 @@ namespace SimpleContactList
 
 typedef QMap<int,LocalizedString> SizeMap;
 
-SizeMap *sizeMap()
+void size_map_init(SizeMap &map)
 {
-	static SizeMap map;
 	//map.insert(-1,QT_TRANSLATE_NOOP("ContactList","Other"));
 	map.insert(0,QT_TRANSLATE_NOOP("ContactList","Default (depends on platform)"));
 	map.insert(16,QT_TRANSLATE_NOOP("ContactList","Small (16x16)"));
@@ -20,9 +19,7 @@ SizeMap *sizeMap()
 	map.insert(32,QT_TRANSLATE_NOOP("ContactList","Large (32x32)"));
 	map.insert(48,QT_TRANSLATE_NOOP("ContactList","Very large (48x48)"));
 	map.insert(64,QT_TRANSLATE_NOOP("ContactList","Hige (64x64)"));
-	return &map;
 }
-
 
 SimpleContactlistSettings::SimpleContactlistSettings() :
 		ui(new Ui::SimpleContactlistSettings)
@@ -67,7 +64,7 @@ void SimpleContactlistSettings::loadImpl()
 	else
 		ui->sizesBox->setCurrentIndex(index);
 	ui->avatarsBox->setChecked(m_flags & Delegate::ShowAvatars);
-	ui->extendedInfoBox->setChecked(m_flags & Delegate::Delegate::ShowExtendedInfoIcons);
+	ui->extendedInfoBox->setChecked(m_flags & Delegate::ShowExtendedInfoIcons);
 	ui->statusBox->setChecked(m_flags & Delegate::ShowStatusText);
 }
 
@@ -87,8 +84,10 @@ void SimpleContactlistSettings::saveImpl()
 void SimpleContactlistSettings::reloadCombobox()
 {
 	ui->sizesBox->clear();
+	SizeMap sizeMap;
+	size_map_init(sizeMap);
 	SizeMap::const_iterator it;
-	for (it = sizeMap()->constBegin();it!=sizeMap()->constEnd();it++) {
+	for (it = sizeMap.constBegin();it!=sizeMap.constEnd();it++) {
 		ui->sizesBox->addItem(it->toString());
 		ui->sizesBox->setItemData(ui->sizesBox->count()-1,it.key());
 	}
