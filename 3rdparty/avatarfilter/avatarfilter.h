@@ -11,13 +11,14 @@ namespace qutim_sdk_0_3
 	struct AvatarFilterPrivate;
 	class AvatarFilter
 	{
+		Q_DECLARE_PRIVATE(AvatarFilter)
 	public:
 		AvatarFilter(const QSize &defaultSize/*, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio*/);
-		QPixmap draw(const QString &path,const QIcon &overlayIcon);
-		QPixmap draw(const QPixmap &source, const QPixmap &overlay);
 		~AvatarFilter();
+		void draw(QPainter *painter, int x, int y,
+				  const QString &path,const QIcon &overlayIcon) const;
 	private:
-		QScopedPointer<AvatarFilterPrivate> p;
+		QScopedPointer<AvatarFilterPrivate> d_ptr;
 	};
 
 }

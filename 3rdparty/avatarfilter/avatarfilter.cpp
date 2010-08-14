@@ -1,6 +1,8 @@
 #include "avatarfilter.h"
 #include <QPainter>
 #include <QIcon>
+#include <QStringBuilder>
+#include <QPixmapCache>
 
 namespace qutim_sdk_0_3
 {
@@ -10,10 +12,12 @@ namespace qutim_sdk_0_3
 		Qt::AspectRatioMode mode;
 	};
 	
-	AvatarFilter::AvatarFilter(const QSize& defaultSize/*, Qt::AspectRatioMode mode*/) : p(new AvatarFilterPrivate)
+	AvatarFilter::AvatarFilter(const QSize& defaultSize/*, Qt::AspectRatioMode mode*/) : 
+			d_ptr(new AvatarFilterPrivate)
 	{
-		p->defaultSize =defaultSize;
-		p->mode = Qt::IgnoreAspectRatio;
+		Q_D(AvatarFilter);
+		d->defaultSize = defaultSize;
+		d->mode = Qt::IgnoreAspectRatio;
 	}
 	
 	AvatarFilter::~AvatarFilter()
@@ -21,26 +25,34 @@ namespace qutim_sdk_0_3
 
 	}
 
-	QPixmap AvatarFilter::draw(const QString& path, const QIcon& overlayIcon)
+	void AvatarFilter::draw(QPainter *painter, int x, int y,
+							const QString &path, const QIcon &overlayIcon) const
 	{
-		QSize overlaySize = p->defaultSize / 2; //FIXME
-		QIcon icon (path);
-		return draw(icon.pixmap(icon.actualSize(QSize(65535,65535))),overlayIcon.pixmap(overlaySize));
-	}
-	
-	QPixmap AvatarFilter::draw(const QPixmap& source, const QPixmap& overlay)
-	{
-		QPixmap result;
-		if(!source.isNull())
-		{
-			//lets crop pixmap
-			int cropSize = qMin(source.width(),source.height());
-			result = source.copy(QRect(0,0,cropSize,cropSize));
-			result = result.scaled(p->defaultSize,p->mode,Qt::SmoothTransformation);
-			static QPixmap alpha;
-			if( alpha.size() != p->defaultSize )
-			{
-				alpha = QPixmap(result.size());
+		Q_D(const AvatarFilter);
+		if (path.isEmpty()) {
+			painter->drawPixmap(x, y, overlayIcon.pixmap(d->defaultSize));
+			return;
+		}
+		
+		QString key = QLatin1Literal("qutim_avatar_")
+					  % QString::number(d->defaultSize.width())
+					  % QLatin1Char('_')
+					  % QString::number(d->defaultSize.height())
+					  % QLatin1Char('_')
+					  % path;
+		QPixmap pixmap;
+		if (!QPixmapCache::find(key, &pixmap)) {
+			if (!pixmap.load(path)) {
+				painter->drawPixmap(x, y, overlayIcon.pixmap(d->defaultSize));
+				return;
+			}
+			QString alphaKey = QLatin1Literal("qutim_avatar_alpha_")
+							   % QString::number(d->defaultSize.width())
+							   % QLatin1Char('_')
+							   % QString::number(d->defaultSize.height());
+			QPixmap alpha;
+			if (!QPixmapCache::find(alphaKey, &alpha)) {
+				alpha = QPixmap(d->defaultSize);
 				alpha.fill(QColor(0,0,0));
 				QPainter painter(&alpha);
 				QPen pen(QColor(127,127,127));
@@ -48,22 +60,23 @@ namespace qutim_sdk_0_3
 				pen.setWidth(0);
 				painter.setPen(pen);
 				painter.setBrush(QBrush(QColor(255,255,255)));
-				painter.drawRoundedRect(QRectF(QPointF(0,0),QSize(p->defaultSize.width()-1,p->defaultSize.height()-1)),5,5);
+				painter.drawRoundedRect(QRectF(QPointF(0, 0),
+											   QSize(d->defaultSize.width() - 1,
+													 d->defaultSize.height() -1 )),
+										5, 5);
 				painter.end();
+				QPixmapCache::insert(alphaKey, alpha);
 			}
-			result.setAlphaChannel(alpha);
-
-			QSize size = overlay.size();
-			QPainter painter(&result);
-			painter.drawPixmap(	result.width()-size.width(),
-								result.height()-size.height(),
-								size.width(),
-								size.height(),
-								overlay);
-
+			int cropSize = qMin(pixmap.width(), pixmap.height());
+			pixmap = pixmap.copy(0, 0, cropSize, cropSize);
+			pixmap = pixmap.scaled(d->defaultSize, d->mode, Qt::SmoothTransformation);
+			pixmap.setAlphaChannel(alpha);
+			QPixmapCache::insert(key, pixmap);
 		}
-		return result;
+		painter->drawPixmap(x, y, pixmap.width(), pixmap.height(), pixmap);
+		QSize overlaySize = d->defaultSize / 2;
+		painter->drawPixmap(x + d->defaultSize.width() - overlaySize.width(),
+							y + d->defaultSize.height() - overlaySize.height(),
+							overlayIcon.pixmap(overlaySize));
 	}
-
-
 }
