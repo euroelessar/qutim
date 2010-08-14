@@ -14,6 +14,7 @@ macro ( LANGUAGE_UPDATE plugin_name language sources )
 	separate_arguments( LANGUAGE_OPTS )
 	execute_process( COMMAND ${QT_LUPDATE_EXECUTABLE}
 					 ${LANGUAGE_OPTS}
+					 -extensions "h,cpp,mm,js,c,ui"
 					 -target-language "${language}" ${sources}
 					 -ts "${LANGUAGE_DEST_DIR}/${language}/${plugin_name}.ts"
 					 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
