@@ -14,28 +14,13 @@
  ***************************************************************************
  ****************************************************************************/
 
-#ifndef SCRIPTPLUGINWRAPPER_H
-#define SCRIPTPLUGINWRAPPER_H
+#include "scriptsettingsconnector.h"
 
-#include <qutim/plugin.h>
-
-class ScriptEngine;
-class QScriptValue;
-
-class ScriptPluginWrapper : public qutim_sdk_0_3::Plugin
+ScriptSettingsConnector::ScriptSettingsConnector(QObject *parent) :
+		QObject(parent)
 {
-	Q_OBJECT
-public:
-    explicit ScriptPluginWrapper(const QString &name);
-	virtual ~ScriptPluginWrapper();
-	
-	virtual void init();
-	virtual bool load();
-	virtual bool unload();
-private:
-	QString m_name;
-	ScriptEngine *m_engine;
-	bool m_apiInited;
-};
+}
 
-#endif // SCRIPTPLUGINWRAPPER_H
+ScriptSettingsConnector::~ScriptSettingsConnector()
+{
+}

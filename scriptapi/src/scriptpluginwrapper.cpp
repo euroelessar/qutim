@@ -48,10 +48,11 @@ ScriptPluginWrapper::ScriptPluginWrapper(const QString &name) :
 	stringdata += name.toUtf8();
 	stringdata += '\0';
 	char *tmpPtr = reinterpret_cast<char*>(qMalloc(stringdata.size() + 1));
-	qMemCopy(tmpPtr, stringdata, stringdata.size() + 1);
+	qMemCopy(tmpPtr, stringdata.constData(), stringdata.size() + 1);
 	meta->d.stringdata = tmpPtr;
 	meta->d.extradata = 0;
 	QObject::d_ptr->metaObject = meta;
+	qDebug() << metaObject()->className() << this;
 }
 
 ScriptPluginWrapper::~ScriptPluginWrapper()
@@ -62,8 +63,6 @@ ScriptPluginWrapper::~ScriptPluginWrapper()
 void ScriptPluginWrapper::init()
 {
 	m_engine = new ScriptEngine(m_name, this);
-	connect(m_engine, SIGNAL(signalHandlerException(QScriptValue)),
-			this, SLOT(onException(QScriptValue)));
 	QFile scriptFile(getThemePath(QLatin1String("scripts"), m_name) + QLatin1String("/plugin.js"));
 	qDebug() << Q_FUNC_INFO << scriptFile.fileName();
 	if (!scriptFile.open(QIODevice::ReadOnly))
@@ -110,10 +109,4 @@ bool ScriptPluginWrapper::unload()
 	qDebug("%s %d", qPrintable(m_engine->uncaughtException().toString()),
 		   m_engine->uncaughtExceptionLineNumber());
 	return result;
-}
-
-void ScriptPluginWrapper::onException(const QScriptValue &exception)
-{
-	qDebug() << exception.toString();
-	qDebug() << m_engine->uncaughtExceptionBacktrace();
 }

@@ -16,6 +16,7 @@
 
 #include "scriptengine.h"
 #include "scriptmessageclass.h"
+#include "scriptsettingsconnector.h"
 #include <qutim/libqutim_global.h>
 #include <qutim/protocol.h>
 #include <qutim/account.h>
@@ -29,6 +30,7 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QTextEdit>
+#include <QPlainTextEdit>
 #include <QScriptValueIterator>
 #include <QDebug>
 
@@ -216,6 +218,12 @@ QScriptValue scriptSettingsRegister(QScriptContext *ctxt, QScriptEngine *e)
 	AutoSettingsItem *settingsItem = new AutoSettingsItem(itemType, Icon(icon), text);
 	settingsItem->setConfig(QString(), QLatin1String("plugins/script/")
 							+ static_cast<ScriptEngine*>(e)->name());
+	QScriptValue onSaved = item.property("onSaved");
+	if (onSaved.isFunction()) {
+		ScriptSettingsConnector *helper = new ScriptSettingsConnector(e);
+		settingsItem->connect(SIGNAL(saved()), helper, SLOT(onSaved()));
+		qScriptConnect(helper, SIGNAL(saved()), item, onSaved);
+	}
 	
 	QScriptValue entries = item.property("entries");
     quint32 len = entries.property(QLatin1String("length")).toUInt32();
@@ -232,6 +240,8 @@ QScriptValue scriptSettingsRegister(QScriptContext *ctxt, QScriptEngine *e)
 			gen = new GeneralGenerator<QLineEdit>();
 		else if (type == QLatin1String("TextEdit"))
 			gen = new GeneralGenerator<QTextEdit>();
+		else if (type == QLatin1String("PlainTextEdit"))
+			gen = new GeneralGenerator<QPlainTextEdit>();
 		else
 			continue;
 		AutoSettingsItem::Entry *entryItem = settingsItem->addEntry(text, gen);
@@ -323,6 +333,8 @@ QScriptValue settingsGetSetValue(QScriptContext *ctxt, QScriptEngine *e)
 ScriptEngine::ScriptEngine(const QString &name, QObject *parent) :
 		QScriptEngine(parent), m_name(name)
 {
+	connect(this, SIGNAL(signalHandlerException(QScriptValue)),
+			this, SLOT(onException(QScriptValue)));
 	scriptRegisterMetaType<Account>(this);
 	scriptRegisterMetaType<ChatUnit>(this);
 	scriptRegisterMetaType<Buddy>(this);
@@ -400,4 +412,10 @@ void ScriptEngine::initApi()
 		}
 		client.setProperty("protocols", protocols);
 	}
+}
+
+void ScriptEngine::onException(const QScriptValue &exception)
+{
+	qDebug() << exception.toString();
+	qDebug() << uncaughtExceptionBacktrace();
 }
