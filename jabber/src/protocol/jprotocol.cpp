@@ -50,13 +50,13 @@ namespace Jabber
 	{
 		QList<Account *> accounts;
 		foreach (JAccount *account, p->accounts->values())
-			accounts.append(qobject_cast<Account *>(account));
+			accounts.append(account);
 		return accounts;
 	}
 
 	Account *JProtocol::account(const QString &id) const
 	{
-		return qobject_cast<Account *>(p->accounts->value(id));
+		return p->accounts->value(id);
 	}
 
 	void JProtocol::loadActions()

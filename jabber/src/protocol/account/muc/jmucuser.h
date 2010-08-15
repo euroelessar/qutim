@@ -15,6 +15,7 @@ namespace Jabber
 	class JMUCUser : public JContactResource
 	{
 		Q_OBJECT
+		Q_PROPERTY(QString realJid READ realJid)
 		Q_DECLARE_PRIVATE(JMUCUser)
 		public:
 			JMUCUser(JMUCSession *muc, const QString &name);

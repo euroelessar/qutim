@@ -41,7 +41,7 @@ public:
 	void removeChatUnit(ChatUnit *unit);
 	virtual void setStatus(Status status);
 	void setStatusChanged(PurpleStatus *status);
-	void requestPassword(PurpleRequestFieldsCb okCb, PurpleRequestFieldsCb cancelCb, void *userData);
+	void requestPassword(PurpleRequestFields *fields, PurpleRequestFieldsCb okCb, PurpleRequestFieldsCb cancelCb, void *userData);
 	Q_INVOKABLE int sendRawData(const QByteArray &data);
 protected:
 	QList<MenuController::Action> dynamicActions() const;

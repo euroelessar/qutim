@@ -24,8 +24,10 @@
 #include <QInputDialog>
 #include <QStringBuilder>
 #include <QTextDocument>
+#include <QLibrary>
 #include <cstdarg>
 #include "quetzalfiledialog.h"
+#include "quetzalaccount.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -121,6 +123,42 @@ void *quetzal_request_action(const char *title, const char *primary,
 	return dialog;
 }
 
+typedef bool (*QuetzalRequestHook)(const char *primary, PurpleRequestFields *fields,
+								   GCallback ok_cb, GCallback cancel_cb,
+								   PurpleAccount *account,  PurpleConversation *conv,
+								   void *user_data);
+
+typedef char *(*dgettext_) (const char *domainname, const char *msgid);
+static dgettext_ dgettext = 0;
+char *dgettext_fallback(const char *domainname, const char *msgid)
+{
+	Q_UNUSED(domainname);
+	return const_cast<char *>(msgid);
+}
+
+bool quetzal_request_password_hook(const char *primary, PurpleRequestFields *fields,
+								   GCallback ok_cb, GCallback cancel_cb,
+								   PurpleAccount *account,  PurpleConversation *conv,
+								   void *user_data)
+{
+	Q_UNUSED(conv);
+	char *primary_test = g_strdup_printf(dgettext("libpurple", "Enter password for %s (%s)"),
+										 purple_account_get_username(account),
+										 purple_account_get_protocol_name(account));
+	if (!qstrcmp(primary_test, primary))
+		return false;
+	
+	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account->ui_data);
+	acc->requestPassword(fields, reinterpret_cast<PurpleRequestFieldsCb>(ok_cb),
+						 reinterpret_cast<PurpleRequestFieldsCb>(cancel_cb), user_data);
+	return true;
+}
+
+QuetzalRequestHook quetzal_request_hooks[] =
+{
+	quetzal_request_password_hook
+};
+
 void *quetzal_request_fields(const char *title, const char *primary,
 							 const char *secondary, PurpleRequestFields *fields,
 							 const char *ok_text, GCallback ok_cb,
@@ -129,9 +167,16 @@ void *quetzal_request_fields(const char *title, const char *primary,
 							 PurpleConversation *conv, void *user_data)
 {
 	debug() << Q_FUNC_INFO;
-	Q_UNUSED(account);
+	if (!dgettext) {
+		dgettext = reinterpret_cast<dgettext_>(QLibrary::resolve("nsl", "dgettext"));
+		if (!dgettext)
+			dgettext = dgettext_fallback;
+	}
+	for (unsigned i = 0; i < sizeof(quetzal_request_hooks)/sizeof(QuetzalRequestHook); i++) {
+		if (quetzal_request_hooks[i](primary, fields, ok_cb, cancel_cb, account, conv, user_data))
+			return 0;
+	}
 	Q_UNUSED(who);
-	Q_UNUSED(conv);
 	QDialog *dialog = new QuetzalFieldsDialog(title, primary, secondary, fields, ok_text,
 											  ok_cb, cancel_text, cancel_cb, user_data);
 	dialog->show();

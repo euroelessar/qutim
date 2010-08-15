@@ -260,6 +260,7 @@ void QuetzalAccount::setStatusChanged(PurpleStatus *status)
 
 struct QuetzalAccountPasswordInfo
 {
+	PurpleRequestFields *fields;
 	PurpleRequestFieldsCb okCb;
 	PurpleRequestFieldsCb cancelCb;
 	void *userData;
@@ -267,32 +268,20 @@ struct QuetzalAccountPasswordInfo
 
 Q_DECLARE_METATYPE(QuetzalAccountPasswordInfo)
 
-void quetzal_password_build(PurpleRequestFieldsCb cb, const char *password,
-							bool remember, void *userData)
+void QuetzalAccount::requestPassword(PurpleRequestFields *fields, PurpleRequestFieldsCb okCb,
+									 PurpleRequestFieldsCb cancelCb, void *userData)
 {
-	PurpleRequestFields *fields = purple_request_fields_new();
-	PurpleRequestFieldGroup *group = purple_request_field_group_new(NULL);
-	purple_request_fields_add_group(fields, group);
-	PurpleRequestField *field;
-	field = purple_request_field_string_new("password", "", password, FALSE);
-	purple_request_field_group_add_field(group, field);
-	field = purple_request_field_bool_new("remember", "", remember);
-	purple_request_field_group_add_field(group, field);
-	cb(userData, fields);
-	purple_request_fields_destroy(fields);
-}
-
-void QuetzalAccount::requestPassword(PurpleRequestFieldsCb okCb, PurpleRequestFieldsCb cancelCb,
-									 void *userData)
-{
-	QByteArray password = config("general").value("passwd", QString(), Config::Crypted).toUtf8();
-	if (password != purple_account_get_password(m_account)) {
-		quetzal_password_build(okCb, password.constData(), false, userData);
-		return;
-	}
-
+//	QByteArray password = config("general").value("passwd", QString(), Config::Crypted).toUtf8();
+//	if (!password.isEmpty()) {
+//		PurpleRequestField *passwordField = purple_request_fields_get_field(fields, "password");
+//		purple_request_field_string_set_value(passwordField, password.constData());
+//	}
+//	if (password != purple_account_get_password(m_account)) {
+//		quetzal_password_build(okCb, password.constData(), false, userData);
+//		return;
+//	}
 	PasswordDialog *dialog = PasswordDialog::request(this);
-	QuetzalAccountPasswordInfo info = {okCb, cancelCb, userData};
+	QuetzalAccountPasswordInfo info = {fields, okCb, cancelCb, userData};
 	dialog->setProperty("info", qVariantFromValue(info));
 	connect(dialog, SIGNAL(entered(QString,bool)), this, SLOT(onPasswordEntered(QString,bool)));
 	connect(dialog, SIGNAL(rejected()), this, SLOT(onPasswordRejected()));
@@ -331,18 +320,21 @@ void QuetzalAccount::onPasswordEntered(const QString &password, bool remember)
 {
 	PasswordDialog *dialog = qobject_cast<PasswordDialog *>(sender());
 	QuetzalAccountPasswordInfo info = dialog->property("info").value<QuetzalAccountPasswordInfo>();
-	quetzal_password_build(info.okCb, password.toUtf8().constData(),
-						   false, info.userData);
+	PurpleRequestField *passwordField = purple_request_fields_get_field(info.fields, "password");
+	purple_request_field_string_set_value(passwordField, password.toUtf8().constData());
+	info.okCb(info.userData, info.fields);
+	purple_request_fields_destroy(info.fields);
+	dialog->deleteLater();
 	if (remember)
 		config("general").setValue("passwd", password, Config::Crypted);
-	dialog->deleteLater();
 }
 
 void QuetzalAccount::onPasswordRejected()
 {
 	PasswordDialog *dialog = qobject_cast<PasswordDialog *>(sender());
 	QuetzalAccountPasswordInfo info = dialog->property("info").value<QuetzalAccountPasswordInfo>();
-	quetzal_password_build(info.okCb, "", false, info.userData);
+	info.cancelCb(info.userData, info.fields);
+	purple_request_fields_destroy(info.fields);
 	dialog->deleteLater();
 }
 
@@ -350,15 +342,4 @@ void QuetzalAccount::showJoinGroupChat()
 {
 	QDialog *dialog = new QuetzalJoinChatDialog(m_account->gc);
 	dialog->show();
-}
-
-Q_EXTERN_C Q_DECL_EXPORT void Q_STANDARD_CALL
-purple_account_request_password(PurpleAccount *account, GCallback ok_cb,
-							   GCallback cancel_cb, void *user_data)
-{
-	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account ? account->ui_data : 0);
-	if (!acc)
-		return;
-	acc->requestPassword(reinterpret_cast<PurpleRequestFieldsCb>(ok_cb),
-						 reinterpret_cast<PurpleRequestFieldsCb>(cancel_cb), user_data);
 }
