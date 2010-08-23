@@ -14,18 +14,11 @@
 *****************************************************************************/
 
 #include "xsettingslayerimpl.h"
-#include "src/modulemanagerimpl.h"
 #include <libqutim/icon.h>
 #include "xsettingswindow.h"
 
 namespace Core
 {
-	
-static CoreModuleHelper<XSettingsLayerImpl> xsettings_layer_static(
-		QT_TRANSLATE_NOOP("Plugin", "X Settings dialog"),
-		QT_TRANSLATE_NOOP("Plugin", "Default qutIM settings dialog implementation with OS X style top bar")
-		);
-
 XSettingsLayerImpl::XSettingsLayerImpl()
 {
 

@@ -1,5 +1,4 @@
 #include "simpletray.h"
-#include "src/modulemanagerimpl.h"
 #include "libqutim/icon.h"
 #include "libqutim/extensioninfo.h"
 #include <QApplication>
@@ -9,11 +8,6 @@
 
 namespace Core
 {
-	static Core::CoreModuleHelper<SimpleTray> tray_static(
-			QT_TRANSLATE_NOOP("Plugin", "Simple tray"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM system tray icon implementation")
-			);
-	
 	class ProtocolSeparatorActionGenerator : public ActionGenerator
 	{
 	public:

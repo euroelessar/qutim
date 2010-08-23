@@ -17,12 +17,6 @@
 #include <libqutim/libqutim_global.h>
 #include "kopeteemoticonsprovider.h"
 #include <QDebug>
-#include "modulemanagerimpl.h"
-
-static Core::CoreModuleHelper<KopeteEmoticonsBackend> kopete_emoticons_popup_static(
-		QT_TRANSLATE_NOOP("Plugin", "qutIM and Kopete emoticons"),
-		QT_TRANSLATE_NOOP("Plugin", "Default qutIM emoticons backend")
-		);
 
 EmoticonsProvider* KopeteEmoticonsBackend::loadTheme(const QString& name)
 {

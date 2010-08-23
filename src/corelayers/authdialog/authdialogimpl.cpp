@@ -2,16 +2,10 @@
 #include <QDialog>
 #include <QPointer>
 #include "authdialogimpl_p.h"
-#include "modulemanagerimpl.h"
 #include <libqutim/debug.h>
 
-namespace Core {
-	
-	static Core::CoreModuleHelper<AuthDialogImpl> auth_dialog_static(
-		QT_TRANSLATE_NOOP("Plugin", "Authorization dialog"),
-		QT_TRANSLATE_NOOP("Plugin", "Simple authorization dialog")
-	);	
-	
+namespace Core
+{
 	void AuthDialogImpl::setContact(qutim_sdk_0_3::Contact* contact, const QString& text, bool incoming)
 	{
 		p->show(contact, text, incoming);

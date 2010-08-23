@@ -16,15 +16,9 @@
 #include "mobilesearchform.h"
 #include "itemdelegate.h"
 #include "libqutim/icon.h"
-#include "modulemanagerimpl.h"
 
-namespace Core {
-
-	static CoreModuleHelper<MobileSearchFormFactory> mobile_searchform_static(
-			QT_TRANSLATE_NOOP("Plugin", "Mobile search form"),
-			QT_TRANSLATE_NOOP("Plugin", "Search form for mobile phones")
-			);
-
+namespace Core
+{
 	MobileSearchForm::MobileSearchForm(const QList<AbstractSearchFactory*> &factories,
 									   const QString &title,
 									   const QIcon &icon,

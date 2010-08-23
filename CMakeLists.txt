@@ -112,27 +112,27 @@ SET (RESOURCES
 	)
 
 # Enum elements in corelayers directory
-FILE( GLOB CORELAYERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/*" )
-LIST( REMOVE_ITEM CORELAYERS .svn _svn )
-
-FOREACH( LAYER ${CORELAYERS} )
-    IF( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}" )
-        STRING( TOUPPER ${LAYER} LAYER_NAME)
-        option( ${LAYER_NAME} "" ON )
-        IF( ${LAYER_NAME} )
-            MESSAGE( "+ layer ${LAYER_NAME} added to build" )
-            FILE( GLOB_RECURSE LAYER_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}/*.h")
-            FILE( GLOB_RECURSE LAYER_SOURCES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}/*.cpp")
-            FILE( GLOB_RECURSE LAYER_FORMS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}/*.ui")
-            LIST( APPEND HEADERS ${LAYER_HEADERS} )
-            LIST( APPEND SOURCES ${LAYER_SOURCES} )
-            LIST( APPEND FORMS ${LAYER_FORMS} )
-        ELSE( ${LAYER_NAME} )
-            MESSAGE( "- layer ${LAYER_NAME} will be skipped" )
-            ADD_DEFINITIONS( "-DNO_CORE_${LAYER_NAME}" )
-        ENDIF( ${LAYER_NAME} )
-    ENDIF( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}" )
-ENDFOREACH( LAYER )
+#FILE( GLOB CORELAYERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/*" )
+#LIST( REMOVE_ITEM CORELAYERS .svn _svn )
+#
+#FOREACH( LAYER ${CORELAYERS} )
+#    IF( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}" )
+#        STRING( TOUPPER ${LAYER} LAYER_NAME)
+#        option( ${LAYER_NAME} "" ON )
+#        IF( ${LAYER_NAME} )
+#            MESSAGE( "+ layer ${LAYER_NAME} added to build" )
+#            FILE( GLOB_RECURSE LAYER_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}/*.h")
+#            FILE( GLOB_RECURSE LAYER_SOURCES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}/*.cpp")
+#            FILE( GLOB_RECURSE LAYER_FORMS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}/*.ui")
+#            LIST( APPEND HEADERS ${LAYER_HEADERS} )
+#            LIST( APPEND SOURCES ${LAYER_SOURCES} )
+#            LIST( APPEND FORMS ${LAYER_FORMS} )
+#        ELSE( ${LAYER_NAME} )
+#            MESSAGE( "- layer ${LAYER_NAME} will be skipped" )
+#            ADD_DEFINITIONS( "-DNO_CORE_${LAYER_NAME}" )
+#        ENDIF( ${LAYER_NAME} )
+#    ENDIF( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/${LAYER}" )
+#ENDFOREACH( LAYER )
 
 #TODO make it automaticaly
 IF (${QUTIM_MOBILE_UI})
@@ -175,8 +175,6 @@ else(MINGW)
 endif(MINGW)
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libqutim/" "${CMAKE_CURRENT_BINARY_DIR}/libqutim")
-set( XDG_NOT_BUILD_TEST true )
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/q-xdg-build" "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/q-xdg")
 
 REMOVE_DEFINITIONS ( -DLIBQUTIM_LIBRARY )
 
@@ -218,7 +216,6 @@ TARGET_LINK_LIBRARIES (qutim
 	${QT_QTMAIN_LIBRARY}
 	${QUTIM_LIBS}
 	libqutim
-	q-xdg
 	)
 
 

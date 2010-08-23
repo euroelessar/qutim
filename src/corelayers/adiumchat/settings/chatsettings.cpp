@@ -1,18 +1,12 @@
 #include "chatsettings.h"
 #include "chatappearance.h"
 #include "chatbehavior.h"
-#include "../chatlayerimpl.h"
-#include "modulemanagerimpl.h"
+#include "../chatlayer/chatlayerimpl.h"
 #include <libqutim/settingslayer.h>
 #include <libqutim/icon.h>
 
 namespace Core
 {
-	static CoreModuleHelper<ChatSettings, StartupModule> chat_settings_static(
-			QT_TRANSLATE_NOOP("Plugin", "Chat settings"),
-			QT_TRANSLATE_NOOP("Plugin", "Default settings widgets for adium chat")
-			);
-	
 	ChatSettings::ChatSettings()
 	{
 		QObject *obj = getService("ChatForm");

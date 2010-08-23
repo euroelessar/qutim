@@ -16,17 +16,10 @@
 #include "searchdialoglayer.h"
 #include "libqutim/contact.h"
 #include "libqutim/icon.h"
-#include "src/modulemanagerimpl.h"
 #include "libqutim/config.h"
 
 namespace Core
 {
-
-	static Core::CoreModuleHelper<SearchLayer> search_dialog_static(
-			QT_TRANSLATE_NOOP("Plugin", "Search window"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM implementation of search window")
-			);
-
 	SearchLayer::SearchLayer()
 	{
 		foreach(const ObjectGenerator *gen, moduleGenerators<ContactSearchFactory>())

@@ -1,5 +1,4 @@
 #include "jsonhistory.h"
-#include "src/modulemanagerimpl.h"
 #include "libqutim/chatunit.h"
 #include "libqutim/account.h"
 #include "libqutim/protocol.h"
@@ -23,11 +22,6 @@ namespace Core
 		MenuController::addAction<ChatUnit>(gen);
 	}
 	
-	static CoreSingleModuleHelper<JsonHistory> history_static(
-		QT_TRANSLATE_NOOP("Plugin", "Json History"),
-		QT_TRANSLATE_NOOP("Plugin", "Default qutIM history implementation, based on JavaScript Object Notation")
-	);
-
 	JsonHistory::JsonHistory()
 	{
 		static bool inited = false;

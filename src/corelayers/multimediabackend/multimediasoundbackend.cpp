@@ -15,17 +15,11 @@
  ****************************************************************************/
 
 #include "multimediasoundbackend.h"
-#include "modulemanagerimpl.h"
 #include <QAudioDeviceInfo>
 #include <QFile>
 #include <QDataStream>
 #include <QtEndian>
 #include <QDebug>
-
-static Core::CoreModuleHelper<Core::MultimediaSoundBackend> sound_theme_static(
-		QT_TRANSLATE_NOOP("Plugin", "Mulimedia engine"),
-		QT_TRANSLATE_NOOP("Plugin", "Sound engine based on QtMultimedia")
-		);
 
 namespace Core
 {

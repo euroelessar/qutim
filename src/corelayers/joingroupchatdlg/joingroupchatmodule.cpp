@@ -14,7 +14,6 @@
 *****************************************************************************/
 
 #include "joingroupchatmodule.h"
-#include "modulemanagerimpl.h"
 #include <libqutim/icon.h>
 #include <libqutim/menucontroller.h>
 #include "joingroupchat.h"
@@ -23,12 +22,6 @@
 
 namespace Core
 {
-	static Core::CoreModuleHelper<JoinGroupChatModule> join_groupchat_module_static(
-			QT_TRANSLATE_NOOP("Plugin", "Join GroupChat dialog"),
-			QT_TRANSLATE_NOOP("Plugin", "Simple groupchat join dialog")
-			);
-
-
 	bool isSupportGroupchat()
 	{
 		foreach (Protocol *p,allProtocols()) {

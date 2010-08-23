@@ -17,7 +17,7 @@
 
 #include <QWidget>
 #include <libqutim/settingswidget.h>
-#include "../chatlayerimpl.h"
+#include "../chatlayer/chatlayerimpl.h"
 
 namespace Ui
 {

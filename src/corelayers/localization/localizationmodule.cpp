@@ -14,7 +14,6 @@
 *****************************************************************************/
 
 #include "localizationmodule.h"
-#include "src/modulemanagerimpl.h"
 #include "localizationsettings.h"
 #include "libqutim/settingslayer.h"
 #include "libqutim/systeminfo.h"
@@ -25,11 +24,8 @@
 
 namespace Core
 {
-	static CoreModuleHelper<LocalizationModule, StartupModule> acc_creator_static(
-			QT_TRANSLATE_NOOP("Plugin", "Localization"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM localization engine")
-			);
-
+	using namespace qutim_sdk_0_3;
+	
 	LocalizationModule::LocalizationModule()
 	{
 		SettingsItem *item = new GeneralSettingsItem<LocalizationSettings>(

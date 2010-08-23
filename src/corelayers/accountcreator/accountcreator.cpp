@@ -2,21 +2,10 @@
 #include "accountcreatorlist.h"
 #include "accountcreatorprotocols.h"
 #include "libqutim/icon.h"
-#include "src/modulemanagerimpl.h"
 #include <libqutim/debug.h>
 
 namespace Core
 {
-	static CoreModuleHelper<AccountCreator, StartupModule> acc_creator_static(
-			QT_TRANSLATE_NOOP("Plugin", "Account creator"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM account creator")
-			);
-	
-// 	static CoreM oduleHelper<AccountPageCreator> creator_static(
-// 			QT_TRANSLATE_NOOP("Plugin", "Account creator (profile mode)"),
-// 			QT_TRANSLATE_NOOP("Plugin", "Default qutIM account creator")
-// 			);	
-
 	AccountCreator::AccountCreator()
 	{
 		SettingsItem *item = new GeneralSettingsItem<AccountCreatorList>(

@@ -15,8 +15,8 @@
 #include "chatappearance.h"
 #include "ui_chatappearance.h"
 #include "chatvariable.h"
-#include "../chatstyle.h"
-#include "../chatstyleoutput.h"
+#include "../chatlayer/chatstyle.h"
+#include "../chatlayer/chatstyleoutput.h"
 #include <libqutim/configbase.h>
 #include <libqutim/protocol.h>
 #include <libqutim/account.h>

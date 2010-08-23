@@ -15,7 +15,6 @@
  ****************************************************************************/
 
 #include "manager.h"
-#include "modulemanagerimpl.h"
 #include "libqutim/protocol.h"
 #include <libqutim/debug.h>
 #include <libqutim/actiongenerator.h>
@@ -25,10 +24,7 @@ namespace Core
 {
 	namespace MetaContacts
 	{
-		static CoreModuleHelper<Manager> metacontacts_static(
-				QT_TRANSLATE_NOOP("Plugin", "Simple MetaContacts"),
-				QT_TRANSLATE_NOOP("Plugin", "Default qutIM MetaContacts implementation, very stupid one")
-				);
+		using namespace qutim_sdk_0_3;
 		
 		Manager::Manager()
 		{

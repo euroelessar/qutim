@@ -1,19 +1,12 @@
 #include "dataformsbackend.h"
 #include "readonlydatalayout.h"
 #include "editabledatalayout.h"
-#include "src/modulemanagerimpl.h"
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QKeyEvent>
 
 namespace Core
 {
-
-static Core::CoreModuleHelper<DefaultDataFormsBackend> data_forms_static(
-		QT_TRANSLATE_NOOP("Plugin", "Data forms backend"),
-		QT_TRANSLATE_NOOP("Plugin", "Default qutIM implementation of the data forms")
-);
-
 DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartButtons,  const Buttons &buttons)
 {
 	setFrameStyle(NoFrame);

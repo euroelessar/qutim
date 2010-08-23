@@ -1,6 +1,5 @@
 #include "iconsloaderimpl.h"
 #include "libqutim/configbase.h"
-#include "src/modulemanagerimpl.h"
 #include "3rdparty/q-xdg/src/xdgiconmanager.h"
 #include "libqutim/systeminfo.h"
 
@@ -36,11 +35,6 @@ namespace Core
 		}
 		return this_iconTheme;
 	}
-
-	static CoreModuleHelper<IconLoaderImpl> icon_loader_static(
-			QT_TRANSLATE_NOOP("Plugin", "Xdg Icon Loader"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM icon loader implementation. Based on Q-XDG library")
-			);
 
 	IconLoaderImpl::IconLoaderImpl()
 	{

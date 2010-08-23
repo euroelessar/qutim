@@ -14,7 +14,6 @@
 *****************************************************************************/
 
 #include "servicechooser.h"
-#include "modulemanagerimpl.h"
 #include "servicechooserwidget.h"
 #include "protocolchooserwidget.h"
 #include "pluginchooserwidget.h"
@@ -24,11 +23,6 @@
 
 namespace Core
 {
-	static CoreModuleHelper<ServiceChooser, StartupModule> service_shooser_static(
-			QT_TRANSLATE_NOOP("Plugin", "Service chooser"),
-			QT_TRANSLATE_NOOP("Plugin", "TODO")
-			);
-
 	ServiceChooser::ServiceChooser(QObject* parent): QObject(parent)
 	{
 		GeneralSettingsItem<ServiceChooserWidget> *item = new GeneralSettingsItem<ServiceChooserWidget>(Settings::Plugin, Icon("applications-system"), QT_TRANSLATE_NOOP("Settings","Service chooser"));

@@ -113,6 +113,10 @@ namespace qutim_sdk_0_3
 		
 		QByteArray suffix = info.suffix().toLatin1().toLower();
 		const QList<ConfigBackend*> &backends = *all_config_backends();
+		
+		if (backends.isEmpty())
+			return ConfigSource::Ptr();
+		
 		if (!suffix.isEmpty()) {
 			for (int i = 0; i < backends.size(); i++) {
 				if (backends.at(i)->name() == suffix) {
@@ -185,6 +189,8 @@ namespace qutim_sdk_0_3
 	void ConfigPrivate::addSource(const QString &path)
 	{
 		ConfigSource::Ptr source = ConfigSource::open(path);
+		if (!source)
+			return;
 		ConfigAtom *atom = new ConfigAtom(source->data);
 		atom->deleteOnDestroy = false;
 		atom->readOnly = atom->readOnly && !sources.isEmpty();

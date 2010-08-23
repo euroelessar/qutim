@@ -16,6 +16,7 @@ namespace Core
 {
 	ModuleManagerImpl::ModuleManagerImpl()
 	{
+		ModuleManager::loadPlugins();
 		Config config = ProfileDialog::profilesInfo();
 #ifdef QUTIM_SINGLE_PROFILE
 		if (config.value("singleProfile", true)) {
@@ -57,7 +58,6 @@ namespace Core
 
 	void ModuleManagerImpl::initExtensions()
 	{
-		ModuleManager::loadPlugins();
 		ModuleManager::initExtensions();
 		Notifications::send(Notifications::Startup, 0);
 	}

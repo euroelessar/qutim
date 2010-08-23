@@ -16,7 +16,6 @@
 #include "backend.h"
 #include "popup.h"
 #include "manager.h"
-#include "modulemanagerimpl.h"
 #include <QVariant>
 #include <QTime>
 #include <QDebug>
@@ -33,13 +32,6 @@
 
 namespace KineticPopups
 {
-
-	static Core::CoreModuleHelper<Backend> kinetic_popup_static(
-			QT_TRANSLATE_NOOP("Plugin", "Kinetic popups"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM popup implementation. Powered by Kinetic")
-			);
-
-
 	Backend::Backend () : m_id_counter(0)
 	{
 		GeneralSettingsItem<Core::PopupAppearance> *appearance = new GeneralSettingsItem<Core::PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));

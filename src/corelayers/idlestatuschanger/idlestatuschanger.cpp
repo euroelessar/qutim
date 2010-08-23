@@ -6,18 +6,12 @@
 #include "libqutim/status.h"
 #include "libqutim/settingslayer.h"
 #include "libqutim/icon.h"
-#include "src/modulemanagerimpl.h"
 #include <QDebug>
 
 Core::IdleStatusChanger* pIdleStatusChanger = 0;
 
 namespace Core
 {
-	static CoreSingleModuleHelper<IdleStatusChanger> history_static(
-		QT_TRANSLATE_NOOP("Plugin", "AutoAway"),
-		QT_TRANSLATE_NOOP("Plugin", "Automatically changes status of accounts on inactivity")
-	);
-
 	IdleStatusChanger::IdleStatusChanger() :
 			m_awayStatus(Status::Away), m_naStatus(Status::NA)
 	{

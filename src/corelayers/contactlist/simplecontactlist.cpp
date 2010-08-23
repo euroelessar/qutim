@@ -3,7 +3,6 @@
 #include "simplecontactlistmodel.h"
 #include "simplecontactlistitem.h"
 #include "simplecontactlistdelegate.h"
-#include "src/modulemanagerimpl.h"
 #include "libqutim/protocol.h"
 #include "libqutim/account.h"
 #include "libqutim/icon.h"
@@ -33,11 +32,6 @@ namespace Core
 {
 namespace SimpleContactList
 {
-static CoreSingleModuleHelper<Module> contact_list_static(
-		QT_TRANSLATE_NOOP("Plugin", "Simple ContactList"),
-		QT_TRANSLATE_NOOP("Plugin", "Default qutIM contact list implementation. Just simple")
-		);
-
 class CopyIdGenerator : public ActionGenerator
 {
 public:

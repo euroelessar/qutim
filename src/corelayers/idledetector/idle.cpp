@@ -19,12 +19,6 @@
  */
 
 #include "idle.h"
-#include "src/modulemanagerimpl.h"
-
-static Core::CoreSingleModuleHelper<Psi::Idle> history_static(
-	QT_TRANSLATE_NOOP("Plugin", "Idle detector"),
-	QT_TRANSLATE_NOOP("Plugin", "Native idle detector, based on system api")
-);
 
 #include <QCursor>
 #include <QDateTime>

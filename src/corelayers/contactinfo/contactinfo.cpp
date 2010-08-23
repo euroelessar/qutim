@@ -1,5 +1,4 @@
 #include "contactinfo.h"
-#include "src/modulemanagerimpl.h"
 #include "libqutim/icon.h"
 #include "libqutim/contact.h"
 #include "libqutim/account.h"
@@ -12,11 +11,6 @@
 
 namespace Core
 {
-	static Core::CoreModuleHelper<ContactInfo> contact_info_static(
-			QT_TRANSLATE_NOOP("Plugin", "Simple information window about a contact"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM implementation of the information window")
-			);
-
 	MainWindow::MainWindow() :
 			request(0)
 	{

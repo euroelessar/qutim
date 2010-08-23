@@ -1,13 +1,7 @@
 #include "nocryptoservice.h"
-#include "src/modulemanagerimpl.h"
 
 namespace Core
 {
-	static CoreModuleHelper<NoCryptoService> crypto_static(
-			QT_TRANSLATE_NOOP("Plugin", "No crypto"),
-			QT_TRANSLATE_NOOP("Plugin", "Store passwords in plaintext. Easy to read. Easy to recover.")
-			);
-
 	NoCryptoService::NoCryptoService()
 	{
 	}

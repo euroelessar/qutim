@@ -20,12 +20,6 @@
 #include <QFile>
 #include <QDir>
 #include <QStringBuilder>
-#include "modulemanagerimpl.h"
-
-static Core::CoreModuleHelper<Core::OldSoundThemeBackend> sound_theme_static(
-		QT_TRANSLATE_NOOP("Plugin", "qutIM sound themes"),
-		QT_TRANSLATE_NOOP("Plugin", "Default qutIM sound theme engine")
-		); 
 
 namespace Core
 {

@@ -15,18 +15,12 @@
 
 #include "serviceicons.h"
 #include "libqutim/configbase.h"
-#include "src/modulemanagerimpl.h"
 #include <QStringBuilder>
 
 using namespace qutim_sdk_0_3;
 
 namespace Adium
 {
-	static Core::CoreModuleHelper<ServiceIcons, IconWrapper> chat_layer_static(
-		QT_TRANSLATE_NOOP("Plugin", "Adium service icons"),
-		QT_TRANSLATE_NOOP("Plugin", "Protocol icons powered by Adium ServiceIcons packs")
-	);
-
 	ServiceIcons::ServiceIcons()
 	{
 		ConfigGroup config = Config().group("serviceicons");

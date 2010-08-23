@@ -1,13 +1,7 @@
 #include "simplepassworddialog.h"
-#include "src/modulemanagerimpl.h"
 
 namespace Core
 {
-	static CoreModuleHelper<SimplePasswordDialog> acc_creator_static(
-			QT_TRANSLATE_NOOP("Plugin", "Simple password dialog"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM password dialog")
-			);
-
 	SimplePasswordDialog::SimplePasswordDialog()
 	{
 	}

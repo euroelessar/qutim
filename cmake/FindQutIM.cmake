@@ -121,13 +121,13 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
 	GROUP ${QUTIM_${plugin_name}_GROUP}
     )
 
-    if( NOT QUTIM_${plugin_name}_SORUCE_DIR )
-	set( QUTIM_${plugin_name}_SORUCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" )
-    endif( NOT QUTIM_${plugin_name}_SORUCE_DIR )
-    file( GLOB_RECURSE QUTIM_${plugin_name}_SRC "${QUTIM_${plugin_name}_SORUCE_DIR}/*.cpp" )
-    file( GLOB_RECURSE QUTIM_${plugin_name}_SRC_MM "${QUTIM_${plugin_name}_SORUCE_DIR}/*.mm" )
-    file( GLOB_RECURSE QUTIM_${plugin_name}_HDR "${QUTIM_${plugin_name}_SORUCE_DIR}/*.h" )
-    file( GLOB_RECURSE QUTIM_${plugin_name}_UI "${QUTIM_${plugin_name}_SORUCE_DIR}/*.ui" )
+    if( NOT QUTIM_${plugin_name}_SOURCE_DIR )
+	set( QUTIM_${plugin_name}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+    endif( NOT QUTIM_${plugin_name}_SOURCE_DIR )
+    file( GLOB_RECURSE QUTIM_${plugin_name}_SRC "${QUTIM_${plugin_name}_SOURCE_DIR}/*.cpp" )
+    file( GLOB_RECURSE QUTIM_${plugin_name}_SRC_MM "${QUTIM_${plugin_name}_SOURCE_DIR}/*.mm" )
+    file( GLOB_RECURSE QUTIM_${plugin_name}_HDR "${QUTIM_${plugin_name}_SOURCE_DIR}/*.h" )
+    file( GLOB_RECURSE QUTIM_${plugin_name}_UI "${QUTIM_${plugin_name}_SOURCE_DIR}/*.ui" )
     file( GLOB_RECURSE QUTIM_${plugin_name}_RES "${CMAKE_CURRENT_SOURCE_DIR}/*.qrc" )
     list( APPEND QUTIM_${plugin_name}_SRC ${QUTIM_${plugin_name}_SRC_MM} ${QUTIM_${plugin_name}_DEFAULT_ARGS})
     
@@ -153,9 +153,17 @@ public:
 	virtual bool unload() { return true; }
 };
 
+#include \"${plugin_name}plugin.moc\"
 QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
 " )
-	list( APPEND QUTIM_${plugin_name}_SRC "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp")
+#	list( APPEND QUTIM_${plugin_name}_SRC "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp")
+#	QT4_WRAP_CPP (${plugin_name}_MOC_SRC_EXT "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp")
+	QT4_GENERATE_MOC( "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp" "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.moc" )
+#	QT4_AUTOMOC( "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp" )
+	list( APPEND QUTIM_${plugin_name}_SRC
+	    "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp"
+	    "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.moc"
+	)
     endif( QUTIM_${plugin_name}_EXTENSION )
 
     __PREPARE_QUTIM_PLUGIN("${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -164,17 +172,21 @@ QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
         list( APPEND COMPILE_FLAGS "-mthreads" )
     endif( MINGW )
 
-    message( "${QUTIM_${plugin_name}_SRC}" )
+    # message( "${QUTIM_${plugin_name}_SRC}" )
 
     include_directories( ${QUTIM_INCLUDE_DIRS} )
+    include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
-    QT4_WRAP_CPP (${plugin_name}_MOC_SRC ${${plugin_name}_HDR})
-    QT4_WRAP_UI (${plugin_name}_UI_H ${${plugin_name}_UI})
-    QT4_ADD_RESOURCES (${plugin_name}_RCC ${${plugin_name}_RES})
+    QT4_WRAP_CPP( QUTIM_${plugin_name}_MOC_SRC ${QUTIM_${plugin_name}_HDR} )
+    QT4_WRAP_UI( QUTIM_${plugin_name}_UI_H ${QUTIM_${plugin_name}_UI} )
+    QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC ${QUTIM_${plugin_name}_RES} )
+    message( "${QUTIM_${plugin_name}_UI}" )
+    message( "${QUTIM_${plugin_name}_UI_H}" )
 
     # This project will generate library
     add_library( ${plugin_name} SHARED ${QUTIM_${plugin_name}_SRC} ${QUTIM_${plugin_name}_MOC_SRC}
 		 ${QUTIM_${plugin_name}_HDR} ${QUTIM_${plugin_name}_UI_H} ${QUTIM_${plugin_name}_RCC} )
+#    set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "-D${plugin_name}_MAKE" )
     if( CMAKE_COMPILER_IS_GNUCXX )
         set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "-Wall -Werror" )
     endif( CMAKE_COMPILER_IS_GNUCXX )

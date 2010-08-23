@@ -18,12 +18,6 @@
 #include <QDebug>
 #include <QStringList>
 #include <QFile>
-#include "modulemanagerimpl.h"
-
-static Core::CoreModuleHelper<QSoundBackend> sound_theme_static(
-		QT_TRANSLATE_NOOP("Plugin", "Default sound engine"),
-		QT_TRANSLATE_NOOP("Plugin", "Sound engine based on QSound")
-		);
 
 void QSoundBackend::playSound(const QString &filename)
 {

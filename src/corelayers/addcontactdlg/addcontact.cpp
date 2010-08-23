@@ -1,6 +1,5 @@
 #include "addcontact.h"
 #include "ui_addcontact.h"
-#include "modulemanagerimpl.h"
 #include <libqutim/protocol.h>
 #include <libqutim/contact.h>
 #include <libqutim/icon.h>
@@ -9,12 +8,8 @@
 #include <QToolButton>
 #include <QPushButton>
 
-namespace Core {
-	static Core::CoreModuleHelper<AddContactModule> add_contact_module_static(
-			QT_TRANSLATE_NOOP("Plugin", "Add contact dialog"),
-			QT_TRANSLATE_NOOP("Plugin", "Simple add contact dialog")
-			);
-
+namespace Core
+{
 	bool isSupportAddContact()
 	{
 		foreach (Protocol *p,allProtocols()) {

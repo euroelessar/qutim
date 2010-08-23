@@ -16,16 +16,10 @@
 #include "defaultsearchform.h"
 #include "itemdelegate.h"
 #include "libqutim/icon.h"
-#include "modulemanagerimpl.h"
 #include <QToolButton>
 
-namespace Core {
-
-	static CoreModuleHelper<DefaultSearchFormFactory> default_searchform_static(
-			QT_TRANSLATE_NOOP("Plugin", "Default search form"),
-			QT_TRANSLATE_NOOP("Plugin", "Default search form")
-			);
-
+namespace Core
+{
 	DefaultSearchForm::DefaultSearchForm(const QList<AbstractSearchFactory*> &factories,
 										 const QString &title,
 										 const QIcon &icon,

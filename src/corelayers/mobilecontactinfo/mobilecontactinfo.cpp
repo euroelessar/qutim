@@ -1,5 +1,4 @@
 #include "mobilecontactinfo.h"
-#include "src/modulemanagerimpl.h"
 #include "libqutim/icon.h"
 #include "libqutim/contact.h"
 #include "libqutim/account.h"
@@ -11,11 +10,6 @@
 
 namespace Core
 {
-	static Core::CoreModuleHelper<MobileContactInfo> contact_info_static(
-			QT_TRANSLATE_NOOP("Plugin", "Mobile information window about a contact"),
-			QT_TRANSLATE_NOOP("Plugin", "qutIM implementation of the information window for mobiles")
-			);
-
 	MobileContactInfoWindow::MobileContactInfoWindow() :
 			request(0),
 			actionBox(new ActionBox(this))

@@ -1,6 +1,5 @@
 #include "simplefiletransfer.h"
 #include "filetransferdialog.h"
-#include "src/modulemanagerimpl.h"
 #include "libqutim/actiongenerator.h"
 #include "libqutim/menucontroller.h"
 #include "libqutim/icon.h"
@@ -9,12 +8,6 @@
 
 namespace Core
 {
-
-	static Core::CoreModuleHelper<SimpleFileTransfer> filetransfer_static(
-			QT_TRANSLATE_NOOP("Plugin", "File transfer manager"),
-			QT_TRANSLATE_NOOP("Plugin", "Default qutIM file transfer manager")
-			);
-
 	class FileTransferActionGenerator : public ActionGenerator
 	{
 	public:
