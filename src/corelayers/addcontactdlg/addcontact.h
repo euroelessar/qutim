@@ -21,6 +21,8 @@ namespace Core {
 	private slots:
 		void on_okButton_clicked();
 		void on_cancelButton_clicked();
+		void onStartChatClicked();
+		void onShowInfoClicked();
 		void setAccount();
 		void changeState(const qutim_sdk_0_3::Status &status);
 		void currentChanged(int index);

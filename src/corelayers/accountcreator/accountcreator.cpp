@@ -12,7 +12,7 @@ namespace Core
 			QT_TRANSLATE_NOOP("Plugin", "Default qutIM account creator")
 			);
 	
-// 	static CoreModuleHelper<AccountPageCreator> creator_static(
+// 	static CoreM oduleHelper<AccountPageCreator> creator_static(
 // 			QT_TRANSLATE_NOOP("Plugin", "Account creator (profile mode)"),
 // 			QT_TRANSLATE_NOOP("Plugin", "Default qutIM account creator")
 // 			);	

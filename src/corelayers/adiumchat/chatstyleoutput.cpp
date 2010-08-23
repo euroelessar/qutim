@@ -109,9 +109,9 @@ namespace Core
 			QString theme = adium_chat.value<QString>("name","default");
 			QString path = getThemePath("webkitstyle", theme);
 			QString variant = adium_chat.value<QString>("variant", QString());
-			Config achat(
-//					QStringList() << "appearance/adiumChat" << 
-					getThemePath("webkitstyle",theme).append("/Contents/Resources/custom.json"));
+			Config achat(QStringList()
+						 << "appearance/adiumChat"
+						 << getThemePath("webkitstyle",theme).append("/Contents/Resources/custom.json"));
 			ConfigGroup variables = achat;
 			int count = variables.beginArray(theme);
 			QString css;

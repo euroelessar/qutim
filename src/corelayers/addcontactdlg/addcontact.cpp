@@ -4,8 +4,10 @@
 #include <libqutim/protocol.h>
 #include <libqutim/contact.h>
 #include <libqutim/icon.h>
+#include <libqutim/messagesession.h>
 #include <QStringBuilder>
 #include <QToolButton>
+#include <QPushButton>
 
 namespace Core {
 	static Core::CoreModuleHelper<AddContactModule> add_contact_module_static(
@@ -35,19 +37,20 @@ namespace Core {
 		Account *account;
 		Ui::AddContact *ui;
 	};
+	
+	Q_GLOBAL_STATIC_WITH_ARGS(ActionGenerator, addUserButton,
+							  (Icon("list-add-user"),
+							   QT_TRANSLATE_NOOP("AddContact", "Add contact"),
+							   getService("AddContact"), SLOT(show())));
 
 	AddContactModule::AddContactModule()
 	{
 		QObject *contactList = getService("ContactList");
 		if (contactList) {
-			static ActionGenerator button (Icon("list-add-user"),
-										   QT_TRANSLATE_NOOP("AddContact", "Add contact"),
-										   this,
-										   SLOT(show()));
 			MenuController *controller = qobject_cast<MenuController*>(contactList);
-			button.addHandler(ActionVisibilityChangedHandler,this);
+			addUserButton()->addHandler(ActionVisibilityChangedHandler,this);
 			if (controller)
-				controller->addAction(&button);
+				controller->addAction(addUserButton());
 		}
 	}
 
@@ -109,9 +112,15 @@ namespace Core {
 #ifdef QUTIM_MOBILE_UI
 		d->ui->buttonBox->setStandardButtons(QDialogButtonBox::Close);
 #endif
-
 		connect(d->ui->buttonBox,SIGNAL(accepted()),SLOT(on_okButton_clicked()));
 		connect(d->ui->buttonBox,SIGNAL(rejected()),SLOT(on_cancelButton_clicked()));
+		QPushButton *button = d->ui->buttonBox->addButton(tr("Start chat"),
+														  QDialogButtonBox::ActionRole);
+		connect(button, SIGNAL(clicked()), this, SLOT(onStartChatClicked()));
+		if (getService("ContactInfo")) {
+			button = d->ui->buttonBox->addButton(tr("Show info"), QDialogButtonBox::ActionRole);
+			connect(button, SIGNAL(clicked()), this, SLOT(onShowInfoClicked()));
+		}
 		connect(d->ui->stackedWidget,SIGNAL(currentChanged(int)),SLOT(currentChanged(int)));
 	}
 
@@ -147,6 +156,20 @@ namespace Core {
 	void AddContact::on_cancelButton_clicked()
 	{
 		deleteLater();
+	}
+	
+	void AddContact::onStartChatClicked()
+	{
+		Q_D(AddContact);
+		ChatLayer::instance()->getSession(d->account, d->ui->editId->text(), true)->activate();
+	}
+
+	void AddContact::onShowInfoClicked()
+	{
+		Q_D(AddContact);
+		QObject *obj = getService("ContactInfo");
+		ChatUnit *unit = d->account->getUnit(d->ui->editId->text(), true);
+		QMetaObject::invokeMethod(obj, "show", Q_ARG(QObject*, unit));
 	}
 
 	void AddContact::changeState(const qutim_sdk_0_3::Status &status)

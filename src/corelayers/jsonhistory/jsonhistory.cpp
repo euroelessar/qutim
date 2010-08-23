@@ -22,11 +22,6 @@ namespace Core
 		gen->setPriority(512);
 		MenuController::addAction<ChatUnit>(gen);
 	}
-
-	static Core::CoreStartupHelper<&init> history_action_init_static(
-			QT_TRANSLATE_NOOP("Plugin", "Helper for history layer"),
-			QT_TRANSLATE_NOOP("Plugin", "Adds \"View history\" action to contact's menu")
-			);
 	
 	static CoreSingleModuleHelper<JsonHistory> history_static(
 		QT_TRANSLATE_NOOP("Plugin", "Json History"),
@@ -35,7 +30,11 @@ namespace Core
 
 	JsonHistory::JsonHistory()
 	{
-
+		static bool inited = false;
+		if (!inited) {
+			inited = true;
+			init();
+		}
 	}
 
 	JsonHistory::~JsonHistory()

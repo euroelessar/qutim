@@ -1,0 +1,8 @@
+qutim_add_plugin( kineticpopups
+	EXTENSION
+	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/backend.h
+	EXTENSION_CLASS KineticPopups::Backend
+	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+	DISPLAY_NAME "Kinetic popups"
+	DESCRIPTION ""
+)

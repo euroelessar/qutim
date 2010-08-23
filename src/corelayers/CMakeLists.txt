@@ -1,0 +1,17 @@
+file( GLOB qutim_core_extensions RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*" )
+
+find_package( QutIM REQUIRED )
+
+foreach( extension ${qutim_core_extensions} )
+    if( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${extension}" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${extension}/CMakeLists.txt" )
+        string( TOUPPER ${extension} extension_name)
+        option( ${extension_name} "Build ${extension} extension" ON )
+        if( ${extension_name} )
+            message( "+ extension ${extension_name} added to build" )
+            add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/${extension}/" "${CMAKE_CURRENT_BINARY_DIR}/${extension}")
+        else( ${extension_name} )
+            message( "- extension ${extension_name} will be skipped" )
+            add_definitions( "-DNO_CORE_${extension_name}" )
+        endif( ${extension_name} )
+    endif( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${extension}" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${extension}/CMakeLists.txt" )
+endforeach( extension )
