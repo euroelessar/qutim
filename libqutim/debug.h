@@ -28,12 +28,35 @@ namespace qutim_sdk_0_3
 {
 	enum DebugLevel
 	{
-		VeryVerbose,
-		Verbose,
-		Info
+		DebugInfo = 0,
+		DebugVerbose,
+		DebugVeryVerbose
+#if 1
+		,
+		Info = DebugInfo,
+		Verbose = DebugVerbose,
+		VeryVerbose = DebugVeryVerbose
+#endif
 	};
 
 	LIBQUTIM_EXPORT QDebug debug_helper(qptrdiff, DebugLevel, QtMsgType);
+//	LIBQUTIM_EXPORT qptrdiff debug_area_helper(const char *str);
+	LIBQUTIM_EXPORT void debugClearConfig();
+    
+//#ifndef QUTIM_DEBUG_AREA
+//#if defined (LIBQUTIM_LIBRARY)
+//# define QUTIM_DEBUG_AREA "libqutim"
+//#elif defined (QUTIM_CORE)
+//# define QUTIM_DEBUG_AREA "core"
+//#else
+//# define QUTIM_DEBUG_AREA ""
+//#endif
+//	
+//	inline qptrdiff debug_area(const char *str)
+//	{
+//		static qptrdiff area = debug_area_helper(str);
+//		return area;
+//	}
 
 #if defined(LIBQUTIM_LIBRARY) || defined(QUTIM_CORE)
 	inline QDebug debug(DebugLevel level = Info)

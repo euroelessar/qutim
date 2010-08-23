@@ -19,6 +19,7 @@
 #include "systeminfo.h"
 #include <QStringList>
 #include <QFileInfo>
+#include <QDateTime>
 
 namespace qutim_sdk_0_3
 {
@@ -26,20 +27,35 @@ namespace qutim_sdk_0_3
 	LIBQUTIM_EXPORT QList<ConfigBackend*> &get_config_backends()
 	{ return *all_config_backends(); }
 	
-	struct ConfigLevel
+	struct ConfigAtom
 	{
-		inline ConfigLevel() : deleteOnDestroy(false), typeMap(true), arrayElement(false), list(0) {}
-		inline ~ConfigLevel();
+		inline ConfigAtom() : deleteOnDestroy(true), typeMap(true), readOnly(false), list(0) {}
+		ConfigAtom(QVariant &var, bool isMap);
+		inline ~ConfigAtom();
 		bool deleteOnDestroy;
 		bool typeMap;
-		bool arrayElement;
+		bool readOnly;
 		union {
 			QVariantList *list;
 			QVariantMap *map;
 		};
 	};
 	
-	ConfigLevel::~ConfigLevel()
+	ConfigAtom::ConfigAtom(QVariant &var, bool isMap) : deleteOnDestroy(false), typeMap(isMap)
+	{
+		if (isMap != (var.type() == QVariant::Map)) {
+			if (isMap)
+				var = QVariantMap();
+			else
+				var = QVariantList();
+		}
+		if (isMap)
+			map = reinterpret_cast<QVariantMap*>(var.data());
+		else
+			list = reinterpret_cast<QVariantList*>(var.data());
+	}
+	
+	ConfigAtom::~ConfigAtom()
 	{
 		if (deleteOnDestroy && typeMap)
 			delete map;
@@ -47,120 +63,185 @@ namespace qutim_sdk_0_3
 			delete list;
 	}
 	
+	struct ConfigLevel
+	{
+		inline ConfigLevel() : arrayElement(false) {}
+		inline ~ConfigLevel() { qDeleteAll(atoms); }
+		
+		QList<ConfigAtom*> atoms;
+		bool arrayElement;
+	};
+	
 	class ConfigSource : public QSharedData
 	{
 		Q_DISABLE_COPY(ConfigSource)
 	public:
-		inline ConfigSource() : backend(0), dirty(new bool(false)) {}
+		typedef QExplicitlySharedDataPointer<ConfigSource> Ptr;
+		inline ConfigSource() : backend(0), dirty(false) { update(); }
 		inline ~ConfigSource() {}
+		static ConfigSource::Ptr open(const QString &path);
+		inline void update() { lastUse = QDateTime::currentDateTime(); }
 		
-		QList<ConfigLevel *> levels;
 		QString fileName;
 		ConfigBackend *backend;
-		bool *dirty;
-		QExplicitlySharedDataPointer<ConfigSource> memoryGuard;
+		bool dirty;
+		ConfigAtom data;
+		QDateTime lastUse;
 	};
+	
+	typedef QHash<QString, ConfigSource::Ptr> ConfigSourceHash;
+	
+	Q_GLOBAL_STATIC(ConfigSourceHash, sourceHash)
+	
+	ConfigSource::Ptr ConfigSource::open(const QString &path)
+	{
+		QString fileName = path;
+		if (fileName.isEmpty())
+			fileName = QLatin1String("profile");
+		QFileInfo info(fileName);
+		if (!info.isAbsolute())
+			fileName = SystemInfo::getDir(SystemInfo::ConfigDir).filePath(fileName);
+		fileName = QDir::cleanPath(fileName);
+		
+		ConfigSource::Ptr result = sourceHash()->value(path);
+		if (result) {
+			result->update();
+			return result;
+		}
+		
+		ConfigBackend *backend = 0;
+		
+		QByteArray suffix = info.suffix().toLatin1().toLower();
+		const QList<ConfigBackend*> &backends = *all_config_backends();
+		if (!suffix.isEmpty()) {
+			for (int i = 0; i < backends.size(); i++) {
+				if (backends.at(i)->name() == suffix) {
+					backend = backends.at(i);
+					break;
+				}
+			}
+		}
+		if (!backend) {
+			backend = backends.at(0);
+			fileName += QLatin1Char('.');
+			fileName += QLatin1String(backend->name());
+			
+			result = sourceHash()->value(path);
+			if (result) {
+				result->update();
+				return result;
+			}
+			info.setFile(fileName);
+		}
+		
+		result = new ConfigSource;
+		ConfigSource *d = result.data();
+		d->backend = backend;
+		d->fileName = fileName;
+		d->data.readOnly = !info.isWritable();
+		
+		QDir dir = info.absoluteDir();
+		if (!dir.exists())
+			dir.mkpath(info.absolutePath());
+		QVariant var = d->backend->load(d->fileName);
+		if (var.type() == QVariant::Map) {
+			d->data.map = new QVariantMap(var.toMap());
+		} else if (var.type() == QVariant::List) {
+			d->data.typeMap = false;
+			d->data.list = new QVariantList(var.toList());
+		} else {
+			d->data.map = new QVariantMap();
+		}
+		return result;
+	}
 
 	class ConfigPrivate : public QSharedData
 	{
 		Q_DISABLE_COPY(ConfigPrivate)
 	public:
-		inline ConfigPrivate() : backend(0), dirty(new bool(false)) { levels << new ConfigLevel(); }
-		inline ~ConfigPrivate() { if (!memoryGuard) { sync(); delete dirty; } qDeleteAll(levels); }
+		inline ConfigPrivate()  { levels << new ConfigLevel(); }
+		inline ~ConfigPrivate() { if (!memoryGuard) sync(); }
 		inline ConfigLevel *current() const { return levels.at(0); }
 		void sync();
+		void addSource(const QString &path);
 		QList<ConfigLevel *> levels;
-		QString fileName;
-		ConfigBackend *backend;
-		bool *dirty;
+		QList<ConfigSource::Ptr> sources;
 		QExplicitlySharedDataPointer<ConfigPrivate> memoryGuard;
 	};
 	
 	void ConfigPrivate::sync()
 	{
-		if (memoryGuard) {
-			memoryGuard->sync();
-		} else if (backend && *dirty) {
-			const ConfigLevel * const level = levels.last();
+		ConfigSource *source = sources.value(0).data();
+		if (source && source->dirty) {
+			const ConfigAtom * const level = &source->data;
 			if (level->typeMap)
-				backend->save(fileName, *(level->map));
+				source->backend->save(source->fileName, *(level->map));
 			else
-				backend->save(fileName, *(level->list));
-			*dirty = false;
+				source->backend->save(source->fileName, *(level->list));
+			source->dirty = false;
 		}
+	}
+	
+	void ConfigPrivate::addSource(const QString &path)
+	{
+		ConfigSource::Ptr source = ConfigSource::open(path);
+		ConfigAtom *atom = new ConfigAtom(source->data);
+		atom->deleteOnDestroy = false;
+		atom->readOnly = atom->readOnly && !sources.isEmpty();
+		sources << source;
+		current()->atoms << atom;
 	}
 
 	Config::Config(const QVariantList &list) : d_ptr(new ConfigPrivate)
 	{
 		Q_D(Config);
-		d->current()->deleteOnDestroy = true;
-		d->current()->typeMap = false;
-		d->current()->list = new QVariantList(list);
+		ConfigAtom *atom = new ConfigAtom();
+		atom->typeMap = false;
+		atom->deleteOnDestroy = true;
+		atom->readOnly = true;
+		atom->list = new QVariantList(list);
+		d->current()->atoms << atom;
 	}
 
 	Config::Config(QVariantList *list) : d_ptr(new ConfigPrivate)
 	{
 		Q_D(Config);
-		d->current()->typeMap = false;
-		d->current()->list = list;
+		ConfigAtom *atom = new ConfigAtom();
+		atom->typeMap = false;
+		atom->deleteOnDestroy = false;
+		atom->list = list;
+		d->current()->atoms << atom;
 	}
 
 	Config::Config(const QVariantMap &map) : d_ptr(new ConfigPrivate)
 	{
 		Q_D(Config);
-		d->current()->deleteOnDestroy = true;
-		d->current()->map = new QVariantMap(map);
+		ConfigAtom *atom = new ConfigAtom();
+		atom->readOnly = true;
+		atom->map = new QVariantMap(map);
+		d->current()->atoms << atom;
 	}
 
 	Config::Config(QVariantMap *map) : d_ptr(new ConfigPrivate)
 	{
 		Q_D(Config);
-		d->current()->map = map;
+		ConfigAtom *atom = new ConfigAtom();
+		atom->deleteOnDestroy = false;
+		atom->map = map;
+		d->current()->atoms << atom;
 	}
 
 	Config::Config(const QString &path) : d_ptr(new ConfigPrivate)
 	{
 		Q_D(Config);
-		const QList<ConfigBackend*> &backends = *all_config_backends();
-		d->current()->deleteOnDestroy = true;
-		if (backends.isEmpty()) {
-			d->current()->map = new QVariantMap();
-		} else {
-			d->fileName = path;
-			if (d->fileName.isEmpty())
-				d->fileName = QLatin1String("profile");
-			QFileInfo info(d->fileName);
-			if (!info.isAbsolute())
-				d->fileName = SystemInfo::getDir(SystemInfo::ConfigDir).filePath(d->fileName);
-			QByteArray suffix = info.suffix().toLatin1().toLower();
-			if (!suffix.isEmpty()) {
-				for (int i = 0; i < backends.size(); i++) {
-					if (backends.at(i)->name() == suffix) {
-						d->backend = backends.at(i);
-						break;
-					}
-				}
-			}
-			if (!d->backend) {
-				d->backend = backends.at(0);
-				d->fileName += QLatin1Char('.');
-				d->fileName += QLatin1String(d->backend->name());
-			}
-			d->fileName = QDir::cleanPath(d->fileName);
-			info.setFile(d->fileName);
-			QDir dir = info.absoluteDir();
-			if (!dir.exists())
-				dir.mkpath(info.absolutePath());
-			QVariant var = d->backend->load(d->fileName);
-			if (var.type() == QVariant::Map) {
-				d->current()->map = new QVariantMap(var.toMap());
-			} else if (var.type() == QVariant::List) {
-				d->current()->typeMap = false;
-				d->current()->list = new QVariantList(var.toList());
-			} else {
-				d->current()->map = new QVariantMap();
-			}
-		}
+		d->addSource(path);
+	}
+	
+	Config::Config(const QStringList &paths) : d_ptr(new ConfigPrivate)
+	{
+		Q_D(Config);
+		for (int i = 0; i < paths.size(); i++)
+			d->addSource(paths.at(i));
 	}
 	
 	Config::Config(const Config &other) : d_ptr(other.d_ptr)
@@ -180,42 +261,32 @@ namespace qutim_sdk_0_3
 	Config Config::group(const QString &fullName)
 	{
 		Q_D(Config);
-		Q_ASSERT(d->current()->typeMap);
 		Q_ASSERT(!fullName.isEmpty());
-		
-		int first = 0;
-		QVariantMap *map = d->current()->map;
-		do {
-			int last = fullName.indexOf('/', first);
-			QString name = fullName.mid(first, last != -1 ? last - first : last);
-			first = last + 1;
-			if (name.isEmpty())
-				continue;
-			QVariant &var = (*map)[name];
-			if (var.type() != QVariant::Map) {
-				*(d->dirty) = true;
-				var.setValue(QVariantMap());
-			}
-			map = reinterpret_cast<QVariantMap*>(var.data());
-		} while(first != 0);
-		Config cfg(map);
+		Config cfg(reinterpret_cast<QVariantMap*>(0));
 		ConfigPrivate *p = cfg.d_func();
-		delete p->dirty;
-		p->dirty = d->dirty;
 		p->memoryGuard = d_ptr;
+		p->sources = d->sources;
+		qDeleteAll(p->current()->atoms);
+		p->current()->atoms = d->current()->atoms;
+		cfg.beginGroup(fullName);
+		p->levels.removeLast();
 		return cfg;
 	}
 
 	QStringList Config::childGroups() const
 	{
 		Q_D(const Config);
-		if (!d->current()->typeMap)
-			return QStringList();
 		QStringList groups;
-		QVariantMap::iterator it = d->current()->map->begin();
-		for (; it != d->current()->map->end(); it++) {
-			if (it.value().type() == QVariant::Map)
-				groups << it.key();
+		QList<ConfigAtom*> &atoms = d->current()->atoms;
+		for (int i = 0; i < atoms.size(); i++) {
+			ConfigAtom *atom = atoms.at(i);
+			if (!atom->typeMap)
+				continue;
+			QVariantMap::iterator it = atom->map->begin();
+			for (; it != atom->map->end(); it++) {
+				if (it.value().type() == QVariant::Map && !groups.contains(it.key()))
+					groups << it.key();
+			}
 		}
 		return groups;
 	}
@@ -223,13 +294,17 @@ namespace qutim_sdk_0_3
 	QStringList Config::childKeys() const
 	{
 		Q_D(const Config);
-		if (!d->current()->typeMap)
-			return QStringList();
 		QStringList groups;
-		QVariantMap::iterator it = d->current()->map->begin();
-		for (; it != d->current()->map->end(); it++) {
-			if (it.value().type() != QVariant::Map)
-				groups << it.key();
+		QList<ConfigAtom*> &atoms = d->current()->atoms;
+		for (int i = 0; i < atoms.size(); i++) {
+			ConfigAtom *atom = atoms.at(i);
+			if (!atom->typeMap)
+				continue;
+			QVariantMap::iterator it = atom->map->begin();
+			for (; it != atom->map->end(); it++) {
+				if (it.value().type() != QVariant::Map && !groups.contains(it.key()))
+					groups << it.key();
+			}
 		}
 		return groups;
 	}
@@ -237,43 +312,80 @@ namespace qutim_sdk_0_3
 	bool Config::hasChildGroup(const QString &name) const
 	{
 		Q_D(const Config);
-		if (!d->current()->typeMap)
-			return false;
-		QVariantMap::iterator it = d->current()->map->find(name);
-		return (it != d->current()->map->end() && it.value().type() == QVariant::Map);
+		QList<ConfigAtom*> &atoms = d->current()->atoms;
+		for (int i = 0; i < atoms.size(); i++) {
+			ConfigAtom *atom = atoms.at(i);
+			if (!atom->typeMap)
+				continue;
+			QVariantMap::iterator it = atom->map->find(name);
+			if (it != atom->map->end() && it.value().type() == QVariant::Map)
+				return true;
+		}
+		return false;
 	}
 	
 	bool Config::hasChildKey(const QString &name) const
 	{
 		Q_D(const Config);
-		if (!d->current()->typeMap)
-			return false;
-		QVariantMap::iterator it = d->current()->map->find(name);
-		return (it != d->current()->map->end() && it.value().type() != QVariant::Map);
+		QList<ConfigAtom*> &atoms = d->current()->atoms;
+		for (int i = 0; i < atoms.size(); i++) {
+			ConfigAtom *atom = atoms.at(i);
+			if (!atom->typeMap)
+				continue;
+			QVariantMap::iterator it = atom->map->find(name);
+			if (it != atom->map->end() && it.value().type() != QVariant::Map)
+				return true;
+		}
+		return false;
+	}
+	
+	QStringList parseNames(const QString &fullName)
+	{
+		QStringList names;
+		int first = 0;
+		do {
+			int last = fullName.indexOf('/', first);
+			QString name = fullName.mid(first, last != -1 ? last - first : last);
+			first = last + 1;
+			if (!name.isEmpty())
+				names << name;
+		} while(first != 0);
+		return names;
 	}
 
 	void Config::beginGroup(const QString &fullName)
 	{
 		Q_D(Config);
-		Q_ASSERT(d->current()->typeMap);
 		Q_ASSERT(!fullName.isEmpty());
 		ConfigLevel * const l = new ConfigLevel;
-		l->deleteOnDestroy = false;
-		int first = 0;
-		l->map = d->current()->map;
-		do {
-			int last = fullName.indexOf('/', first);
-			QString name = fullName.mid(first, last != -1 ? last - first : last);
-			first = last + 1;
-			if (name.isEmpty())
+		QList<ConfigAtom*> &atoms = d->current()->atoms;
+		QStringList names = parseNames(fullName);
+		for (int i = 0; i < atoms.size(); i++) {
+			ConfigAtom *current = atoms.at(i);
+			Q_ASSERT(current->typeMap);
+			if (!current->typeMap)
 				continue;
-			QVariant &var = (*(l->map))[name];
-			if (var.type() != QVariant::Map) {
-				*(d->dirty) = true;
-				var.setValue(QVariantMap());
+			ConfigAtom *atom = new ConfigAtom;
+			atom->deleteOnDestroy = false;
+			atom->readOnly = current->readOnly || i > 0;
+			atom->map = current->map;
+			for (int j = 0; j < names.size(); j++) {
+				QVariant &var = (*(atom->map))[names.at(j)];
+				if (var.type() != QVariant::Map) {
+					if (atom->readOnly) {
+						delete atom;
+						atom = 0;
+						break;
+					} else {
+						d->sources.at(0)->dirty = true;
+						var = QVariantMap();
+					}
+				}
+				atom->map = reinterpret_cast<QVariantMap*>(var.data());
 			}
-			l->map = reinterpret_cast<QVariantMap*>(var.data());
-		} while(first != 0);
+			if (atom)
+				l->atoms << atom;
+		}
 		d->levels.prepend(l);
 	}
 
@@ -281,74 +393,79 @@ namespace qutim_sdk_0_3
 	{
 		Q_D(Config);
 		Q_ASSERT(d->levels.size() > 1);
-		Q_ASSERT(d->current()->typeMap);
+		ConfigLevel * const level = d->levels.at(0);
+		ConfigAtom * const atom = level->atoms.value(0);
+		Q_ASSERT(!atom || atom->typeMap);
 		delete d->levels.takeFirst();
 	}
 
 	void Config::remove(const QString &name)
 	{
 		Q_D(Config);
-		Q_ASSERT(d->current()->typeMap);
-		if (d->current()->map->remove(name) != 0)
-			*(d->dirty) = true;
+		ConfigLevel * const level = d->levels.at(0);
+		ConfigAtom * const atom = level->atoms.value(0);
+		Q_ASSERT(!atom || atom->typeMap);
+		if (atom && !atom->readOnly) {
+			if (atom->map->remove(name) != 0)
+				d->sources.at(0)->dirty = true;
+		}
 	}
 
 	Config Config::arrayElement(int index)
 	{
 		Q_D(Config);
-		Q_ASSERT(d->current()->arrayElement || !d->current()->typeMap);
-		ConfigLevel *l = 0;
-		if (d->current()->arrayElement) {
-			Q_ASSERT(d->levels.size() > 1);
-			l = d->levels.at(1);
-		} else if (!d->current()->typeMap) {
-			l = d->current();
-		}
-		Q_ASSERT(!l->typeMap);
-		while (l->list->size() <= index) {
-			*(d->dirty) = true;
-			l->list->append(QVariantMap());
-		}
-		QVariant &var = (*(l->list))[index];
-		if (var.type() != QVariant::Map) {
-			*(d->dirty) = true;
-			var.setValue(QVariantMap());
-		}
-		QVariantMap *map = reinterpret_cast<QVariantMap*>(var.data());
-		Config cfg(map);
+		Config cfg(reinterpret_cast<QVariantList*>(0));
 		ConfigPrivate *p = cfg.d_func();
-		delete p->dirty;
-		p->dirty = d->dirty;
 		p->memoryGuard = d_ptr;
+		p->sources = d->sources;
+		qDeleteAll(p->current()->atoms);
+		p->current()->atoms = d->current()->atoms;
+		cfg.setArrayIndex(index);
+		p->levels.removeLast();
 		return cfg;
 	}
 
 	int Config::beginArray(const QString &name)
 	{
 		Q_D(Config);
-		Q_ASSERT(d->current()->typeMap);
 		ConfigLevel * const l = new ConfigLevel;
-		l->deleteOnDestroy = false;
-		l->typeMap = false;
-		QVariant &var = (*(d->current()->map))[name];
-		if (var.type() != QVariant::List) {
-			*(d->dirty) = true;
-			var.setValue(QVariantList());
+		QList<ConfigAtom*> &atoms = d->current()->atoms;
+		int size = 0;
+		for (int i = 0; i < atoms.size(); i++) {
+			ConfigAtom *current = atoms.at(i);
+			if (current->readOnly) {
+				if (current->typeMap) {
+					QVariant &var = (*(current->map))[name];
+					if (var.type() == QVariant::List) {
+						l->atoms << new ConfigAtom(var, false);
+						size = size ? size : var.toList().size();
+						break;
+					}
+				}
+			} else if (current->typeMap) {
+				QVariant &var = (*(current->map))[name];
+				if (var.type() != QVariant::List)
+					d->sources.at(0)->dirty;
+				l->atoms << new ConfigAtom(var, false);
+				size = var.toList().size();
+			}
 		}
-		l->list = reinterpret_cast<QVariantList*>(var.data());
 		d->levels.prepend(l);
-		return l->list->size();
+		return size;
 	}
 
 	void Config::endArray()
 	{
 		Q_D(Config);
-		Q_ASSERT(d->current()->arrayElement || !d->current()->typeMap);
-		if (d->current()->arrayElement) {
+		Q_ASSERT(d->levels.size() > 1);
+		ConfigLevel * const level = d->levels.at(0);
+		ConfigAtom * const atom = level->atoms.value(0);
+		Q_ASSERT(!atom || level->arrayElement || !atom->typeMap);
+		if (level->arrayElement) {
 			Q_ASSERT(d->levels.size() > 2);
 			delete d->levels.takeFirst();
-			endArray();
-		} else if (!d->current()->typeMap) {
+			delete d->levels.takeFirst();
+		} else if (!atom->typeMap) {
 			Q_ASSERT(d->levels.size() > 1);
 			delete d->levels.takeFirst();
 		}
@@ -357,58 +474,98 @@ namespace qutim_sdk_0_3
 	int Config::arraySize() const
 	{
 		Q_D(const Config);
-		if (d->current()->typeMap)
+		ConfigLevel * const level = d->levels.at(0);
+		ConfigAtom * const atom = level->atoms.value(0);
+		if (!atom || atom->typeMap) {
 			return 0;
-		else
-			return d->current()->list->size();
+		} else {
+			int size = atom->list->size();
+			if (!size && level->atoms.size() > 1)
+				size = level->atoms.at(1)->list->size();
+			return size;
+		}
 	}
 
 	void Config::setArrayIndex(int index)
 	{
 		Q_D(Config);
-		Q_ASSERT(d->current()->arrayElement || !d->current()->typeMap);
-		if (!d->current()->typeMap) {
+		ConfigLevel * const level = d->levels.at(0);
+		ConfigAtom *atom = level->atoms.value(0);
+		Q_ASSERT(level->arrayElement || !atom || !atom->typeMap);
+		if (!atom) {
+			if (!level->arrayElement) {
+				d->levels.prepend(new ConfigLevel);
+				d->current()->arrayElement = true;
+			}
+			return;
+		}
+		if (!level->arrayElement) {
 			ConfigLevel * const l = new ConfigLevel();
-			l->typeMap = true;
 			l->arrayElement = true;
 			d->levels.prepend(l);
 		}
-		if (d->current()->arrayElement) {
-			Q_ASSERT(d->levels.size() > 1);
-			ConfigLevel * const l = d->levels.at(1);
-			Q_ASSERT(!l->typeMap);
-			while (l->list->size() <= index) {
-				*(d->dirty) = true;
-				l->list->append(QVariantMap());
+		ConfigLevel * const l = d->levels.at(1);
+		QList<ConfigAtom*> &atoms = l->atoms;
+		for (int i = 0; i < atoms.size(); i++) {
+			atom = atoms.at(i);
+			if (atom->readOnly && atom->list->size() > index) {
+				QVariant &var = (*(atom->list))[index];
+				if (var.type() == QVariant::Map)
+					d->current()->atoms << new ConfigAtom(var, true);
+			} else if (!atom->readOnly) {
+				bool &changed = d->sources.at(0)->dirty;
+				while (atom->list->size() <= index) {
+					changed = true;
+					atom->list->append(QVariantMap());
+				}
+				QVariant &var = (*(atom->list))[index];
+				if (!changed)
+					changed = var.type() == QVariant::Map;
+				d->current()->atoms << new ConfigAtom(var ,true);
 			}
-			QVariant &var = (*(l->list))[index];
-			if (var.type() != QVariant::Map) {
-				*(d->dirty) = true;
-				var.setValue(QVariantMap());
-			}
-			d->current()->map = reinterpret_cast<QVariantMap*>(var.data());
 		}
 	}
 
 	void Config::remove(int index)
 	{
 		Q_D(Config);
-		Q_ASSERT(d->current()->arrayElement || !d->current()->typeMap);
-		*(d->dirty) = true;
-		if (d->current()->arrayElement) {
+		ConfigLevel *level = d->levels.at(0);
+		if (level->arrayElement) {
 			Q_ASSERT(d->levels.size() > 1);
 			delete d->levels.takeFirst();
+			level = d->levels.at(0);
 		}
-		Q_ASSERT(!d->current()->typeMap);
-		Q_ASSERT(index >= 0 && index < d->current()->list->size());
-		d->current()->list->removeAt(index);
+		ConfigAtom *atom = level->atoms.value(0);
+		Q_ASSERT(!atom || !atom->typeMap);
+		if (atom && !atom->readOnly && atom->list->size() > index) {
+			atom->list->removeAt(index);
+			d->sources.at(0)->dirty = true;
+		}
 	}
 
 	QVariant Config::value(const QString &key, const QVariant &def, ValueFlags type) const
 	{
 		Q_D(const Config);
-		Q_ASSERT(d->current()->typeMap);
-		QVariant var = d->current()->map->value(key);
+		ConfigLevel *level = d->levels.at(0);
+		if (level->atoms.isEmpty())
+			return QVariant();
+		QString name = key;
+		int slashIndex = name.lastIndexOf('/');
+		if (slashIndex != -1) {
+			const_cast<Config*>(this)->beginGroup(name.mid(0, slashIndex));
+			name = name.mid(slashIndex);
+		}
+		QVariant var;
+		QList<ConfigAtom*> &atoms = d->current()->atoms;
+		for (int i = 0; i < atoms.size(); i++) {
+			ConfigAtom *atom = level->atoms.at(i);
+			Q_ASSERT(atom->typeMap);
+			var = atom->map->value(name);
+			if (!var.isNull())
+				break;
+		}
+		if (slashIndex != -1)
+			const_cast<Config*>(this)->endGroup();
 		if (type & Config::Crypted)
 			return var.isNull() ? def : CryptoService::decrypt(var);
 		else
@@ -418,10 +575,22 @@ namespace qutim_sdk_0_3
 	void Config::setValue(const QString &key, const QVariant &value, ValueFlags type)
 	{
 		Q_D(Config);
-		Q_ASSERT(d->current()->typeMap);
-		*(d->dirty) = true;
+		ConfigLevel *level = d->levels.at(0);
+		if (level->atoms.isEmpty())
+			return;
+		QString name = key;
+		int slashIndex = name.lastIndexOf('/');
+		if (slashIndex != -1) {
+			beginGroup(name.mid(0, slashIndex));
+			name = name.mid(slashIndex);
+		}
+		ConfigAtom *atom = level->atoms.at(0);
+		Q_ASSERT(atom->typeMap);
 		QVariant var = (type & Config::Crypted) ? CryptoService::crypt(value) : value;
-		d->current()->map->insert(key, var);
+		atom->map->insert(name, var);
+		d->sources.at(0)->dirty = true;
+		if (slashIndex != -1)
+			endGroup();
 	}
 
 	void Config::sync()

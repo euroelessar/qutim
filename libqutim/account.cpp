@@ -54,7 +54,10 @@ namespace qutim_sdk_0_3
 	Config Account::config()
 	{
 		Q_D(Account);
-		return Config(d->protocol->id() % QLatin1Char('.') % d->id % QLatin1Literal("/account"));
+		QStringList paths;
+		paths << d->protocol->id() % QLatin1Char('.') % d->id % QLatin1Literal("/account");
+		paths << d->protocol->id();
+		return Config(paths);
 	}
 
 	ConfigGroup Account::config(const QString &name)

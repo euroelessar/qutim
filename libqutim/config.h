@@ -129,6 +129,7 @@ namespace qutim_sdk_0_3
 		Config(const QVariantMap &map);
 		Config(QVariantMap *map);
 		Config(const QString &path = QString());
+		Config(const QStringList &paths);
 		Config(const Config &other);
 		Config &operator =(const Config &other);
 		virtual ~Config();
