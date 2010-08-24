@@ -87,7 +87,7 @@ void VConnection::connectToHost(const QString& passwd)
 	url.addQueryItem("layout", "popup");
 #endif
 	url.addQueryItem("type", "browser");
-	url.addQueryItem("settings", QString::number(0xffff));
+	url.addQueryItem("settings", QString::number(0x3fff));
 	d->webView->page()->mainFrame()->load(url);
 	connect(d->webView->page(), SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
 	setConnectionState(Connecting);

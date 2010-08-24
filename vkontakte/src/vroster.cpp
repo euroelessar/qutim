@@ -180,6 +180,7 @@ void VRosterPrivate::updateActivity()
 	if (lastActivityTime.isValid()) {
 		data.insert("timestamp", lastActivityTime.toUTC().toTime_t());
 	} else {
+		data.insert("timestamp", 0);
 		// TODO smth clever
 	}
 	

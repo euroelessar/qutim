@@ -154,6 +154,7 @@ namespace Jabber
 			config.beginGroup(jid);
 			config.setValue("name", contact->name());
 			config.setValue("tags", contact->tags());
+			config.setValue("avatar", contact->avatarHash());
 			config.endGroup();
 		}
 		p->metaStorage->requestMetaContacts();
@@ -253,6 +254,7 @@ namespace Jabber
 			config.beginGroup(jid);
 			contact->setContactName(config.value("name", QString()));
 			contact->setContactTags(config.value("tags", QStringList()));
+			contact->setAvatar(config.value("avatar", QString()));
 			config.endGroup();
 			contact->setContactInList(true);
 			p->contacts.insert(jid, contact);

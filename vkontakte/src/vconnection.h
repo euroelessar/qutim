@@ -38,6 +38,7 @@ public:
 	virtual ~VConnection();
 	QNetworkReply *get(const QString &method, const QVariantMap &args = QVariantMap());
 	VReply *request(const QString &method, const QVariantMap &args = QVariantMap());
+	VReply *request(const QString &method, const QString &name, const QVariant &value);
 	Config config();
 	Config config(const QString &name);
 	VAccount *account() const;
@@ -59,6 +60,13 @@ private:
 
 inline VReply *VConnection::request(const QString &method, const QVariantMap &args)
 {
+	return new VReply(get(method, args));
+}
+
+inline VReply *VConnection::request(const QString &method, const QString &name, const QVariant &value)
+{
+	QVariantMap args;
+	args.insert(name, value);
 	return new VReply(get(method, args));
 }
 
