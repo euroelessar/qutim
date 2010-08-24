@@ -17,7 +17,7 @@
 #define JOINGROUPCHAT_H
 
 #include <QDialog>
-#include <libqutim/actiongenerator.h>
+#include <qutim/actiongenerator.h>
 
 class QHBoxLayout;
 class QListWidgetItem;

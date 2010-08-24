@@ -1,8 +1,8 @@
 #include "accountcreator.h"
 #include "accountcreatorlist.h"
 #include "accountcreatorprotocols.h"
-#include "libqutim/icon.h"
-#include <libqutim/debug.h>
+#include <qutim/icon.h>
+#include <qutim/debug.h>
 
 namespace Core
 {

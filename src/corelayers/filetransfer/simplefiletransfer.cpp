@@ -1,9 +1,9 @@
 #include "simplefiletransfer.h"
 #include "filetransferdialog.h"
-#include "libqutim/actiongenerator.h"
-#include "libqutim/menucontroller.h"
-#include "libqutim/icon.h"
-#include "libqutim/buddy.h"
+#include <qutim/actiongenerator.h>
+#include <qutim/menucontroller.h>
+#include <qutim/icon.h>
+#include <qutim/buddy.h>
 #include <QFileDialog>
 
 namespace Core

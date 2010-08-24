@@ -1,6 +1,6 @@
 #include "tagsfilterdialog.h"
 #include "ui_tagsfilterdialog.h"
-#include <libqutim/icon.h>
+#include <qutim/icon.h>
 
 namespace Core
 {

@@ -1,6 +1,6 @@
 #include "simpletagseditor.h"
-#include <libqutim/contact.h>
-#include <libqutim/icon.h>
+#include <qutim/contact.h>
+#include <qutim/icon.h>
 #include "ui_simpletagseditor.h"
 
 namespace Core {

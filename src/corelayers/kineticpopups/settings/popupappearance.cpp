@@ -20,7 +20,7 @@
 #include "../popupwidget.h"
 #include <QLayout>
 #include "ui_popupappearance.h"
-#include <libqutim/configbase.h>
+#include <qutim/configbase.h>
 #include "../manager.h"
 
 using namespace KineticPopups;

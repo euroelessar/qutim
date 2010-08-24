@@ -16,7 +16,7 @@
 #define CHATAPPEARANCE_H
 
 #include <QWidget>
-#include <libqutim/settingswidget.h>
+#include <qutim/settingswidget.h>
 #include "../chatlayer/chatlayerimpl.h"
 
 namespace Ui

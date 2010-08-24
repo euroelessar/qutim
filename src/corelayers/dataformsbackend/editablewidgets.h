@@ -12,7 +12,7 @@
 #include <QListWidget>
 #include <QGridLayout>
 #include <QPushButton>
-#include <libqutim/dataforms.h>
+#include <qutim/dataforms.h>
 
 namespace Core
 {

@@ -1,5 +1,5 @@
 #include "editablewidgets.h"
-#include <libqutim/icon.h>
+#include <qutim/icon.h>
 #include <QFileDialog>
 #include <QRegExpValidator>
 #include "abstractdatalayout.h"

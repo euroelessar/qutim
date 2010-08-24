@@ -2,7 +2,7 @@
 #define ADDCONTACT_H
 #include <QScopedPointer>
 #include <QDialog>
-#include <libqutim/account.h>
+#include <qutim/account.h>
 
 namespace Core {
 	using namespace qutim_sdk_0_3;

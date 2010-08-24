@@ -1,7 +1,7 @@
 #ifndef IDLESTATUSWIDGET_H
 #define IDLESTATUSWIDGET_H
 
-#include "libqutim/settingswidget.h"
+#include <qutim/settingswidget.h>
 
 namespace Ui {
     class IdleStatusWidget;

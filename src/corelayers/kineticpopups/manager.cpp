@@ -21,8 +21,8 @@
 #include <QApplication>
 #include <QMouseEvent>
 #include <QDesktopWidget>
-#include "libqutim/systeminfo.h"
-#include "libqutim/configbase.h"
+#include <qutim/systeminfo.h>
+#include <qutim/configbase.h>
 
 namespace KineticPopups
 {

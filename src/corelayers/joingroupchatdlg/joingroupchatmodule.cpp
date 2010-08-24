@@ -14,11 +14,11 @@
 *****************************************************************************/
 
 #include "joingroupchatmodule.h"
-#include <libqutim/icon.h>
-#include <libqutim/menucontroller.h>
+#include <qutim/icon.h>
+#include <qutim/menucontroller.h>
 #include "joingroupchat.h"
-#include <libqutim/account.h>
-#include <libqutim/protocol.h>
+#include <qutim/account.h>
+#include <qutim/protocol.h>
 
 namespace Core
 {

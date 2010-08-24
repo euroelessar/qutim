@@ -21,13 +21,13 @@
 #include <QFileInfo>
 #include <QDir>
 #include "jsonhistory.h"
-#include "libqutim/icon.h"
-#include "libqutim/systeminfo.h"
-#include "libqutim/protocol.h"
-#include "libqutim/account.h"
-#include "libqutim/chatunit.h"
+#include <qutim/icon.h>
+#include <qutim/systeminfo.h>
+#include <qutim/protocol.h>
+#include <qutim/account.h>
+#include <qutim/chatunit.h>
 #include <QScrollBar>
-#include "libqutim/json.h"
+#include <qutim/json.h>
 #include <QDebug>
 
 namespace Core

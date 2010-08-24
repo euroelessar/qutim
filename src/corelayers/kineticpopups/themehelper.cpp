@@ -18,8 +18,8 @@
 #include <QTextDocument>
 #include <QFile>
 #include "backend.h"
-#include "libqutim/systeminfo.h"
-#include "libqutim/configbase.h"
+#include <qutim/systeminfo.h>
+#include <qutim/configbase.h>
 #include <QDebug>
 
 namespace KineticPopups

@@ -14,7 +14,7 @@
 *****************************************************************************/
 
 #include "kopeteemoticonsbackend.h"
-#include <libqutim/libqutim_global.h>
+#include <qutim/libqutim_global.h>
 #include "kopeteemoticonsprovider.h"
 #include <QDebug>
 

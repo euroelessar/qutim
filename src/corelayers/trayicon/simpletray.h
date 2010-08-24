@@ -1,9 +1,9 @@
 #ifndef SIMPLETRAY_H
 #define SIMPLETRAY_H
 
-#include "libqutim/messagesession.h"
-#include "libqutim/account.h"
-#include "libqutim/protocol.h"
+#include <qutim/messagesession.h>
+#include <qutim/account.h>
+#include <qutim/protocol.h>
 #include <QSystemTrayIcon>
 
 namespace Core

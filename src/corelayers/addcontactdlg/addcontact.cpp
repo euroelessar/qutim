@@ -1,9 +1,9 @@
 #include "addcontact.h"
 #include "ui_addcontact.h"
-#include <libqutim/protocol.h>
-#include <libqutim/contact.h>
-#include <libqutim/icon.h>
-#include <libqutim/messagesession.h>
+#include <qutim/protocol.h>
+#include <qutim/contact.h>
+#include <qutim/icon.h>
+#include <qutim/messagesession.h>
 #include <QStringBuilder>
 #include <QToolButton>
 #include <QPushButton>

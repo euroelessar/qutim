@@ -20,14 +20,14 @@
 #include <QTime>
 #include <QDebug>
 #include "popupwidget.h"
-#include <libqutim/configbase.h>
+#include <qutim/configbase.h>
 #include "settings/popupappearance.h"
-#include <libqutim/settingslayer.h>
-#include <libqutim/icon.h>
-#include <libqutim/message.h>
-#include <libqutim/chatunit.h>
-#include "libqutim/contact.h"
-#include "libqutim/protocol.h"
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
+#include <qutim/message.h>
+#include <qutim/chatunit.h>
+#include <qutim/contact.h>
+#include <qutim/protocol.h>
 #include <QTimer>
 
 namespace KineticPopups

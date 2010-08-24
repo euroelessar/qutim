@@ -1,4 +1,4 @@
-qutim_add_plugin( NoCryptoService
+qutim_add_plugin( nocryptoservice
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/nocryptoservice.h
 	EXTENSION_CLASS Core::NoCryptoService

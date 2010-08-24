@@ -17,11 +17,11 @@
 #include "chatvariable.h"
 #include "../chatlayer/chatstyle.h"
 #include "../chatlayer/chatstyleoutput.h"
-#include <libqutim/configbase.h>
-#include <libqutim/protocol.h>
-#include <libqutim/account.h>
-#include <libqutim/notificationslayer.h>
-#include <libqutim/libqutim_global.h>
+#include <qutim/configbase.h>
+#include <qutim/protocol.h>
+#include <qutim/account.h>
+#include <qutim/notificationslayer.h>
+#include <qutim/libqutim_global.h>
 #include <QWebFrame>
 #include <QLabel>
 #include <QSpacerItem>

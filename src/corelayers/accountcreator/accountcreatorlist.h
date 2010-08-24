@@ -1,8 +1,8 @@
 #ifndef ACCOUNTCREATORLIST_H
 #define ACCOUNTCREATORLIST_H
 
-#include "libqutim/settingslayer.h"
-#include "libqutim/settingswidget.h"
+#include <qutim/settingslayer.h>
+#include <qutim/settingswidget.h>
 #include "accountcreatorwizard.h"
 
 namespace Ui {

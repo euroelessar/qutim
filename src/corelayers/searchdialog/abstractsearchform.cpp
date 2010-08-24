@@ -14,7 +14,7 @@
  *****************************************************************************/
 
 #include "abstractsearchform.h"
-#include "libqutim/icon.h"
+#include <qutim/icon.h>
 #include <QKeyEvent>
 #include "itemdelegate.h"
 #include <QComboBox>

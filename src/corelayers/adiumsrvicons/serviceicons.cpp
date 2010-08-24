@@ -14,7 +14,7 @@
 *****************************************************************************/
 
 #include "serviceicons.h"
-#include "libqutim/configbase.h"
+#include <qutim/configbase.h>
 #include <QStringBuilder>
 
 using namespace qutim_sdk_0_3;

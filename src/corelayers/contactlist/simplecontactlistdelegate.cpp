@@ -15,17 +15,17 @@
 *****************************************************************************/
 
 #include "simplecontactlistdelegate.h"
-#include "libqutim/tooltip.h"
+#include <qutim/tooltip.h>
 #include <QToolTip>
 #include "simplecontactlistitem.h"
 #include <QHelpEvent>
 #include <QAbstractItemView>
 #include <QApplication>
-#include <libqutim/debug.h>
+#include <qutim/debug.h>
 #include <QPainter>
-#include <libqutim/icon.h>
+#include <qutim/icon.h>
 #include "avatarfilter.h"
-#include <libqutim/config.h>
+#include <qutim/config.h>
 #include <QStringBuilder>
 
 namespace Core

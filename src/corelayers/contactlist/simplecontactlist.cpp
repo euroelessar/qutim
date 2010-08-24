@@ -3,12 +3,12 @@
 #include "simplecontactlistmodel.h"
 #include "simplecontactlistitem.h"
 #include "simplecontactlistdelegate.h"
-#include "libqutim/protocol.h"
-#include "libqutim/account.h"
-#include "libqutim/icon.h"
-#include "libqutim/settingslayer.h"
+#include <qutim/protocol.h>
+#include <qutim/account.h>
+#include <qutim/icon.h>
+#include <qutim/settingslayer.h>
 #include <QTreeView>
-#include <libqutim/debug.h>
+#include <qutim/debug.h>
 #include <QStringBuilder>
 #include <QVBoxLayout>
 #include <QToolButton>
@@ -19,14 +19,14 @@
 #include <QTimer>
 #include <QPushButton>
 #include <QLineEdit>
-#include <libqutim/qtwin.h>
-#include <libqutim/shortcut.h>
-#include "libqutim/metacontactmanager.h"
+#include <qutim/qtwin.h>
+#include <qutim/shortcut.h>
+#include <qutim/metacontactmanager.h>
 #include <QMainWindow>
 #include "simplestatusdialog.h"
 #include <QClipboard>
 #include "settings/simplecontactlistsettings.h"
-#include "libqutim/settingslayer.h"
+#include <qutim/settingslayer.h>
 
 namespace Core
 {

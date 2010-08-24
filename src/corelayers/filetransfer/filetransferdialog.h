@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QFileInfo>
-#include "libqutim/filetransfer.h"
+#include <qutim/filetransfer.h>
 
 namespace Ui {
     class FileTransferDialog;

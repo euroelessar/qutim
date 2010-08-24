@@ -1,7 +1,7 @@
 #ifndef SIMPLEPASSWORDDIALOG_H
 #define SIMPLEPASSWORDDIALOG_H
 
-#include "libqutim/passworddialog.h"
+#include <qutim/passworddialog.h>
 #include "simplepasswordwidget.h"
 
 namespace Core

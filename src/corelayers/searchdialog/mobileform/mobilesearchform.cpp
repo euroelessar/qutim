@@ -15,7 +15,7 @@
 
 #include "mobilesearchform.h"
 #include "itemdelegate.h"
-#include "libqutim/icon.h"
+#include <qutim/icon.h>
 
 namespace Core
 {

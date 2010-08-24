@@ -1,6 +1,6 @@
 #include "simplestatusdialog.h"
 #include "ui_simplestatusdialog.h"
-#include <libqutim/debug.h>
+#include <qutim/debug.h>
 
 namespace Core
 {

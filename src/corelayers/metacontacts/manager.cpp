@@ -15,10 +15,10 @@
  ****************************************************************************/
 
 #include "manager.h"
-#include "libqutim/protocol.h"
-#include <libqutim/debug.h>
-#include <libqutim/actiongenerator.h>
-#include <libqutim/icon.h>
+#include <qutim/protocol.h>
+#include <qutim/debug.h>
+#include <qutim/actiongenerator.h>
+#include <qutim/icon.h>
 
 namespace Core
 {

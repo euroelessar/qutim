@@ -1,7 +1,7 @@
 #ifndef ACCOUNTCREATOR_H
 #define ACCOUNTCREATOR_H
 
-#include <libqutim/profilecreatorpage.h>
+#include <qutim/profilecreatorpage.h>
 
 using namespace qutim_sdk_0_3;
 

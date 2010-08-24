@@ -1,12 +1,12 @@
 #include "jsonhistory.h"
-#include "libqutim/chatunit.h"
-#include "libqutim/account.h"
-#include "libqutim/protocol.h"
-#include "libqutim/systeminfo.h"
-#include "libqutim/json.h"
+#include <qutim/chatunit.h>
+#include <qutim/account.h>
+#include <qutim/protocol.h>
+#include <qutim/systeminfo.h>
+#include <qutim/json.h>
 #include <QStringBuilder>
 #include "historywindow.h"
-#include <libqutim/icon.h>
+#include <qutim/icon.h>
 
 namespace Core
 {

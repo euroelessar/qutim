@@ -16,7 +16,7 @@
 #ifndef SERVICEICONS_H
 #define SERVICEICONS_H
 
-#include "libqutim/icon.h"
+#include <qutim/icon.h>
 #include <QtCore/QHash>
 
 namespace Adium

@@ -1,7 +1,7 @@
 #include "shortcutsettings.h"
 #include "shortcutsettingswidget.h"
-#include <libqutim/settingslayer.h>
-#include <libqutim/icon.h>
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
 
 namespace Core
 {

@@ -2,7 +2,7 @@
 #define SOUNDTHEMESELECTOR_H
 
 #include <QWidget>
-#include <libqutim/settingswidget.h>
+#include <qutim/settingswidget.h>
 
 namespace Ui {
     class SoundThemeSelector;

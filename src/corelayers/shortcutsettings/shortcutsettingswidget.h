@@ -2,7 +2,7 @@
 #define SHORTCUTSETTINGSWIDGET_H
 
 #include <QWidget>
-#include <libqutim/settingswidget.h>
+#include <qutim/settingswidget.h>
 
 namespace Ui {
     class ShortcutSettingsWidget;

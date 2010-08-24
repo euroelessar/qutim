@@ -1,7 +1,7 @@
 #include "iconsloaderimpl.h"
-#include "libqutim/configbase.h"
+#include <qutim/configbase.h>
 #include "3rdparty/q-xdg/src/xdgiconmanager.h"
-#include "libqutim/systeminfo.h"
+#include <qutim/systeminfo.h>
 
 namespace Core
 {

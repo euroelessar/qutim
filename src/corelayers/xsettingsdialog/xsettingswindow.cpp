@@ -16,12 +16,12 @@
 #include "xsettingswindow.h"
 #include <QListWidget>
 #include <QStackedWidget>
-#include <libqutim/actiontoolbar.h>
+#include <qutim/actiontoolbar.h>
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
-#include <libqutim/icon.h>
-#include <libqutim/settingswidget.h>
+#include <qutim/icon.h>
+#include <qutim/settingswidget.h>
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QMessageBox>

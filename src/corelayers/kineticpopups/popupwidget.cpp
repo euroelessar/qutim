@@ -21,11 +21,11 @@
 #include <QLabel>
 #include <QPainter>
 #include <QDesktopWidget>
-#include <libqutim/qtwin.h>
-#include <libqutim/emoticons.h>
-#include <libqutim/chatunit.h>
-#include <libqutim/messagesession.h>
-#include <libqutim/message.h>
+#include <qutim/qtwin.h>
+#include <qutim/emoticons.h>
+#include <qutim/chatunit.h>
+#include <qutim/messagesession.h>
+#include <qutim/message.h>
 
 namespace KineticPopups
 {

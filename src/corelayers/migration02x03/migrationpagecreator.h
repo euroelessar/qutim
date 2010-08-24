@@ -1,7 +1,7 @@
 #ifndef MIGRATIONPAGECREATOR_H
 #define MIGRATIONPAGECREATOR_H
 
-#include "libqutim/profilecreatorpage.h"
+#include <qutim/profilecreatorpage.h>
 
 using namespace qutim_sdk_0_3;
 

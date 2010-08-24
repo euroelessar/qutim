@@ -16,7 +16,7 @@
 #ifndef XSETTINGSLAYERIMPL_H
 #define XSETTINGSLAYERIMPL_H
 
-#include "libqutim/settingslayer.h"
+#include <qutim/settingslayer.h>
 
 namespace Core
 {

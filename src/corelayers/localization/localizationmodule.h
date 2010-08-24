@@ -16,7 +16,7 @@
 #ifndef LOCALIZATIONMODULE_H
 #define LOCALIZATIONMODULE_H
 
-#include "libqutim/libqutim_global.h"
+#include <qutim/libqutim_global.h>
 #include <QtCore/QTranslator>
 
 namespace Core

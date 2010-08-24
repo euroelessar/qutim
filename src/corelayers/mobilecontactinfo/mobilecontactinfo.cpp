@@ -1,8 +1,8 @@
 #include "mobilecontactinfo.h"
-#include "libqutim/icon.h"
-#include "libqutim/contact.h"
-#include "libqutim/account.h"
-#include "libqutim/dataforms.h"
+#include <qutim/icon.h>
+#include <qutim/contact.h>
+#include <qutim/account.h>
+#include <qutim/dataforms.h>
 #include <QVBoxLayout>
 #include <QApplication>
 #include <QResizeEvent>

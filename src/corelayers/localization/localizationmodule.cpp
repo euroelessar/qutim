@@ -15,10 +15,10 @@
 
 #include "localizationmodule.h"
 #include "localizationsettings.h"
-#include "libqutim/settingslayer.h"
-#include "libqutim/systeminfo.h"
-#include "libqutim/icon.h"
-#include "libqutim/configbase.h"
+#include <qutim/settingslayer.h>
+#include <qutim/systeminfo.h>
+#include <qutim/icon.h>
+#include <qutim/configbase.h>
 #include <QtCore/QLocale>
 #include <QtCore/QCoreApplication>
 

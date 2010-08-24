@@ -2,7 +2,7 @@
 #define CHATBEHAVIOR_H
 
 #include <QWidget>
-#include <libqutim/settingswidget.h>
+#include <qutim/settingswidget.h>
 #include "../chatlayer/chatforms/abstractchatwidget.h"
 
 namespace Ui {

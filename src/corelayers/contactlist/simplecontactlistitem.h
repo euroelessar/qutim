@@ -1,7 +1,7 @@
 #ifndef SIMPLECONTACTLISTITEM_H
 #define SIMPLECONTACTLISTITEM_H
 
-#include "libqutim/contact.h"
+#include <qutim/contact.h>
 #include <QSharedData>
 #include <QModelIndex>
 #include <QMetaType>

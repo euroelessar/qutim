@@ -2,7 +2,7 @@
 #define SIMPLETAGSEDITOR_H
 
 #include <QWidget>
-#include <libqutim/libqutim_global.h>
+#include <qutim/libqutim_global.h>
 #include <QSet>
 
 namespace Ui {

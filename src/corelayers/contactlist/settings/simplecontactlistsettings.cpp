@@ -1,7 +1,7 @@
 #include "simplecontactlistsettings.h"
 #include "ui_simplecontactlistsettings.h"
-#include <libqutim/config.h>
-#include <libqutim/localizedstring.h>
+#include <qutim/config.h>
+#include <qutim/localizedstring.h>
 
 namespace Core
 {

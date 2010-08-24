@@ -7,8 +7,8 @@
 #include <QDebug>
 #include <QSettings>
 #include <QStringBuilder>
-#include "libqutim/configbase.h"
-#include "libqutim/systeminfo.h"
+#include <qutim/configbase.h>
+#include <qutim/systeminfo.h>
 
 namespace Core
 {

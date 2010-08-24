@@ -3,8 +3,8 @@
 
 #include "QWidget"
 #include "ui_userinformation.h"
-#include <libqutim/buddy.h>
-#include <libqutim/inforequest.h>
+#include <qutim/buddy.h>
+#include <qutim/inforequest.h>
 
 class QLabel;
 class QGridLayout;

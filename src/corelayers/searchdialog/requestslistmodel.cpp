@@ -14,7 +14,7 @@
  *****************************************************************************/
 
 #include "requestslistmodel.h"
-#include <libqutim/objectgenerator.h>
+#include <qutim/objectgenerator.h>
 
 namespace Core {
 

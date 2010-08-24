@@ -1,5 +1,5 @@
 #include "keysequencewidget.h"
-#include <libqutim/debug.h>
+#include <qutim/debug.h>
 #include <QMouseEvent>
 
 namespace Core

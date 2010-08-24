@@ -1,12 +1,12 @@
 #include "simplecontactlistview.h"
 #include "simplecontactlistitem.h"
 #include "simplecontactlistmodel.h"
-#include "libqutim/messagesession.h"
+#include <qutim/messagesession.h>
 #include "tagsfilterdialog.h"
 #include <QtGui/QContextMenuEvent>
 #include <QHeaderView>
-#include <libqutim/icon.h>
-#include <libqutim/config.h>
+#include <qutim/icon.h>
+#include <qutim/config.h>
 
 namespace Core
 {

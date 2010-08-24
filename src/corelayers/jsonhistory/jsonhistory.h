@@ -1,7 +1,7 @@
 #ifndef JSONHISTORY_H
 #define JSONHISTORY_H
 
-#include "libqutim/history.h"
+#include <qutim/history.h>
 #include <QDir>
 #include <QPointer>
 

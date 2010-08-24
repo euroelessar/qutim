@@ -1,6 +1,6 @@
 #include "shortcutsettingswidget.h"
 #include "ui_shortcutsettingswidget.h"
-#include <libqutim/shortcut.h>
+#include <qutim/shortcut.h>
 #include <QTreeWidgetItem>
 #include <QStandardItemModel>
 #include "shortcutitemdelegate.h"

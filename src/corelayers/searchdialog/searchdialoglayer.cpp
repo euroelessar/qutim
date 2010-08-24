@@ -14,9 +14,9 @@
  *****************************************************************************/
 
 #include "searchdialoglayer.h"
-#include "libqutim/contact.h"
-#include "libqutim/icon.h"
-#include "libqutim/config.h"
+#include <qutim/contact.h>
+#include <qutim/icon.h>
+#include <qutim/config.h>
 
 namespace Core
 {

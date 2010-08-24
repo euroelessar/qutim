@@ -1,11 +1,11 @@
 #include "popupbehavior.h"
 #include "ui_notifications.h"
-#include <libqutim/configbase.h>
+#include <qutim/configbase.h>
 #include <corelayers/kineticpopups/manager.h>
-#include <libqutim/localizedstring.h>
+#include <qutim/localizedstring.h>
 #include <QToolButton>
-#include <libqutim/icon.h>
-#include <libqutim/debug.h>
+#include <qutim/icon.h>
+#include <qutim/debug.h>
 #include <QStandardItemModel>
 
 namespace Core

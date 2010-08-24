@@ -3,8 +3,8 @@
 
 #include "QWidget"
 #include <QScrollArea>
-#include <libqutim/buddy.h>
-#include <libqutim/inforequest.h>
+#include <qutim/buddy.h>
+#include <qutim/inforequest.h>
 #include <3rdparty/actionbox/actionbox.h>
 
 class QLabel;

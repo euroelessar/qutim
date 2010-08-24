@@ -2,7 +2,7 @@
 #include <QDialog>
 #include <QPointer>
 #include "authdialogimpl_p.h"
-#include <libqutim/debug.h>
+#include <qutim/debug.h>
 
 namespace Core
 {

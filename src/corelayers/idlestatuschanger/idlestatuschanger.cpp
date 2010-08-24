@@ -1,11 +1,11 @@
 #include "idle-global.h"
 #include "idlestatuschanger.h"
 #include "idlestatuswidget.h"
-#include "libqutim/protocol.h"
-#include "libqutim/config.h"
-#include "libqutim/status.h"
-#include "libqutim/settingslayer.h"
-#include "libqutim/icon.h"
+#include <qutim/protocol.h>
+#include <qutim/config.h>
+#include <qutim/status.h>
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
 #include <QDebug>
 
 Core::IdleStatusChanger* pIdleStatusChanger = 0;

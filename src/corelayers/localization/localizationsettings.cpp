@@ -15,12 +15,12 @@
 
 #include "localizationsettings.h"
 #include "ui_localizationsettings.h"
-#include "libqutim/configbase.h"
+#include <qutim/configbase.h>
 #include <QStringBuilder>
 #include <QDebug>
 #include <QDir>
 #include <QTranslator>
-#include <libqutim/icon.h>
+#include <qutim/icon.h>
 
 using namespace qutim_sdk_0_3;
 

@@ -1,13 +1,13 @@
 #include "editabledatalayout.h"
 #include "readonlydatalayout.h"
-#include "libqutim/icon.h"
+#include <qutim/icon.h>
 #include <QPushButton>
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QDesktopWidget>
 #include <QApplication>
 #include "editablewidgets.h"
-#include "libqutim/debug.h"
+#include <qutim/debug.h>
 
 namespace Core
 {

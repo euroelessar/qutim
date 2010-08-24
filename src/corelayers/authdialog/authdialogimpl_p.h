@@ -2,7 +2,7 @@
 #define AUTHDIALOGIMPL_P_H
 #include "authdialogimpl.h"
 #include "ui_authdialog.h"
-#include <libqutim/contact.h>
+#include <qutim/contact.h>
 
 namespace Core {
 	class AuthDialogPrivate : public QDialog

@@ -15,7 +15,7 @@
 
 #include "defaultsearchform.h"
 #include "itemdelegate.h"
-#include "libqutim/icon.h"
+#include <qutim/icon.h>
 #include <QToolButton>
 
 namespace Core

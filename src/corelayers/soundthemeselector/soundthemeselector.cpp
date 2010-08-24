@@ -1,9 +1,9 @@
 #include "soundthemeselector.h"
 #include "ui_soundthemeselector.h"
-#include <libqutim/notificationslayer.h>
+#include <qutim/notificationslayer.h>
 #include <QStandardItemModel>
-#include <libqutim/localizedstring.h>
-#include <libqutim/icon.h>
+#include <qutim/localizedstring.h>
+#include <qutim/icon.h>
 #include <QAbstractItemDelegate>
 
 namespace Core

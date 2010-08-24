@@ -14,10 +14,10 @@
 *****************************************************************************/
 
 #include "emoticonssettings.h"
-#include <libqutim/libqutim_global.h>
+#include <qutim/libqutim_global.h>
 #include "emoticonsselector.h"
-#include <libqutim/settingslayer.h>
-#include <libqutim/icon.h>
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
 
 namespace Core
 {

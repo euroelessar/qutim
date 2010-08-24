@@ -14,7 +14,7 @@
 *****************************************************************************/
 
 #include "xsettingslayerimpl.h"
-#include <libqutim/icon.h>
+#include <qutim/icon.h>
 #include "xsettingswindow.h"
 
 namespace Core

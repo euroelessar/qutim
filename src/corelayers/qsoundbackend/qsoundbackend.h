@@ -15,7 +15,7 @@
 
 #ifndef QSOUNDBACKEND_H
 #define QSOUNDBACKEND_H
-#include <libqutim/notificationslayer.h>
+#include <qutim/notificationslayer.h>
 
 using namespace qutim_sdk_0_3;
 

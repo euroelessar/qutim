@@ -1,14 +1,14 @@
 #include "accountcreatorlist.h"
-#include "libqutim/icon.h"
-#include "libqutim/protocol.h"
-#include "libqutim/account.h"
+#include <qutim/icon.h>
+#include <qutim/protocol.h>
+#include <qutim/account.h>
 #include "ui_accountcreatorlist.h"
 #include <QListWidgetItem>
 #include <QContextMenuEvent>
 #include "itemdelegate.h"
 #include <QMessageBox>
-#include <libqutim/debug.h>
-#include <libqutim/settingslayer.h>
+#include <qutim/debug.h>
+#include <qutim/settingslayer.h>
 
 namespace Core
 {

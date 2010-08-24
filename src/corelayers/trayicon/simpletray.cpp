@@ -1,10 +1,10 @@
 #include "simpletray.h"
-#include "libqutim/icon.h"
-#include "libqutim/extensioninfo.h"
+#include <qutim/icon.h>
+#include <qutim/extensioninfo.h>
 #include <QApplication>
 #include <QWidgetAction>
 #include <QToolButton>
-#include <libqutim/debug.h>
+#include <qutim/debug.h>
 
 namespace Core
 {

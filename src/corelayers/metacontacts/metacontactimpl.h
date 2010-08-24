@@ -17,7 +17,7 @@
 #ifndef METACONTACTIMPL_H
 #define METACONTACTIMPL_H
 
-#include "libqutim/metacontact.h"
+#include <qutim/metacontact.h>
 
 namespace Core
 {

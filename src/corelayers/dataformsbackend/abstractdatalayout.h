@@ -5,7 +5,7 @@
 #include <QGridLayout>
 #include <QHostAddress>
 #include <QPointer>
-#include <libqutim/dataforms.h>
+#include <qutim/dataforms.h>
 
 class QLabel;
 Q_DECLARE_METATYPE(QHostAddress);

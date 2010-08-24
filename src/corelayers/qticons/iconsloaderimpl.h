@@ -1,7 +1,7 @@
 #ifndef ICONSLOADERIMPL_H
 #define ICONSLOADERIMPL_H
 
-#include "libqutim/iconloader.h"
+#include <qutim/iconloader.h>
 
 using namespace qutim_sdk_0_3;
 

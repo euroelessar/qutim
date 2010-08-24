@@ -1,7 +1,7 @@
 #include "notificationssettings.h"
 #include "popupbehavior.h"
-#include <libqutim/settingslayer.h>
-#include <libqutim/icon.h>
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
 
 namespace Core {
 

@@ -1,8 +1,8 @@
 #ifndef IDLESTATUSCHANGER_H
 #define IDLESTATUSCHANGER_H
 
-#include "libqutim/libqutim_global.h"
-#include "libqutim/account.h"
+#include <qutim/libqutim_global.h>
+#include <qutim/account.h>
 
 using namespace qutim_sdk_0_3;
 

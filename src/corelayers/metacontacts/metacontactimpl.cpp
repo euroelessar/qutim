@@ -16,10 +16,10 @@
 
 #include "metacontactimpl.h"
 #include "manager.h"
-#include <libqutim/debug.h>
-#include <libqutim/tooltip.h>
+#include <qutim/debug.h>
+#include <qutim/tooltip.h>
 #include <QApplication>
-#include <libqutim/protocol.h>
+#include <qutim/protocol.h>
 #include <QLatin1Literal>
 
 using namespace qutim_sdk_0_3;

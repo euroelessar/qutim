@@ -2,7 +2,7 @@
 #define ACCOUNTCREATORPROTOCOLS_H
 
 #include <QtGui/QWizardPage>
-#include "libqutim/protocol.h"
+#include <qutim/protocol.h>
 
 using namespace qutim_sdk_0_3;
 

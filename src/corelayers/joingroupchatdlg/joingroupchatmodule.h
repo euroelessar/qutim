@@ -16,7 +16,7 @@
 #ifndef JOINGROUPCHATMODULE_H
 #define JOINGROUPCHATMODULE_H
 #include <QObject>
-#include <libqutim/actiongenerator.h>
+#include <qutim/actiongenerator.h>
 
 namespace Core
 {

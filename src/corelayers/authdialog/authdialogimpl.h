@@ -1,6 +1,6 @@
 #ifndef AUTHDIALOGIMPL_H
 #define AUTHDIALOGIMPL_H
-#include <libqutim/authorizationdialog.h>
+#include <qutim/authorizationdialog.h>
 #include <QPointer>
 
 namespace Core {

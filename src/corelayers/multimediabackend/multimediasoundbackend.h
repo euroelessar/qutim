@@ -17,7 +17,7 @@
 #ifndef MULTIMEDIASOUNDBACKEND_H
 #define MULTIMEDIASOUNDBACKEND_H
 
-#include "libqutim/notificationslayer.h"
+#include <qutim/notificationslayer.h>
 #include <QAudioOutput>
 
 using namespace qutim_sdk_0_3;

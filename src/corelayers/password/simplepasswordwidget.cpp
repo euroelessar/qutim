@@ -1,6 +1,6 @@
 #include "simplepassworddialog.h"
 #include "ui_simplepasswordwidget.h"
-#include "libqutim/protocol.h"
+#include <qutim/protocol.h>
 
 namespace Core
 {

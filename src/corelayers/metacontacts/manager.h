@@ -17,7 +17,7 @@
 #ifndef MANAGER_H
 #define MANAGER_H
 
-#include "libqutim/metacontactmanager.h"
+#include <qutim/metacontactmanager.h>
 #include "metacontactimpl.h"
 
 namespace Core

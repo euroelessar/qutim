@@ -17,9 +17,9 @@
 #include "servicechooserwidget.h"
 #include "protocolchooserwidget.h"
 #include "pluginchooserwidget.h"
-#include <libqutim/settingslayer.h>
-#include <libqutim/icon.h>
-#include <libqutim/extensioninfo.h>
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
+#include <qutim/extensioninfo.h>
 
 namespace Core
 {

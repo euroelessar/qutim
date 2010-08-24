@@ -1,9 +1,9 @@
 #ifndef SIMPLECONTACTLIST_H
 #define SIMPLECONTACTLIST_H
 
-#include "libqutim/actiontoolbar.h"
-#include "libqutim/status.h"
-#include "libqutim/contact.h"
+#include <qutim/actiontoolbar.h>
+#include <qutim/status.h>
+#include <qutim/contact.h>
 
 using namespace qutim_sdk_0_3;
 

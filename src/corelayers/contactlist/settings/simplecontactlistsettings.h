@@ -2,7 +2,7 @@
 #define SIMPLECONTACTLISTSETTINGS_H
 
 #include <QWidget>
-#include <libqutim/settingswidget.h>
+#include <qutim/settingswidget.h>
 #include "../simplecontactlistdelegate.h"
 
 namespace Ui {

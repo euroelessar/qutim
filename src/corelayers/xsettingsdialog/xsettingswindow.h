@@ -17,7 +17,7 @@
 #define XSETTINGSWINDOW_H
 
 #include <QMainWindow>
-#include <libqutim/settingslayer.h>
+#include <qutim/settingslayer.h>
 
 class QListWidgetItem;
 class QStackedWidget;

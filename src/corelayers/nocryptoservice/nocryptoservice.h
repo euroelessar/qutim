@@ -1,7 +1,7 @@
 #ifndef NOCRYPTOSERVICE_H
 #define NOCRYPTOSERVICE_H
 
-#include "libqutim/cryptoservice.h"
+#include <qutim/cryptoservice.h>
 
 using namespace qutim_sdk_0_3;
 

@@ -16,7 +16,7 @@
 #ifndef LOCALIZATIONSETTINGS_H
 #define LOCALIZATIONSETTINGS_H
 
-#include "libqutim/settingswidget.h"
+#include <qutim/settingswidget.h>
 #include <QtCore/QHash>
 
 namespace Ui {

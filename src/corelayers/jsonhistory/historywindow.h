@@ -19,7 +19,7 @@
 
 #include <QtGui/QWidget>
 #include <QByteArray>
-#include "libqutim/chatunit.h"
+#include <qutim/chatunit.h>
 #include "ui_historywindow.h"
 
 using namespace qutim_sdk_0_3;

@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QValidator>
-#include "libqutim/account.h"
+#include <qutim/account.h>
 
 namespace Ui {
     class SimplePasswordWidget;

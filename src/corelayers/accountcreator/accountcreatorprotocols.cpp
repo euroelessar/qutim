@@ -1,7 +1,7 @@
 #include "accountcreatorprotocols.h"
 #include "accountcreatorwizard.h"
-#include "libqutim/extensioninfo.h"
-#include "libqutim/icon.h"
+#include <qutim/extensioninfo.h>
+#include <qutim/icon.h>
 #include "ui_accountcreatorprotocols.h"
 #include <QCommandLinkButton>
 #include <QScrollBar>

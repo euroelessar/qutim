@@ -23,8 +23,8 @@
 #include <QState>
 #include <QDebug>
 #include <QStateMachine>
-#include <libqutim/debug.h>
-#include <libqutim/chatunit.h>
+#include <qutim/debug.h>
+#include <qutim/chatunit.h>
 
 namespace KineticPopups
 {	

@@ -15,7 +15,7 @@
 
 #ifndef EMOTICONSSELECTOR_H
 #define EMOTICONSSELECTOR_H
-#include <libqutim/settingswidget.h>
+#include <qutim/settingswidget.h>
 #include "emoticonssettings.h"
 
 namespace Ui {

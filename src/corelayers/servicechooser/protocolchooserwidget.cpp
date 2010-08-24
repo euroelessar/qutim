@@ -16,15 +16,15 @@
 #include "protocolchooserwidget.h"
 #include "ui_servicechooserwidget.h"
 #include <QStandardItem>
-#include <libqutim/extensioninfo.h>
-#include <libqutim/debug.h>
-#include <libqutim/icon.h>
+#include <qutim/extensioninfo.h>
+#include <qutim/debug.h>
+#include <qutim/icon.h>
 #include <QStringBuilder>
 #include "itemdelegate.h"
 #include "serviceitem.h"
 #include "servicechooser.h"
-#include <libqutim/configbase.h>
-#include <libqutim/notificationslayer.h>
+#include <qutim/configbase.h>
+#include <qutim/notificationslayer.h>
 
 namespace Core
 {

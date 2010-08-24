@@ -2,7 +2,7 @@
 #include "ui_chatbehavior.h"
 #include <QRadioButton>
 #include <QButtonGroup>
-#include <libqutim/config.h>
+#include <qutim/config.h>
 
 namespace Core
 {

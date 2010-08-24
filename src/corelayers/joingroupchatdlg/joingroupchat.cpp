@@ -16,16 +16,16 @@
 #include "joingroupchat.h"
 #include "ui_joingroupchat.h"
 #include <QEvent>
-#include <libqutim/protocol.h>
-#include <libqutim/account.h>
-#include <libqutim/icon.h>
-#include <libqutim/event.h>
-#include <libqutim/dataforms.h>
+#include <qutim/protocol.h>
+#include <qutim/account.h>
+#include <qutim/icon.h>
+#include <qutim/event.h>
+#include <qutim/dataforms.h>
 #include <QPushButton>
-#include <libqutim/debug.h>
+#include <qutim/debug.h>
 #include <QCommandLinkButton>
 #include <QLatin1Literal>
-#include <libqutim/icon.h>
+#include <qutim/icon.h>
 #include "itemdelegate.h"
 
 namespace Core

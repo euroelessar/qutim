@@ -15,7 +15,7 @@
 
 #include "emoticonsselector.h"
 #include "ui_emoticonsselector.h"
-#include <libqutim/emoticons.h>
+#include <qutim/emoticons.h>
 #include <qmovie.h>
 #include <QLabel>
 #include "flowlayout.h"

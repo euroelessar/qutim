@@ -17,8 +17,8 @@
 #define REQUESTSLISTMODEL_H
 
 #include <QSharedPointer>
-#include "libqutim/debug.h"
-#include "libqutim/contactsearch.h"
+#include <qutim/debug.h>
+#include <qutim/contactsearch.h>
 #include <QAbstractListModel>
 
 namespace Core {

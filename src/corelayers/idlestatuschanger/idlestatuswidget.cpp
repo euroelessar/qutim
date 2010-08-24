@@ -1,5 +1,5 @@
-#include <libqutim/status.h>
-#include <libqutim/config.h>
+#include <qutim/status.h>
+#include <qutim/config.h>
 #include "idlestatuswidget.h"
 #include "ui_idlestatuswidget.h"
 #include "idle-global.h"

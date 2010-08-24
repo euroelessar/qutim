@@ -15,7 +15,7 @@
 
 #ifndef KOPETEEMOTICONSBACKEND_H
 #define KOPETEEMOTICONSBACKEND_H
-#include <libqutim/emoticons.h>
+#include <qutim/emoticons.h>
 
 using namespace qutim_sdk_0_3;
 

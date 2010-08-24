@@ -16,7 +16,7 @@
 
 #ifndef PLUGINCHOOSERWIDGET_H
 #define PLUGINCHOOSERWIDGET_H
-#include <libqutim/settingswidget.h>
+#include <qutim/settingswidget.h>
 #include <QHash>
 
 namespace qutim_sdk_0_3 
