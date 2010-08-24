@@ -132,7 +132,17 @@ namespace qutim_sdk_0_3
 	LIBQUTIM_EXPORT QList<QPointer<Plugin> > pluginsList();
 }
 
-#define QUTIM_EXPORT_PLUGIN2(Plugin,Class) \
+#ifdef QUTIM_STATIC_PLUGIN
+# define QUTIM_EXPORT_PLUGIN_HELPER(PluginInstance, Class) \
+	QT_PREPEND_NAMESPACE(QObject) \
+		*PluginInstance() \
+	Q_PLUGIN_INSTANCE(Class)
+# define QUTIM_EXPORT_PLUGIN(Class) \
+	QUTIM_EXPORT_PLUGIN_HELPER(QUTIM_PLUGIN_INSTANCE, Class)
+# define QUTIM_EXPORT_PLUGIN2(Plugin,Class) \
+	QUTIM_EXPORT_PLUGIN(Class)
+#else
+# define QUTIM_EXPORT_PLUGIN2(Plugin,Class) \
 	Q_EXPORT_PLUGIN2(Plugin,Class) \
 	static const char *qutim_plugin_verification_data = \
 	"pattern=""QUTIM_PLUGIN_VERIFICATION_DATA""\n" \
@@ -145,7 +155,7 @@ namespace qutim_sdk_0_3
 	
 #define QUTIM_EXPORT_PLUGIN(Plugin) \
 	QUTIM_EXPORT_PLUGIN2(Plugin, Plugin)
-			
+#endif		
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::PluginFactory, "org.qutim.PluginFactory")
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::CommandArgumentsHandler, "org.qutim.CommandArgumentsHandler")
 

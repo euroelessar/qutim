@@ -41,14 +41,13 @@ namespace qutim_sdk_0_3
 		};
 	};
 	
-	ConfigAtom::ConfigAtom(QVariant &var, bool isMap) : deleteOnDestroy(false), typeMap(isMap)
+	ConfigAtom::ConfigAtom(QVariant &var, bool isMap) : deleteOnDestroy(false), readOnly(false), typeMap(isMap)
 	{
-		if (isMap != (var.type() == QVariant::Map)) {
-			if (isMap)
-				var = QVariantMap();
-			else
-				var = QVariantList();
-		}
+		if (isMap && var.type() != QVariant::Map)
+			var = QVariantMap();
+		else if (!isMap && var.type() != QVariant::List)
+			var = QVariantList();
+		
 		if (isMap)
 			map = reinterpret_cast<QVariantMap*>(var.data());
 		else
@@ -512,13 +511,15 @@ namespace qutim_sdk_0_3
 		}
 		ConfigLevel * const l = d->levels.at(1);
 		QList<ConfigAtom*> &atoms = l->atoms;
+		qDeleteAll(d->current()->atoms);
+		d->current()->atoms.clear();
 		for (int i = 0; i < atoms.size(); i++) {
 			atom = atoms.at(i);
-			if (atom->readOnly && atom->list->size() > index) {
+			if (atom->readOnly && !atom->typeMap && atom->list->size() > index) {
 				QVariant &var = (*(atom->list))[index];
 				if (var.type() == QVariant::Map)
 					d->current()->atoms << new ConfigAtom(var, true);
-			} else if (!atom->readOnly) {
+			} else if (!atom->readOnly && !atom->typeMap) {
 				bool &changed = d->sources.at(0)->dirty;
 				while (atom->list->size() <= index) {
 					changed = true;

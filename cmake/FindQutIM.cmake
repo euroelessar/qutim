@@ -1,11 +1,50 @@
 # - Try to find qutIM development headers
 # Once done this will define
 #
-#  QUTIM_FOUND - system has qutIM headers
+#  QutIM_FOUND - system has qutIM development files
 #  QUTIM_INCLUDE_DIR - the qutIM include directory
+#  QUTIM_LIBRARIES - the qutIM development library
 #
 # Copyright (c) 2009, Konstantin Plotnikov <kostyapl@gmail.com>
 # Copyright (c) 2009-2010, Ruslan Nigmatullin, <euroelessar@gmail.com>
+
+if( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
+
+    # read from cache
+    set(QutIM_FOUND TRUE)
+
+else( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
+  
+    find_path( QUTIM_INCLUDE_DIR NAMES "qutim/libqutim_global.h" )
+    find_library( QUTIM_LIBRARIES qutim PATHS ${QUTIM_LIBRARY_DIR} )
+    
+    if( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
+	set( QutIM_FOUND TRUE )
+    endif( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
+    
+    if(QutIM_FOUND)
+	if(NOT QutIM_FIND_QUIETLY)
+	    message(STATUS "Found QutIM: ${QUTIM_LIBRARIES}")
+	endif(NOT QutIM_FIND_QUIETLY)
+    else(QutIM_FOUND)
+	if(QutIM_FIND_REQUIRED)
+	    if(NOT QUTIM_INCLUDE_DIR)
+		message(FATAL_ERROR "Could not find QutIM includes.")
+	    endif(NOT QUTIM_INCLUDE_DIR)
+	    if(NOT QUTIM_LIBRARIES)
+		message(FATAL_ERROR "Could not find QutIM library.")
+	    endif(NOT QUTIM_LIBRARIES)
+	else(QutIM_FIND_REQUIRED)
+	    if(NOT QUTIM_INCLUDE_DIR)
+		message(STATUS "Could not find QutIM includes.")
+	    endif(NOT QUTIM_INCLUDE_DIR)
+	    if(NOT QUTIM_LIBRARIES)
+		message(STATUS "Could not find QutIM library.")
+	    endif(NOT QUTIM_LIBRARIES)
+	endif(QutIM_FIND_REQUIRED)
+    endif(QutIM_FOUND)
+	
+endif( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
 
 include( CPack )
 
@@ -58,27 +97,6 @@ macro ( LANGUAGE_UPDATE plugin_name language sources )
 endmacro ( LANGUAGE_UPDATE plugin_name language sources )
 
 # This macro is for internal use only
-macro ( __FIND_QUTIM_03 src_dir )
-    if ( NOT FOUND_QUTIM_03 )
-	if( QUTIM_PATH )
-	    SET(QUTIM_INCLUDE_DIRS ${QUTIM_PATH}/libqutim/include)
-	    SET(QUTIM_LIBRARY_DIR ${QUTIM_PATH}/libqutim/)
-	endif( QUTIM_PATH )
-
-        find_path( QUTIM_INCLUDE_DIRS NAMES "qutim/plugin.h" PATHS "../../" "../" "${src_dir}/../../" "${src_dir}/../" )
-	find_library( QUTIM_LIBRARY qutim PATHS ${QUTIM_LIBRARY_DIR} )
-        if ( QUTIM_INCLUDE_DIRS AND QUTIM_LIBRARY )
-            message ( "Found qutim: ${QUTIM_LIBRARY}" )
-            # This is very very nasty hack:
-            set ( QUTIM_INCLUDE_DIRS ${QUTIM_INCLUDE_DIRS} "${QUTIM_INCLUDE_DIRS}/src"  )
-            set ( FOUND_QUTIM_03 TRUE )
-        else ( QUTIM_INCLUDE_DIRS AND QUTIM_LIBRARY )
-            message ( FATAL_ERROR "Could not find qutIM development headers" )
-        endif ( QUTIM_INCLUDE_DIRS AND QUTIM_LIBRARY )
-    endif ( NOT FOUND_QUTIM_03 )
-endmacro ( __FIND_QUTIM_03 )
-
-# This macro is for internal use only
 macro ( __PREPARE_QUTIM_PLUGIN src_dir )
     if ( NOT QUTIM_PLUGIN )
         if ( NOT QT4_INSTALLED )
@@ -96,8 +114,6 @@ macro ( __PREPARE_QUTIM_PLUGIN src_dir )
             INCLUDE( ${QT_USE_FILE} )
         endif ( NOT QT4_INSTALLED )
 
-        __FIND_QUTIM_03( ${src_dir} )
-
         set ( QUTIM_PLUGIN TRUE )
         set ( QUTIM_PLUGIN_NULL "" )
     endif ( NOT QUTIM_PLUGIN )
@@ -108,22 +124,34 @@ endmacro ( __PREPARE_QUTIM_PLUGIN )
 macro (QUTIM_ADD_PLUGIN plugin_name)
     qutim_parse_arguments(QUTIM_${plugin_name}
 	"DISPLAY_NAME;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS"
-	"SUBPLUGIN;EXTENSION"
+	"SUBPLUGIN;EXTENSION;STATIC"
 	${ARGN}
     )
     if( NOT QUTIM_${plugin_name}_GROUP )
 	set( QUTIM_${plugin_name}_GROUP Plugin )
     endif( NOT QUTIM_${plugin_name}_GROUP )
+    
     cpack_add_component( ${plugin_name}
 	DISPLAY_NAME ${QUTIM_${plugin_name}_DISPLAY_NAME}
 	DESCRIPTION ${QUTIM_${plugin_name}_DESCRIPTION}
 	DEPENDS ${QUTIM_${plugin_name}_DEPENDS}
 	GROUP ${QUTIM_${plugin_name}_GROUP}
     )
+    
+    if( ${QUTIM_BASE_LIBRARY_TYPE} STREQUAL "STATIC" )
+	set( QUTIM_${plugin_name}_STATIC TRUE )
+    endif( ${QUTIM_BASE_LIBRARY_TYPE} STREQUAL "STATIC" )
+    
+    if( QUTIM_${plugin_name}_STATIC )
+	set( QUTIM_${plugin_name}_LIBRARY_TYPE STATIC )
+    else( QUTIM_${plugin_name}_STATIC )
+	set( QUTIM_${plugin_name}_LIBRARY_TYPE SHARED )
+    endif( QUTIM_${plugin_name}_STATIC )
 
     if( NOT QUTIM_${plugin_name}_SOURCE_DIR )
 	set( QUTIM_${plugin_name}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" )
     endif( NOT QUTIM_${plugin_name}_SOURCE_DIR )
+    
     file( GLOB_RECURSE QUTIM_${plugin_name}_SRC "${QUTIM_${plugin_name}_SOURCE_DIR}/*.cpp" )
     file( GLOB_RECURSE QUTIM_${plugin_name}_SRC_MM "${QUTIM_${plugin_name}_SOURCE_DIR}/*.mm" )
     file( GLOB_RECURSE QUTIM_${plugin_name}_HDR "${QUTIM_${plugin_name}_SOURCE_DIR}/*.h" )
@@ -156,10 +184,7 @@ public:
 #include \"${plugin_name}plugin.moc\"
 QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
 " )
-#	list( APPEND QUTIM_${plugin_name}_SRC "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp")
-#	QT4_WRAP_CPP (${plugin_name}_MOC_SRC_EXT "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp")
 	QT4_GENERATE_MOC( "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp" "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.moc" )
-#	QT4_AUTOMOC( "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp" )
 	list( APPEND QUTIM_${plugin_name}_SRC
 	    "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp"
 	    "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.moc"
@@ -180,15 +205,28 @@ QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
     QT4_WRAP_CPP( QUTIM_${plugin_name}_MOC_SRC ${QUTIM_${plugin_name}_HDR} )
     QT4_WRAP_UI( QUTIM_${plugin_name}_UI_H ${QUTIM_${plugin_name}_UI} )
     QT4_ADD_RESOURCES( QUTIM_${plugin_name}_RCC ${QUTIM_${plugin_name}_RES} )
-    message( "${QUTIM_${plugin_name}_UI}" )
-    message( "${QUTIM_${plugin_name}_UI_H}" )
 
     # This project will generate library
-    add_library( ${plugin_name} SHARED ${QUTIM_${plugin_name}_SRC} ${QUTIM_${plugin_name}_MOC_SRC}
+    add_library( ${plugin_name} ${QUTIM_${plugin_name}_LIBRARY_TYPE} ${QUTIM_${plugin_name}_SRC} ${QUTIM_${plugin_name}_MOC_SRC}
 		 ${QUTIM_${plugin_name}_HDR} ${QUTIM_${plugin_name}_UI_H} ${QUTIM_${plugin_name}_RCC} )
 #    set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "-D${plugin_name}_MAKE" )
+    set( QUTIM_${plugin_name}_COMPILE_FLAGS "" )
+    if( QUTIM_${plugin_name}_STATIC )
+        file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}helper.cpp"
+"#include <QtCore/QtPlugin>
+
+Q_IMPORT_PLUGIN(${plugin_name})
+" )
+	set( QUTIM_${plugin_name}_COMPILE_FLAGS "-DQUTIM_STATIC_PLUGIN -DQUTIM_PLUGIN_INSTANCE=\"qt_plugin_instance_${plugin_name}\"" )
+	list( APPEND QUTIM_ADDITIONAL_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}helper.cpp" )
+	list( APPEND QUTIM_ADDITIONAL_LIBRARIES ${plugin_name} )
+    endif( QUTIM_${plugin_name}_STATIC )
+    set( QUTIM_ADDITIONAL_SOURCES "${QUTIM_ADDITIONAL_SOURCES}" CACHE INTERNAL "" )
+    set( QUTIM_ADDITIONAL_LIBRARIES "${QUTIM_ADDITIONAL_LIBRARIES}" CACHE INTERNAL "" )
     if( CMAKE_COMPILER_IS_GNUCXX )
-        set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "-Wall -Werror" )
+        set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS} -Wall -Werror" )
+    else( CMAKE_COMPILER_IS_GNUCXX )
+        set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS}" )
     endif( CMAKE_COMPILER_IS_GNUCXX )
     install( TARGETS ${plugin_name} DESTINATION "lib/qutim/plugins" )
 

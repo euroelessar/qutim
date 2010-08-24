@@ -58,7 +58,7 @@ namespace qutim_sdk_0_3
 //		return area;
 //	}
 
-#if defined(LIBQUTIM_LIBRARY) || defined(QUTIM_CORE)
+#if defined(LIBQUTIM_LIBRARY) || defined(QUTIM_CORE) || 1
 	inline QDebug debug(DebugLevel level = Info)
 	{ return debug_helper(0, level, QtDebugMsg); }
 	inline QDebug warning(DebugLevel level = Info)

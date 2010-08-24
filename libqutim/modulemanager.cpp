@@ -246,6 +246,18 @@ namespace qutim_sdk_0_3
 	 */
 	void ModuleManager::loadPlugins(const QStringList &additional_paths)
 	{
+		// Static plugins
+		foreach (QObject *object, QPluginLoader::staticInstances()) {
+			if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
+				plugin->init();
+				if (plugin->p->validate()) {
+					plugin->p->is_inited = true;
+					p->plugins.append(plugin);
+					p->extensions << plugin->avaiableExtensions();
+				}
+			}
+		}
+
 #if	defined(Q_OS_SYMBIAN)
 		//simple S60 plugins loader
 		QDir pluginsDir(QLibraryInfo::location(QLibraryInfo::PluginsPath));
