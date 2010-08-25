@@ -57,9 +57,11 @@ void KdeSpellerSettings::loadImpl()
 
 void KdeSpellerSettings::saveImpl()
 {
+	QString lang = m_ui->dictionaryComboBox->currentDictionary();
 	ConfigGroup group = Config().group("speller");
 	group.setValue("autodetect", m_ui->autodetect->isChecked());
-	group.setValue("language", m_ui->dictionaryComboBox->currentDictionary());
+	group.setValue("language", lang);
+	KdeSpellerLayer::spellerInstance()->setLanguage(lang);
 }
 
 void KdeSpellerSettings::changeEvent(QEvent *e)
