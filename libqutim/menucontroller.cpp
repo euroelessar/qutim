@@ -141,17 +141,25 @@ namespace qutim_sdk_0_3
 		return actions;
 	}
 	
-	typedef QMenu *(*_menu_creator_hook)();
+	typedef QMenu * (*_menu_creator_hook)(const QString &title, QWidget *parent);
 	LIBQUTIM_EXPORT _menu_creator_hook menu_creator_hook = 0;
 	
-	inline QMenu *create_menu()
-	{ return menu_creator_hook ? menu_creator_hook() : new QMenu(); }
+	inline QMenu *create_menu(MenuController *controller)
+	{
+		QString title = controller->property("title").toString();
+		if (title.isEmpty())
+			title = controller->property("id").toString();
+		return menu_creator_hook ? menu_creator_hook(title, 0) : new QMenu(title);
+	}
 
 	DynamicMenu::DynamicMenu(const MenuControllerPrivate *d) :
-			m_d(d), m_entry(create_menu())
+			m_d(d), m_entry(create_menu(d->q_ptr))
 	{
-		connect(m_entry.menu, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
-		connect(m_entry.menu, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
+		m_menu = m_entry.menu;
+		connect(m_menu, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
+		connect(m_menu, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
+		connect(m_menu, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+		connect(this, SIGNAL(destroyed()), m_menu, SLOT(deleteLater()));
 		QList<ActionInfo> actions = allActions();
 		if (actions.isEmpty()) {
 			return;
@@ -209,7 +217,6 @@ namespace qutim_sdk_0_3
 		// 			if (!actionsCache()->key(action))
 		// 				action->deleteLater();
 		// 		}
-		delete m_entry.menu;
 	}
 
 	void DynamicMenu::onAboutToShow()
