@@ -20,6 +20,26 @@ LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/k8json.h" )
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.h" )
 
+# Add SlidingStackedWidget
+LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/slidingstackedwidget.cpp" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/slidingstackedwidget/slidingstackedwidget.h" )
+
+# Add flowlayout code
+LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/flowlayout/flowlayout.cpp" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/flowlayout/flowlayout.h" )
+
+# Add actionbox code
+LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/actionbox/actionbox.cpp" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/actionbox/actionbox_p.h" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/actionbox/actionbox.h" )
+
+# Add itemdelegate
+LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/itemdelegate/itemdelegate.cpp" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/itemdelegate/itemdelegate.h" )
+
+# Add avatarfilter
+LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.cpp" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.h" )
 
 # MinGW special options
 # Not sure if those applicable for linux

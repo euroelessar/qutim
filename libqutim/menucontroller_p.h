@@ -26,9 +26,7 @@ namespace qutim_sdk_0_3
 	typedef QMap<const QMetaObject *,SettingsItem*> MenuSettingsMap;
 	typedef QMap<const ActionGenerator*,QMap<const QObject*, QAction*> > ActionGeneratorMap;
 
-	Q_GLOBAL_STATIC(MenuActionMap, globalActions)
-	Q_GLOBAL_STATIC(ActionGeneratorMap,actionsCache);
-	Q_GLOBAL_STATIC(MenuSettingsMap,globalSettings);
+	ActionGeneratorMap *actionsCache();
 
 	struct ActionInfo
 	{
@@ -123,16 +121,7 @@ namespace qutim_sdk_0_3
 		QActionList m_actions;
 	};
 
-	Q_GLOBAL_STATIC(ActionHandler,handler);
-
-	//hack for stupid gcc!
-
-	static inline void gccHack() {
-		Q_UNUSED(globalActions())
-		Q_UNUSED(actionsCache())
-		Q_UNUSED(handler())
-	}
-
+	ActionHandler *handler();
 }
 
 #endif // MENUCONTROLLER_P_H

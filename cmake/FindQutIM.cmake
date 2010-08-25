@@ -239,7 +239,8 @@ Q_IMPORT_PLUGIN(${plugin_name})
 			TARGET ${plugin_name}
 			POST_BUILD
 			COMMAND ${CMAKE_COMMAND}
-			ARGS -E copy ${${plugin_name}_LOCATION} ${QUTIM_BINARY_DIR}/plugins
+			ARGS -E copy ${${plugin_name}_LOCATION} 
+				${QUTIM_BINARY_DIR}/plugins/${CMAKE_SHARED_LIBRARY_PREFIX}${plugin_name}${CMAKE_SHARED_LIBRARY_SUFFIX}
 		)
 	endif ( QUTIM_COPY_PLUGINS_TO_BINARY_DIR AND QUTIM_BINARY_DIR AND NOT QUTIM_${plugin_name}_STATIC )
 

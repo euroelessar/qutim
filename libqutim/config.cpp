@@ -41,7 +41,7 @@ namespace qutim_sdk_0_3
 		};
 	};
 	
-	ConfigAtom::ConfigAtom(QVariant &var, bool isMap) : deleteOnDestroy(false), readOnly(false), typeMap(isMap)
+	ConfigAtom::ConfigAtom(QVariant &var, bool isMap) : deleteOnDestroy(false), typeMap(isMap), readOnly(false)
 	{
 		if (isMap && var.type() != QVariant::Map)
 			var = QVariantMap();
@@ -398,9 +398,11 @@ namespace qutim_sdk_0_3
 	{
 		Q_D(Config);
 		Q_ASSERT(d->levels.size() > 1);
+#ifdef DEBUG		
 		ConfigLevel * const level = d->levels.at(0);
 		ConfigAtom * const atom = level->atoms.value(0);
 		Q_ASSERT(!atom || atom->typeMap);
+#endif
 		delete d->levels.takeFirst();
 	}
 

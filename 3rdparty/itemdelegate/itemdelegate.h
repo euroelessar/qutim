@@ -16,6 +16,7 @@
 #define ITEMDELEGATE_H
 
 #include <QAbstractItemDelegate>
+#include "libqutim/libqutim_global.h"
 
 namespace Core
 {
@@ -29,7 +30,7 @@ namespace Core
 
 	Q_DECLARE_FLAGS(ItemRoles,ItemRole);
 
-	class ItemDelegate : public QAbstractItemDelegate
+	class LIBQUTIM_EXPORT ItemDelegate : public QAbstractItemDelegate
 	{
 		Q_OBJECT
 	public:

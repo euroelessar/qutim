@@ -120,27 +120,6 @@ IF (${QUTIM_SINGLE_PROFILE})
 	MESSAGE( "-- qutIM will be compiled without multiply profiles support" )
 ENDIF (${QUTIM_SINGLE_PROFILE})
 
-# Add SlidingStackedWidget
-LIST( APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/slidingstackedwidget/slidingstackedwidget.cpp" )
-LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/slidingstackedwidget/slidingstackedwidget.h" )
-
-# Add flowlayout code
-LIST( APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/flowlayout/flowlayout.cpp" )
-LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/flowlayout/flowlayout.h" )
-
-# Add actionbox code
-LIST( APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/actionbox/actionbox.cpp" )
-LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/actionbox/actionbox_p.h" )
-LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/actionbox/actionbox.h" )
-
-# Add itemdelegate
-LIST( APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/itemdelegate/itemdelegate.cpp" )
-LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/itemdelegate/itemdelegate.h" )
-
-# Add avatarfilter
-LIST( APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/avatarfilter/avatarfilter.cpp" )
-LIST( APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/avatarfilter/avatarfilter.h" )
-
 #TODO fix in future
 if (MINGW)
 	exec_program(windres

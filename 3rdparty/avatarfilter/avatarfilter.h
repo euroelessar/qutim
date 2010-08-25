@@ -3,13 +3,14 @@
 #include <QString>
 #include <QScopedPointer>
 #include <QGraphicsEffect>
+#include "libqutim/libqutim_global.h"
 
 class QIcon;
 namespace qutim_sdk_0_3
 {
 	class Status;
 	struct AvatarFilterPrivate;
-	class AvatarFilter
+	class LIBQUTIM_EXPORT AvatarFilter
 	{
 		Q_DECLARE_PRIVATE(AvatarFilter)
 	public:
