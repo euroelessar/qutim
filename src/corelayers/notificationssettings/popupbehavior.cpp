@@ -91,7 +91,7 @@ namespace Core
 		behavior.sync();
 		QObject *popup = getService("Popup");
 		if (popup)
-			QMetaObject::invokeMethod(popup, SLOT(updateSettings()));
+			QMetaObject::invokeMethod(popup, "updateSettings");
 	}
 
 	PopupBehavior::~PopupBehavior()
