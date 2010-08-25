@@ -7,7 +7,8 @@ if(NO_RTF_SUPPORT)
     ADD_DEFINITIONS("-DNO_RTF_SUPPORT")
 endif(NO_RTF_SUPPORT)
 
-ADD_QUTIMPLUGIN( "mrim" "src")
-
-INCLUDE_DIRECTORIES( src/base
-                     src/3rdparty )
+qutim_add_plugin( mrim
+	DISPLAY_NAME "MRIM protocol"
+	DESCRIPTION "Implementation of MRIM protocol"
+	INCLUDE_DIRS src/base src/3rdparty
+)

@@ -17,4 +17,8 @@ else( PKG_CONFIG_FOUND )
 endif( PKG_CONFIG_FOUND)
 
 SET( QT_USE_QTNETWORK TRUE )
-ADD_QUTIMPLUGIN_EXT2( "quetzal" "src" "" ${PURPLE_LIBRARIES})
+qutim_add_plugin( quetzal
+	DISPLAY_NAME "Quetzal"
+	DESCRIPTION "'Quetzal' is set of protocols, powered by libpurple"
+	LINK_LIBRARIES "${PURPLE_LIBRARIES}"
+)

@@ -24,7 +24,6 @@
 #include "vaccount_p.h"
 #include <qutim/inforequest.h>
 #include "vinforequest.h"
-#include "vwallsession.h"
 
 VAccount::VAccount(const QString& email) : 
 	Account(email, VkontakteProtocol::instance()),
