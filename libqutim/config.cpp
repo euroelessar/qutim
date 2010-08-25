@@ -163,7 +163,7 @@ namespace qutim_sdk_0_3
 		Q_DISABLE_COPY(ConfigPrivate)
 	public:
 		inline ConfigPrivate()  { levels << new ConfigLevel(); }
-		inline ~ConfigPrivate() { if (!memoryGuard) sync(); }
+		inline ~ConfigPrivate() { if (!memoryGuard && !sources.isEmpty()) sync(); }
 		inline ConfigLevel *current() const { return levels.at(0); }
 		void sync();
 		void addSource(const QString &path);
@@ -174,6 +174,7 @@ namespace qutim_sdk_0_3
 	
 	void ConfigPrivate::sync()
 	{
+		Q_ASSERT(!sources.isEmpty());
 		ConfigSource *source = sources.value(0).data();
 		if (source && source->dirty) {
 			const ConfigAtom * const level = &source->data;
@@ -522,14 +523,15 @@ namespace qutim_sdk_0_3
 				if (var.type() == QVariant::Map)
 					d->current()->atoms << new ConfigAtom(var, true);
 			} else if (!atom->readOnly && !atom->typeMap) {
-				bool &changed = d->sources.at(0)->dirty;
+				bool *changed = !d->sources.isEmpty() ? &d->sources.at(0)->dirty : 0;
 				while (atom->list->size() <= index) {
-					changed = true;
+					if (changed)
+						*changed = true;
 					atom->list->append(QVariantMap());
 				}
 				QVariant &var = (*(atom->list))[index];
-				if (!changed)
-					changed = var.type() == QVariant::Map;
+				if (changed)
+					*changed = var.type() == QVariant::Map;
 				d->current()->atoms << new ConfigAtom(var ,true);
 			}
 		}
@@ -548,7 +550,8 @@ namespace qutim_sdk_0_3
 		Q_ASSERT(!atom || !atom->typeMap);
 		if (atom && !atom->readOnly && atom->list->size() > index) {
 			atom->list->removeAt(index);
-			d->sources.at(0)->dirty = true;
+			if (!d->sources.isEmpty())
+				d->sources.at(0)->dirty = true;
 		}
 	}
 
@@ -597,7 +600,8 @@ namespace qutim_sdk_0_3
 		Q_ASSERT(atom->typeMap);
 		QVariant var = (type & Config::Crypted) ? CryptoService::crypt(value) : value;
 		atom->map->insert(name, var);
-		d->sources.at(0)->dirty = true;
+		if (!d->sources.isEmpty())
+			d->sources.at(0)->dirty = true;
 		if (slashIndex != -1)
 			endGroup();
 	}
