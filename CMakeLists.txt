@@ -159,6 +159,7 @@ REMOVE_DEFINITIONS ( -DLIBQUTIM_LIBRARY )
 
 set( QUTIM_PATH ${CMAKE_CURRENT_SOURCE_DIR} CACHE FILEPATH "Path to qutim sources")
 set( QUTIM_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR} CACHE FILEPATH "Path to qutim build directory")
+option( QUTIM_COPY_PLUGINS_TO_BINARY_DIR "Copy plugins to qutim build directory" OFF )
 set( QUTIM_LIBRARY libqutim )
 
 QT4_WRAP_CPP (MOC_SRCS ${HEADERS})

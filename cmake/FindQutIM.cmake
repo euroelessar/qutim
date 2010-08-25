@@ -233,6 +233,15 @@ Q_IMPORT_PLUGIN(${plugin_name})
         set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS}" )
     endif( CMAKE_COMPILER_IS_GNUCXX )
     install( TARGETS ${plugin_name} DESTINATION "lib/qutim/plugins" )
+	if ( QUTIM_COPY_PLUGINS_TO_BINARY_DIR AND QUTIM_BINARY_DIR AND NOT QUTIM_${plugin_name}_STATIC )
+		get_target_property ( ${plugin_name}_LOCATION ${plugin_name} LOCATION ) 
+		add_custom_command(
+			TARGET ${plugin_name}
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND}
+			ARGS -E copy ${${plugin_name}_LOCATION} ${QUTIM_BINARY_DIR}/plugins
+		)
+	endif ( QUTIM_COPY_PLUGINS_TO_BINARY_DIR AND QUTIM_BINARY_DIR AND NOT QUTIM_${plugin_name}_STATIC )
 
     # Link with QT
     target_link_libraries( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARY} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
