@@ -200,7 +200,7 @@ QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
     # message( "${QUTIM_${plugin_name}_SRC}" )
 
     include_directories( 
-		${QUTIM_INCLUDE_DIRS} 
+		${QUTIM_INCLUDE_DIR} 
 		${CMAKE_CURRENT_BINARY_DIR} 
 		${QUTIM_${plugin_name}_INCLUDE_DIRS} 
 		${QUTIM_${plugin_name}_SOURCE_DIR} 

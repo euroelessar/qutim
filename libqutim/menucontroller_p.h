@@ -65,13 +65,15 @@ namespace qutim_sdk_0_3
 		static MenuControllerPrivate *get(MenuController *gen) { return gen->d_func(); }
 		static const MenuControllerPrivate *get(const MenuController *gen) { return gen->d_func(); }
 	};
-
-	class DynamicMenu : public QMenu
+	
+	class DynamicMenu : public QObject
 	{
 		Q_OBJECT
 	public:
 		DynamicMenu(const MenuControllerPrivate *d);
 		virtual ~DynamicMenu();
+		
+		inline QMenu *menu() { return m_menu; }
 		void addActions(const QList<ActionInfo> &actions); //TODO need redesign
 		ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info);
 	public slots:
@@ -83,6 +85,7 @@ namespace qutim_sdk_0_3
 	private:
 		QList<ActionInfo> allActions() const;
 		const MenuControllerPrivate * const m_d;
+		QMenu *m_menu;
 		ActionEntry m_entry;
 		mutable QMap<const ActionGenerator*, QObject*> m_owners;
 		friend class MenuController;

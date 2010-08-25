@@ -140,12 +140,18 @@ namespace qutim_sdk_0_3
 		qSort(actions.begin(), actions.end(), actionLessThan);
 		return actions;
 	}
+	
+	typedef QMenu *(*_menu_creator_hook)();
+	LIBQUTIM_EXPORT _menu_creator_hook menu_creator_hook = 0;
+	
+	inline QMenu *create_menu()
+	{ return menu_creator_hook ? menu_creator_hook() : new QMenu(); }
 
 	DynamicMenu::DynamicMenu(const MenuControllerPrivate *d) :
-			m_d(d),m_entry(this)
+			m_d(d), m_entry(create_menu())
 	{
-		connect(this, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
-		connect(this, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
+		connect(m_entry.menu, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
+		connect(m_entry.menu, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
 		QList<ActionInfo> actions = allActions();
 		if (actions.isEmpty()) {
 			return;
@@ -203,11 +209,12 @@ namespace qutim_sdk_0_3
 		// 			if (!actionsCache()->key(action))
 		// 				action->deleteLater();
 		// 		}
+		delete m_entry.menu;
 	}
 
 	void DynamicMenu::onAboutToShow()
 	{
-		foreach (QAction *action,this->actions()) {
+		foreach (QAction *action, m_entry.menu->actions()) {
 			ActionGenerator *gen = action->data().value<ActionGenerator*>();
 			if (!gen) {
 				qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
@@ -220,7 +227,7 @@ namespace qutim_sdk_0_3
 
 	void DynamicMenu::onAboutToHide()
 	{
-		foreach (QAction *action,this->actions()) {
+		foreach (QAction *action, m_entry.menu->actions()) {
 			ActionGenerator *gen = action->data().value<ActionGenerator*>();
 			if (!gen) {
 				continue;
@@ -238,9 +245,9 @@ namespace qutim_sdk_0_3
 		}
 #ifdef Q_OS_SYMBIAN
 		//workaround about buggy softkeys
-		d_func()->menu->onAboutToShow();
+		d_func()->menu->menu()->onAboutToShow();
 #endif
-		return d_func()->menu;
+		return d_func()->menu->menu();
 	}
 
 	void MenuController::showMenu(const QPoint &pos)

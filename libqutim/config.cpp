@@ -155,6 +155,7 @@ namespace qutim_sdk_0_3
 		} else {
 			d->data.map = new QVariantMap();
 		}
+		sourceHash()->insert(path, result);
 		return result;
 	}
 
