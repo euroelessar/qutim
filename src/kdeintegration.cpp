@@ -5,15 +5,32 @@
 #include "speller/kdespellersettings.h"
 #include "iconloader/kdeiconloader.h"
 #include "notification/kdenotificationlayer.h"
+#include "tray/kdetrayicon.h"
 #include "quetzalgui.h"
 #include <kdeversion.h>
 #include <KIcon>
+#include <KMenu>
 #include <qutim/event.h>
 #include <QCoreApplication>
 #include <KAboutData>
+#include <QDebug>
+
+namespace qutim_sdk_0_3
+{
+	typedef QMenu *(*_menu_creator_hook)(const QString &title, QWidget *parent);
+	extern LIBQUTIM_EXPORT _menu_creator_hook menu_creator_hook;
+}
 
 namespace KdeIntegration
 {
+	QMenu *kmenu_creator(const QString &title, QWidget *parent)
+	{
+		KMenu *menu = new KMenu(title, parent);
+		if (!title.isEmpty())
+			menu->addTitle(title);
+		return menu;
+	}
+	
 	KdePlugin::KdePlugin()
 	{
 		m_quetzal_id = Event::registerType("quetzal-ui-ops-inited");
@@ -23,6 +40,7 @@ namespace KdeIntegration
 	void KdePlugin::init()
 	{
 //		QApplication::setPalette(KGlobalSettings::createApplicationPalette());
+		menu_creator_hook = kmenu_creator;
 		KAboutData aboutData(QCoreApplication::applicationName().toUtf8(),
 							  QByteArray(),
 							  ki18n("qutIM Instant Messenger"),
@@ -38,7 +56,7 @@ namespace KdeIntegration
 		aboutData.setOrganizationDomain(QCoreApplication::organizationDomain().toUtf8());
 		KGlobal::setActiveComponent(KComponentData(aboutData));
 
-		ExtensionIcon kdeIcon(KIcon("kde"));
+		ExtensionIcon kdeIcon("kde");
 		addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 				  QT_TRANSLATE_NOOP("Task", "Developer"),
 				  QLatin1String("euroelessar@gmail.com"));
@@ -63,6 +81,9 @@ namespace KdeIntegration
 		addExtension<KDENotificationLayer>(QT_TRANSLATE_NOOP("Plugin", "KDE Notifications"),
 										   QT_TRANSLATE_NOOP("Plugin", "Uses KDE notifications"),
 										   kdeIcon);
+		addExtension<KdeTrayIcon>(QT_TRANSLATE_NOOP("Plugin", "KDE Status Notifier"),
+								   QT_TRANSLATE_NOOP("Plugin", "Using new KDE DBus tray specification"),
+								   kdeIcon);
 	}
 
 	bool KdePlugin::load()
