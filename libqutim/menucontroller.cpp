@@ -24,6 +24,19 @@
 
 namespace qutim_sdk_0_3
 {
+	Q_GLOBAL_STATIC(MenuActionMap, globalActions)
+	ActionGeneratorMap *actionsCache()
+	{
+		static QScopedPointer<ActionGeneratorMap> actions(new ActionGeneratorMap);
+		return actions.data();
+	}
+	Q_GLOBAL_STATIC(MenuSettingsMap,globalSettings);
+	ActionHandler *handler()
+	{
+		static ActionHandler handler;
+		return &handler;
+	}
+
 	MenuController::MenuController(QObject *parent) : QObject(parent), d_ptr(new MenuControllerPrivate(this))
 	{
 	}

@@ -17,9 +17,10 @@
 #define ACTIONBOX_H
 
 #include <QWidget>
+#include "libqutim/libqutim_global.h"
 
 class ActionBoxPrivate;
-class ActionBox : public QWidget
+class LIBQUTIM_EXPORT ActionBox : public QWidget
 {
 	//simple soft key emulation
     Q_OBJECT

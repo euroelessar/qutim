@@ -123,7 +123,7 @@ endmacro ( __PREPARE_QUTIM_PLUGIN )
 #   plugin_name - name of plugin being added
 macro (QUTIM_ADD_PLUGIN plugin_name)
     qutim_parse_arguments(QUTIM_${plugin_name}
-	"DISPLAY_NAME;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS"
+	"DISPLAY_NAME;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS"
 	"SUBPLUGIN;EXTENSION;STATIC"
 	${ARGN}
     )
@@ -138,9 +138,9 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
 	GROUP ${QUTIM_${plugin_name}_GROUP}
     )
     
-    if( ${QUTIM_BASE_LIBRARY_TYPE} STREQUAL "STATIC" )
+    if( "${QUTIM_BASE_LIBRARY_TYPE}" STREQUAL "STATIC" )
 	set( QUTIM_${plugin_name}_STATIC TRUE )
-    endif( ${QUTIM_BASE_LIBRARY_TYPE} STREQUAL "STATIC" )
+    endif( "${QUTIM_BASE_LIBRARY_TYPE}" STREQUAL "STATIC" )
     
     if( QUTIM_${plugin_name}_STATIC )
 	set( QUTIM_${plugin_name}_LIBRARY_TYPE STATIC )
@@ -191,7 +191,7 @@ QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
 	)
     endif( QUTIM_${plugin_name}_EXTENSION )
 
-    __PREPARE_QUTIM_PLUGIN("${CMAKE_CURRENT_SOURCE_DIR}/src")
+    __PREPARE_QUTIM_PLUGIN(${QUTIM_${plugin_name}_SOURCE_DIR})
     if( MINGW )
         add_definitions( -DUNICODE -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT )
         list( APPEND COMPILE_FLAGS "-mthreads" )
@@ -199,8 +199,12 @@ QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
 
     # message( "${QUTIM_${plugin_name}_SRC}" )
 
-    include_directories( ${QUTIM_INCLUDE_DIRS} )
-    include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
+    include_directories( 
+		${QUTIM_INCLUDE_DIRS} 
+		${CMAKE_CURRENT_BINARY_DIR} 
+		${QUTIM_${plugin_name}_INCLUDE_DIRS} 
+		${QUTIM_${plugin_name}_SOURCE_DIR} 
+	)
 
     QT4_WRAP_CPP( QUTIM_${plugin_name}_MOC_SRC ${QUTIM_${plugin_name}_HDR} )
     QT4_WRAP_UI( QUTIM_${plugin_name}_UI_H ${QUTIM_${plugin_name}_UI} )
@@ -229,6 +233,16 @@ Q_IMPORT_PLUGIN(${plugin_name})
         set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS}" )
     endif( CMAKE_COMPILER_IS_GNUCXX )
     install( TARGETS ${plugin_name} DESTINATION "lib/qutim/plugins" )
+	if ( QUTIM_COPY_PLUGINS_TO_BINARY_DIR AND QUTIM_BINARY_DIR AND NOT QUTIM_${plugin_name}_STATIC )
+		get_target_property ( ${plugin_name}_LOCATION ${plugin_name} LOCATION ) 
+		add_custom_command(
+			TARGET ${plugin_name}
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND}
+			ARGS -E copy ${${plugin_name}_LOCATION} 
+				${QUTIM_BINARY_DIR}/plugins/${CMAKE_SHARED_LIBRARY_PREFIX}${plugin_name}${CMAKE_SHARED_LIBRARY_SUFFIX}
+		)
+	endif ( QUTIM_COPY_PLUGINS_TO_BINARY_DIR AND QUTIM_BINARY_DIR AND NOT QUTIM_${plugin_name}_STATIC )
 
     # Link with QT
     target_link_libraries( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARY} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )

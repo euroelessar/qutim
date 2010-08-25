@@ -48,7 +48,7 @@
 #include "libqutim/libqutim_global.h"
 
 //! [0]
-class FlowLayout : public QLayout
+class LIBQUTIM_EXPORT FlowLayout : public QLayout
 {
 public:
     FlowLayout(QWidget *parent, int margin = -1, int hSpacing = -1, int vSpacing = -1);

@@ -90,5 +90,11 @@ namespace KineticPopups
 			connect(sender,SIGNAL(destroyed(QObject*)),popup,SLOT(deleteLater()));
 		popup->send();
 	}
-
+	
+	void Backend::updateSettings()
+	{
+		Manager *manager = Manager::self();
+		if (manager)
+			manager->loadSettings();
+	}
 }

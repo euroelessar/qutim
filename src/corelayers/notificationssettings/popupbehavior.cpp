@@ -1,8 +1,8 @@
 #include "popupbehavior.h"
 #include "ui_notifications.h"
 #include <qutim/configbase.h>
-#include <corelayers/kineticpopups/manager.h>
 #include <qutim/localizedstring.h>
+#include <qutim/notificationslayer.h>
 #include <QToolButton>
 #include <qutim/icon.h>
 #include <qutim/debug.h>
@@ -89,7 +89,9 @@ namespace Core
 		behavior.setValue("showFlags",m_popup_flags);
 		behavior.setValue("soundFlags",m_sound_flags);
 		behavior.sync();
-		KineticPopups::Manager::self()->loadSettings();
+		QObject *popup = getService("Popup");
+		if (popup)
+			QMetaObject::invokeMethod(popup, SLOT(updateSettings()));
 	}
 
 	PopupBehavior::~PopupBehavior()
