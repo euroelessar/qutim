@@ -1,22 +1,26 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
 PROJECT( QMLPopups )
 
-set(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")
-if(QUTIM_PATH)
-    set(QUTIM_INCLUDE_DIRS ${QUTIM_PATH}/libqutim/include)
-    set(QUTIM_LIBRARY_DIR ${QUTIM_PATH}/libqutim/)
-    set(QUTIM_CMAKE_PLUGIN ${QUTIM_PATH}/cmake/QutimPlugin.cmake)
-else(QUTIM_PATH)
-    set(QUTIM_CMAKE_PLUGIN ${CMAKE_ROOT}/Modules/QutimPlugin.cmake)
-endif(QUTIM_PATH)
-
 SET( QT_USE_QTNETWORK TRUE )
 SET( QT_USE_QTSCRIPT TRUE )
 SET( QT_USE_QTDECLARATIVE TRUE )
 find_package( Qt4 REQUIRED )
 
-include( ${QUTIM_CMAKE_PLUGIN} )
+if ( ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR} )
+	set(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")
+	set(QUTIM_BINARY_DIR "" CACHE FILEPATH "Path to qutim build directory")
+	set(QUTIM_LIBRARY QUTIM_LIBRARY-NOTFOUND CACHE FILEPATH "Path to qutim library")
+endif ( ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR} )
+if( QUTIM_BINARY_DIR )
+	set( QUTIM_INCLUDE_DIR ${QUTIM_BINARY_DIR}/libqutim/include )
+	set( QUTIM_LIBRARY_DIR ${QUTIM_BINARY_DIR}/libqutim/ )
+endif( QUTIM_BINARY_DIR )
 
-ADD_QUTIMPLUGIN ( "qmlpopups" "src")
+LIST (APPEND CMAKE_MODULE_PATH "cmake")
+LIST (APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
+find_package( QutIM REQUIRED )
 
- 
+qutim_add_plugin( qmlpopups
+	DISPLAY_NAME "QML Popups"
+	DESCRIPTION "Modern popups, based on power of Qt Quick"
+)
