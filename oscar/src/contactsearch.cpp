@@ -83,6 +83,7 @@ QVariant OscarContactSearch::headerData(int column, int role)
 	case 6:
 		return QT_TRANSLATE_NOOP("ContactSearch", "Age").toString();
 	}
+	return QVariant();
 }
 
 int OscarContactSearch::rowCount() const

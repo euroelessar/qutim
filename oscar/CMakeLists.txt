@@ -4,10 +4,10 @@ PROJECT( Oscar )
 SET( QT_USE_QTNETWORK TRUE )
 SET( QT_USE_QTXML TRUE )
 qutim_add_plugin( oscar
+	COMPILE_FLAGS "-DLIBOSCAR_LIBRARY"
 	DISPLAY_NAME "Oscar protocol"
 	DESCRIPTION "Module-based implementation of Oscar protocol"
 )
-SET_TARGET_PROPERTIES(oscar PROPERTIES COMPILE_FLAGS "-DLIBOSCAR_LIBRARY")
 IF( QT_QCONFIG MATCHES "openssl" )
 	add_definitions(-DOSCAR_SSL_SUPPORT)
 ENDIF( QT_QCONFIG MATCHES "openssl" )

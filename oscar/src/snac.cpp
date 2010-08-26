@@ -22,7 +22,7 @@ namespace qutim_sdk_0_3 {
 namespace oscar {
 
 SNAC::SNAC(quint16 family, quint16 subtype) :
-	m_member(0), m_receiver(0)
+	m_receiver(0), m_member(0)
 {
 	reset(family, subtype);
 }

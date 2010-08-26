@@ -28,7 +28,7 @@ public:
 };
 
 FindContactsMetaRequest::FoundContact::FoundContact() :
-	status(NonWebaware), authFlag(false), age(0)
+		authFlag(false), status(NonWebaware), age(0)
 {
 }
 

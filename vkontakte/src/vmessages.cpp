@@ -34,7 +34,6 @@
 
 void VMessagesPrivate::onHistoryRecieved()
 {
-	Q_Q(VMessages);
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	Q_ASSERT(reply);
 	QByteArray rawData = reply->readAll();
@@ -68,7 +67,6 @@ void VMessagesPrivate::onHistoryRecieved()
 
 void VMessagesPrivate::onMessageSended()
 {
-	Q_Q(VMessages);
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	Q_ASSERT(reply);
 	QVariantMap data = Json::parse(reply->readAll()).toMap();
@@ -86,7 +84,6 @@ void VMessagesPrivate::onMessageSended()
 
 void VMessagesPrivate::onSmsSended()
 {
-	Q_Q(VMessages);
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	Q_ASSERT(reply);
 	QByteArray rawData =  reply->readAll();
@@ -108,7 +105,6 @@ void VMessagesPrivate::onSmsSended()
 
 void VMessagesPrivate::onMessagesRecieved()
 {
-	Q_Q(VMessages);
 }
 
 void VMessages::markAsRead(const QStringList &messages)

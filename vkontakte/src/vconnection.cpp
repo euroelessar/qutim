@@ -136,7 +136,6 @@ void VConnection::onLoadFinished(bool ok)
 
 void VConnection::disconnectFromHost(bool force)
 {
-	Q_D(VConnection);
 	Q_UNUSED(force);
 	setConnectionState(Disconnected);
 	foreach (QNetworkReply *reply, findChildren<QNetworkReply*>())
