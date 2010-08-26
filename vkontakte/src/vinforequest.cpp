@@ -80,7 +80,7 @@ typedef QCache<int, QString> NameMapper;
 Q_GLOBAL_STATIC(NameMapper, cities)
 Q_GLOBAL_STATIC(NameMapper, countries)
 
-VInfoRequest::VInfoRequest(QObject *parent) : m_item(0), m_unknownCount(0)
+VInfoRequest::VInfoRequest(QObject *parent) : m_unknownCount(0), m_item(0)
 {
 	QString id;
 	if (VAccount *account = qobject_cast<VAccount*>(parent)) {
@@ -212,6 +212,8 @@ void VInfoRequest::ensureAddress(DataType type)
 		field = QLatin1String("city");
 		mapper = cities();
 		break;
+	default:
+		return;
 	}
 	int id = m_data.value(field, -1).toInt();
 	if (id == -1)

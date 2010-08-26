@@ -334,9 +334,9 @@ void OftServer::incomingConnection(int socketDescriptor)
 }
 
 OftConnection::OftConnection(IcqContact *contact, Direction direction, quint64 cookie, OftFileTransferFactory *manager) :
-	FileTransferEngine(contact, direction, manager), m_contact(contact), m_cookie(cookie),
-	m_transfer(manager), m_server(this), m_proxy(false),m_currentIndex(-1), m_connInited(false),
-	m_state(StateNotStarted)
+	FileTransferEngine(contact, direction, manager), m_server(this), m_transfer(manager),
+	m_contact(contact), m_cookie(cookie), m_proxy(false), m_state(StateNotStarted),
+	m_currentIndex(-1), m_connInited(false)
 {
 }
 

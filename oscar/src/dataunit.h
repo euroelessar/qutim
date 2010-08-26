@@ -179,7 +179,7 @@ struct toDataUnitHelper<T, true>
 	static inline QByteArray toByteArray(const QString &data, QTextCodec *codec = Util::defaultCodec(), ByteOrder bo = BigEndian)
 	{
 		QByteArray buf = toDataUnitHelper<QString>::toByteArray(data, codec);
-		if (std::numeric_limits<T>().max() < buf.size())
+		if (static_cast<quint64>(std::numeric_limits<T>().max()) < static_cast<quint64>(buf.size()))
 			buf.resize(std::numeric_limits<T>().max() - 1);
 		return toByteArray(buf.size(), bo) + buf;
 	}

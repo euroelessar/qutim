@@ -102,6 +102,9 @@ void PrivacyActionGenerator::showImpl(QAction *action, QObject *object)
 	case AllowContactList:
 		action->setText(QT_TRANSLATE_NOOP("Privacy", "Visible only for contact list"));
 		break;
+	default:
+		// FIXME: What should be done here?
+		return;
 	}
 	action->setProperty("visibility", m_visibility);
 	action->setProperty("invisibleMode", m_invisibleMode);

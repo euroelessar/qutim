@@ -45,7 +45,6 @@ void VRosterPrivate::checkPhoto(QObject *obj, const QString &photoUrl)
 
 void VRosterPrivate::onGetProfileRequestFinished()
 {
-	Q_Q(VRoster);
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	QByteArray rawData = reply->readAll();
 	qDebug() << Q_FUNC_INFO << rawData;
@@ -175,7 +174,6 @@ void VRosterPrivate::updateAvatar()
 
 void VRosterPrivate::updateActivity()
 {
-	Q_Q(VRoster);
 	QVariantMap data;
 	if (lastActivityTime.isValid()) {
 		data.insert("timestamp", lastActivityTime.toUTC().toTime_t());
@@ -413,7 +411,6 @@ void VRoster::updateProfile(VContact *contact)
 
 void VRosterPrivate::onUpdateProfileFinished()
 {
-	Q_Q(VRoster);
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	VContact *contact = reply->property("contact").value<VContact*>();
 	QByteArray rawData = reply->readAll();

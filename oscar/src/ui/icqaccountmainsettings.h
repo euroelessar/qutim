@@ -35,8 +35,8 @@ private slots:
 	void onCurrentServerChanged(const QString &currentServer);
 	void updatePort(bool ssl);
 private:
-	IcqAccount *m_account;
     Ui::IcqAccountMainSettings *ui;
+	IcqAccount *m_account;
 };
 
 class IcqAccountMainSettingsWindget: public SettingsWidget
