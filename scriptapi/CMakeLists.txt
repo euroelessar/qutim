@@ -1,15 +1,5 @@
-CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
-PROJECT( ScriptAPI )
-
-set(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")
-if(QUTIM_PATH)
-    set(QUTIM_INCLUDE_DIRS ${QUTIM_PATH}/libqutim/include)
-    set(QUTIM_LIBRARY_DIR ${QUTIM_PATH}/libqutim/)
-    set(QUTIM_CMAKE_PLUGIN ${QUTIM_PATH}/cmake/QutimPlugin.cmake)
-else(QUTIM_PATH)
-    set(QUTIM_CMAKE_PLUGIN ${CMAKE_ROOT}/Modules/QutimPlugin.cmake)
-endif(QUTIM_PATH)
-
 SET( QT_USE_QTSCRIPT TRUE )
-include( ${QUTIM_CMAKE_PLUGIN} )
-ADD_QUTIMPLUGIN( "scriptapi" "src" )
+qutim_add_plugin( scriptapi
+	DISPLAY_NAME "Script API scriptapi/src/scriptplugin.cpp-"
+	DESCRIPTION ""
+)

@@ -147,17 +147,18 @@ bool DBusPlugin::load()
 {
 	if (m_dbus)
 		return false;
-	dbus_adaptor_event_id = Event::registerType("dbus-adaptors-request");
-	qDBusRegisterMetaType<Status>();
-	qDBusRegisterMetaType<Message>();
-	qDBusRegisterMetaType<MessageList>();
-	qDBusRegisterMetaType<QList<QDBusObjectPath> >();
 	m_dbus = new QDBusConnection(QDBusConnection::connectToBus(QDBusConnection::SessionBus, "qutim"));
 	if (!m_dbus->registerService("org.qutim")) {
 		qDebug() << "smth wrong at DBUS";
 		delete m_dbus;
 		m_dbus = 0;
+		return false;
 	}
+	dbus_adaptor_event_id = Event::registerType("dbus-adaptors-request");
+	qDBusRegisterMetaType<Status>();
+	qDBusRegisterMetaType<Message>();
+	qDBusRegisterMetaType<MessageList>();
+	qDBusRegisterMetaType<QList<QDBusObjectPath> >();
 	qDebug() << "all ok at DBUS";
 	foreach (Protocol *proto, allProtocols()) {
 		ProtocolAdaptor *adaptor = new ProtocolAdaptor(*m_dbus, proto);

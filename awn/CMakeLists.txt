@@ -1,18 +1,4 @@
-CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
-PROJECT( AWNPlugin )
-SET(PROJECT_VERSION "0.1")
-
-SET( QT_USE_DBUS TRUE )
-find_package(Qt4 4.6.2 COMPONENTS QtCore QtGui QtDBus REQUIRED )
-SET(QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources")
-IF(QUTIM_PATH)
-    SET(QUTIM_INCLUDE_DIRS ${QUTIM_PATH}/libqutim/include)
-    SET(QUTIM_LIBRARY_DIR ${QUTIM_PATH}/libqutim/)
-    SET(QUTIM_CMAKE_PLUGIN ${QUTIM_PATH}/cmake/QutimPlugin.cmake)
-ELSE(QUTIM_PATH)
-	SET(QUTIM_CMAKE_PLUGIN ${CMAKE_ROOT}/Modules/QutimPlugin.cmake)
-ENDIF(QUTIM_PATH)
-
-INCLUDE( ${QUTIM_CMAKE_PLUGIN} ${QT_QTDBUS_INCLUDE_DIR} )
-ADD_QUTIMPLUGIN( "awnplugin" "src" )
-
+qutim_add_plugin( awn
+	DISPLAY_NAME "AWN"
+	DESCRIPTION "Avant window navigator dock integration,"
+)
