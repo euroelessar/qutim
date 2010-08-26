@@ -68,7 +68,7 @@ static QWidget *getWidgetHelper2(const DataItem &item, bool *twoColumn, QSizePol
 	QStringList alt = variantToStringList(item.property("alternatives"));
 	if (!alt.isEmpty()) {
 		return new ComboBox(str, alt, "validator", item);
-	} if (!item.property("multiline", false)) {
+	} else if (!item.property("multiline", false)) {
 		return new LineEdit(item);
 	} else {
 		verticalPolicy = QSizePolicy::MinimumExpanding;
@@ -114,10 +114,12 @@ DataListWidget::DataListWidget(QWidget *parent) :
 	init();
 }
 
-DataListWidget::DataListWidget(const DataItem &def, QWidget *parent) :
-	QWidget(parent), m_def(def)
+DataListWidget::DataListWidget(const DataItem &item, QWidget *parent) :
+	QWidget(parent), m_def(item.defaultSubitem()), m_max(item.maxSubitemsCount())
 {
 	init();
+	foreach (const DataItem &subitem, item.subitems())
+		addRow(subitem);
 }
 
 DataListWidget::~DataListWidget()
@@ -189,6 +191,15 @@ DataItem DataListWidget::item() const
 	return items;
 }
 
+bool DataListWidget::isExpandable()
+{
+	QVariant data = m_def.data();
+	QVariant alt = m_def.property("alternatives");
+	bool isLineEdit = (data.canConvert(QVariant::String) && alt.canConvert(QVariant::StringList)) ||
+					  (qVariantCanConvert<LocalizedString>(data) && qVariantCanConvert<LocalizedStringList>(alt));
+	return isLineEdit && m_def.property("multiline", false);
+}
+
 void DataListWidget::onAddRow()
 {
 	addRow(m_def);
@@ -251,10 +262,7 @@ DataListGroup::DataListGroup(const DataItem &item, QWidget *parent) :
 	setTitle(item.title());
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-	m_widget = new DataListWidget(item.defaultSubitem());
-	m_widget->setMaxItemsCount(item.maxSubitemsCount());
-	foreach (const DataItem &subitem, item.subitems())
-		m_widget->addRow(subitem);
+	m_widget = new DataListWidget(item, this);
 	layout->addWidget(m_widget);
 }
 

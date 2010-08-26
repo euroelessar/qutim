@@ -11,23 +11,39 @@ Q_DECLARE_METATYPE(QList<QIcon>);
 
 namespace Core
 {
-DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartButtons,  const Buttons &buttons)
+DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartButtons,  const Buttons &buttons) :
+	m_widget(0)
 {
+	AbstractDataLayout *dataLayout = 0;
+	QVBoxLayout *layout = 0;
 	setFrameStyle(NoFrame);
 	setObjectName(item.name());
 	setWindowTitle(item.title());
-	if (item.isReadOnly()) {
-		m_layout = new ReadOnlyDataLayout(this);
+	if (item.isAllowedModifySubitems()) {
+		layout = new QVBoxLayout(this);
+		DataListWidget *w = new DataListWidget(item);
+		m_widget = w;
+		layout->addWidget(w);
+		if (!w->isExpandable()) {
+			QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+			layout->addItem(spacer);
+		}
+	} else if (item.isReadOnly()) {
+		dataLayout = new ReadOnlyDataLayout(this);
 	} else {
-		m_layout = new EditableDataLayout(this);
+		EditableDataLayout *editable = new EditableDataLayout(this);
+		dataLayout = editable;
+		m_widget = editable;
 	}
-	bool addSpacer;
-	if (item.hasSubitems())
-		addSpacer = !m_layout->addItems(item.subitems());
-	else
-		addSpacer = !m_layout->addItem(item);
-	if (addSpacer)
-		m_layout->addSpacer();
+	if (dataLayout) {
+		bool addSpacer;
+		if (item.hasSubitems())
+			addSpacer = !dataLayout->addItems(item.subitems());
+		else
+			addSpacer = !dataLayout->addItem(item);
+		if (addSpacer)
+			dataLayout->addSpacer();
+	}
 	if (standartButtons != NoButton || !buttons.isEmpty()) {
 		QDialogButtonBox *buttonsBox = new QDialogButtonBox(
 				static_cast<QDialogButtonBox::StandardButton>(static_cast<int>(standartButtons)), Qt::Horizontal, this);
@@ -41,16 +57,18 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 		connect(buttonsBox, SIGNAL(clicked(QAbstractButton*)), SLOT(onButtonClicked(QAbstractButton*)));
 		connect(this, SIGNAL(accepted()), SLOT(close()));
 		connect(this, SIGNAL(rejected()), SLOT(close()));
-		m_layout->addRow(buttonsBox);
+		if (dataLayout)
+			dataLayout->addRow(buttonsBox);
+		else
+			layout->addWidget(buttonsBox);
 	}
 }
 
 DataItem DefaultDataForm::item() const
 {
 	DataItem item;
-	EditableDataLayout *editableDataLayout = qobject_cast<EditableDataLayout*>(m_layout);
-	if (editableDataLayout)
-		item = editableDataLayout->item();
+	if (m_widget)
+		item = m_widget->item();
 	item.setName(objectName());
 	item.setTitle(windowTitle());
 	return item;

@@ -180,7 +180,7 @@ namespace qutim_sdk_0_3
 
 	bool DataItem::isAllowedModifySubitems() const
 	{
-		return d->maxCount != 1;
+		return d->maxCount != 1 && !isReadOnly();
 	}
 
 	int DataItem::maxSubitemsCount() const

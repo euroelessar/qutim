@@ -17,13 +17,14 @@ class DataListWidget : public QWidget, public AbstractDataWidget
 	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
 public:
 	DataListWidget(QWidget *parent = 0);
-	DataListWidget(const DataItem &def, QWidget *parent = 0);
+	DataListWidget(const DataItem &item, QWidget *parent = 0);
 	virtual ~DataListWidget();
 	void addRow(QWidget *data, QWidget *title = 0);
 	void addRow(const DataItem &item);
 	DataItem item() const;
 	int maxItemsCount() { return m_max; }
 	void setMaxItemsCount(int max) { m_max = max; }
+	bool isExpandable();
 private slots:
 	void onAddRow();
 	void onRemoveRow();

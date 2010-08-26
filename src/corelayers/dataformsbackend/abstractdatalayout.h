@@ -26,7 +26,7 @@ public:
 	void addRow(QWidget *title, QWidget *widget, Qt::Alignment widgetAligment = 0);
 protected:
 	QStyle* getStyle() const;
-	Qt::Alignment labelAlignment() { return m_labelAlignment; };
+	Qt::Alignment labelAlignment() { return m_labelAlignment; }
 private:
 	Qt::Alignment m_labelAlignment;
 	mutable QPointer<QStyle> m_style;

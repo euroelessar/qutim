@@ -23,7 +23,7 @@ private slots:
 protected:
 	void keyPressEvent(QKeyEvent *e);
 private:
-	AbstractDataLayout *m_layout;
+	AbstractDataWidget *m_widget;
 };
 
 class DefaultDataFormsBackend : public DataFormsBackend

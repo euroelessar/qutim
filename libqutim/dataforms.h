@@ -155,6 +155,26 @@ namespace qutim_sdk_0_3
 	widget->show();
 	\endcode
 	\image html dataforms_groups_example.jpeg
+
+	It is possible to allow user to modify subitems using allowModifySubitems(). Here is example:
+	\code
+	DataItem root("Nicks");
+
+	DataItem defNick("Nick", QString());
+	defNick.setProperty("hideTitle", true);
+	root.allowModifySubitems(defNick, 10);
+
+	DataItem nick = defNick;
+	nick.setData("SokoL");
+	root << nick;
+
+	nick.setData("sokol");
+	root << nick;
+
+	QWidget *widget = DataFormsBackend::instance()->get(root);
+	widget->show();
+	\endcode
+	\image html dataforms_modifiable_subitems_example.jpeg
 	*/
 	class LIBQUTIM_EXPORT DataItem
 	{
