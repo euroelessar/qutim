@@ -44,6 +44,7 @@ public:
 	virtual void setName(const QString& name);
 	void setAvatar(const QString &avatar);
 	virtual QString avatar() const;
+	VAccount *account() const;
 private:
 	virtual bool event(QEvent *ev);
 	QScopedPointer<VContactPrivate> d_ptr;

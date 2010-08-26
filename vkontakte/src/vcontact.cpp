@@ -202,3 +202,8 @@ bool VContact::event(QEvent *ev)
 	}
 	return Contact::event(ev);
 }
+
+VAccount *VContact::account() const
+{
+	return d_func()->account;
+}
