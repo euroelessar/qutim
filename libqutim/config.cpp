@@ -447,7 +447,8 @@ namespace qutim_sdk_0_3
 					QVariant &var = (*(current->map))[name];
 					if (var.type() == QVariant::List) {
 						l->atoms << new ConfigAtom(var, false);
-						size = size ? size : var.toList().size();
+						if (!size)
+							size = var.toList().size();
 						break;
 					}
 				}
@@ -456,7 +457,8 @@ namespace qutim_sdk_0_3
 				if (var.type() != QVariant::List)
 					d->sources.at(0)->dirty;
 				l->atoms << new ConfigAtom(var, false);
-				size = var.toList().size();
+				if (!size)
+					size = var.toList().size();
 			}
 		}
 		d->levels.prepend(l);
