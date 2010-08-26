@@ -123,7 +123,7 @@ endmacro ( __PREPARE_QUTIM_PLUGIN )
 #   plugin_name - name of plugin being added
 macro (QUTIM_ADD_PLUGIN plugin_name)
     qutim_parse_arguments(QUTIM_${plugin_name}
-	"DISPLAY_NAME;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS"
+	"DISPLAY_NAME;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS;COMPILE_FLAGS"
 	"SUBPLUGIN;EXTENSION;STATIC"
 	${ARGN}
     )
@@ -214,14 +214,13 @@ QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
     add_library( ${plugin_name} ${QUTIM_${plugin_name}_LIBRARY_TYPE} ${QUTIM_${plugin_name}_SRC} ${QUTIM_${plugin_name}_MOC_SRC}
 		 ${QUTIM_${plugin_name}_HDR} ${QUTIM_${plugin_name}_UI_H} ${QUTIM_${plugin_name}_RCC} )
 #    set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "-D${plugin_name}_MAKE" )
-    set( QUTIM_${plugin_name}_COMPILE_FLAGS "" )
     if( QUTIM_${plugin_name}_STATIC )
         file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}helper.cpp"
 "#include <QtCore/QtPlugin>
 
 Q_IMPORT_PLUGIN(${plugin_name})
 " )
-	set( QUTIM_${plugin_name}_COMPILE_FLAGS "-DQUTIM_STATIC_PLUGIN -DQUTIM_PLUGIN_INSTANCE=\"qt_plugin_instance_${plugin_name}\"" )
+	set( QUTIM_${plugin_name}_COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS} -DQUTIM_STATIC_PLUGIN -DQUTIM_PLUGIN_INSTANCE=\"qt_plugin_instance_${plugin_name}\"" )
 	list( APPEND QUTIM_ADDITIONAL_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}helper.cpp" )
 	list( APPEND QUTIM_ADDITIONAL_LIBRARIES ${plugin_name} )
     endif( QUTIM_${plugin_name}_STATIC )
