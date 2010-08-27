@@ -19,6 +19,7 @@
 #include <QFile>
 #include <QDataStream>
 #include <QtEndian>
+#include <QEventLoop>
 #include <QDebug>
 
 namespace Core
@@ -29,7 +30,24 @@ MultimediaSoundBackend::MultimediaSoundBackend()
 
 void MultimediaSoundBackend::playSound(const QString &filename)
 {
-	QScopedPointer<QFile> file(new QFile(filename));
+	MultimediaSoundThread *thread = new MultimediaSoundThread(filename, this);
+	thread->start(QThread::LowPriority);
+	connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+}
+
+QStringList MultimediaSoundBackend::supportedFormats()
+{
+	return QStringList() << "wav";
+}
+
+MultimediaSoundThread::MultimediaSoundThread(const QString &filename, QObject *parent) :
+		QThread(parent), m_filename(filename)
+{
+}
+
+void MultimediaSoundThread::run()
+{
+	QScopedPointer<QFile> file(new QFile(m_filename));
 	if (file->size() < 8 || !file->open(QIODevice::ReadOnly))
 		return;
 	
@@ -49,7 +67,7 @@ void MultimediaSoundBackend::playSound(const QString &filename)
 		
 		in >> riffId >> riffLength >> waveId >> waveFmt >> waveLength;
 		if (riffId != RIFF_str || waveId != WAVE_str || waveFmt != fmt_str) {
-			qWarning() << filename << "is not valid WAV file";
+			qWarning() << m_filename << "is not valid WAV file";
 			return;
 		}
 		
@@ -61,7 +79,7 @@ void MultimediaSoundBackend::playSound(const QString &filename)
 		}
 		in >> dataId >> dataSize;
 		if (dataId != data_str) {
-			qWarning() << filename << "is not valid WAV file";
+			qWarning() << m_filename << "is not valid WAV file";
 			return;
 		}
 	}
@@ -80,17 +98,14 @@ void MultimediaSoundBackend::playSound(const QString &filename)
 		return;
 	}
 	QAudioOutput *audio = new QAudioOutput(info, format, this);
+	QEventLoop loop;
 	file->setParent(audio);
 	connect(audio, SIGNAL(stateChanged(QAudio::State)), SLOT(finishedPlaying(QAudio::State)));
 	audio->start(file.take());
+	loop.exec();
 }
 
-QStringList MultimediaSoundBackend::supportedFormats()
-{
-	return QStringList() << "wav";
-}
-
-void MultimediaSoundBackend::finishedPlaying(QAudio::State state)
+void MultimediaSoundThread::finishedPlaying(QAudio::State state)
 {   
 	if(state == QAudio::IdleState) {
 		QAudioOutput *audio = qobject_cast<QAudioOutput*>(sender());
@@ -99,6 +114,7 @@ void MultimediaSoundBackend::finishedPlaying(QAudio::State state)
 		file->close();
 		audio->deleteLater();
 		file->deleteLater();
+		quit();
 	}
 }
 }
