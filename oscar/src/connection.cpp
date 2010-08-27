@@ -261,7 +261,7 @@ void AbstractConnection::loadProxy()
 	Config cfg = d->account->config("connection");
 	if (cfg.value("useproxy", false)) {
 		cfg = d->account->config("proxy");
-		QNetworkProxy::ProxyType type;
+		QNetworkProxy::ProxyType type = QNetworkProxy::DefaultProxy;
 		QString typeStr = cfg.value("type", QString());
 		if (typeStr.isNull()) {
 			// attempt to load settings from qutim 0.2

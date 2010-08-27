@@ -491,7 +491,7 @@ void OftConnection::handleRendezvous(quint16 reqType, const TLVMap &tlvs)
 		quint16 files = tlv2711.read<quint16>();
 		quint32 totalSize = tlv2711.read<quint32>();
 		Q_UNUSED(multipleFiles);
-		QTextCodec *codec;
+		QTextCodec *codec = 0;
 		{
 			QByteArray encoding = tlvs.value(0x2722);
 			if (!encoding.isEmpty())

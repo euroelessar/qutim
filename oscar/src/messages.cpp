@@ -231,7 +231,7 @@ void MessagesHandler::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		quint16 type = sn.read<quint16>();
 		IcqContact *contact = conn->account()->getContact(uin);
 		if (contact) {
-			ChatState newState;
+			ChatState newState = ChatStateActive;
 			if (type == MtnFinished) {
 				ChatState old = contact->chatState();
 				if (old == ChatStateActive || old == ChatStateInActive)
