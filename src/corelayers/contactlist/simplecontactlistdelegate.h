@@ -38,6 +38,7 @@ namespace Core
 			virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 			virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
 			void setShowFlags(ShowFlags flags);
+			void setExtendedStatuses(const QHash<QString, bool> &statuses);
 		public Q_SLOTS:
 			bool helpEvent(QHelpEvent *event,
 						   QAbstractItemView *view,
@@ -47,6 +48,7 @@ namespace Core
 			int m_vertical_padding;
 			int m_horizontal_padding;
 			ShowFlags m_show_flags;
+			QHash<QString, bool> m_statuses;
 		};	
 	}
 }

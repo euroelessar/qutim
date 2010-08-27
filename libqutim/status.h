@@ -20,10 +20,12 @@
 #include <QSharedData>
 #include <QVariant>
 #include <QIcon>
+#include <QEvent>
 
 namespace qutim_sdk_0_3
 {
 	class StatusPrivate;
+	class ExtendedStatusesEventPrivate;
 
 	class LIBQUTIM_EXPORT Status
 	{
@@ -83,6 +85,22 @@ namespace qutim_sdk_0_3
 		void setExtendedInfos(const QVariantHash &extInfos);
 	private:
 		QSharedDataPointer<StatusPrivate> d;
+	};
+
+	/**
+	  The ExtendedInfosEvent class is used to request supported extended status infos
+	  from a protocol.
+	*/
+	class LIBQUTIM_EXPORT ExtendedInfosEvent : public QEvent
+	{
+	public:
+		ExtendedInfosEvent();
+		~ExtendedInfosEvent();
+		void addInfo(const QString &name, const QVariantHash &info);
+		QHash<QString, QVariantHash> infos();
+		static QEvent::Type eventType();
+	private:
+		QScopedPointer<ExtendedStatusesEventPrivate> d;
 	};
 }
 

@@ -2,6 +2,8 @@
 #include "ui_simplecontactlistsettings.h"
 #include <qutim/config.h>
 #include <qutim/localizedstring.h>
+#include <qutim/status.h>
+#include <qutim/protocol.h>
 
 namespace Core
 {
@@ -28,7 +30,26 @@ SimpleContactlistSettings::SimpleContactlistSettings() :
 	connect(ui->avatarsBox,SIGNAL(toggled(bool)),SLOT(onAvatarBoxToggled(bool)));
 	connect(ui->extendedInfoBox,SIGNAL(toggled(bool)),SLOT(onExtendedInfoBoxToggled(bool)));
 	connect(ui->statusBox,SIGNAL(toggled(bool)),SLOT(onStatusBoxToggled(bool)));
-	connect(ui->sizesBox,SIGNAL(currentIndexChanged(int)),SLOT(onSizesCurrentIndexChanged(int)));
+	connect(ui->sizesBox,SIGNAL(currentIndexChanged(int)),SLOT(onModified()));
+	// Load extended statuses list
+	foreach (Protocol *protocol, allProtocols()) {
+		ExtendedInfosEvent event;
+		qApp->sendEvent(protocol, &event);
+		foreach (const QVariantHash &info, event.infos()) {
+			QString id = info.value("id").toString();
+			if (id.isEmpty() || m_statusesBoxes.contains(id))
+				continue;
+			QString desc = info.value("settingsDescription").toString();
+			if (desc.isEmpty())
+				desc = QString("Show '%' icon").arg(id);
+			QCheckBox *box = new QCheckBox(desc, this);
+			box->setObjectName(id);
+			connect(ui->extendedInfoBox, SIGNAL(toggled(bool)), box, SLOT(setEnabled(bool)));
+			connect(box, SIGNAL(clicked()), SLOT(onModified()));
+			ui->layout->addRow(box);
+			m_statusesBoxes.insert(id, box);
+		}
+	}
 }
 
 SimpleContactlistSettings::~SimpleContactlistSettings()
@@ -45,9 +66,18 @@ void SimpleContactlistSettings::loadImpl()
 {
 	reloadCombobox();
 	Config config = Config("appearance").group("contactList");
-	m_flags = static_cast<Delegate::ShowFlags>(config.value("showFlags",Delegate::ShowStatusText |
-																			 Delegate::ShowExtendedInfoIcons |
-																			 Delegate::ShowAvatars));
+	m_flags = static_cast<Delegate::ShowFlags>(config.value("showFlags",
+															Delegate::ShowStatusText |
+															Delegate::ShowExtendedInfoIcons |
+															Delegate::ShowAvatars));
+	// Load extendes statuses
+	config.beginGroup("extendedStatuses");
+	foreach (QCheckBox *checkBox, m_statusesBoxes) {
+		bool checked = config.value(checkBox->objectName(), true);
+		checkBox->setChecked(checked);
+	}
+	config.endGroup();
+
 	int size = config.value("iconSize",0);
 	SizeMap::const_iterator it;
 	int index = -1;
@@ -73,12 +103,15 @@ void SimpleContactlistSettings::saveImpl()
 	Config config = Config("appearance").group("contactList");
 	config.setValue("showFlags",m_flags);
 	int size = ui->sizesBox->itemData(ui->sizesBox->currentIndex()).toInt();
-	if (size == 0) {
+	if (size == 0)
 		config.remove("iconSize");
-	}
 	else
 		config.setValue("iconSize",size);
-	config.sync();	
+	// Save extended statuses
+	config.beginGroup("extendedStatuses");
+	foreach (QCheckBox *checkBox, m_statusesBoxes)
+		config.setValue(checkBox->objectName(), checkBox->isChecked());
+	config.endGroup();
 }
 
 void SimpleContactlistSettings::reloadCombobox()
@@ -117,7 +150,7 @@ void SimpleContactlistSettings::onStatusBoxToggled(bool toggled)
 	emit modifiedChanged(true);
 }
 
-void SimpleContactlistSettings::onSizesCurrentIndexChanged(int index)
+void SimpleContactlistSettings::onModified()
 {
 	emit modifiedChanged(true);
 }

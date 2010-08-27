@@ -331,6 +331,36 @@ namespace qutim_sdk_0_3
 		d->extStatuses = extInfos;
 	}
 
+	class ExtendedStatusesEventPrivate
+	{
+	public:
+		QHash<QString, QVariantHash> infos;
+	};
+
+	ExtendedInfosEvent::ExtendedInfosEvent() :
+		QEvent(eventType()), d(new ExtendedStatusesEventPrivate)
+	{
+	}
+
+	ExtendedInfosEvent::~ExtendedInfosEvent()
+	{
+	}
+
+	void ExtendedInfosEvent::addInfo(const QString &name, const QVariantHash &info)
+	{
+		d->infos.insert(name, info);
+	}
+
+	QHash<QString, QVariantHash> ExtendedInfosEvent::infos()
+	{
+		return d->infos;
+	}
+
+	QEvent::Type ExtendedInfosEvent::eventType()
+	{
+		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 106));
+		return type;
+	}
 }
 
 QDebug operator<<(QDebug dbg, qutim_sdk_0_3::Status::Type status)

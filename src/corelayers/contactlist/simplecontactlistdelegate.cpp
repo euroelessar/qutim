@@ -136,6 +136,8 @@ namespace SimpleContactList
 							icon = extIconVar.value<QIcon>();
 						if (!map.value(QLatin1String("showIcon"),true).toBool() || icon.isNull())
 							continue;
+						if (!m_statuses.value(map.value("id").toString(), true))
+							continue;
 						icon.paint(painter,
 									option.rect.left() + m_horizontal_padding,
 									option.rect.top() + m_vertical_padding,
@@ -278,6 +280,10 @@ void Delegate::setShowFlags(Delegate::ShowFlags flags)
 	m_show_flags = flags;
 }
 
+void Delegate::setExtendedStatuses(const QHash<QString, bool> &statuses)
+{
+	m_statuses = statuses;
+}
 
 }
 }
