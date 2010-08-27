@@ -67,6 +67,8 @@ public:
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 	void setVisibility(IcqAccount *account, int visibility);
 	int getCurrentMode(IcqAccount *account, bool invisibleMode);
+protected:
+	bool eventFilter(QObject *obj, QEvent *e);
 private slots:
 	void onModifyPrivateList(QAction *action, QObject *object);
 	void onModifyPrivacy(QAction *action, QObject *object);

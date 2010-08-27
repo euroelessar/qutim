@@ -183,6 +183,7 @@ PrivacyLists::PrivacyLists() :
 	Q_UNUSED(QT_TRANSLATE_NOOP("Privacy", "Privacy status"));
 	foreach (const ActionPointer &action, accountMenuList)
 		MenuController::addAction<IcqAccount>(action.data(), QList<QByteArray>() << "Additional" << "Privacy status");
+	IcqProtocol::instance()->installEventFilter(this);
 }
 
 bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
@@ -280,6 +281,27 @@ int PrivacyLists::getCurrentMode(IcqAccount *account, bool invisibleMode)
 		}
 	}
 	return current;
+}
+
+bool PrivacyLists::eventFilter(QObject *obj, QEvent *e)
+{
+	if (e->type() == ExtendedInfosEvent::eventType() && obj == IcqProtocol::instance()) {
+		ExtendedInfosEvent *event = static_cast<ExtendedInfosEvent*>(e);
+		QVariantHash extStatus;
+		// Visible
+		extStatus.insert("id", "visible");
+		extStatus.insert("settingsDescription", tr("Show \"visible\" icon if contact in visible list"));
+		event->addInfo("visible", extStatus);
+		// Invisible
+		extStatus.insert("id", "invisible");
+		extStatus.insert("settingsDescription", tr("Show \"invisible\" icon if contact in invisible list"));
+		event->addInfo("invisible", extStatus);
+		// Ignore
+		extStatus.insert("id", "ignore");
+		extStatus.insert("settingsDescription", tr("Show \"ignore\" icon if contact in ignore list"));
+		event->addInfo("ignore", extStatus);
+	}
+	return QObject::eventFilter(obj, e);
 }
 
 void PrivacyLists::accountAdded(qutim_sdk_0_3::Account *account)

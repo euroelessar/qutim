@@ -53,6 +53,7 @@ bool ClientIdentify::load()
 {
 	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 			SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+	IcqProtocol::instance()->installEventFilter(this);
 	return true;
 }
 
@@ -87,6 +88,13 @@ bool ClientIdentify::eventFilter(QObject *obj, QEvent *ev)
 							ToolTipEvent::IconBeforeDescription,
 							25);
 		}
+	} else if (ev->type() == ExtendedInfosEvent::eventType() && obj == IcqProtocol::instance()) {
+		ExtendedInfosEvent *event = static_cast<ExtendedInfosEvent*>(ev);
+		QVariantHash clientInfo;
+		clientInfo.insert("id", "client");
+		clientInfo.insert("name", tr("Possible client"));
+		clientInfo.insert("settingsDescription", tr("Show client icon"));
+		event->addInfo("client", clientInfo);
 	}
 	return Plugin::eventFilter(obj, ev);
 }

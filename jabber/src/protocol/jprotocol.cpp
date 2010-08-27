@@ -293,6 +293,14 @@ namespace Jabber
 					break;
 				}
 			}
+		} else if (ev->type() == ExtendedInfosEvent::eventType()) {
+			ExtendedInfosEvent *event = static_cast<ExtendedInfosEvent*>(ev);
+			QVariantHash clientInfo;
+			clientInfo.insert("id", "client");
+			clientInfo.insert("name", tr("Possible client"));
+			clientInfo.insert("settingsDescription", tr("Show client icon"));
+			event->addInfo("client", clientInfo);
+			return true;
 		}
 		return QObject::event(ev);
 	}

@@ -230,6 +230,7 @@ bool XStatusHandler::load()
 		onAccountAdded(account);
 	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 			SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
+	IcqProtocol::instance()->installEventFilter(this);
 	return true;
 }
 
@@ -355,6 +356,19 @@ void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const
 	extStatus.insert("showInTooltip", true);
 	status.setExtendedInfo("xstatus", extStatus);
 	contact->setStatus(status);
+}
+
+bool XStatusHandler::eventFilter(QObject *obj, QEvent *e)
+{
+	if (e->type() == ExtendedInfosEvent::eventType() && obj == IcqProtocol::instance()) {
+		ExtendedInfosEvent *event = static_cast<ExtendedInfosEvent*>(e);
+		QVariantHash extStatus;
+		extStatus.insert("id", "xstatus");
+		extStatus.insert("name", tr("X-Status"));
+		extStatus.insert("settingsDescription", tr("Show contact X-Status icon"));
+		event->addInfo("xstatus", extStatus);
+	}
+	return Plugin::eventFilter(obj, e);
 }
 
 void XStatusHandler::onSetCustomStatus(QObject *object)
