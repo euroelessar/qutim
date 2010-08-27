@@ -1,31 +1,31 @@
 {
- "default": [
-   {
-    "type": "font",
-    "label": "Chat font",
-    "label-ru_RU": "Шрифт сообщений",
-    "label-bg_BG": "Шрифт на съобщенията",
-    "selector": "body",
-    "parameter": "font",
-    "value": "10pt Arial"
-   },
-   {
-    "type": "color",
-    "label": "Contact nick color",
-    "label-ru_RU": "Цвет ника собеседника",
-    "label-bg_BG": "Цвят на псевдонима на събеседника",
-    "selector": ".inContact, .inActionContact, .inActionMessage",
-    "parameter": "color",
-    "value": "#ff6600",
-   },
-   {
-    "type": "color",
-    "label": "My nick color",
-    "label-ru_RU": "Цвет своего ника",
-    "label-bg_BG": "Цвят на собствения псевдоним",
-    "selector": ".outContact, .outActionContact, .outActionMessage",
-    "parameter": "color",
-    "value": "#0078ff",
-   }
- ]
-}
+   "default": [
+    {
+     "label": "Chat font",
+     "label-bg_BG": "Шрифт на съобщенията",
+     "label-ru_RU": "Шрифт сообщений",
+     "parameter": "font",
+     "selector": "body",
+     "type": "font",
+     "value": "10pt Arial"
+    },
+    {
+     "label": "Contact nick color",
+     "label-bg_BG": "Цвят на псевдонима на събеседника",
+     "label-ru_RU": "Цвет ника собеседника",
+     "parameter": "color",
+     "selector": ".inContact, .inActionContact, .inActionMessage",
+     "type": "color",
+     "value": "#ff6600"
+    },
+    {
+     "label": "My nick color",
+     "label-bg_BG": "Цвят на собствения псевдоним",
+     "label-ru_RU": "Цвет своего ника",
+     "parameter": "color",
+     "selector": ".outContact, .outActionContact, .outActionMessage",
+     "type": "color",
+     "value": "#0078ff"
+    }
+   ]
+  }
