@@ -34,7 +34,7 @@ namespace Core
 	{
 		ui->setupUi(this);
 		ui->treeView->setModel(m_model);
-		ui->treeView->setItemDelegate(new ItemDelegate(this));
+		ui->treeView->setItemDelegate(new ItemDelegate(ui->treeView));
 		
 		connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
 	}
@@ -78,7 +78,7 @@ namespace Core
 
 			item->setToolTip(ServiceChooser::html(info));
 			item->setCheckable(true);
-			//item->setData(info.description().toString(),DescriptionRole);
+			item->setData(info.description().toString(),DescriptionRole);
 			if (selected.value(serviceName).toString() == ServiceChooser::className(info))
 				item->setCheckState(Qt::Checked);
 			item->setData(ServiceChooser::className(info),ServiceItem::ClassNameRole);

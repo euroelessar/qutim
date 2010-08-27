@@ -18,6 +18,7 @@
 #include <QAbstractItemDelegate>
 #include "libqutim/libqutim_global.h"
 
+class QTreeView;
 namespace Core
 {
 	enum ItemRole
@@ -43,10 +44,18 @@ namespace Core
 		//TODO split paint to set of virtual functions
 		virtual bool editorEvent(QEvent* event, QAbstractItemModel* model,
 								 const QStyleOptionViewItem& option, const QModelIndex& index);
+		void drawFocus(QPainter *painter,
+					   const QStyleOptionViewItem &option,
+					   const QRect &rect) const;
+		QRect drawCheck(QPainter *painter,
+					   const QStyleOptionViewItem &option,
+					   const QRect &rect, Qt::CheckState state) const;
 	private:
 		QRect checkRect(const QModelIndex& index,const QStyleOptionViewItem& option,const QRect &rect) const;
+		QRect checkRect(const QStyleOptionViewItem& option,const QRect &rect) const;
 		int m_padding;
 		bool m_command_link_style;
+		QTreeView *m_tree_view; //hack
 	};
 
 }

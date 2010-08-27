@@ -66,7 +66,7 @@ namespace Core
 				item->setToolTip(html(info));
 				item->setCheckable(true);
 				item->setData(true,ServiceItem::ExclusiveRole);
-				//item->setData(info.description().toString(), DescriptionRole);
+				item->setData(info.description().toString(), DescriptionRole);
 				item->setCheckState((group.value(info.name(), true) ? Qt::Checked : Qt::Unchecked));
 				parent_item->appendRow(item);
 				m_plugin_items.insert(info.name(), item);

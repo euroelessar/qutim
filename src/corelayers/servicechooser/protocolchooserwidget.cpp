@@ -71,7 +71,7 @@ namespace Core
 
 			item->setToolTip(ServiceChooser::html(info));
 			item->setCheckable(true);
-			//item->setData(info.description().toString(),DescriptionRole);
+			item->setData(info.description().toString(),DescriptionRole);
 			if (selected.value(name).toString() == ServiceChooser::className(info))
 				item->setCheckState(Qt::Checked);
 			item->setData(ServiceChooser::className(info),ServiceItem::ClassNameRole);
