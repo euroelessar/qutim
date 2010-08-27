@@ -4,7 +4,7 @@
 
 KdeIconLoader::KdeIconLoader()
 {
-//	KIconLoader::global()->addAppDir("qutim");
+	KIconLoader::global()->addAppDir("qutim");
 }
 
 QIcon KdeIconLoader::loadIcon(const QString &name)
