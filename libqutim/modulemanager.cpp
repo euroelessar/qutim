@@ -34,6 +34,7 @@
 #include <QDebug>
 #include <QVarLengthArray>
 #include <QLibrary>
+#include <QDesktopServices>
 
 // Is there any other way to init CryptoService from ModuleManager?
 #define INSIDE_MODULE_MANAGER
@@ -215,6 +216,20 @@ namespace qutim_sdk_0_3
 	{
 	}
 #endif // NO_COMMANDS
+	
+	static bool checkQtPluginData(const char *data, QString *error)
+	{
+		Q_UNUSED(data);
+		Q_UNUSED(error);
+		return true;
+	}
+	
+	static bool checkQutIMPluginData(const char *data, QString *error)
+	{
+		Q_UNUSED(data);
+		Q_UNUSED(error);
+		return true;
+	}
 
 	/**
 	 * This is ModuleManager constructor.
@@ -281,8 +296,6 @@ namespace qutim_sdk_0_3
 			// init plugin
 			QObject *object = loader->instance();
 #else // defined(Q_OS_SYMBIAN)
-		QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim", "qutimsettings");
-
 		QStringList paths = additional_paths;
 		QDir root_dir = QApplication::applicationDirPath();
 		// 1. Windows, ./plugins
@@ -291,30 +304,30 @@ namespace qutim_sdk_0_3
 		plugin_path += "plugins";
 		paths << plugin_path;
 		root_dir.cdUp();
-		// 2. Linux, /usr/lib/qutim
-		// May be it should be changed to /usr/lib/qutim/plugins ?..
+		// 2. Linux, /usr/lib/qutim/plugins
 		plugin_path = root_dir.canonicalPath();
 		plugin_path += QDir::separator();
 		plugin_path += "lib";
 		plugin_path += QDir::separator();
 		plugin_path += "qutim";
-		paths << plugin_path;
 		plugin_path += QDir::separator();
 		plugin_path += "plugins";
 		paths << plugin_path;
 		// 3. MacOS X, ../PlugIns
+#ifdef Q_OS_MAC
 		plugin_path = root_dir.canonicalPath();
 		plugin_path += QDir::separator();
 		plugin_path += "PlugIns";
 		paths << plugin_path;
-		// 4. Safe way, ~/.config/qutim/plugins
-		plugin_path = QFileInfo(settings.fileName()).canonicalPath();
-		plugin_path += QDir::separator();
-		plugin_path += "plugins";
-		paths << plugin_path;
-		// 6. From config
-		QStringList config_paths = settings.value("General/libpaths", QStringList()).toStringList();
-		paths << config_paths;
+#endif
+		// 4. Safe way, ~/.local/share/qutim/plugins
+//		plugin_path = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+//		plugin_path += QDir::separator();
+//		plugin_path += "plugins";
+//		paths << plugin_path;
+//		// 6. From config
+//		QStringList config_paths = settings.value("General/libpaths", QStringList()).toStringList();
+//		paths << config_paths;
 		paths.removeDuplicates();
 		QSet<QString> plugin_paths_list;
 		p->extensions << coreExtensions();
@@ -327,23 +340,33 @@ namespace qutim_sdk_0_3
 					continue;
 				plugin_paths_list << filename;
 				// Just don't load old plugins
+				typedef const char * Q_STANDARD_CALL (*QutimPluginVerificationFunction)();
+				typedef const char * Q_STANDARD_CALL (*QtPluginVerificationFunction)();
+				QutimPluginVerificationFunction verificationFunction = NULL;
+				QtPluginVerificationFunction qtVerificationFunction = NULL;
 				{
-					typedef const char * Q_STANDARD_CALL (*QutimPluginVerificationFunction)();
-					QutimPluginVerificationFunction verificationFunction = NULL;
 					QScopedPointer<QLibrary> lib(new QLibrary(filename));
 					if (lib->load()) {
-						verificationFunction = (QutimPluginVerificationFunction)lib->resolve("qutim_plugin_query_verification_data");
-						lib->unload();
-						if (!verificationFunction) {
+						verificationFunction = reinterpret_cast<QutimPluginVerificationFunction>(
+								lib->resolve("qutim_plugin_query_verification_data"));
+						qtVerificationFunction = reinterpret_cast<QtPluginVerificationFunction>(
+								lib->resolve("qt_plugin_query_verification_data"));
+						if (!verificationFunction || !qtVerificationFunction) {
+							lib->unload();
 //							qDebug("'%s' has no valid verification data", qPrintable(filename));
 							continue;
+						}
+						QString error;
+						if (!checkQtPluginData(qtVerificationFunction(), &error)
+							|| !checkQutIMPluginData(verificationFunction(), &error)) {
+							qDebug("Error while loading plugin '%s': %s",
+								   qPrintable(filename), qPrintable(error));
 						}
 					} else {
 						qDebug("%s", qPrintable(lib->errorString()));
 						continue;
 					}
 				}
-
 				QPluginLoader *loader = new QPluginLoader(filename);
 				QObject *object = loader->instance();
 #endif // defined(Q_OS_SYMBIAN)
