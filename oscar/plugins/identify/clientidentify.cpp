@@ -82,7 +82,7 @@ bool ClientIdentify::eventFilter(QObject *obj, QEvent *ev)
 			QVariantHash hash = contact->status().extendedInfo("client");
 			if (hash.isEmpty())
 				return false;
-			event->addField(hash.value("id").toString(),
+			event->addField(hash.value("title").toString(),
 							hash.value("description").toString(),
 							hash.value("icon").value<ExtensionIcon>().name(),
 							ToolTipEvent::IconBeforeDescription,
@@ -221,6 +221,7 @@ void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TL
 		identify(contact);
 		QVariantHash clientInfo;
 		clientInfo.insert("id", "client");
+		clientInfo.insert("title", tr("Possible client"));
 		clientInfo.insert("icon", QVariant::fromValue(m_client_icon));
 		clientInfo.insert("description", m_client_id);
 		clientInfo.insert("showInTooltip", false);
