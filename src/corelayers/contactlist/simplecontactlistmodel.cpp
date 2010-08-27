@@ -38,7 +38,12 @@ namespace Core
 			QBasicTimer timer;
 			QString lastFilter;
 			QStringList filteredTags;
-			bool showOffline;			
+			bool showOffline;		
+			QBasicTimer unreadTimer;
+			QMap<ChatSession*, QSet<Contact*> > unreadBySession;
+			QSet<Contact*> unreadContacts;	
+			bool showMessageIcon;
+			QIcon unreadIcon;
 		};
 
 		AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
@@ -49,9 +54,13 @@ namespace Core
 
 		Model::Model(QObject *parent) : QAbstractItemModel(parent), p(new ModelPrivate)
 		{
+			p->showMessageIcon = false;
+			p->unreadIcon = Icon(QLatin1String("mail-unread-new"));
 			p->view = static_cast<QTreeView*>(parent);
 			connect(p->view, SIGNAL(collapsed(QModelIndex)), this, SLOT(onCollapsed(QModelIndex)));
 			connect(p->view, SIGNAL(expanded(QModelIndex)), this, SLOT(onExpanded(QModelIndex)));
+			connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
+					this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 			ConfigGroup group = Config().group("contactList");
 			p->showOffline = group.value("showOffline", true);
 			p->closedTags = group.value("closedTags", QStringList()).toSet();
@@ -158,7 +167,10 @@ namespace Core
 							return name.isEmpty() ? item->data->contact->id() : name;
 						}
 					case Qt::DecorationRole:
-						return item->data->contact->status().icon();
+						if (p->showMessageIcon && p->unreadContacts.contains(item->data->contact))
+							return p->unreadIcon;
+						else
+							return item->data->contact->status().icon();
 					case ItemDataType:
 						return ContactType;
 					case ItemStatusRole:
@@ -521,6 +533,58 @@ namespace Core
 		{
 			//TODO
 		}
+		
+		void Model::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
+		{
+			connect(session, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
+					this, SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+		}
+		
+		void Model::onUnreadChanged(const qutim_sdk_0_3::MessageList &messages)
+		{
+			ChatSession *session = qobject_cast<ChatSession*>(sender());
+			QSet<Contact*> contacts;
+			for (int i = 0; i < messages.size(); i++) {
+				ChatUnit *unit = const_cast<ChatUnit*>(messages.at(i).chatUnit());
+				Contact *contact = 0;
+				while (unit) {
+					if (!!(contact = qobject_cast<Contact*>(unit)))
+						break;
+					unit = unit->upperUnit();
+				}
+				if (Contact *meta = qobject_cast<MetaContact*>(contact->metaContact()))
+					contact = meta;
+				if (contact)
+					contacts.insert(contact);
+			}
+			if (contacts.isEmpty())
+				p->unreadBySession.remove(session);
+			else
+				p->unreadBySession.insert(session, contacts);
+			foreach (const QSet<Contact*> &contactsSet, p->unreadBySession)
+				contacts |= contactsSet;
+			
+			if (!contacts.isEmpty() && !p->unreadTimer.isActive())
+				p->unreadTimer.start(500, this);
+			else if (contacts.isEmpty())
+				p->unreadTimer.stop();
+			
+			if (!p->showMessageIcon) {
+				p->unreadContacts = contacts;
+			} else {
+				QSet<Contact*> needUpdate = p->unreadContacts;
+				needUpdate.subtract(contacts);
+				p->unreadContacts = contacts;
+				foreach (Contact *contact, needUpdate) {
+					ContactData::Ptr item_data = p->contacts.value(contact);
+					for (int i = 0; i < item_data->items.size(); i++) {
+						ContactItem *item = item_data->items.at(i);
+						QModelIndex index = createIndex(item->index(), 0, item);
+						emit dataChanged(index, index);
+					}
+				}
+			}
+		}
 
 		void Model::contactTagsChanged(const QStringList &tags_helper)
 		{
@@ -706,6 +770,17 @@ namespace Core
 				}
 				p->events.clear();
 				p->timer.stop();
+				return;
+			} else if (timerEvent->timerId() == p->unreadTimer.timerId()) {
+				foreach (Contact *contact, p->unreadContacts) {
+					ContactData::Ptr item_data = p->contacts.value(contact);
+					for (int i = 0; i < item_data->items.size(); i++) {
+						ContactItem *item = item_data->items.at(i);
+						QModelIndex index = createIndex(item->index(), 0, item);
+						emit dataChanged(index, index);
+					}
+				}
+				p->showMessageIcon = !p->showMessageIcon;
 				return;
 			}
 			QAbstractItemModel::timerEvent(timerEvent);

@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModel>
 #include "simplecontactlistitem.h"
+#include <qutim/messagesession.h>
 
 namespace Core
 {
@@ -65,6 +66,8 @@ namespace Core
 			void onTagsEditAction(QObject*);
 			void onExpanded(const QModelIndex &index);
 			void onContactInListChanged(bool isInList);
+			void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
+			void onUnreadChanged(const qutim_sdk_0_3::MessageList &messages);
 		protected:
 			void timerEvent(QTimerEvent *ev);
 		private:

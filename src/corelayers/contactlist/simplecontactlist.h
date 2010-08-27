@@ -18,6 +18,7 @@ namespace Core
 			Q_OBJECT
 			Q_PROPERTY(QWidget* widget READ widget)
 			Q_CLASSINFO("Service", "ContactList")
+			Q_CLASSINFO("Uses", "ChatLayer")
 			Q_CLASSINFO("Uses", "IconLoader")
 			Q_CLASSINFO("Uses", "MetaContactManager")
 		public:

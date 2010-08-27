@@ -426,7 +426,9 @@ namespace qutim_sdk_0_3
 					qApp->quit();
 					return;
 				}
+#ifndef Q_OS_SYMBIAN
 			}
+#endif
 		}
 #endif // NO_COMMANDS
 
