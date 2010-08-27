@@ -470,6 +470,8 @@ namespace qutim_sdk_0_3
 		Q_D(Config);
 		Q_ASSERT(d->levels.size() > 1);
 		ConfigLevel * const level = d->levels.at(0);
+		if (level->atoms.isEmpty())
+			return;
 		ConfigAtom * const atom = level->atoms.value(0);
 		Q_ASSERT(!atom || level->arrayElement || !atom->typeMap);
 		if (level->arrayElement) {

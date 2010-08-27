@@ -10,9 +10,8 @@
 
 namespace Core
 {
-	void init()
+	void init(History *history)
 	{
-		History *history = History::instance();
 		ActionGenerator *gen = new ActionGenerator(Icon("view-history"),
 											QT_TRANSLATE_NOOP("Chat", "View History"),
 											history,
@@ -27,7 +26,7 @@ namespace Core
 		static bool inited = false;
 		if (!inited) {
 			inited = true;
-			init();
+			init(this);
 		}
 	}
 

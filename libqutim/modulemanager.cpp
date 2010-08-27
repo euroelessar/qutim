@@ -269,41 +269,17 @@ namespace qutim_sdk_0_3
 
 		foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
 			// Create plugin loader
-			QPluginLoader* pluginLoader = new QPluginLoader(pluginsDir.absoluteFilePath(fileName));
+			QPluginLoader* loader = new QPluginLoader(pluginsDir.absoluteFilePath(fileName));
 			// Load plugin
-			if (!pluginLoader->load()) {
+			if (!loader->load()) {
 				QMessageBox msg;
 				msg.setText(tr("Could not load plugin: \n %1").arg(fileName));
 				msg.exec();
-				delete pluginLoader;
+				delete loader;
 				continue;
 			}
 			// init plugin
-			QObject *object = pluginLoader->instance();
-			if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
-				plugin->info().data()->fileName = fileName;
-				plugin->init();
-				if (plugin->p->validate()) {
-					plugin->p->is_inited = true;
-					p->plugins.append(plugin);
-					p->extensions << plugin->avaiableExtensions();
-				} else {
-					delete object;
-				}
-			} else {
-				if (object)
-					delete object;
-				else {
-					qWarning("%s", qPrintable(pluginLoader->errorString()));
-					QMessageBox msg;
-					msg.setText(tr("Could not init plugin: \n %1").arg(pluginLoader->errorString()));
-					msg.exec();
-				}
-				pluginLoader->unload();
-				delete pluginLoader;
-			}
-		}
-
+			QObject *object = loader->instance();
 #else // defined(Q_OS_SYMBIAN)
 		QSettings settings(QSettings::IniFormat, QSettings::UserScope, "qutim", "qutimsettings");
 
@@ -369,9 +345,8 @@ namespace qutim_sdk_0_3
 				}
 
 				QPluginLoader *loader = new QPluginLoader(filename);
-				if (filename.contains("quetzal"))
-					loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
 				QObject *object = loader->instance();
+#endif // defined(Q_OS_SYMBIAN)
 				if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
 					plugin->init();
 					if (plugin->p->validate()) {
@@ -388,6 +363,11 @@ namespace qutim_sdk_0_3
 						delete object;
 					else {
 						qWarning("%s", qPrintable(loader->errorString()));
+#ifdef Q_OS_SYMBIAN
+						QMessageBox msg;
+						msg.setText(tr("Could not init plugin: \n %1").arg(pluginLoader->errorString()));
+						msg.exec();
+#endif
 					}
 					loader->unload();
 				}
@@ -424,8 +404,6 @@ namespace qutim_sdk_0_3
 			}
 		}
 #endif // NO_COMMANDS
-
-#endif // defined(Q_OS_SYMBIAN)
 
 		foreach (const ExtensionInfo &info, p->extensions)
 			p->extensionsHash.insert(info.generator()->metaObject()->className(), info);

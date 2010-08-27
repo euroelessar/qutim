@@ -251,14 +251,12 @@ Q_IMPORT_PLUGIN(${plugin_name})
     endif( LANGUAGE AND NOT QUTIM_${plugin_name}_SUBPLUGIN AND NOT QUTIM_${plugin_name}_EXTENSION )
 endmacro (QUTIM_ADD_PLUGIN)
 
-macro (QUTIM_ADD_SUBPLUGIN plugin_name)
-    set ( QUTIM_${plugin_name}_IS_SUBPLUGIN TRUE )
-    qutim_add_plugin( ${plugin_name} ${ARGN} )
-endmacro (QUTIM_ADD_SUBPLUGIN)
-
-macro (QUTIM_ADD_EXTENSION plugin_name)
-    STRING(TOUPPER ${plugin_name} plugin_uname)
-#    CPACK_COMPONENT_${plugin_uname}_DISPLAY_NAME
-#    CPACK_COMPONENT_${plugin_uname}_DESCRIPTION
-    qutim_add_plugin( ${plugin_name} ${ARGN} ${QUTIM_${plugin_name}_EXT_SRC} )
-endmacro (QUTIM_ADD_EXTENSION)
+macro (QUTIM_ADD_LIBRARY library_name)
+    if( WIN32 )
+	qutim_parse_arguments(QUTIM_${library_name}
+	    "DISPLAY_NAME;DESCRIPTION;GROUP"
+	    ""
+	    ${ARGN}
+	)
+    endif( WIN32 )
+endmacro (QUTIM_ADD_LIBRARY)
