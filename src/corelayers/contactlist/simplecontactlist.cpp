@@ -485,12 +485,22 @@ bool Module::eventFilter(QObject *obj, QEvent *event)
 
 void Module::reloadSettings()
 {
-	int icon_size = Config("appearance").group("contactList").value("iconSize",16);
+	Config cfg("appearance");
+	cfg = cfg.group("contactList");
+	int icon_size = cfg.value("iconSize",16);
 	p->view->setIconSize(QSize(icon_size,icon_size));
-	Delegate::ShowFlags flags = Config("appearance").group("contactList").value("showFlags",Delegate::ShowStatusText |
-																				Delegate::ShowExtendedInfoIcons |
-																				Delegate::ShowAvatars);
+	Delegate::ShowFlags flags = cfg.value("showFlags",
+										  Delegate::ShowStatusText |
+										  Delegate::ShowExtendedInfoIcons |
+										  Delegate::ShowAvatars);
 	p->delegate->setShowFlags(flags);
+	// Load extended statuses.
+	QHash<QString, bool> statuses;
+	cfg.beginGroup("extendedStatuses");
+	foreach (const QString &name, cfg.childKeys())
+		statuses.insert(name, cfg.value(name, true));
+	cfg.endGroup();
+	p->delegate->setExtendedStatuses(statuses);
 }
 
 

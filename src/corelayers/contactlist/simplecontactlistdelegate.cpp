@@ -32,10 +32,10 @@ namespace Core
 {
 namespace SimpleContactList
 {
-	bool infoLessThan (const QVariant &a,const QVariant &b) {
+	bool infoLessThan (const QVariantHash &a, const QVariantHash &b) {
 		QString priority = QLatin1String("priority");
-		int p1 = a.toMap().value(priority).toInt();
-		int p2 = b.toMap().value(priority).toInt();
+		int p1 = a.value(priority).toInt();
+		int p2 = b.value(priority).toInt();
 		return p1 < p2;
 	};
 
@@ -117,24 +117,25 @@ namespace SimpleContactList
 
 				if (m_show_flags & ShowExtendedInfoIcons)
 				{
-					QVariantHash extStatuses = status.extendedInfos();
+					QHash<QString, QVariantHash> extStatuses = status.extendedInfos();
 
-					QVariantList list;
-					foreach (const QVariant &data,extStatuses) {
-						QVariantList::iterator search_it =
+					QList<QVariantHash> list;
+					foreach (const QVariantHash &data, extStatuses) {
+						QList<QVariantHash>::iterator search_it =
 								qLowerBound(list.begin(), list.end(), data, infoLessThan);
 						list.insert(search_it,data);
 					}
 
-					foreach (const QVariant &data, list) {
-						QVariantMap map = data.value<QVariantMap>();
-						QVariant extIconVar = map.value(QLatin1String("icon"));
+					foreach (const QVariantHash &hash, list) {
+						QVariant extIconVar = hash.value(QLatin1String("icon"));
 						QIcon icon;
 						if (extIconVar.canConvert<ExtensionIcon>())
 							icon = extIconVar.value<ExtensionIcon>().toIcon();
 						else if (extIconVar.canConvert(QVariant::Icon))
 							icon = extIconVar.value<QIcon>();
-						if (!map.value(QLatin1String("showIcon"),true).toBool() || icon.isNull())
+						if (!hash.value(QLatin1String("showIcon"),true).toBool() || icon.isNull())
+							continue;
+						if (!m_statuses.value(hash.value("id").toString(), true))
 							continue;
 						icon.paint(painter,
 									option.rect.left() + m_horizontal_padding,
@@ -278,6 +279,10 @@ void Delegate::setShowFlags(Delegate::ShowFlags flags)
 	m_show_flags = flags;
 }
 
+void Delegate::setExtendedStatuses(const QHash<QString, bool> &statuses)
+{
+	m_statuses = statuses;
+}
 
 }
 }

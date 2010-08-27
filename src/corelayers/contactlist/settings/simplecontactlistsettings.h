@@ -5,6 +5,8 @@
 #include <qutim/settingswidget.h>
 #include "../simplecontactlistdelegate.h"
 
+class QCheckBox;
+
 namespace Ui {
     class SimpleContactlistSettings;
 }
@@ -30,12 +32,13 @@ private slots:
     void onAvatarBoxToggled(bool);
     void onExtendedInfoBoxToggled(bool);
     void onStatusBoxToggled(bool);
-    void onSizesCurrentIndexChanged(int);	
+	void onModified();
 private:
     Ui::SimpleContactlistSettings *ui;
 	void setFlag(Delegate::ShowFlags flag, bool on = true);
 	void reloadCombobox();
 	int m_flags;
+	QHash<QString, QCheckBox *> m_statusesBoxes;
 };
 
 }

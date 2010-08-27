@@ -371,7 +371,9 @@ namespace qutim_sdk_0_3
 					}
 					loader->unload();
 				}
+#ifndef Q_OS_SYMBIAN
 			}
+#endif
 		}
 
 #ifndef NO_COMMANDS	

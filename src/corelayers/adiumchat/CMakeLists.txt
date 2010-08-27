@@ -1,4 +1,5 @@
 qutim_add_plugin( adiumchat
+	SUBPLUGIN
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Webkit chat layer"
 	DESCRIPTION "Default qutIM chat implementation, based on Adium chat styles"
