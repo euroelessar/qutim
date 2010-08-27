@@ -214,7 +214,7 @@ bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 		break;
 	}
 	case SsiIgnore: {
-		name = "im-ignore-contact-icq";
+		name = "ignore";
 		if (type != Feedbag::Remove) {
 			icon = "im-ignore-contact-icq";
 			debug() << item.name() << "has been added to ignore list";
@@ -231,7 +231,8 @@ bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 		return true;
 	Status status = contact->status();
 	if (!icon.isEmpty()) {
-		QVariantMap clientInfo;
+		QVariantHash clientInfo;
+		clientInfo.insert("id", name);
 		clientInfo.insert("icon", qVariantFromValue(ExtensionIcon(icon)));
 		clientInfo.insert("showInTooltip", false);
 		clientInfo.insert("priority", 20);

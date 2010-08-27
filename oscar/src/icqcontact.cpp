@@ -350,10 +350,9 @@ bool IcqContact::event(QEvent *ev)
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-		QVariantHash extStatuses = d->status.extendedInfos();
+		QHash<QString, QVariantHash> extStatuses = d->status.extendedInfos();
 		bool addedExtStatus;
-		foreach (const QVariant &itr, extStatuses) {
-			QVariantMap extStatus = itr.toMap();
+		foreach (const QVariantHash &extStatus, extStatuses) {
 			if (extStatus.value("showInTooltip", false).toBool()) {
 				event->addField(extStatus.value("title").toString(),
 								extStatus.value("desc").toString(),

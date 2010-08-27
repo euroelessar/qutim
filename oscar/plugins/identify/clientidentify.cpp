@@ -78,12 +78,12 @@ bool ClientIdentify::eventFilter(QObject *obj, QEvent *ev)
 		IcqContact *contact = qobject_cast<IcqContact*>(obj);
 		if (contact) {
 			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-			QVariantMap map = contact->status().extendedInfo("client");
-			if (map.isEmpty())
+			QVariantHash hash = contact->status().extendedInfo("client");
+			if (hash.isEmpty())
 				return false;
-			event->addField(map.value("id").toString(),
-							map.value("description").toString(),
-							map.value("icon").value<ExtensionIcon>().name(),
+			event->addField(hash.value("id").toString(),
+							hash.value("description").toString(),
+							hash.value("icon").value<ExtensionIcon>().name(),
 							ToolTipEvent::IconBeforeDescription,
 							25);
 		}
@@ -206,13 +206,13 @@ void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TL
 		status.removeExtendedInfo("client");
 		return;
 	}
-	QVariantMap client = contact->property("client").toMap();
+	QVariantHash client = contact->property("client").toHash();
 	if (!client.isEmpty())
 		status.setExtendedInfo("client", client);
 	if (contact->status() == Status::Offline) {
 		identify(contact);
-		QVariantMap clientInfo;
-		clientInfo.insert("id", QT_TRANSLATE_NOOP("ClientIdentify", "Possible client").toString());
+		QVariantHash clientInfo;
+		clientInfo.insert("id", "client");
 		clientInfo.insert("icon", QVariant::fromValue(m_client_icon));
 		clientInfo.insert("description", m_client_id);
 		clientInfo.insert("showInTooltip", false);

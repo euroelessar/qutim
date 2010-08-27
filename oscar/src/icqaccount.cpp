@@ -134,7 +134,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 				QString key = statusCfg.value("id").toString();
 				if (key.isEmpty())
 					continue;
-				QVariantMap extendedStatus;
+				QVariantHash extendedStatus;
 				statusCfg.beginGroup("data");
 				foreach (const QString &key, statusCfg.childKeys())
 					extendedStatus.insert(key, statusCfg.value(key));
@@ -286,14 +286,13 @@ void IcqAccount::setStatus(Status status_helper)
 		statusCfg.remove("extendedStatuses");
 		statusCfg.beginArray("extendedStatuses");
 		int i = 0;
-		QHashIterator<QString, QVariant> extStatusItr(d->lastStatus.extendedInfos());
+		QHashIterator<QString, QVariantHash> extStatusItr(d->lastStatus.extendedInfos());
 		while (extStatusItr.hasNext()) {
 			extStatusItr.next();
 			statusCfg.setArrayIndex(i);
 			statusCfg.setValue("id", extStatusItr.key());
 			statusCfg.beginGroup("data");
-			QVariantMap extStatus = extStatusItr.value().toMap();
-			QMapIterator<QString, QVariant> itr(extStatus);
+			QHashIterator<QString, QVariant> itr(extStatusItr.value());
 			while (itr.hasNext()) {
 				itr.next();
 				statusCfg.setValue(itr.key(), itr.value());
