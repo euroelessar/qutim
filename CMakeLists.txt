@@ -111,18 +111,20 @@ SET (RESOURCES
 	)
 
 #TODO make it automaticaly
-IF (${QUTIM_MOBILE_UI})
+option( QUTIM_MOBILE_UI "User interface for mobile devices like Nokia 5800" OFF )
+IF (QUTIM_MOBILE_UI)
 	ADD_DEFINITIONS( -DQUTIM_MOBILE_UI )
-	MESSAGE( "-- qutIM will be compiled with mobile ui" )
-ENDIF (${QUTIM_MOBILE_UI})
-IF (${QUTIM_SINGLE_PROFILE})
+	MESSAGE(STATUS "qutIM will be compiled with mobile ui" )
+ENDIF (QUTIM_MOBILE_UI)
+option( QUTIM_SINGLE_PROFILE "Multiply profiles by default" ON )
+IF (QUTIM_SINGLE_PROFILE)
 	ADD_DEFINITIONS( -DQUTIM_SINGLE_PROFILE )
-	MESSAGE( "-- qutIM will be compiled without multiply profiles support" )
-ENDIF (${QUTIM_SINGLE_PROFILE})
+	MESSAGE(STATUS "qutIM will be compiled without multiply profiles by default" )
+ENDIF (QUTIM_SINGLE_PROFILE)
 
 #TODO fix in future
 if (MINGW)
-	exec_program(windres
+	exec_program(mingw32-windres
 		ARGS "-i ${CMAKE_CURRENT_SOURCE_DIR}/qutim.rc -o ${CMAKE_CURRENT_BINARY_DIR}/qutim_res.o")
 	LIST (APPEND SOURCES qutim_res.o)
 else(MINGW)
