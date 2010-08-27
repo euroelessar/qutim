@@ -18,6 +18,9 @@
 #include "icon.h"
 #include <QDebug>
 
+typedef QHash<QString, QVariantHash> ExtendedStatus;
+Q_DECLARE_METATYPE(ExtendedStatus);
+
 namespace qutim_sdk_0_3
 {
 	class StatusPrivate : public DynamicPropertyData
@@ -34,7 +37,7 @@ namespace qutim_sdk_0_3
 		QIcon icon;
 		Status::Type type;
 		int subtype;
-		QVariantHash extStatuses;
+		QHash<QString, QVariantHash> extStatuses;
 
 		QVariant getText() const { return text; }
 		void setText(const QVariant &val) { text = val.toString(); }
@@ -46,8 +49,8 @@ namespace qutim_sdk_0_3
 		void setType(const QVariant &val) { type = static_cast<Status::Type>(val.toInt()); }
 		QVariant getSubtype() const { return type; }
 		void setSubtype(const QVariant &val) { subtype = val.toInt(); }
-		QVariant getExtendedStatuses() const { return extStatuses; }
-		void setExtendedStatuses(const QVariant &val) { extStatuses = val.toHash(); }
+		QVariant getExtendedStatuses() const { return qVariantFromValue(extStatuses); }
+		void setExtendedStatuses(const QVariant &val) { extStatuses = qVariantValue<ExtendedStatus>(val); }
 
 		void generateName();
 	};
@@ -306,7 +309,7 @@ namespace qutim_sdk_0_3
 		return true;
 	}
 
-	void Status::setExtendedInfo(const QString &name, const QVariantMap &status)
+	void Status::setExtendedInfo(const QString &name, const QVariantHash &status)
 	{
 		d->extStatuses.insert(name,status);
 	}
@@ -316,17 +319,17 @@ namespace qutim_sdk_0_3
 		d->extStatuses.remove(name);
 	}
 
-	QVariantMap Status::extendedInfo(const QString &name) const
+	QVariantHash Status::extendedInfo(const QString &name) const
 	{
-		return d->extStatuses.value(name).value<QVariantMap>();
+		return d->extStatuses.value(name);
 	}
 
-	QVariantHash Status::extendedInfos() const
+	QHash<QString, QVariantHash> Status::extendedInfos() const
 	{
 		return d->extStatuses;
 	}
 
-	void Status::setExtendedInfos(const QVariantHash &extInfos)
+	void Status::setExtendedInfos(const QHash<QString, QVariantHash> &extInfos)
 	{
 		d->extStatuses = extInfos;
 	}
