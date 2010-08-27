@@ -319,6 +319,7 @@ void ItemDelegate::drawFocus(QPainter *painter,
 							 const QStyleOptionViewItem &option,
 							 const QRect &rect) const
 {
+	Q_UNUSED(rect);
 	QStyle *style = getStyle(option);
 	const QWidget *widget = getWidget(option);
 	if (m_command_link_style) {
