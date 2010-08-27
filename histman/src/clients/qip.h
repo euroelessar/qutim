@@ -15,7 +15,7 @@
 
 #ifndef QIP_H_
 #define QIP_H_
-#include "include/qutim/historymanager.h"
+#include "../../include/qutim/historymanager.h"
 
 namespace HistoryManager {
 

@@ -15,7 +15,7 @@
 
 #ifndef PSI_H
 #define PSI_H
-#include "include/qutim/historymanager.h"
+#include "../../include/qutim/historymanager.h"
 
 namespace HistoryManager {
 

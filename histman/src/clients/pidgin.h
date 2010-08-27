@@ -15,7 +15,7 @@
 
 #ifndef PIDGIN_H_
 #define PIDGIN_H_
-#include "include/qutim/historymanager.h"
+#include "../../include/qutim/historymanager.h"
 
 namespace HistoryManager {
 

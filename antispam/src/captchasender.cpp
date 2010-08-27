@@ -1,7 +1,7 @@
 #include "captchasender.h"
 #include <qutim/messagesession.h>
 #include <qutim/configbase.h>
-#include <qutim/NotificationsLayer>
+#include <qutim/notificationslayer.h>
 
 namespace Antispam
 {
@@ -36,9 +36,7 @@ namespace Antispam
 			}
 		}
 		message->setProperty("spam",true);
-		Notifications::sendNotification(qutim_sdk_0_3::Notifications::BlockedMessage,
-										session
-										);
+		Notifications::send(qutim_sdk_0_3::Notifications::BlockedMessage, session);
 	}
 
 	void CaptchaSender::messageReceived(qutim_sdk_0_3::Message* message)

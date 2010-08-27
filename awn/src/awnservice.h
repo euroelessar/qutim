@@ -7,7 +7,7 @@
 
 #include "chatwindowcontroller.h"
 
-#include <QtDBus>
+#include <Qt/QtDBus>
 
 using namespace qutim_sdk_0_3;
 

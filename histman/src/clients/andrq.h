@@ -18,7 +18,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QTextCodec>
-#include "include/qutim/historymanager.h"
+#include "../../include/qutim/historymanager.h"
 
 namespace HistoryManager {
 

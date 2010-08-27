@@ -17,7 +17,7 @@
 #define QUTIM_H_
 #include <QString>
 #include <QDir>
-#include "include/qutim/historymanager.h"
+#include "../../include/qutim/historymanager.h"
 #include <qutim/json.h>
 
 namespace HistoryManager {

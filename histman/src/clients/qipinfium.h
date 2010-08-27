@@ -16,7 +16,7 @@
 #ifndef QIPINFIUM_H_
 #define QIPINFIUM_H_
 #include <QHash>
-#include "include/qutim/historymanager.h"
+#include "../../include/qutim/historymanager.h"
 
 namespace HistoryManager {
 

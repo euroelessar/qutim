@@ -21,7 +21,7 @@
 #include <QHash>
 #include <QEvent>
 #include "clients/qutim.h"
-#include "include/qutim/historymanager.h"
+#include "../include/qutim/historymanager.h"
 
 namespace HistoryManager {
 

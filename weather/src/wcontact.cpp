@@ -52,7 +52,7 @@ bool WContact::event( QEvent *ev )
 	{
 		ToolTipEvent *event = static_cast< ToolTipEvent * >( ev );
 		if ( !m_wmanager->getUnit( "ut" ).isEmpty() )
-			event->appendField( "Weather", QString::fromUtf8( "%1 °%2" ).arg( m_wmanager->getCC( "tmp" ) ).arg( m_wmanager->getUnit( "ut" ) ) );
+			event->addField( "Weather", QString::fromUtf8( "%1 °%2" ).arg( m_wmanager->getCC( "tmp" ) ).arg( m_wmanager->getUnit( "ut" ) ) );
 
 		return true;
 	}
