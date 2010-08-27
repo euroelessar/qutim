@@ -10,3 +10,6 @@
 [submodule "protocols"]
 	path = protocols
 	url = git://gitorious.org/qutim/protocols.git
+[submodule "plugins"]
+	path = plugins
+	url = git://gitorious.org/qutim/plugins.git

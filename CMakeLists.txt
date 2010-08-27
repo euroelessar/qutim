@@ -9,28 +9,8 @@ set( QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" CACHE FILEPATH "Path to qutim
 set( QUTIM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
 set( QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")
 
-set( QUTIM_ADDITIONAL_PATHS "protocols" "integrations" )
-# list( APPEND QUTIM_ADDITIONAL_PATHS "plugins" )
+set( QUTIM_ADDITIONAL_PATHS "protocols" "integrations" "plugins" )
 set( QUTIM_ADDITIONAL_PATHS "${QUTIM_ADDITIONAL_PATHS}" CACHE INTERNAL "" FORCE )
 
 add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/core/" "${CMAKE_CURRENT_BINARY_DIR}/core" )
 add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/translations/" "${CMAKE_CURRENT_BINARY_DIR}/translations" )
-
-set( PLUGIN_DIRS
-	"plugins" )
-
-foreach( PLUGIN_DIR ${PLUGIN_DIRS} )
-	file( GLOB PLUGINS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN_DIR}/*" )
-
-	foreach( PLUGIN ${PLUGINS} )
-		if ( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN_DIR}/${PLUGIN}/CMakeLists.txt )
-			string( TOUPPER ${PLUGIN} PLUGIN_NAME)
-			if( NOT DEFINED "NO_${PLUGIN_NAME}" )
-				message( "+ plugin ${PLUGIN_NAME} added to build" )
-				add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN_DIR}/${PLUGIN}" "${CMAKE_CURRENT_BINARY_DIR}/${PLUGIN_DIR}/${PLUGIN}" ) 
-			else( NOT DEFINED "NO_${PLUGIN_NAME}" )
-				message( "- plugin ${PLUGIN_NAME} will be skipped" )
-			endif( NOT DEFINED "NO_${PLUGIN_NAME}" )
-		endif( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN_DIR}/${PLUGIN}/CMakeLists.txt )
-	endforeach( PLUGIN )
-endforeach( PLUGIN_DIR )
