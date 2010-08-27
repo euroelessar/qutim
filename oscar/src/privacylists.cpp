@@ -183,6 +183,7 @@ PrivacyLists::PrivacyLists() :
 	Q_UNUSED(QT_TRANSLATE_NOOP("Privacy", "Privacy status"));
 	foreach (const ActionPointer &action, accountMenuList)
 		MenuController::addAction<IcqAccount>(action.data(), QList<QByteArray>() << "Additional" << "Privacy status");
+	IcqProtocol::instance()->installEventFilter(this);
 }
 
 bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
@@ -214,7 +215,7 @@ bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 		break;
 	}
 	case SsiIgnore: {
-		name = "im-ignore-contact-icq";
+		name = "ignore";
 		if (type != Feedbag::Remove) {
 			icon = "im-ignore-contact-icq";
 			debug() << item.name() << "has been added to ignore list";
@@ -231,7 +232,8 @@ bool PrivacyLists::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 		return true;
 	Status status = contact->status();
 	if (!icon.isEmpty()) {
-		QVariantMap clientInfo;
+		QVariantHash clientInfo;
+		clientInfo.insert("id", name);
 		clientInfo.insert("icon", qVariantFromValue(ExtensionIcon(icon)));
 		clientInfo.insert("showInTooltip", false);
 		clientInfo.insert("priority", 20);
@@ -279,6 +281,27 @@ int PrivacyLists::getCurrentMode(IcqAccount *account, bool invisibleMode)
 		}
 	}
 	return current;
+}
+
+bool PrivacyLists::eventFilter(QObject *obj, QEvent *e)
+{
+	if (e->type() == ExtendedInfosEvent::eventType() && obj == IcqProtocol::instance()) {
+		ExtendedInfosEvent *event = static_cast<ExtendedInfosEvent*>(e);
+		QVariantHash extStatus;
+		// Visible
+		extStatus.insert("id", "visible");
+		extStatus.insert("settingsDescription", tr("Show \"visible\" icon if contact in visible list"));
+		event->addInfo("visible", extStatus);
+		// Invisible
+		extStatus.insert("id", "invisible");
+		extStatus.insert("settingsDescription", tr("Show \"invisible\" icon if contact in invisible list"));
+		event->addInfo("invisible", extStatus);
+		// Ignore
+		extStatus.insert("id", "ignore");
+		extStatus.insert("settingsDescription", tr("Show \"ignore\" icon if contact in ignore list"));
+		event->addInfo("ignore", extStatus);
+	}
+	return QObject::eventFilter(obj, e);
 }
 
 void PrivacyLists::accountAdded(qutim_sdk_0_3::Account *account)

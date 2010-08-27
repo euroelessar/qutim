@@ -230,6 +230,7 @@ bool XStatusHandler::load()
 		onAccountAdded(account);
 	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 			SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
+	IcqProtocol::instance()->installEventFilter(this);
 	return true;
 }
 
@@ -257,7 +258,7 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 			return;
 		}
 		IcqAccount *account = contact->account();
-		QVariantMap extStatus = account->status().extendedInfo("xstatus");
+		QVariantHash extStatus = account->status().extendedInfo("xstatus");
 		int index = xstatusIndexByName(extStatus.value("name").toString());
 		XtrazResponse response("cAwaySrv", "OnRemoteNotification");
 		response.setValue("CASXtraSetAwayMessage", "");
@@ -346,8 +347,8 @@ void XStatusHandler::removeXStatuses(Capabilities &caps)
 void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc)
 {
 	Status status = contact->status();
-	QVariantMap extStatus;
-	extStatus.insert("id", QT_TRANSLATE_NOOP("XStatus", "X-Status").toString());
+	QVariantHash extStatus;
+	extStatus.insert("id", "xstatus");
 	extStatus.insert("title", unescape(title));
 	extStatus.insert("icon", QVariant::fromValue(icon));
 	if (!desc.isNull())
@@ -355,6 +356,19 @@ void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const
 	extStatus.insert("showInTooltip", true);
 	status.setExtendedInfo("xstatus", extStatus);
 	contact->setStatus(status);
+}
+
+bool XStatusHandler::eventFilter(QObject *obj, QEvent *e)
+{
+	if (e->type() == ExtendedInfosEvent::eventType() && obj == IcqProtocol::instance()) {
+		ExtendedInfosEvent *event = static_cast<ExtendedInfosEvent*>(e);
+		QVariantHash extStatus;
+		extStatus.insert("id", "xstatus");
+		extStatus.insert("name", tr("X-Status"));
+		extStatus.insert("settingsDescription", tr("Show contact X-Status icon"));
+		event->addInfo("xstatus", extStatus);
+	}
+	return Plugin::eventFilter(obj, e);
 }
 
 void XStatusHandler::onSetCustomStatus(QObject *object)
@@ -375,8 +389,8 @@ void XStatusHandler::onCustomDialogAccepted()
 	IcqAccount *account = dialog->account();
 	XStatus xstatus = dialog->status();
 	OscarStatus status = account->status();
-	QVariantMap extStatus;
-	extStatus.insert("id", QT_TRANSLATE_NOOP("XStatus", "X-Status").toString());
+	QVariantHash extStatus;
+	extStatus.insert("id", "xstatus");
 	extStatus.insert("name", xstatus.name);
 	extStatus.insert("title", dialog->caption());
 	extStatus.insert("icon", xstatus.icon.toIcon());
@@ -395,7 +409,7 @@ void XStatusHandler::onAccountStatusAboutToBeChanged(OscarStatus &status)
 {
 	if (!status.extendedInfos().contains("xstatus"))
 		return;
-	QVariantMap extStatus = status.extendedInfo("xstatus");
+	QVariantHash extStatus = status.extendedInfo("xstatus");
 	int index = xstatusIndexByName(extStatus.value("name").toString());
 	if (index > 0 && index < xstatusList()->count())
 		status.setCapability("xstatus", xstatusList()->at(index).capability);

@@ -29,8 +29,12 @@ public:
 	virtual void init();
 	virtual bool load() { return true; }
 	virtual bool unload() { return false; }
+	void clearTemporaryDir();
 private slots:
 	void onFinished(void *data);
+private:
+	void initLibPurple();
+	QString m_tmpDir;
 };
 
 #endif // PURPLEPROTOCOLPLUGIN_H

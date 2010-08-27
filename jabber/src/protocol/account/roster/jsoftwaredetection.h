@@ -39,6 +39,7 @@ namespace Jabber
 			public gloox::DiscoHandler
 	{
 		enum { RequestDisco, RequestSoftware };
+		Q_OBJECT
 	public:
 		struct SoftwareInfo
 		{

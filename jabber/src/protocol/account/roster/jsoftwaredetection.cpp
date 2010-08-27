@@ -187,8 +187,8 @@ namespace Jabber
 		unit->setProperty("os", os);
 		unit->setProperty("clientIcon", icon);
 		if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
-			QVariantMap clientInfo;
-			clientInfo.insert("id", tr("Possible client"));
+			QVariantHash clientInfo;
+			clientInfo.insert("id", "client");
 			clientInfo.insert("icon", QVariant::fromValue(ExtensionIcon(icon)));
 			clientInfo.insert("description", client);
 			clientInfo.insert("priority", -1);

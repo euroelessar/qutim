@@ -177,7 +177,7 @@ namespace Jabber
 		return d_func()->text;
 	}
 
-	void JContactResource::setExtendedInfo(const QString &name, const QVariantMap &extStatus)
+	void JContactResource::setExtendedInfo(const QString &name, const QVariantHash &extStatus)
 	{
 		Status current = status();
 		d_func()->extStatuses.insert(name, extStatus);

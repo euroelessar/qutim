@@ -78,6 +78,8 @@ public:
 	void removeXStatuses(Capabilities &caps);
 	void setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
 	static QHash<Capability, OscarStatusData> qipstatuses;
+protected:
+	bool eventFilter(QObject *obj, QEvent *e);
 private slots:
 	void onSetCustomStatus(QObject *object);
 	void onCustomDialogAccepted();
