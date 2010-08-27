@@ -34,6 +34,7 @@
 #include <QAbstractEventDispatcher>
 #include <QDateTime>
 #include <QThread>
+#include <QtConcurrentRun>
 
 void quetzal_menu_dump(PurpleMenuAction *action, int offset)
 {
@@ -417,12 +418,12 @@ static PurpleCoreUiOps quetzal_core_uiops =
 	NULL
 };
 
-static void
-init_libpurple()
+void QuetzalPlugin::initLibPurple()
 {
-	QString path = SystemInfo::getPath(SystemInfo::ConfigDir);
-	path += "/purple";
-	purple_util_set_user_dir(QDir::toNativeSeparators(path).toUtf8().constData());
+	m_tmpDir = QDir::tempPath();
+	m_tmpDir += "/purple/";
+	m_tmpDir += QString::number(qrand());
+	purple_util_set_user_dir(QDir::toNativeSeparators(m_tmpDir).toUtf8().constData());
 	/* Set a custom user directory (optional) */
 //	purple_util_set_user_dir("/dev/null");
 
@@ -493,7 +494,7 @@ void QuetzalPlugin::init()
 	QLibrary lib("purple");
 	lib.setLoadHints(QLibrary::ExportExternalSymbolsHint);
 	lib.load();
-	init_libpurple();
+	initLibPurple();
 	QByteArray imPrefix("im-");
 	for(GList *it = purple_plugins_get_protocols(); it != NULL; it = it->next)
 	{
@@ -517,6 +518,14 @@ void QuetzalPlugin::init()
 //	thread->start();
 //	loop.exec();
 //	qDebug() << __LINE__;
+}
+
+void QuetzalPlugin::clearTemporaryDir()
+{
+	if (m_tmpDir.isEmpty())
+		return;
+	
+	m_tmpDir.clear();
 }
 
 void QuetzalPlugin::onFinished(void *data)
