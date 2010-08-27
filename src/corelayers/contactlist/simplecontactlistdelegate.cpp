@@ -135,6 +135,8 @@ namespace SimpleContactList
 							icon = extIconVar.value<QIcon>();
 						if (!hash.value(QLatin1String("showIcon"),true).toBool() || icon.isNull())
 							continue;
+						if (!m_statuses.value(hash.value("id").toString(), true))
+							continue;
 						icon.paint(painter,
 									option.rect.left() + m_horizontal_padding,
 									option.rect.top() + m_vertical_padding,
