@@ -74,7 +74,7 @@ public:
 	void setCapability(const QString &type, const Capability &capability);
 	void removeCapability(const QString &type);
 	static void registerStatus(OscarStatusData statusData);
-	void setStatusFlag(quint16 status);
+	bool setStatusFlag(quint16 status);
 	void setStatusType(Status::Type status);
 protected:
 	OscarStatusData getStatusData(int id);

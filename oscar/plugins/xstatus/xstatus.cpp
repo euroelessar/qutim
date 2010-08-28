@@ -172,7 +172,7 @@ int xstatusIndexByName(const QString &name)
 }
 
 QipExtendedStatus::QipExtendedStatus(int statusId, quint16 status, const QString &iconName, const LocalizedString &name, quint16 id):
-	OscarStatusData(statusId, status == OscarAway ? Status::Away : Status::Online, status, iconName, name)
+	OscarStatusData(statusId, status == OscarAway ? Status::Away : Status::Online, statusId, iconName, name)
 {
 	Capability cap(0xb7074378, 0xf50c7777, 0x97775778, (quint32)0x502d << 16 | id);
 	caps.insert("qipstatus", cap);

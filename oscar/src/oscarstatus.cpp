@@ -197,14 +197,15 @@ void OscarStatus::registerStatus(OscarStatusData statusData)
 	statusList()->insert(statusData);
 }
 
-void OscarStatus::setStatusFlag(quint16 status)
+bool OscarStatus::setStatusFlag(quint16 status)
 {
 	foreach (const OscarStatusData &data, *statusList()) {
 		if ((status == 0 && data.flag == 0) || (data.flag & status)) {
 			setData(data);
-			break;
+			return true;
 		}
 	}
+	return false;
 }
 
 void OscarStatus::setStatusType(Status::Type status)
