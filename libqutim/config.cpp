@@ -164,7 +164,7 @@ namespace qutim_sdk_0_3
 		Q_DISABLE_COPY(ConfigPrivate)
 	public:
 		inline ConfigPrivate()  { levels << new ConfigLevel(); }
-		inline ~ConfigPrivate() { if (!memoryGuard && !sources.isEmpty()) sync(); }
+		inline ~ConfigPrivate() { if (!memoryGuard) sync(); }
 		inline ConfigLevel *current() const { return levels.at(0); }
 		void sync();
 		void addSource(const QString &path);
@@ -175,7 +175,8 @@ namespace qutim_sdk_0_3
 	
 	void ConfigPrivate::sync()
 	{
-		Q_ASSERT(!sources.isEmpty());
+		if (sources.isEmpty())
+			return;
 		ConfigSource *source = sources.value(0).data();
 		if (source && source->dirty) {
 			const ConfigAtom * const level = &source->data;
@@ -384,7 +385,8 @@ namespace qutim_sdk_0_3
 						atom = 0;
 						break;
 					} else {
-						d->sources.at(0)->dirty = true;
+						if (!d->sources.isEmpty())
+							d->sources.at(0)->dirty = true;
 						var = QVariantMap();
 					}
 				}
@@ -454,7 +456,7 @@ namespace qutim_sdk_0_3
 				}
 			} else if (current->typeMap) {
 				QVariant &var = (*(current->map))[name];
-				if (var.type() != QVariant::List)
+				if (var.type() != QVariant::List && !d->sources.isEmpty())
 					d->sources.at(0)->dirty;
 				l->atoms << new ConfigAtom(var, false);
 				if (!size)
