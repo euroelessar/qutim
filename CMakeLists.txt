@@ -68,34 +68,31 @@ else( ${QT_QTMULTIMEDIA_FOUND} )
 	set( QT_QTMULTIMEDIA_LIBRARY "" )
 endif( ${QT_QTMULTIMEDIA_FOUND} )
 
+#simple hack for include dirs
+macro(LIST_SUBDIRECTORIES retval curdir)
+	file(GLOB sub-dir RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${curdir}/*)
+	set(list_of_dirs "")
+	foreach(dir ${sub-dir})
+		#TODO fix IS DIRECTORY macro
+		if (IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${curdir}/${dir})
+			message(STATUS "Found 3rdparty dir: ${CMAKE_CURRENT_SOURCE_DIR}/${curdir}/${dir}")
+		endif()
+		set(list_of_dirs ${list_of_dirs} ${dir})
+	endforeach()
+	set(${retval} ${list_of_dirs})
+endmacro()
+
+LIST_SUBDIRECTORIES(3RDPARTY_INCLUDE_DIRS "3rdparty")
+
 INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 	${QT_QTCORE_INCLUDE_DIR}
 	${QT_QTXML_INCLUDE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
+	${3RDPARTY_INCLUDE_DIRS}
 	.
 		src
-		3rdparty/q-xdg
-		3rdparty/flowlayout
-		3rdparty/actionbox
-		3rdparty/slidingstackedwidget
-		3rdparty/itemdelegate
-		3rdparty/avatarfilter
 		include
 	)
-
-
-IF (UNIX)
-	include( FindPkgConfig )
-	pkg_check_modules (XSS xscrnsaver)
-	IF( XSS_FOUND )
-		ADD_DEFINITIONS( -DHAVE_XSS )
-		FIND_LIBRARY( XSS_LIB NAMES Xss PATHS ${XSS_LIBDIR} )
-		LIST( APPEND QUTIM_LIBS ${XSS_LIB} )
-		INCLUDE_DIRECTORIES( ${XSS_INCLUDEDIR} )
-	ELSE( XSS_FOUND )
-		message(STATUS "Warning: libxss not found, idle detection won't be accurate")
-	ENDIF( XSS_FOUND )
-ENDIF (UNIX)
 
 if( WIN32 )
 	list(APPEND QUTIM_LIBS secur32 )
@@ -109,18 +106,6 @@ list( APPEND SOURCES "main.cpp" )
 SET (RESOURCES
 	qutim.qrc
 	)
-
-#TODO make it automaticaly
-option( QUTIM_MOBILE_UI "User interface for mobile devices like Nokia 5800" OFF )
-IF (QUTIM_MOBILE_UI)
-	ADD_DEFINITIONS( -DQUTIM_MOBILE_UI )
-	MESSAGE(STATUS "qutIM will be compiled with mobile ui" )
-ENDIF (QUTIM_MOBILE_UI)
-option( QUTIM_SINGLE_PROFILE "Multiply profiles by default" ON )
-IF (QUTIM_SINGLE_PROFILE)
-	ADD_DEFINITIONS( -DQUTIM_SINGLE_PROFILE )
-	MESSAGE(STATUS "qutIM will be compiled without multiply profiles by default" )
-ENDIF (QUTIM_SINGLE_PROFILE)
 
 #TODO fix in future
 if (MINGW)
@@ -164,7 +149,22 @@ foreach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
     add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )
 endforeach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
 
-ADD_EXECUTABLE (qutim ${GUI_TYPE} ${SOURCES} ${HEADERS} ${MOC_SRCS} ${UIS_H} ${RCC} ${QUTIM_ADDITIONAL_SOURCES} )
+QUTIM_ADD_OPT(QUTIM_MOBILE_UI
+	"User interface for mobile devices like Nokia 5800"
+	"qutIM will be compiled with mobile ui"
+	OFF
+)
+QUTIM_ADD_OPT(QUTIM_SINGLE_PROFILE
+	"Single profil by default" 
+	"qutIM will be compiled without multiply profiles by default"
+	ON
+)
+SET( QUTIM_GUI_TYPE "" CACHE STRING "qutIM GUI TYPE" )
+IF( QUTIM_GUI_TYPE )
+	MESSAGE(STATUS "qutIM will be compiled with ${QUTIM_GUI_TYPE} GUI type")
+ENDIF()
+
+ADD_EXECUTABLE (qutim ${QUTIM_GUI_TYPE} ${SOURCES} ${HEADERS} ${MOC_SRCS} ${UIS_H} ${RCC} ${QUTIM_ADDITIONAL_SOURCES} )
 
 if( CMAKE_COMPILER_IS_GNUCXX )
 	set_target_properties( qutim PROPERTIES COMPILE_FLAGS "-DQUTIM_CORE -DXDG_STATIC -Wall -Werror" )
