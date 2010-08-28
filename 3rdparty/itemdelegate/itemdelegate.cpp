@@ -250,18 +250,17 @@ QRect ItemDelegate::checkRect(const QStyleOptionViewItem &o, const QRect &rect) 
 {
 	QStyleOptionViewItemV4 option(o);
 	QSize size = option.decorationSize;
-	QRect result (rect.left() + size.width()/2,
-		  rect.top() + size.height()/2,
-		  size.width(),
-		  size.height()
-		  );
 	QStyleOptionButton opt;
 	opt.QStyleOption::operator=(option);
 	opt.rect = rect;
-	const QWidget *widget = option.widget;
-	QStyle *style = widget ? widget->style() : QApplication::style();
+	const QWidget *widget = getWidget(option);
+	QStyle *style = getStyle(option);
 	QRect checkRect = style->subElementRect(QStyle::SE_ViewItemCheckIndicator, &opt, widget);
-	result.translate(-checkRect.width()/2,-checkRect.height()/2);
+	QRect result (rect.left(),
+		  rect.top() + (size.height() - checkRect.height())/2,
+		  size.width() - checkRect.width(),
+		  checkRect.height()
+		  );
 	return result;
 }
 
