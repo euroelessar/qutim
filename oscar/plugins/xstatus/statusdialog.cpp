@@ -30,7 +30,7 @@ CustomStatusDialog::CustomStatusDialog(IcqAccount *account, QWidget *parent) :
 {
 	Config config = m_account->config("xstatus");
 	ui.setupUi(this);
-	setWindowIcon(Icon("user-xstatus-icon"));
+	setWindowIcon(Icon("user-status-xstatus"));
 	ui.chooseButton->setIcon(Icon("dialog-ok-apply"));
 	ui.cancelButton->setIcon(Icon("dialog-cancel"));
 	ui.birthBox->setVisible(false);

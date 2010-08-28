@@ -72,13 +72,14 @@ public:
 	virtual bool load();
 	virtual bool unload();
 	XStatusHandler();
-	void processTlvs2711(IcqContact *contact, Capability guid, quint16 type, const DataUnit &data, const Cookie &cookie);
-	void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs);
-	bool handelXStatusCapabilities(IcqContact *contact, qint8 mood);
-	void removeXStatuses(Capabilities &caps);
-	void setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
 	static QHash<Capability, OscarStatusData> qipstatuses;
 protected:
+	void processTlvs2711(IcqContact *contact, Capability guid, quint16 type, const DataUnit &data, const Cookie &cookie);
+	void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs);
+	XStatus findXStatus(IcqContact *contact, qint8 mood);
+	void removeXStatuses(Capabilities &caps);
+	void setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
+	void setXstatus(Status &status, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
 	bool eventFilter(QObject *obj, QEvent *e);
 private slots:
 	void onSetCustomStatus(QObject *object);
