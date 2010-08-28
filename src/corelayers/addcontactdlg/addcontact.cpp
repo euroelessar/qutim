@@ -32,20 +32,19 @@ namespace Core
 		Account *account;
 		Ui::AddContact *ui;
 	};
-	
-	Q_GLOBAL_STATIC_WITH_ARGS(ActionGenerator, addUserButton,
-							  (Icon("list-add-user"),
-							   QT_TRANSLATE_NOOP("AddContact", "Add contact"),
-							   getService("AddContact"), SLOT(show())));
 
 	AddContactModule::AddContactModule()
 	{
 		QObject *contactList = getService("ContactList");
 		if (contactList) {
+			static ActionGenerator addUserButton(Icon("list-add-user"),
+												 QT_TRANSLATE_NOOP("AddContact", "Add contact"),
+												 this, SLOT(show()));
+			
 			MenuController *controller = qobject_cast<MenuController*>(contactList);
-			addUserButton()->addHandler(ActionVisibilityChangedHandler,this);
+			addUserButton.addHandler(ActionVisibilityChangedHandler,this);
 			if (controller)
-				controller->addAction(addUserButton());
+				controller->addAction(&addUserButton);
 		}
 	}
 
