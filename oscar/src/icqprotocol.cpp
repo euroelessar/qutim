@@ -86,6 +86,11 @@ Account *IcqProtocol::account(const QString &id) const
 	return d->accounts_hash->value(id);
 }
 
+QHash<QString, IcqAccount *> IcqProtocol::accountsHash() const
+{
+	return *d_func()->accounts;
+}
+
 void IcqProtocol::addAccount(IcqAccount *account)
 {
 	Q_D(IcqProtocol);

@@ -51,6 +51,11 @@ void ClientIdentify::init()
 
 bool ClientIdentify::load()
 {
+	foreach (IcqAccount *account, IcqProtocol::instance()->accountsHash()) {
+		foreach (Contact *contact, account->contacts())
+			onContactCreated(contact);
+		onAccountCreated(account);
+	}
 	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 			SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 	IcqProtocol::instance()->installEventFilter(this);
