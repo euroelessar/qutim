@@ -91,7 +91,13 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	//init widgets
 	QSplitter *splitter = new QSplitter(Qt::Horizontal,w);
 	p->listWidget = new QListWidget(w);
+
 	p->stackedWidget = new QStackedWidget(w);
+	//default widget
+	QWidget *empty = new QWidget(this);
+//	new QVBoxLayout(empty);
+//	new QLabel(Q_TRANSLATE_NOOP("Settings","Sorry this category doesn't contain any settings"),empty);
+	p->stackedWidget->addWidget(empty);
 	splitter->addWidget(p->listWidget);
 	splitter->addWidget(p->stackedWidget);
 	splitter->setSizes(QList<int>() << 80  << 250);
@@ -188,11 +194,12 @@ void XSettingsWindow::onGroupActionTriggered(QAction *a )
 {
 	p->currentAction = a;
 	//remove old settings widgets
-	QWidget *c = p->stackedWidget->currentWidget();
+	QWidget *c = p->stackedWidget->widget(0);
 	for (int index = 0;index!=p->stackedWidget->count();index++) {
 		SettingsWidget *w = static_cast<SettingsWidget*>(p->stackedWidget->widget(index));
-		if (w != c && !p->modifiedWidgets.contains(w))
+		if (w != c && !p->modifiedWidgets.contains(w)) {
 			w->deleteLater();
+		}
 	}
 	p->listWidget->clear();
 	SettingsItemList list = p->items.values(p->actionMap.key(a));

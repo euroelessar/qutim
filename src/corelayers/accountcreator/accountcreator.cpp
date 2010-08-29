@@ -15,28 +15,29 @@ namespace Core
 // 				QT_TRANSLATE_NOOP("Plugin", "Account creator wizard"),
 // 				new GeneralGenerator<AccountPageCreator>()
 // 				);
+	}
+
+	bool AccountCreator::load()	
+	{
 		SettingsItem *item = new GeneralSettingsItem<AccountCreatorList>(
 				Settings::General, Icon("meeting-attending"),
 				QT_TRANSLATE_NOOP("Settings", "Accounts"));
 		item->setPriority(100);
 		Settings::registerItem(item);
-	}
 
-	bool AccountCreator::load()
-	{
 		foreach (Protocol *proto,allProtocols()) {
 			if (!proto->accounts().isEmpty())
 				return true;
 		}
 
-// 		AccountCreatorWizard *wizard = new AccountCreatorWizard();
-// 		wizard->setAttribute(Qt::WA_DeleteOnClose);
-// #if defined(QUTIM_MOBILE_UI)
-// 		wizard->showMaximized();
-// #else
-// 		centerizeWidget(wizard);
-// 		wizard->show();
-// #endif		
+		AccountCreatorWizard *wizard = new AccountCreatorWizard();
+		wizard->setAttribute(Qt::WA_DeleteOnClose);
+ #if defined(QUTIM_MOBILE_UI)
+		wizard->showMaximized();
+ #else
+		centerizeWidget(wizard);
+		wizard->show();
+ #endif
 		return true;
 	}
 

@@ -646,6 +646,13 @@ namespace qutim_sdk_0_3
 				it.value().generator()->generate<StartupModule>();
 			}
 		}
+
+		foreach(Protocol *proto, allProtocols())
+			proto->loadAccounts();
+		if (MetaContactManager *manager = MetaContactManager::instance())
+			manager->loadContacts();
+		Event("startup").send();
+
 		Config pluginsConfig = Config().group("plugins").group("list");
 		for (int i = 0; i < p->plugins.size(); i++) {
 			Plugin *plugin = p->plugins.at(i);
@@ -661,12 +668,6 @@ namespace qutim_sdk_0_3
 			}
 			qDebug("%d %d %s", i, p->plugins.size(), p->plugins.at(i)->metaObject()->className());
 		}
-
-		foreach(Protocol *proto, allProtocols())
-			proto->loadAccounts();
-		if (MetaContactManager *manager = MetaContactManager::instance())
-			manager->loadContacts();
-		Event("startup").send();
 	}
 	
 	void ModuleManager::onQuit()
