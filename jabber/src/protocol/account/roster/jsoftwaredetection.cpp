@@ -45,23 +45,38 @@ namespace Jabber
 				return;
 
 			std::string node;
-
 			if (const Capabilities *caps = presence.findExtension<Capabilities>(ExtCaps)) {
-				node = caps->node() + '#' + caps->ver();
-				QString qNode = QString::fromStdString(node);
-				unit->setProperty("node", qNode);
-				SoftwareInfoHash::iterator it = m_hash.find(qNode);
-				if (it != m_hash.end()) {
-					SoftwareInfo &info = *it;
-					resource->setFeatures(info.features);
-					if (info.name.isEmpty()) {
-						IQ iq(IQ::Get, presence.from());
-						iq.addExtension(new SoftwareVersion());
-						m_account->client()->send(iq, this, RequestSoftware);
-					} else {
-						updateClientData(unit, info.description, info.name, info.version, info.os, info.icon);
-					}
+				static const QRegExp regExp("^http://.*google.com/.*client/caps$");
+				Q_ASSERT(regExp.isValid());
+				QString capsNode = QString::fromStdString(caps->node());
+				if(regExp.exactMatch(capsNode))
+				{
+					QString software = "GTalk";
+					if(capsNode.startsWith("http://mail."))
+						software += " (GMail)";
+					else if(capsNode.startsWith("http://talkgadget."))
+						software += " (Gadget)";
+					QString softwareVersion = QString::fromStdString(caps->ver());
+					QString client = getClientDescription(software, softwareVersion, QString());
+					updateClientData(resource, client, software, softwareVersion, QString(), "gtalk");
 					return;
+				} else {
+					node = caps->node() + '#' + caps->ver();
+					QString qNode = QString::fromStdString(node);
+					unit->setProperty("node", qNode);
+					SoftwareInfoHash::iterator it = m_hash.find(qNode);
+					if (it != m_hash.end()) {
+						SoftwareInfo &info = *it;
+						resource->setFeatures(info.features);
+						if (info.name.isEmpty()) {
+							IQ iq(IQ::Get, presence.from());
+							iq.addExtension(new SoftwareVersion());
+							m_account->client()->send(iq, this, RequestSoftware);
+						} else {
+							updateClientData(unit, info.description, info.name, info.version, info.os, info.icon);
+						}
+						return;
+					}
 				}
 			}
 
