@@ -303,7 +303,7 @@ void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TL
 				moodIndex = -1;
 		}
 	}
-	XStatus xstatus = handelXStatusCapabilities(contact, moodIndex);
+	XStatus xstatus = findXStatus(contact, moodIndex);
 	if (!xstatus.name.isEmpty()) {
 		setXstatus(status, xstatus.value, xstatus.icon);
 		QDateTime lastTime = contact->property("lastXStatusRequestTime").toDateTime();
@@ -329,7 +329,7 @@ void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TL
 	}
 }
 
-XStatus XStatusHandler::handelXStatusCapabilities(IcqContact *contact, qint8 mood)
+XStatus XStatusHandler::findXStatus(IcqContact *contact, qint8 mood)
 {
 	const Capabilities &caps = contact->capabilities();
 	foreach(const XStatus &status, *xstatusList())

@@ -211,8 +211,24 @@ namespace Jabber
 			return QString();
 		if (software == "Miranda IM Jabber")
 			return "miranda-jabber";
-		else if (software == "Psi+")
-			return "psi";
+		else if (software == "bombusmod")
+			return "bombus-mod";
+		else if (software == "bombusqd")
+			return "bombus-qd";
+		else if (software == "bombus.pl")
+			return "bombus-pl";
+		else if (software == "bombus+")
+			return "bombus-p";
+		else if (software == "я.онлайн")
+			return "yachat";
+		else if (software == "hotcoffee")
+			return "miranda-hotcoffee";
+		else if (software == "jabber.el")
+			return "emacs";
+		else if (software == "just another jabber client")
+			return "jajc";
+		else if (software == "пиджин") // Stupid pidgin devels! Name mustn't be localized!
+			return "pidgin";
 		return software.toLower().replace(' ', '-') + "-jabber";
 	}
 

@@ -266,7 +266,7 @@ void ClientIdentify::identify_by_DCInfo()
 		else if ((!m_ext_info) && (m_client_proto == 7))
 			setClientData("WebICQ", "webicq");
 		else if ((!m_ext_info) && (m_ext_status_info == 0x3b7248ed))
-			setClientData("Spam Bot", "bot");
+			setClientData("Spam Bot", "icqbot");
 		else
 			parseMirandaVersionInDCInfo();
 	} else if (m_info == 0x7fffffff) {
@@ -291,7 +291,7 @@ void ClientIdentify::identify_by_DCInfo()
 		setClientData("vICQ", "unknown");
 	} else if ((m_info == 0x3aa773ee) && (m_ext_info == 0x3aa66380)) {
 		if (RtfSupport()) {
-			setClientData("Centericq", "centericq");
+			setClientData("Centericq", "centerim-icq");
 		} else {
 			m_client_id = "libicq2000";
 			if (Utf8Support())
@@ -1104,7 +1104,7 @@ void ClientIdentify::identify_Climm()
 			m_client_id += "/Win32";
 		else if (m_ext_status_info == 0x03000800)
 			m_client_id += "/MacOS X";
-		setClientIcon("unknown"); // ???
+		setClientIcon("climm"); // ???
 	}
 }
 
@@ -1196,7 +1196,7 @@ void ClientIdentify::identify_CorePager()
 			if ((m_info & 0xFF) == 0x0B)
 				m_client_id += " Beta";
 		}
-		setClientIcon("corepager");
+		setClientIcon("jimm-corepager");
     }
 }
 
@@ -1210,7 +1210,7 @@ void ClientIdentify::identify_DiChat()
 	if ((cap = m_client_caps.find(ICQ_CAPABILITY_DICHATxVER)) != m_client_caps.constEnd()) {
 		m_client_id += "D[i]Chat ";
 		m_client_id += QString::fromUtf8(cap->data().mid(8, 8));
-		setClientIcon("di_chat");
+		setClientIcon("dichat");
 	}
 }
 
