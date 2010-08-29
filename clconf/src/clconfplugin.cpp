@@ -37,6 +37,8 @@ void ClConfPlugin::init()
 bool ClConfPlugin::load()
 {
 	foreach (Protocol *protocol, allProtocols()) {
+		foreach (Account *account, protocol->accounts())
+			onAccountCreated(account);
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 	}
