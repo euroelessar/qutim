@@ -22,6 +22,7 @@
 #include <QDialogButtonBox>
 #include <qutim/icon.h>
 #include <qutim/settingswidget.h>
+#include <qutim/config.h>
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QMessageBox>
@@ -57,11 +58,7 @@ static ActionEntryMap init_entry_map()
 	return map;
 }
 
-ActionEntryMap *entries()
-{
-	static ActionEntryMap map (init_entry_map());
-	return &map;
-}
+Q_GLOBAL_STATIC_WITH_ARGS(ActionEntryMap, entries, (init_entry_map()))
 
 struct XSettingsWindowPrivate
 {
@@ -70,6 +67,7 @@ struct XSettingsWindowPrivate
 	QStackedWidget *stackedWidget;
 	QListWidget *listWidget;
 	QDialogButtonBox *buttonBox;
+	QSplitter *splitter;
 	QObject *controller;
 	QMap<Settings::Type,SettingsItem*> items;
 	QList<SettingsWidget*> modifiedWidgets;
@@ -85,11 +83,16 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	//setup ui
 	QWidget *w = new QWidget(this);
 	QVBoxLayout *l = new QVBoxLayout(w);
-	QSize desktop_size = qApp->desktop()->size();
-	resize(desktop_size.width()/2,desktop_size.height()*2/3);
-	centerizeWidget(this);
+	Config cfg;
+	cfg.beginGroup("xsettings/window");
+	QByteArray data = cfg.value("geometry", QByteArray());
+	if (data.isEmpty() || !restoreGeometry(data)) {
+		QSize desktopSize = QApplication::desktop()->availableGeometry(QCursor::pos()).size();
+		resize(desktopSize.width() / 2, desktopSize.height() * 2 / 3);
+		centerizeWidget(this);
+	}
 	//init widgets
-	QSplitter *splitter = new QSplitter(Qt::Horizontal,w);
+	p->splitter = new QSplitter(Qt::Horizontal,w);
 	p->listWidget = new QListWidget(w);
 
 	p->stackedWidget = new QStackedWidget(w);
@@ -98,10 +101,12 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 //	new QVBoxLayout(empty);
 //	new QLabel(Q_TRANSLATE_NOOP("Settings","Sorry this category doesn't contain any settings"),empty);
 	p->stackedWidget->addWidget(empty);
-	splitter->addWidget(p->listWidget);
-	splitter->addWidget(p->stackedWidget);
-	splitter->setSizes(QList<int>() << 80  << 250);
-	l->addWidget(splitter);
+	p->splitter->addWidget(p->listWidget);
+	p->splitter->addWidget(p->stackedWidget);
+	data = cfg.value("splitterState", QByteArray());
+	if (data.isEmpty() || !p->splitter->restoreState(data))
+		p->splitter->setSizes(QList<int>() << 80  << 250);
+	l->addWidget(p->splitter);
 	//init buttonBox
 // 	QFrame *line = new QFrame(w);
 // 	line->setFrameShape(QFrame::HLine);
@@ -146,7 +151,10 @@ void XSettingsWindow::update(const qutim_sdk_0_3::SettingsItemList& settings)
 
 XSettingsWindow::~XSettingsWindow()
 {
-
+	Config cfg;
+	cfg.beginGroup("xsettings/window");
+	cfg.setValue("geometry", saveGeometry());
+	cfg.setValue("splitterState", p->splitter->saveState());
 }
 
 void XSettingsWindow::loadSettings(const qutim_sdk_0_3::SettingsItemList& settings)
