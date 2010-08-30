@@ -64,7 +64,7 @@ namespace Core
 			d->q_ptr = this;
 			d->chat_unit = unit;
 			d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
-			qDebug() << "create session" << unit->title();
+//			qDebug() << "create session" << unit->title();
 			Config cfg = Config("appearance").group("chat");
 			d->store_service_messages = cfg.group("history").value<bool>("storeServiceMessages", true);
 			d->sendToLastActiveResource = cfg.value<bool>("sendToLastActiveResource", false);
@@ -332,7 +332,7 @@ namespace Core
 			if (ev->type() == MessageReceiptEvent::eventType()) {
 				MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
 				QWebElement elem = d->web_page->mainFrame()->findFirstElement("#message" + QString::number(msgEvent->id()));
-				qDebug() << elem.toPlainText();
+//				qDebug() << elem.toPlainText();
 				elem.removeClass("notDelivered");
 				elem.addClass("delivered");
 				return true;
@@ -408,7 +408,7 @@ namespace Core
 				}
 			}
 
-			debug() << "chat state event sended";
+//			debug() << "chat state event sended";
 			ChatStateEvent ev(statusToState(status.type()));
 			qApp->sendEvent(q, &ev);
 
@@ -506,7 +506,7 @@ namespace Core
 
 		void ChatSessionImplPrivate::onActiveTimeout()
 		{
-			debug() << "set inactive state";
+//			debug() << "set inactive state";
 			q_func()->setChatState(ChatStateInActive);
 		}
 
@@ -518,13 +518,13 @@ namespace Core
 			d->myself_chat_state = state;
 			if ((state != ChatStateInActive) && (state != ChatStateGone) && (state != ChatStateComposing)) {
 				d->inactive_timer.start();
-				debug() << "timer activated";
+//				debug() << "timer activated";
 			}
 		}
 
 		void ChatSessionImplPrivate::onLinkClicked(const QUrl& url)
 		{
-			debug() << "link clicked" << url;
+//			debug() << "link clicked" << url;
 			QDesktopServices::openUrl(url);
 		}
 

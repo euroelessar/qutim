@@ -353,7 +353,7 @@ namespace qutim_sdk_0_3
 								lib->resolve("qt_plugin_query_verification_data"));
 						if (!verificationFunction || !qtVerificationFunction) {
 							lib->unload();
-//							qDebug("'%s' has no valid verification data", qPrintable(filename));
+							qDebug("'%s' has no valid verification data", qPrintable(filename));
 							continue;
 						}
 						QString error;

@@ -243,7 +243,7 @@ namespace Core
 			QString html;
 			if (!mes.chatUnit())
 			{
-				qDebug() << "Chat unit is not defined";
+//				qDebug() << "Chat unit is not defined";
 				return QString();
 			}
 
@@ -329,7 +329,7 @@ namespace Core
 			QString avatarPath;
 			if (mes.isIncoming()) {
 				const Buddy *c = qobject_cast< const Buddy *>(mes.chatUnit());
-				debug() << c << mes.chatUnit();
+//				debug() << c << mes.chatUnit();
 				avatarPath = c ? c->avatar() : (m_current_style.baseHref + "Outgoing/buddy_icon.png");
 			}
 			else {

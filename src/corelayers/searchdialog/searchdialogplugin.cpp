@@ -29,6 +29,9 @@ namespace Core
 		addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Prokhin"),
 				  QT_TRANSLATE_NOOP("Task", "Author"),
 				  QLatin1String("alexey.prokhin@yandex.ru"));
+		addExtension<SearchLayer>(
+				QT_TRANSLATE_NOOP("Plugin", "Search window"),
+				QT_TRANSLATE_NOOP("Plugin", "Default qutIM implementation of search window"));
 		addExtension<DefaultSearchFormFactory>(
 				QT_TRANSLATE_NOOP("Plugin", "Desktop Search Form"),
 				QT_TRANSLATE_NOOP("Plugin", "Default search form optimized for Desktop systems"));
