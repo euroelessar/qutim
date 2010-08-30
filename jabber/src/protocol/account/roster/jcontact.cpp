@@ -32,6 +32,7 @@ namespace Jabber
 		bool inList;
 		QString avatar;
 		QStringRef hash;
+		QHash<QString, QVariantHash> extInfo;
 	};
 
 	JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_ptr(new JContactPrivate)
@@ -254,9 +255,15 @@ namespace Jabber
 	Status JContact::status() const
 	{
 		Q_D(const JContact);
-		return d->currentResources.isEmpty()
-				? Status::instance(Status::Offline, "jabber")
-					: d->resources.value(d->currentResources.first())->status();
+		Status status = d->currentResources.isEmpty() ?
+						Status::instance(Status::Offline, "jabber") :
+						d->resources.value(d->currentResources.first())->status();
+		QHashIterator<QString, QVariantHash> itr(d->extInfo);
+		while (itr.hasNext()) {
+			itr.next();
+			status.setExtendedInfo(itr.key(), itr.value());
+		}
+		return status;
 	}
 
 	void JContact::fillMaxResource()
@@ -316,6 +323,20 @@ namespace Jabber
 		int length = d->avatar.length() - pos;
 		d->hash = QStringRef(&d->avatar, pos, length);
 		emit avatarChanged(d->avatar);
+	}
+
+	void JContact::setExtendedInfo(const QString &name, const QVariantHash &extStatus)
+	{
+		Status current = status();
+		d_func()->extInfo.insert(name, extStatus);
+		emit statusChanged(status(), current);
+	}
+
+	void JContact::removeExtendedInfo(const QString &name)
+	{
+		Status current = status();
+		d_func()->extInfo.remove(name);
+		emit statusChanged(status(), current);
 	}
 
 	void JContact::resourceStatusChanged(const Status &current, const Status &previous)

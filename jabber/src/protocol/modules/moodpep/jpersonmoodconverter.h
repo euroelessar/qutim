@@ -30,10 +30,18 @@ namespace Jabber
 		virtual ~JPersonMoodConverter();
 		virtual std::string feature() const;
 		virtual QString name() const;
-		virtual gloox::Tag *toXml(const QVariantMap &map) const;
-		virtual QVariantMap fromXml(gloox::Tag *tag) const;
+		virtual gloox::Tag *toXml(const QVariantHash &map) const;
+		virtual QVariantHash fromXml(gloox::Tag *tag) const;
 	private:
 		std::string m_feature;
+	};
+
+	class JPersonMoodRegistrator : public QObject
+	{
+	public:
+		JPersonMoodRegistrator();
+	protected:
+		bool eventFilter(QObject *obj, QEvent *event);
 	};
 }
 

@@ -51,7 +51,8 @@ namespace Jabber
 			QString avatar() const;
 			QString avatarHash() const;
 			void setAvatar(const QString &hex);
-//			InfoRequest *infoRequest() const;
+			void setExtendedInfo(const QString &name, const QVariantHash &status);
+			void removeExtendedInfo(const QString &name);
 		protected:
 			void fillMaxResource();
 			virtual bool event(QEvent *event);

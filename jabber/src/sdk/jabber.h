@@ -108,8 +108,8 @@ namespace Jabber
 	public:
 		virtual std::string feature() const = 0;
 		virtual QString name() const = 0;
-		virtual gloox::Tag *toXml(const QVariantMap &map) const = 0;
-		virtual QVariantMap fromXml(gloox::Tag *tag) const = 0;
+		virtual gloox::Tag *toXml(const QVariantHash &map) const = 0;
+		virtual QVariantHash fromXml(gloox::Tag *tag) const = 0;
 		virtual ~PersonEventConverter() {}
 	};
 }

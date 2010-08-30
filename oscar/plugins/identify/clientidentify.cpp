@@ -436,7 +436,7 @@ void ClientIdentify::identify_by_ProtoVersion()
 				(m_ext_info == 0x3aa66380) &&
 				(m_ext_status_info == 0x3a877a42))
 			{
-				setClientData("centerim", "centericq");
+				setClientData("centerim", "centerim");
 			}
 			else
 			{

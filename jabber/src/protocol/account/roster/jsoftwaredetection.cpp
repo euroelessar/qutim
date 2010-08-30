@@ -204,9 +204,10 @@ namespace Jabber
 		if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
 			QVariantHash clientInfo;
 			clientInfo.insert("id", "client");
+			clientInfo.insert("title", tr("Possible client"));
 			clientInfo.insert("icon", QVariant::fromValue(ExtensionIcon(icon)));
 			clientInfo.insert("description", client);
-			clientInfo.insert("priority", -1);
+			clientInfo.insert("priority", 85);
 			resource->setExtendedInfo("client", clientInfo);
 		}
 	}

@@ -37,7 +37,7 @@ namespace Jabber
 		return QLatin1String("tune");
 	}
 	
-	gloox::Tag *JPersonTuneConverter::toXml(const QVariantMap &map) const
+	gloox::Tag *JPersonTuneConverter::toXml(const QVariantHash &map) const
 	{
 		gloox::Tag *t = new gloox::Tag("tune", gloox::XMLNS, m_feature);
 		
@@ -74,9 +74,9 @@ namespace Jabber
 		return t;
 	}
 	
-	QVariantMap JPersonTuneConverter::fromXml(gloox::Tag *tag) const
+	QVariantHash JPersonTuneConverter::fromXml(gloox::Tag *tag) const
 	{
-		QVariantMap data;
+		QVariantHash data;
 		
         gloox::Tag* t = tag->findChild("artist");
         if(t)
