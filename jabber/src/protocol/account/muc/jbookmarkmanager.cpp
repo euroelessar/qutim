@@ -53,15 +53,19 @@ namespace Jabber
 
 	void JBookmarkManager::handleBookmarks(const BookmarkList &bList, const ConferenceList &cList)
 	{
-		QList<ConferenceListItem> confList = QList<ConferenceListItem>::fromStdList(cList);
 		QList<JBookmark> tmpList(p->bookmarks);
 		p->bookmarks.clear();
-		foreach (ConferenceListItem conf, confList)
-			p->bookmarks << JBookmark(QString::fromStdString(conf.name), QString::fromStdString(conf.jid),
-									  QString::fromStdString(conf.nick), QString::fromStdString(conf.password), conf.autojoin);
-		foreach (JBookmark bookmark, tmpList)
+		foreach (ConferenceListItem conf, cList) {
+			p->bookmarks << JBookmark(QString::fromStdString(conf.name),
+									  QString::fromStdString(conf.jid),
+									  QString::fromStdString(conf.nick),
+									  QString::fromStdString(conf.password),
+									  conf.autojoin);
+		}
+		foreach (JBookmark bookmark, tmpList) {
 			if (p->bookmarks.contains(bookmark))
 				p->bookmarks[p->bookmarks.indexOf(bookmark)].password = bookmark.password;
+		}
 		writeToCache("bookmarks", p->bookmarks);
 		Config config = p->account->config();
 		int num = config.beginArray("urlmarks");
@@ -173,7 +177,7 @@ namespace Jabber
 	void JBookmarkManager::clearRecent()
 	{
 		Config config = p->account->config();
-		config.remove(QString("recent"));
+		config.remove(QLatin1String("recent"));
 		config.sync();
 	}
 

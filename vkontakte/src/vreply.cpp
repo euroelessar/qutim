@@ -16,6 +16,7 @@
 
 #include "vreply.h"
 #include <qutim/json.h>
+#include <qutim/debug.h>
 
 VReply::VReply(QNetworkReply *parent) :
     QObject(parent)
@@ -54,6 +55,7 @@ void VReply::onRequestFinished()
 			Q_UNUSED(manager);
 #endif
 		} else {
+			qDebug() << "error" << error;
 			emit resultReady(error, true);
 		}
 	} else {

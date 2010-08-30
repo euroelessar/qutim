@@ -43,7 +43,7 @@ void IcqMainSettings::loadImpl()
 	Config config = IcqProtocol::instance()->config().group("general");
 	bool avatars = !config.value("avatars", true);
 	ui->avatarBox->setChecked(avatars);
-	QString codecName = config.value("codec", QString("System"));
+	QString codecName = config.value("codec", QTextCodec::codecForLocale()->name());
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
 	codecName = codec->name().toLower();
 	config = IcqProtocol::instance()->config().group("reconnect");
@@ -77,7 +77,10 @@ void IcqMainSettings::saveImpl()
 {
 	Config config = IcqProtocol::instance()->config().group("general");
 	config.setValue("avatars", !ui->avatarBox->isChecked());
-	config.setValue("codec", ui->codepageBox->currentText());
+	if (ui->codepageBox->currentIndex() == 0)
+		config.setValue("codec", QTextCodec::codecForLocale()->name());
+	else
+		config.setValue("codec", ui->codepageBox->currentText());
 	config = IcqProtocol::instance()->config().group("reconnect");
 	config.setValue("enabled", ui->reconnectBox->isChecked());
 	config.sync();
