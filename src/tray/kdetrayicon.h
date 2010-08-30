@@ -25,6 +25,8 @@
 
 namespace KdeIntegration
 {
+	class ProtocolSeparatorActionGenerator;
+	
 	class StatusAction: public QAction
 	{
 		Q_OBJECT
@@ -55,8 +57,11 @@ private slots:
 	void onAccountCreated(qutim_sdk_0_3::Account *);
 	void onStatusChanged(const qutim_sdk_0_3::Status &);
 private:
+	QIcon convertToPixmaps(const QIcon &icon);
+	void validateProtocolActions();
 	KStatusNotifierItem *m_item;
 	QMap<qutim_sdk_0_3::Account*, qutim_sdk_0_3::ActionGenerator*> m_actions;
+	QList<KdeIntegration::ProtocolSeparatorActionGenerator*> m_protocolActions;
 	QList<qutim_sdk_0_3::Account*> m_accounts;
 	qutim_sdk_0_3::Account *m_activeAccount;
 	QList<qutim_sdk_0_3::Protocol*> m_protocols;

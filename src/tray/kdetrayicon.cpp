@@ -38,21 +38,33 @@ namespace KdeIntegration
 
 		virtual QObject *generateHelper() const
 		{
-			if (m_proto->accounts().isEmpty())
-				return NULL;
-			QAction *action = prepareAction(new QAction(NULL));
+//			if (m_proto->accounts().isEmpty())
+//				return NULL;
+			if (m_action)
+				return m_action;
+			
+			m_action = prepareAction(new QAction(NULL));
+			ensureVisibility();
 
-			QFont font = action->font();
+			QFont font = m_action->font();
 			font.setBold(true);
-			action->setFont(font);
-			return action;
+			m_action->setFont(font);
+			return m_action;
 		}
 		
 		virtual ~ProtocolSeparatorActionGenerator()
 		{
 		}
+		
+		void ensureVisibility() const
+		{
+			if (m_action)
+				m_action->setVisible(!m_proto->accounts().isEmpty());
+		}
+
 	private:
 		Protocol *m_proto;
+		mutable QPointer<QAction> m_action;
 	};
 	
 	void StatusAction::onStatusChanged(Status status)
@@ -121,7 +133,9 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 
 	for (int i = 0; i < m_protocols.size(); i++) {
 		ExtensionInfo info = m_protocols.at(i)->property("extensioninfo").value<ExtensionInfo>();
-		ActionGenerator *gen = new ProtocolSeparatorActionGenerator(m_protocols.at(i), info);
+		ProtocolSeparatorActionGenerator *gen =
+				new ProtocolSeparatorActionGenerator(m_protocols.at(i), info);
+		m_protocolActions.append(gen);
 		gen->setPriority(1 - i * 2);
 		addAction(gen);
 	}
@@ -132,13 +146,7 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 //		m_item->setAssociatedWidget(widget);
 //	}
 	m_item->setContextMenu(kmenu);
-	QIcon icon;
-	Icon qutimIcon("qutim");
-	icon.addPixmap(qutimIcon.pixmap(16));
-	icon.addPixmap(qutimIcon.pixmap(32));
-	icon.addPixmap(qutimIcon.pixmap(64));
-	icon.addPixmap(qutimIcon.pixmap(128));
-	m_item->setIconByPixmap(icon);
+	m_item->setIconByName("qutim");
 	m_item->setAttentionIconByName("mail-unread-new");
 }
 
@@ -197,6 +205,7 @@ void KdeTrayIcon::onAccountDestroyed(QObject *obj)
 	ActionGenerator *gen = m_actions.take(static_cast<Account*>(obj));
 	removeAction(gen);
 	delete gen;
+	validateProtocolActions();
 }
 
 void KdeTrayIcon::onAccountCreated(qutim_sdk_0_3::Account *account)
@@ -215,8 +224,9 @@ void KdeTrayIcon::onAccountCreated(qutim_sdk_0_3::Account *account)
 		if (account->status().type() != Status::Offline)
 			m_activeAccount = account;
 		m_currentIcon = account->status().icon();
-		m_item->setOverlayIconByPixmap(m_currentIcon);
+		m_item->setOverlayIconByPixmap(convertToPixmaps(m_currentIcon));
 	}
+	validateProtocolActions();
 }
 
 void KdeTrayIcon::onStatusChanged(const qutim_sdk_0_3::Status &status)
@@ -238,5 +248,21 @@ void KdeTrayIcon::onStatusChanged(const qutim_sdk_0_3::Status &status)
 			}
 		}
 	}
-	m_item->setOverlayIconByPixmap(m_currentIcon);
+	m_item->setOverlayIconByPixmap(convertToPixmaps(m_currentIcon));
+}
+
+QIcon KdeTrayIcon::convertToPixmaps(const QIcon &source)
+{
+	QIcon icon;
+	icon.addPixmap(source.pixmap(16));
+	icon.addPixmap(source.pixmap(32));
+//	icon.addPixmap(source.pixmap(64));
+//	icon.addPixmap(source.pixmap(128));
+	return source;
+}
+
+void KdeTrayIcon::validateProtocolActions()
+{
+	foreach (KdeIntegration::ProtocolSeparatorActionGenerator *gen, m_protocolActions)
+		gen->ensureVisibility();
 }
