@@ -74,8 +74,11 @@ namespace qutim_sdk_0_3
 		virtual ~DynamicMenu();
 		
 		inline QMenu *menu() { return m_menu; }
+		inline MenuController *controller() { return m_d->q_ptr; }
 		void addActions(const QList<ActionInfo> &actions); //TODO need redesign
+		void addAction(MenuController *owner, const ActionInfo &info);
 		ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info);
+		QAction *ensureAction(const ActionGenerator *gen);
 	public slots:
 		void onActionAdded(const ActionInfo &info);
 		void onMenuOwnerChanged(const MenuController *owner);
