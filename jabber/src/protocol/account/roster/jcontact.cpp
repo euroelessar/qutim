@@ -186,7 +186,7 @@ namespace Jabber
 				JContactResource *resource = d->resources.value(id);
 				ToolTipEvent resourceEvent(false);
 				qApp->sendEvent(resource, &resourceEvent);
-				event->addHtml("<br/>" + resourceEvent.html());
+				event->addHtml("<hr>" + resourceEvent.html(), 9);
 			}
 		} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
 			Status::Type status = account()->status().type();
@@ -347,9 +347,4 @@ namespace Jabber
 		if (d->resources.value(d->currentResources.first()) == sender())
 			emit statusChanged(current, previous);
 	}
-
-//	InfoRequest *JContact::infoRequest() const
-//	{
-//		return new JInfoRequest(d_func()->account->connection()->vCardManager(), id());
-//	}
 }
