@@ -46,14 +46,14 @@ public:
 	void checkPhoto(QObject *obj, const QString &photoUrl);
 	QString photoHash(const QString &path);
 public slots:
-	void onGetProfileRequestFinished();
-	void onGetTagListRequestFinished();
-	void onGetFriendsRequestFinished();
+	void onGetProfileRequestFinished(const QVariant &var, bool error);
+	void onGetTagListRequestFinished(const QVariant &var, bool error);
+	void onGetFriendsRequestFinished(const QVariant &var, bool error);
 	void onConnectStateChanged(VConnectionState state);
 	void onAvatarRequestFinished();
-	void onActivityUpdateRequestFinished();
-	void onSetActivityRequestFinished();
-	void onUpdateProfileFinished();
+	void onActivityUpdateRequestFinished(const QVariant &var, bool error);
+	void onSetActivityRequestFinished(const QVariant &var, bool error);
+	void onUpdateProfileFinished(const QVariant &var, bool error);
 	void updateAvatar();
 	void updateActivity();
 	void onContactDestroyed(QObject *obj);

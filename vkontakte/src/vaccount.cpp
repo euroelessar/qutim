@@ -47,6 +47,7 @@ ChatUnit* VAccount::getUnit(const QString& unitId, bool create)
 
 void VAccount::loadSettings()
 {
+	d_func()->name = config().value("general/name", QString());
 }
 
 void VAccount::saveSettings()
@@ -70,21 +71,21 @@ void VAccount::setAccountName(const QString &name)
 	if (d->name != name) {
 		QString previous = d->name;
 		d->name = name;
+		config().setValue("general/name", name);
 		emit nameChanged(name, previous);
 	}
 }
 
 QString VAccount::password()
 {
-	QString password = config().group("general").value("passwd", QString(), Config::Crypted);
+	Config cfg = config("general");
+	QString password = cfg.value("passwd", QString(), Config::Crypted);
 	if (password.isEmpty()) {
 		PasswordDialog *dialog = PasswordDialog::request(this);
 		if (dialog->exec() == PasswordDialog::Accepted) {
 			password = dialog->password();
-			if (dialog->remember()) {
-				config().group("general").setValue("passwd", password, Config::Crypted);
-				config().sync();
-			}
+			if (dialog->remember())
+				cfg.setValue("passwd", password, Config::Crypted);
 		}
 		dialog->deleteLater();
 	}

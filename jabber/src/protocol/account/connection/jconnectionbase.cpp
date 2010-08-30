@@ -1,11 +1,15 @@
 #include "jconnectionbase.h"
 #include <qutim/debug.h>
+#include <gloox/clientbase.h>
 
 namespace Jabber
 {
+	Q_GLOBAL_STATIC(LogSink, emptyLogSync)
+	
 	JConnectionBase::JConnectionBase(ConnectionDataHandler *cdh) : ConnectionBase(cdh)
 	{
 		m_proxy = 0;
+		m_logSink = cdh ? &static_cast<ClientBase*>(cdh)->logInstance() : 0;
 	}
 
 	JConnectionBase::~JConnectionBase()
@@ -31,8 +35,7 @@ namespace Jabber
 	void JConnectionBase::resolveHost()
 	{
 		if (m_useDns) { //FIX IT
-			static LogSink emptyLogSync;
-			DNS::HostMap hosts = DNS::resolve(m_server, emptyLogSync);
+			DNS::HostMap hosts = DNS::resolve(m_server, *(m_logSink ? m_logSink : emptyLogSync()));
 			qutim_sdk_0_3::debug() << "server" << QString::fromStdString(m_server);
 			DNS::HostMap::iterator h = hosts.begin();
 			for (; h!=hosts.end(); h++) {				

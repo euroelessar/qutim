@@ -29,11 +29,26 @@
 #include <QDir>
 #include <qutim/json.h>
 
+#define VK_PHOTO_ID "photo_medium"
+
+inline void setObjectAvatar(QObject *obj, const QString &path)
+{
+	if (VContact *contact = qobject_cast<VContact*>(obj))
+		contact->setAvatar(path);
+	else if (VAccount *account = qobject_cast<VAccount*>(obj))
+		account->setProperty("avatar", path);
+}
+
 void VRosterPrivate::checkPhoto(QObject *obj, const QString &photoUrl)
 {
+	if (photoUrl.contains(QLatin1String("question"))) {
+		setObjectAvatar(obj, QString());
+		return;
+	}
 	QString currentAvatar = obj->property("avatarUrl").toString();
 	QString newAvatar = photoUrl;
-	if (currentAvatar != newAvatar) {
+	qDebug() << currentAvatar << newAvatar;
+	if (currentAvatar != newAvatar || obj->property("avatar").toString().isEmpty()) {
 		obj->setProperty("avatarUrl", newAvatar);
 		if (fetchAvatars && !avatarsQueue.contains(obj)) {
 			if (avatarsQueue.isEmpty())
@@ -43,38 +58,31 @@ void VRosterPrivate::checkPhoto(QObject *obj, const QString &photoUrl)
 	}
 }
 
-void VRosterPrivate::onGetProfileRequestFinished()
+void VRosterPrivate::onGetProfileRequestFinished(const QVariant &var, bool error)
 {
-	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-	QByteArray rawData = reply->readAll();
-	qDebug() << Q_FUNC_INFO << rawData;
-	QVariantMap data = Json::parse(rawData).toMap().value("response").toList().value(0).toMap();
+	Q_UNUSED(error);
+	QVariantMap data = var.toList().value(0).toMap();
 	QString name = data.value("first_name").toString() + " " + data.value("last_name").toString();
 	connection->account()->setAccountName(name);
-	checkPhoto(connection->account(), data.value("photo_medium").toString());
+	checkPhoto(connection->account(), data.value(VK_PHOTO_ID).toString());
 }
 
-void VRosterPrivate::onGetTagListRequestFinished()
+void VRosterPrivate::onGetTagListRequestFinished(const QVariant &var, bool error)
 {
 	Q_Q(VRoster);
-	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-	QByteArray rawData = reply->readAll();
-	qDebug() << Q_FUNC_INFO << rawData;
-	QVariantMap tagData = Json::parse(rawData).toMap().value("response").toMap();
+	Q_UNUSED(error);
+	QVariantMap tagData = var.toMap();
 	QVariantMap::const_iterator it = tagData.constBegin();
 	for (; it != tagData.constEnd(); it++)
 		tags.insert(it.key(), it.value().toString());
 	q->getFriendList();
 }
 
-void VRosterPrivate::onGetFriendsRequestFinished()
+void VRosterPrivate::onGetFriendsRequestFinished(const QVariant &var, bool error)
 {
-	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-	Q_ASSERT(reply);
-	QByteArray rawData = reply->readAll();
-	QVariantList friends = Json::parse(rawData).toMap().value("response").toList();
-	//debug() << rawData;
-
+	Q_UNUSED(error);
+	QVariantList friends = var.toList();
+	
 	//hack
 	if (friends.isEmpty())
 		QTimer::singleShot(5000,q_func(),SLOT(getFriendList()));
@@ -101,20 +109,16 @@ void VRosterPrivate::onGetFriendsRequestFinished()
 			c->setContactTags(contactTags);
 			c->setContactInList(true);
 		}
-		checkPhoto(c, data.value("photo_medium").toString());
+		checkPhoto(c, data.value(VK_PHOTO_ID).toString());
 		c->setStatus(data.value("online").toInt() == 1);
 		c->setProperty("mobilePhone",data.value("mobile_phone"));
 	}
 }
 
-void VRosterPrivate::onActivityUpdateRequestFinished()
+void VRosterPrivate::onActivityUpdateRequestFinished(const QVariant &var, bool error)
 {
-	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-	Q_ASSERT(reply);
-
-	QVariantMap map = Json::parse(reply->readAll()).toMap();
-	
-	QVariantList activities = map.value("response").toList();
+	Q_UNUSED(error);
+	QVariantList activities = var.toList();
 	for (int i = 1; i < activities.size(); i++) {
 		QVariantMap data = activities.at(i).toMap();
 		QString id = data.value("uid").toString();
@@ -154,10 +158,7 @@ void VRosterPrivate::onAvatarRequestFinished()
 		file.write(reply->readAll());
 		file.close();
 	}
-	if (VContact *contact = qobject_cast<VContact*>(obj))
-		contact->setAvatar(file.fileName());
-	else if (VAccount *account = qobject_cast<VAccount*>(obj))
-		account->setProperty("avatar", file.fileName());
+	setObjectAvatar(obj, file.fileName());
 	QTimer::singleShot(0, this, SLOT(updateAvatar()));
 }
 
@@ -182,8 +183,8 @@ void VRosterPrivate::updateActivity()
 		// TODO smth clever
 	}
 	
-	QNetworkReply *reply = connection->get("activity.getNews", data);
-	connect(reply, SIGNAL(finished()), this, SLOT(onActivityUpdateRequestFinished()));
+	VReply *reply = connection->request("activity.getNews", data);
+	connect(reply, SIGNAL(resultReady(QVariant,bool)), this, SLOT(onActivityUpdateRequestFinished(QVariant,bool)));
 	
 	//	QList<VContact *> contact_list = connection->account()->d_func()->contactsList;
 	//	if (contact_list.isEmpty())
@@ -196,14 +197,11 @@ void VRosterPrivate::updateActivity()
 	//	activityUpdater.setProperty("index",QVariant(index));
 }
 
-void VRosterPrivate::onSetActivityRequestFinished()
+void VRosterPrivate::onSetActivityRequestFinished(const QVariant &var, bool error)
 {
-	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-	Q_ASSERT(reply);
-	QVariantMap map = Json::parse(reply->readAll()).toMap();
-
-	QString response = map.value("response").toString();
-	Q_UNUSED(response); //i don't know, what it makes
+	Q_UNUSED(var);
+	Q_UNUSED(error);
+	// May be we should do something?
 }
 
 void VRosterPrivate::onConnectStateChanged(VConnectionState state)
@@ -278,7 +276,7 @@ VContact* VRoster::getContact(const QVariantMap &data, bool create)
 	QString firstName = data.value("first_name").toString();
 	QString lastName = data.value("last_name").toString();
 	c->setContactName(firstName + " " + lastName);
-	d->checkPhoto(c, data.value("photo_rec").toString());
+	d->checkPhoto(c, data.value(VK_PHOTO_ID).toString());
 	return c;
 }
 
@@ -287,35 +285,40 @@ void VRoster::getProfile()
 	Q_D(VRoster);
 	QVariantMap data;
 	data.insert("uids", d->connection->account()->uid());
-	data.insert("fields", "first_name,last_name,nickname,photo_medium");
-	QNetworkReply *reply = d->connection->get("getProfiles", data);
-	connect(reply,SIGNAL(finished()),d,SLOT(onGetProfileRequestFinished()));
+	data.insert("fields", "first_name,last_name,nickname," VK_PHOTO_ID);
+	VReply *reply = d->connection->request("getProfiles", data);
+	connect(reply,SIGNAL(resultReady(QVariant,bool)),d,SLOT(onGetProfileRequestFinished(QVariant,bool)));
 }
 
 void VRoster::getTagList()
 {
 	Q_D(VRoster);
-	QNetworkReply *reply = d->connection->get("friends.getLists");
-	connect(reply,SIGNAL(finished()),d,SLOT(onGetTagListRequestFinished()));
+	VReply *reply = d->connection->request("friends.getLists");
+	connect(reply,SIGNAL(resultReady(QVariant,bool)),d,SLOT(onGetTagListRequestFinished(QVariant,bool)));
 }
 
 void VRoster::getFriendList()
 {
 	Q_D(VRoster);
 	QVariantMap data;
-	data.insert("fields", "uid,first_name,last_name,nickname,bdate,photo_medium,online,lists,contacts,mobile_phone");
-	QNetworkReply *reply = d->connection->get("friends.get", data);
-	connect(reply,SIGNAL(finished()),d,SLOT(onGetFriendsRequestFinished()));
+	data.insert("fields", "uid,first_name,last_name,nickname,bdate," VK_PHOTO_ID ",online,lists,contacts,mobile_phone");
+	VReply *reply = d->connection->request("friends.get", data);
+	connect(reply,SIGNAL(resultReady(QVariant,bool)),d,SLOT(onGetFriendsRequestFinished(QVariant,bool)));
 }
 
 void VRoster::requestAvatar(QObject *obj)
 {
 	Q_D(VRoster);
 	QString path = obj->property("avatarUrl").toString();
+	if (path.contains(QLatin1String("question"))) {
+		setObjectAvatar(obj, QString());
+		QTimer::singleShot(0, d, SLOT(updateAvatar()));
+		return;
+	}
 	QDir dir = getAvatarsDir();
 	QString hash = d->photoHash(path);
 	if (dir.exists(hash)) {
-		d->checkPhoto(obj, dir.filePath(hash));
+		setObjectAvatar(obj, dir.filePath(hash));
 		QTimer::singleShot(0, d, SLOT(updateAvatar()));
 		return;
 	}
@@ -333,8 +336,8 @@ void VRoster::setActivity(const Status &activity)
 		return;
 	QVariantMap data;
 	data.insert("text", activity.text());
-	QNetworkReply *reply = d->connection->get("activity.set", data);
-	connect(reply,SIGNAL(finished()),d,SLOT(onSetActivityRequestFinished()));
+	VReply *reply = d->connection->request("activity.set", data);
+	connect(reply,SIGNAL(resultReady(QVariant,bool)),d,SLOT(onSetActivityRequestFinished(QVariant,bool)));
 }
 
 ConfigGroup VRoster::config()
@@ -403,22 +406,20 @@ void VRoster::updateProfile(VContact *contact)
 	QString id = contact->id();
 	QVariantMap data;
 	data.insert("uids",id) ;
-	data.insert("fields", "first_name,last_name,nickname,photo_medium");
-	QNetworkReply *reply = d->connection->get("getProfiles", data);
+	data.insert("fields", "first_name,last_name,nickname," VK_PHOTO_ID);
+	VReply *reply = d->connection->request("getProfiles", data);
 	reply->setProperty("contact",qVariantFromValue(contact));
-	connect(reply,SIGNAL(finished()),d,SLOT(onUpdateProfileFinished()));
+	connect(reply,SIGNAL(resultReady(QVariant,bool)),d,SLOT(onUpdateProfileFinished(QVariant,bool)));
 }
 
-void VRosterPrivate::onUpdateProfileFinished()
+void VRosterPrivate::onUpdateProfileFinished(const QVariant &var, bool error)
 {
-	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-	VContact *contact = reply->property("contact").value<VContact*>();
-	QByteArray rawData = reply->readAll();
-	qDebug() << Q_FUNC_INFO << rawData;
-	QVariantMap data = Json::parse(rawData).toMap().value("response").toList().value(0).toMap();
+	Q_UNUSED(error);
+	VContact *contact = sender()->property("contact").value<VContact*>();
+	QVariantMap data = var.toList().value(0).toMap();
 	QString name = data.value("first_name").toString() + " " + data.value("last_name").toString();
 	contact->setContactName(name);
-	checkPhoto(contact, data.value("photo_medium").toString());
+	checkPhoto(contact, data.value(VK_PHOTO_ID).toString());
 }
 
 void VRosterPrivate::onContactDestroyed(QObject *obj)

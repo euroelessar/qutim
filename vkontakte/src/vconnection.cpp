@@ -114,6 +114,8 @@ void VConnection::onLoadFinished(bool ok)
 #else
 			d->webView->show();
 #endif
+			d->webView->activateWindow();
+			d->webView->raise();
 		}
 		setConnectionState(Authorization);
 	} else if (path == QLatin1String("/api/login_success.html")) {

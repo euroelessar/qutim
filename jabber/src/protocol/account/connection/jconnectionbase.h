@@ -37,6 +37,7 @@ namespace Jabber
 			qint64 m_totalBytesOut;
 			ConnectionError m_connectionError;
 			bool m_useDns;
+			LogSink *m_logSink;
 		private:
 
 	};
