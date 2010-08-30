@@ -10,7 +10,7 @@ namespace Core
 {
 	using namespace qutim_sdk_0_3;
 	
-		
+	class ProtocolSeparatorActionGenerator;
 	class StatusAction: public QAction
 	{
 		Q_OBJECT
@@ -42,8 +42,10 @@ namespace Core
 	protected:
 		virtual void timerEvent(QTimerEvent *);
 	private:
+		void validateProtocolActions();
 		QSystemTrayIcon *m_icon;
 		QMap<Account*, ActionGenerator*> m_actions;
+		QList<ProtocolSeparatorActionGenerator*> m_protocolActions;
 		QList<Account*> m_accounts;
 		Account *m_activeAccount;
 		QList<Protocol*> m_protocols;

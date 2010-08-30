@@ -39,12 +39,20 @@ namespace Core
 			return action;
 #endif
 		}
+		
 		virtual ~ProtocolSeparatorActionGenerator()
 		{
+		}
+		
+		void ensureVisibility() const
+		{
+			if (m_action)
+				m_action->setVisible(!m_proto->accounts().isEmpty());
 		}
 	private:
 		Protocol *m_proto;
 		QToolButton *m_btn;
+		mutable QPointer<QAction> m_action;
 	};
 
 	SimpleTray::SimpleTray()
@@ -74,7 +82,9 @@ namespace Core
 
 		for (int i = 0; i < m_protocols.size(); i++) {
 			ExtensionInfo info = m_protocols.at(i)->property("extensioninfo").value<ExtensionInfo>();
-			ActionGenerator *gen = new ProtocolSeparatorActionGenerator(m_protocols.at(i), info);
+			ProtocolSeparatorActionGenerator *gen =
+					new ProtocolSeparatorActionGenerator(m_protocols.at(i), info);
+			m_protocolActions.append(gen);
 			gen->setPriority(1 - i * 2);
 			addAction(gen);
 		}
@@ -196,6 +206,7 @@ namespace Core
 		ActionGenerator *gen = m_actions.take(static_cast<Account*>(obj));
 		removeAction(gen);
 		delete gen;
+		validateProtocolActions();
 	}
 
 	void SimpleTray::onAccountCreated(qutim_sdk_0_3::Account *account)
@@ -217,6 +228,7 @@ namespace Core
 			if (!m_isMail)
 				m_icon->setIcon(m_currentIcon);
 		}
+		validateProtocolActions();
 	}
 
 	void SimpleTray::onStatusChanged(const qutim_sdk_0_3::Status &status)
@@ -240,5 +252,11 @@ namespace Core
 		}
 		if (!m_isMail)
 			m_icon->setIcon(m_currentIcon);
+	}
+	
+	void SimpleTray::validateProtocolActions()
+	{
+		foreach (ProtocolSeparatorActionGenerator *gen, m_protocolActions)
+			gen->ensureVisibility();
 	}
 }
