@@ -224,7 +224,8 @@ namespace qutim_sdk_0_3
 		foreach (QAction *action, m_entry.menu->actions()) {
 			ActionGenerator *gen = action->data().value<ActionGenerator*>();
 			if (!gen) {
-				qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
+				if (!action->isSeparator())
+					qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
 				continue;
 			}
 			QObject *controller = m_owners.value(gen);

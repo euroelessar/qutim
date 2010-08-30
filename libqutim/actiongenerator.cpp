@@ -315,8 +315,8 @@ namespace qutim_sdk_0_3
 			QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
 			action->setMenu(menu);
 		}
-		const ActionGenerator *gen = this;
-		action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(gen)));
+//		const ActionGenerator *gen = this;
+//		action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(gen)));
 		return action;
 	}
 	
