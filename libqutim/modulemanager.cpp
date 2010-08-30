@@ -534,6 +534,8 @@ namespace qutim_sdk_0_3
 		}
 		if (!gen)
 			gen = hash.value(name);
+		if (!gen)
+			qFatal("\"%s\" service has not been found", name.constData());
 		const QMetaObject *meta = gen->metaObject();
 		for (int i = 0, size = meta->classInfoCount(); i < size; i++) {
 			QMetaClassInfo info = meta->classInfo(i);

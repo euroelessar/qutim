@@ -138,8 +138,8 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	
 void XSettingsWindow::update(const qutim_sdk_0_3::SettingsItemList& settings)
 {
-	//TODO add cleaner
-	qDeleteAllLater(p->items);
+	foreach (SettingsItem *item, (p->items.values().toSet() -= settings.toSet()))
+		item->clearWidget();
 	p->items.clear();
 	loadSettings(settings);
 }
