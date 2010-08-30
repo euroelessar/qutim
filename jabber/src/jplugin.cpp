@@ -8,7 +8,10 @@
 #include "protocol/modules/remotecontrol/remotecontrol.h"
 #include "protocol/modules/pep/jpersoneventsupport.h"
 #include "protocol/modules/moodpep/jpersonmoodconverter.h"
+#include "protocol/modules/moodpep/jmoodchooser.h"
 #include "protocol/modules/tunepep/jpersontuneconverter.h"
+#include "protocol/modules/activitypep/jpersonactivityconverter.h"
+#include "protocol/modules/activitypep/jactivitychooser.h"
 
 namespace Jabber
 {
@@ -91,9 +94,21 @@ namespace Jabber
 			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of mood to Qt data types"),
 			new GeneralGenerator<JPersonMoodConverter, PersonEventConverter>(),
 			ExtensionIcon(""));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Mood Chooser"),
+			QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your mood"),
+			new GeneralGenerator<JMoodChooser, JabberExtension>(),
+			ExtensionIcon(""));
 		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Tune support"),
 			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of tune to Qt data types"),
 			new GeneralGenerator<JPersonTuneConverter, PersonEventConverter>(),
+			ExtensionIcon(""));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Activity support"),
+			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of activity to Qt data types"),
+			new GeneralGenerator<JPersonActivityConverter, PersonEventConverter>(),
+			ExtensionIcon(""));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Activity Chooser"),
+			QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your activity"),
+			new GeneralGenerator<JActivityChooser, JabberExtension>(),
 			ExtensionIcon(""));
 	}
 

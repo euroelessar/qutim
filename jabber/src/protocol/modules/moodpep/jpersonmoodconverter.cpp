@@ -17,7 +17,6 @@
 #include "jpersonmoodconverter.h"
 #include <gloox/tag.h>
 #include <qutim/extensionicon.h>
-#include <qutim/localizedstring.h>
 #include <qutim/status.h>
 #include <protocol/jprotocol.h>
 
@@ -156,7 +155,7 @@ namespace Jabber
 				QString mood = QString::fromStdString(child->name());
 				data.insert(QLatin1String("mood"), mood);
 				if (!!(child = tag->findChild("text"))) {
-					QString text = QString::fromStdString(tag->cdata());
+					QString text = QString::fromStdString(child->cdata());
 					data.insert(QLatin1String("description"), text);
 				}
 				data.insert(QLatin1String("id"), "mood");
@@ -170,6 +169,11 @@ namespace Jabber
 		return data;
 	}
 
+	QHash<QString, qutim_sdk_0_3::LocalizedString> JPersonMoodConverter::moods()
+	{
+		return *moodsNames();
+	}
+
 	JPersonMoodRegistrator::JPersonMoodRegistrator()
 	{
 		JProtocol::instance()->installEventFilter(this);
@@ -181,9 +185,10 @@ namespace Jabber
 			ExtendedInfosEvent *event = static_cast<ExtendedInfosEvent*>(ev);
 			QVariantHash extStatus;
 			extStatus.insert("id", "mood");
-			extStatus.insert("name", tr("Mood"));
-			extStatus.insert("settingsDescription", tr("Show contact mood icon"));
-			event->addInfo("xstatus", extStatus);
+			extStatus.insert("name", QT_TRANSLATE_NOOP("Mood", "Mood").toString());
+			extStatus.insert("settingsDescription",
+							 QT_TRANSLATE_NOOP("Mood", "Show contact mood icon").toString());
+			event->addInfo("mood", extStatus);
 		}
 		return false;
 	}

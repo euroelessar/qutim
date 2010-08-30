@@ -18,6 +18,7 @@
 #define JPERSONMOODCONVERTER_H
 
 #include "../../../sdk/jabber.h"
+#include <qutim/localizedstring.h>
 
 namespace Jabber
 {
@@ -32,12 +33,14 @@ namespace Jabber
 		virtual QString name() const;
 		virtual gloox::Tag *toXml(const QVariantHash &map) const;
 		virtual QVariantHash fromXml(gloox::Tag *tag) const;
+		static QHash<QString, qutim_sdk_0_3::LocalizedString> moods();
 	private:
 		std::string m_feature;
 	};
 
 	class JPersonMoodRegistrator : public QObject
 	{
+		Q_OBJECT
 	public:
 		JPersonMoodRegistrator();
 	protected:

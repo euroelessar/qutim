@@ -130,20 +130,28 @@ namespace Jabber
 	void JPersonEventSupport::handleTag(const std::string &jid, gloox::Tag *tag)
 	{
 		QString unicodeJid = QString::fromStdString(jid);
-		JContact *receiver = 0;
-		if (ChatUnit *unit = m_account->getUnit(unicodeJid, false))
-			receiver = qobject_cast<JContact*>(unit);
+		QObject *receiver = 0;
+		JContact *contact = 0;
+		if (unicodeJid == m_account->id()) {
+			receiver = m_account;
+		} else if (ChatUnit *unit = m_account->getUnit(unicodeJid, false)) {
+			contact = qobject_cast<JContact*>(unit);
+			receiver = contact;
+		}
 		if (receiver) {
 			QString name = QString::fromStdString(tag->name());
 			if (PersonEventConverter *converter = m_converters.value(name)) {
 				QVariantHash data = converter->fromXml(tag);
-				if (!data.isEmpty())
-					receiver->setExtendedInfo(name, data);
-				else
-					receiver->removeExtendedInfo(name);
+				if (contact) {
+					if (!data.isEmpty())
+						contact->setExtendedInfo(name, data);
+					else
+						contact->removeExtendedInfo(name);
+				}
 				qutim_sdk_0_3::Event ev(m_eventId, name, data, false);
 				qApp->sendEvent(receiver, &ev);
 			}
 		}
 	}
+
 }
