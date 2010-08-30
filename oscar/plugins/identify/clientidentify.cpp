@@ -51,13 +51,6 @@ void ClientIdentify::init()
 
 bool ClientIdentify::load()
 {
-	foreach (IcqAccount *account, IcqProtocol::instance()->accountsHash()) {
-		foreach (Contact *contact, account->contacts())
-			onContactCreated(contact);
-		onAccountCreated(account);
-	}
-	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
-			SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 	IcqProtocol::instance()->installEventFilter(this);
 	return true;
 }
@@ -67,33 +60,9 @@ bool ClientIdentify::unload()
 	return false;
 }
 
-void ClientIdentify::onAccountCreated(qutim_sdk_0_3::Account* account)
-{
-	connect(account, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
-			this, SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
-}
-
-void ClientIdentify::onContactCreated(qutim_sdk_0_3::Contact *contact)
-{
-	contact->installEventFilter(this);
-}
-
 bool ClientIdentify::eventFilter(QObject *obj, QEvent *ev)
 {
-	if (ev->type() == ToolTipEvent::eventType()) {
-		IcqContact *contact = qobject_cast<IcqContact*>(obj);
-		if (contact) {
-			ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-			QVariantHash hash = contact->status().extendedInfo("client");
-			if (hash.isEmpty())
-				return false;
-			event->addField(hash.value("title").toString(),
-							hash.value("description").toString(),
-							hash.value("icon").value<ExtensionIcon>().name(),
-							ToolTipEvent::IconBeforeDescription,
-							25);
-		}
-	} else if (ev->type() == ExtendedInfosEvent::eventType() && obj == IcqProtocol::instance()) {
+	if (ev->type() == ExtendedInfosEvent::eventType() && obj == IcqProtocol::instance()) {
 		ExtendedInfosEvent *event = static_cast<ExtendedInfosEvent*>(ev);
 		QVariantHash clientInfo;
 		clientInfo.insert("id", "client");
@@ -229,8 +198,10 @@ void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TL
 		clientInfo.insert("title", tr("Possible client"));
 		clientInfo.insert("icon", QVariant::fromValue(m_client_icon));
 		clientInfo.insert("description", m_client_id);
-		clientInfo.insert("showInTooltip", false);
-		clientInfo.insert("priority",-1);
+		clientInfo.insert("showInTooltip", true);
+		clientInfo.insert("priorityInContactList", 85);
+		clientInfo.insert("priorityInTooltip", 25);
+		clientInfo.insert("iconPosition", qVariantFromValue(ToolTipEvent::IconBeforeDescription));
 		status.setExtendedInfo("client", clientInfo);
 		debug() << contact->name() << "uses" << m_client_id;
 	}
