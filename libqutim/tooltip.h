@@ -32,7 +32,7 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		enum IconPosition {
-			IconBeforeTitle,
+			IconBeforeTitle = 0,
 			IconBeforeDescription
 		};
 
@@ -80,5 +80,7 @@ namespace qutim_sdk_0_3
 		bool eventFilter(QObject *, QEvent *);
 	};
 }
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::ToolTipEvent::IconPosition)
 
 #endif // TOOLTIPMANAGER_H

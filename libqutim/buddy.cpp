@@ -98,6 +98,20 @@ namespace qutim_sdk_0_3
 			event->addHtml("</font>", 10);
 			event->addHtml(text, 90);
 			event->addField(QT_TRANSLATE_NOOP("ToolTip", "Account"), account()->id(), 90);
+
+			QHash<QString, QVariantHash> extStatuses = status().extendedInfos();
+			foreach (const QVariantHash &extStatus, extStatuses) {
+				if (extStatus.value("showInTooltip", false).toBool()) {
+					int priority = extStatus.value("priorityInTooltip").toInt();
+					if (priority < 10 || priority > 90)
+						priority = 50;
+					event->addField(extStatus.value("title").toString(),
+									extStatus.value("description").toString(),
+									extStatus.value("icon").value<ExtensionIcon>(),
+									extStatus.value("iconPosition").value<ToolTipEvent::IconPosition>(),
+									priority);
+				}
+			}
 		}
 		return ChatUnit::event(ev);
 	}

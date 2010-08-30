@@ -129,6 +129,7 @@ namespace qutim_sdk_0_3
 		i.toBack();
 		while (i.hasPrevious())
 			text += i.previous().value();
+		text.remove(QRegExp("^<br/>"));
 		return text;
 	}
 

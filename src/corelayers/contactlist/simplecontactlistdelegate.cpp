@@ -33,10 +33,10 @@ namespace Core
 namespace SimpleContactList
 {
 	bool infoLessThan (const QVariantHash &a, const QVariantHash &b) {
-		QString priority = QLatin1String("priority");
+		QString priority = QLatin1String("priorityInContactList");
 		int p1 = a.value(priority).toInt();
 		int p2 = b.value(priority).toInt();
-		return p1 < p2;
+		return p1 > p2;
 	};
 
 	Delegate::Delegate(QTreeView *parent) :
