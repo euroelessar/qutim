@@ -99,7 +99,7 @@ void Roster::handleAddModifyCLItem(IcqAccount *account, const FeedbagItem &item)
 					disconnect(session, SIGNAL(destroyed()), contact, SLOT(deleteLater()));
 				// Add the contact to the contact list.
 				loadTagsFromFeedbag(contact);
-				debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
+//				debug().nospace() << "The contact " << contact->id() << " (" << contact->name() << ") has been added";
 				if (!connInfo)
 					emit contact->inListChanged(true);
 				added = true;
@@ -206,13 +206,13 @@ void Roster::removeContactFromGroup(IcqContact *contact, quint16 groupId)
 	}
 	if (found) {
 		if (items.isEmpty()) {
-			debug().nospace() << "The contact " << contact->id()
-					<< " (" << contact->name() << ") has been removed";
+//			debug().nospace() << "The contact " << contact->id()
+//					<< " (" << contact->name() << ") has been removed";
 			removeContact(contact);
 		} else {
-			debug().nospace() << "The contact " << contact->id() << " ("
-					<< contact->name() << ") has been removed from "
-					<< contact->account()->feedbag()->groupItem(groupId).name();
+//			debug().nospace() << "The contact " << contact->id() << " ("
+//					<< contact->name() << ") has been removed from "
+//					<< contact->account()->feedbag()->groupItem(groupId).name();
 			emit contact->tagsChanged(contact->tags(), previous);
 		}
 	}
@@ -321,7 +321,7 @@ void Roster::handleUserOnline(IcqAccount *account, const SNAC &snac)
 		if (!codec)
 			codec = utf8Codec();
 		status.setText(unescape(codec->toUnicode(note_data)));
-		debug() << "status note" << status.text();
+//		debug() << "status note" << status.text();
 	}
 	// Updating capabilities
 	Capabilities newCaps;
@@ -449,7 +449,7 @@ void Roster::setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &t
 	foreach (RosterPlugin *plugin, contact->account()->d_func()->rosterPlugins)
 		plugin->statusChanged(contact, status, tlvs);
 	contact->setStatus(status);
-	debug() << contact->name() << "changed status to " << status.name();
+//	debug() << contact->name() << "changed status to " << status.name();
 }
 
 RosterPlugin::~RosterPlugin()

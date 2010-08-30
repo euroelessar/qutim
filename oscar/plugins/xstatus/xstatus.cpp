@@ -223,6 +223,7 @@ bool XStatusHandler::load()
 		OscarStatus::registerStatus(data);
 		MenuController::addAction<IcqAccount>(new StatusActionGenerator(OscarStatus(data)));
 	}
+	qDebug() << Q_FUNC_INFO;
 	MenuController::addAction<IcqAccount>(new ActionGenerator(Icon("user-status-xstatus"),
 					QT_TRANSLATE_NOOP("Status", "Custom status"),
 					this, SLOT(onSetCustomStatus(QObject*))), "Additional");
