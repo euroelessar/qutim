@@ -24,6 +24,7 @@ namespace qutim_sdk_0_3
 	public slots:
 		virtual void join() = 0;
 		virtual void leave() = 0;
+		virtual void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
 	signals:
 		void topicChanged(const QString &current, const QString &previous);
 		void meChanged(qutim_sdk_0_3::Buddy *me);

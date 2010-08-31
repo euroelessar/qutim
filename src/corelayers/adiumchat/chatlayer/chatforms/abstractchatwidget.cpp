@@ -30,6 +30,7 @@
 #include <qutim/account.h>
 #include <qutim/status.h>
 #include <qutim/debug.h>
+#include <qutim/mimeobjectdata.h>
 #include <QWidgetAction>
 #include "../actions/chatemoticonswidget.h"
 #include <qutim/icon.h>
@@ -152,7 +153,6 @@ namespace Core
 #endif//Q_WS_X11
 			QWidget::raise();
 		}
-		
 		void AbstractChatWidget::onLoad()
 		{
 			loadAppearanceSettings();
@@ -165,6 +165,7 @@ namespace Core
 			key = new Shortcut ("chatPrevious",getTabBar());
 			connect(key,SIGNAL(activated()),SLOT(showPreviousSession()));
 
+			getContactsView()->setAcceptDrops(true);
 			connect(getContactsView(), SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClicked(QModelIndex)));
 			
 			//for testing
@@ -277,6 +278,23 @@ namespace Core
 					Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
 					if (buddy)
 						buddy->showMenu(menuEvent->globalPos());
+					return true;
+				} else if (event->type() == QEvent::DragEnter) {
+					QDragEnterEvent *dragEvent = static_cast<QDragEnterEvent*>(event);
+					if (dragEvent->mimeData()->hasFormat(MimeObjectData::objectMimeType()))
+						dragEvent->acceptProposedAction();
+					return true;
+				} else if (event->type() == QEvent::Drop) {
+					QDropEvent *dropEvent = static_cast<QDropEvent*>(event);
+					if (const MimeObjectData *mimeData
+						= qobject_cast<const MimeObjectData*>(dropEvent->mimeData())) {
+						if (Contact *contact = qobject_cast<Contact*>(mimeData->object())) {
+							ChatUnit *unit = m_sessions.at(m_current_index)->getUnit();
+							if (Conference *conf = qobject_cast<Conference*>(unit))
+								conf->invite(contact);
+							return true;
+						}
+					}
 				}
 			} else if (meta == &ChatSessionImpl::staticMetaObject) {
 				if (event->type() == ChatStateEvent::eventType()) {					
@@ -306,7 +324,7 @@ namespace Core
 					}
 				}
 			}
-			return QObject::eventFilter(obj, event);
+			return QMainWindow::eventFilter(obj, event);
 		}
 
 		void AbstractChatWidget::onChatStateTimeout()

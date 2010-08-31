@@ -14,6 +14,9 @@
 #include <QMimeData>
 #include <QMessageBox>
 #include "simpletagseditor/simpletagseditor.h"
+#include <qutim/mimeobjectdata.h>
+
+#define QUTIM_MIME_CONTACT_INTERNAL QLatin1String("application/qutim-contact-internal")
 
 namespace Core
 {
@@ -325,13 +328,14 @@ namespace Core
 		QStringList Model::mimeTypes() const
 		{
 			QStringList types;
-			types << "application/qutim.item.contact";
+			types << QUTIM_MIME_CONTACT_INTERNAL;
+			types << MimeObjectData::objectMimeType();
 			return types;
 		}
 
 		QMimeData *Model::mimeData(const QModelIndexList &indexes) const
 		{
-			QMimeData *mimeData = new QMimeData();
+			MimeObjectData *mimeData = new MimeObjectData();
 			QModelIndex index = indexes.value(0);
 			if (getItemType(index) != ContactType)
 				return mimeData;
@@ -341,11 +345,11 @@ namespace Core
 			mimeData->setText(item->data->contact->id());
 
 			QByteArray encodedData;
-
 			QDataStream stream(&encodedData, QIODevice::WriteOnly);
 			stream << index.row() << index.column() << qptrdiff(index.internalPointer());
-
-			mimeData->setData("application/qutim.item.contact", encodedData);
+			mimeData->setData(QUTIM_MIME_CONTACT_INTERNAL, encodedData);
+			mimeData->setObject(item->data->contact);
+			
 			return mimeData;
 		}
 
@@ -355,10 +359,10 @@ namespace Core
 			if (action == Qt::IgnoreAction)
 				return true;
 
-			if (!data->hasFormat("application/qutim.item.contact"))
+			if (!data->hasFormat(QUTIM_MIME_CONTACT_INTERNAL))
 				return false;
 
-			QByteArray encodedData = data->data("application/qutim.item.contact");
+			QByteArray encodedData = data->data(QUTIM_MIME_CONTACT_INTERNAL);
 			QDataStream stream(&encodedData, QIODevice::ReadOnly);
 			qptrdiff internalId;
 			stream >> row >> column >> internalId;

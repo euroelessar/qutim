@@ -30,6 +30,12 @@ namespace qutim_sdk_0_3
 	{
 		Q_UNUSED(topic);
 	}
+	
+	void Conference::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
+	{
+		Q_UNUSED(contact);
+		Q_UNUSED(reason);
+	}
 
 	bool Conference::event(QEvent *ev)
 	{
