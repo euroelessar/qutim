@@ -318,12 +318,12 @@ namespace qutim_sdk_0_3
 		Q_D(MenuController);
 		Q_ASSERT(gen);
 		ActionInfo info = ActionInfo(gen, gen->d_func(), menu);
-		d_func()->actions.append(info);
+		d->actions.append(info);
 		foreach (DynamicMenu *menu, *dynamicMenuSet()) {
 			MenuController *owner = menu->controller();
-			int flags = owner->d_ptr->flags;
+			int flags = owner->d_func()->flags;
 			while (owner != this && !!(owner = (flags & ShowOwnerActions) ? owner->d_func()->owner : 0))
-				flags = owner->d_ptr->flags;
+				flags = owner->d_func()->flags;
 			if (owner && owner->d_func()->menu)
 				menu->addAction(this, info);
 		}
@@ -351,7 +351,7 @@ namespace qutim_sdk_0_3
 		foreach (DynamicMenu *menu, *dynamicMenuSet()) {
 			MenuController *owner = menu->controller();
 			int flags = owner->d_ptr->flags;
-			const QMetaObject *super;
+			const QMetaObject *super = 0;
 			do {
 				if (!(flags & ShowSelfActions))
 					continue;
