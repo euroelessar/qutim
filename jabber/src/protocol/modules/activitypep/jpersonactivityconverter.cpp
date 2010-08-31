@@ -85,6 +85,22 @@ namespace Jabber {
 			ADD_SPECIFIC("thinking", QT_TRANSLATE_NOOP("Activity", "Thinking"));
 		}
 		{
+			QString general = "relaxing";
+			ADD_GENERAL(general, QT_TRANSLATE_NOOP("Activity", "Relaxing"));
+			ADD_SPECIFIC("fishing", QT_TRANSLATE_NOOP("Activity", "Ffishing"));
+			ADD_SPECIFIC("gaming", QT_TRANSLATE_NOOP("Activity", "Gaming"));
+			ADD_SPECIFIC("going_out", QT_TRANSLATE_NOOP("Activity", "Going out"));
+			ADD_SPECIFIC("partying", QT_TRANSLATE_NOOP("Activity", "Partying"));
+			ADD_SPECIFIC("reading", QT_TRANSLATE_NOOP("Activity", "Reading"));
+			ADD_SPECIFIC("rehearsing", QT_TRANSLATE_NOOP("Activity", "Rehearsing"));
+			ADD_SPECIFIC("shopping", QT_TRANSLATE_NOOP("Activity", "Shopping"));
+			ADD_SPECIFIC("smoking", QT_TRANSLATE_NOOP("Activity", "Smoking"));
+			ADD_SPECIFIC("socializing", QT_TRANSLATE_NOOP("Activity", "Socializing"));
+			ADD_SPECIFIC("sunbathing", QT_TRANSLATE_NOOP("Activity", "Sunbathing"));
+			ADD_SPECIFIC("watching_tv", QT_TRANSLATE_NOOP("Activity", "Watching tv"));
+			ADD_SPECIFIC("watching_a_movie", QT_TRANSLATE_NOOP("Activity", "Watching a movie"));
+		}
+		{
 			QString general = "talking";
 			ADD_GENERAL(general, QT_TRANSLATE_NOOP("Activity", "Talking"));
 			ADD_SPECIFIC("in_real_life", QT_TRANSLATE_NOOP("Activity", "In real life"));
