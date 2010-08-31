@@ -50,7 +50,7 @@ namespace Core
 
 			void setVariant(const QString &_variantName);
 			void setCustomCSS(const QString &css);
-			QString makeMessage(const ChatSessionImpl *session, const Message &mes, bool _sameSender);
+			QString makeMessage(const ChatSessionImpl *session, const Message &mes, bool _sameSender, qint64 id);
 			/*
 		changes keywords to action atributes in html like "Bob is writing on the desk"
 		_name - sender's nickname

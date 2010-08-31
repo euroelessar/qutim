@@ -237,7 +237,8 @@ namespace Core
 			m_current_variant = _variantName;
 		}
 
-		QString ChatStyleOutput::makeMessage(const ChatSessionImpl *session, const Message &mes, bool sameSender)
+		QString ChatStyleOutput::makeMessage(const ChatSessionImpl *session, const Message &mes,
+											 bool sameSender, qint64 id)
 		{
 			// prepare values, so they could be inserted to html code
 			QString html;
@@ -266,7 +267,7 @@ namespace Core
 			QString sender_name = makeName(mes);
 			QString sender_id = makeId(mes);
 
-			html = html.replace("%messageId%", "message"+QString::number(mes.id()));
+			html = html.replace("%messageId%", "message"+QString::number(id));
 			html = html.replace("%sender%", Qt::escape(sender_name));
 			// Replace %senderScreenName% to name
 			html = html.replace("%senderScreenName%", Qt::escape(sender_id));

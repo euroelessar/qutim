@@ -111,7 +111,7 @@ namespace Core
 			message.setIncoming(false);
 			message.setChatUnit(unit);
 			message.setTime(QDateTime::currentDateTime());
-
+			
 			if (!unit->sendMessage(message)) {
 				Notifications::send(Notifications::System,
 												this,

@@ -156,6 +156,7 @@ namespace Core
 		qint64 ChatSessionImpl::appendMessage(Message &message)
 		{
 			Q_D(ChatSessionImpl);
+			qint64 id = message.id();
 			if (!message.chatUnit()) {
 				qWarning() << QString("Message %1 must have a chatUnit").arg(message.text());
 				message.setChatUnit(getUnit());
@@ -232,7 +233,7 @@ namespace Core
 				if (d->lastDate.secsTo(message.time()) > d->groupUntil)
 					same_from = false;
 				d->lastDate = message.time();
-				item =  d->chat_style_output->makeMessage(this, message, same_from);
+				item =  d->chat_style_output->makeMessage(this, message, same_from, id);
 				d->previous_sender = currentSender;
 				d->skipOneMerge = false;
 			}
