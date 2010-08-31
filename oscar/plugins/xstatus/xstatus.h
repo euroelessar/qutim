@@ -49,6 +49,7 @@ struct QipExtendedStatus : public OscarStatusData
 struct XStatus
 {
 	XStatus() { }
+	XStatus(const QString &icon);
 	XStatus(const LocalizedString &status, const QString &icon,
 			qint8 mood = -1, const Capability &capability = Capability());
 	QString name;
