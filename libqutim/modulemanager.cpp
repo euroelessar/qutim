@@ -571,7 +571,7 @@ namespace qutim_sdk_0_3
 			}
 		}
 		{
-			Config pluginsConfig = Config().group("plugins").group("list");
+			Config pluginsConfig = Config().group("plugins/list");
 			const QHash<QByteArray, ExtensionInfo> &extsHash = p->extensionsHash;
 			ConfigGroup group = Config().group("protocols");
 			QVariantMap selected = group.value("list", QVariantMap());
@@ -655,7 +655,7 @@ namespace qutim_sdk_0_3
 			manager->loadContacts();
 		Event("startup").send();
 
-		Config pluginsConfig = Config().group("plugins").group("list");
+		Config pluginsConfig = Config().group("plugins/list");
 		for (int i = 0; i < p->plugins.size(); i++) {
 			Plugin *plugin = p->plugins.at(i);
 			if (plugin && pluginsConfig.value(plugin->info().name(), true)) {

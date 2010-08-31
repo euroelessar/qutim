@@ -50,7 +50,7 @@ namespace Core
 	void PluginChooserWidget::loadImpl()
 	{
 		clear();
-		Config group = Config().group("plugins").group("list");
+		Config group = Config().group("plugins/list");
 		QStandardItem *parent_item = m_model->invisibleRootItem();
 
 		QList<QPointer<Plugin> > plugins = pluginsList();
@@ -80,7 +80,7 @@ namespace Core
 	}
 	void PluginChooserWidget::saveImpl()
 	{
-		Config group = Config().group("plugins").group("list");
+		Config group = Config().group("plugins/list");
 		QHash<QString, ServiceItem *>::const_iterator it;
 		bool needRestart = false;
 		for (it = m_plugin_items.constBegin();it!=m_plugin_items.constEnd();it++)

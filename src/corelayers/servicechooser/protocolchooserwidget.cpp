@@ -84,8 +84,7 @@ namespace Core
 	}
 	void ProtocolChooserWidget::saveImpl()
 	{
-		ConfigGroup group = Config().group("protocols");
-		QVariantMap selected;
+		Config group = Config().group("plugins/list");
 		QHash<QString, ServiceItem *>::const_iterator it;
 		for (it = m_protocol_items.constBegin();it!=m_protocol_items.constEnd();it++) {
 			QVariant service;
@@ -96,10 +95,8 @@ namespace Core
 					break;
 				}
 			}
-			selected.insert(it.key(),service);
+			group.setValue(it.key(),service);
 		}
-		group.setValue("list", selected);
-		group.sync();
 		Notifications::send(tr("To take effect you must restart qutIM"));
 	}
 

@@ -30,10 +30,11 @@ namespace Core
 #ifndef Q_WS_MAC
 			QToolButton *m_btn = new QToolButton();
 			QWidgetAction *widget = new QWidgetAction(action);
-			widget->setDefaultWidget(m_btn);
+			widget->setDefaultWidget(m_btn);			
 			QObject::connect(action,SIGNAL(destroyed()),widget,SLOT(deleteLater()));
 			m_btn->setDefaultAction(action);
 			m_btn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+			m_btn->setDown(true); // prevent hover style changes in some styles
 			return widget;
 #else
 			return action;
