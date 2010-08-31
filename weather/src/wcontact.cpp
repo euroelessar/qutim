@@ -20,6 +20,7 @@ WContact::WContact( const QString &city, Account *account ) : Contact ( account 
 {
 	m_city = city;
 	m_tags << "Weather";
+	setMenuFlags(ShowSelfActions);
 
 	m_status.setType( Status::Online );
 	m_status.setIcon( QIcon( ":/icons/weather.png" ) );
@@ -27,12 +28,6 @@ WContact::WContact( const QString &city, Account *account ) : Contact ( account 
 
 	addToList();
 	QMetaObject::invokeMethod( getService( "ContactList" ), "addContact", Q_ARG( qutim_sdk_0_3::Contact *, this ) );
-
-	m_menu = new QMenu();
-	m_menu->addAction( QIcon( ":/icons/weather.png" ), "Get weather", this, SLOT( getWeather() ) );
-	m_menu->addAction( QIcon( ":/icons/weather.png" ), "Get weather forecast", this, SLOT( getForecast() ) );
-
-	MenuController::addAction< WContact >( new ActionGenerator( QIcon(), "", this, "" ) );
 
 	m_wmanager = new WManager( m_city );
 	connect( m_wmanager, SIGNAL( finished() ), this, SLOT( finished() ) );
@@ -56,15 +51,15 @@ bool WContact::event( QEvent *ev )
 
 		return true;
 	}
-	else if ( ev->type() == 67 )
-	{
-		foreach ( QWidget *widget, QApplication::allWidgets() )
-			if ( qobject_cast< QMenu * >( widget ) && widget->isVisible() )
-			{
-				widget->hide();
-				m_menu->popup( QCursor::pos() );
-			}
-	}
+//	else if ( ev->type() == 67 )
+//	{
+//		foreach ( QWidget *widget, QApplication::allWidgets() )
+//			if ( qobject_cast< QMenu * >( widget ) && widget->isVisible() )
+//			{
+//				widget->hide();
+//				m_menu->popup( QCursor::pos() );
+//			}
+//	}
 
 	return Contact::event( ev );
 }
@@ -72,7 +67,7 @@ bool WContact::event( QEvent *ev )
 void WContact::update()
 {
 	m_forStatus = true;
-	m_menu->setDisabled( true );
+//	m_menu->setDisabled( true );
 
 	m_wmanager->update();
 }
@@ -91,7 +86,7 @@ void WContact::updateStatus()
 
 void WContact::finished()
 {
-	m_menu->setDisabled( false );
+//	m_menu->setDisabled( false );
 
 	if ( m_name.isEmpty() )
 		setNamev2( m_wmanager->getLoc( "dnam" ) );
@@ -184,7 +179,7 @@ void WContact::finished()
 
 void WContact::getWeather()
 {
-	m_menu->setDisabled( true );
+//	m_menu->setDisabled( true );
 
 	m_wmanager->update();
 }
@@ -192,7 +187,7 @@ void WContact::getWeather()
 void WContact::getForecast()
 {
 	m_forecast = true;
-	m_menu->setDisabled( true );
+//	m_menu->setDisabled( true );
 
 	m_wmanager->update( 5 );
 }

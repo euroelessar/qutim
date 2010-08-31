@@ -17,6 +17,7 @@
 #include "proxyaccount.h"
 #include "clconfplugin.h"
 #include <qutim/tooltip.h>
+#include <qutim/event.h>
 #include <QApplication>
 
 ProxyContact::ProxyContact(Conference *conf) :
@@ -24,6 +25,8 @@ ProxyContact::ProxyContact(Conference *conf) :
 {
 	connect(conf, SIGNAL(destroyed()), SLOT(deleteLater()));
 	setMenuOwner(m_conf);
+	setMenuFlags(ShowOwnerActions);
+	m_conf->installEventFilter(this);
 	connect(m_conf, SIGNAL(titleChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
 	connect(m_conf, SIGNAL(titleChanged(QString,QString)), SIGNAL(titleChanged(QString,QString)));
 	connect(m_conf, SIGNAL(joined()), SLOT(onJoined()));
@@ -31,6 +34,7 @@ ProxyContact::ProxyContact(Conference *conf) :
 	connect(m_conf->account(), SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 	updateStatus();
+	m_realUnitRequestEvent = Event::registerType("real-chatunit-request");
 }
 
 QStringList ProxyContact::tags() const
@@ -119,4 +123,17 @@ bool ProxyContact::event(QEvent *ev)
 	if (ev->type() == ToolTipEvent::eventType())
 		return qApp->sendEvent(m_conf, ev);
 	return Contact::event(ev);
+}
+
+bool ProxyContact::eventFilter(QObject *obj, QEvent *ev)
+{
+	if (obj == m_conf && ev->type() == Event::eventType()) {
+		Event *event = static_cast<Event*>(ev);
+		if (event->id == m_realUnitRequestEvent) {
+			event->args[0] = qVariantFromValue<Contact*>(this);
+			event->accept();
+			return true;
+		}
+	}
+	return Contact::eventFilter(obj, ev);
 }

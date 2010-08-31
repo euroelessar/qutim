@@ -73,7 +73,7 @@ private:
 
 	Status m_status;
 
-	QMenu *m_menu;
+//	QMenu *m_menu;
 
 	QString m_city;
 	QString m_name;

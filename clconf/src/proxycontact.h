@@ -43,11 +43,13 @@ private slots:
 								const qutim_sdk_0_3::Status &previous);
 protected:
 	bool event(QEvent *ev);
+	bool eventFilter(QObject *obj, QEvent *ev);
 private:
 	void updateStatus();
 	Status m_status;
 	Conference *m_conf;
 	bool m_conn;
+	quint16 m_realUnitRequestEvent;
 };
 
 #endif // PROXYCONTACT_H

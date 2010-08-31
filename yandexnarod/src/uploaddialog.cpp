@@ -327,11 +327,12 @@ void YandexNarodUploadDialog::progressReply()
 			debug() << url;
 
 			QString sendmsg = Config().group("yandex").group("narod")
-							  .value("template", QString("File sent: %N (%S bytes)\n%U"));
+							  .value("template", tr("File sent: %N (%S bytes)\n%U",
+													"Don't remove format arguments"));
 			sendmsg.replace("%N", varMap.value("name").toString());
 			sendmsg.replace("%U", url);
 			sendmsg.replace("%S", varMap.value("size").toString());
-			m_contact->account()->getUnitForSession(m_contact)->sendMessage(Message(sendmsg));
+			m_contact->account()->getUnitForSession(m_contact)->sendMessage(sendmsg);
 		}
 	}
 }
