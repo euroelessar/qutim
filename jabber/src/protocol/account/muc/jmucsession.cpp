@@ -584,4 +584,9 @@ namespace Jabber
 	{
 		d_func()->isAutoRejoin = join;
 	}
+
+	void JMUCSession::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
+	{
+		d_func()->room->invite(contact->id().toStdString(), reason.toStdString());
+	}
 }

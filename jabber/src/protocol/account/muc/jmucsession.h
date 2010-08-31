@@ -66,6 +66,7 @@ namespace Jabber
 			QString topic() const;
 			void setTopic(const QString &topic);
 			void setConferenceTopic(const QString &topic);
+			void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
 		protected:
 			void loadSettings();
 			// MUCRoomHandler
