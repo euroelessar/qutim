@@ -43,31 +43,6 @@ FIND_PACKAGE (Qt4 REQUIRED)
 INCLUDE (UseQt4)
 INCLUDE (MacroEnsureVersion)
 
-## hack for cmake 2.8.0 that does not support QtMultimedia
-if( NOT QT_QTMULTIMEDIA_FOUND )
-	FIND_PATH( QT_QTMULTIMEDIA_INCLUDE_DIR QtMultimedia
-               PATHS
-               ${QT_HEADERS_DIR}/QtMultimedia
-               ${QT_LIBRARY_DIR}/QtMultimedia.framework/Headers
-               NO_DEFAULT_PATH
-       )
-	## Only release library is being searched for.
-	FIND_LIBRARY( QT_QTMULTIMEDIA_LIBRARY
-                  NAMES QtMultimedia${QT_LIBINFIX} QtMultimedia${QT_LIBINFIX}4
-                  PATHS ${QT_LIBRARY_DIR} NO_DEFAULT_PATH
-       )
-	if( QT_QTMULTIMEDIA_INCLUDE_DIR AND QT_QTMULTIMEDIA_LIBRARY )
-		set( QT_QTMULTIMEDIA_FOUND 1 )
-	endif( QT_QTMULTIMEDIA_INCLUDE_DIR AND QT_QTMULTIMEDIA_LIBRARY )
-endif( NOT QT_QTMULTIMEDIA_FOUND )
-## hack end
-
-if( ${QT_QTMULTIMEDIA_FOUND} )
-	include_directories( ${QT_QTMULTIMEDIA_INCLUDE_DIR} )
-else( ${QT_QTMULTIMEDIA_FOUND} )
-	set( QT_QTMULTIMEDIA_LIBRARY "" )
-endif( ${QT_QTMULTIMEDIA_FOUND} )
-
 #simple hack for include dirs
 macro(LIST_SUBDIRECTORIES retval curdir)
 	file(GLOB sub-dir RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${curdir}/*)
@@ -137,7 +112,7 @@ IF(APPLE)
   # set how it shows up in the Info.plist file
   SET(MACOSX_BUNDLE_ICON_FILE qutim.icns)
   # set where in the bundle to put the icns file
-  SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/icons/qutim.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+  SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
   # include the icns file in the target
   SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/qutim.icns)
 ENDIF(APPLE)
