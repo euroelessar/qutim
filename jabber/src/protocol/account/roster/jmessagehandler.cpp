@@ -45,6 +45,10 @@ namespace Jabber
 		Q_D(JMessageHandler);
 		// FIXME: Double conversion from JID to QString and from QString to JID
 		ChatUnit *unit = d->account->getUnit(QString::fromStdString(session->target().full()), true);
+		int types = ~0;
+		if (qobject_cast<JMUCUser*>(unit))
+			types ^= gloox::Message::Groupchat;
+		session->setTypes(types);
 		if (qobject_cast<JMessageSessionOwner*>(unit)) {
 			Q_UNUSED(new JMessageSession(this, unit, session));
 		} else {

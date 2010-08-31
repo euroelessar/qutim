@@ -58,14 +58,10 @@ namespace Jabber
 
 		if (acc->status() == Status::Offline)
 			return false;
-
-		if (session()) {
-			session()->sendMessage(message);
-		} else {
-			gloox::Message msg(gloox::Message::Chat, id().toStdString(), message.text().toStdString(), 
-							   message.property("subject", QString()).toStdString());
-			acc->client()->send(msg);
-		}
+		qDebug("%s", Q_FUNC_INFO);
+		if (!session())
+			d_func()->account->messageHandler()->createSession(this);
+		session()->sendMessage(message);
 		return true;
 	}
 
