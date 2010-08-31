@@ -140,6 +140,7 @@ namespace qutim_sdk_0_3
 		QList<ActionInfo> actions;
 		QSet<const QMetaObject *> metaObjects;
 		while (owner) {
+			int flags = MenuControllerPrivate::get(owner)->flags;
 			foreach (const ActionInfo &info, MenuControllerPrivate::get(owner)->actions) {
 				m_owners.insert(info.gen, const_cast<MenuController*>(owner));
 				actions << info;
@@ -153,9 +154,10 @@ namespace qutim_sdk_0_3
 					m_owners.insert(info.gen, const_cast<MenuController*>(owner));
 				}
 				metaObjects.insert(meta);
-				meta = meta->superClass();
+				meta = (flags & MenuController::ShowSuperActions) ? meta->superClass() : 0;
 			}
-			owner = MenuControllerPrivate::get(owner)->owner;
+			owner = (flags & MenuController::ShowOwnerActions) 
+					? MenuControllerPrivate::get(owner)->owner : 0;
 		}
 		qSort(actions.begin(), actions.end(), actionLessThan);
 		return actions;
@@ -319,7 +321,9 @@ namespace qutim_sdk_0_3
 		d_func()->actions.append(info);
 		foreach (DynamicMenu *menu, *dynamicMenuSet()) {
 			MenuController *owner = menu->controller();
-			while (owner != this && !!(owner = owner->d_func()->owner)) {}
+			int flags = owner->d_ptr->flags;
+			while (owner != this && !!(owner = (flags & ShowOwnerActions) ? owner->d_func()->owner : 0))
+				flags = owner->d_ptr->flags;
 			if (owner && owner->d_func()->menu)
 				menu->addAction(this, info);
 		}
@@ -346,11 +350,14 @@ namespace qutim_sdk_0_3
 		const ActionInfo &info = it.value();
 		foreach (DynamicMenu *menu, *dynamicMenuSet()) {
 			MenuController *owner = menu->controller();
+			int flags = owner->d_ptr->flags;
 			const QMetaObject *super;
 			do {
+				if (!(flags & ShowSelfActions))
+					continue;
 				super = owner->metaObject();
-				while (meta != super && !!(super = super->superClass())) {}
-			} while(!super && !!(owner = owner->d_func()->owner));
+				while (meta != super && !!(super = (flags & ShowSuperActions) ? super->superClass() : 0)) {}
+			} while(!super && !!(owner = (flags & ShowOwnerActions) ? owner->d_func()->owner : 0));
 			if (owner)
 				menu->addAction(owner, info);
 		}
@@ -362,6 +369,12 @@ namespace qutim_sdk_0_3
 		d->owner = controller;
 		if (d->menu)
 			d->menu->onMenuOwnerChanged(controller);
+	}
+	
+	void MenuController::setMenuFlags(const MenuFlags &flags)
+	{
+		Q_D(MenuController);
+		d->flags = flags;
 	}
 
 	void MenuController::virtual_hook(int id, void *data)

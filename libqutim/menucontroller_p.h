@@ -57,9 +57,12 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		Q_DECLARE_PUBLIC(MenuController)
-		MenuControllerPrivate(MenuController *c) : owner(0), q_ptr(c) {}
+		typedef MenuController::MenuFlag MenuFlag;
+		MenuControllerPrivate(MenuController *c)
+			: owner(0), flags(0xffff), q_ptr(c) {}
 		QList<ActionInfo> actions;
 		MenuController *owner;
+		int flags;
 		MenuController *q_ptr;
 		mutable QPointer<DynamicMenu> menu;
 		static MenuControllerPrivate *get(MenuController *gen) { return gen->d_func(); }

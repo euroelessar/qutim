@@ -15,6 +15,8 @@
 #include <QMessageBox>
 #include "simpletagseditor/simpletagseditor.h"
 #include <qutim/mimeobjectdata.h>
+#include <qutim/event.h>
+#include <QApplication>
 
 #define QUTIM_MIME_CONTACT_INTERNAL QLatin1String("application/qutim-contact-internal")
 
@@ -47,6 +49,7 @@ namespace Core
 			QSet<Contact*> unreadContacts;	
 			bool showMessageIcon;
 			QIcon unreadIcon;
+			quint16 realUnitRequestEvent;
 		};
 
 		AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
@@ -58,6 +61,7 @@ namespace Core
 		Model::Model(QObject *parent) : QAbstractItemModel(parent), p(new ModelPrivate)
 		{
 			p->showMessageIcon = false;
+			p->realUnitRequestEvent = Event::registerType("real-chatunit-request");
 			p->unreadIcon = Icon(QLatin1String("mail-unread-new"));
 			p->view = static_cast<QTreeView*>(parent);
 			connect(p->view, SIGNAL(collapsed(QModelIndex)), this, SLOT(onCollapsed(QModelIndex)));
@@ -548,10 +552,16 @@ namespace Core
 		{
 			ChatSession *session = qobject_cast<ChatSession*>(sender());
 			QSet<Contact*> contacts;
+			QSet<ChatUnit*> chatUnits;
 			for (int i = 0; i < messages.size(); i++) {
 				ChatUnit *unit = const_cast<ChatUnit*>(messages.at(i).chatUnit());
-				Contact *contact = 0;
-				while (unit) {
+				if (chatUnits.contains(unit))
+					continue;
+				chatUnits.insert(unit);
+				Event event(p->realUnitRequestEvent);
+				QCoreApplication::sendEvent(unit, &event);
+				Contact *contact = event.at<Contact*>(0);
+				while (unit && !contact) {
 					if (!!(contact = qobject_cast<Contact*>(unit)))
 						break;
 					unit = unit->upperUnit();

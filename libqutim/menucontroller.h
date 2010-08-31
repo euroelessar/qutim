@@ -68,6 +68,14 @@ MyObject::onAction()
 		Q_DISABLE_COPY(MenuController)
 		Q_DECLARE_PRIVATE(MenuController)
 	public:
+		enum MenuFlag
+		{
+			ShowSelfActions     = 0x01,
+			ShowSuperActions    = 0x02,
+			ShowOwnerActions    = 0x04
+		};
+		Q_DECLARE_FLAGS(MenuFlags, MenuFlag)
+
 #ifndef Q_QDOC
 		typedef QPair<ActionGenerator *, QList<QByteArray> > Action;
 #endif
@@ -179,6 +187,7 @@ void MyObject::onAction()
 		  Add to menu of this object also actions from another \a controller.
 		*/
 		void setMenuOwner(MenuController *controller);
+		void setMenuFlags(const MenuFlags &flags);
 		virtual void virtual_hook(int id, void *data);
 		QScopedPointer<MenuControllerPrivate> d_ptr;
 	};
@@ -249,6 +258,7 @@ void MyObject::onAction()
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::MenuController*)
+Q_DECLARE_OPERATORS_FOR_FLAGS(qutim_sdk_0_3::MenuController::MenuFlags)
 
 namespace qutim_sdk_0_3
 {
