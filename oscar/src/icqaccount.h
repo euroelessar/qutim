@@ -62,10 +62,6 @@ signals:
 	void avatarChanged(const QString &avatar);
 	void loginFinished();
 	void settingsUpdated();
-	void statusAboutToBeChanged(qutim_sdk_0_3::oscar::OscarStatus &newStatus,
-								const qutim_sdk_0_3::oscar::OscarStatus &current);
-	void statusAboutToBeChanged(qutim_sdk_0_3::Status &newStatus,
-								const qutim_sdk_0_3::Status &current);
 public slots:
 	void updateSettings();
 private slots:

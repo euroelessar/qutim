@@ -128,21 +128,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 				lastStatus.setCapability(cap, type);
 			}
 			statusCfg.endGroup();
-			statusCfg.beginArray("extendedStatuses");
-			for (int i = 0; i < statusCfg.arraySize(); ++i) {
-				statusCfg.setArrayIndex(i);
-				QString key = statusCfg.value("id").toString();
-				if (key.isEmpty())
-					continue;
-				QVariantHash extendedStatus;
-				statusCfg.beginGroup("data");
-				foreach (const QString &key, statusCfg.childKeys())
-					extendedStatus.insert(key, statusCfg.value(key));
-				statusCfg.endGroup();
-				lastStatus.setExtendedInfo(key, extendedStatus);
-				status.setExtendedInfo(key, extendedStatus);
-			}
-			statusCfg.endArray();
 			d->lastStatus = lastStatus;
 			Account::setStatus(status);
 		}
@@ -206,8 +191,6 @@ void IcqAccount::finishLogin()
 {
 	Q_D(IcqAccount);
 	Status current = status();
-	emit statusAboutToBeChanged(d->lastStatus, (OscarStatus) current);
-	emit statusAboutToBeChanged((Status&) d->lastStatus, current);
 	d->conn->sendStatus(d->lastStatus);
 	emit statusChanged(d->lastStatus, current);
 	Account::setStatus(d->lastStatus);
@@ -222,8 +205,6 @@ void IcqAccount::setStatus(Status status_helper)
 		d->lastStatus = status;
 		return;
 	}
-	emit statusAboutToBeChanged(status, (OscarStatus) current);
-	emit statusAboutToBeChanged((Status&) status, current);
 	if (current.type() == status.type() && status.type() == Status::Offline) {
 		d->reconnectTimer.stop(); // Disable reconnecting
 		Account::setStatus(status);
@@ -283,23 +264,7 @@ void IcqAccount::setStatus(Status status_helper)
 			statusCfg.setValue(itr.key(), itr.value().toString());
 		}
 		statusCfg.endGroup();
-		statusCfg.remove("extendedStatuses");
-		statusCfg.beginArray("extendedStatuses");
-		int i = 0;
-		QHashIterator<QString, QVariantHash> extStatusItr(d->lastStatus.extendedInfos());
-		while (extStatusItr.hasNext()) {
-			extStatusItr.next();
-			statusCfg.setArrayIndex(i);
-			statusCfg.setValue("id", extStatusItr.key());
-			statusCfg.beginGroup("data");
-			QHashIterator<QString, QVariant> itr(extStatusItr.value());
-			while (itr.hasNext()) {
-				itr.next();
-				statusCfg.setValue(itr.key(), itr.value());
-			}
-			statusCfg.endGroup();
-		}
-		statusCfg.endArray();
+		statusCfg.remove("extendedStatuses"); // TODO:
 	}
 	emit statusChanged(status, current);
 	Account::setStatus(status);
@@ -359,25 +324,52 @@ const QHash<QString, IcqContact*> &IcqAccount::contacts() const
 	return d->contacts;
 }
 
+void IcqAccountPrivate::setCapability(const Capability &capability, const QString &type)
+{
+	if (type.isEmpty()) {
+		if (!capability.isNull())
+			caps.push_back(capability);
+	} else {
+		if (!capability.isNull())
+			typedCaps.insert(type, capability);
+		else
+			typedCaps.remove(type);
+	}
+}
+
+bool IcqAccountPrivate::removeCapability(const Capability &capability)
+{
+	bool r = caps.removeOne(capability);
+	return r;
+}
+
+bool IcqAccountPrivate::removeCapability(const QString &type)
+{
+	bool r = typedCaps.remove(type) > 0;
+	return r;
+}
+
 void IcqAccount::setCapability(const Capability &capability, const QString &type)
 {
 	Q_D(IcqAccount);
-	if (type.isEmpty())
-		d->caps.push_back(capability);
-	else
-		d->typedCaps.insert(type, capability);
+	d->setCapability(capability, type);
+	d->conn->sendUserInfo();
 }
 
 bool IcqAccount::removeCapability(const Capability &capability)
 {
 	Q_D(IcqAccount);
-	return d->caps.removeOne(capability);
+	bool r = d->removeCapability(capability);
+	d->conn->sendUserInfo();
+	return r;
 }
 
 bool IcqAccount::removeCapability(const QString &type)
 {
 	Q_D(IcqAccount);
-	return d->typedCaps.remove(type) > 0;
+	bool r = d->removeCapability(type);
+	d->conn->sendUserInfo();
+	return r;
 }
 
 bool IcqAccount::containsCapability(const Capability &capability) const

@@ -81,12 +81,17 @@ protected:
 	void removeXStatuses(Capabilities &caps);
 	void setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
 	void setXstatus(Status &status, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
+	void setAcountXstatus(IcqAccount *account, QVariantHash extStatus, const XStatus &xstatus);
+	void setAcountXstatus(IcqAccount *account, QVariantHash extStatus);
 	bool eventFilter(QObject *obj, QEvent *e);
 private slots:
 	void onSetCustomStatus(QObject *object);
 	void onCustomDialogAccepted();
 	void onAccountAdded(qutim_sdk_0_3::Account *account);
-	void onAccountStatusAboutToBeChanged(qutim_sdk_0_3::oscar::OscarStatus &status);
+private:
+	int m_aboutToBeChanged;
+	int m_changed;
+	int m_change;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

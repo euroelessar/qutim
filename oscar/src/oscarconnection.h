@@ -42,6 +42,7 @@ public:
 	void finishLogin();
 	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
 	void sendStatus(OscarStatus status);
+	void sendUserInfo(bool force = false);
 protected:
 	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private slots:
@@ -50,7 +51,6 @@ private slots:
 	void md5Error(ConnectionError error);
 	void accountInfoReceived(bool ok);
 private:
-	void sendUserInfo();
 	void setIdle(bool allow);
 	void processNewConnection();
 	void processCloseConnection();

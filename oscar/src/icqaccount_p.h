@@ -52,6 +52,9 @@ struct IcqAccountPrivate
 {
 	Q_DECLARE_PUBLIC(IcqAccount);
 	void loadRoster();
+	void setCapability(const Capability &capability, const QString &type);
+	bool removeCapability(const Capability &capability);
+	bool removeCapability(const QString &type);
 	QString password();
 	IcqAccount *q_ptr;
 	OscarConnection *conn;

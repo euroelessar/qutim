@@ -24,6 +24,7 @@
 #include <qutim/extensionicon.h>
 #include <qutim/statusactiongenerator.h>
 #include <qutim/message.h>
+#include <qutim/event.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -207,6 +208,9 @@ void XStatusHandler::init()
 
 bool XStatusHandler::load()
 {
+	m_aboutToBeChanged = Event::registerType("icq-xstatus-about-to-be-changed");
+	m_changed = Event::registerType("icq-xstatus-changed");
+	m_change = Event::registerType("icq-change-xstatus");
 	{
 		Capability cap(0xb7074378, 0xf50c7777, 0x97775778, 0x502d0575);
 		OscarStatusData status(OscarFFC, Status::FreeChat);
@@ -263,7 +267,7 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 			return;
 		}
 		IcqAccount *account = contact->account();
-		QVariantHash extStatus = account->status().extendedInfo("xstatus");
+		QVariantHash extStatus = account->property("xstatus").toHash();
 		int index = xstatusIndexByName(extStatus.value("name").toString());
 		XtrazResponse response("cAwaySrv", "OnRemoteNotification");
 		response.setValue("CASXtraSetAwayMessage", "");
@@ -370,6 +374,38 @@ void XStatusHandler::setXstatus(Status &status, const QString &title, const Exte
 	status.setExtendedInfo("xstatus", extStatus);
 }
 
+void XStatusHandler::setAcountXstatus(IcqAccount *account, QVariantHash extStatus, const XStatus &xstatus)
+{
+	{
+		// Send icq-xstatus-about-to-be-changed event
+		Event ev(m_aboutToBeChanged, extStatus);
+		qApp->sendEvent(account, &ev);
+		extStatus = ev.at<QVariantHash>(0);
+	}
+	account->setProperty("xstatus", extStatus);
+	account->setCapability(xstatus.capability, "xstatus");
+	Config cfg = account->config("xstatus");
+	QHashIterator<QString, QVariant> itr(extStatus);
+	while (itr.hasNext()) {
+		itr.next();
+		cfg.setValue(itr.key(), itr.value());
+	}
+	{
+		// Send icq-xstatus-changed event
+		Event ev(m_changed, extStatus);
+		qApp->sendEvent(account, &ev);
+	}
+}
+
+void XStatusHandler::setAcountXstatus(IcqAccount *account, QVariantHash extStatus)
+{
+	int index = xstatusIndexByName(extStatus.value("name").toString());
+	XStatus xstatus = xstatusList()->value(index);
+	if (index <= 0 || index >= xstatusList()->count()) // unknown x-status
+		extStatus.clear();
+	setAcountXstatus(account, extStatus, xstatus);
+}
+
 bool XStatusHandler::eventFilter(QObject *obj, QEvent *e)
 {
 	if (e->type() == ExtendedInfosEvent::eventType() && obj == IcqProtocol::instance()) {
@@ -379,6 +415,15 @@ bool XStatusHandler::eventFilter(QObject *obj, QEvent *e)
 		extStatus.insert("name", tr("X-Status"));
 		extStatus.insert("settingsDescription", tr("Show contact X-Status icon"));
 		event->addInfo("xstatus", extStatus);
+	} else if (e->type() == qutim_sdk_0_3::Event::eventType()) {
+		qutim_sdk_0_3::Event *customEvent = static_cast<qutim_sdk_0_3::Event*>(e);
+		if (customEvent->id == m_change) {
+			// Handle icq-change-xstatus event
+			IcqAccount *account = qobject_cast<IcqAccount*>(obj);
+			if (!account)
+				return false;
+			setAcountXstatus(account, customEvent->at<QVariantHash>(0));
+		}
 	}
 	return Plugin::eventFilter(obj, e);
 }
@@ -398,37 +443,25 @@ void XStatusHandler::onCustomDialogAccepted()
 	// An user updated his/her xstatus.
 	Q_ASSERT(qobject_cast<CustomStatusDialog*>(sender()));
 	CustomStatusDialog *dialog = reinterpret_cast<CustomStatusDialog*>(sender());
-	IcqAccount *account = dialog->account();
 	XStatus xstatus = dialog->status();
-	OscarStatus status = account->status();
 	QVariantHash extStatus;
-	extStatus.insert("id", "xstatus");
 	extStatus.insert("name", xstatus.name);
 	extStatus.insert("title", dialog->caption());
 	extStatus.insert("icon", xstatus.icon.toIcon());
 	extStatus.insert("description", dialog->message());
-	status.setExtendedInfo("xstatus", extStatus);
-	account->setStatus(status);
+	setAcountXstatus(dialog->account(), extStatus, xstatus);
 }
 
 void XStatusHandler::onAccountAdded(qutim_sdk_0_3::Account *account)
 {
-	connect(account, SIGNAL(statusAboutToBeChanged(qutim_sdk_0_3::oscar::OscarStatus&, qutim_sdk_0_3::oscar::OscarStatus)),
-			SLOT(onAccountStatusAboutToBeChanged(qutim_sdk_0_3::oscar::OscarStatus&)));
+	Q_ASSERT(qobject_cast<IcqAccount*>(account));
+	QVariantHash extStatus;
+	Config cfg = account->config("xstatus");
+	foreach (const QString &key, cfg.childKeys())
+		extStatus.insert(key, cfg.value(key));
+	setAcountXstatus(static_cast<IcqAccount*>(account), extStatus);
+	account->installEventFilter(this);
 }
-
-void XStatusHandler::onAccountStatusAboutToBeChanged(OscarStatus &status)
-{
-	if (!status.extendedInfos().contains("xstatus"))
-		return;
-	QVariantHash extStatus = status.extendedInfo("xstatus");
-	int index = xstatusIndexByName(extStatus.value("name").toString());
-	if (index > 0 && index < xstatusList()->count())
-		status.setCapability("xstatus", xstatusList()->at(index).capability);
-	else
-		status.removeCapability("xstatus");
-}
-
 
 } } // namespace qutim_sdk_0_3::oscar
 

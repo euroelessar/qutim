@@ -94,7 +94,7 @@ void OscarConnection::processCloseConnection()
 
 void OscarConnection::finishLogin()
 {
-	sendUserInfo();
+	sendUserInfo(true);
 	m_is_idle = true;
 	setIdle(false);
 	SNAC snac(ServiceFamily, 0x02);
@@ -121,8 +121,11 @@ void OscarConnection::finishLogin()
 	}
 }
 
-void OscarConnection::sendUserInfo()
+void OscarConnection::sendUserInfo(bool force)
 {
+	Status status = m_account->status();
+	if (!force && (status == Status::Offline || status == Status::Connecting))
+		return;
 	SNAC snac(LocationFamily, 0x04);
 	TLV caps(0x05);
 	foreach (const Capability &cap, m_account->capabilities())
@@ -209,12 +212,12 @@ void OscarConnection::sendStatus(OscarStatus status)
 		if (itr->isNull())
 			continue;
 		types.remove(itr.key());
-		m_account->setCapability(itr.value(), itr.key());
+		m_account->d_func()->setCapability(itr.value(), itr.key());
 		changedCapsList = true;
 		++itr;
 	}
 	foreach (const QString &type, types) {
-		m_account->removeCapability(type);
+		m_account->d_func()->removeCapability(type);
 		changedCapsList = true;
 	}
 	if (changedCapsList)
