@@ -109,6 +109,8 @@ namespace qutim_sdk_0_3
 			QMap<uint, ActionEntry>::iterator it = current->entries.find(info.hash.at(i));
 			if (it == current->entries.end()) {
 				QMenu *menu = current->menu->addMenu(QString::fromUtf8(info.menu.at(i), info.menu.at(i).size()));
+				connect(menu, SIGNAL(aboutToShow()), this, SLOT(onAboutToShow()));
+				connect(menu, SIGNAL(aboutToHide()), this, SLOT(onAboutToHide()));
 				QAction *action = menu->menuAction();
 				action->setData(qVariantFromValue(const_cast<ActionGenerator*>(info.gen)));
 				//action->setData(pack_helper(info.hash.at(i), info.hash.size()));
@@ -263,7 +265,9 @@ namespace qutim_sdk_0_3
 
 	void DynamicMenu::onAboutToShow()
 	{
-		foreach (QAction *action, m_entry.menu->actions()) {
+		QMenu *menu = qobject_cast<QMenu*>(sender());
+		Q_ASSERT(menu);
+		foreach (QAction *action, menu->actions()) {
 			ActionGenerator *gen = action->data().value<ActionGenerator*>();
 			if (!gen) {
 				if (!action->isSeparator())
@@ -277,7 +281,9 @@ namespace qutim_sdk_0_3
 
 	void DynamicMenu::onAboutToHide()
 	{
-		foreach (QAction *action, m_entry.menu->actions()) {
+		QMenu *menu = qobject_cast<QMenu*>(sender());
+		Q_ASSERT(menu);
+		foreach (QAction *action, menu->actions()) {
 			ActionGenerator *gen = action->data().value<ActionGenerator*>();
 			if (!gen) {
 				continue;
