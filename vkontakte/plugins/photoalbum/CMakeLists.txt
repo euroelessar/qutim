@@ -1,3 +1,4 @@
+SET(QT_MIN_VERSION "4.7.0")
 find_package( Qt4 COMPONENTS QtDeclarative QtOpenGL )
 
 qutim_add_plugin( vphotoalbum
