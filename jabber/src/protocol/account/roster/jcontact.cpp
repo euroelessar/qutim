@@ -32,6 +32,7 @@ namespace Jabber
 		bool inList;
 		QString avatar;
 		QStringRef hash;
+		QHash<QString, QVariantHash> extInfo;
 	};
 
 	JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_ptr(new JContactPrivate)
@@ -57,14 +58,10 @@ namespace Jabber
 
 		if (acc->status() == Status::Offline)
 			return false;
-
-		if (session()) {
-			session()->sendMessage(message);
-		} else {
-			gloox::Message msg(gloox::Message::Chat, id().toStdString(), message.text().toStdString(), 
-							   message.property("subject", QString()).toStdString());
-			acc->client()->send(msg);
-		}
+		qDebug("%s", Q_FUNC_INFO);
+		if (!session())
+			d_func()->account->messageHandler()->createSession(this);
+		session()->sendMessage(message);
 		return true;
 	}
 
@@ -185,7 +182,7 @@ namespace Jabber
 				JContactResource *resource = d->resources.value(id);
 				ToolTipEvent resourceEvent(false);
 				qApp->sendEvent(resource, &resourceEvent);
-				event->addHtml("<br/>" + resourceEvent.html());
+				event->addHtml("<hr>" + resourceEvent.html(), 9);
 			}
 		} else if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {
 			Status::Type status = account()->status().type();
@@ -254,9 +251,15 @@ namespace Jabber
 	Status JContact::status() const
 	{
 		Q_D(const JContact);
-		return d->currentResources.isEmpty()
-				? Status::instance(Status::Offline, "jabber")
-					: d->resources.value(d->currentResources.first())->status();
+		Status status = d->currentResources.isEmpty() ?
+						Status::instance(Status::Offline, "jabber") :
+						d->resources.value(d->currentResources.first())->status();
+		QHashIterator<QString, QVariantHash> itr(d->extInfo);
+		while (itr.hasNext()) {
+			itr.next();
+			status.setExtendedInfo(itr.key(), itr.value());
+		}
+		return status;
 	}
 
 	void JContact::fillMaxResource()
@@ -318,6 +321,20 @@ namespace Jabber
 		emit avatarChanged(d->avatar);
 	}
 
+	void JContact::setExtendedInfo(const QString &name, const QVariantHash &extStatus)
+	{
+		Status current = status();
+		d_func()->extInfo.insert(name, extStatus);
+		emit statusChanged(status(), current);
+	}
+
+	void JContact::removeExtendedInfo(const QString &name)
+	{
+		Status current = status();
+		d_func()->extInfo.remove(name);
+		emit statusChanged(status(), current);
+	}
+
 	void JContact::resourceStatusChanged(const Status &current, const Status &previous)
 	{
 		Q_D(JContact);
@@ -326,9 +343,4 @@ namespace Jabber
 		if (d->resources.value(d->currentResources.first()) == sender())
 			emit statusChanged(current, previous);
 	}
-
-//	InfoRequest *JContact::infoRequest() const
-//	{
-//		return new JInfoRequest(d_func()->account->connection()->vCardManager(), id());
-//	}
 }

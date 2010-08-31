@@ -223,6 +223,7 @@ bool XStatusHandler::load()
 		OscarStatus::registerStatus(data);
 		MenuController::addAction<IcqAccount>(new StatusActionGenerator(OscarStatus(data)));
 	}
+	qDebug() << Q_FUNC_INFO;
 	MenuController::addAction<IcqAccount>(new ActionGenerator(Icon("user-status-xstatus"),
 					QT_TRANSLATE_NOOP("Status", "Custom status"),
 					this, SLOT(onSetCustomStatus(QObject*))), "Additional");
@@ -265,7 +266,7 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 		response.setValue("uin", account->id());
 		response.setValue("index", QString("%1").arg(index));
 		response.setValue("title", extStatus.value("title").toString());
-		response.setValue("desc", extStatus.value("desc").toString());
+		response.setValue("desc", extStatus.value("description").toString());
 		SNAC snac = response.snac(contact, cookie.id());
 		account->connection()->send(snac);
 	} else if (xtraz.type() == Xtraz::Response) {
@@ -360,7 +361,7 @@ void XStatusHandler::setXstatus(Status &status, const QString &title, const Exte
 	extStatus.insert("title", unescape(title));
 	extStatus.insert("icon", QVariant::fromValue(icon));
 	if (!desc.isNull())
-		extStatus.insert("desc", unescape(desc));
+		extStatus.insert("description", unescape(desc));
 	extStatus.insert("showInTooltip", true);
 	status.setExtendedInfo("xstatus", extStatus);
 }
@@ -401,7 +402,7 @@ void XStatusHandler::onCustomDialogAccepted()
 	extStatus.insert("name", xstatus.name);
 	extStatus.insert("title", dialog->caption());
 	extStatus.insert("icon", xstatus.icon.toIcon());
-	extStatus.insert("desc", dialog->message());
+	extStatus.insert("description", dialog->message());
 	status.setExtendedInfo("xstatus", extStatus);
 	account->setStatus(status);
 }

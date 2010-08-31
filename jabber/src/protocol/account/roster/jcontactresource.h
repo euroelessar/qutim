@@ -47,9 +47,8 @@ namespace Jabber
 			ChatUnit *upperUnit();
 			QString avatar() const;
 			QString text() const;
-			void setExtendedInfo(const QString &name, const QVariantHash &status);
+			void setExtendedInfo(const QString &name, const QVariantHash &info);
 			void removeExtendedInfo(const QString &name);
-//			InfoRequest *infoRequest() const;
 		protected:
 			QScopedPointer<JContactResourcePrivate> d_ptr;
 	};

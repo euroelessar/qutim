@@ -396,7 +396,7 @@ void FeedbagPrivate::handleItem(FeedbagItem &item, Feedbag::ModifyType type, Fee
 {
 	Q_Q(Feedbag);
 	if (!handlers.contains(item.type())) {
-		debug() << "The feedbag item ignored:" << item;
+//		debug() << "The feedbag item ignored:" << item;
 		return;
 	}
 	quint16 id = item.d->id();
@@ -494,7 +494,7 @@ FeedbagItemPrivate *FeedbagPrivate::getFeedbagItemPrivate(const SNAC &snac)
 	quint16 itemType = snac.read<quint16>();
 	if (!handlers.contains(itemType)) {
 		// TODO: add better debugging.
-		debug() << "The feedbag item ignored with type" << itemType;
+//		debug() << "The feedbag item ignored with type" << itemType;
 		snac.skipData(snac.read<quint16>());
 		return 0;
 	}

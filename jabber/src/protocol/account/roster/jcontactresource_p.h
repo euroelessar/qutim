@@ -19,7 +19,7 @@ namespace Jabber
 		int priority;
 		QSet<QString> features;
 		QString text;
-		QHash<QString, QVariantHash> extStatuses;
+		QHash<QString, QVariantHash> extInfo;
 	};
 }
 

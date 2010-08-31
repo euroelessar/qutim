@@ -57,282 +57,282 @@ p, li { white-space: pre-wrap; }
      </item>
      <item>
       <property name="text">
-       <string>Apple Roman</string>
+       <string notr="true">Apple Roman</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Big5</string>
+       <string notr="true">Big5</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Big5-HKSCS</string>
+       <string notr="true">Big5-HKSCS</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>EUC-JP</string>
+       <string notr="true">EUC-JP</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>EUC-KR</string>
+       <string notr="true">EUC-KR</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>GB18030-0</string>
+       <string notr="true">GB18030-0</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>IBM 850</string>
+       <string notr="true">IBM 850</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>IBM 866</string>
+       <string notr="true">IBM 866</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>IBM 874</string>
+       <string notr="true">IBM 874</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 2022-JP</string>
+       <string notr="true">ISO 2022-JP</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-1</string>
+       <string notr="true">ISO 8859-1</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-2</string>
+       <string notr="true">ISO 8859-2</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-3</string>
+       <string notr="true">ISO 8859-3</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-4</string>
+       <string notr="true">ISO 8859-4</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-5</string>
+       <string notr="true">ISO 8859-5</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-6</string>
+       <string notr="true">ISO 8859-6</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-7</string>
+       <string notr="true">ISO 8859-7</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-8</string>
+       <string notr="true">ISO 8859-8</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-9</string>
+       <string notr="true">ISO 8859-9</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-10</string>
+       <string notr="true">ISO 8859-10</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-13</string>
+       <string notr="true">ISO 8859-13</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-14</string>
+       <string notr="true">ISO 8859-14</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-15</string>
+       <string notr="true">ISO 8859-15</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ISO 8859-16</string>
+       <string notr="true">ISO 8859-16</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Iscii-Bng</string>
+       <string notr="true">Iscii-Bng</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Iscii-Dev</string>
+       <string notr="true">Iscii-Dev</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Iscii-Gjr</string>
+       <string notr="true">Iscii-Gjr</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Iscii-Knd</string>
+       <string notr="true">Iscii-Knd</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Iscii-Mlm</string>
+       <string notr="true">Iscii-Mlm</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Iscii-Ori</string>
+       <string notr="true">Iscii-Ori</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Iscii-Pnj</string>
+       <string notr="true">Iscii-Pnj</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Iscii-Tlg</string>
+       <string notr="true">Iscii-Tlg</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Iscii-Tml</string>
+       <string notr="true">Iscii-Tml</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>JIS X 0201</string>
+       <string notr="true">JIS X 0201</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>JIS X 0208</string>
+       <string notr="true">JIS X 0208</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>KOI8-R</string>
+       <string notr="true">KOI8-R</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>KOI8-U</string>
+       <string notr="true">KOI8-U</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>MuleLao-1</string>
+       <string notr="true">MuleLao-1</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ROMAN8</string>
+       <string notr="true">ROMAN8</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Shift-JIS</string>
+       <string notr="true">Shift-JIS</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>TIS-620</string>
+       <string notr="true">TIS-620</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>TSCII</string>
+       <string notr="true">TSCII</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>UTF-8</string>
+       <string notr="true">UTF-8</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>UTF-16</string>
+       <string notr="true">UTF-16</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>UTF-16BE</string>
+       <string notr="true">UTF-16BE</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>UTF-16LE</string>
+       <string notr="true">UTF-16LE</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Windows-1250</string>
+       <string notr="true">Windows-1250</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Windows-1251</string>
+       <string notr="true">Windows-1251</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Windows-1252</string>
+       <string notr="true">Windows-1252</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Windows-1253</string>
+       <string notr="true">Windows-1253</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Windows-1254</string>
+       <string notr="true">Windows-1254</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Windows-1255</string>
+       <string notr="true">Windows-1255</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Windows-1256</string>
+       <string notr="true">Windows-1256</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Windows-1257</string>
+       <string notr="true">Windows-1257</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Windows-1258</string>
+       <string notr="true">Windows-1258</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>WINSAMI2</string>
+       <string notr="true">WINSAMI2</string>
       </property>
      </item>
     </widget>

@@ -350,19 +350,8 @@ bool IcqContact::event(QEvent *ev)
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-		QHash<QString, QVariantHash> extStatuses = d->status.extendedInfos();
-		bool addedExtStatus;
-		foreach (const QVariantHash &extStatus, extStatuses) {
-			if (extStatus.value("showInTooltip", false).toBool()) {
-				event->addField(extStatus.value("title").toString(),
-								extStatus.value("desc").toString(),
-								extStatus.value("icon").value<ExtensionIcon>(),
-								80);
-				addedExtStatus = true;
-			}
-		}
 		QString statusText = status().text();
-		if (!addedExtStatus && !statusText.isEmpty())
+		if (!statusText.isEmpty())
 			event->addField(QString(), statusText, 80);
 		QDateTime time;
 		if (!d->onlineSince.isNull()) {

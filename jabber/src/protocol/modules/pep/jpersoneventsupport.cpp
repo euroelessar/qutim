@@ -24,6 +24,7 @@
 #include <qutim/contact.h>
 #include <qutim/event.h>
 #include <QCoreApplication>
+#include <protocol/account/roster/jcontact.h>
 
 namespace Jabber
 {
@@ -114,7 +115,7 @@ namespace Jabber
 				bool needSet = customEvent->at<bool>(2);
 				PersonEventConverter *converter = 0;
 				if (needSet && !!(converter = m_converters.value(name))) {
-					QVariantMap data = customEvent->at<QVariantMap>(1);
+					QVariantHash data = customEvent->at<QVariantHash>(1);
 					PubSub::ItemList items;
 					Tag *tag = new Tag("item");
 					tag->addChild(converter->toXml(data));
@@ -129,15 +130,17 @@ namespace Jabber
 	void JPersonEventSupport::handleTag(const std::string &jid, gloox::Tag *tag)
 	{
 		QString unicodeJid = QString::fromStdString(jid);
-		QObject *receiver = 0;
-		if (unicodeJid == m_account->id())
-			receiver = m_account;
-		else if (ChatUnit *unit = m_account->getUnit(unicodeJid, false))
-			receiver = qobject_cast<Contact*>(unit) ? unit : 0;
+		JContact *receiver = 0;
+		if (ChatUnit *unit = m_account->getUnit(unicodeJid, false))
+			receiver = qobject_cast<JContact*>(unit);
 		if (receiver) {
 			QString name = QString::fromStdString(tag->name());
 			if (PersonEventConverter *converter = m_converters.value(name)) {
-				QVariantMap data = converter->fromXml(tag);
+				QVariantHash data = converter->fromXml(tag);
+				if (!data.isEmpty())
+					receiver->setExtendedInfo(name, data);
+				else
+					receiver->removeExtendedInfo(name);
 				qutim_sdk_0_3::Event ev(m_eventId, name, data, false);
 				qApp->sendEvent(receiver, &ev);
 			}

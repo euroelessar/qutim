@@ -9,6 +9,7 @@
 #include <gloox/receipt.h>
 #include <qutim/debug.h>
 #include "../muc/jsessionconvertor.h"
+#include "jcontactresource.h"
 
 using namespace gloox;
 using namespace qutim_sdk_0_3;
@@ -62,13 +63,29 @@ namespace Jabber
 	protected:
 		JMessageSession *m_session;
 		quint64 m_nextId;
-		QHash<QByteArray, quint64> m_messages;
 	};
+	
+	struct ReceiptTrack
+	{
+		inline ReceiptTrack(ChatSession *s, quint64 i) : session(s), id(i) {}
+		QPointer<ChatSession> session;
+		quint64 id;
+	};
+	typedef QHash<QByteArray, ReceiptTrack> ReceiptTrackMap;
+	Q_GLOBAL_STATIC(ReceiptTrackMap, receiptTrackMap)
 
 	void JMessageReceiptFilter::decorate(gloox::Message &msg)
 	{
-		if (m_nextId) {
-			m_messages.insert(QByteArray(msg.id().data(), msg.id().size()), m_nextId);
+		if (m_nextId > 0) {
+			ChatSession *session = 0;
+			session = ChatLayer::get(m_session->upperUnit(), false);
+			if (!session) {
+				if (ChatUnit *resource = m_session->upperUnit())
+					session = ChatLayer::get(resource->upperUnit(), false);
+			}
+			if (session)
+				receiptTrackMap()->insert(QByteArray(msg.id().data(), msg.id().size()),
+										  ReceiptTrack(session, m_nextId));
 			msg.addExtension(new Receipt(Receipt::Request));
 			m_nextId = 0;
 		}
@@ -78,7 +95,8 @@ namespace Jabber
 	{
 		if (const Receipt *receipt = msg.findExtension<Receipt>(ExtReceipt)) {
 			if (receipt->rcpt() == Receipt::Request) {
-				gloox::Message message(msg.subtype(), msg.from());
+				gloox::Message message(msg.subtype(), msg.from(), gloox::EmptyString,
+									   gloox::EmptyString, msg.thread());
 #if 0
 				// It's correct behaviour
 				Client *client = static_cast<JAccount*>(m_session->account())->client();
@@ -91,16 +109,19 @@ namespace Jabber
 				send(message);
 				return;
 			}
-			QHash<QByteArray, quint64>::iterator it = m_messages.find(QByteArray(receipt->id().data(), receipt->id().size()));
-			if (it == m_messages.end())
-				it = m_messages.find(QByteArray(msg.id().data(), msg.id().size()));
-			if (it == m_messages.end())
+			ReceiptTrackMap *map = receiptTrackMap();
+			ReceiptTrackMap::iterator it = map->find(QByteArray(receipt->id().data(), receipt->id().size()));
+			if (it == map->end())
+				it = map->find(QByteArray(msg.id().data(), msg.id().size()));
+			if (it == map->end())
 				return;
 			if (receipt->rcpt() == Receipt::Received) {
-				QEvent *ev = new qutim_sdk_0_3::MessageReceiptEvent(it.value(), true);
-				if (ChatSession *session = ChatLayer::get(m_session->upperUnit(), false))
-					qApp->postEvent(session, ev);
-				m_messages.erase(it);
+				const ReceiptTrack &track = it.value();
+				if (track.session) {
+					QEvent *ev = new qutim_sdk_0_3::MessageReceiptEvent(track.id, true);
+					qApp->postEvent(track.session, ev);
+				}
+				map->erase(it);
 				return;
 			}
 		}
@@ -134,6 +155,7 @@ namespace Jabber
 		d->account = static_cast<JAccount *>(unit->account());
 		d->handler = d->account->messageHandler();
 		d->session = new MessageSession(d->account->client(), JID(unit->id().toStdString()));
+		d->messageReceiptFilter = new JMessageReceiptFilter(this, d->session);
 		d->chatStateFilter = new ChatStateFilter(d->session);
 		d->chatStateFilter->registerChatStateHandler(this);
 		d->session->registerMessageHandler(this);

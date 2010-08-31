@@ -64,9 +64,6 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
-private slots:
-	void onAccountCreated(qutim_sdk_0_3::Account *account);
-	void onContactCreated(qutim_sdk_0_3::Contact *contact);
 protected:
 	bool eventFilter(QObject *obj, QEvent *ev);
 private:
