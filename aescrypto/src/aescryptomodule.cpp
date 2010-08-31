@@ -32,3 +32,5 @@ namespace AesCrypto
 
 
 }
+
+QUTIM_EXPORT_PLUGIN(AesCrypto::AesCryptoModule)
