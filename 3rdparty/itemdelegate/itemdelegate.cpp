@@ -210,7 +210,9 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 	}
 
 	QRect check = checkRect(index,option,rect);
-	rect.adjust(check.width() + 3*m_padding + option.decorationSize.width(),m_padding,-m_padding,0);
+	if (check.isValid())
+		rect.adjust(check.width()+m_padding,0,0,0);
+	rect.adjust(2*m_padding + option.decorationSize.width(),m_padding,-m_padding,-m_padding);
 
 	QFontMetrics metrics = option.fontMetrics;
 	QRect bounding = metrics.boundingRect(rect, Qt::AlignTop | Qt::AlignLeft,
