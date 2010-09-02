@@ -3,7 +3,7 @@ find_package( Phonon REQUIRED )
 qutim_add_plugin( phononsound
 	DISPLAY_NAME "Phonon sound engine"
 	DESCRIPTION "Sound engine based on KDE sound engine,"
-	LINK_LIBRARIES ${PHONON_LIBS}
+	LINK_LIBRARIES ${PHONON_LIBS_LIBRARY}
+	INCLUDE_DIRS ${PHONON_INCLUDES}
 )
 
-include_directories( ${PHONON_INCLUDES} )
