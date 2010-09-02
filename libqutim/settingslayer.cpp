@@ -263,6 +263,7 @@ AutoSettingsFileChooser::AutoSettingsFileChooser(QWidget *parent) :
 	d->edit = new QLineEdit(this);
 	connect(d->edit,SIGNAL(textChanged(QString)),SIGNAL(pathChanged(QString)));
 	QToolButton *btn = new QToolButton(this);
+	btn->setText("...");
 	layout()->addWidget(d->edit);
 	layout()->addWidget(btn);
 	connect(btn,SIGNAL(clicked(bool)),d,SLOT(onButtonClicked(bool)));
