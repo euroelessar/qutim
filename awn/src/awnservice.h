@@ -22,7 +22,7 @@ public:
 	explicit AWNService();
 	virtual ~AWNService();
 private:
-	int addDockMenu(QString caption, QString icon_name = 0, QString parent = 0);
+	int addDockMenu(QString caption, QString icon_name = QString(), QString parent = QString());
 	void removeDockMenu(int id);
 	ChatWindowController *m_cwc;
 	QDBusInterface *m_awn;
@@ -60,7 +60,7 @@ private slots:
 
 	void nextIcon();
 	void generateIcons();
-	QString generateIcon(QIcon icon, QString icon_name = 0);
+	QString generateIcon(QIcon icon, QString icon_name = QString());
 };
 
 #endif //AWNService

@@ -5,3 +5,5 @@ qutim_add_plugin( phononsound
 	DESCRIPTION "Sound engine based on KDE sound engine,"
 	LINK_LIBRARIES ${PHONON_LIBS}
 )
+
+include_directories( ${PHONON_INCLUDES} )
