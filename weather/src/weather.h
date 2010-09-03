@@ -31,9 +31,8 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
-
 private:
-	WProtocol *m_protocol;
+	QPointer<WProtocol> m_protocol;
 };
 
 #endif // WEATHER_H
