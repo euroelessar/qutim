@@ -579,8 +579,9 @@ namespace qutim_sdk_0_3
 			QVariantMap::const_iterator it = selected.constBegin();
 			for (; it != selected.constEnd(); it++) {
 				const ExtensionInfo info = extsHash.value(it.value().toString().toLatin1());
-				if(p->extsPlugins.value(info.name()))
-					if (!pluginsConfig.value(p->extsPlugins.value(info.name())->info().name(), true))
+				Plugin *plugin = p->extsPlugins.value(info.name());
+				if(plugin)
+					if (!pluginsConfig.value(plugin->metaObject()->className(), true))
 						continue;
 
 				if (info.generator() && info.generator()->extends<Protocol>()) {
@@ -595,8 +596,9 @@ namespace qutim_sdk_0_3
 			const ExtensionInfoList &exts = p->extensions;
 			ExtensionInfoList::const_iterator it2 = exts.constBegin();
 			for(; it2 != exts.end(); it2++) {
-				if (p->extsPlugins.value(it2->name()))
-					if (!pluginsConfig.value(p->extsPlugins.value(it2->name())->info().name(), true))
+				Plugin *plugin = p->extsPlugins.value(it2->name());
+				if (plugin)
+					if (!pluginsConfig.value(plugin->metaObject()->className(), true))
 						continue;
 
 				const ObjectGenerator *gen = it2->generator();
@@ -639,11 +641,15 @@ namespace qutim_sdk_0_3
 			group.sync();
 		}
 		qApp->setWindowIcon(Icon("qutim"));
+		Config pluginsConfig = Config().group("plugins/list");
 		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(qobject_interface_iid<StartupModule *>());
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
 			for(; it != exts.end(); it++)
 			{
+				Plugin *plugin = it.key();
+				if (!pluginsConfig.value(plugin->metaObject()->className(), true))
+					continue;
 				qDebug("Startup: %s", it.value().generator()->metaObject()->className());
 				it.value().generator()->generate<StartupModule>();
 			}
@@ -653,12 +659,10 @@ namespace qutim_sdk_0_3
 			proto->loadAccounts();
 		if (MetaContactManager *manager = MetaContactManager::instance())
 			manager->loadContacts();
-		Event("startup").send();
 
-		Config pluginsConfig = Config().group("plugins/list");
 		for (int i = 0; i < p->plugins.size(); i++) {
 			Plugin *plugin = p->plugins.at(i);
-			if (plugin && pluginsConfig.value(plugin->info().name(), true)) {
+			if (plugin && pluginsConfig.value(plugin->metaObject()->className(), true)) {
 				plugin->load();
 				if (PluginFactory *factory = qobject_cast<PluginFactory*>(plugin)) {
 					QList<Plugin*> plugins = factory->loadPlugins();
@@ -670,6 +674,7 @@ namespace qutim_sdk_0_3
 			}
 			qDebug("%d %d %s", i, p->plugins.size(), p->plugins.at(i)->metaObject()->className());
 		}
+		Event("startup").send();
 	}
 	
 	void ModuleManager::onQuit()

@@ -19,30 +19,33 @@
 #include <QString>
 #include <QSize>
 
+namespace Core
+{
 namespace KineticPopups
 {
-	namespace ThemeHelper
+namespace ThemeHelper
+{
+	enum PopupWidgetFlag
 	{
-		enum PopupWidgetFlag
-		{
-			None = 0x0,
-			Preview = 0x1,
-			AeroThemeIntegration	=	0x2,
-			Transparent = 0x4,
-		};
-		Q_DECLARE_FLAGS(PopupWidgetFlags,PopupWidgetFlag)
-		struct PopupSettings {
-			QString styleSheet;
-			QString content;
-			QString themePath;
-			QSize defaultSize;
-			int margin;
-			Qt::WindowFlags widgetFlags;
-			PopupWidgetFlags popupFlags;
+		None = 0x0,
+		Preview = 0x1,
+		AeroThemeIntegration	=	0x2,
+		Transparent = 0x4,
+	};
+	Q_DECLARE_FLAGS(PopupWidgetFlags,PopupWidgetFlag)
+	struct PopupSettings {
+		QString styleSheet;
+		QString content;
+		QString themePath;
+		QSize defaultSize;
+		int margin;
+		Qt::WindowFlags widgetFlags;
+		PopupWidgetFlags popupFlags;
 
-		};
-		PopupSettings loadThemeSetting(const QString &themePath);
-	}
-};
+	};
+	PopupSettings loadThemeSetting(const QString &themePath);
+}
+}
+}
 
 #endif // THEMEHELPER_H

@@ -57,6 +57,7 @@ namespace Core
 		for (int i = 0; i < plugins.size(); i++)
 		{
 			const PluginInfo &info = plugins.at(i)->info();
+			QLatin1String class_name(plugins.at(i)->metaObject()->className());
 			if (!m_plugin_items.contains(info.name()))
 			{
 				QIcon icon = info.icon();
@@ -67,10 +68,10 @@ namespace Core
 				item->setCheckable(true);
 				item->setData(true,ServiceItem::ExclusiveRole);
 				item->setData(info.description().toString(), DescriptionRole);
-				item->setCheckState((group.value(info.name(), true) ? Qt::Checked : Qt::Unchecked));
+				item->setCheckState((group.value(class_name, true) ? Qt::Checked : Qt::Unchecked));
 				parent_item->appendRow(item);
-				m_plugin_items.insert(info.name(), item);
-				m_plugins.insert(info.name(), plugins.at(i));
+				m_plugin_items.insert(class_name, item);
+				m_plugins.insert(class_name, plugins.at(i));
 			}
 		}
 	}

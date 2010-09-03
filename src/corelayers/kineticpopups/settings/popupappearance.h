@@ -25,33 +25,30 @@ namespace Ui
 class AppearanceSettings;
 }
 
-namespace KineticPopups
-{
-	class PopupWidget;
-}
-
-
 namespace Core
 {
-	class PopupAppearance : public SettingsWidget
-	{
-		Q_OBJECT
-	public:
-		PopupAppearance();
-		virtual ~PopupAppearance();
-		virtual void loadImpl();
-		virtual void cancelImpl();
-		virtual void saveImpl();
-	private slots:
-		void onCurrentIndexChanged(int index);
-		void onTestButtonClicked(bool);
-	private:
-		void getThemes();
-		void preview();
-		QString m_current_theme;
-		Ui::AppearanceSettings *ui;
-		KineticPopups::PopupWidget *m_popup_widget;
-	};
-
+namespace KineticPopups
+{
+class PopupWidget;
+class PopupAppearance : public SettingsWidget
+{
+	Q_OBJECT
+public:
+	PopupAppearance();
+	virtual ~PopupAppearance();
+	virtual void loadImpl();
+	virtual void cancelImpl();
+	virtual void saveImpl();
+private slots:
+	void onCurrentIndexChanged(int index);
+	void onTestButtonClicked(bool);
+private:
+	void getThemes();
+	void preview();
+	QString m_current_theme;
+	Ui::AppearanceSettings *ui;
+	PopupWidget *m_popup_widget;
+};
+}
 }
 #endif // POPUPAPPEARANCE_H

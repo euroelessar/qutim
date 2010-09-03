@@ -20,22 +20,24 @@
 
 using namespace qutim_sdk_0_3;
 
+namespace Core
+{
 namespace KineticPopups
 {
-	class Popup;
-	class Backend : public PopupBackend
-	{
-		Q_OBJECT
-	public:
-		virtual void show(Notifications::Type type, QObject* sender,
-						  const QString& body, const QVariant& data);
-		Backend ();
-	public slots:
-		void updateSettings();
-	private:
-		int m_id_counter;
-	};
-
+class Popup;
+class Backend : public PopupBackend
+{
+	Q_OBJECT
+public:
+	virtual void show(Notifications::Type type, QObject* sender,
+					  const QString& body, const QVariant& data);
+	Backend ();
+public slots:
+	void updateSettings();
+private:
+	int m_id_counter;
+};
+}
 }
 
 #endif //BACKEND_H

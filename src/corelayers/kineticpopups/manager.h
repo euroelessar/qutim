@@ -24,47 +24,50 @@
 #include "themehelper.h"
 class QRect;
 class QDir;
+namespace Core
+{
 namespace KineticPopups
 {
-	class Popup;
-	enum AnimationFlag
-	{
-		NoAnimation = 0x0,
-		Slide = 0x1,
-		Opacity = 0x2
-	};
-	Q_DECLARE_FLAGS (AnimationFlags, AnimationFlag)
-	class Manager
-	{
-		Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
-	public:
-		Manager();
-		void loadSettings();		
-		Popup *getById (const QString &id) const;
-		Popup *getByNumber (const int &number) const;
-		int count();
-		QRect insert (Popup *notification);
-		void loadTheme (const QString &themeName);
-		void remove (const QString &id);
-		void updateGeometry();
-		static Manager *self();
-		int animationDuration;
-		QEasingCurve easingCurve;
-		bool updatePosition;
-		AnimationFlags animation;
-		NotificationTypes showFlags;
-		uint timeout;
-		bool appendMode;
-		bool updateMode;
-		int maxCount;
-		int maxTextLength;
-		ThemeHelper::PopupSettings popupSettings;
-		bool parseEmoticons;
-	private:
-		QList<Popup *> active_notifications;
-		static Manager *instance;
-		int getNumber(const QString &id) const;
-	};
-}
+class Popup;
+enum AnimationFlag
+{
+	NoAnimation = 0x0,
+	Slide = 0x1,
+	Opacity = 0x2
+};
+Q_DECLARE_FLAGS (AnimationFlags, AnimationFlag)
+class Manager
+{
+	Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
+public:
+	Manager();
+	void loadSettings();
+	Popup *getById (const QString &id) const;
+	Popup *getByNumber (const int &number) const;
+	int count();
+	QRect insert (Popup *notification);
+	void loadTheme (const QString &themeName);
+	void remove (const QString &id);
+	void updateGeometry();
+	static Manager *self();
+	int animationDuration;
+	QEasingCurve easingCurve;
+	bool updatePosition;
+	AnimationFlags animation;
+	NotificationTypes showFlags;
+	uint timeout;
+	bool appendMode;
+	bool updateMode;
+	int maxCount;
+	int maxTextLength;
+	ThemeHelper::PopupSettings popupSettings;
+	bool parseEmoticons;
+private:
+	QList<Popup *> active_notifications;
+	static Manager *instance;
+	int getNumber(const QString &id) const;
+};
 
+}
+}
 #endif // MANAGER_H

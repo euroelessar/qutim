@@ -22,37 +22,40 @@
 #include "themehelper.h"
 
 class QTextBrowser;
+namespace Core
+{
 namespace KineticPopups
 {
-	class PopupWidget : public QTextBrowser
-	{
-		Q_OBJECT
-	public:
-		PopupWidget(const ThemeHelper::PopupSettings &popupSettings);
-		PopupWidget();
-		void setData(const QString& title,
-					const QString& body,
-					QObject *sender,
-					const QVariant &data); //size of textbrowser
+class PopupWidget : public QTextBrowser
+{
+	Q_OBJECT
+public:
+	PopupWidget(const ThemeHelper::PopupSettings &popupSettings);
+	PopupWidget();
+	void setData(const QString& title,
+				const QString& body,
+				QObject *sender,
+				const QVariant &data); //size of textbrowser
 
-		void setTheme(const ThemeHelper::PopupSettings &popupSettings);
-		virtual void mouseReleaseEvent ( QMouseEvent* ev );
-		virtual ~PopupWidget();
-		virtual QSize sizeHint() const;
-		virtual void timerEvent(QTimerEvent *);
-	signals:
-		void activated();
-		void sizeChanged(const QSize &size);
-	private slots:
-		//TODO need refactoring in future
-		void onAction1Triggered();
-		void onAction2Triggered();
-	private:
-		ThemeHelper::PopupSettings popup_settings;
-		void init(const ThemeHelper::PopupSettings &popupSettings);
-		QObject *m_sender;
-		QVariant m_data;
-		QTimer m_timer;
-	};
+	void setTheme(const ThemeHelper::PopupSettings &popupSettings);
+	virtual void mouseReleaseEvent ( QMouseEvent* ev );
+	virtual ~PopupWidget();
+	virtual QSize sizeHint() const;
+	virtual void timerEvent(QTimerEvent *);
+signals:
+	void activated();
+	void sizeChanged(const QSize &size);
+private slots:
+	//TODO need refactoring in future
+	void onAction1Triggered();
+	void onAction2Triggered();
+private:
+	ThemeHelper::PopupSettings popup_settings;
+	void init(const ThemeHelper::PopupSettings &popupSettings);
+	QObject *m_sender;
+	QVariant m_data;
+	QTimer m_timer;
+};
+}
 }
 #endif // POPUPWIDGET_H

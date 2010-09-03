@@ -25,45 +25,48 @@ class QFinalState;
 class QPropertyAnimation;
 class QState;
 class QStateMachine;
+namespace Core
+{
 namespace KineticPopups
 {
-	class PopupWidget;
-	class Popup : public QObject
-	{
-		Q_OBJECT
-	public:
-		Popup(const QString &id); //0 - persistant
-		virtual ~Popup();
-		void setId(const QString &id);
-		void setMessage(const QString &title, const QString &body = NULL, QObject *sender = NULL);
-		void appendMessage(const QString &message);
-		void setData(const QVariant &data);
-		void updateMessage(const QString &message);
-		void send();
-		void update(QRect geom);
-		QString getId() const;
-		QRect geometry() const; //Show state geometry
-	signals:
-		void updated();
-	private slots:
-		void onPopupWidgetSizeChanged(const QSize &size);
-		void onPopupActivated();
-	private:
-		void updateGeometry(const QRect &newGeometry);
-		inline void updateMessage();		
-		PopupWidget *m_notification_widget;
-		QString m_title;
-		QString m_body;
-		QString m_id;
-		QRect m_show_geometry; //Don't use direct, change by UpdateGeometry!
-		QStateMachine *m_machine;
-		QState *m_show_state;
-		QFinalState *m_hide_state;
-		QPropertyAnimation *m_moving_animation;
-		QPropertyAnimation *m_opacity_animation;
-		QObject *m_sender;
-		QVariant m_data;
-	};
+class PopupWidget;
+class Popup : public QObject
+{
+	Q_OBJECT
+public:
+	Popup(const QString &id); //0 - persistant
+	virtual ~Popup();
+	void setId(const QString &id);
+	void setMessage(const QString &title, const QString &body = NULL, QObject *sender = NULL);
+	void appendMessage(const QString &message);
+	void setData(const QVariant &data);
+	void updateMessage(const QString &message);
+	void send();
+	void update(QRect geom);
+	QString getId() const;
+	QRect geometry() const; //Show state geometry
+signals:
+	void updated();
+private slots:
+	void onPopupWidgetSizeChanged(const QSize &size);
+	void onPopupActivated();
+private:
+	void updateGeometry(const QRect &newGeometry);
+	inline void updateMessage();
+	PopupWidget *m_notification_widget;
+	QString m_title;
+	QString m_body;
+	QString m_id;
+	QRect m_show_geometry; //Don't use direct, change by UpdateGeometry!
+	QStateMachine *m_machine;
+	QState *m_show_state;
+	QFinalState *m_hide_state;
+	QPropertyAnimation *m_moving_animation;
+	QPropertyAnimation *m_opacity_animation;
+	QObject *m_sender;
+	QVariant m_data;
+};
+}
 }
 
 #endif // POPUP_H
