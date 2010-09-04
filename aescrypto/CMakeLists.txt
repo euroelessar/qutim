@@ -1,4 +1,9 @@
-FIND_PACKAGE (QCA2 REQUIRED)
+FIND_PACKAGE (QCA2)
+
+if( NOT QCA2_FOUND )
+	message( "Qca2 not found. Can't build AES Crypto module" )
+	return()
+endif( NOT QCA2_FOUND )
 
 include_directories(${QCA2_INCLUDE_DIR})
 
