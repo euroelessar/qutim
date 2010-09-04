@@ -389,8 +389,9 @@ namespace Core
 			p->events << ev;
 			p->timer.start(1, this);
 
+			return true;
 			// We should return false
-			return false;
+//			return false;
 		}
 
 		void Model::removeFromContactList(Contact *contact, bool deleted)

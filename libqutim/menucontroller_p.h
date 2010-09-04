@@ -80,6 +80,7 @@ namespace qutim_sdk_0_3
 		inline MenuController *controller() { return m_d->q_ptr; }
 		void addActions(const QList<ActionInfo> &actions); //TODO need redesign
 		void addAction(MenuController *owner, const ActionInfo &info);
+		void removeAction(MenuController *owner, const ActionGenerator *gen);
 		ActionEntry *findEntry(ActionEntry &entries, const ActionInfo &info);
 		QAction *ensureAction(const ActionGenerator *gen);
 	public slots:

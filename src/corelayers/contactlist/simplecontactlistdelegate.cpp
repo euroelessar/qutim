@@ -126,16 +126,20 @@ namespace SimpleContactList
 						list.insert(search_it,data);
 					}
 
+					QString icon = QLatin1String("icon");
+					QString showIcon = QLatin1String("showIcon");
+					QString id = QLatin1String("id");
+
 					foreach (const QVariantHash &hash, list) {
-						QVariant extIconVar = hash.value(QLatin1String("icon"));
+						QVariant extIconVar = hash.value(icon);
 						QIcon icon;
 						if (extIconVar.canConvert<ExtensionIcon>())
 							icon = extIconVar.value<ExtensionIcon>().toIcon();
 						else if (extIconVar.canConvert(QVariant::Icon))
 							icon = extIconVar.value<QIcon>();
-						if (!hash.value(QLatin1String("showIcon"),true).toBool() || icon.isNull())
+						if (!hash.value(showIcon,true).toBool() || icon.isNull())
 							continue;
-						if (!m_statuses.value(hash.value("id").toString(), true))
+						if (!m_statuses.value(hash.value(id).toString(), true))
 							continue;
 						icon.paint(painter,
 									option.rect.left() + m_horizontal_padding,

@@ -11,10 +11,21 @@ FILE( GLOB HDR_GAME "${CMAKE_CURRENT_SOURCE_DIR}/game/*.h" )
 LIST( APPEND SRC ${SRC_GAME} )
 LIST( APPEND HDR ${HDR_GAME} )
 
+# Add JDns sources
+LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/jdns.c"
+		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/jdns_mdnsd.c"
+		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/jdns_packet.c"
+		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/jdns_sys.c"
+		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/jdns_util.c"
+		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns_sock.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns.cpp" )
+QT4_WRAP_CPP( HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns.h"
+		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns_p.h" )
+
 # Add K8JSON code
 ADD_DEFINITIONS( -DK8JSON_INCLUDE_GENERATOR -DK8JSON_INCLUDE_COMPLEX_GENERATOR )
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/k8json.cpp" )
-LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/k8json.h" )
+# LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/k8json.h" )
 
 # Add qtdwm code
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/qtdwm.cpp" )
@@ -80,21 +91,27 @@ INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qticonloader/" )
 QT4_WRAP_CPP( MOC_SRC ${HDR} )
 
 # Add JDNS using separate cmake project
-ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/jdns/" )
+#ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/jdns/" )
 # Add Aero theme integration for Windows Vista and later
 # ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/qtdwm/")
 
 # This project will generate library
 ADD_LIBRARY( libqutim SHARED ${SRC} ${MOC_SRC} ${HDR} )
 
+#if( CMAKE_COMPILER_IS_GNUCXX )
+#	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "${COMPILE_FLAGS}" )
+#endif( CMAKE_COMPILER_IS_GNUCXX )
+
 file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/qutim" )
 file( GLOB_RECURSE QUTIM_INCLUDE_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
 foreach( header ${QUTIM_INCLUDE_HEADERS} )
     if( NOT ${header} MATCHES ".*_p\\.h" )
-	file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}"
+	if( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
+	    file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}"
 	"#include \"${CMAKE_CURRENT_SOURCE_DIR}/${header}\"
 "
-	)
+	    )
+	endif( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
     endif( NOT ${header} MATCHES ".*_p\\.h" )
 endforeach( header )
 set( QUTIM_LIBRARIES libqutim CACHE INTERNAL "" )
@@ -112,7 +129,7 @@ IF(APPLE)
 ENDIF (APPLE)
 
 # Link with QT
-TARGET_LINK_LIBRARIES( libqutim libjdns ${QT_LIBRARIES} ${EXTRA_LIBS})
+TARGET_LINK_LIBRARIES( libqutim ${QT_LIBRARIES} ${EXTRA_LIBS})
 
 
 INSTALL (TARGETS libqutim DESTINATION "lib")

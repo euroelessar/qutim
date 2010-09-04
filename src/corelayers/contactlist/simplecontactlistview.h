@@ -12,9 +12,11 @@ namespace Core
 			Q_OBJECT
 		public:
 			TreeView(QWidget *parent = 0);
+			
 		protected:
 			void contextMenuEvent(QContextMenuEvent *);
 			virtual bool eventFilter(QObject *, QEvent *);
+			void startDrag(Qt::DropActions supportedActions);
 		protected slots:
 			void onClick(const QModelIndex &index);
 			void onResetTagsTriggered();

@@ -76,6 +76,8 @@ namespace Core
 			ChatState myself_chat_state;
 			ChatSessionImpl *q_ptr;
 			ChatState statusToState(Status::Type type);
+			Status::Type lastStatusType;
+			QString lastStatusText;
 		public slots:
 			void onStatusChanged(qutim_sdk_0_3::Status);
 			void onLinkClicked(const QUrl &url);

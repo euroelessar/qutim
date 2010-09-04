@@ -46,7 +46,8 @@ namespace Core
 			web_page(new QWebPage(this)),
 			input(new QTextDocument(this)),
 			separator(true),
-			myself_chat_state(ChatStateInActive)
+			myself_chat_state(ChatStateInActive),
+			lastStatusType(Status::Offline)
 		{
 		}
 
@@ -390,9 +391,8 @@ namespace Core
 		void ChatSessionImplPrivate::statusChanged(const Status &status,Contact* contact, bool silent)
 		{
 			Q_Q(ChatSessionImpl);
-			Message msg;
 			Notifications::Type type = Notifications::StatusChange;
-			QString title = contact->status().name().toString();
+			QString title = status.name().toString();
 
 
 			switch(status.type()) {
@@ -412,15 +412,21 @@ namespace Core
 //			debug() << "chat state event sended";
 			ChatStateEvent ev(statusToState(status.type()));
 			qApp->sendEvent(q, &ev);
+			
+			if (lastStatusType == status.type() && lastStatusText == status.text())
+				return;
+			lastStatusType = status.type();
+			lastStatusText = status.text();
 
 			//title = title.isEmpty() ? contact->status().name().toString() : title;
-
+			
+			Message msg;
 			msg.setChatUnit(contact);
 			msg.setIncoming(true);
 			msg.setProperty("service",type);
 			msg.setProperty("title",title);
 			msg.setTime(QDateTime::currentDateTime());
-			msg.setText(contact->status().text());
+			msg.setText(status.text());
 			msg.setProperty("silent",silent);
 			msg.setProperty("store",!silent);
 			q->appendMessage(msg);

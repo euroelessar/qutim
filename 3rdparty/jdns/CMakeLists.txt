@@ -42,6 +42,10 @@ QT4_AUTOMOC( "qjdns.cpp" )
 # This project will generate static library
 ADD_LIBRARY( libjdns STATIC ${SRC} )
 
+if( CMAKE_COMPILER_IS_GNUCXX )
+	set_target_properties( libjdns PROPERTIES COMPILE_FLAGS "${COMPILE_FLAGS} -fPIC -DPIC" )
+endif( CMAKE_COMPILER_IS_GNUCXX )
+
 # Set tagret properties
 SET_TARGET_PROPERTIES ( libjdns PROPERTIES PREFIX "")
 

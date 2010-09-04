@@ -16,7 +16,7 @@ if( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
 else( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
   
     find_path( QUTIM_INCLUDE_DIR NAMES "qutim/libqutim_global.h" )
-    find_library( QUTIM_LIBRARIES qutim PATHS ${QUTIM_LIBRARY_DIR} )
+    find_library( QUTIM_LIBRARIES qutim PATHS ${QUTIM_LIBRARIES_DIR} )
     
     if( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
 	set( QutIM_FOUND TRUE )
@@ -168,7 +168,8 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
     
     if( QUTIM_${plugin_name}_EXTENSION )
         # Generate ${plugin_name}plugin.cpp file
-        file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp"
+	if( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp" )
+	    file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp"
 "#include \"${QUTIM_${plugin_name}_EXTENSION_HEADER}\"
 #include <qutim/plugin.h>
 
@@ -191,6 +192,7 @@ public:
 #include \"${plugin_name}plugin.moc\"
 QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
 " )
+	endif( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp" )
 	QT4_GENERATE_MOC( "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp" "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.moc" )
 	list( APPEND QUTIM_${plugin_name}_SRC
 	    "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp"
@@ -222,11 +224,13 @@ QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
 		 ${QUTIM_${plugin_name}_HDR} ${QUTIM_${plugin_name}_UI_H} ${QUTIM_${plugin_name}_RCC} )
 #    set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "-D${plugin_name}_MAKE" )
     if( QUTIM_${plugin_name}_STATIC )
-        file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}helper.cpp"
+	if( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}helper.cpp" )
+	    file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}helper.cpp"
 "#include <QtCore/QtPlugin>
 
 Q_IMPORT_PLUGIN(${plugin_name})
 " )
+	endif( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}helper.cpp" )
 	set( QUTIM_${plugin_name}_COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS} -DQUTIM_STATIC_PLUGIN -DQUTIM_PLUGIN_INSTANCE=\"qt_plugin_instance_${plugin_name}\"" )
 	list( APPEND QUTIM_ADDITIONAL_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}helper.cpp" )
 	list( APPEND QUTIM_ADDITIONAL_LIBRARIES ${plugin_name} )
@@ -251,7 +255,7 @@ Q_IMPORT_PLUGIN(${plugin_name})
 	endif ( QUTIM_COPY_PLUGINS_TO_BINARY_DIR AND QUTIM_BINARY_DIR AND NOT QUTIM_${plugin_name}_STATIC )
 
     # Link with QT
-	target_link_libraries( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARIES} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
+    target_link_libraries( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARIES} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
 
     if( LANGUAGE AND NOT QUTIM_${plugin_name}_SUBPLUGIN AND NOT QUTIM_${plugin_name}_EXTENSION )
 	language_update( ${plugin_name} ${LANGUAGE} "${CMAKE_CURRENT_SOURCE_DIR}" )

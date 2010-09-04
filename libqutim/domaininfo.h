@@ -23,39 +23,29 @@ namespace qutim_sdk_0_3
 {
 	class DomainInfoPrivate;
 
-	class LIBQUTIM_EXPORT DomainInfo
+	class LIBQUTIM_EXPORT DomainInfo : public QObject
 	{
+		Q_OBJECT
+		Q_DECLARE_PRIVATE(DomainInfo)
 	public:
-		enum Type
-		{
-			None,
-			A, Aaaa,
-			Mx, Srv,
-			Cname,
-			Ptr,
-			Txt
-		};
 		struct Record
 		{
-			QHostAddress address;    // for A, Aaaa
-			QByteArray name;         // for Mx, Srv, Cname, Ptr, Ns
-			int priority;            // for Mx, Srv
-			int weight;              // for Srv
-			int port;                // for Srv
-			QList<QByteArray> texts; // for Txt
-			QByteArray cpu;          // for Hinfo
-			QByteArray os;           // for Hinfo
+			QString name;
+			int port;
+			int weight;
 		};
-	//	DomainInfo(const DomainInfo &d);
-	//	DomainInfo &operator=(const DomainInfo &d);
-	//	~DomainInfo();
-	//	QList<Record> records() const;
-	//	int id() const;
-	//	Type type() const;
-	//	bool isValid() const;
-	//private:
-	//	DomainInfo(int id);
-	//	DomainInfoPrivate *p;
+
+		DomainInfo(QObject *parent = 0);
+		~DomainInfo();
+		
+		void lookupSrvRecord(const QString &service, const QString &proto, const QString &domain);
+		QList<Record> resultRecords();
+		
+	signals:
+		void resultReady();
+		
+	private:
+		QScopedPointer<DomainInfoPrivate> d_ptr;
 	};
 }
 

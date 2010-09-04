@@ -218,6 +218,23 @@ namespace qutim_sdk_0_3
 		m_owners.insert(info.gen, owner);
 		onActionAdded(info);
 	}
+	
+	void DynamicMenu::removeAction(MenuController *owner, const ActionGenerator *gen)
+	{
+		MenuControllerPrivate *d = MenuControllerPrivate::get(owner);
+		const ActionInfo *info = 0;
+		for (int i = 0; i < d->actions.size(); i++) {
+			if (d->actions.at(i).gen == gen) {
+				info = &d->actions.at(i);
+				break;
+			}
+		}
+		QAction *action = gen ? actionsCache()->value(gen) : 0;
+		if (!info || !action)
+			return;
+		// May be cache menus?
+		m_menu.
+	}
 
 	void DynamicMenu::onActionAdded(const ActionInfo &info)
 	{
@@ -332,6 +349,14 @@ namespace qutim_sdk_0_3
 	bool MenuController::removeAction(const ActionGenerator *gen)
 	{
 		Q_D(MenuController);
+		foreach (DynamicMenu *menu, *dynamicMenuSet()) {
+			MenuController *owner = menu->controller();
+			int flags = owner->d_func()->flags;
+			while (owner != this && !!(owner = (flags & ShowOwnerActions) ? owner->d_func()->owner : 0))
+				flags = owner->d_func()->flags;
+			if (owner && owner->d_func()->menu)
+				menu->removeAction(owner, gen);
+		}
 		for (int i = 0; i < d->actions.size(); i++) {
 			if (d->actions.at(i).gen == gen) {
 				d->actions.removeAt(i);
