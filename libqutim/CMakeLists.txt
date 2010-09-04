@@ -137,8 +137,16 @@ ENDIF()
 # Link with QT
 TARGET_LINK_LIBRARIES( libqutim ${QT_LIBRARIES} ${EXTRA_LIBS})
 
+#make headers
+foreach( header ${QUTIM_INCLUDE_HEADERS} )
+	if( NOT ${header} MATCHES ".*_p\\.h" )
+		LIST(APPEND ${INS_HEADERS} ${header})
+	endif( NOT ${header} MATCHES ".*_p\\.h" )
+endforeach( header )
 
-INSTALL (TARGETS libqutim DESTINATION "lib")
+
+INSTALL(TARGETS libqutim DESTINATION "lib")
+INSTALL(FILES ${INS_HEADERS} DESTINATION "include/qutim")
 
 if(DOXYGEN_FOUND)
     set(DOC_TARGET "doc")

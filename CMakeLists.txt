@@ -147,20 +147,12 @@ if( LANGUAGE )
 	LANGUAGE_UPDATE( core ${LANGUAGE} "${CMAKE_CURRENT_SOURCE_DIR}" )
 endif( LANGUAGE )
 
-SET (module_install_dir "${CMAKE_ROOT}/Modules")
-
-SET (CMAKE_MODULES
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindQutIM.cmake"
-#    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/qutimuic.cmake"
-#    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/QutimPlugin.cmake"
-)
+FILE(GLOB CMAKE_MODULES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/*.cmake")
 
 FILE (GLOB DEV_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/libqutim/*.h")
 FILE (GLOB DEV_HEADERS_EXCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/libqutim/*_p.h")
 LIST (REMOVE_ITEM DEV_HEADERS ${DEV_HEADERS_EXCLUDE}) 
 
-#TODO: Fix installation of cmake modules. Now those placed directly to /usr (absolute path)
-INSTALL (FILES ${CMAKE_MODULES} DESTINATION ${module_install_dir})
-INSTALL (FILES ${DEV_HEADERS} DESTINATION "include/qutim")
+INSTALL (FILES ${CMAKE_MODULES} DESTINATION "share/cmake/Modules")
 INSTALL (TARGETS qutim DESTINATION "bin")
 INSTALL( DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/share" DESTINATION "${CMAKE_INSTALL_PREFIX}/" PATTERN ".svn" EXCLUDE PATTERN "_svn" EXCLUDE )
