@@ -26,6 +26,13 @@
 // for fprintf
 #include <stdio.h>
 
+static jdns_string_t *qt2str(const QByteArray &in)
+{
+	jdns_string_t *out = jdns_string_new();
+	jdns_string_set(out, (const unsigned char *)in.data(), in.size());
+	return out;
+}
+
 static jdns_rr_t *export_record(const QJDns::Record &in)
 {
 	jdns_rr_t *out = jdns_rr_new();

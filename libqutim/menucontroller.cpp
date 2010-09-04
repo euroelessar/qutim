@@ -229,11 +229,11 @@ namespace qutim_sdk_0_3
 				break;
 			}
 		}
-		QAction *action = gen ? actionsCache()->value(gen) : 0;
-		if (!info || !action)
-			return;
-		// May be cache menus?
-		m_menu.
+//		QAction *action = gen ? actionsCache()->value(gen) : 0;
+//		if (!info || !action)
+//			return;
+//		// May be cache menus?
+//		m_menu.
 	}
 
 	void DynamicMenu::onActionAdded(const ActionInfo &info)

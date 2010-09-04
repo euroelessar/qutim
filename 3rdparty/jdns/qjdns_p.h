@@ -86,13 +86,6 @@ private:
 
 }
 
-static jdns_string_t *qt2str(const QByteArray &in)
-{
-	jdns_string_t *out = jdns_string_new();
-	jdns_string_set(out, (const unsigned char *)in.data(), in.size());
-	return out;
-}
-
 static QByteArray str2qt(const jdns_string_t *in)
 {
 	return QByteArray((const char *)in->data, in->size);

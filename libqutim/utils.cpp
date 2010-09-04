@@ -15,7 +15,7 @@
 *****************************************************************************/
 
 #include "libqutim_global.h"
-#include "libqutim/json.h"
+#include "json.h"
 #include "systeminfo.h"
 #include <QDate>
 #include <QLocale>

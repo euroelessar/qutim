@@ -200,6 +200,8 @@ void XSettingsWindow::ensureActions()
 
 void XSettingsWindow::onGroupActionTriggered(QAction *a )
 {
+	if (p->currentAction == a)
+		return;
 	p->currentAction = a;
 	//remove old settings widgets
 	QWidget *c = p->stackedWidget->widget(0);

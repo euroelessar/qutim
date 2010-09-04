@@ -18,7 +18,7 @@
 #define DOMAININFO_P_H
 
 #include "domaininfo.h"
-#include <qjdns.h>
+#include <3rdparty/jdns/qjdns.h>
 
 namespace qutim_sdk_0_3
 {
