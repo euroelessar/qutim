@@ -17,10 +17,10 @@
 #ifndef CHATLAYERADAPTER_H
 #define CHATLAYERADAPTER_H
 
-#include <qutim/messagesession.h>
 #include <QDBusAbstractAdaptor>
 #include <QDBusObjectPath>
 #include <QDBusConnection>
+#include <qutim/messagesession.h>
 
 using namespace qutim_sdk_0_3;
 

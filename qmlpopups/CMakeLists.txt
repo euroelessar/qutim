@@ -11,3 +11,5 @@ qutim_add_plugin( qmlpopups
 	DESCRIPTION "Modern popups, based on power of Qt Quick"
 	LINK_LIBRARIES ${QT_QTDECLARATIVE_LIBRARY}
 )
+
+INSTALL( DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/qmlpopups" DESTINATION "${CMAKE_INSTALL_PREFIX}/share/qutim")
