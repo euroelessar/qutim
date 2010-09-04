@@ -13,3 +13,5 @@ qutim_add_plugin( vphotoalbum
 	DESCRIPTION "Vkontakte photoalbum support for qutIM, based on power of Qt Quick"
 	LINK_LIBRARIES vkontakte ${QT_QTDECLARATIVE_LIBRARY} ${QT_QTOPENGL_LIBRARY}
 )
+
+INSTALL( DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/vphotoalbum" DESTINATION "${CMAKE_INSTALL_PREFIX}/share/qutim")

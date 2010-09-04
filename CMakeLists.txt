@@ -5,8 +5,8 @@ endif(COMMAND cmake_policy )
 project( Protocols )
 set(QT_MIN_VERSION "4.6.0")
 
-LIST (APPEND CMAKE_MODULE_PATH "cmake")
-LIST (APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
+INCLUDE (MacroEnsureVersion)
+find_package(Qt4 COMPONENTS QtCore QtGui QtNetwork)
 find_package( QutIM REQUIRED )
 
 file( GLOB PROTOCOLS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/*" )
