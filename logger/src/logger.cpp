@@ -4,6 +4,8 @@
 #include <qutim/debug.h>
 #include <fstream>
 #include <QTime>
+#include <qutim/settingslayer.h>
+#include <qutim/icon.h>
 
 namespace Logger
 {
@@ -41,11 +43,21 @@ namespace Logger
 
 	bool LoggerPlugin::load()
 	{
-		Config config("logger");
+		Config config = Config().group("Logger");
 		QString path = config.value("path",SystemInfo::getPath(SystemInfo::ConfigDir).append("/qutim.log"));
 		logfile.open(path.toLocal8Bit(), ios::app);
 		qInstallMsgHandler(SimpleLoggingHandler);
 		debug() << tr("New session started, happy debuging ^_^");
+
+		AutoSettingsItem *settingsItem = new AutoSettingsItem(Settings::Plugin,
+															  Icon("view-choose"),
+															  QT_TRANSLATE_NOOP("Plugin", "Logger"));
+		settingsItem->setConfig(QString(),"Logger");
+		ObjectGenerator *gen = new GeneralGenerator<AutoSettingsFileChooser>();
+		AutoSettingsItem::Entry *entryItem = settingsItem->addEntry(QT_TRANSLATE_NOOP("Plugin", "Select log path"), gen);
+		entryItem->setProperty("path",path);
+		entryItem->setName("path");
+		Settings::registerItem(settingsItem);
 		return true;
 	}
 	bool LoggerPlugin::unload()
