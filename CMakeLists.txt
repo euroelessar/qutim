@@ -14,3 +14,18 @@ set( QUTIM_ADDITIONAL_PATHS "${QUTIM_ADDITIONAL_PATHS}" CACHE INTERNAL "" FORCE 
 
 add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/core/" "${CMAKE_CURRENT_BINARY_DIR}/core" )
 add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/translations/" "${CMAKE_CURRENT_BINARY_DIR}/translations" )
+
+# ADD_CUSTOM_TARGET(uninstall
+#   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+
+INCLUDE(CPack)
+INCLUDE(CPackOptions.cmake.in)
+
+#small simple hack
+# IF (WIN32)
+# 	SET(QT_DLLS_PATH "" CACHE FILEPATH "Path to Qt dll's and plugins. Note: you must add them yourself")
+# 	IF(QT_DLLS_PATH)
+# 		FILES(GLOB_RECURSIVE QT_DLLS ${QT_DLL_PATH}/*.dll)
+# 		INSTALL(FILES ${QT_DLLS} bin)
+# 	ENDIF(QT_DLLS_PATH)
+# ENDIF(WIN32)
