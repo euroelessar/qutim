@@ -229,11 +229,12 @@ namespace qutim_sdk_0_3
 				break;
 			}
 		}
-//		QAction *action = gen ? actionsCache()->value(gen) : 0;
-//		if (!info || !action)
-//			return;
-//		// May be cache menus?
-//		m_menu.
+		QAction *action = gen ? actionsCache()->value(gen).value(owner) : 0;
+		if (!info || !action)
+			return;
+		// May be cache menus?
+		// Or it will work fine?
+		action->deleteLater();
 	}
 
 	void DynamicMenu::onActionAdded(const ActionInfo &info)

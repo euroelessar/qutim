@@ -641,19 +641,6 @@ namespace qutim_sdk_0_3
 			group.sync();
 		}
 		qApp->setWindowIcon(Icon("qutim"));
-		Config pluginsConfig = Config().group("plugins/list");
-		{
-			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(qobject_interface_iid<StartupModule *>());
-			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
-			for(; it != exts.end(); it++)
-			{
-				Plugin *plugin = it.key();
-				if (!pluginsConfig.value(plugin->metaObject()->className(), true))
-					continue;
-				qDebug("Startup: %s", it.value().generator()->metaObject()->className());
-				it.value().generator()->generate<StartupModule>();
-			}
-		}
 
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();

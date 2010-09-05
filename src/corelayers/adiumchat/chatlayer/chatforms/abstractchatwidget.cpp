@@ -281,8 +281,12 @@ namespace Core
 					return true;
 				} else if (event->type() == QEvent::DragEnter) {
 					QDragEnterEvent *dragEvent = static_cast<QDragEnterEvent*>(event);
-					if (dragEvent->mimeData()->hasFormat(MimeObjectData::objectMimeType()))
-						dragEvent->acceptProposedAction();
+					if (MimeObjectData *data = qobject_cast<MimeObjectData*>(dragEvent->mimeData())) {
+						Contact *contact = qobject_cast<Contact*>(data->object());
+						Conference *conf = qobject_cast<Conference*>(m_sessions.at(m_current_index)->getUnit());
+						if (contact && conf && contact->account() == conf->account())
+							dragEvent->acceptProposedAction();
+					}
 					return true;
 				} else if (event->type() == QEvent::Drop) {
 					QDropEvent *dropEvent = static_cast<QDropEvent*>(event);
@@ -292,6 +296,8 @@ namespace Core
 							ChatUnit *unit = m_sessions.at(m_current_index)->getUnit();
 							if (Conference *conf = qobject_cast<Conference*>(unit))
 								conf->invite(contact);
+							dropEvent->setDropAction(Qt::CopyAction);
+							dropEvent->accept();
 							return true;
 						}
 					}
@@ -302,7 +308,8 @@ namespace Core
 					ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(event);
 					chatStateChanged(chatEvent->chatState(), qobject_cast<ChatSessionImpl *>(obj));
 				}
-			} else if (qobject_cast<QTabBar*>(obj)) {
+			} else if (QTabBar *bar = qobject_cast<QTabBar*>(obj)) {
+				Q_UNUSED(bar);
 				if (event->type() == QEvent::ToolTip) {
 					if (QHelpEvent *help = static_cast<QHelpEvent*>(event)) {
 						QTabBar *bar = getTabBar();
@@ -313,7 +320,19 @@ namespace Core
 							return true;
 						}
 					}
+				} 
+#if 0
+				// TODO: Drag&Drop tabs between windows
+				else if (event->type() == QEvent::MouseButtonPress) {
+					QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+				} else if (event->type() == QEvent::MouseButtonRelease) {
+					QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+				} else if (event->type() == QEvent::DragEnter) {
+					QDragEnterEvent *dragEvent = static_cast<QDragEnterEvent*>(event);
+				} else if (event->type() == QEvent::Drop) {
+					QDropEvent *dropEvent = static_cast<QDropEvent*>(event);
 				}
+#endif
 			} else if (meta == &QWebView::staticMetaObject) {
 				if (event->type() == QEvent::KeyPress) {
 					QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
