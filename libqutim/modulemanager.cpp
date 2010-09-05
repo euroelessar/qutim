@@ -646,7 +646,9 @@ namespace qutim_sdk_0_3
 			proto->loadAccounts();
 		if (MetaContactManager *manager = MetaContactManager::instance())
 			manager->loadContacts();
-
+		
+		Config pluginsConfig;
+		pluginsConfig.beginGroup("plugins/list");
 		for (int i = 0; i < p->plugins.size(); i++) {
 			Plugin *plugin = p->plugins.at(i);
 			if (plugin && pluginsConfig.value(plugin->metaObject()->className(), true)) {

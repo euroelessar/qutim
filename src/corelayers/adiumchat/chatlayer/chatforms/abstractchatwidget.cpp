@@ -281,7 +281,8 @@ namespace Core
 					return true;
 				} else if (event->type() == QEvent::DragEnter) {
 					QDragEnterEvent *dragEvent = static_cast<QDragEnterEvent*>(event);
-					if (MimeObjectData *data = qobject_cast<MimeObjectData*>(dragEvent->mimeData())) {
+					if (const MimeObjectData *data
+						= qobject_cast<const MimeObjectData*>(dragEvent->mimeData())) {
 						Contact *contact = qobject_cast<Contact*>(data->object());
 						Conference *conf = qobject_cast<Conference*>(m_sessions.at(m_current_index)->getUnit());
 						if (contact && conf && contact->account() == conf->account())
