@@ -145,15 +145,20 @@ foreach( header ${QUTIM_INCLUDE_HEADERS} )
 endforeach( header )
 
 
-INSTALL(TARGETS libqutim DESTINATION "lib")
-INSTALL(FILES ${INS_HEADERS} DESTINATION "include/qutim")
+install( TARGETS libqutim 
+	RUNTIME DESTINATION bin
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib 
+)
+
+INSTALL(FILES ${INS_HEADERS} DESTINATION include/qutim)
 
 if(DOXYGEN_FOUND)
     set(DOC_TARGET "doc")
     configure_file(doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
     add_custom_target(${DOC_TARGET} ALL
         ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc DESTINATION ${CMAKE_INSTALL_PREFIX}/share/qutim)
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc DESTINATION share/qutim)
     add_dependencies(libqutim ${DOC_TARGET})
 endif()
 
