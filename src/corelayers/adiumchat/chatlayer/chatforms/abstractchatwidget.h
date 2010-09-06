@@ -71,7 +71,7 @@ namespace Core
 		public slots:
 			virtual void addSession(ChatSessionImpl *session) = 0;
 			virtual void addSession(const ChatSessionList &sessions) = 0;
-			virtual void removeSession(ChatSessionImpl *session);
+			virtual void removeSession(ChatSessionImpl *session, bool deleted = false);
 			virtual void activate(AdiumChat::ChatSessionImpl* session) = 0;
 		protected slots:
 			void onSendButtonClicked();

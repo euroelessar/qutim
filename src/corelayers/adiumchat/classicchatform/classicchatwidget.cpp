@@ -146,19 +146,19 @@ namespace Core
 			m_sessions.clear();
 		}
 
-		void ClassicChatWidget::removeSession(ChatSessionImpl* session)
+		void ClassicChatWidget::removeSession(ChatSessionImpl* session, bool deleted)
 		{
 			int index = m_sessions.indexOf(session);
 			if (index == -1)
 				return;
 			ui->tabButton->removeAction(ui->tabButton->actions().at(index));
-			AbstractChatWidget::removeSession(session);
+			AbstractChatWidget::removeSession(session, deleted);
 		}
 
 		void ClassicChatWidget::onSessionDestroyed(QObject* object)
 		{
 			ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
-			removeSession(sess);
+			removeSession(sess, true);
 		}
 
 		ChatSessionList ClassicChatWidget::getSessionList() const

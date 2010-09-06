@@ -49,7 +49,7 @@ namespace Core
 		public slots:
 			void addSession(ChatSessionImpl *session);
 			void addSession(const ChatSessionList &sessions);
-			void removeSession(ChatSessionImpl *session);
+			void removeSession(ChatSessionImpl *session, bool deleted = false);
 			void activate(AdiumChat::ChatSessionImpl* session);
 			void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 		protected:

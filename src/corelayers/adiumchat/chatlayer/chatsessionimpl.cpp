@@ -43,8 +43,6 @@ namespace Core
 	{
 		ChatSessionImplPrivate::ChatSessionImplPrivate()
 			: chat_style_output(new ChatStyleOutput),
-			web_page(new QWebPage(this)),
-			input(new QTextDocument(this)),
 			separator(true),
 			myself_chat_state(ChatStateInActive),
 			lastStatusType(Status::Offline)
@@ -61,6 +59,8 @@ namespace Core
 			d_ptr(new ChatSessionImplPrivate)
 		{
 			Q_D(ChatSessionImpl);
+			d->input = new QTextDocument(this);
+			d->web_page = new QWebPage(this);
 			d->model = new ChatSessionModel(this);
 			d->q_ptr = this;
 			d->chat_unit = unit;

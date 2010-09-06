@@ -460,17 +460,16 @@ namespace Core
 			getInputField()->setDocument(session->getInputField());			
 		}
 
-		void AbstractChatWidget::removeSession(ChatSessionImpl* session)
+		void AbstractChatWidget::removeSession(ChatSessionImpl* session, bool deleted)
 		{
 			int index = m_sessions.indexOf(session);
 	
 			m_sessions.removeAt(index);
 			getTabBar()->removeTab(index);
-			session->disconnect(this);
-
-			if (session && m_removeSessionOnClose) {
+			if (!deleted)
+				session->disconnect(this);
+			if (!deleted && session && m_removeSessionOnClose)
 				session->deleteLater();
-			}
 			if (m_sessions.isEmpty())
 				close();
 		}

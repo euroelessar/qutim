@@ -230,19 +230,19 @@ namespace Core
 			m_sessions.clear();
 		}
 
-		void AdiumChatWidget::removeSession(ChatSessionImpl* session)
+		void AdiumChatWidget::removeSession(ChatSessionImpl* session, bool deleted)
 		{
 			int index = m_sessions.indexOf(session);
 			if (index == -1)
 				return;
 			m_session_list->menu()->removeAction(m_session_list->menu()->actions().at(index));
-			AbstractChatWidget::removeSession(session);
+			AbstractChatWidget::removeSession(session, deleted);
 		}
 
 		void AdiumChatWidget::onSessionDestroyed(QObject* object)
 		{
 			ChatSessionImpl *sess = reinterpret_cast<ChatSessionImpl *>(object);
-			removeSession(sess);
+			removeSession(sess, true);
 		}
 
 		ChatSessionList AdiumChatWidget::getSessionList() const
