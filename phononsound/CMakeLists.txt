@@ -1,8 +1,16 @@
-find_package( Phonon REQUIRED )
+find_package( Phonon )
 
 IF (NOT DEFINED PHONON_FOUND)
-	message( "PHONON not found. Can't build phononsound" )
-	return()
+	if( PHONON_INCLUDE_DIR AND PHONON_LIBRARY )
+		set( PHONON_LIBRARIES "${PHONON_LIBRARY}" )
+		set( PHONON_INCLUDES "${PHONON_INCLUDE_DIR}" )
+	elseif( QT_PHONON_INCLUDE_DIR AND PHONON_LIBRARY )
+		set( PHONON_LIBRARIES "${PHONON_LIBRARY}" )
+		set( PHONON_INCLUDES "${QT_PHONON_INCLUDE_DIR}" )
+	else( PHONON_INCLUDE_DIR AND PHONON_LIBRARY )
+		message( "PHONON not found. Can't build phononsound" )
+		return()
+	endif()
 ENDIF()
 
 qutim_add_plugin( phononsound
