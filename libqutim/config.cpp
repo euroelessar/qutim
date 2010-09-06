@@ -17,6 +17,7 @@
 #include "config.h"
 #include "cryptoservice.h"
 #include "systeminfo.h"
+#include <QSet>
 #include <QStringList>
 #include <QFileInfo>
 #include <QDateTime>
@@ -78,7 +79,7 @@ namespace qutim_sdk_0_3
 		typedef QExplicitlySharedDataPointer<ConfigSource> Ptr;
 		inline ConfigSource() : backend(0), dirty(false) { update(); }
 		inline ~ConfigSource() {}
-		static ConfigSource::Ptr open(const QString &path);
+		static ConfigSource::Ptr open(const QString &path, bool systemDir, bool create);
 		inline void update() { lastUse = QDateTime::currentDateTime(); }
 		
 		QString fileName;
@@ -92,14 +93,21 @@ namespace qutim_sdk_0_3
 	
 	Q_GLOBAL_STATIC(ConfigSourceHash, sourceHash)
 	
-	ConfigSource::Ptr ConfigSource::open(const QString &path)
+	ConfigSource::Ptr ConfigSource::open(const QString &path, bool systemDir, bool create)
 	{
 		QString fileName = path;
 		if (fileName.isEmpty())
 			fileName = QLatin1String("profile");
 		QFileInfo info(fileName);
-		if (!info.isAbsolute())
-			fileName = SystemInfo::getDir(SystemInfo::ConfigDir).filePath(fileName);
+		if (!info.isAbsolute()) {
+			SystemInfo::DirType type = systemDir
+									   ? SystemInfo::SystemConfigDir
+										   : SystemInfo::ConfigDir;
+			fileName = SystemInfo::getDir(type).filePath(fileName);
+		} else if (systemDir) {
+			// We need to open absolute dir only once
+			return ConfigSource::Ptr();
+		}
 		fileName = QDir::cleanPath(fileName);
 		
 		ConfigSource::Ptr result = sourceHash()->value(path);
@@ -137,15 +145,22 @@ namespace qutim_sdk_0_3
 			info.setFile(fileName);
 		}
 		
+		if (!info.exists() && !create)
+			return result;
+		
+		QDir dir = info.absoluteDir();
+		if (!dir.exists()) {
+			if (!create)
+				return result;
+			dir.mkpath(info.absolutePath());
+		}
+		
 		result = new ConfigSource;
 		ConfigSource *d = result.data();
 		d->backend = backend;
 		d->fileName = fileName;
 		d->data.readOnly = !info.isWritable();
 		
-		QDir dir = info.absoluteDir();
-		if (!dir.exists())
-			dir.mkpath(info.absolutePath());
 		QVariant var = d->backend->load(d->fileName);
 		if (var.type() == QVariant::Map) {
 			d->data.map = new QVariantMap(var.toMap());
@@ -153,6 +168,11 @@ namespace qutim_sdk_0_3
 			d->data.typeMap = false;
 			d->data.list = new QVariantList(var.toList());
 		} else {
+			if (!create) {
+				d->data.map = 0;
+				// result will be cleared automatically
+				return ConfigSource::Ptr();
+			}
 			d->data.map = new QVariantMap();
 		}
 		sourceHash()->insert(path, result);
@@ -167,7 +187,7 @@ namespace qutim_sdk_0_3
 		inline ~ConfigPrivate() { if (!memoryGuard) sync(); }
 		inline ConfigLevel *current() const { return levels.at(0); }
 		void sync();
-		void addSource(const QString &path);
+		void init(const QStringList &paths);
 		QList<ConfigLevel *> levels;
 		QList<ConfigSource::Ptr> sources;
 		QExplicitlySharedDataPointer<ConfigPrivate> memoryGuard;
@@ -188,16 +208,27 @@ namespace qutim_sdk_0_3
 		}
 	}
 	
-	void ConfigPrivate::addSource(const QString &path)
+	void ConfigPrivate::init(const QStringList &paths)
 	{
-		ConfigSource::Ptr source = ConfigSource::open(path);
-		if (!source)
-			return;
-		ConfigAtom *atom = new ConfigAtom(source->data);
-		atom->deleteOnDestroy = false;
-		atom->readOnly = atom->readOnly && !sources.isEmpty();
-		sources << source;
-		current()->atoms << atom;
+		QSet<QString> opened;
+		ConfigSource::Ptr source;
+		for (int j = 0; j < 2; j++) {
+			for (int i = 0; i < paths.size(); i++) {
+				// Firstly we should open user-specific configs
+				source = ConfigSource::open(paths.at(i), j == 1, sources.isEmpty());
+				if (source && !opened.contains(source->fileName)) {
+					opened.insert(source->fileName);
+					sources << source;
+				}
+			}
+		}
+		for (int i = 0; i < sources.size(); i++) {
+			source = sources.at(i);
+			ConfigAtom *atom = new ConfigAtom(source->data);
+			atom->deleteOnDestroy = false;
+			atom->readOnly = atom->readOnly || i > 0;
+			current()->atoms << atom;
+		}
 	}
 
 	Config::Config(const QVariantList &list) : d_ptr(new ConfigPrivate)
@@ -242,14 +273,13 @@ namespace qutim_sdk_0_3
 	Config::Config(const QString &path) : d_ptr(new ConfigPrivate)
 	{
 		Q_D(Config);
-		d->addSource(path);
+		d->init(QStringList() << path);
 	}
 	
 	Config::Config(const QStringList &paths) : d_ptr(new ConfigPrivate)
 	{
 		Q_D(Config);
-		for (int i = 0; i < paths.size(); i++)
-			d->addSource(paths.at(i));
+		d->init(paths);
 	}
 	
 	Config::Config(const Config &other) : d_ptr(other.d_ptr)
