@@ -59,27 +59,27 @@ void ProxyContact::setInList(bool inList)
 
 QString ProxyContact::id() const
 {
-	return m_conf->id();
+	return m_conf ? m_conf->id() : QString();
 }
 
 QString ProxyContact::title() const
 {
-	return m_conf->title();
+	return m_conf ? m_conf->title() : QString();
 }
 
 QString ProxyContact::name() const
 {
-	return m_conf->title();
+	return m_conf ? m_conf->title() : QString();
 }
 
 Status ProxyContact::status() const
 {
-	return m_status;
+	return m_conf ? m_status : Status();
 }
 
 bool ProxyContact::sendMessage(const Message &message)
 {
-	return m_conf->sendMessage(message);
+	return m_conf ? m_conf->sendMessage(message) : false;
 }
 
 void ProxyContact::onJoined()
@@ -120,7 +120,7 @@ void ProxyContact::updateStatus()
 
 bool ProxyContact::event(QEvent *ev)
 {
-	if (ev->type() == ToolTipEvent::eventType())
+	if (m_conf && ev->type() == ToolTipEvent::eventType())
 		return qApp->sendEvent(m_conf, ev);
 	return Contact::event(ev);
 }

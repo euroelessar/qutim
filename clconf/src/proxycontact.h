@@ -47,7 +47,7 @@ protected:
 private:
 	void updateStatus();
 	Status m_status;
-	Conference *m_conf;
+	QPointer<Conference> m_conf;
 	bool m_conn;
 	quint16 m_realUnitRequestEvent;
 };
