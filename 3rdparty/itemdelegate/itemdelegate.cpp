@@ -194,6 +194,7 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 
 	QRect rect = option.rect;
 	//hack for null width with tree view
+	//TODO need rewrite
 	if (!rect.isValid() && m_tree_view) {
 		rect.setWidth(m_tree_view->viewport()->size().width() - m_tree_view->indentation());
 		//mega hack for intendation
@@ -333,25 +334,8 @@ void ItemDelegate::drawFocus(QPainter *painter,
 
 		style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, widget);
 	}
-	else {
-#ifdef Q_OS_SYMBIAN
-		if ((option.state & QStyle::State_HasFocus) == 0 || !rect.isValid())
-			return;
-		QStyleOptionFocusRect o;
-		o.QStyleOption::operator=(option);
-		o.rect = option.rect;
-		o.state |= QStyle::State_KeyboardFocusChange;
-		o.state |= QStyle::State_Item;
-		QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled)
-								  ? QPalette::Normal : QPalette::Disabled;
-		o.backgroundColor = option.palette.color(cg, (option.state & QStyle::State_Selected)
-												 ? QPalette::Highlight : QPalette::Window);
-		style->drawPrimitive(QStyle::PE_FrameFocusRect, &o, painter, widget);
-
-#else
+	else
 		style->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, painter, widget);
-#endif
-	}
 }
 
 QRect ItemDelegate::drawCheck(QPainter *painter,

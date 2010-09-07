@@ -107,12 +107,13 @@ file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/qutim" )
 file( GLOB_RECURSE QUTIM_INCLUDE_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*.h" )
 foreach( header ${QUTIM_INCLUDE_HEADERS} )
     if( NOT ${header} MATCHES ".*_p\\.h" )
-	if( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
-	    file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}"
-	"#include \"${CMAKE_CURRENT_SOURCE_DIR}/${header}\"
-"
-	    )
-	endif( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
+		if( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
+			file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}"
+		"#include \"${CMAKE_CURRENT_SOURCE_DIR}/${header}\"
+	"
+			)
+		endif( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/qutim/${header}" )
+	LIST(APPEND QUTIM_INSTALL_HEADERS ${header})
     endif( NOT ${header} MATCHES ".*_p\\.h" )
 endforeach( header )
 set( QUTIM_LIBRARIES libqutim CACHE INTERNAL "" )
@@ -137,21 +138,13 @@ ENDIF()
 # Link with QT
 TARGET_LINK_LIBRARIES( libqutim ${QT_LIBRARIES} ${EXTRA_LIBS})
 
-#make headers
-foreach( header ${QUTIM_INCLUDE_HEADERS} )
-	if( NOT ${header} MATCHES ".*_p\\.h" )
-		LIST(APPEND ${INS_HEADERS} ${header})
-	endif( NOT ${header} MATCHES ".*_p\\.h" )
-endforeach( header )
-
-
 install( TARGETS libqutim 
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib 
 )
 
-INSTALL(FILES ${INS_HEADERS} DESTINATION include/qutim)
+INSTALL(FILES ${QUTIM_INSTALL_HEADERS} DESTINATION include/qutim)
 
 if(DOXYGEN_FOUND)
     set(DOC_TARGET "doc")
