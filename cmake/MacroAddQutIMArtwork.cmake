@@ -22,6 +22,6 @@ macro(QUTIM_ADD_ARTWORK art)
 	MESSAGE(STATUS "Added artwork: ${art} to ${QUTIM_SHARE_DIR}")
 	INSTALL(DIRECTORY ${art}
 		DESTINATION ${QUTIM_SHARE_DIR}
-			COMPONENT Artwork
+		COMPONENT Artwork
 	)
 endmacro()
