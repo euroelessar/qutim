@@ -81,7 +81,7 @@ MACRO(QUTIM_PARSE_ARGUMENTS prefix arg_names option_names)
   SET(${prefix}_${current_arg_name} ${current_arg_list})
 ENDMACRO(QUTIM_PARSE_ARGUMENTS)
 
-MACRO (QUTIM_ADD_OPT opt desc text def)
+MACRO (QUTIM_ADD_OPTION opt desc text def)
 	OPTION (${opt} ${desc} ${def})
 	IF (${opt})
 		MESSAGE(STATUS ${text})

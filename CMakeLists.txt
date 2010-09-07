@@ -111,12 +111,12 @@ foreach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
     add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )
 endforeach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
 
-QUTIM_ADD_OPT(QUTIM_MOBILE_UI
+QUTIM_ADD_OPTION(QUTIM_MOBILE_UI
 	"User interface for mobile devices like Nokia 5800"
 	"qutIM will be compiled with mobile ui"
 	OFF
 )
-QUTIM_ADD_OPT(QUTIM_SINGLE_PROFILE
+QUTIM_ADD_OPTION(QUTIM_SINGLE_PROFILE
 	"Single profil by default" 
 	"qutIM will be compiled without multiply profiles by default"
 	ON
@@ -163,8 +163,13 @@ FILE (GLOB DEV_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/libqutim/*.h")
 FILE (GLOB DEV_HEADERS_EXCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/libqutim/*_p.h")
 LIST (REMOVE_ITEM DEV_HEADERS ${DEV_HEADERS_EXCLUDE}) 
 
-INSTALL (FILES ${CMAKE_MODULES} DESTINATION share/cmake/Modules)
-INSTALL (TARGETS qutim RUNTIME DESTINATION bin)
+INSTALL(FILES ${CMAKE_MODULES} DESTINATION share/cmake/Modules)
+INSTALL(TARGETS qutim RUNTIME DESTINATION bin)
 
 QUTIM_ADD_ARTWORK_DIR(share/qutim)
 
+IF(NOT WIN32)
+	INSTALL(DIRECTORY share/applications DESTINATION share)
+	INSTALL(DIRECTORY share/icons DESTINATION share)
+	INSTALL(DIRECTORY share/pixmaps DESTINATION share)
+ENDIF()

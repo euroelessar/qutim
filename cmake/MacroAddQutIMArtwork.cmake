@@ -1,0 +1,22 @@
+#qutIM artwork install helper
+
+macro(QUTIM_ADD_ARTWORK_DIR art_dir)
+	FILE(GLOB ARTWORKS ${art_dir} "${art_dir}/*")
+	FOREACH(ART ${ARTWORKS})
+ 		IF(IS_DIRECTORY ${ART} AND NOT "${CMAKE_CURRENT_SOURCE_DIR}/${art_dir}" STREQUAL ${ART})
+			QUTIM_ADD_ARTWORK(${ART})
+ 		ENDIF()
+	ENDFOREACH()
+endmacro()
+
+IF(WIN32)
+	SET(QUTIM_SHARE_DIR_DEF share)
+ELSE()
+	SET(QUTIM_SHARE_DIR_DEF share/apps/qutim)
+ENDIF()
+SET(QUTIM_SHARE_DIR "${QUTIM_SHARE_DIR_DEF}" CACHE DESCRIPTION "qutIM share dir")
+
+macro(QUTIM_ADD_ARTWORK art)
+	MESSAGE(STATUS "Added artwork: ${art} to ${QUTIM_SHARE_DIR}")
+	INSTALL(DIRECTORY ${art} DESTINATION ${QUTIM_SHARE_DIR})
+endmacro()
