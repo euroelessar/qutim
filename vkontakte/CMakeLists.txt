@@ -8,6 +8,7 @@ qutim_add_plugin( vkontakte
 	COMPILE_FLAGS "-DLIBVKONTAKTE_LIBRARY"
 	DISPLAY_NAME "VKontakte"
 	DESCRIPTION "Simple implementation of vkontakte"
+	GROUP "Protocols"
 )
 
 FILE( GLOB PLUGINS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/plugins" "${CMAKE_CURRENT_SOURCE_DIR}/plugins/*" )

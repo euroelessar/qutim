@@ -29,4 +29,5 @@ qutim_add_plugin( quetzal
 	DISPLAY_NAME "Quetzal"
 	DESCRIPTION "'Quetzal' is set of protocols, powered by libpurple"
 	LINK_LIBRARIES "${PURPLE_LIBRARIES}"
+	GROUP "Protocols"
 )
