@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <qutim/plugin.h>
+#include <qutim/settingslayer.h>
 
 namespace qutim_sdk_0_3
 {
@@ -14,12 +15,12 @@ namespace ConnectionManager
 {
 	using namespace qutim_sdk_0_3;
 
+	class ManagerSettings;
 	class ConnectionManager : public Plugin
 	{
 		Q_OBJECT
 		Q_CLASSINFO("DebugName", "ConnectionManager")
 	public:
-		ConnectionManager();
 		virtual ~ConnectionManager();
 		virtual void init();
 		virtual bool load();
@@ -28,7 +29,8 @@ namespace ConnectionManager
 		void onOnlineStateChanged( bool isOnline );
 		void onAccountCreated(qutim_sdk_0_3::Account *account); //autoconnect on startup
 	private:
-		QScopedPointer<QNetworkConfigurationManager> m_network_conf_manager;
+		QPointer<QNetworkConfigurationManager> m_network_conf_manager;
+		GeneralSettingsItem<ManagerSettings> *m_item;
 	};
 
 }

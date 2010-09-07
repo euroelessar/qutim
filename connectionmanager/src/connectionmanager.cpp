@@ -3,7 +3,6 @@
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 #include <qutim/debug.h>
-#include <qutim/settingslayer.h>
 #include "managersettings.h"
 #include <qutim/icon.h>
 
@@ -28,11 +27,6 @@ void changeState(Account *account, bool isOnline)
 	}
 }
 
-ConnectionManager::ConnectionManager() :
-	m_network_conf_manager(new QNetworkConfigurationManager(this))
-{
-}
-
 ConnectionManager::~ConnectionManager()
 {
 
@@ -48,12 +42,13 @@ void ConnectionManager::init()
 			  QT_TRANSLATE_NOOP("Task","Author"),
 			  QLatin1String("sauron@citadelspb.com"),
 			  QLatin1String("sauron.me"));
-
-	connect(m_network_conf_manager.data(),SIGNAL(onlineStateChanged(bool)),SLOT(onOnlineStateChanged(bool)));
 }
 
 bool ConnectionManager::load()
 {
+	m_network_conf_manager = new QNetworkConfigurationManager(this);
+	connect(m_network_conf_manager.data(),SIGNAL(onlineStateChanged(bool)),SLOT(onOnlineStateChanged(bool)));
+
 	foreach (Protocol *protocol,allProtocols()) {
 		connect(protocol,
 				SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
@@ -63,14 +58,16 @@ bool ConnectionManager::load()
 		}
 	}
 
-	GeneralSettingsItem<ManagerSettings> *item = new GeneralSettingsItem<ManagerSettings>(Settings::Plugin, Icon("network-wireless"), QT_TRANSLATE_NOOP("Settings","Connection manager"));
-	Settings::registerItem(item);
+	m_item = new GeneralSettingsItem<ManagerSettings>(Settings::Plugin, Icon("network-wireless"), QT_TRANSLATE_NOOP("Settings","Connection manager"));
+	Settings::registerItem(m_item);
 
 	return true;
 }
 
 bool ConnectionManager::unload()
 {
+	m_network_conf_manager->deleteLater();
+	Settings::removeItem(m_item);
 	return false;
 }
 

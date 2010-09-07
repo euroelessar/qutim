@@ -12,4 +12,4 @@ qutim_add_plugin( qmlpopups
 	LINK_LIBRARIES ${QT_QTDECLARATIVE_LIBRARY}
 )
 
-INSTALL( DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/qmlpopups" DESTINATION share/qutim)
+QUTIM_ADD_ARTWORK(qmlpopups)
