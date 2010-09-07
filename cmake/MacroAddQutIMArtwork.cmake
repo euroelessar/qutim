@@ -11,6 +11,8 @@ endmacro()
 
 IF(WIN32)
 	SET(QUTIM_SHARE_DIR_DEF share)
+ELSEIF(APPLE)
+	SET(QUTIM_SHARE_DIR_DEF Resources/share)
 ELSE()
 	SET(QUTIM_SHARE_DIR_DEF share/apps/qutim)
 ENDIF()
@@ -20,7 +22,6 @@ macro(QUTIM_ADD_ARTWORK art)
 	MESSAGE(STATUS "Added artwork: ${art} to ${QUTIM_SHARE_DIR}")
 	INSTALL(DIRECTORY ${art}
 		DESTINATION ${QUTIM_SHARE_DIR}
-		COMPONENT
-			Artwork
+			COMPONENT Artwork
 	)
 endmacro()
