@@ -92,10 +92,10 @@ qint64 YandexNarodBuffer::writeData(const char *data, qint64 len)
 	return -1;
 }
 
-YandexNarodUploadDialog::YandexNarodUploadDialog(QNetworkAccessManager *networkManager,
-												 YandexNarodAuthorizator *authorizator,
-												 qutim_sdk_0_3::Contact *contact) :
-m_networkManager(networkManager), m_authorizator(authorizator)
+YandexNarodUploadDialog::YandexNarodUploadDialog(
+		QNetworkAccessManager *networkManager, YandexNarodAuthorizator *authorizator,
+		qutim_sdk_0_3::ChatUnit *contact)
+			: m_contact(contact), m_networkManager(networkManager), m_authorizator(authorizator)
 {
 	ui.setupUi(this);
 	connect(ui.btnUploadCancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
@@ -318,6 +318,7 @@ void YandexNarodUploadDialog::progressReply()
 		ui.labelStatus->setText(tr("Upload complete."));
 		ui.btnUploadCancel->setText(tr("Finish"));
 		QVariantMap varMap = map.value("files").toList().value(0).toMap();
+		qDebug() << "done" << m_contact << varMap;
 		if (!varMap.isEmpty() && m_contact) {
 			QString url(QLatin1String("http://narod.ru/disk/"));
 			url += varMap.value("hash").toString();
