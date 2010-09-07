@@ -146,6 +146,13 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
 		GROUP ${QUTIM_${plugin_name}_GROUP}
 	)
 
+	cpack_add_component( "${plugin_name}Devel"
+		DISPLAY_NAME ${QUTIM_${plugin_name}_DISPLAY_NAME}
+		DESCRIPTION "${plugin_name} development files"}
+		DEPENDS ${QUTIM_${plugin_name}_DEPENDS}
+		GROUP "${QUTIM_${plugin_name}_GROUP}Devel"
+	)
+
     if( "${QUTIM_BASE_LIBRARY_TYPE}" STREQUAL "STATIC" )
 	set( QUTIM_${plugin_name}_STATIC TRUE )
     endif( "${QUTIM_BASE_LIBRARY_TYPE}" STREQUAL "STATIC" )
@@ -246,8 +253,11 @@ Q_IMPORT_PLUGIN(${plugin_name})
 	
     install( TARGETS ${plugin_name} 
 		RUNTIME DESTINATION bin/plugins
+			COMPONENT ${plugin_name}
 		LIBRARY DESTINATION lib/qutim/plugins
-		ARCHIVE DESTINATION lib		
+			COMPONENT ${plugin_name}
+		#ARCHIVE DESTINATION lib
+			#COMPONENT "${plugin_name}Devel"
 	)
 	
 	if ( QUTIM_COPY_PLUGINS_TO_BINARY_DIR AND QUTIM_BINARY_DIR AND NOT QUTIM_${plugin_name}_STATIC )
