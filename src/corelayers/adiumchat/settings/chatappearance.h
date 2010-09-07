@@ -52,7 +52,7 @@ namespace Core
 		QString m_current_style_name;
 		QString m_current_variant;
 		QList<ChatVariable *> m_current_variables;
-		QWebPage *m_page;
+		QPointer<QWebPage> m_page;
 		ChatSessionImpl *m_chat_session;
 		bool isLoad;
 		QWidget *settingsWidget;

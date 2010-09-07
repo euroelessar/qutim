@@ -597,7 +597,7 @@ namespace qutim_sdk_0_3
 		Q_D(const Config);
 		ConfigLevel *level = d->levels.at(0);
 		if (level->atoms.isEmpty())
-			return QVariant();
+			return def;
 		QString name = key;
 		int slashIndex = name.lastIndexOf('/');
 		if (slashIndex != -1) {

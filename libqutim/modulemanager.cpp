@@ -598,7 +598,7 @@ namespace qutim_sdk_0_3
 			for(; it2 != exts.end(); it2++) {
 				Plugin *plugin = p->extsPlugins.value(it2->name());
 				if (plugin)
-					if (!pluginsConfig.value(plugin->metaObject()->className(), true))
+					if (!pluginsConfig.value<bool>(plugin->metaObject()->className(), true))
 						continue;
 
 				const ObjectGenerator *gen = it2->generator();
@@ -641,7 +641,7 @@ namespace qutim_sdk_0_3
 			group.sync();
 		}
 		qApp->setWindowIcon(Icon("qutim"));
-		
+
 		Config pluginsConfig;
 		pluginsConfig.beginGroup("plugins/list");
 		{
@@ -656,13 +656,13 @@ namespace qutim_sdk_0_3
 				it.value().generator()->generate<StartupModule>();
 			}
 		}
-		
+
 		foreach(Protocol *proto, allProtocols())
 			proto->loadAccounts();
-		
+
 		if (MetaContactManager *manager = MetaContactManager::instance())
 			manager->loadContacts();
-		
+
 		for (int i = 0; i < p->plugins.size(); i++) {
 			Plugin *plugin = p->plugins.at(i);
 			if (plugin && pluginsConfig.value(plugin->metaObject()->className(), true)) {
