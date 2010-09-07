@@ -45,7 +45,7 @@ void YandexNarodPlugin::init()
 
 bool YandexNarodPlugin::load()
 {
-	MenuController::addAction<Contact>(
+	MenuController::addAction<ChatUnit>(
 			new ActionGenerator(QIcon(),
 								QT_TRANSLATE_NOOP("Yandex", "Send file via Yandex.Narod"),
 								this, SLOT(onActionClicked(QObject*))));
@@ -120,7 +120,7 @@ void YandexNarodPlugin::saveCookies()
 
 void YandexNarodPlugin::onActionClicked(QObject *obj)
 {
-	Contact *contact = qobject_cast<Contact *>(obj);
+	ChatUnit *contact = qobject_cast<ChatUnit *>(obj);
 	Q_ASSERT(contact);
 
 	new YandexNarodUploadDialog(m_networkManager, m_authorizator, contact);

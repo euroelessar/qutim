@@ -52,10 +52,10 @@ class YandexNarodUploadDialog : public QDialog
 public:
 	YandexNarodUploadDialog(QNetworkAccessManager *networkManager,
 							YandexNarodAuthorizator *authorizator,
-							qutim_sdk_0_3::Contact *contact = 0);
+							qutim_sdk_0_3::ChatUnit *contact = 0);
 	~YandexNarodUploadDialog();
 
-	qutim_sdk_0_3::Contact *contact() { return m_contact; }
+	qutim_sdk_0_3::ChatUnit *contact() { return m_contact; }
 
 	void start();
 
@@ -63,7 +63,7 @@ private:
 	bool processReply(QNetworkReply *reply);
 
 	QString m_filePath;
-	QPointer<qutim_sdk_0_3::Contact> m_contact;
+	QPointer<qutim_sdk_0_3::ChatUnit> m_contact;
 	QNetworkAccessManager *m_networkManager;
 	YandexNarodAuthorizator *m_authorizator;
 	QNetworkRequest m_request;
