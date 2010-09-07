@@ -46,7 +46,7 @@ else( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
 	
 endif( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
 
-include( CPack )
+#include( CPack )
 INCLUDE(MacroAddQutIMArtwork)
 
 # Argument-parsing macro from http://www.cmake.org/Wiki/CMakeMacroParseArguments
@@ -138,14 +138,14 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
     if( NOT QUTIM_${plugin_name}_GROUP )
 	set( QUTIM_${plugin_name}_GROUP Plugin )
     endif( NOT QUTIM_${plugin_name}_GROUP )
-    
-    cpack_add_component( ${plugin_name}
-	DISPLAY_NAME ${QUTIM_${plugin_name}_DISPLAY_NAME}
-	DESCRIPTION ${QUTIM_${plugin_name}_DESCRIPTION}
-	DEPENDS ${QUTIM_${plugin_name}_DEPENDS}
-	GROUP ${QUTIM_${plugin_name}_GROUP}
-    )
-    
+
+	cpack_add_component( ${plugin_name}
+		DISPLAY_NAME ${QUTIM_${plugin_name}_DISPLAY_NAME}
+		DESCRIPTION ${QUTIM_${plugin_name}_DESCRIPTION}
+		DEPENDS ${QUTIM_${plugin_name}_DEPENDS}
+		GROUP ${QUTIM_${plugin_name}_GROUP}
+	)
+
     if( "${QUTIM_BASE_LIBRARY_TYPE}" STREQUAL "STATIC" )
 	set( QUTIM_${plugin_name}_STATIC TRUE )
     endif( "${QUTIM_BASE_LIBRARY_TYPE}" STREQUAL "STATIC" )
@@ -247,7 +247,7 @@ Q_IMPORT_PLUGIN(${plugin_name})
     install( TARGETS ${plugin_name} 
 		RUNTIME DESTINATION bin/plugins
 		LIBRARY DESTINATION lib/qutim/plugins
-		ARCHIVE DESTINATION lib 
+		ARCHIVE DESTINATION lib		
 	)
 	
 	if ( QUTIM_COPY_PLUGINS_TO_BINARY_DIR AND QUTIM_BINARY_DIR AND NOT QUTIM_${plugin_name}_STATIC )
