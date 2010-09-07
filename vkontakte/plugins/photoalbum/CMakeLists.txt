@@ -14,4 +14,4 @@ qutim_add_plugin( vphotoalbum
 	LINK_LIBRARIES vkontakte ${QT_QTDECLARATIVE_LIBRARY} ${QT_QTOPENGL_LIBRARY}
 )
 
-INSTALL( DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/vphotoalbum" DESTINATION share/qutim)
+QUTIM_ADD_ARTWORK(vphotoalbum)
