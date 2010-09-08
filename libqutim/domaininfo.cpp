@@ -29,15 +29,15 @@ namespace qutim_sdk_0_3
 		DomainInfo *q_ptr;
 		
 		static DomainInfoPrivate *get(DomainInfo *info) { return info->d_func(); }
-		void resultsReady() { q_func()->resultReady(); }
+		void resultsReady() { emit q_func()->resultReady(); }
 	};
 	
 	DomainInfoHelper::DomainInfoHelper()
 	{
 		QJDns *qjdns = qJDns();
 		qjdns->init(QJDns::Unicast, QHostAddress::Any);
-		connect(qjdns, SIGNAL(resultsReady(int,QJDns::Response)), this, SLOT(resultsReady(int,QJDns::Response)));
-		connect(qjdns, SIGNAL(error(int,QJDns::Error)), this, SLOT(error(int,QJDns::Error)));
+		connect(qjdns, SIGNAL(resultsReady(int,QJDns::Response)), this, SLOT(onResultsReady(int,QJDns::Response)));
+		connect(qjdns, SIGNAL(error(int,QJDns::Error)), this, SLOT(onError(int,QJDns::Error)));
 
 		QJDns::SystemInfo info = QJDns::systemInfo();
 		qjdns->setNameServers( info.nameServers );		
@@ -50,10 +50,11 @@ namespace qutim_sdk_0_3
 	void DomainInfoHelper::lookup(const QString &service, const QString &proto,
 								  const QString &domain, DomainInfo *handler)
 	{
-		QByteArray request = service.toUtf8();
-		request += '.';
+		QByteArray request = "_";
+		request += service.toUtf8();
+		request += "._";
 		request += proto.toUtf8();
-		request += '.';
+		request += ".";
 		request += domain.toUtf8();
 		int id = qJDns()->queryStart(request, QJDns::Srv);
 		m_handlers.insert(id, handler);
@@ -69,6 +70,9 @@ namespace qutim_sdk_0_3
 		DomainInfo::Record infoRecord;
 		foreach (const QJDns::Record &record, results.answerRecords) {
 			infoRecord.name = QString::fromUtf8(record.name);
+			//Remove root dot
+			if (infoRecord.name.endsWith('.'))
+				infoRecord.name.chop(1);
 			infoRecord.port = record.port;
 			infoRecord.weight = record.weight;
 			p->result.append(infoRecord);
@@ -81,7 +85,7 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(error);
 		DomainInfo *handler = m_handlers.take(id);
 		if (handler)
-			DomainInfoPrivate::get(handler)->resultsReady();
+			emit DomainInfoPrivate::get(handler)->resultsReady();
 	}
 	
 	DomainInfo::DomainInfo(QObject *parent) : QObject(parent), d_ptr(new DomainInfoPrivate(this))

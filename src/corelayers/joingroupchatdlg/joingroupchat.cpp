@@ -151,10 +151,12 @@ namespace Core
 			list_item = createItem(name,fields);
 			list_item->setIcon(Icon(recent ? "view-history" : "bookmarks"));
 			list_item->setData(Qt::UserRole,ButtonTypeBookmark);
+			list_item->setData(Qt::UserRole+1,recent);
 
 			int index = ui->bookmarksBox->count();
 			ui->bookmarksBox->addItem(Icon(recent ? "view-history" : "bookmarks"),name,fields);
 			ui->bookmarksBox->setItemData(index,fields,DescriptionRole);
+			ui->bookmarksBox->setItemData(index,recent,Qt::UserRole+1);
 			if (recent && ((it - items.constBegin()) >= m_max_recent_count))
 				return;
 		}
@@ -165,6 +167,11 @@ namespace Core
 		Account *account = ui->accountBox->itemData(index).value<Account*>();
 		if (!account)
 			return;
+		fillBookmarks(account);
+	}
+
+	void JoinGroupChat::fillBookmarks(Account *account)
+	{
 		ui->listWidget->clear();
 
 		QListWidgetItem *item = createItem(QT_TRANSLATE_NOOP("JoinGroupChat", "Join"),
@@ -177,11 +184,7 @@ namespace Core
 						  );
 		item->setData(Qt::UserRole,ButtonTypeEditBookmarks);
 		item->setIcon(Icon("bookmark-new-list"));
-		fillBookmarks(account);
-	}
 
-	void JoinGroupChat::fillBookmarks(Account *account)
-	{
 		ui->bookmarksBox->clear();
 		Event event ("groupchat-bookmark-list");
 		qApp->sendEvent(account,&event);
@@ -304,7 +307,7 @@ namespace Core
 			close();
 		} else if (ui->stackedWidget->currentIndex() == 2) {
 			int index = ui->bookmarksBox->currentIndex();
-			updateBookmark(ui->bookmarksBox->itemData(index,Qt::UserRole+1).toBool());
+			updateBookmark(!ui->bookmarksBox->itemData(index,Qt::UserRole+1).toBool());
 			fillBookmarks(account);
 		}
 	}
@@ -333,7 +336,7 @@ namespace Core
 		if (!account || ui->stackedWidget->currentIndex() != 2)
 			return;
 
-		if (!ui->bookmarksBox->itemData(index,Qt::UserRole+1).toBool())
+		if (ui->bookmarksBox->itemData(index,Qt::UserRole+1).toBool())
 			m_positive_action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Add"));
 		else
 			m_positive_action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Remove"));

@@ -23,7 +23,7 @@ namespace Core
 {
 	enum ItemRole
 	{
-		DescriptionRole = Qt::UserRole + 1,
+		DescriptionRole = Qt::UserRole + 31,
 		SeparatorRole,
 		TitleRole, //NOTE: in title and separator description and decoration roles will be ignored
 		ActionRole //TODO
