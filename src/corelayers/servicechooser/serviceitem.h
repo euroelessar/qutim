@@ -24,7 +24,7 @@ namespace Core
 	{
 	public:
 		enum ServiceItemRole {
-			ExclusiveRole = Qt::UserRole + 32,
+			ExclusiveRole = Qt::UserRole + 2,
 			ClassNameRole
 		};
 		ServiceItem(const QIcon &icon,const QString &text);

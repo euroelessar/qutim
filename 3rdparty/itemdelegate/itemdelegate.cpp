@@ -110,7 +110,7 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 			buttonOption.palette = option.palette;
 			style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
 			QRect rect = option.rect;
-			rect.adjust(m_padding,0,-m_padding,0);
+			rect.adjust(m_padding,0,0,0);
 			if (m_tree_view) {
 				QStyleOption branchOption;
 				static const int i = 9; // ### hardcoded in qcommonstyle.cpp
@@ -192,7 +192,10 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 	if (value.isValid())
 		return value.toSize();
 
-	QRect rect = option.rect;
+	const QWidget *widget = getWidget(option);
+	QRect rect = widget->geometry();
+	rect.adjust(m_padding,0,0,0);
+
 	//hack for null width with tree view
 	//TODO need rewrite
 	if (!rect.isValid() && m_tree_view) {
@@ -205,7 +208,7 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 		//    ^intendation
 		QModelIndex p = index.parent();
 		while (p.isValid()) {
-			rect.adjust(m_tree_view->indentation(),0,0,0);
+			rect.setWidth(rect.width()-m_tree_view->indentation());
 			p = p.parent();
 		}
 	}
@@ -213,18 +216,24 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 	QRect check = checkRect(index,option,rect);
 	if (check.isValid())
 		rect.adjust(check.width()+m_padding,0,0,0);
-	rect.adjust(2*m_padding + option.decorationSize.width(),m_padding,-m_padding,-m_padding);
+	rect.adjust(2*m_padding + option.decorationSize.width(),0,0,0);
 
 	QFontMetrics metrics = option.fontMetrics;
+	if (!isSeparator(index)) {
+		metrics = option.fontMetrics;
+		QFont font = option.font;
+		font.setBold(true);
+		metrics = QFontMetrics(font);
+	}
+
 	QRect bounding = metrics.boundingRect(rect, Qt::AlignTop | Qt::AlignLeft,
 									  index.data(Qt::DisplayRole).toString());
 	int height = bounding.height();
-	rect.setWidth(qMax(rect.width(),bounding.width()));
 
 	QString desc = description(index);
 	if (!isSeparator(index) && !desc.isEmpty() && !isTitle(index)) {
 		QFont desc_font = option.font;
-		desc_font.setPointSize(desc_font.pointSize() - 1);
+		desc_font.setPointSize(desc_font.pointSize()-1);
 		metrics = QFontMetrics(desc_font);
 
 		bounding = metrics.boundingRect(rect,
@@ -232,11 +241,10 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 									   desc
 									   );
 		height += bounding.height();
-		height += 1.5*m_padding;
-		rect.setWidth(qMax(rect.width(),bounding.width()));
+		height += 2.5*m_padding;
 	}
-	height += m_padding;
 	QSize size (rect.width(),qMax(option.decorationSize.height() + 2*m_padding,height));
+	debug() << rect << size;
 	return size;
 }
 
