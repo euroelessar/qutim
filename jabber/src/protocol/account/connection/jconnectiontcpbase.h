@@ -30,6 +30,8 @@ namespace Jabber
 		virtual void setProxy(QNetworkProxy &proxy);
 	public slots:
 		void read();
+	protected slots:
+		virtual void hostFound();
 	private:
 		void createSocket();
 		void deleteSocket();

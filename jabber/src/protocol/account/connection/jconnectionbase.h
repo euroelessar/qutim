@@ -28,6 +28,7 @@ namespace Jabber
 			virtual void connected();
 			virtual void disconnected();
 			virtual void hostFound();
+			void hostResolved();
 			virtual void error(QAbstractSocket::SocketError error);
 			virtual void stateChanged(QAbstractSocket::SocketState state);
 		protected:
