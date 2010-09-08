@@ -41,6 +41,7 @@
 #define MESSAGE_SOURCE_PAGER          2
 #endif //Q_WS_X11
 #include <qutim/actiontoolbar.h>
+#include <contactdelegate.h>
 
 namespace Core
 {
@@ -74,7 +75,7 @@ namespace Core
 			connect(tabBar,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 			connect(tabBar,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 			connect(tabBar,SIGNAL(customContextMenuRequested(QPoint)),SLOT(onTabContextMenu(QPoint)));
-			ui->contactsView->setItemDelegate(new ChatSessionItemDelegate(this));
+			ui->contactsView->setItemDelegate(new ContactDelegate(this));
 
 			ui->contactsView->installEventFilter(this);
 			ui->chatEdit->installEventFilter(this);

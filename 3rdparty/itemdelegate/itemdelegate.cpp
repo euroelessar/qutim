@@ -22,9 +22,8 @@
 #include <libqutim/localizedstring.h>
 #include <QTreeView>
 
-namespace Core
+namespace qutim_sdk_0_3
 {
-using namespace qutim_sdk_0_3;
 
 //small hack from Qt sources
 bool isSeparator(const QModelIndex &index) {
@@ -94,6 +93,7 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		title = index.data(Qt::DisplayRole).value<LocalizedString>();
 
 	if (isSeparator(index)) {
+		opt.features &= ~QStyleOptionViewItemV2::Alternate;
 		painter->drawText(option.rect, Qt::AlignCenter, title);
 	}
 	else if (isTitle(index)) {
@@ -244,7 +244,6 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 		height += 2.5*m_padding;
 	}
 	QSize size (rect.width(),qMax(option.decorationSize.height() + 2*m_padding,height));
-	debug() << rect << size;
 	return size;
 }
 
