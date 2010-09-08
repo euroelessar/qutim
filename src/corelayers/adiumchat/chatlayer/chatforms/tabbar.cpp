@@ -6,9 +6,9 @@ struct TabBarPrivate
 	bool closableActiveTab;
 };
 
-TabBar::TabBar(QWidget *parent) : QTabBar(parent), d_ptr(new TabBarPrivate())
+TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 {
-	d_func()->closableActiveTab = false;
+	p->closableActiveTab = false;
 	setMouseTracking(true);
  }
 
@@ -18,25 +18,25 @@ TabBar::~TabBar()
 
 void TabBar::setClosableActiveTab(bool state)
 {
-	d_func()->closableActiveTab = state;
+	p->closableActiveTab = state;
 	setTabsClosable(tabsClosable() | state);
 } 
 
 bool TabBar::closableActiveTab()
 {
-	return d_func()->closableActiveTab;
+	return p->closableActiveTab;
 }
 
 void TabBar::setTabsClosable(bool closable)
 {
-	d_func()->closableActiveTab = closable & d_func()->closableActiveTab;
+	p->closableActiveTab = closable & p->closableActiveTab;
 	QTabBar::setTabsClosable(closable);
 }
 
 void TabBar::mouseMoveEvent(QMouseEvent *event)
 {
 	int hoveredTab = -1;
-	if (d_func()->closableActiveTab)
+	if (p->closableActiveTab)
 		for (int tab = 0; tab < count(); tab++) {
 			QTabBar::ButtonPosition closeSide = (QTabBar::ButtonPosition)style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, 0, this);
 			if (QWidget *button = tabButton(tab, closeSide))
@@ -54,7 +54,7 @@ void TabBar::mouseMoveEvent(QMouseEvent *event)
 
 void TabBar::leaveEvent(QEvent *event)
 {
-	if (d_func()->closableActiveTab)
+	if (p->closableActiveTab)
 		for (int tab = 0; tab < count(); tab++) {
 			QTabBar::ButtonPosition closeSide = (QTabBar::ButtonPosition)style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, 0, this);
 			if (QWidget *button = tabButton(tab, closeSide))

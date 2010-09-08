@@ -396,7 +396,7 @@ namespace Core
 			}
 			QList<QUrl>::const_iterator it;
 			for (it=urls.constBegin();it!=urls.constEnd();it++) {
-				html.append("<br /><a href=\"%1\">%2</a>").arg(it->toEncoded(),it->toString());
+				html = html.append("<br /><a href=\"%1\">%2</a>").arg(it->toEncoded(),it->toString());
 			}
 		}
 

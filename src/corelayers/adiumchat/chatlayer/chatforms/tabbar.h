@@ -5,11 +5,10 @@
 #include <QMouseEvent>
 
 struct TabBarPrivate;
-
 class TabBar : public QTabBar
 {
 	Q_OBJECT
-	Q_DECLARE_PRIVATE(TabBar)
+	//Q_DECLARE_PRIVATE(TabBar)
 	public:
 		TabBar(QWidget *parent = 0);
 		~TabBar();
@@ -20,7 +19,7 @@ class TabBar : public QTabBar
 		void mouseMoveEvent(QMouseEvent *event);
 		void leaveEvent(QEvent *event);
 	private:
-		QScopedPointer<TabBarPrivate> d_ptr;
+		QScopedPointer<TabBarPrivate> p;
 };
 
 #endif //TABBAR_H

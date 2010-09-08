@@ -158,7 +158,7 @@ if(DOXYGEN_FOUND)
     configure_file(doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
     add_custom_target(${DOC_TARGET} ALL
         ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc DESTINATION share/qutim)
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc DESTINATION share/qutim COMPONENT CoreDevel)
     add_dependencies(libqutim ${DOC_TARGET})
 endif()
 
