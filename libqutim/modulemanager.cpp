@@ -137,21 +137,26 @@ namespace qutim_sdk_0_3
 		return p->services.keys();
 	}
 
+	GeneratorList moduleGenerators(const QMetaObject *module, const char *iid)
+	{
+		GeneratorList list;
+		if (!managerSelf || !p)
+			return list;
+		const ExtensionInfoList &extensions = p->extensions;
+		for(int i = 0; i < extensions.size(); i++) {
+			const ObjectGenerator *gen = extensions.at(i).generator();
+			if (module && gen->extends(module) || iid && gen->extends(iid))
+				list << gen;
+		}
+		return list;
+	}
+
 	/**
 	 * Returns list of ObjectGenerator's for extensions that match QMetaObject criterion
 	 */
 	GeneratorList moduleGenerators(const QMetaObject *module)
 	{
-		GeneratorList list;
-//		if(isCoreInited())
-		if (managerSelf && p)
-		{
-			QMultiMap<Plugin *, ExtensionInfo> exts = managerSelf->getExtensions(module);
-			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.constBegin();
-			for(; it != exts.constEnd(); it++)
-				list << it.value().generator();
-		}
-		return list;
+		return moduleGenerators(module, 0);
 	}
 
 	/**
@@ -159,16 +164,7 @@ namespace qutim_sdk_0_3
 	 */
 	GeneratorList moduleGenerators(const char *iid)
 	{
-		GeneratorList list;
-//		if(isCoreInited())
-		if (managerSelf && p)
-		{
-			QMultiMap<Plugin *, ExtensionInfo> exts = managerSelf->getExtensions(iid);
-			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.constBegin();
-			for(; it != exts.constEnd(); it++)
-				list << it.value().generator();
-		}
-		return list;
+		return moduleGenerators(0, iid);
 	}
 
 	/**
@@ -570,6 +566,7 @@ namespace qutim_sdk_0_3
 				configBackends << it.value().generator()->generate<ConfigBackend>();
 			}
 		}
+		QSet<QByteArray> usedExtensions;
 		{
 			Config pluginsConfig = Config().group("plugins/list");
 			const QHash<QByteArray, ExtensionInfo> &extsHash = p->extensionsHash;
@@ -591,6 +588,7 @@ namespace qutim_sdk_0_3
 						continue;
 					Protocol *protocol = info.generator()->generate<Protocol>();
 					p->protocols_hash->insert(protocol->id(), protocol);
+					usedExtensions << meta->className();
 				}
 			}
 			const ExtensionInfoList &exts = p->extensions;
@@ -610,6 +608,7 @@ namespace qutim_sdk_0_3
 					continue;
 				Protocol *protocol = gen->generate<Protocol>();
 				p->protocols_hash->insert(protocol->id(), protocol);
+				usedExtensions << meta->className();
 				selected.insert(protocol->id(), QString::fromLatin1(meta->className()));
 				changed = true;
 			}
@@ -619,6 +618,17 @@ namespace qutim_sdk_0_3
 			}
 		}
 		p->is_inited = true;
+		for (int i = 0; i < p->extensions.size(); i++) {
+			const QMetaObject *meta =p->extensions.at(i).generator()->metaObject();
+			for (int j = 0; j < meta->classInfoCount(); j++) {
+				QMetaClassInfo info = meta->classInfo(j);
+				if (!qstrcmp(info.name(), "DependsOn") && !usedExtensions.contains(info.value())) {
+					p->extensions.removeAt(i);
+					i--;
+					break;
+				}
+			}
+		}
 		{
 			ConfigGroup group = Config().group("services");
 			QVariantMap selected = group.value("list", QVariantMap());
@@ -640,6 +650,8 @@ namespace qutim_sdk_0_3
 			group.setValue("list", selected);
 			group.sync();
 		}
+		foreach (QObject *service, p->serviceOrder)
+			usedExtensions << service->metaObject()->className();
 		qApp->setWindowIcon(Icon("qutim"));
 
 		Config pluginsConfig;

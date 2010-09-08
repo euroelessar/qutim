@@ -556,7 +556,7 @@ namespace Core
 			QSet<ChatUnit*> chatUnits;
 			for (int i = 0; i < messages.size(); i++) {
 				ChatUnit *unit = const_cast<ChatUnit*>(messages.at(i).chatUnit());
-				if (chatUnits.contains(unit))
+				if (chatUnits.contains(unit) || !unit)
 					continue;
 				chatUnits.insert(unit);
 				Event event(p->realUnitRequestEvent);

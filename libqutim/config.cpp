@@ -159,7 +159,8 @@ namespace qutim_sdk_0_3
 		ConfigSource *d = result.data();
 		d->backend = backend;
 		d->fileName = fileName;
-		d->data.readOnly = !info.isWritable();
+		// QFileInfo says that we can't write to non-exist files but we can
+		d->data.readOnly = !info.isWritable() && (systemDir || info.exists());
 		
 		QVariant var = d->backend->load(d->fileName);
 		if (var.type() == QVariant::Map) {
@@ -405,7 +406,7 @@ namespace qutim_sdk_0_3
 				continue;
 			ConfigAtom *atom = new ConfigAtom;
 			atom->deleteOnDestroy = false;
-			atom->readOnly = current->readOnly || i > 0;
+			atom->readOnly = current->readOnly /*|| i > 0*/;
 			atom->map = current->map;
 			for (int j = 0; j < names.size(); j++) {
 				QVariant &var = (*(atom->map))[names.at(j)];
