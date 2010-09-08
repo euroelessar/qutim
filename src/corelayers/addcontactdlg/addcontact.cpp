@@ -25,8 +25,9 @@ namespace Core
 		return false;
 	}
 
-	struct AddContactPrivate
+	class AddContactPrivate
 	{
+	public:
 		QHash<QString, Account *> accounts;
 		QHash<QString, QToolButton *> buttons;
 		Account *account;

@@ -6,7 +6,7 @@
 
 namespace Core {
 	using namespace qutim_sdk_0_3;
-	struct AddContactPrivate;
+	class AddContactPrivate;
 
 	class AddContact : public QDialog
 	{

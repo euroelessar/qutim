@@ -9,7 +9,7 @@ class QIcon;
 namespace qutim_sdk_0_3
 {
 	class Status;
-	struct AvatarFilterPrivate;
+	class AvatarFilterPrivate;
 	class LIBQUTIM_EXPORT AvatarFilter
 	{
 		Q_DECLARE_PRIVATE(AvatarFilter)

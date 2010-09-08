@@ -7,8 +7,9 @@
 
 namespace qutim_sdk_0_3
 {
-	struct AvatarFilterPrivate
+	class AvatarFilterPrivate
 	{
+	public:
 		QSize defaultSize;
 		Qt::AspectRatioMode mode;
 	};
