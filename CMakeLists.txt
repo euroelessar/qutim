@@ -5,11 +5,6 @@ endif(COMMAND cmake_policy )
 project( meta-qutim )
 set(QT_MIN_VERSION "4.6.0")
 
-set(QUTIM_PATH ${CMAKE_CURRENT_SOURCE_DIR}/core/)
-
-INCLUDE(CPackOptions.cmake.in)
-INCLUDE(CPack)
-
 set( QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" CACHE FILEPATH "Path to qutim sources")
 set( QUTIM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
 set( QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")
@@ -22,33 +17,3 @@ add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/translations/" "${CMAKE_CURRENT_B
 
 # ADD_CUSTOM_TARGET(uninstall
 #   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-
-#small simple hack for install Qt dlls and plugins
-IF(WIN32)
-	SET(QUTIM_REQUIED_DLL_DIR "" CACHE PATH "Path to Qt dll's and plugins. Note: you must add them yourself")
-	FILE(GLOB dlls ${QUTIM_REQUIED_DLL_DIR}/*)
-	FOREACH(QUTIM_DLL ${dlls})
-		IF(IS_DIRECTORY ${QUTIM_DLL})
-			INSTALL(DIRECTORY ${QUTIM_DLL}
-				DESTINATION bin
-					COMPONENT Qt
-			)
-		ELSEIF(${QUTIM_DLL} MATCHES ".\\.dll")
-			INSTALL(FILES ${QUTIM_DLL}
-				DESTINATION bin
-					COMPONENT Qt
-			)
-		ENDIF()
-	ENDFOREACH()
-	LIST(APPEND CPACK_COMPONENTS_ALL Qt)
-	CPACK_ADD_COMPONENT(Qt
-		DISPLAY_NAME "Qt Libraries"
-		DESCRIPTION ""
-	)
-ENDIF(WIN32)
-
-#additional artwork sources
-SET(QUTIM_ADDITIONAL_ART_PATH "" CACHE PATH "Path to additional artwork")
-IF(NOT QUTIM_ADDITIONAL_ART_PATH STREQUAL "")
-	QUTIM_ADD_ARTWORK_DIR(${QUTIM_ADDITIONAL_ART_PATH})
-ENDIF()
