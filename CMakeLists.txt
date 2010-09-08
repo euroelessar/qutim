@@ -5,6 +5,8 @@ endif(COMMAND cmake_policy )
 project( meta-qutim )
 set(QT_MIN_VERSION "4.6.0")
 
+set(QUTIM_PATH ${CMAKE_CURRENT_SOURCE_DIR}/core/)
+
 INCLUDE(CPackOptions.cmake.in)
 INCLUDE(CPack)
 
