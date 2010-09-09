@@ -46,7 +46,7 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		sn.skipData(8); // cookie
 		QString uin = sn.read<QString, quint8>();
 		QString reason = sn.read<QString, qint16>();
-		IcqContact *contact = conn->account()->getContact(uin);
+		IcqContact *contact = conn->account()->getContact(uin, true);
 		if (contact) {
 			AuthorizationDialog *dialog = AuthorizationDialog::request(contact, reason);
 			connect(dialog, SIGNAL(finished(bool)), SLOT(sendAuthResponse(bool)));

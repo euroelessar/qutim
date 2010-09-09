@@ -38,8 +38,11 @@ QuetzalProtocol::~QuetzalProtocol()
 
 QList<Account *> QuetzalProtocol::accounts() const
 {
-	QList<QuetzalAccount *> accounts = m_accounts.values();
-	return *reinterpret_cast<QList<Account *> *>(&accounts);
+	QList<Account*> accounts;
+	QHash<QString, QuetzalAccount *>::const_iterator it = m_accounts.begin();
+	for (; it != m_accounts.constEnd(); it++)
+		accounts << it.value();
+	return accounts;
 }
 
 Account *QuetzalProtocol::account(const QString &id) const

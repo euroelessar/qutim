@@ -75,9 +75,13 @@ PrivacyActionGenerator::~PrivacyActionGenerator()
 QObject *PrivacyActionGenerator::generateHelper() const
 {
 	static QActionGroup group(0);
+	static QActionGroup invisibleGroup(0);
 	QAction *action = prepareAction(new QAction(NULL));
 	action->setCheckable(true);
-	group.addAction(action);
+	if (!m_invisibleMode)
+		group.addAction(action);
+	else
+		invisibleGroup.addAction(action);
 	return action;
 }
 
@@ -103,7 +107,7 @@ void PrivacyActionGenerator::showImpl(QAction *action, QObject *object)
 		action->setText(QT_TRANSLATE_NOOP("Privacy", "Visible only for contact list"));
 		break;
 	default:
-		// FIXME: What should be done here?
+		action->setText(QT_TRANSLATE_NOOP("Privacy", "Unknown privacy"));
 		return;
 	}
 	action->setProperty("visibility", m_visibility);

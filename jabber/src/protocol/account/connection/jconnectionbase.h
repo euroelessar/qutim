@@ -3,8 +3,7 @@
 
 #include <gloox/connectionbase.h>
 #include <gloox/connectiondatahandler.h>
-#include <gloox/dns.h>
-
+//#include <gloox/dns.h>
 #include <QtCore/QRegExp>
 #include <QtNetwork/QHostAddress>
 #include <QtNetwork/QNetworkProxy>
@@ -29,6 +28,7 @@ namespace Jabber
 			virtual void connected();
 			virtual void disconnected();
 			virtual void hostFound();
+			void hostResolved();
 			virtual void error(QAbstractSocket::SocketError error);
 			virtual void stateChanged(QAbstractSocket::SocketState state);
 		protected:
@@ -37,7 +37,6 @@ namespace Jabber
 			qint64 m_totalBytesOut;
 			ConnectionError m_connectionError;
 			bool m_useDns;
-			LogSink *m_logSink;
 		private:
 
 	};

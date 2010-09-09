@@ -1,15 +1,15 @@
 #include "jconnectionbase.h"
 #include <qutim/debug.h>
 #include <gloox/clientbase.h>
+#include <qutim/domaininfo.h>
 
 namespace Jabber
 {
-	Q_GLOBAL_STATIC(LogSink, emptyLogSync)
+	using namespace qutim_sdk_0_3;
 	
 	JConnectionBase::JConnectionBase(ConnectionDataHandler *cdh) : ConnectionBase(cdh)
 	{
 		m_proxy = 0;
-		m_logSink = cdh ? &static_cast<ClientBase*>(cdh)->logInstance() : 0;
 	}
 
 	JConnectionBase::~JConnectionBase()
@@ -35,21 +35,12 @@ namespace Jabber
 	void JConnectionBase::resolveHost()
 	{
 		if (m_useDns) { //FIX IT
-			DNS::HostMap hosts = DNS::resolve(m_server, *(m_logSink ? m_logSink : emptyLogSync()));
-			qutim_sdk_0_3::debug() << "server" << QString::fromStdString(m_server);
-			DNS::HostMap::iterator h = hosts.begin();
-			for (; h!=hosts.end(); h++) {				
-				QString host = QString::fromStdString(h->first);
-				qutim_sdk_0_3::debug() << "hosts" << host << h->second;
-				QString hostr = host;
-				hostr.remove(QRegExp("((\\w|-)+\\.)*(\\w|-)+"));
-				if (hostr.isEmpty() || !QHostAddress( host ).isNull()) {
-					m_server = host.toStdString();
-					m_port = h->second;
-					qutim_sdk_0_3::debug() << "resolved host" << host << h->second;
-					break;
-				}
-			}
+			DomainInfo *info = new DomainInfo(this);
+			QObject::connect(info,SIGNAL(resultReady()),SLOT(hostResolved()));
+			info->lookupSrvRecord(QLatin1String("xmpp-client"),
+								  QLatin1String("tcp"),
+								  QString::fromStdString(m_server));
+			qutim_sdk_0_3::debug() << "Looking srv records for:" << QString::fromStdString(m_server);
 		}
 	}
 
@@ -67,6 +58,28 @@ namespace Jabber
 
 	void JConnectionBase::hostFound()
 	{
+	}
+
+	void JConnectionBase::hostResolved()
+	{
+		DomainInfo *info = qobject_cast<DomainInfo*>(sender());
+		Q_ASSERT(info);
+		QList<DomainInfo::Record> records = info->resultRecords();
+		QList<DomainInfo::Record>::const_iterator it = records.constBegin();
+		for(;it!=records.constEnd();it++) {
+			QString host = it->name;
+			int port = it->port;
+			qutim_sdk_0_3::debug() << "hosts" << host << port;
+			QString hostr = host;
+			hostr.remove(QRegExp("((\\w|-)+\\.)*(\\w|-)+"));
+			if (hostr.isEmpty() || !QHostAddress( host ).isNull()) {
+				m_server = host.toStdString();
+				m_port = port;
+				qutim_sdk_0_3::debug() << "resolved host" << host << port;				
+				break;
+			}
+		}		
+		hostFound();
 	}
 
 	void JConnectionBase::error(QAbstractSocket::SocketError error)

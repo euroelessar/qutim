@@ -115,7 +115,11 @@ namespace Jabber
 
 	void JConnectionTCPBase::startConnection()
 	{
-		resolveHost();
+		resolveHost();		
+	}
+
+	void JConnectionTCPBase::hostFound()
+	{
 		p->socket->connectToHost(QString::fromStdString(m_server), m_port);
 	}
 

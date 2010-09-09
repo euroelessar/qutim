@@ -40,6 +40,7 @@ ADD_DEFINITIONS( -DGLOOX_IMPORTS )
 qutim_add_plugin( jabber
 	DISPLAY_NAME "Jabber protocol"
 	DESCRIPTION "Implementation of jabber protocol based on gloox library"
-	LINK_LIBRARIES "gloox"
+	GROUP "Protocols"
+	LINK_LIBRARIES gloox
 	INCLUDE_DIRS "${INCLUDE_DIRS}"
 )
