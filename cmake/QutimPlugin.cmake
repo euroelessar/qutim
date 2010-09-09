@@ -81,6 +81,8 @@ macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir libs_to_link )
     endif(MINGW)
 
     file( GLOB_RECURSE ${plugin_name}_SRC "${CMAKE_CURRENT_SOURCE_DIR}/${src_dir}/*.cpp" )
+	 file( GLOB_RECURSE ${plugin_name}_SRC_MM "${CMAKE_CURRENT_SOURCE_DIR}/${src_dir}/*.mm" )
+	 list( APPEND ${plugin_name}_SRC ${${plugin_name}_SRC_MM} )
     file( GLOB_RECURSE ${plugin_name}_HDR "${CMAKE_CURRENT_SOURCE_DIR}/${src_dir}/*.h" )
     file( GLOB_RECURSE ${plugin_name}_UI "${CMAKE_CURRENT_SOURCE_DIR}/${src_dir}/*.ui" )
     file( GLOB_RECURSE ${plugin_name}_RES "${CMAKE_CURRENT_SOURCE_DIR}/*.qrc" )	

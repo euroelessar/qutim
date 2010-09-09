@@ -475,7 +475,7 @@ quint32 dGlobalHotKey::nativeKeycode( Qt::Key k )
 	else
 		ch = k;
 
-	KeyboardLayoutRef layout;
+	/*KeyboardLayoutRef layout;
 	KeyboardLayoutKind layoutKind;
 	KLGetCurrentKeyboardLayout( &layout );
 	KLGetKeyboardLayoutProperty( layout, kKLKind, const_cast< const void ** >( reinterpret_cast< void ** >( &layoutKind ) ) );
@@ -538,7 +538,7 @@ quint32 dGlobalHotKey::nativeKeycode( Qt::Key k )
 						return k;
 			}
 		}
-	}
+	}*/
 
 	return 0;
 }
