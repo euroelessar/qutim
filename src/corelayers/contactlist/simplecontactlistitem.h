@@ -5,7 +5,6 @@
 #include <QSharedData>
 #include <QModelIndex>
 #include <QMetaType>
-#include <contactdelegate.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -14,6 +13,24 @@ namespace Core
 	namespace SimpleContactList
 	{
 		class ContactItem;
+
+		enum ContactItemType
+		{
+			InvalidType = 0,
+			TagType = 100,
+			ContactType = 101
+		};
+
+		enum ContactItemRole
+		{
+			BuddyRole = Qt::UserRole,
+			StatusRole,
+			ContactsCountRole,
+			OnlineContactsCountRole,
+			AvatarRole,
+			ItemTypeRole
+		};
+		Q_DECLARE_FLAGS(ContactItemRoles,ContactItemRole);
 
 		class TagItem
 		{
@@ -63,4 +80,5 @@ namespace Core
 	}
 }
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::SimpleContactList::ContactItemRoles);
 #endif // SIMPLECONTACTLISTITEM_H
