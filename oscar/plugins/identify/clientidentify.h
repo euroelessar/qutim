@@ -54,6 +54,7 @@ class ClientIdentify : public Plugin, public RosterPlugin
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::RosterPlugin)
 	Q_CLASSINFO("DebugName", "ICQ/Identify")
+	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
 public:
 	Q_DECLARE_FLAGS(CapabilityFlags, CapabilityFlag)
 	ClientIdentify();

@@ -202,6 +202,7 @@ class OftFileTransferFactory : public FileTransferFactory, public MessagePlugin
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::MessagePlugin)
+	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
 public:
 	explicit OftFileTransferFactory();
 	virtual void processMessage(IcqContact *contact, const Capability &guid,

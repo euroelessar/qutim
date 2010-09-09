@@ -51,7 +51,10 @@ void ClientIdentify::init()
 
 bool ClientIdentify::load()
 {
-	IcqProtocol::instance()->installEventFilter(this);
+	Protocol *proto = allProtocols().value("icq");
+	if (!proto || proto->metaObject() != &IcqProtocol::staticMetaObject)
+		return false;
+	proto->installEventFilter(this);
 	return true;
 }
 

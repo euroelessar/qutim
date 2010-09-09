@@ -17,11 +17,11 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#ifdef OSCAR_SSL_SUPPORT
+//#ifdef OSCAR_SSL_SUPPORT
 #include <QSslSocket>
-#else
-#include <QTcpSocket>
-#endif
+//#else
+//#include <QTcpSocket>
+//#endif
 #include <QMap>
 #include <QHostAddress>
 #include <qutim/libqutim_global.h>

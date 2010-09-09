@@ -208,6 +208,10 @@ void XStatusHandler::init()
 
 bool XStatusHandler::load()
 {
+	Protocol *proto = allProtocols().value("icq");
+	if (!proto || proto->metaObject() != &IcqProtocol::staticMetaObject)
+		return false;
+	
 	m_aboutToBeChanged = Event::registerType("icq-xstatus-about-to-be-changed");
 	m_changed = Event::registerType("icq-xstatus-changed");
 	m_change = Event::registerType("icq-change-xstatus");
@@ -239,7 +243,7 @@ bool XStatusHandler::load()
 		onAccountAdded(account);
 	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 			SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
-	IcqProtocol::instance()->installEventFilter(this);
+	proto->installEventFilter(this);
 	return true;
 }
 

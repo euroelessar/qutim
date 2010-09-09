@@ -178,6 +178,10 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	QObject(parent), d_ptr(new AbstractConnectionPrivate)
 {
 	Q_D(AbstractConnection);
+//	if (QSslSocket::supportsSsl())
+//		d->socket = new QSslSocket(this);
+//	else
+//		d->socket = new QTcpSocket(this);
 	d->socket = new Socket(this);
 #if OSCAR_SSL_SUPPORT
 	d->socket->setPeerVerifyMode(QSslSocket::VerifyNone); // TODO:

@@ -29,6 +29,7 @@ class MetaInfo: public QObject, public SNACHandler
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
+	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
 public:
 	MetaInfo();
 	static MetaInfo &instance() { Q_ASSERT(self); return *self; }

@@ -28,6 +28,7 @@ class MessagesHandler : public QObject, public SNACHandler
 {
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::SNACHandler)
+	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
 public:
 	MessagesHandler();
 	virtual ~MessagesHandler();

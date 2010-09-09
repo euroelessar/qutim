@@ -35,6 +35,7 @@ private:
 class OscarContactSearchFactory : public GeneralContactSearchFactory
 {
 	Q_OBJECT
+	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
 public:
 	OscarContactSearchFactory();
 	virtual ContactSearchRequest *request(const QString &name) const;

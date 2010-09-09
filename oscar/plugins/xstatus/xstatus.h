@@ -68,6 +68,7 @@ class XStatusHandler: public Plugin, public Tlv2711Plugin, public RosterPlugin
 	Q_OBJECT
 	Q_INTERFACES(qutim_sdk_0_3::oscar::Tlv2711Plugin qutim_sdk_0_3::oscar::RosterPlugin)
 	Q_CLASSINFO("DebugName", "ICQ/Xstatus")
+	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::oscar::IcqProtocol")
 public:
 	virtual void init();
 	virtual bool load();
