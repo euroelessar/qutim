@@ -5,6 +5,8 @@
 #include <QApplication>
 #include <QLabel>
 
+#import <AppKit/NSDockTile.h>
+
 extern void qt_mac_set_dock_menu(QMenu *);
 
 namespace MacIntegration
@@ -20,7 +22,14 @@ namespace MacIntegration
 		QIcon mailIcon;
 	};
 
-	MDock::MDock() : d_ptr(new MDockPrivate())
+	void MDock::setBadgeLabel(const QString &message)
+	{
+		NSString* mac_message = [[NSString alloc] initWithUTF8String:message.toUtf8().constData()];
+		NSDockTile *dockTile = [NSApp dockTile];
+		[dockTile setBadgeLabel : mac_message];
+	}
+
+	MDock::MDock() : d_ptr(new MDockPrivate()),m_unread_count(0)
 	{
 		Q_D(MDock);
 		d->standartIcon = Icon("qutim");
@@ -120,10 +129,15 @@ namespace MacIntegration
 				d->aliveSessions.value(s)->setText(d->aliveSessions.value(s)->text().remove("✉ "));
 		if (empty == d->unreadSessions.isEmpty())
 			return;
-		if (d->unreadSessions.isEmpty())
-			qApp->setWindowIcon(d->standartIcon);
-		else
-			qApp->setWindowIcon(d->mailIcon);
+
+
+
+//		if (d->unreadSessions.isEmpty())
+//			qApp->setWindowIcon(d->standartIcon);
+//		else
+//			qApp->setWindowIcon(d->mailIcon);
+
+		setBadgeLabel(d->unreadSessions.isEmpty() ? QString() : QString::number(d->unreadSessions.count()));
 	}
 
 	void MDock::onStatusChanged(const qutim_sdk_0_3::Status &status)

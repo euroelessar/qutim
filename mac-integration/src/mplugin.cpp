@@ -1,5 +1,6 @@
 #include "mplugin.h"
 #include "dock/mdock.h"
+#include "growlnotifications/growlbackend.h"
 
 namespace MacIntegration
 {
@@ -21,6 +22,8 @@ namespace MacIntegration
 			QLatin1String("daschenko@gmail.com"));
 		addExtension<MDock>(QT_TRANSLATE_NOOP("Plugin", "DockIntegration"),
 				QT_TRANSLATE_NOOP("Plugin", "Mac OS X dock integration"));
+		addExtension<GrowlBackend>(QT_TRANSLATE_NOOP("plugin","Growl notifications"),
+								   QT_TRANSLATE_NOOP("plugin","Default Mac Os X Notifications"));
 	}
 
 	bool MPlugin::load()

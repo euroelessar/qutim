@@ -31,6 +31,7 @@ namespace MacIntegration
 			void onActivatedSession(bool state);
 		protected:
 			void createStatusAction(Status::Type type);
+			void setBadgeLabel(const QString &string);
 		private:
 			QScopedPointer<MDockPrivate> d_ptr;
 	};
