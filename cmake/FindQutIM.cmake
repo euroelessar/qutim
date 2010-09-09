@@ -131,7 +131,7 @@ endmacro ( __PREPARE_QUTIM_PLUGIN )
 #   plugin_name - name of plugin being added
 macro (QUTIM_ADD_PLUGIN plugin_name)
     qutim_parse_arguments(QUTIM_${plugin_name}
-	"DISPLAY_NAME;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS;COMPILE_FLAGS"
+	"DISPLAY_NAME;DESCRIPTION;LINK_LIBRARIES;SOURCE_DIR;GROUP;DEPENDS;EXTENSION_HEADER;EXTENSION_CLASS;INCLUDE_DIRS;COMPILE_FLAGS;SOURCES"
 	"SUBPLUGIN;EXTENSION;STATIC"
 	${ARGN}
     )
@@ -173,6 +173,7 @@ macro (QUTIM_ADD_PLUGIN plugin_name)
     file( GLOB_RECURSE QUTIM_${plugin_name}_UI "${QUTIM_${plugin_name}_SOURCE_DIR}/*.ui" )
     file( GLOB_RECURSE QUTIM_${plugin_name}_RES "${CMAKE_CURRENT_SOURCE_DIR}/*.qrc" )
     list( APPEND QUTIM_${plugin_name}_SRC ${QUTIM_${plugin_name}_SRC_MM} ${QUTIM_${plugin_name}_DEFAULT_ARGS})
+	list(APPEND QUTIM_${plugin_name}_SRC "${QUTIM_${plugin_name}_SOURCES}")
     
     if( QUTIM_${plugin_name}_EXTENSION )
         # Generate ${plugin_name}plugin.cpp file

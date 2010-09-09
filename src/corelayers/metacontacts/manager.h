@@ -32,6 +32,7 @@ namespace Core
 			virtual ~Manager();
 			virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create = false);
 			void removeContact(const QString &id) { m_contacts.remove(id); }
+			virtual QString name() const;
 		protected:
 			virtual void loadContacts();
 		private slots:

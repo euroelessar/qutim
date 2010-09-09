@@ -139,7 +139,7 @@ namespace Core
 				return;
 			m_contacts.removeAt(index);
 			MetaContact::removeContact(contact);
-			if (index == 0) {
+			if (m_contacts.count()) {
 				resetStatus();
 			}
 		}

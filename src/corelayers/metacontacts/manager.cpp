@@ -114,6 +114,12 @@ namespace Core
 			}
 		}
 
+		QString Manager::name() const
+		{
+			//TODO implement logic
+			return (QT_TRANSLATE_NOOP("Metacontact","You")).toString();
+		}
+
 	}
 
 }
