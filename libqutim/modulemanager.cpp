@@ -566,9 +566,26 @@ namespace qutim_sdk_0_3
 				configBackends << it.value().generator()->generate<ConfigBackend>();
 			}
 		}
+		QSet<PluginInfo::Data*> disabledPlugins;
+		Config pluginsConfig;
+		pluginsConfig.beginGroup("plugins/list");
+		{
+			foreach (Plugin *plugin, p->plugins) {
+				if (!pluginsConfig.value(plugin->metaObject()->className(), true))
+					disabledPlugins << plugin->info().data();
+			}
+			for (int i = 0; i < p->extensions.size(); i++) {
+				PluginInfo::Data *data = p->extensions.at(i).data()->plugin.data();
+				if (disabledPlugins.contains(data)) {
+					p->extensions.removeAt(i);
+					i--;
+					break;
+				}
+			}
+		}
+
 		QSet<QByteArray> usedExtensions;
 		{
-			Config pluginsConfig = Config().group("plugins/list");
 			const QHash<QByteArray, ExtensionInfo> &extsHash = p->extensionsHash;
 			ConfigGroup group = Config().group("protocols");
 			QVariantMap selected = group.value("list", QVariantMap());
@@ -576,10 +593,10 @@ namespace qutim_sdk_0_3
 			QVariantMap::const_iterator it = selected.constBegin();
 			for (; it != selected.constEnd(); it++) {
 				const ExtensionInfo info = extsHash.value(it.value().toString().toLatin1());
-				Plugin *plugin = p->extsPlugins.value(info.name());
-				if(plugin)
-					if (!pluginsConfig.value(plugin->metaObject()->className(), true))
-						continue;
+//				Plugin *plugin = p->extsPlugins.value(info.name());
+//				if(plugin)
+//					if (!pluginsConfig.value(plugin->metaObject()->className(), true))
+//						continue;
 
 				if (info.generator() && info.generator()->extends<Protocol>()) {
 					const QMetaObject *meta = info.generator()->metaObject();
@@ -594,10 +611,10 @@ namespace qutim_sdk_0_3
 			const ExtensionInfoList &exts = p->extensions;
 			ExtensionInfoList::const_iterator it2 = exts.constBegin();
 			for(; it2 != exts.end(); it2++) {
-				Plugin *plugin = p->extsPlugins.value(it2->name());
-				if (plugin)
-					if (!pluginsConfig.value<bool>(plugin->metaObject()->className(), true))
-						continue;
+//				Plugin *plugin = p->extsPlugins.value(it2->name());
+//				if (plugin)
+//					if (!pluginsConfig.value<bool>(plugin->metaObject()->className(), true))
+//						continue;
 
 				const ObjectGenerator *gen = it2->generator();
 				const QMetaObject *meta = gen->metaObject();
@@ -619,7 +636,7 @@ namespace qutim_sdk_0_3
 		}
 		p->is_inited = true;
 		for (int i = 0; i < p->extensions.size(); i++) {
-			const QMetaObject *meta =p->extensions.at(i).generator()->metaObject();
+			const QMetaObject *meta = p->extensions.at(i).generator()->metaObject();
 			for (int j = 0; j < meta->classInfoCount(); j++) {
 				QMetaClassInfo info = meta->classInfo(j);
 				if (!qstrcmp(info.name(), "DependsOn") && !usedExtensions.contains(info.value())) {
@@ -654,16 +671,14 @@ namespace qutim_sdk_0_3
 			usedExtensions << service->metaObject()->className();
 		qApp->setWindowIcon(Icon("qutim"));
 
-		Config pluginsConfig;
-		pluginsConfig.beginGroup("plugins/list");
 		{
 			QMultiMap<Plugin *, ExtensionInfo> exts = getExtensions(qobject_interface_iid<StartupModule *>());
 			QMultiMap<Plugin *, ExtensionInfo>::const_iterator it = exts.begin();
 			for(; it != exts.end(); it++)
 			{
-				Plugin *plugin = it.key();
-				if (!pluginsConfig.value(plugin->metaObject()->className(), true))
-					continue;
+//				Plugin *plugin = it.key();
+//				if (!pluginsConfig.value(plugin->metaObject()->className(), true))
+//					continue;
 				qDebug("Startup: %s", it.value().generator()->metaObject()->className());
 				it.value().generator()->generate<StartupModule>();
 			}
@@ -677,13 +692,17 @@ namespace qutim_sdk_0_3
 
 		for (int i = 0; i < p->plugins.size(); i++) {
 			Plugin *plugin = p->plugins.at(i);
-			if (plugin && pluginsConfig.value(plugin->metaObject()->className(), true)) {
+//			if (plugin && pluginsConfig.value(plugin->metaObject()->className(), true)) {
+			if (plugin && !disabledPlugins.contains(plugin->info().data())) {
 				plugin->load();
 				if (PluginFactory *factory = qobject_cast<PluginFactory*>(plugin)) {
 					QList<Plugin*> plugins = factory->loadPlugins();
 					for (int j = 0; j < plugins.size(); j++) {
-						plugins.at(j)->init();
-						p->plugins << plugins.at(j);
+						Plugin *subPlugin = plugins.at(j);
+						if (!pluginsConfig.value(subPlugin->metaObject()->className(), true))
+							disabledPlugins << subPlugin->info().data();
+						subPlugin->init();
+						p->plugins << subPlugin;
 					}
 				}
 			}

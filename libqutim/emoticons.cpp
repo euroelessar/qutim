@@ -22,9 +22,12 @@
 #include <QImageReader>
 #include <QStringBuilder>
 #include <QtGui/QTextDocument>
+#include <QDebug>
 
 namespace qutim_sdk_0_3
 {
+#define nullThemeName QLatin1String("")
+	
 	struct EmoticonsThemeData : public QSharedData
 	{
 		EmoticonsThemeData() : provider(0) {}
@@ -254,7 +257,7 @@ namespace qutim_sdk_0_3
 
 	QString EmoticonsTheme::themeName() const
 	{
-		return isNull() ? QString() : p->provider->themeName();
+		return isNull() ? QString(nullThemeName) : p->provider->themeName();
 	}
 
 //	EmoticonsTheme EmoticonsTheme::pseudoClone()
@@ -425,6 +428,9 @@ namespace qutim_sdk_0_3
 
 		EmoticonsTheme theme(const QString &name)
 		{
+			if (!name.isNull() && name == nullThemeName)
+				return EmoticonsTheme(0);
+			
 			if (name.isEmpty()) {
 				QString currentName = currentThemeName();
 				if (currentName.isEmpty())
@@ -464,7 +470,9 @@ namespace qutim_sdk_0_3
 				foreach (const QString &theme, backend->themeList())
 					themes << theme;
 			}
-			return themes.toList();
+			QStringList result = themes.toList();
+			result.prepend(nullThemeName);
+			return result;
 		}
 
 		void setTheme(const QString &name)

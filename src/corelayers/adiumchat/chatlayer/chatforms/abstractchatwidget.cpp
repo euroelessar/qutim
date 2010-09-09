@@ -23,6 +23,8 @@
 #include <QDateTime>
 #include <QListView>
 #include <QWebView>
+#include <QTextBlock>
+#include <QTextDocumentFragment>
 #include <qutim/tooltip.h>
 #include <qutim/shortcut.h>
 #include <qutim/conference.h>
@@ -92,12 +94,13 @@ namespace Core
 		{
 			QPlainTextEdit *edit = getInputField();
 			QTabBar *tabBar = getTabBar();
-			if (edit->toPlainText().trimmed().isEmpty() || tabBar->currentIndex() < 0)
+			QString text = textEditToPlainText();
+			if (text.trimmed().isEmpty() || tabBar->currentIndex() < 0)
 				return;
 			ChatSessionImpl *session = currentSession();
 			ChatUnit *unit = session->getCurrentUnit();
 
-			Message message(edit->toPlainText());
+			Message message(text);
 
 			//some checks
 			if (message.text().isEmpty()) {
@@ -108,7 +111,7 @@ namespace Core
 			}
 
 			if (m_htmlMessage)
-				message.setProperty("html", Qt::escape(message.text()));
+				message.setProperty("html", Qt::escape(text));
 			message.setIncoming(false);
 			message.setChatUnit(unit);
 			message.setTime(QDateTime::currentDateTime());
@@ -153,6 +156,35 @@ namespace Core
 #endif//Q_WS_X11
 			QWidget::raise();
 		}
+		
+		QString AbstractChatWidget::textEditToPlainText()
+		{
+			QTextDocument *doc = getInputField()->document();
+			QString result;
+			result.reserve(doc->characterCount());
+			QTextCursor begin(doc);
+			QTextCursor end;
+			QString specialChar = QChar(QChar::ObjectReplacementCharacter);
+			while (!begin.atEnd()) {
+				end = doc->find(specialChar, begin, QTextDocument::FindCaseSensitively);
+				QString postValue;
+				if (end.isNull()) {
+					end = QTextCursor(doc);
+					QTextBlock block = doc->lastBlock();
+					end.setPosition(block.position() + block.length() - 1);
+				} else {
+					postValue = end.charFormat().toolTip();
+				}
+				begin.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor,
+								   end.position() - begin.position());
+				result += begin.selection().toPlainText();
+				result += postValue;
+				begin = end;
+				end.clearSelection();
+			}
+			return result;
+		}
+
 		void AbstractChatWidget::onLoad()
 		{
 			loadAppearanceSettings();
@@ -183,7 +215,8 @@ namespace Core
 			emoticons_widget->loadTheme();
 			emoticons_widget_act->setDefaultWidget(emoticons_widget);
 			menu->addAction(emoticons_widget_act);
-			connect(emoticons_widget,SIGNAL(insertSmile(QString)),getInputField(),SLOT(appendPlainText(QString)));
+			connect(emoticons_widget, SIGNAL(insertSmile(QString)),
+					getInputField(), SLOT(insertPlainText(QString)));
 			
 			getToolBar()->insertAction(before,new ActionGenerator(Icon("edit-clear-list"),
 									QT_TRANSLATE_NOOP("Chat", "Clear chat field"),

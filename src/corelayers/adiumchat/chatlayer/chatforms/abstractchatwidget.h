@@ -87,6 +87,7 @@ namespace Core
 		public slots:
 			void raise();
 		protected:
+			QString textEditToPlainText();
 			virtual void onLoad();
 			virtual void chatStateChanged(ChatState state, ChatSessionImpl *session) = 0;
 			const QString m_key;

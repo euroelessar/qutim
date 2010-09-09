@@ -19,6 +19,7 @@
 #include <qmovie.h>
 #include <QLabel>
 #include "flowlayout.h"
+#include <QDebug>
 
 EmoticonsSelector::EmoticonsSelector() : ui(new Ui::emoticonsSelector)
 {
@@ -36,15 +37,19 @@ EmoticonsSelector::~EmoticonsSelector()
 
 void EmoticonsSelector::loadImpl()
 {
-	 QStringList theme_list =  Emoticons::themeList();
-	 ui->themeSelector->addItems(theme_list);
-	 int index = ui->themeSelector->findText(Emoticons::currentThemeName());
-	 ui->themeSelector->setCurrentIndex(index);
+	 QStringList themeList =  Emoticons::themeList();
+	 int index = themeList.indexOf(QLatin1String(""));
+	 themeList.removeAt(index);
+	 themeList.sort();
+	 themeList.prepend(tr("No emoticons"));
+	 ui->themeSelector->addItems(themeList);
+	 cancelImpl();
 }
 
 void EmoticonsSelector::cancelImpl()
 {
-
+	int index = ui->themeSelector->findText(Emoticons::currentThemeName());
+	ui->themeSelector->setCurrentIndex(qMax(0, index));
 }
 
 void EmoticonsSelector::saveImpl()
@@ -58,7 +63,7 @@ void EmoticonsSelector::currentIndexChanged(const QString& text)
 	QHash<QString, QStringList>::const_iterator it;
 	clearEmoticonsPreview();
 	for (it = theme_map.constBegin();it != theme_map.constEnd();it ++) {
-		QLabel *label = new QLabel();
+		QLabel *label = new QLabel(this);
 		QMovie *emoticon = new QMovie (it.key(), QByteArray(), label);
 		label->setMovie(emoticon);
 		ui->emoticons->layout()->addWidget(label);
