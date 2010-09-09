@@ -2,7 +2,6 @@
 #include "simplecontactlistview.h"
 #include "simplecontactlistmodel.h"
 #include "simplecontactlistitem.h"
-#include "simplecontactlistdelegate.h"
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/icon.h>
@@ -99,7 +98,7 @@ struct ModulePrivate
 	QHash<Account *, QAction *> actions;
 	QAction *status_action;
 	QList<QAction *> statusActions;
-	Delegate *delegate;
+	ContactDelegate *delegate;
 };
 
 Module::Module() : p(new ModulePrivate)
@@ -189,7 +188,7 @@ Module::Module() : p(new ModulePrivate)
 	gen->addHandler(ActionVisibilityChangedHandler,this);
 	MenuController::addAction<ChatUnit>(gen);
 
-	p->delegate = new Delegate(p->view);
+	p->delegate = new ContactDelegate(p->view);
 	p->view->setItemDelegate(p->delegate);
 	p->view->setModel(p->model);
 	reloadSettings();
@@ -489,10 +488,10 @@ void Module::reloadSettings()
 	cfg = cfg.group("contactList");
 	int icon_size = cfg.value("iconSize",16);
 	p->view->setIconSize(QSize(icon_size,icon_size));
-	Delegate::ShowFlags flags = cfg.value("showFlags",
-										  Delegate::ShowStatusText |
-										  Delegate::ShowExtendedInfoIcons |
-										  Delegate::ShowAvatars);
+	ContactDelegate::ShowFlags flags = cfg.value("showFlags",
+										  ContactDelegate::ShowStatusText |
+										  ContactDelegate::ShowExtendedInfoIcons |
+										  ContactDelegate::ShowAvatars);
 	p->delegate->setShowFlags(flags);
 	// Load extended statuses.
 	QHash<QString, bool> statuses;
@@ -500,7 +499,7 @@ void Module::reloadSettings()
 	foreach (const QString &name, cfg.childKeys())
 		statuses.insert(name, cfg.value(name, true));
 	cfg.endGroup();
-	p->delegate->setExtendedStatuses(statuses);
+	p->delegate->setExtInfo(statuses);
 }
 
 

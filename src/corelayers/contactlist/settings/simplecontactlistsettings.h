@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <qutim/settingswidget.h>
-#include "../simplecontactlistdelegate.h"
+#include <contactdelegate.h>
 
 class QCheckBox;
 
@@ -35,7 +35,7 @@ private slots:
 	void onModified();
 private:
     Ui::SimpleContactlistSettings *ui;
-	void setFlag(Delegate::ShowFlags flag, bool on = true);
+	void setFlag(ContactDelegate::ShowFlags flag, bool on = true);
 	void reloadCombobox();
 	int m_flags;
 	QHash<QString, QCheckBox *> m_statusesBoxes;

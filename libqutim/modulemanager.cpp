@@ -145,7 +145,7 @@ namespace qutim_sdk_0_3
 		const ExtensionInfoList &extensions = p->extensions;
 		for(int i = 0; i < extensions.size(); i++) {
 			const ObjectGenerator *gen = extensions.at(i).generator();
-			if (module && gen->extends(module) || iid && gen->extends(iid))
+			if ((module && gen->extends(module)) || (iid && gen->extends(iid)))
 				list << gen;
 		}
 		return list;

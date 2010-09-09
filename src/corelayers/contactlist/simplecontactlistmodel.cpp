@@ -178,12 +178,17 @@ namespace Core
 							return p->unreadIcon;
 						else
 							return item->data->contact->status().icon();
-					case ItemDataType:
+					case ItemTypeRole:
 						return ContactType;
-					case ItemStatusRole:
+					case StatusRole:
 						return qVariantFromValue(item->data->contact->status());
-					case ItemAvatarRole:
+					case AvatarRole:
 						return item->data->contact->avatar();
+					case BuddyRole: {
+						ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
+						Buddy *buddy = item->data->contact;
+						return qVariantFromValue(buddy);
+					}
 					default:
 						return QVariant();
 					}
@@ -195,13 +200,13 @@ namespace Core
 					{
 					case Qt::DisplayRole:
 						return item->name;
-					case ItemDataType:
+					case ItemTypeRole:
 						return TagType;
 					case Qt::DecorationRole:
 						return Icon("feed-subscribe");
-					case ItemContactsCountRole:
+					case ContactsCountRole:
 						return item->contacts.count();
-					case ItemOnlineContactsCountRole:
+					case OnlineContactsCountRole:
 						return item->online;
 					default:
 						return QVariant();
@@ -315,7 +320,7 @@ namespace Core
 		{
 			Qt::ItemFlags flags = QAbstractItemModel::flags(index);
 
-			ItemType type = getItemType(index);
+			ContactItemType type = getItemType(index);
 			if (type == TagType)
 				flags |= Qt::ItemIsDropEnabled;
 			else if (type == ContactType)

@@ -66,10 +66,10 @@ void SimpleContactlistSettings::loadImpl()
 {
 	reloadCombobox();
 	Config config = Config("appearance").group("contactList");
-	m_flags = static_cast<Delegate::ShowFlags>(config.value("showFlags",
-															Delegate::ShowStatusText |
-															Delegate::ShowExtendedInfoIcons |
-															Delegate::ShowAvatars));
+	m_flags = static_cast<ContactDelegate::ShowFlags>(config.value("showFlags",
+															ContactDelegate::ShowStatusText |
+															ContactDelegate::ShowExtendedInfoIcons |
+															ContactDelegate::ShowAvatars));
 	// Load extendes statuses
 	config.beginGroup("extendedStatuses");
 	foreach (QCheckBox *checkBox, m_statusesBoxes) {
@@ -93,9 +93,9 @@ void SimpleContactlistSettings::loadImpl()
 	}
 	else
 		ui->sizesBox->setCurrentIndex(index);
-	ui->avatarsBox->setChecked(m_flags & Delegate::ShowAvatars);
-	ui->extendedInfoBox->setChecked(m_flags & Delegate::ShowExtendedInfoIcons);
-	ui->statusBox->setChecked(m_flags & Delegate::ShowStatusText);
+	ui->avatarsBox->setChecked(m_flags & ContactDelegate::ShowAvatars);
+	ui->extendedInfoBox->setChecked(m_flags & ContactDelegate::ShowExtendedInfoIcons);
+	ui->statusBox->setChecked(m_flags & ContactDelegate::ShowStatusText);
 }
 
 void SimpleContactlistSettings::saveImpl()
@@ -126,7 +126,7 @@ void SimpleContactlistSettings::reloadCombobox()
 	}
 }
 
-void SimpleContactlistSettings::setFlag(Delegate::ShowFlags flag, bool on)
+void SimpleContactlistSettings::setFlag(ContactDelegate::ShowFlags flag, bool on)
 {
 	if (on) 
 		m_flags |= flag;
@@ -136,17 +136,17 @@ void SimpleContactlistSettings::setFlag(Delegate::ShowFlags flag, bool on)
 
 void SimpleContactlistSettings::onAvatarBoxToggled(bool toggled)
 {
-	setFlag(Delegate::ShowAvatars,toggled);
+	setFlag(ContactDelegate::ShowAvatars,toggled);
 	emit modifiedChanged(true);
 }
 void SimpleContactlistSettings::onExtendedInfoBoxToggled(bool toggled)
 {
-	setFlag(Delegate::ShowExtendedInfoIcons,toggled);
+	setFlag(ContactDelegate::ShowExtendedInfoIcons,toggled);
 	emit modifiedChanged(true);
 }
 void SimpleContactlistSettings::onStatusBoxToggled(bool toggled)
 {
-	setFlag(Delegate::ShowStatusText,toggled);	
+	setFlag(ContactDelegate::ShowStatusText,toggled);
 	emit modifiedChanged(true);
 }
 

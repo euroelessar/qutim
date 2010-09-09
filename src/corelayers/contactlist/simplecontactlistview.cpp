@@ -32,7 +32,7 @@ namespace Core
 
 		void TreeView::onClick(const QModelIndex &index)
 		{
-			ItemType type = getItemType(index);
+			ContactItemType type = getItemType(index);
 			if (type == ContactType) {
 				ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
 				Contact *contact = item->data->contact;
@@ -44,7 +44,7 @@ namespace Core
 		void TreeView::contextMenuEvent(QContextMenuEvent *event)
 		{
 			QModelIndex index = indexAt(event->pos());
-			ItemType type = getItemType(index);
+			ContactItemType type = getItemType(index);
 			if (type == ContactType) {
 				ContactItem *item = reinterpret_cast<ContactItem *>(index.internalPointer());
 				Contact *contact = item->data->contact;

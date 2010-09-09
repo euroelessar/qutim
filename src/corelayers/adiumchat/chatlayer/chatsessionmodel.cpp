@@ -14,6 +14,7 @@
 *****************************************************************************/
 
 #include "chatsessionmodel.h"
+#include <contactdelegate.h>
 
 namespace Core
 {
@@ -41,8 +42,14 @@ namespace Core
 				return buddy->title();
 			case Qt::DecorationRole:
 				return buddy->status().icon();
-			case Qt::UserRole:
+			case BuddyRole:
 				return qVariantFromValue(buddy);
+			case AvatarRole:
+				return buddy->avatar();
+			case StatusRole:
+				return qVariantFromValue(buddy->status());
+			case ItemTypeRole:
+				return ContactType;
 			default:
 				return QVariant();
 			}
