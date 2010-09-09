@@ -19,29 +19,32 @@
 
 #include <QAbstractListModel>
 #include <qutim/contact.h>
+//FIXME
+#include <contactdelegate.h>
 
 class FloatiesItemModel : public QAbstractListModel
 {
 	Q_OBJECT
 public:
 	// Keep in sync with core's contact list
-	enum ItemDataRole
-	{
-		ItemDataType = Qt::UserRole ,
-		ItemStatusRole,
-		ItemContactsCountRole,
-		ItemOnlineContactsCountRole,
-		ItemAvatarRole
-	};
-	
-	enum ItemType
+	enum ContactItemType
 	{
 		InvalidType = 0,
 		TagType = 100,
 		ContactType = 101
 	};
-	
-    FloatiesItemModel(QObject *parent);
+
+	enum ContactItemRole
+	{
+		BuddyRole = Qt::UserRole,
+		StatusRole,
+		ContactsCountRole,
+		OnlineContactsCountRole,
+		AvatarRole,
+		ItemTypeRole
+	};
+
+	FloatiesItemModel(QObject *parent);
 	~FloatiesItemModel();
 	
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;

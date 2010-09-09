@@ -45,11 +45,11 @@ QVariant FloatiesItemModel::data(const QModelIndex &index, int role) const
 //			return p->unreadIcon;
 //		else
 			return contact->status().icon();
-	case ItemDataType:
+	case ItemTypeRole:
 		return ContactType;
-	case ItemStatusRole:
+	case StatusRole:
 		return qVariantFromValue(contact->status());
-	case ItemAvatarRole:
+	case AvatarRole:
 		return contact->avatar();
 	default:
 		return QVariant();
