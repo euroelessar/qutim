@@ -31,6 +31,7 @@ namespace qutim_sdk_0_3 {
 namespace Jabber
 {
 	class JAccount;
+	class JContactResource;
 
 	class JSoftwareDetection :
 			public QObject,
@@ -62,9 +63,10 @@ namespace Jabber
 		void handleDiscoItems(const gloox::JID &from, const gloox::Disco::Items &items, int context);
 		void handleDiscoError(const gloox::JID &from, const gloox::Error *error, int context);
 	private:
-		void updateClientData(qutim_sdk_0_3::ChatUnit *unit, const QString &client,
+		void updateClientData(JContactResource *resource, const QString &client,
 							  const QString &software, const QString &softwareVersion,
 							  const QString &os, const QString &clientIcon);
+		void setClientInfo(JContactResource *resource, const QString &client, const QString &clientIcon);
 		QString getClientDescription(const QString &software, const QString &softwareVersion, const QString &os);
 		QString getClientIcon(const QString &software);
 	private:

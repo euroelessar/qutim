@@ -822,9 +822,10 @@ void ClientIdentify::identify_QipInfium()
 	bool qip2010 = m_client_caps.match(ICQ_CAPABILITY_QIP2010xVER);
 
 	if (qip2010 || qipInfium) {
-		QString icon = "qip-infium";
+		QString icon = "qip";
 		if (qipInfium) {
 			m_client_id = "QIP Infium";
+			icon += "-infium";
 		} else {
 			m_client_id  = "QIP 2010";
 			icon += "-2010";
