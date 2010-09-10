@@ -73,13 +73,14 @@ namespace Jabber
 							iq.addExtension(new SoftwareVersion());
 							m_account->client()->send(iq, this, RequestSoftware);
 						} else {
-							updateClientData(unit, info.description, info.name, info.version, info.os, info.icon);
+							updateClientData(resource, info.description, info.name, info.version, info.os, info.icon);
 						}
 						return;
 					}
 				}
 			}
 
+			//setClientInfo(resource, "", "unknown-client");
 			m_account->client()->disco()->getDiscoInfo(presence.from(), node, this, RequestDisco);
 		}
 	}
@@ -94,14 +95,15 @@ namespace Jabber
 	{
 		if (context == RequestSoftware) {
 			if (const SoftwareVersion *soft = iq.findExtension<SoftwareVersion>(ExtVersion)) {
-				if (ChatUnit *unit = m_account->getUnit(QString::fromStdString(iq.from().full()), false)) {
-					QString node = unit->property("node").toString();
+				ChatUnit *unit = m_account->getUnit(QString::fromStdString(iq.from().full()), false);
+				if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
+					QString node = resource->property("node").toString();
 					QString software = QString::fromStdString(soft->name());
 					QString softwareVersion = QString::fromStdString(soft->version());
 					QString os = QString::fromStdString(soft->os());
 					QString icon = getClientIcon(software);;
 					QString client = getClientDescription(software, softwareVersion, os);
-					updateClientData(unit, client, software, softwareVersion, os, icon);
+					updateClientData(resource, client, software, softwareVersion, os, icon);
 					SoftwareInfoHash::iterator it = m_hash.find(node);
 					if (it != m_hash.end()) {
 						SoftwareInfo &info = (*it);
@@ -148,6 +150,7 @@ namespace Jabber
 				}
 				QString icon = getClientIcon(software);
 				QString client = getClientDescription(software, softwareVersion, os);
+
 				if (!software.isEmpty()) {
 					info.icon = icon;
 					info.name = software;
@@ -173,6 +176,8 @@ namespace Jabber
 				IQ iq(IQ::Get, from);
 				iq.addExtension(new SoftwareVersion());
 				m_account->client()->send(iq, this, RequestSoftware);
+			} else {
+				updateClientData(unit, info.description, info.name, info.version, info.os, info.icon);
 			}
 			unit->setFeatures(info.features);
 		}
@@ -192,24 +197,28 @@ namespace Jabber
 		Q_UNUSED(context);
 	}
 
-	void JSoftwareDetection::updateClientData(ChatUnit *unit, const QString &client, 
+	void JSoftwareDetection::updateClientData(JContactResource *resource, const QString &client,
 											  const QString &software, const QString &softwareVersion,
 											  const QString &os, const QString &icon)
 	{
-		unit->setProperty("client", client);
-		unit->setProperty("software", software);
-		unit->setProperty("softwareVersion", softwareVersion);
-		unit->setProperty("os", os);
-		unit->setProperty("clientIcon", icon);
-		if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
-			QVariantHash clientInfo;
-			clientInfo.insert("id", "client");
-			clientInfo.insert("title", tr("Possible client"));
-			clientInfo.insert("icon", QVariant::fromValue(ExtensionIcon(icon)));
-			clientInfo.insert("description", client);
-			clientInfo.insert("priority", 85);
-			resource->setExtendedInfo("client", clientInfo);
-		}
+		resource->setProperty("client", client);
+		resource->setProperty("software", software);
+		resource->setProperty("softwareVersion", softwareVersion);
+		resource->setProperty("os", os);
+		resource->setProperty("clientIcon", icon);
+		setClientInfo(resource, client, icon);
+	}
+
+	void JSoftwareDetection::setClientInfo(JContactResource *resource, const QString &client, const QString &icon)
+	{
+		QVariantHash clientInfo;
+		ExtensionIcon extIcon(icon);
+		clientInfo.insert("id", "client");
+		clientInfo.insert("title", tr("Possible client"));
+		clientInfo.insert("icon", QVariant::fromValue(extIcon));
+		clientInfo.insert("description", client);
+		clientInfo.insert("priority", 85);
+		resource->setExtendedInfo("client", clientInfo);
 	}
 
 	QString JSoftwareDetection::getClientDescription(const QString &software, const QString &softwareVersion,
