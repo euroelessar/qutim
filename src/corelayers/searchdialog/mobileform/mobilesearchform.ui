@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>280</width>
-    <height>435</height>
+    <width>278</width>
+    <height>433</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -146,15 +146,15 @@
     </widget>
    </item>
    <item>
-    <widget class="ActionBox" name="actionBox" native="true"/>
+    <widget class="qutim_sdk_0_3::ActionBox" name="actionBox" native="true"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ActionBox</class>
+   <class>qutim_sdk_0_3::ActionBox</class>
    <extends>QWidget</extends>
-   <header>actionbox.h</header>
+   <header location="global">qutim/actionbox.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

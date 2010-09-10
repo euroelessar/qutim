@@ -17,13 +17,16 @@
 #define ACTIONBOX_H
 
 #include <QWidget>
-#include "libqutim/libqutim_global.h"
+#include "libqutim_global.h"
+
+namespace qutim_sdk_0_3
+{
 
 class ActionBoxPrivate;
 class LIBQUTIM_EXPORT ActionBox : public QWidget
 {
 	//simple soft key emulation
-    Q_OBJECT
+	Q_OBJECT
 	Q_DECLARE_PRIVATE(ActionBox)
 public:
 	explicit ActionBox(QWidget *parent);
@@ -35,5 +38,16 @@ public:
 private:
 	QScopedPointer<ActionBoxPrivate> d_ptr;
 };
+
+class LIBQUTIM_EXPORT ActionBoxModule : public QWidget
+{
+	Q_OBJECT
+	Q_CLASSINFO("Service","ActionBoxModule")
+public:
+	virtual void addAction(QAction *) = 0;
+	virtual void removeAction(QAction *) = 0;
+};
+
+}
 
 #endif // ACTIONBOX_H

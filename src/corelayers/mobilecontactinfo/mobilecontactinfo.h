@@ -5,7 +5,7 @@
 #include <QScrollArea>
 #include <qutim/buddy.h>
 #include <qutim/inforequest.h>
-#include <3rdparty/actionbox/actionbox.h>
+#include <qutim/actionbox.h>
 
 class QLabel;
 class QGridLayout;

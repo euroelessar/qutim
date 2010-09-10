@@ -16,24 +16,20 @@
 #ifndef ACTIONBOX_P_H
 #define ACTIONBOX_P_H
 #include <QObject>
-#include <QMap>
+
+namespace qutim_sdk_0_3
+{
 
 class ActionBox;
-class QToolButton;
-class QAction;
-class QHBoxLayout;
-class ActionBoxPrivate : public QObject
+class ActionBoxModule;
+class ActionBoxPrivate
 {
-	Q_OBJECT
 	Q_DECLARE_PUBLIC(ActionBox)
 public:
-	ActionBoxPrivate() : QObject(),q_ptr(0),layout(0) {}
+	ActionBoxPrivate() : q_ptr(0),module(0) {}
 	ActionBox *q_ptr;
-	QMap<QAction*,QToolButton*> buttons;
-	QHBoxLayout *layout;
-public slots:
-	void onButtonDestroyed(QObject *obj);
-	void onChanged();
+	ActionBoxModule *module;
 };
 
+}
 #endif // ACTIONBOX_P_H
