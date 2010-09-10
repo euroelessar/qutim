@@ -422,7 +422,7 @@ namespace qutim_sdk_0_3
 	{
 		if (validator)
 			setProperty("validator", qVariantFromValue(validator));
-		setProperty("password", true);
+		setProperty("password", password);
 	}
 
 	StringDataItem::StringDataItem(const QString &name, const LocalizedString &title,
@@ -431,7 +431,7 @@ namespace qutim_sdk_0_3
 	{
 		if (!validator.isEmpty())
 			setProperty("validator", qVariantFromValue(validator));
-		setProperty("password", true);
+		setProperty("password", password);
 	}
 
 	void AbstractDataWidget::virtual_hook(int id, void *data)
