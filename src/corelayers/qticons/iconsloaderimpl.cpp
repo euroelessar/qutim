@@ -32,6 +32,9 @@ namespace Core
 				if (!themes.isEmpty())
 					this_iconTheme = iconManager()->themeById(themes.at(qrand() % themes.size()));
 			}
+			defTheme = iconManager()->defaultTheme();
+			if (this_iconTheme->name() != defTheme->name())
+				const_cast<XdgIconTheme*>(this_iconTheme)->addParent(defTheme);
 		}
 		return this_iconTheme;
 	}
