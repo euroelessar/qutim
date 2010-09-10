@@ -1,8 +1,9 @@
-#include "editablewidgets.h"
+#include "widgets.h"
 #include <qutim/icon.h>
 #include <QFileDialog>
 #include <QRegExpValidator>
-#include "abstractdatalayout.h"
+#include "datalayout.h"
+#include "widgetgenerator.h"
 
 Q_DECLARE_METATYPE(QList<QIcon>);
 Q_DECLARE_METATYPE(QList<QPixmap>);
@@ -28,7 +29,74 @@ static QValidator *getValidator(const QVariant &validator, QWidget *object)
 	return 0;
 }
 
-CheckBox::CheckBox(const DataItem &item)
+Label::Label(const DataItem &item, QWidget *parent) :
+	QLabel(parent), m_item(item)
+{
+	setTextInteractionFlags(Qt::LinksAccessibleByMouse |
+							   Qt::LinksAccessibleByKeyboard |
+							   Qt::TextSelectableByMouse |
+							   Qt::TextSelectableByKeyboard);
+	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+
+	bool enabled = true;
+	QVariant::Type type = item.data().type();
+	QString value;
+	if (item.property("notSet", false)) {
+		enabled = false;
+	} else if (type == QVariant::Date) {
+		value = item.data().toDate().toString(Qt::SystemLocaleLongDate);
+	} else if (type == QVariant::DateTime) {
+		value = item.data().toDateTime().toString(Qt::SystemLocaleLongDate);
+	} else if (type == QVariant::Icon || type == QVariant::Pixmap || type == QVariant::Image) {
+		QSize size = item.property("imageSize", QSize(128, 128));
+		QPixmap pixmap = variantToPixmap(item.data(), size);
+		if (pixmap.isNull())
+			pixmap = variantToPixmap(item.property("defaultImage"), size);
+		setPixmap(pixmap);
+		setFrameShape(QFrame::Panel);
+		setFrameShadow(QFrame::Sunken);
+		setAlignment(Qt::AlignCenter);
+		return;
+	} else if (type == QVariant::Bool) {
+		value = item.data().toBool() ?
+				QT_TRANSLATE_NOOP("DataForms", "yes") :
+				QT_TRANSLATE_NOOP("DataForms", "no");
+	} else if (item.data().canConvert<QHostAddress>()) {
+		QHostAddress address = item.data().value<QHostAddress>();
+		if (!address.isNull())
+			value = address.toString();
+	} else if (type == QVariant::StringList) {
+		value = item.data().toStringList().join("<br>");
+	} else if (item.data().canConvert<LocalizedString>()) {
+		value = item.data().value<LocalizedString>();
+	} else if (item.data().canConvert<LocalizedStringList>()) {
+		bool first = true;
+		foreach (const LocalizedString &str, item.data().value<LocalizedStringList>()) {
+			if (!first)
+				first = false;
+			else
+				value += "<br>";
+			value += str;
+		}
+	}
+	if (enabled) {
+		if (value.isEmpty())
+			value = item.data().toString();
+		enabled = !value.isEmpty();
+	}
+	if (!enabled)
+		value = QT_TRANSLATE_NOOP("DataForms", "the field is not set");
+	setText(value);
+	setEnabled(enabled);
+}
+
+DataItem Label::item() const
+{
+	return m_item;
+}
+
+CheckBox::CheckBox(const DataItem &item, QWidget *parent) :
+	QCheckBox(parent)
 {
 	setText(item.title());
 	setChecked(item.data().toBool());
@@ -40,7 +108,9 @@ DataItem CheckBox::item() const
 }
 
 ComboBox::ComboBox(const QString &value, const QStringList &alt,
-				   const char *validatorProperty, const DataItem &item)
+				   const char *validatorProperty, const DataItem &item,
+				   QWidget *parent) :
+	QComboBox(parent)
 {
 	int current = -1;
 	int i = 0;
@@ -67,7 +137,8 @@ DataItem ComboBox::item() const
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
-DateTimeEdit::DateTimeEdit(const DataItem &item)
+DateTimeEdit::DateTimeEdit(const DataItem &item, QWidget *parent) :
+	QDateTimeEdit(parent)
 {
 	setDateTime(item.data().toDateTime());
 }
@@ -79,7 +150,8 @@ DataItem DateTimeEdit::item() const
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
-DateEdit::DateEdit(const DataItem &item)
+DateEdit::DateEdit(const DataItem &item, QWidget *parent) :
+	QDateEdit(parent)
 {
 	setDateTime(item.data().toDateTime());
 }
@@ -91,7 +163,8 @@ DataItem DateEdit::item() const
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
-TextEdit::TextEdit(const DataItem &item)
+TextEdit::TextEdit(const DataItem &item, QWidget *parent) :
+	QTextEdit(parent)
 {
 	QString str;
 	if (item.data().canConvert<LocalizedString>())
@@ -108,7 +181,8 @@ DataItem TextEdit::item() const
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
-LineEdit::LineEdit(const DataItem &item, const QString &textHint)
+LineEdit::LineEdit(const DataItem &item, const QString &textHint, QWidget *parent) :
+	QLineEdit(parent)
 {
 	QString str;
 	if (textHint.isEmpty()) {
@@ -143,7 +217,8 @@ DataItem LineEdit::item() const
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
-SpinBox::SpinBox(const DataItem &item)
+SpinBox::SpinBox(const DataItem &item, QWidget *parent) :
+	QSpinBox(parent)
 {
 	setValue(item.data().toInt());
 	bool ok;
@@ -160,7 +235,8 @@ DataItem SpinBox::item() const
 	return DataItem(objectName(), LocalizedString(), value());
 }
 
-DoubleSpinBox::DoubleSpinBox(const DataItem &item)
+DoubleSpinBox::DoubleSpinBox(const DataItem &item, QWidget *parent) :
+	QDoubleSpinBox(parent)
 {
 	setValue(item.data().toDouble());
 	bool ok;
@@ -177,7 +253,8 @@ DataItem DoubleSpinBox::item() const
 	return DataItem(objectName(), LocalizedString(), value());
 }
 
-IconListWidget::IconListWidget(const DataItem &item)
+IconListWidget::IconListWidget(const DataItem &item, QWidget *parent) :
+	QListWidget(parent)
 {
 	setViewMode(IconMode);
 	QSize size = item.property("imageSize", QSize(32, 32));
@@ -237,7 +314,8 @@ DataItem IconListWidget::item() const
 	return DataItem(objectName(), LocalizedString(), d);
 }
 
-IconWidget::IconWidget(const DataItem &item)
+IconWidget::IconWidget(const DataItem &item, QWidget *parent) :
+	QWidget(parent)
 {
 	m_size = item.property("imageSize", QSize(32, 32));
 	QPixmap pixmap = variantToPixmap(item.data(), m_size);
@@ -298,6 +376,68 @@ void IconWidget::removeIcon()
 {
 	m_pixmapWidget->setPixmap(m_default);
 	m_path.clear();
+}
+
+ModifiableGroup::ModifiableGroup(const DataItem &item, QWidget *parent) :
+	QGroupBox(parent)
+{
+	setObjectName(item.name());
+	setTitle(item.title());
+	QVBoxLayout *layout = new QVBoxLayout(this);
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	m_widget = new ModifiableWidget(item, this);
+	layout->addWidget(m_widget);
+}
+
+DataItem ModifiableGroup::item() const
+{
+	DataItem item = m_widget->item();
+	item.setName(objectName());
+	return item;
+}
+
+DataGroup::DataGroup(const DataItem &items, bool editable, QWidget *parent) :
+	QGroupBox(parent)
+{
+	setTitle(items.title());
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	m_layout = new DataLayout(editable, this);
+	m_layout->addItems(items.subitems());
+}
+
+DataItem DataGroup::item() const
+{
+	DataItem item = m_layout->item();
+	item.setName(objectName());
+	return item;
+}
+
+StringListGroup::StringListGroup(const DataItem &item, QWidget *parent) :
+	ModifiableWidget(parent)
+{
+	m_max = item.property("maxStringsCount", -1);
+	m_def = item;
+	m_def.setData(QVariant(QVariant::String));
+	m_def.setProperty("hideTitle", true);
+	m_def.allowModifySubitems(DataItem(), 1);
+	QStringList alt = variantToStringList(item.property("alternatives"));
+	foreach (const QString &str, variantToStringList(item.data())) {
+		if (!alt.isEmpty())
+			addRow(new ComboBox(str, alt, "validator", item));
+		else
+			addRow(new LineEdit(item, str));
+	}
+}
+
+DataItem StringListGroup::item() const
+{
+	QStringList list;
+	foreach (const WidgetLine &line, m_widgets)
+		list << getDataItem(line.title, line.data).data().toString();
+	DataItem item;
+	item.setName(objectName());
+	item.setData(list);
+	return item;
 }
 
 }

@@ -1,6 +1,7 @@
 #include "dataformsbackend.h"
-#include "readonlydatalayout.h"
-#include "editabledatalayout.h"
+#include "modifiablewidget.h"
+#include "datalayout.h"
+#include "widgetgenerator.h"
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QKeyEvent>
@@ -11,37 +12,32 @@ Q_DECLARE_METATYPE(QList<QIcon>);
 
 namespace Core
 {
+
 DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartButtons,  const Buttons &buttons) :
 	m_widget(0)
 {
-	AbstractDataLayout *dataLayout = 0;
+	DataLayout *dataLayout = 0;
 	QVBoxLayout *layout = 0;
 	setFrameStyle(NoFrame);
 	setObjectName(item.name());
 	setWindowTitle(item.title());
 	if (item.isAllowedModifySubitems()) {
 		layout = new QVBoxLayout(this);
-		DataListWidget *w = new DataListWidget(item);
+		ModifiableWidget *w = new ModifiableWidget(item);
 		m_widget = w;
 		layout->addWidget(w);
 		if (!w->isExpandable()) {
 			QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
 			layout->addItem(spacer);
 		}
-	} else if (item.isReadOnly()) {
-		dataLayout = new ReadOnlyDataLayout(this);
 	} else {
-		EditableDataLayout *editable = new EditableDataLayout(this);
-		dataLayout = editable;
-		m_widget = editable;
-	}
-	if (dataLayout) {
-		bool addSpacer;
+		dataLayout = new DataLayout(!item.isReadOnly(), this);
+		m_widget = dataLayout;
 		if (item.hasSubitems())
-			addSpacer = !dataLayout->addItems(item.subitems());
+			dataLayout->addItems(item.subitems());
 		else
-			addSpacer = !dataLayout->addItem(item);
-		if (addSpacer)
+			dataLayout->addItem(item);
+		if (!dataLayout->isExpandable())
 			dataLayout->addSpacer();
 	}
 	if (standartButtons != NoButton || !buttons.isEmpty()) {
@@ -118,10 +114,13 @@ QWidget *DefaultDataFormsBackend::get(const DataItem &item, AbstractDataForm::St
 {
 	if (item.isNull())
 		return 0;
-	if (!item.hasSubitems() && standartButtons == AbstractDataForm::NoButton && buttons.isEmpty())
-		return EditableDataLayout::getWidget(item);
-	else
+	if (!item.hasSubitems() && !item.isAllowedModifySubitems() &&
+		standartButtons == AbstractDataForm::NoButton && buttons.isEmpty())
+	{
+		return getWidget(item);
+	} else {
 		return new DefaultDataForm(item, standartButtons, buttons);
+	}
 }
 
 }

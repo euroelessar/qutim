@@ -2,7 +2,7 @@
 #define DATAFORMSBACKEND_H
 
 #include <qutim/dataforms.h>
-#include "abstractdatalayout.h"
+#include "datalayout.h"
 
 class QAbstractButton;
 
