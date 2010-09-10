@@ -137,7 +137,6 @@ public:
 	const QHostAddress &externalIP() const;
 	const QList<quint16> &servicesList();
 	Socket *socket();
-	bool isConnected();
 	ConnectionError error();
 	QString errorString();
 	IcqAccount *account();

@@ -244,11 +244,6 @@ Socket *AbstractConnection::socket()
 	return d_func()->socket;
 };
 
-bool AbstractConnection::isConnected()
-{
-	return d_func()->socket->state() != QTcpSocket::UnconnectedState;
-}
-
 AbstractConnection::ConnectionError AbstractConnection::error()
 {
 	return d_func()->error;
