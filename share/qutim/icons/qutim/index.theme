@@ -14,6 +14,11 @@ Size=16
 Context=Status
 Type=Threshold
 
+[20x20/status]
+Size=20
+Context=Status
+Type=Threshold
+
 [22x22/status]
 Size=22
 Context=Status
