@@ -75,7 +75,7 @@ namespace qutim_sdk_0_3
 			data = d;
 		}
 		
-		if (data->level >= level)
+		if (data->level <= level)
 			return (QDebug(type) << data->name);
 		else
 			return QDebug(devnull());

@@ -168,7 +168,8 @@ namespace Core
 			while (!begin.atEnd()) {
 				end = doc->find(specialChar, begin, QTextDocument::FindCaseSensitively);
 				QString postValue;
-				if (end.isNull()) {
+				bool atEnd = end.isNull();
+				if (atEnd) {
 					end = QTextCursor(doc);
 					QTextBlock block = doc->lastBlock();
 					end.setPosition(block.position() + block.length() - 1);
@@ -176,7 +177,7 @@ namespace Core
 					postValue = end.charFormat().toolTip();
 				}
 				begin.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor,
-								   end.position() - begin.position());
+								   end.position() - begin.position() - (atEnd ? 0 : 1));
 				result += begin.selection().toPlainText();
 				result += postValue;
 				begin = end;
