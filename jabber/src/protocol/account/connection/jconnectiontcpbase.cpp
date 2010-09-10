@@ -120,7 +120,14 @@ namespace Jabber
 
 	void JConnectionTCPBase::hostFound()
 	{
-		p->socket->connectToHost(QString::fromStdString(m_server), m_port);
+		QString host = QString::fromStdString(m_server);
+		QNetworkProxyQuery query;
+		query.setProtocolTag("jabber");
+		query.setPeerHostName(host);
+		query.setPeerPort(m_port);
+		QList<QNetworkProxy> proxies = QNetworkProxyFactory::proxyForQuery(query);
+		p->socket->setProxy(proxies.value(0));
+		p->socket->connectToHost(host, m_port);
 	}
 
 	void JConnectionTCPBase::read()
