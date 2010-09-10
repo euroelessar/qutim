@@ -1,4 +1,9 @@
 find_package(Qt4 COMPONENTS QtDBus )
+if(NOT QT_QTDBUS_FOUND)
+	message(STATUS "Cannot build DBusAPI")
+	return()
+endif()
+
 
 qutim_add_plugin( dbusapi
 	DISPLAY_NAME "DBus API"
