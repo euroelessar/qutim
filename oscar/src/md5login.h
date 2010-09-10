@@ -18,6 +18,7 @@
 #define MD5LOGIN_H
 
 #include "oscarconnection.h"
+#include <QHostInfo>
 
 namespace qutim_sdk_0_3 {
 
@@ -34,15 +35,18 @@ public slots:
 protected:
 	virtual void processNewConnection();
 	virtual void processCloseConnection();
-	void setError(ConnectionError error) { AbstractConnection::setError(error); };
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
+private slots:
+	void hostFound(const QHostInfo &host);
 private:
 	void setLoginData(const QString &addr, quint16 port, const QByteArray &cookie);
+	QString m_host;
 	QString m_addr;
 	quint16 m_port;
 	QByteArray m_cookie;
 	OscarConnection *m_conn;
 	QString m_password;
+	int m_hostReqId;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

@@ -19,7 +19,6 @@
 #include "qutim/notificationslayer.h"
 #include <QCryptographicHash>
 #include <QUrl>
-#include <QHostInfo>
 #include <QNetworkProxy>
 
 namespace qutim_sdk_0_3 {
@@ -29,7 +28,8 @@ namespace oscar {
 Md5Login::Md5Login(const QString &password, IcqAccount *account) :
 	AbstractConnection(account, account),
 	m_conn(static_cast<OscarConnection*>(account->connection())),
-	m_password(password)
+	m_password(password),
+	m_hostReqId(0)
 {
 	m_infos.clear();
 	m_infos << SNACInfo(AuthorizationFamily, SignonLoginReply)
@@ -41,6 +41,8 @@ Md5Login::Md5Login(const QString &password, IcqAccount *account) :
 
 Md5Login::~Md5Login()
 {
+	if (m_hostReqId)
+		QHostInfo::abortHostLookup(m_hostReqId);
 }
 
 void Md5Login::login()
@@ -52,17 +54,25 @@ void Md5Login::login()
 	Config cfg = m_conn->account()->config("connection");
 #ifdef OSCAR_SSL_SUPPORT
 	if (m_conn->isSslEnabled()) {
-		QString host = cfg.value("host", QString("slogin.oscar.aol.com"));
+		m_host = cfg.value("host", QString("slogin.oscar.aol.com"));
 		quint16 port = cfg.value("port", 443);
-		socket()->connectToHostEncrypted(host, port);
+		socket()->connectToHostEncrypted(m_host, port);
 	} else
 #endif
 	{
-		QHostInfo host = QHostInfo::fromName(cfg.value("host", QString("login.icq.com")));
-		if (!host.addresses().isEmpty()) {
-			quint16 port = cfg.value("port", 5190);
-			socket()->connectToHost(host.addresses().at(qrand() % host.addresses().size()), port);
-		}
+		m_host = cfg.value("host", QString("login.icq.com"));
+		m_hostReqId = QHostInfo::lookupHost(m_host, this, SLOT(hostFound(QHostInfo)));
+	}
+}
+
+void Md5Login::hostFound(const QHostInfo &host)
+{
+	m_hostReqId = 0;
+	if (!host.addresses().isEmpty()) {
+		quint16 port = m_conn->account()->config("connection").value("port", 5190);
+		socket()->connectToHost(host.addresses().at(qrand() % host.addresses().size()), port);
+	} else {
+		setError(HostNotFound, tr("No IP addresses were found for the host '%1'").arg(m_host));
 	}
 }
 
