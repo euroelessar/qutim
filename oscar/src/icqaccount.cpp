@@ -212,8 +212,9 @@ void IcqAccount::setStatus(Status status_helper)
 		return;
 	}
 	if (status.type() == Status::Offline) {
-		if (d->conn->isConnected()) {
-			d->conn->disconnectFromHost(false);
+		QAbstractSocket::SocketState state = d->conn->socket()->state();
+		if (state != QTcpSocket::UnconnectedState) {
+			d->conn->disconnectFromHost(state != QTcpSocket::ConnectedState);
 			d->lastStatus = status;
 		} else if (d->conn->error() == AbstractConnection::NoError ||
 				   d->conn->error() == AbstractConnection::ReservationLinkError ||

@@ -248,11 +248,6 @@ Socket *AbstractConnection::socket()
 	return d_func()->socket;
 };
 
-bool AbstractConnection::isConnected()
-{
-	return d_func()->socket->state() != QTcpSocket::UnconnectedState;
-}
-
 AbstractConnection::ConnectionError AbstractConnection::error()
 {
 	return d_func()->error;
@@ -372,6 +367,8 @@ QString AbstractConnection::errorString()
 		return QCoreApplication::translate("ConnectionError", "Account suspended because of your age (age < 13)");
 	case AnotherClientLogined:
 		return QCoreApplication::translate("ConnectionError", "Another client is loggin with this uin");
+	case HostNotFound:
+		return QCoreApplication::translate("ConnectionError", "No IP addresses were found for the host");
 	case SocketError:
 		return d_func()->socket->errorString();
 	default:

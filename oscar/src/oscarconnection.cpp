@@ -51,6 +51,8 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 void OscarConnection::connectToLoginServer(const QString &password)
 {
 	setError(NoError);
+	if (m_md5login)
+		delete m_md5login;
 	m_md5login = new Md5Login(password, account());
 	connect(m_md5login, SIGNAL(disconnected()), m_md5login, SLOT(deleteLater()));
 	connect(m_md5login, SIGNAL(error(ConnectionError)), this, SLOT(md5Error(ConnectionError)));

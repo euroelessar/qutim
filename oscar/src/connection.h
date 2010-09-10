@@ -126,7 +126,8 @@ public:
 		InvalidSecirID = 0x20,
 		AgeLimit = 0x22,
 		AnotherClientLogined = 0x80,
-		SocketError = 0x81
+		SocketError = 0x81,
+		HostNotFound = 0x82
 	};
 public:
 	explicit AbstractConnection(IcqAccount *account, QObject *parent = 0);
@@ -137,7 +138,6 @@ public:
 	const QHostAddress &externalIP() const;
 	const QList<quint16> &servicesList();
 	Socket *socket();
-	bool isConnected();
 	ConnectionError error();
 	QString errorString();
 	IcqAccount *account();
