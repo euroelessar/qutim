@@ -26,9 +26,33 @@
 #include <QLineEdit>
 #include <QFileDialog>
 #include <QToolButton>
+#include <QSet>
 
 namespace qutim_sdk_0_3
 {
+
+Q_GLOBAL_STATIC(MenuSettingsMap,globalSettings);
+
+void Settings::registerItem(qutim_sdk_0_3::SettingsItem* item, const QMetaObject* meta)
+{
+	Q_ASSERT(item && meta);
+	globalSettings()->insert(meta,item);
+}
+
+SettingsItemList Settings::items(const QMetaObject *meta)
+{
+	QSet<const QMetaObject *> metaObjects;
+	SettingsItemList list;
+	while (meta) {
+		if (metaObjects.contains(meta))
+			break;
+		list.append(globalSettings()->values(meta));
+		metaObjects.insert(meta);
+		meta = meta->superClass();
+	}
+	return list;
+}
+
 SettingsItem::SettingsItem(SettingsItemPrivate &d) : p(&d)
 {
 	p->text.setContext("Settings");
@@ -390,8 +414,8 @@ void SettingsLayer::virtual_hook(int id, void *data)
 }
 
 void SettingsLayer::show(MenuController *controller)
-{
-	show(controller->settings(),controller);
+{	
+	show(Settings::items(controller->metaObject()),controller);
 }
 
 int SettingsItem::priority() const

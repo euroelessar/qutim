@@ -30,6 +30,8 @@ class SettingsItem;
 class SettingsItemPrivate;
 class MenuController;
 
+typedef QList<SettingsItem *> SettingsItemList;
+
 namespace Settings
 {
 	enum Type
@@ -62,6 +64,21 @@ namespace Settings
 	LIBQUTIM_EXPORT void removeItem(SettingsItem *item);
 	LIBQUTIM_EXPORT void showWidget();
 	LIBQUTIM_EXPORT void closeWidget();
+	/*!
+	  Add settings \a item to every object with QMetaObject \a meta.
+	*/
+	LIBQUTIM_EXPORT void registerItem(SettingsItem *item, const QMetaObject *meta);
+	/*!
+	  Add settings \a item to every object of type \a T.
+	*/
+	template <typename T>
+	LIBQUTIM_EXPORT void registerItem(SettingsItem *item);
+	/*!
+	  Returns list of every SettingsItem with QMetaObject \a meta, \warning each generated widget settings, should have a menucontroller as parent.
+	*/
+	SettingsItemList items(const QMetaObject *meta);
+	template <typename T>
+	LIBQUTIM_EXPORT void items();
 	//TODO,
 //		LIBQUTIM_EXPORT TypeEntryMap *entries();
 //		LIBQUTIM_EXPORT quint16 registerType(const char *id,
@@ -173,8 +190,6 @@ private:
 	QScopedPointer<AutoSettingsFileChooserPrivate> d_ptr;
 };
 
-typedef QList<SettingsItem *> SettingsItemList;
-
 class LIBQUTIM_EXPORT SettingsLayer : public QObject
 {
 	Q_OBJECT
@@ -189,6 +204,19 @@ protected:
 	virtual ~SettingsLayer();
 	virtual void virtual_hook(int id, void *data);
 };
+
+template <typename T>
+Q_INLINE_TEMPLATE void Settings::registerItem(qutim_sdk_0_3::SettingsItem* item)
+{
+	registerItem(item,&T::staticMetaObject);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE void Settings::items()
+{
+	items(&T::staticMetaObject);
+}
+
 }
 
 #endif // SETTINGSLAYER_H

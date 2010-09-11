@@ -33,8 +33,7 @@ namespace qutim_sdk_0_3
 		SettingsWidget();
 		virtual ~SettingsWidget();
 		bool isModified() const;
-		void setController(QObject *controller);
-		QObject *controller() const;
+		virtual void setController(QObject *controller);
 	public slots:
 		void load();
 		void save();
