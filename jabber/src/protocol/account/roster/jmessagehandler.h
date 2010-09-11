@@ -15,7 +15,7 @@ namespace Jabber
 	using qutim_sdk_0_3::ChatUnit;
 	class JAccount;
 	class JMessageSession;
-	struct JMessageHandlerPrivate;
+	class JMessageHandlerPrivate;
 
 	class JMessageHandler : public QObject, public gloox::MessageSessionHandler
 	{

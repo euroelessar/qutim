@@ -28,7 +28,7 @@ namespace Jabber
 {
 	using namespace gloox;
 
-	struct JDataFormPrivate;
+	class JDataFormPrivate;
 
 	class JDataForm : public QWidget
 	{

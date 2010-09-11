@@ -16,7 +16,7 @@ namespace Jabber
 	using namespace gloox;
 
 	class JVCardManager;
-	struct JInfoRequestPrivate;
+	class JInfoRequestPrivate;
 
 	class JInfoRequest : public InfoRequest
 	{

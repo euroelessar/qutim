@@ -30,6 +30,8 @@ namespace irc {
 class IrcAccountPrivate;
 class IrcChannel;
 
+typedef QHash<QChar, QString> Foo;
+
 class IrcAccount: public Account
 {
 	Q_OBJECT
@@ -43,7 +45,7 @@ public:
 	IrcChannel *getChannel(const QString &name, bool create = false);
 	IrcContact *getContact(const QString &nick, bool create = false);
 	void send(const QString &command, IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
-			  const QHash<QChar, QString> &extParams = QHash<QChar, QString>()) const;
+			  const Foo &extParams = Foo()) const;
 	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params);
 	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params);
 	void setName(const QString &name) const;

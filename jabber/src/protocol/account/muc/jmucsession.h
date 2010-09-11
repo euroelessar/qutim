@@ -34,7 +34,7 @@ namespace Jabber
 	class JMessageSession;
 	class JAccount;
 	class JMUCUser;
-	struct JMUCSessionPrivate;
+	class JMUCSessionPrivate;
 	class JSessionConvertor;
 
 	class JMUCSession :

@@ -41,8 +41,9 @@ enum ContactCapabilityFlags
 	srvrelay_support  = 0x0004
 };
 
-struct IcqContactPrivate
+class IcqContactPrivate
 {
+public:
 	Q_DECLARE_PUBLIC(IcqContact);
 	void clearCapabilities();
 	void requestNick();

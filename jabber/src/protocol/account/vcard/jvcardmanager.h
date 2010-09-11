@@ -16,7 +16,7 @@ namespace Jabber
 
 	class JAccount;
 	class JInfoRequest;
-	struct JVCardManagerPrivate;
+	class JVCardManagerPrivate;
 
 	class JVCardManager : public QObject, public VCardHandler
 	{

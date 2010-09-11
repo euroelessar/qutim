@@ -10,8 +10,9 @@
 
 namespace Jabber
 {
-	struct JMessageHandlerPrivate
+	class JMessageHandlerPrivate
 	{
+	public:
 		JAccount *account;
 		QHash<QString, JMessageSession *> sessions;
 		QList<MessageFilterFactory*> filterFactories;

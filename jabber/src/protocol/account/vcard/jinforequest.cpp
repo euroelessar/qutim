@@ -59,8 +59,9 @@ namespace Jabber
 //	
 //	Q_GLOBAL_STATIC_WITH_INITIALIZER(QList<LocalizedString>, genders, init_genders(*x))
 	
-	struct JInfoRequestPrivate
+	class JInfoRequestPrivate
 	{
+	public:
 		InfoRequest::State state;
 		const VCard *vcard;
 		DataItem *item;

@@ -12,8 +12,9 @@
 
 namespace Jabber
 {
-	struct JVCardManagerPrivate
+	class JVCardManagerPrivate
 	{
+	public:
 		JAccount *account;
 		VCardManager *manager;
 		QHash<QString, JInfoRequest *> contacts;
@@ -98,6 +99,6 @@ namespace Jabber
 
 	void JVCardManager::handleVCardResult(VCardContext context, const JID &jid, StanzaError se)
 	{
-		if (context == StoreVCard && se == StanzaErrorUndefined);
+		//if (context == StoreVCard && se == StanzaErrorUndefined); wtf?
 	}
 }

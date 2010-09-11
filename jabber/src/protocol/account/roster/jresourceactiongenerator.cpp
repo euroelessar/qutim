@@ -10,8 +10,9 @@ namespace Jabber
 {
 	using namespace qutim_sdk_0_3;
 
-	struct JResourceActionGeneratorPrivate
+	class JResourceActionGeneratorPrivate
 	{
+	public:
 		QString feature;
 	};
 

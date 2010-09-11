@@ -15,7 +15,7 @@ namespace Jabber
 {
 	using namespace qutim_sdk_0_3;
 
-	struct JMessageSessionPrivate;
+	class JMessageSessionPrivate;
 	class JMessageHandler;
 	class JSessionConvertor;
 

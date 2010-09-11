@@ -27,7 +27,7 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-struct OscarRate: public QObject
+class OscarRate: public QObject
 {
 	Q_OBJECT
 public:

@@ -15,7 +15,7 @@ namespace Jabber
 {
 	using namespace qutim_sdk_0_3;
 
-	struct JContactPrivate;
+	class JContactPrivate;
 	class JContactResource;
 	class JAccount;
 	class JRoster;

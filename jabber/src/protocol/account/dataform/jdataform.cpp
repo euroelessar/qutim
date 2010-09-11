@@ -282,8 +282,9 @@ namespace Jabber
 		  &dataform_export_value_text_single, &dataform_add_widget_default}
 	};
 
-	struct JDataFormPrivate
+	class JDataFormPrivate
 	{
+	public:
 		JDataFormPrivate()
 		{
 			form = 0;

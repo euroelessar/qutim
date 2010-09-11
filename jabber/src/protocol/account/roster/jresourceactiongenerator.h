@@ -5,7 +5,7 @@
 
 namespace Jabber
 {
-	struct JResourceActionGeneratorPrivate;
+	class JResourceActionGeneratorPrivate;
 
 	class JResourceActionGenerator : public qutim_sdk_0_3::ActionGenerator
 	{

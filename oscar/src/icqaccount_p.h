@@ -48,8 +48,9 @@ struct ConnectingInfo
 	QList<IcqContact*> createdContacts;
 };
 
-struct IcqAccountPrivate
+class IcqAccountPrivate
 {
+public:
 	Q_DECLARE_PUBLIC(IcqAccount);
 	void loadRoster();
 	void setCapability(const Capability &capability, const QString &type);

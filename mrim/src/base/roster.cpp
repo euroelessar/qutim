@@ -217,7 +217,7 @@ QString Roster::groupName(quint32 groupId) const
 {
     QString group;
 
-	if (groupId >= 0 && groupId < uint(p->groups.count()))
+	if (groupId != 0 && groupId < uint(p->groups.count()))
     {
         group = p->groups[groupId];
     }

@@ -21,8 +21,9 @@ using namespace gloox;
 
 namespace Jabber
 {
-	struct JContactPrivate
+	class JContactPrivate
 	{
+	public:
 		JAccount *account;
 		QHash<QString, JContactResource *> resources;
 		QStringList currentResources;

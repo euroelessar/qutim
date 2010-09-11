@@ -19,7 +19,7 @@
 #include <qutim/contact.h>
 
 class VAccount;
-struct VContactPrivate;
+class VContactPrivate;
 class LIBVKONTAKTE_EXPORT VContact : public Contact
 {
 	Q_OBJECT

@@ -39,8 +39,9 @@ using namespace qutim_sdk_0_3;
 
 namespace Jabber
 {
-	struct JMUCSessionPrivate
+	class JMUCSessionPrivate
 	{
+	public:
 		JAccount *account;
 		gloox::MUCRoom *room;
 		gloox::JID jid;

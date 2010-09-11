@@ -147,7 +147,7 @@ bool MrimPacket::readFrom(QIODevice& device)
         }
     }
 
-    if (state() == ReadData && m_bytesLeft >= 0)
+	if (state() == ReadData && m_bytesLeft != 0)
     {
         char *data = m_body.data() + m_body.size() - m_bytesLeft;
         qint64 bytesRead = device.read(data,m_bytesLeft);

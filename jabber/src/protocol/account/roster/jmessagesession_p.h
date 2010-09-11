@@ -25,8 +25,9 @@ namespace Jabber
 {
 	class JMessageReceiptFilter;
 	
-	struct JMessageSessionPrivate
+	class JMessageSessionPrivate
 	{
+	public:
 		QPointer<JMessageHandler> handler;
 		QPointer<JAccount> account;
 		MessageSession *session;

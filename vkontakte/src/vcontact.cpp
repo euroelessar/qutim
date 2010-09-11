@@ -23,8 +23,9 @@
 #include <qutim/tooltip.h>
 #include <qutim/inforequest.h>
 
-struct VContactPrivate
+class VContactPrivate
 {
+public:
 	bool online;
 	QString id;
 	bool inList;

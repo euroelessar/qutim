@@ -18,7 +18,7 @@
 #include <qutim/account.h>
 #include "vkontakte_global.h"
 
-struct VAccountPrivate;
+class VAccountPrivate;
 class VContact;
 class VConnection;
 class VRoster;
