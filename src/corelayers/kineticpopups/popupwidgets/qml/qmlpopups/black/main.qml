@@ -3,7 +3,7 @@ import Qt 4.7
 BorderImage {
 	id: background
 	width: 250
-	height: 75
+	height: 90
 
 	source: "images/background.png"
 	border.left: 32; border.top: 32
