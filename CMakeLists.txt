@@ -27,10 +27,9 @@ SET (QUTIM_PLUGINS_DEST "lib/qutim/")
 FIND_PACKAGE (Qt4 REQUIRED)
 
 INCLUDE(CPackOptions.cmake.in)
-INCLUDE(CPack)
 INCLUDE(UseQt4)
 INCLUDE(MacroEnsureVersion)
-INCLUDE(MacroAddQutIMArtwork)
+INCLUDE(QutIMMacros)
 
 #simple hack for include dirs
 macro(LIST_SUBDIRECTORIES retval curdir)
