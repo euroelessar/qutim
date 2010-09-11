@@ -34,7 +34,7 @@ namespace Core
 {
 namespace KineticPopups
 {
-TextPopupWidget::TextPopupWidget ()
+TextPopupWidget::TextPopupWidget()
 {
 	m_browser = new QTextBrowser(this);
 	QVBoxLayout *l = new QVBoxLayout(this);
@@ -48,12 +48,13 @@ TextPopupWidget::TextPopupWidget ()
 	init(popupSettings);
 }
 
-void TextPopupWidget::init (const ThemeHelper::PopupSettings &popupSettings)
+void TextPopupWidget::init(const ThemeHelper::PopupSettings &popupSettings)
 {
 	m_timer.setSingleShot(true);
 	connect(&m_timer, SIGNAL(timeout()), this, SIGNAL(activated()));
 	//init browser
 	setTheme(popupSettings);
+
 	if (popupSettings.popupFlags & ThemeHelper::Preview) {
 		setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 	}
@@ -74,7 +75,7 @@ void TextPopupWidget::init (const ThemeHelper::PopupSettings &popupSettings)
 		}
 
 	}
-	m_browser->setFrameShape ( QFrame::NoFrame );
+	m_browser->setFrameShape (QFrame::NoFrame);
 	m_browser->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
 	m_browser->setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
 	m_browser->setContextMenuPolicy(Qt::NoContextMenu);
@@ -86,7 +87,8 @@ void TextPopupWidget::setTheme(const QString &theme)
 	setTheme(ThemeHelper::loadThemeSetting(theme));
 }
 
-void TextPopupWidget::setData ( const QString& title, const QString& body, QObject *sender,const QVariant &data)
+void TextPopupWidget::setData(const QString& title, const QString& body,
+							  QObject *sender,const QVariant &data)
 {
 	Manager *manager = Manager::self();
 

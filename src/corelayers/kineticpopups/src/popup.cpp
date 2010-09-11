@@ -108,16 +108,18 @@ void Popup::send()
 	}
 	m_machine = new QStateMachine(this);
 
+	//FIXME
 	const ObjectGenerator *gen = moduleGenerators<AbstractPopupWidget>().value(0);
 	Q_ASSERT(gen);
 	m_popup = gen->generate<AbstractPopupWidget>();
 	Q_ASSERT(m_popup);
-	m_popup->setData ( m_title,m_body,m_sender,m_data );
+	m_popup->show();
+	m_popup->setData(m_title,m_body,m_sender,m_data);
 	QSize notify_size = m_popup->sizeHint();
 
 	m_show_geometry.setSize(notify_size);
 	QRect geom = manager->insert(this);
-	if ( geom.isEmpty() )
+	if(geom.isEmpty())
 		deleteLater();
 
 	m_show_state = new QState(m_machine);
@@ -128,13 +130,12 @@ void Popup::send()
 	geom.moveTop(geom.y() - y);
 
 	m_show_geometry = geom;
-	if (manager->animation & Slide)
+	if(manager->animation & Slide)
 		geom.moveLeft(geom.left() + x);
 	m_popup->setGeometry(geom);
 
-	m_machine->setInitialState (m_show_state);
+	m_machine->setInitialState(m_show_state);
 
-	//TODO FIXME
 	if (manager->animation) {
 		m_moving_animation = new QPropertyAnimation ( m_popup,"geometry",this );
 		m_moving_animation->setDuration ( manager->animationDuration);
@@ -154,7 +155,6 @@ void Popup::send()
 	connect(m_popup,SIGNAL(sizeChanged(QSize)),SLOT(onPopupWidgetSizeChanged(QSize)));
 	connect(m_popup,SIGNAL(activated()),SLOT(onPopupActivated()));
 	m_machine->start();
-	m_popup->show();
 }
 
 void Popup::update(QRect geom)
