@@ -33,7 +33,7 @@ namespace qutim_sdk_0_3
 		if (self) {
 			qFatal("Double initialization of CryptoService, aborting");
 			// ensure
-			*((int*)0) = 0;
+			qApp->exit(1); //goodbye cruel world
 		}
 		self = this;
 	}
