@@ -17,31 +17,31 @@
 #ifndef POPUPWIDGET_H
 #define POPUPWIDGET_H
 
-#include <QTextBrowser>
 #include <QTimer>
 #include "themehelper.h"
+#include <backend.h>
 
 class QTextBrowser;
 namespace Core
 {
 namespace KineticPopups
 {
-class PopupWidget : public QTextBrowser
+class TextPopupWidget : public AbstractPopupWidget
 {
 	Q_OBJECT
 public:
-	PopupWidget(const ThemeHelper::PopupSettings &popupSettings);
-	PopupWidget();
-	void setData(const QString& title,
+	TextPopupWidget();
+	virtual void setData(const QString& title,
 				const QString& body,
 				QObject *sender,
 				const QVariant &data); //size of textbrowser
 
-	void setTheme(const ThemeHelper::PopupSettings &popupSettings);
-	virtual void mouseReleaseEvent ( QMouseEvent* ev );
-	virtual ~PopupWidget();
+	virtual void setTheme(const QString &theme);
+	virtual ~TextPopupWidget();
 	virtual QSize sizeHint() const;
 	virtual void timerEvent(QTimerEvent *);
+protected:
+	virtual bool eventFilter(QObject *obj, QEvent *event);
 signals:
 	void activated();
 	void sizeChanged(const QSize &size);
@@ -50,11 +50,13 @@ private slots:
 	void onAction1Triggered();
 	void onAction2Triggered();
 private:
+	void setTheme(const ThemeHelper::PopupSettings &popupSettings);
 	ThemeHelper::PopupSettings popup_settings;
 	void init(const ThemeHelper::PopupSettings &popupSettings);
 	QObject *m_sender;
 	QVariant m_data;
 	QTimer m_timer;
+	QTextBrowser *m_browser;
 };
 }
 }

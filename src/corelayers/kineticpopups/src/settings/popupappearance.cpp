@@ -15,14 +15,13 @@ Boston, MA 02110-1301, USA.
 */
 
 #include "popupappearance.h"
-#include "../themehelper.h"
 #include <QLayout>
-#include "../popupwidget.h"
 #include <QLayout>
 #include "ui_popupappearance.h"
 #include <qutim/configbase.h>
-#include "../manager.h"
-
+#include "manager.h"
+#include <qutim/objectgenerator.h>
+#include "backend.h"
 
 namespace Core
 {
@@ -36,15 +35,20 @@ PopupAppearance::PopupAppearance ()
 	connect(ui->pushButton,SIGNAL(clicked(bool)),SLOT(onTestButtonClicked(bool)));
 	setProperty("name",tr("Preview"));
 	setProperty("avatar",QLatin1String(":/icons/qutim_64"));
-	ThemeHelper::PopupSettings settings = Manager::self()->popupSettings;
-	settings.popupFlags = ThemeHelper::Preview;
-	m_popup_widget = new PopupWidget(settings);
-	layout()->addWidget(m_popup_widget);
+
+	const ObjectGenerator *gen = moduleGenerators<AbstractPopupWidget>().value(0);
+	Q_ASSERT(gen);
+	m_popup_widget = gen->generate<AbstractPopupWidget>();
+	Q_ASSERT(m_popup_widget);
+
+	ui->verticalLayout_2->addWidget(m_popup_widget);
+
 	connect(ui->comboBox,SIGNAL(currentIndexChanged(int)),SLOT(onCurrentIndexChanged(int)));
 }
 
 PopupAppearance::~PopupAppearance()
 {
+	m_popup_widget->deleteLater();
 	delete ui;
 }
 
@@ -52,7 +56,7 @@ PopupAppearance::~PopupAppearance()
 
 void PopupAppearance::loadImpl()
 {
-	ConfigGroup general = Config("appearance").group("kineticpopups/general");
+	Config general = Config("appearance").group("qmlpopups/general");
 	m_current_theme = general.value<QString>("themeName","default");
 	getThemes();
 }
@@ -60,10 +64,10 @@ void PopupAppearance::loadImpl()
 
 void PopupAppearance::saveImpl()
 {
-	ConfigGroup general = Config("appearance").group("kineticpopups/general");
+	Config general = Config("appearance").group("qmlpopups/general");
 	general.setValue("themeName",m_current_theme);
 	general.sync();
-	Manager::self()->loadTheme(m_current_theme);
+	Manager::self()->loadSettings();
 }
 
 void PopupAppearance::cancelImpl()
@@ -74,7 +78,7 @@ void PopupAppearance::cancelImpl()
 void PopupAppearance::getThemes()
 {
 	ui->comboBox->blockSignals(true);
-	QString category = "kineticpopups";
+	QString category = "qmlpopups";
 	QStringList list = listThemes(category);
 	ui->comboBox->clear();
 	int index = -1;
@@ -98,17 +102,16 @@ void PopupAppearance::onCurrentIndexChanged(int index)
 
 void PopupAppearance::onTestButtonClicked(bool )
 {
-	Manager::self()->loadTheme(ui->comboBox->itemData(ui->comboBox->currentIndex()).toString());
+	Manager::self()->themeName = ui->comboBox->itemData(ui->comboBox->currentIndex()).toString();
 	Notifications::send(tr("Preview"),tr("This is a simple popup"));
 	Notifications::send(qutim_sdk_0_3::Notifications::MessageGet,this,tr("Simple message"));
 	Notifications::send(qutim_sdk_0_3::Notifications::MessageGet,this,tr("Another message"));
-	Manager::self()->loadTheme(m_current_theme);
+	Manager::self()->themeName = m_current_theme;
 }
 
 void PopupAppearance::preview()
 {
-	QString theme_path = getThemePath("kineticpopups", m_current_theme);
-	m_popup_widget->setTheme(ThemeHelper::loadThemeSetting(theme_path));
+	m_popup_widget->setTheme(m_current_theme);
 	m_popup_widget->setData(tr("Preview"),tr("Simple messagebox"), this, QVariant());
 }
 

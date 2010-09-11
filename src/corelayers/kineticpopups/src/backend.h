@@ -17,13 +17,14 @@
 #define BACKEND_H
 
 #include <qutim/notificationslayer.h>
-
-using namespace qutim_sdk_0_3;
+#include <QWidget>
 
 namespace Core
 {
 namespace KineticPopups
 {
+using namespace qutim_sdk_0_3;
+
 class Popup;
 class Backend : public PopupBackend
 {
@@ -32,12 +33,23 @@ public:
 	virtual void show(Notifications::Type type, QObject* sender,
 					  const QString& body, const QVariant& data);
 	Backend ();
-public slots:
-	void updateSettings();
-private:
-	int m_id_counter;
 };
-}
-}
 
+class AbstractPopupWidget : public QWidget
+{
+	Q_OBJECT
+	Q_CLASSINFO("Service","PopupWidget")
+public:
+	virtual	void setTheme(const QString &themeName) = 0;
+	virtual void setData(const QString& title,
+				 const QString& body,
+				 QObject *sender,
+				 const QVariant &data) = 0;
+signals:
+	void sizeChanged(const QSize &size);
+	void activated();
+};
+
+}
+}
 #endif //BACKEND_H

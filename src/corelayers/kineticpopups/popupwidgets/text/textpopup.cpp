@@ -1,5 +1,5 @@
 /****************************************************************************
-*  popupwidget.cpp
+*  textpopup.cpp
 *
 *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
 *
@@ -13,7 +13,7 @@
 ***************************************************************************
 *****************************************************************************/
 
-#include "popupwidget.h"
+#include "textpopup.h"
 #include <QVBoxLayout>
 #include "manager.h"
 #include <QMouseEvent>
@@ -26,23 +26,29 @@
 #include <qutim/chatunit.h>
 #include <qutim/messagesession.h>
 #include <qutim/message.h>
+#include <QTextBrowser>
+#include <QVBoxLayout>
+#include <qutim/debug.h>
 
 namespace Core
 {
 namespace KineticPopups
 {
-PopupWidget::PopupWidget ()
+TextPopupWidget::TextPopupWidget ()
 {
-	ThemeHelper::PopupSettings popupSettings = Manager::self()->popupSettings;
+	m_browser = new QTextBrowser(this);
+	QVBoxLayout *l = new QVBoxLayout(this);
+	setLayout(l);
+	l->setMargin(0);
+	l->addWidget(m_browser);
+	m_browser->viewport()->installEventFilter(this);
+
+	QString theme_name = Manager::self()->themeName;
+	ThemeHelper::PopupSettings popupSettings = ThemeHelper::loadThemeSetting(theme_name);
 	init(popupSettings);
 }
 
-PopupWidget::PopupWidget (const ThemeHelper::PopupSettings &popupSettings)
-{
-	init(popupSettings);
-}
-
-void PopupWidget::init (const ThemeHelper::PopupSettings &popupSettings)
+void TextPopupWidget::init (const ThemeHelper::PopupSettings &popupSettings)
 {
 	m_timer.setSingleShot(true);
 	connect(&m_timer, SIGNAL(timeout()), this, SIGNAL(activated()));
@@ -57,7 +63,7 @@ void PopupWidget::init (const ThemeHelper::PopupSettings &popupSettings)
 		if (popupSettings.popupFlags & ThemeHelper::Transparent) {
 			setAttribute(Qt::WA_NoSystemBackground);
 			setAttribute(Qt::WA_TranslucentBackground);
-			viewport()->setAutoFillBackground(false);
+			m_browser->viewport()->setAutoFillBackground(false);
 		}
 		if (popupSettings.popupFlags & ThemeHelper::AeroThemeIntegration) {
 			//init aero integration for win
@@ -68,14 +74,19 @@ void PopupWidget::init (const ThemeHelper::PopupSettings &popupSettings)
 		}
 
 	}
-	setFrameShape ( QFrame::NoFrame );
-	setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
-	setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
-	setContextMenuPolicy(Qt::NoContextMenu);
-	setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
+	m_browser->setFrameShape ( QFrame::NoFrame );
+	m_browser->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+	m_browser->setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
+	m_browser->setContextMenuPolicy(Qt::NoContextMenu);
+	m_browser->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff);
 }
 
-void PopupWidget::setData ( const QString& title, const QString& body, QObject *sender,const QVariant &data)
+void TextPopupWidget::setTheme(const QString &theme)
+{
+	setTheme(ThemeHelper::loadThemeSetting(theme));
+}
+
+void TextPopupWidget::setData ( const QString& title, const QString& body, QObject *sender,const QVariant &data)
 {
 	Manager *manager = Manager::self();
 
@@ -90,10 +101,12 @@ void PopupWidget::setData ( const QString& title, const QString& body, QObject *
 		image_path = QLatin1String(":/icons/qutim_64");
 	QString popup_data = popup_settings.content;
 	QString text;
-	if (manager->parseEmoticons)
-		text = Emoticons::theme().parseEmoticons(text);
-	else
-		text = body;
+//	if (true)
+//		text = Emoticons::theme().parseEmoticons(text);
+//	else
+//		text = body;
+
+	text = body;
 	if (text.length() > manager->maxTextLength) {
 		text.truncate(manager->maxTextLength);
 		text.append("...");
@@ -101,8 +114,8 @@ void PopupWidget::setData ( const QString& title, const QString& body, QObject *
 	popup_data.replace ( "{title}", popup_title );
 	popup_data.replace ( "{body}", text);
 	popup_data.replace ( "{imagepath}",image_path);
-	document()->setTextWidth(popup_settings.defaultSize.width());
-	document()->setHtml(popup_data);
+	m_browser->document()->setTextWidth(popup_settings.defaultSize.width());
+	m_browser->document()->setHtml(popup_data);
 	emit sizeChanged(sizeHint());
 
 	if (manager->timeout > 0) {
@@ -113,32 +126,34 @@ void PopupWidget::setData ( const QString& title, const QString& body, QObject *
 }
 
 
-void PopupWidget::setTheme (const ThemeHelper::PopupSettings &popupSettings )
+void TextPopupWidget::setTheme (const ThemeHelper::PopupSettings &popupSettings )
 {
 	popup_settings = popupSettings;
-	this->setStyleSheet (popup_settings.styleSheet);
+	m_browser->setStyleSheet (popup_settings.styleSheet);
 }
 
-
-void PopupWidget::mouseReleaseEvent ( QMouseEvent* ev )
+bool TextPopupWidget::eventFilter(QObject *obj, QEvent *ev)
 {
-	//TODO
-	if (ev->button() == Qt::LeftButton) {
-		onAction1Triggered();
+	if(ev->type() == QEvent::MouseButtonPress) {
+		QMouseEvent *event = static_cast<QMouseEvent*>(ev);
+		if (event->button() == Qt::LeftButton) {
+			onAction1Triggered();
+		}
+		else if (event->button() == Qt::RightButton)
+			onAction2Triggered();
+		else
+			return false;
+		emit activated();
+		return true;
 	}
-	else if (ev->button() == Qt::RightButton)
-		onAction2Triggered();
-	else
-		return;
-	emit activated();
+	return AbstractPopupWidget::eventFilter(obj,ev);
 }
 
-PopupWidget::~PopupWidget()
+TextPopupWidget::~TextPopupWidget()
 {
 }
 
-
-void KineticPopups::PopupWidget::onAction1Triggered()
+void KineticPopups::TextPopupWidget::onAction1Triggered()
 {
 	if (ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender)) {
 		ChatUnit *metaContact = unit->metaContact();
@@ -151,7 +166,7 @@ void KineticPopups::PopupWidget::onAction1Triggered()
 	}
 }
 
-void KineticPopups::PopupWidget::onAction2Triggered()
+void KineticPopups::TextPopupWidget::onAction2Triggered()
 {
 	ChatUnit *unit = qobject_cast<ChatUnit *>(m_sender);
 	ChatSession *sess;
@@ -162,16 +177,16 @@ void KineticPopups::PopupWidget::onAction2Triggered()
 	}
 }
 
-void PopupWidget::timerEvent(QTimerEvent* ev)
+void TextPopupWidget::timerEvent(QTimerEvent* ev)
 {
 	emit activated();
-	QTextEdit::timerEvent(ev);
+	AbstractPopupWidget::timerEvent(ev);
 }
 
-QSize PopupWidget::sizeHint() const
+QSize TextPopupWidget::sizeHint() const
 {
 	int width = popup_settings.defaultSize.width();
-	int height = static_cast<int>(document()->size().height());
+	int height = static_cast<int>(m_browser->document()->size().height());
 	return QSize(width,height);
 }
 

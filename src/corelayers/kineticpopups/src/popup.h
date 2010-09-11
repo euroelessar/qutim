@@ -21,6 +21,7 @@
 #include <QRect>
 #include <QVariant>
 
+
 class QFinalState;
 class QPropertyAnimation;
 class QState;
@@ -29,7 +30,7 @@ namespace Core
 {
 namespace KineticPopups
 {
-class PopupWidget;
+class AbstractPopupWidget;
 class Popup : public QObject
 {
 	Q_OBJECT
@@ -53,7 +54,7 @@ private slots:
 private:
 	void updateGeometry(const QRect &newGeometry);
 	inline void updateMessage();
-	PopupWidget *m_notification_widget;
+	AbstractPopupWidget *m_popup;
 	QString m_title;
 	QString m_body;
 	QString m_id;
@@ -68,5 +69,4 @@ private:
 };
 }
 }
-
 #endif // POPUP_H

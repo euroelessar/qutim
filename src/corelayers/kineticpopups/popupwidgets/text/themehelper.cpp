@@ -41,8 +41,9 @@ QString loadContent ( const QString& path,  const QString &file )
 	return output;
 }
 
-PopupSettings loadThemeSetting ( const QString& themePath )
+PopupSettings loadThemeSetting ( const QString& themeName )
 {
+	QString themePath = getThemePath("textpopups",themeName);
 	PopupSettings popup_settings;
 	popup_settings.themePath = themePath;
 	popup_settings.styleSheet = loadContent(themePath,"content.css");

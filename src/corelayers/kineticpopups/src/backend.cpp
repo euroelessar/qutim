@@ -19,22 +19,20 @@
 #include <QVariant>
 #include <QTime>
 #include <QDebug>
-#include "popupwidget.h"
-#include <qutim/configbase.h>
+#include <qutim/debug.h>
+#include <qutim/message.h>
+#include <qutim/chatunit.h>
+#include  <QTextDocument>
 #include "settings/popupappearance.h"
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
-#include <qutim/message.h>
-#include <qutim/chatunit.h>
-#include <qutim/contact.h>
-#include <qutim/protocol.h>
-#include <QTimer>
 
 namespace Core
 {
 namespace KineticPopups
 {
-Backend::Backend () : m_id_counter(0)
+
+Backend::Backend ()
 {
 	GeneralSettingsItem<PopupAppearance> *appearance = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
 	Settings::registerItem(appearance);
@@ -48,19 +46,12 @@ void Backend::show(Notifications::Type type, QObject* sender, const QString& bod
 		return;
 	}
 
+	static int id_counter = 0;
 	QString text = Qt::escape(body);
-	QString sender_id;
-	QString sender_name;
-	if (sender) {
-		sender_id = sender->metaObject()->className();
-		sender_name = sender->property("title").toString();
-		if (sender_name.isEmpty()) {
-			sender_name = sender->property("name").toString();
-			if (sender_name.isEmpty())
-				sender_name = sender_id;
-		}
-	}
-
+	QString sender_id = sender ? sender->property("id").toString() : QString();
+	QString sender_name = sender ? sender->property("name").toString() : QString();
+	if(sender_name.isEmpty())
+		sender_name = sender_id;
 	QString title = Notifications::toString(type).arg(sender_name);
 
 
@@ -82,7 +73,7 @@ void Backend::show(Notifications::Type type, QObject* sender, const QString& bod
 			updateMode ? popup->updateMessage(text) : popup->appendMessage(text);
 			return;
 		} else if (sender) {
-			popup_id.append("." + QString::number(m_id_counter++));
+			popup_id.append("." + QString::number(id_counter++));
 		}
 	}
 	popup  = new Popup (popup_id);
@@ -91,13 +82,6 @@ void Backend::show(Notifications::Type type, QObject* sender, const QString& bod
 	if (sender)
 		connect(sender,SIGNAL(destroyed(QObject*)),popup,SLOT(deleteLater()));
 	popup->send();
-}
-
-void Backend::updateSettings()
-{
-	Manager *manager = Manager::self();
-	if (manager)
-		manager->loadSettings();
 }
 
 }

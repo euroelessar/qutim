@@ -17,19 +17,20 @@ Boston, MA 02110-1301, USA.
 #ifndef POPUPAPPEARANCE_H
 #define POPUPAPPEARANCE_H
 #include <QWidget>
-#include "../backend.h"
+#include "backend.h"
 #include <qutim/settingswidget.h>
 
 namespace Ui
 {
-class AppearanceSettings;
+    class AppearanceSettings;
 }
 
 namespace Core
 {
 namespace KineticPopups
 {
-class PopupWidget;
+
+class AbstractPopupWidget;
 class PopupAppearance : public SettingsWidget
 {
 	Q_OBJECT
@@ -47,8 +48,9 @@ private:
 	void preview();
 	QString m_current_theme;
 	Ui::AppearanceSettings *ui;
-	PopupWidget *m_popup_widget;
-};
+	AbstractPopupWidget *m_popup_widget;
+    };
+
 }
 }
 #endif // POPUPAPPEARANCE_H

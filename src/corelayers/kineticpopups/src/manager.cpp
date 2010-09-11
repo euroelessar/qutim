@@ -21,8 +21,8 @@
 #include <QApplication>
 #include <QMouseEvent>
 #include <QDesktopWidget>
-#include <qutim/systeminfo.h>
-#include <qutim/configbase.h>
+#include "qutim/systeminfo.h"
+#include "qutim/configbase.h"
 
 namespace Core
 {
@@ -75,7 +75,7 @@ QRect Manager::insert ( Popup* notification )
 	if (number == 0) {
 		QRect geom = QApplication::desktop()->availableGeometry(QCursor::pos());
 		geom = QRect(geom.bottomRight(),notification->geometry().size());
-		geom.moveLeft(geom.x() - popupSettings.margin - notification->geometry().width());
+		geom.moveLeft(geom.x() - margin - notification->geometry().width());
 		return geom;
 	}
 	else
@@ -96,15 +96,19 @@ void Manager::updateGeometry()
 	if (updatePosition) {
 		QRect geom = QApplication::desktop()->availableGeometry(QCursor::pos());
 		int y = geom.bottom();
-		geom.moveLeft(geom.right() - popupSettings.margin - popupSettings.defaultSize.width());
 		for (int i=0;i!=active_notifications.count();i++) {
-			y -= popupSettings.margin + active_notifications.value(i)->geometry().height();
+			y -= margin + active_notifications.value(i)->geometry().height();
 			geom.moveTop(y);
-			geom.setSize(active_notifications.value(i)->geometry().size());
-			active_notifications.value(i)->update(geom);
+			QRect widget_geom = geom;
+			widget_geom.moveLeft(geom.right() - margin - active_notifications.value(i)->geometry().width());
+			widget_geom.setSize(active_notifications.value(i)->geometry().size());
+			active_notifications.value(i)->update(widget_geom);
 		}
 	}
 }
+
+
+
 
 Manager* Manager::self()
 {
@@ -116,28 +120,22 @@ Manager* Manager::self()
 
 void Manager::loadSettings()
 {
-	Config general = Config("appearance").group("kineticpopups/general");
-	QString theme_name = general.value<QString>("themeName","default");
-	loadTheme(theme_name);
-
 	Config behavior = Config("behavior").group("notifications/popups");
+	themeName = behavior.value<QString>("themeName","default");
+	updatePosition = behavior.value<bool>("updatePosition",true);
+	animation = static_cast<AnimationFlags>(behavior.value<int>("animationFlags",Opacity));
+	timeout = behavior.value<int>("timeout",5000);
+	easingCurve.setType(static_cast<QEasingCurve::Type>(behavior.value<int>("easingCurve",QEasingCurve::OutSine)));
 	maxCount = behavior.value<int>("maxCount",10);
 	maxTextLength = behavior.value<int>("maxTextLength",160);
 	appendMode = behavior.value<bool>("appendMode",true);
 	updateMode = behavior.value<bool>("updateMode",false);
-	animationDuration = behavior.value("animationDuration",400);
-	showFlags = static_cast<NotificationTypes>(behavior.value<int>("showFlags", 0xfffffff &~ Notifications::MessageSend));
-	updatePosition = behavior.value<bool>("updatePosition",true);
-	animation = animationDuration ? behavior.value("animationFlags", Opacity) : NoAnimation;
-	timeout = behavior.value<int>("timeout",5000);
-	easingCurve.setType(behavior.value("easingCurve",QEasingCurve::OutSine));
-	parseEmoticons = behavior.value("parseEmoticons",false);
-}
+	animationDuration = behavior.value("animationDuration",600);
+	showFlags = static_cast<NotificationTypes>(behavior.value("showFlags", 0xfffffff &~ Notifications::MessageSend));
+	margin = behavior.value("margin",20);
 
-void Manager::loadTheme(const QString& themeName)
-{
-	QString theme_path = getThemePath("kineticpopups", themeName);
-	popupSettings = ThemeHelper::loadThemeSetting(theme_path);
+	Config general = Config("appearance").group("qmlpopups/general");
+	themeName = general.value<QString>("themeName","default");
 }
 
 }

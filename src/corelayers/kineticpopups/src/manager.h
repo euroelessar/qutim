@@ -21,32 +21,32 @@
 #include <QSize>
 #include <QEasingCurve>
 #include "backend.h"
-#include "themehelper.h"
+
 class QRect;
 class QDir;
 namespace Core
 {
 namespace KineticPopups
 {
+
 class Popup;
 enum AnimationFlag
 {
 	NoAnimation = 0x0,
 	Slide = 0x1,
 	Opacity = 0x2
-};
+		  };
 Q_DECLARE_FLAGS (AnimationFlags, AnimationFlag)
 class Manager
 {
 	Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
 public:
-	Manager();
-	void loadSettings();
+			Manager();
 	Popup *getById (const QString &id) const;
 	Popup *getByNumber (const int &number) const;
+	void loadSettings();
 	int count();
 	QRect insert (Popup *notification);
-	void loadTheme (const QString &themeName);
 	void remove (const QString &id);
 	void updateGeometry();
 	static Manager *self();
@@ -55,19 +55,18 @@ public:
 	bool updatePosition;
 	AnimationFlags animation;
 	NotificationTypes showFlags;
-	uint timeout;
+	int timeout;
 	bool appendMode;
 	bool updateMode;
 	int maxCount;
 	int maxTextLength;
-	ThemeHelper::PopupSettings popupSettings;
-	bool parseEmoticons;
+	uint margin;
+	QString themeName;
 private:
 	QList<Popup *> active_notifications;
 	static Manager *instance;
 	int getNumber(const QString &id) const;
 };
-
 }
 }
 #endif // MANAGER_H
