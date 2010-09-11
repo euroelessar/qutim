@@ -1,6 +1,6 @@
 
 
-qutim_add_plugin( kineticpopup
+qutim_add_plugin( kineticpopups
 	DISPLAY_NAME "Kinetic popups"
 	DESCRIPTION "Modern popups, based on power of Qt Quick"
 	LINK_LIBRARIES ${QT_QTDECLARATIVE_LIBRARY}

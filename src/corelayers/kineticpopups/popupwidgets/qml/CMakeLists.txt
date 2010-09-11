@@ -13,6 +13,7 @@ qutim_add_plugin( qmlpopupwidget
 	DISPLAY_NAME "QDeclarative Popup Widget"
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DESCRIPTION "Modern popups, based on power of Qt Quick"
+	DEPENDS kineticpopups
 	LINK_LIBRARIES ${QT_QTDECLARATIVE_LIBRARY} kineticpopups
 )
 
