@@ -210,33 +210,36 @@ void IcqAccountMainSettings::updatePort(bool ssl)
 	}
 }
 
-IcqAccountMainSettingsWindget::IcqAccountMainSettingsWindget() :
+IcqAccountMainSettingsWidget::IcqAccountMainSettingsWidget() :
 	m_widget(0), m_layout(new QVBoxLayout(this))
 {
 
 }
 
-IcqAccountMainSettingsWindget::~IcqAccountMainSettingsWindget()
+IcqAccountMainSettingsWidget::~IcqAccountMainSettingsWidget()
 {
 }
 
-void IcqAccountMainSettingsWindget::loadImpl()
+void IcqAccountMainSettingsWidget::setController(QObject *controller)
 {
-	IcqAccount *account = qobject_cast<IcqAccount*>(controller());
-	if (account) {
-		m_widget = new IcqAccountMainSettings(account, this);
-		m_layout->addWidget(m_widget);
-		listenChildrenStates();
-	}
+	m_account = qobject_cast<IcqAccount*>(controller);
 }
 
-void IcqAccountMainSettingsWindget::cancelImpl()
+void IcqAccountMainSettingsWidget::loadImpl()
+{
+	Q_ASSERT(m_account);
+	m_widget = new IcqAccountMainSettings(m_account, this);
+	m_layout->addWidget(m_widget);
+	listenChildrenStates();
+}
+
+void IcqAccountMainSettingsWidget::cancelImpl()
 {
 	if (m_widget)
 		m_widget->reloadSettings();
 }
 
-void IcqAccountMainSettingsWindget::saveImpl()
+void IcqAccountMainSettingsWidget::saveImpl()
 {
 	if (m_widget) {
 		m_widget->saveSettings();

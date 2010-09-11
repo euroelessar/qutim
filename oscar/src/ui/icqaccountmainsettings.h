@@ -39,18 +39,20 @@ private:
 	IcqAccount *m_account;
 };
 
-class IcqAccountMainSettingsWindget: public SettingsWidget
+class IcqAccountMainSettingsWidget: public SettingsWidget
 {
 	Q_OBJECT
 public:
-	IcqAccountMainSettingsWindget();
-	virtual ~IcqAccountMainSettingsWindget();
+	IcqAccountMainSettingsWidget();
+	virtual ~IcqAccountMainSettingsWidget();
 	virtual void loadImpl();
 	virtual void cancelImpl();
 	virtual void saveImpl();
+	virtual void setController(QObject *controller);
 private:
 	IcqAccountMainSettings *m_widget;
 	QVBoxLayout *m_layout;
+	IcqAccount *m_account;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

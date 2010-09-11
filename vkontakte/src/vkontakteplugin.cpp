@@ -47,7 +47,7 @@ void VkontaktePlugin::init()
 				 new GeneralGenerator<VAccountCreator>(),
 				 vicon);
 	GeneralSettingsItem<VAccountSettings> *item = new GeneralSettingsItem<VAccountSettings>(Settings::Special,QIcon(),QT_TRANSLATE_NOOP("Vkontakte","Account settings"));
-	MenuController::addSettingsItem<VAccount>(item);
+	Settings::registerItem<VAccount>(item);
 	
 }
 bool VkontaktePlugin::load()

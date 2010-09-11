@@ -42,11 +42,11 @@ IcqProtocol::IcqProtocol() :
 			Settings::Protocol,
 			Icon("im-icq"),
 			QT_TRANSLATE_NOOP_UTF8("Settings", "Icq")));
-	MenuController::addSettingsItem<IcqAccount>(
-			new GeneralSettingsItem<IcqAccountMainSettingsWindget>(
-			Settings::Protocol,
-			Icon("im-icq"),
-			QT_TRANSLATE_NOOP_UTF8("Settings", "Icq account settings")));
+	Settings::registerItem<IcqAccount>(
+			new GeneralSettingsItem<IcqAccountMainSettingsWidget>(
+					Settings::Protocol,
+					Icon("im-icq"),
+					QT_TRANSLATE_NOOP_UTF8("Settings", "Icq account settings")));
 
 	updateSettings();
 }
