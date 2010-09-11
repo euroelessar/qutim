@@ -23,7 +23,6 @@ class PopupWidget : public AbstractPopupWidget
 	Q_OBJECT
 public:
 	explicit PopupWidget();
-	PopupWidget(const QString &themeName); //for generate preview only
 	virtual QSize sizeHint() const;
 	void setTheme(const QString &themeName);
 	void setData(const QString& title,

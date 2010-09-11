@@ -61,11 +61,6 @@ PopupWidget::PopupWidget()
 	m_view->rootContext()->setContextProperty("popupWidget",this);
 	m_view->rootContext()->setContextProperty("timeout",Manager::self()->timeout);
 }
-PopupWidget::PopupWidget(const QString &themeName)
-{
-	setTheme(themeName);
-	m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-}
 
 void PopupWidget::setTheme(const QString &themeName)
 {

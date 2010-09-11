@@ -112,7 +112,7 @@ void PopupAppearance::onTestButtonClicked(bool )
 void PopupAppearance::preview()
 {
 	m_popup_widget->setTheme(m_current_theme);
-	m_popup_widget->setData(tr("Preview"),tr("Simple messagebox"), this, QVariant());
+	m_popup_widget->setData(tr("Preview"),tr("Simple kinetic popup widget."), this, QVariant());
 }
 
 }
