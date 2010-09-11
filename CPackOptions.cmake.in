@@ -11,6 +11,7 @@ SET(CPACK_PACKAGE_VERSION_MAJOR "0")
 SET(CPACK_PACKAGE_VERSION_MINOR "2")
 SET(CPACK_PACKAGE_VERSION_PATCH "60")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "qutIM")
+set(CPACK_PACKAGE_EXECUTABLES "qutim;qutIM")
 
 if(CPACK_GENERATOR MATCHES "NSIS")
   # set the install/unistall icon used for the installer itself
@@ -21,7 +22,7 @@ if(CPACK_GENERATOR MATCHES "NSIS")
   #SET(CPACK_PACKAGE_ICON "@CMake_SOURCE_DIR@/Utilities/Release\\CMakeInstall.bmp")
   # tell cpack to create links to the doc files
   # Use the icond from qutIM for add-remove programs
-  SET(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\qutim.exe")
+  SET(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\qutim.exe")
 
   SET(CPACK_NSIS_DISPLAY_NAME "Free open-source crossplatform multiprotocol instant messenger")
   SET(CPACK_NSIS_PACKAGE_NAME "qutIM")

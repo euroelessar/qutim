@@ -46,7 +46,7 @@ else( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
 	
 endif( QUTIM_INCLUDE_DIR AND QUTIM_LIBRARIES )
 
-include( CPack )
+#include( CPack )
 INCLUDE(MacroAddQutIMArtwork)
 
 # Argument-parsing macro from http://www.cmake.org/Wiki/CMakeMacroParseArguments
