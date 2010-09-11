@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <QMetaType>
 #include <qutim/icon.h>
+#include <QApplication>
 
 using namespace qutim_sdk_0_3;
 
@@ -148,6 +149,7 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 	m_item->setContextMenu(kmenu);
 	m_item->setIconByName("qutim");
 	m_item->setAttentionIconByName("mail-unread-new");
+	qApp->setQuitOnLastWindowClosed(false);
 }
 
 void KdeTrayIcon::onActivated()
