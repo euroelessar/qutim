@@ -285,7 +285,9 @@ void miranda::loadMessages(const QString &path)
 					Message message;
 					message.setIncoming(!(event.flags & DBEF_SENT));
 					message.setTime(QDateTime::fromTime_t(event.timestamp));
-					message.setText((event.flags & DBEF_UTF) ? QString::fromUtf8(event.blob) : decoder->toUnicode(event.blob));
+					int end = event.blob.indexOf('\0');
+					QByteArray blob = end == -1 ? event.blob : event.blob.left(end);
+					message.setText((event.flags & DBEF_UTF) ? QString::fromUtf8(blob) : decoder->toUnicode(blob));
 					appendMessage(message);
 				}
 			} else {
