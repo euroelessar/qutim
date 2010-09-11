@@ -101,6 +101,7 @@ void IcqProtocol::addAccount(IcqAccount *account)
 	account->updateSettings();
 	d->accounts_hash->insert(account->id(), account);
 	emit accountCreated(account);
+	account->d_func()->loadRoster();
 }
 
 void IcqProtocol::updateSettings()
