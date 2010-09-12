@@ -252,7 +252,7 @@ namespace Core
 				//fill data
 				Event event("groupchat-fields");
 				event.args[1] = index.data().toString();
-				event.args[2] = false;
+				event.args[2] = true;
 				qApp->sendEvent(account,&event);
 				DataItem item = event.at<DataItem>(0);
 				//join
