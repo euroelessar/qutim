@@ -107,6 +107,17 @@ QString IrcAccount::name() const
 	return d->conn->nick();
 }
 
+QString IrcAccount::avatar()
+{
+	return d->avatar;
+}
+
+void IrcAccount::setAvatar(const QString &avatar)
+{
+	d->avatar = avatar;
+	emit avatarChanged(avatar);
+}
+
 ChatUnit *IrcAccount::getUnitForSession(ChatUnit *unit)
 {
 	if (IrcChannelParticipant *participant = qobject_cast<IrcChannelParticipant*>(unit)) {

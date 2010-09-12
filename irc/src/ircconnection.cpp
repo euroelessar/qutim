@@ -19,6 +19,7 @@
 #include "ircchannel.h"
 #include "irccontact_p.h"
 #include "ircchannelparticipant.h"
+#include "ircavatar.h"
 #include <QHostInfo>
 #include <QTextCodec>
 #include <QRegExp>
@@ -97,6 +98,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 
 	m_ctpcCmds << "PING" << "ACTION" << "CLIENTINFO" << "VERSION" << "TIME";
 	registerCtpcHandler(this);
+	registerCtpcHandler(IrcAvatar::instance());
 
 	static bool init = false;
 	if (!init) {

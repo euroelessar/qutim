@@ -34,6 +34,8 @@ public:
 	~IrcContact();
 	virtual QString id() const;
 	virtual bool sendMessage(const Message &message);
+	virtual QString avatar() const;
+	void setAvatar(const QString &avatar);
 	const IrcAccount *account() const;
 	IrcAccount *account();
 	QSet<QChar> modes();

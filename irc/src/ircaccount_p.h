@@ -48,6 +48,7 @@ public:
 		int groupChatJoin;
 	} eventTypes;
 	QPointer<IrcChannelListForm> channelListForm;
+	QString avatar;
 	static QHash<QString, QString> logMsgColors;
 };
 

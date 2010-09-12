@@ -1,5 +1,5 @@
 /****************************************************************************
- *  ircchannelparticipant.h
+ *  ircavatar.h
  *
  *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
@@ -13,48 +13,39 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef IRCCHANNELPARTICIPANT_H
-#define IRCCHANNELPARTICIPANT_H
+#ifndef IRCAVATAR_H
+#define IRCAVATAR_H
 
-#include <qutim/buddy.h>
+#include "ircctpchandler.h"
+#include <QNetworkAccessManager>
 
 namespace qutim_sdk_0_3 {
 
 namespace irc {
 
-class IrcChannelParticipantPrivate;
-class IrcChannel;
 class IrcContact;
+class IrcAccount;
 
-class IrcChannelParticipant : public Buddy
+class IrcAvatar : public QObject, public IrcCtpcHandler
 {
 	Q_OBJECT
 public:
-	enum IrcParticipantFlag
-	{
-		Voice,
-		HalfOp,
-		Op
-	};
-	Q_DECLARE_FLAGS(IrcParticipantFlags, IrcParticipantFlag);
-	IrcChannelParticipant(IrcChannel *channel, const QString &nick);
-	~IrcChannelParticipant();
-	virtual bool sendMessage(const Message &message);
-	virtual QString id() const;
-	virtual QString name() const;
-	virtual QString avatar() const;
-	IrcContact *contact();
-	const IrcContact *contact() const;
-	void setFlag(QChar flag);
-	void setMode(QChar mode);
-	void removeMode(QChar mode);
-signals:
-	void quit(const QString &message);
+	IrcAvatar(QObject *parent = 0);
+	void requestAvatar(IrcContact *contact);
+	static IrcAvatar *instance() { if (!self) self = new IrcAvatar; return self; }
+protected:
+	virtual void handleCtpcRequest(IrcAccount *account, const QString &sender, const QString &senderHost,
+								   const QString &receiver, const QString &cmd, const QString &params);
+	virtual void handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
+									const QString &receiver, const QString &cmd, const QString &params);
+private slots:
+	void avatarReceived(QNetworkReply *reply);
 private:
-	QScopedPointer<IrcChannelParticipantPrivate> d;
+	QString getAvatarDir() const;
+	QNetworkAccessManager m_manager;
+	static IrcAvatar *self;
 };
-Q_DECLARE_OPERATORS_FOR_FLAGS(IrcChannelParticipant::IrcParticipantFlags)
 
 } } // namespace qutim_sdk_0_3::irc
 
-#endif // IRCCHANNELPARTICIPANT_H
+#endif // IRCAVATAR_H

@@ -37,6 +37,7 @@ IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString 
 	setMenuOwner(d->contact);
 	connect(d->contact, SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString)));
 	connect(d->contact, SIGNAL(quit(QString)), SIGNAL(quit(QString)));
+	connect(d->contact, SIGNAL(avatarChanged(QString)), SIGNAL(avatarChanged(QString)));
 }
 
 IrcChannelParticipant::~IrcChannelParticipant()
@@ -58,6 +59,11 @@ QString IrcChannelParticipant::id() const
 QString IrcChannelParticipant::name() const
 {
 	return d->contact->name();
+}
+
+QString IrcChannelParticipant::avatar() const
+{
+	return d->contact->avatar();
 }
 
 IrcContact *IrcChannelParticipant::contact()

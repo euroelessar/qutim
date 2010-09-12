@@ -13,9 +13,9 @@
  ***************************************************************************
  *****************************************************************************/
 
-
 #include "irccontact_p.h"
 #include "ircaccount_p.h"
+#include "ircavatar.h"
 #include <qutim/messagesession.h>
 #include "QApplication"
 
@@ -49,6 +49,7 @@ IrcContact::IrcContact(IrcAccount *account, const QString &nick) :
 {
 	d->q = this;
 	d->nick = nick;
+	IrcAvatar::instance()->requestAvatar(this);
 }
 
 IrcContact::~IrcContact()
@@ -67,6 +68,17 @@ bool IrcContact::sendMessage(const Message &message)
 		return false;
 	account()->send(QString("PRIVMSG %1 :%2").arg(d->nick).arg(message.text()));
 	return true;
+}
+
+QString IrcContact::avatar() const
+{
+	return d->avatar;
+}
+
+void IrcContact::setAvatar(const QString &avatar)
+{
+	d->avatar = avatar;
+	emit avatarChanged(avatar);
 }
 
 const IrcAccount *IrcContact::account() const

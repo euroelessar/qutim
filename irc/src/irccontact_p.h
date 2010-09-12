@@ -37,6 +37,7 @@ private:
 	IrcContact *q;
 	QString nick;
 	QSet<QChar> modes;
+	QString avatar;
 	mutable QAtomicInt m_ref;
 };
 

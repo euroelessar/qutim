@@ -35,11 +35,14 @@ typedef QHash<QChar, QString> Foo;
 class IrcAccount: public Account
 {
 	Q_OBJECT
+	Q_PROPERTY(QString avatar READ avatar WRITE setAvatar NOTIFY avatarChanged)
 public:
 	IrcAccount(const QString &network);
 	virtual ~IrcAccount();
 	virtual void setStatus(Status status);
 	virtual QString name() const;
+	QString avatar();
+	void setAvatar(const QString &avatar);
 	virtual ChatUnit *getUnitForSession(ChatUnit *unit);
 	virtual ChatUnit *getUnit(const QString &unitId, bool create = false);
 	IrcChannel *getChannel(const QString &name, bool create = false);
@@ -54,6 +57,8 @@ public:
 	ChatSession *activeSession() const;
 	void log(const QString &msg, bool addToActiveSession = false, const QString &type = QString());
 	static void registerLogMsgColor(const QString &type, const QString &color);
+signals:
+	void avatarChanged(const QString &avatar);
 public slots:
 	void updateSettings();
 	void showConsole();
