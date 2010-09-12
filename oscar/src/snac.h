@@ -52,7 +52,7 @@ private:
 	quint32 m_id;
 	Cookie m_cookie;
 	QObject *m_receiver;
-	char *m_member;
+	QLatin1String m_member;
 	int m_msec;
 };
 
