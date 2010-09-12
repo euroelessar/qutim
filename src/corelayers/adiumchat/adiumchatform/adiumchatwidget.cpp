@@ -274,8 +274,6 @@ namespace Core
 			m_session_list->menu()->addActions(actions);
 
 			currentIndexChanged(from);
-
-			debug() << "moved session" << from << to;
 		}
 
 		void AdiumChatWidget::activate(AdiumChat::ChatSessionImpl* session)
@@ -285,7 +283,6 @@ namespace Core
 
 			//TODO customize support
 			int index = m_sessions.indexOf(session);
-			debug() << "active index" << index;
 			if (tabBar->currentIndex() != index)
 				tabBar->setCurrentIndex(index);
 

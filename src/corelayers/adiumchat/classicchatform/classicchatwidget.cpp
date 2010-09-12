@@ -184,8 +184,6 @@ namespace Core
 			ui->tabButton->addActions(actions);
 
 			currentIndexChanged(from);
-
-			debug() << "moved session" << from << to;
 		}
 
 		void ClassicChatWidget::activate(AdiumChat::ChatSessionImpl* session)
@@ -195,7 +193,6 @@ namespace Core
 
 			//TODO customize support
 			int index = m_sessions.indexOf(session);
-			debug() << "active index" << index;
 			if (ui->tabBar->currentIndex() != index)
 				ui->tabBar->setCurrentIndex(index);
 
