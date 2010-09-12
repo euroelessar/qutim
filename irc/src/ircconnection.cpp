@@ -16,7 +16,7 @@
 #include "ircconnection.h"
 #include "ircaccount_p.h"
 #include "ircprotocol.h"
-#include "ircchannel.h"
+#include "ircchannel_p.h"
 #include "irccontact_p.h"
 #include "ircchannelparticipant.h"
 #include "ircavatar.h"
@@ -160,8 +160,13 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 			tryNextNick();
 	}
 	if (cmd == 1 || cmd == 2 || cmd == 3 || cmd == 4) { // WELCOME
-		if (status == Status::Connecting)
+		if (status == Status::Connecting) {
 			account->setStatus(Status::Online);
+			foreach (IrcChannel *channel, account->d->channels) {
+				if (channel->d->autojoin)
+					channel->join();
+			}
+		}
 		QString msg;
 		if (cmd == 4) {
 			msg = tr("Server %1 (Version %2), User modes: %3, Channel modes: %4");
@@ -205,18 +210,12 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		handleTextMessage(name, params.value(0),params.value(1));
 	} else if (cmd == "JOIN") {
 		QString channelName = params.value(0);
-		if (name == m_account->name()) { // We has been connected to the channel.
-			IrcChannel *channel = account->getChannel(channelName, true);
-			emit channel->joined();
-			ChatSession *session = ChatLayer::instance()->getSession(channel, true);
-			session->activate();
-		} else { // Someone has joined the channel.
-			IrcChannel *channel = account->getChannel(channelName, false);
-			if (channel)
-				channel->handleJoin(name, host);
-			else
-				channelIsNotJoinedError(cmd, params.value(0));
-		}
+		// Create a new IrcChannel if we have joined a channel.
+		IrcChannel *channel = account->getChannel(channelName, name == m_account->name());
+		if (channel)
+			channel->handleJoin(name, host);
+		else
+			channelIsNotJoinedError(cmd, params.value(0));
 	} else if (cmd == "PART") {
 		IrcChannel *channel = account->getChannel(params.value(0), false);
 		if (channel)
@@ -459,22 +458,24 @@ void IrcConnection::sendCtpcReply(const QString &contact, const QString &cmd, co
 
 void IrcConnection::disconnectFromHost(bool force)
 {
-	Q_UNUSED(force);
-	if (force)
-		m_socket->disconnectFromHost();
-	else
-		send(QString("QUIT :%1").arg("qutIM: IRC plugin"));
+	if (m_socket->state() != QTcpSocket::UnconnectedState) {
+		if (force || m_socket->state() != QTcpSocket::ConnectedState)
+			m_socket->disconnectFromHost();
+		else
+			send(QString("QUIT :%1").arg("qutIM: IRC plugin"));
+	}
+	foreach (IrcChannel *channel, m_account->d->channels) {
+		if (channel->isJoined()) {
+			channel->leave(true);
+			channel->setAutoJoin();
+		}
+	}
 }
 
 QTcpSocket *IrcConnection::socket()
 {
 	return m_socket;
 };
-
-bool IrcConnection::isConnected()
-{
-	return m_socket->state() != QTcpSocket::UnconnectedState;
-}
 
 void IrcConnection::loadSettings()
 {

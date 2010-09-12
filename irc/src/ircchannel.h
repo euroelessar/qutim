@@ -41,9 +41,13 @@ public:
 	virtual void leave();
 	void leave(bool force);
 	virtual QString id() const;
+	virtual QString title() const;
 	virtual bool sendMessage(const Message &message);
 	virtual QString topic() const;
 	virtual ChatUnitList lowerUnits();
+	bool isJoined() const;
+	void setAutoJoin(bool autojoin = true);
+	void setBookmarkName(const QString &name);
 	const IrcAccount *account() const;
 	IrcAccount *account();
 	IrcChannelParticipant *participant(const QString &nick);

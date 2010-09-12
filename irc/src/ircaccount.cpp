@@ -47,7 +47,6 @@ IrcChannel *IrcAccountPrivate::newChannel(const QString &name)
 	return channel;
 }
 
-
 template <class T>
 QVariantList IrcAccountPrivate::toVariant(const T &list)
 {
@@ -127,8 +126,16 @@ IrcAccount::IrcAccount(const QString &network) :
 	foreach (const QString &name, cfg.childGroups()) {
 		cfg.beginGroup(name);
 		IrcBookmark bookmark = d->loadBookmarkFromConfig(cfg);
-		d->bookmarks.insert(name, bookmark);
 		cfg.endGroup();
+		if (bookmark.channel.isEmpty())
+			continue;
+		d->bookmarks.insert(name, bookmark);
+
+		if (bookmark.autojoin) {
+			IrcChannel *channel = getChannel(bookmark.channel, true);
+			channel->setAutoJoin(true);
+			channel->setBookmarkName(bookmark.name);
+		}
 	}
 
 	cfg = config();
@@ -168,10 +175,7 @@ void IrcAccount::setStatus(Status status)
 	}
 	// Send status.
 	if (status == Status::Offline) {
-		if (d->conn->isConnected())
-			d->conn->disconnectFromHost(false);
-		foreach (IrcChannel *channel, d->channels)
-			channel->leave(true);
+		d->conn->disconnectFromHost(false);
 	} else {
 		if (current == Status::Offline) {
 			status.setType(Status::Connecting);
@@ -387,6 +391,7 @@ bool IrcAccount::event(QEvent *ev)
 			if (channelName.length() <= 1)
 				return false;
 			IrcChannel *channel = getChannel(channelName, true);
+			channel->setBookmarkName(item.subitem("name").data<QString>());
 			channel->join(item.subitem("password").data<QString>());
 			ChatLayer::instance()->getSession(channel, true)->activate();
 			return true;

@@ -13,7 +13,7 @@
  ***************************************************************************
  *****************************************************************************/
 
-#include "ircchannel.h"
+#include "ircchannel_p.h"
 #include "ircchannelparticipant.h"
 #include "ircaccount_p.h"
 #include <qutim/messagesession.h>
@@ -23,21 +23,11 @@ namespace qutim_sdk_0_3 {
 
 namespace irc {
 
-typedef QSharedPointer<IrcChannelParticipant> ParticipantPointer;
-
-class IrcChannelPrivate
-{
-public:
-	ParticipantPointer me;
-	QString name;
-	QHash<QString, ParticipantPointer> users;
-	QString topic;
-};
-
 IrcChannel::IrcChannel(IrcAccount *account, const QString &name) :
 	Conference(account), d(new IrcChannelPrivate)
 {
 	d->name = name;
+	d->isJoined = false;
 }
 
 IrcChannel::~IrcChannel()
@@ -51,11 +41,12 @@ Buddy *IrcChannel::me() const
 
 void IrcChannel::join()
 {
-	join(QString());
+	join(d->lastPassword);
 }
 
 void IrcChannel::join(const QString &pass)
 {
+	d->lastPassword == pass;
 	QString cmd;
 	if (!pass.isEmpty())
 		cmd = QString("JOIN %1 :%2").arg(d->name).arg(pass);
@@ -72,15 +63,22 @@ void IrcChannel::leave()
 
 void IrcChannel::leave(bool force)
 {
-	if (force)
+	if (force) {
 		clear(ChatLayer::instance()->getSession(this, false));
-	else
+	} else {
 		account()->send(QString("PART %1").arg(d->name));
+		d->autojoin = false;
+	}
 }
 
 QString IrcChannel::id() const
 {
 	return d->name;
+}
+
+QString IrcChannel::title() const
+{
+	return d->bookmarkName.isEmpty() ? d->name : d->bookmarkName;
 }
 
 bool IrcChannel::sendMessage(const Message &message)
@@ -112,6 +110,23 @@ ChatUnitList IrcChannel::lowerUnits()
 	foreach (const QSharedPointer<IrcChannelParticipant> &user, d->users)
 		users << user.data();
 	return users;
+}
+
+bool IrcChannel::isJoined() const
+{
+	return d->isJoined;
+}
+
+void IrcChannel::setAutoJoin(bool autojoin)
+{
+	d->autojoin = autojoin;
+}
+
+void IrcChannel::setBookmarkName(const QString &name)
+{
+	QString current = title();
+	d->bookmarkName = name;
+	emit titleChanged(current, title());
 }
 
 const IrcAccount *IrcChannel::account() const
@@ -217,7 +232,10 @@ void IrcChannel::handleUserList(const QStringList &users)
 
 void IrcChannel::handleJoin(const QString &nick, const QString &host)
 {
-	if (!d->users.contains(nick)) {
+	if (nick == account()->name()) { // We have been connected to the channel.
+		d->isJoined = true;
+		emit joined();
+	} else if (!d->users.contains(nick)) { // Someone has joined the channel.
 		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, nick));
 		connect(user.data(), SIGNAL(nameChanged(QString)), SLOT(onParticipantNickChanged(QString)));
 		connect(user.data(), SIGNAL(quit(QString)), SLOT(onContactQuit(QString)));
@@ -381,6 +399,7 @@ void IrcChannel::clear(ChatSession *session)
 			session->removeContact(user.data());
 	}
 	d->users.clear();
+	d->isJoined = false;
 	emit left();
 }
 

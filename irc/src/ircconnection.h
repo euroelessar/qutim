@@ -58,7 +58,6 @@ public:
 	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params);
 	void disconnectFromHost(bool force = false);
 	QTcpSocket *socket();
-	bool isConnected();
 	void loadSettings();
 	void handleMessage(IrcAccount *account, const QString &name, const QString &host,
 					   const IrcCommand &cmd, const QStringList &params);
