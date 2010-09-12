@@ -15,7 +15,7 @@
 
 #include "ircchannel.h"
 #include "ircchannelparticipant.h"
-#include "ircaccount.h"
+#include "ircaccount_p.h"
 #include <qutim/messagesession.h>
 #include <QDateTime>
 
@@ -62,6 +62,7 @@ void IrcChannel::join(const QString &pass)
 	else
 		cmd = QString("JOIN %1").arg(d->name);
 	account()->send(cmd);
+	account()->d->updateRecent(d->name, pass);
 }
 
 void IrcChannel::leave()

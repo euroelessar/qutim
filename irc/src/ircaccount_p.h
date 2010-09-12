@@ -30,12 +30,26 @@ namespace irc {
 class IrcConnection;
 class IrcContact;
 
+struct IrcBookmark
+{
+	QString getName() const { return name.isEmpty() ? channel : name; }
+	QString name;
+	QString channel;
+	QString password;
+	bool autojoin;
+};
+
 class IrcAccountPrivate
 {
 public:
 	IrcContact *newContact(const QString &nick);
 	IrcChannel *newChannel(const QString &name);
 	void removeContact(IrcContact *contact);
+	template <class T>
+	QVariantList toVariant(const T &list);
+	void updateRecent(const QString &channel, const QString &password);
+	void saveBookmarkToConfig(Config &cfg, const IrcBookmark &bookmark);
+	IrcBookmark loadBookmarkFromConfig(Config &cfg);
 	friend class IrcAccount;
 	IrcAccount *q;
 	IrcConnection *conn;
@@ -46,9 +60,15 @@ public:
 	struct {
 		int groupChatFields;
 		int groupChatJoin;
+		int bookmarkList;
+		int bookmarkRemove;
+		int bookmarkSave;
 	} eventTypes;
 	QPointer<IrcChannelListForm> channelListForm;
 	QString avatar;
+	QHash<QString, IrcBookmark> bookmarks;
+	QList<IrcBookmark> recent;
+
 	static QHash<QString, QString> logMsgColors;
 };
 

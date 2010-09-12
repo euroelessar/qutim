@@ -71,6 +71,7 @@ private slots:
 private:
 	friend class IrcChannelParticipant;
 	friend class IrcConnection;
+	friend class IrcChannel;
 	QScopedPointer<IrcAccountPrivate> d;
 };
 
