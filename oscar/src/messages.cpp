@@ -52,6 +52,7 @@ Tlv2711::Tlv2711(quint8 msgType, quint8 msgFlags, quint16 X1, quint16 X2, const 
 	m_cookie(cookie)
 {
 	Q_ASSERT(!cookie.isEmpty());
+	setMaxSize(0x1f18);
 	append<quint16>(0x1B, LittleEndian);
 	append<quint16>(protocol_version, LittleEndian);
 	append(ICQ_CAPABILITY_PSIG_MESSAGE);

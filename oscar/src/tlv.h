@@ -79,6 +79,7 @@ template<typename T>
 Q_INLINE_TEMPLATE TLV::TLV(quint16 type, const T &data):
 	m_type(type)
 {
+	setMaxSize(0xffff);
 	append(data);
 }
 
