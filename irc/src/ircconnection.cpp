@@ -124,6 +124,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		registerAlias(new IrcCommandAlias("clientinfo", "PRIVMSG %1 :\001CLIENTINFO\001"));
 		registerAlias(new IrcCommandAlias("version", "PRIVMSG %1 :\001VERSION\001"));
 		registerAlias(new IrcCommandAlias("time", "PRIVMSG %1 :\001TIME\001"));
+		registerAlias(new IrcCommandAlias("avatar", "PRIVMSG %1 :\001AVATAR\001"));
 		registerAlias(new IrcPingAlias);
 		init = true;
 	}

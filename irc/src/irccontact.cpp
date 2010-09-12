@@ -49,7 +49,7 @@ IrcContact::IrcContact(IrcAccount *account, const QString &nick) :
 {
 	d->q = this;
 	d->nick = nick;
-	IrcAvatar::instance()->requestAvatar(this);
+	//IrcAvatar::instance()->requestAvatar(this);
 }
 
 IrcContact::~IrcContact()
