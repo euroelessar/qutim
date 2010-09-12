@@ -19,6 +19,7 @@
 #include "ircservermessagehandler.h"
 #include "ircctpchandler.h"
 #include "ircprotocol.h"
+#include "ircaccount.h"
 #include <QTcpSocket>
 
 namespace qutim_sdk_0_3 {
@@ -53,7 +54,7 @@ public:
 	void registerHandler(IrcServerMessageHandler *handler);
 	void registerCtpcHandler(IrcCtpcHandler *handler);
 	void send(QString command, IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
-			  const QHash<QChar, QString> &extParams = QHash<QChar, QString>()) const;
+			  const ExtendedParams &extParams = ExtendedParams()) const;
 	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params);
 	void sendCtpcReply(const QString &contact, const QString &cmd, const QString &params);
 	void disconnectFromHost(bool force = false);

@@ -398,7 +398,7 @@ void IrcConnection::removeAlias(IrcCommandAlias *alias)
 	}
 }
 
-void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const QHash<QChar, QString> &extParams) const
+void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const ExtendedParams &extParams) const
 {
 	if (aliasType != IrcCommandAlias::Disabled) {
 		bool found;
