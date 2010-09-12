@@ -10,7 +10,7 @@ qutim_add_plugin( qmlpopupwidget
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/qmlpopup.h
 	EXTENSION_CLASS Core::KineticPopups::PopupWidget
-	DISPLAY_NAME "QDeclarative Popup Widget"
+	DISPLAY_NAME "Qml Popup Widget"
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DESCRIPTION "Modern popups, based on power of Qt Quick"
 	DEPENDS kineticpopups
