@@ -88,12 +88,12 @@ namespace Core
 			QString text = message.property("html").toString();
 			if(text.isEmpty())
 				text = Qt::escape(message.text());
+			makeUrls(text, message);
+			makeUrls(text);
 			text = Emoticons::theme().parseEmoticons(text);
 			text = text.replace("\n","<br />");
 			makeSenderColors(html, message);
 			makeBackground(html);
-			makeUrls(text, message);
-			makeUrls(text);
 			makeUserIcons(message,html);
 			html.replace(QLatin1String("%message%"), text);
 		}
