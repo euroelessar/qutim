@@ -215,10 +215,10 @@ void IrcChannel::handleUserList(const QStringList &users)
 		}
 		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, userNick));
 		if (isMe) {
-			connect(user.data(), SIGNAL(nameChanged(QString)), SLOT(onMyNickChanged(QString)));
+			connect(user.data(), SIGNAL(nameChanged(QString,QString)), SLOT(onMyNickChanged(QString)));
 			d->me = user;
 		} else {
-			connect(user.data(), SIGNAL(nameChanged(QString)), SLOT(onParticipantNickChanged(QString)));
+			connect(user.data(), SIGNAL(nameChanged(QString,QString)), SLOT(onParticipantNickChanged(QString)));
 			connect(user.data(), SIGNAL(quit(QString)), SLOT(onContactQuit(QString)));
 			d->users.insert(userNick, user);
 		}
@@ -237,7 +237,7 @@ void IrcChannel::handleJoin(const QString &nick, const QString &host)
 		emit joined();
 	} else if (!d->users.contains(nick)) { // Someone has joined the channel.
 		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, nick));
-		connect(user.data(), SIGNAL(nameChanged(QString)), SLOT(onParticipantNickChanged(QString)));
+		connect(user.data(), SIGNAL(nameChanged(QString,QString)), SLOT(onParticipantNickChanged(QString)));
 		connect(user.data(), SIGNAL(quit(QString)), SLOT(onContactQuit(QString)));
 		d->users.insert(nick, user);
 		ChatSession *session = ChatLayer::instance()->getSession(this, false);

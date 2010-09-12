@@ -35,7 +35,7 @@ IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString 
 	d->contact = channel->account()->getContact(nick, true);
 	d->contact->d->ref();
 	setMenuOwner(d->contact);
-	connect(d->contact, SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString)));
+	connect(d->contact, SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
 	connect(d->contact, SIGNAL(quit(QString)), SIGNAL(quit(QString)));
 	connect(d->contact, SIGNAL(avatarChanged(QString)), SIGNAL(avatarChanged(QString)));
 }
