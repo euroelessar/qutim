@@ -74,7 +74,9 @@ void SNAC::setCookie(const Cookie &cookie, QObject *receiver, const char *member
 {
 	m_cookie = cookie;
 	m_receiver = receiver;
-	if (m_member) {
+	if (member) {
+		if (m_member)
+			delete [] m_member;
 		m_member = new char [strlen(member) + 1];
 		strcpy(m_member, member);
 	}
