@@ -56,6 +56,8 @@ void ClConfPlugin::onAccountCreated(qutim_sdk_0_3::Account *account)
 	connect(account, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
 			SLOT(onConferenceCreated(qutim_sdk_0_3::Conference*)));
 	connect(account, SIGNAL(destroyed(QObject*)), SLOT(onAccountDestroyed(QObject*)));
+	foreach (Conference *conference, account->findChildren<Conference*>())
+		onConferenceCreated(conference);
 }
 
 void ClConfPlugin::onAccountDestroyed(QObject *account)
