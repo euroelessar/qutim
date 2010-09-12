@@ -189,13 +189,15 @@ namespace Core
 		Event event ("groupchat-bookmark-list");
 		qApp->sendEvent(account,&event);
 
+		int index = ui->bookmarksBox->count();
 		ui->bookmarksBox->addItem(QString());
+		ui->bookmarksBox->setItemData(index,true,Qt::UserRole+1);
 		//Bookmarks
 		QVariantList bookmarks = event.at<QVariantList>(0);
 		fillBookmarks(bookmarks);
 
 		//Nice hack
-		int index = ui->bookmarksBox->count();
+		index = ui->bookmarksBox->count();
 		ui->bookmarksBox->insertSeparator(index);
 		ui->bookmarksBox->setItemData(index,qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Recent")),Qt::DisplayRole);
 
