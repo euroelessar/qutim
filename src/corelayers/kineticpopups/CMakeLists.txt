@@ -1,9 +1,9 @@
 
 
 qutim_add_plugin( kineticpopups
+	COMPILE_FLAGS "-DKINETICPOPUPS_LIBRARY"
 	DISPLAY_NAME "Kinetic popups"
 	DESCRIPTION "Modern popups, based on power of Qt Quick"
-	LINK_LIBRARIES ${QT_QTDECLARATIVE_LIBRARY}
 )
 
 file( GLOB PLUGINS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/popupwidgets/*" )

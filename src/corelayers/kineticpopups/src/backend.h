@@ -19,6 +19,12 @@
 #include <qutim/notificationslayer.h>
 #include <QWidget>
 
+#if defined(KINETICPOPUPS_LIBRARY)
+#  define KINETICPOPUPS_EXPORT Q_DECL_EXPORT
+#else
+#  define KINETICPOPUPS_EXPORT Q_DECL_IMPORT
+#endif
+
 namespace Core
 {
 namespace KineticPopups
@@ -35,7 +41,7 @@ public:
 	Backend ();
 };
 
-class AbstractPopupWidget : public QWidget
+class KINETICPOPUPS_EXPORT AbstractPopupWidget : public QWidget
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service","PopupWidget")

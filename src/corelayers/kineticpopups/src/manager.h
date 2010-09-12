@@ -37,7 +37,7 @@ enum AnimationFlag
 	Opacity = 0x2
 		  };
 Q_DECLARE_FLAGS (AnimationFlags, AnimationFlag)
-class Manager
+class KINETICPOPUPS_EXPORT Manager
 {
 	Q_DECLARE_FLAGS(NotificationTypes, Notifications::Type)
 public:
