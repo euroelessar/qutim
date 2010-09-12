@@ -165,6 +165,7 @@ void OscarConnection::onError(ConnectionError error)
 	{
 		Notifications::send(errorString());
 	}
+	AbstractConnection::onError(error);
 }
 
 void OscarConnection::md5Error(ConnectionError e)
