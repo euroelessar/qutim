@@ -4,7 +4,6 @@
 #include <qutim/debug.h>
 #include <QApplication>
 #include <QLabel>
-
 #import <AppKit/NSDockTile.h>
 
 extern void qt_mac_set_dock_menu(QMenu *);
@@ -19,21 +18,22 @@ namespace MacIntegration
 		QList<ChatSession *> unreadSessions;
 		QHash<ChatSession *, QAction *> aliveSessions;
 		QIcon standartIcon;
-		QIcon mailIcon;
 	};
 
 	void MDock::setBadgeLabel(const QString &message)
 	{
-		NSString* mac_message = [[NSString alloc] initWithUTF8String:message.toUtf8().constData()];
+		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		NSString* mac_message = [[NSString alloc] initWithUTF8String: message.toUtf8().constData()];
 		NSDockTile *dockTile = [NSApp dockTile];
-		[dockTile setBadgeLabel : mac_message];
+		[dockTile setBadgeLabel: mac_message];
+		[dockTile display];
+		[pool release];
 	}
 
-	MDock::MDock() : d_ptr(new MDockPrivate()),m_unread_count(0)
+	MDock::MDock() : d_ptr(new MDockPrivate())
 	{
 		Q_D(MDock);
 		d->standartIcon = Icon("qutim");
-		d->mailIcon = Icon("mail-unread-new");
 		d->dockMenu = new QMenu;
 		d->statusGroup = new QActionGroup(this);
 		createStatusAction(Status::Online);
@@ -115,7 +115,6 @@ namespace MacIntegration
 		ChatSession *session = static_cast<ChatSession*>(sender());
 		Q_ASSERT(session != NULL);
 		Q_D(MDock);
-		bool empty = d->unreadSessions.isEmpty();
 		if (unread.isEmpty())
 			d->unreadSessions.removeOne(session);
 		else if (!d->unreadSessions.contains(session))
@@ -127,16 +126,6 @@ namespace MacIntegration
 				d->aliveSessions.value(s)->setText("✉ " + d->aliveSessions.value(s)->text().remove("✉ "));
 			else
 				d->aliveSessions.value(s)->setText(d->aliveSessions.value(s)->text().remove("✉ "));
-		if (empty == d->unreadSessions.isEmpty())
-			return;
-
-
-
-//		if (d->unreadSessions.isEmpty())
-//			qApp->setWindowIcon(d->standartIcon);
-//		else
-//			qApp->setWindowIcon(d->mailIcon);
-
 		setBadgeLabel(d->unreadSessions.isEmpty() ? QString() : QString::number(d->unreadSessions.count()));
 	}
 

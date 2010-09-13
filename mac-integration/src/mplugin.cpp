@@ -1,6 +1,6 @@
 #include "mplugin.h"
 #include "dock/mdock.h"
-#include "growlnotifications/growlbackend.h"
+#include "growl/growlbackend.h"
 
 namespace MacIntegration
 {
@@ -14,16 +14,16 @@ namespace MacIntegration
 		qDebug("%s", Q_FUNC_INFO);
 		ExtensionIcon macIcon("mac");
 		setInfo(QT_TRANSLATE_NOOP("Plugin", "MacIntegration"),
-			QT_TRANSLATE_NOOP("Plugin", "Mac integration plugin collection"),
-			PLUGIN_VERSION(0, 0, 1, 0),
-			macIcon);
+				QT_TRANSLATE_NOOP("Plugin", "Mac integration plugin collection"),
+				PLUGIN_VERSION(0, 0, 1, 0),
+				macIcon);
 		addAuthor(QT_TRANSLATE_NOOP("Author", "Denis Daschenko"),
-			QT_TRANSLATE_NOOP("Task", "Author"),
-			QLatin1String("daschenko@gmail.com"));
+				QT_TRANSLATE_NOOP("Task", "Author"),
+				QLatin1String("daschenko@gmail.com"));
 		addExtension<MDock>(QT_TRANSLATE_NOOP("Plugin", "DockIntegration"),
 				QT_TRANSLATE_NOOP("Plugin", "Mac OS X dock integration"));
 		addExtension<GrowlBackend>(QT_TRANSLATE_NOOP("plugin","Growl notifications"),
-								   QT_TRANSLATE_NOOP("plugin","Default Mac Os X Notifications"));
+				QT_TRANSLATE_NOOP("plugin","Default Mac Os X Notifications"));
 	}
 
 	bool MPlugin::load()
