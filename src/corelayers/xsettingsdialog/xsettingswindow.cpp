@@ -239,8 +239,8 @@ void XSettingsWindow::onCurrentItemChanged(QListWidgetItem *item)
 	SettingsWidget *w = settingsItem->widget();	
 	if (p->stackedWidget->indexOf(w) == -1) {
 		p->stackedWidget->addWidget(w);
-		w->load();
 		w->setController(p->controller);
+		w->load();
 		connect(w,SIGNAL(modifiedChanged(bool)),SLOT(onModifiedChanged(bool)));
 	}
 	p->stackedWidget->setCurrentWidget(w);

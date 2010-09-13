@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>282</width>
-    <height>422</height>
+    <width>280</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -51,7 +51,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidget">
+        <widget class="QListView" name="bookmarksView">
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>

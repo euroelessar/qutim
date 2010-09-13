@@ -61,7 +61,6 @@ namespace Core
 		
 		void AbstractChatForm::onSessionActivated(bool active)
 		{
-			debug() << "session activated";
 			//init or update chat widget(s)
 			ChatSessionImpl *session = qobject_cast<ChatSessionImpl*>(sender());
 			if (!session)
@@ -138,7 +137,6 @@ namespace Core
 		
 		void AbstractChatForm::onSessionCreated(ChatSession *session)
 		{
-			debug() << "Chatform: session created";
 			connect(session, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
 		}
 		

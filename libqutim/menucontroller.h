@@ -163,19 +163,6 @@ void MyObject::onAction()
 		*/
 		template <typename T>
 		static T *getController(QObject *obj);
-		/*!
-		  Returns list of SettingsItem, \warning each generated widget settings, should have a menucontroller as parent.
-		*/
-		SettingsItemList settings();
-		/*!
-		  Add settings \a item to every object with QMetaObject \a meta.
-		*/		
-		static void addSettingsItem(SettingsItem *item, const QMetaObject *meta);
-		/*!
-		  Add settings \a item to every object of type \a T.
-		*/		
-		template <typename T>
-		static void addSettingsItem(SettingsItem *item);
 	public slots:
 		/*!
 		  Show menu at position \a pos and delete it after closing.
@@ -248,11 +235,6 @@ void MyObject::onAction()
 													 const char (&menu)[N])
 	{
 		addAction(gen, meta, QByteArray::fromRawData(menu, N - 1).split('\0'));
-	}
-	template <typename T>
-	Q_INLINE_TEMPLATE void MenuController::addSettingsItem(qutim_sdk_0_3::SettingsItem* item)
-	{
-		addSettingsItem(item,&T::staticMetaObject);
 	}
 
 }

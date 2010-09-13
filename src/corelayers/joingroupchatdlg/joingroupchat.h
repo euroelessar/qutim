@@ -2,6 +2,7 @@
  *  joingroupchat.h
  *
  *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+ *  Copyright (c) 2010 by Alexey Prokhin <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -18,6 +19,7 @@
 
 #include <QDialog>
 #include <qutim/actiongenerator.h>
+#include <qutim/dataforms.h>
 
 class QHBoxLayout;
 class QListWidgetItem;
@@ -29,7 +31,6 @@ namespace Ui {
 
 namespace qutim_sdk_0_3
 {
-	class DataItem;
 	class Account;
 }
 
@@ -37,16 +38,8 @@ namespace Core
 {
 	using namespace qutim_sdk_0_3;
 
-	enum ButtonType
-	{
-		ButtonTypeNew,
-		ButtonTypeEditBookmarks,
-		ButtonTypeBookmark,
-		ButtonTypeSeparator
-	};
+	class BookmarksModel;
 
-	Q_DECLARE_FLAGS(ButtonTypes,ButtonType);
-	
 	class JoinGroupChat : public QDialog
 	{
 		Q_OBJECT		
@@ -62,7 +55,6 @@ namespace Core
 		void onCurrentChanged(int);
 		void onAccountBoxActivated(int index);
 		void onBookmarksBoxActivated(int index);
-		void fillAccounts();
 		void fillBookmarks(Account *account);
 		void onItemActivated(const QModelIndex &index);
 		void onNegativeActionTriggered();
@@ -71,12 +63,15 @@ namespace Core
 	private:
 		void fillBookmarks(const QVariantList &items, bool recent = false);
 		void updateDataForm(const DataItem &item, int pos = 0);
+		bool isRecent(int index);
 		Account *currentAccount();
-		QListWidgetItem *createItem(const QString &name,const QVariant &description = QVariant());
+		Account *account(int index);
 		Ui::JoinGroupChat *ui;
 		QPointer<QWidget> m_dataform_widget;
 		QAction *m_positive_action;
 		QAction *m_negative_action;
+		BookmarksModel *m_bookmarksViewModel;
+		BookmarksModel *m_bookmarksBoxModel;
 	};
 
 }

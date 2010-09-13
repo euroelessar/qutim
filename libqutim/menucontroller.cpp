@@ -30,7 +30,7 @@ namespace qutim_sdk_0_3
 		static QScopedPointer<ActionGeneratorMap> actions(new ActionGeneratorMap);
 		return actions.data();
 	}
-	Q_GLOBAL_STATIC(MenuSettingsMap,globalSettings);
+
 	ActionHandler *handler()
 	{
 		static ActionHandler handler;
@@ -408,32 +408,6 @@ namespace qutim_sdk_0_3
 		Q_UNUSED(id);
 		Q_UNUSED(data);
 	}
-	
-	void MenuController::addSettingsItem(qutim_sdk_0_3::SettingsItem* item, const QMetaObject* meta)
-	{
-		Q_ASSERT(item && meta);
-		globalSettings()->insert(meta,item);
-	}
-
-	SettingsItemList MenuController::settings()
-	{
-		QSet<const QMetaObject *> metaObjects;
-		const MenuController *owner = this;
-		SettingsItemList list;
-		while (owner) {
-			const QMetaObject *meta = owner->metaObject();
-			while (meta) {
-				if (metaObjects.contains(meta))
-					break;
-				list.append(globalSettings()->values(meta));
-				metaObjects.insert(meta);
-				meta = meta->superClass();
-			}
-			owner = MenuControllerPrivate::get(owner)->owner;
-		}
-		return list;
-	}
-
 
 	ActionContainer::ActionContainer(MenuController* controller) :
 			d_ptr(new ActionContainerPrivate)

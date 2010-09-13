@@ -124,6 +124,9 @@ public:
 public slots:
 	void onButtonClicked(bool toggled);
 };
+
+typedef QMap<const QMetaObject *,SettingsItem*> MenuSettingsMap;
+
 }
 
 #endif // SETTINGSLAYER_P_H

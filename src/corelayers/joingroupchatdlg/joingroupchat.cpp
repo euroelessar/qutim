@@ -15,6 +15,8 @@
 
 #include "joingroupchat.h"
 #include "ui_joingroupchat.h"
+#include "accountsmodel.h"
+#include "bookmarksmodel.h"
 #include <QEvent>
 #include <qutim/protocol.h>
 #include <qutim/account.h>
@@ -37,15 +39,22 @@ namespace Core
 			ui(new Ui::JoinGroupChat)
 	{
 		ui->setupUi(this);
-		ui->listWidget->setItemDelegate(new ItemDelegate(this));
-		ui->bookmarksBox->setItemDelegate(ui->listWidget->itemDelegate());
-
 		setAttribute(Qt::WA_DeleteOnClose);
 
-		connect(ui->stackedWidget,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
-		connect(ui->accountBox,SIGNAL(currentIndexChanged(int)),SLOT(onAccountBoxActivated(int)));
-		connect(ui->bookmarksBox,SIGNAL(currentIndexChanged(int)),SLOT(onBookmarksBoxActivated(int)));
-		connect(ui->listWidget,SIGNAL(activated(QModelIndex)),SLOT(onItemActivated(QModelIndex)));
+		connect(ui->stackedWidget, SIGNAL(currentChanged(int)),
+				SLOT(onCurrentChanged(int)));
+		connect(ui->accountBox, SIGNAL(currentIndexChanged(int)),
+				SLOT(onAccountBoxActivated(int)));
+		connect(ui->bookmarksBox, SIGNAL(currentIndexChanged(int)),
+				SLOT(onBookmarksBoxActivated(int)));
+		connect(ui->bookmarksView, SIGNAL(activated(QModelIndex)),
+				SLOT(onItemActivated(QModelIndex)));
+
+		ui->bookmarksView->setItemDelegate(new ItemDelegate(this));
+		ui->bookmarksView->setModel(m_bookmarksViewModel = new BookmarksModel(this));
+		ui->bookmarksBox->setItemDelegate(ui->bookmarksView->itemDelegate());
+		ui->bookmarksBox->setModel(m_bookmarksBoxModel = new BookmarksModel(this));
+		ui->accountBox->setModel(new AccountsModel(this));
 
 		m_negative_action = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Close"),this);
 		m_negative_action->setSoftKeyRole(QAction::NegativeSoftKey);
@@ -79,7 +88,6 @@ namespace Core
 	void JoinGroupChat::showEvent(QShowEvent *ev)
 	{
 		QDialog::showEvent(ev);
-		fillAccounts();
 		onCurrentChanged(0);
 	}
 
@@ -120,88 +128,65 @@ namespace Core
 		}
 	}
 
-	void JoinGroupChat::fillAccounts()
+	void JoinGroupChat::onAccountBoxActivated(int index)
 	{
-		ui->accountBox->clear();
-		foreach (Protocol *p,allProtocols()) {
-			bool support = p->data(qutim_sdk_0_3::Protocol::ProtocolSupportGroupChat).toBool();
-			if (support) {
-				foreach (Account *a,p->accounts()) {
-					if (a->status() != Status::Offline) {
-						ui->accountBox->addItem(a->status().icon(),a->id(),qVariantFromValue(a));
-					}
-				}
-			}
+		Account *account = this->account(index);
+		if (!account) {
+			m_bookmarksViewModel->clear();
+			return;
 		}
-		if (ui->accountBox->count())
-			onAccountBoxActivated(0);
+		fillBookmarks(account);
 	}
 
 	void JoinGroupChat::fillBookmarks(const QVariantList &items, bool recent)
 	{
-		QString txt = recent ? QT_TRANSLATE_NOOP("JoinGroupChat", "Recent") : QT_TRANSLATE_NOOP("JoinGroupChat", "Bookmarks");
-		QListWidgetItem *list_item = new QListWidgetItem(txt,ui->listWidget);
-		ui->listWidget->addItem(list_item);
-		list_item->setData(SeparatorRole,true);
-		QVariantList::const_iterator it;
-		for (it=items.constBegin();it!=items.constEnd();it++) {
-			QVariantMap item = it->toMap();
+		QString txt = recent ?
+					  QT_TRANSLATE_NOOP("JoinGroupChat", "Recent") :
+					  QT_TRANSLATE_NOOP("JoinGroupChat", "Bookmarks");
+		m_bookmarksViewModel->addItem(BookmarkSeparator, txt);
+		int count = 0;
+		foreach (const QVariant &itemVar, items) {
+			QVariantMap item = itemVar.toMap();
 			QString name = item.value("name").toString();
 			QVariantMap fields = item.value("fields").toMap();
-			list_item = createItem(name,fields);
-			list_item->setIcon(Icon(recent ? "view-history" : "bookmarks"));
-			list_item->setData(Qt::UserRole,ButtonTypeBookmark);
-			list_item->setData(Qt::UserRole+1,recent);
-
-			int index = ui->bookmarksBox->count();
-			ui->bookmarksBox->addItem(Icon(recent ? "view-history" : "bookmarks"),name,fields);
-			ui->bookmarksBox->setItemData(index,fields,DescriptionRole);
-			ui->bookmarksBox->setItemData(index,recent,Qt::UserRole+1);
-			if (recent && ((it - items.constBegin()) >= m_max_recent_count))
+			BookmarkType type = recent ? BookmarkRecentItem : BookmarkItem;
+			m_bookmarksViewModel->addItem(type, name, fields);
+			m_bookmarksBoxModel->addItem(type, name, fields);
+			++count;
+			if (recent && (count >= m_max_recent_count))
 				return;
 		}
 	}
 
-	void JoinGroupChat::onAccountBoxActivated(int index)
-	{
-		Account *account = ui->accountBox->itemData(index).value<Account*>();
-		if (!account)
-			return;
-		fillBookmarks(account);
-	}
-
 	void JoinGroupChat::fillBookmarks(Account *account)
 	{
-		ui->listWidget->clear();
+		m_bookmarksBoxModel->startUpdating();
+		m_bookmarksViewModel->startUpdating();
 
-		QListWidgetItem *item = createItem(QT_TRANSLATE_NOOP("JoinGroupChat", "Join"),
-										   qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Join an existing or create a new groupchat")
-															 ));
-		item->setData(Qt::UserRole,ButtonTypeNew);
-		item->setIcon(Icon("meeting-attending"));
-		item = createItem(QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),
-						  qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Create, edit, or delete saved bookmarks"))
-						  );
-		item->setData(Qt::UserRole,ButtonTypeEditBookmarks);
-		item->setIcon(Icon("bookmark-new-list"));
+		QVariant fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Join an existing or create a new groupchat"));
+		m_bookmarksViewModel->addItem(BookmarkNew,
+									  QT_TRANSLATE_NOOP("JoinGroupChat", "Join"),
+									  fields);
+		fields = qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Create, edit, or delete saved bookmarks"));
+		m_bookmarksViewModel->addItem(BookmarkEdit,
+									  QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),
+									  fields);
 
-		ui->bookmarksBox->clear();
 		Event event ("groupchat-bookmark-list");
 		qApp->sendEvent(account,&event);
 
-		ui->bookmarksBox->addItem(QString());
+		m_bookmarksBoxModel->addItem(BookmarkEmptyItem, QString());
 		//Bookmarks
 		QVariantList bookmarks = event.at<QVariantList>(0);
 		fillBookmarks(bookmarks);
-
-		//Nice hack
-		int index = ui->bookmarksBox->count();
-		ui->bookmarksBox->insertSeparator(index);
-		ui->bookmarksBox->setItemData(index,qVariantFromValue(QT_TRANSLATE_NOOP("JoinGroupChat", "Recent")),Qt::DisplayRole);
-
 		//Recent items
+		m_bookmarksBoxModel->addItem(BookmarkSeparator, QT_TRANSLATE_NOOP("JoinGroupChat", "Recent"));
 		bookmarks = event.at<QVariantList>(1);
-		fillBookmarks(bookmarks,true);
+		fillBookmarks(bookmarks, true);
+
+		m_bookmarksBoxModel->endUpdating();
+		m_bookmarksViewModel->endUpdating();
+		ui->bookmarksBox->setCurrentIndex(0);
 	}
 
 	void JoinGroupChat::updateDataForm(const DataItem &items, int pos)
@@ -218,62 +203,49 @@ namespace Core
 		}
 	}
 
-	QListWidgetItem *JoinGroupChat::createItem(const QString &name, const QVariant &data)
-	{
-		//		QString description;
-		//		if (data.canConvert<QVariantMap>()) {
-		//			QVariantMap fields = data.toMap();
-		//			QVariantMap::const_iterator it;
-		//			for (it = fields.constBegin();it!=fields.constEnd();it++) {
-		//				description += it.key() % QLatin1Literal(": ") % it.value().toString() % QLatin1Literal(" \n");
-		//			}
-		//			description.remove(description.length()-2,2); //remove last \n
-		//		} else
-		//			description = data.toString();
-
-		QListWidgetItem *item = new QListWidgetItem (name,ui->listWidget);
-		item->setData(DescriptionRole,data);
-		//		QCommandLinkButton *button = new QCommandLinkButton(name,description,ui->listWidget);
-		//		ui->listWidget->setItemWidget(item,button);
-		//		item->setSizeHint(button->size());
-		return item;
-	}
-
 	void JoinGroupChat::onItemActivated(const QModelIndex &index)
 	{
 		Account *account = currentAccount();
 		if (!account || index.data(SeparatorRole).toBool())
 			return;
-		ButtonTypes type = static_cast<ButtonTypes>(index.data(Qt::UserRole).toInt());
+		BookmarkType type = index.data(BookmarkTypeRole).value<BookmarkType>();
 		switch (type) {
-		case ButtonTypeBookmark: {
-				//fill data
-				Event event("groupchat-fields");
-				event.args[1] = index.data().toString();
-				event.args[2] = false;
-				qApp->sendEvent(account,&event);
-				DataItem item = event.at<DataItem>(0);
-				//join
-				event = Event("groupchat-join",qVariantFromValue(item));
-				qApp->sendEvent(account,&event);
-				close();
-				break;
-			}
-		case ButtonTypeNew: {
-				ui->stackedWidget->setCurrentIndex(1);
-				break;
-			}
-		case ButtonTypeEditBookmarks: {
-				ui->stackedWidget->setCurrentIndex(2);
-				break;
-			}
+		case BookmarkItem:
+		case BookmarkRecentItem: {
+			//fill data
+			Event event("groupchat-fields");
+			event.args[1] = index.data().toString();
+			event.args[2] = true;
+			qApp->sendEvent(account, &event);
+			DataItem item = event.at<DataItem>(0);
+			//join
+			event = Event("groupchat-join",qVariantFromValue(item));
+			qApp->sendEvent(account, &event);
+			close();
+			break;
+		}
+		case BookmarkNew: {
+			ui->stackedWidget->setCurrentIndex(1);
+			break;
+		}
+		case BookmarkEdit: {
+			ui->stackedWidget->setCurrentIndex(2);
+			break;
+		}
+		default:
+			break;
 		}
 	}
 
-	Account *JoinGroupChat::currentAccount()
+	inline Account *JoinGroupChat::currentAccount()
 	{
-		int index = ui->accountBox->currentIndex();
-		return (ui->accountBox->itemData(index)).value<Account*>();
+		return account(ui->accountBox->currentIndex());
+	}
+
+	inline Account *JoinGroupChat::account(int index)
+	{
+		QAbstractItemModel *model = ui->accountBox->model();
+		return (model->data(model->index(index, 0), Qt::UserRole)).value<Account*>();
 	}
 
 	void JoinGroupChat::onNegativeActionTriggered()
@@ -307,7 +279,7 @@ namespace Core
 			close();
 		} else if (ui->stackedWidget->currentIndex() == 2) {
 			int index = ui->bookmarksBox->currentIndex();
-			updateBookmark(!ui->bookmarksBox->itemData(index,Qt::UserRole+1).toBool());
+			updateBookmark(!isRecent(index));
 			fillBookmarks(account);
 		}
 	}
@@ -319,13 +291,13 @@ namespace Core
 			return;
 		if (!remove) {
 			DataItem item = qobject_cast<AbstractDataForm*>(m_dataform_widget)->item();
-			Event event ("groupchat-bookmark-save",qVariantFromValue(item));
+			Event event ("groupchat-bookmark-save", qVariantFromValue(item));
 			event.args[1] = ui->bookmarksBox->currentText(); //old name
-			qApp->sendEvent(account,&event);
+			qApp->sendEvent(account, &event);
 			onCurrentChanged(2);
 		} else {
-			Event event ("groupchat-bookmark-remove",ui->bookmarksBox->currentText());
-			qApp->sendEvent(account,&event);
+			Event event ("groupchat-bookmark-remove", ui->bookmarksBox->currentText());
+			qApp->sendEvent(account, &event);
 			onCurrentChanged(2);
 		}
 	}
@@ -336,17 +308,21 @@ namespace Core
 		if (!account || ui->stackedWidget->currentIndex() != 2)
 			return;
 
-		if (ui->bookmarksBox->itemData(index,Qt::UserRole+1).toBool())
-			m_positive_action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Add"));
-		else
-			m_positive_action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Remove"));
-
+		m_positive_action->setText(!isRecent(index) ?
+								   QT_TRANSLATE_NOOP("JoinGroupChat", "Remove") :
+								   QT_TRANSLATE_NOOP("JoinGroupChat", "Add"));
 		Event event("groupchat-fields");
 		event.args[1] = ui->bookmarksBox->itemText(index);
 		event.args[2] = true;
-		qApp->sendEvent(account,&event);
+		qApp->sendEvent(account, &event);
 		DataItem item = event.at<DataItem>(0);
-		updateDataForm(item,2);
+		updateDataForm(item, 2);
+	}
+
+	bool JoinGroupChat::isRecent(int index)
+	{
+		BookmarkType type = m_bookmarksBoxModel->data(index, BookmarkTypeRole).value<BookmarkType>();
+		return type == BookmarkRecentItem;
 	}
 
 }
