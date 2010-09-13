@@ -2,6 +2,7 @@
  *  joingroupchat.h
  *
  *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+ *  Copyright (c) 2010 by Alexey Prokhin <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
