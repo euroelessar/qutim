@@ -80,6 +80,10 @@ class LIBOSCAR_EXPORT Channel1MessageData: public DataUnit
 {
 public:
 	Channel1MessageData(const QString &message, Channel1Codec charset = CodecUtf16Be);
+	Channel1MessageData(const QByteArray &message, Channel1Codec charset = CodecUtf16Be);
+	static QByteArray fromUnicode(const QString &message, Channel1Codec charset = CodecUtf16Be);
+private:
+	void init(const QByteArray &message, Channel1Codec charset);
 };
 
 class LIBOSCAR_EXPORT Tlv2711: public DataUnit

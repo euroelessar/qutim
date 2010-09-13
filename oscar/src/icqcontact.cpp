@@ -142,6 +142,59 @@ bool IcqContact::isInList() const
 	return !d->items.isEmpty();
 }
 
+/*
+ Looks up an incomplete character at the end of a utf-8 string and returns
+ length of this character or 0 if the character has not been found.
+ */
+static quint8 lookupIncompleteCharacter(const QByteArray &str)
+{
+	int left = str.size(); // holds count of remained bytes
+	int i = 0;
+	const uchar *data = reinterpret_cast<const uchar *>(str.data());
+	while (left > 0) {
+		const uchar current = data[i];
+		if (current < 0xc2) {
+			--left;
+			++i;
+		} else if (current < 0xe0) {
+			left -= 2;
+			i += 2;
+		} else /*if (current < 0xf0)*/ {
+			left -= 3;
+			i += 3;
+		}
+	}
+	return -left;
+}
+
+/*
+ Splits the long message into messages with length less than maxLen and returns the list of
+ those messages. If the length of this message less than maxLen, returns a single-element
+ list containing this message.
+ */
+static QList<QByteArray> splitMessage(const QByteArray &message, quint16 maxLen, bool utf8 = false)
+{
+	QList<QByteArray> list;
+	if (message.size() > maxLen) {
+		int i = 0;
+		int size = message.size();
+		while (i < size) {
+			QByteArray msg = message.mid(i, maxLen);
+			if (utf8) {
+				quint8 l = lookupIncompleteCharacter(msg);
+				if (l)
+					msg.truncate(maxLen-l);
+			}
+			i += msg.size();
+			msg += '\0';
+			list << msg;
+		}
+	} else {
+		list << (message + '\0');
+	}
+	return list;
+}
+
 bool IcqContact::sendMessage(const Message &message)
 {
 	Q_D(IcqContact);
@@ -157,26 +210,38 @@ bool IcqContact::sendMessage(const Message &message)
 	if (msgText.isEmpty())
 		msgText = message.text();
 	if (!(d->flags & srvrelay_support)) {
-		ServerMessage msgData(this, Channel1MessageData(msgText, CodecUtf16Be), cookie);
-		d->account->connection()->send(msgData, 80);
+		Channel1Codec charset = CodecUtf16Be;
+		QByteArray data = Channel1MessageData::fromUnicode(msgText, charset);
+		QList<QByteArray> msgs = splitMessage(data, 2542); // Max: 2543
+
+		for (int i = 0, size = msgs.size(), last = size-1; i < size; ++i) {
+			ServerMessage msgData(this, Channel1MessageData(msgs.at(i), charset),
+								  i == last ? cookie : Cookie::generateId());
+			d->account->connection()->send(msgData, 80);
+		}
 		channel = 1;
 	} else {
-		QTextCodec *codec;
-		if (d->flags & utf8_support)
-			codec = Util::utf8Codec();
-		else
-			codec = Util::asciiCodec();
-		QByteArray msg = codec->fromUnicode(msgText) + '\0';
-		Tlv2711 tlv(0x01, 0, d->status.subtype(), 1, cookie);
-		tlv.append<quint16>(msg, LittleEndian);
-		tlv.appendColors();
-		if (d->flags & utf8_support)
-			tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
-		ServerMessage msgData(this, Channel2MessageData(0, tlv));
-		msgData.setCookie(cookie, this, SLOT(messageTimeout()));
-		d->account->connection()->send(msgData, 80);
+		QList<QByteArray> msgs = d->flags & utf8_support ?
+								 splitMessage(Util::utf8Codec()->fromUnicode(msgText), 7857, true) :
+								 splitMessage(Util::asciiCodec()->fromUnicode(msgText), 7898);
+
+		for (int i = 0, size = msgs.size(), last = size-1; i < size; ++i) {
+			bool isLast = i == last;
+			const QByteArray &msg = msgs.at(i);
+			Tlv2711 tlv(0x01, 0, d->status.subtype(), 1,
+						isLast ? cookie : Cookie::generateId());
+			tlv.append<quint16>(msg, LittleEndian);
+			tlv.appendColors();
+			if (d->flags & utf8_support)
+				tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
+			ServerMessage msgData(this, Channel2MessageData(0, tlv));
+			if (isLast)
+				msgData.setCookie(cookie, this, SLOT(messageTimeout()));
+			d->account->connection()->send(msgData, 80);
+		}
 	}
-	debug().nospace() << "Message is sent on channel " << channel
+	debug(Verbose).nospace()
+			<< "Message is sent on channel " << channel
 			<< ", ID:" << message.id()
 			<< ", text:" << message.text();
 	return true;

@@ -34,15 +34,30 @@ using namespace Util;
 
 Channel1MessageData::Channel1MessageData(const QString &message, Channel1Codec charset)
 {
+	init(fromUnicode(message, charset), charset);
+}
+
+Channel1MessageData::Channel1MessageData(const QByteArray &message, Channel1Codec charset)
+{
+	init(message, charset);
+}
+
+QByteArray Channel1MessageData::fromUnicode(const QString &message, Channel1Codec charset)
+{
 	QTextCodec *codec = 0;
 	if (charset == CodecUtf16Be)
 		codec = utf16Codec();
 	else
 		codec = asciiCodec();
+	return codec->fromUnicode(message);
+}
+
+void Channel1MessageData::init(const QByteArray &message, Channel1Codec charset)
+{
 	DataUnit msgData;
 	msgData.append<quint16>(charset);
 	msgData.append<quint16>(0);
-	msgData.append(message, codec);
+	msgData.append(message);
 
 	appendTLV(0x0501, (quint32) 0x0106);
 	appendTLV(0x0101, msgData.data());
@@ -405,7 +420,7 @@ QString MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *con
 	} else {
 		debug() << "Incorrect message on channel 1 from" << contact->id() << ": SNAC should contain TLV 2";
 	}
-	debug() << "New message has been received on channel 1:" << message;
+	debug(Verbose) << "New message has been received on channel 1:" << message;
 	return message;
 }
 
@@ -544,7 +559,7 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 					codec = asciiCodec();
 			}
 			QString message = codec->toUnicode(message_data);
-			debug() << "New message has been received on channel 2:" << message;
+			debug(Verbose) << "New message has been received on channel 2:" << message;
 			return message;
 		} else if (MsgPlugin) {
 			data.skipData(3);

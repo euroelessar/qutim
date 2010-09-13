@@ -153,7 +153,8 @@ void Cookie::setAccount(IcqAccount *account)
 
 quint64 Cookie::generateId()
 {
-	return QDateTime::currentDateTime().toTime_t();
+	static quint64 id = 10000;
+	return ++id;
 }
 
 void Cookie::onTimeout()
