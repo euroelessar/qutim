@@ -143,7 +143,8 @@ namespace qutim_sdk_0_3
 			QWidgetList ls2 = exceptions;
 			std::sort(ls1.begin(), ls1.end());
 			std::sort(ls2.begin(), ls2.end());
-			std::set_difference(ls1.begin(), ls1.end(), ls2.begin(), ls2.end(), widgets.begin());
+			std::set_difference(ls1.begin(), ls1.end(), ls2.begin(), ls2.end(),
+								std::insert_iterator<QWidgetList>(widgets, widgets.begin()));
 		}
 		else
 			widgets = findChildren<QWidget *>();
