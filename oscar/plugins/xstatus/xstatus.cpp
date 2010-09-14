@@ -386,6 +386,9 @@ void XStatusHandler::setAcountXstatus(IcqAccount *account, QVariantHash extStatu
 		qApp->sendEvent(account, &ev);
 		extStatus = ev.at<QVariantHash>(0);
 	}
+	extStatus.insert("id", "xstatus");
+	if (!extStatus.contains("icon"))
+		extStatus.insert("icon", xstatus.icon.toIcon());
 	account->setProperty("xstatus", extStatus);
 	account->setCapability(xstatus.capability, "xstatus");
 	Config cfg = account->config("xstatus");
@@ -451,7 +454,6 @@ void XStatusHandler::onCustomDialogAccepted()
 	QVariantHash extStatus;
 	extStatus.insert("name", xstatus.name);
 	extStatus.insert("title", dialog->caption());
-	extStatus.insert("icon", xstatus.icon.toIcon());
 	extStatus.insert("description", dialog->message());
 	setAcountXstatus(dialog->account(), extStatus, xstatus);
 }
