@@ -321,7 +321,7 @@ namespace qutim_sdk_0_3
 		}
 #ifdef Q_OS_SYMBIAN
 		//workaround about buggy softkeys
-		d_func()->menu->menu()->onAboutToShow();
+		d_func()->menu->onAboutToShow();
 #endif
 		return d_func()->menu->menu();
 	}
