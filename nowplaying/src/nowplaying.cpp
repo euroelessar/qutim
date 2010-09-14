@@ -89,12 +89,12 @@ namespace nowplaying
 	{
 		Config cfg = config("global");
 		m_isWorking = cfg.value("isWorking", false);
-		initPlayer(cfg.value("player", QString("Amarok")));
-		m_forAllAccounts = cfg.value("enableForAllAccounts", true);
 		foreach (AccountTuneStatus *account, m_accounts)
 			account->loadSettings();
 		foreach (AccountTuneStatus *factory, m_factories)
 			factory->loadSettings();
+		initPlayer(cfg.value("player", QString("Amarok")));
+		m_forAllAccounts = cfg.value("enableForAllAccounts", true);
 	}
 
 	void NowPlaying::initPlayer(const QString &playerName)
@@ -123,20 +123,21 @@ namespace nowplaying
 
 	void NowPlaying::setState(bool isWorking)
 	{
-		if (m_isWorking == isWorking)
+		Q_ASSERT(!(!m_player && m_isWorking));
+		if (m_isWorking == isWorking || !m_player)
 			return;
+		m_isWorking = isWorking;
 		m_stopStartAction->setState(isWorking);
 		config("global").setValue("isWorking", isWorking);
-		if (m_player && m_isWorking) {
+		if (isWorking) {
 			m_player->startWatching();
-			if (m_player->isPlaying()) {
+			if (m_player->isPlaying())
 				setStatuses(m_player->trackInfo());
-			} else {
-				m_player->stopWatching();
-				clearStatuses();
-			}
+		} else {
+			m_player->stopWatching();
+			clearStatuses();
 		}
-		m_isWorking = isWorking;
+
 	}
 
 	void NowPlaying::stopStartActionTrigged()

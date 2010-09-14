@@ -37,9 +37,7 @@ namespace nowplaying {
 		ui->for_all_accounts->blockSignals(true);
 
 		updateStatusText();
-		Config cfg = config("global");
-		m_enableForAllAccounts = cfg.value("enableForAllAccounts", true);
-		ui->for_all_accounts->setChecked(m_enableForAllAccounts);
+		ui->for_all_accounts->setChecked(m_manager->forAllAccounts());
 		ui->accounts->clear();
 
 		m_accounts = m_manager->accounts();

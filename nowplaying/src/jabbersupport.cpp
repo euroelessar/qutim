@@ -21,9 +21,9 @@ namespace nowplaying {
 
 	void JabberTuneStatus::setStatus(const TrackInfo &info)
 	{
-		JabberSettings config = (NowPlaying::instance()->forAllAccounts()) ?
-						m_settings :
-						m_jabberFactory->m_settings;
+		JabberSettings config = NowPlaying::instance()->forAllAccounts() ?
+								m_jabberFactory->m_settings :
+								m_settings;
 		if (config.deactivated)
 			return;
 		QVariantHash tune;

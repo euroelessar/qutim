@@ -33,11 +33,15 @@ namespace nowplaying {
 		virtual AccountTuneSettings *settingsWidget();
 		virtual AccountTuneStatus *construct(Account *account, AccountTuneStatus *factory);
 		OscarSettings settings() { return m_settings; }
+	protected:
+		bool eventFilter(QObject *obj, QEvent *e);
 	private:
 		QString message(const TrackInfo &info);
 		OscarSettings m_settings;
 		IcqTuneStatus *m_icqFactory;
 		quint16 icqChangeXstatusEvent;
+		quint16 icqXstatusAboutToBeChanged;
+		QString currentMessage;
 	};
 
 	class IcqTuneSettings : public AccountTuneSettings

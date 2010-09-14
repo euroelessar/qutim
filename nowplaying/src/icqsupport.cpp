@@ -17,37 +17,40 @@ namespace nowplaying {
 			AccountTuneStatus(account, factory), m_icqFactory(factory)
 	{
 		icqChangeXstatusEvent = Event::registerType("icq-change-xstatus");
+		icqXstatusAboutToBeChanged = Event::registerType("icq-xstatus-about-to-be-changed");
+		m_account->installEventFilter(this);
 	}
 
 	void IcqTuneStatus::setStatus(const TrackInfo &info)
 	{
-		OscarSettings config = (NowPlaying::instance()->forAllAccounts()) ?
-					   m_settings :
-					   m_icqFactory->m_settings;
+		OscarSettings config = NowPlaying::instance()->forAllAccounts() ?
+							   m_icqFactory->m_settings :
+							   m_settings;
 		if (config.deactivated)
 			return;
-		QString msg = message(info);
-		QVariantHash xstatus = m_account->status().extendedInfo("xstatus");
-		if (config.setsCurrentStatus && xstatus.value("description").toString() != msg) {
+		currentMessage = message(info);
+		QVariantHash xstatus = m_account->property("xstatus").toHash();
+		QString xstatusName = xstatus.value("name").toString();
+		if (config.setsCurrentStatus && xstatus.value("description").toString() == currentMessage) {
 			return;
 		} else if (config.setsMusicStatus &&
-				   xstatus.value("name").toString() == "music" &&
-				   xstatus.value("description").toString() != msg)
+				  (xstatusName != "listening_to_music" ||
+				   xstatus.value("description").toString() == currentMessage))
 		{
 			return;
 		}
 
-		QVariantHash extStatus;
-		extStatus.insert("title", tr("Listening"));
-		extStatus.insert("name", "listening_to_music");
-		extStatus.insert("description", msg);
+		if (xstatusName.isEmpty())
+			xstatus.insert("name", "listening_to_music");
+		xstatus.insert("description", currentMessage);
 		Event ev(icqChangeXstatusEvent);
-		ev.args[0] = extStatus;
+		ev.args[0] = xstatus;
 		qApp->sendEvent(m_account, &ev);
 	}
 
 	void IcqTuneStatus::removeStatus()
 	{
+		currentMessage = QString();
 		Event ev(icqChangeXstatusEvent);
 		qApp->sendEvent(m_account, &ev);
 	}
@@ -56,8 +59,8 @@ namespace nowplaying {
 	{
 		Config cfg = config(m_account ? m_account->id() : "oscar");
 		m_settings.deactivated = cfg.value("deactivated", false);
-		m_settings.setsCurrentStatus = cfg.value("setsCurrentStatus", false);
-		m_settings.setsMusicStatus = cfg.value("setsMusicStatus", true);
+		m_settings.setsCurrentStatus = cfg.value("setCurrentStatus", false);
+		m_settings.setsMusicStatus = cfg.value("setMusicStatus", true);
 		m_settings.mask_1 = cfg.value("mask1", QString("Now playing: %artist - %title"));
 		m_settings.mask_2 = cfg.value("mask2", QString("%artist - %title"));
 	}
@@ -72,11 +75,36 @@ namespace nowplaying {
 		return new IcqTuneStatus(account, qobject_cast<IcqTuneStatus*>(factory));
 	}
 
+	bool IcqTuneStatus::eventFilter(QObject *obj, QEvent *e)
+	{
+		if (obj == m_account && e->type() == qutim_sdk_0_3::Event::eventType()) {
+			qutim_sdk_0_3::Event *customEvent = static_cast<qutim_sdk_0_3::Event*>(e);
+			if (customEvent->id == icqXstatusAboutToBeChanged) {
+				if (!NowPlaying::instance()->isWorking() && m_settings.deactivated)
+					return false;
+				QVariantHash xstatus = customEvent->at<QVariantHash>(0);
+				if (m_settings.setsCurrentStatus ||
+					(m_settings.setsMusicStatus && xstatus.value("name").toString() == "listening_to_music"))
+				{
+					xstatus.insert("description", currentMessage);
+					customEvent->args[0] = xstatus;
+				} else if (m_settings.setsMusicStatus && !currentMessage.isEmpty() &&
+						   xstatus.value("description").toString() == currentMessage)
+				{
+					xstatus.insert("description", QString());
+					customEvent->args[0] = xstatus;
+				}
+				return false;
+			}
+		}
+		return AccountTuneStatus::eventFilter(obj, e);
+	}
+
 	QString IcqTuneStatus::message(const TrackInfo &info)
 	{
-		OscarSettings config = (NowPlaying::instance()->forAllAccounts()) ?
-					   m_settings :
-					   m_icqFactory->m_settings;
+		OscarSettings config = NowPlaying::instance()->forAllAccounts() ?
+							   m_settings :
+							   m_icqFactory->m_settings;
 		QString message = (config.setsCurrentStatus) ? config.mask_1 : config.mask_2;
 		message.replace("%artist", info.artist).replace("%title", info.title).
 				replace("%album", info.album).replace("%track", info.track_number).
@@ -139,10 +167,10 @@ namespace nowplaying {
 			const OscarSettings &settings = itr.value();
 			Config cfg = config(acc ? acc->id() : "oscar");
 			cfg.setValue("deactivated", settings.deactivated);
-			cfg.setValue("sets_current_status", settings.setsCurrentStatus);
-			cfg.setValue("sets_music_status", settings.setsMusicStatus);
-			cfg.setValue("mask_1", settings.mask_1);
-			cfg.setValue("mask_2", settings.mask_2);
+			cfg.setValue("setCurrentStatus", settings.setsCurrentStatus);
+			cfg.setValue("setMusicStatus", settings.setsMusicStatus);
+			cfg.setValue("mask1", settings.mask_1);
+			cfg.setValue("mask2", settings.mask_2);
 		}
 
 	}
