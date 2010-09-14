@@ -4,20 +4,24 @@
 #include <QTime>
 
 namespace qutim_sdk_0_3 {
-namespace nowplaying{
 
-    void Amarok::init(){
+namespace nowplaying {
+
+	void Amarok::init()
+	{
         qDBusRegisterMetaType<DBusStatus>();
         m_dbus_interface = new QDBusInterface("org.mpris.amarok", "/Player", "org.freedesktop.MediaPlayer", QDBusConnection::sessionBus(), this);
         m_timer = new QTimer(this);
         connect (m_timer, SIGNAL(timeout()), this, SLOT(isPlayingCheck()));
     }
 
-    QString Amarok::playerName(){
+	QString Amarok::playerName()
+	{
         return QString("Amarok");
     }
 
-     TrackInfo Amarok::trackInfo(){
+	 TrackInfo Amarok::trackInfo()
+	 {
         TrackInfo track_info;
         QDBusReply<QVariantMap> reply = m_dbus_interface->call("GetMetadata");
         track_info.album = reply.value().value("album").toString();
@@ -31,7 +35,8 @@ namespace nowplaying{
         return track_info;
     }
 
-     bool Amarok::isPlaying(){
+	 bool Amarok::isPlaying()
+	 {
         QDBusReply<DBusStatus> reply = m_dbus_interface->call("GetStatus");
         if (reply.isValid()){
             return reply.value().Play == 0;
@@ -40,7 +45,8 @@ namespace nowplaying{
         }
     }
 
-    void Amarok::startWatching(){
+	void Amarok::startWatching()
+	{
         m_is_playing = isPlaying();
         m_dbus_interface->connection().connect("org.mpris.amarok",
                                                "/Player",
@@ -60,7 +66,8 @@ namespace nowplaying{
         m_timer->start(1000);
     }
 
-    void Amarok::stopWatching(){
+	void Amarok::stopWatching()
+	{
         m_timer->stop();
         m_dbus_interface->connection().disconnect("org.mpris.amarok",
                                                   "/Player",
@@ -71,7 +78,8 @@ namespace nowplaying{
                                                   );
     }
 
-    void Amarok::trackChanged(){
+	void Amarok::trackChanged()
+	{
         TrackInfo info = trackInfo();
         if (!info.uri.isEmpty() && (info.time != "0:00:00" || info.time.isEmpty())){
             emit Player::trackChanged(info);
@@ -100,7 +108,8 @@ namespace nowplaying{
         }
     }*/
 
-    void Amarok::isPlayingCheck(){
+	void Amarok::isPlayingCheck()
+	{
         bool is_playing = isPlaying();
         if (m_is_playing && !is_playing){
             m_is_playing = false;
@@ -110,17 +119,18 @@ namespace nowplaying{
             emit playingStatusChanged(true);
         }
     }
-}
-}
+} }
 
-const QDBusArgument & operator<<(QDBusArgument &arg, const DBusStatus& status) {
+const QDBusArgument & operator<<(QDBusArgument &arg, const DBusStatus& status)
+{
     arg.beginStructure();
     arg << status.Play << status.Random << status.Repeat << status.RepeatPlaylist;
     arg.endStructure();
     return arg;
 }
 
-const QDBusArgument & operator>>(const QDBusArgument& arg, DBusStatus& status) {
+const QDBusArgument & operator>>(const QDBusArgument& arg, DBusStatus& status)
+{
     arg.beginStructure();
     arg >> status.Play >> status.Random >> status.Repeat >> status.RepeatPlaylist;
     arg.endStructure();

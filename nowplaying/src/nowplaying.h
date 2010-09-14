@@ -2,69 +2,75 @@
 #define NOWPLAYING_H
 
 #include "settingsui.h"
-#include "settings_structures.h"
 #include "player.h"
 #include <qutim/plugin.h>
+#include <qutim/actiongenerator.h>
+#include <qutim/config.h>
 #include <QHash>
 
 namespace qutim_sdk_0_3 {
-    namespace nowplaying{
 
-        class StopStartActionGenerator;
+class Account;
 
-        class NowPlaying : public Plugin{
-            Q_OBJECT
-            Q_CLASSINFO("DebugInfo", "NowPlaying")
+namespace nowplaying {
 
-        public:
-            void init();
-            bool load();
-            bool unload();
-        private:
-            StopStartActionGenerator* m_stop_start_action;
-            void loadSettings();
-            Protocol* m_oscar_protocol;
-            Protocol* m_mrim_protocol;
-            Protocol* m_jabber_protocol;
-            QHash<QString, QString> m_accounts;
-            QHash<QString, Oscar> m_oscar_accs;
-            QHash<QString, MRIM> m_mrim_accs;
-            QHash<QString, Jabber> m_jabber_accs;
-            QHash<QString, QString> m_current_status_name;
-            Global m_global_settings;
-            Player* m_player;
-			struct EventTypes
-			{
-				int icqChangeXstatus;
-			};
-			EventTypes eventTypes;
-            void createPlayer();
-            void setStatuses(const TrackInfo& info, bool empty = false);
-            void setEmptyStatuses();
-            void setMRIMStatus(const QString& acc, const QString& text);
-            void setOscarStatus(const QString& acc, const QString& text);
-            void setJabberStatus(const QString& acc, const TrackInfo& info);
-            QString getMessage(const QString& acc, const TrackInfo& info, bool empty = false);
-            bool isAccountNeedsInSettingStatus(const QString& acc, bool empty = false);
+	class AccountTuneStatus;
+	class StopStartActionGenerator;
 
-        public slots:
-            void stopStartActionTrigged();
-            void configChanged();
-            void statusChanged(bool);
-            void playingStatusChanged(bool);
-            void trackChanged(const TrackInfo&);
-            void accountCreated(qutim_sdk_0_3::Account*);
-            void statusChanged(qutim_sdk_0_3::Status);
-            void accountDeleted();
-        };
+	class NowPlaying : public Plugin
+	{
+		Q_OBJECT
+		Q_CLASSINFO("DebugInfo", "NowPlaying")
+		Q_CLASSINFO("Service", "NowPlaying")
+	public:
+		NowPlaying();
+		void init();
+		bool load();
+		bool unload();
+		QHash<Protocol*, AccountTuneStatus*> factories() { return m_factories; }
+		QList<AccountTuneStatus*> accounts() { return m_accounts; }
+		QHash<QString, Player*> players() { return m_players; }
+		Player *currentPlayer() { return m_player; }
+		bool forAllAccounts() { return m_forAllAccounts; }
+		bool isWorking() { return m_isWorking; }
+		static NowPlaying *instance() { Q_ASSERT(self); return self; }
+	public slots:
+		void loadSettings();
+		void setState(bool isWorking);
+	private slots:
+		void stopStartActionTrigged();
+		void playingStatusChanged(bool);
+		void accountCreated(qutim_sdk_0_3::Account*);
+		void accountDeleted();
+		void setStatuses(const TrackInfo &info);
+	private:
+		void initPlayer(const QString &playerName);
+		void clearStatuses();
+	private:
+		StopStartActionGenerator* m_stopStartAction;
+		QHash<QString, Player*> m_players;
+		Player* m_player;
+		QHash<Protocol*, AccountTuneStatus*> m_factories;
+		QList<AccountTuneStatus*> m_accounts;
+		bool m_isWorking;
+		bool m_forAllAccounts;
+		static NowPlaying *self;
+	};
 
-        class StopStartActionGenerator : public ActionGenerator{
-        public:
-            StopStartActionGenerator(QObject *module, const QString& text);
-            void showImpl(QAction *action, QObject *obj);
-            void setText(const QString& text){m_text = text;}
-            QString m_text;
-        };
-    }
-}
+	class StopStartActionGenerator : public ActionGenerator
+	{
+	public:
+		StopStartActionGenerator(QObject *module, bool isWorking);
+		void showImpl(QAction *action, QObject *obj);
+		void setState(bool isWorking);
+	private:
+		QString m_text;
+	};
+
+	inline qutim_sdk_0_3::Config config(const QString &group = QString())
+	{
+		qutim_sdk_0_3::Config cfg("nowplaying");
+		return !group.isEmpty() ? cfg.group(group) : cfg;
+	}
+} }
 #endif // NOWPLAYING_H
