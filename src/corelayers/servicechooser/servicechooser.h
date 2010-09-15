@@ -17,12 +17,12 @@
 #define SERVICECHOOSER_H
 
 #include <QObject>
+#include <qutim/startupmodule.h>
 
 namespace qutim_sdk_0_3
 {
 	class ExtensionInfo;
 }
-
 
 namespace Core
 {

@@ -27,6 +27,9 @@ namespace qutim_sdk_0_3
 	class Account;
 	class ProtocolPrivate;
 
+	class Protocol;
+	typedef QHash<QString, Protocol *> ProtocolMap;
+
 	class LIBQUTIM_EXPORT AccountCreationWizard : public QObject
 	{
 		Q_OBJECT
@@ -73,6 +76,7 @@ namespace qutim_sdk_0_3
 		  It is recommended to display a confirmation dialog box.
 		*/
 		virtual void removeAccount(qutim_sdk_0_3::Account *account, RemoveFlag flags = DeleteAccount);
+		static ProtocolMap all();
 	signals:
 		void accountCreated(qutim_sdk_0_3::Account *);
 		void accountRemoved(qutim_sdk_0_3::Account *);

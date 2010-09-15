@@ -18,6 +18,7 @@
 #include "metacontactprotocol_p.h"
 #include "account_p.h"
 #include "metacontact.h"
+#include "servicemanager.h"
 #include <QUuid>
 
 namespace qutim_sdk_0_3
@@ -50,8 +51,8 @@ namespace qutim_sdk_0_3
 	MetaContactManager *MetaContactManager::instance()
 	{
 		static MetaContactManager *self = 0;
-		if (!self && isCoreInited())
-			self = qobject_cast<MetaContactManager*>(getService("MetaContactManager"));
+		if (!self && ObjectGenerator::isInited())
+			self = qobject_cast<MetaContactManager*>(ServiceManager::getByName("MetaContactManager"));
 		return self;
 	}
 	

@@ -19,12 +19,13 @@
 #include "joingroupchat.h"
 #include <qutim/account.h>
 #include <qutim/protocol.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
 	bool isSupportGroupchat()
 	{
-		foreach (Protocol *p,allProtocols()) {
+		foreach (Protocol *p,Protocol::all()) {
 			bool support = p->data(qutim_sdk_0_3::Protocol::ProtocolSupportGroupChat).toBool();
 			if (support) {
 				foreach (Account *a,p->accounts()) {
@@ -39,7 +40,7 @@ namespace Core
 	
 	JoinGroupChatModule::JoinGroupChatModule()
 	{
-		QObject *contactList = getService("ContactList");
+		QObject *contactList = ServiceManager::getByName("ContactList");
 		if (contactList) {
 			MenuController *controller = qobject_cast<MenuController*>(contactList);
 			Q_ASSERT(controller);

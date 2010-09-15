@@ -19,8 +19,9 @@ Boston, MA 02110-1301, USA.
 #include <QLayout>
 #include "ui_popupappearance.h"
 #include <qutim/configbase.h>
-#include "manager.h"
 #include <qutim/objectgenerator.h>
+#include <qutim/thememanager.h>
+#include "manager.h"
 #include "backend.h"
 
 namespace Core
@@ -36,7 +37,7 @@ PopupAppearance::PopupAppearance ()
 	setProperty("name",tr("Preview"));
 	setProperty("avatar",QLatin1String(":/icons/qutim_64"));
 
-	const ObjectGenerator *gen = moduleGenerators<AbstractPopupWidget>().value(0);
+	const ObjectGenerator *gen = ObjectGenerator::module<AbstractPopupWidget>().value(0);
 	Q_ASSERT(gen);
 	m_popup_widget = gen->generate<AbstractPopupWidget>();
 	Q_ASSERT(m_popup_widget);
@@ -79,7 +80,7 @@ void PopupAppearance::getThemes()
 {
 	ui->comboBox->blockSignals(true);
 	QString category = "qmlpopups";
-	QStringList list = listThemes(category);
+	QStringList list = ThemeManager::list(category);
 	ui->comboBox->clear();
 	int index = -1;
 	foreach (QString theme,list)

@@ -229,7 +229,7 @@ Module::Module() : p(new ModulePrivate)
 	connect(MetaContactManager::instance(), SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)),
 			this, SLOT(addContact(qutim_sdk_0_3::Contact*)));
 
-	foreach(Protocol *proto, allProtocols()) {
+	foreach(Protocol *proto, Protocol::all()) {
 		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)), this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 		foreach(Account *account, proto->accounts()) {
 			onAccountCreated(account);
@@ -271,7 +271,7 @@ void Module::onStatusChanged()
 		Status::Type type = static_cast<Status::Type>(a->data().value<int>());
 		p->statusBtn->setText(Status(type).name());
 		QString text = p->status_action->data().toString();
-		foreach(Protocol *proto, allProtocols()) {
+		foreach(Protocol *proto, Protocol::all()) {
 			foreach(Account *account, proto->accounts()) {
 				Status status = account->status();
 				status.setType(type);
@@ -355,7 +355,7 @@ void Module::onAccountCreated(Account *account)
 inline bool isStatusChange(const qutim_sdk_0_3::Status &status)
 {
 	if (status.type() == Status::Offline) {
-		foreach(Protocol *proto, allProtocols()) {
+		foreach(Protocol *proto, Protocol::all()) {
 			foreach(Account *a, proto->accounts()) {
 				debug() << a->status().name() << a->status().type();
 				if (a->status().type()!=Status::Offline)
@@ -419,7 +419,7 @@ void Module::changeStatusTextAccepted()
 	QString text = dialog->statusText();
 	p->status_action->setData(text);
 	p->statusBtn->setToolTip(text);
-	foreach(Protocol *proto, allProtocols()) {
+	foreach(Protocol *proto, Protocol::all()) {
 		foreach(Account *account, proto->accounts()) {
 			Status status = account->status();
 			status.setText(text);

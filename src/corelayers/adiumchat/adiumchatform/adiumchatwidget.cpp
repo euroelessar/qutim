@@ -209,7 +209,7 @@ namespace Core
 			}
 			AbstractChatWidget::currentIndexChanged(index);
 			ChatSessionImpl *session = m_sessions.at(index);
-			qDeleteAllLater(m_actions);
+			qDeleteAll(m_actions);
 			m_actions.clear();
 			ActionContainer container(session->getUnit(),ActionContainer::TypeMatch,ActionTypeChatButton);
 			//fixme

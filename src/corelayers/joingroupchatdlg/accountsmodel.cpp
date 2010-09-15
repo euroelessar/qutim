@@ -23,7 +23,7 @@ namespace Core {
 	AccountsModel::AccountsModel(QObject *parent) :
 		QAbstractListModel(parent)
 	{
-		foreach (Protocol *protocol, allProtocols()) {
+		foreach (Protocol *protocol, Protocol::all()) {
 			// TODO: use Event instead of Protocol::data()
 			bool support = protocol->data(qutim_sdk_0_3::Protocol::ProtocolSupportGroupChat).toBool();
 			if (!support)

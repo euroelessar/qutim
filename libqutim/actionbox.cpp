@@ -31,7 +31,7 @@ ActionBox::ActionBox(QWidget *parent) :
 	d->q_ptr = this;
 	Q_ASSERT(parent);
 
-	const ObjectGenerator *gen = 	moduleGenerators<ActionBoxModule>().value(0);
+	const ObjectGenerator *gen = 	ObjectGenerator::module<ActionBoxModule>().value(0);
 	if(gen)
 		d->module = gen->generate<ActionBoxModule>();
 

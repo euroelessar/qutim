@@ -1,6 +1,8 @@
 #include "simpletray.h"
 #include <qutim/icon.h>
 #include <qutim/extensioninfo.h>
+#include "qutim/metaobjectbuilder.h"
+#include <qutim/servicemanager.h>
 #include <QApplication>
 #include <QWidgetAction>
 #include <QToolButton>
@@ -12,7 +14,7 @@ namespace Core
 	{
 	public:
 		ProtocolSeparatorActionGenerator(Protocol *proto, const ExtensionInfo &info) :
-				ActionGenerator(info.icon(), metaInfo(info.generator()->metaObject(),"Protocol"), 0, 0)
+				ActionGenerator(info.icon(), MetaObjectBuilder::info(info.generator()->metaObject(),"Protocol"), 0, 0)
 		{
 			setType(-1);
 			m_proto = proto;
@@ -74,7 +76,7 @@ namespace Core
 		connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 				this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 		QMap<QString, Protocol*> protocols;
-		foreach (Protocol *proto, allProtocols()) {
+		foreach (Protocol *proto, Protocol::all()) {
 			protocols.insert(proto->id(), proto);
 			connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 					this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
@@ -90,7 +92,7 @@ namespace Core
 			addAction(gen);
 		}
 
-		setMenuOwner(qobject_cast<MenuController*>(getService("ContactList")));
+		setMenuOwner(qobject_cast<MenuController*>(ServiceManager::getByName("ContactList")));
 		m_icon->setContextMenu(menu());
 		qApp->setQuitOnLastWindowClosed(false);
 	}
@@ -99,7 +101,7 @@ namespace Core
 	{
 		if (reason == QSystemTrayIcon::Trigger) {
 			if (m_sessions.isEmpty()) {
-				if (QObject *obj = getService("ContactList"))
+				if (QObject *obj = ServiceManager::getByName("ContactList"))
 					obj->metaObject()->invokeMethod(obj, "changeVisibility");
 			} else {
 				m_sessions.first()->activate();

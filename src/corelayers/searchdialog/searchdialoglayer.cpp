@@ -17,14 +17,15 @@
 #include <qutim/contact.h>
 #include <qutim/icon.h>
 #include <qutim/config.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
 	SearchLayer::SearchLayer()
 	{
-		foreach(const ObjectGenerator *gen, moduleGenerators<ContactSearchFactory>())
+		foreach(const ObjectGenerator *gen, ObjectGenerator::module<ContactSearchFactory>())
 			m_contactSearchFactories << gen->generate<ContactSearchFactory>();
-		QObject *contactList = getService("ContactList");
+		QObject *contactList = ServiceManager::getByName("ContactList");
 		if (contactList) {
 			static ActionGenerator button(Icon("edit-find-contact"),
 										  QT_TRANSLATE_NOOP("ContactSearch", "Search contact"),

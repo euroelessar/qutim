@@ -30,10 +30,11 @@ namespace qutim_sdk_0_3
 	public:
 		MetaObjectBuilder(const QByteArray &name, const QMetaObject *parent  = 0);
 		~MetaObjectBuilder();
-		
+
 		void addClassInfo(const QByteArray &name, class QByteArray &value);
-		
 		QMetaObject *generate();
+
+		static const char *info(const QMetaObject *meta, const char *name);
 	private:
 		QScopedPointer<MetaObjectBuilderPrivate> d_ptr;
 	};

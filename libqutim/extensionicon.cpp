@@ -15,6 +15,7 @@
 
 #include "extensionicon.h"
 #include "icon.h"
+#include "objectgenerator.h"
 
 namespace qutim_sdk_0_3
 {
@@ -53,7 +54,7 @@ namespace qutim_sdk_0_3
 
 	QIcon ExtensionIcon::toIcon() const
 	{
-		if (p->icon.isNull() && !p->name.isEmpty() && isCoreInited())
+		if (p->icon.isNull() && !p->name.isEmpty() && ObjectGenerator::isInited())
 			p->icon = Icon(p->name);
 		return p->icon;
 	}

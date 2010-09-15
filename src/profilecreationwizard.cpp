@@ -104,7 +104,7 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 	setField("id", realId);
 	setField("name", realName);
 	QList<ProfileCreatorPage *> creators;
-	foreach (const ObjectGenerator *gen, moduleGenerators<ProfileCreatorPage>()) {
+	foreach (const ObjectGenerator *gen, ObjectGenerator::module<ProfileCreatorPage>()) {
 		ProfileCreatorPage *creator = gen->generate<ProfileCreatorPage>();
 		creator->setParent(this);
 		creators << creator;

@@ -29,7 +29,7 @@ namespace qutim_sdk_0_3
 	void ensurePrivate_helper()
 	{
 		p = new Private;
-		GeneratorList gens = moduleGenerators<History>();
+		GeneratorList gens = ObjectGenerator::module<History>();
 		if(!gens.isEmpty())
 		   p->self = gens.first()->generate<History>();
 	}
@@ -48,7 +48,7 @@ namespace qutim_sdk_0_3
 	History *History::instance()
 	{
 		ensurePrivate();
-		if(p->self.isNull() && isCoreInited())
+		if(p->self.isNull() && ObjectGenerator::isInited())
 			p->self = new History();
 		return p->self;
 	}

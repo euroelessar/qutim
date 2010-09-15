@@ -19,7 +19,7 @@ namespace qutim_sdk_0_3
 	{
 		const ObjectGenerator * &gen = *data();
 		if (!gen) {
-			const GeneratorList list = moduleGenerators<AuthorizationDialog>();
+			const GeneratorList list = ObjectGenerator::module<AuthorizationDialog>();
 			Q_ASSERT(!list.isEmpty());
 			if (list.isEmpty())
 				return NULL;

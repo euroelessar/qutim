@@ -153,7 +153,7 @@ namespace qutim_sdk_0_3
 		ToolTipManagerData *d = p();
 		if (!d->isInited) {
 			d->isInited = true;
-			GeneratorList gens = moduleGenerators<ToolTip>();
+			GeneratorList gens = ObjectGenerator::module<ToolTip>();
 			if (gens.isEmpty())
 				d->self = new ToolTip();
 			else

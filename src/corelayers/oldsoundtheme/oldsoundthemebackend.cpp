@@ -20,15 +20,16 @@
 #include <QFile>
 #include <QDir>
 #include <QStringBuilder>
+#include <qutim/thememanager.h>
 
 namespace Core
 {
 QStringList OldSoundThemeBackend::themeList()
 {
-	QStringList themes = listThemes("sounds");
+	QStringList themes = ThemeManager::list("sounds");
 	QStringList themeList;
 	foreach (const QString &name, themes) {
-		QDir dir(getThemePath("sounds", name));
+		QDir dir(ThemeManager::path("sounds", name));
 		QStringList entries = dir.entryList(QStringList("*.xml"), QDir::Files);
 		if (entries.isEmpty())
 			continue;
@@ -60,6 +61,6 @@ SoundThemeProvider *OldSoundThemeBackend::loadTheme(const QString &name)
 		themeName = name.mid(0, index);
 		themeVariant = name.mid(index + 2, name.length() - 3 - index);
 	}
-	return new OldSoundThemeProvider(name, getThemePath("sounds", themeName), themeVariant);
+	return new OldSoundThemeProvider(name, ThemeManager::path("sounds", themeName), themeVariant);
 }
 }

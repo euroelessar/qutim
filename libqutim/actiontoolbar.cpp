@@ -136,8 +136,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_D(ActionToolBar);
 		qDeleteAll(d->generators);
-		qDeleteAllLater(d->actions);
-
+		qDeleteAll(d->actions);
 	}
 	
 	QAction* ActionToolBar::insertAction(QAction* before, ActionGenerator* generator)

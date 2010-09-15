@@ -25,7 +25,7 @@ namespace Core
 		item->setPriority(100);
 		Settings::registerItem(item);
 
-		foreach (Protocol *proto,allProtocols()) {
+		foreach (Protocol *proto,Protocol::all()) {
 			if (!proto->accounts().isEmpty())
 				return true;
 		}

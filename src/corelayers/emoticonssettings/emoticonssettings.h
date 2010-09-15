@@ -17,6 +17,7 @@
 #define EMOTICONSSETTINGS_H
 
 #include <QObject>
+#include "qutim/startupmodule.h"
 
 namespace Core {
 

@@ -76,6 +76,6 @@ void EmoticonsSelector::currentIndexChanged(const QString& text)
 
 void EmoticonsSelector::clearEmoticonsPreview()
 {
-	qDeleteAllLater(m_active_emoticons);
+	qDeleteAll(m_active_emoticons);
 	m_active_emoticons.clear();
 }

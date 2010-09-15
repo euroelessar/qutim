@@ -21,7 +21,7 @@
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/notificationslayer.h>
-#include <qutim/libqutim_global.h>
+#include <qutim/thememanager.h>
 #include <QWebFrame>
 #include <QLabel>
 #include <QSpacerItem>
@@ -91,11 +91,11 @@ namespace Core
 		sizes << 150 << 50;
 		ui->splitter->setSizes(sizes);
 		settingsWidget = 0;
-		if (allProtocols().isEmpty())
+		if (Protocol::all().isEmpty())
 			m_chat_session = 0;
 		else
 		{
-			FakeAccount *account = new FakeAccount("Noname", allProtocols().begin().value());
+			FakeAccount *account = new FakeAccount("Noname", Protocol::all().begin().value());
 			FakeChatUnit *unit = account->getFakeUnit();
 			m_chat_session = new ChatSessionImpl(unit, ChatLayer::instance());
 			connect(ui->chatBox,SIGNAL(currentIndexChanged(int)),SLOT(onThemeChanged(int)));
@@ -157,7 +157,7 @@ namespace Core
 	{
 		ui->chatBox->blockSignals(true);
 		QString category = "webkitstyle";
-		QStringList themes = listThemes(category);
+		QStringList themes = ThemeManager::list(category);
 		ui->chatBox->clear();
 		foreach (const QString &name, themes)
 			ui->chatBox->addItem(name);
@@ -167,7 +167,7 @@ namespace Core
 	void ChatAppearance::onThemeChanged(int index)
 	{
 		m_current_style_name = ui->chatBox->itemText(index);
-		m_chat_session->loadTheme(getThemePath("webkitstyle",m_current_style_name), QString());
+		m_chat_session->loadTheme(ThemeManager::path("webkitstyle",m_current_style_name), QString());
 		makePage();
 		makeSettings();
 		if (!isLoad)
@@ -234,7 +234,7 @@ namespace Core
 		QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 		settingsWidget->setLayout(layout);
 		QString category = "webkitstyle";
-		StyleVariants variants = ChatStyleGenerator::listVariants(getThemePath(category, m_current_style_name)
+		StyleVariants variants = ChatStyleGenerator::listVariants(ThemeManager::path(category, m_current_style_name)
 				.append("/Contents/Resources/Variants"));
 		if (!variants.isEmpty()) {
 			QLabel *label = new QLabel(tr("Style variant:"), settingsWidget);
@@ -250,7 +250,7 @@ namespace Core
 			variantBox->setCurrentIndex(index);
 			onVariantChanged(m_current_variant);
 		}
-		Config achat(getThemePath(category,m_current_style_name).append("/Contents/Resources/custom.json"));
+		Config achat(ThemeManager::path(category,m_current_style_name).append("/Contents/Resources/custom.json"));
 //		QStringList() << "appearance/adiumChat" << getThemePath(category,m_current_style_name)
 //				.append("/Contents/Resources/custom.json"));
 		ConfigGroup variables = achat;

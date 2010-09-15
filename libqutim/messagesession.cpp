@@ -15,6 +15,7 @@
 
 #include "messagesession.h"
 #include "objectgenerator.h"
+#include "servicemanager.h"
 #include "account.h"
 #include <QPointer>
 
@@ -55,8 +56,8 @@ namespace qutim_sdk_0_3
 	
 	ChatLayer *ChatLayer::instance()
 	{
-		if(p->self.isNull() && isCoreInited())
-			p->self = qobject_cast<ChatLayer*>(getService("ChatLayer"));
+		if(p->self.isNull() && ObjectGenerator::isInited())
+			p->self = qobject_cast<ChatLayer*>(ServiceManager::getByName("ChatLayer"));
 		return p->self;
 	}
 	

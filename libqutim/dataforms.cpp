@@ -1,5 +1,7 @@
 #include "dataforms.h"
 #include "dynamicpropertydata_p.h"
+#include "objectgenerator.h"
+#include "servicemanager.h"
 #include <QPointer>
 
 Q_DECLARE_METATYPE(QList<QIcon>);
@@ -463,8 +465,8 @@ namespace qutim_sdk_0_3
 	DataFormsBackend *DataFormsBackend::instance()
 	{
 		static QPointer<DataFormsBackend> self;
-		if(self.isNull() && isCoreInited())
-			self = qobject_cast<DataFormsBackend *>(getService("DataFormsBackend"));
+		if(self.isNull() && ObjectGenerator::isInited())
+			self = qobject_cast<DataFormsBackend *>(ServiceManager::getByName("DataFormsBackend"));
 		return self;
 	}
 

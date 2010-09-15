@@ -17,6 +17,7 @@
 #include "config.h"
 #include "cryptoservice.h"
 #include "systeminfo.h"
+#include "metaobjectbuilder.h"
 #include <QSet>
 #include <QStringList>
 #include <QFileInfo>
@@ -667,7 +668,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_D(const ConfigBackend);
 		if(d->extension.isNull()) {
-			d->extension = metaInfo(metaObject(), "Extension");
+			d->extension = MetaObjectBuilder::info(metaObject(), "Extension");
 			d->extension = d->extension.toLower();
 		}
 		return d->extension;

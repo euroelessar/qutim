@@ -19,6 +19,7 @@
 #include <qutim/extensioninfo.h>
 #include <qutim/debug.h>
 #include <qutim/icon.h>
+#include "qutim/metaobjectbuilder.h"
 #include <QStringBuilder>
 #include "itemdelegate.h"
 #include "serviceitem.h"
@@ -64,7 +65,7 @@ namespace Core
 		ExtensionInfoList exts = extensionList();
 		for (int i = 0; i < exts.size(); i++) {
 			const ExtensionInfo &info = exts.at(i);
-			const char *serviceName = metaInfo(info.generator()->metaObject(), "Service");
+			const char *serviceName = MetaObjectBuilder::info(info.generator()->metaObject(), "Service");
 			
 			if (serviceName && *serviceName) {
 				if (!m_service_items.contains(serviceName)) {

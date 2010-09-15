@@ -18,6 +18,7 @@
 #include <QPair>
 #include <QVector>
 #include <QMap>
+#include <QMetaClassInfo>
 
 namespace qutim_sdk_0_3
 {
@@ -90,5 +91,17 @@ namespace qutim_sdk_0_3
 		}
 		meta->d.extradata = 0;
 		return meta;
+	}
+
+	const char *MetaObjectBuilder::info(const QMetaObject *meta, const char *name)
+	{
+		int num = meta ? meta->classInfoCount() : 0;
+		while(num --> 0)
+		{
+			QMetaClassInfo info = meta->classInfo(num);
+			if(!qstrcmp(info.name(), name))
+				return info.value();
+		}
+		return 0;
 	}
 }

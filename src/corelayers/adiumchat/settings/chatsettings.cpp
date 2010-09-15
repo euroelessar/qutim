@@ -4,12 +4,13 @@
 #include "../chatlayer/chatlayerimpl.h"
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
 	ChatSettings::ChatSettings()
 	{
-		QObject *obj = getService("ChatForm");
+		QObject *obj = ServiceManager::getByName("ChatForm");
 		if (!obj) {
 			deleteLater();
 			return;

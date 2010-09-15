@@ -15,13 +15,14 @@
 
 #include "chatlayerimpl.h"
 #include <qutim/account.h>
-#include "chatsessionimpl.h"
 #include <qutim/metacontact.h>
 #include <qutim/debug.h>
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 #include <qutim/shortcut.h>
 #include <qutim/conference.h>
+#include <qutim/servicemanager.h>
+#include "chatsessionimpl.h"
 #include "conferencetabcompletion.h"
 
 namespace Core
@@ -140,7 +141,7 @@ namespace Core
 			Q_ASSERT(session);
 
 			if (qobject_cast<Conference*>(session->getUnit())) {
-				QObject *form = getService("ChatForm");
+				QObject *form = ServiceManager::getByName("ChatForm");
 				QObject *obj = 0;
 				if (QMetaObject::invokeMethod(form, "textEdit", Q_RETURN_ARG(QObject*, obj),
 											  Q_ARG(qutim_sdk_0_3::ChatSession*, session)) && obj) {

@@ -32,7 +32,7 @@ SimpleContactlistSettings::SimpleContactlistSettings() :
 	connect(ui->statusBox,SIGNAL(toggled(bool)),SLOT(onStatusBoxToggled(bool)));
 	connect(ui->sizesBox,SIGNAL(currentIndexChanged(int)),SLOT(onModified()));
 	// Load extended statuses list
-	foreach (Protocol *protocol, allProtocols()) {
+	foreach (Protocol *protocol, Protocol::all()) {
 		ExtendedInfosEvent event;
 		qApp->sendEvent(protocol, &event);
 		foreach (const QVariantHash &info, event.infos()) {

@@ -4,6 +4,7 @@
 #include <qutim/contact.h>
 #include <qutim/icon.h>
 #include <qutim/messagesession.h>
+#include <qutim/servicemanager.h>
 #include <QStringBuilder>
 #include <QToolButton>
 #include <QPushButton>
@@ -12,7 +13,7 @@ namespace Core
 {
 	bool isSupportAddContact()
 	{
-		foreach (Protocol *p,allProtocols()) {
+		foreach (Protocol *p,Protocol::all()) {
 			bool support = p->data(qutim_sdk_0_3::Protocol::ProtocolContainsContacts).toBool();
 			if (support) {
 				foreach (Account *a,p->accounts()) {
@@ -36,7 +37,7 @@ namespace Core
 
 	AddContactModule::AddContactModule()
 	{
-		QObject *contactList = getService("ContactList");
+		QObject *contactList = ServiceManager::getByName("ContactList");
 		if (contactList) {
 			static ActionGenerator addUserButton(Icon("list-add-user"),
 												 QT_TRANSLATE_NOOP("AddContact", "Add contact"),
@@ -82,7 +83,7 @@ namespace Core
 			setAccount(account);
 		} else {
 			d->ui->stackedWidget->setCurrentIndex(0);
-			foreach (Protocol *protocol, allProtocols())
+			foreach (Protocol *protocol, Protocol::all())
 				if (protocol->data(Protocol::ProtocolContainsContacts).toBool() && !protocol->accounts().isEmpty())
 					foreach (Account *acc, protocol->accounts()) {
 				QToolButton *button = new QToolButton(d->ui->accountPage);
@@ -112,7 +113,7 @@ namespace Core
 		QPushButton *button = d->ui->buttonBox->addButton(tr("Start chat"),
 														  QDialogButtonBox::ActionRole);
 		connect(button, SIGNAL(clicked()), this, SLOT(onStartChatClicked()));
-		if (getService("ContactInfo")) {
+		if (ServiceManager::getByName("ContactInfo")) {
 			button = d->ui->buttonBox->addButton(tr("Show info"), QDialogButtonBox::ActionRole);
 			connect(button, SIGNAL(clicked()), this, SLOT(onShowInfoClicked()));
 		}
@@ -162,7 +163,7 @@ namespace Core
 	void AddContact::onShowInfoClicked()
 	{
 		Q_D(AddContact);
-		QObject *obj = getService("ContactInfo");
+		QObject *obj = ServiceManager::getByName("ContactInfo");
 		ChatUnit *unit = d->account->getUnit(d->ui->editId->text(), true);
 		QMetaObject::invokeMethod(obj, "show", Q_ARG(QObject*, unit));
 	}

@@ -382,11 +382,11 @@ namespace Settings
 	void showWidget()
 	{
 		ensure_settings_private();
-		if(isCoreInited() && p->widget.isNull())
+		if(ObjectGenerator::isInited() && p->widget.isNull())
 		{
 			if(!p->inited)
 			{
-				GeneratorList layers = moduleGenerators<SettingsLayer>();
+				GeneratorList layers = ObjectGenerator::module<SettingsLayer>();
 				p->gen = layers.size() ? layers.first() : 0;
 				p->inited = true;
 			}

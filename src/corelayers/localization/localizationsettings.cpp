@@ -21,6 +21,7 @@
 #include <QDir>
 #include <QTranslator>
 #include <qutim/icon.h>
+#include <qutim/thememanager.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -30,7 +31,7 @@ namespace Core
 		m_ui(new Ui::LocalizationSettings)
 	{
 		m_ui->setupUi(this);
-		QStringList langs = listThemes("languages");
+		QStringList langs = ThemeManager::list("languages");
 		Icon icon("preferences-desktop-locale");
 		if (!langs.contains(QLatin1String("en_EN"))) {
 			QListWidgetItem *item = new QListWidgetItem(icon, QLatin1String("English"),
@@ -40,7 +41,7 @@ namespace Core
 		}
 		foreach (const QString &lang, langs) {
 			QString text;
-			QDir dir = getThemePath("languages", lang);
+			QDir dir = ThemeManager::path("languages", lang);
 			if (dir.exists("core.qm")) {
 				QTranslator translator;
 				translator.load(QLatin1String("core.qm"), dir.absolutePath());

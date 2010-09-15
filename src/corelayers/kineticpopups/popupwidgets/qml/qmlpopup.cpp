@@ -3,17 +3,17 @@
 #include <QUrl>
 #include <QtDeclarative/QDeclarativeContext>
 #include <QVariant>
-#include <qutim/configbase.h>
 #include <QLatin1Literal>
-#include <qutim/libqutim_global.h>
-#include <qutim/debug.h>
-#include <qutim/messagesession.h>
 #include <QMouseEvent>
-#include <qutim/qtwin.h>
-#include <qutim/emoticons.h>
 #include "manager.h"
 #include <QtDeclarative/QDeclarativeView>
 #include <QVBoxLayout>
+#include <qutim/configbase.h>
+#include <qutim/debug.h>
+#include <qutim/messagesession.h>
+#include <qutim/qtwin.h>
+#include <qutim/emoticons.h>
+#include <qutim/thememanager.h>
 
 namespace Core
 {
@@ -30,7 +30,7 @@ PopupWidget::PopupWidget()
 	l->setMargin(0);
 	l->addWidget(m_view);
 
-	QString themePath = getThemePath("qmlpopups",theme_name);
+	QString themePath = ThemeManager::path("qmlpopups",theme_name);
 	ConfigGroup appearance = Config(themePath + "/settings.json").group("appearance");
 	setWindowFlags(static_cast<Qt::WindowFlags>(appearance.value<int>("widgetFlags",Qt::ToolTip)));
 	PopupWidgetFlags popupFlags = static_cast<PopupWidgetFlags>(appearance.value<int>("popupFlags",Transparent));
@@ -64,7 +64,7 @@ PopupWidget::PopupWidget()
 
 void PopupWidget::setTheme(const QString &themeName)
 {
-	QString themePath = getThemePath("qmlpopups",themeName);
+	QString themePath = ThemeManager::path("qmlpopups",themeName);
 
 	QString filename =themePath % QLatin1Literal("/main.qml");
 	m_view->setSource(QUrl::fromLocalFile(filename));//url - main.qml

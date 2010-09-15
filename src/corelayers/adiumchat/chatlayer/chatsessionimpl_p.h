@@ -27,7 +27,8 @@ class QMenu;
 class QTextDocument;
 class QActionGroup;
 namespace qutim_sdk_0_3 {
-class Contact;
+	class Contact;
+	LIBQUTIM_EXPORT QString &validateCpp(QString &text);
 }
 
 class QWebPage;

@@ -237,7 +237,7 @@ namespace qutim_sdk_0_3
 		}
 	}
 
-	QString convertTimeDate(const QString& mac_format, const QDateTime& datetime)
+	LIBQUTIM_EXPORT QString convertTimeDate(const QString& mac_format, const QDateTime& datetime)
 	{
 		QDate date = datetime.date();
 		QTime time = datetime.time();
@@ -380,44 +380,7 @@ namespace qutim_sdk_0_3
 		return str;
 	}
 	
-	inline QString getThemePath(QDir shareDir, const QString &themeName , const QString &category )
-	{
-		if (shareDir.cd(category) && shareDir.cd(themeName))
-			return shareDir.absolutePath();
-		else
-			return QString();
-	}	
-
-	QString getThemePath ( const QString& category, const QString &themeName )
-	{
-		QString themePath = getThemePath(SystemInfo::getDir(SystemInfo::ShareDir),themeName,category);
-		if (themePath.isEmpty()) {
-			themePath = getThemePath(SystemInfo::getDir(SystemInfo::SystemShareDir),themeName,category);
-			if (themePath.isEmpty())
-				themePath = getThemePath(QDir(":/"),themeName,category);
-		}
-		return themePath;
-	}
-
-	inline QStringList listThemes (QDir shareDir, const QString &category)
-	{
-		if (shareDir.cd(category))
-			return shareDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-		else
-			return QStringList();
-	}
-
-	QStringList listThemes( const QString &category)
-	{
-		QStringList theme_list;
-		theme_list << listThemes(SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::ShareDir),category);
-		theme_list << listThemes(SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::SystemShareDir),category);
-		theme_list << listThemes(QDir(":/"),category);
-		theme_list.removeDuplicates();
-		return theme_list;
-	}
-	
-	QString &validateCpp(QString &text)
+	LIBQUTIM_EXPORT QString &validateCpp(QString &text)
 	{
 		QString txt;
 		txt.reserve(text.size() * 1.2);

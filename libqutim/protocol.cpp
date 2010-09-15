@@ -17,6 +17,8 @@
 #include "account.h"
 #include "contact.h"
 #include "extensioninfo.h"
+#include "metaobjectbuilder.h"
+#include "modulemanager_p.h"
 
 namespace qutim_sdk_0_3
 {
@@ -73,7 +75,7 @@ namespace qutim_sdk_0_3
 	{
 		Q_D(const Protocol);
 		if(d->id.isNull())
-			d->id = QString::fromUtf8(metaInfo(metaObject(), "Protocol"));
+			d->id = QString::fromUtf8(MetaObjectBuilder::info(metaObject(), "Protocol"));
 		return d->id;
 	}
 
@@ -106,5 +108,10 @@ namespace qutim_sdk_0_3
 
 		if (flags & DeleteAccount)
 			account->deleteLater();
+	}
+
+	ProtocolMap Protocol::all()
+	{
+		return allProtocols();
 	}
 }

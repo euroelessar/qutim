@@ -3,10 +3,12 @@
 #include <qutim/configbase.h>
 #include <qutim/localizedstring.h>
 #include <qutim/notificationslayer.h>
-#include <QToolButton>
 #include <qutim/icon.h>
 #include <qutim/debug.h>
+#include <qutim/thememanager.h>
+#include <qutim/servicemanager.h>
 #include <QStandardItemModel>
+#include <QToolButton>
 
 namespace Core
 {
@@ -89,7 +91,7 @@ namespace Core
 		behavior.setValue("showFlags",m_popup_flags);
 		behavior.setValue("soundFlags",m_sound_flags);
 		behavior.sync();
-		QObject *popup = getService("Popup");
+		QObject *popup = ServiceManager::getByName("Popup");
 		if (popup)
 			QMetaObject::invokeMethod(popup, "updateSettings");
 	}

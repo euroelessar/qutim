@@ -27,7 +27,7 @@ namespace qutim_sdk_0_3
 	
 	SystemIntegrationHook::SystemIntegrationHook()
 	{
-		foreach(const ObjectGenerator *gen, moduleGenerators<SystemIntegration>()) {
+		foreach(const ObjectGenerator *gen, ObjectGenerator::module<SystemIntegration>()) {
 			SystemIntegration *integration = gen->generate<SystemIntegration>();
 			if (!integration->isAvailable())
 				delete integration;
