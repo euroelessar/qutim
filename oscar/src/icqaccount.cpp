@@ -72,7 +72,7 @@ void IcqAccountPrivate::loadRoster()
 {
 	Q_Q(IcqAccount);
 	QMultiMap<quint16, FeedbagItemHandler*> handlers;
-	foreach (const ObjectGenerator *gen, moduleGenerators<FeedbagItemHandler>()) {
+	foreach (const ObjectGenerator *gen, ObjectGenerator::module<FeedbagItemHandler>()) {
 		FeedbagItemHandler *handler = gen->generate<FeedbagItemHandler>();
 		handlers.insert(handler->priority(), handler);
 	}
@@ -83,7 +83,7 @@ void IcqAccountPrivate::loadRoster()
 
 	conn->registerHandler(buddyPicture = new BuddyPicture(q, q));
 
-	foreach(const ObjectGenerator *gen, moduleGenerators<RosterPlugin>()) {
+	foreach(const ObjectGenerator *gen, ObjectGenerator::module<RosterPlugin>()) {
 		RosterPlugin *plugin = gen->generate<RosterPlugin>();
 		rosterPlugins << plugin;
 	}

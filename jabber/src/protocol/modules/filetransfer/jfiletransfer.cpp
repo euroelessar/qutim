@@ -252,7 +252,7 @@ void JFileTransferHandler::registerTransfer(const std::string &sid, JFileTransfe
 JFileTransferFactory::JFileTransferFactory()
 {
 	m_server = 0;
-	Protocol *proto = allProtocols().value("jabber");
+	Protocol *proto = Protocol::all().value("jabber");
 	if (qobject_cast<JProtocol*>(proto)) {
 		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));

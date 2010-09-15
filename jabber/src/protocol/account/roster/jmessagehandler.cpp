@@ -23,7 +23,7 @@ namespace Jabber
 		Q_D(JMessageHandler);
 		d->account = account;
 		d->account->connection()->client()->registerMessageSessionHandler(this);
-		foreach (const ObjectGenerator *ext, moduleGenerators<MessageFilterFactory>())
+		foreach (const ObjectGenerator *ext, ObjectGenerator::module<MessageFilterFactory>())
 			d->filterFactories << ext->generate<MessageFilterFactory>();
 	}
 

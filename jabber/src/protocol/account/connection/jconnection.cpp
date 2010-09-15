@@ -143,7 +143,7 @@ namespace Jabber
 
 		p->softwareDetection = new JSoftwareDetection(p->account, p->params);
 
-		foreach (const ObjectGenerator *gen, moduleGenerators<JabberExtension>()) {
+		foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
 			if (JabberExtension *ext = gen->generate<JabberExtension>()) {
 				p->extensions.append(ext);
 				ext->init(p->account, p->params);

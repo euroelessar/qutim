@@ -97,7 +97,7 @@ namespace Jabber
 		m_manager = new PubSub::Manager(client);
 		account->installEventFilter(this);
 		m_eventId = qutim_sdk_0_3::Event::registerType("jabber-personal-event");
-		foreach (const ObjectGenerator *ext, moduleGenerators<PersonEventConverter>()) {
+		foreach (const ObjectGenerator *ext, ObjectGenerator::module<PersonEventConverter>()) {
 			PersonEventConverter *converter = ext->generate<PersonEventConverter>();
 			m_converters.insert(converter->name(), converter);
 			std::string feature = converter->feature();

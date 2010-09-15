@@ -42,7 +42,7 @@ Roster::~Roster()
 {
     //cleanup
     QList<MrimContact*> contacts = p->contacts.values();
-    qDeleteAllLater(contacts);
+	qDeleteAll(contacts);
 }
 
 QList<quint32> Roster::handledTypes()

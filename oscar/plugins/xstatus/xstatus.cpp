@@ -208,7 +208,7 @@ void XStatusHandler::init()
 
 bool XStatusHandler::load()
 {
-	Protocol *proto = allProtocols().value("icq");
+	Protocol *proto = Protocol::all().value("icq");
 	if (!proto || proto->metaObject() != &IcqProtocol::staticMetaObject)
 		return false;
 	

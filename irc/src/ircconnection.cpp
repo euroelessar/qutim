@@ -59,9 +59,9 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
 	connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
 	// Register handlers
-	foreach(const ObjectGenerator *gen, moduleGenerators<IrcServerMessageHandler>())
+	foreach(const ObjectGenerator *gen, ObjectGenerator::module<IrcServerMessageHandler>())
 		registerHandler(gen->generate<IrcServerMessageHandler>());
-	foreach(const ObjectGenerator *gen, moduleGenerators<IrcCtpcHandler>())
+	foreach(const ObjectGenerator *gen, ObjectGenerator::module<IrcCtpcHandler>())
 		registerCtpcHandler(gen->generate<IrcCtpcHandler>());
 
 	m_cmds

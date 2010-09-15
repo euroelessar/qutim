@@ -176,14 +176,14 @@ MessagesHandler::MessagesHandler()
 			<< SNACInfo(MessageFamily, MessageMtn)
 			<< SNACInfo(MessageFamily, MessageSrvError)
 			<< SNACInfo(ExtensionsFamily, ExtensionsMetaSrvReply);
-	foreach(const ObjectGenerator *gen, moduleGenerators<MessagePlugin>())
+	foreach(const ObjectGenerator *gen, ObjectGenerator::module<MessagePlugin>())
 	{
 		MessagePlugin *plugin = gen->generate<MessagePlugin>();
 		foreach(const Capability &cap, plugin->capabilities())
 			m_msg_plugins.insert(cap, plugin);
 	}
 
-	foreach(const ObjectGenerator *gen, moduleGenerators<Tlv2711Plugin>()) {
+	foreach(const ObjectGenerator *gen, ObjectGenerator::module<Tlv2711Plugin>()) {
 		Tlv2711Plugin *plugin = gen->generate<Tlv2711Plugin>();
 		Q_ASSERT(plugin);
 		foreach (Tlv2711Type type, plugin->tlv2711Types())

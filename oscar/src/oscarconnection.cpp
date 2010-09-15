@@ -44,7 +44,7 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 	m_status_flags = 0x0000;
 	registerHandler(this);
 	m_is_idle = false;
-	foreach(const ObjectGenerator *gen, moduleGenerators<SNACHandler>())
+	foreach(const ObjectGenerator *gen, ObjectGenerator::module<SNACHandler>())
 		registerHandler(gen->generate<SNACHandler>());
 }
 
