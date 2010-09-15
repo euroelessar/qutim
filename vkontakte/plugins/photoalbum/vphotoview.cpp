@@ -8,6 +8,7 @@
 #include <vaccount.h>
 #include <qutim/json.h>
 #include "valbummodel.h"
+#include <qutim/thememanager.h>
 
 #ifndef QT_NO_OPENGL
 	#include <QtOpenGL/QtOpenGL>
@@ -32,7 +33,7 @@ VPhotoView::VPhotoView(QObject *obj) : m_owner(obj),m_connection(0)
 	setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
 	QString theme_name = "default";
-	QString themePath = getThemePath("vphotoalbum",theme_name);
+	QString themePath = ThemeManager::path("vphotoalbum",theme_name);
 
 	QString filename =themePath % QLatin1Literal("/main.qml");
 
@@ -64,7 +65,7 @@ void VPhotoView::onUpdateAlbumsFinished()
 	QByteArray rawData = reply->readAll();
 	QVariantList items = Json::parse(rawData).toMap().value("response").toList();
 
-	qDeleteAllLater(m_albums);
+	qDeleteAll(m_albums);
 	m_albums.clear();
 
 	foreach (QVariant item,items) {
