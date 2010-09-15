@@ -16,11 +16,13 @@
 
 #include "kdetrayicon.h"
 #include <qutim/extensioninfo.h>
+#include <qutim/metaobjectbuilder.h>
+#include <qutim/icon.h>
+#include <qutim/servicemanager.h>
 #include <KStatusNotifierItem>
 #include <KMenu>
 #include <QDebug>
 #include <QMetaType>
-#include <qutim/icon.h>
 #include <QApplication>
 
 using namespace qutim_sdk_0_3;
@@ -31,7 +33,7 @@ namespace KdeIntegration
 	{
 	public:
 		ProtocolSeparatorActionGenerator(Protocol *proto, const ExtensionInfo &info) :
-				ActionGenerator(info.icon(), metaInfo(info.generator()->metaObject(),"Protocol"), 0, 0)
+				ActionGenerator(info.icon(), MetaObjectBuilder::info(info.generator()->metaObject(),"Protocol"), 0, 0)
 		{
 			setType(-1);
 			m_proto = proto;
@@ -109,7 +111,7 @@ using namespace KdeIntegration;
 
 KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 {
-	QObject *contactList = getService("ContactList");
+	QObject *contactList = ServiceManager::getByName("ContactList");
 	setMenuOwner(qobject_cast<MenuController*>(contactList));
 	QMenu *m = menu(false);
 	KMenu *kmenu = qobject_cast<KMenu*>(m);
@@ -125,7 +127,7 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	QMap<QString, Protocol*> protocols;
-	foreach (Protocol *proto, allProtocols()) {
+	foreach (Protocol *proto, Protocol::all()) {
 		protocols.insert(proto->id(), proto);
 		connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 				this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
@@ -155,7 +157,7 @@ KdeTrayIcon::KdeTrayIcon(QObject *parent) : MenuController(parent)
 void KdeTrayIcon::onActivated()
 {
 	if (m_sessions.isEmpty()) {
-		if (QObject *obj = getService("ContactList"))
+		if (QObject *obj = ServiceManager::getByName("ContactList"))
 			obj->metaObject()->invokeMethod(obj, "changeVisibility");
 	} else {
 		m_sessions.first()->activate();
