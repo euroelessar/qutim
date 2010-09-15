@@ -451,8 +451,14 @@ namespace Core
 			ChatSessionImpl *session = m_sessions.at(index);
 
 			if ((previous_index != -1) && (previous_index != index) && (previous_index < m_sessions.count())) {
-				m_sessions.at(previous_index)->setActive(false);
+				ChatSessionImpl *previous = m_sessions.at(previous_index);
+				previous->setActive(false);
 				session->activate();
+				if ((m_chatFlags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
+					m_chatstateTimer.stop();
+					m_chatstate = getInputField()->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
+					previous->setChatState(m_chatstate);
+				}
 			}
 			
 			getContactsView()->setModel(session->getModel());
@@ -485,12 +491,6 @@ namespace Core
 				session->getPage()->setView(chatView);
 			}
 
-			if ((m_chatFlags & SendTypingNotification) && (m_chatstate & ChatStateComposing)) {
-				m_chatstateTimer.stop();
-				m_chatstate = getInputField()->document()->isEmpty() ? ChatStateActive : ChatStatePaused;
-				m_sessions.at(previous_index)->setChatState(m_chatstate);
-			}
-			
 			getInputField()->setDocument(session->getInputField());			
 		}
 
