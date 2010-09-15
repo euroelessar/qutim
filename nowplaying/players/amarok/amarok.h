@@ -38,7 +38,7 @@ namespace nowplaying {
 		QTimer* m_timer;
 	public slots:
 		void trackChanged();
-		void statusChanged(DBusStatus);
+		//void statusChanged(DBusStatus);
 		void isPlayingCheck();
 	};
 
