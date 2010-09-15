@@ -18,6 +18,7 @@
 #include "clconfplugin.h"
 #include <qutim/tooltip.h>
 #include <qutim/event.h>
+#include <qutim/metaobjectbuilder.h>
 #include <QApplication>
 
 ProxyContact::ProxyContact(Conference *conf) :
@@ -114,7 +115,7 @@ void ProxyContact::updateStatus()
 		m_status.setType(Status::Offline);
 	else
 		m_status.setType(m_conn ? Status::Online : Status::DND);
-	m_status.initIcon(QLatin1String("conference-") + metaInfo(metaObject(), "Protocol"));
+	m_status.initIcon(QLatin1String("conference-") + MetaObjectBuilder::info(metaObject(), "Protocol"));
 	emit statusChanged(m_status, previous);
 }
 

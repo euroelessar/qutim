@@ -15,6 +15,7 @@
 #include "awnservice.h"
 #include <qutim/debug.h>
 #include <qutim/icon.h>
+#include <qutim/servicemanager.h>
 #include <QDateTime>
 #include <QApplication>
 
@@ -76,7 +77,7 @@ AWNService::AWNService()
     qApp->installEventFilter(this);
     connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
     QMap<QString, Protocol*> protocols;
-    foreach (Protocol *proto, allProtocols()) {
+    foreach (Protocol *proto, Protocol::all()) {
         protocols.insert(proto->id(), proto);
         connect(proto, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
                 this, SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
@@ -108,7 +109,7 @@ bool AWNService::eventFilter(QObject *o, QEvent *event)
     if(event->type()==QEvent::Show && !m_item)
     {
         QWidget *w;
-        if(QObject *obj = getService("ContactList"))
+        if(QObject *obj = ServiceManager::getByName("ContactList"))
             QMetaObject::invokeMethod(obj,"widget",Qt::DirectConnection,Q_RETURN_ARG(QWidget*,w));
         else
             w = (QWidget*)o;
@@ -135,7 +136,7 @@ void AWNService::onItemRemoved(QDBusObjectPath path)
         if(m_item)
             delete m_item;
         m_item = 0;
-        if(QObject *obj = getService("ContactList"))
+        if(QObject *obj = ServiceManager::getByName("ContactList"))
         {
             QWidget *w;
             QMetaObject::invokeMethod(obj,"widget",Qt::DirectConnection,Q_RETURN_ARG(QWidget*,w));
@@ -315,7 +316,7 @@ void AWNService::onMenuItemActivated(int id)
     }
     else if(id==m_showhide_menu)
     {
-        if(QObject *obj = getService("ContactList"))
+        if(QObject *obj = ServiceManager::getByName("ContactList"))
         {
             QWidget *w;
             QMetaObject::invokeMethod(obj,"widget",Qt::DirectConnection,Q_RETURN_ARG(QWidget*,w));
@@ -330,13 +331,13 @@ void AWNService::onMenuItemActivated(int id)
     }
     else if(id==m_online_menu)
     {
-        foreach(Protocol *p,allProtocols().values())
+        foreach(Protocol *p,Protocol::all().values())
             foreach(Account *a, p->accounts())
                 a->setStatus(Status::Online);
     }
     else if(id==m_offline_menu)
     {
-        foreach(Protocol *p,allProtocols().values())
+        foreach(Protocol *p,Protocol::all().values())
             foreach(Account *a, p->accounts())
                 a->setStatus(Status::Offline);
     }

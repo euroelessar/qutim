@@ -6,6 +6,7 @@
 #include <qutim/settingslayer.h>
 #include <qutim/debug.h>
 #include <qutim/event.h>
+#include <qutim/servicemanager.h>
 #include <QVariantMap>
 
 namespace qutim_sdk_0_3
@@ -42,10 +43,10 @@ namespace nowplaying
 
 	bool NowPlaying::load()
 	{
-		Protocol *protocol = allProtocols().value("icq");
+		Protocol *protocol = Protocol::all().value("icq");
 		if (protocol)
 			m_factories.insert(protocol, new IcqTuneStatus);
-		protocol = allProtocols().value("jabber");
+		protocol =  Protocol::all().value("jabber");
 		if (protocol)
 			m_factories.insert(protocol, new JabberTuneStatus);
 		if (m_factories.isEmpty())
@@ -60,7 +61,7 @@ namespace nowplaying
 					SLOT(accountCreated(qutim_sdk_0_3::Account*)));
 		}
 
-		foreach(const ObjectGenerator *gen, moduleGenerators<Player>()) {
+		foreach(const ObjectGenerator *gen, ObjectGenerator::module<Player>()) {
 			Player* player =  gen->generate<Player>();
 			m_players.insert(player->playerName(), player);
 		}
@@ -73,7 +74,7 @@ namespace nowplaying
 		Settings::registerItem(settings);
 
 		m_stopStartAction = new StopStartActionGenerator(this, m_isWorking);
-		MenuController *contactList = getService<MenuController*>("ContactList");
+		MenuController *contactList = ServiceManager::getByName<MenuController*>("ContactList");
 		if (contactList)
 			contactList->addAction(m_stopStartAction);
 		return true;

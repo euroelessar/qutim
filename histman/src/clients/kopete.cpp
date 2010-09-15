@@ -71,7 +71,7 @@ QString kopete::guessID(const QString &kopete_id)
 	static QHash<QString, QString> hash;
 	if(hash.isEmpty())
 	{
-		foreach (qutim_sdk_0_3::Protocol *proto, allProtocols()) {
+		foreach (qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all()) {
 			kopete_id_helper(hash, proto->id());
 			foreach (qutim_sdk_0_3::Account *account, proto->accounts()) {
 				kopete_id_helper(hash, account->id());

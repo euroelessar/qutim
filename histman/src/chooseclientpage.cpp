@@ -44,7 +44,7 @@ ChooseClientPage::ChooseClientPage(HistoryManagerWindow *parent) :
 	m_parent = parent;
 	setTitle(tr("Client"));
 	setSubTitle(tr("Choose client which history you want to import to qutIM."));
-	GeneratorList gens = moduleGenerators<HistoryImporter>();
+	GeneratorList gens = ObjectGenerator::module<HistoryImporter>();
 	foreach (const ObjectGenerator *gen, gens)
 		m_clients_list.append(gen->generate<HistoryImporter>());
 //	ui.clientBox->addItem(Icon("jimm", IconInfo::Client), "Jimm", (qptrdiff)new jimm());

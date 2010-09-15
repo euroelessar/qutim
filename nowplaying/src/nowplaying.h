@@ -11,6 +11,7 @@
 namespace qutim_sdk_0_3 {
 
 class Account;
+class Protocol;
 
 namespace nowplaying {
 

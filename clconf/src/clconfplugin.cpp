@@ -14,6 +14,7 @@
  *****************************************************************************/
 
 #include "clconfplugin.h"
+#include <qutim/servicemanager.h>
 
 ClConfPlugin *ClConfPlugin::self;
 
@@ -36,7 +37,7 @@ void ClConfPlugin::init()
 
 bool ClConfPlugin::load()
 {
-	foreach (Protocol *protocol, allProtocols()) {
+	foreach (Protocol *protocol, Protocol::all()) {
 		foreach (Account *account, protocol->accounts())
 			onAccountCreated(account);
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
@@ -67,7 +68,7 @@ void ClConfPlugin::onAccountDestroyed(QObject *account)
 
 void ClConfPlugin::onConferenceCreated(qutim_sdk_0_3::Conference *conference)
 {
-	QObject *cl = getService("ContactList");
+	QObject *cl = ServiceManager::getByName("ContactList");
 	if (cl) {
 		ProxyContact *contact = new ProxyContact(conference);
 		cl->metaObject()->invokeMethod(cl, "addContact",

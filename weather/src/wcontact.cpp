@@ -15,6 +15,7 @@
 
 #include "waccount.h"
 #include "wcontact.h"
+#include <qutim/servicemanager.h>
 
 WContact::WContact( const QString &city, Account *account ) : Contact ( account )
 {
@@ -27,7 +28,7 @@ WContact::WContact( const QString &city, Account *account ) : Contact ( account 
 	emit statusChanged( m_status, Status(Status::Offline) );
 
 	addToList();
-	QMetaObject::invokeMethod( getService( "ContactList" ), "addContact", Q_ARG( qutim_sdk_0_3::Contact *, this ) );
+	QMetaObject::invokeMethod(ServiceManager::getByName("ContactList"), "addContact", Q_ARG( qutim_sdk_0_3::Contact *, this ) );
 
 	m_wmanager = new WManager( m_city );
 	connect( m_wmanager, SIGNAL( finished() ), this, SLOT( finished() ) );

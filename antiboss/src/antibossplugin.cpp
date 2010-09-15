@@ -16,6 +16,7 @@
 #include "antibossplugin.h"
 #include <QSystemTrayIcon>
 #include <QApplication>
+#include <qutim/servicemanager.h>
 
 AntiBossPlugin::AntiBossPlugin()
 {
@@ -73,7 +74,7 @@ bool AntiBossPlugin::eventFilter(QObject *obj, QEvent *ev)
 
 void AntiBossPlugin::showHide()
 {
-	if (QObject *tray = getService("TrayIcon")) {
+	if (QObject *tray = ServiceManager::getByName("TrayIcon")) {
 		if (QSystemTrayIcon *icon = tray->findChild<QSystemTrayIcon*>())
 			icon->setVisible(m_hidden);
 	}
