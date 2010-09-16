@@ -37,6 +37,7 @@ public:
 	IcqAccount *account() const;
 	bool isDone() const;
 	void setTimeout(int msec);
+	static QString readSString(const DataUnit &data);
 signals:
 	void done(bool ok);
 public slots:
@@ -48,7 +49,6 @@ protected:
 	virtual bool handleData(quint16 type, const DataUnit &data) = 0;
 	void sendRequest(quint16 type, const DataUnit &data) const;
 	void close(bool ok);
-	static QString readSString(const DataUnit &data);
 protected:
 	QScopedPointer<AbstractMetaRequestPrivate> d_ptr;
 private:
