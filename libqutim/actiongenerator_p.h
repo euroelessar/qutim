@@ -54,6 +54,7 @@ namespace qutim_sdk_0_3
 		void ensureConnectionType();
 		void show(QAction *act,QObject *con);
 		void hide(QAction *act,QObject *con);
+		QList<QKeySequence> shortCuts;
 	};
 	
 	class ActionGeneratorLocalizationHelper : public QObject

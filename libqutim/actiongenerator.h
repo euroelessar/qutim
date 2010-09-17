@@ -134,6 +134,7 @@ void MyObject::onAction(QObject *obj)
 		void setCheckable(bool checkable);
 		void setChecked(bool checked);
 		void setToolTip(const LocalizedString &toolTip);
+		void setShortcut(const QKeySequence &shortcut);
 	protected:
 		QAction *prepareAction(QAction *action) const;
 		virtual QObject *generateHelper() const;
