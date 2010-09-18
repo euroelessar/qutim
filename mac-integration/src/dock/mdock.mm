@@ -10,12 +10,13 @@ extern void qt_mac_set_dock_menu(QMenu *);
 
 namespace MacIntegration
 {
+	// TODO add dock behaviour
 	struct MDockPrivate
-	{
+	{ 
 		QMenu *dockMenu;
 		QActionGroup *statusGroup;
 		QMenu *chatMenu;
-		QList<ChatSession *> unreadSessions;
+		QHash<ChatSession *, int> unreadSessions;
 		QHash<ChatSession *, QAction *> aliveSessions;
 		QIcon standartIcon;
 	};
@@ -50,7 +51,7 @@ namespace MacIntegration
 		connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 				this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 		qApp->setQuitOnLastWindowClosed(false);
-	} 
+	}  
 
 	MDock::~MDock()
 	{
@@ -73,7 +74,7 @@ namespace MacIntegration
 	{
 		if (QAction *a = qobject_cast<QAction *>(sender())) {
 			Status::Type type = static_cast<Status::Type>(a->data().value<int>());
-			foreach(qutim_sdk_0_3::Protocol *proto, allProtocols()) {
+			foreach(qutim_sdk_0_3::Protocol *proto, qutim_sdk_0_3::Protocol::all().values()) {
 				foreach(Account *account, proto->accounts()) {
 					Status status = account->status();
 					status.setType(type);
@@ -111,22 +112,23 @@ namespace MacIntegration
 	}
 
 	void MDock::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
- 	{ 
+ 	{  
 		ChatSession *session = static_cast<ChatSession*>(sender());
 		Q_ASSERT(session != NULL);
 		Q_D(MDock);
 		if (unread.isEmpty())
-			d->unreadSessions.removeOne(session);
-		else if (!d->unreadSessions.contains(session))
-			d->unreadSessions.append(session);
+			d->unreadSessions.remove(session);
 		else
-			return;
+			d->unreadSessions.insert(session, unread.count());
+		int uCount = 0;
 		foreach (ChatSession *s, d->aliveSessions.keys())
-			if (d->unreadSessions.contains(s))
+			if (d->unreadSessions.keys().contains(s)) {
 				d->aliveSessions.value(s)->setText("✉ " + d->aliveSessions.value(s)->text().remove("✉ "));
-			else
+				uCount += d->unreadSessions.value(s, 0);
+			} else {
 				d->aliveSessions.value(s)->setText(d->aliveSessions.value(s)->text().remove("✉ "));
-		setBadgeLabel(d->unreadSessions.isEmpty() ? QString() : QString::number(d->unreadSessions.count()));
+			}
+		setBadgeLabel(!uCount ? QString() : QString::number(uCount));
 	}
 
 	void MDock::onStatusChanged(const qutim_sdk_0_3::Status &status)
