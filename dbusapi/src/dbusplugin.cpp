@@ -160,7 +160,7 @@ bool DBusPlugin::load()
 	qDBusRegisterMetaType<MessageList>();
 	qDBusRegisterMetaType<QList<QDBusObjectPath> >();
 	qDebug() << "all ok at DBUS";
-	foreach (Protocol *proto, allProtocols()) {
+	foreach (Protocol *proto, Protocol::all()) {
 		ProtocolAdaptor *adaptor = new ProtocolAdaptor(*m_dbus, proto);
 		if (!m_dbus->registerObject(adaptor->path().path(), proto, QDBusConnection::ExportAdaptors))
 			qDebug() << m_dbus->lastError().message() << QDBusError::errorString(m_dbus->lastError().type());

@@ -160,7 +160,7 @@ ConfigWidget HistoryManagerWindow::createAccountWidget(const QString &protocol)
 	label->setText(html);
 	QComboBox *combo = new QComboBox;
 	combo->setEditable(true);
-	if (qutim_sdk_0_3::Protocol *proto = allProtocols().value(protocol)) {
+	if (qutim_sdk_0_3::Protocol *proto = qutim_sdk_0_3::Protocol::all().value(protocol)) {
 		foreach (qutim_sdk_0_3::Account *acc, proto->accounts())
 			combo->addItem(acc->id(), acc->id());
 	}

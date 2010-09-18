@@ -46,7 +46,7 @@ namespace MassMessaging
 		m_model->clear();
 		m_recievers.clear();
 		m_contacts.clear();
-		foreach(Protocol *proto, allProtocols()) {
+		foreach(Protocol *proto, Protocol::all()) {
 			QStandardItem *proto_item = new MessagingItem(proto->id());
 			proto_item->setIcon(Icon("applications-internet"));
 			foreach(Account *account, proto->accounts()) {

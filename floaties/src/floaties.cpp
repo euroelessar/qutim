@@ -17,10 +17,11 @@
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 #include <qutim/mimeobjectdata.h>
+#include <qutim/servicemanager.h>
+#include <qutim/event.h>
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QTime>
-#include <qutim/event.h>
 
 void FloatiesPlugin::init()
 {
@@ -40,7 +41,7 @@ void FloatiesPlugin::init()
 bool FloatiesPlugin::load()
 {
 	if (!m_view) {
-		if (QObject *contactList = getService("ContactList")) {
+		if (QObject *contactList = ServiceManager::getByName("ContactList")) {
 			QWidget *widget = contactList->property("widget").value<QWidget*>();
 			m_view = widget->findChild<QAbstractItemView*>();
 		}
@@ -54,7 +55,7 @@ bool FloatiesPlugin::load()
 	int size = cfg.beginArray("entities");
 	for (int i = 0; i < size; i++) {
 		cfg.setArrayIndex(i);
-		Protocol *proto = allProtocols().value(cfg.value("protocol", QString()));
+		Protocol *proto = Protocol::all().value(cfg.value("protocol", QString()));
 		if (!proto)
 			continue;
 		Account *account = proto->account(cfg.value("account", QString()));

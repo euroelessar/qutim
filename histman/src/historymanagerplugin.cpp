@@ -17,6 +17,7 @@
 #include "historymanagerwindow.h"
 #include <qutim/menucontroller.h>
 #include <qutim/icon.h>
+#include <qutim/servicemanager.h>
 #include <QDebug>
 #include <QFile>
 
@@ -33,7 +34,7 @@ void HistoryManagerPlugin::init()
 
 bool HistoryManagerPlugin::load()
 {
-	if (MenuController *menu = qobject_cast<MenuController*>(getService("ContactList"))) {
+	if (MenuController *menu = qobject_cast<MenuController*>(ServiceManager::getByName("ContactList"))) {
 		menu->addAction(new ActionGenerator(Icon("view-history"),
 											QT_TRANSLATE_NOOP("Plugin", "Import history"),
 											this,

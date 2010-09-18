@@ -16,6 +16,7 @@
 
 #include "scriptpluginwrapper.h"
 #include "scriptengine.h"
+#include <qutim/thememanager.h>
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
@@ -63,7 +64,7 @@ ScriptPluginWrapper::~ScriptPluginWrapper()
 void ScriptPluginWrapper::init()
 {
 	m_engine = new ScriptEngine(m_name, this);
-	QFile scriptFile(getThemePath(QLatin1String("scripts"), m_name) + QLatin1String("/plugin.js"));
+	QFile scriptFile(ThemeManager::path(QLatin1String("scripts"), m_name) + QLatin1String("/plugin.js"));
 	qDebug() << Q_FUNC_INFO << scriptFile.fileName();
 	if (!scriptFile.open(QIODevice::ReadOnly))
 		return;

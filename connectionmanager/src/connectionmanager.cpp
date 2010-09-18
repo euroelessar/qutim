@@ -49,7 +49,7 @@ bool ConnectionManager::load()
 	m_network_conf_manager = new QNetworkConfigurationManager(this);
 	connect(m_network_conf_manager.data(),SIGNAL(onlineStateChanged(bool)),SLOT(onOnlineStateChanged(bool)));
 
-	foreach (Protocol *protocol,allProtocols()) {
+	foreach (Protocol *protocol,Protocol::all()) {
 		connect(protocol,
 				SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
@@ -73,7 +73,7 @@ bool ConnectionManager::unload()
 
 void ConnectionManager::onOnlineStateChanged(bool isOnline)
 {
-	foreach (Protocol *protocol,allProtocols()) {
+	foreach (Protocol *protocol,Protocol::all()) {
 		foreach (Account *account,protocol->accounts())
 			changeState(account,isOnline);
 	}

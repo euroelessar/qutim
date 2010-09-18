@@ -3,6 +3,7 @@
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 #include <qutim/menucontroller.h>
+#include  <qutim/servicemanager.h>
 #include "messagingdialog.h"
 
 namespace MassMessaging
@@ -28,7 +29,9 @@ namespace MassMessaging
 										SLOT(onActionTriggered())
 										);
 		gen->setType(ActionTypeAdditional);
-		qobject_cast<MenuController*>(getService("ContactList"))->addAction(gen);
+		MenuController *contactList = ServiceManager::getByName<MenuController*>("ContactList");
+		if (contactList)
+			contactList->addAction(gen);
 
 		return true;
 	}

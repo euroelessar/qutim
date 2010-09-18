@@ -17,7 +17,6 @@
 #include "scriptengine.h"
 #include "scriptmessageclass.h"
 #include "scriptsettingsconnector.h"
-#include <qutim/libqutim_global.h>
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/contact.h>
@@ -27,6 +26,7 @@
 #include <qutim/notificationslayer.h>
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
+#include <qutim/servicemanager.h>
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QTextEdit>
@@ -357,8 +357,8 @@ ScriptEngine::ScriptEngine(const QString &name, QObject *parent) :
 void ScriptEngine::initApi()
 {
 	QScriptValue client = globalObject().property("client");
-	foreach (const QByteArray &name, getServiceNames()) {
-		QScriptValue service = newQObject(getService(name));
+	foreach (const QByteArray &name, ServiceManager::names()) {
+		QScriptValue service = newQObject(ServiceManager::getByName(name));
 		QString prop = QString::fromUtf8(name.data(), name.size());
 		prop[0] = prop.at(0).toLower();
 		client.setProperty(prop, service);
@@ -404,7 +404,7 @@ void ScriptEngine::initApi()
 	}
 	{
 		QScriptValue protocols = newObject();
-		ProtocolMap allProtos = allProtocols();
+		ProtocolMap allProtos = Protocol::all();
 		ProtocolMap::const_iterator it = allProtos.constBegin();
 		for (; it != allProtos.constEnd(); it++) {
 			QScriptValue protocol = newQObject(it.value());

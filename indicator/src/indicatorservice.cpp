@@ -16,6 +16,7 @@
 #include "indicatorservice.h"
 #include <qutim/debug.h>
 #include <qutim/icon.h>
+#include <qutim/servicemanager.h>
 #include <QDateTime>
 #include <QApplication>
 
@@ -146,7 +147,7 @@ void IndicatorService::onIndicatorDisplay(QIndicate::Indicator* indicator)
 void IndicatorService::showMainWindow()
 {
 	qDebug() << "[Indicator] showMainWindow";
-	if (QObject *obj = qutim_sdk_0_3::getService("ContactList"))
+	if (QObject *obj = qutim_sdk_0_3::ServiceManager::getByName("ContactList"))
 	{
 		obj->metaObject()->invokeMethod(obj, "show");
 		QWidget *objWidget = qobject_cast<QWidget*>(obj);

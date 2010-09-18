@@ -18,6 +18,7 @@
 #include "scriptengine.h"
 #include "scriptpluginwrapper.h"
 #include <QDebug>
+#include <qutim/thememanager.h>
 
 ScriptPlugin::ScriptPlugin()
 {
@@ -35,14 +36,14 @@ void ScriptPlugin::init()
 
 bool ScriptPlugin::load()
 {
-	qDebug() << Q_FUNC_INFO << listThemes("scripts");
+	qDebug() << Q_FUNC_INFO << ThemeManager::list("scripts");
 	return true;
 }
 
 QList<Plugin*> ScriptPlugin::loadPlugins()
 {
 	QList<Plugin*> plugins;
-	foreach (const QString &name, listThemes("scripts"))
+	foreach (const QString &name, ThemeManager::list("scripts"))
 		plugins << new ScriptPluginWrapper(name);
 	return plugins;
 }

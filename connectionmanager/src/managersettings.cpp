@@ -20,9 +20,9 @@ namespace ConnectionManager
 
 	void ManagerSettings::loadImpl()
 	{
-		qDeleteAllLater(m_checkbox_list);
+		qDeleteAll(m_checkbox_list);
 		m_checkbox_list.clear();
-		foreach (Protocol *protocol,allProtocols()) {
+		foreach (Protocol *protocol,Protocol::all()) {
 			foreach (Account *account,protocol->accounts())
 				addAccount(account);
 		}
