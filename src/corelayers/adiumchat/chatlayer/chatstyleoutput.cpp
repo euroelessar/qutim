@@ -14,27 +14,27 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include <QtDebug>
 #include <QTextDocument>
 #include <QStringList>
 #include "chatstyle.h"
 #include "chatstyleoutput.h"
-#include <qutim/libqutim_global.h>
 #include "chatsessionimpl.h"
 #include <QDateTime>
-#include <qutim/configbase.h>
-#include <qutim/account.h>
-#include <qutim/protocol.h>
 #include <QWebFrame>
 #include <QWebPage>
 #include <QFileInfo>
 #include <QStringBuilder>
 #include "messagemodifier.h"
-#include <qutim/objectgenerator.h>
 #include "chatsessionimpl.h"
+#include <qutim/configbase.h>
+#include <qutim/account.h>
+#include <qutim/protocol.h>
 #include <qutim/emoticons.h>
+#include <qutim/objectgenerator.h>
 #include <qutim/debug.h>
 #include <qutim/conference.h>
+#include <qutim/thememanager.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
@@ -58,7 +58,7 @@ namespace Core
 			if(!is_inited)
 			{
 				is_inited = true;
-				GeneratorList generators = moduleGenerators<MessageModifier>();
+				GeneratorList generators = ObjectGenerator::module<MessageModifier>();
 				foreach(const ObjectGenerator *gen, generators)
 				{
 					MessageModifier *modifier = gen->generate<MessageModifier>();
@@ -107,11 +107,11 @@ namespace Core
 		{
 			ConfigGroup adium_chat = Config("appearance/adiumChat").group("style");
 			QString theme = adium_chat.value<QString>("name","default");
-			QString path = getThemePath("webkitstyle", theme);
+			QString path = ThemeManager::path("webkitstyle", theme);
 			QString variant = adium_chat.value<QString>("variant", QString());
 			Config achat(QStringList()
 						 << "appearance/adiumChat"
-						 << getThemePath("webkitstyle",theme).append("/Contents/Resources/custom.json"));
+						 << ThemeManager::path("webkitstyle",theme).append("/Contents/Resources/custom.json"));
 			ConfigGroup variables = achat;
 			int count = variables.beginArray(theme);
 			QString css;

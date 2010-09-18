@@ -117,7 +117,7 @@ void HistoryWindow::fillAccountComboBox()
 		QString accountId = JsonHistory::unquote(account.section(".",1));
 		Icon protoIcon(QLatin1String("im-") + protoId);
 		QString accountName = accountId;
-		if (Protocol *protocol = allProtocols().value(protoId)) {
+		if (Protocol *protocol = Protocol::all().value(protoId)) {
 			if (Account *acc = protocol->account(accountId)) {
 				QString name = acc->name();
 				if (!name.isEmpty() && name != acc->id())
@@ -142,7 +142,7 @@ void HistoryWindow::fillContactComboBox(int index)
 			if ( ui.fromComboBox->findData(contactId) != -1 )
 				continue;
 			QString contactName = contactId;
-			if (Protocol *protocol = allProtocols().value(protoId)) {
+			if (Protocol *protocol = Protocol::all().value(protoId)) {
 				if (Account *acc = protocol->account(accountId)) {
 					if (ChatUnit *unit = acc->getUnit(contactId)) {
 						QString name = unit->title();

@@ -22,6 +22,12 @@
 
 class QAbstractItemModel;
 class QWebPage;
+
+namespace qutim_sdk_0_3
+{
+	LIBQUTIM_EXPORT QString convertTimeDate(const QString &mac_format, const QDateTime &datetime);
+}
+
 namespace Core
 {
 	namespace AdiumChat

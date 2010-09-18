@@ -15,6 +15,7 @@
 
 #include "iconloader.h"
 #include "objectgenerator.h"
+#include "servicemanager.h"
 #include <QPointer>
 #include <QDebug>
 
@@ -31,8 +32,8 @@ namespace qutim_sdk_0_3
 	IconLoader *IconLoader::instance()
 	{
 		static QPointer<IconLoader> self;
-		if(self.isNull() && isCoreInited())
-			self = qobject_cast<IconLoader*>(getService("IconLoader"));
+		if(self.isNull() && ObjectGenerator::isInited())
+			self = qobject_cast<IconLoader*>(ServiceManager::getByName("IconLoader"));
 		return self.data();
 	}
 

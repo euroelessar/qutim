@@ -6,6 +6,7 @@
 #include <qutim/status.h>
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
+#include <qutim/servicemanager.h>
 #include <QDebug>
 
 Core::IdleStatusChanger* pIdleStatusChanger = 0;
@@ -15,7 +16,7 @@ namespace Core
 	IdleStatusChanger::IdleStatusChanger() :
 			m_awayStatus(Status::Away), m_naStatus(Status::NA)
 	{
-		QObject *idle = getService("Idle");
+		QObject *idle = ServiceManager::getByName("Idle");
 		reloadSettings();
 		m_state = Active;
 		connect(idle, SIGNAL(secondsIdle(int)), this, SLOT(onIdle(int)));
@@ -29,7 +30,7 @@ namespace Core
 
 	void IdleStatusChanger::refillAccounts()
 	{
-		foreach (Protocol *proto, allProtocols()) {
+		foreach (Protocol *proto, Protocol::all()) {
 			foreach (Account *acc, proto->accounts()) {
 				if (m_accounts.contains(acc)
 					|| acc->status() == Status::Offline

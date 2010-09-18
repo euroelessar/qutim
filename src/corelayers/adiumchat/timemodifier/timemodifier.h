@@ -3,6 +3,10 @@
 
 #include "../chatlayer/messagemodifier.h"
 
+namespace qutim_sdk_0_3
+{
+	LIBQUTIM_EXPORT QString convertTimeDate(const QString &mac_format, const QDateTime &datetime);
+}
 
 namespace Core
 {
@@ -15,7 +19,7 @@ namespace Core
 			Q_OBJECT
 			Q_INTERFACES(Core::AdiumChat::MessageModifier)
 		public:
-					TimeModifier();
+			TimeModifier();
 			virtual ~TimeModifier();
 			virtual QString getValue(const ChatSession *session, const Message &message, const QString &name, const QString &value);
 			virtual QStringList supportedNames() const;

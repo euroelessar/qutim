@@ -13,28 +13,31 @@
  ***************************************************************************
 *****************************************************************************/
 
-#include "modulemanager.h"
+#include "modulemanager_p.h"
 #include "plugin_p.h"
 #include "deprecatedplugin_p.h"
 #include "cryptoservice.h"
 #include "config.h"
-#include "protocol.h"
 #include "notificationslayer.h"
 #include "systeminfo.h"
 #include "metacontactmanager.h"
+#include "metaobjectbuilder.h"
+#include "protocol.h"
+#include "servicemanager.h"
+#include "startupmodule.h"
 #include "libqutim/icon.h"
 #include "varianthook_p.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
 #include <QApplication>
-#include <QSet>
 #include <QPointer>
 #include <QMetaMethod>
 #include <QDebug>
 #include <QVarLengthArray>
 #include <QLibrary>
 #include <QDesktopServices>
+#include "objectgenerator.h"
 
 // Is there any other way to init CryptoService from ModuleManager?
 #define INSIDE_MODULE_MANAGER
@@ -62,51 +65,8 @@ namespace qutim_sdk_0_3
 		return QUTIM_VERSION;
 	}
 
-	const char *metaInfo(const QMetaObject *meta, const char *name)
-	{
-		int num = meta ? meta->classInfoCount() : 0;
-		while(num --> 0)
-		{
-			QMetaClassInfo info = meta->classInfo(num);
-			if(!qstrcmp(info.name(), name))
-				return info.value();
-		}
-		return 0;
-	}
-
-	enum ModuleFlag
-	{
-	};
-	Q_DECLARE_FLAGS(ModuleFlags, ModuleFlag)
-
-	/**
-	 * ModuleManagerPrivate class used to hide inner structure of ModuleManager to provide binary compatibility between different versions.
-	 */
-	class ModuleManagerPrivate
-	{
-	public:
-		inline ModuleManagerPrivate() : is_inited(false), protocols_hash(new QHash<QString, QPointer<Protocol> >()) {}
-		inline ~ModuleManagerPrivate() { delete protocols_hash; }
-		QList<QPointer<Plugin> > plugins;
-		bool is_inited;
-		union { // This union is intended to be used as reinterpret_cast =)
-			QHash<QString, QPointer<Protocol> > *protocols_hash;
-			QHash<QString, Protocol *> *protocols;
-		};
-		QHash<QString, QHash<QString, ModuleFlags> > choosed_modules;
-		QHash<QByteArray, QObject *> services;
-		QObjectList serviceOrder;
-		QHash<QByteArray, ExtensionInfo> extensionsHash;
-		QHash<QString, Plugin*> extsPlugins;
-		ExtensionInfoList extensions;
-		QSet<QByteArray> interface_modules;
-		QSet<const QMetaObject *> meta_modules;
-		QList<const ExtensionInfo> modules;
-	};
-
 	// Static Fields
 	static ModuleManager *managerSelf = NULL;
-
 	static ModuleManagerPrivate *p = NULL;
 
 	ExtensionInfoList extensionList()
@@ -119,22 +79,14 @@ namespace qutim_sdk_0_3
 		return (managerSelf && p && p->is_inited) ? p->plugins : QList<QPointer<Plugin> >();
 	}
 
-	/**
-	 * Function to detect if ModuleManager and it's inner data had been initialized.
-	 */
 	bool isCoreInited()
 	{
 		return managerSelf && p && p->is_inited;
 	}
 
-	QObject *getService(const QByteArray &name)
+	QHash<QByteArray, QObject *> &services()
 	{
-		return p->services.value(name);
-	}
-
-	QList<QByteArray> getServiceNames()
-	{
-		return p->services.keys();
+		return p->services;
 	}
 
 	GeneratorList moduleGenerators(const QMetaObject *module, const char *iid)
@@ -151,29 +103,10 @@ namespace qutim_sdk_0_3
 		return list;
 	}
 
-	/**
-	 * Returns list of ObjectGenerator's for extensions that match QMetaObject criterion
-	 */
-	GeneratorList moduleGenerators(const QMetaObject *module)
-	{
-		return moduleGenerators(module, 0);
-	}
-
-	/**
-	 * Returns list of ObjectGenerator's for extensions that match char* interfaceID
-	 */
-	GeneratorList moduleGenerators(const char *iid)
-	{
-		return moduleGenerators(0, iid);
-	}
-
-	/**
-	 * Returns Map list of protocols
-	 */
 	ProtocolMap allProtocols()
 	{
 		ProtocolMap map;
-		if(isCoreInited())
+		if(ObjectGenerator::isInited())
 			map = *p->protocols;
 		return map;
 	}
@@ -384,7 +317,7 @@ namespace qutim_sdk_0_3
 						qWarning("%s", qPrintable(loader->errorString()));
 #ifdef Q_OS_SYMBIAN
 						QMessageBox msg;
-						msg.setText(tr("Could not init plugin: \n %1").arg(pluginLoader->errorString()));
+						msg.setText(tr("Could not init plugin: \n %1").arg(loader->errorString()));
 						msg.exec();
 #endif
 					}
@@ -525,7 +458,7 @@ namespace qutim_sdk_0_3
 		const ObjectGenerator *gen = 0;
 		if (!previous.isEmpty()) {
 			gen = p->extensionsHash.value(previous.toLatin1()).generator();
-			if (!gen || name != metaInfo(gen->metaObject(), "Service"))
+			if (!gen || name != MetaObjectBuilder::info(gen->metaObject(), "Service"))
 				gen = 0;
 		}
 		if (!gen)
@@ -557,7 +490,7 @@ namespace qutim_sdk_0_3
 			for(; it != exts.end(); it++)
 			{
 				const QMetaObject *meta = it.value().generator()->metaObject();
-				QByteArray name = metaInfo(meta, "Extension");
+				QByteArray name = MetaObjectBuilder::info(meta, "Extension");
 				if (name.isEmpty()) {
 					qWarning("%s has no 'Extension' class info", meta->className());
 					continue;
@@ -600,7 +533,7 @@ namespace qutim_sdk_0_3
 
 				if (info.generator() && info.generator()->extends<Protocol>()) {
 					const QMetaObject *meta = info.generator()->metaObject();
-					QByteArray name = metaInfo(meta, "Protocol");
+					QByteArray name = MetaObjectBuilder::info(meta, "Protocol");
 					if (name.isEmpty() || name != it.key())
 						continue;
 					Protocol *protocol = info.generator()->generate<Protocol>();
@@ -620,7 +553,7 @@ namespace qutim_sdk_0_3
 				const QMetaObject *meta = gen->metaObject();
 				if (!gen->extends<Protocol>())
 					continue;
-				QString name = QString::fromLatin1(metaInfo(meta, "Protocol"));
+				QString name = QString::fromLatin1(MetaObjectBuilder::info(meta, "Protocol"));
 				if (name.isEmpty() || p->protocols->contains(name))
 					continue;
 				Protocol *protocol = gen->generate<Protocol>();
@@ -653,7 +586,7 @@ namespace qutim_sdk_0_3
 			const ExtensionInfoList &exts = p->extensions;
 			for (int i = 0; i < exts.size(); i++) {
 				const ExtensionInfo &info = exts.at(i);
-				const char *serviceName = metaInfo(info.generator()->metaObject(), "Service");
+				const char *serviceName = MetaObjectBuilder::info(info.generator()->metaObject(), "Service");
 				if (serviceName && *serviceName) {
 					QByteArray name = serviceName;
 					serviceGens.insert(name, info.generator());
@@ -684,7 +617,7 @@ namespace qutim_sdk_0_3
 			}
 		}
 
-		foreach(Protocol *proto, allProtocols())
+		foreach(Protocol *proto, Protocol::all())
 			proto->loadAccounts();
 
 		if (MetaContactManager *manager = MetaContactManager::instance())

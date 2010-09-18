@@ -20,6 +20,7 @@ Boston, MA 02110-1301, USA.
 #include "backend.h"
 #include <qutim/systeminfo.h>
 #include <qutim/configbase.h>
+#include <qutim/thememanager.h>
 #include <QDebug>
 
 namespace Core
@@ -43,7 +44,7 @@ QString loadContent ( const QString& path,  const QString &file )
 
 PopupSettings loadThemeSetting ( const QString& themeName )
 {
-	QString themePath = getThemePath("textpopups",themeName);
+	QString themePath = ThemeManager::path("textpopups",themeName);
 	PopupSettings popup_settings;
 	popup_settings.themePath = themePath;
 	popup_settings.styleSheet = loadContent(themePath,"content.css");

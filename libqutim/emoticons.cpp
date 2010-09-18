@@ -61,7 +61,7 @@ namespace qutim_sdk_0_3
 		void ensurePrivate_helper()
 		{
 			p.reset(new Private);
-			GeneratorList exts = moduleGenerators<EmoticonsBackend>();
+			GeneratorList exts = ObjectGenerator::module<EmoticonsBackend>();
 			foreach (const ObjectGenerator *gen, exts)
 				p->backends << gen->generate<EmoticonsBackend>();
 		}

@@ -37,10 +37,10 @@ namespace qutim_sdk_0_3
 
 	void init(FileTransferData *data)
 	{
-		GeneratorList gens = moduleGenerators<FileTransferFactory>();
+		GeneratorList gens = ObjectGenerator::module<FileTransferFactory>();
 		foreach(const ObjectGenerator *gen, gens)
 			data->factories << gen->generate<FileTransferFactory>();
-		gens = moduleGenerators<FileTransferManager>();
+		gens = ObjectGenerator::module<FileTransferManager>();
 		if (!gens.isEmpty())
 			data->manager = gens.first()->generate<FileTransferManager>();
 	}

@@ -1,5 +1,7 @@
 #ifndef SIMPLEACTIONBOX_H
 #define SIMPLEACTIONBOX_H
+
+#include <qutim/startupmodule.h>
 #include <qutim/actionbox.h>
 #include <QMap>
 

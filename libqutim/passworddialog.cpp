@@ -25,7 +25,7 @@ namespace qutim_sdk_0_3
 	{
 		const ObjectGenerator * &gen = *data();
 		if (!gen) {
-			const GeneratorList list = moduleGenerators<PasswordDialog>();
+			const GeneratorList list = ObjectGenerator::module<PasswordDialog>();
 			Q_ASSERT(!list.isEmpty());
 			if (list.isEmpty())
 				return NULL;

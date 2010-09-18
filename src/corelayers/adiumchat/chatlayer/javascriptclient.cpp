@@ -19,6 +19,7 @@
 #include <QWebFrame>
 #include <QTextEdit>
 #include <QPlainTextEdit>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
@@ -49,7 +50,7 @@ namespace Core
 		
 		void JavaScriptClient::appendNick(const QVariant &nick)
 		{
-			QObject *form = getService("ChatForm");
+			QObject *form = ServiceManager::getByName("ChatForm");
 			QObject *obj = 0;
 			if (QMetaObject::invokeMethod(form, "textEdit", Q_RETURN_ARG(QObject*, obj),
 										  Q_ARG(qutim_sdk_0_3::ChatSession*, m_session)) && obj) {
@@ -81,7 +82,7 @@ namespace Core
 		
 		void JavaScriptClient::appendText(const QVariant &text)
 		{
-			QObject *form = getService("ChatForm");
+			QObject *form = ServiceManager::getByName("ChatForm");
 			QObject *obj = 0;
 			if (QMetaObject::invokeMethod(form, "textEdit", Q_RETURN_ARG(QObject*, obj),
 										  Q_ARG(qutim_sdk_0_3::ChatSession*, m_session)) && obj) {

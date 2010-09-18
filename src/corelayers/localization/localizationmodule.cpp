@@ -19,6 +19,7 @@
 #include <qutim/systeminfo.h>
 #include <qutim/icon.h>
 #include <qutim/configbase.h>
+#include <qutim/thememanager.h>
 #include <QtCore/QLocale>
 #include <QtCore/QCoreApplication>
 
@@ -40,7 +41,7 @@ namespace Core
 	void LocalizationModule::onSettingsSave()
 	{
 		// TODO: Check if it works correct
-		QStringList langs = listThemes("languages");
+		QStringList langs = ThemeManager::list("languages");
 		QString lang = Config().group("localization").value("lang", QString());
 		if (langs.contains(lang) || lang == QLatin1String("en_EN")) {
 			loadLanguage(lang);
@@ -73,7 +74,7 @@ namespace Core
 		qDeleteAll(m_translators);
 		m_translators.clear();
 
-		QString path = getThemePath("languages", lang);
+		QString path = ThemeManager::path("languages", lang);
 		if (path.isEmpty()) {
 			QLocale::setDefault(QLocale::c());
 			return;

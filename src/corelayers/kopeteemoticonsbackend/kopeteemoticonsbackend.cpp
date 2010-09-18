@@ -16,16 +16,17 @@
 #include "kopeteemoticonsbackend.h"
 #include <qutim/libqutim_global.h>
 #include "kopeteemoticonsprovider.h"
+#include <qutim/thememanager.h>
 #include <QDebug>
 
 EmoticonsProvider* KopeteEmoticonsBackend::loadTheme(const QString& name)
 {
 	//TODO OPTIMIZE ME
-	QStringList themes = listThemes("emoticons");
+	QStringList themes = ThemeManager::list("emoticons");
 	QStringList::const_iterator it;
 	KopeteEmoticonsProvider *provider = new KopeteEmoticonsProvider();
 	for (it=themes.constBegin();it!=themes.constEnd();it++) {
-		QString themePath = getThemePath("emoticons",*it);
+		QString themePath = ThemeManager::path("emoticons",*it);
 		provider->setThemePath(themePath);
 		if (provider->themeName() == name) {
 			provider->loadTheme();
@@ -39,11 +40,11 @@ EmoticonsProvider* KopeteEmoticonsBackend::loadTheme(const QString& name)
 QStringList KopeteEmoticonsBackend::themeList()
 {
 	//TODO OPTIMIZE ME
-	QStringList themes = listThemes("emoticons");
+	QStringList themes = ThemeManager::list("emoticons");
 	QStringList::const_iterator it;
 	QStringList themeList;
 	for (it=themes.constBegin();it!=themes.constEnd();it++) {
-		QString themePath = getThemePath("emoticons",*it);
+		QString themePath = ThemeManager::path("emoticons",*it);
 		KopeteEmoticonsProvider provider (themePath);
 		if (!provider.themeName().isEmpty())
 			themeList.append(provider.themeName());

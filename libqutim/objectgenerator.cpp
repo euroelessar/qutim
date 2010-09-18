@@ -16,9 +16,11 @@
 #include "actiongenerator_p.h"
 #include <QtCore/QVariant>
 #include <QtCore/QCoreApplication>
+#include "modulemanager_p.h"
 
 namespace qutim_sdk_0_3
 {
+
 	ObjectGenerator::ObjectGenerator() : d_ptr(new ObjectGeneratorPrivate)
 	{
 	}
@@ -50,6 +52,21 @@ namespace qutim_sdk_0_3
 		while (meta && meta != super)
 			meta = meta->superClass();
 		return super && meta == super;
+	}
+
+	bool ObjectGenerator::isInited()
+	{
+		return isCoreInited();
+	}
+
+	GeneratorList ObjectGenerator::module(const QMetaObject *module)
+	{
+		return moduleGenerators(module, 0);
+	}
+
+	GeneratorList ObjectGenerator::module(const char *iid)
+	{
+		return moduleGenerators(0, iid);
 	}
 
 	QObject *ObjectGenerator::generateHelper2() const

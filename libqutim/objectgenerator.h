@@ -24,6 +24,9 @@ namespace qutim_sdk_0_3
 	class ObjectGeneratorPrivate;
 	class ExtensionInfo;
 
+	class ObjectGenerator;
+	typedef QList<const ObjectGenerator *> GeneratorList;
+
 	/**
 	* @brief ObjectGenerator is general type for object initiatizations.
 	*
@@ -143,9 +146,28 @@ namespace qutim_sdk_0_3
 		template<typename T>
 		inline bool extends() const
 		{ return extends_helper<T>(reinterpret_cast<T *>(0)); }
+
+		/**
+		 * Function to detect if ModuleManager and it's inner data had been initialized.
+		 */
+		static bool isInited();
+		/**
+		 * Returns list of ObjectGenerator's for extensions that match QMetaObject criterion
+		 */
+		static GeneratorList module(const QMetaObject *module);
+		/**
+		 * Returns list of ObjectGenerator's for extensions that match char* interfaceID
+		 */
+		static GeneratorList module(const char *iid);
+		template<typename T> static inline GeneratorList module()
+		{ return module_helper<T>(reinterpret_cast<T *>(0)); }
 #ifndef Q_QDOC
 		ExtensionInfo info() const;
 	protected:
+		template<typename T> static inline GeneratorList module_helper(const QObject *)
+		{ return ObjectGenerator::module(&T::staticMetaObject); }
+		template<typename T> static inline GeneratorList module_helper(const void *)
+		{ return ObjectGenerator::module(qobject_interface_iid<T *>()); }
 		template<typename T>
 		inline bool extends_helper(const QObject *) const
 		{ return extends(&T::staticMetaObject); }

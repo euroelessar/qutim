@@ -18,24 +18,24 @@
 #include <QWebPage>
 #include <QWebFrame>
 #include <QWebElement>
-#include <qutim/message.h>
-#include <qutim/account.h>
 #include <QStringBuilder>
 #include <QDateTime>
-#include <QDebug>
-#include <qutim/history.h>
-#include <qutim/notificationslayer.h>
-#include <qutim/conference.h>
 #include "chatlayerimpl.h"
 #include "chatsessionmodel.h"
 #include <QApplication>
-#include <qutim/debug.h>
 #include <QPlainTextDocumentLayout>
 #include <QDesktopServices>
 #include <QWebElement>
 #include "chatsessionimpl_p.h"
 #include "javascriptclient.h"
 #include "chatforms/abstractchatform.h"
+#include <qutim/message.h>
+#include <qutim/account.h>
+#include <qutim/history.h>
+#include <qutim/notificationslayer.h>
+#include <qutim/conference.h>
+#include <qutim/debug.h>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
@@ -248,7 +248,7 @@ namespace Core
 				silent = true;
 				QString sender = conf->me() ? conf->me()->name() : QString();
 				if (message.text().contains(sender)) {
-					AbstractChatForm *form = qobject_cast<AbstractChatForm*>(getService("ChatForm"));
+					AbstractChatForm *form = ServiceManager::getByName<AbstractChatForm*>("ChatForm");
 					if (form) {
 						QWidget *widget = form->chatWidget(this);
 						if (widget) {

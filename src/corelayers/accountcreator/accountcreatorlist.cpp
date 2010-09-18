@@ -2,13 +2,14 @@
 #include <qutim/icon.h>
 #include <qutim/protocol.h>
 #include <qutim/account.h>
+#include <qutim/settingslayer.h>
+#include <qutim/servicemanager.h>
 #include "ui_accountcreatorlist.h"
 #include <QListWidgetItem>
 #include <QContextMenuEvent>
 #include "itemdelegate.h"
 #include <QMessageBox>
 #include <qutim/debug.h>
-#include <qutim/settingslayer.h>
 
 namespace Core
 {
@@ -36,7 +37,7 @@ namespace Core
 		addItem->setText(QT_TRANSLATE_NOOP("Account","Accounts"));
 		addItem->setData(SeparatorRole,true);
 
-		foreach(Protocol *protocol, allProtocols())
+		foreach(Protocol *protocol, Protocol::all())
 		{
 			connect(protocol,SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),SLOT(addAccount(qutim_sdk_0_3::Account*)));
 			connect(protocol,SIGNAL(accountRemoved(qutim_sdk_0_3::Account*)),SLOT(removeAccount(qutim_sdk_0_3::Account*)));
@@ -191,7 +192,7 @@ namespace Core
 		Account *account = action->data().value<Account*>();
 		if (!account)
 			return;
-		SettingsLayer *layer = getService<SettingsLayer*>("SettingsLayer");
+		SettingsLayer *layer = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
 		debug() << "showed";
 		layer->show(account);
 	}

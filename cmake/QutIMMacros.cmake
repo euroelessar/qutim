@@ -235,14 +235,17 @@ Q_IMPORT_PLUGIN(${plugin_name})
 		set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS}" )
 	endif( CMAKE_COMPILER_IS_GNUCXX )
 
-	install( TARGETS ${plugin_name}
-		RUNTIME DESTINATION bin/plugins
-			COMPONENT ${plugin_name}
-		LIBRARY DESTINATION lib/qutim/plugins
-			COMPONENT ${plugin_name}
-		#ARCHIVE DESTINATION lib
-			#COMPONENT "${plugin_name}Devel"
-	)
+
+	#if( QUTIM_${plugin_name}_STATIC STREQUAL "SHARED" ) #what the fucking going on?
+		install( TARGETS ${plugin_name}
+			RUNTIME DESTINATION bin/plugins
+				COMPONENT ${plugin_name}
+			LIBRARY DESTINATION lib/qutim/plugins
+				COMPONENT ${plugin_name}
+			ARCHIVE DESTINATION lib
+				COMPONENT "${plugin_name}Devel"
+		)
+	#endif( QUTIM_${plugin_name}_STATIC STREQUAL "SHARED" )
 
 	if ( QUTIM_COPY_PLUGINS_TO_BINARY_DIR AND QUTIM_BINARY_DIR AND NOT QUTIM_${plugin_name}_STATIC )
 		get_target_property ( ${plugin_name}_LOCATION ${plugin_name} LOCATION )

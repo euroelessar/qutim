@@ -17,6 +17,7 @@
 #include "notificationslayer.h"
 #include "libqutim_global.h"
 #include "objectgenerator.h"
+#include "servicemanager.h"
 #include "contact.h"
 #include "message.h"
 #include "configbase.h"
@@ -49,10 +50,10 @@ namespace qutim_sdk_0_3
 		bool soundIsInited;
 		void initSound()
 		{
-			if (!isCoreInited())
+			if (!ObjectGenerator::isInited())
 				return;
-			soundBackend = qobject_cast<SoundBackend*>(getService("Sound"));
-			GeneratorList exts = moduleGenerators<SoundThemeBackend>();
+			soundBackend = qobject_cast<SoundBackend*>(ServiceManager::getByName("Sound"));
+			GeneratorList exts = ObjectGenerator::module<SoundThemeBackend>();
 			foreach (const ObjectGenerator *gen, exts)
 				soundThemeBackends << gen->generate<SoundThemeBackend>();
 			soundIsInited = true;
@@ -81,10 +82,10 @@ namespace qutim_sdk_0_3
 		{
 			ensure_notifications_private();
 			//TODO add checks
-			if (!isCoreInited())
+			if (!ObjectGenerator::isInited())
 				return;
 			if (p->popupBackend.isNull())
-				p->popupBackend = qobject_cast<PopupBackend*>(getService("Popup"));
+				p->popupBackend = qobject_cast<PopupBackend*>(ServiceManager::getByName("Popup"));
 
 			if (p->popupBackend)
 				p->popupBackend->show(type, sender, body, data);

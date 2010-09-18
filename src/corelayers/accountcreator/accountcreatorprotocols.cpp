@@ -2,6 +2,7 @@
 #include "accountcreatorwizard.h"
 #include <qutim/extensioninfo.h>
 #include <qutim/icon.h>
+#include "qutim/metaobjectbuilder.h"
 #include "ui_accountcreatorprotocols.h"
 #include <QCommandLinkButton>
 #include <QScrollBar>
@@ -20,12 +21,12 @@ namespace Core
 		
 		m_lastId = Id;
 		QSet<QByteArray> protocols;
-		foreach (Protocol *protocol, allProtocols()) {
+		foreach (Protocol *protocol, Protocol::all()) {
 			protocols.insert(protocol->metaObject()->className());
 		}
 
-		foreach(const ObjectGenerator *gen, moduleGenerators<AccountCreationWizard>()) {
-			const char *proto = metaInfo(gen->metaObject(), "DependsOn");
+		foreach(const ObjectGenerator *gen, ObjectGenerator::module<AccountCreationWizard>()) {
+			const char *proto = MetaObjectBuilder::info(gen->metaObject(), "DependsOn");
 			if (!protocols.contains(proto))
 				continue;
 			AccountCreationWizard *wizard = gen->generate<AccountCreationWizard>();

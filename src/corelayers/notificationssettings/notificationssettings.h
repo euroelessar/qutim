@@ -2,6 +2,7 @@
 #define NOTIFICATIONSSETTINGS_H
 
 #include <QObject>
+#include <qutim/startupmodule.h>
 
 namespace Core
 {

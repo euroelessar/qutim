@@ -19,6 +19,7 @@
 #include <qutim/extensioninfo.h>
 #include <qutim/debug.h>
 #include <qutim/icon.h>
+#include "qutim/metaobjectbuilder.h"
 #include <QStringBuilder>
 #include "itemdelegate.h"
 #include "serviceitem.h"
@@ -54,7 +55,7 @@ namespace Core
 		for (int i = 0; i < exts.size(); i++) {
 			const ExtensionInfo &info = exts.at(i);
 			const QMetaObject *meta = info.generator()->metaObject();
-			QString name = QString::fromLatin1(metaInfo(meta, "Protocol"));
+			QString name = QString::fromLatin1(MetaObjectBuilder::info(meta, "Protocol"));
 			if (name.isEmpty())
 				continue;
 			

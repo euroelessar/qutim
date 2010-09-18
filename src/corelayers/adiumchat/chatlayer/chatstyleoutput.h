@@ -27,7 +27,9 @@ class QDateTime;
 namespace qutim_sdk_0_3
 {
 	class ChatSession;
+	LIBQUTIM_EXPORT QString convertTimeDate(const QString &mac_format, const QDateTime &datetime);
 }
+
 namespace Core
 {
 	namespace AdiumChat

@@ -108,7 +108,7 @@ QString ProfileDialog::ProfilesConfigPath()
 bool ProfileDialog::acceptProfileInfo(Config &config, const QString &password)
 {
 	QString crypto = config.value("crypto", QString());
-	GeneratorList gens = moduleGenerators<CryptoService>();
+	GeneratorList gens = ObjectGenerator::module<CryptoService>();
 	CryptoService *service = 0;
 	foreach (const ObjectGenerator *gen, gens) {
 		if (QLatin1String(gen->metaObject()->className()) == crypto) {
@@ -157,7 +157,7 @@ bool ProfileDialog::acceptProfileInfo(Config &config, const QString &password)
 
 		QString configName = config.value("config", QString());
 		QList<ConfigBackend*> &configBackends = get_config_backends();
-		foreach (const ObjectGenerator *gen, moduleGenerators<ConfigBackend>()) {
+		foreach (const ObjectGenerator *gen, ObjectGenerator::module<ConfigBackend>()) {
 			const ExtensionInfo info = gen->info();
 			ConfigBackend *backend = info.generator()->generate<ConfigBackend>();
 			if (configName == QLatin1String(backend->metaObject()->className()))

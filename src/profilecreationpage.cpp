@@ -39,7 +39,7 @@ ProfileCreationPage::ProfileCreationPage(const QString &password, bool singlePro
 		ui->cryptoBox->hide();
 		ui->cryptoDescription->hide();
 	}
-	foreach (const ObjectGenerator *gen, moduleGenerators<CryptoService>()) {
+	foreach (const ObjectGenerator *gen, ObjectGenerator::module<CryptoService>()) {
 		const ExtensionInfo info = gen->info();
 		if (!m_singleProfile 
 			|| info.generator()->metaObject()->className() == QLatin1String("Core::NoCryptoService")) {
@@ -53,7 +53,7 @@ ProfileCreationPage::ProfileCreationPage(const QString &password, bool singlePro
 	}
 	Q_ASSERT(ui->cryptoBox->count() > 0);
 	first = true;
-	foreach (const ObjectGenerator *gen, moduleGenerators<ConfigBackend>()) {
+	foreach (const ObjectGenerator *gen, ObjectGenerator::module<ConfigBackend>()) {
 		const ExtensionInfo info = gen->info();
 		ui->configBox->addItem(info.icon(), info.name(), qVariantFromValue(info));
 		if (first) {

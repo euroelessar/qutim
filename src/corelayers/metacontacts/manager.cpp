@@ -81,7 +81,7 @@ namespace Core
 				int subItemCount = cfg.beginArray("subItems");
 				for (int j = 0; j < subItemCount; j++) {
 					cfg.setArrayIndex(j);
-					Protocol *proto = allProtocols().value(cfg.value("protocol", QString()));
+					Protocol *proto = Protocol::all().value(cfg.value("protocol", QString()));
 					if (!proto)
 						continue;
 					Account *account = proto->account(cfg.value("account", QString()));

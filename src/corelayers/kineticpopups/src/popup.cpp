@@ -109,7 +109,7 @@ void Popup::send()
 	m_machine = new QStateMachine(this);
 
 	//FIXME
-	const ObjectGenerator *gen = moduleGenerators<AbstractPopupWidget>().value(0);
+	const ObjectGenerator *gen = ObjectGenerator::module<AbstractPopupWidget>().value(0);
 	Q_ASSERT(gen);
 	m_popup = gen->generate<AbstractPopupWidget>();
 	Q_ASSERT(m_popup);

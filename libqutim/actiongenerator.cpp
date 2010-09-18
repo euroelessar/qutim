@@ -246,6 +246,7 @@ namespace qutim_sdk_0_3
 		action->setCheckable(d->data->checkable);
 		action->setChecked(d->data->checked);
 		action->setToolTip(d->toolTip);
+		action->setShortcuts(d->shortCuts);
 		localizationHelper()->addAction(action, d);
 		action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
 
@@ -333,6 +334,13 @@ namespace qutim_sdk_0_3
 	void ActionGenerator::setToolTip(const LocalizedString& toolTip)
 	{
 		d_func()->toolTip = toolTip;
+	}
+
+	void ActionGenerator::setShortcut(const QKeySequence &shortcut)
+	{
+		Q_D(ActionGenerator);
+		d->shortCuts.clear();
+		d->shortCuts.append(shortcut);
 	}
 	
 	void ActionGenerator::showImpl(QAction *,QObject *)

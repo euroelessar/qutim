@@ -15,6 +15,7 @@
 
 #include "abstractsearchform.h"
 #include <qutim/icon.h>
+#include <qutim/servicemanager.h>
 #include <QKeyEvent>
 #include "itemdelegate.h"
 #include <QComboBox>
@@ -79,7 +80,7 @@ namespace Core {
 		if (!m_currentRequest) {
 			if (m_searchFieldsWidget)
 				m_searchFieldsWidget->deleteLater();
-			qDeleteAllLater(m_actions);
+			qDeleteAll(m_actions);
 		} else {
 			m_resultModel->setRequest(m_currentRequest);
 			connect(m_currentRequest.data(), SIGNAL(done(bool)), SLOT(done(bool)));
@@ -183,7 +184,7 @@ namespace Core {
 
 	AbstractSearchFormFactory *AbstractSearchFormFactory::instance()
 	{
-		return qobject_cast<AbstractSearchFormFactory*>(getService("SearchForm"));
+		return ServiceManager::getByName<AbstractSearchFormFactory*>("SearchForm");
 	}
 
 } // namespace Core

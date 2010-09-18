@@ -15,6 +15,8 @@
 
 #include "serviceicons.h"
 #include <qutim/configbase.h>
+#include <qutim/thememanager.h>
+#include <qutim/servicemanager.h>
 #include <QStringBuilder>
 
 using namespace qutim_sdk_0_3;
@@ -24,12 +26,12 @@ namespace Adium
 	ServiceIcons::ServiceIcons()
 	{
 		ConfigGroup config = Config().group("serviceicons");
-		QString path = getThemePath("protocolicons", config.value<QString>("theme", "default"));
+		QString path = ThemeManager::path("protocolicons", config.value<QString>("theme", "default"));
 		if (path.isEmpty()) {
-			QStringList themes = listThemes("protocolicons");
+			QStringList themes = ThemeManager::list("protocolicons");
 			if (themes.isEmpty())
 				return;
-			path = getThemePath("protocolicons", themes.first());
+			path = ThemeManager::path("protocolicons", themes.first());
 		}
 		Config theme(path + "/Icons.plist");
 		foreach (const QString &groupName, theme.childGroups()) {

@@ -28,9 +28,9 @@ namespace qutim_sdk_0_3
 
 	void createIconPrivate()
 	{
-		if (p || !isCoreInited()) return;
+		if (p || !ObjectGenerator::isInited()) return;
 		p = new IconPrivate;
-		GeneratorList gens = moduleGenerators<IconWrapper>();
+		GeneratorList gens = ObjectGenerator::module<IconWrapper>();
 		foreach (const ObjectGenerator *gen, gens)
 			p->wrappers << gen->generate<IconWrapper>();
 	}
