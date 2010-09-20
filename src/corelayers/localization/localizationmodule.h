@@ -29,7 +29,7 @@ namespace Core
 	public slots:
 		void onSettingsSave();
 	private:
-		void loadLanguage(const QString &lang);
+		void loadLanguage(const QStringList &langs);
 		QList<QTranslator *> m_translators;
 	};
 }
