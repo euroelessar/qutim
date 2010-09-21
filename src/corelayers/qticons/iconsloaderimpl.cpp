@@ -15,8 +15,8 @@ namespace Core
 	const XdgIconTheme *iconTheme()
 	{
 		if (!this_iconTheme) {
-			const XdgIconTheme *defTheme = 0; //iconManager()->defaultTheme();
-			QString id = Config().group("appearance").value<QString>("theme", "qutim");
+			const XdgIconTheme *defTheme = iconManager()->defaultTheme();
+			QString id = Config().group("appearance").value<QString>("theme", QString());
 			this_iconTheme = iconManager()->themeById(id);
 			if (!this_iconTheme && defTheme && defTheme->id() != "hicolor") {
 				this_iconTheme = defTheme;

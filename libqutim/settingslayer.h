@@ -72,13 +72,14 @@ namespace Settings
 	  Add settings \a item to every object of type \a T.
 	*/
 	template <typename T>
-	LIBQUTIM_EXPORT void registerItem(SettingsItem *item);
+	Q_INLINE_TEMPLATE void registerItem(SettingsItem *item) { registerItem(item,&T::staticMetaObject); }
+	
 	/*!
 	  Returns list of every SettingsItem with QMetaObject \a meta, \warning each generated widget settings, should have a menucontroller as parent.
 	*/
 	SettingsItemList items(const QMetaObject *meta);
 	template <typename T>
-	LIBQUTIM_EXPORT void items();
+	Q_INLINE_TEMPLATE SettingsItemList items() { return items(&T::staticMetaObject); }
 	//TODO,
 //		LIBQUTIM_EXPORT TypeEntryMap *entries();
 //		LIBQUTIM_EXPORT quint16 registerType(const char *id,
@@ -204,19 +205,6 @@ protected:
 	virtual ~SettingsLayer();
 	virtual void virtual_hook(int id, void *data);
 };
-
-template <typename T>
-Q_INLINE_TEMPLATE void Settings::registerItem(qutim_sdk_0_3::SettingsItem* item)
-{
-	registerItem(item,&T::staticMetaObject);
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE void Settings::items()
-{
-	items(&T::staticMetaObject);
-}
-
 }
 
 #endif // SETTINGSLAYER_H

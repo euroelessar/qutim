@@ -333,10 +333,17 @@ namespace Core
 			Q_D(ChatSessionImpl);
 			if (ev->type() == MessageReceiptEvent::eventType()) {
 				MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
-				QWebElement elem = d->web_page->mainFrame()->findFirstElement("#message" + QString::number(msgEvent->id()));
-//				qDebug() << elem.toPlainText();
-				elem.removeClass("notDelivered");
-				elem.addClass("delivered");
+				QWebFrame *frame = d->web_page->mainFrame();
+				QWebElement elem = frame->findFirstElement(QLatin1Literal("#message")
+														   % QString::number(msgEvent->id()));
+				if (!elem.isNull()) {
+					if (msgEvent->success()) {
+						elem.removeClass(QLatin1String("notDelivered"));
+						elem.addClass(QLatin1String("delivered"));
+					} else {
+						elem.addClass(QLatin1String("failedToDevliver"));
+					}
+				}
 				return true;
 			} else {
 				return ChatSession::event(ev);

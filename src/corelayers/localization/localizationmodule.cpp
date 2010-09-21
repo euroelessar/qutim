@@ -44,55 +44,69 @@ namespace Core
 		QStringList langs = ThemeManager::list("languages");
 		QString lang = Config().group("localization").value("lang", QString());
 		if (langs.contains(lang) || lang == QLatin1String("en_EN")) {
-			loadLanguage(lang);
+			loadLanguage(QStringList() << lang);
 		} else {
-			QLocale locale;
-			if (!lang.isEmpty())
-				locale = QLocale(lang);
-			QStringList langsByLang = langs.filter(QLocale::languageToString(locale.language()),
-												   Qt::CaseSensitive);
-			if (langsByLang.isEmpty()) {
-				locale = QLocale::system();
-				langsByLang = langs.filter(QLocale::languageToString(locale.language()),
-										   Qt::CaseSensitive);
-				if (langsByLang.isEmpty())
-					return;
+			QStringList langsByCountry;
+			{
+				QByteArray data = qgetenv("LANGUAGE");
+				if (data.isEmpty())
+					data = qgetenv("LANG");
+				if (!data.isEmpty())
+					langsByCountry = QString(QLatin1String(data)).split(':');
 			}
-
-			QString country = QLocale::countryToString(locale.country());
-			QStringList langsByCountry = langs.filter(country, Qt::CaseSensitive);
-			if (langsByCountry.isEmpty())
-				langsByCountry = langs;
-			loadLanguage(langsByCountry.first());
+			if (langsByCountry.isEmpty()) {
+				QLocale locale;
+				if (!lang.isEmpty())
+					locale = QLocale(lang);
+				QStringList langsByLang = langs.filter(QLocale::languageToString(locale.language()),
+													   Qt::CaseSensitive);
+				if (langsByLang.isEmpty()) {
+					locale = QLocale::system();
+					langsByLang = langs.filter(QLocale::languageToString(locale.language()),
+											   Qt::CaseSensitive);
+					if (langsByLang.isEmpty())
+						return;
+				}
+	
+				QString country = QLocale::countryToString(locale.country());
+				langsByCountry = langs.filter(country, Qt::CaseSensitive);
+				if (langsByCountry.isEmpty())
+					langsByCountry = langs;
+			}
+			loadLanguage(langsByCountry);
 		}
 	}
 
-	void LocalizationModule::loadLanguage(const QString &lang)
+	void LocalizationModule::loadLanguage(const QStringList &langs)
 	{
 		foreach (QTranslator *translator, m_translators)
 			qApp->removeTranslator(translator);
 		qDeleteAll(m_translators);
 		m_translators.clear();
-
-		QString path = ThemeManager::path("languages", lang);
-		if (path.isEmpty()) {
+		QStringList paths;
+		foreach (const QString &lang, langs) {
+			QString path = ThemeManager::path("languages", lang);
+			if (!path.isEmpty())
+				paths << path;
+		}
+		paths.removeDuplicates();
+		if (paths.isEmpty()) {
 			QLocale::setDefault(QLocale::c());
 			return;
 		}
-		
-		QDir dir = path;
-		QStringList files = dir.entryList(QStringList() << "*.qm", QDir::Files);
-
 		// For jabber's xml:lang
-		QLocale::setDefault(QLocale(lang));
-
-		foreach (const QString &file, files) {
-			QTranslator *translator = new QTranslator(this);
-			if (!translator->load(file, path)) {
-				delete translator;
-			} else {
-				qApp->installTranslator(translator);
-				m_translators << translator;
+		QLocale::setDefault(QLocale(langs.first()));
+		foreach (const QDir &dir, paths) {
+			QStringList files = dir.entryList(QStringList() << "*.qm", QDir::Files);
+	
+			foreach (const QString &file, files) {
+				QTranslator *translator = new QTranslator(this);
+				if (!translator->load(file, dir.absolutePath())) {
+					delete translator;
+				} else {
+					qApp->installTranslator(translator);
+					m_translators << translator;
+				}
 			}
 		}
 	}
