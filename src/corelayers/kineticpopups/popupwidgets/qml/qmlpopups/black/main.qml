@@ -1,14 +1,18 @@
 import Qt 4.7
 
-BorderImage {
+Rectangle {
 	id: background
 	width: 250
 	height: 90
+	color:"transparent"
 
-	source: "images/background.png"
-	border.left: 32; border.top: 32
-	border.right: 32; border.bottom: 32
-
+	BorderImage {
+		source: "images/background.png"
+		border.left: 32; border.top: 32
+		border.right: 32; border.bottom: 32
+		opacity:0.9
+		anchors.fill:parent
+	}
 
 	Text {
 		id: title
@@ -55,7 +59,7 @@ BorderImage {
 			text: popupBody
 			color: "#FFF"
 			font.pointSize: 10
-			wrapMode: "WordWrap"
+			wrapMode: "WrapAnywhere"
 			anchors {
 				left: avatar.right
 				leftMargin: 10

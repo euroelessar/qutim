@@ -64,6 +64,7 @@ void TextPopupWidget::init(const ThemeHelper::PopupSettings &popupSettings)
 		if (popupSettings.popupFlags & ThemeHelper::Transparent) {
 			setAttribute(Qt::WA_NoSystemBackground);
 			setAttribute(Qt::WA_TranslucentBackground);
+			m_browser->viewport()->setAttribute(Qt::WA_TranslucentBackground);
 			m_browser->viewport()->setAutoFillBackground(false);
 		}
 		if (popupSettings.popupFlags & ThemeHelper::AeroThemeIntegration) {
