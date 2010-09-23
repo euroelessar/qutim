@@ -52,8 +52,11 @@ PopupSettings loadThemeSetting ( const QString& themeName )
 	ConfigGroup appearance = Config(themePath + "/settings.json").group("appearance");
 	popup_settings.defaultSize = appearance.value<QSize>("defaultSize",QSize(250,150));
 	popup_settings.margin = appearance.value("margin",10);
-	popup_settings.widgetFlags = static_cast<Qt::WindowFlags>(appearance.value<int>("widgetFlags",Qt::ToolTip));
-	popup_settings.popupFlags = static_cast<PopupWidgetFlags>(appearance.value<int>("popupFlags",Transparent));
+	popup_settings.widgetFlags = appearance.value<Qt::WindowFlags>("widgetFlags",Qt::ToolTip|
+																   Qt::FramelessWindowHint|
+																   Qt::WindowStaysOnTopHint|
+																   Qt::X11BypassWindowManagerHint);
+	popup_settings.popupFlags = appearance.value<PopupWidgetFlags>("popupFlags",Transparent);
 	return popup_settings;
 }
 }

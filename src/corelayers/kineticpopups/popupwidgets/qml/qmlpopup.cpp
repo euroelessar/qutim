@@ -32,7 +32,10 @@ PopupWidget::PopupWidget()
 
 	QString themePath = ThemeManager::path("qmlpopups",theme_name);
 	ConfigGroup appearance = Config(themePath + "/settings.json").group("appearance");
-	setWindowFlags(static_cast<Qt::WindowFlags>(appearance.value<int>("widgetFlags",Qt::ToolTip)));
+	setWindowFlags(appearance.value<Qt::WindowFlags>("widgetFlags",Qt::ToolTip|
+													 Qt::FramelessWindowHint|
+													 Qt::WindowStaysOnTopHint|
+													 Qt::X11BypassWindowManagerHint));
 	PopupWidgetFlags popupFlags = static_cast<PopupWidgetFlags>(appearance.value<int>("popupFlags",Transparent));
 
 	connect(m_view,SIGNAL(sceneResized(QSize)),this,SLOT(onSceneResized(QSize)));
@@ -41,6 +44,7 @@ PopupWidget::PopupWidget()
 	if (popupFlags & Transparent) {
 		setAttribute(Qt::WA_NoSystemBackground);
 		setAttribute(Qt::WA_TranslucentBackground);
+		m_view->viewport()->setAttribute(Qt::WA_TranslucentBackground);
 		m_view->viewport()->setAutoFillBackground(false);
 	}
 
