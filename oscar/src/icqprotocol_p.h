@@ -24,8 +24,9 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-struct IcqProtocolPrivate
+class IcqProtocolPrivate
 {
+public:
 	inline IcqProtocolPrivate() :
 		accounts_hash(new QHash<QString, QPointer<IcqAccount> > ())
 	{ }

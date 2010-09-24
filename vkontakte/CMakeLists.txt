@@ -5,7 +5,7 @@ SET( QT_USE_QTSCRIPT TRUE )
 SET (QT_USE_QTWEBKIT true)
 
 qutim_add_plugin( vkontakte
-	COMPILE_FLAGS "-DLIBVKONTAKTE_LIBRARY"
+	COMPILE_FLAGS "-DVKONTAKTE_LIBRARY"
 	DISPLAY_NAME "VKontakte"
 	DESCRIPTION "Simple implementation of vkontakte"
 	GROUP "Protocols"

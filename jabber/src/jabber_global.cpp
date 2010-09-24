@@ -28,7 +28,8 @@ namespace Jabber
 			if (num>19) {
 				QTime delta = QTime::fromString(stamp.right(5), time_stamp_str);
 				int multi = 1;
-				if (stamp.at(stamp.length() - 6) == '+')
+				size_t sz = stamp.length() - 6;
+				if (stamp.at(sz) == '+')
 					multi = -1;
 				date_time = date_time.addSecs(multi * (delta.minute() * 60 + delta.hour() * 3600));
 			}
