@@ -1,4 +1,4 @@
-IF (UNIX AND NOT APPLE)
+IF (UNIX AND NOT APPLE AND NOT SYMBIAN)
 	include( FindPkgConfig )
 	pkg_check_modules (XSS xscrnsaver)
 	IF( XSS_FOUND )
@@ -7,7 +7,7 @@ IF (UNIX AND NOT APPLE)
 	ELSE( XSS_FOUND )
 		message(STATUS "Warning: libxss not found, idle detection won't be accurate")
 	ENDIF( XSS_FOUND )
-ENDIF (UNIX AND NOT APPLE)
+ENDIF (UNIX AND NOT APPLE AND NOT SYMBIAN)
 
 qutim_add_plugin( idledetector
 	EXTENSION
