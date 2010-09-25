@@ -35,9 +35,10 @@
 #  define LIBQUTIM_EXPORT Q_DECL_IMPORT
 #endif
 
-#ifdef Q_OS_SYMBIAN
-#	define QUTIM_SOFTKEYS_SUPPORT
-#	define QUTIM_MOBILE_UI
+#if defined(Q_OS_SYMBIAN) || defined(Q_WS_SIMULATOR)
+#	ifndef QUTIM_MOBILE_UI
+#		define QUTIM_MOBILE_UI
+#	endif
 #endif
 
 #define QUTIM_VERSION_STR "0.2.60.0"
