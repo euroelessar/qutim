@@ -1,7 +1,6 @@
-find_package( PkgConfig )
-pkg_check_modules( SDL_MIXER SDL_mixer>=1.0 )
+find_package( SDL_mixer )
 
-if( NOT SDL_MIXER_FOUND )
+if( NOT SDLMIXER_FOUND )
 	message( "SDL mixer not found. Can't build sdlsound" )
 	return()
 endif()
@@ -9,7 +8,7 @@ endif()
 qutim_add_plugin( sdlsound
 	DISPLAY_NAME "SDL sound engine"
 	DESCRIPTION "Sound engine based on Simple DirectMedia Layer"
-	LINK_LIBRARIES ${SDL_MIXER_LIBRARIES}
-	INCLUDE_DIRS ${SDL_MIXER_INCLUDE_DIR}
+	LINK_LIBRARIES ${SDLMIXER_LIBRARY}
+	INCLUDE_DIRS ${SDLMIXER_INCLUDE_DIR}
 )
 
