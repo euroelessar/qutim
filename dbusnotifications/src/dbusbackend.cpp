@@ -1,9 +1,9 @@
 #include "dbusbackend.h"
 #include <QTextDocument>
 #include <QVariant>
-#include <libqutim/message.h>
-#include <libqutim/buddy.h>
-#include <libqutim/debug.h>
+#include <qutim/message.h>
+#include <qutim/buddy.h>
+#include <qutim/debug.h>
 #include <QBuffer>
 
 QDBusArgument& operator<< (QDBusArgument& arg, const QImage& image) {
