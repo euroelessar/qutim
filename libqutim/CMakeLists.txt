@@ -1,6 +1,7 @@
 # libqutim project for cmake
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
 PROJECT( libqutim )
+SET( LIBQUTIM_VERSION 0.2.60 )
 
 # Search for source and headers in source directory (non-recursive)
 FILE( GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" )
@@ -153,11 +154,15 @@ INSTALL(FILES ${QUTIM_INSTALL_HEADERS}
 )
 
 if(DOXYGEN_FOUND)
+    add_subdirectory(doc)
     set(DOC_TARGET "doc")
-    configure_file(doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
+    configure_file(doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    configure_file(doc/DoxygenLayout.xml.in ${CMAKE_CURRENT_BINARY_DIR}/DoxygenLayout.xml @ONLY)
     add_custom_target(${DOC_TARGET} ALL
-        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc DESTINATION share/qutim COMPONENT CoreDevel)
+        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+        COMMENT "Building documentation"
+        SOURCE doc/Doxyfile.in doc/DoxygenLayout.xml)
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc/html ${CMAKE_CURRENT_BINARY_DIR}/doc/qch DESTINATION share/qutim/doc COMPONENT CoreDevel)
     add_dependencies(libqutim ${DOC_TARGET})
 endif()
 
