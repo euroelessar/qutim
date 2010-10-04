@@ -16,10 +16,10 @@
     </tab>
     @LIBQUTIM_DOC_LAYOUT_TAB_GUARD_GL_OP@
     <tab type="files" visible="yes" title="Globals">
-      <tab type="files" visible="yes" title=""/>
       @LIBQUTIM_DOC_LAYOUT_TAB_GUARD_GL_ED@
       <tab type="globals" visible="yes" title="Globals"/>
       @LIBQUTIM_DOC_LAYOUT_TAB_GUARD_GL_OP@
+      <tab type="files" visible="yes" title=""/>
     </tab>
     @LIBQUTIM_DOC_LAYOUT_TAB_GUARD_GL_ED@
     <tab type="dirs" visible="yes" title=""/>
