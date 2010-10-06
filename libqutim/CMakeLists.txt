@@ -1,7 +1,7 @@
 # libqutim project for cmake
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
 PROJECT( libqutim )
-SET( LIBQUTIM_VERSION 0.2.60 )
+SET( QUTIM_VERSION 0.2.60.0 )
 
 # Search for source and headers in source directory (non-recursive)
 FILE( GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" )
