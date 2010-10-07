@@ -11,6 +11,7 @@ SimpleActionBoxModule::SimpleActionBoxModule()
 {
 	m_layout = new QHBoxLayout(this);
 	setLayout(m_layout);
+	m_layout->setMargin(0);
 }
 
 void SimpleActionBoxModule::addAction(QAction *action)
@@ -23,6 +24,7 @@ void SimpleActionBoxModule::addAction(QAction *action)
 	button->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	button->setDefaultAction(action);
 	button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	button->setVisible(action->isVisible());
 	m_buttons.insert(action,button);
 
 	connect(action,SIGNAL(changed()),SLOT(onChanged()));
