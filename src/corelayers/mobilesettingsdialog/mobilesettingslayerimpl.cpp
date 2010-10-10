@@ -38,9 +38,7 @@ void MobileSettingsLayerImpl::show (const SettingsItemList& settings, QObject* c
 		d = new MobileSettingsWindow(settings,controller);
 		m_dialogs[controller] = d;
 	}
-	d->activateWindow();
-	d->raise();
-	d->show();
+	d->showMaximized();
 }
 
 void MobileSettingsLayerImpl::update (const SettingsItemList& settings, QObject* controller )
