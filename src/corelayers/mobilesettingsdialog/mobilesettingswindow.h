@@ -52,10 +52,12 @@ private:
 	QScopedPointer<MobileSettingsWindowPrivate> p;
 private slots:
 	void onCategoryActivated(const QModelIndex &index);
+	void onCategoryActivated(QListWidgetItem *item);
 	void onCurrentItemActivated(const QModelIndex &index);
     void onModifiedChanged(bool haveChanges);
+	void onWidgetDestroyed(QObject *obj);
 	void slideUp();
-	void slideDown();
+	void slideDown(QWidget *w);
 };
 
 }

@@ -27,10 +27,50 @@
 #include <QFileDialog>
 #include <QToolButton>
 #include <QSet>
+#include "icon.h"
 #include "servicemanager.h"
 
 namespace qutim_sdk_0_3
 {
+
+struct ActionEntry
+{
+	//TODO move to libqutim
+	ActionEntry(const LocalizedString &t,const QIcon &i)
+	{
+		text = t;
+		icon = i;
+	}
+	ActionEntry() {}
+	LocalizedString text;
+	QIcon icon;
+};
+
+typedef QMap<Settings::Type,ActionEntry> ActionEntryMap;
+
+static ActionEntryMap init_entry_map()
+{
+	ActionEntryMap map;
+	map.insert(Settings::General,ActionEntry(QT_TRANSLATE_NOOP("Settings","General"),Icon("preferences-system")));
+	map.insert(Settings::Protocol,ActionEntry(QT_TRANSLATE_NOOP("Settings","Protocols"),Icon("applications-internet")));
+	map.insert(Settings::Appearance,ActionEntry(QT_TRANSLATE_NOOP("Settings","Appearance"),Icon("applications-graphics")));
+	map.insert(Settings::Plugin,ActionEntry(QT_TRANSLATE_NOOP("Settings","Plugins"),Icon("applications-other")));
+	map.insert(Settings::Special,ActionEntry(QT_TRANSLATE_NOOP("Settings","Special"),QIcon()));
+	map.insert(Settings::Invalid,ActionEntry(QT_TRANSLATE_NOOP("Settings","Invalid"),QIcon()));
+	return map;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ActionEntryMap, entries, (init_entry_map()))
+
+LocalizedString Settings::getTypeTitle(Type type)
+{
+	return entries()->value(type).text;
+}
+
+QIcon Settings::getTypeIcon(Type type)
+{
+	return entries()->value(type).icon;
+}
 
 Q_GLOBAL_STATIC(MenuSettingsMap,globalSettings);
 

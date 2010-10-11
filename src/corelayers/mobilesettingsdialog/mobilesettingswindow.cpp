@@ -34,35 +34,6 @@
 namespace Core
 {
 
-struct ActionEntry
-{
-	//TODO move to libqutim
-	ActionEntry(const LocalizedString &t,const QIcon &i)
-	{
-		text = t;
-		icon = i;
-	}
-	ActionEntry() {}
-	LocalizedString text;
-	QIcon icon;
-};
-
-typedef QMap<Settings::Type,ActionEntry> ActionEntryMap;
-
-static ActionEntryMap init_entry_map()
-{
-	ActionEntryMap map;
-	map.insert(Settings::General,ActionEntry(QT_TRANSLATE_NOOP("Settings","General"),Icon("preferences-system")));
-	map.insert(Settings::Protocol,ActionEntry(QT_TRANSLATE_NOOP("Settings","Protocols"),Icon("applications-internet")));
-	map.insert(Settings::Appearance,ActionEntry(QT_TRANSLATE_NOOP("Settings","Appearance"),Icon("applications-graphics")));
-	map.insert(Settings::Plugin,ActionEntry(QT_TRANSLATE_NOOP("Settings","Plugins"),Icon("applications-other")));
-	map.insert(Settings::Special,ActionEntry(QT_TRANSLATE_NOOP("Settings","Special"),QIcon()));
-	map.insert(Settings::Invalid,ActionEntry(QT_TRANSLATE_NOOP("Settings","Invalid"),QIcon()));
-	return map;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(ActionEntryMap, entries, (init_entry_map()))
-
 struct MobileSettingsWindowPrivate
 {
 	SlidingStackedWidget *stackedWidget;
@@ -71,13 +42,14 @@ struct MobileSettingsWindowPrivate
 	//ActionBox *actionBox;
 	QObject *controller;
 	ActionBox *actionBox;
-	QAction *positiveAct;
+	QAction *closeAct;
 	QAction *backAct;
 	QMap<Settings::Type,SettingsItem*> items;
+	QMap<QWidget*,QWidget*> slideMap;
 	QList<SettingsWidget*> modifiedWidgets;
 	QMap<Settings::Type,QListWidgetItem*> categoryMap;
 };
-	
+
 MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller) :
 	p(new MobileSettingsWindowPrivate)
 {
@@ -102,6 +74,13 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 	p->backAct->setVisible(false);
 	p->actionBox->addAction(p->backAct);
 
+	p->closeAct = new QAction(tr("Close"),this);
+	p->closeAct->setSoftKeyRole(QAction::NegativeSoftKey);
+#ifndef Q_OS_SYMBIAN
+	p->closeAct->setVisible(false);
+#endif
+	p->actionBox->addAction(p->closeAct);
+
 	l->addWidget(p->stackedWidget);
 	l->addWidget(p->actionBox);
 
@@ -114,15 +93,16 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 	connect(p->settingsListWidget,
 			SIGNAL(activated(QModelIndex)),
 			SLOT(onCurrentItemActivated(QModelIndex))
-		   );
+			);
 	connect(p->backAct,SIGNAL(triggered()),SLOT(slideUp()));
+	connect(p->closeAct,SIGNAL(triggered()),SLOT(close()));
 
 	loadSettings(settings);
 
-	p->stackedWidget->setCurrentWidget(p->categoryListWidget);
+	p->stackedWidget->setCurrentWidget(new QWidget(this));
 }
 
-	
+
 void MobileSettingsWindow::update(const qutim_sdk_0_3::SettingsItemList& settings)
 {
 	foreach (SettingsItem *item, (p->items.values().toSet() -= settings.toSet()))
@@ -145,10 +125,11 @@ void MobileSettingsWindow::loadSettings(const qutim_sdk_0_3::SettingsItemList& s
 
 QListWidgetItem* MobileSettingsWindow::get(Settings::Type type)
 {
-	ActionEntry entry = entries()->value(type);
 	QListWidgetItem *item = p->categoryMap.value(type);
 	if (!item) {
-		item = new QListWidgetItem(entry.icon,entry.text.toString(),p->categoryListWidget);
+		item = new QListWidgetItem(p->categoryListWidget);
+		item->setText(Settings::getTypeTitle(type));
+		item->setIcon(Settings::getTypeIcon(type));
 		p->categoryMap.insert(type,item);
 	}
 	return item;
@@ -157,16 +138,31 @@ QListWidgetItem* MobileSettingsWindow::get(Settings::Type type)
 
 void MobileSettingsWindow::ensureActions()
 {
+	p->slideMap.clear();
 	qDeleteAll(p->categoryMap);
 	p->categoryListWidget->clear();
 	foreach (Settings::Type type,p->items.keys()) {
 		get(type);
 	}
+
+	if(p->categoryMap.count() > 1) {
+		p->slideMap.insert(p->settingsListWidget,p->categoryListWidget);
+		p->stackedWidget->setCurrentWidget(p->categoryListWidget);
+	}
+	else {
+		onCategoryActivated(p->categoryListWidget->item(0));
+		p->stackedWidget->setCurrentWidget(p->settingsListWidget);
+	}
+
 }
 
 void MobileSettingsWindow::onCategoryActivated(const QModelIndex &index)
 {
 	QListWidgetItem *i = p->categoryListWidget->item(index.row());
+	onCategoryActivated(i);
+}
+void MobileSettingsWindow::onCategoryActivated(QListWidgetItem *i)
+{
 	//remove old settings widgets
 	for (int index = 0;index!=p->stackedWidget->count();index++) {
 		SettingsWidget *w = qobject_cast<SettingsWidget*>(p->stackedWidget->widget(index));
@@ -183,8 +179,7 @@ void MobileSettingsWindow::onCategoryActivated(const QModelIndex &index)
 	int currentRow = 0; //TODO save current row
 	p->settingsListWidget->setCurrentRow(currentRow);
 	setWindowTitle(tr("qutIM settings - %1").arg(i->text()));
-	p->stackedWidget->slideInIdx(p->stackedWidget->indexOf(p->settingsListWidget));
-	p->backAct->setVisible(true);
+	slideDown(p->settingsListWidget);
 }
 
 void MobileSettingsWindow::onCurrentItemActivated(const QModelIndex &index)
@@ -203,9 +198,11 @@ void MobileSettingsWindow::onCurrentItemActivated(const QModelIndex &index)
 		p->stackedWidget->addWidget(w);
 		w->setController(p->controller);
 		w->load();
+		p->slideMap.insert(w,p->settingsListWidget);
 		connect(w,SIGNAL(modifiedChanged(bool)),SLOT(onModifiedChanged(bool)));
+		connect(w,SIGNAL(destroyed(QObject*)),SLOT(onWidgetDestroyed(QObject*)));
 	}
-	p->stackedWidget->slideInIdx(p->stackedWidget->indexOf(w));
+	slideDown(w);
 	setWindowTitle(tr("qutIM settings - %1").arg(settingsItem->text()));
 }
 
@@ -215,6 +212,12 @@ void MobileSettingsWindow::onModifiedChanged(bool haveChanges)
 	Q_ASSERT(w);
 	if (haveChanges)
 		p->modifiedWidgets.append(w);
+}
+
+void MobileSettingsWindow::onWidgetDestroyed(QObject *obj)
+{
+	QWidget *w = reinterpret_cast<QWidget*>(obj);
+	p->slideMap.remove(w);
 }
 
 void MobileSettingsWindow::closeEvent(QCloseEvent* ev)
@@ -227,17 +230,17 @@ void MobileSettingsWindow::closeEvent(QCloseEvent* ev)
 										QMessageBox::Discard,
 										QMessageBox::Cancel);
 		switch (ret) {
-			case QMessageBox::Apply:
-				save();
-				break;
-			case QMessageBox::Discard:
-				break;
-			case QMessageBox::Cancel:
-				cancel();
-				ev->ignore();
-				break;
-			default:
-				break;
+		case QMessageBox::Apply:
+			save();
+			break;
+		case QMessageBox::Discard:
+			break;
+		case QMessageBox::Cancel:
+			cancel();
+			ev->ignore();
+			break;
+		default:
+			break;
 		}
 	}
 }
@@ -266,24 +269,17 @@ void MobileSettingsWindow::cancel()
 
 void MobileSettingsWindow::slideUp()
 {
-	//a spike
-	QWidget *w = p->stackedWidget->currentWidget();
-
-	if(w == p->categoryListWidget)
-		return;
-	if(w == p->settingsListWidget) {
-		p->backAct->setVisible(false);
-		p->stackedWidget->slideInIdx(p->stackedWidget->indexOf(p->categoryListWidget));
-	}
-	else {
-		p->stackedWidget->slideInIdx(p->stackedWidget->indexOf(p->settingsListWidget));
+	QWidget *w = p->slideMap.value(p->stackedWidget->currentWidget());
+	if(w) {
+		p->stackedWidget->slideInIdx(p->stackedWidget->indexOf(w));
+		p->backAct->setVisible(p->slideMap.value(w)); //nice hack :)
 	}
 }
 
-void MobileSettingsWindow::slideDown()
+void MobileSettingsWindow::slideDown(QWidget *w)
 {
-	//TODO
-	p->stackedWidget->slideInNext();
+	p->stackedWidget->slideInIdx(p->stackedWidget->indexOf(w));
+	p->backAct->setVisible(p->slideMap.value(w));
 }
 
 }

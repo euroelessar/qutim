@@ -64,6 +64,8 @@ namespace Settings
 	LIBQUTIM_EXPORT void removeItem(SettingsItem *item);
 	LIBQUTIM_EXPORT void showWidget();
 	LIBQUTIM_EXPORT void closeWidget();
+	LIBQUTIM_EXPORT LocalizedString getTypeTitle(Type type);
+	LIBQUTIM_EXPORT QIcon getTypeIcon(Type type);
 	/*!
 	  Add settings \a item to every object with QMetaObject \a meta.
 	*/

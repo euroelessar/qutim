@@ -31,35 +31,6 @@
 namespace Core
 {
 
-struct ActionEntry
-{
-	//TODO move to libqutim
-	ActionEntry(const LocalizedString &t,const QIcon &i)
-	{
-		text = t;
-		icon = i;
-	}
-	ActionEntry() {}
-	LocalizedString text;
-	QIcon icon;
-};
-
-typedef QMap<Settings::Type,ActionEntry> ActionEntryMap;
-
-static ActionEntryMap init_entry_map()
-{
-	ActionEntryMap map;
-	map.insert(Settings::General,ActionEntry(QT_TRANSLATE_NOOP("Settings","General"),Icon("preferences-system")));
-	map.insert(Settings::Protocol,ActionEntry(QT_TRANSLATE_NOOP("Settings","Protocols"),Icon("applications-internet")));
-	map.insert(Settings::Appearance,ActionEntry(QT_TRANSLATE_NOOP("Settings","Appearance"),Icon("applications-graphics")));
-	map.insert(Settings::Plugin,ActionEntry(QT_TRANSLATE_NOOP("Settings","Plugins"),Icon("applications-other")));
-	map.insert(Settings::Special,ActionEntry(QT_TRANSLATE_NOOP("Settings","Special"),QIcon()));
-	map.insert(Settings::Invalid,ActionEntry(QT_TRANSLATE_NOOP("Settings","Invalid"),QIcon()));
-	return map;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(ActionEntryMap, entries, (init_entry_map()))
-
 struct XSettingsWindowPrivate
 {
 	ActionToolBar *toolBar;
@@ -170,10 +141,11 @@ void XSettingsWindow::loadSettings(const qutim_sdk_0_3::SettingsItemList& settin
 
 QAction* XSettingsWindow::get(Settings::Type type)
 {
-	ActionEntry entry = entries()->value(type);
 	QAction *action = p->actionMap.value(type);
 	if (!action) {
-		action = new QAction(entry.icon,entry.text.toString(),this);
+		action = new QAction(this);
+		action->setText(Settings::getTypeTitle(type));
+		action->setIcon(Settings::getTypeIcon(type));
 		action->setCheckable(true);
 		p->actionMap.insert(type,action);
 		p->group->addAction(action);
