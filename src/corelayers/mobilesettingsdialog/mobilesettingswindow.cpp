@@ -90,7 +90,7 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 	l->setSpacing(0);
 	p->stackedWidget = new SlidingStackedWidget(w);
 	//init widgets
-	p->settingsListWidget = new QListWidget(p->categoryListWidget);
+	p->settingsListWidget = new QListWidget(w);
 	p->categoryListWidget = new QListWidget(w);
 
 	p->stackedWidget->addWidget(p->categoryListWidget);
