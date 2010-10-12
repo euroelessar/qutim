@@ -6,13 +6,16 @@
 
 namespace Core
 {
+namespace AdiumChat
+{
 
-	class ChatSettings : public QObject
-	{
-		Q_OBJECT
-	public:
-		ChatSettings();
-	};
+class ChatSettings : public QObject
+{
+	Q_OBJECT
+public:
+	ChatSettings();
+};
 
+}
 }
 #endif // CHATSETTINGS_H

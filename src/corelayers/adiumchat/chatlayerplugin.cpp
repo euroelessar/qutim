@@ -36,7 +36,7 @@ namespace Core
 			addExtension<Core::AdiumChat::AdiumChatForm>(
 					QT_TRANSLATE_NOOP("Plugin", "Adium"),
 					QT_TRANSLATE_NOOP("Plugin", "Adium-like chatform implementation for adiumchat"));
-			addExtension<Core::ChatSettings,StartupModule>(
+			addExtension<Core::AdiumChat::ChatSettings,StartupModule>(
 					QT_TRANSLATE_NOOP("Plugin", "Chat settings"),
 					QT_TRANSLATE_NOOP("Plugin", ""));
 			addExtension<Core::AdiumChat::TimeModifier,Core::AdiumChat::MessageModifier>(

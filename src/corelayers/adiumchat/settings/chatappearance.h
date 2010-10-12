@@ -17,7 +17,7 @@
 
 #include <QWidget>
 #include <qutim/settingswidget.h>
-#include "../chatlayer/chatlayerimpl.h"
+#include <QHash>
 
 namespace Ui
 {
@@ -26,38 +26,43 @@ namespace Ui
 class QWebPage;
 namespace Core
 {
-	using namespace AdiumChat;
-	class ChatVariable;
 
-	class ChatAppearance : public SettingsWidget
-	{
-		Q_OBJECT
-	public:
-		ChatAppearance();
-		virtual void cancelImpl();
-		virtual void loadImpl();
-		virtual void saveImpl();
-		virtual ~ChatAppearance();
-	private slots:
-		void onThemeChanged(int index);
-		void onVariantChanged(QString variant);
-		void onVariableChanged();
-	protected:
-		void makeSettings();
-	private:
-		void getThemes();
-		void makePage();
-		Ui::chatAppearance *ui;
-		QHash<QString, QString> m_themes;
-		QString m_current_style_name;
-		QString m_current_variant;
-		QList<ChatVariable *> m_current_variables;
-		QPointer<QWebPage> m_page;
-		ChatSessionImpl *m_chat_session;
-		bool isLoad;
-		QWidget *settingsWidget;
-	};
+namespace AdiumChat
+{
 
+using namespace qutim_sdk_0_3;
+class ChatVariable;
+class ChatViewController;
+class ChatStyleOutput; //temporary
+class ChatAppearance : public SettingsWidget
+{
+	Q_OBJECT
+public:
+	ChatAppearance();
+	virtual void cancelImpl();
+	virtual void loadImpl();
+	virtual void saveImpl();
+	virtual ~ChatAppearance();
+private slots:
+	void onThemeChanged(int index);
+	void onVariantChanged(QString variant);
+	void onVariableChanged();
+protected:
+	void makeSettings();
+private:
+	void getThemes();
+	void makePage();
+	Ui::chatAppearance *ui;
+	QHash<QString, QString> m_themes;
+	QString m_current_style_name;
+	QString m_current_variant;
+	QList<ChatVariable *> m_current_variables;
+	ChatStyleOutput *m_controller;
+	bool isLoad;
+	QWidget *settingsWidget;
+};
+
+}
 }
 
 #endif // CHATAPPEARANCE_H

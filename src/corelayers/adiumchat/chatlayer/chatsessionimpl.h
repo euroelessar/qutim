@@ -22,6 +22,7 @@
 
 class QAbstractItemModel;
 class QWebPage;
+class ChatViewController;
 
 namespace qutim_sdk_0_3
 {
@@ -48,6 +49,7 @@ namespace Core
 			virtual qint64 appendMessage(Message &message);
 			virtual void removeContact ( Buddy* c );
 			QWebPage *getPage() const;
+			ChatViewController *getController() const;
 			Account *getAccount() const;
 			QString getId() const;
 			ChatUnit *getUnit() const;
@@ -55,10 +57,6 @@ namespace Core
 			virtual QTextDocument *getInputField();
 			virtual void markRead(quint64 id = Q_UINT64_C(0xffffffffffffffff));
 			virtual MessageList unread() const;
-			void loadTheme(const QString& path, const QString& variant);
-			void setVariant(const QString& variant);
-			void setCustomCSS(const QString &css);
-			QString getVariant() const;
 			QAbstractItemModel *getModel() const;
 			virtual void setActive(bool active = true);
 			virtual void setChatUnit(ChatUnit* unit);
