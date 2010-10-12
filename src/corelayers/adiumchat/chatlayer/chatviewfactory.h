@@ -1,8 +1,7 @@
 #ifndef CHATVIEWFACTORY_H
 #define CHATVIEWFACTORY_H
 
-class QWidget;
-class QObject;
+#include <QWidget>
 
 namespace qutim_sdk_0_3
 {
@@ -16,17 +15,20 @@ namespace AdiumChat
 {
 
 class ChatSessionImpl;
-class ChatViewFactory
+class ChatViewWidget;
+class ChatViewController;
+class ChatViewFactory : public QObject
 {
+	Q_OBJECT
+	Q_CLASSINFO("Service", "ChatViewFactory")
+	Q_CLASSINFO("Uses", "ChatForm")
 public:
 	virtual ~ChatViewFactory() {}
-
-	virtual QWidget *createViewWidget() = 0;
-	virtual QObject *createViewController() = 0;
+	virtual ChatViewWidget *createViewWidget() = 0;
+	virtual ChatViewController *createViewController() = 0;
 };
 
-class ChatViewController;
-class ChatViewWidget
+class ChatViewWidget /*: public QWidget*/
 {
 public:
 	virtual ~ChatViewWidget() {}

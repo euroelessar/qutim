@@ -14,7 +14,6 @@
 *****************************************************************************/
 
 #include "chatsessionimpl.h"
-#include "chatstyleoutput.h"
 #include <QStringBuilder>
 #include "chatlayerimpl.h"
 #include "chatsessionmodel.h"
@@ -32,6 +31,8 @@
 #include <qutim/servicemanager.h>
 #include <QWebFrame>
 #include <QWebElement>
+//TODO temporary
+#include "../webkitchat/chatstyleoutput.h"
 
 namespace Core
 {
@@ -58,7 +59,6 @@ namespace Core
 			d->q_ptr = this;
 			d->chat_unit = unit;
 			d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
-//			qDebug() << "create session" << unit->title();
 			Config cfg = Config("appearance").group("chat");
 			d->sendToLastActiveResource = cfg.value<bool>("sendToLastActiveResource", false);
 			d->active = false;

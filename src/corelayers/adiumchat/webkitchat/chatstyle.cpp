@@ -14,7 +14,7 @@
 *****************************************************************************/
 
 #include "chatstyle.h"
-#include "chatsessionimpl.h"
+#include "../chatlayer/chatsessionimpl.h"
 #include <QMap>
 #include <QDir>
 #include <QTextStream>
@@ -24,7 +24,7 @@
 #include <QUrl>
 #include <QStringBuilder>
 #include <QWebPage>
-#include "chatlayerimpl.h"
+#include "../chatlayer/chatlayerimpl.h"
 namespace Core
 {
 	namespace AdiumChat

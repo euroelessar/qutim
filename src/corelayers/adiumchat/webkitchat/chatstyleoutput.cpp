@@ -18,14 +18,13 @@
 #include <QStringList>
 #include "chatstyle.h"
 #include "chatstyleoutput.h"
-#include "chatsessionimpl.h"
+#include "../chatlayer/chatsessionimpl.h"
 #include <QDateTime>
 #include <QWebFrame>
 #include <QWebPage>
 #include <QFileInfo>
 #include <QStringBuilder>
-#include "messagemodifier.h"
-#include "chatsessionimpl.h"
+#include "../chatlayer/messagemodifier.h"
 #include <qutim/configbase.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>

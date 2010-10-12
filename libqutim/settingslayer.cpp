@@ -33,67 +33,6 @@
 namespace qutim_sdk_0_3
 {
 
-struct ActionEntry
-{
-	//TODO move to libqutim
-	ActionEntry(const LocalizedString &t,const QIcon &i)
-	{
-		text = t;
-		icon = i;
-	}
-	ActionEntry() {}
-	LocalizedString text;
-	QIcon icon;
-};
-
-typedef QMap<Settings::Type,ActionEntry> ActionEntryMap;
-
-static ActionEntryMap init_entry_map()
-{
-	ActionEntryMap map;
-	map.insert(Settings::General,ActionEntry(QT_TRANSLATE_NOOP("Settings","General"),Icon("preferences-system")));
-	map.insert(Settings::Protocol,ActionEntry(QT_TRANSLATE_NOOP("Settings","Protocols"),Icon("applications-internet")));
-	map.insert(Settings::Appearance,ActionEntry(QT_TRANSLATE_NOOP("Settings","Appearance"),Icon("applications-graphics")));
-	map.insert(Settings::Plugin,ActionEntry(QT_TRANSLATE_NOOP("Settings","Plugins"),Icon("applications-other")));
-	map.insert(Settings::Special,ActionEntry(QT_TRANSLATE_NOOP("Settings","Special"),QIcon()));
-	map.insert(Settings::Invalid,ActionEntry(QT_TRANSLATE_NOOP("Settings","Invalid"),QIcon()));
-	return map;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(ActionEntryMap, entries, (init_entry_map()))
-
-LocalizedString Settings::getTypeTitle(Type type)
-{
-	return entries()->value(type).text;
-}
-
-QIcon Settings::getTypeIcon(Type type)
-{
-	return entries()->value(type).icon;
-}
-
-Q_GLOBAL_STATIC(MenuSettingsMap,globalSettings);
-
-void Settings::registerItem(qutim_sdk_0_3::SettingsItem* item, const QMetaObject* meta)
-{
-	Q_ASSERT(item && meta);
-	globalSettings()->insert(meta,item);
-}
-
-SettingsItemList Settings::items(const QMetaObject *meta)
-{
-	QSet<const QMetaObject *> metaObjects;
-	SettingsItemList list;
-	while (meta) {
-		if (metaObjects.contains(meta))
-			break;
-		list.append(globalSettings()->values(meta));
-		metaObjects.insert(meta);
-		meta = meta->superClass();
-	}
-	return list;
-}
-
 SettingsItem::SettingsItem(SettingsItemPrivate &d) : p(&d)
 {
 	p->text.setContext("Settings");
@@ -260,7 +199,7 @@ const QString &AutoSettingsItem::Entry::name() const
 }
 
 AutoSettingsItem::AutoSettingsItem(Settings::Type type, const QIcon &icon, const LocalizedString &text)
-		: SettingsItem(*new AutoSettingsItemPrivate)
+	: SettingsItem(*new AutoSettingsItemPrivate)
 {
 	AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
 	d->type = type;
@@ -270,7 +209,7 @@ AutoSettingsItem::AutoSettingsItem(Settings::Type type, const QIcon &icon, const
 }
 
 AutoSettingsItem::AutoSettingsItem(Settings::Type type, const LocalizedString &text)
-		: SettingsItem(*new AutoSettingsItemPrivate)
+	: SettingsItem(*new AutoSettingsItemPrivate)
 {
 	AutoSettingsItemPrivate *d = static_cast<AutoSettingsItemPrivate *>(p.data());
 	d->type = type;
@@ -368,53 +307,128 @@ SettingsLayer::~SettingsLayer()
 
 namespace Settings
 {
-	Q_GLOBAL_STATIC(SettingsItemList, globalItems);
 
-	bool itemLessThan(const SettingsItem *a,const SettingsItem *b)
+struct ActionEntry
+{
+	ActionEntry(const LocalizedString &t,const QString &i = QString())
 	{
-		if (a->type() != b->type())
-			return (a->type() < b->type());
-
-		if (a->priority() != b->priority())
-			return a->priority() < b->priority();
-
-		return a->text().toString().compare(b->text().toString(), Qt::CaseInsensitive) >= 0;
+		text = t;
+		iconName = i;
 	}
+	ActionEntry() {}
+	LocalizedString text;
+	QString iconName;
+};
 
-	void registerItem(SettingsItem *item)
-	{
-		SettingsItemList::iterator before = qLowerBound(globalItems()->begin(),
-														globalItems()->end(),
-														item,
-														itemLessThan
-														);
-		globalItems()->insert(before,item);
-		SettingsLayer *l = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
-		if(l)
-			l->update(*globalItems());
-	}
+typedef QMap<Settings::Type,ActionEntry> ActionEntryMap;
 
-	void removeItem(SettingsItem *item)
-	{
-		globalItems()->removeAll(item);
-		SettingsLayer *l = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
-		if(l)
-			l->update(*globalItems());
-	}
+struct SettingsPrivate
+{
+	SettingsItemList items;
+	ActionEntryMap entries;
+	MenuSettingsMap map;
+};
 
-	void showWidget()
-	{
-		SettingsLayer *l = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
-		Q_ASSERT(l);
-		l->show(*globalItems());
-	}
+bool itemLessThan(const SettingsItem *a,const SettingsItem *b)
+{
+	if (a->type() != b->type())
+		return (a->type() < b->type());
 
-	void closeWidget()
-	{
-		SettingsLayer *l = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
-		Q_ASSERT(l);
-		l->close();
+	if (a->priority() != b->priority())
+		return a->priority() < b->priority();
+
+	return a->text().toString().compare(b->text().toString(), Qt::CaseInsensitive) >= 0;
+}
+
+static SettingsPrivate *p = 0;
+
+inline void settings_private_helper()
+{
+	p = new SettingsPrivate;
+	p->entries.insert(Settings::General,ActionEntry(QT_TRANSLATE_NOOP("Settings","General"),QLatin1String("preferences-system")));
+	p->entries.insert(Settings::Protocol,ActionEntry(QT_TRANSLATE_NOOP("Settings","Protocols"),QLatin1String("applications-internet")));
+	p->entries.insert(Settings::Appearance,ActionEntry(QT_TRANSLATE_NOOP("Settings","Appearance"),QLatin1String("applications-graphics")));
+	p->entries.insert(Settings::Plugin,ActionEntry(QT_TRANSLATE_NOOP("Settings","Plugins"),QLatin1String("applications-other")));
+	p->entries.insert(Settings::Special,ActionEntry(QT_TRANSLATE_NOOP("Settings","Special")));
+	p->entries.insert(Settings::Invalid,ActionEntry(QT_TRANSLATE_NOOP("Settings","Invalid")));
+}
+void ensure_settings_private()
+{
+	if(!p)
+		settings_private_helper();
+}
+
+void registerItem(qutim_sdk_0_3::SettingsItem* item, const QMetaObject* meta)
+{
+	Q_ASSERT(item && meta);
+	ensure_settings_private();
+	p->map.insert(meta,item);
+}
+
+SettingsItemList items(const QMetaObject *meta)
+{
+	ensure_settings_private();
+	QSet<const QMetaObject *> metaObjects;
+	SettingsItemList list;
+	while (meta) {
+		if (metaObjects.contains(meta))
+			break;
+		list.append(p->map.values(meta));
+		metaObjects.insert(meta);
+		meta = meta->superClass();
 	}
+	return list;
+}
+
+LocalizedString getTypeTitle(Type type)
+{
+	ensure_settings_private();
+	return p->entries.value(type).text;
+}
+
+QIcon getTypeIcon(Type type)
+{
+	ensure_settings_private();
+	return Icon(p->entries.value(type).iconName);
+}
+
+void registerItem(SettingsItem *item)
+{
+	ensure_settings_private();
+	SettingsItemList::iterator before = qLowerBound(p->items.begin(),
+													p->items.end(),
+													item,
+													itemLessThan
+													);
+	p->items.insert(before,item);
+	SettingsLayer *l = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
+	if(l)
+		l->update(p->items);
+}
+
+void removeItem(SettingsItem *item)
+{
+	ensure_settings_private();
+	p->items.removeAll(item);
+	SettingsLayer *l = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
+	if(l)
+		l->update(p->items);
+}
+
+void showWidget()
+{
+	ensure_settings_private();
+	SettingsLayer *l = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
+	Q_ASSERT(l);
+	l->show(p->items);
+}
+
+void closeWidget()
+{
+	SettingsLayer *l = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
+	Q_ASSERT(l);
+	l->close();
+}
 }
 
 void SettingsLayer::virtual_hook(int id, void *data)

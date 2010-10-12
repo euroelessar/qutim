@@ -15,8 +15,8 @@
 #include "chatappearance.h"
 #include "ui_chatappearance.h"
 #include "chatvariable.h"
-#include "../chatlayer/chatstyle.h"
-#include "../chatlayer/chatstyleoutput.h"
+#include "../chatstyle.h"
+#include "../chatstyleoutput.h"
 #include <qutim/configbase.h>
 #include <qutim/protocol.h>
 #include <qutim/account.h>
@@ -29,7 +29,7 @@
 #include <QDateTime>
 #include <QStringBuilder>
 #include <QDebug>
-#include "../chatlayer/chatsessionimpl.h"
+#include "../../chatlayer/chatsessionimpl.h"
 
 namespace Core
 {

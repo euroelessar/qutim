@@ -19,11 +19,11 @@
 
 #include <QObject>
 #include "chatstyle.h"
-#include "chatsessionimpl.h"
+#include "../chatlayer/chatsessionimpl.h"
 #include <qutim/contact.h>
 #include <QWebPage>
 #include <QDateTime>
-#include "chatviewfactory.h"
+#include "../chatlayer/chatviewfactory.h"
 
 class QDateTime;
 
@@ -47,7 +47,7 @@ public:
   constructor, _styleName - name of the style to use, it have to be same to directory name
   _variantName - name of the CSS file to use, don't write .css
   */
-	ChatStyleOutput(QObject *parent);
+	ChatStyleOutput(QObject *parent = 0);
 	virtual ~ChatStyleOutput();
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg);
 	virtual void setChatSession(ChatSessionImpl *session);
