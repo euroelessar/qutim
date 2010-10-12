@@ -97,9 +97,11 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 	connect(p->backAct,SIGNAL(triggered()),SLOT(slideUp()));
 	connect(p->closeAct,SIGNAL(triggered()),SLOT(close()));
 
-	loadSettings(settings);
+	w = new QWidget(this);
+	p->stackedWidget->addWidget(w);
+	p->stackedWidget->setCurrentWidget(w);
 
-	p->stackedWidget->setCurrentWidget(new QWidget(this));
+	loadSettings(settings);
 }
 
 
