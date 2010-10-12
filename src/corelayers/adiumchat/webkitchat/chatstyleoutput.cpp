@@ -317,6 +317,10 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 		if (message.isIncoming()) {
 			currentSender = message.property("senderName",message.chatUnit()->title());
 		}
+		else {
+			currentSender = message.property("senderName",message.chatUnit()->account()->name());
+		}
+
 		same_from = (!skipOneMerge) && (previous_sender == currentSender);
 		if (lastDate.isNull())
 			lastDate = message.time();
@@ -324,6 +328,7 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 			same_from = false;
 		lastDate = message.time();
 		item =  makeMessage(m_session, message, same_from, id);
+		debug() << previous_sender << currentSender;
 		previous_sender = currentSender;
 		skipOneMerge = false;
 	}
