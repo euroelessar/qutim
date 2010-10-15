@@ -25,6 +25,7 @@ class ClConfPlugin : public Plugin
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "ConferenceManager")
+	Q_CLASSINFO("Uses", "ChatLayer")
 public:
 	ClConfPlugin();
 	virtual void init();

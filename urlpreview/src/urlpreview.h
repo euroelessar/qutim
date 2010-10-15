@@ -44,7 +44,8 @@ namespace UrlPreview {
 	class UrlPreviewPlugin : public Plugin
 	{
 		Q_OBJECT
-		Q_CLASSINFO("DebugName", "Antispam")
+		Q_CLASSINFO("DebugName", "UrlPreview")
+		Q_CLASSINFO("Uses", "ChatLayer")
 	public:
 		virtual void init();
 		virtual bool load();

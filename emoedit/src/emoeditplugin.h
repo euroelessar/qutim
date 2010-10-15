@@ -28,6 +28,8 @@ class EmoEditPlugin : public Plugin, public QTextObjectInterface
 {
 	Q_INTERFACES(QTextObjectInterface)
 	Q_OBJECT
+	Q_CLASSINFO("Uses", "ChatLayer")
+	Q_CLASSINFO("DebugName", "EmoEdit")
 public:
 	EmoEditPlugin();
 	virtual void init();
