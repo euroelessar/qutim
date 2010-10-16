@@ -42,6 +42,7 @@ public:
 	virtual void setChatSession(ChatSessionImpl *session) = 0;
 	virtual ChatSessionImpl *getSession() const = 0;
 	virtual void appendMessage(const qutim_sdk_0_3::Message &msg) = 0;
+	virtual void clear() {}
 };
 
 }

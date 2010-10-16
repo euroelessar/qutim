@@ -18,13 +18,16 @@
 #include <QStringList>
 #include "chatstyle.h"
 #include "chatstyleoutput.h"
-#include "../chatlayer/chatsessionimpl.h"
+#include <chatlayer/chatsessionimpl.h>
 #include <QDateTime>
 #include <QWebFrame>
 #include <QWebPage>
+#include <QWebElement>
 #include <QFileInfo>
 #include <QStringBuilder>
-#include "../chatlayer/messagemodifier.h"
+#include <QDesktopServices>
+#include <chatlayer/messagemodifier.h>
+#include <chatlayer/javascriptclient.h>
 #include <qutim/configbase.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
@@ -51,11 +54,18 @@ struct MessageModifierTrack
 
 void ChatStyleOutput::setChatSession(ChatSessionImpl *session)
 {
+	//TODO maybe need to clean old session
 	m_session = session;
+	setParent(session);
 	preparePage(session);
 	loadSettings();
 	loadHistory();
 	connect(m_session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
+	JavaScriptClient *client = new JavaScriptClient(session);
+	mainFrame()->addToJavaScriptWindowObject(client->objectName(), client);
+	connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
+			client, SLOT(helperCleared()));
+	session->installEventFilter(this);
 }
 
 ChatSessionImpl *ChatStyleOutput::getSession() const
@@ -72,6 +82,47 @@ void ChatStyleOutput::onSessionActivated(bool active)
 {
 	if (!active)
 		separator = false;
+}
+
+void ChatStyleOutput::onLinkClicked(const QUrl &url)
+{
+	QDesktopServices::openUrl(url);
+}
+
+void ChatStyleOutput::setChatUnit(ChatUnit *unit)
+{
+	bool isConference = !!qobject_cast<Conference*>(unit);
+	QWebFrame *frame = mainFrame();
+	QWebElement chatElem = frame->findFirstElement("#Chat");
+	if (!chatElem.isNull()) {
+		if (isConference != chatElem.hasClass("groupchat")) {
+			if (isConference)
+				chatElem.addClass("groupchat");
+			else
+				chatElem.removeClass("groupchat");
+		}
+	}
+}
+
+bool ChatStyleOutput::eventFilter(QObject *, QEvent *ev)
+{
+	if (ev->type() == MessageReceiptEvent::eventType()) {
+		MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
+		QWebFrame *frame = mainFrame();
+		QWebElement elem = frame->findFirstElement(QLatin1Literal("#message")
+												   % QString::number(msgEvent->id()));
+		if (!elem.isNull()) {
+			if (msgEvent->success()) {
+				elem.removeClass(QLatin1String("notDelivered"));
+				elem.addClass(QLatin1String("delivered"));
+			} else {
+				elem.addClass(QLatin1String("failedToDevliver"));
+			}
+		}
+		return true;
+	}
+
+	return ChatStyleOutput::event(ev);
 }
 
 void ChatStyleOutput::processMessage(QString &html, const ChatSession *session, const Message &message)
@@ -132,6 +183,8 @@ ChatStyleOutput::ChatStyleOutput (QObject *parent) :
 	groupUntil = cfg.value<int>("groupUntil", 900);
 	store_service_messages = cfg.group("history").value<bool>("storeServiceMessages", true);
 	skipOneMerge = true;
+	setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+	connect(this,SIGNAL(linkClicked(QUrl)),SLOT(onLinkClicked(QUrl)));
 }
 
 void ChatStyleOutput::loadHistory()
@@ -199,6 +252,11 @@ void ChatStyleOutput::setCustomCSS(const QString &css)
 {
 	m_current_css = css;
 	reloadStyle();
+}
+
+void ChatStyleOutput::clear()
+{
+	preparePage(m_session);
 }
 
 ChatStyleOutput::~ChatStyleOutput()
@@ -322,13 +380,13 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 		}
 
 		same_from = (!skipOneMerge) && (previous_sender == currentSender);
+		debug() << previous_sender << currentSender << skipOneMerge;
 		if (lastDate.isNull())
 			lastDate = message.time();
 		if (lastDate.secsTo(message.time()) > groupUntil)
 			same_from = false;
 		lastDate = message.time();
 		item =  makeMessage(m_session, message, same_from, id);
-		debug() << previous_sender << currentSender;
 		previous_sender = currentSender;
 		skipOneMerge = false;
 	}
@@ -581,6 +639,7 @@ QString ChatStyleOutput::makeId(const Message &mes)
 	}
 	return sender_id;
 }
+
 }
 }
 

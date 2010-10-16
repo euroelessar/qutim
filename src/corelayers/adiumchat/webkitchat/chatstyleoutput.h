@@ -19,11 +19,11 @@
 
 #include <QObject>
 #include "chatstyle.h"
-#include "../chatlayer/chatsessionimpl.h"
+#include <chatlayer/chatsessionimpl.h>
 #include <qutim/contact.h>
 #include <QWebPage>
 #include <QDateTime>
-#include "../chatlayer/chatviewfactory.h"
+#include <chatlayer/chatviewfactory.h>
 
 class QDateTime;
 
@@ -87,10 +87,14 @@ public:
 	void preparePage(const ChatSessionImpl *session);
 	void reloadStyle();
 	void loadTheme(const QString &name, const QString &variant = QString());
+	bool virtual eventFilter(QObject *obj, QEvent *ev);
+	virtual void clear();
 public slots:
 	QVariant evaluateJavaScript(const QString &scriptSource);
 private slots:
 	void onSessionActivated(bool active);
+	void onLinkClicked(const QUrl &url);
+	void setChatUnit(ChatUnit *unit);
 private:
 	/*
   creats a html skeleton. Future messages will be added to it

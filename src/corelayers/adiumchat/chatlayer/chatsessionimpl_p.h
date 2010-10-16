@@ -26,7 +26,6 @@
 class QMenu;
 class QTextDocument;
 class QActionGroup;
-class ChatViewController;
 namespace qutim_sdk_0_3 {
 	class Contact;	
 }
@@ -43,7 +42,7 @@ namespace Core
 		class ChatSessionModel;
 		class ChatStyleOutput;
 		class ChatSessionImpl;
-
+		class ChatViewController;
 		class ChatSessionImplPrivate : public QObject
 		{
 			Q_OBJECT
@@ -73,7 +72,6 @@ namespace Core
 			QString lastStatusText;
 		public slots:
 			void onStatusChanged(qutim_sdk_0_3::Status);
-			void onLinkClicked(const QUrl &url);
 			void onActiveTimeout();
 			void onResourceChosen(bool active);
 			void onSendToLastActiveResourceActivated(bool active);

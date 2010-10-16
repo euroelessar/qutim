@@ -67,6 +67,7 @@ namespace Core
 			ChatState getChatState() const;
 		signals:
 			void buddiesChanged();
+			void chatUnitChanged(ChatUnit *);
 		public slots:
 			QVariant evaluateJavaScript(const QString &scriptSource);
 			void clearChat();

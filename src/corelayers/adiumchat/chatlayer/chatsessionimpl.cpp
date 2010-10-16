@@ -19,9 +19,7 @@
 #include "chatsessionmodel.h"
 #include <QApplication>
 #include <QPlainTextDocumentLayout>
-#include <QDesktopServices>
 #include "chatsessionimpl_p.h"
-#include "javascriptclient.h"
 #include "chatforms/abstractchatform.h"
 #include <qutim/message.h>
 #include <qutim/account.h>
@@ -29,10 +27,9 @@
 #include <qutim/conference.h>
 #include <qutim/debug.h>
 #include <qutim/servicemanager.h>
-#include <QWebFrame>
-#include <QWebElement>
 //TODO temporary
 #include "../webkitchat/chatstyleoutput.h"
+#include "chatviewfactory.h"
 
 namespace Core
 {
@@ -68,13 +65,7 @@ namespace Core
 			d->inactive_timer.setInterval(120000);
 			d->inactive_timer.setSingleShot(true);
 
-			connect(d->controller,SIGNAL(linkClicked(QUrl)),d,SLOT(onLinkClicked(QUrl)));
 			connect(&d->inactive_timer,SIGNAL(timeout()),d,SLOT(onActiveTimeout()));
-			d->controller->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-			JavaScriptClient *client = new JavaScriptClient(this);
-			d->controller->mainFrame()->addToJavaScriptWindowObject(client->objectName(), client);
-			connect(d->controller->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
-					client, SLOT(helperCleared()));
 			d->chat_unit = 0;
 			setChatUnit(unit);
 		}
@@ -82,7 +73,7 @@ namespace Core
 		void ChatSessionImpl::clearChat()
 		{
 			Q_D(ChatSessionImpl);
-			d->controller->preparePage(this);
+			d->controller->clear();
 		}
 
 		ChatSessionImpl::~ChatSessionImpl()
@@ -220,24 +211,7 @@ namespace Core
 
 		bool ChatSessionImpl::event(QEvent *ev)
 		{
-			Q_D(ChatSessionImpl);
-			if (ev->type() == MessageReceiptEvent::eventType()) {
-				MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
-				QWebFrame *frame = d->controller->mainFrame();
-				QWebElement elem = frame->findFirstElement(QLatin1Literal("#message")
-														   % QString::number(msgEvent->id()));
-				if (!elem.isNull()) {
-					if (msgEvent->success()) {
-						elem.removeClass(QLatin1String("notDelivered"));
-						elem.addClass(QLatin1String("delivered"));
-					} else {
-						elem.addClass(QLatin1String("failedToDevliver"));
-					}
-				}
-				return true;
-			} else {
-				return ChatSession::event(ev);
-			}
+			return ChatSession::event(ev);
 		}
 
 		QAbstractItemModel* ChatSessionImpl::getModel() const
@@ -391,21 +365,12 @@ namespace Core
 							addContact(buddy);
 					}
 				}
-			}
-			
-			bool isConference = !!qobject_cast<Conference*>(unit);
-			QWebFrame *frame = d->controller->mainFrame();
-			QWebElement chatElem = frame->findFirstElement("#Chat");
-			if (!chatElem.isNull()) {
-				if (isConference != chatElem.hasClass("groupchat")) {
-					if (isConference)
-						chatElem.addClass("groupchat");
-					else
-						chatElem.removeClass("groupchat");
-				}
-			}
+			}		
+
 			if (d->menu)
 				d->refillMenu();
+
+			emit chatUnitChanged(unit);
 		}
 
 		void ChatSessionImplPrivate::onActiveTimeout()
@@ -424,12 +389,6 @@ namespace Core
 				d->inactive_timer.start();
 //				debug() << "timer activated";
 			}
-		}
-
-		void ChatSessionImplPrivate::onLinkClicked(const QUrl& url)
-		{
-//			debug() << "link clicked" << url;
-			QDesktopServices::openUrl(url);
 		}
 
 		void ChatSessionImplPrivate::onResourceChosen(bool active)
