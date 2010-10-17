@@ -1,9 +1,11 @@
 #include "webkitviewfactory.h"
+#include "webkitchatviewwidget.h"
 #include "chatstyleoutput.h"
 #include "settings/chatappearance.h"
 #include <qutim/settingslayer.h>
 #include <qutim/servicemanager.h>
 #include <qutim/icon.h>
+
 
 namespace Core
 {
@@ -32,8 +34,7 @@ WebkitViewFactory::~WebkitViewFactory()
 
 ChatViewWidget *WebkitViewFactory::createViewWidget()
 {
-	//IMPLEMENT ME
-	return 0;
+	return new WebkitChatViewWidget();
 }
 ChatViewController *WebkitViewFactory::createViewController()
 {

@@ -27,59 +27,58 @@ class QMenu;
 class QTextDocument;
 class QActionGroup;
 namespace qutim_sdk_0_3 {
-	class Contact;	
+class Contact;
 }
 
 class QWebPage;
 namespace Core
 {
-	
-	namespace AdiumChat
-	{
+namespace AdiumChat
+{
 
-		using namespace qutim_sdk_0_3;
+using namespace qutim_sdk_0_3;
 
-		class ChatSessionModel;
-		class ChatStyleOutput;
-		class ChatSessionImpl;
-		class ChatViewController;
-		class ChatSessionImplPrivate : public QObject
-		{
-			Q_OBJECT
-			Q_DECLARE_PUBLIC(ChatSessionImpl)
-		public:
-			ChatSessionImplPrivate();
-			virtual ~ChatSessionImplPrivate();
-			void statusChanged(const Status &status,Contact *contact, bool silent = false);
-			void fillMenu(QMenu *menu, ChatUnit *unit, const ChatUnitList &lowerUnits, bool root = true);
-			ChatStyleOutput *controller;
-			QPointer<ChatUnit> chat_unit;
-			QPointer<ChatUnit> current_unit; // the unit chosen by user as receiver
-			QPointer<ChatUnit> last_active_unit; // the unit a last message was from
-			QPointer<QTextDocument> input;
-			QPointer<QMenu> menu;
-			QPointer<QActionGroup> group;
-			ChatSessionModel *model;
-			//additional info and flags
-			bool active;
-			bool sendToLastActiveResource;
-			QTimer inactive_timer;
-			MessageList unread;
-			ChatState myself_chat_state;
-			ChatSessionImpl *q_ptr;
-			ChatState statusToState(Status::Type type);
-			Status::Type lastStatusType;
-			QString lastStatusText;
-		public slots:
-			void onStatusChanged(qutim_sdk_0_3::Status);
-			void onActiveTimeout();
-			void onResourceChosen(bool active);
-			void onSendToLastActiveResourceActivated(bool active);
-			void onLowerUnitAdded();
-			void refillMenu();
-		};
+class ChatSessionModel;
+class ChatStyleOutput;
+class ChatSessionImpl;
+class ChatViewController;
+class ChatSessionImplPrivate : public QObject
+{
+	Q_OBJECT
+	Q_DECLARE_PUBLIC(ChatSessionImpl)
+public:
+	ChatSessionImplPrivate();
+	virtual ~ChatSessionImplPrivate();
+	void statusChanged(const Status &status,Contact *contact, bool silent = false);
+	void fillMenu(QMenu *menu, ChatUnit *unit, const ChatUnitList &lowerUnits, bool root = true);
+	ChatStyleOutput *controller;
+	QPointer<ChatUnit> chat_unit;
+	QPointer<ChatUnit> current_unit; // the unit chosen by user as receiver
+	QPointer<ChatUnit> last_active_unit; // the unit a last message was from
+	QPointer<QTextDocument> input;
+	QPointer<QMenu> menu;
+	QPointer<QActionGroup> group;
+	ChatSessionModel *model;
+	//additional info and flags
+	bool active;
+	bool sendToLastActiveResource;
+	QTimer inactive_timer;
+	MessageList unread;
+	ChatState myself_chat_state;
+	ChatSessionImpl *q_ptr;
+	ChatState statusToState(Status::Type type);
+	Status::Type lastStatusType;
+	QString lastStatusText;
+public slots:
+	void onStatusChanged(qutim_sdk_0_3::Status);
+	void onActiveTimeout();
+	void onResourceChosen(bool active);
+	void onSendToLastActiveResourceActivated(bool active);
+	void onLowerUnitAdded();
+	void refillMenu();
+};
 
-	}
+}
 }
 
 #endif // CHATSESSIONIMPL_P_H
