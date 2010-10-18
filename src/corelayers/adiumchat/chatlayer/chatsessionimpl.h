@@ -50,7 +50,7 @@ public:
 	virtual qint64 appendMessage(Message &message);
 	virtual void removeContact ( Buddy* c );
 	QWebPage *getPage() const;
-	ChatViewController *getController() const;
+	QObject *getController() const;
 	Account *getAccount() const;
 	QString getId() const;
 	ChatUnit *getUnit() const;

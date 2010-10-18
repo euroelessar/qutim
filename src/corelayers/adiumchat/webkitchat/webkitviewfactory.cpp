@@ -32,11 +32,11 @@ WebkitViewFactory::~WebkitViewFactory()
 	delete m_appearanceSettings;
 }
 
-ChatViewWidget *WebkitViewFactory::createViewWidget()
+QWidget *WebkitViewFactory::createViewWidget()
 {
 	return new WebkitChatViewWidget();
 }
-ChatViewController *WebkitViewFactory::createViewController()
+QObject *WebkitViewFactory::createViewController()
 {
 	return new ChatStyleOutput();
 }

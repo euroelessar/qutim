@@ -12,10 +12,10 @@ WebkitChatViewWidget::WebkitChatViewWidget() :
 {
 }
 
-void WebkitChatViewWidget::setViewController(ChatViewController *controller)
+void WebkitChatViewWidget::setViewController(QObject *controller)
 {
-	//FIXME don't use dynamic_cast
-	ChatStyleOutput *new_page = dynamic_cast<ChatStyleOutput*>(controller);
+	//FIXME don't use dynamic_cast, may be use qvariant ?
+	ChatStyleOutput *new_page = qobject_cast<ChatStyleOutput*>(controller);
 	if(new_page) {
 		page()->setView(0);
 		setPage(new_page);

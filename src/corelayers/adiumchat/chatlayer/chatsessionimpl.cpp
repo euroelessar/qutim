@@ -27,9 +27,8 @@
 #include <qutim/conference.h>
 #include <qutim/debug.h>
 #include <qutim/servicemanager.h>
-//TODO temporary
-#include "../webkitchat/chatstyleoutput.h"
 #include "chatviewfactory.h"
+#include <QWebPage>
 
 namespace Core
 {
@@ -37,7 +36,7 @@ namespace AdiumChat
 {
 
 ChatSessionImplPrivate::ChatSessionImplPrivate() :
-	controller(new ChatStyleOutput(this)),
+	controller(0),
 	myself_chat_state(ChatStateInActive),
 	lastStatusType(Status::Offline)
 {
@@ -60,9 +59,6 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	Config cfg = Config("appearance").group("chat");
 	d->sendToLastActiveResource = cfg.value<bool>("sendToLastActiveResource", false);
 	d->active = false;
-
-	d->controller->setChatSession(this);
-
 	d->inactive_timer.setInterval(120000);
 	d->inactive_timer.setSingleShot(true);
 
@@ -74,7 +70,7 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 void ChatSessionImpl::clearChat()
 {
 	Q_D(ChatSessionImpl);
-	d->controller->clear();
+	d->getController()->clear();
 }
 
 ChatSessionImpl::~ChatSessionImpl()
@@ -144,7 +140,7 @@ qint64 ChatSessionImpl::appendMessage(Message &message)
 	if (!silent && !d->active)
 		Notifications::send(message);
 
-	d->controller->appendMessage(message);
+	d->getController()->appendMessage(message);
 	return message.id();
 }
 
@@ -157,7 +153,7 @@ void ChatSessionImpl::removeContact(Buddy *c)
 
 QWebPage* ChatSessionImpl::getPage() const
 {
-	return d_func()->controller;
+	return qobject_cast<QWebPage*>(getController()); //TODO remove in near future
 }
 
 Account* ChatSessionImpl::getAccount() const
@@ -176,6 +172,30 @@ ChatUnit* ChatSessionImpl::getUnit() const
 	return d_func()->chat_unit;
 }
 
+QObject* ChatSessionImpl::getController() const
+{
+	Q_D(const ChatSessionImpl);
+	d->ensureController();
+	return d->controller;
+}
+
+ChatViewController *ChatSessionImplPrivate::getController() const
+{
+	ensureController();
+	return qobject_cast<ChatViewController*>(controller);
+}
+
+void ChatSessionImplPrivate::ensureController() const
+{
+	if(!controller) {
+		ChatViewFactory *factory = ServiceManager::getByName<ChatViewFactory*>("ChatViewFactory");
+		controller = factory->createViewController();
+		ChatViewController *c = qobject_cast<ChatViewController*>(controller);
+		Q_ASSERT(c);
+		c->setChatSession(q_ptr);
+	}
+}
+
 ChatUnit* ChatSessionImpl::getCurrentUnit() const
 {
 	Q_D(const ChatSessionImpl);
@@ -187,9 +207,8 @@ ChatUnit* ChatSessionImpl::getCurrentUnit() const
 
 QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
 {
-	Q_D(ChatSessionImpl);
 	QVariant retVal;
-	QMetaObject::invokeMethod(d->controller,
+	QMetaObject::invokeMethod(getController(),
 							  "evaluateJavaScript",
 							  Q_RETURN_ARG(QVariant,retVal),
 							  Q_ARG(QString,scriptSource));

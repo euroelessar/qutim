@@ -261,7 +261,6 @@ void ChatStyleOutput::clear()
 
 ChatStyleOutput::~ChatStyleOutput()
 {
-
 }
 
 StyleVariants ChatStyleOutput::getVariants() const

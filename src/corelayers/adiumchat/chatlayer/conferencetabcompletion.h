@@ -79,7 +79,7 @@ namespace Core
 			QStringList suggestedCompletion_;
 			int  suggestedIndex_;
 
-			QPlainTextEdit* textEdit_;
+			QPointer<QPlainTextEdit> textEdit_;
 			ChatSessionImpl *chat_session_;
 			QString last_referrer_;
 		};

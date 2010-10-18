@@ -19,8 +19,8 @@ class WebkitViewFactory : public ChatViewFactory
 public:
 	WebkitViewFactory();
 	virtual ~WebkitViewFactory();
-	virtual ChatViewWidget *createViewWidget();
-	virtual ChatViewController *createViewController();
+	virtual QWidget *createViewWidget();
+	virtual QObject *createViewController();
 private:
 	SettingsItem *m_appearanceSettings;
 };

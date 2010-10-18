@@ -10,9 +10,11 @@ namespace AdiumChat
 
 class WebkitChatViewWidget : public QWebView, public ChatViewWidget
 {
+	Q_OBJECT
+	Q_INTERFACES(Core::AdiumChat::ChatViewWidget)
 public:
     WebkitChatViewWidget();
-	virtual void setViewController(ChatViewController *controller);
+	virtual void setViewController(QObject *controller);
 };
 
 }

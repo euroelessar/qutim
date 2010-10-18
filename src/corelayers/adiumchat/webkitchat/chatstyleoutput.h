@@ -42,6 +42,7 @@ namespace AdiumChat
 class ChatStyleOutput : public QWebPage, public ChatViewController
 {
 	Q_OBJECT
+	Q_INTERFACES(Core::AdiumChat::ChatViewController)
 public:
 	/*
   constructor, _styleName - name of the style to use, it have to be same to directory name
