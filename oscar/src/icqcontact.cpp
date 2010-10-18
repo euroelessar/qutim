@@ -236,7 +236,7 @@ bool IcqContact::sendMessage(const Message &message)
 				tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
 			ServerMessage msgData(this, Channel2MessageData(0, tlv));
 			if (isLast)
-				msgData.setCookie(cookie, this, SLOT(messageTimeout()));
+				msgData.setCookie(cookie, this, SLOT(messageTimeout(Cookie)));
 			d->account->connection()->send(msgData, 80);
 		}
 	}
@@ -461,14 +461,12 @@ bool IcqContact::event(QEvent *ev)
 	return Contact::event(ev);
 }
 
-void IcqContact::messageTimeout()
+void IcqContact::messageTimeout(const Cookie &cookie)
 {
-	Cookie *cookie = qobject_cast<Cookie*>(sender());
-	Q_ASSERT(cookie);
-	ChatSession *session = ChatLayer::instance()->get(cookie->contact(), false);
+	ChatSession *session = ChatLayer::instance()->get(cookie.contact(), false);
 	if (session) {
-		QApplication::instance()->postEvent(session, new MessageReceiptEvent(cookie->id(), false));
-		debug() << "Message with id" << cookie->id() << "has not been delivered";
+		QApplication::instance()->postEvent(session, new MessageReceiptEvent(cookie.id(), false));
+		debug() << "Message with id" << cookie.id() << "has not been delivered";
 	}
 }
 

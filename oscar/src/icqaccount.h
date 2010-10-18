@@ -60,6 +60,7 @@ public:
 	void registerRosterPlugin(RosterPlugin *plugin);
 signals:
 	void avatarChanged(const QString &avatar);
+	void cookieTimeout(const Cookie &cookie);
 	void loginFinished();
 	void settingsUpdated();
 public slots:
@@ -68,6 +69,7 @@ private slots:
 	void onReconnectTimeout();
 	void onPasswordEntered(const QString &password, bool remember);
 	void onContactRemoved();
+	void onCookieTimeout();
 protected:
 	void finishLogin();
 	virtual bool event(QEvent *ev);

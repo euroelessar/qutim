@@ -28,13 +28,9 @@ class IcqContact;
 class IcqAccount;
 class CookiePrivate;
 
-class LIBOSCAR_EXPORT Cookie: public QObject
+class LIBOSCAR_EXPORT Cookie
 {
-	Q_OBJECT
 	Q_DECLARE_PRIVATE(Cookie)
-	Q_PROPERTY(QString id READ id)
-	Q_PROPERTY(IcqContact *contact READ contact WRITE setContact)
-	Q_PROPERTY(IcqAccount *account READ account WRITE setAccount)
 public:
 	Cookie(bool generate = false);
 	Cookie(quint64 id);
@@ -53,10 +49,6 @@ public:
 	IcqAccount *account() const;
 	void setAccount(IcqAccount *account);
 	static quint64 generateId();
-signals:
-	void timeout();
-private slots:
-	void onTimeout();
 private:
 	QExplicitlySharedDataPointer<CookiePrivate> d_ptr;
 };

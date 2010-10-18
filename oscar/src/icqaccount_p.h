@@ -63,7 +63,7 @@ public:
 	BuddyPicture *buddyPicture;
 	QString name;
 	QString avatar;
-	QHash<quint64, Cookie*> cookies;
+	QHash<quint64, Cookie> cookies;
 	Capabilities caps;
 	QHash<QString, Capability> typedCaps;
 	OscarStatus lastStatus;

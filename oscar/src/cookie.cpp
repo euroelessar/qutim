@@ -30,6 +30,7 @@ public:
 	CookiePrivate(quint64 _id = 0):
 		id(_id)
 	{
+		timer.setSingleShot(true);
 	}
 
 	quint64 id;
@@ -84,28 +85,28 @@ Cookie &Cookie::operator=(const Cookie &cookie)
 
 Cookie::~Cookie()
 {
-
 }
 
 void Cookie::lock(QObject *receiver, const char *member, int msec) const
 {
 	Q_D(const Cookie);
 	Q_ASSERT(d->account);
-	Cookie *cookie = new Cookie(*this);
-	d->account->d_func()->cookies.insert(d->id, cookie);
+	Q_ASSERT(!isEmpty());
+	d->account->d_func()->cookies.insert(d->id, *this);
 	if (receiver)
-		QObject::connect(cookie, SIGNAL(timeout()), receiver, member);
-	d->timer.singleShot(msec, cookie, SLOT(onTimeout()));
+		QObject::connect(d->account, SIGNAL(cookieTimeout(Cookie)), receiver, member);
+	d->timer.setProperty("cookieId", d->id);
+	QObject::connect(&d->timer, SIGNAL(timeout()), d->account, SLOT(onCookieTimeout()));
+	d->timer.start(msec);
 }
 
 bool Cookie::unlock() const
 {
 	Q_D(const Cookie);
 	Q_ASSERT(d->account);
-	Cookie *cookie = d->account->d_func()->cookies.take(d->id);
-	if (cookie) {
-		cookie->d_func()->timer.stop();
-		cookie->deleteLater();
+	Cookie cookie = d->account->d_func()->cookies.take(d->id);
+	if (!cookie.isEmpty()) {
+		cookie.d_func()->timer.stop();
 		return true;
 	} else {
 		return false;
@@ -155,12 +156,6 @@ quint64 Cookie::generateId()
 {
 	static quint64 id = 10000;
 	return ++id;
-}
-
-void Cookie::onTimeout()
-{
-	emit timeout();
-	unlock();
 }
 
 } } // namespace qutim_sdk_0_3::oscar

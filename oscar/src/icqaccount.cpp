@@ -437,6 +437,19 @@ void IcqAccount::onContactRemoved()
 	Q_ASSERT(itr != endItr);
 }
 
+void IcqAccount::onCookieTimeout()
+{
+	Q_D(IcqAccount);
+	Q_ASSERT(qobject_cast<QTimer*>(sender()));
+	QTimer *timer = static_cast<QTimer*>(sender());
+	quint64 id = timer->property("cookieId").value<quint64>();
+	Q_ASSERT(id != 0);
+	Cookie cookie = d->cookies.take(id);
+	Q_ASSERT(!cookie.isEmpty());
+	emit cookieTimeout(cookie);
+	// cookie.unlock(); // Commented out as this cookie is already unlocked
+}
+
 bool IcqAccount::event(QEvent *ev)
 {
 	if (ev->type() == InfoRequestCheckSupportEvent::eventType()) {

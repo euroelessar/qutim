@@ -62,7 +62,7 @@ private:
 	virtual bool event(QEvent *);
 	void setAvatar(const QString &avatar);
 private slots:
-	void messageTimeout();
+	void messageTimeout(const Cookie &cookie);
 	void infoReceived(bool ok);
 protected:
 	friend class Roster;
