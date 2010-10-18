@@ -1,6 +1,6 @@
 #ifndef WEBKITVIEWFACTORY_H
 #define WEBKITVIEWFACTORY_H
-#include "../chatlayer/chatviewfactory.h"
+#include <chatlayer/chatviewfactory.h>
 
 namespace qutim_sdk_0_3
 {

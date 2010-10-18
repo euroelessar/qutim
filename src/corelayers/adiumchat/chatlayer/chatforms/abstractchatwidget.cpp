@@ -500,8 +500,10 @@ namespace Core
 	
 			m_sessions.removeAt(index);
 			getTabBar()->removeTab(index);
-			if (!deleted)
+			if (!deleted) {
+				session->setActive(false);
 				session->disconnect(this);
+			}
 			if (!deleted && session && m_removeSessionOnClose)
 				session->deleteLater();
 			if (m_sessions.isEmpty())
