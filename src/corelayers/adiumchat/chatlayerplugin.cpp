@@ -16,8 +16,7 @@
 
 #include "chatlayerplugin.h"
 #include "chatlayer/chatlayerimpl.h"
-#include "adiumchatform/adiumchatform.h"
-#include "classicchatform/classicchatform.h"
+#include "tabbedchatform/tabbedchatform.h"
 #include "timemodifier/timemodifier.h"
 #include "settings/chatbehavior.h"
 #include <qutim/settingslayer.h>
@@ -40,13 +39,10 @@ void ChatLayerPlugin::init()
 	LocalizedString description = QT_TRANSLATE_NOOP("Plugin", "Default qutIM chat implementation, based on Adium chat styles");
 	setInfo(name, description, QUTIM_VERSION);
 	addExtension<Core::AdiumChat::ChatLayerImpl>(name, description);
-	addExtension<Core::AdiumChat::AdiumChatForm>(
-				QT_TRANSLATE_NOOP("Plugin", "Adium"),
-				QT_TRANSLATE_NOOP("Plugin", "Adium-like chatform implementation for adiumchat"));
 	addExtension<Core::AdiumChat::TimeModifier,Core::AdiumChat::MessageModifier>(
 				QT_TRANSLATE_NOOP("Plugin", "Time modifier"),
 				QT_TRANSLATE_NOOP("Plugin", "Modifier for %time% and %timeOpened% param, based on Apple's documentation"));
-	addExtension<Core::AdiumChat::ClassicChatForm>(
+	addExtension<Core::AdiumChat::TabbedChatForm>(
 				QT_TRANSLATE_NOOP("Plugin", "Classic"),
 				QT_TRANSLATE_NOOP("Plugin", "Default qutIM chatform implementation for adiumchat"));
 	addExtension<Core::AdiumChat::WebkitViewFactory>(

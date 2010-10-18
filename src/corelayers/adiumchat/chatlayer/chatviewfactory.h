@@ -26,6 +26,7 @@ public:
 	virtual ~ChatViewFactory() {}
 	virtual QWidget *createViewWidget() = 0;
 	virtual QObject *createViewController() = 0;
+	static ChatViewFactory *instance();
 };
 
 class ChatViewWidget
