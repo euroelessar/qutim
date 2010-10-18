@@ -19,6 +19,7 @@
 #include <QThread>
 #include <QCoreApplication>
 #include <QVariant>
+#include <QTimer>
 
 using namespace qutim_sdk_0_3;
 
@@ -61,9 +62,12 @@ gboolean QuetzalTimer::removeTimer(guint handle)
 void QuetzalTimer::timerEvent(QTimerEvent *event)
 {
 	QMap<int, TimerInfo *>::iterator it = m_timers.find(event->timerId());
+	if (it == m_timers.end())
+		return;
 	TimerInfo *info = it.value();
 	gboolean result = ( *info->function)(info->data);
-	if(result == FALSE) {
+	qDebug() << it.key() << event->timerId() << !!result;
+	if (!result) {
 		killTimer(it.key());
 		delete it.value();
 		m_timers.erase(it);
@@ -100,8 +104,11 @@ gboolean QuetzalTimer::removeIO(guint handle)
 	if (it == m_files.end())
 		return FALSE;
 	FileInfo *info = it.value();
-	info->socket->deleteLater();
+	QTimer::singleShot(0, info->socket, SLOT(deleteLater()));
+	// Don't know exactly why yet, but it causes segfault at some cases
+//	info->socket->deleteLater();
 	m_files.erase(it);
+	delete info;
 	return TRUE;
 }
 

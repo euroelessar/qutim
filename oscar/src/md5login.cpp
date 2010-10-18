@@ -52,6 +52,9 @@ void Md5Login::login()
 	m_cookie.clear();
 	// Connecting to login server
 	Config cfg = m_conn->account()->config("connection");
+	Socket *s = socket();
+	if (s->state() != QAbstractSocket::UnconnectedState)
+		s->abort();
 #ifdef OSCAR_SSL_SUPPORT
 	if (m_conn->isSslEnabled()) {
 		m_host = cfg.value("host", QString("slogin.oscar.aol.com"));

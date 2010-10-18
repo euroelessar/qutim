@@ -48,9 +48,17 @@ QByteArray FLAP::header() const
 bool FLAP::readData(QIODevice *dev)
 {
 	if (m_state == ReadHeader) {
-		DataUnit data(dev->read(6));
-		if (data.read<quint8>() != 0x2a)
+		m_data += dev->read(6 - m_data.size());
+		if (m_data.size() < 6)
+			return true;
+		DataUnit data(m_data);
+		int dataSize = data.dataSize();
+		quint8 checkValue = data.read<quint8>();
+		if (checkValue != 0x2a) {
+			debug() << "data.size() ==" << dataSize << "but 6 was expected";
+			debug() << "dev->read() returned" << checkValue << ", but 0x2a was expected";
 			return false;
+		}
 		m_channel = data.read<quint8>();
 		m_sequence_number = data.read<quint16>();
 		m_length = data.read<quint16>();
@@ -60,8 +68,10 @@ bool FLAP::readData(QIODevice *dev)
 	if (m_state == ReadData) {
 		char *data = m_data.data() + m_data.size() - m_length;
 		int readed = dev->read(data, m_length);
-		if (readed < 0)
+		if (readed < 0) {
+			debug() << "dev->read() read" << readed << " bytes";
 			return false;
+		}
 		m_length -= readed;
 	}
 	if (m_length == 0)

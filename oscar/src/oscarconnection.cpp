@@ -139,6 +139,9 @@ void OscarConnection::sendUserInfo(bool force)
 void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie)
 {
 	m_auth_cookie = cookie;
+	Socket *s = socket();
+	if (s->state() != QAbstractSocket::UnconnectedState)
+		s->abort();
 #ifdef OSCAR_SSL_SUPPORT
 	if (isSslEnabled()) {
 		socket()->connectToHostEncrypted(host, port);
