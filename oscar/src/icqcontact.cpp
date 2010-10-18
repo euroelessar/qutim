@@ -167,12 +167,18 @@ static quint8 lookupIncompleteCharacter(const QByteArray &str)
 	return -left;
 }
 
+enum SplitFlags
+{
+	sf_utf8 = 0x01,
+	sf_appendNull = 0x02
+};
+
 /*
  Splits the long message into messages with length less than maxLen and returns the list of
  those messages. If the length of this message less than maxLen, returns a single-element
  list containing this message.
  */
-static QList<QByteArray> splitMessage(const QByteArray &message, quint16 maxLen, bool utf8 = false)
+static QList<QByteArray> splitMessage(const QByteArray &message, quint16 maxLen, quint8 flags = 0)
 {
 	QList<QByteArray> list;
 	if (message.size() > maxLen) {
@@ -180,17 +186,21 @@ static QList<QByteArray> splitMessage(const QByteArray &message, quint16 maxLen,
 		int size = message.size();
 		while (i < size) {
 			QByteArray msg = message.mid(i, maxLen);
-			if (utf8) {
+			if (flags & sf_utf8) {
 				quint8 l = lookupIncompleteCharacter(msg);
 				if (l)
 					msg.truncate(maxLen-l);
 			}
 			i += msg.size();
-			msg += '\0';
+			if (flags & sf_appendNull)
+				msg += '\0';
 			list << msg;
 		}
 	} else {
-		list << (message + '\0');
+		if (flags & sf_appendNull)
+			list << (message + '\0');
+		else
+			list <<  message;
 	}
 	return list;
 }
@@ -222,8 +232,8 @@ bool IcqContact::sendMessage(const Message &message)
 		channel = 1;
 	} else {
 		QList<QByteArray> msgs = d->flags & utf8_support ?
-								 splitMessage(Util::utf8Codec()->fromUnicode(msgText), 7857, true) :
-								 splitMessage(Util::asciiCodec()->fromUnicode(msgText), 7898);
+								 splitMessage(Util::utf8Codec()->fromUnicode(msgText), 7857, sf_utf8 | sf_appendNull) :
+								 splitMessage(Util::asciiCodec()->fromUnicode(msgText), 7898, sf_appendNull);
 
 		for (int i = 0, size = msgs.size(), last = size-1; i < size; ++i) {
 			bool isLast = i == last;
