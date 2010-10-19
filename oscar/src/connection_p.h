@@ -93,6 +93,7 @@ public:
 	QString errorStr;
 	IcqAccount *account;
 	AbstractConnection::State state;
+	QSet<SNACInfo> initSnacs; // Snacs that are allowed when initializing connection
 };
 
 } } // namespace qutim_sdk_0_3::oscar

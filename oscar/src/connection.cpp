@@ -204,6 +204,13 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 			   << SNACInfo(ServiceFamily, ServiceServerAsksServices)
 			   << SNACInfo(ServiceFamily, ServiceServerRateChange)
 			   << SNACInfo(ServiceFamily, ServiceError);
+	QList<SNACInfo> initSnacs;
+	initSnacs << SNACInfo(ServiceFamily, ServiceClientFamilies)
+			<< SNACInfo(ServiceFamily, ServiceClientReqRateInfo)
+			<< SNACInfo(ServiceFamily, ServiceClientRateAck)
+			<< SNACInfo(ServiceFamily, ServiceClientReady)
+			<< SNACInfo(ServiceFamily, ServiceClientNewService);
+	registerInitializationSnacs(initSnacs);
 }
 
 AbstractConnection::~AbstractConnection()
@@ -405,6 +412,20 @@ AbstractConnection::State AbstractConnection::state() const
 	return d_func()->state;
 }
 
+void AbstractConnection::registerInitializationSnacs(const QList<SNACInfo> &snacs, bool append)
+{
+	Q_D(AbstractConnection);
+	if (append)
+		d->initSnacs += snacs.toSet();
+	else
+		d->initSnacs = snacs.toSet();
+}
+
+void AbstractConnection::registerInitializationSnac(quint16 family, quint16 subtype)
+{
+	d_func()->initSnacs.insert(SNACInfo(family, subtype));
+}
+
 AbstractConnection::AbstractConnection(AbstractConnectionPrivate *d):
 	d_ptr(d)
 {
@@ -438,16 +459,29 @@ void AbstractConnection::send(FLAP &flap)
 quint32 AbstractConnection::sendSnac(SNAC &snac)
 {
 	Q_D(AbstractConnection);
-	debug(Verbose) << QString("SNAC(0x%1, 0x%2) is sent to %3")
+	QString dbgStr;
+	quint32 id = 0;
+	// Not allow any snacs in unconnected state
+	if (d->state == Unconnected) {
+		dbgStr = "Trying to send SNAC(0x%1, 0x%2) to %3 which is in unconnected state";
+	}
+	// In connecting state, allow only snacs from whitelist
+	else if (d->state == Connecting && !d->initSnacs.contains(SNACInfo(snac.family(), snac.subtype()))) {
+		dbgStr = "Trying to send SNAC(0x%1, 0x%2) to %3 which is in connecting state";
+	} else {
+		dbgStr = "SNAC(0x%1, 0x%2) is sent to %3";
+		// Send this snac
+		FLAP flap(0x02);
+		id = d->nextId();
+		snac.setId(id);
+		flap.append(snac.toByteArray());
+		snac.lock();
+		send(flap);
+	}
+	debug(Verbose) << dbgStr
 			.arg(snac.family(), 4, 16, QChar('0'))
 			.arg(snac.subtype(), 4, 16, QChar('0'))
 			.arg(metaObject()->className());
-	FLAP flap(0x02);
-	quint32 id = d->nextId();
-	snac.setId(id);
-	flap.append(snac.toByteArray());
-	snac.lock();
-	send(flap);
 	return id;
 }
 
@@ -589,10 +623,6 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		for (int i = 1; i <= groupCount; i++)
 			snac.append<quint16>(i);
 		send(snac);
-
-		// This command requests from the server certain information about the client that is stored on the server
-		// In other words: CLI_REQINFO
-		snac.reset(ServiceFamily, ServiceClientReqinfo);
 		break;
 	}
 	case ServiceFamily << 16 | ServiceServerRateChange: {

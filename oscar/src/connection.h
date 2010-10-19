@@ -152,6 +152,8 @@ public:
 	const ClientInfo &clientInfo();
 	bool isSslEnabled();
 	State state() const;
+	void registerInitializationSnacs(const QList<SNACInfo> &snacs, bool append = true);
+	void registerInitializationSnac(quint16 family, quint16 subtype);
 signals:
 	void error(ConnectionError error);
 	void disconnected();

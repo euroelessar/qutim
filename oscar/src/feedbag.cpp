@@ -517,6 +517,12 @@ Feedbag::Feedbag(IcqAccount *acc):
 			<< SNACInfo(ListsFamily, ListsCliModifyStart)
 			<< SNACInfo(ListsFamily, ListsCliModifyEnd)
 			<< SNACInfo(ListsFamily, ListsSrvReplyLists);
+	QList<SNACInfo> m_initSnacs;
+	m_initSnacs << SNACInfo(ListsFamily, ListsCliCheck)
+			<< SNACInfo(ListsFamily, ListsCliRequest)
+			<< SNACInfo(ListsFamily, ListsCliReqLists)
+			<< SNACInfo(ListsFamily, ListsGotList);
+	acc->connection()->registerInitializationSnacs(m_initSnacs);
 	Config cfg = config("feedbag");
 	d->lastUpdateTime = cfg.value("lastUpdateTime", 0);
 	cfg.beginGroup("cache");

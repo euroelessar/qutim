@@ -316,8 +316,12 @@ void MessagesHandler::settingsUpdated()
 
 void MessagesHandler::accountAdded(Account *account)
 {
+	Q_ASSERT(qobject_cast<IcqAccount*>(account));
 	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
 	connect(account, SIGNAL(settingsUpdated()), SLOT(settingsUpdated()));
+	AbstractConnection *conn = static_cast<IcqAccount*>(account)->connection();
+	conn->registerInitializationSnac(MessageFamily, MessageCliReqIcbm);
+	conn->registerInitializationSnac(MessageFamily, MessageCliSetParams);
 }
 
 void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)

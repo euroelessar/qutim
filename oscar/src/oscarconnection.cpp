@@ -46,6 +46,9 @@ OscarConnection::OscarConnection(IcqAccount *parent) :
 	m_is_idle = false;
 	foreach(const ObjectGenerator *gen, ObjectGenerator::module<SNACHandler>())
 		registerHandler(gen->generate<SNACHandler>());
+
+	registerInitializationSnac(LocationFamily, LocationCliReqRights);
+	registerInitializationSnac(BosFamily, PrivacyReqRights);
 }
 
 void OscarConnection::connectToLoginServer(const QString &password)
@@ -96,10 +99,11 @@ void OscarConnection::processCloseConnection()
 
 void OscarConnection::finishLogin()
 {
+	setState(Connected);
 	sendUserInfo(true);
 	m_is_idle = true;
 	setIdle(false);
-	SNAC snac(ServiceFamily, 0x02);
+	SNAC snac(ServiceFamily, ServiceClientReady);
 	// imitate ICQ 6 behaviour
 	snac.append(QByteArray::fromHex(
 		"0022 0001 0110 164f"
@@ -115,8 +119,6 @@ void OscarConnection::finishLogin()
 		"000b 0001 0110 164f"));
 	send(snac);
 	m_account->finishLogin();
-	emit m_account->loginFinished();
-	setState(Connected);
 	if (m_account->d_func()->name.isEmpty()) {
 		ShortInfoMetaRequest *req = new ShortInfoMetaRequest(m_account); // Requesting own information.
 		connect(req, SIGNAL(done(bool)), this, SLOT(accountInfoReceived(bool)));
@@ -129,7 +131,7 @@ void OscarConnection::sendUserInfo(bool force)
 	Status status = m_account->status();
 	if (!force && (status == Status::Offline || status == Status::Connecting))
 		return;
-	SNAC snac(LocationFamily, 0x04);
+	SNAC snac(LocationFamily, MessageFamily);
 	TLV caps(0x05);
 	foreach (const Capability &cap, m_account->capabilities())
 		caps.append(cap);

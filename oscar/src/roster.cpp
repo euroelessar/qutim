@@ -439,9 +439,11 @@ void Roster::loginFinished()
 
 void Roster::accountAdded(qutim_sdk_0_3::Account *acc)
 {
-	IcqAccount *account = reinterpret_cast<IcqAccount*>(acc);
+	Q_ASSERT(qobject_cast<IcqAccount*>(acc));
+	IcqAccount *account = static_cast<IcqAccount*>(acc);
 	connect(account->feedbag(), SIGNAL(reloadingStarted()), SLOT(reloadingStarted()));
 	connect(account, SIGNAL(loginFinished()), SLOT(loginFinished()));
+	account->connection()->registerInitializationSnac(BuddyFamily, UserCliReqBuddy);
 }
 
 void Roster::setStatus(IcqContact *contact, OscarStatus &status, const TLVMap &tlvs)

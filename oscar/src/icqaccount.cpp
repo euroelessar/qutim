@@ -194,6 +194,7 @@ void IcqAccount::finishLogin()
 	d->conn->sendStatus(d->lastStatus);
 	emit statusChanged(d->lastStatus, current);
 	Account::setStatus(d->lastStatus);
+	emit loginFinished();
 }
 
 void IcqAccount::setStatus(Status status_helper)
