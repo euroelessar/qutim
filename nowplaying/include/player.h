@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include "trackinfo.h"
+#include "playersettings.h"
 #include <QObject>
 
 namespace qutim_sdk_0_3 {
@@ -12,7 +13,6 @@ namespace nowplaying {
 	{
 		Q_OBJECT
 	public:
-
 		virtual ~Player(){}
 		virtual QString playerName() = 0;
 		virtual TrackInfo trackInfo() = 0;
@@ -35,6 +35,7 @@ namespace nowplaying {
 		 */
 		virtual void stopWatching() = 0;
 
+		virtual PlayerSettings *settings() { return 0; }
 	signals:
 
 		/* playingStatusChanged(bool)

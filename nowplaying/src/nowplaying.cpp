@@ -1,7 +1,7 @@
 #include "nowplaying.h"
 #include "icqsupport.h"
 #include "jabbersupport.h"
-#include "players/amarok/amarok.h"
+#include "players/mpris/mpris.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/settingslayer.h>
 #include <qutim/debug.h>
@@ -35,9 +35,9 @@ namespace nowplaying
 		addAuthor(QT_TRANSLATE_NOOP("Author","Alexey Prokhin"),
 				  QT_TRANSLATE_NOOP("Task","Developer"),
 				  QLatin1String("alexey.prokhin@yandex.ru"));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Now Playing Amarok 2"),
-					 QT_TRANSLATE_NOOP("Plugin", "Amarok 2 support for now playing plugin"),
-					 new GeneralGenerator<Amarok, Player>(),
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "MPRIS support"),
+					 QT_TRANSLATE_NOOP("Plugin", "Media Player Remote Interfacing Specification (MPRIS) support for now playing plugin"),
+					 new GeneralGenerator<Mpris, Player>(),
 					 ExtensionIcon(""));
 	}
 
