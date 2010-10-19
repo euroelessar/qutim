@@ -391,7 +391,7 @@ const ClientInfo &AbstractConnection::clientInfo()
 	return d_func()->clientInfo;
 }
 
-bool AbstractConnection:: isSslEnabled()
+bool AbstractConnection::isSslEnabled()
 {
 #ifdef OSCAR_SSL_SUPPORT
 	return d_func()->account->config("connection").value("ssl", false);
@@ -400,9 +400,15 @@ bool AbstractConnection:: isSslEnabled()
 #endif
 }
 
+AbstractConnection::State AbstractConnection::state() const
+{
+	return d_func()->state;
+}
+
 AbstractConnection::AbstractConnection(AbstractConnectionPrivate *d):
 	d_ptr(d)
 {
+	d_func()->state = Unconnected;
 }
 
 const FLAP &AbstractConnection::flap()
@@ -457,6 +463,7 @@ void AbstractConnection::processNewConnection()
 			.arg(flap().channel(), 2, 16, QChar('0'))
 			.arg(flap().seqNum())
 			.arg(flap().data().toHex().constData());
+	setState(Connecting);
 }
 
 void AbstractConnection::processCloseConnection()
@@ -474,6 +481,7 @@ void AbstractConnection::processCloseConnection()
 
 void AbstractConnection::onDisconnect()
 {
+	setState(Unconnected);
 }
 
 void AbstractConnection::onError(ConnectionError error)
@@ -610,6 +618,11 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		break;
 	}
 	}
+}
+
+void AbstractConnection::setState(AbstractConnection::State state)
+{
+	d_func()->state = state;
 }
 
 quint16 AbstractConnection::generateFlapSequence()

@@ -81,6 +81,7 @@ void Md5Login::hostFound(const QHostInfo &host)
 
 void Md5Login::processNewConnection()
 {
+	AbstractConnection::processNewConnection();
 	FLAP flap(0x01);
 	flap.append<quint32>(0x00000001);
 	// It's some strange unknown shit, but ICQ 6.5 sends it

@@ -33,7 +33,7 @@ namespace oscar {
 QByteArray BuddyPicture::emptyHash = QByteArray::fromHex("0201d20472");
 
 BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
-	AbstractConnection(account, parent), m_is_connected(false),m_avatars(false)
+	AbstractConnection(account, parent), m_avatars(false)
 {
 	updateSettings();
 	m_infos << SNACInfo(ServiceFamily, ServerRedirectService)
@@ -82,7 +82,7 @@ void BuddyPicture::sendUpdatePicture(QObject *reqObject, quint16 id, quint8 flag
 	snac.append<quint16>(id);
 	snac.append<quint8>(flags);
 	snac.append<quint8>(hash);
-	if (m_is_connected)
+	if (state() == Connected)
 		send(snac);
 	else
 		m_history.insert(reqObject, snac);
@@ -119,7 +119,7 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 					"0001 0004 0110 164f" // ServiceFamily
 					"000f 0001 0110 164f"));// AvatarFamily
 			send(snac);
-			m_is_connected = true;
+			setState(Connected);
 			foreach (SNAC snac, m_history)
 				send(snac);
 			m_history.clear();
@@ -196,6 +196,7 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 
 void BuddyPicture::processNewConnection()
 {
+	AbstractConnection::processNewConnection();
 	FLAP flap(0x01);
 	flap.append<quint32>(0x01);
 	flap.appendTLV<QByteArray>(0x0006, m_cookie);
@@ -205,7 +206,7 @@ void BuddyPicture::processNewConnection()
 
 void BuddyPicture::processCloseConnection()
 {
-	m_is_connected = false;
+	AbstractConnection::processCloseConnection();
 }
 
 bool BuddyPicture::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error)
@@ -245,10 +246,10 @@ void BuddyPicture::statusChanged(IcqContact *contact, Status &status, const TLVM
 
 void BuddyPicture::onDisconnect()
 {
-	m_is_connected = false;
 	m_history.clear();
 	m_avatarHash.clear();
 	m_accountAvatar.clear();
+	AbstractConnection::onDisconnect();
 }
 
 void BuddyPicture::updateSettings()

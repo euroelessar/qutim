@@ -129,6 +129,13 @@ public:
 		SocketError = 0x81,
 		HostNotFound = 0x82
 	};
+	enum State
+	{
+		Unconnected,
+		Connecting,
+		Connected
+	};
+
 public:
 	explicit AbstractConnection(IcqAccount *account, QObject *parent = 0);
 	virtual ~AbstractConnection();
@@ -144,6 +151,7 @@ public:
 	const IcqAccount *account() const;
 	const ClientInfo &clientInfo();
 	bool isSslEnabled();
+	State state() const;
 signals:
 	void error(ConnectionError error);
 	void disconnected();
@@ -159,6 +167,7 @@ protected:
 	virtual void onError(ConnectionError error);
 	void setError(ConnectionError error, const QString &errorStr = QString());
 	virtual void handleSNAC(AbstractConnection *conn, const SNAC &snac);
+	void setState(AbstractConnection::State state);
 	static quint16 generateFlapSequence();
 protected slots:
 	void loadProxy();

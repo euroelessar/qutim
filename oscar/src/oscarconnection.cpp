@@ -116,6 +116,7 @@ void OscarConnection::finishLogin()
 	send(snac);
 	m_account->finishLogin();
 	emit m_account->loginFinished();
+	setState(Connected);
 	if (m_account->d_func()->name.isEmpty()) {
 		ShortInfoMetaRequest *req = new ShortInfoMetaRequest(m_account); // Requesting own information.
 		connect(req, SIGNAL(done(bool)), this, SLOT(accountInfoReceived(bool)));
@@ -157,6 +158,7 @@ void OscarConnection::onDisconnect()
 	Status status = m_account->status();
 	status.setType(Status::Offline);
 	m_account->setStatus(status);
+	AbstractConnection::onDisconnect();
 }
 
 void OscarConnection::onError(ConnectionError error)

@@ -92,6 +92,7 @@ public:
 	AbstractConnection::ConnectionError error;
 	QString errorStr;
 	IcqAccount *account;
+	AbstractConnection::State state;
 };
 
 } } // namespace qutim_sdk_0_3::oscar
