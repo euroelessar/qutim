@@ -59,7 +59,6 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	Config cfg = Config("appearance").group("chat");
 	d->sendToLastActiveResource = cfg.value<bool>("sendToLastActiveResource", false);
 	d->active = false;
-	d->inactive_timer.setInterval(120000);
 	d->inactive_timer.setSingleShot(true);
 
 	connect(&d->inactive_timer,SIGNAL(timeout()),d,SLOT(onActiveTimeout()));
@@ -103,7 +102,7 @@ qint64 ChatSessionImpl::appendMessage(Message &message)
 	if (message.property("spam", false) || message.property("hide", false))
 		return message.id();
 
-	if ((!isActive() && !message.property("service", false))/* || !message.property("history",false)*/) {
+	if ((!isActive() && !message.property("service", false)) && message.isIncoming()) {
 		d->unread.append(message);
 		unreadChanged(d->unread);
 	}
@@ -285,27 +284,30 @@ void ChatSessionImplPrivate::statusChanged(const Status &status,Contact* contact
 	Notifications::Type type = Notifications::StatusChange;
 	QString title = status.name().toString();
 
+	if (lastStatusType == status.type())
+		return;
 
 	switch(status.type()) {
-		case Status::Offline: {
-			type = Notifications::Offline;
-			break;
-		}
-		case Status::Online: {
-			type = Notifications::Online;
-			break;
-		}
-		default: {
-			break;
-		}
+	case Status::Offline: {
+		type = Notifications::Offline;
+		ChatStateEvent ev(ChatStateGone);
+		qApp->sendEvent(q, &ev);
+		break;
+	}
+	case Status::Online: {
+		type = Notifications::Online;
+		ChatStateEvent ev(ChatStateInActive);
+		qApp->sendEvent(q, &ev);
+		break;
+	}
+	default: {
+		break;
+	}
 	}
 
-//			debug() << "chat state event sended";
-	ChatStateEvent ev(statusToState(status.type()));
-	qApp->sendEvent(q, &ev);
-
-	if (lastStatusType == status.type() && lastStatusText == status.text())
+	if(lastStatusText == status.text())
 		return;
+
 	lastStatusType = status.type();
 	lastStatusText = status.text();
 
@@ -369,8 +371,8 @@ void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 		setProperty("currentChatState",d->statusToState(c->status().type()));
 	} else {
 		//if you create a session, it is likely that the chat state is active
-		setProperty("currentChatState",static_cast<int>(ChatStateActive));
-		setChatState(ChatStateActive);
+		setProperty("currentChatState",static_cast<int>(ChatStateInActive)); //FIXME remove
+		setChatState(ChatStateInActive);
 
 		Conference *conf;
 		if (!!(conf = qobject_cast<Conference *>(oldUnit))) {
@@ -395,21 +397,54 @@ void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 
 void ChatSessionImplPrivate::onActiveTimeout()
 {
-//			debug() << "set inactive state";
-	q_func()->setChatState(ChatStateInActive);
+	Q_Q(ChatSessionImpl);
+	switch(myself_chat_state) {
+		case ChatStateComposing:
+			q->setChatState(ChatStatePaused);
+			break;
+		case ChatStatePaused:
+			q->setChatState(ChatStateActive);
+			break;
+		case ChatStateActive:
+			q->setChatState(ChatStateInActive);
+			break;
+		case ChatStateInActive:
+			q->setChatState(ChatStateGone);
+			break;
+		default:
+			break;
+	}
 }
 
 void ChatSessionImpl::setChatState(ChatState state)
 {
 	Q_D(ChatSessionImpl);
+//	if(d->myself_chat_state == state) {
+//		d->inactive_timer.start();
+//		return;
+//	}
 	ChatStateEvent event(state);
 	qApp->sendEvent(d->chat_unit,&event);
 	d->myself_chat_state = state;
-	if ((state != ChatStateInActive) && (state != ChatStateGone) && (state != ChatStateComposing)) {
-		d->inactive_timer.start();
-//				debug() << "timer activated";
+	switch(state) {
+		case ChatStateComposing:
+			d->inactive_timer.setInterval(30000);
+			break;
+		case ChatStatePaused:
+			d->inactive_timer.setInterval(30000);
+			break;
+		case ChatStateActive:
+			d->inactive_timer.setInterval(120000);
+			break;
+		case ChatStateInActive:
+			d->inactive_timer.setInterval(600000);
+			break;
+		default:
+			break;
 	}
+	d->inactive_timer.start();
 }
+
 
 void ChatSessionImplPrivate::onResourceChosen(bool active)
 {

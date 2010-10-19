@@ -4,8 +4,12 @@
 #include <QVBoxLayout>
 #include <qutim/actiontoolbar.h>
 #include "tabbar.h"
+#include "chatedit.h"
 #include <QPlainTextEdit>
 #include <qutim/debug.h>
+#include <qutim/icon.h>
+#include <qutim/conference.h>
+#include <QAbstractItemModel>
 
 namespace Core
 {
@@ -16,7 +20,7 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	AbstractChatWidget(parent),
 	m_toolbar(new ActionToolBar(tr("Chat Actions"),this)),
 	m_tabbar(new TabBar(this)),
-	m_chatInput(new QPlainTextEdit(this))
+	m_chatInput(new ChatEdit(this))
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	Q_UNUSED(key);
@@ -99,6 +103,24 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 
 	m_view->setViewController(session->getController());
 	m_tabbar->setCurrentSession(session);
+	m_chatInput->setSession(session);
+
+	ChatUnit *u = session->getUnit();
+	QIcon icon = Icon("view-choose");
+	QString title = tr("Chat with %1").arg(u->title());
+
+	bool isContactsViewVisible;
+	if (Conference *c = qobject_cast<Conference *>(u)) {
+		icon = Icon("meeting-attending"); //TODO
+		title = tr("Conference %1 (%2)").arg(c->title(),c->id());
+		isContactsViewVisible = true;
+	} else {
+		isContactsViewVisible = session->getModel()->rowCount(QModelIndex()) > 0;
+		if (Buddy *b = qobject_cast<Buddy*>(u))
+			icon = b->avatar().isEmpty() ? Icon("view-choose") : QIcon(b->avatar());
+	}
+	setWindowTitle(title);
+	setWindowIcon(icon);
 
 	if(!session->unread().isEmpty())
 		session->markRead();
@@ -112,6 +134,18 @@ ChatSessionImpl *TabbedChatWidget::currentSession() const
 TabbedChatWidget::~TabbedChatWidget()
 {
 	delete m_tabbar;
+}
+
+bool TabbedChatWidget::event(QEvent *event)
+{
+	if (event->type() == QEvent::WindowActivate
+			|| event->type() == QEvent::WindowDeactivate) {
+		bool active = event->type() == QEvent::WindowActivate;
+		if (m_tabbar->currentSession())
+			return false;
+		m_tabbar->currentSession()->setActive(active);
+	}
+	return AbstractChatWidget::event(event);
 }
 
 }

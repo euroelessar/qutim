@@ -300,7 +300,7 @@ namespace Core
 
 		bool ConfTabCompletion::eventFilter(QObject* obj, QEvent* ev)
 		{
-			if (obj->metaObject() == &QPlainTextEdit::staticMetaObject
+			if (qobject_cast<QPlainTextEdit*>(obj)
 				&& ev->type() == QEvent::KeyPress) {
 				QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
 				if ( keyEvent->key() == Qt::Key_Tab ) {

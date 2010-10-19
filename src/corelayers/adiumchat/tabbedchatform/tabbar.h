@@ -47,6 +47,7 @@ class TabBar : public QTabBar
 		void onTabMoved(int from,int to);
 		void onTitleChanged(const QString &title);
 		void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
+		void onContextMenu(const QPoint &pos);
 	private:
 		QScopedPointer<TabBarPrivate> p;
 };

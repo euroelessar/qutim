@@ -18,11 +18,14 @@ struct TabBarPrivate
 
 TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 {
+	setContextMenuPolicy(Qt::CustomContextMenu);
 	p->closableActiveTab = false;
 	setMouseTracking(true);
+
 	connect(this,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
 	connect(this,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 	connect(this,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
+	connect(this,SIGNAL(customContextMenuRequested(QPoint)),SLOT(onContextMenu(QPoint)));
  }
 
 TabBar::~TabBar()
@@ -207,6 +210,12 @@ void TabBar::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
 		setTabIcon(index, icon);
 	} else
 		setTabIcon(index, Icon("mail-unread-new"));
+}
+
+void TabBar::onContextMenu(const QPoint &pos)
+{
+	if(currentSession())
+		currentSession()->getUnit()->showMenu(mapToGlobal(pos));
 }
 
 }

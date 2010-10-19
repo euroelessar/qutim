@@ -4,7 +4,6 @@
 #include <QWidget>
 #include <chatlayer/chatforms/abstractchatwidget.h>
 
-class QPlainTextEdit;
 namespace qutim_sdk_0_3
 {
 	class ActionToolBar;
@@ -19,6 +18,7 @@ using namespace qutim_sdk_0_3;
 
 class ChatViewWidget;
 class TabBar;
+class ChatEdit;
 class TabbedChatWidget : public AbstractChatWidget
 {
     Q_OBJECT
@@ -35,13 +35,14 @@ public slots:
 	virtual void removeSession(ChatSessionImpl *session);
 	virtual void activate(ChatSessionImpl* session);
 protected:
+	bool event(QEvent *event);
 protected slots:	
 	void onSessionActivated(bool active);
 private:
 	ActionToolBar *m_toolbar;
 	ChatViewWidget *m_view;
 	TabBar *m_tabbar;
-	QPlainTextEdit *m_chatInput;
+	ChatEdit *m_chatInput;
 	QPointer<ChatSessionImpl> m_currentSession;
 };
 

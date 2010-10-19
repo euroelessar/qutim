@@ -1,5 +1,6 @@
 #include "webkitchatviewwidget.h"
 #include "chatstyleoutput.h"
+#include <QKeyEvent>
 
 namespace Core
 {
