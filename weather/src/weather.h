@@ -25,7 +25,7 @@ using namespace qutim_sdk_0_3;
 class WeatherPlugin : public Plugin
 {
 	Q_OBJECT
-
+	Q_CLASSINFO("Uses", "SettingsLayer")
 public:
 	WeatherPlugin();
 	virtual void init();

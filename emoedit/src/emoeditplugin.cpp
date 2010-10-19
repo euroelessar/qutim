@@ -72,7 +72,8 @@ bool EmoEditPlugin::unload()
 {
 	foreach (ChatSession *session, ChatLayer::instance()->sessions()) {
 		disconnect(session, 0, this, 0);
-		disconnect(session->getInputField(), 0, this, 0);
+		if (session->getInputField())
+			disconnect(session->getInputField(), 0, this, 0);
 	}
 	return true;
 }
