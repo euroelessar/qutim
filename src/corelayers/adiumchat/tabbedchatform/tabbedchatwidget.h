@@ -34,6 +34,7 @@ public slots:
 	void addSessions(const ChatSessionList &sessions);
 	virtual void removeSession(ChatSessionImpl *session);
 	virtual void activate(ChatSessionImpl* session);
+	virtual void loadSettings();
 protected:
 	bool event(QEvent *event);
 protected slots:	
@@ -44,6 +45,10 @@ private:
 	TabBar *m_tabbar;
 	ChatEdit *m_chatInput;
 	QPointer<ChatSessionImpl> m_currentSession;
+	QAction *m_unitSeparator;
+	QAction *m_actSeparator;
+	QList<QAction*> m_unitActions;
+	QAction *m_spacer;
 };
 
 }

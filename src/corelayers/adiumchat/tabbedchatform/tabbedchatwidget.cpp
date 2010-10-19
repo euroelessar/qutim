@@ -44,8 +44,16 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 
 	m_view = qobject_cast<ChatViewWidget*>(view);
 
+	m_actSeparator = m_toolbar->addSeparator();
+	m_unitSeparator = m_toolbar->addSeparator();
+
 	connect(m_tabbar,SIGNAL(activate(ChatSessionImpl*)),SLOT(activate(ChatSessionImpl*)));
 	connect(m_tabbar,SIGNAL(remove(ChatSessionImpl*)),SLOT(removeSession(ChatSessionImpl*)));
+}
+
+void TabbedChatWidget::loadSettings()
+{
+
 }
 
 QPlainTextEdit *TabbedChatWidget::getInputField() const
@@ -60,7 +68,7 @@ bool TabbedChatWidget::contains(ChatSessionImpl *session) const
 
 void TabbedChatWidget::addAction(ActionGenerator *gen)
 {
-	m_toolbar->addAction(gen);
+	m_toolbar->insertAction(m_actSeparator,gen);
 }
 
 void TabbedChatWidget::addSession(ChatSessionImpl *session)
@@ -124,6 +132,15 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 
 	if(!session->unread().isEmpty())
 		session->markRead();
+
+	qDeleteAll(m_unitActions);
+	m_unitActions.clear();
+	ActionContainer container(session->getUnit(),ActionContainer::TypeMatch,ActionTypeChatButton);
+	for (int i = 0;i!=container.count();i++) {
+		QAction *current = container.action(i);
+		m_toolbar->insertAction(m_unitSeparator,current);
+		m_unitActions.append(current);
+	}
 }
 
 ChatSessionImpl *TabbedChatWidget::currentSession() const

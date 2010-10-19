@@ -70,6 +70,7 @@ public slots:
 	void addSessions(const ChatSessionList &sessions);
 	virtual void removeSession(ChatSessionImpl *session) = 0;
 	virtual void activate(ChatSessionImpl* session) = 0;
+	virtual void loadSettings() = 0;
 protected:
 
 };
