@@ -6,6 +6,7 @@
 #include <qutim/plugin.h>
 #include <qutim/actiongenerator.h>
 #include <qutim/config.h>
+#include <qutim/status.h>
 #include <QHash>
 
 namespace qutim_sdk_0_3 {
@@ -29,7 +30,7 @@ namespace nowplaying {
 		bool load();
 		bool unload();
 		QHash<Protocol*, AccountTuneStatus*> factories() { return m_factories; }
-		QList<AccountTuneStatus*> accounts() { return m_accounts; }
+		QHash<Account*, AccountTuneStatus*> accounts() { return m_accounts; }
 		QHash<QString, Player*> players() { return m_players; }
 		Player *currentPlayer() { return m_player; }
 		bool forAllAccounts() { return m_forAllAccounts; }
@@ -42,6 +43,7 @@ namespace nowplaying {
 		void stopStartActionTrigged();
 		void playingStatusChanged(bool);
 		void accountCreated(qutim_sdk_0_3::Account*);
+		void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
 		void accountDeleted();
 		void setStatuses(const TrackInfo &info);
 	private:
@@ -52,7 +54,7 @@ namespace nowplaying {
 		QHash<QString, Player*> m_players;
 		Player* m_player;
 		QHash<Protocol*, AccountTuneStatus*> m_factories;
-		QList<AccountTuneStatus*> m_accounts;
+		QHash<Account*,AccountTuneStatus*> m_accounts;
 		bool m_isWorking;
 		bool m_forAllAccounts;
 		static NowPlaying *self;

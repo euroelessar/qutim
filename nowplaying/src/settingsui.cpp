@@ -44,7 +44,7 @@ namespace nowplaying {
 		ui->for_all_accounts->setChecked(m_manager->forAllAccounts());
 		ui->accounts->clear();
 
-		m_accounts = m_manager->accounts();
+		m_accounts = m_manager->accounts().values();
 		foreach (AccountTuneStatus *account, m_accounts)
 			ui->accounts->addItem(account->account()->id());
 		if (!m_accounts.size()) {

@@ -172,23 +172,29 @@ namespace nowplaying
 		if (!factory)
 			return;
 		AccountTuneStatus *accountTune = factory->construct(account, factory);
-		m_accounts << accountTune;
+		m_accounts.insert(account, accountTune);
 		accountTune->loadSettings();
 		connect(account, SIGNAL(destroyed()), SLOT(accountDeleted()));
+		connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+				SLOT(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	}
+
+	void NowPlaying::statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous)
+	{
+		// TODO: maybe move it to AccountTuneStatus?
+		if (current != Status::Offline && previous == Status::Connecting) {
+			AccountTuneStatus *accountTune = m_accounts.value(static_cast<Account*>(sender()));
+			Q_ASSERT(accountTune);
+			accountTune->setStatus(m_player->trackInfo());
+		}
 	}
 
 	void NowPlaying::accountDeleted()
 	{
 		Account* account = reinterpret_cast<Account*>(sender());
-		QList<AccountTuneStatus*>::iterator itr = m_accounts.begin();
-		QList<AccountTuneStatus*>::iterator endItr = m_accounts.end();
-		while (itr != endItr) {
-			if ((*itr)->account() == account) {
-				(*itr)->deleteLater();
-				m_accounts.erase(itr);
-				break;
-			}
-		}
+		AccountTuneStatus *accountTune = m_accounts.take(account);
+		if (accountTune)
+			accountTune->deleteLater();
 	}
 
 	StopStartActionGenerator::StopStartActionGenerator(QObject* module, bool isWorking):
