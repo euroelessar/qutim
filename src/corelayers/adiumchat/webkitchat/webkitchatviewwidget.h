@@ -15,6 +15,8 @@ class WebkitChatViewWidget : public QWebView, public ChatViewWidget
 public:
     WebkitChatViewWidget();
 	virtual void setViewController(QObject *controller);
+protected:
+	bool event(QEvent *event);
 };
 
 }

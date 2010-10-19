@@ -112,10 +112,10 @@ namespace Core
 			switch (state) {
 				//FIXME icon names
 			case ChatStateActive:
-				icon_name = "im-user";
+				icon_name = "im-user"; //TODO find icon
 				break;
 			case ChatStateInActive:
-				icon_name = "im-user-away";
+				icon_name = "im-user";
 				break;
 			case ChatStateGone:
 				icon_name =  "im-user-offline";
@@ -124,7 +124,7 @@ namespace Core
 				icon_name = "im-status-message-edit";
 				break;
 			case ChatStatePaused:
-				icon_name = "mail-unread";
+				icon_name = "im-user-away";
 				break;
 			default:
 				break;

@@ -20,7 +20,18 @@ void WebkitChatViewWidget::setViewController(QObject *controller)
 		page()->setView(0);
 		setPage(new_page);
 	}
+}
 
+bool WebkitChatViewWidget::event(QEvent *event)
+{
+	if (event->type() == QEvent::KeyPress) {
+		QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+		if (keyEvent->matches(QKeySequence::Copy)) {
+			triggerPageAction(QWebPage::Copy);
+			return true;
+		}
+	}
+	return QWebView::event(event);
 }
 
 }

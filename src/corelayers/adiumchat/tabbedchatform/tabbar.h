@@ -3,11 +3,14 @@
 
 #include <QTabBar>
 #include <QMouseEvent>
+#include <qutim/messagesession.h>
 
 namespace Core
 {
 namespace AdiumChat
 {
+
+using namespace qutim_sdk_0_3;
 
 class ChatSessionImpl;
 struct TabBarPrivate;
@@ -34,12 +37,16 @@ class TabBar : public QTabBar
 	protected:
 		void mouseMoveEvent(QMouseEvent *event);
 		void leaveEvent(QEvent *event);
+		virtual bool eventFilter(QObject *obj, QEvent *event);
+		virtual bool event(QEvent *event);
+		void chatStateChanged(ChatState state,ChatSessionImpl *session);
 	private slots:
 		void onCurrentChanged(int index);
 		void onCloseRequested(int index);
 		void onSessionDestroyed(QObject *obj);
 		void onTabMoved(int from,int to);
 		void onTitleChanged(const QString &title);
+		void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 	private:
 		QScopedPointer<TabBarPrivate> p;
 };

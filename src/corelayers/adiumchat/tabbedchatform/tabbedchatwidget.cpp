@@ -99,6 +99,9 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 
 	m_view->setViewController(session->getController());
 	m_tabbar->setCurrentSession(session);
+
+	if(!session->unread().isEmpty())
+		session->markRead();
 }
 
 ChatSessionImpl *TabbedChatWidget::currentSession() const

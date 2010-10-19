@@ -2,13 +2,13 @@
 #include <QStyle>
 #include <chatlayer/chatsessionimpl.h>
 #include <chatlayer/chatlayerimpl.h>
+#include <qutim/tooltip.h>
+#include <qutim/icon.h>
 
 namespace Core
 {
 namespace AdiumChat
 {
-
-using namespace qutim_sdk_0_3;
 
 struct TabBarPrivate
 {
@@ -81,10 +81,14 @@ void TabBar::leaveEvent(QEvent *event)
 void TabBar::addSession(ChatSessionImpl *session)
 {
 	p->sessions.append(session);
-	addTab(session->getUnit()->title());
+	QIcon icon = ChatLayerImpl::iconForState(ChatStateInActive,session->getUnit());
+	addTab(icon,session->getUnit()->title());
 
 	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),SLOT(onTitleChanged(QString)));
 	connect(session,SIGNAL(destroyed(QObject*)),SLOT(onSessionDestroyed(QObject*)));
+	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+
+	session->installEventFilter(this);
 }
 
 void TabBar::removeSession(ChatSessionImpl *session)
@@ -134,6 +138,7 @@ void TabBar::removeTab(int index)
 {
 	ChatSessionImpl *s = p->sessions.takeAt(index);
 	s->disconnect(this);
+	s->removeEventFilter(this);
 	QTabBar::removeTab(index);
 	emit remove(s);
 }
@@ -156,6 +161,52 @@ void TabBar::onTitleChanged(const QString &title)
 	ChatUnit *u = qobject_cast<ChatUnit*>(sender());
 	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(ChatLayer::get(u,false));
 	setTabText(indexOf(s),title);
+}
+
+bool TabBar::eventFilter(QObject *obj, QEvent *event)
+{
+	const QMetaObject *meta = obj->metaObject();
+	if (meta == &ChatSessionImpl::staticMetaObject) {
+		if (event->type() == ChatStateEvent::eventType()) {
+			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(event);
+			chatStateChanged(chatEvent->chatState(), qobject_cast<ChatSessionImpl*>(obj));
+		}
+	}
+	return QTabBar::eventFilter(obj,event);
+}
+
+bool TabBar::event(QEvent *event)
+{
+	if (event->type() == QEvent::ToolTip) {
+		if (QHelpEvent *help = static_cast<QHelpEvent*>(event)) {
+			int index = tabAt(help->pos());
+			if (index != -1) {
+				ChatUnit *unit = session(index)->getUnit();
+				ToolTip::instance()->showText(help->globalPos(), unit, this);
+				return true;
+			}
+		}
+	}
+	return QTabBar::event(event);
+}
+
+void TabBar::chatStateChanged(ChatState state, ChatSessionImpl *session)
+{
+	if(session->unread().count())
+		return;
+	setTabIcon(indexOf(session),ChatLayerImpl::iconForState(state,session->getUnit()));
+}
+
+void TabBar::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
+{
+	ChatSessionImpl *session = static_cast<ChatSessionImpl*>(sender());
+	int index = indexOf(session);
+	if (unread.isEmpty()) {
+		ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());//FIXME remove in future
+		QIcon icon =  ChatLayerImpl::iconForState(state,session->getUnit());
+		setTabIcon(index, icon);
+	} else
+		setTabIcon(index, Icon("mail-unread-new"));
 }
 
 }
