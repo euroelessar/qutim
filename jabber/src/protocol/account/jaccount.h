@@ -44,10 +44,18 @@ namespace Jabber {
 			QString getAvatarPath();
 			void setAvatar(const QString &hex);
 			bool event(QEvent *);
+			QSet<QString> features() const;
+			bool checkFeature(const QString &feature) const;
+			bool checkFeature(const std::string &feature) const;
+			bool checkIdentity(const QString &category, const QString &type) const;
+			bool checkIdentity(const std::string &category, const std::string &type) const;
+			QString identity(const QString &category, const QString &type) const;
+			std::string identity(const std::string &category, const std::string &type) const;
 		protected:
 			void loadSettings();
 		private:
 			friend class JRoster;
+			friend class JServerDiscoInfo;
 			QScopedPointer<JAccountPrivate> p;
 	};
  } // Jabber namespace

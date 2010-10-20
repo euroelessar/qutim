@@ -1,13 +1,13 @@
-#include "jaccount.h"
+#include "jaccount_p.h"
 #include "roster/jroster.h"
 #include "roster/jcontact.h"
 #include "roster/jcontactresource.h"
 #include "roster/jmessagehandler.h"
+#include "connection/jserverdiscoinfo.h"
 #include "servicediscovery/jservicebrowser.h"
 #include "servicediscovery/jservicediscovery.h"
 #include "../jprotocol.h"
 #include "muc/jmucmanager.h"
-#include "muc/jbookmarkmanager.h"
 #include "muc/jmucuser.h"
 #include <qutim/systeminfo.h>
 #include <qutim/passworddialog.h>
@@ -16,24 +16,6 @@
 #include <qutim/dataforms.h>
 
 namespace Jabber {
-
-	struct JAccountPrivate
-	{
-		inline JAccountPrivate() : keepStatus(false), autoConnect(false) {}
-		inline ~JAccountPrivate() {}
-		JConnection *connection;
-		JRoster *roster;
-		JConnectionListener *connectionListener;
-		JMessageHandler *messageHandler;
-		QVariantList toVariant(const QList<JBookmark> &list);
-		QString passwd;
-		QString nick;
-		bool keepStatus;
-		bool autoConnect;
-		Presence::PresenceType status;
-		JMUCManager *conferenceManager;
-		QPointer<JServiceDiscovery> discoManager;
-	};
 
 	class JPasswordValidator : public QValidator
 	{
@@ -53,6 +35,7 @@ namespace Jabber {
 		p->discoManager = 0;
 		p->connection = new JConnection(this);
 		p->connectionListener = new JConnectionListener(this);
+		Q_UNUSED(new JServerDiscoInfo(this));
 		p->roster = new JRoster(this);
 		p->messageHandler = new JMessageHandler(this);
 		p->conferenceManager = new JMUCManager(this);
@@ -271,4 +254,42 @@ namespace Jabber {
 		}
 		return Account::event(ev);
 	}
+
+	QSet<QString> JAccount::features() const
+	{
+		return p->features;
+	}
+
+	bool JAccount::checkFeature(const QString &feature) const
+	{
+		return p->features.contains(feature);
+	}
+
+	bool JAccount::checkFeature(const std::string &feature) const
+	{
+		return p->features.contains(QString::fromStdString(feature));
+	}
+
+	bool JAccount::checkIdentity(const QString &category, const QString &type) const
+	{
+		Identities::iterator catItr = p->identities.find(category);
+		return catItr == p->identities.end() ? false : catItr->contains(type);
+	}
+
+	bool JAccount::checkIdentity(const std::string &category, const std::string &type) const
+	{
+		return checkIdentity(QString::fromStdString(category), QString::fromStdString(type));
+	}
+
+	QString JAccount::identity(const QString &category, const QString &type) const
+	{
+		Identities::iterator catItr = p->identities.find(category);
+		return catItr == p->identities.end() ? QString() : catItr->value(type);
+	}
+
+	std::string JAccount::identity(const std::string &category, const std::string &type) const
+	{
+		return identity(QString::fromStdString(category), QString::fromStdString(type)).toStdString();
+	}
+
 } // Jabber namespace
