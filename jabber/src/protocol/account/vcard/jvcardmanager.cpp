@@ -58,7 +58,7 @@ namespace Jabber
 		Q_D(JVCardManager);
 		QString id = QString::fromStdString(jid.full());
 		QString avatar;
-		const VCard *vcard = (!fetchedVCard) ? new VCard() : static_cast<VCard*>(fetchedVCard->clone());
+		VCard *vcard = (!fetchedVCard) ? new VCard() : static_cast<VCard*>(fetchedVCard->clone());
 		const VCard::Photo &photo = vcard->photo();
 		if (!photo.binval.empty()) {
 			SHA sha;

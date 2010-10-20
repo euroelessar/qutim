@@ -13,16 +13,30 @@ namespace Jabber
 			"firstName",
 			"middleName",
 			"lastName",
-			"gender",
 			"birthday",
-			"city",
-			"country",
-			"photo",
+			"homepage",
 			"homePhone",
+			"workPhone",
 			"mobilePhone",
-			"university",
-			"faculty",
-			"graduation"
+			"phone",
+			"personalEmail",
+			"workEmail",
+			"email",
+			"homeAddress",
+			"workAddress",
+			"address",
+			"country",
+			"region",
+			"city",
+			"postcode",
+			"street",
+			"extendedAddress",
+			"postbox",
+			"orgName",
+			"orgUnit",
+			"title",
+			"role",
+			"about"
 		};
 		for (int i = 0, size = sizeof(cnames)/sizeof(char*); i < size; i++)
 			names << QLatin1String(cnames[i]);
@@ -36,29 +50,34 @@ namespace Jabber
 				<< QT_TRANSLATE_NOOP("ContactInfo", "First name")
 				<< QT_TRANSLATE_NOOP("ContactInfo", "Middle name")
 				<< QT_TRANSLATE_NOOP("ContactInfo", "Last name")
-				<< QT_TRANSLATE_NOOP("ContactInfo", "Gender")
 				<< QT_TRANSLATE_NOOP("ContactInfo", "Birthday")
-				<< QT_TRANSLATE_NOOP("ContactInfo", "City")
-				<< QT_TRANSLATE_NOOP("ContactInfo", "Country")
-				<< QT_TRANSLATE_NOOP("ContactInfo", "Photo")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Homepage")
 				<< QT_TRANSLATE_NOOP("ContactInfo", "Home phone")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Work phone")
 				<< QT_TRANSLATE_NOOP("ContactInfo", "Mobile phone")
-				<< QT_TRANSLATE_NOOP("ContactInfo", "University")
-				<< QT_TRANSLATE_NOOP("ContactInfo", "Faculty")
-				<< QT_TRANSLATE_NOOP("ContactInfo", "Graduation year");
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Phone")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Personal email")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Work email")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Email")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Home address")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Work address")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Address")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Country")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Region")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "City")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Postcode")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Street")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Address")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Postbox")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Company")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Department")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Position")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "Role")
+				<< QT_TRANSLATE_NOOP("ContactInfo", "About");
 	}
 	
 	Q_GLOBAL_STATIC_WITH_INITIALIZER(QList<LocalizedString>, titles, init_titles(*x))
-	
-//	void init_genders(QList<LocalizedString> &genders)
-//	{
-//		genders << QT_TRANSLATE_NOOP("ContactInfo", "Undefined")
-//				<< QT_TRANSLATE_NOOP("ContactInfo", "Female")
-//				<< QT_TRANSLATE_NOOP("ContactInfo", "Male");
-//	}
-//	
-//	Q_GLOBAL_STATIC_WITH_INITIALIZER(QList<LocalizedString>, genders, init_genders(*x))
-	
+
 	class JInfoRequestPrivate
 	{
 	public:
@@ -85,114 +104,111 @@ namespace Jabber
 			delete d->vcard;
 	}
 
-	void JInfoRequest::setFetchedVCard(const VCard *vcard)
+	void JInfoRequest::setFetchedVCard(VCard *vcard)
 	{
 		Q_D(JInfoRequest);
 		DataItem item;
 		// General page
 		{
 			DataItem general(QT_TRANSLATE_NOOP("ContactInfo", "General"));
+			// name
+			addItemList(Nick, general, vcard->nickname());
+			addItemList(FirstName, general, vcard->name().given);
+			addItemList(MiddleName, general, vcard->name().middle);
+			addItemList(LastName, general, vcard->name().family);
+			// birthday
 			{
-				DataItem name(QT_TRANSLATE_NOOP("ContactInfo", "Name"));
-				addItemList(Nick, name, vcard->nickname());
-				addItemList(FirstName, name, vcard->name().given);
-				addItemList(MiddleName, name, vcard->name().middle);
-				addItemList(LastName, name, vcard->name().family);
-				general.addSubitem(name);
+				QString date(QString::fromStdString(vcard->bday()));
+				QDate isoDate = QDate::fromString(date, "yyyy-MM-dd");
+				if (isoDate.isValid())
+					date = isoDate.toString();
+				addItem(Birthday, general, date);
+			}
+			// homepage
+			addItemList(Homepage, general, vcard->url());
+			// telephone
+			{
+				if (!vcard->telephone().empty()) {
+					foreach (VCard::Telephone phone, vcard->telephone())
+					{
+						DataType type;
+						if (phone.home)
+							type = HomePhone;
+						else if (phone.work)
+							type = WorkPhone;
+						else if (phone.cell)
+							type = MobilePhone;
+						else
+							type = Phone;
+						addItem(type, general, QString::fromStdString(phone.number));
+					}
+				} else {
+					addItem(Phone, general, QString());
+				}
+			}
+			// email
+			{
+				if (!vcard->emailAddresses().empty()) {
+					foreach (VCard::Email email, vcard->emailAddresses())
+					{
+						DataType type;
+						if (email.home)
+							type = PersonalEmail;
+						else if (email.work)
+							type = WorkEmail;
+						else
+							type = Email;
+						addItem(Email, general, QString::fromStdString(email.userid));
+					}
+				} else {
+					addItem(Email, general, QString());
+				}
 			}
 			item.addSubitem(general);
 		}
-		
-		//updatePhoto(avatarUrl, (avatarUrl != ""));
-		/*InfoItem general = InfoItem(LocalizedString("General"));
-		if (!QString::fromStdString(vcard->formattedname()).isEmpty()) {
-			InfoItem item(InfoItem("Name", QString::fromStdString(vcard->formattedname())));
-			general.addSubitem(item);
-			d->items.insert("Name", &item);
-		}
-		if (!QString::fromStdString(vcard->nickname()).isEmpty())
-			general.addSubitem(InfoItem("Nick", QString::fromStdString(vcard->nickname())));
-		if (!QString::fromStdString(vcard->bday()).isEmpty()) {
-			QString date(QString::fromStdString(vcard->bday()));
-			QDate isoDate = QDate::fromString(date, "yyyy-MM-dd");
-			if (isoDate.isValid())
-				date = isoDate.toString();
-			general.addSubitem(InfoItem("Birthday", date));
-		}
-		if (!QString::fromStdString(vcard->url()).isEmpty())
-			general.addSubitem(InfoItem("Homepage", QString::fromStdString(vcard->url())));
-		if (!QString::fromStdString(vcard->desc()).isEmpty())
-			general.addSubitem(InfoItem("About", QString::fromStdString(vcard->desc())));
-		if (general.hasSubitems())
-			d->vcard.addSubitem(general);
-		if (vcard->emailAddresses().size())
-			foreach (VCard::Email email, vcard->emailAddresses())
-			{
-				QString type;
-				if (email.home)
-					type = VCardConst::personalMailStatus();
-				else if (email.work)
-					type = VCardConst::workMailStatus();
-				else
-					type = VCardConst::emptyMailStatus();
-				addEmail(QString::fromStdString(email.userid), type);
-			}
-		if (vcard->telephone().size())
-			foreach (VCard::Telephone phone, vcard->telephone())
-			{
-				QString type;
-				if (phone.home)
-					type = VCardConst::homePhoneStatus();
-				else if (phone.work)
-					type = VCardConst::workPhoneStatus();
-				else if (phone.cell)
-					type = VCardConst::celluarPhoneStatus();
-				else
-					type = VCardConst::emptyPhoneStatus();
-				addPhone(QString::fromStdString(phone.number), type);
-			}
-		if (vcard->addresses().size())
-			foreach (VCard::Address address, vcard->addresses())
-			{
-				if (address.home)
+		// Addresses page
+		{
+			DataItem addresses(QT_TRANSLATE_NOOP("ContactInfo", "Addresses"));
+			if (!vcard->addresses().empty()) {
+				foreach (VCard::Address address, vcard->addresses())
 				{
-					if (QString::fromStdString(address.ctry) != "")
-						addHomeCountry(QString::fromStdString(address.ctry));
-					if (QString::fromStdString(address.region) != "")
-						addHomeRegion(QString::fromStdString(address.region));
-					if (QString::fromStdString(address.locality) != "")
-						addHomeCity(QString::fromStdString(address.locality));
-					if (QString::fromStdString(address.pcode) != "")
-						addHomePostcode(QString::fromStdString(address.pcode));
-					if (QString::fromStdString(address.street) != "")
-						addHomeStreet(QString::fromStdString(address.street));
-					if (QString::fromStdString(address.pobox) != "")
-						addHomePostbox(QString::fromStdString(address.pobox));
+					DataType type;
+					if (address.home)
+						type = HomeAddress;
+					else if (address.work)
+						type = WorkAddress;
+					else
+						type = Address;
+					DataItem addrItem(names()->at(type), titles()->at(type), QVariant());
+					addItem(Country, addrItem, address.ctry);
+					addItem(Region, addrItem, address.region);
+					addItem(City, addrItem, address.locality);
+					addItem(Postcode, addrItem, address.pcode);
+					addItem(Street, addrItem, address.street);
+					addItem(ExtendedAddress, addrItem, address.extadd);
+					addItem(Postbox, addrItem, address.pobox);
+					addresses.addSubitem(addrItem);
 				}
-				if (address.work)
-				{
-					if (QString::fromStdString(address.ctry) != "")
-						addWorkCountry(QString::fromStdString(address.ctry));
-					if (QString::fromStdString(address.region) != "")
-						addWorkRegion(QString::fromStdString(address.region));
-					if (QString::fromStdString(address.locality) != "")
-						addWorkCity(QString::fromStdString(address.locality));
-					if (QString::fromStdString(address.pcode) != "")
-						addWorkPostcode(QString::fromStdString(address.pcode));
-					if (QString::fromStdString(address.street) != "")
-						addWorkStreet(QString::fromStdString(address.street));
-					if (QString::fromStdString(address.pobox) != "")
-						addWorkPostbox(QString::fromStdString(address.pobox));
-				}
+			} else {
+				addItem(Address, addresses, QString());
 			}
-		if (QString::fromStdString(vcard->org().name) != "")
-			addOrgName(QString::fromStdString(vcard->org().name));
-		if (!vcard->org().units.empty() && QString::fromStdString(vcard->org().units.front()) != "")
-			addOrgUnit(QString::fromStdString(vcard->org().units.front()));
-		if (QString::fromStdString(vcard->title()) != "")
-			addTitle(QString::fromStdString(vcard->title()));
-		if (QString::fromStdString(vcard->role()) != "")
-			addRole(QString::fromStdString(vcard->role()));*/
+			item.addSubitem(addresses);
+		}
+		// Work page
+		{
+			DataItem work(QT_TRANSLATE_NOOP("ContactInfo", "Work"));
+			addItem(OrgName, work, vcard->org().name);
+			addItem(OrgUnit, work, vcard->org().units);
+			addItem(Title, work, vcard->title());
+			addItem(Role, work, vcard->role());
+			item.addSubitem(work);
+		}
+		// About page
+		{
+			DataItem about(QT_TRANSLATE_NOOP("ContactInfo", "About"));
+			addMultilineItem(About, about, vcard->desc());
+			item.addSubitem(about);
+		}
 
 		d->item = new DataItem(item);
 		d->vcard = vcard;
@@ -223,6 +239,16 @@ namespace Jabber
 		group.addSubitem(item);
 	}
 
+	void JInfoRequest::addMultilineItem(DataType type, DataItem &group, const std::string &data_helper)
+	{
+		QString data = QString::fromStdString(data_helper);
+		DataItem item(names()->at(type), titles()->at(type), data);
+		d_func()->items.insert(item.name(), item);
+		item.setProperty("multiline", true);
+		item.setProperty("hideTitle", true);
+		group.addSubitem(item);
+	}
+
 	void JInfoRequest::addItem(DataType type, DataItem &group, const std::string &data)
 	{
 		addItem(type, group, QString::fromStdString(data));
@@ -230,7 +256,7 @@ namespace Jabber
 	
 	void JInfoRequest::addItemList(DataType type, DataItem &group, const std::string &data)
 	{
-		addItem(type, group, QString::fromStdString(data).split(','));
+		addItem(type, group, QString::fromStdString(data).split(',', QString::SkipEmptyParts));
 	}
 
 	void JInfoRequest::addItem(DataType type, DataItem &group, const StringList &data)

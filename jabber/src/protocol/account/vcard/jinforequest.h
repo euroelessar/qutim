@@ -28,17 +28,42 @@ namespace Jabber
 				Nick,
 				FirstName,
 				MiddleName,
-				LastName
+				LastName,
+				Birthday,
+				Homepage,
+				HomePhone,
+				WorkPhone,
+				MobilePhone,
+				Phone,
+				PersonalEmail,
+				WorkEmail,
+				Email,
+				HomeAddress,
+				WorkAddress,
+				Address,
+				Country,
+				Region,
+				City,
+				Postcode,
+				Street,
+				ExtendedAddress,
+				Postbox,
+				OrgName,
+				OrgUnit,
+				Title,
+				Role,
+				About
 			};
 
 			JInfoRequest(JVCardManager *manager, const QString &contact);
 			~JInfoRequest();
 			DataItem item(const QString &name) const;
 			State state() const;
-			void setFetchedVCard(const VCard *vcard);
+			void setFetchedVCard(VCard *vcard);
 		private:
 			void addItem(DataType type, DataItem &group, const QVariant &data);
 			void addItem(DataType type, DataItem &group, const std::string &data);
+			void addMultilineItem(DataType type, DataItem &group, const std::string &data);
 			void addItemList(DataType type, DataItem &group, const std::string &data);
 			void addItem(DataType type, DataItem &group, const std::list<std::string> &data);
 			QScopedPointer<JInfoRequestPrivate> d_ptr;
