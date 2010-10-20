@@ -1,8 +1,8 @@
 #include "jmoodchooser.h"
 #include "ui_jmoodchooser.h"
 #include <qutim/icon.h>
-#include <qutim/account.h>
 #include <qutim/event.h>
+#include "protocol/account/jaccount.h"
 
 namespace Jabber {
 
@@ -71,11 +71,10 @@ namespace Jabber {
 		m_account = account;
 		m_eventId = qutim_sdk_0_3::Event::registerType("jabber-personal-event");
 		// Add action to context menu
-		static ActionGenerator *gen = new ActionGenerator(QIcon(), tr("Set mood"),
-														  this, SLOT(showMoodChooser(QObject*)));
-		gen->setType(0x60000);
-		gen->setPriority(30);
-		account->addAction(gen);
+		static JMoodChooserAction gen(QIcon(), tr("Set mood"), this, SLOT(showMoodChooser(QObject*)));
+		gen.setType(0x60000);
+		gen.setPriority(30);
+		account->addAction(&gen);
 		// Register event filter
 		account->installEventFilter(this);
 	}
@@ -108,5 +107,24 @@ namespace Jabber {
 		return false;
 	}
 
+	JMoodChooserAction::JMoodChooserAction(const QIcon &icon, const LocalizedString &text,
+										   const QObject *receiver, const char *member) :
+		ActionGenerator(icon, text, receiver, member)
+	{
+	}
+
+	JMoodChooserAction::JMoodChooserAction(const QIcon &icon, const LocalizedString &text,
+										   const char *member) :
+		ActionGenerator(icon, text, member)
+	{
+	}
+
+	void JMoodChooserAction::showImpl(QAction *action, QObject *obj)
+	{
+		JAccount *account = qobject_cast<JAccount*>(obj);
+		if (!account)
+			return;
+		action->setEnabled(account->checkIdentity(QLatin1String("pubsub"), QLatin1String("pep")));
+	}
 
 } // namespace Jabber

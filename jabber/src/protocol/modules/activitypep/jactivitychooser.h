@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "jpersonactivityconverter.h"
+#include <qutim/actiongenerator.h>
 
 class QTreeWidgetItem;
 namespace qutim_sdk_0_3 {
@@ -35,7 +36,6 @@ namespace Jabber {
 		Account *m_account;
 	};
 
-
 	class JActivityChooser : public QObject, public JabberExtension
 	{
 		Q_OBJECT
@@ -53,6 +53,17 @@ namespace Jabber {
 		QString m_currentGeneral;
 		QString m_currentSpecific;
 		QString m_currentText;
+	};
+
+	class JActivityChooserAction : public qutim_sdk_0_3::ActionGenerator
+	{
+	public:
+		JActivityChooserAction(const QIcon &icon, const qutim_sdk_0_3::LocalizedString &text,
+						   const QObject *receiver, const char *member);
+		JActivityChooserAction(const QIcon &icon, const qutim_sdk_0_3::LocalizedString &text,
+						   const char *member);
+	protected:
+		virtual void showImpl(QAction *action, QObject *obj);
 	};
 
 } // namespace Jabber

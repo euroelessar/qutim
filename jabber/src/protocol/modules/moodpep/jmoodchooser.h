@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "jpersonmoodconverter.h"
+#include <qutim/actiongenerator.h>
 
 class QListWidgetItem;
 namespace qutim_sdk_0_3 {
@@ -48,6 +49,17 @@ namespace Jabber {
 		Account *m_account;
 		QString m_currentMood;
 		QString m_currentText;
+	};
+
+	class JMoodChooserAction : public qutim_sdk_0_3::ActionGenerator
+	{
+	public:
+		JMoodChooserAction(const QIcon &icon, const qutim_sdk_0_3::LocalizedString &text,
+						   const QObject *receiver, const char *member);
+		JMoodChooserAction(const QIcon &icon, const qutim_sdk_0_3::LocalizedString &text,
+						   const char *member);
+	protected:
+		virtual void showImpl(QAction *action, QObject *obj);
 	};
 
 } // namespace Jabber
