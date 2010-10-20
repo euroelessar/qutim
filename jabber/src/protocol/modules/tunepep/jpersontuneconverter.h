@@ -35,6 +35,15 @@ namespace Jabber
 	private:
 		std::string m_feature;
 	};
+
+	class JPersonTuneRegistrator : public QObject
+	{
+		Q_OBJECT
+	public:
+		JPersonTuneRegistrator();
+	protected:
+		bool eventFilter(QObject *obj, QEvent *event);
+	};
 }
 
 #endif // JPERSONTUNECONVERTER_H

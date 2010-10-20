@@ -16,11 +16,15 @@
 
 #include "jpersontuneconverter.h"
 #include <gloox/tag.h>
+#include <qutim/extensionicon.h>
+#include <protocol/jprotocol.h>
 
 namespace Jabber
 {
 	JPersonTuneConverter::JPersonTuneConverter() : m_feature("http://jabber.org/protocol/tune")
 	{
+		static JPersonTuneRegistrator tuneRegistrator;
+		Q_UNUSED(tuneRegistrator);
 	}
 	
 	JPersonTuneConverter::~JPersonTuneConverter()
@@ -73,33 +77,65 @@ namespace Jabber
 
 		return t;
 	}
-	
+
+#define ADD_TAG(Tag, ValueMethod)\
+	t = tag->findChild(#Tag); \
+	if(t) { \
+		QString value = QString::fromStdString(t->cdata()); \
+		data.insert(QLatin1String(#Tag), value ValueMethod); \
+		if (!description.isEmpty()) \
+			description += " - "; \
+		description += value; \
+	}
+
+
 	QVariantHash JPersonTuneConverter::fromXml(gloox::Tag *tag) const
 	{
 		QVariantHash data;
+		QString description;
 		
-        gloox::Tag* t = tag->findChild("artist");
-        if(t)
-			data.insert(QLatin1String("artist"), QString::fromStdString(t->cdata()));
-        t = tag->findChild("length");
-        if(t)
-			data.insert(QLatin1String("length"), QString::fromStdString(t->cdata()).toInt());
-        t = tag->findChild("rating");
-        if(t)
-			data.insert(QLatin1String("rating"), QString::fromStdString(t->cdata()).toInt());
-        t = tag->findChild("source");
-        if(t)
-			data.insert(QLatin1String("source"), QString::fromStdString(t->cdata()));
-        t = tag->findChild("title");
-        if(t)
-			data.insert(QLatin1String("title"), QString::fromStdString(t->cdata()));
-        t = tag->findChild("track");
-        if(t)
-			data.insert(QLatin1String("track"), QString::fromStdString(t->cdata()));
-        t = tag->findChild("uri");
-        if(t)
-			data.insert(QLatin1String("uri"), QString::fromStdString(t->cdata()));
-		
+		gloox::Tag* t;
+		ADD_TAG(artist,);
+		ADD_TAG(length,.toInt());
+		ADD_TAG(rating,.toInt());
+		ADD_TAG(source,);
+		ADD_TAG(title,);
+		ADD_TAG(track,);
+		ADD_TAG(uri,);
+
+		if (!data.isEmpty()) {
+			data.insert(QLatin1String("id"), "tune");
+			data.insert(QLatin1String("title"), QT_TRANSLATE_NOOP("Tune", "Now listening").toString());
+			data.insert(QLatin1String("description"), description);
+			data.insert(QLatin1String("icon"),
+						qVariantFromValue(qutim_sdk_0_3::ExtensionIcon("user-status-listening_to_music")));
+			data.insert(QLatin1String("showInTooltip"), true);
+			data.insert(QLatin1String("priorityInTooltip"), 70);
+		}
+
 		return data;
 	}
+
+#undef ADD_TAG
+
+	JPersonTuneRegistrator::JPersonTuneRegistrator()
+	{
+		JProtocol::instance()->installEventFilter(this);
+	}
+
+	bool JPersonTuneRegistrator::eventFilter(QObject *obj, QEvent *ev)
+	{
+		if (ev->type() == ExtendedInfosEvent::eventType() && obj == JProtocol::instance()) {
+			ExtendedInfosEvent *event = static_cast<ExtendedInfosEvent*>(ev);
+			QVariantHash extStatus;
+			extStatus.insert("id", "tune");
+			extStatus.insert("name", QT_TRANSLATE_NOOP("Tune", "Tune").toString());
+			extStatus.insert("settingsDescription",
+							 QT_TRANSLATE_NOOP("Tune", "Show tune icon").toString());
+			event->addInfo("tune", extStatus);
+		}
+		return false;
+	}
+
 }
+
