@@ -5,6 +5,8 @@
 #include <chatlayer/chatlayerimpl.h>
 #include <qutim/tooltip.h>
 #include <qutim/icon.h>
+#include <QDropEvent>
+#include <qutim/mimeobjectdata.h>
 
 namespace Core
 {
@@ -21,6 +23,7 @@ struct TabBarPrivate
 TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 {
 	setContextMenuPolicy(Qt::CustomContextMenu);
+	setAcceptDrops(true);
 	p->closableActiveTab = false;
 	setMouseTracking(true);
 	p->sessionList = new QMenu(this);
@@ -93,7 +96,7 @@ void TabBar::addSession(ChatSessionImpl *session)
 	addTab(icon,session->getUnit()->title());
 
 	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),SLOT(onTitleChanged(QString)));
-	connect(session,SIGNAL(destroyed(QObject*)),SLOT(removeSession(QObject*)));
+	connect(session,SIGNAL(destroyed(QObject*)),SLOT(onRemoveSession(QObject*)));
 	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 
 	session->installEventFilter(this);
@@ -150,11 +153,11 @@ void TabBar::removeTab(int index)
 	ChatSessionImpl *s = p->sessions.at(index);
 	s->disconnect(this);
 	s->removeEventFilter(this);
-	removeSession(s);
+	onRemoveSession(s);
 	emit remove(s);
 }
 
-void TabBar::removeSession(QObject *obj)
+void TabBar::onRemoveSession(QObject *obj)
 {
 	ChatSessionImpl *s = reinterpret_cast<ChatSessionImpl*>(obj);
 	int index = p->sessions.indexOf(s);
@@ -201,6 +204,25 @@ bool TabBar::event(QEvent *event)
 			if (index != -1) {
 				ChatUnit *unit = session(index)->getUnit();
 				ToolTip::instance()->showText(help->globalPos(), unit, this);
+				return true;
+			}
+		}
+	} else if (event->type() == QEvent::DragEnter) {
+		QDragEnterEvent *dragEvent = static_cast<QDragEnterEvent*>(event);
+		if (const MimeObjectData *data = qobject_cast<const MimeObjectData*>(dragEvent->mimeData())) {
+			ChatUnit *u = qobject_cast<ChatUnit*>(data->object());
+			if (u)
+				dragEvent->acceptProposedAction();
+		}
+		return true;
+	} else if (event->type() == QEvent::Drop) {
+		QDropEvent *dropEvent = static_cast<QDropEvent*>(event);
+		if (const MimeObjectData *mimeData
+				= qobject_cast<const MimeObjectData*>(dropEvent->mimeData())) {
+			if (ChatUnit *u = qobject_cast<ChatUnit*>(mimeData->object())) {
+				ChatLayerImpl::get(u,true)->activate();
+				dropEvent->setDropAction(Qt::CopyAction);
+				dropEvent->accept();
 				return true;
 			}
 		}

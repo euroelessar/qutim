@@ -43,7 +43,7 @@ class TabBar : public QTabBar
 	private slots:
 		void onCurrentChanged(int index);
 		void onCloseRequested(int index);
-		void removeSession(QObject *obj);
+		void onRemoveSession(QObject *obj);
 		void onTabMoved(int from,int to);
 		void onTitleChanged(const QString &title);
 		void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);

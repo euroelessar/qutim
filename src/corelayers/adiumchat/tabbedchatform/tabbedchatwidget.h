@@ -19,6 +19,7 @@ using namespace qutim_sdk_0_3;
 class ChatViewWidget;
 class TabBar;
 class ChatEdit;
+class ConferenceContactsView;
 class TabbedChatWidget : public AbstractChatWidget
 {
     Q_OBJECT
@@ -50,6 +51,8 @@ private:
 	QList<QAction*> m_unitActions;
 	QAction *m_spacer;
 	QAction *m_recieverList;
+	ConferenceContactsView *m_contactView;
+	QString m_key;
 };
 
 }

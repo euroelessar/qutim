@@ -5,11 +5,15 @@
 #include <qutim/actiontoolbar.h>
 #include "tabbar.h"
 #include "chatedit.h"
+#include "conferencecontactsview.h"
 #include <QPlainTextEdit>
 #include <qutim/debug.h>
 #include <qutim/icon.h>
 #include <qutim/conference.h>
+#include <qutim/config.h>
 #include <QAbstractItemModel>
+#include <QSplitter>
+
 
 namespace Core
 {
@@ -21,19 +25,29 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_toolbar(new ActionToolBar(tr("Chat Actions"),this)),
 	m_tabbar(new TabBar(this)),
 	m_chatInput(new ChatEdit(this)),
-	m_recieverList(new QAction(Icon("view-choose"),tr("Destination"),this))
+	m_recieverList(new QAction(Icon("view-choose"),tr("Destination"),this)),
+	m_contactView(new ConferenceContactsView(this)),
+	m_key(key)
 {
-	setAttribute(Qt::WA_DeleteOnClose);
-	Q_UNUSED(key);
+	setAttribute(Qt::WA_DeleteOnClose);	
 	QWidget *w = new QWidget(this);
 	setCentralWidget(w);
 	QWidget *view = ChatViewFactory::instance()->createViewWidget();
 	view->setParent(w);
 
+	QSplitter *hSplitter = new QSplitter(Qt::Horizontal,this);
+	hSplitter->setObjectName(QLatin1String("hSplitter"));
+	hSplitter->addWidget(view);
+	hSplitter->addWidget(m_contactView);
+
+	QSplitter *vSplitter = new QSplitter(Qt::Vertical,this);
+	vSplitter->setObjectName(QLatin1String("vSplitter"));
+	vSplitter->addWidget(hSplitter);
+	vSplitter->addWidget(m_chatInput);
+
 	QVBoxLayout *l = new QVBoxLayout(w);
 	l->addWidget(m_tabbar);
-	l->addWidget(view);
-	l->addWidget(m_chatInput);
+	l->addWidget(vSplitter);
 
 	addToolBar(Qt::TopToolBarArea,m_toolbar);
 	m_toolbar->setMovable(false);
@@ -60,13 +74,31 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	QAction *a = new QAction(Icon("view-list-tree"),tr("Session list"),this);
 	a->setMenu(m_tabbar->menu());
 	m_toolbar->addAction(a);
+	loadSettings();
 
 	connect(m_tabbar,SIGNAL(remove(ChatSessionImpl*)),SLOT(removeSession(ChatSessionImpl*)));
 }
 
 void TabbedChatWidget::loadSettings()
 {
-
+	ConfigGroup cfg = Config("appearance");
+	if(!property("loaded").toBool()) {
+		ConfigGroup keyGroup = cfg.group("keys");
+		if (keyGroup.hasChildGroup(m_key)) {
+			keyGroup.beginGroup(m_key);
+			QByteArray geom = keyGroup.value("geometry", QByteArray());
+			restoreGeometry(geom);
+			foreach (QSplitter *splitter, findChildren<QSplitter*>()) {
+				geom = keyGroup.value(splitter->objectName(), QByteArray());
+				debug() << "found splitter" << geom;
+				splitter->restoreState(geom);
+			}
+			keyGroup.endGroup();
+		} else {
+			centerizeWidget(this);
+		}
+		setProperty("loaded",true);
+	}
 }
 
 QPlainTextEdit *TabbedChatWidget::getInputField() const
@@ -94,8 +126,8 @@ void TabbedChatWidget::removeSession(ChatSessionImpl *session)
 {
 	if(contains(session))
 		m_tabbar->removeSession(session);
-	//TODO delete on close flag
 	session->setActive(false);
+	//TODO delete on close flag
 	session->deleteLater();
 
 	if(!m_tabbar->count())
@@ -125,6 +157,7 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 	m_view->setViewController(session->getController());
 	m_tabbar->setCurrentSession(session);
 	m_chatInput->setSession(session);
+	m_contactView->setSession(session);
 
 	ChatUnit *u = session->getUnit();
 	QIcon icon = Icon("view-choose");
@@ -165,6 +198,12 @@ ChatSessionImpl *TabbedChatWidget::currentSession() const
 TabbedChatWidget::~TabbedChatWidget()
 {
 	delete m_tabbar;
+	ConfigGroup group = Config("appearance").group("chat/behavior/widget/keys").group(m_key);
+	group.setValue("geometry", saveGeometry());
+	foreach (QSplitter *splitter, findChildren<QSplitter*>()) {
+		group.setValue(splitter->objectName(), splitter->saveState());
+	}
+	group.sync();
 }
 
 bool TabbedChatWidget::event(QEvent *event)

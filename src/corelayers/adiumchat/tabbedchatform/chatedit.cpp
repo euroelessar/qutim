@@ -52,6 +52,7 @@ void ChatEdit::setSession(ChatSessionImpl *session)
 {
 	m_session = session;
 	setDocument(session->getInputField());
+	setMinimumHeight(QFontMetrics(font()).height()*2);
 }
 
 bool ChatEdit::event(QEvent *event)
@@ -123,6 +124,11 @@ void ChatEdit::onTextChanged()
 		m_session->setChatState(ChatStateActive);
 	else
 		m_session->setChatState(ChatStateComposing);
+}
+
+void ChatEdit::setSendKey(SendMessageKey key)
+{
+	m_sendKey = key;
 }
 
 }
