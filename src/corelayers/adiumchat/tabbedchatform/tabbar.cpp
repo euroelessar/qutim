@@ -1,5 +1,6 @@
 #include "tabbar.h"
 #include <QStyle>
+#include <QAction>
 #include <chatlayer/chatsessionimpl.h>
 #include <chatlayer/chatlayerimpl.h>
 #include <qutim/tooltip.h>
@@ -14,6 +15,7 @@ struct TabBarPrivate
 {
 	bool closableActiveTab;
 	ChatSessionList sessions;
+	QMenu *sessionList;
 };
 
 TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
@@ -21,11 +23,13 @@ TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	p->closableActiveTab = false;
 	setMouseTracking(true);
+	p->sessionList = new QMenu(this);
 
 	connect(this,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
 	connect(this,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 	connect(this,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 	connect(this,SIGNAL(customContextMenuRequested(QPoint)),SLOT(onContextMenu(QPoint)));
+	connect(p->sessionList,SIGNAL(triggered(QAction*)),SLOT(onSessionListActionTriggered(QAction*)));
  }
 
 TabBar::~TabBar()
@@ -85,10 +89,11 @@ void TabBar::addSession(ChatSessionImpl *session)
 {
 	p->sessions.append(session);
 	QIcon icon = ChatLayerImpl::iconForState(ChatStateInActive,session->getUnit());
+	p->sessionList->addAction(icon,session->getUnit()->title());
 	addTab(icon,session->getUnit()->title());
 
 	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),SLOT(onTitleChanged(QString)));
-	connect(session,SIGNAL(destroyed(QObject*)),SLOT(onSessionDestroyed(QObject*)));
+	connect(session,SIGNAL(destroyed(QObject*)),SLOT(removeSession(QObject*)));
 	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 
 	session->installEventFilter(this);
@@ -108,7 +113,10 @@ ChatSessionImpl *TabBar::session(int index) const
 
 ChatSessionImpl *TabBar::currentSession() const
 {
-	return p->sessions.at(currentIndex());
+	int index = currentIndex();
+	if(index != -1 && index < p->sessions.count())
+		return p->sessions.at(currentIndex());
+	return 0;
 }
 
 void TabBar::setCurrentSession(ChatSessionImpl *session)
@@ -139,24 +147,31 @@ void TabBar::onCloseRequested(int index)
 
 void TabBar::removeTab(int index)
 {
-	ChatSessionImpl *s = p->sessions.takeAt(index);
+	ChatSessionImpl *s = p->sessions.at(index);
 	s->disconnect(this);
 	s->removeEventFilter(this);
-	QTabBar::removeTab(index);
+	removeSession(s);
 	emit remove(s);
 }
 
-void TabBar::onSessionDestroyed(QObject *obj)
+void TabBar::removeSession(QObject *obj)
 {
 	ChatSessionImpl *s = reinterpret_cast<ChatSessionImpl*>(obj);
 	int index = p->sessions.indexOf(s);
 	p->sessions.removeAll(s);
+	p->sessionList->removeAction(p->sessionList->actions().at(index));
 	QTabBar::removeTab(index);
 }
 
 void TabBar::onTabMoved(int from, int to)
 {
 	p->sessions.move(from,to);
+	//small hack
+	QList <QAction *> actions = p->sessionList->actions();
+	actions.move(from,to);
+	foreach (QAction *a,p->sessionList->actions())
+		p->sessionList->removeAction(a);
+	p->sessionList->addActions(actions);
 }
 
 void TabBar::onTitleChanged(const QString &title)
@@ -197,25 +212,40 @@ void TabBar::chatStateChanged(ChatState state, ChatSessionImpl *session)
 {
 	if(session->unread().count())
 		return;
-	setTabIcon(indexOf(session),ChatLayerImpl::iconForState(state,session->getUnit()));
+	QIcon icon = ChatLayerImpl::iconForState(state,session->getUnit());
+	setTabIcon(indexOf(session),icon);
+	p->sessionList->actions().at(indexOf(session))->setIcon(icon);
 }
 
 void TabBar::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
 {
 	ChatSessionImpl *session = static_cast<ChatSessionImpl*>(sender());
 	int index = indexOf(session);
+	QIcon icon;
 	if (unread.isEmpty()) {
 		ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());//FIXME remove in future
-		QIcon icon =  ChatLayerImpl::iconForState(state,session->getUnit());
-		setTabIcon(index, icon);
+		icon =  ChatLayerImpl::iconForState(state,session->getUnit());
 	} else
-		setTabIcon(index, Icon("mail-unread-new"));
+		icon = Icon("mail-unread-new");
+	p->sessionList->actions().at(index)->setIcon(icon);
+	setTabIcon(index, icon);
 }
 
 void TabBar::onContextMenu(const QPoint &pos)
 {
 	if(currentSession())
 		currentSession()->getUnit()->showMenu(mapToGlobal(pos));
+}
+
+QMenu *TabBar::menu() const
+{
+	return p->sessionList;
+}
+
+void TabBar::onSessionListActionTriggered(QAction *act)
+{
+	int index = p->sessionList->actions().indexOf(act);
+	setCurrentIndex(index);
 }
 
 }

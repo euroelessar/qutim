@@ -49,6 +49,7 @@ private:
 	QAction *m_actSeparator;
 	QList<QAction*> m_unitActions;
 	QAction *m_spacer;
+	QAction *m_recieverList;
 };
 
 }

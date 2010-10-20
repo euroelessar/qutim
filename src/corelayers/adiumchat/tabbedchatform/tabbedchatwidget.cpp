@@ -20,7 +20,8 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	AbstractChatWidget(parent),
 	m_toolbar(new ActionToolBar(tr("Chat Actions"),this)),
 	m_tabbar(new TabBar(this)),
-	m_chatInput(new ChatEdit(this))
+	m_chatInput(new ChatEdit(this)),
+	m_recieverList(new QAction(Icon("view-choose"),tr("Destination"),this))
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	Q_UNUSED(key);
@@ -46,6 +47,19 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 
 	m_actSeparator = m_toolbar->addSeparator();
 	m_unitSeparator = m_toolbar->addSeparator();
+
+	//simple hack
+	m_recieverList->setMenu(new QMenu);
+	m_toolbar->addAction(m_recieverList);
+	m_recieverList->menu()->deleteLater();
+
+	QWidget* spacer = new QWidget(this);
+	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	spacer->setAttribute(Qt::WA_TransparentForMouseEvents);
+	m_toolbar->addWidget(spacer);
+	QAction *a = new QAction(Icon("view-list-tree"),tr("Session list"),this);
+	a->setMenu(m_tabbar->menu());
+	m_toolbar->addAction(a);
 
 	connect(m_tabbar,SIGNAL(remove(ChatSessionImpl*)),SLOT(removeSession(ChatSessionImpl*)));
 }
@@ -134,6 +148,7 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 
 	qDeleteAll(m_unitActions);
 	m_unitActions.clear();
+	m_recieverList->setMenu(session->menu());
 	ActionContainer container(session->getUnit(),ActionContainer::TypeMatch,ActionTypeChatButton);
 	for (int i = 0;i!=container.count();i++) {
 		QAction *current = container.action(i);
@@ -157,7 +172,7 @@ bool TabbedChatWidget::event(QEvent *event)
 	if (event->type() == QEvent::WindowActivate
 			|| event->type() == QEvent::WindowDeactivate) {
 		bool active = event->type() == QEvent::WindowActivate;
-		if (m_tabbar->currentSession())
+		if (!m_tabbar->currentSession())
 			return false;
 		m_tabbar->currentSession()->setActive(active);
 	}

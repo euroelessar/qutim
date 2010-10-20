@@ -31,6 +31,7 @@ class TabBar : public QTabBar
 		bool contains(ChatSessionImpl *session) const;
 		int indexOf(ChatSessionImpl *session) const;
 		void removeTab(int index);
+		QMenu *menu() const; //ChatSessionlist
 	signals:
 		void remove(ChatSessionImpl *session);
 	protected:
@@ -42,11 +43,12 @@ class TabBar : public QTabBar
 	private slots:
 		void onCurrentChanged(int index);
 		void onCloseRequested(int index);
-		void onSessionDestroyed(QObject *obj);
+		void removeSession(QObject *obj);
 		void onTabMoved(int from,int to);
 		void onTitleChanged(const QString &title);
 		void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 		void onContextMenu(const QPoint &pos);
+		void onSessionListActionTriggered(QAction *);
 	private:
 		QScopedPointer<TabBarPrivate> p;
 };
