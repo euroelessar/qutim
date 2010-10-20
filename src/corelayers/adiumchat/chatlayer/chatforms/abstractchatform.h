@@ -23,6 +23,7 @@
 
 namespace qutim_sdk_0_3 {
 class ChatSession;
+class ActionGenerator;
 }
 
 namespace Core
@@ -44,6 +45,8 @@ public:
 	Q_INVOKABLE QObject *textEdit(qutim_sdk_0_3::ChatSession *session);
 	Q_INVOKABLE QWidgetList chatWidgets();
 	Q_INVOKABLE QWidget *chatWidget(qutim_sdk_0_3::ChatSession *session) const;
+	Q_INVOKABLE void addAction(qutim_sdk_0_3::ActionGenerator *gen);
+	Q_INVOKABLE void removeAction(qutim_sdk_0_3::ActionGenerator *gen);
 protected:
 	virtual AbstractChatWidget *createWidget(const QString &key) = 0;
 private slots:
@@ -56,6 +59,7 @@ private:
 	QHash<QString, AbstractChatWidget*> m_chatwidgets;
 	QString getWidgetId(ChatSessionImpl *sess) const;
 	AbstractChatWidget *findWidget(qutim_sdk_0_3::ChatSession *sess) const;
+	QList<qutim_sdk_0_3::ActionGenerator*> m_actions;
 };
 }
 }

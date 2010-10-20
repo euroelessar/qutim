@@ -30,6 +30,8 @@ public:
 	virtual void init();
 	virtual bool load();
 	virtual bool unload();
+protected slots:
+	void onClearChat(QObject *controller);
 };
 }
 }

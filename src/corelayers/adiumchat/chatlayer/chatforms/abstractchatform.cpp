@@ -27,6 +27,7 @@ namespace Core
 {
 namespace AdiumChat
 {
+
 AbstractChatForm::AbstractChatForm()
 {
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
@@ -72,6 +73,7 @@ void AbstractChatForm::onSessionActivated(bool active)
 		if (!active)
 			return;
 		widget = createWidget(key);
+		widget->addActions(m_actions);
 		m_chatwidgets.insert(key,widget);
 		connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
 		widget->show();
@@ -146,6 +148,16 @@ AbstractChatForm::~AbstractChatForm()
 		widget->disconnect(this);
 		delete widget;
 	}
+}
+
+void AbstractChatForm::addAction(qutim_sdk_0_3::ActionGenerator *gen)
+{
+	m_actions.append(gen);
+}
+
+void AbstractChatForm::removeAction(qutim_sdk_0_3::ActionGenerator *gen)
+{
+	m_actions.removeAll(gen);
 }
 
 }

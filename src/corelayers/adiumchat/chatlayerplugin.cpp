@@ -22,12 +22,29 @@
 #include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
+#include <qutim/debug.h>
 #include "webkitchat/webkitviewfactory.h"
 
 namespace Core
 {
 namespace AdiumChat
 {
+
+class EmoActionGenerator : public ActionGenerator
+{
+public:
+	EmoActionGenerator(QObject *obj) :
+		ActionGenerator(Icon("face-smile"),QT_TRANSLATE_NOOP("ChatLayer", "Insert Emoticon"),obj,SLOT(onInsertEmoticon(QObject*)))
+	{
+		setType(ActionTypeChatButton);
+	}
+protected:
+	virtual QObject *generateHelper() const
+	{
+		QAction *action = prepareAction(new QAction(0));
+		return action;
+	}
+};
 
 static SettingsItem *behaviourSettings = 0;
 
@@ -52,14 +69,22 @@ void ChatLayerPlugin::init()
 
 bool ChatLayerPlugin::load()
 {
-	QObject *obj = ServiceManager::getByName("ChatForm");
-	if (!obj) {
+	AbstractChatForm *form = ServiceManager::getByName<AbstractChatForm*>("ChatForm");
+	if (!form) {
 		return false;
 	}
 
+	ActionGenerator *gen = new ActionGenerator(Icon("edit-clear-list"),
+											   QT_TRANSLATE_NOOP("ChatLayer","Clear chat"),
+											   this,
+											   SLOT(onClearChat(QObject*)));
+	gen->setToolTip(QT_TRANSLATE_NOOP("ChatLayer","Clear chat field"));
+	form->addAction(gen);
+
+	//DEPRECATED
 	behaviourSettings = new GeneralSettingsItem<ChatBehavior>(Settings::General, Icon("view-choose"),
 															  QT_TRANSLATE_NOOP("Settings","Chat"));
-	behaviourSettings->connect(SIGNAL(saved()), obj, SLOT(onBehaviorSettingsChanged()));
+	behaviourSettings->connect(SIGNAL(saved()), form, SLOT(onBehaviorSettingsChanged()));
 	Settings::registerItem(behaviourSettings);
 	return true;
 }
@@ -69,6 +94,17 @@ bool ChatLayerPlugin::unload()
 	Settings::removeItem(behaviourSettings);
 	delete behaviourSettings;
 	return true;
+}
+
+void ChatLayerPlugin::onClearChat(QObject *controller)
+{
+	QWidget *widget = qobject_cast<QWidget*>(controller);
+	while(widget) {
+		if(AbstractChatWidget *chat = qobject_cast<AbstractChatWidget*>(widget)) {
+			chat->currentSession()->clearChat();
+		}
+		widget = widget->parentWidget();
+	}
 }
 
 }

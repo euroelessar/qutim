@@ -61,6 +61,7 @@ class AbstractChatWidget : public QMainWindow
 public:
 	AbstractChatWidget(QWidget *parent = 0);
 	virtual void addAction(ActionGenerator *gen) = 0;
+	void addActions(const QList<ActionGenerator*> &actions);
 	virtual QPlainTextEdit *getInputField() const = 0;
 	virtual bool contains(ChatSessionImpl *session) const = 0;
 	virtual ~AbstractChatWidget() {}

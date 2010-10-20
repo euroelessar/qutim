@@ -33,5 +33,11 @@ void AbstractChatWidget::addSessions(const ChatSessionList &sessions)
 		addSession(s);
 }
 
+void AbstractChatWidget::addActions(const QList<ActionGenerator *> &actions)
+{
+	foreach(ActionGenerator *gen,actions)
+		addAction(gen);
+}
+
 }
 }
