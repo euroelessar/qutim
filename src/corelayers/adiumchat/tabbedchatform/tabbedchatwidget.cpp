@@ -47,7 +47,6 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_actSeparator = m_toolbar->addSeparator();
 	m_unitSeparator = m_toolbar->addSeparator();
 
-	connect(m_tabbar,SIGNAL(activate(ChatSessionImpl*)),SLOT(activate(ChatSessionImpl*)));
 	connect(m_tabbar,SIGNAL(remove(ChatSessionImpl*)),SLOT(removeSession(ChatSessionImpl*)));
 }
 

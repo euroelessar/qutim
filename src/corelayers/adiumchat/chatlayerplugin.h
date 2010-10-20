@@ -19,6 +19,7 @@
 
 #include <qutim/plugin.h>
 
+class QAction;
 namespace Core
 {
 namespace AdiumChat
@@ -32,6 +33,7 @@ public:
 	virtual bool unload();
 protected slots:
 	void onClearChat(QObject *controller);
+	void onInsertEmoticon(QAction*,QObject*);
 };
 }
 }

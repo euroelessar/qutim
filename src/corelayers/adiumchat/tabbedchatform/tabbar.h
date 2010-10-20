@@ -32,7 +32,6 @@ class TabBar : public QTabBar
 		int indexOf(ChatSessionImpl *session) const;
 		void removeTab(int index);
 	signals:
-		void activate(ChatSessionImpl *session);
 		void remove(ChatSessionImpl *session);
 	protected:
 		void mouseMoveEvent(QMouseEvent *event);

@@ -129,7 +129,7 @@ int TabBar::indexOf(ChatSessionImpl *session) const
 void TabBar::onCurrentChanged(int index)
 {
 	if(ChatSessionImpl *s = session(index))
-		emit activate(s);
+		s->setActive(true);
 }
 
 void TabBar::onCloseRequested(int index)

@@ -24,25 +24,38 @@
 #include <qutim/servicemanager.h>
 #include <qutim/debug.h>
 #include "webkitchat/webkitviewfactory.h"
+#include <QWidgetAction>
+#include "chatlayer/actions/chatemoticonswidget.h"
+#include <QPlainTextEdit>
 
 namespace Core
 {
 namespace AdiumChat
 {
 
+template<typename T>
+T findParent(QWidget *w)
+{
+	while(w) {
+		if(T parent = qobject_cast<T>(w))
+			return parent;
+		w = w->parentWidget();
+	}
+	return 0;
+}
+
 class EmoActionGenerator : public ActionGenerator
 {
 public:
 	EmoActionGenerator(QObject *obj) :
-		ActionGenerator(Icon("face-smile"),QT_TRANSLATE_NOOP("ChatLayer", "Insert Emoticon"),obj,SLOT(onInsertEmoticon(QObject*)))
+		ActionGenerator(Icon("face-smile"),QT_TRANSLATE_NOOP("ChatLayer", "Insert Emoticon"),obj,SLOT(onInsertEmoticon(QAction*,QObject*)))
 	{
 		setType(ActionTypeChatButton);
 	}
 protected:
 	virtual QObject *generateHelper() const
 	{
-		QAction *action = prepareAction(new QAction(0));
-		return action;
+		return prepareAction(new EmoAction(0));
 	}
 };
 
@@ -74,7 +87,9 @@ bool ChatLayerPlugin::load()
 		return false;
 	}
 
-	ActionGenerator *gen = new ActionGenerator(Icon("edit-clear-list"),
+	ActionGenerator *gen = new EmoActionGenerator(this);
+	form->addAction(gen);
+	gen = new ActionGenerator(Icon("edit-clear-list"),
 											   QT_TRANSLATE_NOOP("ChatLayer","Clear chat"),
 											   this,
 											   SLOT(onClearChat(QObject*)));
@@ -99,12 +114,18 @@ bool ChatLayerPlugin::unload()
 void ChatLayerPlugin::onClearChat(QObject *controller)
 {
 	QWidget *widget = qobject_cast<QWidget*>(controller);
-	while(widget) {
-		if(AbstractChatWidget *chat = qobject_cast<AbstractChatWidget*>(widget)) {
-			chat->currentSession()->clearChat();
-		}
-		widget = widget->parentWidget();
-	}
+	if(AbstractChatWidget *chat = findParent<AbstractChatWidget*>(widget))
+		chat->currentSession()->clearChat();
+}
+
+void ChatLayerPlugin::onInsertEmoticon(QAction *act,QObject *controller)
+{
+	QString str = act->property("emoticon").toString();
+	if(str.isEmpty())
+		return;
+	QWidget *widget = qobject_cast<QWidget*>(controller);
+	if(AbstractChatWidget *chat = findParent<AbstractChatWidget*>(widget))
+		chat->getInputField()->insertPlainText(str);
 }
 
 }

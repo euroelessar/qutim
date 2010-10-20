@@ -139,6 +139,7 @@ void ChatLayerImpl::onChatSessionActivated(bool activated)
 
 	ChatSessionImpl *session = qobject_cast<ChatSessionImpl *>(sender());
 	Q_ASSERT(session);
+	debug() << "activate session" << session->unit()->title();
 
 	if (qobject_cast<Conference*>(session->getUnit())) {
 		QObject *form = ServiceManager::getByName("ChatForm");
@@ -149,6 +150,7 @@ void ChatLayerImpl::onChatSessionActivated(bool activated)
 				if (m_tab_completion.isNull()) {
 					m_tab_completion = new ConfTabCompletion(this);
 				}
+				debug() << "Set conftabcompletion to" << session->unit()->title();
 				m_tab_completion->setTextEdit(edit);
 				m_tab_completion->setChatSession(session);
 				return;
