@@ -18,7 +18,7 @@ namespace nowplaying
 	NowPlaying *NowPlaying::self;
 
 	NowPlaying::NowPlaying() :
-		m_player(0)
+		m_player(0), m_isWorking(false)
 	{
 		Q_ASSERT(!self);
 		self = this;
@@ -94,7 +94,7 @@ namespace nowplaying
 			account->loadSettings();
 		foreach (AccountTuneStatus *factory, m_factories)
 			factory->loadSettings();
-		initPlayer(cfg.value("player", QString("Amarok")));
+		initPlayer(cfg.value("player", QLatin1String("Mpris")));
 		m_forAllAccounts = cfg.value("enableForAllAccounts", true);
 	}
 
