@@ -3,6 +3,11 @@
 
 #include <chatlayer/chatforms/abstractchatform.h>
 
+namespace qutim_sdk_0_3
+{
+	class SettingsItem;
+}
+
 namespace Core
 {
 namespace AdiumChat
@@ -16,6 +21,8 @@ public:
 	~TabbedChatForm();
 protected:
 	virtual AbstractChatWidget *createWidget(const QString &key);
+private:
+	qutim_sdk_0_3::SettingsItem *m_settingsItem;
 };
 
 }

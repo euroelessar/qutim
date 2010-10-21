@@ -135,7 +135,6 @@ namespace qutim_sdk_0_3
 	ActionToolBar::~ActionToolBar()
 	{
 		Q_D(ActionToolBar);
-		qDeleteAll(d->generators);
 		qDeleteAll(d->actions);
 	}
 	

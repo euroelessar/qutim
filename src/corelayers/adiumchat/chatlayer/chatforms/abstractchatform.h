@@ -53,8 +53,7 @@ private slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
 	void onChatWidgetDestroyed(QObject *object);
 	void onSessionActivated(bool active);
-	void onBehaviorSettingsChanged();
-	void onAppearanceSettingsChanged();
+	void onSettingsChanged();
 private:
 	QHash<QString, AbstractChatWidget*> m_chatwidgets;
 	QString getWidgetId(ChatSessionImpl *sess) const;

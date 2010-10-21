@@ -147,6 +147,11 @@ void TabbedChatWidget::onSessionActivated(bool active)
 
 void TabbedChatWidget::activate(ChatSessionImpl *session)
 {
+	if(!session->unread().isEmpty())
+		session->markRead();
+
+	activateWindow();
+
 	if(m_currentSession) {
 		if(m_currentSession == session)
 			return;
@@ -175,9 +180,6 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 	}
 	setWindowTitle(title);
 	setWindowIcon(icon);
-
-	if(!session->unread().isEmpty())
-		session->markRead();
 
 	qDeleteAll(m_unitActions);
 	m_unitActions.clear();

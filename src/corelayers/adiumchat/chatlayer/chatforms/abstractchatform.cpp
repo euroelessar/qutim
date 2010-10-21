@@ -86,23 +86,15 @@ void AbstractChatForm::onSessionActivated(bool active)
 	}
 }
 
-void AbstractChatForm::onAppearanceSettingsChanged()
+void AbstractChatForm::onSettingsChanged()
 {
-//	qDebug("%s", Q_FUNC_INFO);
-//	foreach (AbstractChatWidget *widget, m_chatwidgets) {
-//		if (widget)
-//			widget->loadAppearanceSettings();
-//	}
+	qDebug("%s", Q_FUNC_INFO);
+	foreach (AbstractChatWidget *widget, m_chatwidgets) {
+		if (widget)
+			widget->loadSettings();
+	}
 }
 
-void AbstractChatForm::onBehaviorSettingsChanged()
-{
-//	qDebug("%s", Q_FUNC_INFO);
-//	foreach (AbstractChatWidget *widget, m_chatwidgets) {
-//		if (widget)
-//			widget->loadBehaviorSettings();
-//	}
-}
 
 AbstractChatWidget *AbstractChatForm::findWidget(ChatSession *sess) const
 {

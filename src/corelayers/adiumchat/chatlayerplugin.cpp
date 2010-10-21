@@ -18,8 +18,6 @@
 #include "chatlayer/chatlayerimpl.h"
 #include "tabbedchatform/tabbedchatform.h"
 #include "timemodifier/timemodifier.h"
-#include "settings/chatbehavior.h"
-#include <qutim/settingslayer.h>
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
 #include <qutim/debug.h>
@@ -27,6 +25,7 @@
 #include <QWidgetAction>
 #include "chatlayer/actions/chatemoticonswidget.h"
 #include <QPlainTextEdit>
+#include "chatlayer/chatforms/abstractchatwidget.h"
 
 namespace Core
 {
@@ -58,8 +57,6 @@ protected:
 		return prepareAction(new EmoAction(0));
 	}
 };
-
-static SettingsItem *behaviourSettings = 0;
 
 using namespace qutim_sdk_0_3;
 
@@ -95,19 +92,11 @@ bool ChatLayerPlugin::load()
 											   SLOT(onClearChat(QObject*)));
 	gen->setToolTip(QT_TRANSLATE_NOOP("ChatLayer","Clear chat field"));
 	form->addAction(gen);
-
-	//DEPRECATED
-	behaviourSettings = new GeneralSettingsItem<ChatBehavior>(Settings::General, Icon("view-choose"),
-															  QT_TRANSLATE_NOOP("Settings","Chat"));
-	behaviourSettings->connect(SIGNAL(saved()), form, SLOT(onBehaviorSettingsChanged()));
-	Settings::registerItem(behaviourSettings);
 	return true;
 }
 
 bool ChatLayerPlugin::unload()
 {
-	Settings::removeItem(behaviourSettings);
-	delete behaviourSettings;
 	return true;
 }
 
