@@ -37,24 +37,6 @@ namespace AdiumChat
 
 using namespace qutim_sdk_0_3;
 
-
-enum ChatFlag
-{
-	AeroThemeIntegration    =       0x01,
-	ChatStateIconsOnTabs    =       0x02,
-	SendTypingNotification  =       0x04,
-	ShowUnreadMessages              =       0x08,
-	SwitchDesktopOnRaise    =       0x10
-};
-
-Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
-enum SendMessageKey
-{
-	SendEnter = 0,
-	SendCtrlEnter,
-	SendDoubleEnter
-};
-
 class AbstractChatWidget : public QMainWindow
 {
 	Q_OBJECT

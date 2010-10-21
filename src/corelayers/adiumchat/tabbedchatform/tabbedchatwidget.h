@@ -4,17 +4,31 @@
 #include <QWidget>
 #include <chatlayer/chatforms/abstractchatwidget.h>
 
+
 namespace qutim_sdk_0_3
 {
 	class ActionToolBar;
 }
-
+class QVBoxLayout;
 namespace Core
 {
 namespace AdiumChat
 {
 
 using namespace qutim_sdk_0_3;
+
+
+enum ChatFlag
+{
+	AdiumToolbar			=       0x01,
+	IconsOnTabs				=       0x02,
+	SendTypingNotification	=       0x04,
+	SwitchDesktopOnRaise	=       0x08,
+	DeleteSessionOnClose	=		0x10,
+	TabsOnBottom			=		0x20
+};
+
+Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
 
 class ChatViewWidget;
 class TabBar;
@@ -43,7 +57,7 @@ protected slots:
 private:
 	ActionToolBar *m_toolbar;
 	ChatViewWidget *m_view;
-	TabBar *m_tabbar;
+	TabBar *m_tabBar;
 	ChatEdit *m_chatInput;
 	QPointer<ChatSessionImpl> m_currentSession;
 	QAction *m_unitSeparator;
@@ -53,8 +67,14 @@ private:
 	QAction *m_recieverList;
 	ConferenceContactsView *m_contactView;
 	QString m_key;
+	QVBoxLayout *m_layout;
+	ChatFlags m_flags;
+	QAction *m_sessionList;
 };
 
 }
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::AdiumChat::ChatFlags)
+
 #endif // TABBEDCHATWIDGET_H

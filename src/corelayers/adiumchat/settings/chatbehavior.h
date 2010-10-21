@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <qutim/settingswidget.h>
-#include "../chatlayer/chatforms/abstractchatwidget.h"
+#include <tabbedchatform/chatedit.h>
 
 namespace Ui {
     class ChatBehavior;

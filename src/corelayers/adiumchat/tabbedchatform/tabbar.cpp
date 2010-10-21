@@ -28,6 +28,13 @@ TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 	setMouseTracking(true);
 	p->sessionList = new QMenu(this);
 
+	setMovable(true);
+#ifdef Q_OS_MAC
+	setClosableActiveTab(true);
+#else
+	setTabsClosable(true);
+#endif
+
 	connect(this,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
 	connect(this,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 	connect(this,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
@@ -94,6 +101,14 @@ void TabBar::addSession(ChatSessionImpl *session)
 	QIcon icon = ChatLayerImpl::iconForState(ChatStateInActive,session->getUnit());
 	p->sessionList->addAction(icon,session->getUnit()->title());
 	addTab(icon,session->getUnit()->title());
+
+#if defined(Q_WS_MAC)
+	if (tabBar->closableActiveTab()) {
+		QTabBar::ButtonPosition closeSide = (QTabBar::ButtonPosition)style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, 0, this);
+		if (QWidget *button = tabButton(count()-1, closeSide))
+			button->setVisible(false);
+	}
+#endif
 
 	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),SLOT(onTitleChanged(QString)));
 	connect(session,SIGNAL(destroyed(QObject*)),SLOT(onRemoveSession(QObject*)));

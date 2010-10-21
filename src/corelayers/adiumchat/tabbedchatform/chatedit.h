@@ -15,6 +15,13 @@ namespace Core
 namespace AdiumChat
 {
 
+enum SendMessageKey
+{
+	SendEnter = 0,
+	SendCtrlEnter,
+	SendDoubleEnter
+};
+
 using namespace qutim_sdk_0_3;
 class ChatSessionImpl;
 class ChatEdit : public QPlainTextEdit
@@ -24,7 +31,7 @@ public:
     explicit ChatEdit(QWidget *parent = 0);
 	void setSession(ChatSessionImpl *session);
 	void setSendKey(SendMessageKey key);
-public:
+public slots:
 	void send();
 protected:
 	bool event(QEvent *e);
