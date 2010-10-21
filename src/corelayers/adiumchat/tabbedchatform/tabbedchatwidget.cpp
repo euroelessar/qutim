@@ -17,6 +17,21 @@
 #include <QSplitter>
 #include <QToolButton>
 
+#ifdef Q_WS_X11
+# include <QX11Info>
+# include <X11/Xutil.h>
+# include <X11/Xlib.h>
+# include <X11/Xatom.h>
+# ifdef KeyPress
+#  undef KeyPress
+# endif
+# define MESSAGE_SOURCE_OLD            0
+# define MESSAGE_SOURCE_APPLICATION    1
+# define MESSAGE_SOURCE_PAGER          2
+#ifdef Status
+# undef Status
+#endif
+#endif //Q_WS_X11
 
 namespace Core
 {
@@ -71,11 +86,11 @@ void TabbedChatWidget::loadSettings()
 	ConfigGroup cfg = Config("appearance").group("chat/behavior/widget");
 	if(!property("loaded").toBool()) {
 		m_flags =  cfg.value("widgetFlags", IconsOnTabs
-									 | DeleteSessionOnClose
-									 | SwitchDesktopOnRaise
-									 | AdiumToolbar
-									 | TabsOnBottom
-									 );
+							 | DeleteSessionOnClose
+							 | SwitchDesktopOnActivate
+							 | AdiumToolbar
+							 | TabsOnBottom
+							 );
 
 		QWidget *tabBar = m_tabBar;
 		if(m_flags & AdiumToolbar) {
@@ -113,11 +128,13 @@ void TabbedChatWidget::loadSettings()
 
 			tabBar = new QWidget(this);
 			QHBoxLayout *l = new QHBoxLayout(tabBar);
+			l->setMargin(0);
 			btn = new QToolButton(this);
-			btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
 			btn->setDefaultAction(m_sessionList);
+			btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
 			btn->setAutoRaise(true);
-			btn->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+			btn->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Expanding);
+			btn->setPopupMode(QToolButton::InstantPopup);
 			l->addWidget(m_tabBar);
 			l->addWidget(btn);
 		}
@@ -294,6 +311,33 @@ void TabbedChatWidget::setUnifiedTitleAndToolBar(bool set)
 		setContentsMargins(0, 0, 0, 0);
 	}
 
+}
+
+void TabbedChatWidget::activateWindow()
+{
+#ifdef Q_WS_X11
+	if (m_flags & SwitchDesktopOnActivate) {
+		static Atom NET_ACTIVE_WINDOW = 0;
+		XClientMessageEvent xev;
+
+		if(NET_ACTIVE_WINDOW == 0)
+		{
+			Display *dpy      = QX11Info::display();
+			NET_ACTIVE_WINDOW = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
+		}
+
+		xev.type         = ClientMessage;
+		xev.window       = winId();
+		xev.message_type = NET_ACTIVE_WINDOW;
+		xev.format       = 32;
+		xev.data.l[0]    = MESSAGE_SOURCE_PAGER;
+		xev.data.l[1]    = QX11Info::appUserTime();
+		xev.data.l[2]    = xev.data.l[3] = xev.data.l[4] = 0;
+
+		XSendEvent(QX11Info::display(), QX11Info::appRootWindow(), False, SubstructureNotifyMask | SubstructureRedirectMask, (XEvent*)&xev);
+	}
+#endif//Q_WS_X11
+	AbstractChatWidget::activateWindow();
 }
 
 }

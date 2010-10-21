@@ -16,6 +16,7 @@ namespace AdiumChat
 class TabbedChatForm : public AbstractChatForm
 {
 	Q_OBJECT
+	Q_CLASSINFO("Uses","SettingsLayer")
 public:
 	explicit TabbedChatForm();
 	~TabbedChatForm();

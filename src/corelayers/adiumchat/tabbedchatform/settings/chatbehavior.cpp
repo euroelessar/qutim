@@ -60,7 +60,7 @@ void ChatBehavior::loadImpl()
 	Config widget = cfg.group("chat/behavior/widget");
 	m_flags = widget.value("widgetFlags", IconsOnTabs
 						   | DeleteSessionOnClose
-						   | SwitchDesktopOnRaise
+						   | SwitchDesktopOnActivate
 						   | AdiumToolbar
 						   | TabsOnBottom
 						   );

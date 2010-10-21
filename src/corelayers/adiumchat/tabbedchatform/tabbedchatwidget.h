@@ -23,7 +23,7 @@ enum ChatFlag
 	AdiumToolbar			=       0x01,
 	IconsOnTabs				=       0x02,
 	SendTypingNotification	=       0x04,
-	SwitchDesktopOnRaise	=       0x08,
+	SwitchDesktopOnActivate	=       0x08,
 	DeleteSessionOnClose	=		0x10,
 	TabsOnBottom			=		0x20
 };
@@ -45,6 +45,7 @@ public:
 	virtual ChatSessionImpl *currentSession()  const;
 	virtual ~TabbedChatWidget();
 	void setUnifiedTitleAndToolBar(bool set);
+	void activateWindow();
 public slots:
 	virtual void addSession(ChatSessionImpl *session);
 	void addSessions(const ChatSessionList &sessions);
