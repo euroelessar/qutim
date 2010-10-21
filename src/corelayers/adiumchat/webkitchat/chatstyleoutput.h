@@ -92,6 +92,7 @@ public:
 	virtual void clear();
 public slots:
 	QVariant evaluateJavaScript(const QString &scriptSource);
+	void loadSettings();
 private slots:
 	void onSessionActivated(bool active);
 	void onLinkClicked(const QUrl &url);
@@ -112,7 +113,6 @@ private:
 	QString makeId(const Message &mes);
 	void makeBackground(QString &html);
 	void processMessage(QString &html, const ChatSession *session, const Message &message);
-	void loadSettings();
 	void loadHistory();
 	ChatSessionImpl *m_session;
 	/*

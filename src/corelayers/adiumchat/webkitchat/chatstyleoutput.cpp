@@ -59,7 +59,6 @@ void ChatStyleOutput::setChatSession(ChatSessionImpl *session)
 	setParent(session);
 	preparePage(session);
 	loadSettings();
-	loadHistory();
 	connect(m_session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
 	JavaScriptClient *client = new JavaScriptClient(session);
 	mainFrame()->addToJavaScriptWindowObject(client->objectName(), client);
@@ -226,6 +225,7 @@ void ChatStyleOutput::loadSettings()
 	setCustomCSS(css);
 	loadTheme(path,variant);
 	m_current_datetime_format = adium_chat.value<QString>("datetimeFormat","hh:mm:ss dd/MM/yyyy");
+	loadHistory();
 }
 
 void ChatStyleOutput::loadTheme(const QString& path, const QString& variant)

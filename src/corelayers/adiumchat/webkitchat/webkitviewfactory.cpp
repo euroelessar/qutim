@@ -22,7 +22,6 @@ WebkitViewFactory::WebkitViewFactory()
 	if (!obj) {
 		return;
 	}
-	m_appearanceSettings->connect(SIGNAL(saved()), obj, SLOT(onAppearanceSettingsChanged()));
 	Settings::registerItem(m_appearanceSettings);
 }
 
@@ -38,7 +37,9 @@ QWidget *WebkitViewFactory::createViewWidget()
 }
 QObject *WebkitViewFactory::createViewController()
 {
-	return new ChatStyleOutput();
+	ChatStyleOutput *output = new ChatStyleOutput();
+	m_appearanceSettings->connect(SIGNAL(saved()),output,SLOT(loadSettings()));
+	return output;
 }
 
 }
