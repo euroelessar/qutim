@@ -44,6 +44,7 @@ public:
 	virtual bool contains(ChatSessionImpl *session) const;
 	virtual ChatSessionImpl *currentSession()  const;
 	virtual ~TabbedChatWidget();
+	void setUnifiedTitleAndToolBar(bool set);
 public slots:
 	virtual void addSession(ChatSessionImpl *session);
 	void addSessions(const ChatSessionList &sessions);

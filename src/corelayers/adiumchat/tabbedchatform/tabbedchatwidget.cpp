@@ -12,6 +12,7 @@
 #include <qutim/icon.h>
 #include <qutim/conference.h>
 #include <qutim/config.h>
+#include <qutim/qtwin.h>
 #include <QAbstractItemModel>
 #include <QSplitter>
 #include <QToolButton>
@@ -49,7 +50,7 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 
 	m_layout = new QVBoxLayout(w);
 	m_layout->addWidget(vSplitter);
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
 	m_layout->setMargin(0);
 #endif
 
@@ -79,9 +80,7 @@ void TabbedChatWidget::loadSettings()
 		QWidget *tabBar = m_tabBar;
 		if(m_flags & AdiumToolbar) {
 			addToolBar(Qt::TopToolBarArea,m_toolbar);
-			m_toolbar->setMovable(false);
-			m_toolbar->setMoveHookEnabled(true);
-			setUnifiedTitleAndToolBarOnMac(true);
+			setUnifiedTitleAndToolBar(true);
 
 			//simple hack
 			m_recieverList->setMenu(new QMenu);
@@ -129,7 +128,7 @@ void TabbedChatWidget::loadSettings()
 		} else {
 			m_layout->insertWidget(0,tabBar);
 			m_tabBar->setDocumentMode(true);
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
 			m_tabBar->setIconSize(QSize(0,0));
 #endif
 		}
@@ -273,6 +272,28 @@ bool TabbedChatWidget::event(QEvent *event)
 		m_tabBar->currentSession()->setActive(active);
 	}
 	return AbstractChatWidget::event(event);
+}
+
+void TabbedChatWidget::setUnifiedTitleAndToolBar(bool set)
+{
+	if(!set)
+		return;
+	setUnifiedTitleAndToolBarOnMac(set);
+	m_toolbar->setMovable(false);
+	m_toolbar->setMoveHookEnabled(true);
+
+	if (QtWin::isCompositionEnabled()) {
+		m_toolbar->setStyleSheet("QToolBar{background:none;border:none;}");
+		centralWidget()->setAutoFillBackground(true);
+		QtWin::extendFrameIntoClientArea(this,
+										 0,
+										 0,
+										 m_toolbar->sizeHint().height(),
+										 0
+										 );
+		setContentsMargins(0, 0, 0, 0);
+	}
+
 }
 
 }

@@ -1,7 +1,7 @@
 #include "tabbedchatform.h"
 #include "tabbedchatwidget.h"
 #include <qutim/settingslayer.h>
-#include <settings/chatbehavior.h>
+#include "settings/chatbehavior.h"
 #include <qutim/icon.h>
 
 namespace Core
