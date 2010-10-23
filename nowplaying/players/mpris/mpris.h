@@ -1,8 +1,8 @@
 #ifndef MPRIS_H
 #define MPRIS_H
 
-#include "../../include/player.h"
-#include "../../include/playersettings.h"
+#include "player.h"
+#include "playersettings.h"
 #include <QtDBus>
 #include <QTimer>
 

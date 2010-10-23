@@ -1,7 +1,7 @@
 #ifndef ACCOUNTTUNESTATUS_H
 #define ACCOUNTTUNESTATUS_H
 
-#include "trackinfo.h"
+#include "../include/trackinfo.h"
 #include <QWidget>
 
 namespace qutim_sdk_0_3 {

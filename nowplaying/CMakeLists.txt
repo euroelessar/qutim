@@ -1,3 +1,4 @@
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
 if (NOT NO_INDICATE)
 	find_package(Qt4 COMPONENTS QtDBus )
 	if(NOT QT_QTDBUS_FOUND)
