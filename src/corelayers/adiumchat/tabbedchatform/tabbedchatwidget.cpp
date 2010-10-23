@@ -53,18 +53,18 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	QWidget *view = ChatViewFactory::instance()->createViewWidget();
 	view->setParent(w);
 
-	QSplitter *hSplitter = new QSplitter(Qt::Horizontal,this);
-	hSplitter->setObjectName(QLatin1String("hSplitter"));
-	hSplitter->addWidget(view);
-	hSplitter->addWidget(m_contactView);
-
 	QSplitter *vSplitter = new QSplitter(Qt::Vertical,this);
 	vSplitter->setObjectName(QLatin1String("vSplitter"));
-	vSplitter->addWidget(hSplitter);
+	vSplitter->addWidget(view);
 	vSplitter->addWidget(m_chatInput);
 
+	QSplitter *hSplitter = new QSplitter(Qt::Horizontal,this);
+	hSplitter->setObjectName(QLatin1String("hSplitter"));
+	hSplitter->addWidget(vSplitter);
+	hSplitter->addWidget(m_contactView);
+
 	m_layout = new QVBoxLayout(w);
-	m_layout->addWidget(vSplitter);
+	m_layout->addWidget(hSplitter);
 #ifdef Q_WS_MAC
 	m_layout->setMargin(0);
 #endif
@@ -127,16 +127,16 @@ void TabbedChatWidget::loadSettings()
 			connect(btn,SIGNAL(clicked(bool)),m_chatInput,SLOT(send()));
 			m_toolbar->addWidget(btn);
 			btn->setAutoRaise(false);
-			btn->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
 
 			tabBar = new QWidget(this);
+			tabBar->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
 			QHBoxLayout *l = new QHBoxLayout(tabBar);
 			l->setMargin(0);
 			btn = new QToolButton(this);
 			btn->setDefaultAction(m_sessionList);
 			btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
 			btn->setAutoRaise(true);
-			btn->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Expanding);
+			btn->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 			btn->setPopupMode(QToolButton::InstantPopup);
 			l->addWidget(m_tabBar);
 			l->addWidget(btn);
@@ -150,6 +150,7 @@ void TabbedChatWidget::loadSettings()
 			m_tabBar->setDocumentMode(true);
 #ifdef Q_WS_MAC
 			m_tabBar->setIconSize(QSize(0,0));
+			//layout()->setSpacing(0);
 #endif
 		}
 
