@@ -32,6 +32,10 @@ class TabBar : public QTabBar
 		int indexOf(ChatSessionImpl *session) const;
 		void removeTab(int index);
 		QMenu *menu() const; //ChatSessionlist
+	public slots:
+		void showNextTab();
+		void showPreviousTab();
+		void closeCurrentTab();
 	signals:
 		void remove(ChatSessionImpl *session);
 	protected:

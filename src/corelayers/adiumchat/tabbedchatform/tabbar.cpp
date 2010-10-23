@@ -7,6 +7,7 @@
 #include <qutim/icon.h>
 #include <QDropEvent>
 #include <qutim/mimeobjectdata.h>
+#include <qutim/shortcut.h>
 
 namespace Core
 {
@@ -35,12 +36,20 @@ TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 	setTabsClosable(true);
 #endif
 
+	//init shortcuts
+	Shortcut *key = new Shortcut ("chatCloseSession",this);
+	connect(key,SIGNAL(activated()),SLOT(closeCurrentTab()));
+	key = new Shortcut ("chatNext",this);
+	connect(key,SIGNAL(activated()),SLOT(showNextTab()));
+	key = new Shortcut ("chatPrevious",this);
+	connect(key,SIGNAL(activated()),SLOT(showPreviousTab()));
+
 	connect(this,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
 	connect(this,SIGNAL(tabCloseRequested(int)),SLOT(onCloseRequested(int)));
 	connect(this,SIGNAL(tabMoved(int,int)),SLOT(onTabMoved(int,int)));
 	connect(this,SIGNAL(customContextMenuRequested(QPoint)),SLOT(onContextMenu(QPoint)));
 	connect(p->sessionList,SIGNAL(triggered(QAction*)),SLOT(onSessionListActionTriggered(QAction*)));
- }
+}
 
 TabBar::~TabBar()
 {
@@ -282,6 +291,27 @@ QMenu *TabBar::menu() const
 void TabBar::onSessionListActionTriggered(QAction *act)
 {
 	int index = p->sessionList->actions().indexOf(act);
+	setCurrentIndex(index);
+}
+
+void TabBar::closeCurrentTab()
+{
+	onCloseRequested(currentIndex());
+}
+
+void TabBar::showNextTab()
+{
+	int index = currentIndex()+1;
+	if (index >= count())
+		index = 0;
+	setCurrentIndex(index);
+}
+
+void TabBar::showPreviousTab()
+{
+	int index = currentIndex()-1;
+	if (index >= count())
+		index = count() - 1;
 	setCurrentIndex(index);
 }
 
