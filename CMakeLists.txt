@@ -145,9 +145,12 @@ if( CMAKE_COMPILER_IS_GNUCXX )
 	if( NOT WIN32 )
 		set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "-fvisibility=hidden" )
 	endif( NOT WIN32 )
-else( CMAKE_COMPILER_IS_GNUCXX )
+elseif(MSVC)
+	set_target_properties( qutim PROPERTIES COMPILE_FLAGS "-DQUTIM_CORE -DXDG_STATIC /W3" )
+	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "/W3 /WX /wd4065" )
+else()
 	set_target_properties( qutim PROPERTIES COMPILE_FLAGS "-DQUTIM_CORE -DXDG_STATIC" )
-endif( CMAKE_COMPILER_IS_GNUCXX )
+endif()
 
 TARGET_LINK_LIBRARIES (qutim
 	${QT_LIBRARIES}

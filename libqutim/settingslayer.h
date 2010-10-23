@@ -130,8 +130,7 @@ protected:
 	}
 };
 
-struct AutoSettingsItemPrivate;
-
+class AutoSettingsItemPrivate;
 class LIBQUTIM_EXPORT AutoSettingsItem : public SettingsItem
 {
 public:

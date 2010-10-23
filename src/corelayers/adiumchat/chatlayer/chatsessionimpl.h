@@ -68,7 +68,7 @@ public:
 	ChatState getChatState() const;
 signals:
 	void buddiesChanged();
-	void chatUnitChanged(ChatUnit *);
+	void chatUnitChanged(qutim_sdk_0_3::ChatUnit *);
 public slots:
 	QVariant evaluateJavaScript(const QString &scriptSource);
 	void clearChat();

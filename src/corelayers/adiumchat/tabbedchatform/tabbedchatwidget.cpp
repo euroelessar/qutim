@@ -95,7 +95,6 @@ void TabbedChatWidget::loadSettings()
 		QWidget *tabBar = m_tabBar;
 		if(m_flags & AdiumToolbar) {
 			addToolBar(Qt::TopToolBarArea,m_toolbar);
-			setUnifiedTitleAndToolBar(true);
 
 			//simple hack
 			m_recieverList->setMenu(new QMenu);
@@ -107,8 +106,12 @@ void TabbedChatWidget::loadSettings()
 			spacer->setAttribute(Qt::WA_TransparentForMouseEvents);
 			m_toolbar->addWidget(spacer);
 			m_toolbar->addAction(m_sessionList);
+			m_toolbar->setIconSize(QSize(22,22));
+			setUnifiedTitleAndToolBar(true);
 		} else {
 			m_layout->addWidget(m_toolbar);
+			m_toolbar->setIconSize(QSize(16,16));
+			m_toolbar->setStyleSheet(QLatin1String("QToolBar{background:none;border:none;}"));
 			QWidget* spacer = new QWidget(this);
 			spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 			spacer->setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -298,7 +301,13 @@ void TabbedChatWidget::setUnifiedTitleAndToolBar(bool set)
 	setUnifiedTitleAndToolBarOnMac(set);
 	m_toolbar->setMovable(false);
 	m_toolbar->setMoveHookEnabled(true);
+	ensureToolBar();
+	connect(m_toolbar,SIGNAL(iconSizeChanged(QSize)),SLOT(ensureToolBar()));
+	connect(m_toolbar,SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),SLOT(ensureToolBar()));
+}
 
+void TabbedChatWidget::ensureToolBar()
+{
 	if (QtWin::isCompositionEnabled()) {
 		m_toolbar->setStyleSheet("QToolBar{background:none;border:none;}");
 		centralWidget()->setAutoFillBackground(true);
@@ -310,7 +319,6 @@ void TabbedChatWidget::setUnifiedTitleAndToolBar(bool set)
 										 );
 		setContentsMargins(0, 0, 0, 0);
 	}
-
 }
 
 void TabbedChatWidget::activateWindow()

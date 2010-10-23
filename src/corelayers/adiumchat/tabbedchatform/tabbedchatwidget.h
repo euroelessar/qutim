@@ -46,9 +46,9 @@ public:
 	virtual ~TabbedChatWidget();
 	void setUnifiedTitleAndToolBar(bool set);
 	void activateWindow();
+	void addSessions(const ChatSessionList &sessions);
 public slots:
 	virtual void addSession(ChatSessionImpl *session);
-	void addSessions(const ChatSessionList &sessions);
 	virtual void removeSession(ChatSessionImpl *session);
 	virtual void activate(ChatSessionImpl* session);
 	virtual void loadSettings();
@@ -56,6 +56,7 @@ protected:
 	bool event(QEvent *event);
 protected slots:	
 	void onSessionActivated(bool active);
+	void ensureToolBar();
 private:
 	ActionToolBar *m_toolbar;
 	ChatViewWidget *m_view;

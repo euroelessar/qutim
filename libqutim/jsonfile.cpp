@@ -24,8 +24,9 @@
 
 namespace qutim_sdk_0_3
 {
-	struct JsonFilePrivate
+	class JsonFilePrivate
 	{
+	public:
 		QFile file;
 	};
 

@@ -56,8 +56,9 @@ namespace qutim_sdk_0_3
 		PluginInfo plugin;
 	};
 
-	struct PluginPrivate
+	class PluginPrivate
 	{
+	public:
 		PluginPrivate() : is_inited(false) {}
 		PluginInfo info;
 		QList<ExtensionInfo> extensions;

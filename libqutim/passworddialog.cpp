@@ -36,8 +36,9 @@ namespace qutim_sdk_0_3
 		return dialog;
 	}
 
-	struct PasswordDialogPrivate
+	class PasswordDialogPrivate
 	{
+	public:
 		QString password;
 		bool remember;
 		int result;

@@ -18,14 +18,15 @@
 
 namespace qutim_sdk_0_3
 {
-	struct FileTransferEnginePrivate
+	class FileTransferEnginePrivate
 	{
+	public:
 		ChatUnit *chatUnit;
 		FileTransferFactory *factory;
 		FileTransferEngine::Direction direction;
 	};
 
-	struct FileTransferManagerPrivate
+	class FileTransferManagerPrivate
 	{
 	};
 
