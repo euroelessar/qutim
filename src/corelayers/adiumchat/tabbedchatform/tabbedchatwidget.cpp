@@ -150,7 +150,7 @@ void TabbedChatWidget::loadSettings()
 			m_tabBar->setDocumentMode(true);
 #ifdef Q_WS_MAC
 			m_tabBar->setIconSize(QSize(0,0));
-			//layout()->setSpacing(0);
+			layout()->setSpacing(0);
 #endif
 		}
 

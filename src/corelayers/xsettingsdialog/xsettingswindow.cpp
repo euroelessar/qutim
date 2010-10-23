@@ -88,7 +88,7 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	p->buttonBox->hide();
 	//init actiontoolbar
 #ifdef Q_WS_MAC
-	l->setContentsMargins(0,0,0,0);
+	l->setContentsMargins(3,6,3,3);
 	p->listWidget->setIconSize(QSize(22,22));
 #endif
 	setCentralWidget(w);

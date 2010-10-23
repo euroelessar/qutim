@@ -28,6 +28,9 @@ ChatBehavior::ChatBehavior() :
 	ui->tabPositionBox->addItem(tr("South"),true);
 	ui->formLayoutBox->addItem(tr("Classic"),false);
 	ui->formLayoutBox->addItem(tr("Adium-like"),true);
+#ifdef Q_WS_MAC
+	ui->formLayoutBox->setEnabled(false); //Classic layout is really ugly
+#endif
 
 	connect(m_group,SIGNAL(buttonClicked(int)),SLOT(onButtonClicked(int)));
 	connect(ui->storeBox,SIGNAL(clicked(bool)),SIGNAL(modifiedChanged(bool)));
