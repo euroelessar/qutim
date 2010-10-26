@@ -57,7 +57,9 @@ protected:
 protected slots:	
 	void onSessionActivated(bool active);
 	void ensureToolBar();
+	void onUnreadChanged();
 private:
+	void setTitle(ChatSessionImpl *s);
 	ActionToolBar *m_toolbar;
 	ChatViewWidget *m_view;
 	TabBar *m_tabBar;

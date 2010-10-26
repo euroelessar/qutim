@@ -53,6 +53,7 @@ TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 
 TabBar::~TabBar()
 {
+	blockSignals(true);
 	foreach(ChatSessionImpl *s,p->sessions)
 		removeSession(s);
 }
@@ -268,13 +269,18 @@ void TabBar::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
 	ChatSessionImpl *session = static_cast<ChatSessionImpl*>(sender());
 	int index = indexOf(session);
 	QIcon icon;
+	QString title = session->getUnit()->title();
 	if (unread.isEmpty()) {
 		ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());//FIXME remove in future
 		icon =  ChatLayerImpl::iconForState(state,session->getUnit());
-	} else
+	} else {
 		icon = Icon("mail-unread-new");
+		title.insert(0,QChar('*'));
+	}
 	p->sessionList->actions().at(index)->setIcon(icon);
+
 	setTabIcon(index, icon);
+	setTabText(index, title);
 }
 
 void TabBar::onContextMenu(const QPoint &pos)

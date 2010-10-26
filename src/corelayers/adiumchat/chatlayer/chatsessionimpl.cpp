@@ -290,14 +290,12 @@ void ChatSessionImplPrivate::statusChanged(const Status &status,Contact* contact
 	switch(status.type()) {
 	case Status::Offline: {
 		type = Notifications::Offline;
-		ChatStateEvent ev(ChatStateGone);
-		qApp->sendEvent(q, &ev);
+		chat_unit->setChatState(ChatStateGone);
 		break;
 	}
 	case Status::Online: {
 		type = Notifications::Online;
-		ChatStateEvent ev(ChatStateInActive);
-		qApp->sendEvent(q, &ev);
+		chat_unit->setChatState(ChatStateInActive);
 		break;
 	}
 	default: {
@@ -419,10 +417,10 @@ void ChatSessionImplPrivate::onActiveTimeout()
 void ChatSessionImpl::setChatState(ChatState state)
 {
 	Q_D(ChatSessionImpl);
-//	if(d->myself_chat_state == state) {
-//		d->inactive_timer.start();
-//		return;
-//	}
+	if(d->myself_chat_state == state) {
+		d->inactive_timer.start();
+		return;
+	}
 	ChatStateEvent event(state);
 	qApp->sendEvent(d->chat_unit,&event);
 	d->myself_chat_state = state;

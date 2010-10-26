@@ -48,6 +48,7 @@ namespace qutim_sdk_0_3
 
 	MenuController::~MenuController()
 	{
+		d_func()->q_ptr = 0;
 		//		foreach (ActionInfo info,d_func()->actions)
 		//			delete info.gen;
 	}
@@ -352,9 +353,6 @@ namespace qutim_sdk_0_3
 		Q_D(MenuController);
 		foreach (DynamicMenu *menu, *dynamicMenuSet()) {
 			MenuController *owner = menu->controller();
-			int flags = owner->d_func()->flags;
-			while (owner != this && !!(owner = (flags & ShowOwnerActions) ? owner->d_func()->owner : 0))
-				flags = owner->d_func()->flags;
 			if (owner && owner->d_func()->menu)
 				menu->removeAction(owner, gen);
 		}

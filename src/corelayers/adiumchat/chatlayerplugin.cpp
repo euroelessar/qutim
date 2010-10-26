@@ -26,6 +26,7 @@
 #include "chatlayer/actions/chatemoticonswidget.h"
 #include <QPlainTextEdit>
 #include "chatlayer/chatforms/abstractchatwidget.h"
+#include <qutim/shortcut.h>
 
 namespace Core
 {
@@ -84,13 +85,26 @@ bool ChatLayerPlugin::load()
 		return false;
 	}
 
+	Shortcut::registerSequence("showEmoticons",
+							   QT_TRANSLATE_NOOP("ChatLayer", "Show Emoticons"),
+							   "ChatWidget",
+							   QKeySequence("alt+e")
+							   );
+	Shortcut::registerSequence("clearChat",
+							   QT_TRANSLATE_NOOP("ChatLayer", "Clear Chat"),
+							   "ChatWidget",
+							   QKeySequence("alt+c")
+							   );
+
 	ActionGenerator *gen = new EmoActionGenerator(this);
+	gen->setShortcut(Shortcut::getSequence(QLatin1String("showEmoticons")).key);
 	form->addAction(gen);
 	gen = new ActionGenerator(Icon("edit-clear-list"),
 											   QT_TRANSLATE_NOOP("ChatLayer","Clear chat"),
 											   this,
 											   SLOT(onClearChat(QObject*)));
 	gen->setToolTip(QT_TRANSLATE_NOOP("ChatLayer","Clear chat field"));
+	gen->setShortcut(Shortcut::getSequence(QLatin1String("clearChat")).key);
 	form->addAction(gen);
 	return true;
 }

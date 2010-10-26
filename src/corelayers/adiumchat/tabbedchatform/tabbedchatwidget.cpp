@@ -15,6 +15,7 @@
 #include <qutim/qtwin.h>
 #include <QAbstractItemModel>
 #include <QSplitter>
+#include <qutim/shortcut.h>
 #include <QToolButton>
 
 #ifdef Q_WS_X11
@@ -75,6 +76,7 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_unitSeparator = m_toolbar->addSeparator();
 	m_sessionList = new QAction(Icon("view-list-tree"),tr("Session list"),this);
 	m_sessionList->setMenu(m_tabBar->menu());
+	m_sessionList->setShortcut(Shortcut::getSequence(QLatin1String("chatListSession")).key);
 
 	loadSettings();
 
@@ -206,6 +208,7 @@ void TabbedChatWidget::addSession(ChatSessionImpl *session)
 {
 	m_tabBar->addSession(session);
 	connect(session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
+	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged()));
 }
 
 void TabbedChatWidget::removeSession(ChatSessionImpl *session)
@@ -237,6 +240,7 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 		session->markRead();
 
 	activateWindow();
+	setTitle(session);
 
 	if(m_currentSession) {
 		if(m_currentSession == session)
@@ -249,23 +253,6 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 	m_tabBar->setCurrentSession(session);
 	m_chatInput->setSession(session);
 	m_contactView->setSession(session);
-
-	ChatUnit *u = session->getUnit();
-	QIcon icon = Icon("view-choose");
-	QString title = tr("Chat with %1").arg(u->title());
-
-	bool isContactsViewVisible;
-	if (Conference *c = qobject_cast<Conference *>(u)) {
-		icon = Icon("meeting-attending"); //TODO
-		title = tr("Conference %1 (%2)").arg(c->title(),c->id());
-		isContactsViewVisible = true;
-	} else {
-		isContactsViewVisible = session->getModel()->rowCount(QModelIndex()) > 0;
-		if (Buddy *b = qobject_cast<Buddy*>(u))
-			icon = b->avatar().isEmpty() ? Icon("view-choose") : QIcon(b->avatar());
-	}
-	setWindowTitle(title);
-	setWindowIcon(icon);
 
 	qDeleteAll(m_unitActions);
 	m_unitActions.clear();
@@ -347,6 +334,36 @@ void TabbedChatWidget::activateWindow()
 	}
 #endif//Q_WS_X11
 	AbstractChatWidget::activateWindow();
+}
+
+void TabbedChatWidget::setTitle(ChatSessionImpl *s)
+{
+	ChatUnit *u = s->getUnit();
+	QIcon icon = Icon("view-choose");
+	QString title;
+	if(s->unread().count())
+		title = tr("Chat with %1 (have %2 unread messages)").arg(u->title()).arg(s->unread().count());
+	else
+		title = tr("Chat with %1").arg(u->title());
+	bool isContactsViewVisible;
+	if (Conference *c = qobject_cast<Conference *>(u)) {
+		icon = Icon("meeting-attending"); //TODO
+		title = tr("Conference %1 (%2)").arg(c->title(),c->id());
+		isContactsViewVisible = true;
+	} else {
+		isContactsViewVisible = s->getModel()->rowCount(QModelIndex()) > 0;
+		if (Buddy *b = qobject_cast<Buddy*>(u))
+			icon = b->avatar().isEmpty() ? Icon("view-choose") : QIcon(b->avatar());
+	}
+	setWindowTitle(title);
+	setWindowIcon(icon);
+}
+
+void TabbedChatWidget::onUnreadChanged()
+{
+	ChatSessionImpl *s = qobject_cast<ChatSessionImpl*>(sender());
+	if(s && s == m_tabBar->currentSession())
+		setTitle(s);
 }
 
 }
