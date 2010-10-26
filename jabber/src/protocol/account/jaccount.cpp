@@ -112,6 +112,13 @@ namespace Jabber {
 		general.endGroup();
 	}
 
+	void JAccount::setPasswd(const QString &passwd)
+	{
+		config().group("general").setValue("passwd",passwd, Config::Crypted);
+		p->passwd = passwd;
+		config().sync();
+	}
+
 	JServiceDiscovery *JAccount::discoManager()
 	{
 		if (!p->discoManager)

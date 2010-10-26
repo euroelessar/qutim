@@ -89,7 +89,7 @@ void VkontakteProtocol::loadAccounts()
 
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &uid, accounts) {
-		VAccount *acc = new VAccount(uid);
+		VAccount *acc = new VAccount(uid,this);
 		d->accounts_hash->insert(uid, acc);
 		acc->loadSettings();
 		connect(acc,SIGNAL(destroyed(QObject*)),d,SLOT(onAccountDestroyed(QObject*)));

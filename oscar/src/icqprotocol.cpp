@@ -33,6 +33,12 @@ namespace oscar {
 
 IcqProtocol *IcqProtocol::self = 0;
 
+void IcqProtocolPrivate::removeAccount(QObject *obj)
+{
+	IcqAccount *const c = reinterpret_cast<IcqAccount*>(obj);
+	accounts->remove(accounts->key(c));
+}
+
 IcqProtocol::IcqProtocol() :
 	d_ptr(new IcqProtocolPrivate)
 {
@@ -102,6 +108,7 @@ void IcqProtocol::addAccount(IcqAccount *account)
 	d->accounts_hash->insert(account->id(), account);
 	emit accountCreated(account);
 	account->d_func()->loadRoster();
+	connect(account,SIGNAL(destroyed(QObject*)),d,SLOT(removeAccount(QObject*)));
 }
 
 void IcqProtocol::updateSettings()
@@ -125,4 +132,5 @@ QVariant IcqProtocol::data(DataType type)
 			return QVariant();
 	}
 }
+
 } } // namespace qutim_sdk_0_3::oscar

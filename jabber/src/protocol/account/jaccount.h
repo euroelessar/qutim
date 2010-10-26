@@ -51,6 +51,7 @@ namespace Jabber {
 			bool checkIdentity(const std::string &category, const std::string &type) const;
 			QString identity(const QString &category, const QString &type) const;
 			std::string identity(const std::string &category, const std::string &type) const;
+			void setPasswd(const QString &passwd);
 		protected:
 			void loadSettings();
 		private:

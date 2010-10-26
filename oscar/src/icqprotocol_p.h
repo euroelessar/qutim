@@ -24,8 +24,9 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-class IcqProtocolPrivate
+class IcqProtocolPrivate : public QObject
 {
+	Q_OBJECT
 public:
 	inline IcqProtocolPrivate() :
 		accounts_hash(new QHash<QString, QPointer<IcqAccount> > ())
@@ -36,6 +37,8 @@ public:
 		QHash<QString, QPointer<IcqAccount> > *accounts_hash;
 		QHash<QString, IcqAccount *> *accounts;
 	};
+public slots:
+	void removeAccount(QObject *obj);
 };
 
 } } // namespace qutim_sdk_0_3::oscar

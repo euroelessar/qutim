@@ -28,7 +28,7 @@ class LIBVKONTAKTE_EXPORT VAccount : public Account
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(VAccount)
 public:
-	VAccount(const QString& email);
+	VAccount(const QString& email,QObject *parent = 0);
 	virtual VContact* getContact(const QString& uid, bool create = false);
 	virtual ChatUnit* getUnit(const QString& unitId, bool create = false);
 	QString uid() const;

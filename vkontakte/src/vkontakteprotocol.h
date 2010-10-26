@@ -35,6 +35,7 @@ public:
 	QVariant data(DataType type);
 protected:
 	bool event(QEvent *ev);
+private slots:
 private:
 	static VkontakteProtocol *self;
 	QScopedPointer<VkontakteProtocolPrivate> d_ptr;

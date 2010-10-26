@@ -189,8 +189,10 @@ namespace Jabber
 	void JProtocol::addAccount(JAccount *account, bool isEmit)
 	{
 		p->accounts->insert(account->id(), account);
-		if (isEmit)
+		if(isEmit)
 			emit accountCreated(account);
+
+		connect(account,SIGNAL(destroyed(QObject*)),SLOT(removeAccount(QObject*)));
 	}
 	
 	QVariant JProtocol::data(DataType type)
@@ -303,5 +305,11 @@ namespace Jabber
 			return true;
 		}
 		return QObject::event(ev);
+	}
+
+	void JProtocol::removeAccount(QObject *obj)
+	{
+		JAccount *acc = reinterpret_cast<JAccount*>(obj);
+		p->accounts->remove(p->accounts->key(acc));
 	}
 }

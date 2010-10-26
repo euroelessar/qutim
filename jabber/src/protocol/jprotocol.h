@@ -38,6 +38,7 @@ namespace Jabber
 		void onJoinLeave(QObject *obj);
 		void onShowConfigDialog(QObject *obj);
 		void onSaveRemoveBookmarks(QObject *obj);
+		void removeAccount(QObject *obj);
 	private:
 		void loadActions();
 		virtual void loadAccounts();

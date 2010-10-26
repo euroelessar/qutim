@@ -28,10 +28,8 @@ namespace Jabber
 	{
 		JAccount *account = new JAccount(page->jid());
 		if(page->isSavePasswd())
-		{
-			account->config().group("general").setValue("passwd", page->passwd(), Config::Crypted);
-			account->config().sync();
-		}
+			account->setPasswd(page->passwd());
+
 		Config cfg = protocol->config().group("general");
 		QStringList accounts = cfg.value("accounts", QStringList());
 		accounts << account->id();

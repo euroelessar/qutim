@@ -25,10 +25,11 @@
 #include <qutim/inforequest.h>
 #include "vinforequest.h"
 
-VAccount::VAccount(const QString& email) : 
+VAccount::VAccount(const QString& email,QObject *parent) :
 	Account(email, VkontakteProtocol::instance()),
 	d_ptr(new VAccountPrivate)
 {
+	setParent(parent);
 	Q_D(VAccount);
 	d->q_ptr = this;
 	setParent(protocol());
