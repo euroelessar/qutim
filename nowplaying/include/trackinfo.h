@@ -2,6 +2,8 @@
 #define TRACKINFO_H
 
 #include <QString>
+#include <QUrl>
+#include <QMetaType>
 
 namespace qutim_sdk_0_3 {
 
@@ -12,12 +14,14 @@ namespace nowplaying {
 		QString artist;
 		QString title;
 		QString album;
-		QString time;
-		QString track_number;
-		QString file_name;
-		QString uri;
+		qint64 time;
+		qint32 trackNumber;
+		QUrl location;
 	};
 
-} }
+} 
+}
+
+Q_DECLARE_METATYPE(qutim_sdk_0_3::nowplaying::TrackInfo)
 
 #endif // TRACKINFO_H

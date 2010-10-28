@@ -2,26 +2,64 @@
 #define PLAYER_H
 
 #include "trackinfo.h"
-#include "playersettings.h"
+#include <qutim/event.h>
 #include <QObject>
 
 namespace qutim_sdk_0_3 {
 
-namespace nowplaying {
-
-	class Player : public QObject
+namespace nowplaying 
+{
+	class StateEvent : public Event
 	{
-		Q_OBJECT
 	public:
-		virtual ~Player(){}
-		virtual QString playerName() = 0;
-		virtual TrackInfo trackInfo() = 0;
+		inline StateEvent(bool isPlaying) : Event(eventId(), isPlaying) {}
+		inline ~StateEvent() {}
+		
+		static quint16 eventId() { return registerType("now-playing-state"); }
+		
+		bool isPlaying() { return args.at(0).toBool(); }
+	};
+	
+	class TrackInfoEvent : public Event
+	{
+	public:
+		inline TrackInfoEvent(const TrackInfo &info) : Event(eventId(), qVariantFromValue(info)) {}
+		inline ~TrackInfoEvent() {}
+		
+		static quint16 eventId() { return registerType("now-playing-track"); }
+		
+		TrackInfo trackInfo() { return args.at(0).value<TrackInfo>(); }
+	};
+	
+	class PlayerEvent : public Event
+	{
+	public:
+		enum Info
+		{
+			Available,
+			Unavailable
+		};
+
+		inline PlayerEvent(const QString &id, Info i) : Event(eventId(), id, int(i)) {}
+		inline ~PlayerEvent() {}
+		
+		static quint16 eventId() { return registerType("now-playing-player"); }
+		
+		QString playerId() { return args.at(0).toString(); }
+		Info playerInfo() { return static_cast<Info>(args.at(1).toInt()); }
+	};
+
+	class Player
+	{
+	public:
+		virtual ~Player() {}
+		
+		virtual QString id() = 0;
+		
 		virtual void init() = 0;
-		/* isPlaying()
-		 * must return true if track is playing
-		 * if paused or stopped return false
-		 */
-		virtual bool isPlaying() = 0;
+		
+		virtual void requestState() = 0;
+		virtual void requestTrackInfo() = 0;
 
 		/* startWatching()
 		 * when call this method Player object
@@ -34,19 +72,23 @@ namespace nowplaying {
 		 * must stop scan player state
 		 */
 		virtual void stopWatching() = 0;
-
-		virtual PlayerSettings *settings() { return 0; }
-	signals:
-
-		/* playingStatusChanged(bool)
-		 * Emits false, if track have stopped or paused
-		 * Emits true, if track continued playing
-		 * after pause or stop
+	};
+	
+	class PlayerFactory
+	{
+	public:
+		virtual ~PlayerFactory() {}
+		
+		/* players()
+		 * returnes map with PlayerId as keys
+		 * and PlayerName as values
 		 */
-		void playingStatusChanged(bool is_playing);
-		void trackChanged(const TrackInfo&);
+		virtual QMap<QString,QString> players() = 0;
+		
+		virtual QObject *player(const QString &id) = 0;
 	};
 } }
 
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::nowplaying::Player, "org.qutim.qutim_sdk_0_3.nowplaying.Player")
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::nowplaying::PlayerFactory, "org.qutim.qutim_sdk_0_3.nowplaying.PlayerFactory")
 #endif // PLAYER_H

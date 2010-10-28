@@ -4,6 +4,7 @@
 #include <QApplication>
 #include "nowplaying.h"
 #include "ui_icqsettings.h"
+#include <QTime>
 
 namespace qutim_sdk_0_3 {
 
@@ -106,10 +107,15 @@ namespace nowplaying {
 							   m_settings :
 							   m_icqFactory->m_settings;
 		QString message = (config.setsCurrentStatus) ? config.mask_1 : config.mask_2;
-		message.replace("%artist", info.artist).replace("%title", info.title).
-				replace("%album", info.album).replace("%track", info.track_number).
-				replace("%file", info.file_name).replace("%uri", info.uri).
-				replace("%time", info.time);
+		QTime time(0, 0, 0);
+		time.addSecs(info.time);
+		message.replace("%artist", info.artist)
+				.replace("%title", info.title)
+				.replace("%album", info.album)
+				.replace("%track", QString::number(info.trackNumber))
+				.replace("%file", info.location.toString(QUrl::RemoveScheme | QUrl::RemoveAuthority))
+				.replace("%uri", info.location.toString())
+				.replace("%time", time.toString("H:mm:ss"));
 		return message;
 	}
 

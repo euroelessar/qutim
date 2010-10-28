@@ -34,11 +34,11 @@ namespace nowplaying {
 		if (config.length)
 			tune.insert("length", info.time);
 		if (config.number)
-			tune.insert("track", info.track_number);
+			tune.insert("track", QString::number(info.trackNumber));
 		if (config.title)
 			tune.insert("title", info.title);
 		if (config.uri)
-			tune.insert("uri", info.uri);
+			tune.insert("uri", info.location.toString());
 		Event ev(jabberPersonalEvent, "tune", tune, true);
 		qApp->sendEvent(m_account, &ev);
 	}

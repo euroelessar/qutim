@@ -1,11 +1,8 @@
 #include "settingsui.h"
 #include "player.h"
-#include "playersettings.h"
 #include <qutim/objectgenerator.h>
 #include "accounttunestatus.h"
 #include "ui_nowplayingsettings.h"
-
-Q_DECLARE_METATYPE(qutim_sdk_0_3::nowplaying::Player*);
 
 namespace qutim_sdk_0_3 {
 
@@ -27,7 +24,6 @@ namespace nowplaying {
 		connect(ui->accounts, SIGNAL(currentIndexChanged(int)), SLOT(accountChanged(int)));
 		connect(ui->change_status, SIGNAL(clicked()), SLOT(stopButtonClicked()));
 		connect(ui->for_all_accounts, SIGNAL(toggled(bool)), SLOT(forAllAccountsClicked()));
-		connect(ui->players, SIGNAL(currentIndexChanged(int)), SLOT(updatePlayer(int)));
 	}
 
 	SettingsUI::~SettingsUI()
@@ -44,7 +40,7 @@ namespace nowplaying {
 		ui->for_all_accounts->setChecked(m_manager->forAllAccounts());
 		ui->accounts->clear();
 
-		m_accounts = m_manager->accounts().values();
+		m_accounts = m_manager->accounts();
 		foreach (AccountTuneStatus *account, m_accounts)
 			ui->accounts->addItem(account->account()->id());
 		if (!m_accounts.size()) {
@@ -57,11 +53,15 @@ namespace nowplaying {
 		updateFields();
 
 		ui->players->clear();
-		foreach(Player* player, m_manager->players())
-			ui->players->addItem(player->playerName(), QVariant::fromValue(player));
+		foreach(PlayerFactory *factory, m_manager->playerFactories()) {
+			const QMap<QString,QString> map = factory->players();
+			QMap<QString,QString>::const_iterator it = map.constBegin();
+			for (;it != map.constEnd(); it++)
+				ui->players->addItem(it.value(), it.key());
+		}
 		Player *currentPlayer = m_manager->currentPlayer();
 		if (currentPlayer)
-			ui->players->setCurrentIndex(ui->players->findText(currentPlayer->playerName()));
+			ui->players->setCurrentIndex(ui->players->findData(currentPlayer->id()));
 
 		ui->accounts->blockSignals(false);
 		ui->for_all_accounts->blockSignals(false);
@@ -71,21 +71,20 @@ namespace nowplaying {
 	{
 		Config cfg = config("global");
 		cfg.setValue("isWorking", m_manager->isWorking());
-		cfg.setValue("player", ui->players->currentText());
+		cfg.setValue("player", ui->players->itemData(ui->players->currentIndex()));
 		cfg.setValue("enableForAllAccounts", m_enableForAllAccounts);
 		saveState();
 		foreach (AccountTuneSettings *w, m_settingWidgets)
 			w->saveConfigs();
 		m_manager->loadSettings();
-		m_playerSettings->saveSettings();
 	}
+
 
 	void SettingsUI::cancelImpl()
 	{
 		foreach (AccountTuneSettings *w, m_settingWidgets)
 			w->clearStates();
 		loadImpl();
-		m_playerSettings->loadSettings();
 	}
 
 	void SettingsUI::accountChanged(int index)
@@ -106,23 +105,6 @@ namespace nowplaying {
 		saveState();
 		m_enableForAllAccounts = ui->for_all_accounts->isChecked();
 		updateFields();
-	}
-
-	void SettingsUI::updatePlayer(int index)
-	{
-		Player *player = ui->players->itemData(index).value<Player*>();
-		Q_ASSERT(player);
-		m_playerSettings.reset(player->settings());
-		if (m_playerSettings) {
-			m_playerSettings->loadSettings();
-			connect(m_playerSettings.data(), SIGNAL(modified()), SLOT(playerSettingsModified()));
-			ui->tabSettingsLayout->addWidget(m_playerSettings.data(), 1, 0, 1, 3);
-		}
-	}
-
-	void SettingsUI::playerSettingsModified()
-	{
-		emit modifiedChanged(true);
 	}
 
 	void SettingsUI::updateFields()

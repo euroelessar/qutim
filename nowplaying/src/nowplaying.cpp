@@ -1,7 +1,7 @@
 #include "nowplaying.h"
 #include "icqsupport.h"
 #include "jabbersupport.h"
-#include "players/mpris/mpris.h"
+#include "players/mpris/mprisplayerfactory.h"
 #include <qutim/objectgenerator.h>
 #include <qutim/settingslayer.h>
 #include <qutim/debug.h>
@@ -35,9 +35,12 @@ namespace nowplaying
 		addAuthor(QT_TRANSLATE_NOOP("Author","Alexey Prokhin"),
 				  QT_TRANSLATE_NOOP("Task","Developer"),
 				  QLatin1String("alexey.prokhin@yandex.ru"));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "MPRIS support"),
-					 QT_TRANSLATE_NOOP("Plugin", "Media Player Remote Interfacing Specification (MPRIS) support for now playing plugin"),
-					 new GeneralGenerator<Mpris, Player>(),
+		addAuthor(QT_TRANSLATE_NOOP("Author","Ruslan Nigmatullin"),
+				  QT_TRANSLATE_NOOP("Task","Developer"),
+				  QLatin1String("euroelessar@yandex.ru"));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Now Playing Mpris"),
+					 QT_TRANSLATE_NOOP("Plugin", "Mpris support for now playing plugin"),
+					 new GeneralGenerator<MprisPlayerFactory, PlayerFactory>(),
 					 ExtensionIcon(""));
 	}
 
@@ -61,9 +64,10 @@ namespace nowplaying
 					SLOT(accountCreated(qutim_sdk_0_3::Account*)));
 		}
 
-		foreach(const ObjectGenerator *gen, ObjectGenerator::module<Player>()) {
-			Player* player =  gen->generate<Player>();
-			m_players.insert(player->playerName(), player);
+		foreach(const ObjectGenerator *gen, ObjectGenerator::module<PlayerFactory>()) {
+			QObject *obj = gen->generate();
+			obj->installEventFilter(this);
+			m_playerFactories.append(obj);
 		}
 		loadSettings();
 
@@ -74,9 +78,9 @@ namespace nowplaying
 		Settings::registerItem(settings);
 
 		m_stopStartAction = new StopStartActionGenerator(this, m_isWorking);
-		MenuController *contactList = ServiceManager::getByName<MenuController*>("ContactList");
+		QObject *contactList = ServiceManager::getByName("ContactList");
 		if (contactList)
-			contactList->addAction(m_stopStartAction);
+			QMetaObject::invokeMethod(contactList, "addButton", Q_ARG(ActionGenerator*, m_stopStartAction));
 		return true;
 	}
 
@@ -84,6 +88,35 @@ namespace nowplaying
 	{
 		clearStatuses();
 		return true;
+	}
+	
+	bool NowPlaying::eventFilter(QObject *obj, QEvent *ev)
+	{
+		static const quint16 playerId = PlayerEvent::eventId();
+		if (obj == m_player) {
+			static const quint16 trackInfoId = TrackInfoEvent::eventId();
+			static const quint16 stateId = StateEvent::eventId();
+			if (static_cast<Event*>(ev)->id == trackInfoId) {
+				setStatuses(static_cast<TrackInfoEvent*>(ev)->trackInfo());
+				return true;
+			} else if (static_cast<Event*>(ev)->id == stateId) {
+				playingStatusChanged(static_cast<StateEvent*>(ev)->isPlaying());
+				return true;
+			}
+			return false;
+		} else if (static_cast<Event*>(ev)->id == playerId) {
+			PlayerEvent *playerEvent = static_cast<PlayerEvent*>(ev);
+			if (playerEvent->playerId() == m_playerId) {
+				if (!m_player && playerEvent->playerInfo() == PlayerEvent::Available) {
+					initPlayer(m_playerId, qobject_cast<PlayerFactory*>(obj));
+				} else if (m_player && playerEvent->playerInfo() == PlayerEvent::Unavailable) {
+					m_player.object()->deleteLater();
+					m_player = 0;
+				}
+			}
+			return true;
+		}
+		return Plugin::eventFilter(obj, ev);
 	}
 
 	void NowPlaying::loadSettings()
@@ -94,28 +127,39 @@ namespace nowplaying
 			account->loadSettings();
 		foreach (AccountTuneStatus *factory, m_factories)
 			factory->loadSettings();
-		initPlayer(cfg.value("player", QLatin1String("Mpris")));
+		initPlayer(cfg.value("player", QString("amarok")));
 		m_forAllAccounts = cfg.value("enableForAllAccounts", true);
 	}
 
-	void NowPlaying::initPlayer(const QString &playerName)
+	void NowPlaying::initPlayer(const QString &playerId, PlayerFactory *factory)
 	{
 		if (m_player) {
-			if (playerName != m_player->playerName())
+			if (playerId == m_player->id())
 				return;
-			disconnect(m_player, 0, this, 0);
+			m_player.object()->removeEventFilter(this);
 			m_player->stopWatching();
+			m_player.object()->deleteLater();
+			m_player = 0;
 		}
-		m_player = m_players.value(playerName);
-		if (m_player != 0) {
-			connect(m_player, SIGNAL(playingStatusChanged(bool)), SLOT(playingStatusChanged(bool)));
-			connect(m_player, SIGNAL(trackChanged(TrackInfo)), SLOT(setStatuses(TrackInfo)));
+		m_playerId = playerId;
+		if (!factory || !(m_player = factory->player(playerId))) {		
+			foreach (PlayerFactory *factory, m_playerFactories) {
+				m_player = factory->player(playerId);
+				if (m_player)
+					break;
+			}
+		}
+
+		if (m_player) {
+			m_player.object()->installEventFilter(this);
 			m_player->init();
 			if (m_isWorking) {
-				if (m_player->isPlaying())
-					setStatuses(m_player->trackInfo());
-				else
-					clearStatuses();
+				m_player->startWatching();
+				m_player->requestState();
+//				if (m_player->isPlaying())
+//					setStatuses(m_player->trackInfo());
+//				else
+//					clearStatuses();
 			}
 		} else if (m_isWorking) {
 			setState(false);
@@ -124,7 +168,7 @@ namespace nowplaying
 
 	void NowPlaying::setState(bool isWorking)
 	{
-		Q_ASSERT(!(!m_player && m_isWorking));
+		//Q_ASSERT(!(!m_player && m_isWorking));
 		if (m_isWorking == isWorking || !m_player)
 			return;
 		m_isWorking = isWorking;
@@ -132,8 +176,9 @@ namespace nowplaying
 		config("global").setValue("isWorking", isWorking);
 		if (isWorking) {
 			m_player->startWatching();
-			if (m_player->isPlaying())
-				setStatuses(m_player->trackInfo());
+			m_player->requestState();
+//			if (m_player->isPlaying())
+//				setStatuses(m_player->trackInfo());
 		} else {
 			m_player->stopWatching();
 			clearStatuses();
@@ -151,11 +196,12 @@ namespace nowplaying
 		if(!isPlaying)
 			clearStatuses();
 		else
-			setStatuses(m_player->trackInfo());
+			m_player->requestTrackInfo();
 	}
 
 	void NowPlaying::setStatuses(const TrackInfo &info)
 	{
+		qDebug() << info.location.toString();
 		foreach (AccountTuneStatus *account, m_accounts)
 			account->setStatus(info);
 	}
@@ -172,29 +218,23 @@ namespace nowplaying
 		if (!factory)
 			return;
 		AccountTuneStatus *accountTune = factory->construct(account, factory);
-		m_accounts.insert(account, accountTune);
+		m_accounts << accountTune;
 		accountTune->loadSettings();
 		connect(account, SIGNAL(destroyed()), SLOT(accountDeleted()));
-		connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-				SLOT(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
-	}
-
-	void NowPlaying::statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous)
-	{
-		// TODO: maybe move it to AccountTuneStatus?
-		if (current != Status::Offline && previous == Status::Connecting) {
-			AccountTuneStatus *accountTune = m_accounts.value(static_cast<Account*>(sender()));
-			Q_ASSERT(accountTune);
-			accountTune->setStatus(m_player->trackInfo());
-		}
 	}
 
 	void NowPlaying::accountDeleted()
 	{
 		Account* account = reinterpret_cast<Account*>(sender());
-		AccountTuneStatus *accountTune = m_accounts.take(account);
-		if (accountTune)
-			accountTune->deleteLater();
+		QList<AccountTuneStatus*>::iterator itr = m_accounts.begin();
+		QList<AccountTuneStatus*>::iterator endItr = m_accounts.end();
+		while (itr != endItr) {
+			if ((*itr)->account() == account) {
+				(*itr)->deleteLater();
+				m_accounts.erase(itr);
+				break;
+			}
+		}
 	}
 
 	StopStartActionGenerator::StopStartActionGenerator(QObject* module, bool isWorking):
@@ -203,16 +243,19 @@ namespace nowplaying
 							module,
 							SLOT(stopStartActionTrigged()))
 	{
+		setCheckable(true);
 		setState(isWorking);
 	}
 
 	void StopStartActionGenerator::showImpl(QAction *action, QObject* /*obj*/)
 	{
 		action->setText(m_text);
+		action->setToolTip(m_text);
 	}
 
 	void StopStartActionGenerator::setState(bool isWorking)
 	{
+		setChecked(isWorking);
 		m_text = isWorking ?
 				 QT_TRANSLATE_NOOP("NowPlaying",  "Stop now playing") :
 				 QT_TRANSLATE_NOOP("NowPlaying", "Start now playing");

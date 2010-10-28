@@ -22,7 +22,6 @@ namespace nowplaying {
 	class AccountTuneSettings;
 	class AccountTuneStatus;
 	class NowPlaying;
-	class PlayerSettings;
 
 	class SettingsUI : public SettingsWidget
 	{
@@ -52,7 +51,6 @@ namespace nowplaying {
 		QPointer<AccountTuneStatus> m_currentAccount;
 		QHash<AccountTuneStatus*, AccountTuneSettings*> m_settingWidgets;
 		NowPlaying *m_manager;
-		QScopedPointer<PlayerSettings> m_playerSettings;
 	};
 
 } }
