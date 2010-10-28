@@ -17,6 +17,9 @@ public:
 	void setSession(ChatSessionImpl *session);
 protected:
 	virtual bool event(QEvent *event);
+private slots:
+	void onActivated(const QModelIndex &);
+	void onBuddiesChanged();
 private:
 	ChatSessionImpl *m_session;
 };

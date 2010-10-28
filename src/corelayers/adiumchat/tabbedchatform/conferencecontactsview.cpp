@@ -12,17 +12,21 @@ namespace AdiumChat
 using namespace qutim_sdk_0_3;
 
 ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
-    QListView(parent)
+	QListView(parent),
+	m_session(0)
 {
 	setItemDelegate(new ContactDelegate(this));
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 	setSizePolicy(sizePolicy);
 	setAcceptDrops(true);
+	connect(this,SIGNAL(activated(QModelIndex)),SLOT(onActivated(QModelIndex)));
 }
 
 void ConferenceContactsView::setSession(ChatSessionImpl *session)
 {
+	if(m_session)
+		m_session->disconnect(this);
 	m_session = session;
 	setModel(session->getModel());
 	bool isContactsViewVisible = session->getModel()->rowCount(QModelIndex()) > 0;
@@ -30,6 +34,7 @@ void ConferenceContactsView::setSession(ChatSessionImpl *session)
 		isContactsViewVisible = true;
 
 	setVisible(isContactsViewVisible);
+	connect(session,SIGNAL(buddiesChanged()),SLOT(onBuddiesChanged()));
 }
 
 bool ConferenceContactsView::event(QEvent *event)
@@ -65,6 +70,21 @@ bool ConferenceContactsView::event(QEvent *event)
 		}
 	}
 	return QListView::event(event);
+}
+
+void ConferenceContactsView::onActivated(const QModelIndex &index)
+{
+	Buddy *buddy = index.data(Qt::UserRole).value<Buddy*>();
+	if (buddy)
+		ChatLayer::get(buddy, true)->activate();
+}
+
+void ConferenceContactsView::onBuddiesChanged()
+{
+	if (qobject_cast<Conference*>(m_session->getUnit()))
+		setVisible(true);
+	else
+		setVisible(model()->rowCount(QModelIndex()) > 0);
 }
 
 }
