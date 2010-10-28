@@ -303,7 +303,7 @@ void ChatSessionImplPrivate::statusChanged(const Status &status,Contact* contact
 	}
 	}
 
-	if(lastStatusType == Notifications::Offline && status.type() != Notifications::Offline)
+	if(lastStatusType == Status::Offline && status.type() != Status::Offline)
 		chat_unit->setChatState(ChatStateInActive);
 
 	if(lastStatusText == status.text())
