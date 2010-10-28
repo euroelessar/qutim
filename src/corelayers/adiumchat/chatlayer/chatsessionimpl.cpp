@@ -139,7 +139,8 @@ qint64 ChatSessionImpl::appendMessage(Message &message)
 	if (!silent && !d->active)
 		Notifications::send(message);
 
-	d->getController()->appendMessage(message);
+	if(!message.property("fake",false))
+		d->getController()->appendMessage(message);
 	return message.id();
 }
 
@@ -294,14 +295,16 @@ void ChatSessionImplPrivate::statusChanged(const Status &status,Contact* contact
 		break;
 	}
 	case Status::Online: {
-		type = Notifications::Online;
-		chat_unit->setChatState(ChatStateInActive);
+		type = Notifications::Online;		
 		break;
 	}
 	default: {
 		break;
 	}
 	}
+
+	if(lastStatusType == Notifications::Offline && status.type() != Notifications::Offline)
+		chat_unit->setChatState(ChatStateInActive);
 
 	if(lastStatusText == status.text())
 		return;
