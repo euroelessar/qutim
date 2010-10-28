@@ -4,7 +4,10 @@
 #include <qutim/message.h>
 #include <qutim/buddy.h>
 #include <qutim/debug.h>
+#include <qutim/config.h>
 #include <QBuffer>
+
+using namespace qutim_sdk_0_3;
 
 QDBusArgument& operator<< (QDBusArgument& arg, const QImage& image) {
 	if (image.isNull()) {
@@ -35,8 +38,6 @@ const QDBusArgument& operator>> (const QDBusArgument& arg, QImage& image) {
 	return arg;
 }
 
-using namespace qutim_sdk_0_3;
-
 DBusBackend::DBusBackend() :
 		interface(new org::freedesktop::Notifications(
 				"org.freedesktop.Notifications",
@@ -44,14 +45,19 @@ DBusBackend::DBusBackend() :
 				QDBusConnection::sessionBus()))
 {
 	qDBusRegisterMetaType<QImage>();
+
 	if (!interface->isValid()) {
 		qWarning() << "Error connecting to notifications service.";
 	}
+
+	loadSettings();
 }
 
 void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender, const QString& body,
 				   const QVariant& data)
 {
+	if(!m_showFlags & type)
+		return;
 	QString text = Qt::escape(body);
 	QString sender_id = sender ? sender->property("id").toString() : QString();
 	QString sender_name = sender ? sender->property("name").toString() : QString();
@@ -79,7 +85,7 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 	}
 	int id = 0;
 
-	debug() << hints << icon;
+	icon = QLatin1String("qutim");
 
 	QDBusPendingReply<uint> reply = interface->Notify(
 			QCoreApplication::applicationName(),
@@ -105,4 +111,10 @@ DBusBackend::~DBusBackend()
 void DBusBackend::callFinished(QDBusPendingCallWatcher *watcher)
 {
 	watcher->deleteLater();
+}
+
+void DBusBackend::loadSettings()
+{
+	Config behavior = Config("behavior").group("notifications/popups");
+	m_showFlags = behavior.value("showFlags", 0xfffffff &~ Notifications::MessageSend);
 }

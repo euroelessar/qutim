@@ -18,8 +18,10 @@ public:
 	virtual ~DBusBackend();
 protected slots:
 	void callFinished(QDBusPendingCallWatcher* watcher);
+	void loadSettings();
 private:
 	QScopedPointer<org::freedesktop::Notifications> interface;
+	int m_showFlags;
 };
 
 #endif // GROWLBACKEND_H
