@@ -656,7 +656,7 @@ void MessageSender::sendMessage()
 {
 	QList<MessageData>::iterator itr = m_messages.begin();
 	IcqContact *contact = itr->contact;
-	if (contact->account()->connection()->testRate(MessageFamily, MessageSrvSend, false)) {
+	if (contact->account()->connection()->testRate(MessageFamily, MessageSrvSend, true)) {
 		sendMessage(contact, itr->message);
 		m_messages.takeFirst();
 		if (m_messages.isEmpty())
