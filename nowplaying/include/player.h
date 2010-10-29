@@ -17,7 +17,7 @@ namespace nowplaying
 		
 		static quint16 eventId() { return registerType("now-playing-state"); }
 		
-		bool isPlaying() { return args.at(0).toBool(); }
+		bool isPlaying() { return args[0].toBool(); }
 	};
 	
 	class TrackInfoEvent : public Event
@@ -28,7 +28,7 @@ namespace nowplaying
 		
 		static quint16 eventId() { return registerType("now-playing-track"); }
 		
-		TrackInfo trackInfo() { return args.at(0).value<TrackInfo>(); }
+		TrackInfo trackInfo() { return args[0].value<TrackInfo>(); }
 	};
 	
 	class PlayerEvent : public Event
@@ -45,8 +45,8 @@ namespace nowplaying
 		
 		static quint16 eventId() { return registerType("now-playing-player"); }
 		
-		QString playerId() { return args.at(0).toString(); }
-		Info playerInfo() { return static_cast<Info>(args.at(1).toInt()); }
+		QString playerId() { return args[0].toString(); }
+		Info playerInfo() { return static_cast<Info>(args[1].toInt()); }
 	};
 
 	class Player
