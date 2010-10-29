@@ -193,7 +193,7 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	connect(d->socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
 	{
 		ClientInfo info =
-		{ "ICQ Client", 266, 6, 5, 10, 104, 0x00007537, "ru", "ru" };
+		{ "ICQ Client", 266, 20, 52, 1, 3916, 85, "en", "us" };
 		d->clientInfo = info;
 	}
 	d->id = (quint32) qrand();

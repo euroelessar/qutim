@@ -145,7 +145,6 @@ void Md5Login::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		} else {
 			DataUnit data(tlvs.value(0x0008));
 			setError(static_cast<AbstractConnection::ConnectionError>(data.read<quint16>()));
-			Notifications::send(errorString());
 		}
 	}
 }
