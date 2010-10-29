@@ -628,4 +628,150 @@ Tlv2711Plugin::~Tlv2711Plugin()
 {
 }
 
+MessageSender::MessageSender(IcqAccount *account) :
+	m_account(account)
+{
+	m_timer.setInterval(1000);
+	connect(&m_timer, SIGNAL(timeout()), SLOT(sendMessage()));
+}
+
+bool MessageSender::appendMessage(IcqContact *contact, const Message &message)
+{
+	if (m_messages.count() > 4)
+		return false;
+	if (m_messages.isEmpty() &&
+		m_account->connection()->testRate(MessageFamily, MessageSrvSend, true))
+	{
+		Q_ASSERT(!m_timer.isActive());
+		sendMessage(contact, message);
+	} else {
+		m_messages.push_back(MessageData(contact, message));
+		if (!m_timer.isActive())
+			m_timer.start();
+	}
+	return true;
+}
+
+void MessageSender::sendMessage()
+{
+	QList<MessageData>::iterator itr = m_messages.begin();
+	IcqContact *contact = itr->contact;
+	if (contact->account()->connection()->testRate(MessageFamily, MessageSrvSend, false)) {
+		sendMessage(contact, itr->message);
+		m_messages.takeFirst();
+		if (m_messages.isEmpty())
+			m_timer.stop();
+	}
+}
+
+/*
+ Looks up an incomplete character at the end of a utf-8 string and returns
+ length of this character or 0 if the character has not been found.
+ */
+static quint8 lookupIncompleteCharacter(const QByteArray &str)
+{
+	int left = str.size(); // holds count of remained bytes
+	int i = 0;
+	const uchar *data = reinterpret_cast<const uchar *>(str.data());
+	while (left > 0) {
+		const uchar current = data[i];
+		if (current < 0xc2) {
+			--left;
+			++i;
+		} else if (current < 0xe0) {
+			left -= 2;
+			i += 2;
+		} else /*if (current < 0xf0)*/ {
+			left -= 3;
+			i += 3;
+		}
+	}
+	return -left;
+}
+
+enum SplitFlags
+{
+	sf_utf8 = 0x01,
+	sf_appendNull = 0x02
+};
+
+/*
+ Splits the long message into messages with length less than maxLen and returns the list of
+ those messages. If the length of this message less than maxLen, returns a single-element
+ list containing this message.
+ */
+static QList<QByteArray> splitMessage(const QByteArray &message, quint16 maxLen, quint8 flags = 0)
+{
+	QList<QByteArray> list;
+	if (message.size() > maxLen) {
+		int i = 0;
+		int size = message.size();
+		while (i < size) {
+			QByteArray msg = message.mid(i, maxLen);
+			if (flags & sf_utf8) {
+				quint8 l = lookupIncompleteCharacter(msg);
+				if (l)
+					msg.truncate(maxLen-l);
+			}
+			i += msg.size();
+			if (flags & sf_appendNull)
+				msg += '\0';
+			list << msg;
+		}
+	} else {
+		if (flags & sf_appendNull)
+			list << (message + '\0');
+		else
+			list <<  message;
+	}
+	return list;
+}
+
+void MessageSender::sendMessage(IcqContact *contact, const Message &message)
+{
+	IcqContactPrivate *d = contact->d_func();
+	QString msgText;
+	quint8 channel = 2;
+	Cookie cookie(contact, message.id());
+	if (d->flags & html_support)
+		msgText = message.property("html").toString();
+	if (msgText.isEmpty())
+		msgText = message.text();
+	if (!(d->flags & srvrelay_support)) {
+		Channel1Codec charset = CodecUtf16Be;
+		QByteArray data = Channel1MessageData::fromUnicode(msgText, charset);
+		QList<QByteArray> msgs = splitMessage(data, 2542); // Max: 2543
+
+		for (int i = 0, size = msgs.size(), last = size-1; i < size; ++i) {
+			ServerMessage msgData(contact, Channel1MessageData(msgs.at(i), charset),
+								  i == last ? cookie : Cookie::generateId());
+			m_account->connection()->send(msgData, 80);
+		}
+		channel = 1;
+	} else {
+		QList<QByteArray> msgs = d->flags & utf8_support ?
+								 splitMessage(Util::utf8Codec()->fromUnicode(msgText), 7857, sf_utf8 | sf_appendNull) :
+								 splitMessage(Util::asciiCodec()->fromUnicode(msgText), 7898, sf_appendNull);
+
+		for (int i = 0, size = msgs.size(), last = size-1; i < size; ++i) {
+			bool isLast = i == last;
+			const QByteArray &msg = msgs.at(i);
+			Tlv2711 tlv(0x01, 0, d->status.subtype(), 1,
+						isLast ? cookie : Cookie::generateId());
+			tlv.append<quint16>(msg, LittleEndian);
+			tlv.appendColors();
+			if (d->flags & utf8_support)
+				tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
+			ServerMessage msgData(contact, Channel2MessageData(0, tlv));
+			if (isLast)
+				msgData.setCookie(cookie, contact, SLOT(messageTimeout(Cookie)));
+			m_account->connection()->send(msgData, 80);
+		}
+	}
+	debug(Verbose).nospace()
+			<< "Message is sent on channel " << channel
+			<< ", ID:" << message.id()
+			<< ", text:" << message.text();
+}
+
 } } // namespace qutim_sdk_0_3::oscar

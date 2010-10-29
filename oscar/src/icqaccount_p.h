@@ -72,6 +72,7 @@ public:
 	QList<RosterPlugin*> rosterPlugins;
 	QString passwd;
 	QScopedPointer<ConnectingInfo> connectingInfo;
+	QScopedPointer<MessageSender> messageSender;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

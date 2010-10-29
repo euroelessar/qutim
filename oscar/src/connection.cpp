@@ -132,7 +132,7 @@ bool OscarRate::testRate(bool priority)
 {
 	quint32 timeDiff = getTimeDiff(QDateTime::currentDateTime());
 	quint32 newLevel = (m_currentLevel * (m_windowSize - 1) + timeDiff) / m_windowSize;
-	return newLevel > minLevel(priority ? 80 : 90);
+	return newLevel > minLevel(priority ? 80 : m_maxLevel);
 }
 
 void OscarRate::sendNextPackets()

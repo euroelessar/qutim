@@ -109,6 +109,7 @@ IcqAccount::IcqAccount(const QString &uin) :
 {
 	Q_D(IcqAccount);
 	d->q_ptr = this;
+	d->messageSender.reset(new MessageSender(this));
 	d->reconnectTimer.setSingleShot(true);
 	connect(&d->reconnectTimer, SIGNAL(timeout()), SLOT(onReconnectTimeout()));
 	Config cfg = config("general");

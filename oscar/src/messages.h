@@ -22,6 +22,8 @@
 #include "capability.h"
 #include "cookie.h"
 #include <QDateTime>
+#include <QTimer>
+#include <qutim/message.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -147,6 +149,29 @@ public:
 	virtual void processTlvs2711(IcqContact *contact, Capability guid, quint16 type, const DataUnit &data, const Cookie &cookie) = 0;
 protected:
 	QSet<Tlv2711Type> m_tlvs2711Types;
+};
+
+class MessageSender : public QObject
+{
+	Q_OBJECT
+public:
+	MessageSender(IcqAccount *account);
+	bool appendMessage(IcqContact *contact, const Message &message);
+private slots:
+	void sendMessage();
+private:
+	void sendMessage(IcqContact *contact, const Message &message);
+	IcqAccount *m_account;
+	struct MessageData
+	{
+		MessageData(IcqContact *contact_, const Message &message_) :
+			contact(contact_), message(message_)
+		{}
+		IcqContact *contact;
+		Message message;
+	};
+	QList<MessageData> m_messages;
+	QTimer m_timer;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

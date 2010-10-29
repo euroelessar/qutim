@@ -68,6 +68,7 @@ protected:
 	friend class Roster;
 	friend class MessagesHandler;
 	friend class IcqInfoRequest;
+	friend class MessageSender;
 	QScopedPointer<IcqContactPrivate> d_ptr;
 };
 

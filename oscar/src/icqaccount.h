@@ -79,6 +79,7 @@ private:
 	friend class OscarConnection;
 	friend class BuddyPicture;
 	friend class IcqProtocol;
+	friend class IcqContact;
 	QScopedPointer<IcqAccountPrivate> d_ptr;
 };
 
