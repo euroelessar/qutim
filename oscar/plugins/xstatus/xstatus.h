@@ -13,8 +13,8 @@
  ***************************************************************************
  *****************************************************************************/
 
-#ifndef XTRAZ_P_H
-#define XTRAZ_P_H
+#ifndef XSTATUS_H
+#define XSTATUS_H
 
 #include "xtraz.h"
 #include "messages.h"
@@ -97,4 +97,4 @@ private:
 
 } } // namespace qutim_sdk_0_3::oscar
 
-#endif // XTRAZ_P_H
+#endif // XSTATUS_H

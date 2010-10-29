@@ -25,6 +25,7 @@
 #include <qutim/statusactiongenerator.h>
 #include <qutim/message.h>
 #include <qutim/event.h>
+#include "xstatusrequester.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -304,7 +305,6 @@ void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TL
 {
 	if (status.type() == Status::Offline)
 		return;
-	IcqAccount *account = contact->account();
 	SessionDataItemMap statusNoteData(tlvs.value(0x1D));
 	qint8 moodIndex = -1;
 	if (statusNoteData.contains(0x0e)) {
@@ -319,17 +319,7 @@ void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TL
 	XStatus xstatus = findXStatus(contact, moodIndex);
 	if (!xstatus.name.isEmpty()) {
 		setXstatus(status, xstatus.value, xstatus.icon);
-		QDateTime lastTime = contact->property("lastXStatusRequestTime").toDateTime();
-		QDateTime currentTime = QDateTime::currentDateTime();
-		if (!lastTime.isValid() || lastTime.secsTo(currentTime) > 30) {
-			contact->setProperty("lastXStatusRequestTime", currentTime);
-			XtrazRequest request("cAwaySrv", "srvMng");
-			request.setValue("id", "AwayStat");
-			request.setValue("trans", "1");
-			request.setValue("senderId", account->id());
-			SNAC snac = request.snac(contact);
-			account->connection()->send(snac, 10);
-		}
+		XStatusRequester::updateXStatus(contact);
 	} else {
 		status.removeExtendedInfo("xstatus");
 	}
