@@ -50,10 +50,12 @@ public:
 	{
 		return m_windowSize <= 1;
 	}
+	bool testRate(bool priority);
 private slots:
 	void sendNextPackets();
 private:
-	quint32 minLevel();
+	quint32 getTimeDiff(const QDateTime &dateTime);
+	quint32 minLevel(quint8 priority);
 	quint16 m_groupId;
 	quint32 m_windowSize;
 	quint32 m_clearLevel;

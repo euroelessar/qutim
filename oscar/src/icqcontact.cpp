@@ -421,7 +421,8 @@ bool IcqContact::event(QEvent *ev)
 		sn.append<quint16>(1); // channel?
 		sn.append<quint8>(d->uin);
 		sn.append<quint16>(type);
-		d->account->connection()->send(sn, 20);
+		if (d->account->connection()->testRate(MessageFamily, MessageMtn, false))
+			d->account->connection()->send(sn, 20);
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);

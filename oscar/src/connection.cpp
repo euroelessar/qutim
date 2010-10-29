@@ -128,22 +128,23 @@ void OscarRate::send(const SNAC &snac, quint8 priority)
 	}
 }
 
+bool OscarRate::testRate(bool priority)
+{
+	quint32 timeDiff = getTimeDiff(QDateTime::currentDateTime());
+	quint32 newLevel = (m_currentLevel * (m_windowSize - 1) + timeDiff) / m_windowSize;
+	return newLevel > minLevel(priority ? 80 : 90);
+}
+
 void OscarRate::sendNextPackets()
 {
 	Q_ASSERT(!m_queue.isEmpty());
 	QDateTime dateTime = QDateTime::currentDateTime();
-	quint32 timeDiff;
-	if (dateTime.date() == m_time.date())
-		timeDiff = m_time.time().msecsTo(dateTime.time());
-	else if (m_time.daysTo(dateTime) == 1)
-		timeDiff = 86400000 - m_time.time().msec() + dateTime.time().msec();
-	else // That should never happen
-		timeDiff = 86400000;
+	quint32 timeDiff = getTimeDiff(dateTime);
 
 	quint32 newLevel;
 	while (!m_queue.isEmpty()) {
 		newLevel = (m_currentLevel * (m_windowSize - 1) + timeDiff) / m_windowSize;
-		if (newLevel < minLevel())
+		if (newLevel < minLevel(m_queue.begin().key()))
 			break;
 		SNAC snac = *m_queue.begin();
 		m_queue.erase(m_queue.begin());
@@ -154,14 +155,23 @@ void OscarRate::sendNextPackets()
 		m_conn->sendSnac(snac);
 	}
 	if (!m_queue.isEmpty()) {
-		quint32 timeout = (minLevel() - (m_currentLevel * (m_windowSize - 1) / m_windowSize)) * m_windowSize;
+		quint32 timeout = (minLevel(m_queue.begin().key()) - (m_currentLevel * (m_windowSize - 1) / m_windowSize)) * m_windowSize;
 		m_timer.start(timeout);
 	}
 }
 
-quint32 OscarRate::minLevel()
+quint32 OscarRate::getTimeDiff(const QDateTime &dateTime)
 {
-	quint8 priority = m_queue.begin().key();
+	if (dateTime.date() == m_time.date())
+		return m_time.time().msecsTo(dateTime.time());
+	else if (m_time.daysTo(dateTime) == 1)
+		return 86400000 - m_time.time().msec() + dateTime.time().msec();
+	else // That should never happen
+		return 86400000;
+}
+
+quint32 OscarRate::minLevel(quint8 priority)
+{
 	switch (priority) {
 	case 100:
 		return m_maxLevel;
@@ -454,6 +464,12 @@ void AbstractConnection::send(FLAP &flap)
 	//debug(VeryVerbose) << "FLAP:" << flap.toByteArray().toHex().constData();
 	d->socket->write(flap);
 	//d->socket->flush();
+}
+
+bool AbstractConnection::testRate(quint16 family, quint16 subtype, bool priority)
+{
+	OscarRate *rate = d_func()->ratesHash.value(family << 16 | subtype);
+	return rate ? rate->testRate(priority) : true;
 }
 
 quint32 AbstractConnection::sendSnac(SNAC &snac)

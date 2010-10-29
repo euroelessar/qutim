@@ -141,6 +141,7 @@ public:
 	virtual ~AbstractConnection();
 	void registerHandler(SNACHandler *handler);
 	void send(SNAC &snac, quint8 priority = 50);
+	bool testRate(quint16 family, quint16 subtype, bool priority = true);
 	void disconnectFromHost(bool force = false);
 	const QHostAddress &externalIP() const;
 	const QList<quint16> &servicesList();
