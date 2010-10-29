@@ -31,6 +31,61 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+ChatStateUpdater::ChatStateUpdater()
+{
+	m_timer.setInterval(2000);
+	connect(&m_timer, SIGNAL(timeout()), SLOT(sendState()));
+}
+
+void ChatStateUpdater::updateState(IcqContact *contact, ChatState state)
+{
+	if (m_states.isEmpty() &&
+		contact->account()->connection()->testRate(MessageFamily, MessageMtn, false))
+	{
+		Q_ASSERT(!m_timer.isActive());
+		sendState(contact, state);
+	} else {
+		m_states.insert(contact, state);
+		if (!m_timer.isActive())
+			m_timer.start();
+	}
+}
+
+void ChatStateUpdater::sendState()
+{
+	QHash<IcqContact*, ChatState>::iterator itr = m_states.begin();
+	IcqContact *contact = itr.key();
+	if (contact->account()->connection()->testRate(MessageFamily, MessageMtn, false)) {
+		sendState(contact, itr.value());
+		m_states.erase(itr);
+		if (m_states.isEmpty())
+			m_timer.stop();
+	}
+}
+
+void ChatStateUpdater::sendState(IcqContact *contact, ChatState state)
+{
+	MTN type = MtnUnknown;
+	if (state == ChatStatePaused)
+		type = MtnTyped;
+	else if (state == ChatStateComposing)
+		type = MtnBegun;
+	else if (state == ChatStateGone)
+		type = MtnGone;
+	else if (state == ChatStateInActive || state == ChatStateActive)
+		type = MtnFinished;
+	if (type == MtnUnknown)
+		return;
+	SNAC sn(MessageFamily, MessageMtn);
+	sn.append(Cookie(true));
+	sn.append<quint16>(1); // channel?
+	sn.append<quint8>(contact->id());
+	sn.append<quint16>(type);
+	contact->account()->connection()->send(sn, 20);
+}
+
+Q_GLOBAL_STATIC(ChatStateUpdater, chatStateUpdater);
+
 void IcqContactPrivate::clearCapabilities()
 {
 	flags = 0;
@@ -404,25 +459,7 @@ bool IcqContact::event(QEvent *ev)
 	Q_D(IcqContact);
 	if (ev->type() == ChatStateEvent::eventType()) {
 		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
-		ChatState state = chatEvent->chatState();
-		MTN type = MtnUnknown;
-		if (state == ChatStatePaused)
-			type = MtnTyped;
-		else if (state == ChatStateComposing)
-			type = MtnBegun;
-		else if (state == ChatStateGone)
-			type = MtnGone;
-		else if (state == ChatStateInActive || state == ChatStateActive)
-			type = MtnFinished;
-		if (type == MtnUnknown)
-			return true;
-		SNAC sn(MessageFamily, MessageMtn);
-		sn.append(Cookie(true));
-		sn.append<quint16>(1); // channel?
-		sn.append<quint8>(d->uin);
-		sn.append<quint16>(type);
-		if (d->account->connection()->testRate(MessageFamily, MessageMtn, false))
-			d->account->connection()->send(sn, 20);
+		chatStateUpdater()->updateState(this, chatEvent->chatState());
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);

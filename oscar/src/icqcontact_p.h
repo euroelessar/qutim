@@ -22,6 +22,7 @@
 #include "capability.h"
 #include "oscarconnection.h"
 #include <QDateTime>
+#include <QTimer>
 
 namespace qutim_sdk_0_3 {
 
@@ -39,6 +40,20 @@ enum ContactCapabilityFlags
 	html_support      = 0x0001,
 	utf8_support      = 0x0002,
 	srvrelay_support  = 0x0004
+};
+
+class ChatStateUpdater : public QObject
+{
+	Q_OBJECT
+public:
+	ChatStateUpdater();
+	void updateState(IcqContact *contact, ChatState state);
+private slots:
+	void sendState();
+private:
+	void sendState(IcqContact *contact, ChatState state);
+	QHash<IcqContact*, ChatState> m_states;
+	QTimer m_timer;
 };
 
 class IcqContactPrivate
