@@ -16,6 +16,8 @@ class WebkitChatViewWidget : public QFrame, public ChatViewWidget
 public:
     WebkitChatViewWidget();
 	virtual void setViewController(QObject *controller);
+private slots:
+	void scrollBarWorkaround();
 protected:
 	bool event(QEvent *event);
 	bool eventFilter(QObject *obj, QEvent *event);

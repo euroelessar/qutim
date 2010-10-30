@@ -2,6 +2,7 @@
 #include "chatstyleoutput.h"
 #include <QKeyEvent>
 #include <QWebView>
+#include <QWebFrame>
 #include <QVBoxLayout>
 
 namespace Core
@@ -24,11 +25,11 @@ WebkitChatViewWidget::WebkitChatViewWidget() :
 
 void WebkitChatViewWidget::setViewController(QObject *controller)
 {
-	//FIXME don't use dynamic_cast, may be use qvariant ?
 	ChatStyleOutput *new_page = qobject_cast<ChatStyleOutput*>(controller);
 	if(new_page) {
 		m_view->page()->setView(0);
 		m_view->setPage(new_page);
+		QTimer::singleShot(50,this,SLOT(scrollBarWorkaround()));
 	}
 }
 
@@ -49,6 +50,12 @@ bool WebkitChatViewWidget::eventFilter(QObject *obj, QEvent *event)
 		}
 	}
 	return QFrame::eventFilter(obj,event);
+}
+
+void WebkitChatViewWidget::scrollBarWorkaround()
+{
+	QWebFrame *frame = m_view->page()->mainFrame();
+	frame->setScrollPosition(QPoint(0,frame->scrollBarMaximum(Qt::Vertical)));
 }
 
 }
