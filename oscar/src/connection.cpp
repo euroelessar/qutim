@@ -132,7 +132,7 @@ bool OscarRate::testRate(bool priority)
 {
 	quint32 timeDiff = getTimeDiff(QDateTime::currentDateTime());
 	quint32 newLevel = (m_currentLevel * (m_windowSize - 1) + timeDiff) / m_windowSize;
-	return newLevel > minLevel(priority ? 80 : m_maxLevel);
+	return newLevel > minLevel(priority ? 30 : 95);
 }
 
 void OscarRate::sendNextPackets()
@@ -192,6 +192,8 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 //		d->socket = new QSslSocket(this);
 //	else
 //		d->socket = new QTcpSocket(this);
+	d->aliveTimer.setInterval(180000);
+	connect(&d->aliveTimer, SIGNAL(timeout()), SLOT(sendAlivePacket()));
 	d->socket = new Socket(this);
 #if OSCAR_SSL_SUPPORT
 	d->socket->setPeerVerifyMode(QSslSocket::VerifyNone); // TODO:
@@ -532,6 +534,7 @@ void AbstractConnection::processCloseConnection()
 void AbstractConnection::onDisconnect()
 {
 	setState(Unconnected);
+	d_func()->aliveTimer.stop();
 }
 
 void AbstractConnection::onError(ConnectionError error)
@@ -668,7 +671,10 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 
 void AbstractConnection::setState(AbstractConnection::State state)
 {
-	d_func()->state = state;
+	Q_D(AbstractConnection);
+	d->state = state;
+	if (state == Connected)
+		d->aliveTimer.start();
 }
 
 quint16 AbstractConnection::generateFlapSequence()
@@ -722,7 +728,9 @@ void AbstractConnection::readData()
 			default:
 				debug() << "Unknown shac channel" << hex << d->flap.channel();
 			case 0x03:
+				break;
 			case 0x05:
+				debug() << "Connection alive!";
 				break;
 			}
 			d->flap.clear();
@@ -749,6 +757,14 @@ void AbstractConnection::error(QAbstractSocket::SocketError error)
 {
 	setError(SocketError);
 	debug() << "Connection error:" << error << errorString();
+}
+
+void AbstractConnection::sendAlivePacket()
+{
+	FLAP flap(0x05);
+	flap.append<quint16>(0);
+	send(flap);
+	debug() << "Alive packet has been sent";
 }
 
 } } // namespace qutim_sdk_0_3::oscar

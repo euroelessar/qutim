@@ -179,6 +179,7 @@ private slots:
 	void readData();
 	void stateChanged(QAbstractSocket::SocketState);
 	void error(QAbstractSocket::SocketError);
+	void sendAlivePacket();
 private:
 	friend class OscarRate;
 	QScopedPointer<AbstractConnectionPrivate> d_ptr;

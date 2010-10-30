@@ -631,7 +631,7 @@ Tlv2711Plugin::~Tlv2711Plugin()
 MessageSender::MessageSender(IcqAccount *account) :
 	m_account(account)
 {
-	m_timer.setInterval(1000);
+	m_timer.setInterval(500);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(sendMessage()));
 }
 
