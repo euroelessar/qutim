@@ -266,12 +266,13 @@ QRect ItemDelegate::checkRect(const QStyleOptionViewItem &o, const QRect &rect) 
 	const QWidget *widget = getWidget(option);
 	QStyle *style = getStyle(option);
 	QRect checkRect = style->subElementRect(QStyle::SE_ViewItemCheckIndicator, &opt, widget);
-	QRect result (rect.left(),
-		  rect.top() + (size.height() - checkRect.height())/2,
-		  size.width() - checkRect.width(),
-		  checkRect.height()
-		  );
-	return result;
+//TODO need to testing on some platforms
+//	QRect result (rect.left(),
+//		  rect.top() + (size.height() - checkRect.height())/2,
+//		  size.width() - checkRect.width(),
+//		  checkRect.height()
+//		  );
+	return checkRect;
 }
 
 void ItemDelegate::setCommandLinkStyle(bool style)
