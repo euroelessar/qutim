@@ -30,7 +30,7 @@ protected:
 	void changeEvent(QEvent *e);
 private slots:
 	void onButtonClicked(int id);
-	void onValueChanged(int value);
+	void onValueChanged();
 private:
 	void setFlags(AdiumChat::ChatFlags,bool set = true);
 	Ui::ChatBehavior *ui;

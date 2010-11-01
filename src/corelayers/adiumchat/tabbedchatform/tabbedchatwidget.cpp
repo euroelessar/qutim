@@ -151,7 +151,6 @@ void TabbedChatWidget::loadSettings()
 			m_layout->insertWidget(0,tabBar);
 			m_tabBar->setDocumentMode(true);
 #ifdef Q_WS_MAC
-			m_tabBar->setIconSize(QSize(0,0));
 			layout()->setSpacing(0);
 #endif
 		}
@@ -176,6 +175,11 @@ void TabbedChatWidget::loadSettings()
 		setProperty("loaded",true);
 	}
 	m_chatInput->setSendKey(cfg.value("sendKey", SendCtrlEnter));
+
+	if(m_flags & IconsOnTabs)
+		m_tabBar->setIconSize(QSize(16,16)); //TODO
+	else
+		m_tabBar->setIconSize(QSize(0,0));
 }
 
 TabbedChatWidget::~TabbedChatWidget()
@@ -247,6 +251,7 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 			return;
 		m_currentSession->setActive(false);
 	}
+	emit currentSessionChanged(session,m_currentSession);
 	m_currentSession = session;
 
 	m_view->setViewController(session->getController());
@@ -364,6 +369,11 @@ void TabbedChatWidget::onUnreadChanged()
 	ChatSessionImpl *s = qobject_cast<ChatSessionImpl*>(sender());
 	if(s && s == m_tabBar->currentSession())
 		setTitle(s);
+}
+
+ActionToolBar *TabbedChatWidget::toolBar() const
+{
+	return m_toolbar;
 }
 
 }

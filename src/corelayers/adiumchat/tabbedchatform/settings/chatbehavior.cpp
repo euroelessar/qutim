@@ -3,6 +3,7 @@
 #include <QRadioButton>
 #include <QButtonGroup>
 #include <qutim/config.h>
+#include <qutim/debug.h>
 
 namespace Core
 {
@@ -33,11 +34,12 @@ ChatBehavior::ChatBehavior() :
 #endif
 
 	connect(m_group,SIGNAL(buttonClicked(int)),SLOT(onButtonClicked(int)));
-	connect(ui->storeBox,SIGNAL(clicked(bool)),SIGNAL(modifiedChanged(bool)));
-	connect(ui->recentBox,SIGNAL(valueChanged(int)),SLOT(onValueChanged(int)));
-	connect(ui->groupUntil,SIGNAL(valueChanged(int)),SLOT(onValueChanged(int)));
-	connect(ui->tabPositionBox,SIGNAL(currentIndexChanged(int)),SLOT(onValueChanged(int)));
-	connect(ui->formLayoutBox,SIGNAL(currentIndexChanged(int)),SLOT(onValueChanged(int)));
+	connect(ui->storeBox,SIGNAL(clicked(bool)),SLOT(onValueChanged()));
+	connect(ui->recentBox,SIGNAL(valueChanged(int)),SLOT(onValueChanged()));
+	connect(ui->groupUntil,SIGNAL(valueChanged(int)),SLOT(onValueChanged()));
+	connect(ui->tabPositionBox,SIGNAL(currentIndexChanged(int)),SLOT(onValueChanged()));
+	connect(ui->formLayoutBox,SIGNAL(currentIndexChanged(int)),SLOT(onValueChanged()));
+	connect(ui->stateBox,SIGNAL(clicked(bool)),SLOT(onValueChanged()));
 }
 
 ChatBehavior::~ChatBehavior()
@@ -76,6 +78,7 @@ void ChatBehavior::loadImpl()
 	Config history = cfg.group("chat/history");
 	ui->storeBox->setChecked(history.value<bool>("storeServiceMessages", true));
 	ui->recentBox->setValue(history.value<int>("maxDisplayMessages",5));
+	ui->stateBox->setChecked(m_flags & IconsOnTabs);
 	Config chat = cfg.group("chat");
 	ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
 }
@@ -89,6 +92,8 @@ void ChatBehavior::saveImpl()
 	setFlags(TabsOnBottom,south);
 	bool adium = ui->formLayoutBox->itemData(ui->formLayoutBox->currentIndex()).toBool();
 	setFlags(AdiumToolbar,adium);
+	setFlags(IconsOnTabs,ui->stateBox->isChecked());
+	debug() << ui->stateBox->isChecked();
 
 	widget.setValue("sendKey",m_send_message_key);
 	widget.setValue("widgetFlags",m_flags);
@@ -121,7 +126,7 @@ void ChatBehavior::onButtonClicked(int id)
 	emit modifiedChanged(true);
 }
 
-void ChatBehavior::onValueChanged(int)
+void ChatBehavior::onValueChanged()
 {
 	emit modifiedChanged(true);
 }

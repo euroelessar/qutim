@@ -47,6 +47,7 @@ public:
 	void setUnifiedTitleAndToolBar(bool set);
 	void activateWindow();
 	void addSessions(const ChatSessionList &sessions);
+	Q_INVOKABLE ActionToolBar *toolBar() const;
 public slots:
 	virtual void addSession(ChatSessionImpl *session);
 	virtual void removeSession(ChatSessionImpl *session);

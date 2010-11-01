@@ -54,6 +54,8 @@ public slots:
 	virtual void removeSession(ChatSessionImpl *session) = 0;
 	virtual void activate(ChatSessionImpl* session) = 0;
 	virtual void loadSettings() = 0;
+signals:
+	void currentSessionChanged(ChatSessionImpl *now,ChatSessionImpl *before);
 protected:
 
 };
