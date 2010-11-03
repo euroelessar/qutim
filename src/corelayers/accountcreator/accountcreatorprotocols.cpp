@@ -25,7 +25,7 @@ AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 #ifndef Q_WS_WIN
 	ui->protocolList->setItemDelegate(new ItemDelegate(this));
 #else
-	m_ui->protocolList->setFrameStyle(QFrame::NoFrame);
+	ui->protocolList->setFrameStyle(QFrame::NoFrame);
 #endif
 
 	m_lastId = Id;
@@ -141,7 +141,7 @@ void AccountCreatorProtocols::changeEvent(QEvent *e)
 void AccountCreatorProtocols::protocolSelected()
 {
 #ifdef Q_WS_WIN
-	m_ui->protocolList->setCurrentItem(m_items.value(qobject_cast<QCommandLinkButton *>(sender())));
+	ui->protocolList->setCurrentItem(m_items.value(qobject_cast<QCommandLinkButton *>(sender())));
 	wizard()->next();
 #endif
 }
