@@ -61,7 +61,7 @@ AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 		b->setMinimumHeight(buttonMinimumHeight);
 
 		b->setIcon(icon);
-		m_ui->protocolList->setItemWidget(item, b);
+		ui->protocolList->setItemWidget(item, b);
 		item->setSizeHint(b->size());
 		item->setFlags(Qt::NoItemFlags);
 #else

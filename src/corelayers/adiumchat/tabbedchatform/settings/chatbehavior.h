@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <qutim/settingswidget.h>
-#include <tabbedchatform/chatedit.h>
+#include <chatlayer/chatedit.h>
 #include <tabbedchatform/tabbedchatwidget.h>
 
 namespace Ui {

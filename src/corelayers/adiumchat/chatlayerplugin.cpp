@@ -25,7 +25,7 @@
 #include <QWidgetAction>
 #include "chatlayer/actions/chatemoticonswidget.h"
 #include <QPlainTextEdit>
-#include "chatlayer/chatforms/abstractchatwidget.h"
+#include "chatforms/abstractchatwidget.h"
 #include <qutim/shortcut.h>
 
 namespace Core

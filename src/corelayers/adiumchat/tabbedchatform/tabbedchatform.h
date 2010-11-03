@@ -1,7 +1,7 @@
 #ifndef ADIUMCHATFORM_H
 #define ADIUMCHATFORM_H
 
-#include <chatlayer/chatforms/abstractchatform.h>
+#include <chatforms/abstractchatform.h>
 
 namespace qutim_sdk_0_3
 {

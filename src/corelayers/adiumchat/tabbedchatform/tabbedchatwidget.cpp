@@ -5,8 +5,8 @@
 #include <QHBoxLayout>
 #include <qutim/actiontoolbar.h>
 #include "tabbar.h"
-#include "chatedit.h"
-#include "conferencecontactsview.h"
+#include <chatlayer/chatedit.h>
+#include <chatlayer/conferencecontactsview.h>
 #include <QPlainTextEdit>
 #include <qutim/debug.h>
 #include <qutim/icon.h>

@@ -3,7 +3,7 @@
 
 #include <QPlainTextEdit>
 #include <QPointer>
-#include <chatlayer/chatforms/abstractchatwidget.h>
+#include <chatforms/abstractchatwidget.h>
 
 namespace qutim_sdk_0_3
 {
