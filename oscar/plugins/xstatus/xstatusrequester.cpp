@@ -49,11 +49,15 @@ void XStatusRequester::updateXStatus(IcqContact *contact)
 	static XStatusRequesterList list;
 	IcqAccount *account = contact->account();
 	XStatusRequester *r = list.getRequester(contact->account());
+	if (r->m_contacts.contains(contact)) {
+		// This contact is already in queue
+		return;
+	}
 	if (r->m_contacts.isEmpty() &&
 		account->connection()->testRate(MessageFamily, MessageSrvSend, false))
 	{
 		Q_ASSERT(!r->m_timer.isActive());
-		r->sendXStatus(contact);
+		r->updateXStatusImpl(contact);
 	} else {
 		r->m_contacts.push_back(contact);
 		if (!r->m_timer.isActive())
@@ -61,11 +65,17 @@ void XStatusRequester::updateXStatus(IcqContact *contact)
 	}
 }
 
-void XStatusRequester::sendXStatus()
+void XStatusRequester::updateXStatus()
 {
 	IcqContact *contact = m_contacts.first();
-	if (contact->account()->connection()->testRate(MessageFamily, MessageSrvSend, false)) {
-		sendXStatus(contact);
+	bool removeFirst = false;
+	if (!contact) {
+		removeFirst = true;
+	} else if (contact->account()->connection()->testRate(MessageFamily, MessageSrvSend, false)) {
+		updateXStatusImpl(contact);
+		removeFirst = true;
+	}
+	if (removeFirst) {
 		m_contacts.takeFirst();
 		if (m_contacts.isEmpty())
 			m_timer.stop();
@@ -75,10 +85,10 @@ void XStatusRequester::sendXStatus()
 XStatusRequester::XStatusRequester()
 {
 	m_timer.setInterval(5000);
-	connect(&m_timer, SIGNAL(timeout()), SLOT(sendXStatus()));
+	connect(&m_timer, SIGNAL(timeout()), SLOT(updateXStatus()));
 }
 
-void XStatusRequester::sendXStatus(IcqContact *contact)
+void XStatusRequester::updateXStatusImpl(IcqContact *contact)
 {
 	IcqAccount *account = contact->account();
 	XtrazRequest request("cAwaySrv", "srvMng");

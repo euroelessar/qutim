@@ -43,11 +43,11 @@ class XStatusRequester : public QObject
 public:
 	static void updateXStatus(IcqContact *contact);
 private slots:
-	void sendXStatus();
+	void updateXStatus();
 private:
 	friend class XStatusRequesterList;
 	XStatusRequester();
-	void sendXStatus(IcqContact *contact);
+	void updateXStatusImpl(IcqContact *contact);
 	QList<QPointer<IcqContact> > m_contacts;
 	QTimer m_timer;
 };

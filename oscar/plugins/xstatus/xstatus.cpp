@@ -26,6 +26,7 @@
 #include <qutim/message.h>
 #include <qutim/event.h>
 #include "xstatusrequester.h"
+#include "xstatussender.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -271,17 +272,7 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 			debug() << "Skipped xtraz request" << request.serviceId() << "from" << request.value("senderId");
 			return;
 		}
-		IcqAccount *account = contact->account();
-		QVariantHash extStatus = account->property("xstatus").toHash();
-		int index = xstatusIndexByName(extStatus.value("name").toString());
-		XtrazResponse response("cAwaySrv", "OnRemoteNotification");
-		response.setValue("CASXtraSetAwayMessage", "");
-		response.setValue("uin", account->id());
-		response.setValue("index", QString("%1").arg(index));
-		response.setValue("title", extStatus.value("title").toString());
-		response.setValue("desc", extStatus.value("description").toString());
-		SNAC snac = response.snac(contact, cookie.id());
-		account->connection()->send(snac);
+		XStatusSender::sendXStatus(contact, cookie.id());
 	} else if (xtraz.type() == Xtraz::Response) {
 		XtrazResponse response = xtraz.response();
 		if (response.serviceId() != "cAwaySrv" && response.event() != "OnRemoteNotification" &&
