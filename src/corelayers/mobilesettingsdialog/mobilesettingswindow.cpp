@@ -84,6 +84,11 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 	l->addWidget(p->stackedWidget);
 	l->addWidget(p->actionBox);
 
+#ifndef QUTIM_MOBILE_UI
+	p->categoryListWidget->setIconSize(QSize(32,32));
+	p->settingsListWidget->setIconSize(QSize(32,32));
+#endif
+
 	setCentralWidget(w);
 	//connections
 	connect(p->categoryListWidget,
@@ -97,9 +102,9 @@ MobileSettingsWindow::MobileSettingsWindow(const qutim_sdk_0_3::SettingsItemList
 	connect(p->backAct,SIGNAL(triggered()),SLOT(slideUp()));
 	connect(p->closeAct,SIGNAL(triggered()),SLOT(close()));
 
-	w = new QWidget(this);
-	p->stackedWidget->addWidget(w);
-	p->stackedWidget->setCurrentWidget(w);
+//	w = new QWidget(this);
+//	p->stackedWidget->addWidget(w);
+//	p->stackedWidget->setCurrentWidget(w);
 
 	loadSettings(settings);
 }
@@ -200,6 +205,7 @@ void MobileSettingsWindow::onCurrentItemActivated(const QModelIndex &index)
 		p->stackedWidget->addWidget(w);
 		w->setController(p->controller);
 		w->load();
+		w->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 		p->slideMap.insert(w,p->settingsListWidget);
 		connect(w,SIGNAL(modifiedChanged(bool)),SLOT(onModifiedChanged(bool)));
 		connect(w,SIGNAL(destroyed(QObject*)),SLOT(onWidgetDestroyed(QObject*)));
