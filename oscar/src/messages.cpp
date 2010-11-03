@@ -638,14 +638,20 @@ MessageSender::MessageSender(IcqAccount *account) :
 bool MessageSender::appendMessage(IcqContact *contact, const Message &message)
 {
 	if (m_messages.count() > 4)
+		// FIXME: It is wrong, a message could be splitted into
+		// several packets.
 		return false;
+	MessageData msgData(contact, message);
+	if (msgData.msgs.count() > 4)
+		return false; // Message is too long
 	if (m_messages.isEmpty() &&
 		m_account->connection()->testRate(MessageFamily, MessageSrvSend, true))
 	{
 		Q_ASSERT(!m_timer.isActive());
-		sendMessage(contact, message);
-	} else {
-		m_messages.push_back(MessageData(contact, message));
+		sendMessage(msgData);
+	}
+	if (!msgData.msgs.isEmpty()) {
+		m_messages.push_back(msgData);
 		if (!m_timer.isActive())
 			m_timer.start();
 	}
@@ -657,11 +663,18 @@ void MessageSender::sendMessage()
 	QList<MessageData>::iterator itr = m_messages.begin();
 	IcqContact *contact = itr->contact;
 	if (contact->account()->connection()->testRate(MessageFamily, MessageSrvSend, true)) {
-		sendMessage(contact, itr->message);
-		m_messages.takeFirst();
+		sendMessage(*itr);
+		if (itr->msgs.isEmpty())
+			m_messages.takeFirst();
 		if (m_messages.isEmpty())
 			m_timer.stop();
 	}
+}
+
+MessageSender::MessageData::MessageData(IcqContact *contact_, const Message &message_) :
+	contact(contact_), message(message_)
+{
+	MessageSender::prepareMessage(contact, *this, message);
 }
 
 /*
@@ -727,51 +740,52 @@ static QList<QByteArray> splitMessage(const QByteArray &message, quint16 maxLen,
 	return list;
 }
 
-void MessageSender::sendMessage(IcqContact *contact, const Message &message)
+void MessageSender::prepareMessage(IcqContact *contact, MessageSender::MessageData &data, const Message &message)
 {
 	IcqContactPrivate *d = contact->d_func();
 	QString msgText;
-	quint8 channel = 2;
-	Cookie cookie(contact, message.id());
+	data.id = message.id();
 	if (d->flags & html_support)
 		msgText = message.property("html").toString();
 	if (msgText.isEmpty())
 		msgText = message.text();
 	if (!(d->flags & srvrelay_support)) {
-		Channel1Codec charset = CodecUtf16Be;
-		QByteArray data = Channel1MessageData::fromUnicode(msgText, charset);
-		QList<QByteArray> msgs = splitMessage(data, 2542); // Max: 2543
-
-		for (int i = 0, size = msgs.size(), last = size-1; i < size; ++i) {
-			ServerMessage msgData(contact, Channel1MessageData(msgs.at(i), charset),
-								  i == last ? cookie : Cookie::generateId());
-			m_account->connection()->send(msgData, 80);
-		}
-		channel = 1;
+		QByteArray buf = Channel1MessageData::fromUnicode(msgText, CodecUtf16Be);
+		data.msgs = splitMessage(buf, 2542); // Max: 2543
+		data.channel = 1;
+		data.utfEnabled = false;
 	} else {
-		QList<QByteArray> msgs = d->flags & utf8_support ?
-								 splitMessage(Util::utf8Codec()->fromUnicode(msgText), 7857, sf_utf8 | sf_appendNull) :
-								 splitMessage(Util::asciiCodec()->fromUnicode(msgText), 7898, sf_appendNull);
-
-		for (int i = 0, size = msgs.size(), last = size-1; i < size; ++i) {
-			bool isLast = i == last;
-			const QByteArray &msg = msgs.at(i);
-			Tlv2711 tlv(0x01, 0, d->status.subtype(), 1,
-						isLast ? cookie : Cookie::generateId());
-			tlv.append<quint16>(msg, LittleEndian);
-			tlv.appendColors();
-			if (d->flags & utf8_support)
-				tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
-			ServerMessage msgData(contact, Channel2MessageData(0, tlv));
-			if (isLast)
-				msgData.setCookie(cookie, contact, SLOT(messageTimeout(Cookie)));
-			m_account->connection()->send(msgData, 80);
-		}
+		data.msgs = d->flags & utf8_support ?
+					 splitMessage(Util::utf8Codec()->fromUnicode(msgText), 7857, sf_utf8 | sf_appendNull) :
+					 splitMessage(Util::asciiCodec()->fromUnicode(msgText), 7898, sf_appendNull);
+		data.channel = 2;
+		data.utfEnabled = d->flags & utf8_support;
 	}
-	debug(Verbose).nospace()
-			<< "Message is sent on channel " << channel
-			<< ", ID:" << message.id()
-			<< ", text:" << message.text();
+}
+
+void MessageSender::sendMessage(MessageData &message)
+{
+	IcqContact *contact = message.contact;
+	IcqContactPrivate *d = message.contact->d_func();
+	// FIXME: If the contact would change its caps,
+	// we would send the message on wrong channel and
+	// with wrong encoding
+	QByteArray msg = message.msgs.takeFirst();
+	Cookie cookie(message.contact, message.msgs.isEmpty() ? message.id : Cookie::generateId());
+	if (message.channel == 1) {
+		ServerMessage msgData(contact, Channel1MessageData(msg, CodecUtf16Be), cookie);
+		m_account->connection()->send(msgData, 80);
+	} else {
+		Tlv2711 tlv(0x01, 0, d->status.subtype(), 1, cookie);
+		tlv.append<quint16>(msg, LittleEndian);
+		tlv.appendColors();
+		if (message.utfEnabled)
+			tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
+		ServerMessage msgData(contact, Channel2MessageData(0, tlv));
+		if (message.msgs.isEmpty())
+			msgData.setCookie(cookie, contact, SLOT(messageTimeout(Cookie)));
+		m_account->connection()->send(msgData, 80);
+	}
 }
 
 } } // namespace qutim_sdk_0_3::oscar

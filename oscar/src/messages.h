@@ -160,16 +160,19 @@ public:
 private slots:
 	void sendMessage();
 private:
-	void sendMessage(IcqContact *contact, const Message &message);
-	IcqAccount *m_account;
 	struct MessageData
 	{
-		MessageData(IcqContact *contact_, const Message &message_) :
-			contact(contact_), message(message_)
-		{}
+		MessageData(IcqContact *contact, const Message &message);
 		IcqContact *contact;
 		Message message;
+		QList<QByteArray> msgs;
+		quint8 channel;
+		bool utfEnabled;
+		quint64 id;
 	};
+	static void prepareMessage(IcqContact *contact, MessageData &data, const Message &message);
+	void sendMessage(MessageData &message);
+	IcqAccount *m_account;
 	QList<MessageData> m_messages;
 	QTimer m_timer;
 };
