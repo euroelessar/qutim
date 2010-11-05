@@ -1,5 +1,5 @@
-#ifndef ADIUMCHATFORM_H
-#define ADIUMCHATFORM_H
+#ifndef TABBEDCHATFORM_H
+#define TABBEDCHATFORM_H
 
 #include <chatforms/abstractchatform.h>
 
@@ -29,4 +29,4 @@ private:
 }
 }
 
-#endif //ADIUMCHATFORM_H
+#endif //TABBEDCHATFORM_H

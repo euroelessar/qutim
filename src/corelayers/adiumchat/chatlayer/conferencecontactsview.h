@@ -2,6 +2,7 @@
 #define CONFERENCECONTACTSVIEW_H
 
 #include <QListView>
+#include <chatlayerplugin.h>
 
 namespace Core
 {
@@ -9,7 +10,7 @@ namespace AdiumChat
 {
 
 class ChatSessionImpl;
-class ConferenceContactsView : public QListView
+class ADIUMCHAT_EXPORT ConferenceContactsView : public QListView
 {
     Q_OBJECT
 public:

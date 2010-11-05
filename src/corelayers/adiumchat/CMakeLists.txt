@@ -6,6 +6,7 @@ qutim_add_plugin( adiumchat
 	DISPLAY_NAME "Webkit chat layer"
 	DESCRIPTION "Default qutIM chat implementation, based on Adium chat styles"
 	LINK_LIBRARIES ${QT_QTWEBKIT}
+	COMPILE_FLAGS "-DADIUMCHAT_LIBRARY"
 )
 
 #qutim_add_plugin( adiumchatlayer

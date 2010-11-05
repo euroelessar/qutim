@@ -20,6 +20,7 @@
 #include <QWidget>
 #include <QHash>
 #include <QPointer>
+#include <chatlayerplugin.h>
 
 namespace qutim_sdk_0_3 {
 class ChatSession;
@@ -33,7 +34,7 @@ namespace AdiumChat
 class AbstractChatWidget;
 class ChatSessionImpl;
 
-class AbstractChatForm : public QObject
+class ADIUMCHAT_EXPORT AbstractChatForm : public QObject
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "ChatForm")

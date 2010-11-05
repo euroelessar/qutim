@@ -17,6 +17,7 @@
 #include "chatlayerplugin.h"
 #include "chatlayer/chatlayerimpl.h"
 #include "tabbedchatform/tabbedchatform.h"
+#include "stackedchatform/stackedchatform.h"
 #include "timemodifier/timemodifier.h"
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
@@ -73,6 +74,10 @@ void ChatLayerPlugin::init()
 	addExtension<Core::AdiumChat::TabbedChatForm>(
 				QT_TRANSLATE_NOOP("Plugin", "Classic"),
 				QT_TRANSLATE_NOOP("Plugin", "Default qutIM chatform implementation for adiumchat"));
+	addExtension<Core::AdiumChat::StackedChatForm>(
+				QT_TRANSLATE_NOOP("Plugin", "Mobile"),
+				QT_TRANSLATE_NOOP("Plugin", "Stacked chatform for mobile devices"));
+
 	addExtension<Core::AdiumChat::WebkitViewFactory>(
 				QT_TRANSLATE_NOOP("Plugin", "Webkit"),
 				QT_TRANSLATE_NOOP("Plugin", "Default qutIM chat implementation, based on Adium chat styles"));

@@ -23,6 +23,7 @@
 #include <chatlayer/chatsessionimpl.h>
 #include <chatlayer/chatlayerimpl.h>
 #include <qutim/actiongenerator.h>
+#include <chatlayerplugin.h>
 
 namespace qutim_sdk_0_3 {
 }
@@ -37,7 +38,7 @@ namespace AdiumChat
 
 using namespace qutim_sdk_0_3;
 
-class AbstractChatWidget : public QMainWindow
+class ADIUMCHAT_EXPORT AbstractChatWidget : public QMainWindow
 {
 	Q_OBJECT
 public:
@@ -54,6 +55,8 @@ public slots:
 	virtual void removeSession(ChatSessionImpl *session) = 0;
 	virtual void activate(ChatSessionImpl* session) = 0;
 	virtual void loadSettings() = 0;
+protected:
+	virtual void setTitle(ChatSessionImpl *s);
 signals:
 	void currentSessionChanged(ChatSessionImpl *now,ChatSessionImpl *before);
 protected:

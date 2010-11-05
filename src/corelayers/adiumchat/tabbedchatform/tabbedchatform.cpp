@@ -1,7 +1,7 @@
 #include "tabbedchatform.h"
 #include "tabbedchatwidget.h"
 #include <qutim/settingslayer.h>
-#include "settings/chatbehavior.h"
+#include "settings/tabbedchatbehavior.h"
 #include <qutim/icon.h>
 #include <qutim/shortcut.h>
 
@@ -16,7 +16,7 @@ TabbedChatForm::TabbedChatForm() :
 	AbstractChatForm(),
 	m_settingsItem(0)
 {
-	m_settingsItem = new GeneralSettingsItem<ChatBehavior>(Settings::General, Icon("view-choose"),
+	m_settingsItem = new GeneralSettingsItem<TabbedChatBehavior>(Settings::General, Icon("view-choose"),
 															  QT_TRANSLATE_NOOP("Settings","Chat"));
 	m_settingsItem->connect(SIGNAL(saved()),this,SLOT(onSettingsChanged()));
 	Settings::registerItem(m_settingsItem);

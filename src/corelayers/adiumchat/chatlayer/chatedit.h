@@ -24,7 +24,7 @@ enum SendMessageKey
 
 using namespace qutim_sdk_0_3;
 class ChatSessionImpl;
-class ChatEdit : public QPlainTextEdit
+class ADIUMCHAT_EXPORT ChatEdit : public QPlainTextEdit
 {
     Q_OBJECT
 public:
