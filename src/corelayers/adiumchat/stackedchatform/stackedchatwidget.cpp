@@ -93,11 +93,15 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	connect(m_sessionList,SIGNAL(remove(ChatSessionImpl*)),SLOT(removeSession(ChatSessionImpl*)));
 
 	//only for testing
-	QAction *act = new QAction(Icon("arrow-left"),tr("left"),this);
+	QAction *act = new QAction(Icon("arrow-left"),tr("Left"),this);
 	connect(act,SIGNAL(triggered()),m_stack,SLOT(slideInPrev()));
 	m_toolbar->addAction(act);
-	act = new QAction(Icon("arrow-right"),tr("right"),this);
+	act = new QAction(Icon("arrow-right"),tr("Right"),this);
 	connect(act,SIGNAL(triggered()),m_stack,SLOT(slideInNext()));
+	m_toolbar->addAction(act);
+	act = new QAction(Icon("dialog-close"),tr("Close"),this);
+	connect(act,SIGNAL(triggered()),m_sessionList,SLOT(closeCurrentSession()));
+	m_toolbar->addSeparator();
 	m_toolbar->addAction(act);
 }
 
@@ -172,6 +176,8 @@ void StackedChatWidget::removeSession(ChatSessionImpl *session)
 	session->setActive(false);
 	//TODO delete on close flag
 	session->deleteLater();
+
+	m_stack->slideInIdx(m_stack->indexOf(m_sessionList));
 
 	if(!m_sessionList->count())
 		deleteLater();

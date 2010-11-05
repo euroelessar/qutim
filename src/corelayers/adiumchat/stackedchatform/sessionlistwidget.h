@@ -26,6 +26,8 @@ public:
 	int indexOf(ChatSessionImpl *session) const;
 	void removeItem(int index);
 	virtual ~SessionListWidget();
+public slots:
+	void closeCurrentSession();
 signals:
 	void remove(ChatSessionImpl *session);
 protected:
@@ -34,9 +36,7 @@ protected:
 	void chatStateChanged(ChatState state,ChatSessionImpl *session);
 private slots:
 	void onCurrentChanged(QListWidgetItem*);
-	void onCloseRequested(int index);
 	void onRemoveSession(QObject *obj);
-	void onTabMoved(int from,int to);
 	void onTitleChanged(const QString &title);
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 	void onContextMenu(const QPoint &pos);

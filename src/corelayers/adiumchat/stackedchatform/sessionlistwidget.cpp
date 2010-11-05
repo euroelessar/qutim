@@ -86,7 +86,11 @@ void SessionListWidget::onRemoveSession(QObject *obj)
 
 void SessionListWidget::removeItem(int index)
 {
-	delete item(index);
+	ChatSessionImpl *s = d_func()->sessions.at(index);
+	s->disconnect(this);
+	s->removeEventFilter(this);
+	onRemoveSession(s);
+	emit remove(s);
 }
 
 void SessionListWidget::onTitleChanged(const QString &title)
@@ -140,7 +144,7 @@ bool SessionListWidget::event(QEvent *event)
 		}
 	} else if (event->type() == QEvent::ContextMenu) {
 		QContextMenuEvent *ev = static_cast<QContextMenuEvent*>(event);
-		session(row(itemAt(ev->pos())))->unit()->showMenu(ev->pos());
+		session(row(itemAt(ev->pos())))->unit()->showMenu(ev->globalPos());
 	}
 	return QListWidget::event(event);
 }
@@ -181,6 +185,14 @@ void SessionListWidget::onCurrentChanged(QListWidgetItem *i)
 	if(ChatSessionImpl *s = session(row(i)))
 		s->setActive(true);
 }
+
+void SessionListWidget::closeCurrentSession()
+{
+	if(currentItem()) {
+		removeItem(currentIndex().row());
+	}
+}
+
 
 } // namespace AdiumChat
 } // namespace Core
