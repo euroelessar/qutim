@@ -91,6 +91,7 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	loadSettings();
 
 	connect(m_sessionList,SIGNAL(remove(ChatSessionImpl*)),SLOT(removeSession(ChatSessionImpl*)));
+	connect(m_stack,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
 
 	//only for testing
 	QAction *act = new QAction(Icon("arrow-left"),tr("Left"),this);
@@ -203,8 +204,10 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 	setTitle(session);
 
 	if(m_currentSession) {
-		if(m_currentSession == session)
+		if(m_currentSession == session) {
+			m_stack->slideInIdx(m_stack->indexOf(m_chatWidget));
 			return;
+		}
 		m_currentSession->setActive(false);
 	}
 	emit currentSessionChanged(session,m_currentSession);
@@ -286,6 +289,12 @@ void StackedChatWidget::onUnreadChanged()
 ActionToolBar *StackedChatWidget::toolBar() const
 {
 	return m_toolbar;
+}
+
+void StackedChatWidget::onCurrentChanged(int index)
+{
+	if(index != m_stack->indexOf(m_chatWidget))
+		currentSession()->setActive(false);
 }
 
 }

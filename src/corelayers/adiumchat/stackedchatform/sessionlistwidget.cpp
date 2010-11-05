@@ -21,7 +21,7 @@ SessionListWidget::SessionListWidget(QWidget *parent) :
 	QListWidget(parent),
 	d_ptr(new SessionListWidgetPrivate)
 {
-	connect(this,SIGNAL(itemActivated(QListWidgetItem*)),SLOT(onCurrentChanged(QListWidgetItem*)));
+	connect(this,SIGNAL(itemActivated(QListWidgetItem*)),SLOT(onActivated(QListWidgetItem*)));
 }
 
 void SessionListWidget::addSession(ChatSessionImpl *session)
@@ -180,7 +180,7 @@ SessionListWidget::~SessionListWidget()
 
 }
 
-void SessionListWidget::onCurrentChanged(QListWidgetItem *i)
+void SessionListWidget::onActivated(QListWidgetItem *i)
 {
 	if(ChatSessionImpl *s = session(row(i)))
 		s->setActive(true);

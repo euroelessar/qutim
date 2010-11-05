@@ -35,11 +35,10 @@ protected:
 	virtual bool event(QEvent *event);
 	void chatStateChanged(ChatState state,ChatSessionImpl *session);
 private slots:
-	void onCurrentChanged(QListWidgetItem*);
+	void onActivated(QListWidgetItem*);
 	void onRemoveSession(QObject *obj);
 	void onTitleChanged(const QString &title);
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
-	void onContextMenu(const QPoint &pos);
 private:
 	QScopedPointer<SessionListWidgetPrivate> d_ptr;
 };

@@ -56,8 +56,8 @@ protected:
 	bool event(QEvent *event);
 protected slots:	
 	void onSessionActivated(bool active);
-	void ensureToolBar();
 	void onUnreadChanged();
+	void onCurrentChanged(int index);
 private:
 	ActionToolBar *m_toolbar;
 	ChatViewWidget *m_view;
