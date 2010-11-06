@@ -7,10 +7,7 @@
 #include <QCommandLinkButton>
 #include <QScrollBar>
 #include <qutim/debug.h>
-
-#ifndef Q_WS_WIN
 #include <itemdelegate.h>
-#endif
 
 namespace Core
 {
