@@ -28,7 +28,6 @@ public:
 	virtual bool isComplete() const;
 	virtual int nextId() const;
 public slots:
-	void protocolSelected();
 	void protocolActivated(QListWidgetItem*);
 protected:
 	QMap<AccountCreationWizard *, int>::iterator ensureCurrentProtocol();
@@ -38,9 +37,6 @@ private:
 	QWizard *m_wizard;
 	QMultiMap<QString, AccountCreationWizard *> m_wizards;
 	QMap<AccountCreationWizard *, int> m_wizardIds;
-#ifdef Q_WS_WIN
-	QHash<QCommandLinkButton *, QListWidgetItem *> m_items;
-#endif
 	int m_lastId;
 };
 }

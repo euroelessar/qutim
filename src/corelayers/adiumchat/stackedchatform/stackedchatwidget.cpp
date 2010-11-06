@@ -18,6 +18,7 @@
 #include <qutim/shortcut.h>
 #include <QToolButton>
 #include <slidingstackedwidget.h>
+#include <qutim/servicemanager.h>
 
 #ifdef Q_WS_X11
 # include <QX11Info>

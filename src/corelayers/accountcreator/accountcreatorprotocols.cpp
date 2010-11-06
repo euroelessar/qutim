@@ -6,12 +6,11 @@
 #include "ui_accountcreatorprotocols.h"
 #include <QCommandLinkButton>
 #include <QScrollBar>
-#include <QDebug>
+#include <qutim/debug.h>
+
 #ifndef Q_WS_WIN
 #include <itemdelegate.h>
 #endif
-
-static const int buttonMinimumHeight = 50;
 
 namespace Core
 {
@@ -22,10 +21,10 @@ AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 {
 	ui->setupUi(this);
 
-#ifndef Q_WS_WIN
-	ui->protocolList->setItemDelegate(new ItemDelegate(this));
-#else
-	ui->protocolList->setFrameStyle(QFrame::NoFrame);
+	ItemDelegate *delegate = new ItemDelegate(this);
+	ui->protocolList->setItemDelegate(delegate);
+#ifdef Q_WS_WIN
+	delegate->setCommandLinkStyle(true);
 #endif
 
 	m_lastId = Id;
@@ -54,21 +53,9 @@ AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 		item->setData(Qt::UserRole + 1, reinterpret_cast<qptrdiff>(wizard));
 		item->setData(Qt::UserRole + 2, qVariantFromValue(info));
 
-#ifdef Q_WS_WIN
-		QCommandLinkButton *b = new QCommandLinkButton(info.name(), info.description());
-		connect(b, SIGNAL(clicked()), this, SLOT(protocolSelected()));
-		b->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
-		b->setMinimumHeight(buttonMinimumHeight);
-
-		b->setIcon(icon);
-		ui->protocolList->setItemWidget(item, b);
-		item->setSizeHint(b->size());
-		item->setFlags(Qt::NoItemFlags);
-#else
 		item->setIcon(icon);
 		item->setText(info.name());
-		item->setData(DescriptionRole,info.description());
-#endif
+		item->setData(DescriptionRole,qVariantFromValue(info.description()));
 	}
 
 	setTitle(tr("Select protocol"));
@@ -136,14 +123,6 @@ void AccountCreatorProtocols::changeEvent(QEvent *e)
 	default:
 		break;
 	}
-}
-
-void AccountCreatorProtocols::protocolSelected()
-{
-#ifdef Q_WS_WIN
-	ui->protocolList->setCurrentItem(m_items.value(qobject_cast<QCommandLinkButton *>(sender())));
-	wizard()->next();
-#endif
 }
 
 void AccountCreatorProtocols::protocolActivated(QListWidgetItem *)
