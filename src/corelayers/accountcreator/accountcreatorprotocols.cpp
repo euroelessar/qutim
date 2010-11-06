@@ -55,7 +55,7 @@ AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 
 		item->setIcon(icon);
 		item->setText(info.name());
-		item->setData(DescriptionRole,qVariantFromValue(info.description()));
+		item->setData(DescriptionRole,info.description().toString());
 	}
 
 	setTitle(tr("Select protocol"));
