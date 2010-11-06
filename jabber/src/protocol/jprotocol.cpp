@@ -76,7 +76,7 @@ void JProtocol::loadActions()
 				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
 									this, SLOT(onConvertToMuc(QObject*))));
 
-	ActionGenerator *generator  = new ActionGenerator(Icon(""),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
+	ActionGenerator *generator  = new ActionGenerator(QIcon(),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
 													  this, SLOT(onJoinLeave(QObject*)));
 	generator->addHandler(ActionVisibilityChangedHandler,this);
 	generator->setType(0);
