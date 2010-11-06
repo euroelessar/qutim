@@ -67,7 +67,7 @@ AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 #else
 		item->setIcon(icon);
 		item->setText(info.name());
-		item->setData(DescriptionRole,info.description());
+		item->setData(DescriptionRole,info.description().toString());
 #endif
 	}
 
