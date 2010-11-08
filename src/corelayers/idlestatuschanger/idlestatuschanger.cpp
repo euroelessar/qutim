@@ -26,6 +26,9 @@ namespace Core
 				QT_TRANSLATE_NOOP("AutoAway", "Auto-away"));
 		Settings::registerItem(settings);
 		pIdleStatusChanger = this;
+
+		m_awayStatus.setProperty("changeReason",Status::ByIdle);
+		m_naStatus.setProperty("changeReason",Status::ByIdle);
 	}
 
 	void IdleStatusChanger::refillAccounts()
