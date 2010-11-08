@@ -82,6 +82,18 @@ void ConnectionManager::onOnlineStateChanged(bool isOnline)
 void ConnectionManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
 	changeState(account,m_network_conf_manager->isOnline());
+	connect(account,SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			this,SLOT(onStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+}
+
+void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3::Status old)
+{
+	Status::ChangeReason reason = static_cast<Status::ChangeReason>(now.property("changeReason",static_cast<int>(Status::ByUser)));
+	if(now.type() == Status::Offline && reason == Status::ByNetworkError) {
+		Account *a = qobject_cast<Account*>(sender());
+		Q_ASSERT(a);
+		a->setStatus(old);
+	}
 }
 
 }

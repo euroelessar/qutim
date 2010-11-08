@@ -4,6 +4,7 @@
 #include <QObject>
 #include <qutim/plugin.h>
 #include <qutim/settingslayer.h>
+#include <qutim/status.h>
 
 namespace qutim_sdk_0_3
 {
@@ -28,6 +29,7 @@ namespace ConnectionManager
 	protected slots:
 		void onOnlineStateChanged( bool isOnline );
 		void onAccountCreated(qutim_sdk_0_3::Account *account); //autoconnect on startup
+		void onStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status);
 	private:
 		QPointer<QNetworkConfigurationManager> m_network_conf_manager;
 		GeneralSettingsItem<ManagerSettings> *m_item;
