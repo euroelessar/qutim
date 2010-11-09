@@ -32,6 +32,8 @@ else (GLOOX_EXTERNAL)
 	LIST (APPEND INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/gloox/include/")
 endif(GLOOX_EXTERNAL)
 
+ADD_SUBDIRECTORY(jreen)
+
 SET( QT_USE_QTNETWORK TRUE )
 set ( USE_TESTS OFF )
 
@@ -41,6 +43,6 @@ qutim_add_plugin( jabber
 	DISPLAY_NAME "Jabber protocol"
 	DESCRIPTION "Implementation of jabber protocol based on gloox library"
 	GROUP "Protocols"
-	LINK_LIBRARIES gloox
+	LINK_LIBRARIES gloox jreen
 	INCLUDE_DIRS "${INCLUDE_DIRS}"
 )
