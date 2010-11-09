@@ -4,6 +4,7 @@
 #include <qutim/protocol.h>
 #include <qutim/status.h>
 #include <gloox/presence.h>
+#include <jreen/presence.h>
 
 namespace Jabber
 {
@@ -28,8 +29,10 @@ public:
 	virtual QList<Account *> accounts() const;
 	virtual Account *account(const QString &id) const;
 	void addAccount(JAccount *account, bool isEmit = false);
-	static Presence::PresenceType statusToPresence(const Status &status);
-	static Status presenceToStatus(Presence::PresenceType presence);
+	Q_DECL_DEPRECATED static Presence::PresenceType statusToPresence(const Status &status);
+	Q_DECL_DEPRECATED static Status presenceToStatus(Presence::PresenceType presence);
+	//static jreen::Presence::Type statusToPresence(const Status &status);
+	static Status presenceToStatus(jreen::Presence::Type presence);
 	virtual QVariant data(DataType type);
 	bool event(QEvent *ev);
 private slots:

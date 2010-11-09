@@ -14,6 +14,8 @@
 #include <qutim/debug.h>
 #include <qutim/event.h>
 #include <qutim/dataforms.h>
+//jreen
+#include <jreen/client.h>
 
 namespace Jabber {
 
