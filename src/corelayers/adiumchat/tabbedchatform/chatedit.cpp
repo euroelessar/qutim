@@ -19,6 +19,7 @@ QString ChatEdit::textEditToPlainText()
 	QTextCursor begin(doc);
 	QTextCursor end;
 	QString specialChar = QChar(QChar::ObjectReplacementCharacter);
+	bool first = true;
 	while (!begin.atEnd()) {
 		end = doc->find(specialChar, begin, QTextDocument::FindCaseSensitively);
 		QString postValue;
@@ -32,10 +33,15 @@ QString ChatEdit::textEditToPlainText()
 		}
 		begin.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor,
 						   end.position() - begin.position() - (atEnd ? 0 : 1));
-		result += begin.selection().toPlainText();
+		QString selectionText = begin.selection().toPlainText();
+		if (!first)
+			result += selectionText.midRef(1);
+		else
+			result += selectionText;
 		result += postValue;
 		begin = end;
 		end.clearSelection();
+		first = false;
 	}
 	return result;
 }
