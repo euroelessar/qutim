@@ -13,8 +13,6 @@ namespace Ui {
 
 namespace Core
 {
-namespace SimpleContactList
-{
 
 using namespace qutim_sdk_0_3;
 
@@ -40,8 +38,6 @@ private:
 	int m_flags;
 	QHash<QString, QCheckBox *> m_statusesBoxes;
 };
-
-}
 	
 }
 

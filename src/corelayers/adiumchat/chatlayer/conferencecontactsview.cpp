@@ -4,6 +4,8 @@
 #include <qutim/conference.h>
 #include <qutim/mimeobjectdata.h>
 #include <QDropEvent>
+#include <qutim/servicemanager.h>
+#include <QAbstractItemDelegate>
 
 namespace Core
 {
@@ -15,7 +17,7 @@ ConferenceContactsView::ConferenceContactsView(QWidget *parent) :
 	QListView(parent),
 	m_session(0)
 {
-	setItemDelegate(new ContactDelegate(this));
+	setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate*>("ContactDelegate"));
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 	setSizePolicy(sizePolicy);

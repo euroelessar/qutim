@@ -7,8 +7,6 @@
 
 namespace Core
 {
-namespace SimpleContactList
-{
 
 typedef QMap<int,LocalizedString> SizeMap;
 
@@ -78,7 +76,7 @@ void SimpleContactlistSettings::loadImpl()
 	}
 	config.endGroup();
 
-	int size = config.value("iconSize",0);
+	int size = config.value("statusIconSize",0);
 	SizeMap::const_iterator it;
 	int index = -1;
 	for (int i = 0;i!=ui->sizesBox->count();i++) {
@@ -104,9 +102,9 @@ void SimpleContactlistSettings::saveImpl()
 	config.setValue("showFlags",m_flags);
 	int size = ui->sizesBox->itemData(ui->sizesBox->currentIndex()).toInt();
 	if (size == 0)
-		config.remove("iconSize");
+		config.remove("statusIconSize");
 	else
-		config.setValue("iconSize",size);
+		config.setValue("statusIconSize",size);
 	// Save extended statuses
 	config.beginGroup("extendedStatuses");
 	foreach (QCheckBox *checkBox, m_statusesBoxes)
@@ -155,6 +153,4 @@ void SimpleContactlistSettings::onModified()
 	emit modifiedChanged(true);
 }
 
-
-}
 }

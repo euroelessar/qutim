@@ -21,6 +21,7 @@ namespace Core
 			Q_CLASSINFO("Uses", "ChatLayer")
 			Q_CLASSINFO("Uses", "IconLoader")
 			Q_CLASSINFO("Uses", "MetaContactManager")
+			Q_CLASSINFO("Uses", "ContactDelegate")
 		public:
 			Module();
 			virtual ~Module();			
@@ -45,7 +46,6 @@ namespace Core
 			void changeStatusTextAccepted();
 			void onCopyIdTriggered(QObject *obj);
 			void onQuitTriggered(QObject*);
-			void reloadSettings();
 		private:
 			QAction *createGlobalStatusAction(Status::Type type);
 			QScopedPointer<ModulePrivate> p;

@@ -5,7 +5,6 @@
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/icon.h>
-#include <qutim/settingslayer.h>
 #include <QTreeView>
 #include <qutim/debug.h>
 #include <QStringBuilder>
@@ -24,8 +23,9 @@
 #include <QMainWindow>
 #include "simplestatusdialog.h"
 #include <QClipboard>
-#include "settings/simplecontactlistsettings.h"
+#include <qutim/servicemanager.h>
 #include <qutim/settingslayer.h>
+#include <QAbstractItemDelegate>
 
 namespace Core
 {
@@ -98,7 +98,6 @@ struct ModulePrivate
 	QHash<Account *, QAction *> actions;
 	QAction *status_action;
 	QList<QAction *> statusActions;
-	ContactDelegate *delegate;
 };
 
 Module::Module() : p(new ModulePrivate)
@@ -115,11 +114,6 @@ Module::Module() : p(new ModulePrivate)
 							   QKeySequence("Ctrl+M")
 							   );
 
-	SettingsItem *item = new GeneralSettingsItem<SimpleContactlistSettings>(Settings::General,
-																			Icon("preferences-contact-list"),
-																			QT_TRANSLATE_NOOP("ContactList","ContactList"));
-	item->connect(SIGNAL(saved()),this, SLOT(reloadSettings()));
-	Settings::registerItem(item);
 	p->widget = new MyWidget;
 	p->widget->setCentralWidget(new QWidget(p->widget));
 	p->widget->setUnifiedTitleAndToolBarOnMac(true);
@@ -188,10 +182,8 @@ Module::Module() : p(new ModulePrivate)
 	gen->addHandler(ActionVisibilityChangedHandler,this);
 	MenuController::addAction<ChatUnit>(gen);
 
-	p->delegate = new ContactDelegate(p->view);
-	p->view->setItemDelegate(p->delegate);
+	p->view->setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate*>("ContactDelegate"));
 	p->view->setModel(p->model);
-	reloadSettings();
 
 	QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget->centralWidget());
 
@@ -481,27 +473,6 @@ bool Module::eventFilter(QObject *obj, QEvent *event)
 	}
 	return MenuController::eventFilter(obj,event);
 }
-
-void Module::reloadSettings()
-{
-	Config cfg("appearance");
-	cfg = cfg.group("contactList");
-	int icon_size = cfg.value("iconSize",16);
-	p->view->setIconSize(QSize(icon_size,icon_size));
-	ContactDelegate::ShowFlags flags = cfg.value("showFlags",
-										  ContactDelegate::ShowStatusText |
-										  ContactDelegate::ShowExtendedInfoIcons |
-										  ContactDelegate::ShowAvatars);
-	p->delegate->setShowFlags(flags);
-	// Load extended statuses.
-	QHash<QString, bool> statuses;
-	cfg.beginGroup("extendedStatuses");
-	foreach (const QString &name, cfg.childKeys())
-		statuses.insert(name, cfg.value(name, true));
-	cfg.endGroup();
-	p->delegate->setExtInfo(statuses);
-}
-
 
 }
 }
