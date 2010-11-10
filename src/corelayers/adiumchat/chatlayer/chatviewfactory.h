@@ -2,6 +2,7 @@
 #define CHATVIEWFACTORY_H
 
 #include <QWidget>
+#include "chatlayerplugin.h"
 
 namespace qutim_sdk_0_3
 {
@@ -17,7 +18,7 @@ namespace AdiumChat
 class ChatSessionImpl;
 class ChatViewWidget;
 class ChatViewController;
-class ChatViewFactory : public QObject
+class ADIUMCHAT_EXPORT ChatViewFactory : public QObject
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "ChatViewFactory")

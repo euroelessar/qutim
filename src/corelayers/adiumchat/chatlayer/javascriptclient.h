@@ -18,31 +18,32 @@
 #define JAVASCRIPTCLIENT_H
 
 #include <QObject>
+#include "chatlayerplugin.h"
 
 namespace Core
 {
-	namespace AdiumChat
-	{
-		class ChatSessionImpl;
-		
-		class JavaScriptClient : public QObject
-		{
-			Q_OBJECT
-		public:
-			JavaScriptClient(ChatSessionImpl *session);
-		
-		public slots:
-			void debugLog(const QVariant &text);
-			bool zoomImage(const QVariant &text);
-			void helperCleared();
-			void appendNick(const QVariant &nick);
-			void contextMenu(const QVariant &nickVar);
-			void appendText(const QVariant &text);
-			
-		private:
-			ChatSessionImpl *m_session;
-		};
-	}
+namespace AdiumChat
+{
+class ChatSessionImpl;
+
+class ADIUMCHAT_EXPORT JavaScriptClient : public QObject
+{
+	Q_OBJECT
+public:
+	JavaScriptClient(ChatSessionImpl *session);
+
+public slots:
+	void debugLog(const QVariant &text);
+	bool zoomImage(const QVariant &text);
+	void helperCleared();
+	void appendNick(const QVariant &nick);
+	void contextMenu(const QVariant &nickVar);
+	void appendText(const QVariant &text);
+
+private:
+	ChatSessionImpl *m_session;
+};
+}
 }
 
 #endif // JAVASCRIPTCLIENT_H

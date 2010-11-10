@@ -17,6 +17,8 @@
 #define CHATLAYERIMPL_H
 #include <qutim/messagesession.h>
 #include <QPointer>
+#include "chatlayerplugin.h"
+
 
 using namespace qutim_sdk_0_3;
 
@@ -30,7 +32,7 @@ namespace Core
 		class ConfTabCompletion;
 		typedef QHash<ChatUnit *,  ChatSessionImpl *> ChatSessionHash;
 		typedef QList<ChatSessionImpl *> ChatSessionList;
-		class ChatLayerImpl : public ChatLayer
+		class ADIUMCHAT_EXPORT ChatLayerImpl : public ChatLayer
 		{
 			Q_OBJECT
 			Q_CLASSINFO("Uses", "IconLoader")
