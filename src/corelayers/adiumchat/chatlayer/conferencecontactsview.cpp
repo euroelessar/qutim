@@ -1,5 +1,4 @@
 #include "conferencecontactsview.h"
-#include "contactdelegate.h"
 #include <chatlayer/chatsessionimpl.h>
 #include <qutim/conference.h>
 #include <qutim/mimeobjectdata.h>

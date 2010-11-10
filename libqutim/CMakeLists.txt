@@ -44,10 +44,6 @@ LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/flowlayout/flowlayout.
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/itemdelegate/itemdelegate.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/itemdelegate/itemdelegate.h" )
 
-# Add ContactDelegate
-LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/contactdelegate/contactdelegate.cpp" )
-LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/contactdelegate/contactdelegate.h" )
-
 # Add avatarfilter
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.h" )
