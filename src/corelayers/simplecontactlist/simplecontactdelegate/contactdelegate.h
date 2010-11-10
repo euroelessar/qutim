@@ -27,7 +27,7 @@ enum ContactItemType
 
 struct ContactDelegatePrivate;
 
-class LIBQUTIM_EXPORT ContactDelegate : public QAbstractItemDelegate
+class ContactDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
     Q_CLASSINFO("Service","ContactDelegate")
