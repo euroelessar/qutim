@@ -10,7 +10,6 @@ qutim_add_plugin(adiumchat
 	DESCRIPTION "Default qutIM chat implementation, based on Adium chat styles"
 	LINK_LIBRARIES ${QT_QTWEBKIT}
 	COMPILE_FLAGS "-DADIUMCHAT_LIBRARY"
-	INCLUDE_DIRS
 )
 
 qutim_add_plugin(tabbedchatform
