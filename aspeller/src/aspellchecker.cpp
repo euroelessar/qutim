@@ -36,7 +36,8 @@ ASpellChecker::ASpellChecker() : m_speller(0)
 	aspell_config_replace(m_config, "encoding", "utf-8");
 
 #ifdef Q_WS_WIN
-	QByteArray dataDir = SystemInfo::getPath(SystemInfo::SystemShareDir).toLocal8Bit();
+	QByteArray dataDir = SystemInfo::getPath(SystemInfo::SystemShareDir).toLocal8Bit() + "/aspell/data/";
+	QByteArray dictDir = SystemInfo::getPath(SystemInfo::SystemShareDir).toLocal8Bit() + "/aspell/dict/";
 	aspell_config_replace(m_config, "data-dir", dataDir.constData());
 	aspell_config_replace(m_config, "dict-dir", dataDir.constData());
 #endif
