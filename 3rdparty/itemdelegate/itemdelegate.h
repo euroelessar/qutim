@@ -19,6 +19,7 @@
 #include "libqutim/libqutim_global.h"
 
 class QTreeView;
+class QListView;
 namespace qutim_sdk_0_3
 {
 enum ItemRole
@@ -54,8 +55,10 @@ private:
 	QRect checkRect(const QModelIndex& index,const QStyleOptionViewItem& option,const QRect &rect) const;
 	QRect checkRect(const QStyleOptionViewItem& option,const QRect &rect) const;
 	int m_padding;
-	bool m_command_link_style;
-	QTreeView *m_tree_view; //hack
+	bool m_commandLinkStyle;
+	//hacks
+	QTreeView *m_treeView;
+	QListView *m_listView;
 };
 
 }

@@ -21,6 +21,7 @@
 #include <qtextlayout.h>
 #include <libqutim/localizedstring.h>
 #include <QTreeView>
+#include <QListView>
 
 namespace qutim_sdk_0_3
 {
@@ -69,11 +70,14 @@ QString description(const QModelIndex& index)
 };
 
 ItemDelegate::ItemDelegate(QObject* parent):
-		QAbstractItemDelegate(parent),
-		m_padding(6),m_command_link_style(false),
-		m_tree_view(0)
+	QAbstractItemDelegate(parent),
+	m_padding(6),m_commandLinkStyle(false),
+	m_treeView(0),
+	m_listView(0)
 {
-	m_tree_view = qobject_cast<QTreeView *>(parent);
+	m_treeView = qobject_cast<QTreeView*>(parent);
+	m_listView = qobject_cast<QListView*>(parent);
+	//hacks for list view
 }
 
 ItemDelegate::~ItemDelegate()
@@ -83,7 +87,7 @@ ItemDelegate::~ItemDelegate()
 
 void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 						 const QModelIndex& index) const
-	{
+{
 	QStyleOptionViewItemV4 opt(option);
 	QStyle *style = getStyle(opt);
 
@@ -97,43 +101,43 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		painter->drawText(option.rect, Qt::AlignCenter, title);
 	}
 	else if (isTitle(index)) {
-			QStyleOptionButton buttonOption;
+		QStyleOptionButton buttonOption;
 
-			buttonOption.state = option.state;
+		buttonOption.state = option.state;
 #ifdef Q_WS_MAC
-			buttonOption.features = QStyleOptionButton::Flat;
-			buttonOption.state |= QStyle::State_Raised;
-			buttonOption.state &= ~QStyle::State_HasFocus;
+		buttonOption.features = QStyleOptionButton::Flat;
+		buttonOption.state |= QStyle::State_Raised;
+		buttonOption.state &= ~QStyle::State_HasFocus;
 #endif
 
-			buttonOption.rect = option.rect;
-			buttonOption.palette = option.palette;
-			style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
-			QRect rect = option.rect;
-			rect.adjust(m_padding,0,0,0);
-			if (m_tree_view) {
-				QStyleOption branchOption;
-				static const int i = 9; // ### hardcoded in qcommonstyle.cpp
-				QRect r = option.rect;
-				branchOption.rect = QRect(r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
-				branchOption.palette = option.palette;
-				branchOption.state = QStyle::State_Children;
-				rect.adjust(branchOption.rect.width() + m_padding,
-							branchOption.rect.height() + m_padding,
-							0,0);
-				if (m_tree_view->isExpanded(index))
-					branchOption.state |= QStyle::State_Open;
-				style->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, m_tree_view);
-			}
-			QFont font = opt.font;
-			const QFont orig_font = font;
-			font.setBold(true);
-			painter->setFont(font);
-			painter->drawText(rect,
-							  Qt::AlignVCenter,
-							  title
-							  );
-			painter->setFont(orig_font);
+		buttonOption.rect = option.rect;
+		buttonOption.palette = option.palette;
+		style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
+		QRect rect = option.rect;
+		rect.adjust(m_padding,0,0,0);
+		if (m_treeView) {
+			QStyleOption branchOption;
+			static const int i = 9; // ### hardcoded in qcommonstyle.cpp
+			QRect r = option.rect;
+			branchOption.rect = QRect(r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
+			branchOption.palette = option.palette;
+			branchOption.state = QStyle::State_Children;
+			rect.adjust(branchOption.rect.width() + m_padding,
+						branchOption.rect.height() + m_padding,
+						0,0);
+			if (m_treeView->isExpanded(index))
+				branchOption.state |= QStyle::State_Open;
+			style->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, m_treeView);
+		}
+		QFont font = opt.font;
+		const QFont orig_font = font;
+		font.setBold(true);
+		painter->setFont(font);
+		painter->drawText(rect,
+						  Qt::AlignVCenter,
+						  title
+						  );
+		painter->setFont(orig_font);
 
 	}
 	else {
@@ -198,18 +202,23 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 
 	//hack for null width with tree view
 	//TODO need rewrite
-	if (!rect.isValid() && m_tree_view) {
-		rect.setWidth(m_tree_view->viewport()->size().width() - m_tree_view->indentation());
-		//mega hack for intendation
-		//--root----------------
-		//  ^intendation
-		//^size().width()------^
-		//----first element
-		//    ^intendation
-		QModelIndex p = index.parent();
-		while (p.isValid()) {
-			rect.setWidth(rect.width()-m_tree_view->indentation());
-			p = p.parent();
+	if (!rect.isValid()) {
+		if(m_treeView) {
+			rect.setWidth(m_treeView->viewport()->size().width() - m_treeView->indentation());
+			//mega hack for intendation
+			//--root----------------
+			//  ^intendation
+			//^size().width()------^
+			//----first element
+			//    ^intendation
+			QModelIndex p = index.parent();
+			while (p.isValid()) {
+				rect.setWidth(rect.width()-m_treeView->indentation());
+				p = p.parent();
+			}
+		}
+		else if(m_listView) {
+			rect.setWidth(m_listView->visualRect(index).width());
 		}
 	}
 
@@ -227,7 +236,7 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 	}
 
 	QRect bounding = metrics.boundingRect(rect, Qt::AlignTop | Qt::AlignLeft,
-									  index.data(Qt::DisplayRole).toString());
+										  index.data(Qt::DisplayRole).toString());
 	int height = bounding.height();
 
 	QString desc = description(index);
@@ -237,9 +246,9 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 		metrics = QFontMetrics(desc_font);
 
 		bounding = metrics.boundingRect(rect,
-									   Qt::AlignTop | Qt::AlignLeft | Qt::TextWordWrap,
-									   desc
-									   );
+										Qt::AlignTop | Qt::AlignLeft | Qt::TextWordWrap,
+										desc
+										);
 		height += bounding.height();
 		height += 2.5*m_padding;
 	}
@@ -266,18 +275,18 @@ QRect ItemDelegate::checkRect(const QStyleOptionViewItem &o, const QRect &rect) 
 	const QWidget *widget = getWidget(option);
 	QStyle *style = getStyle(option);
 	QRect checkRect = style->subElementRect(QStyle::SE_ViewItemCheckIndicator, &opt, widget);
-//TODO need to testing on some platforms
-//	QRect result (rect.left(),
-//		  rect.top() + (size.height() - checkRect.height())/2,
-//		  size.width() - checkRect.width(),
-//		  checkRect.height()
-//		  );
+	//TODO need to testing on some platforms
+	//	QRect result (rect.left(),
+	//		  rect.top() + (size.height() - checkRect.height())/2,
+	//		  size.width() - checkRect.width(),
+	//		  checkRect.height()
+	//		  );
 	return checkRect;
 }
 
 void ItemDelegate::setCommandLinkStyle(bool style)
 {
-	m_command_link_style = style;
+	m_commandLinkStyle = style;
 }
 
 bool ItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
@@ -290,7 +299,7 @@ bool ItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
 	// make sure that the item is checkable
 	Qt::ItemFlags flags = model->flags(index);
 	if (!(flags & Qt::ItemIsUserCheckable) || !(option.state & QStyle::State_Enabled)
-		|| !(flags & Qt::ItemIsEnabled))
+			|| !(flags & Qt::ItemIsEnabled))
 		return false;
 
 	// make sure that we have a check state
@@ -300,7 +309,7 @@ bool ItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
 
 	// make sure that we have the right event type
 	if ((event->type() == QEvent::MouseButtonRelease)
-		|| (event->type() == QEvent::MouseButtonDblClick)) {
+			|| (event->type() == QEvent::MouseButtonDblClick)) {
 		QRect rect = option.rect;
 		rect.adjust(m_padding,m_padding,0,0);
 		QRect check = checkRect(index,option, rect);
@@ -314,7 +323,7 @@ bool ItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
 
 	} else if (event->type() == QEvent::KeyPress) {
 		if (static_cast<QKeyEvent*>(event)->key() != Qt::Key_Space
-		&& static_cast<QKeyEvent*>(event)->key() != Qt::Key_Select)
+				&& static_cast<QKeyEvent*>(event)->key() != Qt::Key_Select)
 			return false;
 	} else {
 		return false;
@@ -332,7 +341,7 @@ void ItemDelegate::drawFocus(QPainter *painter,
 	Q_UNUSED(rect);
 	QStyle *style = getStyle(option);
 	const QWidget *widget = getWidget(option);
-	if (m_command_link_style) {
+	if (m_commandLinkStyle) {
 		QStyleOptionButton buttonOption;
 
 		buttonOption.state = option.state;
@@ -347,8 +356,8 @@ void ItemDelegate::drawFocus(QPainter *painter,
 }
 
 QRect ItemDelegate::drawCheck(QPainter *painter,
-							 const QStyleOptionViewItem &option, const QRect &rect,
-							 Qt::CheckState state) const
+							  const QStyleOptionViewItem &option, const QRect &rect,
+							  Qt::CheckState state) const
 {
 	QStyleOptionViewItem checkOption(option);
 	checkOption.state = checkOption.state & ~QStyle::State_HasFocus;
