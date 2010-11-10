@@ -48,7 +48,9 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	m_chatInput(new ChatEdit(this)),
 	m_recieverList(new QAction(Icon("view-choose"),tr("Send to"),this)),
 	m_contactView(new ConferenceContactsView(this)),
-	m_key(key)
+	m_key(key),
+	m_unitActions(new QAction(Icon("preferences-contact-list"),tr("Actions"),this)),
+	m_additionalToolBar(new QToolBar(tr("Navigation"),this))
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 
@@ -75,9 +77,11 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	m_view = qobject_cast<ChatViewWidget*>(view);
 
 	m_actSeparator = m_toolbar->addSeparator();
+	m_toolbar->addAction(m_unitActions);
 	m_unitSeparator = m_toolbar->addSeparator();
 
 	addToolBar(Qt::RightToolBarArea,m_toolbar);
+	addToolBar(Qt::RightToolBarArea,m_additionalToolBar);
 
 	//simple hack
 	m_recieverList->setMenu(new QMenu);
@@ -87,7 +91,7 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	QWidget* spacer = new QWidget(this);
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	spacer->setAttribute(Qt::WA_TransparentForMouseEvents);
-	m_toolbar->addWidget(spacer);
+	m_additionalToolBar->addWidget(spacer);
 
 	loadSettings();
 
@@ -97,14 +101,14 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	//only for testing
 	QAction *act = new QAction(Icon("arrow-left"),tr("Left"),this);
 	connect(act,SIGNAL(triggered()),m_stack,SLOT(slideInPrev()));
-	m_toolbar->addAction(act);
+	m_additionalToolBar->addAction(act);
 	act = new QAction(Icon("arrow-right"),tr("Right"),this);
 	connect(act,SIGNAL(triggered()),m_stack,SLOT(slideInNext()));
-	m_toolbar->addAction(act);
+	m_additionalToolBar->addAction(act);
 	act = new QAction(Icon("dialog-close"),tr("Close"),this);
 	connect(act,SIGNAL(triggered()),m_sessionList,SLOT(closeCurrentSession()));
-	m_toolbar->addSeparator();
-	m_toolbar->addAction(act);
+	m_additionalToolBar->addSeparator();
+	m_additionalToolBar->addAction(act);
 }
 
 void StackedChatWidget::loadSettings()
@@ -225,15 +229,8 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 		m_stack->removeWidget(m_contactView);
 	m_stack->slideInIdx(m_stack->indexOf(m_chatWidget));
 
-	qDeleteAll(m_unitActions);
-	m_unitActions.clear();
 	m_recieverList->setMenu(session->menu());
-	ActionContainer container(session->getUnit(),ActionContainer::TypeMatch,ActionTypeChatButton);
-	for (int i = 0;i!=container.count();i++) {
-		QAction *current = container.action(i);
-		m_toolbar->insertAction(m_unitSeparator,current);
-		m_unitActions.append(current);
-	}
+	m_unitActions->setMenu(session->getUnit()->menu());
 }
 
 ChatSessionImpl *StackedChatWidget::currentSession() const
@@ -296,6 +293,7 @@ void StackedChatWidget::onCurrentChanged(int index)
 {
 	if(index != m_stack->indexOf(m_chatWidget))
 		currentSession()->setActive(false);
+	m_toolbar->setVisible(index == m_stack->indexOf(m_chatWidget));
 }
 
 }

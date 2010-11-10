@@ -66,7 +66,6 @@ private:
 	QPointer<ChatSessionImpl> m_currentSession;
 	QAction *m_unitSeparator;
 	QAction *m_actSeparator;
-	QList<QAction*> m_unitActions;
 	QAction *m_spacer;
 	QAction *m_recieverList;
 	ConferenceContactsView *m_contactView;
@@ -74,6 +73,8 @@ private:
 	SlidingStackedWidget *m_stack;
 	ChatFlags m_flags;
 	QWidget *m_chatWidget;
+	QAction *m_unitActions;
+	QToolBar *m_additionalToolBar;
 };
 
 }
