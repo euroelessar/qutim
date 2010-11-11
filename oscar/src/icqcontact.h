@@ -37,7 +37,7 @@ class LIBOSCAR_EXPORT IcqContact: public Contact
 	Q_DECLARE_PRIVATE(IcqContact)
 	Q_OBJECT
 	Q_DISABLE_COPY(IcqContact)
-	Q_PROPERTY(QString avatar READ avatar WRITE setAvatar NOTIFY avatarChanged)
+	Q_PROPERTY(QString avatar READ avatar WRITE setAvatar)
 public:
 	IcqContact(const QString &uin, IcqAccount *account);
 	~IcqContact();
