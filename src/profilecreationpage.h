@@ -14,9 +14,9 @@ class ProfileCreationPage : public QWizardPage
 {
 	Q_OBJECT
 public:
-	ProfileCreationPage(const QString &password, bool singleProfile, QWidget *parent = 0);
+	ProfileCreationPage(QWidget *parent = 0);
 	~ProfileCreationPage();
-
+	virtual void initializePage();
 	virtual bool validatePage();
 	inline QByteArray cryptoName() const { return m_cryptoName; }
 

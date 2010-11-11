@@ -37,7 +37,7 @@ namespace qutim_sdk_0_3
 		Q_DECLARE_PRIVATE(Account)
 		Q_OBJECT
 		Q_PROPERTY(QString id READ id)
-		Q_PROPERTY(qutim_sdk_0_3::Status status READ status WRITE setStatus NOTIFY statusChanges)
+		Q_PROPERTY(qutim_sdk_0_3::Status status READ status WRITE setStatus NOTIFY statusChanged)
 		Q_PROPERTY(QString name READ name NOTIFY nameChanged)
 	public:
 		/*!
