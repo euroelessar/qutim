@@ -39,7 +39,7 @@ ASpellChecker::ASpellChecker() : m_speller(0)
 	QByteArray dataDir = SystemInfo::getPath(SystemInfo::SystemShareDir).toLocal8Bit() + "/aspell/data/";
 	QByteArray dictDir = SystemInfo::getPath(SystemInfo::SystemShareDir).toLocal8Bit() + "/aspell/dict/";
 	aspell_config_replace(m_config, "data-dir", dataDir.constData());
-	aspell_config_replace(m_config, "dict-dir", dataDir.constData());
+	aspell_config_replace(m_config, "dict-dir", dictDir.constData());
 #endif
 
 	AspellCanHaveError * possible_err = new_aspell_speller(m_config);
