@@ -8,6 +8,7 @@
 #include <QDropEvent>
 #include <qutim/mimeobjectdata.h>
 #include <qutim/shortcut.h>
+#include <avatarfilter.h>
 
 namespace Core
 {
@@ -109,6 +110,8 @@ void TabBar::addSession(ChatSessionImpl *session)
 {
 	p->sessions.append(session);
 	QIcon icon = ChatLayerImpl::iconForState(ChatStateInActive,session->getUnit());
+	if(Buddy *b = qobject_cast<Buddy*>(session->unit()))
+		icon = AvatarFilter::icon(b->avatar(),icon);
 	p->sessionList->addAction(icon,session->getUnit()->title());
 	addTab(icon,session->getUnit()->title());
 
@@ -260,6 +263,10 @@ void TabBar::chatStateChanged(ChatState state, ChatSessionImpl *session)
 	if(session->unread().count())
 		return;
 	QIcon icon = ChatLayerImpl::iconForState(state,session->getUnit());
+
+	if(Buddy *b = qobject_cast<Buddy*>(session->unit()))
+		icon = AvatarFilter::icon(b->avatar(),icon);
+
 	setTabIcon(indexOf(session),icon);
 	p->sessionList->actions().at(indexOf(session))->setIcon(icon);
 }

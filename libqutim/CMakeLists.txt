@@ -46,7 +46,9 @@ LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/itemdelegate/itemdeleg
 
 # Add avatarfilter
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.cpp" )
+LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatariconengine.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.h" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatariconengine_p.h" )
 
 # MinGW special options
 # Not sure if those applicable for linux

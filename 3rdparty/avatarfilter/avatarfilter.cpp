@@ -4,6 +4,7 @@
 #include <QStringBuilder>
 #include <QPixmapCache>
 #include <QDebug>
+#include "avatariconengine_p.h"
 
 namespace qutim_sdk_0_3
 {
@@ -13,15 +14,15 @@ namespace qutim_sdk_0_3
 		QSize defaultSize;
 		Qt::AspectRatioMode mode;
 	};
-	
-	AvatarFilter::AvatarFilter(const QSize& defaultSize/*, Qt::AspectRatioMode mode*/) : 
+
+	AvatarFilter::AvatarFilter(const QSize& defaultSize/*, Qt::AspectRatioMode mode*/) :
 			d_ptr(new AvatarFilterPrivate)
 	{
 		Q_D(AvatarFilter);
 		d->defaultSize = defaultSize;
 		d->mode = Qt::IgnoreAspectRatio;
 	}
-	
+
 	AvatarFilter::~AvatarFilter()
 	{
 
@@ -33,7 +34,7 @@ namespace qutim_sdk_0_3
 		Q_D(const AvatarFilter);
 		if (path.isEmpty())
 			return false;
-		
+
 		QString key = QLatin1Literal("qutim_avatar_")
 					  % QString::number(d->defaultSize.width())
 					  % QLatin1Char('_')
@@ -72,7 +73,7 @@ namespace qutim_sdk_0_3
 			QPixmapCache::insert(key, pixmap);
 		}
 		painter->drawPixmap(x, y, pixmap.width(), pixmap.height(), pixmap);
-		QSize overlaySize = d->defaultSize / 2;
+		QSize overlaySize = d->defaultSize/(d->defaultSize.width() <= 16 ? 1.3 : 2);
 		QPixmap overlayPixmap = overlayIcon.pixmap(overlaySize);
 		overlaySize = overlayPixmap.size();
 		painter->drawPixmap(x + d->defaultSize.width() - overlaySize.width(),
@@ -81,4 +82,10 @@ namespace qutim_sdk_0_3
 							);
 		return true;
 	}
+
+QIcon AvatarFilter::icon(const QString &path, const QIcon &overlayIcon)
+{
+	return QIcon(new AvatarIconEngine(path,overlayIcon));
+}
+
 }
