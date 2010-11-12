@@ -4,6 +4,7 @@
 #include <qutim/actiontoolbar.h>
 #include <qutim/status.h>
 #include <qutim/contact.h>
+#include "abstractcontactlist.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -13,20 +14,14 @@ namespace Core
 	{
 		struct ModulePrivate;
 
-		class Module : public MenuController
+		class Module : public AbstractContactList
 		{
 			Q_OBJECT
-			Q_PROPERTY(QWidget* widget READ widget)
-			Q_CLASSINFO("Service", "ContactList")
-			Q_CLASSINFO("Uses", "ChatLayer")
-			Q_CLASSINFO("Uses", "IconLoader")
-			Q_CLASSINFO("Uses", "MetaContactManager")
-			Q_CLASSINFO("Uses", "ContactDelegate")
 		public:
 			Module();
 			virtual ~Module();			
-			Q_INVOKABLE void addButton(ActionGenerator *generator);
-			Q_INVOKABLE QWidget *widget();
+			virtual void addButton(ActionGenerator *generator);
+			virtual QWidget *widget();
 		protected:
 			bool event(QEvent *);
 			bool eventFilter(QObject *, QEvent *);

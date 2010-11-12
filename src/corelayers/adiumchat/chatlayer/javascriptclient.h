@@ -18,8 +18,7 @@
 #define JAVASCRIPTCLIENT_H
 
 #include <QObject>
-#include "chatlayerplugin.h"
-
+#include "chatlayer_global.h"
 namespace Core
 {
 namespace AdiumChat

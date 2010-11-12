@@ -17,12 +17,6 @@
 #ifndef CHATLAYERPLUGIN_H
 #define CHATLAYERPLUGIN_H
 
-#if defined(ADIUMCHAT_LIBRARY)
-#  define ADIUMCHAT_EXPORT Q_DECL_EXPORT
-#else
-#  define ADIUMCHAT_EXPORT Q_DECL_IMPORT
-#endif
-
 #include <qutim/plugin.h>
 
 class QAction;

@@ -23,7 +23,7 @@
 #include <chatlayer/chatsessionimpl.h>
 #include <chatlayer/chatlayerimpl.h>
 #include <qutim/actiongenerator.h>
-#include <chatlayerplugin.h>
+#include "chatlayer_global.h"
 
 namespace qutim_sdk_0_3 {
 }

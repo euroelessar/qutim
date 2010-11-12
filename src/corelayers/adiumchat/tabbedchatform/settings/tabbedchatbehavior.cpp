@@ -31,6 +31,7 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	ui->formLayoutBox->addItem(tr("Adium-like"),true);
 #ifdef Q_WS_MAC
 	ui->formLayoutBox->setEnabled(false); //Classic layout is really ugly
+	ui->menuBox->setEnabled(false);
 #endif
 
 	connect(m_group,SIGNAL(buttonClicked(int)),SLOT(onButtonClicked(int)));
@@ -40,6 +41,7 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	connect(ui->tabPositionBox,SIGNAL(currentIndexChanged(int)),SLOT(onValueChanged()));
 	connect(ui->formLayoutBox,SIGNAL(currentIndexChanged(int)),SLOT(onValueChanged()));
 	connect(ui->stateBox,SIGNAL(clicked(bool)),SLOT(onValueChanged()));
+	connect(ui->menuBox,SIGNAL(clicked(bool)),SLOT(onValueChanged()));
 }
 
 TabbedChatBehavior::~TabbedChatBehavior()
@@ -68,6 +70,9 @@ void TabbedChatBehavior::loadImpl()
 						   | SwitchDesktopOnActivate
 						   | AdiumToolbar
 						   | TabsOnBottom
+#ifdef Q_WS_MAC
+						   | MenuBar
+#endif
 						   );
 
 	ui->tabPositionBox->setCurrentIndex(m_flags & TabsOnBottom ? 1 : 0);
@@ -79,6 +84,7 @@ void TabbedChatBehavior::loadImpl()
 	ui->storeBox->setChecked(history.value<bool>("storeServiceMessages", true));
 	ui->recentBox->setValue(history.value<int>("maxDisplayMessages",5));
 	ui->stateBox->setChecked(m_flags & IconsOnTabs);
+	ui->menuBox->setChecked(m_flags & MenuBar);
 	Config chat = cfg.group("chat");
 	ui->groupUntil->setValue(chat.value<int>("groupUntil",900));
 }
@@ -93,7 +99,7 @@ void TabbedChatBehavior::saveImpl()
 	bool adium = ui->formLayoutBox->itemData(ui->formLayoutBox->currentIndex()).toBool();
 	setFlags(AdiumToolbar,adium);
 	setFlags(IconsOnTabs,ui->stateBox->isChecked());
-	debug() << ui->stateBox->isChecked();
+	setFlags(MenuBar,ui->menuBox->isChecked());
 
 	widget.setValue("sendKey",m_send_message_key);
 	widget.setValue("widgetFlags",m_flags);

@@ -19,7 +19,7 @@
 #include <QTextDocument>
 #include <QPointer>
 #include <QTimer>
-#include "chatlayerplugin.h"
+#include "chatlayer_global.h"
 
 class QAbstractItemModel;
 class QWebPage;

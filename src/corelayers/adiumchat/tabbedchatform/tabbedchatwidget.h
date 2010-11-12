@@ -25,7 +25,8 @@ enum ChatFlag
 	SendTypingNotification	=       0x04,
 	SwitchDesktopOnActivate	=       0x08,
 	DeleteSessionOnClose	=		0x10,
-	TabsOnBottom			=		0x20
+	TabsOnBottom			=		0x20,
+	MenuBar					=		0x40,
 };
 
 Q_DECLARE_FLAGS(ChatFlags, ChatFlag);
@@ -67,7 +68,7 @@ private:
 	QPointer<ChatSessionImpl> m_currentSession;
 	QAction *m_unitSeparator;
 	QAction *m_actSeparator;
-	QList<QAction*> m_unitActions;
+	QList<QAction*> m_unitChatActionList;
 	QAction *m_spacer;
 	QAction *m_recieverList;
 	ConferenceContactsView *m_contactView;
@@ -75,6 +76,7 @@ private:
 	QVBoxLayout *m_layout;
 	ChatFlags m_flags;
 	QAction *m_sessionList;
+	QAction *m_unitAction;
 };
 
 }

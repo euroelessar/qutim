@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>557</width>
-    <height>432</height>
+    <width>555</width>
+    <height>430</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -64,7 +64,7 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
+   <item row="10" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -137,6 +137,13 @@
     <widget class="QCheckBox" name="stateBox">
      <property name="text">
       <string>Chat state icons on tabs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QCheckBox" name="menuBox">
+     <property name="text">
+      <string>Menubar</string>
      </property>
     </widget>
    </item>

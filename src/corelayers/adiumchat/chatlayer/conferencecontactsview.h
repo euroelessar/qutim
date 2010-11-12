@@ -2,7 +2,7 @@
 #define CONFERENCECONTACTSVIEW_H
 
 #include <QListView>
-#include <chatlayerplugin.h>
+#include "chatlayer_global.h"
 
 namespace Core
 {

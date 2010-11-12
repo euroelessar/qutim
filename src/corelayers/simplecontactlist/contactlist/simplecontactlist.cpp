@@ -35,7 +35,7 @@ class CopyIdGenerator : public ActionGenerator
 {
 public:
 	CopyIdGenerator(QObject *obj) :
-			ActionGenerator(Icon("edit-copy"),QT_TRANSLATE_NOOP("ContactList", "Copy id to clipboard"),obj,SLOT(onCopyIdTriggered(QObject*)))
+		ActionGenerator(Icon("edit-copy"),QT_TRANSLATE_NOOP("ContactList", "Copy id to clipboard"),obj,SLOT(onCopyIdTriggered(QObject*)))
 	{
 		setType(ActionTypeContactList|ActionTypeAdditional);
 	}
@@ -190,7 +190,8 @@ Module::Module() : p(new ModulePrivate)
 	p->statusBtn = new QPushButton(Icon("im-user-online"),
 								   tr("Status"),
 								   p->widget);
-	p->statusBtn->setMenu(new QMenu(p->widget));
+	QMenu *statusMenu = new QMenu(p->widget);
+	p->statusBtn->setMenu(statusMenu);
 
 	p->searchBtn = new QPushButton(p->widget);
 	p->searchBtn->setIcon(Icon("edit-find"));
@@ -227,31 +228,31 @@ Module::Module() : p(new ModulePrivate)
 			onAccountCreated(account);
 		}
 	}
-	p->statusBtn->menu()->addAction(createGlobalStatusAction(Status::Online));
-	p->statusBtn->menu()->addAction(createGlobalStatusAction(Status::FreeChat));
-	p->statusBtn->menu()->addAction(createGlobalStatusAction(Status::Away));
-	p->statusBtn->menu()->addAction(createGlobalStatusAction(Status::DND));
-	p->statusBtn->menu()->addAction(createGlobalStatusAction(Status::NA));
-	p->statusBtn->menu()->addAction(createGlobalStatusAction(Status::Invisible));
-	p->statusBtn->menu()->addAction(createGlobalStatusAction(Status::Offline));
+	statusMenu->addAction(createGlobalStatusAction(Status::Online));
+	statusMenu->addAction(createGlobalStatusAction(Status::FreeChat));
+	statusMenu->addAction(createGlobalStatusAction(Status::Away));
+	statusMenu->addAction(createGlobalStatusAction(Status::DND));
+	statusMenu->addAction(createGlobalStatusAction(Status::NA));
+	statusMenu->addAction(createGlobalStatusAction(Status::Invisible));
+	statusMenu->addAction(createGlobalStatusAction(Status::Offline));
 
 	Status status = Status(Status::Offline);
 	p->statusBtn->setText(status.name());
 	p->statusBtn->setProperty("lastStatus",qVariantFromValue(status));
 
-	p->statusBtn->menu()->addSeparator();
+	statusMenu->addSeparator();
 
-	p->status_action = p->statusBtn->menu()->addAction(Icon("im-status-message-edit"),
-													   tr("Set Status Text"),
-													   this,
-													   SLOT(showStatusDialog())
-													   );
+	p->status_action = statusMenu->addAction(Icon("im-status-message-edit"),
+											 tr("Set Status Text"),
+											 this,
+											 SLOT(showStatusDialog())
+											 );
 
 	QString last_status = Config().group("contactList").value("lastStatus",QString());
 	p->statusBtn->setToolTip(last_status);
 	p->status_action->setData(last_status);
 
-	p->statusBtn->menu()->addSeparator();
+	statusMenu->addSeparator();
 
 	p->widget->loadGeometry();
 	p->widget->show();
@@ -263,14 +264,12 @@ void Module::onStatusChanged()
 		Status::Type type = static_cast<Status::Type>(a->data().value<int>());
 		p->statusBtn->setText(Status(type).name());
 		QString text = p->status_action->data().toString();
-		foreach(Protocol *proto, Protocol::all()) {
-			foreach(Account *account, proto->accounts()) {
-				Status status = account->status();
-				status.setType(type);
-				status.setText(text);
-				status.setSubtype(0);
-				account->setStatus(status);
-			}
+		foreach(Account *account,Account::all()) {
+			Status status = account->status();
+			status.setType(type);
+			status.setText(text);
+			status.setSubtype(0);
+			account->setStatus(status);
 		}
 	}
 }

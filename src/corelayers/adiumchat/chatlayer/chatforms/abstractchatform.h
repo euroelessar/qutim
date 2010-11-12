@@ -20,7 +20,7 @@
 #include <QWidget>
 #include <QHash>
 #include <QPointer>
-#include <chatlayerplugin.h>
+#include "chatlayer_global.h"
 
 namespace qutim_sdk_0_3 {
 class ChatSession;
