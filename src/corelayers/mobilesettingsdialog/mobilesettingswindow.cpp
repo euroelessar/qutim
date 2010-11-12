@@ -200,17 +200,21 @@ void MobileSettingsWindow::onCurrentItemActivated(const QModelIndex &index)
 		return;
 	SettingsItem *settingsItem = reinterpret_cast<SettingsItem*>(ptr);
 
-	SettingsWidget *w = settingsItem->widget();	
-	if (p->stackedWidget->indexOf(w) == -1) {
-		p->stackedWidget->addWidget(w);
+	SettingsWidget *w = settingsItem->widget();
+	if(!w->parentWidget()) {
+		debug() << "create widget";
+		QScrollArea *area = new QScrollArea(this);
+		area->setFrameShape(QScrollArea::NoFrame);
+		area->setWidget(w);
+		area->setWidgetResizable(true);
+		p->stackedWidget->addWidget(area);
 		w->setController(p->controller);
 		w->load();
-		w->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-		p->slideMap.insert(w,p->settingsListWidget);
+		p->slideMap.insert(area,p->settingsListWidget);
 		connect(w,SIGNAL(modifiedChanged(bool)),SLOT(onModifiedChanged(bool)));
 		connect(w,SIGNAL(destroyed(QObject*)),SLOT(onWidgetDestroyed(QObject*)));
 	}
-	slideDown(w);
+	slideDown(w->parentWidget());
 	setWindowTitle(tr("qutIM settings - %1").arg(settingsItem->text()));
 }
 
@@ -288,6 +292,7 @@ void MobileSettingsWindow::slideDown(QWidget *w)
 {
 	p->stackedWidget->slideInIdx(p->stackedWidget->indexOf(w));
 	p->backAct->setVisible(p->slideMap.value(w));
+	p->backAct->setVisible(true);
 }
 
 }

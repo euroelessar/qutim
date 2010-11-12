@@ -262,7 +262,7 @@ void XSettingsWindow::save()
 
 void XSettingsWindow::cancel()
 {
-	QWidget *c = p->stackedWidget->currentWidget();	
+	QWidget *c = p->stackedWidget->currentWidget();
 	while (p->modifiedWidgets.count()) {
 		SettingsWidget *widget = p->modifiedWidgets.takeFirst();
 		widget->save();

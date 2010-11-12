@@ -20,7 +20,7 @@ namespace Core
 	bool AccountCreator::load()	
 	{
 		SettingsItem *item = new GeneralSettingsItem<AccountCreatorList>(
-				Settings::General, Icon("meeting-attending"),
+				Settings::Protocol, Icon("meeting-attending"),
 				QT_TRANSLATE_NOOP("Settings", "Accounts"));
 		item->setPriority(100);
 		Settings::registerItem(item);
