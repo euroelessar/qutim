@@ -163,16 +163,16 @@ void TabbedChatWidget::loadSettings()
 
 		if(m_flags & MenuBar) {
 			setMenuBar(new QMenuBar(this));
-			QAction *general = menuBar()->addAction(tr("Actions"));
+			QAction *general = menuBar()->addAction(tr("&Actions"));
 
 			general->setMenu(ServiceManager::getByName<MenuController*>("ContactList")->menu());
 
-			QAction *accounts = menuBar()->addAction(tr("Accounts"));
+			QAction *accounts = menuBar()->addAction(tr("Accoun&ts"));
 			QMenu *m = new QMenu(this);
 			foreach(Account *a,Account::all())
 				m->addMenu(a->menu());
 			accounts->setMenu(m);
-			m_unitAction = menuBar()->addAction(tr("Chat"));
+			m_unitAction = menuBar()->addAction(tr("&Chat"));
 		}
 
 		ConfigGroup keyGroup = cfg.group("keys");
@@ -288,7 +288,8 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 		m_toolbar->insertAction(m_unitSeparator,current);
 		m_unitChatActionList.append(current);
 	}
-	m_unitAction->setMenu(session->unit()->menu());
+	if(m_flags & MenuBar)
+		m_unitAction->setMenu(session->unit()->menu());
 }
 
 ChatSessionImpl *TabbedChatWidget::currentSession() const
