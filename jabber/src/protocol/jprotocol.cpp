@@ -263,35 +263,35 @@ Status JProtocol::presenceToStatus(Presence::PresenceType presence)
 	return Status::instance(status, "jabber");
 }
 
-//jreen::Presence::Type JProtocol::statusToPresence(const Status &status)
-//{
-//	jreen::Presence::Type presence;
-//	switch (status.type()) {
-//	case Status::Offline:
-//		presence = Presence::Unavailable;
-//		break;
-//	case Status::Online:
-//		presence = Presence::Available;
-//		break;
-//	case Status::Away:
-//		presence = Presence::Away;
-//		break;
-//	case Status::FreeChat:
-//		presence = Presence::Chat;
-//		break;
-//	case Status::DND:
-//		presence = Presence::DND;
-//		break;
-//	case Status::NA:
-//		presence = Presence::XA;
-//		break;
-//	default:
-//		presence = Presence::Invalid;
-//	}
-//	return presence;
-//}
+jreen::Presence::Type JStatus::statusToPresence(const Status &status)
+{
+	jreen::Presence::Type presence;
+	switch (status.type()) {
+	case Status::Offline:
+		presence = jreen::Presence::Unavailable;
+		break;
+	case Status::Online:
+		presence = jreen::Presence::Available;
+		break;
+	case Status::Away:
+		presence = jreen::Presence::Away;
+		break;
+	case Status::FreeChat:
+		presence = jreen::Presence::Chat;
+		break;
+	case Status::DND:
+		presence = jreen::Presence::DND;
+		break;
+	case Status::NA:
+		presence = jreen::Presence::XA;
+		break;
+	default:
+		presence = jreen::Presence::Invalid;
+	}
+	return presence;
+}
 
-Status JProtocol::presenceToStatus(jreen::Presence::Type presence)
+Status::Type JStatus::presenceToStatus(jreen::Presence::Type presence)
 {
 	Status::Type status;
 	switch (presence) {
@@ -314,7 +314,7 @@ Status JProtocol::presenceToStatus(jreen::Presence::Type presence)
 	default:
 		status = Status::Offline;
 	}
-	return Status::instance(status, "jabber");
+	return status;
 }
 
 bool JProtocol::event(QEvent *ev)

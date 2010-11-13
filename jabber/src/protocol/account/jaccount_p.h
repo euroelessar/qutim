@@ -3,6 +3,8 @@
 
 #include "jaccount.h"
 #include "muc/jbookmarkmanager.h"
+//jreen
+#include <jreen/client.h>
 
 namespace jreen
 {
@@ -13,26 +15,33 @@ namespace Jabber {
 
 typedef QHash<QString, QHash<QString, QString> > Identities;
 
-struct JAccountPrivate
+class JAccountPrivate : public QObject
 {
-	inline JAccountPrivate() : keepStatus(false), autoConnect(false) {}
+	Q_OBJECT
+	Q_DECLARE_PUBLIC(JAccount)
+public:
+	inline JAccountPrivate(JAccount *q) : q_ptr(q),keepStatus(false), autoConnect(false) {}
 	inline ~JAccountPrivate() {}
+	//jreen
+	jreen::Client client;
+	JAccount *q_ptr;
+	QString passwd;
+	QString nick;
+	bool keepStatus;
+	bool autoConnect;
+public slots:
+	void onNewPresence(jreen::Presence);
+public:	//old code
 	JConnection *connection;
 	JRoster *roster;
 	JConnectionListener *connectionListener;
 	JMessageHandler *messageHandler;
 	QVariantList toVariant(const QList<JBookmark> &list);
-	QString passwd;
-	QString nick;
-	bool keepStatus;
-	bool autoConnect;
 	Presence::PresenceType status;
 	JMUCManager *conferenceManager;
 	QPointer<JServiceDiscovery> discoManager;
 	QSet<QString> features;
 	Identities identities;
-	//jreen
-	QPointer<jreen::Client> client;
 };
 
 }
