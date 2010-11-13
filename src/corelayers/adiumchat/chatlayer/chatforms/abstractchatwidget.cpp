@@ -27,7 +27,7 @@ namespace AdiumChat
 AbstractChatWidget::AbstractChatWidget(QWidget *parent) :
 	QMainWindow(parent)
 {
-
+	setAttribute(Qt::WA_DeleteOnClose);
 }
 
 void AbstractChatWidget::addSessions(const ChatSessionList &sessions)

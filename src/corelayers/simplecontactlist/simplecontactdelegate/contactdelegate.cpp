@@ -197,28 +197,16 @@ void ContactDelegate::paint(QPainter *painter,
 			}
 
 			QIcon itemIcon = index.data(Qt::DecorationRole).value<QIcon>();
-			bool hasAvatar = false;
 			if (p->showFlags & ShowAvatars) {
 				QString avatar = index.data(AvatarRole).toString();
-//				if (avatar.isEmpty())
-//					avatar = IconLoader::instance()->iconPath("user-identity",option.decorationSize.width());
-				QSize avatarSize (p->statusIconSize + p->horizontalPadding,
-								  p->statusIconSize + p->verticalPadding);
-				AvatarFilter filter(avatarSize);
-				hasAvatar = filter.draw(painter,
-										option.rect.left()+p->horizontalPadding/2,
-										option.rect.top()+p->verticalPadding/2,
-										avatar,
-										itemIcon);
+				itemIcon = AvatarFilter::icon(avatar,itemIcon);
 			}
-			if (!hasAvatar) {
 				itemIcon.paint(painter,
 							   option.rect.left() + p->horizontalPadding,
 							   option.rect.top() + p->verticalPadding,
 							   p->statusIconSize,
 							   p->statusIconSize,
 							   Qt::AlignTop);
-			}
 			break;
 		}
 	default:

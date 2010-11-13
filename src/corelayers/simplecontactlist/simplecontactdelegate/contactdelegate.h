@@ -31,6 +31,7 @@ class ContactDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
     Q_CLASSINFO("Service","ContactDelegate")
+	Q_CLASSINFO("Uses", "IconLoader")
 public:
 	enum ShowFlag
 	{

@@ -52,8 +52,6 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	m_unitActions(new QAction(Icon("preferences-contact-list"),tr("Actions"),this)),
 	m_additionalToolBar(new QToolBar(tr("Navigation"),this))
 {
-	setAttribute(Qt::WA_DeleteOnClose);
-
 	m_stack = new SlidingStackedWidget(this);
 
 	m_chatWidget = new QWidget(m_stack);

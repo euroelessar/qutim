@@ -46,10 +46,13 @@ QPixmap AvatarIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::Sta
 	pixmap.fill(Qt::transparent);
 	QPainter p;
 	p.begin(&pixmap);
-	if(!AvatarFilter(size).draw(&p,0,0,m_path,m_overlay))
-		pixmap = m_overlay.pixmap(size,mode,state);
+	bool hasAvatar = AvatarFilter(size).draw(&p,0,0,m_path,m_overlay);
 	p.end();
-	return pixmap;
+
+	if(!hasAvatar)
+		return m_overlay.pixmap(size,mode,state);
+	else
+		return pixmap;
 }
 
 } //qutim_sdk_0_3

@@ -19,7 +19,7 @@ public:
 	~AvatarFilter();
 	bool draw(QPainter *painter, int x, int y,
 			  const QString &path,const QIcon &overlayIcon) const;
-	static QIcon icon(const QString &path,const QIcon &overlayIcon);
+	static QIcon icon(const QString &path,const QIcon &overlayIcon = QIcon());
 private:
 	QScopedPointer<AvatarFilterPrivate> d_ptr;
 };

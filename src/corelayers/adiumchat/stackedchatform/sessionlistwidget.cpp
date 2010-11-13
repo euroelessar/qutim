@@ -7,6 +7,7 @@
 #include <qutim/icon.h>
 #include <QDropEvent>
 #include <qutim/mimeobjectdata.h>
+#include <avatarfilter.h>
 
 namespace Core {
 namespace AdiumChat {
@@ -28,8 +29,14 @@ void SessionListWidget::addSession(ChatSessionImpl *session)
 {
 	QListWidgetItem *item = new QListWidgetItem(session->unit()->title(),this);
 	QIcon icon = ChatLayerImpl::iconForState(ChatStateInActive,session->getUnit());
+	if(Buddy *b = qobject_cast<Buddy*>(session->unit()))
+		icon = AvatarFilter::icon(b->avatar(),icon);
 	item->setIcon(icon);
 	d_func()->sessions.append(session);
+
+#ifndef QUTIM_MOBILE_UI
+	setIconSize(QSize(32,32));
+#endif
 
 	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),SLOT(onTitleChanged(QString)));
 	connect(session,SIGNAL(destroyed(QObject*)),SLOT(onRemoveSession(QObject*)));
@@ -154,6 +161,8 @@ void SessionListWidget::chatStateChanged(ChatState state, ChatSessionImpl *sessi
 	if(session->unread().count())
 		return;
 	QIcon icon = ChatLayerImpl::iconForState(state,session->getUnit());
+	if(Buddy *b = qobject_cast<Buddy*>(session->unit()))
+		icon = AvatarFilter::icon(b->avatar(),icon);
 	item(indexOf(session))->setIcon(icon);
 }
 
@@ -166,6 +175,9 @@ void SessionListWidget::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread
 	if (unread.isEmpty()) {
 		ChatState state = static_cast<ChatState>(session->property("currentChatState").toInt());//FIXME remove in future
 		icon =  ChatLayerImpl::iconForState(state,session->getUnit());
+		if(Buddy *b = qobject_cast<Buddy*>(session->unit()))
+			icon = AvatarFilter::icon(b->avatar(),icon);
+
 	} else {
 		icon = Icon("mail-unread-new");
 		title.insert(0,QChar('*'));
