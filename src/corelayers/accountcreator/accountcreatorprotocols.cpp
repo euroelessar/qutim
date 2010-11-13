@@ -23,6 +23,7 @@ AccountCreatorProtocols::AccountCreatorProtocols(QWizard *parent) :
 #ifdef Q_WS_WIN
 	delegate->setCommandLinkStyle(true);
 #endif
+	ui->protocolList->setFrameShape(QFrame::NoFrame);
 
 	m_lastId = Id;
 	QSet<QByteArray> protocols;

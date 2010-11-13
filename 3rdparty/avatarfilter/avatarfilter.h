@@ -3,9 +3,10 @@
 #include <QString>
 #include <QScopedPointer>
 #include <QGraphicsEffect>
+#include <QIcon>
 #include "libqutim/libqutim_global.h"
 
-class QIcon;
+
 namespace qutim_sdk_0_3
 {
 
