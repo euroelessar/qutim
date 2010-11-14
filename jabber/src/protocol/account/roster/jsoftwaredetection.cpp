@@ -71,7 +71,7 @@ namespace Jabber
 						if (info.name.isEmpty()) {
 							IQ iq(IQ::Get, presence.from());
 							iq.addExtension(new SoftwareVersion());
-							m_account->client()->send(iq, this, RequestSoftware);
+//							m_account->client()->send(iq, this, RequestSoftware);
 						} else {
 							updateClientData(resource, info.description, info.name, info.version, info.os, info.icon);
 						}
@@ -81,7 +81,7 @@ namespace Jabber
 			}
 
 			//setClientInfo(resource, "", "unknown-client");
-			m_account->client()->disco()->getDiscoInfo(presence.from(), node, this, RequestDisco);
+//			m_account->client()->disco()->getDiscoInfo(presence.from(), node, this, RequestDisco);
 		}
 	}
 
@@ -175,7 +175,7 @@ namespace Jabber
 			if (info.name.isEmpty()) {
 				IQ iq(IQ::Get, from);
 				iq.addExtension(new SoftwareVersion());
-				m_account->client()->send(iq, this, RequestSoftware);
+//				m_account->client()->send(iq, this, RequestSoftware);
 			} else {
 				updateClientData(unit, info.description, info.name, info.version, info.os, info.icon);
 			}

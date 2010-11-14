@@ -72,12 +72,12 @@ namespace Jabber
 		if (d->name == name)
 			return;
 		setContactName(name);
-		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
-		RosterItem *item = rosterManager->getRosterItem(d->jid.toStdString());
-		if (!item)
-			return;
-		item->setName(name.toStdString());
-		rosterManager->synchronize();
+//		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
+//		RosterItem *item = rosterManager->getRosterItem(d->jid.toStdString());
+//		if (!item)
+//			return;
+//		item->setName(name.toStdString());
+//		rosterManager->synchronize();
 	}
 
 	void JContact::setContactName(const QString &name)
@@ -99,16 +99,16 @@ namespace Jabber
 		if (d->tags == tags)
 			return;
 		setContactTags(tags);
-		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
-		RosterItem *item = rosterManager->getRosterItem(JID(d->jid.toStdString()));
-		if(!item)
-			return;
-		StringList stdGroups;
-		foreach (QString group, d->tags) {
-			stdGroups.push_back(group.toStdString());
-		}
-		item->setGroups(stdGroups);
-		rosterManager->synchronize();
+//		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
+//		RosterItem *item = rosterManager->getRosterItem(JID(d->jid.toStdString()));
+//		if(!item)
+//			return;
+//		StringList stdGroups;
+//		foreach (QString group, d->tags) {
+//			stdGroups.push_back(group.toStdString());
+//		}
+//		item->setGroups(stdGroups);
+//		rosterManager->synchronize();
 	}
 
 	void JContact::setContactTags(const QStringList &tags)

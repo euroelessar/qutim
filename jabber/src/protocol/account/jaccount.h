@@ -7,7 +7,17 @@
 #include "connection/jconnection.h"
 #include "connection/jconnectionlistener.h"
 
+namespace jreen
+{
+	class Client;
+}
+
 namespace Jabber {
+
+namespace NG
+{
+	class JRoster;
+}
 
 using namespace qutim_sdk_0_3;
 using namespace gloox;
@@ -26,8 +36,6 @@ class JAccount : public Account
 public:
 	JAccount(const QString &jid);
 	virtual ~JAccount();
-	//virtual void setStatus(Status status);
-	//Roster *roster();
 	ChatUnit *getUnitForSession(ChatUnit *unit);
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
 	void beginChangeStatus(Presence::PresenceType presence);
@@ -35,10 +43,9 @@ public:
 	QString name() const;
 	void setNick(const QString &nick);
 	const QString &password(bool *ok = 0);
-	void autoconnect();
 	JConnection *connection();
 	JMessageHandler *messageHandler();
-	gloox::Client *client();
+	jreen::Client *client() const;
 	JServiceDiscovery *discoManager();
 	JMUCManager *conferenceManager();
 	virtual void setStatus(Status status);
@@ -56,6 +63,9 @@ public:
 protected:
 	void loadSettings();
 private:
+	//jreen
+	friend class NG::JRoster;
+	//old code
 	friend class JRoster;
 	friend class JServerDiscoInfo;
 	//temporary hack for old code

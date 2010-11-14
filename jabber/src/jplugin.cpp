@@ -62,54 +62,54 @@ namespace Jabber
 			QT_TRANSLATE_NOOP("Plugin", "Account creator for QIP"),
 			new GeneralGenerator<QIPAccountWizard>(),
 			ExtensionIcon("im-qip"));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber XML console"),
-			QT_TRANSLATE_NOOP("Plugin", "XML console for low-level protocol debugging"),
-			new GeneralGenerator<XmlConsole, JabberExtension>(),
-			ExtensionIcon("utilities-terminal"));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber AdHoc"),
-			QT_TRANSLATE_NOOP("Plugin", "Implementation of Ad-hoc Commands"),
-			new GeneralGenerator<JAdHocModule, JabberExtension>(),
-			ExtensionIcon("utilities-terminal"));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Remote Control"),
-			QT_TRANSLATE_NOOP("Plugin", "Implementation of client remote controlling"),
-			new GeneralGenerator<RemoteControl, JabberExtension>(),
-			ExtensionIcon("utilities-terminal"));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Service Browser"),
-			QT_TRANSLATE_NOOP("Plugin", "Implementation of service browser"),
-			new GeneralGenerator<JServiceBrowserModule, JabberExtension>(),
-			ExtensionIcon("services"));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber File Transfer"),
-			QT_TRANSLATE_NOOP("Plugin", "Implementation of XEP-0096"),
-			new GeneralGenerator<JFileTransferFactory>(),
-			ExtensionIcon("document-save"));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support"),
-			QT_TRANSLATE_NOOP("Plugin", "Implementation of personal events protocol"),
-			new GeneralGenerator<JPersonEventSupport, JabberExtension>(),
-			ExtensionIcon(""));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support (Message filter factory)"),
-			QT_TRANSLATE_NOOP("Plugin", "Implementation detail for Jabber Personal Events support"),
-			new GeneralGenerator<JPersonalEventFilterFactory, MessageFilterFactory>(),
-			ExtensionIcon(""));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Mood support"),
-			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of mood to Qt data types"),
-			new GeneralGenerator<JPersonMoodConverter, PersonEventConverter>(),
-			ExtensionIcon(""));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Mood Chooser"),
-			QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your mood"),
-			new GeneralGenerator<JMoodChooser, JabberExtension>(),
-			ExtensionIcon(""));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Tune support"),
-			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of tune to Qt data types"),
-			new GeneralGenerator<JPersonTuneConverter, PersonEventConverter>(),
-			ExtensionIcon(""));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Activity support"),
-			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of activity to Qt data types"),
-			new GeneralGenerator<JPersonActivityConverter, PersonEventConverter>(),
-			ExtensionIcon(""));
-		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Activity Chooser"),
-			QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your activity"),
-			new GeneralGenerator<JActivityChooser, JabberExtension>(),
-			ExtensionIcon(""));
+//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber XML console"),
+//			QT_TRANSLATE_NOOP("Plugin", "XML console for low-level protocol debugging"),
+//			new GeneralGenerator<XmlConsole, JabberExtension>(),
+//			ExtensionIcon("utilities-terminal"));
+//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber AdHoc"),
+//			QT_TRANSLATE_NOOP("Plugin", "Implementation of Ad-hoc Commands"),
+//			new GeneralGenerator<JAdHocModule, JabberExtension>(),
+//			ExtensionIcon("utilities-terminal"));
+//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Remote Control"),
+//			QT_TRANSLATE_NOOP("Plugin", "Implementation of client remote controlling"),
+//			new GeneralGenerator<RemoteControl, JabberExtension>(),
+//			ExtensionIcon("utilities-terminal"));
+//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Service Browser"),
+//			QT_TRANSLATE_NOOP("Plugin", "Implementation of service browser"),
+//			new GeneralGenerator<JServiceBrowserModule, JabberExtension>(),
+//			ExtensionIcon("services"));
+//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber File Transfer"),
+//			QT_TRANSLATE_NOOP("Plugin", "Implementation of XEP-0096"),
+//			new GeneralGenerator<JFileTransferFactory>(),
+//			ExtensionIcon("document-save"));
+//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support"),
+//			QT_TRANSLATE_NOOP("Plugin", "Implementation of personal events protocol"),
+//			new GeneralGenerator<JPersonEventSupport, JabberExtension>(),
+//			ExtensionIcon(""));
+//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support (Message filter factory)"),
+//			QT_TRANSLATE_NOOP("Plugin", "Implementation detail for Jabber Personal Events support"),
+//			new GeneralGenerator<JPersonalEventFilterFactory, MessageFilterFactory>(),
+//			ExtensionIcon(""));
+//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Mood support"),
+//			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of mood to Qt data types"),
+//			new GeneralGenerator<JPersonMoodConverter, PersonEventConverter>(),
+//			ExtensionIcon(""));
+//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Mood Chooser"),
+//			QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your mood"),
+//			new GeneralGenerator<JMoodChooser, JabberExtension>(),
+//			ExtensionIcon(""));
+//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Tune support"),
+//			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of tune to Qt data types"),
+//			new GeneralGenerator<JPersonTuneConverter, PersonEventConverter>(),
+//			ExtensionIcon(""));
+//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Activity support"),
+//			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of activity to Qt data types"),
+//			new GeneralGenerator<JPersonActivityConverter, PersonEventConverter>(),
+//			ExtensionIcon(""));
+//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Activity Chooser"),
+//			QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your activity"),
+//			new GeneralGenerator<JActivityChooser, JabberExtension>(),
+//			ExtensionIcon(""));
 	}
 
 	bool JPlugin::load()

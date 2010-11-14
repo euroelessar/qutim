@@ -57,18 +57,18 @@ namespace Jabber
 
 	bool JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
-		JAccount *acc = static_cast<JAccount*>(account());
+//		JAccount *acc = static_cast<JAccount*>(account());
 
-		if (acc->status() == Status::Offline)
-			return false;
+//		if (acc->status() == Status::Offline)
+//			return false;
 
-		if (session()) {
-			session()->sendMessage(message);
-		} else {
-			gloox::Message msg(gloox::Message::Chat, id().toStdString(), message.text().toStdString(), 
-							   message.property("subject", QString()).toStdString());
-			acc->client()->send(msg);
-		}
+//		if (session()) {
+//			session()->sendMessage(message);
+//		} else {
+//			gloox::Message msg(gloox::Message::Chat, id().toStdString(), message.text().toStdString(),
+//							   message.property("subject", QString()).toStdString());
+//			acc->client()->send(msg);
+//		}
 		return true;
 	}
 

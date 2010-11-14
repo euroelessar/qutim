@@ -169,10 +169,10 @@ JFileTransferHandler::JFileTransferHandler(JAccount *account, JFileTransferFacto
 	debug() << Q_FUNC_INFO;
 	m_account = account;
 	m_factory = factory;
-	m_account->client()->registerConnectionListener(this);
-	m_socks5Manager = new SOCKS5BytestreamManager(account->client(), this);
-	m_profileFT = new SIProfileFT(account->client(), this,
-								  account->connection()->siManager(), m_socks5Manager);
+//	m_account->client()->registerConnectionListener(this);
+//	m_socks5Manager = new SOCKS5BytestreamManager(account->client(), this);
+//	m_profileFT = new SIProfileFT(account->client(), this,
+//								  account->connection()->siManager(), m_socks5Manager);
 }
 
 void JFileTransferHandler::handleFTRequest(const JID &from, const JID &to, const std::string &sid,
@@ -231,17 +231,17 @@ void JFileTransferHandler::handleBytestreamError(const IQ &iq, const std::string
 
 void JFileTransferHandler::onConnect()
 {
-	ConnectionBase *connection = m_account->connection()->connection();
-	debug() << Q_FUNC_INFO << connection; //static_cast<JConnectionBase*>(connection);
-//	debug() << static_cast<JTC*>(connection);
-	StreamHost sh = {
-		m_account->client()->jid(),
-		connection->localInterface(),
-		8010
-	};
-	StreamHostList hosts(1, sh);
-	qDebug() << sh.host.c_str() << sh.port << hosts.size();
-	m_socks5Manager->setStreamHosts(hosts);
+//	ConnectionBase *connection = m_account->connection()->connection();
+//	debug() << Q_FUNC_INFO << connection; //static_cast<JConnectionBase*>(connection);
+////	debug() << static_cast<JTC*>(connection);
+//	StreamHost sh = {
+//		m_account->client()->jid(),
+//		connection->localInterface(),
+//		8010
+//	};
+//	StreamHostList hosts(1, sh);
+//	qDebug() << sh.host.c_str() << sh.port << hosts.size();
+//	m_socks5Manager->setStreamHosts(hosts);
 }
 
 void JFileTransferHandler::registerTransfer(const std::string &sid, JFileTransfer *transfer)
@@ -287,15 +287,15 @@ FileTransferEngine *JFileTransferFactory::create(ChatUnit *unit)
 
 void JFileTransferFactory::onAccountCreated(Account *qutimAccount)
 {
-	JAccount *account = qobject_cast<JAccount*>(qutimAccount);
-	if (account) {
-		if (!m_server) {
-			m_server = new SOCKS5BytestreamServer(account->client()->logInstance(), 8010);
-			ConnectionBase *server = new JConnectionTcpServer(m_server);
-			m_server->setServerImpl(server);
-			m_server->listen();
-		}
-		m_handlers << new JFileTransferHandler(account, this);
-	}
+//	JAccount *account = qobject_cast<JAccount*>(qutimAccount);
+//	if (account) {
+//		if (!m_server) {
+//			m_server = new SOCKS5BytestreamServer(account->client()->logInstance(), 8010);
+//			ConnectionBase *server = new JConnectionTcpServer(m_server);
+//			m_server->setServerImpl(server);
+//			m_server->listen();
+//		}
+//		m_handlers << new JFileTransferHandler(account, this);
+//	}
 }
 }

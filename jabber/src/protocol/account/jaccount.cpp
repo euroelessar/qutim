@@ -46,23 +46,25 @@ JAccount::JAccount(const QString &jid) :
 	p = d; //for dead code
 	Account::setStatus(Status::instance(Status::Offline, "jabber"));
 	d->client.setJID(jreen::JID(id()));
+	d->roster = new JRoster(this);
 	loadSettings();
 
 	connect(&d->client,SIGNAL(newPresence(jreen::Presence)),
 			d,SLOT(onNewPresence(jreen::Presence)));
+	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
+			d->roster, SLOT(load()));
 
 	//old code
-	d->discoManager = 0;
-	d->connection = new JConnection(this);
-	d->connectionListener = new JConnectionListener(this);
-	Q_UNUSED(new JServerDiscoInfo(this));
-	d->roster = new JRoster(this);
-	d->messageHandler = new JMessageHandler(this);
-	d->conferenceManager = new JMUCManager(this);
-	connect(d->conferenceManager, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
-			SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
-	d->connection->initExtensions();
-	autoconnect();
+//	d->discoManager = 0;
+//	d->connection = new JConnection(this);
+//	d->connectionListener = new JConnectionListener(this);
+//	Q_UNUSED(new JServerDiscoInfo(this));
+	//d->roster = new JRoster(this);
+	//d->messageHandler = new JMessageHandler(this);
+//	d->conferenceManager = new JMUCManager(this);
+	//	connect(d->conferenceManager, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
+	//			SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
+	//	d->connection->initExtensions();
 }
 
 JAccount::~JAccount()
@@ -78,51 +80,41 @@ ChatUnit *JAccount::getUnitForSession(ChatUnit *unit)
 
 ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 {
-	Q_D(JAccount);
-	ChatUnit *unit = 0;
-	if (!!(unit = d->conferenceManager->muc(unitId)))
-		return unit;
-	return d->roster->contact(unitId, create);
+//	Q_D(JAccount);
+//	ChatUnit *unit = 0;
+//	if (!!(unit = d->conferenceManager->muc(unitId)))
+//		return unit;
+//	return d->roster->contact(unitId, create);
+	return 0;
 }
 
 void JAccount::beginChangeStatus(Presence::PresenceType presence)
 {
-//	Q_D(JAccount);
+	//	Q_D(JAccount);
 	//		d->connection->setConnectionPresence(presence);
-//	Status previous = status();
-//	if (previous.type() == Status::Offline && presence != Presence::Unavailable) {
-//		d->client.connectToServer();
-//		Status newStatus = previous;
-//		newStatus.setType(Status::Connecting);
-//		Account::setStatus(newStatus);
-//		emit statusChanged(newStatus, previous);
-//	}
+	//	Status previous = status();
+	//	if (previous.type() == Status::Offline && presence != Presence::Unavailable) {
+	//		d->client.connectToServer();
+	//		Status newStatus = previous;
+	//		newStatus.setType(Status::Connecting);
+	//		Account::setStatus(newStatus);
+	//		emit statusChanged(newStatus, previous);
+	//	}
 }
 
-void JAccount::endChangeStatus(Presence::PresenceType presence)
+void JAccount::endChangeStatus(Presence::PresenceType)
 {
-	Q_D(JAccount);
-	Status previous = status();
-	Status newStatus = JProtocol::presenceToStatus(presence);
-	debug() << "status changed from" << int(previous.type()) << "to" << newStatus << newStatus.text();
-	if (previous == Status::Connecting && newStatus != Status::Offline)
-		d->conferenceManager->syncBookmarks();
-	if (previous != Status::Offline && newStatus == Status::Offline)
-		d->roster->setOffline();
-	d->conferenceManager->setPresenceToRooms(presence);
-	Account::setStatus(newStatus);
-	emit statusChanged(newStatus, previous);
-}
-
-void JAccount::autoconnect()
-{
-	Q_D(JAccount);
-	if (d->autoConnect) {
-		if (d->keepStatus)
-			beginChangeStatus(d->status);
-		else
-			beginChangeStatus(Presence::Available);
-	}
+	//	Q_D(JAccount);
+	//	Status previous = status();
+	//	Status newStatus = JProtocol::presenceToStatus(presence);
+	//	debug() << "status changed from" << int(previous.type()) << "to" << newStatus << newStatus.text();
+	//	if (previous == Status::Connecting && newStatus != Status::Offline)
+	//		d->conferenceManager->syncBookmarks();
+	//	if (previous != Status::Offline && newStatus == Status::Offline)
+	//		d->roster->setOffline();
+	//	d->conferenceManager->setPresenceToRooms(presence);
+	//	Account::setStatus(newStatus);
+	//	emit statusChanged(newStatus, previous);
 }
 
 void JAccount::loadSettings()
@@ -132,7 +124,6 @@ void JAccount::loadSettings()
 	general.beginGroup("general");
 	d->client.setPassword(general.value("passwd", QString(), Config::Crypted));
 	d->client.setPort(general.value("port", 5222));
-	d->autoConnect = general.value("autoconnect", false);
 	d->keepStatus = general.value("keepstatus", true);
 	d->nick = general.value("nick", id());
 	d->status = static_cast<Presence::PresenceType>(general.value("prevstatus", 8));
@@ -207,9 +198,10 @@ JMessageHandler *JAccount::messageHandler()
 	return d_func()->messageHandler;
 }
 
-gloox::Client *JAccount::client()
+jreen::Client *JAccount::client() const
 {
-	return d_func()->connection->client();
+	//it may be dangerous
+	return const_cast<jreen::Client*>(&d_func()->client);
 }
 
 JMUCManager *JAccount::conferenceManager()
@@ -229,8 +221,6 @@ void JAccount::setStatus(Status status)
 		d->client.disconnectFromServer();
 	}
 	d->client.presence().setPresence(JStatus::statusToPresence(status));
-	debug() << d->client.jid();
-	//beginChangeStatus(JProtocol::statusToPresence(status));
 	Account::setStatus(status);
 	emit statusChanged(status,old);
 }

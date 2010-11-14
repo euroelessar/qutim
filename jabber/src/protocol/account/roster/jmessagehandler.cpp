@@ -79,18 +79,18 @@ namespace Jabber
 
 	void JMessageHandler::createSession(ChatUnit *unit)
 	{
-		Q_D(JMessageHandler);
-		if (qobject_cast<JMessageSessionOwner*>(unit)) {
-			int types = ~0;
-			if (qobject_cast<JMUCUser*>(unit))
-				types ^= gloox::Message::Groupchat;
-			MessageSession *glooxSession = new MessageSession(d->account->client(),
-															  unit->id().toStdString(),
-															  false, types, true);
-			Q_UNUSED(new JMessageSession(this, unit, glooxSession));
-		} else {
-			debug() << "Cannot create JMessageSession for" << unit->id();
-		}
+//		Q_D(JMessageHandler);
+//		if (qobject_cast<JMessageSessionOwner*>(unit)) {
+//			int types = ~0;
+//			if (qobject_cast<JMUCUser*>(unit))
+//				types ^= gloox::Message::Groupchat;
+////			MessageSession *glooxSession = new MessageSession(d->account->client(),
+////															  unit->id().toStdString(),
+////															  false, types, true);
+//			Q_UNUSED(new JMessageSession(this, unit, glooxSession));
+//		} else {
+//			debug() << "Cannot create JMessageSession for" << unit->id();
+//		}
 	}
 
 }

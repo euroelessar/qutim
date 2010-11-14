@@ -33,6 +33,7 @@
 #include "jmucmanager.h"
 #include "jconferenceconfig.h"
 #include "../roster/jcontactresource_p.h"
+#include <jreen/client.h>
 
 using namespace gloox;
 using namespace qutim_sdk_0_3;
@@ -63,18 +64,18 @@ namespace Jabber
 	JMUCSession::JMUCSession(const JID &room, const QString &password, JAccount *account) :
 			Conference(account), d_ptr(new JMUCSessionPrivate)
 	{
-		Q_D(JMUCSession);
-		d->jid = room.bareJID();
-		d->nick = QString::fromStdString(room.resource());
-		d->room = new MUCRoom(account->client(), room, this, this);
-		if (!password.isEmpty())
-			d->room->setPassword(password.toStdString());
-		d->account = account;
-		d->isJoined = false;
-		d->isConfiguring = false;
-		d->isError = false;
-		d->thread = 0;
-		loadSettings();
+//		Q_D(JMUCSession);
+//		d->jid = room.bareJID();
+//		d->nick = QString::fromStdString(room.resource());
+//		d->room = new MUCRoom(account->client(), room, this, this);
+//		if (!password.isEmpty())
+//			d->room->setPassword(password.toStdString());
+//		d->account = account;
+//		d->isJoined = false;
+//		d->isConfiguring = false;
+//		d->isError = false;
+//		d->thread = 0;
+//		loadSettings();
 	}
 
 	JMUCSession::JMUCSession(JAccount *account, gloox::MUCRoom *room, const std::string &thread) :
@@ -113,29 +114,29 @@ namespace Jabber
 
 	void JMUCSession::join()
 	{
-		Q_D(JMUCSession);
-		Presence &pres = d->account->client()->presence();
-		d->isAutoRejoin = false;
-		if (d->isJoined) {
-			d->room->setPresence(pres.subtype(), pres.status());
-			d->users.value(d->nick)->setStatus(pres.subtype(), pres.priority());
-		} else {
-			ChatSession *session = ChatLayer::get(this, false);
-			if (session) {
-				foreach (JMUCUser *muc, d->users.values()) {
-					session->removeContact(muc);
-					muc->deleteLater();
-				}
-			}
-			d->users.clear();
-			d->messages.clear();
-			if (d->lastMessage.isValid())
-				d->room->setRequestHistory(d->lastMessage.toUTC()
-						.toString("yyyy-MM-ddThh:mm:ss.zzzZ").toStdString());
-//			uncomment for perfomance testing
-//			d->room->setRequestHistory(0,MUCRoom::HistoryMaxStanzas);
-			d->room->join(pres.subtype(), pres.status(), pres.priority());
-		}
+//		Q_D(JMUCSession);
+//		Presence &pres = d->account->client()->presence();
+//		d->isAutoRejoin = false;
+//		if (d->isJoined) {
+//			d->room->setPresence(pres.subtype(), pres.status());
+//			d->users.value(d->nick)->setStatus(pres.subtype(), pres.priority());
+//		} else {
+//			ChatSession *session = ChatLayer::get(this, false);
+//			if (session) {
+//				foreach (JMUCUser *muc, d->users.values()) {
+//					session->removeContact(muc);
+//					muc->deleteLater();
+//				}
+//			}
+//			d->users.clear();
+//			d->messages.clear();
+//			if (d->lastMessage.isValid())
+//				d->room->setRequestHistory(d->lastMessage.toUTC()
+//						.toString("yyyy-MM-ddThh:mm:ss.zzzZ").toStdString());
+////			uncomment for perfomance testing
+////			d->room->setRequestHistory(0,MUCRoom::HistoryMaxStanzas);
+//			d->room->join(pres.subtype(), pres.status(), pres.priority());
+//		}
 	}
 
 	void JMUCSession::leave()
@@ -161,30 +162,30 @@ namespace Jabber
 
 	bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 	{
-		Q_D(JMUCSession);
+//		Q_D(JMUCSession);
 
-		if (account()->status() == Status::Offline)
-			return false;
+//		if (account()->status() == Status::Offline)
+//			return false;
 
-		if (message.text().startsWith("/nick ")) {
-			QString nick = message.text().section(' ', 1);
-			if (!nick.isEmpty()) {
-				if (d->users.contains(nick))
-					return false;
-				d->room->setNick(nick.toStdString());
-			}
-			return true;
-		} else if (message.text().startsWith("/topic ")) {
-			QString topic = message.text().section(' ',1);
-			if (!topic.isEmpty()) {
-				setTopic(topic);
-				return true;
-			}
-		}
-		gloox::Message gMsg(gloox::Message::Groupchat, d->jid, message.text().toStdString());
-		gMsg.setID(d->account->client()->getID());
-		d->messages.insert(gMsg.id(), message.id());
-		d->account->client()->send(gMsg);
+//		if (message.text().startsWith("/nick ")) {
+//			QString nick = message.text().section(' ', 1);
+//			if (!nick.isEmpty()) {
+//				if (d->users.contains(nick))
+//					return false;
+//				d->room->setNick(nick.toStdString());
+//			}
+//			return true;
+//		} else if (message.text().startsWith("/topic ")) {
+//			QString topic = message.text().section(' ',1);
+//			if (!topic.isEmpty()) {
+//				setTopic(topic);
+//				return true;
+//			}
+//		}
+//		gloox::Message gMsg(gloox::Message::Groupchat, d->jid, message.text().toStdString());
+//		gMsg.setID(d->account->client()->getID());
+//		d->messages.insert(gMsg.id(), message.id());
+//		d->account->client()->send(gMsg);
 		return true;
 	}
 
@@ -331,56 +332,56 @@ namespace Jabber
 
 	void JMUCSession::handleMUCMessage(MUCRoom *room, const gloox::Message &msg, bool priv)
 	{
-		Q_D(JMUCSession);
-		Q_ASSERT(room == d->room);
-		if (d->thread && msg.thread() == *(d->thread)) {
-			return;
-		} else if (d->thread) {
-			delete d->thread;
-			d->thread = 0;
-		}
-		QString nick = QString::fromStdString(msg.from().resource());
-		JMUCUser *user = d->users.value(nick, 0);
-		if (priv) {
-			if (!user)
-				return;
-			JMessageSession *session = qobject_cast<JMessageSession *>(d->account->getUnitForSession(user));
-			if (!session) {
-				MessageSession *glooxSession = new MessageSession(d->account->client(), msg.from(), false,
-																  gloox::Message::Chat | gloox::Message::Normal);
-				session = new JMessageSession(d->account->messageHandler(), user, glooxSession);
-				session->handleMessage(msg, glooxSession);
-			}
-		} else {
-			d->lastMessage = QDateTime::currentDateTime();
-			qutim_sdk_0_3::Message coreMsg(QString::fromStdString(msg.body()));
-			coreMsg.setChatUnit(this);
-			coreMsg.setProperty("senderName", nick);
-			if (user)
-				coreMsg.setProperty("senderId", user->id());
-			if (!coreMsg.text().contains(QString::fromStdString(d->room->nick())))
-				coreMsg.setProperty("silent", true);
-			coreMsg.setIncoming(msg.from().resource() != d->room->nick());
-			ChatSession *chatSession = ChatLayer::get(this, true);
-			const DelayedDelivery *when = msg.when();
-			if (when) {
-				coreMsg.setProperty("history", true);
-				coreMsg.setTime(stamp2date(when->stamp()));
-			} else {
-				coreMsg.setTime(d->lastMessage);
-			}
-			if (!coreMsg.isIncoming() && !when) {
-				QHash<std::string, quint64>::iterator it = d->messages.find(msg.id());
-				if (it != d->messages.end()) {
-					qApp->postEvent(chatSession, new qutim_sdk_0_3::MessageReceiptEvent(it.value(), true));
-					d->messages.erase(it);
-				}
-				return;
-			}
-			if (!msg.subject().empty())
-				coreMsg.setProperty("subject", QString::fromStdString(msg.subject()));
-			chatSession->appendMessage(coreMsg);
-		}
+//		Q_D(JMUCSession);
+//		Q_ASSERT(room == d->room);
+//		if (d->thread && msg.thread() == *(d->thread)) {
+//			return;
+//		} else if (d->thread) {
+//			delete d->thread;
+//			d->thread = 0;
+//		}
+//		QString nick = QString::fromStdString(msg.from().resource());
+//		JMUCUser *user = d->users.value(nick, 0);
+//		if (priv) {
+//			if (!user)
+//				return;
+//			JMessageSession *session = qobject_cast<JMessageSession *>(d->account->getUnitForSession(user));
+//			if (!session) {
+//				MessageSession *glooxSession = new MessageSession(d->account->client(), msg.from(), false,
+//																  gloox::Message::Chat | gloox::Message::Normal);
+//				session = new JMessageSession(d->account->messageHandler(), user, glooxSession);
+//				session->handleMessage(msg, glooxSession);
+//			}
+//		} else {
+//			d->lastMessage = QDateTime::currentDateTime();
+//			qutim_sdk_0_3::Message coreMsg(QString::fromStdString(msg.body()));
+//			coreMsg.setChatUnit(this);
+//			coreMsg.setProperty("senderName", nick);
+//			if (user)
+//				coreMsg.setProperty("senderId", user->id());
+//			if (!coreMsg.text().contains(QString::fromStdString(d->room->nick())))
+//				coreMsg.setProperty("silent", true);
+//			coreMsg.setIncoming(msg.from().resource() != d->room->nick());
+//			ChatSession *chatSession = ChatLayer::get(this, true);
+//			const DelayedDelivery *when = msg.when();
+//			if (when) {
+//				coreMsg.setProperty("history", true);
+//				coreMsg.setTime(stamp2date(when->stamp()));
+//			} else {
+//				coreMsg.setTime(d->lastMessage);
+//			}
+//			if (!coreMsg.isIncoming() && !when) {
+//				QHash<std::string, quint64>::iterator it = d->messages.find(msg.id());
+//				if (it != d->messages.end()) {
+//					qApp->postEvent(chatSession, new qutim_sdk_0_3::MessageReceiptEvent(it.value(), true));
+//					d->messages.erase(it);
+//				}
+//				return;
+//			}
+//			if (!msg.subject().empty())
+//				coreMsg.setProperty("subject", QString::fromStdString(msg.subject()));
+//			chatSession->appendMessage(coreMsg);
+//		}
 	}
 
 	bool JMUCSession::handleMUCRoomCreation(MUCRoom *room)

@@ -20,20 +20,20 @@ class JAccountPrivate : public QObject
 	Q_OBJECT
 	Q_DECLARE_PUBLIC(JAccount)
 public:
-	inline JAccountPrivate(JAccount *q) : q_ptr(q),keepStatus(false), autoConnect(false) {}
+	inline JAccountPrivate(JAccount *q) : q_ptr(q),keepStatus(false) {}
 	inline ~JAccountPrivate() {}
 	//jreen
 	jreen::Client client;
+	JRoster *roster;
 	JAccount *q_ptr;
 	QString passwd;
 	QString nick;
 	bool keepStatus;
-	bool autoConnect;
 public slots:
 	void onNewPresence(jreen::Presence);
 public:	//old code
 	JConnection *connection;
-	JRoster *roster;
+//	JRoster *roster;
 	JConnectionListener *connectionListener;
 	JMessageHandler *messageHandler;
 	QVariantList toVariant(const QList<JBookmark> &list);

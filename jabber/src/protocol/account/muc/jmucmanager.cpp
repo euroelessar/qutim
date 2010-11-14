@@ -9,6 +9,8 @@
 #include <qutim/messagesession.h>
 #include <qutim/icon.h>
 #include "../roster/jsoftwaredetection.h"
+//jreen
+#include <jreen/client.h>
 
 namespace Jabber
 {
@@ -99,8 +101,8 @@ namespace Jabber
 			room = p->rooms.value(conference);
 		}
 		room->join();
-		p->account->client()->registerPresenceHandler(JID(conference.toStdString()),
-													  p->account->connection()->softwareDetection());
+//		p->account->client()->registerPresenceHandler(JID(conference.toStdString()),
+//													  p->account->connection()->softwareDetection());
 		ChatSession *session = ChatLayer::get(room, true);
 		connect(session, SIGNAL(destroyed()), room, SIGNAL(initClose()));
 		connect(room, SIGNAL(initClose()), SLOT(closeMUCSession()));
@@ -117,16 +119,16 @@ namespace Jabber
 
 	void JMUCManager::closeMUCSession(JMUCSession *room)
 	{
-		if (room && !room->isJoined()) {
-			room->clearSinceDate();
-			p->account->client()->removePresenceHandler(room->id().toStdString(), 
-														p->account->connection()->softwareDetection());
-			if (room->bookmarkIndex() == -1) {
-				p->rooms.remove(room->id());
-				room->deleteLater();
-				//TODO: remove conference from roster
-			}
-		}
+//		if (room && !room->isJoined()) {
+//			room->clearSinceDate();
+//			p->account->client()->removePresenceHandler(room->id().toStdString(),
+//														p->account->connection()->softwareDetection());
+//			if (room->bookmarkIndex() == -1) {
+//				p->rooms.remove(room->id());
+//				room->deleteLater();
+//				//TODO: remove conference from roster
+//			}
+//		}
 	}
 	
 	void JMUCManager::appendMUCSession(JMUCSession *room)

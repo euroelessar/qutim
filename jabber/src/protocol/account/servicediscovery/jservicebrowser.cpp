@@ -11,6 +11,8 @@
 #include <qutim/protocol.h>
 #include "ui_jservicebrowser.h"
 #include <qutim/debug.h>
+//jreen
+#include <jreen/client.h>
 
 namespace Jabber
 {
@@ -90,7 +92,7 @@ namespace Jabber
 		p->ui->serviceServer->addItems(items);
 		if (!p->showFeatures)
 			p->ui->splitter->setSizes(QList<int>() << 100 << 0);
-		searchServer(QString::fromStdString(p->account->client()->jid().server()));
+//		searchServer(QString::fromStdString(p->account->client()->jid().server()));
 	}
 
 	JServiceBrowser::~JServiceBrowser()

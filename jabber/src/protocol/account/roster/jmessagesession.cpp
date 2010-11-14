@@ -154,7 +154,7 @@ namespace Jabber
 		Q_D(JMessageSession);
 		d->account = static_cast<JAccount *>(unit->account());
 		d->handler = d->account->messageHandler();
-		d->session = new MessageSession(d->account->client(), JID(unit->id().toStdString()));
+//		d->session = new MessageSession(d->account->client(), JID(unit->id().toStdString()));
 		d->messageReceiptFilter = new JMessageReceiptFilter(this, d->session);
 		d->chatStateFilter = new ChatStateFilter(d->session);
 		d->chatStateFilter->registerChatStateHandler(this);
@@ -170,11 +170,11 @@ namespace Jabber
 
 	JMessageSession::~JMessageSession()
 	{
-		Q_D(JMessageSession);
-		if (d->account)
-			d->account->client()->disposeMessageSession(d->session);
-		if (d->handler)
-			d->handler->removeSessionId(d->id);
+//		Q_D(JMessageSession);
+//		if (d->account)
+//			d->account->client()->disposeMessageSession(d->session);
+//		if (d->handler)
+//			d->handler->removeSessionId(d->id);
 	}
 	
 	void JMessageSession::convertToMuc()
