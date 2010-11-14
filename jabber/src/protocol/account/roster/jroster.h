@@ -14,7 +14,7 @@ namespace Jabber
 {
 using namespace qutim_sdk_0_3;
 class JAccount;
-
+class JContact;
 
 class JRosterPrivate;
 class JRoster : public jreen::AbstractRoster
@@ -24,10 +24,12 @@ class JRoster : public jreen::AbstractRoster
 public:
 	JRoster(JAccount *account);
 	virtual ~JRoster();
+	ChatUnit *contact(const QString &id, bool create = false);
 protected:
 	virtual void onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item);
 	virtual void onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item);
 	virtual void onItemRemoved(const QString &jid);
+	void fillContact(JContact *contact, QSharedPointer<jreen::AbstractRosterItem> item);
 private:
 	QScopedPointer<JRosterPrivate> d_ptr;
 };

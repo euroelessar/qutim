@@ -24,6 +24,7 @@ public:
 	JRosterPrivate(JRoster *q) : q_ptr(q) {}
 	JAccount *account;
 	JRoster *q_ptr;
+	QHash<QString, JContact*> contacts;
 };
 
 JRoster::JRoster(JAccount *account) :
@@ -41,20 +42,71 @@ JRoster::~JRoster()
 
 void JRoster::onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item)
 {
-	Q_D(JRoster);
-	JContact *contact = new JContact(item->jid(),d->account);
-	contact->setName(item->name());
-	contact->setTags(item->groups());
-	emit d->account->contactCreated(contact);
+	JContact *c = static_cast<JContact*>(contact(item->jid(),true));
+	fillContact(c,item);
 }
 void JRoster::onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item)
 {
-
+	Q_D(JRoster);
+	JContact *c = d->contacts.value(item->jid());
+	if(c)
+		fillContact(c,item);
 }
 
 void JRoster::onItemRemoved(const QString &jid)
 {
+	Q_D(JRoster);
+	JContact *c = d->contacts.take(jid);
+	if(c)
+		c->deleteLater();
+}
 
+ChatUnit *JRoster::contact(const QString &id, bool create)
+{
+	Q_D(JRoster);
+	jreen::JID jid(id);
+	QString bare = jid.bare();
+	QString resourceId = jid.resource();
+	JContact *contact = d->contacts.value(bare);
+	if (!resourceId.isEmpty()) {
+		if (!contact) {
+			if (create) {
+				contact = new JContact(id,d->account);
+				d->contacts.insert(id,contact);
+				contact->setContactInList(false);
+				emit d->account->contactCreated(contact);
+				return contact;
+			} else {
+				return 0;
+			}
+		}
+		if (JContactResource *resource = contact->resource(resourceId))
+			return resource;
+		if (create) {
+			return contact;
+		}
+	} else if (contact) {
+		return contact;
+	} else if (create) {
+		contact = new JContact(id,d->account);
+		d->contacts.insert(id,contact);
+		contact->setContactInList(false);
+		emit d->account->contactCreated(contact);
+		return contact;
+	}
+	return 0;
+}
+
+void JRoster::fillContact(JContact *contact, QSharedPointer<jreen::AbstractRosterItem> item)
+{
+	QString name = item->name();
+	if (contact->name() != name)
+		contact->setContactName(name);
+	QStringList tags = item->groups();
+	if (contact->tags() != tags)
+		contact->setContactTags(tags);
+	if (!contact->isInList())
+		contact->setContactInList(true);
 }
 
 //dead code

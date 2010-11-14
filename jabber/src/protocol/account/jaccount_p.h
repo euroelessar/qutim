@@ -5,6 +5,7 @@
 #include "muc/jbookmarkmanager.h"
 //jreen
 #include <jreen/client.h>
+#include <jreen/message.h>
 
 namespace jreen
 {
@@ -42,7 +43,7 @@ public:	//old code
 	Presence::PresenceType status;
 	JMUCManager *conferenceManager;
 	QPointer<JServiceDiscovery> discoManager;
-	QSet<QString> features;
+//	QSet<QString> features;
 	Identities identities;
 };
 

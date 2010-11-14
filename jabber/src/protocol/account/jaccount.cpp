@@ -322,17 +322,17 @@ bool JAccount::event(QEvent *ev)
 
 QSet<QString> JAccount::features() const
 {
-	return d_func()->features;
+	return d_func()->client.serverFeatures();
 }
 
 bool JAccount::checkFeature(const QString &feature) const
 {
-	return d_func()->features.contains(feature);
+	return d_func()->client.serverFeatures().contains(feature);
 }
 
 bool JAccount::checkFeature(const std::string &feature) const
 {
-	return d_func()->features.contains(QString::fromStdString(feature));
+	return d_func()->client.serverFeatures().contains(QString::fromStdString(feature));
 }
 
 bool JAccount::checkIdentity(const QString &category, const QString &type) const

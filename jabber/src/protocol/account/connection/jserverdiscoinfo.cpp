@@ -24,7 +24,7 @@ namespace Jabber {
 	void JServerDiscoInfo::onDisconnect(ConnectionError error)
 	{
 		Q_UNUSED(error);
-		m_account->p->features.clear();
+		m_account->p->client.serverFeatures();
 		m_account->p->identities.clear();
 	}
 
@@ -33,23 +33,23 @@ namespace Jabber {
 		Q_UNUSED(from);
 		Q_ASSERT(context == ServerDiscoInfo);
 
-		QSet<QString> features;
-		foreach (const std::string &feature, info.features())
-			features.insert(QString::fromStdString(feature));
-		m_account->p->features = features;
+//		QSet<QString> features;
+//		foreach (const std::string &feature, info.features())
+//			features.insert(QString::fromStdString(feature));
+//		m_account->p->features = features;
 
 
-		Identities identities;
-		foreach (Disco::Identity *identity, info.identities()) {
-			QString category = QString::fromStdString(identity->category());
-			QString type = QString::fromStdString(identity->type());
-			QString name = QString::fromStdString(identity->name());
-			Identities::iterator catItr = identities.find(category);
-			if (catItr == identities.end())
-				catItr = identities.insert(category, QHash<QString, QString>());
-			catItr->insert(type, name);
-		}
-		m_account->p->identities = identities;
+//		Identities identities;
+//		foreach (Disco::Identity *identity, info.identities()) {
+//			QString category = QString::fromStdString(identity->category());
+//			QString type = QString::fromStdString(identity->type());
+//			QString name = QString::fromStdString(identity->name());
+//			Identities::iterator catItr = identities.find(category);
+//			if (catItr == identities.end())
+//				catItr = identities.insert(category, QHash<QString, QString>());
+//			catItr->insert(type, name);
+//		}
+//		m_account->p->identities = identities;
 	}
 
 	void JServerDiscoInfo::handleDiscoItems(const JID &from, const Disco::Items &items, int context)
