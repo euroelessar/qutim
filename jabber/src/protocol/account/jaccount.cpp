@@ -32,10 +32,26 @@ class JPasswordValidator : public QValidator
 void JAccountPrivate::onNewPresence(jreen::Presence presence)
 {
 	Q_Q(JAccount);
-	Status old = q->status();
-	old.setType(JStatus::presenceToStatus(presence.presence()));
-	old.setText(presence.status());
-	q_func()->setStatus(old);
+	Status now = q->status();
+	now.setType(JStatus::presenceToStatus(presence.presence()));
+	now.setText(presence.status());
+	q->setStatus(now);
+	emit q->statusChanged(now,q->status());
+}
+
+void JAccountPrivate::onConnected()
+{
+	Status s = q_func()->status();
+	client.setPresence(JStatus::statusToPresence(s),
+					   s.text());
+}
+
+void JAccountPrivate::onDisconnected()
+{
+	Q_Q(JAccount);
+	Status now = q->status();
+	now.setType(Status::Offline);
+	emit q->statusChanged(now,q->status());
 }
 
 JAccount::JAccount(const QString &jid) :
@@ -51,6 +67,10 @@ JAccount::JAccount(const QString &jid) :
 
 	connect(&d->client,SIGNAL(newPresence(jreen::Presence)),
 			d,SLOT(onNewPresence(jreen::Presence)));
+	connect(&d->client,SIGNAL(connected()),
+			d,SLOT(onConnected()));
+	connect(&d->client,SIGNAL(disconnected()),
+			d,SLOT(onDisconnected()));
 	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
 			d->roster, SLOT(load()));
 
@@ -213,16 +233,19 @@ void JAccount::setStatus(Status status)
 {
 	Q_D(JAccount);
 	Status old = this->status();
-	if((old.type() == Status::Offline ||  old.type() == Status::Connecting)
-			&& status.type() != Status::Offline) {
+
+	if(old.type() == Status::Offline && status.type() != Status::Offline) {
 		d->client.connectToServer();
 		status.setType(Status::Connecting);
+		emit statusChanged(status,old);
 	} else if(status.type() == Status::Offline) {
 		d->client.disconnectFromServer();
+	} else {
+		d->client.setPresence(JStatus::statusToPresence(status),
+							  status.text());
+		debug() << "set presence" << d->client.presence().id();
 	}
-	d->client.presence().setPresence(JStatus::statusToPresence(status));
 	Account::setStatus(status);
-	emit statusChanged(status,old);
 }
 
 QString JAccount::getAvatarPath()

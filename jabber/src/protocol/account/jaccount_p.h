@@ -31,6 +31,8 @@ public:
 	bool keepStatus;
 public slots:
 	void onNewPresence(jreen::Presence);
+	void onConnected();
+	void onDisconnected();
 public:	//old code
 	JConnection *connection;
 //	JRoster *roster;
