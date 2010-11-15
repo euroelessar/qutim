@@ -47,7 +47,8 @@ namespace qutim_sdk_0_3
 			ByUser,
 			ByIdle,
 			ByAuthorizationFailed,
-			ByNetworkError
+			ByNetworkError,
+			ByFatalError
 		};
 
 		// TODO: Remove defines, and optimize code, currently I just want plugins to compile
