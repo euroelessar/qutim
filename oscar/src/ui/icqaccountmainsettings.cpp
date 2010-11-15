@@ -131,6 +131,7 @@ bool IcqAccountMainSettings::isComplete()
 const QStringList &IcqAccountMainSettings::defaultServers() const
 {
 	static QStringList list = QStringList()
+							  << "login.icq.com"
 							  << "login.oscar.aol.com"
 							  << "ibucp-vip-d.blue.aol.com"
 							  << "ibucp-vip-m.blue.aol.com"
@@ -149,8 +150,10 @@ const QStringList &IcqAccountMainSettings::defaultServers() const
 const QHash<QString, QString> &IcqAccountMainSettings::defaultSslServers() const
 {
 	static QHash<QString, QString> list;
-	if (list.isEmpty())
+	if (list.isEmpty()) {
+		list.insert("login.icq.com", "slogin.icq.com");
 		list.insert("login.oscar.aol.com", "slogin.oscar.aol.com");
+	}
 	return list;
 }
 

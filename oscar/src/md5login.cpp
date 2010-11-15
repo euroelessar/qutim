@@ -61,7 +61,7 @@ void Md5Login::login()
 		s->abort();
 #ifdef OSCAR_SSL_SUPPORT
 	if (m_conn->isSslEnabled()) {
-		m_host = cfg.value("host", QString("slogin.oscar.aol.com"));
+		m_host = cfg.value("host", QString("slogin.icq.com"));
 		quint16 port = cfg.value("port", 443);
 		socket()->connectToHostEncrypted(m_host, port);
 	} else
