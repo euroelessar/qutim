@@ -65,6 +65,7 @@ private:
 	inline bool setAvatar(QObject *obj, const QByteArray &hash);
 	inline void updateData(QObject *obj, const QByteArray &hash, const QString &path);
 	void saveImage(QObject *obj, const QByteArray &image, const QByteArray &hash);
+	void ensureConnection();
 private:
 	QHash<QObject*, SNAC> m_history;
 	bool m_is_connected;
