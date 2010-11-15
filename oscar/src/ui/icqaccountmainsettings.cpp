@@ -247,6 +247,8 @@ void IcqAccountMainSettingsWidget::saveImpl()
 	if (m_widget) {
 		m_widget->saveSettings();
 		emit saved();
+		Q_ASSERT(m_account);
+		m_account->updateSettings();
 	}
 }
 
