@@ -151,32 +151,6 @@ protected:
 	QSet<Tlv2711Type> m_tlvs2711Types;
 };
 
-class MessageSender : public QObject
-{
-	Q_OBJECT
-public:
-	MessageSender(IcqAccount *account);
-	bool appendMessage(IcqContact *contact, const Message &message);
-private slots:
-	void sendMessage();
-private:
-	struct MessageData
-	{
-		MessageData(IcqContact *contact, const Message &message);
-		IcqContact *contact;
-		Message message;
-		QList<QByteArray> msgs;
-		quint8 channel;
-		bool utfEnabled;
-		quint64 id;
-	};
-	static void prepareMessage(IcqContact *contact, MessageData &data, const Message &message);
-	void sendMessage(MessageData &message);
-	IcqAccount *m_account;
-	QList<MessageData> m_messages;
-	QTimer m_timer;
-};
-
 } } // namespace qutim_sdk_0_3::oscar
 
 Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::Tlv2711Plugin, "org.qutim.oscar.Tlvs2711Plugin");

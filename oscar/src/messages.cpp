@@ -530,7 +530,7 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 
 		if (type == MsgPlain && ack != 2) // Plain message
 		{
-			sendChannel2Response(contact, type, flags, msgCookie);
+			contact->account()->d_func()->messageSender->appendChannel2Response(contact, type, flags, msgCookie);
 			QByteArray message_data = data.read<QByteArray, quint16>(LittleEndian);
 			message_data.resize(message_data.size() - 1);
 			QColor foreground(data.read<quint8>(),
@@ -598,16 +598,6 @@ QString MessagesHandler::handleTlv2711(const DataUnit &data, IcqContact *contact
 	return QString();
 }
 
-void MessagesHandler::sendChannel2Response(IcqContact *contact, quint8 type, quint8 flags, const Cookie &cookie)
-{
-	Tlv2711 responseTlv(type, flags, 0, 0);
-	responseTlv.appendEmptyPacket();
-	responseTlv.appendColors();
-	ServerResponseMessage response(contact, 2, 3, cookie);
-	response.append(responseTlv.data());
-	contact->account()->connection()->send(response);
-}
-
 void MessagesHandler::sendMetaInfoRequest(IcqAccount *account, quint16 type)
 {
 	SNAC snac(ExtensionsFamily, ExtensionsMetaCliRequest);
@@ -631,8 +621,10 @@ Tlv2711Plugin::~Tlv2711Plugin()
 MessageSender::MessageSender(IcqAccount *account) :
 	m_account(account)
 {
-	m_timer.setInterval(500);
-	connect(&m_timer, SIGNAL(timeout()), SLOT(sendMessage()));
+	m_messagesTimer.setInterval(500);
+	connect(&m_messagesTimer, SIGNAL(timeout()), SLOT(sendMessage()));
+	m_responseTimer.setInterval(2000);
+	connect(&m_responseTimer, SIGNAL(timeout()), SLOT(sendResponse()));
 }
 
 bool MessageSender::appendMessage(IcqContact *contact, const Message &message)
@@ -647,27 +639,52 @@ bool MessageSender::appendMessage(IcqContact *contact, const Message &message)
 	if (m_messages.isEmpty() &&
 		m_account->connection()->testRate(MessageFamily, MessageSrvSend, true))
 	{
-		Q_ASSERT(!m_timer.isActive());
+		Q_ASSERT(!m_messagesTimer.isActive());
 		sendMessage(msgData);
 	}
 	if (!msgData.msgs.isEmpty()) {
 		m_messages.push_back(msgData);
-		if (!m_timer.isActive())
-			m_timer.start();
+		if (!m_messagesTimer.isActive())
+			m_messagesTimer.start();
 	}
 	return true;
+}
+
+void MessageSender::appendChannel2Response(IcqContact *contact, quint8 type, quint8 flags, const Cookie &cookie)
+{
+	if (m_responses.isEmpty() &&
+		m_account->connection()->testRate(MessageFamily, MessageResponse, false))
+	{
+		Q_ASSERT(!m_responseTimer.isActive());
+		sendResponse(contact, type, flags, cookie);
+	} else {
+		Channel2Response responseData = { contact, type, flags, cookie };
+		m_responses.push_back(responseData);
+		if (!m_responseTimer.isActive())
+			m_responseTimer.start();
+	}
 }
 
 void MessageSender::sendMessage()
 {
 	QList<MessageData>::iterator itr = m_messages.begin();
-	IcqContact *contact = itr->contact;
-	if (contact->account()->connection()->testRate(MessageFamily, MessageSrvSend, true)) {
+	if (m_account->connection()->testRate(MessageFamily, MessageSrvSend, true)) {
 		sendMessage(*itr);
 		if (itr->msgs.isEmpty())
 			m_messages.takeFirst();
 		if (m_messages.isEmpty())
-			m_timer.stop();
+			m_messagesTimer.stop();
+	}
+}
+
+void MessageSender::sendResponse()
+{
+	QList<Channel2Response>::iterator itr = m_responses.begin();
+	if (m_account->connection()->testRate(MessageFamily, MessageResponse, false)) {
+		sendResponse(itr->contact, itr->type, itr->flags, itr->cookie);
+		m_responses.takeFirst();
+		if (m_responses.isEmpty())
+			m_responseTimer.stop();
 	}
 }
 
@@ -786,6 +803,16 @@ void MessageSender::sendMessage(MessageData &message)
 			msgData.setCookie(cookie, contact, SLOT(messageTimeout(Cookie)));
 		m_account->connection()->send(msgData, 80);
 	}
+}
+
+void MessageSender::sendResponse(IcqContact *contact, quint8 type, quint8 flags, const Cookie &cookie)
+{
+	Tlv2711 responseTlv(type, flags, 0, 0);
+	responseTlv.appendEmptyPacket();
+	responseTlv.appendColors();
+	ServerResponseMessage response(contact, 2, 3, cookie);
+	response.append(responseTlv.data());
+	m_account->connection()->send(response);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

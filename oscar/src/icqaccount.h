@@ -80,6 +80,7 @@ private:
 	friend class BuddyPicture;
 	friend class IcqProtocol;
 	friend class IcqContact;
+	friend class MessagesHandler;
 	QScopedPointer<IcqAccountPrivate> d_ptr;
 };
 
