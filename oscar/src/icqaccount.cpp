@@ -110,8 +110,6 @@ IcqAccount::IcqAccount(const QString &uin) :
 	Q_D(IcqAccount);
 	d->q_ptr = this;
 	d->messageSender.reset(new MessageSender(this));
-	d->reconnectTimer.setSingleShot(true);
-	connect(&d->reconnectTimer, SIGNAL(timeout()), SLOT(onReconnectTimeout()));
 	Config cfg = config("general");
 	d->conn = new OscarConnection(this);
 	d->conn->registerHandler(d->feedbag = new Feedbag(this));
@@ -208,7 +206,8 @@ void IcqAccount::setStatus(Status status_helper)
 		return;
 	}
 	if (current.type() == status.type() && status.type() == Status::Offline) {
-		d->reconnectTimer.stop(); // Disable reconnecting
+		// Disable reconnecting
+		status.setProperty("changeReason", Status::ByUser);
 		Account::setStatus(status);
 		emit statusChanged(status, current);
 		return;
@@ -217,21 +216,25 @@ void IcqAccount::setStatus(Status status_helper)
 		QAbstractSocket::SocketState state = d->conn->socket()->state();
 		if (state != QTcpSocket::UnconnectedState) {
 			d->conn->disconnectFromHost(state != QTcpSocket::ConnectedState);
+			status.setProperty("changeReason", Status::ByUser);
 			d->lastStatus = status;
 		} else if (d->conn->error() == AbstractConnection::NoError ||
 				   d->conn->error() == AbstractConnection::ReservationLinkError ||
-				   d->conn->error() == AbstractConnection::ReservationMapError)
+				   d->conn->error() == AbstractConnection::ReservationMapError ||
+				   d->conn->error() == AbstractConnection::SocketError)
 		{
-			Config config = protocol()->config().group("reconnect");
-			if (config.value("enabled", true)) {
-				quint32 time = config.value("time", 3000);
-				d->reconnectTimer.start(time);
-			}
+			status.setProperty("changeReason", Status::ByNetworkError);
 		} else if (d->conn->error() == AbstractConnection::MismatchNickOrPassword) {
 			Account::setStatus(status);
 			config().group("general").setValue("passwd", QString(), Config::Crypted);
+			d->lastStatus.setProperty("changeReason", Status::ByAuthorizationFailed);
 			setStatus(d->lastStatus);
 			return;
+		} else if (d->conn->error() == AbstractConnection::RateLimitExceeded) {
+			status.setProperty("changeReason", Status::ByNetworkError);
+			status.setProperty("reconnectTimeout", 1200);
+		} else {
+			status.setProperty("changeReason", Status::ByFatalError);
 		}
 		OscarStatus stat;
 		foreach(IcqContact *contact, d->contacts) {
@@ -242,7 +245,6 @@ void IcqAccount::setStatus(Status status_helper)
 	} else {
 		d->lastStatus = status;
 		if (current == Status::Offline) {
-			d->reconnectTimer.stop();
 			QString pass = d->password();
 			if (!pass.isEmpty()) {
 				status.setType(Status::Connecting);
@@ -267,7 +269,6 @@ void IcqAccount::setStatus(Status status_helper)
 			statusCfg.setValue(itr.key(), itr.value().toString());
 		}
 		statusCfg.endGroup();
-		statusCfg.remove("extendedStatuses"); // TODO:
 	}
 	emit statusChanged(status, current);
 	Account::setStatus(status);
@@ -414,13 +415,6 @@ void IcqAccount::updateSettings()
 	Config cfg = config("general");
 	d->name = cfg.value("nick", QString());
 	emit settingsUpdated();
-}
-
-void IcqAccount::onReconnectTimeout()
-{
-	Q_D(IcqAccount);
-	if (status() == Status::Offline)
-		setStatus(d->lastStatus);
 }
 
 void IcqAccount::onContactRemoved()

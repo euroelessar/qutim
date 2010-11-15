@@ -67,7 +67,6 @@ public:
 	Capabilities caps;
 	QHash<QString, Capability> typedCaps;
 	OscarStatus lastStatus;
-	QTimer reconnectTimer;
 	QHash<QString, IcqContact *> contacts;
 	QList<RosterPlugin*> rosterPlugins;
 	QString passwd;
