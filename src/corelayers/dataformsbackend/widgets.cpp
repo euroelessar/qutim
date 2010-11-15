@@ -37,6 +37,7 @@ Label::Label(const DataItem &item, QWidget *parent) :
 							   Qt::TextSelectableByMouse |
 							   Qt::TextSelectableByKeyboard);
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	setWordWrap(true);
 
 	bool enabled = true;
 	QVariant::Type type = item.data().type();
