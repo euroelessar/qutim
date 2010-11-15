@@ -30,7 +30,7 @@ void IrcContactPrivate::ref()
 
 void IrcContactPrivate::deref()
 {
-	if (m_ref.deref()) {
+	if (m_ref.deref() && ChatLayer::instance()) {
 		ChatSession *session = ChatLayer::instance()->getSession(q, false);
 		if (!session)
 			q->deleteLater();
