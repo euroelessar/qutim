@@ -5,6 +5,7 @@
 #include <qutim/debug.h>
 #include "managersettings.h"
 #include <qutim/icon.h>
+#include <qutim/notificationslayer.h>
 
 namespace ConnectionManager
 {
@@ -92,7 +93,15 @@ void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3
 	if(now.type() == Status::Offline && reason == Status::ByNetworkError) {
 		Account *a = qobject_cast<Account*>(sender());
 		Q_ASSERT(a);
+		int timeout = now.property("reconnectTimeout",0);
 		a->setStatus(old);
+
+		QString timeoutStr = timeout ? tr("within %1 seconds").arg(timeout) :
+									   tr("immediately");
+
+		Notifications::send(Notifications::System,this,
+							tr("%1 will be reconnected %2").arg(a->name(),timeoutStr),
+							tr("ConnectionManager"));
 	}
 }
 
