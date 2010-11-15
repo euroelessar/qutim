@@ -64,8 +64,8 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 		tmpDir.mkdir(systemDirs[i].dirName());
 	qDebug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
 	
-	setField("singleProfile",singleProfile);
-	setField("password",password);
+	setProperty("singleProfile",singleProfile);
+	setProperty("password",password);
 
 	addPage(new ProfileCreationPage(this));
 	QString realId;

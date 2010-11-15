@@ -35,8 +35,8 @@ ProfileCreationPage::ProfileCreationPage(QWidget *parent) :
 
 void ProfileCreationPage::initializePage()
 {
-	m_password = wizard()->field("password").toString();
-	m_singleProfile = wizard()->field("singleProfile").toBool();
+	m_password = wizard()->property("password").toString();
+	m_singleProfile = wizard()->property("singleProfile").toBool();
 	bool first = true;
 	if (!m_singleProfile) {
 		registerField("crypto", ui->cryptoBox, "currentText");
