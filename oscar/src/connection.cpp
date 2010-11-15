@@ -192,7 +192,7 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 //		d->socket = new QSslSocket(this);
 //	else
 //		d->socket = new QTcpSocket(this);
-	d->aliveTimer.setInterval(60000);
+	d->aliveTimer.setInterval(180000);
 	connect(&d->aliveTimer, SIGNAL(timeout()), SLOT(sendAlivePacket()));
 	d->socket = new Socket(this);
 #if OSCAR_SSL_SUPPORT
