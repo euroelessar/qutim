@@ -87,7 +87,7 @@ namespace Jabber {
 		{
 			QString general = "relaxing";
 			ADD_GENERAL(general, QT_TRANSLATE_NOOP("Activity", "Relaxing"));
-			ADD_SPECIFIC("fishing", QT_TRANSLATE_NOOP("Activity", "Ffishing"));
+			ADD_SPECIFIC("fishing", QT_TRANSLATE_NOOP("Activity", "Fishing"));
 			ADD_SPECIFIC("gaming", QT_TRANSLATE_NOOP("Activity", "Gaming"));
 			ADD_SPECIFIC("going_out", QT_TRANSLATE_NOOP("Activity", "Going out"));
 			ADD_SPECIFIC("partying", QT_TRANSLATE_NOOP("Activity", "Partying"));
