@@ -1,6 +1,7 @@
 #include "inforequest_p.h"
 #include "icqcontact_p.h"
 #include "icqaccount.h"
+#include <qutim/notificationslayer.h>
 
 Q_DECLARE_METATYPE(QHostAddress);
 
@@ -201,6 +202,7 @@ void IcqInfoRequest::onDone(bool ok)
 		m_state = Done;
 	} else {
 		m_state = Cancel;
+		Notifications::send(Notifications::System, m_account, tr("You are sending information requests too often"));
 	}
 	emit stateChanged(m_state);
 	m_metaReq->deleteLater();
