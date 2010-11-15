@@ -401,15 +401,6 @@ bool IcqContact::event(QEvent *ev)
 	return Contact::event(ev);
 }
 
-void IcqContact::messageTimeout(const Cookie &cookie)
-{
-	ChatSession *session = ChatLayer::instance()->get(cookie.contact(), false);
-	if (session) {
-		QApplication::instance()->postEvent(session, new MessageReceiptEvent(cookie.id(), false));
-		debug() << "Message with id" << cookie.id() << "has not been delivered";
-	}
-}
-
 void IcqContact::infoReceived(bool ok)
 {
 	ShortInfoMetaRequest *req = qobject_cast<ShortInfoMetaRequest*>(sender());

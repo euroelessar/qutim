@@ -800,7 +800,7 @@ void MessageSender::sendMessage(MessageData &message)
 			tlv.append<quint32>(ICQ_CAPABILITY_UTF8.toString().toUpper(), LittleEndian);
 		ServerMessage msgData(contact, Channel2MessageData(0, tlv));
 		if (message.msgs.isEmpty())
-			msgData.setCookie(cookie, contact, SLOT(messageTimeout(Cookie)));
+			msgData.setCookie(cookie, this, SLOT(messageTimeout(Cookie)));
 		m_account->connection()->send(msgData, 80);
 	}
 }
@@ -813,6 +813,15 @@ void MessageSender::sendResponse(IcqContact *contact, quint8 type, quint8 flags,
 	ServerResponseMessage response(contact, 2, 3, cookie);
 	response.append(responseTlv.data());
 	m_account->connection()->send(response);
+}
+
+void MessageSender::messageTimeout(const Cookie &cookie)
+{
+	ChatSession *session = ChatLayer::instance()->get(cookie.contact(), false);
+	if (session) {
+		QApplication::instance()->postEvent(session, new MessageReceiptEvent(cookie.id(), false));
+		debug() << "Message with id" << cookie.id() << "has not been delivered";
+	}
 }
 
 } } // namespace qutim_sdk_0_3::oscar

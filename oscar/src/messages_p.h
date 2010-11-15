@@ -62,6 +62,7 @@ public:
 private slots:
 	void sendMessage();
 	void sendResponse();
+	void messageTimeout(const Cookie &cookie);
 private:
 	IcqAccount *m_account;
 
