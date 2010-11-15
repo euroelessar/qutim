@@ -77,11 +77,8 @@ endif()
 # Include QT4
 INCLUDE( ${QT_USE_FILE} )
 
-#Include X11, hack for freebsd
-FIND_PACKAGE(X11 REQUIRED)
-
 # Add include directories
-INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/../"
+INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../sdk02/"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/"

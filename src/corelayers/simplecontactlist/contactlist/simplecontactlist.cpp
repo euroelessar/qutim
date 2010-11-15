@@ -171,6 +171,7 @@ Module::Module() : p(new ModulePrivate)
 
 	gen = new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0);
 	gen->addHandler(ActionCreatedHandler,this);
+	gen->setPriority(-127);
 	addButton(gen);
 
 	// TODO: choose another, non-kopete icon
