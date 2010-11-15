@@ -26,8 +26,7 @@ TreeView::TreeView(QWidget *parent) : QTreeView(parent)
 	setRootIsDecorated(false);
 	setIndentation(0);
 	setEditTriggers(QAbstractItemView::EditKeyPressed);
-	header()->setContextMenuPolicy(Qt::DefaultContextMenu);
-	header()->installEventFilter(this);
+	setHeaderHidden(true);
 }
 
 void TreeView::onClick(const QModelIndex &index)
@@ -51,24 +50,6 @@ void TreeView::contextMenuEvent(QContextMenuEvent *event)
 		qDebug("%s", qPrintable(contact->id()));
 		contact->menu(true)->popup(event->globalPos());
 	}
-}
-
-bool TreeView::eventFilter(QObject *obj, QEvent *e)
-{
-	if (obj->metaObject() == &QHeaderView::staticMetaObject) {
-		if (e->type() == QEvent::ContextMenu) {
-			QContextMenuEvent *event = static_cast<QContextMenuEvent*>(e);
-			QMenu *menu = new QMenu(this);
-			menu->setAttribute(Qt::WA_DeleteOnClose);
-			QAction *act = menu->addAction(Icon("feed-subscribe"),tr("Select tags"));
-			connect(act,SIGNAL(triggered()),SLOT(onSelectTagsTriggered()));
-			act = menu->addAction(tr("Reset"));
-			connect(act,SIGNAL(triggered()),SLOT(onResetTagsTriggered()));
-			menu->popup(event->globalPos());
-			return true;
-		}
-	}
-	return QObject::eventFilter(obj, e);
 }
 
 void TreeView::startDrag(Qt::DropActions supportedActions)

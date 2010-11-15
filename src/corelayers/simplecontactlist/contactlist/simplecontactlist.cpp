@@ -169,6 +169,10 @@ Module::Module() : p(new ModulePrivate)
 
 	p->model = new Model(p->view);
 
+	gen = new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0);
+	gen->addHandler(ActionCreatedHandler,this);
+	addButton(gen);
+
 	// TODO: choose another, non-kopete icon
 	gen = new ActionGenerator(Icon("view-user-offline-kopete"),QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), p->model, SLOT(onHideShowOffline()));
 	gen->setCheckable(true);
@@ -446,6 +450,15 @@ bool Module::event(QEvent *ev)
 			QString id =  unit->account()->protocol()->data(Protocol::ProtocolIdName).toString();
 			action->setText(QObject::tr("Copy %1 to clipboard").arg(id));
 		}
+	} else if (ev->type() == ActionCreatedEvent::eventType()) {
+		ActionCreatedEvent *event = static_cast<ActionCreatedEvent*>(ev);
+		QAction *action = event->action();
+		QMenu *menu = new QMenu(p->view);
+		QAction *act = menu->addAction(tr("Select tags"));
+		connect(act, SIGNAL(triggered()), p->view, SLOT(onSelectTagsTriggered()));
+		act = menu->addAction(tr("Reset"));
+		connect(act, SIGNAL(triggered()), p->view, SLOT(onResetTagsTriggered()));
+		action->setMenu(menu);
 	}
 	return QObject::event(ev);
 }
