@@ -41,7 +41,7 @@ void XStatusSender::sendXStatus(IcqContact *contact, quint64 cookie)
 		return;
 	}
 	if (r->m_contacts.isEmpty() &&
-		account->connection()->testRate(MessageFamily, MessageSrvSend, false))
+		account->connection()->testRate(MessageFamily, MessageResponse, false))
 	{
 		Q_ASSERT(!r->m_timer.isActive());
 		r->sendXStatusImpl(contact, cookie);
@@ -59,7 +59,7 @@ void XStatusSender::sendXStatus()
 	bool removeFirst = false;
 	if (!contact) {
 		removeFirst = true;
-	} else if (contact->account()->connection()->testRate(MessageFamily, MessageSrvSend, false)) {
+	} else if (contact->account()->connection()->testRate(MessageFamily, MessageResponse, false)) {
 		bool ok;
 		quint64 cookie = contact->property("lastXStatusRequestCookie").toLongLong(&ok);
 		if (ok)
