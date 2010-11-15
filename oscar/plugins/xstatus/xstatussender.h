@@ -30,9 +30,10 @@ public:
 	static void sendXStatus(IcqContact *contact, quint64 cookie);
 private slots:
 	void sendXStatus();
+	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
 private:
 	friend class XStatusSenderList;
-	XStatusSender();
+	XStatusSender(IcqAccount *account);
 	void sendXStatusImpl(IcqContact *contact, quint64 cookie);
 	QList<QPointer<IcqContact> > m_contacts;
 	QTimer m_timer;

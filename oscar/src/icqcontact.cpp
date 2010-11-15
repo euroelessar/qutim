@@ -53,6 +53,17 @@ void ChatStateUpdater::updateState(IcqContact *contact, ChatState state)
 
 void ChatStateUpdater::sendState()
 {
+	while (!m_states.isEmpty()) {
+		Status::Type status = m_states.begin().key()->account()->status().type();
+		if (status == Status::Offline || status == Status::Connecting)
+			m_states.erase(m_states.begin()); // We can't send any packets in offline or connecting state.
+		else
+			break;
+	}
+	if (m_states.isEmpty()) {
+		m_timer.stop();
+		return;
+	}
 	QHash<IcqContact*, ChatState>::iterator itr = m_states.begin();
 	IcqContact *contact = itr.key();
 	if (contact->account()->connection()->testRate(MessageFamily, MessageMtn, false)) {

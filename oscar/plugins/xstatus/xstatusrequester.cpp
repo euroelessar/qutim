@@ -30,7 +30,7 @@ XStatusRequester *XStatusRequesterList::getRequester(IcqAccount *account)
 {
 	XStatusRequester *r = m_requesters.value(account);
 	if (!r) {
-		r = new XStatusRequester();
+		r = new XStatusRequester(account);
 		m_requesters.insert(account, r);
 	}
 	return r;
@@ -48,6 +48,11 @@ void XStatusRequester::updateXStatus(IcqContact *contact)
 {
 	static XStatusRequesterList list;
 	IcqAccount *account = contact->account();
+	Status::Type status = account->status().type();
+	if (status == Status::Offline || status == Status::Connecting) {
+		// Cannot send any requests in that state
+		return;
+	}
 	XStatusRequester *r = list.getRequester(contact->account());
 	if (r->m_contacts.contains(contact)) {
 		// This contact is already in queue
@@ -82,10 +87,25 @@ void XStatusRequester::updateXStatus()
 	}
 }
 
-XStatusRequester::XStatusRequester()
+
+void XStatusRequester::statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous)
+{
+	bool wasOffline = previous == Status::Offline || previous == Status::Connecting;
+	bool isOffline = current == Status::Offline || current == Status::Connecting;
+	if (!wasOffline && isOffline) {
+		// Account changed status to offline,
+		// thus we need to clear requests queue
+		m_contacts.clear();
+		m_timer.stop();
+	}
+}
+
+XStatusRequester::XStatusRequester(IcqAccount *account)
 {
 	m_timer.setInterval(5000);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(updateXStatus()));
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			SLOT(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 }
 
 void XStatusRequester::updateXStatusImpl(IcqContact *contact)

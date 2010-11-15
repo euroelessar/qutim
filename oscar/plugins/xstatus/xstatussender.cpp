@@ -16,7 +16,7 @@ XStatusSender *XStatusSenderList::getSender(IcqAccount *account)
 {
 	XStatusSender *r = m_senders.value(account);
 	if (!r) {
-		r = new XStatusSender();
+		r = new XStatusSender(account);
 		m_senders.insert(account, r);
 	}
 	return r;
@@ -34,6 +34,11 @@ void XStatusSender::sendXStatus(IcqContact *contact, quint64 cookie)
 {
 	static XStatusSenderList list;
 	IcqAccount *account = contact->account();
+	Status::Type status = account->status().type();
+	if (status == Status::Offline || status == Status::Connecting) {
+		// Cannot send any requests in that state
+		return;
+	}
 	XStatusSender *r = list.getSender(contact->account());
 	if (r->m_contacts.contains(contact)) {
 		// This contact is already in queue
@@ -75,10 +80,24 @@ void XStatusSender::sendXStatus()
 	}
 }
 
-XStatusSender::XStatusSender()
+void XStatusSender::statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous)
+{
+	bool wasOffline = previous == Status::Offline || previous == Status::Connecting;
+	bool isOffline = current == Status::Offline || current == Status::Connecting;
+	if (!wasOffline && isOffline) {
+		// Account changed status to offline,
+		// thus we need to clear requests queue
+		m_contacts.clear();
+		m_timer.stop();
+	}
+}
+
+XStatusSender::XStatusSender(IcqAccount *account)
 {
 	m_timer.setInterval(5000);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(sendXStatus()));
+	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			SLOT(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 }
 
 void XStatusSender::sendXStatusImpl(IcqContact *contact, quint64 cookie)

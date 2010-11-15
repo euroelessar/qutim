@@ -44,9 +44,10 @@ public:
 	static void updateXStatus(IcqContact *contact);
 private slots:
 	void updateXStatus();
+	void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
 private:
 	friend class XStatusRequesterList;
-	XStatusRequester();
+	XStatusRequester(IcqAccount *account);
 	void updateXStatusImpl(IcqContact *contact);
 	QList<QPointer<IcqContact> > m_contacts;
 	QTimer m_timer;
