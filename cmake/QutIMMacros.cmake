@@ -181,7 +181,8 @@ public:
 	virtual bool unload() { return true; }
 };
 
-#include \"${plugin_name}plugin.moc\"
+#include \"${plugin_name}plugin.moc\
+"
 QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
 " )
 	endif( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp" )
