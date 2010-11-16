@@ -30,8 +30,8 @@ public:
 	QString passwd;
 	QString nick;
 	bool keepStatus;
-public slots:
-	void onNewPresence(jreen::Presence);
+	void setPresence(jreen::Presence);
+public slots:	
 	void onConnected();
 	void onDisconnected();
 public:	//old code

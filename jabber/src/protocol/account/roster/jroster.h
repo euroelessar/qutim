@@ -30,6 +30,8 @@ protected:
 	virtual void onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item);
 	virtual void onItemRemoved(const QString &jid);
 	void fillContact(JContact *contact, QSharedPointer<jreen::AbstractRosterItem> item);
+protected slots:
+	void handleNewPresence(jreen::Presence);
 private:
 	QScopedPointer<JRosterPrivate> d_ptr;
 };

@@ -14,6 +14,8 @@
 #include <QStringBuilder>
 #include <qutim/authorizationdialog.h>
 #include <qutim/notificationslayer.h>
+#include "../jaccount_p.h"
+#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -33,6 +35,8 @@ JRoster::JRoster(JAccount *account) :
 {
 	Q_D(JRoster);
 	d->account = account;
+	connect(d->account->client(),SIGNAL(newPresence(jreen::Presence)),
+			this,SLOT(handleNewPresence(jreen::Presence)));
 }
 
 JRoster::~JRoster()
@@ -72,7 +76,7 @@ ChatUnit *JRoster::contact(const QString &id, bool create)
 		if (!contact) {
 			if (create) {
 				contact = new JContact(id,d->account);
-				d->contacts.insert(id,contact);
+				d->contacts.insert(bare,contact);
 				contact->setContactInList(false);
 				emit d->account->contactCreated(contact);
 				return contact;
@@ -89,7 +93,7 @@ ChatUnit *JRoster::contact(const QString &id, bool create)
 		return contact;
 	} else if (create) {
 		contact = new JContact(id,d->account);
-		d->contacts.insert(id,contact);
+		d->contacts.insert(bare,contact);
 		contact->setContactInList(false);
 		emit d->account->contactCreated(contact);
 		return contact;
@@ -107,6 +111,20 @@ void JRoster::fillContact(JContact *contact, QSharedPointer<jreen::AbstractRoste
 		contact->setContactTags(tags);
 	if (!contact->isInList())
 		contact->setContactInList(true);
+}
+
+void JRoster::handleNewPresence(jreen::Presence presence)
+{
+	Q_D(JRoster);
+	debug() << presence.from().bare() << presence.to().bare() << presence.status();
+	QString bare = presence.from().bare();
+	if(d->account->id() == bare) {
+		d->account->d_func()->setPresence(presence);
+		return;
+	}
+	JContact *c = d->contacts.value(bare);
+	if(c)
+		c->setStatus(presence);
 }
 
 //dead code

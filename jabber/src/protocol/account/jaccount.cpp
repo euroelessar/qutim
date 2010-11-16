@@ -29,7 +29,7 @@ class JPasswordValidator : public QValidator
 	}
 };
 
-void JAccountPrivate::onNewPresence(jreen::Presence presence)
+void JAccountPrivate::setPresence(jreen::Presence presence)
 {
 	Q_Q(JAccount);
 	Status now = q->status();
@@ -65,8 +65,6 @@ JAccount::JAccount(const QString &jid) :
 	d->roster = new JRoster(this);
 	loadSettings();
 
-	connect(&d->client,SIGNAL(newPresence(jreen::Presence)),
-			d,SLOT(onNewPresence(jreen::Presence)));
 	connect(&d->client,SIGNAL(connected()),
 			d,SLOT(onConnected()));
 	connect(&d->client,SIGNAL(disconnected()),
@@ -243,7 +241,6 @@ void JAccount::setStatus(Status status)
 	} else {
 		d->client.setPresence(JStatus::statusToPresence(status),
 							  status.text());
-		debug() << "set presence" << d->client.presence().id();
 	}
 	Account::setStatus(status);
 }
