@@ -24,8 +24,9 @@ namespace qutim_sdk_0_3
 	class ChatUnitPrivate : public MenuControllerPrivate
 	{
 	public:
-		ChatUnitPrivate(ChatUnit *u) : MenuControllerPrivate(u) {}
+		ChatUnitPrivate(ChatUnit *u) : MenuControllerPrivate(u),account(0),chatState(ChatStateInActive) {}
 		Account *account;
+		ChatState chatState;
 	};
 }
 

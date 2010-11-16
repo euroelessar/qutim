@@ -108,7 +108,8 @@ void TabBar::leaveEvent(QEvent *event)
 void TabBar::addSession(ChatSessionImpl *session)
 {
 	p->sessions.append(session);
-	QIcon icon = ChatLayerImpl::iconForState(ChatStateInActive,session->getUnit());
+	ChatUnit *u = session->getUnit();
+	QIcon icon = ChatLayerImpl::iconForState(u->chatState(),u);
 	p->sessionList->addAction(icon,session->getUnit()->title());
 	addTab(icon,session->getUnit()->title());
 
@@ -120,11 +121,15 @@ void TabBar::addSession(ChatSessionImpl *session)
 	}
 #endif
 
-	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),SLOT(onTitleChanged(QString)));
+	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),
+			this,SLOT(onTitleChanged(QString)));
+	connect(session->getUnit(),
+			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
+			this,
+			SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
 	connect(session,SIGNAL(destroyed(QObject*)),SLOT(onRemoveSession(QObject*)));
-	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
-
-	session->installEventFilter(this);
+	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
+			this,SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 }
 
 void TabBar::removeSession(ChatSessionImpl *session)
@@ -209,16 +214,13 @@ void TabBar::onTitleChanged(const QString &title)
 	setTabText(indexOf(s),title);
 }
 
-bool TabBar::eventFilter(QObject *obj, QEvent *event)
+void TabBar::onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState)
 {
-	const QMetaObject *meta = obj->metaObject();
-	if (meta == &ChatSessionImpl::staticMetaObject) {
-		if (event->type() == ChatStateEvent::eventType()) {
-			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(event);
-			chatStateChanged(chatEvent->chatState(), qobject_cast<ChatSessionImpl*>(obj));
-		}
-	}
-	return QTabBar::eventFilter(obj,event);
+	ChatUnit *unit = qobject_cast<ChatUnit*>(sender());
+	Q_ASSERT(unit);
+	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(ChatLayerImpl::get(unit,false));
+	if(s)
+		chatStateChanged(now,s);
 }
 
 bool TabBar::event(QEvent *event)

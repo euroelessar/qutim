@@ -4,6 +4,7 @@
 #include <QTabBar>
 #include <QMouseEvent>
 #include <qutim/messagesession.h>
+#include <qutim/chatunit.h>
 
 namespace Core
 {
@@ -41,7 +42,6 @@ class TabBar : public QTabBar
 	protected:
 		void mouseMoveEvent(QMouseEvent *event);
 		void leaveEvent(QEvent *event);
-		virtual bool eventFilter(QObject *obj, QEvent *event);
 		virtual bool event(QEvent *event);
 		void chatStateChanged(ChatState state,ChatSessionImpl *session);
 	private slots:
@@ -53,6 +53,7 @@ class TabBar : public QTabBar
 		void onUnreadChanged(const qutim_sdk_0_3::MessageList &unread);
 		void onContextMenu(const QPoint &pos);
 		void onSessionListActionTriggered(QAction *);
+		void onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState old);
 	private:
 		QScopedPointer<TabBarPrivate> p;
 };

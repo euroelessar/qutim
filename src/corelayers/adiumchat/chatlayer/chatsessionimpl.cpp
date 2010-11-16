@@ -353,8 +353,6 @@ void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 				d,SLOT(onStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 		d->onStatusChanged(b->status(),Status(),true);
 	} else {
-		setChatState(ChatStateInActive);
-
 		Conference *conf;
 		if (!!(conf = qobject_cast<Conference *>(oldUnit))) {
 			foreach (ChatUnit *u, conf->lowerUnits()) {

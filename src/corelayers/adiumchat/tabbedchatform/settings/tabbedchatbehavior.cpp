@@ -31,7 +31,10 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	ui->formLayoutBox->addItem(tr("Adium-like"),true);
 #ifdef Q_WS_MAC
 	ui->formLayoutBox->setEnabled(false); //Classic layout is really ugly
-	ui->menuBox->setEnabled(false);
+#endif
+
+#if defined(Q_WS_MAC) || defined(Q_WS_WIN)
+	ui->menuBox->setVisible(false);
 #endif
 
 	connect(m_group,SIGNAL(buttonClicked(int)),SLOT(onButtonClicked(int)));

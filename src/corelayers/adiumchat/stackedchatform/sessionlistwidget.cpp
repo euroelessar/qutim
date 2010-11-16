@@ -38,11 +38,15 @@ void SessionListWidget::addSession(ChatSessionImpl *session)
 	setIconSize(QSize(32,32));
 #endif
 
-	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),SLOT(onTitleChanged(QString)));
+	connect(session->getUnit(),SIGNAL(titleChanged(QString,QString)),
+			this,SLOT(onTitleChanged(QString)));
 	connect(session,SIGNAL(destroyed(QObject*)),SLOT(onRemoveSession(QObject*)));
-	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
-
-	session->installEventFilter(this);
+	connect(session,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),
+			this,SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
+	connect(session->getUnit(),
+			SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
+			this,
+			SLOT(onChatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
 }
 
 void SessionListWidget::removeSession(ChatSessionImpl *session)
@@ -105,18 +109,6 @@ void SessionListWidget::onTitleChanged(const QString &title)
 	ChatUnit *u = qobject_cast<ChatUnit*>(sender());
 	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(ChatLayer::get(u,false));
 	item(indexOf(s))->setText(title);
-}
-
-bool SessionListWidget::eventFilter(QObject *obj, QEvent *event)
-{
-	const QMetaObject *meta = obj->metaObject();
-	if (meta == &ChatSessionImpl::staticMetaObject) {
-		if (event->type() == ChatStateEvent::eventType()) {
-			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(event);
-			chatStateChanged(chatEvent->chatState(), qobject_cast<ChatSessionImpl*>(obj));
-		}
-	}
-	return QListWidget::eventFilter(obj,event);
 }
 
 bool SessionListWidget::event(QEvent *event)
@@ -185,6 +177,15 @@ void SessionListWidget::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread
 	QListWidgetItem *i = item(index);
 	i->setIcon(icon);
 	i->setText(title);
+}
+
+void SessionListWidget::onChatStateChanged(qutim_sdk_0_3::ChatState now, qutim_sdk_0_3::ChatState)
+{
+	ChatUnit *unit = qobject_cast<ChatUnit*>(sender());
+	Q_ASSERT(unit);
+	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(ChatLayerImpl::get(unit,false));
+	if(s)
+		chatStateChanged(now,s);
 }
 
 SessionListWidget::~SessionListWidget()

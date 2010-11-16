@@ -49,6 +49,7 @@ namespace qutim_sdk_0_3
 		Q_OBJECT
 		Q_PROPERTY(QString id READ id CONSTANT)
 		Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+		Q_PROPERTY(ChatState chatState READ chatState WRITE setChatState NOTIFY chatStateChanged)
 		Q_PROPERTY(qutim_sdk_0_3::Account* account READ account CONSTANT)
 	public:
 		/**
@@ -136,6 +137,7 @@ namespace qutim_sdk_0_3
 		* @param state New ChatState
 		*/
 		void setChatState(qutim_sdk_0_3::ChatState state);
+		qutim_sdk_0_3::ChatState chatState() const;
 	signals:
 		/*!
 		  Notify that ChatUnit's \a title is changed, may be because of
@@ -146,6 +148,7 @@ namespace qutim_sdk_0_3
 		  Notifies that new lower unit is added.
 		 */
 		void lowerUnitAdded(ChatUnit *unit);
+		void chatStateChanged(qutim_sdk_0_3::ChatState current,qutim_sdk_0_3::ChatState previous);
 	};
 
 	/**
@@ -179,5 +182,6 @@ namespace qutim_sdk_0_3
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::ChatUnit*)
 Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::ChatUnit*>)
+Q_ENUMS(qutim_sdk_0_3::ChatState)
 
 #endif // CHATUNIT_H
