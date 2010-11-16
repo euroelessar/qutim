@@ -30,7 +30,7 @@ TabbedChatBehavior::TabbedChatBehavior() :
 	ui->formLayoutBox->addItem(tr("Classic"),false);
 	ui->formLayoutBox->addItem(tr("Adium-like"),true);
 #ifdef Q_WS_MAC
-	ui->formLayoutBox->setEnabled(false); //Classic layout is really ugly
+	ui->formLayoutBox->setVisible(false); //Classic layout is really ugly
 #endif
 
 #if defined(Q_WS_MAC) || defined(Q_WS_WIN)
