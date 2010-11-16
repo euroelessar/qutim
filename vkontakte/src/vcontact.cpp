@@ -109,6 +109,7 @@ void VContact::setStatus(bool online)
 	Q_D(VContact);
 	if (d->online != online) {
 		Status previous = status();
+		setChatState(online ? ChatStateInActive : ChatStateGone);
 		d->online = online;
 		emit statusChanged(status(), previous);
 	}
