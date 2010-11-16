@@ -1,14 +1,13 @@
 #include "aescryptoservice.h"
 #include <QCryptographicHash>
 #include <QtCrypto>
-#include <QScopedPointer>
 
 namespace AesCrypto
 {
 
 	AesCryptoService::AesCryptoService()
 	{
-		static QScopedPointer<QCA::Initializer> qca_init(new QCA::Initializer());
+		static QCA::Initializer qca_init;
 //		qDebug() << QCA::Hash::supportedTypes();
 //		qDebug() << QCA::Cipher::supportedTypes();
 		// We use AES-256, so we need vector with length 32
