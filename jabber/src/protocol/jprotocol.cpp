@@ -263,6 +263,60 @@ Status JProtocol::presenceToStatus(Presence::PresenceType presence)
 	return Status::instance(status, "jabber");
 }
 
+jreen::Presence::Type JStatus::statusToPresence(const Status &status)
+{
+	jreen::Presence::Type presence;
+	switch (status.type()) {
+	case Status::Offline:
+		presence = jreen::Presence::Unavailable;
+		break;
+	case Status::Online:
+		presence = jreen::Presence::Available;
+		break;
+	case Status::Away:
+		presence = jreen::Presence::Away;
+		break;
+	case Status::FreeChat:
+		presence = jreen::Presence::Chat;
+		break;
+	case Status::DND:
+		presence = jreen::Presence::DND;
+		break;
+	case Status::NA:
+		presence = jreen::Presence::XA;
+		break;
+	default:
+		presence = jreen::Presence::Invalid;
+	}
+	return presence;
+}
+
+Status::Type JStatus::presenceToStatus(jreen::Presence::Type presence)
+{
+	Status::Type status;
+	switch (presence) {
+	case Presence::Available:
+		status = Status::Online;
+		break;
+	case Presence::Away:
+		status = Status::Away;
+		break;
+	case Presence::Chat:
+		status = Status::FreeChat;
+		break;
+	case Presence::DND:
+		status = Status::DND;
+		break;
+	case Presence::XA:
+		status = Status::NA;
+		break;
+	case Presence::Unavailable:
+	default:
+		status = Status::Offline;
+	}
+	return status;
+}
+
 bool JProtocol::event(QEvent *ev)
 {
 	if (ev->type() == ActionVisibilityChangedEvent::eventType()) {

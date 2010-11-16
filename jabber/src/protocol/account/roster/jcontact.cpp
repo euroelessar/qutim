@@ -60,9 +60,9 @@ namespace Jabber
 		if (acc->status() == Status::Offline)
 			return false;
 		qDebug("%s", Q_FUNC_INFO);
-		if (!session())
-			d_func()->account->messageHandler()->createSession(this);
-		session()->sendMessage(message);
+//		if (!session())
+//			d_func()->account->messageHandler()->createSession(this);
+//		session()->sendMessage(message);
 		return true;
 	}
 
@@ -72,12 +72,12 @@ namespace Jabber
 		if (d->name == name)
 			return;
 		setContactName(name);
-		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
-		RosterItem *item = rosterManager->getRosterItem(d->jid.toStdString());
-		if (!item)
-			return;
-		item->setName(name.toStdString());
-		rosterManager->synchronize();
+//		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
+//		RosterItem *item = rosterManager->getRosterItem(d->jid.toStdString());
+//		if (!item)
+//			return;
+//		item->setName(name.toStdString());
+//		rosterManager->synchronize();
 	}
 
 	void JContact::setContactName(const QString &name)
@@ -99,16 +99,16 @@ namespace Jabber
 		if (d->tags == tags)
 			return;
 		setContactTags(tags);
-		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
-		RosterItem *item = rosterManager->getRosterItem(JID(d->jid.toStdString()));
-		if(!item)
-			return;
-		StringList stdGroups;
-		foreach (QString group, d->tags) {
-			stdGroups.push_back(group.toStdString());
-		}
-		item->setGroups(stdGroups);
-		rosterManager->synchronize();
+//		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
+//		RosterItem *item = rosterManager->getRosterItem(JID(d->jid.toStdString()));
+//		if(!item)
+//			return;
+//		StringList stdGroups;
+//		foreach (QString group, d->tags) {
+//			stdGroups.push_back(group.toStdString());
+//		}
+//		item->setGroups(stdGroups);
+//		rosterManager->synchronize();
 	}
 
 	void JContact::setContactTags(const QStringList &tags)
@@ -141,11 +141,11 @@ namespace Jabber
 		if (d->inList == inList)
 			return;
 		setContactInList(inList);
-		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
-		if (inList)
-			rosterManager->subscribe(d->jid.toStdString());
-		else
-			rosterManager->remove(d->jid.toStdString());
+//		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
+//		if (inList)
+//			rosterManager->subscribe(d->jid.toStdString());
+//		else
+//			rosterManager->remove(d->jid.toStdString());
 	}
 
 	inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)
@@ -169,12 +169,12 @@ namespace Jabber
 	bool JContact::event(QEvent *ev)
 	{
 		if (ev->type() == ChatStateEvent::eventType()) {
-			Q_D(JContact);
-			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
-			Client *client = d->account->connection()->client();
-			gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
-			gmes.addExtension(new gloox::ChatState(qutIM2gloox(chatEvent->chatState())));
-			client->send(gmes);
+//			Q_D(JContact);
+//			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
+//			Client *client = d->account->connection()->client();
+//			gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
+//			gmes.addExtension(new gloox::ChatState(qutIM2gloox(chatEvent->chatState())));
+//			client->send(gmes);
 			return true;
 		} else if (ev->type() == ToolTipEvent::eventType()) {
 			Q_D(JContact);

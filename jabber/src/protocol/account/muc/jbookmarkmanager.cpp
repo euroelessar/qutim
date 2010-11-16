@@ -39,7 +39,7 @@ namespace Jabber
 	{
 		p->account = account;
 		p->isLoaded = false;
-		p->storage = new BookmarkStorage(account->client());
+//		p->storage = new BookmarkStorage(account->client());
 		p->storage->registerBookmarkHandler(this);
 		p->bookmarks = readFromCache("bookmarks");
 		p->recent = readFromCache("recent");
