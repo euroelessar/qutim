@@ -100,9 +100,9 @@ void ConnectionManager::onAccountCreated(qutim_sdk_0_3::Account *account)
 void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3::Status old)
 {
 	Status::ChangeReason reason = static_cast<Status::ChangeReason>(now.property("changeReason",static_cast<int>(Status::ByUser)));
+	Account *a = qobject_cast<Account*>(sender());
+	Q_ASSERT(a);
 	if(now.type() == Status::Offline && reason == Status::ByNetworkError) {
-		Account *a = qobject_cast<Account*>(sender());
-		Q_ASSERT(a);
 		int timeout = now.property("reconnectTimeout",5);
 
 		QTimer *statusTimer = new QTimer(this);
@@ -119,6 +119,12 @@ void ConnectionManager::onStatusChanged(qutim_sdk_0_3::Status now, qutim_sdk_0_3
 		Notifications::send(Notifications::System,this,
 							tr("%1 will be reconnected %2").arg(a->name(),timeoutStr),
 							tr("ConnectionManager"));
+	} else {
+		int timeout = now.property("reconnectTimeout",0);
+		if(timeout) {
+			now.setProperty("reconnectTimeout",0);
+			a->setStatus(now);
+		}
 	}
 }
 
