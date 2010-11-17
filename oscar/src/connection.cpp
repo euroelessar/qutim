@@ -188,10 +188,10 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	QObject(parent), d_ptr(new AbstractConnectionPrivate)
 {
 	Q_D(AbstractConnection);
-//	if (QSslSocket::supportsSsl())
-//		d->socket = new QSslSocket(this);
-//	else
-//		d->socket = new QTcpSocket(this);
+	//	if (QSslSocket::supportsSsl())
+	//		d->socket = new QSslSocket(this);
+	//	else
+	//		d->socket = new QTcpSocket(this);
 	d->aliveTimer.setInterval(180000);
 	connect(&d->aliveTimer, SIGNAL(timeout()), SLOT(sendAlivePacket()));
 	d->socket = new Socket(this);
@@ -211,17 +211,17 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	d->id = (quint32) qrand();
 	d->error = NoError;
 	m_infos << SNACInfo(ServiceFamily, ServiceServerReady)
-			   << SNACInfo(ServiceFamily, ServiceServerNameInfo)
-			   << SNACInfo(ServiceFamily, ServiceServerFamilies2)
-			   << SNACInfo(ServiceFamily, ServiceServerAsksServices)
-			   << SNACInfo(ServiceFamily, ServiceServerRateChange)
-			   << SNACInfo(ServiceFamily, ServiceError);
+			<< SNACInfo(ServiceFamily, ServiceServerNameInfo)
+			<< SNACInfo(ServiceFamily, ServiceServerFamilies2)
+			<< SNACInfo(ServiceFamily, ServiceServerAsksServices)
+			<< SNACInfo(ServiceFamily, ServiceServerRateChange)
+			<< SNACInfo(ServiceFamily, ServiceError);
 	QList<SNACInfo> initSnacs;
 	initSnacs << SNACInfo(ServiceFamily, ServiceClientFamilies)
-			<< SNACInfo(ServiceFamily, ServiceClientReqRateInfo)
-			<< SNACInfo(ServiceFamily, ServiceClientRateAck)
-			<< SNACInfo(ServiceFamily, ServiceClientReady)
-			<< SNACInfo(ServiceFamily, ServiceClientNewService);
+			  << SNACInfo(ServiceFamily, ServiceClientReqRateInfo)
+			  << SNACInfo(ServiceFamily, ServiceClientRateAck)
+			  << SNACInfo(ServiceFamily, ServiceClientReady)
+			  << SNACInfo(ServiceFamily, ServiceClientNewService);
 	registerInitializationSnacs(initSnacs);
 }
 
@@ -283,21 +283,17 @@ void AbstractConnection::loadProxy()
 		QString typeStr = cfg.value("type", QString());
 		if (typeStr.isNull()) {
 			// attempt to load settings from qutim 0.2
-			type = static_cast<QNetworkProxy::ProxyType>(cfg.value("proxyType", -1));
-			if (type == -1) {
+			type = cfg.value("proxyType", QNetworkProxy::NoProxy);
+			// migration to the new format
+			if (type == QNetworkProxy::Socks5Proxy)
+				typeStr = "socks5";
+			else if (type == QNetworkProxy::HttpProxy)
+				typeStr = "http";
+			else
 				type = QNetworkProxy::NoProxy;
-			} else {
-				// migration to the new format
-				if (type == QNetworkProxy::Socks5Proxy)
-					typeStr = "socks5";
-				else if (type == QNetworkProxy::HttpProxy)
-					typeStr = "http";
-				else
-					type = QNetworkProxy::NoProxy;
-				if (!typeStr.isNull())
-					cfg.setValue("type", typeStr);
-				cfg.remove("proxyType");
-			}
+			if (!typeStr.isNull())
+				cfg.setValue("type", typeStr);
+			cfg.remove("proxyType");
 		} else if (typeStr == "socks5") {
 			type = QNetworkProxy::Socks5Proxy;
 		} else if (typeStr == "http") {
@@ -497,9 +493,9 @@ quint32 AbstractConnection::sendSnac(SNAC &snac)
 		send(flap);
 	}
 	debug(Verbose) << dbgStr
-			.arg(snac.family(), 4, 16, QChar('0'))
-			.arg(snac.subtype(), 4, 16, QChar('0'))
-			.arg(metaObject()->className());
+					  .arg(snac.family(), 4, 16, QChar('0'))
+					  .arg(snac.subtype(), 4, 16, QChar('0'))
+					  .arg(metaObject()->className());
 	return id;
 }
 
@@ -512,9 +508,9 @@ void AbstractConnection::setSeqNum(quint16 seqnum)
 void AbstractConnection::processNewConnection()
 {
 	debug(Verbose) << QString("processNewConnection: %1 %2 %3")
-			.arg(flap().channel(), 2, 16, QChar('0'))
-			.arg(flap().seqNum())
-			.arg(flap().data().toHex().constData());
+					  .arg(flap().channel(), 2, 16, QChar('0'))
+					  .arg(flap().seqNum())
+					  .arg(flap().data().toHex().constData());
 	setState(Connecting);
 }
 
@@ -522,9 +518,9 @@ void AbstractConnection::processCloseConnection()
 {
 	Q_D(AbstractConnection);
 	debug(Verbose) << QString("processCloseConnection: %1 %2 %3")
-			.arg(d->flap.channel(), 2, 16, QChar('0'))
-			.arg(d->flap.seqNum())
-			.arg(d->flap.data().toHex().constData());
+					  .arg(d->flap.channel(), 2, 16, QChar('0'))
+					  .arg(d->flap.seqNum())
+					  .arg(d->flap.data().toHex().constData());
 	FLAP flap(0x04);
 	flap.append<quint32>(0x00000001);
 	send(flap);
@@ -580,7 +576,7 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		send(snac);
 		break;
 	}
-	// This is the reply to CLI_REQINFO
+		// This is the reply to CLI_REQINFO
 	case ServiceFamily << 16 | ServiceServerNameInfo: {
 		// Skip uin
 		sn.read<QByteArray, quint8>();
@@ -601,13 +597,13 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		//debug() << conn->externalIP();
 		break;
 	}
-	// Server sends its services version numbers
+		// Server sends its services version numbers
 	case ServiceFamily << 16 | ServiceServerFamilies2: {
 		SNAC snac(ServiceFamily, ServiceClientReqRateInfo);
 		send(snac);
 		break;
 	}
-	// Server sends rate limits information
+		// Server sends rate limits information
 	case ServiceFamily << 16 | ServiceServerAsksServices: {
 		foreach(const OscarRate *rate, d->rates)
 			delete rate;
@@ -661,9 +657,9 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 	case ServiceFamily << 16 | ServiceError: {
 		ProtocolError error(sn);
 		debug() << QString("Error (%1, %2): %3")
-				.arg(error.code(), 2, 16)
-				.arg(error.subcode(), 2, 16)
-				.arg(error.errorString());
+				   .arg(error.code(), 2, 16)
+				   .arg(error.subcode(), 2, 16)
+				   .arg(error.errorString());
 		break;
 	}
 	}
@@ -689,9 +685,9 @@ void AbstractConnection::processSnac()
 	Q_D(AbstractConnection);
 	SNAC snac = SNAC::fromByteArray(d->flap.data());
 	debug(Verbose) << QString("SNAC(0x%1, 0x%2) is received from %3")
-			.arg(snac.family(), 4, 16, QChar('0'))
-			.arg(snac.subtype(), 4, 16, QChar('0'))
-			.arg(metaObject()->className());
+					  .arg(snac.family(), 4, 16, QChar('0'))
+					  .arg(snac.subtype(), 4, 16, QChar('0'))
+					  .arg(metaObject()->className());
 	bool found = false;
 	foreach(SNACHandler *handler, d->handlers.values((snac.family() << 16)| snac.subtype())) {
 		found = true;
@@ -700,9 +696,9 @@ void AbstractConnection::processSnac()
 	}
 	if (!found) {
 		warning() << QString("No handlers for SNAC(0x%1, 0x%2) in %3")
-				.arg(snac.family(), 4, 16, QChar('0'))
-				.arg(snac.subtype(), 4, 16, QChar('0'))
-				.arg(metaObject()->className());
+					 .arg(snac.family(), 4, 16, QChar('0'))
+					 .arg(snac.subtype(), 4, 16, QChar('0'))
+					 .arg(metaObject()->className());
 	}
 }
 
