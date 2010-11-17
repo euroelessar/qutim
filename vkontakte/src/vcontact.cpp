@@ -69,11 +69,13 @@ bool VContact::sendMessage(const Message& message)
 
 void VContact::setTags(const QStringList& tags)
 {
+	Q_UNUSED(tags);
 	//	d_func()->tags = tags;
 }
 
 void VContact::setInList(bool inList)
 {
+	Q_UNUSED(inList);
 	//	d_func()->inList = inList;
 }
 
@@ -109,6 +111,7 @@ void VContact::setStatus(bool online)
 	Q_D(VContact);
 	if (d->online != online) {
 		Status previous = status();
+		setChatState(online ? ChatStateInActive : ChatStateGone);
 		d->online = online;
 		emit statusChanged(status(), previous);
 	}

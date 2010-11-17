@@ -13,7 +13,7 @@ Authorization *Authorization::self = 0;
 
 AuthorizeActionGenerator::AuthorizeActionGenerator() :
 	ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("ContactList", "Ask authorization"),
-					Authorization::instance(), SLOT(onSendRequestClicked(QAction*, QObject*)))
+					Authorization::instance(), SLOT(onSendRequestClicked(QObject*)))
 {
 	setPriority(50);
 	setType(34644);
@@ -103,7 +103,7 @@ void Authorization::sendAuthResponse(bool auth)
 	contact->account()->connection()->send(snac);
 }
 
-void Authorization::onSendRequestClicked(QAction *action, QObject *object)
+void Authorization::onSendRequestClicked(QObject *object)
 {
 	Q_ASSERT(qobject_cast<IcqContact*>(object) != 0);
 	IcqContact *contact = reinterpret_cast<IcqContact*>(object);

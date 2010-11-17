@@ -54,6 +54,7 @@ void IrcAvatar::handleCtpcRequest(IrcAccount *account, const QString &sender, co
 void IrcAvatar::handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &,
 								   const QString &, const QString &cmd, const QString &params)
 {
+	Q_UNUSED(cmd);
 	QString avatarUrlStr = params.section(" ", 0, 0);
 	QUrl avatarUrl(avatarUrlStr);
 	if (!avatarUrl.isValid())

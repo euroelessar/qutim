@@ -218,6 +218,7 @@ ChatUnit *IrcAccount::getUnitForSession(ChatUnit *unit)
 
 ChatUnit *IrcAccount::getUnit(const QString &name, bool create)
 {
+	Q_UNUSED(create);
 	if (name.startsWith('#') || name.startsWith('&'))
 		return 0;
 	return getContact(name, true);

@@ -6,58 +6,78 @@
 
 namespace Jabber
 {
-	struct JConferenceConfigPrivate
-	{
-		Ui::RoomConfig *ui;
-		JDataForm *form;
-		gloox::MUCRoom *room;
-	};
+struct JConferenceConfigPrivate
+{
+	Ui::RoomConfig *ui;
+	JDataForm *form;
+	gloox::MUCRoom *room;
+};
 
-	JConferenceConfig::JConferenceConfig(MUCRoom *room, QWidget *parent) : QWidget(parent), p(new JConferenceConfigPrivate)
-	{
-		p->room = room;
-		p->room->registerMUCRoomConfigHandler(this);
-		p->room->requestRoomConfig();
-		p->ui = new Ui::RoomConfig();
-		p->ui->setupUi(this);
-		p->ui->okButton->setIcon(Icon(""));
-		p->ui->applyButton->setIcon(Icon(""));
-		p->ui->cancelButton->setIcon(Icon(""));
-		setWindowTitle(tr("Room configuration: %1")
-				.arg(QString::fromStdString(room->name()) % QLatin1Char('@') % QString::fromStdString(room->service())));
-	}
+JConferenceConfig::JConferenceConfig(MUCRoom *room, QWidget *parent) : QWidget(parent), p(new JConferenceConfigPrivate)
+{
+	p->room = room;
+	p->room->registerMUCRoomConfigHandler(this);
+	p->room->requestRoomConfig();
+	p->ui = new Ui::RoomConfig();
+	p->ui->setupUi(this);
+	p->ui->okButton->setIcon(Icon(""));
+	p->ui->applyButton->setIcon(Icon(""));
+	p->ui->cancelButton->setIcon(Icon(""));
+	setWindowTitle(tr("Room configuration: %1")
+				   .arg(QString::fromStdString(room->name()) % QLatin1Char('@') % QString::fromStdString(room->service())));
+}
 
-	JConferenceConfig::~JConferenceConfig()
-	{
-	}
+JConferenceConfig::~JConferenceConfig()
+{
+}
 
-	void JConferenceConfig::closeEvent(QCloseEvent *)
-	{
-		p->room->removeMUCRoomHandler();
-		emit destroyDialog();
-	}
+void JConferenceConfig::closeEvent(QCloseEvent *)
+{
+	p->room->removeMUCRoomHandler();
+	emit destroyDialog();
+}
 
-	void JConferenceConfig::handleMUCConfigForm(MUCRoom *room, const DataForm &form)
-	{
-		Q_ASSERT(p->room == room);
-		p->form = new JDataForm(new DataForm(form), this);
-		QGridLayout *layout = new QGridLayout(this);
-		p->ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-		p->ui->scrollArea->setWidgetResizable(true);
-		p->ui->scrollAreaWidgetContents->setLayout(layout);
-		QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-		p->form->setSizePolicy(sizePolicy);
-		layout->addWidget(p->form);
-	}
+void JConferenceConfig::handleMUCConfigForm(MUCRoom *room, const DataForm &form)
+{
+	Q_ASSERT(p->room == room);
+	p->form = new JDataForm(new DataForm(form), this);
+	QGridLayout *layout = new QGridLayout(this);
+	p->ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	p->ui->scrollArea->setWidgetResizable(true);
+	p->ui->scrollAreaWidgetContents->setLayout(layout);
+	QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	p->form->setSizePolicy(sizePolicy);
+	layout->addWidget(p->form);
+}
 
-	void JConferenceConfig::on_applyButton_clicked()
-	{
-		p->room->setRoomConfig(p->form->getDataForm());
-	}
+void JConferenceConfig::handleMUCConfigList(MUCRoom *room, const MUCListItemList &items, MUCOperation operation)
+{
+	Q_UNUSED(room);
+	Q_UNUSED(items);
+	Q_UNUSED(operation);
+}
 
-	void JConferenceConfig::on_okButton_clicked()
-	{
-		on_applyButton_clicked();
-		close();
-	}
+void JConferenceConfig::handleMUCConfigResult(MUCRoom *room, bool success, MUCOperation operation)
+{
+	Q_UNUSED(room);
+	Q_UNUSED(success);
+	Q_UNUSED(operation);
+}
+
+void JConferenceConfig::handleMUCRequest(MUCRoom *room, const DataForm &form)
+{
+	Q_UNUSED(room);
+	Q_UNUSED(form);
+}
+
+void JConferenceConfig::on_applyButton_clicked()
+{
+	p->room->setRoomConfig(p->form->getDataForm());
+}
+
+void JConferenceConfig::on_okButton_clicked()
+{
+	on_applyButton_clicked();
+	close();
+}
 }

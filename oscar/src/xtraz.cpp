@@ -451,6 +451,7 @@ XtrazPrivate::XtrazPrivate()
 }
 
 XtrazPrivate::XtrazPrivate(const XtrazPrivate &data)
+	: QSharedData(data)
 {
 	if (data.request) {
 		request.reset(new XtrazRequest);

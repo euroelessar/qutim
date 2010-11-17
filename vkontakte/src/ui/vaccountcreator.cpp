@@ -49,6 +49,7 @@ VAccountCreator::~VAccountCreator()
 
 QList< QWizardPage* > VAccountCreator::createPages(QWidget* parent)
 {
+	Q_UNUSED(parent);
 	page = new VAccountWizardPage(this);
 	QList<QWizardPage *> pages;
 	pages << page;

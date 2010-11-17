@@ -115,9 +115,9 @@ struct is_simple
 #define ADD_SIMPLE_TYPE(T)\
 	template<> \
 	struct is_simple<T> \
-	{ \
-		static const bool value = true; \
-	}
+{ \
+	static const bool value = true; \
+}
 
 ADD_SIMPLE_TYPE(quint8);
 ADD_SIMPLE_TYPE(quint16);
@@ -272,8 +272,8 @@ struct fromDataUnitHelper<T, true>
 		if (state >= d.data().size())
 			return 0;
 		return bo == BigEndian ?
-				qFromBigEndian<T>((const uchar *) d.data().constData() + state) :
-				qFromLittleEndian<T>((const uchar *) d.data().constData() + state);
+					qFromBigEndian<T>((const uchar *) d.data().constData() + state) :
+					qFromLittleEndian<T>((const uchar *) d.data().constData() + state);
 	}
 };
 
@@ -282,6 +282,7 @@ struct fromDataUnitHelper<qint8, true>
 {
 	static inline qint8 fromByteArray(const DataUnit &d, ByteOrder bo = BigEndian) // TODO: remove bo
 	{
+		Q_UNUSED(bo);
 		if (d.dataSize() < 1)
 			return 0;
 		d.skipData(1);
@@ -294,6 +295,7 @@ struct fromDataUnitHelper<quint8, true>
 {
 	static inline quint8 fromByteArray(const DataUnit &d, ByteOrder bo = BigEndian) // TODO: remove bo
 	{
+		Q_UNUSED(bo);
 		return static_cast<quint8>(fromDataUnitHelper<qint8,true>::fromByteArray(d));
 	}
 };

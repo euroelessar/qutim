@@ -30,7 +30,7 @@ protected:
 	bool handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, Feedbag::ModifyType type, FeedbagError error);
 private slots:
 	void sendAuthResponse(bool auth);
-	void onSendRequestClicked(QAction *action, QObject *object);
+	void onSendRequestClicked(QObject *object);
 	void sendAuthRequest();
 private:
 	static Authorization *self;
