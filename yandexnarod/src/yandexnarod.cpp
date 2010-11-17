@@ -179,7 +179,7 @@ void YandexNarodPlugin::actionStart()
 {
 }
 
-void YandexNarodPlugin::onFileURL(const QString &url)
+void YandexNarodPlugin::onFileURL(const QString &)
 {
 //	YandexNarodNetMan *netMan = qobject_cast<YandexNarodNetMan *>(sender());
 //	Q_ASSERT(netMan);

@@ -193,24 +193,24 @@ void WContact::getForecast()
 	m_wmanager->update( 5 );
 }
 
-bool WContact::sendMessage( const Message &message )
+bool WContact::sendMessage(const Message &)
 {
 	return false;
 }
 
-void WContact::setName( const QString &name )
+void WContact::setName(const QString &)
 {
-	emit nameChanged( m_name, m_name );
+	emit nameChanged(m_name, m_name);
 }
 
-void WContact::setNamev2( const QString &name )
+void WContact::setNamev2(const QString &name)
 {
 	QString previous = m_name;
 	m_name = name;
-	emit nameChanged( m_name, previous );
+	emit nameChanged(m_name, previous);
 }
 
-void WContact::setTags( const QStringList &tags )
+void WContact::setTags(const QStringList &)
 {
 	emit tagsChanged( m_tags, m_tags );
 }

@@ -30,12 +30,12 @@ QList< Account * > WProtocol::accounts() const
 	return QList< Account * >() << m_account;
 }
 
-Account *WProtocol::account( const QString &id ) const
+Account *WProtocol::account(const QString &) const
 {
 	return m_account;
 }
 
 void WProtocol::loadAccounts()
 {
-	m_account = new WAccount( this );
+	m_account = new WAccount(this);
 }
