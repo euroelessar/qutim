@@ -30,6 +30,7 @@ class LIBOSCAR_EXPORT AbstractMetaRequest : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(AbstractMetaRequest)
+	Q_DISABLE_COPY(AbstractMetaRequest)
 public:
 	AbstractMetaRequest();
 	virtual ~AbstractMetaRequest();
@@ -51,8 +52,6 @@ protected:
 	void close(bool ok);
 protected:
 	QScopedPointer<AbstractMetaRequestPrivate> d_ptr;
-private:
-	AbstractMetaRequest(const AbstractMetaRequest &request);
 };
 
 } } // namespace qutim_sdk_0_3::oscar

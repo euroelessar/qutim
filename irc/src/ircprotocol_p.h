@@ -24,8 +24,9 @@ namespace qutim_sdk_0_3 {
 
 namespace irc {
 
-struct IrcProtocolPrivate
+class IrcProtocolPrivate
 {
+public:
 	inline IrcProtocolPrivate() :
 		accounts_hash(new QHash<QString, QPointer<IrcAccount> > ())
 	{ }

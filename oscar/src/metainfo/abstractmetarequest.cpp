@@ -58,7 +58,7 @@ void AbstractMetaRequest::cancel()
 }
 
 AbstractMetaRequest::AbstractMetaRequest(IcqAccount *account, AbstractMetaRequestPrivate *d) :
-		d_ptr(d)
+	d_ptr(d)
 {
 	d->id = MetaInfo::instance().nextId();
 	d->account = account;
@@ -101,11 +101,6 @@ QString AbstractMetaRequest::readSString(const DataUnit &data)
 	if (str.endsWith(QChar('\0')))
 		str.chop(1);
 	return str;
-}
-
-AbstractMetaRequest::AbstractMetaRequest(const AbstractMetaRequest &request)
-{
-	Q_UNUSED(request);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

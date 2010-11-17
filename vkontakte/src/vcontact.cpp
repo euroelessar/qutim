@@ -69,11 +69,13 @@ bool VContact::sendMessage(const Message& message)
 
 void VContact::setTags(const QStringList& tags)
 {
+	Q_UNUSED(tags);
 	//	d_func()->tags = tags;
 }
 
 void VContact::setInList(bool inList)
 {
+	Q_UNUSED(inList);
 	//	d_func()->inList = inList;
 }
 
