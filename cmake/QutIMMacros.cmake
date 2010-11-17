@@ -233,7 +233,7 @@ Q_IMPORT_PLUGIN(${plugin_name})
 	#more effective compile flags
 	if(MSVC)
 		set(QUTIM_${plugin_name}_COMPILE_FLAGS
-			"${QUTIM_${plugin_name}_COMPILE_FLAGS} /W3 /WX")
+			"${QUTIM_${plugin_name}_COMPILE_FLAGS} /W3")
 	else()
 		set(QUTIM_${plugin_name}_COMPILE_FLAGS
 			"${QUTIM_${plugin_name}_COMPILE_FLAGS} -Wall -Wextra -Wnon-virtual-dtor")
