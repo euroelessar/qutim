@@ -32,7 +32,8 @@ namespace Core {
 	m_resultModel(new ResultModel(this)),
 	m_requestsModel(new RequestsListModel(factories, this))
 	{
-
+		setWindowIcon(icon);
+		setWindowTitle(title);
 	}
 
 	AbstractSearchForm::~AbstractSearchForm()

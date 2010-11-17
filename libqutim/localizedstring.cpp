@@ -25,6 +25,7 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		virtual QString text() const = 0;
+		virtual ~LocalizationEngine() {}
 	};
 	// Args are usefull sometimes, i.e. at strings like
 	// LocalizedString("", "Hello, %1").arg("Tom"), where

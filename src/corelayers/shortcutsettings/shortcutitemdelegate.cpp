@@ -7,119 +7,119 @@
 
 namespace Core
 {
-	
-	ShortcutItemDelegate::ShortcutItemDelegate(QObject* parent):
-			QAbstractItemDelegate(parent),
-			m_vertical_padding(6),
-			m_horizontal_padding(9)
-	{
 
-	}
+ShortcutItemDelegate::ShortcutItemDelegate(QObject* parent):
+	QAbstractItemDelegate(parent),
+	m_vertical_padding(6),
+	m_horizontal_padding(9)
+{
 
-	void ShortcutItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
-	{
-		QStyleOptionViewItemV4 opt(option);
-		QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
-		style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
+}
 
-		QIcon item_icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
+void ShortcutItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+	QStyleOptionViewItemV4 opt(option);
+	QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
+	style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
 
-		QIcon::Mode mode = QIcon::Normal;
+	QIcon item_icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
 
-		//Qt::CheckState state = static_cast<Qt::CheckState>(index.data(Qt::CheckStateRole).toInt());
+	QIcon::Mode mode = QIcon::Normal;
 
-		QFont painter_font = painter->font();
+	//Qt::CheckState state = static_cast<Qt::CheckState>(index.data(Qt::CheckStateRole).toInt());
 
-		bool group = index.data(Qt::UserRole).toBool();
+	QFont painter_font = painter->font();
 
-		if (group) {
-			QFont font = painter_font;
-			font.setBold(true);
-			painter->setFont(font);
-			
-			QStyleOptionButton buttonOption;
-			buttonOption.state = option.state;
+	bool group = index.data(Qt::UserRole).toBool();
+
+	if (group) {
+		QFont font = painter_font;
+		font.setBold(true);
+		painter->setFont(font);
+
+		QStyleOptionButton buttonOption;
+		buttonOption.state = option.state;
 #ifdef Q_WS_MAC
-			buttonOption.state |= QStyle::State_Raised;
-			buttonOption.features = QStyleOptionButton::Flat;
-			buttonOption.state &= ~QStyle::State_HasFocus;
+		buttonOption.state |= QStyle::State_Raised;
+		buttonOption.features = QStyleOptionButton::Flat;
+		buttonOption.state &= ~QStyle::State_HasFocus;
 #endif
 
-			buttonOption.rect = option.rect;
-			buttonOption.palette = option.palette;
-			style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
-		}
-
-		item_icon.paint(painter,
-						option.rect,
-						Qt::AlignVCenter,
-						mode);
-
-		QString name = index.data(Qt::DisplayRole).toString();
-
-		if (index.data(GlobalRole).toBool())
-			name.append(tr(" (global)"));
-
-		QRect rect = option.rect;
-		int decoration_width = item_icon.isNull() ? 0 : option.decorationSize.width();
-		rect.setX(rect.x() + decoration_width + m_horizontal_padding);
-		painter->drawText(rect,
-						  Qt::AlignVCenter | Qt::AlignLeft,
-						  name
-						  );
-
-		painter->setFont(painter_font);
-
-		QKeySequence sequence = index.data(SequenceRole).value<QKeySequence>();
-
-		rect.setWidth(rect.width() - m_horizontal_padding);
-		painter->drawText(rect,
-						  Qt::AlignVCenter | Qt::AlignRight,
-						  sequence.toString()
-						  );
-
+		buttonOption.rect = option.rect;
+		buttonOption.palette = option.palette;
+		style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
 	}
 
-	QSize ShortcutItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
-	{
-		Q_UNUSED(index);
-		QSize size(option.decorationSize);
-		size += QSize(0,m_vertical_padding);
-		return size;
-	}
+	item_icon.paint(painter,
+					option.rect,
+					Qt::AlignVCenter,
+					mode);
+
+	QString name = index.data(Qt::DisplayRole).toString();
+
+	if (index.data(GlobalRole).toBool())
+		name.append(tr(" (global)"));
+
+	QRect rect = option.rect;
+	int decoration_width = item_icon.isNull() ? 0 : option.decorationSize.width();
+	rect.setX(rect.x() + decoration_width + m_horizontal_padding);
+	painter->drawText(rect,
+					  Qt::AlignVCenter | Qt::AlignLeft,
+					  name
+					  );
+
+	painter->setFont(painter_font);
+
+	QKeySequence sequence = index.data(SequenceRole).value<QKeySequence>();
+
+	rect.setWidth(rect.width() - m_horizontal_padding);
+	painter->drawText(rect,
+					  Qt::AlignVCenter | Qt::AlignRight,
+					  sequence.toString()
+					  );
+
+}
+
+QSize ShortcutItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+	Q_UNUSED(index);
+	QSize size(option.decorationSize);
+	size += QSize(0,m_vertical_padding);
+	return size;
+}
 
 
-	bool ShortcutItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)
-	{
-		//		if (event->type() == QEvent::MouseButtonPress) {
-		//		}
-		return QAbstractItemDelegate::editorEvent(event, model, option, index);
-	}
+bool ShortcutItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)
+{
+	//		if (event->type() == QEvent::MouseButtonPress) {
+	//		}
+	return QAbstractItemDelegate::editorEvent(event, model, option, index);
+}
 
-	QWidget *ShortcutItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
-	{
-		KeySequenceWidget *input_btn = new KeySequenceWidget(parent);
-		input_btn->setText(tr("%1 : input").arg(index.data(Qt::DisplayRole).toString()));
-		input_btn->captureSequence();
-		return input_btn;
-	}
+QWidget *ShortcutItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &index) const
+{
+	KeySequenceWidget *input_btn = new KeySequenceWidget(parent);
+	input_btn->setText(tr("%1 : input").arg(index.data(Qt::DisplayRole).toString()));
+	input_btn->captureSequence();
+	return input_btn;
+}
 
-	void ShortcutItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
-	{
-		editor->setGeometry(option.rect);
-	}
-	
-	void ShortcutItemDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
-	{
-		KeySequenceWidget *button = static_cast<KeySequenceWidget *>(editor);
-		button->setText(index.data(SequenceRole).value<QKeySequence>().toString());
-		QAbstractItemDelegate::setEditorData(editor, index);
-	}
+void ShortcutItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &) const
+{
+	editor->setGeometry(option.rect);
+}
 
-	void ShortcutItemDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
-	{
-		KeySequenceWidget *button = static_cast<KeySequenceWidget *>(editor);
-		model->setData(index,button->sequence(),SequenceRole);
-	}
+void ShortcutItemDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
+{
+	KeySequenceWidget *button = static_cast<KeySequenceWidget *>(editor);
+	button->setText(index.data(SequenceRole).value<QKeySequence>().toString());
+	QAbstractItemDelegate::setEditorData(editor, index);
+}
+
+void ShortcutItemDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
+{
+	KeySequenceWidget *button = static_cast<KeySequenceWidget *>(editor);
+	model->setData(index,button->sequence(),SequenceRole);
+}
 
 }

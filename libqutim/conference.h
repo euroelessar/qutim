@@ -52,6 +52,7 @@ public:
 	virtual QString setName() = 0;
 	virtual QString name() = 0;
 	virtual QVariant description() = 0;
+	virtual ~AbstractBookMarksItem() {}
 };
 
 }

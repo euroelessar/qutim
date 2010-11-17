@@ -154,6 +154,8 @@ namespace Core {
 		beginRemoveRows(QModelIndex(), pos, pos);
 		m_accounts.removeAt(pos);
 		endRemoveRows();
+		if(disconnectSlots)
+			account->disconnect(this);
 	}
 
 } // namespace Core

@@ -56,8 +56,6 @@ public:
 	{
 		return ChatAppearance::tr("Noname");
 	}
-
-	virtual void setChatState(ChatState state) {}
 };
 class FakeAccount : public Account
 {

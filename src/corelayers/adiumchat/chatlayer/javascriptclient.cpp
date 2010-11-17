@@ -37,8 +37,9 @@ void JavaScriptClient::debugLog(const QVariant &text)
 	qDebug("WebKit: \"%s\"", qPrintable(text.toString()));
 }
 
-bool JavaScriptClient::zoomImage(const QVariant &text)
+bool JavaScriptClient::zoomImage(const QVariant &)
 {
+	//TODO WTF? Oo
 	return false;
 }
 
