@@ -143,18 +143,20 @@ ADD_EXECUTABLE (qutim
 	${QUTIM_ADDITIONAL_SOURCES}
 	)
 
-if( CMAKE_COMPILER_IS_GNUCXX )
-	set_target_properties( qutim PROPERTIES COMPILE_FLAGS "-DQUTIM_CORE -DXDG_STATIC -Wall -Werror" )
-	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "-Wall -Werror -Wextra" )
-	if( NOT WIN32 )
-		set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "-fvisibility=hidden" )
-	endif( NOT WIN32 )
+if(MSVC)
+	set(QUTIM_COMPILE_FLAGS "{$QUTIM_COMPILE_FLAGS} /W3")
+	set(LIBQUTIM_COMPILE_FLAGS "{$LIBQUTIM_COMPILE_FLAGS} /W3 /WX /wd4065")
 elseif(MSVC)
-	set_target_properties( qutim PROPERTIES COMPILE_FLAGS "-DQUTIM_CORE -DXDG_STATIC /W3" )
-	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "/W3 /WX /wd4065" )
-else()
-	set_target_properties( qutim PROPERTIES COMPILE_FLAGS "-DQUTIM_CORE -DXDG_STATIC" )
+	set(QUTIM_COMPILE_FLAGS "{$QUTIM_COMPILE_FLAGS} -Wall -Werror -Wnon-virtual-dtor")
+	set(LIBQUTIM_COMPILE_FLAGS "{$LIBQUTIM_COMPILE_FLAGS} -Wall -Werror -Wextra -Wnon-virtual-dtor")
+	if(NOT WIN32)
+		set(LIBQUTIM_COMPILE_FLAGS "{$LIBQUTIM_COMPILE_FLAGS} -fvisibility=hidden")
+	endif(NOT WIN32)
 endif()
+
+set(QUTIM_COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS} -DQUTIM_CORE -DXDG_STATIC")
+set_target_properties(qutim PROPERTIES COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS}")
+set_target_properties(libqutim PROPERTIES COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS}")
 
 TARGET_LINK_LIBRARIES (qutim
 	${QT_LIBRARIES}
