@@ -30,6 +30,7 @@ public:
 	QString passwd;
 	QString nick;
 	bool keepStatus;
+	jreen::Presence::Type status;
 	void setPresence(jreen::Presence);
 public slots:	
 	void onConnected();
@@ -40,7 +41,7 @@ public:	//old code
 	JConnectionListener *connectionListener;
 	JMessageHandler *messageHandler;
 	QVariantList toVariant(const QList<JBookmark> &list);
-	Presence::PresenceType status;
+//	Presence::PresenceType status;
 	JMUCManager *conferenceManager;
 	QPointer<JServiceDiscovery> discoManager;
 //	QSet<QString> features;

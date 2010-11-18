@@ -33,24 +33,23 @@ void JAccountPrivate::setPresence(jreen::Presence presence)
 {
 	Q_Q(JAccount);
 	Status now = q->status();
-	now.setType(JStatus::presenceToStatus(presence.presence()));
+	status = presence.presence();
+	now.setType(JStatus::presenceToStatus(status));
 	now.setText(presence.status());
-	q->setStatus(now);
-	emit q->statusChanged(now,q->status());
+	q->setAccountStatus(now);
 }
 
 void JAccountPrivate::onConnected()
 {
 	Status s = q_func()->status();
-	client.setPresence(JStatus::statusToPresence(s),
-					   s.text());
+	client.setPresence(status,s.text());
 }
 
 void JAccountPrivate::onDisconnected()
 {
 	Q_Q(JAccount);
 	Status now = q->status();
-	now.setType(Status::Offline);
+	now.setType(Status::Offline);	
 	emit q->statusChanged(now,q->status());
 }
 
@@ -73,13 +72,13 @@ JAccount::JAccount(const QString &jid) :
 			d->roster, SLOT(load()));
 
 	//old code
-//	d->discoManager = 0;
-//	d->connection = new JConnection(this);
-//	d->connectionListener = new JConnectionListener(this);
-//	Q_UNUSED(new JServerDiscoInfo(this));
+	//	d->discoManager = 0;
+	//	d->connection = new JConnection(this);
+	//	d->connectionListener = new JConnectionListener(this);
+	//	Q_UNUSED(new JServerDiscoInfo(this));
 	//d->roster = new JRoster(this);
 	//d->messageHandler = new JMessageHandler(this);
-//	d->conferenceManager = new JMUCManager(this);
+	//	d->conferenceManager = new JMUCManager(this);
 	//	connect(d->conferenceManager, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
 	//			SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
 	//	d->connection->initExtensions();
@@ -98,11 +97,11 @@ ChatUnit *JAccount::getUnitForSession(ChatUnit *unit)
 
 ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 {
-//	Q_D(JAccount);
-//	ChatUnit *unit = 0;
-//	if (!!(unit = d->conferenceManager->muc(unitId)))
-//		return unit;
-//	return d->roster->contact(unitId, create);
+	//	Q_D(JAccount);
+	//	ChatUnit *unit = 0;
+	//	if (!!(unit = d->conferenceManager->muc(unitId)))
+	//		return unit;
+	//	return d->roster->contact(unitId, create);
 	return 0;
 }
 
@@ -144,7 +143,6 @@ void JAccount::loadSettings()
 	d->client.setPort(general.value("port", 5222));
 	d->keepStatus = general.value("keepstatus", true);
 	d->nick = general.value("nick", id());
-	d->status = static_cast<Presence::PresenceType>(general.value("prevstatus", 8));
 	general.endGroup();
 }
 
@@ -234,15 +232,20 @@ void JAccount::setStatus(Status status)
 
 	if(old.type() == Status::Offline && status.type() != Status::Offline) {
 		d->client.connectToServer();
+		d->status = JStatus::statusToPresence(status);
 		status.setType(Status::Connecting);
-		emit statusChanged(status,old);
+		setAccountStatus(status);
 	} else if(status.type() == Status::Offline) {
-		d->client.disconnectFromServer();
-	} else {
+		d->client.disconnectFromServer(old.type() == Status::Connecting);
+	} else if(old.type() != Status::Offline && old.type() != Status::Connecting)
 		d->client.setPresence(JStatus::statusToPresence(status),
 							  status.text());
-	}
+}
+
+void JAccount::setAccountStatus(Status status)
+{
 	Account::setStatus(status);
+	emit statusChanged(status,this->status());
 }
 
 QString JAccount::getAvatarPath()

@@ -49,6 +49,7 @@ public:
 	JServiceDiscovery *discoManager();
 	JMUCManager *conferenceManager();
 	virtual void setStatus(Status status);
+	void setAccountStatus(Status status);
 	QString getAvatarPath();
 	void setAvatar(const QString &hex);
 	bool event(QEvent *);
