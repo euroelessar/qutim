@@ -4,6 +4,8 @@
 #include <qutim/contact.h>
 #include <gloox/presence.h>
 #include "../roster/jmessagesessionowner.h"
+//jreen
+#include <jreen/abstractroster.h>
 
 namespace jreen
 {
@@ -38,7 +40,9 @@ public:
 	void setContactName(const QString &name);
 	void setTags(const QStringList &tags);
 	void setContactTags(const QStringList &tags);
+	//jreen
 	void setStatus(const jreen::Presence presence);
+	void setContactSubscription(jreen::AbstractRosterItem::SubscriptionType subscription);
 	//dead code
 	void setStatus(const QString &resource, gloox::Presence::PresenceType presence, int priority,
 				   const QString &text = QString());

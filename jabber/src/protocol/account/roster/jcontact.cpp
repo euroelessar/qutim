@@ -36,6 +36,7 @@ public:
 	QString avatar;
 	QStringRef hash;
 	QHash<QString, QVariantHash> extInfo;
+	jreen::AbstractRosterItem::SubscriptionType subscription;
 };
 
 JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_ptr(new JContactPrivate)
@@ -150,6 +151,11 @@ void JContact::setInList(bool inList)
 	//			rosterManager->remove(d->jid.toStdString());
 }
 
+void JContact::setContactSubscription(jreen::AbstractRosterItem::SubscriptionType subscription)
+{
+	d_func()->subscription = subscription;
+}
+
 inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)
 {
 	switch (state) {
@@ -181,6 +187,31 @@ bool JContact::event(QEvent *ev)
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		Q_D(JContact);
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
+
+		//TODO move to public method
+		LocalizedString subscriptionStr;
+		switch(d->subscription) {
+			case jreen::AbstractRosterItem::None:
+				subscriptionStr = QT_TRANSLATE_NOOP("Jabber","None");
+				break;
+			case jreen::AbstractRosterItem::From:
+				subscriptionStr = QT_TRANSLATE_NOOP("Jabber","From");
+				break;
+			case jreen::AbstractRosterItem::To:
+				subscriptionStr = QT_TRANSLATE_NOOP("Jabber","To");
+				break;
+			case jreen::AbstractRosterItem::Both:
+				subscriptionStr = QT_TRANSLATE_NOOP("Jabber","Both");
+				break;
+			case jreen::AbstractRosterItem::Remove:
+				subscriptionStr = QT_TRANSLATE_NOOP("Jabber","Remove");
+				break;
+		}
+
+		event->addField(QT_TRANSLATE_NOOP("Jabber","Subscription"),
+						subscriptionStr
+						);
+
 		foreach (const QString &id, d->resources.keys()) {
 			JContactResource *resource = d->resources.value(id);
 			ToolTipEvent resourceEvent(false);
@@ -222,7 +253,7 @@ void JContact::addResource(const QString &resource)
 
 void JContact::setStatus(const jreen::Presence presence)
 {
-	QString resource = presence.to().resource();
+	QString resource = presence.from().resource();
 	jreen::Presence::Type type = presence.presence();
 
 	Q_D(JContact);
@@ -248,29 +279,8 @@ void JContact::setStatus(const jreen::Presence presence)
 		emit statusChanged(newStatus, oldStatus);
 }
 
-void JContact::setStatus(const QString &resource, Presence::PresenceType presence, int priority, const QString &text)
+void JContact::setStatus(const QString &, Presence::PresenceType , int , const QString &)
 {
-//	Q_D(JContact);
-//	Status oldStatus = status();
-//	if (presence == Presence::Unavailable && resource.isEmpty()) {
-//		qDeleteAll(d->resources);
-//		d->resources.clear();
-//		d->currentResources.clear();
-//	} else if (resource.isEmpty()) {
-//		return;
-//	} else if (presence == Presence::Unavailable) {
-//		if (d->resources.contains(resource))
-//			removeResource(resource);
-//	} else {
-//		if (!d->resources.contains(resource))
-//			addResource(resource);
-//		d->resources.value(resource)->setStatus(presence, priority, text);
-//		fillMaxResource();
-//	}
-//	Status newStatus = status();
-//	//		debug() << oldStatus.type() << newStatus.type();
-//	if(oldStatus.type() != newStatus.type())
-//		emit statusChanged(newStatus, oldStatus);
 }
 
 void JContact::removeResource(const QString &resource)

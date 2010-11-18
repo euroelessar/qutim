@@ -37,6 +37,8 @@ JRoster::JRoster(JAccount *account) :
 	d->account = account;
 	connect(d->account->client(),SIGNAL(newPresence(jreen::Presence)),
 			this,SLOT(handleNewPresence(jreen::Presence)));
+	connect(d->account->client(),SIGNAL(disconnected()),
+			this,SLOT(onDisconnected()));
 }
 
 JRoster::~JRoster()
@@ -104,13 +106,12 @@ ChatUnit *JRoster::contact(const QString &id, bool create)
 void JRoster::fillContact(JContact *contact, QSharedPointer<jreen::AbstractRosterItem> item)
 {
 	QString name = item->name();
-	if (contact->name() != name)
-		contact->setContactName(name);
+	contact->setContactName(name);
 	QStringList tags = item->groups();
-	if (contact->tags() != tags)
-		contact->setContactTags(tags);
+	contact->setContactTags(tags);
 	if (!contact->isInList())
 		contact->setContactInList(true);
+	contact->setContactSubscription(item->subscriptionType());
 }
 
 void JRoster::handleNewPresence(jreen::Presence presence)
@@ -125,6 +126,16 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 	JContact *c = d->contacts.value(bare);
 	if(c)
 		c->setStatus(presence);
+}
+
+void JRoster::onDisconnected()
+{
+	Q_D(JRoster);
+	foreach(JContact *c,d->contacts) {
+		jreen::Presence unavailable(jreen::Presence::Unavailable,
+									c->id());
+		c->setStatus(unavailable);
+	}
 }
 
 //dead code

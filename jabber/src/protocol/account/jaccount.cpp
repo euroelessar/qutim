@@ -22,6 +22,7 @@ class JPasswordValidator : public QValidator
 {
 	State validate(QString &input, int &pos) const
 	{
+		Q_UNUSED(pos);
 		if (input.isEmpty())
 			return Intermediate;
 		else
@@ -37,6 +38,8 @@ void JAccountPrivate::setPresence(jreen::Presence presence)
 	now.setType(JStatus::presenceToStatus(status));
 	now.setText(presence.status());
 	q->setAccountStatus(now);
+	if(status == jreen::Presence::Unavailable)
+		client.disconnectFromServer(true);
 }
 
 void JAccountPrivate::onConnected()
@@ -236,6 +239,11 @@ void JAccount::setStatus(Status status)
 		status.setType(Status::Connecting);
 		setAccountStatus(status);
 	} else if(status.type() == Status::Offline) {
+		bool force = old.type() == Status::Connecting;
+		if(force) {
+			status.setType(Status::Offline);
+			setAccountStatus(status);
+		}
 		d->client.disconnectFromServer(old.type() == Status::Connecting);
 	} else if(old.type() != Status::Offline && old.type() != Status::Connecting)
 		d->client.setPresence(JStatus::statusToPresence(status),

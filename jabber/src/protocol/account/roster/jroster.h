@@ -32,6 +32,7 @@ protected:
 	void fillContact(JContact *contact, QSharedPointer<jreen::AbstractRosterItem> item);
 protected slots:
 	void handleNewPresence(jreen::Presence);
+	void onDisconnected();
 private:
 	QScopedPointer<JRosterPrivate> d_ptr;
 };
