@@ -16,6 +16,7 @@
 #ifndef PROTOCOLCHOOSERWIDGET_H
 #define PROTOCOLCHOOSERWIDGET_H
 #include <qutim/settingswidget.h>
+#include <QModelIndex>
 #include <QHash>
 
 namespace qutim_sdk_0_3 
@@ -47,6 +48,7 @@ namespace Core
 		virtual ~ProtocolChooserWidget();
 	private slots:
 		void onItemChanged(QStandardItem*);
+		void onItemClicked(QModelIndex index);
 	private:
 		void clear();
 		Ui::ServiceChooser *ui;
