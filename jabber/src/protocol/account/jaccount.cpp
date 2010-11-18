@@ -56,14 +56,17 @@ void JAccountPrivate::onDisconnected()
 	emit q->statusChanged(now,q->status());
 }
 
-JAccount::JAccount(const QString &jid) :
-	Account(jid, JProtocol::instance()),
+JAccount::JAccount(const QString &id) :
+	Account(id, JProtocol::instance()),
 	d_ptr(new JAccountPrivate(this))
 {
 	Q_D(JAccount);
 	p = d; //for dead code
 	Account::setStatus(Status::instance(Status::Offline, "jabber"));
-	d->client.setJID(jreen::JID(id()));
+
+	jreen::JID jid(id);
+	jid.setResource(QLatin1String("jreen(qutIM)"));
+	d->client.setJID(jid);
 	d->roster = new JRoster(this);
 	loadSettings();
 
@@ -100,15 +103,15 @@ ChatUnit *JAccount::getUnitForSession(ChatUnit *unit)
 
 ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 {
-	//	Q_D(JAccount);
+	Q_D(JAccount);
 	//	ChatUnit *unit = 0;
 	//	if (!!(unit = d->conferenceManager->muc(unitId)))
 	//		return unit;
-	//	return d->roster->contact(unitId, create);
+	return d->roster->contact(unitId, create);
 	return 0;
 }
 
-void JAccount::beginChangeStatus(Presence::PresenceType presence)
+void JAccount::beginChangeStatus(Presence::PresenceType)
 {
 	//	Q_D(JAccount);
 	//		d->connection->setConnectionPresence(presence);
@@ -245,9 +248,10 @@ void JAccount::setStatus(Status status)
 			setAccountStatus(status);
 		}
 		d->client.disconnectFromServer(old.type() == Status::Connecting);
-	} else if(old.type() != Status::Offline && old.type() != Status::Connecting)
+	} else if(old.type() != Status::Offline && old.type() != Status::Connecting) {
 		d->client.setPresence(JStatus::statusToPresence(status),
 							  status.text());
+	}
 }
 
 void JAccount::setAccountStatus(Status status)
