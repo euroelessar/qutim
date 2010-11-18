@@ -1,7 +1,8 @@
-find_package( Qt4 COMPONENTS QtWebkit )
+FIND_PACKAGE( Qt4 COMPONENTS QtWebkit)
 
 include_directories(.
-	chatlayer)
+	chatlayer
+	${QT_QTWEBKIT_INCLUDE_DIR})
 
 qutim_add_plugin(adiumchat
 	SUBPLUGIN
@@ -42,5 +43,5 @@ qutim_add_plugin(webkitchat
 	SOURCE_DIR webkitchat
 	DESCRIPTION "Default qutIM chat implementation, based on Adium chat styles"
 	DEPENDS adiumchat
-	LINK_LIBRARIES adiumchat
+	LINK_LIBRARIES ${QT_QTWEBKIT} adiumchat
 )
