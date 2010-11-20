@@ -8,7 +8,10 @@
 #include <gloox/subscriptionhandler.h>
 #include <qutim/messagesession.h>
 #include "metacontacts.h"
+//jreen
 #include <jreen/abstractroster.h>
+#include <jreen/message.h>
+
 
 namespace Jabber
 {
@@ -33,6 +36,7 @@ protected:
 protected slots:
 	void handleNewPresence(jreen::Presence);
 	void onDisconnected();
+	void onNewMessage(jreen::Message message); //TODO move this method to JMessageManager
 private:
 	QScopedPointer<JRosterPrivate> d_ptr;
 };

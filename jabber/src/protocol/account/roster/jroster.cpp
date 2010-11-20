@@ -5,17 +5,20 @@
 #include "jcontactresource.h"
 #include "../vcard/jvcardmanager.h"
 #include <QFile>
-#include <gloox/vcardupdate.h>
-#include <gloox/subscription.h>
-#include <gloox/nickname.h>
+//#include <gloox/vcardupdate.h>
+//#include <gloox/subscription.h>
+//#include <gloox/nickname.h>
 #include <qutim/metacontact.h>
 #include <qutim/metacontactmanager.h>
 #include <QFile>
 #include <QStringBuilder>
 #include <qutim/authorizationdialog.h>
 #include <qutim/notificationslayer.h>
+#include <qutim/messagesession.h>
 #include "../jaccount_p.h"
 #include <qutim/debug.h>
+//jreen
+#include <jreen/chatstate.h>
 
 namespace Jabber
 {
@@ -39,6 +42,8 @@ JRoster::JRoster(JAccount *account) :
 			this,SLOT(handleNewPresence(jreen::Presence)));
 	connect(d->account->client(),SIGNAL(disconnected()),
 			this,SLOT(onDisconnected()));
+	connect(d->account->client(),SIGNAL(newMessage(jreen::Message)),
+			this,SLOT(onNewMessage(jreen::Message)));
 }
 
 JRoster::~JRoster()
@@ -136,6 +141,28 @@ void JRoster::onDisconnected()
 									c->id());
 		c->setStatus(unavailable);
 	}
+}
+
+void JRoster::onNewMessage(jreen::Message message)
+{
+	Q_D(JRoster);
+	//temporary
+	JContact *c = d->contacts.value(message.from().bare());
+	if(!c)
+		return;
+	qutim_sdk_0_3::Message coreMessage;
+	QSharedPointer<jreen::ChatState> state = message.findExtension<jreen::ChatState>();
+	if (state) {
+		qDebug() << "new state" << state->state();
+		c->setChatState(static_cast<ChatState>(state->state()));
+	}
+	if(message.body().isEmpty())
+		return;
+	coreMessage.setText(message.body());
+	coreMessage.setProperty("subject",message.subject());
+	coreMessage.setChatUnit(c);
+	coreMessage.setIncoming(true);
+	ChatLayer::get(c,true)->appendMessage(coreMessage);
 }
 
 //dead code

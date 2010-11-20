@@ -5,8 +5,6 @@
 #include "muc/jbookmarkmanager.h"
 //jreen
 #include <jreen/client.h>
-#include <jreen/message.h>
-
 namespace jreen
 {
 class Client;
@@ -31,8 +29,8 @@ public:
 	QString nick;
 	bool keepStatus;
 	jreen::Presence::Type status;
-	void setPresence(jreen::Presence);
 public slots:	
+	void setPresence(jreen::Presence);
 	void onConnected();
 	void onDisconnected();
 public:	//old code

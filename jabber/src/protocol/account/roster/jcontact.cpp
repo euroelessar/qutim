@@ -18,6 +18,8 @@
 #include <qutim/metacontact.h>
 //jreen
 #include <jreen/presence.h>
+#include <jreen/client.h>
+#include <jreen/chatstate.h>
 
 using namespace gloox;
 
@@ -58,6 +60,7 @@ QString JContact::id() const
 
 bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 {
+	Q_D(JContact);
 	JAccount *acc = static_cast<JAccount*>(account());
 
 	if (acc->status() == Status::Offline)
@@ -66,6 +69,13 @@ bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 	//		if (!session())
 	//			d_func()->account->messageHandler()->createSession(this);
 	//		session()->sendMessage(message);
+
+	//TODO add messagesession support
+	jreen::Message jreenMessage(jreen::Message::Chat,id(),
+								message.text(),
+								message.property("subject").toString()
+								);
+	d->account->client()->send(jreenMessage);
 	return true;
 }
 
@@ -177,12 +187,14 @@ inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)
 bool JContact::event(QEvent *ev)
 {
 	if (ev->type() == ChatStateEvent::eventType()) {
-		//			Q_D(JContact);
-		//			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
-		//			Client *client = d->account->connection()->client();
-		//			gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
-		//			gmes.addExtension(new gloox::ChatState(qutIM2gloox(chatEvent->chatState())));
-		//			client->send(gmes);
+		Q_D(JContact);
+		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
+		jreen::ChatState::State state = static_cast<jreen::ChatState::State>(chatEvent->chatState());
+
+		jreen::Message msg(jreen::Message::Chat,
+							   d->jid);
+		msg.addExtension(new jreen::ChatState(state));
+		d->account->client()->send(msg);
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		Q_D(JContact);
@@ -191,21 +203,21 @@ bool JContact::event(QEvent *ev)
 		//TODO move to public method
 		LocalizedString subscriptionStr;
 		switch(d->subscription) {
-			case jreen::AbstractRosterItem::None:
-				subscriptionStr = QT_TRANSLATE_NOOP("Jabber","None");
-				break;
-			case jreen::AbstractRosterItem::From:
-				subscriptionStr = QT_TRANSLATE_NOOP("Jabber","From");
-				break;
-			case jreen::AbstractRosterItem::To:
-				subscriptionStr = QT_TRANSLATE_NOOP("Jabber","To");
-				break;
-			case jreen::AbstractRosterItem::Both:
-				subscriptionStr = QT_TRANSLATE_NOOP("Jabber","Both");
-				break;
-			case jreen::AbstractRosterItem::Remove:
-				subscriptionStr = QT_TRANSLATE_NOOP("Jabber","Remove");
-				break;
+		case jreen::AbstractRosterItem::None:
+			subscriptionStr = QT_TRANSLATE_NOOP("Jabber","None");
+			break;
+		case jreen::AbstractRosterItem::From:
+			subscriptionStr = QT_TRANSLATE_NOOP("Jabber","From");
+			break;
+		case jreen::AbstractRosterItem::To:
+			subscriptionStr = QT_TRANSLATE_NOOP("Jabber","To");
+			break;
+		case jreen::AbstractRosterItem::Both:
+			subscriptionStr = QT_TRANSLATE_NOOP("Jabber","Both");
+			break;
+		case jreen::AbstractRosterItem::Remove:
+			subscriptionStr = QT_TRANSLATE_NOOP("Jabber","Remove");
+			break;
 		}
 
 		event->addField(QT_TRANSLATE_NOOP("Jabber","Subscription"),
