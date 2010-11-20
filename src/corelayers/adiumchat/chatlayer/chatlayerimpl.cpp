@@ -115,7 +115,7 @@ QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 		icon_name = "im-user"; //TODO find icon
 		break;
 	case ChatStateInActive:
-		icon_name = "im-user";
+		icon_name = "im-user-away";
 		break;
 	case ChatStateGone:
 		icon_name =  "im-user-offline";
@@ -124,7 +124,7 @@ QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 		icon_name = "im-status-message-edit";
 		break;
 	case ChatStatePaused:
-		icon_name = "im-user-away";
+		icon_name = "im-user-busy";
 		break;
 	default:
 		break;
