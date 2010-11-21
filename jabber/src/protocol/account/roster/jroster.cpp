@@ -19,6 +19,8 @@
 #include <qutim/debug.h>
 //jreen
 #include <jreen/chatstate.h>
+#include <jreen/delayeddelivery.h>
+#include <jreen/receipt.h>
 
 namespace Jabber
 {
@@ -122,7 +124,20 @@ void JRoster::fillContact(JContact *contact, QSharedPointer<jreen::AbstractRoste
 void JRoster::handleNewPresence(jreen::Presence presence)
 {
 	Q_D(JRoster);
-	debug() << presence.from().bare() << presence.to().bare() << presence.status();
+
+	switch(presence.subtype())
+	{
+	case jreen::Presence::Subscribe:
+	case jreen::Presence::Unsubscribe:
+	case jreen::Presence::Unsubscribed:
+	case jreen::Presence::Subscribed:
+	case jreen::Presence::Error:
+	case jreen::Presence::Probe:
+		return;
+	default:
+		break;
+	}
+
 	QString bare = presence.from().bare();
 	if(d->account->id() == bare) {
 		d->account->d_func()->setPresence(presence);
@@ -150,14 +165,32 @@ void JRoster::onNewMessage(jreen::Message message)
 	JContact *c = d->contacts.value(message.from().bare());
 	if(!c)
 		return;
-	qutim_sdk_0_3::Message coreMessage;
-	QSharedPointer<jreen::ChatState> state = message.findExtension<jreen::ChatState>();
-	if (state) {
+	jreen::ChatState *state = message.findExtension<jreen::ChatState>().data();
+	if(state) {
 		qDebug() << "new state" << state->state();
 		c->setChatState(static_cast<ChatState>(state->state()));
 	}
+	jreen::Receipt *receipt = message.findExtension<jreen::Receipt>().data();
+	if(receipt) {
+		if(receipt->type() == jreen::Receipt::Received) {
+			QString id = receipt->id().isEmpty() ? message.id() : receipt->id(); //it is correct behaviour?
+			qApp->postEvent(ChatLayer::get(c),
+							new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
+		} else {
+			//only for testing
+			//TODO send this request only when message marked as read
+			jreen::Message request(jreen::Message::Chat,
+								   message.from());
+			request.addExtension(new jreen::Receipt(jreen::Receipt::Received,message.id()));
+		}
+	}
 	if(message.body().isEmpty())
 		return;
+	qutim_sdk_0_3::Message coreMessage;
+	if(const jreen::DelayedDelivery *d = message.when())
+		coreMessage.setTime(d->dateTime());
+	else
+		coreMessage.setTime(QDateTime::currentDateTime());
 	coreMessage.setText(message.body());
 	coreMessage.setProperty("subject",message.subject());
 	coreMessage.setChatUnit(c);

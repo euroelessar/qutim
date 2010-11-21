@@ -103,7 +103,7 @@ void JContactResource::setStatus(Presence::PresenceType presence, int priority, 
 Status JContactResource::status() const
 {
 	Q_D(const JContactResource);
-	Status status = JStatus::presenceToStatus(d->presence.presence());
+	Status status = JStatus::presenceToStatus(d->presence.subtype());
 	status.setProperty("text", d->presence.status());
 	status.setExtendedInfos(d->extInfo);
 	return status;

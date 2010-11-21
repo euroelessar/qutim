@@ -20,6 +20,8 @@
 #include <jreen/presence.h>
 #include <jreen/client.h>
 #include <jreen/chatstate.h>
+#include <jreen/delayeddelivery.h>
+#include <jreen/receipt.h>
 
 using namespace gloox;
 
@@ -75,6 +77,9 @@ bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 								message.text(),
 								message.property("subject").toString()
 								);
+	jreenMessage.setID(QString::number(message.id()));
+	jreenMessage.addExtension(new jreen::DelayedDelivery(id(),message.time()));
+	jreenMessage.addExtension(new jreen::Receipt(jreen::Receipt::Request,jreenMessage.id()));
 	d->account->client()->send(jreenMessage);
 	return true;
 }
@@ -266,7 +271,7 @@ void JContact::addResource(const QString &resource)
 void JContact::setStatus(const jreen::Presence presence)
 {
 	QString resource = presence.from().resource();
-	jreen::Presence::Type type = presence.presence();
+	jreen::Presence::Type type = presence.subtype();
 
 	Q_D(JContact);
 	Status oldStatus = status();

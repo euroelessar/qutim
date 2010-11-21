@@ -49,7 +49,7 @@ void JAccountPrivate::setPresence(jreen::Presence presence)
 {
 	Q_Q(JAccount);
 	Status now = q->status();
-	status = presence.presence();
+	status = presence.subtype();
 	now.setType(JStatus::presenceToStatus(status));
 	now.setText(presence.status());
 	q->setAccountStatus(now);

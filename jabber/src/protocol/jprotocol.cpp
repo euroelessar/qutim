@@ -212,54 +212,55 @@ QVariant JProtocol::data(DataType type)
 Presence::PresenceType JProtocol::statusToPresence(const Status &status)
 {
 	Presence::PresenceType presence;
-	switch (status.type()) {
-	case Status::Offline:
-		presence = Presence::Unavailable;
-		break;
-	case Status::Online:
-		presence = Presence::Available;
-		break;
-	case Status::Away:
-		presence = Presence::Away;
-		break;
-	case Status::FreeChat:
-		presence = Presence::Chat;
-		break;
-	case Status::DND:
-		presence = Presence::DND;
-		break;
-	case Status::NA:
-		presence = Presence::XA;
-		break;
-	default:
-		presence = Presence::Invalid;
-	}
+//	switch (status.type()) {
+//	case Status::Offline:
+//		presence = Presence::Unavailable;
+//		break;
+//	case Status::Online:
+//		presence = Presence::Available;
+//		break;
+//	case Status::Away:
+//		presence = Presence::Away;
+//		break;
+//	case Status::FreeChat:
+//		presence = Presence::Chat;
+//		break;
+//	case Status::DND:
+//		presence = Presence::DND;
+//		break;
+//	case Status::NA:
+//		presence = Presence::XA;
+//		break;
+//	default:
+//		presence = Presence::Invalid;
+//	}
 	return presence;
 }
 
 Status JProtocol::presenceToStatus(Presence::PresenceType presence)
 {
 	Status::Type status;
-	switch (presence) {
-	case Presence::Available:
-		status = Status::Online;
-		break;
-	case Presence::Away:
-		status = Status::Away;
-		break;
-	case Presence::Chat:
-		status = Status::FreeChat;
-		break;
-	case Presence::DND:
-		status = Status::DND;
-		break;
-	case Presence::XA:
-		status = Status::NA;
-		break;
-	case Presence::Unavailable:
-	default:
-		status = Status::Offline;
-	}
+//	switch (presence) {
+//	case Presence::Available:
+//		status = Status::Online;
+//		break;
+//	case Presence::Away:
+//		status = Status::Away;
+//		break;
+//	case Presence::Chat:
+//		status = Status::FreeChat;
+//		break;
+//	case Presence::DND:
+//		status = Status::DND;
+//		break;
+//	case Presence::XA:
+//		status = Status::NA;
+//		break;
+//	case Presence::Error:
+//	case Presence::Unavailable:
+//	default: //TODO probe,subscribe etc. isn't offline status
+//		status = Status::Offline;
+//	}
 	return Status::instance(status, "jabber");
 }
 
@@ -295,23 +296,24 @@ Status::Type JStatus::presenceToStatus(jreen::Presence::Type presence)
 {
 	Status::Type status;
 	switch (presence) {
-	case Presence::Available:
+	case jreen::Presence::Available:
 		status = Status::Online;
 		break;
-	case Presence::Away:
+	case jreen::Presence::Away:
 		status = Status::Away;
 		break;
-	case Presence::Chat:
+	case jreen::Presence::Chat:
 		status = Status::FreeChat;
 		break;
-	case Presence::DND:
+	case jreen::Presence::DND:
 		status = Status::DND;
 		break;
-	case Presence::XA:
+	case jreen::Presence::XA:
 		status = Status::NA;
 		break;
-	case Presence::Unavailable:
-	default:
+	case jreen::Presence::Error:
+	case jreen::Presence::Unavailable:
+	default: //TODO probe,subscribe etc. isn't offline status
 		status = Status::Offline;
 	}
 	return status;
