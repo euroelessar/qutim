@@ -106,8 +106,8 @@ qint64 ChatSessionImpl::appendMessage(Message &message)
 		unreadChanged(d->unread);
 	}
 
-	if (!message.isIncoming())
-		setChatState(ChatStateActive);
+	//if (!message.isIncoming())
+	//	setChatState(ChatStateActive);
 
 	bool service = message.property("service").isValid();
 	const Conference *conf = qobject_cast<const Conference *>(message.chatUnit());
@@ -247,7 +247,6 @@ void ChatSessionImplPrivate::onStatusChanged(qutim_sdk_0_3::Status now,qutim_sdk
 	switch(now.type()) {
 	case Status::Offline: {
 		type = Notifications::Offline;
-		chatUnit->setChatState(ChatStateGone);
 		break;
 	}
 	case Status::Online: {
@@ -258,9 +257,6 @@ void ChatSessionImplPrivate::onStatusChanged(qutim_sdk_0_3::Status now,qutim_sdk
 		break;
 	}
 	}
-
-	if(old.type() == Status::Offline && now.type() != Status::Offline)
-		chatUnit->setChatState(ChatStateInActive);
 
 	if(old.text() == now.text())
 		return;
