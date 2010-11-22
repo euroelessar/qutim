@@ -16,6 +16,7 @@
 #include "servicechooserwidget.h"
 #include "ui_servicechooserwidget.h"
 #include <QStandardItem>
+#include <QModelIndex>
 #include <qutim/extensioninfo.h>
 #include <qutim/debug.h>
 #include <qutim/icon.h>
@@ -36,6 +37,9 @@ namespace Core
 		ui->setupUi(this);
 		ui->treeView->setModel(m_model);
 		ui->treeView->setItemDelegate(new ItemDelegate(ui->treeView));
+		ui->treeView->setAnimated(false);
+		ui->treeView->setExpandsOnDoubleClick(false);
+		connect(ui->treeView,SIGNAL(clicked(QModelIndex)),SLOT(onItemClicked(QModelIndex)));
 		
 		connect(m_model,SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
 	}
@@ -122,6 +126,14 @@ namespace Core
 	void ServiceChooserWidget::onItemChanged(QStandardItem* )
 	{
 		emit modifiedChanged(true);
+	}
+	
+	void ServiceChooserWidget::onItemClicked(QModelIndex index)
+	{
+	    if (ui->treeView->isExpanded(index))
+		ui->treeView->collapse(index);
+	    else
+		ui->treeView->expand(index);
 	}
 
 }
