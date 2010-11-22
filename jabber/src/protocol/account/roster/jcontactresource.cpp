@@ -69,7 +69,7 @@ bool JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
 	//							   message.property("subject", QString()).toStdString());
 	//			acc->client()->send(msg);
 	//		}
-	return true;
+	return false;
 }
 
 void JContactResource::setPriority(int priority)

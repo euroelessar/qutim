@@ -79,7 +79,7 @@ bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 								);
 	jreenMessage.setID(QString::number(message.id()));
 	jreenMessage.addExtension(new jreen::DelayedDelivery(id(),message.time()));
-	jreenMessage.addExtension(new jreen::Receipt(jreen::Receipt::Request,jreenMessage.id()));
+	jreenMessage.addExtension(new jreen::Receipt(jreen::Receipt::Request));
 	d->account->client()->send(jreenMessage);
 	return true;
 }
