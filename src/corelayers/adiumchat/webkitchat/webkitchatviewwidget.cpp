@@ -25,11 +25,17 @@ WebkitChatViewWidget::WebkitChatViewWidget() :
 
 void WebkitChatViewWidget::setViewController(QObject *controller)
 {
+	//save scrollbar state
+	if(m_view->page()) {
+		QWebFrame *frame = m_view->page()->mainFrame();
+		frame->setProperty("scrollbarPos",frame->scrollBarValue(Qt::Vertical));
+		}
+
 	ChatStyleOutput *new_page = qobject_cast<ChatStyleOutput*>(controller);
 	if(new_page) {
 		m_view->page()->setView(0);
 		m_view->setPage(new_page);
-		QTimer::singleShot(50,this,SLOT(scrollBarWorkaround()));
+		QTimer::singleShot(0,this,SLOT(scrollBarWorkaround()));
 	}
 }
 
@@ -55,7 +61,7 @@ bool WebkitChatViewWidget::eventFilter(QObject *obj, QEvent *event)
 void WebkitChatViewWidget::scrollBarWorkaround()
 {
 	QWebFrame *frame = m_view->page()->mainFrame();
-	frame->setScrollPosition(QPoint(0,frame->scrollBarMaximum(Qt::Vertical)));
+	frame->setScrollPosition(QPoint(0,frame->property("scrollbarPos").toInt()));
 }
 
 }

@@ -274,10 +274,10 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 	emit currentSessionChanged(session,m_currentSession);
 	m_currentSession = session;
 
-	m_view->setViewController(session->getController());
 	m_tabBar->setCurrentSession(session);
 	m_chatInput->setSession(session);
 	m_contactView->setSession(session);
+	m_view->setViewController(session->getController());
 
 	qDeleteAll(m_unitChatActionList);
 	m_unitChatActionList.clear();
