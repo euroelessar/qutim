@@ -29,11 +29,6 @@ namespace jreen
 
 namespace Jabber {
 
-namespace NG
-{
-	class JRoster;
-}
-
 using namespace qutim_sdk_0_3;
 using namespace gloox;
 
@@ -80,9 +75,8 @@ protected:
 	void loadSettings();
 private:
 	//jreen
-	friend class NG::JRoster;
-	//old code
 	friend class JRoster;
+	//old code
 	friend class JServerDiscoInfo;
 	//temporary hack for old code
 	QScopedPointer<JAccountPrivate> d_ptr;

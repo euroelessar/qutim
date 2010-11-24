@@ -131,6 +131,8 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 	case jreen::Presence::Unsubscribe:
 	case jreen::Presence::Unsubscribed:
 	case jreen::Presence::Subscribed:
+		handleSubscription(presence);
+		break;
 	case jreen::Presence::Error:
 	case jreen::Presence::Probe:
 		return;
@@ -196,6 +198,68 @@ void JRoster::onNewMessage(jreen::Message message)
 	coreMessage.setChatUnit(c);
 	coreMessage.setIncoming(true);
 	ChatLayer::get(c,true)->appendMessage(coreMessage);
+}
+
+void JRoster::handleSubscription(jreen::Presence subscription)
+{
+	Q_D(JRoster);
+	QString bare = subscription.from().bare();
+	QString name;
+	JContact *contact = d->contacts.value(bare);
+	if (contact) {
+		name = contact->name();
+	}/* else {
+  const Nickname *nickname = subscription.findExtension<Nickname>(ExtNickname);
+  name = nickname ? QString::fromStdString(nickname->nick()) : "";
+ }*/
+
+	QString text;
+	switch(subscription.subtype())
+	{
+	case jreen::Presence::Subscribe: {
+		contact = static_cast<JContact*>(this->contact(bare,true));
+		contact->setContactName(name);
+		contact->setContactInList(false);
+		//TODO rewrite on events
+		AuthorizationDialog *dialog = AuthorizationDialog::request(contact,
+																   subscription.status());
+		connect(dialog, SIGNAL(finished(bool)), SLOT(sendAuthResponse(bool)));
+		break;
+	}
+	case jreen::Presence::Unsubscribe: //how to handle it?
+		text = tr("received a request for removal from the subscribers");
+		break;
+	case jreen::Presence::Unsubscribed:
+		text = tr("You have been removed from the list of subscribers");
+		break;
+	case jreen::Presence::Subscribed:
+		tr("You have been added to the list of subscribers");
+		break;
+	default:
+		break;
+	}
+	if(!text.isEmpty())
+		Notifications::send(text,bare);
+}
+
+void JRoster::sendAuthResponse(bool answer)
+{
+	Q_D(JRoster);
+	AuthorizationDialog *dialog = qobject_cast<AuthorizationDialog *>(sender());
+	Q_ASSERT(dialog);
+	JContact *contact = qobject_cast<JContact*>(dialog->contact());
+	jreen::Presence presence(answer ? jreen::Presence::Subscribed
+									: jreen::Presence::Unsubscribed,
+							 contact->id());
+	d->account->client()->send(presence);
+	if (!contact->isInList()) {
+		if (answer) {
+			contact->setContactInList(true);
+			d->contacts.insert(contact->id(), contact);
+		} else {
+			contact->deleteLater();
+		}
+	}
 }
 
 //dead code

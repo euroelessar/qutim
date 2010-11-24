@@ -159,11 +159,10 @@ void JContact::setInList(bool inList)
 	if (d->inList == inList)
 		return;
 	setContactInList(inList);
-	//		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
-	//		if (inList)
-	//			rosterManager->subscribe(d->jid.toStdString());
-	//		else
-	//			rosterManager->remove(d->jid.toStdString());
+	jreen::Presence presence(answer ? jreen::Presence::Subscribed
+									: jreen::Presence::Unsubscribed,
+							 id());
+	d->account->client()->send(presence);
 }
 
 void JContact::setContactSubscription(jreen::AbstractRosterItem::SubscriptionType subscription)
