@@ -43,7 +43,7 @@ bool AuthService::event(QEvent *event)
 					 true);
 		return true;
 	}
-	return Plugin::event(event);
+	return QObject::event(event);
 }
 
 void AuthService::onAccepted()
