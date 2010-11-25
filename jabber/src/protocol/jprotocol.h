@@ -18,6 +18,7 @@ class JProtocol : public Protocol
 {
 	Q_OBJECT
 	Q_CLASSINFO("Protocol", "jabber")
+	Q_CLASSINFO("Uses", "AuthorizationService")
 public:
 	JProtocol();
 	virtual ~JProtocol();

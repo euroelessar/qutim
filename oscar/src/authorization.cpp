@@ -4,6 +4,8 @@
 #include "connection.h"
 #include <qutim/authorizationdialog.h>
 #include <qutim/notificationslayer.h>
+#include <QApplication>
+#include <qutim/servicemanager.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -48,8 +50,12 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		QString reason = sn.read<QString, qint16>();
 		IcqContact *contact = conn->account()->getContact(uin, true);
 		if (contact) {
-			AuthorizationDialog *dialog = AuthorizationDialog::request(contact, reason);
-			connect(dialog, SIGNAL(finished(bool)), SLOT(sendAuthResponse(bool)));
+			QEvent event = AuthorizationReply(AuthorizationReply::New,
+											  contact,
+											  reason);
+			QObject *auth = ServiceManager::getByName("AuthorizationService");
+			Q_ASSERT(auth);
+			qApp->sendEvent(auth,&event);
 		}
 		debug() << QString("Authorization request from \"%1\" with reason \"%2").arg(uin).arg(reason);
 		break;
@@ -91,37 +97,14 @@ bool Authorization::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item,
 	return false;
 }
 
-void Authorization::sendAuthResponse(bool auth)
-{
-	AuthorizationDialog *dialog = qobject_cast<AuthorizationDialog *>(sender());
-	Q_ASSERT(dialog);
-	IcqContact *contact = qobject_cast<IcqContact*>(dialog->contact());
-	SNAC snac(ListsFamily, ListsCliAuthResponse);
-	snac.append<qint8>(contact->id()); // uin.
-	snac.append<qint8>(auth ? 0x01 : 0x00); // auth flag.
-	snac.append<qint16>(dialog->text());
-	contact->account()->connection()->send(snac);
-}
-
 void Authorization::onSendRequestClicked(QObject *object)
 {
 	Q_ASSERT(qobject_cast<IcqContact*>(object) != 0);
 	IcqContact *contact = reinterpret_cast<IcqContact*>(object);
-	AuthorizationDialog *dialog = AuthorizationDialog::request(contact, QT_TRANSLATE_NOOP("ContactList", "Please, authorize me"), false);
-	connect(dialog, SIGNAL(finished(bool)), SLOT(sendAuthRequest()));
-}
-
-void Authorization::sendAuthRequest()
-{
-	AuthorizationDialog *dialog = qobject_cast<AuthorizationDialog *>(sender());
-	Q_ASSERT(dialog);
-	IcqContact *contact = qobject_cast<IcqContact*>(dialog->contact());
-	Q_ASSERT(contact);
-	SNAC snac(ListsFamily, ListsRequestAuth);
-	snac.append<qint8>(contact->id()); // uin.
-	snac.append<qint16>(dialog->text());
-	snac.append<quint16>(0);
-	contact->account()->connection()->send(snac);
+	QEvent event = AuthorizationRequest(contact,QT_TRANSLATE_NOOP("ContactList", "Please, authorize me"));
+	QObject *auth = ServiceManager::getByName("AuthorizationService");
+	Q_ASSERT(auth);
+	qApp->sendEvent(auth,&event);
 }
 
 } } // namespace qutim_sdk_0_3::oscar
