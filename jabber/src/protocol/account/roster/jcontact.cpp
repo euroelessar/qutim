@@ -211,7 +211,7 @@ bool JContact::event(QEvent *ev)
 		AuthorizationReply *reply = static_cast<AuthorizationReply*>(ev);
 		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
 		bool answer = false;
-		if(reply->type() == AuthorizationReply::Accept)
+		if(reply->replyType() == AuthorizationReply::Accept)
 			answer = true;
 		rosterManager->ackSubscriptionRequest(JID(id().toStdString()),answer);
 		return true;
