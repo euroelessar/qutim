@@ -125,6 +125,7 @@ void VLongPollClient::onDataReceived()
 				s->appendMessage(message);
 				connect(s,SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)),SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)));
 				m_unread_mess[s].append(message);
+				contact->setChatState(ChatStateActive);
 				break;
 			}
 		case UserOnline:
