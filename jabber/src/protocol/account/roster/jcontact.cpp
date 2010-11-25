@@ -159,7 +159,7 @@ void JContact::setInList(bool inList)
 	if (d->inList == inList)
 		return;
 	setContactInList(inList);
-	jreen::Presence presence(answer ? jreen::Presence::Subscribed
+	jreen::Presence presence(inList ? jreen::Presence::Subscribed
 									: jreen::Presence::Unsubscribed,
 							 id());
 	d->account->client()->send(presence);
