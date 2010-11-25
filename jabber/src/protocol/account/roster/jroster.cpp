@@ -74,10 +74,10 @@ void JRoster::onItemRemoved(const QString &jid)
 		c->deleteLater();
 }
 
-ChatUnit *JRoster::contact(const QString &id, bool create)
+ChatUnit *JRoster::contact(const jreen::JID &jid, bool create)
 {
 	Q_D(JRoster);
-	jreen::JID jid(id);
+	QString id = jid.full();
 	QString bare = jid.bare();
 	QString resourceId = jid.resource();
 	JContact *contact = d->contacts.value(bare);
@@ -140,12 +140,12 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 		break;
 	}
 
-	QString bare = presence.from().bare();
-	if(d->account->id() == bare) {
+	jreen::JID from = presence.from();
+	if(d->account->client()->jid() == from) {
 		d->account->d_func()->setPresence(presence);
 		return;
 	}
-	JContact *c = d->contacts.value(bare);
+	JContact *c = d->contacts.value(from.bare());
 	if(c)
 		c->setStatus(presence);
 }
@@ -165,8 +165,11 @@ void JRoster::onNewMessage(jreen::Message message)
 	Q_D(JRoster);
 	//temporary
 	JContact *c = d->contacts.value(message.from().bare());
-	if(!c)
-		return;
+	if(!c) {
+		c = static_cast<JContact*>(contact(message.from(),true));
+		c->setInList(false);
+//		c->setName();
+	}
 	jreen::ChatState *state = message.findExtension<jreen::ChatState>().data();
 	if(state) {
 		qDebug() << "new state" << state->state();
@@ -251,6 +254,7 @@ void JRoster::sendAuthResponse(bool answer)
 	jreen::Presence presence(answer ? jreen::Presence::Subscribed
 									: jreen::Presence::Unsubscribed,
 							 contact->id());
+	presence.setFrom(static_cast<JAccount*>(contact->account())->client()->jid());
 	d->account->client()->send(presence);
 	if (!contact->isInList()) {
 		if (answer) {

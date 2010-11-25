@@ -25,6 +25,7 @@
 namespace jreen
 {
 	class Client;
+	class JID;
 }
 
 namespace Jabber {
