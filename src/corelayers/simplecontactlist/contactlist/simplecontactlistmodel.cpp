@@ -208,6 +208,8 @@ QVariant Model::data(const QModelIndex &index, int role) const
 			return item->contacts.count();
 		case OnlineContactsCountRole:
 			return item->online;
+		case ViewRole:
+			return qVariantFromValue(p->view);
 		default:
 			return QVariant();
 		}
@@ -979,6 +981,7 @@ bool Model::showOffline() const
 	return p->showOffline;
 }
 
+}
+}
 
-}
-}
+Q_DECLARE_METATYPE(QTreeView*) //hack

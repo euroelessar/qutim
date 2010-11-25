@@ -48,7 +48,7 @@ bool contactInfoLessThan (const QVariantHash &a, const QVariantHash &b) {
 }
 
 ContactDelegate::ContactDelegate(QObject *parent) :
-		QAbstractItemDelegate(parent),p(new ContactDelegatePrivate)
+	QAbstractItemDelegate(parent),p(new ContactDelegatePrivate)
 {
 	p->horizontalPadding = 5;
 	p->verticalPadding = 3;
@@ -84,131 +84,131 @@ void ContactDelegate::paint(QPainter *painter,
 
 	switch (type) {
 	case TagType: {
-			QStyleOptionButton buttonOption;
+		QStyleOptionButton buttonOption;
 
-			buttonOption.state = option.state;
+		buttonOption.state = option.state;
 #ifdef Q_WS_MAC
-			buttonOption.features = QStyleOptionButton::Flat;
-			buttonOption.state |= QStyle::State_Raised;
-			buttonOption.state &= ~QStyle::State_HasFocus;
+		buttonOption.features = QStyleOptionButton::Flat;
+		buttonOption.state |= QStyle::State_Raised;
+		buttonOption.state &= ~QStyle::State_HasFocus;
 #endif
 
-			buttonOption.rect = option.rect;
-			buttonOption.palette = option.palette;
-			style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
+		buttonOption.rect = option.rect;
+		buttonOption.palette = option.palette;
+		style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
 
-			if(QTreeView *view = static_cast<QTreeView *>(parent())) {
-				QStyleOption branchOption;
-				static const int i = 9; // ### hardcoded in qcommonstyle.cpp
-				QRect r = option.rect;
-				branchOption.rect = QRect(r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
-				branchOption.palette = option.palette;
-				branchOption.state = QStyle::State_Children;
-				title_rect.adjust(branchOption.rect.width() +p->horizontalPadding,0,0,0);
+		if(QTreeView *view = index.data(ViewRole).value<QTreeView*>()) {
+			QStyleOption branchOption;
+			static const int i = 9; // ### hardcoded in qcommonstyle.cpp
+			QRect r = option.rect;
+			branchOption.rect = QRect(r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
+			branchOption.palette = option.palette;
+			branchOption.state = QStyle::State_Children;
+			title_rect.adjust(branchOption.rect.width() +p->horizontalPadding,0,0,0);
 
-				if (view->isExpanded(index))
-					branchOption.state |= QStyle::State_Open;
+			if (view->isExpanded(index))
+				branchOption.state |= QStyle::State_Open;
 
-				style->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, view);
+			style->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, view);
+		}
+
+		QFont font = opt.font;
+		font.setBold(true);
+		painter->setFont(font);
+
+		QString count = index.data(ContactsCountRole).toString();
+		QString online_count = index.data(OnlineContactsCountRole).toString();
+
+		QString txt = name % QLatin1Literal(" (")
+				% online_count
+				% QLatin1Char('/')
+				% count
+				% QLatin1Char(')');
+
+		painter->drawText(title_rect,
+						  Qt::AlignVCenter,
+						  txt
+						  );
+		break;
+	}
+	case ContactType: {
+		style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
+		QRect bounding;
+		Status status = index.data(StatusRole).value<Status>();
+
+		if (p->showFlags & ShowExtendedInfoIcons)
+		{
+			QHash<QString, QVariantHash> extStatuses = status.extendedInfos();
+
+			QList<QVariantHash> list;
+			foreach (const QVariantHash &data, extStatuses) {
+				QList<QVariantHash>::iterator search_it =
+						qLowerBound(list.begin(), list.end(), data, contactInfoLessThan);
+				list.insert(search_it,data);
 			}
+
+			QString icon = QLatin1String("icon");
+			QString showIcon = QLatin1String("showIcon");
+			QString id = QLatin1String("id");
+
+			foreach (const QVariantHash &hash, list) {
+				QVariant extIconVar = hash.value(icon);
+				QIcon icon;
+				if (extIconVar.canConvert<ExtensionIcon>())
+					icon = extIconVar.value<ExtensionIcon>().toIcon();
+				else if (extIconVar.canConvert(QVariant::Icon))
+					icon = extIconVar.value<QIcon>();
+				if (!hash.value(showIcon,true).toBool() || icon.isNull())
+					continue;
+				if (!p->extInfo.value(hash.value(id).toString(), true))
+					continue;
+				icon.paint(painter,
+						   option.rect.left() + p->horizontalPadding,
+						   option.rect.bottom() - p->verticalPadding - p->extIconSize,
+						   title_rect.right() - p->horizontalPadding,
+						   p->extIconSize,
+						   Qt::AlignBottom |
+						   Qt::AlignRight);
+				title_rect.adjust(0,0,-p->extIconSize-p->horizontalPadding/2,0);
+			}
+		}
+		title_rect.adjust(p->statusIconSize + p->horizontalPadding,
+						  0,
+						  0,
+						  0);
+		bool isStatusText = (p->showFlags & ShowStatusText) && !status.text().isEmpty();
+		painter->drawText(title_rect,
+						  isStatusText ? Qt::AlignTop : Qt::AlignVCenter,
+						  name,
+						  &bounding
+						  );
+
+		if (isStatusText) {
+			QRect status_rect = title_rect;
+			status_rect.setTop(status_rect.top() + bounding.height());
 
 			QFont font = opt.font;
-			font.setBold(true);
+			font.setPointSize(font.pointSize()-2);
 			painter->setFont(font);
-
-			QString count = index.data(ContactsCountRole).toString();
-			QString online_count = index.data(OnlineContactsCountRole).toString();
-
-			QString txt = name % QLatin1Literal(" (")
-						  % online_count
-						  % QLatin1Char('/')
-						  % count
-						  % QLatin1Char(')');
-
-			painter->drawText(title_rect,
-							  Qt::AlignVCenter,
-							  txt
+			painter->drawText(status_rect,
+							  Qt::AlignTop,
+							  status.text().remove(QLatin1Char('\n'))
 							  );
-			break;
 		}
-	case ContactType: {
-			style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
-			QRect bounding;
-			Status status = index.data(StatusRole).value<Status>();
 
-			if (p->showFlags & ShowExtendedInfoIcons)
-			{
-				QHash<QString, QVariantHash> extStatuses = status.extendedInfos();
-
-				QList<QVariantHash> list;
-				foreach (const QVariantHash &data, extStatuses) {
-					QList<QVariantHash>::iterator search_it =
-							qLowerBound(list.begin(), list.end(), data, contactInfoLessThan);
-					list.insert(search_it,data);
-				}
-
-				QString icon = QLatin1String("icon");
-				QString showIcon = QLatin1String("showIcon");
-				QString id = QLatin1String("id");
-
-				foreach (const QVariantHash &hash, list) {
-					QVariant extIconVar = hash.value(icon);
-					QIcon icon;
-					if (extIconVar.canConvert<ExtensionIcon>())
-						icon = extIconVar.value<ExtensionIcon>().toIcon();
-					else if (extIconVar.canConvert(QVariant::Icon))
-						icon = extIconVar.value<QIcon>();
-					if (!hash.value(showIcon,true).toBool() || icon.isNull())
-						continue;
-					if (!p->extInfo.value(hash.value(id).toString(), true))
-						continue;
-					icon.paint(painter,
-							   option.rect.left() + p->horizontalPadding,
-							   option.rect.bottom() - p->verticalPadding - p->extIconSize,
-							   title_rect.right() - p->horizontalPadding,
-							   p->extIconSize,
-							   Qt::AlignBottom |
-							   Qt::AlignRight);
-					title_rect.adjust(0,0,-p->extIconSize-p->horizontalPadding/2,0);
-				}
-			}
-			title_rect.adjust(p->statusIconSize + p->horizontalPadding,
-							  0,
-							  0,
-							  0);
-			bool isStatusText = (p->showFlags & ShowStatusText) && !status.text().isEmpty();
-			painter->drawText(title_rect,
-							  isStatusText ? Qt::AlignTop : Qt::AlignVCenter,
-							  name,
-							  &bounding
-							  );
-
-			if (isStatusText) {
-				QRect status_rect = title_rect;
-				status_rect.setTop(status_rect.top() + bounding.height());
-
-				QFont font = opt.font;
-				font.setPointSize(font.pointSize()-2);
-				painter->setFont(font);
-				painter->drawText(status_rect,
-								  Qt::AlignTop,
-								  status.text().remove(QLatin1Char('\n'))
-								  );
-			}
-
-			QIcon itemIcon = index.data(Qt::DecorationRole).value<QIcon>();
-			if (p->showFlags & ShowAvatars) {
-				QString avatar = index.data(AvatarRole).toString();
-				itemIcon = AvatarFilter::icon(avatar,itemIcon);
-			}
-				itemIcon.paint(painter,
-							   option.rect.left() + p->horizontalPadding,
-							   option.rect.top() + p->verticalPadding,
-							   p->statusIconSize,
-							   p->statusIconSize,
-							   Qt::AlignTop);
-			break;
+		QIcon itemIcon = index.data(Qt::DecorationRole).value<QIcon>();
+		if (p->showFlags & ShowAvatars) {
+			QString avatar = index.data(AvatarRole).toString();
+			itemIcon = AvatarFilter::icon(avatar,itemIcon);
 		}
+		itemIcon.paint(painter,
+					   option.rect.left() + p->horizontalPadding,
+					   option.rect.top() + p->verticalPadding,
+					   p->statusIconSize,
+					   p->statusIconSize,
+					   Qt::AlignTop);
+		break;
+	}
 	default:
 		break;
 	}
@@ -254,8 +254,8 @@ QSize ContactDelegate::sizeHint(const QStyleOptionViewItem &option, const QModel
 }
 
 bool ContactDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
-										const QStyleOptionViewItem &option,
-										const QModelIndex &index)
+								const QStyleOptionViewItem &option,
+								const QModelIndex &index)
 {
 	if (event->type() == QEvent::ToolTip) {
 		Buddy *buddy = index.data(BuddyRole).value<Buddy*>();
@@ -294,9 +294,9 @@ void ContactDelegate::reloadSettings()
 	p->statusIconSize = cfg.value("statusIconSize",22);
 	p->extIconSize = cfg.value("extIconSize",16);
 	ContactDelegate::ShowFlags flags = cfg.value("showFlags",
-										  ContactDelegate::ShowStatusText |
-										  ContactDelegate::ShowExtendedInfoIcons |
-										  ContactDelegate::ShowAvatars);
+												 ContactDelegate::ShowStatusText |
+												 ContactDelegate::ShowExtendedInfoIcons |
+												 ContactDelegate::ShowAvatars);
 	setShowFlags(flags);
 	// Load extended statuses.
 	QHash<QString, bool> statuses;
@@ -308,3 +308,5 @@ void ContactDelegate::reloadSettings()
 }
 
 }
+
+Q_DECLARE_METATYPE(QTreeView*)
