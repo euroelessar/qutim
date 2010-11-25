@@ -97,7 +97,7 @@ void ContactDelegate::paint(QPainter *painter,
 		buttonOption.palette = option.palette;
 		style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
 
-		if(QTreeView *view = index.data(ViewRole).value<QTreeView*>()) {
+		if(QTreeView *view = static_cast<QTreeView*>(index.model()->parent())) {
 			QStyleOption branchOption;
 			static const int i = 9; // ### hardcoded in qcommonstyle.cpp
 			QRect r = option.rect;
