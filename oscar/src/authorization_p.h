@@ -37,3 +37,4 @@ private:
 } } // namespace qutim_sdk_0_3::oscar
 
 #endif // AUTHORIZATION_H
+

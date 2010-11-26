@@ -15,7 +15,7 @@ Authorization *Authorization::self = 0;
 
 AuthorizeActionGenerator::AuthorizeActionGenerator() :
 	ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("ContactList", "Ask authorization"),
-					Authorization::instance(), SLOT(onSendRequestClicked(QObject*)))
+		Authorization::instance(), SLOT(onSendRequestClicked(QObject*)))
 {
 	setPriority(50);
 	setType(34644);
@@ -50,12 +50,10 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		QString reason = sn.read<QString, qint16>();
 		IcqContact *contact = conn->account()->getContact(uin, true);
 		if (contact) {
-			QEvent event = AuthorizationReply(AuthorizationReply::New,
-											  contact,
-											  reason);
-			QObject *auth = ServiceManager::getByName("AuthorizationService");
-			Q_ASSERT(auth);
-			qApp->sendEvent(auth,&event);
+			QEvent event = qutim_sdk_0_3::Authorization::Reply(qutim_sdk_0_3::Authorization::Reply::New,
+															   contact,
+															   reason);
+			qApp->sendEvent(qutim_sdk_0_3::Authorization::service(),&event);
 		}
 		debug() << QString("Authorization request from \"%1\" with reason \"%2").arg(uin).arg(reason);
 		break;
@@ -69,7 +67,11 @@ void Authorization::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		if (contact) {
 			if (isAccepted)
 				contact->setProperty("authorizedBy", true);
-			Notifications::send(Notifications::System, contact, reason); // TODO:
+			QEvent event = qutim_sdk_0_3::Authorization::Reply(isAccepted ? qutim_sdk_0_3::Authorization::Reply::Accepted
+																		  : qutim_sdk_0_3::Authorization::Reply::Rejected,
+															   contact,
+															   reason);
+			qApp->sendEvent(qutim_sdk_0_3::Authorization::service(),&event);
 		}
 		debug() << "Auth response" << uin << isAccepted << reason;
 		break;
@@ -101,10 +103,9 @@ void Authorization::onSendRequestClicked(QObject *object)
 {
 	Q_ASSERT(qobject_cast<IcqContact*>(object) != 0);
 	IcqContact *contact = reinterpret_cast<IcqContact*>(object);
-	QEvent event = AuthorizationRequest(contact,QT_TRANSLATE_NOOP("ContactList", "Please, authorize me"));
-	QObject *auth = ServiceManager::getByName("AuthorizationService");
-	Q_ASSERT(auth);
-	qApp->sendEvent(auth,&event);
+	QEvent event = qutim_sdk_0_3::Authorization::Request(contact,
+														 QT_TRANSLATE_NOOP("ContactList", "Please, authorize me"));
+	qApp->sendEvent(qutim_sdk_0_3::Authorization::service(),&event);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

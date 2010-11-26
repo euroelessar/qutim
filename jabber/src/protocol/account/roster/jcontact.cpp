@@ -200,18 +200,18 @@ bool JContact::event(QEvent *ev)
 		event->setRequest(new JInfoRequest(d->account->connection()->vCardManager(),
 										   d->jid));
 		event->accept();
-	} else if(ev->type() == AuthorizationRequest::eventType()) {
+	} else if(ev->type() == Authorization::Request::eventType()) {
 		debug() << "Handle auth request";
 		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
 		rosterManager->subscribe(JID(id().toStdString()),
 								 name().toStdString());
 		return true;
-	} else if(ev->type() == AuthorizationReply::eventType()) {
+	} else if(ev->type() == Authorization::Reply::eventType()) {
 		debug() << "handle auth reply";
-		AuthorizationReply *reply = static_cast<AuthorizationReply*>(ev);
+		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
 		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
 		bool answer = false;
-		if(reply->replyType() == AuthorizationReply::Accept)
+		if(reply->replyType() == Authorization::Reply::Accept)
 			answer = true;
 		rosterManager->ackSubscriptionRequest(JID(id().toStdString()),answer);
 		return true;

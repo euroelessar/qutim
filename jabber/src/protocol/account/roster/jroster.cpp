@@ -289,35 +289,42 @@ void JRoster::handleSubscription(const Subscription &subscription)
 			contact->setContactName(name);
 			contact->setContactInList(false);
 		}
-		AuthorizationReply reply(AuthorizationReply::New,
-								 contact,
-								 QString::fromStdString(subscription.status())
-								 );
-		QObject *auth = ServiceManager::getByName("AuthorizationService");
-		Q_ASSERT(auth);
-		qApp->sendEvent(auth,
+		Authorization::Reply reply(Authorization::Reply::New,
+								   contact,
+								   QString::fromStdString(subscription.status())
+								   );
+		qApp->sendEvent(Authorization::service(),
 						&reply);
 	}
 		break;
-	case Subscription::Subscribed:
-		text = tr("You were authorized");
+	case Subscription::Subscribed: {
+		QString text = tr("You have been added to the list of subscribers");
+		Authorization::Reply request(Authorization::Reply::Accepted,
+									 contact,
+									 text);
+		qApp->sendEvent(Authorization::service(),&request);
 		break;
-	case Subscription::Unsubscribed:
-		text = tr("Your authorization was removed");
+	}
+	case Subscription::Unsubscribed: {
+		QString text = tr("You have been removed from the list of subscribers");
+		Authorization::Reply request(Authorization::Reply::Rejected,
+									 contact,
+									 text);
+		qApp->sendEvent(Authorization::service(),&request);
 		break;
-	case Subscription::Unsubscribe:
-		text = tr("Contacts's authorization was removed");
+	}
+	case Subscription::Unsubscribe: {
+		//how to handle it?
+		QString text = tr("Received a request for removal from the subscribers");
+		Authorization::Reply request(Authorization::Reply::Reject,
+								   contact,
+								   text);
+		qApp->sendEvent(Authorization::service(),&request);
 		break;
+	}
 	case Subscription::Invalid:
 	default:
-		text = "";
-	}
-	if (!text.isEmpty()) {
-		QObject *sender = new QObject();
-		sender->setProperty("id", jid);
-		sender->setProperty("name", name);
-		Notifications::send(Notifications::System, sender, text);
-		sender->deleteLater();
+		break;
 	}
 }
 
