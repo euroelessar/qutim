@@ -176,26 +176,24 @@ void JRoster::onNewMessage(jreen::Message message)
 		//		c->setName();
 	}
 	jreen::ChatState *state = message.findExtension<jreen::ChatState>().data();
-	if(state) {
-		qDebug() << "new state" << state->state();
+	if(state)
 		c->setChatState(static_cast<ChatState>(state->state()));
-	}
+
 	jreen::Receipt *receipt = message.findExtension<jreen::Receipt>().data();
 	if(receipt) {
 		if(receipt->type() == jreen::Receipt::Received) {
-			debug() << "received";
 			QString id = receipt->id();
 			if(id.isEmpty())
 				id = message.id(); //for slowpoke client such as Miranda
 			qApp->postEvent(ChatLayer::get(c),
 							new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
 		} else {
-			debug() << "request";
 			//only for testing
 			//TODO send this request only when message marked as read
 			jreen::Message request(jreen::Message::Chat,
 								   message.from());
 			request.addExtension(new jreen::Receipt(jreen::Receipt::Received,message.id()));
+			d->account->client()->send(request);
 		}
 	}
 	if(message.body().isEmpty())
