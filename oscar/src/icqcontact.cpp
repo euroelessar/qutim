@@ -420,7 +420,7 @@ bool IcqContact::event(QEvent *ev)
 		return true;
 	} else if(ev->type() == Authorization::Reply::eventType()) {
 		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
-		debug() << "handle auth reply";
+		debug() << "handle auth reply" << (reply->replyType() == Authorization::Reply::Accept);
 		bool answer = false;
 		if(reply->replyType() == Authorization::Reply::Accept)
 			answer = true;
