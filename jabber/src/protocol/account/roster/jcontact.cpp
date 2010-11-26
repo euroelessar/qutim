@@ -193,6 +193,7 @@ bool JContact::event(QEvent *ev)
 {
 	if (ev->type() == ChatStateEvent::eventType()) {
 		Q_D(JContact);
+	if (ev->type() == ChatStateEvent::eventType()) {
 		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
 		jreen::ChatState::State state = static_cast<jreen::ChatState::State>(chatEvent->chatState());
 
@@ -250,6 +251,21 @@ bool JContact::event(QEvent *ev)
 		event->setRequest(new JInfoRequest(d->account->connection()->vCardManager(),
 										   d->jid));
 		event->accept();
+	} else if(ev->type() == Authorization::Request::eventType()) {
+		debug() << "Handle auth request";
+		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
+		rosterManager->subscribe(JID(id().toStdString()),
+								 name().toStdString());
+		return true;
+	} else if(ev->type() == Authorization::Reply::eventType()) {
+		debug() << "handle auth reply";
+		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
+		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
+		bool answer = false;
+		if(reply->replyType() == Authorization::Reply::Accept)
+			answer = true;
+		rosterManager->ackSubscriptionRequest(JID(id().toStdString()),answer);
+		return true;
 	}
 	return Contact::event(ev);
 }

@@ -26,6 +26,7 @@
 #include "qutim/extensionicon.h"
 #include <QApplication>
 #include <QVariant>
+#include <qutim/authorizationdialog.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -408,6 +409,27 @@ bool IcqContact::event(QEvent *ev)
 		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
 		event->setRequest(new IcqInfoRequest(this));
 		event->accept();
+	} else if(ev->type() == Authorization::Request::eventType()) {
+		Authorization::Request *request = static_cast<Authorization::Request*>(ev);
+		debug() << "Handle auth request";
+		SNAC snac(ListsFamily, ListsRequestAuth);
+		snac.append<qint8>(id()); // uin.
+		snac.append<qint16>(request->body());
+		snac.append<quint16>(0);
+		account()->connection()->send(snac);
+		return true;
+	} else if(ev->type() == Authorization::Reply::eventType()) {
+		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
+		debug() << "handle auth reply";
+		bool answer = false;
+		if(reply->replyType() == Authorization::Reply::Accept)
+			answer = true;
+		SNAC snac(ListsFamily, ListsCliAuthResponse);
+		snac.append<qint8>(id()); // uin.
+		snac.append<qint8>(answer ? 0x01 : 0x00); // auth flag.
+		snac.append<qint16>(reply->body());
+		account()->connection()->send(snac);
+		return true;
 	}
 	return Contact::event(ev);
 }
