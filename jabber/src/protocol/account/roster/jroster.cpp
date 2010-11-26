@@ -222,9 +222,9 @@ void JRoster::handleSubscription(jreen::Presence subscription)
 		contact = static_cast<JContact*>(this->contact(bare,true));
 		contact->setContactName(name);
 		contact->setContactInList(false);
-		AuthorizationReply request(AuthorizationReply::New,
-								   contact,
-								   subscription.status());
+		Authorization::Reply request(Authorization::Reply::New,
+									 contact,
+									 subscription.status());
 		qApp->sendEvent(Authorization::service(),&request);
 		break;
 	}
@@ -237,17 +237,17 @@ void JRoster::handleSubscription(jreen::Presence subscription)
 		break;
 	case jreen::Presence::Unsubscribed: {
 		QString text = tr("You have been removed from the list of subscribers");
-		AuthorizationReply request(AuthorizationReply::Rejected,
-								   contact,
-								   text);
+		Authorization::Reply request(Authorization::Reply::Rejected,
+									 contact,
+									 text);
 		qApp->sendEvent(Authorization::service(),&request);
 		break;
 	}
 	case jreen::Presence::Subscribed: {
 		QString text = tr("You have been added to the list of subscribers");
-		AuthorizationReply request(AuthorizationReply::Accepted,
-								   contact,
-								   text);
+		Authorization::Reply request(Authorization::Reply::Accepted,
+									 contact,
+									 text);
 		qApp->sendEvent(Authorization::service(),&request);
 		break;
 	}
