@@ -18,12 +18,13 @@
 namespace Jabber
 {
 
-enum JMUCActionType
+enum JActionType
 {
 	JoinLeaveAction,
 	SaveRemoveBookmarkAction,
 	RoomConfigAction,
-	RoomParticipantsAction
+	RoomParticipantsAction,
+	ChangeSubcriptionAction
 };
 
 struct JProtocolPrivate
@@ -83,12 +84,14 @@ void JProtocol::loadActions()
 	generator->setPriority(3);
 	generator->addProperty("actionType",JoinLeaveAction);
 	MenuController::addAction<JMUCSession>(generator);
+
 	generator = new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
 									this, SLOT(onShowConfigDialog(QObject*)));
 	generator->addHandler(ActionVisibilityChangedHandler,this);
 	generator->setType(1);
 	generator->addProperty("actionType",RoomConfigAction);
 	MenuController::addAction<JMUCSession>(generator);
+
 	generator = new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks") ,
 									this, SLOT(onSaveRemoveBookmarks(QObject*)));
 	generator->addHandler(ActionVisibilityChangedHandler,this);
@@ -96,6 +99,14 @@ void JProtocol::loadActions()
 	generator->setPriority(0);
 	generator->addProperty("actionType",SaveRemoveBookmarkAction);
 	MenuController::addAction<JMUCSession>(generator);
+
+	generator = new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Jabber", "Change Subscription") ,
+									this, SLOT(onChangeSubscription(QObject*)));
+	generator->addHandler(ActionVisibilityChangedHandler,this);
+	generator->setType(0);
+	generator->setPriority(0);
+	generator->addProperty("actionType",ChangeSubcriptionAction);
+	MenuController::addAction<JContact>(generator);
 
 	QList<Status> statuses;
 	statuses << Status(Status::Online)
@@ -176,6 +187,24 @@ void JProtocol::onSaveRemoveBookmarks(QObject *obj)
 		account->conferenceManager()->bookmarkManager()->removeBookmark(room->bookmarkIndex());
 }
 
+void JProtocol::onChangeSubscription(QObject *obj)
+{
+	JContact *contact = qobject_cast<JContact*>(obj);
+	Q_ASSERT(contact);
+	switch(contact->subscription()) {
+	case jreen::AbstractRosterItem::Both:
+	case jreen::AbstractRosterItem::To:
+		contact->removeSubscription();
+		break;
+	case jreen::AbstractRosterItem::From:
+	case jreen::AbstractRosterItem::None:
+		contact->requestSubscription();
+		break;
+	default:
+		break;
+	}
+}
+
 void JProtocol::loadAccounts()
 {
 	loadActions();
@@ -207,61 +236,6 @@ QVariant JProtocol::data(DataType type)
 	default:
 		return QVariant();
 	}
-}
-
-Presence::PresenceType JProtocol::statusToPresence(const Status &status)
-{
-	Presence::PresenceType presence;
-//	switch (status.type()) {
-//	case Status::Offline:
-//		presence = Presence::Unavailable;
-//		break;
-//	case Status::Online:
-//		presence = Presence::Available;
-//		break;
-//	case Status::Away:
-//		presence = Presence::Away;
-//		break;
-//	case Status::FreeChat:
-//		presence = Presence::Chat;
-//		break;
-//	case Status::DND:
-//		presence = Presence::DND;
-//		break;
-//	case Status::NA:
-//		presence = Presence::XA;
-//		break;
-//	default:
-//		presence = Presence::Invalid;
-//	}
-	return presence;
-}
-
-Status JProtocol::presenceToStatus(Presence::PresenceType presence)
-{
-	Status::Type status;
-//	switch (presence) {
-//	case Presence::Available:
-//		status = Status::Online;
-//		break;
-//	case Presence::Away:
-//		status = Status::Away;
-//		break;
-//	case Presence::Chat:
-//		status = Status::FreeChat;
-//		break;
-//	case Presence::DND:
-//		status = Status::DND;
-//		break;
-//	case Presence::XA:
-//		status = Status::NA;
-//		break;
-//	case Presence::Error:
-//	case Presence::Unavailable:
-//	default: //TODO probe,subscribe etc. isn't offline status
-//		status = Status::Offline;
-//	}
-	return Status::instance(status, "jabber");
 }
 
 jreen::Presence::Type JStatus::statusToPresence(const Status &status)
@@ -323,13 +297,12 @@ bool JProtocol::event(QEvent *ev)
 {
 	if (ev->type() == ActionVisibilityChangedEvent::eventType()) {
 		ActionVisibilityChangedEvent *event = static_cast<ActionVisibilityChangedEvent*>(ev);
-		QAction *action = event->action();
-		JMUCSession *room = qobject_cast<JMUCSession*>(event->controller());
-		Q_ASSERT(room);
-		JMUCActionType type = static_cast<JMUCActionType>(action->property("actionType").toInt());
+		QAction *action = event->action();		
+		JActionType type = static_cast<JActionType>(action->property("actionType").toInt());
 		if (event->isVisible()) {
 			switch (type) {
 			case JoinLeaveAction: {
+				JMUCSession *room = qobject_cast<JMUCSession*>(event->controller());
 				if (!room->isJoined())
 					action->setText(QT_TRANSLATE_NOOP("Jabber", "Join conference"));
 				else
@@ -337,15 +310,34 @@ bool JProtocol::event(QEvent *ev)
 				break;
 			}
 			case RoomConfigAction: {
+				JMUCSession *room = qobject_cast<JMUCSession*>(event->controller());
 				action->setVisible(room->enabledConfiguring());
 				break;
 			}
 			case SaveRemoveBookmarkAction: {
+				JMUCSession *room = qobject_cast<JMUCSession*>(event->controller());
 				if (room->bookmarkIndex() == -1)
 					action->setText(QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks"));
 				else
 					action->setText(QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"));
 				break;
+			}
+			case ChangeSubcriptionAction: {
+				JContact *contact = qobject_cast<JContact*>(event->controller());
+				LocalizedString str;
+				switch(contact->subscription()) {
+				case jreen::AbstractRosterItem::Both:
+				case jreen::AbstractRosterItem::To:
+					str = QT_TRANSLATE_NOOP("Jabber", "Remove subscription");
+					break;
+				case jreen::AbstractRosterItem::From:
+				case jreen::AbstractRosterItem::None:
+					str = QT_TRANSLATE_NOOP("Jabber", "Request subscription");
+					break;
+				default:
+					break;
+				}
+				action->setText(str);
 			}
 			default:
 				break;

@@ -16,6 +16,7 @@
 #include "jmessagesession.h"
 #include "jmessagehandler.h"
 #include <qutim/metacontact.h>
+#include <qutim/authorizationdialog.h>
 //jreen
 #include <jreen/presence.h>
 #include <jreen/client.h>
@@ -171,6 +172,11 @@ void JContact::setContactSubscription(jreen::AbstractRosterItem::SubscriptionTyp
 	d_func()->subscription = subscription;
 }
 
+jreen::AbstractRosterItem::SubscriptionType JContact::subscription() const
+{
+	return d_func()->subscription;
+}
+
 inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)
 {
 	switch (state) {
@@ -191,14 +197,13 @@ inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)
 
 bool JContact::event(QEvent *ev)
 {
-	if (ev->type() == ChatStateEvent::eventType()) {
-		Q_D(JContact);
+	Q_D(JContact);
 	if (ev->type() == ChatStateEvent::eventType()) {
 		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
 		jreen::ChatState::State state = static_cast<jreen::ChatState::State>(chatEvent->chatState());
 
 		jreen::Message msg(jreen::Message::Chat,
-							   d->jid);
+						   d->jid);
 		msg.addExtension(new jreen::ChatState(state));
 		d->account->client()->send(msg);
 		return true;
@@ -253,21 +258,42 @@ bool JContact::event(QEvent *ev)
 		event->accept();
 	} else if(ev->type() == Authorization::Request::eventType()) {
 		debug() << "Handle auth request";
-		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
-		rosterManager->subscribe(JID(id().toStdString()),
-								 name().toStdString());
+		Authorization::Request *request = static_cast<Authorization::Request*>(ev);
+		//FIXME ugly architectory, only for testing
+		jreen::Presence presence(jreen::Presence::Subscribe,
+								 d->jid,
+								 request->body()
+								 );
+		d->account->client()->send(presence);
 		return true;
 	} else if(ev->type() == Authorization::Reply::eventType()) {
 		debug() << "handle auth reply";
 		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
-		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
-		bool answer = false;
-		if(reply->replyType() == Authorization::Reply::Accept)
-			answer = true;
-		rosterManager->ackSubscriptionRequest(JID(id().toStdString()),answer);
+		//FIXME ugly architectory, only for testing
+		bool answer = (reply->replyType() == Authorization::Reply::Accept);
+		jreen::Presence presence(answer ? jreen::Presence::Subscribe
+										: jreen::Presence::Unsubscribe,
+								 d->jid,
+								 reply->body()
+								 );
+		d->account->client()->send(presence);
 		return true;
 	}
 	return Contact::event(ev);
+}
+
+void JContact::requestSubscription()
+{
+	Authorization::Request *request = new Authorization::Request(this);
+	qApp->postEvent(Authorization::service(),request);
+}
+
+void JContact::removeSubscription()
+{
+	jreen::Presence presence(jreen::Presence::Unsubscribed,
+							 d_func()->jid
+							 );
+	d_func()->account->client()->send(presence);
 }
 
 bool JContact::hasResource(const QString &resource)
@@ -417,4 +443,5 @@ void JContact::resourceStatusChanged(const Status &current, const Status &previo
 	if (d->resources.value(d->currentResources.first()) == sender())
 		emit statusChanged(current, previous);
 }
+
 }
