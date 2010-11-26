@@ -141,14 +141,18 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 		break;
 	}
 
+//	if(jreen::Receipt *r = presence.findExtension<jreen::Receipt>().data()) {
+//	}
+
 	jreen::JID from = presence.from();
 	if(d->account->client()->jid() == from) {
 		d->account->d_func()->setPresence(presence);
 		return;
 	}
 	JContact *c = d->contacts.value(from.bare());
-	if(c)
+	if(c) {
 		c->setStatus(presence);
+	}
 }
 
 void JRoster::onDisconnected()
@@ -179,10 +183,14 @@ void JRoster::onNewMessage(jreen::Message message)
 	jreen::Receipt *receipt = message.findExtension<jreen::Receipt>().data();
 	if(receipt) {
 		if(receipt->type() == jreen::Receipt::Received) {
-			QString id = receipt->id().isEmpty() ? message.id() : receipt->id(); //it is correct behaviour?
+			debug() << "received";
+			QString id = receipt->id();
+			if(id.isEmpty())
+				id = message.id(); //for slowpoke client such as Miranda
 			qApp->postEvent(ChatLayer::get(c),
 							new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
 		} else {
+			debug() << "request";
 			//only for testing
 			//TODO send this request only when message marked as read
 			jreen::Message request(jreen::Message::Chat,
