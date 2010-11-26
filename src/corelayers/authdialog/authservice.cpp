@@ -33,7 +33,7 @@ bool AuthService::event(QEvent *event)
 					 request->body(),
 					 false);
 		return true;
-	} else if(event->type() == Reply::eventType()) {
+	} else if(event->type() == Reply::eventType()) {		
 		handleReply(static_cast<Reply*>(event));
 		return true;
 	}
@@ -42,9 +42,9 @@ bool AuthService::event(QEvent *event)
 
 void AuthService::handleReply(Reply *reply)
 {
+	debug() << "New reply"  << reply->replyType();
 	switch(reply->replyType()) {
 	case Reply::New: {
-		debug() << "New reply";
 		AuthDialogPrivate *dialog = new AuthDialogPrivate();
 		connect(dialog,SIGNAL(accepted()),SLOT(onAccepted()));
 		connect(dialog,SIGNAL(rejected()),SLOT(onRejected()));

@@ -19,6 +19,7 @@ public:
 	};
 	void show(qutim_sdk_0_3::Contact* contact, const QString& text, bool incoming)
 	{
+		m_isIncoming = incoming;
 		m_contact = contact;
 		ui->requestMessage->setText(text);
 		QString title;

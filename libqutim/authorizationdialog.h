@@ -54,7 +54,7 @@ private:
 	QString m_body;
 };
 
-QObject *service(); //alias
+LIBQUTIM_EXPORT QObject *service(); //alias
 
 }//namespace Authorization
 
