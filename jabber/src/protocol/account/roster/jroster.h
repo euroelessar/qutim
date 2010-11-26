@@ -38,7 +38,6 @@ protected slots:
 	void handleSubscription(jreen::Presence subscribe); //TODO may be need a separated subscription manager?
 	void onDisconnected();
 	void onNewMessage(jreen::Message message); //TODO move this method to JMessageManager
-	void sendAuthResponse(bool answer);
 private:
 	QScopedPointer<JRosterPrivate> d_ptr;
 };
