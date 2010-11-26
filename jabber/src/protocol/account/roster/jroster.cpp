@@ -21,6 +21,7 @@
 #include <jreen/chatstate.h>
 #include <jreen/delayeddelivery.h>
 #include <jreen/receipt.h>
+#include <jreen/nickname.h>
 
 namespace Jabber
 {
@@ -211,10 +212,11 @@ void JRoster::handleSubscription(jreen::Presence subscription)
 	JContact *contact = d->contacts.value(bare);
 	if (contact) {
 		name = contact->name();
-	}/* else {
-  const Nickname *nickname = subscription.findExtension<Nickname>(ExtNickname);
-  name = nickname ? QString::fromStdString(nickname->nick()) : "";
- }*/
+	} else {
+		jreen::Nickname *nickname = subscription.findExtension<jreen::Nickname>().data();
+		if(nickname)
+			name = nickname->nick();
+	}
 
 	switch(subscription.subtype())
 	{
@@ -228,13 +230,14 @@ void JRoster::handleSubscription(jreen::Presence subscription)
 		qApp->sendEvent(Authorization::service(),&request);
 		break;
 	}
-	case jreen::Presence::Unsubscribe: //how to handle it?
-		//		QString text = tr("received a request for removal from the subscribers");
-		//		AuthorizationReply request(AuthorizationReply::New,
-		//								   contact,
-		//								   subscription.status());
-		//		qApp->sendEvent(Authorization::service(),&request);
+	case jreen::Presence::Unsubscribe: { //how to handle it?
+		QString text = tr("Received a request for removal from the subscribers");
+		Authorization::Reply request(Authorization::Reply::Reject,
+									 contact,
+									 text);
+		qApp->sendEvent(Authorization::service(),&request);
 		break;
+	}
 	case jreen::Presence::Unsubscribed: {
 		QString text = tr("You have been removed from the list of subscribers");
 		Authorization::Reply request(Authorization::Reply::Rejected,
