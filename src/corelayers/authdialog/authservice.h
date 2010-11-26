@@ -17,7 +17,14 @@
 #define AUTHSERVICE_H
 #include <qutim/plugin.h>
 
+namespace qutim_sdk_0_3
+{
+	class AuthorizationReply;
+}
+
 namespace Core {
+
+using namespace qutim_sdk_0_3;
 
 class AuthService : public QObject
 {
@@ -26,6 +33,8 @@ class AuthService : public QObject
 public:
 protected:
 	bool event(QEvent *event);
+protected:
+	void handleReply(AuthorizationReply *reply);
 private slots:
 	void onAccepted();
 	void onRejected();

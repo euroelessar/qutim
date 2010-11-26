@@ -6,6 +6,13 @@
 
 namespace qutim_sdk_0_3
 {
+
+namespace Authorization
+{
+	//TODO move events to this namespace
+	QObject *service(); //alias
+}
+
 class Contact;
 /**
 * Send AuthorizationRequest to @param contact

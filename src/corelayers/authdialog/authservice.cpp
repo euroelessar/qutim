@@ -17,6 +17,7 @@
 #include "authdialogimpl_p.h"
 #include <qutim/debug.h>
 #include <qutim/authorizationdialog.h>
+#include <qutim/notificationslayer.h>
 
 namespace Core {
 
@@ -33,17 +34,32 @@ bool AuthService::event(QEvent *event)
 					 false);
 		return true;
 	} else if(event->type() == AuthorizationReply::eventType()) {
+		handleReply(static_cast<AuthorizationReply*>(event));
+		return true;
+	}
+	return QObject::event(event);
+}
+
+void AuthService::handleReply(AuthorizationReply *reply)
+{
+	switch(reply->replyType()) {
+	case AuthorizationReply::New: {
 		debug() << "New reply";
-		AuthorizationReply *reply = static_cast<AuthorizationReply*>(event);
 		AuthDialogPrivate *dialog = new AuthDialogPrivate();
 		connect(dialog,SIGNAL(accepted()),SLOT(onAccepted()));
 		connect(dialog,SIGNAL(rejected()),SLOT(onRejected()));
 		dialog->show(reply->contact(),
 					 reply->body(),
 					 true);
-		return true;
+		break;
 	}
-	return QObject::event(event);
+	case AuthorizationReply::Accepted:
+	case AuthorizationReply::Rejected:
+		Notifications::send(reply->body(),reply->contact()->name());
+		break;
+	default:
+		break;
+	}
 }
 
 void AuthService::onAccepted()

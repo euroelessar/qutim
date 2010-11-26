@@ -1,8 +1,14 @@
 #include "authorizationdialog.h"
 #include "objectgenerator.h"
+#include "servicemanager.h"
 
 namespace qutim_sdk_0_3
 {
+
+QObject *service()
+{
+	return ServiceManager::getByName("AuthorizationService");
+}
 
 QEvent::Type AuthorizationRequest::eventType()
 {
