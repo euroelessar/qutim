@@ -23,9 +23,9 @@ namespace Core {
 
 bool AuthService::event(QEvent *event)
 {
-	if(event->type() == AuthorizationRequest::eventType()) {
+	if(event->type() == Request::eventType()) {
 		debug() << "New request";
-		AuthorizationRequest *request = static_cast<AuthorizationRequest*>(event);
+		Request *request = static_cast<Request*>(event);
 		AuthDialogPrivate *dialog = new AuthDialogPrivate();
 		connect(dialog,SIGNAL(accepted()),SLOT(onAccepted()));
 		connect(dialog,SIGNAL(rejected()),SLOT(onRejected()));
@@ -33,17 +33,17 @@ bool AuthService::event(QEvent *event)
 					 request->body(),
 					 false);
 		return true;
-	} else if(event->type() == AuthorizationReply::eventType()) {
-		handleReply(static_cast<AuthorizationReply*>(event));
+	} else if(event->type() == Reply::eventType()) {
+		handleReply(static_cast<Reply*>(event));
 		return true;
 	}
 	return QObject::event(event);
 }
 
-void AuthService::handleReply(AuthorizationReply *reply)
+void AuthService::handleReply(Reply *reply)
 {
 	switch(reply->replyType()) {
-	case AuthorizationReply::New: {
+	case Reply::New: {
 		debug() << "New reply";
 		AuthDialogPrivate *dialog = new AuthDialogPrivate();
 		connect(dialog,SIGNAL(accepted()),SLOT(onAccepted()));
@@ -53,8 +53,8 @@ void AuthService::handleReply(AuthorizationReply *reply)
 					 true);
 		break;
 	}
-	case AuthorizationReply::Accepted:
-	case AuthorizationReply::Rejected:
+	case Reply::Accepted:
+	case Reply::Rejected:
 		Notifications::send(reply->body(),reply->contact()->name());
 		break;
 	default:
@@ -68,12 +68,12 @@ void AuthService::onAccepted()
 	Contact *c = dialog->contact();
 	if(dialog->isIncoming()) {
 		debug() << "Send reply";
-		AuthorizationReply event = AuthorizationReply(AuthorizationReply::Accept,c);
+		Reply event = Reply(Reply::Accept,c);
 		qApp->sendEvent(c,&event);
 	}
 	else {
 		debug() << "Send request";
-		AuthorizationRequest event = AuthorizationRequest(c,dialog->text());
+		Request event = Request(c,dialog->text());
 		qApp->sendEvent(c,&event);
 	}
 }
@@ -83,7 +83,7 @@ void AuthService::onRejected()
 	AuthDialogPrivate *dialog = qobject_cast<AuthDialogPrivate*>(sender());
 	Contact *c = dialog->contact();
 	if(dialog->isIncoming()) {
-		AuthorizationReply event = AuthorizationReply(AuthorizationReply::Reject,c);
+		Reply event = Reply(Reply::Reject,c);
 		qApp->sendEvent(c,&event);
 	} else
 		c->deleteLater(); //remove temporary contact

@@ -5,21 +5,27 @@
 namespace qutim_sdk_0_3
 {
 
+namespace Authorization
+{
+
 QObject *service()
 {
 	return ServiceManager::getByName("AuthorizationService");
 }
 
-QEvent::Type AuthorizationRequest::eventType()
+QEvent::Type Request::eventType()
 {
 	static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 103));
 	return type;
 }
 
-QEvent::Type AuthorizationReply::eventType()
+QEvent::Type Reply::eventType()
 {
 	static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 104));
 	return type;
 }
 
-}
+}//namespace Authorization
+
+}//namespace qutim_sdk_0_3
+

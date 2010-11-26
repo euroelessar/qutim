@@ -4,23 +4,21 @@
 #include "libqutim_global.h"
 #include <QEvent>
 
+
 namespace qutim_sdk_0_3
 {
 
+class Contact;
 namespace Authorization
 {
-	//TODO move events to this namespace
-	QObject *service(); //alias
-}
 
-class Contact;
 /**
 * Send AuthorizationRequest to @param contact
 */
-class LIBQUTIM_EXPORT AuthorizationRequest  : public QEvent
+class LIBQUTIM_EXPORT Request  : public QEvent
 {
 public:
-	AuthorizationRequest(Contact *contact,const QString &body = QString())
+	Request(Contact *contact,const QString &body = QString())
 		:	QEvent(eventType()),m_contact(contact),m_body(body) {}
 	Contact *contact() const {return m_contact;}
 	QString body() const {return m_body;}
@@ -32,7 +30,7 @@ private:
 	QString m_body;
 };
 
-class LIBQUTIM_EXPORT AuthorizationReply  : public QEvent
+class LIBQUTIM_EXPORT Reply  : public QEvent
 {
 public:
 	enum Type {
@@ -42,7 +40,7 @@ public:
 		Accepted,
 		Rejected
 	};
-	AuthorizationReply(Type type, Contact *contact,const QString &body = QString())
+	Reply(Type type, Contact *contact,const QString &body = QString())
 		:	QEvent(eventType()),m_type(type),m_contact(contact),m_body(body) {}
 	Contact *contact() const {return m_contact;}
 	QString body() const {return m_body;}
@@ -56,6 +54,11 @@ private:
 	QString m_body;
 };
 
-}
+QObject *service(); //alias
+
+}//namespace Authorization
+
+}//namespace qutim_sdk_0_3
+
 
 #endif // AUTHORIZATIONDIALOG_H
