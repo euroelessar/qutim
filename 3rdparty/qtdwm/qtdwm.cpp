@@ -131,6 +131,9 @@ bool QtDWM::enableBlurBehindWindow(QWidget *widget, bool enable)
             windowNotifier()->addWidget(widget);
         }
     }
+#else
+	Q_UNUSED(widget);
+	Q_UNUSED(enable);
 #endif
     return result;
 }
@@ -149,14 +152,8 @@ bool QtDWM::enableBlurBehindWindow(QWidget *widget, bool enable)
   */
 bool QtDWM::extendFrameIntoClientArea(QWidget *widget, int left, int top, int right, int bottom)
 {
-
-    Q_ASSERT(widget);
-    Q_UNUSED(left);
-    Q_UNUSED(top);
-    Q_UNUSED(right);
-    Q_UNUSED(bottom);
-
-    bool result = false;
+	Q_ASSERT(widget);
+	bool result = false;
 #ifdef Q_WS_WIN
     if (resolveLibs()) {
         QLibrary dwmLib(QString::fromAscii("dwmapi"));
@@ -169,6 +166,12 @@ bool QtDWM::extendFrameIntoClientArea(QWidget *widget, int left, int top, int ri
         }
         widget->setAttribute(Qt::WA_TranslucentBackground, result);
     }
+#else
+	Q_UNUSED(widget);
+	Q_UNUSED(left);
+	Q_UNUSED(top);
+	Q_UNUSED(right);
+	Q_UNUSED(bottom);
 #endif
     return result;
 }

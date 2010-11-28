@@ -20,7 +20,7 @@
 #include <qutim/configbase.h>
 #include <qutim/messagesession.h>
 #include <qutim/debug.h>
-#include "../chatsessionimpl.h"
+#include <chatlayer/chatsessionimpl.h>
 #include <QPlainTextEdit>
 
 namespace Core

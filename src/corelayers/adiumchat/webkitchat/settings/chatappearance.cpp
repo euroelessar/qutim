@@ -56,8 +56,6 @@ public:
 	{
 		return ChatAppearance::tr("Noname");
 	}
-
-	virtual void setChatState(ChatState state) {}
 };
 class FakeAccount : public Account
 {
@@ -251,9 +249,10 @@ void ChatAppearance::makeSettings() {
 		variantBox->setCurrentIndex(index);
 		onVariantChanged(m_current_variant);
 	}
-	Config achat(ThemeManager::path(category,m_current_style_name).append("/Contents/Resources/custom.json"));
-	//		QStringList() << "appearance/adiumChat" << getThemePath(category,m_current_style_name)
-	//				.append("/Contents/Resources/custom.json"));
+	Config achat(QStringList()
+				 << "appearance/adiumChat"
+				 << ThemeManager::path(category,m_current_style_name)
+				 .append("/Contents/Resources/custom.json"));
 	ConfigGroup variables = achat;
 	int count = variables.beginArray(m_current_style_name);
 	for (int num = 0; num < count; num++) {

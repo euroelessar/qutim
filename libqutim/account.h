@@ -29,6 +29,9 @@ namespace qutim_sdk_0_3
 	class Conference;
 	class AccountPrivate;
 
+	class Account;
+	typedef QList<Account*> AccountList;
+
 	/*!
 	  Account is base class for all account entites.
 	*/
@@ -37,7 +40,7 @@ namespace qutim_sdk_0_3
 		Q_DECLARE_PRIVATE(Account)
 		Q_OBJECT
 		Q_PROPERTY(QString id READ id)
-		Q_PROPERTY(qutim_sdk_0_3::Status status READ status WRITE setStatus NOTIFY statusChanges)
+		Q_PROPERTY(qutim_sdk_0_3::Status status READ status WRITE setStatus NOTIFY statusChanged)
 		Q_PROPERTY(QString name READ name NOTIFY nameChanged)
 	public:
 		/*!
@@ -102,6 +105,7 @@ namespace qutim_sdk_0_3
 		virtual ChatUnit *getUnit(const QString &unitId, bool create = false) = 0;
 		
 		Q_INVOKABLE inline qutim_sdk_0_3::ChatUnit *unit(const QString &unitId, bool create = false);
+		static AccountList all();
 	signals:
 		/*!
 		  Signal is emitted when new \a contact was created.

@@ -44,13 +44,11 @@ LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/flowlayout/flowlayout.
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/itemdelegate/itemdelegate.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/itemdelegate/itemdelegate.h" )
 
-# Add ContactDelegate
-LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/contactdelegate/contactdelegate.cpp" )
-LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/contactdelegate/contactdelegate.h" )
-
 # Add avatarfilter
 LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.cpp" )
+LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatariconengine.cpp" )
 LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatarfilter.h" )
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/avatarfilter/avatariconengine_p.h" )
 
 # MinGW special options
 # Not sure if those applicable for linux
@@ -80,7 +78,7 @@ endif()
 INCLUDE( ${QT_USE_FILE} )
 
 # Add include directories
-INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/../"
+INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../sdk02/"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/"

@@ -64,7 +64,10 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 		tmpDir.mkdir(systemDirs[i].dirName());
 	qDebug() << Q_FUNC_INFO << SystemInfo::getPath(SystemInfo::ConfigDir);
 	
-	addPage(new ProfileCreationPage(password, singleProfile, this));
+	setProperty("singleProfile",singleProfile);
+	setProperty("password",password);
+
+	addPage(new ProfileCreationPage(this));
 	QString realId;
 	QString realName;
 	if (id.isEmpty()) {
@@ -115,8 +118,19 @@ ProfileCreationWizard::ProfileCreationWizard(ModuleManager *parent,
 			addPage(page);
 		}
 	}
+
+	QWizardPage *p = new QWizardPage(this);
+	p->setTitle(tr("Congratulations"));
+	p->setSubTitle(tr("You've just created a profile for qutIM. Click Finish to proceed to adding user accounts"));
+	addPage(p);
+
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	setAttribute(Qt::WA_QuitOnClose, false);
+
+	//back button is unstable
+	QList<QWizard::WizardButton> layout;
+	layout << QWizard::Stretch << QWizard::NextButton << QWizard::FinishButton;
+	setButtonLayout(layout);
 }
 
 void ProfileCreationWizard::done(int result)

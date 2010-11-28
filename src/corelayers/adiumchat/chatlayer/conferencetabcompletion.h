@@ -27,63 +27,63 @@
 namespace Core
 {
 
-	namespace AdiumChat
-	{
+namespace AdiumChat
+{
 
-		class ConfTabCompletion : public QObject
-		{
-			Q_OBJECT
+class ConfTabCompletion : public QObject
+{
+	Q_OBJECT
 
-		public:
-			ConfTabCompletion(QObject *parent = 0);
-			virtual ~ConfTabCompletion();
+public:
+	ConfTabCompletion(QObject *parent = 0);
+	virtual ~ConfTabCompletion();
 
-			void setTextEdit(QPlainTextEdit* conferenceTextEdit);
-			QPlainTextEdit* getTextEdit();
+	void setTextEdit(QPlainTextEdit* conferenceTextEdit);
+	QPlainTextEdit* getTextEdit();
 
-			virtual void reset();
-			void tryComplete();
+	virtual void reset();
+	void tryComplete();
 
-			void setup(QString str, int pos, int &start, int &end);
-			QStringList possibleCompletions();
-			QStringList allChoices(QString &guess);
+	void setup(QString str, int pos, int &start, int &end);
+	QStringList possibleCompletions();
+	QStringList allChoices(QString &guess);
 
-			QStringList getUsers();
+	QStringList getUsers();
 
-			void setChatSession(ChatSessionImpl  *session);
-			void setLastReferrer(QString last_referrer);
-		private:
-			QString nickSep;
+	void setChatSession(ChatSessionImpl  *session);
+	void setLastReferrer(QString last_referrer);
+private:
+	QString nickSep;
 
-			QString toComplete_;
-			bool atStart_;
+	QString toComplete_;
+	bool atStart_;
 
-			virtual void highlight(bool set);
-			QColor highlight_;
+	virtual void highlight(bool set);
+	QColor highlight_;
 
-			QString longestCommonPrefix(QStringList list);
-			QString suggestCompletion(bool *replaced);
-			virtual bool eventFilter(QObject* , QEvent* );
+	QString longestCommonPrefix(QStringList list);
+	QString suggestCompletion(bool *replaced);
+	virtual bool eventFilter(QObject* , QEvent* );
 
-			void moveCursorToOffset(QTextCursor &cur, int offset, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
+	void moveCursorToOffset(QTextCursor &cur, int offset, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
-			enum TypingStatus {
-				Typing_Normal,
-				Typing_TabPressed,	// initial completion
-				Typing_TabbingCompletions, // switch to tab through multiple
-				Typing_MultipleSuggestions
-			};
+	enum TypingStatus {
+		Typing_Normal,
+		Typing_TabPressed,	// initial completion
+		Typing_TabbingCompletions, // switch to tab through multiple
+		Typing_MultipleSuggestions
+	};
 
-			QTextCursor replacementCursor_;
-			TypingStatus typingStatus_;
-			QStringList suggestedCompletion_;
-			int  suggestedIndex_;
+	QTextCursor replacementCursor_;
+	TypingStatus typingStatus_;
+	QStringList suggestedCompletion_;
+	int  suggestedIndex_;
 
-			QPointer<QPlainTextEdit> textEdit_;
-			ChatSessionImpl *chat_session_;
-			QString last_referrer_;
-		};
+	QPointer<QPlainTextEdit> textEdit_;
+	ChatSessionImpl *chat_session_;
+	QString last_referrer_;
+};
 
-	}
+}
 }
 #endif /* CONFERENCETABCOMPLETION_H_ */

@@ -22,40 +22,40 @@
 
 namespace qutim_sdk_0_3
 {
-	class LIBQUTIM_EXPORT SystemIntegration
-	{
-	public:
-		enum Attribute { 
-			UserLogin,
-			UserName,
-			CurrentLanguage, // not the same as locale
-			ExtensionsForMimeType, // /etc/mime.types
-			TimeZone,
-			TimeZoneName,
-			TimeZoneShortName
-		};
-		enum Priority
-		{
-			BaseSystem = 0, // Unix
-			WindowManager = 127, // X11
-			DesktopEnvironment = 255 // KDE
-		};
-
-		SystemIntegration();
-		virtual ~SystemIntegration();
-		
-		static SystemIntegration *instance();
-		
-		virtual void init() = 0;
-		virtual bool isAvailable() const = 0;
-		
-		virtual int priority() = 0;
-		
-		virtual QVariant value(Attribute attr, const QVariant &data = QVariant()) const = 0;
-	//	virtual QVariant process(Operation act, const QVariantList &args = QVariantList()) const = 0;
-	protected:
-		virtual void virtual_hook(int, void *);
+class LIBQUTIM_EXPORT SystemIntegration
+{
+public:
+	enum Attribute {
+		UserLogin,
+		UserName,
+		CurrentLanguage, // not the same as locale
+		ExtensionsForMimeType, // /etc/mime.types
+		TimeZone,
+		TimeZoneName,
+		TimeZoneShortName
 	};
+	enum Priority
+	{
+		BaseSystem = 0, // Unix
+		WindowManager = 127, // X11
+		DesktopEnvironment = 255 // KDE
+	};
+
+	SystemIntegration();
+	virtual ~SystemIntegration();
+
+	static SystemIntegration *instance();
+
+	virtual void init() = 0;
+	virtual bool isAvailable() const = 0;
+
+	virtual int priority() = 0;
+
+	virtual QVariant value(Attribute attr, const QVariant &data = QVariant()) const = 0;
+	//	virtual QVariant process(Operation act, const QVariantList &args = QVariantList()) const = 0;
+protected:
+	virtual void virtual_hook(int, void *);
+};
 }
 
 #endif // SYSTEMINTEGRATION_H

@@ -46,11 +46,15 @@ endmacro()
 
 LIST_SUBDIRECTORIES(3RDPARTY_INCLUDE_DIRS "3rdparty")
 
+#Include X11, spike for freebsd
+FIND_PACKAGE(X11 REQUIRED)
+
 INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 	${QT_QTCORE_INCLUDE_DIR}
 	${QT_QTXML_INCLUDE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${3RDPARTY_INCLUDE_DIRS}
+	${X11_INCLUDE_DIR}
 	.
 		src
 		include
@@ -139,18 +143,20 @@ ADD_EXECUTABLE (qutim
 	${QUTIM_ADDITIONAL_SOURCES}
 	)
 
-if( CMAKE_COMPILER_IS_GNUCXX )
-	set_target_properties( qutim PROPERTIES COMPILE_FLAGS "-DQUTIM_CORE -DXDG_STATIC -Wall -Werror" )
-	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "-Wall -Werror -Wextra" )
-	if( NOT WIN32 )
-		set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "-fvisibility=hidden" )
-	endif( NOT WIN32 )
-elseif(MSVC)
-	set_target_properties( qutim PROPERTIES COMPILE_FLAGS "-DQUTIM_CORE -DXDG_STATIC /W3" )
-	set_target_properties( libqutim PROPERTIES COMPILE_FLAGS "/W3 /WX /wd4065" )
+if(MSVC)
+	set(QUTIM_COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS} /W3")
+	set(LIBQUTIM_COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} /W3 /WX /wd4065")
 else()
-	set_target_properties( qutim PROPERTIES COMPILE_FLAGS "-DQUTIM_CORE -DXDG_STATIC" )
+	set(QUTIM_COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS} -Wall  -Wnon-virtual-dtor")
+	set(LIBQUTIM_COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} -Wall -Wextra -Wnon-virtual-dtor")
+	if(NOT WIN32)
+		set(LIBQUTIM_COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} -fvisibility=hidden")
+	endif(NOT WIN32)
 endif()
+
+set(QUTIM_COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS} -DQUTIM_CORE -DXDG_STATIC")
+set_target_properties(qutim PROPERTIES COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS}")
+set_target_properties(libqutim PROPERTIES COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS}")
 
 TARGET_LINK_LIBRARIES (qutim
 	${QT_LIBRARIES}
@@ -260,9 +266,3 @@ IF(WIN32)
 		DESCRIPTION ""
 	)
 ENDIF(WIN32)
-
-#additional artwork sources
-SET(QUTIM_ADDITIONAL_ART_PATH "" CACHE PATH "Path to additional artwork")
-IF(NOT QUTIM_ADDITIONAL_ART_PATH STREQUAL "")
-	QUTIM_ADD_ARTWORK_DIR(${QUTIM_ADDITIONAL_ART_PATH})
-ENDIF()

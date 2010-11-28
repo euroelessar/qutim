@@ -19,6 +19,7 @@
 #include <QTextDocument>
 #include <QPointer>
 #include <QTimer>
+#include "chatlayer_global.h"
 
 class QAbstractItemModel;
 class QWebPage;
@@ -39,7 +40,7 @@ class ChatStyleOutput;
 class ChatSessionModel;
 class ChatSessionImplPrivate;
 
-class ChatSessionImpl : public ChatSession
+class ADIUMCHAT_EXPORT ChatSessionImpl : public ChatSession
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(ChatSessionImpl)

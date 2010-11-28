@@ -69,8 +69,7 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	p->stackedWidget = new QStackedWidget(w);
 	//default widget
 	QWidget *empty = new QWidget(this);
-//	new QVBoxLayout(empty);
-//	new QLabel(Q_TRANSLATE_NOOP("Settings","Sorry this category doesn't contain any settings"),empty);
+
 	p->stackedWidget->addWidget(empty);
 	p->splitter->addWidget(p->listWidget);
 	p->splitter->addWidget(p->stackedWidget);
@@ -78,11 +77,7 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	if (data.isEmpty() || !p->splitter->restoreState(data))
 		p->splitter->setSizes(QList<int>() << 80  << 250);
 	l->addWidget(p->splitter);
-	//init buttonBox
-// 	QFrame *line = new QFrame(w);
-// 	line->setFrameShape(QFrame::HLine);
-// 	line->setFrameShadow(QFrame::Sunken);
-// 	l->addWidget(line);
+
 	p->buttonBox = new QDialogButtonBox(QDialogButtonBox::Save|QDialogButtonBox::Cancel,Qt::Horizontal,w);
 	l->addWidget(p->buttonBox);
 	p->buttonBox->hide();
@@ -267,7 +262,7 @@ void XSettingsWindow::save()
 
 void XSettingsWindow::cancel()
 {
-	QWidget *c = p->stackedWidget->currentWidget();	
+	QWidget *c = p->stackedWidget->currentWidget();
 	while (p->modifiedWidgets.count()) {
 		SettingsWidget *widget = p->modifiedWidgets.takeFirst();
 		widget->save();

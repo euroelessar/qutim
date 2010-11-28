@@ -653,6 +653,8 @@ namespace qutim_sdk_0_3
 		}
 		qDeleteAll(p->plugins);
 		qDeleteAll(p->serviceOrder);
+		p->serviceOrder.clear();
+		p->services.clear();
 		qDeleteAll(*(p->protocols));
 	}
 

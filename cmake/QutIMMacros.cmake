@@ -183,7 +183,7 @@ public:
 
 #include \"${plugin_name}plugin.moc\"
 QUTIM_EXPORT_PLUGIN(${plugin_name}Plugin)
-" )
+")
 	endif( NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp" )
 	QT4_GENERATE_MOC( "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.cpp" "${CMAKE_CURRENT_BINARY_DIR}/${plugin_name}plugin.moc" )
 	list( APPEND QUTIM_${plugin_name}_SRC
@@ -229,12 +229,20 @@ Q_IMPORT_PLUGIN(${plugin_name})
 	endif( QUTIM_${plugin_name}_STATIC )
 	set( QUTIM_ADDITIONAL_SOURCES "${QUTIM_ADDITIONAL_SOURCES}" CACHE INTERNAL "" )
 	set( QUTIM_ADDITIONAL_LIBRARIES "${QUTIM_ADDITIONAL_LIBRARIES}" CACHE INTERNAL "" )
-	if( CMAKE_COMPILER_IS_GNUCXX )
-		set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS} -Wall -Werror" )
-	else( CMAKE_COMPILER_IS_GNUCXX )
-		set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS}" )
-	endif( CMAKE_COMPILER_IS_GNUCXX )
 
+	#more effective compile flags
+	if(MSVC)
+		set(QUTIM_${plugin_name}_COMPILE_FLAGS
+			"${QUTIM_${plugin_name}_COMPILE_FLAGS} /W3")
+	else()
+		set(QUTIM_${plugin_name}_COMPILE_FLAGS
+			"${QUTIM_${plugin_name}_COMPILE_FLAGS} -Wall -Wextra -Wnon-virtual-dtor")
+		if(NOT WIN32)
+			set(QUTIM_${plugin_name}_COMPILE_FLAGS
+			"${QUTIM_${plugin_name}_COMPILE_FLAGS} -fvisibility=hidden")
+		endif(NOT WIN32)
+	endif()
+	set_target_properties(${plugin_name} PROPERTIES COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS}")
 
 	#if( QUTIM_${plugin_name}_STATIC STREQUAL "SHARED" ) #what the fucking going on?
 		install( TARGETS ${plugin_name}

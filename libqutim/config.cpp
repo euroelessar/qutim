@@ -489,7 +489,7 @@ namespace qutim_sdk_0_3
 			} else if (current->typeMap) {
 				QVariant &var = (*(current->map))[name];
 				if (var.type() != QVariant::List && !d->sources.isEmpty())
-					d->sources.at(0)->dirty;
+					d->sources.at(0)->dirty = true; //Euroelessar, please check this string
 				l->atoms << new ConfigAtom(var, false);
 				if (!size)
 					size = var.toList().size();

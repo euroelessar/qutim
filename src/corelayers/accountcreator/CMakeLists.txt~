@@ -1,7 +1,0 @@
-qutim_add_plugin( accountcreator
-        EXTENSION
-        EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/accountcreator.h
-        EXTENSION_CLASS Core::AccountCreator,StartupModule
-        DISPLAY_NAME "Account creator"
-        DESCRIPTION "Default qutIM account creator"
-)

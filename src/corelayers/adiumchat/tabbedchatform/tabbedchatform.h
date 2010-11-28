@@ -1,7 +1,7 @@
-#ifndef ADIUMCHATFORM_H
-#define ADIUMCHATFORM_H
+#ifndef TABBEDCHATFORM_H
+#define TABBEDCHATFORM_H
 
-#include <chatlayer/chatforms/abstractchatform.h>
+#include <chatforms/abstractchatform.h>
 
 namespace qutim_sdk_0_3
 {
@@ -29,4 +29,4 @@ private:
 }
 }
 
-#endif //ADIUMCHATFORM_H
+#endif //TABBEDCHATFORM_H

@@ -303,7 +303,7 @@ void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 	reloadStyle();
 }
 
-QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDateTime& _dateTime)
+QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDateTime&)
 {
 	//TODO
 	QString headerHTML = m_current_style.headerHtml;

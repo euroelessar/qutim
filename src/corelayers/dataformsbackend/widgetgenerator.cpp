@@ -59,7 +59,7 @@ QWidget *getTitle(const DataItem &item, const Qt::Alignment &alignment, QWidget 
 {
 	QStringList alt = variantToStringList(item.property("titleAlternatives"));
 	if (item.property("readOnly", false) || alt.isEmpty()) {
-		QLabel *title = new QLabel(item.title() + ":");
+		QLabel *title = new QLabel(item.title() + ":",parent);
 		title->setAlignment(alignment);
 		return title;
 	} else {

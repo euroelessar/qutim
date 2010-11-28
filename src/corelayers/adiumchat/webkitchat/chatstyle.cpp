@@ -255,7 +255,7 @@ public:
 	QMap<QString, QWeakPointer<ChatStyleData> > datas;
 };
 
-ChatStyle::ChatStyle(ChatSessionImpl *session, const QString &stylePath, const QString &variant) :
+ChatStyle::ChatStyle(ChatSessionImpl *session, const QString &, const QString &) :
 	d_ptr(new ChatStylePrivate)
 {
 	Q_D(ChatStyle);
@@ -277,11 +277,11 @@ QString ChatStyle::variant() const
 	return QString();
 }
 
-void ChatStyle::setVariant(const QString &variant)
+void ChatStyle::setVariant(const QString &)
 {
 }
 
-void ChatStyle::appendMessage(const qutim_sdk_0_3::Message &msg, bool sameSender)
+void ChatStyle::appendMessage(const qutim_sdk_0_3::Message &, bool)
 {
 }
 
@@ -303,7 +303,7 @@ QStringList ChatStyleFactory::styles() const
 	return QStringList();
 }
 
-ChatStyle *ChatStyleFactory::create(ChatSessionImpl *impl, const QString &stylePath, const QString &variant)
+ChatStyle *ChatStyleFactory::create(ChatSessionImpl *, const QString &, const QString &)
 {
 	return 0;
 }

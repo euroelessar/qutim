@@ -35,7 +35,7 @@
 #  define LIBQUTIM_EXPORT Q_DECL_IMPORT
 #endif
 
-#if defined(Q_OS_SYMBIAN) || defined(Q_WS_SIMULATOR)
+#if defined(Q_OS_SYMBIAN) || defined(Q_WS_SIMULATOR) || defined(Q_WS_MAEMO_5)
 #	ifndef QUTIM_MOBILE_UI
 #		define QUTIM_MOBILE_UI
 #	endif

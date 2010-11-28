@@ -41,6 +41,16 @@ namespace qutim_sdk_0_3
 			Invisible,
 			Offline
 		};
+
+		enum ChangeReason
+		{
+			ByUser,
+			ByIdle,
+			ByAuthorizationFailed,
+			ByNetworkError,
+			ByFatalError
+		};
+
 		// TODO: Remove defines, and optimize code, currently I just want plugins to compile
 #if 0
 		explicit
@@ -108,6 +118,7 @@ class QDebug;
 LIBQUTIM_EXPORT QDebug operator<<(QDebug debug, qutim_sdk_0_3::Status::Type status);
 LIBQUTIM_EXPORT QDebug operator<<(QDebug debug, const qutim_sdk_0_3::Status &status);
 Q_ENUMS(qutim_sdk_0_3::Status::Type)
+Q_ENUMS(qutim_sdk_0_3::Status::ChangeReason)
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Status)
 
 #endif // STATUS_H

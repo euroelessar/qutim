@@ -39,6 +39,8 @@ namespace qutim_sdk_0_3
 	{
 		if (!p) createIconPrivate();
 		QIcon result;
+		if(name.isEmpty())
+			return result;
 		if (p) {
 			for (int i = 0; i < p->wrappers.size(); i++) {
 				result = p->wrappers[i]->getIcon(name);

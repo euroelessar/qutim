@@ -113,7 +113,6 @@ void Popup::send()
 	Q_ASSERT(gen);
 	m_popup = gen->generate<AbstractPopupWidget>();
 	Q_ASSERT(m_popup);
-	m_popup->show();
 	m_popup->setData(m_title,m_body,m_sender,m_data);
 	QSize notify_size = m_popup->sizeHint();
 
@@ -155,6 +154,7 @@ void Popup::send()
 	connect(m_popup,SIGNAL(sizeChanged(QSize)),SLOT(onPopupWidgetSizeChanged(QSize)));
 	connect(m_popup,SIGNAL(activated()),SLOT(onPopupActivated()));
 	m_machine->start();
+	m_popup->show();
 }
 
 void Popup::update(QRect geom)

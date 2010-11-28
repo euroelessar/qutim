@@ -9,6 +9,7 @@
 #include "libqutim/json.h"
 #include "libqutim/systeminfo.h"
 #include "libqutim/config.h"
+#include <QMessageBox>
 
 using namespace qutim_sdk_0_3;
 namespace qutim_sdk_0_3
@@ -19,18 +20,23 @@ namespace qutim_sdk_0_3
 
 namespace Core
 {
-ProfileCreationPage::ProfileCreationPage(const QString &password, bool singleProfile, QWidget *parent) :
+ProfileCreationPage::ProfileCreationPage(QWidget *parent) :
     QWizardPage(parent),
-    ui(new Ui::ProfileCreationPage), m_singleProfile(singleProfile), m_is_valid(false)
+	ui(new Ui::ProfileCreationPage),m_is_valid(false)
 {
     ui->setupUi(this);
-	m_password = password;
 	registerField("name", ui->nameEdit);
 	registerField("id", ui->idEdit);
 	registerField("portable", ui->portableBox);
 	registerField("configDir", ui->configEdit);
 	registerField("historyDir", ui->historyEdit);
 	registerField("dataDir", ui->dataEdit);
+}
+
+void ProfileCreationPage::initializePage()
+{
+	m_password = wizard()->property("password").toString();
+	m_singleProfile = wizard()->property("singleProfile").toBool();
 	bool first = true;
 	if (!m_singleProfile) {
 		registerField("crypto", ui->cryptoBox, "currentText");
@@ -41,7 +47,7 @@ ProfileCreationPage::ProfileCreationPage(const QString &password, bool singlePro
 	}
 	foreach (const ObjectGenerator *gen, ObjectGenerator::module<CryptoService>()) {
 		const ExtensionInfo info = gen->info();
-		if (!m_singleProfile 
+		if (!m_singleProfile
 			|| info.generator()->metaObject()->className() == QLatin1String("Core::NoCryptoService")) {
 			ui->cryptoBox->addItem(info.icon(), info.name(), qVariantFromValue(info));
 			if (first) {
@@ -74,7 +80,7 @@ ProfileCreationPage::~ProfileCreationPage()
 
 bool ProfileCreationPage::validatePage()
 {
-	//FIXME Elessar, WTF? why the generators are run on several times? 
+	//FIXME Elessar, WTF? why the generators are run on several times?
 	if (m_is_valid)
 		return true; //dummy
 	QDir dir;
@@ -86,8 +92,10 @@ bool ProfileCreationPage::validatePage()
 	systemDirs[SystemInfo::HistoryDir] = QDir::cleanPath(ui->historyEdit->text());
 	systemDirs[SystemInfo::ShareDir] = QDir::cleanPath(ui->dataEdit->text());
 	QFile file(SystemInfo::getDir(SystemInfo::ConfigDir).absoluteFilePath("profilehash"));
-	if (file.exists() || !file.open(QIODevice::WriteOnly))
+	if (file.exists() || !file.open(QIODevice::WriteOnly)) {
+		QMessageBox::warning(this,tr("Warning"),tr("Unable to create profile hash"));
 		return false;
+	}
 	ExtensionInfo info = ui->cryptoBox->itemData(ui->cryptoBox->currentIndex()).value<ExtensionInfo>();
 	CryptoService *service = info.generator()->generate<CryptoService>();
 	QByteArray data;
@@ -109,6 +117,7 @@ bool ProfileCreationPage::validatePage()
 	m_password.clear();
 	info = ui->configBox->itemData(ui->configBox->currentIndex()).value<ExtensionInfo>();
 	QList<ConfigBackend*> &configBackends = get_config_backends();
+	qDebug() << configBackends.count();
 	for (int i = 0; i < ui->configBox->count(); i++) {
 		ExtensionInfo extInfo = ui->configBox->itemData(i).value<ExtensionInfo>();
 		ConfigBackend *backend = extInfo.generator()->generate<ConfigBackend>();

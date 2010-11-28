@@ -7,6 +7,7 @@
 #include <QDateEdit>
 #include <QFileDialog>
 #include <QLabel>
+#include <QScrollArea>
 #include <qutim/debug.h>
 
 namespace Core
@@ -111,7 +112,10 @@ namespace Core
 	{
 		DataItem items;
 		for (int i = 0; i < ui.detailsStackedWidget->count(); ++i) {
-			AbstractDataForm *dataFrom = qobject_cast<AbstractDataForm*>(ui.detailsStackedWidget->widget(i));
+			QWidget *widget = ui.detailsStackedWidget->widget(i);
+			Q_ASSERT(qobject_cast<QScrollArea*>(widget));
+			QScrollArea *scrollArea = static_cast<QScrollArea*>(widget);
+			AbstractDataForm *dataFrom = qobject_cast<AbstractDataForm*>(scrollArea->widget());
 			if (!dataFrom)
 				continue;
 			if (dataFrom->objectName() == "General") {
@@ -133,18 +137,19 @@ namespace Core
 		if (items.isNull() || !items.hasSubitems())
 			return;
 		// Summary
-		QLabel *w = new QLabel(summary(items), ui.detailsStackedWidget);
+		QScrollArea *scrollArea = new QScrollArea(ui.detailsStackedWidget);
+		QLabel *w = new QLabel(summary(items), scrollArea);
+		scrollArea->setWidgetResizable(true);
+		scrollArea->setWidget(w);
 		w->setWordWrap(true);
 		w->setAlignment(Qt::AlignTop);
-		w->setFrameShape(QFrame::Panel);
-		w->setFrameShadow(QFrame::Sunken);
 		w->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		w->setTextInteractionFlags(Qt::LinksAccessibleByMouse |
 								   Qt::LinksAccessibleByKeyboard |
 								   Qt::TextSelectableByMouse |
 								   Qt::TextSelectableByKeyboard);
 		ui.infoListWidget->addItem(QT_TRANSLATE_NOOP("ContactInfo", "Summary"));
-		ui.detailsStackedWidget->addWidget(w);
+		ui.detailsStackedWidget->addWidget(scrollArea);
 		// Pages
 		DataItem general;
 		foreach (const DataItem &item, items.subitems()) {
@@ -169,15 +174,14 @@ namespace Core
 		if (!readWrite)
 			item.setReadOnly(true);
 		QWidget *data = AbstractDataForm::get(item);
+		QScrollArea *scrollArea = 0;
 		if (data) {
-			data->setParent(ui.detailsStackedWidget);
-			QFrame *frame = qobject_cast<QFrame*>(data);
-			if (frame) {
-				frame->setFrameShape(QFrame::Panel);
-				frame->setFrameShadow(QFrame::Sunken);
-			}
+			scrollArea = new QScrollArea(this);
+			data->setParent(scrollArea);
+			scrollArea->setWidgetResizable(true);
+			scrollArea->setWidget(data);
 		}
-		return data;
+		return scrollArea;
 	}
 
 	QString MainWindow::summary(const DataItem &items)

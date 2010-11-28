@@ -17,6 +17,7 @@
 #define SERVICECHOOSERWIDGET_H
 #include <qutim/settingswidget.h>
 #include <QHash>
+#include <QModelIndex>
 
 namespace qutim_sdk_0_3 
 {
@@ -47,6 +48,7 @@ namespace Core
 		virtual ~ServiceChooserWidget();
 	private slots:
 		void onItemChanged(QStandardItem*);
+		void onItemClicked(QModelIndex index);
 	private:
 		void clear();
 		Ui::ServiceChooser *ui;

@@ -5,8 +5,8 @@
 #include <QHBoxLayout>
 #include <qutim/actiontoolbar.h>
 #include "tabbar.h"
-#include "chatedit.h"
-#include "conferencecontactsview.h"
+#include <chatlayer/chatedit.h>
+#include <chatlayer/conferencecontactsview.h>
 #include <QPlainTextEdit>
 #include <qutim/debug.h>
 #include <qutim/icon.h>
@@ -17,6 +17,8 @@
 #include <QSplitter>
 #include <qutim/shortcut.h>
 #include <QToolButton>
+#include <QMenuBar>
+#include <qutim/account.h>
 
 #ifdef Q_WS_X11
 # include <QX11Info>
@@ -46,7 +48,8 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_chatInput(new ChatEdit(this)),
 	m_recieverList(new QAction(Icon("view-choose"),tr("Send to"),this)),
 	m_contactView(new ConferenceContactsView(this)),
-	m_key(key)
+	m_key(key),
+	m_unitAction(0)
 {
 	setAttribute(Qt::WA_DeleteOnClose);	
 	QWidget *w = new QWidget(this);
@@ -92,6 +95,9 @@ void TabbedChatWidget::loadSettings()
 							 | SwitchDesktopOnActivate
 							 | AdiumToolbar
 							 | TabsOnBottom
+#ifdef Q_WS_MAC
+							 | MenuBar
+#endif
 							 );
 
 		QWidget *tabBar = m_tabBar;
@@ -151,9 +157,22 @@ void TabbedChatWidget::loadSettings()
 			m_layout->insertWidget(0,tabBar);
 			m_tabBar->setDocumentMode(true);
 #ifdef Q_WS_MAC
-			m_tabBar->setIconSize(QSize(0,0));
 			layout()->setSpacing(0);
 #endif
+		}
+
+		if(m_flags & MenuBar) {
+			setMenuBar(new QMenuBar(this));
+			QAction *general = menuBar()->addAction(tr("&Actions"));
+
+			general->setMenu(ServiceManager::getByName<MenuController*>("ContactList")->menu());
+
+			QAction *accounts = menuBar()->addAction(tr("Accoun&ts"));
+			QMenu *m = new QMenu(this);
+			foreach(Account *a,Account::all())
+				m->addMenu(a->menu());
+			accounts->setMenu(m);
+			m_unitAction = menuBar()->addAction(tr("&Chat"));
 		}
 
 		ConfigGroup keyGroup = cfg.group("keys");
@@ -176,6 +195,11 @@ void TabbedChatWidget::loadSettings()
 		setProperty("loaded",true);
 	}
 	m_chatInput->setSendKey(cfg.value("sendKey", SendCtrlEnter));
+
+	if(m_flags & IconsOnTabs)
+		m_tabBar->setIconSize(QSize(16,16)); //TODO
+	else
+		m_tabBar->setIconSize(QSize(0,0));
 }
 
 TabbedChatWidget::~TabbedChatWidget()
@@ -247,22 +271,25 @@ void TabbedChatWidget::activate(ChatSessionImpl *session)
 			return;
 		m_currentSession->setActive(false);
 	}
+	emit currentSessionChanged(session,m_currentSession);
 	m_currentSession = session;
 
-	m_view->setViewController(session->getController());
 	m_tabBar->setCurrentSession(session);
 	m_chatInput->setSession(session);
 	m_contactView->setSession(session);
+	m_view->setViewController(session->getController());
 
-	qDeleteAll(m_unitActions);
-	m_unitActions.clear();
+	qDeleteAll(m_unitChatActionList);
+	m_unitChatActionList.clear();
 	m_recieverList->setMenu(session->menu());
 	ActionContainer container(session->getUnit(),ActionContainer::TypeMatch,ActionTypeChatButton);
 	for (int i = 0;i!=container.count();i++) {
 		QAction *current = container.action(i);
 		m_toolbar->insertAction(m_unitSeparator,current);
-		m_unitActions.append(current);
+		m_unitChatActionList.append(current);
 	}
+	if(m_flags & MenuBar)
+		m_unitAction->setMenu(session->unit()->menu());
 }
 
 ChatSessionImpl *TabbedChatWidget::currentSession() const
@@ -336,34 +363,16 @@ void TabbedChatWidget::activateWindow()
 	AbstractChatWidget::activateWindow();
 }
 
-void TabbedChatWidget::setTitle(ChatSessionImpl *s)
-{
-	ChatUnit *u = s->getUnit();
-	QIcon icon = Icon("view-choose");
-	QString title;
-	if(s->unread().count())
-		title = tr("Chat with %1 (have %2 unread messages)").arg(u->title()).arg(s->unread().count());
-	else
-		title = tr("Chat with %1").arg(u->title());
-	bool isContactsViewVisible;
-	if (Conference *c = qobject_cast<Conference *>(u)) {
-		icon = Icon("meeting-attending"); //TODO
-		title = tr("Conference %1 (%2)").arg(c->title(),c->id());
-		isContactsViewVisible = true;
-	} else {
-		isContactsViewVisible = s->getModel()->rowCount(QModelIndex()) > 0;
-		if (Buddy *b = qobject_cast<Buddy*>(u))
-			icon = b->avatar().isEmpty() ? Icon("view-choose") : QIcon(b->avatar());
-	}
-	setWindowTitle(title);
-	setWindowIcon(icon);
-}
-
 void TabbedChatWidget::onUnreadChanged()
 {
 	ChatSessionImpl *s = qobject_cast<ChatSessionImpl*>(sender());
 	if(s && s == m_tabBar->currentSession())
 		setTitle(s);
+}
+
+ActionToolBar *TabbedChatWidget::toolBar() const
+{
+	return m_toolbar;
 }
 
 }

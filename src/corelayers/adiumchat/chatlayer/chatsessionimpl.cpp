@@ -37,8 +37,7 @@ namespace AdiumChat
 
 ChatSessionImplPrivate::ChatSessionImplPrivate() :
 	controller(0),
-	myself_chat_state(ChatStateInActive),
-	lastStatusType(Status::Offline)
+	myself_chat_state(ChatStateInActive)
 {
 }
 
@@ -54,7 +53,7 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	d->input = new QTextDocument(this);
 	d->model = new ChatSessionModel(this);
 	d->q_ptr = this;
-	d->chat_unit = unit;
+	d->chatUnit = unit;
 	d->input->setDocumentLayout(new QPlainTextDocumentLayout(d->input));
 	Config cfg = Config("appearance").group("chat");
 	d->sendToLastActiveResource = cfg.value<bool>("sendToLastActiveResource", false);
@@ -62,7 +61,7 @@ ChatSessionImpl::ChatSessionImpl(ChatUnit* unit, ChatLayer* chat)
 	d->inactive_timer.setSingleShot(true);
 
 	connect(&d->inactive_timer,SIGNAL(timeout()),d,SLOT(onActiveTimeout()));
-	d->chat_unit = 0;
+	d->chatUnit = 0;
 	setChatUnit(unit);
 }
 
@@ -107,8 +106,8 @@ qint64 ChatSessionImpl::appendMessage(Message &message)
 		unreadChanged(d->unread);
 	}
 
-	if (!message.isIncoming())
-		setChatState(ChatStateActive);
+	//if (!message.isIncoming())
+	//	setChatState(ChatStateActive);
 
 	bool service = message.property("service").isValid();
 	const Conference *conf = qobject_cast<const Conference *>(message.chatUnit());
@@ -130,7 +129,7 @@ qint64 ChatSessionImpl::appendMessage(Message &message)
 			if (form) {
 				QWidget *widget = form->chatWidget(this);
 				if (widget) {
-					widget->raise();
+					QApplication::alert(widget,5000);
 				}
 			}
 		}
@@ -139,7 +138,8 @@ qint64 ChatSessionImpl::appendMessage(Message &message)
 	if (!silent && !d->active)
 		Notifications::send(message);
 
-	d->getController()->appendMessage(message);
+	if(!message.property("fake",false))
+		d->getController()->appendMessage(message);
 	return message.id();
 }
 
@@ -157,18 +157,18 @@ QWebPage* ChatSessionImpl::getPage() const
 
 Account* ChatSessionImpl::getAccount() const
 {
-	return d_func()->chat_unit->account();
+	return d_func()->chatUnit->account();
 }
 
 QString ChatSessionImpl::getId() const
 {
-	return d_func()->chat_unit->id();
+	return d_func()->chatUnit->id();
 }
 
 
 ChatUnit* ChatSessionImpl::getUnit() const
 {
-	return d_func()->chat_unit;
+	return d_func()->chatUnit;
 }
 
 QObject* ChatSessionImpl::getController() const
@@ -199,9 +199,9 @@ ChatUnit* ChatSessionImpl::getCurrentUnit() const
 {
 	Q_D(const ChatSessionImpl);
 	if (d->sendToLastActiveResource)
-		return d->last_active_unit ? d->last_active_unit : d->chat_unit;
+		return d->last_active_unit ? d->last_active_unit : d->chatUnit;
 	else
-		return d->current_unit ? d->current_unit : d->chat_unit;
+		return d->current_unit ? d->current_unit : d->chatUnit;
 }
 
 QVariant ChatSessionImpl::evaluateJavaScript(const QString &scriptSource)
@@ -238,64 +238,19 @@ QAbstractItemModel* ChatSessionImpl::getModel() const
 	return d_func()->model;
 }
 
-void ChatSessionImplPrivate::onStatusChanged(qutim_sdk_0_3::Status status)
-{
-	Contact *contact = qobject_cast<Contact *>(sender());
-	if (!contact)
-		return;
-	statusChanged(status,contact,contact->property("silent").toBool());
-}
-
-ChatState ChatSessionImplPrivate::statusToState(Status::Type type)
-{
-	//TODO may be need to move to protocols?
-	switch(type) {
-		case Status::Offline: {
-			return ChatStateGone;
-			break;
-		}
-		case Status::NA: {
-			return ChatStateInActive;
-			break;
-		}
-		case Status::Away: {
-			return ChatStateInActive;
-			break;
-		}
-		case Status::DND: {
-			return ChatStateInActive;
-			break;
-		}
-		case Status::Online: {
-			return ChatStateActive;
-			break;
-		}
-		default: {
-			break;
-		}
-	}
-	//It is a good day to die!
-	return ChatStateActive;
-}
-
-void ChatSessionImplPrivate::statusChanged(const Status &status,Contact* contact, bool silent)
+void ChatSessionImplPrivate::onStatusChanged(qutim_sdk_0_3::Status now,qutim_sdk_0_3::Status old, bool silent)
 {
 	Q_Q(ChatSessionImpl);
 	Notifications::Type type = Notifications::StatusChange;
-	QString title = status.name().toString();
+	QString title = now.name().toString();
 
-	if (lastStatusType == status.type())
-		return;
-
-	switch(status.type()) {
+	switch(now.type()) {
 	case Status::Offline: {
 		type = Notifications::Offline;
-		chat_unit->setChatState(ChatStateGone);
 		break;
 	}
 	case Status::Online: {
 		type = Notifications::Online;
-		chat_unit->setChatState(ChatStateInActive);
 		break;
 	}
 	default: {
@@ -303,25 +258,52 @@ void ChatSessionImplPrivate::statusChanged(const Status &status,Contact* contact
 	}
 	}
 
-	if(lastStatusText == status.text())
+	if(old.text() == now.text())
 		return;
 
-	lastStatusType = status.type();
-	lastStatusText = status.text();
-
-	//title = title.isEmpty() ? contact->status().name().toString() : title;
-
 	Message msg;
-	msg.setChatUnit(contact);
+	msg.setChatUnit(chatUnit);
 	msg.setIncoming(true);
 	msg.setProperty("service",type);
 	msg.setProperty("title",title);
 	msg.setTime(QDateTime::currentDateTime());
-	msg.setText(status.text());
+	msg.setText(now.text());
 	msg.setProperty("silent",silent);
 	msg.setProperty("store",!silent);
 	q->appendMessage(msg);
 }
+
+//ChatState ChatSessionImplPrivate::statusToState(Status::Type type)
+//{
+//	//TODO may be need to move to protocols?
+//	switch(type) {
+//		case Status::Offline: {
+//			return ChatStateGone;
+//			break;
+//		}
+//		case Status::NA: {
+//			return ChatStateInActive;
+//			break;
+//		}
+//		case Status::Away: {
+//			return ChatStateInActive;
+//			break;
+//		}
+//		case Status::DND: {
+//			return ChatStateInActive;
+//			break;
+//		}
+//		case Status::Online: {
+//			return ChatStateActive;
+//			break;
+//		}
+//		default: {
+//			break;
+//		}
+//	}
+//	//It is a good day to die!
+//	return ChatStateActive;
+//}
 
 QTextDocument* ChatSessionImpl::getInputField()
 {
@@ -354,24 +336,19 @@ MessageList ChatSessionImpl::unread() const
 void ChatSessionImpl::setChatUnit(ChatUnit* unit)
 {
 	Q_D(ChatSessionImpl);
-	if (d->chat_unit)
-		disconnect(d->chat_unit, 0, this, 0);
-	ChatUnit *oldUnit = d->chat_unit;
+	if (d->chatUnit)
+		disconnect(d->chatUnit, 0, this, 0);
+	ChatUnit *oldUnit = d->chatUnit;
 	static_cast<ChatLayerImpl*>(ChatLayer::instance())->onUnitChanged(oldUnit, unit);
-	d->chat_unit = unit;
+	d->chatUnit = unit;
 	connect(unit,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 	setParent(unit);
 
-	if (Contact *c = qobject_cast<Contact *>(unit)) {
-		connect(c, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
-				d, SLOT(onStatusChanged(qutim_sdk_0_3::Status)));
-		d->statusChanged(c->status(),c,true);
-		setProperty("currentChatState",d->statusToState(c->status().type()));
+	if (Buddy *b = qobject_cast<Buddy *>(unit)) {
+		connect(b,SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+				d,SLOT(onStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+		d->onStatusChanged(b->status(),Status(),true);
 	} else {
-		//if you create a session, it is likely that the chat state is active
-		setProperty("currentChatState",static_cast<int>(ChatStateInActive)); //FIXME remove
-		setChatState(ChatStateInActive);
-
 		Conference *conf;
 		if (!!(conf = qobject_cast<Conference *>(oldUnit))) {
 			foreach (ChatUnit *u, conf->lowerUnits()) {
@@ -422,7 +399,7 @@ void ChatSessionImpl::setChatState(ChatState state)
 		return;
 	}
 	ChatStateEvent event(state);
-	qApp->sendEvent(d->chat_unit,&event);
+	qApp->sendEvent(d->chatUnit,&event);
 	d->myself_chat_state = state;
 	switch(state) {
 		case ChatStateComposing:
@@ -473,7 +450,7 @@ void ChatSessionImplPrivate::refillMenu()
 	Q_Q(ChatSessionImpl);
 	if (menu) {
 		qDeleteAll(group->actions());
-		ChatUnit *unit = chat_unit;
+		ChatUnit *unit = chatUnit;
 		fillMenu(menu, unit, unit->lowerUnits());
 	} else {
 		Q_UNUSED(q->menu());
@@ -535,7 +512,7 @@ QMenu *ChatSessionImpl::menu()
 	//for JMessageSession
 	//FIXME maybe need to move to the protocols
 	//ChatUnit *unit = const_cast<ChatUnit*>(d->chat_unit->getHistoryUnit());
-	ChatUnit *unit = d->chat_unit;
+	ChatUnit *unit = d->chatUnit;
 	if (!d->menu && qobject_cast<Conference*>(unit) == 0) {
 		d->menu = new QMenu();
 		if (!d->group) {
