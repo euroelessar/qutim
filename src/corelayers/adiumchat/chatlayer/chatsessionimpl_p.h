@@ -58,7 +58,7 @@ public:
 	QPointer<QTextDocument> input;
 	QPointer<QMenu> menu;
 	QPointer<QActionGroup> group;
-	ChatSessionModel *model;
+	QPointer<ChatSessionModel> model;
 	//additional info and flags
 	bool active;
 	bool sendToLastActiveResource;

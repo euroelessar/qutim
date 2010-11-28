@@ -54,7 +54,10 @@ struct MessageModifierTrack
 
 void ChatStyleOutput::setChatSession(ChatSessionImpl *session)
 {
-	//TODO maybe need to clean old session
+	if(m_session) {
+		m_session->disconnect(this);
+		m_session->removeEventFilter(this);
+	}
 	m_session = session;
 	setParent(session);
 	preparePage(session);
