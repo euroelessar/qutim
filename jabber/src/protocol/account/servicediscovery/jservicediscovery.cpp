@@ -28,22 +28,23 @@ namespace Jabber
 	int JServiceDiscovery::getInfo(QObject *receiver, const JDiscoItem &di)
 	{
 		int id = p->context++;
-		p->receivers.insert(id, receiver);
-		p->items.insert(id, di);
-		p->account->connection()->client()->disco()->getDiscoInfo(di.jid().toStdString(),
-				di.node().toStdString(), dynamic_cast<DiscoHandler *>(this), id);
+		//p->receivers.insert(id, receiver);
+		//p->items.insert(id, di);
+		//p->account->connection()->client()->disco()->getDiscoInfo(di.jid().toStdString(),
+		//		di.node().toStdString(), dynamic_cast<DiscoHandler *>(this), id);
 		return id;
 	}
 
 	//int JServiceDiscovery::getItems(JServiceReceiver *receiver, const JDiscoItem &di)
 	int JServiceDiscovery::getItems(QObject *receiver, const JDiscoItem &di)
 	{
-		int id = p->context++;
-		p->receivers.insert(id, receiver);
-		p->items.insert(id, di);
-		p->account->connection()->client()->disco()->getDiscoItems(di.jid().toStdString(),
-				di.node().toStdString(), dynamic_cast<DiscoHandler *>(this), id);
-		return id;
+		//int id = p->context++;
+		//p->receivers.insert(id, receiver);
+		//p->items.insert(id, di);
+		//p->account->connection()->client()->disco()->getDiscoItems(di.jid().toStdString(),
+		//		di.node().toStdString(), dynamic_cast<DiscoHandler *>(this), id);
+		//return id;
+		return 0;
 	}
 
 	void JServiceDiscovery::handleDiscoInfo(const JID &from, const Disco::Info &info, int context)

@@ -16,6 +16,12 @@ namespace Jabber
 {
 
 class JAccount;
+class JMessageSessionHandler : public jreen::MessageSessionHandler
+{
+	virtual ~JMessageSessionHandler();
+	virtual void handleMessageSession(jreen::MessageSession *session);
+};
+
 class JMessageSessionManagerPrivate;
 class JMessageSessionManager : public jreen::MessageSessionManager
 {
@@ -31,11 +37,9 @@ private:
 };
 
 //old code
-using qutim_sdk_0_3::ChatUnit;
-class JAccount;
 class JMessageSession;
 class JMessageHandlerPrivate;
-
+using qutim_sdk_0_3::ChatUnit;
 class JMessageHandler : public QObject, public gloox::MessageSessionHandler
 {
 	Q_OBJECT

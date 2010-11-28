@@ -147,7 +147,7 @@ void JProtocol::onConvertToMuc(QObject *obj)
 {
 	JMessageSession *session = qobject_cast<JMessageSession*>(obj);
 	Q_ASSERT(session);
-	session->convertToMuc();
+	//session->convertToMuc();
 }
 
 void JProtocol::onJoinLeave(QObject* obj)

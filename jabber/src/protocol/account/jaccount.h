@@ -24,8 +24,8 @@
 
 namespace jreen
 {
-	class Client;
-	class JID;
+class Client;
+class JID;
 }
 
 namespace Jabber {
@@ -39,6 +39,8 @@ class JConnection;
 class JMessageHandler;
 class JServiceDiscovery;
 class JMUCManager;
+
+class JMessageSessionManager;
 
 class JAccount : public Account
 {
@@ -54,9 +56,10 @@ public:
 	QString name() const;
 	void setNick(const QString &nick);
 	const QString &password(bool *ok = 0);
-	JConnection *connection();
-	JMessageHandler *messageHandler();
+//	JConnection *connection();
+//	JMessageHandler *messageHandler();
 	jreen::Client *client() const;
+	JMessageSessionManager *messageSessionManager() const;
 	JServiceDiscovery *discoManager();
 	JMUCManager *conferenceManager();
 	virtual void setStatus(Status status);

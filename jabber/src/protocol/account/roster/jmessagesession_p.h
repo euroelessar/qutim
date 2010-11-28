@@ -23,21 +23,21 @@
 
 namespace Jabber
 {
-	class JMessageReceiptFilter;
-	
-	class JMessageSessionPrivate
-	{
-	public:
-		QPointer<JMessageHandler> handler;
-		QPointer<JAccount> account;
-		MessageSession *session;
-		ChatStateFilter *chatStateFilter;
-		JMessageReceiptFilter *messageReceiptFilter;
-		QPointer<ChatUnit> unit;
-		bool followChanges;
-		MessageList messages;
-		bool atDeathState;
-		QString id;
-	};
+class JMessageReceiptFilter;
+
+class JMessageSessionPrivate
+{
+public:
+	QPointer<JMessageHandler> handler;
+	QPointer<JAccount> account;
+	MessageSession *session;
+	ChatStateFilter *chatStateFilter;
+	JMessageReceiptFilter *messageReceiptFilter;
+	QPointer<ChatUnit> unit;
+	bool followChanges;
+	MessageList messages;
+	bool atDeathState;
+	QString id;
+};
 }
 #endif // JMESSAGESESSION_P_H

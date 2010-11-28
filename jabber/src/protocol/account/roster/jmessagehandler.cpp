@@ -11,6 +11,16 @@
 namespace Jabber
 {
 //jreen
+
+JMessageSessionHandler::~JMessageSessionHandler()
+{
+}
+
+void JMessageSessionHandler::handleMessageSession(jreen::MessageSession *session)
+{
+	Q_UNUSED(session);
+}
+
 class JMessageSessionManagerPrivate
 {
 public:
@@ -25,6 +35,10 @@ JMessageSessionManager::JMessageSessionManager(JAccount *account) :
 {
 	Q_D(JMessageSessionManager);
 	d->account = account;
+	QList<jreen::Message::Type> types;
+	types.append(jreen::Message::Chat);
+	types.append(jreen::Message::Headline);
+	registerMessageSessionHandler(new JMessageSessionHandler,types);
 }
 
 JMessageSessionManager::~JMessageSessionManager()
@@ -34,7 +48,7 @@ JMessageSessionManager::~JMessageSessionManager()
 
 void JMessageSessionManager::handleMessage(const jreen::Message &message)
 {
-
+	return jreen::MessageSessionManager::handleMessage(message);
 }
 
 //dead code
@@ -48,11 +62,11 @@ public:
 
 JMessageHandler::JMessageHandler(JAccount *account) : QObject(account), d_ptr(new JMessageHandlerPrivate)
 {
-	Q_D(JMessageHandler);
-	d->account = account;
-	d->account->connection()->client()->registerMessageSessionHandler(this);
-	foreach (const ObjectGenerator *ext, ObjectGenerator::module<MessageFilterFactory>())
-		d->filterFactories << ext->generate<MessageFilterFactory>();
+	//Q_D(JMessageHandler);
+	//d->account = account;
+	//d->account->connection()->client()->registerMessageSessionHandler(this);
+	//foreach (const ObjectGenerator *ext, ObjectGenerator::module<MessageFilterFactory>())
+	//	d->filterFactories << ext->generate<MessageFilterFactory>();
 }
 
 JMessageHandler::~JMessageHandler()
@@ -87,12 +101,12 @@ void JMessageHandler::handleMessageSession(MessageSession *session)
 
 void JMessageHandler::prepareMessageSession(JMessageSession *session)
 {
-	Q_D(JMessageHandler);
-	JabberParams params = d->account->connection()->params();
-	foreach (MessageFilterFactory *factory, d->filterFactories) {
-		MessageFilter *filter = factory->create(d->account, params, session->session());
-		Q_UNUSED(filter);
-	}
+	//Q_D(JMessageHandler);
+	//JabberParams params = d->account->connection()->params();
+	//foreach (MessageFilterFactory *factory, d->filterFactories) {
+	//	MessageFilter *filter = factory->create(d->account, params, session->session());
+	//	Q_UNUSED(filter);
+	//}
 }
 
 void JMessageHandler::setSessionId(JMessageSession *session, const QString &id)

@@ -83,6 +83,7 @@ JAccount::JAccount(const QString &id) :
 	jid.setResource(QLatin1String("jreen(qutIM)"));
 	d->client.setJID(jid);
 	d->roster = new JRoster(this);
+	d->manager = new JMessageSessionManager(this);
 	loadSettings();
 
 	connect(&d->client,SIGNAL(connected()),
@@ -225,15 +226,20 @@ const QString &JAccount::password(bool *ok)
 	return d->passwd;
 }
 
-JConnection *JAccount::connection()
+JMessageSessionManager *JAccount::messageSessionManager() const
 {
-	return d_func()->connection;
+	return d_func()->manager;
 }
 
-JMessageHandler *JAccount::messageHandler()
-{
-	return d_func()->messageHandler;
-}
+//JConnection *JAccount::connection()
+//{
+//	return d_func()->connection;
+//}
+
+//JMessageHandler *JAccount::messageHandler()
+//{
+//	return d_func()->messageHandler;
+//}
 
 jreen::Client *JAccount::client() const
 {

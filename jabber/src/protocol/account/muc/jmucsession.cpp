@@ -309,8 +309,8 @@ void JMUCSession::handleMUCParticipantPresence(MUCRoom *room, const MUCRoomParti
 				if (user->avatarHash() != hash) {
 					if(hash.isEmpty() || QFile(d->account->getAvatarPath()%QLatin1Char('/')%hash).exists())
 						user->setAvatar(hash);
-					else if (d->avatarsAutoLoad)
-						d->account->connection()->vCardManager()->fetchVCard(user->id());
+					//else if (d->avatarsAutoLoad)
+						//d->account->connection()->vCardManager()->fetchVCard(user->id());
 				}
 			}
 		}

@@ -64,9 +64,9 @@ QString JContact::id() const
 bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 {
 	Q_D(JContact);
-	JAccount *acc = static_cast<JAccount*>(account());
+	JAccount *a = static_cast<JAccount*>(account());
 
-	if (acc->status() == Status::Offline)
+	if(a->status() == Status::Offline)
 		return false;
 	qDebug("%s", Q_FUNC_INFO);
 	//		if (!session())
@@ -74,14 +74,10 @@ bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 	//		session()->sendMessage(message);
 
 	//TODO add messagesession support
-	jreen::Message jreenMessage(jreen::Message::Chat,id(),
-								message.text(),
-								message.property("subject").toString()
-								);
-	jreenMessage.setID(QString::number(message.id()));
-	jreenMessage.addExtension(new jreen::DelayedDelivery(id(),message.time()));
-	jreenMessage.addExtension(new jreen::Receipt(jreen::Receipt::Request));
-	d->account->client()->send(jreenMessage);
+	jreen::MessageSession *session = a->messageSessionManager()->session(d->jid,
+																		 jreen::Message::Chat,
+																		 true);
+	session->sendMessage(message.text(),message.property("subject").toString());
 	return true;
 }
 
@@ -251,11 +247,11 @@ bool JContact::event(QEvent *ev)
 			ev->ignore();
 		}
 	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		Q_D(JContact);
-		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		event->setRequest(new JInfoRequest(d->account->connection()->vCardManager(),
-										   d->jid));
-		event->accept();
+		//Q_D(JContact);
+		//InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
+		//event->setRequest(new JInfoRequest(d->account->connection()->vCardManager(),
+		//								   d->jid));
+		//event->accept();
 	} else if(ev->type() == Authorization::Request::eventType()) {
 		debug() << "Handle auth request";
 		Authorization::Request *request = static_cast<Authorization::Request*>(ev);

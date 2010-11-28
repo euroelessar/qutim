@@ -24,6 +24,7 @@ public:
 	//jreen
 	jreen::Client client;
 	JRoster *roster;
+	JMessageSessionManager *manager;
 	JAccount *q_ptr;
 	QString passwd;
 	QString nick;

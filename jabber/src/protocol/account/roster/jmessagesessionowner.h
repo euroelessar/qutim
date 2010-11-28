@@ -5,20 +5,20 @@
 
 namespace Jabber
 {
-	class JMessageSession;
-	class JMessageSessionOwnerPrivate;
+class JMessageSession;
+class JMessageSessionOwnerPrivate;
 
-	class JMessageSessionOwner
-	{
-	public:
-		JMessageSessionOwner();
-		~JMessageSessionOwner();
-		JMessageSession *session();
-	private:
-		friend class JMessageSession;
-		void messageSessionCreated(JMessageSession *session);
-		QScopedPointer<JMessageSessionOwnerPrivate> d;
-	};
+class JMessageSessionOwner
+{
+public:
+	JMessageSessionOwner();
+	~JMessageSessionOwner();
+	JMessageSession *session();
+private:
+	friend class JMessageSession;
+	void messageSessionCreated(JMessageSession *session);
+	QScopedPointer<JMessageSessionOwnerPrivate> d;
+};
 
 }
 
