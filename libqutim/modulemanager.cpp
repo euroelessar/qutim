@@ -242,6 +242,16 @@ namespace qutim_sdk_0_3
 		plugin_path += QDir::separator();
 		plugin_path += "plugins";
 		paths << plugin_path;
+		// 2.5 Some Linux system, 64 bit, /usr/lib64/qutim/plugins
+		plugin_path = root_dir.canonicalPath();
+		plugin_path += QDir::separator();
+		plugin_path += "lib64";
+		plugin_path += QDir::separator();
+		plugin_path += "qutim";
+		plugin_path += QDir::separator();
+		plugin_path += "plugins";
+		paths << plugin_path;
+
 		// 3. MacOS X, ../PlugIns
 #ifdef Q_OS_MAC
 		plugin_path = root_dir.canonicalPath();

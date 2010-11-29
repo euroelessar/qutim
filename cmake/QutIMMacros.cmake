@@ -248,9 +248,9 @@ Q_IMPORT_PLUGIN(${plugin_name})
 		install( TARGETS ${plugin_name}
 			RUNTIME DESTINATION bin/plugins
 				COMPONENT ${plugin_name}
-			LIBRARY DESTINATION lib/qutim/plugins
+			LIBRARY DESTINATION lib${LIB_SUFFIX}/qutim/plugins
 				COMPONENT ${plugin_name}
-			ARCHIVE DESTINATION lib
+			ARCHIVE DESTINATION lib${LIB_SUFFIX}
 				COMPONENT "${plugin_name}Devel"
 		)
 	#endif( QUTIM_${plugin_name}_STATIC STREQUAL "SHARED" )

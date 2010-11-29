@@ -164,6 +164,11 @@ namespace qutim_sdk_0_3
 			{ OsUseFile,		"/etc/SuSE-release",		"SuSE Linux"		},
 			{ OsUseFile,		"/etc/conectiva-release",	"Conectiva Linux"	},
 			{ OsUseFile,		"/etc/.installed",			"Caldera Linux"		},
+			{ OsAppendFile,		"/etc/agilialinux-version",	"AgiliaLinux"		},
+			// from libastral
+			{ OsAppendFile,		"/etc/maemo-release",		"Maemo OS"			},
+			{ OsAppendFile,		"/etc/meego-release",		"MeeGo"				},
+
 
 			// many distros use the /etc/redhat-release for compatibility, so RedHat will be the last :)
 			{ OsUseFile,		"/etc/redhat-release",		"RedHat Linux"		}
