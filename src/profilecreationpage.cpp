@@ -92,7 +92,16 @@ bool ProfileCreationPage::validatePage()
 	systemDirs[SystemInfo::HistoryDir] = QDir::cleanPath(ui->historyEdit->text());
 	systemDirs[SystemInfo::ShareDir] = QDir::cleanPath(ui->dataEdit->text());
 	QFile file(SystemInfo::getDir(SystemInfo::ConfigDir).absoluteFilePath("profilehash"));
-	if (file.exists() || !file.open(QIODevice::WriteOnly)) {
+	if (file.exists()) {
+		int ret = QMessageBox::question(this,
+		tr("Warning"),
+		tr("Profile hash is already exist, override?"),
+		QMessageBox::Yes,
+		QMessageBox::No);
+		if(ret != QMessageBox::Yes)
+			return false;
+	}
+	if(!file.open(QIODevice::WriteOnly)) {
 		QMessageBox::warning(this,tr("Warning"),tr("Unable to create profile hash"));
 		return false;
 	}
