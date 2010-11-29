@@ -158,7 +158,7 @@ void ContactDelegate::paint(QPainter *painter,
 					icon = extIconVar.value<ExtensionIcon>().toIcon();
 				else if (extIconVar.canConvert(QVariant::Icon))
 					icon = extIconVar.value<QIcon>();
-				if (!hash.value(showIcon,true).toBool() || icon.isNull())
+				if (!hash.value(showIcon,true).toBool() || icon.pixmap(p->extIconSize).isNull())
 					continue;
 				if (!p->extInfo.value(hash.value(id).toString(), true))
 					continue;
