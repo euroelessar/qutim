@@ -28,6 +28,55 @@ using namespace gloox;
 
 namespace Jabber
 {
+
+//testing
+class JMessageReceiptFilter : public jreen::MessageFilter
+{
+public:
+	JMessageReceiptFilter(JContact *contact,jreen::MessageSession *session)
+		: jreen::MessageFilter(session),
+		  m_contact(contact)
+	{
+
+	}
+	virtual ~JMessageReceiptFilter() {}
+	virtual void filter(jreen::Message &message)
+	{
+		jreen::Receipt *receipt = message.findExtension<jreen::Receipt>().data();
+		if(receipt) {
+			if(receipt->type() == jreen::Receipt::Received) {
+				QString id = receipt->id();
+				if(id.isEmpty())
+					id = message.id(); //for slowpoke client such as Miranda
+				qApp->postEvent(ChatLayer::get(m_contact),
+								new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
+			} else {
+				//only for testing
+				//TODO send this request only when message marked as read
+				jreen::Message request(jreen::Message::Chat,
+									   message.from());
+				request.addExtension(new jreen::Receipt(jreen::Receipt::Received,message.id()));
+				static_cast<JAccount*>(m_contact->account())->client()->send(request);
+			}
+		}
+	}
+	virtual void decorate(jreen::Message &message)
+	{
+		jreen::Receipt *receipt = new jreen::Receipt(jreen::Receipt::Request);
+		message.addExtension(receipt);
+	}
+	virtual void reset()
+	{
+
+	}
+	virtual int filterType() const
+	{
+		return 1;
+	}
+private:
+	JContact *m_contact;
+};
+
 class JContactPrivate
 {
 public:
@@ -73,11 +122,27 @@ bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 	//			d_func()->account->messageHandler()->createSession(this);
 	//		session()->sendMessage(message);
 
-	//TODO add messagesession support
-	jreen::MessageSession *session = a->messageSessionManager()->session(d->jid,
-																		 jreen::Message::Chat,
-																		 true);
-	session->sendMessage(message.text(),message.property("subject").toString());
+	//FIXME testing testing testing
+
+//	jreen::MessageSession *session = a->messageSessionManager()->session(d->jid,
+//																		 jreen::Message::Chat,
+//																		 true);
+//	if(!session) {
+//		session = a->messageSessionManager()->session(d->jid,
+//													  jreen::Message::Chat,
+//													  true);
+//		new JMessageReceiptFilter(this,session);
+//		session->registerMessageFilter(new JMessageReceiptFilter(this,session));
+//	}
+//	session->sendMessage(message.text(),message.property("subject").toString());
+
+	jreen::Message msg(jreen::Message::Chat,
+					   id(),
+					   message.text(),
+					   message.property("subject").toString());
+	msg.addExtension(new jreen::Receipt(jreen::Receipt::Request));
+	msg.setID(QString::number(message.id()));
+	d->account->client()->send(msg);
 	return true;
 }
 
