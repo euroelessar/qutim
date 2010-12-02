@@ -30,6 +30,11 @@
 #include <qutim/event.h>
 #include <qutim/dataforms.h>
 #include <jreen/jid.h>
+#include <jreen/dataform.h>
+#include <jreen/disco.h>
+#include <jreen/iq.h>
+#include <jreen/vcard.h>
+#include <qutim/systeminfo.h>
 
 namespace Jabber {
 
@@ -44,6 +49,15 @@ class JPasswordValidator : public QValidator
 			return Acceptable;
 	}
 };
+
+void JAccountPrivate::handleIQ(const jreen::IQ &iq)
+{
+	debug() << "handle IQ";
+	if(iq.containsExtension<jreen::VCard>()) {
+		debug() << "handle vCard";
+		vCardManager->handleVCard(iq.from(),iq.findExtension<jreen::VCard>());
+	}
+}
 
 void JAccountPrivate::setPresence(jreen::Presence presence)
 {
@@ -83,13 +97,37 @@ JAccount::JAccount(const QString &id) :
 	jid.setResource(QLatin1String("jreen(qutIM)"));
 	d->client.setJID(jid);
 	d->roster = new JRoster(this);
-	d->manager = new JMessageSessionManager(this);
+	d->messageSessionManager = new JMessageSessionManager(this);
+	d->vCardManager = new JVCardManager(this);
 	loadSettings();
+
+	//FIXME make it fine
+	jreen::DataForm *form = new jreen::DataForm(jreen::DataForm::Result);
+	jreen::DataFormFieldList list;
+	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("FORM_TYPE"),
+																	 QLatin1String("urn:xmpp:dataforms:softwareinfo"),
+																	 jreen::DataFormField::Hidden)));
+	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("os"),
+																	 SystemInfo::getName(),
+																	 jreen::DataFormField::None)));
+	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("os_version"),
+																	 QLatin1String("qutIM"),
+																	 jreen::DataFormField::None)));
+	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("software"),
+																	 SystemInfo::getName(),
+																	 jreen::DataFormField::None)));
+	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("software_version"),
+																	 qutimVersionStr(),
+																	 jreen::DataFormField::None)));
+	form->setFields(list);
+	d->client.disco()->setForm(form);
 
 	connect(&d->client,SIGNAL(connected()),
 			d,SLOT(onConnected()));
 	connect(&d->client,SIGNAL(disconnected()),
 			d,SLOT(onDisconnected()));
+	connect(&d->client,SIGNAL(newIQ(jreen::IQ)),
+			d,SLOT(handleIQ(jreen::IQ)));
 	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
 			d->roster, SLOT(load()));
 
@@ -125,35 +163,6 @@ ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 	//		return unit;
 	return d->roster->contact(unitId, create);
 	return 0;
-}
-
-void JAccount::beginChangeStatus(Presence::PresenceType)
-{
-	//	Q_D(JAccount);
-	//		d->connection->setConnectionPresence(presence);
-	//	Status previous = status();
-	//	if (previous.type() == Status::Offline && presence != Presence::Unavailable) {
-	//		d->client.connectToServer();
-	//		Status newStatus = previous;
-	//		newStatus.setType(Status::Connecting);
-	//		Account::setStatus(newStatus);
-	//		emit statusChanged(newStatus, previous);
-	//	}
-}
-
-void JAccount::endChangeStatus(Presence::PresenceType)
-{
-	//	Q_D(JAccount);
-	//	Status previous = status();
-	//	Status newStatus = JProtocol::presenceToStatus(presence);
-	//	debug() << "status changed from" << int(previous.type()) << "to" << newStatus << newStatus.text();
-	//	if (previous == Status::Connecting && newStatus != Status::Offline)
-	//		d->conferenceManager->syncBookmarks();
-	//	if (previous != Status::Offline && newStatus == Status::Offline)
-	//		d->roster->setOffline();
-	//	d->conferenceManager->setPresenceToRooms(presence);
-	//	Account::setStatus(newStatus);
-	//	emit statusChanged(newStatus, previous);
 }
 
 void JAccount::loadSettings()
@@ -228,23 +237,18 @@ const QString &JAccount::password(bool *ok)
 
 JMessageSessionManager *JAccount::messageSessionManager() const
 {
-	return d_func()->manager;
+	return d_func()->messageSessionManager;
 }
-
-//JConnection *JAccount::connection()
-//{
-//	return d_func()->connection;
-//}
-
-//JMessageHandler *JAccount::messageHandler()
-//{
-//	return d_func()->messageHandler;
-//}
 
 jreen::Client *JAccount::client() const
 {
 	//it may be dangerous
 	return const_cast<jreen::Client*>(&d_func()->client);
+}
+
+JVCardManager *JAccount::vCardManager() const
+{
+	return d_func()->vCardManager;
 }
 
 JMUCManager *JAccount::conferenceManager()

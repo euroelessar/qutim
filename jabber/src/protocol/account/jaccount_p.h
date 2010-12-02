@@ -5,6 +5,7 @@
 #include "muc/jbookmarkmanager.h"
 //jreen
 #include <jreen/client.h>
+#include "vcard/jvcardmanager.h"
 namespace jreen
 {
 class Client;
@@ -24,7 +25,8 @@ public:
 	//jreen
 	jreen::Client client;
 	JRoster *roster;
-	JMessageSessionManager *manager;
+	JMessageSessionManager *messageSessionManager;
+	JVCardManager *vCardManager;
 	JAccount *q_ptr;
 	QString passwd;
 	QString nick;
@@ -34,6 +36,8 @@ public slots:
 	void setPresence(jreen::Presence);
 	void onConnected();
 	void onDisconnected();
+	//temporary
+	void handleIQ(const jreen::IQ &iq);
 public:	//old code
 	JConnection *connection;
 //	JRoster *roster;

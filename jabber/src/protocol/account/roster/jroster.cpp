@@ -22,6 +22,7 @@
 #include <jreen/delayeddelivery.h>
 #include <jreen/receipt.h>
 #include <jreen/nickname.h>
+#include <jreen/vcardupdate.h>
 
 namespace Jabber
 {
@@ -151,7 +152,18 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 	}
 	JContact *c = d->contacts.value(from.bare());
 	if(c) {
-		c->setStatus(presence);
+		c->setStatus(presence);		
+		const jreen::VCardUpdate *vcard = presence.findExtension<jreen::VCardUpdate>().data();
+		if(vcard) {
+			QString hash = vcard->photoHash();
+			debug() << "vCard update" << (c->avatarHash() != hash);
+			if (c->avatarHash() != hash) {
+				if(hash.isEmpty() || QFile(d->account->getAvatarPath()%QLatin1Char('/')%hash).exists())
+					c->setAvatar(hash);
+				else
+					d->account->d_ptr->vCardManager->fetchVCard(from);
+			}
+		}
 	}
 }
 

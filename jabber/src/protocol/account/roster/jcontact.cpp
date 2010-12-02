@@ -312,11 +312,11 @@ bool JContact::event(QEvent *ev)
 			ev->ignore();
 		}
 	} else if (ev->type() == InfoRequestEvent::eventType()) {
-		//Q_D(JContact);
-		//InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		//event->setRequest(new JInfoRequest(d->account->connection()->vCardManager(),
-		//								   d->jid));
-		//event->accept();
+		Q_D(JContact);
+		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
+		event->setRequest(new JInfoRequest(d->account->vCardManager(),
+										   d->jid));
+		event->accept();
 	} else if(ev->type() == Authorization::Request::eventType()) {
 		debug() << "Handle auth request";
 		Authorization::Request *request = static_cast<Authorization::Request*>(ev);

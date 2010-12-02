@@ -9,23 +9,27 @@
 #include <gloox/vcardmanager.h>
 #include <gloox/sha.h>
 #include <qutim/debug.h>
+#include <jreen/vcard.h>
+#include <jreen/iq.h>
+#include <jreen/client.h>
+#include <QCryptographicHash>
 
 namespace Jabber
 {
+
 class JVCardManagerPrivate
 {
 public:
 	JAccount *account;
-	VCardManager *manager;
+	//VCardManager *manager;
 	QHash<QString, JInfoRequest *> contacts;
 };
 
-JVCardManager::JVCardManager(JAccount *account, Client *client, QObject *parent)
-	: QObject(parent), d_ptr(new JVCardManagerPrivate)
+JVCardManager::JVCardManager(JAccount *account)
+	: QObject(account), d_ptr(new JVCardManagerPrivate)
 {
 	Q_D(JVCardManager);
 	d->account = account;
-	d->manager = new VCardManager(client);
 }
 
 JVCardManager::~JVCardManager()
@@ -33,51 +37,47 @@ JVCardManager::~JVCardManager()
 
 }
 
-VCardManager *JVCardManager::manager()
-{
-	return d_ptr->manager;
-}
-
 void JVCardManager::fetchVCard(const QString &contact, JInfoRequest *request)
 {
 	Q_D(JVCardManager);
+	debug() << "fetch vcard";
 	if (!d->contacts.contains(contact)) {
 		d->contacts.insert(contact, request);
-		d->manager->fetchVCard(contact.toStdString(), this);
+		//fetch iq
+		jreen::IQ iq(jreen::IQ::Get,contact);
+		iq.addExtension(new jreen::VCard());
+		d->account->client()->send(iq,this,SLOT(onIqReceived(jreen::IQ,int)),0);
 	}
 }
 
-void JVCardManager::storeVCard(VCard *vcard)
+void JVCardManager::storeVCard(jreen::VCard *vcard)
 {
-	Q_D(JVCardManager);
-	d->manager->storeVCard(vcard, this);
+	//Q_D(JVCardManager);
+	//d->manager->storeVCard(vcard, this);
 }
 
-void JVCardManager::handleVCard(const JID &jid, const VCard *fetchedVCard)
+void JVCardManager::handleVCard(const jreen::JID &jid,QSharedPointer<jreen::VCard> fetchedVCard)
 {
 	Q_D(JVCardManager);
-	QString id = QString::fromStdString(jid.full());
+	QString id = jid.full();
 	QString avatar;
-	VCard *vcard = (!fetchedVCard) ? new VCard() : static_cast<VCard*>(fetchedVCard->clone());
-	const VCard::Photo &photo = vcard->photo();
-	if (!photo.binval.empty()) {
-		SHA sha;
-		sha.feed(photo.binval);
-		sha.finalize();
-		avatar = QString::fromStdString(sha.hex());
+	jreen::VCard *vcard = fetchedVCard.isNull() ? new jreen::VCard() : fetchedVCard.data();
+	const jreen::VCard::Photo &photo = vcard->photo();
+	if (!photo.binval.isEmpty()) {
+		avatar = QCryptographicHash::hash(photo.binval.toAscii(),QCryptographicHash::Sha1);
 		QDir dir(d->account->getAvatarPath());
 		if (!dir.exists())
 			dir.mkpath(dir.absolutePath());
 		QFile file(dir.absoluteFilePath(avatar));
 		if (file.open(QIODevice::WriteOnly)) {
-			file.write(photo.binval.c_str(), photo.binval.length());
+			file.write(photo.binval.toAscii());
 			file.close();
 		}
 	}
 	if (d->account->id() == id) {
-		QString nick = QString::fromStdString(vcard->nickname());
+		QString nick = vcard->nickname();
 		if(nick.isEmpty())
-			nick = QString::fromStdString(vcard->formattedname());
+			nick = vcard->formattedName();
 		if(nick.isEmpty())
 			nick = d->account->id();
 		if (d->account->name() != nick)
@@ -93,12 +93,17 @@ void JVCardManager::handleVCard(const JID &jid, const VCard *fetchedVCard)
 	debug() << "fetched...";
 	if (JInfoRequest *request = d->contacts.take(id))
 		request->setFetchedVCard(vcard);
-	else
-		delete vcard;
 }
 
-void JVCardManager::handleVCardResult(VCardContext context, const JID &jid, StanzaError se)
+void JVCardManager::onIqReceived(const jreen::IQ &iq, int)
 {
-	//if (context == StoreVCard && se == StanzaErrorUndefined); wtf?
+	debug() << "vcard received";
+	handleVCard(iq.from(),iq.findExtension<jreen::VCard>());
 }
+
+//void JVCardManager::handleVCardResult(VCardContext context, const JID &jid, StanzaError se)
+//{
+//	//if (context == StoreVCard && se == StanzaErrorUndefined); wtf?
+//}
+
 }

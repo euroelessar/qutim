@@ -51,15 +51,12 @@ public:
 	virtual ~JAccount();
 	ChatUnit *getUnitForSession(ChatUnit *unit);
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
-	void beginChangeStatus(Presence::PresenceType presence);
-	void endChangeStatus(Presence::PresenceType presence);
 	QString name() const;
 	void setNick(const QString &nick);
 	const QString &password(bool *ok = 0);
-//	JConnection *connection();
-//	JMessageHandler *messageHandler();
 	jreen::Client *client() const;
 	JMessageSessionManager *messageSessionManager() const;
+	JVCardManager *vCardManager() const;
 	JServiceDiscovery *discoManager();
 	JMUCManager *conferenceManager();
 	virtual void setStatus(Status status);

@@ -5,69 +5,73 @@
 #include <string>
 #include <list>
 
+namespace jreen
+{
+class VCard;
+}
+
 namespace gloox
 {
-	class VCard;
+class VCard;
 }
 
 namespace Jabber
 {
-	using namespace qutim_sdk_0_3;
-	using namespace gloox;
+using namespace qutim_sdk_0_3;
+using namespace gloox;
 
-	class JVCardManager;
-	class JInfoRequestPrivate;
+class JVCardManager;
+class JInfoRequestPrivate;
 
-	class JInfoRequest : public InfoRequest
+class JInfoRequest : public InfoRequest
+{
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(JInfoRequest)
+public:
+	enum DataType
 	{
-		Q_OBJECT
-		Q_DECLARE_PRIVATE(JInfoRequest)
-		public:
-			enum DataType
-			{
-				Nick,
-				FirstName,
-				MiddleName,
-				LastName,
-				Birthday,
-				Homepage,
-				HomePhone,
-				WorkPhone,
-				MobilePhone,
-				Phone,
-				PersonalEmail,
-				WorkEmail,
-				Email,
-				HomeAddress,
-				WorkAddress,
-				Address,
-				Country,
-				Region,
-				City,
-				Postcode,
-				Street,
-				ExtendedAddress,
-				Postbox,
-				OrgName,
-				OrgUnit,
-				Title,
-				Role,
-				About
-			};
-
-			JInfoRequest(JVCardManager *manager, const QString &contact);
-			~JInfoRequest();
-			DataItem item(const QString &name) const;
-			State state() const;
-			void setFetchedVCard(VCard *vcard);
-		private:
-			void addItem(DataType type, DataItem &group, const QVariant &data);
-			void addItem(DataType type, DataItem &group, const std::string &data);
-			void addMultilineItem(DataType type, DataItem &group, const std::string &data);
-			void addItemList(DataType type, DataItem &group, const std::string &data);
-			void addItem(DataType type, DataItem &group, const std::list<std::string> &data);
-			QScopedPointer<JInfoRequestPrivate> d_ptr;
+		Nick,
+		FirstName,
+		MiddleName,
+		LastName,
+		Birthday,
+		Homepage,
+		HomePhone,
+		WorkPhone,
+		MobilePhone,
+		Phone,
+		PersonalEmail,
+		WorkEmail,
+		Email,
+		HomeAddress,
+		WorkAddress,
+		Address,
+		Country,
+		Region,
+		City,
+		Postcode,
+		Street,
+		ExtendedAddress,
+		Postbox,
+		OrgName,
+		OrgUnit,
+		Title,
+		Role,
+		About
 	};
+
+	JInfoRequest(JVCardManager *manager, const QString &contact);
+	~JInfoRequest();
+	DataItem item(const QString &name) const;
+	State state() const;
+	void setFetchedVCard(jreen::VCard *vcard);
+private:
+	void addItem(DataType type, DataItem &group, const QVariant &data);
+	void addItem(DataType type, DataItem &group, const QString &data);
+	void addMultilineItem(DataType type, DataItem &group, const QString &data);
+	void addItemList(DataType type, DataItem &group, const QString &data);
+	QScopedPointer<JInfoRequestPrivate> d_ptr;
+};
 }
 
 #endif // JINFOREQUEST_H
