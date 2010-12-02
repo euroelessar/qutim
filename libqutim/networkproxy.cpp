@@ -160,10 +160,10 @@ namespace qutim_sdk_0_3
 	DataItem NetworkProxyManager::settings(Account *account)
 	{
 		Config cfg = account->config("proxy");
-		if (cfg.value("disabled", false))
-			return DataItem();
 		if (cfg.value("useGlobalProxy", true))
 			cfg = Config().group("proxy");
+		if (cfg.value("disabled", false))
+			return DataItem();
 		return getCurrentSettingsImpl(cfg);
 	}
 
