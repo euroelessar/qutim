@@ -121,7 +121,8 @@ void ProxySettingsWidget::saveImpl()
 		QNetworkProxy::setApplicationProxy(NetworkProxyManager::toNetworkProxy(settings));
 		// User changed proxy settings for the account.
 		NetworkProxyManager *manager = NetworkProxyManager::get(m_account->protocol());
-		Q_ASSERT(manager);
+		if (!manager)
+			return;
 		if (m_typeBox->currentIndex() == 1) { // The user chose the global proxy
 			cfg.setValue("useGlobalProxy", true);
 			proxy = NetworkProxyInfo::proxy(cfg.value("type", QString()));
