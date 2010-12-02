@@ -221,7 +221,6 @@ DataItem LineEdit::item() const
 SpinBox::SpinBox(const DataItem &item, QWidget *parent) :
 	QSpinBox(parent)
 {
-	setValue(item.data().toInt());
 	bool ok;
 	int value = item.property("maxValue").toInt(&ok);
 	if (ok)
@@ -229,6 +228,7 @@ SpinBox::SpinBox(const DataItem &item, QWidget *parent) :
 	value = item.property("minValue").toInt(&ok);
 	if (ok)
 		setMinimum(value);
+	setValue(item.data().toInt());
 }
 
 DataItem SpinBox::item() const
@@ -239,7 +239,6 @@ DataItem SpinBox::item() const
 DoubleSpinBox::DoubleSpinBox(const DataItem &item, QWidget *parent) :
 	QDoubleSpinBox(parent)
 {
-	setValue(item.data().toDouble());
 	bool ok;
 	int value = item.property("maxValue").toDouble(&ok);
 	if (ok)
@@ -247,6 +246,7 @@ DoubleSpinBox::DoubleSpinBox(const DataItem &item, QWidget *parent) :
 	value = item.property("minValue").toDouble(&ok);
 	if (ok)
 		setMinimum(value);
+	setValue(item.data().toDouble());
 }
 
 DataItem DoubleSpinBox::item() const
