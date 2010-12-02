@@ -12,6 +12,7 @@
 #include "protocol/modules/tunepep/jpersontuneconverter.h"
 #include "protocol/modules/activitypep/jpersonactivityconverter.h"
 #include "protocol/modules/activitypep/jactivitychooser.h"
+#include "protocol/account/connection/jproxymanager.h"
 
 namespace Jabber
 {
@@ -109,6 +110,10 @@ namespace Jabber
 		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Activity Chooser"),
 			QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your activity"),
 			new GeneralGenerator<JActivityChooser, JabberExtension>(),
+			ExtensionIcon(""));
+		addExtension(QT_TRANSLATE_NOOP("Plugin", "Proxy support"),
+			QT_TRANSLATE_NOOP("Plugin", "Proxy support"),
+			new GeneralGenerator<JProxyManager, qutim_sdk_0_3::NetworkProxyManager>(),
 			ExtensionIcon(""));
 	}
 

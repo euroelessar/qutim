@@ -11,6 +11,8 @@
 #include <gloox/vcardupdate.h>
 #include <gloox/simanager.h>
 #include <qutim/debug.h>
+#include <qutim/networkproxy.h>
+#include <qutim/dataforms.h>
 
 namespace Jabber
 {
@@ -46,6 +48,9 @@ namespace Jabber
 		p->vCardManager = new JVCardManager(p->account, p->client);
 		p->connection = new JConnectionTCPBase(p->client);
 		p->siManager = new SIManager(p->client, true);
+
+		DataItem proxySettings = NetworkProxyManager::settings(p->account);
+		setProxy(NetworkProxyManager::toNetworkProxy(proxySettings));
 		loadSettings();
 
 		p->client->registerStanzaExtension(new Receipt(Receipt::Invalid));
@@ -157,6 +162,12 @@ namespace Jabber
 			p->account->endChangeStatus(presence.presence());
 	}
 
+	void JConnection::setProxy(const QNetworkProxy &proxy)
+	{
+		p->proxy = proxy;
+		p->connection->setProxy(p->proxy);
+	}
+
 	void JConnection::loadSettings()
 	{
 		// TODO: FIXME: Protocol settings must be fallback for account everywhere %)
@@ -177,31 +188,6 @@ namespace Jabber
 			p->priority.insert(Presence::XA, group.value("na", 1));
 			p->priority.insert(Presence::DND, group.value("dnd", -1));
 		}
-		//proxy settings
-		group = p->account->config().group("proxy");
-		QNetworkProxy::ProxyType t = QNetworkProxy::DefaultProxy;;
-		switch (group.value("type", 0)) {
-			case 0: // Default proxy
-				t = QNetworkProxy::DefaultProxy;
-				break;
-			case 1: // Socks5
-				t = QNetworkProxy::Socks5Proxy;
-				break;
-			case 2: // No proxy
-				t = QNetworkProxy::NoProxy;
-				break;
-			case 3: // Http
-				t = QNetworkProxy::HttpProxy;
-				break;
-		}
-		p->proxy.setType(t);
-		p->proxy.setHostName(group.value("hostname", QString()));
-		p->proxy.setPort(group.value("port", qint16()));
-		if (group.value("authorize", false)) {
-			p->proxy.setUser(group.value("user", QString()));
-			p->proxy.setPassword(group.value("password", QString()));
-		}
-		p->connection->setProxy(p->proxy);
 
 		//connect settings
 		group = p->account->config().group("connect");

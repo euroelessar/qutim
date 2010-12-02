@@ -121,12 +121,14 @@ namespace Jabber
 	void JConnectionTCPBase::hostFound()
 	{
 		QString host = QString::fromStdString(m_server);
+		/* TODO: Do we really need it? If answer is positive, implement
+		   QNetworkProxyFactory in libqutim/networkproxy.cpp.
 		QNetworkProxyQuery query;
 		query.setProtocolTag("jabber");
 		query.setPeerHostName(host);
 		query.setPeerPort(m_port);
 		QList<QNetworkProxy> proxies = QNetworkProxyFactory::proxyForQuery(query);
-		p->socket->setProxy(proxies.value(0));
+		p->socket->setProxy(proxies.value(0));*/
 		p->socket->connectToHost(host, m_port);
 	}
 
