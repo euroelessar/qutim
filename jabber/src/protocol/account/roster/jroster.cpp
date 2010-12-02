@@ -5,9 +5,6 @@
 #include "jcontactresource.h"
 #include "../vcard/jvcardmanager.h"
 #include <QFile>
-//#include <gloox/vcardupdate.h>
-//#include <gloox/subscription.h>
-//#include <gloox/nickname.h>
 #include <qutim/metacontact.h>
 #include <qutim/metacontactmanager.h>
 #include <QFile>

@@ -3,9 +3,6 @@
 
 #include <qutim/contact.h>
 #include <qutim/configbase.h>
-#include <gloox/rostermanager.h>
-#include <gloox/presencehandler.h>
-#include <gloox/subscriptionhandler.h>
 #include <qutim/messagesession.h>
 #include "metacontacts.h"
 //jreen
@@ -24,6 +21,7 @@ class JRoster : public jreen::AbstractRoster
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(JRoster)
+	Q_CLASSINFO("DebugName", "Jabber::Roster")
 public:
 	JRoster(JAccount *account);
 	virtual ~JRoster();

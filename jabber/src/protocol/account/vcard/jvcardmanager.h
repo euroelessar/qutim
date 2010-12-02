@@ -31,15 +31,14 @@ class JVCardManager : public QObject
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(JVCardManager)
+	Q_CLASSINFO("DebugName", "Jabber::VCardManager")
 public:
 	JVCardManager(JAccount *account);
 	~JVCardManager();
 	void fetchVCard(const QString &contact, JInfoRequest *request = 0);
 	void storeVCard(jreen::VCard *vcard);
-	//void handleVCardResult(VCardContext context, const JID &jid, StanzaError se);
-	//VCardManager *manager();
 public slots:
-	void handleVCard(const jreen::JID &jid,QSharedPointer<jreen::VCard> fetchedVCard);
+	void handleIQ(const jreen::IQ &iq);
 	void onIqReceived(const jreen::IQ &,int);
 private:
 	QScopedPointer<JVCardManagerPrivate> d_ptr;

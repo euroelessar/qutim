@@ -30,6 +30,8 @@ JVCardManager::JVCardManager(JAccount *account)
 {
 	Q_D(JVCardManager);
 	d->account = account;
+	connect(account->client(),SIGNAL(newIQ(jreen::IQ)),
+			SLOT(handleIQ(jreen::IQ)));
 }
 
 JVCardManager::~JVCardManager()
@@ -56,23 +58,27 @@ void JVCardManager::storeVCard(jreen::VCard *vcard)
 	//d->manager->storeVCard(vcard, this);
 }
 
-void JVCardManager::handleVCard(const jreen::JID &jid,QSharedPointer<jreen::VCard> fetchedVCard)
+void JVCardManager::handleIQ(const jreen::IQ &iq)
 {
 	Q_D(JVCardManager);
-	QString id = jid.full();
+	debug() << "handle IQ";
+	if(!iq.containsExtension<jreen::VCard>())
+		return;
+	QString id = iq.from().full();
 	QString avatar;
-	jreen::VCard *vcard = fetchedVCard.isNull() ? new jreen::VCard() : fetchedVCard.data();
+	jreen::VCard *vcard = iq.findExtension<jreen::VCard>().data();
+	debug() << "handle VCard" << vcard->formattedName() << vcard->nickname() << vcard->name().family;
 	const jreen::VCard::Photo &photo = vcard->photo();
 	if (!photo.binval.isEmpty()) {
-		avatar = QCryptographicHash::hash(photo.binval.toAscii(),QCryptographicHash::Sha1);
-		QDir dir(d->account->getAvatarPath());
-		if (!dir.exists())
-			dir.mkpath(dir.absolutePath());
-		QFile file(dir.absoluteFilePath(avatar));
-		if (file.open(QIODevice::WriteOnly)) {
-			file.write(photo.binval.toAscii());
-			file.close();
-		}
+		//avatar = QCryptographicHash::hash(photo.binval.toAscii(),QCryptographicHash::Sha1);
+		//QDir dir(d->account->getAvatarPath());
+		//if (!dir.exists())
+		//	dir.mkpath(dir.absolutePath());
+		//QFile file(dir.absoluteFilePath(avatar));
+		//if (file.open(QIODevice::WriteOnly)) {
+		//	file.write(photo.binval);
+		//	file.close();
+		//}
 	}
 	if (d->account->id() == id) {
 		QString nick = vcard->nickname();
@@ -95,10 +101,11 @@ void JVCardManager::handleVCard(const jreen::JID &jid,QSharedPointer<jreen::VCar
 		request->setFetchedVCard(vcard);
 }
 
+
 void JVCardManager::onIqReceived(const jreen::IQ &iq, int)
 {
 	debug() << "vcard received";
-	handleVCard(iq.from(),iq.findExtension<jreen::VCard>());
+	handleIQ(iq);
 }
 
 //void JVCardManager::handleVCardResult(VCardContext context, const JID &jid, StanzaError se)

@@ -50,15 +50,6 @@ class JPasswordValidator : public QValidator
 	}
 };
 
-void JAccountPrivate::handleIQ(const jreen::IQ &iq)
-{
-	debug() << "handle IQ";
-	if(iq.containsExtension<jreen::VCard>()) {
-		debug() << "handle vCard";
-		vCardManager->handleVCard(iq.from(),iq.findExtension<jreen::VCard>());
-	}
-}
-
 void JAccountPrivate::setPresence(jreen::Presence presence)
 {
 	Q_Q(JAccount);
@@ -106,18 +97,27 @@ JAccount::JAccount(const QString &id) :
 	jreen::DataFormFieldList list;
 	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("FORM_TYPE"),
 																	 QLatin1String("urn:xmpp:dataforms:softwareinfo"),
+																	 QString(),
 																	 jreen::DataFormField::Hidden)));
 	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("os"),
 																	 SystemInfo::getName(),
+																	 QString(),
 																	 jreen::DataFormField::None)));
 	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("os_version"),
 																	 QLatin1String("qutIM"),
+																	 QString(),
 																	 jreen::DataFormField::None)));
 	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("software"),
 																	 SystemInfo::getName(),
+																	 QString(),
 																	 jreen::DataFormField::None)));
 	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("software_version"),
 																	 qutimVersionStr(),
+																	 QString(),
+																	 jreen::DataFormField::None)));
+	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("ip_version"),
+																	 QStringList(QLatin1String("ipv4")) << QLatin1String("ipv6"),
+																	 QString(),
 																	 jreen::DataFormField::None)));
 	form->setFields(list);
 	d->client.disco()->setForm(form);
@@ -126,22 +126,8 @@ JAccount::JAccount(const QString &id) :
 			d,SLOT(onConnected()));
 	connect(&d->client,SIGNAL(disconnected()),
 			d,SLOT(onDisconnected()));
-	connect(&d->client,SIGNAL(newIQ(jreen::IQ)),
-			d,SLOT(handleIQ(jreen::IQ)));
 	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
 			d->roster, SLOT(load()));
-
-	//old code
-	//	d->discoManager = 0;
-	//	d->connection = new JConnection(this);
-	//	d->connectionListener = new JConnectionListener(this);
-	//	Q_UNUSED(new JServerDiscoInfo(this));
-	//d->roster = new JRoster(this);
-	//d->messageHandler = new JMessageHandler(this);
-	//	d->conferenceManager = new JMUCManager(this);
-	//	connect(d->conferenceManager, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
-	//			SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
-	//	d->connection->initExtensions();
 }
 
 JAccount::~JAccount()

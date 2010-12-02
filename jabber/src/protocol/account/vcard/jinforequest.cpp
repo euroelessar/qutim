@@ -100,9 +100,6 @@ JInfoRequest::JInfoRequest(JVCardManager *manager, const QString &contact)
 
 JInfoRequest::~JInfoRequest()
 {
-	Q_D(JInfoRequest);
-	//if (d->vcard)
-	//	delete d->vcard;
 }
 
 void JInfoRequest::setFetchedVCard(jreen::VCard *vcard)
@@ -140,7 +137,9 @@ void JInfoRequest::setFetchedVCard(jreen::VCard *vcard)
 		//	} else {
 		//		addItem(Phone, general, QString());
 		//	}
+		item.addSubitem(general);
 	}
+
 	//// email
 	//{
 	//	if (!vcard->emailAddresses().empty()) {
@@ -241,11 +240,6 @@ void JInfoRequest::addMultilineItem(DataType type, DataItem &group, const QStrin
 	item.setProperty("multiline", true);
 	item.setProperty("hideTitle", true);
 	group.addSubitem(item);
-}
-
-void JInfoRequest::addItem(DataType type, DataItem &group, const QString &data)
-{
-	addItem(type, group, data);
 }
 
 void JInfoRequest::addItemList(DataType type, DataItem &group, const QString &data)
