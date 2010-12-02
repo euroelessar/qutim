@@ -409,6 +409,11 @@ void IcqAccount::registerRosterPlugin(RosterPlugin *plugin)
 	d->rosterPlugins << plugin;
 }
 
+void IcqAccount::setProxy(const QNetworkProxy &proxy)
+{
+	emit proxyUpdated(proxy);
+}
+
 void IcqAccount::updateSettings()
 {
 	Q_D(IcqAccount);
