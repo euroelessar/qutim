@@ -17,12 +17,19 @@ class DefaultDataForm : public AbstractDataForm
 public:
 	DefaultDataForm(const DataItem &item, StandardButtons standartButtons = NoButton,  const Buttons &buttons = Buttons());
 	virtual DataItem item() const;
+	virtual bool isChanged() const;
+	virtual bool isComplete() const;
+public slots:
+	void dataChanged();
+	void completeChanged(bool complete);
 private slots:
 	void onButtonClicked(QAbstractButton *button);
 protected:
 	void keyPressEvent(QKeyEvent *e);
 private:
 	AbstractDataWidget *m_widget;
+	bool m_isChanged;
+	int m_incompleteWidgets;
 };
 
 class DefaultDataFormsBackend : public DataFormsBackend

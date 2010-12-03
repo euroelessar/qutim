@@ -75,6 +75,8 @@ namespace qutim_sdk_0_3
 		The default property value is false. The property can be overshadow by the property 'alternatives'.
 		- \b multiline. Holds whether the text is multiline. The default property value is false.
 		The property can be overshadow by the property 'alternatives'.
+		- \b mandatory. Holds whether the field is mandatory. The default property value is false.
+		\see AbstractDataForm::completeChanged()
 
 	Another dynamic properties that are supported by DataForms API and do not depend on type of data():
 	- \b readOnly. Holds whether the field is read only.
@@ -499,6 +501,21 @@ namespace qutim_sdk_0_3
 		typedef QList<Button> Buttons;
 	public:
 		virtual DataItem item() const = 0;
+		/**
+		  Returns true if the state of at least one field was changed.
+		  Otherwise, returns false.
+
+		  \see changed()
+		  */
+		virtual bool isChanged() const = 0;
+		/**
+		  Returns true if all mandatory fields are filled and every field with a validator
+		  is valid (i.e., current state of the validator is Acceptable). Otherwise,
+		  returns false.
+
+		  \see isComplete()
+		  */
+		virtual bool isComplete() const = 0;
 		static AbstractDataForm *get(const DataItem &item,
 									 StandardButtons standartButtons = NoButton,
 									 const Buttons &buttons = Buttons());
@@ -510,6 +527,18 @@ namespace qutim_sdk_0_3
 		void rejected();
 		void helpRequested();
 		void clicked(const QString &name);
+		/**
+		  The signal is emitted when the state of the data form has been changed.
+		  \see isChanged()
+		  */
+		void changed();
+		/**
+		  The signal is emmitted whenever the complete state of the data form changes.
+
+		  \param complete the new complete state of the data form.
+		  \see isComplete()
+		  */
+		void completeChanged(bool complete);
 	protected:
 		virtual void virtual_hook(int id, void *data);
 	};

@@ -14,7 +14,7 @@ namespace Core
 {
 
 DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartButtons,  const Buttons &buttons) :
-	m_widget(0)
+	m_widget(0), m_isChanged(false), m_incompleteWidgets(0)
 {
 	DataLayout *dataLayout = 0;
 	QVBoxLayout *layout = 0;
@@ -22,7 +22,7 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 	setWindowTitle(item.title());
 	if (item.isAllowedModifySubitems()) {
 		layout = new QVBoxLayout(this);
-		ModifiableWidget *w = new ModifiableWidget(item);
+		ModifiableWidget *w = new ModifiableWidget(item, this, this);
 		m_widget = w;
 		layout->addWidget(w);
 		if (!w->isExpandable()) {
@@ -30,7 +30,7 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 			layout->addItem(spacer);
 		}
 	} else {
-		dataLayout = new DataLayout(this);
+		dataLayout = new DataLayout(this, this);
 		m_widget = dataLayout;
 		if (item.hasSubitems())
 			dataLayout->addItems(item.subitems());
@@ -67,6 +67,38 @@ DataItem DefaultDataForm::item() const
 	item.setName(objectName());
 	item.setTitle(windowTitle());
 	return item;
+}
+
+bool DefaultDataForm::isChanged() const
+{
+	return m_isChanged;
+}
+
+bool DefaultDataForm::isComplete() const
+{
+	return m_incompleteWidgets == 0;
+}
+
+void DefaultDataForm::dataChanged()
+{
+	if (!m_isChanged) {
+		emit changed();
+		m_isChanged = true;
+	}
+}
+
+void DefaultDataForm::completeChanged(bool complete)
+{
+	if (complete) {
+		--m_incompleteWidgets;
+		Q_ASSERT(m_incompleteWidgets < 0);
+		if (m_incompleteWidgets == 0)
+			emit completeChanged(true);
+	} else {
+		if (m_incompleteWidgets == 0)
+			emit completeChanged(false);
+		++m_incompleteWidgets;
+	}
 }
 
 void DefaultDataForm::onButtonClicked(QAbstractButton *button)

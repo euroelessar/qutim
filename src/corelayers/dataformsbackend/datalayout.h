@@ -2,6 +2,7 @@
 #define DATALAYOUT_H
 
 #include "abstractdatawidget.h"
+#include "dataformsbackend.h"
 #include <QWidget>
 #include <QGridLayout>
 #include <QHostAddress>
@@ -14,12 +15,13 @@ Q_DECLARE_METATYPE(QHostAddress);
 namespace Core
 {
 using namespace qutim_sdk_0_3;
+class DefaultDataForm;
 
 class DataLayout : public QGridLayout, public AbstractDataWidget
 {
 	Q_INTERFACES(Core::AbstractDataWidget)
 public:
-	DataLayout(QWidget *parent = 0);
+	DataLayout(DefaultDataForm *dataForm, QWidget *parent = 0);
 	~DataLayout();
 	DataItem item() const;
 	void addItem(const DataItem &item);
@@ -31,6 +33,7 @@ public:
 protected:
 	Qt::Alignment labelAlignment();
 private:
+	DefaultDataForm *m_dataForm;
 	mutable Qt::Alignment m_labelAlignment;
 	mutable QPointer<QStyle> m_style;
 	int m_row;
