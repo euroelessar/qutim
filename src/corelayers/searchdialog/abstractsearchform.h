@@ -54,7 +54,7 @@ namespace Core {
 		bool event(QEvent *e);
 	private:
 		RequestPtr m_currentRequest;
-		QPointer<QWidget> m_searchFieldsWidget;
+		QPointer<AbstractDataForm> m_searchFieldsWidget;
 		ResultModel *m_resultModel;
 		RequestsListModel *m_requestsModel;
 		bool m_done;

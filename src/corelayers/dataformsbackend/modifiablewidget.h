@@ -2,6 +2,7 @@
 #define MODIFIABLEWIDGET_H
 
 #include <qutim/dataforms.h>
+#include "abstractdatawidget.h"
 #include <QPointer>
 
 class QGridLayout;
@@ -14,7 +15,7 @@ using namespace qutim_sdk_0_3;
 class ModifiableWidget : public QWidget, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	ModifiableWidget(QWidget *parent = 0);
 	ModifiableWidget(const DataItem &item, QWidget *parent = 0);

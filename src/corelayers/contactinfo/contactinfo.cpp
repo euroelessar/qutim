@@ -127,9 +127,8 @@ namespace Core
 		}
 		InfoItemUpdatedEvent event(items);
 		qApp->sendEvent(object, &event);
-		AbstractDataWidget *avatarDataWidget = qobject_cast<AbstractDataWidget*>(avatarWidget.data());
-		if (avatarDataWidget)
-			object->setProperty("avatar", avatarDataWidget->item().property("imagePath", QString()));
+		if (avatarWidget)
+			object->setProperty("avatar", avatarWidget->item().property("imagePath", QString()));
 	}
 
 	void MainWindow::addItems(const DataItem &items)

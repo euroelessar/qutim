@@ -27,7 +27,7 @@ static LocalizedString notSpecifiedStr = QT_TRANSLATE_NOOP("DataForms", "Not spe
 class Label : public QLabel, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	Label(const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
@@ -38,7 +38,7 @@ private:
 class CheckBox : public QCheckBox, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	CheckBox(const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
@@ -47,7 +47,7 @@ public:
 class ComboBox : public QComboBox, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	ComboBox(const QString &value, const QStringList &alternatives,
 			 const char *validatorProperty, const DataItem &item,
@@ -58,7 +58,7 @@ public:
 class DateTimeEdit : public QDateTimeEdit, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	DateTimeEdit(const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
@@ -67,7 +67,7 @@ public:
 class DateEdit : public QDateEdit, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	DateEdit(const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
@@ -76,7 +76,7 @@ public:
 class TextEdit : public QTextEdit, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	TextEdit(const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
@@ -85,7 +85,7 @@ public:
 class LineEdit : public QLineEdit, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	LineEdit(const DataItem &item, const QString &textHint = QString(), QWidget *parent = 0);
 	virtual DataItem item() const;
@@ -94,7 +94,7 @@ public:
 class SpinBox : public QSpinBox, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	SpinBox(const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
@@ -103,7 +103,7 @@ public:
 class DoubleSpinBox : public QDoubleSpinBox, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	DoubleSpinBox(const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
@@ -112,7 +112,7 @@ public:
 class IconListWidget : public QListWidget, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	IconListWidget(const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
@@ -121,7 +121,7 @@ public:
 class IconWidget : public QWidget, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	IconWidget(const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
@@ -139,7 +139,7 @@ private:
 class ModifiableGroup : public QGroupBox, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	ModifiableGroup(const DataItem &item, QWidget *parent = 0);
 	DataItem item() const;
@@ -150,7 +150,7 @@ private:
 class DataGroup : public QGroupBox, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	DataGroup(const DataItem &item, bool editable, QWidget *parent = 0);
 	DataItem item() const;

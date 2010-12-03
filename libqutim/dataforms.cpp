@@ -481,14 +481,9 @@ namespace qutim_sdk_0_3
 		setProperty("password", password);
 	}
 
-	void AbstractDataWidget::virtual_hook(int id, void *data)
-	{
-		Q_UNUSED(id);
-		Q_UNUSED(data);
-	}
-
-	QWidget *AbstractDataForm::get(const DataItem &item, StandardButtons standartButtons,
-							const AbstractDataForm::Buttons &buttons)
+	AbstractDataForm *AbstractDataForm::get(const DataItem &item,
+											StandardButtons standartButtons,
+											const AbstractDataForm::Buttons &buttons)
 	{
 		DataFormsBackend *b = DataFormsBackend::instance();
 		if (b)
@@ -505,6 +500,12 @@ namespace qutim_sdk_0_3
 	void AbstractDataForm::reject()
 	{
 		emit rejected();
+	}
+
+	void AbstractDataForm::virtual_hook(int id, void *data)
+	{
+		Q_UNUSED(id);
+		Q_UNUSED(data);
 	}
 
 	DataFormsBackend *DataFormsBackend::instance()

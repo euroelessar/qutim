@@ -18,7 +18,6 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 {
 	DataLayout *dataLayout = 0;
 	QVBoxLayout *layout = 0;
-	setFrameStyle(NoFrame);
 	setObjectName(item.name());
 	setWindowTitle(item.title());
 	if (item.isAllowedModifySubitems()) {
@@ -110,17 +109,13 @@ DefaultDataFormsBackend::DefaultDataFormsBackend()
 {
 }
 
-QWidget *DefaultDataFormsBackend::get(const DataItem &item, AbstractDataForm::StandardButtons standartButtons, const AbstractDataForm::Buttons &buttons)
+AbstractDataForm *DefaultDataFormsBackend::get(const DataItem &item,
+											   AbstractDataForm::StandardButtons standartButtons,
+											   const AbstractDataForm::Buttons &buttons)
 {
 	if (item.isNull())
 		return 0;
-	if (!item.hasSubitems() && !item.isAllowedModifySubitems() &&
-		standartButtons == AbstractDataForm::NoButton && buttons.isEmpty())
-	{
-		return getWidget(item);
-	} else {
-		return new DefaultDataForm(item, standartButtons, buttons);
-	}
+	return new DefaultDataForm(item, standartButtons, buttons);
 }
 
 }

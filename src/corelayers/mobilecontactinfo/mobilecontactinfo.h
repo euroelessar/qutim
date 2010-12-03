@@ -38,8 +38,8 @@ namespace Core
 		bool readWrite;
 		QVBoxLayout *layout;
 		QScrollArea *scrollArea;
-		QScopedPointer<QWidget> avatarWidget;
-		QScopedPointer<QWidget> dataWidget;
+		QScopedPointer<AbstractDataForm> avatarWidget;
+		QScopedPointer<AbstractDataForm> dataWidget;
 		ActionBox *actionBox;
 		QAction *saveAction;
 	};

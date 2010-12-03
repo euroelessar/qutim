@@ -19,18 +19,18 @@ namespace qutim_sdk_0_3
 	class DataItemPrivate;
 
 	/**
-	@brief The DataItem class specifies one field or a group of fields in a \ref AbstractDataWidget "data form".
+	@brief The DataItem class specifies one field or a group of fields in a \ref AbstractDataForm "data form".
 
 	The DataItem class is part qutIM's DataForms API and describes appearance and behaviour of a group of fields in
-	a \ref AbstractDataWidget "data form" if it \ref hasSubitems() "has subitems" or
+	a \ref AbstractDataForm "data form" if it \ref hasSubitems() "has subitems" or
 	if \ref allowModifySubitems() "allowed to modify its subitems".
-	Otherwise, DataItem describes appearance and behaviour of one field in a \ref AbstractDataWidget "data form".
+	Otherwise, DataItem describes appearance and behaviour of one field in a \ref AbstractDataForm "data form".
 
 	A DataItem object can have name() attribute by which you can access this object later using subitem().
 	Use \ref setName() to set this property.
 
 	Specifying various attributes and properties, you able to change appearance and behaviour of fields in
-	a \ref AbstractDataWidget "data form". \ref data() is the primary attribute, defines the default field value
+	a \ref AbstractDataForm "data form". \ref data() is the primary attribute, defines the default field value
 	and can be specified using setData() or in the constructors.
 	The title() attribute specifes the field title; you can set it using setTitle().
 	A DataItem object also may contain dynamic properties which are manipulated using \ref property()
@@ -450,16 +450,7 @@ namespace qutim_sdk_0_3
 					   bool password = false);
 	};
 
-	class LIBQUTIM_EXPORT AbstractDataWidget
-	{
-	public:
-		virtual DataItem item() const = 0;
-		virtual ~AbstractDataWidget() {}
-	protected:
-		virtual void virtual_hook(int id, void *data);
-	};
-
-	class LIBQUTIM_EXPORT AbstractDataForm : public QFrame, public AbstractDataWidget
+	class LIBQUTIM_EXPORT AbstractDataForm : public QWidget
 	{
 		Q_OBJECT
 	public:
@@ -506,8 +497,11 @@ namespace qutim_sdk_0_3
 			ButtonRole role;
 		};
 		typedef QList<Button> Buttons;
-		static QWidget *get(const DataItem &item, StandardButtons standartButtons = NoButton,
-							 const Buttons &buttons = Buttons());
+	public:
+		virtual DataItem item() const = 0;
+		static AbstractDataForm *get(const DataItem &item,
+									 StandardButtons standartButtons = NoButton,
+									 const Buttons &buttons = Buttons());
 	public slots:
 		void accept();
 		void reject();
@@ -516,15 +510,17 @@ namespace qutim_sdk_0_3
 		void rejected();
 		void helpRequested();
 		void clicked(const QString &name);
+	protected:
+		virtual void virtual_hook(int id, void *data);
 	};
 
 	class LIBQUTIM_EXPORT DataFormsBackend : public QObject
 	{
 		Q_OBJECT
 	public:
-		virtual QWidget *get(const DataItem &item,
-							  AbstractDataForm::StandardButtons standartButtons = AbstractDataForm::NoButton,
-							  const AbstractDataForm::Buttons &buttons = AbstractDataForm::Buttons()) = 0;
+		virtual AbstractDataForm *get(const DataItem &item,
+									  AbstractDataForm::StandardButtons standartButtons = AbstractDataForm::NoButton,
+									  const AbstractDataForm::Buttons &buttons = AbstractDataForm::Buttons()) = 0;
 		static DataFormsBackend *instance();
 	};
 
@@ -542,7 +538,6 @@ namespace qutim_sdk_0_3
 }
 
 #ifndef Q_QDOC
-Q_DECLARE_INTERFACE(qutim_sdk_0_3::AbstractDataWidget, "org.qutim.core.AbstractDataWidget");
 Q_DECLARE_METATYPE(qutim_sdk_0_3::DataItem);
 #endif
 

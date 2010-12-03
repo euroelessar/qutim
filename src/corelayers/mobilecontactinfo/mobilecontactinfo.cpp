@@ -194,14 +194,12 @@ namespace Core
 
 	void MobileContactInfoWindow::onSaveButton()
 	{
-		AbstractDataWidget *data = qobject_cast<AbstractDataWidget*>(dataWidget.data());
-		if (data) {
-			InfoItemUpdatedEvent event(data->item());
+		if (dataWidget) {
+			InfoItemUpdatedEvent event(dataWidget->item());
 			qApp->sendEvent(object, &event);
 		}
-		AbstractDataWidget *avatarDataWidget = qobject_cast<AbstractDataWidget*>(avatarWidget.data());
-		if (avatarDataWidget)
-			object->setProperty("avatar", avatarDataWidget->item().property("imagePath", QString()));
+		if (avatarWidget)
+			object->setProperty("avatar", avatarWidget->item().property("imagePath", QString()));
 	}
 
 	MobileContactInfo::MobileContactInfo()

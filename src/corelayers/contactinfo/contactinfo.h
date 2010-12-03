@@ -36,7 +36,7 @@ namespace Core
 		InfoRequest *request;
 		QObject *object;
 		bool readWrite;
-		QScopedPointer<QWidget> avatarWidget;
+		QScopedPointer<AbstractDataForm> avatarWidget;
 	};
 
 	class ContactInfo : public QObject

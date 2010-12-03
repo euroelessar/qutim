@@ -1,6 +1,7 @@
 #ifndef DATALAYOUT_H
 #define DATALAYOUT_H
 
+#include "abstractdatawidget.h"
 #include <QWidget>
 #include <QGridLayout>
 #include <QHostAddress>

@@ -89,7 +89,7 @@ void ProxySettingsWidget::loadImpl()
 void ProxySettingsWidget::saveImpl()
 {
 	NetworkProxyInfo *proxy = proxies().value(m_settingsLayout->currentIndex()-1);
-	AbstractDataWidget *w = qobject_cast<AbstractDataWidget*>(m_settingsLayout->currentWidget());
+	AbstractDataForm *w = qobject_cast<AbstractDataForm*>(m_settingsLayout->currentWidget());
 	DataItem settings = w ? w->item() : DataItem();
 	Config globalCfg = Config().group("proxy");
 	Config cfg = m_account ? m_account->config("proxy") : globalCfg;
