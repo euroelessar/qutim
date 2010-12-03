@@ -27,6 +27,8 @@
 #include <qutim/debug.h>
 #include <qutim/notificationslayer.h>
 #include <qutim/json.h>
+#include <qutim/networkproxy.h>
+#include <qutim/dataforms.h>
 #include "vroster.h"
 #include "vmessages.h"
 #include "vlongpollclient.h"
@@ -67,6 +69,7 @@ VConnection::VConnection(VAccount* account, QObject* parent): QNetworkAccessMana
 	d->messages = new VMessages(this,this);
 	d->logMode = false;
 	new VLongPollClient(this);
+	setProxy(NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account)));
 	loadSettings();
 }
 
