@@ -35,6 +35,10 @@ namespace qutim_sdk_0_3
 	The title() attribute specifes the field title; you can set it using setTitle().
 	A DataItem object also may contain dynamic properties which are manipulated using \ref property()
 	to read them and \ref setProperty() to write them.
+	\note If you set a property for an item, that property would be automatically set for all subitems of the item.
+	That behaviour can be very useful when you need to define a default value for some property. For instance, if you
+	would set read-only flag for an item, subitems of that item also would have read-only flag.
+	Nevertheless, you can always override any property for a subitem.
 
 	The following types of \ref data() and the dynamic properties are supported by DataForms API:
 	-# \b QStringList (or \ref LocalizedStringList):
@@ -74,8 +78,6 @@ namespace qutim_sdk_0_3
 
 	Another dynamic properties that are supported by DataForms API and do not depend on type of data():
 	- \b readOnly. Holds whether the field is read only.
-	Note that the property affects subitems() and if it holds true, they also would have read-only flag
-	as well as their own subitems.
 	By default, this property contains false. The property has highest priority and may overshadow other properties.
 	- \b hideTitle. Holds whether the field title is hidden. The default property value is
 	false.
@@ -327,6 +329,7 @@ namespace qutim_sdk_0_3
 		void setProperty(const char *name, const QVariant &value);
 	protected:
 #ifndef Q_QDOC
+		friend class DataItemPrivate;
 		QSharedDataPointer<DataItemPrivate> d;
 #endif
 	};

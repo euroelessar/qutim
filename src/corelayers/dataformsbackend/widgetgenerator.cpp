@@ -34,33 +34,14 @@ QStringList variantToStringList(const QVariant &data)
 	return list;
 }
 
-QWidget *getReadOnlyTitle(const qutim_sdk_0_3::DataItem &item, const Qt::Alignment &alignment, QWidget *parent)
-{
-	QLabel *title = new QLabel(item.title().toString() + ":", parent);
-	title->setAlignment(alignment);
-	title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-	return title;
-}
-
-QWidget *getReadOnlyWidget(const DataItem &item, QWidget *parent, bool *twoColumn)
-{
-	if (item.hasSubitems()) {
-		if (twoColumn)
-			*twoColumn = true;
-		return new DataGroup(item, false, parent);
-	} else {
-		if (twoColumn)
-			*twoColumn = false;
-		return new Label(item, parent);
-	}
-}
-
 QWidget *getTitle(const DataItem &item, const Qt::Alignment &alignment, QWidget *parent)
 {
 	QStringList alt = variantToStringList(item.property("titleAlternatives"));
-	if (item.property("readOnly", false) || alt.isEmpty()) {
+	if (item.isReadOnly() || alt.isEmpty()) {
 		QLabel *title = new QLabel(item.title() + ":",parent);
 		title->setAlignment(alignment);
+		if (item.isReadOnly())
+			title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 		return title;
 	} else {
 		return new ComboBox(item.title(), alt, "validator", item);
@@ -74,7 +55,13 @@ static QWidget *getWidgetHelper(const DataItem &item, bool *twoColumn, QSizePoli
 		*twoColumn = false;
 	QVariant::Type type = item.data().type();
 	if (item.property("readOnly", false)) {
-		return getReadOnlyWidget(item, parent, twoColumn);
+		if (item.hasSubitems()) {
+			if (twoColumn)
+				*twoColumn = true;
+			return new DataGroup(item, false, parent);
+		} else {
+			return new Label(item, parent);
+		}
 	} else if (type == QVariant::StringList || item.data().canConvert<LocalizedStringList>()) {
 		return new StringListGroup(item, parent);
 	} else if (item.isAllowedModifySubitems()) {
@@ -124,7 +111,8 @@ QWidget *getWidget(const DataItem &item, QWidget *parent, bool *twoColumn)
 	QSizePolicy::Policy vertPolicy;
 	QWidget *widget = getWidgetHelper(item, twoColumn, vertPolicy, parent);
 	widget->setWindowTitle(item.title());
-	widget->setSizePolicy(QSizePolicy::Expanding, vertPolicy);
+	if (!item.isReadOnly())
+		widget->setSizePolicy(QSizePolicy::Expanding, vertPolicy);
 	return widget;
 }
 

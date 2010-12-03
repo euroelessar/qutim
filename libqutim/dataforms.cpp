@@ -15,14 +15,16 @@ namespace qutim_sdk_0_3
 	{
 	public:
 		DataItemPrivate()  :
-				maxCount(1) {}
+				maxCount(1), parent(0) {}
 		QString name;
 		LocalizedString title;
 		QVariant data;
 		QList<DataItem> subitems;
 		int maxCount;
 		DataItem defaultSubitem;
+		DataItemPrivate *parent;
 
+		QVariant property(const char *name, const QVariant &def) const;
 		QVariant getName() const { return QVariant::fromValue(name); }
 		void setName(const QVariant &val) { name = val.value<QString>(); }
 		QVariant getTitle() const { return QVariant::fromValue(title); }
@@ -33,6 +35,8 @@ namespace qutim_sdk_0_3
 		void setMaxCount(const QVariant &val) { maxCount = val.toInt(); }
 		QVariant getDefaultSubitem() const { return QVariant::fromValue(defaultSubitem); }
 		void setDefaultSubitem(const QVariant &val) { defaultSubitem = val.value<DataItem>(); }
+
+		static void updateParents(QList<DataItem> &subitems, QSharedDataPointer<DataItemPrivate> &parent);
 	};
 
 	namespace CompiledProperty
@@ -63,6 +67,15 @@ namespace qutim_sdk_0_3
 			d = new DataItemPrivate;
 	}
 
+	inline void DataItemPrivate::updateParents(QList<DataItem> &subitems, QSharedDataPointer<DataItemPrivate> &parent)
+	{
+		if (subitems.isEmpty())
+			return;
+		DataItemPrivate *p = parent.data();
+		for (QList<DataItem>::iterator itr = subitems.begin(), end = subitems.end(); itr != end; ++itr)
+			itr->d->parent = p;
+	}
+
 	DataItem::DataItem()
 	{
 	}
@@ -85,6 +98,11 @@ namespace qutim_sdk_0_3
 	DataItem::DataItem(const DataItem &other) :
 			d(other.d)
 	{
+		if (d) {
+			if (d->parent)
+				d->parent = 0;
+			DataItemPrivate::updateParents(d->subitems, d);
+		}
 	}
 
 	DataItem::~DataItem()
@@ -94,6 +112,11 @@ namespace qutim_sdk_0_3
 	DataItem &DataItem::operator=(const DataItem &other)
 	{
 		d = other.d;
+		if (d) {
+			if (d->parent)
+				d->parent = 0;
+			DataItemPrivate::updateParents(d->subitems, d);
+		}
 		return *this;
 	}
 
@@ -142,8 +165,13 @@ namespace qutim_sdk_0_3
 
 	void DataItem::setSubitems(const QList<DataItem> &newSubitems)
 	{
+		if (d && !d->subitems.isEmpty()) {
+			for (QList<DataItem>::iterator itr = d->subitems.begin(), end = d->subitems.end(); itr != end; ++itr)
+				itr->d->parent = 0;
+		}
 		ensure_data(d);
 		d->subitems = newSubitems;
+		DataItemPrivate::updateParents(d->subitems, d);
 	}
 
 	DataItem DataItem::subitem(const QString &name, bool recursive) const
@@ -166,6 +194,9 @@ namespace qutim_sdk_0_3
 	{
 		ensure_data(d);
 		d->subitems << subitem;
+		DataItem &val = d->subitems.last();
+		ensure_data(val.d);
+		val.d->parent = d.data();
 	}
 
 	bool DataItem::hasSubitems() const
@@ -207,14 +238,28 @@ namespace qutim_sdk_0_3
 
 	DataItem &DataItem::operator<<(const DataItem &subitem)
 	{
-		ensure_data(d);
-		d->subitems << subitem;
+		addSubitem(subitem);
 		return *this;
+	}
+
+	QVariant DataItemPrivate::property(const char *name, const QVariant &def) const
+	{
+		QByteArray prop = QByteArray::fromRawData(name, strlen(name));
+		int id = CompiledProperty::names.indexOf(prop);
+		if (id < 0) {
+			for (const DataItemPrivate *p = this; p != 0; p = p->parent) {
+				id = p->names.indexOf(prop);
+				if (id >= 0)
+					return p->values.at(id);
+			}
+			return def;
+		}
+		return (this->*CompiledProperty::getters.at(id))();
 	}
 
 	QVariant DataItem::property(const char *name, const QVariant &def) const
 	{
-		return d->property(name, def, CompiledProperty::names, CompiledProperty::getters);
+		return d->property(name, def);
 	}
 
 	void DataItem::setProperty(const char *name, const QVariant &value)

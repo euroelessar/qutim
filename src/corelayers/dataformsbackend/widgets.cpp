@@ -402,7 +402,7 @@ DataGroup::DataGroup(const DataItem &items, bool editable, QWidget *parent) :
 {
 	setTitle(items.title());
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-	m_layout = new DataLayout(editable, this);
+	m_layout = new DataLayout(this);
 	m_layout->addItems(items.subitems());
 }
 

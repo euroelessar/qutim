@@ -18,7 +18,7 @@ class DataLayout : public QGridLayout, public AbstractDataWidget
 {
 	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
 public:
-	DataLayout(bool editable, QWidget *parent = 0);
+	DataLayout(QWidget *parent = 0);
 	~DataLayout();
 	DataItem item() const;
 	void addItem(const DataItem &item);
@@ -41,7 +41,6 @@ private:
 		QWidget *data;
 	};
 	QList<WidgetLine> m_widgets;
-	bool m_editable;
 	bool m_expandable;
 };
 

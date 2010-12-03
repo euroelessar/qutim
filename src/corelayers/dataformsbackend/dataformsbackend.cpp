@@ -31,7 +31,7 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 			layout->addItem(spacer);
 		}
 	} else {
-		dataLayout = new DataLayout(!item.isReadOnly(), this);
+		dataLayout = new DataLayout(this);
 		m_widget = dataLayout;
 		if (item.hasSubitems())
 			dataLayout->addItems(item.subitems());
