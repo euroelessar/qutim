@@ -5,6 +5,7 @@
 #include <qutim/buddy.h>
 #include <qutim/debug.h>
 #include <qutim/config.h>
+#include <qutim/messagesession.h>
 #include <QBuffer>
 
 using namespace qutim_sdk_0_3;
@@ -50,6 +51,20 @@ DBusBackend::DBusBackend() :
 		qWarning() << "Error connecting to notifications service.";
 	}
 
+	QDBusConnection::sessionBus().connect(
+				QString(),
+				"/org/freedesktop/Notifications",
+				"org.freedesktop.Notifications",
+				"ActionInvoked",
+				this, SLOT(onActionInvoked(quint32,QString)));
+
+	QDBusConnection::sessionBus().connect(
+				QString(),
+				"/org/freedesktop/Notifications",
+				"org.freedesktop.Notifications",
+				"NotificationClosed",
+				this, SLOT(onNotificationClosed(quint32)));
+
 	loadSettings();
 }
 
@@ -71,12 +86,24 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 		title = qutim_sdk_0_3::Notifications::toString(type).arg(msg.chatUnit()->title());
 		if (const Buddy *b = qobject_cast<const Buddy*>(msg.chatUnit()))
 			icon = b->avatar();
-
 	} else if (data.canConvert<QString>()) {
 		title = data.toString();
 	}
 	if(sender && icon.isEmpty())
 		icon = sender->property("avatar").toString();
+
+	QStringList actions;
+	if (type & Notifications::MessageSend ||
+		type & Notifications::MessageGet ||
+		type & Notifications::Typing ||
+		type & Notifications::StatusChange ||
+		type & Notifications::BlockedMessage)
+	{
+		actions << "openChat" << tr("Open chat")
+				<< "ignore" << tr("Ignore");
+	} else if (qobject_cast<QWidget *>(sender)) {
+		actions << "open" << tr("Open");
+	}
 
 	QVariantMap hints;
 	QImage image(icon);
@@ -93,9 +120,12 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 			icon,
 			title,
 			text,
-			QStringList(),
+			actions,
 			hints,
 			5000);
+
+	NotificationData notification = { sender, body, data };
+	m_senders.insert(reply.value(), notification);
 
 	Q_UNUSED(reply);
 //	QDBusPendingCallWatcher* watcher = new QDBusPendingCallWatcher(reply, this);
@@ -117,4 +147,34 @@ void DBusBackend::loadSettings()
 {
 	Config behavior = Config("behavior").group("notifications/popups");
 	m_showFlags = behavior.value("showFlags", 0xfffffff &~ Notifications::MessageSend);
+}
+
+void DBusBackend::onActionInvoked(quint32 id, const QString &action)
+{
+	NotificationData notification = m_senders.value(id);
+	QObject *sender = notification.sender;
+	ChatUnit *unit = qobject_cast<ChatUnit *>(sender);
+	if (action == "openChat") {
+		if (unit) {
+			ChatUnit *metaContact = unit->metaContact();
+			if (metaContact)
+				unit = metaContact;
+			ChatLayer::get(unit,true)->activate();
+		}
+	} else if (action == "ignore") {
+		ChatSession *sess;
+		if (unit && (sess = ChatLayer::get(unit,false))) {
+			if (notification.data.canConvert<Message>())
+				sess->markRead(notification.data.value<Message>().id());
+		}
+	} else if (action == "open") {
+		if (QWidget *widget = qobject_cast<QWidget *>(sender)) {
+			widget->raise();
+		}
+	}
+}
+
+void DBusBackend::onNotificationClosed(quint32 id)
+{
+	m_senders.remove(id);
 }

@@ -19,9 +19,19 @@ public:
 protected slots:
 	void callFinished(QDBusPendingCallWatcher* watcher);
 	void loadSettings();
+	void onActionInvoked(quint32 id, const QString &action_key);
+	void onNotificationClosed(quint32 id);
 private:
 	QScopedPointer<org::freedesktop::Notifications> interface;
 	int m_showFlags;
+	struct NotificationData
+	{
+		QObject *sender;
+		QString body;
+		QVariant data;
+	};
+
+	QHash<quint32, NotificationData> m_senders;
 };
 
 #endif // GROWLBACKEND_H
