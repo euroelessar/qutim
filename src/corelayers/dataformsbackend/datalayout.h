@@ -17,7 +17,7 @@ using namespace qutim_sdk_0_3;
 
 class DataLayout : public QGridLayout, public AbstractDataWidget
 {
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
 	DataLayout(QWidget *parent = 0);
 	~DataLayout();
