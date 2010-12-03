@@ -42,9 +42,9 @@ private slots:
 private:
 	void handleMessage(IcqAccount *account, const SNAC &snac);
 	void handleResponse(IcqAccount *account, const SNAC &snac);
-	QString handleChannel1Message(const SNAC &snac, IcqContact *contact, const TLVMap &tlvs);
-	QString handleChannel2Message(const SNAC &snac, IcqContact *contact, const TLVMap &tlvs, quint64 msgCookie);
-	QString handleChannel4Message(const SNAC &snac, IcqContact *contact, const TLVMap &tlvs);
+	QString handleChannel1Message(IcqContact *contact, const TLVMap &tlvs);
+	QString handleChannel2Message(IcqContact *contact, const TLVMap &tlvs, quint64 msgCookie);
+	QString handleChannel4Message(IcqContact *contact, const TLVMap &tlvs);
 	QString handleTlv2711(const DataUnit &data, IcqContact *contact, quint16 ack, const Cookie &msgCookie);
 	void sendMetaInfoRequest(IcqAccount *account, quint16 type);
 	QMultiHash<Capability, MessagePlugin *> m_msg_plugins;

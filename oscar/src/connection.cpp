@@ -96,12 +96,12 @@ OscarRate::OscarRate(const SNAC &sn, AbstractConnection *conn) :
 	m_conn(conn)
 {
 	m_groupId = sn.read<quint16>();
-	update(m_groupId, sn);
+	update(sn);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(sendNextPackets()));
 	m_timer.setSingleShot(true);
 }
 
-void OscarRate::update(quint32 groupId, const SNAC &sn)
+void OscarRate::update(const SNAC &sn)
 {
 	m_windowSize = sn.read<quint32>();
 	m_clearLevel = sn.read<quint32>();
@@ -621,7 +621,7 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			debug() << "Rate limits clear";
 		quint32 groupId = sn.read<quint16>();
 		if (d->rates.contains(groupId))
-			d->rates.value(groupId)->update(groupId, sn);
+			d->rates.value(groupId)->update(sn);
 		break;
 	}
 	case ServiceFamily << 16 | ServiceError: {

@@ -342,13 +342,13 @@ void MessagesHandler::handleMessage(IcqAccount *account, const SNAC &snac)
 	QString message;
 	switch (channel) {
 	case 0x0001: // message
-		message = handleChannel1Message(snac, contact, tlvs);
+		message = handleChannel1Message(contact, tlvs);
 		break;
 	case 0x0002: // rendezvous
-		message = handleChannel2Message(snac, contact, tlvs, cookie);
+		message = handleChannel2Message(contact, tlvs, cookie);
 		break;
 	case 0x0004:
-		message = handleChannel4Message(snac, contact, tlvs);
+		message = handleChannel4Message(contact, tlvs);
 		break;
 	default:
 		qWarning("Unknown message channel: %d", int(channel));
@@ -396,9 +396,8 @@ void MessagesHandler::handleResponse(IcqAccount *account, const SNAC &snac)
 	handleTlv2711(snac, contact, 2, cookie);
 }
 
-QString MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *contact, const TLVMap &tlvs)
+QString MessagesHandler::handleChannel1Message(IcqContact *contact, const TLVMap &tlvs)
 {
-	Q_UNUSED(snac);
 	QString message;
 	if (tlvs.contains(0x0002)) {
 		DataUnit data(tlvs.value(0x0002));
@@ -428,7 +427,7 @@ QString MessagesHandler::handleChannel1Message(const SNAC &snac, IcqContact *con
 	return message;
 }
 
-QString MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *contact, const TLVMap &tlvs, quint64 msgCookie)
+QString MessagesHandler::handleChannel2Message(IcqContact *contact, const TLVMap &tlvs, quint64 msgCookie)
 {
 	QString uin = contact->id();
 	if (tlvs.contains(0x0005)) {
@@ -479,9 +478,8 @@ QString MessagesHandler::handleChannel2Message(const SNAC &snac, IcqContact *con
 	return QString();
 }
 
-QString MessagesHandler::handleChannel4Message(const SNAC &snac, IcqContact *contact, const TLVMap &tlvs)
+QString MessagesHandler::handleChannel4Message(IcqContact *contact, const TLVMap &tlvs)
 {
-	Q_UNUSED(snac);
 	QString uin = contact->id();
 	// TODO: Understand this holy shit
 	if (tlvs.contains(0x0005)) {

@@ -32,7 +32,7 @@ class OscarRate: public QObject
 	Q_OBJECT
 public:
 	OscarRate(const SNAC &sn, AbstractConnection *conn);
-	void update(quint32 groupId, const SNAC &sn);
+	void update(const SNAC &sn);
 	const QList<quint32> &snacTypes()
 	{
 		return m_snacTypes;
