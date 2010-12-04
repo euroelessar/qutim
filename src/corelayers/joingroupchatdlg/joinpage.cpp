@@ -32,7 +32,7 @@ JoinPage::JoinPage(QWidget *parent) :
 {
 	QCheckBox *box = new QCheckBox(QT_TRANSLATE_NOOP("JoinGroupChat", "Save to bookmarks"),this);
 	m_bookmarksEdit = new QLineEdit(this);
-	connect(box,SIGNAL(stateChanged(int)),m_bookmarksEdit,SLOT(setEnabled(bool)));
+	connect(box,SIGNAL(stateChanged(int)),SLOT(onCheckStateChanged(int)));
 	m_bookmarksEdit->setEnabled(false);
 	m_layout->addWidget(box);
 	m_layout->addWidget(m_bookmarksEdit);
@@ -77,6 +77,11 @@ void JoinPage::showEvent(QShowEvent *ev)
 {
 	updateDataForm();
 	QScrollArea::showEvent(ev);
+}
+
+void JoinPage::onCheckStateChanged(int state)
+{
+	m_bookmarksEdit->setEnabled(state == Qt::Checked);
 }
 
 } // namespace Core

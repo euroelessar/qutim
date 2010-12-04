@@ -37,6 +37,8 @@ protected:
 	void showEvent(QShowEvent *);
 signals:
 	void joined();
+private slots:
+	void onCheckStateChanged(int state);
 private:
 	QLineEdit *m_bookmarksEdit;
 	QPointer<QWidget> m_dataForm;

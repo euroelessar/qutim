@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>468</width>
-    <height>532</height>
+    <width>466</width>
+    <height>530</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QStackedWidget" name="stackedWidget">
+    <widget class="SlidingStackedWidget" name="stackedWidget">
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -91,6 +91,12 @@
    <class>Core::BookmarksPage</class>
    <extends>QWidget</extends>
    <header>bookmarkspage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SlidingStackedWidget</class>
+   <extends>QStackedWidget</extends>
+   <header location="global">slidingstackedwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

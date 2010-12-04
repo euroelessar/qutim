@@ -192,11 +192,11 @@ void JoinGroupChat::onItemActivated(const QModelIndex &index)
 		break;
 	}
 	case BookmarkNew: {
-		ui->stackedWidget->setCurrentIndex(1);
+		ui->stackedWidget->slideInIdx(1);
 		break;
 	}
 	case BookmarkEdit: {
-		ui->stackedWidget->setCurrentIndex(2);
+		ui->stackedWidget->slideInIdx(2);
 		break;
 	}
 	default:
@@ -217,13 +217,12 @@ inline Account *JoinGroupChat::account(int index)
 
 void JoinGroupChat::onBackActionTriggered()
 {
-	ui->stackedWidget->setCurrentIndex(0);
+	ui->stackedWidget->slideInIdx(0);
 }
 
 void JoinGroupChat::onBookmarksChanged()
 {
 	fillBookmarks(currentAccount());
 }
-
 
 }
