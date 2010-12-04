@@ -3,6 +3,7 @@
  *
  * Copyright (C)  2003  Zack Rusin <zack@kde.org>
  *                2010  Ruslan Nigmatullin <euroelessar@gmail.com>
+ *                2010  Alexey Prokhin <alexey.prokhin@yandex.ru>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -49,8 +50,6 @@ ASpellChecker::ASpellChecker() : m_speller(0)
 	} else {
 		m_speller = to_aspell_speller(possible_err);
 	}
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 //
 //	QStringList langs;
 	QRegExp regexp("(\\w+(_\\w+)?)");
@@ -95,6 +94,7 @@ ASpellChecker::ASpellChecker() : m_speller(0)
 
 ASpellChecker::~ASpellChecker()
 {
+	aspell_speller_save_all_word_lists(m_speller);
 	if (m_speller)
 		delete_aspell_speller(m_speller);
 	delete_aspell_config(m_config);
@@ -142,6 +142,21 @@ QStringList ASpellChecker::suggest(const QString &word) const
 	return qsug;
 }
 
+void ASpellChecker::store(const QString &word) const
+{
+	if (!m_speller)
+		return;
+	QByteArray data = word.toUtf8();
+	aspell_speller_add_to_personal(m_speller, data, data.length());
+}
+
+void ASpellChecker::storeReplacement(const QString &bad, const QString &good)
+{
+	Q_UNUSED(bad);
+	Q_UNUSED(good);
+	// TODO: implement me.
+}
+
 QStringList ASpellChecker::languages() const
 {
 	AspellDictInfoList *l = get_aspell_dict_info_list(m_config);
@@ -160,9 +175,4 @@ QStringList ASpellChecker::languages() const
 
 void ASpellChecker::loadSettings()
 {
-}
-
-void ASpellChecker::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
-{
-	new ASpell::SpellHighlighter(this, session->getInputField());
 }
