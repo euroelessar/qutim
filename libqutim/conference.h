@@ -42,21 +42,83 @@ protected:
 //groupchat-bookmark-add AbstractBookMarksItem
 //groupchat-bookmark-remove AbstractBookMarksItem
 //groupchat-bookmark-update AbstractBookMarksItem
+//class DataItem;
+//class AbstractBookmarksItemPrivate;
+//class AbstractBookmarksItem
+//{
+//public:
+//	enum Type
+//	{
+//		Recent,
+//		SavedLocal,
+//		SavedOnServer
+//	};
+//	/** Constructs a new AbstractBookmarksItem with the given \a name
+//	*/
+//	AbstractBookmarksItem(const QString &name = QString(), Type = SavedLocal);
+//	/** Returns type of item
+//	*/
+//	Type type();
+//	/** Set type of item
+//	*/
+//	void setType();
+//	/** Returns a DataItem with filled fields
+//	*/
+//	virtual DataItem *fields() = 0;
+//	/** Set item name
+//	*/
+//	QString setName();
+//	/** Returns human-readable item name
+//	*/
+//	QString name();
+//	/** Returns description TODO
+//	*/
+//	QVariant description();
+//	/**
+//	*/
+//	virtual ~AbstractBookmarksItem() {}
+//};
+
+//typedef QSharedPointer<AbstractBookmarksItem> AbstractBookmarksItemPointer;
+//typedef QList<AbstractBookmarksItemPointer> BookmarksItemList;
+
 class DataItem;
-class AbstractBookMarksItem
+class GroupChatManagerPrivate;
+class GroupChatManager
 {
+	Q_DECLARE_PRIVATE(GroupChatManager)
 public:
-	AbstractBookMarksItem(const QString &name = QString());
-	virtual bool isRecent() = 0;
-	virtual DataItem *fields() = 0;
-	virtual QString setName() = 0;
-	virtual QString name() = 0;
-	virtual QVariant description() = 0;
-	virtual ~AbstractBookMarksItem() {}
+	/** Constructs a new GroupChatManager with the given \a account.
+	*/
+	GroupChatManager(Account *account);
+	/**
+	*/
+	virtual ~GroupChatManager();
+	/** Returns the account this GroupChatManager is for.
+	*/
+	Account *account() const;
+	/** Returns the dataitem fields
+	*/
+	virtual DataItem fields() const = 0;
+	/** Join a groupchat with \a filled fields
+	*/
+	virtual void join(const DataItem &item) = 0;
+	/** Save item, \note if an item with that name exists, it must update its
+	*/
+	virtual void save(const DataItem &item) = 0;
+	/** Remove item
+	*/
+	virtual void remove(const DataItem &item) = 0;
+	/** Returns a list of stored bookmarks
+	*/
+	virtual QList<DataItem> bookmarks() const = 0;
+private:
+	QScopedPointer<GroupChatManager> d_ptr;
 };
 
 }
 
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::GroupChatManager, "org.qutim.core.GroupChatManager");
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Conference*)
 Q_DECLARE_METATYPE(QList<qutim_sdk_0_3::Conference*>)
 

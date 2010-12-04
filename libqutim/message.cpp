@@ -38,7 +38,7 @@ namespace qutim_sdk_0_3
   QmlMessage(Message &message, QObject *parent = 0) : QObject(parent), m_message(&message), m_delete(false)
   {
    foreach(const QByteArray &name, message.dynamicPropertyNames())
-	setProperty(name, message.property(name));
+ setProperty(name, message.property(name));
   }
   QmlMessage(QObject *parent = 0) : QObject(parent), m_message(new Message), m_delete(true) {}
   ~QmlMessage() { if(m_delete) delete m_message; }
@@ -75,8 +75,8 @@ namespace qutim_sdk_0_3
   bool event(QEvent *ev)
   {
    if (ev->type() == QEvent::DynamicPropertyChange) {
-	QDynamicPropertyChangeEvent *event = static_cast<QDynamicPropertyChangeEvent *>(ev);
-	m_message->setProperty(event->propertyName(), property(event->propertyName()));
+ QDynamicPropertyChangeEvent *event = static_cast<QDynamicPropertyChangeEvent *>(ev);
+ m_message->setProperty(event->propertyName(), property(event->propertyName()));
    }
   }
 
