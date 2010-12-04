@@ -3,15 +3,16 @@
 #include <QToolButton>
 #include <QAction>
 #include <libqutim/debug.h>
+#include <QDialogButtonBox>
 
 namespace Core
 {
 
 SimpleActionBoxModule::SimpleActionBoxModule()
 {
-	m_layout = new QHBoxLayout(this);
-	setLayout(m_layout);
-	m_layout->setMargin(0);
+	new QHBoxLayout(this);
+	m_box = new QDialogButtonBox(this);
+	layout()->addWidget(m_box);
 }
 
 void SimpleActionBoxModule::addAction(QAction *action)
@@ -31,9 +32,9 @@ void SimpleActionBoxModule::addAction(QAction *action)
 	connect(button,SIGNAL(destroyed(QObject*)),SLOT(onButtonDestroyed(QObject*)));
 	connect(action,SIGNAL(destroyed()),button,SLOT(deleteLater()));
 	if (action->softKeyRole() == QAction::NegativeSoftKey)
-		m_layout->insertWidget(0,button);
+		m_box->addButton(button,QDialogButtonBox::DestructiveRole);
 	else
-		m_layout->addWidget(button);
+		m_box->addButton(button,QDialogButtonBox::ActionRole);
 	QWidget::addAction(action);
 }
 

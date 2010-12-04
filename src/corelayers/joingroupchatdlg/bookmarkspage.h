@@ -1,7 +1,7 @@
 /****************************************************************************
- *  actionbox.h
+ *  bookmarkspage.h
  *
- *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+ *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,41 +13,40 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef ACTIONBOX_H
-#define ACTIONBOX_H
+#ifndef BOOKMARKSPAGE_H
+#define BOOKMARKSPAGE_H
 
-#include <QWidget>
-#include "libqutim_global.h"
+#include <QScrollArea>
+#include <QPointer>
+#include "groupchatpage.h"
 
-namespace qutim_sdk_0_3
+class QComboBox;
+namespace Core {
+
+class BookmarksModel;
+class BookmarksPage : public GroupChatPage
 {
-
-class ActionBoxPrivate;
-class LIBQUTIM_EXPORT ActionBox : public QWidget
-{
-	Q_OBJECT
-	Q_DECLARE_PRIVATE(ActionBox)
+    Q_OBJECT
 public:
-	explicit ActionBox(QWidget *parent);
-	void addAction(QAction *action);
-	void addActions(QList<QAction*> actions);
-	void removeAction(QAction *action);
-	void removeActions(QList<QAction*> actions);
-	void clear();
-	~ActionBox();
+	explicit BookmarksPage(QWidget *parent = 0);
+	void setModel(BookmarksModel *model);
+signals:
+	void bookmarksChanged();
+public slots:
+	void updateDataForm(const QString &name = QString());
+protected:
+	void showEvent(QShowEvent *);
+private slots:
+	void onCurrentIndexChanged(int index);
+	void onSave();
+	void onRemove();
 private:
-	QScopedPointer<ActionBoxPrivate> d_ptr;
+	bool isRecent(int index);
+	QComboBox *m_bookmarksBox;
+	QAction *m_removeAction;
+	QPointer<QWidget> m_dataForm;
 };
 
-class LIBQUTIM_EXPORT ActionBoxModule : public QWidget
-{
-	Q_OBJECT
-	Q_CLASSINFO("Service","ActionBoxModule")
-public:
-	virtual void addAction(QAction *) = 0;
-	virtual void removeAction(QAction *) = 0;
-};
+} // namespace Core
 
-}
-
-#endif // ACTIONBOX_H
+#endif // BOOKMARKSPAGE_H

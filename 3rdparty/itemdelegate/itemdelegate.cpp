@@ -207,6 +207,7 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 	const QWidget *widget = getWidget(option);
 	//HACK black magic
 	//fix trouble with sizeHint change
+	//add event filter for any itemView's that use this delegate
 	const_cast<QWidget*>(widget)->installEventFilter(const_cast<ItemDelegate*>(this));
 	QRect rect = widget->geometry();
 	rect.adjust(d->padding,0,0,0);
@@ -364,6 +365,8 @@ bool ItemDelegate::eventFilter(QObject *obj, QEvent *event)
 {
 	Q_UNUSED(obj);
 	if(event->type() == QEvent::Resize) {
+		//update sizeHint cache on itemViews, because item view's doesn't update it
+		//when changing the word wrapping
 		QEvent e(QEvent::StyleChange);
 		qApp->sendEvent(obj,&e);
 	}

@@ -1,7 +1,7 @@
 /****************************************************************************
- *  actionbox.h
+ *  groupchatpage.h
  *
- *  Copyright (c) 2010 by Aleksey Sidorov <sauron@citadelspb.com>
+ *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,41 +13,33 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef ACTIONBOX_H
-#define ACTIONBOX_H
+#ifndef GROUPCHATPAGE_H
+#define GROUPCHATPAGE_H
 
-#include <QWidget>
-#include "libqutim_global.h"
+#include <QScrollArea>
 
 namespace qutim_sdk_0_3
 {
+class Account;
+};
 
-class ActionBoxPrivate;
-class LIBQUTIM_EXPORT ActionBox : public QWidget
+class QVBoxLayout;
+namespace Core {
+
+class GroupChatPage : public QScrollArea
 {
-	Q_OBJECT
-	Q_DECLARE_PRIVATE(ActionBox)
+    Q_OBJECT
 public:
-	explicit ActionBox(QWidget *parent);
-	void addAction(QAction *action);
-	void addActions(QList<QAction*> actions);
-	void removeAction(QAction *action);
-	void removeActions(QList<QAction*> actions);
-	void clear();
-	~ActionBox();
+    explicit GroupChatPage(QWidget *parent = 0);
+	virtual void setAccount(qutim_sdk_0_3::Account *account) {m_account = account;}
+	qutim_sdk_0_3::Account *account() const {return m_account;}
+protected:
+	QVBoxLayout *m_layout;
 private:
-	QScopedPointer<ActionBoxPrivate> d_ptr;
+	qutim_sdk_0_3::Account *m_account;
+
 };
 
-class LIBQUTIM_EXPORT ActionBoxModule : public QWidget
-{
-	Q_OBJECT
-	Q_CLASSINFO("Service","ActionBoxModule")
-public:
-	virtual void addAction(QAction *) = 0;
-	virtual void removeAction(QAction *) = 0;
-};
+} // namespace Core
 
-}
-
-#endif // ACTIONBOX_H
+#endif // GROUPCHATPAGE_H

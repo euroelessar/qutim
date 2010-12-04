@@ -53,6 +53,7 @@ public:
 
 	virtual QVariant value(Attribute attr, const QVariant &data = QVariant()) const = 0;
 	//	virtual QVariant process(Operation act, const QVariantList &args = QVariantList()) const = 0;
+//	virtual void show(QWidget *widget);
 protected:
 	virtual void virtual_hook(int, void *);
 };

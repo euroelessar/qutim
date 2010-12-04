@@ -79,4 +79,9 @@ void ActionBox::removeActions(QList<QAction *> actions)
 		removeAction(action);
 }
 
+void ActionBox::clear()
+{
+	removeActions(actions());
+}
+
 }

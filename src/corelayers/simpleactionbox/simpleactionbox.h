@@ -7,7 +7,7 @@
 
 class QToolButton;
 class QHBoxLayout;
-
+class QDialogButtonBox;
 namespace Core
 {
 using namespace qutim_sdk_0_3;
@@ -24,7 +24,7 @@ protected slots:
 	void onButtonDestroyed(QObject *obj);
 	void onChanged();
 private:
-	QHBoxLayout *m_layout;
+	QDialogButtonBox *m_box;
 	QMap<QAction*,QToolButton*> m_buttons;
 };
 
