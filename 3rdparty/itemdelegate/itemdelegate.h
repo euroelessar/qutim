@@ -32,9 +32,11 @@ enum ItemRole
 
 Q_DECLARE_FLAGS(ItemRoles,ItemRole);
 
+class ItemDelegatePrivate;
 class LIBQUTIM_EXPORT ItemDelegate : public QAbstractItemDelegate
 {
 	Q_OBJECT
+	Q_DECLARE_PRIVATE(ItemDelegate)
 public:
 	ItemDelegate(QObject* parent = 0);
 	virtual ~ItemDelegate();
@@ -51,14 +53,9 @@ protected:
 	QRect drawCheck(QPainter *painter,
 				   const QStyleOptionViewItem &option,
 				   const QRect &rect, Qt::CheckState state) const;
+	virtual bool eventFilter(QObject *obj, QEvent *event);
 private:
-	QRect checkRect(const QModelIndex& index,const QStyleOptionViewItem& option,const QRect &rect) const;
-	QRect checkRect(const QStyleOptionViewItem& option,const QRect &rect) const;
-	int m_padding;
-	bool m_commandLinkStyle;
-	//hacks
-	QTreeView *m_treeView;
-	QListView *m_listView;
+	QScopedPointer<ItemDelegatePrivate> d_ptr;
 };
 
 }

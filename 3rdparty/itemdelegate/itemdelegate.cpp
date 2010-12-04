@@ -26,6 +26,15 @@
 namespace qutim_sdk_0_3
 {
 
+class ItemDelegatePrivate
+{
+public:
+	QRect checkRect(const QModelIndex& index,const QStyleOptionViewItem& option,const QRect &rect) const;
+	QRect checkRect(const QStyleOptionViewItem& option,const QRect &rect) const;
+	int padding;
+	bool commandLinkStyle;
+};
+
 //small hack from Qt sources
 bool isSeparator(const QModelIndex &index) {
 	return index.data(Qt::AccessibleDescriptionRole).toString() == QLatin1String("separator") || index.data(SeparatorRole).toBool();
@@ -70,14 +79,11 @@ QString description(const QModelIndex& index)
 };
 
 ItemDelegate::ItemDelegate(QObject* parent):
-	QAbstractItemDelegate(parent),
-	m_padding(6),m_commandLinkStyle(false),
-	m_treeView(0),
-	m_listView(0)
+	QAbstractItemDelegate(parent),d_ptr(new ItemDelegatePrivate)
 {
-	m_treeView = qobject_cast<QTreeView*>(parent);
-	m_listView = qobject_cast<QListView*>(parent);
-	//hacks for list view
+	Q_D(ItemDelegate);
+	d->padding = 6;
+	d->commandLinkStyle = false;
 }
 
 ItemDelegate::~ItemDelegate()
@@ -88,6 +94,7 @@ ItemDelegate::~ItemDelegate()
 void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 						 const QModelIndex& index) const
 {
+	Q_D(const ItemDelegate);
 	QStyleOptionViewItemV4 opt(option);
 	QStyle *style = getStyle(opt);
 
@@ -114,20 +121,20 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		buttonOption.palette = option.palette;
 		style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
 		QRect rect = option.rect;
-		rect.adjust(m_padding,0,0,0);
-		if (m_treeView) {
+		rect.adjust(d->padding,0,0,0);
+		if (const QTreeView *view = qobject_cast<const QTreeView*>(getWidget(option))) {
 			QStyleOption branchOption;
 			static const int i = 9; // ### hardcoded in qcommonstyle.cpp
 			QRect r = option.rect;
 			branchOption.rect = QRect(r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
 			branchOption.palette = option.palette;
 			branchOption.state = QStyle::State_Children;
-			rect.adjust(branchOption.rect.width() + m_padding,
-						branchOption.rect.height() + m_padding,
+			rect.adjust(branchOption.rect.width() + d->padding,
+						branchOption.rect.height() + d->padding,
 						0,0);
-			if (m_treeView->isExpanded(index))
+			if (view->isExpanded(index))
 				branchOption.state |= QStyle::State_Open;
-			style->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, m_treeView);
+			style->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, view);
 		}
 		QFont font = opt.font;
 		const QFont orig_font = font;
@@ -144,7 +151,7 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		drawFocus(painter,opt,option.rect);
 
 		QRect rect = option.rect;
-		rect.adjust(m_padding,m_padding,0,0);
+		rect.adjust(d->padding,d->padding,0,0);
 
 		QVariant value = index.data(Qt::CheckStateRole);
 		if (value.isValid()) {
@@ -153,7 +160,7 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 			rect.adjust(checkRect.width(),0,0,0);
 		}
 
-		rect.adjust(m_padding,0,0,0);
+		rect.adjust(d->padding,0,0,0);
 		QIcon item_icon = index.data(Qt::DecorationRole).value<QIcon>();
 		item_icon.paint(painter,
 						rect.left(),
@@ -161,8 +168,8 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 						option.decorationSize.width(),
 						option.decorationSize.height(),
 						Qt::AlignTop);
-		rect.adjust(m_padding + option.decorationSize.width(),0,0,0);
-		rect.setBottom(rect.bottom() - m_padding);
+		rect.adjust(d->padding + option.decorationSize.width(),0,0,0);
+		rect.setBottom(rect.bottom() - d->padding);
 
 		const QFont orig_font = painter->font();
 		const QPen orig_pen = painter->pen();
@@ -179,7 +186,7 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 		painter->setPen(orig_pen);
 
 		if (!desc.isEmpty()) {
-			rect.adjust(0,bounding.height() + 0.5*m_padding,0,0);
+			rect.adjust(0,bounding.height() + 0.5*d->padding,0,0);
 			QFont description_font = orig_font;
 			description_font.setPointSize(orig_font.pointSize() - 1);
 			painter->setFont(description_font);
@@ -192,40 +199,22 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 
 QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
+	Q_D(const ItemDelegate);
 	QVariant value = index.data(Qt::SizeHintRole);
 	if (value.isValid())
 		return value.toSize();
 
 	const QWidget *widget = getWidget(option);
+	//HACK black magic
+	//fix trouble with sizeHint change
+	const_cast<QWidget*>(widget)->installEventFilter(const_cast<ItemDelegate*>(this));
 	QRect rect = widget->geometry();
-	rect.adjust(m_padding,0,0,0);
+	rect.adjust(d->padding,0,0,0);
 
-	//hack for null width with tree view
-	//TODO need rewrite
-	if (!rect.isValid()) {
-		if(m_treeView) {
-			rect.setWidth(m_treeView->viewport()->size().width() - m_treeView->indentation());
-			//mega hack for intendation
-			//--root----------------
-			//  ^intendation
-			//^size().width()------^
-			//----first element
-			//    ^intendation
-			QModelIndex p = index.parent();
-			while (p.isValid()) {
-				rect.setWidth(rect.width()-m_treeView->indentation());
-				p = p.parent();
-			}
-		}
-		else if(m_listView) {
-			rect.setWidth(m_listView->visualRect(index).width());
-		}
-	}
-
-	QRect check = checkRect(index,option,rect);
+	QRect check = d->checkRect(index,option,rect);
 	if (check.isValid())
-		rect.adjust(check.width()+m_padding,0,0,0);
-	rect.adjust(2*m_padding + option.decorationSize.width(),0,0,0);
+		rect.adjust(check.width()+d->padding,0,0,0);
+	rect.adjust(2*d->padding + option.decorationSize.width(),0,0,0);
 
 	QFontMetrics metrics = option.fontMetrics;
 	if (!isSeparator(index)) {
@@ -250,13 +239,13 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 										desc
 										);
 		height += bounding.height();
-		height += 2.5*m_padding;
+		height += 2.5*d->padding;
 	}
-	QSize size (rect.width(),qMax(option.decorationSize.height() + 2*m_padding,height));
+	QSize size (rect.width(),qMax(option.decorationSize.height() + 2*d->padding,height));
 	return size;
 }
 
-QRect ItemDelegate::checkRect(const QModelIndex& index,const QStyleOptionViewItem &o, const QRect &rect) const
+QRect ItemDelegatePrivate::checkRect(const QModelIndex& index,const QStyleOptionViewItem &o, const QRect &rect) const
 {
 	QVariant value = index.data(Qt::CheckStateRole);
 	if (!value.isValid())
@@ -265,34 +254,28 @@ QRect ItemDelegate::checkRect(const QModelIndex& index,const QStyleOptionViewIte
 		return checkRect(o,rect);
 }
 
-QRect ItemDelegate::checkRect(const QStyleOptionViewItem &o, const QRect &rect) const
+QRect ItemDelegatePrivate::checkRect(const QStyleOptionViewItem &o, const QRect &rect) const
 {
 	QStyleOptionViewItemV4 option(o);
-	QSize size = option.decorationSize;
 	QStyleOptionButton opt;
 	opt.QStyleOption::operator=(option);
 	opt.rect = rect;
 	const QWidget *widget = getWidget(option);
 	QStyle *style = getStyle(option);
 	QRect checkRect = style->subElementRect(QStyle::SE_ViewItemCheckIndicator, &opt, widget);
-	//TODO need to testing on some platforms
-	//	QRect result (rect.left(),
-	//		  rect.top() + (size.height() - checkRect.height())/2,
-	//		  size.width() - checkRect.width(),
-	//		  checkRect.height()
-	//		  );
 	return checkRect;
 }
 
 void ItemDelegate::setCommandLinkStyle(bool style)
 {
-	m_commandLinkStyle = style;
+	d_func()->commandLinkStyle = style;
 }
 
 bool ItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
 							   const QStyleOptionViewItem& option, const QModelIndex& index)
 {
 	//ported from Qt sources
+	Q_D(ItemDelegate);
 	Q_ASSERT(event);
 	Q_ASSERT(model);
 
@@ -311,8 +294,8 @@ bool ItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
 	if ((event->type() == QEvent::MouseButtonRelease)
 			|| (event->type() == QEvent::MouseButtonDblClick)) {
 		QRect rect = option.rect;
-		rect.adjust(m_padding,m_padding,0,0);
-		QRect check = checkRect(index,option, rect);
+		rect.adjust(d->padding,d->padding,0,0);
+		QRect check = d->checkRect(index,option, rect);
 		QMouseEvent *me = static_cast<QMouseEvent*>(event);
 		if (me->button() != Qt::LeftButton || !check.contains(me->pos()))
 			return false;
@@ -341,7 +324,7 @@ void ItemDelegate::drawFocus(QPainter *painter,
 	Q_UNUSED(rect);
 	QStyle *style = getStyle(option);
 	const QWidget *widget = getWidget(option);
-	if (m_commandLinkStyle) {
+	if (d_func()->commandLinkStyle) {
 		QStyleOptionButton buttonOption;
 
 		buttonOption.state = option.state;
@@ -361,7 +344,7 @@ QRect ItemDelegate::drawCheck(QPainter *painter,
 {
 	QStyleOptionViewItem checkOption(option);
 	checkOption.state = checkOption.state & ~QStyle::State_HasFocus;
-	checkOption.rect = checkRect(option,rect);
+	checkOption.rect = d_func()->checkRect(option,rect);
 	switch (state) {
 	case Qt::Unchecked:
 		checkOption.state |= QStyle::State_Off;
@@ -375,6 +358,16 @@ QRect ItemDelegate::drawCheck(QPainter *painter,
 	}
 	getStyle(option)->drawPrimitive(QStyle::PE_IndicatorViewItemCheck, &checkOption, painter,getWidget(option));
 	return checkOption.rect;
+}
+
+bool ItemDelegate::eventFilter(QObject *obj, QEvent *event)
+{
+	Q_UNUSED(obj);
+	if(event->type() == QEvent::Resize) {
+		QEvent e(QEvent::StyleChange);
+		qApp->sendEvent(obj,&e);
+	}
+	return QAbstractItemDelegate::eventFilter(obj,event);
 }
 
 }
