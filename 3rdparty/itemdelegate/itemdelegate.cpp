@@ -364,7 +364,7 @@ QRect ItemDelegate::drawCheck(QPainter *painter,
 bool ItemDelegate::eventFilter(QObject *obj, QEvent *event)
 {
 	Q_UNUSED(obj);
-	if(event->type() == QEvent::Resize) {
+	if(event->type() == QEvent::Resize || event->type() == QEvent::Show) {
 		//update sizeHint cache on itemViews, because item view's doesn't update it
 		//when changing the word wrapping
 		QEvent e(QEvent::StyleChange);
