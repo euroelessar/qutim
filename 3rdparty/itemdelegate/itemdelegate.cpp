@@ -240,7 +240,7 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 										desc
 										);
 		height += bounding.height();
-		height += 2.5*d->padding;
+		height += 3*d->padding;
 	}
 	QSize size (rect.width(),qMax(option.decorationSize.height() + 2*d->padding,height));
 	return size;

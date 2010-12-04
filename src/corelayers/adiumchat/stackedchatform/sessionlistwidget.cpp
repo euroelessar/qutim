@@ -100,6 +100,7 @@ void SessionListWidget::removeItem(int index)
 	ChatSessionImpl *s = d_func()->sessions.at(index);
 	s->disconnect(this);
 	s->removeEventFilter(this);
+	s->unit()->disconnect(this);
 	onRemoveSession(s);
 	emit remove(s);
 }

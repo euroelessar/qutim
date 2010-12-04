@@ -183,6 +183,7 @@ void TabBar::removeTab(int index)
 	ChatSessionImpl *s = p->sessions.at(index);
 	s->disconnect(this);
 	s->removeEventFilter(this);
+	s->unit()->disconnect(this);
 	onRemoveSession(s);
 	emit remove(s);
 }
