@@ -20,12 +20,12 @@
 #include <qutim/messagesession.h>
 #include <sonnet/speller.h>
 #include <qutim/messagesession.h>
-#include "spellhighligter.h"
+#include <qutim/spellchecker.h>
 
 using namespace qutim_sdk_0_3;
 using namespace Sonnet;
 
-class KdeSpellerLayer : public QObject
+class KdeSpellerLayer : public SpellChecker
 {
 	Q_OBJECT
 	Q_CLASSINFO("Service", "SpellChecker")
@@ -34,13 +34,13 @@ public:
 	KdeSpellerLayer();
 	~KdeSpellerLayer();
 	static Speller *spellerInstance();
-public slots:
 	bool isCorrect(const QString &word) const;
 	bool isMisspelled(const QString &word) const;
 	QStringList suggest(const QString &word) const;
+	void store(const QString &word) const;
+	void storeReplacement(const QString &bad, const QString &good);
 protected slots:
 	void loadSettings();
-	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
 private:
 	bool m_autodetect;
 	QString m_dictionary;

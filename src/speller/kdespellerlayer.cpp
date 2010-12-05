@@ -27,8 +27,6 @@ KdeSpellerLayer::KdeSpellerLayer()
 			Settings::General,
 			KIcon("tools-check-spelling"),
 			QT_TRANSLATE_NOOP("Settings", "Spell checker")));
-	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
-			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	loadSettings();
 }
 
@@ -53,12 +51,6 @@ void KdeSpellerLayer::loadSettings()
 	speller()->setLanguage(m_dictionary);
 }
 
-void KdeSpellerLayer::onSessionCreated(qutim_sdk_0_3::ChatSession *session)
-{
-	if (QTextDocument *doc = session->getInputField())
-		new Kde::SpellHighlighter(speller(), doc);
-}
-
 bool KdeSpellerLayer::isCorrect(const QString &word) const
 {
 	return speller()->isCorrect(word);
@@ -74,3 +66,12 @@ QStringList KdeSpellerLayer::suggest(const QString &word) const
 	return speller()->suggest(word);
 }
 
+void KdeSpellerLayer::store(const QString &word) const
+{
+	speller()->addToPersonal(word);
+}
+
+void KdeSpellerLayer::storeReplacement(const QString &bad, const QString &good)
+{
+	speller()->storeReplacement(bad, good);
+}
