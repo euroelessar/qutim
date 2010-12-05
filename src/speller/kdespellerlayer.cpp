@@ -49,6 +49,7 @@ void KdeSpellerLayer::loadSettings()
 	else if (!speller()->availableDictionaries().isEmpty())
 		m_dictionary = speller()->availableDictionaries().begin().value();
 	speller()->setLanguage(m_dictionary);
+	emit dictionaryChanged();
 }
 
 bool KdeSpellerLayer::isCorrect(const QString &word) const
