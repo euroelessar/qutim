@@ -128,14 +128,16 @@ void HunSpellChecker::loadSettings(QString lang)
 	emit dictionaryChanged();
 }
 
-QString HunSpellChecker::toPrettyLanguageName(QString lang)
+QString HunSpellChecker::toPrettyLanguageName(const QString &lang)
 {
-	QLocale locale(lang.replace('-', '_'));
+	QString helper = lang;
+	QLocale locale(helper.replace('-', '_'));
 	if (locale.language() == QLocale::C)
 		return lang;
-	return QString("%1 / %2")
+	return QString("%1 / %2 (%3)")
 			.arg(QLocale::languageToString(locale.language()))
-			.arg(QLocale::countryToString(locale.country()));
+			.arg(QLocale::countryToString(locale.country()))
+			.arg(lang);
 }
 
 inline QByteArray HunSpellChecker::convert(const QString &word) const

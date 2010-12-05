@@ -35,7 +35,7 @@ public:
 	void store(const QString &word) const;
 	void storeReplacement(const QString &bad, const QString &good);
 	static HunSpellChecker *instance() { Q_ASSERT(self); return self; }
-	static QString toPrettyLanguageName(QString lang);
+	static QString toPrettyLanguageName(const QString &lang);
 	void loadSettings(QString lang);
 	QByteArray convert(const QString &word) const;
 private:
