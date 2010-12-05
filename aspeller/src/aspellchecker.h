@@ -39,11 +39,13 @@ public:
 	QStringList suggest(const QString &word) const;
 	void store(const QString &word) const;
 	void storeReplacement(const QString &bad, const QString &good);
-protected slots:
-	void loadSettings();
+	static ASpellChecker *instance() { Q_ASSERT(self); return self; }
+	static QString toPrettyLanguageName(const QString &lang);
+	void loadSettings(const QString &lang);
 private:
 	AspellConfig  *m_config;
 	AspellSpeller *m_speller;
+	static ASpellChecker *self;
 };
 
 #endif // ASPELLCHECKER_H

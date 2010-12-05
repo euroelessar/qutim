@@ -26,12 +26,47 @@
 #include <aspell.h>
 #include <qutim/debug.h>
 #include <qutim/settingslayer.h>
+#include <qutim/icon.h>
+#include <qutim/config.h>
+#include "aspellsettings.h"
 
-ASpellChecker::ASpellChecker() : m_speller(0)
+ASpellChecker *ASpellChecker::self = 0;
+
+QHash<QString, LocalizedString> variantList()
 {
-//	QString lang = "ru_RU";
+	static QHash<QString, LocalizedString> list;
+	if (list.isEmpty()) {
+		list.insert("40", QT_TRANSLATE_NOOP("SpellChecker", "40")); // what does 40 mean?
+		list.insert("60", QT_TRANSLATE_NOOP("SpellChecker", "60")); // what does 60 mean?
+		list.insert("80", QT_TRANSLATE_NOOP("SpellChecker", "80")); // what does 80 mean?
+		list.insert("ise", QT_TRANSLATE_NOOP("SpellChecker", "-ise suffixes"));
+		list.insert("ize", QT_TRANSLATE_NOOP("SpellChecker", "-ize suffixes"));
+		list.insert("ise-w_accents", QT_TRANSLATE_NOOP("SpellChecker", "-ise suffixes and with accents"));
+		list.insert("ise-wo_accents", QT_TRANSLATE_NOOP("SpellChecker", "-ise suffixes and without accents"));
+		list.insert("ize-w_accents", QT_TRANSLATE_NOOP("SpellChecker", "-ize suffixes and with accents"));
+		list.insert("ize-wo_accents", QT_TRANSLATE_NOOP("SpellChecker", "-ize suffixes and without accents"));
+		list.insert("lrg", QT_TRANSLATE_NOOP("SpellChecker", "large"));
+		list.insert("med", QT_TRANSLATE_NOOP("SpellChecker", "medium"));
+		list.insert("sml", QT_TRANSLATE_NOOP("SpellChecker", "small"));
+		list.insert("variant_0", QT_TRANSLATE_NOOP("SpellChecker", "variant 0"));
+		list.insert("variant_1", QT_TRANSLATE_NOOP("SpellChecker", "variant 1"));
+		list.insert("variant_2", QT_TRANSLATE_NOOP("SpellChecker", "variant 2"));
+		list.insert("wo_accents", QT_TRANSLATE_NOOP("SpellChecker", "without accents"));
+		list.insert("w_accents", QT_TRANSLATE_NOOP("SpellChecker", "with accents"));
+		list.insert("ye", QT_TRANSLATE_NOOP("SpellChecker", "with ye"));
+		list.insert("yeyo", QT_TRANSLATE_NOOP("SpellChecker", "with yeyo"));
+		list.insert("yo", QT_TRANSLATE_NOOP("SpellChecker", "with yo"));
+		list.insert("extended", QT_TRANSLATE_NOOP("SpellChecker", "extended"));
+	}
+	return list;
+}
+
+ASpellChecker::ASpellChecker() :
+	m_speller(0)
+{
+	Q_ASSERT(!self);
+	self = this;
 	m_config = new_aspell_config();
-//	aspell_config_replace(m_config, "lang", lang.toLatin1());
 	/* All communication with Aspell is done in UTF-8 */
 	/* For reference, please look at BR#87250         */
 	aspell_config_replace(m_config, "encoding", "utf-8");
@@ -43,60 +78,22 @@ ASpellChecker::ASpellChecker() : m_speller(0)
 	aspell_config_replace(m_config, "dict-dir", dictDir.constData());
 #endif
 
-	AspellCanHaveError * possible_err = new_aspell_speller(m_config);
-
-	if (aspell_error_number(possible_err) != 0) {
-		warning()<< "Error : "<< aspell_error_message(possible_err);
-	} else {
-		m_speller = to_aspell_speller(possible_err);
-	}
-//
-//	QStringList langs;
-	QRegExp regexp("(\\w+(_\\w+)?)");
-	foreach (QString lang, languages()) {
-//		lang.indexOf(regexp);
-		qDebug() << lang << QLocale(lang).name() << regexp.cap(0);
-//		langs << regexp.cap(0);
-	}
-//	langs.removeDuplicates();
-//	qDebug() << langs;
-//    struct variantListType
-//    {
-//        const char* variantShortName;
-//        const char* variantEnglishName;
-//    };
-//
-//    const variantListType variantList[] = {
-//        { "40", I18N_NOOP2("dictionary variant", "40") }, // what does 40 mean?
-//        { "60", I18N_NOOP2("dictionary variant", "60") }, // what does 60 mean?
-//        { "80", I18N_NOOP2("dictionary variant", "80") }, // what does 80 mean?
-//        { "ise", I18N_NOOP2("dictionary variant", "-ise suffixes") },
-//        { "ize", I18N_NOOP2("dictionary variant", "-ize suffixes") },
-//        { "ise-w_accents", I18N_NOOP2("dictionary variant", "-ise suffixes and with accents") },
-//        { "ise-wo_accents", I18N_NOOP2("dictionary variant", "-ise suffixes and without accents") },
-//        { "ize-w_accents", I18N_NOOP2("dictionary variant", "-ize suffixes and with accents") },
-//        { "ize-wo_accents", I18N_NOOP2("dictionary variant", "-ize suffixes and without accents") },
-//        { "lrg", I18N_NOOP2("dictionary variant", "large") },
-//        { "med", I18N_NOOP2("dictionary variant", "medium") },
-//        { "sml", I18N_NOOP2("dictionary variant", "small") },
-//        { "variant_0", I18N_NOOP2("dictionary variant", "variant 0") },
-//        { "variant_1", I18N_NOOP2("dictionary variant", "variant 1") },
-//        { "variant_2", I18N_NOOP2("dictionary variant", "variant 2") },
-//        { "wo_accents", I18N_NOOP2("dictionary variant", "without accents") },
-//        { "w_accents", I18N_NOOP2("dictionary variant", "with accents") },
-//        { "ye", I18N_NOOP2("dictionary variant", "with ye") },
-//        { "yeyo", I18N_NOOP2("dictionary variant", "with yeyo") },
-//        { "yo", I18N_NOOP2("dictionary variant", "with yo") },
-//        { "extended", I18N_NOOP2("dictionary variant", "extended") },
-//        { 0, 0 }
-//    };
+	Settings::registerItem(new GeneralSettingsItem<AspellSettings>(
+			Settings::General,
+			Icon("tools-check-spelling"),
+			QT_TRANSLATE_NOOP("Settings", "Spell checker")));
+	QString lang = Config().group("speller").value("language", QString());
+	if (lang == QLatin1String("system"))
+		lang.clear();
+	loadSettings(lang);
 }
 
 ASpellChecker::~ASpellChecker()
 {
-	aspell_speller_save_all_word_lists(m_speller);
-	if (m_speller)
+	if (m_speller) {
+		aspell_speller_save_all_word_lists(m_speller);
 		delete_aspell_speller(m_speller);
+	}
 	delete_aspell_config(m_config);
 }
 
@@ -152,9 +149,9 @@ void ASpellChecker::store(const QString &word) const
 
 void ASpellChecker::storeReplacement(const QString &bad, const QString &good)
 {
-	Q_UNUSED(bad);
-	Q_UNUSED(good);
-	// TODO: implement me.
+	QByteArray badData = bad.toUtf8();
+	QByteArray goodData = good.toUtf8();
+	aspell_speller_store_replacement(m_speller, badData, badData.length(), goodData, goodData.length());
 }
 
 QStringList ASpellChecker::languages() const
@@ -173,6 +170,32 @@ QStringList ASpellChecker::languages() const
 	return langs;
 }
 
-void ASpellChecker::loadSettings()
+void ASpellChecker::loadSettings(const QString &lang)
 {
+	if (m_speller) {
+		aspell_speller_save_all_word_lists(m_speller);
+		delete_aspell_speller(m_speller);
+	}
+
+	aspell_config_replace(m_config, "lang", lang.toLatin1());
+
+	AspellCanHaveError * possible_err = new_aspell_speller(m_config);
+	if (aspell_error_number(possible_err) != 0) {
+		warning()<< "Error : "<< aspell_error_message(possible_err);
+	} else {
+		m_speller = to_aspell_speller(possible_err);
+	}
+}
+
+QString ASpellChecker::toPrettyLanguageName(const QString &lang)
+{
+	QString localeName = lang.mid(0, lang.indexOf('-'));
+	QString type = variantList().value(lang.mid(localeName.length()+1));
+	QLocale locale(localeName);
+	QString name = QString("%1 / %2")
+				   .arg(QLocale::languageToString(locale.language()))
+				   .arg(QLocale::countryToString(locale.country()));
+	if (!type.isEmpty())
+		name += " (" + type + ")";
+	return name;
 }
