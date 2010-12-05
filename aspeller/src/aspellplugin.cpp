@@ -26,6 +26,9 @@ void ASpellPlugin::init()
 	addAuthor(QT_TRANSLATE_NOOP("Author", "Ruslan Nigmatullin"),
 			  QT_TRANSLATE_NOOP("Task", "Developer"),
 			  QLatin1String("euroelessar@gmail.com"));
+	addAuthor(QT_TRANSLATE_NOOP("Author", "Alexey Prokhin"),
+			  QT_TRANSLATE_NOOP("Task", "Author"),
+			  QLatin1String("alexey.prokhin@yandex.ru"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "ASpell checker"),
 			QT_TRANSLATE_NOOP("Plugin", "Check spelling by ASpell library"),
 			PLUGIN_VERSION(0, 0, 1, 0), icon);
