@@ -185,6 +185,7 @@ void ASpellChecker::loadSettings(const QString &lang)
 	} else {
 		m_speller = to_aspell_speller(possible_err);
 	}
+	emit dictionaryChanged();
 }
 
 QString ASpellChecker::toPrettyLanguageName(const QString &lang)
