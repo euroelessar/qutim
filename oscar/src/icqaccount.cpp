@@ -213,7 +213,7 @@ void IcqAccount::setStatus(Status status_helper)
 		return;
 	}
 	if (status.type() == Status::Offline) {
-		QAbstractSocket::SocketState state = d->conn->socket()->state();
+		QAbstractSocket::SocketState state = d->conn->state();
 		if (state != QTcpSocket::UnconnectedState) {
 			d->conn->disconnectFromHost(state != QTcpSocket::ConnectedState);
 			status.setProperty("changeReason", Status::ByUser);

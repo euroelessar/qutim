@@ -44,6 +44,7 @@ public:
 	void connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie);
 	void sendStatus(OscarStatus status);
 	void sendUserInfo(bool force = false);
+	QAbstractSocket::SocketState state() const;
 protected:
 	void handleSNAC(AbstractConnection *conn, const SNAC &snac);
 private slots:

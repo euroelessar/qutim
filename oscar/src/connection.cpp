@@ -268,6 +268,11 @@ const QList<quint16> &AbstractConnection::servicesList()
 Socket *AbstractConnection::socket()
 {
 	return d_func()->socket;
+}
+
+const Socket *AbstractConnection::socket() const
+{
+	return d_func()->socket;
 };
 
 AbstractConnection::ConnectionError AbstractConnection::error()
