@@ -109,10 +109,9 @@ void IcqMainSettings::saveImpl()
 		foreach (SettingsExtension *extension, settingsExtensions())
 			extension->saveSettings(item, cfg);
 		general.setValue("avatars", !item.subitem("avatars").data<bool>());
-
-		IcqProtocol::instance()->updateSettings();
 		m_extSettings->clearState();
 	}
+	IcqProtocol::instance()->updateSettings();
 }
 
 void IcqMainSettings::extSettingsChanged()

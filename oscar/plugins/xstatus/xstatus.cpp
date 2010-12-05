@@ -250,6 +250,7 @@ bool XStatusHandler::load()
 		onAccountAdded(account);
 	connect(IcqProtocol::instance(), SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 			SLOT(onAccountAdded(qutim_sdk_0_3::Account*)));
+	connect(IcqProtocol::instance(), SIGNAL(settingsUpdated()), SLOT(loadSettings()));
 	proto->installEventFilter(this);
 	return true;
 }
@@ -315,7 +316,8 @@ void XStatusHandler::statusChanged(IcqContact *contact, Status &status, const TL
 	XStatus xstatus = findXStatus(contact, moodIndex);
 	if (!xstatus.name.isEmpty()) {
 		setXstatus(status, xstatus.value, xstatus.icon);
-		XStatusRequester::updateXStatus(contact);
+		if (m_xstatusAutoRequest)
+			XStatusRequester::updateXStatus(contact);
 	} else {
 		status.removeExtendedInfo("xstatus");
 	}
@@ -453,6 +455,11 @@ void XStatusHandler::onAccountAdded(qutim_sdk_0_3::Account *account)
 		extStatus.insert(key, cfg.value(key));
 	setAcountXstatus(static_cast<IcqAccount*>(account), extStatus);
 	account->installEventFilter(this);
+}
+
+void XStatusHandler::loadSettings()
+{
+	m_xstatusAutoRequest = IcqProtocol::instance()->config("xstatus").value("xstatusAutorequest", true);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

@@ -119,6 +119,7 @@ void IcqProtocol::updateSettings()
 	Util::setAsciiCodec(QTextCodec::codecForName(codecName.toLatin1()));
 	foreach (QPointer<IcqAccount> acc, *d->accounts_hash)
 		acc->updateSettings();
+	emit settingsUpdated();
 }
 
 QVariant IcqProtocol::data(DataType type)
