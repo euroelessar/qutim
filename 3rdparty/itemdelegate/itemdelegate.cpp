@@ -95,6 +95,7 @@ void ItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
 						 const QModelIndex& index) const
 {
 	Q_D(const ItemDelegate);
+	painter->setClipping(false); //spike
 	QStyleOptionViewItemV4 opt(option);
 	QStyle *style = getStyle(opt);
 
@@ -209,7 +210,16 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 	//fix trouble with sizeHint change
 	//add event filter for any itemView's that use this delegate
 	const_cast<QWidget*>(widget)->installEventFilter(const_cast<ItemDelegate*>(this));
-	QRect rect = widget->geometry();
+	QRect rect = option.rect;
+	if(!rect.isValid())
+		rect = widget->geometry();
+	////another black magic, get editor actually size
+	//if(const QAbstractItemView *view = qobject_cast<const QAbstractItemView*>(widget)) {
+	//	if(QWidget *editor = view->indexWidget(index)) {
+	//		debug() << editor->size().width();
+	//		rect.adjust(0,0,-editor->size().width(),0);
+	//	}
+	//}
 	rect.adjust(d->padding,0,0,0);
 
 	QRect check = d->checkRect(index,option,rect);
@@ -371,6 +381,19 @@ bool ItemDelegate::eventFilter(QObject *obj, QEvent *event)
 		qApp->sendEvent(obj,&e);
 	}
 	return QAbstractItemDelegate::eventFilter(obj,event);
+}
+
+void ItemDelegate::updateEditorGeometry(QWidget *editor,
+										const QStyleOptionViewItem &option,
+										const QModelIndex &index) const
+{
+	Q_UNUSED(index);
+	Q_D(const ItemDelegate);
+	QRect rect(option.rect.x() + option.rect.width() - editor->sizeHint().width() - d->padding,
+			   option.rect.y() + d->padding,
+			   d->padding + editor->sizeHint().width(),
+			   option.rect.height() - d->padding);
+	editor->setGeometry(rect);
 }
 
 }

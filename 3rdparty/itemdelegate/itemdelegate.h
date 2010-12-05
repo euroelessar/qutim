@@ -43,6 +43,9 @@ public:
 	virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
 	virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 	void setCommandLinkStyle(bool style = true);
+	virtual void updateEditorGeometry(QWidget *editor,
+									  const QStyleOptionViewItem &option,
+									  const QModelIndex &index) const;
 protected:
 	//TODO split paint to set of virtual functions
 	virtual bool editorEvent(QEvent* event, QAbstractItemModel* model,

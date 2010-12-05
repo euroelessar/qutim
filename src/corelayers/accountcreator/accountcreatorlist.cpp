@@ -10,6 +10,8 @@
 #include "itemdelegate.h"
 #include <QMessageBox>
 #include <qutim/debug.h>
+#include <QHBoxLayout>
+#include <QToolButton>
 
 namespace Core
 {
@@ -103,6 +105,30 @@ void AccountCreatorList::addAccount(qutim_sdk_0_3::Account *account)
 	accountItem->setIcon(protoIcon);
 	accountItem->setData(Qt::UserRole,qVariantFromValue<Account *>(account));
 
+	QWidget *buttons = new QWidget(this);
+
+	QHBoxLayout *l = new QHBoxLayout(buttons);
+	l->setMargin(0);
+	l->setSpacing(0);
+
+	QToolButton *btn = new QToolButton(buttons);
+	btn->setText(tr("Properties"));
+	btn->setToolTip(tr("Account settings"));
+	btn->setIcon(Icon("document-properties"));
+	btn->setProperty("account",qVariantFromValue(account));
+	connect(btn,SIGNAL(clicked()),SLOT(onAccountPropertiesTriggered()));
+	l->addWidget(btn);
+
+	btn = new QToolButton(buttons);
+	btn->setText(tr("Remove account"));
+	btn->setIcon(Icon("list-remove-user"));
+	btn->setToolTip(tr("Remove account"));
+	btn->setProperty("account",qVariantFromValue(account));
+	connect(btn,SIGNAL(clicked()),SLOT(onAccountRemoveTriggered()));
+	l->addWidget(btn);
+
+	ui->listWidget->setItemWidget(accountItem,buttons);
+
 	QVariantMap fields;
 	QString id = account->protocol()->data(Protocol::ProtocolIdName).toString();
 	fields.insert(id,account->id());
@@ -175,9 +201,9 @@ void AccountCreatorList::listViewClicked(QListWidgetItem *item)
 
 void AccountCreatorList::onAccountRemoveTriggered()
 {
-	QAction *action = qobject_cast<QAction*>(sender());
-	Q_ASSERT(action);
-	Account *account = action->data().value<Account*>();
+	QToolButton *btn = qobject_cast<QToolButton*>(sender());
+	Q_ASSERT(btn);
+	Account *account = btn->property("account").value<Account*>();
 	if (!account)
 		return;
 
@@ -191,13 +217,12 @@ void AccountCreatorList::onAccountRemoveTriggered()
 
 void AccountCreatorList::onAccountPropertiesTriggered()
 {
-	QAction *action = qobject_cast<QAction*>(sender());
-	Q_ASSERT(action);
-	Account *account = action->data().value<Account*>();
+	QToolButton *btn = qobject_cast<QToolButton*>(sender());
+	Q_ASSERT(btn);
+	Account *account = btn->property("account").value<Account*>();
 	if (!account)
 		return;
 	SettingsLayer *layer = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
-	debug() << "showed";
 	layer->show(account);
 }
 }
