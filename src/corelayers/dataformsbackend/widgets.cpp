@@ -202,15 +202,17 @@ LineEdit::LineEdit(DefaultDataForm *dataForm, const DataItem &item, const QStrin
 		str = textHint;
 	}
 	setText(str);
-	QVariant passwordMode = item.property("passwordMode");
-	if (!passwordMode.isNull()) {
+	QVariant isPassword = item.property("password");
+	if (!isPassword.isNull()) {
 		EchoMode mode = Normal;
-		if (passwordMode.type() == QVariant::Bool)
-			mode = Password;
-		else if (passwordMode.canConvert<EchoMode>())
-			mode = passwordMode.value<EchoMode>();
-		else if (passwordMode.canConvert(QVariant::Int))
-			mode = static_cast<EchoMode>(passwordMode.toInt());
+		if (isPassword.type() == QVariant::Bool) {
+			if (isPassword.toBool())
+				mode = Password;
+		} else if (isPassword.canConvert<EchoMode>()) {
+			mode = isPassword.value<EchoMode>();
+		} else if (isPassword.canConvert(QVariant::Int)) {
+			mode = static_cast<EchoMode>(isPassword.toInt());
+		}
 		setEchoMode(mode);
 	}
 	QValidator *validator = getValidator(item.property("validator"), this);

@@ -67,7 +67,7 @@ static DataItem getSettingsImpl(const Config &cfg)
 	item.addSubitem(StringDataItem("host", QT_TRANSLATE_NOOP("Proxy", "Host"), cfg.value("host", QString())));
 	item.addSubitem(IntDataItem("port", QT_TRANSLATE_NOOP("Proxy", "Port"), cfg.value("port", 0), 0, 65535));
 	item.addSubitem(StringDataItem("user", QT_TRANSLATE_NOOP("Proxy", "User name"), cfg.value("user", QString())));
-	item.addSubitem(StringDataItem("password", QT_TRANSLATE_NOOP("Proxy", "Password"), cfg.value("password", QString()), 0, true));
+	item.addSubitem(StringDataItem("password", QT_TRANSLATE_NOOP("Proxy", "Password"), cfg.value("password", QString(), Config::Crypted), 0, true));
 	return item;
 }
 
@@ -77,7 +77,7 @@ static void saveSettingsImpl(const DataItem &settings, Config &cfg, const QStrin
 	cfg.setValue("host", settings.subitem("host").data());
 	cfg.setValue("port", settings.subitem("port").data());
 	cfg.setValue("user", settings.subitem("user").data());
-	cfg.setValue("pass", settings.subitem("password").data());
+	cfg.setValue("password", settings.subitem("password").data(), Config::Crypted);
 }
 
 NetworkProxyInfo::NetworkProxyInfo()
