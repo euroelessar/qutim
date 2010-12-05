@@ -58,6 +58,11 @@ public:
 	  Returns the CheckSpeller object.
 	*/
 	static SpellChecker *instance();
+signals:
+	/**
+	  The signal is sent when the dictionary has been changed.
+	*/
+	void dictionaryChanged();
 protected:
 	SpellChecker();
 	virtual void virtual_hook(int id, void *data);

@@ -55,6 +55,7 @@ private slots:
 	void onTextEditContextMenuRequested(const QPoint &pos);
 	void onSuggestionActionTriggered();
 	void onAddToDictionaryTriggered();
+	void onDictionaryChanged();
 private:
 	void insertAction(QMenu *menu, QAction *before, const QString &text, const char *slot);
 private:

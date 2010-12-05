@@ -50,6 +50,7 @@ ChatSpellChecker::ChatSpellChecker()
 		return;
 	}
 	m_chatForm = ServiceManager::getByName("ChatForm");
+	connect(m_speller, SIGNAL(dictionaryChanged()), SLOT(onDictionaryChanged()));
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 }
@@ -163,6 +164,12 @@ void ChatSpellChecker::onAddToDictionaryTriggered()
 	SpellHighlighter *highlighter = m_highlighters.value(m_cursor.document());
 	Q_ASSERT(highlighter);
 	highlighter->rehighlightBlock(m_cursor.block());
+}
+
+void ChatSpellChecker::onDictionaryChanged()
+{
+	foreach (SpellHighlighter *highlighter, m_highlighters)
+		highlighter->rehighlight();
 }
 
 void ChatSpellChecker::insertAction(QMenu *menu, QAction *before, const QString &text, const char *slot)
