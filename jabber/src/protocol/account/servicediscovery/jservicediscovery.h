@@ -2,38 +2,45 @@
 #define JSERVICEDISCOVERY_H
 
 #include <QObject>
-#include <gloox/discohandler.h>
-#include <gloox/error.h>
+#include <jreen/disco.h>
+
+namespace jreen
+{
+class IQ;
+class JID;
+class Error;
+}
 
 namespace Jabber
 {
-	using namespace gloox;
 
-	struct JServicePrivate;
-	class JAccount;
-	class JDiscoItem;
-	class JServiceReceiver;
+struct JServicePrivate;
+class JAccount;
+class JDiscoItem;
+class JServiceReceiver;
 
-	class JServiceDiscovery : public QObject, public DiscoHandler
-	{
-		Q_OBJECT
-		public:
-			JServiceDiscovery(JAccount *account);
-			~JServiceDiscovery();
-			//int getInfo(JServiceReceiver *receiver, const JDiscoItem &di);
-			//int getItems(JServiceReceiver *receiver, const JDiscoItem &di);
-			int getInfo(QObject *receiver, const JDiscoItem &di);
-			int getItems(QObject *receiver, const JDiscoItem &di);
-			void handleDiscoInfo(const JID &from, const Disco::Info &info, int context);
-			void handleDiscoItems(const JID &from, const Disco::Items &items, int context);
-			void handleDiscoError(const JID &from, const Error *error, int context);
-			bool handleDiscoSet(const IQ &iq);
-		protected:
-			void addDiscoIdentity(JDiscoItem &di, Disco::Identity *identity);
-			void setActions(JDiscoItem &di);
-		private:
-			QScopedPointer<JServicePrivate> p;
-	};
+class JServiceDiscovery : public QObject
+{
+	Q_OBJECT
+public:
+	JServiceDiscovery(JAccount *account);
+	~JServiceDiscovery();
+	//int getInfo(JServiceReceiver *receiver, const JDiscoItem &di);
+	//int getItems(JServiceReceiver *receiver, const JDiscoItem &di);
+	int getInfo(QObject *receiver, const JDiscoItem &di);
+	int getItems(QObject *receiver, const JDiscoItem &di);
+	void handleDiscoInfo(const jreen::JID &from, QSharedPointer<jreen::Disco::Info> info, int context);
+	void handleDiscoItems(const jreen::JID &from, QSharedPointer<jreen::Disco::Items> items, int context);
+	void handleDiscoError(const jreen::JID &from, QSharedPointer<jreen::Error> error, int context);
+private slots:
+	void handleIQ(const jreen::IQ &iq);
+	void handleIQ(const jreen::IQ &iq,int context);
+protected:
+	void addDiscoIdentity(JDiscoItem &di,const jreen::Disco::Identity &identity);
+	void setActions(JDiscoItem &di);
+private:
+	QScopedPointer<JServicePrivate> p;
+};
 }
 
 #endif //JSERVICEDISCOVERY_H

@@ -55,6 +55,7 @@ JRoster::~JRoster()
 void JRoster::onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item)
 {
 	JContact *c = static_cast<JContact*>(contact(item->jid(),true));
+	Q_ASSERT(c);
 	fillContact(c,item);
 }
 void JRoster::onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item)
@@ -70,25 +71,31 @@ void JRoster::onItemRemoved(const QString &jid)
 	Q_D(JRoster);
 	JContact *c = d->contacts.take(jid);
 	if(c)
-		c->deleteLater();
+		c->setInList(false);
+}
+
+JContact *JRoster::createContact(const jreen::JID &id)
+{
+	Q_D(JRoster);
+	JContact *contact = new JContact(id.bare(),d->account);
+	d->contacts.insert(id.bare(),contact);
+	contact->setContactInList(false);
+	emit d->account->contactCreated(contact);
+	connect(contact,SIGNAL(destroyed(QObject*)),SLOT(onContactDestroyed(QObject*)));
+	return contact;
 }
 
 ChatUnit *JRoster::contact(const jreen::JID &jid, bool create)
 {
 	Q_D(JRoster);
-	QString id = jid.full();
 	QString bare = jid.bare();
 	QString resourceId = jid.resource();
 	JContact *contact = d->contacts.value(bare);
 	if (!resourceId.isEmpty()) {
 		if (!contact) {
-			if (create) {
-				contact = new JContact(id,d->account);
-				d->contacts.insert(bare,contact);
-				contact->setContactInList(false);
-				emit d->account->contactCreated(contact);
-				return contact;
-			} else {
+			if (create)
+				return createContact(jid);
+			else {
 				return 0;
 			}
 		}
@@ -99,13 +106,8 @@ ChatUnit *JRoster::contact(const jreen::JID &jid, bool create)
 		}
 	} else if (contact) {
 		return contact;
-	} else if (create) {
-		contact = new JContact(id,d->account);
-		d->contacts.insert(bare,contact);
-		contact->setContactInList(false);
-		emit d->account->contactCreated(contact);
-		return contact;
-	}
+	} else if (create)
+		return createContact(jid);
 	return 0;
 }
 
@@ -272,6 +274,23 @@ void JRoster::handleSubscription(jreen::Presence subscription)
 	default:
 		break;
 	}
+}
+
+void JRoster::addContact(const JContact *contact)
+{
+	add(contact->id(),contact->name(),contact->tags());
+}
+
+void JRoster::removeContact(const JContact *contact)
+{
+	remove(contact->id());
+}
+
+void JRoster::onContactDestroyed(QObject *obj)
+{
+	Q_D(JRoster);
+	JContact *c = static_cast<JContact*>(obj);
+	d->contacts.remove(d->contacts.key(c));
 }
 
 //dead code

@@ -37,7 +37,7 @@ public:
 	~JVCardManager();
 	void fetchVCard(const QString &contact, JInfoRequest *request = 0);
 	void storeVCard(jreen::VCard *vcard);
-public slots:
+protected slots:
 	void handleIQ(const jreen::IQ &iq);
 	void onIqReceived(const jreen::IQ &,int);
 private:

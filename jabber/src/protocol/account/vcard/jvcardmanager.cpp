@@ -65,20 +65,19 @@ void JVCardManager::handleIQ(const jreen::IQ &iq)
 	if(!iq.containsExtension<jreen::VCard>())
 		return;
 	QString id = iq.from().full();
-	QString avatar;
+	QString avatarHash;
 	jreen::VCard *vcard = iq.findExtension<jreen::VCard>().data();
-	debug() << "handle VCard" << vcard->formattedName() << vcard->nickname() << vcard->name().family;
 	const jreen::VCard::Photo &photo = vcard->photo();
-	if (!photo.binval.isEmpty()) {
-		//avatar = QCryptographicHash::hash(photo.binval.toAscii(),QCryptographicHash::Sha1);
-		//QDir dir(d->account->getAvatarPath());
-		//if (!dir.exists())
-		//	dir.mkpath(dir.absolutePath());
-		//QFile file(dir.absoluteFilePath(avatar));
-		//if (file.open(QIODevice::WriteOnly)) {
-		//	file.write(photo.binval);
-		//	file.close();
-		//}
+	if (!photo.data().isEmpty()) {
+		avatarHash = QCryptographicHash::hash(photo.data(),QCryptographicHash::Sha1);
+		QDir dir(d->account->getAvatarPath());
+		if (!dir.exists())
+			dir.mkpath(dir.absolutePath());
+		QFile file(dir.absoluteFilePath(avatarHash));
+		if (file.open(QIODevice::WriteOnly)) {
+			file.write(photo.data());
+			file.close();
+		}
 	}
 	if (d->account->id() == id) {
 		QString nick = vcard->nickname();
@@ -92,9 +91,9 @@ void JVCardManager::handleIQ(const jreen::IQ &iq)
 	} else {
 		ChatUnit *unit = d->account->getUnit(id);
 		if (JContact *contact = qobject_cast<JContact *>(unit))
-			contact->setAvatar(avatar);
+			contact->setAvatar(avatarHash);
 		else if (JMUCUser *contact = qobject_cast<JMUCUser *>(unit))
-			contact->setAvatar(avatar);
+			contact->setAvatar(avatarHash);
 	}
 	debug() << "fetched...";
 	if (JInfoRequest *request = d->contacts.take(id))

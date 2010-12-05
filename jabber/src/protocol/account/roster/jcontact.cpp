@@ -23,6 +23,7 @@
 #include <jreen/chatstate.h>
 #include <jreen/delayeddelivery.h>
 #include <jreen/receipt.h>
+#include "jroster.h"
 
 using namespace gloox;
 
@@ -219,13 +220,17 @@ void JContact::setInList(bool inList)
 {
 	Q_D(JContact);
 	if (d->inList == inList)
-		return;
-	setContactInList(inList);
-	jreen::Presence presence(inList ? jreen::Presence::Subscribe
-									: jreen::Presence::Unsubscribed,
-							 id());
-	presence.setFrom(static_cast<JAccount*>(account())->client()->jid());
-	d->account->client()->send(presence);
+		return;	
+	if(inList)
+		d->account->roster()->addContact(this);
+	else
+		d->account->roster()->removeContact(this);
+
+	//jreen::Presence presence(inList ? jreen::Presence::Subscribedx
+	//								: jreen::Presence::Unsubscribed,
+	//						 id());
+	//presence.setFrom(static_cast<JAccount*>(account())->client()->jid());
+	//d->account->client()->send(presence);
 }
 
 void JContact::setContactSubscription(jreen::AbstractRosterItem::SubscriptionType subscription)
@@ -332,8 +337,8 @@ bool JContact::event(QEvent *ev)
 		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
 		//FIXME ugly architectory, only for testing
 		bool answer = (reply->replyType() == Authorization::Reply::Accept);
-		jreen::Presence presence(answer ? jreen::Presence::Subscribe
-										: jreen::Presence::Unsubscribe,
+		jreen::Presence presence(answer ? jreen::Presence::Subscribed
+										: jreen::Presence::Unsubscribed,
 								 d->jid,
 								 reply->body()
 								 );

@@ -35,6 +35,7 @@
 #include <jreen/iq.h>
 #include <jreen/vcard.h>
 #include <qutim/systeminfo.h>
+#include "roster/jsoftwaredetection.h"
 
 namespace Jabber {
 
@@ -76,6 +77,19 @@ void JAccountPrivate::onDisconnected()
 	emit q->statusChanged(now,q->status());
 }
 
+void JAccountPrivate::initExtensions(const QSet<QString> &features)
+{
+	Q_Q(JAccount);
+	debug() << "received features list";
+	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
+		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
+			debug() << "init ext" << ext;
+			extensions.append(ext);
+			ext->init(q,params);
+		}
+	}
+}
+
 JAccount::JAccount(const QString &id) :
 	Account(id, JProtocol::instance()),
 	d_ptr(new JAccountPrivate(this))
@@ -90,44 +104,19 @@ JAccount::JAccount(const QString &id) :
 	d->roster = new JRoster(this);
 	d->messageSessionManager = new JMessageSessionManager(this);
 	d->vCardManager = new JVCardManager(this);
+	new JSoftwareDetection(this);
 	loadSettings();
 
-	//FIXME make it fine
-	jreen::DataForm *form = new jreen::DataForm(jreen::DataForm::Result);
-	jreen::DataFormFieldList list;
-	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("FORM_TYPE"),
-																	 QLatin1String("urn:xmpp:dataforms:softwareinfo"),
-																	 QString(),
-																	 jreen::DataFormField::Hidden)));
-	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("os"),
-																	 SystemInfo::getName(),
-																	 QString(),
-																	 jreen::DataFormField::None)));
-	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("os_version"),
-																	 QLatin1String("qutIM"),
-																	 QString(),
-																	 jreen::DataFormField::None)));
-	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("software"),
-																	 SystemInfo::getName(),
-																	 QString(),
-																	 jreen::DataFormField::None)));
-	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("software_version"),
-																	 qutimVersionStr(),
-																	 QString(),
-																	 jreen::DataFormField::None)));
-	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("ip_version"),
-																	 QStringList(QLatin1String("ipv4")) << QLatin1String("ipv6"),
-																	 QString(),
-																	 jreen::DataFormField::None)));
-	form->setFields(list);
-	d->client.disco()->setForm(form);
+	d->client.disco()->setSoftwareVersion(QLatin1String("qutIM"),
+										  qutimVersionStr(),
+										  SystemInfo::getName());
 
 	connect(&d->client,SIGNAL(connected()),
 			d,SLOT(onConnected()));
 	connect(&d->client,SIGNAL(disconnected()),
 			d,SLOT(onDisconnected()));
 	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
-			d->roster, SLOT(load()));
+			d,SLOT(initExtensions(QSet<QString>)));
 }
 
 JAccount::~JAccount()
@@ -171,12 +160,16 @@ void JAccount::setPasswd(const QString &passwd)
 	config().sync();
 }
 
+JRoster *JAccount::roster() const
+{
+	return d_func()->roster;
+}
+
 JServiceDiscovery *JAccount::discoManager()
 {
-	Q_D(JAccount);
-	if (!d->discoManager)
-		d->discoManager = new JServiceDiscovery(this);
-	return d->discoManager;
+	if (!p->discoManager)
+		p->discoManager = new JServiceDiscovery(this);
+	return p->discoManager;
 }
 
 QString JAccount::name() const

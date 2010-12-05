@@ -48,7 +48,7 @@ JSessionConvertor::JSessionConvertor(JMessageSession *session) :
 	d->room = 0;
 	JDiscoItem item;
 	//		item.setJID(QString::fromStdString(d->account->client()->jid().server()));
-	d->serverId = d->account->discoManager()->getItems(this, item);
+//	d->serverId = d->account->discoManager()->getItems(this, item);
 }
 
 JSessionConvertor::~JSessionConvertor()
@@ -71,14 +71,14 @@ void JSessionConvertor::setInfo(int id)
 
 void JSessionConvertor::setItems(int id, const QList<JDiscoItem> &items)
 {
-	Q_D(JSessionConvertor);
-	if(id != d->serverId)
-		return;
+//	Q_D(JSessionConvertor);
+//	if(id != d->serverId)
+//		return;
 
-	foreach (const JDiscoItem &item, items) {
-		int itemId = d->account->discoManager()->getInfo(this, item);
-		d->items.insert(itemId, item);
-	}
+//	foreach (const JDiscoItem &item, items) {
+//		int itemId = d->account->discoManager()->getInfo(this, item);
+//		d->items.insert(itemId, item);
+//	}
 }
 
 void JSessionConvertor::setError(int id)

@@ -26,6 +26,8 @@ public:
 	JRoster(JAccount *account);
 	virtual ~JRoster();
 	ChatUnit *contact(const jreen::JID &id, bool create = false);
+	void addContact(const JContact *contact);
+	void removeContact(const JContact *contact);
 protected:
 	virtual void onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item);
 	virtual void onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item);
@@ -36,7 +38,9 @@ protected slots:
 	void handleSubscription(jreen::Presence subscribe); //TODO may be need a separated subscription manager?
 	void onDisconnected();
 	void onNewMessage(jreen::Message message); //TODO move this method to JMessageManager
+	void onContactDestroyed(QObject *obj);
 private:
+	JContact *createContact(const jreen::JID &id);
 	QScopedPointer<JRosterPrivate> d_ptr;
 };
 

@@ -42,7 +42,6 @@ public:
 	void setPriority(int priority);
 	int priority();
 	void setStatus(const jreen::Presence presence);
-	void setStatus(gloox::Presence::PresenceType presence, int priority, const QString &text = QString());
 	Status status() const;
 	virtual bool event(QEvent *ev);
 	QSet<QString> features() const;

@@ -57,6 +57,7 @@ public:
 	jreen::Client *client() const;
 	JMessageSessionManager *messageSessionManager() const;
 	JVCardManager *vCardManager() const;
+	JRoster *roster() const;
 	JServiceDiscovery *discoManager();
 	JMUCManager *conferenceManager();
 	virtual void setStatus(Status status);

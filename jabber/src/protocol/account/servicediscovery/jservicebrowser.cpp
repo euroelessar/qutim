@@ -143,7 +143,7 @@ void JServiceBrowser::setInfo(int id)
 	QString category = tr("category: ");
 	if (!di.identities().isEmpty()) {
 		tooltip += QLatin1Literal("<br/><b>") % tr("Identities:") % QLatin1Literal("</b><br/>");
-		foreach(JDiscoItem::Identity identity, di.identities()) {
+		foreach(jreen::Disco::Identity identity, di.identities()) {
 			JDiscoItem di;
 			di.setJID(di.jid());
 			di.addIdentity(identity);

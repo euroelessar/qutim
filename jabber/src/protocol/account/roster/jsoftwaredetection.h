@@ -18,14 +18,17 @@
 
 #include <QObject>
 #include <QSet>
-#include <gloox/softwareversion.h>
-#include <gloox/client.h>
-#include <gloox/presencehandler.h>
-#include <gloox/discohandler.h>
 #include "sdk/jabber.h"
 
 namespace qutim_sdk_0_3 {
 class ChatUnit;
+}
+
+namespace jreen
+{
+class Presence;
+class IQ;
+class Disco;
 }
 
 namespace Jabber
@@ -33,11 +36,7 @@ namespace Jabber
 class JAccount;
 class JContactResource;
 
-class JSoftwareDetection :
-		public QObject,
-		public gloox::IqHandler,
-		public gloox::PresenceHandler,
-		public gloox::DiscoHandler
+class JSoftwareDetection : public QObject
 {
 	enum { RequestDisco, RequestSoftware };
 	Q_OBJECT
@@ -53,15 +52,12 @@ public:
 	};
 	typedef QHash<QString, SoftwareInfo> SoftwareInfoHash;
 
-	JSoftwareDetection(JAccount *account, const JabberParams &params);
+	JSoftwareDetection(JAccount *account);
 	~JSoftwareDetection();
-
-	void handlePresence(const gloox::Presence &presence);
-	bool handleIq(const gloox::IQ &iq);
-	void handleIqID(const gloox::IQ &iq, int context);
-	void handleDiscoInfo(const gloox::JID &from, const gloox::Disco::Info &info, int context);
-	void handleDiscoItems(const gloox::JID &from, const gloox::Disco::Items &items, int context);
-	void handleDiscoError(const gloox::JID &from, const gloox::Error *error, int context);
+protected slots:
+	void handlePresence(const jreen::Presence &presence);
+	void handleIQ(const jreen::IQ &iq);
+	void handleIQ(const jreen::IQ &iq, int context);
 private:
 	void updateClientData(JContactResource *resource, const QString &client,
 						  const QString &software, const QString &softwareVersion,
