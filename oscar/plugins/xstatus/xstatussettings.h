@@ -1,5 +1,5 @@
 /****************************************************************************
- *  icqmainsettings.h
+ *  xstatussettings.h
  *
  *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
@@ -13,39 +13,25 @@
  ***************************************************************************
  *****************************************************************************/
 
-#ifndef ICQMAINSETTINGS_H
-#define ICQMAINSETTINGS_H
+#ifndef XSTATUSSETTINGS_H
+#define XSTATUSSETTINGS_H
 
-#include <icq_global.h>
-#include <qutim/settingswidget.h>
-#include <qutim/config.h>
-#include <qutim/dataforms.h>
-
-namespace Ui
-{
-class IcqMainSettings;
-}
+#include "settingsextension.h"
 
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-class IcqMainSettings: public SettingsWidget
+class XStatusSettings : public QObject, public SettingsExtension
 {
 	Q_OBJECT
+	Q_INTERFACES(qutim_sdk_0_3::oscar::SettingsExtension)
 public:
-	IcqMainSettings();
-	virtual ~IcqMainSettings();
-	virtual void loadImpl();
-	virtual void cancelImpl();
-	virtual void saveImpl();
-private slots:
-	void extSettingsChanged();
-private:
-	Ui::IcqMainSettings *ui;
-	QScopedPointer<AbstractDataForm> m_extSettings;
+	XStatusSettings();
+	void loadSettings(DataItem &item, Config cfg);
+	void saveSettings(const DataItem &item, Config cfg);
 };
 
 } } // namespace qutim_sdk_0_3::oscar
 
-#endif // ICQMAINSETTINGS_H
+#endif // XSTATUSSETTINGS_H

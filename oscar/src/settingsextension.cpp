@@ -1,5 +1,5 @@
 /****************************************************************************
- *  icqmainsettings.h
+ *  settingsextension.h
  *
  *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
@@ -13,39 +13,17 @@
  ***************************************************************************
  *****************************************************************************/
 
-#ifndef ICQMAINSETTINGS_H
-#define ICQMAINSETTINGS_H
-
-#include <icq_global.h>
-#include <qutim/settingswidget.h>
-#include <qutim/config.h>
-#include <qutim/dataforms.h>
-
-namespace Ui
-{
-class IcqMainSettings;
-}
+#include "settingsextension.h"
 
 namespace qutim_sdk_0_3 {
-
 namespace oscar {
 
-class IcqMainSettings: public SettingsWidget
+SettingsExtension::SettingsExtension()
 {
-	Q_OBJECT
-public:
-	IcqMainSettings();
-	virtual ~IcqMainSettings();
-	virtual void loadImpl();
-	virtual void cancelImpl();
-	virtual void saveImpl();
-private slots:
-	void extSettingsChanged();
-private:
-	Ui::IcqMainSettings *ui;
-	QScopedPointer<AbstractDataForm> m_extSettings;
-};
+}
+
+SettingsExtension::~SettingsExtension()
+{
+}
 
 } } // namespace qutim_sdk_0_3::oscar
-
-#endif // ICQMAINSETTINGS_H

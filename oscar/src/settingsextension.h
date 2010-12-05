@@ -1,5 +1,5 @@
 /****************************************************************************
- *  icqmainsettings.h
+ *  settingsextension.h
  *
  *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
@@ -13,39 +13,29 @@
  ***************************************************************************
  *****************************************************************************/
 
-#ifndef ICQMAINSETTINGS_H
-#define ICQMAINSETTINGS_H
+#ifndef SETTINGSEXTENSION_H
+#define SETTINGSEXTENSION_H
 
-#include <icq_global.h>
+#include "icq_global.h"
 #include <qutim/settingswidget.h>
-#include <qutim/config.h>
 #include <qutim/dataforms.h>
-
-namespace Ui
-{
-class IcqMainSettings;
-}
+#include <qutim/config.h>
 
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-class IcqMainSettings: public SettingsWidget
+class LIBOSCAR_EXPORT SettingsExtension
 {
-	Q_OBJECT
 public:
-	IcqMainSettings();
-	virtual ~IcqMainSettings();
-	virtual void loadImpl();
-	virtual void cancelImpl();
-	virtual void saveImpl();
-private slots:
-	void extSettingsChanged();
-private:
-	Ui::IcqMainSettings *ui;
-	QScopedPointer<AbstractDataForm> m_extSettings;
+    SettingsExtension();
+	virtual ~SettingsExtension();
+	virtual void loadSettings(DataItem &item, Config cfg) = 0;
+	virtual void saveSettings(const DataItem &item, Config cfg) = 0;
 };
 
 } } // namespace qutim_sdk_0_3::oscar
 
-#endif // ICQMAINSETTINGS_H
+Q_DECLARE_INTERFACE(qutim_sdk_0_3::oscar::SettingsExtension, "org.qutim.oscar.SettingsExtension");
+
+#endif // SETTINGSEXTENSION_H

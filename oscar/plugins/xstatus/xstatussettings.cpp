@@ -1,5 +1,5 @@
 /****************************************************************************
- *  icqmainsettings.h
+ *  xstatussettings.cpp
  *
  *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
@@ -13,39 +13,29 @@
  ***************************************************************************
  *****************************************************************************/
 
-#ifndef ICQMAINSETTINGS_H
-#define ICQMAINSETTINGS_H
-
-#include <icq_global.h>
-#include <qutim/settingswidget.h>
+#include "xstatussettings.h"
 #include <qutim/config.h>
-#include <qutim/dataforms.h>
-
-namespace Ui
-{
-class IcqMainSettings;
-}
 
 namespace qutim_sdk_0_3 {
-
 namespace oscar {
 
-class IcqMainSettings: public SettingsWidget
+XStatusSettings::XStatusSettings()
 {
-	Q_OBJECT
-public:
-	IcqMainSettings();
-	virtual ~IcqMainSettings();
-	virtual void loadImpl();
-	virtual void cancelImpl();
-	virtual void saveImpl();
-private slots:
-	void extSettingsChanged();
-private:
-	Ui::IcqMainSettings *ui;
-	QScopedPointer<AbstractDataForm> m_extSettings;
-};
+}
+
+void XStatusSettings::loadSettings(DataItem &item, Config cfg)
+{
+	cfg.beginGroup("xstatus");
+	item << DataItem("xstatusAutorequest", tr("Ask for XStatuses automatically"),
+					 cfg.value("xstatusAutorequest", true));
+	cfg.endGroup();
+}
+
+void XStatusSettings::saveSettings(const DataItem &item, Config cfg)
+{
+	cfg.beginGroup("xstatus");
+	cfg.setValue("xstatusAutorequest", item.subitem("xstatusAutorequest").data<bool>());
+	cfg.endGroup();
+}
 
 } } // namespace qutim_sdk_0_3::oscar
-
-#endif // ICQMAINSETTINGS_H

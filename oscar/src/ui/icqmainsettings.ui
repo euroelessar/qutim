@@ -6,28 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>326</width>
-    <height>132</height>
+    <width>318</width>
+    <height>223</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QCheckBox" name="avatarBox">
-     <property name="text">
-      <string>Don't send requests for avatarts</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="reconnectBox">
-     <property name="text">
-      <string>Reconnect after disconnect</string>
-     </property>
-    </widget>
-   </item>
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
@@ -344,8 +330,8 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>67</width>
-       <height>187</height>
+       <width>20</width>
+       <height>40</height>
       </size>
      </property>
     </spacer>

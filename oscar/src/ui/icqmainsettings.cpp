@@ -19,10 +19,24 @@
 #include "util.h"
 #include <QTextCodec>
 #include "ui_icqmainsettings.h"
+#include "settingsextension.h"
+#include <qutim/objectgenerator.h>
 
 namespace qutim_sdk_0_3 {
 
 namespace oscar {
+
+QList<SettingsExtension*> settingsExtensions()
+{
+	static QList<SettingsExtension*> list;
+	static bool inited = false;
+	if (!inited && ObjectGenerator::isInited()) {
+		foreach(const ObjectGenerator *gen, ObjectGenerator::module<SettingsExtension>())
+			list << gen->generate<SettingsExtension>();
+		inited = true;
+	}
+	return list;
+}
 
 IcqMainSettings::IcqMainSettings() :
 	ui(new Ui::IcqMainSettings)
@@ -40,21 +54,17 @@ IcqMainSettings::~IcqMainSettings()
 
 void IcqMainSettings::loadImpl()
 {
-	Config config = IcqProtocol::instance()->config().group("general");
-	bool avatars = !config.value("avatars", true);
-	ui->avatarBox->setChecked(avatars);
-	QString codecName = config.value("codec", QTextCodec::codecForLocale()->name());
+	Config cfg = IcqProtocol::instance()->config();
+	Config general = cfg.group("general");
+	QString codecName = general.value("codec", QTextCodec::codecForLocale()->name());
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
 	codecName = codec->name().toLower();
-	config = IcqProtocol::instance()->config().group("reconnect");
-	bool reconnect = config.value("enabled", true);
-	ui->reconnectBox->setChecked(reconnect);
 
 	for (int i = 0; i < ui->codepageBox->count(); ++i) {
 		QString curName = ui->codepageBox->itemText(i).toLower();
 		bool found = codecName == curName;
 		if (!found) {
-			foreach(const QByteArray codecName, codec->aliases())
+			foreach(const QByteArray &codecName, codec->aliases())
 			{
 				if (QString::fromLatin1(codecName).toLower() == curName) {
 					found = true;
@@ -67,24 +77,48 @@ void IcqMainSettings::loadImpl()
 			break;
 		}
 	}
+
+	DataItem item;
+	item.addSubitem(DataItem("avatars", tr("Don't send requests for avatarts"),
+							 !general.value("avatars", true)));
+	foreach (SettingsExtension *extension, settingsExtensions())
+		extension->loadSettings(item, cfg);
+	m_extSettings.reset(AbstractDataForm::get(item));
+	if (m_extSettings) {
+		connect(m_extSettings.data(), SIGNAL(changed()), SLOT(extSettingsChanged()));
+		ui->verticalLayout->insertWidget(2, m_extSettings.data());
+	}
 }
 
 void IcqMainSettings::cancelImpl()
 {
+	loadImpl();
 }
 
 void IcqMainSettings::saveImpl()
 {
-	Config config = IcqProtocol::instance()->config().group("general");
-	config.setValue("avatars", !ui->avatarBox->isChecked());
+	Config cfg = IcqProtocol::instance()->config();
+	Config general = cfg.group("general");
 	if (ui->codepageBox->currentIndex() == 0)
-		config.setValue("codec", QTextCodec::codecForLocale()->name());
+		general.setValue("codec", QTextCodec::codecForLocale()->name());
 	else
-		config.setValue("codec", ui->codepageBox->currentText());
-	config = IcqProtocol::instance()->config().group("reconnect");
-	config.setValue("enabled", ui->reconnectBox->isChecked());
-	config.sync();
-	IcqProtocol::instance()->updateSettings();
+		general.setValue("codec", ui->codepageBox->currentText());
+
+	if (m_extSettings) {
+		DataItem item = m_extSettings->item();
+		foreach (SettingsExtension *extension, settingsExtensions())
+			extension->saveSettings(item, cfg);
+		general.setValue("avatars", !item.subitem("avatars").data<bool>());
+
+		IcqProtocol::instance()->updateSettings();
+		m_extSettings->clearState();
+	}
 }
+
+void IcqMainSettings::extSettingsChanged()
+{
+	emit modifiedChanged(true);
+}
+
 
 } } // namespace qutim_sdk_0_3::oscar

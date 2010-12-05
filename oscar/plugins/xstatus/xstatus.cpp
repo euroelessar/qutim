@@ -27,6 +27,7 @@
 #include <qutim/event.h>
 #include "xstatusrequester.h"
 #include "xstatussender.h"
+#include "xstatussettings.h"
 
 namespace qutim_sdk_0_3 {
 
@@ -205,6 +206,10 @@ void XStatusHandler::init()
 	addExtension<XStatusHandler, Tlv2711Plugin, RosterPlugin>
 		(QT_TRANSLATE_NOOP("Plugin", "ICQ"),
 		 QT_TRANSLATE_NOOP("Plugin", "Additional statuses for oscar protocol"),
+		 ExtensionIcon("im-icq"));
+	addExtension<XStatusSettings, SettingsExtension>
+		(QT_TRANSLATE_NOOP("Plugin", "XStatus settings"),
+		 QT_TRANSLATE_NOOP("Plugin", "XStatus settings"),
 		 ExtensionIcon("im-icq"));
 }
 
