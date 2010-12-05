@@ -19,6 +19,7 @@ public:
 	virtual DataItem item() const;
 	virtual bool isChanged() const;
 	virtual bool isComplete() const;
+	virtual void clearState();
 public slots:
 	void dataChanged();
 	void completeChanged(bool complete);

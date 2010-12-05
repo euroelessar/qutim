@@ -79,6 +79,11 @@ bool DefaultDataForm::isComplete() const
 	return m_incompleteWidgets == 0;
 }
 
+void DefaultDataForm::clearState()
+{
+	m_isChanged = false;
+}
+
 void DefaultDataForm::dataChanged()
 {
 	if (!m_isChanged) {

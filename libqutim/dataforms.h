@@ -516,6 +516,10 @@ public:
 	\see isComplete()
 	*/
 	virtual bool isComplete() const = 0;
+	/**
+	Clears the data form state.
+	*/
+	virtual void clearState() = 0;
 	static AbstractDataForm *get(const DataItem &item,
 								 StandardButtons standartButtons = NoButton,
 								 const Buttons &buttons = Buttons());
