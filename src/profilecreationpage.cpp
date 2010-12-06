@@ -95,7 +95,7 @@ bool ProfileCreationPage::validatePage()
 	if (file.exists()) {
 		int ret = QMessageBox::question(this,
 		tr("Warning"),
-		tr("Profile hash is already exist, override?"),
+		tr("Profile already exists, overwrite?"),
 		QMessageBox::Yes,
 		QMessageBox::No);
 		if(ret != QMessageBox::Yes)
