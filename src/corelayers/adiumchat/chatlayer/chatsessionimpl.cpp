@@ -149,12 +149,6 @@ void ChatSessionImpl::removeContact(Buddy *c)
 	emit buddiesChanged();
 }
 
-
-QWebPage* ChatSessionImpl::getPage() const
-{
-	return qobject_cast<QWebPage*>(getController()); //TODO remove in near future
-}
-
 Account* ChatSessionImpl::getAccount() const
 {
 	return d_func()->chatUnit->account();

@@ -29,7 +29,7 @@ void WebkitChatViewWidget::setViewController(QObject *controller)
 	if(m_view->page()) {
 		QWebFrame *frame = m_view->page()->mainFrame();
 		frame->setProperty("scrollbarPos",frame->scrollBarValue(Qt::Vertical));
-		}
+	}
 
 	ChatStyleOutput *new_page = qobject_cast<ChatStyleOutput*>(controller);
 	if(new_page) {

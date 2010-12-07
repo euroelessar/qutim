@@ -102,7 +102,7 @@ macro ( ADD_QUTIMPLUGIN_EXT2 plugin_name src_dir hdr_dir libs_to_link )
     if( CMAKE_COMPILER_IS_GNUCXX )
         set_target_properties( ${plugin_name} PROPERTIES COMPILE_FLAGS "-Wall -Werror" )
     endif( CMAKE_COMPILER_IS_GNUCXX )
-    INSTALL( TARGETS ${plugin_name} DESTINATION "lib/qutim/plugins" )
+	INSTALL( TARGETS ${plugin_name} DESTINATION lib${LIB_SUFFIX}/qutim/plugins )
 
     # Link with QT
 	TARGET_LINK_LIBRARIES( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARIES} ${libs_to_link} ${ARGN})

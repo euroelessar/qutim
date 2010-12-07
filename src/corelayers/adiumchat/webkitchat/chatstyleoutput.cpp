@@ -61,9 +61,11 @@ void ChatStyleOutput::setChatSession(ChatSessionImpl *session)
 	m_session = session;
 	setParent(session);
 	loadSettings();
-	preparePage(session);
-	loadHistory();
+	setChatUnit(session->unit());
+
 	connect(m_session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
+	connect(m_session,SIGNAL(chatUnitChanged(qutim_sdk_0_3::ChatUnit*)),
+			this,SLOT(qutim_sdk_0_3::setChatUnit(ChatUnit*)));
 	JavaScriptClient *client = new JavaScriptClient(session);
 	mainFrame()->addToJavaScriptWindowObject(client->objectName(), client);
 	connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
@@ -94,6 +96,9 @@ void ChatStyleOutput::onLinkClicked(const QUrl &url)
 
 void ChatStyleOutput::setChatUnit(ChatUnit *unit)
 {
+	if(!m_session)
+		return;
+	preparePage(m_session);
 	bool isConference = !!qobject_cast<Conference*>(unit);
 	QWebFrame *frame = mainFrame();
 	QWebElement chatElem = frame->findFirstElement("#Chat");
@@ -304,6 +309,7 @@ void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 	QString html = makeSkeleton(session,QDateTime::currentDateTime());
 	mainFrame()->setHtml(html);
 	reloadStyle();
+	loadHistory();
 }
 
 QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDateTime&)

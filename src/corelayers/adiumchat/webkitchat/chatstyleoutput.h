@@ -26,7 +26,6 @@
 #include <chatlayer/chatviewfactory.h>
 
 class QDateTime;
-
 namespace qutim_sdk_0_3
 {
 class ChatSession;
@@ -96,7 +95,7 @@ public slots:
 private slots:
 	void onSessionActivated(bool active);
 	void onLinkClicked(const QUrl &url);
-	void setChatUnit(ChatUnit *unit);
+	void setChatUnit(qutim_sdk_0_3::ChatUnit *unit);
 private:
 	/*
   creats a html skeleton. Future messages will be added to it

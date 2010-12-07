@@ -255,12 +255,12 @@ public:
 	QMap<QString, QWeakPointer<ChatStyleData> > datas;
 };
 
-ChatStyle::ChatStyle(ChatSessionImpl *session, const QString &, const QString &) :
+ChatStyle::ChatStyle(ChatSessionImpl *session,QWebPage *page) :
 	d_ptr(new ChatStylePrivate)
 {
 	Q_D(ChatStyle);
 	d->session = session;
-	d->page = session->getPage();
+	d->page = page;
 }
 
 ChatStyle::~ChatStyle()
