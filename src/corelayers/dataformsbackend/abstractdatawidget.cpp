@@ -10,4 +10,9 @@ AbstractDataWidget::~AbstractDataWidget()
 {
 }
 
+void AbstractDataWidget::setData(const QVariant &data)
+{
+	Q_UNUSED(data);
+}
+
 } // namespace Core

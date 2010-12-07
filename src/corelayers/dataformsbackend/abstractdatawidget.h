@@ -11,6 +11,7 @@ namespace Core {
 		AbstractDataWidget();
 		virtual ~AbstractDataWidget();
 		virtual qutim_sdk_0_3::DataItem item() const = 0;
+		virtual void setData(const QVariant &data);
 	};
 
 } // namespace Core

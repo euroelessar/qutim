@@ -535,6 +535,13 @@ public:
 	Clears the data form state.
 	*/
 	virtual void clearState() = 0;
+	/**
+	  Sets the data of the field with \a name to be the \a data.
+
+	  Note that the type of the \a data should be exactly as
+	  it was when the data form was being created.
+	*/
+	virtual void setData(const QString &fieldName, const QVariant &data) = 0;
 	static AbstractDataForm *get(const DataItem &item,
 								 StandardButtons standartButtons = NoButton,
 								 const Buttons &buttons = Buttons());
