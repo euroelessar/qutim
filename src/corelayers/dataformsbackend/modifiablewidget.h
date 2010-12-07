@@ -35,7 +35,6 @@ private slots:
 	void onAddRow();
 	void onRemoveRow();
 protected:
-	DefaultDataForm *m_dataForm;
 	QGridLayout *m_layout;
 	QPushButton *m_addButton;
 	struct WidgetLine {

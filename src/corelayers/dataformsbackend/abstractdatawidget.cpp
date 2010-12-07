@@ -2,7 +2,8 @@
 
 namespace Core {
 
-AbstractDataWidget::AbstractDataWidget()
+AbstractDataWidget::AbstractDataWidget(DefaultDataForm *dataForm) :
+	m_dataForm(dataForm)
 {
 }
 

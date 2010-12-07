@@ -10,14 +10,14 @@ namespace Core {
 
 ModifiableWidget::ModifiableWidget(DefaultDataForm *dataForm, QWidget *parent) :
 		QWidget(parent),
-		m_dataForm(dataForm)
+		AbstractDataWidget(dataForm)
 {
 	init();
 }
 
 ModifiableWidget::ModifiableWidget(const DataItem &item, DefaultDataForm *dataForm, QWidget *parent) :
 		QWidget(parent),
-		m_dataForm(dataForm),
+		AbstractDataWidget(dataForm),
 		m_def(item.defaultSubitem()),
 		m_max(item.maxSubitemsCount())
 {
@@ -79,10 +79,10 @@ void ModifiableWidget::addRow(const DataItem &item)
 {
 	QWidget *title = 0;
 	bool twoColumn;
-	QWidget *data = getWidget(m_dataForm, item, this, &twoColumn);
+	QWidget *data = getWidget(dataForm(), item, this, &twoColumn);
 	data->setObjectName(item.name());
 	if (!twoColumn && !item.property("hideTitle", false))
-		title = getTitle(m_dataForm, item, labelAlignment(), this);
+		title = getTitle(dataForm(), item, labelAlignment(), this);
 	addRow(data, title);
 }
 

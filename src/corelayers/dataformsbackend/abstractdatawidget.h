@@ -5,13 +5,18 @@
 
 namespace Core {
 
+	class DefaultDataForm;
+
 	class AbstractDataWidget
 	{
 	public:
-		AbstractDataWidget();
+		AbstractDataWidget(DefaultDataForm *dataForm);
 		virtual ~AbstractDataWidget();
 		virtual qutim_sdk_0_3::DataItem item() const = 0;
 		virtual void setData(const QVariant &data);
+		DefaultDataForm *dataForm() { return m_dataForm; }
+	private:
+		DefaultDataForm *m_dataForm;
 	};
 
 } // namespace Core

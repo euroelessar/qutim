@@ -33,7 +33,6 @@ public:
 protected:
 	Qt::Alignment labelAlignment();
 private:
-	DefaultDataForm *m_dataForm;
 	mutable Qt::Alignment m_labelAlignment;
 	mutable QPointer<QStyle> m_style;
 	int m_row;

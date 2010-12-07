@@ -39,13 +39,13 @@ static inline void connectSignalsHelper(QWidget *widget, DefaultDataForm *dataFo
 	if (item.dataChangedReceiver()) {
 		Q_ASSERT(item.dataChangedMethod());
 		QObject::connect(widget, dataChangedSignal, widget, SLOT(onChanged()));
-		QObject::connect(widget, SIGNAL(changed(QVariant)),
+		QObject::connect(widget, SIGNAL(changed(QString,QVariant,AbstractDataForm*)),
 						 item.dataChangedReceiver(), item.dataChangedMethod());
 	}
 }
 
 Label::Label(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QLabel(parent), m_item(item)
+	QLabel(parent), AbstractDataWidget(dataForm), m_item(item)
 {
 	Q_UNUSED(dataForm);
 	setTextInteractionFlags(Qt::LinksAccessibleByMouse |
@@ -113,7 +113,7 @@ DataItem Label::item() const
 }
 
 CheckBox::CheckBox(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QCheckBox(parent)
+	QCheckBox(parent), AbstractDataWidget(dataForm)
 {
 	setText(item.title());
 	setChecked(item.data().toBool());
@@ -132,14 +132,14 @@ void CheckBox::setData(const QVariant &data)
 
 void CheckBox::onChanged()
 {
-	emit changed(isChecked());
+	emit changed(objectName(), isChecked(), dataForm());
 }
 
 ComboBox::ComboBox(DefaultDataForm *dataForm,
 				   const QString &value, const QStringList &alt,
 				   const char *validatorProperty, const DataItem &item,
 				   QWidget *parent) :
-	QComboBox(parent)
+	QComboBox(parent), AbstractDataWidget(dataForm)
 {
 	int current = -1;
 	int i = 0;
@@ -178,11 +178,11 @@ void ComboBox::setData(const QVariant &data)
 
 void ComboBox::onChanged()
 {
-	emit changed(currentText());
+	emit changed(objectName(),currentText(), dataForm());
 }
 
 DateTimeEdit::DateTimeEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QDateTimeEdit(parent)
+	QDateTimeEdit(parent), AbstractDataWidget(dataForm)
 {
 	setDateTime(item.data().toDateTime());
 	connectSignalsHelper(this, dataForm, item, SIGNAL(dateTimeChanged(QDateTime)));
@@ -206,11 +206,11 @@ inline QVariant DateTimeEdit::data() const
 
 void DateTimeEdit::onChanged()
 {
-	emit changed(data());
+	emit changed(objectName(),data(), dataForm());
 }
 
 DateEdit::DateEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QDateEdit(parent)
+	QDateEdit(parent), AbstractDataWidget(dataForm)
 {
 	setDateTime(item.data().toDateTime());
 	connectSignalsHelper(this, dataForm, item, SIGNAL(dateChanged(QDate)));
@@ -234,11 +234,11 @@ inline QVariant DateEdit::data() const
 
 void DateEdit::onChanged()
 {
-	emit changed(data());
+	emit changed(objectName(), data(), dataForm());
 }
 
 TextEdit::TextEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QTextEdit(parent)
+	QTextEdit(parent), AbstractDataWidget(dataForm)
 {
 	QString str;
 	if (item.data().canConvert<LocalizedString>())
@@ -262,11 +262,11 @@ inline QVariant TextEdit::data() const
 
 void TextEdit::onChanged()
 {
-	emit changed(data());
+	emit changed(objectName(), data(), dataForm());
 }
 
 LineEdit::LineEdit(DefaultDataForm *dataForm, const DataItem &item, const QString &textHint, QWidget *parent) :
-	QLineEdit(parent), m_dataForm(dataForm), m_complete(true)
+	QLineEdit(parent), AbstractDataWidget(dataForm), m_complete(true)
 {
 	QString str;
 	if (textHint.isEmpty()) {
@@ -303,7 +303,7 @@ LineEdit::LineEdit(DefaultDataForm *dataForm, const DataItem &item, const QStrin
 	m_emitChangedSignal = item.dataChangedReceiver();
 	if (m_emitChangedSignal) {
 		Q_ASSERT(item.dataChangedMethod());
-		connect(this, SIGNAL(changed(QVariant)),
+		connect(this, SIGNAL(changed(QString,QVariant,AbstractDataForm*)),
 				item.dataChangedReceiver(), item.dataChangedMethod());
 	}
 }
@@ -326,10 +326,10 @@ inline QVariant LineEdit::data() const
 
 void LineEdit::textChanged(const QString &text)
 {
-	m_dataForm->dataChanged();
+	dataForm()->dataChanged();
 	updateCompleteState(text);
 	if (m_emitChangedSignal)
-		emit changed(data());
+		emit changed(objectName(), data(), dataForm());
 }
 
 void LineEdit::updateCompleteState(const QString &text)
@@ -339,12 +339,12 @@ void LineEdit::updateCompleteState(const QString &text)
 		isComplete = isComplete && !text.isEmpty();
 	if (isComplete != m_complete) {
 		m_complete = isComplete;
-		m_dataForm->completeChanged(m_complete);
+		dataForm()->completeChanged(m_complete);
 	}
 }
 
 SpinBox::SpinBox(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QSpinBox(parent)
+	QSpinBox(parent), AbstractDataWidget(dataForm)
 {
 	bool ok;
 	int value = item.property("maxValue").toInt(&ok);
@@ -369,11 +369,11 @@ void SpinBox::setData(const QVariant &data)
 
 void SpinBox::onChanged()
 {
-	emit changed(value());
+	emit changed(objectName(), value(), dataForm());
 }
 
 DoubleSpinBox::DoubleSpinBox(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QDoubleSpinBox(parent)
+	QDoubleSpinBox(parent), AbstractDataWidget(dataForm)
 {
 	bool ok;
 	int value = item.property("maxValue").toDouble(&ok);
@@ -398,11 +398,11 @@ void DoubleSpinBox::setData(const QVariant &data)
 
 void DoubleSpinBox::onChanged()
 {
-	emit changed(value());
+	emit changed(objectName(), value(), dataForm());
 }
 
 IconListWidget::IconListWidget(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QListWidget(parent)
+	QListWidget(parent), AbstractDataWidget(dataForm)
 {
 	setViewMode(IconMode);
 	QSize size = item.property("imageSize", QSize(32, 32));
@@ -484,11 +484,11 @@ inline QVariant IconListWidget::data() const
 
 void IconListWidget::onChanged()
 {
-	emit changed(data());
+	emit changed(objectName(), data(), dataForm());
 }
 
 IconWidget::IconWidget(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QWidget(parent), m_dataForm(dataForm)
+	QWidget(parent), AbstractDataWidget(dataForm)
 {
 	m_size = item.property("imageSize", QSize(32, 32));
 	QPixmap pixmap = variantToPixmap(item.data(), m_size);
@@ -519,7 +519,7 @@ IconWidget::IconWidget(DefaultDataForm *dataForm, const DataItem &item, QWidget 
 	m_emitChangedSignal = item.dataChangedReceiver();
 	if (m_emitChangedSignal) {
 		Q_ASSERT(item.dataChangedMethod());
-		connect(this, SIGNAL(changed(QVariant)),
+		connect(this, SIGNAL(changed(QString,QVariant,AbstractDataForm*)),
 				item.dataChangedReceiver(), item.dataChangedMethod());
 	}
 }
@@ -585,9 +585,9 @@ void IconWidget::removeIcon()
 
 void IconWidget::onDataChanged()
 {
-	m_dataForm->dataChanged();
+	dataForm()->dataChanged();
 	if (m_emitChangedSignal)
-		emit changed(data());
+		emit changed(objectName(), data(), dataForm());
 }
 
 void IconWidget::updatePixmap()
@@ -601,7 +601,7 @@ void IconWidget::updatePixmap()
 }
 
 ModifiableGroup::ModifiableGroup(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QGroupBox(parent)
+	QGroupBox(parent), AbstractDataWidget(dataForm)
 {
 	setObjectName(item.name());
 	setTitle(item.title());
@@ -619,7 +619,7 @@ DataItem ModifiableGroup::item() const
 }
 
 DataGroup::DataGroup(DefaultDataForm *dataForm, const DataItem &items, QWidget *parent) :
-	QGroupBox(parent)
+	QGroupBox(parent), AbstractDataWidget(dataForm)
 {
 	setTitle(items.title());
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -649,7 +649,7 @@ StringListGroup::StringListGroup(DefaultDataForm *dataForm, const DataItem &item
 		dataForm->addWidget(item.name(), this);
 	if (item.dataChangedReceiver()) {
 		Q_ASSERT(item.dataChangedMethod());
-		connect(this, SIGNAL(changed(QVariant)),
+		connect(this, SIGNAL(changed(QString,QVariant,AbstractDataForm*)),
 				item.dataChangedReceiver(), item.dataChangedMethod());
 		connect(this, SIGNAL(rowAdded()), SLOT(onChanged()));
 		connect(this, SIGNAL(rowRemoved()), SLOT(onChanged()));
@@ -668,9 +668,9 @@ void StringListGroup::setData(const QVariant &data)
 {
 	foreach (const QString &str, variantToStringList(data)) {
 		if (!m_alt.isEmpty())
-			addRow(new ComboBox(m_dataForm, str, m_alt, "validator", m_item));
+			addRow(new ComboBox(dataForm(), str, m_alt, "validator", m_item));
 		else
-			addRow(new LineEdit(m_dataForm, m_item, str));
+			addRow(new LineEdit(dataForm(), m_item, str));
 	}
 }
 
@@ -684,7 +684,7 @@ QVariant StringListGroup::data() const
 
 void StringListGroup::onChanged()
 {
-	emit changed(data());
+	emit changed(objectName(), data(), dataForm());
 }
 
 }

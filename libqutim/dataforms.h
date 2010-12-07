@@ -308,8 +308,10 @@ public:
 	/**
 	  Connects the data changed signal of the field to the \a method in the \a receiver.
 
-	  The data changed signal has one paramenter with type QVariant that contains
-	  the new field data.
+	  The data changed signal has three paramenters:
+	  - QString fieldName. The field name.
+	  - QVariant data. The new data of the field.
+	  - AbstractDataForm *dataForm. The pointer to the data form.
 	*/
 	void setDataChangedHandler(QObject *receiver, const char *method);
 	/**

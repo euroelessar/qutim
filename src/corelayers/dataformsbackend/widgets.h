@@ -42,11 +42,9 @@ public:
 	virtual DataItem item() const;
 	virtual void setData(const QVariant &data);
 signals:
-	void changed(const QVariant &data);
+	void changed(const QString &name, const QVariant &data, AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
-private:
-	DefaultDataForm *m_dataForm;
 };
 
 class ComboBox : public QComboBox, public AbstractDataWidget
@@ -61,7 +59,7 @@ public:
 	virtual DataItem item() const;
 	virtual void setData(const QVariant &data);
 signals:
-	void changed(const QVariant &data);
+	void changed(const QString &name, const QVariant &data, AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -76,7 +74,7 @@ public:
 	virtual void setData(const QVariant &data);
 	QVariant data() const;
 signals:
-	void changed(const QVariant &data);
+	void changed(const QString &name, const QVariant &data, AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -91,7 +89,7 @@ public:
 	virtual void setData(const QVariant &data);
 	QVariant data() const;
 signals:
-	void changed(const QVariant &data);
+	void changed(const QString &name, const QVariant &data, AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -105,7 +103,7 @@ public:
 	virtual DataItem item() const;
 	QVariant data() const;
 signals:
-	void changed(const QVariant &data);
+	void changed(const QString &name, const QVariant &data, AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -121,12 +119,11 @@ public:
 	virtual void setData(const QVariant &data);
 	QVariant data() const;
 signals:
-	void changed(const QVariant &data);
+	void changed(const QString &name, const QVariant &data, AbstractDataForm *dataForm);
 private slots:
 	void textChanged(const QString &text);
 private:
 	void updateCompleteState(const QString &text);
-	DefaultDataForm *m_dataForm;
 	bool m_complete;
 	bool m_mandatory;
 	bool m_emitChangedSignal;
@@ -141,7 +138,7 @@ public:
 	virtual DataItem item() const;
 	virtual void setData(const QVariant &data);
 signals:
-	void changed(const QVariant &data);
+	void changed(const QString &name, const QVariant &data, AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -155,7 +152,7 @@ public:
 	virtual DataItem item() const;
 	virtual void setData(const QVariant &data);
 signals:
-	void changed(const QVariant &data);
+	void changed(const QString &name, const QVariant &data, AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -170,7 +167,7 @@ public:
 	virtual void setData(const QVariant &data);
 	QVariant data() const;
 signals:
-	void changed(const QVariant &data);
+	void changed(const QString &name, const QVariant &data, AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 private:
@@ -188,14 +185,13 @@ public:
 	virtual void setData(const QVariant &data);
 	QVariant data() const;
 signals:
-	void changed(const QVariant &data);
+	void changed(const QString &name, const QVariant &data, AbstractDataForm *dataForm);
 public slots:
 	void setIcon();
 	void removeIcon();
 private:
 	void onDataChanged();
 	void updatePixmap();
-	DefaultDataForm *m_dataForm;
 	int m_type;
 	QString m_path;
 	QLabel *m_pixmapWidget;
@@ -235,7 +231,7 @@ public:
 	virtual void setData(const QVariant &data);
 	QVariant data() const;
 signals:
-	void changed(const QVariant &data);
+	void changed(const QString &name, const QVariant &data, AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 private:
