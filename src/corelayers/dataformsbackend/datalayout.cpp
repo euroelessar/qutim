@@ -10,7 +10,7 @@ namespace Core
 
 DataLayout::DataLayout(DefaultDataForm *dataForm, QWidget *parent) :
 	QGridLayout(parent),
-	m_dataForm(dataForm),
+	AbstractDataWidget(dataForm),
 	m_style(0),
 	m_row(0),
 	m_expandable(false)
@@ -33,11 +33,11 @@ DataItem DataLayout::item() const
 void DataLayout::addItem(const DataItem &item)
 {
 	bool twoColumns;
-	QWidget *widget = getWidget(m_dataForm, item, parentWidget(), &twoColumns);
+	QWidget *widget = getWidget(dataForm(), item, parentWidget(), &twoColumns);
 	QWidget *title = 0;
 	twoColumns = twoColumns || item.property("hideTitle", false);
 	if (!twoColumns)
-		title = getTitle(m_dataForm, item, labelAlignment(), parentWidget());
+		title = getTitle(dataForm(), item, labelAlignment(), parentWidget());
 	widget->setObjectName(item.name());
 	addRow(title, widget, !item.isReadOnly() ?  Qt::Alignment() : Qt::AlignLeft);
 	m_widgets.push_back(WidgetLine(title, widget));

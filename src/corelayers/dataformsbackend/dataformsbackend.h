@@ -20,6 +20,11 @@ public:
 	virtual bool isChanged() const;
 	virtual bool isComplete() const;
 	virtual void clearState();
+	virtual void setData(const QString &name, const QVariant &data);
+	inline void addWidget(const QString &name, AbstractDataWidget *widget)
+	{
+		m_widgets.insert(name, widget);
+	}
 public slots:
 	void dataChanged();
 	void completeChanged(bool complete);
@@ -31,6 +36,7 @@ private:
 	AbstractDataWidget *m_widget;
 	bool m_isChanged;
 	int m_incompleteWidgets;
+	QMultiHash<QString, AbstractDataWidget*> m_widgets;
 };
 
 class DefaultDataFormsBackend : public DataFormsBackend

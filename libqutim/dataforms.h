@@ -306,6 +306,23 @@ public:
   */
 	void setReadOnly(bool readOnly = true);
 	/**
+	  Connects the data changed signal of the field to the \a method in the \a receiver.
+
+	  The data changed signal has three paramenters:
+	  - QString fieldName. The field name.
+	  - QVariant data. The new data of the field.
+	  - AbstractDataForm *dataForm. The pointer to the data form.
+	*/
+	void setDataChangedHandler(QObject *receiver, const char *method);
+	/**
+	  Returns the receiver of the data changed signal of the field.
+	*/
+	QObject *dataChangedReceiver() const;
+	/**
+	  Returns the method the data signal is connected to.
+	*/
+	const char *dataChangedMethod() const;
+	/**
 	Adds new \a subitem to the list of subitems of this data item.
 	\see addSubitem()
   */
@@ -520,6 +537,13 @@ public:
 	Clears the data form state.
 	*/
 	virtual void clearState() = 0;
+	/**
+	  Sets the data of the field with \a name to be the \a data.
+
+	  Note that the type of the \a data should be exactly as
+	  it was when the data form was being created.
+	*/
+	virtual void setData(const QString &fieldName, const QVariant &data) = 0;
 	static AbstractDataForm *get(const DataItem &item,
 								 StandardButtons standartButtons = NoButton,
 								 const Buttons &buttons = Buttons());

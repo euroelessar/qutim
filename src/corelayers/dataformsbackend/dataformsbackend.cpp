@@ -84,6 +84,12 @@ void DefaultDataForm::clearState()
 	m_isChanged = false;
 }
 
+void DefaultDataForm::setData(const QString &name, const QVariant &data)
+{
+	foreach (AbstractDataWidget *widget, m_widgets.values(name))
+		widget->setData(data);
+}
+
 void DefaultDataForm::dataChanged()
 {
 	if (!m_isChanged) {
