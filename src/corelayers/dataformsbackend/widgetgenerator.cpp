@@ -127,7 +127,7 @@ DataItem getDataItem(QWidget *title, QWidget *data)
 		QComboBox *box = qobject_cast<QComboBox*>(title);
 		if (box) {
 			QString text = box->currentText();
-			if (!text.isEmpty() && text != notSpecifiedStr)
+			if (!text.isEmpty())
 				titleStr = text;
 		}
 	}

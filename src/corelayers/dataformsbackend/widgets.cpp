@@ -118,14 +118,13 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 {
 	int current = -1;
 	int i = 0;
-	addItem(notSpecifiedStr);
 	foreach (const LocalizedString &str, alt) {
 		if (value == str)
 			current = i;
 		addItem(str);
 		++i;
 	}
-	setCurrentIndex(current + 1);
+	setCurrentIndex(current);
 	QValidator *validator = getValidator(item.property(validatorProperty), this);
 	if (validator)
 		setValidator(validator);
@@ -138,8 +137,7 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 DataItem ComboBox::item() const
 {
 	QString val = currentText();
-	QVariant d = (!val.isEmpty() && val != notSpecifiedStr) ? val : QString();
-	return DataItem(objectName(), LocalizedString(), d);
+	return DataItem(objectName(), LocalizedString(), val);
 }
 
 DateTimeEdit::DateTimeEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :

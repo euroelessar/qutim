@@ -22,8 +22,6 @@ using namespace qutim_sdk_0_3;
 
 class DataLayout;
 
-static LocalizedString notSpecifiedStr = QT_TRANSLATE_NOOP("DataForms", "Not specified");
-
 class Label : public QLabel, public AbstractDataWidget
 {
 	Q_OBJECT
