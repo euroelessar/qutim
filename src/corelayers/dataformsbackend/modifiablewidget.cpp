@@ -72,6 +72,7 @@ void ModifiableWidget::addRow(QWidget *data, QWidget *title)
 	m_layout->addWidget(m_addButton, ++row, 2, 1, 1);
 #endif
 	m_addButton->setVisible(m_max < 0 || m_max > m_widgets.count());
+	emit rowAdded();
 }
 
 void ModifiableWidget::addRow(const DataItem &item)
@@ -102,6 +103,18 @@ bool ModifiableWidget::isExpandable()
 	bool isLineEdit = (data.canConvert(QVariant::String) && alt.canConvert(QVariant::StringList)) ||
 					  (qVariantCanConvert<LocalizedString>(data) && qVariantCanConvert<LocalizedStringList>(alt));
 	return isLineEdit && m_def.property("multiline", false);
+}
+
+void ModifiableWidget::clear()
+{
+	foreach (const WidgetLine &line, m_widgets) {
+		line.deleteButton->deleteLater();
+		line.data->deleteLater();
+		if (line.title)
+			line.title->deleteLater();
+	}
+	m_widgets.clear();
+	m_addButton->setVisible(false);
 }
 
 void ModifiableWidget::onAddRow()
@@ -135,6 +148,7 @@ void ModifiableWidget::onRemoveRow()
 	}
 	if (m_max < 0 || m_max > m_widgets.count())
 		m_addButton->setVisible(true);
+	emit rowRemoved();
 }
 
 void ModifiableWidget::setRow(const WidgetLine &line, int row)

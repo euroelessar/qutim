@@ -15,7 +15,11 @@ class DataItemPrivate : public DynamicPropertyData
 {
 public:
 	DataItemPrivate()  :
-		maxCount(1), parent(0) {}
+		maxCount(1),
+		parent(0),
+		onDataChangedReceiver(0),
+		onDataChangedMethod(0)
+	{}
 	QString name;
 	LocalizedString title;
 	QVariant data;
@@ -23,6 +27,8 @@ public:
 	int maxCount;
 	DataItem defaultSubitem;
 	DataItemPrivate *parent;
+	QObject *onDataChangedReceiver;
+	QLatin1String onDataChangedMethod;
 
 	QVariant property(const char *name, const QVariant &def) const;
 	QVariant getName() const { return QVariant::fromValue(name); }
@@ -35,6 +41,10 @@ public:
 	void setMaxCount(const QVariant &val) { maxCount = val.toInt(); }
 	QVariant getDefaultSubitem() const { return QVariant::fromValue(defaultSubitem); }
 	void setDefaultSubitem(const QVariant &val) { defaultSubitem = val.value<DataItem>(); }
+	QVariant getOnDataChangedReceiver() const { return QVariant::fromValue(onDataChangedReceiver); }
+	void setOnDataChangedReceiver(const QVariant &val) { onDataChangedReceiver = val.value<QObject*>(); }
+	QVariant getOnDataChangedMethod() const { return onDataChangedMethod; }
+	void setOnDataChangedMethod(const QVariant &val) { onDataChangedMethod = QLatin1String(val.toString().toLatin1()); }
 
 	static void updateParents(QList<DataItem> &subitems, QSharedDataPointer<DataItemPrivate> &parent);
 };
@@ -42,23 +52,29 @@ public:
 namespace CompiledProperty
 {
 static QList<QByteArray> names = QList<QByteArray>()
-<< "name"
-<< "title"
-<< "data"
-<< "maxCount"
-<< "defaultSubitem";
-static QList<Getter> getters   = QList<Getter>()
-<< static_cast<Getter>(&DataItemPrivate::getName)
-<< static_cast<Getter>(&DataItemPrivate::getTitle)
-<< static_cast<Getter>(&DataItemPrivate::getData)
-<< static_cast<Getter>(&DataItemPrivate::getMaxCount)
-<< static_cast<Getter>(&DataItemPrivate::getDefaultSubitem);
-static QList<Setter> setters   = QList<Setter>()
-<< static_cast<Setter>(&DataItemPrivate::setName)
-<< static_cast<Setter>(&DataItemPrivate::setTitle)
-<< static_cast<Setter>(&DataItemPrivate::setData)
-<< static_cast<Setter>(&DataItemPrivate::setMaxCount)
-<< static_cast<Setter>(&DataItemPrivate::setDefaultSubitem);
+	<< "name"
+	<< "title"
+	<< "data"
+	<< "maxCount"
+	<< "defaultSubitem"
+	<< "onDataChangedReceiver"
+	<< "onDataChangedMethod";
+static QList<Getter> getters = QList<Getter>()
+	<< static_cast<Getter>(&DataItemPrivate::getName)
+	<< static_cast<Getter>(&DataItemPrivate::getTitle)
+	<< static_cast<Getter>(&DataItemPrivate::getData)
+	<< static_cast<Getter>(&DataItemPrivate::getMaxCount)
+	<< static_cast<Getter>(&DataItemPrivate::getDefaultSubitem)
+	<< static_cast<Getter>(&DataItemPrivate::getOnDataChangedReceiver)
+	<< static_cast<Getter>(&DataItemPrivate::getOnDataChangedMethod);
+static QList<Setter> setters = QList<Setter>()
+	<< static_cast<Setter>(&DataItemPrivate::setName)
+	<< static_cast<Setter>(&DataItemPrivate::setTitle)
+	<< static_cast<Setter>(&DataItemPrivate::setData)
+	<< static_cast<Setter>(&DataItemPrivate::setMaxCount)
+	<< static_cast<Setter>(&DataItemPrivate::setDefaultSubitem)
+	<< static_cast<Setter>(&DataItemPrivate::setOnDataChangedReceiver)
+	<< static_cast<Setter>(&DataItemPrivate::setOnDataChangedMethod);
 }
 
 static inline void ensure_data(QSharedDataPointer<DataItemPrivate> &d)
@@ -234,6 +250,23 @@ bool DataItem::isReadOnly() const
 void DataItem::setReadOnly(bool readOnly)
 {
 	setProperty("readOnly", readOnly);
+}
+
+void DataItem::setDataChangedHandler(QObject *receiver, const char *method)
+{
+	ensure_data(d);
+	d->onDataChangedReceiver = receiver;
+	d->onDataChangedMethod = QLatin1String(method);
+}
+
+QObject *DataItem::dataChangedReceiver() const
+{
+	return d->onDataChangedReceiver;
+}
+
+const char *DataItem::dataChangedMethod() const
+{
+	return d->onDataChangedMethod.latin1();
 }
 
 DataItem &DataItem::operator<<(const DataItem &subitem)

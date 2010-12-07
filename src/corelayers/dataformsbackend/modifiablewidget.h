@@ -27,6 +27,10 @@ public:
 	int maxItemsCount() { return m_max; }
 	void setMaxItemsCount(int max) { m_max = max; }
 	bool isExpandable();
+	void clear();
+signals:
+	void rowAdded();
+	void rowRemoved();
 private slots:
 	void onAddRow();
 	void onRemoveRow();

@@ -306,6 +306,21 @@ public:
   */
 	void setReadOnly(bool readOnly = true);
 	/**
+	  Connects the data changed signal of the field to the \a method in the \a receiver.
+
+	  The data changed signal has one paramenter with type QVariant that contains
+	  the new field data.
+	*/
+	void setDataChangedHandler(QObject *receiver, const char *method);
+	/**
+	  Returns the receiver of the data changed signal of the field.
+	*/
+	QObject *dataChangedReceiver() const;
+	/**
+	  Returns the method the data signal is connected to.
+	*/
+	const char *dataChangedMethod() const;
+	/**
 	Adds new \a subitem to the list of subitems of this data item.
 	\see addSubitem()
   */

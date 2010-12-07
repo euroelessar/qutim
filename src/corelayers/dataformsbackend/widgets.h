@@ -40,6 +40,12 @@ class CheckBox : public QCheckBox, public AbstractDataWidget
 public:
 	CheckBox(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
+signals:
+	void changed(const QVariant &data);
+private slots:
+	void onChanged();
+private:
+	DefaultDataForm *m_dataForm;
 };
 
 class ComboBox : public QComboBox, public AbstractDataWidget
@@ -52,6 +58,10 @@ public:
 			 const char *validatorProperty, const DataItem &item,
 			 QWidget *parent = 0);
 	virtual DataItem item() const;
+signals:
+	void changed(const QVariant &data);
+private slots:
+	void onChanged();
 };
 
 class DateTimeEdit : public QDateTimeEdit, public AbstractDataWidget
@@ -61,6 +71,11 @@ class DateTimeEdit : public QDateTimeEdit, public AbstractDataWidget
 public:
 	DateTimeEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
+	QVariant data() const;
+signals:
+	void changed(const QVariant &data);
+private slots:
+	void onChanged();
 };
 
 class DateEdit : public QDateEdit, public AbstractDataWidget
@@ -70,6 +85,11 @@ class DateEdit : public QDateEdit, public AbstractDataWidget
 public:
 	DateEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
+	QVariant data() const;
+signals:
+	void changed(const QVariant &data);
+private slots:
+	void onChanged();
 };
 
 class TextEdit : public QTextEdit, public AbstractDataWidget
@@ -79,6 +99,11 @@ class TextEdit : public QTextEdit, public AbstractDataWidget
 public:
 	TextEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
+	QVariant data() const;
+signals:
+	void changed(const QVariant &data);
+private slots:
+	void onChanged();
 };
 
 class LineEdit : public QLineEdit, public AbstractDataWidget
@@ -89,6 +114,9 @@ public:
 	LineEdit(DefaultDataForm *dataForm, const DataItem &item,
 			 const QString &textHint = QString(), QWidget *parent = 0);
 	virtual DataItem item() const;
+	QVariant data() const;
+signals:
+	void changed(const QVariant &data);
 private slots:
 	void textChanged(const QString &text);
 private:
@@ -96,6 +124,7 @@ private:
 	DefaultDataForm *m_dataForm;
 	bool m_complete;
 	bool m_mandatory;
+	bool m_emitChangedSignal;
 };
 
 class SpinBox : public QSpinBox, public AbstractDataWidget
@@ -105,6 +134,10 @@ class SpinBox : public QSpinBox, public AbstractDataWidget
 public:
 	SpinBox(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
+signals:
+	void changed(const QVariant &data);
+private slots:
+	void onChanged();
 };
 
 class DoubleSpinBox : public QDoubleSpinBox, public AbstractDataWidget
@@ -114,6 +147,10 @@ class DoubleSpinBox : public QDoubleSpinBox, public AbstractDataWidget
 public:
 	DoubleSpinBox(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
+signals:
+	void changed(const QVariant &data);
+private slots:
+	void onChanged();
 };
 
 class IconListWidget : public QListWidget, public AbstractDataWidget
@@ -123,6 +160,11 @@ class IconListWidget : public QListWidget, public AbstractDataWidget
 public:
 	IconListWidget(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
+	QVariant data() const;
+signals:
+	void changed(const QVariant &data);
+private slots:
+	void onChanged();
 };
 
 class IconWidget : public QWidget, public AbstractDataWidget
@@ -132,16 +174,21 @@ class IconWidget : public QWidget, public AbstractDataWidget
 public:
 	IconWidget(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
+	QVariant data() const;
+signals:
+	void changed(const QVariant &data);
 public slots:
 	void setIcon();
 	void removeIcon();
 private:
+	void onDataChanged();
 	DefaultDataForm *m_dataForm;
 	int m_type;
 	QString m_path;
 	QLabel *m_pixmapWidget;
 	QPixmap m_default;
 	QSize m_size;
+	bool m_emitChangedSignal;
 };
 
 class ModifiableGroup : public QGroupBox, public AbstractDataWidget
@@ -172,6 +219,11 @@ class StringListGroup : public ModifiableWidget
 public:
 	StringListGroup(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent = 0);
 	DataItem item() const;
+	QVariant data() const;
+signals:
+	void changed(const QVariant &data);
+private slots:
+	void onChanged();
 };
 
 }
