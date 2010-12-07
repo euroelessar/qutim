@@ -20,6 +20,8 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
+static LocalizedString notSpecifiedStr = QT_TRANSLATE_NOOP("MetaInfo", "Not specified");
+
 QDebug operator<<(QDebug dbg, const Category &cat)
 {
 	dbg.nospace() << "{" << cat.category << ", " << cat.keyword << "}";
@@ -111,6 +113,7 @@ template <typename T>
 	foreach (const QString &str, list)
 		r << str;
 	qSort(r);
+	r.push_front(notSpecifiedStr);
 	return r;
 }
 
@@ -183,16 +186,26 @@ static void dataItemToHashHelper(const DataItem &items, MetaInfoValuesHash &hash
 			dataItemToHashHelper(item, hash, allItems);
 		} else {
 			static QSet<MetaFieldEnum> hasTitleAlternatives = QSet<MetaFieldEnum>()
-																  << Affilations << Interests << Pasts;
+															  << Affilations << Interests << Pasts;
+			static QSet<MetaFieldEnum> alternatives = QSet<MetaFieldEnum>()
+													  << HomeCountry << OriginalCountry << WorkCountry
+													  << WorkOccupation << Languages << Gender
+													  << AgeRange;
+
 			MetaField field(item.name());
 			if (hasTitleAlternatives.contains(field.value())) {
 				Category cat;
 				cat.category = item.title();
+				if (cat.category == notSpecifiedStr)
+					cat.category.clear();
 				cat.keyword = item.data().toString();
 				if (allItems || !cat.category.isEmpty())
 					hash.insert(field, QVariant::fromValue(cat));
 			} else {
-				if (allItems || !item.data().isNull())
+				QVariant data = item.data();
+				if (alternatives.contains(field.value()) && data.toString() == notSpecifiedStr)
+					data.clear();
+				if (allItems || !data.isNull())
 					hash.insert(field, item.data());
 			}
 		}
