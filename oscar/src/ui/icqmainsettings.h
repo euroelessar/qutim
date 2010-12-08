@@ -21,10 +21,7 @@
 #include <qutim/config.h>
 #include <qutim/dataforms.h>
 
-namespace Ui
-{
-class IcqMainSettings;
-}
+class QVBoxLayout;
 
 namespace qutim_sdk_0_3 {
 
@@ -42,8 +39,8 @@ public:
 private slots:
 	void extSettingsChanged();
 private:
-	Ui::IcqMainSettings *ui;
 	QScopedPointer<AbstractDataForm> m_extSettings;
+	QVBoxLayout *m_layout;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

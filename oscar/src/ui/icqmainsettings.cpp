@@ -18,7 +18,7 @@
 #include "icqaccount.h"
 #include "util.h"
 #include <QTextCodec>
-#include "ui_icqmainsettings.h"
+#include <QVBoxLayout>
 #include "settingsextension.h"
 #include <qutim/objectgenerator.h>
 
@@ -26,7 +26,7 @@ namespace qutim_sdk_0_3 {
 
 namespace oscar {
 
-QList<SettingsExtension*> settingsExtensions()
+static QList<SettingsExtension*> settingsExtensions()
 {
 	static QList<SettingsExtension*> list;
 	static bool inited = false;
@@ -38,18 +38,82 @@ QList<SettingsExtension*> settingsExtensions()
 	return list;
 }
 
-IcqMainSettings::IcqMainSettings() :
-	ui(new Ui::IcqMainSettings)
+static LocalizedString systemCodec = QT_TRANSLATE_NOOP("Codec", "System");
+
+static QStringList codecs()
 {
-	ui->setupUi(this);
+	static QStringList codecs;
+	if (codecs.isEmpty()) {
+		codecs << systemCodec
+				<< "Apple Roman"
+				<< "Big5"
+				<< "Big5-HKSCS"
+				<< "EUC-JP"
+				<< "EUC-KR"
+				<< "GB18030-0"
+				<< "IBM 850"
+				<< "IBM 866"
+				<< "IBM 874"
+				<< "ISO 2022-JP"
+				<< "ISO 8859-1"
+				<< "ISO 8859-2"
+				<< "ISO 8859-3"
+				<< "ISO 8859-4"
+				<< "ISO 8859-5"
+				<< "ISO 8859-6"
+				<< "ISO 8859-7"
+				<< "ISO 8859-8"
+				<< "ISO 8859-9"
+				<< "ISO 8859-10"
+				<< "ISO 8859-13"
+				<< "ISO 8859-14"
+				<< "ISO 8859-15"
+				<< "ISO 8859-16"
+				<< "Iscii-Bng"
+				<< "Iscii-Dev"
+				<< "Iscii-Gjr"
+				<< "Iscii-Knd"
+				<< "Iscii-Mlm"
+				<< "Iscii-Ori"
+				<< "Iscii-Pnj"
+				<< "Iscii-Tlg"
+				<< "Iscii-Tml"
+				<< "JIS X 0201"
+				<< "JIS X 0208"
+				<< "KOI8-R"
+				<< "KOI8-U"
+				<< "MuleLao-1"
+				<< "ROMAN8"
+				<< "Shift-JIS"
+				<< "TIS-620"
+				<< "TSCII"
+				/*<< "UTF-8"
+				<< "UTF-16"
+				<< "UTF-16BE"
+				<< "UTF-16LE"*/
+				<< "Windows-1250"
+				<< "Windows-1251"
+				<< "Windows-1252"
+				<< "Windows-1253"
+				<< "Windows-1254"
+				<< "Windows-1255"
+				<< "Windows-1256"
+				<< "Windows-1257"
+				<< "Windows-1258"
+				<< "WINSAMI2";
+	}
+	return codecs;
+}
+
+IcqMainSettings::IcqMainSettings() :
+	m_layout(new QVBoxLayout(this))
+{
 	/*foreach(int codec, QTextCodec::availableMibs())
 	 ui->codepageBox->addItem(QIcon(), QTextCodec::codecForMib(codec)->name());*/
-	listenChildrenStates();
 }
 
 IcqMainSettings::~IcqMainSettings()
 {
-	delete ui;
 }
 
 void IcqMainSettings::loadImpl()
@@ -58,27 +122,24 @@ void IcqMainSettings::loadImpl()
 	Config general = cfg.group("general");
 	QString codecName = general.value("codec", QTextCodec::codecForLocale()->name());
 	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
-	codecName = codec->name().toLower();
+	QString codecNameLower = codecName.toLower();
 
-	for (int i = 0; i < ui->codepageBox->count(); ++i) {
-		QString curName = ui->codepageBox->itemText(i).toLower();
-		bool found = codecName == curName;
-		if (!found) {
-			foreach(const QByteArray &codecName, codec->aliases())
-			{
-				if (QString::fromLatin1(codecName).toLower() == curName) {
-					found = true;
-					break;
-				}
-			}
-		}
-		if (found) {
-			ui->codepageBox->setCurrentIndex(i);
+	foreach (QString itr, codecs()) {
+		itr = itr.toLower();
+		if (codecNameLower == itr)
 			break;
+		foreach(const QByteArray &alias, codec->aliases())
+		{
+			if (QString::fromLatin1(alias).toLower() == itr) {
+				codecName = itr;
+				goto codecNameFound;
+			}
 		}
 	}
 
+codecNameFound:
 	DataItem item;
+	item.addSubitem(StringChooserDataItem("codec", tr("Codec"), codecs(), codecName));
 	item.addSubitem(DataItem("avatars", tr("Don't send requests for avatarts"),
 							 !general.value("avatars", true)));
 	foreach (SettingsExtension *extension, settingsExtensions())
@@ -86,7 +147,7 @@ void IcqMainSettings::loadImpl()
 	m_extSettings.reset(AbstractDataForm::get(item));
 	if (m_extSettings) {
 		connect(m_extSettings.data(), SIGNAL(changed()), SLOT(extSettingsChanged()));
-		ui->verticalLayout->insertWidget(2, m_extSettings.data());
+		m_layout->insertWidget(0, m_extSettings.data());
 	}
 }
 
@@ -97,18 +158,20 @@ void IcqMainSettings::cancelImpl()
 
 void IcqMainSettings::saveImpl()
 {
-	Config cfg = IcqProtocol::instance()->config();
-	Config general = cfg.group("general");
-	if (ui->codepageBox->currentIndex() == 0)
-		general.setValue("codec", QTextCodec::codecForLocale()->name());
-	else
-		general.setValue("codec", ui->codepageBox->currentText());
-
 	if (m_extSettings) {
+		Config cfg = IcqProtocol::instance()->config();
 		DataItem item = m_extSettings->item();
 		foreach (SettingsExtension *extension, settingsExtensions())
 			extension->saveSettings(item, cfg);
-		general.setValue("avatars", !item.subitem("avatars").data<bool>());
+
+		cfg.beginGroup("general");
+		cfg.setValue("avatars", !item.subitem("avatars").data<bool>());
+		QString codecName = item.subitem("codec").data<QString>();
+		if (codecName == systemCodec)
+			codecName = QTextCodec::codecForLocale()->name();
+		cfg.setValue("codec", codecName);
+		cfg.endGroup();
+
 		m_extSettings->clearState();
 	}
 	IcqProtocol::instance()->updateSettings();
