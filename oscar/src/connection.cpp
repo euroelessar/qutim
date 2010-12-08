@@ -19,6 +19,7 @@
 #include <QBuffer>
 #include <QCoreApplication>
 #include <QNetworkProxy>
+#include <qutim/networkproxy.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -95,12 +96,12 @@ OscarRate::OscarRate(const SNAC &sn, AbstractConnection *conn) :
 	m_conn(conn)
 {
 	m_groupId = sn.read<quint16>();
-	update(m_groupId, sn);
+	update(sn);
 	connect(&m_timer, SIGNAL(timeout()), SLOT(sendNextPackets()));
 	m_timer.setSingleShot(true);
 }
 
-void OscarRate::update(quint32 groupId, const SNAC &sn)
+void OscarRate::update(const SNAC &sn)
 {
 	m_windowSize = sn.read<quint32>();
 	m_clearLevel = sn.read<quint32>();
@@ -199,7 +200,9 @@ AbstractConnection::AbstractConnection(IcqAccount *account, QObject *parent) :
 	d->socket->setPeerVerifyMode(QSslSocket::VerifyNone); // TODO:
 #endif
 	d->account = account;
-	connect(d->account, SIGNAL(settingsUpdated()), SLOT(loadProxy()));
+	setProxy(NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account)));
+	connect(d->account, SIGNAL(proxyUpdated(QNetworkProxy)),
+			SLOT(setProxy(QNetworkProxy)));
 	connect(d->socket, SIGNAL(readyRead()), SLOT(readData()));
 	connect(d->socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));
 	connect(d->socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
@@ -265,6 +268,11 @@ const QList<quint16> &AbstractConnection::servicesList()
 Socket *AbstractConnection::socket()
 {
 	return d_func()->socket;
+}
+
+const Socket *AbstractConnection::socket() const
+{
+	return d_func()->socket;
 };
 
 AbstractConnection::ConnectionError AbstractConnection::error()
@@ -272,42 +280,9 @@ AbstractConnection::ConnectionError AbstractConnection::error()
 	return d_func()->error;
 };
 
-void AbstractConnection::loadProxy()
+void AbstractConnection::setProxy(const QNetworkProxy &proxy)
 {
-	Q_D(AbstractConnection);
-	QNetworkProxy proxy(QNetworkProxy::NoProxy);
-	Config cfg = d->account->config("connection");
-	if (cfg.value("useproxy", false)) {
-		cfg = d->account->config("proxy");
-		QNetworkProxy::ProxyType type = QNetworkProxy::DefaultProxy;
-		QString typeStr = cfg.value("type", QString());
-		if (typeStr.isNull()) {
-			// attempt to load settings from qutim 0.2
-			type = cfg.value("proxyType", QNetworkProxy::NoProxy);
-			// migration to the new format
-			if (type == QNetworkProxy::Socks5Proxy)
-				typeStr = "socks5";
-			else if (type == QNetworkProxy::HttpProxy)
-				typeStr = "http";
-			else
-				type = QNetworkProxy::NoProxy;
-			if (!typeStr.isNull())
-				cfg.setValue("type", typeStr);
-			cfg.remove("proxyType");
-		} else if (typeStr == "socks5") {
-			type = QNetworkProxy::Socks5Proxy;
-		} else if (typeStr == "http") {
-			type = QNetworkProxy::HttpProxy;
-		}
-		proxy.setHostName(cfg.value("host", QString()));
-		proxy.setPort(cfg.value("port", 1));
-		proxy.setType(type);
-		if (cfg.value("auth", false)) {
-			proxy.setUser(cfg.value("user", QString()));
-			proxy.setPassword(cfg.value("pass", QString()));
-		}
-	}
-	d->socket->setProxy(proxy);
+	d_func()->socket->setProxy(proxy);
 }
 
 QString AbstractConnection::errorString()
@@ -651,7 +626,7 @@ void AbstractConnection::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 			debug() << "Rate limits clear";
 		quint32 groupId = sn.read<quint16>();
 		if (d->rates.contains(groupId))
-			d->rates.value(groupId)->update(groupId, sn);
+			d->rates.value(groupId)->update(sn);
 		break;
 	}
 	case ServiceFamily << 16 | ServiceError: {

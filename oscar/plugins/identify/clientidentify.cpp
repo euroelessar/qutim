@@ -186,6 +186,7 @@ void ClientIdentify::identify(IcqContact *contact)
 
 void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
 {
+	Q_UNUSED(tlvs);
 	if (status == Status::Offline) {
 		contact->setProperty("client", QVariant());
 		status.removeExtendedInfo("client");

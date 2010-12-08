@@ -24,6 +24,7 @@
 #include "ui/accountcreator.h"
 #include "filetransfer.h"
 #include "contactsearch_p.h"
+#include "oscarproxy.h"
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 #include "ui/icqmainsettings.h"
@@ -84,6 +85,10 @@ void OscarPlugin::init()
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar contact search"),
 				 QT_TRANSLATE_NOOP("Plugin", "Oscar contact search implementation"),
 				 new GeneralGenerator<OscarContactSearchFactory>(),
+				 ExtensionIcon("im-icq"));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Oscar proxy support"),
+				 QT_TRANSLATE_NOOP("Plugin", "Oscar proxy support"),
+				 new SingletonGenerator<OscarProxyManager, NetworkProxyManager>(),
 				 ExtensionIcon("im-icq"));
 }
 

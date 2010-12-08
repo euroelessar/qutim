@@ -139,6 +139,13 @@ void OscarConnection::sendUserInfo(bool force)
 	send(snac);
 }
 
+QAbstractSocket::SocketState OscarConnection::state() const
+{
+	if (m_md5login)
+		return m_md5login->socket()->state();
+	return socket()->state();
+}
+
 void OscarConnection::connectToBOSS(const QString &host, quint16 port, const QByteArray &cookie)
 {
 	m_auth_cookie = cookie;

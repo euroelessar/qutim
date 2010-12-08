@@ -21,6 +21,7 @@
 #include <qutim/settingslayer.h>
 #include <qutim/menucontroller.h>
 #include "vaccount.h"
+#include "vproxymanager.h"
 
 void VkontaktePlugin::init()
 {
@@ -45,6 +46,10 @@ void VkontaktePlugin::init()
 	addExtension(QT_TRANSLATE_NOOP("Plugin", "Vkontakte account creator"),
 				 QT_TRANSLATE_NOOP("Plugin", "Account creator for Vkontakte"),
 				 new GeneralGenerator<VAccountCreator>(),
+				 vicon);
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Proxy support"),
+				 QT_TRANSLATE_NOOP("Plugin", "Proxy support for Vkontakte"),
+				 new GeneralGenerator<VProxyManager, NetworkProxyManager>(),
 				 vicon);
 	GeneralSettingsItem<VAccountSettings> *item = new GeneralSettingsItem<VAccountSettings>(Settings::Special,QIcon(),QT_TRANSLATE_NOOP("Vkontakte","Account settings"));
 	Settings::registerItem<VAccount>(item);

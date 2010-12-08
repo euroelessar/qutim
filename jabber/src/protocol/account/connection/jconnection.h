@@ -25,6 +25,7 @@ class JConnection : public QObject, PresenceHandler, LogHandler
 public:
 	JConnection(JAccount *account);
 	~JConnection();
+			void setProxy(const QNetworkProxy &proxy);
 	void loadSettings();
 	void setConnectionPresence(Presence::PresenceType presence);
 	Client *client();
