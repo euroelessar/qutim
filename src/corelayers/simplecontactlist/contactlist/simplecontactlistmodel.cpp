@@ -218,8 +218,22 @@ QVariant Model::data(const QModelIndex &index, int role) const
 }
 
 bool contactLessThan (ContactItem *a, ContactItem *b) {
-	int result = a->data->status.type() - b->data->status.type();
-	if (result != 0)
+	int result;
+
+	//int unreadA = 0;
+	//int unreadB = 0;
+	//ChatSession *session = ChatLayer::get(a->data->contact,false);
+	//if(session)
+	//	unreadA = session->unread().count();
+	//session = ChatLayer::get(b->data->contact,false);
+	//if(session)
+	//	unreadB = session->unread().count();
+	//result = unreadA - unreadB;
+	//if(result)
+	//	return result < 0;
+
+	result = a->data->status.type() - b->data->status.type();
+	if (result)
 		return result < 0;
 	return a->data->contact->title().compare(b->data->contact->title(), Qt::CaseInsensitive) < 0;
 };
@@ -465,8 +479,7 @@ void Model::contactStatusChanged(Status status)
 	item_data->status = status;
 	const QList<ContactItem *> &items = item_data->items;
 	bool show = isVisible(item_data->items.value(0));
-	for(int i = 0; i < items.size(); i++)
-	{
+	for(int i = 0; i < items.size(); i++) {
 		ContactItem *item = items.at(i);
 		item->parent->online += counter;
 
