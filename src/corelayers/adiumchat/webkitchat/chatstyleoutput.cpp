@@ -59,7 +59,8 @@ void ChatStyleOutput::setChatSession(ChatSessionImpl *session)
 		m_session->removeEventFilter(this);
 	}
 	m_session = session;
-	setParent(session);	
+	setParent(session);
+	loadSettings();
 	setChatUnit(session->unit());
 
 	connect(m_session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
@@ -186,7 +187,6 @@ ChatStyleOutput::ChatStyleOutput (QObject *parent) :
 	m_session(0),
 	separator(true)
 {
-	loadSettings();
 	Config cfg = Config("appearance").group("chat");
 	groupUntil = cfg.value<int>("groupUntil", 900);
 	store_service_messages = cfg.group("history").value<bool>("storeServiceMessages", true);
