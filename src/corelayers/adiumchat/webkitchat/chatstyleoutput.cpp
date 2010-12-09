@@ -59,13 +59,12 @@ void ChatStyleOutput::setChatSession(ChatSessionImpl *session)
 		m_session->removeEventFilter(this);
 	}
 	m_session = session;
-	setParent(session);
-	loadSettings();
+	setParent(session);	
 	setChatUnit(session->unit());
 
 	connect(m_session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
 	connect(m_session,SIGNAL(chatUnitChanged(qutim_sdk_0_3::ChatUnit*)),
-			this,SLOT(qutim_sdk_0_3::setChatUnit(ChatUnit*)));
+			this,SLOT(setChatUnit(qutim_sdk_0_3::ChatUnit*)));
 	JavaScriptClient *client = new JavaScriptClient(session);
 	mainFrame()->addToJavaScriptWindowObject(client->objectName(), client);
 	connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
@@ -187,6 +186,7 @@ ChatStyleOutput::ChatStyleOutput (QObject *parent) :
 	m_session(0),
 	separator(true)
 {
+	loadSettings();
 	Config cfg = Config("appearance").group("chat");
 	groupUntil = cfg.value<int>("groupUntil", 900);
 	store_service_messages = cfg.group("history").value<bool>("storeServiceMessages", true);
