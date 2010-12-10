@@ -150,31 +150,31 @@ void AccountCreatorList::removeAccount(qutim_sdk_0_3::Account *removed)
 
 bool AccountCreatorList::eventFilter(QObject *obj, QEvent *ev)
 {
-	if (ev->type() ==  QEvent::ContextMenu) {
-		if (QListWidget *widget = qobject_cast<QListWidget *>(obj)) {
-			QContextMenuEvent *event = static_cast<QContextMenuEvent*>(ev);
-			QModelIndex index = widget->indexAt(event->pos());
-			Account *account = index.data(Qt::UserRole).value<Account *>();
-			if (account) {
-				QMenu *menu = new QMenu();
-				menu->setAttribute(Qt::WA_DeleteOnClose,true);
-				QAction *act = new QAction(menu);
-				act->setText(tr("Properties"));
-				act->setIcon(Icon("document-properties"));
-				act->setData(qVariantFromValue(account));
-				connect(act,SIGNAL(triggered()),SLOT(onAccountPropertiesTriggered()));
-				menu->addAction(act);
+	//if (ev->type() ==  QEvent::ContextMenu) {
+	//	if (QListWidget *widget = qobject_cast<QListWidget *>(obj)) {
+	//		QContextMenuEvent *event = static_cast<QContextMenuEvent*>(ev);
+	//		QModelIndex index = widget->indexAt(event->pos());
+	//		Account *account = index.data(Qt::UserRole).value<Account *>();
+	//		if (account) {
+	//			QMenu *menu = new QMenu();
+	//			menu->setAttribute(Qt::WA_DeleteOnClose,true);
+	//			QAction *act = new QAction(menu);
+	//			act->setText(tr("Properties"));
+	//			act->setIcon(Icon("document-properties"));
+	//			act->setData(qVariantFromValue(account));
+	//			connect(act,SIGNAL(triggered()),SLOT(onAccountPropertiesTriggered()));
+	//			menu->addAction(act);
 
-				act = new QAction(menu);
-				act->setText(tr("Remove account"));
-				act->setIcon(Icon("list-remove-user"));
-				act->setData(qVariantFromValue(account));
-				connect(act,SIGNAL(triggered()),SLOT(onAccountRemoveTriggered()));
-				menu->addAction(act);
-				menu->popup(QCursor::pos());
-			}
-		}
-	}
+	//			act = new QAction(menu);
+	//			act->setText(tr("Remove account"));
+	//			act->setIcon(Icon("list-remove-user"));
+	//			act->setData(qVariantFromValue(account));
+	//			connect(act,SIGNAL(triggered()),SLOT(onAccountRemoveTriggered()));
+	//			menu->addAction(act);
+	//			menu->popup(QCursor::pos());
+	//		}
+	//	}
+	//}
 	return SettingsWidget::eventFilter(obj,ev);
 }
 
@@ -201,9 +201,7 @@ void AccountCreatorList::listViewClicked(QListWidgetItem *item)
 
 void AccountCreatorList::onAccountRemoveTriggered()
 {
-	QToolButton *btn = qobject_cast<QToolButton*>(sender());
-	Q_ASSERT(btn);
-	Account *account = btn->property("account").value<Account*>();
+	Account *account = sender()->property("account").value<Account*>();
 	if (!account)
 		return;
 
@@ -217,9 +215,7 @@ void AccountCreatorList::onAccountRemoveTriggered()
 
 void AccountCreatorList::onAccountPropertiesTriggered()
 {
-	QToolButton *btn = qobject_cast<QToolButton*>(sender());
-	Q_ASSERT(btn);
-	Account *account = btn->property("account").value<Account*>();
+	Account *account = sender()->property("account").value<Account*>();
 	if (!account)
 		return;
 	SettingsLayer *layer = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
