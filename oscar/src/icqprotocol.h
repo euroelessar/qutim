@@ -43,6 +43,8 @@ public:
 	QHash<QString, IcqAccount *> accountsHash() const;
 	void addAccount(IcqAccount *account);
 	virtual QVariant data(DataType type);
+signals:
+	void settingsUpdated();
 public slots:
 	void updateSettings();
 protected:
