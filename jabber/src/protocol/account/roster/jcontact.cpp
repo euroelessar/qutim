@@ -226,12 +226,6 @@ void JContact::setInList(bool inList)
 		d->account->roster()->addContact(this);
 	else
 		d->account->roster()->removeContact(this);
-
-	//jreen::Presence presence(inList ? jreen::Presence::Subscribedx
-	//								: jreen::Presence::Unsubscribed,
-	//						 id());
-	//presence.setFrom(static_cast<JAccount*>(account())->client()->jid());
-	//d->account->client()->send(presence);
 }
 
 void JContact::setContactSubscription(jreen::AbstractRosterItem::SubscriptionType subscription)
@@ -327,17 +321,13 @@ bool JContact::event(QEvent *ev)
 	} else if(ev->type() == Authorization::Request::eventType()) {
 		debug() << "Handle auth request";
 		Authorization::Request *request = static_cast<Authorization::Request*>(ev);
-		//FIXME ugly architectory, only for testing
-		jreen::Presence presence(jreen::Presence::Subscribe,
-								 d->jid,
-								 request->body()
-								 );
-		d->account->client()->send(presence);
+		d->account->roster()->requestSubscription(d->jid,
+												  request->body());
 		return true;
 	} else if(ev->type() == Authorization::Reply::eventType()) {
 		debug() << "handle auth reply";
 		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
-		//FIXME ugly architectory, only for testing
+		//FIXME may be moved to the JRoster?
 		bool answer = (reply->replyType() == Authorization::Reply::Accept);
 		jreen::Presence presence(answer ? jreen::Presence::Subscribed
 										: jreen::Presence::Unsubscribed,
@@ -345,6 +335,7 @@ bool JContact::event(QEvent *ev)
 								 reply->body()
 								 );
 		d->account->client()->send(presence);
+		d->account->roster()->synchronize();
 		return true;
 	}
 	return Contact::event(ev);
@@ -358,10 +349,7 @@ void JContact::requestSubscription()
 
 void JContact::removeSubscription()
 {
-	jreen::Presence presence(jreen::Presence::Unsubscribed,
-							 d_func()->jid
-							 );
-	d_func()->account->client()->send(presence);
+	d_func()->account->roster()->removeSubscription(this);
 }
 
 bool JContact::hasResource(const QString &resource)

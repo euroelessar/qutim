@@ -70,8 +70,10 @@ void JRoster::onItemRemoved(const QString &jid)
 {
 	Q_D(JRoster);
 	JContact *c = d->contacts.take(jid);
-	if(c)
-		c->setInList(false);
+	if(c) {
+		c->setContactInList(false);
+		c->setContactSubscription(jreen::AbstractRosterItem::None);
+	}
 }
 
 JContact *JRoster::createContact(const jreen::JID &id)
@@ -141,8 +143,8 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 		break;
 	}
 
-//	if(jreen::Receipt *r = presence.findExtension<jreen::Receipt>().data()) {
-//	}
+	//	if(jreen::Receipt *r = presence.findExtension<jreen::Receipt>().data()) {
+	//	}
 
 	jreen::JID from = presence.from();
 	if(d->account->client()->jid() == from) {
@@ -278,12 +280,23 @@ void JRoster::handleSubscription(jreen::Presence subscription)
 
 void JRoster::addContact(const JContact *contact)
 {
+	Q_D(JRoster);
 	add(contact->id(),contact->name(),contact->tags());
+	jreen::Presence presence (jreen::Presence::Subscribed,
+							  contact->id()
+							  );
+	d->account->client()->send(presence);
 }
 
 void JRoster::removeContact(const JContact *contact)
 {
+	Q_D(JRoster);
 	remove(contact->id());
+	removeSubscription(contact);
+	jreen::Presence presence (jreen::Presence::Unsubscribed,
+							  contact->id()
+							  );
+	d->account->client()->send(presence);
 }
 
 void JRoster::onContactDestroyed(QObject *obj)
@@ -291,6 +304,26 @@ void JRoster::onContactDestroyed(QObject *obj)
 	Q_D(JRoster);
 	JContact *c = static_cast<JContact*>(obj);
 	d->contacts.remove(d->contacts.key(c));
+}
+
+void JRoster::removeSubscription(const JContact *contact)
+{
+	Q_D(JRoster);
+	jreen::Presence presence(jreen::Presence::Unsubscribe,
+							 contact->id()
+							 );
+	d->account->client()->send(presence);
+	synchronize();
+}
+
+void JRoster::requestSubscription(const jreen::JID &id,const QString &reason)
+{
+	Q_D(JRoster);
+	jreen::Presence presence(jreen::Presence::Subscribe,
+							 id,
+							 reason
+							 );
+	d->account->client()->send(presence);
 }
 
 //dead code
@@ -668,4 +701,4 @@ void JRoster::onContactDestroyed(QObject *obj)
 //}
 
 
-}
+} //namespace jabber

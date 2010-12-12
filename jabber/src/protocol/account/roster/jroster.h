@@ -28,6 +28,8 @@ public:
 	ChatUnit *contact(const jreen::JID &id, bool create = false);
 	void addContact(const JContact *contact);
 	void removeContact(const JContact *contact);
+	void requestSubscription(const jreen::JID &id, const QString &reason = QString());
+	void removeSubscription(const JContact *contact);
 protected:
 	virtual void onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item);
 	virtual void onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item);
