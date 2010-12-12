@@ -245,8 +245,8 @@ CPACK_ADD_COMPONENT(CoreDevel
 
 #small simple hack for install Qt dlls and plugins
 IF(WIN32)
-	SET(QUTIM_REQUIED_DLL_DIR "" CACHE PATH "Path to Qt dll's and plugins. Note: you must add them yourself")
-	FILE(GLOB dlls ${QUTIM_REQUIED_DLL_DIR}/*)
+	SET(QUTIM_REQUIRED_DLL_DIR "" CACHE PATH "Path to Qt dll's and plugins. Note: you must add them yourself")
+	FILE(GLOB dlls ${QUTIM_REQUIRED_DLL_DIR}/*)
 	FOREACH(QUTIM_DLL ${dlls})
 		IF(IS_DIRECTORY ${QUTIM_DLL})
 			INSTALL(DIRECTORY ${QUTIM_DLL}

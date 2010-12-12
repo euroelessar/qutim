@@ -54,7 +54,11 @@ JoinGroupChat::JoinGroupChat(QWidget *parent) :
 			SLOT(onItemActivated(QModelIndex)));
 	ui->accountBox->setModel(new AccountsModel(this));
 
+
 	m_closeAction = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Close"),this);
+#ifndef Q_OS_SYMBIAN
+	m_closeAction->setVisible(false);
+#endif
 	m_closeAction->setSoftKeyRole(QAction::NegativeSoftKey);
 	ui->actionBox->addAction(m_closeAction);
 	connect(m_closeAction,SIGNAL(triggered()),SLOT(close()));

@@ -178,8 +178,8 @@ void StackedChatWidget::removeSession(ChatSessionImpl *session)
 	if(contains(session))
 		m_sessionList->removeSession(session);
 	session->setActive(false);
-	//TODO delete on close flag
-	session->deleteLater();
+	if(m_flags & DeleteSessionOnClose)
+		session->deleteLater();
 
 	m_stack->slideInIdx(m_stack->indexOf(m_sessionList));
 
