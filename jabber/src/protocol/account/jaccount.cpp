@@ -74,7 +74,7 @@ void JAccountPrivate::onDisconnected()
 	Q_Q(JAccount);
 	Status now = q->status();
 	now.setType(Status::Offline);	
-	emit q->statusChanged(now,q->status());
+	q->setAccountStatus(now);
 }
 
 void JAccountPrivate::initExtensions(const QSet<QString> &features)
