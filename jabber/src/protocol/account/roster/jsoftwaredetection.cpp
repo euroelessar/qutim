@@ -101,10 +101,11 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq)
 }
 
 void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
-{
+{	
 	if (context == RequestSoftware) {
 		if (const jreen::SoftwareVersion *soft = iq.findExtension<jreen::SoftwareVersion>().data()) {
 			debug() << "requestSoftware";
+			iq.accept();
 			ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
 			if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
 				QString node = resource->property("node").toString();
@@ -129,6 +130,7 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 		jreen::Disco::Info *discoInfo = iq.findExtension<jreen::Disco::Info>().data();
 		if(!discoInfo)
 			return;
+		iq.accept();
 		debug() << "Handle discoInfo";
 		QString node = discoInfo->node();
 

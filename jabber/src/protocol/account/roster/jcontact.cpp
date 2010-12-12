@@ -24,6 +24,7 @@
 #include <jreen/delayeddelivery.h>
 #include <jreen/receipt.h>
 #include "jroster.h"
+#include "../vcard/jvcardmanager.h"
 
 using namespace gloox;
 
@@ -125,17 +126,17 @@ bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 
 	//FIXME testing testing testing
 
-//	jreen::MessageSession *session = a->messageSessionManager()->session(d->jid,
-//																		 jreen::Message::Chat,
-//																		 true);
-//	if(!session) {
-//		session = a->messageSessionManager()->session(d->jid,
-//													  jreen::Message::Chat,
-//													  true);
-//		new JMessageReceiptFilter(this,session);
-//		session->registerMessageFilter(new JMessageReceiptFilter(this,session));
-//	}
-//	session->sendMessage(message.text(),message.property("subject").toString());
+	//	jreen::MessageSession *session = a->messageSessionManager()->session(d->jid,
+	//																		 jreen::Message::Chat,
+	//																		 true);
+	//	if(!session) {
+	//		session = a->messageSessionManager()->session(d->jid,
+	//													  jreen::Message::Chat,
+	//													  true);
+	//		new JMessageReceiptFilter(this,session);
+	//		session->registerMessageFilter(new JMessageReceiptFilter(this,session));
+	//	}
+	//	session->sendMessage(message.text(),message.property("subject").toString());
 
 	jreen::Message msg(jreen::Message::Chat,
 					   id(),
@@ -319,8 +320,9 @@ bool JContact::event(QEvent *ev)
 	} else if (ev->type() == InfoRequestEvent::eventType()) {
 		Q_D(JContact);
 		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		event->setRequest(new JInfoRequest(d->account->vCardManager(),
-										   d->jid));
+		if(!d->account->vCardManager()->containsRequest(d->jid))
+			event->setRequest(new JInfoRequest(d->account->vCardManager(),
+											   d->jid));
 		event->accept();
 	} else if(ev->type() == Authorization::Request::eventType()) {
 		debug() << "Handle auth request";

@@ -88,6 +88,7 @@ void JAccountPrivate::initExtensions(const QSet<QString> &features)
 			ext->init(q,params);
 		}
 	}
+	roster->load();
 }
 
 JAccount::JAccount(const QString &id) :
@@ -107,9 +108,19 @@ JAccount::JAccount(const QString &id) :
 	new JSoftwareDetection(this);
 	loadSettings();
 
-	d->client.disco()->setSoftwareVersion(QLatin1String("qutIM"),
-										  qutimVersionStr(),
-										  SystemInfo::getName());
+	jreen::Disco *disco = d->client.disco();
+	disco->setSoftwareVersion(QLatin1String("qutIM"),
+							  qutimVersionStr(),
+							  SystemInfo::getName());
+
+	disco->addIdentity(jreen::Disco::Identity(QLatin1String("client"),
+											  QLatin1String("type"),
+											  QLatin1String("qutIM"),
+											  QLatin1String("en")));
+	QString qutim = tr("qutIM", "Local qutIM's name");
+	QString lang = tr("en", "Default language");
+	if(qutim != QLatin1String("qutIM") && lang != QLatin1String("en"))
+		disco->addIdentity(jreen::Disco::Identity(QLatin1String("client"), QLatin1String("type"),qutim,lang));
 
 	connect(&d->client,SIGNAL(connected()),
 			d,SLOT(onConnected()));

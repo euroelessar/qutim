@@ -36,6 +36,7 @@ public:
 	JVCardManager(JAccount *account);
 	~JVCardManager();
 	void fetchVCard(const QString &contact, JInfoRequest *request = 0);
+	bool containsRequest(const QString &contact);
 	void storeVCard(jreen::VCard *vcard);
 protected slots:
 	void handleIQ(const jreen::IQ &iq);

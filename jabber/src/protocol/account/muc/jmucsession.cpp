@@ -274,7 +274,7 @@ void JMUCSession::handleMUCParticipantPresence(MUCRoom *room, const MUCRoomParti
 				session->removeContact(user);
 			user->deleteLater();
 		}
-		user->setStatus(presence.presence(), presence.priority(), QString::fromStdString(presence.status()));
+		//user->setStatus(presence.presence(), presence.priority(), QString::fromStdString(presence.status()));
 		if (presence.subtype() != Presence::Unavailable &&
 				(user->role() != participant.role || user->affiliation() != participant.affiliation)) {
 			text = user->name() % tr(" now is");

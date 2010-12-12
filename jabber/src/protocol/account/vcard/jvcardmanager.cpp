@@ -41,9 +41,9 @@ JVCardManager::~JVCardManager()
 
 void JVCardManager::fetchVCard(const QString &contact, JInfoRequest *request)
 {
-	Q_D(JVCardManager);
-	debug() << "fetch vcard";
+	Q_D(JVCardManager);	
 	if (!d->contacts.contains(contact)) {
+		debug() << "fetch vcard";
 		d->contacts.insert(contact, request);
 		//fetch iq
 		jreen::IQ iq(jreen::IQ::Get,contact);
@@ -64,6 +64,7 @@ void JVCardManager::handleIQ(const jreen::IQ &iq)
 	debug() << "handle IQ";
 	if(!iq.containsExtension<jreen::VCard>())
 		return;
+	iq.accept();
 	QString id = iq.from().full();
 	QString avatarHash;
 	jreen::VCard *vcard = iq.findExtension<jreen::VCard>().data();
@@ -100,6 +101,10 @@ void JVCardManager::handleIQ(const jreen::IQ &iq)
 		request->setFetchedVCard(vcard);
 }
 
+bool JVCardManager::containsRequest(const QString &contact)
+{
+	return d_func()->contacts.contains(contact);
+}
 
 void JVCardManager::onIqReceived(const jreen::IQ &iq, int)
 {
@@ -113,3 +118,4 @@ void JVCardManager::onIqReceived(const jreen::IQ &iq, int)
 //}
 
 }
+
