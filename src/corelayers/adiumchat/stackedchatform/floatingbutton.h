@@ -43,6 +43,8 @@ namespace Core
 	    }
 	    
 	    m_type=type;
+
+	    setIconSize(QSize(48,48));
 	    
 	    // ensure that our size is fixed to our ideal size
 	    setFixedSize(sizeHint());
