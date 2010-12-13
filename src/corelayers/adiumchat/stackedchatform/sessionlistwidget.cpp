@@ -114,6 +114,7 @@ void SessionListWidget::onTitleChanged(const QString &title)
 
 bool SessionListWidget::event(QEvent *event)
 {
+#ifndef Q_WS_MAEMO_5
 	if (event->type() == QEvent::ToolTip) {
 		if (QHelpEvent *help = static_cast<QHelpEvent*>(event)) {
 			int index = indexAt(help->pos()).row();
@@ -142,7 +143,9 @@ bool SessionListWidget::event(QEvent *event)
 				return true;
 			}
 		}
-	} else if (event->type() == QEvent::ContextMenu) {
+	} else 
+#endif
+	if (event->type() == QEvent::ContextMenu) {
 		QContextMenuEvent *ev = static_cast<QContextMenuEvent*>(event);
 		session(row(itemAt(ev->pos())))->unit()->showMenu(ev->globalPos());
 	}

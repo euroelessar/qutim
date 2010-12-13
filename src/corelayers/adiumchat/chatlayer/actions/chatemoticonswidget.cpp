@@ -19,7 +19,11 @@ using namespace qutim_sdk_0_3;
 ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 	QScrollArea(parent)
 {
+#ifndef Q_WS_MAEMO_5
 	resize(400,200);
+#else
+	resize(700,300);
+#endif
 	setMinimumSize(size());
 	setFrameStyle(QFrame::NoFrame);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

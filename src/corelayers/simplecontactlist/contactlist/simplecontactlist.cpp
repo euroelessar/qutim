@@ -129,6 +129,10 @@ Module::Module() : p(new ModulePrivate)
 
 	int size = Config().group("contactList").value("toolBarIconSize",16);
 
+#ifdef Q_WS_MAEMO_5
+	size = 48;
+#endif
+
 	QSize toolbar_size (size,size);
 
 	p->mainToolBar = new ActionToolBar(p->widget);

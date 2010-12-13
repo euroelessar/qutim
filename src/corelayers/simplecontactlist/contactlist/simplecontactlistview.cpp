@@ -20,7 +20,14 @@ namespace SimpleContactList
 
 TreeView::TreeView(QWidget *parent) : QTreeView(parent)
 {
-	connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onClick(QModelIndex)));
+	connect(this,
+#ifndef Q_WS_MAEMO_5
+	SIGNAL(doubleClicked(QModelIndex)),
+#else
+	SIGNAL(clicked(QModelIndex)),
+#endif
+	this, SLOT(onClick(QModelIndex)));
+
 	setAnimated(true);
 	setAlternatingRowColors(true);
 	setRootIsDecorated(false);

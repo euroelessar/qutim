@@ -258,6 +258,9 @@ bool ContactDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
 								const QModelIndex &index)
 {
 	if (event->type() == QEvent::ToolTip) {
+#ifdef Q_WS_MAEMO_5
+		return true;
+#endif
 		Buddy *buddy = index.data(BuddyRole).value<Buddy*>();
 		if (buddy)
 			ToolTip::instance()->showText(event->globalPos(), buddy, view);
