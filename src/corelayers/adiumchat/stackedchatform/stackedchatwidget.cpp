@@ -49,6 +49,7 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	m_sessionList(new SessionListWidget(this)),
 	m_chatInput(new ChatEdit(this)),
 	m_recieverList(new QAction(tr("Send to"),this)),
+	m_unitActions(new QAction(Icon("preferences-contact-list"),tr("Actions"),this)),
 	m_contactView(new ConferenceContactsView(this)),
 	m_key(key)
 {
@@ -69,6 +70,10 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	chatInputLayout->addWidget(m_toolbar);
 	chatInputLayout->addWidget(m_chatInput);
 	QToolBar *sendToolBar = new QToolBar(m_chatWidget);
+#ifndef QUTIM_MOBILE_UI
+	sendToolBar->addAction(m_unitActions);
+	sendToolBar->setOrientation(Qt::Vertical);
+#endif
 	sendToolBar->addAction(m_recieverList);
 	chatInputLayout->addWidget(sendToolBar);
 
@@ -238,6 +243,9 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 	menuBar->clear();
 	menuBar->addMenu(session->getUnit()->menu());
 	m_recieverList->setMenu(session->menu());
+#ifndef QUTIM_MOBILE_UI
+	m_unitActions->setMenu(session->getUnit()->menu());
+#endif
 
 }
 
