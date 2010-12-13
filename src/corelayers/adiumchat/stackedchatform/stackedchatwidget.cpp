@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <qutim/actiontoolbar.h>
 #include "sessionlistwidget.h"
+#include "fingerswipegesture.h"
 #include <chatlayer/chatedit.h>
 #include <chatlayer/conferencecontactsview.h>
 #include <QPlainTextEdit>
@@ -107,6 +108,12 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	connect(act,SIGNAL(triggered()),m_sessionList,SLOT(closeCurrentSession()));
 	m_additionalToolBar->addSeparator();
 	m_additionalToolBar->addAction(act);
+	
+	setAttribute(Qt::WA_AcceptTouchEvents);
+	fingerSwipeGestureType = (Qt::GestureType)0;
+	fingerSwipeGestureType = QGestureRecognizer::registerRecognizer( new FingerSwipeGestureRecognizer() );
+	grabGesture(fingerSwipeGestureType);
+	connect(m_stack,SIGNAL(animationFinished()),this,SLOT(animationFinished()));
 }
 
 void StackedChatWidget::loadSettings()
@@ -238,6 +245,36 @@ ChatSessionImpl *StackedChatWidget::currentSession() const
 
 bool StackedChatWidget::event(QEvent *event)
 {
+	if (event->type() == QEvent::TouchBegin) {
+
+		event->accept();
+		return true;
+	}
+
+	if (event->type() == QEvent::Gesture) {
+		QGestureEvent *ge = static_cast<QGestureEvent*>(event);
+
+		if (QGesture *gesture = ge->gesture(fingerSwipeGestureType)) {
+		    FingerSwipeGesture *swipe = static_cast<FingerSwipeGesture*>(gesture);
+		    if (swipe->state() == Qt::GestureFinished) {
+			    if (swipe->isLeftToRight())
+			    {
+				    m_stack->slideInPrev();
+				    m_contactView->blockSignals(true);
+			    }
+			    else if (swipe->isRightToLeft())
+			    {
+				    m_stack->slideInNext();
+				    m_contactView->blockSignals(true);
+			    }
+
+			}
+
+			ge->setAccepted(gesture, true);
+			return true;
+		    }
+	}
+
 	if (event->type() == QEvent::WindowActivate
 			|| event->type() == QEvent::WindowDeactivate) {
 		bool active = event->type() == QEvent::WindowActivate;
@@ -292,6 +329,11 @@ void StackedChatWidget::onCurrentChanged(int index)
 	if(index != m_stack->indexOf(m_chatWidget))
 		currentSession()->setActive(false);
 	m_toolbar->setVisible(index == m_stack->indexOf(m_chatWidget));
+}
+
+void StackedChatWidget::animationFinished()
+{
+    m_contactView->blockSignals(false);
 }
 
 }

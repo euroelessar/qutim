@@ -58,6 +58,7 @@ protected slots:
 	void onSessionActivated(bool active);
 	void onUnreadChanged();
 	void onCurrentChanged(int index);
+	void animationFinished();
 private:
 	ActionToolBar *m_toolbar;
 	ChatViewWidget *m_view;
@@ -75,6 +76,7 @@ private:
 	QWidget *m_chatWidget;
 	QAction *m_unitActions;
 	QToolBar *m_additionalToolBar;
+	Qt::GestureType fingerSwipeGestureType;
 };
 
 }
