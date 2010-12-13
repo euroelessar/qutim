@@ -69,12 +69,12 @@ private:
 	QAction *m_actSeparator;
 	QAction *m_spacer;
 	QAction *m_recieverList;
+	QAction *m_unitActions;
 	ConferenceContactsView *m_contactView;
 	QString m_key;
 	SlidingStackedWidget *m_stack;
 	ChatFlags m_flags;
 	QWidget *m_chatWidget;
-	QAction *m_unitActions;
 	QToolBar *m_additionalToolBar;
 	QMenuBar *menuBar;
 	Qt::GestureType fingerSwipeGestureType;
