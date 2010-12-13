@@ -17,14 +17,14 @@
    <property name="margin">
     <number>0</number>
    </property>
-   <item row="1" column="0">
+   <item row="0" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
       <string>Timeout, msec:</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="0" column="1">
     <widget class="QLineEdit" name="timeout">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -37,14 +37,14 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="0" column="2">
     <widget class="QLabel" name="label_6">
      <property name="text">
       <string>Animation speed:</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="0" column="3">
     <widget class="QComboBox" name="animationSpeed">
      <property name="currentIndex">
       <number>3</number>
@@ -86,7 +86,7 @@
      </item>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="0" column="4">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -99,7 +99,7 @@
      </property>
     </spacer>
    </item>
-   <item row="0" column="0" colspan="2">
+   <item row="1" column="0" colspan="5">
     <widget class="QTreeView" name="notificationsView">
      <property name="alternatingRowColors">
       <bool>true</bool>
