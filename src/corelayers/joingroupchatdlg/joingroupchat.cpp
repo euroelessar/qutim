@@ -54,6 +54,10 @@ JoinGroupChat::JoinGroupChat(QWidget *parent) :
 			SLOT(onItemActivated(QModelIndex)));
 	ui->accountBox->setModel(new AccountsModel(this));
 
+	m_closeAction = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Close"),this);
+	m_closeAction->setSoftKeyRole(QAction::NegativeSoftKey);
+	connect(m_closeAction,SIGNAL(triggered()),SLOT(close()));
+
 	m_backAction = new QAction(QT_TRANSLATE_NOOP("JoinGroupChat", "Back"),this);
 	m_backAction->setSoftKeyRole(QAction::NegativeSoftKey);
 	ui->actionBox->addAction(m_backAction);
@@ -97,6 +101,13 @@ void JoinGroupChat::onCurrentChanged( int index)
 	ui->actionBox->clear();
 	if(index)
 		ui->actionBox->addAction(m_backAction);
+	else
+	{
+#ifdef Q_OS_SYMBIAN
+		ui->actionBox->addAction(m_closeAction);
+#endif
+	}
+
 	ui->actionBox->addActions(ui->stackedWidget->currentWidget()->actions());
 }
 

@@ -226,7 +226,9 @@ void MobileContactInfo::show(QObject *object)
 	if (!info) {
 		info = new MobileContactInfoWindow(qApp->activeWindow());
 		info->setParent(QApplication::activeWindow());
+#ifdef Q_WS_MAEMO_5
 		info->setAttribute(Qt::WA_Maemo5StackedWindow);
+#endif
 		info->setWindowFlags(info->windowFlags() | Qt::Window);
 		centerizeWidget(info);
 #ifdef QUTIM_MOBILE_UI

@@ -59,7 +59,9 @@ namespace Core
 				return;
 			centerizeWidget(form);
 			form->setParent(QApplication::activeWindow());
+#ifdef Q_WS_MAEMO_5
 			form->setAttribute(Qt::WA_Maemo5StackedWindow);
+#endif
 			form->setWindowFlags(form->windowFlags() | Qt::Window);
 			form->show();
 			form->setAttribute(Qt::WA_DeleteOnClose, true);

@@ -40,7 +40,9 @@ void MobileSettingsLayerImpl::show (const SettingsItemList& settings, QObject* c
 		m_dialogs[controller] = d;
 	}
 	d->setParent(QApplication::activeWindow());
+#ifdef Q_WS_MAEMO_5
 	d->setAttribute(Qt::WA_Maemo5StackedWindow);
+#endif
 	d->setWindowFlags(d->windowFlags() | Qt::Window);
 	d->showMaximized();
 }
