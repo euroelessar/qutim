@@ -8,6 +8,11 @@
 #include <qutim/messagesession.h>
 #include <QBuffer>
 
+#ifdef Q_WS_MAEMO_5
+#include <mce/mode-names.h>
+#include <mce/dbus-names.h>
+#endif
+
 using namespace qutim_sdk_0_3;
 
 QDBusArgument& operator<< (QDBusArgument& arg, const QImage& image) {
@@ -65,6 +70,8 @@ DBusBackend::DBusBackend() :
 				"NotificationClosed",
 				this, SLOT(onNotificationClosed(quint32)));
 
+	enableVibration();
+	
 	loadSettings();
 }
 
@@ -124,6 +131,7 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 			hints,
 			5000);
 
+	vibrate(50);
 	NotificationData notification = { sender, body, data };
 	m_senders.insert(reply.value(), notification);
 
@@ -135,7 +143,10 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 
 DBusBackend::~DBusBackend()
 {
-
+#ifdef Q_WS_MAEMO_5
+	//mDbusInterface->call(MCE_DISABLE_VIBRATOR);
+	mDbusInterface->call(MCE_DEACTIVATE_VIBRATOR_PATTERN, "PatternChatAndEmail");
+#endif
 }
 
 void DBusBackend::callFinished(QDBusPendingCallWatcher *watcher)
@@ -177,4 +188,30 @@ void DBusBackend::onActionInvoked(quint32 id, const QString &action)
 void DBusBackend::onNotificationClosed(quint32 id)
 {
 	m_senders.remove(id);
+}
+
+void DBusBackend::enableVibration()
+{
+#ifdef Q_WS_MAEMO_5
+	mDbusInterface = new QDBusInterface(MCE_SERVICE, MCE_REQUEST_PATH,
+				     MCE_REQUEST_IF, QDBusConnection::systemBus(),
+				     this);
+	mDbusInterface->call(MCE_ENABLE_VIBRATOR);
+#endif
+}
+
+void DBusBackend::vibrate(int aTimeout)
+{
+#ifdef Q_WS_MAEMO_5
+	mDbusInterface->call(MCE_ACTIVATE_VIBRATOR_PATTERN, "PatternChatAndEmail");
+	QTimer::singleShot(aTimeout,this,SLOT(stopVibration()));
+#endif
+}
+
+
+void DBusBackend::stopVibration()
+{
+#ifdef Q_WS_MAEMO_5
+	mDbusInterface->call(MCE_DEACTIVATE_VIBRATOR_PATTERN, "PatternChatAndEmail");
+#endif
 }
