@@ -137,7 +137,7 @@ void StackedChatWidget::loadSettings()
 		}
 		setProperty("loaded",true);
 	}
-	m_chatInput->setSendKey(cfg.value("sendKey", SendCtrlEnter));
+	m_chatInput->setSendKey(cfg.value("sendKey", SendEnter));
 }
 
 StackedChatWidget::~StackedChatWidget()

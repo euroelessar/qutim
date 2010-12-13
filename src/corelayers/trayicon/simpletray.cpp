@@ -61,7 +61,7 @@ namespace Core
 	SimpleTray::SimpleTray()
 	{
 		if (!QSystemTrayIcon::isSystemTrayAvailable()) {
-			debug() << "No System Tray Available. Tray icon not loaded.";
+			qDebug() << "No System Tray Available. Tray icon not loaded.";
 			return;
 		}
 		m_iconTimerId = 0;

@@ -57,7 +57,7 @@ void StackedChatBehavior::loadImpl()
 						   | SendTypingNotification
 						   );
 
-	m_send_message_key = widget.value("sendKey", AdiumChat::SendCtrlEnter);
+	m_send_message_key = widget.value("sendKey", AdiumChat::SendEnter);
 	static_cast<QRadioButton *>(m_group->button(m_send_message_key))->setChecked(true);
 	Config history = cfg.group("chat/history");
 	ui->storeBox->setChecked(history.value<bool>("storeServiceMessages", true));
