@@ -18,6 +18,7 @@
 #include <qutim/icon.h>
 #include <qutim/config.h>
 #include <qutim/servicemanager.h>
+#include <QApplication>
 
 namespace Core
 {
@@ -57,6 +58,9 @@ namespace Core
 			if (!form)
 				return;
 			centerizeWidget(form);
+			form->setParent(QApplication::activeWindow());
+			form->setAttribute(Qt::WA_Maemo5StackedWindow);
+			form->setWindowFlags(form->windowFlags() | Qt::Window);
 			form->show();
 			form->setAttribute(Qt::WA_DeleteOnClose, true);
 			m_contactSearchDialog = form;

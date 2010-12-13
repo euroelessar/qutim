@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QResizeEvent>
 #include <QScrollBar>
+#include <QApplication>
 
 namespace Core
 {
@@ -224,6 +225,9 @@ void MobileContactInfo::show(QObject *object)
 		return;
 	if (!info) {
 		info = new MobileContactInfoWindow(qApp->activeWindow());
+		info->setParent(QApplication::activeWindow());
+		info->setAttribute(Qt::WA_Maemo5StackedWindow);
+		info->setWindowFlags(info->windowFlags() | Qt::Window);
 		centerizeWidget(info);
 #ifdef QUTIM_MOBILE_UI
 		info->showMaximized();

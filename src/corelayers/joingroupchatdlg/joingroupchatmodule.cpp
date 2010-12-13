@@ -60,7 +60,7 @@ void JoinGroupChatModule::onJoinGroupChatTriggered()
 {
 	if (!m_chat)
 		m_chat = new JoinGroupChat(qApp->activeWindow());
-
+	m_chat->setParent(QApplication::activeWindow());
 #if defined (QUTIM_MOBILE_UI)
 	m_chat->showMaximized();
 #else

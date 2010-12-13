@@ -710,7 +710,7 @@ void Model::onContactRenameAction(QObject *controller)
 	Contact *contact = qobject_cast<Contact*>(controller);
 	if (!contact)
 		return;
-	QInputDialog *dialog = new QInputDialog(p->view);
+	QInputDialog *dialog = new QInputDialog(QApplication::activeModalWidget());
 	dialog->setAttribute(Qt::WA_QuitOnClose, false);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	dialog->setInputMode(QInputDialog::TextInput);
