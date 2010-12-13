@@ -61,7 +61,6 @@ private:
 	Account *currentAccount();
 	Account *account(int index);
 	Ui::JoinGroupChat *ui;
-	QAction *m_closeAction;
 	QAction *m_backAction;
 	BookmarksModel *m_bookmarksViewModel;
 	BookmarksModel *m_bookmarksBoxModel;
