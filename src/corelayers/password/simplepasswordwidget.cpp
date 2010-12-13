@@ -1,12 +1,14 @@
 #include "simplepassworddialog.h"
 #include "ui_simplepasswordwidget.h"
 #include <qutim/protocol.h>
+#include <QApplication>
 
 namespace Core
 {
 SimplePasswordWidget::SimplePasswordWidget(Account *account, SimplePasswordDialog *parent) :
 		ui(new Ui::SimplePasswordWidget)
 {
+	setParent(qApp->activeWindow());
     ui->setupUi(this);
 	ui->label->setText(ui->label->text().arg(account->id(), account->protocol()->id()));
 	connect(this, SIGNAL(accepted()), this, SLOT(onAccept()));
