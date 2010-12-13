@@ -113,7 +113,7 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	connect(contactViewNext,SIGNAL(clicked()),m_stack,SLOT(slideInNext()));
 
 	FloatingButton *chatClose=new FloatingButton(1,m_chatWidget);
-	connect(chatClose,SIGNAL(clicked()),m_stack,SLOT(closeCurrentSession()));
+	connect(chatClose,SIGNAL(clicked()),m_sessionList,SLOT(closeCurrentSession()));
 
 }
 
