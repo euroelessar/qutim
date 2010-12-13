@@ -76,6 +76,7 @@ private:
 	QWidget *m_chatWidget;
 	QAction *m_unitActions;
 	QToolBar *m_additionalToolBar;
+	QMenuBar *menuBar;
 	Qt::GestureType fingerSwipeGestureType;
 };
 
