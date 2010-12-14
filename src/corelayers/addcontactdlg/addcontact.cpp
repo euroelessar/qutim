@@ -66,7 +66,6 @@ namespace Core
 	void AddContactModule::show()
 	{
 		AddContact *addContact = new AddContact();
-		addContact->setParent(QApplication::activeWindow());
 		centerizeWidget(addContact);
 #ifdef QUTIM_MOBILE_UI
 		addContact->showMaximized();
