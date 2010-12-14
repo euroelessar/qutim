@@ -22,6 +22,7 @@
 #include <QApplication>
 #include <qutim/dataforms.h>
 #include <qutim/account.h>
+#include <qutim/groupchatmanager.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -31,45 +32,48 @@ JoinPage::JoinPage(QWidget *parent) :
 	GroupChatPage(parent)
 {
 	QCheckBox *box = new QCheckBox(QT_TRANSLATE_NOOP("JoinGroupChat", "Save to bookmarks"),this);
-	m_bookmarksEdit = new QLineEdit(this);
-	connect(box,SIGNAL(stateChanged(int)),SLOT(onCheckStateChanged(int)));
-	m_bookmarksEdit->setEnabled(false);
 	m_layout->addWidget(box);
-	m_layout->addWidget(m_bookmarksEdit);
 
-	QAction *action = new QAction(this);
-	action->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Join"));
-	action->setSoftKeyRole(QAction::PositiveSoftKey);
-	connect(action,SIGNAL(triggered()),SLOT(join()));
-	addAction(action);
+	m_joinAction = new QAction(this);
+	m_joinAction->setText(QT_TRANSLATE_NOOP("JoinGroupChat", "Join"));
+	m_joinAction->setSoftKeyRole(QAction::PositiveSoftKey);
+	connect(m_joinAction,SIGNAL(triggered()),SLOT(join()));
+	addAction(m_joinAction);
 }
 
 void JoinPage::updateDataForm()
 {
-	Event event("groupchat-fields");
-	qApp->sendEvent(account(),&event);
-	DataItem item = event.at<DataItem>(0);
-
 	if (m_dataForm)
 		m_dataForm->deleteLater();
+	m_joinAction->setEnabled(false);
 
+	GroupChatManager *manager = GroupChatManager::getManager(account());
+	if (!manager)
+		return;
+
+	DataItem item = manager->fields();
 	m_dataForm = AbstractDataForm::get(item);
 	if (m_dataForm) {
 		m_dataForm->setParent(this);
 		m_dataForm->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 		m_layout->insertWidget(0,m_dataForm.data());
+		m_joinAction->setEnabled(m_dataForm->isComplete());
+		connect(m_dataForm.data(), SIGNAL(completeChanged(bool)),
+				m_joinAction, SLOT(setEnabled(bool)));
 	}
 }
 
 void JoinPage::join()
 {
-	DataItem item = qobject_cast<AbstractDataForm*>(m_dataForm)->item();
-	Event event ("groupchat-join",qVariantFromValue(item));
-	if (m_bookmarksEdit->isEnabled()) {
-		event.args[1] = true;
-		event.args[2] = m_bookmarksEdit->text();
-	}
-	qApp->sendEvent(account(),&event);
+	if (!m_dataForm)
+		return;
+
+	GroupChatManager *manager = GroupChatManager::getManager(account());
+	if (!manager)
+		return;
+
+	DataItem item = m_dataForm->item();
+	manager->join(item);
 	emit joined();
 }
 
@@ -77,11 +81,6 @@ void JoinPage::showEvent(QShowEvent *ev)
 {
 	updateDataForm();
 	QScrollArea::showEvent(ev);
-}
-
-void JoinPage::onCheckStateChanged(int state)
-{
-	m_bookmarksEdit->setEnabled(state == Qt::Checked);
 }
 
 } // namespace Core

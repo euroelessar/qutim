@@ -19,6 +19,7 @@
 #include <QScrollArea>
 #include <QPointer>
 #include "groupchatpage.h"
+#include <qutim/dataforms.h>
 
 class QVBoxLayout;
 class QCheckBox;
@@ -37,11 +38,9 @@ protected:
 	void showEvent(QShowEvent *);
 signals:
 	void joined();
-private slots:
-	void onCheckStateChanged(int state);
 private:
-	QLineEdit *m_bookmarksEdit;
-	QPointer<QWidget> m_dataForm;
+	QPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
+	QAction *m_joinAction;
 };
 
 } // namespace Core

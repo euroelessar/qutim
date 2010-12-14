@@ -57,7 +57,7 @@ private slots:
 	void onBackActionTriggered();
 	void onBookmarksChanged();
 private:
-	void fillBookmarks(const QVariantList &items, bool recent = false);
+	void fillBookmarks(const QList<DataItem> &bookmarks, bool recent = false);
 	Account *currentAccount();
 	Account *account(int index);
 	Ui::JoinGroupChat *ui;
