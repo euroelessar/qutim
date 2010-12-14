@@ -6,415 +6,452 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>448</width>
-    <height>353</height>
+    <width>450</width>
+    <height>350</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <item row="2" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Nick:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0" colspan="2">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Encoding:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
+  <layout class="QGridLayout" name="scrollAreaGridLayout">
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <property name="horizontalSpacing">
+    <number>0</number>
+   </property>
    <item row="0" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Full name:</string>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     <property name="widgetResizable">
+      <bool>true</bool>
      </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Alternative nick:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>10</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="5" column="0">
-    <spacer name="verticalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>10</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="6" column="1">
-    <widget class="QComboBox" name="encodingBox">
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <item>
-      <property name="text">
-       <string>System</string>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>441</width>
+        <height>350</height>
+       </rect>
       </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Apple Roman</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Big5</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Big5-HKSCS</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>EUC-JP</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>EUC-KR</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>GB18030-0</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>IBM 850</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>IBM 866</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>IBM 874</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 2022-JP</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-1</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-2</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-3</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-4</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-5</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-6</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-7</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-8</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-9</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-10</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-13</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-14</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-15</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ISO 8859-16</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Iscii-Bng</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Iscii-Dev</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Iscii-Gjr</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Iscii-Knd</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Iscii-Mlm</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Iscii-Ori</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Iscii-Pnj</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Iscii-Tlg</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Iscii-Tml</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>JIS X 0201</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>JIS X 0208</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>KOI8-R</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>KOI8-U</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>MuleLao-1</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ROMAN8</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Shift-JIS</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>TIS-620</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>TSCII</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>UTF-8</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>UTF-16</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>UTF-16BE</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>UTF-16LE</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Windows-1250</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Windows-1251</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Windows-1252</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Windows-1253</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Windows-1254</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Windows-1255</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Windows-1256</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Windows-1257</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Windows-1258</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>WINSAMI2</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="alternativeNickEdit"/>
-   </item>
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="nickEdit"/>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="fullNameEdit"/>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Password:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="passwordEdit">
-     <property name="echoMode">
-      <enum>QLineEdit::Password</enum>
-     </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Nick:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="2">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Encoding:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Full name:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Alternative nick:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>10</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="5" column="0">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>10</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="6" column="1">
+        <widget class="QComboBox" name="encodingBox">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <item>
+          <property name="text">
+           <string>System</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Apple Roman</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Big5</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Big5-HKSCS</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>EUC-JP</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>EUC-KR</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>GB18030-0</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>IBM 850</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>IBM 866</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>IBM 874</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 2022-JP</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-1</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-2</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-3</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-4</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-5</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-6</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-7</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-9</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-10</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-13</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-14</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-15</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ISO 8859-16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Iscii-Bng</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Iscii-Dev</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Iscii-Gjr</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Iscii-Knd</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Iscii-Mlm</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Iscii-Ori</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Iscii-Pnj</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Iscii-Tlg</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Iscii-Tml</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>JIS X 0201</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>JIS X 0208</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>KOI8-R</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>KOI8-U</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>MuleLao-1</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ROMAN8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Shift-JIS</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>TIS-620</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>TSCII</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>UTF-8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>UTF-16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>UTF-16BE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>UTF-16LE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Windows-1250</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Windows-1251</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Windows-1252</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Windows-1253</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Windows-1254</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Windows-1255</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Windows-1256</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Windows-1257</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Windows-1258</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>WINSAMI2</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="alternativeNickEdit"/>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="nickEdit"/>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="fullNameEdit"/>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Password:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="passwordEdit">
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -422,3 +459,4 @@
  <resources/>
  <connections/>
 </ui>
+
