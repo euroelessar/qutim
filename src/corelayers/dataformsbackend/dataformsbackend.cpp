@@ -104,10 +104,10 @@ void DefaultDataForm::completeChanged(bool complete)
 		--m_incompleteWidgets;
 		Q_ASSERT(m_incompleteWidgets < 0);
 		if (m_incompleteWidgets == 0)
-			emit completeChanged(true);
+			emit AbstractDataForm::completeChanged(true);
 	} else {
 		if (m_incompleteWidgets == 0)
-			emit completeChanged(false);
+			emit AbstractDataForm::completeChanged(false);
 		++m_incompleteWidgets;
 	}
 }
