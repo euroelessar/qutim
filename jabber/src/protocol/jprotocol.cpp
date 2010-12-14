@@ -198,6 +198,7 @@ void JProtocol::onChangeSubscription(QObject *obj)
 		break;
 	case jreen::AbstractRosterItem::From:
 	case jreen::AbstractRosterItem::None:
+	case jreen::AbstractRosterItem::Invalid:
 		contact->requestSubscription();
 		break;
 	default:
@@ -332,6 +333,7 @@ bool JProtocol::event(QEvent *ev)
 					break;
 				case jreen::AbstractRosterItem::From:
 				case jreen::AbstractRosterItem::None:
+				case jreen::AbstractRosterItem::Invalid:
 					str = QT_TRANSLATE_NOOP("Jabber", "Request subscription");
 					break;
 				default:

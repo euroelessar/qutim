@@ -34,6 +34,7 @@ protected:
 	virtual void onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item);
 	virtual void onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item);
 	virtual void onItemRemoved(const QString &jid);
+	virtual void onLoaded(const QList<QSharedPointer<jreen::AbstractRosterItem> > &items);
 	void fillContact(JContact *contact, QSharedPointer<jreen::AbstractRosterItem> item);
 protected slots:
 	void handleNewPresence(jreen::Presence);

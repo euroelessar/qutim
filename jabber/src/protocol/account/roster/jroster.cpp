@@ -14,6 +14,7 @@
 #include <qutim/messagesession.h>
 #include "../jaccount_p.h"
 #include <qutim/debug.h>
+#include <qutim/notificationslayer.h>
 //jreen
 #include <jreen/chatstate.h>
 #include <jreen/delayeddelivery.h>
@@ -31,6 +32,7 @@ public:
 	JAccount *account;
 	JRoster *q_ptr;
 	QHash<QString, JContact*> contacts;
+	bool isLoaded;
 };
 
 JRoster::JRoster(JAccount *account) :
@@ -39,6 +41,7 @@ JRoster::JRoster(JAccount *account) :
 {
 	Q_D(JRoster);
 	d->account = account;
+	d->isLoaded = false;
 	connect(d->account->client(),SIGNAL(newPresence(jreen::Presence)),
 			this,SLOT(handleNewPresence(jreen::Presence)));
 	connect(d->account->client(),SIGNAL(disconnected()),
@@ -57,6 +60,10 @@ void JRoster::onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item)
 	JContact *c = static_cast<JContact*>(contact(item->jid(),true));
 	Q_ASSERT(c);
 	fillContact(c,item);
+	if(d_func()->isLoaded)
+		Notifications::send(Notifications::System,
+							c,
+							tr("Contact has been added to roster").arg(c->title()));
 }
 void JRoster::onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item)
 {
@@ -73,7 +80,16 @@ void JRoster::onItemRemoved(const QString &jid)
 	if(c) {
 		c->setContactInList(false);
 		c->setContactSubscription(jreen::AbstractRosterItem::None);
+		Notifications::send(Notifications::System,
+							c,
+							tr("Contact has been removed from roster").arg(c->title()));
 	}
+}
+
+void JRoster::onLoaded(const QList<QSharedPointer<jreen::AbstractRosterItem> > &items)
+{
+	AbstractRoster::onLoaded(items);
+	d_func()->isLoaded = true;
 }
 
 JContact *JRoster::createContact(const jreen::JID &id)

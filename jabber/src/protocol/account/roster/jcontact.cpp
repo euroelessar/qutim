@@ -290,6 +290,8 @@ bool JContact::event(QEvent *ev)
 		case jreen::AbstractRosterItem::Remove:
 			subscriptionStr = QT_TRANSLATE_NOOP("Jabber","Remove");
 			break;
+		default:
+			break;
 		}
 
 		event->addField(QT_TRANSLATE_NOOP("Jabber","Subscription"),

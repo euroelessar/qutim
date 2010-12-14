@@ -54,11 +54,11 @@ void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
 
 		QString node;
 		if (jreen::Capabilities *caps = presence.findExtension<jreen::Capabilities>().data()) {
+			qDebug() << "handle caps" << caps->node();
 			static const QRegExp regExp("^http://.*google.com/.*client/caps$");
 			Q_ASSERT(regExp.isValid());
 			QString capsNode = caps->node();
-			if(regExp.exactMatch(capsNode))
-			{
+			if(regExp.exactMatch(capsNode))	{
 				QString software = "GTalk";
 				if(capsNode.startsWith("http://mail."))
 					software += " (GMail)";
@@ -73,10 +73,13 @@ void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
 				QString qNode = node;
 				unit->setProperty("node", qNode);
 				SoftwareInfoHash::iterator it = m_hash.find(qNode);
+				qDebug() << "find from hash" << m_hash.count();
 				if (it != m_hash.end()) {
 					SoftwareInfo &info = *it;
 					resource->setFeatures(info.features);
+					qDebug() << info.name;
 					if (info.name.isEmpty()) {
+						qDebug() << "Send software version request";
 						jreen::IQ iq(jreen::IQ::Get, presence.from());
 						iq.addExtension(new jreen::SoftwareVersion());
 						m_account->client()->send(iq,this,SLOT(handleIQ(jreen::IQ,int)),RequestSoftware);
@@ -88,6 +91,7 @@ void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
 			}
 		}
 
+		qDebug() << "request disco info";
 		setClientInfo(resource, "", "unknown-client");
 		jreen::IQ iq(jreen::IQ::Get,presence.from());
 		iq.addExtension(new jreen::Disco::Info(node));
@@ -104,7 +108,7 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 {	
 	if (context == RequestSoftware) {
 		if (const jreen::SoftwareVersion *soft = iq.findExtension<jreen::SoftwareVersion>().data()) {
-			debug() << "requestSoftware";
+			debug() << "handle requestSoftware";
 			iq.accept();
 			ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
 			if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
@@ -131,7 +135,7 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 		if(!discoInfo)
 			return;
 		iq.accept();
-		debug() << "Handle discoInfo";
+		debug() << "Handle discoInfo" << discoInfo->node();
 		QString node = discoInfo->node();
 
 		SoftwareInfo info;
@@ -183,7 +187,8 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 				unit->setProperty("node", node);
 
 			if (info.name.isEmpty()) {
-				jreen::IQ get(jreen::IQ::Get,iq.from());
+				qDebug() << "request software";
+				jreen::IQ get(jreen::IQ::Get,unit->id());
 				get.addExtension(new jreen::SoftwareVersion());
 				m_account->client()->send(get,this,SLOT(handleIQ(jreen::IQ,int)),RequestSoftware);
 			} else {

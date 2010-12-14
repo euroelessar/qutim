@@ -60,7 +60,7 @@ void JAccountPrivate::setPresence(jreen::Presence presence)
 	now.setText(presence.status());
 	q->setAccountStatus(now);
 	if(status == jreen::Presence::Unavailable)
-		client.disconnectFromServer(true);
+		client.disconnectFromServer(false);
 }
 
 void JAccountPrivate::onConnected()
