@@ -505,7 +505,7 @@ void JMUCSession::setBookmarkIndex(int index)
 	QString previous = d->title;
 	d->bookmarkIndex = index;
 	if (index != -1)
-		d->title = d->account->conferenceManager()->bookmarkManager()->bookmarks()[index].name;
+		d->title = d->account->conferenceManager()->bookmarkManager()->bookmarksList()[index].name;
 	else
 		d->title = id();
 	emit titleChanged(d->title, previous);

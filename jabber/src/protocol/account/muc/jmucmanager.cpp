@@ -40,8 +40,8 @@ namespace Jabber
 			JBookmark room(QString(), conference,
 						   (muc && muc->me()) ? muc->me()->name() : QString(),
 						   QString());
-			if (p->bookmarkManager->bookmarks().contains(room)) {
-				int num = p->bookmarkManager->bookmarks().indexOf(room);
+			if (p->bookmarkManager->bookmarksList().contains(room)) {
+				int num = p->bookmarkManager->bookmarksList().indexOf(room);
 				muc->setBookmarkIndex(num);
 			} else {
 				muc->setBookmarkIndex(-1);
@@ -49,14 +49,6 @@ namespace Jabber
 					closeMUCSession(muc);
 			}
 		}
-	}
-
-	void JMUCManager::join(const qutim_sdk_0_3::DataItem &item)
-	{
-		QString conference = item.subitem("conference").data<QString>();
-		QString nickname = item.subitem("nickname").data<QString>();
-		QString password = item.subitem("password").data<QString>();
-		join(conference,nickname,password);
 	}
 
 	void JMUCManager::join(const QString &conference, const QString &nick, const QString &password)
@@ -88,8 +80,8 @@ namespace Jabber
 			int count = p->bookmarkManager->bookmarks().count();
 			room->setBookmarkIndex(-1);
 			for (int num = 0; num < count; num++)
-				if (p->bookmarkManager->bookmarks()[num].conference == conference
-					&& p->bookmarkManager->bookmarks()[num].nick == nick) {
+				if (p->bookmarkManager->bookmarksList()[num].conference == conference
+					&& p->bookmarkManager->bookmarksList()[num].nick == nick) {
 				room->setBookmarkIndex(num);
 				break;
 			}
@@ -188,39 +180,5 @@ namespace Jabber
 	{
 		JMUCSession *muc = p->rooms.value(room);
 		muc->leave();
-	}
-
-	DataItem JMUCManager::fields(const QVariant &data, bool isBookmark)
-	{
-		JBookmark bookmark = data.value<JBookmark>();
-		qutim_sdk_0_3::DataItem item(QT_TRANSLATE_NOOP("Jabber", "Join groupchat"));
-		if (isBookmark)
-		{
-			qutim_sdk_0_3::DataItem nickItem("name", QT_TRANSLATE_NOOP("Jabber", "Name"), bookmark.name);
-			item.addSubitem(nickItem);
-		}
-		{
-			QString conference = bookmark.conference.isEmpty() ? QString("talks@conference.qutim.org") : bookmark.conference;
-			qutim_sdk_0_3::DataItem conferenceItem("conference", QT_TRANSLATE_NOOP("Jabber", "Conference"), conference);
-			//TODO, add validator
-			//conferenceItem.setProperty("validator", QRegExp("^(#|&|!|\\+)[^\\s0x0007,]{1,50}"));
-			item.addSubitem(conferenceItem);
-		}
-		{
-			QString name = bookmark.nick.isEmpty() ? p->account->name() : bookmark.nick;
-			qutim_sdk_0_3::DataItem nickItem("nickname", QT_TRANSLATE_NOOP("Jabber", "Nick"), name);
-			item.addSubitem(nickItem);
-		}
-		{
-			qutim_sdk_0_3::DataItem passwordItem("password", QT_TRANSLATE_NOOP("Jabber", "Password"), bookmark.password);
-			passwordItem.setProperty("passwordMode", true);
-			item.addSubitem(passwordItem);
-		}
-		if (isBookmark)
-		{
-			qutim_sdk_0_3::DataItem autoJoinItem("autojoin",QT_TRANSLATE_NOOP("Jabber", "Auto-join"),QVariant(bookmark.autojoin));
-			item.addSubitem(autoJoinItem);
-		}
-		return item;
 	}
 }

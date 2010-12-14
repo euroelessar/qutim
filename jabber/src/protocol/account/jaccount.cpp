@@ -198,67 +198,8 @@ namespace Jabber {
 				.arg(protocol()->id());
 	}
 
-	QVariantList JAccountPrivate::toVariant(const QList<JBookmark> &list)
-	{
-		QVariantList items;
-		foreach (const JBookmark &bookmark, list) {
-			QVariantMap item;
-			QString name = bookmark.name.isEmpty() ? bookmark.conference : bookmark.name;
-			item.insert("name",name);
-			QVariantMap data;
-			data.insert(QT_TRANSLATE_NOOP("Jabber", "Conference"),bookmark.conference);
-			data.insert(QT_TRANSLATE_NOOP("Jabber", "Nick"),bookmark.nick);
-			if (bookmark.autojoin)
-				data.insert(QT_TRANSLATE_NOOP("Jabber", "Autojoin"),(QT_TRANSLATE_NOOP("Jabber", "Yes")).toString());
-			item.insert("fields",data);
-			items.append(item);
-		}
-		return items;
-	}
-
 	bool JAccount::event(QEvent *ev)
 	{
-		if (ev->type() == qutim_sdk_0_3::Event::eventType()) {
-			qutim_sdk_0_3::Event *event = static_cast<qutim_sdk_0_3::Event*>(ev);
-			const char *id = qutim_sdk_0_3::Event::getId(event->id);
-			debug() << id;
-			if (!qstrcmp(id,"groupchat-join")) {
-				qutim_sdk_0_3::DataItem item = event->at<qutim_sdk_0_3::DataItem>(0);
-				conferenceManager()->join(item);
-				if (event->at<bool>(1)) {
-					qutim_sdk_0_3::DataItem nickItem("name", QT_TRANSLATE_NOOP("Jabber", "Name"),event->at<QString>(2));
-					item.addSubitem(nickItem);
-					conferenceManager()->bookmarkManager()->saveBookmark(item);
-				}
-				return true;
-			} else if (!qstrcmp(id,"groupchat-bookmark-list")) {
-				JBookmarkManager *manager = conferenceManager()->bookmarkManager();
-				event->args[0] = p->toVariant(manager->bookmarks());
-				event->args[1] = p->toVariant(manager->recent());
-				return true;
-			} else if (!qstrcmp(id,"groupchat-bookmark-remove")) {
-				QString name = event->at<QString>(0);
-				JBookmarkManager *manager = conferenceManager()->bookmarkManager();
-				manager->removeBookmark(manager->indexOfBookmark(name));
-				return true;
-			} else if (!qstrcmp(id,"groupchat-bookmark-save")) {
-				qutim_sdk_0_3::DataItem item = event->at<qutim_sdk_0_3::DataItem>(0);
-				JBookmarkManager *manager = conferenceManager()->bookmarkManager();
-				QString oldName = event->at<QString>(1);
-				event->args[2] = manager->saveBookmark(item,oldName);
-				return true;
-			} else if (!qstrcmp(id,"groupchat-fields")) {
-				QString name = event->args[1].toString();
-				bool isBookmark = event->args[2].toBool();
-				JBookmarkManager *manager = conferenceManager()->bookmarkManager();
-				JBookmark bookmark = manager->find(name);
-				if (bookmark.isEmpty())
-					bookmark = manager->find(name,true);
-				QVariant data = bookmark.isEmpty() ? QVariant() : qVariantFromValue(bookmark);
-				event->args[0] = qVariantFromValue(conferenceManager()->fields(data,isBookmark));
-				return true;
-			}
-		}
 		return Account::event(ev);
 	}
 

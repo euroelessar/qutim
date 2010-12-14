@@ -35,7 +35,9 @@ namespace Jabber
 		return name.isEmpty();
 	}
 
-	JBookmarkManager::JBookmarkManager(JAccount *account) : p(new JBookmarkManagerPrivate)
+	JBookmarkManager::JBookmarkManager(JAccount *account) :
+		GroupChatManager(account),
+		p(new JBookmarkManagerPrivate)
 	{
 		p->account = account;
 		p->isLoaded = false;
@@ -83,12 +85,12 @@ namespace Jabber
 		emit serverBookmarksChanged();
 	}
 
-	QList<JBookmark> JBookmarkManager::bookmarks() const
+	QList<JBookmark> JBookmarkManager::bookmarksList() const
 	{
 		return p->bookmarks;
 	}
 
-	QList<JBookmark> JBookmarkManager::recent() const
+	QList<JBookmark> JBookmarkManager::recentList() const
 	{
 		return p->recent;
 	}
@@ -103,25 +105,6 @@ namespace Jabber
 			p->bookmarks.replace(index, bookmark);
 		writeToCache("bookmarks", p->bookmarks);
 		saveToServer();
-	}
-
-	bool JBookmarkManager::saveBookmark(const qutim_sdk_0_3::DataItem &item, const QString &oldName)
-	{
-		QString name = item.subitem("name").data<QString>();
-		QString conference = item.subitem("conference").data<QString>();
-		QString nick = item.subitem("nickname").data<QString>();
-		QString password = item.subitem("password").data<QString>();
-		bool autojoin = item.subitem("autojoin").data<bool>();
-		//some checks
-		if (name.isEmpty())
-			name = conference;
-		if (conference.isEmpty())
-			return false;
-		if (name != oldName && !oldName.isEmpty())
-			removeBookmark(indexOfBookmark(oldName));
-		int index = indexOfBookmark(name);
-		saveBookmark(index,name,conference,nick,password,autojoin);
-		return true;
 	}
 
 	void JBookmarkManager::saveRecent(const QString &conference, const QString &nick, const QString &password)
@@ -179,6 +162,104 @@ namespace Jabber
 		Config config = p->account->config();
 		config.remove(QLatin1String("recent"));
 		config.sync();
+	}
+
+	DataItem JBookmarkManager::fields(const JBookmark &bookmark, bool isBookmark) const
+	{
+		qutim_sdk_0_3::DataItem item(bookmark.name.isEmpty() ? bookmark.conference : bookmark.name);
+		{
+			qutim_sdk_0_3::DataItem nameItem("name", QT_TRANSLATE_NOOP("Jabber", "Name"), bookmark.name);
+			if (!isBookmark)
+				nameItem.setProperty("showInBookmarkInfo", false);
+			item.addSubitem(nameItem);
+		}
+		{
+			QString conference = bookmark.conference.isEmpty() ? QString("talks@conference.qutim.org") : bookmark.conference;
+			qutim_sdk_0_3::DataItem conferenceItem("conference", QT_TRANSLATE_NOOP("Jabber", "Conference"), conference);
+			//TODO, add validator
+			//conferenceItem.setProperty("validator", QRegExp("^(#|&|!|\\+)[^\\s0x0007,]{1,50}"));
+			conferenceItem.setProperty("mandatory", true);
+			item.addSubitem(conferenceItem);
+		}
+		{
+			QString name = bookmark.nick.isEmpty() ? p->account->name() : bookmark.nick;
+			qutim_sdk_0_3::DataItem nickItem("nickname", QT_TRANSLATE_NOOP("Jabber", "Nick"), name);
+			nickItem.setProperty("mandatory", true);
+			item.addSubitem(nickItem);
+		}
+		{
+			qutim_sdk_0_3::DataItem passwordItem("password", QT_TRANSLATE_NOOP("Jabber", "Password"), bookmark.password);
+			passwordItem.setProperty("password", true);
+			passwordItem.setProperty("showInBookmarkInfo", false);
+			item.addSubitem(passwordItem);
+		}
+		{
+			qutim_sdk_0_3::DataItem autoJoinItem("autojoin",QT_TRANSLATE_NOOP("Jabber", "Auto-join"),QVariant(bookmark.autojoin));
+			if (!isBookmark)
+				autoJoinItem.setProperty("showInBookmarkInfo", false);
+			item.addSubitem(autoJoinItem);
+		}
+		return item;
+	}
+
+	DataItem JBookmarkManager::fields() const
+	{
+		return fields(JBookmark());
+	}
+
+	bool JBookmarkManager::join(const DataItem &fields)
+	{
+		QString conference = fields.subitem("conference").data<QString>();
+		QString nickname = fields.subitem("nickname").data<QString>();
+		QString password = fields.subitem("password").data<QString>();
+		p->account->conferenceManager()->join(conference, nickname, password);
+		return true;
+	}
+
+	bool JBookmarkManager::storeBookmark(const DataItem &fields, const DataItem &oldFields)
+	{
+		QString oldName = oldFields.isNull() ?
+						  QString() :
+						  oldFields.subitem("name").data<QString>();
+		QString name = fields.subitem("name").data<QString>();
+		QString conference = fields.subitem("conference").data<QString>();
+		QString nick = fields.subitem("nickname").data<QString>();
+		QString password = fields.subitem("password").data<QString>();
+		bool autojoin = fields.subitem("autojoin").data<bool>();
+		//some checks
+		if (conference.isEmpty())
+			return false;
+		if (name.isEmpty())
+			name = conference;
+		if (name != oldName && !oldName.isEmpty())
+			removeBookmark(indexOfBookmark(oldName));
+		int index = indexOfBookmark(name);
+		saveBookmark(index,name,conference,nick,password,autojoin);
+		return true;
+	}
+
+	bool JBookmarkManager::removeBookmark(const DataItem &fields)
+	{
+		QString name = fields.subitem("name").data<QString>();
+		int index = indexOfBookmark(name);
+		removeBookmark(index);
+		return index != -1;
+	}
+
+	QList<DataItem> JBookmarkManager::bookmarks() const
+	{
+		QList<DataItem> bookmarks;
+		foreach (const JBookmark &bookmark, p->bookmarks)
+			bookmarks << fields(bookmark);
+		return bookmarks;
+	}
+
+	QList<DataItem> JBookmarkManager::recent() const
+	{
+		QList<DataItem> bookmarks;
+		foreach (const JBookmark &bookmark, p->recent)
+			bookmarks << fields(bookmark, false);
+		return bookmarks;
 	}
 
 	void JBookmarkManager::writeToCache(const QString &type, const QList<JBookmark> &list)
