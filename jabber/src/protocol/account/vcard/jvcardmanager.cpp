@@ -106,16 +106,18 @@ bool JVCardManager::containsRequest(const QString &contact)
 	return d_func()->contacts.contains(contact);
 }
 
+
+JAccount * JVCardManager::account() const
+{
+	return d_func()->account;
+}
+
 void JVCardManager::onIqReceived(const jreen::IQ &iq, int)
 {
 	debug() << "vcard received";
 	handleIQ(iq);
 }
 
-//void JVCardManager::handleVCardResult(VCardContext context, const JID &jid, StanzaError se)
-//{
-//	//if (context == StoreVCard && se == StanzaErrorUndefined); wtf?
-//}
+} //namespace jabber
 
-}
 

@@ -38,6 +38,7 @@ public:
 	void fetchVCard(const QString &contact, JInfoRequest *request = 0);
 	bool containsRequest(const QString &contact);
 	void storeVCard(jreen::VCard *vcard);
+	JAccount *account() const;
 protected slots:
 	void handleIQ(const jreen::IQ &iq);
 	void onIqReceived(const jreen::IQ &,int);

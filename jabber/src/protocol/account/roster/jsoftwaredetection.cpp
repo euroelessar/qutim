@@ -35,7 +35,6 @@ JSoftwareDetection::JSoftwareDetection(JAccount *account) : QObject(account)
 {
 	m_account = account;
 	jreen::Client *client = account->client();
-	connect(client,SIGNAL(newIQ(jreen::IQ)),SLOT(handleIQ(jreen::IQ)));
 	connect(client,SIGNAL(newPresence(jreen::Presence)),SLOT(handlePresence(jreen::Presence)));
 }
 
@@ -91,7 +90,6 @@ void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
 			}
 		}
 
-		qDebug() << "request disco info";
 		setClientInfo(resource, "", "unknown-client");
 		jreen::IQ iq(jreen::IQ::Get,presence.from());
 		iq.addExtension(new jreen::Disco::Info(node));
@@ -99,16 +97,10 @@ void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
 	}
 }
 
-void JSoftwareDetection::handleIQ(const jreen::IQ &iq)
-{
-
-}
-
 void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 {	
 	if (context == RequestSoftware) {
 		if (const jreen::SoftwareVersion *soft = iq.findExtension<jreen::SoftwareVersion>().data()) {
-			debug() << "handle requestSoftware";
 			iq.accept();
 			ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
 			if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
@@ -135,7 +127,6 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 		if(!discoInfo)
 			return;
 		iq.accept();
-		debug() << "Handle discoInfo" << discoInfo->node();
 		QString node = discoInfo->node();
 
 		SoftwareInfo info;
@@ -187,7 +178,6 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 				unit->setProperty("node", node);
 
 			if (info.name.isEmpty()) {
-				qDebug() << "request software";
 				jreen::IQ get(jreen::IQ::Get,unit->id());
 				get.addExtension(new jreen::SoftwareVersion());
 				m_account->client()->send(get,this,SLOT(handleIQ(jreen::IQ,int)),RequestSoftware);

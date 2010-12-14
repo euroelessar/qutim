@@ -65,7 +65,10 @@ void JAccountPrivate::setPresence(jreen::Presence presence)
 
 void JAccountPrivate::onConnected()
 {
-	Status s = q_func()->status();
+	Q_Q(JAccount);
+	Status s = q->status();
+	s.setType(Status::Online);
+	q->setAccountStatus(s);
 	client.setPresence(status,s.text());
 }
 

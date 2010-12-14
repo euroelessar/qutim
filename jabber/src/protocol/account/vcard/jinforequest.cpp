@@ -4,6 +4,8 @@
 #include <qutim/debug.h>
 #include <jreen/vcard.h>
 #include <QUrl>
+#include "../roster/jcontactresource.h"
+#include "../jaccount.h"
 
 namespace Jabber
 {
@@ -37,7 +39,8 @@ void init_names(QStringList &names)
 		"orgUnit",
 		"title",
 		"role",
-		"about"
+		"about",
+		"features"
 	};
 	for (int i = 0, size = sizeof(cnames)/sizeof(char*); i < size; i++)
 		names << QLatin1String(cnames[i]);
@@ -205,6 +208,16 @@ void JInfoRequest::setFetchedVCard(jreen::VCard *vcard)
 		item.addSubitem(about);
 	}
 
+	// Features page
+	//JContactResource *c = qobject_cast<JContactResource*>(d->account->getUnit(d->contact));
+	//qDebug() << "get features from" << d->contact << d->account->getUnit(d->contact) << c;
+	//if(c) {
+	//	debug() << c->features();
+	//	DataItem features(QT_TRANSLATE_NOOP("ContactInfo", "Features"));
+	//	addItemList(Features, features,c->features().toList());
+	//	item.addSubitem(features);
+	//}
+
 	d->item = new DataItem(item);
 	d->vcard = vcard;
 	d->state = Done;
@@ -246,6 +259,11 @@ void JInfoRequest::addMultilineItem(DataType type, DataItem &group, const QStrin
 void JInfoRequest::addItemList(DataType type, DataItem &group, const QString &data)
 {
 	addItem(type, group,data.split(',', QString::SkipEmptyParts));
+}
+
+void JInfoRequest::addItemList(DataType type, DataItem &group, const QStringList &data)
+{
+	addItem(type,group,data);
 }
 
 }

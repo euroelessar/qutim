@@ -56,7 +56,6 @@ public:
 	~JSoftwareDetection();
 protected slots:
 	void handlePresence(const jreen::Presence &presence);
-	void handleIQ(const jreen::IQ &iq);
 	void handleIQ(const jreen::IQ &iq, int context);
 private:
 	void updateClientData(JContactResource *resource, const QString &client,
