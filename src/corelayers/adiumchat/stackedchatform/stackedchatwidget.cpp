@@ -216,7 +216,7 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 	if(!session->unread().isEmpty())
 		session->markRead();
 
-	activateWindow();
+	show();
 	setTitle(session);
 
 	if(m_currentSession) {
