@@ -93,6 +93,7 @@ public:
 	QStringRef hash;
 	QHash<QString, QVariantHash> extInfo;
 	jreen::AbstractRosterItem::SubscriptionType subscription;
+	Status status;
 };
 
 JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_ptr(new JContactPrivate)
@@ -100,6 +101,7 @@ JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_
 	Q_D(JContact);
 	d->account = account;
 	d->jid = jid;
+	d->status = Status::instance(Status::Offline, "jabber");
 }
 
 JContact::~JContact()
@@ -380,7 +382,8 @@ void JContact::setStatus(const jreen::Presence presence)
 		d->resources.clear();
 		d->currentResources.clear();
 	} else if (resource.isEmpty()) {
-		return;
+		d->status.setType(JStatus::presenceToStatus(presence.subtype()));
+		d->status.setText(presence.status());
 	} else if (type == jreen::Presence::Unavailable) {
 		if (d->resources.contains(resource))
 			removeResource(resource);
@@ -410,7 +413,7 @@ Status JContact::status() const
 {
 	Q_D(const JContact);
 	Status status = d->currentResources.isEmpty() ?
-				Status::instance(Status::Offline, "jabber") :
+				d->status :
 				d->resources.value(d->currentResources.first())->status();
 	QHashIterator<QString, QVariantHash> itr(d->extInfo);
 	while (itr.hasNext()) {

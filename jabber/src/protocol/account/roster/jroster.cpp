@@ -57,7 +57,7 @@ JRoster::~JRoster()
 
 void JRoster::onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item)
 {
-	Q_D(JRoster);
+	//Q_D(JRoster);
 	JContact *c = static_cast<JContact*>(contact(item->jid(),true));
 	Q_ASSERT(c);
 	fillContact(c,item);
@@ -66,9 +66,9 @@ void JRoster::onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item)
 							c,
 							tr("Contact has been added to roster").arg(c->title()));
 	//test
-	jreen::Presence probe(jreen::Presence::Probe,
-						  item->jid());
-	d->account->client()->send(probe);
+	//jreen::Presence probe(jreen::Presence::Probe,
+	//					  item->jid());
+	//d->account->client()->send(probe);
 }
 void JRoster::onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item)
 {
