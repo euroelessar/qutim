@@ -634,8 +634,8 @@ void Model::contactTagsChanged(const QStringList &tags_helper)
 		tags << tr("Without tags");
 
 	//It should be noted in contactlist those who are not in the roster
-	if(!contact->isInList())
-		tags << tr("Not in list");
+	//if(!contact->isInList())
+	//	tags << tr("Not in list");
 
 	QSet<QString> to_add = tags - item_data->tags;
 	for (int i = 0, size = item_data->items.size(); i < size; i++) {
