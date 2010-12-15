@@ -3,10 +3,6 @@
 #include "../vcard/jinforequest.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
-#include <gloox/message.h>
-#include <gloox/chatstate.h>
-#include <gloox/rostermanager.h>
-#include <gloox/rosteritem.h>
 #include <QStringBuilder>
 #include "qutim/tooltip.h"
 #include "qutim/extensionicon.h"
@@ -21,8 +17,6 @@
 #include <jreen/presence.h>
 #include <jreen/client.h>
 #include <jreen/chatstate.h>
-#include <jreen/delayeddelivery.h>
-#include <jreen/receipt.h>
 #include "jroster.h"
 #include "../vcard/jvcardmanager.h"
 
@@ -30,54 +24,6 @@ using namespace gloox;
 
 namespace Jabber
 {
-
-//testing
-class JMessageReceiptFilter : public jreen::MessageFilter
-{
-public:
-	JMessageReceiptFilter(JContact *contact,jreen::MessageSession *session)
-		: jreen::MessageFilter(session),
-		  m_contact(contact)
-	{
-
-	}
-	virtual ~JMessageReceiptFilter() {}
-	virtual void filter(jreen::Message &message)
-	{
-		jreen::Receipt *receipt = message.findExtension<jreen::Receipt>().data();
-		if(receipt) {
-			if(receipt->type() == jreen::Receipt::Received) {
-				QString id = receipt->id();
-				if(id.isEmpty())
-					id = message.id(); //for slowpoke client such as Miranda
-				qApp->postEvent(ChatLayer::get(m_contact),
-								new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
-			} else {
-				//only for testing
-				//TODO send this request only when message marked as read
-				jreen::Message request(jreen::Message::Chat,
-									   message.from());
-				request.addExtension(new jreen::Receipt(jreen::Receipt::Received,message.id()));
-				static_cast<JAccount*>(m_contact->account())->client()->send(request);
-			}
-		}
-	}
-	virtual void decorate(jreen::Message &message)
-	{
-		jreen::Receipt *receipt = new jreen::Receipt(jreen::Receipt::Request);
-		message.addExtension(receipt);
-	}
-	virtual void reset()
-	{
-
-	}
-	virtual int filterType() const
-	{
-		return 1;
-	}
-private:
-	JContact *m_contact;
-};
 
 class JContactPrivate
 {
@@ -127,26 +73,16 @@ bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 	//		session()->sendMessage(message);
 
 	//FIXME testing testing testing
-
-	//	jreen::MessageSession *session = a->messageSessionManager()->session(d->jid,
-	//																		 jreen::Message::Chat,
-	//																		 true);
-	//	if(!session) {
-	//		session = a->messageSessionManager()->session(d->jid,
-	//													  jreen::Message::Chat,
-	//													  true);
-	//		new JMessageReceiptFilter(this,session);
-	//		session->registerMessageFilter(new JMessageReceiptFilter(this,session));
-	//	}
-	//	session->sendMessage(message.text(),message.property("subject").toString());
+	jreen::MessageSession *session = a->messageSessionManager()->session(d->jid,
+																		 jreen::Message::Chat,
+																		 true);
 
 	jreen::Message msg(jreen::Message::Chat,
 					   id(),
 					   message.text(),
 					   message.property("subject").toString());
-	msg.addExtension(new jreen::Receipt(jreen::Receipt::Request));
 	msg.setID(QString::number(message.id()));
-	d->account->client()->send(msg);
+	session->sendMessage(msg);
 	return true;
 }
 
@@ -238,24 +174,6 @@ void JContact::setContactSubscription(jreen::AbstractRosterItem::SubscriptionTyp
 jreen::AbstractRosterItem::SubscriptionType JContact::subscription() const
 {
 	return d_func()->subscription;
-}
-
-inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)
-{
-	switch (state) {
-	case qutim_sdk_0_3::ChatStateActive:
-		return gloox::ChatStateActive;
-	case qutim_sdk_0_3::ChatStateInActive:
-		return gloox::ChatStateInactive;
-	case qutim_sdk_0_3::ChatStateGone:
-		return gloox::ChatStateGone;
-	case qutim_sdk_0_3::ChatStateComposing:
-		return gloox::ChatStateComposing;
-	case qutim_sdk_0_3::ChatStatePaused:
-		return gloox::ChatStatePaused;
-	default:
-		return gloox::ChatStateInvalid;
-	}
 }
 
 bool JContact::event(QEvent *ev)

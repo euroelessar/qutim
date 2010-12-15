@@ -52,18 +52,18 @@ inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)
 	}
 }
 
-class JMessageReceiptFilter : public MessageFilter
-{
-public:
-	JMessageReceiptFilter(JMessageSession *s, MessageSession *p) :
-		MessageFilter(p), m_session(s), m_nextId(0) {}
-	void decorate(gloox::Message &msg);
-	void filter(gloox::Message &msg);
-	inline void setNextId(quint64 id) { m_nextId = id; }
-protected:
-	JMessageSession *m_session;
-	quint64 m_nextId;
-};
+//class JMessageReceiptFilter : public MessageFilter
+//{
+//public:
+//	JMessageReceiptFilter(JMessageSession *s, MessageSession *p) :
+//		MessageFilter(p), m_session(s), m_nextId(0) {}
+//	void decorate(gloox::Message &msg);
+//	void filter(gloox::Message &msg);
+//	inline void setNextId(quint64 id) { m_nextId = id; }
+//protected:
+//	JMessageSession *m_session;
+//	quint64 m_nextId;
+//};
 
 struct ReceiptTrack
 {
@@ -74,58 +74,58 @@ struct ReceiptTrack
 typedef QHash<QByteArray, ReceiptTrack> ReceiptTrackMap;
 Q_GLOBAL_STATIC(ReceiptTrackMap, receiptTrackMap)
 
-void JMessageReceiptFilter::decorate(gloox::Message &msg)
-{
-	if (m_nextId > 0) {
-		ChatSession *session = 0;
-		session = ChatLayer::get(m_session->upperUnit(), false);
-		if (!session) {
-			if (ChatUnit *resource = m_session->upperUnit())
-				session = ChatLayer::get(resource->upperUnit(), false);
-		}
-		if (session)
-			receiptTrackMap()->insert(QByteArray(msg.id().data(), msg.id().size()),
-									  ReceiptTrack(session, m_nextId));
-		msg.addExtension(new Receipt(Receipt::Request));
-		m_nextId = 0;
-	}
-}
+//void JMessageReceiptFilter::decorate(gloox::Message &msg)
+//{
+//	if (m_nextId > 0) {
+//		ChatSession *session = 0;
+//		session = ChatLayer::get(m_session->upperUnit(), false);
+//		if (!session) {
+//			if (ChatUnit *resource = m_session->upperUnit())
+//				session = ChatLayer::get(resource->upperUnit(), false);
+//		}
+//		if (session)
+//			receiptTrackMap()->insert(QByteArray(msg.id().data(), msg.id().size()),
+//									  ReceiptTrack(session, m_nextId));
+//		msg.addExtension(new Receipt(Receipt::Request));
+//		m_nextId = 0;
+//	}
+//}
 
-void JMessageReceiptFilter::filter(gloox::Message &msg)
-{
-	if (const Receipt *receipt = msg.findExtension<Receipt>(ExtReceipt)) {
-		if (receipt->rcpt() == Receipt::Request) {
-			gloox::Message message(msg.subtype(), msg.from(), gloox::EmptyString,
-								   gloox::EmptyString, msg.thread());
-#if 0
-			// It's correct behaviour
-			Client *client = static_cast<JAccount*>(m_session->account())->client();
-			message.setID(client->getID());
-#else
-			// And it's legacy one, but compatible with qutIM 0.2 and other clients
-			message.setID(msg.id());
-#endif
-			message.addExtension(new Receipt(Receipt::Received, msg.id()));
-			send(message);
-			return;
-		}
-		ReceiptTrackMap *map = receiptTrackMap();
-		ReceiptTrackMap::iterator it = map->find(QByteArray(receipt->id().data(), receipt->id().size()));
-		if (it == map->end())
-			it = map->find(QByteArray(msg.id().data(), msg.id().size()));
-		if (it == map->end())
-			return;
-		if (receipt->rcpt() == Receipt::Received) {
-			const ReceiptTrack &track = it.value();
-			if (track.session) {
-				QEvent *ev = new qutim_sdk_0_3::MessageReceiptEvent(track.id, true);
-				qApp->postEvent(track.session, ev);
-			}
-			map->erase(it);
-			return;
-		}
-	}
-}
+//void JMessageReceiptFilter::filter(gloox::Message &msg)
+//{
+//	if (const Receipt *receipt = msg.findExtension<Receipt>(ExtReceipt)) {
+//		if (receipt->rcpt() == Receipt::Request) {
+//			gloox::Message message(msg.subtype(), msg.from(), gloox::EmptyString,
+//								   gloox::EmptyString, msg.thread());
+//#if 0
+//			// It's correct behaviour
+//			Client *client = static_cast<JAccount*>(m_session->account())->client();
+//			message.setID(client->getID());
+//#else
+//			// And it's legacy one, but compatible with qutIM 0.2 and other clients
+//			message.setID(msg.id());
+//#endif
+//			message.addExtension(new Receipt(Receipt::Received, msg.id()));
+//			send(message);
+//			return;
+//		}
+//		ReceiptTrackMap *map = receiptTrackMap();
+//		ReceiptTrackMap::iterator it = map->find(QByteArray(receipt->id().data(), receipt->id().size()));
+//		if (it == map->end())
+//			it = map->find(QByteArray(msg.id().data(), msg.id().size()));
+//		if (it == map->end())
+//			return;
+//		if (receipt->rcpt() == Receipt::Received) {
+//			const ReceiptTrack &track = it.value();
+//			if (track.session) {
+//				QEvent *ev = new qutim_sdk_0_3::MessageReceiptEvent(track.id, true);
+//				qApp->postEvent(track.session, ev);
+//			}
+//			map->erase(it);
+//			return;
+//		}
+//	}
+//}
 
 JMessageSession::JMessageSession(JMessageHandler *handler, ChatUnit *unit, gloox::MessageSession *session)
 	: d_ptr(new JMessageSessionPrivate)
@@ -135,7 +135,7 @@ JMessageSession::JMessageSession(JMessageHandler *handler, ChatUnit *unit, gloox
 	d->handler = handler;
 	d->session = session;
 	d->chatStateFilter = new ChatStateFilter(d->session);
-	d->messageReceiptFilter = new JMessageReceiptFilter(this, d->session);
+	//d->messageReceiptFilter = new JMessageReceiptFilter(this, d->session);
 	d->chatStateFilter->registerChatStateHandler(this);
 	d->session->registerMessageHandler(this);
 	d->handler->prepareMessageSession(this);
@@ -155,7 +155,7 @@ JMessageSession::JMessageSession(ChatUnit *unit) :
 	d->account = static_cast<JAccount *>(unit->account());
 	//d->handler = d->account->messageHandler();
 	//d->session = new MessageSession(d->account->client(), JID(unit->id().toStdString()));
-	d->messageReceiptFilter = new JMessageReceiptFilter(this, d->session);
+	//d->messageReceiptFilter = new JMessageReceiptFilter(this, d->session);
 	d->chatStateFilter = new ChatStateFilter(d->session);
 	d->chatStateFilter->registerChatStateHandler(this);
 	d->session->registerMessageHandler(this);
@@ -207,7 +207,7 @@ bool JMessageSession::sendMessage(const qutim_sdk_0_3::Message &message)
 
 	d->messages << message;
 
-	d->messageReceiptFilter->setNextId(message.id());
+	//d->messageReceiptFilter->setNextId(message.id());
 	d->session->send(message.text().toStdString(), message.property("subject").toString().toStdString());
 	if (d->followChanges) {
 		d->handler->setSessionId(this, d->id);

@@ -18,8 +18,12 @@ namespace Jabber
 class JAccount;
 class JMessageSessionHandler : public jreen::MessageSessionHandler
 {
+public:
+	JMessageSessionHandler(JAccount *account);
 	virtual ~JMessageSessionHandler();
 	virtual void handleMessageSession(jreen::MessageSession *session);
+private:
+	JAccount *m_account;
 };
 
 class JMessageSessionManagerPrivate;
@@ -34,6 +38,19 @@ public slots:
 	virtual void handleMessage(const jreen::Message &message);
 private:
 	QScopedPointer<JMessageSessionManagerPrivate> d_ptr;
+};
+
+class JMessageReceiptFilter : public jreen::MessageFilter
+{
+public:
+	JMessageReceiptFilter(JAccount *account,jreen::MessageSession *session);
+	virtual ~JMessageReceiptFilter() {}
+	virtual void filter(jreen::Message &message);
+	virtual void decorate(jreen::Message &message);
+	virtual void reset();
+	virtual int filterType() const;
+private:
+	JAccount *m_account;
 };
 
 //old code

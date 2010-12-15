@@ -265,7 +265,7 @@ void JAccount::setStatus(Status status)
 			status.setType(Status::Offline);
 			setAccountStatus(status);
 		}
-		d->client.disconnectFromServer(old.type() == Status::Connecting);
+		d->client.disconnectFromServer(true);
 	} else if(old.type() != Status::Offline && old.type() != Status::Connecting) {
 		d->client.setPresence(JStatus::statusToPresence(status),
 							  status.text());

@@ -4,13 +4,22 @@
 #include "jcontact.h"
 #include "jcontactresource.h"
 #include "../muc/jmucuser.h"
-#include "gloox/message.h"
 #include "../../../sdk/jabber.h"
 #include <qutim/debug.h>
+#include <jreen/delayeddelivery.h>
+#include <jreen/receipt.h>
+#include <jreen/client.h>
+#include "jroster.h"
 
 namespace Jabber
 {
 //jreen
+
+JMessageSessionHandler::JMessageSessionHandler(JAccount *account) :
+	m_account(account)
+{
+
+}
 
 JMessageSessionHandler::~JMessageSessionHandler()
 {
@@ -18,7 +27,9 @@ JMessageSessionHandler::~JMessageSessionHandler()
 
 void JMessageSessionHandler::handleMessageSession(jreen::MessageSession *session)
 {
-	Q_UNUSED(session);
+	qDebug() << session;
+	Q_ASSERT(session);
+	session->registerMessageFilter(new JMessageReceiptFilter(m_account,session));
 }
 
 class JMessageSessionManagerPrivate
@@ -38,7 +49,8 @@ JMessageSessionManager::JMessageSessionManager(JAccount *account) :
 	QList<jreen::Message::Type> types;
 	types.append(jreen::Message::Chat);
 	types.append(jreen::Message::Headline);
-	registerMessageSessionHandler(new JMessageSessionHandler,types);
+
+	registerMessageSessionHandler(new JMessageSessionHandler(account),types);
 }
 
 JMessageSessionManager::~JMessageSessionManager()
@@ -49,6 +61,54 @@ JMessageSessionManager::~JMessageSessionManager()
 void JMessageSessionManager::handleMessage(const jreen::Message &message)
 {
 	return jreen::MessageSessionManager::handleMessage(message);
+}
+
+JMessageReceiptFilter::JMessageReceiptFilter(JAccount *account,
+											 jreen::MessageSession *session) :
+	jreen::MessageFilter(session),
+	m_account(account)
+{
+
+}
+
+void JMessageReceiptFilter::filter(jreen::Message &message)
+{
+	jreen::Receipt *receipt = message.findExtension<jreen::Receipt>().data();
+	if(receipt) {
+		if(receipt->type() == jreen::Receipt::Received) {
+			QString id = receipt->id();
+			if(id.isEmpty())
+				id = message.id(); //for slowpoke client such as Miranda
+			ChatUnit *unit = m_account->roster()->contact(message.from(),false);
+			if(!unit)
+				return;
+			qApp->postEvent(ChatLayer::get(unit),
+							new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
+		} else {
+			//only for testing
+			//TODO send this request only when message marked as read
+			jreen::Message request(jreen::Message::Chat,
+								   message.from());
+			request.addExtension(new jreen::Receipt(jreen::Receipt::Received,message.id()));
+			m_account->client()->send(request);
+		}
+	}
+}
+
+void JMessageReceiptFilter::decorate(jreen::Message &message)
+{
+	jreen::Receipt *receipt = new jreen::Receipt(jreen::Receipt::Request);
+	message.addExtension(receipt);
+}
+
+int JMessageReceiptFilter::filterType() const
+{
+	return jreen::Message::Chat;
+}
+
+void JMessageReceiptFilter::reset()
+{
+
 }
 
 //dead code
@@ -85,18 +145,18 @@ JMessageSession *JMessageHandler::getSession(const QString &id)
 
 void JMessageHandler::handleMessageSession(MessageSession *session)
 {
-	Q_D(JMessageHandler);
-	// FIXME: Double conversion from JID to QString and from QString to JID
-	ChatUnit *unit = d->account->getUnit(QString::fromStdString(session->target().full()), true);
-	int types = ~0;
-	if (qobject_cast<JMUCUser*>(unit))
-		types ^= gloox::Message::Groupchat;
-	session->setTypes(types);
-	if (qobject_cast<JMessageSessionOwner*>(unit)) {
-		Q_UNUSED(new JMessageSession(this, unit, session));
-	} else {
-		debug() << "Cannot create JMessageSession for" << unit->id();
-	}
+	//Q_D(JMessageHandler);
+	//// FIXME: Double conversion from JID to QString and from QString to JID
+	//ChatUnit *unit = d->account->getUnit(QString::fromStdString(session->target().full()), true);
+	//int types = ~0;
+	//if (qobject_cast<JMUCUser*>(unit))
+	//	types ^= gloox::Message::Groupchat;
+	//session->setTypes(types);
+	//if (qobject_cast<JMessageSessionOwner*>(unit)) {
+	//	Q_UNUSED(new JMessageSession(this, unit, session));
+	//} else {
+	//	debug() << "Cannot create JMessageSession for" << unit->id();
+	//}
 }
 
 void JMessageHandler::prepareMessageSession(JMessageSession *session)
