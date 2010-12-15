@@ -294,8 +294,13 @@ void ContactDelegate::reloadSettings()
 	debug() << "reload settings";
 	Config cfg("appearance");
 	cfg = cfg.group("contactList");
+#ifndef QUTIM_MOBILE_UI
 	p->statusIconSize = cfg.value("statusIconSize",22);
 	p->extIconSize = cfg.value("extIconSize",16);
+#else
+	p->statusIconSize = cfg.value("statusIconSize",32);
+	p->extIconSize = cfg.value("extIconSize",32);
+#endif
 	ContactDelegate::ShowFlags flags = cfg.value("showFlags",
 												 ContactDelegate::ShowStatusText |
 												 ContactDelegate::ShowExtendedInfoIcons |
