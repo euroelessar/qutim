@@ -28,7 +28,7 @@ namespace Core
 	    if (type==0) {
 #ifdef Q_WS_MAEMO_5
 		// set the next icon from Maemo's theme
-		setIcon(qutim_sdk_0_3::Icon("general_forward");
+		setIcon(qutim_sdk_0_3::Icon("general_forward"));
 #else
 		setIcon(qutim_sdk_0_3::Icon("arrow-right"));
 #endif
@@ -36,7 +36,7 @@ namespace Core
 	    else if (type==1) {
 #ifdef Q_WS_MAEMO_5
 		// set the close icon from Maemo's theme
-		setIcon(qutim_sdk_0_3::Icon("camera_overlay_close")));
+		setIcon(qutim_sdk_0_3::Icon("camera_overlay_close"));
 #else
 		setIcon(qutim_sdk_0_3::Icon("dialog-close"));
 #endif
