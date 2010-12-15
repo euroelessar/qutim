@@ -100,7 +100,7 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 #ifndef Q_WS_MAEMO_5
 	m_recieverList->setIcon(Icon("view-choose"));
 #else
-	m_recieverList->setIcon(QIcon::fromTheme(QLatin1String("chat_enter")));
+	m_recieverList->setIcon(Icon("chat_enter")));
 #endif
 	connect(m_recieverList,SIGNAL(triggered()),m_chatInput,SLOT(send()));
 
