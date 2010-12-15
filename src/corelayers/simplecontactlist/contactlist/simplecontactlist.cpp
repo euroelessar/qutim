@@ -274,7 +274,6 @@ Module::Module() : p(new ModulePrivate)
 	p->statusBtn->setMaximumHeight(50);
 	p->searchBtn->setMaximumHeight(50);
 	p->widget->setAttribute(Qt::WA_Maemo5StackedWindow);
-	menu(true)->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:10px; } QMenu::item:selected { background-color: #00a0f8; }");
 	statusMenu->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:2px; } QMenu::item:selected { background-color: #00a0f8; }");
 #endif
 	p->widget->show();

@@ -320,6 +320,9 @@ namespace qutim_sdk_0_3
 		if (!d_func()->menu) {
 			d_func()->menu = new DynamicMenu(d_func());
 		}
+#ifdef Q_WS_MAEMO_5
+		d_func()->menu->menu()->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:4px; } QMenu::item:selected { background-color: #00a0f8; }");
+#endif
 #ifdef Q_OS_SYMBIAN
 		//workaround about buggy softkeys
 		d_func()->menu->onAboutToShow();
