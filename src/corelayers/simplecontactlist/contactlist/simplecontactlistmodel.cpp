@@ -80,10 +80,11 @@ Model::Model(QObject *parent) : QAbstractItemModel(parent), p(new ModelPrivate)
 							  this, SLOT(onTagsEditAction(QObject*)));
 	MenuController::addAction<Contact>(gen);
 	MenuController::addAction<Contact>(new AddRemoveContactActionGenerator(this));
-
+#ifndef QUTIM_MOBILE_UI
 	p->view->setDragEnabled(true);
 	p->view->setAcceptDrops(true);
 	p->view->setDropIndicatorShown(true);
+#endif
 }
 
 Model::~Model()
