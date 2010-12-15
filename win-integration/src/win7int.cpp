@@ -1,5 +1,5 @@
 #include "win7int.h"
-#include <qw7apiwrapper/OverlayIcon.h>
+#include <WinThings/OverlayIcon.h>
 #include <qutim/extensionicon.h>
 #include <qutim/conference.h>
 #include <qutim/servicemanager.h>
