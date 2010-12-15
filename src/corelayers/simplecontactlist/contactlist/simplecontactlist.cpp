@@ -137,7 +137,13 @@ Module::Module() : p(new ModulePrivate)
 
 	p->mainToolBar = new ActionToolBar(p->widget);
 	p->mainToolBar->setWindowTitle(tr("Main Toolbar"));
+
+#ifndef QUTIM_MOBILE_UI
 	p->widget->addToolBar(Qt::TopToolBarArea,p->mainToolBar);
+#else
+	p->widget->addToolBar(Qt::LeftToolBarArea,p->mainToolBar);
+	p->mainToolBar->setOrientation(Qt::Vertical);
+#endif
 	p->mainToolBar->setIconSize(toolbar_size);
 	p->mainToolBar->setFloatable(false);
 	p->mainToolBar->setMovable(false);
@@ -264,6 +270,13 @@ Module::Module() : p(new ModulePrivate)
 	statusMenu->addSeparator();
 
 	p->widget->loadGeometry();
+#ifdef Q_WS_MAEMO_5
+	p->statusBtn->setMaximumHeight(50);
+	p->searchBtn->setMaximumHeight(50);
+	p->widget->setAttribute(Qt::WA_Maemo5StackedWindow);
+	menu(true)->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:10px; } QMenu::item:selected { background-color: #00a0f8; }");
+	statusMenu->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:2px; } QMenu::item:selected { background-color: #00a0f8; }");
+#endif
 	p->widget->show();
 }
 
