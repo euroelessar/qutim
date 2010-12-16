@@ -215,8 +215,8 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 {
 	if(!session->unread().isEmpty())
 		session->markRead();
-
-	show();
+	if (qApp->activeWindow()!=this)
+		activateWindow();
 	setTitle(session);
 
 	if(m_currentSession) {
