@@ -24,11 +24,11 @@ ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 	resize(400,200);
 #else
 	resize(parent->width()-160,parent->height()-110);move(80,0);
-	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 #endif
 	setMinimumSize(size());
 	setFrameStyle(QFrame::NoFrame);
-	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	setWidget(new QWidget(this));
 
