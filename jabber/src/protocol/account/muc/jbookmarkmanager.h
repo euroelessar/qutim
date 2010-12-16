@@ -2,6 +2,7 @@
 #define JBOOKMARKMANAGER_H
 
 #include <qutim/libqutim_global.h>
+#include <qutim/groupchatmanager.h>
 #include <gloox/bookmarkhandler.h>
 #include <QMetaType>
 
@@ -13,6 +14,7 @@ namespace qutim_sdk_0_3
 namespace Jabber {
 
 	using namespace gloox;
+	using qutim_sdk_0_3::DataItem;
 
 	struct JBookmarkManagerPrivate;
 	class JAccount;
@@ -31,23 +33,32 @@ namespace Jabber {
 		bool autojoin;		
 	};
 
-	class JBookmarkManager : public QObject, public BookmarkHandler
+	class JBookmarkManager : public QObject, public BookmarkHandler, public qutim_sdk_0_3::GroupChatManager
 	{
 		Q_OBJECT
+		Q_INTERFACES(qutim_sdk_0_3::GroupChatManager)
 		public:
 			JBookmarkManager(JAccount *account);
 			~JBookmarkManager();
-			QList<JBookmark> bookmarks() const;
-			QList<JBookmark> recent() const;
+			QList<JBookmark> bookmarksList() const;
+			QList<JBookmark> recentList() const;
 			JBookmark find(const QString &name, bool recent = false) const;
 			int indexOfBookmark(const QString &name);
 			void saveBookmark(int index, const QString &name, const QString &conference,
 					const QString &nick, const QString &password, bool autojoin = false);
-			bool saveBookmark(const qutim_sdk_0_3::DataItem &item, const QString &oldName = QString());
 			void saveRecent(const QString &conference, const QString &nick, const QString &password);
 			void removeBookmark(int index);
 			void sync();
 			void clearRecent();
+			DataItem fields(const JBookmark &bookmark, bool isBookmark = true) const;
+
+			// Group chat manager
+			DataItem fields() const;
+			bool join(const DataItem &fields);
+			bool storeBookmark(const DataItem &fields, const DataItem &oldFields);
+			bool removeBookmark(const DataItem &fields);
+			QList<DataItem> bookmarks() const;
+			QList<DataItem> recent() const;
 		signals:
 			void serverBookmarksChanged();
 			void bookmarksChanged();
