@@ -322,6 +322,17 @@ namespace qutim_sdk_0_3
 		}
 #ifdef Q_WS_MAEMO_5
 		d_func()->menu->menu()->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:4px; } QMenu::item:selected { background-color: #00a0f8; }");
+		//maemo does not use QMenu in main menu. Only the action in menu.
+		foreach (QAction *action, d_func()->menu->menu()->actions()) {
+			ActionGenerator *gen = action->data().value<ActionGenerator*>();
+			if (!gen) {
+				if (!action->isSeparator())
+					qWarning() << "DynamicMenu::Invalid ActionGenerator:" << action->text();
+				continue;
+			}
+			QObject *controller = d_func()->menu->m_owners.value(gen);
+			ActionGeneratorPrivate::get(gen)->show(action,controller);
+		}
 #endif
 #ifdef Q_OS_SYMBIAN
 		//workaround about buggy softkeys
