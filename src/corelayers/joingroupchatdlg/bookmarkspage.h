@@ -19,6 +19,7 @@
 #include <QScrollArea>
 #include <QPointer>
 #include "groupchatpage.h"
+#include <qutim/dataforms.h>
 
 class QComboBox;
 namespace Core {
@@ -33,7 +34,7 @@ public:
 signals:
 	void bookmarksChanged();
 public slots:
-	void updateDataForm(const QString &name = QString());
+	void updateDataForm(qutim_sdk_0_3::DataItem fields);
 protected:
 	void showEvent(QShowEvent *);
 private slots:
@@ -42,9 +43,10 @@ private slots:
 	void onRemove();
 private:
 	bool isRecent(int index);
+	qutim_sdk_0_3::DataItem fields(int index);
 	QComboBox *m_bookmarksBox;
 	QAction *m_removeAction;
-	QPointer<QWidget> m_dataForm;
+	QPointer<qutim_sdk_0_3::AbstractDataForm> m_dataForm;
 };
 
 } // namespace Core

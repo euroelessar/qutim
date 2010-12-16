@@ -23,6 +23,7 @@
 #include <qutim/icon.h>
 #include <qutim/event.h>
 #include <qutim/dataforms.h>
+#include <qutim/groupchatmanager.h>
 #include <QPushButton>
 #include <qutim/debug.h>
 #include <QCommandLinkButton>
@@ -124,20 +125,25 @@ void JoinGroupChat::onAccountBoxActivated(int index)
 	ui->bookmarksPage->setModel(m_bookmarksBoxModel);
 }
 
-void JoinGroupChat::fillBookmarks(const QVariantList &items, bool recent)
+void JoinGroupChat::fillBookmarks(const QList<DataItem> &bookmarks, bool recent)
 {
 	QString txt = recent ?
 				QT_TRANSLATE_NOOP("JoinGroupChat", "Recent") :
 				QT_TRANSLATE_NOOP("JoinGroupChat", "Bookmarks");
 	m_bookmarksViewModel->addItem(BookmarkSeparator, txt);
 	int count = 0;
-	foreach (const QVariant &itemVar, items) {
-		QVariantMap item = itemVar.toMap();
-		QString name = item.value("name").toString();
-		QVariantMap fields = item.value("fields").toMap();
+	foreach (const DataItem &bookmark, bookmarks) {
+		QString name = bookmark.title();
+		QVariantMap fields;
+		foreach (const DataItem &subitem, bookmark.subitems()) {
+			 if (subitem.property("showInBookmarkInfo", true))
+				fields.insert(subitem.title(), subitem.data());
+		}
 		BookmarkType type = recent ? BookmarkRecentItem : BookmarkItem;
-		m_bookmarksViewModel->addItem(type, name, fields);
-		m_bookmarksBoxModel->addItem(type, name, fields);
+		QVariant userData = QVariant::fromValue(bookmark);
+
+		m_bookmarksViewModel->addItem(type, name, fields, userData);
+		m_bookmarksBoxModel->addItem(type, name, fields, userData);
 		++count;
 		if (recent && (count >= m_max_recent_count))
 			return;
@@ -146,6 +152,10 @@ void JoinGroupChat::fillBookmarks(const QVariantList &items, bool recent)
 
 void JoinGroupChat::fillBookmarks(Account *account)
 {
+	GroupChatManager *manager = GroupChatManager::getManager(account);
+	if (!manager)
+		return;
+
 	m_bookmarksBoxModel->startUpdating();
 	m_bookmarksViewModel->startUpdating();
 
@@ -158,17 +168,11 @@ void JoinGroupChat::fillBookmarks(Account *account)
 								  QT_TRANSLATE_NOOP("JoinGroupChat", "Manage bookmarks"),
 								  fields);
 
-	Event event ("groupchat-bookmark-list");
-	qApp->sendEvent(account,&event);
-
 	m_bookmarksBoxModel->addItem(BookmarkEmptyItem,QString());
 	//Bookmarks
-	QVariantList bookmarks = event.at<QVariantList>(0);
-	fillBookmarks(bookmarks);
+	fillBookmarks(manager->bookmarks());
 	//Recent items
-	m_bookmarksBoxModel->addItem(BookmarkSeparator, QT_TRANSLATE_NOOP("JoinGroupChat", "Recent"));
-	bookmarks = event.at<QVariantList>(1);
-	fillBookmarks(bookmarks, true);
+	fillBookmarks(manager->recent(), true);
 
 	m_bookmarksBoxModel->endUpdating();
 	m_bookmarksViewModel->endUpdating();
@@ -183,15 +187,11 @@ void JoinGroupChat::onItemActivated(const QModelIndex &index)
 	switch (type) {
 	case BookmarkItem:
 	case BookmarkRecentItem: {
-		//fill data
-		Event event("groupchat-fields");
-		event.args[1] = index.data().toString();
-		event.args[2] = true;
-		qApp->sendEvent(account, &event);
-		DataItem item = event.at<DataItem>(0);
-		//join
-		event = Event("groupchat-join",qVariantFromValue(item));
-		qApp->sendEvent(account, &event);
+		GroupChatManager *manager = GroupChatManager::getManager(account);
+		if (!manager)
+			break;
+		DataItem bookmark = index.data(Qt::UserRole).value<DataItem>();
+		manager->join(bookmark);
 		close();
 		break;
 	}

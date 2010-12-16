@@ -16,20 +16,22 @@
 #include "accountsmodel.h"
 #include <qutim/account.h>
 #include <qutim/protocol.h>
+#include <qutim/groupchatmanager.h>
 #include <algorithm>
 
 namespace Core {
 
+static inline bool isStatusActive(const Status &status)
+{
+	return status != Status::Offline && status != Status::Connecting;
+}
+
 AccountsModel::AccountsModel(QObject *parent) :
 	QAbstractListModel(parent)
 {
+	foreach (GroupChatManager *manager, GroupChatManager::allManagers())
+		onAccountCreated(manager->account());
 	foreach (Protocol *protocol, Protocol::all()) {
-		// TODO: use Event instead of Protocol::data()
-		bool support = protocol->data(qutim_sdk_0_3::Protocol::ProtocolSupportGroupChat).toBool();
-		if (!support)
-			continue;
-		foreach (Account *account, protocol->accounts())
-			onAccountCreated(account);
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
 	}
@@ -57,6 +59,8 @@ QVariant AccountsModel::data(const QModelIndex &index, int role) const
 
 void AccountsModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
+	if (GroupChatManager::getManager(account) == 0)
+		return;
 	connect(account, SIGNAL(nameChanged(QString,QString)),
 			this, SLOT(onAccountNameChanged()));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
@@ -100,10 +104,11 @@ void AccountsModel::onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
 {
 	Q_ASSERT(qobject_cast<Account*>(sender()));
 	Account *account = static_cast<Account*>(sender());
-	bool isActive = previous != Status::Offline;
-	if (isActive && current == Status::Offline) {
+	bool wasActive = isStatusActive(previous);
+	bool isActive = isStatusActive(current);
+	if (wasActive && !isActive) {
 		removeAccount(account, true);
-	} else if (!isActive && current != Status::Offline) {
+	} else if (!wasActive && isActive) {
 		addAccount(account);
 	} else {
 		int pos = m_accounts.indexOf(account);
@@ -116,7 +121,7 @@ void AccountsModel::onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
 
 bool AccountsModel::isActive(Account *account) const
 {
-	return account->status() != Status::Offline;
+	return isStatusActive(account->status());
 }
 
 inline QString AccountsModel::title(Account *account) const

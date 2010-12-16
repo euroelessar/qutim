@@ -32,7 +32,7 @@ enum BookmarkType
 
 enum BookmarkRoles
 {
-	BookmarkTypeRole = Qt::UserRole
+	BookmarkTypeRole = Qt::UserRole + 1
 };
 
 class BookmarksModel : public QAbstractListModel
@@ -43,7 +43,9 @@ public:
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 	QVariant data(int index, int role = Qt::DisplayRole) const;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	void addItem(BookmarkType type, const QString &text, const QVariant &fields = QVariantMap());
+	void addItem(BookmarkType type, const QString &text,
+				 const QVariant &fields = QVariantMap(),
+				 const QVariant &userData = QVariant());
 	void startUpdating();
 	void endUpdating();
 	void clear();
@@ -51,12 +53,13 @@ private:
 	struct Bookmark
 	{
 		Bookmark() {}
-		Bookmark(BookmarkType type_, const QString &text_, const QVariant &fields_) :
-			type(type_), text(text_), fields(fields_)
+		Bookmark(BookmarkType type_, const QString &text_, const QVariant &fields_, const QVariant &userData_) :
+			type(type_), text(text_), fields(fields_), userData(userData_)
 		{}
 		BookmarkType type;
 		QString text;
 		QVariant fields;
+		QVariant userData;
 	};
 	QList<Bookmark> m_bookmarks;
 	bool m_resetting;

@@ -21,7 +21,7 @@
 #include <itemdelegate.h>
 #include <qutim/event.h>
 #include <qutim/account.h>
-#include <qutim/dataforms.h>
+#include <qutim/groupchatmanager.h>
 #include <QLabel>
 #include <QApplication>
 
@@ -61,17 +61,21 @@ void BookmarksPage::setModel(BookmarksModel *model)
 	m_bookmarksBox->setModel(model);
 }
 
-void BookmarksPage::updateDataForm(const QString &name)
+void BookmarksPage::updateDataForm(DataItem fields)
 {
-	Event event("groupchat-fields");
-	event.args[1] = name;
-	event.args[2] = true;
-	qApp->sendEvent(account(), &event);
-	DataItem item = event.at<DataItem>(0);
 	if (m_dataForm)
 		m_dataForm->deleteLater();
 
-	m_dataForm = AbstractDataForm::get(item);
+	if (fields.isNull()) {
+		GroupChatManager *manager = GroupChatManager::getManager(account());
+		if (!manager)
+			return;
+		fields = manager->fields();
+		if (fields.isNull())
+			return;
+	}
+
+	m_dataForm = AbstractDataForm::get(fields);
 	if (m_dataForm) {
 		m_dataForm->setParent(this);
 		m_dataForm->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
@@ -82,22 +86,32 @@ void BookmarksPage::updateDataForm(const QString &name)
 void BookmarksPage::onCurrentIndexChanged(int index)
 {
 	m_removeAction->setVisible(index ? !isRecent(index) : false);
-	updateDataForm(m_bookmarksBox->itemText(index));
+	updateDataForm(fields(index));
 }
 
 void BookmarksPage::onSave()
 {
-	DataItem item = qobject_cast<AbstractDataForm*>(m_dataForm)->item();
-	Event event ("groupchat-bookmark-save", qVariantFromValue(item));
-	event.args[1] = m_bookmarksBox->currentText(); //old name
-	qApp->sendEvent(account(), &event);
+	GroupChatManager *manager = GroupChatManager::getManager(account());
+	if (!manager)
+		return;
+	DataItem fields = m_dataForm->item();
+	DataItem oldFields = this->fields(m_bookmarksBox->currentIndex());
+	if (fields.isNull())
+		return;
+	manager->storeBookmark(fields, oldFields);
 	emit bookmarksChanged();
 }
 
 void BookmarksPage::onRemove()
 {
-	Event event ("groupchat-bookmark-remove", m_bookmarksBox->currentText());
-	qApp->sendEvent(account(), &event);
+	GroupChatManager *manager = GroupChatManager::getManager(account());
+	if (!manager)
+		return;
+
+	DataItem fields = this->fields(m_bookmarksBox->currentIndex());
+	if (fields.isNull())
+		return;
+	manager->removeBookmark(fields);
 	emit bookmarksChanged();
 }
 
@@ -108,9 +122,15 @@ bool BookmarksPage::isRecent(int index)
 	return type == BookmarkRecentItem;
 }
 
+DataItem BookmarksPage::fields(int index)
+{
+	BookmarksModel *model = static_cast<BookmarksModel*>(m_bookmarksBox->model());
+	return model->data(index, Qt::UserRole).value<DataItem>();
+}
+
 void BookmarksPage::showEvent(QShowEvent *ev)
 {
-	updateDataForm();
+	updateDataForm(fields(m_bookmarksBox->currentIndex()));
 	GroupChatPage::showEvent(ev);
 }
 

@@ -75,17 +75,20 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const
 	case SeparatorRole:
 		if (bookmark.type == BookmarkSeparator)
 			return true;
+	case Qt::UserRole:
+		return bookmark.userData;
 	}
 	return QVariant();
 }
 
-void BookmarksModel::addItem(BookmarkType type, const QString &text, const QVariant &fields)
+void BookmarksModel::addItem(BookmarkType type, const QString &text,
+							 const QVariant &fields, const QVariant &userData)
 {
 	if (!m_resetting) {
 		int pos = m_bookmarks.size();
 		beginInsertRows(QModelIndex(), pos, pos);
 	}
-	m_bookmarks.push_back(Bookmark(type, text, fields));
+	m_bookmarks.push_back(Bookmark(type, text, fields, userData));
 	if (!m_resetting)
 		endRemoveRows();
 }

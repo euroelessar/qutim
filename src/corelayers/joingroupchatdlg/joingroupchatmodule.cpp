@@ -20,22 +20,18 @@
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 #include <qutim/servicemanager.h>
+#include <qutim/groupchatmanager.h>
 #include <QApplication>
 
 namespace Core
 {
 
-bool isSupportGroupchat()
+static bool isSupportGroupchat()
 {
-	foreach (Protocol *p,Protocol::all()) {
-		bool support = p->data(qutim_sdk_0_3::Protocol::ProtocolSupportGroupChat).toBool();
-		if (support) {
-			foreach (Account *a,p->accounts()) {
-				if (a->status() != Status::Offline) {
-					return true;
-				}
-			}
-		}
+	foreach (GroupChatManager *manager, GroupChatManager::allManagers()) {
+		Status::Type status = manager->account()->status().type();
+		if (status != Status::Offline && status != Status::Connecting)
+			return true;
 	}
 	return false;
 }

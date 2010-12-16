@@ -54,7 +54,9 @@ public:
 protected:
 	virtual QObject *generateHelper() const
 	{
-		return prepareAction(new EmoAction(0));
+		EmoAction *emo = new EmoAction();
+		prepareAction(emo);
+		return emo;
 	}
 };
 

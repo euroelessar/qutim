@@ -93,7 +93,7 @@ EmoAction::EmoAction(QObject *parent) :
 	QAction(parent)
 {
 #ifndef QUTIM_MOBILE_UI
-	QMenu *menu = new QMenu();
+	QMenu *menu = new QMenu(parentWidget());
 	setMenu(menu);
 	QWidgetAction *emoticons_widget_act = new QWidgetAction(this);
 	emoticons_widget = new ChatEmoticonsWidget(menu);
