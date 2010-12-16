@@ -9,6 +9,7 @@
 #include <qutim/debug.h>
 #include <QWidgetAction>
 #include <QMenu>
+#include <QApplication>
 
 namespace Core
 {
@@ -22,11 +23,12 @@ ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 #ifndef Q_WS_MAEMO_5
 	resize(400,200);
 #else
-	resize(700,300);
+	resize(parent->width()-160,parent->height()-110);move(80,0);
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 #endif
 	setMinimumSize(size());
 	setFrameStyle(QFrame::NoFrame);
-	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	setWidget(new QWidget(this));
 
@@ -60,6 +62,7 @@ void ChatEmoticonsWidget::clearEmoticonsPreview()
 
 void ChatEmoticonsWidget::showEvent(QShowEvent *)
 {
+
 	foreach (QWidget *widget,m_active_emoticons) {
 		QLabel *label = static_cast<QLabel *>(widget);
 		label->movie()->start();
@@ -80,7 +83,7 @@ void ChatEmoticonsWidget::hideEvent(QHideEvent *)
 bool ChatEmoticonsWidget::eventFilter(QObject *obj, QEvent *event)
 {
 	if (QLabel *label = static_cast<QLabel *>(obj))	{
-		if (event->type() == QEvent::MouseButtonPress)
+	    if ((event->type() == QEvent::MouseButtonPress)&&(label->toolTip()!=""))
 			emit insertSmile(label->toolTip());
 	}
 	return QObject::eventFilter(obj, event);
@@ -89,21 +92,42 @@ bool ChatEmoticonsWidget::eventFilter(QObject *obj, QEvent *event)
 EmoAction::EmoAction(QObject *parent) :
 	QAction(parent)
 {
+#ifndef QUTIM_MOBILE_UI
 	QMenu *menu = new QMenu();
 	setMenu(menu);
 	QWidgetAction *emoticons_widget_act = new QWidgetAction(this);
-	ChatEmoticonsWidget *emoticons_widget = new ChatEmoticonsWidget(menu);
+	emoticons_widget = new ChatEmoticonsWidget(menu);
 	emoticons_widget->loadTheme();
 	emoticons_widget_act->setDefaultWidget(emoticons_widget);
 	menu->addAction(emoticons_widget_act);
 	connect(emoticons_widget, SIGNAL(insertSmile(QString)),
-			this,SLOT(onInsertSmile(QString)));
+		    this,SLOT(onInsertSmile(QString)));
+#else
+	emoticons_widget=0;
+	connect(this,SIGNAL(triggered()),this,SLOT(triggerEmoticons()));
+#endif
 }
 
 void EmoAction::onInsertSmile(const QString &code)
 {
 	setProperty("emoticon",code);
 	emit triggered();
+	setProperty("emoticon","");
+}
+void EmoAction::triggerEmoticons()
+{
+	if (!emoticons_widget)
+	{
+		emoticons_widget = new ChatEmoticonsWidget(qApp->activeWindow());
+		emoticons_widget->loadTheme();
+		connect(emoticons_widget, SIGNAL(insertSmile(QString)),
+			this,SLOT(onInsertSmile(QString)));
+	}
+
+	if (emoticons_widget->isVisible())
+	    emoticons_widget->hide();
+	else
+	    emoticons_widget->show();
 }
 
 }
