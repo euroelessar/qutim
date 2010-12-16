@@ -89,7 +89,7 @@ bool ChatEmoticonsWidget::eventFilter(QObject *obj, QEvent *event)
 EmoAction::EmoAction(QObject *parent) :
 	QAction(parent)
 {
-	QMenu *menu = new QMenu();
+	QMenu *menu = new QMenu(parentWidget());
 	setMenu(menu);
 	QWidgetAction *emoticons_widget_act = new QWidgetAction(this);
 	ChatEmoticonsWidget *emoticons_widget = new ChatEmoticonsWidget(menu);
