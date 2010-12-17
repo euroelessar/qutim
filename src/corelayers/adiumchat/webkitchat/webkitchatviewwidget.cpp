@@ -13,7 +13,8 @@ namespace AdiumChat
 WebkitChatViewWidget::WebkitChatViewWidget() :
 	QFrame(),
 	ChatViewWidget(),
-	m_view(new QWebView)
+	m_view(new QWebView),
+	mousePressed(false)
 {
 	new QVBoxLayout(this);
 	layout()->addWidget(m_view);
@@ -55,6 +56,30 @@ bool WebkitChatViewWidget::eventFilter(QObject *obj, QEvent *event)
 			}
 		}
 	}
+#ifdef QUTIM_MOBILE_UI
+	switch (event->type()) {
+	case QEvent::MouseButtonPress:
+	    if (static_cast<QMouseEvent *>(event)->button() == Qt::LeftButton)
+		mousePressed = true;
+	    break;
+	case QEvent::MouseButtonRelease:
+	    if (static_cast<QMouseEvent *>(event)->button() == Qt::LeftButton)
+		mousePressed = false;
+	    break;
+	case QEvent::Gesture:
+		 return true;
+	    break;
+	case QEvent::MouseMove:
+	    if (mousePressed)
+		return true;
+	    break;
+
+	    break;
+	default:
+	    break;
+	}
+	return false;
+#endif
 	return QFrame::eventFilter(obj,event);
 }
 
