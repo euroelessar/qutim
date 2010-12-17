@@ -24,6 +24,7 @@
 #include <QtWebKit/QWebElement>
 #include <QVariantMap>
 #include <QCryptographicHash>
+#include <QApplication>
 #include <qutim/debug.h>
 #include <qutim/notificationslayer.h>
 #include <qutim/json.h>
@@ -33,7 +34,7 @@
 #include "vmessages.h"
 #include "vlongpollclient.h"
 
-Q_GLOBAL_STATIC_WITH_ARGS(QString, appId, (QLatin1String("1865463"))) // 1912927"))) // 
+Q_GLOBAL_STATIC_WITH_ARGS(QString, appId, (QLatin1String("1865463"))) // 1912927"))) //
 
 void VConnectionPrivate::onError(QNetworkReply::NetworkError)
 {
@@ -79,7 +80,11 @@ void VConnection::connectToHost(const QString& passwd)
 	Q_UNUSED(passwd)
 	if (d->webView)
 		return;
-	d->webView = new QWebView;
+	d->webView = new QWebView(qApp->activeWindow());
+#ifdef Q_WS_MAEMO_5
+	d->webView->setAttribute(Qt::WA_Maemo5StackedWindow);
+#endif
+	d->webView->setWindowFlags(d->webView->windowFlags() | Qt::Window);
 	d->webView->page()->setNetworkAccessManager(this);
 	d->webView->setWindowTitle(tr("qutIM - VKontakte authorization"));
 	QUrl url("http://vkontakte.ru/login.php");
