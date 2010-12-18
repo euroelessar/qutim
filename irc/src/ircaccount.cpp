@@ -82,6 +82,7 @@ void IrcAccount::setStatus(Status status)
 	// Send status.
 	if (status == Status::Offline) {
 		d->conn->disconnectFromHost(false);
+		resetGroupChatManager();
 	} else {
 		if (current == Status::Offline) {
 			status.setType(Status::Connecting);
@@ -92,6 +93,8 @@ void IrcAccount::setStatus(Status status)
 		}
 		if (status.type() == Status::Away)
 			d->conn->send(QString("AWAY %1").arg(status.text()));
+		if (current == Status::Connecting && status != Status::Offline)
+			resetGroupChatManager(d->groupManager.data());
 	}
 	status.initIcon("irc");
 	Account::setStatus(status);
