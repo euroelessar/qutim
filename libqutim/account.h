@@ -28,6 +28,7 @@ namespace qutim_sdk_0_3
 	class Protocol;
 	class Conference;
 	class AccountPrivate;
+	class GroupChatManager;
 
 	class Account;
 	typedef QList<Account*> AccountList;
@@ -106,6 +107,19 @@ namespace qutim_sdk_0_3
 		
 		Q_INVOKABLE inline qutim_sdk_0_3::ChatUnit *unit(const QString &unitId, bool create = false);
 		static AccountList all();
+		/*!
+		  Returns the group chat manager of the account.
+
+		  \see resetGroupChatManager()
+		*/
+		GroupChatManager *groupChatManager();
+	protected:
+		/**
+		  Sets the group chat \a manager to be used by this account.
+
+		  \see groupChatManager()
+		*/
+		void resetGroupChatManager(GroupChatManager *manager = 0);
 	signals:
 		/*!
 		  Signal is emitted when new \a contact was created.
@@ -123,6 +137,12 @@ namespace qutim_sdk_0_3
 		  Signal is emitted when account's \a status was changed.
 		*/
 		void statusChanged(const qutim_sdk_0_3::Status &current, const qutim_sdk_0_3::Status &previous);
+		/*!
+		  Signal is emitted whenever the group chat manager has been reset.
+
+		  \see groupChatManager(), resetGroupChatManager()
+		*/
+		void groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
 	};
 	
 	ChatUnit *Account::unit(const QString &unitId, bool create)

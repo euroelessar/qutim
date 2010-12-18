@@ -21,6 +21,7 @@
 #include "account.h"
 #include "protocol.h"
 #include "status.h"
+#include "groupchatmanager_p.h"
 
 namespace qutim_sdk_0_3
 {
@@ -31,6 +32,7 @@ namespace qutim_sdk_0_3
 		QPointer<Protocol> protocol;
 		QString id;
 		Status status;
+		GroupChatManager *groupChatManager;
 	};
 }
 

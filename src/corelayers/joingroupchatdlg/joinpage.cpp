@@ -47,7 +47,7 @@ void JoinPage::updateDataForm()
 		m_dataForm->deleteLater();
 	m_joinAction->setEnabled(false);
 
-	GroupChatManager *manager = GroupChatManager::getManager(account());
+	GroupChatManager *manager = account()->groupChatManager();
 	if (!manager)
 		return;
 
@@ -68,7 +68,7 @@ void JoinPage::join()
 	if (!m_dataForm)
 		return;
 
-	GroupChatManager *manager = GroupChatManager::getManager(account());
+	GroupChatManager *manager = account()->groupChatManager();
 	if (!manager)
 		return;
 

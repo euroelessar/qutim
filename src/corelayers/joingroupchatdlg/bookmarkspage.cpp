@@ -67,7 +67,7 @@ void BookmarksPage::updateDataForm(DataItem fields)
 		m_dataForm->deleteLater();
 
 	if (fields.isNull()) {
-		GroupChatManager *manager = GroupChatManager::getManager(account());
+		GroupChatManager *manager = account()->groupChatManager();
 		if (!manager)
 			return;
 		fields = manager->fields();
@@ -91,7 +91,7 @@ void BookmarksPage::onCurrentIndexChanged(int index)
 
 void BookmarksPage::onSave()
 {
-	GroupChatManager *manager = GroupChatManager::getManager(account());
+	GroupChatManager *manager = account()->groupChatManager();
 	if (!manager)
 		return;
 	DataItem fields = m_dataForm->item();
@@ -104,7 +104,7 @@ void BookmarksPage::onSave()
 
 void BookmarksPage::onRemove()
 {
-	GroupChatManager *manager = GroupChatManager::getManager(account());
+	GroupChatManager *manager = account()->groupChatManager();
 	if (!manager)
 		return;
 

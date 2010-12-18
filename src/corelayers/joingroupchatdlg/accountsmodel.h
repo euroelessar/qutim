@@ -21,6 +21,7 @@
 
 namespace qutim_sdk_0_3 {
 class Account;
+class GroupChatManager;
 }
 
 namespace Core {
@@ -40,8 +41,8 @@ private slots:
 	void onAccountNameChanged();
 	void onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
 								const qutim_sdk_0_3::Status &previous);
+	void onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
 private:
-	bool isActive(Account *account) const;
 	QString title(Account *account) const;
 	int findPlaceForAccount(Account *account) const;
 	void addAccount(Account *account);

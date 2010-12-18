@@ -152,7 +152,7 @@ void JoinGroupChat::fillBookmarks(const QList<DataItem> &bookmarks, bool recent)
 
 void JoinGroupChat::fillBookmarks(Account *account)
 {
-	GroupChatManager *manager = GroupChatManager::getManager(account);
+	GroupChatManager *manager = account->groupChatManager();
 	if (!manager)
 		return;
 
@@ -187,7 +187,7 @@ void JoinGroupChat::onItemActivated(const QModelIndex &index)
 	switch (type) {
 	case BookmarkItem:
 	case BookmarkRecentItem: {
-		GroupChatManager *manager = GroupChatManager::getManager(account);
+		GroupChatManager *manager = account->groupChatManager();
 		if (!manager)
 			break;
 		DataItem bookmark = index.data(Qt::UserRole).value<DataItem>();

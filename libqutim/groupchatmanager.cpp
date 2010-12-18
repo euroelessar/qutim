@@ -39,22 +39,15 @@ GroupChatManager::GroupChatManager(Account *account) :
     d(new GroupChatManagerPrivate)
 {
     d->account = account;
-    GroupChatManagersList::instance()->addManager(this);
 }
 
 GroupChatManager::~GroupChatManager()
 {
-    GroupChatManagersList::instance()->removeManager(this);
 }
 
 Account *GroupChatManager::account() const
 {
     return d->account;
-}
-
-GroupChatManager *GroupChatManager::getManager(Account *account)
-{
-    return GroupChatManagersList::instance()->managers().value(account);
 }
 
 QList<GroupChatManager*> GroupChatManager::allManagers()

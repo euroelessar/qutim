@@ -39,7 +39,7 @@ public:
 
 		Returns true if the bookmark has been successfully stored; otherwise returns false.
 	*/
-	virtual bool storeBookmark(const DataItem &fields, const DataItem &oldField) = 0;
+	virtual bool storeBookmark(const DataItem &fields, const DataItem &oldFields) = 0;
 	/**
 		Remove bookmark.
 
@@ -55,11 +55,9 @@ public:
 	*/
 	virtual QList<DataItem> recent() const = 0;
 	/**
-		Returns the GroupChatManager for the \a account.
-	*/
-	static GroupChatManager *getManager(Account *account);
-	/**
 		Returns the list of all managers.
+
+		\see Account::getGroupChatManager()
 	*/
 	static QList<GroupChatManager*> allManagers();
 private:

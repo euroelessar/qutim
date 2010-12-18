@@ -21,19 +21,14 @@
 
 namespace Core {
 
-static inline bool isStatusActive(const Status &status)
-{
-	return status != Status::Offline && status != Status::Connecting;
-}
-
 AccountsModel::AccountsModel(QObject *parent) :
 	QAbstractListModel(parent)
 {
-	foreach (GroupChatManager *manager, GroupChatManager::allManagers())
-		onAccountCreated(manager->account());
 	foreach (Protocol *protocol, Protocol::all()) {
 		connect(protocol, SIGNAL(accountCreated(qutim_sdk_0_3::Account*)),
 				SLOT(onAccountCreated(qutim_sdk_0_3::Account*)));
+		foreach (Account *account, protocol->accounts())
+			onAccountCreated(account);
 	}
 }
 
@@ -59,15 +54,15 @@ QVariant AccountsModel::data(const QModelIndex &index, int role) const
 
 void AccountsModel::onAccountCreated(qutim_sdk_0_3::Account *account)
 {
-	if (GroupChatManager::getManager(account) == 0)
-		return;
 	connect(account, SIGNAL(nameChanged(QString,QString)),
 			this, SLOT(onAccountNameChanged()));
 	connect(account, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			this, SLOT(onAccountStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 	connect(account, SIGNAL(destroyed(QObject*)),
 			this, SLOT(onAccountDestroyed(QObject*)));
-	if (isActive(account))
+	connect(account, SIGNAL(groupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)),
+			this, SLOT(onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager*)));
+	if (account->groupChatManager())
 		addAccount(account);
 }
 
@@ -80,7 +75,7 @@ void AccountsModel::onAccountNameChanged()
 {
 	Q_ASSERT(qobject_cast<Account*>(sender()));
 	Account *account = static_cast<Account*>(sender());
-	if (!isActive(account))
+	if (!account->groupChatManager())
 		return;
 	int oldPos = m_accounts.indexOf(account);
 	if (oldPos == -1)
@@ -99,29 +94,30 @@ void AccountsModel::onAccountNameChanged()
 	}
 }
 
-void AccountsModel::onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
-										   const qutim_sdk_0_3::Status &previous)
+void AccountsModel::onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *manager)
 {
 	Q_ASSERT(qobject_cast<Account*>(sender()));
 	Account *account = static_cast<Account*>(sender());
-	bool wasActive = isStatusActive(previous);
-	bool isActive = isStatusActive(current);
-	if (wasActive && !isActive) {
-		removeAccount(account, true);
-	} else if (!wasActive && isActive) {
+	if (manager)
 		addAccount(account);
-	} else {
-		int pos = m_accounts.indexOf(account);
-		if (pos != 0) {
-			QModelIndex i = index(pos, 0);
-			emit dataChanged(i, i);
-		}
-	}
+	else
+		removeAccount(account, true);
 }
 
-bool AccountsModel::isActive(Account *account) const
+void AccountsModel::onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
+										   const qutim_sdk_0_3::Status &previous)
 {
-	return isStatusActive(account->status());
+	Q_UNUSED(current);
+	Q_UNUSED(previous);
+	Q_ASSERT(qobject_cast<Account*>(sender()));
+	Account *account = static_cast<Account*>(sender());
+	if (!account->groupChatManager())
+		return;
+	int pos = m_accounts.indexOf(account);
+	if (pos != 0) {
+		QModelIndex i = index(pos, 0);
+		emit dataChanged(i, i);
+	}
 }
 
 inline QString AccountsModel::title(Account *account) const
