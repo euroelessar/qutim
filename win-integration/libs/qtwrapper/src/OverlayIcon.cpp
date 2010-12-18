@@ -22,7 +22,7 @@ void OverlayIcon::set(const QIcon &icon)
 
 void OverlayIcon::set(const QPixmap &icon)
 {
-	HICON hIcon = icon.toWinHICON();
+	HICON hIcon = icon.scaled(16, 16).toWinHICON();
 	SetOverlayIcon(m_window->winId(), hIcon, 0);
 	DestroyIcon(hIcon);
 }
