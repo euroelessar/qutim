@@ -47,7 +47,7 @@ endmacro()
 LIST_SUBDIRECTORIES(3RDPARTY_INCLUDE_DIRS "3rdparty")
 
 #Include X11, spike for freebsd
-FIND_PACKAGE(X11 REQUIRED)
+FIND_PACKAGE(X11)
 
 INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 	${QT_QTCORE_INCLUDE_DIR}
@@ -118,11 +118,12 @@ foreach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
     add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )
 endforeach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
 
-QUTIM_ADD_OPTION(QUTIM_MOBILE_UI
-	"User interface for mobile devices like Nokia 5800"
-	"qutIM will be compiled with mobile ui"
-	OFF
-)
+#QUTIM_ADD_OPTION(QUTIM_MOBILE_UI
+#	"User interface for mobile devices like Nokia 5800"
+#	"qutIM will be compiled with mobile ui"
+#	OFF
+#)
+
 QUTIM_ADD_OPTION(QUTIM_SINGLE_PROFILE
 	"Single profil by default" 
 	"qutIM will be compiled without multiply profiles by default"
