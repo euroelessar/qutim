@@ -23,39 +23,39 @@
 #include "../roster/jmessagesession.h"
 #include <gloox/mucroomhandler.h>
 
-using namespace gloox;
+//using namespace gloox;
 
-namespace Jabber
-{
-	class JSessionConvertorPrivate;
+//namespace Jabber
+//{
+//	class JSessionConvertorPrivate;
 	
-	class JSessionConvertor : public QObject, public JServiceReceiver, public MUCRoomHandler
-	{
-		Q_OBJECT
-		Q_INTERFACES(Jabber::JServiceReceiver)
-		Q_DECLARE_PRIVATE(JSessionConvertor)
-	public:
-		explicit JSessionConvertor(JMessageSession *session);
-		~JSessionConvertor();
-		virtual void setInfo(int id);
-		virtual void setItems(int id, const QList<JDiscoItem> &items);
-		virtual void setError(int id);
+//	class JSessionConvertor : public QObject, public JServiceReceiver, public MUCRoomHandler
+//	{
+//		Q_OBJECT
+//		Q_INTERFACES(Jabber::JServiceReceiver)
+//		Q_DECLARE_PRIVATE(JSessionConvertor)
+//	public:
+//		explicit JSessionConvertor(JMessageSession *session);
+//		~JSessionConvertor();
+//		virtual void setInfo(int id);
+//		virtual void setItems(int id, const QList<JDiscoItem> &items);
+//		virtual void setError(int id);
 		
-		void handleMUCParticipantPresence(MUCRoom *room, const MUCRoomParticipant participant,
-										  const Presence &presence);
-		void handleMUCMessage(MUCRoom *room, const gloox::Message &msg, bool priv);
-		bool handleMUCRoomCreation(MUCRoom *room);
-		void handleMUCSubject(MUCRoom *room, const std::string &nick, const std::string &subject);
-		void handleMUCInviteDecline(MUCRoom *room, const JID &invitee, const std::string &reason);
-		void handleMUCError(MUCRoom *room, StanzaError error);
-		void handleMUCInfo(MUCRoom *room, int features, const std::string &name,
-						   const DataForm *infoForm);
-		void handleMUCItems(MUCRoom *room, const Disco::ItemList &items);
-	protected:
-		void processServer(const QString &server);
-	private:
-		QScopedPointer<JSessionConvertorPrivate> d_ptr;
-	};
-}
+//		void handleMUCParticipantPresence(MUCRoom *room, const MUCRoomParticipant participant,
+//										  const Presence &presence);
+//		void handleMUCMessage(MUCRoom *room, const gloox::Message &msg, bool priv);
+//		bool handleMUCRoomCreation(MUCRoom *room);
+//		void handleMUCSubject(MUCRoom *room, const std::string &nick, const std::string &subject);
+//		void handleMUCInviteDecline(MUCRoom *room, const JID &invitee, const std::string &reason);
+//		void handleMUCError(MUCRoom *room, StanzaError error);
+//		void handleMUCInfo(MUCRoom *room, int features, const std::string &name,
+//						   const DataForm *infoForm);
+//		void handleMUCItems(MUCRoom *room, const Disco::ItemList &items);
+//	protected:
+//		void processServer(const QString &server);
+//	private:
+//		QScopedPointer<JSessionConvertorPrivate> d_ptr;
+//	};
+//}
 
 #endif // JSESSIONCONVERTOR_H

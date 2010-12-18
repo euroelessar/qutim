@@ -1,81 +1,70 @@
 #include "jjidvalidator.h"
-#include <gloox/jid.h>
-#include <gloox/gloox.h>
+#include <jreen/jid.h>
 
 namespace Jabber
 {
-	class JJidValidatorPrivate
-	{
-	public:
-		std::string server;
-	};
+class JJidValidatorPrivate
+{
+public:
+	QString server;
+};
 
-	JJidValidator::JJidValidator(const QString &server, QObject *parent)
-			: QValidator(parent), d_ptr(new JJidValidatorPrivate)
-	{
-		d_func()->server = server.isNull() ? gloox::EmptyString : server.toStdString();
-	}
+JJidValidator::JJidValidator(const QString &server, QObject *parent)
+	: QValidator(parent), d_ptr(new JJidValidatorPrivate)
+{
+	d_func()->server = server;
+}
 
-	JJidValidator::JJidValidator(const std::string &server, QObject *parent)
-			: QValidator(parent), d_ptr(new JJidValidatorPrivate)
-	{
-		d_func()->server = server;
-	}
+JJidValidator::~JJidValidator()
+{
+}
 
-	JJidValidator::~JJidValidator()
-	{
-	}
+QString JJidValidator::server() const
+{
+	return d_func()->server;
+}
 
-	QString JJidValidator::server() const
-	{
-		return QString::fromStdString(d_func()->server);
-	}
-
-	QValidator::State JJidValidator::validate(QString &str, int &) const
-	{
-		Q_D(const JJidValidator);
-		gloox::JID jid;
-		if (d->server.empty()) {
-
-			std::string jidFull = str.toStdString();
-			jid.setJID(jidFull);
-			if (str.indexOf('@') == str.size()-1)
-				return Intermediate;
-			if (!jid)
-				return Invalid;
+QValidator::State JJidValidator::validate(QString &str, int &) const
+{
+	Q_D(const JJidValidator);
+	jreen::JID jid;
+	if (d->server.isEmpty()) {
+		jid.setJID(str);
+		if (str.indexOf('@') == str.size()-1)
+			return Intermediate;
+		if (!jid.isValid())
+			return Invalid;
+	} else {
+		if (str.indexOf('@') != -1) {
+			if (jid.setJID(str))
+				jid.setDomain(d->server);
 		} else {
-			std::string jidNode = str.toStdString();
-			if (str.indexOf('@') != -1) {
-				if (jid.setJID(jidNode))
-					jid.setServer(d->server);
-			} else {
-				if (jid.setUsername(jidNode))
-					jid.setServer(d->server);
-			}
-			if (!jid)
-				return Invalid;
+			if (jid.setNode(str))
+				jid.setDomain(d->server);
 		}
-		fixup(str);
-		return Acceptable;
+		if (!jid.isValid())
+			return Invalid;
 	}
+	fixup(str);
+	return Acceptable;
+}
 
-	void JJidValidator::fixup(QString &str) const
-	{
-		Q_D(const JJidValidator);
-		gloox::JID jid;
-		if (d->server.empty()) {
-			if (jid.setJID(str.toStdString()))
-				str = QString::fromStdString(jid.bare());
+void JJidValidator::fixup(QString &str) const
+{
+	Q_D(const JJidValidator);
+	jreen::JID jid;
+	if (d->server.isEmpty()) {
+		if (jid.setJID(str))
+			str = jid.bare();
+	} else {
+		if (str.indexOf('@') != -1) {
+			if (jid.setJID(str))
+				jid.setDomain(d->server);
 		} else {
-			std::string jidNode = str.toStdString();
-			if (str.indexOf('@') != -1) {
-				if (jid.setJID(jidNode))
-					jid.setServer(d->server);
-			} else {
-				if (jid.setUsername(jidNode))
-					jid.setServer(d->server);
-			}
-			str = jid ? QString::fromStdString(jid.username()) : str;
+			if (jid.setNode(str))
+				jid.setDomain(d->server);
 		}
+		str = jid.isValid() ? jid.node() : str;
 	}
+}
 }

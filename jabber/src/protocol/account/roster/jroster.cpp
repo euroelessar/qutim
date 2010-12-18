@@ -347,6 +347,17 @@ void JRoster::requestSubscription(const jreen::JID &id,const QString &reason)
 	d->account->client()->send(presence);
 }
 
+
+void JRoster::loadSettings()
+{
+
+}
+
+void JRoster::saveSettings()
+{
+
+}
+
 //dead code
 
 //struct JRosterPrivate

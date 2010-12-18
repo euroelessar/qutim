@@ -62,27 +62,13 @@ QString JContact::id() const
 
 bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 {
-	Q_D(JContact);
 	JAccount *a = static_cast<JAccount*>(account());
 
-	if(a->status() == Status::Offline)
+	if(a->status() == Status::Offline || a->status() == Status::Connecting)
 		return false;
 	qDebug("%s", Q_FUNC_INFO);
-	//		if (!session())
-	//			d_func()->account->messageHandler()->createSession(this);
-	//		session()->sendMessage(message);
 
-	//FIXME testing testing testing
-	jreen::MessageSession *session = a->messageSessionManager()->session(d->jid,
-																		 jreen::Message::Chat,
-																		 true);
-
-	jreen::Message msg(jreen::Message::Chat,
-					   id(),
-					   message.text(),
-					   message.property("subject").toString());
-	msg.setID(QString::number(message.id()));
-	session->sendMessage(msg);
+	a->messageSessionManager()->sendMessage(message);
 	return true;
 }
 

@@ -73,9 +73,9 @@ void JProtocol::loadActions()
 	MenuController::addAction<JMUCUser>(
 				new ActionGenerator(Icon("im-ban-user"), QT_TRANSLATE_NOOP("Conference", "Ban"),
 									this, SLOT(onBanUser(QObject*))));
-	MenuController::addAction<JMessageSession>(
-				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
-									this, SLOT(onConvertToMuc(QObject*))));
+	//MenuController::addAction<JMessageSession>(
+	//			new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
+	//								this, SLOT(onConvertToMuc(QObject*))));
 
 	ActionGenerator *generator  = new ActionGenerator(QIcon(),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
 													  this, SLOT(onJoinLeave(QObject*)));
@@ -145,8 +145,8 @@ void JProtocol::onBanUser(QObject *obj)
 
 void JProtocol::onConvertToMuc(QObject *obj)
 {
-	JMessageSession *session = qobject_cast<JMessageSession*>(obj);
-	Q_ASSERT(session);
+	//JMessageSession *session = qobject_cast<JMessageSession*>(obj);
+	//Q_ASSERT(session);
 	//session->convertToMuc();
 }
 

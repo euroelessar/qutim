@@ -30,6 +30,9 @@ public:
 	void removeContact(const JContact *contact);
 	void requestSubscription(const jreen::JID &id, const QString &reason = QString());
 	void removeSubscription(const JContact *contact);
+public slots:
+	void loadSettings();
+	void saveSettings();
 protected:
 	virtual void onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item);
 	virtual void onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item);

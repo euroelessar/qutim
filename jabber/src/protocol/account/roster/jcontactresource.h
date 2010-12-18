@@ -25,12 +25,12 @@ class JAccount;
 class JContact;
 class JContactResourcePrivate;
 
-class JContactResource : public qutim_sdk_0_3::Buddy, public JMessageSessionOwner
+class JContactResource : public qutim_sdk_0_3::Buddy
 {
 	Q_PROPERTY(QSet<QString> features READ features WRITE setFeatures)
 	Q_DECLARE_PRIVATE(JContactResource)
 	Q_OBJECT
-	Q_INTERFACES(Jabber::JMessageSessionOwner)
+	//Q_INTERFACES(Jabber::JMessageSessionOwner)
 public:
 	JContactResource(qutim_sdk_0_3::ChatUnit *parent, const QString &name);
 	JContactResource(qutim_sdk_0_3::ChatUnit *parent, JContactResourcePrivate &ptr);

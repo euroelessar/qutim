@@ -5,11 +5,13 @@
 #include "../../jprotocol.h"
 #include "jmessagesession.h"
 #include "jmessagehandler.h"
-#include <gloox/message.h>
 #include <qutim/status.h>
 #include <qutim/inforequest.h>
 #include <qutim/tooltip.h>
 #include <QStringBuilder>
+#include <jreen/chatstate.h>
+#include <jreen/message.h>
+#include <jreen/client.h>
 
 using namespace gloox;
 using namespace qutim_sdk_0_3;
@@ -57,19 +59,14 @@ QString JContactResource::title() const
 
 bool JContactResource::sendMessage(const qutim_sdk_0_3::Message &message)
 {
-	//		JAccount *acc = static_cast<JAccount*>(account());
+	JAccount *a = static_cast<JAccount*>(account());
 
-	//		if (acc->status() == Status::Offline)
-	//			return false;
+	if(a->status() == Status::Offline || a->status() == Status::Connecting)
+		return false;
+	qDebug("%s", Q_FUNC_INFO);
 
-	//		if (session()) {
-	//			session()->sendMessage(message);
-	//		} else {
-	//			gloox::Message msg(gloox::Message::Chat, id().toStdString(), message.text().toStdString(),
-	//							   message.property("subject", QString()).toStdString());
-	//			acc->client()->send(msg);
-	//		}
-	return false;
+	a->messageSessionManager()->sendMessage(message);
+	return true;
 }
 
 void JContactResource::setPriority(int priority)
@@ -102,13 +99,15 @@ Status JContactResource::status() const
 bool JContactResource::event(QEvent *ev)
 {
 	if (ev->type() == ChatStateEvent::eventType()) {
-		//			Q_D(JContactResource);
-		//			ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
-		//TODO
-		//Client *client = d->contact->account->connection()->client();
-		//gloox::Message gmes(gloox::Message::Chat, d->jid.toStdString());
-		//gmes.addExtension(new gloox::ChatState(qutIM2gloox(chatEvent->chatState())));
-		//client->send(gmes);
+		ChatStateEvent *chatEvent = static_cast<ChatStateEvent *>(ev);
+		jreen::ChatState::State state = static_cast<jreen::ChatState::State>(chatEvent->chatState());
+
+		jreen::Message msg(jreen::Message::Chat,
+						   d_func()->id);
+		msg.addExtension(new jreen::ChatState(state));
+		JAccount *account = static_cast<JAccount*>(d_func()->contact->account());
+		account->client()->send(msg);
+		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
 		event->addField(QT_TRANSLATE_NOOP("ContactResource", "Resource"),

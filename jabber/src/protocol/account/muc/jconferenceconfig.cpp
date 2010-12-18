@@ -39,15 +39,15 @@ void JConferenceConfig::closeEvent(QCloseEvent *)
 
 void JConferenceConfig::handleMUCConfigForm(MUCRoom *room, const DataForm &form)
 {
-	Q_ASSERT(p->room == room);
-	p->form = new JDataForm(new DataForm(form), this);
-	QGridLayout *layout = new QGridLayout(this);
-	p->ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-	p->ui->scrollArea->setWidgetResizable(true);
-	p->ui->scrollAreaWidgetContents->setLayout(layout);
-	QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-	p->form->setSizePolicy(sizePolicy);
-	layout->addWidget(p->form);
+	//Q_ASSERT(p->room == room);
+	//p->form = new JDataForm(new DataForm(form), this);
+	//QGridLayout *layout = new QGridLayout(this);
+	//p->ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	//p->ui->scrollArea->setWidgetResizable(true);
+	//p->ui->scrollAreaWidgetContents->setLayout(layout);
+	//QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	//p->form->setSizePolicy(sizePolicy);
+	//layout->addWidget(p->form);
 }
 
 void JConferenceConfig::handleMUCConfigList(MUCRoom *room, const MUCListItemList &items, MUCOperation operation)
@@ -72,7 +72,7 @@ void JConferenceConfig::handleMUCRequest(MUCRoom *room, const DataForm &form)
 
 void JConferenceConfig::on_applyButton_clicked()
 {
-	p->room->setRoomConfig(p->form->getDataForm());
+	//p->room->setRoomConfig(p->form->getDataForm());
 }
 
 void JConferenceConfig::on_okButton_clicked()

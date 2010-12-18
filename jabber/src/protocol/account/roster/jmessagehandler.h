@@ -10,6 +10,7 @@
 namespace qutim_sdk_0_3
 {
 class ChatUnit;
+class Message;
 }
 
 namespace Jabber
@@ -34,6 +35,7 @@ class JMessageSessionManager : public jreen::MessageSessionManager
 public:
 	JMessageSessionManager(JAccount *account);
 	virtual ~JMessageSessionManager();
+	void sendMessage(const qutim_sdk_0_3::Message &message);
 public slots:
 	virtual void handleMessage(const jreen::Message &message);
 private:
@@ -54,26 +56,26 @@ private:
 };
 
 //old code
-class JMessageSession;
-class JMessageHandlerPrivate;
-using qutim_sdk_0_3::ChatUnit;
-class JMessageHandler : public QObject, public gloox::MessageSessionHandler
-{
-	Q_OBJECT
-	Q_DECLARE_PRIVATE(JMessageHandler)
-public:
-	JMessageHandler(JAccount *account);
-	~JMessageHandler();
-	JAccount *account();
-	JMessageSession *getSession(const QString &id);
-	void handleMessageSession(gloox::MessageSession *session);
-	void prepareMessageSession(JMessageSession *session);
-	void setSessionId(JMessageSession *session, const QString &id);
-	void removeSessionId(const QString &id);
-	void createSession(ChatUnit *unit);
-private:
-	QScopedPointer<JMessageHandlerPrivate> d_ptr;
-};
+//class JMessageSession;
+//class JMessageHandlerPrivate;
+//using qutim_sdk_0_3::ChatUnit;
+//class JMessageHandler : public QObject, public gloox::MessageSessionHandler
+//{
+//	Q_OBJECT
+//	Q_DECLARE_PRIVATE(JMessageHandler)
+//public:
+//	JMessageHandler(JAccount *account);
+//	~JMessageHandler();
+//	JAccount *account();
+//	JMessageSession *getSession(const QString &id);
+//	void handleMessageSession(gloox::MessageSession *session);
+//	void prepareMessageSession(JMessageSession *session);
+//	void setSessionId(JMessageSession *session, const QString &id);
+//	void removeSessionId(const QString &id);
+//	void createSession(ChatUnit *unit);
+//private:
+//	QScopedPointer<JMessageHandlerPrivate> d_ptr;
+//};
 }
 
 #endif // JMESSAGEHANDLER_H
