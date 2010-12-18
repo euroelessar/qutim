@@ -81,10 +81,14 @@ namespace Jabber {
 		Status previous = status();
 		Status newStatus = JProtocol::presenceToStatus(presence);
 		debug() << "status changed from" << int(previous.type()) << "to" << newStatus << newStatus.text();
-		if (previous == Status::Connecting && newStatus != Status::Offline)
+		if (previous == Status::Connecting && newStatus != Status::Offline) {
 			p->conferenceManager->syncBookmarks();
-		if (previous != Status::Offline && newStatus == Status::Offline)
+			resetGroupChatManager(p->conferenceManager->bookmarkManager());
+		}
+		if (previous != Status::Offline && newStatus == Status::Offline) {
 			p->roster->setOffline();
+			resetGroupChatManager();
+		}
 		p->conferenceManager->setPresenceToRooms(presence);
 		Account::setStatus(newStatus);
 		emit statusChanged(newStatus, previous);

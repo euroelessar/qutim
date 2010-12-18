@@ -125,6 +125,7 @@ bool IrcGroupChatManager::removeBookmark(const DataItem &fields)
 	m_bookmarks.remove(name);
 	Config cfg = account()->config("bookmarks");
 	cfg.remove(name);
+	return true;
 }
 
 QList<DataItem> IrcGroupChatManager::bookmarks() const
