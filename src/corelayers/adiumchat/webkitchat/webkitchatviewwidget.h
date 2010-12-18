@@ -22,6 +22,7 @@ protected:
 	bool event(QEvent *event);
 	bool eventFilter(QObject *obj, QEvent *event);
 	QWebView *m_view;
+	bool mousePressed;
 };
 
 }
