@@ -135,10 +135,6 @@ JAccount::JAccount(const QString &id) :
 
 JAccount::~JAccount()
 {
-		}
-		if (previous != Status::Offline && newStatus == Status::Offline) {
-			resetGroupChatManager();
-		}
 }
 
 ChatUnit *JAccount::getUnitForSession(ChatUnit *unit)
