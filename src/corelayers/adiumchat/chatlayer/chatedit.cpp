@@ -19,6 +19,7 @@ QString ChatEdit::textEditToPlainText()
 	QTextCursor begin(doc);
 	QTextCursor end;
 	QString specialChar = QChar(QChar::ObjectReplacementCharacter);
+	bool atBegin = true;
 	while (!begin.atEnd()) {
 		end = doc->find(specialChar, begin, QTextDocument::FindCaseSensitively);
 		QString postValue;
@@ -32,7 +33,14 @@ QString ChatEdit::textEditToPlainText()
 		}
 		begin.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor,
 						   end.position() - begin.position() - (atEnd ? 0 : 1));
-		result += begin.selection().toPlainText();
+		QString value = begin.selection().toPlainText();
+		if (!atBegin)
+			// Fix for #673175: QTextCursor returned value with ObjectReplacementCharacter
+			// at the beginning, get rid of that symbol.
+			value = value.mid(1);
+		else
+			atBegin = false;
+		result += value;
 		result += postValue;
 		begin = end;
 		end.clearSelection();
