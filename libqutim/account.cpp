@@ -116,8 +116,8 @@ void Account::resetGroupChatManager(GroupChatManager *manager)
 	d->groupChatManager = manager;
 	if (manager)
 		GroupChatManagersList::instance()->addManager(manager);
-	else
-		GroupChatManagersList::instance()->removeManager(manager);
+	else if (d->groupChatManager)
+		GroupChatManagersList::instance()->removeManager(d->groupChatManager);
 	emit groupChatManagerChanged(manager);
 }
 
