@@ -269,8 +269,6 @@ QVariant IrcProtocol::data(DataType type)
 			return "Nick";
 		case ProtocolContainsContacts:
 			return false;
-		case ProtocolSupportGroupChat:
-			return true;
 		default:
 			return QVariant();
 	}

@@ -202,8 +202,6 @@ QVariant JProtocol::data(DataType type)
 		return "Jabber ID";
 	case ProtocolContainsContacts:
 		return true;
-	case ProtocolSupportGroupChat:
-		return true;
 	default:
 		return QVariant();
 	}
