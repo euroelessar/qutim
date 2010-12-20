@@ -656,6 +656,7 @@ namespace qutim_sdk_0_3
 	
 	void ModuleManager::onQuit()
 	{
+		Event("aboutToQuit").send();
 		foreach(Plugin *plugin, p->plugins) {
 			if (plugin) {
 				plugin->unload();

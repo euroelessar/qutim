@@ -51,6 +51,16 @@ struct ModelPrivate
 	bool showMessageIcon;
 	QIcon unreadIcon;
 	quint16 realUnitRequestEvent;
+	quint16 qutimAboutToQuitEvent;
+
+	struct InitData
+	{
+		QList<Contact*> contacts;
+		quint16 qutimStartupEvent;
+	};
+	// Pointer to variables that are solely used at startup.
+	// See Model::initialize()
+	InitData *initData;
 };
 
 AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
@@ -62,7 +72,11 @@ AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
 Model::Model(QObject *parent) : QAbstractItemModel(parent), p(new ModelPrivate)
 {
 	p->showMessageIcon = false;
+	qApp->installEventFilter(this);
+	p->initData = new ModelPrivate::InitData;
 	p->realUnitRequestEvent = Event::registerType("real-chatunit-request");
+	p->qutimAboutToQuitEvent = Event::registerType("aboutToQuit");
+	p->initData->qutimStartupEvent = Event::registerType("startup");
 	p->unreadIcon = Icon(QLatin1String("mail-unread-new"));
 	p->view = static_cast<QTreeView*>(parent);
 	connect(p->view, SIGNAL(collapsed(QModelIndex)), this, SLOT(onCollapsed(QModelIndex)));
@@ -90,9 +104,6 @@ Model::Model(QObject *parent) : QAbstractItemModel(parent), p(new ModelPrivate)
 
 Model::~Model()
 {
-	Config group = Config().group("contactList");
-	group.setValue("closedTags", QStringList(p->closedTags.toList()));
-	group.sync();
 }
 
 QModelIndex Model::index(int row, int, const QModelIndex &parent) const
@@ -246,7 +257,14 @@ void Model::addContact(Contact *contact)
 	//			if (!contact->isInList())
 	//				return;
 
-	if(p->contacts.contains(contact))
+	if (p->initData) {
+		if (p->initData->contacts.contains(contact))
+			return;
+		p->initData->contacts << contact;
+		return;
+	}
+
+	if (p->contacts.contains(contact))
 		return;
 
 	MetaContact *meta = qobject_cast<MetaContact*>(contact);
@@ -867,6 +885,12 @@ bool Model::eventFilter(QObject *obj, QEvent *ev)
 		else if (!metaEvent->oldMetaContact() && metaEvent->newMetaContact())
 			removeContact(metaEvent->contact());
 		return false;
+	} else if (obj == qApp && ev->type() == Event::eventType()) {
+		Event *event = static_cast<Event*>(ev);
+		if (p->initData && event->id == p->initData->qutimStartupEvent)
+			initialize();
+		else if (event->id == p->qutimAboutToQuitEvent)
+			saveConfig();
 	}
 	return QAbstractItemModel::eventFilter(obj, ev);
 }
@@ -1010,6 +1034,35 @@ TagItem *Model::ensureTag(const QString &name)
 			p->view->setExpanded(createIndex(index, 0, tag), true);
 	}
 	return tag;
+}
+
+void Model::initialize()
+{
+	ModelPrivate::InitData *initData = p->initData;
+	p->initData = 0;
+	Config cfg = Config().group("contactList");
+	// ensure correct order of tags
+	QSet<QString> tags;
+	foreach (Contact *contact, initData->contacts)
+		foreach (const QString &tag, contact->tags())
+			tags.insert(tag);
+	foreach (const QString &tag, cfg.value("tags", QStringList()))
+		if (tags.contains(tag))
+			ensureTag(tag);
+	// add contacts to the contact list
+	foreach (Contact *contact, initData->contacts)
+		addContact(contact);
+	delete initData;
+}
+
+void Model::saveConfig()
+{
+	Config group = Config().group("contactList");
+	group.setValue("closedTags", QStringList(p->closedTags.toList()));
+	QStringList tags;
+	foreach (TagItem *tag, p->tags)
+		tags << tag->name;
+	group.setValue("tags", tags);
 }
 
 QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const

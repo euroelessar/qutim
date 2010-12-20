@@ -76,6 +76,8 @@ private:
 	void hideContact(int index, const QModelIndex &tagIndex, bool hide);
 	void removeFromContactList(Contact *contact, bool deleted);
 	void recheckTag(TagItem *item, int index = -1);
+	void initialize();
+	void saveConfig();
 	TagItem *ensureTag(const QString &name);
 	//			QModelIndex createIndex(
 	QScopedPointer<ModelPrivate> p;
