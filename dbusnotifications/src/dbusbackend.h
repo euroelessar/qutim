@@ -34,7 +34,7 @@ private:
 	{
 		QObject *sender;
 		QString body;
-		QVariant data;
+		QList<QVariant> data;
 	};
 	void ignore(NotificationData &notification);
 private:

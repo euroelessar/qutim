@@ -86,6 +86,7 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 	if(sender_name.isEmpty())
 		sender_name = sender_id;
 	QString title = Notifications::toString(type).arg(sender_name);
+	QList<QVariant> dataList;
 
 	QString icon;
 	if (data.canConvert<Message>() && (type & Notifications::MessageSend & Notifications::MessageGet)) {
@@ -117,9 +118,14 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 	if (!image.isNull()) {
 		hints["image_data"] = QVariant(image);
 	}
+
 	int id = m_ids.value(sender, 0);
-	if (id != 0)
-		text = m_notifications.value(id).body + "\n" + text;
+	if (id != 0) {
+		NotificationData notification = m_notifications.value(id);
+		text = notification.body + "\n" + text;
+		dataList = notification.data;
+	}
+	dataList << data;
 
 	icon = QLatin1String("qutim");
 
@@ -135,7 +141,7 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 
 	vibrate(50);
 
-	NotificationData notification = { sender, text, data };
+	NotificationData notification = { sender, text, dataList };
 	quint32 newId = reply.value();
 	m_notifications.insert(newId, notification);
 	m_ids.insert(sender, newId);
@@ -192,8 +198,10 @@ void DBusBackend::ignore(NotificationData &notification)
 	ChatUnit *unit = qobject_cast<ChatUnit *>(notification.sender);
 	ChatSession *sess;
 	if (unit && (sess = ChatLayer::get(unit,false))) {
-		if (notification.data.canConvert<Message>())
-			sess->markRead(notification.data.value<Message>().id());
+		foreach (const QVariant &data, notification.data) {
+			if (data.canConvert<Message>())
+				sess->markRead(data.value<Message>().id());
+		}
 	}
 }
 
