@@ -233,7 +233,7 @@ void IcqContact::setName(const QString &name)
 void IcqContact::setTags(const QStringList &tags)
 {
 	Q_D(IcqContact);
-	if (!isInList())
+	if ((!isInList())||(d->status == Status::Offline || d->status == Status::Connecting))
 		return;
 	Feedbag *f = d->account->feedbag();
 	f->beginModify();

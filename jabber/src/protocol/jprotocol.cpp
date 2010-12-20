@@ -229,6 +229,9 @@ Presence::PresenceType JProtocol::statusToPresence(const Status &status)
 	case Status::NA:
 		presence = Presence::XA;
 		break;
+	case Status::Invisible:
+		presence = Presence::XA;
+		break;
 	default:
 		presence = Presence::Invalid;
 	}
