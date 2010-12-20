@@ -228,18 +228,16 @@ bool BuddyPicture::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 void BuddyPicture::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
 {
 	Q_UNUSED(status);
-	if (contact->status() == Status::Offline) {
-		if (m_avatars && tlvs.contains(0x001d)) { // avatar
-			SessionDataItemMap items(tlvs.value(0x001d));
-			foreach (const SessionDataItem &item, items) {
-				if (item.type() != staticAvatar && item.type() != miniAvatar &&
-					item.type() != flashAvatar && item.type() != photoAvatar)
-				{
-					continue;
-				}
-				sendUpdatePicture(contact, item.type(), item.flags(), item.readData(16));
-                break;
-            }
+	if (m_avatars && tlvs.contains(0x001d)) { // avatar
+		SessionDataItemMap items(tlvs.value(0x001d));
+		foreach (const SessionDataItem &item, items) {
+			if (item.type() != staticAvatar && item.type() != miniAvatar &&
+				item.type() != flashAvatar && item.type() != photoAvatar)
+			{
+				continue;
+			}
+			sendUpdatePicture(contact, item.type(), item.flags(), item.readData(16));
+			break;
 		}
 	}
 }
