@@ -19,6 +19,7 @@
 #include <QApplication>
 
 #define QUTIM_MIME_CONTACT_INTERNAL QLatin1String("application/qutim-contact-internal")
+#define QUTIM_MIME_TAG_INTERNAL QLatin1String("application/qutim-tag-internal")
 
 namespace Core
 {
@@ -26,9 +27,9 @@ namespace SimpleContactList
 {
 struct ChangeEvent
 {
-	enum Type { ChangeTags, MergeContacts } type;
+	enum Type { ChangeTags, MergeContacts, MoveTag } type;
 	void *child;
-	void *parent;
+	ItemHelper *parent;
 
 };
 
@@ -89,7 +90,7 @@ Model::Model(QObject *parent) : QAbstractItemModel(parent), p(new ModelPrivate)
 
 Model::~Model()
 {
-	ConfigGroup group = Config().group("contactList");
+	Config group = Config().group("contactList");
 	group.setValue("closedTags", QStringList(p->closedTags.toList()));
 	group.sync();
 }
@@ -336,10 +337,9 @@ Qt::ItemFlags Model::flags(const QModelIndex &index) const
 	Qt::ItemFlags flags = QAbstractItemModel::flags(index);
 
 	ContactItemType type = getItemType(index);
-	if (type == TagType)
-		flags |= Qt::ItemIsDropEnabled;
-	else if (type == ContactType)
-		flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
+	flags |= Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
+	if (type == ContactType)
+		flags |= Qt::ItemIsEditable;
 
 	return flags;
 }
@@ -353,6 +353,7 @@ QStringList Model::mimeTypes() const
 {
 	QStringList types;
 	types << QUTIM_MIME_CONTACT_INTERNAL;
+	types << QUTIM_MIME_TAG_INTERNAL;
 	types << MimeObjectData::objectMimeType();
 	return types;
 }
@@ -361,18 +362,25 @@ QMimeData *Model::mimeData(const QModelIndexList &indexes) const
 {
 	MimeObjectData *mimeData = new MimeObjectData();
 	QModelIndex index = indexes.value(0);
-	if (getItemType(index) != ContactType)
+	ContactItemType itemType = getItemType(index);
+	QLatin1String type("");
+	if (itemType == ContactType) {
+		ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
+		mimeData->setText(item->data->contact->id());
+		type = QUTIM_MIME_CONTACT_INTERNAL;
+		mimeData->setObject(item->data->contact);
+	} else if (itemType == TagType) {
+		TagItem *item = reinterpret_cast<TagItem*>(index.internalPointer());
+		mimeData->setText(item->name);
+		type = QUTIM_MIME_TAG_INTERNAL;
+	} else {
 		return mimeData;
-
-	ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
-
-	mimeData->setText(item->data->contact->id());
+	}
 
 	QByteArray encodedData;
 	QDataStream stream(&encodedData, QIODevice::WriteOnly);
 	stream << index.row() << index.column() << qptrdiff(index.internalPointer());
-	mimeData->setData(QUTIM_MIME_CONTACT_INTERNAL, encodedData);
-	mimeData->setObject(item->data->contact);
+	mimeData->setData(type, encodedData);
 
 	return mimeData;
 }
@@ -383,26 +391,32 @@ bool Model::dropMimeData(const QMimeData *data, Qt::DropAction action,
 	if (action == Qt::IgnoreAction)
 		return true;
 
-	if (!data->hasFormat(QUTIM_MIME_CONTACT_INTERNAL))
+	ContactItemType parentType = getItemType(parent);
+	if (parentType != ContactType && parentType != TagType)
 		return false;
 
-	QByteArray encodedData = data->data(QUTIM_MIME_CONTACT_INTERNAL);
+	qptrdiff internalId = 0;
+	QByteArray encodedData;
+	bool isContact = data->hasFormat(QUTIM_MIME_CONTACT_INTERNAL);
+	if (isContact)
+		encodedData = data->data(QUTIM_MIME_CONTACT_INTERNAL);
+	else if (data->hasFormat(QUTIM_MIME_TAG_INTERNAL))
+		encodedData = data->data(QUTIM_MIME_TAG_INTERNAL);
+	else
+		return false;
+
 	QDataStream stream(&encodedData, QIODevice::ReadOnly);
-	qptrdiff internalId;
 	stream >> row >> column >> internalId;
-
 	QModelIndex index = createIndex(row, column, reinterpret_cast<void*>(internalId));
-	qDebug() << Q_FUNC_INFO;
-	if (getItemType(index) != ContactType
-			|| (getItemType(parent) != ContactType && getItemType(parent) != TagType)) {
+	if (isContact && !getItemType(index) != ContactType)
 		return false;
-	}
 
 	ChangeEvent *ev = new ChangeEvent;
-	ev->child = index.internalPointer();
-	ev->parent = parent.internalPointer();
-	qDebug() << ev->type;
-	if (getItemType(parent) == TagType)
+	ev->child = reinterpret_cast<ItemHelper*>(index.internalPointer());
+	ev->parent = reinterpret_cast<ItemHelper*>(parent.internalPointer());
+	if (getItemType(index) == TagType)
+		ev->type = ChangeEvent::MoveTag;
+	else if (getItemType(parent) == TagType)
 		ev->type = ChangeEvent::ChangeTags;
 	else if(getItemType(parent) == ContactType)
 		ev->type = ChangeEvent::MergeContacts;
@@ -798,6 +812,23 @@ void Model::processEvent(ChangeEvent *ev)
 			}
 			if (!childMeta)
 				meta->addContact(item->data->contact);
+		}
+	} else if (ev->type == ChangeEvent::MoveTag) {
+		int to = -2;
+		if (ev->parent->type == ContactType)
+			to = p->tags.indexOf(reinterpret_cast<ContactItem*>(ev->parent)->parent) + 1;
+		else if (ev->parent->type == TagType)
+			to = p->tags.indexOf(reinterpret_cast<TagItem*>(ev->parent));
+		else
+			Q_ASSERT(false && "Not implemented");
+		int from = p->tags.indexOf(reinterpret_cast<TagItem*>(ev->child));
+		Q_ASSERT(from >=0);
+		Q_ASSERT(to >= 0);
+		if (beginMoveRows(QModelIndex(), from, from, QModelIndex(), to)) {
+			if (from < to)
+				--to;
+			p->tags.move(from, to);
+			endMoveRows();
 		}
 	}
 }
