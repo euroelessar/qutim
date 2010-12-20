@@ -76,9 +76,6 @@ void BuddyPicture::sendUpdatePicture(QObject *reqObject, quint16 id, quint8 flag
 {
 	if (setAvatar(reqObject, hash))
 		return;
-	if (!m_avatars)
-		return;
-	ensureConnection();
 	SNAC snac(AvatarFamily, AvatarGetRequest);
 	snac.append<quint8>(reqObject->property("id").toString());
 	snac.append<quint8>(1); // unknown
@@ -136,6 +133,13 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				m_cookie = tlvs.value(0x06).data();
 				socket()->connectToHost(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190);
 			}
+		} else if (snac.family() == ServiceFamily && snac.subtype() == ServiceServerAsksServices) {
+			if (m_avatars) {
+				// Requesting avatar service
+				SNAC snac(ServiceFamily, ServiceClientNewService);
+				snac.append<quint16>(AvatarFamily);
+				conn->send(snac);
+			}
 		}
 	}
 	switch ((snac.family() << 16) | snac.subtype()) {
@@ -164,14 +168,10 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				quint8 flags = tlv.read<quint8>();
 				QByteArray hash = tlv.read<QByteArray, quint8>();
 				if (flags >> 6 & 0x1 && !m_accountAvatar.isEmpty()) { // does it really work???
-					ensureConnection();
 					SNAC snac(AvatarFamily, AvatarUploadRequest);
 					snac.append<quint16>(1); // reference number ?
 					snac.append<quint16>(m_accountAvatar);
-					if (state() == Connected)
-						send(snac);
-					else
-						m_history.insert(account(), snac);
+					send(snac);
 				}
 				setAvatar(account(), hash);
 			}
@@ -313,14 +313,6 @@ void BuddyPicture::saveImage(QObject *obj, const QByteArray &image, const QByteA
 			updateData(obj, hash, imagePath);
 		}
 	}
-}
-
-void BuddyPicture::ensureConnection()
-{
-	// Requesting avatar service
-	SNAC snac(ServiceFamily, ServiceClientNewService);
-	snac.append<quint16>(AvatarFamily);
-	account()->connection()->send(snac);
 }
 
 } } // namespace qutim_sdk_0_3::oscar
