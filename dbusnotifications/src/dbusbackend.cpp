@@ -68,7 +68,7 @@ DBusBackend::DBusBackend() :
 				"/org/freedesktop/Notifications",
 				"org.freedesktop.Notifications",
 				"NotificationClosed",
-				this, SLOT(onNotificationClosed(quint32)));
+				this, SLOT(onNotificationClosed(quint32,quint32)));
 
 	enableVibration();
 	
@@ -117,7 +117,9 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 	if (!image.isNull()) {
 		hints["image_data"] = QVariant(image);
 	}
-	int id = 0;
+	int id = m_ids.value(sender, 0);
+	if (id != 0)
+		text = m_notifications.value(id).body + "\n" + text;
 
 	icon = QLatin1String("qutim");
 
@@ -132,8 +134,13 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 			5000);
 
 	vibrate(50);
-	NotificationData notification = { sender, body, data };
-	m_senders.insert(reply.value(), notification);
+
+	NotificationData notification = { sender, text, data };
+	quint32 newId = reply.value();
+	m_notifications.insert(newId, notification);
+	m_ids.insert(sender, newId);
+	if (id != newId)
+		m_notifications.remove(id);
 
 	Q_UNUSED(reply);
 //	QDBusPendingCallWatcher* watcher = new QDBusPendingCallWatcher(reply, this);
@@ -162,10 +169,10 @@ void DBusBackend::loadSettings()
 
 void DBusBackend::onActionInvoked(quint32 id, const QString &action)
 {
-	NotificationData notification = m_senders.value(id);
+	NotificationData notification = m_notifications.value(id);
 	QObject *sender = notification.sender;
-	ChatUnit *unit = qobject_cast<ChatUnit *>(sender);
 	if (action == "openChat") {
+		ChatUnit *unit = qobject_cast<ChatUnit *>(sender);
 		if (unit) {
 			ChatUnit *metaContact = unit->metaContact();
 			if (metaContact)
@@ -173,21 +180,40 @@ void DBusBackend::onActionInvoked(quint32 id, const QString &action)
 			ChatLayer::get(unit,true)->activate();
 		}
 	} else if (action == "ignore") {
-		ChatSession *sess;
-		if (unit && (sess = ChatLayer::get(unit,false))) {
-			if (notification.data.canConvert<Message>())
-				sess->markRead(notification.data.value<Message>().id());
-		}
+		ignore(notification);
 	} else if (action == "open") {
-		if (QWidget *widget = qobject_cast<QWidget *>(sender)) {
+		if (QWidget *widget = qobject_cast<QWidget *>(sender))
 			widget->raise();
-		}
 	}
 }
 
-void DBusBackend::onNotificationClosed(quint32 id)
+void DBusBackend::ignore(NotificationData &notification)
 {
-	m_senders.remove(id);
+	ChatUnit *unit = qobject_cast<ChatUnit *>(notification.sender);
+	ChatSession *sess;
+	if (unit && (sess = ChatLayer::get(unit,false))) {
+		if (notification.data.canConvert<Message>())
+			sess->markRead(notification.data.value<Message>().id());
+	}
+}
+
+void DBusBackend::onNotificationClosed(quint32 id, quint32 reason)
+{
+	/*
+		The reasons:
+		1 - The notification expired.
+		2 - The notification was dismissed by the user.
+		3 - The notification was closed by a call to CloseNotification.
+		4 - Undefined/reserved reasons.
+	*/
+
+	QHash<quint32, NotificationData>::iterator itr = m_notifications.find(id);
+	if (itr != m_notifications.end()) {
+		if (reason == 2)
+			ignore(*itr);
+		m_ids.remove(itr->sender);
+		m_notifications.erase(itr);
+	}
 }
 
 void DBusBackend::enableVibration()
