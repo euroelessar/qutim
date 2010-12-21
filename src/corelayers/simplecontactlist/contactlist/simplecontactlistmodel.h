@@ -73,7 +73,7 @@ protected:
 private:
 	void filterAllList();
 	bool isVisible(ContactItem *item);
-	void hideContact(int index, const QModelIndex &tagIndex, bool hide);
+	bool hideContact(ContactItem *item, const QModelIndex &tagIndex, bool hide, bool replacing = true);
 	void removeFromContactList(Contact *contact, bool deleted);
 	void recheckTag(TagItem *item, int index = -1);
 	void initialize();

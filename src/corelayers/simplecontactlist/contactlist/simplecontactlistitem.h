@@ -35,9 +35,9 @@ Q_DECLARE_FLAGS(ContactItemRoles,ContactItemRole);
 class TagItem
 {
 public:
-	inline TagItem() : type(TagType), visible(0), online(0) {}
+	inline TagItem() : type(TagType), online(0) {}
 	const ContactItemType type;
-	int visible;
+	QList<ContactItem *> visible;
 	int online;
 	QString name;
 	QList<ContactItem *> contacts;

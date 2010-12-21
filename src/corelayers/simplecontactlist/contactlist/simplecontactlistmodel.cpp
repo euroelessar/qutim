@@ -114,9 +114,9 @@ QModelIndex Model::index(int row, int, const QModelIndex &parent) const
 	{
 	case TagType: {
 		TagItem *item = reinterpret_cast<TagItem *>(parent.internalPointer());
-		if(item->contacts.size() <= row)
+		if(item->visible.size() <= row)
 			return QModelIndex();
-		return createIndex(row, 0, item->contacts.at(row));
+		return createIndex(row, 0, item->visible.at(row));
 	}
 	case ContactType:
 		return QModelIndex();
@@ -313,25 +313,15 @@ void Model::addContact(Contact *contact)
 		int tagIndex = p->tags.indexOf(tag);
 		QModelIndex tagModelIndex = createIndex(tagIndex, 0, tag);
 		ContactItem *item = new ContactItem(item_data);
-
-		QList<ContactItem *> contacts = tag->contacts;
-		QList<ContactItem *>::const_iterator contacts_it =
-				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-		int index = contacts_it - contacts.constBegin();
-
-		beginInsertRows(tagModelIndex, index, index);
-		item->parent = tag;
-		item_data->items.insert(index,item);
-		tag->contacts.insert(index,item);
-		endInsertRows();
 		bool show = isVisible(item);
-		// hideContact will decrease it by one
-		tag->visible++;
 		tag->online += counter;
-		if (show)
-			recheckTag(tag, tagIndex);
-		else
-			hideContact(index, tagModelIndex, true);
+		item->parent = tag;
+		if (show) {
+			hideContact(item, tagModelIndex, false, false);
+		} else {
+			tag->contacts.push_back(item);
+			item_data->items.push_back(item);
+		}
 	}
 }
 
@@ -456,10 +446,7 @@ void Model::removeFromContactList(Contact *contact, bool deleted)
 	{
 		ContactItem *item = item_data->items.at(i);
 		item->parent->online += counter;
-		int index = item->index();
-		beginRemoveRows(createIndex(p->tags.indexOf(item->parent), 0, item->parent), index, index);
-		item->parent->contacts.removeAt(index);
-		endRemoveRows();
+		hideContact(item, createIndex(p->tags.indexOf(item->parent), 0, item->parent), true, false);
 
 		int tagIndex = p->tags.indexOf(item->parent);
 
@@ -469,7 +456,6 @@ void Model::removeFromContactList(Contact *contact, bool deleted)
 			p->tags.removeAt(tagIndex);
 			endRemoveRows();
 		} else if (!deleted && isVisible(item)) {
-			item->parent->visible--;
 			recheckTag(item->parent, tagIndex);
 		}
 	}
@@ -515,9 +501,18 @@ void Model::contactStatusChanged(Status status)
 	for(int i = 0; i < items.size(); i++) {
 		ContactItem *item = items.at(i);
 		item->parent->online += counter;
-
-		QList<ContactItem *> &contacts = item->parent->contacts;
 		QModelIndex parentIndex = createIndex(p->tags.indexOf(item->parent), 0, item->parent);
+
+		if (!hideContact(item, parentIndex, !show)) {
+			if (!show)
+				return; // The item has been removed from the model
+		} else {
+			return; // The item has been added to the model in the right place
+		}
+
+		// The item is already visible, so we need to move it in the right place
+		// and update its content
+		QList<ContactItem *> &contacts = item->parent->visible;
 		int from = contacts.indexOf(item);
 		int to;
 		if (statusTypeChanged) {
@@ -527,9 +522,6 @@ void Model::contactStatusChanged(Status status)
 		} else {
 			to = from;
 		}
-
-		if (statusTypeChanged)
-			hideContact(from, parentIndex, !show);
 
 		if (from == to) {
 			if (show) {
@@ -562,7 +554,7 @@ void Model::contactNameChanged(const QString &name)
 	for(int i = 0; i < items.size(); i++)
 	{
 		ContactItem *item = items.at(i);
-		QList<ContactItem *> contacts = item->parent->contacts;
+		QList<ContactItem *> contacts = item->parent->visible;
 		QList<ContactItem *>::const_iterator it =
 				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
 
@@ -675,37 +667,17 @@ void Model::contactTagsChanged(const QStringList &tags_helper)
 		ContactItem *item = item_data->items.at(i);
 		if(tags.contains(item->parent->name))
 			continue;
-		int index = item->index();
 		int tagIndex = p->tags.indexOf(item->parent);
-		beginRemoveRows(createIndex(tagIndex, 0, item->parent), index, index);
-		item->parent->contacts.removeAt(index);
-		item_data->items.removeAt(i);
+		hideContact(item, createIndex(tagIndex, 0, item->parent), true, false);
 		i--;
 		size--;
-		endRemoveRows();
-		if (show) {
-			item->parent->visible--;
-			recheckTag(item->parent, tagIndex);
-		}
 	}
 	for (QSet<QString>::const_iterator it = to_add.constBegin(); it != to_add.constEnd(); it++) {
 		TagItem *tag = ensureTag(*it);
-		tag->visible++;
 		ContactItem *item = new ContactItem(item_data);
 		int tagIndex = p->tags.indexOf(tag);
 		QModelIndex tagModelIndex = createIndex(tagIndex, 0, tag);
-		QList<ContactItem *> contacts = tag->contacts;
-		QList<ContactItem *>::const_iterator search_it =
-				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-
-		int index = search_it - contacts.constBegin();
-		beginInsertRows(tagModelIndex, index, index);
-		item->parent = tag;
-		item_data->items << item;
-		tag->contacts << item;
-		endInsertRows();
-		if (!show)
-			hideContact(index, tagModelIndex, true);
+		hideContact(item, tagModelIndex, show, false);
 	}
 	item_data->tags = tags;
 }
@@ -960,23 +932,9 @@ void Model::filterAllList()
 	for (int i = 0; i < p->tags.size(); i++) {
 		TagItem *tag = p->tags.at(i);
 		QModelIndex index = createIndex(i, 0, tag);
-		tag->visible = 0;
-		for (int j = 0; j < tag->contacts.size(); j++) {
-			bool show = isVisible(tag->contacts.at(j));
-			if (show)
-				tag->visible++;
-			if (p->view->isRowHidden(j, index) == show)
-				p->view->setRowHidden(j, index, !show);
-		}
-
-		if (!p->filteredTags.isEmpty()) {
-			if (!p->filteredTags.contains(tag->name))
-				tag->visible = 0;
-		}
-
-		index = QModelIndex();
-		if (p->view->isRowHidden(i, index) == !!tag->visible)
-			p->view->setRowHidden(i, index, !tag->visible);
+		bool tagFiltered = p->filteredTags.contains(tag->name);
+		foreach (ContactItem *item, tag->contacts)
+			hideContact(item, index, tagFiltered || !isVisible(item));
 	}
 }
 
@@ -995,23 +953,46 @@ bool Model::isVisible(ContactItem *item)
 	}
 }
 
-void Model::hideContact(int index, const QModelIndex &tagIndex, bool hide)
+bool Model::hideContact(ContactItem *item, const QModelIndex &tagIndex, bool hide, bool replacing)
 {
-	TagItem *item = reinterpret_cast<TagItem*>(tagIndex.internalPointer());
-	if (p->view->isRowHidden(index, tagIndex) != hide) {
-		item->visible += hide ? -1 : 1;
-		p->view->setRowHidden(index, tagIndex, hide);
-		recheckTag(item, tagIndex.row());
-		emit dataChanged(tagIndex,tagIndex);
+	TagItem *tag = reinterpret_cast<TagItem*>(tagIndex.internalPointer());
+	Q_ASSERT(!replacing || tag->contacts.contains(item));
+	if (hide) {
+		int index = tag->visible.indexOf(item);
+		if (index == -1)
+			return false;
+		beginRemoveRows(tagIndex, index, index);
+		tag->visible.removeAt(index);
+		if (!replacing) {
+			item->parent->contacts.removeOne(item);
+			item->data->items.removeOne(item);
+		}
+		endRemoveRows();
+	} else {
+		if (tag->visible.contains(item))
+			return false;
+		QList<ContactItem *> &contacts = tag->visible;
+		QList<ContactItem *>::const_iterator contacts_it =
+				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
+		int index = contacts_it - contacts.constBegin();
 
+		beginInsertRows(tagIndex, index, index);
+		if (!replacing) {
+			item->parent->contacts.push_back(item);
+			item->data->items.push_back(item);
+		}
+		contacts.insert(index, item);
+		endInsertRows();
 	}
+	recheckTag(tag, tagIndex.row());
+	return true;
 }
 
 void Model::recheckTag(TagItem *item, int index)
 {
 	if (index < 0)
 		index = p->tags.indexOf(item);
-	bool hidden = !item->visible;
+	bool hidden = item->visible.isEmpty();
 	if (p->view->isRowHidden(index, QModelIndex()) == hidden)
 		return;
 	p->view->setRowHidden(index, QModelIndex(), hidden);
