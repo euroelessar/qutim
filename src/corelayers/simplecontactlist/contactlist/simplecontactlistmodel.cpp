@@ -663,7 +663,7 @@ void Model::contactTagsChanged(const QStringList &tags_helper)
 		TagItem *tag = ensureTag(*it);
 		ContactItem *item = new ContactItem(item_data);
 		item->parent = tag;
-		hideContact(item, show, false);
+		hideContact(item, !show, false);
 	}
 	item_data->tags = tags;
 }
