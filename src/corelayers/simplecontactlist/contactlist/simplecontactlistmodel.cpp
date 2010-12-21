@@ -927,7 +927,7 @@ void Model::filterAllList()
 {
 	for (int i = 0; i < p->tags.size(); i++) {
 		TagItem *tag = p->tags.at(i);
-		bool tagFiltered = !p->selectedTags.contains(tag->name);
+		bool tagFiltered = !p->selectedTags.isEmpty() && !p->selectedTags.contains(tag->name);
 		foreach (ContactItem *item, tag->contacts)
 			hideContact(item, tagFiltered || !isVisible(item));
 	}
