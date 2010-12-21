@@ -44,7 +44,7 @@ struct ModelPrivate
 	QList<ChangeEvent*> events;
 	QBasicTimer timer;
 	QString lastFilter;
-	QStringList filteredTags;
+	QStringList selectedTags;
 	bool showOffline;
 	QBasicTimer unreadTimer;
 	QMap<ChatSession*, QSet<Contact*> > unreadBySession;
@@ -312,9 +312,9 @@ void Model::addContact(Contact *contact)
 	{
 		TagItem *tag = ensureTag(*it);
 		ContactItem *item = new ContactItem(item_data);
+		item->parent = tag;
 		bool show = isVisible(item);
 		tag->online += counter;
-		item->parent = tag;
 		if (show) {
 			hideContact(item, false, false);
 		} else {
@@ -690,9 +690,9 @@ void Model::onFilterList(const QString &filter)
 
 void Model::onFilterList(const QStringList &tags)
 {
-	if (tags == p->filteredTags)
+	if (tags == p->selectedTags)
 		return;
-	p->filteredTags = tags;
+	p->selectedTags = tags;
 	filterAllList();
 }
 
@@ -728,7 +728,7 @@ QStringList Model::tags() const
 
 QStringList Model::selectedTags() const
 {
-	return p->filteredTags;
+	return p->selectedTags;
 }
 
 void Model::processEvent(ChangeEvent *ev)
@@ -927,7 +927,7 @@ void Model::filterAllList()
 {
 	for (int i = 0; i < p->tags.size(); i++) {
 		TagItem *tag = p->tags.at(i);
-		bool tagFiltered = p->filteredTags.contains(tag->name);
+		bool tagFiltered = !p->selectedTags.contains(tag->name);
 		foreach (ContactItem *item, tag->contacts)
 			hideContact(item, tagFiltered || !isVisible(item));
 	}
@@ -943,7 +943,7 @@ bool Model::isVisible(ContactItem *item)
 	if (!p->lastFilter.isEmpty()) {
 		return contact->id().contains(p->lastFilter,Qt::CaseInsensitive)
 				|| contact->name().contains(p->lastFilter,Qt::CaseInsensitive);
-	} else if (p->filteredTags.contains(item->parent->name)) {
+	} else if (!p->selectedTags.isEmpty() && !p->selectedTags.contains(item->parent->name)) {
 		return false;
 	} else {
 		return p->showOffline || contact->status().type() != Status::Offline;
@@ -955,7 +955,6 @@ bool Model::hideContact(ContactItem *item, bool hide, bool replacing)
 	TagItem *tag = item->parent;
 	Q_ASSERT(tag);
 	Q_ASSERT(!replacing || tag->contacts.contains(item));
-	Q_ASSERT(!p->filteredTags.contains(tag->name));
 	if (!hide)
 		showTag(tag);
 	int row = p->visibleTags.indexOf(tag);
@@ -976,6 +975,7 @@ bool Model::hideContact(ContactItem *item, bool hide, bool replacing)
 		if (tag->visible.isEmpty())
 			hideTag(tag);
 	} else {
+		Q_ASSERT(p->selectedTags.isEmpty() || p->selectedTags.contains(tag->name));
 		Q_ASSERT(row >= 0);
 		if (tag->visible.contains(item))
 			return false;
@@ -1081,7 +1081,7 @@ void Model::saveConfig()
 QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section==0) {
-		if (p->filteredTags.isEmpty())
+		if (p->selectedTags.isEmpty())
 			return tr("All tags");
 		else
 			return tr("Custom tags");
