@@ -280,7 +280,8 @@ bool BuddyPicture::setAvatar(QObject *obj, const QByteArray &hash)
 	} else {
 		QFileInfo file(getAvatarDir() + hash.toHex());
 		if (file.exists()) {
-			debug() << "BuddyPicture:" << obj->property("name") << "have avatar and it is already in cache";
+			debug() << "BuddyPicture:" << obj->property("name") << "has avatar and it is already in cache:" <<
+					hash.toHex();
 			updateData(obj, hash, file.filePath());
 			return true;
 		}
