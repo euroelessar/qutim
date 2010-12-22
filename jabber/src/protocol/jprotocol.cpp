@@ -260,7 +260,7 @@ jreen::Presence::Type JStatus::statusToPresence(const Status &status)
 		presence = jreen::Presence::XA;
 		break;
 	case Status::Invisible:
-		presence = Presence::XA;
+		presence = jreen::Presence::XA;
 		break;
 	default:
 		presence = jreen::Presence::Invalid;
