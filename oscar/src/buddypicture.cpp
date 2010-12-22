@@ -76,9 +76,7 @@ void BuddyPicture::sendUpdatePicture(QObject *reqObject, quint16 id, quint8 flag
 {
 	if (setAvatar(reqObject, hash))
 		return;
-	if (!m_avatars)
-		return;
-	ensureConnection();
+	debug() << "BuddyPicture: request avatar of" << reqObject->property("name");
 	SNAC snac(AvatarFamily, AvatarGetRequest);
 	snac.append<quint8>(reqObject->property("id").toString());
 	snac.append<quint8>(1); // unknown
@@ -136,6 +134,13 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				m_cookie = tlvs.value(0x06).data();
 				socket()->connectToHost(list.at(0), list.size() > 1 ? atoi(list.at(1).constData()) : 5190);
 			}
+		} else if (snac.family() == ServiceFamily && snac.subtype() == ServiceServerAsksServices) {
+			if (m_avatars) {
+				// Requesting avatar service
+				SNAC snac(ServiceFamily, ServiceClientNewService);
+				snac.append<quint16>(AvatarFamily);
+				conn->send(snac);
+			}
 		}
 	}
 	switch ((snac.family() << 16) | snac.subtype()) {
@@ -152,6 +157,7 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 		QByteArray hash = snac.read<QByteArray, quint8>();
 		snac.skipData(21);
 		QByteArray image = snac.read<QByteArray, quint16>();
+		debug() << "BuddyPicture: avatar of" << obj->property("name") << "received";
 		saveImage(obj, image, hash);
 		break;
 	}
@@ -164,14 +170,10 @@ void BuddyPicture::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				quint8 flags = tlv.read<quint8>();
 				QByteArray hash = tlv.read<QByteArray, quint8>();
 				if (flags >> 6 & 0x1 && !m_accountAvatar.isEmpty()) { // does it really work???
-					ensureConnection();
 					SNAC snac(AvatarFamily, AvatarUploadRequest);
 					snac.append<quint16>(1); // reference number ?
 					snac.append<quint16>(m_accountAvatar);
-					if (state() == Connected)
-						send(snac);
-					else
-						m_history.insert(account(), snac);
+					send(snac);
 				}
 				setAvatar(account(), hash);
 			}
@@ -228,18 +230,17 @@ bool BuddyPicture::handleFeedbagItem(Feedbag *feedbag, const FeedbagItem &item, 
 void BuddyPicture::statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs)
 {
 	Q_UNUSED(status);
-	if (contact->status() == Status::Offline) {
-		if (m_avatars && tlvs.contains(0x001d)) { // avatar
-			SessionDataItemMap items(tlvs.value(0x001d));
-			foreach (const SessionDataItem &item, items) {
-				if (item.type() != staticAvatar && item.type() != miniAvatar &&
-					item.type() != flashAvatar && item.type() != photoAvatar)
-				{
-					continue;
-				}
-				sendUpdatePicture(contact, item.type(), item.flags(), item.readData(16));
-                break;
-            }
+	if (m_avatars && tlvs.contains(0x001d)) { // avatar
+		SessionDataItemMap items(tlvs.value(0x001d));
+		foreach (const SessionDataItem &item, items) {
+			if (item.type() != staticAvatar && item.type() != miniAvatar &&
+				item.type() != flashAvatar && item.type() != photoAvatar)
+			{
+				continue;
+			}
+			debug() << "BuddyPicture:" << contact->name() << "updated his/her avatar";
+			sendUpdatePicture(contact, item.type(), item.flags(), item.readData(16));
+			break;
 		}
 	}
 }
@@ -273,11 +274,14 @@ bool BuddyPicture::setAvatar(QObject *obj, const QByteArray &hash)
 	if (obj->property("iconHash").toByteArray() == hash)
 		return true;
 	if (hash == emptyHash) {
+		debug() << "BuddyPicture:" << obj->property("name") << "does not have avatar";
 		updateData(obj, hash, "");
 		return true;
 	} else {
 		QFileInfo file(getAvatarDir() + hash.toHex());
 		if (file.exists()) {
+			debug() << "BuddyPicture:" << obj->property("name") << "has avatar and it is already in cache:" <<
+					hash.toHex();
 			updateData(obj, hash, file.filePath());
 			return true;
 		}
@@ -311,16 +315,11 @@ void BuddyPicture::saveImage(QObject *obj, const QByteArray &image, const QByteA
 		if (!iconFile.exists() && iconFile.open(QIODevice::WriteOnly)) {
 			iconFile.write(image);
 			updateData(obj, hash, imagePath);
+			debug() << "BuddyPicture: avatar of" << obj->property("name") << "stored in cache";
 		}
+	} else {
+		debug() << "BuddyPicture: received empty avatar!";
 	}
-}
-
-void BuddyPicture::ensureConnection()
-{
-	// Requesting avatar service
-	SNAC snac(ServiceFamily, ServiceClientNewService);
-	snac.append<quint16>(AvatarFamily);
-	account()->connection()->send(snac);
 }
 
 } } // namespace qutim_sdk_0_3::oscar

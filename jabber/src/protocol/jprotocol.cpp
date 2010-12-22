@@ -232,8 +232,6 @@ QVariant JProtocol::data(DataType type)
 		return "Jabber ID";
 	case ProtocolContainsContacts:
 		return true;
-	case ProtocolSupportGroupChat:
-		return true;
 	default:
 		return QVariant();
 	}
@@ -260,6 +258,9 @@ jreen::Presence::Type JStatus::statusToPresence(const Status &status)
 		break;
 	case Status::NA:
 		presence = jreen::Presence::XA;
+		break;
+	case Status::Invisible:
+		presence = Presence::XA;
 		break;
 	default:
 		presence = jreen::Presence::Invalid;

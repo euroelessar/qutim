@@ -45,6 +45,7 @@ public:
 JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_ptr(new JContactPrivate)
 {
 	Q_D(JContact);
+	d->currentStatus = Status::instance(Status::Offline, "jabber");
 	d->account = account;
 	d->jid = jid;
 	d->status = Status::instance(Status::Offline, "jabber");
@@ -298,7 +299,6 @@ void JContact::setStatus(const jreen::Presence presence)
 		fillMaxResource();
 	}
 	Status newStatus = status();
-	//		debug() << oldStatus.type() << newStatus.type();
 	if(oldStatus.type() != newStatus.type())
 		emit statusChanged(newStatus, oldStatus);
 }
