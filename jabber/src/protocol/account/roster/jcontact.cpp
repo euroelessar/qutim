@@ -35,11 +35,13 @@ public:
 	QString avatar;
 	QStringRef hash;
 	QHash<QString, QVariantHash> extInfo;
+	Status currentStatus;
 };
 
 JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_ptr(new JContactPrivate)
 {
 	Q_D(JContact);
+	d->currentStatus = Status::instance(Status::Offline, "jabber");
 	d->account = account;
 	d->jid = jid;
 }
@@ -242,7 +244,8 @@ void JContact::setStatus(const QString &resource, Presence::PresenceType presenc
 		d->resources.clear();
 		d->currentResources.clear();
 	} else if (resource.isEmpty()) {
-		return;
+		d->currentStatus = JProtocol::presenceToStatus(presence);
+		d->currentStatus.setText(text);
 	} else if (presence == Presence::Unavailable) {
 		if (d->resources.contains(resource))
 			removeResource(resource);
@@ -253,7 +256,6 @@ void JContact::setStatus(const QString &resource, Presence::PresenceType presenc
 		fillMaxResource();
 	}
 	Status newStatus = status();
-	//		debug() << oldStatus.type() << newStatus.type();
 	if(oldStatus.type() != newStatus.type())
 		emit statusChanged(newStatus, oldStatus);
 }
@@ -268,7 +270,7 @@ Status JContact::status() const
 {
 	Q_D(const JContact);
 	Status status = d->currentResources.isEmpty() ?
-				Status::instance(Status::Offline, "jabber") :
+				d->currentStatus :
 				d->resources.value(d->currentResources.first())->status();
 	QHashIterator<QString, QVariantHash> itr(d->extInfo);
 	while (itr.hasNext()) {
