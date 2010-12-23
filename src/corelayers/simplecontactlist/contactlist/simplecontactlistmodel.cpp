@@ -442,8 +442,7 @@ void Model::removeFromContactList(Contact *contact, bool deleted)
 	if(!item_data)
 		return;
 	int counter = item_data->status.type() == Status::Offline ? 0 : -1;
-	for(int i = 0; i < item_data->items.size(); i++)
-	{
+	for(int i = 0; i < item_data->items.size(); i++) {
 		ContactItem *item = item_data->items.at(i);
 		item->parent->online += counter;
 		hideContact(item, true, false);
@@ -986,8 +985,8 @@ bool Model::hideContact(ContactItem *item, bool hide, bool replacing)
 
 		beginInsertRows(tagIndex, index, index);
 		if (!replacing) {
-			item->parent->contacts.push_back(item);
-			item->data->items.push_back(item);
+			item->parent->contacts.append(item);
+			item->data->items.append(item);
 		}
 		contacts.insert(index, item);
 		endInsertRows();
