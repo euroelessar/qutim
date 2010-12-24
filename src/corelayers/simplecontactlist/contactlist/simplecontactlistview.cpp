@@ -1,6 +1,6 @@
 #include "simplecontactlistview.h"
 #include "simplecontactlistitem.h"
-#include "simplecontactlistmodel.h"
+#include "abstractcontactmodel.h"
 #include <qutim/messagesession.h>
 #include "tagsfilterdialog.h"
 #include <QtGui/QContextMenuEvent>
@@ -34,6 +34,12 @@ TreeView::TreeView(QWidget *parent) : QTreeView(parent)
 	setIndentation(0);
 	setEditTriggers(QAbstractItemView::EditKeyPressed);
 	setHeaderHidden(true);
+
+#ifndef QUTIM_MOBILE_UI
+	setDragEnabled(true);
+	setAcceptDrops(true);
+	setDropIndicatorShown(true);
+#endif
 }
 
 void TreeView::onClick(const QModelIndex &index)
@@ -120,14 +126,14 @@ void TreeView::startDrag(Qt::DropActions supportedActions)
 
 void TreeView::onResetTagsTriggered()
 {
-	Model *m = static_cast<Model *>(model());
+	AbstractContactModel *m = qobject_cast<AbstractContactModel*>(model());
 	Q_ASSERT(m);
-	m->onFilterList(QStringList());
+	m->filterList(QStringList());
 }
 
 void TreeView::onSelectTagsTriggered()
 {
-	Model *m = static_cast<Model *>(model());
+	AbstractContactModel *m = qobject_cast<AbstractContactModel*>(model());
 	Q_ASSERT(m);
 	QStringList tags = m->tags();
 	TagsFilterDialog *dialog = new TagsFilterDialog(tags,this);
@@ -137,7 +143,7 @@ void TreeView::onSelectTagsTriggered()
 	dialog->show();
 	centerizeWidget(dialog);
 	if (dialog->exec()) {
-		m->onFilterList(dialog->selectedTags());
+		m->filterList(dialog->selectedTags());
 	}
 	dialog->deleteLater();
 }

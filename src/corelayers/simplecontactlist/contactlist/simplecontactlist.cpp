@@ -1,7 +1,7 @@
 #include "simplecontactlist.h"
 #include "simplecontactlistview.h"
-#include "simplecontactlistmodel.h"
 #include "simplecontactlistitem.h"
+#include "abstractcontactmodel.h"
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/icon.h>
@@ -26,6 +26,7 @@
 #include <qutim/servicemanager.h>
 #include <qutim/settingslayer.h>
 #include <QAbstractItemDelegate>
+#include <qutim/servicemanager.h>
 
 namespace Core
 {
@@ -90,7 +91,7 @@ struct ModulePrivate
 {
 	MyWidget *widget;
 	TreeView *view;
-	Model *model;
+	AbstractContactModel *model;
 	ActionToolBar *mainToolBar;
 	QPushButton *statusBtn;
 	QPushButton *searchBtn;
@@ -177,7 +178,7 @@ Module::Module() : p(new ModulePrivate)
 	p->view = new TreeView(p->widget);
 	layout->addWidget(p->view);
 
-	p->model = new Model(p->view);
+	p->model = ServiceManager::getByName<AbstractContactModel*>("ContactModel");
 
 	gen = new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0);
 	gen->addHandler(ActionCreatedHandler,this);
@@ -185,7 +186,7 @@ Module::Module() : p(new ModulePrivate)
 	addButton(gen);
 
 	// TODO: choose another, non-kopete icon
-	gen = new ActionGenerator(Icon("view-user-offline-kopete"),QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), p->model, SLOT(onHideShowOffline()));
+	gen = new ActionGenerator(Icon("view-user-offline-kopete"),QT_TRANSLATE_NOOP("ContactList","Show/Hide offline"), p->model, SLOT(hideShowOffline()));
 	gen->setCheckable(true);
 	gen->setChecked(!p->model->showOffline());
 	gen->setToolTip(QT_TRANSLATE_NOOP("ContactList","Hide offline"));
@@ -199,6 +200,9 @@ Module::Module() : p(new ModulePrivate)
 
 	p->view->setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate*>("ContactDelegate"));
 	p->view->setModel(p->model);
+	connect(p->view, SIGNAL(collapsed(QModelIndex)), p->model, SLOT(onCollapsed(QModelIndex)));
+	connect(p->view, SIGNAL(expanded(QModelIndex)), p->model, SLOT(onExpanded(QModelIndex)));
+	p->model->setParent(p->view); //HACK!!!
 
 	QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget->centralWidget());
 
@@ -225,7 +229,7 @@ Module::Module() : p(new ModulePrivate)
 	p->searchBar = new QLineEdit(p->widget);
 	p->searchBar->setVisible(false);
 	connect(p->searchBtn,SIGNAL(toggled(bool)),SLOT(onSearchButtonToggled(bool)));
-	connect(p->searchBar, SIGNAL(textChanged(QString)), p->model, SLOT(onFilterList(QString)));
+	connect(p->searchBar, SIGNAL(textChanged(QString)), p->model, SLOT(filterList(QString)));
 
 	layout->addWidget(p->searchBar);
 	bottom_layout->addWidget(p->statusBtn);

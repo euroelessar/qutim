@@ -1,0 +1,63 @@
+/****************************************************************************
+ *  abstractcontactmodel.cpp
+ *
+ *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
+ *
+ ***************************************************************************
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************
+*****************************************************************************/
+
+#include "abstractcontactmodel.h"
+
+namespace Core {
+namespace SimpleContactList {
+
+AbstractContactModel::AbstractContactModel(QObject *parent) :
+    QAbstractItemModel(parent)
+{
+}
+
+AbstractContactModel::~AbstractContactModel()
+{
+
+}
+
+bool AbstractContactModel::showOffline() const
+{
+	return true;
+}
+
+void AbstractContactModel::hideShowOffline()
+{
+
+}
+
+void AbstractContactModel::filterList(const QString &)
+{
+
+}
+
+void AbstractContactModel::filterList(const QStringList &)
+{
+
+}
+
+QStringList AbstractContactModel::selectedTags() const
+{
+	return QStringList();
+}
+
+QStringList AbstractContactModel::tags() const
+{
+	return QStringList();
+}
+
+
+} // namespace SimpleContactList
+} // namespace Core
