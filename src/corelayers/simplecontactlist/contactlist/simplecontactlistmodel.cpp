@@ -147,7 +147,7 @@ int Model::rowCount(const QModelIndex &parent) const
 	switch(getItemType(parent))
 	{
 	case TagType:
-		return reinterpret_cast<TagItem *>(parent.internalPointer())->contacts.size();
+		return reinterpret_cast<TagItem *>(parent.internalPointer())->visible.size();
 	case ContactType:
 		return 0;
 	default:
@@ -165,7 +165,7 @@ bool Model::hasChildren(const QModelIndex &parent) const
 	switch(getItemType(parent))
 	{
 	case TagType:
-		return !reinterpret_cast<TagItem *>(parent.internalPointer())->contacts.isEmpty();
+		return !reinterpret_cast<TagItem *>(parent.internalPointer())->visible.isEmpty();
 	case ContactType:
 		return false;
 	default:

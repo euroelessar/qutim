@@ -113,11 +113,11 @@ void Account::resetGroupChatManager(GroupChatManager *manager)
 	if (manager && d->groupChatManager)
 		warning() << "Account::resetGroupChatManager: the group chat manager is already set";
 	Q_ASSERT((!manager || manager->account() == this) && "trying to set the group manager that was created for another account");
-	d->groupChatManager = manager;
 	if (manager)
 		GroupChatManagersList::instance()->addManager(manager);
 	else if (d->groupChatManager)
 		GroupChatManagersList::instance()->removeManager(d->groupChatManager);
+	d->groupChatManager = manager;
 	emit groupChatManagerChanged(manager);
 }
 
