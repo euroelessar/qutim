@@ -415,7 +415,7 @@ bool Model::dropMimeData(const QMimeData *data, Qt::DropAction action,
 	QDataStream stream(&encodedData, QIODevice::ReadOnly);
 	stream >> row >> column >> internalId;
 	QModelIndex index = createIndex(row, column, reinterpret_cast<void*>(internalId));
-	if (isContact && !getItemType(index) != ContactType)
+	if (isContact && getItemType(index) != ContactType)
 		return false;
 
 	ChangeEvent *ev = new ChangeEvent;
