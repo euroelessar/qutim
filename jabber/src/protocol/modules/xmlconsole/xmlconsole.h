@@ -3,7 +3,7 @@
 
 #include <QtGui/QWidget>
 #include "sdk/jabber.h"
-#include <gloox/client.h>
+#include <jreen/client.h>
 
 namespace Ui {
     class XmlConsole;
@@ -11,7 +11,7 @@ namespace Ui {
 
 namespace Jabber
 {
-	class XmlConsole : public QWidget, public JabberExtension, public gloox::LogHandler
+	class XmlConsole : public QWidget, public JabberExtension, public jreen::XmlStreamHandler
 	{
 		Q_OBJECT
 		Q_INTERFACES(Jabber::JabberExtension)
@@ -20,15 +20,23 @@ namespace Jabber
 		~XmlConsole();
 
 		void init(qutim_sdk_0_3::Account *account, const JabberParams &params);
-		void handleLog(gloox::LogLevel level, gloox::LogArea area, const std::string &message);
+		virtual void handleStreamBegin();
+		virtual void handleStreamEnd();
+		virtual void handleIncomingData(const char *data, qint64 size);
+		virtual void handleOutgoingData(const char *data, qint64 size);
 
 	protected:
 		void changeEvent(QEvent *e);
 
 	private:
 		Ui::XmlConsole *m_ui;
-		gloox::Client *m_client;
-	};
+		jreen::Client *m_client;
+		QByteArray m_incoming;
+		QByteArray m_outgoing;
+	
+private slots:
+    void on_filterButton_clicked();
+};
 }
 
 #endif // XMLCONSOLE_H

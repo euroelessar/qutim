@@ -4,7 +4,7 @@
 #include <qutim/icon.h>
 #include <QStringBuilder>
 
-using namespace gloox;
+using namespace jreen;
 using namespace qutim_sdk_0_3;
 
 namespace Jabber
@@ -31,24 +31,43 @@ namespace Jabber
 											   QT_TRANSLATE_NOOP("Jabber", "Xml console"),
 											   this, SLOT(show())),
 						   "Additional");
-		m_client->logInstance().registerLogHandler(LogLevelDebug,
-												   LogAreaXmlIncoming | LogAreaXmlOutgoing,
-												   this);
+		m_client->addXmlStreamHandler(this);
+	}
+	
+	void XmlConsole::handleStreamBegin()
+	{
+		m_incoming.clear();
+		m_outgoing.clear();
+	}
+	
+	void XmlConsole::handleStreamEnd()
+	{
+	}
+	
+	void XmlConsole::handleIncomingData(const char *data, qint64 size)
+	{
+		m_incoming.append(data, size);
+//		m_ui->
+	}
+	
+	void XmlConsole::handleOutgoingData(const char *data, qint64 size)
+	{
+		m_outgoing.append(data, size);
 	}
 
-	void XmlConsole::handleLog(LogLevel, LogArea area, const std::string &message)
-	{
-		QString xml = QString::fromStdString(message);
-		bool in = (area == LogAreaXmlIncoming);
-		QString html = QLatin1Literal("<font color=\"")
-					   % (in ? QLatin1Literal("yellow") : QLatin1Literal("red"))
-					   % QLatin1Literal("\">")
-					   % (Qt::escape(xml)
-						  .replace("\n","<br/>")
-						  .replace("&gt;&lt;","&gt;<br/>&lt;"))
-					   % QLatin1Literal("</font><br/><br/>") ;
-		m_ui->xmlBrowser->append(html);
-	}
+//	void XmlConsole::handleLog(LogLevel, LogArea area, const std::string &message)
+//	{
+//		QString xml = QString::fromStdString(message);
+//		bool in = (area == LogAreaXmlIncoming);
+//		QString html = QLatin1Literal("<font color=\"")
+//					   % (in ? QLatin1Literal("yellow") : QLatin1Literal("red"))
+//					   % QLatin1Literal("\">")
+//					   % (Qt::escape(xml)
+//						  .replace("\n","<br/>")
+//						  .replace("&gt;&lt;","&gt;<br/>&lt;"))
+//					   % QLatin1Literal("</font><br/><br/>") ;
+//		m_ui->xmlBrowser->append(html);
+//	}
 
 	void XmlConsole::changeEvent(QEvent *e)
 	{
@@ -61,4 +80,9 @@ namespace Jabber
 			break;
 		}
 	}
+}
+
+void Jabber::XmlConsole::on_filterButton_clicked()
+{
+    
 }

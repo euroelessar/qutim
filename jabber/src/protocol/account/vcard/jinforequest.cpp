@@ -100,7 +100,7 @@ JInfoRequest::JInfoRequest(JVCardManager *manager, const QString &contact)
 
 JInfoRequest::~JInfoRequest()
 {
-	Q_D(JInfoRequest);
+//	Q_D(JInfoRequest);
 	//if (d->vcard)
 	//	delete d->vcard;
 }
@@ -114,9 +114,9 @@ void JInfoRequest::setFetchedVCard(jreen::VCard *vcard)
 		DataItem general(QT_TRANSLATE_NOOP("ContactInfo", "General"));
 		// name
 		addItemList(Nick, general, vcard->nickname());
-		addItemList(FirstName, general, vcard->name().given);
-		addItemList(MiddleName, general, vcard->name().middle);
-		addItemList(LastName, general, vcard->name().family);
+		addItemList(FirstName, general, vcard->name().given());
+		addItemList(MiddleName, general, vcard->name().middle());
+		addItemList(LastName, general, vcard->name().family());
 		// birthday
 		addItem(Birthday, general, vcard->bday().date());
 		//// homepage

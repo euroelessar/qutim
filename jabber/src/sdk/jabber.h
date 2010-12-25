@@ -4,9 +4,12 @@
 #include <QtCore/QObject>
 #include <QtCore/QVariantMap>
 
-namespace gloox
+namespace jreen
 {
 class Client;
+}
+namespace gloox
+{
 class Tag;
 class Adhoc;
 class VCardManager;
@@ -117,7 +120,7 @@ public:
 Q_DECLARE_INTERFACE(Jabber::JabberExtension,		"org.qutim.jabber.JabberExtension")
 Q_DECLARE_INTERFACE(Jabber::MessageFilterFactory,	"org.qutim.jabber.MessageFilterFactory")
 Q_DECLARE_INTERFACE(Jabber::PersonEventConverter,	"org.qutim.jabber.PersonEventConverter")
-Q_DECLARE_INTERFACE(gloox::Client,			"net.camaya.gloox.Client")
+Q_DECLARE_INTERFACE(jreen::Client,			"org.qutim.jreen.Client")
 Q_DECLARE_INTERFACE(gloox::Adhoc,			"net.camaya.gloox.Adhoc")
 Q_DECLARE_INTERFACE(gloox::VCardManager,	"net.camaya.gloox.VCardManager")
 

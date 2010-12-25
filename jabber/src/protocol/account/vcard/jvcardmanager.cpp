@@ -63,14 +63,14 @@ void JVCardManager::handleVCard(const jreen::JID &jid,QSharedPointer<jreen::VCar
 	QString avatar;
 	jreen::VCard *vcard = fetchedVCard.isNull() ? new jreen::VCard() : fetchedVCard.data();
 	const jreen::VCard::Photo &photo = vcard->photo();
-	if (!photo.binval.isEmpty()) {
-		avatar = QCryptographicHash::hash(photo.binval.toAscii(),QCryptographicHash::Sha1);
+	if (!photo.data().isEmpty()) {
+		avatar = QCryptographicHash::hash(photo.data(), QCryptographicHash::Sha1);
 		QDir dir(d->account->getAvatarPath());
 		if (!dir.exists())
 			dir.mkpath(dir.absolutePath());
 		QFile file(dir.absoluteFilePath(avatar));
 		if (file.open(QIODevice::WriteOnly)) {
-			file.write(photo.binval.toAscii());
+			file.write(photo.data());
 			file.close();
 		}
 	}
