@@ -3,10 +3,6 @@
 #include "../vcard/jinforequest.h"
 #include "../jaccount.h"
 #include "../../jprotocol.h"
-#include <gloox/message.h>
-#include <gloox/chatstate.h>
-#include <gloox/rostermanager.h>
-#include <gloox/rosteritem.h>
 #include <QStringBuilder>
 #include "qutim/tooltip.h"
 #include "qutim/extensionicon.h"
@@ -21,61 +17,13 @@
 #include <jreen/presence.h>
 #include <jreen/client.h>
 #include <jreen/chatstate.h>
-#include <jreen/delayeddelivery.h>
-#include <jreen/receipt.h>
+#include "jroster.h"
+#include "../vcard/jvcardmanager.h"
 
 using namespace gloox;
 
 namespace Jabber
 {
-
-//testing
-class JMessageReceiptFilter : public jreen::MessageFilter
-{
-public:
-	JMessageReceiptFilter(JContact *contact,jreen::MessageSession *session)
-		: jreen::MessageFilter(session),
-		  m_contact(contact)
-	{
-
-	}
-	virtual ~JMessageReceiptFilter() {}
-	virtual void filter(jreen::Message &message)
-	{
-		jreen::Receipt *receipt = message.findExtension<jreen::Receipt>().data();
-		if(receipt) {
-			if(receipt->type() == jreen::Receipt::Received) {
-				QString id = receipt->id();
-				if(id.isEmpty())
-					id = message.id(); //for slowpoke client such as Miranda
-				qApp->postEvent(ChatLayer::get(m_contact),
-								new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
-			} else {
-				//only for testing
-				//TODO send this request only when message marked as read
-				jreen::Message request(jreen::Message::Chat,
-									   message.from());
-				request.addExtension(new jreen::Receipt(jreen::Receipt::Received,message.id()));
-				static_cast<JAccount*>(m_contact->account())->client()->send(request);
-			}
-		}
-	}
-	virtual void decorate(jreen::Message &message)
-	{
-		jreen::Receipt *receipt = new jreen::Receipt(jreen::Receipt::Request);
-		message.addExtension(receipt);
-	}
-	virtual void reset()
-	{
-
-	}
-	virtual int filterType() const
-	{
-		return 1;
-	}
-private:
-	JContact *m_contact;
-};
 
 class JContactPrivate
 {
@@ -91,6 +39,7 @@ public:
 	QStringRef hash;
 	QHash<QString, QVariantHash> extInfo;
 	jreen::AbstractRosterItem::SubscriptionType subscription;
+	Status status;
 };
 
 JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_ptr(new JContactPrivate)
@@ -98,6 +47,7 @@ JContact::JContact(const QString &jid, JAccount *account) : Contact(account), d_
 	Q_D(JContact);
 	d->account = account;
 	d->jid = jid;
+	d->status = Status::instance(Status::Offline, "jabber");
 }
 
 JContact::~JContact()
@@ -112,37 +62,13 @@ QString JContact::id() const
 
 bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 {
-	Q_D(JContact);
 	JAccount *a = static_cast<JAccount*>(account());
 
-	if(a->status() == Status::Offline)
+	if(a->status() == Status::Offline || a->status() == Status::Connecting)
 		return false;
 	qDebug("%s", Q_FUNC_INFO);
-	//		if (!session())
-	//			d_func()->account->messageHandler()->createSession(this);
-	//		session()->sendMessage(message);
 
-	//FIXME testing testing testing
-
-//	jreen::MessageSession *session = a->messageSessionManager()->session(d->jid,
-//																		 jreen::Message::Chat,
-//																		 true);
-//	if(!session) {
-//		session = a->messageSessionManager()->session(d->jid,
-//													  jreen::Message::Chat,
-//													  true);
-//		new JMessageReceiptFilter(this,session);
-//		session->registerMessageFilter(new JMessageReceiptFilter(this,session));
-//	}
-//	session->sendMessage(message.text(),message.property("subject").toString());
-
-	jreen::Message msg(jreen::Message::Chat,
-					   id(),
-					   message.text(),
-					   message.property("subject").toString());
-	msg.addExtension(new jreen::Receipt(jreen::Receipt::Request));
-	msg.setID(QString::number(message.id()));
-	d->account->client()->send(msg);
+	a->messageSessionManager()->sendMessage(message);
 	return true;
 }
 
@@ -219,13 +145,11 @@ void JContact::setInList(bool inList)
 {
 	Q_D(JContact);
 	if (d->inList == inList)
-		return;
-	setContactInList(inList);
-	jreen::Presence presence(inList ? jreen::Presence::Subscribe
-									: jreen::Presence::Unsubscribed,
-							 id());
-	presence.setFrom(static_cast<JAccount*>(account())->client()->jid());
-	d->account->client()->send(presence);
+		return;	
+	if(inList)
+		d->account->roster()->addContact(this);
+	else
+		d->account->roster()->removeContact(this);
 }
 
 void JContact::setContactSubscription(jreen::AbstractRosterItem::SubscriptionType subscription)
@@ -236,24 +160,6 @@ void JContact::setContactSubscription(jreen::AbstractRosterItem::SubscriptionTyp
 jreen::AbstractRosterItem::SubscriptionType JContact::subscription() const
 {
 	return d_func()->subscription;
-}
-
-inline gloox::ChatStateType qutIM2gloox(qutim_sdk_0_3::ChatState state)
-{
-	switch (state) {
-	case qutim_sdk_0_3::ChatStateActive:
-		return gloox::ChatStateActive;
-	case qutim_sdk_0_3::ChatStateInActive:
-		return gloox::ChatStateInactive;
-	case qutim_sdk_0_3::ChatStateGone:
-		return gloox::ChatStateGone;
-	case qutim_sdk_0_3::ChatStateComposing:
-		return gloox::ChatStateComposing;
-	case qutim_sdk_0_3::ChatStatePaused:
-		return gloox::ChatStatePaused;
-	default:
-		return gloox::ChatStateInvalid;
-	}
 }
 
 bool JContact::event(QEvent *ev)
@@ -290,6 +196,8 @@ bool JContact::event(QEvent *ev)
 		case jreen::AbstractRosterItem::Remove:
 			subscriptionStr = QT_TRANSLATE_NOOP("Jabber","Remove");
 			break;
+		default:
+			break;
 		}
 
 		event->addField(QT_TRANSLATE_NOOP("Jabber","Subscription"),
@@ -314,30 +222,28 @@ bool JContact::event(QEvent *ev)
 	} else if (ev->type() == InfoRequestEvent::eventType()) {
 		Q_D(JContact);
 		InfoRequestEvent *event = static_cast<InfoRequestEvent*>(ev);
-		event->setRequest(new JInfoRequest(d->account->vCardManager(),
-										   d->jid));
+		if(!d->account->vCardManager()->containsRequest(d->jid))
+			event->setRequest(new JInfoRequest(d->account->vCardManager(),
+											   d->jid));
 		event->accept();
 	} else if(ev->type() == Authorization::Request::eventType()) {
 		debug() << "Handle auth request";
 		Authorization::Request *request = static_cast<Authorization::Request*>(ev);
-		//FIXME ugly architectory, only for testing
-		jreen::Presence presence(jreen::Presence::Subscribe,
-								 d->jid,
-								 request->body()
-								 );
-		d->account->client()->send(presence);
+		d->account->roster()->requestSubscription(d->jid,
+												  request->body());
 		return true;
 	} else if(ev->type() == Authorization::Reply::eventType()) {
 		debug() << "handle auth reply";
 		Authorization::Reply *reply = static_cast<Authorization::Reply*>(ev);
-		//FIXME ugly architectory, only for testing
+		//FIXME may be moved to the JRoster?
 		bool answer = (reply->replyType() == Authorization::Reply::Accept);
-		jreen::Presence presence(answer ? jreen::Presence::Subscribe
-										: jreen::Presence::Unsubscribe,
+		jreen::Presence presence(answer ? jreen::Presence::Subscribed
+										: jreen::Presence::Unsubscribed,
 								 d->jid,
 								 reply->body()
 								 );
 		d->account->client()->send(presence);
+		d->account->roster()->synchronize();
 		return true;
 	}
 	return Contact::event(ev);
@@ -351,10 +257,7 @@ void JContact::requestSubscription()
 
 void JContact::removeSubscription()
 {
-	jreen::Presence presence(jreen::Presence::Unsubscribed,
-							 d_func()->jid
-							 );
-	d_func()->account->client()->send(presence);
+	d_func()->account->roster()->removeSubscription(this);
 }
 
 bool JContact::hasResource(const QString &resource)
@@ -383,7 +286,8 @@ void JContact::setStatus(const jreen::Presence presence)
 		d->resources.clear();
 		d->currentResources.clear();
 	} else if (resource.isEmpty()) {
-		return;
+		d->status.setType(JStatus::presenceToStatus(presence.subtype()));
+		d->status.setText(presence.status());
 	} else if (type == jreen::Presence::Unavailable) {
 		if (d->resources.contains(resource))
 			removeResource(resource);
@@ -394,7 +298,6 @@ void JContact::setStatus(const jreen::Presence presence)
 		fillMaxResource();
 	}
 	Status newStatus = status();
-	//		debug() << oldStatus.type() << newStatus.type();
 	if(oldStatus.type() != newStatus.type())
 		emit statusChanged(newStatus, oldStatus);
 }
@@ -413,7 +316,7 @@ Status JContact::status() const
 {
 	Q_D(const JContact);
 	Status status = d->currentResources.isEmpty() ?
-				Status::instance(Status::Offline, "jabber") :
+				d->status :
 				d->resources.value(d->currentResources.first())->status();
 	QHashIterator<QString, QVariantHash> itr(d->extInfo);
 	while (itr.hasNext()) {

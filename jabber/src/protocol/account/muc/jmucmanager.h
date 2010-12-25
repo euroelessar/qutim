@@ -31,12 +31,10 @@ namespace Jabber
 			JBookmarkManager *bookmarkManager();
 			void syncBookmarks();
 			void join(const QString &conference, const QString &nick = QString(), const QString &password = QString());
-			void join(const qutim_sdk_0_3::DataItem &item);
 			void setPresenceToRooms(Presence::PresenceType presence);
 			void leave(const QString &room);
 			bool event(QEvent *event);
 			void appendMUCSession(JMUCSession *room);
-			qutim_sdk_0_3::DataItem fields(const QVariant &data = QVariant(),bool bookmark = false);
 		signals:
 			void conferenceCreated(qutim_sdk_0_3::Conference*);
 		private slots:

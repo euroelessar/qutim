@@ -27,6 +27,7 @@
 #include <qutim/libqutim_global.h>
 #include "snachandler.h"
 #include "flap.h"
+#include <qutim/dataforms.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -146,6 +147,7 @@ public:
 	const QHostAddress &externalIP() const;
 	const QList<quint16> &servicesList();
 	Socket *socket();
+	const Socket *socket() const;
 	ConnectionError error();
 	QString errorString();
 	IcqAccount *account();
@@ -173,7 +175,7 @@ protected:
 	void setState(AbstractConnection::State state);
 	static quint16 generateFlapSequence();
 protected slots:
-	void loadProxy();
+	void setProxy(const QNetworkProxy &proxy);
 private slots:
 	void processSnac();
 	void readData();

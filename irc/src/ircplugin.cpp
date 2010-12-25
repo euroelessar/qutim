@@ -15,6 +15,7 @@
 
 #include "ircplugin.h"
 #include "ircprotocol.h"
+#include "ircproxymanager.h"
 #include "ui/accountcreator.h"
 
 namespace qutim_sdk_0_3 {
@@ -37,9 +38,13 @@ void IrcPlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Implementation of IRC protocol"),
 				 new GeneralGenerator<IrcProtocol>(),
 				 ExtensionIcon("im-irc"));
-	addExtension(QT_TRANSLATE_NOOP("Plugin", "ICQ account creator"),
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "IRC account creator"),
 				 QT_TRANSLATE_NOOP("Plugin", "Account creator for IRC protocol"),
 				 new GeneralGenerator<IrcAccountCreationWizard>(),
+				 ExtensionIcon("im-irc"));
+	addExtension(QT_TRANSLATE_NOOP("Plugin", "Proxy support"),
+				 QT_TRANSLATE_NOOP("Plugin", "Proxy support for IRC protocol"),
+				 new GeneralGenerator<IrcProxyManager, qutim_sdk_0_3::NetworkProxyManager>(),
 				 ExtensionIcon("im-irc"));
 }
 

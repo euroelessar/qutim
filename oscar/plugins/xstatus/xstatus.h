@@ -89,10 +89,12 @@ private slots:
 	void onSetCustomStatus(QObject *object);
 	void onCustomDialogAccepted();
 	void onAccountAdded(qutim_sdk_0_3::Account *account);
+	void loadSettings();
 private:
 	int m_aboutToBeChanged;
 	int m_changed;
 	int m_change;
+	bool m_xstatusAutoRequest;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

@@ -6,6 +6,7 @@
 //jreen
 #include <jreen/client.h>
 #include "vcard/jvcardmanager.h"
+#include <sdk/jabber.h>
 namespace jreen
 {
 class Client;
@@ -27,17 +28,21 @@ public:
 	JRoster *roster;
 	JMessageSessionManager *messageSessionManager;
 	JVCardManager *vCardManager;
+	QPointer<JServiceDiscovery> discoManager;
 	JAccount *q_ptr;
 	QString passwd;
 	QString nick;
 	bool keepStatus;
 	jreen::Presence::Type status;
+	QList<JabberExtension *> extensions;
+	JabberParams params;
 public slots:	
 	void setPresence(jreen::Presence);
 	void onConnected();
 	void onDisconnected();
 	//temporary
 	void handleIQ(const jreen::IQ &iq);
+	void initExtensions(const QSet<QString> &features);
 public:	//old code
 	JConnection *connection;
 //	JRoster *roster;
@@ -45,8 +50,7 @@ public:	//old code
 	JMessageHandler *messageHandler;
 	QVariantList toVariant(const QList<JBookmark> &list);
 //	Presence::PresenceType status;
-	JMUCManager *conferenceManager;
-	QPointer<JServiceDiscovery> discoManager;
+	JMUCManager *conferenceManager;	
 //	QSet<QString> features;
 	Identities identities;
 };

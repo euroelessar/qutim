@@ -75,10 +75,11 @@ Component {
 			Connections {
 				target: model.modelData
 				onPhotosChanged: {
-					photoModel.clear;
-					var photos = model.modelData.photos;
-					for (var i=0;i!=photos.length;i++) {
-						photoModel.append(photos[i]);
+					if (photoModel.count==0) {
+						var photos = model.modelData.photos;
+						for (var i=0;i!=photos.length;i++) {
+							photoModel.append(photos[i]);
+						}
 					}
 				}
 			}

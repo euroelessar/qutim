@@ -18,12 +18,10 @@
 
 #include <icq_global.h>
 #include <qutim/settingswidget.h>
-#include <qutim/configbase.h>
+#include <qutim/config.h>
+#include <qutim/dataforms.h>
 
-namespace Ui
-{
-class IcqMainSettings;
-}
+class QVBoxLayout;
 
 namespace qutim_sdk_0_3 {
 
@@ -38,8 +36,11 @@ public:
 	virtual void loadImpl();
 	virtual void cancelImpl();
 	virtual void saveImpl();
+private slots:
+	void extSettingsChanged();
 private:
-	Ui::IcqMainSettings *ui;
+	QScopedPointer<AbstractDataForm> m_extSettings;
+	QVBoxLayout *m_layout;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

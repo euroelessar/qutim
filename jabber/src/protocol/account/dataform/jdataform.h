@@ -19,28 +19,28 @@
 
 #include <QWidget>
 #include <QGridLayout>
-#include <gloox/jid.h>
-#include <gloox/dataform.h>
-#include <gloox/dataformfield.h>
-#include <gloox/dataformfieldcontainer.h>
+
+namespace jreen
+{
+class DataForm;
+}
 
 namespace Jabber
 {
-	using namespace gloox;
 
-	class JDataFormPrivate;
+class JDataFormPrivate;
 
-	class JDataForm : public QWidget
-	{
-		Q_OBJECT
-		Q_DECLARE_PRIVATE(JDataForm)
-		public:
-			JDataForm(const DataForm *form, QWidget *parent = 0);
-			~JDataForm();
-			DataForm *getDataForm();
-		private:
-			QScopedPointer<JDataFormPrivate> d_ptr;
-	};
+class JDataForm : public QWidget
+{
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(JDataForm)
+public:
+	JDataForm(const QSharedPointer<jreen::DataForm> &form, QWidget *parent = 0);
+	~JDataForm();
+	jreen::DataForm *getDataForm();
+private:
+	QScopedPointer<JDataFormPrivate> d_ptr;
+};
 }
 
 #endif // JDATAFORM_H

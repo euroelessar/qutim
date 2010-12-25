@@ -35,6 +35,7 @@
 #include <jreen/iq.h>
 #include <jreen/vcard.h>
 #include <qutim/systeminfo.h>
+#include "roster/jsoftwaredetection.h"
 
 namespace Jabber {
 
@@ -50,15 +51,6 @@ class JPasswordValidator : public QValidator
 	}
 };
 
-void JAccountPrivate::handleIQ(const jreen::IQ &iq)
-{
-	debug() << "handle IQ";
-	if(iq.containsExtension<jreen::VCard>()) {
-		debug() << "handle vCard";
-		vCardManager->handleVCard(iq.from(),iq.findExtension<jreen::VCard>());
-	}
-}
-
 void JAccountPrivate::setPresence(jreen::Presence presence)
 {
 	Q_Q(JAccount);
@@ -68,12 +60,15 @@ void JAccountPrivate::setPresence(jreen::Presence presence)
 	now.setText(presence.status());
 	q->setAccountStatus(now);
 	if(status == jreen::Presence::Unavailable)
-		client.disconnectFromServer(true);
+		client.disconnectFromServer(false);
 }
 
 void JAccountPrivate::onConnected()
 {
-	Status s = q_func()->status();
+	Q_Q(JAccount);
+	Status s = q->status();
+	s.setType(Status::Online);
+	q->setAccountStatus(s);
 	client.setPresence(status,s.text());
 }
 
@@ -82,7 +77,21 @@ void JAccountPrivate::onDisconnected()
 	Q_Q(JAccount);
 	Status now = q->status();
 	now.setType(Status::Offline);	
-	emit q->statusChanged(now,q->status());
+	q->setAccountStatus(now);
+}
+
+void JAccountPrivate::initExtensions(const QSet<QString> &features)
+{
+	Q_Q(JAccount);
+	debug() << "received features list";
+	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
+		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
+			debug() << "init ext" << ext;
+			extensions.append(ext);
+			ext->init(q,params);
+		}
+	}
+	roster->load();
 }
 
 JAccount::JAccount(const QString &id) :
@@ -99,49 +108,29 @@ JAccount::JAccount(const QString &id) :
 	d->roster = new JRoster(this);
 	d->messageSessionManager = new JMessageSessionManager(this);
 	d->vCardManager = new JVCardManager(this);
+	new JSoftwareDetection(this);
 	loadSettings();
 
-	//FIXME make it fine
-	jreen::DataForm *form = new jreen::DataForm(jreen::DataForm::Result);
-	jreen::DataFormFieldList list;
-	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("FORM_TYPE"),
-																	 QLatin1String("urn:xmpp:dataforms:softwareinfo"),
-																	 jreen::DataFormField::Hidden)));
-	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("os"),
-																	 SystemInfo::getName(),
-																	 jreen::DataFormField::None)));
-	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("os_version"),
-																	 QLatin1String("qutIM"),
-																	 jreen::DataFormField::None)));
-	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("software"),
-																	 SystemInfo::getName(),
-																	 jreen::DataFormField::None)));
-	list.append(jreen::DataFormFieldPointer(new jreen::DataFormField(QLatin1String("software_version"),
-																	 qutimVersionStr(),
-																	 jreen::DataFormField::None)));
-	form->setFields(list);
-	d->client.disco()->setForm(form);
+	jreen::Disco *disco = d->client.disco();
+	disco->setSoftwareVersion(QLatin1String("qutIM"),
+							  qutimVersionStr(),
+							  SystemInfo::getName());
+
+	disco->addIdentity(jreen::Disco::Identity(QLatin1String("client"),
+											  QLatin1String("type"),
+											  QLatin1String("qutIM"),
+											  QLatin1String("en")));
+	QString qutim = tr("qutIM", "Local qutIM's name");
+	QString lang = tr("en", "Default language");
+	if(qutim != QLatin1String("qutIM") && lang != QLatin1String("en"))
+		disco->addIdentity(jreen::Disco::Identity(QLatin1String("client"), QLatin1String("type"),qutim,lang));
 
 	connect(&d->client,SIGNAL(connected()),
 			d,SLOT(onConnected()));
 	connect(&d->client,SIGNAL(disconnected()),
 			d,SLOT(onDisconnected()));
-	connect(&d->client,SIGNAL(newIQ(jreen::IQ)),
-			d,SLOT(handleIQ(jreen::IQ)));
 	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
-			d->roster, SLOT(load()));
-
-	//old code
-	//	d->discoManager = 0;
-	//	d->connection = new JConnection(this);
-	//	d->connectionListener = new JConnectionListener(this);
-	//	Q_UNUSED(new JServerDiscoInfo(this));
-	//d->roster = new JRoster(this);
-	//d->messageHandler = new JMessageHandler(this);
-	//	d->conferenceManager = new JMUCManager(this);
-	//	connect(d->conferenceManager, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
-	//			SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
-	//	d->connection->initExtensions();
+			d,SLOT(initExtensions(QSet<QString>)));
 }
 
 JAccount::~JAccount()
@@ -185,12 +174,16 @@ void JAccount::setPasswd(const QString &passwd)
 	config().sync();
 }
 
+JRoster *JAccount::roster() const
+{
+	return d_func()->roster;
+}
+
 JServiceDiscovery *JAccount::discoManager()
 {
-	Q_D(JAccount);
-	if (!d->discoManager)
-		d->discoManager = new JServiceDiscovery(this);
-	return d->discoManager;
+	if (!p->discoManager)
+		p->discoManager = new JServiceDiscovery(this);
+	return p->discoManager;
 }
 
 QString JAccount::name() const
@@ -272,7 +265,7 @@ void JAccount::setStatus(Status status)
 			status.setType(Status::Offline);
 			setAccountStatus(status);
 		}
-		d->client.disconnectFromServer(old.type() == Status::Connecting);
+		d->client.disconnectFromServer(true);
 	} else if(old.type() != Status::Offline && old.type() != Status::Connecting) {
 		d->client.setPresence(JStatus::statusToPresence(status),
 							  status.text());
@@ -313,47 +306,6 @@ QVariantList JAccountPrivate::toVariant(const QList<JBookmark> &list)
 bool JAccount::event(QEvent *ev)
 {
 	Q_D(JAccount);
-	if (ev->type() == qutim_sdk_0_3::Event::eventType()) {
-		qutim_sdk_0_3::Event *event = static_cast<qutim_sdk_0_3::Event*>(ev);
-		const char *id = qutim_sdk_0_3::Event::getId(event->id);
-		debug() << id;
-		if (!qstrcmp(id,"groupchat-join")) {
-			qutim_sdk_0_3::DataItem item = event->at<qutim_sdk_0_3::DataItem>(0);
-			conferenceManager()->join(item);
-			if (event->at<bool>(1)) {
-				qutim_sdk_0_3::DataItem nickItem("name", QT_TRANSLATE_NOOP("Jabber", "Name"),event->at<QString>(2));
-				item.addSubitem(nickItem);
-				conferenceManager()->bookmarkManager()->saveBookmark(item);
-			}
-			return true;
-		} else if (!qstrcmp(id,"groupchat-bookmark-list")) {
-			JBookmarkManager *manager = conferenceManager()->bookmarkManager();
-			event->args[0] = d->toVariant(manager->bookmarks());
-			event->args[1] = d->toVariant(manager->recent());
-			return true;
-		} else if (!qstrcmp(id,"groupchat-bookmark-remove")) {
-			QString name = event->at<QString>(0);
-			JBookmarkManager *manager = conferenceManager()->bookmarkManager();
-			manager->removeBookmark(manager->indexOfBookmark(name));
-			return true;
-		} else if (!qstrcmp(id,"groupchat-bookmark-save")) {
-			qutim_sdk_0_3::DataItem item = event->at<qutim_sdk_0_3::DataItem>(0);
-			JBookmarkManager *manager = conferenceManager()->bookmarkManager();
-			QString oldName = event->at<QString>(1);
-			event->args[2] = manager->saveBookmark(item,oldName);
-			return true;
-		} else if (!qstrcmp(id,"groupchat-fields")) {
-			QString name = event->args[1].toString();
-			bool isBookmark = event->args[2].toBool();
-			JBookmarkManager *manager = conferenceManager()->bookmarkManager();
-			JBookmark bookmark = manager->find(name);
-			if (bookmark.isEmpty())
-				bookmark = manager->find(name,true);
-			QVariant data = bookmark.isEmpty() ? QVariant() : qVariantFromValue(bookmark);
-			event->args[0] = qVariantFromValue(conferenceManager()->fields(data,isBookmark));
-			return true;
-		}
-	}
 	return Account::event(ev);
 }
 

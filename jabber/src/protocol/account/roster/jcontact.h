@@ -26,11 +26,11 @@ class JContactResource;
 class JAccount;
 class JRoster;
 
-class JContact : public Contact, public JMessageSessionOwner
+class JContact : public Contact
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(JContact)
-	Q_INTERFACES(Jabber::JMessageSessionOwner)
+	//Q_INTERFACES(Jabber::JMessageSessionOwner)
 public:
 	JContact(const QString &jid, JAccount *account);
 	~JContact();

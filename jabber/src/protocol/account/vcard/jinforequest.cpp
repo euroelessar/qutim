@@ -1,9 +1,11 @@
 #include "jinforequest.h"
 #include "jvcardmanager.h"
-#include <gloox/vcard.h>
 #include <QDate>
 #include <qutim/debug.h>
 #include <jreen/vcard.h>
+#include <QUrl>
+#include "../roster/jcontactresource.h"
+#include "../jaccount.h"
 
 namespace Jabber
 {
@@ -37,7 +39,8 @@ void init_names(QStringList &names)
 		"orgUnit",
 		"title",
 		"role",
-		"about"
+		"about",
+		"features"
 	};
 	for (int i = 0, size = sizeof(cnames)/sizeof(char*); i < size; i++)
 		names << QLatin1String(cnames[i]);
@@ -100,67 +103,67 @@ JInfoRequest::JInfoRequest(JVCardManager *manager, const QString &contact)
 
 JInfoRequest::~JInfoRequest()
 {
-//	Q_D(JInfoRequest);
-	//if (d->vcard)
-	//	delete d->vcard;
 }
 
 void JInfoRequest::setFetchedVCard(jreen::VCard *vcard)
 {
 	Q_D(JInfoRequest);
 	DataItem item;
-	// General page
 	{
 		DataItem general(QT_TRANSLATE_NOOP("ContactInfo", "General"));
-		// name
-		addItemList(Nick, general, vcard->nickname());
-		addItemList(FirstName, general, vcard->name().given());
-		addItemList(MiddleName, general, vcard->name().middle());
-		addItemList(LastName, general, vcard->name().family());
-		// birthday
-		addItem(Birthday, general, vcard->bday().date());
-		//// homepage
-		//addItemList(Homepage, general, vcard->url());
+		// General page
+		{
+			// name
+			QString name = vcard->nickname().isEmpty() ? vcard->nickname() : vcard->formattedName();
+			addItemList(Nick, general,name);
+			addItemList(FirstName, general, vcard->name().given());
+			addItemList(MiddleName, general, vcard->name().middle());
+			addItemList(LastName, general, vcard->name().family());
+			// birthday
+			addItem(Birthday, general, vcard->bday().date());
+			//// homepage
+			addItemList(Homepage, general, vcard->url().toString());
+		}
 		//// telephone
-		//{
-		//	if (!vcard->telephone().empty()) {
-		//		foreach (VCard::Telephone phone, vcard->telephone())
-		//		{
-		//			DataType type;
-		//			if (phone.home)
-		//				type = HomePhone;
-		//			else if (phone.work)
-		//				type = WorkPhone;
-		//			else if (phone.cell)
-		//				type = MobilePhone;
-		//			else
-		//				type = Phone;
-		//			addItem(type, general, QString::fromStdString(phone.number));
-		//		}
-		//	} else {
-		//		addItem(Phone, general, QString());
-		//	}
+		{
+			if (!vcard->telephones().empty()) {
+				foreach (jreen::VCard::Telephone phone, vcard->telephones())
+				{
+					DataType type;
+					if (phone.testType(jreen::VCard::Telephone::Home))
+						type = HomePhone;
+					else if (phone.testType(jreen::VCard::Telephone::Work))
+						type = WorkPhone;
+					else if (phone.testType(jreen::VCard::Telephone::Cell))
+						type = MobilePhone;
+					else
+						type = Phone;
+					addItem(type, general, phone.number());
+				}
+			} else {
+				addItem(Phone, general, QString());
+			}
+		}
+		//// email
+		{
+			if (!vcard->emails().empty()) {
+				foreach (jreen::VCard::EMail email, vcard->emails())
+				{
+					DataType type;
+					if (email.testType(jreen::VCard::EMail::Home))
+						type = PersonalEmail;
+					else if (email.testType(jreen::VCard::EMail::Work))
+						type = WorkEmail;
+					else
+						type = Email;
+					addItem(Email, general,email.userId());
+				}
+			} else {
+				addItem(Email, general, QString());
+			}
+		}
+		item.addSubitem(general);
 	}
-	//// email
-	//{
-	//	if (!vcard->emailAddresses().empty()) {
-	//		foreach (VCard::Email email, vcard->emailAddresses())
-	//		{
-	//			DataType type;
-	//			if (email.home)
-	//				type = PersonalEmail;
-	//			else if (email.work)
-	//				type = WorkEmail;
-	//			else
-	//				type = Email;
-	//			addItem(Email, general, QString::fromStdString(email.userid));
-	//		}
-	//	} else {
-	//		addItem(Email, general, QString());
-	//	}
-	//}
-	//item.addSubitem(general);
-	//}
 	// Addresses page
 	//{
 	//	DataItem addresses(QT_TRANSLATE_NOOP("ContactInfo", "Addresses"));
@@ -189,7 +192,7 @@ void JInfoRequest::setFetchedVCard(jreen::VCard *vcard)
 	//	}
 	//	item.addSubitem(addresses);
 	//}
-	//// Work page
+	// Work page
 	//{
 	//	DataItem work(QT_TRANSLATE_NOOP("ContactInfo", "Work"));
 	//	addItem(OrgName, work, vcard->org().name);
@@ -198,11 +201,21 @@ void JInfoRequest::setFetchedVCard(jreen::VCard *vcard)
 	//	addItem(Role, work, vcard->role());
 	//	item.addSubitem(work);
 	//}
-	//// About page
-	//{
-	//	DataItem about(QT_TRANSLATE_NOOP("ContactInfo", "About"));
-	//	addMultilineItem(About, about, vcard->desc());
-	//	item.addSubitem(about);
+	// About page
+	{
+		DataItem about(QT_TRANSLATE_NOOP("ContactInfo", "About"));
+		addMultilineItem(About, about, vcard->desc());
+		item.addSubitem(about);
+	}
+
+	// Features page
+	//JContactResource *c = qobject_cast<JContactResource*>(d->account->getUnit(d->contact));
+	//qDebug() << "get features from" << d->contact << d->account->getUnit(d->contact) << c;
+	//if(c) {
+	//	debug() << c->features();
+	//	DataItem features(QT_TRANSLATE_NOOP("ContactInfo", "Features"));
+	//	addItemList(Features, features,c->features().toList());
+	//	item.addSubitem(features);
 	//}
 
 	d->item = new DataItem(item);
@@ -243,14 +256,14 @@ void JInfoRequest::addMultilineItem(DataType type, DataItem &group, const QStrin
 	group.addSubitem(item);
 }
 
-void JInfoRequest::addItem(DataType type, DataItem &group, const QString &data)
-{
-	addItem(type, group, data);
-}
-
 void JInfoRequest::addItemList(DataType type, DataItem &group, const QString &data)
 {
 	addItem(type, group,data.split(',', QString::SkipEmptyParts));
+}
+
+void JInfoRequest::addItemList(DataType type, DataItem &group, const QStringList &data)
+{
+	addItem(type,group,data);
 }
 
 }

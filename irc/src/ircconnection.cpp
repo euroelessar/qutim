@@ -26,6 +26,8 @@
 #include <QDateTime>
 #include <qutim/objectgenerator.h>
 #include <qutim/messagesession.h>
+#include <qutim/networkproxy.h>
+#include <qutim/dataforms.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -54,6 +56,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 	QObject(parent)
 {
 	m_socket = new QTcpSocket(this);
+	m_socket->setProxy(NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account)));
 	m_account = account;
 	connect(m_socket, SIGNAL(readyRead()), SLOT(readData()));
 	connect(m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), SLOT(stateChanged(QAbstractSocket::SocketState)));

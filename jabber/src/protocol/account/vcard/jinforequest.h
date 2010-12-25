@@ -57,7 +57,8 @@ public:
 		OrgUnit,
 		Title,
 		Role,
-		About
+		About,
+		Features
 	};
 
 	JInfoRequest(JVCardManager *manager, const QString &contact);
@@ -67,9 +68,9 @@ public:
 	void setFetchedVCard(jreen::VCard *vcard);
 private:
 	void addItem(DataType type, DataItem &group, const QVariant &data);
-	void addItem(DataType type, DataItem &group, const QString &data);
 	void addMultilineItem(DataType type, DataItem &group, const QString &data);
 	void addItemList(DataType type, DataItem &group, const QString &data);
+	void addItemList(DataType type, DataItem &group, const QStringList &data);
 	QScopedPointer<JInfoRequestPrivate> d_ptr;
 };
 }

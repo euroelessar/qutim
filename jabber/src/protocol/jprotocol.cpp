@@ -73,9 +73,9 @@ void JProtocol::loadActions()
 	MenuController::addAction<JMUCUser>(
 				new ActionGenerator(Icon("im-ban-user"), QT_TRANSLATE_NOOP("Conference", "Ban"),
 									this, SLOT(onBanUser(QObject*))));
-	MenuController::addAction<JMessageSession>(
-				new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
-									this, SLOT(onConvertToMuc(QObject*))));
+	//MenuController::addAction<JMessageSession>(
+	//			new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
+	//								this, SLOT(onConvertToMuc(QObject*))));
 
 	ActionGenerator *generator  = new ActionGenerator(QIcon(),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
 													  this, SLOT(onJoinLeave(QObject*)));
@@ -145,8 +145,8 @@ void JProtocol::onBanUser(QObject *obj)
 
 void JProtocol::onConvertToMuc(QObject *obj)
 {
-	JMessageSession *session = qobject_cast<JMessageSession*>(obj);
-	Q_ASSERT(session);
+	//JMessageSession *session = qobject_cast<JMessageSession*>(obj);
+	//Q_ASSERT(session);
 	//session->convertToMuc();
 }
 
@@ -198,6 +198,7 @@ void JProtocol::onChangeSubscription(QObject *obj)
 		break;
 	case jreen::AbstractRosterItem::From:
 	case jreen::AbstractRosterItem::None:
+	case jreen::AbstractRosterItem::Invalid:
 		contact->requestSubscription();
 		break;
 	default:
@@ -231,8 +232,6 @@ QVariant JProtocol::data(DataType type)
 		return "Jabber ID";
 	case ProtocolContainsContacts:
 		return true;
-	case ProtocolSupportGroupChat:
-		return true;
 	default:
 		return QVariant();
 	}
@@ -258,6 +257,9 @@ jreen::Presence::Type JStatus::statusToPresence(const Status &status)
 		presence = jreen::Presence::DND;
 		break;
 	case Status::NA:
+		presence = jreen::Presence::XA;
+		break;
+	case Status::Invisible:
 		presence = jreen::Presence::XA;
 		break;
 	default:
@@ -332,6 +334,7 @@ bool JProtocol::event(QEvent *ev)
 					break;
 				case jreen::AbstractRosterItem::From:
 				case jreen::AbstractRosterItem::None:
+				case jreen::AbstractRosterItem::Invalid:
 					str = QT_TRANSLATE_NOOP("Jabber", "Request subscription");
 					break;
 				default:

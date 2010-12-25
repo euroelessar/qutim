@@ -25,12 +25,12 @@ class JAccount;
 class JContact;
 class JContactResourcePrivate;
 
-class JContactResource : public qutim_sdk_0_3::Buddy, public JMessageSessionOwner
+class JContactResource : public qutim_sdk_0_3::Buddy
 {
 	Q_PROPERTY(QSet<QString> features READ features WRITE setFeatures)
 	Q_DECLARE_PRIVATE(JContactResource)
 	Q_OBJECT
-	Q_INTERFACES(Jabber::JMessageSessionOwner)
+	//Q_INTERFACES(Jabber::JMessageSessionOwner)
 public:
 	JContactResource(qutim_sdk_0_3::ChatUnit *parent, const QString &name);
 	JContactResource(qutim_sdk_0_3::ChatUnit *parent, JContactResourcePrivate &ptr);
@@ -42,7 +42,6 @@ public:
 	void setPriority(int priority);
 	int priority();
 	void setStatus(const jreen::Presence presence);
-	void setStatus(gloox::Presence::PresenceType presence, int priority, const QString &text = QString());
 	Status status() const;
 	virtual bool event(QEvent *ev);
 	QSet<QString> features() const;

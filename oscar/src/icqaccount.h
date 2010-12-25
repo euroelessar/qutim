@@ -22,6 +22,7 @@
 #include "capability.h"
 #include "oscarstatus.h"
 #include <QHostAddress>
+#include <QNetworkProxy>
 
 namespace qutim_sdk_0_3 {
 
@@ -58,11 +59,13 @@ public:
 	bool containsCapability(const QString &type) const;
 	QList<Capability> capabilities() const;
 	void registerRosterPlugin(RosterPlugin *plugin);
+	void setProxy(const QNetworkProxy &proxy);
 signals:
 	void avatarChanged(const QString &avatar);
 	void cookieTimeout(const Cookie &cookie);
 	void loginFinished();
 	void settingsUpdated();
+	void proxyUpdated(const QNetworkProxy &proxy);
 public slots:
 	void updateSettings();
 private slots:

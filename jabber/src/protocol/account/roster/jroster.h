@@ -3,9 +3,6 @@
 
 #include <qutim/contact.h>
 #include <qutim/configbase.h>
-#include <gloox/rostermanager.h>
-#include <gloox/presencehandler.h>
-#include <gloox/subscriptionhandler.h>
 #include <qutim/messagesession.h>
 #include "metacontacts.h"
 //jreen
@@ -24,21 +21,32 @@ class JRoster : public jreen::AbstractRoster
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(JRoster)
+	Q_CLASSINFO("DebugName", "Jabber::Roster")
 public:
 	JRoster(JAccount *account);
 	virtual ~JRoster();
 	ChatUnit *contact(const jreen::JID &id, bool create = false);
+	void addContact(const JContact *contact);
+	void removeContact(const JContact *contact);
+	void requestSubscription(const jreen::JID &id, const QString &reason = QString());
+	void removeSubscription(const JContact *contact);
+public slots:
+	void loadSettings();
+	void saveSettings();
 protected:
 	virtual void onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item);
 	virtual void onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item);
 	virtual void onItemRemoved(const QString &jid);
+	virtual void onLoaded(const QList<QSharedPointer<jreen::AbstractRosterItem> > &items);
 	void fillContact(JContact *contact, QSharedPointer<jreen::AbstractRosterItem> item);
 protected slots:
 	void handleNewPresence(jreen::Presence);
 	void handleSubscription(jreen::Presence subscribe); //TODO may be need a separated subscription manager?
 	void onDisconnected();
 	void onNewMessage(jreen::Message message); //TODO move this method to JMessageManager
+	void onContactDestroyed(QObject *obj);
 private:
+	JContact *createContact(const jreen::JID &id);
 	QScopedPointer<JRosterPrivate> d_ptr;
 };
 

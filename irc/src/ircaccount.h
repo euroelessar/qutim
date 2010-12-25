@@ -72,6 +72,7 @@ private:
 	friend class IrcChannelParticipant;
 	friend class IrcConnection;
 	friend class IrcChannel;
+	friend class IrcProxyManager;
 	QScopedPointer<IrcAccountPrivate> d;
 };
 

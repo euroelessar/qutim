@@ -47,106 +47,12 @@ IrcChannel *IrcAccountPrivate::newChannel(const QString &name)
 	return channel;
 }
 
-template <class T>
-QVariantList IrcAccountPrivate::toVariant(const T &list)
-{
-	QVariantList items;
-	foreach (const IrcBookmark &bookmark, list) {
-		QVariantMap item;
-		QString name = bookmark.getName();
-		item.insert("name", name);
-		QVariantMap data;
-		data.insert(QT_TRANSLATE_NOOP("IRC", "Channel"), bookmark.channel);
-		if (bookmark.autojoin)
-			data.insert(QT_TRANSLATE_NOOP("IRC", "Autojoin"), QT_TRANSLATE_NOOP("IRC", "Yes").toString());
-		item.insert("fields", data);
-		items.append(item);
-	}
-	return items;
-}
-
-void IrcAccountPrivate::updateRecent(const QString &channel, const QString &password)
-{
-	QList<IrcBookmark>::iterator itr = recent.begin();
-	QList<IrcBookmark>::iterator endItr = recent.end();
-	while (itr != endItr) {
-		if (itr->channel == channel) {
-			recent.erase(itr);
-			break;
-		}
-		++itr;
-	}
-	IrcBookmark bookmark = { QString(), channel, password, false };
-	recent.push_front(bookmark);
-	if (recent.size() > 10)
-		recent = recent.mid(0, 10);
-
-	Config cfg = q->config();
-	cfg.remove("recent");
-	cfg.beginArray("recent");
-	for (int i = 0; i < recent.size(); ++i) {
-		cfg.setArrayIndex(i);
-		saveBookmarkToConfig(cfg, recent.at(i));
-	}
-	cfg.endArray();
-}
-
-void IrcAccountPrivate::saveBookmarkToConfig(Config &cfg, const IrcBookmark &bookmark)
-{
-	if (!bookmark.name.isEmpty())
-		cfg.setValue("name", bookmark.name);
-	cfg.setValue("channel", bookmark.channel);
-	if (!bookmark.password.isEmpty())
-		cfg.setValue("password", bookmark.password, Config::Crypted);
-	cfg.setValue("autojoin", bookmark.autojoin);
-}
-
-IrcBookmark IrcAccountPrivate::loadBookmarkFromConfig(Config &cfg)
-{
-	IrcBookmark bookmark;
-	bookmark.name = cfg.value("name", QString());
-	bookmark.channel = cfg.value("channel", QString());
-	bookmark.password = cfg.value("password", QString(), Config::Crypted);
-	bookmark.autojoin = cfg.value("autojoin", false);
-	return bookmark;
-}
-
 IrcAccount::IrcAccount(const QString &network) :
 	Account(network, IrcProtocol::instance()), d(new IrcAccountPrivate)
 {
 	d->q = this;
 	d->conn = new IrcConnection(this, this);
-	d->eventTypes.groupChatFields = Event::registerType("groupchat-fields");
-	d->eventTypes.groupChatJoin = Event::registerType("groupchat-join");
-	d->eventTypes.bookmarkList = Event::registerType("groupchat-bookmark-list");
-	d->eventTypes.bookmarkRemove = Event::registerType("groupchat-bookmark-remove");
-	d->eventTypes.bookmarkSave = Event::registerType("groupchat-bookmark-save");
-
-	Config cfg = config("bookmarks");
-	foreach (const QString &name, cfg.childGroups()) {
-		cfg.beginGroup(name);
-		IrcBookmark bookmark = d->loadBookmarkFromConfig(cfg);
-		cfg.endGroup();
-		if (bookmark.channel.isEmpty())
-			continue;
-		d->bookmarks.insert(name, bookmark);
-
-		if (bookmark.autojoin) {
-			IrcChannel *channel = getChannel(bookmark.channel, true);
-			channel->setAutoJoin(true);
-			channel->setBookmarkName(bookmark.name);
-		}
-	}
-
-	cfg = config();
-	cfg.beginArray("recent");
-	for (int i = 0, size = cfg.arraySize(); i < size; ++i) {
-		cfg.setArrayIndex(i);
-		IrcBookmark bookmark = d->loadBookmarkFromConfig(cfg);
-		if (!bookmark.channel.isEmpty())
-			d->recent << bookmark;
-	}
-	cfg.endArray();
+	d->groupManager.reset(new IrcGroupChatManager(this));
 }
 
 IrcAccount::~IrcAccount()
@@ -176,6 +82,7 @@ void IrcAccount::setStatus(Status status)
 	// Send status.
 	if (status == Status::Offline) {
 		d->conn->disconnectFromHost(false);
+		resetGroupChatManager();
 	} else {
 		if (current == Status::Offline) {
 			status.setType(Status::Connecting);
@@ -186,6 +93,8 @@ void IrcAccount::setStatus(Status status)
 		}
 		if (status.type() == Status::Away)
 			d->conn->send(QString("AWAY %1").arg(status.text()));
+		if (current == Status::Connecting && status != Status::Offline)
+			resetGroupChatManager(d->groupManager.data());
 	}
 	status.initIcon("irc");
 	Account::setStatus(status);
@@ -350,81 +259,6 @@ void IrcAccount::showChannelList()
 
 bool IrcAccount::event(QEvent *ev)
 {
-	if (ev->type() == Event::eventType()) {
-		qutim_sdk_0_3::Event *event = static_cast<qutim_sdk_0_3::Event*>(ev);
-		if (event->id == d->eventTypes.groupChatFields) {
-			QString name =  event->args[1].toString();
-			bool isBookmark = event->args[2].toBool();
-			IrcBookmark bookmark = d->bookmarks.value(name);
-			if (bookmark.channel.isEmpty()) {
-				QList<IrcBookmark>::iterator itr = d->recent.begin();
-				QList<IrcBookmark>::iterator endItr = d->recent.end();
-				while (itr != endItr) {
-					if (itr->channel == name) {
-						bookmark = *itr;
-						break;
-					}
-					++itr;
-				}
-			}
-			DataItem item(QT_TRANSLATE_NOOP("IRC", "Join channel"));
-			if (isBookmark)
-				item.addSubitem(DataItem("name", QT_TRANSLATE_NOOP("IRC", "Name"), bookmark.name));
-			{
-				DataItem channelItem("channel", QT_TRANSLATE_NOOP("IRC", "Channel"),
-									 bookmark.channel.isEmpty() ? "#" : bookmark.channel);
-				channelItem.setProperty("validator", QRegExp("^(#|&|!|\\+)[^\\s\\0007,]{1,50}"));
-				item.addSubitem(channelItem);
-			}
-			{
-				DataItem passwordItem("password", QT_TRANSLATE_NOOP("IRC", "Password"), bookmark.password);
-				passwordItem.setProperty("passwordMode", true);
-				item.addSubitem(passwordItem);
-			}
-			if (isBookmark)
-				item.addSubitem(DataItem("autojoin", QT_TRANSLATE_NOOP("IRC", "Auto-join"), bookmark.autojoin));
-			event->args[0] = qVariantFromValue(item);
-			return true;
-		} else if (event->id == d->eventTypes.groupChatJoin) {
-			DataItem item = event->at<DataItem>(0);
-			Q_ASSERT(!item.isNull());
-			QString channelName = item.subitem("channel").data<QString>();
-			if (channelName.length() <= 1)
-				return false;
-			IrcChannel *channel = getChannel(channelName, true);
-			channel->setBookmarkName(item.subitem("name").data<QString>());
-			channel->join(item.subitem("password").data<QString>());
-			ChatLayer::instance()->getSession(channel, true)->activate();
-			return true;
-		} else if (event->id == d->eventTypes.bookmarkList) {
-			event->args[0] = d->toVariant(d->bookmarks);
-			event->args[1] = d->toVariant(d->recent);
-			return true;
-		} else if (event->id == d->eventTypes.bookmarkRemove) {
-			QString name = event->at<QString>(0);
-			d->bookmarks.remove(name);
-			return true;
-		} else if (event->id == d->eventTypes.bookmarkSave) {
-			qutim_sdk_0_3::DataItem item = event->at<qutim_sdk_0_3::DataItem>(0);
-			QString oldName = event->at<QString>(1);
-			d->bookmarks.remove(oldName);
-			IrcBookmark bookmark;
-			bookmark.channel = item.subitem("channel").data<QString>();
-			if (bookmark.channel.length() <= 1)
-				return false;
-			bookmark.name = item.subitem("name").data<QString>();
-			bookmark.password = item.subitem("password").data<QString>();
-			bookmark.autojoin = item.subitem("autojoin").data<bool>();
-			d->bookmarks.insert(bookmark.getName(), bookmark);
-
-			Config cfg = config("bookmarks");
-			cfg.remove(oldName);
-			cfg.beginGroup(bookmark.getName());
-			d->saveBookmarkToConfig(cfg, bookmark);
-			cfg.endGroup();
-			return true;
-		}
-	}
 	return Account::event(ev);
 }
 

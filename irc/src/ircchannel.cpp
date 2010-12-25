@@ -53,7 +53,7 @@ void IrcChannel::join(const QString &pass)
 	else
 		cmd = QString("JOIN %1").arg(d->name);
 	account()->send(cmd);
-	account()->d->updateRecent(d->name, pass);
+	account()->d->groupManager->updateRecent(d->name, pass);
 }
 
 void IrcChannel::leave()
