@@ -20,15 +20,9 @@ namespace SimpleContactList
 
 TreeView::TreeView(QWidget *parent) : QTreeView(parent)
 {
-	connect(this,
-#ifndef Q_WS_MAEMO_5
-	SIGNAL(doubleClicked(QModelIndex)),
-#else
-	SIGNAL(clicked(QModelIndex)),
-#endif
-	this, SLOT(onClick(QModelIndex)));
+	connect(this, SIGNAL(activated(QModelIndex)),
+			this, SLOT(onClick(QModelIndex)));
 
-	setAnimated(true);
 	setAlternatingRowColors(true);
 	setRootIsDecorated(false);
 	setIndentation(0);
@@ -40,6 +34,9 @@ TreeView::TreeView(QWidget *parent) : QTreeView(parent)
 	setAcceptDrops(true);
 	setDropIndicatorShown(true);
 #endif
+
+	ConfigGroup group = Config().group("contactList");
+	m_closedTags = group.value("closedTags", QStringList());
 }
 
 void TreeView::onClick(const QModelIndex &index)
@@ -147,5 +144,16 @@ void TreeView::onSelectTagsTriggered()
 	}
 	dialog->deleteLater();
 }
+
+void TreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+	QTreeView::dataChanged(topLeft,bottomRight);
+}
+
+TreeView::~TreeView()
+{
+
+}
+
 }
 }

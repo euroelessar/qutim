@@ -5,6 +5,7 @@
 #include <QSharedData>
 #include <QModelIndex>
 #include <QMetaType>
+#include "simplecontactlist_global.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -32,7 +33,7 @@ enum ContactItemRole
 };
 Q_DECLARE_FLAGS(ContactItemRoles,ContactItemRole);
 
-class TagItem
+class SIMPLECONTACTLIST_EXPORT TagItem
 {
 public:
 	inline TagItem() : type(TagType), online(0) {}
@@ -57,7 +58,7 @@ public:
 	Status status;
 };
 
-class ContactItem
+class SIMPLECONTACTLIST_EXPORT ContactItem
 {
 public:
 	inline ContactItem() : type(ContactType) {}
