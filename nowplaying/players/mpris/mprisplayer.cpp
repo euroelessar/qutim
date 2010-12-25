@@ -25,11 +25,6 @@ namespace nowplaying {
 												  QDBusConnection::sessionBus(), this);
 		}
     }
-
-	QString MprisPlayer::id()
-	{
-        return m_service;
-    }
 	
 	void MprisPlayer::requestState()
 	{

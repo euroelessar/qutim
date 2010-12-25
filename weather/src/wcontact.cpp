@@ -171,7 +171,7 @@ void WContact::finished()
 	message.setTime( QDateTime::currentDateTime() );
 	message.setChatUnit( this );
 
-	if ( !m_forStatus )
+	if ( !m_forStatus && false )
 		ChatLayer::get( this, true )->appendMessage( message );
 
 	m_forecast = false;

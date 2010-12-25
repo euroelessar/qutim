@@ -11,14 +11,16 @@ namespace nowplaying {
 		Q_INTERFACES(qutim_sdk_0_3::nowplaying::PlayerFactory)
 	public:
 		MprisPlayerFactory();
-		QMap<QString,QString> players();
+		QMap<QString, Player::Info> players();
 		QObject *player(const QString &id);
 	private slots:
 		void onNameOwnerChanged(const QString &service, const QString &oldName, const QString &newName);
 		void onIdentityReceived(QDBusPendingCallWatcher *watcher);
+		void onDesktopNameReceived(QDBusPendingCallWatcher *watcher);
 		void onNamesReceived(QDBusPendingCallWatcher *watcher);
 	private:
-		void ensureServiceName(const QString &service);
-		QMap<QString,QString> m_knownPlayers;
+		enum InfoType { Name, DesktopId };
+		void ensureServiceInfo(const QString &service, InfoType type);
+		QMap<QString, Player::Info> m_knownPlayers;
 	};
 } }

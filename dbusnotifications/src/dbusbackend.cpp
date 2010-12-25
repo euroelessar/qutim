@@ -6,18 +6,28 @@
 #include <qutim/debug.h>
 #include <qutim/config.h>
 #include <QBuffer>
+#include <qutim/emoticons.h>
 
 using namespace qutim_sdk_0_3;
 
-QDBusArgument& operator<< (QDBusArgument& arg, const QImage& image) {
-	if (image.isNull()) {
+struct DBusNotifyImageData
+{
+	QPixmap image;
+};
+
+Q_DECLARE_METATYPE(DBusNotifyImageData)
+
+QDBusArgument& operator<< (QDBusArgument& arg, const DBusNotifyImageData &data) {
+	if (data.image.isNull()) {
 		// Sometimes this gets called with a null QImage for no obvious reason.
+		// - There is one reason: Qt calls this method at first time to research it's structure
 		arg.beginStructure();
 		arg << 0 << 0 << 0 << false << 0 << 0 << QByteArray();
 		arg.endStructure();
 		return arg;
 	}
-	QImage scaled = image.scaledToHeight(100, Qt::SmoothTransformation);
+	QImage scaled = data.image.scaledToHeight(qMin(100, qMin(data.image.height(), data.image.width())),
+											  Qt::SmoothTransformation).toImage();
 	QImage i = scaled.convertToFormat(QImage::Format_ARGB32).rgbSwapped();
 	arg.beginStructure();
 	arg << i.width();
@@ -32,9 +42,9 @@ QDBusArgument& operator<< (QDBusArgument& arg, const QImage& image) {
 	return arg;
 }
 
-const QDBusArgument& operator>> (const QDBusArgument& arg, QImage& image) {
-	// This is needed to link but shouldn't be called.
-	Q_ASSERT(0);
+const QDBusArgument& operator>> (const QDBusArgument& arg, DBusNotifyImageData &data) {
+	Q_ASSERT(!"This shouldn't ever be happened");
+	Q_UNUSED(data);
 	return arg;
 }
 
@@ -44,7 +54,7 @@ DBusBackend::DBusBackend() :
 				"/org/freedesktop/Notifications",
 				QDBusConnection::sessionBus()))
 {
-	qDBusRegisterMetaType<QImage>();
+	qDBusRegisterMetaType<DBusNotifyImageData>();
 
 	if (!interface->isValid()) {
 		qWarning() << "Error connecting to notifications service.";
@@ -56,7 +66,7 @@ DBusBackend::DBusBackend() :
 void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender, const QString& body,
 				   const QVariant& data)
 {
-	if(!m_showFlags & type)
+	if(!(m_showFlags & type))
 		return;
 	QString text = Qt::escape(body);
 	QString sender_id = sender ? sender->property("id").toString() : QString();
@@ -66,7 +76,7 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 	QString title = Notifications::toString(type).arg(sender_name);
 
 	QString icon;
-	if (data.canConvert<Message>() && (type & Notifications::MessageSend & Notifications::MessageGet)) {
+	if (data.canConvert<Message>() && (type & (Notifications::MessageSend | Notifications::MessageGet))) {
 		const Message &msg = data.value<qutim_sdk_0_3::Message>();
 		title = qutim_sdk_0_3::Notifications::toString(type).arg(msg.chatUnit()->title());
 		if (const Buddy *b = qobject_cast<const Buddy*>(msg.chatUnit()))
@@ -77,12 +87,24 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 	}
 	if(sender && icon.isEmpty())
 		icon = sender->property("avatar").toString();
+	if (!icon.isEmpty() && QFileInfo(icon).exists()) {
+		QUrl url(icon);
+		url.setScheme(QLatin1String("file"));
+		icon = url.toString();
+	} else {
+		icon = QString();
+	}
+	//if (!icon.isEmpty()) {
+	//	text = QLatin1String("<image alt=\"avatar\" src=\"file://") + icon + QLatin1String("\"/>");
+	//}
 
 	QVariantMap hints;
-	QImage image(icon);
-	if (!image.isNull()) {
-		hints["image_data"] = QVariant(image);
+	if (!icon.isNull()) {
+		DBusNotifyImageData imageData = { QPixmap(icon) };
+		hints["image_data"] = qVariantFromValue(imageData);
 	}
+	hints["desktop-entry"] = QLatin1String("qutim");
+	hints["sound-file"] = Sound::theme().path(type);
 	int id = 0;
 
 	icon = QLatin1String("qutim");
@@ -90,7 +112,7 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 	QDBusPendingReply<uint> reply = interface->Notify(
 			QCoreApplication::applicationName(),
 			id,
-			icon,
+			icon, //QString(), //QLatin1String("qutim"),
 			title,
 			text,
 			QStringList(),

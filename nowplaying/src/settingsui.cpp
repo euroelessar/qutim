@@ -21,9 +21,6 @@ namespace nowplaying {
 			ui->protocols->addTab(w, w->windowIcon(), w->windowTitle());
 		}
 		listenChildrenStates(QWidgetList() << ui->accounts);
-		connect(ui->accounts, SIGNAL(currentIndexChanged(int)), SLOT(accountChanged(int)));
-		connect(ui->change_status, SIGNAL(clicked()), SLOT(stopButtonClicked()));
-		connect(ui->for_all_accounts, SIGNAL(toggled(bool)), SLOT(forAllAccountsClicked()));
 	}
 
 	SettingsUI::~SettingsUI()
@@ -34,10 +31,10 @@ namespace nowplaying {
 	void SettingsUI::loadImpl()
 	{
 		ui->accounts->blockSignals(true);
-		ui->for_all_accounts->blockSignals(true);
+		ui->forAllAccounts->blockSignals(true);
 
 		updateStatusText();
-		ui->for_all_accounts->setChecked(m_manager->forAllAccounts());
+		ui->forAllAccounts->setChecked(m_manager->forAllAccounts());
 		ui->accounts->clear();
 
 		m_accounts = m_manager->accounts();
@@ -53,18 +50,30 @@ namespace nowplaying {
 		updateFields();
 
 		ui->players->clear();
+		ui->players->addItem(tr("No player"));
 		foreach(PlayerFactory *factory, m_manager->playerFactories()) {
-			const QMap<QString,QString> map = factory->players();
-			QMap<QString,QString>::const_iterator it = map.constBegin();
-			for (;it != map.constEnd(); it++)
-				ui->players->addItem(it.value(), it.key());
+			const QMap<QString,Player::Info> map = factory->players();
+			QMap<QString,Player::Info>::const_iterator it = map.constBegin();
+			for (;it != map.constEnd(); it++) {
+				const Player::Info &info = it.value();
+				if (!info.settings.isNull()) {
+					QWidget *widget = AbstractDataForm::get(info.settings);
+					if (widget) {
+						m_playerWidgets.insert(it.key(), widget);
+						ui->playerSettings->addWidget(widget);
+					}
+				}
+				ui->players->addItem(info.icon, info.name, it.key());
+			}
 		}
 		Player *currentPlayer = m_manager->currentPlayer();
-		if (currentPlayer)
-			ui->players->setCurrentIndex(ui->players->findData(currentPlayer->id()));
+		if (currentPlayer) {
+			QString playerId = m_manager->currentPlayerId();
+			ui->players->setCurrentIndex(ui->players->findData(playerId));
+		}
 
 		ui->accounts->blockSignals(false);
-		ui->for_all_accounts->blockSignals(false);
+		ui->forAllAccounts->blockSignals(false);
 	}
 
 	void SettingsUI::saveImpl()
@@ -77,6 +86,11 @@ namespace nowplaying {
 		foreach (AccountTuneSettings *w, m_settingWidgets)
 			w->saveConfigs();
 		m_manager->loadSettings();
+		if (m_manager->currentPlayer()) {
+			QWidget *widget = ui->playerSettings->currentWidget();
+			if (AbstractDataForm *form = qobject_cast<AbstractDataForm*>(widget))
+				m_manager->currentPlayer()->applySettings(form->item());
+		}
 	}
 
 
@@ -87,23 +101,23 @@ namespace nowplaying {
 		loadImpl();
 	}
 
-	void SettingsUI::accountChanged(int index)
+	void SettingsUI::on_accounts_currentIndexChanged(int index)
 	{
 		saveState();
 		m_currentAccount = m_accounts.value(index);
 		updateFields();
 	}
 
-	void SettingsUI::stopButtonClicked()
+	void SettingsUI::on_changeStatus_clicked()
 	{
 		m_manager->setState(!m_manager->isWorking());
 		updateStatusText();
 	}
 
-	void SettingsUI::forAllAccountsClicked()
+	void SettingsUI::on_forAllAccounts_clicked()
 	{
 		saveState();
-		m_enableForAllAccounts = ui->for_all_accounts->isChecked();
+		m_enableForAllAccounts = ui->forAllAccounts->isChecked();
 		updateFields();
 	}
 
@@ -129,15 +143,25 @@ namespace nowplaying {
 			}
 		}
 	}
+	
+	void SettingsUI::on_playerSettings_currentChanged(int index)
+	{
+		QString playerId = ui->players->itemData(index).toString();
+		QWidget *widget = m_playerWidgets.value(playerId);
+		if (widget)
+			ui->playerSettings->setCurrentWidget(widget);
+		else
+			ui->playerSettings->setCurrentIndex(0);
+	}
 
 	void SettingsUI::updateStatusText()
 	{
 		if (m_manager->isWorking()) {
 			ui->status_text->setText(" " + tr("working"));
-			ui->change_status->setText(tr("Stop"));
+			ui->changeStatus->setText(tr("Stop"));
 		} else {
 			ui->status_text->setText(" " + tr("not working"));
-			ui->change_status->setText(tr("Start"));
+			ui->changeStatus->setText(tr("Start"));
 		}
 	}
 

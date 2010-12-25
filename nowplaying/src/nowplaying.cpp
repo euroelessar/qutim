@@ -18,7 +18,7 @@ namespace nowplaying
 	NowPlaying *NowPlaying::self;
 
 	NowPlaying::NowPlaying() :
-		m_player(0), m_isWorking(false)
+		m_player(0)
 	{
 		Q_ASSERT(!self);
 		self = this;
@@ -134,7 +134,7 @@ namespace nowplaying
 	void NowPlaying::initPlayer(const QString &playerId, PlayerFactory *factory)
 	{
 		if (m_player) {
-			if (playerId == m_player->id())
+			if (playerId == m_playerId)
 				return;
 			m_player.object()->removeEventFilter(this);
 			m_player->stopWatching();

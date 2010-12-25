@@ -3,7 +3,9 @@
 
 #include "trackinfo.h"
 #include <qutim/event.h>
+#include <qutim/dataforms.h>
 #include <QObject>
+#include <QIcon>
 
 namespace qutim_sdk_0_3 {
 
@@ -52,11 +54,17 @@ namespace nowplaying
 	class Player
 	{
 	public:
+		struct Info
+		{
+			QIcon icon;
+			QString name;
+			DataItem settings;
+		};
+		
 		virtual ~Player() {}
 		
-		virtual QString id() = 0;
-		
 		virtual void init() = 0;
+		virtual void applySettings(const DataItem &) {}
 		
 		virtual void requestState() = 0;
 		virtual void requestTrackInfo() = 0;
@@ -83,7 +91,7 @@ namespace nowplaying
 		 * returnes map with PlayerId as keys
 		 * and PlayerName as values
 		 */
-		virtual QMap<QString,QString> players() = 0;
+		virtual QMap<QString, Player::Info> players() = 0;
 		
 		virtual QObject *player(const QString &id) = 0;
 	};

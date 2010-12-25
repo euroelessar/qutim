@@ -10,6 +10,7 @@
 #include <QHash>
 #include <QDebug>
 #include <QPointer>
+#include <qutim/dataforms.h>
 
 namespace Ui {
 	class NowPlayingSettings;
@@ -36,11 +37,10 @@ namespace nowplaying {
 		void configSaved();
 		void statusChanged(bool);
 	public slots:
-		void accountChanged(int index);
-		void stopButtonClicked();
-		void forAllAccountsClicked();
-		void updatePlayer(int index);
-		void playerSettingsModified();
+		void on_accounts_currentIndexChanged(int index);
+		void on_changeStatus_clicked();
+		void on_forAllAccounts_clicked();
+		void on_playerSettings_currentChanged(int index);
 	private:
 		void updateFields();
 		void updateStatusText();
@@ -50,6 +50,7 @@ namespace nowplaying {
 		QList<AccountTuneStatus*> m_accounts;
 		QPointer<AccountTuneStatus> m_currentAccount;
 		QHash<AccountTuneStatus*, AccountTuneSettings*> m_settingWidgets;
+		QHash<QString, QWidget*> m_playerWidgets;
 		NowPlaying *m_manager;
 	};
 

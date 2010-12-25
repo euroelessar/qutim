@@ -25,7 +25,6 @@ namespace nowplaying {
 		Q_INTERFACES(qutim_sdk_0_3::nowplaying::Player)
 	public:
 		MprisPlayer(const QString &id);
-		QString id();
 		void init();
 		void requestState();
 		void requestTrackInfo();

@@ -20,7 +20,7 @@
 #include <QAbstractListModel>
 #include <qutim/contact.h>
 //FIXME
-#include <contactdelegate.h>
+//#include <contactdelegate.h>
 
 class FloatiesItemModel : public QAbstractListModel
 {

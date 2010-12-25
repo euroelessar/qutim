@@ -61,6 +61,7 @@ namespace nowplaying {
 		QList<AccountTuneStatus*> accounts() { return m_accounts; }
 		QList<HookPointer<PlayerFactory> > playerFactories() { return m_playerFactories; }
 		QHash<QString, HookPointer<Player> > players() { return m_players; }
+		QString currentPlayerId() { return m_playerId; }
 		Player *currentPlayer() { return m_player; }
 		bool forAllAccounts() { return m_forAllAccounts; }
 		bool isWorking() { return m_isWorking; }

@@ -1,5 +1,6 @@
 #include "mprisplayerfactory.h"
 #include "mprisplayer.h"
+#include <qutim/icon.h>
 #include <QDebug>
 
 namespace qutim_sdk_0_3 {
@@ -17,7 +18,7 @@ namespace nowplaying {
 				this, SLOT(onNamesReceived(QDBusPendingCallWatcher*)));
 	}
 	
-	QMap<QString,QString> MprisPlayerFactory::players()
+	QMap<QString, Player::Info> MprisPlayerFactory::players()
 	{
 		return m_knownPlayers;
 	}
@@ -35,7 +36,8 @@ namespace nowplaying {
 	{
 		if (service.startsWith(QLatin1String("org.mpris."))) {
 			if (oldName.isEmpty() && !newName.isEmpty()) {
-				ensureServiceName(service);
+				ensureServiceInfo(service, Name);
+				ensureServiceInfo(service, DesktopId);
 			} else if (!oldName.isEmpty() && newName.isEmpty()) {
 				m_knownPlayers.remove(service);
 				PlayerEvent ev(service, PlayerEvent::Unavailable);
@@ -55,10 +57,42 @@ namespace nowplaying {
 		} else {
 			identity = watcher->reply().arguments().at(0).toString();
 		}
-		qDebug() << watcher->error().message() << watcher->reply().arguments();
-		m_knownPlayers.insert(service, identity);
+		m_knownPlayers[service].name = identity;
 		PlayerEvent ev(service, PlayerEvent::Available);
 		qApp->sendEvent(this, &ev);
+	}
+	
+	void MprisPlayerFactory::onDesktopNameReceived(QDBusPendingCallWatcher *watcher)
+	{
+		watcher->deleteLater();
+		QString service = watcher->property("service").toString();
+		QDBusVariant variant = watcher->reply().arguments().at(0).value<QDBusVariant>();
+		QString desktopId = variant.variant().toString();
+		desktopId += QLatin1String(".desktop");
+		QDir dir(QLatin1String("/usr/share/applications"));
+		QStringList files = dir.entryList(QStringList(desktopId), QDir::Files);
+		if (files.isEmpty()) {
+			foreach (const QString &dirName, dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
+				if (!dir.cd(dirName))
+					continue;
+				files = dir.entryList(QStringList(desktopId), QDir::Files);
+				if (!files.isEmpty())
+					break;
+				dir.cdUp();
+			}
+		}
+		if (files.isEmpty())
+			return;
+		QSettings desktopEntry(dir.absoluteFilePath(files.first()), QSettings::IniFormat);
+		QString iconName = desktopEntry.value(QLatin1String("Desktop Entry/Icon")).toString();
+		QIcon icon;
+		if (iconName.isEmpty())
+			return;
+		else if (QFileInfo(iconName).isAbsolute())
+			icon = QIcon(iconName);
+		else
+			icon = Icon(iconName);
+		m_knownPlayers[service].icon = icon;
 	}
 	
 	void MprisPlayerFactory::onNamesReceived(QDBusPendingCallWatcher *watcher)
@@ -66,12 +100,14 @@ namespace nowplaying {
 		watcher->deleteLater();
 		QDBusPendingReply<QStringList> call = *watcher;
 		foreach (const QString &service, call.argumentAt<0>()) {
-			if (service.startsWith(QLatin1String("org.mpris.")))
-				ensureServiceName(service);
+			if (service.startsWith(QLatin1String("org.mpris."))) {
+				ensureServiceInfo(service, Name);
+				ensureServiceInfo(service, DesktopId);
+			}
 		}
 	}
 	
-	void MprisPlayerFactory::ensureServiceName(const QString &service)
+	void MprisPlayerFactory::ensureServiceInfo(const QString &service, InfoType type)
 	{
 		QDBusMessage msg;
 		if (service.startsWith(QLatin1String("org.mpris.MediaPlayer2."))) {
@@ -81,8 +117,10 @@ namespace nowplaying {
 												 QLatin1String("Get"));
 			msg.setArguments(QVariantList()
 							 << QLatin1String("org.mpris.MediaPlayer2")
-							 << QLatin1String("Identity"));
+							 << QLatin1String(type == Name ? "Identity" : "DesktopEntry"));
 		} else {
+			if (type != Name)
+				return;
 			msg = QDBusMessage::createMethodCall(service,
 												 QLatin1String("/"),
 												 QLatin1String("org.freedesktop.MediaPlayer"),
@@ -92,7 +130,9 @@ namespace nowplaying {
 		QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, this);
 		watcher->setProperty("service", service);
 		connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
-				this, SLOT(onIdentityReceived(QDBusPendingCallWatcher*)));
+				this, type == Name
+				? SLOT(onIdentityReceived(QDBusPendingCallWatcher*)) 
+					: SLOT(onDesktopNameReceived(QDBusPendingCallWatcher*)));
 	}
 }
 }
