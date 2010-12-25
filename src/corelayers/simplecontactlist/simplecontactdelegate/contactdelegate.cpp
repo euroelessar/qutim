@@ -177,6 +177,7 @@ void ContactDelegate::paint(QPainter *painter,
 						  0,
 						  0);
 		bool isStatusText = (p->showFlags & ShowStatusText) && !status.text().isEmpty();
+		name = QFontMetrics(opt.font).elidedText(name,Qt::ElideMiddle,title_rect.width());
 		painter->drawText(title_rect,
 						  isStatusText ? Qt::AlignTop : Qt::AlignVCenter,
 						  name,
@@ -189,10 +190,12 @@ void ContactDelegate::paint(QPainter *painter,
 
 			QFont font = opt.font;
 			font.setPointSize(font.pointSize()-2);
+			QString text = status.text().remove(QLatin1Char('\n'));
+			text = QFontMetrics(font).elidedText(text,Qt::ElideRight,status_rect.width());
 			painter->setFont(font);
 			painter->drawText(status_rect,
 							  Qt::AlignTop,
-							  status.text().remove(QLatin1Char('\n'))
+							  text
 							  );
 		}
 
