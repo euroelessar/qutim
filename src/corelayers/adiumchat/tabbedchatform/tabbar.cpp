@@ -183,13 +183,14 @@ void TabBar::removeTab(int index)
 	ChatSessionImpl *s = p->sessions.at(index);
 	s->disconnect(this);
 	s->removeEventFilter(this);
+	s->unit()->disconnect(this);
 	onRemoveSession(s);
 	emit remove(s);
 }
 
 void TabBar::onRemoveSession(QObject *obj)
 {
-	ChatSessionImpl *s = reinterpret_cast<ChatSessionImpl*>(obj);
+	ChatSessionImpl *s = static_cast<ChatSessionImpl*>(obj);
 	int index = p->sessions.indexOf(s);
 	p->sessions.removeAll(s);
 	p->sessionList->removeAction(p->sessionList->actions().at(index));

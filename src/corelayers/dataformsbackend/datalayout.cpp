@@ -8,8 +8,12 @@
 namespace Core
 {
 
-DataLayout::DataLayout(bool editable, QWidget *parent) :
-	QGridLayout(parent), m_style(0), m_row(0), m_editable(editable), m_expandable(false)
+DataLayout::DataLayout(DefaultDataForm *dataForm, QWidget *parent) :
+	QGridLayout(parent),
+	AbstractDataWidget(dataForm),
+	m_style(0),
+	m_row(0),
+	m_expandable(false)
 {
 }
 
@@ -29,20 +33,15 @@ DataItem DataLayout::item() const
 void DataLayout::addItem(const DataItem &item)
 {
 	bool twoColumns;
-	QWidget *widget = m_editable ?
-					  getWidget(item, parentWidget(), &twoColumns) :
-					  getReadOnlyWidget(item, parentWidget(), &twoColumns);
+	QWidget *widget = getWidget(dataForm(), item, parentWidget(), &twoColumns);
 	QWidget *title = 0;
 	twoColumns = twoColumns || item.property("hideTitle", false);
-	if (!twoColumns) {
-		title = m_editable ?
-				getTitle(item, labelAlignment(), parentWidget()) :
-				getReadOnlyTitle(item, labelAlignment(), parentWidget());
-	}
+	if (!twoColumns)
+		title = getTitle(dataForm(), item, labelAlignment(), parentWidget());
 	widget->setObjectName(item.name());
-	addRow(title, widget, m_editable ?  Qt::Alignment() : Qt::AlignLeft);
+	addRow(title, widget, !item.isReadOnly() ?  Qt::Alignment() : Qt::AlignLeft);
 	m_widgets.push_back(WidgetLine(title, widget));
-	if (m_editable) {		
+	if (!item.isReadOnly()) {
 		QSizePolicy::Policy policy = widget->sizePolicy().verticalPolicy();
 		if (!m_expandable)
 			m_expandable = policy == QSizePolicy::MinimumExpanding || policy == QSizePolicy::Expanding;

@@ -54,12 +54,17 @@ struct MessageModifierTrack
 
 void ChatStyleOutput::setChatSession(ChatSessionImpl *session)
 {
-	//TODO maybe need to clean old session
+	if(m_session) {
+		m_session->disconnect(this);
+		m_session->removeEventFilter(this);
+	}
 	m_session = session;
 	setParent(session);
-	preparePage(session);
-	loadSettings();
+	setChatUnit(session->unit());
+
 	connect(m_session,SIGNAL(activated(bool)),SLOT(onSessionActivated(bool)));
+	connect(m_session,SIGNAL(chatUnitChanged(qutim_sdk_0_3::ChatUnit*)),
+			this,SLOT(setChatUnit(qutim_sdk_0_3::ChatUnit*)));
 	JavaScriptClient *client = new JavaScriptClient(session);
 	mainFrame()->addToJavaScriptWindowObject(client->objectName(), client);
 	connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
@@ -90,6 +95,9 @@ void ChatStyleOutput::onLinkClicked(const QUrl &url)
 
 void ChatStyleOutput::setChatUnit(ChatUnit *unit)
 {
+	if(!m_session)
+		return;
+	loadSettings();
 	bool isConference = !!qobject_cast<Conference*>(unit);
 	QWebFrame *frame = mainFrame();
 	QWebElement chatElem = frame->findFirstElement("#Chat");
@@ -225,7 +233,6 @@ void ChatStyleOutput::loadSettings()
 	setCustomCSS(css);
 	loadTheme(path,variant);
 	m_current_datetime_format = adium_chat.value<QString>("datetimeFormat","hh:mm:ss dd/MM/yyyy");
-	loadHistory();
 }
 
 void ChatStyleOutput::loadTheme(const QString& path, const QString& variant)
@@ -286,14 +293,12 @@ QString ChatStyleOutput::getVariant() const
 void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 {
 	QPalette palette = this->palette();
-	if(m_current_style.backgroundIsTransparent)
-	{
+	if(m_current_style.backgroundIsTransparent) {
 		palette.setBrush(QPalette::Base, Qt::transparent);
 		if(view())
 			view()->setAttribute(Qt::WA_OpaquePaintEvent, false);
 	}
-	else
-	{
+	else {
 		palette.setBrush(QPalette::Base, m_current_style.backgroundColor);
 	}
 	setPalette(palette);
@@ -301,6 +306,7 @@ void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 	QString html = makeSkeleton(session,QDateTime::currentDateTime());
 	mainFrame()->setHtml(html);
 	reloadStyle();
+	loadHistory();
 }
 
 QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDateTime&)

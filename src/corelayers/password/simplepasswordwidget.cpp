@@ -7,7 +7,7 @@ namespace Core
 SimplePasswordWidget::SimplePasswordWidget(Account *account, SimplePasswordDialog *parent) :
 		ui(new Ui::SimplePasswordWidget)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 	ui->label->setText(ui->label->text().arg(account->id(), account->protocol()->id()));
 	connect(this, SIGNAL(accepted()), this, SLOT(onAccept()));
 	connect(this, SIGNAL(rejected()), this, SLOT(onReject()));

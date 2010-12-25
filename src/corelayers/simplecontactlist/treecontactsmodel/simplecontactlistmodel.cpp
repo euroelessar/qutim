@@ -19,6 +19,7 @@
 #include <QApplication>
 
 #define QUTIM_MIME_CONTACT_INTERNAL QLatin1String("application/qutim-contact-internal")
+#define QUTIM_MIME_TAG_INTERNAL QLatin1String("application/qutim-tag-internal")
 
 namespace Core
 {
@@ -26,23 +27,23 @@ namespace SimpleContactList
 {
 struct ChangeEvent
 {
-	enum Type { ChangeTags, MergeContacts } type;
+	enum Type { ChangeTags, MergeContacts, MoveTag } type;
 	void *child;
-	void *parent;
+	ItemHelper *parent;
 
 };
 
 struct ModelPrivate
 {
-	QTreeView *view;
 	QList<TagItem *> tags;
+	QList<TagItem *> visibleTags;
 	QHash<QString, TagItem *> tagsHash;
 	QMap<Contact *, ContactData::Ptr> contacts;
 	QSet<QString> closedTags;
 	QList<ChangeEvent*> events;
 	QBasicTimer timer;
 	QString lastFilter;
-	QStringList filteredTags;
+	QStringList selectedTags;
 	bool showOffline;
 	QBasicTimer unreadTimer;
 	QMap<ChatSession*, QSet<Contact*> > unreadBySession;
@@ -50,6 +51,16 @@ struct ModelPrivate
 	bool showMessageIcon;
 	QIcon unreadIcon;
 	quint16 realUnitRequestEvent;
+	quint16 qutimAboutToQuitEvent;
+
+	struct InitData
+	{
+		QList<Contact*> contacts;
+		quint16 qutimStartupEvent;
+	};
+	// Pointer to variables that are solely used at startup.
+	// See Model::initialize()
+	InitData *initData;
 };
 
 AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
@@ -58,14 +69,15 @@ AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
 	addHandler(ActionVisibilityChangedHandler,model);
 }
 
-Model::Model(QObject *parent) : QAbstractItemModel(parent), p(new ModelPrivate)
+Model::Model(QObject *parent) : AbstractContactModel(parent), p(new ModelPrivate)
 {
 	p->showMessageIcon = false;
+	qApp->installEventFilter(this);
+	p->initData = new ModelPrivate::InitData;
 	p->realUnitRequestEvent = Event::registerType("real-chatunit-request");
+	p->qutimAboutToQuitEvent = Event::registerType("aboutToQuit");
+	p->initData->qutimStartupEvent = Event::registerType("startup");
 	p->unreadIcon = Icon(QLatin1String("mail-unread-new"));
-	p->view = static_cast<QTreeView*>(parent);
-	connect(p->view, SIGNAL(collapsed(QModelIndex)), this, SLOT(onCollapsed(QModelIndex)));
-	connect(p->view, SIGNAL(expanded(QModelIndex)), this, SLOT(onExpanded(QModelIndex)));
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)),
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	ConfigGroup group = Config().group("contactList");
@@ -80,17 +92,10 @@ Model::Model(QObject *parent) : QAbstractItemModel(parent), p(new ModelPrivate)
 							  this, SLOT(onTagsEditAction(QObject*)));
 	MenuController::addAction<Contact>(gen);
 	MenuController::addAction<Contact>(new AddRemoveContactActionGenerator(this));
-
-	p->view->setDragEnabled(true);
-	p->view->setAcceptDrops(true);
-	p->view->setDropIndicatorShown(true);
 }
 
 Model::~Model()
 {
-	ConfigGroup group = Config().group("contactList");
-	group.setValue("closedTags", QStringList(p->closedTags.toList()));
-	group.sync();
 }
 
 QModelIndex Model::index(int row, int, const QModelIndex &parent) const
@@ -101,16 +106,16 @@ QModelIndex Model::index(int row, int, const QModelIndex &parent) const
 	{
 	case TagType: {
 		TagItem *item = reinterpret_cast<TagItem *>(parent.internalPointer());
-		if(item->contacts.size() <= row)
+		if(item->visible.size() <= row)
 			return QModelIndex();
-		return createIndex(row, 0, item->contacts.at(row));
+		return createIndex(row, 0, item->visible.at(row));
 	}
 	case ContactType:
 		return QModelIndex();
 	default:
-		if(p->tags.size() <= row)
+		if(p->visibleTags.size() <= row)
 			return QModelIndex();
-		return createIndex(row, 0, p->tags.at(row));
+		return createIndex(row, 0, p->visibleTags.at(row));
 	}
 }
 
@@ -120,7 +125,7 @@ QModelIndex Model::parent(const QModelIndex &child) const
 	{
 	case ContactType: {
 		ContactItem *item = reinterpret_cast<ContactItem *>(child.internalPointer());
-		return createIndex(p->tags.indexOf(item->parent), 0, item->parent);
+		return createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
 	}
 	case TagType:
 	default:
@@ -133,11 +138,11 @@ int Model::rowCount(const QModelIndex &parent) const
 	switch(getItemType(parent))
 	{
 	case TagType:
-		return reinterpret_cast<TagItem *>(parent.internalPointer())->contacts.size();
+		return reinterpret_cast<TagItem *>(parent.internalPointer())->visible.size();
 	case ContactType:
 		return 0;
 	default:
-		return p->tags.size();
+		return p->visibleTags.size();
 	}
 }
 
@@ -151,11 +156,11 @@ bool Model::hasChildren(const QModelIndex &parent) const
 	switch(getItemType(parent))
 	{
 	case TagType:
-		return !reinterpret_cast<TagItem *>(parent.internalPointer())->contacts.isEmpty();
+		return !reinterpret_cast<TagItem *>(parent.internalPointer())->visible.isEmpty();
 	case ContactType:
 		return false;
 	default:
-		return !p->tags.isEmpty();
+		return !p->visibleTags.isEmpty();
 	}
 }
 
@@ -218,8 +223,22 @@ QVariant Model::data(const QModelIndex &index, int role) const
 }
 
 bool contactLessThan (ContactItem *a, ContactItem *b) {
-	int result = a->data->status.type() - b->data->status.type();
-	if (result != 0)
+	int result;
+
+	//int unreadA = 0;
+	//int unreadB = 0;
+	//ChatSession *session = ChatLayer::get(a->data->contact,false);
+	//if(session)
+	//	unreadA = session->unread().count();
+	//session = ChatLayer::get(b->data->contact,false);
+	//if(session)
+	//	unreadB = session->unread().count();
+	//result = unreadA - unreadB;
+	//if(result)
+	//	return result < 0;
+
+	result = a->data->status.type() - b->data->status.type();
+	if (result)
 		return result < 0;
 	return a->data->contact->title().compare(b->data->contact->title(), Qt::CaseInsensitive) < 0;
 };
@@ -230,7 +249,14 @@ void Model::addContact(Contact *contact)
 	//			if (!contact->isInList())
 	//				return;
 
-	if(p->contacts.contains(contact))
+	if (p->initData) {
+		if (p->initData->contacts.contains(contact))
+			return;
+		p->initData->contacts << contact;
+		return;
+	}
+
+	if (p->contacts.contains(contact))
 		return;
 
 	MetaContact *meta = qobject_cast<MetaContact*>(contact);
@@ -276,28 +302,16 @@ void Model::addContact(Contact *contact)
 	for(QSet<QString>::const_iterator it = item_data->tags.constBegin(); it != item_data->tags.constEnd(); it++)
 	{
 		TagItem *tag = ensureTag(*it);
-		int tagIndex = p->tags.indexOf(tag);
-		QModelIndex tagModelIndex = createIndex(tagIndex, 0, tag);
 		ContactItem *item = new ContactItem(item_data);
-
-		QList<ContactItem *> contacts = tag->contacts;
-		QList<ContactItem *>::const_iterator contacts_it =
-				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-		int index = contacts_it - contacts.constBegin();
-
-		beginInsertRows(tagModelIndex, index, index);
 		item->parent = tag;
-		item_data->items.insert(index,item);
-		tag->contacts.insert(index,item);
-		endInsertRows();
 		bool show = isVisible(item);
-		// hideContact will decrease it by one
-		tag->visible++;
 		tag->online += counter;
-		if (show)
-			recheckTag(tag, tagIndex);
-		else
-			hideContact(index, tagModelIndex, true);
+		if (show) {
+			hideContact(item, false, false);
+		} else {
+			tag->contacts.push_back(item);
+			item_data->items.push_back(item);
+		}
 	}
 }
 
@@ -321,10 +335,9 @@ Qt::ItemFlags Model::flags(const QModelIndex &index) const
 	Qt::ItemFlags flags = QAbstractItemModel::flags(index);
 
 	ContactItemType type = getItemType(index);
-	if (type == TagType)
-		flags |= Qt::ItemIsDropEnabled;
-	else if (type == ContactType)
-		flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
+	flags |= Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
+	if (type == ContactType)
+		flags |= Qt::ItemIsEditable;
 
 	return flags;
 }
@@ -338,6 +351,7 @@ QStringList Model::mimeTypes() const
 {
 	QStringList types;
 	types << QUTIM_MIME_CONTACT_INTERNAL;
+	types << QUTIM_MIME_TAG_INTERNAL;
 	types << MimeObjectData::objectMimeType();
 	return types;
 }
@@ -346,18 +360,25 @@ QMimeData *Model::mimeData(const QModelIndexList &indexes) const
 {
 	MimeObjectData *mimeData = new MimeObjectData();
 	QModelIndex index = indexes.value(0);
-	if (getItemType(index) != ContactType)
+	ContactItemType itemType = getItemType(index);
+	QLatin1String type("");
+	if (itemType == ContactType) {
+		ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
+		mimeData->setText(item->data->contact->id());
+		type = QUTIM_MIME_CONTACT_INTERNAL;
+		mimeData->setObject(item->data->contact);
+	} else if (itemType == TagType) {
+		TagItem *item = reinterpret_cast<TagItem*>(index.internalPointer());
+		mimeData->setText(item->name);
+		type = QUTIM_MIME_TAG_INTERNAL;
+	} else {
 		return mimeData;
-
-	ContactItem *item = reinterpret_cast<ContactItem*>(index.internalPointer());
-
-	mimeData->setText(item->data->contact->id());
+	}
 
 	QByteArray encodedData;
 	QDataStream stream(&encodedData, QIODevice::WriteOnly);
 	stream << index.row() << index.column() << qptrdiff(index.internalPointer());
-	mimeData->setData(QUTIM_MIME_CONTACT_INTERNAL, encodedData);
-	mimeData->setObject(item->data->contact);
+	mimeData->setData(type, encodedData);
 
 	return mimeData;
 }
@@ -368,26 +389,32 @@ bool Model::dropMimeData(const QMimeData *data, Qt::DropAction action,
 	if (action == Qt::IgnoreAction)
 		return true;
 
-	if (!data->hasFormat(QUTIM_MIME_CONTACT_INTERNAL))
+	ContactItemType parentType = getItemType(parent);
+	if (parentType != ContactType && parentType != TagType)
 		return false;
 
-	QByteArray encodedData = data->data(QUTIM_MIME_CONTACT_INTERNAL);
+	qptrdiff internalId = 0;
+	QByteArray encodedData;
+	bool isContact = data->hasFormat(QUTIM_MIME_CONTACT_INTERNAL);
+	if (isContact)
+		encodedData = data->data(QUTIM_MIME_CONTACT_INTERNAL);
+	else if (data->hasFormat(QUTIM_MIME_TAG_INTERNAL))
+		encodedData = data->data(QUTIM_MIME_TAG_INTERNAL);
+	else
+		return false;
+
 	QDataStream stream(&encodedData, QIODevice::ReadOnly);
-	qptrdiff internalId;
 	stream >> row >> column >> internalId;
-
 	QModelIndex index = createIndex(row, column, reinterpret_cast<void*>(internalId));
-	qDebug() << Q_FUNC_INFO;
-	if (getItemType(index) != ContactType
-			|| (getItemType(parent) != ContactType && getItemType(parent) != TagType)) {
+	if (isContact && getItemType(index) != ContactType)
 		return false;
-	}
 
 	ChangeEvent *ev = new ChangeEvent;
-	ev->child = index.internalPointer();
-	ev->parent = parent.internalPointer();
-	qDebug() << ev->type;
-	if (getItemType(parent) == TagType)
+	ev->child = reinterpret_cast<ItemHelper*>(index.internalPointer());
+	ev->parent = reinterpret_cast<ItemHelper*>(parent.internalPointer());
+	if (getItemType(index) == TagType)
+		ev->type = ChangeEvent::MoveTag;
+	else if (getItemType(parent) == TagType)
 		ev->type = ChangeEvent::ChangeTags;
 	else if(getItemType(parent) == ContactType)
 		ev->type = ChangeEvent::MergeContacts;
@@ -401,30 +428,15 @@ bool Model::dropMimeData(const QMimeData *data, Qt::DropAction action,
 
 void Model::removeFromContactList(Contact *contact, bool deleted)
 {
+	Q_UNUSED(deleted);
 	ContactData::Ptr item_data = p->contacts.value(contact);
 	if(!item_data)
 		return;
 	int counter = item_data->status.type() == Status::Offline ? 0 : -1;
-	for(int i = 0; i < item_data->items.size(); i++)
-	{
+	for(int i = 0; i < item_data->items.size(); i++) {
 		ContactItem *item = item_data->items.at(i);
 		item->parent->online += counter;
-		int index = item->index();
-		beginRemoveRows(createIndex(p->tags.indexOf(item->parent), 0, item->parent), index, index);
-		item->parent->contacts.removeAt(index);
-		endRemoveRows();
-
-		int tagIndex = p->tags.indexOf(item->parent);
-
-		if (item->parent->contacts.empty()) {
-			beginRemoveRows(QModelIndex(),tagIndex,tagIndex);
-			p->tagsHash.remove(p->tags.at(tagIndex)->name);
-			p->tags.removeAt(tagIndex);
-			endRemoveRows();
-		} else if (!deleted && isVisible(item)) {
-			item->parent->visible--;
-			recheckTag(item->parent, tagIndex);
-		}
+		hideContact(item, true, false);
 	}
 	p->contacts.remove(contact);
 }
@@ -465,13 +477,20 @@ void Model::contactStatusChanged(Status status)
 	item_data->status = status;
 	const QList<ContactItem *> &items = item_data->items;
 	bool show = isVisible(item_data->items.value(0));
-	for(int i = 0; i < items.size(); i++)
-	{
+	for(int i = 0; i < items.size(); i++) {
 		ContactItem *item = items.at(i);
 		item->parent->online += counter;
 
-		QList<ContactItem *> &contacts = item->parent->contacts;
-		QModelIndex parentIndex = createIndex(p->tags.indexOf(item->parent), 0, item->parent);
+		if (!hideContact(item, !show)) {
+			if (!show)
+				return; // The item has been removed from the model
+		} else {
+			return; // The item has been added to the model in the right place
+		}
+
+		// The item is already visible, so we need to move it in the right place
+		// and update its content
+		QList<ContactItem *> &contacts = item->parent->visible;
 		int from = contacts.indexOf(item);
 		int to;
 		if (statusTypeChanged) {
@@ -482,9 +501,6 @@ void Model::contactStatusChanged(Status status)
 			to = from;
 		}
 
-		if (statusTypeChanged)
-			hideContact(from, parentIndex, !show);
-
 		if (from == to) {
 			if (show) {
 				QModelIndex index = createIndex(item->index(), 0, item);
@@ -493,7 +509,7 @@ void Model::contactStatusChanged(Status status)
 		} else {
 			if (to == -1 || to >= contacts.count())
 				continue;
-
+			QModelIndex parentIndex = createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
 			if (beginMoveRows(parentIndex, from, from, parentIndex, to)) {
 				if (from < to)
 					--to;
@@ -516,14 +532,14 @@ void Model::contactNameChanged(const QString &name)
 	for(int i = 0; i < items.size(); i++)
 	{
 		ContactItem *item = items.at(i);
-		QList<ContactItem *> contacts = item->parent->contacts;
+		QList<ContactItem *> contacts = item->parent->visible;
 		QList<ContactItem *>::const_iterator it =
 				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
 
 		int to = it - contacts.constBegin();
 		int from = contacts.indexOf(item);
 
-		QModelIndex parentIndex = createIndex(p->tags.indexOf(item->parent), 0, item->parent);
+		QModelIndex parentIndex = createIndex(p->visibleTags.indexOf(item->parent), 0, item->parent);
 
 		if (from == to) {
 			QModelIndex index = createIndex(item->index(), 0, item);
@@ -618,48 +634,31 @@ void Model::contactTagsChanged(const QStringList &tags_helper)
 	QSet<QString> tags;
 	tags = QSet<QString>::fromList(tags_helper);
 	if(tags.isEmpty())
-		tags << QLatin1String("Default");
+		tags << tr("Without tags");
+
+	//It should be noted in contactlist those who are not in the roster
+	//if(!contact->isInList())
+	//	tags << tr("Not in list");
+
 	QSet<QString> to_add = tags - item_data->tags;
 	for (int i = 0, size = item_data->items.size(); i < size; i++) {
 		ContactItem *item = item_data->items.at(i);
 		if(tags.contains(item->parent->name))
 			continue;
-		int index = item->index();
-		int tagIndex = p->tags.indexOf(item->parent);
-		beginRemoveRows(createIndex(tagIndex, 0, item->parent), index, index);
-		item->parent->contacts.removeAt(index);
-		item_data->items.removeAt(i);
+		hideContact(item, true, false);
 		i--;
 		size--;
-		endRemoveRows();
-		if (show) {
-			item->parent->visible--;
-			recheckTag(item->parent, tagIndex);
-		}
 	}
 	for (QSet<QString>::const_iterator it = to_add.constBegin(); it != to_add.constEnd(); it++) {
 		TagItem *tag = ensureTag(*it);
-		tag->visible++;
 		ContactItem *item = new ContactItem(item_data);
-		int tagIndex = p->tags.indexOf(tag);
-		QModelIndex tagModelIndex = createIndex(tagIndex, 0, tag);
-		QList<ContactItem *> contacts = tag->contacts;
-		QList<ContactItem *>::const_iterator search_it =
-				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
-
-		int index = search_it - contacts.constBegin();
-		beginInsertRows(tagModelIndex, index, index);
 		item->parent = tag;
-		item_data->items << item;
-		tag->contacts << item;
-		endInsertRows();
-		if (!show)
-			hideContact(index, tagModelIndex, true);
+		hideContact(item, !show, false);
 	}
 	item_data->tags = tags;
 }
 
-void Model::onHideShowOffline()
+void Model::hideShowOffline()
 {
 	ConfigGroup group = Config().group("contactList");
 	bool show = !group.value("showOffline", true);
@@ -671,7 +670,7 @@ void Model::onHideShowOffline()
 	filterAllList();
 }
 
-void Model::onFilterList(const QString &filter)
+void Model::filterList(const QString &filter)
 {
 	if (filter == p->lastFilter)
 		return;
@@ -679,11 +678,11 @@ void Model::onFilterList(const QString &filter)
 	filterAllList();
 }
 
-void Model::onFilterList(const QStringList &tags)
+void Model::filterList(const QStringList &tags)
 {
-	if (tags == p->filteredTags)
+	if (tags == p->selectedTags)
 		return;
-	p->filteredTags = tags;
+	p->selectedTags = tags;
 	filterAllList();
 }
 
@@ -692,7 +691,7 @@ void Model::onContactRenameAction(QObject *controller)
 	Contact *contact = qobject_cast<Contact*>(controller);
 	if (!contact)
 		return;
-	QInputDialog *dialog = new QInputDialog(p->view);
+	QInputDialog *dialog = new QInputDialog(QApplication::activeModalWidget());
 	dialog->setAttribute(Qt::WA_QuitOnClose, false);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	dialog->setInputMode(QInputDialog::TextInput);
@@ -719,7 +718,7 @@ QStringList Model::tags() const
 
 QStringList Model::selectedTags() const
 {
-	return p->filteredTags;
+	return p->selectedTags;
 }
 
 void Model::processEvent(ChangeEvent *ev)
@@ -780,6 +779,33 @@ void Model::processEvent(ChangeEvent *ev)
 			if (!childMeta)
 				meta->addContact(item->data->contact);
 		}
+	} else if (ev->type == ChangeEvent::MoveTag) {
+		int to = -2, globalTo = -2;
+		if (ev->parent->type == ContactType) {
+			TagItem *tag = reinterpret_cast<ContactItem*>(ev->parent)->parent;
+			to = p->visibleTags.indexOf(tag) + 1;
+			globalTo = p->tags.indexOf(tag) + 1;
+		} else if (ev->parent->type == TagType) {
+			TagItem *tag = reinterpret_cast<TagItem*>(ev->parent);
+			to = p->visibleTags.indexOf(tag);
+			globalTo = p->tags.indexOf(tag);
+		} else {
+			Q_ASSERT(false && "Not implemented");
+		}
+		TagItem *tag = reinterpret_cast<TagItem*>(ev->child);
+		int from = p->visibleTags.indexOf(tag);
+		int globalFrom = p->tags.indexOf(tag);
+		Q_ASSERT(from >= 0 && to >= 0 && globalTo >= 0 && globalFrom >= 0);
+		if (beginMoveRows(QModelIndex(), from, from, QModelIndex(), to)) {
+			if (from < to) {
+				Q_ASSERT(globalFrom < globalTo);
+				--to;
+				--globalTo;
+			}
+			p->visibleTags.move(from, to);
+			p->tags.move(globalFrom, globalTo);
+			endMoveRows();
+		}
 	}
 }
 
@@ -817,6 +843,12 @@ bool Model::eventFilter(QObject *obj, QEvent *ev)
 		else if (!metaEvent->oldMetaContact() && metaEvent->newMetaContact())
 			removeContact(metaEvent->contact());
 		return false;
+	} else if (obj == qApp && ev->type() == Event::eventType()) {
+		Event *event = static_cast<Event*>(ev);
+		if (p->initData && event->id == p->initData->qutimStartupEvent)
+			initialize();
+		else if (event->id == p->qutimAboutToQuitEvent)
+			saveConfig();
 	}
 	return QAbstractItemModel::eventFilter(obj, ev);
 }
@@ -885,24 +917,9 @@ void Model::filterAllList()
 {
 	for (int i = 0; i < p->tags.size(); i++) {
 		TagItem *tag = p->tags.at(i);
-		QModelIndex index = createIndex(i, 0, tag);
-		tag->visible = 0;
-		for (int j = 0; j < tag->contacts.size(); j++) {
-			bool show = isVisible(tag->contacts.at(j));
-			if (show)
-				tag->visible++;
-			if (p->view->isRowHidden(j, index) == show)
-				p->view->setRowHidden(j, index, !show);
-		}
-
-		if (!p->filteredTags.isEmpty()) {
-			if (!p->filteredTags.contains(tag->name))
-				tag->visible = 0;
-		}
-
-		index = QModelIndex();
-		if (p->view->isRowHidden(i, index) == !!tag->visible)
-			p->view->setRowHidden(i, index, !tag->visible);
+		bool tagFiltered = !p->selectedTags.isEmpty() && !p->selectedTags.contains(tag->name);
+		foreach (ContactItem *item, tag->contacts)
+			hideContact(item, tagFiltered || !isVisible(item));
 	}
 }
 
@@ -916,56 +933,147 @@ bool Model::isVisible(ContactItem *item)
 	if (!p->lastFilter.isEmpty()) {
 		return contact->id().contains(p->lastFilter,Qt::CaseInsensitive)
 				|| contact->name().contains(p->lastFilter,Qt::CaseInsensitive);
+	} else if (!p->selectedTags.isEmpty() && !p->selectedTags.contains(item->parent->name)) {
+		return false;
 	} else {
 		return p->showOffline || contact->status().type() != Status::Offline;
 	}
 }
 
-void Model::hideContact(int index, const QModelIndex &tagIndex, bool hide)
+bool Model::hideContact(ContactItem *item, bool hide, bool replacing)
 {
-	TagItem *item = reinterpret_cast<TagItem*>(tagIndex.internalPointer());
-	if (p->view->isRowHidden(index, tagIndex) != hide) {
-		item->visible += hide ? -1 : 1;
-		p->view->setRowHidden(index, tagIndex, hide);
-		recheckTag(item, tagIndex.row());
-		emit dataChanged(tagIndex,tagIndex);
+	TagItem *tag = item->parent;
+	Q_ASSERT(tag);
+	Q_ASSERT(!replacing || tag->contacts.contains(item));
+	if (!hide)
+		showTag(tag);
+	int row = p->visibleTags.indexOf(tag);
+	QModelIndex tagIndex = createIndex(row, 0, tag);
+	if (hide) {
+		if (row < 0)
+			return false;
+		int index = tag->visible.indexOf(item);
+		if (index == -1)
+			return false;
+		beginRemoveRows(tagIndex, index, index);
+		tag->visible.removeAt(index);
+		if (!replacing) {
+			item->parent->contacts.removeOne(item);
+			item->data->items.removeOne(item);
+		}
+		endRemoveRows();
+		if (tag->visible.isEmpty())
+			hideTag(tag);
+	} else {
+		Q_ASSERT(p->selectedTags.isEmpty() || p->selectedTags.contains(tag->name));
+		Q_ASSERT(row >= 0);
+		if (tag->visible.contains(item))
+			return false;
+		QList<ContactItem *> &contacts = tag->visible;
+		QList<ContactItem *>::const_iterator contacts_it =
+				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
+		int index = contacts_it - contacts.constBegin();
 
+		beginInsertRows(tagIndex, index, index);
+		if (!replacing) {
+			item->parent->contacts.append(item);
+			item->data->items.append(item);
+		}
+		contacts.insert(index, item);
+		endInsertRows();
+	}
+	return true;
+}
+
+void Model::hideTag(TagItem *item)
+{
+	Q_ASSERT(p->tags.contains(item));
+	int index = p->visibleTags.indexOf(item);
+	if (index < 0)
+		return; // The tag is already hidden
+	beginRemoveRows(QModelIndex(), index, index);
+	p->visibleTags.removeAt(index);
+	endRemoveRows();
+	if (item->contacts.isEmpty()) {
+		p->tagsHash.remove(item->name);
+		p->tags.removeOne(item);
 	}
 }
 
-void Model::recheckTag(TagItem *item, int index)
+void Model::showTag(TagItem *item)
 {
-	if (index < 0)
-		index = p->tags.indexOf(item);
-	bool hidden = !item->visible;
-	if (p->view->isRowHidden(index, QModelIndex()) == hidden)
-		return;
-	p->view->setRowHidden(index, QModelIndex(), hidden);
+	Q_ASSERT(p->tags.contains(item));
+	int index = p->visibleTags.indexOf(item);
+	if (index >= 0)
+		return; // The tag is already in the contact list
+	// A wierd way to find out tag's index, but
+	// we need it to ensure the right order of tags.
+	index = 0;
+	for (int j = 0, tc = p->tags.count(), vc = p->visibleTags.count(); j < tc && index != vc; ++j) {
+		TagItem *currentTag = p->tags.at(j);
+		if (currentTag == item)
+			break; // The index is found.
+		if (currentTag == p->visibleTags.at(index))
+			// We found a visible tag that is before our tag,
+			// thus increase the index.
+			++index;
+	}
+	// We can add the tag to the contact list now
+	beginInsertRows(QModelIndex(), index, index);
+	p->visibleTags.insert(index, item);
+	endInsertRows();
+	//HACK
+	QTreeView *view = qobject_cast<QTreeView*>(reinterpret_cast<QObject*>(this)->parent());
+	if (!p->closedTags.contains(item->name) && view)
+		view->setExpanded(createIndex(index, 0, item), true);
 }
 
 TagItem *Model::ensureTag(const QString &name)
 {
 	TagItem *tag = 0;
-	if(!(tag = p->tagsHash.value(name, 0)))
-	{
-		int index = p->tags.size();
-		beginInsertRows(QModelIndex(), index, index);
+	if(!(tag = p->tagsHash.value(name, 0))) {
 		tag = new TagItem;
 		tag->name = name;
 		p->tagsHash.insert(tag->name, tag);
 		p->tags << tag;
-		endInsertRows();
-		p->view->setRowHidden(index, QModelIndex(), true);
-		if (!p->closedTags.contains(name))
-			p->view->setExpanded(createIndex(index, 0, tag), true);
+
 	}
 	return tag;
+}
+
+void Model::initialize()
+{
+	ModelPrivate::InitData *initData = p->initData;
+	p->initData = 0;
+	Config cfg = Config().group("contactList");
+	// ensure correct order of tags
+	QSet<QString> tags;
+	foreach (Contact *contact, initData->contacts)
+		foreach (const QString &tag, contact->tags())
+			tags.insert(tag);
+	foreach (const QString &tag, cfg.value("tags", QStringList()))
+		if (tags.contains(tag))
+			ensureTag(tag);
+	// add contacts to the contact list
+	foreach (Contact *contact, initData->contacts)
+		addContact(contact);
+	delete initData;
+}
+
+void Model::saveConfig()
+{
+	Config group = Config().group("contactList");
+	group.setValue("closedTags", QStringList(p->closedTags.toList()));
+	QStringList tags;
+	foreach (TagItem *tag, p->tags)
+		tags << tag->name;
+	group.setValue("tags", tags);
 }
 
 QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section==0) {
-		if (p->filteredTags.isEmpty())
+		if (p->selectedTags.isEmpty())
 			return tr("All tags");
 		else
 			return tr("Custom tags");

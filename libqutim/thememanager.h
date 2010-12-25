@@ -11,6 +11,7 @@ namespace qutim_sdk_0_3
 	public:
 		static QString path(const QString &category, const QString &themeName);
 		static QStringList list(const QString &category);
+		static void addPath(const QString &path_, const QString &category = QString());
 	private:
 		ThemeManager();
 		~ThemeManager();

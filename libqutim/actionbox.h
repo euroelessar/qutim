@@ -25,7 +25,6 @@ namespace qutim_sdk_0_3
 class ActionBoxPrivate;
 class LIBQUTIM_EXPORT ActionBox : public QWidget
 {
-	//simple soft key emulation
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(ActionBox)
 public:
@@ -34,6 +33,7 @@ public:
 	void addActions(QList<QAction*> actions);
 	void removeAction(QAction *action);
 	void removeActions(QList<QAction*> actions);
+	void clear();
 	~ActionBox();
 private:
 	QScopedPointer<ActionBoxPrivate> d_ptr;

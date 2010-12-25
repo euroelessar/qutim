@@ -34,8 +34,11 @@ public:
 	EmoAction(QObject *parent = 0);
 signals:
 	void insertSmile(const QString &code);
+private:
+	ChatEmoticonsWidget *emoticons_widget;
 private slots:
 	void onInsertSmile(const QString &code);
+	void triggerEmoticons();
 };
 
 }

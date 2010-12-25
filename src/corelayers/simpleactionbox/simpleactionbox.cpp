@@ -3,6 +3,7 @@
 #include <QToolButton>
 #include <QAction>
 #include <libqutim/debug.h>
+#include <QHBoxLayout>
 
 namespace Core
 {
@@ -10,7 +11,6 @@ namespace Core
 SimpleActionBoxModule::SimpleActionBoxModule()
 {
 	m_layout = new QHBoxLayout(this);
-	setLayout(m_layout);
 	m_layout->setMargin(0);
 }
 

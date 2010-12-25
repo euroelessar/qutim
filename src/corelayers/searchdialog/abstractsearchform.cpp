@@ -53,10 +53,9 @@ namespace Core {
 		if (!m_searchFieldsWidget)
 			return false;
 		Q_ASSERT(m_currentRequest);
-		AbstractDataWidget *dataWidget = qobject_cast<AbstractDataWidget*>(m_searchFieldsWidget.data());
-		if (dataWidget) {
+		if (m_searchFieldsWidget) {
 			m_resultModel->beginResetModel();
-			m_currentRequest->start(dataWidget->item());
+			m_currentRequest->start(m_searchFieldsWidget->item());
 			m_resultModel->endResetModel();
 			m_done = false;
 			return true;

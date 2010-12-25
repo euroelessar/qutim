@@ -5,6 +5,8 @@
 #include <QHBoxLayout>
 #include <qutim/actiontoolbar.h>
 #include "sessionlistwidget.h"
+#include "fingerswipegesture.h"
+#include "floatingbutton.h"
 #include <chatlayer/chatedit.h>
 #include <chatlayer/conferencecontactsview.h>
 #include <QPlainTextEdit>
@@ -46,11 +48,10 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	m_toolbar(new ActionToolBar(tr("Chat Actions"),this)),
 	m_sessionList(new SessionListWidget(this)),
 	m_chatInput(new ChatEdit(this)),
-	m_recieverList(new QAction(Icon("view-choose"),tr("Send to"),this)),
-	m_contactView(new ConferenceContactsView(this)),
-	m_key(key),
+	m_recieverList(new QAction(tr("Send to"),this)),
 	m_unitActions(new QAction(Icon("preferences-contact-list"),tr("Actions"),this)),
-	m_additionalToolBar(new QToolBar(tr("Navigation"),this))
+	m_contactView(new ConferenceContactsView(this)),
+	m_key(key)
 {
 	m_stack = new SlidingStackedWidget(this);
 
@@ -63,10 +64,23 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	m_stack->addWidget(m_chatWidget);
 	m_stack->setWrap(true);
 
+	QWidget *chatInputWidget = new QWidget(m_chatWidget);
+	QHBoxLayout *chatInputLayout = new QHBoxLayout(chatInputWidget);
+	chatInputLayout->setMargin(0);
+	chatInputLayout->addWidget(m_toolbar);
+	chatInputLayout->addWidget(m_chatInput);
+	QToolBar *sendToolBar = new QToolBar(m_chatWidget);
+#ifndef QUTIM_MOBILE_UI
+	sendToolBar->addAction(m_unitActions);
+	sendToolBar->setOrientation(Qt::Vertical);
+#endif
+	sendToolBar->addAction(m_recieverList);
+	chatInputLayout->addWidget(sendToolBar);
+
 	QSplitter *vSplitter = new QSplitter(Qt::Vertical,this);
 	vSplitter->setObjectName(QLatin1String("vSplitter"));
 	vSplitter->addWidget(view);
-	vSplitter->addWidget(m_chatInput);
+	vSplitter->addWidget(chatInputWidget);
 
 	QVBoxLayout *layout = new QVBoxLayout(m_chatWidget);
 	layout->addWidget(vSplitter);
@@ -74,39 +88,38 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 
 	m_view = qobject_cast<ChatViewWidget*>(view);
 
-	m_actSeparator = m_toolbar->addSeparator();
-	m_toolbar->addAction(m_unitActions);
-	m_unitSeparator = m_toolbar->addSeparator();
-
-	addToolBar(Qt::RightToolBarArea,m_toolbar);
-	addToolBar(Qt::RightToolBarArea,m_additionalToolBar);
-
-	//simple hack
-	m_recieverList->setMenu(new QMenu);
-	m_toolbar->addAction(m_recieverList);
-	m_recieverList->menu()->deleteLater();
-
-	QWidget* spacer = new QWidget(this);
-	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	spacer->setAttribute(Qt::WA_TransparentForMouseEvents);
-	m_additionalToolBar->addWidget(spacer);
+	menuBar = new QMenuBar(m_stack);
+	m_toolbar->setOrientation(Qt::Vertical);
 
 	loadSettings();
 
 	connect(m_sessionList,SIGNAL(remove(ChatSessionImpl*)),SLOT(removeSession(ChatSessionImpl*)));
 	connect(m_stack,SIGNAL(currentChanged(int)),SLOT(onCurrentChanged(int)));
 
-	//only for testing
-	QAction *act = new QAction(Icon("arrow-left"),tr("Left"),this);
-	connect(act,SIGNAL(triggered()),m_stack,SLOT(slideInPrev()));
-	m_additionalToolBar->addAction(act);
-	act = new QAction(Icon("arrow-right"),tr("Right"),this);
-	connect(act,SIGNAL(triggered()),m_stack,SLOT(slideInNext()));
-	m_additionalToolBar->addAction(act);
-	act = new QAction(Icon("dialog-close"),tr("Close"),this);
-	connect(act,SIGNAL(triggered()),m_sessionList,SLOT(closeCurrentSession()));
-	m_additionalToolBar->addSeparator();
-	m_additionalToolBar->addAction(act);
+
+#ifndef Q_WS_MAEMO_5
+	m_recieverList->setIcon(Icon("view-choose"));
+#else
+	m_recieverList->setIcon(Icon("chat_enter"));
+#endif
+	connect(m_recieverList,SIGNAL(triggered()),m_chatInput,SLOT(send()));
+
+	setAttribute(Qt::WA_AcceptTouchEvents);
+	fingerSwipeGestureType = (Qt::GestureType)0;
+	fingerSwipeGestureType = QGestureRecognizer::registerRecognizer( new FingerSwipeGestureRecognizer() );
+	grabGesture(fingerSwipeGestureType);
+	connect(m_stack,SIGNAL(animationFinished()),this,SLOT(animationFinished()));
+
+	FloatingButton *chatNext=new FloatingButton(0,m_chatWidget);
+	FloatingButton *sessionListNext=new FloatingButton(0,m_sessionList);
+	FloatingButton *contactViewNext=new FloatingButton(0,m_contactView);
+	connect(chatNext,SIGNAL(clicked()),m_stack,SLOT(slideInNext()));
+	connect(sessionListNext,SIGNAL(clicked()),m_stack,SLOT(slideInNext()));
+	connect(contactViewNext,SIGNAL(clicked()),m_stack,SLOT(slideInNext()));
+
+	FloatingButton *chatClose=new FloatingButton(1,m_chatWidget);
+	connect(chatClose,SIGNAL(clicked()),m_sessionList,SLOT(closeCurrentSession()));
+
 }
 
 void StackedChatWidget::loadSettings()
@@ -137,7 +150,7 @@ void StackedChatWidget::loadSettings()
 		}
 		setProperty("loaded",true);
 	}
-	m_chatInput->setSendKey(cfg.value("sendKey", SendCtrlEnter));
+	m_chatInput->setSendKey(cfg.value("sendKey", SendEnter));
 }
 
 StackedChatWidget::~StackedChatWidget()
@@ -178,8 +191,8 @@ void StackedChatWidget::removeSession(ChatSessionImpl *session)
 	if(contains(session))
 		m_sessionList->removeSession(session);
 	session->setActive(false);
-	//TODO delete on close flag
-	session->deleteLater();
+	if(m_flags & DeleteSessionOnClose)
+		session->deleteLater();
 
 	m_stack->slideInIdx(m_stack->indexOf(m_sessionList));
 
@@ -202,8 +215,8 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 {
 	if(!session->unread().isEmpty())
 		session->markRead();
-
-	activateWindow();
+	if (qApp->activeWindow()!=this)
+		activateWindow();
 	setTitle(session);
 
 	if(m_currentSession) {
@@ -227,8 +240,13 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 		m_stack->removeWidget(m_contactView);
 	m_stack->slideInIdx(m_stack->indexOf(m_chatWidget));
 
+	menuBar->clear();
+	menuBar->addMenu(session->getUnit()->menu());
 	m_recieverList->setMenu(session->menu());
+#ifndef QUTIM_MOBILE_UI
 	m_unitActions->setMenu(session->getUnit()->menu());
+#endif
+
 }
 
 ChatSessionImpl *StackedChatWidget::currentSession() const
@@ -238,6 +256,36 @@ ChatSessionImpl *StackedChatWidget::currentSession() const
 
 bool StackedChatWidget::event(QEvent *event)
 {
+	if (event->type() == QEvent::TouchBegin) {
+
+		event->accept();
+		return true;
+	}
+
+	if (event->type() == QEvent::Gesture) {
+		QGestureEvent *ge = static_cast<QGestureEvent*>(event);
+
+		if (QGesture *gesture = ge->gesture(fingerSwipeGestureType)) {
+		    FingerSwipeGesture *swipe = static_cast<FingerSwipeGesture*>(gesture);
+		    if (swipe->state() == Qt::GestureFinished) {
+			    if (swipe->isLeftToRight())
+			    {
+				    m_stack->slideInPrev();
+				    m_contactView->blockSignals(true);
+			    }
+			    else if (swipe->isRightToLeft())
+			    {
+				    m_stack->slideInNext();
+				    m_contactView->blockSignals(true);
+			    }
+
+			}
+
+			ge->setAccepted(gesture, true);
+			return true;
+		    }
+	}
+
 	if (event->type() == QEvent::WindowActivate
 			|| event->type() == QEvent::WindowDeactivate) {
 		bool active = event->type() == QEvent::WindowActivate;
@@ -292,6 +340,11 @@ void StackedChatWidget::onCurrentChanged(int index)
 	if(index != m_stack->indexOf(m_chatWidget))
 		currentSession()->setActive(false);
 	m_toolbar->setVisible(index == m_stack->indexOf(m_chatWidget));
+}
+
+void StackedChatWidget::animationFinished()
+{
+    m_contactView->blockSignals(false);
 }
 
 }

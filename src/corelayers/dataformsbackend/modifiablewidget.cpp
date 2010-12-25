@@ -8,14 +8,18 @@
 
 namespace Core {
 
-ModifiableWidget::ModifiableWidget(QWidget *parent) :
-		QWidget(parent)
+ModifiableWidget::ModifiableWidget(DefaultDataForm *dataForm, QWidget *parent) :
+		QWidget(parent),
+		AbstractDataWidget(dataForm)
 {
 	init();
 }
 
-ModifiableWidget::ModifiableWidget(const DataItem &item, QWidget *parent) :
-		QWidget(parent), m_def(item.defaultSubitem()), m_max(item.maxSubitemsCount())
+ModifiableWidget::ModifiableWidget(const DataItem &item, DefaultDataForm *dataForm, QWidget *parent) :
+		QWidget(parent),
+		AbstractDataWidget(dataForm),
+		m_def(item.defaultSubitem()),
+		m_max(item.maxSubitemsCount())
 {
 	init();
 	foreach (const DataItem &subitem, item.subitems())
@@ -68,16 +72,17 @@ void ModifiableWidget::addRow(QWidget *data, QWidget *title)
 	m_layout->addWidget(m_addButton, ++row, 2, 1, 1);
 #endif
 	m_addButton->setVisible(m_max < 0 || m_max > m_widgets.count());
+	emit rowAdded();
 }
 
 void ModifiableWidget::addRow(const DataItem &item)
 {
 	QWidget *title = 0;
 	bool twoColumn;
-	QWidget *data = getWidget(item, this, &twoColumn);
+	QWidget *data = getWidget(dataForm(), item, this, &twoColumn);
 	data->setObjectName(item.name());
 	if (!twoColumn && !item.property("hideTitle", false))
-		title = getTitle(item, labelAlignment(), this);
+		title = getTitle(dataForm(), item, labelAlignment(), this);
 	addRow(data, title);
 }
 
@@ -98,6 +103,18 @@ bool ModifiableWidget::isExpandable()
 	bool isLineEdit = (data.canConvert(QVariant::String) && alt.canConvert(QVariant::StringList)) ||
 					  (qVariantCanConvert<LocalizedString>(data) && qVariantCanConvert<LocalizedStringList>(alt));
 	return isLineEdit && m_def.property("multiline", false);
+}
+
+void ModifiableWidget::clear()
+{
+	foreach (const WidgetLine &line, m_widgets) {
+		line.deleteButton->deleteLater();
+		line.data->deleteLater();
+		if (line.title)
+			line.title->deleteLater();
+	}
+	m_widgets.clear();
+	m_addButton->setVisible(false);
 }
 
 void ModifiableWidget::onAddRow()
@@ -131,6 +148,7 @@ void ModifiableWidget::onRemoveRow()
 	}
 	if (m_max < 0 || m_max > m_widgets.count())
 		m_addButton->setVisible(true);
+	emit rowRemoved();
 }
 
 void ModifiableWidget::setRow(const WidgetLine &line, int row)

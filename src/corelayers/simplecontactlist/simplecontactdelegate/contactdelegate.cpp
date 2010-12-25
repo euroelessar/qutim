@@ -158,7 +158,7 @@ void ContactDelegate::paint(QPainter *painter,
 					icon = extIconVar.value<ExtensionIcon>().toIcon();
 				else if (extIconVar.canConvert(QVariant::Icon))
 					icon = extIconVar.value<QIcon>();
-				if (!hash.value(showIcon,true).toBool() || icon.isNull())
+				if (!hash.value(showIcon,true).toBool() || icon.pixmap(p->extIconSize).isNull())
 					continue;
 				if (!p->extInfo.value(hash.value(id).toString(), true))
 					continue;
@@ -177,6 +177,7 @@ void ContactDelegate::paint(QPainter *painter,
 						  0,
 						  0);
 		bool isStatusText = (p->showFlags & ShowStatusText) && !status.text().isEmpty();
+		name = QFontMetrics(opt.font).elidedText(name,Qt::ElideMiddle,title_rect.width());
 		painter->drawText(title_rect,
 						  isStatusText ? Qt::AlignTop : Qt::AlignVCenter,
 						  name,
@@ -189,10 +190,12 @@ void ContactDelegate::paint(QPainter *painter,
 
 			QFont font = opt.font;
 			font.setPointSize(font.pointSize()-2);
+			QString text = status.text().remove(QLatin1Char('\n'));
+			text = QFontMetrics(font).elidedText(text,Qt::ElideRight,status_rect.width());
 			painter->setFont(font);
 			painter->drawText(status_rect,
 							  Qt::AlignTop,
-							  status.text().remove(QLatin1Char('\n'))
+							  text
 							  );
 		}
 
@@ -258,6 +261,9 @@ bool ContactDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
 								const QModelIndex &index)
 {
 	if (event->type() == QEvent::ToolTip) {
+#ifdef Q_WS_MAEMO_5
+		return true;
+#endif
 		Buddy *buddy = index.data(BuddyRole).value<Buddy*>();
 		if (buddy)
 			ToolTip::instance()->showText(event->globalPos(), buddy, view);
@@ -291,8 +297,13 @@ void ContactDelegate::reloadSettings()
 	debug() << "reload settings";
 	Config cfg("appearance");
 	cfg = cfg.group("contactList");
+#ifndef QUTIM_MOBILE_UI
 	p->statusIconSize = cfg.value("statusIconSize",22);
 	p->extIconSize = cfg.value("extIconSize",16);
+#else
+	p->statusIconSize = cfg.value("statusIconSize",32);
+	p->extIconSize = cfg.value("extIconSize",32);
+#endif
 	ContactDelegate::ShowFlags flags = cfg.value("showFlags",
 												 ContactDelegate::ShowStatusText |
 												 ContactDelegate::ShowExtendedInfoIcons |

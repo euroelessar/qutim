@@ -1,6 +1,8 @@
 #ifndef DATALAYOUT_H
 #define DATALAYOUT_H
 
+#include "abstractdatawidget.h"
+#include "dataformsbackend.h"
 #include <QWidget>
 #include <QGridLayout>
 #include <QHostAddress>
@@ -13,12 +15,13 @@ Q_DECLARE_METATYPE(QHostAddress);
 namespace Core
 {
 using namespace qutim_sdk_0_3;
+class DefaultDataForm;
 
 class DataLayout : public QGridLayout, public AbstractDataWidget
 {
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
-	DataLayout(bool editable, QWidget *parent = 0);
+	DataLayout(DefaultDataForm *dataForm, QWidget *parent = 0);
 	~DataLayout();
 	DataItem item() const;
 	void addItem(const DataItem &item);
@@ -41,7 +44,6 @@ private:
 		QWidget *data;
 	};
 	QList<WidgetLine> m_widgets;
-	bool m_editable;
 	bool m_expandable;
 };
 

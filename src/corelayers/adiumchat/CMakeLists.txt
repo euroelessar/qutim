@@ -2,15 +2,16 @@ FIND_PACKAGE( Qt4 COMPONENTS QtWebkit)
 
 include_directories(.
 	chatlayer
-	${QT_QTWEBKIT_INCLUDE_DIR})
+	)
 
 qutim_add_plugin(adiumchat
 	SUBPLUGIN
 	SOURCE_DIR chatlayer
 	DISPLAY_NAME "Webkit chat layer"
 	DESCRIPTION "Default qutIM chat implementation, based on Adium chat styles"
-	LINK_LIBRARIES ${QT_QTWEBKIT}
+	LINK_LIBRARIES ${QT_QTWEBKIT_LIBRARY}
 	COMPILE_FLAGS "-DADIUMCHAT_LIBRARY"
+	INCLUDE_DIRS ${QT_QTWEBKIT_INCLUDE_DIR}
 )
 
 qutim_add_plugin(tabbedchatform
@@ -43,5 +44,5 @@ qutim_add_plugin(webkitchat
 	SOURCE_DIR webkitchat
 	DESCRIPTION "Default qutIM chat implementation, based on Adium chat styles"
 	DEPENDS adiumchat
-	LINK_LIBRARIES ${QT_QTWEBKIT} adiumchat
+	LINK_LIBRARIES adiumchat
 )

@@ -15,8 +15,8 @@ if( UNIX )
 	endif( BSD )
 endif( UNIX )
 
-SET (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-SET (CMAKE_BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+SET (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}")
+SET (CMAKE_BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}")
 SET (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 LIST (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 SET (QT_USE_QTNETWORK true)
@@ -47,7 +47,7 @@ endmacro()
 LIST_SUBDIRECTORIES(3RDPARTY_INCLUDE_DIRS "3rdparty")
 
 #Include X11, spike for freebsd
-FIND_PACKAGE(X11 REQUIRED)
+FIND_PACKAGE(X11)
 
 INCLUDE_DIRECTORIES (${QT_QTGUI_INCLUDE_DIR}
 	${QT_QTCORE_INCLUDE_DIR}
@@ -118,11 +118,12 @@ foreach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
     add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )
 endforeach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
 
-QUTIM_ADD_OPTION(QUTIM_MOBILE_UI
-	"User interface for mobile devices like Nokia 5800"
-	"qutIM will be compiled with mobile ui"
-	OFF
-)
+#QUTIM_ADD_OPTION(QUTIM_MOBILE_UI
+#	"User interface for mobile devices like Nokia 5800"
+#	"qutIM will be compiled with mobile ui"
+#	OFF
+#)
+
 QUTIM_ADD_OPTION(QUTIM_SINGLE_PROFILE
 	"Single profil by default" 
 	"qutIM will be compiled without multiply profiles by default"
@@ -147,8 +148,8 @@ if(MSVC)
 	set(QUTIM_COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS} /W3")
 	set(LIBQUTIM_COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} /W3 /WX /wd4065")
 else()
-	set(QUTIM_COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS} -Wall  -Wnon-virtual-dtor")
-	set(LIBQUTIM_COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} -Wall -Wextra -Wnon-virtual-dtor")
+	set(QUTIM_COMPILE_FLAGS "${QUTIM_COMPILE_FLAGS} -Wall -Wextra")
+	set(LIBQUTIM_COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} -Wall -Wextra")
 	if(NOT WIN32)
 		set(LIBQUTIM_COMPILE_FLAGS "${LIBQUTIM_COMPILE_FLAGS} -fvisibility=hidden")
 	endif(NOT WIN32)
@@ -245,8 +246,8 @@ CPACK_ADD_COMPONENT(CoreDevel
 
 #small simple hack for install Qt dlls and plugins
 IF(WIN32)
-	SET(QUTIM_REQUIED_DLL_DIR "" CACHE PATH "Path to Qt dll's and plugins. Note: you must add them yourself")
-	FILE(GLOB dlls ${QUTIM_REQUIED_DLL_DIR}/*)
+	SET(QUTIM_REQUIRED_DLL_DIR "" CACHE PATH "Path to Qt dll's and plugins. Note: you must add them yourself")
+	FILE(GLOB dlls ${QUTIM_REQUIRED_DLL_DIR}/*)
 	FOREACH(QUTIM_DLL ${dlls})
 		IF(IS_DIRECTORY ${QUTIM_DLL})
 			INSTALL(DIRECTORY ${QUTIM_DLL}

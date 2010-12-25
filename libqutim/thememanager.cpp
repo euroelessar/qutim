@@ -1,8 +1,18 @@
 #include "thememanager.h"
 #include "systeminfo.h"
+#include <QMultiMap>
 
 namespace qutim_sdk_0_3
 {
+	class ThemeManagerData
+	{
+	public:
+		ThemeManagerData() { paths << QDir(QLatin1String(":/")); }
+		QList<QDir> paths;
+		QMultiMap<QString,QDir> categoryPaths;
+	};
+	
+	Q_GLOBAL_STATIC(ThemeManagerData, data)
 
 	ThemeManager::ThemeManager()
 	{
@@ -44,9 +54,15 @@ namespace qutim_sdk_0_3
 		QStringList theme_list;
 		theme_list << listThemes(SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::ShareDir),category);
 		theme_list << listThemes(SystemInfo::getDir(qutim_sdk_0_3::SystemInfo::SystemShareDir),category);
-		theme_list << listThemes(QDir(":/"),category);
+		foreach (const QDir &dir, data()->paths)
+			theme_list << listThemes(dir, category);
+		foreach (const QDir &dir, data()->categoryPaths.values(category))
+			theme_list << listThemes(dir, category);
 		theme_list.removeDuplicates();
 		return theme_list;
 	}
-
+	
+	void addPath(const QString &path_, const QString &category)
+	{
+	}
 }

@@ -22,7 +22,28 @@
 namespace qutim_sdk_0_3
 {
 	class ChatUnit;
-
+	class HistoryRequestRulePrivate;
+	
+//	class HistoryRequest : public QObject
+//	{
+//	};
+//	
+//	class HistoryRequestRule
+//	{
+//	public:
+//	private:
+//	};
+//
+//	class LIBQUTIM_EXPORT HistoryEngine : public QObject
+//	{
+//		Q_OBJECT
+//	public:
+//		HistoryEngine();
+//		virtual ~HistoryEngine();
+//		virtual void store(const Message &msg) = 0;
+//		virtual HistoryRequest *request(const HistoryRequestRule &rule);
+//	};
+	
 	class LIBQUTIM_EXPORT History : public QObject
 	{
 		Q_OBJECT

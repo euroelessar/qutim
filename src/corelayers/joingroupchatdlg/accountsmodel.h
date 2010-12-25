@@ -20,34 +20,35 @@
 #include <qutim/status.h>
 
 namespace qutim_sdk_0_3 {
-	class Account;
+class Account;
+class GroupChatManager;
 }
 
 namespace Core {
 
-	using namespace qutim_sdk_0_3;
+using namespace qutim_sdk_0_3;
 
-	class AccountsModel : public QAbstractListModel
-	{
-		Q_OBJECT
-	public:
-		AccountsModel(QObject *parent = 0);
-		int rowCount(const QModelIndex &parent = QModelIndex()) const;
-		QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-	private slots:
-		void onAccountCreated(qutim_sdk_0_3::Account *account);
-		void onAccountDestroyed(QObject *account);
-		void onAccountNameChanged();
-		void onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
-									const qutim_sdk_0_3::Status &previous);
-	private:
-		bool isActive(Account *account) const;
-		QString title(Account *account) const;
-		int findPlaceForAccount(Account *account) const;
-		void addAccount(Account *account);
-		void removeAccount(Account *account, bool disconnectSlots);
-		QList<Account*> m_accounts;
-	};
+class AccountsModel : public QAbstractListModel
+{
+	Q_OBJECT
+public:
+	AccountsModel(QObject *parent = 0);
+	int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+private slots:
+	void onAccountCreated(qutim_sdk_0_3::Account *account);
+	void onAccountDestroyed(QObject *account);
+	void onAccountNameChanged();
+	void onAccountStatusChanged(const qutim_sdk_0_3::Status &current,
+								const qutim_sdk_0_3::Status &previous);
+	void onGroupChatManagerChanged(qutim_sdk_0_3::GroupChatManager *manager);
+private:
+	QString title(Account *account) const;
+	int findPlaceForAccount(Account *account) const;
+	void addAccount(Account *account);
+	void removeAccount(Account *account, bool disconnectSlots);
+	QList<Account*> m_accounts;
+};
 
 } // namespace Core
 

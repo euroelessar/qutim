@@ -74,6 +74,11 @@ HistoryWindow::HistoryWindow(const ChatUnit *unit) : m_unit(unit)
 		fillDateTreeWidget(0);
 	else
 		ui.fromComboBox->setCurrentIndex(contactIndex);
+	setParent(QApplication::activeWindow());
+#ifdef Q_WS_MAEMO_5
+	setAttribute(Qt::WA_Maemo5StackedWindow);
+#endif
+	setWindowFlags(windowFlags() | Qt::Window);
 	show();
 }
 

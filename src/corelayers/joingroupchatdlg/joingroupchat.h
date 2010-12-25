@@ -26,53 +26,46 @@ class QListWidgetItem;
 class QModelIndex;
 
 namespace Ui {
-    class JoinGroupChat;
+class JoinGroupChat;
 }
 
 namespace qutim_sdk_0_3
 {
-	class Account;
+class Account;
 }
 
 namespace Core
 {
-	using namespace qutim_sdk_0_3;
+using namespace qutim_sdk_0_3;
 
-	class BookmarksModel;
-
-	class JoinGroupChat : public QDialog
-	{
-		Q_OBJECT		
-	public:
-		explicit JoinGroupChat(QWidget *parent = 0);
-		~JoinGroupChat();
-		virtual void showEvent(QShowEvent* );
-		virtual void closeEvent(QCloseEvent *);
-	protected:
-		virtual void changeEvent(QEvent* );
-	private slots:
-		void onToolBarActTriggered(QAction*);
-		void onCurrentChanged(int);
-		void onAccountBoxActivated(int index);
-		void onBookmarksBoxActivated(int index);
-		void fillBookmarks(Account *account);
-		void onItemActivated(const QModelIndex &index);
-		void onNegativeActionTriggered();
-		void onPositiveActionTriggered();
-		void updateBookmark(bool remove = false);
-	private:
-		void fillBookmarks(const QVariantList &items, bool recent = false);
-		void updateDataForm(const DataItem &item, int pos = 0);
-		bool isRecent(int index);
-		Account *currentAccount();
-		Account *account(int index);
-		Ui::JoinGroupChat *ui;
-		QPointer<QWidget> m_dataform_widget;
-		QAction *m_positive_action;
-		QAction *m_negative_action;
-		BookmarksModel *m_bookmarksViewModel;
-		BookmarksModel *m_bookmarksBoxModel;
-	};
+class BookmarksModel;
+class JoinGroupChat : public QDialog
+{
+	Q_OBJECT
+public:
+	explicit JoinGroupChat(QWidget *parent = 0);
+	~JoinGroupChat();
+	virtual void showEvent(QShowEvent* );
+protected:
+	virtual void changeEvent(QEvent* );
+private slots:
+	void onToolBarActTriggered(QAction*);
+	void onCurrentChanged(int);
+	void onAccountBoxActivated(int index);
+	void fillBookmarks(Account *account);
+	void onItemActivated(const QModelIndex &index);
+	void onBackActionTriggered();
+	void onBookmarksChanged();
+private:
+	void fillBookmarks(const QList<DataItem> &bookmarks, bool recent = false);
+	Account *currentAccount();
+	Account *account(int index);
+	Ui::JoinGroupChat *ui;
+	QAction *m_closeAction;
+	QAction *m_backAction;
+	BookmarksModel *m_bookmarksViewModel;
+	BookmarksModel *m_bookmarksBoxModel;
+};
 
 }
 #endif // JOINGROUPCHAT_H

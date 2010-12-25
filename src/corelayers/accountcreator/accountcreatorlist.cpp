@@ -10,6 +10,8 @@
 #include "itemdelegate.h"
 #include <QMessageBox>
 #include <qutim/debug.h>
+#include <QHBoxLayout>
+#include <QToolButton>
 
 namespace Core
 {
@@ -103,6 +105,30 @@ void AccountCreatorList::addAccount(qutim_sdk_0_3::Account *account)
 	accountItem->setIcon(protoIcon);
 	accountItem->setData(Qt::UserRole,qVariantFromValue<Account *>(account));
 
+	QWidget *buttons = new QWidget(this);
+
+	QHBoxLayout *l = new QHBoxLayout(buttons);
+	l->setMargin(0);
+	l->setSpacing(0);
+
+	QToolButton *btn = new QToolButton(buttons);
+	btn->setText(tr("Properties"));
+	btn->setToolTip(tr("Account settings"));
+	btn->setIcon(Icon("document-properties"));
+	btn->setProperty("account",qVariantFromValue(account));
+	connect(btn,SIGNAL(clicked()),SLOT(onAccountPropertiesTriggered()));
+	l->addWidget(btn);
+
+	btn = new QToolButton(buttons);
+	btn->setText(tr("Remove account"));
+	btn->setIcon(Icon("list-remove-user"));
+	btn->setToolTip(tr("Remove account"));
+	btn->setProperty("account",qVariantFromValue(account));
+	connect(btn,SIGNAL(clicked()),SLOT(onAccountRemoveTriggered()));
+	l->addWidget(btn);
+
+	ui->listWidget->setItemWidget(accountItem,buttons);
+
 	QVariantMap fields;
 	QString id = account->protocol()->data(Protocol::ProtocolIdName).toString();
 	fields.insert(id,account->id());
@@ -124,31 +150,31 @@ void AccountCreatorList::removeAccount(qutim_sdk_0_3::Account *removed)
 
 bool AccountCreatorList::eventFilter(QObject *obj, QEvent *ev)
 {
-	if (ev->type() ==  QEvent::ContextMenu) {
-		if (QListWidget *widget = qobject_cast<QListWidget *>(obj)) {
-			QContextMenuEvent *event = static_cast<QContextMenuEvent*>(ev);
-			QModelIndex index = widget->indexAt(event->pos());
-			Account *account = index.data(Qt::UserRole).value<Account *>();
-			if (account) {
-				QMenu *menu = new QMenu();
-				menu->setAttribute(Qt::WA_DeleteOnClose,true);
-				QAction *act = new QAction(menu);
-				act->setText(tr("Properties"));
-				act->setIcon(Icon("document-properties"));
-				act->setData(qVariantFromValue(account));
-				connect(act,SIGNAL(triggered()),SLOT(onAccountPropertiesTriggered()));
-				menu->addAction(act);
+	//if (ev->type() ==  QEvent::ContextMenu) {
+	//	if (QListWidget *widget = qobject_cast<QListWidget *>(obj)) {
+	//		QContextMenuEvent *event = static_cast<QContextMenuEvent*>(ev);
+	//		QModelIndex index = widget->indexAt(event->pos());
+	//		Account *account = index.data(Qt::UserRole).value<Account *>();
+	//		if (account) {
+	//			QMenu *menu = new QMenu();
+	//			menu->setAttribute(Qt::WA_DeleteOnClose,true);
+	//			QAction *act = new QAction(menu);
+	//			act->setText(tr("Properties"));
+	//			act->setIcon(Icon("document-properties"));
+	//			act->setData(qVariantFromValue(account));
+	//			connect(act,SIGNAL(triggered()),SLOT(onAccountPropertiesTriggered()));
+	//			menu->addAction(act);
 
-				act = new QAction(menu);
-				act->setText(tr("Remove account"));
-				act->setIcon(Icon("list-remove-user"));
-				act->setData(qVariantFromValue(account));
-				connect(act,SIGNAL(triggered()),SLOT(onAccountRemoveTriggered()));
-				menu->addAction(act);
-				menu->popup(QCursor::pos());
-			}
-		}
-	}
+	//			act = new QAction(menu);
+	//			act->setText(tr("Remove account"));
+	//			act->setIcon(Icon("list-remove-user"));
+	//			act->setData(qVariantFromValue(account));
+	//			connect(act,SIGNAL(triggered()),SLOT(onAccountRemoveTriggered()));
+	//			menu->addAction(act);
+	//			menu->popup(QCursor::pos());
+	//		}
+	//	}
+	//}
 	return SettingsWidget::eventFilter(obj,ev);
 }
 
@@ -175,9 +201,7 @@ void AccountCreatorList::listViewClicked(QListWidgetItem *item)
 
 void AccountCreatorList::onAccountRemoveTriggered()
 {
-	QAction *action = qobject_cast<QAction*>(sender());
-	Q_ASSERT(action);
-	Account *account = action->data().value<Account*>();
+	Account *account = sender()->property("account").value<Account*>();
 	if (!account)
 		return;
 
@@ -191,13 +215,10 @@ void AccountCreatorList::onAccountRemoveTriggered()
 
 void AccountCreatorList::onAccountPropertiesTriggered()
 {
-	QAction *action = qobject_cast<QAction*>(sender());
-	Q_ASSERT(action);
-	Account *account = action->data().value<Account*>();
+	Account *account = sender()->property("account").value<Account*>();
 	if (!account)
 		return;
 	SettingsLayer *layer = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
-	debug() << "showed";
 	layer->show(account);
 }
 }

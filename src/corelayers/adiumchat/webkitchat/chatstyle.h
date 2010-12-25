@@ -24,7 +24,7 @@ namespace qutim_sdk_0_3
 {
 class Message;
 }
-
+class QWebPage;
 namespace Core
 {
 namespace AdiumChat
@@ -88,19 +88,17 @@ private:
 
 class ChatStylePrivate;
 class ChatStyleFactoryPrivate;
-
 class ChatStyle
 {
 	Q_DISABLE_COPY(ChatStyle)
 	Q_DECLARE_PRIVATE(ChatStyle)
 public:
-	ChatStyle(ChatSessionImpl *impl, const QString &stylePath, const QString &variant);
+	ChatStyle(ChatSessionImpl *impl,QWebPage *page);
 	~ChatStyle();
 
 	QMap<QString, QString> variants() const;
 	QString variant() const;
 	void setVariant(const QString &variant);
-
 	void appendMessage(const qutim_sdk_0_3::Message &msg, bool sameSender);
 private:
 	QScopedPointer<ChatStylePrivate> d_ptr;

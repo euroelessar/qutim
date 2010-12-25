@@ -52,9 +52,8 @@ namespace qutim_sdk_0_3
 //		Q_FLAGS(RemoveFlag RemoveFlags)
 	public:
 		enum DataType {
-			ProtocolIdName = 0x01,
-			ProtocolContainsContacts = 0x02,
-			ProtocolSupportGroupChat = 0x04
+			ProtocolIdName,
+			ProtocolContainsContacts
 		};
 		enum RemoveFlag {
 			DeleteAccount = 0x01,

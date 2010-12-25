@@ -34,27 +34,6 @@ protected:
 	bool event(QEvent *ev);
 };
 
-//small draft
-
-//events
-//groupchat-bookmark-list QList<AbstractBookMarksItem>
-//groupchat-bookmark-fields AbstractBookMarksItem
-//groupchat-bookmark-add AbstractBookMarksItem
-//groupchat-bookmark-remove AbstractBookMarksItem
-//groupchat-bookmark-update AbstractBookMarksItem
-class DataItem;
-class AbstractBookMarksItem
-{
-public:
-	AbstractBookMarksItem(const QString &name = QString());
-	virtual bool isRecent() = 0;
-	virtual DataItem *fields() = 0;
-	virtual QString setName() = 0;
-	virtual QString name() = 0;
-	virtual QVariant description() = 0;
-	virtual ~AbstractBookMarksItem() {}
-};
-
 }
 
 Q_DECLARE_METATYPE(qutim_sdk_0_3::Conference*)

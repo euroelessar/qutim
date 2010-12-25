@@ -13,7 +13,8 @@ namespace AdiumChat
 WebkitChatViewWidget::WebkitChatViewWidget() :
 	QFrame(),
 	ChatViewWidget(),
-	m_view(new QWebView)
+	m_view(new QWebView),
+	mousePressed(false)
 {
 	new QVBoxLayout(this);
 	layout()->addWidget(m_view);
@@ -28,8 +29,11 @@ void WebkitChatViewWidget::setViewController(QObject *controller)
 	//save scrollbar state
 	if(m_view->page()) {
 		QWebFrame *frame = m_view->page()->mainFrame();
-		frame->setProperty("scrollbarPos",frame->scrollBarValue(Qt::Vertical));
-		}
+		if(frame->scrollBarValue(Qt::Vertical) == frame->scrollBarMaximum(Qt::Vertical))
+			frame->setProperty("scrollbarAtEnd",true);
+		else
+			frame->setProperty("scrollbarPos",frame->scrollBarValue(Qt::Vertical));
+	}
 
 	ChatStyleOutput *new_page = qobject_cast<ChatStyleOutput*>(controller);
 	if(new_page) {
@@ -55,13 +59,40 @@ bool WebkitChatViewWidget::eventFilter(QObject *obj, QEvent *event)
 			}
 		}
 	}
+#ifdef QUTIM_MOBILE_UI
+	switch (event->type()) {
+	case QEvent::MouseButtonPress:
+	    if (static_cast<QMouseEvent *>(event)->button() == Qt::LeftButton)
+		mousePressed = true;
+	    break;
+	case QEvent::MouseButtonRelease:
+	    if (static_cast<QMouseEvent *>(event)->button() == Qt::LeftButton)
+		mousePressed = false;
+	    break;
+	case QEvent::Gesture:
+		 return true;
+	    break;
+	case QEvent::MouseMove:
+	    if (mousePressed)
+		return true;
+	    break;
+
+	    break;
+	default:
+	    break;
+	}
+	return false;
+#endif
 	return QFrame::eventFilter(obj,event);
 }
 
 void WebkitChatViewWidget::scrollBarWorkaround()
 {
 	QWebFrame *frame = m_view->page()->mainFrame();
-	frame->setScrollPosition(QPoint(0,frame->property("scrollbarPos").toInt()));
+	if(frame->property("scrollbarAtEnd").toBool())
+		frame->setScrollPosition(QPoint(0,frame->scrollBarMaximum(Qt::Vertical)));
+	else
+		frame->setScrollPosition(QPoint(0,frame->property("scrollbarPos").toInt()));
 }
 
 }

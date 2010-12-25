@@ -15,7 +15,7 @@ namespace AdiumChat
 WebkitViewFactory::WebkitViewFactory()
 {
 	m_appearanceSettings = new GeneralSettingsItem<ChatAppearance>(Settings::Appearance, Icon("view-choose"),
-																 QT_TRANSLATE_NOOP("Settings","Chat"));
+																   QT_TRANSLATE_NOOP("Settings","Chat"));
 
 	//FIXME move to chatstyleoutput
 	QObject *obj = ServiceManager::getByName("ChatForm");

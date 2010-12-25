@@ -20,6 +20,8 @@
 #include <QHostAddress>
 #include <QStringList>
 
+class QUrl;
+
 namespace qutim_sdk_0_3
 {
 class ChatUnit;
@@ -27,6 +29,40 @@ class FileTransferFactory;
 class FileTransferManager;
 class FileTransferEnginePrivate;
 class FileTransferManagerPrivate;
+
+//class FileTransferJob : public QObject
+//{
+//	Q_OBJECT
+//	Q_PROPERTY(QString fileName READ fileName NOTIFY fileNameChanged)
+//	Q_PROPERTY(int filesCount READ filesCount)
+//	Q_PROPERTY(int currentIndex READ currentIndex NOTIFY currentIndexChanged)
+//	Q_PROPERTY(int fileSize READ fileSize NOTIFY fileSizeChanged)
+//	Q_PROPERTY(int filePosition READ filePosition NOTIFY filePositionChanged)
+//	Q_PROPERTY(qutim_sdk_0_3::FileTransferJob::State state READ state NOTIFY stateChanged)
+//public:
+//	enum Direction { Send, Receive };
+//	enum ErrorType { NetworkError, Canceled, NotSupported };
+//	enum State { Initiation, Started, Finished, Error };
+	
+//	FileTransferJob(ChatUnit *unit, Direction direction);
+//	virtual ~FileTransferJob();
+	
+//	// Some file/dir
+//	virtual void send(const QUrl &url) = 0;
+//	virtual QString fileName() = 0;
+//	virtual int filesCount();
+//	virtual int currentIndex();
+//	virtual int fileSize() = 0;
+//	virtual int filePosition() = 0;
+//	virtual State state() = 0;
+//signals:
+//	void fileNameChanged(const QString &);
+//	void fileNameChanged(int);
+//	void error(qutim_sdk_0_3::FileTransferJob::ErrorType);
+//	void stateChanged(qutim_sdk_0_3::FileTransferJob::State);
+//	void finished();
+//};
+
 
 class LIBQUTIM_EXPORT FileTransferEngine : public QObject
 {

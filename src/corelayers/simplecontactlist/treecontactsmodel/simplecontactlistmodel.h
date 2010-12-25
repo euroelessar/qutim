@@ -2,8 +2,9 @@
 #define SIMPLECONTACTLISTMODEL_H
 
 #include <QAbstractItemModel>
-#include "simplecontactlistitem.h"
+#include <simplecontactlistitem.h>
 #include <qutim/messagesession.h>
+#include <abstractcontactmodel.h>
 
 namespace Core
 {
@@ -20,11 +21,11 @@ public:
 	AddRemoveContactActionGenerator(Model *model);
 };
 
-class Model : public QAbstractItemModel
+class Model : public AbstractContactModel
 {
 	Q_OBJECT
 public:
-	Model(QObject *parent);
+	Model(QObject *parent = 0);
 	virtual ~Model();
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 	virtual QModelIndex parent(const QModelIndex &child) const;
@@ -51,14 +52,14 @@ public:
 	bool eventFilter(QObject *obj, QEvent *ev);
 	bool event(QEvent *ev);
 public slots:
-	void onFilterList(const QStringList &tags);
+	void filterList(const QStringList &tags);
+	void filterList(const QString &filter);
 protected slots:
 	void contactDeleted(QObject *obj);
 	void contactStatusChanged(qutim_sdk_0_3::Status status);
 	void contactNameChanged(const QString &name);
 	void contactTagsChanged(const QStringList &tags);
-	void onHideShowOffline();
-	void onFilterList(const QString &filter);
+	void hideShowOffline();
 	void onContactRenameAction(QObject*);
 	void onContactRenameResult(const QString &name);
 	void onContactAddRemoveAction(QObject*);
@@ -73,9 +74,12 @@ protected:
 private:
 	void filterAllList();
 	bool isVisible(ContactItem *item);
-	void hideContact(int index, const QModelIndex &tagIndex, bool hide);
+	bool hideContact(ContactItem *item, bool hide, bool replacing = true);
 	void removeFromContactList(Contact *contact, bool deleted);
-	void recheckTag(TagItem *item, int index = -1);
+	void hideTag(TagItem *item);
+	void showTag(TagItem *item);
+	void initialize();
+	void saveConfig();
 	TagItem *ensureTag(const QString &name);
 	//			QModelIndex createIndex(
 	QScopedPointer<ModelPrivate> p;

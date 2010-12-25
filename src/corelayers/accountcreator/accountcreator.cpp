@@ -3,6 +3,7 @@
 #include "accountcreatorprotocols.h"
 #include <qutim/icon.h>
 #include <qutim/debug.h>
+#include <QApplication>
 
 namespace Core
 {
@@ -31,6 +32,8 @@ namespace Core
 		}
 
 		AccountCreatorWizard *wizard = new AccountCreatorWizard();
+		wizard->setParent(QApplication::activeWindow());
+		wizard->setWindowFlags(wizard->windowFlags() | Qt::Window);
 		wizard->setAttribute(Qt::WA_DeleteOnClose);
  #if defined(QUTIM_MOBILE_UI)
 		wizard->showMaximized();

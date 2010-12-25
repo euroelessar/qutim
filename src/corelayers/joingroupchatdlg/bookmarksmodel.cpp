@@ -19,95 +19,98 @@
 
 namespace Core {
 
-	using namespace qutim_sdk_0_3;
+using namespace qutim_sdk_0_3;
 
-	typedef QHash<BookmarkType, QIcon> Icons;
-	void init_icons(Icons &icons)
-	{
-		icons.insert(BookmarkNew, Icon("meeting-attending"));
-		icons.insert(BookmarkEdit, Icon("bookmark-new-list"));
-		icons.insert(BookmarkItem, Icon("bookmarks"));
-		icons.insert(BookmarkRecentItem, Icon("view-history"));
-	}
+typedef QHash<BookmarkType, QIcon> Icons;
+void init_icons(Icons &icons)
+{
+	icons.insert(BookmarkNew, Icon("meeting-attending"));
+	icons.insert(BookmarkEdit, Icon("bookmark-new-list"));
+	icons.insert(BookmarkItem, Icon("bookmarks"));
+	icons.insert(BookmarkRecentItem, Icon("view-history"));
+}
 
-	Q_GLOBAL_STATIC_WITH_INITIALIZER(Icons, icons, init_icons(*x));
+Q_GLOBAL_STATIC_WITH_INITIALIZER(Icons, icons, init_icons(*x));
 
-	BookmarksModel::BookmarksModel(QObject *parent) :
-			QAbstractListModel(parent), m_resetting(false)
-	{
-	}
+BookmarksModel::BookmarksModel(QObject *parent) :
+	QAbstractListModel(parent), m_resetting(false)
+{
+}
 
-	int BookmarksModel::rowCount(const QModelIndex &parent) const
-	{
-		Q_UNUSED(parent);
-		return m_bookmarks.size();
-	}
+int BookmarksModel::rowCount(const QModelIndex &parent) const
+{
+	Q_UNUSED(parent);
+	return m_bookmarks.size();
+}
 
-	Qt::ItemFlags BookmarksModel::flags(const QModelIndex &index) const
-	{
-		Qt::ItemFlags flags = QAbstractListModel::flags(index);
-		Bookmark bookmark = m_bookmarks.value(index.row());
+Qt::ItemFlags BookmarksModel::flags(const QModelIndex &index) const
+{
+	Qt::ItemFlags flags = QAbstractListModel::flags(index);
+	Bookmark bookmark = m_bookmarks.value(index.row());
+	if (bookmark.type == BookmarkSeparator)
+		flags &= ~(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+	return flags;
+}
+
+QVariant BookmarksModel::data(int i, int role) const
+{
+	return data(index(i, 0), role);
+}
+
+QVariant BookmarksModel::data(const QModelIndex &index, int role) const
+{
+	Bookmark bookmark = m_bookmarks.value(index.row());
+	switch (role) {
+	case Qt::DisplayRole:
+		return bookmark.text;
+	case Qt::DecorationRole:
+		return icons()->value(bookmark.type);
+	case DescriptionRole:
+		return bookmark.fields;
+	case BookmarkTypeRole:
+		return QVariant::fromValue(bookmark.type);
+	case Qt::AccessibleDescriptionRole:
 		if (bookmark.type == BookmarkSeparator)
-			flags &= ~(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-		return flags;
+			return "separator";
+	case SeparatorRole:
+		if (bookmark.type == BookmarkSeparator)
+			return true;
+	case Qt::UserRole:
+		return bookmark.userData;
 	}
+	return QVariant();
+}
 
-	QVariant BookmarksModel::data(int i, int role) const
-	{
-		return data(index(i, 0), role);
+void BookmarksModel::addItem(BookmarkType type, const QString &text,
+							 const QVariant &fields, const QVariant &userData)
+{
+	if (!m_resetting) {
+		int pos = m_bookmarks.size();
+		beginInsertRows(QModelIndex(), pos, pos);
 	}
+	m_bookmarks.push_back(Bookmark(type, text, fields, userData));
+	if (!m_resetting)
+		endRemoveRows();
+}
 
-	QVariant BookmarksModel::data(const QModelIndex &index, int role) const
-	{
-		Bookmark bookmark = m_bookmarks.value(index.row());
-		switch (role) {
-		case Qt::DisplayRole:
-			return bookmark.text;
-		case Qt::DecorationRole:
-			return icons()->value(bookmark.type);
-		case DescriptionRole:
-			return bookmark.fields;
-		case BookmarkTypeRole:
-			return QVariant::fromValue(bookmark.type);
-		case Qt::AccessibleDescriptionRole:
-			if (bookmark.type == BookmarkSeparator)
-				return "separator";
-		case SeparatorRole:
-			if (bookmark.type == BookmarkSeparator)
-				return true;
-		}
-		return QVariant();
-	}
+void BookmarksModel::startUpdating()
+{
+	beginResetModel();
+	m_bookmarks.clear();
+	m_resetting = true;
+}
 
-	void BookmarksModel::addItem(BookmarkType type, const QString &text, const QVariant &fields)
-	{
-		if (!m_resetting) {
-			int pos = m_bookmarks.size();
-			beginInsertRows(QModelIndex(), pos, pos);
-		}
-		m_bookmarks.push_back(Bookmark(type, text, fields));
-		if (!m_resetting)
-			endRemoveRows();
-	}
+void BookmarksModel::endUpdating()
+{
+	endResetModel();
+	m_resetting = false;
+}
 
-	void BookmarksModel::startUpdating()
-	{
-		beginResetModel();
-		m_bookmarks.clear();
-		m_resetting = true;
-	}
-
-	void BookmarksModel::endUpdating()
-	{
-		endResetModel();
-		m_resetting = false;
-	}
-
-	void BookmarksModel::clear()
-	{
-		beginResetModel();
-		m_bookmarks.clear();
-		endResetModel();
-	}
+void BookmarksModel::clear()
+{
+	beginResetModel();
+	m_bookmarks.clear();
+	endResetModel();
+}
 
 } // namespace Core

@@ -2,6 +2,8 @@
 #define MODIFIABLEWIDGET_H
 
 #include <qutim/dataforms.h>
+#include "abstractdatawidget.h"
+#include "dataformsbackend.h"
 #include <QPointer>
 
 class QGridLayout;
@@ -14,10 +16,10 @@ using namespace qutim_sdk_0_3;
 class ModifiableWidget : public QWidget, public AbstractDataWidget
 {
 	Q_OBJECT
-	Q_INTERFACES(qutim_sdk_0_3::AbstractDataWidget)
+	Q_INTERFACES(Core::AbstractDataWidget)
 public:
-	ModifiableWidget(QWidget *parent = 0);
-	ModifiableWidget(const DataItem &item, QWidget *parent = 0);
+	ModifiableWidget(DefaultDataForm *dataForm, QWidget *parent = 0);
+	ModifiableWidget(const DataItem &item, DefaultDataForm *dataForm, QWidget *parent = 0);
 	virtual ~ModifiableWidget();
 	void addRow(QWidget *data, QWidget *title = 0);
 	void addRow(const DataItem &item);
@@ -25,6 +27,10 @@ public:
 	int maxItemsCount() { return m_max; }
 	void setMaxItemsCount(int max) { m_max = max; }
 	bool isExpandable();
+	void clear();
+signals:
+	void rowAdded();
+	void rowRemoved();
 private slots:
 	void onAddRow();
 	void onRemoveRow();

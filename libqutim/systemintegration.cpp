@@ -17,71 +17,78 @@
 #include "systemintegration_p.h"
 #include "objectgenerator.h"
 #include <QStringList>
+#include <QWidget>
 
 namespace qutim_sdk_0_3
 {
-	Q_GLOBAL_STATIC(SystemIntegrationHook, staticHook)
-	
-	inline bool integrationLessThan(SystemIntegration *a, SystemIntegration *b)
-	{ return a->priority() > b->priority(); }
-	
-	SystemIntegrationHook::SystemIntegrationHook()
-	{
-		foreach(const ObjectGenerator *gen, ObjectGenerator::module<SystemIntegration>()) {
-			SystemIntegration *integration = gen->generate<SystemIntegration>();
-			if (!integration->isAvailable())
-				delete integration;
-			else
-				m_integrations.append(integration);
-		}
-		qSort(m_integrations.begin(), m_integrations.end(), integrationLessThan);
-	}
+Q_GLOBAL_STATIC(SystemIntegrationHook, staticHook)
 
-	SystemIntegrationHook::~SystemIntegrationHook()
-	{
-	}
-	
-	void SystemIntegrationHook::init()
-	{
-	}
+inline bool integrationLessThan(SystemIntegration *a, SystemIntegration *b)
+{ return a->priority() > b->priority(); }
 
-	bool SystemIntegrationHook::isAvailable() const
-	{
-		return true;
+SystemIntegrationHook::SystemIntegrationHook()
+{
+	foreach(const ObjectGenerator *gen, ObjectGenerator::module<SystemIntegration>()) {
+		SystemIntegration *integration = gen->generate<SystemIntegration>();
+		if (!integration->isAvailable())
+			delete integration;
+		else
+			m_integrations.append(integration);
 	}
-	
-	int SystemIntegrationHook::priority()
-	{
-		return 0;
+	qSort(m_integrations.begin(), m_integrations.end(), integrationLessThan);
+}
+
+SystemIntegrationHook::~SystemIntegrationHook()
+{
+}
+
+void SystemIntegrationHook::init()
+{
+}
+
+bool SystemIntegrationHook::isAvailable() const
+{
+	return true;
+}
+
+int SystemIntegrationHook::priority()
+{
+	return 0;
+}
+
+QVariant SystemIntegrationHook::value(Attribute attr, const QVariant &data) const
+{
+	QVariant result;
+	for (int i = 0; i < m_integrations.size(); i++) {
+		result = m_integrations.at(i)->value(attr, data);
+		if (result.isNull() || !result.isValid())
+			continue;
 	}
-	
-	QVariant SystemIntegrationHook::value(Attribute attr, const QVariant &data) const
-	{
-		QVariant result;
-		for (int i = 0; i < m_integrations.size(); i++) {
-			result = m_integrations.at(i)->value(attr, data);
-			if (result.isNull() || !result.isValid())
-				continue;
-		}
-		return result;
-	}
-	
-	SystemIntegration::SystemIntegration()
-	{
-	}
-	
-	SystemIntegration::~SystemIntegration()
-	{
-	}
-	
-	SystemIntegration *SystemIntegration::instance()
-	{
-		return staticHook();
-	}
-	
-	void SystemIntegration::virtual_hook(int type, void *data)
-	{
-		Q_UNUSED(type);
-		Q_UNUSED(data);
-	}
+	return result;
+}
+
+SystemIntegration::SystemIntegration()
+{
+}
+
+SystemIntegration::~SystemIntegration()
+{
+}
+
+SystemIntegration *SystemIntegration::instance()
+{
+	return staticHook();
+}
+
+void SystemIntegration::virtual_hook(int type, void *data)
+{
+	Q_UNUSED(type);
+	Q_UNUSED(data);
+}
+
+//void SystemIntegration::show(QWidget *widget)
+//{
+//	widget->show(); //default behaviour, on mobile platforms need to use showMaximized
+//}
+
 }

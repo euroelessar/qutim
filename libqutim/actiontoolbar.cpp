@@ -150,6 +150,8 @@ namespace qutim_sdk_0_3
 		if (!action) {
 			action = generator->generate<QAction>();
 			Q_ASSERT(action);
+			if(!action->parent())
+				action->setParent(this);
 			actionsCache()->operator[](generator).insert(this,action);
 		}
 		//action->setData(d->data);

@@ -17,6 +17,7 @@
 #include <QStringBuilder>
 #include "account_p.h"
 #include "contact.h"
+#include "debug.h"
 
 namespace qutim_sdk_0_3
 {
@@ -25,12 +26,14 @@ Account::Account(const QString &id, Protocol *protocol) : MenuController(*new Ac
 	Q_D(Account);
 	d->protocol = protocol;
 	d->id = id;
+	d->groupChatManager = 0;
 }
 
 Account::Account(AccountPrivate &p, Protocol *protocol) : MenuController(p, protocol)
 {
 	Q_D(Account);
 	d->protocol = protocol;
+	d->groupChatManager = 0;
 }
 
 Account::~Account()
@@ -98,4 +101,24 @@ AccountList Account::all()
 			list.append(account);
 	return list;
 }
+
+GroupChatManager *Account::groupChatManager()
+{
+	return d_func()->groupChatManager;
+}
+
+void Account::resetGroupChatManager(GroupChatManager *manager)
+{
+	Q_D(Account);
+	if (manager && d->groupChatManager)
+		warning() << "Account::resetGroupChatManager: the group chat manager is already set";
+	Q_ASSERT((!manager || manager->account() == this) && "trying to set the group manager that was created for another account");
+	if (manager)
+		GroupChatManagersList::instance()->addManager(manager);
+	else if (d->groupChatManager)
+		GroupChatManagersList::instance()->removeManager(d->groupChatManager);
+	d->groupChatManager = manager;
+	emit groupChatManagerChanged(manager);
+}
+
 }

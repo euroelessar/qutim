@@ -34,74 +34,61 @@ QStringList variantToStringList(const QVariant &data)
 	return list;
 }
 
-QWidget *getReadOnlyTitle(const qutim_sdk_0_3::DataItem &item, const Qt::Alignment &alignment, QWidget *parent)
-{
-	QLabel *title = new QLabel(item.title().toString() + ":", parent);
-	title->setAlignment(alignment);
-	title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-	return title;
-}
-
-QWidget *getReadOnlyWidget(const DataItem &item, QWidget *parent, bool *twoColumn)
-{
-	if (item.hasSubitems()) {
-		if (twoColumn)
-			*twoColumn = true;
-		return new DataGroup(item, false, parent);
-	} else {
-		if (twoColumn)
-			*twoColumn = false;
-		return new Label(item, parent);
-	}
-}
-
-QWidget *getTitle(const DataItem &item, const Qt::Alignment &alignment, QWidget *parent)
+QWidget *getTitle(DefaultDataForm *dataForm, const DataItem &item, const Qt::Alignment &alignment, QWidget *parent)
 {
 	QStringList alt = variantToStringList(item.property("titleAlternatives"));
-	if (item.property("readOnly", false) || alt.isEmpty()) {
+	if (item.isReadOnly() || alt.isEmpty()) {
 		QLabel *title = new QLabel(item.title() + ":",parent);
 		title->setAlignment(alignment);
+		if (item.isReadOnly())
+			title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 		return title;
 	} else {
-		return new ComboBox(item.title(), alt, "validator", item);
+		return new ComboBox(dataForm, item.title(), alt, "validator", item);
 	}
 }
 
-static QWidget *getWidgetHelper(const DataItem &item, bool *twoColumn, QSizePolicy::Policy &verticalPolicy, QWidget *parent)
+static QWidget *getWidgetHelper(DefaultDataForm *dataForm, const DataItem &item, bool *twoColumn, QSizePolicy::Policy &verticalPolicy, QWidget *parent)
 {
 	verticalPolicy = QSizePolicy::Maximum;
 	if (twoColumn)
 		*twoColumn = false;
 	QVariant::Type type = item.data().type();
-	if (item.property("readOnly", false)) {
-		return getReadOnlyWidget(item, parent, twoColumn);
+	if (item.isReadOnly()) {
+		if (item.hasSubitems()) {
+			if (twoColumn)
+				*twoColumn = true;
+			return new DataGroup(dataForm, item, parent);
+		} else {
+			return new Label(dataForm, item, parent);
+		}
 	} else if (type == QVariant::StringList || item.data().canConvert<LocalizedStringList>()) {
-		return new StringListGroup(item, parent);
+		return new StringListGroup(dataForm, item, parent);
 	} else if (item.isAllowedModifySubitems()) {
 		if (twoColumn)
 			*twoColumn = true;
-		return new ModifiableGroup(item, parent);
+		return new ModifiableGroup(dataForm, item, parent);
 	} else if (item.hasSubitems()) {
 		if (twoColumn)
 			*twoColumn = true;
-		return new DataGroup(item, true, parent);
+		return new DataGroup(dataForm, item, parent);
 	} else if (type == QVariant::Bool) {
 		if (twoColumn)
 			*twoColumn = true;
-		return new CheckBox(item, parent);
+		return new CheckBox(dataForm, item, parent);
 	} else if (type == QVariant::Date) {
-		return new DateEdit(item, parent);
+		return new DateEdit(dataForm, item, parent);
 	} else if (type == QVariant::DateTime) {
-		return new DateTimeEdit(item, parent);
+		return new DateTimeEdit(dataForm, item, parent);
 	} else if (type == QVariant::Int || type == QVariant::LongLong || type == QVariant::UInt) {
-		return new SpinBox(item, parent);
+		return new SpinBox(dataForm, item, parent);
 	} else if (type == QVariant::Double) {
-		return new DoubleSpinBox(item, parent);
+		return new DoubleSpinBox(dataForm, item, parent);
 	} else if (type == QVariant::Icon || type == QVariant::Pixmap || type == QVariant::Image) {
 		if (item.property("alternatives").isNull())
-			return new IconWidget(item, parent);
+			return new IconWidget(dataForm, item, parent);
 		else
-			return new IconListWidget(item, parent);
+			return new IconListWidget(dataForm, item, parent);
 	}
 	QString str;
 	if (item.data().canConvert<LocalizedString>())
@@ -110,21 +97,22 @@ static QWidget *getWidgetHelper(const DataItem &item, bool *twoColumn, QSizePoli
 		str = item.data().toString();
 	QStringList alt = variantToStringList(item.property("alternatives"));
 	if (!alt.isEmpty()) {
-		return new ComboBox(str, alt, "validator", item, parent);
+		return new ComboBox(dataForm, str, alt, "validator", item, parent);
 	} else if (!item.property("multiline", false)) {
-		return new LineEdit(item, QString(), parent);
+		return new LineEdit(dataForm, item, QString(), parent);
 	} else {
 		verticalPolicy = QSizePolicy::MinimumExpanding;
-		return new TextEdit(item, parent);
+		return new TextEdit(dataForm, item, parent);
 	}
 }
 
-QWidget *getWidget(const DataItem &item, QWidget *parent, bool *twoColumn)
+QWidget *getWidget(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent, bool *twoColumn)
 {
 	QSizePolicy::Policy vertPolicy;
-	QWidget *widget = getWidgetHelper(item, twoColumn, vertPolicy, parent);
+	QWidget *widget = getWidgetHelper(dataForm, item, twoColumn, vertPolicy, parent);
 	widget->setWindowTitle(item.title());
-	widget->setSizePolicy(QSizePolicy::Expanding, vertPolicy);
+	if (!item.isReadOnly())
+		widget->setSizePolicy(QSizePolicy::Expanding, vertPolicy);
 	return widget;
 }
 
@@ -139,7 +127,7 @@ DataItem getDataItem(QWidget *title, QWidget *data)
 		QComboBox *box = qobject_cast<QComboBox*>(title);
 		if (box) {
 			QString text = box->currentText();
-			if (!text.isEmpty() && text != notSpecifiedStr)
+			if (!text.isEmpty())
 				titleStr = text;
 		}
 	}
