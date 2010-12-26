@@ -270,6 +270,8 @@ void JContact::addResource(const QString &resource)
 	JContactResource *res = new JContactResource(this, resource);
 	connect(res, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			SLOT(resourceStatusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
+	connect(res,SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)),
+			this,SIGNAL(chatStateChanged(qutim_sdk_0_3::ChatState,qutim_sdk_0_3::ChatState)));
 	d_func()->resources.insert(resource, res);
 	emit lowerUnitAdded(res);
 }

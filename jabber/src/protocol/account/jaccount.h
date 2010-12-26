@@ -67,22 +67,16 @@ public:
 	bool event(QEvent *);
 	QSet<QString> features() const;
 	bool checkFeature(const QString &feature) const;
-	bool checkFeature(const std::string &feature) const;
 	bool checkIdentity(const QString &category, const QString &type) const;
-	bool checkIdentity(const std::string &category, const std::string &type) const;
 	QString identity(const QString &category, const QString &type) const;
-	std::string identity(const std::string &category, const std::string &type) const;
 	void setPasswd(const QString &passwd);
 protected:
 	void loadSettings();
 private:
 	//jreen
 	friend class JRoster;
-	//old code
 	friend class JServerDiscoInfo;
-	//temporary hack for old code
 	QScopedPointer<JAccountPrivate> d_ptr;
-	JAccountPrivate *p;
 };
 } // Jabber namespace
 

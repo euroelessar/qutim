@@ -6,9 +6,9 @@
 #include "../muc/jmucuser.h"
 #include "../../../sdk/jabber.h"
 #include <qutim/debug.h>
-#include <jreen/delayeddelivery.h>
 #include <jreen/receipt.h>
 #include <jreen/client.h>
+#include <jreen/chatstate.h>
 #include "jroster.h"
 
 namespace Jabber
@@ -27,7 +27,6 @@ JMessageSessionHandler::~JMessageSessionHandler()
 
 void JMessageSessionHandler::handleMessageSession(jreen::MessageSession *session)
 {
-	qDebug() << session;
 	Q_ASSERT(session);
 	session->registerMessageFilter(new JMessageReceiptFilter(m_account,session));
 }
@@ -77,6 +76,8 @@ void JMessageSessionManager::sendMessage(const qutim_sdk_0_3::Message &message)
 					   message.property("subject").toString());
 	msg.setID(QString::number(message.id()));
 	s->sendMessage(msg);
+	//We will close the session at jreen together with a session in qutim
+	s->setParent(ChatLayer::get(const_cast<ChatUnit*>(message.chatUnit()),true));
 }
 
 JMessageReceiptFilter::JMessageReceiptFilter(JAccount *account,
@@ -90,18 +91,16 @@ JMessageReceiptFilter::JMessageReceiptFilter(JAccount *account,
 void JMessageReceiptFilter::filter(jreen::Message &message)
 {
 	jreen::Receipt *receipt = message.findExtension<jreen::Receipt>().data();
+	ChatUnit *unit = m_account->roster()->contact(message.from(),false);
 	if(receipt) {
 		if(receipt->type() == jreen::Receipt::Received) {
 			QString id = receipt->id();
 			if(id.isEmpty())
-				id = message.id(); //for slowpoke client such as Miranda
-			ChatUnit *unit = m_account->roster()->contact(message.from(),false);
-			if(!unit)
-				return;
-			qApp->postEvent(ChatLayer::get(unit),
-							new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
+				id = message.id(); //for slowpoke client such as Miranda			
+			if(unit)
+				qApp->postEvent(ChatLayer::get(unit),
+								new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
 		} else {
-			//only for testing
 			//TODO send this request only when message marked as read
 			jreen::Message request(jreen::Message::Chat,
 								   message.from());
@@ -111,6 +110,11 @@ void JMessageReceiptFilter::filter(jreen::Message &message)
 			request.addExtension(new jreen::Receipt(jreen::Receipt::Received,message.id()));
 			m_account->client()->send(request);
 		}
+	}
+	jreen::ChatState *state = message.findExtension<jreen::ChatState>().data();
+	if(state) {
+		if(unit)
+			unit->setChatState(static_cast<ChatState>(state->state()));
 	}
 }
 

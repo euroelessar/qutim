@@ -23,9 +23,9 @@ void JServerDiscoInfo::onConnect()
 
 void JServerDiscoInfo::onDisconnect(ConnectionError error)
 {
-	Q_UNUSED(error);
-	m_account->p->client.serverFeatures();
-	m_account->p->identities.clear();
+	//Q_UNUSED(error);
+	//m_account->p->client.serverFeatures();
+	//m_account->p->identities.clear();
 }
 
 void JServerDiscoInfo::handleDiscoInfo(const JID &from, const Disco::Info &info, int context)
