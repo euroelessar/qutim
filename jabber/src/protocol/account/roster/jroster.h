@@ -30,6 +30,8 @@ public:
 	void removeContact(const JContact *contact);
 	void requestSubscription(const jreen::JID &id, const QString &reason = QString());
 	void removeSubscription(const JContact *contact);
+	void setName(const JContact *contact, const QString &name);
+	void setGroups(const JContact *contact, const QStringList &groups);
 public slots:
 	void loadSettings();
 	void saveSettings();

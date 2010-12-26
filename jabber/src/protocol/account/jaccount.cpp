@@ -99,12 +99,8 @@ JAccount::JAccount(const QString &id) :
 	d_ptr(new JAccountPrivate(this))
 {
 	Q_D(JAccount);
-	p = d; //for dead code
 	Account::setStatus(Status::instance(Status::Offline, "jabber"));
 
-	jreen::JID jid(id);
-	jid.setResource(QLatin1String("jreen(qutIM)"));
-	d->client.setJID(jid);
 	d->roster = new JRoster(this);
 	d->messageSessionManager = new JMessageSessionManager(this);
 	d->vCardManager = new JVCardManager(this);
@@ -177,6 +173,11 @@ void JAccount::loadSettings()
 	d->client.setPort(general.value("port", 5222));
 	d->keepStatus = general.value("keepstatus", true);
 	d->nick = general.value("nick", id());
+
+	jreen::JID jid(id());
+	jid.setResource(general.value("resource",QLatin1String("qutIM/jreen")));
+	d->client.setJID(jid);
+
 	general.endGroup();
 }
 
@@ -195,9 +196,10 @@ JRoster *JAccount::roster() const
 
 JServiceDiscovery *JAccount::discoManager()
 {
-	if (!p->discoManager)
-		p->discoManager = new JServiceDiscovery(this);
-	return p->discoManager;
+	Q_D(JAccount);
+	if (!d->discoManager)
+		d->discoManager = new JServiceDiscovery(this);
+	return d->discoManager;
 }
 
 QString JAccount::name() const
@@ -333,11 +335,6 @@ bool JAccount::checkFeature(const QString &feature) const
 	return d_func()->client.serverFeatures().contains(feature);
 }
 
-bool JAccount::checkFeature(const std::string &feature) const
-{
-	return d_func()->client.serverFeatures().contains(QString::fromStdString(feature));
-}
-
 bool JAccount::checkIdentity(const QString &category, const QString &type) const
 {
 	Q_D(const JAccount);
@@ -345,21 +342,11 @@ bool JAccount::checkIdentity(const QString &category, const QString &type) const
 	return catItr == d->identities.constEnd() ? false : catItr->contains(type);
 }
 
-bool JAccount::checkIdentity(const std::string &category, const std::string &type) const
-{
-	return checkIdentity(QString::fromStdString(category), QString::fromStdString(type));
-}
-
 QString JAccount::identity(const QString &category, const QString &type) const
 {
 	Q_D(const JAccount);
 	Identities::const_iterator catItr = d->identities.find(category);
 	return catItr == d->identities.constEnd() ? QString() : catItr->value(type);
-}
-
-std::string JAccount::identity(const std::string &category, const std::string &type) const
-{
-	return identity(QString::fromStdString(category), QString::fromStdString(type)).toStdString();
 }
 
 } // Jabber namespace

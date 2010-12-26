@@ -106,7 +106,7 @@ bool JContactResource::event(QEvent *ev)
 						   d_func()->id);
 		msg.addExtension(new jreen::ChatState(state));
 		JAccount *account = static_cast<JAccount*>(d_func()->contact->account());
-		account->client()->send(msg);
+		account->messageSessionManager()->send(msg);
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);

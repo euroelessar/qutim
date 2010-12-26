@@ -18,7 +18,6 @@
 //jreen
 #include <jreen/chatstate.h>
 #include <jreen/delayeddelivery.h>
-#include <jreen/receipt.h>
 #include <jreen/nickname.h>
 #include <jreen/vcardupdate.h>
 
@@ -65,10 +64,6 @@ void JRoster::onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item)
 		Notifications::send(Notifications::System,
 							c,
 							tr("Contact has been added to roster").arg(c->title()));
-	//test
-	//jreen::Presence probe(jreen::Presence::Probe,
-	//					  item->jid());
-	//d->account->client()->send(probe);
 }
 void JRoster::onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item)
 {
@@ -164,9 +159,6 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 		break;
 	}
 
-	//	if(jreen::Receipt *r = presence.findExtension<jreen::Receipt>().data()) {
-	//	}
-
 	jreen::JID from = presence.from();
 	if(d->account->client()->jid() == from) {
 		d->account->d_func()->setPresence(presence);
@@ -207,29 +199,10 @@ void JRoster::onNewMessage(jreen::Message message)
 	if(!c) {
 		c = static_cast<JContact*>(contact(message.from(),true));
 		c->setInList(false);
-		//		c->setName();
+		if(jreen::Nickname *nick = message.findExtension<jreen::Nickname>().data())
+			c->setName(nick->nick());
 	}
-	jreen::ChatState *state = message.findExtension<jreen::ChatState>().data();
-	if(state)
-		c->setChatState(static_cast<ChatState>(state->state()));
 
-	jreen::Receipt *receipt = message.findExtension<jreen::Receipt>().data();
-	if(receipt) {
-		if(receipt->type() == jreen::Receipt::Received) {
-			QString id = receipt->id();
-			if(id.isEmpty())
-				id = message.id(); //for slowpoke client such as Miranda
-			qApp->postEvent(ChatLayer::get(c),
-							new qutim_sdk_0_3::MessageReceiptEvent(id.toUInt(), true));
-		} else {
-			//only for testing
-			//TODO send this request only when message marked as read
-			jreen::Message request(jreen::Message::Chat,
-								   message.from());
-			request.addExtension(new jreen::Receipt(jreen::Receipt::Received,message.id()));
-			d->account->client()->send(request);
-		}
-	}
 	if(message.body().isEmpty())
 		return;
 	qutim_sdk_0_3::Message coreMessage;
@@ -356,6 +329,18 @@ void JRoster::loadSettings()
 void JRoster::saveSettings()
 {
 
+}
+
+void JRoster::setGroups(const JContact *contact, const QStringList &groups)
+{
+	m_items.value(contact->id())->setGroups(groups);
+	synchronize();
+}
+
+void JRoster::setName(const JContact *contact, const QString &name)
+{
+	m_items.value(contact->id())->setName(name);
+	synchronize();
 }
 
 //dead code
