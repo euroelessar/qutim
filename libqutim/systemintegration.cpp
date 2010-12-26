@@ -91,4 +91,15 @@ void SystemIntegration::virtual_hook(int type, void *data)
 //	widget->show(); //default behaviour, on mobile platforms need to use showMaximized
 //}
 
+
+void SystemIntegration::show(QWidget *widget)
+{
+#if	defined(QUTIM_MOBILE_UI)
+	widget->showMaximized();
+#else
+	widget->show();
+#endif
+}
+
+
 }

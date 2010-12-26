@@ -50,7 +50,7 @@ public:
 	virtual bool isAvailable() const = 0;
 
 	virtual int priority() = 0;
-
+	static void show(QWidget *widget);
 	virtual QVariant value(Attribute attr, const QVariant &data = QVariant()) const = 0;
 	//	virtual QVariant process(Operation act, const QVariantList &args = QVariantList()) const = 0;
 //	virtual void show(QWidget *widget);

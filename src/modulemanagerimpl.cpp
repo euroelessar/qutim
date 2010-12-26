@@ -11,54 +11,51 @@
 #include "profilecreationwizard.h"
 #include "libqutim/config.h"
 #include <libqutim/notificationslayer.h>
+#include <libqutim/systemintegration.h>
 
 namespace Core
 {
-	ModuleManagerImpl::ModuleManagerImpl()
-	{
-		ModuleManager::loadPlugins();
-		Config config = ProfileDialog::profilesInfo();
+ModuleManagerImpl::ModuleManagerImpl()
+{
+	ModuleManager::loadPlugins();
+	Config config = ProfileDialog::profilesInfo();
 #ifdef QUTIM_SINGLE_PROFILE
-		if (config.value("singleProfile", true)) {
+	bool singleProfile = true;
 #else
-		if (config.value("singleProfile", false)) {
+	bool singleProfile = false;
 #endif
-			if (!config.hasChildGroup("profile")) {
-				QWidget *wizard = new ProfileCreationWizard(this, QString(), QString(), true);
-				wizard->setAttribute(Qt::WA_DeleteOnClose, true);
-				wizard->setAttribute(Qt::WA_QuitOnClose, false);
-#if	defined(QUTIM_MOBILE_UI)
-				wizard->showMaximized();
-#else
-				wizard->show();
-#endif
-			} else {
-				config.beginGroup("profile");
-				if(ProfileDialog::acceptProfileInfo(config, QString())) {
-					QTimer::singleShot(0, this, SLOT(initExtensions()));
-				} else {
-					qWarning("Can't login");
-				}
-				config.endGroup();
-			}
+	singleProfile = config.value("singleProfile", singleProfile);
+	if (singleProfile) {
+		if (!config.hasChildGroup("profile")) {
+			QWidget *wizard = new ProfileCreationWizard(this, QString(), QString(), true);
+			wizard->setAttribute(Qt::WA_DeleteOnClose, true);
+			wizard->setAttribute(Qt::WA_QuitOnClose, false);
+			SystemIntegration::show(wizard);
 		} else {
-			QDialog *dialog = new ProfileDialog(config, this);
-#if	defined(QUTIM_MOBILE_UI)
-			dialog->showMaximized();
-#else
-			dialog->show();
-#endif
+			config.beginGroup("profile");
+			if(ProfileDialog::acceptProfileInfo(config, QString())) {
+				QTimer::singleShot(0, this, SLOT(initExtensions()));
+			} else {
+				qWarning("Can't login");
+				QDialog *dialog = new ProfileDialog(config, this);
+				SystemIntegration::show(dialog);
+			}
+			config.endGroup();
 		}
+	} else {
+		QDialog *dialog = new ProfileDialog(config, this);
+		SystemIntegration::show(dialog);
 	}
+}
 
-	ExtensionInfoList ModuleManagerImpl::coreExtensions() const
-	{
-		return extensions();
-	}
+ExtensionInfoList ModuleManagerImpl::coreExtensions() const
+{
+	return extensions();
+}
 
-	void ModuleManagerImpl::initExtensions()
-	{
-		ModuleManager::initExtensions();
-		Notifications::send(Notifications::Startup, 0);
-	}
+void ModuleManagerImpl::initExtensions()
+{
+	ModuleManager::initExtensions();
+	Notifications::send(Notifications::Startup, 0);
+}
 }
