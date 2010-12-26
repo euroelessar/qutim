@@ -153,7 +153,7 @@ namespace Jabber
 					d->current.xmlns << d->reader.namespaceUri().toString();
 					d->current.attributes.clear();
 					foreach (const QXmlStreamAttribute &attrb, d->reader.attributes())
-						d->current.attributes << attrb.value();
+						d->current.attributes << attrb.value().toString();
 					QLatin1String jid = QLatin1String(incoming ? "from" : "to");
 					d->current.jid = d->reader.attributes().value(jid).toString();
 				}
