@@ -4,6 +4,10 @@
 #include <QtGui/QWidget>
 #include "sdk/jabber.h"
 #include <jreen/client.h>
+#include <jreen/jid.h>
+#include <QXmlStreamReader>
+#include <QDateTime>
+#include <QTextBlock>
 
 namespace Ui {
     class XmlConsole;
@@ -29,14 +33,64 @@ namespace Jabber
 		void changeEvent(QEvent *e);
 
 	private:
+		void process(bool incoming);
+		
+		struct XmlNode
+		{
+			enum Type
+			{
+				Iq = 1,
+				Presence = 2,
+				Message = 4,
+				Custom = 8
+			};
+			QDateTime time;
+			Type type;
+			bool incoming;
+			QSet<QString> xmlns;
+			jreen::JID jid;
+			QSet<QString> attributes;
+			QTextBlock block;
+			int lineCount;
+		};
+		enum FilterType
+		{
+			Disabled = 0x10,
+			ByJid = 0x20,
+			ByXmlns = 0x30,
+			ByAllAttributes = 0x40
+		};
+
+		enum State
+		{
+			WaitingForStanza,
+			ReadFeatures,
+			ReadStanza,
+			ReadCustom
+		};
+
+		struct Environment
+		{
+			QXmlStreamReader reader;
+			State state;
+			int depth;
+			XmlNode current;
+			QString html;
+			QXmlStreamReader::TokenType last;
+			QString xmlns;
+		};
+
 		Ui::XmlConsole *m_ui;
 		jreen::Client *m_client;
-		QByteArray m_incoming;
-		QByteArray m_outgoing;
+		QList<XmlNode> m_nodes;
+		Environment m_incoming;
+		Environment m_outgoing;
+		int m_filter;
 	
-private slots:
-    void on_filterButton_clicked();
-};
+	private slots:
+		void on_lineEdit_textChanged(const QString &);
+		void onActionGroupTriggered(QAction *action);
+	};
 }
 
 #endif // XMLCONSOLE_H

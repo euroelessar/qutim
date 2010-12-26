@@ -84,13 +84,13 @@ void JAccountPrivate::initExtensions(const QSet<QString> &features)
 {
 	Q_Q(JAccount);
 	debug() << "received features list";
-	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
-		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
-			debug() << "init ext" << ext;
-			extensions.append(ext);
-			ext->init(q,params);
-		}
-	}
+//	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
+//		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
+//			debug() << "init ext" << ext;
+//			extensions.append(ext);
+//			ext->init(q,params);
+//		}
+//	}
 	roster->load();
 }
 
@@ -131,6 +131,20 @@ JAccount::JAccount(const QString &id) :
 			d,SLOT(onDisconnected()));
 	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
 			d,SLOT(initExtensions(QSet<QString>)));
+	
+	d->params.addItem<jreen::Client>(&d->client);
+//	d->params.addItem<Adhoc>(p->adhoc);
+//	d->params.addItem<VCardManager>(p->vCardManager->manager());
+//	d->params.addItem<SIManager>(p->siManager);
+
+//	d->softwareDetection = new JSoftwareDetection(p->account, p->params);
+
+	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
+		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
+			d->extensions.append(ext);
+			ext->init(this, d->params);
+		}
+	}
 }
 
 JAccount::~JAccount()
