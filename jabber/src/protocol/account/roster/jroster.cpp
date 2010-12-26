@@ -64,10 +64,6 @@ void JRoster::onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item)
 		Notifications::send(Notifications::System,
 							c,
 							tr("Contact has been added to roster").arg(c->title()));
-	//test
-	//jreen::Presence probe(jreen::Presence::Probe,
-	//					  item->jid());
-	//d->account->client()->send(probe);
 }
 void JRoster::onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item)
 {
@@ -163,9 +159,6 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 		break;
 	}
 
-	//	if(jreen::Receipt *r = presence.findExtension<jreen::Receipt>().data()) {
-	//	}
-
 	jreen::JID from = presence.from();
 	if(d->account->client()->jid() == from) {
 		d->account->d_func()->setPresence(presence);
@@ -206,7 +199,8 @@ void JRoster::onNewMessage(jreen::Message message)
 	if(!c) {
 		c = static_cast<JContact*>(contact(message.from(),true));
 		c->setInList(false);
-		//		c->setName();
+		if(jreen::Nickname *nick = message.findExtension<jreen::Nickname>().data())
+			c->setName(nick->nick());
 	}
 
 	if(message.body().isEmpty())

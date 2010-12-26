@@ -62,13 +62,12 @@ QString JContact::id() const
 
 bool JContact::sendMessage(const qutim_sdk_0_3::Message &message)
 {
-	JAccount *a = static_cast<JAccount*>(account());
-
-	if(a->status() == Status::Offline || a->status() == Status::Connecting)
+	Q_D(JContact);
+	if(d->account->status() == Status::Offline || d->account->status() == Status::Connecting)
 		return false;
 	qDebug("%s", Q_FUNC_INFO);
 
-	a->messageSessionManager()->sendMessage(message);
+	d->account->messageSessionManager()->sendMessage(message);
 	return true;
 }
 
@@ -105,6 +104,7 @@ void JContact::setTags(const QStringList &tags)
 	if (d->tags == tags)
 		return;
 	setContactTags(tags);
+
 	//		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
 	//		RosterItem *item = rosterManager->getRosterItem(JID(d->jid.toStdString()));
 	//		if(!item)
@@ -172,7 +172,7 @@ bool JContact::event(QEvent *ev)
 		jreen::Message msg(jreen::Message::Chat,
 						   d->jid);
 		msg.addExtension(new jreen::ChatState(state));
-		d->account->client()->send(msg);
+		d->account->messageSessionManager()->send(msg);
 		return true;
 	} else if (ev->type() == ToolTipEvent::eventType()) {
 		Q_D(JContact);
@@ -199,11 +199,9 @@ bool JContact::event(QEvent *ev)
 		default:
 			break;
 		}
-
 		event->addField(QT_TRANSLATE_NOOP("Jabber","Subscription"),
 						subscriptionStr
 						);
-
 		foreach (const QString &id, d->resources.keys()) {
 			JContactResource *resource = d->resources.value(id);
 			ToolTipEvent resourceEvent(false);
