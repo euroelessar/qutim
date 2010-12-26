@@ -91,7 +91,7 @@ JMessageReceiptFilter::JMessageReceiptFilter(JAccount *account,
 void JMessageReceiptFilter::filter(jreen::Message &message)
 {
 	jreen::Receipt *receipt = message.findExtension<jreen::Receipt>().data();
-	ChatUnit *unit = m_account->roster()->contact(message.from(),false);
+	ChatUnit *unit = m_account->roster()->contact(message.from(),true);
 	if(receipt) {
 		if(receipt->type() == jreen::Receipt::Received) {
 			QString id = receipt->id();
