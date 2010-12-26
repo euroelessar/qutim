@@ -331,6 +331,18 @@ void JRoster::saveSettings()
 
 }
 
+void JRoster::setGroups(const JContact *contact, const QStringList &groups)
+{
+	m_items.value(contact->id())->setGroups(groups);
+	synchronize();
+}
+
+void JRoster::setName(const JContact *contact, const QString &name)
+{
+	m_items.value(contact->id())->setName(name);
+	synchronize();
+}
+
 //dead code
 
 //struct JRosterPrivate

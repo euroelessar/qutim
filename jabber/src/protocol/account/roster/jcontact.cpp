@@ -77,12 +77,7 @@ void JContact::setName(const QString &name)
 	if (d->name == name)
 		return;
 	setContactName(name);
-	//		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
-	//		RosterItem *item = rosterManager->getRosterItem(d->jid.toStdString());
-	//		if (!item)
-	//			return;
-	//		item->setName(name.toStdString());
-	//		rosterManager->synchronize();
+	d->account->roster()->setName(this,name);
 }
 
 void JContact::setContactName(const QString &name)
@@ -104,17 +99,7 @@ void JContact::setTags(const QStringList &tags)
 	if (d->tags == tags)
 		return;
 	setContactTags(tags);
-
-	//		RosterManager *rosterManager = d->account->connection()->client()->rosterManager();
-	//		RosterItem *item = rosterManager->getRosterItem(JID(d->jid.toStdString()));
-	//		if(!item)
-	//			return;
-	//		StringList stdGroups;
-	//		foreach (QString group, d->tags) {
-	//			stdGroups.push_back(group.toStdString());
-	//		}
-	//		item->setGroups(stdGroups);
-	//		rosterManager->synchronize();
+	d->account->roster()->setGroups(this,tags);
 }
 
 void JContact::setContactTags(const QStringList &tags)
