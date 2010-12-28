@@ -26,12 +26,12 @@ AWNService::AWNService()
     m_activeAccount = 0;
     m_iconTimer = 0;
 	//m_cws = 0;
-    m_awn = new QDBusInterface("org.freedesktop.DockManager",
-                              "/org/freedesktop/DockManager",
-                              "org.freedesktop.DockManager");
-    QDBusConnection::sessionBus().connect("org.freedesktop.DockManager",
-                                          "/org/freedesktop/DockManager",
-                                          "org.freedesktop.DockManager",
+    m_awn = new QDBusInterface("net.launchpad.DockManager",
+                              "/net/launchpad/DockManager",
+                              "net.launchpad.DockManager");
+    QDBusConnection::sessionBus().connect("net.launchpad.DockManager",
+                                          "/net/launchpad/DockManager",
+                                          "net.launchpad.DockManager",
                                           "ItemRemoved",
                                           this,
                                           SLOT(onItemRemoved(QDBusObjectPath)));
@@ -262,12 +262,12 @@ void AWNService::setItem(QDBusObjectPath item_path)
 {
     if(m_item)
         delete m_item;
-    m_item = new QDBusInterface("org.freedesktop.DockManager",
+    m_item = new QDBusInterface("net.launchpad.DockManager",
                               item_path.path() ,
-                              "org.freedesktop.DockItem");
-    QDBusConnection::sessionBus().connect("org.freedesktop.DockManager",
+                              "net.launchpad.DockItem");
+    QDBusConnection::sessionBus().connect("net.launchpad.DockManager",
                                           item_path.path(),
-                                          "org.freedesktop.DockItem",
+                                          "net.launchpad.DockItem",
                                           "MenuItemActivated",
                                           this,
                                           SLOT(onMenuItemActivated(int)));

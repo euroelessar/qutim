@@ -2,6 +2,7 @@
  * aspellchecker.h
  *
  *  Copyright (c) 2010 by Ruslan Nigmatullin <euroelessar@gmail.com>
+ *                     by Alexey Prokhin <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -17,7 +18,7 @@
 #define ASPELLCHECKER_H
 
 #include <qutim/messagesession.h>
-#include "spellhighlighter.h"
+#include <qutim/spellchecker.h>
 
 #include <QObject>
 
@@ -26,25 +27,25 @@ struct AspellSpeller;
 
 using namespace qutim_sdk_0_3;
 
-class ASpellChecker : public QObject
+class ASpellChecker : public SpellChecker
 {
 	Q_OBJECT
-	Q_CLASSINFO("Service", "SpellChecker")
-	Q_CLASSINFO("Uses", "ChatLayer")
 public:
 	explicit ASpellChecker();
 	virtual ~ASpellChecker();
 	QStringList languages() const;
-public slots:
 	bool isCorrect(const QString &word) const;
 	bool isMisspelled(const QString &word) const;
 	QStringList suggest(const QString &word) const;
-protected slots:
-	void loadSettings();
-	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
+	void store(const QString &word) const;
+	void storeReplacement(const QString &bad, const QString &good);
+	static ASpellChecker *instance() { Q_ASSERT(self); return self; }
+	static QString toPrettyLanguageName(const QString &lang);
+	void loadSettings(const QString &lang);
 private:
 	AspellConfig  *m_config;
 	AspellSpeller *m_speller;
+	static ASpellChecker *self;
 };
 
 #endif // ASPELLCHECKER_H

@@ -1,7 +1,7 @@
 /****************************************************************************
- * spellhighlighter.h
+ *  hunspellplugin.h
  *
- *  Copyright (c) 2010 by Ruslan Nigmatullin <euroelessar@gmail.com>
+ *  Copyright (c) 2010 by Alexey Prokhin <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -13,26 +13,21 @@
  ***************************************************************************
 *****************************************************************************/
 
-#ifndef SPELLHIGHLIGHTER_H
-#define SPELLHIGHLIGHTER_H
+#ifndef HUNSPELLPLUGIN_H
+#define HUNSPELLPLUGIN_H
 
-#include <QSyntaxHighlighter>
-#include <qutim/messagesession.h>
+#include <qutim/plugin.h>
 
-class ASpellChecker;
 using namespace qutim_sdk_0_3;
 
-namespace ASpell
+class HunSpellPlugin : public Plugin
 {
-class SpellHighlighter : public QSyntaxHighlighter
-{
-	Q_OBJECT
+Q_OBJECT
 public:
-	explicit SpellHighlighter(ASpellChecker *checker, QTextDocument *doc);
-	virtual void highlightBlock(const QString &text);
-private:
-	ASpellChecker *m_speller;
+	explicit HunSpellPlugin();
+	virtual void init();
+	virtual bool load();
+	virtual bool unload();
 };
-}
 
-#endif // SPELLHIGHLIGHTER_H
+#endif // HUNSPELLPLUGIN_H

@@ -1,6 +1,6 @@
 find_package( Qt4 COMPONENTS QtDBus )
 if(NOT QT_QTDBUS_FOUND)
-	message(STATUS "Cannot build DBusAPI")
+	message(STATUS "Cannot build AWN dock integration")
 	return()
 endif()
 

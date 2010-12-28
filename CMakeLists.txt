@@ -17,6 +17,7 @@ endif( QUTIM_BINARY_DIR )
 
 LIST (APPEND CMAKE_MODULE_PATH "cmake")
 LIST (APPEND CMAKE_MODULE_PATH "${QUTIM_PATH}/cmake")
+option ( QUTIM_ENABLE_ALL_PLUGINS "Enable plugins by default" ON )
 
 INCLUDE (MacroEnsureVersion)
 find_package(Qt4 COMPONENTS QtCore QtGui)
@@ -27,7 +28,7 @@ file( GLOB PLUGINS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOUR
 foreach( PLUGIN ${PLUGINS} )
 	if( IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN}" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN}/CMakeLists.txt" )
 		string( TOUPPER ${PLUGIN} PLUGIN_NAME)
-		option( ${PLUGIN_NAME} "" ON )
+		option( ${PLUGIN_NAME} "" ${QUTIM_ENABLE_ALL_PLUGINS} )
 		if( ${PLUGIN_NAME} )
 			message( "+ plugin '${PLUGIN_NAME}' added to build" )
 			add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN}" "${CMAKE_CURRENT_BINARY_DIR}/${PLUGIN}" ) 

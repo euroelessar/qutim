@@ -82,7 +82,7 @@ namespace MassMessaging
 	{
 		ui->progressBar->hide();
 		//ui->progressHint->hide();
-		setWindowTitle("Finished");
+		setWindowTitle(ok ? tr("Finished") : tr("Error"));
 		ui->sendButton->setText(tr("Start"));
 	}
 

@@ -5,6 +5,11 @@
 #include "notification.h"
 #include <QDBusArgument>
 
+#ifdef Q_WS_MAEMO_5
+#include <mce/mode-names.h>
+#include <mce/dbus-names.h>
+#endif
+
 QDBusArgument& operator<< (QDBusArgument& arg, const QImage& image);
 const QDBusArgument& operator>> (const QDBusArgument& arg, QImage& image);
 
@@ -19,9 +24,26 @@ public:
 protected slots:
 	void callFinished(QDBusPendingCallWatcher* watcher);
 	void loadSettings();
+	void onActionInvoked(quint32 id, const QString &action_key);
+	void onNotificationClosed(quint32 id, quint32 reason);
+	void enableVibration();
+	void stopVibration();
+	void vibrate(int aTimeout);
+private:
+	struct NotificationData
+	{
+		QObject *sender;
+		QString body;
+		QList<QVariant> data;
+	};
+	void ignore(NotificationData &notification);
 private:
 	QScopedPointer<org::freedesktop::Notifications> interface;
 	int m_showFlags;
+	QHash<quint32, NotificationData> m_notifications;
+	QHash<QObject*, quint32> m_ids;
+	QDBusInterface *mDbusInterface;
+
 };
 
 #endif // GROWLBACKEND_H

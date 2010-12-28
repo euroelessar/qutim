@@ -1,6 +1,5 @@
 #include "aescryptomodule.h"
 #include "aescryptoservice.h"
-#include <QtCrypto>
 
 namespace AesCrypto
 {
@@ -15,9 +14,7 @@ namespace AesCrypto
 				  QLatin1String("euroelessar@gmail.com"));
 		addExtension<AesCryptoService>(QT_TRANSLATE_NOOP("Plugin", "AES crypto"),
 									   QT_TRANSLATE_NOOP("Plugin", "Default qutIM crypto implementation. Based on algorithm aes256")
-									   );
-		
-		QCA::Initializer qca_init;		
+									   );	
 	}
 
 	bool AesCryptoModule::load()

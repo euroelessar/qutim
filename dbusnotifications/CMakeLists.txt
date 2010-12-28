@@ -14,4 +14,5 @@ qutim_add_plugin(dbusnotifications ${DBUS_SRC}
 	DISPLAY_NAME "Dbus notifications"
 	DESCRIPTION "Notification system, based on Freedesktop"
 	LINK_LIBRARIES ${QT_QTDBUS_LIBRARY}
+	INCLUDE_DIRS ${QT_QTDBUS_INCLUDE_DIR}
 )

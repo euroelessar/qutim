@@ -31,7 +31,7 @@ class AccountAdaptor : public QDBusAbstractAdaptor
 	Q_OBJECT
 	Q_CLASSINFO("D-Bus Interface", "org.qutim.Account")
 	Q_PROPERTY(QString id READ id)
-	Q_PROPERTY(qutim_sdk_0_3::Status status READ status WRITE setStatus NOTIFY statusChanges)
+	Q_PROPERTY(qutim_sdk_0_3::Status status READ status WRITE setStatus NOTIFY statusChanged)
 	Q_PROPERTY(QString name READ name NOTIFY nameChanged)
 	Q_PROPERTY(QDBusObjectPath protocol READ protocol)
 public:
