@@ -213,7 +213,7 @@ void ProfileDialog::on_profilesButton_clicked()
 	}
 
 	QWizard *wizard = new ProfileCreationWizard(m_manager, name, pass);
-#if	defined(Q_OS_SYMBIAN)
+#if	defined(QUTIM_MOBILE_UI)
 	wizard->showMaximized();
 #else
 	wizard->show();
