@@ -129,18 +129,18 @@ void JProtocol::onKickUser(QObject *obj)
 {
 	JMUCUser *user = qobject_cast<JMUCUser*>(obj);
 	Q_ASSERT(user);
-	JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
-	QString reason = QInputDialog::getText(0, tr("Kick"), tr("Enter kick reason for %1").arg(user->name()));
-	muc->room()->kick(user->name().toStdString(), reason.toStdString());
+//	JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
+//	QString reason = QInputDialog::getText(0, tr("Kick"), tr("Enter kick reason for %1").arg(user->name()));
+//	muc->room()->kick(user->name().toStdString(), reason.toStdString());
 }
 
 void JProtocol::onBanUser(QObject *obj)
 {
 	JMUCUser *user = qobject_cast<JMUCUser*>(obj);
 	Q_ASSERT(user);
-	JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
-	QString reason = QInputDialog::getText(0, tr("Ban"), tr("Enter ban reason for %1").arg(user->name()));
-	muc->room()->ban(user->name().toStdString(), reason.toStdString());
+//	JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
+//	QString reason = QInputDialog::getText(0, tr("Ban"), tr("Enter ban reason for %1").arg(user->name()));
+//	muc->room()->ban(user->name().toStdString(), reason.toStdString());
 }
 
 void JProtocol::onConvertToMuc(QObject *obj)

@@ -75,8 +75,8 @@ namespace Jabber
 		}
 		if (!room) {
 			Q_ASSERT(!nick.isEmpty()); // Room doesn't exist. Nickname is required.
-			JID jid = JID(conference.toStdString());
-			jid.setResource(nick.toStdString());
+			jreen::JID jid = conference;
+			jid.setResource(nick);
 			room = new JMUCSession(jid, password, p->account);
 			createActions(room);
 			int count = p->bookmarkManager->bookmarks().count();

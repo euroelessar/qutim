@@ -102,6 +102,7 @@ JAccount::JAccount(const QString &id) :
 	Account::setStatus(Status::instance(Status::Offline, "jabber"));
 
 	d->roster = new JRoster(this);
+	d->conferenceManager = new JMUCManager(this, this);
 	d->messageSessionManager = new JMessageSessionManager(this);
 	d->vCardManager = new JVCardManager(this);
 	new JSoftwareDetection(this);
@@ -141,6 +142,7 @@ JAccount::JAccount(const QString &id) :
 			ext->init(this, d->params);
 		}
 	}
+	resetGroupChatManager(d->conferenceManager->bookmarkManager());
 }
 
 JAccount::~JAccount()
@@ -157,9 +159,9 @@ ChatUnit *JAccount::getUnitForSession(ChatUnit *unit)
 ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 {
 	Q_D(JAccount);
-	//	ChatUnit *unit = 0;
-	//	if (!!(unit = d->conferenceManager->muc(unitId)))
-	//		return unit;
+	ChatUnit *unit = 0;
+	if (!!(unit = d->conferenceManager->muc(unitId)))
+		return unit;
 	return d->roster->contact(unitId, create);
 	return 0;
 }

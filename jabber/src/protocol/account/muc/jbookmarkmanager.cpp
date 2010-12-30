@@ -42,7 +42,7 @@ namespace Jabber
 		p->account = account;
 		p->isLoaded = false;
 //		p->storage = new BookmarkStorage(account->client());
-		p->storage->registerBookmarkHandler(this);
+//		p->storage->registerBookmarkHandler(this);
 		p->bookmarks = readFromCache("bookmarks");
 		p->recent = readFromCache("recent");
 		emit bookmarksChanged();
@@ -137,7 +137,7 @@ namespace Jabber
 
 	void JBookmarkManager::sync()
 	{
-		p->storage->requestBookmarks();
+//		p->storage->requestBookmarks();
 	}
 
 	QList<JBookmark> JBookmarkManager::readFromCache(const QString &type)
@@ -301,7 +301,7 @@ namespace Jabber
 			serverUrlmark.url = configUrlmark.value("url", QString()).toStdString();
 			urlList << serverUrlmark;
 		}
-		p->storage->storeBookmarks(urlList.toStdList(), confList.toStdList());
+//		p->storage->storeBookmarks(urlList.toStdList(), confList.toStdList());
 	}
 
 	JBookmark JBookmarkManager::find(const QString &name, bool recent) const

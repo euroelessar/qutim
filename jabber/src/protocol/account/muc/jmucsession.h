@@ -17,13 +17,8 @@
 #define JMUCSESSION_H
 
 #include <QByteArray>
-#include <gloox/mucroom.h>
-#include <gloox/jid.h>
-
-Q_CORE_EXPORT uint qHash(const QByteArray &key);
-inline uint qHash(const std::string &str)
-{ return qHash(QByteArray::fromRawData(str.data(), str.size())); }
-
+#include <jreen/mucroom.h>
+#include <jreen/jid.h>
 #include <QHash>
 #include <qutim/conference.h>
 
@@ -37,16 +32,16 @@ namespace Jabber
 	class JMUCSessionPrivate;
 	class JSessionConvertor;
 
-	class JMUCSession :
-			public qutim_sdk_0_3::Conference,
-			public gloox::MUCRoomHandler,
-			public gloox::MUCRoomConfigHandler
+	class JMUCSession : public qutim_sdk_0_3::Conference
+//			,
+//			public gloox::MUCRoomHandler,
+//			public gloox::MUCRoomConfigHandler
 	{
 		Q_OBJECT
 		Q_DECLARE_PRIVATE(JMUCSession)
 		public:
-			JMUCSession(const gloox::JID &room, const QString &password, JAccount *account);
-			JMUCSession(JAccount *account, gloox::MUCRoom *room, const std::string &thread);
+			JMUCSession(const jreen::JID &room, const QString &password, JAccount *account);
+//			JMUCSession(JAccount *account, gloox::MUCRoom *room, const std::string &thread);
 			~JMUCSession();
 			QString id() const;
 			bool sendMessage(const qutim_sdk_0_3::Message &message);
@@ -57,7 +52,7 @@ namespace Jabber
 			bool isAutoJoin();
 			void setAutoJoin(bool join);
 			bool isError();
-			gloox::MUCRoom *room();
+			jreen::MUCRoom *room();
 			qutim_sdk_0_3::Buddy *me() const;
 			ChatUnit *participant(const QString &nick);
 			QString title() const;
@@ -69,24 +64,24 @@ namespace Jabber
 			void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
 		protected:
 			void loadSettings();
-			// MUCRoomHandler
-			void handleMUCParticipantPresence(gloox::MUCRoom *room, const gloox::MUCRoomParticipant participant,
-											  const gloox::Presence &presence);
-			void handleMUCMessage(gloox::MUCRoom *room, const gloox::Message &msg, bool priv);
-			bool handleMUCRoomCreation(gloox::MUCRoom *room);
-			void handleMUCSubject(gloox::MUCRoom *room, const std::string &nick, const std::string &subject);
-			void handleMUCInviteDecline(gloox::MUCRoom *room, const gloox::JID &invitee,
-										const std::string &reason);
-			void handleMUCError(gloox::MUCRoom *room, gloox::StanzaError error);
-			void handleMUCInfo(gloox::MUCRoom *room, int features, const std::string &name,
-								const gloox::DataForm *infoForm);
-			void handleMUCItems(gloox::MUCRoom *room, const gloox::Disco::ItemList &items);
-			// MUCRoomConfigHandler
-			void handleMUCConfigList(gloox::MUCRoom *room, const gloox::MUCListItemList &items,
-									 gloox::MUCOperation operation);
-			void handleMUCConfigForm(gloox::MUCRoom *room, const gloox::DataForm &form);
-			void handleMUCConfigResult(gloox::MUCRoom *room, bool success, gloox::MUCOperation operation);
-			void handleMUCRequest(gloox::MUCRoom *room, const gloox::DataForm &form);
+//			// MUCRoomHandler
+		protected slots:
+			void onParticipantPresence(const jreen::MUCRoom::Participant *part, const jreen::Presence &presence);
+			void onMessage(const jreen::Message &msg, bool priv);
+//			bool handleMUCRoomCreation(gloox::MUCRoom *room);
+//			void handleMUCSubject(gloox::MUCRoom *room, const std::string &nick, const std::string &subject);
+//			void handleMUCInviteDecline(gloox::MUCRoom *room, const gloox::JID &invitee,
+//										const std::string &reason);
+//			void handleMUCError(gloox::MUCRoom *room, gloox::StanzaError error);
+//			void handleMUCInfo(gloox::MUCRoom *room, int features, const std::string &name,
+//								const gloox::DataForm *infoForm);
+//			void handleMUCItems(gloox::MUCRoom *room, const gloox::Disco::ItemList &items);
+//			// MUCRoomConfigHandler
+//			void handleMUCConfigList(gloox::MUCRoom *room, const gloox::MUCListItemList &items,
+//									 gloox::MUCOperation operation);
+//			void handleMUCConfigForm(gloox::MUCRoom *room, const gloox::DataForm &form);
+//			void handleMUCConfigResult(gloox::MUCRoom *room, bool success, gloox::MUCOperation operation);
+//			void handleMUCRequest(gloox::MUCRoom *room, const gloox::DataForm &form);
 		public slots:
 			void join();
 			void leave();

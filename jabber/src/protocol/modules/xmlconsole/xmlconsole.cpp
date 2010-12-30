@@ -111,14 +111,12 @@ namespace Jabber
 	
 	void XmlConsole::handleIncomingData(const char *data, qint64 size)
 	{
-		m_incoming.reader.addData(QByteArray::fromRawData(data, size));
-		process(true);
+		process(QByteArray::fromRawData(data, size), true);
 	}
 	
 	void XmlConsole::handleOutgoingData(const char *data, qint64 size)
 	{
-		m_outgoing.reader.addData(QByteArray::fromRawData(data, size));
-		process(false);
+		process(QByteArray::fromRawData(data, size), false);
 	}
 	
 	QString generate_space(int depth)
@@ -130,9 +128,10 @@ namespace Jabber
 		return space;
 	}
 	
-	void XmlConsole::process(bool incoming)
+	void XmlConsole::process(const QByteArray &data, bool incoming)
 	{
 		Environment *d = &(incoming ? m_incoming : m_outgoing);
+		d->reader.addData(data);
 		while (d->reader.readNext() > QXmlStreamReader::Invalid) {
 			switch(d->reader.tokenType()) {
 			case QXmlStreamReader::StartElement:
@@ -237,6 +236,10 @@ namespace Jabber
 				break;
 			}
 			d->last = d->reader.tokenType();
+		}
+		if (!incoming && d->depth != 1) {
+			qFatal("outgoing depth %d on\n\"%s\"", d->depth,
+				   qPrintable(QString::fromUtf8(data, data.size())));
 		}
 	}
 

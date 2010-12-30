@@ -33,7 +33,7 @@ namespace Jabber
 		void changeEvent(QEvent *e);
 
 	private:
-		void process(bool incoming);
+		void process(const QByteArray &data, bool incoming);
 		
 		struct XmlNode
 		{

@@ -265,6 +265,7 @@ bool JConnectionListener::onTLSConnect(const CertInfo &info)
 	//	return true;
 	//else
 	//	return false;
+	return false;
 }
 
 void JConnectionListener::onStreamEvent(StreamEvent event)
