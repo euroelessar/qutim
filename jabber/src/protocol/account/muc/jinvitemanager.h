@@ -5,24 +5,24 @@
 #include <gloox/mucinvitationhandler.h>
 #include <QMetaType>
 
-namespace Jabber {
+//namespace Jabber {
 
-	using namespace gloox;
+//	using namespace gloox;
 
-	struct JInviteManagerPrivate;
-	class JAccount;
+//	struct JInviteManagerPrivate;
+//	class JAccount;
 
-	class JInviteManager : public QObject, public MUCInvitationHandler
-	{
-		Q_OBJECT
-		public:
-			JInviteManager(JAccount *account);
-			~JInviteManager();
-			void handleMUCInvitation(const JID &room, const JID &from, const std::string &reason,
-					const std::string &, const std::string &password, bool, const std::string &);
-		private:
-			QScopedPointer<JInviteManagerPrivate> p;
-	};
-}
+//	class JInviteManager : public QObject, public MUCInvitationHandler
+//	{
+//		Q_OBJECT
+//		public:
+//			JInviteManager(JAccount *account);
+//			~JInviteManager();
+//			void handleMUCInvitation(const JID &room, const JID &from, const std::string &reason,
+//					const std::string &, const std::string &password, bool, const std::string &);
+//		private:
+//			QScopedPointer<JInviteManagerPrivate> p;
+//	};
+//}
 
 #endif // JINVITEMANAGER_H

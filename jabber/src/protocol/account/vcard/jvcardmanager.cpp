@@ -5,9 +5,6 @@
 #include "../roster/jroster.h"
 #include "../jaccount.h"
 #include <QDir>
-#include <gloox/client.h>
-#include <gloox/vcardmanager.h>
-#include <gloox/sha.h>
 #include <qutim/debug.h>
 #include <jreen/vcard.h>
 #include <jreen/iq.h>

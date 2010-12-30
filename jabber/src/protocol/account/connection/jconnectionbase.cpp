@@ -5,6 +5,7 @@
 
 namespace Jabber
 {
+	using namespace gloox;
 	using namespace qutim_sdk_0_3;
 	
 	JConnectionBase::JConnectionBase(ConnectionDataHandler *cdh) : ConnectionBase(cdh)

@@ -98,7 +98,8 @@ void JContact::setTags(const QStringList &tags)
 	Q_D(JContact);
 	if (d->tags == tags)
 		return;
-	setContactTags(tags);
+	// wtf?
+//	setContactTags(tags);
 	d->account->roster()->setGroups(this,tags);
 }
 
@@ -285,10 +286,6 @@ void JContact::setStatus(const jreen::Presence presence)
 	Status newStatus = status();
 	if(oldStatus.type() != newStatus.type())
 		emit statusChanged(newStatus, oldStatus);
-}
-
-void JContact::setStatus(const QString &, Presence::PresenceType , int , const QString &)
-{
 }
 
 void JContact::removeResource(const QString &resource)

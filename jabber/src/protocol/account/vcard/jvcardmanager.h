@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QSharedPointer>
-#include <gloox/vcardhandler.h>
 #include <jreen/vcard.h>
 
 namespace jreen
@@ -12,17 +11,8 @@ class JID;
 class IQ;
 }
 
-namespace gloox
-{
-class VCardManager;
-class Client;
-}
-
 namespace Jabber
 {
-
-using namespace gloox;
-
 class JAccount;
 class JInfoRequest;
 class JVCardManagerPrivate;

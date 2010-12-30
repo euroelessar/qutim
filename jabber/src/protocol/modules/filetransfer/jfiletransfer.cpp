@@ -11,6 +11,7 @@
 
 namespace Jabber
 {
+	using namespace gloox;
 void ByteStreamConnector::run()
 {
 	emit resultReady(m_bs->connect());

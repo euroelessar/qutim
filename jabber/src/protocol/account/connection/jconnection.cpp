@@ -14,6 +14,7 @@
 
 namespace Jabber
 {
+	using namespace gloox;
 struct JConnectionPrivate
 {
 	JConnectionPrivate() {}

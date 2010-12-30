@@ -2,7 +2,7 @@
 #define JCONTACT_H
 
 #include <qutim/contact.h>
-#include <gloox/presence.h>
+#include <jreen/presence.h>
 #include "../roster/jmessagesessionowner.h"
 //jreen
 #include <jreen/abstractroster.h>
@@ -44,9 +44,6 @@ public:
 	void setStatus(const jreen::Presence presence);
 	void setContactSubscription(jreen::AbstractRosterItem::SubscriptionType subscription);
 	jreen::AbstractRosterItem::SubscriptionType subscription() const;
-	//dead code
-	void setStatus(const QString &resource, gloox::Presence::PresenceType presence, int priority,
-				   const QString &text = QString());
 	QString name() const;
 	QStringList tags() const;
 	Status status() const;

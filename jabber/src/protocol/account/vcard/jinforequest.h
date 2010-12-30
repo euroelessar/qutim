@@ -10,15 +10,9 @@ namespace jreen
 class VCard;
 }
 
-namespace gloox
-{
-class VCard;
-}
-
 namespace Jabber
 {
 using namespace qutim_sdk_0_3;
-using namespace gloox;
 
 class JVCardManager;
 class JInfoRequestPrivate;

@@ -4,7 +4,7 @@
 #include <qutim/icon.h>
 #include "account/roster/jresourceactiongenerator.h"
 #include "account/roster/jcontact.h"
-#include <gloox/dataform.h>
+//#include <gloox/dataform.h>
 #include "account/dataform/jdataform.h"
 #include <qutim/statusactiongenerator.h>
 #include <qutim/settingslayer.h>
@@ -211,8 +211,8 @@ void JProtocol::loadAccounts()
 	loadActions();
 	QStringList accounts = config("general").value("accounts", QStringList());
 	foreach(const QString &id, accounts) {
-		JID jid(id.toStdString());
-		addAccount(new JAccount(QString::fromStdString(jid.bare())), true);
+		jreen::JID jid = id;
+		addAccount(new JAccount(jid.bare()), true);
 	}
 }
 

@@ -15,8 +15,8 @@ public:
 		JContactResourcePrivate(c) {}
 	QString avatar;
 	QStringRef hash;
-	MUCRoomAffiliation affiliation;
-	MUCRoomRole role;
+	MUCRoom::Affiliation affiliation;
+	MUCRoom::Role role;
 	QString realJid;
 };
 
@@ -81,22 +81,22 @@ ChatUnit *JMUCUser::upperUnit()
 	return qobject_cast<Conference *>(d_func()->contact);
 }
 
-MUCRoomAffiliation JMUCUser::affiliation()
+MUCRoom::Affiliation JMUCUser::affiliation()
 {
 	return d_func()->affiliation;
 }
 
-void JMUCUser::setMUCAffiliation(MUCRoomAffiliation affiliation)
+void JMUCUser::setMUCAffiliation(MUCRoom::Affiliation affiliation)
 {
 	d_func()->affiliation = affiliation;
 }
 
-MUCRoomRole JMUCUser::role()
+MUCRoom::Role JMUCUser::role()
 {
 	return d_func()->role;
 }
 
-void JMUCUser::setMUCRole(MUCRoomRole role)
+void JMUCUser::setMUCRole(MUCRoom::Role role)
 {
 	d_func()->role = role;
 }
@@ -113,13 +113,13 @@ bool JMUCUser::event(QEvent *ev)
 		QString client = property("client").toString();
 		QString affiliation;
 		switch (d->affiliation) {
-		case AffiliationOwner:
+		case MUCRoom::AffiliationOwner:
 			affiliation = "Owner";
 			break;
-		case AffiliationAdmin:
+		case MUCRoom::AffiliationAdmin:
 			affiliation = "Administrator";
 			break;
-		case AffiliationMember:
+		case MUCRoom::AffiliationMember:
 			affiliation = "Registered member";
 			break;
 		default:
@@ -129,13 +129,13 @@ bool JMUCUser::event(QEvent *ev)
 			event->addField(QT_TRANSLATE_NOOP("Conference", "Affiliation"), affiliation, 30);
 		QString role;
 		switch (d->role) {
-		case RoleModerator:
+		case MUCRoom::RoleModerator:
 			role = "Moderator";
 			break;
-		case RoleParticipant:
+		case MUCRoom::RoleParticipant:
 			role = "Participant";
 			break;
-		case RoleVisitor:
+		case MUCRoom::RoleVisitor:
 			role = "Visitor";
 			break;
 		default:

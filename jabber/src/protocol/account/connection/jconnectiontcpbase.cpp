@@ -1,4 +1,5 @@
 #include "jconnectiontcpbase.h"
+using namespace gloox;
 
 namespace Jabber
 {

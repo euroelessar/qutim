@@ -7,20 +7,19 @@
 
 namespace Jabber
 {
-	using namespace gloox;
 
 	struct JCertInfoPrivate;
 
 	class JCertInfo : public QDialog
 	{
 		Q_OBJECT
-		public:
-			JCertInfo(const CertInfo &info, QWidget *parent = 0);
-			virtual ~JCertInfo();
-
-			bool exec(bool &result);
-		private:
-			JCertInfoPrivate *p;
+	public:
+		JCertInfo(const gloox::CertInfo &info, QWidget *parent = 0);
+		virtual ~JCertInfo();
+		
+		bool exec(bool &result);
+	private:
+		JCertInfoPrivate *p;
 	};
 }
 

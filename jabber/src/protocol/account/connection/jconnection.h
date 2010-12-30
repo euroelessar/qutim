@@ -11,7 +11,6 @@
 
 namespace Jabber
 {
-using namespace gloox;
 
 class JAccount;
 class JVCardManager;
@@ -19,7 +18,7 @@ class JSoftwareDetection;
 class JabberParams;
 struct JConnectionPrivate;
 
-class JConnection : public QObject, PresenceHandler, LogHandler
+class JConnection : public QObject, gloox::PresenceHandler, gloox::LogHandler
 {
 	Q_OBJECT
 public:
@@ -27,19 +26,19 @@ public:
 	~JConnection();
 			void setProxy(const QNetworkProxy &proxy);
 	void loadSettings();
-	void setConnectionPresence(Presence::PresenceType presence);
-	Client *client();
-	Adhoc *adhoc();
+	void setConnectionPresence(gloox::Presence::PresenceType presence);
+	gloox::Client *client();
+	gloox::Adhoc *adhoc();
 	JVCardManager *vCardManager();
-	SIManager *siManager();
+	gloox::SIManager *siManager();
 	JConnectionBase *connection();
 	JSoftwareDetection *softwareDetection();
 	JabberParams params() const;
 	void initExtensions();
 	void setAvatar(const QString &hex);
-	virtual void handleLog(LogLevel level, LogArea area, const std::string &message);
+	virtual void handleLog(gloox::LogLevel level, gloox::LogArea area, const std::string &message);
 protected:
-	void handlePresence(const Presence &presence);
+	void handlePresence(const gloox::Presence &presence);
 private:
 	QScopedPointer<JConnectionPrivate> p;
 };

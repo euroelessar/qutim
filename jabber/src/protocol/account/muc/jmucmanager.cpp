@@ -18,7 +18,7 @@ namespace Jabber
 	{
 		JAccount *account;
 		JBookmarkManager *bookmarkManager;
-		JInviteManager *inviteManager;
+//		JInviteManager *inviteManager;
 		QHash<QString, JMUCSession *> rooms;
 	};
 
@@ -26,7 +26,7 @@ namespace Jabber
 	{
 		p->account = account;
 		p->bookmarkManager = new JBookmarkManager(p->account);
-		p->inviteManager = new JInviteManager(p->account);
+//		p->inviteManager = new JInviteManager(p->account);
 		connect(p->bookmarkManager, SIGNAL(bookmarksChanged()), SLOT(bookmarksChanged()));
 	}
 
@@ -129,9 +129,9 @@ namespace Jabber
 		p->rooms.insert(room->id(), room);
 	}
 
-	void JMUCManager::setPresenceToRooms(Presence::PresenceType presence)
+	void JMUCManager::setPresenceToRooms(jreen::Presence::Type presence)
 	{
-		if (presence == Presence::Unavailable) {
+		if (presence == jreen::Presence::Unavailable) {
 			foreach (JMUCSession *room, p->rooms) {
 				if(room->isJoined()) {
 					room->setAutoJoin(true);

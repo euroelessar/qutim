@@ -29,6 +29,8 @@ void JMessageSessionHandler::handleMessageSession(jreen::MessageSession *session
 {
 	Q_ASSERT(session);
 	session->registerMessageFilter(new JMessageReceiptFilter(m_account,session));
+	QObject::connect(session, SIGNAL(newMessage(jreen::Message)),
+					 m_account->roster(), SLOT(onNewMessage(jreen::Message)));
 }
 
 class JMessageSessionManagerPrivate
@@ -114,7 +116,7 @@ void JMessageReceiptFilter::filter(jreen::Message &message)
 	jreen::ChatState *state = message.findExtension<jreen::ChatState>().data();
 	if(state) {
 		if(unit)
-			unit->setChatState(static_cast<ChatState>(state->state()));
+			unit->setChatState(static_cast<qutim_sdk_0_3::ChatState>(state->state()));
 	}
 }
 

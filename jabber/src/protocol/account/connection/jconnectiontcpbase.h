@@ -7,7 +7,6 @@
 
 namespace Jabber
 {
-	using namespace gloox;
 
 	struct JConnectionTCPBasePrivate;
 
@@ -15,18 +14,18 @@ namespace Jabber
 	{
 		Q_OBJECT
 	public:
-		JConnectionTCPBase(ConnectionDataHandler *cdh);
+		JConnectionTCPBase(gloox::ConnectionDataHandler *cdh);
 		JConnectionTCPBase(QTcpSocket *socket);
 		virtual ~JConnectionTCPBase();
 
-		virtual ConnectionError connect();
-		virtual ConnectionError recv(int timeout = -1);
+		virtual gloox::ConnectionError connect();
+		virtual gloox::ConnectionError recv(int timeout = -1);
 		virtual bool send(const std::string &data);
 		virtual void disconnect();
 		virtual void cleanup();
 		virtual int localPort() const;
 		virtual const std::string localInterface() const;
-		virtual ConnectionBase *newInstance() const;
+		virtual gloox::ConnectionBase *newInstance() const;
 		virtual void setProxy(QNetworkProxy &proxy);
 	public slots:
 		void read();

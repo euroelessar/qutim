@@ -237,7 +237,7 @@ namespace Jabber
 			}
 			d->last = d->reader.tokenType();
 		}
-		if (!incoming && d->depth != 1) {
+		if (!incoming && d->depth > 1) {
 			qFatal("outgoing depth %d on\n\"%s\"", d->depth,
 				   qPrintable(QString::fromUtf8(data, data.size())));
 		}

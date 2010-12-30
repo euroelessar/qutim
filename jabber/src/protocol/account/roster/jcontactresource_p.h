@@ -3,7 +3,6 @@
 
 #include "jcontactresource.h"
 #include <qutim/contact.h>
-#include <gloox/presence.h>
 //jreen
 #include <jreen/presence.h>
 

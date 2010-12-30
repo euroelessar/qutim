@@ -17,7 +17,7 @@
 #define JACCOUNT_H
 
 #include <qutim/account.h>
-#include <gloox/presence.h>
+#include <jreen/presence.h>
 
 #include "connection/jconnection.h"
 #include "connection/jconnectionlistener.h"
@@ -31,7 +31,7 @@ class JID;
 namespace Jabber {
 
 using namespace qutim_sdk_0_3;
-using namespace gloox;
+//using namespace gloox;
 
 class JAccountPrivate;
 class JRoster;

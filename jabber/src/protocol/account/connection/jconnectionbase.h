@@ -10,16 +10,15 @@
 
 namespace Jabber
 {
-	using namespace gloox;
 
-	class JConnectionBase : public QObject, public ConnectionBase
+	class JConnectionBase : public QObject, public gloox::ConnectionBase
 	{
 		Q_OBJECT
 		public:
-			JConnectionBase(ConnectionDataHandler *cdh);
+			JConnectionBase(gloox::ConnectionDataHandler *cdh);
 			virtual ~JConnectionBase();
 
-			virtual ConnectionError receive();
+			virtual gloox::ConnectionError receive();
 			virtual void getStatistics(long int &totalIn, long int &totalOut);
 			virtual void setProxy(QNetworkProxy &proxy) = 0;
 			void resolveHost();
@@ -35,7 +34,7 @@ namespace Jabber
 			QNetworkProxy *m_proxy;
 			qint64 m_totalBytesIn;
 			qint64 m_totalBytesOut;
-			ConnectionError m_connectionError;
+			gloox::ConnectionError m_connectionError;
 			bool m_useDns;
 		private:
 

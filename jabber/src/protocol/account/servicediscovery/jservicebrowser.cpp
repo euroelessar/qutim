@@ -319,9 +319,9 @@ QString JServiceBrowser::setServiceIcon(const JDiscoItem &di)
 	if (di.hasIdentity("server")) {
 		service_icon = "network-server";
 	} else if (di.hasIdentity("conference", "text")) {
-		if (QString::fromStdString(JID(di.jid().toStdString()).username()).isEmpty())
+		if (jreen::JID(di.jid()).node().isEmpty())
 			service_icon = "conference-server";
-		else if (QString::fromStdString(JID(di.jid().toStdString()).resource()).isEmpty())
+		else if (jreen::JID(di.jid()).resource().isEmpty())
 			service_icon = "conference";
 		else
 			service_icon = "conference-user";

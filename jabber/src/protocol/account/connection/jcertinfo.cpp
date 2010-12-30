@@ -2,6 +2,7 @@
 
 namespace Jabber
 {
+	using namespace gloox;
 	struct JCertInfoPrivate
 	{
 		Ui::JCertInfo ui;

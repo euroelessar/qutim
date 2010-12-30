@@ -6,6 +6,7 @@
 
 namespace Jabber
 {
+	using namespace gloox;
 	struct JBookmarkManagerPrivate
 	{
 		JAccount *account;

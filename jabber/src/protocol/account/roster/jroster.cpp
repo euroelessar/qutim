@@ -45,8 +45,8 @@ JRoster::JRoster(JAccount *account) :
 			this,SLOT(handleNewPresence(jreen::Presence)));
 	connect(d->account->client(),SIGNAL(disconnected()),
 			this,SLOT(onDisconnected()));
-	connect(d->account->client(),SIGNAL(newMessage(jreen::Message)),
-			this,SLOT(onNewMessage(jreen::Message)));
+//	connect(d->account->client(),SIGNAL(newMessage(jreen::Message)),
+//			this,SLOT(onNewMessage(jreen::Message)));
 }
 
 JRoster::~JRoster()
@@ -134,6 +134,7 @@ void JRoster::fillContact(JContact *contact, QSharedPointer<jreen::AbstractRoste
 	QString name = item->name();
 	contact->setContactName(name);
 	QStringList tags = item->groups();
+	qDebug() << name << tags;
 	contact->setContactTags(tags);
 	if (!contact->isInList())
 		contact->setContactInList(true);

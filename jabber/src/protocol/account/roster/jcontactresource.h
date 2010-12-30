@@ -2,7 +2,7 @@
 #define JCONTACTRESOURCE_H
 
 #include <qutim/buddy.h>
-#include <gloox/presence.h>
+#include <jreen/presence.h>
 #include <QSet>
 #include "../roster/jmessagesessionowner.h"
 

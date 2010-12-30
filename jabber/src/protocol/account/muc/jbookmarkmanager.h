@@ -13,7 +13,6 @@ namespace qutim_sdk_0_3
 
 namespace Jabber {
 
-	using namespace gloox;
 	using qutim_sdk_0_3::DataItem;
 
 	struct JBookmarkManagerPrivate;
@@ -33,7 +32,7 @@ namespace Jabber {
 		bool autojoin;		
 	};
 
-	class JBookmarkManager : public QObject, public BookmarkHandler, public qutim_sdk_0_3::GroupChatManager
+	class JBookmarkManager : public QObject, public gloox::BookmarkHandler, public qutim_sdk_0_3::GroupChatManager
 	{
 		Q_OBJECT
 		Q_INTERFACES(qutim_sdk_0_3::GroupChatManager)
@@ -63,7 +62,7 @@ namespace Jabber {
 			void serverBookmarksChanged();
 			void bookmarksChanged();
 		protected:
-			void handleBookmarks(const BookmarkList &bList, const ConferenceList &cList);
+			void handleBookmarks(const gloox::BookmarkList &bList, const gloox::ConferenceList &cList);
 			QList<JBookmark> readFromCache(const QString &type);
 			void writeToCache(const QString &type, const QList<JBookmark> &list);
 			void saveToServer();

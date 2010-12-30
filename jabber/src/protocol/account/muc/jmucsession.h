@@ -68,8 +68,8 @@ namespace Jabber
 		protected slots:
 			void onParticipantPresence(const jreen::MUCRoom::Participant *part, const jreen::Presence &presence);
 			void onMessage(const jreen::Message &msg, bool priv);
+			void onSubjectChanged(const QString &subject, const QString &nick);
 //			bool handleMUCRoomCreation(gloox::MUCRoom *room);
-//			void handleMUCSubject(gloox::MUCRoom *room, const std::string &nick, const std::string &subject);
 //			void handleMUCInviteDecline(gloox::MUCRoom *room, const gloox::JID &invitee,
 //										const std::string &reason);
 //			void handleMUCError(gloox::MUCRoom *room, gloox::StanzaError error);

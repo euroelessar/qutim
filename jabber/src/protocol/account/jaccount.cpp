@@ -122,8 +122,11 @@ JAccount::JAccount(const QString &id) :
 	if(qutim != QLatin1String("qutIM") && lang != QLatin1String("en"))
 		disco->addIdentity(jreen::Disco::Identity(QLatin1String("client"), QLatin1String("type"),qutim,lang));
 
-	connect(&d->client,SIGNAL(connected()),
-			d,SLOT(onConnected()));
+	connect(d->roster, SIGNAL(loaded()),
+			d, SLOT(onConnected()));
+//	connect(&d->client,SIGNAL(connected()),
+//			d,SLOT(onConnected()));
+	
 	connect(&d->client,SIGNAL(disconnected()),
 			d,SLOT(onDisconnected()));
 	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),

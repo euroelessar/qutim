@@ -6,12 +6,11 @@
 
 namespace Jabber
 {
-	using namespace gloox;
 
 	class JAccount;
 	struct JConnectionListenerPrivate;
 
-	class JConnectionListener : public QObject, public ConnectionListener
+	class JConnectionListener : public QObject, public gloox::ConnectionListener
 	{
 		Q_OBJECT
 		public:
@@ -19,12 +18,12 @@ namespace Jabber
 			virtual ~JConnectionListener();
 
 			virtual void onConnect();
-			virtual void onDisconnect(ConnectionError error);
+			virtual void onDisconnect(gloox::ConnectionError error);
 			virtual void onResourceBind(const std::string &resource);
-			virtual void onResourceBindError(const Error *error);
-			virtual void onSessionCreateError(const Error *error);
-			virtual bool onTLSConnect(const CertInfo &info);
-			virtual void onStreamEvent(StreamEvent event);
+			virtual void onResourceBindError(const gloox::Error *error);
+			virtual void onSessionCreateError(const gloox::Error *error);
+			virtual bool onTLSConnect(const gloox::CertInfo &info);
+			virtual void onStreamEvent(gloox::StreamEvent event);
 		private:
 			JConnectionListenerPrivate *p;
 	};

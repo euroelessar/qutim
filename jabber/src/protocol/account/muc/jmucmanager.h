@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <qutim/chatunit.h>
-#include <gloox/presence.h>
+#include <jreen/presence.h>
 #include <qutim/dataforms.h>
 
 namespace qutim_sdk_0_3 
@@ -14,7 +14,7 @@ namespace qutim_sdk_0_3
 namespace Jabber
 {
 	using namespace qutim_sdk_0_3;
-	using namespace gloox;
+	using namespace jreen;
 
 	class JAccount;
 	class JBookmarkManager;
@@ -31,7 +31,7 @@ namespace Jabber
 			JBookmarkManager *bookmarkManager();
 			void syncBookmarks();
 			void join(const QString &conference, const QString &nick = QString(), const QString &password = QString());
-			void setPresenceToRooms(Presence::PresenceType presence);
+			void setPresenceToRooms(jreen::Presence::Type presence);
 			void leave(const QString &room);
 			bool event(QEvent *event);
 			void appendMUCSession(JMUCSession *room);

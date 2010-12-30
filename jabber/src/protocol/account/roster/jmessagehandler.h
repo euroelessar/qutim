@@ -2,7 +2,7 @@
 #define JMESSAGEHANDLER_H
 
 #include <QObject>
-#include <gloox/messagesessionhandler.h>
+//#include <gloox/messagesessionhandler.h>
 #include <qutim/messagesession.h>
 //jreen
 #include <jreen/messagesession.h>

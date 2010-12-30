@@ -216,8 +216,7 @@ void JServiceDiscovery::setActions(JDiscoItem &di)
 			isIRC = true;
 	di.addAction(JDiscoItem::ActionAdd);
 	if (di.hasFeature(QString::fromStdString(gloox::XMLNS_MUC))
-			&& (!QString::fromStdString(JID(di.jid().toStdString()).username()).isEmpty()
-				|| isIRC))
+		&& (!jreen::JID(di.jid()).node().isEmpty() || isIRC))
 		di.addAction(JDiscoItem::ActionJoin);
 	if (di.hasFeature(QString::fromStdString(gloox::XMLNS_BYTESTREAMS)))
 		di.addAction(JDiscoItem::ActionProxy);

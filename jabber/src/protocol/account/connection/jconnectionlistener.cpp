@@ -9,6 +9,7 @@
 
 namespace Jabber
 {
+	using namespace gloox;
 struct JConnectionListenerPrivate
 {
 	JAccount *account;
