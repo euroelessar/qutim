@@ -30,43 +30,43 @@
 
 namespace Jabber
 {
-class JDataFormJidMultiItemDelegate : public QStyledItemDelegate
-{
-	Q_OBJECT
-public:
-	explicit JDataFormJidMultiItemDelegate(QObject *parent = 0) : QStyledItemDelegate(parent) {}
-	virtual ~JDataFormJidMultiItemDelegate() {}
+//class JDataFormJidMultiItemDelegate : public QStyledItemDelegate
+//{
+//	Q_OBJECT
+//public:
+//	explicit JDataFormJidMultiItemDelegate(QObject *parent = 0) : QStyledItemDelegate(parent) {}
+//	virtual ~JDataFormJidMultiItemDelegate() {}
 
-	QWidget *createEditor(QWidget *parent,
-						  const QStyleOptionViewItem &,
-						  const QModelIndex &) const
-	{
-		QLineEdit * const line = new QLineEdit(parent);
-		line->setValidator(new JJidValidator(QString(), line));
-		return line;
-	}
-};
+//	QWidget *createEditor(QWidget *parent,
+//						  const QStyleOptionViewItem &,
+//						  const QModelIndex &) const
+//	{
+//		QLineEdit * const line = new QLineEdit(parent);
+//		line->setValidator(new JJidValidator(QString(), line));
+//		return line;
+//	}
+//};
 
-class JDataFormJidMulti : public QListWidget
-{
-	Q_OBJECT
-public:
-	JDataFormJidMulti(QWidget *parent);
-	virtual ~JDataFormJidMulti() {}
+//class JDataFormJidMulti : public QListWidget
+//{
+//	Q_OBJECT
+//public:
+//	JDataFormJidMulti(QWidget *parent);
+//	virtual ~JDataFormJidMulti() {}
 
-	QLayout *localLayout() { return layout; }
-protected:
-	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-private slots:
-	void jidEditTextChanged(const QString &jid);
-	void addButtonClicked();
-	void removeButtonClicked();
-private:
-	QLineEdit *jidEdit;
-	QPushButton *addButton;
-	QPushButton *removeButton;
-	QGridLayout *layout;
-};
+//	QLayout *localLayout() { return layout; }
+//protected:
+//	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+//private slots:
+//	void jidEditTextChanged(const QString &jid);
+//	void addButtonClicked();
+//	void removeButtonClicked();
+//private:
+//	QLineEdit *jidEdit;
+//	QPushButton *addButton;
+//	QPushButton *removeButton;
+//	QGridLayout *layout;
+//};
 }
 
 #endif // JDATAFORM_P_H

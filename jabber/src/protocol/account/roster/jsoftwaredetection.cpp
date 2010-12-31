@@ -134,41 +134,28 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 			info.features << str;
 
 		QString jid = iq.from().full();
-		const jreen::DataForm *form = discoInfo->form().data();
+		jreen::DataForm::Ptr form = discoInfo->form();
 
-		if (jreen::DataFormField *field = (form ? form->field("FORM_TYPE").data() : 0)) {
-			if (field->value() == "urn:xmpp:dataforms:softwareinfo") {
-				QString software;
-				QString softwareVersion;
-				QString os;
-				QString osVersion;
-				foreach(QSharedPointer<jreen::DataFormField> field, form->fields()) {
-					if (field->var() == "os") {
-						os = field->value();
-					} else if (field->var() == "os_version") {
-						osVersion = field->value();
-					} else if (field->var() == "software") {
-						software = field->value();
-					} else if (field->var() == "software_version") {
-						softwareVersion = field->value();
-					}
-				}
-				QString icon = getClientIcon(software);
-				QString client = getClientDescription(software, softwareVersion, os);
+		if (form && form->field(QLatin1String("FORM_TYPE")).value().toString() == "urn:xmpp:dataforms:softwareinfo") {
+			QString software = form->field(QLatin1String("software")).value().toString();
+			QString softwareVersion = form->field(QLatin1String("software_version")).value().toString();
+			QString os = form->field(QLatin1String("os")).value().toString();
+			QString osVersion = form->field(QLatin1String("os_version")).value().toString();
+			QString icon = getClientIcon(software);
+			QString client = getClientDescription(software, softwareVersion, os);
 
-				if (!software.isEmpty()) {
-					info.icon = icon;
-					info.name = software;
-					if (!softwareVersion.isEmpty())
-						info.version = softwareVersion;
-				}
-				if (!os.isEmpty()) {
-					info.os = os;
-					if (!osVersion.isEmpty())
-						info.os.append(" ").append(osVersion);
-				}
-				info.description = client;
+			if (!software.isEmpty()) {
+				info.icon = icon;
+				info.name = software;
+				if (!softwareVersion.isEmpty())
+					info.version = softwareVersion;
 			}
+			if (!os.isEmpty()) {
+				info.os = os;
+				if (!osVersion.isEmpty())
+					info.os.append(" ").append(osVersion);
+			}
+			info.description = client;
 		}
 
 		m_hash.insert(node, info);
