@@ -109,6 +109,7 @@ void JContact::setContactTags(const QStringList &tags)
 	QStringList previous = d->tags;
 	d->tags = tags;
 	emit tagsChanged(tags, previous);
+	debug() << id() << tags << previous;
 }
 
 QStringList JContact::tags() const
