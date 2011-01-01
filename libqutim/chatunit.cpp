@@ -100,8 +100,12 @@ void ChatUnit::setChatState(ChatState state)
 	Q_D(ChatUnit);
 	emit chatStateChanged(state,d->chatState);
 	d->chatState = state;
-	if (state == ChatStateComposing)
-		Notifications::send(Notifications::Typing,this);
+	if (state == ChatStateComposing) {
+		Message msg;
+		msg.setIncoming(true);
+		msg.setProperty("service",Notifications::Typing);
+		ChatLayer::get(this,true)->appendMessage(msg);
+	}
 }
 
 ChatState ChatUnit::chatState() const

@@ -347,6 +347,8 @@ QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDa
 
 void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 {
+	if(msg.text().isEmpty())
+		return;
 	bool same_from = false;
 	QString item;
 	Message message = msg;

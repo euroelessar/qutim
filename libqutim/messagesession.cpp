@@ -21,78 +21,78 @@
 
 namespace qutim_sdk_0_3
 {
-	struct ChatSessionPrivate
-	{
-	};
-	
-	struct ChatLayerPrivate
-	{
-		QPointer<ChatLayer> self;
-	};
-	
-	static ChatLayerPrivate *p = new ChatLayerPrivate;
-	
-	ChatSession::ChatSession(ChatLayer *chat) : QObject(chat), p(new ChatSessionPrivate)
-	{
-	}
-	
-	ChatSession::~ChatSession()
-	{
-	}
+struct ChatSessionPrivate
+{
+};
 
-	void ChatSession::virtual_hook(int id, void *data)
-	{
-		Q_UNUSED(id);
-		Q_UNUSED(data);
-	}
-	
-	ChatLayer::ChatLayer()
-	{
-	}
-	
-	ChatLayer::~ChatLayer()
-	{
-	}
-	
-	ChatLayer *ChatLayer::instance()
-	{
-		if(p->self.isNull() && ObjectGenerator::isInited())
-			p->self = qobject_cast<ChatLayer*>(ServiceManager::getByName("ChatLayer"));
-		return p->self;
-	}
-	
-	ChatSession *ChatLayer::getSession(Account *acc, QObject *obj, bool create)
-	{
-		QString id = (acc && obj) ? obj->property("id").toString() : QString();
-		return id.isEmpty() ? 0 : getSession(acc->getUnit(id, create));
-	}
+struct ChatLayerPrivate
+{
+	QPointer<ChatLayer> self;
+};
 
-	ChatSession *ChatLayer::getSession(QObject *obj, bool create)
-	{
-		Account *acc = obj->property("account").value<Account *>();
-		QString id = obj->property("id").toString();
-		return getSession(acc, id, create);
-	}
+static ChatLayerPrivate *p = new ChatLayerPrivate;
 
-	ChatSession *ChatLayer::getSession(Account *acc, const QString &id, bool create)
-	{
-		return (acc && !id.isEmpty()) ? getSession(acc->getUnit(id, create)) : 0;
-	}
+ChatSession::ChatSession(ChatLayer *chat) : QObject(chat), p(new ChatSessionPrivate)
+{
+}
 
-	ChatUnit *ChatLayer::getUnitForSession(ChatUnit *unit) const
-	{
-		Account *acc = unit ? unit->account() : 0;
-		return acc ? acc->getUnitForSession(unit) : unit;
-	}
+ChatSession::~ChatSession()
+{
+}
 
-	ChatSession* ChatLayer::get(ChatUnit* unit, bool create)
-	{
-		return instance() ? instance()->getSession(unit,create) : 0;
-	}
+void ChatSession::virtual_hook(int id, void *data)
+{
+	Q_UNUSED(id);
+	Q_UNUSED(data);
+}
 
-	void ChatLayer::virtual_hook(int id, void *data)
-	{
-		Q_UNUSED(id);
-		Q_UNUSED(data);
-	}
+ChatLayer::ChatLayer()
+{
+}
+
+ChatLayer::~ChatLayer()
+{
+}
+
+ChatLayer *ChatLayer::instance()
+{
+	if(p->self.isNull() && ObjectGenerator::isInited())
+		p->self = qobject_cast<ChatLayer*>(ServiceManager::getByName("ChatLayer"));
+	return p->self;
+}
+
+ChatSession *ChatLayer::getSession(Account *acc, QObject *obj, bool create)
+{
+	QString id = (acc && obj) ? obj->property("id").toString() : QString();
+	return id.isEmpty() ? 0 : getSession(acc->getUnit(id, create));
+}
+
+ChatSession *ChatLayer::getSession(QObject *obj, bool create)
+{
+	Account *acc = obj->property("account").value<Account *>();
+	QString id = obj->property("id").toString();
+	return getSession(acc, id, create);
+}
+
+ChatSession *ChatLayer::getSession(Account *acc, const QString &id, bool create)
+{
+	return (acc && !id.isEmpty()) ? getSession(acc->getUnit(id, create)) : 0;
+}
+
+ChatUnit *ChatLayer::getUnitForSession(ChatUnit *unit) const
+{
+	Account *acc = unit ? unit->account() : 0;
+	return acc ? acc->getUnitForSession(unit) : unit;
+}
+
+ChatSession* ChatLayer::get(ChatUnit* unit, bool create)
+{
+	return instance() ? instance()->getSession(unit,create) : 0;
+}
+
+void ChatLayer::virtual_hook(int id, void *data)
+{
+	Q_UNUSED(id);
+	Q_UNUSED(data);
+}
 }
