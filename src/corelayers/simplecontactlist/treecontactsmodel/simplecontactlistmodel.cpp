@@ -309,8 +309,8 @@ void Model::addContact(Contact *contact)
 		if (show) {
 			hideContact(item, false, false);
 		} else {
-			tag->contacts.push_back(item);
-			item_data->items.push_back(item);
+			tag->contacts.append(item);
+			item_data->items.append(item);
 		}
 	}
 }
@@ -645,7 +645,10 @@ void Model::contactTagsChanged(const QStringList &tags_helper)
 		ContactItem *item = item_data->items.at(i);
 		if(tags.contains(item->parent->name))
 			continue;
-		hideContact(item, true, false);
+		if (!hideContact(item, true, false)) {
+			item->parent->contacts.removeOne(item);
+			item_data->items.removeAt(i);
+		}
 		i--;
 		size--;
 	}
@@ -653,7 +656,12 @@ void Model::contactTagsChanged(const QStringList &tags_helper)
 		TagItem *tag = ensureTag(*it);
 		ContactItem *item = new ContactItem(item_data);
 		item->parent = tag;
-		hideContact(item, !show, false);
+		if (show) {
+			hideContact(item, false, false);
+		} else {
+			tag->contacts.append(item);
+			item_data->items.append(item);
+		}
 	}
 	item_data->tags = tags;
 }
@@ -790,7 +798,7 @@ void Model::processEvent(ChangeEvent *ev)
 			to = p->visibleTags.indexOf(tag);
 			globalTo = p->tags.indexOf(tag);
 		} else {
-			Q_ASSERT(false && "Not implemented");
+			Q_ASSERT(!"Not implemented");
 		}
 		TagItem *tag = reinterpret_cast<TagItem*>(ev->child);
 		int from = p->visibleTags.indexOf(tag);
@@ -1023,7 +1031,7 @@ void Model::showTag(TagItem *item)
 	p->visibleTags.insert(index, item);
 	endInsertRows();
 	//HACK
-	QTreeView *view = qobject_cast<QTreeView*>(reinterpret_cast<QObject*>(this)->parent());
+	QTreeView *view = qobject_cast<QTreeView*>(QObject::parent());
 	if (!p->closedTags.contains(item->name) && view)
 		view->setExpanded(createIndex(index, 0, item), true);
 }
