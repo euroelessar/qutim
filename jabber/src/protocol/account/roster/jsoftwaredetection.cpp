@@ -136,11 +136,11 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 		QString jid = iq.from().full();
 		jreen::DataForm::Ptr form = discoInfo->form();
 
-		if (form && form->field(QLatin1String("FORM_TYPE")).value().toString() == "urn:xmpp:dataforms:softwareinfo") {
-			QString software = form->field(QLatin1String("software")).value().toString();
-			QString softwareVersion = form->field(QLatin1String("software_version")).value().toString();
-			QString os = form->field(QLatin1String("os")).value().toString();
-			QString osVersion = form->field(QLatin1String("os_version")).value().toString();
+		if (form && form->typeName() == QLatin1String("urn:xmpp:dataforms:softwareinfo")) {
+			QString software = form->field(QLatin1String("software")).value();
+			QString softwareVersion = form->field(QLatin1String("software_version")).value();
+			QString os = form->field(QLatin1String("os")).value();
+			QString osVersion = form->field(QLatin1String("os_version")).value();
 			QString icon = getClientIcon(software);
 			QString client = getClientDescription(software, softwareVersion, os);
 

@@ -129,18 +129,18 @@ void JProtocol::onKickUser(QObject *obj)
 {
 	JMUCUser *user = qobject_cast<JMUCUser*>(obj);
 	Q_ASSERT(user);
-//	JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
-//	QString reason = QInputDialog::getText(0, tr("Kick"), tr("Enter kick reason for %1").arg(user->name()));
-//	muc->room()->kick(user->name().toStdString(), reason.toStdString());
+	JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
+	QString reason = QInputDialog::getText(0, tr("Kick"), tr("Enter kick reason for %1").arg(user->name()));
+	muc->room()->kick(user->name(), reason);
 }
 
 void JProtocol::onBanUser(QObject *obj)
 {
 	JMUCUser *user = qobject_cast<JMUCUser*>(obj);
 	Q_ASSERT(user);
-//	JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
-//	QString reason = QInputDialog::getText(0, tr("Ban"), tr("Enter ban reason for %1").arg(user->name()));
-//	muc->room()->ban(user->name().toStdString(), reason.toStdString());
+	JMUCSession *muc = static_cast<JMUCSession *>(user->upperUnit());
+	QString reason = QInputDialog::getText(0, tr("Ban"), tr("Enter ban reason for %1").arg(user->name()));
+	muc->room()->ban(user->name(), reason);
 }
 
 void JProtocol::onConvertToMuc(QObject *obj)
@@ -153,10 +153,12 @@ void JProtocol::onConvertToMuc(QObject *obj)
 void JProtocol::onJoinLeave(QObject* obj)
 {
 	JMUCSession *room = qobject_cast<JMUCSession*>(obj);
+	qDebug() << Q_FUNC_INFO << obj;
 	Q_ASSERT(room);
 	if (!room->isJoined()) {
-		JAccount *account = static_cast<JAccount*>(room->account());
-		account->conferenceManager()->join(room->id());
+//		JAccount *account = static_cast<JAccount*>(room->account());
+		room->join();
+//		account->conferenceManager()->join(room->id());
 	}
 	else
 		room->leave();

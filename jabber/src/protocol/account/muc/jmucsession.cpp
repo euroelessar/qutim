@@ -55,7 +55,7 @@ public:
 	bool isJoined;
 	bool isAutoRejoin;
 	int bookmarkIndex;
-	bool isConfiguring;
+	QPointer<JConferenceConfig> config;
 	bool avatarsAutoLoad;
 	bool isError;
 	QDateTime lastMessage;
@@ -79,7 +79,6 @@ JMUCSession::JMUCSession(const jreen::JID &room, const QString &password, JAccou
 //		d->room->setPassword(password);
 	d->account = account;
 	d->isJoined = false;
-	d->isConfiguring = false;
 	d->isError = false;
 	d->thread = 0;
 	loadSettings();
@@ -121,6 +120,7 @@ ChatUnit *JMUCSession::participant(const QString &nick)
 
 void JMUCSession::join()
 {
+	d_func()->isJoined = true;
 	d_func()->room->join();
 	//		Q_D(JMUCSession);
 	//		Presence &pres = d->account->client()->presence();
@@ -164,9 +164,6 @@ QString JMUCSession::id() const
 {
 	Q_D(const JMUCSession);
 	return d->room->id();
-//	QString::fromStdString(d->room->name())
-//			% QLatin1Char('@')
-//			% QString::fromStdString(d->room->service());
 }
 
 bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
@@ -202,24 +199,7 @@ void JMUCSession::onParticipantPresence(const jreen::MUCRoom::Participant *parti
 										const jreen::Presence &presence)
 {
 	Q_D(JMUCSession);
-	QString nick = presence.from().resource(); // QString::fromStdString(participant.nick->resource());
-//	if (presence.subtype() == jreen::Presence::Unavailable) {
-//		if (JMUCUser *user = d->users.take(nick)) {
-//			if (ChatSession *session = ChatLayer::get(this, false))
-//				session->removeContact(user);
-//			user->deleteLater();
-//		}
-//	} else {
-//		JMUCUser *user = d->users.value(nick, 0);
-//		if (!user) {
-//			user = new JMUCUser(this, nick);
-//			d->users.insert(nick, user);
-//			if (ChatSession *session = ChatLayer::get(this, false))
-//				session->addContact(user);
-//		}
-//		user->setStatus(presence);
-//	}
-	///////////////////////////////////////////////////////////
+	QString nick = presence.from().resource();
 	bool isSelf = nick == d->nick;
 	QString text;
 	if (participant->isBanned() || participant->isKicked()) {
@@ -542,22 +522,24 @@ QString JMUCSession::title() const
 
 void JMUCSession::showConfigDialog()
 {
-	d_func()->isConfiguring = true;
-//	JConferenceConfig *dialog = new JConferenceConfig(d_func()->room);
+//	d_func()->isConfiguring = true;
+	if (d_func()->config)
+		return;
+	d_func()->config = new JConferenceConfig(d_func()->room);
 //	connect(dialog, SIGNAL(destroyDialog()), SLOT(closeConfigDialog()));
-//	dialog->show();
+	d_func()->config->show();
 }
 
 void JMUCSession::closeConfigDialog()
 {
-	d_func()->isConfiguring = false;
+//	d_func()->isConfiguring = false;
 }
 
 bool JMUCSession::enabledConfiguring()
 {
 	Q_D(JMUCSession);
 	if (JMUCUser *i = d->users.value(d->nick))
-		return i->affiliation() == MUCRoom::AffiliationOwner && !d->isConfiguring;
+		return i->affiliation() == MUCRoom::AffiliationOwner && !d->config;
 	return false;
 }
 

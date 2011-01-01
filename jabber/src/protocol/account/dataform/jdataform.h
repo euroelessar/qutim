@@ -17,13 +17,11 @@
 #ifndef JDATAFORM_H
 #define JDATAFORM_H
 
-#include <QWidget>
+#include <QDialog>
 #include <QGridLayout>
-
-namespace jreen
-{
-class DataForm;
-}
+#include <QVariant>
+#include <jreen/dataform.h>
+#include <qutim/dataforms.h>
 
 namespace Jabber
 {
@@ -35,9 +33,14 @@ class JDataForm : public QWidget
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(JDataForm)
 public:
-	JDataForm(const QSharedPointer<jreen::DataForm> &form, QWidget *parent = 0);
+	JDataForm(const jreen::DataForm::Ptr &form,
+			  qutim_sdk_0_3::AbstractDataForm::StandardButtons buttons = qutim_sdk_0_3::AbstractDataForm::NoButton,
+			  QWidget *parent = 0);
 	~JDataForm();
-	jreen::DataForm *getDataForm();
+	qutim_sdk_0_3::AbstractDataForm *widget();
+	jreen::DataForm::Ptr getDataForm();
+protected slots:
+	void onItemChanged(const QString &name, const QVariant &data);
 private:
 	QScopedPointer<JDataFormPrivate> d_ptr;
 };
