@@ -14,7 +14,7 @@ namespace Core
 {
 
 DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartButtons,  const Buttons &buttons) :
-	m_widget(0), m_isChanged(false), m_incompleteWidgets(0)
+	m_widget(0), m_isChanged(false), m_incompleteWidgets(0), m_buttonsBox(0)
 {
 	DataLayout *dataLayout = 0;
 	QVBoxLayout *layout = 0;
@@ -40,22 +40,22 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 			dataLayout->addSpacer();
 	}
 	if (standartButtons != NoButton || !buttons.isEmpty()) {
-		QDialogButtonBox *buttonsBox = new QDialogButtonBox(
+		m_buttonsBox = new QDialogButtonBox(
 				static_cast<QDialogButtonBox::StandardButton>(static_cast<int>(standartButtons)), Qt::Horizontal, this);
+		int index = 0;
 		foreach (const Button &button, buttons) {
-			QPushButton *btn = buttonsBox->addButton(button.name, static_cast<QDialogButtonBox::ButtonRole>(button.role));
-			btn->setObjectName(button.name.original());
+			QPushButton *btn = m_buttonsBox->addButton(button.name, static_cast<QDialogButtonBox::ButtonRole>(button.role));
+			btn->setProperty("buttonIndex", index++);
 		}
-		connect(buttonsBox, SIGNAL(accepted()), SLOT(accept()));
-		connect(buttonsBox, SIGNAL(rejected()), SLOT(reject()));
-		connect(buttonsBox, SIGNAL(helpRequested()), SIGNAL(helpRequested()));
-		connect(buttonsBox, SIGNAL(clicked(QAbstractButton*)), SLOT(onButtonClicked(QAbstractButton*)));
-		connect(this, SIGNAL(accepted()), SLOT(close()));
-		connect(this, SIGNAL(rejected()), SLOT(close()));
+		connect(m_buttonsBox, SIGNAL(accepted()), SLOT(accept()));
+		connect(m_buttonsBox, SIGNAL(rejected()), SLOT(reject()));
+		connect(m_buttonsBox, SIGNAL(helpRequested()), SIGNAL(helpRequested()));
+		connect(m_buttonsBox, SIGNAL(clicked(QAbstractButton*)), SLOT(onButtonClicked(QAbstractButton*)));
+
 		if (dataLayout)
-			dataLayout->addRow(buttonsBox);
+			dataLayout->addRow(m_buttonsBox);
 		else
-			layout->addWidget(buttonsBox);
+			layout->addWidget(m_buttonsBox);
 	}
 }
 
@@ -114,7 +114,14 @@ void DefaultDataForm::completeChanged(bool complete)
 
 void DefaultDataForm::onButtonClicked(QAbstractButton *button)
 {
-	emit clicked(button->objectName());
+	StandardButton stdBtn = static_cast<StandardButton>(m_buttonsBox->standardButton(button));
+	if (stdBtn != NoButton) {
+		emit clicked(stdBtn);
+	} else {
+		QVariant buttonIndex = button->property("buttonIndex");
+		if (buttonIndex.canConvert(QVariant::Int))
+			emit clicked(buttonIndex.toInt());
+	}
 }
 
 void DefaultDataForm::keyPressEvent(QKeyEvent *e)

@@ -5,6 +5,7 @@
 #include "datalayout.h"
 
 class QAbstractButton;
+class QDialogButtonBox;
 
 namespace Core
 {
@@ -37,6 +38,7 @@ private:
 	bool m_isChanged;
 	int m_incompleteWidgets;
 	QMultiHash<QString, AbstractDataWidget*> m_widgets;
+	QDialogButtonBox *m_buttonsBox;
 };
 
 class DefaultDataFormsBackend : public DataFormsBackend

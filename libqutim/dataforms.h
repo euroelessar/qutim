@@ -554,7 +554,8 @@ signals:
 	void accepted();
 	void rejected();
 	void helpRequested();
-	void clicked(const QString &name);
+	void clicked(int buttonIndex);
+	void clicked(AbstractDataForm::StandardButton standartButton);
 	/**
 	The signal is emitted when the state of the data form has been changed.
 	\see isChanged()

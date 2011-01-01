@@ -437,6 +437,7 @@ void Model::removeFromContactList(Contact *contact, bool deleted)
 		ContactItem *item = item_data->items.at(i);
 		item->parent->online += counter;
 		hideContact(item, true, false);
+		delete item;
 	}
 	p->contacts.remove(contact);
 }
