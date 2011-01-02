@@ -30,7 +30,14 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 			layout->addItem(spacer);
 		}
 	} else {
-		dataLayout = new DataLayout(this, this);
+		dataLayout = new DataLayout(this, item.property<quint16>("columns", 1), this);
+		QVariant spacing = item.property("horizontalSpacing");
+		if (spacing.canConvert(QVariant::Int))
+			dataLayout->setHorizontalSpacing(spacing.toInt());
+		spacing = item.property("verticalSpacing");
+		if (spacing.canConvert(QVariant::Int))
+			dataLayout->setVerticalSpacing(spacing.toInt());
+
 		m_widget = dataLayout;
 		if (item.hasSubitems())
 			dataLayout->addItems(item.subitems());

@@ -623,8 +623,15 @@ DataGroup::DataGroup(DefaultDataForm *dataForm, const DataItem &items, QWidget *
 {
 	setTitle(items.title());
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-	m_layout = new DataLayout(dataForm, this);
+	m_layout = new DataLayout(dataForm, items.property<quint16>("columns", 1), this);
 	m_layout->addItems(items.subitems());
+
+	QVariant spacing = items.property("horizontalSpacing");
+	if (spacing.canConvert(QVariant::Int))
+		m_layout->setHorizontalSpacing(spacing.toInt());
+	spacing = items.property("verticalSpacing");
+	if (spacing.canConvert(QVariant::Int))
+		m_layout->setVerticalSpacing(spacing.toInt());
 }
 
 DataItem DataGroup::item() const

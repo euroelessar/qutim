@@ -21,7 +21,7 @@ class DataLayout : public QGridLayout, public AbstractDataWidget
 {
 	Q_INTERFACES(Core::AbstractDataWidget)
 public:
-	DataLayout(DefaultDataForm *dataForm, QWidget *parent = 0);
+	DataLayout(DefaultDataForm *dataForm, quint8 columns, QWidget *parent = 0);
 	~DataLayout();
 	DataItem item() const;
 	void addItem(const DataItem &item);
@@ -30,6 +30,7 @@ public:
 	void addRow(QWidget *widget) { addRow(0, widget); }
 	void addRow(QWidget *title, QWidget *widget, Qt::Alignment widgetAligment = 0);
 	bool isExpandable() { return m_expandable; }
+	void setHorizontalSpacing(int spacing);
 protected:
 	Qt::Alignment labelAlignment();
 private:
@@ -45,6 +46,10 @@ private:
 	};
 	QList<WidgetLine> m_widgets;
 	bool m_expandable;
+#ifndef QUTIM_MOBILE_UI
+	quint8 m_columns;
+	quint8 m_currentColumn;
+#endif
 };
 
 }

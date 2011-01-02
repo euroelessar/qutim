@@ -85,6 +85,14 @@ class DataItemPrivate;
  false.
  - \b titleAlternative. Holds alternative options of the title for user and has type LocalizedStringList.
 
+ The items that \ref hasSubitems() "have subitems" may have the following properties:
+ - \b columns. Holds the recommended count of the columns. By default, this property contains 1.
+ Note that on some platforms the property will be ignored (for example, on mobile telephones).
+ - \b verticalSpacing. Holds spacing between fields that are laid out on top of each other. If no value
+ is set, the system settings will be used.
+ - \b horizontalSpacing. Holds spacing between fields that are laid out side by side. If no value is set,
+ the system settings will be used.
+
  Example of using \ref data() "data" attribute and dynamic properties:
  \code
  DataItem root("Form title");
@@ -160,7 +168,7 @@ class DataItemPrivate;
  \endcode
  \image html dataforms_groups_example.jpeg
 
- It is possible to allow user to modify subitems using allowModifySubitems(). Here is example:
+ It is possible to allow user to modify subitems using allowModifySubitems(). Here is an example:
  \code
  DataItem root("Nicks");
 
