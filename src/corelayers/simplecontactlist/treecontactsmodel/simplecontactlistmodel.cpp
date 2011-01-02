@@ -644,10 +644,8 @@ void Model::contactTagsChanged(const QStringList &tags_helper)
 		ContactItem *item = item_data->items.at(i);
 		if(tags.contains(item->parent->name))
 			continue;
-		if (!hideContact(item, true, false)) {
-			item->parent->contacts.removeOne(item);
-			item_data->items.removeAt(i);
-		}
+		hideContact(item, true, false);
+		delete item;
 		i--;
 		size--;
 	}
@@ -891,7 +889,6 @@ void Model::onTagsEditAction(QObject *controller)
 	SimpleTagsEditor *editor = new SimpleTagsEditor (contact);
 	centerizeWidget(editor);
 
-
 	editor->setTags(tags());
 	editor->load();
 	editor->show();
@@ -941,11 +938,14 @@ bool Model::hideContact(ContactItem *item, bool hide, bool replacing)
 	int row = p->visibleTags.indexOf(tag);
 	QModelIndex tagIndex = createIndex(row, 0, tag);
 	if (hide) {
-		if (row < 0)
-			return false;
 		int index = tag->visible.indexOf(item);
-		if (index == -1)
+		if (row < 0 || index == -1) {
+			if (!replacing) {
+				item->parent->contacts.removeOne(item);
+				item->data->items.removeOne(item);
+			}
 			return false;
+		}
 		beginRemoveRows(tagIndex, index, index);
 		tag->visible.removeAt(index);
 		if (!replacing) {
@@ -958,8 +958,13 @@ bool Model::hideContact(ContactItem *item, bool hide, bool replacing)
 	} else {
 		Q_ASSERT(p->selectedTags.isEmpty() || p->selectedTags.contains(tag->name));
 		Q_ASSERT(row >= 0);
-		if (tag->visible.contains(item))
+		if (tag->visible.contains(item)) {
+			if (!replacing) {
+				item->parent->contacts.append(item);
+				item->data->items.append(item);
+			}
 			return false;
+		}
 		QList<ContactItem *> &contacts = tag->visible;
 		QList<ContactItem *>::const_iterator contacts_it =
 				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
@@ -985,11 +990,12 @@ void Model::hideTag(TagItem *item)
 	beginRemoveRows(QModelIndex(), index, index);
 	p->visibleTags.removeAt(index);
 	endRemoveRows();
+	emit tagVisibilityChanged(createIndex(index, 0, item), item->name, false);
 	if (item->contacts.isEmpty()) {
 		p->tagsHash.remove(item->name);
 		p->tags.removeOne(item);
+		delete item;
 	}
-	emit tagVisibilityChanged(createIndex(index, 0, item), item->name, false);
 }
 
 void Model::showTag(TagItem *item)
