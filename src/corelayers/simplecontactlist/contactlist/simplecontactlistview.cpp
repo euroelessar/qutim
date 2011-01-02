@@ -18,7 +18,7 @@ namespace Core
 namespace SimpleContactList
 {
 
-TreeView::TreeView(QWidget *parent) : QTreeView(parent)
+TreeView::TreeView(AbstractContactModel *model, QWidget *parent) : QTreeView(parent)
 {
 	connect(this, SIGNAL(activated(QModelIndex)),
 			this, SLOT(onClick(QModelIndex)));
@@ -35,8 +35,14 @@ TreeView::TreeView(QWidget *parent) : QTreeView(parent)
 	setDropIndicatorShown(true);
 #endif
 
-	ConfigGroup group = Config().group("contactList");
-	m_closedTags = group.value("closedTags", QStringList());
+	Config group = Config().group("contactList");
+	m_closedTags = group.value("closedTags", QStringList()).toSet();
+
+	connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(onCollapsed(QModelIndex)));
+	connect(this, SIGNAL(expanded(QModelIndex)), SLOT(onExpanded(QModelIndex)));
+	connect(model, SIGNAL(tagVisibilityChanged(QModelIndex,QString,bool)),
+			SLOT(onTagVisibilityChanged(QModelIndex,QString,bool)));
+	setModel(model);
 }
 
 void TreeView::onClick(const QModelIndex &index)
@@ -145,6 +151,31 @@ void TreeView::onSelectTagsTriggered()
 	dialog->deleteLater();
 }
 
+void TreeView::onCollapsed(const QModelIndex &index)
+{
+	QString name = m_visibleTags.value(index.internalId());
+	if (!name.isNull())
+		m_closedTags.insert(name);
+}
+
+void TreeView::onExpanded(const QModelIndex &index)
+{
+	QString name = m_visibleTags.value(index.internalId());
+	if (!name.isNull())
+		m_closedTags.remove(name);
+}
+
+void TreeView::onTagVisibilityChanged(const QModelIndex &index, const QString &name, bool shown)
+{
+	if (shown) {
+		if (!m_closedTags.contains(name))
+			setExpanded(index, true);
+		m_visibleTags.insert(index.internalId(), name);
+	} else {
+		m_visibleTags.remove(index.internalId());
+	}
+}
+
 void TreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
 	QTreeView::dataChanged(topLeft,bottomRight);
@@ -152,7 +183,8 @@ void TreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottom
 
 TreeView::~TreeView()
 {
-
+	Config group = Config().group("contactList");
+	group.setValue("closedTags", QStringList(m_closedTags.toList()));
 }
 
 }

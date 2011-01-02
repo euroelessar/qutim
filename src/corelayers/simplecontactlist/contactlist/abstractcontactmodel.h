@@ -44,6 +44,8 @@ public slots:
 	virtual void hideShowOffline();
 	virtual void filterList(const QString &name);
 	virtual void filterList(const QStringList &tags);
+signals:
+	void tagVisibilityChanged(const QModelIndex &index, const QString &name, bool shown);
 };
 
 } // namespace SimpleContactList

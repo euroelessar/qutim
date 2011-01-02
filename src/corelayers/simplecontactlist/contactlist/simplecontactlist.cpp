@@ -175,10 +175,9 @@ Module::Module() : p(new ModulePrivate)
 	gen = new MenuActionGenerator(Icon("show-menu"), QByteArray(), this);
 	addButton(gen);
 
-	p->view = new TreeView(p->widget);
-	layout->addWidget(p->view);
-
 	p->model = ServiceManager::getByName<AbstractContactModel*>("ContactModel");
+	p->view = new TreeView(p->model, p->widget);
+	layout->addWidget(p->view);
 
 	gen = new ActionGenerator(Icon("feed-subscribe"), QT_TRANSLATE_NOOP("ContactList", "Select tags"), 0);
 	gen->addHandler(ActionCreatedHandler,this);
@@ -199,10 +198,6 @@ Module::Module() : p(new ModulePrivate)
 	MenuController::addAction<ChatUnit>(gen);
 
 	p->view->setItemDelegate(ServiceManager::getByName<QAbstractItemDelegate*>("ContactDelegate"));
-	p->view->setModel(p->model);
-	connect(p->view, SIGNAL(collapsed(QModelIndex)), p->model, SLOT(onCollapsed(QModelIndex)));
-	connect(p->view, SIGNAL(expanded(QModelIndex)), p->model, SLOT(onExpanded(QModelIndex)));
-	p->model->setParent(p->view); //HACK!!!
 
 	QHBoxLayout *bottom_layout = new QHBoxLayout(p->widget->centralWidget());
 

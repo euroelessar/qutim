@@ -2,17 +2,20 @@
 #define SIMPLECONTACTLISTVIEW_H
 
 #include <QTreeView>
+#include <QPersistentModelIndex>
 
 namespace Core
 {
 namespace SimpleContactList
 {
 
+class AbstractContactModel;
+
 class TreeView : public QTreeView
 {
 	Q_OBJECT
 public:
-	TreeView(QWidget *parent = 0);
+	TreeView(AbstractContactModel *model, QWidget *parent = 0);
 	virtual void dataChanged(const QModelIndex & topLeft, const QModelIndex & bottomRight);
 	virtual ~TreeView();
 protected:
@@ -22,8 +25,12 @@ protected slots:
 	void onClick(const QModelIndex &index);
 	void onResetTagsTriggered();
 	void onSelectTagsTriggered();
+	void onCollapsed(const QModelIndex &index);
+	void onExpanded(const QModelIndex &index);
+	void onTagVisibilityChanged(const QModelIndex &index, const QString &name, bool shown);
 private:
-	QStringList m_closedTags;
+	QSet<QString> m_closedTags;
+	QHash<quint64, QString> m_visibleTags;
 };
 
 }

@@ -39,7 +39,6 @@ struct ModelPrivate
 	QList<TagItem *> visibleTags;
 	QHash<QString, TagItem *> tagsHash;
 	QMap<Contact *, ContactData::Ptr> contacts;
-	QSet<QString> closedTags;
 	QList<ChangeEvent*> events;
 	QBasicTimer timer;
 	QString lastFilter;
@@ -82,7 +81,6 @@ Model::Model(QObject *parent) : AbstractContactModel(parent), p(new ModelPrivate
 			this, SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
 	ConfigGroup group = Config().group("contactList");
 	p->showOffline = group.value("showOffline", true);
-	p->closedTags = group.value("closedTags", QStringList()).toSet();
 	ActionGenerator *gen = new ActionGenerator(Icon("user-properties"),
 											   QT_TRANSLATE_NOOP("ContactList", "Rename contact"),
 											   this, SLOT(onContactRenameAction(QObject*)));
@@ -906,22 +904,6 @@ void Model::onContactRenameResult(const QString &name)
 		contact->setName(name);
 }
 
-void Model::onCollapsed(const QModelIndex &index)
-{
-	if (getItemType(index) == TagType) {
-		TagItem *tag = reinterpret_cast<TagItem*>(index.internalPointer());
-		p->closedTags.insert(tag->name);
-	}
-}
-
-void Model::onExpanded(const QModelIndex &index)
-{
-	if (getItemType(index) == TagType) {
-		TagItem *tag = reinterpret_cast<TagItem*>(index.internalPointer());
-		p->closedTags.remove(tag->name);
-	}
-}
-
 void Model::filterAllList()
 {
 	for (int i = 0; i < p->tags.size(); i++) {
@@ -1007,6 +989,7 @@ void Model::hideTag(TagItem *item)
 		p->tagsHash.remove(item->name);
 		p->tags.removeOne(item);
 	}
+	emit tagVisibilityChanged(createIndex(index, 0, item), item->name, false);
 }
 
 void Model::showTag(TagItem *item)
@@ -1031,10 +1014,7 @@ void Model::showTag(TagItem *item)
 	beginInsertRows(QModelIndex(), index, index);
 	p->visibleTags.insert(index, item);
 	endInsertRows();
-	//HACK
-	QTreeView *view = qobject_cast<QTreeView*>(QObject::parent());
-	if (!p->closedTags.contains(item->name) && view)
-		view->setExpanded(createIndex(index, 0, item), true);
+	emit tagVisibilityChanged(createIndex(index, 0, item), item->name, true);
 }
 
 TagItem *Model::ensureTag(const QString &name)
@@ -1072,7 +1052,6 @@ void Model::initialize()
 void Model::saveConfig()
 {
 	Config group = Config().group("contactList");
-	group.setValue("closedTags", QStringList(p->closedTags.toList()));
 	QStringList tags;
 	foreach (TagItem *tag, p->tags)
 		tags << tag->name;

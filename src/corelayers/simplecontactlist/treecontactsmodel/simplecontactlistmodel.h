@@ -63,9 +63,7 @@ protected slots:
 	void onContactRenameAction(QObject*);
 	void onContactRenameResult(const QString &name);
 	void onContactAddRemoveAction(QObject*);
-	void onCollapsed(const QModelIndex &index);
 	void onTagsEditAction(QObject*);
-	void onExpanded(const QModelIndex &index);
 	void onContactInListChanged(bool isInList);
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onUnreadChanged(const qutim_sdk_0_3::MessageList &messages);
