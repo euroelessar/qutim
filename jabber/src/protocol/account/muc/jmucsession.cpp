@@ -188,9 +188,20 @@ bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 			return true;
 		}
 	}
-	jreen::Message jMsg(jreen::Message::Groupchat, d->jid, message.text());
+	jreen::Message jMsg(jreen::Message::Groupchat, message.chatUnit()->id(), message.text());
 	jMsg.setID(d->account->client()->getID());
 	d->messages.insert(jMsg.id(), message.id());
+	d->account->client()->send(jMsg);
+	return true;
+}
+
+bool JMUCSession::sendPrivateMessage(const qutim_sdk_0_3::Message &message)
+{
+	Q_D(JMUCSession);
+	if (account()->status() == Status::Offline)
+		return false;
+	jreen::Message jMsg(jreen::Message::Chat, message.chatUnit()->id(), message.text());
+	jMsg.setID(d->account->client()->getID());
 	d->account->client()->send(jMsg);
 	return true;
 }
@@ -354,15 +365,13 @@ void JMUCSession::onMessage(const jreen::Message &msg, bool priv)
 	QString nick = msg.from().resource();
 	JMUCUser *user = d->users.value(nick, 0);
 	if (priv) {
-//		if (!user)
-//			return;
-//		JMessageSession *session = qobject_cast<JMessageSession *>(d->account->getUnitForSession(user));
-//		if (!session) {
-//			MessageSession *glooxSession = new MessageSession(d->account->client(), msg.from(), false,
-//															  gloox::Message::Chat | gloox::Message::Normal);
-//			session = new JMessageSession(d->account->messageHandler(), user, glooxSession);
-//			session->handleMessage(msg, glooxSession);
-//		}
+		if (!user)
+			return;
+		qutim_sdk_0_3::Message coreMsg(msg.body());
+		coreMsg.setChatUnit(user);
+		coreMsg.setIncoming(msg.from().resource() != d->room->nick());
+		ChatSession *chatSession = ChatLayer::get(user, true);
+		chatSession->appendMessage(coreMsg);
 	} else {
 		d->lastMessage = QDateTime::currentDateTime();
 		qutim_sdk_0_3::Message coreMsg(msg.body());
@@ -604,4 +613,5 @@ void JMUCSession::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
 {
 //	d_func()->room->invite(contact->id().toStdString(), reason.toStdString());
 }
+
 }
