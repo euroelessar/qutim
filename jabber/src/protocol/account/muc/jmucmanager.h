@@ -27,7 +27,7 @@ namespace Jabber
 		public:
 			JMUCManager(JAccount *account, QObject *parent = 0);
 			~JMUCManager();
-			ChatUnit *muc(const QString &jid);
+			ChatUnit *muc(const jreen::JID &jid);
 			JBookmarkManager *bookmarkManager();
 			void syncBookmarks();
 			void join(const QString &conference, const QString &nick = QString(), const QString &password = QString());

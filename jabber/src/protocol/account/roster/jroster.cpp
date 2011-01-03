@@ -166,9 +166,9 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 		return;
 	}
 	JContact *c = d->contacts.value(from.bare());
-	if(c) {
+	if (c) {
 		c->setStatus(presence);		
-		const jreen::VCardUpdate *vcard = presence.findExtension<jreen::VCardUpdate>().data();
+		jreen::VCardUpdate::Ptr vcard = presence.findExtension<jreen::VCardUpdate>();
 		if(vcard) {
 			QString hash = vcard->photoHash();
 			debug() << "vCard update" << (c->avatarHash() != hash);
@@ -185,9 +185,8 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 void JRoster::onDisconnected()
 {
 	Q_D(JRoster);
-	foreach(JContact *c,d->contacts) {
-		jreen::Presence unavailable(jreen::Presence::Unavailable,
-									c->id());
+	foreach (JContact *c, d->contacts) {
+		jreen::Presence unavailable(jreen::Presence::Unavailable, c->id());
 		c->setStatus(unavailable);
 	}
 }

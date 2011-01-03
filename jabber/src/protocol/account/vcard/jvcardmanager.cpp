@@ -7,6 +7,7 @@
 #include <QDir>
 #include <qutim/debug.h>
 #include <jreen/vcard.h>
+#include <jreen/vcardupdate.h>
 #include <jreen/iq.h>
 #include <jreen/client.h>
 #include <QCryptographicHash>
@@ -67,7 +68,7 @@ void JVCardManager::handleIQ(const jreen::IQ &iq)
 	jreen::VCard *vcard = iq.findExtension<jreen::VCard>().data();
 	const jreen::VCard::Photo &photo = vcard->photo();
 	if (!photo.data().isEmpty()) {
-		avatarHash = QCryptographicHash::hash(photo.data(),QCryptographicHash::Sha1);
+		avatarHash = QCryptographicHash::hash(photo.data(), QCryptographicHash::Sha1).toHex();
 		QDir dir(d->account->getAvatarPath());
 		if (!dir.exists())
 			dir.mkpath(dir.absolutePath());
@@ -85,7 +86,13 @@ void JVCardManager::handleIQ(const jreen::IQ &iq)
 			nick = d->account->id();
 		if (d->account->name() != nick)
 			d->account->setNick(nick);
-		//d->account->connection()->setAvatar(avatar);
+		jreen::Presence presence = d->account->client()->presence();
+		jreen::VCardUpdate::Ptr update = presence.findExtension<jreen::VCardUpdate>();
+		if (update->photoHash() != avatarHash) {
+			d->account->config("general").setValue("photoHash", avatarHash);
+			update->setPhotoHash(avatarHash);
+			d->account->client()->send(presence);
+		}
 	} else {
 		ChatUnit *unit = d->account->getUnit(id);
 		if (JContact *contact = qobject_cast<JContact *>(unit))

@@ -34,6 +34,8 @@
 #include <jreen/disco.h>
 #include <jreen/iq.h>
 #include <jreen/vcard.h>
+#include <jreen/capabilities.h>
+#include <jreen/vcardupdate.h>
 #include <qutim/systeminfo.h>
 #include "roster/jsoftwaredetection.h"
 
@@ -70,6 +72,7 @@ void JAccountPrivate::onConnected()
 	s.setType(Status::Online);
 	q->setAccountStatus(s);
 	client.setPresence(status,s.text());
+	vCardManager->fetchVCard(q->id());
 }
 
 void JAccountPrivate::onDisconnected()
@@ -102,10 +105,14 @@ JAccount::JAccount(const QString &id) :
 	Account::setStatus(Status::instance(Status::Offline, "jabber"));
 
 	d->roster = new JRoster(this);
+	jreen::Capabilities::Ptr caps = d->client.presence().findExtension<jreen::Capabilities>();
+	caps->setNode(QLatin1String("http://qutim.org/"));
 	d->conferenceManager = new JMUCManager(this, this);
 	d->messageSessionManager = new JMessageSessionManager(this);
 	d->vCardManager = new JVCardManager(this);
-	new JSoftwareDetection(this);
+	d->softwareDetection = new JSoftwareDetection(this);
+	
+	d->client.presence().addExtension(new VCardUpdate(QString()));
 	loadSettings();
 
 	jreen::Disco *disco = d->client.disco();
@@ -163,9 +170,10 @@ ChatUnit *JAccount::getUnit(const QString &unitId, bool create)
 {
 	Q_D(JAccount);
 	ChatUnit *unit = 0;
-	if (!!(unit = d->conferenceManager->muc(unitId)))
+	jreen::JID jid = unitId;
+	if (!!(unit = d->conferenceManager->muc(jid)))
 		return unit;
-	return d->roster->contact(unitId, create);
+	return d->roster->contact(jid, create);
 	return 0;
 }
 
@@ -178,6 +186,8 @@ void JAccount::loadSettings()
 	d->client.setPort(general.value("port", 5222));
 	d->keepStatus = general.value("keepstatus", true);
 	d->nick = general.value("nick", id());
+	jreen::VCardUpdate::Ptr update = d->client.presence().findExtension<jreen::VCardUpdate>();
+	update->setPhotoHash(general.value("photoHash", QString()));
 
 	jreen::JID jid(id());
 	jid.setResource(general.value("resource",QLatin1String("qutIM/jreen")));
@@ -258,6 +268,11 @@ jreen::Client *JAccount::client() const
 {
 	//it may be dangerous
 	return const_cast<jreen::Client*>(&d_func()->client);
+}
+
+JSoftwareDetection *JAccount::softwareDetection() const
+{
+	return d_func()->softwareDetection;
 }
 
 JVCardManager *JAccount::vCardManager() const

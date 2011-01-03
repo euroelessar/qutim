@@ -35,6 +35,7 @@
 #include "jconferenceconfig.h"
 #include "../roster/jcontactresource_p.h"
 #include <jreen/client.h>
+#include "../roster/jsoftwaredetection.h"
 
 using namespace jreen;
 using namespace qutim_sdk_0_3;
@@ -68,16 +69,18 @@ JMUCSession::JMUCSession(const jreen::JID &room, const QString &password, JAccou
 	Q_D(JMUCSession);
 	d->jid = room.bareJID();
 	d->nick = room.resource();
+	d->account = account;
 	d->room = new jreen::MUCRoom(account->client(), room);
-	connect(d->room, SIGNAL(presenceReceived(const jreen::MUCRoom::Participant*,jreen::Presence)),
-			this, SLOT(onParticipantPresence(const jreen::MUCRoom::Participant*,jreen::Presence)));
+	connect(d->room, SIGNAL(presenceReceived(jreen::Presence,const jreen::MUCRoom::Participant*)),
+			this, SLOT(onParticipantPresence(jreen::Presence,const jreen::MUCRoom::Participant*)));
+	connect(d->room, SIGNAL(presenceReceived(jreen::Presence,const jreen::MUCRoom::Participant*)),
+			d->account->softwareDetection(), SLOT(handlePresence(jreen::Presence)));
 	connect(d->room, SIGNAL(messageReceived(jreen::Message,bool)),
 			this, SLOT(onMessage(jreen::Message,bool)));
 	connect(d->room, SIGNAL(subjectChanged(QString,QString)),
 			this, SLOT(onSubjectChanged(QString,QString)));
 //	if (!password.isEmpty())
 //		d->room->setPassword(password);
-	d->account = account;
 	d->isJoined = false;
 	d->isError = false;
 	d->thread = 0;
@@ -195,8 +198,8 @@ bool JMUCSession::sendMessage(const qutim_sdk_0_3::Message &message)
 	return true;
 }
 
-void JMUCSession::onParticipantPresence(const jreen::MUCRoom::Participant *participant,
-										const jreen::Presence &presence)
+void JMUCSession::onParticipantPresence(const jreen::Presence &presence,
+										const jreen::MUCRoom::Participant *participant)
 {
 	Q_D(JMUCSession);
 	QString nick = presence.from().resource();

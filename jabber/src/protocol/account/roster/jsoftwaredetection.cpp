@@ -25,6 +25,7 @@
 #include <jreen/capabilities.h>
 #include <jreen/iq.h>
 #include <qutim/debug.h>
+#include <qutim/json.h>
 
 using namespace qutim_sdk_0_3;
 using namespace gloox;
@@ -210,31 +211,42 @@ QString JSoftwareDetection::getClientDescription(const QString &software, const 
 	return desc;
 }
 
+template <typename Char, int N>
+bool isStrEqual(const QString &s1, const Char (&s2)[N])
+{
+	if (N != s1.size())
+		return false;
+	for (int i = 0; i < N; i++)
+		if (s1[i] != s2[i])
+			return false;
+	return true;
+}
+
 QString JSoftwareDetection::getClientIcon(const QString &software)
 {
 	if (software.isEmpty())
 		return QString();
-	if (software == "Miranda IM Jabber")
-		return "miranda-jabber";
-	else if (software == "bombusmod")
-		return "bombus-mod";
-	else if (software == "bombusqd")
-		return "bombus-qd";
-	else if (software == "bombus.pl")
-		return "bombus-pl";
-	else if (software == "bombus+")
-		return "bombus-p";
-	else if (software == "я.онлайн")
-		return "yachat";
-	else if (software == "hotcoffee")
-		return "miranda-hotcoffee";
-	else if (software == "jabber.el")
-		return "emacs";
-	else if (software == "just another jabber client")
-		return "jajc";
-	else if (software == "пиджин") // Stupid pidgin devels! Name mustn't be localized!
-		return "pidgin";
-	return software.toLower().replace(' ', '-') + "-jabber";
+	if (software == QLatin1String("Miranda IM Jabber"))
+		return QLatin1String("miranda-jabber");
+	else if (software == QLatin1String("bombusmod"))
+		return QLatin1String("bombus-mod");
+	else if (software == QLatin1String("bombusqd"))
+		return QLatin1String("bombus-qd");
+	else if (software == QLatin1String("bombus.pl"))
+		return QLatin1String("bombus-pl");
+	else if (software == QLatin1String("bombus+"))
+		return QLatin1String("bombus-p");
+	else if (isStrEqual(software, L"я.онлайн"))
+		return QLatin1String("yachat");
+	else if (software == QLatin1String("hotcoffee"))
+		return QLatin1String("miranda-hotcoffee");
+	else if (software == QLatin1String("jabber.el"))
+		return QLatin1String("emacs");
+	else if (software == QLatin1String("just another jabber client"))
+		return QLatin1String("jajc");
+	else if (isStrEqual(software, L"пиджин")) // Stupid pidgin devels! Name mustn't be localized!
+		return QLatin1String("pidgin");
+	return (software.toLower().replace(' ', '-') += QLatin1String("-jabber"));
 }
 
 }

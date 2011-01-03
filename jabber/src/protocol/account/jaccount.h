@@ -39,6 +39,7 @@ class JConnection;
 class JMessageHandler;
 class JServiceDiscovery;
 class JMUCManager;
+class JSoftwareDetection;
 
 class JMessageSessionManager;
 
@@ -55,6 +56,7 @@ public:
 	void setNick(const QString &nick);
 	const QString &password(bool *ok = 0);
 	jreen::Client *client() const;
+	JSoftwareDetection *softwareDetection() const;
 	JMessageSessionManager *messageSessionManager() const;
 	JVCardManager *vCardManager() const;
 	JRoster *roster() const;

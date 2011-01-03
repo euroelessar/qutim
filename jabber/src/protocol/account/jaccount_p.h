@@ -25,6 +25,7 @@ public:
 	inline ~JAccountPrivate() {}
 	//jreen
 	jreen::Client client;
+	JSoftwareDetection *softwareDetection;
 	JRoster *roster;
 	JMessageSessionManager *messageSessionManager;
 	JVCardManager *vCardManager;

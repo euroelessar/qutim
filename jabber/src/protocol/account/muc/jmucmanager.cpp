@@ -145,15 +145,13 @@ namespace Jabber
 		}
 	}
 
-	ChatUnit *JMUCManager::muc(const QString &jid)
+	ChatUnit *JMUCManager::muc(const jreen::JID &jid)
 	{
-		QString room(jid.section('/', 0, 0));
-		QString user(jid.section('/', 1));
-		if (JMUCSession *muc = p->rooms.value(room)) {
-			if (user.isEmpty())
+		if (JMUCSession *muc = p->rooms.value(jid.bare())) {
+			if (jid.isBare())
 				return muc;
 			else
-				return muc->participant(user);
+				return muc->participant(jid.resource());
 		}
 		return 0;
 	}

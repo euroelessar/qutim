@@ -66,7 +66,7 @@ namespace Jabber
 			void loadSettings();
 //			// MUCRoomHandler
 		protected slots:
-			void onParticipantPresence(const jreen::MUCRoom::Participant *part, const jreen::Presence &presence);
+			void onParticipantPresence(const jreen::Presence &presence, const jreen::MUCRoom::Participant *part);
 			void onMessage(const jreen::Message &msg, bool priv);
 			void onSubjectChanged(const QString &subject, const QString &nick);
 //			bool handleMUCRoomCreation(gloox::MUCRoom *room);
