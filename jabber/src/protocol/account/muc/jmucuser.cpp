@@ -18,6 +18,7 @@ public:
 	MUCRoom::Affiliation affiliation;
 	MUCRoom::Role role;
 	QString realJid;
+	JMUCSession *muc;
 };
 
 JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
@@ -26,6 +27,7 @@ JMUCUser::JMUCUser(JMUCSession *muc, const QString &name) :
 	Q_D(JMUCUser);
 	d->name = name;
 	d->id = muc->id() % QLatin1Char('/') % name;
+	d->muc = muc;
 }
 
 JMUCUser::~JMUCUser()
@@ -168,4 +170,11 @@ void JMUCUser::setRealJid(const QString &jid)
 {
 	d_func()->realJid = jid;
 }
+
+bool JMUCUser::sendMessage(const qutim_sdk_0_3::Message &message)
+{
+	return d_func()->muc->sendPrivateMessage(message);
+}
+
+
 }

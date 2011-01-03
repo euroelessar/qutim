@@ -37,6 +37,7 @@ public:
 	jreen::Presence::Type status;
 	QList<JabberExtension *> extensions;
 	JabberParams params;
+	QPointer<JMUCManager> conferenceManager;
 public slots:	
 	void setPresence(jreen::Presence);
 	void onConnected();
@@ -51,7 +52,6 @@ public:	//old code
 	JMessageHandler *messageHandler;
 	QVariantList toVariant(const QList<JBookmark> &list);
 //	Presence::PresenceType status;
-	JMUCManager *conferenceManager;	
 //	QSet<QString> features;
 	Identities identities;
 };

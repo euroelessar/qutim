@@ -81,12 +81,13 @@ void JAccountPrivate::onDisconnected()
 	Status now = q->status();
 	now.setType(Status::Offline);	
 	q->setAccountStatus(now);
+	conferenceManager->deleteLater();
 }
 
 void JAccountPrivate::initExtensions(const QSet<QString> &features)
 {
 	Q_Q(JAccount);
-	debug() << "received features list";
+	debug() << "received features list" << features;
 //	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
 //		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
 //			debug() << "init ext" << ext;
@@ -95,6 +96,10 @@ void JAccountPrivate::initExtensions(const QSet<QString> &features)
 //		}
 //	}
 	roster->load();
+	if(!conferenceManager)
+		conferenceManager = new JMUCManager(q,q);
+	q->resetGroupChatManager(conferenceManager->bookmarkManager());
+
 }
 
 JAccount::JAccount(const QString &id) :
@@ -152,7 +157,6 @@ JAccount::JAccount(const QString &id) :
 			ext->init(this, d->params);
 		}
 	}
-	resetGroupChatManager(d->conferenceManager->bookmarkManager());
 }
 
 JAccount::~JAccount()
@@ -341,7 +345,6 @@ QVariantList JAccountPrivate::toVariant(const QList<JBookmark> &list)
 
 bool JAccount::event(QEvent *ev)
 {
-	Q_D(JAccount);
 	return Account::event(ev);
 }
 
