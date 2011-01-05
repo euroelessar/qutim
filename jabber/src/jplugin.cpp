@@ -85,26 +85,26 @@ void JPlugin::init()
 	//			QT_TRANSLATE_NOOP("Plugin", "Implementation of XEP-0096"),
 	//			new GeneralGenerator<JFileTransferFactory>(),
 	//			ExtensionIcon("document-save"));
-	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support"),
-	//			QT_TRANSLATE_NOOP("Plugin", "Implementation of personal events protocol"),
-	//			new GeneralGenerator<JPersonEventSupport, JabberExtension>(),
-	//			ExtensionIcon(""));
+			addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support"),
+				QT_TRANSLATE_NOOP("Plugin", "Implementation of personal events protocol"),
+				new GeneralGenerator<JPersonEventSupport, JabberExtension>(),
+				ExtensionIcon(""));
 	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Personal Events support (Message filter factory)"),
 	//			QT_TRANSLATE_NOOP("Plugin", "Implementation detail for Jabber Personal Events support"),
 	//			new GeneralGenerator<JPersonalEventFilterFactory, MessageFilterFactory>(),
 	//			ExtensionIcon(""));
-	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Mood support"),
-	//			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of mood to Qt data types"),
-	//			new GeneralGenerator<JPersonMoodConverter, PersonEventConverter>(),
-	//			ExtensionIcon(""));
-	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Mood Chooser"),
-	//			QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your mood"),
-	//			new GeneralGenerator<JMoodChooser, JabberExtension>(),
-	//			ExtensionIcon(""));
-	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Tune support"),
-	//			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of tune to Qt data types"),
-	//			new GeneralGenerator<JPersonTuneConverter, PersonEventConverter>(),
-	//			ExtensionIcon(""));
+			addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Mood support"),
+				QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of mood to Qt data types"),
+				new GeneralGenerator<JPersonMoodConverter, PersonEventConverter>(),
+				ExtensionIcon(""));
+			addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber Mood Chooser"),
+				QT_TRANSLATE_NOOP("Plugin", "Provides the dialog to set your mood"),
+				new GeneralGenerator<JMoodChooser, JabberExtension>(),
+				ExtensionIcon(""));
+			addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Tune support"),
+				QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of tune to Qt data types"),
+				new GeneralGenerator<JPersonTuneConverter, PersonEventConverter>(),
+				ExtensionIcon(""));
 	//		addExtension(QT_TRANSLATE_NOOP("Plugin", "Jabber User Activity support"),
 	//			QT_TRANSLATE_NOOP("Plugin", "Convertes internal XMPP data of activity to Qt data types"),
 	//			new GeneralGenerator<JPersonActivityConverter, PersonEventConverter>(),

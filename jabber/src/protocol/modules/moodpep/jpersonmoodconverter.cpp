@@ -15,117 +15,113 @@
  ****************************************************************************/
 
 #include "jpersonmoodconverter.h"
-#include <gloox/tag.h>
+#include <jreen/mood.h>
 #include <qutim/extensionicon.h>
 #include <qutim/status.h>
 #include <protocol/jprotocol.h>
 
 namespace Jabber
 {
-	typedef QHash<QString, qutim_sdk_0_3::LocalizedString> MoodsNames;
+	typedef QList<qutim_sdk_0_3::LocalizedString> MoodsNames;
 	static void init_moods_names(MoodsNames &names)
 	{
-		names.insert("afraid", QT_TRANSLATE_NOOP("Mood", "Afraid"));
-		names.insert("amazed", QT_TRANSLATE_NOOP("Mood", "Amazed"));
-		names.insert("amorous", QT_TRANSLATE_NOOP("Mood", "Amorous"));
-		names.insert("angry", QT_TRANSLATE_NOOP("Mood", "Angry"));
-		names.insert("annoyed", QT_TRANSLATE_NOOP("Mood", "Annoyed"));
-		names.insert("anxious", QT_TRANSLATE_NOOP("Mood", "Anxious"));
-		names.insert("aroused", QT_TRANSLATE_NOOP("Mood", "Aroused"));
-		names.insert("ashamed", QT_TRANSLATE_NOOP("Mood", "Ashamed"));
-		names.insert("bored", QT_TRANSLATE_NOOP("Mood", "Bored"));
-		names.insert("brave", QT_TRANSLATE_NOOP("Mood", "Brave"));
-		names.insert("calm", QT_TRANSLATE_NOOP("Mood", "Calm"));
-		names.insert("cautious", QT_TRANSLATE_NOOP("Mood", "Cautious"));
-		names.insert("cold", QT_TRANSLATE_NOOP("Mood", "Cold"));
-		names.insert("confident", QT_TRANSLATE_NOOP("Mood", "Confident"));
-		names.insert("confused", QT_TRANSLATE_NOOP("Mood", "Confused"));
-		names.insert("contemplative", QT_TRANSLATE_NOOP("Mood", "Contemplative"));
-		names.insert("contented", QT_TRANSLATE_NOOP("Mood", "Contented"));
-		names.insert("cranky", QT_TRANSLATE_NOOP("Mood", "Cranky"));
-		names.insert("crazy", QT_TRANSLATE_NOOP("Mood", "Crazy"));
-		names.insert("creative", QT_TRANSLATE_NOOP("Mood", "Creative"));
-		names.insert("curious", QT_TRANSLATE_NOOP("Mood", "Curious"));
-		names.insert("dejected", QT_TRANSLATE_NOOP("Mood", "Dejected"));
-		names.insert("depressed", QT_TRANSLATE_NOOP("Mood", "Depressed"));
-		names.insert("disappointed", QT_TRANSLATE_NOOP("Mood", "Disappointed"));
-		names.insert("disgusted", QT_TRANSLATE_NOOP("Mood", "Disgusted"));
-		names.insert("dismayed", QT_TRANSLATE_NOOP("Mood", "Dismayed"));
-		names.insert("distracted", QT_TRANSLATE_NOOP("Mood", "Distracted"));
-		names.insert("embarrassed", QT_TRANSLATE_NOOP("Mood", "Embarrassed"));
-		names.insert("envious", QT_TRANSLATE_NOOP("Mood", "Envious"));
-		names.insert("excited", QT_TRANSLATE_NOOP("Mood", "Excited"));
-		names.insert("flirtatious", QT_TRANSLATE_NOOP("Mood", "Flirtatious"));
-		names.insert("frustrated", QT_TRANSLATE_NOOP("Mood", "Frustrated"));
-		names.insert("grateful", QT_TRANSLATE_NOOP("Mood", "Grateful"));
-		names.insert("grieving", QT_TRANSLATE_NOOP("Mood", "Grieving"));
-		names.insert("grumpy", QT_TRANSLATE_NOOP("Mood", "Grumpy"));
-		names.insert("guilty", QT_TRANSLATE_NOOP("Mood", "Guilty"));
-		names.insert("happy", QT_TRANSLATE_NOOP("Mood", "Happy"));
-		names.insert("hopeful", QT_TRANSLATE_NOOP("Mood", "Hopeful"));
-		names.insert("hot", QT_TRANSLATE_NOOP("Mood", "Hot"));
-		names.insert("humbled", QT_TRANSLATE_NOOP("Mood", "Humbled"));
-		names.insert("humiliated", QT_TRANSLATE_NOOP("Mood", "Humiliated"));
-		names.insert("hungry", QT_TRANSLATE_NOOP("Mood", "Hungry"));
-		names.insert("hurt", QT_TRANSLATE_NOOP("Mood", "Hurt"));
-		names.insert("impressed", QT_TRANSLATE_NOOP("Mood", "Impressed"));
-		names.insert("in_awe", QT_TRANSLATE_NOOP("Mood", "In awe"));
-		names.insert("in_love", QT_TRANSLATE_NOOP("Mood", "In love"));
-		names.insert("indignant", QT_TRANSLATE_NOOP("Mood", "Iindignant"));
-		names.insert("interested", QT_TRANSLATE_NOOP("Mood", "Interested"));
-		names.insert("intoxicated", QT_TRANSLATE_NOOP("Mood", "Intoxicated"));
-		names.insert("invincible", QT_TRANSLATE_NOOP("Mood", "Invincible"));
-		names.insert("jealous", QT_TRANSLATE_NOOP("Mood", "Jealous"));
-		names.insert("lonely", QT_TRANSLATE_NOOP("Mood", "Lonely"));
-		names.insert("lost", QT_TRANSLATE_NOOP("Mood", "Lost"));
-		names.insert("lucky", QT_TRANSLATE_NOOP("Mood", "Lucky"));
-		names.insert("mean", QT_TRANSLATE_NOOP("Mood", "Mean"));
-		names.insert("moody", QT_TRANSLATE_NOOP("Mood", "Moody"));
-		names.insert("nervous", QT_TRANSLATE_NOOP("Mood", "Nervous"));
-		names.insert("neutral", QT_TRANSLATE_NOOP("Mood", "Neutral"));
-		names.insert("offended", QT_TRANSLATE_NOOP("Mood", "Offended"));
-		names.insert("outraged", QT_TRANSLATE_NOOP("Mood", "Outraged"));
-		names.insert("playful", QT_TRANSLATE_NOOP("Mood", "Playful"));
-		names.insert("proud", QT_TRANSLATE_NOOP("Mood", "Proud"));
-		names.insert("relaxed", QT_TRANSLATE_NOOP("Mood", "Relaxed"));
-		names.insert("relieved", QT_TRANSLATE_NOOP("Mood", "Relieved"));
-		names.insert("remorseful", QT_TRANSLATE_NOOP("Mood", "Remorseful"));
-		names.insert("restless", QT_TRANSLATE_NOOP("Mood", "Restless"));
-		names.insert("sad", QT_TRANSLATE_NOOP("Mood", "Sad"));
-		names.insert("sarcastic", QT_TRANSLATE_NOOP("Mood", "Sarcastic"));
-		names.insert("satisfied", QT_TRANSLATE_NOOP("Mood", "Satisfied"));
-		names.insert("serious", QT_TRANSLATE_NOOP("Mood", "Serious"));
-		names.insert("shocked", QT_TRANSLATE_NOOP("Mood", "Shocked"));
-		names.insert("shy", QT_TRANSLATE_NOOP("Mood", "Shy"));
-		names.insert("sick", QT_TRANSLATE_NOOP("Mood", "Sick"));
-		names.insert("sleepy", QT_TRANSLATE_NOOP("Mood", "Sleepy"));
-		names.insert("spontaneous", QT_TRANSLATE_NOOP("Mood", "Spontaneous"));
-		names.insert("stressed", QT_TRANSLATE_NOOP("Mood", "Stressed"));
-		names.insert("strong", QT_TRANSLATE_NOOP("Mood", "Strong"));
-		names.insert("surprised", QT_TRANSLATE_NOOP("Mood", "Surprised"));
-		names.insert("thankful", QT_TRANSLATE_NOOP("Mood", "Thankful"));
-		names.insert("thirsty", QT_TRANSLATE_NOOP("Mood", "Thirsty"));
-		names.insert("tired", QT_TRANSLATE_NOOP("Mood", "Tired"));
-		names.insert("undefined", QT_TRANSLATE_NOOP("Mood", "Undefined"));
-		names.insert("weak", QT_TRANSLATE_NOOP("Mood", "Weak"));
-		names.insert("worried", QT_TRANSLATE_NOOP("Mood", "Worried"));
+		
+		names.append(QT_TRANSLATE_NOOP("Mood", "Afraid"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Amazed"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Amorous"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Angry"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Annoyed"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Anxious"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Aroused"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Ashamed"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Bored"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Brave"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Calm"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Cautious"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Cold"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Confident"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Confused"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Contemplative"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Contented"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Cranky"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Crazy"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Creative"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Curious"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Dejected"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Depressed"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Disappointed"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Disgusted"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Dismayed"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Distracted"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Embarrassed"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Envious"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Excited"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Flirtatious"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Frustrated"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Grateful"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Grieving"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Grumpy"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Guilty"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Happy"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Hopeful"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Hot"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Humbled"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Humiliated"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Hungry"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Hurt"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Impressed"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "In awe"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "In love"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Indignant"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Interested"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Intoxicated"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Invincible"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Jealous"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Lonely"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Lost"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Lucky"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Mean"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Moody"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Nervous"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Neutral"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Offended"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Outraged"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Playful"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Proud"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Relaxed"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Relieved"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Remorseful"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Restless"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Sad"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Sarcastic"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Satisfied"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Serious"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Shocked"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Shy"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Sick"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Sleepy"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Spontaneous"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Stressed"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Strong"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Surprised"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Thankful"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Thirsty"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Tired"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Undefined"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Weak"));
+		names.append(QT_TRANSLATE_NOOP("Mood", "Worried"));
 	}
-
+	
 	Q_GLOBAL_STATIC_WITH_INITIALIZER(MoodsNames, moodsNames, init_moods_names(*x));
+	Q_GLOBAL_STATIC(JPersonMoodRegistrator, moodRegistrator);
 
-	JPersonMoodConverter::JPersonMoodConverter() : m_feature("http://jabber.org/protocol/mood")
+	JPersonMoodConverter::JPersonMoodConverter()
 	{
-		static JPersonMoodRegistrator moodRegistrator;
-		Q_UNUSED(moodRegistrator)
+		moodRegistrator();
 	}
 	
 	JPersonMoodConverter::~JPersonMoodConverter()
 	{
-	}
-
-	std::string JPersonMoodConverter::feature() const
-	{
-		return m_feature;
 	}
 	
 	QString JPersonMoodConverter::name() const
@@ -133,43 +129,37 @@ namespace Jabber
 		return QLatin1String("mood");
 	}
 	
-	gloox::Tag *JPersonMoodConverter::toXml(const QVariantHash &map) const
+	int JPersonMoodConverter::entityType() const
 	{
-		gloox::Tag *t = new gloox::Tag("mood", gloox::XMLNS, m_feature);
-		QString str = map.value(QLatin1String("mood")).toString();
-		if (!str.isEmpty()) {
-			new gloox::Tag(t, str.toStdString());
-			str = map.value(QLatin1String("description")).toString();
-			if (!str.isEmpty())
-				new gloox::Tag(t, "text", str.toStdString());
-		}
-		return t;
+		return jreen::Mood::staticExtensionType();
 	}
 	
-	QVariantHash JPersonMoodConverter::fromXml(gloox::Tag *tag) const
+	QSharedPointer<jreen::StanzaExtension> JPersonMoodConverter::convertTo(const QVariantHash &map) const
 	{
+		QString mood = map.value(QLatin1String("mood")).toString();
+		QString text = map.value(QLatin1String("description")).toString();
+		return jreen::StanzaExtension::Ptr(new jreen::Mood(mood, text));
+	}
+	
+	QVariantHash JPersonMoodConverter::convertFrom(const QSharedPointer<jreen::StanzaExtension> &entity) const
+	{
+		jreen::Mood *mood = jreen::se_cast<jreen::Mood*>(entity.data());
 		QVariantHash data;
-		if (!tag->children().empty()) {
-			gloox::Tag *child = tag->children().front();
-			if (child->name() != "text") {
-				QString mood = QString::fromStdString(child->name());
-				data.insert(QLatin1String("mood"), mood);
-				if (!!(child = tag->findChild("text"))) {
-					QString text = QString::fromStdString(child->cdata());
-					data.insert(QLatin1String("description"), text);
-				}
-				data.insert(QLatin1String("id"), "mood");
-				data.insert(QLatin1String("title"), qVariantFromValue(moodsNames()->value(mood)));
-				qutim_sdk_0_3::ExtensionIcon icon("user-status-" + mood);
-				data.insert(QLatin1String("icon"), qVariantFromValue(icon));
-				data.insert(QLatin1String("showInTooltip"), true);
-				data.insert(QLatin1String("priorityInTooltip"), 70);
-			}
-		}
+		data.insert(QLatin1String("id"), QLatin1String("mood"));
+		if (mood->type() <= jreen::Mood::Invalid)
+			return data;
+		data.insert(QLatin1String("mood"), mood->typeName());
+		data.insert(QLatin1String("title"), qVariantFromValue(moodsNames()->value(mood->type())));
+		if (!mood->text().isEmpty())
+			data.insert(QLatin1String("description"), mood->text());
+		qutim_sdk_0_3::ExtensionIcon icon(QLatin1String("user-status-") + mood->typeName());
+		data.insert(QLatin1String("icon"), qVariantFromValue(icon));
+		data.insert(QLatin1String("showInTooltip"), true);
+		data.insert(QLatin1String("priorityInTooltip"), 70);
 		return data;
 	}
 
-	QHash<QString, qutim_sdk_0_3::LocalizedString> JPersonMoodConverter::moods()
+	QList<qutim_sdk_0_3::LocalizedString> JPersonMoodConverter::moods()
 	{
 		return *moodsNames();
 	}

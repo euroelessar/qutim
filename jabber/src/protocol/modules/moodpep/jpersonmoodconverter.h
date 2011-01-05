@@ -29,13 +29,12 @@ namespace Jabber
 	public:
 		JPersonMoodConverter();
 		virtual ~JPersonMoodConverter();
-		virtual std::string feature() const;
+		
 		virtual QString name() const;
-		virtual gloox::Tag *toXml(const QVariantHash &map) const;
-		virtual QVariantHash fromXml(gloox::Tag *tag) const;
-		static QHash<QString, qutim_sdk_0_3::LocalizedString> moods();
-	private:
-		std::string m_feature;
+		virtual int entityType() const;
+		virtual QSharedPointer<jreen::StanzaExtension> convertTo(const QVariantHash &map) const;
+		virtual QVariantHash convertFrom(const QSharedPointer<jreen::StanzaExtension> &entity) const;
+		static QList<qutim_sdk_0_3::LocalizedString> moods();
 	};
 
 	class JPersonMoodRegistrator : public QObject

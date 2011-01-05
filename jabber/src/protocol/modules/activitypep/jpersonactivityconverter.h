@@ -27,10 +27,10 @@ namespace Jabber {
 		QString m_general; // Preferred general activity. If empty, that activity is general.
 	};
 
-	class JPersonActivityConverter : public QObject, public PersonEventConverter
+	class JPersonActivityConverter : public QObject //, public PersonEventConverter
 	{
 		Q_OBJECT
-		Q_INTERFACES(Jabber::PersonEventConverter)
+//		Q_INTERFACES(Jabber::PersonEventConverter)
 	public:
 		JPersonActivityConverter();
 		virtual ~JPersonActivityConverter();

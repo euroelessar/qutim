@@ -28,12 +28,11 @@ namespace Jabber
 	public:
 		JPersonTuneConverter();
 		virtual ~JPersonTuneConverter();
-		virtual std::string feature() const;
+		
 		virtual QString name() const;
-		virtual gloox::Tag *toXml(const QVariantHash &map) const;
-		virtual QVariantHash fromXml(gloox::Tag *tag) const;
-	private:
-		std::string m_feature;
+		virtual int entityType() const;
+		virtual QSharedPointer<jreen::StanzaExtension> convertTo(const QVariantHash &map) const;
+		virtual QVariantHash convertFrom(const QSharedPointer<jreen::StanzaExtension> &entity) const;
 	};
 
 	class JPersonTuneRegistrator : public QObject

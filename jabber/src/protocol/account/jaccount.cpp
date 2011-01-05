@@ -116,6 +116,7 @@ JAccount::JAccount(const QString &id) :
 	d->messageSessionManager = new JMessageSessionManager(this);
 	d->vCardManager = new JVCardManager(this);
 	d->softwareDetection = new JSoftwareDetection(this);
+//	d->pubSubManager = new jreen::PubSub::Manager(&d->client);
 	
 	d->client.presence().addExtension(new VCardUpdate(QString()));
 	loadSettings();
@@ -289,6 +290,11 @@ JMUCManager *JAccount::conferenceManager()
 	return d_func()->conferenceManager;
 }
 
+//jreen::PubSub::Manager *JAccount::pubSubManager()
+//{
+//	return d_func()->pubSubManager;
+//}
+
 void JAccount::setStatus(Status status)
 {
 	Q_D(JAccount);
@@ -361,15 +367,25 @@ bool JAccount::checkFeature(const QString &feature) const
 bool JAccount::checkIdentity(const QString &category, const QString &type) const
 {
 	Q_D(const JAccount);
-	Identities::const_iterator catItr = d->identities.find(category);
-	return catItr == d->identities.constEnd() ? false : catItr->contains(type);
+	const jreen::Disco::IdentityList identities = d->client.serverIdentities();
+	bool ok = false;
+	for (int i = 0; !ok && i < identities.size(); i++) {
+		const jreen::Disco::Identity &identity = identities[i];
+		ok |= (identity.category == category && identity.type == type);
+	}
+	return ok;
 }
 
 QString JAccount::identity(const QString &category, const QString &type) const
 {
 	Q_D(const JAccount);
-	Identities::const_iterator catItr = d->identities.find(category);
-	return catItr == d->identities.constEnd() ? QString() : catItr->value(type);
+	const jreen::Disco::IdentityList identities = d->client.serverIdentities();
+	for (int i = 0; i < identities.size(); i++) {
+		const jreen::Disco::Identity &identity = identities[i];
+		if (identity.category == category && identity.type == type)
+			return identity.name;
+	}
+	return QString();
 }
 
 } // Jabber namespace

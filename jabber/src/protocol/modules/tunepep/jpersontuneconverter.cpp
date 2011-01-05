@@ -15,13 +15,14 @@
  ****************************************************************************/
 
 #include "jpersontuneconverter.h"
-#include <gloox/tag.h>
+#include <jreen/tune.h>
 #include <qutim/extensionicon.h>
 #include <protocol/jprotocol.h>
+#include <QUrl>
 
 namespace Jabber
 {
-	JPersonTuneConverter::JPersonTuneConverter() : m_feature("http://jabber.org/protocol/tune")
+	JPersonTuneConverter::JPersonTuneConverter()
 	{
 		static JPersonTuneRegistrator tuneRegistrator;
 		Q_UNUSED(tuneRegistrator);
@@ -30,78 +31,61 @@ namespace Jabber
 	JPersonTuneConverter::~JPersonTuneConverter()
 	{
 	}
-
-	std::string JPersonTuneConverter::feature() const
-	{
-		return m_feature;
-	}
 	
 	QString JPersonTuneConverter::name() const
 	{
 		return QLatin1String("tune");
 	}
 	
-	gloox::Tag *JPersonTuneConverter::toXml(const QVariantHash &map) const
+	int JPersonTuneConverter::entityType() const
 	{
-		gloox::Tag *t = new gloox::Tag("tune", gloox::XMLNS, m_feature);
+		return jreen::Tune::staticExtensionType();
+	}
+	
+	QSharedPointer<jreen::StanzaExtension> JPersonTuneConverter::convertTo(const QVariantHash &map) const
+	{
+		jreen::Tune *tune = new jreen::Tune();
+		bool ok;
+		tune->setArtist(map.value(QLatin1String("artist")).toString());
+		tune->setLength(map.value(QLatin1String("length")).toInt(&ok) * ok + ok - 1);
+		tune->setRating(map.value(QLatin1String("rating")).toInt(&ok) * ok + ok - 1);
+		tune->setSource(map.value(QLatin1String("source")).toString());
+		tune->setTitle(map.value(QLatin1String("title")).toString());
+		tune->setTrack(map.value(QLatin1String("track")).toString());
+		tune->setUri(map.value(QLatin1String("uri")).toUrl());
+		return jreen::StanzaExtension::Ptr(tune);
+	}
+	
+#define ADD_TAG(Tag, IsValid, ValueMethod)\
+		if(tune->Tag() IsValid) { \
+			QString value = ValueMethod(tune->Tag()); \
+			data.insert(QLatin1String(#Tag), tune->Tag()); \
+			if (!description.isEmpty()) \
+				description += QLatin1String(" - "); \
+			description += value; \
+	   }
+#define ADD_TEXT_TAG(Tag) \
+		ADD_TAG(Tag, .length() > 0, )
 		
-		QVariant var = map.value(QLatin1String("artist"));
-		if (var.isValid())
-			new gloox::Tag(t, "artist", var.toString().toStdString());
-		var = map.value(QLatin1String("length"));
-		if (var.isValid()) {
-			bool ok;
-			int length = var.toInt(&ok);
-			if (ok && length > 0)
-				new gloox::Tag(t, "length", var.toString().toStdString());
-		}
-		var = map.value(QLatin1String("rating"));
-		if (var.isValid()) {
-			bool ok;
-			int rating = var.toInt(&ok);
-			if (ok && rating > 0 && rating <= 10)
-				new gloox::Tag(t, "rating", var.toString().toStdString());
-		}
-		var = map.value(QLatin1String("source"));
-		if (var.isValid())
-			new gloox::Tag(t, "source", var.toString().toStdString());
-		var = map.value(QLatin1String("title"));
-		if (var.isValid())
-			new gloox::Tag(t, "title", var.toString().toStdString());
-		var = map.value(QLatin1String("track"));
-		if (var.isValid())
-			new gloox::Tag(t, "track", var.toString().toStdString());
-		var = map.value(QLatin1String("uri"));
-		if (var.isValid())
-			new gloox::Tag(t, "uri", var.toString().toStdString());
-
-		return t;
-	}
-
-#define ADD_TAG(Tag, ValueMethod)\
-	t = tag->findChild(#Tag); \
-	if(t) { \
-		QString value = QString::fromStdString(t->cdata()); \
-		data.insert(QLatin1String(#Tag), value ValueMethod); \
-		if (!description.isEmpty()) \
-			description += " - "; \
-		description += value; \
-	}
-
-
-	QVariantHash JPersonTuneConverter::fromXml(gloox::Tag *tag) const
+	QString uriToStringHelper(const QUrl &uri)
 	{
+		return uri.toString();
+	}
+
+	QVariantHash JPersonTuneConverter::convertFrom(const QSharedPointer<jreen::StanzaExtension> &entity) const
+	{
+		jreen::Tune *tune = jreen::se_cast<jreen::Tune*>(entity.data());
+		Q_ASSERT(tune);
 		QVariantHash data;
 		QString description;
 		
-		gloox::Tag* t;
-		ADD_TAG(artist,);
-		ADD_TAG(length,.toInt());
-		ADD_TAG(rating,.toInt());
-		ADD_TAG(source,);
-		ADD_TAG(title,);
-		ADD_TAG(track,);
-		ADD_TAG(uri,);
+		ADD_TEXT_TAG(artist);
+		ADD_TAG(length, > -1, QString::number);
+		ADD_TAG(rating, > -1, QString::number);
+		ADD_TEXT_TAG(source);
+		ADD_TEXT_TAG(title);
+		ADD_TEXT_TAG(track);
+		ADD_TAG(uri, .isValid(), uriToStringHelper);
 
 		if (!data.isEmpty()) {
 			data.insert(QLatin1String("id"), "tune");
@@ -115,8 +99,6 @@ namespace Jabber
 
 		return data;
 	}
-
-#undef ADD_TAG
 
 	JPersonTuneRegistrator::JPersonTuneRegistrator()
 	{

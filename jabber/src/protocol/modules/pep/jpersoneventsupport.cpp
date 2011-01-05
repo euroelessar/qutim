@@ -15,68 +15,69 @@
  ****************************************************************************/
 
 #include "jpersoneventsupport.h"
-#include <gloox/client.h>
-#include <gloox/disco.h>
-#include <gloox/message.h>
-#include <gloox/pubsubitem.h>
+#include <jreen/client.h>
+//#include <jreen/disco.h>
+//#include <jreen/message.h>
+//#include <jreen/pubsubitem.h>
 #include <qutim/objectgenerator.h>
 #include <qutim/account.h>
 #include <qutim/contact.h>
 #include <qutim/event.h>
 #include <QCoreApplication>
 #include <protocol/account/roster/jcontact.h>
+#include <QDebug>
 
 namespace Jabber
 {
-	using namespace gloox;
+	using namespace jreen;
 	using namespace qutim_sdk_0_3;
 	
-	typedef QMap<Account*, JPersonEventSupport*> SupportMap;
-	Q_GLOBAL_STATIC(SupportMap, supportMap);
+//	typedef QMap<Account*, JPersonEventSupport*> SupportMap;
+//	Q_GLOBAL_STATIC(SupportMap, supportMap);
 	
-	JPersonalEventFilterFactory::JPersonalEventFilterFactory()
-	{
-	}
+//	JPersonalEventFilterFactory::JPersonalEventFilterFactory()
+//	{
+//	}
 
-	JPersonalEventFilterFactory::~JPersonalEventFilterFactory()
-	{
-	}
+//	JPersonalEventFilterFactory::~JPersonalEventFilterFactory()
+//	{
+//	}
 
-	MessageFilter *JPersonalEventFilterFactory::create(Account *account,
-													   const JabberParams &params,
-													   MessageSession *session)
-	{
-		Q_UNUSED(params);
-		JPersonEventSupport *support = supportMap()->value(account);
-		return new JPersonalEventFilter(support, session);
-	}
+//	MessageFilter *JPersonalEventFilterFactory::create(Account *account,
+//													   const JabberParams &params,
+//													   MessageSession *session)
+//	{
+//		Q_UNUSED(params);
+//		JPersonEventSupport *support = supportMap()->value(account);
+//		return new JPersonalEventFilter(support, session);
+//	}
 
-	JPersonalEventFilter::JPersonalEventFilter(JPersonEventSupport *support, MessageSession *session) :
-			MessageFilter(session), m_support(support)
-	{
-	}
+//	JPersonalEventFilter::JPersonalEventFilter(JPersonEventSupport *support, MessageSession *session) :
+//			MessageFilter(session), m_support(support)
+//	{
+//	}
 
-	JPersonalEventFilter::~JPersonalEventFilter()
-	{
-	}
+//	JPersonalEventFilter::~JPersonalEventFilter()
+//	{
+//	}
 
-	void JPersonalEventFilter::decorate(gloox::Message &msg)
-	{
-		Q_UNUSED(msg);
-	}
+//	void JPersonalEventFilter::decorate(gloox::Message &msg)
+//	{
+//		Q_UNUSED(msg);
+//	}
 
-	void JPersonalEventFilter::filter(gloox::Message &msg)
-	{
-		const PubSub::Event *event = msg.findExtension<PubSub::Event>(ExtPubSubEvent);
-		if (event) {
-			PubSub::Event::ItemOperationList items = event->items();
-			foreach (const PubSub::Event::ItemOperation *item, items) {
-				if (!item->payload || item->payload->children().empty())
-					continue;
-				m_support->handleTag(msg.from().bare(), item->payload->children().front());
-			}
-		}
-	}
+//	void JPersonalEventFilter::filter(gloox::Message &msg)
+//	{
+//		const PubSub::Event *event = msg.findExtension<PubSub::Event>(ExtPubSubEvent);
+//		if (event) {
+//			PubSub::Event::ItemOperationList items = event->items();
+//			foreach (const PubSub::Event::ItemOperation *item, items) {
+//				if (!item->payload || item->payload->children().empty())
+//					continue;
+//				m_support->handleTag(msg.from().bare(), item->payload->children().front());
+//			}
+//		}
+//	}
 	
 	JPersonEventSupport::JPersonEventSupport() : m_account(0), m_manager(0), m_eventId(0)
 	{
@@ -84,25 +85,25 @@ namespace Jabber
 	
 	JPersonEventSupport::~JPersonEventSupport()
 	{
-		supportMap()->remove(m_account);
-		delete m_manager;
+//		supportMap()->remove(m_account);
+//		delete m_manager;
 	}
 	
 	void JPersonEventSupport::init(Account *account, const JabberParams &params)
 	{
-		supportMap()->insert(account, this);
+//		supportMap()->insert(account, this);
 		m_account = account;
 		Client *client = params.item<Client>();
-		client->registerStanzaExtension(new PubSub::Event(reinterpret_cast<Tag*>(0)));
+//		client->registerStanzaExtension(new PubSub::Event(reinterpret_cast<Tag*>(0)));
 		m_manager = new PubSub::Manager(client);
+		connect(m_manager, SIGNAL(eventReceived(jreen::PubSub::Event::Ptr,jreen::JID)),
+				this, SLOT(onEventReceived(jreen::PubSub::Event::Ptr,jreen::JID)));
 		account->installEventFilter(this);
 		m_eventId = qutim_sdk_0_3::Event::registerType("jabber-personal-event");
 		foreach (const ObjectGenerator *ext, ObjectGenerator::module<PersonEventConverter>()) {
 			PersonEventConverter *converter = ext->generate<PersonEventConverter>();
-			m_converters.insert(converter->name(), converter);
-			std::string feature = converter->feature();
-			client->disco()->addFeature(feature);
-			client->disco()->addFeature(feature + "+notify");
+			m_converters.insert(converter->entityType(), converter);
+			m_manager->addEntityType(converter->entityType());
 		}
 	}
 	
@@ -114,34 +115,41 @@ namespace Jabber
 				QString name = customEvent->at<QString>(0);
 				bool needSet = customEvent->at<bool>(2);
 				PersonEventConverter *converter = 0;
-				if (needSet && !!(converter = m_converters.value(name))) {
+				foreach (PersonEventConverter *conv, m_converters) {
+					if (conv->name() == name) {
+						converter = conv;
+						break;
+					}
+				}
+
+				if (needSet && converter) {
 					QVariantHash data = customEvent->at<QVariantHash>(1);
-					PubSub::ItemList items;
-					Tag *tag = new Tag("item");
-					tag->addChild(converter->toXml(data));
-					items.push_back(new  PubSub::Item(tag));
-					m_manager->publishItem(JID(), converter->feature(), items, 0, this);
+					QList<jreen::StanzaExtension::Ptr> items;
+					items << converter->convertTo(data);
+					m_manager->publishItems(items, jreen::JID());
 				}
 			}
 		}
 		return false;
 	}
 	
-	void JPersonEventSupport::handleTag(const std::string &jid, gloox::Tag *tag)
+	void JPersonEventSupport::onEventReceived(const jreen::PubSub::Event::Ptr &event, const jreen::JID &from)
 	{
-		QString unicodeJid = QString::fromStdString(jid);
 		QObject *receiver = 0;
 		JContact *contact = 0;
-		if (unicodeJid == m_account->id()) {
+		if (from.bare() == m_account->id()) {
 			receiver = m_account;
-		} else if (ChatUnit *unit = m_account->getUnit(unicodeJid, false)) {
+		} else if (ChatUnit *unit = m_account->getUnit(from.bare(), false)) {
 			contact = qobject_cast<JContact*>(unit);
 			receiver = contact;
 		}
-		if (receiver) {
-			QString name = QString::fromStdString(tag->name());
-			if (PersonEventConverter *converter = m_converters.value(name)) {
-				QVariantHash data = converter->fromXml(tag);
+		if (!receiver)
+			return;
+		const QList<jreen::StanzaExtension::Ptr> items = event->items();
+		for (int i = 0; i < items.size(); i++) {
+			if (PersonEventConverter *converter = m_converters.value(items[i]->extensionType())) {
+				QVariantHash data = converter->convertFrom(items[i]);
+				QString name = converter->name();
 				if (contact) {
 					if (!data.isEmpty())
 						contact->setExtendedInfo(name, data);

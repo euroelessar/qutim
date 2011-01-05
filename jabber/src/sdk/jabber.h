@@ -3,10 +3,12 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QVariantMap>
+#include <QtCore/QSharedPointer>
 
 namespace jreen
 {
 class Client;
+class StanzaExtension;
 }
 namespace gloox
 {
@@ -109,11 +111,12 @@ public:
 class PersonEventConverter
 {
 public:
-	virtual std::string feature() const = 0;
-	virtual QString name() const = 0;
-	virtual gloox::Tag *toXml(const QVariantHash &map) const = 0;
-	virtual QVariantHash fromXml(gloox::Tag *tag) const = 0;
 	virtual ~PersonEventConverter() {}
+	
+	virtual QString name() const = 0;
+	virtual int entityType() const = 0;
+	virtual QSharedPointer<jreen::StanzaExtension> convertTo(const QVariantHash &map) const = 0;
+	virtual QVariantHash convertFrom(const QSharedPointer<jreen::StanzaExtension> &entity) const = 0;
 };
 }
 

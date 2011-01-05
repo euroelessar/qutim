@@ -26,6 +26,7 @@ namespace jreen
 {
 class Client;
 class JID;
+namespace PubSub { class Manager; }
 }
 
 namespace Jabber {
@@ -62,6 +63,7 @@ public:
 	JRoster *roster() const;
 	JServiceDiscovery *discoManager();
 	JMUCManager *conferenceManager();
+//	jreen::PubSub::Manager *pubSubManager();
 	virtual void setStatus(Status status);
 	void setAccountStatus(Status status);
 	QString getAvatarPath();

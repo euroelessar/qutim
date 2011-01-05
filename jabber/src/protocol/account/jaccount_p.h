@@ -5,6 +5,7 @@
 #include "muc/jbookmarkmanager.h"
 //jreen
 #include <jreen/client.h>
+//#include <jreen/pubsubmanager.h>
 #include "vcard/jvcardmanager.h"
 #include <sdk/jabber.h>
 namespace jreen
@@ -29,6 +30,7 @@ public:
 	JRoster *roster;
 	JMessageSessionManager *messageSessionManager;
 	JVCardManager *vCardManager;
+//	jreen::PubSub::Manager *pubSubManager;
 	QPointer<JServiceDiscovery> discoManager;
 	JAccount *q_ptr;
 	QString passwd;
