@@ -38,6 +38,7 @@
 #include <jreen/vcardupdate.h>
 #include <qutim/systeminfo.h>
 #include "roster/jsoftwaredetection.h"
+#include <jreen/pubsubmanager.h>
 
 namespace Jabber {
 
@@ -73,6 +74,7 @@ void JAccountPrivate::onConnected()
 	q->setAccountStatus(s);
 	client.setPresence(status,s.text());
 	vCardManager->fetchVCard(q->id());
+	conferenceManager->syncBookmarks();
 }
 
 void JAccountPrivate::onDisconnected()
@@ -112,12 +114,13 @@ JAccount::JAccount(const QString &id) :
 	d->roster = new JRoster(this);
 	jreen::Capabilities::Ptr caps = d->client.presence().findExtension<jreen::Capabilities>();
 	caps->setNode(QLatin1String("http://qutim.org/"));
+	d->privateXml = new jreen::PrivateXml(&d->client);
+	d->pubSubManager = new jreen::PubSub::Manager(&d->client);
 	d->conferenceManager = new JMUCManager(this, this);
 	d->messageSessionManager = new JMessageSessionManager(this);
 	d->vCardManager = new JVCardManager(this);
 	d->softwareDetection = new JSoftwareDetection(this);
-//	d->pubSubManager = new jreen::PubSub::Manager(&d->client);
-	
+
 	d->client.presence().addExtension(new VCardUpdate(QString()));
 	loadSettings();
 
@@ -146,6 +149,7 @@ JAccount::JAccount(const QString &id) :
 			d,SLOT(initExtensions(QSet<QString>)));
 	
 	d->params.addItem<jreen::Client>(&d->client);
+	d->params.addItem<jreen::PubSub::Manager>(d->pubSubManager);
 //	d->params.addItem<Adhoc>(p->adhoc);
 //	d->params.addItem<VCardManager>(p->vCardManager->manager());
 //	d->params.addItem<SIManager>(p->siManager);
@@ -290,10 +294,15 @@ JMUCManager *JAccount::conferenceManager()
 	return d_func()->conferenceManager;
 }
 
-//jreen::PubSub::Manager *JAccount::pubSubManager()
-//{
-//	return d_func()->pubSubManager;
-//}
+jreen::PrivateXml *JAccount::privateXml()
+{
+	return d_func()->privateXml;
+}
+
+jreen::PubSub::Manager *JAccount::pubSubManager()
+{
+	return d_func()->pubSubManager;
+}
 
 void JAccount::setStatus(Status status)
 {
@@ -329,24 +338,6 @@ QString JAccount::getAvatarPath()
 	return QString("%1/avatars/%2")
 			.arg(SystemInfo::getPath(SystemInfo::ConfigDir))
 			.arg(protocol()->id());
-}
-
-QVariantList JAccountPrivate::toVariant(const QList<JBookmark> &list)
-{
-	QVariantList items;
-	foreach (const JBookmark &bookmark, list) {
-		QVariantMap item;
-		QString name = bookmark.name.isEmpty() ? bookmark.conference : bookmark.name;
-		item.insert("name",name);
-		QVariantMap data;
-		data.insert(QT_TRANSLATE_NOOP("Jabber", "Conference"),bookmark.conference);
-		data.insert(QT_TRANSLATE_NOOP("Jabber", "Nick"),bookmark.nick);
-		if (bookmark.autojoin)
-			data.insert(QT_TRANSLATE_NOOP("Jabber", "Autojoin"),(QT_TRANSLATE_NOOP("Jabber", "Yes")).toString());
-		item.insert("fields",data);
-		items.append(item);
-	}
-	return items;
 }
 
 bool JAccount::event(QEvent *ev)

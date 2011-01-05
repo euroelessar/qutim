@@ -30,7 +30,8 @@ public:
 	JRoster *roster;
 	JMessageSessionManager *messageSessionManager;
 	JVCardManager *vCardManager;
-//	jreen::PubSub::Manager *pubSubManager;
+	jreen::PubSub::Manager *pubSubManager;
+	jreen::PrivateXml *privateXml;
 	QPointer<JServiceDiscovery> discoManager;
 	JAccount *q_ptr;
 	QString passwd;
@@ -52,7 +53,6 @@ public:	//old code
 //	JRoster *roster;
 	JConnectionListener *connectionListener;
 	JMessageHandler *messageHandler;
-	QVariantList toVariant(const QList<JBookmark> &list);
 //	Presence::PresenceType status;
 //	QSet<QString> features;
 	Identities identities;

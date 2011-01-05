@@ -93,9 +93,8 @@ namespace Jabber
 	{
 //		supportMap()->insert(account, this);
 		m_account = account;
-		Client *client = params.item<Client>();
+		m_manager = params.item<PubSub::Manager>();
 //		client->registerStanzaExtension(new PubSub::Event(reinterpret_cast<Tag*>(0)));
-		m_manager = new PubSub::Manager(client);
 		connect(m_manager, SIGNAL(eventReceived(jreen::PubSub::Event::Ptr,jreen::JID)),
 				this, SLOT(onEventReceived(jreen::PubSub::Event::Ptr,jreen::JID)));
 		account->installEventFilter(this);

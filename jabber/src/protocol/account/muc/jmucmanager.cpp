@@ -36,17 +36,11 @@ namespace Jabber
 
 	void JMUCManager::bookmarksChanged()
 	{
-		foreach (QString conference, p->rooms.keys())
-		{
+		foreach (const QString &conference, p->rooms.keys()) {
 			JMUCSession *muc = p->rooms.value(conference);
-			JBookmark room(QString(), conference,
-						   (muc && muc->me()) ? muc->me()->name() : QString(),
-						   QString());
-			if (p->bookmarkManager->bookmarksList().contains(room)) {
-				int num = p->bookmarkManager->bookmarksList().indexOf(room);
-				muc->setBookmarkIndex(num);
-			} else {
-				muc->setBookmarkIndex(-1);
+			Bookmark::Conference room = p->bookmarkManager->find(conference);
+			muc->setBookmark(room);
+			if (!room.isValid()) {
 				if (!ChatLayer::instance()->getSession(muc, false))
 					closeMUCSession(muc);
 			}
@@ -57,7 +51,7 @@ namespace Jabber
 	{
 		JMUCSession *room = p->rooms.value(conference, 0);
 		if (room && room->isError()) {
-			room->setBookmarkIndex(-1);
+			room->setBookmark(Bookmark::Conference());
 			closeMUCSession(room);
 			room = 0;
 			if (nick.isEmpty())
@@ -68,7 +62,7 @@ namespace Jabber
 				QMessageBox::warning(0, tr("Join groupchat on")+" "+room->id(),
 									 tr("You already in conference with another nick"));
 			} else {
-				room->setBookmarkIndex(-1);
+				room->setBookmark(Bookmark::Conference());
 				closeMUCSession(room);
 				room = 0;
 			}
@@ -79,13 +73,12 @@ namespace Jabber
 			jid.setResource(nick);
 			room = new JMUCSession(jid, password, p->account);
 			createActions(room);
-			int count = p->bookmarkManager->bookmarks().count();
-			room->setBookmarkIndex(-1);
-			for (int num = 0; num < count; num++)
-				if (p->bookmarkManager->bookmarksList()[num].conference == conference
-					&& p->bookmarkManager->bookmarksList()[num].nick == nick) {
-				room->setBookmarkIndex(num);
-				break;
+			const QList<Bookmark::Conference> bookmarks = p->bookmarkManager->bookmarksList();
+			for (int i = 0; i < bookmarks.count(); i++) {
+				if (bookmarks[i].jid() == conference && bookmarks[i].nick() == nick) {
+					room->setBookmark(bookmarks[i]);
+					break;
+				}
 			}
 			p->rooms.insert(conference, room);
 			emit conferenceCreated(room);

@@ -55,7 +55,7 @@ public:
 	QHash<QString, JMUCUser *> users;
 	bool isJoined;
 	bool isAutoRejoin;
-	int bookmarkIndex;
+	jreen::Bookmark::Conference bookmark;
 	QPointer<JConferenceConfig> config;
 	bool avatarsAutoLoad;
 	bool isError;
@@ -510,21 +510,22 @@ void JMUCSession::onSubjectChanged(const QString &subject, const QString &nick)
 //	Q_ASSERT(room == d_func()->room);
 //}
 
-void JMUCSession::setBookmarkIndex(int index)
+void JMUCSession::setBookmark(const jreen::Bookmark::Conference &bookmark)
 {
 	Q_D(JMUCSession);
+	d->bookmark = bookmark;
 	QString previous = d->title;
-	d->bookmarkIndex = index;
-	if (index != -1)
-		d->title = d->account->conferenceManager()->bookmarkManager()->bookmarksList()[index].name;
+	if (bookmark.isValid())
+		d->title = bookmark.name();
 	else
 		d->title = id();
-	emit titleChanged(d->title, previous);
+	if (d->title != previous)
+		emit titleChanged(d->title, previous);
 }
 
-int JMUCSession::bookmarkIndex()
+jreen::Bookmark::Conference JMUCSession::bookmark()
 {
-	return d_func()->bookmarkIndex;
+	return d_func()->bookmark;
 }
 
 QString JMUCSession::title() const

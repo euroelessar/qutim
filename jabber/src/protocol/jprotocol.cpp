@@ -178,15 +178,17 @@ void JProtocol::onSaveRemoveBookmarks(QObject *obj)
 	JMUCSession *room = qobject_cast<JMUCSession*>(obj);
 	Q_ASSERT(room);
 	JAccount *account = static_cast<JAccount*>(room->account());
-	//FIXME,  WTF room->bookmarkIndex() == -1?
-	if (room->bookmarkIndex() == -1)
+	JBookmarkManager *manager = account->conferenceManager()->bookmarkManager();
+	if (!room->bookmark().isValid()) {
 		//Rewrite on event system, something like
 		//Event event("groupchat-join-request");
 		//QObject *obj = getService("JoinGroupChat");
 		//qApp->sendEvent(obj,&event);
-		account->conferenceManager();
-	else
-		account->conferenceManager()->bookmarkManager()->removeBookmark(room->bookmarkIndex());
+//		manager->saveBookmark(room->id(), room->me()->name());
+	} else {
+		manager->removeBookmark(room->bookmark());
+		room->setBookmark(jreen::Bookmark::Conference());
+	}
 }
 
 void JProtocol::onChangeSubscription(QObject *obj)
@@ -320,7 +322,7 @@ bool JProtocol::event(QEvent *ev)
 			}
 			case SaveRemoveBookmarkAction: {
 				JMUCSession *room = qobject_cast<JMUCSession*>(event->controller());
-				if (room->bookmarkIndex() == -1)
+				if (!room->bookmark().isValid())
 					action->setText(QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks"));
 				else
 					action->setText(QT_TRANSLATE_NOOP("Jabber", "Remove from bookmarks"));

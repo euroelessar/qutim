@@ -3,7 +3,7 @@
 
 #include <qutim/libqutim_global.h>
 #include <qutim/groupchatmanager.h>
-#include <gloox/bookmarkhandler.h>
+#include <jreen/bookmarkstorage.h>
 #include <QMetaType>
 
 namespace qutim_sdk_0_3
@@ -18,38 +18,25 @@ namespace Jabber {
 	struct JBookmarkManagerPrivate;
 	class JAccount;
 
-	struct JBookmark
-	{
-		JBookmark(const QString &o_name, const QString &o_conference,
-					 const QString &o_nick, const QString &o_password, bool o_autojoin = false);
-		inline JBookmark() {}
-		bool operator==(const JBookmark &other) const;
-		bool isEmpty();
-		QString name;
-		QString conference;
-		QString nick;
-		QString password;
-		bool autojoin;		
-	};
-
-	class JBookmarkManager : public QObject, public gloox::BookmarkHandler, public qutim_sdk_0_3::GroupChatManager
+	class JBookmarkManager : public QObject, public qutim_sdk_0_3::GroupChatManager
 	{
 		Q_OBJECT
 		Q_INTERFACES(qutim_sdk_0_3::GroupChatManager)
 		public:
 			JBookmarkManager(JAccount *account);
 			~JBookmarkManager();
-			QList<JBookmark> bookmarksList() const;
-			QList<JBookmark> recentList() const;
-			JBookmark find(const QString &name, bool recent = false) const;
-			int indexOfBookmark(const QString &name);
+			QList<jreen::Bookmark::Conference> bookmarksList() const;
+			QList<jreen::Bookmark::Conference> recentList() const;
+			jreen::Bookmark::Conference find(const QString &name, bool recent = false) const;
+//			jreen::Bookmark::Conference find(const QString &name, const QString &nick, bool recent = false) const;
+			int indexOfBookmark(const QString &name) const;
 			void saveBookmark(int index, const QString &name, const QString &conference,
 					const QString &nick, const QString &password, bool autojoin = false);
 			void saveRecent(const QString &conference, const QString &nick, const QString &password);
-			void removeBookmark(int index);
+			bool removeBookmark(const jreen::Bookmark::Conference &bookmark);
 			void sync();
 			void clearRecent();
-			DataItem fields(const JBookmark &bookmark, bool isBookmark = true) const;
+			DataItem fields(const jreen::Bookmark::Conference &bookmark, bool isBookmark = true) const;
 
 			// Group chat manager
 			DataItem fields() const;
@@ -61,16 +48,17 @@ namespace Jabber {
 		signals:
 			void serverBookmarksChanged();
 			void bookmarksChanged();
+		protected slots:
+			void onBookmarksReceived(const jreen::Bookmark::Ptr &bookmark);
 		protected:
-			void handleBookmarks(const gloox::BookmarkList &bList, const gloox::ConferenceList &cList);
-			QList<JBookmark> readFromCache(const QString &type);
-			void writeToCache(const QString &type, const QList<JBookmark> &list);
+			QList<jreen::Bookmark::Conference> readFromCache(const QString &type);
+			void writeToCache(const QString &type, const QList<jreen::Bookmark::Conference> &list);
 			void saveToServer();
 		private:
 			QScopedPointer<JBookmarkManagerPrivate> p;
 	};
 }
 
-Q_DECLARE_METATYPE(Jabber::JBookmark)
+Q_DECLARE_METATYPE(jreen::Bookmark::Conference)
 
 #endif // JBOOKMARKMANAGER_H

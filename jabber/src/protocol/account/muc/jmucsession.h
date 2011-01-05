@@ -21,6 +21,7 @@
 #include <jreen/jid.h>
 #include <QHash>
 #include <qutim/conference.h>
+#include <jreen/bookmark.h>
 
 namespace Jabber
 {
@@ -46,8 +47,8 @@ public:
 	QString id() const;
 	bool sendMessage(const qutim_sdk_0_3::Message &message);
 	bool sendPrivateMessage(const qutim_sdk_0_3::Message &message);
-	void setBookmarkIndex(int index);
-	int bookmarkIndex();
+	void setBookmark(const jreen::Bookmark::Conference &bookmark);
+	jreen::Bookmark::Conference bookmark();
 	bool enabledConfiguring();
 	bool isJoined();
 	bool isAutoJoin();
