@@ -36,6 +36,7 @@
 #include "../roster/jcontactresource_p.h"
 #include <jreen/client.h>
 #include "../roster/jsoftwaredetection.h"
+#include <qutim/notificationslayer.h>
 
 using namespace jreen;
 using namespace qutim_sdk_0_3;
@@ -79,8 +80,10 @@ JMUCSession::JMUCSession(const jreen::JID &room, const QString &password, JAccou
 			this, SLOT(onMessage(jreen::Message,bool)));
 	connect(d->room, SIGNAL(subjectChanged(QString,QString)),
 			this, SLOT(onSubjectChanged(QString,QString)));
-//	if (!password.isEmpty())
-//		d->room->setPassword(password);
+	connect(d->room, SIGNAL(error(jreen::Error::Ptr)),
+			this, SLOT(onError(jreen::Error::Ptr)));
+	//	if (!password.isEmpty())
+	//		d->room->setPassword(password);
 	d->isJoined = false;
 	d->isError = false;
 	d->thread = 0;
@@ -125,6 +128,7 @@ void JMUCSession::join()
 {
 	d_func()->isJoined = true;
 	d_func()->room->join();
+	setChatState(ChatStateActive);
 	//		Q_D(JMUCSession);
 	//		Presence &pres = d->account->client()->presence();
 	//		d->isAutoRejoin = false;
@@ -155,6 +159,7 @@ void JMUCSession::leave()
 	Q_D(JMUCSession);
 	d->room->leave();
 	d->isJoined = false;
+	setChatState(ChatStateGone);
 	emit left();
 }
 
@@ -334,8 +339,8 @@ void JMUCSession::onParticipantPresence(const jreen::Presence &presence,
 				if (user->avatarHash() != hash) {
 					if(hash.isEmpty() || QFile(d->account->getAvatarPath() % QLatin1Char('/') % hash).exists())
 						user->setAvatar(hash);
-//					else if (d->avatarsAutoLoad)
-//						d->account->vCardManager()->fetchVCard(user->id());
+					//					else if (d->avatarsAutoLoad)
+					//						d->account->vCardManager()->fetchVCard(user->id());
 				}
 			}
 		}
@@ -358,13 +363,13 @@ void JMUCSession::onParticipantPresence(const jreen::Presence &presence,
 void JMUCSession::onMessage(const jreen::Message &msg, bool priv)
 {
 	Q_D(JMUCSession);
-//	Q_ASSERT(room == d->room);
-//	if (d->thread && msg.thread() == *(d->thread)) {
-//		return;
-//	} else if (d->thread) {
-//		delete d->thread;
-//		d->thread = 0;
-//	}
+	//	Q_ASSERT(room == d->room);
+	//	if (d->thread && msg.thread() == *(d->thread)) {
+	//		return;
+	//	} else if (d->thread) {
+	//		delete d->thread;
+	//		d->thread = 0;
+	//	}
 	QString nick = msg.from().resource();
 	JMUCUser *user = d->users.value(nick, 0);
 	if (priv) {
@@ -535,17 +540,17 @@ QString JMUCSession::title() const
 
 void JMUCSession::showConfigDialog()
 {
-//	d_func()->isConfiguring = true;
+	//	d_func()->isConfiguring = true;
 	if (d_func()->config)
 		return;
 	d_func()->config = new JConferenceConfig(d_func()->room);
-//	connect(dialog, SIGNAL(destroyDialog()), SLOT(closeConfigDialog()));
+	//	connect(dialog, SIGNAL(destroyDialog()), SLOT(closeConfigDialog()));
 	d_func()->config->show();
 }
 
 void JMUCSession::closeConfigDialog()
 {
-//	d_func()->isConfiguring = false;
+	//	d_func()->isConfiguring = false;
 }
 
 bool JMUCSession::enabledConfiguring()
@@ -591,7 +596,7 @@ QString JMUCSession::topic() const
 
 void JMUCSession::setTopic(const QString &topic)
 {
-//	setConferenceTopic(topic);
+	//	setConferenceTopic(topic);
 	d_func()->room->setSubject(topic);
 }
 
@@ -615,7 +620,27 @@ void JMUCSession::setAutoJoin(bool join)
 
 void JMUCSession::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
 {
-//	d_func()->room->invite(contact->id().toStdString(), reason.toStdString());
+	//	d_func()->room->invite(contact->id().toStdString(), reason.toStdString());
+}
+
+void JMUCSession::onError(jreen::Error::Ptr error)
+{
+	Q_D(JMUCSession);
+	qDebug() << "error" << error->condition();
+	if(error->condition() == jreen::Error::Conflict) {
+		Notifications::send(Notifications::System,
+							this,
+							QT_TRANSLATE_NOOP("Jabber","You already in conference with another nick"));
+
+		//QString nick = QInputDialog::getText(QApplication::activeWindow(),
+		//									 QT_TRANSLATE_NOOP("Jabber","You already in conference with another nick"),
+		//									 QT_TRANSLATE_NOOP("Jabber","Please select another nickname"));
+		////TODO add regexp
+		//if(nick.isEmpty())
+		leave();
+		//d->room->setNick(nick);
+		//d->room->join();
+	}
 }
 
 }
