@@ -26,21 +26,69 @@
 #include <jreen/iq.h>
 #include <qutim/debug.h>
 #include <qutim/json.h>
+#include <QUrl>
 
 using namespace qutim_sdk_0_3;
 using namespace gloox;
 
 namespace Jabber
 {
+QString toConfigNode(QString node)
+{
+	return node.replace(QLatin1Char('/'), QLatin1String("%2F"));
+}
+QString fromConfigNode(QString node)
+{
+	return node.replace(QLatin1String("%2F"), QChar(QLatin1Char('/')));
+}
+	
 JSoftwareDetection::JSoftwareDetection(JAccount *account) : QObject(account)
 {
 	m_account = account;
 	jreen::Client *client = account->client();
 	connect(client,SIGNAL(newPresence(jreen::Presence)),SLOT(handlePresence(jreen::Presence)));
+	
+	
+	Config cache(QLatin1String("jabberhash"));
+	cache.beginGroup(QLatin1String("softwareInfo"));
+	foreach (const QString &node, cache.childGroups()) {
+		cache.beginGroup(node);
+		SoftwareInfo info;
+		info.features = QSet<QString>::fromList(cache.value(QLatin1String("features"), QStringList()));
+		info.name = cache.value(QLatin1String("name"), QString());
+		info.version = cache.value(QLatin1String("version"), QString());
+		info.os = cache.value(QLatin1String("os"), QString());
+		info.icon = getClientIcon(info.name);
+		info.description = getClientDescription(info.name, info.version, info.os);
+		m_hash.insert(fromConfigNode(node), info);
+		cache.endGroup();
+	}
 }
 
 JSoftwareDetection::~JSoftwareDetection()
 {
+}
+
+// TODO: Move to some singletone
+void JSoftwareDetection::timerEvent(QTimerEvent *ev)
+{
+	if (ev->timerId() == m_timer.timerId()) {
+		m_timer.stop();
+		Config cache(QLatin1String("jabberhash"));
+		cache.beginGroup(QLatin1String("softwareInfo"));
+		for (int i = 0; i < m_recent.size(); i++) {
+			const SoftwareInfo info = m_hash.value(m_recent[i]);
+			cache.beginGroup(toConfigNode(m_recent[i]));
+			cache.setValue(QLatin1String("features"), QStringList(info.features.toList()));
+			cache.setValue(QLatin1String("name"), info.name);
+			cache.setValue(QLatin1String("version"), info.version);
+			cache.setValue(QLatin1String("os"), info.os);
+			cache.endGroup();
+		}
+		m_recent.clear();
+	} else {
+		QObject::timerEvent(ev);
+	}
 }
 
 void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
@@ -117,9 +165,10 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 					SoftwareInfo &info = (*it);
 					info.name = software;
 					info.version = softwareVersion;
-					info.os = os;
+//					info.os = os;
 					info.icon = icon;
 					info.description = client;
+					updateCache(node, info, true);
 				}
 			}
 		}
@@ -159,7 +208,7 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 			info.description = client;
 		}
 
-		m_hash.insert(node, info);
+		updateCache(node, info);
 
 		if (JContactResource *unit = qobject_cast<JContactResource*>(m_account->getUnit(jid, false))) {
 			if (unit->property("node").isNull())
@@ -175,6 +224,17 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 			unit->setFeatures(info.features);
 		}
 	}
+}
+
+void JSoftwareDetection::updateCache(const QString &node, const SoftwareInfo &info, bool fixed)
+{
+	if (node.isEmpty())
+		return;
+	if (!fixed)
+		m_hash.insert(node, info);
+	m_recent << node;
+	if (!m_timer.isActive())
+		m_timer.start(5000, this);
 }
 
 void JSoftwareDetection::updateClientData(JContactResource *resource, const QString &client,

@@ -18,6 +18,8 @@
 
 #include <QObject>
 #include <QSet>
+#include <QBasicTimer>
+#include <QStringList>
 #include "sdk/jabber.h"
 
 namespace qutim_sdk_0_3 {
@@ -54,10 +56,14 @@ public:
 
 	JSoftwareDetection(JAccount *account);
 	~JSoftwareDetection();
+	
+protected:
+	void timerEvent(QTimerEvent *ev);
 protected slots:
 	void handlePresence(const jreen::Presence &presence);
 	void handleIQ(const jreen::IQ &iq, int context);
 private:
+	void updateCache(const QString &node, const SoftwareInfo &info, bool fixed = false);
 	void updateClientData(JContactResource *resource, const QString &client,
 						  const QString &software, const QString &softwareVersion,
 						  const QString &os, const QString &clientIcon);
@@ -67,6 +73,8 @@ private:
 private:
 	JAccount *m_account;
 	QHash<QString, SoftwareInfo> m_hash;
+	QStringList m_recent;
+	QBasicTimer m_timer;
 };
 }
 
