@@ -75,6 +75,7 @@ void JAccountPrivate::onConnected()
 	client.setPresence(status,s.text());
 	vCardManager->fetchVCard(q->id());
 	conferenceManager->syncBookmarks();
+	q->resetGroupChatManager(conferenceManager->bookmarkManager());
 }
 
 void JAccountPrivate::onDisconnected()
@@ -83,7 +84,7 @@ void JAccountPrivate::onDisconnected()
 	Status now = q->status();
 	now.setType(Status::Offline);	
 	q->setAccountStatus(now);
-	conferenceManager->deleteLater();
+	q->resetGroupChatManager(0);
 }
 
 void JAccountPrivate::initExtensions(const QSet<QString> &features)
@@ -98,10 +99,6 @@ void JAccountPrivate::initExtensions(const QSet<QString> &features)
 //		}
 //	}
 	roster->load();
-	if(!conferenceManager)
-		conferenceManager = new JMUCManager(q,q);
-	q->resetGroupChatManager(conferenceManager->bookmarkManager());
-
 }
 
 JAccount::JAccount(const QString &id) :
@@ -120,6 +117,8 @@ JAccount::JAccount(const QString &id) :
 	d->messageSessionManager = new JMessageSessionManager(this);
 	d->vCardManager = new JVCardManager(this);
 	d->softwareDetection = new JSoftwareDetection(this);
+	connect(d->conferenceManager.data(), SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
+			this, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
 
 	d->client.presence().addExtension(new VCardUpdate(QString()));
 	loadSettings();

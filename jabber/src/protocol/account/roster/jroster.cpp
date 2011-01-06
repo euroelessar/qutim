@@ -57,39 +57,43 @@ JRoster::~JRoster()
 void JRoster::onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item)
 {
 	//Q_D(JRoster);
-	JContact *c = static_cast<JContact*>(contact(item->jid(),true));
-	Q_ASSERT(c);
-	fillContact(c,item);
-	if(d_func()->isLoaded)
+	JContact *contact = static_cast<JContact*>(JRoster::contact(item->jid(), true));
+	Q_ASSERT(contact);
+	fillContact(contact, item);
+	if(d_func()->isLoaded) {
 		Notifications::send(Notifications::System,
-							c,
-							tr("Contact has been added to roster").arg(c->title()));
+							contact,
+							tr("Contact %1 has been added to roster").arg(contact->title()));
+	}
 }
 void JRoster::onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item)
 {
 	Q_D(JRoster);
-	JContact *c = d->contacts.value(item->jid());
-	if(c)
-		fillContact(c,item);
+	if (JContact *contact = d->contacts.value(item->jid()))
+		fillContact(contact, item);
 }
 
 void JRoster::onItemRemoved(const QString &jid)
 {
 	Q_D(JRoster);
-	JContact *c = d->contacts.take(jid);
-	if(c) {
-		c->setContactInList(false);
-		c->setContactSubscription(jreen::AbstractRosterItem::None);
+	JContact *contact = d->contacts.take(jid);
+	if(!contact)
+		return;
+	contact->setContactInList(false);
+	contact->setContactSubscription(jreen::AbstractRosterItem::None);
+	if(d->isLoaded) {
 		Notifications::send(Notifications::System,
-							c,
-							tr("Contact has been removed from roster").arg(c->title()));
+							contact,
+							tr("Contact %1 has been removed from roster").arg(contact->title()));
 	}
 }
 
 void JRoster::onLoaded(const QList<QSharedPointer<jreen::AbstractRosterItem> > &items)
 {
+	Q_D(JRoster);
+	d->isLoaded = false;
 	AbstractRoster::onLoaded(items);
-	d_func()->isLoaded = true;
+	d->isLoaded = true;
 }
 
 JContact *JRoster::createContact(const jreen::JID &id)

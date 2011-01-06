@@ -79,6 +79,8 @@ JMUCSession::JMUCSession(const jreen::JID &room, const QString &password, JAccou
 			this, SLOT(onMessage(jreen::Message,bool)));
 	connect(d->room, SIGNAL(subjectChanged(QString,QString)),
 			this, SLOT(onSubjectChanged(QString,QString)));
+	connect(d->room, SIGNAL(leaved()), this, SIGNAL(left()));
+	connect(d->room, SIGNAL(joined()), this, SIGNAL(joined()));
 //	if (!password.isEmpty())
 //		d->room->setPassword(password);
 	d->isJoined = false;
@@ -155,7 +157,7 @@ void JMUCSession::leave()
 	Q_D(JMUCSession);
 	d->room->leave();
 	d->isJoined = false;
-	emit left();
+//	emit left();
 }
 
 bool JMUCSession::isJoined()
@@ -341,7 +343,7 @@ void JMUCSession::onParticipantPresence(const jreen::Presence &presence,
 		}
 		if (!d->isJoined && isSelf) {
 			d->isJoined = true;
-			emit joined();
+//			emit joined();
 		}
 	}
 	if (!text.isEmpty() && (d->isJoined || participant->isKicked() || participant->isBanned())) {
