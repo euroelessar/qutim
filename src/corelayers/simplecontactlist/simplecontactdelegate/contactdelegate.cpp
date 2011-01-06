@@ -71,6 +71,7 @@ void ContactDelegate::paint(QPainter *painter,
 	QStyleOptionViewItemV4 opt(option);
 	painter->save();
 	QStyle *style = p->getStyle(option);
+	const QWidget *widget = p->getWidget(option);
 
 	ContactItemType type = static_cast<ContactItemType>(index.data(ItemTypeRole).toInt());
 
@@ -97,7 +98,7 @@ void ContactDelegate::paint(QPainter *painter,
 		buttonOption.palette = option.palette;
 		style->drawControl(QStyle::CE_PushButton, &buttonOption, painter, opt.widget);
 
-		if(QTreeView *view = static_cast<QTreeView*>(index.model()->parent())) {
+		if(const QTreeView *view = qobject_cast<const QTreeView*>(widget)) {
 			QStyleOption branchOption;
 			static const int i = 9; // ### hardcoded in qcommonstyle.cpp
 			QRect r = option.rect;
