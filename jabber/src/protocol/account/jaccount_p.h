@@ -46,7 +46,7 @@ public slots:
 	void onConnected();
 	void onDisconnected();
 	//temporary
-	void handleIQ(const jreen::IQ &iq);
+	//void handleIQ(const jreen::IQ &iq);
 	void initExtensions(const QSet<QString> &features);
 public:	//old code
 	JConnection *connection;

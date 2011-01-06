@@ -68,9 +68,10 @@ protected:
 	void loadSettings();
 	//			// MUCRoomHandler
 protected slots:
-			void onParticipantPresence(const jreen::Presence &presence, const jreen::MUCRoom::Participant *part);
+	void onParticipantPresence(const jreen::Presence &presence, const jreen::MUCRoom::Participant *part);
 	void onMessage(const jreen::Message &msg, bool priv);
 	void onSubjectChanged(const QString &subject, const QString &nick);
+	void onError(jreen::Error::Ptr error);
 	//			bool handleMUCRoomCreation(gloox::MUCRoom *room);
 	//			void handleMUCInviteDecline(gloox::MUCRoom *room, const gloox::JID &invitee,
 	//										const std::string &reason);
