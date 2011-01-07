@@ -15,7 +15,6 @@
 
 #include "modulemanager_p.h"
 #include "plugin_p.h"
-#include "deprecatedplugin_p.h"
 #include "cryptoservice.h"
 #include "config.h"
 #include "notificationslayer.h"

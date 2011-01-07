@@ -104,10 +104,6 @@ ChatLayerImpl::~ChatLayerImpl()
 
 QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 {
-	if (qobject_cast<const Conference *>(unit)) {
-		return Icon("im-user"); //TODO find icon
-	}
-
 	QString icon_name;
 	switch (state) {
 	//FIXME icon names

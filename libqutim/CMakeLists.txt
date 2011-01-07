@@ -20,7 +20,7 @@ LIST( APPEND SRC "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/jdns.c"
 		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/jdns_util.c"
 		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns_sock.cpp"
 		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns.cpp" )
-QT4_WRAP_CPP( HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns.h"
+LIST( APPEND HDR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/qjdns_p.h" )
 
 # Add K8JSON code
@@ -78,17 +78,19 @@ endif()
 INCLUDE( ${QT_USE_FILE} )
 
 # Add include directories
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../sdk02/"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/k8json/"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qtdwm/"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/qticonloader/"
+INCLUDE_DIRECTORIES(
+	.
+	..
+	../sdk02/
+	../3rdparty/k8json/
+	../3rdparty/jdns/
+	../3rdparty/qtdwm/
+	../3rdparty/qticonloader/
+	${CMAKE_CURRENT_BINARY_DIR}
 )
 
 # Generate moc files
-QT4_WRAP_CPP( MOC_SRC ${HDR} )
-
+QUTIM_WRAP_CPP( MOC_SRC ${HDR})
 # Add JDNS using separate cmake project
 #ADD_SUBDIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/jdns/" "${CMAKE_CURRENT_BINARY_DIR}/../3rdparty/jdns/" )
 # Add Aero theme integration for Windows Vista and later
