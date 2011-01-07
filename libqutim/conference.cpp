@@ -48,7 +48,12 @@ void Conference::setJoined(bool isJoined)
 	if (d->isJoined == isJoined) return;
 	d->isJoined = isJoined;
 	emit joinedChanged(isJoined);
-	emit (isJoined ? joined : left)();
+
+	//emit (isJoined ? joined : left)(); //stupid studio(((
+	if(isJoined)
+		emit joined();
+	else
+		emit left();
 	d->isJoined = isJoined;
 }
 
