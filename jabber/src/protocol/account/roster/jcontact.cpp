@@ -13,14 +13,13 @@
 #include "jmessagehandler.h"
 #include <qutim/metacontact.h>
 #include <qutim/authorizationdialog.h>
+#include <QApplication>
 //jreen
 #include <jreen/presence.h>
 #include <jreen/client.h>
 #include <jreen/chatstate.h>
 #include "jroster.h"
 #include "../vcard/jvcardmanager.h"
-
-using namespace gloox;
 
 namespace Jabber
 {

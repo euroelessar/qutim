@@ -3,9 +3,6 @@
 
 #include <QtGui/QRadioButton>
 #include <QMap>
-#include <gloox/jid.h>
-#include <gloox/adhoc.h>
-#include <gloox/adhochandler.h>
 #include <QPointer>
 #include "../../account/dataform/jdataform.h"
 #include <qutim/localizedstring.h>

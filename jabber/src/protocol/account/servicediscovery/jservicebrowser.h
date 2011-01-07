@@ -4,7 +4,6 @@
 #include <QWidget>
 #include <QTreeWidgetItem>
 #include <QKeyEvent>
-#include <gloox/jid.h>
 #include <qutim/icon.h>
 #include "sdk/jabber.h"
 #include "jservicereceiver.h"

@@ -2,34 +2,34 @@
 
 namespace Jabber
 {
-	using namespace gloox;
-	struct JCertInfoPrivate
-	{
-		Ui::JCertInfo ui;
-	};
 
-	JCertInfo::JCertInfo(const CertInfo &info, QWidget *parent) : QDialog(parent), p(new JCertInfoPrivate)
-	{
-		p->ui.setupUi(this);
+struct JCertInfoPrivate
+{
+	Ui::JCertInfo ui;
+};
 
-		QDateTime from, to;
-		from.setTime_t(info.date_from);
-		to.setTime_t(info.date_to);
+//JCertInfo::JCertInfo(const CertInfo &info, QWidget *parent) : QDialog(parent), p(new JCertInfoPrivate)
+//{
+//	p->ui.setupUi(this);
 
-		p->ui.cipherLabel->setText(QString::fromStdString(info.cipher));
-		p->ui.compressionLabel->setText(QString::fromStdString(info.compression));
-		p->ui.serverLabel->setText(QString::fromStdString(info.server));
-		p->ui.fromLabel->setText(from.toString("hh:mm:ss dd/MM/yyyy"));
-		p->ui.toLabel->setText(to.toString("hh:mm:ss dd/MM/yyyy"));
-	}
+//	QDateTime from, to;
+//	from.setTime_t(info.date_from);
+//	to.setTime_t(info.date_to);
 
-	JCertInfo::~JCertInfo()
-	{
-	}
+//	p->ui.cipherLabel->setText(QString::fromStdString(info.cipher));
+//	p->ui.compressionLabel->setText(QString::fromStdString(info.compression));
+//	p->ui.serverLabel->setText(QString::fromStdString(info.server));
+//	p->ui.fromLabel->setText(from.toString("hh:mm:ss dd/MM/yyyy"));
+//	p->ui.toLabel->setText(to.toString("hh:mm:ss dd/MM/yyyy"));
+//}
 
-	bool JCertInfo::exec(bool &result)
-	{
-		result = QDialog::exec();
-		return p->ui.rememberBox->isChecked();
-	}
+JCertInfo::~JCertInfo()
+{
+}
+
+bool JCertInfo::exec(bool &result)
+{
+	result = QDialog::exec();
+	return p->ui.rememberBox->isChecked();
+}
 }

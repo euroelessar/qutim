@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include "sdk/jabber.h"
-#include <gloox/client.h>
 #include <QHash>
 
 //namespace Jabber

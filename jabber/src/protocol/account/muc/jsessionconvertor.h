@@ -21,7 +21,6 @@
 #include "../servicediscovery/jservicediscovery.h"
 #include "../servicediscovery/jservicereceiver.h"
 #include "../roster/jmessagesession.h"
-#include <gloox/mucroomhandler.h>
 
 //using namespace gloox;
 

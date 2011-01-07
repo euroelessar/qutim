@@ -15,6 +15,7 @@
 #include "../jaccount_p.h"
 #include <qutim/debug.h>
 #include <qutim/notificationslayer.h>
+#include <QApplication>
 //jreen
 #include <jreen/chatstate.h>
 #include <jreen/delayeddelivery.h>

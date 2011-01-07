@@ -5,8 +5,6 @@
 #include "jcontact.h"
 #include "jabber_global.h"
 #include <qutim/messagesession.h>
-#include <gloox/message.h>
-#include <gloox/receipt.h>
 #include <qutim/debug.h>
 #include "../muc/jsessionconvertor.h"
 #include "jcontactresource.h"

@@ -13,7 +13,6 @@
 #include <jreen/message.h>
 #include <jreen/client.h>
 
-using namespace gloox;
 using namespace qutim_sdk_0_3;
 
 namespace Jabber

@@ -7,7 +7,6 @@
 #include <qutim/protocol.h>
 #include <qutim/account.h>
 #include <qutim/icon.h>
-#include <gloox/adhoc.h>
 #include <QAction>
 
 //using namespace gloox;

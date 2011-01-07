@@ -19,7 +19,6 @@
 
 #include "../jaccount.h"
 #include <qutim/message.h>
-#include <gloox/chatstatefilter.h>
 
 namespace Jabber
 {

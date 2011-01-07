@@ -2,7 +2,6 @@
 #define JINVITEMANAGER_H
 
 #include <qutim/libqutim_global.h>
-#include <gloox/mucinvitationhandler.h>
 #include <QMetaType>
 
 //namespace Jabber {

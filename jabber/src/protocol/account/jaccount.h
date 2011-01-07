@@ -19,9 +19,6 @@
 #include <qutim/account.h>
 #include <jreen/presence.h>
 
-#include "connection/jconnection.h"
-#include "connection/jconnectionlistener.h"
-
 namespace jreen
 {
 class Client;
@@ -42,7 +39,7 @@ class JMessageHandler;
 class JServiceDiscovery;
 class JMUCManager;
 class JSoftwareDetection;
-
+class JVCardManager;
 class JMessageSessionManager;
 
 class JAccount : public Account

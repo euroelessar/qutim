@@ -32,6 +32,7 @@ public:
 	JVCardManager *vCardManager;
 	jreen::PubSub::Manager *pubSubManager;
 	jreen::PrivateXml *privateXml;
+	JMessageHandler *messageHandler;
 	QPointer<JServiceDiscovery> discoManager;
 	JAccount *q_ptr;
 	QString passwd;
@@ -49,12 +50,6 @@ public slots:
 	//void handleIQ(const jreen::IQ &iq);
 	void initExtensions(const QSet<QString> &features);
 public:	//old code
-	JConnection *connection;
-//	JRoster *roster;
-	JConnectionListener *connectionListener;
-	JMessageHandler *messageHandler;
-//	Presence::PresenceType status;
-//	QSet<QString> features;
 	Identities identities;
 };
 

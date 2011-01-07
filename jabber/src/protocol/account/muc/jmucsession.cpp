@@ -22,7 +22,6 @@
 #include "../vcard/jvcardmanager.h"
 #include "../../jprotocol.h"
 #include "jbookmarkmanager.h"
-//#include <gloox/uniquemucroom.h>
 #include <qutim/message.h>
 #include <jreen/message.h>
 #include <qutim/messagesession.h>
@@ -38,6 +37,8 @@
 #include <jreen/client.h>
 #include "../roster/jsoftwaredetection.h"
 #include <qutim/notificationslayer.h>
+#include <QApplication>
+#include <qutim/debug.h>
 
 using namespace jreen;
 using namespace qutim_sdk_0_3;
@@ -638,7 +639,7 @@ void JMUCSession::invite(qutim_sdk_0_3::Contact *contact, const QString &reason)
 void JMUCSession::onError(jreen::Error::Ptr error)
 {
 	Q_D(JMUCSession);
-	qDebug() << "error" << error->condition();
+	debug() << "error" << error->condition();
 	if(error->condition() == jreen::Error::Conflict) {
 		Notifications::send(Notifications::System,
 							this,

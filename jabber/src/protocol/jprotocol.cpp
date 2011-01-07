@@ -14,6 +14,7 @@
 #include "account/muc/jbookmarkmanager.h"
 #include "account/roster/jmessagesession.h"
 #include <QInputDialog>
+#include <qutim/debug.h>
 
 namespace Jabber
 {
@@ -153,7 +154,7 @@ void JProtocol::onConvertToMuc(QObject *obj)
 void JProtocol::onJoinLeave(QObject* obj)
 {
 	JMUCSession *room = qobject_cast<JMUCSession*>(obj);
-	qDebug() << Q_FUNC_INFO << obj;
+	debug() << Q_FUNC_INFO << obj;
 	Q_ASSERT(room);
 	if (!room->isJoined()) {
 //		JAccount *account = static_cast<JAccount*>(room->account());
