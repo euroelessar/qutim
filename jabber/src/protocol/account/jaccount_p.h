@@ -38,6 +38,7 @@ public:
 	QString passwd;
 	QString nick;
 	bool keepStatus;
+	bool isOnline;
 	jreen::Presence::Type status;
 	QList<JabberExtension *> extensions;
 	JabberParams params;
