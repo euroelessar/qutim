@@ -89,7 +89,7 @@ void JAccountPrivate::onDisconnected()
 
 void JAccountPrivate::initExtensions(const QSet<QString> &features)
 {
-	Q_Q(JAccount);
+	//Q_Q(JAccount);
 	debug() << "received features list" << features;
 //	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
 //		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
@@ -117,8 +117,6 @@ JAccount::JAccount(const QString &id) :
 	d->messageSessionManager = new JMessageSessionManager(this);
 	d->vCardManager = new JVCardManager(this);
 	d->softwareDetection = new JSoftwareDetection(this);
-	connect(d->conferenceManager.data(), SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
-			this, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
 
 	d->client.presence().addExtension(new VCardUpdate(QString()));
 	loadSettings();
@@ -142,10 +140,12 @@ JAccount::JAccount(const QString &id) :
 //	connect(&d->client,SIGNAL(connected()),
 //			d,SLOT(onConnected()));
 	
-	connect(&d->client,SIGNAL(disconnected()),
+	connect(&d->client, SIGNAL(disconnected()),
 			d,SLOT(onDisconnected()));
 	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
 			d,SLOT(initExtensions(QSet<QString>)));
+	connect(d->conferenceManager.data(), SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
+			this, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
 	
 	d->params.addItem<jreen::Client>(&d->client);
 	d->params.addItem<jreen::PubSub::Manager>(d->pubSubManager);

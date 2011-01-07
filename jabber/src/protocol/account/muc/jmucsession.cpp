@@ -2,6 +2,7 @@
  *  jmucsession.cpp
  *
  *  Copyright (c) 2009 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -84,6 +85,10 @@ JMUCSession::JMUCSession(const jreen::JID &room, const QString &password, JAccou
 	connect(d->room, SIGNAL(joined()), this, SIGNAL(joined()));
 	connect(d->room, SIGNAL(error(jreen::Error::Ptr)),
 			this, SLOT(onError(jreen::Error::Ptr)));
+	connect(account->client(), SIGNAL(disconnected()),
+			this, SLOT(leave()));
+	connect(account->client(), SIGNAL(connected()),
+			this, SLOT(join()));
 	//	if (!password.isEmpty())
 	//		d->room->setPassword(password);
 	d->isJoined = false;
@@ -128,8 +133,11 @@ ChatUnit *JMUCSession::participant(const QString &nick)
 
 void JMUCSession::join()
 {
-	d_func()->isJoined = true;
-	d_func()->room->join();
+	Q_D(JMUCSession);
+	if(d->isJoined)
+		return;
+	d->isJoined = true;
+	d->room->join();
 	setChatState(ChatStateActive);
 	//		Q_D(JMUCSession);
 	//		Presence &pres = d->account->client()->presence();
@@ -159,6 +167,8 @@ void JMUCSession::join()
 void JMUCSession::leave()
 {
 	Q_D(JMUCSession);
+	if(!d->isJoined)
+		return;
 	d->room->leave();
 	d->isJoined = false;
 	setChatState(ChatStateGone);
@@ -345,10 +355,11 @@ void JMUCSession::onParticipantPresence(const jreen::Presence &presence,
 				}
 			}
 		}
-		if (!d->isJoined && isSelf) {
-			d->isJoined = true;
-//			emit joined();
-		}
+		//WTF?  Oo
+		//if (!d->isJoined && isSelf) {
+		//	d->isJoined = true;
+		//	emit joined();
+		//}
 	}
 	if (!text.isEmpty() && (d->isJoined || participant->isKicked() || participant->isBanned())) {
 		qutim_sdk_0_3::Message msg(text);
