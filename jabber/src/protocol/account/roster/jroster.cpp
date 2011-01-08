@@ -199,12 +199,14 @@ void JRoster::onNewMessage(jreen::Message message)
 {
 	Q_D(JRoster);
 	//temporary
-	JContact *c = d->contacts.value(message.from().bare());
-	if(!c) {
-		c = static_cast<JContact*>(contact(message.from(),true));
-		c->setInList(false);
-		if(jreen::Nickname *nick = message.findExtension<jreen::Nickname>().data())
-			c->setName(nick->nick());
+	JContact *contact = d->contacts.value(message.from().bare());
+	ChatUnit *chatUnit = contact ? JRoster::contact(message.from().full(), false) : 0;
+	if(!contact) {
+		contact = static_cast<JContact*>(JRoster::contact(message.from(),true));
+		contact->setInList(false);
+		if(jreen::Nickname::Ptr nick = message.findExtension<jreen::Nickname>())
+			contact->setName(nick->nick());
+		chatUnit = contact;
 	}
 
 	if(message.body().isEmpty())
@@ -216,9 +218,9 @@ void JRoster::onNewMessage(jreen::Message message)
 		coreMessage.setTime(QDateTime::currentDateTime());
 	coreMessage.setText(message.body());
 	coreMessage.setProperty("subject",message.subject());
-	coreMessage.setChatUnit(c);
+	coreMessage.setChatUnit(chatUnit);
 	coreMessage.setIncoming(true);
-	ChatLayer::get(c,true)->appendMessage(coreMessage);
+	ChatLayer::get(contact,true)->appendMessage(coreMessage);
 }
 
 void JRoster::handleSubscription(jreen::Presence subscription)
