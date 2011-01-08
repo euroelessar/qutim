@@ -120,13 +120,13 @@ void JAccountPrivate::initExtensions(const QSet<QString> &features)
 {
 	//Q_Q(JAccount);
 	debug() << "received features list" << features;
-//	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
-//		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
-//			debug() << "init ext" << ext;
-//			extensions.append(ext);
-//			ext->init(q,params);
-//		}
-//	}
+	//	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
+	//		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
+	//			debug() << "init ext" << ext;
+	//			extensions.append(ext);
+	//			ext->init(q,params);
+	//		}
+	//	}
 	roster->load();
 }
 
@@ -172,8 +172,8 @@ JAccount::JAccount(const QString &id) :
 	d->signalMapper.setMapping(d->privacyManager, 2);
 	connect(&d->client, SIGNAL(connected()), d->privacyManager, SLOT(request()));
 	connect(&d->signalMapper, SIGNAL(mapped(int)), d, SLOT(onModuleLoaded(int)));
-//	connect(d->roster, SIGNAL(loaded()), d, SLOT(onConnected()));
-//	connect(&d->client,SIGNAL(connected()), d, SLOT(onConnected()));
+	//	connect(d->roster, SIGNAL(loaded()), d, SLOT(onConnected()));
+	//	connect(&d->client,SIGNAL(connected()), d, SLOT(onConnected()));
 	
 	connect(&d->client, SIGNAL(disconnected()),
 			d,SLOT(onDisconnected()));
@@ -184,11 +184,11 @@ JAccount::JAccount(const QString &id) :
 	
 	d->params.addItem<jreen::Client>(&d->client);
 	d->params.addItem<jreen::PubSub::Manager>(d->pubSubManager);
-//	d->params.addItem<Adhoc>(p->adhoc);
-//	d->params.addItem<VCardManager>(p->vCardManager->manager());
-//	d->params.addItem<SIManager>(p->siManager);
+	//	d->params.addItem<Adhoc>(p->adhoc);
+	//	d->params.addItem<VCardManager>(p->vCardManager->manager());
+	//	d->params.addItem<SIManager>(p->siManager);
 
-//	d->softwareDetection = new JSoftwareDetection(p->account, p->params);
+	//	d->softwareDetection = new JSoftwareDetection(p->account, p->params);
 
 	foreach (const ObjectGenerator *gen, ObjectGenerator::module<JabberExtension>()) {
 		if (JabberExtension *ext = gen->generate<JabberExtension>()) {
@@ -344,6 +344,12 @@ void JAccount::setStatus(Status status)
 	Status old = this->status();
 
 	if(old.type() == Status::Offline && status.type() != Status::Offline) {
+		if(d->client.password().isEmpty()) {
+			bool ok;
+			d->client.setPassword(password(&ok));
+			if(!ok)
+				return;
+		}
 		d->client.connectToServer();
 		d->status = status;
 		status.setType(Status::Connecting);
@@ -357,7 +363,7 @@ void JAccount::setStatus(Status status)
 		d->client.disconnectFromServer(true);
 	} else if(old.type() != Status::Offline && old.type() != Status::Connecting) {
 		d->applyStatus(status);
-//		d->client.setPresence(JStatus::statusToPresence(status), status.text());
+		//		d->client.setPresence(JStatus::statusToPresence(status), status.text());
 	}
 }
 

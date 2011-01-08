@@ -182,11 +182,12 @@ void JProtocol::onSaveRemoveBookmarks(QObject *obj)
 	JAccount *account = static_cast<JAccount*>(room->account());
 	JBookmarkManager *manager = account->conferenceManager()->bookmarkManager();
 	if (!room->bookmark().isValid()) {
-		//Rewrite on event system, something like
-		//Event event("groupchat-join-request");
-		//QObject *obj = getService("JoinGroupChat");
-		//qApp->sendEvent(obj,&event);
-//		manager->saveBookmark(room->id(), room->me()->name());
+		QString name = room->id();
+		manager->saveBookmark(-1,
+							  name,
+							  room->id(),
+							  room->me()->name(),
+							  QString());
 	} else {
 		manager->removeBookmark(room->bookmark());
 		room->setBookmark(jreen::Bookmark::Conference());

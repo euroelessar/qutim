@@ -39,6 +39,7 @@
 #include <qutim/notificationslayer.h>
 #include <QApplication>
 #include <qutim/debug.h>
+#include <QInputDialog>
 
 using namespace jreen;
 using namespace qutim_sdk_0_3;
@@ -114,7 +115,8 @@ JMUCSession::JMUCSession(const jreen::JID &room, const QString &password, JAccou
 
 JMUCSession::~JMUCSession()
 {
-	d_func()->room->leave();
+	Q_D(JMUCSession);
+	d->room->leave();
 }
 
 qutim_sdk_0_3::Buddy *JMUCSession::me() const
@@ -636,19 +638,21 @@ void JMUCSession::onError(jreen::Error::Ptr error)
 {
 	Q_D(JMUCSession);
 	debug() << "error" << error->condition();
-	if(error->condition() == jreen::Error::Conflict) {
+	if(error->condition() == Error::Conflict) {
 		Notifications::send(Notifications::System,
 							this,
 							QT_TRANSLATE_NOOP("Jabber","You already in conference with another nick"));
 
-		//QString nick = QInputDialog::getText(QApplication::activeWindow(),
-		//									 QT_TRANSLATE_NOOP("Jabber","You already in conference with another nick"),
-		//									 QT_TRANSLATE_NOOP("Jabber","Please select another nickname"));
+		QString nick = QInputDialog::getText(QApplication::activeWindow(),
+											 QT_TRANSLATE_NOOP("Jabber","You already in conference with another nick"),
+											 QT_TRANSLATE_NOOP("Jabber","Please select another nickname"));
 		////TODO add regexp
-		//if(nick.isEmpty())
+		if(nick.isEmpty())
+			leave();
+		d->room->setNick(nick);
+		d->room->join();
+	} else if(error->condition() == Error::Forbidden) {
 		leave();
-		//d->room->setNick(nick);
-		//d->room->join();
 	}
 }
 

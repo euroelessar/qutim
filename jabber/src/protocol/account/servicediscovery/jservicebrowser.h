@@ -69,7 +69,7 @@ protected:
 private:
 	QScopedPointer<JServiceBrowserPrivate> p;
 signals:
-	void joinConference(const QString &conference);
+	void joinConference(const QString &conference); //WTF ?
 	/*void registerTransport(const QString &transport);
    void executeCommand(const QString &command, const QString &node);
    void showVCard(const QString &jid);

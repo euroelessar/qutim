@@ -31,6 +31,7 @@ JServiceDiscovery::~JServiceDiscovery()
 
 void JServiceDiscovery::handleIQ(const jreen::IQ &iq)
 {
+	Q_UNUSED(iq);
 	//	QSharedPointer<jreen::Disco::Info> info = iq.findExtension<jreen::Disco::Info>();
 	//	if(info)
 	//		handleDiscoInfo(iq.from(),info);
@@ -88,6 +89,7 @@ void JServiceDiscovery::handleDiscoItems(const jreen::JID &from,
 										 QSharedPointer<jreen::Disco::Items> items,
 										 int context)
 {
+	Q_UNUSED(from);
 	QList<JDiscoItem> discoItems;
 	foreach (jreen::Disco::Item item, items->items()) {
 		JDiscoItem di;
@@ -210,40 +212,40 @@ void JServiceDiscovery::addDiscoIdentity(JDiscoItem &di,const jreen::Disco::Iden
 
 void JServiceDiscovery::setActions(JDiscoItem &di)
 {
-//	bool isIRC = false;
-//	foreach (jreen::Disco::Identity identity, di.identities())
-//		if (identity.category == "conference" && identity.type == "irc")
-//			isIRC = true;
-//	di.addAction(JDiscoItem::ActionAdd);
-//	if (di.hasFeature(QString::fromStdString(gloox::XMLNS_MUC))
-//		&& (!jreen::JID(di.jid()).node().isEmpty() || isIRC))
-//		di.addAction(JDiscoItem::ActionJoin);
-//	if (di.hasFeature(QString::fromStdString(gloox::XMLNS_BYTESTREAMS)))
-//		di.addAction(JDiscoItem::ActionProxy);
-//	if(di.hasFeature("http://jabber.org/protocol/muc#register")
-//			|| di.hasFeature(QString::fromStdString(gloox::XMLNS_REGISTER)))
-//		di.addAction(JDiscoItem::ActionRegister);
-//	if (di.hasFeature(QString::fromStdString(gloox::XMLNS_SEARCH)))
-//		di.addAction(JDiscoItem::ActionSearch);
-//	if (di.hasFeature(QString::fromStdString(gloox::XMLNS_VCARD_TEMP)))
-//		di.addAction(JDiscoItem::ActionVCard);
-//	if (di.hasFeature(QString::fromStdString(gloox::XMLNS_DISCO_ITEMS))
-//			|| (di.hasFeature(QString::fromStdString(gloox::XMLNS_MUC)) && !isIRC)
-//			|| (di.features().isEmpty() && di.identities().isEmpty()))
-//		di.setExpandable(true);
-//	if (di.hasIdentity("automation")) {
-//		bool expand = false;
-//		foreach (jreen::Disco::Identity identity, di.identities())
-//			if (identity.type == "command-list")
-//				expand = true;
-//		if (expand)
-//			di.setExpandable(true);
-//		//			else
-//		di.addAction(JDiscoItem::ActionExecute);
-//	} else if (di.hasFeature(QString::fromStdString(gloox::XMLNS_ADHOC_COMMANDS))) {
-//		di.setExpandable(true);
-//		di.addAction(JDiscoItem::ActionExecute);
-//	}
+	bool isIRC = false;
+	foreach (jreen::Disco::Identity identity, di.identities())
+		if (identity.category == "conference" && identity.type == "irc")
+			isIRC = true;
+	di.addAction(JDiscoItem::ActionAdd);
+	if (di.hasFeature(QLatin1String("http://jabber.org/protocol/muc"))
+		&& (!jreen::JID(di.jid()).node().isEmpty() || isIRC))
+		di.addAction(JDiscoItem::ActionJoin);
+	if (di.hasFeature(QLatin1String("http://jabber.org/protocol/bytestreams")))
+		di.addAction(JDiscoItem::ActionProxy);
+	if(di.hasFeature("http://jabber.org/protocol/muc#register")
+			|| di.hasFeature(QLatin1String("jabber:iq:register")))
+		di.addAction(JDiscoItem::ActionRegister);
+	if (di.hasFeature(QLatin1String("jabber:iq:search")))
+		di.addAction(JDiscoItem::ActionSearch);
+	if (di.hasFeature(QLatin1String("vcard-temp")))
+		di.addAction(JDiscoItem::ActionVCard);
+	if (di.hasFeature(QLatin1String("http://jabber.org/protocol/disco#items"))
+			|| (di.hasFeature(QLatin1String("http://jabber.org/protocol/muc")) && !isIRC)
+			|| (di.features().isEmpty() && di.identities().isEmpty()))
+		di.setExpandable(true);
+	if (di.hasIdentity("automation")) {
+		bool expand = false;
+		foreach (jreen::Disco::Identity identity, di.identities())
+			if (identity.type == "command-list")
+				expand = true;
+		if (expand)
+			di.setExpandable(true);
+		//			else
+		di.addAction(JDiscoItem::ActionExecute);
+	} else if (di.hasFeature(QLatin1String("http://jabber.org/protocol/commands"))) {
+		di.setExpandable(true);
+		di.addAction(JDiscoItem::ActionExecute);
+	}
 }
 
 }

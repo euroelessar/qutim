@@ -5,6 +5,8 @@
 #include "jdiscoitem.h"
 #include "../jaccount.h"
 #include "../muc/jmucmanager.h"
+#include "../roster/jroster.h"
+#include "../roster/jcontact.h"
 #include "protocol/modules/adhoc/jadhocwidget.h"
 #include <qutim/iconloader.h>
 #include <qutim/configbase.h>
@@ -51,7 +53,7 @@ JServiceBrowser::JServiceBrowser(JAccount *account, bool isConference, QWidget *
 	: QWidget(parent), p(new JServiceBrowserPrivate)
 {
 	p->account = account;
-	p->isConference = isConference;
+	p->isConference = isConference; //WTF ? Oo
 	p->searchCount = 0;
 	p->ui = new Ui::ServiceBrowser();
 	p->contextMenu = new QMenu();
@@ -448,20 +450,15 @@ void JServiceBrowser::onExecute()
 
 void JServiceBrowser::onJoin()
 {
-	if (p->isConference) {
-		emit joinConference(p->currentMenuItem.jid());
-		close();
-	} else {
-		//Rewrite on event system, something like
-		//Event event("groupchat-join-request");
-		//QObject *obj = getService("JoinGroupChat");
-		//qApp->sendEvent(obj,&event);
-		//p->account->conferenceManager()->openJoinWindow(p->currentMenuItem.jid(), p->account->name(), "");
-	}
+	p->account->conferenceManager()->join(p->currentMenuItem.jid(),
+										  p->account->name());
 }
 
 void JServiceBrowser::onAddToRoster()
 {
-
+	ChatUnit *u = p->account->roster()->contact(p->currentMenuItem.jid(),true);
+	if(JContact *c = qobject_cast<JContact*>(u))
+		p->account->roster()->addContact(c);
 }
+
 }
