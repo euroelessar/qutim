@@ -5,9 +5,11 @@
 #include "muc/jbookmarkmanager.h"
 //jreen
 #include <jreen/client.h>
+#include <jreen/privacymanager.h>
 //#include <jreen/pubsubmanager.h>
 #include "vcard/jvcardmanager.h"
 #include <sdk/jabber.h>
+#include <QSignalMapper>
 namespace jreen
 {
 class Client;
@@ -28,6 +30,7 @@ public:
 	jreen::Client client;
 	JSoftwareDetection *softwareDetection;
 	JRoster *roster;
+	jreen::PrivacyManager *privacyManager;
 	JMessageSessionManager *messageSessionManager;
 	JVCardManager *vCardManager;
 	jreen::PubSub::Manager *pubSubManager;
@@ -38,14 +41,19 @@ public:
 	QString passwd;
 	QString nick;
 	bool keepStatus;
-	jreen::Presence::Type status;
+	Status status;
 	QList<JabberExtension *> extensions;
 	JabberParams params;
 	QPointer<JMUCManager> conferenceManager;
+	QSignalMapper signalMapper;
+	int loadedModules;
+	
+	void applyStatus(const Status &status);
 public slots:	
 	void setPresence(jreen::Presence);
 	void onConnected();
 	void onDisconnected();
+	void onModuleLoaded(int i);
 	//temporary
 	//void handleIQ(const jreen::IQ &iq);
 	void initExtensions(const QSet<QString> &features);

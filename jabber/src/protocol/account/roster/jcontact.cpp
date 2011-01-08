@@ -82,6 +82,8 @@ void JContact::setName(const QString &name)
 void JContact::setContactName(const QString &name)
 {
 	Q_D(JContact);
+	if (d->name == name)
+		return;
 	QString previous = d->name;
 	d->name = name;
 	emit nameChanged(name, previous);
@@ -105,10 +107,11 @@ void JContact::setTags(const QStringList &tags)
 void JContact::setContactTags(const QStringList &tags)
 {
 	Q_D(JContact);
+	if (d->tags == tags)
+		return;
 	QStringList previous = d->tags;
 	d->tags = tags;
 	emit tagsChanged(tags, previous);
-	debug() << id() << tags << previous;
 }
 
 QStringList JContact::tags() const
@@ -123,7 +126,10 @@ bool JContact::isInList() const
 
 void JContact::setContactInList(bool inList)
 {
-	d_func()->inList = inList;
+	Q_D(JContact);
+	if (d->inList == inList)
+		return;
+	d->inList = inList;
 	emit inListChanged(inList);
 }
 

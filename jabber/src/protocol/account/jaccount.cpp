@@ -54,28 +54,54 @@ class JPasswordValidator : public QValidator
 	}
 };
 
+void JAccountPrivate::applyStatus(const Status &status)
+{
+	Q_Q(JAccount);
+	if (status.type() == Status::Invisible) {
+		QString invisible = QLatin1String("invisible");
+		if (privacyManager->activeList() != invisible) {
+			if (!privacyManager->lists().contains(invisible)) {
+				PrivacyItem item;
+				item.setAction(PrivacyItem::Deny);
+				item.setOrder(1);
+				item.setStanzaTypes(PrivacyItem::PresenceOut);
+				privacyManager->setList(invisible, QList<PrivacyItem>() << item);
+				privacyManager->setActiveList(invisible);
+			}
+			client.setPresence(Presence::Unavailable);
+			privacyManager->setActiveList(invisible);
+		}
+	}
+	q->setAccountStatus(status);
+	client.setPresence(JStatus::statusToPresence(status), status.text());
+}
+
 void JAccountPrivate::setPresence(jreen::Presence presence)
 {
 	Q_Q(JAccount);
-	Status now = q->status();
-	status = presence.subtype();
-	now.setType(JStatus::presenceToStatus(status));
+	Status now = status;
+	now.setType(JStatus::presenceToStatus(presence.subtype()));
 	now.setText(presence.status());
 	q->setAccountStatus(now);
-	if(status == jreen::Presence::Unavailable)
+	if(presence.subtype() == jreen::Presence::Unavailable)
 		client.disconnectFromServer(false);
 }
 
 void JAccountPrivate::onConnected()
 {
 	Q_Q(JAccount);
-	Status s = q->status();
-	s.setType(Status::Online);
-	q->setAccountStatus(s);
-	client.setPresence(status,s.text());
+	applyStatus(status);
 	vCardManager->fetchVCard(q->id());
 	conferenceManager->syncBookmarks();
 	q->resetGroupChatManager(conferenceManager->bookmarkManager());
+}
+
+void JAccountPrivate::onModuleLoaded(int i)
+{
+	qDebug() << Q_FUNC_INFO << loadedModules << i << sender();
+	loadedModules |= i;
+	if (loadedModules == 3)
+		onConnected();
 }
 
 void JAccountPrivate::onDisconnected()
@@ -85,6 +111,7 @@ void JAccountPrivate::onDisconnected()
 	now.setType(Status::Offline);	
 	q->setAccountStatus(now);
 	q->resetGroupChatManager(0);
+	loadedModules = 0;
 }
 
 void JAccountPrivate::initExtensions(const QSet<QString> &features)
@@ -108,7 +135,9 @@ JAccount::JAccount(const QString &id) :
 	Q_D(JAccount);
 	Account::setStatus(Status::instance(Status::Offline, "jabber"));
 
+	d->loadedModules = 0;
 	d->roster = new JRoster(this);
+	d->privacyManager = new PrivacyManager(&d->client);
 	jreen::Capabilities::Ptr caps = d->client.presence().findExtension<jreen::Capabilities>();
 	caps->setNode(QLatin1String("http://qutim.org/"));
 	d->privateXml = new jreen::PrivateXml(&d->client);
@@ -134,11 +163,15 @@ JAccount::JAccount(const QString &id) :
 	QString lang = tr("en", "Default language");
 	if(qutim != QLatin1String("qutIM") && lang != QLatin1String("en"))
 		disco->addIdentity(jreen::Disco::Identity(QLatin1String("client"), QLatin1String("type"),qutim,lang));
-
-	connect(d->roster, SIGNAL(loaded()),
-			d, SLOT(onConnected()));
-//	connect(&d->client,SIGNAL(connected()),
-//			d,SLOT(onConnected()));
+	
+	connect(d->roster, SIGNAL(loaded()), &d->signalMapper, SLOT(map()));
+	connect(d->privacyManager, SIGNAL(listsReceived()), &d->signalMapper, SLOT(map()));
+	d->signalMapper.setMapping(d->roster, 1);
+	d->signalMapper.setMapping(d->privacyManager, 2);
+	connect(&d->client, SIGNAL(connected()), d->privacyManager, SLOT(request()));
+	connect(&d->signalMapper, SIGNAL(mapped(int)), d, SLOT(onModuleLoaded(int)));
+//	connect(d->roster, SIGNAL(loaded()), d, SLOT(onConnected()));
+//	connect(&d->client,SIGNAL(connected()), d, SLOT(onConnected()));
 	
 	connect(&d->client, SIGNAL(disconnected()),
 			d,SLOT(onDisconnected()));
@@ -310,19 +343,19 @@ void JAccount::setStatus(Status status)
 
 	if(old.type() == Status::Offline && status.type() != Status::Offline) {
 		d->client.connectToServer();
-		d->status = JStatus::statusToPresence(status);
+		d->status = status;
 		status.setType(Status::Connecting);
 		setAccountStatus(status);
 	} else if(status.type() == Status::Offline) {
 		bool force = old.type() == Status::Connecting;
-		if(force) {
+		if (force) {
 			status.setType(Status::Offline);
 			setAccountStatus(status);
 		}
 		d->client.disconnectFromServer(true);
 	} else if(old.type() != Status::Offline && old.type() != Status::Connecting) {
-		d->client.setPresence(JStatus::statusToPresence(status),
-							  status.text());
+		d->applyStatus(status);
+//		d->client.setPresence(JStatus::statusToPresence(status), status.text());
 	}
 }
 

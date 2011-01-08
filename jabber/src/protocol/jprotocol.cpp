@@ -115,6 +115,7 @@ void JProtocol::loadActions()
 			 << Status(Status::Away)
 			 << Status(Status::NA)
 			 << Status(Status::DND)
+			 << Status(Status::Invisible)
 			 << Status(Status::Offline);
 
 	foreach (Status status, statuses) {
