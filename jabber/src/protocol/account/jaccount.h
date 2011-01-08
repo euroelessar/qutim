@@ -24,6 +24,7 @@ namespace jreen
 class Client;
 class JID;
 class PrivateXml;
+class PrivacyManager;
 namespace PubSub { class Manager; }
 }
 
@@ -34,6 +35,7 @@ using namespace qutim_sdk_0_3;
 
 class JAccountPrivate;
 class JRoster;
+class JRosterPrivate;
 class JConnection;
 class JMessageHandler;
 class JServiceDiscovery;
@@ -62,6 +64,7 @@ public:
 	JServiceDiscovery *discoManager();
 	JMUCManager *conferenceManager();
 	jreen::PrivateXml *privateXml();
+	jreen::PrivacyManager *privacyManager();
 	jreen::PubSub::Manager *pubSubManager();
 	virtual void setStatus(Status status);
 	void setAccountStatus(Status status);
@@ -78,6 +81,7 @@ protected:
 private:
 	//jreen
 	friend class JRoster;
+	friend class JRosterPrivate;
 	friend class JServerDiscoInfo;
 	QScopedPointer<JAccountPrivate> d_ptr;
 };

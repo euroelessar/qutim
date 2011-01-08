@@ -6,6 +6,7 @@
 #include "../jaccount.h"
 #include <QDir>
 #include <qutim/debug.h>
+#include <qutim/rosterstorage.h>
 #include <jreen/vcard.h>
 #include <jreen/vcardupdate.h>
 #include <jreen/iq.h>
@@ -95,10 +96,13 @@ void JVCardManager::handleIQ(const jreen::IQ &iq)
 		}
 	} else {
 		ChatUnit *unit = d->account->getUnit(id);
-		if (JContact *contact = qobject_cast<JContact *>(unit))
+		if (JContact *contact = qobject_cast<JContact *>(unit)) {
 			contact->setAvatar(avatarHash);
-		else if (JMUCUser *contact = qobject_cast<JMUCUser *>(unit))
+			if (contact->isInList())
+				RosterStorage::instance()->updateContact(contact, account()->roster()->version());
+		} else if (JMUCUser *contact = qobject_cast<JMUCUser *>(unit)) {
 			contact->setAvatar(avatarHash);
+		}
 	}
 	debug() << "fetched...";
 	if (JInfoRequest *request = d->contacts.take(id))

@@ -26,6 +26,7 @@
 #include <jreen/iq.h>
 #include <qutim/debug.h>
 #include <qutim/json.h>
+#include <jreen/error.h>
 #include <QUrl>
 
 using namespace qutim_sdk_0_3;
@@ -60,6 +61,7 @@ JSoftwareDetection::JSoftwareDetection(JAccount *account) : QObject(account)
 		info.os = cache.value(QLatin1String("os"), QString());
 		info.icon = getClientIcon(info.name);
 		info.description = getClientDescription(info.name, info.version, info.os);
+		info.finished = cache.value(QLatin1String("finished"), !info.name.isEmpty());
 		m_hash.insert(fromConfigNode(node), info);
 		cache.endGroup();
 	}
@@ -83,6 +85,7 @@ void JSoftwareDetection::timerEvent(QTimerEvent *ev)
 			cache.setValue(QLatin1String("name"), info.name);
 			cache.setValue(QLatin1String("version"), info.version);
 			cache.setValue(QLatin1String("os"), info.os);
+			cache.setValue(QLatin1String("finished"), info.finished);
 			cache.endGroup();
 		}
 		m_recent.clear();
@@ -126,7 +129,7 @@ void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
 					SoftwareInfo &info = *it;
 					resource->setFeatures(info.features);
 					qDebug() << info.name;
-					if (info.name.isEmpty()) {
+					if (!info.finished) {
 						qDebug() << "Send software version request";
 						jreen::IQ iq(jreen::IQ::Get, presence.from());
 						iq.addExtension(new jreen::SoftwareVersion());
@@ -149,8 +152,22 @@ void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
 void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 {	
 	if (context == RequestSoftware) {
-		if (const jreen::SoftwareVersion *soft = iq.findExtension<jreen::SoftwareVersion>().data()) {
-			iq.accept();
+		if (const jreen::Error *error = iq.error()) {
+			if (error->condition() != jreen::Error::ServiceUnavailable)
+				return;
+			ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
+			if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
+				QString node = resource->property("node").toString();
+				SoftwareInfoHash::iterator it = m_hash.find(node);
+				if (it != m_hash.end()) {
+					SoftwareInfo &info = (*it);
+					info.finished = true;
+					updateCache(node, info, true);
+				}
+			}
+			return;
+		}
+		if (jreen::SoftwareVersion::Ptr soft = iq.findExtension<jreen::SoftwareVersion>()) {
 			ChatUnit *unit = m_account->getUnit(iq.from().full(), false);
 			if (JContactResource *resource = qobject_cast<JContactResource*>(unit)) {
 				QString node = resource->property("node").toString();
@@ -163,6 +180,7 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 				SoftwareInfoHash::iterator it = m_hash.find(node);
 				if (it != m_hash.end()) {
 					SoftwareInfo &info = (*it);
+					info.finished = true;
 					info.name = software;
 					info.version = softwareVersion;
 //					info.os = os;
@@ -180,8 +198,7 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 		QString node = discoInfo->node();
 
 		SoftwareInfo info;
-		foreach(const QString &str, discoInfo->features())
-			info.features << str;
+		info.features = discoInfo->features();
 
 		QString jid = iq.from().full();
 		jreen::DataForm::Ptr form = discoInfo->form();
@@ -206,6 +223,16 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 					info.os.append(" ").append(osVersion);
 			}
 			info.description = client;
+			info.finished = true;
+		} else {
+			foreach (const jreen::Disco::Identity &identity, discoInfo->identities()) {
+				if (identity.category == QLatin1String("client")) {
+					info.name = identity.name;
+					info.icon = getClientIcon(info.name);
+					info.description = getClientDescription(info.name, QString(), QString());
+					break;
+				}
+			}
 		}
 
 		updateCache(node, info);
@@ -214,7 +241,7 @@ void JSoftwareDetection::handleIQ(const jreen::IQ &iq, int context)
 			if (unit->property("node").isNull())
 				unit->setProperty("node", node);
 
-			if (info.name.isEmpty()) {
+			if (!info.finished) {
 				jreen::IQ get(jreen::IQ::Get,unit->id());
 				get.addExtension(new jreen::SoftwareVersion());
 				m_account->client()->send(get,this,SLOT(handleIQ(jreen::IQ,int)),RequestSoftware);

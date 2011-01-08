@@ -45,12 +45,14 @@ class JSoftwareDetection : public QObject
 public:
 	struct SoftwareInfo
 	{
+		SoftwareInfo() : finished(false) {}
 		QSet<QString> features;
 		QString name;
 		QString version;
 		QString os;
 		QString icon;
 		QString description;
+		bool finished;
 	};
 	typedef QHash<QString, SoftwareInfo> SoftwareInfoHash;
 

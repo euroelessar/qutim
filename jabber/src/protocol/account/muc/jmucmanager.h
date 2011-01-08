@@ -26,6 +26,11 @@ namespace qutim_sdk_0_3
 class Conference;
 }
 
+namespace jreen
+{
+class PrivacyItem;
+}
+
 namespace Jabber
 {
 using namespace qutim_sdk_0_3;
@@ -53,6 +58,8 @@ public:
 signals:
 	void conferenceCreated(qutim_sdk_0_3::Conference*);
 private slots:
+	void onListReceived(const QString &name, const QList<jreen::PrivacyItem> &items);
+	void onActiveListChanged(const QString &name);
 	void bookmarksChanged();
 	void closeMUCSession();
 protected:

@@ -175,6 +175,8 @@ JAccount::JAccount(const QString &id) :
 	//	connect(d->roster, SIGNAL(loaded()), d, SLOT(onConnected()));
 	//	connect(&d->client,SIGNAL(connected()), d, SLOT(onConnected()));
 	
+	d->roster->loadFromStorage();
+	
 	connect(&d->client, SIGNAL(disconnected()),
 			d,SLOT(onDisconnected()));
 	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
@@ -331,6 +333,11 @@ JMUCManager *JAccount::conferenceManager()
 jreen::PrivateXml *JAccount::privateXml()
 {
 	return d_func()->privateXml;
+}
+
+jreen::PrivacyManager *JAccount::privacyManager()
+{
+	return d_func()->privacyManager;
 }
 
 jreen::PubSub::Manager *JAccount::pubSubManager()

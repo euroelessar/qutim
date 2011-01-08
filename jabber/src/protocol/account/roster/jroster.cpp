@@ -15,6 +15,7 @@
 #include "../jaccount_p.h"
 #include <qutim/debug.h>
 #include <qutim/notificationslayer.h>
+#include <qutim/rosterstorage.h>
 #include <QApplication>
 //jreen
 #include <jreen/chatstate.h>
@@ -25,15 +26,46 @@
 namespace Jabber
 {
 
-class JRosterPrivate
+class JRosterPrivate : public ContactsFactory
 {
 public:
 	JRosterPrivate(JRoster *q) : q_ptr(q) {}
+	Contact *addContact(const QString &id, const QVariantMap &data);
+	void serialize(Contact *contact, QVariantMap &data);
+	
 	JAccount *account;
 	JRoster *q_ptr;
+	RosterStorage *storage;
 	QHash<QString, JContact*> contacts;
 	bool showNotifications;
+	bool ignoreChanges;
 };
+
+Contact *JRosterPrivate::addContact(const QString &id, const QVariantMap &data)
+{
+	JContact *contact = new JContact(id, account);
+	QObject::connect(contact, SIGNAL(destroyed(QObject*)), q_ptr, SLOT(onContactDestroyed(QObject*)));
+	contact->setContactInList(true);
+	contact->setAvatar(data.value(QLatin1String("avatar")).toString());
+	contact->setContactName(data.value(QLatin1String("name")).toString());
+	contact->setContactTags(data.value(QLatin1String("tags")).toStringList());
+	int s10n = data.value(QLatin1String("s10n")).toInt();
+	contact->setContactSubscription(static_cast<jreen::AbstractRosterItem::SubscriptionType>(s10n));
+	contacts.insert(id, contact);
+	emit account->contactCreated(contact);
+	return contact;
+}
+
+void JRosterPrivate::serialize(Contact *generalContact, QVariantMap &data)
+{
+	JContact *contact = qobject_cast<JContact*>(generalContact);
+	if (!contact)
+		return;
+	data.insert(QLatin1String("avatar"), contact->avatarHash());
+	data.insert(QLatin1String("name"), contact->name());
+	data.insert(QLatin1String("tags"), contact->tags());
+	data.insert(QLatin1String("s10n"), contact->subscription());
+}
 
 JRoster::JRoster(JAccount *account) :
 	AbstractRoster(account->client()),
@@ -42,6 +74,9 @@ JRoster::JRoster(JAccount *account) :
 	Q_D(JRoster);
 	d->account = account;
 	d->showNotifications = true;
+	d->ignoreChanges = false;
+	d->storage = RosterStorage::instance();
+	d->account->setContactsFactory(d);
 	connect(d->account->client(),SIGNAL(newPresence(jreen::Presence)),
 			this,SLOT(handleNewPresence(jreen::Presence)));
 	connect(d->account->client(),SIGNAL(disconnected()),
@@ -55,13 +90,33 @@ JRoster::~JRoster()
 
 }
 
+void JRoster::loadFromStorage()
+{
+	Q_D(JRoster);
+	QList<jreen::AbstractRosterItem::Ptr> items;
+	QString version = d->storage->load(d->account);
+	QHashIterator<QString, JContact*> contacts = d->contacts;
+	while (contacts.hasNext()) {
+		contacts.next();
+		JContact *contact = contacts.value();
+		items << jreen::AbstractRosterItem::Ptr(new jreen::AbstractRosterItem(
+				contact->id(), contact->name(), contact->tags(), contact->subscription()));
+	}
+	d->ignoreChanges = true;
+	fillRoster(version, items);
+	d->ignoreChanges = false;
+}
+
 void JRoster::onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item)
 {
-	//Q_D(JRoster);
+	Q_D(JRoster);
+	if (d->ignoreChanges)
+		return;
 	JContact *contact = static_cast<JContact*>(JRoster::contact(item->jid(), true));
 	Q_ASSERT(contact);
 	fillContact(contact, item);
-	if(d_func()->showNotifications) {
+	d->storage->addContact(contact, version());
+	if(d->showNotifications) {
 		Notifications::send(Notifications::System,
 							contact,
 							tr("Contact %1 has been added to roster").arg(contact->title()));
@@ -70,16 +125,23 @@ void JRoster::onItemAdded(QSharedPointer<jreen::AbstractRosterItem> item)
 void JRoster::onItemUpdated(QSharedPointer<jreen::AbstractRosterItem> item)
 {
 	Q_D(JRoster);
-	if (JContact *contact = d->contacts.value(item->jid()))
+	if (d->ignoreChanges)
+		return;
+	if (JContact *contact = d->contacts.value(item->jid())) {
 		fillContact(contact, item);
+		d->storage->updateContact(contact, version());
+	}
 }
 
 void JRoster::onItemRemoved(const QString &jid)
 {
 	Q_D(JRoster);
+	if (d->ignoreChanges)
+		return;
 	JContact *contact = d->contacts.take(jid);
 	if(!contact)
 		return;
+	d->storage->removeContact(contact, version());
 	contact->setContactInList(false);
 	contact->setContactSubscription(jreen::AbstractRosterItem::None);
 	if(d->showNotifications) {
@@ -177,10 +239,13 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 			QString hash = vcard->photoHash();
 			debug() << "vCard update" << (c->avatarHash() != hash);
 			if (c->avatarHash() != hash) {
-				if(hash.isEmpty() || QFile(d->account->getAvatarPath()%QLatin1Char('/')%hash).exists())
+				if(hash.isEmpty() || QFile(d->account->getAvatarPath()%QLatin1Char('/')%hash).exists()) {
 					c->setAvatar(hash);
-				else
+					if (c->isInList())
+						d->storage->updateContact(c, version());
+				} else {
 					d->account->d_ptr->vCardManager->fetchVCard(from);
+				}
 			}
 		}
 	}

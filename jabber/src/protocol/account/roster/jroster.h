@@ -25,6 +25,7 @@ class JRoster : public jreen::AbstractRoster
 public:
 	JRoster(JAccount *account);
 	virtual ~JRoster();
+	void loadFromStorage();
 	ChatUnit *contact(const jreen::JID &id, bool create = false);
 	void addContact(const JContact *contact);
 	void removeContact(const JContact *contact);
