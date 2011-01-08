@@ -310,7 +310,7 @@ bool JProtocol::event(QEvent *ev)
 		if (event->isVisible()) {
 			switch (type) {
 			case JoinLeaveAction: {
-				JMUCSession *room = qobject_cast<JMUCSession*>(event->controller());
+				Conference *room = qobject_cast<JMUCSession*>(event->controller());
 				if (!room->isJoined())
 					action->setText(QT_TRANSLATE_NOOP("Jabber", "Join conference"));
 				else

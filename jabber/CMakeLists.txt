@@ -14,7 +14,7 @@ SET( QT_USE_QTNETWORK TRUE )
 
 qutim_add_plugin( jabber
 	DISPLAY_NAME "Jabber protocol"
-	DESCRIPTION "Implementation of jabber protocol based on gloox library"
+	DESCRIPTION "Implementation of jabber protocol based on jreen library"
 	GROUP "Protocols"
 	LINK_LIBRARIES jreen
 	INCLUDE_DIRS "${INCLUDE_DIRS}"

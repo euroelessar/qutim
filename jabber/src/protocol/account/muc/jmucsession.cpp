@@ -86,10 +86,6 @@ JMUCSession::JMUCSession(const jreen::JID &room, const QString &password, JAccou
 	connect(d->room, SIGNAL(joined()), this, SIGNAL(joined()));
 	connect(d->room, SIGNAL(error(jreen::Error::Ptr)),
 			this, SLOT(onError(jreen::Error::Ptr)));
-	connect(account->client(), SIGNAL(disconnected()),
-			this, SLOT(leave()));
-	connect(account->client(), SIGNAL(connected()),
-			this, SLOT(join()));
 	//	if (!password.isEmpty())
 	//		d->room->setPassword(password);
 	d->isJoined = false;
@@ -135,7 +131,7 @@ ChatUnit *JMUCSession::participant(const QString &nick)
 void JMUCSession::join()
 {
 	Q_D(JMUCSession);
-	if(d->isJoined)
+	if(d->isJoined || !d->account->client()->isConnected())
 		return;
 	d->isJoined = true;
 	d->room->join();

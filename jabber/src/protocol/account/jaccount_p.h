@@ -42,6 +42,7 @@ public:
 	QString nick;
 	bool keepStatus;
 	Status status;
+	bool isOnline;
 	QList<JabberExtension *> extensions;
 	JabberParams params;
 	QPointer<JMUCManager> conferenceManager;
