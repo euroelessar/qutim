@@ -57,8 +57,8 @@ class JPasswordValidator : public QValidator
 void JAccountPrivate::applyStatus(const Status &status)
 {
 	Q_Q(JAccount);
+	QString invisible = QLatin1String("invisible");
 	if (status.type() == Status::Invisible) {
-		QString invisible = QLatin1String("invisible");
 		if (privacyManager->activeList() != invisible) {
 			if (!privacyManager->lists().contains(invisible)) {
 				PrivacyItem item;
@@ -66,11 +66,13 @@ void JAccountPrivate::applyStatus(const Status &status)
 				item.setOrder(1);
 				item.setStanzaTypes(PrivacyItem::PresenceOut);
 				privacyManager->setList(invisible, QList<PrivacyItem>() << item);
-				privacyManager->setActiveList(invisible);
 			}
 			client.setPresence(Presence::Unavailable);
 			privacyManager->setActiveList(invisible);
 		}
+	} else {
+		if (privacyManager->activeList() == invisible)
+			privacyManager->desetActiveList();
 	}
 	q->setAccountStatus(status);
 	client.setPresence(JStatus::statusToPresence(status), status.text());
