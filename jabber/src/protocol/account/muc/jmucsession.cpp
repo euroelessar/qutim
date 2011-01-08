@@ -81,6 +81,8 @@ JMUCSession::JMUCSession(const jreen::JID &room, const QString &password, JAccou
 			d->account->softwareDetection(), SLOT(handlePresence(jreen::Presence)));
 	connect(d->room, SIGNAL(messageReceived(jreen::Message,bool)),
 			this, SLOT(onMessage(jreen::Message,bool)));
+	connect(d->room, SIGNAL(serviceMessageReceived(jreen::Message)),
+			this, SLOT(onServiceMessage(jreen::Message)));
 	connect(d->room, SIGNAL(subjectChanged(QString,QString)),
 			this, SLOT(onSubjectChanged(QString,QString)));
 	connect(d->room, SIGNAL(leaved()), this, SIGNAL(left()));
@@ -421,6 +423,16 @@ void JMUCSession::onMessage(const jreen::Message &msg, bool priv)
 			coreMsg.setProperty("subject", msg.subject());
 		chatSession->appendMessage(coreMsg);
 	}
+}
+
+void JMUCSession::onServiceMessage(const jreen::Message &msg)
+{
+	//TODO add capthca handler
+	ChatSession *chatSession = ChatLayer::get(this, true);
+	qutim_sdk_0_3::Message coreMsg(msg.body());
+	coreMsg.setChatUnit(this);
+	coreMsg.setProperty("service",true);
+	chatSession->appendMessage(coreMsg);
 }
 
 //bool JMUCSession::handleMUCRoomCreation(MUCRoom *room)
