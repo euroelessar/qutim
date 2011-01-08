@@ -22,6 +22,7 @@
 #include "protocol.h"
 #include "status.h"
 #include "groupchatmanager_p.h"
+#include "rosterstorage.h"
 
 namespace qutim_sdk_0_3
 {
@@ -33,6 +34,7 @@ namespace qutim_sdk_0_3
 		QString id;
 		Status status;
 		GroupChatManager *groupChatManager;
+		ContactsFactory *contactsFactory;
 	};
 }
 

@@ -29,6 +29,7 @@ namespace qutim_sdk_0_3
 	class Conference;
 	class AccountPrivate;
 	class GroupChatManager;
+	class ContactsFactory;
 
 	class Account;
 	typedef QList<Account*> AccountList;
@@ -113,6 +114,7 @@ namespace qutim_sdk_0_3
 		  \see resetGroupChatManager()
 		*/
 		GroupChatManager *groupChatManager();
+		ContactsFactory *contactsFactory();
 	protected:
 		/**
 		  Sets the group chat \a manager to be used by this account.
@@ -120,6 +122,7 @@ namespace qutim_sdk_0_3
 		  \see groupChatManager()
 		*/
 		void resetGroupChatManager(GroupChatManager *manager = 0);
+		void setContactsFactory(ContactsFactory *factory);
 	signals:
 		/*!
 		  Signal is emitted when new \a contact was created.
