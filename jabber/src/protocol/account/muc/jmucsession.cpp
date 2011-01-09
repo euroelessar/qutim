@@ -49,7 +49,7 @@ namespace Jabber
 class JMUCSessionPrivate
 {
 public:
-	JAccount *account;
+	QPointer<JAccount> account;
 	jreen::MUCRoom *room;
 	jreen::JID jid;
 	QString nick;
@@ -118,7 +118,8 @@ JMUCSession::JMUCSession(const jreen::JID &room, const QString &password, JAccou
 JMUCSession::~JMUCSession()
 {
 	Q_D(JMUCSession);
-	d->room->leave();
+	if (d->account)
+		d->room->leave();
 }
 
 qutim_sdk_0_3::Buddy *JMUCSession::me() const
