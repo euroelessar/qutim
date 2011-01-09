@@ -22,9 +22,8 @@ class VWallSession;
 class VConnection;
 class VContact;
 class VAccount;
-class VAccountPrivate : public QObject
+class VAccountPrivate
 {
-	Q_OBJECT
 	Q_DECLARE_PUBLIC(VAccount)
 public:
 	QString name;

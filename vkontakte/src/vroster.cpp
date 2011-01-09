@@ -91,7 +91,7 @@ void VRosterPrivate::onGetFriendsRequestFinished(const QVariant &var, bool error
 		QVariantMap data = var.toMap();
 		debug() << data;
 		QString id = data.value("uid").toString();
-		VContact *c = contacts.value(id, 0);
+		VContact *c = contacts.value(id);
 		bool shouldInit = false;
 		if (!c) {
 			c = connection->account()->getContact(id, true);
@@ -108,7 +108,9 @@ void VRosterPrivate::onGetFriendsRequestFinished(const QVariant &var, bool error
 				contactTags << tags.value(tagId);
 			c->setContactTags(contactTags);
 			c->setContactInList(true);
-		}
+			storage->addContact(c);
+		} /*else
+			storage->updateContact(c);*/
 		checkPhoto(c, data.value(VK_PHOTO_ID).toString());
 		c->setStatus(data.value("online").toInt() == 1);
 		c->setProperty("mobilePhone",data.value("mobile_phone"));
@@ -236,11 +238,15 @@ VRoster::VRoster(VConnection* connection, QObject* parent) : QObject(parent),d_p
 	Q_D(VRoster);
 	d->connection = connection;
 	d->q_ptr = this;
+	d->storage = RosterStorage::instance();
+	d->connection->account()->setContactsFactory(d);
 	loadSettings();
 	connect(connection,SIGNAL(connectionStateChanged(VConnectionState)),d,SLOT(onConnectStateChanged(VConnectionState)));
 	connect(&d->friendListUpdater,SIGNAL(timeout()),this,SLOT(getFriendList()));
 	connect(&d->avatarsUpdater,SIGNAL(timeout()),d,SLOT(updateAvatar()));
 	connect(&d->activityUpdater,SIGNAL(timeout()),d,SLOT(updateActivity()));
+
+	d->storage->setParent(this);
 }
 
 VRoster::~VRoster()
@@ -350,23 +356,7 @@ void VRoster::loadSettings()
 	Q_D(VRoster);
 	int interval;
 	Config cfg = config();
-	int size = cfg.beginArray("list");
-	for (int i = 0; i < size; i++) {
-		cfg.setArrayIndex(i);
-		QString id = cfg.value("id", QString());
-		if (id.isEmpty())
-			continue;
-		VContact *contact = getContact(id, true);
-		contact->setContactInList(cfg.value("inList",true));
-		contact->setContactName(cfg.value("name", QString()));
-		contact->setContactTags(cfg.value("tags", QStringList()));
-		cfg.beginGroup("avatar");
-		contact->setAvatar(cfg.value("path", QString()));
-		contact->setProperty("avatarUrl", cfg.value("url", QString()));
-		cfg.endGroup();
-		contact->setActivity(cfg.value("activity", QString()));
-	}
-	cfg.endArray();
+	d->storage->load(d->connection->account());
 	d->friendListUpdater.setInterval(cfg.value("friendListUpdateInterval", 600000));
 	cfg.beginGroup("avatars");
 	interval = cfg.value("interval", 5000);
@@ -381,23 +371,34 @@ void VRoster::loadSettings()
 
 void VRoster::saveSettings()
 {
-	Q_D(VRoster);
-	Config cfg = config();
-	cfg.remove("list");
-	cfg.beginArray("list");
-	int index = 0;
-	foreach (VContact *contact, d->contacts) {
-		cfg.setArrayIndex(index++);
-		cfg.setValue("id", contact->id());
-		cfg.setValue("name", contact->name());
-		cfg.setValue("tags", contact->tags());
-		cfg.setValue("activity", contact->activity());
-		cfg.setValue("inList", contact->isInList());
-		cfg.beginGroup("avatar");
-		cfg.setValue("url", contact->property("avatarUrl"));
-		cfg.setValue("path", contact->avatar());
-		cfg.endGroup();
-	}
+
+}
+
+void VRosterPrivate::serialize(Contact *generalContact, QVariantMap &data)
+{
+	VContact *contact = qobject_cast<VContact*>(generalContact);
+	if (!contact)
+		return;
+	data.insert(QLatin1String("id"),contact->id());
+	data.insert(QLatin1String("name"), contact->name());
+	data.insert(QLatin1String("tags"), contact->tags());
+	data.insert(QLatin1String("inList"),contact->id());
+	data.insert(QLatin1String("avatarPath"), contact->avatar());
+	data.insert(QLatin1String("avatarUrl"), contact->property("avatarUrl"));
+	data.insert(QLatin1String("activity"), contact->activity());
+}
+
+Contact *VRosterPrivate::addContact(const QString &id, const QVariantMap &data)
+{
+	VContact *c = q_func()->getContact(id,true);
+	c->setContactName(data.value(QLatin1String("name")).toString());
+	c->setContactTags(data.value(QLatin1String("tags")).toStringList());
+	c->setContactInList(data.value(QLatin1String("inList")).toBool());
+	c->setAvatar(data.value(QLatin1String("avatarPath")).toString());
+	c->setProperty("avatarUrl",data.value(QLatin1String("avatarUrl")));
+	c->setActivity(data.value(QLatin1String("activity")).toString());
+
+	return c;
 }
 
 void VRoster::updateProfile(VContact *contact)

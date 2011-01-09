@@ -20,17 +20,19 @@
 #include <QTimer>
 #include <QDateTime>
 #include <QQueue>
+#include <qutim/rosterstorage.h>
 
 class VConnection;
 class VRoster;
 class VContact;
-class VRosterPrivate : QObject
+class VRosterPrivate : public QObject, public ContactsFactory
 {
 	Q_OBJECT
 	Q_DECLARE_PUBLIC(VRoster)
 public:
 	VConnection *connection;
 	VRoster *q_ptr;
+	RosterStorage *storage;
 	int limit;
 	int friendListUpdateInterval;
 	QTimer friendListUpdater;
@@ -45,6 +47,8 @@ public:
 	
 	void checkPhoto(QObject *obj, const QString &photoUrl);
 	QString photoHash(const QString &path);
+	Contact *addContact(const QString &id, const QVariantMap &data);
+	void serialize(Contact *contact, QVariantMap &data);
 public slots:
 	void onGetProfileRequestFinished(const QVariant &var, bool error);
 	void onGetTagListRequestFinished(const QVariant &var, bool error);
