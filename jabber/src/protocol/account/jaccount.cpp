@@ -89,7 +89,7 @@ void JAccountPrivate::setPresence(jreen::Presence presence)
 		client.disconnectFromServer(false);
 }
 
-void JAccountPrivate::onConnected()
+void JAccountPrivate::_q_connected()
 {
 	Q_Q(JAccount);
 	applyStatus(status);
@@ -98,15 +98,15 @@ void JAccountPrivate::onConnected()
 	q->resetGroupChatManager(conferenceManager->bookmarkManager());
 }
 
-void JAccountPrivate::onModuleLoaded(int i)
+void JAccountPrivate::_q_on_module_loaded(int i)
 {
-	qDebug() << Q_FUNC_INFO << loadedModules << i << sender();
+	qDebug() << Q_FUNC_INFO << loadedModules << i << q_func()->sender();
 	loadedModules |= i;
 	if (loadedModules == 3)
-		onConnected();
+		_q_connected();
 }
 
-void JAccountPrivate::onDisconnected()
+void JAccountPrivate::_q_disconnected()
 {
 	Q_Q(JAccount);
 	Status now = q->status();
@@ -116,7 +116,7 @@ void JAccountPrivate::onDisconnected()
 	loadedModules = 0;
 }
 
-void JAccountPrivate::initExtensions(const QSet<QString> &features)
+void JAccountPrivate::_q_init_extensions(const QSet<QString> &features)
 {
 	//Q_Q(JAccount);
 	debug() << "received features list" << features;
@@ -171,16 +171,16 @@ JAccount::JAccount(const QString &id) :
 	d->signalMapper.setMapping(d->roster, 1);
 	d->signalMapper.setMapping(d->privacyManager, 2);
 	connect(&d->client, SIGNAL(connected()), d->privacyManager, SLOT(request()));
-	connect(&d->signalMapper, SIGNAL(mapped(int)), d, SLOT(onModuleLoaded(int)));
+	connect(&d->signalMapper, SIGNAL(mapped(int)), this, SLOT(_q_on_module_loaded(int)));
 	//	connect(d->roster, SIGNAL(loaded()), d, SLOT(onConnected()));
 	//	connect(&d->client,SIGNAL(connected()), d, SLOT(onConnected()));
 	
 	d->roster->loadFromStorage();
 	
 	connect(&d->client, SIGNAL(disconnected()),
-			d,SLOT(onDisconnected()));
+			this, SLOT(_q_disconnected()));
 	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
-			d,SLOT(initExtensions(QSet<QString>)));
+			this ,SLOT(_q_init_extensions(QSet<QString>)));
 	connect(d->conferenceManager.data(), SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
 			this, SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)));
 	
@@ -427,3 +427,5 @@ QString JAccount::identity(const QString &category, const QString &type) const
 }
 
 } // Jabber namespace
+
+#include "jaccount.moc"

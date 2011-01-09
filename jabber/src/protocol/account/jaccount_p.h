@@ -19,9 +19,8 @@ namespace Jabber {
 
 typedef QHash<QString, QHash<QString, QString> > Identities;
 
-class JAccountPrivate : public QObject
+class JAccountPrivate
 {
-	Q_OBJECT
 	Q_DECLARE_PUBLIC(JAccount)
 public:
 	inline JAccountPrivate(JAccount *q) : q_ptr(q),keepStatus(false) {}
@@ -50,15 +49,13 @@ public:
 	int loadedModules;
 	
 	void applyStatus(const Status &status);
-public slots:	
 	void setPresence(jreen::Presence);
-	void onConnected();
-	void onDisconnected();
-	void onModuleLoaded(int i);
-	//temporary
-	//void handleIQ(const jreen::IQ &iq);
-	void initExtensions(const QSet<QString> &features);
-public:	//old code
+	void _q_disconnected();
+	void _q_init_extensions(const QSet<QString> &features);
+	void _q_on_module_loaded(int i);
+	void _q_connected();
+
+	//old code
 	Identities identities;
 };
 

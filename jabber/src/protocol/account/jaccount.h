@@ -84,6 +84,11 @@ private:
 	friend class JRosterPrivate;
 	friend class JServerDiscoInfo;
 	QScopedPointer<JAccountPrivate> d_ptr;
+
+	Q_PRIVATE_SLOT(d_func(),void _q_connected());
+	Q_PRIVATE_SLOT(d_func(),void _q_disconnected());
+	Q_PRIVATE_SLOT(d_func(),void _q_init_extensions(const QSet<QString> &features));
+	Q_PRIVATE_SLOT(d_func(),void _q_on_module_loaded(int i));
 };
 } // Jabber namespace
 
