@@ -207,7 +207,7 @@ bool JBookmarkManager::join(const DataItem &fields)
 bool JBookmarkManager::storeBookmark(const DataItem &fields, const DataItem &oldFields)
 {
 	Bookmark::Conference conf = oldFields.property("bookmark", Bookmark::Conference());
-	bool isValid = conf.isValid();
+	bool isValid = p->bookmarks.contains(conf);
 	JID jid = fields.subitem("conference").data<QString>();
 	QString nick = fields.subitem("nickname").data<QString>();
 	if (!jid.isBare() || nick.isEmpty())
@@ -219,6 +219,7 @@ bool JBookmarkManager::storeBookmark(const DataItem &fields, const DataItem &old
 	conf.setNick(nick);
 	conf.setPassword(fields.subitem("password").data<QString>());
 	conf.setAutojoin(fields.subitem("autojoin").data<bool>());
+	qDebug("%s %d", Q_FUNC_INFO, p->bookmarks.size());
 	if (!isValid)
 		p->bookmarks.append(conf);
 	writeToCache("bookmarks", p->bookmarks);
