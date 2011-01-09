@@ -15,6 +15,7 @@
  ****************************************************************************/
 
 #include "astralsessionmanager.h"
+#include "astralaccount.h"
 
 AstralSessionManager::AstralSessionManager(AstralAccount *account) :
 		QObject(account)
