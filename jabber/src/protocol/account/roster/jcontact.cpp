@@ -278,7 +278,7 @@ void JContact::setStatus(const jreen::Presence presence)
 		d->resources.clear();
 		d->currentResources.clear();
 	} else if (resource.isEmpty()) {
-		d->status.setType(JStatus::presenceToStatus(presence.subtype()));
+		d->status = JStatus::presenceToStatus(presence.subtype());
 		d->status.setText(presence.status());
 	} else if (type == jreen::Presence::Unavailable) {
 		if (d->resources.contains(resource))

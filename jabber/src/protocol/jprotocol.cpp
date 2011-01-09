@@ -275,7 +275,7 @@ jreen::Presence::Type JStatus::statusToPresence(const Status &status)
 	return presence;
 }
 
-Status::Type JStatus::presenceToStatus(jreen::Presence::Type presence)
+Status JStatus::presenceToStatus(jreen::Presence::Type presence)
 {
 	Status::Type status;
 	switch (presence) {
@@ -299,7 +299,7 @@ Status::Type JStatus::presenceToStatus(jreen::Presence::Type presence)
 	default: //TODO probe,subscribe etc. isn't offline status
 		status = Status::Offline;
 	}
-	return status;
+	return Status::instance(status, "jabber");
 }
 
 bool JProtocol::event(QEvent *ev)

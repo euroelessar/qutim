@@ -82,8 +82,7 @@ void JAccountPrivate::applyStatus(const Status &status)
 void JAccountPrivate::setPresence(jreen::Presence presence)
 {
 	Q_Q(JAccount);
-	Status now = status;
-	now.setType(JStatus::presenceToStatus(presence.subtype()));
+	Status now = JStatus::presenceToStatus(presence.subtype());
 	now.setText(presence.status());
 	q->setAccountStatus(now);
 	if(presence.subtype() == jreen::Presence::Unavailable)
@@ -236,9 +235,11 @@ void JAccount::loadSettings()
 
 	jreen::JID jid(id());
 	jid.setResource(general.value("resource",QLatin1String("qutIM/jreen")));
-	d->client.setJID(jid);
-//	if (jid.domain() == QLatin1String("qutim.org"))
+//	if (jid.domain() == QLatin1String("qutim.org")) {
 //		d->client.setConnectionImpl(new ConnectionBOSH(QLatin1String("jabber.qutim.org")));
+//		jid.setResource(QLatin1String("qutIM/BOSH"));
+//	}
+	d->client.setJID(jid);
 
 	general.endGroup();
 }

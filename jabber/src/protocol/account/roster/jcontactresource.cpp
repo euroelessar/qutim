@@ -90,7 +90,7 @@ Status JContactResource::status() const
 {
 	Q_D(const JContactResource);
 	Status status = JStatus::presenceToStatus(d->presence.subtype());
-	status.setProperty("text", d->presence.status());
+	status.setText(d->presence.status());
 	status.setExtendedInfos(d->extInfo);
 	return status;
 }

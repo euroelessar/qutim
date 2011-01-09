@@ -49,7 +49,7 @@ private:
 namespace JStatus //TODO may be need class JStatus
 {
 	jreen::Presence::Type statusToPresence(const Status &status);
-	Status::Type presenceToStatus(jreen::Presence::Type presence);
+	Status presenceToStatus(jreen::Presence::Type presence);
 }
 
 
