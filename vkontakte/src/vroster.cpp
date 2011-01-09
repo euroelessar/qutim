@@ -245,8 +245,6 @@ VRoster::VRoster(VConnection* connection, QObject* parent) : QObject(parent),d_p
 	connect(&d->friendListUpdater,SIGNAL(timeout()),this,SLOT(getFriendList()));
 	connect(&d->avatarsUpdater,SIGNAL(timeout()),d,SLOT(updateAvatar()));
 	connect(&d->activityUpdater,SIGNAL(timeout()),d,SLOT(updateActivity()));
-
-	d->storage->setParent(this);
 }
 
 VRoster::~VRoster()
