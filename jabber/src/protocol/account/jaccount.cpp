@@ -39,6 +39,7 @@
 #include <qutim/systeminfo.h>
 #include "roster/jsoftwaredetection.h"
 #include <jreen/pubsubmanager.h>
+#include <jreen/connectionbosh.h>
 
 namespace Jabber {
 
@@ -136,7 +137,6 @@ JAccount::JAccount(const QString &id) :
 {
 	Q_D(JAccount);
 	Account::setStatus(Status::instance(Status::Offline, "jabber"));
-
 	d->loadedModules = 0;
 	d->roster = new JRoster(this);
 	d->privacyManager = new PrivacyManager(&d->client);
@@ -237,6 +237,8 @@ void JAccount::loadSettings()
 	jreen::JID jid(id());
 	jid.setResource(general.value("resource",QLatin1String("qutIM/jreen")));
 	d->client.setJID(jid);
+//	if (jid.domain() == QLatin1String("qutim.org"))
+//		d->client.setConnectionImpl(new ConnectionBOSH(QLatin1String("jabber.qutim.org")));
 
 	general.endGroup();
 }
