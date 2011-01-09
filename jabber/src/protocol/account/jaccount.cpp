@@ -154,7 +154,7 @@ JAccount::JAccount(const QString &id) :
 	jreen::Disco *disco = d->client.disco();
 	disco->setSoftwareVersion(QLatin1String("qutIM"),
 							  qutimVersionStr(),
-							  SystemInfo::getName());
+							  SystemInfo::getFullName());
 
 	disco->addIdentity(jreen::Disco::Identity(QLatin1String("client"),
 											  QLatin1String("type"),

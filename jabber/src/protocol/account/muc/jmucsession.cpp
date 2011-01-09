@@ -543,7 +543,7 @@ void JMUCSession::setBookmark(const jreen::Bookmark::Conference &bookmark)
 	Q_D(JMUCSession);
 	d->bookmark = bookmark;
 	QString previous = d->title;
-	if (bookmark.isValid())
+	if (!bookmark.name().isEmpty())
 		d->title = bookmark.name();
 	else
 		d->title = id();

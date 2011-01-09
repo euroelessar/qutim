@@ -15,7 +15,7 @@ endif( PKG_CONFIG_FOUND)
 
 
 IF (NOT TELEPATHY_FOUND)
-	message( "TelepathyQt4 not found. Can't build astral" )
+	message( "TelepathyQt4 not found. Can't enter the astral" )
 	return()
 ENDIF()
 
