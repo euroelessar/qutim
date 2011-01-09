@@ -235,10 +235,13 @@ void JAccount::loadSettings()
 
 	jreen::JID jid(id());
 	jid.setResource(general.value("resource",QLatin1String("qutIM/jreen")));
-//	if (jid.domain() == QLatin1String("qutim.org")) {
-//		d->client.setConnectionImpl(new ConnectionBOSH(QLatin1String("jabber.qutim.org")));
-//		jid.setResource(QLatin1String("qutIM/BOSH"));
-//	}
+	general.beginGroup("bosh");
+	if (general.value("use", false)) {
+		QString host = general.value("host", jid.domain());
+		int port = general.value("port", 5280);
+		d->client.setConnectionImpl(new ConnectionBOSH(host, port));
+	}
+	general.endGroup();
 	d->client.setJID(jid);
 
 	general.endGroup();
