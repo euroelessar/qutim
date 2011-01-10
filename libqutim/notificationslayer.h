@@ -55,7 +55,7 @@ LIBQUTIM_EXPORT QString toString(Notifications::Type type);
 class LIBQUTIM_EXPORT PopupBackend : public QObject
 {
 	Q_OBJECT
-	Q_CLASSINFO("Service", "Popup")
+	Q_CLASSINFO("Service", "Notifications")
 public:
 	virtual void show(Notifications::Type type,
 					  QObject *sender,

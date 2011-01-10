@@ -33,7 +33,7 @@ void PopupBackend::virtual_hook(int type, void *data)
 
 SoundBackend::SoundBackend()
 {
-	Q_UNUSED(QT_TRANSLATE_NOOP("Service","Popup"));
+	Q_UNUSED(QT_TRANSLATE_NOOP("Service","Notifications"));
 	Q_UNUSED(QT_TRANSLATE_NOOP("Service","Sound"));
 }
 
