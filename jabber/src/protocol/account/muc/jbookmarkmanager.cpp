@@ -41,7 +41,7 @@ JBookmarkManager::~JBookmarkManager()
 
 void JBookmarkManager::onBookmarksReceived(const jreen::Bookmark::Ptr &bookmark)
 {
-	qDebug("%s %d", Q_FUNC_INFO, bookmark->conferences().size());
+	debug() <<  Q_FUNC_INFO << bookmark->conferences().count();
 	QList<Bookmark::Conference> tmpList(p->bookmarks);
 	p->bookmarks = bookmark->conferences();
 	foreach (const Bookmark::Conference &bookmark, tmpList) {
@@ -108,6 +108,7 @@ void JBookmarkManager::saveRecent(const QString &conference, const QString &nick
 bool JBookmarkManager::removeBookmark(const jreen::Bookmark::Conference &bookmark)
 {
 	if (p->bookmarks.removeOne(bookmark)) {
+		debug() << p->bookmarks.size();
 		writeToCache("bookmarks", p->bookmarks);
 		saveToServer();
 		return true;
@@ -219,9 +220,9 @@ bool JBookmarkManager::storeBookmark(const DataItem &fields, const DataItem &old
 	conf.setNick(nick);
 	conf.setPassword(fields.subitem("password").data<QString>());
 	conf.setAutojoin(fields.subitem("autojoin").data<bool>());
-	qDebug("%s %d", Q_FUNC_INFO, p->bookmarks.size());
 	if (!isValid)
 		p->bookmarks.append(conf);
+	debug() << p->bookmarks.size() << conf.autojoin();
 	writeToCache("bookmarks", p->bookmarks);
 	saveToServer();
 	return true;

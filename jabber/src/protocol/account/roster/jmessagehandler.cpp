@@ -9,6 +9,7 @@
 #include <jreen/receipt.h>
 #include <jreen/client.h>
 #include <jreen/chatstate.h>
+#include <jreen/error.h>
 #include "jroster.h"
 #include <QApplication>
 
@@ -95,6 +96,8 @@ void JMessageReceiptFilter::filter(jreen::Message &message)
 {
 	jreen::Receipt *receipt = message.findExtension<jreen::Receipt>().data();
 	ChatUnit *unit = m_account->roster()->contact(message.from(),true);
+	if(message.containsExtension<jreen::Error>())
+		return;
 	if(receipt) {
 		if(receipt->type() == jreen::Receipt::Received) {
 			QString id = receipt->id();

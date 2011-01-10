@@ -94,6 +94,7 @@ JMUCSession::JMUCSession(const jreen::JID &room, const QString &password, JAccou
 	d->isJoined = false;
 	d->isError = false;
 	d->thread = 0;
+	d->title = room.bare();
 	loadSettings();
 }
 
