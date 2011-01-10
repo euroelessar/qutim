@@ -22,7 +22,7 @@ Boston, MA 02110-1301, USA.
 
 namespace Ui
 {
-    class AppearanceSettings;
+class AppearanceSettings;
 }
 
 namespace Core
@@ -49,7 +49,7 @@ private:
 	QString m_current_theme;
 	Ui::AppearanceSettings *ui;
 	AbstractPopupWidget *m_popup_widget;
-    };
+};
 
 }
 }

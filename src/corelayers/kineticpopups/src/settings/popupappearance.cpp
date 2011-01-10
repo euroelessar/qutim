@@ -21,6 +21,7 @@ Boston, MA 02110-1301, USA.
 #include <qutim/configbase.h>
 #include <qutim/objectgenerator.h>
 #include <qutim/thememanager.h>
+#include <qutim/servicemanager.h>
 #include "manager.h"
 #include "backend.h"
 
@@ -37,9 +38,7 @@ PopupAppearance::PopupAppearance ()
 	setProperty("name",tr("Preview"));
 	setProperty("avatar",QLatin1String(":/icons/qutim_64"));
 
-	const ObjectGenerator *gen = ObjectGenerator::module<AbstractPopupWidget>().value(0);
-	Q_ASSERT(gen);
-	m_popup_widget = gen->generate<AbstractPopupWidget>();
+	m_popup_widget = ServiceManager::getByName<PopupGenerator*>("PopupWidget")->generate();
 	Q_ASSERT(m_popup_widget);
 
 	ui->verticalLayout_2->addWidget(m_popup_widget);
@@ -79,7 +78,7 @@ void PopupAppearance::cancelImpl()
 void PopupAppearance::getThemes()
 {
 	ui->comboBox->blockSignals(true);
-	QString category = "qmlpopups";
+	QString category = ServiceManager::getByName<PopupGenerator*>("PopupWidget")->category();
 	QStringList list = ThemeManager::list(category);
 	ui->comboBox->clear();
 	int index = -1;

@@ -44,6 +44,15 @@ private:
 	QVariant m_data;
 	QDeclarativeView *m_view;
 };
+
+class QmlPopupGenerator : public PopupGenerator
+{
+	Q_OBJECT
+public:
+	virtual AbstractPopupWidget *generate() {return new PopupWidget();}
+	virtual QString category() const { return QLatin1String("qmlpopups"); }
+};
+
 }
 }
 #endif // WIDGET_H

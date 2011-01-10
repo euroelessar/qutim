@@ -36,6 +36,7 @@ Backend::Backend ()
 {
 	GeneralSettingsItem<PopupAppearance> *appearance = new GeneralSettingsItem<PopupAppearance>(Settings::Appearance, Icon("dialog-information"), QT_TRANSLATE_NOOP("Settings","Popups"));
 	Settings::registerItem(appearance);
+	Q_UNUSED(QT_TRANSLATE_NOOP("Service","PopupWidget"));
 }
 
 void Backend::show(Notifications::Type type, QObject* sender, const QString& body,

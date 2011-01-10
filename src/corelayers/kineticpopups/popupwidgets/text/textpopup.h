@@ -58,6 +58,15 @@ private:
 	QTimer m_timer;
 	QTextBrowser *m_browser;
 };
+
+class TextPopupGenerator : public PopupGenerator
+{
+	Q_OBJECT
+public:
+	virtual AbstractPopupWidget *generate() {return new TextPopupWidget();}
+	virtual QString category() const { return QLatin1String("textpopups"); }
+};
+
 }
 }
 #endif // POPUPWIDGET_H

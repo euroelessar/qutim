@@ -1,7 +1,7 @@
 qutim_add_plugin(textpopupwidget
 	EXTENSION
 	EXTENSION_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/textpopup.h
-	EXTENSION_CLASS Core::KineticPopups::TextPopupWidget
+	EXTENSION_CLASS Core::KineticPopups::TextPopupGenerator
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
 	DISPLAY_NAME "Text Popups"
 	DESCRIPTION "Standart textbrowser based popups"

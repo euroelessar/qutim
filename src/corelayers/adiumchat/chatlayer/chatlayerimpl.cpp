@@ -104,6 +104,7 @@ ChatLayerImpl::~ChatLayerImpl()
 
 QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 {
+	Q_UNUSED(unit);
 	QString icon_name;
 	switch (state) {
 	//FIXME icon names

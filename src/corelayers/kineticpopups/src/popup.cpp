@@ -24,6 +24,7 @@
 #include <qutim/debug.h>
 #include <QStateMachine>
 #include <qutim/objectgenerator.h>
+#include <libqutim/servicemanager.h>
 
 namespace Core
 {
@@ -108,10 +109,7 @@ void Popup::send()
 	}
 	m_machine = new QStateMachine(this);
 
-	//FIXME
-	const ObjectGenerator *gen = ObjectGenerator::module<AbstractPopupWidget>().value(0);
-	Q_ASSERT(gen);
-	m_popup = gen->generate<AbstractPopupWidget>();
+	m_popup = ServiceManager::getByName<PopupGenerator*>("PopupWidget")->generate();
 	Q_ASSERT(m_popup);
 	m_popup->setData(m_title,m_body,m_sender,m_data);
 	QSize notify_size = m_popup->sizeHint();

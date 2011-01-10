@@ -41,11 +41,19 @@ private:
 
 class LIBQUTIM_EXPORT ActionBoxModule : public QWidget
 {
-	Q_OBJECT
-	Q_CLASSINFO("Service","ActionBoxModule")
+	Q_OBJECT	
 public:
 	virtual void addAction(QAction *) = 0;
 	virtual void removeAction(QAction *) = 0;
+};
+
+class LIBQUTIM_EXPORT ActionBoxGenerator : public QObject
+{
+	Q_OBJECT
+	Q_CLASSINFO("Service","ActionBoxModule")
+public:
+	virtual ActionBoxModule *generate() = 0;
+	virtual ~ActionBoxGenerator() {};
 };
 
 }

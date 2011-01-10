@@ -27,5 +27,12 @@ private:
 	QMap<QAction*,QToolButton*> m_buttons;
 };
 
+class SimpleActionBoxGenerator : public ActionBoxGenerator
+{
+	Q_OBJECT
+public:
+	virtual ActionBoxModule* generate() {return new SimpleActionBoxModule(); }
+};
+
 }
 #endif // SIMPLEACTIONBOX_H

@@ -22,5 +22,12 @@ public:
 	virtual void removeAction(QAction *action);
 };
 
+class SoftkeysActionBoxGenerator : public ActionBoxGenerator
+{
+	Q_OBJECT
+public:
+	virtual ActionBoxModule* generate() {return new SoftkeysActionBoxModule(); }
+};
+
 }
 #endif // SOFTKEYSACTIONBOX_H

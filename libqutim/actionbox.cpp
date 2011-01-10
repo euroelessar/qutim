@@ -20,6 +20,7 @@
 #include "actionbox_p.h"
 #include "objectgenerator.h"
 #include "debug.h"
+#include "servicemanager.h"
 
 namespace qutim_sdk_0_3
 {
@@ -27,16 +28,12 @@ namespace qutim_sdk_0_3
 ActionBox::ActionBox(QWidget *parent) :
 		QWidget(parent),d_ptr(new ActionBoxPrivate)
 {
+	Q_UNUSED(QT_TRANSLATE_NOOP("Service","ActionBoxModule"));
 	Q_D(ActionBox);
 	d->q_ptr = this;
 	Q_ASSERT(parent);
 
-	const ObjectGenerator *gen = 	ObjectGenerator::module<ActionBoxModule>().value(0);
-	if(gen)
-		d->module = gen->generate<ActionBoxModule>();
-
-	debug() << "init box" << gen << d->module;
-
+	d->module = ServiceManager::getByName<ActionBoxGenerator*>("ActionBoxModule")->generate();
 	if(d->module) {
 		d->module->setParent(this);
 		setLayout(new QHBoxLayout(this));
