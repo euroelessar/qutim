@@ -56,8 +56,10 @@ ChatLayer::~ChatLayer()
 
 ChatLayer *ChatLayer::instance()
 {
-	if(p->self.isNull() && ObjectGenerator::isInited())
+	if(p->self.isNull() && ObjectGenerator::isInited()) {
 		p->self = qobject_cast<ChatLayer*>(ServiceManager::getByName("ChatLayer"));
+		Q_ASSERT(p->self);
+	}
 	return p->self;
 }
 
