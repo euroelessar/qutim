@@ -1,4 +1,4 @@
-#include <Windows.h>
+#include <windows.h>
 #include "apiglobal.h"
 
 #ifdef _MSC_VER
