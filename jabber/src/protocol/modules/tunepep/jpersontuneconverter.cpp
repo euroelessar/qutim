@@ -45,7 +45,7 @@ namespace Jabber
 	QSharedPointer<jreen::StanzaExtension> JPersonTuneConverter::convertTo(const QVariantHash &map) const
 	{
 		jreen::Tune *tune = new jreen::Tune();
-		bool ok;
+		bool ok = true;
 		tune->setArtist(map.value(QLatin1String("artist")).toString());
 		tune->setLength(map.value(QLatin1String("length")).toInt(&ok) * ok + ok - 1);
 		tune->setRating(map.value(QLatin1String("rating")).toInt(&ok) * ok + ok - 1);

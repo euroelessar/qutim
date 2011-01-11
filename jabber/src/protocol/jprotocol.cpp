@@ -117,6 +117,9 @@ void JProtocol::loadActions()
 			 << Status(Status::DND)
 			 << Status(Status::Invisible)
 			 << Status(Status::Offline);
+	Status connectingStatus(Status::Connecting);
+	connectingStatus.initIcon("jabber");
+	Status::remember(connectingStatus, "jabber");
 
 	foreach (Status status, statuses) {
 		status.initIcon("jabber");
@@ -236,7 +239,7 @@ QVariant JProtocol::data(DataType type)
 {
 	switch (type) {
 	case ProtocolIdName:
-		return "Jabber ID";
+		return QLatin1String("Jabber ID");
 	case ProtocolContainsContacts:
 		return true;
 	default:

@@ -109,9 +109,7 @@ void JAccountPrivate::_q_on_module_loaded(int i)
 void JAccountPrivate::_q_disconnected()
 {
 	Q_Q(JAccount);
-	Status now = q->status();
-	now.setType(Status::Offline);	
-	q->setAccountStatus(now);
+	q->setAccountStatus(Status::instance(Status::Offline, "jabber"));
 	q->resetGroupChatManager(0);
 	loadedModules = 0;
 }
@@ -365,14 +363,11 @@ void JAccount::setStatus(Status status)
 		}
 		d->client.connectToServer();
 		d->status = status;
-		status.setType(Status::Connecting);
-		setAccountStatus(status);
+		setAccountStatus(Status::instance(Status::Connecting, "jabber"));
 	} else if(status.type() == Status::Offline) {
 		bool force = old.type() == Status::Connecting;
-		if (force) {
-			status.setType(Status::Offline);
-			setAccountStatus(status);
-		}
+		if (force)
+			setAccountStatus(Status::instance(Status::Offline, "jabber"));
 		d->client.disconnectFromServer(true);
 	} else if(old.type() != Status::Offline && old.type() != Status::Connecting) {
 		d->applyStatus(status);
