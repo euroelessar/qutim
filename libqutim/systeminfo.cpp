@@ -352,7 +352,7 @@ void init(SystemInfoPrivate *d)
 		special_info |= SuiteHomeServer;
 	d->os_version_id = (quint8(osvi.dwMajorVersion) << 24) | (quint8(osvi.dwMinorVersion) << 16)
 			| (quint8(osvi.wProductType) << 8)  | special_info;
-	d->os_version = systemID2String(d->os_type_id, d->os_version_id);
+	d->os_version = SystemInfo::systemID2String(d->os_type_id, d->os_version_id);
 	d->os_full = d->os_name + " " + d->os_version;
 #endif
 #ifdef Q_OS_SYMBIAN

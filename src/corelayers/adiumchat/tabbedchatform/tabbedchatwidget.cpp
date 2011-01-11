@@ -204,13 +204,15 @@ void TabbedChatWidget::loadSettings()
 
 TabbedChatWidget::~TabbedChatWidget()
 {
-	delete m_tabBar;
 	ConfigGroup group = Config("appearance").group("chat/behavior/widget/keys").group(m_key);
 	group.setValue("geometry", saveGeometry());
 	foreach (QSplitter *splitter, findChildren<QSplitter*>()) {
 		group.setValue(splitter->objectName(), splitter->saveState());
 	}
 	group.sync();
+	delete m_tabBar;
+	delete m_chatInput;
+	delete m_contactView;
 }
 
 QPlainTextEdit *TabbedChatWidget::getInputField() const
