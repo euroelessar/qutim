@@ -140,13 +140,14 @@ struct OsInfo
 	QString name;
 };
 
-static QString unixHeuristicDetect()
+static QString unixHeuristicDetect(SystemInfoPrivate *d)
 {
 	QString ret;
 
 	struct utsname u;
 	uname(&u);
-	ret.sprintf("%s", u.sysname);
+	d->os_name = QLatin1String(u.sysname);
+	d->os_version = QLatin1String(u.release);
 
 	OsInfo osInfo[] = {
 		{ OsUseFile,		"/etc/altlinux-release",	"Alt Linux"		},
@@ -185,18 +186,22 @@ static QString unixHeuristicDetect()
 
 			f.readLine( buffer, 128 );
 
-			QString desc = QString::fromUtf8(buffer).simplified ();//stripWhiteSpace ();
+			QString desc = QString::fromUtf8(buffer).simplified();
+			
+			d->os_name = osInfo[i].name;
+			d->os_version.clear();
 
 			switch ( osInfo[i].flags ) {
 			case OsUseFile:
-				ret = desc;
-				if(!ret.isEmpty())
+				d->os_full = desc;
+				if(!d->os_full.isEmpty())
 					break;
 			case OsUseName:
-				ret = osInfo[i].name;
+				d->os_full = d->os_name;
 				break;
 			case OsAppendFile:
-				ret = osInfo[i].name + " (" + desc + ")";
+				d->os_version = desc;
+				d->os_full = d->os_name + " " + d->os_version;
 				break;
 			}
 
@@ -290,10 +295,9 @@ void init(SystemInfoPrivate *d)
 
 	d->os_full = lsbRelease(QStringList() << "--description" << "--short");
 
-	if(d->os_full.isEmpty()) {
-		d->os_full = unixHeuristicDetect();
-	}
-	else {
+	if (d->os_full.isEmpty()) {
+		unixHeuristicDetect(d);
+	} else {
 		d->os_name = lsbRelease(QStringList() << "--short" << "--id");
 		d->os_version = lsbRelease(QStringList() << "--short" << "--release");;
 	}
@@ -348,6 +352,8 @@ void init(SystemInfoPrivate *d)
 		special_info |= SuiteHomeServer;
 	d->os_version_id = (quint8(osvi.dwMajorVersion) << 24) | (quint8(osvi.dwMinorVersion) << 16)
 			| (quint8(osvi.wProductType) << 8)  | special_info;
+	d->os_version = systemID2String(d->os_type_id, d->os_version_id);
+	d->os_full = d->os_name + " " + d->os_version;
 #endif
 #ifdef Q_OS_SYMBIAN
 	//		QLibrary hal("hal.dll");

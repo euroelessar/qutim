@@ -288,8 +288,9 @@ void TabBar::onUnreadChanged(const qutim_sdk_0_3::MessageList &unread)
 
 void TabBar::onContextMenu(const QPoint &pos)
 {
-	if(currentSession())
-		currentSession()->getUnit()->showMenu(mapToGlobal(pos));
+	int index = tabAt(pos);
+	if (index != -1)
+		session(index)->getUnit()->showMenu(mapToGlobal(pos));
 }
 
 QMenu *TabBar::menu() const

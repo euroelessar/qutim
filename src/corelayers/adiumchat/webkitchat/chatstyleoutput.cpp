@@ -111,7 +111,7 @@ void ChatStyleOutput::setChatUnit(ChatUnit *unit)
 	}
 }
 
-bool ChatStyleOutput::eventFilter(QObject *, QEvent *ev)
+bool ChatStyleOutput::eventFilter(QObject *obj, QEvent *ev)
 {
 	if (ev->type() == MessageReceiptEvent::eventType()) {
 		MessageReceiptEvent *msgEvent = static_cast<MessageReceiptEvent *>(ev);
@@ -129,7 +129,7 @@ bool ChatStyleOutput::eventFilter(QObject *, QEvent *ev)
 		return true;
 	}
 
-	return ChatStyleOutput::event(ev);
+	return QWebPage::eventFilter(obj, ev);
 }
 
 void ChatStyleOutput::processMessage(QString &html, const ChatSession *session, const Message &message)
