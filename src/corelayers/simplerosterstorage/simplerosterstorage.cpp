@@ -100,7 +100,7 @@ void SimpleRosterStorage::removeContact(Contact *contact, const QString &version
 	ContactsFactory *factory = account->contactsFactory();
 	AccountContext &context = m_contexts[account];
 	Q_ASSERT(factory);
-	Q_ASSERT(!context.indexes.contains(contact));
+	Q_ASSERT(context.indexes.contains(contact));
 	Config cfg = account->config();
 	cfg.beginGroup(QLatin1String("roster"));
 	cfg.setValue(QLatin1String("version"), version);
