@@ -5,7 +5,7 @@
 #ifndef MRIM_PROTO_H
 #define MRIM_PROTO_H
 
-//#include <sys/types.h>
+#include <qglobal.h>
 
 #define PROTO_VERSION_MAJOR     1
 #define PROTO_VERSION_MINOR     19 //20
@@ -17,26 +17,27 @@
 
 typedef struct mrim_packet_header_t
 {
-    quint32       magic;
-    quint32       proto;
-    quint32       seq;
-    quint32       msg;
-    quint32       dlen;
-    quint32       from;
-    quint32	  fromport;
-    QByteArray	  reserved;
+    quint32      magic; // Magic
+    quint32      proto; // Protocol version
+    quint32        seq; // Sequence
+    quint32        msg; // Packet type
+    quint32       dlen; // Data length
+    quint32       from; // Sender address
+    quint32	  fromport; // Sender port
+    uchar reserved[16]; // Reserved
 } mrim_packet_header_t;
 
-#define HEADER_SIZE 44
+#define HEADER_SIZE (44)
+#define HEADER_FIELDS_COUNT (7)
 
-#define CS_MAGIC    0xDEADBEEF		// ���������� Magic ( C <-> S )
+#define CS_MAGIC    0xDEADBEEF		// Client Magic ( C <-> S )
 
 
 // UNICODE = (UTF-16LE) (>=1.17)
 
 /***************************************************************************
 
-		�������� ����� ������-������
+		Protocol of client-server connection
 
  ***************************************************************************/
 
@@ -70,8 +71,8 @@ typedef struct mrim_packet_header_t
 	#define MESSAGE_SMS_DELIVERY_REPORT	0x00002000
 	#define MESSAGE_FLAG_ALARM			0x00004000
 	#define MESSAGE_FLAG_FLASH			0x00008000
-	#define MESSAGE_FLAG_SPAMF_SPAM		0x00020000	// ����� ����������� �� ���� - ������� ����� � ���� ������ ;������� ������������, �������� � ������ ��������� ��������� ��� �������� ������ ��������
-	#define MESSAGE_FLAG_v1p16			0x00100000	// ��� ������������� �������
+	#define MESSAGE_FLAG_SPAMF_SPAM		0x00020000	// чтобы пожаловатся на спам - вернуть назад с этим флагом ;клиенту игнорировать, ставится в момент обработки сообщения при передаче внутри кластера
+	#define MESSAGE_FLAG_v1p16			0x00100000	// Unicode support
 	#define MESSAGE_FLAG_CP1251			0x00200000
 // LPS to e-mail ANSI
 // LPS message ANSI/UNICODE (see flags)
@@ -127,6 +128,18 @@ typedef struct mrim_packet_header_t
 	#define STATUS_DESC_MAX 64
 // LPS user e-mail ANSI
 // UL com_support (>=1.14)
+	#define FEATURE_FLAG_RTF_MESSAGE       0x00000001
+	#define FEATURE_FLAG_BASE_SMILES       0x00000002
+	#define FEATURE_FLAG_ADVANCED_SMILES   0x00000004
+	#define FEATURE_FLAG_CONTACTS_EXCH     0x00000008
+	#define FEATURE_FLAG_WAKEUP            0x00000010
+	#define FEATURE_FLAG_MULTS             0x00000020
+	#define FEATURE_FLAG_FILE_TRANSFER     0x00000040
+	#define FEATURE_FLAG_VOICE             0x00000080
+	#define FEATURE_FLAG_VIDEO             0x00000100
+	#define FEATURE_FLAG_GAMES             0x00000200
+	#define FEATURE_FLAG_LAST              0x00000200
+	#define FEATURE_UA_FLAG_MASK           ((FEATURE_FLAG_LAST << 1) - 1)
 // LPS user_agent (>=1.14) ANSI
 	#define USER_AGENT_MAX 255
 	// Format:
@@ -161,6 +174,16 @@ typedef struct mrim_packet_header_t
 
 #define MRIM_CS_ADD_CONTACT			0x1019	// C -> S
 // UL flags (group(2) or usual(0) 
+	#define CONTACT_FLAG_REMOVED		0x00000001
+	#define CONTACT_FLAG_GROUP			0x00000002
+	#define CONTACT_FLAG_INVISIBLE		0x00000004
+	#define CONTACT_FLAG_VISIBLE		0x00000008
+	#define CONTACT_FLAG_IGNORE			0x00000010
+	#define CONTACT_FLAG_SHADOW			0x00000020
+	#define CONTACT_FLAG_AUTHORIZED		0x00000040 // ( >= 1.15)
+	#define CONTACT_FLAG_PHONE			0x00100000
+	#define CONTACT_FLAG_UNICODE_NAME	0x00000200
+
 // UL group id (unused if contact is group)
 // LPS contact e-mail ANSI
 // LPS name UNICODE
@@ -185,7 +208,7 @@ typedef struct mrim_packet_header_t
 	#define CONTACT_OPER_NO_SUCH_USER	0x0003
 	#define CONTACT_OPER_INVALID_INFO	0x0004
 	#define CONTACT_OPER_USER_EXISTS	0x0005
-	#define CONTACT_OPER_GROUP_LIMIT	0x6
+	#define CONTACT_OPER_GROUP_LIMIT	0x0006
 // UL contact_id or (u_long)-1 if status is not OK
 
 
@@ -427,15 +450,14 @@ typedef struct mrim_packet_header_t
 // UL uidl
 
 
-#define MRIM_PHONE_GROUP_ID 0x67
+
 
 typedef struct mrim_connection_params_t
 {
-	quint32 	ping_period;
+	quint32	ping_period;
 }
 mrim_connection_params_t;
 
 
 
 #endif // MRIM_PROTO_H
-

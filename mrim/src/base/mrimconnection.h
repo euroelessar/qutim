@@ -75,11 +75,11 @@ public:
     ConnectionState state() const;
     void registerPacketHandler(PacketHandler *handler);
     FeatureFlags protoFeatures() const;
-	bool setStatus(const Status &status);
+	Status setStatus(const Status &status);
 
     void sendPacket(MrimPacket &packet);
     MrimAccount *account() const;
-    Messages *messages() const;
+    MrimMessages *messages() const;
 
 signals:
     void loggedOut(); //please do a queued connection
@@ -95,6 +95,7 @@ protected slots:
 
 protected:
     virtual bool processPacket();
+	void sendStatusPacket();
     virtual void sendGreetings();
     virtual void login();
     virtual QList<quint32> handledTypes();

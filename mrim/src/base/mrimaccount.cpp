@@ -17,16 +17,18 @@
 #include "roster.h"
 
 #include "mrimaccount.h"
+#include <qutim/notificationslayer.h>
 
 struct MrimAccountPrivate
 {
     MrimAccountPrivate(MrimAccount *parent)
-        : conn(new MrimConnection(parent)), roster(new Roster(parent))
+        : conn(new MrimConnection(parent)), roster(new MrimRoster(parent))
     {
     }
 
     QScopedPointer<MrimConnection> conn;
-    QScopedPointer<Roster> roster;
+    QScopedPointer<MrimRoster> roster;
+	QString name;
 };
 
 MrimAccount::MrimAccount(const QString& email)
@@ -35,21 +37,61 @@ MrimAccount::MrimAccount(const QString& email)
     connect(connection(),SIGNAL(loggedOut()),
             roster(),SLOT(handleLoggedOut()),Qt::QueuedConnection);
     p->conn->registerPacketHandler(p->roster.data());
-    p->conn->start(); //TODO: temporary autologin, for debugging
+//    p->conn->start(); //TODO: temporary autologin, for debugging
+}
+
+MrimAccount::~MrimAccount()
+{
+}
+
+QString MrimAccount::name() const
+{
+	return p->name.isEmpty() ? id() : p->name;
 }
 
 ChatUnit *MrimAccount::getUnit(const QString &unitId, bool create)
 {
-    return p->roster->getContact(unitId);
+    return p->roster->getContact(unitId, create);
 }
 
 MrimConnection *MrimAccount::connection() const
 { return p->conn.data(); }
 
-Roster *MrimAccount::roster() const
+MrimRoster *MrimAccount::roster() const
 { return p->roster.data(); }
 
 void MrimAccount::setStatus(Status status)
 {
+	Status oldStatus = Account::status();
+	Account::setStatus(p->conn->setStatus(status));
+	emit statusChanged(Account::status(), oldStatus);
+}
 
+void MrimAccount::setAccountStatus(const Status &status)
+{
+	Status oldStatus = Account::status();
+	Account::setStatus(status);
+	emit statusChanged(status, oldStatus);
+}
+
+void MrimAccount::setUserInfo(const QMap<QString, QString> &info)
+{
+	qDebug() << info;
+	QMap<QString, QString>::const_iterator it, it2;
+    it = info.find(QLatin1String("MESSAGES.TOTAL"));
+    it2 = info.find(QLatin1String("MESSAGES.UNREAD"));
+	if (it != info.end() && it2 != info.end()) {
+		QString text = tr("Messages in mailbox: %1\nUnread messages: %2").arg(it.value(), it2.value());
+		Notifications::send(Notifications::System, this, text);
+	}
+    it = info.find(QLatin1String("MRIM.NICKNAME"));
+	if (it != info.end()) {
+		if (p->name != it.value()) {
+			QString oldName = p->name;
+			p->name = it.value();
+			emit nameChanged(p->name, oldName);
+		}
+	}
+    //userInfo.userHasMyMail = info.value(QLatin1String("HAS_MYMAIL"));
+    it = info.find(QLatin1String("client.endpoint"));
 }

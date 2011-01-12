@@ -2,6 +2,8 @@
 #define RTFTEXTREADER_H
 
 #include <rtf/rtfreader.h>
+#include <QTextDocument>
+#include <QTextCursor>
 
 class RtfTextReader : public RtfReader
 {
@@ -10,6 +12,7 @@ public:
     virtual ~RtfTextReader();
     //new
     QString getText() const;
+	QString getHtml() const;
 
 protected:
     //inherited
@@ -23,7 +26,9 @@ protected:
     virtual void flushBuffers();
 
 private:
-    QString m_result;
+	QTextDocument m_document;
+	QTextCursor m_cursor;
+//    QString m_result;
     QTextCodec *m_codec;
     QByteArray m_defaultEnc;
 };

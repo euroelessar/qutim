@@ -22,6 +22,7 @@
 using namespace qutim_sdk_0_3;
 
 struct MrimProtocolPrivate;
+class MrimAccount;
 
 class MrimProtocol : public Protocol
 {
@@ -43,9 +44,12 @@ public:
     QList<Account *> accounts() const;
     Account *account(const QString &id) const;
     AccountCreationError createAccount(const QString& email, const QString& password);
+	QVariant data(DataType type);
 
 private:
     Q_DISABLE_COPY(MrimProtocol)
+	void addAccount(MrimAccount *account);
+	void loadActions();
     void loadAccounts();
 
     QScopedPointer<MrimProtocolPrivate> p;

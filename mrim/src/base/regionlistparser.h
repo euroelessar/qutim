@@ -16,7 +16,7 @@
 #ifndef REGIONLISTPARSER_H
 #define REGIONLISTPARSER_H
 
-#include <QtCore>
+#include <QStringList>
 
 struct LiveRegion
 {

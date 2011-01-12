@@ -17,65 +17,53 @@
 #define ROSTER_H
 
 #include <QMultiMap>
-#include <QVariant>
+#include <QVariantList>
 
 #include "mrimcontact.h"
 #include "protoutils.h"
 
 #include "mrimpacket.h"
 
-class RosterParseMultiMap : public QMultiMap<QChar,QVariant>
+class MrimRosterResult : public QVariantList
 {
 public:
-    template <class T>
-    T get(QChar key, quint32 index);
-    
-    inline quint32 getUint(quint32 index);
-    inline QString getString(quint32 index, bool unicode = false);
+	QString getString(int i, bool unicode)
+	{
+		return at(i).value<LPString>().toString(unicode);
+	}
+	quint32 getUInt(int i)
+	{
+		return at(i).toUInt();
+	}
 };
 
-template <class T>
-T RosterParseMultiMap::get(QChar key, quint32 index)
-{
-    QVariantList vals = values(key);
-    return vals.value(vals.count() - index - 1).value<T>();
-}
-
-inline quint32 RosterParseMultiMap::getUint(quint32 index)
-{
-    return get<quint32>('u',index);
-}
- 
-inline QString RosterParseMultiMap::getString(quint32 index, bool unicode)
-{
-    return get<LPString>('s',index).toString(unicode);
-}
-
-class Roster : public QObject, public PacketHandler
+class MrimRoster : public QObject, public PacketHandler
 {
     Q_OBJECT
 public:
-    Roster(class MrimAccount* acc);
-    virtual ~Roster();
+    MrimRoster(class MrimAccount* acc);
+    virtual ~MrimRoster();
     virtual QList<quint32> handledTypes();
     virtual bool handlePacket(MrimPacket& packet);
     QString groupName(quint32 groupId) const;
-    MrimContact *getContact(const QString& id);
+    MrimContact *getContact(const QString& id, bool create);
 
 protected:
     void addToList(class MrimContact *cnt);
+	void handleUserInfo(MrimPacket &packet);
+	void handleAuthorizeAck(MrimPacket &packet);
     bool parseList(MrimPacket& packet);    
     bool parseGroups(MrimPacket& packet, quint32 count, const QString& mask);
     bool parseContacts(MrimPacket& packet, const QString& mask);    
-    RosterParseMultiMap parseByMask(MrimPacket& packet, const QString& mask);
+    MrimRosterResult parseByMask(MrimPacket& packet, const QString& mask);
     bool handleStatusChanged(MrimPacket &packet);
 
 public slots:
     void handleLoggedOut();
 
 private:
-    Q_DISABLE_COPY(Roster);
-    QScopedPointer<struct RosterPrivate> p;
+    Q_DISABLE_COPY(MrimRoster);
+    QScopedPointer<class MrimRosterPrivate> p;
 };
 
 #endif // ROSTER_H

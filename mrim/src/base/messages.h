@@ -10,8 +10,9 @@
 using namespace qutim_sdk_0_3;
 
 class MessagesPrivate;
+class MrimContact;
 
-class Messages : public QObject, public PacketHandler
+class MrimMessages : public QObject, public PacketHandler
 {
 Q_OBJECT
 public:
@@ -37,12 +38,13 @@ public:
     Q_DECLARE_FLAGS(Flags,Flag)
 
 public:
-    explicit Messages(class MrimConnection *conn);
-    virtual ~Messages();
+    explicit MrimMessages(class MrimConnection *conn);
+    virtual ~MrimMessages();
     virtual QList<quint32> handledTypes();
     virtual bool handlePacket(class MrimPacket& packet);
     quint32 sequence() const;
-    void send(const Message &msg, Flags flags = MessageFlagNone);
+    void send(MrimContact *contact, const Message &msg, Flags flags = MessageFlagNone);
+	void sendComposingNotification(MrimContact *contact);
     void sendDeliveryReport(const QString& from, quint32 msgId);
 
 signals:
@@ -50,8 +52,11 @@ signals:
 public slots:
 
 protected:
+    void send(MrimContact *contact, const QString &text, Flags flags, qint64 id = -1);
+
     virtual void handleMessageStatus(MrimPacket &packet);
     virtual void handleMessageAck(MrimPacket &packet);
+    virtual void handleOfflineMessageAck(MrimPacket &packet);
 
 private:
     QScopedPointer<MessagesPrivate> p;

@@ -26,8 +26,8 @@
 
 struct MRIMUserInfo
 {
-	QString messagesTotal;
-	QString messagesUnread;
+	int messagesTotal;
+	int messagesUnread;
 	QString userNickname;
 	bool userHasMyMail;
 	QString userClientEndpoint;

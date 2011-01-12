@@ -30,6 +30,7 @@
 #include "mrimpacket.h"
 #include "useragent.h"
 #include "messages.h"
+#include "mrimstatus.h"
 
 #include "mrimconnection.h"
 
@@ -54,7 +55,8 @@ struct MrimConnectionPrivate
     quint32 imPort;
     MrimAccount *account;
     MrimPacket   readPacket;
-    UserAgent    selfID;
+    MrimUserAgent    selfID;
+	MrimStatus status;
 
     QScopedPointer<QTcpSocket> imSocket;
     QScopedPointer<QTcpSocket> srvReqSocket;
@@ -62,7 +64,7 @@ struct MrimConnectionPrivate
     QScopedPointer<QTimer> pingTimer;
     QHandlersMap handlers;
     QList<quint32> handledTypes;
-    Messages *messages;
+    MrimMessages *messages;
 };
 
 MrimConnection::MrimConnection(MrimAccount *account) : p(new MrimConnectionPrivate(account))
@@ -76,10 +78,11 @@ MrimConnection::MrimConnection(MrimAccount *account) : p(new MrimConnectionPriva
     connect(p->ReadyReadTimer(),SIGNAL(timeout()),this,SLOT(readyRead()));
     connect(p->pingTimer.data(),SIGNAL(timeout()),this,SLOT(sendPing()));
     registerPacketHandler(this);
-    UserAgent qutimAgent(QApplication::applicationName(),QApplication::applicationVersion(),
+    MrimUserAgent qutimAgent(QApplication::applicationName(),QApplication::applicationVersion(),
                          "(git)",PROTO_VERSION_MAJOR,PROTO_VERSION_MINOR); //TODO: real build version
-    p->selfID.set(qutimAgent);
-    p->messages = new Messages(this);
+    p->selfID = qutimAgent;
+    p->messages = new MrimMessages(this);
+	registerPacketHandler(p->messages);
 }
 
 MrimConnection::~MrimConnection()
@@ -96,13 +99,14 @@ MrimAccount *MrimConnection::account() const
     return p->account;
 }
 
-Messages *MrimConnection::messages() const
+MrimMessages *MrimConnection::messages() const
 {
     return p->messages;
 }
 
 void MrimConnection::start()
 {
+	qDebug() << Q_FUNC_INFO;
     Q_ASSERT(state() == Unconnected);
     QString srvReqHost = config("connection").value("reqSrvHost",QString("mrim.mail.ru"));
     quint32 srvReqPort = config("connection").value("reqSrvPort",2042);
@@ -220,6 +224,7 @@ bool MrimConnection::handlePacket(MrimPacket& packet)
         break;
     case MRIM_CS_LOGIN_ACK:
         p->pingTimer->start();
+		p->account->setAccountStatus(p->status);
         emit loggedIn();
         break;
     case MRIM_CS_LOGIN_REJ:
@@ -362,11 +367,24 @@ bool MrimConnection::processPacket()
 
 MrimConnection::FeatureFlags MrimConnection::protoFeatures() const
 {
-    static FeatureFlags supportedFeatures = FeatureFlagBaseSmiles;
+	return FeatureFlagBaseSmiles
 #ifndef NO_RTF_SUPPORT
-    supportedFeatures |= FeatureFlagRtfMessage;
+			| FeatureFlagRtfMessage;
 #endif
-    return supportedFeatures;
+}
+
+void MrimConnection::sendStatusPacket()
+{
+	MrimPacket packet(MrimPacket::Compose);
+	packet.setMsgType(MRIM_CS_CHANGE_STATUS);
+	packet.append(p->status.mrimType());
+	packet.append(p->status.toString(), false);
+	packet.append(QString(), true);
+	packet.append(p->status.text(), true);
+	packet.append(p->account->id());
+	packet.append(protoFeatures());
+	packet.append(p->selfID.toString());
+	packet.writeTo(p->IMSocket());
 }
 
 void MrimConnection::sendGreetings()
@@ -383,10 +401,10 @@ void MrimConnection::login()
     login.setMsgType(MRIM_CS_LOGIN2);
     login << p->account->id();
     login << config("general").value("passwd",QString(),Config::Crypted);
-    login << STATUS_ONLINE; //TODO: TEMP!!!
-    login << "STATUS_ONLINE"; //TODO: TEMP!!!
-    login.append("Online",true); //TODO: TEMP!!!
-    login.append("",true); //TODO: TEMP!!!
+	login.append(p->status.mrimType());
+	login.append(p->status.toString(), false);
+	login.append(QString(), true);
+	login.append(p->status.text(), true);
     login << protoFeatures();
     login << p->selfID.toString();
     login << "ru"; //TODO: TEMP !!
@@ -413,15 +431,36 @@ void MrimConnection::sendPing()
     ping.writeTo(p->IMSocket());
 }
 
-bool MrimConnection::setStatus(const Status &status)
+Status MrimConnection::setStatus(const Status &status)
 {
-    //TODO:
-    return false;
+	bool isConnected = state() == MrimConnection::ConnectedToIMServer;
+	bool isUnconnected = state() == MrimConnection::Unconnected;
+	bool isConnecting = !isConnected && !isUnconnected;
+	if (status.type() == Status::Offline) {
+		p->status = status;
+//		if (isConnecting)
+			close();
+		return p->status;
+	} else {
+		p->status = status;
+		if (isConnecting) {
+			return MrimStatus(Status::Connecting);
+		} else if (isUnconnected) {
+			start();
+			return MrimStatus(Status::Connecting);
+		} else {
+			sendStatusPacket();
+		}
+		
+	}
+    return p->status;
 }
 
-void MrimConnection::loginRejected(const QString& reason)
+void MrimConnection::loginRejected(const QString &reason)
 {
-	Notifications::send(Notifications::System,p->account,tr("Authentication failed! Access denied!"));
+	p->account->setAccountStatus(MrimStatus(Status::Offline));
+	Notifications::send(Notifications::System, p->account,
+						tr("Authentication failed!\nReason: %1").arg(reason));
 }
 
 void MrimConnection::sendPacket(MrimPacket &packet)

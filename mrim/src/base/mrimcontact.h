@@ -1,11 +1,8 @@
-#ifndef MRIMCONTACT_H
-#define MRIMCONTACT_H
-
-#include <QScopedPointer>
 /****************************************************************************
  *  mrimcontact.h
  *
  *  Copyright (c) 2009 by Rusanov Peter <peter.rusanov@gmail.com>
+ *                2011 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -17,10 +14,16 @@
  ***************************************************************************
 *****************************************************************************/
 
+#ifndef MRIMCONTACT_H
+#define MRIMCONTACT_H
+
+#include <QScopedPointer>
+
 #include <QDebug>
 
 #include <qutim/contact.h>
 #include "mrimconnection.h"
+#include "mrimstatus.h"
 #include "useragent.h"
 #include "proto.h"
 
@@ -46,7 +49,7 @@ public:
     Q_DECLARE_FLAGS(ContactFlags,ContactFlag)
 
 public:
-    MrimContact(class MrimAccount *account);
+    MrimContact(const QString &email, class MrimAccount *account);
     virtual ~MrimContact();
 
     //from Contact
@@ -54,11 +57,12 @@ public:
 	bool sendMessage(const Message &message);
     QString name() const;
     void setName(const QString &name);
+    void setContactName(const QString &name);
 	QStringList tags() const;
 	void setTags(const QStringList &tags);
     bool isInList() const;
     void setInList(bool inList);
-    void setChatState(ChatState state);
+	void setContactInList(bool inList);
     //new
     quint32 contactId() const;
     void setContactId(quint32 id);
@@ -72,14 +76,23 @@ public:
     void setEmail(const QString& email);
     MrimConnection::FeatureFlags featureFlags() const;
     void setFeatureFlags(MrimConnection::FeatureFlags flags);
-    const UserAgent& userAgent() const;
-    void setUserAgent(const UserAgent& agent);
+    const MrimUserAgent& userAgent() const;
+    void setUserAgent(const MrimUserAgent& agent);
     const MrimAccount *account() const;
     MrimAccount *account();
     bool isPhone() const;
     Status status() const;
-    void setStatus(const Status& status);
-
+	MrimStatus mrimStatus() const;
+    void setStatus(const MrimStatus &status);
+	
+	void clearComposingState();
+	void updateComposingState();
+	bool event(QEvent *);
+	
+protected:
+	virtual void timerEvent(QTimerEvent *);
+signals:
+	void userAgentChanged(const MrimUserAgent &);
 private:
     Q_DISABLE_COPY(MrimContact);
     QScopedPointer<struct MrimContactPrivate> p;

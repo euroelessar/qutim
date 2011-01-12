@@ -1,8 +1,12 @@
 #include <QApplication>
+#include <QDateTime>
+#include <QCache>
+#include <QTextCodec>
 
 #include <qutim/debug.h>
 #include <qutim/messagesession.h>
 #include <qutim/notificationslayer.h>
+#include <qutim/authorizationdialog.h>
 
 #include "messages.h"
 
@@ -17,6 +21,7 @@
 
 struct MsgIdLink
 {
+	MsgIdLink(quint64 i, MrimContact *c) : msgId(i), unit(c) {}
     quint64 msgId;
     QPointer<MrimContact> unit;
 };
@@ -26,31 +31,32 @@ class MessagesPrivate
 public:
     quint32 msgSeq;
     QPointer<MrimConnection> conn;
-    QMap<quint32,MsgIdLink> msgIdLink;
+	QCache<quint32, MsgIdLink> msgIdLink;
 #ifndef NO_RTF_SUPPORT
     Rtf *rtf;
 #endif
 };
 
-Messages::Messages(MrimConnection *conn) :
+MrimMessages::MrimMessages(MrimConnection *conn) :
     QObject(conn), p(new MessagesPrivate)
 {
     p->msgSeq = 0;
     p->conn = conn;
     p->conn->registerPacketHandler(this);
+	p->msgIdLink.setMaxCost(10);
 #ifndef NO_RTF_SUPPORT
     p->rtf = new Rtf("cp1251");
 #endif
 }
 
-Messages::~Messages()
+MrimMessages::~MrimMessages()
 {
 #ifndef NO_RTF_SUPPORT
     delete p->rtf;
 #endif
 }
 
-QList<quint32> Messages::handledTypes()
+QList<quint32> MrimMessages::handledTypes()
 {
     return QList<quint32>() << MRIM_CS_MESSAGE_ACK
                             << MRIM_CS_MESSAGE_STATUS
@@ -58,10 +64,8 @@ QList<quint32> Messages::handledTypes()
                             << MRIM_CS_AUTHORIZE_ACK;
 }
 
-bool Messages::handlePacket(class MrimPacket& packet)
+bool MrimMessages::handlePacket(class MrimPacket& packet)
 {
-    bool handled = true;
-
     switch (packet.msgType()) {
     case MRIM_CS_MESSAGE_STATUS:
         handleMessageStatus(packet);
@@ -69,51 +73,54 @@ bool Messages::handlePacket(class MrimPacket& packet)
     case MRIM_CS_MESSAGE_ACK:
         handleMessageAck(packet);
         break;
+	case MRIM_CS_OFFLINE_MESSAGE_ACK:
+		handleOfflineMessageAck(packet);
+		break;
     default:
-        handled = false;
-        break;
+		return false;
     }
-    return handled;
+    return true;
 }
 
-quint32 Messages::sequence() const
+quint32 MrimMessages::sequence() const
 {
-    return p->msgSeq;
+    return p->msgSeq++;
 }
 
-void Messages::send(const Message &msg, Flags flags)
+void MrimMessages::send(MrimContact *contact, const Message &msg, Flags flags)
 {
-    const MrimContact *cnt = qobject_cast<const MrimContact*>(msg.chatUnit());
-
-    if (cnt) {
-        MrimPacket msgPacket(MrimPacket::Compose);
-        msgPacket.setMsgType(MRIM_CS_MESSAGE);
-        msgPacket.setSequence(sequence());
-
-        while (p->msgIdLink.count() >= MRIM_MSGQUEUE_MAX_LEN) {
-            p->msgIdLink.remove(p->msgIdLink.keys()[0]);
-        }
-        MsgIdLink link;
-        link.msgId = msg.id();
-        link.unit = const_cast<MrimContact*>(cnt);
-        p->msgIdLink.insert(p->msgSeq++,link);
-
-        msgPacket << flags;
-        msgPacket.append(cnt->email());
-        msgPacket.append(msg.text(),true);
-        msgPacket.append(" ");
-        p->conn->sendPacket(msgPacket);
-    }
+    send(contact, msg.text(), flags, msg.id());
 }
 
-void Messages::handleMessageStatus(MrimPacket &packet)
+void MrimMessages::sendComposingNotification(MrimContact *contact)
+{
+	send(contact, QLatin1String(" "), MessageFlagTypingNotify);
+}
+
+void MrimMessages::send(MrimContact *contact, const QString &text, Flags flags, qint64 id)
+{
+	MrimPacket msgPacket(MrimPacket::Compose);
+	msgPacket.setMsgType(MRIM_CS_MESSAGE);
+	msgPacket.setSequence(sequence());
+
+	if (!(flags & (MessageFlagTypingNotify)))
+		p->msgIdLink.insert(msgPacket.sequence(), new MsgIdLink(id, contact));
+
+	msgPacket << flags;
+	msgPacket.append(contact->email());
+	msgPacket.append(text, true);
+	msgPacket.append(" ");
+	p->conn->sendPacket(msgPacket);
+}
+
+void MrimMessages::handleMessageStatus(MrimPacket &packet)
 {
     quint32 status = 0;
     packet.readTo(status);
     QString errString;
-    MsgIdLink msgLink = p->msgIdLink[packet.sequence()];
-    p->msgIdLink.remove(packet.sequence());
-    ChatSession *sess = ChatLayer::instance()->getSession(msgLink.unit);
+	MsgIdLink *msgLink = p->msgIdLink.take(packet.sequence());
+	
+    ChatSession *sess = msgLink ? ChatLayer::instance()->getSession(msgLink->unit) : 0;
     bool delivered = false;
 
     switch (status) {
@@ -141,18 +148,19 @@ void Messages::handleMessageStatus(MrimPacket &packet)
     }
 
     if (sess) {
-        QApplication::instance()->postEvent(sess, new MessageReceiptEvent(msgLink.msgId, delivered));
+        QApplication::instance()->postEvent(sess, new MessageReceiptEvent(msgLink->msgId, delivered));
     }
 
     if (!errString.isEmpty()) {
         errString.prepend(tr("Message was not delivered!")+"\n");
-		Notifications::send(Notifications::System,p->conn->account(),errString);
+		Notifications::send(Notifications::System,p->conn->account(), errString);
     }
 }
 
-void Messages::handleMessageAck(MrimPacket &packet)
+void MrimMessages::handleMessageAck(MrimPacket &packet)
 {
     quint32 msgId = 0, flags = 0;
+    QString from, plainText;
     packet.readTo(msgId);
     packet.readTo(flags);
     bool isAuth = (flags & MESSAGE_FLAG_AUTHORIZE);
@@ -161,32 +169,234 @@ void Messages::handleMessageAck(MrimPacket &packet)
     bool hasRtf = (flags & MESSAGE_FLAG_RTF);
 #endif
     bool isTyping = (flags & MESSAGE_FLAG_NOTIFY);
+    packet.readTo(&from);
+    packet.readTo(&plainText, isUnicode);
+	
+	MrimContact *contact = p->conn->account()->roster()->getContact(from, true);
+	// FIXME: Add handling messages from contacts not from roster
+	if (!contact)
+		return;
 
     if (isTyping) {
-        //TODO: typing notifications
+		contact->updateComposingState();
         return;
     }
 
-    QString from,msg;
-    packet.readTo(&from);
-    packet.readTo(&msg,isUnicode);
 
     if (!isAuth && !(flags & MESSAGE_FLAG_NORECV)) {
-        sendDeliveryReport(from,msgId);
+        sendDeliveryReport(from, msgId);
     }
+	
+	Message message;
+	message.setIncoming(true);
+	message.setChatUnit(contact);
+	message.setTime(QDateTime::currentDateTime());
+	message.setText(plainText);
 
 #ifndef NO_RTF_SUPPORT
     if (hasRtf) {
         QString rtfMsg;
         packet.readTo(&rtfMsg);
-        msg = p->rtf->toPlainText(rtfMsg);
+		QString html;
+        p->rtf->parse(rtfMsg, &plainText, &html);
+		message.setProperty("html", html);
+		if (!plainText.trimmed().isEmpty())
+			message.setText(plainText);
     }
 #endif
-
-    ChatLayer::instance()->getSession(p->conn->account(),from)->appendMessage(msg); //TODO: TEMP
+	contact->clearComposingState();
+	if (isAuth) {
+		QEvent *event = new Authorization::Reply(Authorization::Reply::New, contact, message.text());
+		qApp->postEvent(Authorization::service(), event);
+	} else {
+		ChatLayer::get(contact, true)->appendMessage(message);
+	}
 }
 
-void Messages::sendDeliveryReport(const QString& from, quint32 msgId)
+QByteArray parser_read_line(char * & str, const char * & value)
+{
+	value = 0;
+	if (!(*str))
+		return QByteArray();
+	char *begin = str;
+	while (*str != '\r' && *str) {
+		if (*str == ':' && !value) {
+			*str = 0;
+			value = str + 2;
+		}
+		str++;
+	}
+	char *end = str;
+	if (*str)
+		str += 2;
+	*end = 0;
+	return QByteArray::fromRawData(begin, end - begin);
+}
+
+enum ContentType
+{
+	ContentPlainText,
+	ContentRtf,
+	ContentUnknown
+};
+
+bool parser_is_boundary(const QByteArray &line, const QByteArray &boundary, bool *final)
+{
+	if (line == boundary) {
+		*final = false;
+		return true;
+	} else if (line.size() == boundary.size() + 2) {
+		*final = true;
+		return !memcmp(line.constData() + boundary.size(), "--", 2)
+				&& !memcmp(line.constData(), boundary.constData(), boundary.size());
+		return true;
+	}
+	return false;
+}
+
+void MrimMessages::handleOfflineMessageAck(MrimPacket &packet)
+{
+    quint32 uidl1 = 0, uidl2 = 0;
+	LPString string;
+    packet.readTo(uidl1);
+    packet.readTo(uidl2);
+	packet.readTo(string);
+	QByteArray tmpData = string.toByteArray();
+	
+	// Simple implementation of RFC-0822
+	
+	char *data = tmpData.data();
+	const char *value;
+	Message message;
+	message.setIncoming(true);
+	quint32 flags = 0;
+	QByteArray boundary;
+	MrimContact *contact = 0;
+	// Header
+	while (true) {
+		QByteArray line = parser_read_line(data, value);
+		if (line.isEmpty())
+			break;
+		if (!value)
+			continue;
+		if (!qstrcmp(line.constData(), "From")) {
+			MrimRoster *roster = p->conn->account()->roster();
+			contact = roster->getContact(QLatin1String(value), true);
+			message.setChatUnit(contact);
+		} else if (!qstrcmp(line.constData(), "Date")) {
+			QString format = QLatin1String("ddd, dd MMM yyyy hh:mm:ss");
+			QString text = QLatin1String(value);
+			int signPosition = text.lastIndexOf(' ');
+			int delta = 0;
+			if (signPosition != -1) {
+				 QTime d = QTime::fromString(text.mid(signPosition + 2), QLatin1String("hhmm"));
+				 if (d.isValid()) {
+					 delta = (d.hour() * 60 + d.minute()) * 60;
+					 if (text[signPosition + 1] != '-')
+						 delta *= -1;
+				 }
+				 text.truncate(signPosition);
+			}
+			QLocale locale(QLocale::English);
+			QDateTime dateTime = locale.toDateTime(text, format);
+			dateTime.setTimeSpec(Qt::UTC);
+			message.setTime(dateTime.addSecs(delta).toLocalTime());
+		} else if (!qstrcmp(line.constData(), "X-MRIM-Flags")) {
+			bool ok = true;
+			flags = QByteArray::fromRawData(value, qstrlen(value)).toInt(&ok, 16);
+		} else if (!qstrcmp(line.constData(), "Content-Type")) {
+			boundary = QByteArray::fromRawData(value, qstrlen(value));
+			boundary = boundary.mid(boundary.indexOf("boundary=") + 9);
+			boundary.prepend("--", 2);
+		}
+	}
+	if (!contact) // Smth is wrong
+		return;
+	// Body parts
+	ContentType type;
+	bool final = false;
+	while (true) {
+		// Try to find boundary
+		QByteArray line = parser_read_line(data, value);
+		if (line.isNull())
+			break;
+		if (!parser_is_boundary(line, boundary, &final))
+			continue;
+		// Part's header
+		type = ContentUnknown;
+		QTextCodec *codec = 0;
+		while (true) {
+			line = parser_read_line(data, value);
+			if (line.isEmpty())
+				break;
+			if (!qstrcmp(line.constData(), "Content-Type")) {
+				if (!qstrcmp(value, "application/x-mrim-rtf")) {
+					type = ContentRtf;
+				} else {
+					QByteArray helper = QByteArray::fromRawData(value, qstrlen(value));
+					if (helper.contains("text/plain")) {
+						const char *codecName = helper.constData() + helper.indexOf("charset=") + 8;
+						helper = QByteArray::fromRawData(codecName, qstrlen(codecName));
+						helper.replace(';', '\0');
+						qDebug() << "Codec" << codecName;
+						codec = QTextCodec::codecForName(helper.constData());
+						if (!codec)
+							codec = QTextCodec::codecForName("cp1251");
+						type = ContentPlainText;
+					} else {
+						type = ContentUnknown;
+					}
+				}
+			} else if (!qstrcmp(line.constData(), "Content-Transfer-Encoding")) {
+				// Don't know what to do
+			}
+		}
+		// Part's body
+		QByteArray helper = QByteArray::fromRawData(data, qstrlen(data));
+		QByteArray body;
+		int size = helper.indexOf(boundary);
+		if (size == -1) {
+			size = helper.size();
+			body = QByteArray::fromRawData(helper.constData(), size);
+		} else {
+			body = QByteArray::fromRawData(helper.constData(), size - 1);
+		}
+		body = QByteArray::fromBase64(body);
+		data += size;
+		line = parser_read_line(data, value);
+		if (!body.isEmpty()) {
+			if (type == ContentPlainText) {
+				message.setText(codec->toUnicode(body));
+			}
+#ifndef NO_RTF_SUPPORT
+			else if (type == ContentRtf) {
+				QString rtfMsg = QString::fromLatin1(body.constData(), body.size());
+				QString plainText;
+				QString html;
+				p->rtf->parse(rtfMsg, &plainText, &html);
+				message.setProperty("html", html);
+			}
+#endif
+		}
+		if (parser_is_boundary(line, boundary, &final) && final)
+			break;
+	}
+	
+	if (flags & MessageFlagAuthorize) {
+		QEvent *event = new Authorization::Reply(Authorization::Reply::New, contact, message.text());
+		qApp->postEvent(Authorization::service(), event);
+	} else {
+		ChatLayer::get(contact, true)->appendMessage(message);
+	}
+	
+	MrimPacket deletePacket(MrimPacket::Compose);
+	deletePacket.setMsgType(MRIM_CS_DELETE_OFFLINE_MESSAGE);
+	deletePacket.append(uidl1);
+	deletePacket.append(uidl2);
+	p->conn->sendPacket(deletePacket);
+}
+
+void MrimMessages::sendDeliveryReport(const QString& from, quint32 msgId)
 {
     MrimPacket deliveryPacket(MrimPacket::Compose);
     deliveryPacket.setMsgType(MRIM_CS_MESSAGE_RECV);

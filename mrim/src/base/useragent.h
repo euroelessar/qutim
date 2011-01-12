@@ -19,41 +19,48 @@
 #include <QObject>
 #include <QString>
 #include <QDebug>
+#include <QSharedData>
+#include <qutim/extensionicon.h>
 
 class QIcon;
 
-class UserAgent : public QObject
+class UserAgentData : public QSharedData
 {
-    Q_OBJECT
-
 public:
-    UserAgent();
-    UserAgent( const QString &clientID, const QString &versionStr, const QString &buildVer,
+	UserAgentData() : protoMajorVer(0), protoMinorVer(0) {}
+	UserAgentData(const UserAgentData &o)
+		: QSharedData(o), clientID(o.clientID), versionStr(o.versionStr), buildVer(o.buildVer),
+		protoMajorVer(o.protoMajorVer), protoMinorVer(o.protoMinorVer) {}
+    //Client ID
+    QString clientID;
+    //Client version
+    QString versionStr;
+    QString buildVer;
+    //Protocol version
+    quint8 protoMajorVer;
+    quint8 protoMinorVer;
+};
+
+class MrimUserAgent
+{
+public:
+    MrimUserAgent();
+    MrimUserAgent( const QString &clientID, const QString &versionStr, const QString &buildVer,
                quint8 protoMajorVer, quint8 protoMinorVer );
-    virtual ~UserAgent();
+    MrimUserAgent(const MrimUserAgent &o);
+	MrimUserAgent &operator =(const MrimUserAgent &o);
+    virtual ~MrimUserAgent();
 
     void clear();
     bool parse(const QString &userAgentStr);
     QString toString() const;
     QString toReadable() const;
     bool isEmpty() const;
-    QIcon icon() const;
-    void set(const UserAgent& newAgent);
-
-signals:
-    void changed();
-
+    qutim_sdk_0_3::ExtensionIcon icon() const;
 private:
-    //Client ID
-    QString m_clientID;
-    //Client version
-    QString m_versionStr;
-    QString m_buildVer;
-    //Protocol version
-    quint8 m_protoMajorVer;
-    quint8 m_protoMinorVer;
+	QSharedDataPointer<UserAgentData> d;
 };
 
-QDebug operator<<(QDebug dbg, const UserAgent &u);
+QDebug operator<<(QDebug dbg, const MrimUserAgent &u);
 
 #endif // USERAGENT_H

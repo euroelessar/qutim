@@ -14,13 +14,15 @@
 *****************************************************************************/
 
 #include "regionlistparser.h"
+#include <QFile>
+#include <QTextCodec>
+#include <QTextStream>
 
 RegionListParser::RegionListParser(QString relPath)
 {//usually will be - Resources/region.txt	
 	QFile regionsFile(relPath);
-	QString codepage = "UTF8";
-	QTextCodec* codec = QTextCodec::codecForName(codepage.toLocal8Bit());
-	m_regionsList = new QList<LiveRegion>;
+	QTextCodec* codec = QTextCodec::codecForName("utf-8");
+	m_regionsList = new QList<LiveRegion>();
 
 	if (codec == NULL)
 		return;

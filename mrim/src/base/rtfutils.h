@@ -28,8 +28,8 @@ public:
     Rtf(const char *defaultEncoding = "utf-8");
     ~Rtf();
 
-    static QString toPlainText(RtfTextReader *reader, const QString& rtfMsg);
-    QString toPlainText(const QString& rtfMsg);
+    static void parse(RtfTextReader *reader, const QString& rtfMsg, QString *plainText, QString *html);
+    void parse(const QString& rtfMsg, QString *plainText, QString *html);
 
 private:
     QScopedPointer<RtfPrivate> p;    

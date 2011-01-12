@@ -38,7 +38,7 @@ Rtf::~Rtf() {
     delete p->reader;
 }
 
-QString Rtf::toPlainText(RtfTextReader *reader, const QString& rtfMsg)
+void Rtf::parse(RtfTextReader *reader, const QString& rtfMsg, QString *plainText, QString *html)
 {
 	QByteArray unbased = QByteArray::fromBase64(rtfMsg.toLatin1());
     QByteArray arr;
@@ -53,22 +53,26 @@ QString Rtf::toPlainText(RtfTextReader *reader, const QString& rtfMsg)
     buf.seek(0);
     quint32 numLps = ByteUtils::readUint32(buf);
 
-    QString plainText;
-
-    if (numLps > 1)
-    {
+    if (numLps > 1) {
         QByteArray rtfMsg = ByteUtils::readArray(buf);
         QString color = ByteUtils::readString(buf);//not used now
         Q_UNUSED(color);
         reader->readDocument(rtfMsg);
-        plainText = reader->getText();
-    }
-    return plainText;
+		if (plainText)
+			*plainText = reader->getText();
+		if (html)
+			*html = reader->getHtml();
+    } else {
+		if (plainText)
+			plainText->clear();
+		if (html)
+			html->clear();
+	}
 }
 
-QString Rtf::toPlainText(const QString& rtfMsg)
+void Rtf::parse(const QString& rtfMsg, QString *plainText, QString *html)
 {
-    return toPlainText(p->reader,rtfMsg);
+    parse(p->reader, rtfMsg, plainText, html);
 }
 
 #endif //NO_RTF_SUPPORT

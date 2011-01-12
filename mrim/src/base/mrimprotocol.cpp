@@ -19,6 +19,7 @@
 #include "mrimprotocol.h"
 #include "mrimaccount.h"
 #include "utils.h"
+#include <qutim/statusactiongenerator.h>
 
 #include "ui/wizards/mrimaccountwizard.h"
 
@@ -56,14 +57,56 @@ Account *MrimProtocol::account(const QString &id) const
     return p->m_accountsHash.value(id);
 }
 
+void MrimProtocol::loadActions()
+{
+	QList<Status> statuses;
+	statuses << Status(Status::Online)
+			 << Status(Status::FreeChat)
+			 << Status(Status::Away)
+			 << Status(Status::NA)
+			 << Status(Status::DND)
+			 << Status(Status::Invisible)
+			 << Status(Status::Offline);
+
+	Status connectingStatus(Status::Connecting);
+	connectingStatus.initIcon("mrim");
+	Status::remember(connectingStatus, "mrim");
+
+	foreach (Status status, statuses) {
+		status.initIcon("mrim");
+		Status::remember(status, "mrim");
+		MenuController::addAction<MrimAccount>(new StatusActionGenerator(status));
+	}
+}
+
+void MrimProtocol::addAccount(MrimAccount *account)
+{
+	p->m_accountsHash.insert(account->id(), account);
+	emit accountCreated(account);
+	connect(account, SIGNAL(destroyed(QObject*)), SLOT(removeAccount(QObject*)));
+}
+
 void MrimProtocol::loadAccounts()
 {
+	loadActions();
     QStringList accounts = config("general").value("accounts",QStringList());
+	qDebug() << Q_FUNC_INFO << accounts;
 
-    foreach (QString email, accounts)
-    {
-        p->m_accountsHash.insert(email,new MrimAccount(email));
+    foreach (QString email, accounts) {
+		addAccount(new MrimAccount(email));
     }
+}
+
+QVariant MrimProtocol::data(DataType type)
+{
+	switch (type) {
+		case ProtocolIdName:
+			return "E-Mail";
+		case ProtocolContainsContacts:
+			return true;
+		default:
+			return QVariant();
+	}
 }
 
 MrimProtocol* MrimProtocol::instance()
@@ -91,7 +134,7 @@ MrimProtocol::AccountCreationError MrimProtocol::createAccount(const QString& em
             MrimAccount *account = new MrimAccount(validEmail);
             account->config().group("general").setValue("passwd", password, Config::Crypted);
             account->config().sync();//save account settings
-            p->m_accountsHash.insert(validEmail,account);
+			addAccount(account);
 
             accounts << validEmail;
             cfg.setValue("accounts",accounts);

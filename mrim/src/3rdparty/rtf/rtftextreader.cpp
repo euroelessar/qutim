@@ -4,7 +4,7 @@
 #include "rtftextreader.h"
 
 RtfTextReader::RtfTextReader(const char *defaultEncoding)
-    : RtfReader(QString().toStdString())
+    : RtfReader(std::string()), m_cursor(&m_document)
 {
     m_defaultEnc = defaultEncoding;
     m_codec = QTextCodec::codecForName(defaultEncoding);
@@ -14,41 +14,67 @@ RtfTextReader::~RtfTextReader() {
     m_codec = 0;
 }
 
-void RtfTextReader::addCharData(const char *data, size_t len, bool convert) {
-    m_result.append(m_codec->toUnicode(data,len));
+void RtfTextReader::addCharData(const char *data, size_t len, bool convert)
+{
+	m_cursor.insertText(m_codec->toUnicode(data, len));
 }
 
-void RtfTextReader::insertImage(const std::string &mimeType, const std::string &fileName, size_t startOffset, size_t size) {
+void RtfTextReader::insertImage(const std::string &mimeType, const std::string &fileName, size_t startOffset, size_t size)
+{
 }
 
-void RtfTextReader::setEncoding(int code) {
+void RtfTextReader::setEncoding(int code)
+{
     m_codec = QTextCodec::codecForName(QString("cp%1").arg(code).toAscii().constData());
 
-    if (!m_codec) {
-        QTextCodec::codecForName(m_defaultEnc.constData());
-    }
+    if (!m_codec)
+        m_codec = QTextCodec::codecForName(m_defaultEnc.constData());
 }
 
-void RtfTextReader::switchDestination(DestinationType destination, bool on) {
+void RtfTextReader::switchDestination(DestinationType destination, bool on)
+{
 }
 
-void RtfTextReader::setAlignment() {
+void RtfTextReader::setAlignment()
+{
 }
 
-void RtfTextReader::setFontProperty(FontProperty property) {
+void RtfTextReader::setFontProperty(FontProperty property)
+{
+	QTextCharFormat format = m_cursor.charFormat();
+	switch (property) {
+	case RtfReader::FONT_BOLD:
+		format.setFontWeight(format.fontWeight() == QFont::Bold ? QFont::Normal : QFont::Bold);
+		break;
+	case RtfReader::FONT_ITALIC:
+		format.setFontItalic(!format.fontItalic());
+		break;
+	case RtfReader::FONT_UNDERLINED:
+		format.setFontUnderline(!format.fontUnderline());
+		break;
+	}
+	m_cursor.setCharFormat(format);
 }
 
-void RtfTextReader::newParagraph() {
-    if (!m_result.isEmpty())
-        m_result.append('\n');
+void RtfTextReader::newParagraph()
+{
+	m_cursor.insertBlock();
 }
 
-QString RtfTextReader::getText() const {
-    return m_result;
+QString RtfTextReader::getText() const
+{
+    return m_document.toPlainText();
 }
 
-void RtfTextReader::flushBuffers() {
-    m_result.clear();
+QString RtfTextReader::getHtml() const
+{
+	return m_document.toHtml();
+}
+
+void RtfTextReader::flushBuffers()
+{
+	m_cursor = QTextCursor(&m_document);
+	m_document.clear();
 }
 
 #endif //NO_RTF_SUPPORT

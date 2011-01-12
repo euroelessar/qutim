@@ -1,8 +1,8 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
 PROJECT( MRIM )
 
-message(STATUS "Mail.ru not yet implemented, so it will be until someone wins the laziness")
-return()
+#message(STATUS "Mail.ru not yet implemented, so it will be until someone wins the laziness")
+#return()
 
 SET( QT_USE_QTNETWORK TRUE )
 

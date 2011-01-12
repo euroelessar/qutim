@@ -30,6 +30,7 @@ class QTcpSocket;
 class PacketHandler
 {
 public:
+	virtual ~PacketHandler() {}
     virtual QList<quint32> handledTypes() = 0;
     virtual bool handlePacket(class MrimPacket& packet) = 0;
 };
@@ -124,6 +125,7 @@ private:
     mrim_packet_header_t m_header;
     mrim_connection_params_t m_connParams;
     QByteArray m_body;
+	QByteArray m_headerData;
     quint32 m_currBodyPos;
     quint32 m_bytesLeft;
     PacketState m_currState;

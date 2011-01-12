@@ -1,16 +1,99 @@
 #include "mrimstatus.h"
+#include "proto.h"
+#include "useragent.h"
+#include "mrimcontact.h"
+#include <qutim/debug.h>
+#include <qutim/tooltip.h>
 
-QString MrimStatus::toString(const Status &status)
+MrimStatus::MrimStatus(Type type) : Status(Status::instance(type, "mrim"))
+{
+}
+
+MrimStatus::MrimStatus(const QString &uri, const QString &title, const QString &desc)
+	: Status(MrimStatus::fromString(uri, title, desc))
+{
+	qDebug() << uri << type();
+}
+
+MrimStatus::MrimStatus(const MrimStatus &status) : Status(status)
+{
+}
+
+MrimStatus::MrimStatus(const Status &status) : Status(Status::instance(status.type(), "mrim"))
+{
+	setType(status.type());
+	setSubtype(status.subtype());
+	setText(status.text());
+}
+
+MrimStatus &MrimStatus::operator =(const MrimStatus &o)
+{
+	return static_cast<MrimStatus&>(Status::operator =(o));
+}
+
+MrimStatus &MrimStatus::operator =(const Status &o)
+{
+	return static_cast<MrimStatus&>(Status::operator =(MrimStatus(o)));
+}
+
+quint32 MrimStatus::mrimType() const
+{
+	if (subtype())
+		return STATUS_USER_DEFINED;
+	switch (type()) {
+    case Status::Offline:
+		return STATUS_OFFLINE;
+    case Status::Online:
+		return STATUS_ONLINE;
+    case Status::Away:
+		return STATUS_AWAY;
+    case Status::Invisible:
+		return STATUS_FLAG_INVISIBLE;
+	default:
+		return STATUS_USER_DEFINED;
+	}
+}
+
+void MrimStatus::setUserAgent(const MrimUserAgent &info)
+{
+	QVariantHash clientInfo;
+	clientInfo.insert("id", "client");
+	clientInfo.insert("title", QObject::tr("Possible client"));
+	clientInfo.insert("icon", QVariant::fromValue(info.icon()));
+	clientInfo.insert("description", info.toReadable());
+	clientInfo.insert("showInTooltip", true);
+	clientInfo.insert("priorityInContactList", 85);
+	clientInfo.insert("priorityInTooltip", 25);
+	clientInfo.insert("iconPosition", qVariantFromValue(ToolTipEvent::IconBeforeDescription));
+	setExtendedInfo("client", clientInfo);
+}
+
+void MrimStatus::setFlags(quint32 serverFlags)
+{
+	if (serverFlags & CONTACT_INTFLAG_NOT_AUTHORIZED) {
+		QVariantHash clientInfo;
+		clientInfo.insert("id", "authorization");
+		clientInfo.insert("title", QObject::tr("Not authorized"));
+		clientInfo.insert("icon", QVariant::fromValue(ExtensionIcon("dialog-warning")));
+		clientInfo.insert("description", QString());
+		clientInfo.insert("showInTooltip", true);
+		clientInfo.insert("priorityInContactList", 80);
+		clientInfo.insert("priorityInTooltip", 30);
+		clientInfo.insert("iconPosition", qVariantFromValue(ToolTipEvent::IconBeforeDescription));
+		setExtendedInfo("authorization", clientInfo);
+	}
+}
+
+QString MrimStatus::toString() const
 {
     QString statusStr = "status_";
 
-    switch (status.type()) {
+    switch (type()) {
     case Status::Offline:
         statusStr += "offline";
         break;
     case Status::Online:
-        statusStr += (status.subtype() == 0) ? "online"
-                        : QString::number(status.subtype());
+        statusStr += (subtype() == 0) ? "online" : QString::number(subtype());
         break;
     case Status::Away:
         statusStr += "away";

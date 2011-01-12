@@ -5,10 +5,25 @@
 
 using namespace qutim_sdk_0_3;
 
-class MrimStatus
+class MrimUserAgent;
+
+class MrimStatus : public Status
 {
 public:
-    static QString toString(const Status &status);
+	MrimStatus(Type type = Offline);
+	MrimStatus(const QString &uri,
+			   const QString &title = QString(),
+			   const QString &desc = QString());
+	MrimStatus(const MrimStatus &status);
+	MrimStatus(const Status &status);
+	MrimStatus &operator =(const MrimStatus &o);
+	MrimStatus &operator =(const Status &o);
+	
+	void setUserAgent(const MrimUserAgent &info);
+	void setFlags(quint32 contactFlags);
+	quint32 mrimType() const;
+	
+    QString toString() const;
     static Status fromString(const QString &uri,
                              const QString &title = QString(),
                              const QString &desc = QString());

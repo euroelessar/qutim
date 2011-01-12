@@ -20,6 +20,7 @@
 
 #include "roster.h"
 #include "mrimconnection.h"
+#include "mrimdefs.h"
 
 using namespace qutim_sdk_0_3;
 
@@ -27,14 +28,20 @@ struct MrimAccountPrivate;
 
 class MrimAccount : public Account
 {
+	Q_OBJECT
 public:
     MrimAccount(const QString& email);
+	~MrimAccount();
+	QString name() const;
     ChatUnit *getUnit(const QString &unitId, bool create = false);
     MrimConnection *connection() const;
-    Roster *roster() const;
+    MrimRoster *roster() const;
     void setStatus(Status status);
+	void setAccountStatus(const Status &status);
+	void setUserInfo(const QMap<QString, QString> &info);
 
 private:
+	friend class MrimRoster;
     QScopedPointer<MrimAccountPrivate> p;
 };
 
