@@ -1,5 +1,15 @@
 #qutIM artwork install helper
 
+if(SYMBIAN)
+	function(QUTIM_TARGET_LINK_LIBRARIES)
+		symbian_target_link_libraries(${ARGN})
+	endfunction()
+else(SYMBIAN)
+	function(QUTIM_TARGET_LINK_LIBRARIES)
+		target_link_libraries(${ARGN})
+	endfunction()
+endif(SYMBIAN)
+
 #small workaround
 if(NOT DEFINED IS_CPACK_INCLUDED)
 	include(CPack)
@@ -306,7 +316,7 @@ Q_IMPORT_PLUGIN(${plugin_name})
 	endif ( QUTIM_COPY_PLUGINS_TO_BINARY_DIR AND QUTIM_BINARY_DIR AND NOT QUTIM_${plugin_name}_STATIC )
 
 	# Link with QT
-	target_link_libraries( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARIES} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
+	qutim_target_link_libraries( ${plugin_name} ${QT_LIBRARIES} ${QUTIM_LIBRARIES} ${QUTIM_${plugin_name}_LINK_LIBRARIES} )
 
 	if( LANGUAGE AND NOT QUTIM_${plugin_name}_SUBPLUGIN AND NOT QUTIM_${plugin_name}_EXTENSION )
 	language_update( ${plugin_name} ${LANGUAGE} "${CMAKE_CURRENT_SOURCE_DIR}" )

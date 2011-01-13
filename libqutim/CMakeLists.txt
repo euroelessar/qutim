@@ -136,7 +136,7 @@ ENDIF()
 
 
 # Link with QT
-TARGET_LINK_LIBRARIES( libqutim ${QT_LIBRARIES} ${EXTRA_LIBS})
+qutim_target_link_libraries( libqutim ${QT_LIBRARIES} ${EXTRA_LIBS})
 
 install( TARGETS libqutim 
 	RUNTIME DESTINATION bin

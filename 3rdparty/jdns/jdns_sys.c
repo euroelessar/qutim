@@ -681,9 +681,16 @@ static jdns_dnsparams_t *dnsparams_get_unixfiles()
 
 #if defined(__GLIBC__) && ((__GLIBC__ > 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ >= 3)))
 # define JDNS_MODERN_RES_API
+#elif defined(JDNS_OS_SYMBIAN)
+# define JDN_NO_RES_API
 #endif
 
-#ifndef JDNS_MODERN_RES_API
+#ifdef JDN_NO_RES_API
+static int my_res_init()
+{
+	return -1;
+}
+#elif !defined(JDNS_MODERN_RES_API)
 typedef int (*res_init_func)();
 static int my_res_init()
 {
@@ -696,6 +703,7 @@ static int my_res_init()
 		return -1;
 	return mac_res_init();
 #else
+	res_close();
 	return res_init();
 #endif
 }
@@ -725,11 +733,11 @@ static jdns_dnsparams_t *dnsparams_get_unixsys()
 #endif
 
 	params = jdns_dnsparams_new();
-
+#ifndef JDN_NO_RES_API
 	// error initializing?
 	if(n == -1)
 		return params;
-#ifndef __SYMBIAN32__ //S60 doesn't support ipv6
+#ifndef JDNS_OS_SYMBIAN //S60 doesn't support ipv6
 	// nameservers - ipv6
 	for(n = 0; n < MAXNS && n < RESVAR._u._ext.nscount; ++n)
 	{
@@ -797,6 +805,7 @@ static jdns_dnsparams_t *dnsparams_get_unixsys()
 	}
 #endif
 
+#endif // JDN_NO_RES_API
 	return params;
 }
 

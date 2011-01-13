@@ -51,6 +51,12 @@
 # include <netinet/in.h>
 #endif
 
+#ifdef __SYMBIAN32__
+# define JDNS_OS_SYMBIAN
+# define ntohl htonl
+# define ntohs htons
+#endif
+
 #include "jdns.h"
 #include "jdns_packet.h"
 
