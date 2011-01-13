@@ -25,5 +25,3 @@ if(MSVC)
 else()
 	set_target_properties(wapiqtwrapper PROPERTIES COMPILE_FLAGS "-DW7QTWRAPPER")
 endif()
-
-

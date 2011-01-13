@@ -2,7 +2,12 @@
 #include <QWidget>
 #include <QMap>
 #include <QSize>
+#include <QFlags>
 #include <qt_windows.h>
+#include "..\..\apilayer\src\ApiTaskbarPreviewsWAttributes.h"
+
+Q_DECLARE_FLAGS(WindowAttributes, WindowAttribute)
+Q_DECLARE_OPERATORS_FOR_FLAGS(WindowAttributes)
 
 class W7QTEXPORT PreviewProvider : public QObject {
 	Q_OBJECT
@@ -100,8 +105,9 @@ public:
 	static void tabsClear();
 	static void tabPreviewsRefresh(QWidget *tab);
 	static void tabPreviewsRefresh(unsigned tabid);
-	static void tabSetTitle(unsigned tabid, QString &title);
-	static void tabSetTitle(QWidget *tab,   QString &customTitle);
+	static void tabSetTitle   (unsigned tabid, QString &title);
+	static void tabSetTitle   (QWidget *tab,   QString &customTitle);
+	static void setWindowAttributes(QWidget *window, WindowAttributes wa);
 
 public slots:
 	unsigned addTab (QWidget *tab, QWidget *owner, const QString &title = "", QWidget *before = 0, PreviewProvider *pp = 0);
@@ -127,3 +133,4 @@ signals:
 	void tabAboutToRemove(QWidget *tab, bool *ignore);
 	void tabAboutToRemove(unsigned id,  bool *ignore);
 };
+

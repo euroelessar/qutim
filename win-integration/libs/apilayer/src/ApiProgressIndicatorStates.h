@@ -1,8 +1,8 @@
-#ifndef W7QTPSSTATES_H
-#define W7QTPSSTATES_H
+#ifndef PSSTATES_H
+#define PSSTATES_H
 
 enum ProgressStates {
-	PS_Normal,
+	PS_Normal = 0,
 	PS_Paused,
 	PS_Error,
 	PS_Indeterminate,

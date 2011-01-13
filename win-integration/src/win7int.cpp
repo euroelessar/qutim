@@ -43,15 +43,19 @@ void Win7Int2::init()
 
 bool Win7Int2::load()
 {
-	if(QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7){ // even if plugin suddenly loads on WinVista, it won't work
-		connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
-		previews = new WPreviews;
-	}
+	if (QSysInfo::windowsVersion() != QSysInfo::WV_WINDOWS7)
+		return false; // even if plugin suddenly loads on WinVista, it won't work
+	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
+	previews = new WPreviews;
+	QWidget *cl = ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>();
+	TaskbarPreviews::setWindowAttributes(cl, TA_Peek_ExcludeFrom|TA_Flip3D_ExcludeBelow);
 	return true;
 }
 
 bool Win7Int2::unload()
 {
+	QWidget *cl = ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>();
+	TaskbarPreviews::setWindowAttributes(cl, TA_NoAttributes);
 	delete previews;
 	return true;
 }
@@ -64,9 +68,8 @@ void Win7Int2::onSessionCreated(qutim_sdk_0_3::ChatSession *s)
 
 void Win7Int2::onSessionActivated(bool activated)
 {
-	if (!activated)
-		return;
-	testTab();
+	if (activated)
+		testTab();
 }
 
 void Win7Int2::testTab()
@@ -216,7 +219,7 @@ QPixmap WPreviews::IconicPreview(unsigned, QWidget *, QSize size)
 		textUnreadConfs->setTextWidth(size.width() - CONFUNREAD_X*2);
 	} else {
 		textUnreadChats->setPlainText("");
-		textUnreadConfs->setPlainText("You have no new messages.");
+		textUnreadConfs->setPlainText(tr("You have no new messages."));
 	}
 	if (currentBgSize != size)
 		sceneBgItem->setPixmap(sceneBgImage.scaled(size, Qt::KeepAspectRatioByExpanding));

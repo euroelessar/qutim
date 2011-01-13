@@ -10,3 +10,4 @@ EXPORT void SetTabIconicPreview      (HWND tab, HBITMAP bitmap);//
 EXPORT void SetTabLivePreview        (HWND tab, HBITMAP bitmap);//
 EXPORT void ForceIconicRepresentation(HWND tab);
 EXPORT void InvalidateBitmaps        (HWND hwnd);
+EXPORT void SetWindowAttributes      (HWND hwnd, unsigned attr);
