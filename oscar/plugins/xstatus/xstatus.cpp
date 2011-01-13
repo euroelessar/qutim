@@ -287,14 +287,7 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 			debug() << "Skipped xtraz response" << response.serviceId() << "from" << response.value("uin");
 			return;
 		}
-		int index = response.value("index", "-1").toInt();
-		if (index > 0 && index < xstatusList()->size()) {
-			setXstatus(contact,
-					   response.value("title"),
-					   xstatusList()->at(index).icon,
-					   response.value("desc"));
-			debug() << "xstatus" << contact->name() << index << xstatusList()->at(index).value;
-		}
+		setXstatus(contact, response.value("title"), response.value("desc"));
 	}
 }
 
@@ -347,10 +340,11 @@ void XStatusHandler::removeXStatuses(Capabilities &caps)
 		caps.removeAll(xstatus.capability);
 }
 
-void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc)
+void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const QString &desc)
 {
 	Status status = contact->status();
-	setXstatus(status, title, icon, desc);
+	QVariant icon = status.extendedInfo("xstatus").value("icon");
+	setXstatus(status, title, icon.value<ExtensionIcon>(), desc);
 	contact->setStatus(status);
 }
 

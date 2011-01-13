@@ -80,7 +80,7 @@ protected:
 	void statusChanged(IcqContact *contact, Status &status, const TLVMap &tlvs);
 	XStatus findXStatus(IcqContact *contact, qint8 mood);
 	void removeXStatuses(Capabilities &caps);
-	void setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
+	void setXstatus(IcqContact *contact, const QString &title, const QString &desc = QString());
 	void setXstatus(Status &status, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
 	void setAcountXstatus(IcqAccount *account, QVariantHash extStatus, const XStatus &xstatus);
 	void setAcountXstatus(IcqAccount *account, QVariantHash extStatus);
