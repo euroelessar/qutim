@@ -232,6 +232,7 @@ void BuddyPicture::statusChanged(IcqContact *contact, Status &status, const TLVM
 	Q_UNUSED(status);
 	if (m_avatars && tlvs.contains(0x001d)) { // avatar
 		SessionDataItemMap items(tlvs.value(0x001d));
+		debug() << "BuddyPicture:" << contact->name() << "SessionDataItem:" << items;
 		foreach (const SessionDataItem &item, items) {
 			if (item.type() != staticAvatar && item.type() != miniAvatar &&
 				item.type() != flashAvatar && item.type() != photoAvatar)
