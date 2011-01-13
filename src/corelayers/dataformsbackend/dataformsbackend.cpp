@@ -14,7 +14,7 @@ namespace Core
 {
 
 DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartButtons,  const Buttons &buttons) :
-	m_widget(0), m_isChanged(false), m_incompleteWidgets(0), m_buttonsBox(0)
+	m_widget(0), m_isChanged(false), m_incompleteWidgets(0), m_buttonsBox(0), m_hasSubitems(item.hasSubitems())
 {
 	DataLayout *dataLayout = 0;
 	QVBoxLayout *layout = 0;
@@ -68,12 +68,16 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 
 DataItem DefaultDataForm::item() const
 {
-	DataItem item;
-	if (m_widget)
-		item = m_widget->item();
-	item.setName(objectName());
-	item.setTitle(windowTitle());
-	return item;
+	if (m_hasSubitems) {
+		DataItem item;
+		if (m_widget)
+			item = m_widget->item();
+		item.setName(objectName());
+		item.setTitle(windowTitle());
+		return item;
+	} else {
+		return static_cast<DataLayout*>(m_widget)->item(false);
+	}
 }
 
 bool DefaultDataForm::isChanged() const

@@ -36,6 +36,17 @@ DataItem DataLayout::item() const
 	return items;
 }
 
+DataItem DataLayout::item(bool hasSubitems) const
+{
+	if (!hasSubitems) {
+		Q_ASSERT(m_widgets.count() == 1);
+		const WidgetLine &line = m_widgets.first();
+		return getDataItem(line.title, line.data);
+	} else {
+		return item();
+	}
+}
+
 void DataLayout::addItem(const DataItem &item)
 {
 	bool twoColumns;

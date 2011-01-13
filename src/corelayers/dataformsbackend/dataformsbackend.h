@@ -39,6 +39,7 @@ private:
 	int m_incompleteWidgets;
 	QMultiHash<QString, AbstractDataWidget*> m_widgets;
 	QDialogButtonBox *m_buttonsBox;
+	bool m_hasSubitems;
 };
 
 class DefaultDataFormsBackend : public DataFormsBackend

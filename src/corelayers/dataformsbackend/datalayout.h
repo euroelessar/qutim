@@ -24,6 +24,7 @@ public:
 	DataLayout(DefaultDataForm *dataForm, quint8 columns, QWidget *parent = 0);
 	~DataLayout();
 	DataItem item() const;
+	DataItem item(bool hasSubitems) const;
 	void addItem(const DataItem &item);
 	void addItems(const QList<DataItem> &items);
 	void addSpacer();
