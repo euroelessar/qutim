@@ -16,7 +16,7 @@ endif()
 add_subdirectory(libs)
 
 qutim_add_plugin( win7int2
-	DISPLAY_NAME   "Windows 7 Integration" # now it is Win7int, but in future…
+	DISPLAY_NAME   "Windows 7 Integration" # now it is Win7int, but in futureâ€¦
 	DESCRIPTION    "Adds count of unread messages as an icon to taskbar button of qutim, along with some commands list."
 	GROUP          "Plugins"
 	LINK_LIBRARIES wapiqtwrapper

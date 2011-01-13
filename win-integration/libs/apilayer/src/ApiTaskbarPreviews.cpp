@@ -67,12 +67,10 @@ void SetTabLivePreview(HWND tab, HBITMAP bitmap)
 
 void ForceIconicRepresentation(HWND tab)
 {
-	int Param = TRUE;
-	int e1 = DwmSetWindowAttribute(tab, DWMWA_FORCE_ICONIC_REPRESENTATION, &Param, sizeof(Param));
-	int e2 = DwmSetWindowAttribute(tab, DWMWA_HAS_ICONIC_BITMAP, &Param, sizeof(Param));
-	/*_com_error er1(e1), er2(e2);
-	cerr << "\nForceIconicRepresentation " << tab << endl;
-	cerr << er1.ErrorMessage() << " " << er2.ErrorMessage() << endl;*/
+	int param = TRUE;
+	DwmSetWindowAttribute(tab, DWMWA_FORCE_ICONIC_REPRESENTATION, &param, sizeof(param));
+	DwmSetWindowAttribute(tab, DWMWA_HAS_ICONIC_BITMAP,           &param, sizeof(param));
+	// _com_error er1(e1), er2(e2);
 }
 
 void UnregisterTab(HWND tab)

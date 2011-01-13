@@ -6,7 +6,7 @@
 #include <QDebug>
 
 #ifndef WM_DWMSENDICONICTHUMBNAIL
-#	define WM_DWMSENDICONICTHUMBNAIL 0x0323
+#	define WM_DWMSENDICONICTHUMBNAIL           0x0323
 #endif
 
 #ifndef WM_DWMSENDICONICLIVEPREVIEWBITMAP
@@ -57,7 +57,6 @@ bool Win7EventFilter::eventFilter(void *message, long *result)
 		}
 	}
 	case WM_CLOSE : {
-		qDebug() << "WM_CLOSE";
 		if(TaskbarPreviews::instance()->WasTabRemoved(msg->hwnd)){
 			*result = 0;
 			return true;

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project("Win7API Qt Wrapper")
+project("WinThings")
 
 FIND_PACKAGE (Qt4 REQUIRED)
 INCLUDE(UseQt4)

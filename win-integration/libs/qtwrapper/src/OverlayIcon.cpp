@@ -22,6 +22,8 @@ void OverlayIcon::set(const QIcon &icon)
 
 void OverlayIcon::set(const QPixmap &icon)
 {
+	if (!m_window)
+		return;
 	HICON hIcon = icon.scaled(16, 16).toWinHICON();
 	SetOverlayIcon(m_window->winId(), hIcon, 0);
 	DestroyIcon(hIcon);
@@ -52,10 +54,12 @@ void OverlayIcon::set(QWidget *w, const QString &s)
 
 void OverlayIcon::clear()
 {
-	ClearOverlayIcon(m_window->winId());
+	if (m_window)
+		ClearOverlayIcon(m_window->winId());
 }
 
 void OverlayIcon::clear(QWidget *w)
 {
-	ClearOverlayIcon(w->winId());
+	if (w)
+		ClearOverlayIcon(w->winId());
 }
