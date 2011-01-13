@@ -190,6 +190,12 @@ void StackedChatWidget::removeSession(ChatSessionImpl *session)
 {
 	if(contains(session))
 		m_sessionList->removeSession(session);
+
+	if(session == m_sessionList->currentSession()) {
+		m_view->setViewController(0);
+		m_chatInput->setDocument(0);
+	}
+
 	session->setActive(false);
 	if(m_flags & DeleteSessionOnClose)
 		session->deleteLater();

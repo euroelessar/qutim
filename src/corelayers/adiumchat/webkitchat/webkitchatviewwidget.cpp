@@ -40,7 +40,8 @@ void WebkitChatViewWidget::setViewController(QObject *controller)
 		m_view->page()->setView(0);
 		m_view->setPage(new_page);
 		QTimer::singleShot(0,this,SLOT(scrollBarWorkaround()));
-	}
+	} else
+		m_view->setPage(0);
 }
 
 bool WebkitChatViewWidget::event(QEvent *event)
