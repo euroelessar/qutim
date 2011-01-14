@@ -26,6 +26,7 @@
 #include <QFileInfo>
 #include <QStringBuilder>
 #include <QDesktopServices>
+#include <QCoreApplication>
 #include <chatlayer/messagemodifier.h>
 #include <chatlayer/javascriptclient.h>
 #include <qutim/configbase.h>
@@ -43,6 +44,17 @@ namespace Core
 {
 namespace AdiumChat
 {
+class MessageEventHook : public QEvent
+{
+public:
+	MessageEventHook() : QEvent(eventType()) {}
+	static Type eventType()
+	{
+		static Type type = static_cast<Type>(registerEventType());
+		return type;
+	}
+};
+
 struct MessageModifierTrack
 {
 	inline MessageModifierTrack(const QRegExp &r, const QString &n, MessageModifier *m)
@@ -109,6 +121,19 @@ void ChatStyleOutput::setChatUnit(ChatUnit *unit)
 				chatElem.removeClass("groupchat");
 		}
 	}
+}
+
+bool ChatStyleOutput::event(QEvent *ev)
+{
+	if (ev->type() == MessageEventHook::eventType()) {
+		qDebug() << Q_FUNC_INFO;
+		mainFrame()->evaluateJavaScript(m_scriptForInvoke);
+		m_scriptForInvoke.clear();
+//		MessageEventHook *messageEvent = static_cast<MessageEventHook*>(ev);
+//		d_func()->getController()->appendMessage(messageEvent->message);
+		return true;
+	}
+	return QWebPage::event(ev);
 }
 
 bool ChatStyleOutput::eventFilter(QObject *obj, QEvent *ev)
@@ -250,9 +275,9 @@ void ChatStyleOutput::reloadStyle()
 	js += "setStylesheet(\"mainStyle\",\"";
 	js += getVariantCSS();
 	js += "\");";
-	currentFrame()->evaluateJavaScript(js);
-	js = QString("setCustomStylesheet(\"%1\")").arg(m_current_css);
-	currentFrame()->evaluateJavaScript(js);
+	postEvaluateJavaScript(js);
+	js = QString("setCustomStylesheet(\"%1\");").arg(m_current_css);
+	postEvaluateJavaScript(js);
 }
 
 void ChatStyleOutput::setCustomCSS(const QString &css)
@@ -307,6 +332,13 @@ void ChatStyleOutput::preparePage (const ChatSessionImpl *session)
 	mainFrame()->setHtml(html);
 	reloadStyle();
 	loadHistory();
+}
+
+void ChatStyleOutput::postEvaluateJavaScript(const QString &script)
+{
+	if (m_scriptForInvoke.isEmpty())
+		QCoreApplication::postEvent(this, new MessageEventHook, -5);
+	m_scriptForInvoke += script;
 }
 
 QString ChatStyleOutput::makeSkeleton (const ChatSessionImpl *session, const QDateTime&)
@@ -403,7 +435,8 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 			QString jsInactive = QString("separator = document.getElementById(\"separator\");")
 					% QString("if (separator) separator.parentNode.removeChild(separator);")
 					% QString("appendMessage(\"<hr id='separator'><div id='insert'></div>\");");
-			mainFrame()->evaluateJavaScript(jsInactive);
+			
+			postEvaluateJavaScript(jsInactive);
 			previous_sender.clear();
 			separator = true;
 		}
@@ -411,7 +444,7 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 
 	QString jsTask = QString("append%2Message(\"%1\");").arg(
 				validateCpp(item), same_from?"Next":"");
-	mainFrame()->evaluateJavaScript(jsTask);
+	postEvaluateJavaScript(jsTask);
 
 	if (message.property("store", true) && (!service || (service && store_service_messages)))
 		History::instance()->store(message);

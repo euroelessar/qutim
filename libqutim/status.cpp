@@ -13,6 +13,39 @@
  ***************************************************************************
 *****************************************************************************/
 
+#include <QByteArray>
+
+namespace qutim_sdk_0_3
+{
+	struct StatusHashKey
+	{
+		const char *name;
+		int type;
+		int subtype;
+		
+		bool operator ==(const StatusHashKey &o) const
+		{
+			// Check name only if both type and subtype equals
+			return o.type == type
+					&& o.subtype == subtype
+					&& (o.name == name || !qstrcmp(o.name, name));
+		}
+	};
+}
+
+uint qHash(const qutim_sdk_0_3::StatusHashKey &value)
+{
+	// Simple hash algorithm
+	const uint p = 373;
+	uint h = 0;
+	const char *c = value.name;
+	while (*c)
+		h = h * p + *(c++);
+	h = h * p + value.type;
+	h = h * p + value.subtype;
+	return h;
+}
+
 #include "status.h"
 #include "dynamicpropertydata_p.h"
 #include "icon.h"
@@ -281,30 +314,33 @@ namespace qutim_sdk_0_3
 	}
 
 
-	typedef QHash<QByteArray, Status> StatusHash;
+	typedef QHash<StatusHashKey, Status> StatusHash;
 	Q_GLOBAL_STATIC(StatusHash, statusHash);
 
 	Status Status::instance(Type type, const char *proto, int subtype)
 	{
-		QByteArray key;
-		key += proto;
-		key += '\0';
-		key += QByteArray::number(int(type));
-		key += '_';
-		key += QByteArray::number(subtype);
+		StatusHashKey key = { proto, int(type), subtype };
+//		QByteArray key;
+//		key += proto;
+//		key += '\0';
+//		key += QByteArray::number(int(type));
+//		key += '_';
+//		key += QByteArray::number(subtype);
 		return statusHash()->value(key);
 	}
 
 	bool Status::remember(const Status &status, const char *proto)
 	{
-		QByteArray key;
-		key += proto;
-		key += '\0';
-		key += QByteArray::number(int(status.type()));
-		key += '_';
-		key += QByteArray::number(status.subtype());
+		StatusHashKey key = { proto, int(status.type()), status.subtype() };
+//		QByteArray key;
+//		key += proto;
+//		key += '\0';
+//		key += QByteArray::number(int(status.type()));
+//		key += '_';
+//		key += QByteArray::number(status.subtype());
 		if (statusHash()->contains(key))
 			return false;
+		key.name = qstrdup(key.name);
 		statusHash()->insert(key, status);
 		return true;
 	}

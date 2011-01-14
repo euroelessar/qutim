@@ -34,17 +34,6 @@ namespace Core
 {
 namespace AdiumChat
 {
-class MessageEventHook : public QEvent
-{
-public:
-	MessageEventHook(const Message &msg) : QEvent(eventType()), message(msg) {}
-	static Type eventType()
-	{
-		static Type type = static_cast<Type>(registerEventType());
-		return type;
-	}
-	const Message message;
-};
 
 ChatSessionImplPrivate::ChatSessionImplPrivate() :
 	controller(0),
@@ -150,8 +139,8 @@ qint64 ChatSessionImpl::appendMessage(Message &message)
 		Notifications::send(message);
 
 	if(!message.property("fake",false)) {
-		qApp->postEvent(this, new MessageEventHook(message), Qt::LowEventPriority);
-//		d->getController()->appendMessage(message);
+//		qApp->postEvent(this, new MessageEventHook(message), Qt::LowEventPriority);
+		d->getController()->appendMessage(message);
 	}
 	return message.id();
 }
@@ -237,12 +226,12 @@ bool ChatSessionImpl::isActive()
 
 bool ChatSessionImpl::event(QEvent *ev)
 {
-	if (ev->type() == MessageEventHook::eventType()) {
-		MessageEventHook *messageEvent = static_cast<MessageEventHook*>(ev);
-		qDebug() << Q_FUNC_INFO;
-		d_func()->getController()->appendMessage(messageEvent->message);
-		return true;
-	}
+//	if (ev->type() == MessageEventHook::eventType()) {
+//		MessageEventHook *messageEvent = static_cast<MessageEventHook*>(ev);
+//		qDebug() << Q_FUNC_INFO;
+//		d_func()->getController()->appendMessage(messageEvent->message);
+//		return true;
+//	}
 	return ChatSession::event(ev);
 }
 

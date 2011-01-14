@@ -87,6 +87,7 @@ public:
 	void preparePage(const ChatSessionImpl *session);
 	void reloadStyle();
 	void loadTheme(const QString &name, const QString &variant = QString());
+	bool event(QEvent *);
 	bool virtual eventFilter(QObject *obj, QEvent *ev);
 	virtual void clear();
 public slots:
@@ -102,6 +103,7 @@ private:
   skeleton consist of styles, header and footer
   it has a mark as well. before this mark new messages should be added
   */
+	void postEvaluateJavaScript(const QString &script);
 	QString makeSkeleton(const ChatSessionImpl *session, const QDateTime &datetime);
 	void makeUserIcons(const Message &mes, QString &source);
 	inline void makeTime (QString &input, const QDateTime& datetime,const QString &regexp = "%time\\{([^}]*)\\}%");
@@ -126,6 +128,7 @@ private:
 	QString m_current_style_path;
 	QString m_current_datetime_format;
 	QString m_current_css;
+	QString m_scriptForInvoke;
 	bool skipOneMerge;
 	QString previous_sender; // null if outcoming
 	QDateTime lastDate;
