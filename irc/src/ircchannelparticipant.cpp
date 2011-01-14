@@ -38,6 +38,8 @@ IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString 
 	connect(d->contact, SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
 	connect(d->contact, SIGNAL(quit(QString)), SIGNAL(quit(QString)));
 	connect(d->contact, SIGNAL(avatarChanged(QString)), SIGNAL(avatarChanged(QString)));
+	connect(d->contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 }
 
 IrcChannelParticipant::~IrcChannelParticipant()

@@ -97,7 +97,10 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		<< 322  // RPL_LIST
 		<< 323  // RPL_LISTEND
 		<< 521  // ERR_LISTSYNTAX
-		<< 263; // RPL_TRYAGAIN
+		<< 263  // RPL_TRYAGAIN
+		<< 301  // RPL_AWAY
+		<< 305  // RPL_UNAWAY
+		<< 306; // RPL_NOWAWAY
 	registerHandler(this);
 
 	m_ctpcCmds << "PING" << "ACTION" << "CLIENTINFO" << "VERSION" << "TIME";
@@ -112,6 +115,7 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		IrcAccount::registerLogMsgColor("Welcome", "green");
 		IrcAccount::registerLogMsgColor("Support", "green");
 		IrcAccount::registerLogMsgColor("Users", "green");
+		IrcAccount::registerLogMsgColor("Away", "green");
 
 		registerAlias(new IrcCommandAlias("ctpc", "PRIVMSG %1 :\001%2-\001"));
 		registerAlias(new IrcCommandAlias("me", "PRIVMSG %1 :\001ACTION %2-\001",
@@ -329,6 +333,22 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		if (m_account->d->channelListForm)
 			m_account->d->channelListForm->error(error);
 		m_account->log(error, true, "ERROR");
+	} else if (cmd == 301) { // RPL_AWAY
+		IrcContact *contact = account->getContact(name, false);
+		if (contact) {
+			QString awayMsg = params.value(0);
+			contact->setAway(awayMsg);
+			if (!awayMsg.isEmpty())
+				m_account->log(tr("%1 set away message %2").arg(name).arg(awayMsg), false, "Away");
+			else
+				m_account->log(tr("%1 removed away message").arg(name), false, "Away");
+		} else {
+			debug() << "AWAY message from the unknown contact" << name;
+		}
+	} else if (cmd == 305) { // RPL_UNAWAY
+		m_account->log(tr("You are no longer marked as being away"), false, "Away");
+	} else if (cmd == 306) { // RPL_NOWAWAY
+		m_account->log(tr("You have been marked as being away"), false, "Away");
 	}
 }
 

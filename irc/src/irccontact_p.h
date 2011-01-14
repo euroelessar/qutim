@@ -38,6 +38,7 @@ private:
 	QString nick;
 	QSet<QChar> modes;
 	QString avatar;
+	QString awayMsg;
 	mutable QAtomicInt m_ref;
 };
 

@@ -75,6 +75,14 @@ QString IrcContact::avatar() const
 	return d->avatar;
 }
 
+Status IrcContact::status() const
+{
+	Status status;
+	status.setType(d->awayMsg.isEmpty() ? Status::Online : Status::Away);
+	status.setText(d->awayMsg);
+	return status;
+}
+
 void IrcContact::setAvatar(const QString &avatar)
 {
 	d->avatar = avatar;
@@ -121,6 +129,13 @@ void IrcContact::handleMode(const QString &who, const QString &mode, const QStri
 		foreach (QChar m, mode)
 			d->modes.insert(m);
 	}
+}
+
+void IrcContact::setAway(const QString &awayMsg)
+{
+	Status previous = status();
+	d->awayMsg = awayMsg;
+	emit statusChanged(status(), previous);
 }
 
 } } // namespace qutim_sdk_0_3::irc

@@ -35,6 +35,7 @@ public:
 	virtual QString id() const;
 	virtual bool sendMessage(const Message &message);
 	virtual QString avatar() const;
+	virtual Status status() const;
 	void setAvatar(const QString &avatar);
 	const IrcAccount *account() const;
 	IrcAccount *account();
@@ -48,6 +49,7 @@ private:
 	friend class IrcChannelParticipant;
 	friend class IrcConnection;
 	void handleMode(const QString &who, const QString &mode, const QString &param);
+	void setAway(const QString &awayMsg);
 	QScopedPointer<IrcContactPrivate> d;
 };
 
