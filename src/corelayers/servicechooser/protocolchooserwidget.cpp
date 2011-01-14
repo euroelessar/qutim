@@ -89,7 +89,7 @@ namespace Core
 	}
 	void ProtocolChooserWidget::saveImpl()
 	{
-		Config group = Config().group("plugins/list");
+		Config group = Config().group("protocols/list");
 		QHash<QString, ServiceItem *>::const_iterator it;
 		for (it = m_protocol_items.constBegin();it!=m_protocol_items.constEnd();it++) {
 			QVariant service;

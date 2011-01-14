@@ -2,7 +2,7 @@
     HistoryWindow
 
     Copyright (c) 2008 by Rustam Chakin <qutim.develop@gmail.com>
-				  2009 by Ruslan Nigmatullin <euroelessar@gmail.com>
+				  2011 by Ruslan Nigmatullin <euroelessar@gmail.com>
 
  ***************************************************************************
  *                                                                         *
@@ -28,6 +28,7 @@
 #include <qutim/chatunit.h>
 #include <QScrollBar>
 #include <qutim/json.h>
+#include <QStringBuilder>
 #include <QDebug>
 
 namespace Core
@@ -323,7 +324,7 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 		if ( !item_date_time.isNull() )
 		{
 			QString search_word = ui.searchEdit->text();
-			QRegExp search_regexp("(" + QRegExp::escape(search_word) + ")", Qt::CaseInsensitive);
+			QRegExp searchRegexp("(" + QRegExp::escape(search_word) + ")", Qt::CaseInsensitive);
 			int account_index = ui.accountComboBox->currentIndex();
 			int from_index = ui.fromComboBox->currentIndex();
 			if ( account_index < 0 || from_index < 0)
@@ -360,13 +361,29 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 				QString from_nickname = ui.fromComboBox->currentText();
 				if ( from_nickname.contains( "-" ) )
 					from_nickname.remove( QRegExp( ".*-\\s" ) );
-				QString history_html;
 				bool history_service;
 				QDateTime history_date_time;
 				bool history_in;
-				QString history_message;
-				while(s)
-				{
+				QString historyMessage;
+				QTextDocument *doc = ui.historyLog->document();
+				doc->clear();
+				QTextCursor cursor = QTextCursor(doc);
+				QTextCharFormat defaultFont = cursor.charFormat();
+				QTextCharFormat serviceFont = cursor.charFormat();
+				serviceFont.setForeground(Qt::darkGreen);
+				serviceFont.setFontWeight(QFont::Bold);
+				QTextCharFormat incomingFont = cursor.charFormat();
+				incomingFont.setForeground(Qt::red);
+				incomingFont.setFontWeight(QFont::Bold);
+				QTextCharFormat outgoingFont = cursor.charFormat();
+				outgoingFont.setForeground(Qt::blue);
+				outgoingFont.setFontWeight(QFont::Bold);
+//				QTextCharFormat foundFont = cursor.charFormat();
+				outgoingFont.setBackground(Qt::yellow);
+				QString serviceMessageTitle = tr("Service message");
+				QString resultString( "<span style='background: #ffff00'>\\1</span>" );
+				cursor.beginEditBlock();
+				while (s) {
 					val.clear();
 					s = Json::skipBlanks(s, &len);
 					if(len < 2 || (s && *s == qch))
@@ -387,48 +404,56 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 						history_service = message.value("service", false).toBool();
 						history_date_time = QDateTime::fromString(message.value("datetime").toString(), Qt::ISODate);
 						history_in = message.value("in", false).toBool();
-						history_message = message.value("html").toString();
-						if (history_message.isEmpty())
-							history_message = message.value("text").toString();;
+						historyMessage = message.value("html").toString();
+						if (historyMessage.isEmpty()) {
+							historyMessage = Qt::escape(message.value("text").toString()).
+											 replace(QLatin1String("\n"), QLatin1String("<br>"));
+						}
 						QVariant sender = message.value("senderName", history_in ? from_nickname : account_nickname);
 
 						if ( history_date_time.date().day() == day )
 						{
-							QString history_html_2;
 							history_in ? in++ : out++;
-							if (history_service)
-								history_html_2 += "<b><font color='green'>" + tr("Service message");
-							else
-							{
-								history_html_2 += history_in ? "<b><font color='red'>" : "<b><font color='blue'>";
-								history_html_2 += sender.toString();
+							if (history_service) {
+								cursor.setCharFormat(serviceFont);
+								cursor.insertText(serviceMessageTitle);
+							} else {
+								cursor.setCharFormat(history_in ? incomingFont : outgoingFont);
+								cursor.insertText(sender.toString());
 							}
-							history_html_2 += " (";
-							history_html_2 += history_date_time.time().toString();
-							history_html_2 += ")</font></b><br>";
-							if ( search_word.isEmpty() )
-							{
-								history_html_2 += history_message;
-								history_html_2 += "<br>";
+							cursor.insertText(QLatin1Literal(" (")
+											  % history_date_time.time().toString()
+											  % QLatin1Literal(")"));
+							cursor.setCharFormat(defaultFont);
+							cursor.insertText("\n");
+							if (search_word.isEmpty()) {
+								cursor.insertHtml(historyMessage);
+								cursor.insertText("\n");
+							} else {
+////								QStringList parts = history_message.split(search_regexp);
+////								for (int i = 0; i < )
+//								int pos = 0, previous = 0;
+//								while ((pos = searchRegexp.indexIn(historyMessage, pos)) != -1) {
+//									cursor.setCharFormat(defaultFont);
+//									cursor.insertHtml(historyMessage.mid(previous, pos));
+//									cursor.setCharFormat(foundFont);
+//									cursor.insertHtml(searchRegexp.cap(1));
+//									pos += searchRegexp.matchedLength();
+//									previous = pos;
+//								}
+//								cursor.setCharFormat(defaultFont);
+								cursor.insertHtml(historyMessage.replace(searchRegexp, resultString));
+								cursor.insertText("\n");
 							}
-							else
-							{
-								static QString result( "<font style=background-color:yellow>\\1</font>" );
-								history_html_2 += "<font style=background-color:white>";
-								history_html_2 += history_message.replace(search_regexp, result);
-								history_html_2 += "</font><br>";
-							}
-							history_html += history_html_2;
 						}
 					}
 				}
+				cursor.endEditBlock();
 				file.close();
-				ui.historyLog->setHtml(history_html);
 				if(search_word.isEmpty())
 					ui.historyLog->moveCursor(QTextCursor::End);
 				else
 					ui.historyLog->find(search_word);
-				ui.historyLog->setLineWrapColumnOrWidth(ui.historyLog->lineWrapColumnOrWidth());
 				ui.historyLog->ensureCursorVisible();
 			}
 			ui.label_in->setText( tr( "In: %L1").arg( in ) );
