@@ -28,6 +28,7 @@
 #include <qutim/messagesession.h>
 #include <qutim/networkproxy.h>
 #include <qutim/dataforms.h>
+#include <qutim/notificationslayer.h>
 
 namespace qutim_sdk_0_3 {
 
@@ -248,6 +249,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 		}
 	} else if (cmd == "ERROR") {
 		m_account->log(params.value(0), false, "ERROR");
+		Notifications::send(Notifications::System, m_account, params.value(0));
 		m_account->setStatus(Status(Status::Offline));
 	} else if (cmd == 332) { // RPL_TOPIC
 		IrcChannel *channel = account->getChannel(params.value(1), false);
@@ -520,14 +522,15 @@ void IrcConnection::tryConnectToNextServer()
 {
 	QString error;
 	if (m_servers.isEmpty())
-		error = "Add at least one server before connecting";
+		error = tr("Add at least one server before connecting");
 	if (m_nicks.isEmpty())
-		error = "Set at least one nick before connecting";
+		error = tr("Set at least one nick before connecting");
 	if (++m_currentServer >= m_servers.size())
-		error = QString("Cannot connect to %1 network").arg(m_account->name());
+		error = tr("Cannot connect to %1 network").arg(m_account->name());
 	if (!error.isEmpty()) {
-		debug() << error.toStdString().c_str();
+		debug() << error;
 		m_account->setStatus(Status::Offline);
+		Notifications::send(Notifications::System, m_account, error);
 		return;
 	}
 	m_currentNick = -1;
@@ -663,6 +666,8 @@ void IrcConnection::stateChanged(QAbstractSocket::SocketState state)
 void IrcConnection::error(QAbstractSocket::SocketError error)
 {
 	debug() << "Connection error:" << error;
+	Notifications::send(Notifications::System, m_account,
+						tr("Network error: %1").arg(m_socket->errorString()));
 }
 
 } } // namespace qutim_sdk_0_3::irc
