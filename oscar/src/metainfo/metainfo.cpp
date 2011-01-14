@@ -65,7 +65,7 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 						debug() << "Unexpected metainfo response with type" << hex << dataType;
 				} else {
 					debug() << "Meta request failed" << hex << success;
-					itr.value()->close(false);
+					itr.value()->close(false, AbstractMetaRequest::ProtocolError, tr("Incorrect format of the metarequest"));
 				}
 			}
 		}
@@ -83,7 +83,7 @@ void MetaInfo::handleSNAC(AbstractConnection *conn, const SNAC &snac)
 				quint16 reqNumber = data.read<quint16>(LittleEndian);
 				AbstractMetaRequest *request = m_requests.value(reqNumber);
 				if (request) {
-					request->close(false);
+					request->close(false, AbstractMetaRequest::ProtocolError, error.errorString());
 				}
 			}
 		}

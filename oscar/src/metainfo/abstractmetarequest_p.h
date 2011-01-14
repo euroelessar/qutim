@@ -30,6 +30,8 @@ public:
 	IcqAccount *account;
 	bool ok;
 	mutable QTimer timer;
+	AbstractMetaRequest::ErrorType errorType;
+	QString errorString;
 };
 
 } } // namespace qutim_sdk_0_3::oscar

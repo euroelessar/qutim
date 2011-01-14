@@ -203,7 +203,12 @@ void IcqInfoRequest::onDone(bool ok)
 		m_account->setName(m_metaReq->value<QString>(Nick, m_account->id()));
 	} else {
 		m_state = Cancel;
-		Notifications::send(Notifications::System, m_account, tr("You are sending information requests too often"));
+		AbstractMetaRequest::ErrorType error = m_metaReq->errorType();
+		if (error == AbstractMetaRequest::ProtocolError ||
+			error == AbstractMetaRequest::Timeout)
+		{
+			Notifications::send(Notifications::System, m_account, m_metaReq->errorString());
+		}
 	}
 	emit stateChanged(m_state);
 	m_metaReq->deleteLater();
