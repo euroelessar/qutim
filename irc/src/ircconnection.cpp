@@ -54,7 +54,7 @@ QString IrcPingAlias::generate(IrcCommandAlias::Type aliasType, const QStringLis
 }
 
 IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
-	QObject(parent)
+	QObject(parent), m_hostLookupId(0)
 {
 	m_socket = new QTcpSocket(this);
 	m_socket->setProxy(NetworkProxyManager::toNetworkProxy(NetworkProxyManager::settings(account)));
@@ -464,6 +464,10 @@ void IrcConnection::sendCtpcReply(const QString &contact, const QString &cmd, co
 
 void IrcConnection::disconnectFromHost(bool force)
 {
+	if (m_hostLookupId) {
+		QHostInfo::abortHostLookup(m_hostLookupId);
+		m_hostLookupId = 0;
+	}
 	if (m_socket->state() != QTcpSocket::UnconnectedState) {
 		if (force || m_socket->state() != QTcpSocket::ConnectedState)
 			m_socket->disconnectFromHost();
@@ -520,6 +524,7 @@ void IrcConnection::loadSettings()
 
 void IrcConnection::tryConnectToNextServer()
 {
+	Q_ASSERT(m_hostLookupId == 0);
 	QString error;
 	if (m_servers.isEmpty())
 		error = tr("Add at least one server before connecting");
@@ -535,11 +540,18 @@ void IrcConnection::tryConnectToNextServer()
 	}
 	m_currentNick = -1;
 	IrcServer server = m_servers.at(m_currentServer);
-	QHostInfo host = QHostInfo::fromName(server.hostName);
-	if (!host.addresses().isEmpty())
+	m_hostLookupId = QHostInfo::lookupHost(server.hostName, this, SLOT(hostFound(QHostInfo)));
+}
+
+void IrcConnection::hostFound(const QHostInfo &host)
+{
+	m_hostLookupId = 0;
+	if (!host.addresses().isEmpty()) {
+		IrcServer server = m_servers.at(m_currentServer);
 		m_socket->connectToHost(host.addresses().at(qrand() % host.addresses().size()), server.port);
-	else
+	} else {
 		tryConnectToNextServer();
+	}
 }
 
 void IrcConnection::tryNextNick()
