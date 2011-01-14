@@ -483,10 +483,8 @@ QString ChatStyleOutput::makeMessage(const ChatSessionImpl *session, const Messa
 	}
 	// Replace %sender% to name
 	
-	CHECK_TIMER();
 	QString sender_name = makeName(mes);
 	QString sender_id = makeId(mes);
-	CHECK_TIMER();
 
 	html = html.replace("%messageId%", "message"+QString::number(id));
 	html = html.replace("%sender%", Qt::escape(sender_name));

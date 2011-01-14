@@ -89,7 +89,6 @@ namespace Core
 	{
 		if(!message.chatUnit())
 			return;
-		START_TIMER();
 		QString fileName = getAccountDir(message.chatUnit()->getHistoryUnit()).filePath(getFileName(message));
 		QFile file(fileName);
 		QDateTime lastModified = QFileInfo(fileName).lastModified();
