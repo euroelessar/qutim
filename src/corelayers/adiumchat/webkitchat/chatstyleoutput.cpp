@@ -429,7 +429,7 @@ void ChatStyleOutput::appendMessage(const qutim_sdk_0_3::Message &msg)
 		previous_sender = currentSender;
 		skipOneMerge = false;
 	}
-
+	
 	if (!m_session->isActive()) {
 		if (!separator && !message.property("service", false) && qobject_cast<const Conference *>(message.chatUnit())) {
 			QString jsInactive = QString("separator = document.getElementById(\"separator\");")
@@ -482,9 +482,11 @@ QString ChatStyleOutput::makeMessage(const ChatSessionImpl *session, const Messa
 			html = sameSender ? m_current_style.nextIncomingHtml : m_current_style.incomingHtml;
 	}
 	// Replace %sender% to name
-
+	
+	CHECK_TIMER();
 	QString sender_name = makeName(mes);
 	QString sender_id = makeId(mes);
+	CHECK_TIMER();
 
 	html = html.replace("%messageId%", "message"+QString::number(id));
 	html = html.replace("%sender%", Qt::escape(sender_name));

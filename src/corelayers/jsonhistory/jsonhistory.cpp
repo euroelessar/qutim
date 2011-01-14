@@ -89,17 +89,22 @@ namespace Core
 	{
 		if(!message.chatUnit())
 			return;
-		QFile file(getAccountDir(message.chatUnit()->getHistoryUnit()).filePath(getFileName(message)));
+		START_TIMER();
+		QString fileName = getAccountDir(message.chatUnit()->getHistoryUnit()).filePath(getFileName(message));
+		QFile file(fileName);
+		QDateTime lastModified = QFileInfo(fileName).lastModified();
 		bool new_file = !file.exists();
 		if(!file.open(QIODevice::ReadWrite | QIODevice::Text))
 			return;
-		if(new_file)
-		{
+		if(new_file) {
 			file.write("[\n");
-		}
-		else
-		{
-			uint end = findEnd(file);
+		} else {
+			EndCache::iterator it = m_cache.find(fileName);
+			uint end;
+			if (it != m_cache.end() && it->lastModified == lastModified)
+				end = it->end;
+			else
+				end = findEnd(file);
 			file.resize(end);
 			file.seek(end);
 			file.write(",\n");
@@ -125,8 +130,13 @@ namespace Core
 		file.write(message.isIncoming() ? "true" : "false");
 		file.write(",\n  \"text\": ");
 		file.write(Json::quote(message.text()).toUtf8());
-		file.write("\n }\n]");
+		file.write("\n }");
+		uint end = file.pos();
+		file.write("\n]");
 		file.close();
+		lastModified = QFileInfo(fileName).lastModified();
+		EndValue value = { lastModified, end };
+		m_cache.insert(fileName, value);
 	//	It will produce something like this:
 	//	{
 	//	 "datetime": "2009-06-20T01:42:22",

@@ -27,7 +27,14 @@ namespace Core
 	private:
 		QString getFileName(const Message &message) const;
 		QDir getAccountDir(const ChatUnit *unit) const;
+		struct EndValue
+		{
+			QDateTime lastModified;
+			uint end;
+		};
 		QPointer<HistoryWindow> m_history_window;
+		typedef QHash<QString, EndValue> EndCache;
+		EndCache m_cache;
 	};
 }
 

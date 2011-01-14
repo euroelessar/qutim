@@ -28,21 +28,6 @@ namespace qutim_sdk_0_3
 {
 #define nullThemeName QLatin1String("")
 	
-	struct EmoticonsThemeData : public QSharedData
-	{
-		EmoticonsThemeData() : provider(0) {}
-		EmoticonsThemeData(const EmoticonsThemeData &o) : QSharedData(o), provider(o.provider) {}
-		~EmoticonsThemeData() { delete provider; }
-		EmoticonsProvider *provider;
-	};
-
-	struct EmoticonsProviderPrivate
-	{
-		QStringList order;
-		QHash<QString, QStringList> map;
-		QHash<QChar, QList<EmoticonsProvider::Emoticon> > indexes;
-	};
-
 	namespace Emoticons
 	{
 		struct Private
@@ -57,7 +42,29 @@ namespace qutim_sdk_0_3
 		{
 			qDeleteAll(backends);
 		}
+	}
+	
+	struct EmoticonsThemeData : public QSharedData
+	{
+		EmoticonsThemeData() : provider(0) {}
+		EmoticonsThemeData(const EmoticonsThemeData &o) : QSharedData(o), provider(o.provider) {}
+		~EmoticonsThemeData()
+		{
+			Emoticons::p->cache.remove(provider->themeName());
+			delete provider;
+		}
+		EmoticonsProvider *provider;
+	};
 
+	struct EmoticonsProviderPrivate
+	{
+		QStringList order;
+		QHash<QString, QStringList> map;
+		QHash<QChar, QList<EmoticonsProvider::Emoticon> > indexes;
+	};
+	
+	namespace Emoticons
+	{
 		void ensurePrivate_helper()
 		{
 			p.reset(new Private);
@@ -225,13 +232,6 @@ namespace qutim_sdk_0_3
 
 	EmoticonsTheme::~EmoticonsTheme()
 	{
-		if (isNull())
-			return;
-		if (p->ref.deref()) {
-			// So it's the last one...
-			Emoticons::ensurePrivate();
-			Emoticons::p->cache.remove(p->provider->themeName());
-		}
 	}
 
 	EmoticonsTheme &EmoticonsTheme::operator =(const EmoticonsTheme &other)
@@ -403,14 +403,20 @@ namespace qutim_sdk_0_3
 
 	namespace Emoticons
 	{
+		Q_GLOBAL_STATIC_WITH_ARGS(EmoticonsTheme, currentTheme, (0))
+		
 		EmoticonsTheme theme()
 		{
-			return theme(QString());
+			if (currentTheme()->isNull())
+				*currentTheme() = theme(QString());
+			return *currentTheme();
 		}
 
 		QString currentThemeName()
 		{
 			ensurePrivate();
+			if (!currentTheme()->isNull())
+				return currentTheme()->themeName();
 			ConfigGroup config = Config("appearance").group("emoticons");
 			QString name = config.value<QString>("theme", QString());
 			if (name.isEmpty()) {
@@ -425,7 +431,7 @@ namespace qutim_sdk_0_3
 			return name;
 //			return Config().group("emoticons").value<QString>("theme", "default");
 		}
-
+		
 		EmoticonsTheme theme(const QString &name)
 		{
 			if (!name.isNull() && name == nullThemeName)
@@ -452,7 +458,6 @@ namespace qutim_sdk_0_3
 					data->provider = backend->loadTheme(name);
 					Q_ASSERT(data->provider);
 					Q_ASSERT(data->provider->themeName() == name);
-					data->ref.ref();
 					p->cache.insert(name, data);
 					return EmoticonsTheme(data);
 				}
@@ -480,6 +485,7 @@ namespace qutim_sdk_0_3
 			ConfigGroup group = Config("appearance").group("emoticons");
 			group.setValue("theme", name);
 			group.sync();
+			*currentTheme() = EmoticonsTheme(0);
 		}
 
 		void setTheme(const EmoticonsTheme &theme)
@@ -487,6 +493,7 @@ namespace qutim_sdk_0_3
 			ConfigGroup group = Config("appearance").group("emoticons");
 			group.setValue("theme", theme.themeName());
 			group.sync();
+			*currentTheme() = theme;
 		}
 	}
 }
