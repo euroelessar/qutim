@@ -36,6 +36,9 @@ private:
 	friend class IrcContact;
 	IrcContact *q;
 	QString nick;
+	QString hostMask;
+	QString domain;
+	QString host;
 	QSet<QChar> modes;
 	QString avatar;
 	QString awayMsg;

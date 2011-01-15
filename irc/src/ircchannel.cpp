@@ -229,7 +229,7 @@ void IrcChannel::handleUserList(const QStringList &users)
 				d->users.value(userNick)->setFlag(flag);
 			continue;
 		}
-		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, userNick));
+		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, userNick, QString()));
 		if (isMe) {
 			connect(user.data(), SIGNAL(nameChanged(QString,QString)), SLOT(onMyNickChanged(QString)));
 			d->me = user;
@@ -252,7 +252,7 @@ void IrcChannel::handleJoin(const QString &nick, const QString &host)
 		d->isJoined = true;
 		emit joined();
 	} else if (!d->users.contains(nick)) { // Someone has joined the channel.
-		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, nick));
+		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, nick, host));
 		connect(user.data(), SIGNAL(nameChanged(QString,QString)), SLOT(onParticipantNickChanged(QString)));
 		connect(user.data(), SIGNAL(quit(QString)), SLOT(onContactQuit(QString)));
 		d->users.insert(nick, user);

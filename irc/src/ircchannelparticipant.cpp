@@ -30,11 +30,11 @@ public:
 	IrcChannelParticipant::IrcParticipantFlags flags;
 };
 
-IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString &nick) :
+IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString &nick, const QString &host) :
 	Buddy(channel->account()), d(new IrcChannelParticipantPrivate)
 {
 	d->channel = channel;
-	d->contact = channel->account()->getContact(nick, true);
+	d->contact = channel->account()->getContact(nick, host, true);
 	d->contact->d->ref();
 	setMenuOwner(d->contact);
 	connect(d->contact, SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
@@ -130,6 +130,21 @@ void IrcChannelParticipant::removeMode(QChar mode)
 		d->flags ^= HalfOp;
 	else if (mode == 'o')
 		d->flags ^= Op;
+}
+
+QString IrcChannelParticipant::hostMask() const
+{
+	return d->contact->hostMask();
+}
+
+QString IrcChannelParticipant::domain() const
+{
+	return d->contact->domain();
+}
+
+QString IrcChannelParticipant::host() const
+{
+	return d->contact->host();
 }
 
 } } // namespace qutim_sdk_0_3::irc

@@ -44,11 +44,12 @@ void IrcContactPrivate::updateNick(const QString &newNick)
 	emit q->nameChanged(nick, previous);
 }
 
-IrcContact::IrcContact(IrcAccount *account, const QString &nick) :
+IrcContact::IrcContact(IrcAccount *account, const QString &nick, const QString &host) :
 	Buddy(account), d(new IrcContactPrivate)
 {
 	d->q = this;
 	d->nick = nick;
+	setHost(host);
 	//IrcAvatar::instance()->requestAvatar(this);
 }
 
@@ -108,6 +109,21 @@ QSet<QChar> IrcContact::modes()
 	return d->modes;
 }
 
+QString IrcContact::hostMask() const
+{
+	return d->hostMask;
+}
+
+QString IrcContact::domain() const
+{
+	return d->domain;
+}
+
+QString IrcContact::host() const
+{
+	return d->host;
+}
+
 void IrcContact::onSessionDestroyed()
 {
 	if (d->m_ref == 0)
@@ -136,6 +152,29 @@ void IrcContact::setAway(const QString &awayMsg)
 	Status previous = status();
 	d->awayMsg = awayMsg;
 	emit statusChanged(status(), previous);
+}
+
+void IrcContact::setHost(const QString &host)
+{
+	static QRegExp ipRx("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+	if (d->hostMask == host || host.isEmpty())
+		return;
+	d->hostMask = host;
+	int domainPos = host.indexOf('@');
+	if (domainPos != -1) {
+		++domainPos;
+		int hostPos = ipRx.indexIn(host, domainPos) == -1 ? host.indexOf('.') : -1;
+		if (hostPos != -1) {
+			d->domain = host.mid(domainPos, hostPos-domainPos);
+			d->host = host.mid(hostPos+1);
+		} else {
+			d->domain = host.mid(domainPos);
+			d->host = QString();
+		}
+	} else {
+		d->domain = QString();
+		d->host = QString();
+	}
 }
 
 } } // namespace qutim_sdk_0_3::irc

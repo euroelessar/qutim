@@ -30,9 +30,9 @@ namespace irc {
 
 QHash<QString, QString> IrcAccountPrivate::logMsgColors;
 
-IrcContact *IrcAccountPrivate::newContact(const QString &nick)
+IrcContact *IrcAccountPrivate::newContact(const QString &nick, const QString &host)
 {
-	IrcContact *contact = new IrcContact(q, nick);
+	IrcContact *contact = new IrcContact(q, nick, host);
 	q->connect(contact, SIGNAL(destroyed()), SLOT(onContactRemoved()));
 	q->connect(contact, SIGNAL(nameChanged(QString,QString)),
 			   SLOT(onContactNickChanged(QString)));
@@ -130,7 +130,7 @@ ChatUnit *IrcAccount::getUnit(const QString &name, bool create)
 	Q_UNUSED(create);
 	if (name.startsWith('#') || name.startsWith('&'))
 		return 0;
-	return getContact(name, true);
+	return getContact(name, QString(), false);
 }
 
 IrcChannel *IrcAccount::getChannel(const QString &name, bool create)
@@ -143,11 +143,13 @@ IrcChannel *IrcAccount::getChannel(const QString &name, bool create)
 	return channel;
 }
 
-IrcContact *IrcAccount::getContact(const QString &nick, bool create)
+IrcContact *IrcAccount::getContact(const QString &nick, const QString &host, bool create)
 {
 	IrcContact *contact = d->contacts.value(nick);
 	if (create && !contact)
-		contact = d->newContact(nick);
+		contact = d->newContact(nick, host);
+	if (contact)
+		contact->setHost(host);
 	return contact;
 }
 

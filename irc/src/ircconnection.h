@@ -75,7 +75,7 @@ public:
 private:
 	void tryConnectToNextServer();
 	void tryNextNick();
-	void handleTextMessage(const QString &who, const QString &to, const QString &text);
+	void handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text);
 	void channelIsNotJoinedError(const QString &cmd, const QString &channel, bool reply = true);
 private slots:
 	void readData();

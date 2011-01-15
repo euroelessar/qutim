@@ -280,7 +280,7 @@ void IrcConnection::handleMessage(IrcAccount *account, const QString &name,  con
 				debug() << "Unknown CTPC request" << ctpcCmd << "from" << name;
 			return;
 		}
-		handleTextMessage(name, params.value(0),params.value(1));
+		handleTextMessage(name, host, params.value(0), params.value(1));
 	} else if (cmd == "JOIN") {
 		QString channelName = params.value(0);
 		// Create a new IrcChannel if we have joined a channel.
@@ -425,7 +425,7 @@ void IrcConnection::handleCtpcRequest(IrcAccount *account, const QString &sender
 	if (cmd == "PING") {
 		sendCtpcReply(sender, "PING", params);
 	} else if (cmd == "ACTION") {
-		handleTextMessage(sender, receiver, QLatin1String("/me ") + params);
+		handleTextMessage(sender, senderHost, receiver, QLatin1String("/me ") + params);
 	} else if (cmd == "CLIENTINFO") {
 		QStringList tags = m_ctpcHandlers.keys();
 		QString params = QString("IRC plugin for qutIM %1 - http://qutim.org - Supported tags: %2")
@@ -652,7 +652,7 @@ void IrcConnection::tryNextNick()
 	send(QString("USER %1 %2 * :%3").arg(m_nick).arg(0).arg(m_fullName.isEmpty() ? m_nick : m_fullName));
 }
 
-void IrcConnection::handleTextMessage(const QString &who, const QString &to, const QString &text)
+void IrcConnection::handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text)
 {
 	QString plainText;
 	QString html = IrcProtocol::ircFormatToHtml(text, &plainText);
@@ -663,7 +663,7 @@ void IrcConnection::handleTextMessage(const QString &who, const QString &to, con
 	msg.setProperty("html", html);
 	ChatSession *session;
 	if (isPrivate) {
-		IrcContact *contact = m_account->getContact(who, true);
+		IrcContact *contact = m_account->getContact(from, fromHost, true);
 		msg.setChatUnit(contact);
 		session = ChatLayer::instance()->getSession(contact, true);
 		connect(session, SIGNAL(destroyed()), contact, SLOT(onSessionDestroyed()));
@@ -675,8 +675,8 @@ void IrcConnection::handleTextMessage(const QString &who, const QString &to, con
 		}
 		session = ChatLayer::instance()->getSession(channel, true);
 		msg.setChatUnit(channel);
-		msg.setProperty("senderName", who);
-		msg.setProperty("senderId", who);
+		msg.setProperty("senderName", from);
+		msg.setProperty("senderId", from);
 		if (!text.contains(m_nick))
 			msg.setProperty("silent", true);
 	}
