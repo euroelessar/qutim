@@ -33,8 +33,9 @@ public:
 		Channel      = 0x0001,
 		PrivateChat  = 0x0002,
 		Console      = 0x0004,
-		All          = Channel | PrivateChat | Console
-				   };
+		Participant  = 0x0008,
+		All          = Channel | PrivateChat | Console | Participant
+	};
 	Q_DECLARE_FLAGS(Types, Type);
 	IrcCommandAlias(const QString &name, const QString &command, Types types = All);
 	virtual ~IrcCommandAlias();

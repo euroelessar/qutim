@@ -56,6 +56,7 @@ protected:
 private slots:
 	void onSessionCreated(qutim_sdk_0_3::ChatSession *session);
 	void onSessionActivated(bool active);
+	void onJoinLeftChannel(QObject *channel);
 private:
 	QScopedPointer<IrcProtocolPrivate> d;
 	static IrcProtocol *self;

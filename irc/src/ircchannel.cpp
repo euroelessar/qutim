@@ -23,6 +23,22 @@ namespace qutim_sdk_0_3 {
 
 namespace irc {
 
+IrcJoinLeftActionGenerator::IrcJoinLeftActionGenerator(QObject *receiver, const char *member) :
+	ActionGenerator(QIcon(), "", receiver, member)
+{
+}
+
+void IrcJoinLeftActionGenerator::showImpl(QAction *action, QObject *obj)
+{
+	IrcChannel *channel = qobject_cast<IrcChannel*>(obj);
+	if (!channel)
+		return;
+	if (channel->isJoined())
+		action->setText(QT_TR_NOOP("Leave the channel"));
+	else
+		action->setText(QT_TR_NOOP("Join the channel"));
+}
+
 IrcChannel::IrcChannel(IrcAccount *account, const QString &name) :
 	Conference(account), d(new IrcChannelPrivate)
 {

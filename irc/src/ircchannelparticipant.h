@@ -25,6 +25,7 @@ namespace irc {
 class IrcChannelParticipantPrivate;
 class IrcChannel;
 class IrcContact;
+class IrcAccount;
 
 class IrcChannelParticipant : public Buddy
 {
@@ -45,6 +46,10 @@ public:
 	virtual QString avatar() const;
 	IrcContact *contact();
 	const IrcContact *contact() const;
+	IrcChannel *channel();
+	const IrcChannel *channel() const;
+	IrcAccount *account();
+	const IrcAccount *account() const;
 	void setFlag(QChar flag);
 	void setMode(QChar mode);
 	void removeMode(QChar mode);

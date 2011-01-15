@@ -26,12 +26,14 @@ class IrcChannelParticipantPrivate
 {
 public:
 	QPointer<IrcContact> contact;
+	QPointer<IrcChannel> channel;
 	IrcChannelParticipant::IrcParticipantFlags flags;
 };
 
 IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString &nick) :
 	Buddy(channel->account()), d(new IrcChannelParticipantPrivate)
 {
+	d->channel = channel;
 	d->contact = channel->account()->getContact(nick, true);
 	d->contact->d->ref();
 	setMenuOwner(d->contact);
@@ -76,6 +78,28 @@ IrcContact *IrcChannelParticipant::contact()
 const IrcContact *IrcChannelParticipant::contact() const
 {
 	return d->contact;
+}
+
+IrcChannel *IrcChannelParticipant::channel()
+{
+	return d->channel;
+}
+
+const IrcChannel *IrcChannelParticipant::channel() const
+{
+	return d->channel;
+}
+
+IrcAccount *IrcChannelParticipant::account()
+{
+	Q_ASSERT(qobject_cast<IrcAccount*>(ChatUnit::account()));
+	return reinterpret_cast<IrcAccount*>(ChatUnit::account());
+}
+
+const IrcAccount *IrcChannelParticipant::account() const
+{
+	Q_ASSERT(qobject_cast<const IrcAccount*>(ChatUnit::account()));
+	return reinterpret_cast<const IrcAccount*>(ChatUnit::account());
 }
 
 void IrcChannelParticipant::setFlag(QChar flag)

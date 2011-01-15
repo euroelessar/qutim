@@ -1,7 +1,7 @@
 /****************************************************************************
- *  ircchannel_p.h
+ *  ircactiongenerator_p.h
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -11,40 +11,32 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
- *****************************************************************************/
+*****************************************************************************/
 
-#ifndef IRCCHANNEL_P_H
-#define IRCCHANNEL_P_H
+#ifndef IRCACTIONGENERATOR_P_H
+#define IRCACTIONGENERATOR_P_H
 
-#include "ircchannel.h"
+#include "ircactiongenerator.h"
 
 namespace qutim_sdk_0_3 {
-
 namespace irc {
 
-class IrcJoinLeftActionGenerator : public ActionGenerator
+class IrcActionGeneratorPrivate
 {
 public:
-	IrcJoinLeftActionGenerator(QObject *receiver, const char *member);
-protected:
-	virtual void showImpl(QAction *action, QObject *obj);
+	IrcCommandAlias *command;
 };
 
-typedef QSharedPointer<IrcChannelParticipant> ParticipantPointer;
-
-class IrcChannelPrivate
+class IrcActionsManager : public QObject
 {
+	Q_OBJECT
 public:
-	ParticipantPointer me;
-	QString name;
-	QHash<QString, ParticipantPointer> users;
-	QString topic;
-	bool isJoined;
-	bool autojoin;
-	QString lastPassword;
-	QString bookmarkName;
+	IrcActionsManager();
+	static IrcActionsManager *instance();
+public slots:
+	void onIrcActionTriggered(QAction *action, QObject *controller);
 };
 
 } } // namespace qutim_sdk_0_3::irc
 
-#endif // IRCCHANNEL_P_H
+#endif // IRCACTIONGENERATOR_P_H

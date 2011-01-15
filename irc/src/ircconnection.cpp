@@ -20,6 +20,7 @@
 #include "irccontact_p.h"
 #include "ircchannelparticipant.h"
 #include "ircavatar.h"
+#include "ircactiongenerator.h"
 #include <QHostInfo>
 #include <QTextCodec>
 #include <QRegExp>
@@ -46,11 +47,15 @@ QString IrcPingAlias::generate(IrcCommandAlias::Type aliasType, const QStringLis
 							   const QHash<QChar, QString> &extParams, QString *error) const
 {
 	Q_UNUSED(aliasType);
-	Q_UNUSED(error);
-	Q_UNUSED(extParams);
+	Q_UNUSED(error);	
+	QString user = extParams.value('o');
+	if (user.isEmpty())
+		user = params.value(0);
+	if (user.isEmpty())
+		return QString();
 	QDateTime current = QDateTime::currentDateTime();
 	QString timeStamp = QString("%1.%2").arg(current.toTime_t()).arg(current.time().msec());
-	return QString("PRIVMSG %1 :\001PING %2\001").arg(params.value(0)).arg(timeStamp);
+	return QString("PRIVMSG %1 :\001PING %2\001").arg(user).arg(timeStamp);
 }
 
 IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
@@ -109,6 +114,12 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 
 	static bool init = false;
 	if (!init) {
+		static int AdminCmdActionType = 0x00001;
+		static int CtpcActionType = 0x00002;
+
+		IrcCommandAlias *cmd = 0;
+		IrcActionGenerator *gen = 0;
+
 		IrcAccount::registerLogMsgColor("ERROR", "red");
 		IrcAccount::registerLogMsgColor("Notice", "magenta");
 		IrcAccount::registerLogMsgColor("MOTD", "green");
@@ -133,7 +144,60 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		registerAlias(new IrcCommandAlias("version", "PRIVMSG %1 :\001VERSION\001"));
 		registerAlias(new IrcCommandAlias("time", "PRIVMSG %1 :\001TIME\001"));
 		registerAlias(new IrcCommandAlias("avatar", "PRIVMSG %1 :\001AVATAR\001"));
-		registerAlias(new IrcPingAlias);
+
+		cmd = new IrcCommandAlias("ban", "MODE %n +b %o", IrcCommandAlias::Participant);
+		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Ban"), cmd);
+		gen->setType(AdminCmdActionType);
+		gen->setPriority(80);
+		MenuController::addAction<IrcChannelParticipant>(gen);
+		registerAlias(cmd);
+
+		cmd = new IrcCommandAlias("kick", "KICK %n %o", IrcCommandAlias::Participant);
+		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Kick"), cmd);
+		gen->setType(AdminCmdActionType);
+		gen->setPriority(80);
+		MenuController::addAction<IrcChannelParticipant>(gen);
+		registerAlias(cmd);
+
+		cmd = new IrcPingAlias;
+		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Ping"), cmd);
+		gen->setType(CtpcActionType);
+		gen->setPriority(80);
+		MenuController::addAction<IrcChannelParticipant>(gen);
+		registerAlias(cmd);
+
+		cmd = new IrcCommandAlias("clientinfo", "PRIVMSG %o :\001CLIENTINFO\001",
+								  IrcCommandAlias::Participant | IrcCommandAlias::PrivateChat);
+		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Request client information"), cmd);
+		gen->setType(CtpcActionType);
+		gen->setPriority(80);
+		MenuController::addAction<IrcChannelParticipant>(gen);
+		registerAlias(cmd);
+
+		cmd = new IrcCommandAlias("version", "PRIVMSG %o :\001VERSION\001",
+								  IrcCommandAlias::Participant | IrcCommandAlias::PrivateChat);
+		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Request version"), cmd);
+		gen->setType(CtpcActionType);
+		gen->setPriority(80);
+		MenuController::addAction<IrcChannelParticipant>(gen);
+		registerAlias(cmd);
+
+		cmd = new IrcCommandAlias("time", "PRIVMSG %o :\001TIME\001",
+								  IrcCommandAlias::Participant | IrcCommandAlias::PrivateChat);
+		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Request time"), cmd);
+		gen->setType(CtpcActionType);
+		gen->setPriority(80);
+		MenuController::addAction<IrcChannelParticipant>(gen);
+		registerAlias(cmd);
+
+		cmd = new IrcCommandAlias("avatar", "PRIVMSG %o :\001AVATAR\001",
+								  IrcCommandAlias::Participant | IrcCommandAlias::PrivateChat);
+		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Request avatar"), cmd);
+		gen->setType(CtpcActionType);
+		gen->setPriority(80);
+		MenuController::addAction<IrcChannelParticipant>(gen);
+		registerAlias(cmd);
+
 		init = true;
 	}
 }
@@ -461,9 +525,11 @@ void IrcConnection::send(QString command, IrcCommandAlias::Type aliasType, const
 		if (i == 0 && !found) // A suitable alias has not found
 			command = cmdName.toUpper() + " " + cmdParamsStr;
 	}
-	QByteArray data = m_codec->fromUnicode(command) + "\r\n";
-	debug(VeryVerbose) << ">>>>" << data.trimmed();
-	m_socket->write(data);
+	if (!command.isEmpty()) {
+		QByteArray data = m_codec->fromUnicode(command) + "\r\n";
+		debug(VeryVerbose) << ">>>>" << data.trimmed();
+		m_socket->write(data);
+	}
 }
 
 void IrcConnection::sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params)
