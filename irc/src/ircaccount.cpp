@@ -65,7 +65,7 @@ void IrcAccount::setStatus(Status status)
 	if (status == Status::Connecting)
 		return;
 	// Prepare status.
-	if (current == Status::Connecting) {
+	if (current == Status::Connecting && status != Status::Offline) {
 		status.setType(current.text().isEmpty() ? Status::Online : Status::Away);
 		status.setText(current.text());
 	} else if (status == Status::Offline || status == Status::Online) {

@@ -555,10 +555,9 @@ void IrcConnection::disconnectFromHost(bool force)
 		m_hostLookupId = 0;
 	}
 	if (m_socket->state() != QTcpSocket::UnconnectedState) {
-		if (force || m_socket->state() != QTcpSocket::ConnectedState)
-			m_socket->disconnectFromHost();
-		else
+		if (!force && m_socket->state() == QTcpSocket::ConnectedState)
 			send(QString("QUIT :%1").arg("qutIM: IRC plugin"));
+		m_socket->disconnectFromHost();
 	}
 	foreach (IrcChannel *channel, m_account->d->channels) {
 		if (channel->isJoined()) {
