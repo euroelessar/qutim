@@ -64,7 +64,7 @@ QString AbstractMetaRequest::errorString()
 
 void AbstractMetaRequest::cancel()
 {
-	close(false, Canceled, tr("The metarequest canceled by user"));
+	close(false, Canceled, tr("The metarequest cancelled by user"));
 }
 
 void AbstractMetaRequest::timeout()

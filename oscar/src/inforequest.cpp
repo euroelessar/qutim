@@ -200,7 +200,8 @@ void IcqInfoRequest::onDone(bool ok)
 	if (ok) {
 		m_values = m_metaReq->values();
 		m_state = Done;
-		m_account->setName(m_metaReq->value<QString>(Nick, m_account->id()));
+		if (m_accountInfo)
+			m_account->setName(m_metaReq->value<QString>(Nick, m_account->id()));
 	} else {
 		m_state = Cancel;
 		AbstractMetaRequest::ErrorType error = m_metaReq->errorType();
