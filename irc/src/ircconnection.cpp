@@ -229,6 +229,26 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		MenuController::addAction<IrcChannelParticipant>(gen);
 		registerAlias(cmd);
 
+		// Modes commands
+
+#define ADD_MODE(MODE, PRIORITY, NAME, TITLE)\
+		cmd = new IrcCommandAlias(NAME, "MODE %n "MODE" %o", IrcCommandAlias::Participant);\
+		gen = new IrcActionGenerator(QIcon(), TITLE, cmd);\
+		gen->setPriority(PRIORITY);\
+		MenuController::addAction<IrcChannelParticipant>(gen, modesGroup);\
+		registerAlias(cmd);
+
+		const QList<QByteArray> modesGroup = QList<QByteArray>() << QT_TR_NOOP("Modes").original();
+
+		ADD_MODE("+o", 60, "op", QT_TR_NOOP("Give Op"));
+		ADD_MODE("-o", 59, "deop", QT_TR_NOOP("Take Op"));
+		ADD_MODE("+h", 58, "hop", QT_TR_NOOP("Give HalfOp"));
+		ADD_MODE("-h", 57, "dehop", QT_TR_NOOP("Take HalfOp"));
+		ADD_MODE("+v", 56, "voice", QT_TR_NOOP("Give voice"));
+		ADD_MODE("-v", 55, "devoice", QT_TR_NOOP("Take voice"));
+
+#undef ADD_MODE
+
 		init = true;
 	}
 }
