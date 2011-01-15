@@ -82,8 +82,8 @@ protected:
 	void removeXStatuses(Capabilities &caps);
 	void setXstatus(IcqContact *contact, const QString &title, const QString &desc = QString());
 	void setXstatus(Status &status, const QString &title, const ExtensionIcon &icon, const QString &desc = QString());
-	void setAcountXstatus(IcqAccount *account, QVariantHash extStatus, const XStatus &xstatus);
-	void setAcountXstatus(IcqAccount *account, QVariantHash extStatus);
+	void setAcountXstatus(IcqAccount *account, QVariantHash extStatus, const XStatus &xstatus, bool saveToConfig = true);
+	void setAcountXstatus(IcqAccount *account, QVariantHash extStatus, bool saveToConfig = true);
 	bool eventFilter(QObject *obj, QEvent *e);
 private slots:
 	void onSetCustomStatus(QObject *object);

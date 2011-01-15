@@ -33,7 +33,7 @@ namespace oscar {
 QByteArray BuddyPicture::emptyHash = QByteArray::fromHex("0201d20472");
 
 BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
-	AbstractConnection(account, parent), m_avatars(false)
+	AbstractConnection(account, parent), m_avatars(false), m_startup(true)
 {
 	updateSettings();
 	m_infos << SNACInfo(ServiceFamily, ServerRedirectService)
@@ -66,6 +66,7 @@ BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
 			cfg.setValue(itr.first, itr.second);
 		cfg.endGroup();
 	}
+	m_startup = false;
 }
 
 BuddyPicture::~BuddyPicture()
@@ -299,9 +300,10 @@ void BuddyPicture::updateData(QObject *obj, const QByteArray &hash, const QStrin
 	} else {
 		obj->setProperty("avatar", path);
 	}
-	Config cfg = account()->config("avatars").group("hashes");
-	cfg.setValue(obj->property("id").toString(), QString::fromLatin1(hash.toHex()));
-	cfg.sync();
+	if (!m_startup) {
+		Config cfg = account()->config("avatars").group("hashes");
+		cfg.setValue(obj->property("id").toString(), QString::fromLatin1(hash.toHex()));
+	}
 }
 
 void BuddyPicture::saveImage(QObject *obj, const QByteArray &image, const QByteArray &hash)
