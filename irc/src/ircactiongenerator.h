@@ -31,6 +31,8 @@ class IrcActionGenerator : public ActionGenerator
 {
 public:
 	IrcActionGenerator(const QIcon &icon, const LocalizedString &text, IrcCommandAlias *command);
+	~IrcActionGenerator();
+	void enableAutoDeleteOfCommand(bool del = true);
 protected:
 	virtual QObject *generateHelper() const;
 private:

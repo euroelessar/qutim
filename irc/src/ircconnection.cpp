@@ -114,8 +114,8 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 
 	static bool init = false;
 	if (!init) {
-		static int AdminCmdActionType = 0x00001;
-		static int CtpcActionType = 0x00002;
+		//const int AdminCmdActionType = 0x00001;
+		const int CtpcActionType = 0x00002;
 
 		IrcCommandAlias *cmd = 0;
 		IrcActionGenerator *gen = 0;
@@ -145,19 +145,50 @@ IrcConnection::IrcConnection(IrcAccount *account, QObject *parent) :
 		registerAlias(new IrcCommandAlias("time", "PRIVMSG %1 :\001TIME\001"));
 		registerAlias(new IrcCommandAlias("avatar", "PRIVMSG %1 :\001AVATAR\001"));
 
-		cmd = new IrcCommandAlias("ban", "MODE %n +b %o", IrcCommandAlias::Participant);
-		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Ban"), cmd);
-		gen->setType(AdminCmdActionType);
-		gen->setPriority(80);
-		MenuController::addAction<IrcChannelParticipant>(gen);
-		registerAlias(cmd);
+		// Kick and ban commands
+
+#define ADD_BAN_CMD(MODE, TYPE, NAME, TITLE, ADDITIONALCMD) \
+		cmd = new IrcCommandAlias(NAME, "MODE %n +b "MODE ADDITIONALCMD, IrcCommandAlias::Participant); \
+		gen = new IrcActionGenerator(QIcon(), TITLE, cmd); \
+		gen->setType(TYPE); \
+		MenuController::addAction<IrcChannelParticipant>(gen, kickBanGroup);
+
+#define ADD_BAN_CMD_EXT(MODE, TYPE, NAME, TITLE, ADDITIONALCMD) \
+		ADD_BAN_CMD(MODE, TYPE, NAME, TITLE, ADDITIONALCMD) \
+		gen->enableAutoDeleteOfCommand();
+
+		const QList<QByteArray> kickBanGroup = QList<QByteArray>() << QT_TR_NOOP("Kick / Ban").original();
 
 		cmd = new IrcCommandAlias("kick", "KICK %n %o", IrcCommandAlias::Participant);
 		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Kick"), cmd);
-		gen->setType(AdminCmdActionType);
-		gen->setPriority(80);
-		MenuController::addAction<IrcChannelParticipant>(gen);
+		gen->setType(0x00001);
+		MenuController::addAction<IrcChannelParticipant>(gen, kickBanGroup);
 		registerAlias(cmd);
+
+		ADD_BAN_CMD("%o", 0x00001, "kickban", QT_TR_NOOP("Kickban"), "\nKICK %n %o")
+		registerAlias(cmd);
+
+		ADD_BAN_CMD("%o", 0x00001, "ban", QT_TR_NOOP("Ban"), "")
+		registerAlias(cmd);
+
+		// Extended ban commands
+
+		ADD_BAN_CMD_EXT("*!*@*.%h", 0x00002, "ban", QT_TR_NOOP("Ban *!*@*.host"), "")
+		ADD_BAN_CMD_EXT("*!*@%d", 0x00002, "ban", QT_TR_NOOP("Ban *!*@domain"), "")
+		ADD_BAN_CMD_EXT("*!%o@*.%h", 0x00002, "ban", QT_TR_NOOP("Ban *!user@*.host"), "")
+		ADD_BAN_CMD_EXT("*!%o@%d", 0x00002, "ban", QT_TR_NOOP("Ban *!user@domain"), "")
+
+		// Exntended kickban commands
+
+		ADD_BAN_CMD_EXT("*!*@*.%h", 0x00003, "kickban", QT_TR_NOOP("Kickban *!*@*.host"), "\nKICK %n %o")
+		ADD_BAN_CMD_EXT("*!*@%d", 0x00003, "kickban", QT_TR_NOOP("Kickban *!*@domain"), "\nKICK %n %o")
+		ADD_BAN_CMD_EXT("*!%o@*.%h", 0x00003, "kickban", QT_TR_NOOP("Kickban *!user@*.host"), "\nKICK %n %o")
+		ADD_BAN_CMD_EXT("*!%o@%d", 0x00003, "kickban", QT_TR_NOOP("Kickban *!user@domain"), "\nKICK %n %o")
+
+#undef ADD_BAN_CMD
+#undef ADD_BAN_CMD_EXT
+
+		// CTPC commands
 
 		cmd = new IrcPingAlias;
 		gen = new IrcActionGenerator(QIcon(), QT_TR_NOOP("Ping"), cmd);

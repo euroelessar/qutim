@@ -25,6 +25,7 @@ class IrcActionGeneratorPrivate
 {
 public:
 	IrcCommandAlias *command;
+	bool commandAutoDelete;
 };
 
 class IrcActionsManager : public QObject

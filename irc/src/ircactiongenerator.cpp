@@ -32,6 +32,18 @@ IrcActionGenerator::IrcActionGenerator(const QIcon &icon,
 	d(new IrcActionGeneratorPrivate)
 {
 	d->command = command;
+	d->commandAutoDelete = false;
+}
+
+IrcActionGenerator::~IrcActionGenerator()
+{
+	if (d->commandAutoDelete)
+		delete d->command;
+}
+
+void IrcActionGenerator::enableAutoDeleteOfCommand(bool del)
+{
+	d->commandAutoDelete = del;
 }
 
 QObject *IrcActionGenerator::generateHelper() const
@@ -60,6 +72,15 @@ void IrcActionsManager::onIrcActionTriggered(QAction *action, QObject *controlle
 	IrcAccount *account = 0;
 	if (IrcChannelParticipant *participant = qobject_cast<IrcChannelParticipant*>(controller)) {
 		extParams.insert('o', participant->name());
+		QString tmp = participant->hostMask();
+		if (!tmp.isEmpty())
+			extParams.insert('m', tmp);
+		tmp = participant->domain();
+		if (!tmp.isEmpty())
+			extParams.insert('d', tmp);
+		tmp = participant->host();
+		if (!tmp.isEmpty())
+			extParams.insert('h', tmp);
 		if (participant->channel())
 			extParams.insert('n', participant->channel()->id());
 		account = participant->account();
