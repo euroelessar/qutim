@@ -21,8 +21,26 @@ QuetzalChatUser::QuetzalChatUser(PurpleConvChatBuddy *user, QuetzalChat *chat) :
 	Buddy(chat->account())
 {
 	m_user = user;
-	m_id = user->name;
+	m_conv = chat->purple();
 	m_name = user->alias;
+	fixId();
+}
+
+void QuetzalChatUser::fixId()
+{
+	PurpleConnection *gc = m_conv->account->gc;
+	PurplePluginProtocolInfo *info = PURPLE_PLUGIN_PROTOCOL_INFO(gc->prpl);
+	if (!qstrcmp(m_conv->account->protocol_id, "prpl-jabber")) {
+		m_id = m_conv->name;
+		m_id += QLatin1Char('/');
+		m_id += m_user->name;
+	} else if (info->get_cb_real_name) {
+		char *id = info->get_cb_real_name(gc, PURPLE_CONV_CHAT(m_conv)->id, m_user->name);
+		m_id = id;
+		g_free(id);
+	} else {
+		m_id = m_user->name;
+	}
 }
 
 bool QuetzalChatUser::sendMessage(const Message &message)
@@ -39,10 +57,10 @@ void QuetzalChatUser::update()
 {
 }
 
-void QuetzalChatUser::rename(const QString &id, const QString &name)
+void QuetzalChatUser::rename(const QString &name)
 {
 	QString old_title = title();
-	m_id = id;
+	fixId();
 	m_name = name;
 	if (old_title != title()) {
 		titleChanged(title(), old_title);

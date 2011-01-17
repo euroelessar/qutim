@@ -29,7 +29,7 @@ AstralAccount::AstralAccount(AstralProtocol *protocol, const QString &id) : quti
 	qDebug() << params;
 
 	QDBusMessage reply = connMgr->interface<Client::ConnectionManagerInterface>()->call("RequestConnection", protocol->id(), params);
-	p->conn = Connection::create(reply.arguments().at(0).toString(), reply.arguments().at(1).value<QDBusObjectPath>().path());
+	p->conn = Connection::create(reply.arguments().value(0).toString(), reply.arguments().value(1).value<QDBusObjectPath>().path());
 	connect(p->conn->requestConnect(),
 			SIGNAL(finished(Tp::PendingOperation*)),
 			SLOT(onConnect(Tp::PendingOperation*)));

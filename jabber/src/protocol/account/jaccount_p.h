@@ -47,6 +47,7 @@ public:
 	QPointer<JMUCManager> conferenceManager;
 	QSignalMapper signalMapper;
 	int loadedModules;
+	int priority;
 	
 	void applyStatus(const Status &status);
 	void setPresence(jreen::Presence);

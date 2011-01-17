@@ -18,19 +18,34 @@
 
 #include "quetzalconverstion.h"
 #include "quetzalchatuser.h"
+#include <qutim/conference.h>
 
-class QuetzalChat : public QuetzalConversation
+class QuetzalChat : public qutim_sdk_0_3::Conference
 {
-Q_OBJECT
+	Q_OBJECT
 public:
 	explicit QuetzalChat(PurpleConversation *conv);
+	QString id() const;
+	QString title() const;
+	virtual QString topic() const;
+	virtual void setTopic(const QString &topic);
 	void addUsers(GList *cbuddies, gboolean new_arrivals);
-	QuetzalChatUser *getUser(const char *who) { return m_users.value(who); }
+	virtual qutim_sdk_0_3::Buddy *me() const;
+	virtual void join();
+	virtual void leave();
+	PurpleConversation *purple() { return m_conv; }
 	void renameUser(const char *old_name, const char *new_name, const char *new_alias);
 	void removeUsers(GList *users);
 	void updateUser(const char *user);
+	virtual bool sendMessage(const Message &message);
+	void update(PurpleConvUpdateType type);
+	void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
 private:
-	QHash<QString, QuetzalChatUser *> m_users;
+	PurpleConversation *m_conv;
+	QString m_id;
+	QString m_title;
+	QString m_topic;
+	QHash<QString, QuetzalChatUser*> m_users;
 };
 
 #endif // QUETZALCHAT_H

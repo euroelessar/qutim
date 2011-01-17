@@ -17,6 +17,8 @@
 #include "quetzalaccount.h"
 #include "quetzalplugin.h"
 #include "quetzalaccountwizard.h"
+#include "quetzalaccountsettings.h"
+#include <qutim/settingslayer.h>
 #include <qutim/debug.h>
 #include <qutim/icon.h>
 #include <qutim/statusactiongenerator.h>
@@ -55,6 +57,12 @@ void initActions()
 	static bool inited = false;
 	if (inited)
 		return;
+	Settings::registerItem<QuetzalAccount>(
+			new GeneralSettingsItem<QuetzalAccountSettings>(
+					Settings::Protocol,
+					QIcon(),
+					QT_TRANSLATE_NOOP_UTF8("Settings", "General"))
+			);
 	QList<ActionGenerator *> actions;
 	actions << new StatusActionGenerator(Status(Status::Online))
 			<< new StatusActionGenerator(Status(Status::FreeChat))
@@ -67,7 +75,23 @@ void initActions()
 	inited = true;
 	QString path = SystemInfo::getPath(SystemInfo::ConfigDir);
 	path += "/purple";
-	purple_util_set_user_dir(QDir::toNativeSeparators(path).toUtf8().constData());
+	QByteArray nativePath = QDir::toNativeSeparators(path).toUtf8();
+	purple_util_set_user_dir(nativePath.constData());
+	path += "/icons";
+	nativePath = QDir::toNativeSeparators(path).toUtf8();
+	purple_buddy_icons_set_cache_dir(nativePath.constData());
+}
+
+void QuetzalProtocol::addAccount(PurpleAccount *purpleAccount)
+{
+	QuetzalAccount *account = new QuetzalAccount(purpleAccount->username, this);
+	m_accounts.insert(account->id(), account);
+	emit accountCreated(account);
+
+	Config cfg = config("general");
+	QStringList accounts = cfg.value("accounts", QStringList());
+	accounts << account->id();
+	cfg.setValue("accounts", accounts);
 }
 
 void QuetzalProtocol::loadAccounts()

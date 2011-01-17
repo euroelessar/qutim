@@ -323,7 +323,7 @@ QString JSoftwareDetection::getClientIcon(const QString &software)
 		return QLatin1String("bombus-pl");
 	else if (software == QLatin1String("bombus+"))
 		return QLatin1String("bombus-p");
-	else if (isStrEqual(software, L"я.онлайн"))
+	else if (isStrEqual(software, L"Я.онлайн"))
 		return QLatin1String("yachat");
 	else if (software == QLatin1String("hotcoffee"))
 		return QLatin1String("miranda-hotcoffee");
@@ -331,7 +331,7 @@ QString JSoftwareDetection::getClientIcon(const QString &software)
 		return QLatin1String("emacs");
 	else if (software == QLatin1String("just another jabber client"))
 		return QLatin1String("jajc");
-	else if (isStrEqual(software, L"пиджин")) // Stupid pidgin devels! Name mustn't be localized!
+	else if (isStrEqual(software, L"Пиджин")) // Stupid pidgin devels! Name mustn't be localized!
 		return QLatin1String("pidgin");
 	return (software.toLower().replace(' ', '-') += QLatin1String("-jabber"));
 }

@@ -30,9 +30,11 @@ class QuetzalContact : public Contact
 public:
 	explicit QuetzalContact(PurpleBuddy *buddy);
 
-	PurpleBuddy *buddy() { return m_buddy; }
+	PurpleBuddy *purple() { return m_buddies.first(); }
 	void save(ConfigGroup group);
-	void update();
+	void update(PurpleBuddy *buddy);
+	int addBuddy(PurpleBuddy *buddy);
+	int removeBuddy(PurpleBuddy *buddy);
 	virtual QString avatar() const;
 	virtual QString id() const;
 	virtual QString name() const;
@@ -53,11 +55,13 @@ public slots:
 private:
 	virtual bool event(QEvent *);
 private:
+	void ensureAvatarPath();
 	Status m_status;
 	QStringList m_tags;
+	QString m_avatarPath;
 	QString m_id;
 	QString m_name;
-	PurpleBuddy *m_buddy;
+	QList<PurpleBuddy*> m_buddies;
 	friend class QuetzalAccount;
 };
 

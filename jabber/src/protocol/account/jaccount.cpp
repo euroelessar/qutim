@@ -76,7 +76,7 @@ void JAccountPrivate::applyStatus(const Status &status)
 			privacyManager->desetActiveList();
 	}
 	q->setAccountStatus(status);
-	client.setPresence(JStatus::statusToPresence(status), status.text());
+	client.setPresence(JStatus::statusToPresence(status), status.text(), priority);
 }
 
 void JAccountPrivate::setPresence(jreen::Presence presence)
@@ -109,7 +109,15 @@ void JAccountPrivate::_q_on_module_loaded(int i)
 void JAccountPrivate::_q_disconnected()
 {
 	Q_Q(JAccount);
-	q->setAccountStatus(Status::instance(Status::Offline, "jabber"));
+	Status s = Status::instance(Status::Offline, "jabber");
+	if (q->client()->connection()->socketError() != Connection::UnknownSocketError)
+		s.setProperty("changeReason", Status::ByNetworkError);
+	else if (status.type() == Status::Offline)
+		s.setProperty("changeReason", Status::ByUser);
+	else
+		s.setProperty("changeReason", Status::ByFatalError);
+	status = s;
+	q->setAccountStatus(s);
 	q->resetGroupChatManager(0);
 	loadedModules = 0;
 }
@@ -226,6 +234,7 @@ void JAccount::loadSettings()
 	general.beginGroup("general");
 	d->client.setPassword(general.value("passwd", QString(), Config::Crypted));
 	d->client.setPort(general.value("port", 5222));
+	d->priority = general.value("priority", 15);
 	d->keepStatus = general.value("keepstatus", true);
 	d->nick = general.value("nick", id());
 	jreen::VCardUpdate::Ptr update = d->client.presence().findExtension<jreen::VCardUpdate>();

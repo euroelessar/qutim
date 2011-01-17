@@ -4,6 +4,8 @@
 #include <QFileDialog>
 #include <purple.h>
 
+extern void quetzal_request_close(PurpleRequestType type, QObject *dialog);
+
 class QuetzalFileDialog : public QObject
 {
 	Q_OBJECT

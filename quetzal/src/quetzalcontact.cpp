@@ -19,6 +19,7 @@
 #include <qutim/debug.h>
 #include <qutim/message.h>
 #include <qutim/tooltip.h>
+#include <qutim/messagesession.h>
 
 QVariant quetzal_value2variant(const PurpleValue *value)
 {
@@ -110,6 +111,8 @@ Status quetzal_get_status(PurpleStatusType *status_type, const QString &proto)
 		type = Status::Online;
 		break;
 	}
+//	FIXME
+//	return Status::instance(type, proto.toLatin1().constData());
 	Status status(type);
 	status.initIcon(proto);
 	return status;
@@ -142,7 +145,7 @@ Status quetzal_get_status(PurplePresence *presence)
 	PurplePlugin *proto = account ? purple_plugins_find_with_id(account->protocol_id) : 0;
 	QString proto_id;
 	if (proto) {
-		proto_id = QString::fromUtf8(proto->info->name).toLower();
+		proto_id = QString::fromLatin1(proto->info->name).toLower();
 	}
 
 	return quetzal_get_status(status, proto_id);
@@ -152,19 +155,21 @@ Status quetzal_get_status(PurplePresence *presence)
 QuetzalContact::QuetzalContact(PurpleBuddy *buddy) :
 	Contact(reinterpret_cast<QuetzalAccount *>(buddy->account->ui_data))
 {
-	m_buddy = buddy;
-	buddy->node.ui_data = this;
-	PurpleBlistNode *node = &buddy->node;
+//	PurpleBlistNode *node = &buddy->node;
 	m_id = buddy->name;
 	m_name = purple_buddy_get_alias(buddy);
-	m_status = quetzal_get_status(m_buddy->presence);
-	while (!!(node = node->parent)) {
-		if (PURPLE_BLIST_NODE_IS_GROUP(node)) {
-			PurpleGroup *group = PURPLE_GROUP(node);
-			m_tags.append(group->name);
-		}
-	}
-	m_tags.removeDuplicates();
+	m_status = quetzal_get_status(buddy->presence);
+	addBuddy(buddy);
+//	ensureAvatarPath();
+//	while (!!(node = node->parent)) {
+//		if (PURPLE_BLIST_NODE_IS_CONTACT(node)) {
+//			node->ui_data = this;
+//		} else if (PURPLE_BLIST_NODE_IS_GROUP(node)) {
+//			PurpleGroup *group = PURPLE_GROUP(node);
+//			m_tags.append(group->name);
+//		}
+//	}
+//	m_tags.removeDuplicates();
 }
 
 void QuetzalContact::save(ConfigGroup group)
@@ -173,30 +178,32 @@ void QuetzalContact::save(ConfigGroup group)
 	group.setValue("tags", m_tags);
 }
 
-void QuetzalContact::update()
+void QuetzalContact::update(PurpleBuddy *buddy)
 {
-	QStringList tags_;
-	PurpleBlistNode *node = &m_buddy->node;
-	while (!!(node = node->parent)) {
-		if (PURPLE_BLIST_NODE_IS_GROUP(node)) {
-			PurpleGroup *group = PURPLE_GROUP(node);
-			tags_.append(group->name);
-		}
-	}
-	tags_.removeDuplicates();
-	if (m_tags != tags_) {
-		QStringList previous = m_tags;
-		m_tags = tags_;
-		tagsChanged(m_tags, previous);
-	}
-	QString name = purple_buddy_get_alias(m_buddy);
+//	QStringList tags_;
+//	PurpleBlistNode *node = &m_buddy->node;
+//	while (!!(node = node->parent)) {
+//		if (PURPLE_BLIST_NODE_IS_GROUP(node)) {
+//			PurpleGroup *group = PURPLE_GROUP(node);
+//			tags_.append(group->name);
+//		}
+//	}
+//	tags_.removeDuplicates();
+//	if (m_tags != tags_) {
+//		QStringList previous = m_tags;
+//		m_tags = tags_;
+//		tagsChanged(m_tags, previous);
+//	}
+	QString name = purple_buddy_get_alias(buddy);
 	if (name != m_name) {
 		QString previous = m_name;
 		m_name = name;
 		emit nameChanged(m_name, previous);
 	}
-	Status status = quetzal_get_status(m_buddy->presence);
-//	debug() << Q_FUNC_INFO << m_buddy->name << m_status << status;
+	bool isConnected = buddy->account->gc && buddy->account->gc->state == PURPLE_CONNECTED;
+	Status status = isConnected ? quetzal_get_status(buddy->presence) : Status(Status::Offline);
+	qDebug() << Q_FUNC_INFO << status << purple_status_type_get_id(purple_status_get_type(purple_presence_get_active_status(buddy->presence)));
+//	debug() << Q_FUNC_INFO << buddy->name << m_status << status;
 	if (m_status.type() != status.type()
 		|| m_status.subtype() != status.subtype()
 		|| m_status.text() != status.text()) {
@@ -205,20 +212,47 @@ void QuetzalContact::update()
 		m_status = status;
 		emit statusChanged(m_status, previous);
 	}
+	ensureAvatarPath();
+}
+
+int QuetzalContact::addBuddy(PurpleBuddy *buddy)
+{
+	buddy->node.ui_data = this;
+	m_buddies << buddy;
+	if (PurpleGroup *group = purple_buddy_get_group(buddy))
+		m_tags.append(group->name);
+	return m_buddies.size();
+}
+
+int QuetzalContact::removeBuddy(PurpleBuddy *buddy)
+{
+	m_buddies.removeOne(buddy);
+	if (PurpleGroup *group = purple_buddy_get_group(buddy))
+		m_tags.removeOne(group->name);
+	return m_buddies.size();
 }
 
 QString QuetzalContact::avatar() const
 {
-	PurpleBuddyIcon *icon = PURPLE_BUDDY(m_buddy)->icon;
-	if (!icon)
-		return QString();
-	char *str = purple_buddy_icon_get_full_path(icon);
+	return m_avatarPath;
+}
+
+void QuetzalContact::ensureAvatarPath()
+{
 	QString path;
-	if (str) {
-		path = str;
-		g_free(str);
+	PurpleBuddy *buddy = m_buddies.first();
+	PurpleBuddyIcon *icon = purple_buddy_icons_find(buddy->account, buddy->name);
+	if (icon) {
+		char *str = purple_buddy_icon_get_full_path(icon);
+		if (str) {
+			path = str;
+			g_free(str);
+		}
 	}
-	return path;
+	if (m_avatarPath != path) {
+		m_avatarPath = path;
+		emit avatarChanged(m_avatarPath);
+	}
 }
 
 QString QuetzalContact::id() const
@@ -243,15 +277,19 @@ Status QuetzalContact::status() const
 
 bool QuetzalContact::sendMessage(const Message &message)
 {
-	PurpleConversation *conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, m_buddy->name, m_buddy->account);
+	PurpleBuddy *buddy = m_buddies.first();
+	PurpleConversation *conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, buddy->name, buddy->account);
 	if (!conv) {
-		if (!m_buddy->account->gc)
+		if (!buddy->account->gc)
 			return false;
-
-		PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
-		prpl->send_im(m_buddy->account->gc, m_buddy->name, message.text().toUtf8().constData(),
-					  static_cast<PurpleMessageFlags>(0));
-		return false;
+		if (ChatLayer::get(this, false)) {
+			conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, buddy->account, buddy->name);
+		} else {
+			PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(buddy->account->gc->prpl);
+			int result = prpl->send_im(buddy->account->gc, buddy->name,
+									   message.text().toUtf8().constData(), static_cast<PurpleMessageFlags>(0));
+			return result > 0;
+		}
 	}
 	purple_conv_im_send(conv->u.im, message.text().toUtf8().constData());
 	return true;
@@ -259,24 +297,47 @@ bool QuetzalContact::sendMessage(const Message &message)
 
 void QuetzalContact::setName(const QString &name)
 {
-	purple_blist_alias_buddy(m_buddy, name.toUtf8().constData());
-	serv_alias_buddy(m_buddy);
+	PurpleBuddy *buddy = m_buddies.first();
+	purple_blist_alias_buddy(buddy, name.toUtf8().constData());
+	serv_alias_buddy(buddy);
 }
+
+extern PurpleBlistNode *quetzal_blist_get_last_sibling(PurpleBlistNode *node);
+extern PurpleBlistNode *quetzal_blist_get_last_child(PurpleBlistNode *node);
 
 void QuetzalContact::setTags(const QStringList &tags)
 {
-	if (!m_buddy->account->gc)
-		return;
-	PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
-	if (!prpl->group_buddy || tags.isEmpty())
-		return;
-	QString group = tags.value(0);
-	if (m_tags.contains(group))
-		return;
-	debug() << Q_FUNC_INFO << m_buddy->account->gc << m_id << m_tags.value(0) << group;
-	prpl->group_buddy(m_buddy->account->gc, m_id.toUtf8().constData(),
-					  m_tags.value(0).toUtf8().constData(),
-					  group.toUtf8().constData());
+	PurpleBuddy *original = purple();
+	GList *buddies = NULL;
+	GList *groups = NULL;
+	for (int i = 0; i < tags.size(); i++) {
+		if (m_tags.contains(tags.at(i)))
+			continue;
+		QByteArray groupName = tags.at(i).toUtf8();
+		PurpleGroup *pg = purple_find_group(groupName.constData());
+		if (!pg) {
+			pg = purple_group_new(groupName.constData());
+			purple_blist_add_group(pg, quetzal_blist_get_last_sibling(purple_blist_get_root()));
+		}
+		PurpleContact *pc = purple_contact_new();
+		purple_blist_add_contact(pc, pg, quetzal_blist_get_last_child(PURPLE_BLIST_NODE(pg)));
+		PurpleBuddy *buddy = purple_buddy_new(original->account, original->name, original->alias);
+		purple_blist_add_buddy(buddy, pc, pg, quetzal_blist_get_last_child(PURPLE_BLIST_NODE(pc)));
+		buddies = g_list_append(buddies, buddy);
+	}
+	purple_account_add_buddies(original->account, buddies);
+	g_list_free(buddies);
+	buddies = NULL;
+	groups = NULL;
+	for (int i = 0; i < m_buddies.size(); i++) {
+		if (!tags.contains(m_tags.at(i))) {
+			buddies = g_list_append(buddies, m_buddies.at(i));
+			groups = g_list_append(groups, purple_buddy_get_group(m_buddies.at(i)));
+		}
+	}
+	purple_account_remove_buddies(original->account, buddies, groups);
+	g_list_free(buddies);
+	g_list_free(groups);
 }
 
 bool QuetzalContact::isInList() const
@@ -307,33 +368,35 @@ void quetzal_menu_add(QList<MenuController::Action> &actions, void *node,
 QList<MenuController::Action> QuetzalContact::dynamicActions() const
 {
 	QList<MenuController::Action> actions;
-	if (!m_buddy->account->gc)
-		return actions;
-	PurpleBlistNode *node = const_cast<PurpleBlistNode *>(&m_buddy->node);
-	GList *menu = NULL;
-	PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
-	if (PURPLE_PROTOCOL_PLUGIN_HAS_FUNC(prpl, blist_node_menu)) {
-		menu = prpl->blist_node_menu(node);
-		quetzal_menu_add(actions, node, menu, QList<QByteArray>(), 2);
-		g_list_free(menu);
-	}
-	menu = purple_blist_node_get_extended_menu(node);
-	quetzal_menu_add(actions, node, menu, QList<QByteArray>(), 3);
-	g_list_free(menu);
+	// Is it effective now?
+//	if (!m_buddy->account->gc)
+//		return actions;
+//	PurpleBlistNode *node = const_cast<PurpleBlistNode *>(&m_buddy->node);
+//	GList *menu = NULL;
+//	PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
+//	if (PURPLE_PROTOCOL_PLUGIN_HAS_FUNC(prpl, blist_node_menu)) {
+//		menu = prpl->blist_node_menu(node);
+//		quetzal_menu_add(actions, node, menu, QList<QByteArray>(), 2);
+//		g_list_free(menu);
+//	}
+//	menu = purple_blist_node_get_extended_menu(node);
+//	quetzal_menu_add(actions, node, menu, QList<QByteArray>(), 3);
+//	g_list_free(menu);
 	return actions;
 }
 
 bool QuetzalContact::event(QEvent *ev)
 {
 	if (ev->type() == ToolTipEvent::eventType()) {
+		PurpleBuddy *buddy = m_buddies.first();
 		ToolTipEvent *event = static_cast<ToolTipEvent*>(ev);
-		if (!m_buddy->account->gc)
-			return false;
+		if (!buddy->account->gc)
+			return Contact::event(ev);
 
-		PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(m_buddy->account->gc->prpl);
+		PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(buddy->account->gc->prpl);
 		if (prpl->tooltip_text) {
 			PurpleNotifyUserInfo *user_info = purple_notify_user_info_new();
-			prpl->tooltip_text(PURPLE_BUDDY(m_buddy), user_info, true);
+			prpl->tooltip_text(PURPLE_BUDDY(buddy), user_info, true);
 			GList *it = purple_notify_user_info_get_entries(user_info);
 			for (; it; it = it->next) {
 				PurpleNotifyUserInfoEntry *entry =

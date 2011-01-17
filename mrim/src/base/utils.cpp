@@ -22,7 +22,8 @@ QString Utils::stripEmail(const QString& email)
     QString stripped;
 
     //Verify email by RFC 2822 spec with additionaly verified domain
-    QRegExp emailRx("(\\b[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*\\@(?:mail.ru|bk.ru|inbox.ru|list.ru|corp.mail.ru)\\b)");
+    QRegExp emailRx("(\\b[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*\\@(?:mail.ru|bk.ru|inbox.ru|list.ru|corp.mail.ru)\\b)",
+					Qt::CaseInsensitive);
     int matchIndex = emailRx.indexIn(email);
 
     if (matchIndex >= 0)

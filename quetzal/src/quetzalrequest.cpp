@@ -47,6 +47,26 @@ QString quetzal_create_label(const char *primary, const char *secondary)
 	return label;
 }
 
+void *quetzal_request_guard_new(QObject *obj)
+{
+	void *data = reinterpret_cast<void*>(obj->property("quetzal_guard").value<qptrdiff>());
+	if (data)
+		return data;
+	QPointer<QObject> *pointer = new QPointer<QObject>(obj);
+	obj->setProperty("quetzal_guard", reinterpret_cast<qptrdiff>(pointer));
+	return pointer;
+}
+
+QObject *quetzal_request_guard_value(void *data)
+{
+	if (!data)
+		return 0;
+	QPointer<QObject> *pointer = reinterpret_cast<QPointer<QObject>*>(data);
+	QObject *value = pointer->data();
+	delete pointer;
+	return value;
+}
+
 void *quetzal_request_input(const char *title, const char *primary,
 							const char *secondary, const char *default_value,
 							gboolean multiline, gboolean masked, gchar *hint,
@@ -63,7 +83,7 @@ void *quetzal_request_input(const char *title, const char *primary,
 											 multiline, masked, hint, ok_text, ok_cb,
 											 cancel_text, cancel_cb, user_data);
 	dialog->show();
-	return dialog;
+	return quetzal_request_guard_new(dialog);
 //
 //	QInputDialog dialog;
 //	dialog.setWindowTitle(title);
@@ -98,7 +118,7 @@ void *quetzal_request_choice(const char *title, const char *primary,
 	QDialog *dialog = new QuetzalChoiceDialog(title, primary, secondary, default_value, ok_text, ok_cb,
 											  cancel_text, cancel_cb, user_data, choices);
 	dialog->show();
-	return dialog;
+	return quetzal_request_guard_new(dialog);
 }
 
 void *quetzal_request_action(const char *title, const char *primary,
@@ -120,13 +140,13 @@ void *quetzal_request_action(const char *title, const char *primary,
 	QDialog *dialog = new QuetzalActionDialog(title, primary, secondary,
 											  default_action, uiActions, user_data, NULL);
 	dialog->show();
-	return dialog;
+	return quetzal_request_guard_new(dialog);
 }
 
-typedef bool (*QuetzalRequestHook)(const char *primary, PurpleRequestFields *fields,
-								   GCallback ok_cb, GCallback cancel_cb,
-								   PurpleAccount *account,  PurpleConversation *conv,
-								   void *user_data);
+typedef void *(*QuetzalRequestHook)(const char *primary, PurpleRequestFields *fields,
+									GCallback ok_cb, GCallback cancel_cb,
+									PurpleAccount *account,  PurpleConversation *conv,
+									void *user_data);
 
 typedef char *(*dgettext_) (const char *domainname, const char *msgid);
 static dgettext_ dgettext = 0;
@@ -136,22 +156,25 @@ char *dgettext_fallback(const char *domainname, const char *msgid)
 	return const_cast<char *>(msgid);
 }
 
-bool quetzal_request_password_hook(const char *primary, PurpleRequestFields *fields,
-								   GCallback ok_cb, GCallback cancel_cb,
-								   PurpleAccount *account,  PurpleConversation *conv,
-								   void *user_data)
+void *quetzal_request_password_hook(const char *primary, PurpleRequestFields *fields,
+									   GCallback ok_cb, GCallback cancel_cb,
+									   PurpleAccount *account,  PurpleConversation *conv,
+									   void *user_data)
 {
 	Q_UNUSED(conv);
 	char *primary_test = g_strdup_printf(dgettext("libpurple", "Enter password for %s (%s)"),
 										 purple_account_get_username(account),
 										 purple_account_get_protocol_name(account));
-	if (!qstrcmp(primary_test, primary))
-		return false;
+	if (qstrcmp(primary_test, primary)) {
+		g_free(primary_test);
+		return 0;
+	}
+	g_free(primary_test);
 	
 	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account->ui_data);
-	acc->requestPassword(fields, reinterpret_cast<PurpleRequestFieldsCb>(ok_cb),
-						 reinterpret_cast<PurpleRequestFieldsCb>(cancel_cb), user_data);
-	return true;
+	QObject *obj = acc->requestPassword(fields, reinterpret_cast<PurpleRequestFieldsCb>(ok_cb),
+										reinterpret_cast<PurpleRequestFieldsCb>(cancel_cb), user_data);
+	return quetzal_request_guard_new(obj);
 }
 
 QuetzalRequestHook quetzal_request_hooks[] =
@@ -166,21 +189,21 @@ void *quetzal_request_fields(const char *title, const char *primary,
 							 PurpleAccount *account, const char *who,
 							 PurpleConversation *conv, void *user_data)
 {
-	debug() << Q_FUNC_INFO;
 	if (!dgettext) {
 		dgettext = reinterpret_cast<dgettext_>(QLibrary::resolve("nsl", "dgettext"));
 		if (!dgettext)
 			dgettext = dgettext_fallback;
 	}
+	debug() << Q_FUNC_INFO << (sizeof(quetzal_request_hooks)/sizeof(QuetzalRequestHook));
 	for (unsigned i = 0; i < sizeof(quetzal_request_hooks)/sizeof(QuetzalRequestHook); i++) {
-		if (quetzal_request_hooks[i](primary, fields, ok_cb, cancel_cb, account, conv, user_data))
-			return 0;
+		if (void *data = quetzal_request_hooks[i](primary, fields, ok_cb, cancel_cb, account, conv, user_data))
+			return data;
 	}
 	Q_UNUSED(who);
 	QDialog *dialog = new QuetzalFieldsDialog(title, primary, secondary, fields, ok_text,
 											  ok_cb, cancel_text, cancel_cb, user_data);
 	dialog->show();
-	return dialog;
+	return quetzal_request_guard_new(dialog);
 }
 
 void *quetzal_request_file(const char *title, const char *filename,
@@ -198,17 +221,27 @@ void *quetzal_request_file(const char *title, const char *filename,
 	new QuetzalFileDialog(title, info.absolutePath(), ok_cb, cancel_cb, user_data, dialog);
 	dialog->setAcceptMode(savedialog ? QFileDialog::AcceptSave : QFileDialog::AcceptSave);
 	dialog->show();
-	return dialog;
+	return quetzal_request_guard_new(dialog);
+}
+
+void quetzal_request_close(PurpleRequestType type, QObject *dialog)
+{
+	if (dialog->property("quetzal_closed").toBool())
+		return;
+	dialog->setProperty("quetzal_closed", true);
+	purple_request_close(type, quetzal_request_guard_new(dialog));
 }
 
 void quetzal_close_request(PurpleRequestType type, void *ui_handle)
 {
 	debug() << Q_FUNC_INFO;
 	Q_UNUSED(type);
-	QObject *obj = reinterpret_cast<QObject *>(ui_handle);
-	if (QWidget *widget = qobject_cast<QWidget *>(obj)) {
+	QObject *obj = quetzal_request_guard_value(ui_handle);
+	if (QWidget *widget = qobject_cast<QWidget *>(obj))
 		widget->close();
-		widget->deleteLater();
+	if (obj) {
+		obj->setProperty("quetzal_closed", true);
+		obj->deleteLater();
 	}
 }
 
@@ -226,7 +259,7 @@ void *quetzal_request_folder(const char *title, const char *dirname,
 	dialog->setFileMode(QFileDialog::Directory);
 	dialog->setOption(QFileDialog::ShowDirsOnly, true);
 	dialog->show();
-	return dialog;
+	return quetzal_request_guard_new(dialog);
 }
 
 PurpleRequestUiOps quetzal_request_uiops =

@@ -15,15 +15,7 @@ public:
 	~QuetzalFieldsDialog();
 protected:
 	virtual void closeRequest();
-protected slots:
-	void onStringFieldChanged(const QString &text);
-	void onIntFieldChanged(int value);
-	void onBooleanFieldChanged(bool value);
-	void onChoiceFieldChanged(int id);
-	void onListFieldChanged();
-	void onAccountFieldChanged(int id);
-	void onOkClicked();
-	void onCancelClicked();
+	virtual void onClicked(int);
 private:
 	PurpleRequestFieldsCb m_ok_cb;
 	PurpleRequestFieldsCb m_cancel_cb;

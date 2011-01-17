@@ -22,6 +22,7 @@
 #include "quetzalrequest.h"
 #include "quetzaljoinchatdialog.h"
 #include "quetzalblist.h"
+#include "quetzalnotify.h"
 #include <qutim/event.h>
 #include <qutim/systeminfo.h>
 #include <purple.h>
@@ -36,6 +37,23 @@
 #include <QThread>
 #include <QtConcurrentRun>
 
+struct QuetzalConversationHandler
+{
+	typedef QSharedPointer<QuetzalConversationHandler> Ptr;
+	
+	~QuetzalConversationHandler()
+	{
+		foreach (PurpleConversation *conversation, conversations) {
+			conversation->ui_data = 0;
+			purple_conversation_destroy(conversation);
+		}
+	}
+	QPointer<ChatSession> isAlive;
+	QList<PurpleConversation*> conversations;
+};
+
+Q_DECLARE_METATYPE(QuetzalConversationHandler::Ptr)
+
 void quetzal_menu_dump(PurpleMenuAction *action, int offset)
 {
 	QByteArray off;
@@ -48,18 +66,36 @@ void quetzal_menu_dump(PurpleMenuAction *action, int offset)
 
 void quetzal_create_conversation(PurpleConversation *conv)
 {
-	debug() << Q_FUNC_INFO << conv->name;
+	if (conv->ui_data)
+		return;
 	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(conv->account->ui_data);
 	debug() << acc;
 	ChatUnit *unit = acc->getUnit(conv->name);
+	debug() << Q_FUNC_INFO << conv->name;
 //	debug() << Q_FUNC_INFO << unit;
-	if (!unit) {
-		if (conv->type == PURPLE_CONV_TYPE_IM)
-			unit = new QuetzalConversation(conv);
-		else
-			unit = new QuetzalChat(conv);
+	if (conv->type == PURPLE_CONV_TYPE_IM) {
+//		PurpleConvIm *data = purple_conversation_get_im_data(conv);
+		PurplePluginProtocolInfo *info = PURPLE_PLUGIN_PROTOCOL_INFO(acc->purple()->gc->prpl);
+		const char *id = info->normalize(acc->purple(), conv->name);
+		unit = acc->getUnit(id, true);
+		ChatSession *session = ChatLayer::get(unit, true);
+		QuetzalConversationHandler::Ptr handler =
+				session->property("quetzal_handler").value<QuetzalConversationHandler::Ptr>();
+		if (!handler) {
+			handler = QuetzalConversationHandler::Ptr::create();
+			handler->isAlive = session;
+			session->setProperty("quetzal_handler", qVariantFromValue(handler));
+		}
+		conv->ui_data = handler.data();
+		qDebug() << conv->name << info->normalize(acc->purple(), conv->name);
+		handler->conversations << conv;
+//		unit = new QuetzalConversation(conv);
+	} else if (!unit) {
+		unit = new QuetzalChat(conv);
 		acc->addChatUnit(unit);
-	} /*else if (QuetzalContact *contact = qobject_cast<QuetzalContact *>(unit)) {
+	}
+	
+	/*else if (QuetzalContact *contact = qobject_cast<QuetzalContact *>(unit)) {
 //			purple_blist_node_get_extended_menu
 			debug() << Q_FUNC_INFO;
 			GList *menu = PURPLE_PLUGIN_PROTOCOL_INFO(conv->account->gc->prpl)
@@ -73,19 +109,22 @@ void quetzal_create_conversation(PurpleConversation *conv)
 
 void quetzal_destroy_conversation(PurpleConversation *conv)
 {
+	QuetzalConversationHandler *handler = reinterpret_cast<QuetzalConversationHandler*>(conv->ui_data);
+	if (handler)
+		handler->conversations.removeOne(conv);
 	debug() << Q_FUNC_INFO << conv->name;
-	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(conv->account->ui_data);
-//	if (conv->type == PURPLE_CONV_TYPE_IM) {
-		ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
-		if (unit) {
-			ChatSession *session = ChatLayer::get(unit, false);
-			session->setActive(false);
-			if (!(qobject_cast<QuetzalContact *>(unit))) {
-				acc->removeChatUnit(unit);
-				unit->deleteLater();
-			}
-		}
-//	}
+//	QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(conv->account->ui_data);
+////	if (conv->type == PURPLE_CONV_TYPE_IM) {
+//		ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
+//		if (unit) {
+//			ChatSession *session = ChatLayer::get(unit, false);
+//			session->setActive(false);
+//			if (!(qobject_cast<QuetzalContact *>(unit))) {
+//				acc->removeChatUnit(unit);
+//				unit->deleteLater();
+//			}
+//		}
+////	}
 }
 
 Message quetzal_convert_message(const char *message, PurpleMessageFlags flags, time_t mtime)
@@ -115,9 +154,13 @@ void quetzal_write_chat(PurpleConversation *conv, const char *who,
 	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
 	if (QuetzalChat *chat = qobject_cast<QuetzalChat *>(unit)) {
 		Message mess = quetzal_convert_message(message, flags, mtime);
-		if (!mess.isIncoming())
+		PurpleConvChat *data = purple_conversation_get_chat_data(conv);
+		if ((!(flags & PURPLE_MESSAGE_DELAYED)) && !mess.isIncoming())
 			return;
-		mess.setChatUnit(chat->getUser(who));
+		if (!mess.text().contains(data->nick))
+			mess.setProperty("silent", true);
+		mess.setChatUnit(chat);
+		mess.setProperty("senderName", QString::fromUtf8(who));
 		ChatLayer::get(unit, true)->appendMessage(mess);
 	} else {
 		Q_ASSERT(!"Some strange situation.. Every Chat unit must be an QuetzalChat");
@@ -128,32 +171,39 @@ void quetzal_write_im(PurpleConversation *conv, const char *who,
 				 const char *message, PurpleMessageFlags flags,
 				 time_t mtime)
 {
-	debug() << Q_FUNC_INFO << who;
-	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
-	if (!unit)
+	if (!conv->ui_data) {
+		// Is it possible?
 		quetzal_create_conversation(conv);
+	}
+	QuetzalConversationHandler *handler = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data);
+	debug() << Q_FUNC_INFO << who << handler;
+	ChatUnit *unit = handler->isAlive->unit();
 	Message mess = quetzal_convert_message(message, flags, mtime);
 	if (!mess.isIncoming())
 		return;
 	mess.setChatUnit(unit);
-	ChatLayer::get(unit, true)->appendMessage(mess);
+	handler->isAlive->appendMessage(mess);
 }
 
 void quetzal_write_conv(PurpleConversation *conv,
 				   const char *name,
 				   const char *alias,
-				   const char *message,
+				   const char *text,
 				   PurpleMessageFlags flags,
 				   time_t mtime)
 {
 	debug() << Q_FUNC_INFO << name << conv->account->username;
-	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
-	Message mess = quetzal_convert_message(message, flags, mtime);
+	ChatUnit *unit;
+	if (conv->type == PURPLE_CONV_TYPE_IM)
+		unit = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data)->isAlive->unit();
+	else
+		unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
+	Message message = quetzal_convert_message(text, flags, mtime);
 	debug() << name << alias;
-	if (!mess.isIncoming())
+	if (!message.isIncoming())
 		return;
-	mess.setChatUnit(unit);
-	ChatLayer::get(unit, true)->appendMessage(mess);
+	message.setChatUnit(unit);
+	ChatLayer::get(unit, true)->appendMessage(message);
 }
 
 void quetzal_chat_add_users(PurpleConversation *conv,
@@ -197,7 +247,12 @@ void quetzal_present(PurpleConversation *conv)
 
 gboolean quetzal_has_focus(PurpleConversation *conv)
 {
-	return ChatLayer::get(reinterpret_cast<ChatUnit*>(conv->ui_data))->isActive();
+	ChatSession *session;
+	if (conv->type == PURPLE_CONV_TYPE_IM)
+		session = reinterpret_cast<QuetzalConversationHandler *>(conv->ui_data)->isAlive;
+	else
+		session = ChatLayer::get(reinterpret_cast<ChatUnit*>(conv->ui_data), false);
+	return session && session->isActive();
 }
 
 gboolean quetzal_custom_smiley_add(PurpleConversation *conv, const char *smile, gboolean remote)
@@ -359,9 +414,11 @@ PurpleAccountUiOps quetzal_accounts_uiops =
 
 static void quetzal_conversation_update(PurpleConversation *conv, PurpleConvUpdateType type)
 {
-	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
-	if (QuetzalConversation *quetzal_conv = qobject_cast<QuetzalConversation *>(unit)) {
-		quetzal_conv->update(type);
+	if (conv->type == PURPLE_CONV_TYPE_CHAT) {
+		QObject *unit = reinterpret_cast<QObject *>(conv->ui_data);
+		if (QuetzalChat *chat = qobject_cast<QuetzalChat *>(unit)) {
+			chat->update(type);
+		}
 	}
 }
 
@@ -376,6 +433,30 @@ static void quetzal_account_signon_cb(PurpleConnection *gc, gpointer z)
 //	if (info->chat_info_defaults != NULL)
 //		comps = info->chat_info_defaults(gc, "talks@conference.qutim.org/Yahoo");
 //	serv_join_chat(gc, comps);
+}
+
+void quetzal_connection_signing_on_cb(PurpleConnection *gc)
+{
+	PurpleAccount *acc = purple_connection_get_account(gc);
+	QObject *object = reinterpret_cast<QObject*>(acc->ui_data);
+	if (QuetzalAccount *account = qobject_cast<QuetzalAccount *>(object))
+		account->handleSigningOn();
+}
+
+void quetzal_connection_signed_on_cb(PurpleConnection *gc)
+{
+	PurpleAccount *acc = purple_connection_get_account(gc);
+	QObject *object = reinterpret_cast<QObject*>(acc->ui_data);
+	if (QuetzalAccount *account = qobject_cast<QuetzalAccount *>(object))
+		account->handleSignedOn();
+}
+
+void quetzal_connection_signed_off_cb(PurpleConnection *gc)
+{
+	PurpleAccount *acc = purple_connection_get_account(gc);
+	QObject *object = reinterpret_cast<QObject*>(acc->ui_data);
+	if (QuetzalAccount *account = qobject_cast<QuetzalAccount *>(object))
+		account->handleSignedOff();
 }
 
 static void quetzal_ui_init(void)
@@ -438,6 +519,7 @@ void QuetzalPlugin::initLibPurple()
 	 */
 	purple_core_set_ui_ops(&quetzal_core_uiops);
 	purple_eventloop_set_ui_ops(&quetzal_eventloop_uiops);
+	purple_notify_set_ui_ops(&quetzal_notify_uiops);
 
 	/* Set path to search for plugins. The core (libpurple) takes care of loading the
 	 * core-plugins, which includes the protocol-plugins. So it is not essential to add
@@ -481,8 +563,12 @@ void QuetzalPlugin::initLibPurple()
 //						  PURPLE_CALLBACK(quetzal_account_status_changed), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", handle,
 						  PURPLE_CALLBACK(quetzal_conversation_update), NULL);
+	purple_signal_connect(purple_connections_get_handle(), "signing-on",
+						  handle, PURPLE_CALLBACK(quetzal_connection_signing_on_cb), NULL);
 	purple_signal_connect(purple_connections_get_handle(), "signed-on",
-						  handle, PURPLE_CALLBACK(quetzal_account_signon_cb), NULL);
+						  handle, PURPLE_CALLBACK(quetzal_connection_signed_on_cb), NULL);
+	purple_signal_connect(purple_connections_get_handle(), "signed-off",
+						  handle, PURPLE_CALLBACK(quetzal_connection_signed_off_cb), NULL);
 }
 
 void QuetzalPlugin::init()
@@ -504,11 +590,11 @@ void QuetzalPlugin::init()
 		addExtension(LocalizedString(protocol->info->name),
 					 QT_TRANSLATE_NOOP("Plugin", "'Quetzal' is set of protocols, powered by libpurple"),
 					 gen,
-					 Icon(QLatin1String(imPrefix + const_cast<const char *>(protocol->info->name))));
+					 ExtensionIcon(QLatin1String(imPrefix + const_cast<const char *>(protocol->info->name))));
 		addExtension(LocalizedString(protocol->info->name),
 					 QT_TRANSLATE_NOOP("Plugin", "'Quetzal' is set of protocols, powered by libpurple"),
 					 new QuetzalProtocolGenerator(gen),
-					 Icon(QLatin1String(imPrefix + const_cast<const char *>(protocol->info->name))));
+					 ExtensionIcon(QLatin1String(imPrefix + const_cast<const char *>(protocol->info->name))));
 	}
 //	qDebug() << QAbstractEventDispatcher::instance()->metaObject()->className();
 //	QuetzalThread *thread = new QuetzalThread(this);

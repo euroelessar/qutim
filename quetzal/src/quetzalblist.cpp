@@ -34,18 +34,19 @@ void quetzal_debug_pair(const char *key,
 void quetzal_new_node(PurpleBlistNode *node)
 {
 //	debug() << "new_node" << node->type;
-	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
-		PurpleBuddy *buddy = PURPLE_BUDDY(node);
-		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(buddy->account->ui_data);
-		if (acc) {
-			acc->createNode(node);
-		}
-	} else if (PURPLE_BLIST_NODE_IS_CHAT(node)) {
-		PurpleChat *chat = PURPLE_CHAT(node);
-		QDebug debug(QtDebugMsg);
-		debug << "CHAT";
-		g_hash_table_foreach(chat->components, (GHFunc)quetzal_debug_pair, &debug);
-	}
+//	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
+//		debug() << "BUDDY";
+//		PurpleBuddy *buddy = PURPLE_BUDDY(node);
+//		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(buddy->account->ui_data);
+//		if (acc) {
+//			acc->createNode(node);
+//		}
+//	} else if (PURPLE_BLIST_NODE_IS_CHAT(node)) {
+//		PurpleChat *chat = PURPLE_CHAT(node);
+//		QDebug debug(QtDebugMsg);
+//		debug << "CHAT";
+//		g_hash_table_foreach(chat->components, (GHFunc)quetzal_debug_pair, &debug);
+//	}
 }
 
 void quetzal_show(PurpleBuddyList *list)
@@ -56,9 +57,28 @@ void quetzal_show(PurpleBuddyList *list)
 void quetzal_update(PurpleBuddyList *list, PurpleBlistNode *node)
 {
 	Q_UNUSED(list);
-	QObject *obj = reinterpret_cast<QObject *>(node->ui_data);
-	if (QuetzalContact *contact = qobject_cast<QuetzalContact *>(obj)) {
-		contact->update();
+//	QObject *obj = reinterpret_cast<QObject *>(node->ui_data);
+//	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
+//		PurpleBuddy *buddy = PURPLE_BUDDY(node);
+//		QuetzalAccount *account = reinterpret_cast<QuetzalAccount*>(buddy->account->ui_data);
+//		if (!account)
+//			return;
+//		account->set
+//		PurpleContact *contact = purple_buddy_get_contact(buddy);
+//		PurpleGroup *group = purple_buddy_get_group(buddy);
+//		qDebug() << "update" << obj << PURPLE_BUDDY(node)->name
+//				<< contact->alias
+//				<< group->name;
+//	}
+	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
+		QObject *obj = reinterpret_cast<QObject *>(node->ui_data);
+		if (QuetzalContact *contact = qobject_cast<QuetzalContact *>(obj)) {
+			contact->update(PURPLE_BUDDY(node));
+		}
+	} else if (PURPLE_BLIST_NODE_IS_GROUP(node)) {
+		// TODO: handle group name changes
+//		PurpleGroup *group = PURPLE_GROUP(node);
+//		group->node.child
 	}
 }
 
@@ -91,10 +111,8 @@ void quetzal_save_node(PurpleBlistNode *node)
 	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
 		PurpleBuddy *buddy = PURPLE_BUDDY(node);
 		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(buddy->account->ui_data);
-		if (acc) {
-			QuetzalContact *contact = reinterpret_cast<QuetzalContact *>(buddy->node.ui_data);
-			acc->save(contact);
-		}
+		if (acc)
+			acc->save(buddy);
 	} else if(PURPLE_BLIST_NODE_IS_CHAT(node)) {
 		PurpleChat *chat = PURPLE_CHAT(node);
 		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(chat->account->ui_data);
@@ -109,10 +127,8 @@ void quetzal_remove_node(PurpleBlistNode *node)
 	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
 		PurpleBuddy *buddy = PURPLE_BUDDY(node);
 		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(buddy->account->ui_data);
-		if (acc) {
-			QuetzalContact *contact = reinterpret_cast<QuetzalContact *>(buddy->node.ui_data);
-			acc->remove(contact);
-		}
+		if (acc)
+			acc->remove(buddy);
 	} else if(PURPLE_BLIST_NODE_IS_CHAT(node)) {
 		PurpleChat *chat = PURPLE_CHAT(node);
 		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(chat->account->ui_data);

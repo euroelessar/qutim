@@ -35,6 +35,7 @@ public:
 	QuetzalProtocol(const QuetzalMetaObject *meta, PurplePlugin *plugin);
 	virtual ~QuetzalProtocol();
     virtual QList<Account *> accounts() const;
+	void addAccount(PurpleAccount *account);
     virtual Account *account(const QString &id) const;
 	PurplePlugin *plugin() { return m_plugin; }
 	static QHash<PurplePlugin *, QuetzalProtocol *> &protocols()

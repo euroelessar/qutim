@@ -24,7 +24,7 @@ void QuetzalFileDialog::onAccept()
 	if (m_ok_cb)
 		m_ok_cb(m_user_data, m_dialog->selectedFiles().value(0).toUtf8().constData());
 	m_ok_cb = NULL;
-	purple_request_close(m_dialog->fileMode() == QFileDialog::Directory
+	quetzal_request_close(m_dialog->fileMode() == QFileDialog::Directory
 						 ? PURPLE_REQUEST_FOLDER : PURPLE_REQUEST_FILE, m_dialog);
 }
 
@@ -33,6 +33,6 @@ void QuetzalFileDialog::onReject()
 	if (m_cancel_cb)
 		m_cancel_cb(m_user_data, m_dialog->selectedFiles().value(0).toUtf8().constData());
 	m_cancel_cb = NULL;
-	purple_request_close(m_dialog->fileMode() == QFileDialog::Directory
+	quetzal_request_close(m_dialog->fileMode() == QFileDialog::Directory
 						 ? PURPLE_REQUEST_FOLDER : PURPLE_REQUEST_FILE, m_dialog);
 }

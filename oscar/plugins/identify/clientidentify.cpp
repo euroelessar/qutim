@@ -188,13 +188,9 @@ void ClientIdentify::statusChanged(IcqContact *contact, Status &status, const TL
 {
 	Q_UNUSED(tlvs);
 	if (status == Status::Offline) {
-		contact->setProperty("client", QVariant());
 		status.removeExtendedInfo("client");
 		return;
 	}
-	QVariantHash client = contact->property("client").toHash();
-	if (!client.isEmpty())
-		status.setExtendedInfo("client", client);
 	if (contact->status() == Status::Offline) {
 		identify(contact);
 		QVariantHash clientInfo;

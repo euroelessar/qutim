@@ -13,16 +13,12 @@ public:
 								const char *ok_text, GCallback ok_cb,
 								const char *cancel_text, GCallback cancel_cb,
 								void *user_data, QWidget *parent = 0);
+	virtual void onClicked(int button);
 protected:
 	virtual void closeRequest();
-protected slots:
-	void onOkClicked();
-	void onCancelClicked();
 private:
 	PurpleRequestInputCb m_ok_cb;
 	PurpleRequestInputCb m_cancel_cb;
-	QWidget *m_input_widget;
-	QByteArray m_property;
 };
 
 #endif // QUETZALINPUTDIALOG_H

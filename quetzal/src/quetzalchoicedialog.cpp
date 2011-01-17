@@ -49,12 +49,12 @@ void QuetzalChoiceDialog::onOkClicked()
 {
 	callBack(m_ok_cb);
 	m_ok_cb = NULL;
-	purple_request_close(PURPLE_REQUEST_INPUT, this);
+	quetzal_request_close(PURPLE_REQUEST_INPUT, this);
 }
 
 void QuetzalChoiceDialog::onCancelClicked()
 {
 	callBack(m_cancel_cb);
 	m_cancel_cb = NULL;
-	purple_request_close(PURPLE_REQUEST_INPUT, this);
+	quetzal_request_close(PURPLE_REQUEST_INPUT, this);
 }
