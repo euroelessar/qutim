@@ -19,6 +19,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QStringList>
+#include <QDebug>
 
 using namespace qutim_sdk_0_3;
 
