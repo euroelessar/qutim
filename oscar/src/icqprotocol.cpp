@@ -116,7 +116,8 @@ void IcqProtocol::updateSettings()
 	Q_D(IcqProtocol);
 	QString localeCodecName = QLatin1String(QTextCodec::codecForLocale()->name());
 	QString codecName = config("general").value("codec", localeCodecName);
-	Util::setAsciiCodec(QTextCodec::codecForName(codecName.toLatin1()));
+	QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
+	Util::setAsciiCodec(codec ? codec : QTextCodec::codecForLocale());
 	foreach (QPointer<IcqAccount> acc, *d->accounts_hash)
 		acc->updateSettings();
 	emit settingsUpdated();
