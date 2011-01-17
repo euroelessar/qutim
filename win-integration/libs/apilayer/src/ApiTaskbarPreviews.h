@@ -1,5 +1,5 @@
 #include "apiglobal.h"
-#include <Windows.h>
+#include <windows.h>
 
 EXPORT void RegisterTab              (HWND tab, HWND owner);
 EXPORT void SetTabActive             (HWND tab, HWND owner);
