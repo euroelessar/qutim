@@ -9,7 +9,7 @@ set( QUTIM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/core" CACHE FILEPATH "Path to qutim
 set( QUTIM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/core/libqutim/include" CACHE FILEPATH "Path to qutim headers")
 set( QUTIM_LIBRARY libqutim CACHE FILEPATH "Path to qutim library")
 
-set( QUTIM_ADDITIONAL_PATHS "protocols" "integrations" "plugins" )
+set( QUTIM_ADDITIONAL_PATHS "protocols" "plugins" )
 set( QUTIM_ADDITIONAL_PATHS "${QUTIM_ADDITIONAL_PATHS}" CACHE INTERNAL "" FORCE )
 
 add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/core/" "${CMAKE_CURRENT_BINARY_DIR}/core" )
