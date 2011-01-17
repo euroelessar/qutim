@@ -72,7 +72,7 @@ class DataItemPrivate;
    - \b editable. Holds whether the field is editable. The default property value is false.
   - \b validator. Provides validation of input text and has type QValidator or QRegExp.
   - \b password. Holds whether the input text is displayed or every character is replaced by asterisk.
-  The default property value is false. The property can be overshadow by the property 'alternatives'.
+  The default property value is false. The property can be overshadowed by the property 'alternatives'.
   - \b multiline. Holds whether the text is multiline. The default property value is false.
   The property can be overshadow by the property 'alternatives'.
   - \b mandatory. Holds whether the field is mandatory. The default property value is false.
@@ -84,6 +84,7 @@ class DataItemPrivate;
  - \b hideTitle. Holds whether the field title is hidden. The default property value is
  false.
  - \b titleAlternative. Holds alternative options of the title for user and has type LocalizedStringList.
+ - \b hidden. Holds whether the field is hidden. The default property value is false.
 
  The items that \ref hasSubitems() "have subitems" may have the following properties:
  - \b columns. Holds the recommended count of the columns. By default, this property contains 1.
