@@ -142,7 +142,7 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 				   const QString &value, const QStringList &alt,
 				   bool isTitle, const DataItem &item,
 				   QWidget *parent) :
-	QComboBox(parent), AbstractDataWidget(item, dataForm)
+	QComboBox(parent), AbstractDataWidget(item, dataForm), m_complete(true)
 {
 	int current = -1;
 	QVariantList ids = item.property(isTitle ? "titleIdentificators" : "identificators", QVariantList());
@@ -154,15 +154,28 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 		++i;
 	}
 
+	setEditable(item.property("editable", false));
+	setMinimumContentsLength(12);
+	setSizeAdjustPolicy(AdjustToMinimumContentsLength);
 	setCurrentIndex(current);
+
 	QVariant validatorVar = item.property(isTitle ? "titleValidator" : "validator");
 	QValidator *validator = getValidator(validatorVar, this);
 	if (validator)
 		setValidator(validator);
-	setEditable(item.property("editable", false));
-	setMinimumContentsLength(12);
-	setSizeAdjustPolicy(AdjustToMinimumContentsLength);
-	connectSignalsHelper(this, dataForm, item, SIGNAL(currentIndexChanged(int)));
+	m_mandatory = item.property("mandatory", false);
+	QString str = currentText();
+	updateCompleteState(str);
+
+	if (!item.name().isEmpty())
+		dataForm->addWidget(item.name(), this);
+	connect(this, SIGNAL(editTextChanged(QString)), SLOT(onChanged(QString)));
+	m_emitChangedSignal = item.dataChangedReceiver();
+	if (m_emitChangedSignal) {
+		Q_ASSERT(item.dataChangedMethod());
+		connect(this, SIGNAL(changed(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*)),
+				item.dataChangedReceiver(), item.dataChangedMethod());
+	}
 }
 
 DataItem ComboBox::item() const
@@ -186,9 +199,26 @@ void ComboBox::setData(const QVariant &data)
 	}
 }
 
-void ComboBox::onChanged()
+void ComboBox::onChanged(QString text)
 {
-	emit changed(objectName(),currentText(), dataForm());
+	dataForm()->dataChanged();
+	updateCompleteState(text);
+	if (m_emitChangedSignal)
+		emit changed(objectName(), currentText(), dataForm());
+}
+
+void ComboBox::updateCompleteState(QString &text)
+{
+	int pos = 0;
+	bool isComplete = validator() ?
+					  validator()->validate(text, pos) == QValidator::Acceptable :
+					  true;
+	if (m_mandatory)
+		isComplete = isComplete && !text.isEmpty();
+	if (isComplete != m_complete) {
+		m_complete = isComplete;
+		dataForm()->completeChanged(m_complete);
+	}
 }
 
 DateTimeEdit::DateTimeEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :

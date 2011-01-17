@@ -59,7 +59,12 @@ public:
 signals:
 	void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
 private slots:
-	void onChanged();
+	void onChanged(QString text);
+private:
+	void updateCompleteState(QString &text);
+	bool m_mandatory;
+	bool m_emitChangedSignal;
+	bool m_complete;
 };
 
 class DateTimeEdit : public QDateTimeEdit, public AbstractDataWidget
