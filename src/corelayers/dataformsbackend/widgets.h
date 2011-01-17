@@ -52,7 +52,7 @@ class ComboBox : public QComboBox, public AbstractDataWidget
 public:
 	ComboBox(DefaultDataForm *dataForm,
 			 const QString &value, const QStringList &alternatives,
-			 const char *validatorProperty, const DataItem &item,
+			 bool isTitle, const DataItem &item,
 			 QWidget *parent = 0);
 	virtual DataItem item() const;
 	virtual void setData(const QVariant &data);

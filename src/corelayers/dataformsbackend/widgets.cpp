@@ -140,12 +140,12 @@ void CheckBox::onChanged()
 
 ComboBox::ComboBox(DefaultDataForm *dataForm,
 				   const QString &value, const QStringList &alt,
-				   const char *validatorProperty, const DataItem &item,
+				   bool isTitle, const DataItem &item,
 				   QWidget *parent) :
 	QComboBox(parent), AbstractDataWidget(item, dataForm)
 {
 	int current = -1;
-	QVariantList ids = item.property("identificators", QVariantList());
+	QVariantList ids = item.property(isTitle ? "titleIdentificators" : "identificators", QVariantList());
 	for (int i = 0; i < alt.size(); i++) {
 		QString str = alt.at(i);
 		if (value == str)
@@ -153,8 +153,10 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 		addItem(str, ids.value(i));
 		++i;
 	}
+
 	setCurrentIndex(current);
-	QValidator *validator = getValidator(item.property(validatorProperty), this);
+	QVariant validatorVar = item.property(isTitle ? "titleValidator" : "validator");
+	QValidator *validator = getValidator(validatorVar, this);
 	if (validator)
 		setValidator(validator);
 	setEditable(item.property("editable", false));
@@ -706,7 +708,7 @@ void StringListGroup::setData(const QVariant &data)
 {
 	foreach (const QString &str, variantToStringList(data)) {
 		if (!m_alt.isEmpty())
-			addRow(new ComboBox(dataForm(), str, m_alt, "validator", m_item));
+			addRow(new ComboBox(dataForm(), str, m_alt, false, m_item));
 		else
 			addRow(new LineEdit(dataForm(), m_item, str));
 	}

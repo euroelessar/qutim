@@ -45,7 +45,7 @@ QWidget *getTitle(DefaultDataForm *dataForm, const DataItem &item, const Qt::Ali
 			title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 		widget = title;
 	} else {
-		widget = new ComboBox(dataForm, item.title(), alt, "titleValidator", item);
+		widget = new ComboBox(dataForm, item.title(), alt, true, item);
 	}
 	if (item.property("hidden", false))
 		widget->setVisible(false);
@@ -101,7 +101,7 @@ static QWidget *getWidgetHelper(DefaultDataForm *dataForm, const DataItem &item,
 		str = item.data().toString();
 	QStringList alt = variantToStringList(item.property("alternatives"));
 	if (!alt.isEmpty()) {
-		return new ComboBox(dataForm, str, alt, "validator", item, parent);
+		return new ComboBox(dataForm, str, alt, false, item, parent);
 	} else if (!item.property("multiline", false)) {
 		return new LineEdit(dataForm, item, QString(), parent);
 	} else {
