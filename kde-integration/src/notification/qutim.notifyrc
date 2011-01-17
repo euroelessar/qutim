@@ -1,0 +1,55 @@
+[Global]
+IconName=qutim
+Comment=KDE integration plugin
+Name=qutIM
+
+[Event/online]
+Name=Online
+Comment=Contact went online
+Action=Sound|Popup
+
+[Event/offline]
+Name=Offline
+Comment=Contact went offline
+Action=Sound|Popup
+
+[Event/statusChange]
+Name=StatusChange
+Comment=Contact changed status
+Action=Sound|Popup
+
+[Event/birthday]
+Name=Birthday
+Comment=Contact has birthday
+Action=Sound|Popup
+
+[Event/startup]
+Name=Startup
+Comment=Startup of application
+Action=Sound|Popup
+
+[Event/messageGet]
+Name=MessageGet
+Comment=Message was recieved
+Action=Sound|Popup
+
+[Event/messageSend]
+Name=MessageSend
+Comment=Message was sent
+Action=Sound|Popup
+
+[Event/system]
+Name=System
+Comment=System event
+Action=Sound|Popup
+
+[Event/typing]
+Name=Typing
+Comment=Contact is typing something
+Action=Sound|Popup
+
+[Event/blockedMessage]
+Name=BlockedMessage
+Comment=Message was blocked
+Action=Sound|Popup
+
