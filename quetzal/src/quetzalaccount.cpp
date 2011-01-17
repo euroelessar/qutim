@@ -155,6 +155,7 @@ QuetzalAccount::QuetzalAccount(PurpleAccount *account, QuetzalProtocol *protocol
 	m_isLoading = false;
 	m_account = account;
 	m_account->ui_data = this;
+	fillStatusActions();
 	setContactsFactory(new QuetzalContactsFactory(this));
 	if (!purple_account_get_enabled(m_account, "qutim"))
 		purple_account_set_enabled(m_account, "qutim", TRUE);
@@ -181,6 +182,7 @@ QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) : A
 	}
 	m_account = purple_account_new(purpleId.toUtf8(), protocol->plugin()->info->id);
 	m_account->ui_data = this;
+	fillStatusActions();
 	setContactsFactory(new QuetzalContactsFactory(this));
 //	if (PURPLE_PLUGIN_PROTOCOL_INFO(m_account->gc->prpl)->chat_info != NULL) {
 //		addAction((new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Quetzal", "Join groupchat"), this, SLOT(showJoinGroupChat())))->setType(1));
@@ -228,6 +230,10 @@ QuetzalContact *QuetzalAccount::createContact(const QString &id)
 	PurpleBuddy *buddy = purple_buddy_new(m_account, id.toUtf8().constData(), 0);
 	purple_blist_add_buddy(buddy, pc, purple_contact_get_group(pc), NULL);
 	return m_contacts.value(id);
+}
+
+void QuetzalAccount::fillStatusActions()
+{
 }
 
 ChatUnit *QuetzalAccount::getUnitForSession(ChatUnit *unit)
@@ -394,7 +400,6 @@ void QuetzalAccount::save(PurpleBuddy *buddy)
 	} else {
 		contact = reinterpret_cast<QuetzalContact*>(buddy->node.ui_data);
 	}
-	qDebug() << Q_FUNC_INFO << __LINE__ << contact;
 	if (!contact)
 		return;
 	if (!m_isLoading) {

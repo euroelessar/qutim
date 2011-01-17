@@ -80,8 +80,6 @@ void initActions()
 	path += "/icons";
 	nativePath = QDir::toNativeSeparators(path).toUtf8();
 	purple_buddy_icons_set_cache_dir(nativePath.constData());
-	
-	purple_notify_warning(NULL, "Test", "also test", "message");
 }
 
 void QuetzalProtocol::addAccount(PurpleAccount *purpleAccount)

@@ -114,6 +114,7 @@ Status quetzal_get_status(PurpleStatusType *status_type, const QString &proto)
 //	FIXME
 //	return Status::instance(type, proto.toLatin1().constData());
 	Status status(type);
+	status.setName(purple_status_type_get_name(status_type));
 	status.initIcon(proto);
 	return status;
 }
@@ -202,7 +203,7 @@ void QuetzalContact::update(PurpleBuddy *buddy)
 	}
 	bool isConnected = buddy->account->gc && buddy->account->gc->state == PURPLE_CONNECTED;
 	Status status = isConnected ? quetzal_get_status(buddy->presence) : Status(Status::Offline);
-	qDebug() << Q_FUNC_INFO << status << purple_status_type_get_id(purple_status_get_type(purple_presence_get_active_status(buddy->presence)));
+//	qDebug() << Q_FUNC_INFO << status << purple_status_type_get_id(purple_status_get_type(purple_presence_get_active_status(buddy->presence)));
 //	debug() << Q_FUNC_INFO << buddy->name << m_status << status;
 	if (m_status.type() != status.type()
 		|| m_status.subtype() != status.subtype()
@@ -275,24 +276,30 @@ Status QuetzalContact::status() const
 	return m_status;
 }
 
-bool QuetzalContact::sendMessage(const Message &message)
+bool quetzal_send_message(PurpleAccount *account, Buddy *unit, const Message &message)
 {
-	PurpleBuddy *buddy = m_buddies.first();
-	PurpleConversation *conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, buddy->name, buddy->account);
+	if (!account->gc)
+		return false;
+	QByteArray name = unit->id().toUtf8().constData();
+	PurpleConversation *conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, name, account);
 	if (!conv) {
-		if (!buddy->account->gc)
-			return false;
-		if (ChatLayer::get(this, false)) {
-			conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, buddy->account, buddy->name);
+		if (ChatLayer::get(unit, false)) {
+			conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, account, name);
 		} else {
-			PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(buddy->account->gc->prpl);
-			int result = prpl->send_im(buddy->account->gc, buddy->name,
+			PurplePluginProtocolInfo *prpl = PURPLE_PLUGIN_PROTOCOL_INFO(account->gc->prpl);
+			int result = prpl->send_im(account->gc, name,
 									   message.text().toUtf8().constData(), static_cast<PurpleMessageFlags>(0));
 			return result > 0;
 		}
 	}
-	purple_conv_im_send(conv->u.im, message.text().toUtf8().constData());
+	purple_conv_im_send(PURPLE_CONV_IM(conv), message.text().toUtf8().constData());
 	return true;
+}
+
+bool QuetzalContact::sendMessage(const Message &message)
+{
+	PurpleBuddy *buddy = m_buddies.first();
+	return quetzal_send_message(buddy->account, this, message);
 }
 
 void QuetzalContact::setName(const QString &name)

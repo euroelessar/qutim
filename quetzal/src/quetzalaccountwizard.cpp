@@ -88,6 +88,7 @@ PurpleAccount *QuetzalAccountWizardPage::createAccount()
 			id = item.data().toString().toUtf8();
 		} else if (item.name() == QLatin1String("split")) {
 			PurpleAccountUserSplit *split = reinterpret_cast<PurpleAccountUserSplit*>(it->data);
+			it = it->next;
 			char sep = purple_account_user_split_get_separator(split);
 			id += sep;
 			id += item.data().toString().toUtf8();

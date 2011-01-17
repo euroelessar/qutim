@@ -141,7 +141,9 @@ void QuetzalChat::updateUser(const char *user)
 
 bool QuetzalChat::sendMessage(const Message &message)
 {
-	purple_conv_chat_send(m_conv->u.chat, message.text().toUtf8().constData());
+	if (!m_conv->account->gc)
+		return false;
+	purple_conv_chat_send(PURPLE_CONV_CHAT(m_conv), message.text().toUtf8().constData());
 	return true;
 }
 

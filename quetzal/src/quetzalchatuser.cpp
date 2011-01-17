@@ -43,9 +43,11 @@ void QuetzalChatUser::fixId()
 	}
 }
 
+extern bool quetzal_send_message(PurpleAccount *account, Buddy *buddy, const Message &message);
+
 bool QuetzalChatUser::sendMessage(const Message &message)
 {
-	return false;
+	return quetzal_send_message(m_conv->account, this, message);
 }
 
 Status QuetzalChatUser::status() const
