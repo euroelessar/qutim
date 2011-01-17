@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
-    <height>360</height>
+    <width>466</width>
+    <height>356</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,8 +33,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>470</width>
-        <height>360</height>
+        <width>466</width>
+        <height>356</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
@@ -205,6 +205,21 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>networkEdit</tabstop>
+  <tabstop>serversWidget</tabstop>
+  <tabstop>removeServerButton</tabstop>
+  <tabstop>moveUpServerButton</tabstop>
+  <tabstop>moveDownServerButton</tabstop>
+  <tabstop>serverEdit</tabstop>
+  <tabstop>portBox</tabstop>
+  <tabstop>protectedByPasswordBox</tabstop>
+  <tabstop>passwordEdit</tabstop>
+  <tabstop>passwordBox</tabstop>
+  <tabstop>addServerButton</tabstop>
+  <tabstop>updateServerButton</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

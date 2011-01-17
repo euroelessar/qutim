@@ -288,6 +288,15 @@ QString IcqAccount::name() const
 		return id();
 }
 
+void IcqAccount::setName(const QString &name)
+{
+	Q_D(IcqAccount);
+	if (name == d->name)
+		return;
+	d->name = name;
+	config("general").setValue("nick", name);
+}
+
 QString IcqAccount::avatar() const
 {
 	return d_func()->avatar;
@@ -472,6 +481,7 @@ bool IcqAccount::event(QEvent *ev)
 		UpdateAccountInfoMetaRequest *request = new UpdateAccountInfoMetaRequest(this, values);
 		connect(request, SIGNAL(infoUpdated()), request, SLOT(deleteLater()));
 		request->send();
+		setName(values.value(Nick, id()).toString());
 		event->accept();
 	}
 	return Account::event(ev);

@@ -264,7 +264,7 @@ void Roster::handleSNAC(AbstractConnection *conn, const SNAC &sn)
 		//              2 = Enable offline status message notification
 		//              4 = Enable Avatars for offline contacts
 		//              8 = Use reject for not authorized contacts
-		snac.appendTLV<quint16>(0x05, 10);
+		snac.appendTLV<quint16>(0x05, 7);
 		conn->send(snac);
 		break;
 	}

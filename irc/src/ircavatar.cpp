@@ -51,7 +51,7 @@ void IrcAvatar::handleCtpcRequest(IrcAccount *account, const QString &sender, co
 		account->sendCtpcReply(sender, "AVATAR", avatar);
 }
 
-void IrcAvatar::handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &,
+void IrcAvatar::handleCtpcResponse(IrcAccount *account, const QString &sender, const QString &senderHost,
 								   const QString &, const QString &cmd, const QString &params)
 {
 	Q_UNUSED(cmd);
@@ -59,7 +59,7 @@ void IrcAvatar::handleCtpcResponse(IrcAccount *account, const QString &sender, c
 	QUrl avatarUrl(avatarUrlStr);
 	if (!avatarUrl.isValid())
 		return;
-	QPointer<IrcContact> contact = account->getContact(sender);
+	QPointer<IrcContact> contact = account->getContact(sender, senderHost);
 	if (!contact)
 		return;
 	QDir configDir = SystemInfo::getDir(SystemInfo::ConfigDir);

@@ -72,6 +72,7 @@ private:
 	bool m_avatars;
 	QByteArray m_accountAvatar;
 	QByteArray m_avatarHash;
+	bool m_startup;
 	static QByteArray emptyHash;
 };
 

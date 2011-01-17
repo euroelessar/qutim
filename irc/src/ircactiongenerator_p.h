@@ -1,7 +1,7 @@
 /****************************************************************************
- *  irccontact_p.h
+ *  ircactiongenerator_p.h
  *
- *  Copyright (c) 2010 by Prokhin Alexey <alexey.prokhin@yandex.ru>
+ *  Copyright (c) 2011 by Prokhin Alexey <alexey.prokhin@yandex.ru>
  *
  ***************************************************************************
  *                                                                         *
@@ -11,40 +11,33 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************
- *****************************************************************************/
+*****************************************************************************/
 
-#ifndef IRCCONTACT_P_H
-#define IRCCONTACT_P_H
+#ifndef IRCACTIONGENERATOR_P_H
+#define IRCACTIONGENERATOR_P_H
 
-#include <irccontact.h>
-#include <QSet>
+#include "ircactiongenerator.h"
 
 namespace qutim_sdk_0_3 {
-
 namespace irc {
 
-class IrcContactPrivate
+class IrcActionGeneratorPrivate
 {
 public:
-	void ref();
-	void deref();
-	void updateNick(const QString &nick);
-private:
-	IrcContactPrivate() :
-		m_ref(0)
-	{}
-	friend class IrcContact;
-	IrcContact *q;
-	QString nick;
-	QString hostMask;
-	QString domain;
-	QString host;
-	QSet<QChar> modes;
-	QString avatar;
-	QString awayMsg;
-	mutable QAtomicInt m_ref;
+	IrcCommandAlias *command;
+	bool commandAutoDelete;
+};
+
+class IrcActionsManager : public QObject
+{
+	Q_OBJECT
+public:
+	IrcActionsManager();
+	static IrcActionsManager *instance();
+public slots:
+	void onIrcActionTriggered(QAction *action, QObject *controller);
 };
 
 } } // namespace qutim_sdk_0_3::irc
 
-#endif // IRCCONTACT_P_H
+#endif // IRCACTIONGENERATOR_P_H

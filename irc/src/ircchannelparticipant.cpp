@@ -26,18 +26,22 @@ class IrcChannelParticipantPrivate
 {
 public:
 	QPointer<IrcContact> contact;
+	QPointer<IrcChannel> channel;
 	IrcChannelParticipant::IrcParticipantFlags flags;
 };
 
-IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString &nick) :
+IrcChannelParticipant::IrcChannelParticipant(IrcChannel *channel, const QString &nick, const QString &host) :
 	Buddy(channel->account()), d(new IrcChannelParticipantPrivate)
 {
-	d->contact = channel->account()->getContact(nick, true);
+	d->channel = channel;
+	d->contact = channel->account()->getContact(nick, host, true);
 	d->contact->d->ref();
 	setMenuOwner(d->contact);
 	connect(d->contact, SIGNAL(nameChanged(QString,QString)), SIGNAL(nameChanged(QString,QString)));
 	connect(d->contact, SIGNAL(quit(QString)), SIGNAL(quit(QString)));
 	connect(d->contact, SIGNAL(avatarChanged(QString)), SIGNAL(avatarChanged(QString)));
+	connect(d->contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
+			SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)));
 }
 
 IrcChannelParticipant::~IrcChannelParticipant()
@@ -76,6 +80,28 @@ const IrcContact *IrcChannelParticipant::contact() const
 	return d->contact;
 }
 
+IrcChannel *IrcChannelParticipant::channel()
+{
+	return d->channel;
+}
+
+const IrcChannel *IrcChannelParticipant::channel() const
+{
+	return d->channel;
+}
+
+IrcAccount *IrcChannelParticipant::account()
+{
+	Q_ASSERT(qobject_cast<IrcAccount*>(ChatUnit::account()));
+	return reinterpret_cast<IrcAccount*>(ChatUnit::account());
+}
+
+const IrcAccount *IrcChannelParticipant::account() const
+{
+	Q_ASSERT(qobject_cast<const IrcAccount*>(ChatUnit::account()));
+	return reinterpret_cast<const IrcAccount*>(ChatUnit::account());
+}
+
 void IrcChannelParticipant::setFlag(QChar flag)
 {
 	if (flag == '+')
@@ -104,6 +130,21 @@ void IrcChannelParticipant::removeMode(QChar mode)
 		d->flags ^= HalfOp;
 	else if (mode == 'o')
 		d->flags ^= Op;
+}
+
+QString IrcChannelParticipant::hostMask() const
+{
+	return d->contact->hostMask();
+}
+
+QString IrcChannelParticipant::domain() const
+{
+	return d->contact->domain();
+}
+
+QString IrcChannelParticipant::host() const
+{
+	return d->contact->host();
 }
 
 } } // namespace qutim_sdk_0_3::irc

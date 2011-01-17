@@ -192,11 +192,8 @@ void OscarConnection::accountInfoReceived(bool ok)
 {
 	ShortInfoMetaRequest *req = qobject_cast<ShortInfoMetaRequest*>(sender());
 	Q_ASSERT(req);
-	if (ok && m_account->d_func()->name.isEmpty()) {
-		m_account->d_func()->name = req->value<QString>(Nick, m_account->id());
-		Config cfg = m_account->config("general");
-		cfg.setValue("nick", m_account->d_func()->name);
-	}
+	if (ok && m_account->d_func()->name.isEmpty())
+		m_account->setName(req->value<QString>(Nick, m_account->id()));
 	req->deleteLater();
 }
 

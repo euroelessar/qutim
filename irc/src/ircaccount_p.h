@@ -34,7 +34,7 @@ class IrcContact;
 class IrcAccountPrivate
 {
 public:
-	IrcContact *newContact(const QString &nick);
+	IrcContact *newContact(const QString &nick, const QString &host);
 	IrcChannel *newChannel(const QString &name);
 	void removeContact(IrcContact *contact);
 	friend class IrcAccount;

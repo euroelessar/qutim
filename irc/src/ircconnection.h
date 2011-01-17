@@ -22,6 +22,8 @@
 #include "ircaccount.h"
 #include <QTcpSocket>
 
+class QHostInfo;
+
 namespace qutim_sdk_0_3 {
 
 namespace irc {
@@ -73,12 +75,13 @@ public:
 private:
 	void tryConnectToNextServer();
 	void tryNextNick();
-	void handleTextMessage(const QString &who, const QString &to, const QString &text);
+	void handleTextMessage(const QString &from, const QString &fromHost, const QString &to, const QString &text);
 	void channelIsNotJoinedError(const QString &cmd, const QString &channel, bool reply = true);
 private slots:
 	void readData();
 	void stateChanged(QAbstractSocket::SocketState);
 	void error(QAbstractSocket::SocketError);
+	void hostFound(const QHostInfo &host);
 private:
 	QTcpSocket *m_socket;
 	QMultiMap<QString, IrcServerMessageHandler*> m_handlers;
@@ -91,6 +94,7 @@ private:
 	int m_currentNick;
 	QString m_fullName;
 	QTextCodec *m_codec;
+	int m_hostLookupId;
 	static QMultiHash<QString, IrcCommandAlias*> m_aliases;
 };
 

@@ -52,9 +52,24 @@ void AbstractMetaRequest::setTimeout(int msec)
 	d_func()->timer.setInterval(msec);
 }
 
+AbstractMetaRequest::ErrorType AbstractMetaRequest::errorType()
+{
+	return d_func()->errorType;
+}
+
+QString AbstractMetaRequest::errorString()
+{
+	return d_func()->errorString;
+}
+
 void AbstractMetaRequest::cancel()
 {
-	close(false);
+	close(false, Canceled, tr("The metarequest cancelled by user"));
+}
+
+void AbstractMetaRequest::timeout()
+{
+	close(false, Timeout, tr("The server did not answer on the metarequest"));
 }
 
 AbstractMetaRequest::AbstractMetaRequest(IcqAccount *account, AbstractMetaRequestPrivate *d) :
@@ -65,7 +80,8 @@ AbstractMetaRequest::AbstractMetaRequest(IcqAccount *account, AbstractMetaReques
 	d->ok = false;
 	d->timer.setInterval(60000);
 	d->timer.setSingleShot(true);
-	connect(&d->timer, SIGNAL(timeout()), this, SLOT(cancel()));
+	d->errorType = NoError;
+	connect(&d->timer, SIGNAL(timeout()), this, SLOT(timeout()));
 }
 
 void AbstractMetaRequest::sendRequest(quint16 type, const DataUnit &extendData) const
@@ -87,10 +103,12 @@ void AbstractMetaRequest::sendRequest(quint16 type, const DataUnit &extendData) 
 	d->timer.start();
 }
 
-void AbstractMetaRequest::close(bool ok)
+void AbstractMetaRequest::close(bool ok, ErrorType error, const QString &errorString)
 {
 	Q_D(AbstractMetaRequest);
 	d->ok = ok;
+	d->errorType = error;
+	d->errorString = errorString;
 	if (MetaInfo::instance().removeRequest(this) || ok)
 		emit done(ok);
 }

@@ -287,14 +287,7 @@ void XStatusHandler::processTlvs2711(IcqContact *contact, Capability guid, quint
 			debug() << "Skipped xtraz response" << response.serviceId() << "from" << response.value("uin");
 			return;
 		}
-		int index = response.value("index", "-1").toInt();
-		if (index > 0 && index < xstatusList()->size()) {
-			setXstatus(contact,
-					   response.value("title"),
-					   xstatusList()->at(index).icon,
-					   response.value("desc"));
-			debug() << "xstatus" << contact->name() << index << xstatusList()->at(index).value;
-		}
+		setXstatus(contact, response.value("title"), response.value("desc"));
 	}
 }
 
@@ -347,10 +340,11 @@ void XStatusHandler::removeXStatuses(Capabilities &caps)
 		caps.removeAll(xstatus.capability);
 }
 
-void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const ExtensionIcon &icon, const QString &desc)
+void XStatusHandler::setXstatus(IcqContact *contact, const QString &title, const QString &desc)
 {
 	Status status = contact->status();
-	setXstatus(status, title, icon, desc);
+	QVariant icon = status.extendedInfo("xstatus").value("icon");
+	setXstatus(status, title, icon.value<ExtensionIcon>(), desc);
 	contact->setStatus(status);
 }
 
@@ -366,7 +360,7 @@ void XStatusHandler::setXstatus(Status &status, const QString &title, const Exte
 	status.setExtendedInfo("xstatus", extStatus);
 }
 
-void XStatusHandler::setAcountXstatus(IcqAccount *account, QVariantHash extStatus, const XStatus &xstatus)
+void XStatusHandler::setAcountXstatus(IcqAccount *account, QVariantHash extStatus, const XStatus &xstatus, bool saveToConfig)
 {
 	{
 		// Send icq-xstatus-about-to-be-changed event
@@ -379,11 +373,13 @@ void XStatusHandler::setAcountXstatus(IcqAccount *account, QVariantHash extStatu
 		extStatus.insert("icon", xstatus.icon.toIcon());
 	account->setProperty("xstatus", extStatus);
 	account->setCapability(xstatus.capability, "xstatus");
-	Config cfg = account->config("xstatus");
-	QHashIterator<QString, QVariant> itr(extStatus);
-	while (itr.hasNext()) {
-		itr.next();
-		cfg.setValue(itr.key(), itr.value());
+	if (saveToConfig) {
+		Config cfg = account->config("xstatus");
+		QHashIterator<QString, QVariant> itr(extStatus);
+		while (itr.hasNext()) {
+			itr.next();
+			cfg.setValue(itr.key(), itr.value());
+		}
 	}
 	{
 		// Send icq-xstatus-changed event
@@ -392,13 +388,13 @@ void XStatusHandler::setAcountXstatus(IcqAccount *account, QVariantHash extStatu
 	}
 }
 
-void XStatusHandler::setAcountXstatus(IcqAccount *account, QVariantHash extStatus)
+void XStatusHandler::setAcountXstatus(IcqAccount *account, QVariantHash extStatus, bool saveToConfig)
 {
 	int index = xstatusIndexByName(extStatus.value("name").toString());
 	XStatus xstatus = xstatusList()->value(index);
 	if (index <= 0 || index >= xstatusList()->count()) // unknown x-status
 		extStatus.clear();
-	setAcountXstatus(account, extStatus, xstatus);
+	setAcountXstatus(account, extStatus, xstatus, saveToConfig);
 }
 
 bool XStatusHandler::eventFilter(QObject *obj, QEvent *e)
@@ -453,7 +449,7 @@ void XStatusHandler::onAccountAdded(qutim_sdk_0_3::Account *account)
 	Config cfg = account->config("xstatus");
 	foreach (const QString &key, cfg.childKeys())
 		extStatus.insert(key, cfg.value(key));
-	setAcountXstatus(static_cast<IcqAccount*>(account), extStatus);
+	setAcountXstatus(static_cast<IcqAccount*>(account), extStatus, false);
 	account->installEventFilter(this);
 }
 

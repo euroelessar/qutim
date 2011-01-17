@@ -44,6 +44,7 @@ public:
 	virtual void setStatus(Status status);
 	void setStatus(OscarStatusEnum status);
 	virtual QString name() const;
+	void setName(const QString &name);
 	QString avatar() const;
 	void setAvatar(const QString &avatar);
 	Feedbag *feedbag();

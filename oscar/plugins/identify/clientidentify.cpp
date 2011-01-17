@@ -988,9 +988,12 @@ void ClientIdentify::identify_LibGaim()
 			setClientData("Pidgin/AdiumX", "pidgin");
 		else
 			setClientData("Gaim/AdiumX", "gaim");
-	} else if ((newver >= 1) && (m_client_proto == 0)) {
-		if(IconSupport() && Utf8Support())
+	} else if ((newver >= 1) && Utf8Support()) {
+		if((m_client_proto == 0 && IconSupport()) ||
+		   (m_client_proto == 8 && m_client_caps.contains(ICQ_CAPABILITY_BART)))
+		{
 			setClientData("Meebo", "meebo");
+		}
 	}
 }
 

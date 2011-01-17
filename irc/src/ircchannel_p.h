@@ -22,6 +22,14 @@ namespace qutim_sdk_0_3 {
 
 namespace irc {
 
+class IrcJoinLeftActionGenerator : public ActionGenerator
+{
+public:
+	IrcJoinLeftActionGenerator(QObject *receiver, const char *member);
+protected:
+	virtual void showImpl(QAction *action, QObject *obj);
+};
+
 typedef QSharedPointer<IrcChannelParticipant> ParticipantPointer;
 
 class IrcChannelPrivate

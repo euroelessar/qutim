@@ -18,6 +18,7 @@
 #include "ircchannel.h"
 #include "ircchannelparticipant.h"
 #include "ircconnection.h"
+#include "ircchannel_p.h"
 #include <QStringList>
 #include <QPointer>
 #include <qutim/actiongenerator.h>
@@ -64,6 +65,8 @@ void IrcProtocol::loadAccounts()
 	gen->setPriority(35);
 	gen->setType(ActionTypeContactList | 0x2000);
 	MenuController::addAction<IrcAccount>(gen);
+	gen = new IrcJoinLeftActionGenerator(this, SLOT(onJoinLeftChannel(QObject*)));
+	MenuController::addAction<IrcChannel>(gen);
 	// Register status actions.
 	Status status(Status::Online);
 	status.initIcon("irc");
@@ -286,6 +289,17 @@ void IrcProtocol::onSessionActivated(bool active)
 		d->activeSession = 0;
 	else if (session && active && qobject_cast<IrcChannel*>(session->getUnit()))
 		d->activeSession = session;
+}
+
+void IrcProtocol::onJoinLeftChannel(QObject *channel_helper)
+{
+	IrcChannel *channel = qobject_cast<IrcChannel*>(channel_helper);
+	if (!channel)
+		return;
+	if (channel->isJoined())
+		channel->leave();
+	else
+		channel->join();
 }
 
 } } // namespace qutim_sdk_0_3::irc

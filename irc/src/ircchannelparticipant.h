@@ -25,6 +25,7 @@ namespace irc {
 class IrcChannelParticipantPrivate;
 class IrcChannel;
 class IrcContact;
+class IrcAccount;
 
 class IrcChannelParticipant : public Buddy
 {
@@ -37,7 +38,7 @@ public:
 		Op
 	};
 	Q_DECLARE_FLAGS(IrcParticipantFlags, IrcParticipantFlag);
-	IrcChannelParticipant(IrcChannel *channel, const QString &nick);
+	IrcChannelParticipant(IrcChannel *channel, const QString &nick, const QString &host);
 	~IrcChannelParticipant();
 	virtual bool sendMessage(const Message &message);
 	virtual QString id() const;
@@ -45,9 +46,16 @@ public:
 	virtual QString avatar() const;
 	IrcContact *contact();
 	const IrcContact *contact() const;
+	IrcChannel *channel();
+	const IrcChannel *channel() const;
+	IrcAccount *account();
+	const IrcAccount *account() const;
 	void setFlag(QChar flag);
 	void setMode(QChar mode);
 	void removeMode(QChar mode);
+	QString hostMask() const; // ~sokol@h255-255-255-255.net.pnz.ru
+	QString domain() const; // h255-255-255-255.net.pnz.ru
+	QString host() const; // net.pnz.ru
 signals:
 	void quit(const QString &message);
 private:

@@ -67,10 +67,8 @@ QString IrcCommandAlias::generate(IrcCommandAlias::Type aliasType, const QString
 		if (isIndex) {
 			// Replace template by parameter(s) from the command line
 			Q_ASSERT(index >= 0);
-			if (index >= params.size()) {
-				if (error) *error = QObject::tr("Not enough parameters for command %1").arg(d->name);
-				return QString();
-			}
+			if (index >= params.size())
+				goto Lerr;
 			if (paramRx.cap(2) != "-") {
 				param = params.at(index);
 			} else {
@@ -83,17 +81,22 @@ QString IrcCommandAlias::generate(IrcCommandAlias::Type aliasType, const QString
 		} else {
 			// Replace template by built-in parameter
 			QChar extParamIndex = paramRx.cap(1).at(0);
-			if (extParams.contains(extParamIndex)) {
+			if (extParamIndex == '%') {
+				pos += 1;
+				continue;
+			} else if (extParams.contains(extParamIndex)) {
 				param = extParams.value(extParamIndex);
 			} else {
-				pos += paramRx.matchedLength();
-				continue;
+				goto Lerr;
 			}
 		}
 		command.replace(pos, paramRx.matchedLength(), param);
 		pos += param.size();
 	}
 	return command;
+Lerr:
+	if (error) *error = QObject::tr("Not enough parameters for command %1").arg(d->name);
+	return QString();
 }
 
 } } // namespace qutim_sdk_0_3::irc

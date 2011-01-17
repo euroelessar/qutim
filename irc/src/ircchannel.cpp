@@ -23,6 +23,22 @@ namespace qutim_sdk_0_3 {
 
 namespace irc {
 
+IrcJoinLeftActionGenerator::IrcJoinLeftActionGenerator(QObject *receiver, const char *member) :
+	ActionGenerator(QIcon(), "", receiver, member)
+{
+}
+
+void IrcJoinLeftActionGenerator::showImpl(QAction *action, QObject *obj)
+{
+	IrcChannel *channel = qobject_cast<IrcChannel*>(obj);
+	if (!channel)
+		return;
+	if (channel->isJoined())
+		action->setText(QT_TR_NOOP("Leave the channel"));
+	else
+		action->setText(QT_TR_NOOP("Join the channel"));
+}
+
 IrcChannel::IrcChannel(IrcAccount *account, const QString &name) :
 	Conference(account), d(new IrcChannelPrivate)
 {
@@ -213,7 +229,7 @@ void IrcChannel::handleUserList(const QStringList &users)
 				d->users.value(userNick)->setFlag(flag);
 			continue;
 		}
-		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, userNick));
+		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, userNick, QString()));
 		if (isMe) {
 			connect(user.data(), SIGNAL(nameChanged(QString,QString)), SLOT(onMyNickChanged(QString)));
 			d->me = user;
@@ -236,7 +252,7 @@ void IrcChannel::handleJoin(const QString &nick, const QString &host)
 		d->isJoined = true;
 		emit joined();
 	} else if (!d->users.contains(nick)) { // Someone has joined the channel.
-		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, nick));
+		ParticipantPointer user = ParticipantPointer(new IrcChannelParticipant(this, nick, host));
 		connect(user.data(), SIGNAL(nameChanged(QString,QString)), SLOT(onParticipantNickChanged(QString)));
 		connect(user.data(), SIGNAL(quit(QString)), SLOT(onContactQuit(QString)));
 		d->users.insert(nick, user);

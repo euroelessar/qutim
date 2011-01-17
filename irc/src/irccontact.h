@@ -30,15 +30,19 @@ class IrcContact : public Buddy
 {
 	Q_OBJECT
 public:
-	IrcContact(IrcAccount *account, const QString &nick);
+	IrcContact(IrcAccount *account, const QString &nick, const QString &host);
 	~IrcContact();
 	virtual QString id() const;
 	virtual bool sendMessage(const Message &message);
 	virtual QString avatar() const;
+	virtual Status status() const;
 	void setAvatar(const QString &avatar);
 	const IrcAccount *account() const;
 	IrcAccount *account();
 	QSet<QChar> modes();
+	QString hostMask() const; // ~sokol@h255-255-255-255.net.pnz.ru
+	QString domain() const; // h255-255-255-255.net.pnz.ru
+	QString host() const; // net.pnz.ru
 signals:
 	void quit(const QString &message);
 private slots:
@@ -47,7 +51,10 @@ private:
 	friend class IrcContactPrivate;
 	friend class IrcChannelParticipant;
 	friend class IrcConnection;
+	friend class IrcAccount;
 	void handleMode(const QString &who, const QString &mode, const QString &param);
+	void setAway(const QString &awayMsg);
+	void setHost(const QString &host);
 	QScopedPointer<IrcContactPrivate> d;
 };
 

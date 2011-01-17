@@ -279,7 +279,7 @@ bool FullInfoMetaRequest::handleData(quint16 type, const DataUnit &data)
 		break;
 	}
 	default:
-		close(false);
+		close(false, ProtocolError, tr("Incorrect format of the metarequest"));
 		return false;
 	}
 	emit infoUpdated(static_cast<State>(type));

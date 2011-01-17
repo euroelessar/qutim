@@ -46,7 +46,7 @@ public:
 	virtual ChatUnit *getUnitForSession(ChatUnit *unit);
 	virtual ChatUnit *getUnit(const QString &unitId, bool create = false);
 	IrcChannel *getChannel(const QString &name, bool create = false);
-	IrcContact *getContact(const QString &nick, bool create = false);
+	IrcContact *getContact(const QString &nick, const QString &host, bool create = false);
 	void send(const QString &command, IrcCommandAlias::Type aliasType = IrcCommandAlias::Disabled,
 			  const ExtendedParams &extParams = ExtendedParams()) const;
 	void sendCtpcRequest(const QString &contact, const QString &cmd, const QString &params);
