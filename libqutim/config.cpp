@@ -22,6 +22,8 @@
 #include <QStringList>
 #include <QFileInfo>
 #include <QDateTime>
+#include <QEvent>
+#include <QCoreApplication>
 
 namespace qutim_sdk_0_3
 {
@@ -78,16 +80,19 @@ namespace qutim_sdk_0_3
 		Q_DISABLE_COPY(ConfigSource)
 	public:
 		typedef QExplicitlySharedDataPointer<ConfigSource> Ptr;
-		inline ConfigSource() : backend(0), dirty(false) { update(); }
+		inline ConfigSource() : backend(0), dirty(false), isAtLoop(false) {}
 		inline ~ConfigSource() {}
 		static ConfigSource::Ptr open(const QString &path, bool systemDir, bool create);
-		inline void update() { lastUse = QDateTime::currentDateTime(); }
+		inline void update() { lastModified = QFileInfo(fileName).lastModified(); }
+		bool isValid() { return QFileInfo(fileName).lastModified() == lastModified; }
+		void sync();
 		
 		QString fileName;
 		ConfigBackend *backend;
 		bool dirty;
+		bool isAtLoop;
 		ConfigAtom data;
-		QDateTime lastUse;
+		QDateTime lastModified;
 	};
 	
 	typedef QHash<QString, ConfigSource::Ptr> ConfigSourceHash;
@@ -112,10 +117,8 @@ namespace qutim_sdk_0_3
 		fileName = QDir::cleanPath(fileName);
 		
 		ConfigSource::Ptr result = sourceHash()->value(path);
-		if (result) {
-			result->update();
+		if (result && result->isValid())
 			return result;
-		}
 		
 		ConfigBackend *backend = 0;
 		
@@ -139,10 +142,8 @@ namespace qutim_sdk_0_3
 			fileName += QLatin1String(backend->name());
 			
 			result = sourceHash()->value(path);
-			if (result) {
-				result->update();
+			if (result && result->isValid())
 				return result;
-			}
 			info.setFile(fileName);
 		}
 		
@@ -163,6 +164,7 @@ namespace qutim_sdk_0_3
 		// QFileInfo says that we can't write to non-exist files but we can
 		d->data.readOnly = !info.isWritable() && (systemDir || info.exists());
 		
+		d->update();
 		QVariant var = d->backend->load(d->fileName);
 		if (var.type() == QVariant::Map) {
 			d->data.map = new QVariantMap(var.toMap());
@@ -180,6 +182,35 @@ namespace qutim_sdk_0_3
 		sourceHash()->insert(path, result);
 		return result;
 	}
+	
+	class PostConfigSaveEvent : public QEvent
+	{
+	public:
+		PostConfigSaveEvent(const ConfigSource::Ptr &s) : QEvent(eventType()), source(s) {}
+		static Type eventType()
+		{
+			static Type type = static_cast<Type>(registerEventType());
+			return type;
+		}
+		ConfigSource::Ptr source;
+	};
+	
+	class PostConfigSaver : public QObject
+	{
+	public:
+		virtual bool event(QEvent *ev)
+		{
+			if (ev->type() == PostConfigSaveEvent::eventType()) {
+				PostConfigSaveEvent *saveEvent = static_cast<PostConfigSaveEvent*>(ev);
+				saveEvent->source->sync();
+				saveEvent->source->isAtLoop = false;
+				return true;
+			}
+			return QObject::event(ev);
+		}
+	};
+	
+	Q_GLOBAL_STATIC(PostConfigSaver, postConfigSaver)
 
 	class ConfigPrivate : public QSharedData
 	{
@@ -195,18 +226,33 @@ namespace qutim_sdk_0_3
 		QExplicitlySharedDataPointer<ConfigPrivate> memoryGuard;
 	};
 	
+	void ConfigSource::sync()
+	{
+		const ConfigAtom * const level = &data;
+		if (level->typeMap)
+			backend->save(fileName, *(level->map));
+		else
+			backend->save(fileName, *(level->list));
+		dirty = false;
+		update();
+	}
+	
 	void ConfigPrivate::sync()
 	{
 		if (sources.isEmpty())
 			return;
-		ConfigSource *source = sources.value(0).data();
+		ConfigSource::Ptr source = sources.value(0);
 		if (source && source->dirty) {
-			const ConfigAtom * const level = &source->data;
-			if (level->typeMap)
-				source->backend->save(source->fileName, *(level->map));
-			else
-				source->backend->save(source->fileName, *(level->list));
+			static int evilCounter = 0;
+			static int goodCounter = 0;
+			evilCounter++;
+			goodCounter += !source->isAtLoop;
+			qDebug("%s %d %d", Q_FUNC_INFO, evilCounter, goodCounter);
+		}
+		if (source && source->dirty && !source->isAtLoop) {
+			source->isAtLoop = true;
 			source->dirty = false;
+			QCoreApplication::postEvent(postConfigSaver(), new PostConfigSaveEvent(source), -2);
 		}
 	}
 	

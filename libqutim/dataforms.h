@@ -563,7 +563,7 @@ signals:
 	void rejected();
 	void helpRequested();
 	void clicked(int buttonIndex);
-	void clicked(AbstractDataForm::StandardButton standartButton);
+	void clicked(qutim_sdk_0_3::AbstractDataForm::StandardButton standartButton);
 	/**
 	The signal is emitted when the state of the data form has been changed.
 	\see isChanged()

@@ -72,7 +72,7 @@ void SimpleRosterStorage::addContact(Contact *contact, const QString &version)
 	context.indexes.insert(contact, index);
 	cfg.setArrayIndex(index);
 	cfg.setValue(QLatin1String("id"), contact->id());
-	QVariantMap data;
+	QVariantMap data = cfg.value(QLatin1String("data"), QVariantMap());
 	factory->serialize(contact, data);
 	cfg.setValue(QLatin1String("data"), data);
 }
@@ -89,7 +89,7 @@ void SimpleRosterStorage::updateContact(Contact *contact, const QString &version
 	cfg.setValue(QLatin1String("version"), version);
 	cfg.beginArray(QLatin1String("contacts"));
 	cfg.setArrayIndex(context.indexes.value(contact));
-	QVariantMap data;
+	QVariantMap data = cfg.value(QLatin1String("data"), QVariantMap());
 	factory->serialize(contact, data);
 	cfg.setValue(QLatin1String("data"), data);
 }

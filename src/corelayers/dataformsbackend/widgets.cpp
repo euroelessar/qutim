@@ -39,7 +39,7 @@ static inline void connectSignalsHelper(QWidget *widget, DefaultDataForm *dataFo
 	if (item.dataChangedReceiver()) {
 		Q_ASSERT(item.dataChangedMethod());
 		QObject::connect(widget, dataChangedSignal, widget, SLOT(onChanged()));
-		QObject::connect(widget, SIGNAL(changed(QString,QVariant,AbstractDataForm*)),
+		QObject::connect(widget, SIGNAL(changed(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*)),
 						 item.dataChangedReceiver(), item.dataChangedMethod());
 	}
 }
@@ -142,11 +142,12 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 	QComboBox(parent), AbstractDataWidget(dataForm)
 {
 	int current = -1;
-	int i = 0;
-	foreach (const LocalizedString &str, alt) {
+	QVariantList ids = item.property("identificators", QVariantList());
+	for (int i = 0; i < alt.size(); i++) {
+		QString str = alt.at(i);
 		if (value == str)
 			current = i;
-		addItem(str);
+		addItem(str, ids.value(i));
 		++i;
 	}
 	setCurrentIndex(current);
@@ -161,7 +162,9 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 
 DataItem ComboBox::item() const
 {
-	return DataItem(objectName(), LocalizedString(), currentText());
+	DataItem data(objectName(), LocalizedString(), currentText());
+	data.setProperty("identificator", itemData(currentIndex()));
+	return data;
 }
 
 void ComboBox::setData(const QVariant &data)
@@ -303,7 +306,7 @@ LineEdit::LineEdit(DefaultDataForm *dataForm, const DataItem &item, const QStrin
 	m_emitChangedSignal = item.dataChangedReceiver();
 	if (m_emitChangedSignal) {
 		Q_ASSERT(item.dataChangedMethod());
-		connect(this, SIGNAL(changed(QString,QVariant,AbstractDataForm*)),
+		connect(this, SIGNAL(changed(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*)),
 				item.dataChangedReceiver(), item.dataChangedMethod());
 	}
 }
@@ -519,7 +522,7 @@ IconWidget::IconWidget(DefaultDataForm *dataForm, const DataItem &item, QWidget 
 	m_emitChangedSignal = item.dataChangedReceiver();
 	if (m_emitChangedSignal) {
 		Q_ASSERT(item.dataChangedMethod());
-		connect(this, SIGNAL(changed(QString,QVariant,AbstractDataForm*)),
+		connect(this, SIGNAL(changed(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*)),
 				item.dataChangedReceiver(), item.dataChangedMethod());
 	}
 }
@@ -656,7 +659,7 @@ StringListGroup::StringListGroup(DefaultDataForm *dataForm, const DataItem &item
 		dataForm->addWidget(item.name(), this);
 	if (item.dataChangedReceiver()) {
 		Q_ASSERT(item.dataChangedMethod());
-		connect(this, SIGNAL(changed(QString,QVariant,AbstractDataForm*)),
+		connect(this, SIGNAL(changed(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*)),
 				item.dataChangedReceiver(), item.dataChangedMethod());
 		connect(this, SIGNAL(rowAdded()), SLOT(onChanged()));
 		connect(this, SIGNAL(rowRemoved()), SLOT(onChanged()));
