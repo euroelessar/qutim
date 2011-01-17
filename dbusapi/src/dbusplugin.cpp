@@ -29,6 +29,9 @@
 
 QDBusArgument &operator<<(QDBusArgument &argument, const Status &status)
 {
+	// At first time Qt calls this method with default-constructed
+	// status to research type signature and some-thing else than
+	// map's begind and end will discourage it. So lets fake it.
 	static bool first = true;
 	argument.beginMap(QVariant::String, qMetaTypeId<QDBusVariant>());
 	if (first) {

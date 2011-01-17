@@ -37,10 +37,13 @@ namespace UrlPreview
 				  QT_TRANSLATE_NOOP("Task","Developer"),
 				  QLatin1String("sauron@citadelspb.com"),
 				  QLatin1String("sauron.me"));
+		m_netman = 0;
 	}
 	
 	bool UrlPreviewPlugin::load()
 	{
+		if (m_netman)
+			return false;
 		ChatLayer *layer = ChatLayer::instance();
 		m_netman =  new QNetworkAccessManager(this);
 
@@ -65,12 +68,16 @@ namespace UrlPreview
 		m_image_template = "<img src=\"%URL%\" style=\"display: none;\" onload=\"if (this.width>%MAXW%) this.style.width='%MAXW%px'; if (this.height>%MAXH%) { this.style.width=''; this.style.height='%MAXH%px'; } this.style.display='';\"><br>";
 		m_youtube_template = "<img src=\"http://img.youtube.com/vi/%YTID%/1.jpg\"> <img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\"> <img src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
 
-		return false;
+		return true;
 	}
 	
 	bool UrlPreviewPlugin::unload()
 	{
-		m_netman->deleteLater();
+		if (m_netman) {
+			m_netman->deleteLater();
+			m_netman = 0;
+			return true;
+		}
 		return false;
 	}
 	
@@ -88,6 +95,8 @@ namespace UrlPreview
 	
 	void UrlPreviewPlugin::processMessage(qutim_sdk_0_3::Message* message)
 	{		
+		if (!m_netman)
+			return;
 		//TODO may be need refinement
 		QString html = message->property("html").toString();
 		if (html.isEmpty())

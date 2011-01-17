@@ -22,8 +22,9 @@
 #include <QApplication>
 
 ProxyContact::ProxyContact(Conference *conf) :
-	Contact(ClConfPlugin::instance()->account(conf->account())), m_conf(conf), m_conn(false)
+	Contact(ClConfPlugin::instance()->account(conf->account())), m_conf(conf)
 {
+	m_conn = conf->isJoined();
 	connect(conf, SIGNAL(destroyed()), SLOT(deleteLater()));
 	setMenuOwner(m_conf);
 	setMenuFlags(ShowOwnerActions);

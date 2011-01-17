@@ -98,6 +98,7 @@ YandexNarodUploadDialog::YandexNarodUploadDialog(
 			: m_contact(contact), m_networkManager(networkManager), m_authorizator(authorizator)
 {
 	ui.setupUi(this);
+	m_finished = false;
 	connect(ui.btnUploadCancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
 	connect(ui.btnUploadCancel, SIGNAL(clicked()), this, SLOT(close()));
 	qutim_sdk_0_3::centerizeWidget(this);
@@ -303,7 +304,8 @@ void YandexNarodUploadDialog::progressReply()
 //		"random": "1263553668S4gHxbB2nJSd2clhhfYimsfM",
 //		"time": { "min": "0","sec": "01" }
 //		}
-	} else if (status == "done") {
+	} else if (status == "done" && !m_finished) {
+		m_finished = true;
 //		{
 //		"tid": "1263553646SvsF9FFimF5thmoM2kGTwxL9",
 //		"status": "done",

@@ -70,6 +70,7 @@ private:
 	QVariantMap m_someData;
 	Ui::uploadDialogClass ui;
 	QTimer m_timer;
+	bool m_finished;
 
 signals:
 	void canceled();
