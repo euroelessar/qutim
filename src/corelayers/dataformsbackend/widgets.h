@@ -29,8 +29,6 @@ class Label : public QLabel, public AbstractDataWidget
 public:
 	Label(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent = 0);
 	virtual DataItem item() const;
-private:
-	DataItem m_item;
 };
 
 class CheckBox : public QCheckBox, public AbstractDataWidget
@@ -42,7 +40,7 @@ public:
 	virtual DataItem item() const;
 	virtual void setData(const QVariant &data);
 signals:
-        void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
+	void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -59,7 +57,7 @@ public:
 	virtual DataItem item() const;
 	virtual void setData(const QVariant &data);
 signals:
-        void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
+	void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -74,7 +72,7 @@ public:
 	virtual void setData(const QVariant &data);
 	QVariant data() const;
 signals:
-        void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
+	void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -89,7 +87,7 @@ public:
 	virtual void setData(const QVariant &data);
 	QVariant data() const;
 signals:
-        void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
+	void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -103,7 +101,7 @@ public:
 	virtual DataItem item() const;
 	QVariant data() const;
 signals:
-        void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
+	void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -119,7 +117,7 @@ public:
 	virtual void setData(const QVariant &data);
 	QVariant data() const;
 signals:
-        void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
+	void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
 private slots:
 	void textChanged(const QString &text);
 private:
@@ -138,7 +136,7 @@ public:
 	virtual DataItem item() const;
 	virtual void setData(const QVariant &data);
 signals:
-        void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
+	void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -152,7 +150,7 @@ public:
 	virtual DataItem item() const;
 	virtual void setData(const QVariant &data);
 signals:
-        void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
+	void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 };
@@ -167,7 +165,7 @@ public:
 	virtual void setData(const QVariant &data);
 	QVariant data() const;
 signals:
-        void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
+	void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 private:
@@ -185,7 +183,7 @@ public:
 	virtual void setData(const QVariant &data);
 	QVariant data() const;
 signals:
-        void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
+	void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
 public slots:
 	void setIcon();
 	void removeIcon();
@@ -231,12 +229,11 @@ public:
 	virtual void setData(const QVariant &data);
 	QVariant data() const;
 signals:
-        void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
+	void changed(const QString &name, const QVariant &data, qutim_sdk_0_3::AbstractDataForm *dataForm);
 private slots:
 	void onChanged();
 private:
 	QStringList m_alt;
-	DataItem m_item;
 };
 
 }

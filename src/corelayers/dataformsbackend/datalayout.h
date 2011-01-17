@@ -21,7 +21,7 @@ class DataLayout : public QGridLayout, public AbstractDataWidget
 {
 	Q_INTERFACES(Core::AbstractDataWidget)
 public:
-	DataLayout(DefaultDataForm *dataForm, quint8 columns, QWidget *parent = 0);
+	DataLayout(const DataItem &item, DefaultDataForm *dataForm, quint8 columns, QWidget *parent = 0);
 	~DataLayout();
 	DataItem item() const;
 	DataItem item(bool hasSubitems) const;

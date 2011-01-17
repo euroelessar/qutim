@@ -8,36 +8,25 @@
 
 namespace Core {
 
-ModifiableWidget::ModifiableWidget(DefaultDataForm *dataForm, QWidget *parent) :
-		QWidget(parent),
-		AbstractDataWidget(dataForm)
-{
-	init();
-}
-
 ModifiableWidget::ModifiableWidget(const DataItem &item, DefaultDataForm *dataForm, QWidget *parent) :
 		QWidget(parent),
-		AbstractDataWidget(dataForm),
-		m_def(item.defaultSubitem()),
-		m_max(item.maxSubitemsCount())
+		AbstractDataWidget(item, dataForm)
 {
-	init();
-	foreach (const DataItem &subitem, item.subitems())
-		addRow(subitem);
-}
-
-ModifiableWidget::~ModifiableWidget()
-{
-}
-
-void ModifiableWidget::init()
-{
-	m_max = -1;
 	m_layout = new QGridLayout(this);
 	m_addButton = new QPushButton(this);
 	m_addButton->setIcon(Icon("list-add"));
 	connect(m_addButton, SIGNAL(clicked()), SLOT(onAddRow()));
 	m_layout->addWidget(m_addButton, 0, 1, 1, 1);
+	if (!item.isNull()) {
+		m_def = item.defaultSubitem();
+		m_max = item.maxSubitemsCount();
+		foreach (const DataItem &subitem, item.subitems())
+			addRow(subitem);
+	}
+}
+
+ModifiableWidget::~ModifiableWidget()
+{
 }
 
 Qt::Alignment ModifiableWidget::labelAlignment() const
@@ -88,7 +77,7 @@ void ModifiableWidget::addRow(const DataItem &item)
 
 DataItem ModifiableWidget::item() const
 {
-	DataItem items;
+	DataItem items = m_item;
 	items.setName(objectName());
 	items.allowModifySubitems(m_def, m_max);
 	foreach (const WidgetLine &line, m_widgets)

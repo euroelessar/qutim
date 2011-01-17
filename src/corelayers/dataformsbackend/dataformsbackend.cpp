@@ -30,7 +30,7 @@ DefaultDataForm::DefaultDataForm(const DataItem &item, StandardButtons standartB
 			layout->addItem(spacer);
 		}
 	} else {
-		dataLayout = new DataLayout(this, item.property<quint16>("columns", 1), this);
+		dataLayout = new DataLayout(item, this, item.property<quint16>("columns", 1), this);
 		QVariant spacing = item.property("horizontalSpacing");
 		if (spacing.canConvert(QVariant::Int))
 			dataLayout->setHorizontalSpacing(spacing.toInt());

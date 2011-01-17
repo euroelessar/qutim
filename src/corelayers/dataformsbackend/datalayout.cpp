@@ -8,9 +8,9 @@
 namespace Core
 {
 
-DataLayout::DataLayout(DefaultDataForm *dataForm, quint8 columns, QWidget *parent) :
+DataLayout::DataLayout(const DataItem &item, DefaultDataForm *dataForm, quint8 columns, QWidget *parent) :
 	QGridLayout(parent),
-	AbstractDataWidget(dataForm),
+	AbstractDataWidget(item, dataForm),
 	m_style(0),
 	m_row(0),
 	m_expandable(false)
@@ -29,7 +29,7 @@ DataLayout::~DataLayout()
 
 DataItem DataLayout::item() const
 {
-	DataItem items;
+	DataItem items = m_item;
 	items.setName(objectName());
 	foreach (const WidgetLine &line, m_widgets)
 		items.addSubitem(getDataItem(line.title, line.data));
