@@ -61,9 +61,9 @@ uint QuetzalTimer::addTimer(guint interval, GSourceFunc function, gpointer data)
 	return static_cast<uint>(id);
 }
 
-int QuetzalTimer::startTimer(int interval, int id)
+void QuetzalTimer::startTimer(int interval, int id)
 {
-	QMutexLocker locker(m_timerMutex);
+	QMutexLocker locker(&m_timerMutex);
 	m_evil.insert(id, QObject::startTimer(interval));
 	static int count = 0;
 	qDebug("Invoked startTimer: %d", ++count);
