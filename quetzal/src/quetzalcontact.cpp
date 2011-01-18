@@ -220,16 +220,20 @@ int QuetzalContact::addBuddy(PurpleBuddy *buddy)
 {
 	buddy->node.ui_data = this;
 	m_buddies << buddy;
+	QStringList oldTags = m_tags;
 	if (PurpleGroup *group = purple_buddy_get_group(buddy))
 		m_tags.append(group->name);
+	emit tagsChanged(m_tags, oldTags);
 	return m_buddies.size();
 }
 
 int QuetzalContact::removeBuddy(PurpleBuddy *buddy)
 {
 	m_buddies.removeOne(buddy);
+	QStringList oldTags = m_tags;
 	if (PurpleGroup *group = purple_buddy_get_group(buddy))
 		m_tags.removeOne(group->name);
+	emit tagsChanged(m_tags, oldTags);
 	return m_buddies.size();
 }
 

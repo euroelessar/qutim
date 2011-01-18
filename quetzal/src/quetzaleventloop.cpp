@@ -40,16 +40,35 @@ QuetzalTimer *QuetzalTimer::instance()
 
 uint QuetzalTimer::addTimer(guint interval, GSourceFunc function, gpointer data)
 {
-	Q_ASSERT(QThread::currentThread() == qApp->thread());
-	int id = startTimer(interval);
+	bool isMainThread = QThread::currentThread() == qApp->thread();
+	int id = -1;
+	if (isMainThread) {
+		id = QObject::startTimer(interval);
+	} else {
+		static int count = 0;
+		qDebug("Invoked addTimer: %d", ++count);
+		QMetaObject::invokeMethod(this, "addTimer", Qt::BlockingQueuedConnection,
+								  Q_ARG(int, interval), Q_RETURN_ARG(int, id));
+		m_timerMutex.lock();
+	}
 	m_timers.insert(id, new TimerInfo(function, data));
+	if (!isMainThread)
+		m_timerMutex.unlock();
 	return static_cast<uint>(id);
+}
+
+int QuetzalTimer::startTimer(int interval)
+{
+	static int count = 0;
+	qDebug("Invoked startTimer: %d", ++count);
+	return QObject::startTimer(interval);
 }
 
 gboolean QuetzalTimer::removeTimer(guint handle)
 {
 	Q_ASSERT(QThread::currentThread() == qApp->thread());
 	int id = static_cast<int>(handle);
+	QMutexLocker locker(&m_timerMutex);
 	QMap<int, TimerInfo *>::iterator it = m_timers.find(id);
 	if (it == m_timers.end())
 		return FALSE;
@@ -61,12 +80,17 @@ gboolean QuetzalTimer::removeTimer(guint handle)
 
 void QuetzalTimer::timerEvent(QTimerEvent *event)
 {
+	m_timerMutex.lock();
 	QMap<int, TimerInfo *>::iterator it = m_timers.find(event->timerId());
-	if (it == m_timers.end())
+	if (it == m_timers.end()) {
+		m_timerMutex.unlock();
 		return;
-	TimerInfo *info = it.value();
-	gboolean result = ( *info->function)(info->data);
+	}
+	TimerInfo info = *it.value();
+	m_timerMutex.unlock();
+	gboolean result = (*info.function)(info.data);
 	if (!result) {
+		QMutexLocker locker(&m_timerMutex);
 		it = m_timers.find(event->timerId());
 		if (it == m_timers.end())
 			return;

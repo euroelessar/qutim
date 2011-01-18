@@ -47,25 +47,16 @@ BuddyPicture::BuddyPicture(IcqAccount *account, QObject *parent) :
 	account->registerRosterPlugin(this);
 	connect(account, SIGNAL(settingsUpdated()), this, SLOT(updateSettings()));
 
-	typedef QPair<QString, QString> StringPair;
 	Config cfg = account->config("avatars");
-	Config hashesCfg = cfg.group("hashes");
-	QList<StringPair > newList;
-	foreach (const QString &id, hashesCfg.childKeys()) {
-		IcqContact *contact = account->getContact(id);
-		if (contact) {
-			QString hash = hashesCfg.value(id, QString());
-			if (setAvatar(contact, QByteArray::fromHex(hash.toLatin1())))
-				newList.push_back(StringPair(id, hash));
-		}
+	QStringList removedIds;
+	QMapIterator<QString,QVariant> it(cfg.value("hashes", QVariantMap()));
+	while (it.hasNext()) {
+		IcqContact *contact = account->getContact(it.next().key());
+		if (!contact || !setAvatar(contact, QByteArray::fromHex(it.value().toString().toLatin1())))
+			removedIds << it.key();
 	}
-	cfg.remove("hashes");
-	if (!newList.isEmpty()) {
-		cfg.beginGroup("hashes");
-		foreach (const StringPair &itr, newList)
-			cfg.setValue(itr.first, itr.second);
-		cfg.endGroup();
-	}
+	for (int i = 0; i < removedIds.size(); i++)
+		cfg.remove(removedIds.at(i));
 	m_startup = false;
 }
 

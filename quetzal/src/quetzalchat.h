@@ -31,6 +31,7 @@ public:
 	virtual void setTopic(const QString &topic);
 	void addUsers(GList *cbuddies, gboolean new_arrivals);
 	virtual qutim_sdk_0_3::Buddy *me() const;
+	void setMe(const char *nick);
 	virtual void join();
 	virtual void leave();
 	PurpleConversation *purple() { return m_conv; }
@@ -42,6 +43,7 @@ public:
 	void invite(qutim_sdk_0_3::Contact *contact, const QString &reason = QString());
 private:
 	PurpleConversation *m_conv;
+	QString m_nick;
 	QString m_id;
 	QString m_title;
 	QString m_topic;

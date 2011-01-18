@@ -92,6 +92,12 @@ void AstralContact::setName(const QString &name)
 
 void AstralContact::setTags(const QStringList &tags)
 {
+	QSet<QString> oldTags = QSet<QString>::fromList(p->impl->groups());
+	QSet<QString> newTags = QSet<QString>::fromList(tags);
+	foreach (QString tag, oldTags - newTags)
+		p->impl->removeFromGroup(tag)->deleteLater();
+	foreach (QString tag, newTags - oldTags)
+		p->impl->addToGroup(tag)->deleteLater();
 }
 
 bool AstralContact::isInList() const

@@ -159,6 +159,7 @@ QuetzalAccount::QuetzalAccount(PurpleAccount *account, QuetzalProtocol *protocol
 	setContactsFactory(new QuetzalContactsFactory(this));
 	if (!purple_account_get_enabled(m_account, "qutim"))
 		purple_account_set_enabled(m_account, "qutim", TRUE);
+//	purple_accounts_add(account);
 	save();
 }
 
@@ -188,15 +189,6 @@ QuetzalAccount::QuetzalAccount(const QString &id, QuetzalProtocol *protocol) : A
 //		addAction((new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Quetzal", "Join groupchat"), this, SLOT(showJoinGroupChat())))->setType(1));
 //	}
 	debug() << "created!" << this << m_account->protocol_id;
-	for (GList *it = m_account->status_types; it; it = it->next) {
-		PurpleStatusType *type = (PurpleStatusType *)it->data;
-		debug() << purple_status_type_get_id(type) << purple_status_type_get_name(type);
-		for (GList *jt = purple_status_type_get_attrs(type); jt; jt = jt->next) {
-			PurpleStatusAttr *attr = (PurpleStatusAttr *)jt->data;
-			debug() << "!" << purple_status_attr_get_id(attr) << purple_status_attr_get_name(attr)
-					<< purple_status_attr_get_value(attr);
-		}
-	}
 	// Hack for anti-auto-connect
 	for (GList *it = purple_presence_get_statuses(m_account->presence); it; it = it->next) {
 		PurpleStatus *status = reinterpret_cast<PurpleStatus *>(it->data);
@@ -234,6 +226,16 @@ QuetzalContact *QuetzalAccount::createContact(const QString &id)
 
 void QuetzalAccount::fillStatusActions()
 {
+//	TODO:
+//	for (GList *it = m_account->status_types; it; it = it->next) {
+//		PurpleStatusType *type = (PurpleStatusType *)it->data;
+//		debug() << purple_status_type_get_id(type) << purple_status_type_get_name(type);
+//		for (GList *jt = purple_status_type_get_attrs(type); jt; jt = jt->next) {
+//			PurpleStatusAttr *attr = (PurpleStatusAttr *)jt->data;
+//			debug() << "!" << purple_status_attr_get_id(attr) << purple_status_attr_get_name(attr)
+//					<< purple_status_attr_get_value(attr);
+//		}
+//	}
 }
 
 ChatUnit *QuetzalAccount::getUnitForSession(ChatUnit *unit)

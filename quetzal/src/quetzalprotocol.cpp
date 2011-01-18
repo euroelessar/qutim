@@ -26,6 +26,7 @@
 
 QuetzalProtocol::QuetzalProtocol(const QuetzalMetaObject *meta, PurplePlugin *plugin)
 {
+	plugin->info->ui_info = this;
 	QObject::d_ptr->metaObject = const_cast<QuetzalMetaObject *>(meta);
 	m_plugin = plugin;
 	protocols().insert(m_plugin, this);

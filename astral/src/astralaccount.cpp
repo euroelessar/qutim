@@ -12,7 +12,7 @@ struct AstralAccountPrivate
 	AccountPtr acc;
 	ConnectionPtr conn;
 	AstralProtocol *protocol;
-	AstralRoster *roster;
+	QPointer<AstralRoster> roster;
 	AstralSessionManager *sessionManager;
 	QHash<QString, QPointer<AstralSession> > sessions;
 };
@@ -20,6 +20,7 @@ struct AstralAccountPrivate
 AstralAccount::AstralAccount(AstralProtocol *protocol, const QString &id) : qutim_sdk_0_3::Account(id, protocol), p(new AstralAccountPrivate)
 {
 	p->protocol = protocol;
+//	p->roster = new AstralRoster(this, 0);
 	ConnectionManager *connMgr = protocol->connectionManager().data();
 	QVariantMap params;
 	params["account"] = id;
@@ -82,10 +83,8 @@ ChatUnit *AstralAccount::getUnitForSession(ChatUnit *unit)
 ChatUnit *AstralAccount::getUnit(const QString &unitId, bool create)
 {
 	ChatUnit *unit = p->sessions.value(unitId);
-	if(!unit)
-	{
+	if(!unit && p->roster)
 		unit = p->roster->contact(unitId);
-	}
 	return unit;
 }
 

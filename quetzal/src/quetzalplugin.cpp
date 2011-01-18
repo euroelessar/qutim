@@ -140,9 +140,11 @@ Message quetzal_convert_message(const char *message, PurpleMessageFlags flags, t
 		mess.setText(message);
 	}
 	mess.setTime(QDateTime::fromTime_t(mtime));
-	mess.setIncoming(flags & PURPLE_MESSAGE_RECV);
+	mess.setIncoming(flags & (PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM));
 	if (flags & PURPLE_MESSAGE_SYSTEM)
 		mess.setProperty("service", true);
+	if (flags & PURPLE_MESSAGE_NO_LOG)
+		mess.setProperty("store", false);
 	return mess;
 }
 
@@ -153,8 +155,15 @@ void quetzal_write_chat(PurpleConversation *conv, const char *who,
 	debug() << Q_FUNC_INFO << who;
 	ChatUnit *unit = reinterpret_cast<ChatUnit *>(conv->ui_data);
 	if (QuetzalChat *chat = qobject_cast<QuetzalChat *>(unit)) {
+		PurpleConvChat *data = PURPLE_CONV_CHAT(chat->purple());
+		// Version older then 2.7.10
+		if (purple_version_check(2, 7, 10) && g_str_equal(conv->account->protocol_id, "prpl-jabber")) {
+			if (!(flags & (PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM)) && who && *who) {
+				// It looks like our outgoing message
+				chat->setMe(who);
+			}
+		}
 		Message mess = quetzal_convert_message(message, flags, mtime);
-		PurpleConvChat *data = purple_conversation_get_chat_data(conv);
 		if ((!(flags & PURPLE_MESSAGE_DELAYED)) && !mess.isIncoming())
 			return;
 		if (!mess.text().contains(data->nick))

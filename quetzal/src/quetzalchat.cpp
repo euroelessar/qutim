@@ -65,12 +65,9 @@ void QuetzalChat::setTopic(const QString &topic)
 
 void QuetzalChat::addUsers(GList *cbuddies, gboolean new_arrivals)
 {
-	PurpleConvChat *data = purple_conversation_get_chat_data(m_conv);
-	qDebug() << Q_FUNC_INFO << data->nick;
 	QuetzalAccount *account = reinterpret_cast<QuetzalAccount*>(m_conv->account->ui_data);
 	for (; cbuddies; cbuddies = cbuddies->next) {
 		PurpleConvChatBuddy *buddy = reinterpret_cast<PurpleConvChatBuddy *>(cbuddies->data);
-		qDebug() << "buddy" << buddy->name << buddy->alias;
 		QuetzalChatUser *user = new QuetzalChatUser(buddy, this);
 		account->addChatUnit(user);
 		m_users.insert(buddy->name, user);
@@ -81,7 +78,12 @@ void QuetzalChat::addUsers(GList *cbuddies, gboolean new_arrivals)
 Buddy *QuetzalChat::me() const
 {
 	PurpleConvChat *data = purple_conversation_get_chat_data(m_conv);
-	return m_users.value(data->nick);
+	return m_users.value(m_nick.isEmpty() ? QString::fromUtf8(data->nick) : m_nick);
+}
+
+void QuetzalChat::setMe(const char *nick)
+{
+	m_nick = nick;
 }
 
 void QuetzalChat::join()
@@ -114,12 +116,12 @@ void QuetzalChat::renameUser(const char *old_name, const char *new_name, const c
 	PurpleConvChat *data = purple_conversation_get_chat_data(m_conv);
 	QuetzalChatUser *user = m_users.take(old_name);
 	account->removeChatUnit(user);
-	user->fixId();
+	user->fixId(purple_conv_chat_cb_find(data, new_name));
 	m_users.insert(new_name, user);
 	user->rename(new_alias);
 	account->addChatUnit(user);
-	if (!qstrcmp(old_name, data->nick))
-		emit meChanged(user);
+//	if (!qstrcmp(old_name, data->nick))
+//		emit meChanged(user);
 }
 
 void QuetzalChat::removeUsers(GList *users)

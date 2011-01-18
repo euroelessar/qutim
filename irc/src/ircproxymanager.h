@@ -26,6 +26,7 @@ namespace irc {
 class IrcProxyManager : public QObject, public NetworkProxyManager
 {
 	Q_OBJECT
+	Q_CLASSINFO("DependsOn", "qutim_sdk_0_3::irc::IrcProtocol")
 	Q_INTERFACES(qutim_sdk_0_3::NetworkProxyManager)
 public:
 	IrcProxyManager();

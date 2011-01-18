@@ -27,7 +27,7 @@ class QuetzalChatUser : public Buddy
 Q_OBJECT
 public:
 	explicit QuetzalChatUser(PurpleConvChatBuddy *user, QuetzalChat *chat);
-	void fixId();
+	void fixId(PurpleConvChatBuddy *user);
 	PurpleConvChatBuddy *purple() { return m_user; }
 
 	virtual QString id() const { return m_id; }

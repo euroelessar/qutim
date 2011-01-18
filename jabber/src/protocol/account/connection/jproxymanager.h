@@ -10,6 +10,7 @@ namespace Jabber {
 	class JProxyManager : public QObject, public NetworkProxyManager
 	{
 		Q_OBJECT
+		Q_CLASSINFO("DependsOn", "Jabber::JProtocol")
 		Q_INTERFACES(qutim_sdk_0_3::NetworkProxyManager)
 	public:
 		JProxyManager();

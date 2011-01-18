@@ -21,6 +21,7 @@
 class VProxyManager : public QObject, public NetworkProxyManager
 {
 	Q_OBJECT
+	Q_CLASSINFO("DependsOn", "VkontakteProtocol")
 	Q_INTERFACES(qutim_sdk_0_3::NetworkProxyManager)
 public:
 	VProxyManager();
