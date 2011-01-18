@@ -45,11 +45,15 @@ uint QuetzalTimer::addTimer(guint interval, GSourceFunc function, gpointer data)
 	if (isMainThread) {
 		id = QObject::startTimer(interval);
 	} else {
-		static int count = 0;
-		qDebug("Invoked addTimer: %d", ++count);
-		QMetaObject::invokeMethod(this, "addTimer", Qt::BlockingQueuedConnection,
-								  Q_ARG(int, interval), Q_RETURN_ARG(int, id));
 		m_timerMutex.lock();
+		static int count = 0;
+		int localId = ++count;
+		qDebug("Invoked addTimer: %d", localId);
+		m_timerMutex.unlock();
+		QMetaObject::invokeMethod(this, "startTimer", Qt::BlockingQueuedConnection,
+								  Q_ARG(int, interval), Q_ARG(int, localId));
+		m_timerMutex.lock();
+		id = m_evil.take(localId);
 	}
 	m_timers.insert(id, new TimerInfo(function, data));
 	if (!isMainThread)
@@ -57,11 +61,12 @@ uint QuetzalTimer::addTimer(guint interval, GSourceFunc function, gpointer data)
 	return static_cast<uint>(id);
 }
 
-int QuetzalTimer::startTimer(int interval)
+int QuetzalTimer::startTimer(int interval, int id)
 {
+	QMutexLocker locker(m_timerMutex);
+	m_evil.insert(id, QObject::startTimer(interval));
 	static int count = 0;
 	qDebug("Invoked startTimer: %d", ++count);
-	return QObject::startTimer(interval);
 }
 
 gboolean QuetzalTimer::removeTimer(guint handle)

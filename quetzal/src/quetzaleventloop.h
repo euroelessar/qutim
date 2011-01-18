@@ -48,7 +48,7 @@ public:
 	guint addIO(int fd, PurpleInputCondition cond, PurpleInputFunction func, gpointer user_data);
 	gboolean removeIO(guint handle);
 	int getIOError(int fd, int *error);
-	Q_INVOKABLE int startTimer(int interval);
+	Q_INVOKABLE void startTimer(int interval, int id);
 public slots:
 	void onAction();
 protected:
@@ -60,6 +60,7 @@ private:
 	explicit QuetzalTimer(QObject *parent = 0);
 	static QuetzalTimer *m_self;
 	QMutex m_timerMutex;
+	QMap<int, int> m_evil;
 	QMap<int, TimerInfo *> m_timers;
 	QMap<guint, FileInfo *> m_files;
 	guint m_socketId;
