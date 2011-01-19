@@ -348,7 +348,7 @@ void JMUCSession::onParticipantPresence(const jreen::Presence &presence,
 		}
 		if (presence.subtype() != Presence::Unavailable && !presence.error()) {
 			VCardUpdate::Ptr vcard = presence.findExtension<VCardUpdate>();
-			if(vcard) {
+			if(vcard && vcard->hasPhotoInfo()) {
 				QString hash = vcard->photoHash();
 				if (user->avatarHash() != hash) {
 					if(hash.isEmpty() || QFile(d->account->getAvatarPath() % QLatin1Char('/') % hash).exists())

@@ -154,7 +154,7 @@ JAccount::JAccount(const QString &id) :
 	d->vCardManager = new JVCardManager(this);
 	d->softwareDetection = new JSoftwareDetection(this);
 
-	d->client.presence().addExtension(new VCardUpdate(QString()));
+	d->client.presence().addExtension(new VCardUpdate());
 	loadSettings();
 
 	jreen::Disco *disco = d->client.disco();
@@ -237,8 +237,10 @@ void JAccount::loadSettings()
 	d->priority = general.value("priority", 15);
 	d->keepStatus = general.value("keepstatus", true);
 	d->nick = general.value("nick", id());
-	jreen::VCardUpdate::Ptr update = d->client.presence().findExtension<jreen::VCardUpdate>();
-	update->setPhotoHash(general.value("photoHash", QString()));
+	if (general.hasChildKey("photoHash")) {
+		jreen::VCardUpdate::Ptr update = d->client.presence().findExtension<jreen::VCardUpdate>();
+		update->setPhotoHash(general.value("photoHash", QString()));
+	}
 
 	jreen::JID jid(id());
 	jid.setResource(general.value("resource",QLatin1String("qutIM/jreen")));

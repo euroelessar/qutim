@@ -268,19 +268,21 @@ void JContact::addResource(const QString &resource)
 
 void JContact::setStatus(const jreen::Presence presence)
 {
+	const jreen::Error *error = presence.error();
 	QString resource = presence.from().resource();
 	jreen::Presence::Type type = presence.subtype();
 
 	Q_D(JContact);
 	Status oldStatus = status();
-	if (type == jreen::Presence::Unavailable && resource.isEmpty()) {
+	if ((type == jreen::Presence::Unavailable || error) && resource.isEmpty()) {
 		qDeleteAll(d->resources);
 		d->resources.clear();
 		d->currentResources.clear();
+		d->status = JStatus::presenceToStatus(jreen::Presence::Unavailable);
 	} else if (resource.isEmpty()) {
-		d->status = JStatus::presenceToStatus(presence.subtype());
+		d->status = JStatus::presenceToStatus(error ? jreen::Presence::Unavailable : presence.subtype());
 		d->status.setText(presence.status());
-	} else if (type == jreen::Presence::Unavailable) {
+	} else if (error || type == jreen::Presence::Unavailable) {
 		if (d->resources.contains(resource))
 			removeResource(resource);
 	} else {

@@ -226,6 +226,7 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 		break;
 	}
 
+	const jreen::Error *error = presence.error();
 	jreen::JID from = presence.from();
 	if(d->account->client()->jid() == from) {
 		d->account->d_func()->setPresence(presence);
@@ -235,9 +236,9 @@ void JRoster::handleNewPresence(jreen::Presence presence)
 	if (c) {
 		c->setStatus(presence);		
 		jreen::VCardUpdate::Ptr vcard = presence.findExtension<jreen::VCardUpdate>();
-		if(vcard) {
+		if(vcard && vcard->hasPhotoInfo() && !error) {
 			QString hash = vcard->photoHash();
-			debug() << "vCard update" << (c->avatarHash() != hash);
+			debug() << "vCard update" << (c->avatarHash() != hash) << c->id() << c->avatarHash() << hash;
 			if (c->avatarHash() != hash) {
 				if(hash.isEmpty() || QFile(d->account->getAvatarPath()%QLatin1Char('/')%hash).exists()) {
 					c->setAvatar(hash);

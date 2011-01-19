@@ -23,53 +23,47 @@
 
 using namespace qutim_sdk_0_3;
 
-QuetzalTimer *QuetzalTimer::m_self = NULL;
+QuetzalEventLoop *QuetzalEventLoop::m_self = NULL;
 
-QuetzalTimer::QuetzalTimer(QObject *parent):
+QuetzalEventLoop::QuetzalEventLoop(QObject *parent):
 		QObject(parent), m_socketId(0)
 {
 }
 
-QuetzalTimer *QuetzalTimer::instance()
+QuetzalEventLoop *QuetzalEventLoop::instance()
 {
 	if (!m_self) {
-		m_self = new QuetzalTimer();
+		m_self = new QuetzalEventLoop();
 	}
 	return m_self;
 }
 
-uint QuetzalTimer::addTimer(guint interval, GSourceFunc function, gpointer data)
+static QBasicAtomicInt quetzal_eventloop_timer_count = Q_BASIC_ATOMIC_INITIALIZER(0);
+
+uint QuetzalEventLoop::addTimer(guint interval, GSourceFunc function, gpointer data)
 {
 	bool isMainThread = QThread::currentThread() == qApp->thread();
 	int id = -1;
 	if (isMainThread) {
 		id = QObject::startTimer(interval);
 	} else {
-		m_timerMutex.lock();
-		static int count = 0;
-		int localId = ++count;
-		qDebug("Invoked addTimer: %d", localId);
-		m_timerMutex.unlock();
+		int localId = quetzal_eventloop_timer_count.fetchAndAddOrdered(1);
 		QMetaObject::invokeMethod(this, "startTimer", Qt::BlockingQueuedConnection,
 								  Q_ARG(int, interval), Q_ARG(int, localId));
-		m_timerMutex.lock();
 		id = m_evil.take(localId);
 	}
+	QMutexLocker locker(&m_timerMutex);
 	m_timers.insert(id, new TimerInfo(function, data));
-	if (!isMainThread)
-		m_timerMutex.unlock();
 	return static_cast<uint>(id);
 }
 
-void QuetzalTimer::startTimer(int interval, int id)
+void QuetzalEventLoop::startTimer(int interval, int id)
 {
 	QMutexLocker locker(&m_timerMutex);
 	m_evil.insert(id, QObject::startTimer(interval));
-	static int count = 0;
-	qDebug("Invoked startTimer: %d", ++count);
 }
 
-gboolean QuetzalTimer::removeTimer(guint handle)
+gboolean QuetzalEventLoop::removeTimer(guint handle)
 {
 	Q_ASSERT(QThread::currentThread() == qApp->thread());
 	int id = static_cast<int>(handle);
@@ -83,7 +77,7 @@ gboolean QuetzalTimer::removeTimer(guint handle)
 	return TRUE;
 }
 
-void QuetzalTimer::timerEvent(QTimerEvent *event)
+void QuetzalEventLoop::timerEvent(QTimerEvent *event)
 {
 	m_timerMutex.lock();
 	QMap<int, TimerInfo *>::iterator it = m_timers.find(event->timerId());
@@ -105,7 +99,7 @@ void QuetzalTimer::timerEvent(QTimerEvent *event)
 	}
 }
 
-guint QuetzalTimer::addIO(int fd, PurpleInputCondition cond, PurpleInputFunction func, gpointer user_data)
+guint QuetzalEventLoop::addIO(int fd, PurpleInputCondition cond, PurpleInputFunction func, gpointer user_data)
 {
 	Q_ASSERT(QThread::currentThread() == qApp->thread());
 	if (fd < 0) {
@@ -128,7 +122,7 @@ guint QuetzalTimer::addIO(int fd, PurpleInputCondition cond, PurpleInputFunction
 	return m_socketId++;
 }
 
-gboolean QuetzalTimer::removeIO(guint handle)
+gboolean QuetzalEventLoop::removeIO(guint handle)
 {
 	Q_ASSERT(QThread::currentThread() == qApp->thread());
 	QMap<uint, FileInfo *>::iterator it = m_files.find(handle);
@@ -141,12 +135,12 @@ gboolean QuetzalTimer::removeIO(guint handle)
 	return TRUE;
 }
 
-int QuetzalTimer::getIOError(int fd, int *error)
+int QuetzalEventLoop::getIOError(int fd, int *error)
 {
 	return 0;
 }
 
-void QuetzalTimer::onSocket(int fd)
+void QuetzalEventLoop::onSocket(int fd)
 {
 	QSocketNotifier *socket = qobject_cast<QSocketNotifier *>(sender());
 	guint id = socket->property("quetzal_id").toUInt();
@@ -161,22 +155,22 @@ void QuetzalTimer::onSocket(int fd)
 
 static guint quetzal_timeout_add(guint interval, GSourceFunc function, gpointer data)
 {
-	return QuetzalTimer::instance()->addTimer(interval, function, data);
+	return QuetzalEventLoop::instance()->addTimer(interval, function, data);
 }
 
 static gboolean quetzal_timeout_remove(guint handle)
 {
-	return QuetzalTimer::instance()->removeTimer(handle);
+	return QuetzalEventLoop::instance()->removeTimer(handle);
 }
 
 static guint quetzal_input_add(int fd, PurpleInputCondition cond, PurpleInputFunction func, gpointer user_data)
 {
-	return QuetzalTimer::instance()->addIO(fd, cond, func, user_data);
+	return QuetzalEventLoop::instance()->addIO(fd, cond, func, user_data);
 }
 
 static gboolean quetzal_input_remove(guint handle)
 {
-	return QuetzalTimer::instance()->removeIO(handle);
+	return QuetzalEventLoop::instance()->removeIO(handle);
 }
 
 //static int quetzal_input_get_error(int fd, int *error)

@@ -90,12 +90,17 @@ void JBookmarkManager::saveBookmark(int index, const QString &name, const QStrin
 
 void JBookmarkManager::saveRecent(const QString &conference, const QString &nick, const QString &password)
 {
+	if (!p->isLoaded)
+		return;
 	Bookmark::Conference bookmark(QString(), conference, nick, password);
-	Bookmark::Conference tmp = find(conference, true);
-	if (tmp.isValid() && tmp.nick() != nick) {
+	if (find(bookmark, false) != -1)
+		return;
+	int index = find(bookmark, true);
+	Bookmark::Conference tmp = p->recent.at(index);
+	if (tmp.isValid()) {
 		if (tmp.password() != password)
 			tmp.setPassword(bookmark.password());
-		else
+		else if (index == 0)
 			return;
 	} else {
 		p->recent.prepend(bookmark);
@@ -143,7 +148,6 @@ void JBookmarkManager::clearRecent()
 {
 	Config config = p->account->config();
 	config.remove(QLatin1String("recent"));
-	config.sync();
 }
 
 DataItem JBookmarkManager::fields(const Bookmark::Conference &bookmark, bool isBookmark) const
@@ -253,8 +257,7 @@ QList<DataItem> JBookmarkManager::recent() const
 void JBookmarkManager::writeToCache(const QString &type, const QList<Bookmark::Conference> &list)
 {
 	Config config = p->account->config();
-	config.remove(type);
-	config.beginArray(type);
+	int size = config.beginArray(type);
 	for (int i = 0; i < list.size(); i++) {
 		config.setArrayIndex(i);
 		const Bookmark::Conference &bookmark = list.at(i);
@@ -264,6 +267,8 @@ void JBookmarkManager::writeToCache(const QString &type, const QList<Bookmark::C
 		config.setValue("password", bookmark.password(), Config::Crypted);
 		config.setValue("autojoin", bookmark.autojoin());
 	}
+	for (int i = list.size() - 1; i >= size; i--)
+		config.remove(i);
 	config.endArray();
 	if (type == "bookmarks")
 		emit bookmarksChanged();
@@ -294,6 +299,16 @@ Bookmark::Conference JBookmarkManager::find(const QString &name, bool recent) co
 			return item;
 	}
 	return Bookmark::Conference();
+}
+
+int JBookmarkManager::find(const Bookmark::Conference &bookmark, bool recent) const
+{
+	const QList<Bookmark::Conference> &bookmarks = recent ? p->recent : p->bookmarks;
+	for (int i = 0; i < bookmarks.size(); i++) {
+		if (bookmark.jid() == bookmarks.at(i).jid() && bookmark.nick() == bookmarks.at(i).nick())
+			return i;
+	}
+	return -1;
 }
 
 int JBookmarkManager::indexOfBookmark(const QString &name) const

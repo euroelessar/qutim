@@ -28,6 +28,7 @@ public:
 	QList<jreen::Bookmark::Conference> bookmarksList() const;
 	QList<jreen::Bookmark::Conference> recentList() const;
 	jreen::Bookmark::Conference find(const QString &name, bool recent = false) const;
+	int find(const jreen::Bookmark::Conference &bookmark, bool recent = false) const;
 	//			jreen::Bookmark::Conference find(const QString &name, const QString &nick, bool recent = false) const;
 	int indexOfBookmark(const QString &name) const;
 	void saveBookmark(int index, const QString &name, const QString &conference,

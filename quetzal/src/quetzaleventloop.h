@@ -21,7 +21,7 @@
 #include <QMap>
 #include <QMutex>
 
-class QuetzalTimer : public QObject
+class QuetzalEventLoop : public QObject
 {
 	Q_OBJECT
 	struct TimerInfo
@@ -42,7 +42,7 @@ class QuetzalTimer : public QObject
 	};
 
 public:
-	static QuetzalTimer *instance();
+	static QuetzalEventLoop *instance();
 	uint addTimer(guint interval, GSourceFunc function, gpointer data);
 	gboolean removeTimer(guint handle);
 	guint addIO(int fd, PurpleInputCondition cond, PurpleInputFunction func, gpointer user_data);
@@ -57,8 +57,8 @@ private slots:
 	void onSocket(int fd);
 
 private:
-	explicit QuetzalTimer(QObject *parent = 0);
-	static QuetzalTimer *m_self;
+	explicit QuetzalEventLoop(QObject *parent = 0);
+	static QuetzalEventLoop *m_self;
 	QMutex m_timerMutex;
 	QMap<int, int> m_evil;
 	QMap<int, TimerInfo *> m_timers;
