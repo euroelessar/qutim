@@ -2,7 +2,7 @@
  *
  *  This file is part of qutIM
  *
- *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
+ *  Copyright (c) 2011 by Nigmatullin Ruslan <euroelessar@gmail.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -14,31 +14,22 @@
  ***************************************************************************
  ****************************************************************************/
 
-#ifndef METAOBJECTBUILDER_H
-#define METAOBJECTBUILDER_H
+#include "textviewfactory.h"
 
-#include "libqutim_global.h"
-
-namespace qutim_sdk_0_3
+namespace Core
 {
-	class MetaObjectBuilderPrivate;
-	
-	class LIBQUTIM_EXPORT MetaObjectBuilder
-	{
-		Q_DISABLE_COPY(MetaObjectBuilder)
-		Q_DECLARE_PRIVATE(MetaObjectBuilder)
-	public:
-		MetaObjectBuilder(const QByteArray &name, const QMetaObject *parent  = 0);
-		~MetaObjectBuilder();
-		
-		void addClassInfo(const QByteArray &name, class QByteArray &value);
-		void addClassInfo(const char *name, const char *value);
-		QMetaObject *generate();
-
-		static const char *info(const QMetaObject *meta, const char *name);
-	private:
-		QScopedPointer<MetaObjectBuilderPrivate> d_ptr;
-	};
+namespace AdiumChat
+{
+TextViewFactory::TextViewFactory()
+{
 }
 
-#endif // METAOBJECTBUILDER_H
+QWidget *TextViewFactory::createViewWidget()
+{
+}
+
+QObject *TextViewFactory::createViewController()
+{
+}
+}
+}

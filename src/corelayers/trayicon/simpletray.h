@@ -5,6 +5,7 @@
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 #include <QSystemTrayIcon>
+#include <QBasicTimer>
 
 namespace Core
 {
@@ -51,7 +52,7 @@ namespace Core
 		QList<Protocol*> m_protocols;
 		QList<ChatSession*> m_sessions;
 		QIcon m_currentIcon;
-		int m_iconTimerId;
+		QBasicTimer m_iconTimer;
 		QIcon m_mailIcon;
 		bool m_isMail;
 	};

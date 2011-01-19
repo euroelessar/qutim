@@ -47,7 +47,12 @@ namespace qutim_sdk_0_3
 		d_func()->classInfos << qMakePair(name, value);
 	}
 	
-	int ensureIndex(const QByteArray &name, QByteArray &data, QMap<QByteArray, int> &map)
+	void MetaObjectBuilder::addClassInfo(const char *name, const char *value)
+	{
+		addClassInfo(QByteArray(name), QByteArray(name));
+	}
+	
+	static int ensureIndex(const QByteArray &name, QByteArray &data, QMap<QByteArray, int> &map)
 	{
 		int index = map.value(name, -1);
 		if (index == -1) {

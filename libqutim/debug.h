@@ -39,7 +39,7 @@ namespace qutim_sdk_0_3
 #endif
 	};
 
-	LIBQUTIM_EXPORT QDebug debug_helper(qptrdiff, DebugLevel, QtMsgType);
+	LIBQUTIM_EXPORT QDebug debug_helper(quint64, DebugLevel, QtMsgType);
 //	LIBQUTIM_EXPORT qptrdiff debug_area_helper(const char *str);
 	LIBQUTIM_EXPORT void debugClearConfig();
     
@@ -68,6 +68,8 @@ namespace qutim_sdk_0_3
 	inline QDebug fatal(DebugLevel level = Info)
 	{ return debug_helper(0, level, QtFatalMsg); }
 #else
+	inline quint64 qutim_plugin_id()
+	{ return Q_UINT64_C(QUTIM_PLUGIN_ID); }
 	inline QDebug debug(DebugLevel level = Info)
 	{ return debug_helper(qutim_plugin_id(), level, QtDebugMsg); }
 	inline QDebug warning(DebugLevel level = Info)

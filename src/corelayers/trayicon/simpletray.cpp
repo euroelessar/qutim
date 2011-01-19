@@ -64,7 +64,6 @@ namespace Core
 			qDebug() << "No System Tray Available. Tray icon not loaded.";
 			return;
 		}
-		m_iconTimerId = 0;
 		m_activeAccount = 0;
 		m_isMail = false;
 		m_icon = new QSystemTrayIcon(this);
@@ -143,15 +142,13 @@ namespace Core
 		if (empty == m_sessions.isEmpty())
 			return;
 		if (m_sessions.isEmpty()) {
-			if (m_iconTimerId) {
-				killTimer(m_iconTimerId);
-				m_iconTimerId = 0;
-			}
+			if (m_iconTimer.isActive())
+				m_iconTimer.stop();
 			m_icon->setIcon(m_currentIcon);
 			m_isMail = false;
 		} else {
-			if (!m_iconTimerId)
-				m_iconTimerId = startTimer(500);
+			if (!m_iconTimer.isActive())
+				m_iconTimer.start(500, this);
 			m_icon->setIcon(m_mailIcon);
 			m_isMail = true;
 		}
@@ -159,7 +156,7 @@ namespace Core
 
 	void SimpleTray::timerEvent(QTimerEvent *timer)
 	{
-		if (timer->timerId() != m_iconTimerId) {
+		if (timer->timerId() != m_iconTimer.timerId()) {
 			QObject::timerEvent(timer);
 		} else {
 			m_icon->setIcon(m_isMail ? m_mailIcon : m_currentIcon);

@@ -15,6 +15,7 @@
 
 #include "debug.h"
 #include "config.h"
+#include <QTime>
 
 namespace qutim_sdk_0_3
 {
@@ -60,25 +61,27 @@ namespace qutim_sdk_0_3
 	Q_GLOBAL_STATIC_WITH_INITIALIZER(DebugAreaData, coreData, init_core_data(x.data()))
 //	Q_GLOBAL_STATIC_WITH_INITIALIZER(DebugAreaData, libData, init_lib_data(x))
 
-	QDebug debug_helper(qptrdiff ptr, DebugLevel level, QtMsgType type)
+	QDebug debug_helper(quint64 ptr, DebugLevel level, QtMsgType type)
 	{
-		const QMetaObject *meta = reinterpret_cast<const QMetaObject*>(ptr);
-		const DebugAreaData *data = meta ? debugAreaMap()->value(meta, 0) : coreData();
-		if (!data) {
-			DebugAreaData *d = new DebugAreaData();
-			Config cfg;
-			cfg.beginGroup("debug");
-			QString nameStr = QLatin1String(meta->className());
-			cfg.beginGroup(nameStr);
-			d->name = "[" + cfg.value("name", nameStr).toLocal8Bit() + "]:";
-			d->level = cfg.value("level", DebugInfo);
-			data = d;
-		}
+		return QDebug(type)
+				<< qPrintable(QTime::currentTime().toString(QLatin1String("[hh:mm:ss]")));
+//		const QMetaObject *meta = reinterpret_cast<const QMetaObject*>(ptr);
+//		const DebugAreaData *data = meta ? debugAreaMap()->value(meta, 0) : coreData();
+//		if (!data) {
+//			DebugAreaData *d = new DebugAreaData();
+//			Config cfg;
+//			cfg.beginGroup("debug");
+//			QString nameStr = QLatin1String(meta->className());
+//			cfg.beginGroup(nameStr);
+//			d->name = "[" + cfg.value("name", nameStr).toLocal8Bit() + "]:";
+//			d->level = cfg.value("level", DebugInfo);
+//			data = d;
+//		}
 		
-		if (data->level <= level)
-			return (QDebug(type) << data->name);
-		else
-			return QDebug(devnull());
+//		if (data->level <= level)
+//			return (QDebug(type) << data->name);
+//		else
+//			return QDebug(devnull());
 	}
 	
 //	qptrdiff debug_area_helper(const char *str)

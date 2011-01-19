@@ -109,7 +109,7 @@ namespace Core
 		QFile file(fileName);
 		QDateTime lastModified = QFileInfo(fileName).lastModified();
 		bool new_file = !file.exists();
-		if(!file.open(QIODevice::ReadWrite | QIODevice::Text))
+		if(!file.open(QIODevice::ReadWrite))
 			return;
 		if(new_file) {
 			file.write("[\n");
@@ -179,7 +179,7 @@ namespace Core
 		{
 			QList<const uchar *> pointers;
 			QFile file(dir.filePath(files[i]));
-			if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+			if(!file.open(QIODevice::ReadOnly))
 				continue;
 			int len = file.size();
 			QByteArray data;

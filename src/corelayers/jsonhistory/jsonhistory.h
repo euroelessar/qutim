@@ -34,6 +34,7 @@ namespace Core
 		virtual ~JsonHistory();
 		uint findEnd(QFile &file);
 		virtual void store(const Message &message);
+//		void flushMessages();
 		virtual MessageList read(const ChatUnit *unit, const QDateTime &from, const QDateTime &to, int max_num);
 		virtual void showHistory(const ChatUnit *unit);
 		static QString quote(const QString &str);
@@ -51,6 +52,7 @@ namespace Core
 		QPointer<HistoryWindow> m_history_window;
 		typedef QHash<QString, EndValue> EndCache;
 		EndCache m_cache;
+		QList<Message> queue;
 	};
 }
 

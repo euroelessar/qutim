@@ -17,6 +17,8 @@
 #include "objectgenerator.h"
 #include "dataforms.h"
 #include "account.h"
+#include "metaobjectbuilder.h"
+#include "protocol.h"
 #include <QHash>
 #include <QIcon>
 
@@ -34,8 +36,19 @@ static void ensureManagers()
 {
 	static bool isInited = false;
 	if(!isInited && ObjectGenerator::isInited()) {
+		// I use QLatin1String there because I don't want to allocate data
+		// Allocating data is more expensive because number of protocols
+		// doesn't exceed 15
+		// TODO: Think, may be we should move such checks to ModuleManager?
+		QList<QLatin1String> protocols;
+		foreach (Protocol *protocol, Protocol::all())
+			protocols.append(QLatin1String(protocol->metaObject()->className()));
+
 		foreach(const ObjectGenerator *gen, ObjectGenerator::module<NetworkProxyManager>()) {
 			NetworkProxyManager *manager = gen->generate<NetworkProxyManager>();
+			const char *proto = MetaObjectBuilder::info(gen->metaObject(), "DependsOn");
+			if (!protocols.contains(QLatin1String(proto)))
+				continue;
 			managers.insert(manager->protocol(), manager);
 		}
 		isInited = true;

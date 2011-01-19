@@ -25,6 +25,8 @@
 #include <QEvent>
 #include <QCoreApplication>
 
+#define CONFIG_MAKE_DIRTY_ONLY_AT_SET_VALUE 1
+
 namespace qutim_sdk_0_3
 {
 	Q_GLOBAL_STATIC(QList<ConfigBackend*>, all_config_backends)
@@ -86,7 +88,7 @@ namespace qutim_sdk_0_3
 		inline void update() { lastModified = QFileInfo(fileName).lastModified(); }
 		bool isValid() { return QFileInfo(fileName).lastModified() == lastModified; }
 		void sync();
-		
+		void makeDirty() { dirty = true; /*Q_ASSERT(!"Haha! I've caught you!");*/ }
 		QString fileName;
 		ConfigBackend *backend;
 		bool dirty;
@@ -242,13 +244,18 @@ namespace qutim_sdk_0_3
 		if (sources.isEmpty())
 			return;
 		ConfigSource::Ptr source = sources.value(0);
-		if (source && source->dirty) {
-			static int evilCounter = 0;
-			static int goodCounter = 0;
-			evilCounter++;
-			goodCounter += !source->isAtLoop;
-			qDebug("%s %d %d", Q_FUNC_INFO, evilCounter, goodCounter);
-		}
+//		if (source && source->dirty) {
+//			static int evilCounter = 0;
+//			static int goodCounter = 0;
+//			static QMap<QString,int> evilNamedCounter;
+//			static QMap<QString,int> goodNamedCounter;
+//			int evilResult = (++evilNamedCounter[source->fileName]);
+//			int goodResult = (goodNamedCounter[source->fileName] += !source->isAtLoop);
+//			evilCounter++;
+//			goodCounter += !source->isAtLoop;
+//			qDebug("%s %d %d", Q_FUNC_INFO, evilCounter, goodCounter);
+//			qDebug("%s %s %d %d", Q_FUNC_INFO, qPrintable(source->fileName), evilResult, goodResult);
+//		}
 		if (source && source->dirty && !source->isAtLoop) {
 			source->isAtLoop = true;
 			source->dirty = false;
@@ -463,8 +470,10 @@ namespace qutim_sdk_0_3
 						atom = 0;
 						break;
 					} else {
+#ifndef CONFIG_MAKE_DIRTY_ONLY_AT_SET_VALUE
 						if (!d->sources.isEmpty())
-							d->sources.at(0)->dirty = true;
+							d->sources.at(0)->makeDirty();
+#endif
 						var = QVariantMap();
 					}
 				}
@@ -496,7 +505,7 @@ namespace qutim_sdk_0_3
 		Q_ASSERT(!atom || atom->typeMap);
 		if (atom && !atom->readOnly) {
 			if (atom->map->remove(name) != 0)
-				d->sources.at(0)->dirty = true;
+				d->sources.at(0)->makeDirty();
 		}
 	}
 
@@ -534,8 +543,10 @@ namespace qutim_sdk_0_3
 				}
 			} else if (current->typeMap) {
 				QVariant &var = (*(current->map))[name];
+#ifndef CONFIG_MAKE_DIRTY_ONLY_AT_SET_VALUE
 				if (var.type() != QVariant::List && !d->sources.isEmpty())
-					d->sources.at(0)->dirty = true; //Euroelessar, please check this string
+					d->sources.at(0)->makeDirty(); //Euroelessar, please check this string
+#endif
 				l->atoms << new ConfigAtom(var, false);
 				if (!size)
 					size = var.toList().size();
@@ -608,15 +619,21 @@ namespace qutim_sdk_0_3
 				if (var.type() == QVariant::Map)
 					d->current()->atoms << new ConfigAtom(var, true);
 			} else if (!atom->readOnly && !atom->typeMap) {
+#ifndef CONFIG_MAKE_DIRTY_ONLY_AT_SET_VALUE
 				bool *changed = !d->sources.isEmpty() ? &d->sources.at(0)->dirty : 0;
+#endif
 				while (atom->list->size() <= index) {
-					if (changed)
-						*changed = true;
+#ifndef CONFIG_MAKE_DIRTY_ONLY_AT_SET_VALUE
+					if (changed && !(*changed))
+						d->sources.at(0)->makeDirty();
+#endif
 					atom->list->append(QVariantMap());
 				}
 				QVariant &var = (*(atom->list))[index];
-				if (changed)
-					*changed = var.type() == QVariant::Map;
+#ifndef CONFIG_MAKE_DIRTY_ONLY_AT_SET_VALUE
+				if (changed && !(*changed) && var.type() == QVariant::Map)
+					d->sources.at(0)->makeDirty();
+#endif
 				d->current()->atoms << new ConfigAtom(var ,true);
 			}
 		}
@@ -636,7 +653,7 @@ namespace qutim_sdk_0_3
 		if (atom && !atom->readOnly && atom->list->size() > index) {
 			atom->list->removeAt(index);
 			if (!d->sources.isEmpty())
-				d->sources.at(0)->dirty = true;
+				d->sources.at(0)->makeDirty();
 		}
 	}
 
@@ -684,9 +701,12 @@ namespace qutim_sdk_0_3
 		ConfigAtom *atom = level->atoms.at(0);
 		Q_ASSERT(atom->typeMap);
 		QVariant var = (type & Config::Crypted) ? CryptoService::crypt(value) : value;
-		atom->map->insert(name, var);
-		if (!d->sources.isEmpty())
-			d->sources.at(0)->dirty = true;
+		QVariant &currentVar = (*atom->map)[name];
+		if (var != currentVar) {
+			currentVar = var;
+			if (!d->sources.isEmpty())
+				d->sources.at(0)->makeDirty();
+		}
 		if (slashIndex != -1)
 			endGroup();
 	}

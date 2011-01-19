@@ -60,8 +60,8 @@ void JoinGroupChatModule::onJoinGroupChatTriggered()
 #if defined (QUTIM_MOBILE_UI)
 	m_chat->showMaximized();
 #else
-	m_chat->show();
 	centerizeWidget(m_chat);
+	m_chat->show();
 #endif
 }
 

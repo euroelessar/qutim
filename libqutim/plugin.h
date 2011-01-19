@@ -142,16 +142,17 @@ namespace qutim_sdk_0_3
 # define QUTIM_EXPORT_PLUGIN2(Plugin,Class) \
 	QUTIM_EXPORT_PLUGIN(Class)
 #else
+# define QUTIM_EXPORT_STRING_HELPER(ID) #ID
+# define QUTIM_EXPORT_STRING(ID) QUTIM_EXPORT_STRING_HELPER(ID)
 # define QUTIM_EXPORT_PLUGIN2(Plugin,Class) \
 	Q_EXPORT_PLUGIN2(Plugin,Class) \
 	static const char *qutim_plugin_verification_data = \
 	"pattern=""QUTIM_PLUGIN_VERIFICATION_DATA""\n" \
+	"debugid="QUTIM_EXPORT_STRING(QUTIM_PLUGIN_ID)"\0" \
 	"libqutim="QUTIM_VERSION_STR"\0"; \
 	Q_EXTERN_C Q_DECL_EXPORT \
 	const char * Q_STANDARD_CALL qutim_plugin_query_verification_data() \
-	{ return qutim_plugin_verification_data; } \
-	LIBQUTIM_NO_EXPORT qptrdiff qutim_plugin_id() \
-	{ return reinterpret_cast<qptrdiff>(&Class::staticMetaObject); }
+	{ return qutim_plugin_verification_data; }
 	
 #define QUTIM_EXPORT_PLUGIN(Plugin) \
 	QUTIM_EXPORT_PLUGIN2(Plugin, Plugin)

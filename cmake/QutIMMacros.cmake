@@ -291,6 +291,8 @@ Q_IMPORT_PLUGIN(${plugin_name})
 			"${QUTIM_${plugin_name}_COMPILE_FLAGS} -fvisibility=hidden")
 		endif(NOT WIN32)
 	endif()
+	string(RANDOM LENGTH 16 ALPHABET 0123456789abcdef QUTIM_${plugin_name}_DEBUG_ID)
+	set(QUTIM_${plugin_name}_COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS} -DQUTIM_PLUGIN_ID=${QUTIM_${plugin_name}_DEBUG_ID}")
 	set_target_properties(${plugin_name} PROPERTIES COMPILE_FLAGS "${QUTIM_${plugin_name}_COMPILE_FLAGS}")
 
 	#if( QUTIM_${plugin_name}_STATIC STREQUAL "SHARED" ) #what the fucking going on?
