@@ -36,16 +36,20 @@ QStringList variantToStringList(const QVariant &data)
 
 QWidget *getTitle(DefaultDataForm *dataForm, const DataItem &item, const Qt::Alignment &alignment, QWidget *parent)
 {
+	QWidget *widget = 0;
 	QStringList alt = variantToStringList(item.property("titleAlternatives"));
 	if (item.isReadOnly() || alt.isEmpty()) {
 		QLabel *title = new QLabel(item.title() + ":",parent);
 		title->setAlignment(alignment);
 		if (item.isReadOnly())
 			title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-		return title;
+		widget = title;
 	} else {
-		return new ComboBox(dataForm, item.title(), alt, "validator", item);
+		widget = new ComboBox(dataForm, item.title(), alt, true, item);
 	}
+	if (item.property("hidden", false))
+		widget->setVisible(false);
+	return widget;
 }
 
 static QWidget *getWidgetHelper(DefaultDataForm *dataForm, const DataItem &item, bool *twoColumn, QSizePolicy::Policy &verticalPolicy, QWidget *parent)
@@ -97,7 +101,7 @@ static QWidget *getWidgetHelper(DefaultDataForm *dataForm, const DataItem &item,
 		str = item.data().toString();
 	QStringList alt = variantToStringList(item.property("alternatives"));
 	if (!alt.isEmpty()) {
-		return new ComboBox(dataForm, str, alt, "validator", item, parent);
+		return new ComboBox(dataForm, str, alt, false, item, parent);
 	} else if (!item.property("multiline", false)) {
 		return new LineEdit(dataForm, item, QString(), parent);
 	} else {
@@ -113,6 +117,8 @@ QWidget *getWidget(DefaultDataForm *dataForm, const DataItem &item, QWidget *par
 	widget->setWindowTitle(item.title());
 	if (!item.isReadOnly())
 		widget->setSizePolicy(QSizePolicy::Expanding, vertPolicy);
+	if (item.property("hidden", false))
+		widget->setVisible(false);
 	return widget;
 }
 

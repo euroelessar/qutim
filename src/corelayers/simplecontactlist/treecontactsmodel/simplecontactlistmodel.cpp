@@ -220,6 +220,18 @@ QVariant Model::data(const QModelIndex &index, int role) const
 	}
 }
 
+QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
+{
+	if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section==0) {
+		if (p->selectedTags.isEmpty())
+			return tr("All tags");
+		else
+			return tr("Custom tags");
+	}
+
+	return QVariant();
+}
+
 bool contactLessThan (ContactItem *a, ContactItem *b) {
 	int result;
 
@@ -482,9 +494,13 @@ void Model::contactStatusChanged(Status status)
 
 		if (!hideContact(item, !show)) {
 			if (!show)
-				return; // The item has been removed from the model
+				// The item is already hidden and it should stay that way.
+				return;
 		} else {
-			return; // The item has been added to the model in the right place
+			// Depending on 'show' the item has been either added to the model
+			// or removed from it in hideContact method.
+			// Either way, we have nothing to do anymore.
+			return;
 		}
 
 		// The item is already visible, so we need to move it in the right place
@@ -528,10 +544,12 @@ void Model::contactNameChanged(const QString &name)
 	if(!item_data)
 		return;
 	const QList<ContactItem *> &items = item_data->items;
+	if (items.isEmpty() || !isVisible(items.first()))
+		return;
 	for(int i = 0; i < items.size(); i++)
 	{
 		ContactItem *item = items.at(i);
-		QList<ContactItem *> contacts = item->parent->visible;
+		QList<ContactItem *> &contacts = item->parent->visible;
 		QList<ContactItem *>::const_iterator it =
 				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
 
@@ -939,7 +957,7 @@ bool Model::hideContact(ContactItem *item, bool hide, bool replacing)
 	QModelIndex tagIndex = createIndex(row, 0, tag);
 	if (hide) {
 		int index = tag->visible.indexOf(item);
-		if (row < 0 || index == -1) {
+		if (row == -1 || index == -1) {
 			if (!replacing) {
 				item->parent->contacts.removeOne(item);
 				item->data->items.removeOne(item);
@@ -956,15 +974,10 @@ bool Model::hideContact(ContactItem *item, bool hide, bool replacing)
 		if (tag->visible.isEmpty())
 			hideTag(tag);
 	} else {
-		Q_ASSERT(p->selectedTags.isEmpty() || p->selectedTags.contains(tag->name));
 		Q_ASSERT(row >= 0);
-		if (tag->visible.contains(item)) {
-			if (!replacing) {
-				item->parent->contacts.append(item);
-				item->data->items.append(item);
-			}
+		Q_ASSERT(isVisible(item));
+		if (tag->visible.contains(item))
 			return false;
-		}
 		QList<ContactItem *> &contacts = tag->visible;
 		QList<ContactItem *>::const_iterator contacts_it =
 				qLowerBound(contacts.constBegin(), contacts.constEnd(), item, contactLessThan);
@@ -985,7 +998,7 @@ void Model::hideTag(TagItem *item)
 {
 	Q_ASSERT(p->tags.contains(item));
 	int index = p->visibleTags.indexOf(item);
-	if (index < 0)
+	if (index == -1)
 		return; // The tag is already hidden
 	beginRemoveRows(QModelIndex(), index, index);
 	p->visibleTags.removeAt(index);
@@ -1062,18 +1075,6 @@ void Model::saveConfig()
 	foreach (TagItem *tag, p->tags)
 		tags << tag->name;
 	group.setValue("tags", tags);
-}
-
-QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
-{
-	if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section==0) {
-		if (p->selectedTags.isEmpty())
-			return tr("All tags");
-		else
-			return tr("Custom tags");
-	}
-
-	return QVariant();
 }
 
 bool Model::showOffline() const

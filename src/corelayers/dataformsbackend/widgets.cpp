@@ -45,7 +45,7 @@ static inline void connectSignalsHelper(QWidget *widget, DefaultDataForm *dataFo
 }
 
 Label::Label(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QLabel(parent), AbstractDataWidget(dataForm), m_item(item)
+	QLabel(parent), AbstractDataWidget(item, dataForm)
 {
 	Q_UNUSED(dataForm);
 	setTextInteractionFlags(Qt::LinksAccessibleByMouse |
@@ -113,7 +113,7 @@ DataItem Label::item() const
 }
 
 CheckBox::CheckBox(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QCheckBox(parent), AbstractDataWidget(dataForm)
+	QCheckBox(parent), AbstractDataWidget(item, dataForm)
 {
 	setText(item.title());
 	setChecked(item.data().toBool());
@@ -122,7 +122,10 @@ CheckBox::CheckBox(DefaultDataForm *dataForm, const DataItem &item, QWidget *par
 
 DataItem CheckBox::item() const
 {
-	return DataItem(objectName(), LocalizedString(), isChecked());
+	DataItem item = m_item;
+	item.setName(objectName());
+	item.setData(isChecked());
+	return item;
 }
 
 void CheckBox::setData(const QVariant &data)
@@ -137,12 +140,12 @@ void CheckBox::onChanged()
 
 ComboBox::ComboBox(DefaultDataForm *dataForm,
 				   const QString &value, const QStringList &alt,
-				   const char *validatorProperty, const DataItem &item,
+				   bool isTitle, const DataItem &item,
 				   QWidget *parent) :
-	QComboBox(parent), AbstractDataWidget(dataForm)
+	QComboBox(parent), AbstractDataWidget(item, dataForm), m_complete(true)
 {
 	int current = -1;
-	QVariantList ids = item.property("identificators", QVariantList());
+	QVariantList ids = item.property(isTitle ? "titleIdentificators" : "identificators", QVariantList());
 	for (int i = 0; i < alt.size(); i++) {
 		QString str = alt.at(i);
 		if (value == str)
@@ -150,21 +153,38 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 		addItem(str, ids.value(i));
 		++i;
 	}
-	setCurrentIndex(current);
-	QValidator *validator = getValidator(item.property(validatorProperty), this);
-	if (validator)
-		setValidator(validator);
+
 	setEditable(item.property("editable", false));
 	setMinimumContentsLength(12);
 	setSizeAdjustPolicy(AdjustToMinimumContentsLength);
-	connectSignalsHelper(this, dataForm, item, SIGNAL(currentIndexChanged(int)));
+	setCurrentIndex(current);
+
+	QVariant validatorVar = item.property(isTitle ? "titleValidator" : "validator");
+	QValidator *validator = getValidator(validatorVar, this);
+	if (validator)
+		setValidator(validator);
+	m_mandatory = item.property("mandatory", false);
+	QString str = currentText();
+	updateCompleteState(str);
+
+	if (!item.name().isEmpty())
+		dataForm->addWidget(item.name(), this);
+	connect(this, SIGNAL(editTextChanged(QString)), SLOT(onChanged(QString)));
+	m_emitChangedSignal = item.dataChangedReceiver();
+	if (m_emitChangedSignal) {
+		Q_ASSERT(item.dataChangedMethod());
+		connect(this, SIGNAL(changed(QString,QVariant,qutim_sdk_0_3::AbstractDataForm*)),
+				item.dataChangedReceiver(), item.dataChangedMethod());
+	}
 }
 
 DataItem ComboBox::item() const
 {
-	DataItem data(objectName(), LocalizedString(), currentText());
-	data.setProperty("identificator", itemData(currentIndex()));
-	return data;
+	DataItem item = m_item;
+	item.setName(objectName());
+	item.setData(currentText());
+	item.setProperty("identificator", itemData(currentIndex()));
+	return item;
 }
 
 void ComboBox::setData(const QVariant &data)
@@ -179,13 +199,30 @@ void ComboBox::setData(const QVariant &data)
 	}
 }
 
-void ComboBox::onChanged()
+void ComboBox::onChanged(QString text)
 {
-	emit changed(objectName(),currentText(), dataForm());
+	dataForm()->dataChanged();
+	updateCompleteState(text);
+	if (m_emitChangedSignal)
+		emit changed(objectName(), currentText(), dataForm());
+}
+
+void ComboBox::updateCompleteState(QString &text)
+{
+	int pos = 0;
+	bool isComplete = validator() ?
+					  validator()->validate(text, pos) == QValidator::Acceptable :
+					  true;
+	if (m_mandatory)
+		isComplete = isComplete && !text.isEmpty();
+	if (isComplete != m_complete) {
+		m_complete = isComplete;
+		dataForm()->completeChanged(m_complete);
+	}
 }
 
 DateTimeEdit::DateTimeEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QDateTimeEdit(parent), AbstractDataWidget(dataForm)
+	QDateTimeEdit(parent), AbstractDataWidget(item, dataForm)
 {
 	setDateTime(item.data().toDateTime());
 	connectSignalsHelper(this, dataForm, item, SIGNAL(dateTimeChanged(QDateTime)));
@@ -193,7 +230,10 @@ DateTimeEdit::DateTimeEdit(DefaultDataForm *dataForm, const DataItem &item, QWid
 
 DataItem DateTimeEdit::item() const
 {
-	return DataItem(objectName(), LocalizedString(), data());
+	DataItem item = m_item;
+	item.setName(objectName());
+	item.setData(data());
+	return item;
 }
 
 void DateTimeEdit::setData(const QVariant &data)
@@ -213,7 +253,7 @@ void DateTimeEdit::onChanged()
 }
 
 DateEdit::DateEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QDateEdit(parent), AbstractDataWidget(dataForm)
+	QDateEdit(parent), AbstractDataWidget(item, dataForm)
 {
 	setDateTime(item.data().toDateTime());
 	connectSignalsHelper(this, dataForm, item, SIGNAL(dateChanged(QDate)));
@@ -221,7 +261,10 @@ DateEdit::DateEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *par
 
 DataItem DateEdit::item() const
 {
-	return DataItem(objectName(), LocalizedString(), data());
+	DataItem item = m_item;
+	item.setName(objectName());
+	item.setData(data());
+	return item;
 }
 
 void DateEdit::setData(const QVariant &data)
@@ -241,7 +284,7 @@ void DateEdit::onChanged()
 }
 
 TextEdit::TextEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QTextEdit(parent), AbstractDataWidget(dataForm)
+	QTextEdit(parent), AbstractDataWidget(item, dataForm)
 {
 	QString str;
 	if (item.data().canConvert<LocalizedString>())
@@ -254,7 +297,10 @@ TextEdit::TextEdit(DefaultDataForm *dataForm, const DataItem &item, QWidget *par
 
 DataItem TextEdit::item() const
 {
-	return DataItem(objectName(), LocalizedString(), data());
+	DataItem item = m_item;
+	item.setName(objectName());
+	item.setData(data());
+	return item;
 }
 
 inline QVariant TextEdit::data() const
@@ -269,7 +315,7 @@ void TextEdit::onChanged()
 }
 
 LineEdit::LineEdit(DefaultDataForm *dataForm, const DataItem &item, const QString &textHint, QWidget *parent) :
-	QLineEdit(parent), AbstractDataWidget(dataForm), m_complete(true)
+	QLineEdit(parent), AbstractDataWidget(item, dataForm), m_complete(true)
 {
 	QString str;
 	if (textHint.isEmpty()) {
@@ -313,7 +359,10 @@ LineEdit::LineEdit(DefaultDataForm *dataForm, const DataItem &item, const QStrin
 
 DataItem LineEdit::item() const
 {
-	return DataItem(objectName(), LocalizedString(), data());
+	DataItem item = m_item;
+	item.setName(objectName());
+	item.setData(data());
+	return item;
 }
 
 void LineEdit::setData(const QVariant &data)
@@ -347,7 +396,7 @@ void LineEdit::updateCompleteState(const QString &text)
 }
 
 SpinBox::SpinBox(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QSpinBox(parent), AbstractDataWidget(dataForm)
+	QSpinBox(parent), AbstractDataWidget(item, dataForm)
 {
 	bool ok;
 	int value = item.property("maxValue").toInt(&ok);
@@ -362,7 +411,10 @@ SpinBox::SpinBox(DefaultDataForm *dataForm, const DataItem &item, QWidget *paren
 
 DataItem SpinBox::item() const
 {
-	return DataItem(objectName(), LocalizedString(), value());
+	DataItem item = m_item;
+	item.setName(objectName());
+	item.setData(value());
+	return item;
 }
 
 void SpinBox::setData(const QVariant &data)
@@ -376,7 +428,7 @@ void SpinBox::onChanged()
 }
 
 DoubleSpinBox::DoubleSpinBox(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QDoubleSpinBox(parent), AbstractDataWidget(dataForm)
+	QDoubleSpinBox(parent), AbstractDataWidget(item, dataForm)
 {
 	bool ok;
 	int value = item.property("maxValue").toDouble(&ok);
@@ -391,7 +443,10 @@ DoubleSpinBox::DoubleSpinBox(DefaultDataForm *dataForm, const DataItem &item, QW
 
 DataItem DoubleSpinBox::item() const
 {
-	return DataItem(objectName(), LocalizedString(), value());
+	DataItem item = m_item;
+	item.setName(objectName());
+	item.setData(value());
+	return item;
 }
 
 void DoubleSpinBox::setData(const QVariant &data)
@@ -405,7 +460,7 @@ void DoubleSpinBox::onChanged()
 }
 
 IconListWidget::IconListWidget(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QListWidget(parent), AbstractDataWidget(dataForm)
+	QListWidget(parent), AbstractDataWidget(item, dataForm)
 {
 	setViewMode(IconMode);
 	QSize size = item.property("imageSize", QSize(32, 32));
@@ -462,7 +517,10 @@ IconListWidget::IconListWidget(DefaultDataForm *dataForm, const DataItem &item, 
 
 DataItem IconListWidget::item() const
 {
-	return DataItem(objectName(), LocalizedString(), data());
+	DataItem item = m_item;
+	item.setName(objectName());
+	item.setData(data());
+	return item;
 }
 
 void IconListWidget::setData(const QVariant &data)
@@ -491,7 +549,7 @@ void IconListWidget::onChanged()
 }
 
 IconWidget::IconWidget(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QWidget(parent), AbstractDataWidget(dataForm)
+	QWidget(parent), AbstractDataWidget(item, dataForm)
 {
 	m_size = item.property("imageSize", QSize(32, 32));
 	QPixmap pixmap = variantToPixmap(item.data(), m_size);
@@ -529,7 +587,9 @@ IconWidget::IconWidget(DefaultDataForm *dataForm, const DataItem &item, QWidget 
 
 DataItem IconWidget::item() const
 {
-	DataItem item(objectName(), LocalizedString(), data());
+	DataItem item = m_item;
+	item.setName(objectName());
+	item.setData(data());
 	item.setProperty("imagePath", m_path);
 	return item;
 }
@@ -604,7 +664,7 @@ void IconWidget::updatePixmap()
 }
 
 ModifiableGroup::ModifiableGroup(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	QGroupBox(parent), AbstractDataWidget(dataForm)
+	QGroupBox(parent), AbstractDataWidget(item, dataForm)
 {
 	setObjectName(item.name());
 	setTitle(item.title());
@@ -622,11 +682,11 @@ DataItem ModifiableGroup::item() const
 }
 
 DataGroup::DataGroup(DefaultDataForm *dataForm, const DataItem &items, QWidget *parent) :
-	QGroupBox(parent), AbstractDataWidget(dataForm)
+	QGroupBox(parent), AbstractDataWidget(items, dataForm)
 {
 	setTitle(items.title());
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-	m_layout = new DataLayout(dataForm, items.property<quint16>("columns", 1), this);
+	m_layout = new DataLayout(items, dataForm, items.property<quint16>("columns", 1), this);
 	m_layout->addItems(items.subitems());
 
 	QVariant spacing = items.property("horizontalSpacing");
@@ -645,7 +705,7 @@ DataItem DataGroup::item() const
 }
 
 StringListGroup::StringListGroup(DefaultDataForm *dataForm, const DataItem &item, QWidget *parent) :
-	ModifiableWidget(dataForm, parent), m_item(item)
+	ModifiableWidget(item, dataForm, parent)
 {
 	m_max = item.property("maxStringsCount", -1);
 	m_def = item;
@@ -668,7 +728,7 @@ StringListGroup::StringListGroup(DefaultDataForm *dataForm, const DataItem &item
 
 DataItem StringListGroup::item() const
 {
-	DataItem item;
+	DataItem item = m_item;
 	item.setName(objectName());
 	item.setData(data());
 	return item;
@@ -678,7 +738,7 @@ void StringListGroup::setData(const QVariant &data)
 {
 	foreach (const QString &str, variantToStringList(data)) {
 		if (!m_alt.isEmpty())
-			addRow(new ComboBox(dataForm(), str, m_alt, "validator", m_item));
+			addRow(new ComboBox(dataForm(), str, m_alt, false, m_item));
 		else
 			addRow(new LineEdit(dataForm(), m_item, str));
 	}

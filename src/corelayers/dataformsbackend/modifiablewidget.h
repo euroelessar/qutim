@@ -18,7 +18,6 @@ class ModifiableWidget : public QWidget, public AbstractDataWidget
 	Q_OBJECT
 	Q_INTERFACES(Core::AbstractDataWidget)
 public:
-	ModifiableWidget(DefaultDataForm *dataForm, QWidget *parent = 0);
 	ModifiableWidget(const DataItem &item, DefaultDataForm *dataForm, QWidget *parent = 0);
 	virtual ~ModifiableWidget();
 	void addRow(QWidget *data, QWidget *title = 0);
@@ -50,7 +49,6 @@ protected:
 	int m_max;
 private:
 	void setRow(const WidgetLine &line, int row);
-	void init();
 	Qt::Alignment labelAlignment() const;
 	mutable Qt::Alignment m_labelAlignment;
 	mutable QPointer<QStyle> m_style;

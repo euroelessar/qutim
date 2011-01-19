@@ -269,7 +269,7 @@ void MobileSettingsWindow::cancel()
 	QWidget *c = p->stackedWidget->currentWidget();	
 	while (p->modifiedWidgets.count()) {
 		SettingsWidget *widget = p->modifiedWidgets.takeFirst();
-		widget->save();
+		widget->cancel();
 		if (widget != c)
 			widget->deleteLater();
 	}	
