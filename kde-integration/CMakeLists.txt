@@ -5,13 +5,18 @@ PROJECT( KDEIntegration )
 
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
 
-find_package( Qt4 REQUIRED )
-find_package( KDE4 REQUIRED )
+find_package(KDE4)
+if(NOT KDE4_FOUND)
+	message(STATUS "Cannot find KDE4, kde integration plugin will be skipped")
+	return()
+endif()
+
 include( KDE4Defaults )
 
 macro_ensure_version( "4.2.0" "${GENERIC_LIB_VERSION}" KDE_HAS_4_2 )
 if( NOT KDE_HAS_4_2 )
-	message( SEND_ERROR "Minimum kdelibs version is 4.2.0, but ${GENERIC_LIB_VERSION} found" )
+	message(STATUS "Minimum kdelibs version is 4.2.0, but ${GENERIC_LIB_VERSION} found" )
+	return()
 endif( NOT KDE_HAS_4_2 )
 
 set( QUTIM_PATH "" CACHE FILEPATH "Path to qutim sources" )
