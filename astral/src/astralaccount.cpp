@@ -19,36 +19,36 @@ struct AstralAccountPrivate
 
 AstralAccount::AstralAccount(AstralProtocol *protocol, const QString &id) : qutim_sdk_0_3::Account(id, protocol), p(new AstralAccountPrivate)
 {
-	p->protocol = protocol;
-//	p->roster = new AstralRoster(this, 0);
-	ConnectionManager *connMgr = protocol->connectionManager().data();
-	QVariantMap params;
-	params["account"] = id;
-	params["password"] = config("general").value("passwd", QString(), Config::Crypted);
-//	if(id.contains("qutim.org"))
-//		params["server"] = "jabber.qutim.org";
-	qDebug() << params;
+//	p->protocol = protocol;
+////	p->roster = new AstralRoster(this, 0);
+//	ConnectionManager *connMgr = protocol->connectionManager().data();
+//	QVariantMap params;
+//	params["account"] = id;
+//	params["password"] = config("general").value("passwd", QString(), Config::Crypted);
+////	if(id.contains("qutim.org"))
+////		params["server"] = "jabber.qutim.org";
+//	qDebug() << params;
 
-	QDBusMessage reply = connMgr->interface<Client::ConnectionManagerInterface>()->call("RequestConnection", protocol->id(), params);
-	p->conn = Connection::create(reply.arguments().value(0).toString(), reply.arguments().value(1).value<QDBusObjectPath>().path());
-	connect(p->conn->requestConnect(),
-			SIGNAL(finished(Tp::PendingOperation*)),
-			SLOT(onConnect(Tp::PendingOperation*)));
-	qDebug() << connMgr->interfaces();
-	QDBusMessage reply2 = p->conn->interface<Client::ConnectionInterface>()->call("GetInterfaces");
-	QStringList interfaces = reply2.arguments().value(0).toStringList();
-	qDebug() << interfaces;
-	if(interfaces.contains(TELEPATHY_INTERFACE_CONNECTION_INTERFACE_REQUESTS))
-	{
-		qDebug() << "connecting to Connection.Interface.NewChannels";
-		connect(p->conn->requestsInterface(),
-				SIGNAL(NewChannels(const Tp::ChannelDetailsList&)),
-				SLOT(onNewChannels(const Tp::ChannelDetailsList&)));
-	}
+//	QDBusMessage reply = connMgr->interface<Client::ConnectionManagerInterface>()->call("RequestConnection", protocol->id(), params);
+//	p->conn = Connection::create(reply.arguments().value(0).toString(), reply.arguments().value(1).value<QDBusObjectPath>().path());
+//	connect(p->conn->requestConnect(),
+//			SIGNAL(finished(Tp::PendingOperation*)),
+//			SLOT(onConnect(Tp::PendingOperation*)));
+//	qDebug() << connMgr->interfaces();
+//	QDBusMessage reply2 = p->conn->interface<Client::ConnectionInterface>()->call("GetInterfaces");
+//	QStringList interfaces = reply2.arguments().value(0).toStringList();
+//	qDebug() << interfaces;
+//	if(interfaces.contains(TELEPATHY_INTERFACE_CONNECTION_INTERFACE_REQUESTS))
+//	{
+//		qDebug() << "connecting to Connection.Interface.NewChannels";
+//		connect(p->conn->requestsInterface(),
+//				SIGNAL(NewChannels(const Tp::ChannelDetailsList&)),
+//				SLOT(onNewChannels(const Tp::ChannelDetailsList&)));
+//	}
 
-//	connect(p->conn.data(),
-//			SIGNAL(invalidated(Tp::DBusProxy *, const QString &, const QString &)),
-//			SLOT(onConnectionInvalidated(Tp::DBusProxy *, const QString &, const QString &)));
+////	connect(p->conn.data(),
+////			SIGNAL(invalidated(Tp::DBusProxy *, const QString &, const QString &)),
+////			SLOT(onConnectionInvalidated(Tp::DBusProxy *, const QString &, const QString &)));
 }
 
 AstralAccount::~AstralAccount()
@@ -106,9 +106,9 @@ void AstralAccount::onConnect(PendingOperation *op)
 		return;
 	}
 
-	PendingReady *pr = qobject_cast<PendingReady *>(op);
-	ConnectionPtr conn = ConnectionPtr(qobject_cast<Connection *>(pr->object()));
-	p->roster = new AstralRoster(this, conn);
+//	PendingReady *pr = qobject_cast<PendingReady *>(op);
+//	ConnectionPtr conn = ConnectionPtr(qobject_cast<Connection *>(pr->object()));
+//	p->roster = new AstralRoster(this, conn);
 }
 
 void AstralAccount::onConnectError(PendingOperation *op)

@@ -291,9 +291,9 @@ void JContact::setStatus(const jreen::Presence presence)
 		d->resources.value(resource)->setStatus(presence);
 		fillMaxResource();
 	}
-	Status newStatus = status();
-	if(oldStatus.type() != newStatus.type())
-		emit statusChanged(newStatus, oldStatus);
+	recalcStatus();
+	if(oldStatus.type() != d->status.type())
+		emit statusChanged(d->status, oldStatus);
 }
 
 void JContact::removeResource(const QString &resource)
@@ -304,7 +304,12 @@ void JContact::removeResource(const QString &resource)
 
 Status JContact::status() const
 {
-	Q_D(const JContact);
+	return d_func()->status;
+}
+
+void JContact::recalcStatus()
+{
+	Q_D(JContact);
 	Status status = d->currentResources.isEmpty() ?
 				d->status :
 				d->resources.value(d->currentResources.first())->status();
@@ -313,7 +318,7 @@ Status JContact::status() const
 		itr.next();
 		status.setExtendedInfo(itr.key(), itr.value());
 	}
-	return status;
+	d->status = status;
 }
 
 void JContact::fillMaxResource()
@@ -379,6 +384,7 @@ void JContact::setExtendedInfo(const QString &name, const QVariantHash &extStatu
 {
 	Status current = status();
 	d_func()->extInfo.insert(name, extStatus);
+	recalcStatus();
 	emit statusChanged(status(), current);
 }
 
@@ -386,6 +392,7 @@ void JContact::removeExtendedInfo(const QString &name)
 {
 	Status current = status();
 	d_func()->extInfo.remove(name);
+	recalcStatus();
 	emit statusChanged(status(), current);
 }
 
@@ -394,8 +401,10 @@ void JContact::resourceStatusChanged(const Status &current, const Status &previo
 	Q_D(JContact);
 	if (d->currentResources.isEmpty())
 		return;
-	if (d->resources.value(d->currentResources.first()) == sender())
+	if (d->resources.value(d->currentResources.first()) == sender()) {
+		recalcStatus();
 		emit statusChanged(current, previous);
+	}
 }
 
 }

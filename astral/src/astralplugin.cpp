@@ -42,19 +42,19 @@ void AstralPlugin::init()
 //		qDebug() << account->protocol() << account->displayName() << account->cmName() << account->parameters();
 //	}
 //	qDebug() << "after asking";
-	foreach (ConnectionManagerPtr connManager, listConnectionManagers()) {
-		QEventLoop *loop = new QEventLoop;
-		connect(connManager->becomeReady(), SIGNAL(finished(Tp::PendingOperation *)), loop, SLOT(quit()));
-		loop->exec();
-		delete loop;
-		qDebug() << connManager->busName();
-		foreach (ProtocolInfo *protocol, connManager->protocols()) {
-			qDebug() << "astral" << protocol->cmName() << protocol->name();
-			addExtension(protocol->name() + " (" + protocol->cmName() + ")",
-						 QT_TRANSLATE_NOOP("Plugin", "Plugin support by Telepathy"),
-						 new AstralProtocolGenerator(connManager, protocol));
-		}
-	}
+//	foreach (ConnectionManagerPtr connManager, listConnectionManagers()) {
+//		QEventLoop *loop = new QEventLoop;
+//		connect(connManager->becomeReady(), SIGNAL(finished(Tp::PendingOperation *)), loop, SLOT(quit()));
+//		loop->exec();
+//		delete loop;
+//		qDebug() << connManager->busName();
+//		foreach (ProtocolInfo *protocol, connManager->protocols()) {
+//			qDebug() << "astral" << protocol->cmName() << protocol->name();
+//			addExtension(protocol->name() + " (" + protocol->cmName() + ")",
+//						 QT_TRANSLATE_NOOP("Plugin", "Plugin support by Telepathy"),
+//						 new AstralProtocolGenerator(connManager, protocol));
+//		}
+//	}
 }
 
 bool AstralPlugin::load()

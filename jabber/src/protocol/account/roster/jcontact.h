@@ -65,6 +65,7 @@ public slots:
 	void requestSubscription();
 	void removeSubscription();
 protected:
+	void recalcStatus();
 	void fillMaxResource();
 	virtual bool event(QEvent *event);
 private slots:

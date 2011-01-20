@@ -65,25 +65,25 @@ void AstralContact::onGroupsChanged()
 
 Status AstralContact::status() const
 {
-	switch(p->impl->presenceType())
-	{
-	case AstralUnknown:
-	case AstralError:
-	case AstralUnset:
-	case AstralOffline:
-		return Status::Offline;
-	case AstralAvailable:
-		return p->impl->presenceStatus() == QLatin1String("chat") ? Status::FreeChat : Status::Online;
-	case AstralAway:
-		return Status::Away;
-	case AstralExtendedAway:
-		return Status::NA;
-	case AstralHidden:
-		return Status::Invisible;
-	case AstralBusy:
-		return Status::DND;
-	}
-	return Status::Online;
+//	switch(p->impl->presence().type())
+//	{
+//	case AstralUnknown:
+//	case AstralError:
+//	case AstralUnset:
+//	case AstralOffline:
+//		return Status::Offline;
+//	case AstralAvailable:
+//		return p->impl->presenceStatus() == QLatin1String("chat") ? Status::FreeChat : Status::Online;
+//	case AstralAway:
+//		return Status::Away;
+//	case AstralExtendedAway:
+//		return Status::NA;
+//	case AstralHidden:
+//		return Status::Invisible;
+//	case AstralBusy:
+//		return Status::DND;
+//	}
+//	return Status::Online;
 }
 
 void AstralContact::setName(const QString &name)

@@ -588,7 +588,30 @@ void QuetzalPlugin::init()
 			Icon("quetzal"));
 	QLibrary lib("purple");
 	lib.setLoadHints(QLibrary::ExportExternalSymbolsHint);
-	lib.load();
+	if (!lib.load()) {
+#if defined(Q_OS_UNIX) && !defined(Q_OS_SYMBIAN)
+		// So try to guess purple path
+		QStringList mayBePaths = QStringList() << QLatin1String("/usr/lib")
+#ifdef Q_WS_MAEMO_5
+								 << QLatin1String("/opt/maemo/usr/lib")
+#endif
+								 ;
+		QStringList filter = QStringList() << QLatin1String("libpurple.so*");
+		bool ok = false;
+		foreach (const QString &path, mayBePaths) {
+			QDir dir(path);
+			foreach (const QString &name, dir.entryList(filter, QDir::Files)) {
+				lib.setFileName(dir.filePath(name));
+				if (ok |= lib.load())
+					break;
+			}
+			if (ok)
+				break;
+		}
+		if (!ok)
+#endif
+			return;
+	}
 	initLibPurple();
 	QByteArray imPrefix("im-");
 	for(GList *it = purple_plugins_get_protocols(); it != NULL; it = it->next)
