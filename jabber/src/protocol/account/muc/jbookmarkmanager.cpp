@@ -96,7 +96,7 @@ void JBookmarkManager::saveRecent(const QString &conference, const QString &nick
 	if (find(bookmark, false) != -1)
 		return;
 	int index = find(bookmark, true);
-	Bookmark::Conference tmp = p->recent.at(index);
+	Bookmark::Conference tmp = p->recent.value(index);
 	if (tmp.isValid()) {
 		if (tmp.password() != password)
 			tmp.setPassword(bookmark.password());
