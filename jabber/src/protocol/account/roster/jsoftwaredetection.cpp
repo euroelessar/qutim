@@ -106,9 +106,16 @@ void JSoftwareDetection::handlePresence(const jreen::Presence &presence)
 		QString node;
 		if (jreen::Capabilities *caps = presence.findExtension<jreen::Capabilities>().data()) {
 			qDebug() << "handle caps" << caps->node();
+			QString capsNode = caps->node();
+			if(capsNode == QLatin1String("http://www.android.com/gtalk/client/caps")) {
+				QString software = "GTalk (Android)";
+				QString softwareVersion = caps->ver();
+				QString client = getClientDescription(software, softwareVersion, QString());
+				updateClientData(resource, client, software, softwareVersion, QString(), "gtalk-android");
+				return;
+			}
 			static const QRegExp regExp("^http://.*google.com/.*client/caps$");
 			Q_ASSERT(regExp.isValid());
-			QString capsNode = caps->node();
 			if(regExp.exactMatch(capsNode))	{
 				QString software = "GTalk";
 				if(capsNode.startsWith("http://mail."))
