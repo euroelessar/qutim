@@ -46,3 +46,14 @@ qutim_add_plugin(webkitchat
 	DEPENDS adiumchat
 	LINK_LIBRARIES adiumchat
 )
+
+qutim_add_plugin(textchat
+	EXTENSION
+	EXTENSION_HEADER textchat/textviewfactory.h
+	EXTENSION_CLASS Core::AdiumChat::TextViewFactory
+	DISPLAY_NAME "Text view"
+	SOURCE_DIR textchat
+	DESCRIPTION "Fast and light chat view"
+	DEPENDS adiumchat
+	LINK_LIBRARIES adiumchat
+)

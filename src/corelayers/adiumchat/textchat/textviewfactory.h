@@ -25,6 +25,7 @@ namespace AdiumChat
 {
 class TextViewFactory : public ChatViewFactory
 {
+	Q_OBJECT
 public:
     TextViewFactory();
 	virtual QWidget *createViewWidget();

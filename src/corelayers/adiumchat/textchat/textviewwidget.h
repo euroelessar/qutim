@@ -18,6 +18,7 @@
 #define TEXTVIEWWIDGET_H
 
 #include <chatlayer/chatviewfactory.h>
+#include <QFrame>
 #include <QTextEdit>
 #include <QTextDocument>
 
@@ -32,6 +33,8 @@ class TextViewWidget : public QTextEdit, public Core::AdiumChat::ChatViewWidget
 public:
     TextViewWidget();
 	virtual void setViewController(QObject *controller);
+private:
+//	QTextEdit *m_textEdit;
 };
 }
 }

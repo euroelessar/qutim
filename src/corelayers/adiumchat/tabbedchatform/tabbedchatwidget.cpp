@@ -52,10 +52,10 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_unitAction(0)
 {
 	setAttribute(Qt::WA_DeleteOnClose);	
-	QWidget *w = new QWidget(this);
-	setCentralWidget(w);
+	QWidget *centralWidget = new QWidget(this);
+	setCentralWidget(centralWidget);
 	QWidget *view = ChatViewFactory::instance()->createViewWidget();
-	view->setParent(w);
+	view->setParent(centralWidget);
 
 	QSplitter *vSplitter = new QSplitter(Qt::Vertical,this);
 	vSplitter->setObjectName(QLatin1String("vSplitter"));
@@ -67,7 +67,7 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	hSplitter->addWidget(vSplitter);
 	hSplitter->addWidget(m_contactView);
 
-	m_layout = new QVBoxLayout(w);
+	m_layout = new QVBoxLayout(centralWidget);
 	m_layout->addWidget(hSplitter);
 #ifdef Q_WS_MAC
 	m_layout->setMargin(0);

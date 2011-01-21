@@ -15,6 +15,8 @@
  ****************************************************************************/
 
 #include "textviewfactory.h"
+#include "textviewcontroller.h"
+#include "textviewwidget.h"
 
 namespace Core
 {
@@ -26,10 +28,12 @@ TextViewFactory::TextViewFactory()
 
 QWidget *TextViewFactory::createViewWidget()
 {
+	return new TextViewWidget();
 }
 
 QObject *TextViewFactory::createViewController()
 {
+	return new TextViewController();
 }
 }
 }

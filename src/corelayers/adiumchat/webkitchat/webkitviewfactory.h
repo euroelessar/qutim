@@ -16,6 +16,7 @@ using namespace qutim_sdk_0_3;
 
 class WebkitViewFactory : public ChatViewFactory
 {
+	Q_OBJECT
 public:
 	WebkitViewFactory();
 	virtual ~WebkitViewFactory();

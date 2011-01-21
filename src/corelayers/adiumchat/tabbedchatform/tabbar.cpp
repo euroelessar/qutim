@@ -28,7 +28,7 @@ TabBar::TabBar(QWidget *parent) : QTabBar(parent), p(new TabBarPrivate())
 	p->closableActiveTab = false;
 	setMouseTracking(true);
 	p->sessionList = new QMenu(this);
-	setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+	setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
 	setMovable(true);
 #ifdef Q_WS_MAC
 	setClosableActiveTab(true);
