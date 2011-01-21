@@ -27,11 +27,11 @@ namespace Core
 		Q_INTERFACES(qutim_sdk_0_3::StartupModule)
 	public:
 		LocalizationModule();
+		
+		static QStringList determineSystemLocale();
+		static void loadLanguage(const QStringList &langs);
 	public slots:
 		void onSettingsSave();
-	private:
-		void loadLanguage(const QStringList &langs);
-		QList<QTranslator *> m_translators;
 	};
 }
 
