@@ -42,14 +42,9 @@ namespace qutim_sdk_0_3
 	{
 	}
 	
-	void MetaObjectBuilder::addClassInfo(const QByteArray &name, class QByteArray &value)
+	void MetaObjectBuilder::addClassInfo(const QByteArray &name, const QByteArray &value)
 	{
 		d_func()->classInfos << qMakePair(name, value);
-	}
-	
-	void MetaObjectBuilder::addClassInfo(const char *name, const char *value)
-	{
-		addClassInfo(QByteArray(name), QByteArray(name));
 	}
 	
 	static int ensureIndex(const QByteArray &name, QByteArray &data, QMap<QByteArray, int> &map)

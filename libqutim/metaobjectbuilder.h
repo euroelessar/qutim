@@ -31,8 +31,7 @@ namespace qutim_sdk_0_3
 		MetaObjectBuilder(const QByteArray &name, const QMetaObject *parent  = 0);
 		~MetaObjectBuilder();
 		
-		void addClassInfo(const QByteArray &name, class QByteArray &value);
-		void addClassInfo(const char *name, const char *value);
+		void addClassInfo(const QByteArray &name, const QByteArray &value);
 		QMetaObject *generate();
 
 		static const char *info(const QMetaObject *meta, const char *name);

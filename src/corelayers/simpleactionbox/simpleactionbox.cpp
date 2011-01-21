@@ -41,6 +41,7 @@ void SimpleActionBoxModule::removeAction(QAction *action)
 {
 	m_buttons.take(action)->deleteLater();
 	QWidget::removeAction(action);
+	disconnect(action, 0, this, 0);
 }
 
 void SimpleActionBoxModule::onButtonDestroyed(QObject *obj)
