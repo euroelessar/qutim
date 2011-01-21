@@ -7,9 +7,10 @@
 namespace Core
 {
 
-	class SoundThemeSettings : public QObject
+	class SoundThemeSettings : public QObject, public qutim_sdk_0_3::StartupModule
 	{
 		Q_OBJECT
+		Q_INTERFACES(qutim_sdk_0_3::StartupModule)
 	public:
 		explicit SoundThemeSettings(QObject *parent = 0);
 	};

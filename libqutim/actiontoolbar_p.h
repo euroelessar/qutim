@@ -31,7 +31,7 @@ namespace qutim_sdk_0_3
 	class ActionToolBar;
 	class ActionGenerator;
 
-	typedef QMap<int,LocalizedString> SizeMap;
+	typedef QList<ActionGenerator*> SizeList;
 	
 	class ActionToolBarPrivate : QObject
 	{
@@ -48,15 +48,14 @@ namespace qutim_sdk_0_3
 		bool moveHookEnabled;
 		ActionToolBar *q_ptr;
 		QMenu *contextMenu;
-		QActionGroup *fillMenu(QMenu *menu,SizeMap *map, int current = 0);
+		QMenu *sizeMenu;
+		QMenu *styleMenu;
+		QActionGroup *fillMenu(QMenu *menu, SizeList *map, int current = 0);
 		QString id;
 	public slots:
 		void sizeActionTriggered(QAction*);
 		void styleActionTriggered(QAction*);	
 	};
-
-	SizeMap *sizeMap();
-	SizeMap *styleMap();
 }
 
 #endif // ACTIONTOOLBAR_P_H

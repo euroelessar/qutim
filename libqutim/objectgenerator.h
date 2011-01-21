@@ -232,16 +232,25 @@ namespace qutim_sdk_0_3
 		*/
 		virtual bool hasInterface(const char *id) const
 		{
-			return !qstrcmp(qobject_interface_iid<I0 *>(), id)
-					|| !qstrcmp(qobject_interface_iid<I1 *>(), id)
-					|| !qstrcmp(qobject_interface_iid<I2 *>(), id)
-					|| !qstrcmp(qobject_interface_iid<I3 *>(), id)
-					|| !qstrcmp(qobject_interface_iid<I4 *>(), id)
-					|| !qstrcmp(qobject_interface_iid<I5 *>(), id)
-					|| !qstrcmp(qobject_interface_iid<I6 *>(), id)
-					|| !qstrcmp(qobject_interface_iid<I7 *>(), id)
-					|| !qstrcmp(qobject_interface_iid<I8 *>(), id)
-					|| !qstrcmp(qobject_interface_iid<I9 *>(), id);
+			return checkInterface<I0>(id)
+			        | checkInterface<I1>(id)
+			        | checkInterface<I2>(id)
+			        | checkInterface<I3>(id)
+			        | checkInterface<I4>(id)
+			        | checkInterface<I5>(id)
+			        | checkInterface<I6>(id)
+			        | checkInterface<I7>(id)
+			        | checkInterface<I8>(id)
+			        | checkInterface<I9>(id);
+		}
+	private:
+		template<typename Interface>
+		Q_INLINE_TEMPLATE bool checkInterface(const char *id, T *pointer = 0) const
+		{
+			register Interface *i = pointer;
+			Q_UNUSED(i);
+			return qobject_interface_iid<Interface *>()
+			        && !qstrcmp(qobject_interface_iid<Interface *>(), id);
 		}
 	};
 

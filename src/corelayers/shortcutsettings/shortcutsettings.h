@@ -7,9 +7,10 @@
 namespace Core
 {
 
-	class ShortcutSettings : public QObject
+	class ShortcutSettings : public QObject, public qutim_sdk_0_3::StartupModule
 	{
 		Q_OBJECT
+		Q_INTERFACES(qutim_sdk_0_3::StartupModule)
 	public:
 		explicit ShortcutSettings(QObject *parent = 0);
 	};

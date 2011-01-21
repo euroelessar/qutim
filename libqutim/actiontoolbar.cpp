@@ -23,89 +23,89 @@
 
 namespace qutim_sdk_0_3
 {	
-	static SizeMap init_size_map()
+	static ActionGenerator *createGenerator(int data, const LocalizedString &text)
 	{
-		SizeMap map;
-		map.insert(16,QT_TRANSLATE_NOOP("ActionToolBar","Small (16x16)"));
-		map.insert(22,QT_TRANSLATE_NOOP("ActionToolBar","Medium (22x22)"));
-		map.insert(32,QT_TRANSLATE_NOOP("ActionToolBar","Big (32x32)"));
-		map.insert(64,QT_TRANSLATE_NOOP("ActionToolBar","Huge (64x64)"));
-		return map;
+		ActionGenerator *action = new ActionGenerator(QIcon(), text, 0);
+		action->addProperty("intData", data);
+		action->setCheckable(true);
+		return action;
+	}
+
+	static SizeList init_size_map()
+	{
+		SizeList list;
+		list << createGenerator(16, QT_TRANSLATE_NOOP("ActionToolBar","Small (16x16)"));
+		list << createGenerator(22, QT_TRANSLATE_NOOP("ActionToolBar","Medium (22x22)"));
+		list << createGenerator(32, QT_TRANSLATE_NOOP("ActionToolBar","Big (32x32)"));
+		list << createGenerator(64, QT_TRANSLATE_NOOP("ActionToolBar","Huge (64x64)"));
+		return list;
 	}
 	
-	static SizeMap init_style_map()
+	static SizeList init_style_map()
 	{
-		SizeMap map;
-		map.insert(Qt::ToolButtonIconOnly,QT_TRANSLATE_NOOP("ActionToolBar","Only display the icon"));
-		map.insert(Qt::ToolButtonTextOnly,QT_TRANSLATE_NOOP("ActionToolBar","Only display the text"));
-		map.insert(Qt::ToolButtonTextBesideIcon,QT_TRANSLATE_NOOP("ActionToolBar","The text appears beside the icon"));
-		map.insert(Qt::ToolButtonTextUnderIcon,QT_TRANSLATE_NOOP("ActionToolBar","The text appears under the icon"));
-		map.insert(Qt::ToolButtonFollowStyle,QT_TRANSLATE_NOOP("ActionToolBar","Follow the style"));
-		return map;
+		SizeList list;
+		list << createGenerator(Qt::ToolButtonIconOnly,
+		                        QT_TRANSLATE_NOOP("ActionToolBar","Only display the icon"));
+		list << createGenerator(Qt::ToolButtonTextOnly,
+		                        QT_TRANSLATE_NOOP("ActionToolBar","Only display the text"));
+		list << createGenerator(Qt::ToolButtonTextBesideIcon,
+		                        QT_TRANSLATE_NOOP("ActionToolBar","The text appears beside the icon"));
+		list << createGenerator(Qt::ToolButtonTextUnderIcon,
+		                        QT_TRANSLATE_NOOP("ActionToolBar","The text appears under the icon"));
+		list << createGenerator(Qt::ToolButtonFollowStyle,
+		                        QT_TRANSLATE_NOOP("ActionToolBar","Follow the style"));
+		return list;
 	}
 	
-	SizeMap *sizeMap()
-	{
-		static QScopedPointer<SizeMap> list(new SizeMap(init_size_map()));
-		return list.data();
-	}
+	Q_GLOBAL_STATIC_WITH_INITIALIZER(SizeList, sizeMap, *x = init_size_map())
+	Q_GLOBAL_STATIC_WITH_INITIALIZER(SizeList, styleMap, *x = init_style_map())
 	
-	SizeMap *styleMap()
-	{
-		static QScopedPointer<SizeMap> list(new SizeMap(init_style_map()));
-		return list.data();		
-	}
-	
-	QActionGroup *ActionToolBarPrivate::fillMenu(QMenu *menu,SizeMap *map, int current)
+	QActionGroup *ActionToolBarPrivate::fillMenu(QMenu *menu, SizeList *map, int current)
 	{
 		QActionGroup *group = new QActionGroup(menu);
-		SizeMap::const_iterator it;
-		for (it = map->constBegin();it != map->constEnd();it++) {
-			QAction *act = new QAction(it.value(),menu);
-			act->setCheckable(true);
-			act->setData(it.key());
-			act->setChecked(it.key() == current);
+		SizeList::const_iterator it;
+		for (it = map->constBegin(); it != map->constEnd(); it++) {
+			QAction *act = (*it)->generate<QAction>();
+			act->setMenu(menu);
+			act->setChecked(act->property("intData") == current);
 			menu->addAction(act);
-			
 			group->addAction(act);
 		}
 		group->setExclusive(true);
 		return group;
 	}
 	
-	ActionToolBarPrivate::ActionToolBarPrivate() :
-		contextMenu(new QMenu(QT_TRANSLATE_NOOP("ActionToolBar","ToolBar appearance"))),
-		id("common")
+	ActionToolBarPrivate::ActionToolBarPrivate() : id("common")
 	{
 	}
 	
 	void ActionToolBarPrivate::initContextMenu()
 	{
 		Q_Q(ActionToolBar);
-		SizeMap::const_iterator it;
+		contextMenu = new QMenu(tr("ToolBar appearance"));
 		QActionGroup *group;
-		QMenu *size_menu = new QMenu(QT_TRANSLATE_NOOP("ActionToolBar","Icon size"),contextMenu);
-		group = fillMenu(size_menu,sizeMap(),q->iconSize().height());
-		contextMenu->addMenu(size_menu);
+		sizeMenu = new QMenu(tr("Icon size"), contextMenu);
+		group = fillMenu(sizeMenu, sizeMap(), q->iconSize().height());
+		contextMenu->addMenu(sizeMenu);
 		connect(group,SIGNAL(triggered(QAction*)),SLOT(sizeActionTriggered(QAction*)));
 		
-		QMenu *style_menu = new QMenu(QT_TRANSLATE_NOOP("ActionToolBar","Tool button style"),contextMenu);
-		group = fillMenu(style_menu,styleMap(),q->toolButtonStyle());
-		contextMenu->addMenu(style_menu);
+		styleMenu = new QMenu(tr("Tool button style"), contextMenu);
+		group = fillMenu(styleMenu, styleMap(), q->toolButtonStyle());
+		contextMenu->addMenu(styleMenu);
 		connect(group,SIGNAL(triggered(QAction*)),SLOT(styleActionTriggered(QAction*)));
 	}
 	
 	void ActionToolBarPrivate::sizeActionTriggered(QAction *action)
 	{
 		Q_Q(ActionToolBar);
-		int size = action->data().toInt();
+		int size = action->property("intData").toInt();
 		q->setIconSize(QSize(size,size));
 	}
 	
 	void ActionToolBarPrivate::styleActionTriggered(QAction *action)
 	{
 		Q_Q(ActionToolBar);
-		Qt::ToolButtonStyle style = static_cast<Qt::ToolButtonStyle>(action->data().toInt());		
+		Qt::ToolButtonStyle style = static_cast<Qt::ToolButtonStyle>(action->property("intData").toInt());		
 		q->setToolButtonStyle(style);
 	}	
 	
@@ -223,6 +223,23 @@ namespace qutim_sdk_0_3
 	void ActionToolBar::setMoveHookEnabled(bool enabled)
 	{
 		d_func()->moveHookEnabled = enabled;
+	}
+	
+	void ActionToolBar::changeEvent(QEvent *e)
+	{
+	    QWidget::changeEvent(e);
+	    switch (e->type()) {
+	    case QEvent::LanguageChange:
+		{
+			Q_D(ActionToolBar);
+			d->contextMenu->setTitle(tr("ToolBar appearance"));
+			d->sizeMenu->setTitle(tr("Icon size"));
+			d->styleMenu->setTitle(tr("Tool button style"));
+	        break;
+		}
+	    default:
+	        break;
+	    }
 	}
 		
 // 	void ActionToolBar::setId(const QString &id)

@@ -7,9 +7,10 @@
 namespace Core
 {
 
-	class NotificationsSettings : public QObject
+	class NotificationsSettings : public QObject, public qutim_sdk_0_3::StartupModule
 	{
 		Q_OBJECT
+		Q_INTERFACES(qutim_sdk_0_3::StartupModule)
 	public:
 		explicit NotificationsSettings(QObject *parent = 0);
 	};

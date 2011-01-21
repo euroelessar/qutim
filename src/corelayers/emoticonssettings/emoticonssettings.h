@@ -21,9 +21,10 @@
 
 namespace Core {
 
-	class EmoticonsSettings : public QObject
+	class EmoticonsSettings : public QObject, public qutim_sdk_0_3::StartupModule
 	{
 		Q_OBJECT
+		Q_INTERFACES(qutim_sdk_0_3::StartupModule)
 	public:
 		EmoticonsSettings();
 	};

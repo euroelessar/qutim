@@ -30,6 +30,7 @@
 #include <qutim/json.h>
 #include <QStringBuilder>
 #include <QDebug>
+#include <QElapsedTimer>
 
 namespace Core
 {
@@ -335,8 +336,11 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 			QFile file(account_history_dir.absoluteFilePath(
 					JsonHistory::quote(ui.fromComboBox->itemData(from_index).toString()) +
 					"." + item_date_time.date().toString("yyyyMM") + ".json"));
+			QElapsedTimer timer;
+			timer.start();
 			if (file.open(QIODevice::ReadOnly | QIODevice::Text))
 			{
+				qDebug() << "open" << timer.elapsed(); timer.restart();
 				int len = file.size();
 				QByteArray data;
 				const uchar *fmap = file.map(0, file.size());
@@ -344,16 +348,25 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 				{
 					data = file.readAll();
 					fmap = (uchar *)data.constData();
+					len = data.size();
 				}
-				const uchar *s = Json::skipBlanks(fmap, &len);
-				QVariant val;
-				uchar qch = *s;
-				if(!s || (qch != '[' && qch != '{'))
-					return;
-				qch = (qch == '{' ? '}' : ']');
-				s++;
-				len--;
-				bool first = true;
+				qDebug() << "map" << timer.elapsed(); timer.restart();
+//				{
+//					QByteArray tmp = QByteArray::fromRawData(reinterpret_cast<const char *>(fmap), file.size());
+//					timer.restart();
+//					qDebug() << "parse2" << Json::parse(tmp).toList().size() << timer.elapsed(); timer.restart();
+//				}
+				qint64 parseTimer = 0;
+				qint64 buildHtmlTimer = 0;
+//				const uchar *s = Json::skipBlanks(fmap, &len);
+//				QVariant val;
+//				uchar qch = *s;
+//				if(!s || (qch != '[' && qch != '{'))
+//					return;
+//				qch = (qch == '{' ? '}' : ']');
+//				s++;
+//				len--;
+//				bool first = true;
 				int day = item_date_time.date().day();
 				QString account_nickname = ui.accountComboBox->currentText();
 				if ( account_nickname.contains( "-" ) )
@@ -366,6 +379,8 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 				bool history_in;
 				QString historyMessage;
 				QTextDocument *doc = ui.historyLog->document();
+				doc->setParent(0);
+				ui.historyLog->setDocument(0);
 				doc->clear();
 				QTextCursor cursor = QTextCursor(doc);
 				QTextCharFormat defaultFont = cursor.charFormat();
@@ -383,33 +398,49 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 				QString serviceMessageTitle = tr("Service message");
 				QString resultString( "<span style='background: #ffff00'>\\1</span>" );
 				cursor.beginEditBlock();
-				while (s) {
-					val.clear();
-					s = Json::skipBlanks(s, &len);
-					if(len < 2 || (s && *s == qch))
-						break;
-					if((!first && *s != ',') || (first && *s == ','))
-						break;
-					first = false;
-					if(*s == ',')
+				timer.restart();
+//				while (s) {
+//					val.clear();
+//					s = Json::skipBlanks(s, &len);
+//					if(len < 2 || (s && *s == qch))
+//						break;
+//					if((!first && *s != ',') || (first && *s == ','))
+//						break;
+//					first = false;
+//					if(*s == ',')
+//					{
+//						s++;
+//						len--;
+//					}
+//					if(!(s = Json::parseRecord(val, s, &len)))
+//						break;
+//					else
+				timer.restart();
+				QVariant log;
+				Json::parseRecord(log, fmap, &len);
+				const QVariantList list = log.toList();
+				qDebug() << "parse" << timer.elapsed();
+				QString serviceStr = QLatin1String("service");
+				QString datetimeStr = QLatin1String("datetime");
+				QString inStr = QLatin1String("in");
+				QString htmlStr = QLatin1String("html");
+				QString textStr = QLatin1String("text");
+				QString senderNameStr = QLatin1String("senderName");
+				QString newLine = QLatin1String("\n");
+				for (int i = 0; i < list.size(); i++)
 					{
-						s++;
-						len--;
-					}
-					if(!(s = Json::parseRecord(val, s, &len)))
-						break;
-					else
-					{
-						QVariantMap message = val.toMap();
-						history_service = message.value("service", false).toBool();
-						history_date_time = QDateTime::fromString(message.value("datetime").toString(), Qt::ISODate);
-						history_in = message.value("in", false).toBool();
-						historyMessage = message.value("html").toString();
+						const QVariant &val = list.at(i);
+						const QVariantMap message = val.toMap();
+						history_service = message.value(serviceStr, false).toBool();
+						history_date_time = QDateTime::fromString(message.value(datetimeStr).toString(), Qt::ISODate);
+						history_in = message.value(inStr, false).toBool();
+						historyMessage = message.value(htmlStr).toString();
 						if (historyMessage.isEmpty()) {
-							historyMessage = Qt::escape(message.value("text").toString()).
+							historyMessage = Qt::escape(message.value(textStr).toString()).
 											 replace(QLatin1String("\n"), QLatin1String("<br>"));
 						}
-						QVariant sender = message.value("senderName", history_in ? from_nickname : account_nickname);
+						QVariant sender = message.value(senderNameStr, history_in ? from_nickname : account_nickname);
+						parseTimer += timer.elapsed(); timer.restart();
 
 						if ( history_date_time.date().day() == day )
 						{
@@ -425,10 +456,10 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 											  % history_date_time.time().toString()
 											  % QLatin1Literal(")"));
 							cursor.setCharFormat(defaultFont);
-							cursor.insertText("\n");
+							cursor.insertText(newLine);
 							if (search_word.isEmpty()) {
 								cursor.insertHtml(historyMessage);
-								cursor.insertText("\n");
+								cursor.insertText(newLine);
 							} else {
 ////								QStringList parts = history_message.split(search_regexp);
 ////								for (int i = 0; i < )
@@ -443,18 +474,28 @@ void HistoryWindow::on_dateTreeWidget_currentItemChanged( QTreeWidgetItem* curre
 //								}
 //								cursor.setCharFormat(defaultFont);
 								cursor.insertHtml(historyMessage.replace(searchRegexp, resultString));
-								cursor.insertText("\n");
+								cursor.insertText(newLine);
 							}
+							buildHtmlTimer += timer.elapsed(); timer.restart();
 						}
 					}
-				}
+//				}
+				parseTimer += timer.elapsed(); timer.restart();
+				qDebug() << "parser" << parseTimer;
+				qDebug() << "html" << buildHtmlTimer;
 				cursor.endEditBlock();
+				qDebug() << "endEditBlock" << timer.elapsed(); timer.restart();
+				doc->setParent(ui.historyLog);
+				ui.historyLog->setDocument(doc);
+				qDebug() << "setDocument" << timer.elapsed(); timer.restart();
 				file.close();
 				if(search_word.isEmpty())
 					ui.historyLog->moveCursor(QTextCursor::End);
 				else
 					ui.historyLog->find(search_word);
-				ui.historyLog->ensureCursorVisible();
+				ui.historyLog->verticalScrollBar()->setValue(ui.historyLog->verticalScrollBar()->maximum());
+//				ui.historyLog->ensureCursorVisible();
+				qDebug() << "ensureCursorVisible" << timer.elapsed(); timer.restart();
 			}
 			ui.label_in->setText( tr( "In: %L1").arg( in ) );
 			ui.label_out->setText( tr( "Out: %L1").arg( out ) );

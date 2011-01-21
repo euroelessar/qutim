@@ -48,6 +48,7 @@ namespace qutim_sdk_0_3
 		// Toolbar id for appearance settings, by default id is "common"
 // 		void setId(const QString& id);
 	protected:
+		void changeEvent(QEvent *e);
 		void mouseMoveEvent(QMouseEvent* event);
 		void mousePressEvent(QMouseEvent* event);
 		void contextMenuEvent(QContextMenuEvent* event);

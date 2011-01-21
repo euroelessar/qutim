@@ -21,9 +21,10 @@
 
 namespace Core
 {
-	class LocalizationModule : public QObject
+	class LocalizationModule : public QObject, public qutim_sdk_0_3::StartupModule
 	{
 		Q_OBJECT
+		Q_INTERFACES(qutim_sdk_0_3::StartupModule)
 	public:
 		LocalizationModule();
 	public slots:
