@@ -24,7 +24,6 @@
 #include <qutim/servicemanager.h>
 #include "chatsessionimpl.h"
 #include "conferencetabcompletion.h"
-#include <QElapsedTimer>
 
 namespace Core
 {
@@ -130,17 +129,8 @@ QIcon ChatLayerImpl::iconForState(ChatState state, const ChatUnit *unit)
 	return Icon(icon_name);
 }
 
-struct MethodLiveCounter
-{
-	MethodLiveCounter(const char *m) : method(m) { timer.start(); }
-	~MethodLiveCounter() { qDebug("%s %lld", method, timer.elapsed());}
-	QElapsedTimer timer;
-	const char *method;
-};
-
 void ChatLayerImpl::onChatSessionActivated(bool activated)
 {
-	MethodLiveCounter counter(Q_FUNC_INFO);
 	if (!activated)
 		return;
 

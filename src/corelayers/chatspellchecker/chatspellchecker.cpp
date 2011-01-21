@@ -19,7 +19,6 @@
 #include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QContextMenuEvent>
-#include <QElapsedTimer>
 
 namespace Core {
 
@@ -80,17 +79,8 @@ void ChatSpellChecker::onInputFieldDestroyed(QObject *obj)
 	m_highlighters.remove(reinterpret_cast<QTextDocument*>(obj));
 }
 
-struct MethodLiveCounter
-{
-	MethodLiveCounter(const char *m) : method(m) { timer.start(); }
-	~MethodLiveCounter() { qDebug("%s %lld", method, timer.elapsed());}
-	QElapsedTimer timer;
-	const char *method;
-};
-
 void ChatSpellChecker::onSessionActivated(bool activated)
 {
-	MethodLiveCounter counter(Q_FUNC_INFO);
 	qutim_sdk_0_3::ChatSession *session = static_cast<qutim_sdk_0_3::ChatSession*>(sender());
 	Q_ASSERT(session);
 	QObject *tmp;
