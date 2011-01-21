@@ -866,12 +866,13 @@ bool Model::eventFilter(QObject *obj, QEvent *ev)
 		else if (!metaEvent->oldMetaContact() && metaEvent->newMetaContact())
 			removeContact(metaEvent->contact());
 		return false;
-	} else if (obj == qApp && ev->type() == Event::eventType()) {
+	} else if (ev->type() == Event::eventType()) {
 		Event *event = static_cast<Event*>(ev);
 		if (p->initData && event->id == p->initData->qutimStartupEvent)
 			initialize();
 		else if (event->id == p->qutimAboutToQuitEvent)
 			saveConfig();
+		return false;
 	}
 	return QAbstractItemModel::eventFilter(obj, ev);
 }

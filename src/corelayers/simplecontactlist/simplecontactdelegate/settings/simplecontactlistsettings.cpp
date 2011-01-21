@@ -18,7 +18,7 @@ void size_map_init(SizeMap &map)
 	map.insert(22,QT_TRANSLATE_NOOP("ContactList","Medium (22x22)"));
 	map.insert(32,QT_TRANSLATE_NOOP("ContactList","Large (32x32)"));
 	map.insert(48,QT_TRANSLATE_NOOP("ContactList","Very large (48x48)"));
-	map.insert(64,QT_TRANSLATE_NOOP("ContactList","Hige (64x64)"));
+	map.insert(64,QT_TRANSLATE_NOOP("ContactList","Huge (64x64)"));
 }
 
 SimpleContactlistSettings::SimpleContactlistSettings() :
