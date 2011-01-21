@@ -57,7 +57,7 @@ void ProfileCreationPage::initializePage()
 			}
 		}
 	}
-	Q_ASSERT(ui->cryptoBox->count() > 0);
+	Q_ASSERT_X(ui->cryptoBox->count() > 0, "ProfileCreationPage::initializePage", "Have not been found any crypto plugin");
 	first = true;
 	foreach (const ObjectGenerator *gen, ObjectGenerator::module<ConfigBackend>()) {
 		const ExtensionInfo info = gen->info();
@@ -68,7 +68,7 @@ void ProfileCreationPage::initializePage()
 			first = false;
 		}
 	}
-	Q_ASSERT(ui->configBox->count() > 0);
+	Q_ASSERT_X(ui->cryptoBox->count() > 0, "ProfileCreationPage::initializePage", "Have not been found any config plugin");
 	if (m_singleProfile)
 		rebaseDirs();
 }
