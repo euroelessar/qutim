@@ -44,11 +44,9 @@ public:
 	void setIncoming(bool input);
 	bool isIncoming() const;
 	void setChatUnit (ChatUnit *chatUnit);
-	const ChatUnit *chatUnit() const;
+	ChatUnit *chatUnit() const;
 	quint64 id() const;
-	// TODO: merge methods
-	QVariant property(const char *name) const;
-	QVariant property(const char *name, const QVariant &def) const;
+	QVariant property(const char *name, const QVariant &def = QVariant()) const;
 	template<typename T>
 	T property(const char *name, const T &def) const
 	{ return qVariantValue<T>(property(name, qVariantFromValue<T>(def))); }

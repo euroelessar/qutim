@@ -184,11 +184,6 @@ Message &Message::operator =(const Message &other)
 	return *this;
 }
 
-QVariant Message::property(const char *name) const
-{
-	return property(name, QVariant());
-}
-
 QVariant Message::property(const char *name, const QVariant &def) const
 {
 	return p->property(name, def, CompiledProperty::names, CompiledProperty::getters);
@@ -234,8 +229,7 @@ void Message::setIncoming(bool input)
 	p->in = input;
 }
 
-
-const ChatUnit* Message::chatUnit() const
+ChatUnit* Message::chatUnit() const
 {
 	return p->chatUnit;
 }
