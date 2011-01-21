@@ -16,7 +16,7 @@ namespace MassMessaging
 		{
 			setCheckable(true);
 			setEditable(false);			
-		};
+		}
 		virtual void setData(const QVariant& value, int role = Qt::UserRole + 1)
 		{
 			switch (role) {
@@ -29,10 +29,10 @@ namespace MassMessaging
 					break;
 			}
 			QStandardItem::setData(value,role);
-		};
+		}
 	};
 	
-	Manager::Manager(QObject* parent): QObject(parent),m_timer_id(0)
+	Manager::Manager(QObject* parent): QObject(parent)
 	{
 		m_model =  new QStandardItemModel(this);
 	}
@@ -91,8 +91,8 @@ namespace MassMessaging
 		}
 		m_total_item_count = m_recievers.count();
 		if (m_recievers.count()) {
-			m_timer_id = startTimer(interval);
-			QTimerEvent ev(m_timer_id);
+			m_timer.start(interval, this);
+			QTimerEvent ev(m_timer.timerId());
 			timerEvent(&ev);
 		}
 		else
@@ -101,10 +101,9 @@ namespace MassMessaging
 	}
 	void Manager::stop()
 	{
-		killTimer(m_timer_id);
+		m_timer.stop();
 		m_recievers.clear();
 		emit finished(true);
-		m_timer_id = 0;
 	}
 	Manager::~Manager()
 	{
@@ -113,7 +112,7 @@ namespace MassMessaging
 	
 	void Manager::timerEvent(QTimerEvent* ev)
 	{
-		if (ev->timerId() == m_timer_id) {
+		if (ev->timerId() == m_timer.timerId()) {
 			if (m_recievers.count()) {
 				QStandardItem *item = m_recievers.dequeue();
 				if (Contact *c = item->data(Qt::UserRole).value<Contact *>()) {
@@ -134,7 +133,7 @@ namespace MassMessaging
 	
 	bool Manager::currentState()
 	{
-		return m_timer_id;
+		return m_timer.isActive();
 	}
 
 
