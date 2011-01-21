@@ -41,7 +41,7 @@ bool UnreadMessagesKeeper::load()
 			SLOT(sessionCreated(qutim_sdk_0_3::ChatSession*))
 			);
 
-	Config cfg = Config().group("unreadMessages");
+	Config cfg("unreadmessages");
 	foreach (QString id,cfg.childGroups()) {
 		Protocol *p =  Protocol::all().value(id);
 		if(!p)
@@ -89,7 +89,7 @@ void UnreadMessagesKeeper::onUnreadChanged(const qutim_sdk_0_3::MessageList &lis
 	ChatSession *s = qobject_cast<ChatSession*>(sender());
 	ChatUnit *u = s->getUnit();
 	Account *a = u->account();
-	Config cfg = Config().group("unreadMessages");
+	Config cfg("unreadmessages");
 
 	cfg.beginGroup(a->protocol()->id());
 	cfg.beginGroup(a->id());
