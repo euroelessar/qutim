@@ -15,16 +15,16 @@ namespace Logger
 	void SimpleLoggingHandler(QtMsgType type, const char *msg) {
 		switch (type) {
 			case QtDebugMsg:
-				logfile << QTime::currentTime().toString().toAscii().data() << " Debug: " << msg << "\n";
+				logfile << QTime::currentTime().toString().toLatin1().data() << " Debug: " << msg << "\n";
 				break;
 			case QtCriticalMsg:
-				logfile << QTime::currentTime().toString().toAscii().data() << " Critical: " << msg << "\n";
+				logfile << QTime::currentTime().toString().toLatin1().data() << " Critical: " << msg << "\n";
 				break;
 			case QtWarningMsg:
-				logfile << QTime::currentTime().toString().toAscii().data() << " Warning: " << msg << "\n";
+				logfile << QTime::currentTime().toString().toLatin1().data() << " Warning: " << msg << "\n";
 				break;
 			case QtFatalMsg:
-				logfile << QTime::currentTime().toString().toAscii().data() <<  " Fatal: " << msg << "\n";
+				logfile << QTime::currentTime().toString().toLatin1().data() <<  " Fatal: " << msg << "\n";
 				abort();
 			}
 		}
@@ -43,9 +43,15 @@ namespace Logger
 
 	bool LoggerPlugin::load()
 	{
-		Config config = Config().group("Logger");
-		QString path = config.value("path",SystemInfo::getPath(SystemInfo::ConfigDir).append("/qutim.log"));
-		logfile.open(path.toLocal8Bit(), ios::app);
+		Config config = Config().group(QLatin1String("Logger"));
+		QString path = config.value(QLatin1String("path"),
+		                            SystemInfo::getPath(SystemInfo::ConfigDir).append("/qutim.log"));
+		int maxFileSize = config.value(QLatin1String("maxFileSize"), 512 * 1024);
+		QFileInfo fileInfo(path);
+		if (maxFileSize != -1 && fileInfo.size() > maxFileSize)
+			logfile.open(path.toLocal8Bit(), ios::out | ios::trunc);
+		else
+			logfile.open(path.toLocal8Bit(), ios::app);
 		qInstallMsgHandler(SimpleLoggingHandler);
 		debug() << tr("New session started, happy debuging ^_^");
 
