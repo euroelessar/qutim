@@ -1,4 +1,4 @@
-#include "JumpList.h"
+/*#include "JumpList.h"
 #include "../../apilayer/src/ApiJumpList.h"
 
 unsigned JumpList::maxSlotsCount = 0;
@@ -44,3 +44,4 @@ void JumpList::setAppId(const QString &id)
 	buff[id.toWCharArray(buff)] = '\0';
 	SetAppID(buff);
 }
+*/

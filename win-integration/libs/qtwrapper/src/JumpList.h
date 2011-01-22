@@ -1,4 +1,4 @@
-#include "global.h"
+/*#include "global.h"
 #include "JumpListTask.h"
 #include <QList>
 
@@ -23,3 +23,4 @@ public:
 	static void add(JumpListTasks &);
 	static void clear();
 };
+*/

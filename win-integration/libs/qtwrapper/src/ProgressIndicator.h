@@ -4,7 +4,7 @@
 
 class QWidget;
 
-class W7QTEXPORT ProgressIndicator : public QObject
+class WTQTEXPORT ProgressIndicator : public QObject
 {
 	Q_OBJECT
 

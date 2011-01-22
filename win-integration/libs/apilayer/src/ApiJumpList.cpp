@@ -13,7 +13,7 @@ using std::wstring;
 
 static wstring appID = L"";
 static ICustomDestinationList *gjlist = 0;
-
+/*
 void SetAppID(const wchar_t *id)
 {
 	//	SegFault(); // Don't reset AppID in runtime, zplease!
@@ -107,3 +107,4 @@ void ClearWholeList()
 	if(alreadyCreated)
 		CommitList();
 }
+*/

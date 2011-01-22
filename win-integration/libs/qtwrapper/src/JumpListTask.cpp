@@ -1,4 +1,4 @@
-#include "JumpListTask.h"
+/*#include "JumpListTask.h"
 #include <QAction>
 #include <QIcon>
 
@@ -52,3 +52,4 @@ QPixmap JumpListTask::icon()
 {
 	return m_icon;
 }
+*/

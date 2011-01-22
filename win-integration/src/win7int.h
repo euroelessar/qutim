@@ -1,10 +1,11 @@
 #ifndef WIN7INT_H
 #define WIN7INT_H
 
-#include <qutim/plugin.h>
-#include <qutim/messagesession.h>
-#include <WinThings/TaskbarPreviews.h>
 #include <QGraphicsView>
+#include <QList>
+#include <qutim/messagesession.h>
+#include <qutim/plugin.h>
+#include <WinThings/TaskbarPreviews.h>
 
 class WPreviews;
 
@@ -28,26 +29,51 @@ public:
 	bool load();
 	bool unload();
 
-private slots:
-	void onSessionCreated(qutim_sdk_0_3::ChatSession*);
-	void onSessionActivated(bool);
-	void onUnreadChanged(qutim_sdk_0_3::MessageList);
+public slots:
 	void onChatwidgetDestroyed();
+	void onSessionActivated(bool);
+	void onSessionCreated  (qutim_sdk_0_3::ChatSession*);
+	void onUnreadChanged   (qutim_sdk_0_3::MessageList);
 
 private:
 };
+
+#define CHATUNREAD_TITLE_X 10
+#define CHATUNREAD_TITLE_Y 5
+#define CHATUNREAD_X       5
+#define CHATUNREAD_Y       18
+#define CONFUNREAD_X       5
+#define CONFUNREAD_Y       31
+#define AUTHORS_TITLE_X    10
+#define AUTHORS_TITLE_Y    49
+#define AUTHORS_LIST_X     10
+#define AUTHORS_LIST_Y     62
+#define ICON_SIZE          64
+
+namespace qutim_sdk_0_3
+{
+	class ChatSession;
+}
 
 class WPreviews : public PreviewProvider
 {
 	Q_OBJECT
 
-	QGraphicsView *grView;
+	typedef QList<qutim_sdk_0_3::ChatSession *> SessionsList;
+
+	QGraphicsPixmapItem *qutimIconItem;
+	QGraphicsPixmapItem *sceneBgItem;
 	QGraphicsTextItem   *textUnreadChats;
 	QGraphicsTextItem   *textUnreadConfs;
-	QGraphicsPixmapItem *sceneBgItem;
-	QGraphicsPixmapItem *qutimIconItem;
-	QPixmap sceneBgImage;
-	QSize   currentBgSize;
+	QGraphicsTextItem   *textUnreadTitle;
+	QGraphicsTextItem   *textUnreadAuthorsTitle;
+	QGraphicsTextItem   *textUnreadAuthorsList;
+	QGraphicsView *grView;
+	QPixmap  sceneBgImage;
+	QPixmap  livePreview;
+	QSize    currentBgSize;
+	QWidget *lastOwner;
+	SessionsList sessions;
 	unsigned unreadChats, unreadConfs;
 	Win7Int2 *parent;
 
@@ -56,7 +82,12 @@ public:
 	~WPreviews();
 	QPixmap IconicPreview(unsigned tabid, QWidget *owner, QSize);
 	QPixmap LivePreview  (unsigned tabid, QWidget *owner);
-	void updateNumbers(unsigned confs, unsigned chats);
+	void updateNumbers   (unsigned confs, unsigned chats);
+
+public slots:
+	void onUnreadChanged(qutim_sdk_0_3::MessageList);
+	void onSessionDestroyed(QObject *);
+	void prepareLivePreview();
 };
 
 #endif // WIN7INT_H

@@ -8,7 +8,7 @@ class QIcon;
 class QWidget;
 class QPixmap;
 
-class W7QTEXPORT OverlayIcon : public QObject
+class WTQTEXPORT OverlayIcon : public QObject
 {
 	QWidget *m_window;
 

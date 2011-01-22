@@ -1,4 +1,4 @@
-#include <QObject>
+/*#include <QObject>
 #include <QPixmap>
 
 class QIcon;
@@ -27,3 +27,4 @@ public:
 	void setIcon   (const QIcon &);
 
 };
+*/

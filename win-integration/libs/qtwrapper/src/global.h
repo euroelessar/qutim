@@ -3,11 +3,11 @@
 
 #include <QtGlobal>
 
-#ifdef W7QTWRAPPER
-#	define W7QTEXPORT Q_DECL_EXPORT
+#ifdef WT_QT_WRAPPER
+#	define WTQTEXPORT Q_DECL_EXPORT
 #	define SegFault ((int(*)())0)
 #else
-#	define W7QTEXPORT Q_DECL_IMPORT
+#	define WTQTEXPORT Q_DECL_IMPORT
 #endif
 
-#endif
+#endif // GLOBAL_H
