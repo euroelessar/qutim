@@ -67,6 +67,7 @@ void WManager::fillData( QDomNodeList elements, QHash< QString, QString > &hash,
 void WManager::finished( QNetworkReply *reply )
 {
 	QDomDocument data;
+	reply->deleteLater();
 	if ( !data.setContent( reply->readAll() ) )
 		return;
 
@@ -148,8 +149,6 @@ void WManager::finished( QNetworkReply *reply )
 	}
 
 	emit finished();
-
-	reply->deleteLater();
 }
 
 const QHash< QString, QString > *WManager::getUnit()

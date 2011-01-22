@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QQueue>
+#include <QBasicTimer>
 #include "messaging.h"
 
 class QStandardItem;
@@ -35,7 +36,7 @@ namespace MassMessaging
 		QList<QStandardItem *> m_contacts;
 		QQueue<QStandardItem *> m_recievers;
 		QStandardItemModel *m_model;
-		int m_timer_id; //just simple
+		QBasicTimer m_timer; //just simple
 		int m_total_item_count;
 		QString m_message;
 	};

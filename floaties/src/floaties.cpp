@@ -40,6 +40,8 @@ void FloatiesPlugin::init()
 
 bool FloatiesPlugin::load()
 {
+	if (m_model)
+		return false;
 	if (!m_view) {
 		if (QObject *contactList = ServiceManager::getByName("ContactList")) {
 			QWidget *widget = contactList->property("widget").value<QWidget*>();
@@ -76,13 +78,15 @@ bool FloatiesPlugin::load()
 
 bool FloatiesPlugin::unload()
 {
+	if (!m_model)
+		return false;
 	qApp->removeEventFilter(this);
 	Config cfg;
 	cfg.beginGroup("floaties");
-	cfg.remove("entities");
-	cfg.beginArray("entities");
+	int size = cfg.beginArray("entities");
+	int i;
 	QMap<Contact*, ContactWidget*>::iterator it = m_contacts.begin();
-	for (int i = 0; it != m_contacts.end(); it++, i++) {
+	for (i = 0; it != m_contacts.end(); it++, i++) {
 		cfg.setArrayIndex(i);
 		Contact *contact = it.key();
 		cfg.setValue("protocol", contact->account()->protocol()->id());
@@ -90,16 +94,18 @@ bool FloatiesPlugin::unload()
 		cfg.setValue("id", contact->id());
 		cfg.setValue("geometry", it.value()->saveGeometry());
 	}
+	for (; size > i; size--)
+		cfg.remove(size - 1);
 	qDeleteAll(m_contacts);
 	m_contacts.clear();
 	delete m_model;
 	m_model = 0;
-	return false;
+	return true;
 }
 
 bool FloatiesPlugin::eventFilter(QObject *obj, QEvent *event)
 {
-	if (obj == qApp && event->type() == Event::eventType()) {
+	if (event->type() == Event::eventType()) {
 		Event *ev = static_cast<Event*>(event);
 		if (ev->id == m_eventId) {
 			QPoint pos = ev->at<QPoint>(0);

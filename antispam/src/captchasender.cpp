@@ -43,7 +43,10 @@ namespace Antispam
 	{
 		ChatUnit *unit = const_cast<ChatUnit *>(message->chatUnit());
 		ChatSession *session = ChatLayer::get(unit,false);
-		Q_ASSERT(session);		
+		// What's a hell?
+//		Q_ASSERT(session);	
+		if (!session)
+			return;
 		Contact *c = qobject_cast<Contact *>(unit);
 		if (!session->property("suspicious").toBool() || !c || c->isInList())
 			return;

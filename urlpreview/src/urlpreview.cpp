@@ -21,6 +21,7 @@
 #include <QNetworkAccessManager>
 #include <qnetworkreply.h>
 #include <QTextDocument>
+#include <QTextCursor>
 
 namespace UrlPreview
 {
@@ -37,10 +38,13 @@ namespace UrlPreview
 				  QT_TRANSLATE_NOOP("Task","Developer"),
 				  QLatin1String("sauron@citadelspb.com"),
 				  QLatin1String("sauron.me"));
+		m_netman = 0;
 	}
 	
 	bool UrlPreviewPlugin::load()
 	{
+		if (m_netman)
+			return false;
 		ChatLayer *layer = ChatLayer::instance();
 		m_netman =  new QNetworkAccessManager(this);
 
@@ -65,12 +69,16 @@ namespace UrlPreview
 		m_image_template = "<img src=\"%URL%\" style=\"display: none;\" onload=\"if (this.width>%MAXW%) this.style.width='%MAXW%px'; if (this.height>%MAXH%) { this.style.width=''; this.style.height='%MAXH%px'; } this.style.display='';\"><br>";
 		m_youtube_template = "<img src=\"http://img.youtube.com/vi/%YTID%/1.jpg\"> <img src=\"http://img.youtube.com/vi/%YTID%/2.jpg\"> <img src=\"http://img.youtube.com/vi/%YTID%/3.jpg\"><br>";
 
-		return false;
+		return true;
 	}
 	
 	bool UrlPreviewPlugin::unload()
 	{
-		m_netman->deleteLater();
+		if (m_netman) {
+			m_netman->deleteLater();
+			m_netman = 0;
+			return true;
+		}
 		return false;
 	}
 	
@@ -88,44 +96,69 @@ namespace UrlPreview
 	
 	void UrlPreviewPlugin::processMessage(qutim_sdk_0_3::Message* message)
 	{		
-		//TODO may be need refinement
+		if (!m_netman)
+			return;
 		QString html = message->property("html").toString();
-		if (html.isEmpty())
+		if (html.isEmpty()) {
 			html = Qt::escape(message->text());
-		
+			const QRegExp &linkRegExp = getLinkRegExp();
+			int pos = 0;
+			while (((pos = linkRegExp.indexIn(html, pos)) != -1)) {
+				QString link = linkRegExp.cap(0);
+				checkLink(link, const_cast<ChatUnit*>(message->chatUnit()), message->id());
+				pos += link.count();
+			}
+		} else {
+			QTextDocument doc(html);
+			const QRegExp &linkRegExp = getLinkRegExp();
+			QTextCursor cursor(&doc);
+			while (true) {
+				cursor = doc.find(linkRegExp, cursor);
+				if (cursor.isNull())
+					break;
+				QString link = cursor.selectedText();
+				checkLink(link, const_cast<ChatUnit*>(message->chatUnit()), message->id());
+				cursor.removeSelectedText();
+				cursor.insertHtml(link);
+			}
+			qDebug() << html << doc.toHtml();
+			html = doc.toHtml();
+		}
+		message->setProperty("html",html);
+	}
+	
+	const QRegExp &UrlPreviewPlugin::getLinkRegExp()
+	{
 		static QRegExp linkRegExp("([a-zA-Z0-9\\-\\_\\.]+@([a-zA-Z0-9\\-\\_]+\\.)+[a-zA-Z]+)|"
 								  "(([a-zA-Z]+://|www\\.)([\\w:/\\?#\\[\\]@!\\$&\\(\\)\\*\\+,;=\\._~-]|&amp;|%[0-9a-fA-F]{2})+)",
 								  Qt::CaseInsensitive);
 		Q_ASSERT(linkRegExp.isValid());
-		int pos = 0;
-		while(((pos = linkRegExp.indexIn(html, pos)) != -1))
-		{
-			QString link = linkRegExp.cap(0);
-			QString tmplink = link;
-			if (tmplink.toLower().startsWith("www."))
-				tmplink.prepend("http://");
+		return linkRegExp;
+	}
+	
+	void UrlPreviewPlugin::checkLink(QString &link, ChatUnit *from, qint64 id)
+	{
+		//TODO may be need refinement
+		if (link.toLower().startsWith("www."))
+			link.prepend("http://");
 
-			QRegExp urlrx("youtube\\.com/watch\\?v\\=([^\\&]*)");
-			if (urlrx.indexIn(tmplink)>-1 && (m_flags)) {
-				tmplink = "http://www.youtube.com/v/"+urlrx.cap(1);
-			}
-			
-			QString uid = QString::number(message->id());
-			
-			debug() << "url" << tmplink;
-			
-			html.replace(pos, link.length(), tmplink +"<span id='urlpreview"+uid+"'></span>");
-			pos += tmplink.count();
-			
-			QNetworkRequest request;
-			request.setUrl(QUrl(tmplink));
-			request.setRawHeader("Ranges", "bytes=0-0");			
-			QNetworkReply *reply = m_netman->head(request);
-			reply->setProperty("uid",uid);
-			reply->setProperty("unit",qVariantFromValue<ChatUnit *>(const_cast<ChatUnit *>(message->chatUnit())));
-			
+		QRegExp urlrx("youtube\\.com/watch\\?v\\=([^\\&]*)");
+		if (urlrx.indexIn(link)>-1 && (m_flags)) {
+			link = "http://www.youtube.com/v/"+urlrx.cap(1);
 		}
-		message->setProperty("html",html);
+		
+		QString uid = QString::number(id);
+		
+		QNetworkRequest request;
+		request.setUrl(QUrl(link));
+		request.setRawHeader("Ranges", "bytes=0-0");			
+		QNetworkReply *reply = m_netman->head(request);
+		reply->setProperty("uid", uid);
+		reply->setProperty("unit", qVariantFromValue<ChatUnit *>(from));
+		
+		link += "<span id='urlpreview"+uid+"'></span>";
+		
+		debug() << "url" << link;
 	}
 
 	void UrlPreviewPlugin::authenticationRequired(QNetworkReply* , QAuthenticator* )

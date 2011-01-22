@@ -23,6 +23,7 @@ public:
 	virtual ~DBusBackend();
 protected slots:
 	void callFinished(QDBusPendingCallWatcher* watcher);
+	void capabilitiesCallFinished(QDBusPendingCallWatcher* watcher);
 	void loadSettings();
 	void onActionInvoked(quint32 id, const QString &action_key);
 	void onNotificationClosed(quint32 id, quint32 reason);
@@ -43,6 +44,7 @@ private:
 	QHash<quint32, NotificationData> m_notifications;
 	QHash<QObject*, quint32> m_ids;
 	QDBusInterface *mDbusInterface;
+	QSet<QString> m_capabilities;
 
 };
 

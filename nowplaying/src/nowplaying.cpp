@@ -93,6 +93,8 @@ bool NowPlaying::unload()
 bool NowPlaying::eventFilter(QObject *obj, QEvent *ev)
 {
 	static const quint16 playerId = PlayerEvent::eventId();
+	if (ev->type() != Event::eventType())
+		return Plugin::eventFilter(obj, ev);
 	if (obj == m_player) {
 		static const quint16 trackInfoId = TrackInfoEvent::eventId();
 		static const quint16 stateId = StateEvent::eventId();

@@ -25,6 +25,7 @@ class QNetworkReply;
 class QNetworkAccessManager;
 
 namespace qutim_sdk_0_3 {
+	class ChatUnit;
 	class ChatSession;
 	class Message;
 }
@@ -57,6 +58,8 @@ namespace UrlPreview {
         void authenticationRequired ( QNetworkReply * , QAuthenticator * );
         void netmanSslErrors ( QNetworkReply * , const QList<QSslError> & );
 	private:
+		static const QRegExp &getLinkRegExp();
+		void checkLink(QString &url, ChatUnit *from, qint64 id);
 		QNetworkAccessManager *m_netman;
 		PreviewFlags m_flags;
 		QString m_template;

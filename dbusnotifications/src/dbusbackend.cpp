@@ -8,6 +8,7 @@
 #include <qutim/messagesession.h>
 #include <QBuffer>
 #include <qutim/emoticons.h>
+#include <QDBusPendingReply>
 
 #ifdef Q_WS_MAEMO_5
 #include <mce/mode-names.h>
@@ -65,6 +66,15 @@ DBusBackend::DBusBackend() :
 	if (!interface->isValid()) {
 		qWarning() << "Error connecting to notifications service.";
 	}
+	QDBusMessage message = QDBusMessage::createMethodCall(
+	            QLatin1String("org.freedesktop.Notifications"),
+	            QLatin1String("/org/freedesktop/Notifications"),
+	            QLatin1String("org.freedesktop.Notifications"),
+	            QLatin1String("GetCapabilities"));
+	QDBusPendingReply<QStringList> call = QDBusConnection::sessionBus().asyncCall(message);
+	QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, this);
+	connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
+	        this, SLOT(capabilitiesCallFinished(QDBusPendingCallWatcher*)));
 
 	QDBusConnection::sessionBus().connect(
 				QString(),
@@ -121,16 +131,18 @@ void DBusBackend::show(qutim_sdk_0_3::Notifications::Type type, QObject* sender,
 	//}
 
 	QStringList actions;
-	if (type & Notifications::MessageSend ||
-		type & Notifications::MessageGet ||
-		type & Notifications::Typing ||
-		type & Notifications::StatusChange ||
-		type & Notifications::BlockedMessage)
-	{
-		actions << "openChat" << tr("Open chat")
-				<< "ignore" << tr("Ignore");
-	} else if (qobject_cast<QWidget *>(sender)) {
-		actions << "open" << tr("Open");
+	if (m_capabilities.contains(QLatin1String("actions"))) {
+		if (type & Notifications::MessageSend ||
+			type & Notifications::MessageGet ||
+			type & Notifications::Typing ||
+			type & Notifications::StatusChange ||
+			type & Notifications::BlockedMessage)
+		{
+			actions << "openChat" << tr("Open chat")
+					<< "ignore" << tr("Ignore");
+		} else if (qobject_cast<QWidget *>(sender)) {
+			actions << "open" << tr("Open");
+		}
 	}
 
 	QVariantMap hints;
@@ -187,6 +199,13 @@ DBusBackend::~DBusBackend()
 void DBusBackend::callFinished(QDBusPendingCallWatcher *watcher)
 {
 	watcher->deleteLater();
+}
+
+void DBusBackend::capabilitiesCallFinished(QDBusPendingCallWatcher* watcher)
+{
+	watcher->deleteLater();
+	QDBusPendingReply<QStringList> reply = *watcher;
+	m_capabilities = QSet<QString>::fromList(reply.argumentAt<0>());
 }
 
 void DBusBackend::loadSettings()
