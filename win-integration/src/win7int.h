@@ -34,6 +34,7 @@ public slots:
 	void onSessionActivated(bool);
 	void onSessionCreated  (qutim_sdk_0_3::ChatSession*);
 	void onUnreadChanged   (qutim_sdk_0_3::MessageList);
+	void onMessageSmthDid (qutim_sdk_0_3::Message*);
 
 private:
 };
@@ -72,7 +73,8 @@ class WPreviews : public PreviewProvider
 	QPixmap  sceneBgImage;
 	QPixmap  livePreview;
 	QSize    currentBgSize;
-	QWidget *lastOwner;
+	QSize    lastWidgetSize;
+	QWidget *lastChatWidget;
 	SessionsList sessions;
 	unsigned unreadChats, unreadConfs;
 	Win7Int2 *parent;

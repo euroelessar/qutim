@@ -3,11 +3,13 @@ find_package(WinThings)
 
 add_subdirectory(libs)
 
-qutim_add_plugin(
-	win7int2
-	DISPLAY_NAME   "Windows 7 Integration" # now it is Win7int, but in future…
-	DESCRIPTION    "Adds count of unread messages as an icon to taskbar button of qutim, along with some commands list."
-	GROUP          "Plugins"
-	LINK_LIBRARIES wapiqtwrapper
-	INCLUDE_DIRS   "libs/include"
-)
+if(WINTHINGS_APILAYER_LIBRARY)
+	qutim_add_plugin(
+		win7int2
+		DISPLAY_NAME   "Windows 7 Integration" # now it is Win7int, but in future…
+		DESCRIPTION    "Adds count of unread messages as an icon to taskbar button of qutim, along with some commands list."
+		GROUP          "Plugins"
+		LINK_LIBRARIES wapiqtwrapper
+		INCLUDE_DIRS   "libs/include"
+	)
+endif()

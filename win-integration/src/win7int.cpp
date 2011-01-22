@@ -6,6 +6,7 @@
 #include <QMap>
 #include <QPainter>
 #include <QPainter>
+#include <QTimer>
 #include <QSysInfo>
 #include <qutim/conference.h>
 #include <qutim/debug.h>
@@ -29,7 +30,7 @@ void Win7Int2::init()
 		QT_TRANSLATE_NOOP("Task", "Author"),
 		QLatin1String("define-true-false@yandex.com"));
 	setInfo(QT_TRANSLATE_NOOP("Plugin", "Windows 7 Integration"),
-		QT_TRANSLATE_NOOP("Plugin", "/* TODO */"),
+		QT_TRANSLATE_NOOP("Plugin", "Adds count of unread messages as an icon to taskbar button of qutim, along with some commands list."),
 		PLUGIN_VERSION(1, 2, 3, 4),
 		ExtensionIcon());
 }
@@ -57,6 +58,8 @@ void Win7Int2::onSessionCreated(qutim_sdk_0_3::ChatSession *s)
 {
 	connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)), Qt::UniqueConnection);
 	connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), this->previews, SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)), Qt::UniqueConnection);
+	connect(s, SIGNAL(messageReceived(qutim_sdk_0_3::Message*)),  SLOT(onMessageSmthDid(qutim_sdk_0_3::Message*)));
+	connect(s, SIGNAL(messageSent(qutim_sdk_0_3::Message*)),      SLOT(onMessageSmthDid(qutim_sdk_0_3::Message*)));
 	connect(s, SIGNAL(destroyed(QObject*)), this->previews, SLOT(onSessionDestroyed(QObject*)));
 	connect(s, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
 }
@@ -168,9 +171,14 @@ void Win7Int2::onChatwidgetDestroyed()
 	testTab();
 }
 
+void Win7Int2::onMessageSmthDid(qutim_sdk_0_3::Message *)
+{
+	TaskbarPreviews::tabPreviewsRefresh(this->previousTabId);
+}
+
 WPreviews::WPreviews(Win7Int2 *parent)
 {
-	lastOwner = 0;
+	lastChatWidget = 0;
 	sceneBgImage  = QPixmap(":/res/def-bg.png");
 	currentBgSize = sceneBgImage.size();
 	grView        = new QGraphicsView;
@@ -238,7 +246,6 @@ void WPreviews::onUnreadChanged(qutim_sdk_0_3::MessageList list)
 
 QPixmap WPreviews::IconicPreview(unsigned, QWidget *owner, QSize size)
 {
-	lastOwner = owner;
 	grView->resize(size);
 	qutimIconItem->setPos(size.width()-ICON_SIZE, size.height()-ICON_SIZE);
 	if (unreadConfs || unreadChats) {
@@ -260,13 +267,16 @@ QPixmap WPreviews::IconicPreview(unsigned, QWidget *owner, QSize size)
 	}
 	if (currentBgSize != size)
 		sceneBgItem->setPixmap(sceneBgImage.scaled(size, Qt::KeepAspectRatioByExpanding));
+	lastChatWidget = owner;
+	QTimer::singleShot(50, this, SLOT(prepareLivePreview()));
 	return QPixmap::grabWidget(grView);
 }
 
 QPixmap WPreviews::LivePreview(unsigned, QWidget *owner)
 {
-	if (livePreview.isNull() || !lastOwner) {
-		lastOwner = owner;
+	if (livePreview.isNull() || !lastChatWidget || lastChatWidget->size() != lastWidgetSize) {
+		lastWidgetSize = lastChatWidget->size();
+		lastChatWidget = owner;
 		prepareLivePreview();
 	}
 	return livePreview;
@@ -274,11 +284,11 @@ QPixmap WPreviews::LivePreview(unsigned, QWidget *owner)
 
 void WPreviews::prepareLivePreview()
 {
-	if (!lastOwner)
+	if (!lastChatWidget)
 		return;
-	livePreview = QPixmap(lastOwner->size());
+	livePreview = QPixmap(lastChatWidget->size());
 	livePreview.fill(QColor(0, 0, 0, 0)); // hack
-	lastOwner->render(&livePreview); // TODO: make better rendering quality somehow (just look on semitransparent icons)…
+	lastChatWidget->render(&livePreview); // TODO: make better rendering quality somehow (just look on semitransparent icons)…
 }
 
 void WPreviews::onSessionDestroyed(QObject *s)
