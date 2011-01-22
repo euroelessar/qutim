@@ -37,7 +37,6 @@ public:
 	JMessageHandler *messageHandler;
 	QPointer<JServiceDiscovery> discoManager;
 	JAccount *q_ptr;
-	QString passwd;
 	QString nick;
 	bool keepStatus;
 	Status status;

@@ -1,5 +1,6 @@
 /*
-Copyright (c) 2009 by Denis Daschenko <daschenko@gmail.com>
+*  Copyright (c) 2009 by Denis Daschenko <daschenko@gmail.com>
+*  Copyright (c) 2011 by Sidorov Aleksey <sauron@citadelspb.com>
 ***************************************************************************
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
@@ -15,29 +16,31 @@ Copyright (c) 2009 by Denis Daschenko <daschenko@gmail.com>
 
 #include <qutim/settingswidget.h>
 #include <qutim/configbase.h>
+#include <QPointer>
 
 namespace Ui
 {
-	class JMainSettings;
+class JMainSettings;
 }
 
 namespace Jabber
 {
-	using namespace qutim_sdk_0_3;
-
-	class JMainSettings: public SettingsWidget
-	{
-		Q_OBJECT
-		public:
-			JMainSettings();
-			~JMainSettings();
-			void loadImpl();
-			void cancelImpl();
-			void saveImpl();
-		private:
-			Ui::JMainSettings *ui;
-
-	};
+using namespace qutim_sdk_0_3;
+class JAccount;
+class JMainSettings: public SettingsWidget
+{
+	Q_OBJECT
+public:
+	JMainSettings();
+	~JMainSettings();
+	void loadImpl();
+	void cancelImpl();
+	void saveImpl();
+	virtual void setController(QObject *controller);
+private:
+	Ui::JMainSettings *ui;
+	QPointer<JAccount> m_account;
+};
 }
 
 #endif // JABBERSETTINGS_H

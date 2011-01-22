@@ -1,7 +1,7 @@
 /****************************************************************************
  *  jaccount.cpp
  *
- *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com>
+ *  Copyright (c) 2010-2011 by Sidorov Aleksey <sauron@citadelspb.com>
  *
  ***************************************************************************
  *                                                                         *
@@ -260,7 +260,7 @@ void JAccount::setPasswd(const QString &passwd)
 {
 	Q_D(JAccount);
 	config().group("general").setValue("passwd",passwd, Config::Crypted);
-	d->passwd = passwd;
+	d->client.setPassword(passwd);
 	config().sync();
 }
 
@@ -298,7 +298,7 @@ const QString &JAccount::password(bool *ok)
 	Q_D(JAccount);
 	if (ok)
 		*ok = true;
-	if (d->passwd.isEmpty()) {
+	if (d->client.password().isEmpty()) {
 		if (ok)
 			*ok = false;
 		PasswordDialog *dialog = PasswordDialog::request(this);
@@ -307,16 +307,16 @@ const QString &JAccount::password(bool *ok)
 		if (dialog->exec() == PasswordDialog::Accepted) {
 			if (ok)
 				*ok = true;
-			d->passwd = dialog->password();
+			d->client.setPassword(dialog->password());
 			if (dialog->remember()) {
-				config().group("general").setValue("passwd", d->passwd, Config::Crypted);
+				config().group("general").setValue("passwd", d->client.password(), Config::Crypted);
 				config().sync();
 			}
 		}
 		delete validator;
 		delete dialog;
 	}
-	return d->passwd;
+	return d->client.password();
 }
 
 JMessageSessionManager *JAccount::messageSessionManager() const

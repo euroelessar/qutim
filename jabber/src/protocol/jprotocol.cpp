@@ -65,10 +65,10 @@ Account *JProtocol::account(const QString &id) const
 
 void JProtocol::loadActions()
 {
-	Settings::registerItem(new GeneralSettingsItem<JMainSettings>(
-							   Settings::Protocol,
-							   Icon("im-jabber"),
-							   QT_TRANSLATE_NOOP("Settings", "Jabber")));
+	Settings::registerItem<JAccount>(new GeneralSettingsItem<JMainSettings>(
+										 Settings::Protocol,
+										 Icon("im-jabber"),
+										 QT_TRANSLATE_NOOP("Settings", "Main settings")));
 
 	ActionGenerator *generator  = new ActionGenerator(Icon("im-kick-user"),
 	                                                  QT_TRANSLATE_NOOP("Conference", "Kick"),
@@ -170,9 +170,9 @@ void JProtocol::onJoinLeave(QObject* obj)
 	debug() << Q_FUNC_INFO << obj;
 	Q_ASSERT(room);
 	if (!room->isJoined()) {
-//		JAccount *account = static_cast<JAccount*>(room->account());
+		//		JAccount *account = static_cast<JAccount*>(room->account());
 		room->join();
-//		account->conferenceManager()->join(room->id());
+		//		account->conferenceManager()->join(room->id());
 	}
 	else
 		room->leave();
