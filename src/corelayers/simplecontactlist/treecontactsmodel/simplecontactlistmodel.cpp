@@ -71,7 +71,7 @@ AddRemoveContactActionGenerator::AddRemoveContactActionGenerator(Model *model) :
 Model::Model(QObject *parent) : AbstractContactModel(parent), p(new ModelPrivate)
 {
 	p->showMessageIcon = false;
-	qApp->installEventFilter(this);
+	Event::eventManager()->installEventFilter(this);
 	p->initData = new ModelPrivate::InitData;
 	p->realUnitRequestEvent = Event::registerType("real-chatunit-request");
 	p->qutimAboutToQuitEvent = Event::registerType("aboutToQuit");

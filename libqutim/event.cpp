@@ -21,9 +21,11 @@
 
 namespace qutim_sdk_0_3
 {
+	Q_GLOBAL_STATIC(QObject, eventManagerHandler)
+
 	void Event::send()
 	{
-		qApp->sendEvent(qApp, this);
+		QCoreApplication::sendEvent(eventManagerHandler(), this);
 	}
 
 	static QVector<QByteArray> event_ids;
@@ -50,6 +52,11 @@ namespace qutim_sdk_0_3
 		if(id >= event_ids.size())
 			return 0;
 		return event_ids[id];
+	}
+
+	QObject *Event::eventManager()
+	{
+		return eventManagerHandler();
 	}
 
 	QDebug operator<<(QDebug dbg, const Event &e)

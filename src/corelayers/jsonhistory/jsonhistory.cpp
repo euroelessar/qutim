@@ -23,6 +23,8 @@
 #include <QStringBuilder>
 #include "historywindow.h"
 #include <qutim/icon.h>
+#include <qutim/debug.h>
+//#include <QElapsedTimer>
 
 namespace Core
 {
@@ -100,9 +102,20 @@ namespace Core
 			file.unmap(fmap);
 		return end;
 	}
+	
+//	struct MethodLiveCounter
+//	{
+//		MethodLiveCounter(const char *m, qint64 &t) : method(m), time(t) { timer.start(); }
+//		~MethodLiveCounter() { time += timer.elapsed(); debug() << method << "worked" << time << "ms"; }
+//		QElapsedTimer timer;
+//		const char *method;
+//		qint64 &time;
+//	};
 
 	void JsonHistory::store(const Message &message)
 	{
+//		static qint64 t = 0;
+//		MethodLiveCounter counter(Q_FUNC_INFO, t);
 		if(!message.chatUnit())
 			return;
 		QString fileName = getAccountDir(message.chatUnit()->getHistoryUnit()).filePath(getFileName(message));
@@ -163,6 +176,8 @@ namespace Core
 
 	MessageList JsonHistory::read(const ChatUnit *unit, const QDateTime &from, const QDateTime &to, int max_num)
 	{
+//		static qint64 t = 0;
+//		MethodLiveCounter counter(Q_FUNC_INFO, t);
 		MessageList items;
 		if(!unit)
 			return items;

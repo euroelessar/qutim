@@ -151,8 +151,8 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 		if (value == str)
 			current = i;
 		addItem(str, ids.value(i));
-		++i;
 	}
+	qDebug() << Q_FUNC_INFO << value << alt << count();
 
 	setEditable(item.property("editable", false));
 	setMinimumContentsLength(12);
@@ -170,6 +170,7 @@ ComboBox::ComboBox(DefaultDataForm *dataForm,
 	if (!item.name().isEmpty())
 		dataForm->addWidget(item.name(), this);
 	connect(this, SIGNAL(editTextChanged(QString)), SLOT(onChanged(QString)));
+	connect(this, SIGNAL(currentIndexChanged(QString)), SLOT(onChanged(QString)));
 	m_emitChangedSignal = item.dataChangedReceiver();
 	if (m_emitChangedSignal) {
 		Q_ASSERT(item.dataChangedMethod());
@@ -182,6 +183,7 @@ DataItem ComboBox::item() const
 {
 	DataItem item = m_item;
 	item.setName(objectName());
+	qDebug() << Q_FUNC_INFO << currentText();
 	item.setData(currentText());
 	item.setProperty("identificator", itemData(currentIndex()));
 	return item;

@@ -38,6 +38,7 @@ namespace qutim_sdk_0_3
 		static QEvent::Type eventType();
 		static quint16 registerType(const char *id);
 		static const char *getId(quint16 id);
+		static QObject *eventManager();
 
 		template<typename T>
 		T at(int index) const { return args[index].value<T>(); }
