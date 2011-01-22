@@ -51,6 +51,11 @@ void JMUCUser::setName(const QString &name)
 	//		emit nameChanged(name);
 }
 
+JMUCSession *JMUCUser::muc() const
+{
+	return d_func()->muc;
+}
+
 QString JMUCUser::avatar() const
 {
 	return d_func()->avatar;

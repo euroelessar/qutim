@@ -27,6 +27,7 @@ public:
 	void setAvatar(const QString &hex);
 	void setName(const QString &name);
 	//			InfoRequest *infoRequest() const;
+	JMUCSession *muc() const;
 	ChatUnit *upperUnit();
 	MUCRoom::Affiliation affiliation();
 	void setMUCAffiliation(MUCRoom::Affiliation affiliation);

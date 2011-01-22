@@ -25,7 +25,9 @@ enum JActionType
 	SaveRemoveBookmarkAction,
 	RoomConfigAction,
 	RoomParticipantsAction,
-	ChangeSubcriptionAction
+	ChangeSubcriptionAction,
+	KickAction,
+	BanAction
 };
 
 struct JProtocolPrivate
@@ -68,18 +70,25 @@ void JProtocol::loadActions()
 							   Icon("im-jabber"),
 							   QT_TRANSLATE_NOOP("Settings", "Jabber")));
 
-	MenuController::addAction<JMUCUser>(
-				new ActionGenerator(Icon("im-kick-user"), QT_TRANSLATE_NOOP("Conference", "Kick"),
-									this, SLOT(onKickUser(QObject*))));
-	MenuController::addAction<JMUCUser>(
-				new ActionGenerator(Icon("im-ban-user"), QT_TRANSLATE_NOOP("Conference", "Ban"),
-									this, SLOT(onBanUser(QObject*))));
+	ActionGenerator *generator  = new ActionGenerator(Icon("im-kick-user"),
+	                                                  QT_TRANSLATE_NOOP("Conference", "Kick"),
+	                                                  this, SLOT(onKickUser(QObject*)));
+	generator->addHandler(ActionVisibilityChangedHandler, this);
+	generator->addProperty("actionType", KickAction);
+	MenuController::addAction<JMUCUser>(generator);
+	
+	generator  = new ActionGenerator(Icon("im-ban-user"), QT_TRANSLATE_NOOP("Conference", "Ban"),
+	                                 this, SLOT(onBanUser(QObject*)));
+	generator->addHandler(ActionVisibilityChangedHandler, this);
+	generator->addProperty("actionType", BanAction);
+	MenuController::addAction<JMUCUser>(generator);
+	
 	//MenuController::addAction<JMessageSession>(
 	//			new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Conference", "Convert to conference"),
 	//								this, SLOT(onConvertToMuc(QObject*))));
 
-	ActionGenerator *generator  = new ActionGenerator(QIcon(),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
-													  this, SLOT(onJoinLeave(QObject*)));
+	generator  = new ActionGenerator(QIcon(),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
+	                                 this, SLOT(onJoinLeave(QObject*)));
 	generator->addHandler(ActionVisibilityChangedHandler,this);
 	generator->setType(0);
 	generator->setPriority(3);
@@ -351,6 +360,17 @@ bool JProtocol::event(QEvent *ev)
 					break;
 				}
 				action->setText(str);
+				break;
+			}
+			case KickAction: {
+				JMUCUser *user = qobject_cast<JMUCUser*>(event->controller());
+				action->setVisible(user->muc()->room()->canKick(user->name()));
+				break;
+			}
+			case BanAction: {
+				JMUCUser *user = qobject_cast<JMUCUser*>(event->controller());
+				action->setVisible(user->muc()->room()->canBan(user->name()));
+				break;
 			}
 			default:
 				break;
