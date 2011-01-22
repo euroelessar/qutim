@@ -17,6 +17,7 @@
 #include <qutim/debug.h>
 #include <qutim/account.h>
 #include <qutim/protocol.h>
+#include <qutim/conference.h>
 
 namespace SessionHelper
 {
@@ -48,7 +49,9 @@ bool SessionHelper::unload()
 
 void SessionHelper::sessionCreated(qutim_sdk_0_3::ChatSession* session)
 {
-	session->activate();
+	//TODO write more flexible 
+	if(qobject_cast<Conference*>(session->unit()))
+		session->activate();
 }
 
 } //namespace SessionHelper

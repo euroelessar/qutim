@@ -104,6 +104,7 @@ void ChatUnit::setChatState(ChatState state)
 		Message msg;
 		msg.setIncoming(true);
 		msg.setProperty("service",Notifications::Typing);
+		msg.setProperty("store",false);
 		ChatLayer::get(this,true)->appendMessage(msg);
 	}
 }
