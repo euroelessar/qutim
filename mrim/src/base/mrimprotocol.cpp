@@ -109,6 +109,11 @@ QVariant MrimProtocol::data(DataType type)
 	}
 }
 
+void MrimProtocol::removeAccount(QObject *obj)
+{
+	p->m_accountsHash.remove(p->m_accountsHash.key(static_cast<MrimAccount*>(obj)));
+}
+
 MrimProtocol* MrimProtocol::instance()
 {
     if (!self)

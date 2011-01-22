@@ -45,7 +45,8 @@ public:
     Account *account(const QString &id) const;
     AccountCreationError createAccount(const QString& email, const QString& password);
 	QVariant data(DataType type);
-
+protected slots:
+	void removeAccount(QObject *obj);
 private:
     Q_DISABLE_COPY(MrimProtocol)
 	void addAccount(MrimAccount *account);
