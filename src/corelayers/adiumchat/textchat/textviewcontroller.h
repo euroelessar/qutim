@@ -91,12 +91,12 @@ private:
 	QCache<qint64, int> m_cache;
 	QDateTime m_lastTime;
 	QString m_lastSender;
-	char m_isLastIncoming;
-	char m_storeServiceMessages;
-	short m_groupUntil;
-	int m_scrollBarPosition;
+	bool m_isLastIncoming;
+	bool m_storeServiceMessages;
 	bool m_animateEmoticons;
 	bool m_atAnimation;
+	short m_groupUntil;
+	int m_scrollBarPosition;
 	QColor m_incomingColor;
 	QColor m_outgoingColor;
 	QColor m_serviceColor;
