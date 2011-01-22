@@ -71,6 +71,10 @@ namespace Jabber
 
 		struct Environment
 		{
+			Environment() : bodyColor(0), tagColor(0), attributeColor(0), paramColor(0) {}
+			void appendText(const QString &text, const QLatin1String &color);
+			void appendAttribute(const QString &name, const QStringRef &value);
+			
 			QXmlStreamReader reader;
 			State state;
 			int depth;
@@ -78,6 +82,10 @@ namespace Jabber
 			QString html;
 			QXmlStreamReader::TokenType last;
 			QString xmlns;
+			QLatin1String bodyColor;
+			QLatin1String tagColor;
+			QLatin1String attributeColor;
+			QLatin1String paramColor;
 		};
 
 		Ui::XmlConsole *m_ui;
@@ -85,6 +93,7 @@ namespace Jabber
 		QList<XmlNode> m_nodes;
 		Environment m_incoming;
 		Environment m_outgoing;
+		QLatin1String m_bracketsColor;
 		int m_filter;
 	
 	private slots:

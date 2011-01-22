@@ -18,19 +18,26 @@ namespace Jabber
 		QWidget(parent),
 		m_ui(new Ui::XmlConsole),
 		m_client(0),
-		m_filter(0x1f)
+	    m_bracketsColor(0),
+	    m_filter(0x1f)
 	{
 		m_ui->setupUi(this);
 		qDebug("%s", Q_FUNC_INFO);
 		m_incoming.depth = 0;
 		m_outgoing.depth = 0;
+		QPalette pal = palette();
+		pal.setColor(QPalette::Base, Qt::black);
+		pal.setColor(QPalette::Text, Qt::white);
+		m_ui->xmlBrowser->viewport()->setPalette(pal);
 		QTextDocument *doc = m_ui->xmlBrowser->document();
 		doc->setDocumentLayout(new QPlainTextDocumentLayout(doc));
 		doc->clear();
-		QTextCursor cur(doc);
-		cur.movePosition(QTextCursor::Start);
+//		doc->rootFrame()->set
+//		doc->setHtml(QLatin1String("<body bgcolor='#000000'></body>"));
+//		QTextCursor cur(doc);
+//		cur.movePosition(QTextCursor::Start);
 		QTextFrameFormat format = doc->rootFrame()->frameFormat();
-		format.setBackground(QColor(0x888888));
+		format.setBackground(QColor(Qt::black));
 		format.setMargin(0);
 		doc->rootFrame()->setFrameFormat(format);
 		QMenu *menu = new QMenu(m_ui->filterButton);
@@ -72,6 +79,15 @@ namespace Jabber
 		custom->setChecked(true);
 		connect(group, SIGNAL(triggered(QAction*)), this, SLOT(onActionGroupTriggered(QAction*)));
 		m_ui->filterButton->setMenu(menu);
+		m_bracketsColor = QLatin1String("#666666");
+		m_incoming.bodyColor = QLatin1String("#bb66bb");
+		m_incoming.tagColor = QLatin1String("#006666");
+		m_incoming.attributeColor = QLatin1String("#009933");
+		m_incoming.paramColor = QLatin1String("#cc0000");
+		m_outgoing.bodyColor = QLatin1String("#999999");
+		m_outgoing.tagColor = QLatin1String("#22aa22");
+		m_outgoing.attributeColor = QLatin1String("#ffff33");
+		m_outgoing.paramColor = QLatin1String("#dd8811");
 //		doc->setDocumentMargin(0);
 	}
 
@@ -128,6 +144,28 @@ namespace Jabber
 		return space;
 	}
 	
+	void XmlConsole::Environment::appendText(const QString &text, const QLatin1String &color)
+	{
+		html.append(QLatin1String("<font color="));
+		html.append(color);
+		html.append(QLatin1String(">"));
+		html.append(text);
+		html.append(QLatin1String("</font>"));
+	}
+	
+	void XmlConsole::Environment::appendAttribute(const QString &name, const QStringRef &value)
+	{
+		html.append(QLatin1String(" <font color='"));
+		html.append(attributeColor);
+		html.append(QLatin1String("'>"));
+		html.append(Qt::escape(name));
+		html.append(QLatin1String("</font>=<font color='"));
+		html.append(paramColor);
+		html.append(QLatin1String("'>"));
+		html.append(Qt::escape(value.toString()));
+		html.append(QLatin1String("</font>"));
+	}
+	
 	void XmlConsole::process(const QByteArray &data, bool incoming)
 	{
 		Environment *d = &(incoming ? m_incoming : m_outgoing);
@@ -136,7 +174,7 @@ namespace Jabber
 			switch(d->reader.tokenType()) {
 			case QXmlStreamReader::StartElement:
 				if (d->last == QXmlStreamReader::StartElement)
-					d->html.append(QLatin1String("&gt;"));
+					d->appendText(QLatin1String("&gt;"), m_bracketsColor);
 				if (d->depth == 1) {
 					d->html.clear();
 					d->current.type = XmlNode::Custom;
@@ -159,37 +197,29 @@ namespace Jabber
 				if (!d->html.isEmpty())
 					d->html.append(QLatin1String("<br/>"));
 				d->html.append(generate_space(d->depth));
-				d->html.append(QLatin1String("&lt;<b><font color=#800000>"));
-				d->html.append(Qt::escape(d->reader.name().toString()));
-				d->html.append(QLatin1String("</font></b>"));
+				d->appendText(QLatin1String("&lt;"), m_bracketsColor);
+				d->appendText(Qt::escape(d->reader.name().toString()), d->tagColor);
 				if (d->xmlns != d->reader.namespaceUri() || d->depth == 1) {
 					d->xmlns = d->reader.namespaceUri().toString();
-					d->html.append(QLatin1String(" <b><font color=#000080>xmlns</font></b>=&quot;"));
-					d->html.append(Qt::escape(d->xmlns));
-					d->html.append(QLatin1String("&quot;"));
+					d->appendAttribute(QLatin1String("xmlns"), d->reader.namespaceUri());
 				}
-				foreach (const QXmlStreamAttribute &attr, d->reader.attributes()) {
-					d->html.append(QLatin1String(" <b><font color=#000080>"));
-					d->html.append(Qt::escape(attr.name().toString()));
-					d->html.append(QLatin1String("</font></b>=&quot;"));
-					d->html.append(Qt::escape(attr.value().toString()));
-					d->html.append(QLatin1String("&quot;"));
-				}
+				foreach (const QXmlStreamAttribute &attr, d->reader.attributes())
+					d->appendAttribute(attr.name().toString(), attr.value());
 				d->depth++;
 				break;
 			case QXmlStreamReader::EndElement:
 				d->depth--;
-				// &#47; is equal for '/'
 				if (d->last == QXmlStreamReader::StartElement) {
-					d->html.append(QLatin1String("&#47;&gt;"));
+					// &#47; is equal for '/'
+					d->appendText(QLatin1String("&#47;&gt;"), m_bracketsColor);
 				} else {
 					if (d->last != QXmlStreamReader::Characters) {
 						d->html.append("<br/>");
 						d->html.append(generate_space(d->depth));
 					}
-					d->html.append(QLatin1String("&lt;&#47;<b><font color=#800000>"));
-					d->html.append(Qt::escape(d->reader.name().toString()));
-					d->html.append(QLatin1String("</font></b>&gt;"));
+					d->appendText(QLatin1String("&lt;&#47;"), m_bracketsColor);
+					d->appendText(Qt::escape(d->reader.name().toString()), d->tagColor);
+					d->appendText(QLatin1String("&gt;"), m_bracketsColor);
 				}
 				if (d->depth == 1) {
 					QTextDocument *doc = m_ui->xmlBrowser->document();
@@ -199,19 +229,9 @@ namespace Jabber
 //					if (!m_nodes.isEmpty())
 						cur.insertBlock();
 					
-					QTextBlockFormat format = cur.block().blockFormat();
-					format.setBottomMargin(1);
-					format.setTopMargin(0);
-					format.setRightMargin(0);
-					format.setLeftMargin(0);
-					QColor color(incoming ? 0xc8ffc8 : 0xc8c8ff);
-					format.setBackground(color);
-					cur.setBlockFormat(format);
-					
 					d->current.block = cur.block();
 					d->current.lineCount = cur.block().lineCount();
-//					qDebug() << d->current.lineCount;
-					d->html.append(QLatin1String("<br/>"));
+					d->html.append(QLatin1String("<br/><br/>"));
 					cur.insertHtml(d->html);
 					cur.endEditBlock();
 					
@@ -219,8 +239,10 @@ namespace Jabber
 				}
 				break;
 			case QXmlStreamReader::Characters: {
+				if (d->last == QXmlStreamReader::EndElement)
+					break;
 				if (d->last == QXmlStreamReader::StartElement)
-					d->html.append(QLatin1String("&gt;"));
+					d->appendText(QLatin1String("&gt;"), m_bracketsColor);
 				QString text = Qt::escape(d->reader.text().toString());
 				if (text.contains(QLatin1Char('\n'))) {
 					QString space = generate_space(d->depth);
@@ -230,12 +252,15 @@ namespace Jabber
 					text.append("<br/>");
 					text.append(generate_space(d->depth - 1));
 				}
-				d->html.append(text);
+				d->appendText(text, d->bodyColor);
 				break; }
 			default:
 				break;
 			}
-			d->last = d->reader.tokenType();
+			if (d->last != QXmlStreamReader::EndElement
+			        || d->reader.tokenType() != QXmlStreamReader::Characters) {
+				d->last = d->reader.tokenType();
+			}
 		}
 		if (!incoming && d->depth > 1) {
 			qFatal("outgoing depth %d on\n\"%s\"", d->depth,
