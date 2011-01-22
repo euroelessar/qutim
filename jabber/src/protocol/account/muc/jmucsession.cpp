@@ -52,7 +52,6 @@ public:
 	QPointer<JAccount> account;
 	jreen::MUCRoom *room;
 	jreen::JID jid;
-	QString nick;
 	QString title;
 	QString topic;
 	QHash<QString, quint64> messages;
@@ -72,7 +71,6 @@ JMUCSession::JMUCSession(const jreen::JID &room, const QString &password, JAccou
 {
 	Q_D(JMUCSession);
 	d->jid = room.bareJID();
-	d->nick = room.resource();
 	d->account = account;
 	d->room = new jreen::MUCRoom(account->client(), room);
 	connect(d->room, SIGNAL(presenceReceived(jreen::Presence,const jreen::MUCRoom::Participant*)),
@@ -126,7 +124,7 @@ JMUCSession::~JMUCSession()
 qutim_sdk_0_3::Buddy *JMUCSession::me() const
 {
 	Q_D(const JMUCSession);
-	return d->users.value(d->nick);
+	return d->users.value(d->room->nick());
 }
 
 ChatUnit *JMUCSession::participant(const QString &nick)
@@ -233,7 +231,7 @@ void JMUCSession::onParticipantPresence(const jreen::Presence &presence,
 {
 	Q_D(JMUCSession);
 	QString nick = presence.from().resource();
-	bool isSelf = nick == d->nick;
+	bool isSelf = nick == d->room->nick();
 	QString text;
 	if (participant->isBanned() || participant->isKicked()) {
 		QString reason = participant->reason();
@@ -274,10 +272,8 @@ void JMUCSession::onParticipantPresence(const jreen::Presence &presence,
 		//			JMessageSession *session = qobject_cast<JMessageSession*>(d->account->messageHandler()->getSession(user, false));
 		//			if (session)
 		//				session->session()->setResource(participant.newNick);
-		if (isSelf) {
-			d->nick = newNick;
+		if (isSelf)
 			emit meChanged(me());
-		}
 		user->setStatus(presence);
 	} else {
 		JMUCUser *user = d->users.value(nick, 0);
@@ -581,7 +577,7 @@ void JMUCSession::closeConfigDialog()
 bool JMUCSession::enabledConfiguring()
 {
 	Q_D(JMUCSession);
-	if (JMUCUser *i = d->users.value(d->nick))
+	if (JMUCUser *i = d->users.value(d->room->nick()))
 		return i->affiliation() == MUCRoom::AffiliationOwner && !d->config;
 	return false;
 }
