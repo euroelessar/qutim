@@ -107,8 +107,8 @@ public:
 	static void tabRemove     (QWidget *tab);
 	static void tabRemove     (unsigned tabid);
 	static void tabsClear();
-	static void tabSetTitle   (QWidget *tab,   QString &customTitle);
-	static void tabSetTitle   (unsigned tabid, QString &title);
+	static void tabSetTitle   (QWidget *tab,   const QString &customTitle);
+	static void tabSetTitle   (unsigned tabid, const QString &title);
 
 public slots:
 	unsigned addTab (QWidget *tab, QWidget *owner, const QString &title = "", QWidget *before = 0, PreviewProvider *pp = 0);
@@ -124,8 +124,8 @@ public slots:
 	void refreshPreviews(unsigned tabid);
 	void removeTab  (QWidget *tab);
 	void removeTab  (unsigned tabid);
-	void setTabTitle(QWidget *tab,   QString &customTitle);
-	void setTabTitle(unsigned tabid, QString &title);
+	void setTabTitle(QWidget *tab,   const QString &customTitle);
+	void setTabTitle(unsigned tabid, const QString &title);
 	void widgetDestroyed();
 
 signals:

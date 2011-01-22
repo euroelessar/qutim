@@ -66,14 +66,14 @@ unsigned TaskbarPreviews::addVirtualTab(PreviewProvider *pp, QWidget *owner, con
 	return t.id;
 }
 
-void TaskbarPreviews::setTabTitle(QWidget *tab, QString &customTitle)
+void TaskbarPreviews::setTabTitle(QWidget *tab, const QString &customTitle)
 {
 	QWidget *w = m_tabs.internal(tab);
 	if (w)
 		w->setWindowTitle(customTitle);
 }
 
-void TaskbarPreviews::setTabTitle(unsigned tabid, QString &title)
+void TaskbarPreviews::setTabTitle(unsigned tabid, const QString &title)
 {
 	QWidget *w = m_tabs.internal(tabid);
 	if (w)
@@ -258,12 +258,12 @@ void TaskbarPreviews::tabPreviewsRefresh(unsigned tabid)
 	TaskbarPreviews::instance()->refreshPreviews(tabid);
 }
 
-void TaskbarPreviews::tabSetTitle(QWidget *tab, QString &customTitle)
+void TaskbarPreviews::tabSetTitle(QWidget *tab, const QString &customTitle)
 {
 	TaskbarPreviews::instance()->setTabTitle(tab, customTitle);
 }
 
-void TaskbarPreviews::tabSetTitle(unsigned tabid, QString &title)
+void TaskbarPreviews::tabSetTitle(unsigned tabid, const QString &title)
 {
 	TaskbarPreviews::instance()->setTabTitle(tabid, title);
 }
