@@ -161,9 +161,9 @@ namespace Jabber
 		html.append(Qt::escape(name));
 		html.append(QLatin1String("</font>=<font color='"));
 		html.append(paramColor);
-		html.append(QLatin1String("'>"));
+		html.append(QLatin1String("'>'"));
 		html.append(Qt::escape(value.toString()));
-		html.append(QLatin1String("</font>"));
+		html.append(QLatin1String("'</font>"));
 	}
 	
 	void XmlConsole::process(const QByteArray &data, bool incoming)
