@@ -29,7 +29,6 @@ namespace qutim_sdk_0_3
 		
 	private:
 		static const QVariant::Handler handler;
-		static const QVariant::Handler *lastHandler;
 	};
 }
 

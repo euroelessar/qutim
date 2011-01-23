@@ -97,6 +97,7 @@ private:
 	bool m_atAnimation;
 	short m_groupUntil;
 	int m_scrollBarPosition;
+	QFont m_font;
 	QColor m_incomingColor;
 	QColor m_outgoingColor;
 	QColor m_serviceColor;

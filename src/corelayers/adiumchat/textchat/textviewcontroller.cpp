@@ -52,6 +52,15 @@ TextViewController::TextViewController()
 	m_incomingColor.setNamedColor(cfg.value(QLatin1String("incomingColor"), QLatin1String("#ff6600")));
 	m_outgoingColor.setNamedColor(cfg.value(QLatin1String("outgoingColor"), QLatin1String("#0078ff")));
 	m_serviceColor .setNamedColor(cfg.value(QLatin1String("serviceColor"),  QLatin1String("gray")));
+	cfg.beginGroup(QLatin1String("font"));
+#ifdef Q_WS_MAEMO_5
+	m_font.setFamily(cfg.value(QLatin1String("family"), QLatin1String("Nokia Sans")));
+	m_font.setPointSize(cfg.value(QLatin1String("size"), 15));
+#else
+	m_font.setFamily(cfg.value(QLatin1String("family"), QLatin1String("verdana")));
+	m_font.setPointSize(cfg.value(QLatin1String("size"), 10));
+#endif
+	cfg.endGroup();
 	cfg.endGroup();
 	cfg.beginGroup(QLatin1String("history"));
 	m_storeServiceMessages = cfg.value(QLatin1String("storeServiceMessages"), true);
@@ -78,12 +87,13 @@ ChatSessionImpl *TextViewController::getSession() const
 
 void TextViewController::appendMessage(const qutim_sdk_0_3::Message &msg)
 {
+	if (msg.text().isEmpty())
+		return;
 	QTextCursor cursor(this);
 	cursor.beginEditBlock();
 	bool shouldScroll = isNearBottom();
 	QTextCharFormat defaultFormat;
-	defaultFormat.setFontFamily(QLatin1String("verdana"));
-	defaultFormat.setFontPointSize(9);
+	defaultFormat.setFont(m_font);
 	cursor.setCharFormat(defaultFormat);
 	cursor.movePosition(QTextCursor::End);
 	QString currentSender = makeName(msg);
