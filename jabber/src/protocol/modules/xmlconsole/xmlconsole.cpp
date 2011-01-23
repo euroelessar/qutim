@@ -331,8 +331,8 @@ namespace Jabber
 				d->depth--;
 				break;
 			case QXmlStreamReader::Characters:
-				token = d->tokens.last();
-				if (token->type == QXmlStreamReader::StartElement && !token->startTag.empty)
+				token = d->tokens.isEmpty() ? 0 : d->tokens.last();
+				if (token && token->type == QXmlStreamReader::StartElement && !token->startTag.empty)
 					d->tokens << new StackToken(d->reader);
 				break;
 			default:
