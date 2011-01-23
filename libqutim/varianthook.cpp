@@ -20,6 +20,7 @@
 #include <QDebug>
 
 Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler();
+static const QVariant::Handler *lastHandler = 0;
 
 namespace qutim_sdk_0_3
 {
@@ -27,7 +28,7 @@ namespace qutim_sdk_0_3
 	{
 		switch (d->type) {
 		default:
-			qcoreVariantHandler()->construct(d, copy);
+			lastHandler->construct(d, copy);
 			return;
 		}
 //		d->is_null = !copy;
@@ -37,7 +38,7 @@ namespace qutim_sdk_0_3
 	{
 		switch (d->type) {
 		default:
-			qcoreVariantHandler()->clear(d);
+			lastHandler->clear(d);
 			return;
 		}
 //		d->type = QVariant::Invalid;
@@ -50,7 +51,7 @@ namespace qutim_sdk_0_3
 	{
 		switch(d->type) {
 		default:
-			return qcoreVariantHandler()->isNull(d);
+			return lastHandler->isNull(d);
 		}
 		return d->is_null;
 	}
@@ -62,7 +63,7 @@ namespace qutim_sdk_0_3
 		default:
 			break;
 		}
-		return qcoreVariantHandler()->compare(a, b);
+		return lastHandler->compare(a, b);
 	}
 	
 	
@@ -85,25 +86,27 @@ namespace qutim_sdk_0_3
 					return false;
 				}
 			}
+			break;
 		}
 		case QVariant::Icon: {
-				QIcon *icon = static_cast<QIcon*>(result);
-				if (d->type == qMetaTypeId<ExtensionIcon>()) {
-					*icon = static_cast<ExtensionIcon*>(d->data.shared->ptr)->toIcon();
-					return true;
-				}
+			QIcon *icon = static_cast<QIcon*>(result);
+			if (d->type == qMetaTypeId<ExtensionIcon>()) {
+				*icon = static_cast<ExtensionIcon*>(d->data.shared->ptr)->toIcon();
+				return true;
+			}
+			break;
 		}
 		default:
 			break;
 		}
-		return qcoreVariantHandler()->convert(d, t, result, ok);
+		return lastHandler->convert(d, t, result, ok);
 	}
 	
 	static void streamDebug(QDebug dbg, const QVariant &v)
 	{
 		switch(v.type()) {
 		default:
-			qcoreVariantHandler()->debugStream(dbg, v);
+			lastHandler->debugStream(dbg, v);
 			break;
 		}
 	}
@@ -119,8 +122,6 @@ namespace qutim_sdk_0_3
 		0,
 		qutim_sdk_0_3::streamDebug
 	};
-	
-	const QVariant::Handler *VariantHook::lastHandler = 0;
 	
 	void VariantHook::init()
 	{

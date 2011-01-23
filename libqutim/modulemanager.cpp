@@ -26,6 +26,7 @@
 #include "startupmodule.h"
 #include "libqutim/icon.h"
 #include "varianthook_p.h"
+#include "debug.h"
 #include <QPluginLoader>
 #include <QSettings>
 #include <QDir>
@@ -545,6 +546,7 @@ namespace qutim_sdk_0_3
 					QByteArray name = MetaObjectBuilder::info(meta, "Protocol");
 					if (name.isEmpty() || name != it.key())
 						continue;
+					debug() << name << meta->className();
 					Protocol *protocol = info.generator()->generate<Protocol>();
 					p->protocols_hash->insert(protocol->id(), protocol);
 					usedExtensions << meta->className();
