@@ -4,7 +4,7 @@
 #include <QSize>
 #include <QFlags>
 #include <qt_windows.h>
-#include "..\..\apilayer\src\ApiTaskbarPreviewsWAttributes.h"
+#include "../../apilayer/src/ApiTaskbarPreviewsWAttributes.h"
 
 Q_DECLARE_FLAGS(WindowAttributes, WindowAttribute)
 Q_DECLARE_OPERATORS_FOR_FLAGS(WindowAttributes)

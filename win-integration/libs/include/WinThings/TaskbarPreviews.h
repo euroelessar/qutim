@@ -1,1 +1,1 @@
-#include "../qtwrapper/src/TaskbarPreviews.h"
+#include "../../qtwrapper/src/TaskbarPreviews.h"
