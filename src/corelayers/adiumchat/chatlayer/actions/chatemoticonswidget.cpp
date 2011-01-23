@@ -21,7 +21,7 @@ ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 	QScrollArea(parent)
 {
 #ifndef Q_WS_MAEMO_5
-	resize(400,200);
+	resize(400,400);
 #else
 	resize(parent->width()-160,parent->height()-110);move(80,0);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

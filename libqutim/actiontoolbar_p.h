@@ -2,7 +2,7 @@
  *  actiontoolbar_p.h
  *
  *  Copyright (c) 2010 by Nigmatullin Ruslan <euroelessar@gmail.com>
- *  Copyright (c) 2010 by Sidorov Aleksey <sauron@citadelspb.com> 
+ *  Copyright (c) 2010-2011 by Sidorov Aleksey <sauron@citadelspb.com> 
  *
  ***************************************************************************
  *                                                                         *
@@ -21,6 +21,7 @@
 #include <QPoint>
 #include <QVariant>
 #include "localizedstring.h"
+#include <QSize>
 
 class QActionGroup;
 class QMenu;
@@ -40,18 +41,16 @@ namespace qutim_sdk_0_3
 	public:
 		ActionToolBarPrivate();
 		virtual ~ActionToolBarPrivate();
-		void initContextMenu();
+		QMenu *initContextMenu();
 		QList<ActionGenerator *> generators;
 		QList<QPointer<QAction> > actions;
 		QVariant data;
 		QPoint dragPos;
 		bool moveHookEnabled;
 		ActionToolBar *q_ptr;
-		QMenu *contextMenu;
-		QMenu *sizeMenu;
-		QMenu *styleMenu;
 		QActionGroup *fillMenu(QMenu *menu, SizeList *map, int current = 0);
-		QString id;
+		QSize size;
+		int style;
 	public slots:
 		void sizeActionTriggered(QAction*);
 		void styleActionTriggered(QAction*);	

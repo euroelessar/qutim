@@ -131,7 +131,7 @@ Module::Module() : p(new ModulePrivate)
 	int size = Config().group("contactList").value("toolBarIconSize",16);
 
 #ifdef Q_WS_MAEMO_5
-	size = 48;
+	size = 48; //TODO use relative sizes table 
 #endif
 
 	QSize toolbar_size (size,size);
@@ -149,6 +149,7 @@ Module::Module() : p(new ModulePrivate)
 	p->mainToolBar->setFloatable(false);
 	p->mainToolBar->setMovable(false);
 	p->mainToolBar->setMoveHookEnabled(true);
+	p->mainToolBar->setObjectName(QLatin1String("contactListBar"));
 
 #ifdef Q_WS_WIN
 	p->mainToolBar->setStyleSheet("QToolBar{background:none;border:none;}"); //HACK

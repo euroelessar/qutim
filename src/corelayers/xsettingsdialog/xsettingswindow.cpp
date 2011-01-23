@@ -90,6 +90,7 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	p->toolBar = new ActionToolBar(w);
 	p->toolBar->setIconSize(QSize(32,32));
 	p->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	p->toolBar->setObjectName(QLatin1String("SettingsBar"));
 	addToolBar(Qt::TopToolBarArea,p->toolBar);
 	setUnifiedTitleAndToolBarOnMac(true);
 	p->toolBar->setMovable(false);

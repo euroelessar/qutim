@@ -18,6 +18,7 @@
 #include <qutim/account.h>
 #include <qutim/protocol.h>
 #include <qutim/conference.h>
+#include <QTimer>
 
 namespace SessionHelper
 {
@@ -51,7 +52,7 @@ void SessionHelper::sessionCreated(qutim_sdk_0_3::ChatSession* session)
 {
 	//TODO write more flexible 
 	if(qobject_cast<Conference*>(session->unit()))
-		session->activate();
+		QTimer::singleShot(0, session, SLOT(activate()));
 }
 
 } //namespace SessionHelper

@@ -80,6 +80,7 @@ TabbedChatWidget::TabbedChatWidget(const QString &key, QWidget *parent) :
 	m_sessionList = new QAction(Icon("view-list-tree"),tr("Session list"),this);
 	m_sessionList->setMenu(m_tabBar->menu());
 	m_sessionList->setShortcut(Shortcut::getSequence(QLatin1String("chatListSession")).key);
+	m_tabBar->setObjectName(QLatin1String("chatBar"));
 
 	loadSettings();
 
