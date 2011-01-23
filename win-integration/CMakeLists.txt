@@ -12,4 +12,6 @@ if(WINTHINGS_APILAYER_LIBRARY)
 		LINK_LIBRARIES wapiqtwrapper
 		INCLUDE_DIRS   "libs/include"
 	)
+else()
+	message("-- 'Windows Integration' plugin will be skipped.")
 endif()
