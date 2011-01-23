@@ -298,7 +298,16 @@ void JContact::setStatus(const jreen::Presence presence)
 
 void JContact::removeResource(const QString &resource)
 {
-	delete d_func()->resources.take(resource);
+	Q_D(JContact);
+	delete d->resources.take(resource);
+	if (d->resources.isEmpty()) {
+		Status oldStatus = d->status;
+		d->status = JStatus::presenceToStatus(jreen::Presence::Unavailable);
+		d->status.setExtendedInfos(oldStatus.extendedInfos());
+		d->status.removeExtendedInfo(QLatin1String("client"));
+		emit statusChanged(d->status, oldStatus);
+		return;
+	}
 	fillMaxResource();
 }
 
