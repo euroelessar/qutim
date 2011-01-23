@@ -230,6 +230,8 @@ namespace Jabber
 				}
 				break;
 			case QXmlStreamReader::EndElement:
+				if (d->tokens.isEmpty())
+					break;
 				token = d->tokens.last();
 				if (token->type == QXmlStreamReader::StartElement && !token->startTag.empty)
 					token->startTag.empty = true;
