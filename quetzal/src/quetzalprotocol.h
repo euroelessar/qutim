@@ -43,7 +43,10 @@ public:
 		static QHash<PurplePlugin *, QuetzalProtocol *> protos;
 		return protos;
 	}
+protected slots:
+	void onAccountRemoved(QObject *object);
 private:
+	void registerAccount(QuetzalAccount *account);
     virtual void loadAccounts();
 	PurplePlugin *m_plugin;
 	QHash<QString, QuetzalAccount *> m_accounts;

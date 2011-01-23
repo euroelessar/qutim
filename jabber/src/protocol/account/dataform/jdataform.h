@@ -39,8 +39,6 @@ public:
 	~JDataForm();
 	qutim_sdk_0_3::AbstractDataForm *widget();
 	jreen::DataForm::Ptr getDataForm();
-protected slots:
-	void onItemChanged(const QString &name, const QVariant &data);
 private:
 	QScopedPointer<JDataFormPrivate> d_ptr;
 };

@@ -175,16 +175,18 @@ QString JContactResource::text() const
 
 void JContactResource::setExtendedInfo(const QString &name, const QVariantHash &info)
 {
-	Status current = status();
-	d_func()->extInfo.insert(name, info);
-	emit statusChanged(status(), current);
+	Q_D(JContactResource);
+	Status current = d->status;
+	d->status.setExtendedInfo(name, info);
+	emit statusChanged( d->status, current);
 }
 
 void JContactResource::removeExtendedInfo(const QString &name)
 {
-	Status current = status();
-	d_func()->extInfo.remove(name);
-	emit statusChanged(status(), current);
+	Q_D(JContactResource);
+	Status current = d->status;
+	d->status.removeExtendedInfo(name);
+	emit statusChanged(d->status, current);
 }
 
 }

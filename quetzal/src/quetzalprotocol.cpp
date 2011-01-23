@@ -86,8 +86,7 @@ void initActions()
 void QuetzalProtocol::addAccount(PurpleAccount *purpleAccount)
 {
 	QuetzalAccount *account = new QuetzalAccount(purpleAccount->username, this);
-	m_accounts.insert(account->id(), account);
-	emit accountCreated(account);
+	registerAccount(account);
 
 	Config cfg = config("general");
 	QStringList accounts = cfg.value("accounts", QStringList());
@@ -100,11 +99,21 @@ void QuetzalProtocol::loadAccounts()
 	initActions();
 	QStringList accounts = config("general").value("accounts", QStringList());
 	debug() << id() << accounts;
-	foreach(const QString &id, accounts) {
-		QuetzalAccount *account = new QuetzalAccount(id, this);
-		m_accounts.insert(id, account);
-		emit accountCreated(account);
-	}
+	foreach(const QString &id, accounts)
+		registerAccount(new QuetzalAccount(id, this));
+}
+
+void QuetzalProtocol::onAccountRemoved(QObject *object)
+{
+	QuetzalAccount *account = static_cast<QuetzalAccount*>(object);
+	m_accounts.remove(m_accounts.key(account));
+}
+
+void QuetzalProtocol::registerAccount(QuetzalAccount *account)
+{
+	m_accounts.insert(account->id(), account);
+	connect(account, SIGNAL(destroyed(QObject*)), this, SLOT(onAccountRemoved(QObject*)));
+	emit accountCreated(account);
 }
 
 QByteArray quetzal_fix_protocol_name(const char *name)

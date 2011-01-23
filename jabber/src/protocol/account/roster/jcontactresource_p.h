@@ -20,6 +20,7 @@ public:
 	jreen::Presence presence;
 	QSet<QString> features;
 	QHash<QString, QVariantHash> extInfo;
+	qutim_sdk_0_3::Status status;
 };
 }
 

@@ -561,12 +561,12 @@ QString JMUCSession::title() const
 
 void JMUCSession::showConfigDialog()
 {
-	//	d_func()->isConfiguring = true;
-	if (d_func()->config)
-		return;
-	d_func()->config = new JConferenceConfig(d_func()->room);
-	//	connect(dialog, SIGNAL(destroyDialog()), SLOT(closeConfigDialog()));
-	d_func()->config->show();
+//	//	d_func()->isConfiguring = true;
+//	if (d_func()->config)
+//		return;
+//	d_func()->config = new JConferenceConfig(d_func()->room);
+//	//	connect(dialog, SIGNAL(destroyDialog()), SLOT(closeConfigDialog()));
+//	d_func()->config->show();
 }
 
 void JMUCSession::closeConfigDialog()
@@ -577,9 +577,9 @@ void JMUCSession::closeConfigDialog()
 bool JMUCSession::enabledConfiguring()
 {
 	Q_D(JMUCSession);
-	if (JMUCUser *i = d->users.value(d->room->nick()))
-		return i->affiliation() == MUCRoom::AffiliationOwner && !d->config;
-	return false;
+	MUCRoom::Affiliation affiliation = d->room->affiliation();
+	return affiliation == MUCRoom::AffiliationOwner
+	        || affiliation == MUCRoom::AffiliationAdmin;
 }
 
 void JMUCSession::loadSettings()

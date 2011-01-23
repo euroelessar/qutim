@@ -3,7 +3,7 @@
 
 #include <jreen/mucroom.h>
 #include <qutim/icon.h>
-#include <QWidget>
+#include <qutim/settingswidget.h>
 
 namespace Jabber
 {
@@ -12,20 +12,21 @@ using namespace qutim_sdk_0_3;
 class JMUCSession;
 struct JConferenceConfigPrivate;
 
-class JConferenceConfig : public QWidget
+class JConferenceConfig : public SettingsWidget
 {
 	Q_OBJECT
 public:
-	JConferenceConfig(jreen::MUCRoom *room, QWidget *parent = 0);
+	JConferenceConfig();
 	~JConferenceConfig();
+	
+	virtual void setController(QObject *controller);
 protected:
-	void closeEvent(QCloseEvent *);
-signals:
-	void destroyDialog();
+	virtual void loadImpl();
+	virtual void saveImpl();
+	virtual void cancelImpl();
 protected slots:
 	void onConfigurationReceived(const jreen::DataForm::Ptr &form);
-	void on_applyButton_clicked();
-	void on_okButton_clicked();
+	void onDataChanged();
 private:
 	QScopedPointer<JConferenceConfigPrivate> p;
 };

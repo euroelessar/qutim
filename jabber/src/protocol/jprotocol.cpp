@@ -2,9 +2,9 @@
 #include "jmainsettings.h"
 #include "account/jaccount.h"
 #include <qutim/icon.h>
+#include <qutim/servicemanager.h>
 #include "account/roster/jresourceactiongenerator.h"
 #include "account/roster/jcontact.h"
-//#include <gloox/dataform.h>
 #include "account/dataform/jdataform.h"
 #include <qutim/statusactiongenerator.h>
 #include <qutim/settingslayer.h>
@@ -13,6 +13,7 @@
 #include "account/muc/jmucmanager.h"
 #include "account/muc/jbookmarkmanager.h"
 #include "account/roster/jmessagesession.h"
+#include "account/muc/jconferenceconfig.h"
 #include <QInputDialog>
 #include <qutim/debug.h>
 
@@ -33,7 +34,7 @@ enum JActionType
 struct JProtocolPrivate
 {
 	inline JProtocolPrivate() : accounts(new QHash<QString, JAccount *>) {}
-	inline ~JProtocolPrivate() {delete accounts;}
+	inline ~JProtocolPrivate() { delete accounts; }
 	QHash<QString, JAccount *> *accounts;
 };
 
@@ -69,6 +70,11 @@ void JProtocol::loadActions()
 										 Settings::Protocol,
 										 Icon("im-jabber"),
 										 QT_TRANSLATE_NOOP("Settings", "Main settings")));
+
+	Settings::registerItem<JMUCSession>(new GeneralSettingsItem<JConferenceConfig>(
+	                                        Settings::Protocol,
+	                                        QIcon(),
+	                                        QT_TRANSLATE_NOOP("Settings", "Room configuration")));
 
 	ActionGenerator *generator  = new ActionGenerator(Icon("im-kick-user"),
 	                                                  QT_TRANSLATE_NOOP("Conference", "Kick"),
@@ -182,8 +188,12 @@ void JProtocol::onShowConfigDialog(QObject* obj)
 {
 	JMUCSession *room = qobject_cast<JMUCSession*>(obj);
 	Q_ASSERT(room);
-	if (room->enabledConfiguring())
-		room->showConfigDialog();
+	if (!room->enabledConfiguring())
+		return;
+	SettingsLayer *layer = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
+	layer->show(room);
+//	if (room->enabledConfiguring())
+//		room->showConfigDialog();
 }
 
 void JProtocol::onSaveRemoveBookmarks(QObject *obj)

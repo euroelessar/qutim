@@ -52,6 +52,7 @@ JDataForm::JDataForm(const jreen::DataForm::Ptr &form,
 	DataItem root(form->title());
 	for (int i = 0; i < form->fieldsCount(); i++) {
 		jreen::DataFormField field = form->field(i);
+		qDebug() << "var + values" << field.var() << field.values();
 		QVariant data;
 		if (field.type() == jreen::DataFormField::Boolean)
 			data = field.cast<jreen::DataFormFieldBoolean>().value();
@@ -63,9 +64,7 @@ JDataForm::JDataForm(const jreen::DataForm::Ptr &form,
 			data = field.value();
 		DataItem item(field.var(), field.label(), data);
 		item.setReadOnly(form->type() != jreen::DataForm::Form);
-		item.setDataChangedHandler(this, SLOT(onItemChanged(QString,QVariant)));
-		if (field.isRequired())
-			item.setProperty("mandatory", true);
+		item.setProperty("mandatory", field.isRequired());
 		qDebug() << field.type() << field.var() << field.label() << data;
 		if (field.type() == jreen::DataFormField::TextMulti)
 			item.setProperty("multiline", true);
@@ -74,10 +73,14 @@ JDataForm::JDataForm(const jreen::DataForm::Ptr &form,
 		jreen::DataFormOptionContainer options = field.cast<jreen::DataFormOptionContainer>();
 		if (options.type() != jreen::DataFormField::Invalid) {
 			QStringList labels;
-			for (int i = 0; i < options.optionsCount(); i++)
+			QStringList ids;
+			for (int i = 0; i < options.optionsCount(); i++) {
 				labels << options.optionLabel(i);
-			qDebug() << labels;
+				ids << options.optionValue(i);
+			}
+			qDebug() << labels << ids;
 			item.setProperty("alternatives", labels);
+			item.setProperty("identificators", ids);
 		}
 		root << item;
 	}
@@ -95,13 +98,6 @@ qutim_sdk_0_3::AbstractDataForm *JDataForm::widget()
 	return d_func()->widget;
 }
 
-jreen::DataForm::Ptr JDataForm::getDataForm()
-{
-	Q_D(JDataForm);
-	d->form->setType(jreen::DataForm::Submit);
-	return d->form;
-}
-
 QString optionValueByLabel(const jreen::DataFormField &field, const QString &label)
 {
 	jreen::DataFormOptionContainer options = field.cast<jreen::DataFormOptionContainer>();
@@ -112,26 +108,31 @@ QString optionValueByLabel(const jreen::DataFormField &field, const QString &lab
 	return QString();
 }
 
-void JDataForm::onItemChanged(const QString &name, const QVariant &data)
+jreen::DataForm::Ptr JDataForm::getDataForm()
 {
 	Q_D(JDataForm);
-	jreen::DataFormField field = d->form->field(name);
-	
-	if (field.type() == jreen::DataFormField::Boolean) {
-		field.cast<jreen::DataFormFieldBoolean>().setValue(data.toBool());
-	} else if (field.type() == jreen::DataFormField::ListSingle) {
-		QString value = optionValueByLabel(field, data.toString());
-		field.setValue(value);
-	} else if (field.type() == jreen::DataFormField::ListMulti) {
-		QStringList values = data.toStringList();
-		for (int i = 0; i < values.size(); i++)
-			values[i] = optionValueByLabel(field, values.at(i));
-		field.setValues(values);
-	} else if (field.type() == jreen::DataFormField::JidMulti) {
-		field.setValues(data.toStringList());
-	} else {
-		field.setValue(data.toString());
+	d->form->setType(jreen::DataForm::Submit);
+	DataItem item = d->widget->item();
+	for (int i = 0; i < d->form->fieldsCount(); i++) {
+		jreen::DataFormField field = d->form->field(i);
+		DataItem currentItem = item.subitem(field.var());
+		QVariant data = currentItem.data();
+		
+		if (field.type() == jreen::DataFormField::Boolean) {
+			field.cast<jreen::DataFormFieldBoolean>().setValue(data.toBool());
+		} else if (field.type() == jreen::DataFormField::ListSingle) {
+			field.setValue(currentItem.property("identificator").toString());
+		} else if (field.type() == jreen::DataFormField::ListMulti) {
+			QStringList values = data.toStringList();
+			for (int i = 0; i < values.size(); i++)
+				values[i] = optionValueByLabel(field, values.at(i));
+			field.setValues(values);
+		} else if (field.type() == jreen::DataFormField::JidMulti) {
+			field.setValues(data.toStringList());
+		} else {
+			field.setValue(data.toString());
+		}
 	}
+	return d->form;
 }
-
 }
