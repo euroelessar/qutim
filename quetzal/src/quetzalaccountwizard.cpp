@@ -32,7 +32,6 @@ QuetzalAccountWizardPage::QuetzalAccountWizardPage(QuetzalProtocol *proto, QWidg
 	QVBoxLayout *layout = new QVBoxLayout(scrollAreaWidget);
 	scrollAreaWidget->setLayout(layout);
 
-	QVBoxLayout *layout = new QVBoxLayout(this);
 	DataItem general;
 	{
 		DataItem userName(QLatin1String("username"), tr("Username"), QString());
