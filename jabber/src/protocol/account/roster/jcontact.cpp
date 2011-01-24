@@ -300,6 +300,7 @@ void JContact::removeResource(const QString &resource)
 {
 	Q_D(JContact);
 	delete d->resources.take(resource);
+	fillMaxResource();
 	if (d->resources.isEmpty()) {
 		Status oldStatus = d->status;
 		d->status = JStatus::presenceToStatus(jreen::Presence::Unavailable);
@@ -308,7 +309,6 @@ void JContact::removeResource(const QString &resource)
 		emit statusChanged(d->status, oldStatus);
 		return;
 	}
-	fillMaxResource();
 }
 
 Status JContact::status() const
