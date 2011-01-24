@@ -33,9 +33,6 @@ public:
 public slots:
 	void accept();
 	void ignore();
-signals:
-	void sizeChanged(const QSize &size);
-	void activated();
 private slots:
 	void onSceneResized(QSize size);
 private:

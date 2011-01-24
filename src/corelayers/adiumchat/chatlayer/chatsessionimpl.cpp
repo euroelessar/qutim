@@ -401,7 +401,7 @@ void ChatSessionImpl::setChatState(ChatState state)
 		return;
 	}
 	ChatStateEvent event(state);
-	qApp->sendEvent(d->chatUnit,&event);
+	qApp->sendEvent(getCurrentUnit(),&event);
 	d->myself_chat_state = state;
 	switch(state) {
 		case ChatStateComposing:

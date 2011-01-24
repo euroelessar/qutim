@@ -42,9 +42,6 @@ public:
 	virtual void timerEvent(QTimerEvent *);
 protected:
 	virtual bool eventFilter(QObject *obj, QEvent *event);
-signals:
-	void activated();
-	void sizeChanged(const QSize &size);
 private slots:
 	//TODO need refactoring in future
 	void onAction1Triggered();

@@ -22,25 +22,25 @@
 
 namespace Core
 {
-	namespace MetaContacts
-	{
-		class Manager : public qutim_sdk_0_3::MetaContactManager
-		{
-			Q_OBJECT
-		public:
-			Manager();
-			virtual ~Manager();
-			virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create = false);
-			void removeContact(const QString &id) { m_contacts.remove(id); }
-			virtual QString name() const;
-		protected:
-			virtual void loadContacts();
-		private slots:
-			void onSplitTriggered(QObject*);
-		private:
-			QHash<QString, MetaContactImpl*> m_contacts;
-		};
-	}
+namespace MetaContacts
+{
+class Manager : public qutim_sdk_0_3::MetaContactManager
+{
+	Q_OBJECT
+public:
+	Manager();
+	virtual ~Manager();
+	virtual qutim_sdk_0_3::ChatUnit *getUnit(const QString &unitId, bool create = false);
+	void removeContact(const QString &id) { m_contacts.remove(id); }
+	virtual QString name() const;
+protected:
+	virtual void loadContacts();
+private slots:
+	void onSplitTriggered(QObject*);
+private:
+	QHash<QString, MetaContactImpl*> m_contacts;
+};
+}
 }
 
 #endif // MANAGER_H
