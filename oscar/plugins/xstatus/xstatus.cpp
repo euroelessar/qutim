@@ -28,6 +28,7 @@
 #include "xstatusrequester.h"
 #include "xstatussender.h"
 #include "xstatussettings.h"
+#include <QApplication>
 
 namespace qutim_sdk_0_3 {
 
@@ -426,6 +427,11 @@ void XStatusHandler::onSetCustomStatus(QObject *object)
 	CustomStatusDialog *dialog = new CustomStatusDialog(account);
 	connect(dialog, SIGNAL(accepted()), SLOT(onCustomDialogAccepted()));
 	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
+#ifdef Q_WS_MAEMO_5
+	dialog->setParent(QApplication::activeWindow());
+	dialog->setWindowFlags(dialog->windowFlags() | Qt::Window);
+	dialog->setAttribute(Qt::WA_Maemo5StackedWindow);
+#endif
 	dialog->show();
 }
 
