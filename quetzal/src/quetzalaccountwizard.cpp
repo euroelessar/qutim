@@ -5,6 +5,7 @@
 #include <qutim/metaobjectbuilder.h>
 #include <QVBoxLayout>
 #include <QPushButton>
+#include <QScrollArea>
 
 using namespace qutim_sdk_0_3;
 
@@ -22,6 +23,15 @@ QuetzalProtocol *quetzal_find_protocol(const QMetaObject *meta)
 QuetzalAccountWizardPage::QuetzalAccountWizardPage(QuetzalProtocol *proto, QWidget *parent) :
 		QWizardPage(parent), m_proto(proto)
 {
+	QVBoxLayout *scrollAreaLayout = new QVBoxLayout(this);
+	QScrollArea *scrollArea = new QScrollArea(this);
+	scrollAreaLayout->addWidget(scrollArea);
+	scrollArea->setWidgetResizable(true);
+	QWidget *scrollAreaWidget = new QWidget(scrollArea);
+	scrollArea->setWidget(scrollAreaWidget);
+	QVBoxLayout *layout = new QVBoxLayout(scrollAreaWidget);
+	scrollAreaWidget->setLayout(layout);
+
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	DataItem general;
 	{
