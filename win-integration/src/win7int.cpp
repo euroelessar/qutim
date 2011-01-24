@@ -186,11 +186,11 @@ WPreviews::WPreviews(Win7Int2 *parent)
 	sceneBgItem    = grView->scene()->addPixmap(sceneBgImage);
 	qutimIconItem  = grView->scene()->addPixmap(qutim_sdk_0_3::Icon("qutim").pixmap(ICON_SIZE, ICON_SIZE));
 	qutimIconItem->setOpacity(0.25);
-	textUnreadTitle        = grView->scene()->addText("");
-	textUnreadChats        = grView->scene()->addText("");
-	textUnreadConfs        = grView->scene()->addText("");
-	textUnreadAuthorsTitle = grView->scene()->addText("");
-	textUnreadAuthorsList  = grView->scene()->addText("");
+	textUnreadTitle        = grView->scene()->addText(QString());
+	textUnreadChats        = grView->scene()->addText(QString());
+	textUnreadConfs        = grView->scene()->addText(QString());
+	textUnreadAuthorsTitle = grView->scene()->addText(QString());
+	textUnreadAuthorsList  = grView->scene()->addText(QString());
 	grView->resize(200, 100);
 	sceneBgItem->           setPos(0, 0);
 	textUnreadTitle->       setPos(CHATUNREAD_TITLE_X, CHATUNREAD_TITLE_Y);
@@ -198,7 +198,10 @@ WPreviews::WPreviews(Win7Int2 *parent)
 	textUnreadConfs->       setPos(CONFUNREAD_X,       CONFUNREAD_Y);
 	textUnreadAuthorsTitle->setPos(AUTHORS_TITLE_X,    AUTHORS_TITLE_Y);
 	textUnreadAuthorsList-> setPos(AUTHORS_LIST_X,     AUTHORS_LIST_Y);
+
 	grView->setStyleSheet("QGraphicsView { border:0; margin:0; padding:0 }");
+	grView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	grView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	this->parent = parent;
 	updateNumbers(0, 0);
 }

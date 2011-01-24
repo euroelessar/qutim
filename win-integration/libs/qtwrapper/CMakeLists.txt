@@ -15,4 +15,14 @@ if(WINTHINGS_APILAYER_LIBRARY)
 	if(MSVC)
 		set_target_properties(wapiqtwrapper PROPERTIES COMPILE_FLAGS "/Zc:wchar_t-")
 	endif()
+
+	install( TARGETS wapiqtwrapper
+		RUNTIME DESTINATION bin
+			COMPONENT wapiqtwrapper
+		LIBRARY DESTINATION lib${LIB_SUFFIX}
+			COMPONENT wapiqtwrapper
+		ARCHIVE DESTINATION lib${LIB_SUFFIX}
+			COMPONENT wapiqtwrapper
+	)
+
 endif()

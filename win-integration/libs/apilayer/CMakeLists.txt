@@ -8,6 +8,17 @@ if(MSVC)
 	set_target_properties(wapicwrapper PROPERTIES COMPILE_FLAGS "/DWT_APIL_LIB /Zc:wchar_t-") # do not treat wchar_t as built-in type
 	target_link_libraries(wapicwrapper "dwmapi.lib")
 	set(WINTHINGS_APILAYER_LIBRARY wapicwrapper CACHE INTERNAL "")
+
+	install( TARGETS wapicwrapper
+		RUNTIME DESTINATION bin
+			COMPONENT wapicwrapper
+		LIBRARY DESTINATION lib${LIB_SUFFIX}
+			COMPONENT wapicwrapper
+		ARCHIVE DESTINATION lib${LIB_SUFFIX}
+			COMPONENT wapicwrapper
+	)
+
+
 else()
 	if(NOT WINTHINGS_APILAYER_LIBRARY)
 		if(MINGW)
