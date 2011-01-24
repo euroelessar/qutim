@@ -60,7 +60,6 @@ void Win7Int2::onSessionCreated(qutim_sdk_0_3::ChatSession *s)
 	connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), this->previews, SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)), Qt::UniqueConnection);
 	connect(s, SIGNAL(messageReceived(qutim_sdk_0_3::Message*)),  SLOT(onMessageSmthDid(qutim_sdk_0_3::Message*)));
 	connect(s, SIGNAL(messageSent(qutim_sdk_0_3::Message*)),      SLOT(onMessageSmthDid(qutim_sdk_0_3::Message*)));
-	connect(s, SIGNAL(destroyed(QObject*)), this->previews, SLOT(onSessionDestroyed(QObject*)));
 	connect(s, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
 }
 
@@ -193,11 +192,11 @@ WPreviews::WPreviews(Win7Int2 *parent)
 	textUnreadAuthorsList  = grView->scene()->addText("");
 	grView->resize(200, 100);
 	sceneBgItem->           setPos(0, 0);
-	textUnreadTitle->       setPos(CHATUNREAD_TITLE_X, CHATUNREAD_TITLE_Y);
-	textUnreadChats->       setPos(CHATUNREAD_X,       CHATUNREAD_Y);
-	textUnreadConfs->       setPos(CONFUNREAD_X,       CONFUNREAD_Y);
-	textUnreadAuthorsTitle->setPos(AUTHORS_TITLE_X,    AUTHORS_TITLE_Y);
-	textUnreadAuthorsList-> setPos(AUTHORS_LIST_X,     AUTHORS_LIST_Y);
+	textUnreadTitle->       setPos(UNREAD_TITLE_X,  UNREAD_TITLE_Y);
+	textUnreadChats->       setPos(CHATUNREAD_X,    CHATUNREAD_Y);
+	textUnreadConfs->       setPos(CONFUNREAD_X,    CONFUNREAD_Y);
+	textUnreadAuthorsTitle->setPos(AUTHORS_TITLE_X, AUTHORS_TITLE_Y);
+	textUnreadAuthorsList-> setPos(AUTHORS_LIST_X,  AUTHORS_LIST_Y);
 	grView->setStyleSheet("QGraphicsView { border:0; margin:0; padding:0 }");
 	this->parent = parent;
 	updateNumbers(0, 0);
@@ -220,8 +219,10 @@ void WPreviews::onUnreadChanged(qutim_sdk_0_3::MessageList list)
 	int cfg_lastSendersCount = 3; // TODO
 	int sessIndex = sessions.indexOf(sess);
 	if (-1 == sessIndex) {
-		if (sess)
+		if (sess) {
 			sessions.push_front(sess);
+			connect(sess, SIGNAL(destroyed(QObject*)), this, SLOT(onSessionDestroyed(QObject*)));
+		}
 	} else
 		sessions.move(sessIndex, 0);
 	QString result("");
@@ -231,8 +232,7 @@ void WPreviews::onUnreadChanged(qutim_sdk_0_3::MessageList list)
 		ChatSession *session;
 		unsigned     unread;
 		QString      title;
-		session = sessions.at(index);
-		index++;
+		session = sessions.at(index++);
 		unit    = session->unit();
 		title   = unit->   title();
 		unread  = session->unread().size();
@@ -253,7 +253,7 @@ QPixmap WPreviews::IconicPreview(unsigned, QWidget *owner, QSize size)
 		textUnreadChats->       setHtml     (tr("&middot; %n message(s) from chats.",       "", unreadChats));
 		textUnreadConfs->       setHtml     (tr("&middot; %n message(s) from conferences.", "", unreadConfs));
 		textUnreadAuthorsTitle->setPlainText(tr("Last received from:"));
-		textUnreadTitle->       setTextWidth(size.width() - CHATUNREAD_TITLE_X*2);
+		textUnreadTitle->       setTextWidth(size.width() - UNREAD_TITLE_X*2);
 		textUnreadChats->       setTextWidth(size.width() - CHATUNREAD_X*2);
 		textUnreadConfs->       setTextWidth(size.width() - CONFUNREAD_X*2);
 		textUnreadAuthorsTitle->setTextWidth(size.width() - AUTHORS_TITLE_X*2);
@@ -293,7 +293,7 @@ void WPreviews::prepareLivePreview()
 
 void WPreviews::onSessionDestroyed(QObject *s)
 {
-	while(sessions.removeOne(qobject_cast<ChatSession*>(s)));
+	int r = sessions.removeAll(static_cast<ChatSession*>(s));
 }
 
 QUTIM_EXPORT_PLUGIN(Win7Int2)

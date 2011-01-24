@@ -39,17 +39,17 @@ public slots:
 private:
 };
 
-#define CHATUNREAD_TITLE_X 10
-#define CHATUNREAD_TITLE_Y 5
-#define CHATUNREAD_X       5
-#define CHATUNREAD_Y       18
-#define CONFUNREAD_X       5
-#define CONFUNREAD_Y       31
-#define AUTHORS_TITLE_X    10
-#define AUTHORS_TITLE_Y    49
-#define AUTHORS_LIST_X     10
-#define AUTHORS_LIST_Y     62
-#define ICON_SIZE          64
+#define UNREAD_TITLE_X  10
+#define UNREAD_TITLE_Y  5
+#define CHATUNREAD_X    5
+#define CHATUNREAD_Y    18
+#define CONFUNREAD_X    5
+#define CONFUNREAD_Y    31
+#define AUTHORS_TITLE_X 10
+#define AUTHORS_TITLE_Y 49
+#define AUTHORS_LIST_X  10
+#define AUTHORS_LIST_Y  62
+#define ICON_SIZE       64
 
 namespace qutim_sdk_0_3
 {

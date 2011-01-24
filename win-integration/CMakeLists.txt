@@ -13,5 +13,5 @@ if(WINTHINGS_APILAYER_LIBRARY)
 		INCLUDE_DIRS   "libs/include"
 	)
 else()
-	message(STATUS "Windows Integration' plugin will be skipped.")
+	message(STATUS "'Windows Integration' plugin will be skipped.")
 endif()
