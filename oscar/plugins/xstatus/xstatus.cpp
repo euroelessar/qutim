@@ -427,8 +427,9 @@ void XStatusHandler::onSetCustomStatus(QObject *object)
 	CustomStatusDialog *dialog = new CustomStatusDialog(account);
 	connect(dialog, SIGNAL(accepted()), SLOT(onCustomDialogAccepted()));
 	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
-#ifdef Q_WS_MAEMO_5
+
 	dialog->setParent(QApplication::activeWindow());
+#ifdef Q_WS_MAEMO_5	
 	dialog->setWindowFlags(dialog->windowFlags() | Qt::Window);
 	dialog->setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
