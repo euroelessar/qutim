@@ -5,6 +5,7 @@
 #include <qutim/menucontroller.h>
 #include  <qutim/servicemanager.h>
 #include "messagingdialog.h"
+#include <QApplication>
 
 namespace MassMessaging
 {
@@ -46,6 +47,11 @@ namespace MassMessaging
 			m_dialog = new MessagingDialog();
 			centerizeWidget(m_dialog);
 		}
+#ifdef Q_WS_MAEMO_5
+		m_dialog->setParent(QApplication::activeWindow());
+		m_dialog->setWindowFlags(m_dialog->windowFlags() | Qt::Window);
+		m_dialog->setAttribute(Qt::WA_Maemo5StackedWindow);
+#endif
 		m_dialog->show();
 
 	}

@@ -30,10 +30,12 @@ protected slots:
 	void enableVibration();
 	void stopVibration();
 	void vibrate(int aTimeout);
+	void displayStateChanged(const QDBusMessage &message);
+	void setDisplayState(const QString &state);
 private:
 	struct NotificationData
 	{
-		QObject *sender;
+		QPointer<QObject> sender;
 		QString body;
 		QList<QVariant> data;
 	};
@@ -45,6 +47,7 @@ private:
 	QHash<QObject*, quint32> m_ids;
 	QDBusInterface *mDbusInterface;
 	QSet<QString> m_capabilities;
+	bool display_off;
 
 };
 
