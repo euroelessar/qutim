@@ -297,6 +297,7 @@ void Module::onStatusChanged()
 
 Module::~Module()
 {
+	delete p->widget;
 }
 
 QWidget *Module::widget()

@@ -101,6 +101,7 @@ namespace qutim_sdk_0_3
 		}
 		inline ~ConfigSource()
 		{
+			if (dirty) sync();
 		}
 		static ConfigSource::Ptr open(const QString &path, bool systemDir, bool create);
 		inline void update() { lastModified = QFileInfo(fileName).lastModified(); }
