@@ -70,6 +70,9 @@ bool EmoEditPlugin::load()
 
 bool EmoEditPlugin::unload()
 {
+	if(!ChatLayer::instance())
+		return false;
+
 	foreach (ChatSession *session, ChatLayer::instance()->sessions()) {
 		disconnect(session, 0, this, 0);
 		if (session && session->getInputField())
