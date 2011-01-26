@@ -41,6 +41,7 @@ private slots:
 	void changeStatusTextAccepted();
 	void onCopyIdTriggered(QObject *obj);
 	void onQuitTriggered(QObject*);
+	void orientationChanged();
 private:
 	QAction *createGlobalStatusAction(Status::Type type);
 	QScopedPointer<ModulePrivate> p;

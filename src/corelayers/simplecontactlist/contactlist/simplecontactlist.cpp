@@ -142,8 +142,8 @@ Module::Module() : p(new ModulePrivate)
 #ifndef QUTIM_MOBILE_UI
 	p->widget->addToolBar(Qt::TopToolBarArea,p->mainToolBar);
 #else
-	p->widget->addToolBar(Qt::LeftToolBarArea,p->mainToolBar);
-	p->mainToolBar->setOrientation(Qt::Vertical);
+	connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
+	orientationChanged();
 #endif
 	p->mainToolBar->setIconSize(toolbar_size);
 	p->mainToolBar->setFloatable(false);
@@ -274,6 +274,7 @@ Module::Module() : p(new ModulePrivate)
 	p->statusBtn->setMaximumHeight(50);
 	p->searchBtn->setMaximumHeight(50);
 	p->widget->setAttribute(Qt::WA_Maemo5StackedWindow);
+	p->widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 	statusMenu->setStyleSheet("QMenu { padding:0px;} QMenu::item { padding:2px; } QMenu::item:selected { background-color: #00a0f8; }");
 #endif
 	p->widget->show();
@@ -502,6 +503,24 @@ bool Module::eventFilter(QObject *obj, QEvent *event)
 		}
 	}
 	return MenuController::eventFilter(obj,event);
+}
+
+void Module::orientationChanged()
+{
+#ifdef QUTIM_MOBILE_UI
+	QRect screenGeometry = QApplication::desktop()->screenGeometry();
+	if (screenGeometry.width() > screenGeometry.height())
+	{
+		p->widget->addToolBar(Qt::LeftToolBarArea,p->mainToolBar);
+		p->mainToolBar->setOrientation(Qt::Vertical);
+	}
+	else
+	{
+		p->widget->addToolBar(Qt::TopToolBarArea,p->mainToolBar);
+		p->mainToolBar->setOrientation(Qt::Horizontal);
+
+	}
+#endif
 }
 
 }

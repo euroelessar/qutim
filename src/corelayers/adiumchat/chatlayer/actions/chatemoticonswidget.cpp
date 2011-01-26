@@ -10,6 +10,7 @@
 #include <QWidgetAction>
 #include <QMenu>
 #include <QApplication>
+#include <QDesktopWidget>
 
 namespace Core
 {
@@ -23,7 +24,7 @@ ChatEmoticonsWidget::ChatEmoticonsWidget(QWidget *parent) :
 #ifndef Q_WS_MAEMO_5
 	resize(400,400);
 #else
-	resize(parent->width()-160,parent->height()-110);move(80,0);
+	move(80,0);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 #endif
 	setMinimumSize(size());
@@ -125,9 +126,26 @@ void EmoAction::triggerEmoticons()
 	}
 
 	if (emoticons_widget->isVisible())
-	    emoticons_widget->hide();
+	{
+		emoticons_widget->hide();
+	}
 	else
-	    emoticons_widget->show();
+	{
+#ifdef Q_WS_MAEMO_5
+	QRect screenGeometry = QApplication::desktop()->screenGeometry();
+	if (screenGeometry.width() > screenGeometry.height())
+	{
+	   emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()-130);
+	}
+	else
+	{
+	    emoticons_widget->resize(emoticons_widget->parentWidget()->width()-160,emoticons_widget->parentWidget()->height()/2-80);
+
+	}
+
+#endif
+		emoticons_widget->show();
+	}
 }
 
 }

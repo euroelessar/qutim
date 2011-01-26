@@ -76,6 +76,9 @@ void AbstractChatForm::onSessionActivated(bool active)
 		widget->addActions(m_actions);
 		m_chatwidgets.insert(key,widget);
 		connect(widget,SIGNAL(destroyed(QObject*)),SLOT(onChatWidgetDestroyed(QObject*)));
+#ifdef Q_WS_MAEMO_5
+		widget->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+#endif
 		widget->show();
 	}
 	if (active)
