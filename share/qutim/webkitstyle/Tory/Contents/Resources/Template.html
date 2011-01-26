@@ -12,6 +12,7 @@
 			}
 	
 			function appendMessageNoScroll(html) {
+				checkDate();
 				//Remove any existing insertion point
 				var insert = document.getElementById("insert");
 				if(insert) 
@@ -31,6 +32,7 @@
 			}
 	
 			function appendNextMessageNoScroll(html) {
+				checkDate();
 				//Locate the insertion point
 				var insert = document.getElementById("insert");
 				//make new node
@@ -133,7 +135,21 @@
 				alignChat(shouldScroll);
 			}
 	
-			function windowDidResize(){
+			var prevDate = "";
+			function checkDate() {
+				var dateM = new Date();
+				var curDate = dateM.getFullYear() + "." + dateM.getMonth() + "." + dateM.getDate();
+				if (curDate == prevDate)
+					return;
+				var messages = document.getElementsByName("hiddenDate");
+				for (field in messages) {
+					messages[field].className = "visibleDate";
+					messages[field].name = "visibleDate";
+				}
+				prevDate = curDate;
+			}
+
+			function windowDidResize() {
 				alignChat(true/*nearBottom()*/); //nearBottom buggy with inactive tabs
 			}
 			window.onresize = windowDidResize;

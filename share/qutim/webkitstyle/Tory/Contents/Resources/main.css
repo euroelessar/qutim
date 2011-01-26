@@ -34,6 +34,10 @@ body {
 	color: gray;
 }
 
+.hiddenDate {
+	display: none;
+}
+
 .highlight {
 	-webkit-animation-name: highlight;
 	-webkit-animation-iteration-count: 1;
