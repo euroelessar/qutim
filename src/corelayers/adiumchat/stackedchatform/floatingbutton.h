@@ -25,10 +25,10 @@ namespace Core
 	{
 	    Q_ASSERT(parent);
 	    
-	    if (type==0) {
+	    if ((type==0)||(type==3)) {
 #ifdef Q_WS_MAEMO_5
 		// set the next icon from Maemo's theme
-		setIcon(qutim_sdk_0_3::Icon("general_forward"));
+		setIcon(QIcon::fromTheme(QLatin1String("general_forward")));
 #else
 		setIcon(qutim_sdk_0_3::Icon("arrow-right"));
 #endif
@@ -36,9 +36,17 @@ namespace Core
 	    else if (type==1) {
 #ifdef Q_WS_MAEMO_5
 		// set the close icon from Maemo's theme
-		setIcon(qutim_sdk_0_3::Icon("camera_overlay_close"));
+		setIcon(QIcon::fromTheme(QLatin1String("camera_overlay_close")));
 #else
 		setIcon(qutim_sdk_0_3::Icon("dialog-close"));
+#endif
+	    }
+	    else if (type==2) {
+#ifdef Q_WS_MAEMO_5
+		// set the close icon from Maemo's theme
+		setIcon(QIcon::fromTheme(QLatin1String("general_contacts_button")));
+#else
+		setIcon(qutim_sdk_0_3::Icon("view-user-offline-kopete"));
 #endif
 	    }
 	    
@@ -73,10 +81,14 @@ namespace Core
 	    switch (ev->type()) {
 	    case QEvent::Resize:
 		if (m_type==0) {
-		    move(parent->width() - width(),
-			 parent->height()/2 - height());
+		    move(parent->width() - width(), parent->height()/2 - height());
 		} else if (m_type==1){
 		    move(parent->width() - width(),0);
+		} else if (m_type==2){
+		    move(parent->width() - width(),height());
+		}
+		else if (m_type==3){
+		    move(parent->width() - width(),height()*2);
 		}
 		break;
 	default:

@@ -3,6 +3,9 @@
 
 #include <QWidget>
 #include <chatforms/abstractchatwidget.h>
+#ifdef Q_WS_MAEMO_5
+#include <kb_qwerty.h>
+#endif
 
 
 namespace qutim_sdk_0_3
@@ -59,6 +62,9 @@ protected slots:
 	void onUnreadChanged();
 	void onCurrentChanged(int index);
 	void animationFinished();
+	void processInput(QString);
+	void orientationChanged();
+	void showContactList();
 private:
 	ActionToolBar *m_toolbar;
 	ChatViewWidget *m_view;
@@ -78,6 +84,9 @@ private:
 	QToolBar *m_additionalToolBar;
 	QMenuBar *menuBar;
 	Qt::GestureType fingerSwipeGestureType;
+#ifdef Q_WS_MAEMO_5
+	kb_Qwerty *m_kb_qwerty;
+#endif
 };
 
 }

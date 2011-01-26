@@ -21,6 +21,12 @@
 #include <QToolButton>
 #include <slidingstackedwidget.h>
 #include <qutim/servicemanager.h>
+#include <QApplication>
+#include <QDesktopWidget>
+#ifdef Q_WS_MAEMO_5
+#include <QAbstractKineticScroller>
+#include <kb_qwerty.h>
+#endif
 
 #ifdef Q_WS_X11
 # include <QX11Info>
@@ -85,6 +91,10 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	QVBoxLayout *layout = new QVBoxLayout(m_chatWidget);
 	layout->addWidget(vSplitter);
 	layout->setMargin(0);
+#ifdef Q_WS_MAEMO_5
+	m_kb_qwerty = new kb_Qwerty(this);
+	layout->addWidget(m_kb_qwerty);
+#endif
 
 	m_view = qobject_cast<ChatViewWidget*>(view);
 
@@ -110,15 +120,31 @@ StackedChatWidget::StackedChatWidget(const QString &key, QWidget *parent) :
 	grabGesture(fingerSwipeGestureType);
 	connect(m_stack,SIGNAL(animationFinished()),this,SLOT(animationFinished()));
 
-	FloatingButton *chatNext=new FloatingButton(0,m_chatWidget);
+	FloatingButton *chatNext=new FloatingButton(3,view);
 	FloatingButton *sessionListNext=new FloatingButton(0,m_sessionList);
 	FloatingButton *contactViewNext=new FloatingButton(0,m_contactView);
 	connect(chatNext,SIGNAL(clicked()),m_stack,SLOT(slideInNext()));
 	connect(sessionListNext,SIGNAL(clicked()),m_stack,SLOT(slideInNext()));
 	connect(contactViewNext,SIGNAL(clicked()),m_stack,SLOT(slideInNext()));
 
-	FloatingButton *chatClose=new FloatingButton(1,m_chatWidget);
+	FloatingButton *chatClose=new FloatingButton(1,view);
 	connect(chatClose,SIGNAL(clicked()),m_sessionList,SLOT(closeCurrentSession()));
+
+	FloatingButton *showContactList=new FloatingButton(2,view);
+	connect(showContactList,SIGNAL(clicked()),this,SLOT(showContactList()));
+
+#if defined(Q_WS_MAEMO_5)
+	connect(m_kb_qwerty,SIGNAL(input(QString)),this,SLOT(processInput(QString)));
+
+    	QAbstractKineticScroller *scroller = m_chatInput->property("kineticScroller") .value<QAbstractKineticScroller *>();
+    	if (scroller)
+    	{
+		scroller->setEnabled(true);
+		scroller->setOvershootPolicy(QAbstractKineticScroller::OvershootAlwaysOff);
+	}
+#endif
+	connect(qApp->desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
+	orientationChanged();
 
 }
 
@@ -155,6 +181,8 @@ void StackedChatWidget::loadSettings()
 
 StackedChatWidget::~StackedChatWidget()
 {
+	if (QObject *obj = ServiceManager::getByName("ContactList"))
+		obj->metaObject()->invokeMethod(obj, "show");
 	delete m_sessionList;
 	ConfigGroup group = Config("appearance").group("chat/behavior/widget/keys").group(m_key);
 	group.setValue("geometry", saveGeometry());
@@ -221,8 +249,14 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 {
 	if(!session->unread().isEmpty())
 		session->markRead();
-	if (qApp->activeWindow()!=this)
+
+	bool isActivateWindow = false;
+	if (qApp->activeWindow() != this)
+	{
 		activateWindow();
+		isActivateWindow = true;
+	}
+
 	setTitle(session);
 
 	if(m_currentSession) {
@@ -244,7 +278,11 @@ void StackedChatWidget::activate(ChatSessionImpl *session)
 		m_stack->addWidget(m_contactView);
 	else
 		m_stack->removeWidget(m_contactView);
-	m_stack->slideInIdx(m_stack->indexOf(m_chatWidget));
+
+	if (!isActivateWindow)
+		m_stack->slideInIdx(m_stack->indexOf(m_chatWidget));
+	else
+		m_stack->setCurrentIndex(m_stack->indexOf(m_chatWidget));
 
 	menuBar->clear();
 	menuBar->addMenu(session->getUnit()->menu());
@@ -350,9 +388,53 @@ void StackedChatWidget::onCurrentChanged(int index)
 
 void StackedChatWidget::animationFinished()
 {
-    m_contactView->blockSignals(false);
+	m_contactView->blockSignals(false);
+}
+
+void StackedChatWidget::orientationChanged()
+{
+#ifdef Q_WS_MAEMO_5
+	QRect screenGeometry = QApplication::desktop()->screenGeometry();
+	if (screenGeometry.width() > screenGeometry.height())
+	{
+		qApp->setAutoSipEnabled(true);
+		m_kb_qwerty->setVisible(false);
+	}
+	else
+	{
+		qApp->setAutoSipEnabled(false);
+		m_kb_qwerty->setVisible(true);
+
+	}
+#endif
+}
+
+void StackedChatWidget::showContactList()
+{
+	if (QObject *obj = ServiceManager::getByName("ContactList"))
+		obj->metaObject()->invokeMethod(obj, "show");
+}
+
+void StackedChatWidget::processInput(QString sInput)
+{
+#ifdef Q_WS_MAEMO_5
+	m_chatInput->setFocus();
+
+	if(sInput.compare(kb_Qwerty::DELETE) == 0)
+	{
+		m_chatInput->textCursor().deletePreviousChar();
+	}
+	else
+	{
+		m_chatInput->textCursor().insertText(sInput);
+	}
+
+	//Scroll text edit if necessary
+	m_chatInput->ensureCursorVisible();
+#endif
 }
 
 }
+
 }
 
