@@ -1,5 +1,6 @@
 #include "win7int.h"
 #include "wsettings.h"
+#include <QDir>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsTextItem>
 #include <QImage>
@@ -16,6 +17,7 @@
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
 #include <qutim/settingslayer.h>
+#include <qt_windows.h>
 #include <WinThings/OverlayIcon.h>
 
 using namespace qutim_sdk_0_3;
@@ -28,6 +30,12 @@ Win7Int2::Win7Int2()
 	previousWindow = 0;
 	previousTabId  = 0;
 	previews       = 0;
+	// being run from Explorer
+	HWND console = FindWindowW(L"ConsoleWindowClass", QDir::toNativeSeparators(qApp->applicationFilePath()).toStdWString().data());
+	if (!console) // being run from taskbar (pinned icon), assuming default link name (qutim); function is not case-sensitive
+		console = FindWindowW(L"ConsoleWindowClass", L"qutim");
+	if (console)
+		ShowWindow(console, SW_HIDE);
 }
 
 void Win7Int2::init()

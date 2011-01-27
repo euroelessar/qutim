@@ -12,6 +12,9 @@ if(WINTHINGS_APILAYER_LIBRARY)
 		LINK_LIBRARIES wapiqtwrapper
 		INCLUDE_DIRS   "libs/include"
 	)
+	if(MSVC)
+		set_target_properties(win7int2 PROPERTIES COMPILE_FLAGS "/Zc:wchar_t-")
+	endif()
 else()
 	message(STATUS "'Windows Integration' plugin will be skipped.")
 endif()
