@@ -20,21 +20,28 @@ class Win7Int2 : public qutim_sdk_0_3::Plugin
 	void       testTab();
 	QWidget   *previousWindow;
 	unsigned   previousTabId;
+	static Win7Int2  *pluginInstance;
 	WPreviews *previews;
 
+	bool cfg_displayCount;
+	bool cfg_addConfs;
+	bool cfg_overlayIconEnabled;
+	bool cfg_thumbsEnabled;
 
 public:
 	Win7Int2();
 	void init();
 	bool load();
 	bool unload();
+	static Win7Int2 *instance() { return pluginInstance; }
 
 public slots:
 	void onChatwidgetDestroyed();
 	void onSessionActivated(bool);
 	void onSessionCreated  (qutim_sdk_0_3::ChatSession*);
 	void onUnreadChanged   (qutim_sdk_0_3::MessageList);
-	void onMessageSmthDid (qutim_sdk_0_3::Message*);
+	void onMessageSmthDid  (qutim_sdk_0_3::Message*);
+	void reloadSettings();
 
 private:
 };
@@ -79,12 +86,16 @@ class WPreviews : public PreviewProvider
 	unsigned unreadChats, unreadConfs;
 	Win7Int2 *parent;
 
+	bool cfg_showSenders;
+	bool cfg_showMsgCount;
+
 public:
 	WPreviews(Win7Int2 *parent = 0);
 	~WPreviews();
 	QPixmap IconicPreview(unsigned tabid, QWidget *owner, QSize);
 	QPixmap LivePreview  (unsigned tabid, QWidget *owner);
 	void updateNumbers   (unsigned confs, unsigned chats);
+	void reloadSettings();
 
 public slots:
 	void onUnreadChanged(qutim_sdk_0_3::MessageList);

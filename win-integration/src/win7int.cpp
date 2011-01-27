@@ -1,4 +1,5 @@
 #include "win7int.h"
+#include "wsettings.h"
 #include <QGraphicsPixmapItem>
 #include <QGraphicsTextItem>
 #include <QImage>
@@ -9,16 +10,21 @@
 #include <QTimer>
 #include <QSysInfo>
 #include <qutim/conference.h>
+#include <qutim/configbase.h>
 #include <qutim/debug.h>
 #include <qutim/extensionicon.h>
 #include <qutim/icon.h>
 #include <qutim/servicemanager.h>
+#include <qutim/settingslayer.h>
 #include <WinThings/OverlayIcon.h>
 
 using namespace qutim_sdk_0_3;
 
+Win7Int2 *Win7Int2::pluginInstance;
+
 Win7Int2::Win7Int2()
 {
+	pluginInstance = this;
 	previousWindow = 0;
 	previousTabId  = 0;
 	previews       = 0;
@@ -40,9 +46,15 @@ bool Win7Int2::load()
 	if (QSysInfo::windowsVersion() != QSysInfo::WV_WINDOWS7)
 		return false; // even if plugin suddenly loads on WinVista, it won't work
 	connect(ChatLayer::instance(), SIGNAL(sessionCreated(qutim_sdk_0_3::ChatSession*)), SLOT(onSessionCreated(qutim_sdk_0_3::ChatSession*)));
-	previews    = new WPreviews;
+	if (cfg_thumbsEnabled = Config(WI_CONFIG).value("tt_enabled", true)) // so cannot be changed in runtime
+		previews = new WPreviews;
 	QWidget *cl = ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>();
 	TaskbarPreviews::setWindowAttributes(cl, TA_Peek_ExcludeFrom|TA_Flip3D_ExcludeBelow);
+	SettingsItem* settings = new GeneralSettingsItem<WSettingsWidget>(
+		Settings::Plugin,	QIcon(),
+		QT_TRANSLATE_NOOP("Plugin", "Windows 7 Integration"));
+	Settings::registerItem(settings);
+	reloadSettings();
 	return true;
 }
 
@@ -50,14 +62,16 @@ bool Win7Int2::unload()
 {
 	QWidget *cl = ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>();
 	TaskbarPreviews::setWindowAttributes(cl, TA_NoAttributes);
-	delete previews;
+	if (previews)
+		delete previews;
 	return true;
 }
 
 void Win7Int2::onSessionCreated(qutim_sdk_0_3::ChatSession *s)
 {
+	if (previews)
+		connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), this->previews, SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)), Qt::UniqueConnection);
 	connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)), Qt::UniqueConnection);
-	connect(s, SIGNAL(unreadChanged(qutim_sdk_0_3::MessageList)), this->previews, SLOT(onUnreadChanged(qutim_sdk_0_3::MessageList)), Qt::UniqueConnection);
 	connect(s, SIGNAL(messageReceived(qutim_sdk_0_3::Message*)),  SLOT(onMessageSmthDid(qutim_sdk_0_3::Message*)));
 	connect(s, SIGNAL(messageSent(qutim_sdk_0_3::Message*)),      SLOT(onMessageSmthDid(qutim_sdk_0_3::Message*)));
 	connect(s, SIGNAL(activated(bool)), SLOT(onSessionActivated(bool)));
@@ -67,22 +81,31 @@ void Win7Int2::onSessionActivated(bool activated)
 {
 	if (activated)
 		testTab();
+	QWidget *w = chatWindow();
+	if (w && cfg_thumbsEnabled) {
+		TaskbarPreviews::tabSetTitle(previousTabId, w->windowTitle());
+		TaskbarPreviews::tabPreviewsRefresh(previousTabId);
+	}
 }
 
 void Win7Int2::testTab()
 {
+	if (!cfg_thumbsEnabled)
+		return;
 	QWidget *w = chatWindow();
-	if (w != previousWindow) {
+	if (w != previousWindow && cfg_thumbsEnabled) {
 		TaskbarPreviews::tabRemove(previousTabId);
 		previousTabId = 0;
 	}
-	if (!previousTabId && w) {
-		previousTabId  = TaskbarPreviews::tabAddVirtual(previews, w, w->windowTitle());
-		previousWindow = w;
-		connect(w, SIGNAL(destroyed()), SLOT(onChatwidgetDestroyed()));
-	} else
-		if (w)
-			TaskbarPreviews::tabSetTitle(previousTabId, w->windowTitle());
+	if (cfg_thumbsEnabled) {
+		if (!previousTabId && w) {
+			previousTabId  = TaskbarPreviews::tabAddVirtual(previews, w, w->windowTitle());
+			previousWindow = w;
+			connect(w, SIGNAL(destroyed()), SLOT(onChatwidgetDestroyed()));
+		} else
+			if (w)
+				TaskbarPreviews::tabSetTitle(previousTabId, w->windowTitle());
+	}
 }
 
 void Win7Int2::onUnreadChanged(qutim_sdk_0_3::MessageList)
@@ -101,20 +124,27 @@ void Win7Int2::onUnreadChanged(qutim_sdk_0_3::MessageList)
 		else
 			unreadChats += unreadSize;
 	}
-	previews->updateNumbers(unreadConfs, unreadChats);
+	if (cfg_thumbsEnabled)
+		previews->updateNumbers(unreadConfs, unreadChats);
 	QWidget *window = chatWindow();
 	if (window) {
-		if (unreadChats || unreadConfs)
-			OverlayIcon::set(window, generateOverlayIcon(unreadConfs, unreadChats));
-		else
-			OverlayIcon::clear(window);
-		if (previousWindow != window)
-			testTab();
-		else
-			TaskbarPreviews::tabPreviewsRefresh(previousTabId);
+		if (cfg_overlayIconEnabled) {
+			if (unreadChats || unreadConfs)
+				OverlayIcon::set(window, generateOverlayIcon(unreadConfs, unreadChats));
+			else
+				OverlayIcon::clear(window);
+		}
+		if (cfg_thumbsEnabled) {
+			if (previousWindow != window)
+				testTab();
+			else
+				TaskbarPreviews::tabPreviewsRefresh(previousTabId);
+		}
 	} else {
-		TaskbarPreviews::tabRemove(previousTabId);
-		previousTabId = 0;
+		if (cfg_thumbsEnabled) {
+			TaskbarPreviews::tabRemove(previousTabId);
+			previousTabId = 0;
+		}
 	}
 	previousWindow = window;
 }
@@ -136,13 +166,11 @@ QWidget *Win7Int2::chatWindow()
 			metZero = true;
 	if (metZero) // TODO: this block should dissapear sometimes as well as variables used here
 		debug() << "Zeros still appear in ChatForm's chatWidgets list.";
-	return widget; // no nonzero values in list
+	return widget;
 }
 
 QPixmap Win7Int2::generateOverlayIcon(quint32 unreadConfs, quint32 unreadChats)
 {
-	bool cfg_displayCount = true; // TODO
-	bool cfg_addConfs     = false; // TODO
 	quint32 count = unreadChats + (cfg_addConfs ? unreadConfs : 0);
 	QPixmap icon;
 	if(unreadConfs && !unreadChats)
@@ -157,14 +185,15 @@ QPixmap Win7Int2::generateOverlayIcon(quint32 unreadConfs, quint32 unreadChats)
 		font.setPointSize(7);
 		painter.setFont(font);
 		painter.setPen(Qt::darkBlue);
-		painter.drawText(QRect(0, 1, 15, 15), Qt::AlignCenter, QString::number(count));
+		if (cfg_displayCount)
+			painter.drawText(QRect(0, 1, 15, 15), Qt::AlignCenter, QString::number(count));
 	}
 	return icon;
 }
 
 void Win7Int2::onChatwidgetDestroyed()
 {
-	if (previousTabId)
+	if (previousTabId && cfg_thumbsEnabled)
 		TaskbarPreviews::tabRemove(previousTabId);
 	previousTabId = 0;
 	testTab();
@@ -172,15 +201,31 @@ void Win7Int2::onChatwidgetDestroyed()
 
 void Win7Int2::onMessageSmthDid(qutim_sdk_0_3::Message *)
 {
-	TaskbarPreviews::tabPreviewsRefresh(this->previousTabId);
+	if (cfg_thumbsEnabled)
+		TaskbarPreviews::tabPreviewsRefresh(this->previousTabId);
+}
+
+void Win7Int2::reloadSettings()
+{
+	Config cfg(WI_CONFIG);
+	cfg_displayCount = cfg.value("oi_showNewMsgCount",    true);
+	cfg_addConfs     = cfg.value("oi_addNewConfMsgCount", false);
+	cfg_overlayIconEnabled = cfg.value("oi_enabled",      true);
+	if (cfg_thumbsEnabled)
+		previews->reloadSettings();
+	if (!cfg_overlayIconEnabled) {
+		QWidget *w = chatWindow();
+		if (w)
+			OverlayIcon::clear(w);
+	}
 }
 
 WPreviews::WPreviews(Win7Int2 *parent)
 {
 	lastChatWidget = 0;
-	sceneBgImage  = QPixmap(":/res/def-bg.png");
-	currentBgSize = sceneBgImage.size();
-	grView        = new QGraphicsView;
+	sceneBgImage   = QPixmap(":/res/def-bg.png");
+	currentBgSize  = sceneBgImage.size();
+	grView         = new QGraphicsView;
 	grView->setScene(new QGraphicsScene);
 	sceneBgItem    = grView->scene()->addPixmap(sceneBgImage);
 	qutimIconItem  = grView->scene()->addPixmap(qutim_sdk_0_3::Icon("qutim").pixmap(ICON_SIZE, ICON_SIZE));
@@ -221,7 +266,7 @@ void WPreviews::updateNumbers(unsigned confs, unsigned chats)
 void WPreviews::onUnreadChanged(qutim_sdk_0_3::MessageList list)
 {
 	ChatSession *sess = list.isEmpty() ? 0 : ChatLayer::get(list.first().chatUnit(), false);
-	int cfg_lastSendersCount = 3; // TODO
+	int lastSendersCount = 3;
 	int sessIndex = sessions.indexOf(sess);
 	if (-1 == sessIndex) {
 		if (sess) {
@@ -232,7 +277,7 @@ void WPreviews::onUnreadChanged(qutim_sdk_0_3::MessageList list)
 		sessions.move(sessIndex, 0);
 	QString result("");
 	int listSize  = sessions.size(), index = 0;
-	while (index < cfg_lastSendersCount && index < listSize) {
+	while (index < lastSendersCount && index < listSize && cfg_showSenders) {
 		ChatUnit    *unit;
 		ChatSession *session;
 		unsigned     unread;
@@ -254,21 +299,30 @@ QPixmap WPreviews::IconicPreview(unsigned, QWidget *owner, QSize size)
 	grView->resize(size);
 	qutimIconItem->setPos(size.width()-ICON_SIZE, size.height()-ICON_SIZE);
 	if (unreadConfs || unreadChats) {
-		textUnreadTitle->       setHtml     (tr("<b>You have new messages:</b>"));
-		textUnreadChats->       setHtml     (tr("&middot; %n message(s) from chats.",       "", unreadChats));
-		textUnreadConfs->       setHtml     (tr("&middot; %n message(s) from conferences.", "", unreadConfs));
-		textUnreadAuthorsTitle->setPlainText(tr("Last received from:"));
-		textUnreadTitle->       setTextWidth(size.width() - UNREAD_TITLE_X*2);
-		textUnreadChats->       setTextWidth(size.width() - CHATUNREAD_X*2);
-		textUnreadConfs->       setTextWidth(size.width() - CONFUNREAD_X*2);
-		textUnreadAuthorsTitle->setTextWidth(size.width() - AUTHORS_TITLE_X*2);
-		textUnreadAuthorsList-> setTextWidth(size.width() - AUTHORS_LIST_X *2);
+		textUnreadTitle->setHtml     (tr("<b>You have new messages:</b>"));
+		textUnreadTitle->setTextWidth(size.width() - UNREAD_TITLE_X*2);
+		if (cfg_showMsgCount) {
+			textUnreadChats->setHtml     (tr("&middot; %n message(s) from chats.",       "", unreadChats));
+			textUnreadConfs->setHtml     (tr("&middot; %n message(s) from conferences.", "", unreadConfs));
+			textUnreadChats->setTextWidth(size.width() - CHATUNREAD_X*2);
+			textUnreadConfs->setTextWidth(size.width() - CONFUNREAD_X*2);
+		} else {
+			textUnreadConfs->setPlainText(QString()); // clear "You have no new messages."
+		}
+		if (cfg_showSenders) {
+			textUnreadAuthorsTitle->setPlainText(tr("Last received from:"));
+			textUnreadAuthorsTitle->setTextWidth(size.width() - AUTHORS_TITLE_X*2);
+			textUnreadAuthorsList-> setTextWidth(size.width() - AUTHORS_LIST_X *2);
+		}
 	} else {
-		textUnreadTitle->       setPlainText("");
-		textUnreadChats->       setPlainText("");
-		textUnreadConfs->       setPlainText(tr("You have no new messages."));
-		textUnreadAuthorsTitle->setPlainText("");
-		textUnreadAuthorsList-> setPlainText("");
+		if (cfg_showMsgCount || cfg_showSenders)
+			textUnreadConfs->setPlainText(tr("You have no new messages."));
+		else
+			textUnreadConfs->setPlainText(QString());
+		textUnreadTitle->       setPlainText(QString());
+		textUnreadChats->       setPlainText(QString());
+		textUnreadAuthorsTitle->setPlainText(QString());
+		textUnreadAuthorsList-> setPlainText(QString());
 	}
 	if (currentBgSize != size)
 		sceneBgItem->setPixmap(sceneBgImage.scaled(size, Qt::KeepAspectRatioByExpanding));
@@ -298,7 +352,23 @@ void WPreviews::prepareLivePreview()
 
 void WPreviews::onSessionDestroyed(QObject *s)
 {
-	int r = sessions.removeAll(static_cast<ChatSession*>(s));
+	sessions.removeAll(static_cast<ChatSession*>(s));
+}
+
+void WPreviews::reloadSettings()
+{
+	Config cfg(WI_CONFIG);
+	cfg_showMsgCount = cfg.value("tt_showNewMsgCount", true);
+	cfg_showSenders  = cfg.value("tt_showLastSenders", true);
+	if (!cfg_showSenders)
+		textUnreadAuthorsList-> setPlainText(QString());
+		textUnreadAuthorsTitle->setPlainText(QString());
+	if (!cfg_showMsgCount) {
+		textUnreadChats->setPlainText(QString());
+		textUnreadConfs->setPlainText(QString());
+	}
+	if (!cfg_showMsgCount && !cfg_showSenders)
+		textUnreadTitle->setPlainText(QString());
 }
 
 QUTIM_EXPORT_PLUGIN(Win7Int2)
