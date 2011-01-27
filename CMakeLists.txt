@@ -113,7 +113,7 @@ ENDIF(APPLE)
 
 set( QUTIM_ADDITIONAL_SOURCES "" CACHE INTERNAL "" FORCE )
 set( QUTIM_ADDITIONAL_LIBRARIES "" CACHE INTERNAL "" FORCE )
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/corelayers/" "${CMAKE_CURRENT_BINARY_DIR}/src/corelayers")
+add_subdirectory(src/corelayers)
 foreach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
     add_subdirectory( "${CMAKE_CURRENT_SOURCE_DIR}/../${additional_path}/" "${CMAKE_CURRENT_BINARY_DIR}/../${additional_path}" )
 endforeach( additional_path ${QUTIM_ADDITIONAL_PATHS} )
