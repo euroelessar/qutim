@@ -34,7 +34,7 @@ namespace KdeIntegration
 	KdePlugin::KdePlugin()
 	{
 		m_quetzal_id = Event::registerType("quetzal-ui-ops-inited");
-		qApp->installEventFilter(this);
+		Event::eventManager()->installEventFilter(this);
 	}
 
 	void KdePlugin::init()
@@ -101,7 +101,7 @@ namespace KdeIntegration
 		if (ev->type() == Event::eventType()) {
 			Event *event = static_cast<Event *>(ev);
 			if (event->id == m_quetzal_id) {
-				qApp->removeEventFilter(this);
+				Event::eventManager()->removeEventFilter(this);
 				Quetzal::initGui();
 			}
 		}
