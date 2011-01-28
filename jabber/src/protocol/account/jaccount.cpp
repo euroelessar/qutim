@@ -233,7 +233,10 @@ void JAccount::loadSettings()
 	Config general = config();
 	general.beginGroup("general");
 	d->client.setPassword(general.value("passwd", QString(), Config::Crypted));
-	d->client.setPort(general.value("port", 5222));
+	if(!general.value("autoDetect",true)) {
+		d->client.setPort(general.value("port", 5222));
+		d->client.setServer(general.value("server",d->client.server()));
+	}
 	d->priority = general.value("priority", 15);
 	d->keepStatus = general.value("keepstatus", true);
 	d->nick = general.value("nick", id());

@@ -76,7 +76,7 @@ public:
 	bool checkIdentity(const QString &category, const QString &type) const;
 	QString identity(const QString &category, const QString &type) const;
 	void setPasswd(const QString &passwd);
-protected:
+public slots:
 	void loadSettings();
 private:
 	//jreen

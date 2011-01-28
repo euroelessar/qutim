@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>432</width>
-    <height>361</height>
+    <width>520</width>
+    <height>419</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,6 +16,12 @@
   <layout class="QFormLayout" name="formLayout">
    <property name="fieldGrowthPolicy">
     <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+   </property>
+   <property name="rowWrapPolicy">
+    <enum>QFormLayout::WrapLongRows</enum>
+   </property>
+   <property name="formAlignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
    </property>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
@@ -181,8 +187,79 @@
      </property>
     </widget>
    </item>
+   <item row="10" column="0" colspan="2">
+    <widget class="QCheckBox" name="autodetectBox">
+     <property name="text">
+      <string>Autodetect connection settings</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Server:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <widget class="QLineEdit" name="serverEdit">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Port:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="1">
+    <widget class="QSpinBox" name="portBox">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>autodetectBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>portBox</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>259</x>
+     <y>293</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>autodetectBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>serverEdit</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>259</x>
+     <y>293</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>320</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

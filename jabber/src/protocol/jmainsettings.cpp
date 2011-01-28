@@ -49,10 +49,17 @@ void JMainSettings::saveImpl()
 	Config general = m_account->config("general");
 	QString defaultResource = ui->resourceEdit->text().isEmpty() ? "qutIM" : ui->resourceEdit->text();
 	general.setValue("resource", defaultResource);
-	//ui.reconnectCheck->setChecked(settings.value("reconnect",true).toBool());
 	general.setValue("getAvatars", !ui->avatarRequestCheck->isChecked());
 	m_account->setPasswd(ui->passwdEdit->text());
 	//ui->transferPostEdit->setValue(settings.value("filetransfer/socks5port", 8010).toInt());
+
+	bool autoDetect = ui->autodetectBox->checkState() == Qt::Checked;
+	if(!autoDetect) {
+		general.setValue("server",ui->serverEdit->text());
+		general.setValue("port",ui->portBox->value());
+	}
+	general.setValue("autoDetect",autoDetect);
+
 	general.sync();
 	Config priority = m_account->config("priority");
 	priority.setValue("online", ui->onlinePriority->value());

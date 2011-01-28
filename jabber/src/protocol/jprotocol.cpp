@@ -36,6 +36,7 @@ struct JProtocolPrivate
 	inline JProtocolPrivate() : accounts(new QHash<QString, JAccount *>) {}
 	inline ~JProtocolPrivate() { delete accounts; }
 	QHash<QString, JAccount *> *accounts;
+	SettingsItem *mainSettings;
 };
 
 JProtocol *JProtocol::self = 0;
@@ -66,10 +67,11 @@ Account *JProtocol::account(const QString &id) const
 
 void JProtocol::loadActions()
 {
-	Settings::registerItem<JAccount>(new GeneralSettingsItem<JMainSettings>(
-										 Settings::Protocol,
-										 Icon("im-jabber"),
-										 QT_TRANSLATE_NOOP("Settings", "Main settings")));
+	p->mainSettings = new GeneralSettingsItem<JMainSettings>(Settings::Protocol,
+															 Icon("im-jabber"),
+															 QT_TRANSLATE_NOOP("Settings", "Main settings"));
+
+	Settings::registerItem<JAccount>(p->mainSettings);
 
 	Settings::registerItem<JMUCSession>(new GeneralSettingsItem<JConferenceConfig>(
 	                                        Settings::Protocol,
@@ -192,8 +194,8 @@ void JProtocol::onShowConfigDialog(QObject* obj)
 		return;
 	SettingsLayer *layer = ServiceManager::getByName<SettingsLayer*>("SettingsLayer");
 	layer->show(room);
-//	if (room->enabledConfiguring())
-//		room->showConfigDialog();
+	//	if (room->enabledConfiguring())
+	//		room->showConfigDialog();
 }
 
 void JProtocol::onSaveRemoveBookmarks(QObject *obj)
@@ -251,7 +253,10 @@ void JProtocol::addAccount(JAccount *account, bool isEmit)
 	if(isEmit)
 		emit accountCreated(account);
 
-	connect(account,SIGNAL(destroyed(QObject*)),SLOT(removeAccount(QObject*)));
+	connect(account, SIGNAL(destroyed(QObject*)),
+			this, SLOT(removeAccount(QObject*)));
+	p->mainSettings->connect(SIGNAL(saved()),
+							 account, SLOT(loadSettings()));
 }
 
 QVariant JProtocol::data(DataType type)
