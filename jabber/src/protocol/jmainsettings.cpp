@@ -31,6 +31,15 @@ void JMainSettings::loadImpl()
 	ui->avatarRequestCheck->setChecked(!general.value("getAvatars", true));
 	ui->passwdEdit->setText(m_account->password());
 
+	Qt::CheckState state = general.value("autoDetect",true) ? Qt::Checked : Qt::Unchecked;
+	ui->autodetectBox->setCheckState(state);
+	ui->portBox->setValue(general.value("port",5222));
+	ui->serverEdit->setText(general.value("server",m_account->client()->server()));
+
+//	general.beginGroup("bosh");
+//	general.value("use", false))
+//	general.endGroup();
+
 	//ui->transferPostEdit->setValue(settings.value("filetransfer/socks5port", 8010).toInt());
 	Config priority = m_account->config("priority");
 	ui->onlinePriority->setValue(priority.value("online", 3));
