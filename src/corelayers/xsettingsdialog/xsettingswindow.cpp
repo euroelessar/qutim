@@ -44,8 +44,9 @@ struct XSettingsWindowPrivate
 	QList<SettingsWidget*> modifiedWidgets;
 	QMap<Settings::Type,QAction*> actionMap;
 	QAction *currentAction;
+	QWidget *parent;
 };
-	
+
 XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings, QObject* controller) :
 	p(new XSettingsWindowPrivate)
 {
@@ -56,11 +57,22 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	QVBoxLayout *l = new QVBoxLayout(w);
 	Config cfg;
 	cfg.beginGroup("xsettings/window");
-	QByteArray data = cfg.value("geometry", QByteArray());
-	if (data.isEmpty() || !restoreGeometry(data)) {
-		QSize desktopSize = QApplication::desktop()->availableGeometry(QCursor::pos()).size();
-		resize(desktopSize.width() / 2, desktopSize.height() * 2 / 3);
-		centerizeWidget(this);
+	QByteArray data;
+
+	p->parent = qobject_cast<XSettingsWindow*>(qApp->activeWindow());
+	if(p->parent) {
+		QRect geom = p->parent->geometry();
+		int width = geom.width()/15;
+		int height = geom.height()/15;
+		geom.adjust(width,height,-width,-height);
+		setGeometry(geom);
+	} else {
+		data = cfg.value("geometry", QByteArray());
+		if (data.isEmpty() || !restoreGeometry(data)) {
+			QSize desktopSize = QApplication::desktop()->availableGeometry(QCursor::pos()).size();
+			resize(desktopSize.width() / 2, desktopSize.height() * 2 / 3);
+			centerizeWidget(this);
+		}
 	}
 	//init widgets
 	p->splitter = new QSplitter(Qt::Horizontal,w);
@@ -101,13 +113,13 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	connect(p->listWidget,
 			SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
 			SLOT(onCurrentItemChanged(QListWidgetItem*))
-		   );
+			);
 	connect(p->buttonBox,SIGNAL(accepted()),SLOT(save()));
 	connect(p->buttonBox,SIGNAL(rejected()),SLOT(cancel()));
 	loadSettings(settings);
 }
 
-	
+
 void XSettingsWindow::update(const qutim_sdk_0_3::SettingsItemList& settings)
 {
 	foreach (SettingsItem *item, (p->items.values().toSet() -= settings.toSet()))
@@ -118,6 +130,9 @@ void XSettingsWindow::update(const qutim_sdk_0_3::SettingsItemList& settings)
 
 XSettingsWindow::~XSettingsWindow()
 {
+	if(p->parent)
+		return;
+
 	Config cfg;
 	cfg.beginGroup("xsettings/window");
 	cfg.setValue("geometry", saveGeometry());
@@ -234,17 +249,17 @@ void XSettingsWindow::closeEvent(QCloseEvent* ev)
 										QMessageBox::Discard,
 										QMessageBox::Cancel);
 		switch (ret) {
-			case QMessageBox::Apply:
-				save();
-				break;
-			case QMessageBox::Discard:
-				break;
-			case QMessageBox::Cancel:
-				cancel();
-				ev->ignore();
-				break;
-			default:
-				break;
+		case QMessageBox::Apply:
+			save();
+			break;
+		case QMessageBox::Discard:
+			break;
+		case QMessageBox::Cancel:
+			cancel();
+			ev->ignore();
+			break;
+		default:
+			break;
 		}
 	}
 }
