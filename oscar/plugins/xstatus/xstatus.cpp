@@ -428,8 +428,8 @@ void XStatusHandler::onSetCustomStatus(QObject *object)
 	connect(dialog, SIGNAL(accepted()), SLOT(onCustomDialogAccepted()));
 	connect(dialog, SIGNAL(finished(int)), dialog, SLOT(deleteLater()));
 
-	dialog->setParent(QApplication::activeWindow());
 #ifdef Q_WS_MAEMO_5	
+	dialog->setParent(QApplication::activeWindow());
 	dialog->setWindowFlags(dialog->windowFlags() | Qt::Window);
 	dialog->setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif

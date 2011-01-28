@@ -20,6 +20,7 @@
 #include "ui/vaccountsettings.h"
 #include <qutim/settingslayer.h>
 #include <qutim/menucontroller.h>
+#include <qutim/icon.h>
 #include "vaccount.h"
 #include "vproxymanager.h"
 
@@ -51,7 +52,7 @@ void VkontaktePlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Proxy support for Vkontakte"),
 				 new GeneralGenerator<VProxyManager, NetworkProxyManager>(),
 				 vicon);
-	GeneralSettingsItem<VAccountSettings> *item = new GeneralSettingsItem<VAccountSettings>(Settings::Special,QIcon(),QT_TRANSLATE_NOOP("Vkontakte","Account settings"));
+	GeneralSettingsItem<VAccountSettings> *item = new GeneralSettingsItem<VAccountSettings>(Settings::Protocol,Icon("im-jabber"),QT_TRANSLATE_NOOP("Vkontakte","Account settings"));
 	Settings::registerItem<VAccount>(item);
 	
 }
