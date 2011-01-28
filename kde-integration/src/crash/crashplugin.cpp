@@ -7,7 +7,7 @@
 
 KdeCrashHandler::KdeCrashHandler()
 {
-#if !(KDE_VERSION_MINOR == 5 && KDE_VERSION_RELEASE >= 85)
+#if (KDE_VERSION_MINOR < 6)
 	// this asserts with kde 4.6 beta 2 with no apparent reason
 	KCrash::setApplicationPath( qApp->applicationDirPath() );
 #endif
