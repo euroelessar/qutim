@@ -79,7 +79,7 @@ JRoster::JRoster(JAccount *account) :
 	d->account->setContactsFactory(d);
 	connect(d->account->client(),SIGNAL(newPresence(jreen::Presence)),
 			this,SLOT(handleNewPresence(jreen::Presence)));
-	connect(d->account->client(),SIGNAL(disconnected()),
+	connect(d->account->client(),SIGNAL(disconnected(jreen::Client::DisconnectReason)),
 			this,SLOT(onDisconnected()));
 //	connect(d->account->client(),SIGNAL(newMessage(jreen::Message)),
 //			this,SLOT(onNewMessage(jreen::Message)));
