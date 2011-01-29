@@ -23,44 +23,44 @@
 
 namespace qutim_sdk_0_3
 {
-	Q_GLOBAL_STATIC(ActionGeneratorLocalizationHelper, localizationHelper)
-	
-	ActionGeneratorLocalizationHelper::ActionGeneratorLocalizationHelper()
-	{
-		qApp->installEventFilter(this);
-	}
+Q_GLOBAL_STATIC(ActionGeneratorLocalizationHelper, localizationHelper)
 
-	bool ActionGeneratorLocalizationHelper::eventFilter(QObject *, QEvent *ev)
-	{
-		if (ev->type() == QEvent::LanguageChange) {
-			QMap<QAction*, const ActionGeneratorPrivate*>::iterator it = m_actions.begin();
-			QMap<QAction*, const ActionGeneratorPrivate*>::iterator endit = m_actions.end();
-			for (; it != endit; it++) {
-				QAction *action = it.key();
-				const ActionGeneratorPrivate *data = it.value();
-				action->setText(data->text);
-				action->setToolTip(data->toolTip);
-			}
+ActionGeneratorLocalizationHelper::ActionGeneratorLocalizationHelper()
+{
+	qApp->installEventFilter(this);
+}
+
+bool ActionGeneratorLocalizationHelper::eventFilter(QObject *, QEvent *ev)
+{
+	if (ev->type() == QEvent::LanguageChange) {
+		QMap<QAction*, const ActionGeneratorPrivate*>::iterator it = m_actions.begin();
+		QMap<QAction*, const ActionGeneratorPrivate*>::iterator endit = m_actions.end();
+		for (; it != endit; it++) {
+			QAction *action = it.key();
+			const ActionGeneratorPrivate *data = it.value();
+			action->setText(data->text);
+			action->setToolTip(data->toolTip);
 		}
-		return false;
 	}
+	return false;
+}
 
-	void ActionGeneratorLocalizationHelper::addAction(QAction *action,
-													  const ActionGeneratorPrivate *data)
-	{
-		m_actions.insert(action, data);
-		connect(action, SIGNAL(destroyed(QObject*)), this, SLOT(onActionDeath(QObject*)));
-	}
+void ActionGeneratorLocalizationHelper::addAction(QAction *action,
+												  const ActionGeneratorPrivate *data)
+{
+	m_actions.insert(action, data);
+	connect(action, SIGNAL(destroyed(QObject*)), this, SLOT(onActionDeath(QObject*)));
+}
 
-	void ActionGeneratorLocalizationHelper::onActionDeath(QObject *obj)
-	{
-		m_actions.remove(static_cast<QAction*>(obj));
-	}
-	
-	ActionCreatedEvent::ActionCreatedEvent(QAction *action, ActionGenerator *gen) :
-			QEvent(eventType()), m_action(action), m_gen(gen)
-	{
-	}
+void ActionGeneratorLocalizationHelper::onActionDeath(QObject *obj)
+{
+	m_actions.remove(static_cast<QAction*>(obj));
+}
+
+ActionCreatedEvent::ActionCreatedEvent(QAction *action, ActionGenerator *gen) :
+	QEvent(eventType()), m_action(action), m_gen(gen)
+{
+}
 
 //	MenuController *ActionCreatedEvent::controller() const
 //	{
@@ -71,302 +71,302 @@ namespace qutim_sdk_0_3
 //		return 0;
 //	}
 
-	QEvent::Type ActionCreatedEvent::eventType()
-	{
-		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 102));
-		return type;
-	}
-	
-	ActionVisibilityChangedEvent::ActionVisibilityChangedEvent (QAction* action, QObject* controller, bool isVisible) :
-			QEvent(eventType()),m_action(action),m_controller(controller),m_visible(isVisible)
-	{
+QEvent::Type ActionCreatedEvent::eventType()
+{
+	static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 102));
+	return type;
+}
 
-	}
+ActionVisibilityChangedEvent::ActionVisibilityChangedEvent (QAction* action, QObject* controller, bool isVisible) :
+	QEvent(eventType()),m_action(action),m_controller(controller),m_visible(isVisible)
+{
 
-	QEvent::Type ActionVisibilityChangedEvent::eventType()
-	{
-		static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 103));
-		return type;
-	}
+}
+
+QEvent::Type ActionVisibilityChangedEvent::eventType()
+{
+	static QEvent::Type type = QEvent::Type(QEvent::registerEventType(QEvent::User + 103));
+	return type;
+}
 
 
-	void ActionGeneratorPrivate::ensureConnectionType()
-	{
-		if (QMetaObject::checkConnectArgs(member, SLOT(test(QAction*,QObject*))))
-			connectionType = ActionConnectionFull;
-		else if (QMetaObject::checkConnectArgs(member, SLOT(test(QObject*))))
-			connectionType = ActionConnectionObjectOnly;
-		else if (QMetaObject::checkConnectArgs(member, SLOT(test(QAction*))))
-			connectionType = ActionConnectionActionOnly;
-		else
-			connectionType = ActionConnectionSimple;
-	}
+void ActionGeneratorPrivate::ensureConnectionType()
+{
+	if (QMetaObject::checkConnectArgs(member, SLOT(test(QAction*,QObject*))))
+		connectionType = ActionConnectionFull;
+	else if (QMetaObject::checkConnectArgs(member, SLOT(test(QObject*))))
+		connectionType = ActionConnectionObjectOnly;
+	else if (QMetaObject::checkConnectArgs(member, SLOT(test(QAction*))))
+		connectionType = ActionConnectionActionOnly;
+	else
+		connectionType = ActionConnectionSimple;
+}
 
-	ActionGenerator::ActionGenerator(const QIcon &icon, const LocalizedString &text,
-									 const QObject *receiver, const char *member)
-			  : ObjectGenerator(*new ActionGeneratorPrivate)
-	{
-		Q_D(ActionGenerator);
-		d->q_ptr = this;
-		d->icon = icon;
-		d->text = text;
-		d->receiver = const_cast<QObject *>(receiver);
-		d->member = QMetaObject::normalizedSignature(member);
-		char type = d->member[0];
-		d->member[0] = '0' + QSIGNAL_CODE;
-		if (!member)
-			d->connectionType = ActionConnectionNone;
-		else
-			d->ensureConnectionType();
-		d->member[0] = type;
-		d->data = new ActionData;
-	}
-	
-	ActionGenerator::ActionGenerator(const QIcon &icon, const LocalizedString &text, const char *member)
-		: ObjectGenerator(*new ActionGeneratorPrivate)
-	{
-		Q_D(ActionGenerator);
-		d->q_ptr = this;
-		d->icon = icon;
-		d->text = text;
-		d->member = QMetaObject::normalizedSignature(member);
-		char type = d->member[0];
-		d->member[0] = '0' + QSIGNAL_CODE;
-		if (!member)
-			d->connectionType = ActionConnectionNone;
-		else
-			d->ensureConnectionType();
-		d->member[0] = type;
-		d->data = new ActionData;
-	}
+ActionGenerator::ActionGenerator(const QIcon &icon, const LocalizedString &text,
+								 const QObject *receiver, const char *member)
+	: ObjectGenerator(*new ActionGeneratorPrivate)
+{
+	Q_D(ActionGenerator);
+	d->q_ptr = this;
+	d->icon = icon;
+	d->text = text;
+	d->receiver = const_cast<QObject *>(receiver);
+	d->member = QMetaObject::normalizedSignature(member);
+	char type = d->member[0];
+	d->member[0] = '0' + QSIGNAL_CODE;
+	if (!member)
+		d->connectionType = ActionConnectionNone;
+	else
+		d->ensureConnectionType();
+	d->member[0] = type;
+	d->data = new ActionData;
+}
 
-	ActionGenerator::ActionGenerator(ActionGeneratorPrivate &priv) : ObjectGenerator(priv)
-	{
-	}
+ActionGenerator::ActionGenerator(const QIcon &icon, const LocalizedString &text, const char *member)
+	: ObjectGenerator(*new ActionGeneratorPrivate)
+{
+	Q_D(ActionGenerator);
+	d->q_ptr = this;
+	d->icon = icon;
+	d->text = text;
+	d->member = QMetaObject::normalizedSignature(member);
+	char type = d->member[0];
+	d->member[0] = '0' + QSIGNAL_CODE;
+	if (!member)
+		d->connectionType = ActionConnectionNone;
+	else
+		d->ensureConnectionType();
+	d->member[0] = type;
+	d->data = new ActionData;
+}
 
-	ActionGenerator::~ActionGenerator()
-	{
-		Q_D(ActionGenerator);
-		if (actionsCache())
-			actionsCache()->remove(this);
-		delete d->data;
-	}
+ActionGenerator::ActionGenerator(ActionGeneratorPrivate &priv) : ObjectGenerator(priv)
+{
+}
 
-	QIcon ActionGenerator::icon() const
-	{
-		return d_func()->icon;
-	}
+ActionGenerator::~ActionGenerator()
+{
+	Q_D(ActionGenerator);
+	if (actionsCache())
+		actionsCache()->remove(this);
+	delete d->data;
+}
 
-	const LocalizedString &ActionGenerator::text() const
-	{
-		return d_func()->text;
-	}
+QIcon ActionGenerator::icon() const
+{
+	return d_func()->icon;
+}
 
-	const QObject *ActionGenerator::receiver() const
-	{
-		return d_func()->receiver;
-	}
+const LocalizedString &ActionGenerator::text() const
+{
+	return d_func()->text;
+}
 
-	const char *ActionGenerator::member() const
-	{
-		return d_func()->member.constData();
-	}
+const QObject *ActionGenerator::receiver() const
+{
+	return d_func()->receiver;
+}
 
-	ActionGenerator *ActionGenerator::addProperty(const QByteArray &name, const QVariant &value)
-	{
-		return static_cast<ActionGenerator *>(ObjectGenerator::addProperty(name, value));
-	}
+const char *ActionGenerator::member() const
+{
+	return d_func()->member.constData();
+}
 
-	int ActionGenerator::type() const
-	{
-		return d_func()->type;
-	}
+ActionGenerator *ActionGenerator::addProperty(const QByteArray &name, const QVariant &value)
+{
+	return static_cast<ActionGenerator *>(ObjectGenerator::addProperty(name, value));
+}
 
-	ActionGenerator *ActionGenerator::setType(int type)
-	{
-		d_func()->type = type;
-		return this;
-	}
+int ActionGenerator::type() const
+{
+	return d_func()->type;
+}
 
-	int ActionGenerator::priority() const
-	{
-		return d_func()->priority;
-	}
+ActionGenerator *ActionGenerator::setType(int type)
+{
+	d_func()->type = type;
+	return this;
+}
 
-	ActionGenerator *ActionGenerator::setPriority(int priority)
-	{
-		d_func()->priority = priority;
-		return this;
-	}
+int ActionGenerator::priority() const
+{
+	return d_func()->priority;
+}
 
-	void ActionGenerator::setMenuController(MenuController *controller)
-	{
-		Q_UNUSED(controller);
-	}
+ActionGenerator *ActionGenerator::setPriority(int priority)
+{
+	d_func()->priority = priority;
+	return this;
+}
+
+void ActionGenerator::setMenuController(MenuController *controller)
+{
+	Q_UNUSED(controller);
+}
 
 // 	MenuController *ActionGenerator::controller() const
 // 	{
 // 		return 0;
 // 	}
 
-	void ActionGenerator::addCreationHandler(QObject *obj)
-	{
-		addHandler(ActionCreatedHandler,obj);
-	}
-	
-	void ActionGenerator::removeCreationHandler(QObject* obj)
-	{
-		removeHandler(ActionCreatedHandler,obj);
+void ActionGenerator::addCreationHandler(QObject *obj)
+{
+	addHandler(ActionCreatedHandler,obj);
+}
+
+void ActionGenerator::removeCreationHandler(QObject* obj)
+{
+	removeHandler(ActionCreatedHandler,obj);
+}
+
+void ActionGenerator::addHandler(int type, QObject* obj)
+{
+	Q_D(ActionGenerator);
+	d->subcribers.operator[](type).append(obj);
+}
+
+void ActionGenerator::removeHandler(int type, QObject* obj)
+{
+	Q_D(ActionGenerator);
+	d->subcribers.operator[](type).removeAll(obj);
+}
+
+
+QAction *ActionGenerator::prepareAction(QAction *action) const
+{
+	Q_D(const ActionGenerator);
+	//		if (d->receiver.isNull()) {
+	//			action->deleteLater();
+	//			return NULL;
+	//		}
+	if (d->receiver)
+		action->setParent(d->receiver);
+	action->setIcon(d->icon);
+	action->setText(d->text);
+	action->setCheckable(d->data->checkable);
+	action->setChecked(d->data->checked);
+	action->setToolTip(d->toolTip);
+	action->setShortcuts(d->shortCuts);
+	localizationHelper()->addAction(action, d);
+	action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
+
+	foreach (QObject *subcriber,d->subcribers.value(ActionCreatedHandler)) {
+		ActionCreatedEvent event(action,const_cast<ActionGenerator*>(this));
+		qApp->sendEvent(subcriber,&event);
 	}
 
-	void ActionGenerator::addHandler(int type, QObject* obj)
-	{
-		Q_D(ActionGenerator);
-		d->subcribers.operator[](type).append(obj);
-	}
+	if (!handler()->actions().contains(action))
+		handler()->addAction(action);
 
-	void ActionGenerator::removeHandler(int type, QObject* obj)
-	{
-		Q_D(ActionGenerator);
-		d->subcribers.operator[](type).removeAll(obj);
-	}
+	return action;
+}
 
+QObject *ActionGenerator::generateHelper() const
+{
+	return prepareAction(new QAction(NULL));
+}
 
-	QAction *ActionGenerator::prepareAction(QAction *action) const
-	{
-		Q_D(const ActionGenerator);
-//		if (d->receiver.isNull()) {
-//			action->deleteLater();
-//			return NULL;
-//		}
-		if (d->receiver)
-			action->setParent(d->receiver);
-		action->setIcon(d->icon);
-		action->setText(d->text);
-		action->setCheckable(d->data->checkable);
-		action->setChecked(d->data->checked);
-		action->setToolTip(d->toolTip);
-		action->setShortcuts(d->shortCuts);
-		localizationHelper()->addAction(action, d);
-		action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(this)));
+const QMetaObject *ActionGenerator::metaObject() const
+{
+	return &QAction::staticMetaObject;
+}
 
-		foreach (QObject *subcriber,d->subcribers.value(ActionCreatedHandler)) {
-			ActionCreatedEvent event(action,const_cast<ActionGenerator*>(this));
-			qApp->sendEvent(subcriber,&event);
-		}
-		
-		if (!handler()->actions().contains(action))
-			handler()->addAction(action);		
+bool ActionGenerator::hasInterface(const char *id) const
+{
+	Q_UNUSED(id);
+	return false;
+}
 
-		return action;
-	}
+MenuActionGenerator::MenuActionGenerator(const QIcon &icon, const LocalizedString &text, QMenu *menu) :
+	ActionGenerator(*new ActionGeneratorPrivate)
+{
+	Q_D(ActionGenerator);
+	d->q_ptr = this;
+	d->icon = icon;
+	d->text = text;
+	d->connectionType = ActionConnectionSimple;
+	d->data = new ActionData;
+	d->data->menu = menu;
+}
 
-	QObject *ActionGenerator::generateHelper() const
-	{
-		return prepareAction(new QAction(NULL));
-	}
+MenuActionGenerator::MenuActionGenerator(const QIcon &icon, const LocalizedString &text, MenuController *controller) :
+	ActionGenerator(*new ActionGeneratorPrivate)
+{
+	Q_D(ActionGenerator);
+	d->q_ptr = this;
+	d->icon = icon;
+	d->text = text;
+	d->connectionType = ActionConnectionSimple;
+	d->data = new ActionData;
+	d->data->controller = controller;
+}
 
-	const QMetaObject *ActionGenerator::metaObject() const
-	{
-		return &QAction::staticMetaObject;
-	}
+MenuActionGenerator::~MenuActionGenerator()
+{
+}
 
-	bool ActionGenerator::hasInterface(const char *id) const
-	{
-		Q_UNUSED(id);
-		return false;
+QObject *MenuActionGenerator::generateHelper() const
+{
+	Q_D(const ActionGenerator);
+	QAction *action = prepareAction(new QAction(NULL));
+	if (d->data->menu) {
+		action->setMenu(d->data->menu);
+	} else if (d->data->controller) {
+		QMenu *menu = d->data->controller->menu(false);
+		QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
+		action->setMenu(menu);
 	}
+	//		const ActionGenerator *gen = this;
+	//		action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(gen)));
+	return action;
+}
 
-	MenuActionGenerator::MenuActionGenerator(const QIcon &icon, const LocalizedString &text, QMenu *menu) :
-			ActionGenerator(*new ActionGeneratorPrivate)
-	{
-		Q_D(ActionGenerator);
-		d->q_ptr = this;
-		d->icon = icon;
-		d->text = text;
-		d->connectionType = ActionConnectionSimple;
-		d->data = new ActionData;
-		d->data->menu = menu;
-	}
+void ActionGenerator::setCheckable(bool checkable)
+{
+	d_func()->data->checkable = checkable;
+}
 
-	MenuActionGenerator::MenuActionGenerator(const QIcon &icon, const LocalizedString &text, MenuController *controller) :
-			ActionGenerator(*new ActionGeneratorPrivate)
-	{
-		Q_D(ActionGenerator);
-		d->q_ptr = this;
-		d->icon = icon;
-		d->text = text;
-		d->connectionType = ActionConnectionSimple;
-		d->data = new ActionData;
-		d->data->controller = controller;
-	}
+void ActionGenerator::setChecked(bool checked)
+{
+	d_func()->data->checked = checked;
+}
 
-	MenuActionGenerator::~MenuActionGenerator()
-	{
-	}
+void ActionGenerator::setToolTip(const LocalizedString& toolTip)
+{
+	d_func()->toolTip = toolTip;
+}
 
-	QObject *MenuActionGenerator::generateHelper() const
-	{
-		Q_D(const ActionGenerator);
-		QAction *action = prepareAction(new QAction(NULL));
-		if (d->data->menu) {
-			action->setMenu(d->data->menu);
-		} else if (d->data->controller) {
-			QMenu *menu = d->data->controller->menu(false);
-			QObject::connect(action, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
-			action->setMenu(menu);
-		}
-//		const ActionGenerator *gen = this;
-//		action->setData(QVariant::fromValue(const_cast<ActionGenerator *>(gen)));
-		return action;
-	}
-	
-	void ActionGenerator::setCheckable(bool checkable)
-	{
-		d_func()->data->checkable = checkable;
-	}
+void ActionGenerator::setShortcut(const QKeySequence &shortcut)
+{
+	Q_D(ActionGenerator);
+	d->shortCuts.clear();
+	d->shortCuts.append(shortcut);
+}
 
-	void ActionGenerator::setChecked(bool checked)
-	{
-		d_func()->data->checked = checked;
-	}
+void ActionGenerator::showImpl(QAction *,QObject *)
+{
+}
 
-	void ActionGenerator::setToolTip(const LocalizedString& toolTip)
-	{
-		d_func()->toolTip = toolTip;
-	}
+void ActionGenerator::hideImpl(QAction *,QObject *)
+{
+}
 
-	void ActionGenerator::setShortcut(const QKeySequence &shortcut)
-	{
-		Q_D(ActionGenerator);
-		d->shortCuts.clear();
-		d->shortCuts.append(shortcut);
+void ActionGeneratorPrivate::show(QAction *act,QObject *con)
+{
+	foreach (QObject *subcriber,subcribers.value(ActionVisibilityChangedHandler)) {
+		ActionVisibilityChangedEvent ev(act,con);
+		qApp->sendEvent(subcriber,&ev);
 	}
-	
-	void ActionGenerator::showImpl(QAction *,QObject *)
-	{
-	}
+	q_ptr->showImpl(act,con);
+}
 
-	void ActionGenerator::hideImpl(QAction *,QObject *)
-	{
+void ActionGeneratorPrivate::hide(QAction *act,QObject *con)
+{
+	foreach (QObject *subcriber,subcribers.value(ActionVisibilityChangedHandler)) {
+		ActionVisibilityChangedEvent ev(act,con,false);
+		qApp->sendEvent(subcriber,&ev);
 	}
-	
-	void ActionGeneratorPrivate::show(QAction *act,QObject *con)
-	{
-		foreach (QObject *subcriber,subcribers.value(ActionVisibilityChangedHandler)) {
-			ActionVisibilityChangedEvent ev(act,con);
-			qApp->sendEvent(subcriber,&ev);
-		}
-		q_ptr->showImpl(act,con);
-	}
-
-	void ActionGeneratorPrivate::hide(QAction *act,QObject *con)
-	{
-		foreach (QObject *subcriber,subcribers.value(ActionVisibilityChangedHandler)) {
-			ActionVisibilityChangedEvent ev(act,con,false);
-			qApp->sendEvent(subcriber,&ev);
-		}
-		q_ptr->hideImpl(act,con);
-	}
+	q_ptr->hideImpl(act,con);
+}
 
 }
