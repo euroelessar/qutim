@@ -94,18 +94,21 @@ XSettingsWindow::XSettingsWindow(const qutim_sdk_0_3::SettingsItemList& settings
 	l->addWidget(p->buttonBox);
 	p->buttonBox->hide();
 	//init actiontoolbar
-#ifdef Q_WS_MAC
-	l->setContentsMargins(3,6,3,3);
-	p->listWidget->setIconSize(QSize(22,22));
-#endif
 	setCentralWidget(w);
+
 	p->toolBar = new ActionToolBar(w);
+	addToolBar(Qt::TopToolBarArea,p->toolBar);
 	p->toolBar->setIconSize(QSize(32,32));
 	p->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 	p->toolBar->setObjectName(QLatin1String("SettingsBar"));
-	addToolBar(Qt::TopToolBarArea,p->toolBar);
-	setUnifiedTitleAndToolBarOnMac(true);
 	p->toolBar->setMovable(false);
+
+#ifdef Q_WS_MAC
+	l->setContentsMargins(3,6,3,3);
+	p->listWidget->setIconSize(QSize(22,22));
+	setUnifiedTitleAndToolBarOnMac(true);
+#endif
+
 	p->group = new QActionGroup(w);
 	p->group->setExclusive(true);
 	//connections
