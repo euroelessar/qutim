@@ -58,13 +58,7 @@ QString MetaContactImpl::id() const
 
 QString MetaContactImpl::avatar() const
 {
-	QString currentAvatar;
-	// 			for (int i = 0; i < m_contacts.size(); i++) {
-	// 				currentAvatar = m_contacts.at(i)->avatar();
-	// 				if (!currentAvatar.isEmpty())
-	// 					return currentAvatar;
-	// 			}
-	return QString();
+	return m_lastAvatar;
 }
 
 void MetaContactImpl::setName(const QString &name)
@@ -123,6 +117,8 @@ void MetaContactImpl::addContact(Contact *contact)
 	MetaContact::addContact(contact);
 	connect(contact, SIGNAL(statusChanged(qutim_sdk_0_3::Status,qutim_sdk_0_3::Status)),
 			SLOT(onContactStatusChanged()));
+	connect(contact, SIGNAL(avatarChanged(QString)),
+			SLOT(setAvatar(QString)));
 
 	if (index == 0)
 		resetStatus();
@@ -205,6 +201,12 @@ void MetaContactImpl::onContactStatusChanged()
 		resetStatus();
 }
 
+void MetaContactImpl::setAvatar(const QString& path)
+{
+	m_lastAvatar = path;
+	emit avatarChanged(m_lastAvatar);
+}
+
 qutim_sdk_0_3::ChatUnitList MetaContactImpl::lowerUnits()
 {
 	ChatUnitList list;
@@ -242,6 +244,8 @@ bool MetaContactImpl::event(QEvent* ev)
 	}
 	return qutim_sdk_0_3::MetaContact::event(ev);
 }
+
+
 
 }
 }

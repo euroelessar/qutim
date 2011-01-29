@@ -38,12 +38,13 @@ public:
 	virtual QStringList tags() const { return m_tags; }
 	virtual void setTags(const QStringList &tags);
 	virtual bool sendMessage(const qutim_sdk_0_3::Message &message);
-
 	virtual void addContact(Contact *contact);
 	virtual void removeContact(Contact *contact);
 	virtual qutim_sdk_0_3::ChatUnitList lowerUnits();
 	inline const QList<Contact*> &contacts() const { return m_contacts; }
 	virtual const qutim_sdk_0_3::ChatUnit* getHistoryUnit() const;
+public slots:
+	void setAvatar(const QString &path);
 protected:
 	void resetName();
 	void resetStatus();
@@ -56,6 +57,7 @@ private:
 	qutim_sdk_0_3::Status m_status;
 	QStringList m_tags;
 	QList<Contact*> m_contacts;
+	QString m_lastAvatar;
 };
 }
 }

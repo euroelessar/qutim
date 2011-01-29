@@ -59,6 +59,7 @@ Manager::~Manager()
 		MetaContactImpl *metaContact = contacts.at(i);
 		cfg.setValue("id", metaContact->id());
 		cfg.setValue("name", metaContact->name());
+		cfg.setValue("avatar", metaContact->avatar());
 		cfg.beginArray("subItems");
 		for (int j = 0; j < metaContact->contacts().size(); j++) {
 			cfg.setArrayIndex(j);
@@ -91,6 +92,7 @@ void Manager::loadContacts()
 		cfg.setArrayIndex(i);
 		QString id = cfg.value("id", QString());
 		QString name = cfg.value("name", QString());
+		QString lastAvatar = cfg.value("avatar",QString());
 		MetaContactImpl *metaContact = 0;
 		int subItemCount = cfg.beginArray("subItems");
 		for (int j = 0; j < subItemCount; j++) {
@@ -106,6 +108,7 @@ void Manager::loadContacts()
 				if (!metaContact) {
 					metaContact = new MetaContactImpl(id);
 					metaContact->setName(name);
+					metaContact->setAvatar(lastAvatar);
 				}
 				metaContact->addContact(contact);
 			}
