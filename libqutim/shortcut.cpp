@@ -17,6 +17,7 @@
 #include "configbase.h"
 #include "dglobalhotkey_p.h"
 #include <QPointer>
+#include <QSet>
 
 namespace qutim_sdk_0_3
 {
@@ -37,7 +38,7 @@ namespace qutim_sdk_0_3
 	public:
 		ShortcutInfo() : GeneralShortcutInfo(false), context(Qt::WindowShortcut) {}
 		Qt::ShortcutContext context;
-		QList<QPointer<Shortcut> > shortcuts;
+		QSet<Shortcut*> shortcuts;
 	};
 
 	class GlobalShortcutInfo : public GeneralShortcutInfo
@@ -45,7 +46,7 @@ namespace qutim_sdk_0_3
 	public:
 		GlobalShortcutInfo() : GeneralShortcutInfo(true) {}
 		QList<int> contexts;
-		QList<QPointer<GlobalShortcut> > shortcuts;
+		QSet<GlobalShortcut*> shortcuts;
 	};
 
 	typedef QHash<QString, GeneralShortcutInfo *> ShortcutInfoHash;
@@ -54,6 +55,7 @@ namespace qutim_sdk_0_3
 	{
 		ShortcutInfoHash hash;
 		void init();
+		void updateSequence(const QString &id, const QKeySequence &secuence);
 	};
 
 	void ShortcutSelf::init()
@@ -145,6 +147,24 @@ namespace qutim_sdk_0_3
 			hash.insert(QLatin1String(it.id), info);
 		}
 	}
+	
+	void ShortcutSelf::updateSequence(const QString &id, const QKeySequence &secuence)
+	{
+		GeneralShortcutInfo *generalInfo = hash.value(id);
+		if (!generalInfo || generalInfo->key == secuence)
+			return;
+		generalInfo->key = secuence;
+		if (generalInfo->global) {
+			ShortcutInfo *info = static_cast<ShortcutInfo*>(generalInfo);
+			foreach (Shortcut *shortcut, info->shortcuts)
+				shortcut->setKey(secuence);
+		} else {
+			// TODO
+//			GlobalShortcutInfo *info = static_cast<GlobalShortcutInfo*>(generalInfo)->shortcuts;
+//			foreach (GlobalShortcut *shortcut, info->shortcuts)
+//				shortcut->setKey(secuence);
+		}
+	}
 
 	Q_GLOBAL_STATIC_WITH_INITIALIZER(ShortcutSelf, self, x->init())
 
@@ -174,7 +194,7 @@ namespace qutim_sdk_0_3
 		}
 		if (info && !info->global) {
 			d->info = static_cast<ShortcutInfo*>(info);
-			d->info->shortcuts.append(this);
+			d->info->shortcuts.insert(this);
 			setKey(d->info->key);
 			setContext(d->info->context);
 		}
@@ -182,6 +202,9 @@ namespace qutim_sdk_0_3
 
 	Shortcut::~Shortcut()
 	{
+		Q_D(Shortcut);
+		if (d->info)
+			d->info->shortcuts.remove(this);
 	}
 
 	bool Shortcut::registerSequence(const QString &id, const LocalizedString &name,
@@ -203,9 +226,8 @@ namespace qutim_sdk_0_3
 			info->inited = true;
 			info->name = name;
 			info->group = group;
-			info->key = Config("profile").group("shortcuts").value<QKeySequence>(id,key);
+			info->key = Config().group(QLatin1String("shortcuts")).value<QKeySequence>(id,key);
 			info->context = context;
-			info->shortcuts.removeAll(NULL);
 			foreach (Shortcut *shortcut, info->shortcuts) {
 				shortcut->setKey(info->key);
 				shortcut->setContext(info->context);
@@ -227,7 +249,7 @@ namespace qutim_sdk_0_3
 		}
 		if (info->global) {
 			d->info = static_cast<GlobalShortcutInfo*>(info);
-			d->info->shortcuts.append(this);
+			d->info->shortcuts.insert(this);
 			connect(dGlobalHotKey::instance(), SIGNAL(hotKeyPressed(quint32)),
 					this, SLOT(onHotKeyPressed(quint32)));
 		}
@@ -235,6 +257,9 @@ namespace qutim_sdk_0_3
 
 	GlobalShortcut::~GlobalShortcut()
 	{
+		Q_D(GlobalShortcut);
+		if (d->info)
+			d->info->shortcuts.remove(this);
 	}
 
 	bool GlobalShortcut::registerSequence(const QString &id, const LocalizedString &name,
@@ -255,7 +280,7 @@ namespace qutim_sdk_0_3
 			info->inited = true;
 			info->name = name;
 			info->group = group;
-			info->key = Config("profile").group("globalShortcuts").value<QKeySequence>(id,key);
+			info->key = Config().group(QLatin1String("globalShortcuts")).value<QKeySequence>(id,key);
 			for (uint i = 0, count = key.count(); i < count; i++) {
 				QString str = QKeySequence(key[i]).toString();
 				int k = dGlobalHotKey::instance()->id(str);
@@ -303,9 +328,8 @@ namespace qutim_sdk_0_3
 
 	void Shortcut::setSequence(const QString &id, const QKeySequence &key)
 	{
-		ConfigGroup config = Config("profile").group("shortcuts");
-		config.setValue(id,key);
-		config.sync();
+		Config().group(QLatin1String("shortcuts")).setValue(id, key);
+		self()->updateSequence(id, key);
 	}
 
 	QStringList GlobalShortcut::ids()
@@ -334,8 +358,7 @@ namespace qutim_sdk_0_3
 
 	void GlobalShortcut::setSequence(const QString &id, const QKeySequence &key)
 	{
-		ConfigGroup config = Config("profile").group("globalShortcuts");
-		config.setValue(id,key);
-		config.sync();
+		Config().group(QLatin1String("globalShortcuts")).setValue(id, key);
+		self()->updateSequence(id, key);
 	}
 }

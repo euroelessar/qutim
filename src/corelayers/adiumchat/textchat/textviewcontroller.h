@@ -39,7 +39,7 @@ public:
 		m_index = index;
 	}
 	
-	QList<int> indexes;
+	QVector<int> indexes;
 	
 	int index() const { return m_index; }
 private:

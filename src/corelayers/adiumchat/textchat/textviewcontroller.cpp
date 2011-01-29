@@ -47,8 +47,7 @@ TextViewController::TextViewController()
 	Config cfg = Config(QLatin1String("appearance")).group(QLatin1String("chat"));
 	m_groupUntil = cfg.value<ushort>(QLatin1String("groupUntil"), 900);
 	cfg.beginGroup(QLatin1String("textview"));
-	// It's VERY experimental
-	m_animateEmoticons = cfg.value(QLatin1String("animateEmoticons"), false);
+	m_animateEmoticons = cfg.value(QLatin1String("animateEmoticons"), true);
 	m_incomingColor.setNamedColor(cfg.value(QLatin1String("incomingColor"), QLatin1String("#ff6600")));
 	m_outgoingColor.setNamedColor(cfg.value(QLatin1String("outgoingColor"), QLatin1String("#0078ff")));
 	m_serviceColor .setNamedColor(cfg.value(QLatin1String("serviceColor"),  QLatin1String("gray")));
@@ -250,23 +249,28 @@ void TextViewController::animate()
 		movie->stop();
 		return;
 	}
-	qDebug() << Q_FUNC_INFO;
 	QAbstractTextDocumentLayout *layout = documentLayout();
-//	QSize maximumViewportSize = m_textEdit->maximumViewportSize();
 	QRect visibleRect(0, m_textEdit->verticalScrollBar()->value(),
 	                  m_textEdit->viewport()->width(),
 	                  m_textEdit->viewport()->height());
-//	QRect visibleRect = m_textEdit->viewport()->visibleRegion().boundingRect();
 	int begin = layout->hitTest(visibleRect.topLeft(), Qt::FuzzyHit);
 	int end = layout->hitTest(visibleRect.bottomRight(), Qt::FuzzyHit);
-	qDebug() << visibleRect << begin << end;
-	markContentsDirty(begin, end - begin);
-//	for (int i = 0; i < movie->indexes.size(); i++) {
-//		int index = movie->indexes.at(i);
-//		markContentsDirty(index, 1);
-//	}
-//	int index = movie->index();
-//	m_textEdit->repaint();
+	int *indexesEnd = movie->indexes.data() + movie->indexes.size();
+	int *beginIndex = qLowerBound(movie->indexes.data(), indexesEnd, begin);
+	int *endIndex = qUpperBound(beginIndex, indexesEnd, end);
+	if (beginIndex == endIndex)
+		return;
+	QRegion region;
+	QTextCursor cursor(this);
+	QSize emoticonSize = movie->frameRect().size();
+	for (int *i = beginIndex; i != endIndex; i++) {
+		cursor.setPosition(*i);
+		QRect cursorRect = m_textEdit->cursorRect(cursor);
+		region += QRectF(cursorRect.topLeft(), emoticonSize).toAlignedRect();
+	}
+	region &= m_textEdit->viewport()->visibleRegion();
+	if (!region.isEmpty())
+		m_textEdit->viewport()->update(region);
 }
 
 void TextViewController::init()

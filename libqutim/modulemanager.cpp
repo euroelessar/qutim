@@ -37,16 +37,20 @@
 #include <QVarLengthArray>
 #include <QLibrary>
 #include <QDesktopServices>
+#include <QTime>
 #include "objectgenerator.h"
 
 // Is there any other way to init CryptoService from ModuleManager?
 #define INSIDE_MODULE_MANAGER
 #include "cryptoservice.cpp"
 
+#define QUTIM_TEST_PERFOMANCE 1
+
 //Let's show message box with error
 #if	defined(Q_OS_SYMBIAN)
-#include <QMessageBox>
-#include <QLibraryInfo>
+# undef QUTIM_TEST_PERFOMANCE
+# include <QMessageBox>
+# include <QLibraryInfo>
 #endif
 
 #define NO_COMMANDS 1
@@ -283,13 +287,26 @@ namespace qutim_sdk_0_3
 				typedef const char * Q_STANDARD_CALL (*QtPluginVerificationFunction)();
 				QutimPluginVerificationFunction verificationFunction = NULL;
 				QtPluginVerificationFunction qtVerificationFunction = NULL;
+#ifdef QUTIM_TEST_PERFOMANCE
+				QTime timer;
+				int libLoadTime, verifyTime, instanceTime, initTime;
+#endif
 				{
+#ifdef QUTIM_TEST_PERFOMANCE
+					timer.start();
+#endif
 					QScopedPointer<QLibrary> lib(new QLibrary(filename));
 					if (lib->load()) {
+#ifdef QUTIM_TEST_PERFOMANCE
+						libLoadTime = timer.elapsed(); timer.restart();
+#endif
 						verificationFunction = reinterpret_cast<QutimPluginVerificationFunction>(
 								lib->resolve("qutim_plugin_query_verification_data"));
 						qtVerificationFunction = reinterpret_cast<QtPluginVerificationFunction>(
 								lib->resolve("qt_plugin_query_verification_data"));
+#ifdef QUTIM_TEST_PERFOMANCE
+						verifyTime = timer.elapsed(); timer.restart();
+#endif
 						if (!verificationFunction || !qtVerificationFunction) {
 							lib->unload();
 							qDebug("'%s' has no valid verification data", qPrintable(filename));
@@ -308,9 +325,17 @@ namespace qutim_sdk_0_3
 				}
 				QPluginLoader *loader = new QPluginLoader(filename);
 				QObject *object = loader->instance();
+#ifdef QUTIM_TEST_PERFOMANCE
+				instanceTime = timer.elapsed(); timer.restart();
+#endif
 #endif // defined(Q_OS_SYMBIAN)
 				if (Plugin *plugin = qobject_cast<Plugin *>(object)) {
 					plugin->init();
+#ifdef QUTIM_TEST_PERFOMANCE
+					initTime = timer.elapsed();
+					qDebug("\"%s\":\nload: %d ms, verify: %d ms, instance: %d ms, init: %d ms",
+					       qPrintable(files[i].fileName()), libLoadTime, verifyTime, instanceTime, initTime);
+#endif
 					if (plugin->p->validate()) {
 						plugin->p->is_inited = true;
 						p->plugins.append(plugin);
@@ -482,9 +507,16 @@ namespace qutim_sdk_0_3
 			if (!qstrcmp(info.name(), "Uses"))
 				initService(info.value(), services, order, hash, used, selected);
 		}
+#ifdef QUTIM_TEST_PERFOMANCE
+		QTime timer;
+		timer.start();
+#endif
 		QObject *obj = gen->generate<QObject>();
 		order.prepend(obj);
 		services.insert(name, obj);
+#ifdef QUTIM_TEST_PERFOMANCE
+		qDebug("Service \"%s\": %d ms", obj->metaObject()->className(), timer.elapsed());
+#endif
 	}
 
 	/**
@@ -623,13 +655,27 @@ namespace qutim_sdk_0_3
 //				Plugin *plugin = it.key();
 //				if (!pluginsConfig.value(plugin->metaObject()->className(), true))
 //					continue;
-				qDebug("Startup: %s", it.value().generator()->metaObject()->className());
+#ifdef QUTIM_TEST_PERFOMANCE
+				QTime timer;
+				timer.start();
+#endif
 				it.value().generator()->generate<StartupModule>();
+#ifdef QUTIM_TEST_PERFOMANCE
+				qDebug("Startup: \"%s\", %d ms", it.value().generator()->metaObject()->className(), timer.elapsed());
+#endif
 			}
 		}
 
-		foreach(Protocol *proto, Protocol::all())
+		foreach(Protocol *proto, Protocol::all()) {
+#ifdef QUTIM_TEST_PERFOMANCE
+			QTime timer;
+			timer.start();
+#endif
 			proto->loadAccounts();
+#ifdef QUTIM_TEST_PERFOMANCE
+			qDebug("\"%s\", load: %d ms", qPrintable(proto->id()), timer.elapsed());
+#endif
+		}
 
 		if (MetaContactManager *manager = MetaContactManager::instance())
 			manager->loadContacts();
@@ -638,7 +684,14 @@ namespace qutim_sdk_0_3
 			Plugin *plugin = p->plugins.at(i);
 //			if (plugin && pluginsConfig.value(plugin->metaObject()->className(), true)) {
 			if (plugin && !disabledPlugins.contains(plugin->info().data())) {
+#ifdef QUTIM_TEST_PERFOMANCE
+				QTime timer;
+				timer.start();
+#endif
 				plugin->load();
+#ifdef QUTIM_TEST_PERFOMANCE
+				qDebug("\"%s\", load: %d ms", plugin->metaObject()->className(), timer.elapsed());
+#endif
 				if (PluginFactory *factory = qobject_cast<PluginFactory*>(plugin)) {
 					QList<Plugin*> plugins = factory->loadPlugins();
 					for (int j = 0; j < plugins.size(); j++) {
