@@ -52,16 +52,18 @@ void VkontaktePlugin::init()
 				 QT_TRANSLATE_NOOP("Plugin", "Proxy support for Vkontakte"),
 				 new GeneralGenerator<VProxyManager, NetworkProxyManager>(),
 				 vicon);
-	GeneralSettingsItem<VAccountSettings> *item = new GeneralSettingsItem<VAccountSettings>(Settings::Protocol,Icon("im-jabber"),QT_TRANSLATE_NOOP("Vkontakte","Account settings"));
-	Settings::registerItem<VAccount>(item);
-	
 }
 bool VkontaktePlugin::load()
 {
+	m_mainSettings =  new GeneralSettingsItem<VAccountSettings>(Settings::Protocol,Icon("im-jabber"),QT_TRANSLATE_NOOP("Vkontakte","Account settings"));
+	Settings::registerItem<VAccount>(m_mainSettings);
 	return true;
 }
 bool VkontaktePlugin::unload()
 {
+	Settings::removeItem(m_mainSettings);
+	delete m_mainSettings;
+	m_mainSettings = 0;
 	return false;
 }
 
