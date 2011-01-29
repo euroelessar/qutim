@@ -55,7 +55,7 @@ public:
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
 	QString name() const;
 	void setNick(const QString &nick);
-	const QString &password(bool *ok = 0);
+	QString password(bool *ok = 0);
 	jreen::Client *client() const;
 	JSoftwareDetection *softwareDetection() const;
 	JMessageSessionManager *messageSessionManager() const;

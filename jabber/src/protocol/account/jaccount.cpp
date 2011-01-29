@@ -296,7 +296,7 @@ void JAccount::setNick(const QString &nick)
 	emit nameChanged(nick, previous);
 }
 
-const QString &JAccount::password(bool *ok)
+QString JAccount::password(bool *ok)
 {
 	Q_D(JAccount);
 	if (ok)

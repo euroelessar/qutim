@@ -140,6 +140,7 @@ void quetzal_remove_node(PurpleBlistNode *node)
 
 void quetzal_save_account(PurpleAccount *account)
 {
+	qDebug() << Q_FUNC_INFO << account;
 	if (account) {
 		QuetzalAccount *acc = reinterpret_cast<QuetzalAccount *>(account->ui_data);
 		if (acc)
