@@ -3,6 +3,7 @@
 #include <qutim/icon.h>
 #include <qutim/debug.h>
 #include <qutim/menucontroller.h>
+#include <qutim/systemintegration.h>
 #include  <qutim/servicemanager.h>
 #include "messagingdialog.h"
 #include <QApplication>
@@ -47,13 +48,12 @@ void MassMessaging::onActionTriggered()
 		m_dialog = new MessagingDialog();
 		centerizeWidget(m_dialog);
 	}
-	m_dialog->setParent(QApplication::activeWindow());
 #ifdef Q_WS_MAEMO_5
+	m_dialog->setParent(QApplication::activeWindow());
 	m_dialog->setWindowFlags(m_dialog->windowFlags() | Qt::Window);
 	m_dialog->setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
-	m_dialog->show();
-
+	SystemIntegration::show(m_dialog);
 }
 }
 
