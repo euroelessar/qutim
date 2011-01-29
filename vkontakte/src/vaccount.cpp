@@ -34,6 +34,7 @@ VAccount::VAccount(const QString& email,QObject *parent) :
 	d->q_ptr = this;
 	setParent(protocol());
 	d->connection = new VConnection(this,this);
+	setStatus(Status::instance(Status::Offline,"vkontakte"));
 }
 
 VContact* VAccount::getContact(const QString& uid, bool create)
@@ -105,10 +106,7 @@ void VAccount::setUid(const QString& uid)
 
 void VAccount::setStatus(Status status)
 {
-	Status previous = this->status();
-	Account::setStatus(status);
 	Q_D(VAccount);
-	status.initIcon("vkontakte");
 	VConnectionState state = statusToState(status.type());
 
 	switch (state) {
@@ -129,8 +127,7 @@ void VAccount::setStatus(Status status)
 			break;
 		}		
 	}
-
-	emit statusChanged(status, previous);
+	Account::setStatus(status);
 }
 
 VConnection *VAccount::connection()

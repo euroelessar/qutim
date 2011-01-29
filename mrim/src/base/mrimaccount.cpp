@@ -62,16 +62,12 @@ MrimRoster *MrimAccount::roster() const
 
 void MrimAccount::setStatus(Status status)
 {
-	Status oldStatus = Account::status();
 	Account::setStatus(p->conn->setStatus(status));
-	emit statusChanged(Account::status(), oldStatus);
 }
 
 void MrimAccount::setAccountStatus(const Status &status)
 {
-	Status oldStatus = Account::status();
 	Account::setStatus(status);
-	emit statusChanged(status, oldStatus);
 }
 
 void MrimAccount::setUserInfo(const QMap<QString, QString> &info)

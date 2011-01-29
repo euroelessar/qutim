@@ -189,9 +189,7 @@ const AbstractConnection *IcqAccount::connection() const
 void IcqAccount::finishLogin()
 {
 	Q_D(IcqAccount);
-	Status current = status();
 	d->conn->sendStatus(d->lastStatus);
-	emit statusChanged(d->lastStatus, current);
 	Account::setStatus(d->lastStatus);
 	emit loginFinished();
 }

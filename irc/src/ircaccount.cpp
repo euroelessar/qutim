@@ -98,7 +98,6 @@ void IrcAccount::setStatus(Status status)
 	}
 	status.initIcon("irc");
 	Account::setStatus(status);
-	emit statusChanged(status, current);
 }
 
 QString IrcAccount::name() const

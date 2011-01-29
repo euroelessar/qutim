@@ -493,17 +493,14 @@ void QuetzalAccount::setStatusChanged(PurpleStatus *status)
 {
 	if (!m_account->gc || m_account->gc->state != PURPLE_CONNECTED)
 		return;
-	Status current = this->status();
 	Status stat = quetzal_get_status(status, protocol()->id());
 	Account::setStatus(stat);
-	statusChanged(stat, current);
 }
 
 void QuetzalAccount::handleSigningOn()
 {
 	Status oldStatus = status();
 	Account::setStatus(Status(Status::Connecting));
-	emit statusChanged(status(), oldStatus);
 }
 
 void QuetzalAccount::handleSignedOn()
@@ -517,7 +514,6 @@ void QuetzalAccount::handleSignedOff()
 {
 	Status oldStatus = status();
 	Account::setStatus(Status(Status::Offline));
-	emit statusChanged(status(), oldStatus);
 	resetGroupChatManager(0);
 	foreach (QuetzalContact *contact, m_contacts) {
 		if (contact->purple())

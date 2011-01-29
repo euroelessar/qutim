@@ -55,7 +55,7 @@ public:
 	ChatUnit *getUnit(const QString &unitId, bool create = false);
 	QString name() const;
 	void setNick(const QString &nick);
-	const QString &password(bool *ok = 0);
+	QString password(bool *ok = 0);
 	jreen::Client *client() const;
 	JSoftwareDetection *softwareDetection() const;
 	JMessageSessionManager *messageSessionManager() const;
@@ -86,7 +86,7 @@ private:
 	QScopedPointer<JAccountPrivate> d_ptr;
 
 	Q_PRIVATE_SLOT(d_func(),void _q_connected());
-	Q_PRIVATE_SLOT(d_func(),void _q_disconnected());
+	Q_PRIVATE_SLOT(d_func(),void _q_disconnected(jreen::Client::DisconnectReason));
 	Q_PRIVATE_SLOT(d_func(),void _q_init_extensions(const QSet<QString> &features));
 	Q_PRIVATE_SLOT(d_func(),void _q_on_module_loaded(int i));
 };

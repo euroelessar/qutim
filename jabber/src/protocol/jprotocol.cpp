@@ -98,7 +98,7 @@ void JProtocol::loadActions()
 	generator  = new ActionGenerator(QIcon(),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
 	                                 this, SLOT(onJoinLeave(QObject*)));
 	generator->addHandler(ActionVisibilityChangedHandler,this);
-	generator->setType(0);
+	generator->setType(ActionTypeChatButton);
 	generator->setPriority(3);
 	generator->addProperty("actionType",JoinLeaveAction);
 	MenuController::addAction<JMUCSession>(generator);
@@ -106,7 +106,7 @@ void JProtocol::loadActions()
 	generator = new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
 									this, SLOT(onShowConfigDialog(QObject*)));
 	generator->addHandler(ActionVisibilityChangedHandler,this);
-	generator->setType(1);
+	generator->setType(ActionTypeChatButton);
 	generator->addProperty("actionType",RoomConfigAction);
 	MenuController::addAction<JMUCSession>(generator);
 

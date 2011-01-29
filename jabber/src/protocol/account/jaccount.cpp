@@ -106,16 +106,34 @@ void JAccountPrivate::_q_on_module_loaded(int i)
 		_q_connected();
 }
 
-void JAccountPrivate::_q_disconnected()
+void JAccountPrivate::_q_disconnected(jreen::Client::DisconnectReason reason)
 {
 	Q_Q(JAccount);
 	Status s = Status::instance(Status::Offline, "jabber");
-	if (q->client()->connection()->socketError() != Connection::UnknownSocketError)
-		s.setProperty("changeReason", Status::ByNetworkError);
-	else if (status.type() == Status::Offline)
+
+	switch(reason) {
+	case Client::User:
 		s.setProperty("changeReason", Status::ByUser);
-	else
+		break;
+	case Client::AuthorizationError: {
+		s.setProperty("changeReason", Status::ByAuthorizationFailed);
+		q->setPasswd(QString());
+		break;
+	}
+	case Client::HostUnknown:
+	case Client::ItemNotFound:
+	case Client::SystemShutdown:
 		s.setProperty("changeReason", Status::ByFatalError);
+		break;
+	case Client::RemoteStreamError:
+	case Client::RemoteConnectionFailed:
+	case Client::InternalServerError:
+	case Client::Conflict:
+	case Client::Unknown:
+		s.setProperty("changeReason", Status::ByNetworkError);
+		break;
+	}
+
 	status = s;
 	q->setAccountStatus(s);
 	q->resetGroupChatManager(0);
@@ -182,8 +200,8 @@ JAccount::JAccount(const QString &id) :
 	
 	d->roster->loadFromStorage();
 	
-	connect(&d->client, SIGNAL(disconnected()),
-			this, SLOT(_q_disconnected()));
+	connect(&d->client, SIGNAL(disconnected(jreen::Client::DisconnectReason)),
+			this, SLOT(_q_disconnected(jreen::Client::DisconnectReason)));
 	connect(&d->client, SIGNAL(serverFeaturesReceived(QSet<QString>)),
 			this ,SLOT(_q_init_extensions(QSet<QString>)));
 	connect(d->conferenceManager.data(), SIGNAL(conferenceCreated(qutim_sdk_0_3::Conference*)),
@@ -296,7 +314,7 @@ void JAccount::setNick(const QString &nick)
 	emit nameChanged(nick, previous);
 }
 
-const QString &JAccount::password(bool *ok)
+QString JAccount::password(bool *ok)
 {
 	Q_D(JAccount);
 	if (ok)
@@ -392,7 +410,6 @@ void JAccount::setStatus(Status status)
 void JAccount::setAccountStatus(Status status)
 {
 	Account::setStatus(status);
-	emit statusChanged(status,this->status());
 }
 
 QString JAccount::getAvatarPath()

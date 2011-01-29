@@ -50,7 +50,7 @@ public:
 	
 	void applyStatus(const Status &status);
 	void setPresence(jreen::Presence);
-	void _q_disconnected();
+	void _q_disconnected(jreen::Client::DisconnectReason);
 	void _q_init_extensions(const QSet<QString> &features);
 	void _q_on_module_loaded(int i);
 	void _q_connected();

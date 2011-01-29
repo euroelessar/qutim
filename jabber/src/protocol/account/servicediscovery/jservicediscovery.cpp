@@ -174,7 +174,7 @@ void JServiceDiscovery::handleDiscoError(const jreen::JID &from,
 		case jreen::Error::ServiceUnavailable:
 			errorText = tr("The server or recipient does not currently provide the requested service.");
 			break;
-		case jreen::Error::SubscribtionRequired:
+		case jreen::Error::SubscriptionRequired:
 			errorText = tr("The requesting entity is not authorized to access the requested service because a subscription is required.");
 			break;
 		case jreen::Error::UndefinedCondition:
