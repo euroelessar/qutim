@@ -2,17 +2,17 @@
 #define ABSTRACTCONTACTLIST_H
 #include <qutim/menucontroller.h>
 #include "simplecontactlist_global.h"
+#include <qutim/contactlist.h>
 
 namespace Core {
 namespace SimpleContactList {
 
 using namespace qutim_sdk_0_3;
 
-class SIMPLECONTACTLIST_EXPORT AbstractContactList : public MenuController
+class SIMPLECONTACTLIST_EXPORT AbstractContactList : public ContactList
 {
     Q_OBJECT
 	Q_PROPERTY(QWidget* widget READ widget)
-	Q_CLASSINFO("Service", "ContactList")
 	Q_CLASSINFO("Uses", "ChatLayer")
 	Q_CLASSINFO("Uses", "IconLoader")
 	Q_CLASSINFO("Uses", "MetaContactManager")

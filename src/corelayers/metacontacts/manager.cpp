@@ -19,6 +19,9 @@
 #include <qutim/debug.h>
 #include <qutim/actiongenerator.h>
 #include <qutim/icon.h>
+#include "mergedialog.h"
+#include <qutim/systemintegration.h>
+#include <qutim/contactlist.h>
 
 namespace Core
 {
@@ -28,13 +31,24 @@ using namespace qutim_sdk_0_3;
 
 Manager::Manager()
 {
-	ActionGenerator *gen = new ActionGenerator(Icon("list-remove-user"),QT_TRANSLATE_NOOP("MetaContact","Split Metacontact"),this,SLOT(onSplitTriggered(QObject*)));
+	ActionGenerator *gen = new ActionGenerator(Icon("list-remove-user"),
+											   QT_TRANSLATE_NOOP("MetaContact","Split Metacontact"),
+											   this,
+											   SLOT(onSplitTriggered(QObject*)));
 	gen->setType(ActionTypeContactList);
 	MenuController::addAction<MetaContactImpl>(gen);
+	gen = new ActionGenerator(Icon("list-add-user"),
+							  QT_TRANSLATE_NOOP("MetaContact","Manage metacontacts"),
+							  this,
+							  SLOT(onCreateTriggered(QObject*)));
+	gen->setType(ActionTypeContactList);
+	MenuController::addAction<MetaContactImpl>(gen);
+	MenuController::addAction<ContactList>(gen);
 }
 
 Manager::~Manager()
 {
+	debug() << Q_FUNC_INFO;
 	Config cfg;
 	cfg.beginGroup("metaContact");
 	cfg.remove("contacts");
@@ -108,10 +122,19 @@ void Manager::onSplitTriggered(QObject *object)
 {
 	//TODO implement logic
 	MetaContactImpl *metaContact = qobject_cast<MetaContactImpl*>(object);
-	foreach (ChatUnit *unit, metaContact->lowerUnits()) {
-		if (Contact *contact = qobject_cast<Contact*>(unit))
-			metaContact->removeContact(contact);
+	foreach (Contact *c, metaContact->contacts()) {
+		metaContact->removeContact(c);
 	}
+}
+
+void Manager::onCreateTriggered(QObject *obj)
+{
+	MergeDialog *dialog = new MergeDialog;
+	if(MetaContactImpl *m = qobject_cast<MetaContactImpl*>(obj))
+		dialog->setMetaContact(m);
+	dialog->setAttribute(Qt::WA_DeleteOnClose);
+	centerizeWidget(dialog);
+	SystemIntegration::show(dialog);
 }
 
 QString Manager::name() const

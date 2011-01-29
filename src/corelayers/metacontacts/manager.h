@@ -37,6 +37,7 @@ protected:
 	virtual void loadContacts();
 private slots:
 	void onSplitTriggered(QObject*);
+	void onCreateTriggered(QObject*);
 private:
 	QHash<QString, MetaContactImpl*> m_contacts;
 };

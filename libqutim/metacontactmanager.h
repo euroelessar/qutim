@@ -21,29 +21,29 @@
 
 namespace qutim_sdk_0_3
 {
-	class ModuleManager;
-	class MetaContact;
-	class MetaContactManagerPrivate;
-	
-	class LIBQUTIM_EXPORT MetaContactManager : public Account
-	{
-		Q_OBJECT
-		Q_DECLARE_PRIVATE(MetaContactManager)
-		Q_CLASSINFO("Service", "MetaContactManager")
-	public:
-		MetaContactManager();
-		~MetaContactManager();
-		
-		// Create MetaContact with unique ID
-		MetaContact *createContact();
-		
-		static MetaContactManager *instance();
-		
-		bool eventFilter(QObject *obj, QEvent *ev);
-	protected:
-		virtual void loadContacts() = 0;
-		friend class ModuleManager;
-	};
+class ModuleManager;
+class MetaContact;
+class MetaContactManagerPrivate;
+
+class LIBQUTIM_EXPORT MetaContactManager : public Account
+{
+	Q_OBJECT
+	Q_DECLARE_PRIVATE(MetaContactManager)
+	Q_CLASSINFO("Service", "MetaContactManager")
+public:
+	MetaContactManager();
+	~MetaContactManager();
+
+	// Create MetaContact with unique ID
+	MetaContact *createContact();
+
+	static MetaContactManager *instance();
+
+	bool eventFilter(QObject *obj, QEvent *ev);
+protected:
+	virtual void loadContacts() = 0;
+	friend class ModuleManager;
+};
 }
 
 #endif // METACONTACTMANAGER_H

@@ -23,41 +23,41 @@
 
 namespace qutim_sdk_0_3
 {
-	class MetaContactManagerPrivate : public AccountPrivate
-	{
-	public:
-		MetaContactManagerPrivate(Account *a) : AccountPrivate(a) {}
-	};
-	
-	MetaContactManager::MetaContactManager() 
-		: Account(*new MetaContactManagerPrivate(this), new MetaProtocol(this))
-	{
-		Q_D(MetaContactManager);
-		d->id = QLatin1String("meta");
-	}
-	
-	MetaContactManager::~MetaContactManager()
-	{
-	}
+class MetaContactManagerPrivate : public AccountPrivate
+{
+public:
+	MetaContactManagerPrivate(Account *a) : AccountPrivate(a) {}
+};
 
-	MetaContact *MetaContactManager::createContact()
-	{
-		QString id = QUuid::createUuid().toString();
-		MetaContact *contact = qobject_cast<MetaContact*>(getUnit(id, true));
-		Q_ASSERT(contact);
-		return contact;
-	}
-	
-	MetaContactManager *MetaContactManager::instance()
-	{
-		static MetaContactManager *self = 0;
-		if (!self && ObjectGenerator::isInited())
-			self = qobject_cast<MetaContactManager*>(ServiceManager::getByName("MetaContactManager"));
-		return self;
-	}
-	
-	bool MetaContactManager::eventFilter(QObject *obj, QEvent *ev)
-	{
-		return Account::eventFilter(obj, ev);
-	}
+MetaContactManager::MetaContactManager()
+	: Account(*new MetaContactManagerPrivate(this), new MetaProtocol(this))
+{
+	Q_D(MetaContactManager);
+	d->id = QLatin1String("meta");
+}
+
+MetaContactManager::~MetaContactManager()
+{
+}
+
+MetaContact *MetaContactManager::createContact()
+{
+	QString id = QUuid::createUuid().toString();
+	MetaContact *contact = qobject_cast<MetaContact*>(getUnit(id, true));
+	Q_ASSERT(contact);
+	return contact;
+}
+
+MetaContactManager *MetaContactManager::instance()
+{
+	static MetaContactManager *self = 0;
+	if (!self && ObjectGenerator::isInited())
+		self = qobject_cast<MetaContactManager*>(ServiceManager::getByName("MetaContactManager"));
+	return self;
+}
+
+bool MetaContactManager::eventFilter(QObject *obj, QEvent *ev)
+{
+	return Account::eventFilter(obj, ev);
+}
 }
