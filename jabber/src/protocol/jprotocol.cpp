@@ -98,12 +98,12 @@ void JProtocol::loadActions()
 	generator  = new ActionGenerator(QIcon(),QT_TRANSLATE_NOOP("Jabber", "Join conference"),
 	                                 this, SLOT(onJoinLeave(QObject*)));
 	generator->addHandler(ActionVisibilityChangedHandler,this);
-	generator->setType(ActionTypeChatButton);
+	generator->setType(ActionTypeAdditional);
 	generator->setPriority(3);
 	generator->addProperty("actionType",JoinLeaveAction);
 	MenuController::addAction<JMUCSession>(generator);
 
-	generator = new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
+	generator = new ActionGenerator(Icon("preferences-other"), QT_TRANSLATE_NOOP("Jabber", "Room's configuration"),
 									this, SLOT(onShowConfigDialog(QObject*)));
 	generator->addHandler(ActionVisibilityChangedHandler,this);
 	generator->setType(ActionTypeChatButton);
@@ -113,7 +113,7 @@ void JProtocol::loadActions()
 	generator = new ActionGenerator(QIcon(), QT_TRANSLATE_NOOP("Jabber", "Save to bookmarks") ,
 									this, SLOT(onSaveRemoveBookmarks(QObject*)));
 	generator->addHandler(ActionVisibilityChangedHandler,this);
-	generator->setType(0);
+	generator->setType(ActionTypeAdditional);
 	generator->setPriority(0);
 	generator->addProperty("actionType",SaveRemoveBookmarkAction);
 	MenuController::addAction<JMUCSession>(generator);
@@ -339,10 +339,14 @@ bool JProtocol::event(QEvent *ev)
 			switch (type) {
 			case JoinLeaveAction: {
 				Conference *room = qobject_cast<JMUCSession*>(event->controller());
-				if (!room->isJoined())
+				if (!room->isJoined()) {
 					action->setText(QT_TRANSLATE_NOOP("Jabber", "Join conference"));
-				else
+					action->setIcon(Icon("im-user"));
+				}
+				else {
 					action->setText(QT_TRANSLATE_NOOP("Jabber", "Leave conference"));
+					action->setIcon(Icon("im-user-offline"));
+				}
 				break;
 			}
 			case RoomConfigAction: {
