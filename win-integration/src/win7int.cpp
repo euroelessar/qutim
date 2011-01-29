@@ -58,10 +58,10 @@ bool Win7Int2::load()
 		previews = new WPreviews;
 	QWidget *cl = ServiceManager::getByName("ContactList")->property("widget").value<QWidget*>();
 	TaskbarPreviews::setWindowAttributes(cl, TA_Peek_ExcludeFrom|TA_Flip3D_ExcludeBelow);
-	SettingsItem* settings = new GeneralSettingsItem<WSettingsWidget>(
+	settingsItem = new GeneralSettingsItem<WSettingsWidget>(
 		Settings::Plugin,	QIcon(),
 		QT_TRANSLATE_NOOP("Plugin", "Windows 7 Integration"));
-	Settings::registerItem(settings);
+	Settings::registerItem(settingsItem);
 	reloadSettings();
 	return true;
 }
@@ -72,6 +72,7 @@ bool Win7Int2::unload()
 	TaskbarPreviews::setWindowAttributes(cl, TA_NoAttributes);
 	if (previews)
 		delete previews;
+	Settings::removeItem(settingsItem);
 	return true;
 }
 

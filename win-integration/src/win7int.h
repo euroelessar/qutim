@@ -12,8 +12,10 @@ class WPreviews;
 class Win7Int2 : public qutim_sdk_0_3::Plugin
 {
 	Q_OBJECT
-	Q_CLASSINFO("Service", "Dock")
-	Q_CLASSINFO("Uses", "ChatLayer")
+	Q_CLASSINFO("DebugName", "Win7Int2")
+	Q_CLASSINFO("Service",   "Dock")
+	Q_CLASSINFO("Uses",      "ChatLayer")
+	Q_CLASSINFO("Uses",      "ContactList")
 
 	QPixmap generateOverlayIcon(quint32 unreadConfs, quint32 unreadChats);
 	QWidget   *chatWindow();
@@ -21,6 +23,7 @@ class Win7Int2 : public qutim_sdk_0_3::Plugin
 	QWidget   *previousWindow;
 	unsigned   previousTabId;
 	static Win7Int2  *pluginInstance;
+	SettingsItem* settingsItem;
 	WPreviews *previews;
 
 	bool cfg_displayCount;
