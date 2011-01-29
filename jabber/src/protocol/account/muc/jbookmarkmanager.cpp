@@ -15,6 +15,7 @@ struct JBookmarkManagerPrivate
 	QList<Bookmark::Conference> bookmarks;
 	QList<Bookmark::Conference> recent;
 	bool isLoaded;
+	bool storeAtServer;
 };
 
 JBookmarkManager::JBookmarkManager(JAccount *account) :
@@ -29,6 +30,10 @@ JBookmarkManager::JBookmarkManager(JAccount *account) :
 	connect(p->storage, SIGNAL(bookmarksReceived(jreen::Bookmark::Ptr)),
 			this, SLOT(onBookmarksReceived(jreen::Bookmark::Ptr)));
 	//		p->storage->registerBookmarkHandler(this);
+	Config config = p->account->config();
+	config.beginGroup(QLatin1String("bookmarks"));
+	p->storeAtServer = config.value(QLatin1String("storeAtServer"), true);
+	config.endGroup();
 	p->bookmarks = readFromCache("bookmarks");
 	p->recent = readFromCache("recent");
 	emit bookmarksChanged();
@@ -41,14 +46,16 @@ JBookmarkManager::~JBookmarkManager()
 
 void JBookmarkManager::onBookmarksReceived(const jreen::Bookmark::Ptr &bookmark)
 {
-	debug() <<  Q_FUNC_INFO << bookmark->conferences().count();
-	QList<Bookmark::Conference> tmpList(p->bookmarks);
-	p->bookmarks = bookmark->conferences();
-	foreach (const Bookmark::Conference &bookmark, tmpList) {
-		Bookmark::Conference current = find(bookmark.name());
-		current.setPassword(bookmark.password());
+	if (bookmark) {
+		debug() <<  Q_FUNC_INFO << bookmark->conferences().count();
+		QList<Bookmark::Conference> tmpList(p->bookmarks);
+		p->bookmarks = bookmark->conferences();
+		foreach (const Bookmark::Conference &bookmark, tmpList) {
+			Bookmark::Conference current = find(bookmark.name());
+			current.setPassword(bookmark.password());
+		}
+		writeToCache("bookmarks", p->bookmarks);
 	}
-	writeToCache("bookmarks", p->bookmarks);
 	//		Config config = p->account->config();
 	//		int num = config.beginArray("urlmarks");
 	//		foreach (const Bookmark::Conference &item, bList) {
@@ -123,7 +130,10 @@ bool JBookmarkManager::removeBookmark(const jreen::Bookmark::Conference &bookmar
 
 void JBookmarkManager::sync()
 {
-	p->storage->requestBookmarks();
+	if (p->storeAtServer)
+		p->storage->requestBookmarks();
+	else
+		onBookmarksReceived(Bookmark::Ptr());
 }
 
 QList<Bookmark::Conference> JBookmarkManager::readFromCache(const QString &type)
@@ -274,7 +284,10 @@ void JBookmarkManager::writeToCache(const QString &type, const QList<Bookmark::C
 		emit bookmarksChanged();
 }
 
-void JBookmarkManager::saveToServer() {
+void JBookmarkManager::saveToServer()
+{
+	if (!p->storeAtServer)
+		return;
 	Bookmark::Ptr bookmark = Bookmark::Ptr::create();
 	bookmark->setConferences(p->bookmarks);
 	p->storage->storeBookmarks(bookmark);

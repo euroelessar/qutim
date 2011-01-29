@@ -40,8 +40,13 @@ QuetzalEventLoop *QuetzalEventLoop::instance()
 
 static QBasicAtomicInt quetzal_eventloop_timer_count = Q_BASIC_ATOMIC_INITIALIZER(0);
 
+static GSourceFunc quetzal_accounts_save_cb = NULL;
+
 uint QuetzalEventLoop::addTimer(guint interval, GSourceFunc function, gpointer data)
 {
+	// This hook is used for plugin to know when accounts's data should be saved
+	if (!quetzal_accounts_save_cb && interval == 5000)
+		quetzal_accounts_save_cb = function;
 	bool isMainThread = QThread::currentThread() == qApp->thread();
 	int id = -1;
 	if (isMainThread) {
@@ -87,6 +92,8 @@ void QuetzalEventLoop::timerEvent(QTimerEvent *event)
 	}
 	TimerInfo info = *it.value();
 	m_timerMutex.unlock();
+	if (info.function == quetzal_accounts_save_cb)
+		purple_blist_schedule_save();
 	gboolean result = (*info.function)(info.data);
 	if (!result) {
 		QMutexLocker locker(&m_timerMutex);
