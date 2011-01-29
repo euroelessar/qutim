@@ -18,6 +18,7 @@
 #include "account_p.h"
 #include "contact.h"
 #include "debug.h"
+#include "notificationslayer.h"
 
 namespace qutim_sdk_0_3
 {
@@ -86,7 +87,26 @@ const Protocol *Account::protocol() const
 
 void Account::setStatus(Status status)
 {
-	d_func()->status = status;
+	Q_D(Account);
+
+	Status::ChangeReason reason = static_cast<Status::ChangeReason>(status.property("changeReason",static_cast<int>(Status::ByUser)));
+
+	switch(reason) {
+	case Status::ByUser:
+	case Status::ByIdle:
+	case Status::ByNetworkError:
+	case Status::ByFatalError:
+		break;
+	case Status::ByAuthorizationFailed:
+		Notifications::send(Notifications::System,
+							this,
+							QT_TRANSLATE_NOOP("Account", "Authorization failed"));
+		break;
+	}
+
+	Status old = d->status;
+	d->status = status;
+	emit statusChanged(status,old);
 }
 
 ChatUnit *Account::getUnitForSession(ChatUnit *unit)

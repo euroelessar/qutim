@@ -106,12 +106,12 @@ Module::Module() : p(new ModulePrivate)
 	// init shortcuts
 	Shortcut::registerSequence("contactListGlobalStatus",
 							   QT_TRANSLATE_NOOP("ContactList", "Change global status"),
-							   "ContactListWidget",
+							   QT_TRANSLATE_NOOP("ChatLayer", "ContactList"),
 							   QKeySequence("Ctrl+S")
 							   );
 	Shortcut::registerSequence("contactListActivateMainMenu",
 							   QT_TRANSLATE_NOOP("ContactList", "Activate main menu"),
-							   "ContactListWidget",
+							   QT_TRANSLATE_NOOP("ChatLayer", "ContactList"),
 							   QKeySequence("Ctrl+M")
 							   );
 

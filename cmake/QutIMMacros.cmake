@@ -16,6 +16,7 @@ if(NOT DEFINED IS_CPACK_INCLUDED)
 	set(IS_CPACK_INCLUDED "true")
 endif()
 
+#TODO separate to external macro
 MACRO (QUTIM_WRAP_CPP outfiles )
 	# get include dirs
 	QT4_GET_MOC_FLAGS(moc_flags)
@@ -37,7 +38,7 @@ MACRO (QUTIM_WRAP_CPP outfiles )
 				FOREACH (_current_MOC_INC ${_match})
 					STRING(REGEX MATCH "[^ <\"]+\\.moc" _current_MOC "${_current_MOC_INC}")
 					SET(_moc    ${CMAKE_CURRENT_BINARY_DIR}/${_current_MOC})
-					QT4_CREATE_MOC_COMMAND(${it} ${_moc} "${_moc_INCS}" "")
+					QT4_CREATE_MOC_COMMAND(${_abs_FILE} ${_moc} "${_moc_INCS}" "")
 					MACRO_ADD_FILE_DEPENDENCIES(${_abs_FILE} ${_moc})
 				ENDFOREACH (_current_MOC_INC)
 			ENDIF()

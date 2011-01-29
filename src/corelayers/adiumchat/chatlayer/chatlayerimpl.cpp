@@ -40,17 +40,17 @@ void init()
 {
 	Shortcut::registerSequence("chatCloseSession",
 							   QT_TRANSLATE_NOOP("ChatLayer", "Close chat"),
-							   "ChatWidget",
+							   QT_TRANSLATE_NOOP("ChatLayer", "ChatWidget"),
 							   QKeySequence(QKeySequence::Close)
 							   );
 	Shortcut::registerSequence("chatNext",
 							   QT_TRANSLATE_NOOP("ChatLayer", "Next chat"),
-							   "ChatWidget",
+							   QT_TRANSLATE_NOOP("ChatLayer", "ChatWidget"),
 							   QKeySequence(QKeySequence::NextChild)
 							   );
 	Shortcut::registerSequence("chatPrevious",
 							   QT_TRANSLATE_NOOP("ChatLayer", "Previous chat"),
-							   "ChatWidget",
+							   QT_TRANSLATE_NOOP("ChatLayer", "ChatWidget"),
 							   QKeySequence(QKeySequence::PreviousChild)
 							   );
 }
