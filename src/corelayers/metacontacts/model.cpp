@@ -48,9 +48,11 @@ void Model::searchContacts(const QString& name)
 
 	foreach(Account *account,Account::all()) {
 		foreach(Contact *contact, account->findChildren<Contact*>()) {
-			if(contact->title().contains(name,Qt::CaseInsensitive)) {
-				addContact(contact,m_searchRoot);
-			}
+			if(!contact->title().contains(name,Qt::CaseInsensitive))
+				continue;
+			if(m_metaContact && m_metaContact->contacts().contains(contact))
+				continue;
+			addContact(contact,m_searchRoot);
 		}
 	}
 

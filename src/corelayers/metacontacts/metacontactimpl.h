@@ -39,15 +39,20 @@ public:
 	virtual void setTags(const QStringList &tags);
 	virtual bool sendMessage(const qutim_sdk_0_3::Message &message);
 	virtual void addContact(Contact *contact);
+	void addContacts(QList<Contact*> contacts);
 	virtual void removeContact(Contact *contact);
 	virtual qutim_sdk_0_3::ChatUnitList lowerUnits();
 	inline const QList<Contact*> &contacts() const { return m_contacts; }
 	virtual const qutim_sdk_0_3::ChatUnit* getHistoryUnit() const;
+	void setContactName(const QString &name);
+	void setContactAvatar(const QString &name);
+	void setContactTags(const QStringList &tags);
 public slots:
 	void setAvatar(const QString &path);
 protected:
 	void resetName();
 	void resetStatus();
+	void addContact(Contact* contact, bool update);
 protected slots:
 	void onContactStatusChanged();
 private:

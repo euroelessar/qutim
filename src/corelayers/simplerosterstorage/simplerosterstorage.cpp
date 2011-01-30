@@ -17,6 +17,7 @@
 #include "simplerosterstorage.h"
 #include <qutim/account.h>
 #include <qutim/contact.h>
+#include <qutim/debug.h>
 
 namespace Core
 {

@@ -21,6 +21,7 @@
 #include <QApplication>
 #include <qutim/protocol.h>
 #include <QLatin1Literal>
+#include <qutim/rosterstorage.h>
 
 using namespace qutim_sdk_0_3;
 
@@ -63,11 +64,8 @@ QString MetaContactImpl::avatar() const
 
 void MetaContactImpl::setName(const QString &name)
 {
-	if (m_name == name)
-		return;
-	QString previous = m_name;
-	m_name = name;
-	emit nameChanged(m_name, previous);
+	setContactName(name);
+	RosterStorage::instance()->updateContact(this);
 }
 
 Status MetaContactImpl::status() const
@@ -77,11 +75,8 @@ Status MetaContactImpl::status() const
 
 void MetaContactImpl::setTags(const QStringList &tags)
 {
-	QStringList previous = m_tags;
-	m_tags = tags;
-	for (int i = 0; i < m_contacts.size(); i++)
-		m_contacts.at(i)->setTags(tags);
-	emit tagsChanged(tags, previous);
+	setContactTags(tags);
+	RosterStorage::instance()->updateContact(this);
 }
 
 bool MetaContactImpl::sendMessage(const Message &message)
@@ -94,23 +89,25 @@ bool MetaContactImpl::sendMessage(const Message &message)
 	return false;
 }
 
-void MetaContactImpl::addContact(Contact *contact)
+void MetaContactImpl::addContact(Contact* contact, bool update)
 {
 	if (m_contacts.contains(contact) || (contact == this))
 		return;
 
-	QStringList previous = m_tags;
-	QStringList contactTags = contact->tags();
 	bool haveChanges = false;
-	for (int i = 0; i < contactTags.size(); i++) {
-		if (!m_tags.contains(contactTags.at(i))) {
-			m_tags << contactTags.at(i);
-			haveChanges = true;
+	if(update) {
+		QStringList previous = m_tags;
+		QStringList contactTags = contact->tags();
+		for (int i = 0; i < contactTags.size(); i++) {
+			if (!m_tags.contains(contactTags.at(i))) {
+				m_tags << contactTags.at(i);
+				haveChanges = true;
+			}
 		}
+		emit tagsChanged(m_tags, previous);
 	}
-	emit tagsChanged(m_tags, previous);
 
-	haveChanges = false;
+	haveChanges = false; //WTF?
 	int index = qUpperBound(m_contacts.begin(), m_contacts.end(), contact, contactLessThan)
 			- m_contacts.begin();
 	m_contacts.insert(index, contact);
@@ -126,6 +123,14 @@ void MetaContactImpl::addContact(Contact *contact)
 		resetName();
 
 	//setMenuOwner(contact); TODO, implement logic!
+		
+	if(update)
+		RosterStorage::instance()->updateContact(this);
+}
+
+void MetaContactImpl::addContact(Contact *contact)
+{
+	addContact(contact,true);
 }
 
 void MetaContactImpl::removeContact(Contact *contact)
@@ -137,8 +142,10 @@ void MetaContactImpl::removeContact(Contact *contact)
 	MetaContact::removeContact(contact);
 	if (m_contacts.count()) {
 		resetStatus();
-	} else
+	} else {
+		RosterStorage::instance()->removeContact(this);
 		deleteLater();
+	}
 }
 
 void MetaContactImpl::resetName()
@@ -204,8 +211,8 @@ void MetaContactImpl::onContactStatusChanged()
 
 void MetaContactImpl::setAvatar(const QString& path)
 {
-	m_lastAvatar = path;
-	emit avatarChanged(m_lastAvatar);
+	setContactAvatar(path);
+	RosterStorage::instance()->updateContact(this);
 }
 
 qutim_sdk_0_3::ChatUnitList MetaContactImpl::lowerUnits()
@@ -244,6 +251,36 @@ bool MetaContactImpl::event(QEvent* ev)
 		qApp->sendEvent(m_contacts.first(),event);
 	}
 	return qutim_sdk_0_3::MetaContact::event(ev);
+}
+
+void MetaContactImpl::addContacts(QList<Contact*> contacts)
+{
+	foreach(Contact *contact, contacts)
+		addContact(contact,false);
+}
+
+void MetaContactImpl::setContactAvatar(const QString& path)
+{
+	m_lastAvatar = path;
+	emit avatarChanged(m_lastAvatar);
+}
+
+void MetaContactImpl::setContactName(const QString& name)
+{
+	if (m_name == name)
+		return;
+	QString previous = m_name;
+	m_name = name;
+	emit nameChanged(m_name, previous);
+}
+
+void MetaContactImpl::setContactTags(const QStringList& tags)
+{
+	if(m_tags == tags)
+		return;
+	QStringList previous = m_tags;
+	m_tags = tags;
+	emit tagsChanged(m_tags,previous);
 }
 
 

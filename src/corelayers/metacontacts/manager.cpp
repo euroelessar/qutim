@@ -22,6 +22,7 @@
 #include "mergedialog.h"
 #include <qutim/systemintegration.h>
 #include <qutim/contactlist.h>
+#include "factory.h"
 
 namespace Core
 {
@@ -29,7 +30,10 @@ namespace MetaContacts
 {
 using namespace qutim_sdk_0_3;
 
-Manager::Manager()
+Manager::Manager() : 
+	m_storage(RosterStorage::instance()),
+	m_factory(new Factory(this)),
+	m_blockUpdate(false)
 {
 	ActionGenerator *gen = new ActionGenerator(Icon("list-remove-user"),
 											   QT_TRANSLATE_NOOP("MetaContact","Split Metacontact"),
@@ -44,32 +48,14 @@ Manager::Manager()
 	gen->setType(ActionTypeContactList);
 	MenuController::addAction<MetaContactImpl>(gen);
 	MenuController::addAction<ContactList>(gen);
+
+	connect(this, SIGNAL(contactCreated(qutim_sdk_0_3::Contact*)), SLOT(onContactCreated(qutim_sdk_0_3::Contact*)));
+
+	setContactsFactory(m_factory.data());
 }
 
 Manager::~Manager()
 {
-	debug() << Q_FUNC_INFO;
-	Config cfg;
-	cfg.beginGroup("metaContact");
-	cfg.remove("contacts");
-	cfg.beginArray("contacts");
-	QList<MetaContactImpl*> contacts = m_contacts.values();
-	for (int i = 0; i < contacts.size(); i++) {
-		cfg.setArrayIndex(i);
-		MetaContactImpl *metaContact = contacts.at(i);
-		cfg.setValue("id", metaContact->id());
-		cfg.setValue("name", metaContact->name());
-		cfg.setValue("avatar", metaContact->avatar());
-		cfg.beginArray("subItems");
-		for (int j = 0; j < metaContact->contacts().size(); j++) {
-			cfg.setArrayIndex(j);
-			Contact *contact = metaContact->contacts().at(j);
-			cfg.setValue("id", contact->id());
-			cfg.setValue("account", contact->account()->id());
-			cfg.setValue("protocol", contact->account()->protocol()->id());
-		}
-		cfg.endArray();
-	}
 }
 
 ChatUnit *Manager::getUnit(const QString &unitId, bool create)
@@ -85,40 +71,9 @@ ChatUnit *Manager::getUnit(const QString &unitId, bool create)
 
 void Manager::loadContacts()
 {
-	Config cfg;
-	cfg.beginGroup("metaContact");
-	int size = cfg.beginArray("contacts");
-	for (int i = 0; i < size; i++) {
-		cfg.setArrayIndex(i);
-		QString id = cfg.value("id", QString());
-		QString name = cfg.value("name", QString());
-		QString lastAvatar = cfg.value("avatar",QString());
-		MetaContactImpl *metaContact = 0;
-		int subItemCount = cfg.beginArray("subItems");
-		for (int j = 0; j < subItemCount; j++) {
-			cfg.setArrayIndex(j);
-			Protocol *proto = Protocol::all().value(cfg.value("protocol", QString()));
-			if (!proto)
-				continue;
-			Account *account = proto->account(cfg.value("account", QString()));
-			if (!account)
-				continue;
-			ChatUnit *unit = account->getUnit(cfg.value("id", QString()));
-			if (Contact *contact = qobject_cast<Contact*>(unit)) {
-				if (!metaContact) {
-					metaContact = new MetaContactImpl(id);
-					metaContact->setName(name);
-					metaContact->setAvatar(lastAvatar);
-				}
-				metaContact->addContact(contact);
-			}
-		}
-		if (metaContact) {
-			m_contacts.insert(id, metaContact);
-			emit contactCreated(metaContact);
-		}
-		cfg.endArray();
-	}
+	m_blockUpdate = true;
+	m_storage->load(this);
+	m_blockUpdate = false;
 }
 
 void Manager::onSplitTriggered(QObject *object)
@@ -146,6 +101,12 @@ QString Manager::name() const
 	return (QT_TRANSLATE_NOOP("Metacontact","You")).toString();
 }
 
+void Manager::onContactCreated(qutim_sdk_0_3::Contact *contact)
+{
+	if(!m_blockUpdate) {
+		m_storage->addContact(contact);
+	}
 }
 
+}
 }
