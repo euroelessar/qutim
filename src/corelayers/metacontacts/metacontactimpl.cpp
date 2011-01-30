@@ -137,7 +137,8 @@ void MetaContactImpl::removeContact(Contact *contact)
 	MetaContact::removeContact(contact);
 	if (m_contacts.count()) {
 		resetStatus();
-	}
+	} else
+		deleteLater();
 }
 
 void MetaContactImpl::resetName()
