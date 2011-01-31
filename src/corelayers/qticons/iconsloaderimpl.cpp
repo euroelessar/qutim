@@ -42,7 +42,6 @@ IconLoaderImpl::IconLoaderImpl()
 
 QIcon IconLoaderImpl::loadIcon(const QString &name)
 {
-	return QIcon();
 	return iconTheme() ? iconTheme()->getIcon(name) : QIcon();
 }
 
@@ -54,7 +53,6 @@ QMovie *IconLoaderImpl::loadMovie(const QString &name)
 
 QString IconLoaderImpl::iconPath(const QString &name, uint iconSize)
 {
-	return QString();
 	return iconTheme() ? iconTheme()->getIconPath(name, iconSize) : QString();
 }
 
